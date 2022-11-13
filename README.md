@@ -1,10 +1,10 @@
 # petaform
 
-A specification language for game component behaviors in the board game Terraforming Mars, allowing components with heterogeneous behaviors (cards, milestones, maps, etc.) to be expressed as pure data.
+## The Petaform language
 
-Yes, the name just comes from 10^3 x "teraform". Dumb but it stuck.
+Petaform is a specification language for game component behaviors in the board game Terraforming Mars, allowing components with heterogeneous behaviors (cards, milestones, maps, etc.) to be expressed as pure data.
 
-## The goal
+### The goal
 
 Petaform text can serve as a single source of truth for each component, with sufficient data to (in theory) do any of these things and more:
 
@@ -14,13 +14,13 @@ Petaform text can serve as a single source of truth for each component, with suf
 * Test another game engine implementation against
 * Be understood by an AI player
 
-## Expressions supported
+### Expressions supported
 
-* Instructions (`"2 Plant"` used as an instruction means to gain two plants)
-* Predicates (`"3 OxygenStep"` used as a predicate determines whether the oxygen is 3% or higher)
-* Triggered effects (`"SpaceTag: 2"` used as an effect means "when you play a space tag, gain 2 MC")
-* Actions (`"Steel -> 5"` used as an effect means "as an action, spend 1 steel to gain 5 MC")
-* Complex component types (`"Tile<MarsArea(neighbors HAS This)>"` means "a tile on an area neighboring the context component")
+* Instructions (`2 Plant` as an instruction means to gain two plants)
+* Predicates (`3 OxygenStep` as a predicate determines whether the oxygen is at least 3%)
+* Triggered effects (`SpaceTag: 2` as an effect means "when you play a space tag, gain 2 MC")
+* Actions (`Steel -> 5` as an effect means "as an action, spend 1 steel to gain 5 MC")
+* Complex component types (`Tile<MarsArea(neighbors HAS This)>` means "a tile on an area neighboring the context component")
 
 ## What this project will include
 
