@@ -1,6 +1,6 @@
-package org.martianzoo.tfm.data
+package dev.martianzoo.tfm.data
 
-import org.martianzoo.tfm.data.CardData.ProjectKind.ACTIVE
+import dev.martianzoo.tfm.data.CardData.ProjectKind.ACTIVE
 
 /**
  * Everything there is to know about a Terraforming Mars card, except for text (including the card
