@@ -1,13 +1,13 @@
 package dev.martianzoo.tfm.data
 
-import dev.martianzoo.tfm.data.CardData.ProjectKind.ACTIVE
+import dev.martianzoo.tfm.data.Card.ProjectKind.ACTIVE
 
 /**
  * Everything there is to know about a Terraforming Mars card, except for text (including the card
  * name). It's theoretically possible to reconstruct acceptable instruction text from this data,
  * just not the original wording.
  */
-data class CardData(
+data class Card(
     /**
      * This card's unique id string: its printed id if it has one; otherwise the one we made up. A
      * number of id ranges, such as `"000"`-`"999"`, are reserved for canon (officially published)
@@ -109,12 +109,12 @@ data class CardData(
   }
 
   /**
-   * The deck this card belongs to; see [CardData.deck].
+   * The deck this card belongs to; see [Card.deck].
    */
   enum class Deck { PROJECT, PRELUDE, CORPORATION }
 
   /**
-   * A kind (color) of project; see [CardData.projectKind].
+   * A kind (color) of project; see [Card.projectKind].
    */
   enum class ProjectKind {
     EVENT, // red

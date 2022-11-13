@@ -4,22 +4,22 @@
 package dev.martianzoo.tfm.data
 
 import com.google.common.truth.Truth.assertThat
-import dev.martianzoo.tfm.data.CardData.Deck.CORPORATION
-import dev.martianzoo.tfm.data.CardData.Deck.PRELUDE
-import dev.martianzoo.tfm.data.CardData.Deck.PROJECT
-import dev.martianzoo.tfm.data.CardData.ProjectKind.ACTIVE
-import dev.martianzoo.tfm.data.CardData.ProjectKind.AUTOMATED
-import dev.martianzoo.tfm.data.CardData.ProjectKind.EVENT
+import dev.martianzoo.tfm.data.Card.Deck.CORPORATION
+import dev.martianzoo.tfm.data.Card.Deck.PRELUDE
+import dev.martianzoo.tfm.data.Card.Deck.PROJECT
+import dev.martianzoo.tfm.data.Card.ProjectKind.ACTIVE
+import dev.martianzoo.tfm.data.Card.ProjectKind.AUTOMATED
+import dev.martianzoo.tfm.data.Card.ProjectKind.EVENT
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 
-class CardDataTest {
+class CardTest {
   /**
    * This is honestly an incredibly stupid test that data classes shouldn't need to have.
    */
   @Test
   fun minimal() {
-    val dumbCard = CardData("xxx", deck = PRELUDE, effects = listOf("This: Plant"))
+    val dumbCard = Card("xxx", deck = PRELUDE, effects = listOf("This: Plant"))
 
     assertThat(dumbCard.id).isEqualTo("xxx")
     assertThat(dumbCard.bundle).isNull()
@@ -36,7 +36,7 @@ class CardDataTest {
   /** This test is also quite pointless, but shows an example usage for readers. */
   @Test
   fun realCard() {
-    val birds = CardData(
+    val birds = Card(
         id = "072",
         bundle = "B",
         deck = PROJECT,
@@ -69,7 +69,7 @@ class CardDataTest {
   }
 
   // Just so we don't have to keep repeating the "x" part
-  private val C: CardData = CardData("x")
+  private val C: Card = Card("x")
 
   /** Let's just show that C works normally at all */
   @Test
@@ -79,7 +79,7 @@ class CardDataTest {
 
   @Test
   fun emptyStrings() {
-    assertThrows<RuntimeException> { CardData("") }
+    assertThrows<RuntimeException> { Card("") }
     assertThrows<RuntimeException> { C.copy(bundle = "") }
     assertThrows<RuntimeException> { C.copy(replacesId = "") }
     assertThrows<RuntimeException> { C.copy(resourceType = "") }
