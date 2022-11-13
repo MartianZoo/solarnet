@@ -141,5 +141,11 @@ class CardTest {
     assertThrows<RuntimeException> {
       C.copy(projectKind = AUTOMATED, effects = listOf("This: Foo", "Bar: Qux"))
     }
+    assertThrows<RuntimeException> {
+      C.copy(projectKind = AUTOMATED, resourceType = "Whatever")
+    }
+    assertThrows<RuntimeException> {
+      C.copy(projectKind = ACTIVE, effects = listOf("This: Foo", "End: Bar"))
+    }
   }
 }

@@ -97,8 +97,12 @@ data class Card(
     when (deck) {
       Deck.PROJECT -> {
         require(cost >= 0)
-        require(projectKind != null)
-        require(projectKind == ACTIVE || effects.all { it.startsWith("This:") })
+        // a project should be ACTIVE iff it has persistent effects
+        when (projectKind) {
+          null -> error("")
+          ACTIVE -> require(isPersistent())
+          else -> require(!isPersistent())
+        }
       }
       else -> {
         require(requirement == null)
@@ -107,6 +111,11 @@ data class Card(
       }
     }
   }
+
+  // Not public because users should just check "corporation or active", basically (though
+  // beginner corporation does violate that)
+  private fun isPersistent() = resourceType != null ||
+      effects.any { !it.startsWith("This:") && !it.startsWith("End:") }
 
   /**
    * The deck this card belongs to; see [Card.deck].
