@@ -33,39 +33,66 @@ class CardTest {
     assertThat(dumbCard.projectKind).isNull()
   }
 
+  val BIRDS = Card(
+      id = "072",
+      bundle = "B",
+      deck = PROJECT,
+      tags = listOf("AnimalTag"),
+      effects = listOf(
+          "This: PROD[-2 Plant<Anyone>]",
+          "-> Animal<This>",
+          "End: VictoryPoint / Animal<This>",
+      ),
+      resourceType = "Animal",
+      requirement = "13 OxygenStep",
+      cost = 10,
+      projectKind = ACTIVE,
+  )
+
   /** This test is also quite pointless, but shows an example usage for readers. */
   @Test
-  fun realCard() {
-    val birds = Card(
-        id = "072",
-        bundle = "B",
-        deck = PROJECT,
-        tags = listOf("AnimalTag"),
-        effects = listOf(
-            "This: PROD[-2 Plant<Anyone>]",
-            "-> Animal<This>",
-            "End: VictoryPoint / Animal<This>",
-        ),
-        resourceType = "Animal",
-        requirement = "13 OxygenStep",
-        cost = 10,
-        projectKind = ACTIVE,
-    )
-
-    assertThat(birds.id).isEqualTo("072")
-    assertThat(birds.bundle).isEqualTo("B")
-    assertThat(birds.deck).isEqualTo(PROJECT)
-    assertThat(birds.tags).containsExactly("AnimalTag")
-    assertThat(birds.effects).containsExactly(
+  fun realCardFromApi() {
+    assertThat(BIRDS.id).isEqualTo("072")
+    assertThat(BIRDS.bundle).isEqualTo("B")
+    assertThat(BIRDS.deck).isEqualTo(PROJECT)
+    assertThat(BIRDS.tags).containsExactly("AnimalTag")
+    assertThat(BIRDS.effects).containsExactly(
         "This: PROD[-2 Plant<Anyone>]",
         "-> Animal<This>",
         "End: VictoryPoint / Animal<This>",
     ).inOrder()
-    assertThat(birds.replacesId).isNull()
-    assertThat(birds.resourceType).isEqualTo("Animal")
-    assertThat(birds.requirement).isEqualTo("13 OxygenStep")
-    assertThat(birds.cost).isEqualTo(10)
-    assertThat(birds.projectKind).isEqualTo(ACTIVE)
+    assertThat(BIRDS.replacesId).isNull()
+    assertThat(BIRDS.resourceType).isEqualTo("Animal")
+    assertThat(BIRDS.requirement).isEqualTo("13 OxygenStep")
+    assertThat(BIRDS.cost).isEqualTo(10)
+    assertThat(BIRDS.projectKind).isEqualTo(ACTIVE)
+  }
+
+  @Test
+  fun realCardFromJson() {
+    val json = """
+      {
+        "cards": [
+          {
+            "id": "072",
+            "bundle": "B",
+            "deck": "PROJECT",
+            "tags": [ "AnimalTag" ],
+            "effects": [
+              "This: PROD[-2 Plant<Anyone>]",
+              "-> Animal<This>",
+              "End: VictoryPoint / Animal<This>"
+            ],
+            "resourceType": "Animal",
+            "requirement": "13 OxygenStep",
+            "cost": 10,
+            "projectKind": "ACTIVE"
+          }
+        ]
+      }
+    """
+
+    assertThat(MoshiReader.readCards(json)).containsExactly("072", BIRDS)
   }
 
   // Just so we don't have to keep repeating the "x" part
