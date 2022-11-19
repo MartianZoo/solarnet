@@ -6,16 +6,16 @@ import dev.martianzoo.tfm.data.Card.ProjectKind.ACTIVE
  * Everything there is to know about a Terraforming Mars card, except for text (including the card
  * name). It's theoretically possible to reconstruct acceptable instruction text from this data,
  * just not the original wording.
+ *
+ * *Validation:*  the properties state numerous "guarantees", but in most cases this class is not
+ * able to internally validate those conditions. Actual parsing of the strings must be handled by a
+ * Petaform parser external to this library.
  */
 data class Card(
     /**
      * This card's unique id string: its printed id if it has one; otherwise the one we made up. A
      * number of id ranges, such as `"000"`-`"999"`, are reserved for canon (officially published)
      * cards.
-     *
-     * **Validation:** the properties state numerous "guarantees", but in most cases this class is
-     * not able to internally validate those conditions. Actual parsing of the strings must be
-     * handled by a Petaform parser external to this library.
      *
      * If a card (like Deimos Down) has multiple variants which are meant to never coexist, each
      * variant still needs its own unique id. The `replacesId` property for the replacement card
