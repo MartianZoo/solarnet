@@ -37,9 +37,9 @@ Solarnet is a *reference engine*. This has very different priorities from produc
 2. To do so in as simple and understandable a manner as possible
 3. To cover as much of the official published content as possible
 
-My hope is that in time Solarnet can eventually become a useful "authority" on correct rules interpretation.
+*In time* (possibly a lot of it), Solarnet might eventually become a useful "authority" on correct rules interpretation.
 
-**But it will almost certainly be slow.** An optimized engine, with identical behavior but good performance, could potentially follow at some point. It will be able to test itself against the reference engine, which is a great thing. If someone wants to make this, please consider naming it Aerobrake.
+**But it will almost certainly be slow.** An optimized engine, with identical behavior but good performance, could potentially follow at some point. It will be able to test itself against the reference engine, which is a great thing. If someone wants to make this, please name it Aerobrake. :-)
 
 ## Building
 
