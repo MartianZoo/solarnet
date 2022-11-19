@@ -98,10 +98,11 @@ class CardTest {
   // Just so we don't have to keep repeating the "x" part
   private val C: Card = Card("x")
 
-  /** Let's just show that C works normally at all */
+  /** Since we only use C expecting an exception, we should make sure it normally works. */
   @Test
   fun justToBeSure() {
-    val card = C.copy()
+    @Suppress("UNUSED_VARIABLE")
+    val card = C.copy(id = "y")
   }
 
   @Test
