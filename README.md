@@ -1,6 +1,6 @@
 # petaform
 
-(If you're here because you want to play the game, you're in the wrong place! [See here](/bafolts/terraforming-mars).)
+(If you're here because you want to play the game, you're in the wrong place! [See this amazing app](http://github.com/bafolts/terraforming-mars).)
 
 ## The Petaform language
 
