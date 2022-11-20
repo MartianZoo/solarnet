@@ -3,10 +3,8 @@ package dev.martianzoo.tfm.petaform.parser
 import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.tfm.petaform.api.Expression
 import dev.martianzoo.tfm.petaform.api.Instruction
-import dev.martianzoo.tfm.petaform.api.Instruction.AndInstruction
-import dev.martianzoo.tfm.petaform.api.Instruction.GainInstruction
-import dev.martianzoo.tfm.petaform.api.Instruction.OrInstruction
-import dev.martianzoo.tfm.petaform.api.Instruction.RemoveInstruction
+import dev.martianzoo.tfm.petaform.api.Instruction.Gain
+import dev.martianzoo.tfm.petaform.api.Instruction.Remove
 import dev.martianzoo.tfm.petaform.parser.PetaformParser.parse
 import org.junit.jupiter.api.Test
 
@@ -20,7 +18,7 @@ class InstructionTest {
         "CityTile<LandArea>",
     )
     for (s in list) {
-      parse<Instruction>(s) as GainInstruction
+      parse<Instruction>(s) as Gain
     }
   }
 
@@ -33,7 +31,7 @@ class InstructionTest {
         "-CityTile <LandArea>",
     )
     for (s in list) {
-      parse<Instruction>(s) as RemoveInstruction
+      parse<Instruction>(s) as Remove
     }
   }
 
@@ -41,9 +39,9 @@ class InstructionTest {
   fun testAndInstruction() {
     val instr = parse<Instruction>("-5 Heat, 4 Plant")
     assertThat(instr).isEqualTo(
-        AndInstruction.from(
-            RemoveInstruction(Expression("Heat"), 5),
-            GainInstruction(Expression("Plant"), 4),
+        Instruction.and(
+            Remove(Expression("Heat"), 5),
+            Gain(Expression("Plant"), 4)
         ),
     )
   }
@@ -52,9 +50,9 @@ class InstructionTest {
   fun testGroupedAndInstruction() {
     val instr = parse<Instruction>("(-5 Heat, 4 Plant)")
     assertThat(instr).isEqualTo(
-        AndInstruction.from(
-            RemoveInstruction(Expression("Heat"), 5),
-            GainInstruction(Expression("Plant"), 4),
+        Instruction.and(
+            Remove(Expression("Heat"), 5),
+            Gain(Expression("Plant"), 4)
         ),
     )
   }
@@ -65,12 +63,12 @@ class InstructionTest {
     val instruction = parse<Instruction>(input)
     assertThat(instruction.petaform).isEqualTo(input)
     assertThat(instruction).isEqualTo(
-        AndInstruction.from(
-            RemoveInstruction(Expression("Heat"), 5),
-            OrInstruction.from(
-                GainInstruction(Expression("Plant"), 4),
-                GainInstruction(Expression("Animal"), 2),
-            ),
+        Instruction.and(
+            Remove(Expression("Heat"), 5),
+            Instruction.or(
+                Gain(Expression("Plant"), 4),
+                Gain(Expression("Animal"), 2)
+            )
         ),
     )
   }
@@ -81,12 +79,12 @@ class InstructionTest {
     val instruction = parse<Instruction>(input)
     assertThat(instruction.petaform).isEqualTo(input)
     assertThat(instruction).isEqualTo(
-        AndInstruction.from(
-            RemoveInstruction(Expression("Heat"), 1),
-            OrInstruction.from(
-                GainInstruction(Expression("Plant"), 4),
-                GainInstruction(Expression("Megacredit"), 2),
-            ),
+        Instruction.and(
+            Remove(Expression("Heat"), 1),
+            Instruction.or(
+                Gain(Expression("Plant"), 4),
+                Gain(Expression("Megacredit"), 2)
+            )
         ),
     )
   }
@@ -97,12 +95,12 @@ class InstructionTest {
     val instruction = parse<Instruction>(input)
     assertThat(instruction.petaform).isEqualTo(input)
     assertThat(instruction).isEqualTo(
-        OrInstruction.from(
-            AndInstruction.from(
-                RemoveInstruction(Expression("Heat"), 5),
-                GainInstruction(Expression("Plant"), 4),
+        Instruction.or(
+            Instruction.and(
+                Remove(Expression("Heat"), 5),
+                Gain(Expression("Plant"), 4)
             ),
-            GainInstruction(Expression("Animal"), 2),
+            Gain(Expression("Animal"), 2)
         ),
     )
   }

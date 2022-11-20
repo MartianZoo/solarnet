@@ -3,32 +3,32 @@ package dev.martianzoo.tfm.petaform.parser
 import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.tfm.petaform.api.Expression
 import dev.martianzoo.tfm.petaform.api.Predicate
-import dev.martianzoo.tfm.petaform.api.Predicate.MaxPredicate
-import dev.martianzoo.tfm.petaform.api.Predicate.MinPredicate
+import dev.martianzoo.tfm.petaform.api.Predicate.Max
+import dev.martianzoo.tfm.petaform.api.Predicate.Min
 import org.junit.jupiter.api.Test
 
 class PredicateTest {
   @Test
   fun simpleSourceToApi() {
     assertThat(PetaformParser.parse<Predicate>("Foo"))
-        .isEqualTo(MinPredicate(Expression("Foo")))
+        .isEqualTo(Min(Expression("Foo")))
     assertThat(PetaformParser.parse<Predicate>("3 Foo"))
-        .isEqualTo(MinPredicate(Expression("Foo"), 3))
+        .isEqualTo(Min(Expression("Foo"), 3))
     assertThat(PetaformParser.parse<Predicate>("3"))
-        .isEqualTo(MinPredicate(Expression("Megacredit"), 3))
+        .isEqualTo(Min(Expression("Megacredit"), 3))
     assertThat(PetaformParser.parse<Predicate>("MAX 3 Foo"))
-        .isEqualTo(MaxPredicate(Expression("Foo"), 3))
+        .isEqualTo(Max(Expression("Foo"), 3))
   }
 
   @Test
   fun simpleApiToSource() {
-    assertThat(MinPredicate(Expression("Foo")).petaform).isEqualTo("Foo")
-    assertThat(MinPredicate(Expression("Foo"), 1).petaform).isEqualTo("Foo")
-    assertThat(MinPredicate(Expression("Foo"), 3).petaform).isEqualTo("3 Foo")
-    assertThat(MinPredicate(Expression("Megacredit"), 3).petaform).isEqualTo("3")
-    assertThat(MaxPredicate(Expression("Foo"), 1).petaform).isEqualTo("MAX 1 Foo")
-    assertThat(MaxPredicate(Expression("Foo"), 3).petaform).isEqualTo("MAX 3 Foo")
-    assertThat(MaxPredicate(Expression("Megacredit"), 3).petaform).isEqualTo("MAX 3")
+    assertThat(Min(Expression("Foo")).petaform).isEqualTo("Foo")
+    assertThat(Min(Expression("Foo"), 1).petaform).isEqualTo("Foo")
+    assertThat(Min(Expression("Foo"), 3).petaform).isEqualTo("3 Foo")
+    assertThat(Min(Expression("Megacredit"), 3).petaform).isEqualTo("3")
+    assertThat(Max(Expression("Foo"), 1).petaform).isEqualTo("MAX 1 Foo")
+    assertThat(Max(Expression("Foo"), 3).petaform).isEqualTo("MAX 3 Foo")
+    assertThat(Max(Expression("Megacredit"), 3).petaform).isEqualTo("MAX 3")
   }
 
   @Test

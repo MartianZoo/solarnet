@@ -13,11 +13,9 @@ import com.github.h0tk3y.betterParse.parser.parseToEnd
 import dev.martianzoo.tfm.petaform.api.ByName
 import dev.martianzoo.tfm.petaform.api.Expression
 import dev.martianzoo.tfm.petaform.api.Instruction
-import dev.martianzoo.tfm.petaform.api.Instruction.AndInstruction
-import dev.martianzoo.tfm.petaform.api.Instruction.GainInstruction
-import dev.martianzoo.tfm.petaform.api.Instruction.OrInstruction
-import dev.martianzoo.tfm.petaform.api.Instruction.ProdInstruction
-import dev.martianzoo.tfm.petaform.api.Instruction.RemoveInstruction
+import dev.martianzoo.tfm.petaform.api.Instruction.Gain
+import dev.martianzoo.tfm.petaform.api.Instruction.Prod
+import dev.martianzoo.tfm.petaform.api.Instruction.Remove
 import dev.martianzoo.tfm.petaform.api.PetaformObject
 import dev.martianzoo.tfm.petaform.api.Predicate
 import dev.martianzoo.tfm.petaform.api.QuantifiedExpression
@@ -100,8 +98,8 @@ object PetaformParser {
         parser { getParser<Predicate>() } and
         skip(rightParen)
 
-    val minPredicate = quantifiedExpression map Predicate::MinPredicate
-    val maxPredicate = skip(max) and qeWithScalarRequired map Predicate::MaxPredicate
+    val minPredicate = quantifiedExpression map Predicate::Min
+    val maxPredicate = skip(max) and qeWithScalarRequired map Predicate::Max
 
     val atomPredicate = groupedPredicate or minPredicate or maxPredicate
     val singlePredicate = separatedTerms(atomPredicate, or) map Predicate::or
@@ -112,16 +110,16 @@ object PetaformParser {
 
     val groupedInstruction =
         skip(leftParen) and parser { getParser<Instruction>() } and skip(rightParen)
-    val gainInstruction = quantifiedExpression map ::GainInstruction
-    val removeInstruction = skip(minus) and quantifiedExpression map ::RemoveInstruction
+    val gainInstruction = quantifiedExpression map ::Gain
+    val removeInstruction = skip(minus) and quantifiedExpression map ::Remove
 
     val prodInstruction =
         skip(prodStart) and
         parser { getParser<Instruction>() } and
-        skip(prodEnd) map ::ProdInstruction
+        skip(prodEnd) map ::Prod
 
     val atomInstruction = groupedInstruction or gainInstruction or removeInstruction or prodInstruction
-    val singleInstruction = separatedTerms(atomInstruction, or) map OrInstruction::from
-    val instruction = (separatedTerms(singleInstruction, comma) map AndInstruction::from).register()
+    val singleInstruction = separatedTerms(atomInstruction, or) map Instruction::or
+    val instruction = (separatedTerms(singleInstruction, comma) map Instruction::and).register()
   }
 }
