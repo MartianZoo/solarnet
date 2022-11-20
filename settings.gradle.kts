@@ -9,5 +9,5 @@
 
 rootProject.name = "petaform"
 include("libdata")
-include("libparser")
+include("libpets")
 
