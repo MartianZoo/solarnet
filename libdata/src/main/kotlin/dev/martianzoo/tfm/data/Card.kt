@@ -4,7 +4,7 @@ import com.squareup.moshi.Json
 import dev.martianzoo.tfm.data.Card.ProjectKind.ACTIVE
 import dev.martianzoo.tfm.petaform.api.Expression
 import dev.martianzoo.tfm.petaform.api.Predicate
-import dev.martianzoo.tfm.petaform.parser.BetterParser
+import dev.martianzoo.tfm.petaform.parser.PetaformParser
 
 /**
  * Everything there is to know about a Terraforming Mars card, except for text (including the card
@@ -124,7 +124,7 @@ data class Card(
   val tags: List<Expression> by lazy { tagsPetaform.map { Expression(it) } }
   val resourceType: Expression? by lazy { resourceTypePetaform?.let { Expression(it) } }
   val requirement: Predicate? by lazy {
-    requirementPetaform?.let { BetterParser.parsePredicate(it) }
+    requirementPetaform?.let(PetaformParser::parse)
   }
   // val effects: List<Effect> by lazy { effectsAsText.map { BetterParser().parseEffect(it) } }
 

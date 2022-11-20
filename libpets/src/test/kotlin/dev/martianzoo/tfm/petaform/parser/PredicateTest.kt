@@ -2,6 +2,7 @@ package dev.martianzoo.tfm.petaform.parser
 
 import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.tfm.petaform.api.Expression
+import dev.martianzoo.tfm.petaform.api.Predicate
 import dev.martianzoo.tfm.petaform.api.Predicate.MaxPredicate
 import dev.martianzoo.tfm.petaform.api.Predicate.MinPredicate
 import org.junit.jupiter.api.Test
@@ -9,13 +10,13 @@ import org.junit.jupiter.api.Test
 class PredicateTest {
   @Test
   fun simpleSourceToApi() {
-    assertThat(BetterParser.parsePredicate("Foo"))
+    assertThat(PetaformParser.parse<Predicate>("Foo"))
         .isEqualTo(MinPredicate(Expression("Foo")))
-    assertThat(BetterParser.parsePredicate("3 Foo"))
+    assertThat(PetaformParser.parse<Predicate>("3 Foo"))
         .isEqualTo(MinPredicate(Expression("Foo"), 3))
-    assertThat(BetterParser.parsePredicate("3"))
+    assertThat(PetaformParser.parse<Predicate>("3"))
         .isEqualTo(MinPredicate(Expression("Megacredit"), 3))
-    assertThat(BetterParser.parsePredicate("MAX 3 Foo"))
+    assertThat(PetaformParser.parse<Predicate>("MAX 3 Foo"))
         .isEqualTo(MaxPredicate(Expression("Foo"), 3))
   }
 
@@ -42,6 +43,7 @@ class PredicateTest {
   }
 
   private fun testRoundTrip(start: String, end: String = start) {
-    assertThat(BetterParser.parsePredicate(start).petaform).isEqualTo(end)
+    val parse: Predicate = PetaformParser.parse(start)
+    assertThat(parse.petaform).isEqualTo(end)
   }
 }
