@@ -15,6 +15,14 @@ internal object MoshiReader {
 
   internal fun readCards(json5: String) = MOSHI_CARD.fromJson(stripComments(json5))!!.toMap()
 
+  internal data class ComponentList(val components: List<Component>) {
+    fun toMap() = components.associateBy { it.name }.also { require(it.size == components.size) }
+  }
+
+  private val MOSHI_COMPONENT = MOSHI.adapter(ComponentList::class.java).nullSafe().lenient()
+
+  internal fun readComponents(json5: String) = MOSHI_COMPONENT.fromJson(stripComments(json5))!!.toMap()
+
   private fun stripComments(s: String) = COMMENT_REGEX.replace(s, "")
   private val COMMENT_REGEX = Regex("//.*$", MULTILINE)
 }

@@ -1,0 +1,196 @@
+{
+  "components": [
+    // Signifies that multiple *identical* can exist (be tracked by count)
+    {
+      "name": "Plural",
+      "system": true,
+      "abstract": true
+    },
+    // Can own things
+    {
+      "name": "Anyone",
+      "abstract": true
+    },
+    {
+      "name": "Player",
+      "supertypes": [ "Anyone" ],
+      "abstract": true
+    },
+    {
+      "name": "SoloPlayer",
+      "supertypes": [ "Player" ]
+    },
+    {
+      "name": "Owned",
+      "dependencies": [ "Anyone" ],
+      "abstract": true
+    },
+    {
+      "name": "Generation",
+      "supertypes": [ "Plural" ]
+    },
+    {
+      "name": "VictoryPoint",
+      "supertypes": [ "Owned<Player>", "Plural" ]
+    },
+    {
+      "name": "TerraformRating",
+      "supertypes": [ "Owned<Player>", "Plural" ],
+      "effects": [
+        "ProductionPhase: 1",
+        "End: VictoryPoint"
+      ]
+    },
+
+    {
+      "name": "Resource",
+      "supertypes": [ "Owned", "Plural" ],
+      "abstract": true
+    },
+    {
+      "name": "StandardResource",
+      "supertypes": [ "Resource" ],
+      "abstract": true
+    },
+    {"name": "Megacredit", "supertypes": ["StandardResource"]},
+    {"name": "Steel",      "supertypes": ["StandardResource"]},
+    {"name": "Titanium",   "supertypes": ["StandardResource"]},
+    {"name": "Plant",      "supertypes": ["StandardResource"]},
+    {"name": "Energy",     "supertypes": ["StandardResource"]}, // TODO: the whole becoming Heat thing
+    {"name": "Heat",       "supertypes": ["StandardResource"]},
+    {
+      "name": "Production",
+      "supertypes": [ "Owned<Anyone>, Plural" ],
+      "dependencies": [ "Ctype<StandardResource>" ],
+      "effects": [
+        "ProductionPhase: StandardResource"
+      ]
+    },
+
+    {"name": "Area", "abstract": true},
+    {"name": "RemoteArea",   "supertypes": ["Area"],     "abstract": true},
+    {"name": "MarsArea",     "supertypes": ["Area"],     "abstract": true},
+    {"name": "WaterArea",    "supertypes": ["MarsArea"], "abstract": true},
+    {"name": "LandArea",     "supertypes": ["MarsArea"], "abstract": true},
+    {"name": "VolcanicArea", "supertypes": ["LandArea"], "abstract": true},
+    {"name": "NoctisArea",   "supertypes": ["MarsArea"], "abstract": true},
+
+    {
+      "name": "Tile",
+      "dependencies": [ "Area" ],
+      "abstract": true
+    },
+    {
+      "name": "OwnedTile",
+      "supertypes": [ "Owned", "Tile" ],
+      "abstract": true
+    },
+    {
+      "name": "GreeneryTile",
+      "supertypes": [ "OwnedTile<MarsArea>" ],
+      "effects": [
+        "End: VictoryPoint"
+      ]
+    },
+    {
+      "name": "CityTile",
+      "supertypes": [ "OwnedTile" ]
+    },
+    {
+      "name": "SpecialTile",
+      "supertypes": [ "OwnedTile<Player, MarsArea>" ],
+      "abstract": true
+    },
+
+    // How to deal with splitting 3 into 1, 1, 1?
+    {
+      "name": "GlobalParameter",
+      "supertypes": [ "Plural" ],
+      "abstract": true,
+      "effects": [
+        "This: TerraformRating"
+      ]
+    },
+    {
+      "name": "TemperatureStep",
+      "supertypes": [ "GlobalParameter" ],
+      "effects": [
+        // "This IF =3 This: PROD[Heat]",
+        // "This IF =5 This: PROD[Heat]",
+        // "This IF =15 This: OceanTile",
+      ]
+    },
+    {
+      "name": "OxygenStep",
+      "supertypes": [ "GlobalParameter" ],
+      "effects": [
+        // "This IF =8 This: TemperatureStep",
+        // "This IF 14 This:: OxygenComplete",
+      ]
+    },
+    {
+      "name": "VenusStep",
+      "supertypes": [ "GlobalParameter" ],
+      "effects": [
+        // "This IF =4 This: Card",
+        // "This IF =8 This: TerraformRating",
+      ]
+    },
+    {
+      "name": "OceanTile",
+      "supertypes": [ "Tile<MarsArea>", "GlobalParameter" ],
+      "effects": [
+        // "Tile<MarsArea(neighbors HAS This)>: 2"
+      ]
+    },
+
+    {
+      "name": "CardBack",
+      "supertypes": [ "Owned<Player>", "Plural" ],
+      "abstract": true
+    },
+    {"name": "ProjectCard", "supertypes": ["CardBack"]},
+    {"name": "PreludeCard", "supertypes": ["CardBack"]},
+    {"name": "CorporationCard", "supertypes": ["CardBack"]},
+
+    {
+      "name": "Cardbound",
+      "supertypes": [ "Owned<Player>" ],
+      "dependencies": [ "CardFront<Player>" ],
+      "abstract": true
+    },
+
+    {"name": "Tag", "supertypes": [ "Cardbound" ], "abstract": true},
+    {"name": "BuildingTag",  "supertypes": ["Tag"]},
+    {"name": "SpaceTag",     "supertypes": ["Tag"]},
+    {"name": "CityTag",      "supertypes": ["Tag"]},
+    {"name": "PowerTag",     "supertypes": ["Tag"]},
+    {"name": "ScienceTag",   "supertypes": ["Tag"]},
+
+    {"name": "BioTag",       "supertypes": ["Tag"], "abstract": true},
+    {"name": "PlantTag",     "supertypes": ["BioTag"]},
+    {"name": "MicrobeTag",   "supertypes": ["BioTag"]},
+    {"name": "AnimalTag",    "supertypes": ["BioTag"]},
+
+    {"name": "PlanetaryTag", "supertypes": ["Tag"], "abstract": true},
+    {"name": "EarthTag",     "supertypes": ["PlanetaryTag"]},
+    {"name": "JovianTag",    "supertypes": ["PlanetaryTag"]},
+    {"name": "VenusTag",     "supertypes": ["PlanetaryTag"]},
+
+    {
+      "name": "CardResource",
+      "abstract": true,
+      "supertypes": [ "Resource", "Cardbound<ActiveCard<Player>>" ]
+    },
+    {"name": "Animal",   "supertypes": ["CardResource"]},
+    {"name": "Asteroid", "supertypes": ["CardResource"]},
+    {"name": "Floater",  "supertypes": ["CardResource"]},
+    {"name": "Microbe",  "supertypes": ["CardResource"]},
+    {"name": "Science",  "supertypes": ["CardResource"]},
+
+    {
+      "name": "ActionCardUsage",
+      "supertypes": [ "Cardbound<ActiveCard>" ]
+    }
+  ]
+}
