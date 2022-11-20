@@ -22,7 +22,8 @@ Petaform text can serve as the authoritative definition of a component's behavio
 
 * Instructions (`2 Plant` means "gain two plants")
 * Predicates (`MAX 4 OxygenStep` means "is oxygen is at most 4%?")
-* Effects (`SpaceTag: 2` means "when you play a space tag, gain 2 MC")
+* Metrics (`SpaceTag<Anyone> - SpaceTag<Me>` means "count up all opponents' space tags")
+* Effects (`EventCard: 3` means "when you play an event card, gain 3 MC")
 * Actions (`Steel -> 5` means "as an action, spend 1 steel to gain 5 MC")
 * Complex component types (`Tile<MarsArea(neighbors HAS This)>` means "a tile on an area neighboring this one")
 
