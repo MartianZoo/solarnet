@@ -75,7 +75,7 @@
     {"name": "Heat",       "supertypes": ["StandardResource"]},
     {
       "name": "Production",
-      "supertypes": [ "Owned<Anyone>, Plural" ],
+      "supertypes": [ "Owned<Anyone>", "Plural" ],
       "dependencies": [ "Ctype<StandardResource>" ], // 2: production to resource type
       "effects": [
         "ProductionPhase: StandardResource"

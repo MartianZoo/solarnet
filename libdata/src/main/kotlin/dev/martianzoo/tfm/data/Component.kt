@@ -1,5 +1,9 @@
 package dev.martianzoo.tfm.data
 
+import com.squareup.moshi.Json
+import dev.martianzoo.tfm.petaform.api.Expression
+import dev.martianzoo.tfm.petaform.parser.PetaformParser
+
 /**
  * The declaration of a component class, such as GreeneryTile. Models the declaration textually as
  * it was provided.
@@ -18,7 +22,8 @@ data class Component(
      * Zero or more direct supertypes, including refinements, as Petaform Expressions. Don't
      * include `Component` or any types that are already indirect supertypes (unless refining them).
      */
-    val supertypes: Set<String> = setOf(),
+    @Json(name = "supertypes")
+    val supertypesPetaform: Set<String> = setOf(),
 
     /**
      * Zero or more direct dependencies; a dependency is a Petaform Expression with the requirement
@@ -26,7 +31,8 @@ data class Component(
      * type. This relationship may be many-to-one. Supertype dependencies are inherited so should
      * never be restated here.
      */
-    val dependencies: List<String> = listOf(),
+    @Json(name = "dependencies")
+    val dependenciesPetaform: List<String> = listOf(),
 
     /**
      * Zero or more unordered effects that belong to each *instance* of this component class, expressed in
@@ -35,13 +41,18 @@ data class Component(
      * of this effect will have that type refined in the same way. These petaform expressions
      * can (and should) make use of `This` and `Me` and can rely on type defaults.
      */
-    val effects: Set<String> = setOf(),
+    @Json(name = "effects")
+    val effectsPetaform: Set<String> = setOf(),
 ) {
 
   init {
     require(name !in RESERVED_NAMES)
     require(name.matches(NAME_PATTERN))
   }
+
+  val supertypes: List<Expression> = supertypesPetaform.map(PetaformParser::parse)
+  val dependencies: List<Expression> = dependenciesPetaform.map(PetaformParser::parse)
+  // TODO: effects
 }
 
 private val NAME_PATTERN = Regex("^[A-Z][a-z][A-Za-z0-9_]*$") // TODO: it's repeated 3 times

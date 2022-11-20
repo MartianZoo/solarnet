@@ -7,6 +7,7 @@ import com.github.h0tk3y.betterParse.combinators.or
 import com.github.h0tk3y.betterParse.combinators.separatedTerms
 import com.github.h0tk3y.betterParse.combinators.skip
 import com.github.h0tk3y.betterParse.grammar.parser
+import com.github.h0tk3y.betterParse.parser.ParseException
 import com.github.h0tk3y.betterParse.parser.Parser
 import com.github.h0tk3y.betterParse.parser.parseToEnd
 import dev.martianzoo.tfm.petaform.api.ByName
@@ -34,8 +35,15 @@ object PetaformParser {
 
   inline fun <reified P : PetaformObject> parse(petaform: String) = parse(P::class, petaform)
 
-  fun <P : PetaformObject> parse(type: KClass<P>, petaform: String) =
-      type.cast(parsers[type]!!.parseToEnd(Tokens.tokenizer.tokenize(petaform)))
+  fun <P : PetaformObject> parse(type: KClass<P>, petaform: String): P {
+    val parser: Parser<PetaformObject> = parsers[type]!!
+    try {
+      val pet = parser.parseToEnd(Tokens.tokenizer.tokenize(petaform))
+      return type.cast(pet)
+    } catch (e: ParseException) {
+      throw IllegalArgumentException("expecting ${type.simpleName}, input was: $petaform", e)
+    }
+  }
 
   private val parsers = mutableMapOf<KClass<out PetaformObject>, Parser<PetaformObject>>()
   init { registerAll() }

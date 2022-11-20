@@ -2,6 +2,7 @@ package dev.martianzoo.tfm.data
 
 import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.tfm.canon.Canon
+import dev.martianzoo.tfm.petaform.api.Expression
 import org.junit.jupiter.api.Test
 
 // Not testing much, just a bit of the canon data
@@ -12,9 +13,12 @@ class ComponentTest {
     assertThat(tr.name).isEqualTo("TerraformRating")
     assertThat(tr.system).isFalse()
     assertThat(tr.abstract).isFalse()
-    assertThat(tr.supertypes).containsExactly("Owned<Player>", "Plural").inOrder()
-    assertThat(tr.dependencies).isEmpty()
-    assertThat(tr.effects).containsExactly("ProductionPhase: 1", "End: VictoryPoint")
+    assertThat(tr.supertypesPetaform).containsExactly("Owned<Player>", "Plural").inOrder()
+    assertThat(tr.dependenciesPetaform).isEmpty()
+    assertThat(tr.effectsPetaform).containsExactly("ProductionPhase: 1", "End: VictoryPoint")
+
+    assertThat(tr.supertypes).containsExactly(
+        Expression("Owned", Expression("Player")), Expression("Plural")).inOrder()
   }
 
   // We might have to go circular some day, but not yet
@@ -27,7 +31,7 @@ class ComponentTest {
   }
 
   private fun pullNamesOutOf(cpt: Component) =
-      (cpt.supertypes + cpt.dependencies + cpt.effects).flatMap {
+      (cpt.supertypesPetaform + cpt.dependenciesPetaform + cpt.effectsPetaform).flatMap {
         it.split(Regex("[\\W\\d]+"))
       }.filterNot { it == "" }.toHashSet()
 }

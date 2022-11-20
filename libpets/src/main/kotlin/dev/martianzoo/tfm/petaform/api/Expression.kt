@@ -34,7 +34,7 @@ object This : RootType {
 
 data class ByName(val ctypeName: String) : RootType {
   init {
-    require(ctypeName.matches(Regex("^[A-Z][a-z][A-Za-z0-9_]*$")))
+    require(ctypeName.matches(Regex("^[A-Z][a-z][A-Za-z0-9_]*$"))) { ctypeName }
     require(ctypeName != This.petaform)
   }
   override val petaform = ctypeName
