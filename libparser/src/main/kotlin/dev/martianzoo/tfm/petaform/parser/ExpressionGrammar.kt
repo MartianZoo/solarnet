@@ -16,19 +16,7 @@ import dev.martianzoo.tfm.petaform.api.Expression
 import dev.martianzoo.tfm.petaform.api.RootType
 import dev.martianzoo.tfm.petaform.api.This
 
-object ExpressionGrammar : Grammar<Expression>() {
-  @Suppress("unused")
-  val comment by regexToken("//[^\n]*", ignore = true)
-
-  @Suppress("unused")
-  val whitespace by regexToken("\\s+", ignore = true)
-
-  val leftAngle by literalToken("<")
-  val rightAngle by literalToken(">")
-  val comma by literalToken(",")
-  val `this` by literalToken("This")
-  val ident by regexToken("[A-Z][a-z][A-Za-z0-9_]*")
-
+object ExpressionGrammar : BaseGrammar<Expression>() {
   // trick for enabling reentrancy
   private val expression = parser(this::rootParser)
 
