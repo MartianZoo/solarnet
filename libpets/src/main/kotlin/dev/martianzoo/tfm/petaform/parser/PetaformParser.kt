@@ -12,11 +12,25 @@ import com.github.h0tk3y.betterParse.parser.Parser
 import com.github.h0tk3y.betterParse.parser.parseToEnd
 import dev.martianzoo.tfm.petaform.api.ByName
 import dev.martianzoo.tfm.petaform.api.Expression
+import dev.martianzoo.tfm.petaform.api.Instruction
+import dev.martianzoo.tfm.petaform.api.Instruction.AndInstruction
+import dev.martianzoo.tfm.petaform.api.Instruction.GainInstruction
+import dev.martianzoo.tfm.petaform.api.Instruction.OrInstruction
+import dev.martianzoo.tfm.petaform.api.Instruction.ProdInstruction
+import dev.martianzoo.tfm.petaform.api.Instruction.RemoveInstruction
 import dev.martianzoo.tfm.petaform.api.PetaformObject
 import dev.martianzoo.tfm.petaform.api.Predicate
 import dev.martianzoo.tfm.petaform.api.QuantifiedExpression
 import dev.martianzoo.tfm.petaform.api.RootType
 import dev.martianzoo.tfm.petaform.api.This
+import dev.martianzoo.tfm.petaform.parser.Tokens.comma
+import dev.martianzoo.tfm.petaform.parser.Tokens.leftParen
+import dev.martianzoo.tfm.petaform.parser.Tokens.max
+import dev.martianzoo.tfm.petaform.parser.Tokens.minus
+import dev.martianzoo.tfm.petaform.parser.Tokens.or
+import dev.martianzoo.tfm.petaform.parser.Tokens.prodEnd
+import dev.martianzoo.tfm.petaform.parser.Tokens.prodStart
+import dev.martianzoo.tfm.petaform.parser.Tokens.rightParen
 import kotlin.reflect.KClass
 import kotlin.reflect.cast
 
@@ -55,11 +69,11 @@ object PetaformParser {
 
     val refinements: Parser<List<Expression>> =
         skip(Tokens.leftAngle) and
-            separatedTerms(parser { getParser<Expression>() }, Tokens.comma) and
+            separatedTerms(parser { getParser<Expression>() }, comma) and
             skip(Tokens.rightAngle)
 
-    val expression: Parser<Expression> = (rootType and optional(refinements) map { (type, refs) ->
-      Expression(type, refs ?: listOf())
+    val expression: Parser<Expression> = (rootType and optional(refinements) map {
+      (type, refs) -> Expression(type, refs ?: listOf())
     }).register()
 
     // Quantified expressions -- require scalar or type or both
@@ -82,16 +96,32 @@ object PetaformParser {
     // Predicates
 
     val groupedPredicate: Parser<Predicate> =
-        skip(Tokens.leftParen) and
-            parser { getParser<Predicate>() } and
-            skip(Tokens.rightParen)
+        skip(leftParen) and
+        parser { getParser<Predicate>() } and
+        skip(rightParen)
 
     val minPredicate = quantifiedExpression map Predicate::MinPredicate
-    val maxPredicate = skip(Tokens.max) and qeWithScalarRequired map Predicate::MaxPredicate
+    val maxPredicate = skip(max) and qeWithScalarRequired map Predicate::MaxPredicate
 
     val atomPredicate = groupedPredicate or minPredicate or maxPredicate
-    val singlePredicate = separatedTerms(atomPredicate, Tokens.or) map Predicate::or
+    val singlePredicate = separatedTerms(atomPredicate, or) map Predicate::or
 
-    val predicate = (separatedTerms(singlePredicate, Tokens.comma) map Predicate::and).register()
+    val predicate = (separatedTerms(singlePredicate, comma) map Predicate::and).register()
+
+    // Instructions
+
+    val groupedInstruction =
+        skip(leftParen) and parser { getParser<Instruction>() } and skip(rightParen)
+    val gainInstruction = quantifiedExpression map ::GainInstruction
+    val removeInstruction = skip(minus) and quantifiedExpression map ::RemoveInstruction
+
+    val prodInstruction =
+        skip(prodStart) and
+        parser { getParser<Instruction>() } and
+        skip(prodEnd) map ::ProdInstruction
+
+    val atomInstruction = groupedInstruction or gainInstruction or removeInstruction or prodInstruction
+    val singleInstruction = separatedTerms(atomInstruction, or) map OrInstruction::from
+    val instruction = (separatedTerms(singleInstruction, comma) map AndInstruction::from).register()
   }
 }
