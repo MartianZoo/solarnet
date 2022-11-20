@@ -25,6 +25,21 @@
       "dependencies": [ "Anyone" ],
       "abstract": true
     },
+
+    {
+      "name": "Phase",
+      "system": true,
+      "abstract": true
+    },
+    {
+      "name": "ProductionPhase",
+      "supertypes": [ "Phase" ]
+    },
+    {
+      "name": "End",
+      "supertypes": [ "Phase" ]
+    },
+
     {
       "name": "Generation",
       "supertypes": [ "Plural" ]
@@ -102,6 +117,15 @@
       "abstract": true
     },
 
+    {
+      "name": "CardBack",
+      "supertypes": [ "Owned<Player>", "Plural" ],
+      "abstract": true
+    },
+    {"name": "ProjectCard",     "supertypes": ["CardBack"]},
+    {"name": "PreludeCard",     "supertypes": ["CardBack"]},
+    {"name": "CorporationCard", "supertypes": ["CardBack"]},
+
     // How to deal with splitting 3 into 1, 1, 1?
     {
       "name": "GlobalParameter",
@@ -109,6 +133,13 @@
       "abstract": true,
       "effects": [
         "This: TerraformRating"
+      ]
+    },
+    {
+      "name": "OceanTile",
+      "supertypes": [ "Tile<MarsArea>", "GlobalParameter" ],
+      "effects": [
+        // "Tile<MarsArea(neighbors HAS This)>: 2"
       ]
     },
     {
@@ -125,33 +156,25 @@
       "supertypes": [ "GlobalParameter" ],
       "effects": [
         // "This IF =8 This: TemperatureStep",
-        // "This IF 14 This:: OxygenComplete",
       ]
     },
     {
       "name": "VenusStep",
       "supertypes": [ "GlobalParameter" ],
       "effects": [
-        // "This IF =4 This: Card",
+        // "This IF =4 This: ProjectCard",
         // "This IF =8 This: TerraformRating",
-      ]
-    },
-    {
-      "name": "OceanTile",
-      "supertypes": [ "Tile<MarsArea>", "GlobalParameter" ],
-      "effects": [
-        // "Tile<MarsArea(neighbors HAS This)>: 2"
       ]
     },
 
     {
-      "name": "CardBack",
-      "supertypes": [ "Owned<Player>", "Plural" ],
+      "name": "CardFront",
+      "supertypes": [ "Owned<Player>" ],
       "abstract": true
     },
-    {"name": "ProjectCard", "supertypes": ["CardBack"]},
-    {"name": "PreludeCard", "supertypes": ["CardBack"]},
-    {"name": "CorporationCard", "supertypes": ["CardBack"]},
+    {"name": "ActiveCard",    "supertypes": [ "CardFront" ], "abstract": true},
+    {"name": "AutomatedCard", "supertypes": [ "CardFront" ], "abstract": true},
+    {"name": "EventCard",     "supertypes": [ "CardFront" ], "abstract": true},
 
     {
       "name": "Cardbound",
@@ -180,7 +203,7 @@
     {
       "name": "CardResource",
       "abstract": true,
-      "supertypes": [ "Resource", "Cardbound<ActiveCard<Player>>" ]
+      "supertypes": [ "Resource", "Cardbound<ActiveCard>" ]
     },
     {"name": "Animal",   "supertypes": ["CardResource"]},
     {"name": "Asteroid", "supertypes": ["CardResource"]},

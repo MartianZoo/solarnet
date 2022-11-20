@@ -16,4 +16,18 @@ class ComponentTest {
     assertThat(tr.dependencies).isEmpty()
     assertThat(tr.effects).containsExactly("ProductionPhase: 1", "End: VictoryPoint")
   }
+
+  // We might have to go circular some day, but not yet
+  @Test fun noForwardRefs() {
+    val sofar = mutableSetOf("Ctype", "This")
+    Canon.componentClassData.forEach { (name, cpt) ->
+      sofar += name
+      assertThat(sofar).containsAtLeastElementsIn(pullNamesOutOf(cpt))
+    }
+  }
+
+  private fun pullNamesOutOf(cpt: Component) =
+      (cpt.supertypes + cpt.dependencies + cpt.effects).flatMap {
+        it.split(Regex("[\\W\\d]+"))
+      }.filterNot { it == "" }.toHashSet()
 }
