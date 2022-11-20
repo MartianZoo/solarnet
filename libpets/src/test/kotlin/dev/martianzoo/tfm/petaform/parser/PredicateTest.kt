@@ -21,13 +21,13 @@ class PredicateTest {
 
   @Test
   fun simpleApiToSource() {
-    assertThat(MinPredicate(Expression("Foo")).asSource).isEqualTo("Foo")
-    assertThat(MinPredicate(Expression("Foo"), 1).asSource).isEqualTo("Foo")
-    assertThat(MinPredicate(Expression("Foo"), 3).asSource).isEqualTo("3 Foo")
-    assertThat(MinPredicate(Expression("Megacredit"), 3).asSource).isEqualTo("3")
-    assertThat(MaxPredicate(Expression("Foo"), 1).asSource).isEqualTo("MAX 1 Foo")
-    assertThat(MaxPredicate(Expression("Foo"), 3).asSource).isEqualTo("MAX 3 Foo")
-    assertThat(MaxPredicate(Expression("Megacredit"), 3).asSource).isEqualTo("MAX 3")
+    assertThat(MinPredicate(Expression("Foo")).petaform).isEqualTo("Foo")
+    assertThat(MinPredicate(Expression("Foo"), 1).petaform).isEqualTo("Foo")
+    assertThat(MinPredicate(Expression("Foo"), 3).petaform).isEqualTo("3 Foo")
+    assertThat(MinPredicate(Expression("Megacredit"), 3).petaform).isEqualTo("3")
+    assertThat(MaxPredicate(Expression("Foo"), 1).petaform).isEqualTo("MAX 1 Foo")
+    assertThat(MaxPredicate(Expression("Foo"), 3).petaform).isEqualTo("MAX 3 Foo")
+    assertThat(MaxPredicate(Expression("Megacredit"), 3).petaform).isEqualTo("MAX 3")
   }
 
   @Test
@@ -42,6 +42,6 @@ class PredicateTest {
   }
 
   private fun testRoundTrip(start: String, end: String = start) {
-    assertThat(BetterParser.parsePredicate(start).asSource).isEqualTo(end)
+    assertThat(BetterParser.parsePredicate(start).petaform).isEqualTo(end)
   }
 }

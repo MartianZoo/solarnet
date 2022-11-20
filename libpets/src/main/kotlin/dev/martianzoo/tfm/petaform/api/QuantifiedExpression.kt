@@ -1,14 +1,14 @@
 package dev.martianzoo.tfm.petaform.api
 
 data class QuantifiedExpression(val expr: Expression, val scalar: Int = 1): PetaformObject {
-  override val asSource = when {
+  override val petaform = when {
     expr == Expression.DEFAULT -> "$scalar"
-    scalar == 1 -> expr.asSource
-    else -> "$scalar ${expr.asSource}"
+    scalar == 1 -> expr.petaform
+    else -> "$scalar ${expr.petaform}"
   }
 
-  fun asSourceWithMandatoryScalar() = when {
+  fun petaformWithScalar() = when {
     expr == Expression.DEFAULT -> "MAX $scalar"
-    else -> "MAX $scalar ${expr.asSource}"
+    else -> "MAX $scalar ${expr.petaform}"
   }
 }

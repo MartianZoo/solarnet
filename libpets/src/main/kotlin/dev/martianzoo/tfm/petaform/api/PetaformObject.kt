@@ -5,5 +5,5 @@ package dev.martianzoo.tfm.petaform.api
  */
 interface PetaformObject {
   /** The Petaform source representation of this API object, in a standard style. */
-  val asSource: String
+  val petaform: String
 }

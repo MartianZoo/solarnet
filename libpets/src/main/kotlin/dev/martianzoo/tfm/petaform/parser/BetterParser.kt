@@ -8,12 +8,12 @@ import dev.martianzoo.tfm.petaform.parser.ExpressionGrammar.expression
 import dev.martianzoo.tfm.petaform.parser.PredicateGrammar.predicate
 
 object BetterParser : PetaformParser {
-  override fun parseExpression(petaformSource: String): Expression {
-    return parseWith(expression, petaformSource)
+  override fun parseExpression(petaform: String): Expression {
+    return parseWith(expression, petaform)
   }
 
-  override fun parsePredicate(petaformSource: String): Predicate {
-    return parseWith(predicate, petaformSource)
+  override fun parsePredicate(petaform: String): Predicate {
+    return parseWith(predicate, petaform)
   }
 
   private fun <T> parseWith(parser: Parser<T>, input: String) =

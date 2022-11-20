@@ -57,7 +57,7 @@ data class Card(
      * exists).
      */
     @Json(name = "tags")
-    val tagsAsText: List<String> = listOf(),
+    val tagsPetaform: List<String> = listOf(),
 
     /**
      * *All* the game behaviors of the card, each represented as a Petaform triggered effect (with
@@ -65,14 +65,14 @@ data class Card(
      * effects.
      */
     @Json(name = "effects")
-    val effectsAsText: List<String> = listOf(),
+    val effectsPetaform: List<String> = listOf(),
 
 
     /**
      * Which resource type, if any, this card can hold, expressed as a Petaform component name.
      */
     @Json(name = "resourceType")
-    val resourceTypeAsText: String? = null,
+    val resourceTypePetaform: String? = null,
 
     // Project info
 
@@ -81,7 +81,7 @@ data class Card(
      * Is only non-null for Project cards.
      */
     @Json(name = "requirement")
-    val requirementAsText: String? = null,
+    val requirementPetaform: String? = null,
 
     /**
      * The card's nonnegative cost in megacredits. Is only nonzero for Project cards.
@@ -100,8 +100,8 @@ data class Card(
     require(id.isNotEmpty())
     require(bundle?.isNotEmpty() ?: true)
     require(replacesId?.isNotEmpty() ?: true)
-    require(resourceTypeAsText?.isNotEmpty() ?: true)
-    require(requirementAsText?.isNotEmpty() ?: true)
+    require(resourceTypePetaform?.isNotEmpty() ?: true)
+    require(requirementPetaform?.isNotEmpty() ?: true)
 
     when (deck) {
       Deck.PROJECT -> {
@@ -114,24 +114,24 @@ data class Card(
         }
       }
       else -> {
-        require(requirementAsText == null)
+        require(requirementPetaform == null)
         require(cost == 0)
         require(projectKind == null)
       }
     }
   }
 
-  val tags: List<Expression> by lazy { tagsAsText.map { Expression(it) } }
-  val resourceType: Expression? by lazy { resourceTypeAsText?.let { Expression(it) } }
+  val tags: List<Expression> by lazy { tagsPetaform.map { Expression(it) } }
+  val resourceType: Expression? by lazy { resourceTypePetaform?.let { Expression(it) } }
   val requirement: Predicate? by lazy {
-    requirementAsText?.let { BetterParser.parsePredicate(it) }
+    requirementPetaform?.let { BetterParser.parsePredicate(it) }
   }
   // val effects: List<Effect> by lazy { effectsAsText.map { BetterParser().parseEffect(it) } }
 
   // Not public because users should just check "corporation or active", basically (though
   // beginner corporation does violate that)
-  private fun isPersistent() = resourceTypeAsText != null ||
-      effectsAsText.any { !it.startsWith("This:") && !it.startsWith("End:") }
+  private fun isPersistent() = resourceTypePetaform != null ||
+      effectsPetaform.any { !it.startsWith("This:") && !it.startsWith("End:") }
 
   /**
    * The deck this card belongs to; see [Card.deck].

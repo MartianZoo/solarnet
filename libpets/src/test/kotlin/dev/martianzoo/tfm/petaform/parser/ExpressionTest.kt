@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Test
 
 class ExpressionTest {
   private fun testRoundTrip(petaform: String) =
-      assertThat(BetterParser.parseExpression(petaform).asSource).isEqualTo(petaform)
+      assertThat(BetterParser.parseExpression(petaform).petaform).isEqualTo(petaform)
 
   @Test
   fun simpleSourceToApi() {
@@ -17,7 +17,7 @@ class ExpressionTest {
 
   @Test
   fun simpleApiToSource() {
-    assertThat(Expression("Foo").asSource).isEqualTo("Foo")
+    assertThat(Expression("Foo").petaform).isEqualTo("Foo")
   }
 
   @Test
@@ -68,6 +68,6 @@ class ExpressionTest {
         ),
         Expression("Jj")
     )
-    assertThat(expr.asSource).isEqualTo("Aa<Bb, Cc<Dd>, Ee<This<Gg, Hh>, Ii>, Jj>")
+    assertThat(expr.petaform).isEqualTo("Aa<Bb, Cc<Dd>, Ee<This<Gg, Hh>, Ii>, Jj>")
   }
 }

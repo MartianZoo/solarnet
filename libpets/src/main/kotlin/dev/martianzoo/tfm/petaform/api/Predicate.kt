@@ -6,19 +6,19 @@ sealed interface Predicate : PetaformObject {
 
   data class MinPredicate(val qe: QuantifiedExpression) : Predicate {
     constructor(expr: Expression, scalar: Int = 1) : this(QuantifiedExpression(expr, scalar))
-    override val asSource = qe.asSource
+    override val petaform = qe.petaform
   }
 
   data class MaxPredicate(val qe: QuantifiedExpression) : Predicate {
     constructor(expr: Expression, scalar: Int = 1) : this(QuantifiedExpression(expr, scalar))
-    override val asSource = qe.asSourceWithMandatoryScalar()
+    override val petaform = qe.petaformWithScalar()
   }
 
   data class OrPredicate(val predicates: List<Predicate>) : Predicate {
     constructor(pred1: Predicate, pred2: Predicate, vararg rest: Predicate) :
         this(Lists.asList(pred1, pred2, rest))
     init { require(predicates.size >= 2) }
-    override val asSource = predicates.joinToString(" OR ") { it.asSource }
+    override val petaform = predicates.joinToString(" OR ") { it.petaform }
   }
 
   data class AndPredicate(val predicates: List<Predicate>) : Predicate {
@@ -26,7 +26,7 @@ sealed interface Predicate : PetaformObject {
         this(Lists.asList(pred1, pred2, rest))
     init { require(predicates.size >= 2) }
 
-    override val asSource = predicates.joinToString { it.asSource }
+    override val petaform = predicates.joinToString { it.petaform }
   }
 
   companion object {

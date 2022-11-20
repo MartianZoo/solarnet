@@ -8,8 +8,8 @@ import dev.martianzoo.tfm.petaform.api.Predicate
  */
 interface PetaformParser {
   /** Parses the entire `input`, expecting an Expression. */
-  fun parseExpression(petaformSource: String) : Expression
+  fun parseExpression(petaform: String) : Expression
 
   /** Parses the entire `input`, expecting a Predicate. */
-  fun parsePredicate(petaformSource: String) : Predicate
+  fun parsePredicate(petaform: String) : Predicate
 }

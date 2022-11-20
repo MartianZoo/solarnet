@@ -18,8 +18,8 @@ data class Expression(
   constructor(rootType: String, vararg refinement: Expression) :
       this(ByName(rootType), refinement.toList())
 
-  override val asSource : String =
-      rootType.asSource + refinements.map { it.asSource }.joinOrEmpty(prefix = "<", suffix = ">")
+  override val petaform : String =
+      rootType.petaform + refinements.map { it.petaform }.joinOrEmpty(prefix = "<", suffix = ">")
 
   companion object {
     val DEFAULT = Expression("Megacredit")
@@ -29,13 +29,13 @@ data class Expression(
 sealed interface RootType : PetaformObject
 
 object This : RootType {
-  override val asSource = "This"
+  override val petaform = "This"
 }
 
 data class ByName(val ctypeName: String) : RootType {
   init {
     require(ctypeName.matches(Regex("^[A-Z][a-z][A-Za-z0-9_]*$")))
-    require(ctypeName != This.asSource)
+    require(ctypeName != This.petaform)
   }
-  override val asSource = ctypeName
+  override val petaform = ctypeName
 }
