@@ -1,20 +1,34 @@
 package dev.martianzoo.tfm.petaform.parser
 
-import com.github.h0tk3y.betterParse.grammar.Grammar
+import com.github.h0tk3y.betterParse.lexer.DefaultTokenizer
+import com.github.h0tk3y.betterParse.lexer.Token
 import com.github.h0tk3y.betterParse.lexer.literalToken
 import com.github.h0tk3y.betterParse.lexer.regexToken
-import dev.martianzoo.tfm.petaform.api.Expression
 
-abstract class BaseGrammar<T> : Grammar<T>() {
-  @Suppress("unused")
-  val comment by regexToken("//[^\n]*", ignore = true)
+object Tokens {
+  val tokens = mutableListOf<Token>()
 
-  @Suppress("unused")
-  val whitespace by regexToken("\\s+", ignore = true)
+  val comment = regex("//[^\n]*", ignore = true)
+  val whitespace = regex("\\s+", ignore = true)
 
-  val leftAngle by literalToken("<")
-  val rightAngle by literalToken(">")
-  val comma by literalToken(",")
-  val `this` by literalToken("This")
-  val ident by regexToken("[A-Z][a-z][A-Za-z0-9_]*")
+  val leftAngle = literal("<")
+  val rightAngle = literal(">")
+  val comma = literal(",")
+
+  val leftParen = literal("(")
+  val rightParen = literal(")")
+
+  val max = literal("MAX")
+  val or = literal("OR")
+  val thiss = literal("This")
+
+  val ident = regex("[A-Z][a-z][A-Za-z0-9_]*")
+  val scalar = regex("[1-9][0-9]*")
+
+  private fun regex(r: String, ignore: Boolean = false) =
+      regexToken(r, ignore).also { tokens += it }
+  private fun literal(l: String, ignore: Boolean = false) =
+      literalToken(l, ignore).also { tokens += it }
+
+  val tokenizer = DefaultTokenizer(tokens)
 }

@@ -20,6 +20,10 @@ data class Expression(
 
   override val asSource : String =
       rootType.asSource + refinements.map { it.asSource }.joinOrEmpty(prefix = "<", suffix = ">")
+
+  companion object {
+    val DEFAULT = Expression("Megacredit")
+  }
 }
 
 sealed interface RootType : PetaformObject

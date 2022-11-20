@@ -1,34 +1,31 @@
 package dev.martianzoo.tfm.petaform.parser
 
-import com.github.h0tk3y.betterParse.combinators.and
-import com.github.h0tk3y.betterParse.combinators.map
-import com.github.h0tk3y.betterParse.combinators.optional
-import com.github.h0tk3y.betterParse.combinators.or
-import com.github.h0tk3y.betterParse.combinators.separatedTerms
-import com.github.h0tk3y.betterParse.combinators.skip
-import com.github.h0tk3y.betterParse.grammar.Grammar
+import com.github.h0tk3y.betterParse.combinators.*
 import com.github.h0tk3y.betterParse.grammar.parser
-import com.github.h0tk3y.betterParse.lexer.literalToken
-import com.github.h0tk3y.betterParse.lexer.regexToken
 import com.github.h0tk3y.betterParse.parser.Parser
 import dev.martianzoo.tfm.petaform.api.ByName
 import dev.martianzoo.tfm.petaform.api.Expression
 import dev.martianzoo.tfm.petaform.api.RootType
 import dev.martianzoo.tfm.petaform.api.This
+import dev.martianzoo.tfm.petaform.parser.Tokens.comma
+import dev.martianzoo.tfm.petaform.parser.Tokens.ident
+import dev.martianzoo.tfm.petaform.parser.Tokens.leftAngle
+import dev.martianzoo.tfm.petaform.parser.Tokens.rightAngle
+import dev.martianzoo.tfm.petaform.parser.Tokens.thiss
 
-object ExpressionGrammar : BaseGrammar<Expression>() {
-  // trick for enabling reentrancy
-  private val expression = parser(this::rootParser)
+object ExpressionGrammar {
+  val ctypeName: Parser<ByName> =
+      ident map { ByName(it.text) }
 
-  private val ctypeName: Parser<ByName> by ident map { ByName(it.text) }
-  private val rootType: Parser<RootType> by `this` map { This } or ctypeName
+  val rootType: Parser<RootType> =
+      thiss map { This } or ctypeName
 
-  private val refinements: Parser<List<Expression>> by
+  val refinements: Parser<List<Expression>> =
       skip(leftAngle) and
-      separatedTerms(expression, comma) and
+      separatedTerms(parser { expression }, comma) and
       skip(rightAngle)
 
-  override val rootParser: Parser<Expression> by (rootType and optional(refinements)) map {
+  val expression: Parser<Expression> = (rootType and optional(refinements)) map {
     (type, refs) -> Expression(type, refs ?: listOf())
   }
 }

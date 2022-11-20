@@ -6,8 +6,8 @@ import dev.martianzoo.tfm.petaform.api.This
 import org.junit.jupiter.api.Test
 
 class ExpressionTest {
-  private fun roundTripCte(s: String) =
-      assertThat(BetterParser().parseExpression(s).asSource).isEqualTo(s)
+  private fun testRoundTrip(petaform: String) =
+      assertThat(BetterParser().parseExpression(petaform).asSource).isEqualTo(petaform)
 
   @Test
   fun simpleSourceToApi() {
@@ -22,15 +22,15 @@ class ExpressionTest {
 
   @Test
   fun simpleRoundTrips() {
-    roundTripCte("Foo")
-    roundTripCte("Foo<Bar>")
-    roundTripCte("Foo<Bar, Baz>")
-    roundTripCte("Foo<Bar<Qux>, Baz>")
+    testRoundTrip("Foo")
+    testRoundTrip("Foo<Bar>")
+    testRoundTrip("Foo<Bar, Baz>")
+    testRoundTrip("Foo<Bar<Qux>, Baz>")
   }
 
   @Test
   fun complexRoundTrip() {
-    roundTripCte("Aa<Bb<Cc<Dd, Ee, Ff<Gg<Hh<Ii>>, Jj>>, Kk>>")
+    testRoundTrip("Aa<Bb<Cc<Dd, Ee, Ff<Gg<Hh<Ii>>, Jj>>, Kk>>")
   }
 
   @Test
