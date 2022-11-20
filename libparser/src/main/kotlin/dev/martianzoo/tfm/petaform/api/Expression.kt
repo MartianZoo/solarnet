@@ -10,12 +10,28 @@ import dev.martianzoo.util.joinOrEmpty
  * @param refinements the ordered list of refinements, e.g. `["Bar", "Qux"]` for the same example
  */
 data class Expression(
-    val ctypeName: String,
+    val rootType: RootType,
     val refinements: List<Expression> = listOf()) : PetaformObject {
 
-  constructor(ctypeName: String, vararg refinement: Expression) :
-      this(ctypeName, refinement.toList())
+  constructor(rootType: RootType, vararg refinement: Expression) :
+      this(rootType, refinement.toList())
+  constructor(rootType: String, vararg refinement: Expression) :
+      this(ByName(rootType), refinement.toList())
 
   override val asSource : String =
-      ctypeName + refinements.map { it.asSource }.joinOrEmpty(prefix = "<", suffix = ">")
+      rootType.asSource + refinements.map { it.asSource }.joinOrEmpty(prefix = "<", suffix = ">")
+}
+
+sealed interface RootType : PetaformObject
+
+object This : RootType {
+  override val asSource = "This"
+}
+
+data class ByName(val ctypeName: String) : RootType {
+  init {
+    require(ctypeName.matches(Regex("^[A-Z][a-z]+$")))
+    require(ctypeName != This.asSource)
+  }
+  override val asSource = ctypeName
 }

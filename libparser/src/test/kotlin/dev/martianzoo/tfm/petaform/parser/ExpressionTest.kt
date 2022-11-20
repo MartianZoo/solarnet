@@ -2,6 +2,7 @@ package dev.martianzoo.tfm.petaform.parser
 
 import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.tfm.petaform.api.Expression
+import dev.martianzoo.tfm.petaform.api.This
 import org.junit.jupiter.api.Test
 
 class ExpressionTest {
@@ -36,13 +37,13 @@ class ExpressionTest {
   fun complexSourceToApi() {
     val parsed = BetterParser().parseExpression("""
       Red<  // comment works
-         Blue  < Green,Teal>
+         Blue  < This,Teal>
         , Gold >
     """)
     assertThat(parsed).isEqualTo(
         Expression("Red",
             Expression("Blue",
-                Expression("Green"),
+                Expression(This),
                 Expression("Teal")),
             Expression("Gold")))
   }
@@ -59,7 +60,7 @@ class ExpressionTest {
         Expression(
             "Ee",
             Expression(
-                "Ff",
+                This,
                 Expression("Gg"),
                 Expression("Hh")
             ),
@@ -67,6 +68,6 @@ class ExpressionTest {
         ),
         Expression("Jj")
     )
-    assertThat(expr.asSource).isEqualTo("Aa<Bb, Cc<Dd>, Ee<Ff<Gg, Hh>, Ii>, Jj>")
+    assertThat(expr.asSource).isEqualTo("Aa<Bb, Cc<Dd>, Ee<This<Gg, Hh>, Ii>, Jj>")
   }
 }
