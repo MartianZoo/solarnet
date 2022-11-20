@@ -22,7 +22,7 @@
     },
     {
       "name": "Owned",
-      "dependencies": [ "Anyone" ],
+      "dependencies": [ "Anyone" ], // 1: owned to owner
       "abstract": true
     },
 
@@ -76,7 +76,7 @@
     {
       "name": "Production",
       "supertypes": [ "Owned<Anyone>, Plural" ],
-      "dependencies": [ "Ctype<StandardResource>" ],
+      "dependencies": [ "Ctype<StandardResource>" ], // 2: production to resource type
       "effects": [
         "ProductionPhase: StandardResource"
       ]
@@ -92,7 +92,7 @@
 
     {
       "name": "Tile",
-      "dependencies": [ "Area" ],
+      "dependencies": [ "Area" ], // 3: tile to area it's on
       "abstract": true
     },
     {
@@ -179,7 +179,7 @@
     {
       "name": "Cardbound",
       "supertypes": [ "Owned<Player>" ],
-      "dependencies": [ "CardFront<Player>" ],
+      "dependencies": [ "CardFront<Player>" ], // 4: cardbound cpt to card it's on
       "abstract": true
     },
 
