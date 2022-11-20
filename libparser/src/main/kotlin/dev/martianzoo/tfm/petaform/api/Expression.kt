@@ -30,7 +30,7 @@ object This : RootType {
 
 data class ByName(val ctypeName: String) : RootType {
   init {
-    require(ctypeName.matches(Regex("^[A-Z][a-z]+$")))
+    require(ctypeName.matches(Regex("^[A-Z][a-z][A-Za-z0-9_]*$")))
     require(ctypeName != This.asSource)
   }
   override val asSource = ctypeName

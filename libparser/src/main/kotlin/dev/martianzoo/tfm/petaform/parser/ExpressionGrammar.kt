@@ -27,7 +27,7 @@ object ExpressionGrammar : Grammar<Expression>() {
   val rightAngle by literalToken(">")
   val comma by literalToken(",")
   val `this` by literalToken("This")
-  val ident by regexToken("[A-Z][a-z]+")
+  val ident by regexToken("[A-Z][a-z][A-Za-z0-9_]*")
 
   // trick for enabling reentrancy
   private val expression = parser(this::rootParser)
