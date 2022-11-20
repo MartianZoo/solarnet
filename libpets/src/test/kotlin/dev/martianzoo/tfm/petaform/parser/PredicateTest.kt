@@ -9,13 +9,13 @@ import org.junit.jupiter.api.Test
 class PredicateTest {
   @Test
   fun simpleSourceToApi() {
-    assertThat(BetterParser().parsePredicate("Foo"))
+    assertThat(BetterParser.parsePredicate("Foo"))
         .isEqualTo(MinPredicate(Expression("Foo")))
-    assertThat(BetterParser().parsePredicate("3 Foo"))
+    assertThat(BetterParser.parsePredicate("3 Foo"))
         .isEqualTo(MinPredicate(Expression("Foo"), 3))
-    assertThat(BetterParser().parsePredicate("3"))
+    assertThat(BetterParser.parsePredicate("3"))
         .isEqualTo(MinPredicate(Expression("Megacredit"), 3))
-    assertThat(BetterParser().parsePredicate("MAX 3 Foo"))
+    assertThat(BetterParser.parsePredicate("MAX 3 Foo"))
         .isEqualTo(MaxPredicate(Expression("Foo"), 3))
   }
 
@@ -42,6 +42,6 @@ class PredicateTest {
   }
 
   private fun testRoundTrip(start: String, end: String = start) {
-    assertThat(BetterParser().parsePredicate(start).asSource).isEqualTo(end)
+    assertThat(BetterParser.parsePredicate(start).asSource).isEqualTo(end)
   }
 }

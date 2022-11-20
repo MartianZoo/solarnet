@@ -1,6 +1,10 @@
 package dev.martianzoo.tfm.data
 
+import com.squareup.moshi.Json
 import dev.martianzoo.tfm.data.Card.ProjectKind.ACTIVE
+import dev.martianzoo.tfm.petaform.api.Expression
+import dev.martianzoo.tfm.petaform.api.Predicate
+import dev.martianzoo.tfm.petaform.parser.BetterParser
 
 /**
  * Everything there is to know about a Terraforming Mars card, except for text (including the card
@@ -41,30 +45,34 @@ data class Card(
     val deck: Deck? = null,
 
     /**
-     * The tags on the card, each expressed as a Petaform component name. If a card (such as Venus
-     * Governor) has multiple of the same tag, the same string should appear that many times in the
-     * list. Order is irrelevant, but should ideally match the order on the printed card (if it
-     * exists).
-     */
-    val tags: List<String> = listOf(),
-
-    /**
-     * *All* the game behaviors of the card, each represented as a Petaform triggered effect (with
-     * `":"`) or manual action (with `"->"`). `AUTOMATED` and `EVENT` projects may have only `This:`
-     * effects.
-     */
-    val effects: List<String> = listOf(),
-
-    /**
      * The id of the card this card replaces, if any. For example, the `"X31"` Deimos Down replaces
      * the `"039"` Deimos Down.
      */
     val replacesId: String? = null,
 
     /**
+     * The tags on the card, each expressed as a Petaform component name. If a card (such as Venus
+     * Governor) has multiple of the same tag, the same string should appear that many times in the
+     * list. Order is irrelevant, but should ideally match the order on the printed card (if it
+     * exists).
+     */
+    @Json(name = "tags")
+    val tagsAsText: List<String> = listOf(),
+
+    /**
+     * *All* the game behaviors of the card, each represented as a Petaform triggered effect (with
+     * `":"`) or manual action (with `"->"`). `AUTOMATED` and `EVENT` projects may have only `This:`
+     * effects.
+     */
+    @Json(name = "effects")
+    val effectsAsText: List<String> = listOf(),
+
+
+    /**
      * Which resource type, if any, this card can hold, expressed as a Petaform component name.
      */
-    val resourceType: String? = null,
+    @Json(name = "resourceType")
+    val resourceTypeAsText: String? = null,
 
     // Project info
 
@@ -72,7 +80,8 @@ data class Card(
      * The card's requirement, expressed as a nonempty Petaform predicate, or `null` if it has none.
      * Is only non-null for Project cards.
      */
-    val requirement: String? = null,
+    @Json(name = "requirement")
+    val requirementAsText: String? = null,
 
     /**
      * The card's nonnegative cost in megacredits. Is only nonzero for Project cards.
@@ -91,8 +100,8 @@ data class Card(
     require(id.isNotEmpty())
     require(bundle?.isNotEmpty() ?: true)
     require(replacesId?.isNotEmpty() ?: true)
-    require(resourceType?.isNotEmpty() ?: true)
-    require(requirement?.isNotEmpty() ?: true)
+    require(resourceTypeAsText?.isNotEmpty() ?: true)
+    require(requirementAsText?.isNotEmpty() ?: true)
 
     when (deck) {
       Deck.PROJECT -> {
@@ -105,17 +114,24 @@ data class Card(
         }
       }
       else -> {
-        require(requirement == null)
+        require(requirementAsText == null)
         require(cost == 0)
         require(projectKind == null)
       }
     }
   }
 
+  val tags: List<Expression> by lazy { tagsAsText.map { Expression(it) } }
+  val resourceType: Expression? by lazy { resourceTypeAsText?.let { Expression(it) } }
+  val requirement: Predicate? by lazy {
+    requirementAsText?.let { BetterParser.parsePredicate(it) }
+  }
+  // val effects: List<Effect> by lazy { effectsAsText.map { BetterParser().parseEffect(it) } }
+
   // Not public because users should just check "corporation or active", basically (though
   // beginner corporation does violate that)
-  private fun isPersistent() = resourceType != null ||
-      effects.any { !it.startsWith("This:") && !it.startsWith("End:") }
+  private fun isPersistent() = resourceTypeAsText != null ||
+      effectsAsText.any { !it.startsWith("This:") && !it.startsWith("End:") }
 
   /**
    * The deck this card belongs to; see [Card.deck].

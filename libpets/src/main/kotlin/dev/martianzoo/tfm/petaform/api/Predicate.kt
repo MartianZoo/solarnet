@@ -3,19 +3,15 @@ package dev.martianzoo.tfm.petaform.api
 import com.google.common.collect.Lists
 
 sealed interface Predicate : PetaformObject {
-  data class MinPredicate(val expr: Expression, val scalar: Int = 1) : Predicate {
-    override val asSource = when {
-      expr == Expression.DEFAULT -> "$scalar"
-      scalar == 1 -> expr.asSource
-      else -> "$scalar ${expr.asSource}"
-    }
+
+  data class MinPredicate(val qe: QuantifiedExpression) : Predicate {
+    constructor(expr: Expression, scalar: Int = 1) : this(QuantifiedExpression(expr, scalar))
+    override val asSource = qe.asSource
   }
 
-  data class MaxPredicate(val expr: Expression, val scalar: Int) : Predicate {
-    override val asSource = when {
-      expr == Expression.DEFAULT -> "MAX $scalar"
-      else -> "MAX $scalar ${expr.asSource}"
-    }
+  data class MaxPredicate(val qe: QuantifiedExpression) : Predicate {
+    constructor(expr: Expression, scalar: Int = 1) : this(QuantifiedExpression(expr, scalar))
+    override val asSource = qe.asSourceWithMandatoryScalar()
   }
 
   data class OrPredicate(val predicates: List<Predicate>) : Predicate {

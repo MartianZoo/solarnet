@@ -3,7 +3,8 @@ plugins {
 }
 
 dependencies {
-    implementation("com.squareup.moshi:moshi-kotlin:1.12.0")
+  implementation(project(":libpets"))
+  implementation("com.squareup.moshi:moshi-kotlin:1.12.0")
 }
 
 dependencies {

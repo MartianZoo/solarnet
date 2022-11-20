@@ -7,11 +7,11 @@ import org.junit.jupiter.api.Test
 
 class ExpressionTest {
   private fun testRoundTrip(petaform: String) =
-      assertThat(BetterParser().parseExpression(petaform).asSource).isEqualTo(petaform)
+      assertThat(BetterParser.parseExpression(petaform).asSource).isEqualTo(petaform)
 
   @Test
   fun simpleSourceToApi() {
-    val foo = BetterParser().parseExpression("Foo")
+    val foo = BetterParser.parseExpression("Foo")
     assertThat(foo).isEqualTo(Expression("Foo"))
   }
 
@@ -35,7 +35,7 @@ class ExpressionTest {
 
   @Test
   fun complexSourceToApi() {
-    val parsed = BetterParser().parseExpression("""
+    val parsed = BetterParser.parseExpression("""
       Red<  // comment works
          Blue  < This,Teal>
         , Gold >

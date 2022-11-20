@@ -19,16 +19,16 @@ class CardTest {
    */
   @Test
   fun minimal() {
-    val dumbCard = Card("xxx", deck = PRELUDE, effects = listOf("This: Plant"))
+    val dumbCard = Card("xxx", deck = PRELUDE, effectsAsText = listOf("This: Plant"))
 
     assertThat(dumbCard.id).isEqualTo("xxx")
     assertThat(dumbCard.bundle).isNull()
     assertThat(dumbCard.deck).isEqualTo(PRELUDE)
-    assertThat(dumbCard.tags).isEmpty()
-    assertThat(dumbCard.effects).containsExactly("This: Plant")
     assertThat(dumbCard.replacesId).isNull()
-    assertThat(dumbCard.resourceType).isNull()
-    assertThat(dumbCard.requirement).isNull()
+    assertThat(dumbCard.tagsAsText).isEmpty()
+    assertThat(dumbCard.effectsAsText).containsExactly("This: Plant")
+    assertThat(dumbCard.resourceTypeAsText).isNull()
+    assertThat(dumbCard.requirementAsText).isNull()
     assertThat(dumbCard.cost).isEqualTo(0)
     assertThat(dumbCard.projectKind).isNull()
   }
@@ -37,14 +37,14 @@ class CardTest {
       id = "072",
       bundle = "B",
       deck = PROJECT,
-      tags = listOf("AnimalTag"),
-      effects = listOf(
+      tagsAsText = listOf("AnimalTag"),
+      effectsAsText = listOf(
           "This: PROD[-2 Plant<Anyone>]",
           "-> Animal<This>",
           "End: VictoryPoint / Animal<This>",
       ),
-      resourceType = "Animal",
-      requirement = "13 OxygenStep",
+      resourceTypeAsText = "Animal",
+      requirementAsText = "13 OxygenStep",
       cost = 10,
       projectKind = ACTIVE,
   )
@@ -55,15 +55,15 @@ class CardTest {
     assertThat(BIRDS.id).isEqualTo("072")
     assertThat(BIRDS.bundle).isEqualTo("B")
     assertThat(BIRDS.deck).isEqualTo(PROJECT)
-    assertThat(BIRDS.tags).containsExactly("AnimalTag")
-    assertThat(BIRDS.effects).containsExactly(
+    assertThat(BIRDS.tagsAsText).containsExactly("AnimalTag")
+    assertThat(BIRDS.effectsAsText).containsExactly(
         "This: PROD[-2 Plant<Anyone>]",
         "-> Animal<This>",
         "End: VictoryPoint / Animal<This>",
     ).inOrder()
     assertThat(BIRDS.replacesId).isNull()
-    assertThat(BIRDS.resourceType).isEqualTo("Animal")
-    assertThat(BIRDS.requirement).isEqualTo("13 OxygenStep")
+    assertThat(BIRDS.resourceTypeAsText).isEqualTo("Animal")
+    assertThat(BIRDS.requirementAsText).isEqualTo("13 OxygenStep")
     assertThat(BIRDS.cost).isEqualTo(10)
     assertThat(BIRDS.projectKind).isEqualTo(ACTIVE)
   }
@@ -110,8 +110,8 @@ class CardTest {
     assertThrows<RuntimeException> { Card("") }
     assertThrows<RuntimeException> { C.copy(bundle = "") }
     assertThrows<RuntimeException> { C.copy(replacesId = "") }
-    assertThrows<RuntimeException> { C.copy(resourceType = "") }
-    assertThrows<RuntimeException> { C.copy(requirement = "") }
+    assertThrows<RuntimeException> { C.copy(resourceTypeAsText = "") }
+    assertThrows<RuntimeException> { C.copy(requirementAsText = "") }
   }
 
   @Test
@@ -137,16 +137,16 @@ class CardTest {
   @Test
   fun badActiveCard() {
     assertThrows<RuntimeException> {
-      C.copy(projectKind = EVENT, effects = listOf("Foo: Bar"))
+      C.copy(projectKind = EVENT, effectsAsText = listOf("Foo: Bar"))
     }
     assertThrows<RuntimeException> {
-      C.copy(projectKind = AUTOMATED, effects = listOf("This: Foo", "Bar: Qux"))
+      C.copy(projectKind = AUTOMATED, effectsAsText = listOf("This: Foo", "Bar: Qux"))
     }
     assertThrows<RuntimeException> {
-      C.copy(projectKind = AUTOMATED, resourceType = "Whatever")
+      C.copy(projectKind = AUTOMATED, resourceTypeAsText = "Whatever")
     }
     assertThrows<RuntimeException> {
-      C.copy(projectKind = ACTIVE, effects = listOf("This: Foo", "End: Bar"))
+      C.copy(projectKind = ACTIVE, effectsAsText = listOf("This: Foo", "End: Bar"))
     }
   }
 }
