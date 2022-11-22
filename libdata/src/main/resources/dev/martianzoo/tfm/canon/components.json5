@@ -71,12 +71,18 @@
     {"name": "Steel",      "supertypes": ["StandardResource"]},
     {"name": "Titanium",   "supertypes": ["StandardResource"]},
     {"name": "Plant",      "supertypes": ["StandardResource"]},
-    {"name": "Energy",     "supertypes": ["StandardResource"]}, // TODO: the whole becoming Heat thing
     {"name": "Heat",       "supertypes": ["StandardResource"]},
     {
+      "name": "Energy",
+      "supertypes": [ "StandardResource" ],
+      "effects": [
+        "ProductionPhase:: -This, Heat" // Heat FROM This
+      ]
+    },
+    {
       "name": "Production",
-      "supertypes": [ "Owned<Anyone>", "Plural" ],
-      "dependencies": [ "Ctype<StandardResource>" ], // 2: production to resource type
+      "supertypes": [ "Owned", "Plural" ],
+      "dependencies": [ "StandardResource" ], // 2: production to resource type - TYPE
       "effects": [
         "ProductionPhase: StandardResource"
       ]
@@ -93,6 +99,7 @@
     {
       "name": "Tile",
       "dependencies": [ "Area" ], // 3: tile to area it's on
+      // "effects": [ "This: $createAdjacencies(This)" ],
       "abstract": true
     },
     {
@@ -113,7 +120,22 @@
     },
     {
       "name": "SpecialTile",
-      "supertypes": [ "OwnedTile<Player, MarsArea>" ],
+      "supertypes": [ "OwnedTile<MarsArea>" ],
+      "abstract": true
+    },
+    {
+      "name": "AreaAdjacency",
+      "dependencies": [ "MarsArea", "MarsArea" ],
+      "abstract": true
+    },
+    {
+      "name": "Neighbor",
+      "dependencies": [ "MarsArea", "Tile" ],
+      "abstract": true
+    },
+    {
+      "name": "Adjacency",
+      "dependencies": [ "Tile", "Tile" ],
       "abstract": true
     },
 
@@ -138,9 +160,7 @@
     {
       "name": "OceanTile",
       "supertypes": [ "Tile<MarsArea>", "GlobalParameter" ],
-      "effects": [
-        // "Tile<MarsArea(neighbors HAS This)>: 2"
-      ]
+      "effects": [ "Adjacency<This, Tile>: 2" ]
     },
     {
       "name": "TemperatureStep",
@@ -178,8 +198,8 @@
 
     {
       "name": "Cardbound",
-      "supertypes": [ "Owned<Player>" ],
-      "dependencies": [ "CardFront<Player>" ], // 4: cardbound cpt to card it's on
+      "supertypes": [ "Owned<Anyone>" ],
+      "dependencies": [ "CardFront<Anyone>" ], // 4: cardbound cpt to card it's on
       "abstract": true
     },
 
@@ -210,6 +230,7 @@
     {"name": "Floater",  "supertypes": ["CardResource"]},
     {"name": "Microbe",  "supertypes": ["CardResource"]},
     {"name": "Science",  "supertypes": ["CardResource"]},
+    {"name": "Fighter",  "supertypes": ["CardResource"]},
 
     {
       "name": "ActionCardUsage",

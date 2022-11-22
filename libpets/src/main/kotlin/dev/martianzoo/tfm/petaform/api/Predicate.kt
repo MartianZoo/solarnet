@@ -29,6 +29,10 @@ sealed interface Predicate : PetaformObject {
     override val petaform = predicates.joinToString { it.petaform }
   }
 
+  data class Prod(val predicate: Predicate): Predicate {
+    override val petaform: String = "PROD[$predicate]"
+  }
+
   companion object {
     fun and(predicates: List<Predicate>) =
         if (predicates.size == 1) predicates[0] else And(predicates)

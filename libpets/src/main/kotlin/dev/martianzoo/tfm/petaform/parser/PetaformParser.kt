@@ -14,7 +14,6 @@ import dev.martianzoo.tfm.petaform.api.ByName
 import dev.martianzoo.tfm.petaform.api.Expression
 import dev.martianzoo.tfm.petaform.api.Instruction
 import dev.martianzoo.tfm.petaform.api.Instruction.Gain
-import dev.martianzoo.tfm.petaform.api.Instruction.Prod
 import dev.martianzoo.tfm.petaform.api.Instruction.Remove
 import dev.martianzoo.tfm.petaform.api.PetaformObject
 import dev.martianzoo.tfm.petaform.api.Predicate
@@ -100,8 +99,12 @@ object PetaformParser {
 
     val minPredicate = quantifiedExpression map Predicate::Min
     val maxPredicate = skip(max) and qeWithScalarRequired map Predicate::Max
+    val prodPredicate =
+        skip(prodStart) and
+            parser { getParser<Predicate>() } and
+            skip(prodEnd) map Predicate::Prod
 
-    val atomPredicate = groupedPredicate or minPredicate or maxPredicate
+    val atomPredicate = groupedPredicate or minPredicate or maxPredicate or prodPredicate
     val singlePredicate = separatedTerms(atomPredicate, or) map Predicate::or
 
     val predicate = (separatedTerms(singlePredicate, comma) map Predicate::and).register()
@@ -116,7 +119,7 @@ object PetaformParser {
     val prodInstruction =
         skip(prodStart) and
         parser { getParser<Instruction>() } and
-        skip(prodEnd) map ::Prod
+        skip(prodEnd) map Instruction::Prod
 
     val atomInstruction = groupedInstruction or gainInstruction or removeInstruction or prodInstruction
     val singleInstruction = separatedTerms(atomInstruction, or) map Instruction::or

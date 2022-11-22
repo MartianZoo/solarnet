@@ -22,7 +22,7 @@ sealed interface Instruction : PetaformObject {
     }
   }
 
-  data class Prod(var instruction: Instruction) : Instruction {
+  data class Prod(val instruction: Instruction) : Instruction {
     override val petaform = "PROD[$instruction]"
   }
 
