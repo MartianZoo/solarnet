@@ -1,6 +1,7 @@
 package dev.martianzoo.tfm.data
 
 import com.google.common.truth.Truth.assertThat
+import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.data.Card.Deck.CORPORATION
 import dev.martianzoo.tfm.data.Card.Deck.PRELUDE
 import dev.martianzoo.tfm.data.Card.Deck.PROJECT
@@ -144,6 +145,19 @@ class CardTest {
     }
     assertThrows<RuntimeException> {
       C.copy(projectKind = ACTIVE, effectsPetaform = listOf("This: Foo", "End: Bar"))
+    }
+  }
+
+  @Test fun birdsFromDataFile() {
+    val cards = Canon.cardData
+    assertThat(cards["072"]).isEqualTo(BIRDS)
+  }
+
+  @Test fun slurp() {
+    Canon.cardData.values.forEach {
+      it.tags
+      it.requirement
+      it.resourceType
     }
   }
 }

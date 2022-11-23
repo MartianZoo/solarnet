@@ -1,10 +1,12 @@
 package dev.martianzoo.tfm.petaform.parser
 
 import com.google.common.truth.Truth.assertThat
+import dev.martianzoo.tfm.petaform.api.ByName
 import dev.martianzoo.tfm.petaform.api.Expression
 import dev.martianzoo.tfm.petaform.api.Predicate
 import dev.martianzoo.tfm.petaform.api.Predicate.Max
 import dev.martianzoo.tfm.petaform.api.Predicate.Min
+import dev.martianzoo.tfm.petaform.api.QuantifiedExpression
 import org.junit.jupiter.api.Test
 
 class PredicateTest {
@@ -45,5 +47,31 @@ class PredicateTest {
   private fun testRoundTrip(start: String, end: String = start) {
     val parse: Predicate = PetaformParser.parse(start)
     assertThat(parse.petaform).isEqualTo(end)
+  }
+
+  @Test fun testProd() {
+    testRoundTrip("PROD[1]")
+    testRoundTrip("Steel, PROD[1]")
+    testRoundTrip("PROD[Steel, 1]")
+  }
+
+  @Test fun hairy() {
+    val parsed : Predicate = PetaformParser.parse(
+        "Adjacency<CityTile<Anyone>, OceanTile> OR Adjacency<OceanTile, CityTile<Anyone>>")
+    // This is kinda absurd
+    assertThat(parsed).isEqualTo(
+        Predicate.Or(
+            Min(Expression("Adjacency",
+                    Expression("CityTile",
+                        Expression("Anyone")),
+                    Expression("OceanTile")),
+                1),
+            Min(Expression("Adjacency",
+                    Expression("OceanTile"),
+                    Expression("CityTile",
+                        Expression("Anyone"))),
+                1)
+        )
+    )
   }
 }
