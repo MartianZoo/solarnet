@@ -30,7 +30,7 @@ sealed interface Predicate : PetaformObject {
   }
 
   data class Prod(val predicate: Predicate): Predicate {
-    override val petaform: String = "PROD[$predicate]"
+    override val petaform: String = "PROD[${predicate.petaform}]"
   }
 
   companion object {

@@ -27,7 +27,7 @@ object Tokens {
   val scalar = regex("[1-9][0-9]*")
 
   val prodStart = literal("PROD[")
-  val prodEnd = literal("PROD]")
+  val prodEnd = literal("]")
 
   private fun regex(r: String, ignore: Boolean = false) =
       regexToken(r, ignore).also { tokens += it }
