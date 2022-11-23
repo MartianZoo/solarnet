@@ -189,7 +189,7 @@
 
     {
       "name": "CardFront",
-      "supertypes": [ "Owned<Player>" ],
+      "supertypes": [ "Owned" ],
       "abstract": true
     },
     {"name": "ActiveCard",    "supertypes": [ "CardFront" ], "abstract": true},
@@ -198,8 +198,8 @@
 
     {
       "name": "Cardbound",
-      "supertypes": [ "Owned<Anyone>" ],
-      "dependencies": [ "CardFront<Anyone>" ], // 4: cardbound cpt to card it's on
+      "supertypes": [ "Owned" ],
+      "dependencies": [ "CardFront" ], // 4: cardbound cpt to card it's on
       "abstract": true
     },
 
@@ -235,6 +235,15 @@
     {
       "name": "ActionCardUsage",
       "supertypes": [ "Cardbound<ActiveCard>" ]
-    }
+    },
+
+    { "name": "Card008Tile", "supertypes": "CityTile" },
+    { "name": "Card085Tile", "supertypes": "SpecialTile" },
+    { "name": "Card021Area", "supertypes": "RemoteArea" },
+    { "name": "Card081Area", "supertypes": "RemoteArea" },
+    { "name": "Card220Area", "supertypes": "RemoteArea" },
+    { "name": "Card236Area", "supertypes": "RemoteArea" },
+    { "name": "Card238Area", "supertypes": "RemoteArea" },
+    { "name": "Card248Area", "supertypes": "RemoteArea" }
   ]
 }
