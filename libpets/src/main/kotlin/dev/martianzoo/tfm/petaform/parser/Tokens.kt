@@ -11,23 +11,26 @@ object Tokens {
   val comment = regex("//[^\n]*", ignore = true)
   val whitespace = regex("\\s+", ignore = true)
 
-  val leftAngle = literal("<")
-  val rightAngle = literal(">")
+  val arrow = literal("->")
   val comma = literal(",")
   val minus = literal("-")
+  val colon = literal(":")
+  val twoColons = literal("::")
 
   val leftParen = literal("(")
   val rightParen = literal(")")
+  val leftBracket = literal("[")
+  val rightBracket = literal("]")
+  val leftAngle = literal("<")
+  val rightAngle = literal(">")
 
   val max = literal("MAX")
   val or = literal("OR")
-  val thiss = literal("This")
+  val prod = literal("PROD")
+  val `this` = literal("This")
 
-  val ident = regex("[A-Z][a-z][A-Za-z0-9_]*")
   val scalar = regex("[1-9][0-9]*")
-
-  val prodStart = literal("PROD[")
-  val prodEnd = literal("]")
+  val ident = regex("[A-Z][a-z][A-Za-z0-9_]*")
 
   private fun regex(r: String, ignore: Boolean = false) =
       regexToken(r, ignore).also { tokens += it }

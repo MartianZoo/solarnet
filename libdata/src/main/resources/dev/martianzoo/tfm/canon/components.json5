@@ -99,9 +99,26 @@
     {
       "name": "Tile",
       "dependencies": [ "Area" ], // 3: tile to area it's on
-      // "effects": [ "This: $createAdjacencies(This)" ],
+      // "immediate": [ "$createAdjacencies(This)" ],
       "abstract": true
     },
+
+    {
+      "name": "AreaAdjacency",
+      "dependencies": [ "MarsArea", "MarsArea" ],
+      "abstract": true
+    },
+    {
+      "name": "Neighbor",
+      "dependencies": [ "MarsArea", "Tile" ],
+      "abstract": true
+    },
+    {
+      "name": "Adjacency",
+      "dependencies": [ "Tile", "Tile" ],
+      "abstract": true
+    },
+
     {
       "name": "OwnedTile",
       "supertypes": [ "Owned", "Tile" ],
@@ -116,26 +133,15 @@
     },
     {
       "name": "CityTile",
-      "supertypes": [ "OwnedTile" ]
+      "supertypes": [ "OwnedTile" ],
+      "effects": [
+        "End: VictoryPoint / Adjacency<This, GreeneryTile<Anyone>>",
+        "End: VictoryPoint / Adjacency<GreeneryTile<Anyone>, This>"
+      ]
     },
     {
       "name": "SpecialTile",
       "supertypes": [ "OwnedTile<MarsArea>" ],
-      "abstract": true
-    },
-    {
-      "name": "AreaAdjacency",
-      "dependencies": [ "MarsArea", "MarsArea" ],
-      "abstract": true
-    },
-    {
-      "name": "Neighbor",
-      "dependencies": [ "MarsArea", "Tile" ],
-      "abstract": true
-    },
-    {
-      "name": "Adjacency",
-      "dependencies": [ "Tile", "Tile" ],
       "abstract": true
     },
 
@@ -237,13 +243,13 @@
       "supertypes": [ "Cardbound<ActiveCard>" ]
     },
 
-    { "name": "Card008Tile", "supertypes": "CityTile" },
-    { "name": "Card085Tile", "supertypes": "SpecialTile" },
-    { "name": "Card021Area", "supertypes": "RemoteArea" },
-    { "name": "Card081Area", "supertypes": "RemoteArea" },
-    { "name": "Card220Area", "supertypes": "RemoteArea" },
-    { "name": "Card236Area", "supertypes": "RemoteArea" },
-    { "name": "Card238Area", "supertypes": "RemoteArea" },
-    { "name": "Card248Area", "supertypes": "RemoteArea" }
+    { "name": "Card008Tile", "supertypes": ["CityTile"] },
+    { "name": "Card085Tile", "supertypes": ["SpecialTile"] },
+    { "name": "Card021Area", "supertypes": ["RemoteArea"] },
+    { "name": "Card081Area", "supertypes": ["RemoteArea"] },
+    { "name": "Card220Area", "supertypes": ["RemoteArea"] },
+    { "name": "Card236Area", "supertypes": ["RemoteArea"] },
+    { "name": "Card238Area", "supertypes": ["RemoteArea"] },
+    { "name": "Card248Area", "supertypes": ["RemoteArea"] }
   ]
 }

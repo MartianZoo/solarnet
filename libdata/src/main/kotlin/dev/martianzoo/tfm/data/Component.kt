@@ -1,6 +1,7 @@
 package dev.martianzoo.tfm.data
 
 import com.squareup.moshi.Json
+import dev.martianzoo.tfm.petaform.api.Effect
 import dev.martianzoo.tfm.petaform.api.Expression
 import dev.martianzoo.tfm.petaform.parser.PetaformParser
 
@@ -50,9 +51,9 @@ data class Component(
     require(name.matches(NAME_PATTERN))
   }
 
-  val supertypes: List<Expression> = supertypesPetaform.map(PetaformParser::parse)
-  val dependencies: List<Expression> = dependenciesPetaform.map(PetaformParser::parse)
-  // TODO: effects
+  val supertypes: List<Expression> by lazy { supertypesPetaform.map(PetaformParser::parse) }
+  val dependencies: List<Expression> by lazy { dependenciesPetaform.map(PetaformParser::parse) }
+  val effects: List<Effect> by lazy { effectsPetaform.map(PetaformParser::parse) }
 }
 
 private val NAME_PATTERN = Regex("^[A-Z][a-z][A-Za-z0-9_]*$") // TODO: it's repeated 3 times

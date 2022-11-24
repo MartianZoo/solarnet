@@ -36,11 +36,9 @@ class CardTest {
       bundle = "B",
       deck = PROJECT,
       tagsPetaform = listOf("AnimalTag"),
-      effectsPetaform = listOf(
-          "This: PROD[-2 Plant<Anyone>]",
-          "-> Animal<This>",
-          "End: VictoryPoint / Animal<This>",
-      ),
+      immediatePetaform = listOf("PROD[-2 Plant<Anyone>]"),
+      actionsPetaform = listOf("-> Animal<This>"),
+      effectsPetaform = listOf("End: VictoryPoint / Animal<This>"),
       resourceTypePetaform = "Animal",
       requirementPetaform = "13 OxygenStep",
       cost = 10,
@@ -54,11 +52,9 @@ class CardTest {
     assertThat(BIRDS.bundle).isEqualTo("B")
     assertThat(BIRDS.deck).isEqualTo(PROJECT)
     assertThat(BIRDS.tagsPetaform).containsExactly("AnimalTag")
-    assertThat(BIRDS.effectsPetaform).containsExactly(
-        "This: PROD[-2 Plant<Anyone>]",
-        "-> Animal<This>",
-        "End: VictoryPoint / Animal<This>",
-    ).inOrder()
+    assertThat(BIRDS.immediatePetaform).containsExactly("PROD[-2 Plant<Anyone>]")
+    assertThat(BIRDS.actionsPetaform).containsExactly("-> Animal<This>")
+    assertThat(BIRDS.effectsPetaform).containsExactly("End: VictoryPoint / Animal<This>")
     assertThat(BIRDS.replacesId).isNull()
     assertThat(BIRDS.resourceTypePetaform).isEqualTo("Animal")
     assertThat(BIRDS.requirementPetaform).isEqualTo("13 OxygenStep")
@@ -76,11 +72,9 @@ class CardTest {
             "bundle": "B",
             "deck": "PROJECT",
             "tags": [ "AnimalTag" ],
-            "effects": [
-              "This: PROD[-2 Plant<Anyone>]",
-              "-> Animal<This>",
-              "End: VictoryPoint / Animal<This>"
-            ],
+            "immediate": [ "PROD[-2 Plant<Anyone>]" ],
+            "actions": [ "-> Animal<This>" ],
+            "effects": [ "End: VictoryPoint / Animal<This>" ],
             "resourceType": "Animal",
             "requirement": "13 OxygenStep",
             "cost": 10,
@@ -138,13 +132,19 @@ class CardTest {
       C.copy(projectKind = EVENT, effectsPetaform = listOf("Foo: Bar"))
     }
     assertThrows<RuntimeException> {
-      C.copy(projectKind = AUTOMATED, effectsPetaform = listOf("This: Foo", "Bar: Qux"))
+      C.copy(projectKind = AUTOMATED, effectsPetaform = listOf("Bar: Qux"))
+    }
+    assertThrows<RuntimeException> {
+      C.copy(projectKind = EVENT, actionsPetaform = listOf("Foo -> Bar"))
+    }
+    assertThrows<RuntimeException> {
+      C.copy(projectKind = AUTOMATED, actionsPetaform = listOf("Bar -> Qux"))
     }
     assertThrows<RuntimeException> {
       C.copy(projectKind = AUTOMATED, resourceTypePetaform = "Whatever")
     }
     assertThrows<RuntimeException> {
-      C.copy(projectKind = ACTIVE, effectsPetaform = listOf("This: Foo", "End: Bar"))
+      C.copy(projectKind = ACTIVE, immediatePetaform = listOf("Whatever"))
     }
   }
 
@@ -155,9 +155,16 @@ class CardTest {
 
   @Test fun slurp() {
     Canon.cardData.values.forEach {
-      it.tags
+      it.tags.forEach {}
       it.requirement
       it.resourceType
+      //try {
+      //  it.immediate.forEach {}
+      //  it.actions.forEach {}
+      //  it.effects.forEach {}
+      //} catch (e: Exception) {
+      //  println("failed: ${it.effects}")
+      //}
     }
   }
 }

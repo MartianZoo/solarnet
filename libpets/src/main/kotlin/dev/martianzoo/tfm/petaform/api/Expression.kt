@@ -16,7 +16,7 @@ data class Expression(
   constructor(rootType: RootType, vararg refinement: Expression) :
       this(rootType, refinement.toList())
   constructor(rootType: String, vararg refinement: Expression) :
-      this(ByName(rootType), refinement.toList())
+      this(ClassName(rootType), refinement.toList())
 
   override val petaform : String =
       rootType.petaform + refinements.map { it.petaform }.joinOrEmpty(prefix = "<", suffix = ">")
@@ -32,10 +32,11 @@ object This : RootType {
   override val petaform = "This"
 }
 
-data class ByName(val ctypeName: String) : RootType {
+data class ClassName(val ctypeName: String) : RootType {
   init {
     require(ctypeName.matches(Regex("^[A-Z][a-z][A-Za-z0-9_]*$"))) { ctypeName }
     require(ctypeName != This.petaform)
+    require(ctypeName != "Production")
   }
   override val petaform = ctypeName
 }

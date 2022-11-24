@@ -2,7 +2,9 @@ package dev.martianzoo.tfm.data
 
 import com.squareup.moshi.Json
 import dev.martianzoo.tfm.data.Card.ProjectKind.ACTIVE
+import dev.martianzoo.tfm.petaform.api.Effect
 import dev.martianzoo.tfm.petaform.api.Expression
+import dev.martianzoo.tfm.petaform.api.Instruction
 import dev.martianzoo.tfm.petaform.api.Predicate
 import dev.martianzoo.tfm.petaform.parser.PetaformParser
 
@@ -60,16 +62,27 @@ data class Card(
     val tagsPetaform: List<String> = listOf(),
 
     /**
-     * *All* the game behaviors of the card, each represented as a Petaform triggered effect (with
-     * `":"`) or manual action (with `"->"`). `AUTOMATED` and `EVENT` projects may have only `This:`
-     * effects.
+     * Immediate effects on the card, if any, each expressed as a Petaform `Instruction`.
+     */
+    @Json(name = "immediate")
+    val immediatePetaform: List<String> = listOf(),
+
+    /**
+     * Actions on the card, if any, each expressed as a Petaform `Action`. `AUTOMATED` and `EVENT`
+     * cards may not have these.
+     */
+    @Json(name = "actions")
+    val actionsPetaform: List<String> = listOf(),
+
+    /**
+     * Effects on the card, if any, each expressed as a Petaform `Effect`. `AUTOMATED` and
+     * `EVENT` cards may not have these.
      */
     @Json(name = "effects")
     val effectsPetaform: List<String> = listOf(),
 
-
     /**
-     * Which resource type, if any, this card can hold, expressed as a Petaform component name.
+     * Which resource type, if any, this card can hold, expressed as a Petaform `ComponentClass`.
      */
     @Json(name = "resourceType")
     val resourceTypePetaform: String? = null,
@@ -77,8 +90,8 @@ data class Card(
     // Project info
 
     /**
-     * The card's requirement, expressed as a nonempty Petaform predicate, or `null` if it has none.
-     * Is only non-null for Project cards.
+     * The card's requirement, expressed as a nonempty Petaform `Predicate`, or `null` if it has none.
+     * Only cards in the `PROJECT` deck may have this.
      */
     @Json(name = "requirement")
     val requirementPetaform: String? = null,
@@ -102,6 +115,9 @@ data class Card(
     require(replacesId?.isNotEmpty() ?: true)
     require(resourceTypePetaform?.isNotEmpty() ?: true)
     require(requirementPetaform?.isNotEmpty() ?: true)
+    if (resourceTypePetaform != null) {
+      require(actionsPetaform.isNotEmpty() || effectsPetaform.isNotEmpty())
+    }
 
     when (deck) {
       Deck.PROJECT -> {
@@ -109,8 +125,8 @@ data class Card(
         // a project should be ACTIVE iff it has persistent effects
         when (projectKind) {
           null -> error("")
-          ACTIVE -> require(isPersistent())
-          else -> require(!isPersistent())
+          ACTIVE -> require(!inactive())
+          else -> require(inactive())
         }
       }
       else -> {
@@ -123,15 +139,16 @@ data class Card(
 
   val tags: List<Expression> by lazy { tagsPetaform.map { Expression(it) } }
   val resourceType: Expression? by lazy { resourceTypePetaform?.let { Expression(it) } }
-  val requirement: Predicate? by lazy {
-    requirementPetaform?.let(PetaformParser::parse)
-  }
-  // val effects: List<Effect> by lazy { effectsAsText.map { BetterParser().parseEffect(it) } }
+  val immediate: List<Instruction> by lazy { immediatePetaform.map(PetaformParser::parse) }
+  val actions: List<Effect> by lazy { actionsPetaform.map(PetaformParser::parse) }
+  val effects: List<Effect> by lazy { effectsPetaform.map(PetaformParser::parse) }
+  val requirement: Predicate? by lazy { requirementPetaform?.let(PetaformParser::parse) }
 
-  // Not public because users should just check "corporation or active", basically (though
-  // beginner corporation does violate that)
-  private fun isPersistent() = resourceTypePetaform != null ||
-      effectsPetaform.any { !it.startsWith("This:") && !it.startsWith("End:") }
+  private fun inactive(): Boolean {
+    return actionsPetaform.isEmpty() &&
+        effectsPetaform.all { it.startsWith("End:") } &&
+        resourceTypePetaform == null
+  }
 
   /**
    * The deck this card belongs to; see [Card.deck].
