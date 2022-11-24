@@ -16,13 +16,22 @@ sealed interface Instruction : PetaformObject {
   }
 
   data class Multi(var instructions: List<Instruction>) : Instruction {
-    override val petaform = instructions.joinToString { it.petaform }
+    override val petaform = instructions.joinToString {
+      when (it) {
+        is Gated -> "(${it.petaform})"
+        else -> it.petaform
+      }
+    }
   }
 
   data class Or(var instructions: List<Instruction>) : Instruction {
     override val petaform = instructions.joinToString(" OR ") {
       // precedence is against us
-      if (it is Multi) "(${it.petaform})" else it.petaform
+      when (it) {
+        is Multi -> "(${it.petaform})"
+        is Gated -> "(${it.petaform})"
+        else -> it.petaform
+      }
     }
   }
 
@@ -32,6 +41,22 @@ sealed interface Instruction : PetaformObject {
 
   data class Per(val instruction: Instruction, val qe: QuantifiedExpression): Instruction {
     override val petaform: String = "${instruction.petaform} / ${qe.petaform(forceExpression = true)}"
+  }
+
+  data class Gated(val predicate: Predicate, val instruction: Instruction): Instruction {
+    override val petaform: String get() {
+      val pred = when (predicate) {
+        is Predicate.Or -> "(${predicate.petaform})"
+        is Predicate.And -> "(${predicate.petaform})"
+        else -> predicate.petaform
+      }
+      val instr = when (instruction) {
+        is Or -> "(${instruction.petaform})"
+        is Multi -> "(${instruction.petaform})"
+        else -> instruction.petaform
+      }
+      return "$pred: $instr"
+    }
   }
 
   enum class Intensity(val symbol: String): PetaformObject {

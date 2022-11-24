@@ -5,8 +5,10 @@ import dev.martianzoo.tfm.petaform.api.Expression
 import dev.martianzoo.tfm.petaform.api.Instruction
 import dev.martianzoo.tfm.petaform.api.Instruction.Gain
 import dev.martianzoo.tfm.petaform.api.Instruction.Remove
+import dev.martianzoo.tfm.petaform.api.Predicate
 import dev.martianzoo.tfm.petaform.parser.PetaformParser.parse
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 
 class InstructionTest {
   @Test
@@ -94,5 +96,22 @@ class InstructionTest {
             Gain(Expression("Animal"), 2)
         ),
     )
+  }
+
+  @Test fun gates() {
+    testRoundTrip("Foo: Bar")
+
+    testRoundTrip("Foo: (Bar OR Baz)")
+    testRoundTrip("(Foo: Bar) OR Baz")
+    assertThrows<RuntimeException> { parse<Instruction>("Foo: Bar OR Baz") }
+
+    testRoundTrip("Foo: (Bar, Baz)")
+    testRoundTrip("(Foo: Bar), Baz")
+    assertThrows<RuntimeException> { parse<Instruction>("Foo: Bar, Baz") }
+  }
+
+  private fun testRoundTrip(start: String, end: String = start) {
+    val parse: Instruction = PetaformParser.parse(start)
+    assertThat(parse.petaform).isEqualTo(end)
   }
 }

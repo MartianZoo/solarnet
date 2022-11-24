@@ -161,14 +161,9 @@ class CardTest {
       card.resourceType?.let { assertThat(it.petaform).isEqualTo(card.resourceTypePetaform) }
 
       checkRoundTrip(card.tagsPetaform, card.tags)
+      checkRoundTrip(card.immediatePetaform, card.immediate)
       checkRoundTrip(card.actionsPetaform, card.actions)
       checkRoundTrip(card.effectsPetaform, card.effects)
-
-      try {
-        card.immediate.forEach {}
-      } catch (e: Exception) {
-        println("failed immediate: ${card.immediatePetaform.joinToString("; ")}")
-      }
     }
   }
 

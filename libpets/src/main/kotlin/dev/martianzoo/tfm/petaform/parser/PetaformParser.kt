@@ -22,6 +22,7 @@ import dev.martianzoo.tfm.petaform.api.Effect
 import dev.martianzoo.tfm.petaform.api.Expression
 import dev.martianzoo.tfm.petaform.api.Instruction
 import dev.martianzoo.tfm.petaform.api.Instruction.Gain
+import dev.martianzoo.tfm.petaform.api.Instruction.Gated
 import dev.martianzoo.tfm.petaform.api.Instruction.Intensity
 import dev.martianzoo.tfm.petaform.api.Instruction.Remove
 import dev.martianzoo.tfm.petaform.api.PetaformObject
@@ -115,20 +116,24 @@ object PetaformParser {
   // "1" or "Plant" or "1 Plant" -- if both rules would match it doesn't matter which
   val quantifiedExpression = qeWithExplicitScalar or qeWithExplicitExpression
 
-  private val predicate = publish(object {
+  val predicates = PredicateParsers().also {
+    publish(it.predicate)
+  }
+  class PredicateParsers {
     private val minPredicate = quantifiedExpression map Predicate::Min
     private val maxPredicate = skip(max) and qeWithExplicitScalar map Predicate::Max
     private val prodPredicate = prodBox(parser { predicate }) map Predicate::Prod
-    private val onePredicate: Parser<Predicate> = minPredicate or maxPredicate or prodPredicate
+    val onePredicate: Parser<Predicate> = minPredicate or maxPredicate or prodPredicate
 
     // OR binds more tightly than ,
-    private val orPredicate = separatedMultiple(onePredicate or parser { groupedAndPredicate }, or) map Predicate::Or
-    private val andPredicate: Parser<Predicate.And> = separatedMultiple(orPredicate or onePredicate, comma) map Predicate::And
+    private val bareOrPredicate = separatedMultiple(onePredicate or parser { groupedAndPredicate }, or) map Predicate::Or
+    private val bareAndPredicate: Parser<Predicate.And> = separatedMultiple(bareOrPredicate or onePredicate, comma) map Predicate::And
 
-    private val groupedAndPredicate = skip(leftParen) and andPredicate and skip(rightParen)
-
-    val predicate = andPredicate or orPredicate or onePredicate
-  }.predicate)
+    val groupedAndPredicate: Parser<Predicate.And> = skip(leftParen) and bareAndPredicate and skip(rightParen)
+    val groupedOrPredicate: Parser<Predicate.Or> = skip(leftParen) and bareOrPredicate and skip(rightParen)
+    val predicate = bareAndPredicate or bareOrPredicate or onePredicate
+    val safePredicate = groupedAndPredicate or groupedOrPredicate or onePredicate
+  }
 
   private val instruction = publish(
       object {
@@ -146,18 +151,25 @@ object PetaformParser {
         private val perableInstruction = gainInstruction or removeInstruction or prodInstruction
 
         // for now, can't contain an Or/Multi; will have to be distributed
-        private val perInstruction = perableInstruction and skip(slash) and qeWithExplicitExpression map { (instr, qe) ->
-          Instruction.Per(instr, qe)
+        private val perInstruction = perableInstruction and skip(slash) and qeWithExplicitExpression map {
+          (instr, qe) -> Instruction.Per(instr, qe)
         }
-        private val oneInstruction = perInstruction or perableInstruction
+
+        private val bareGatedInstruction = predicates.safePredicate and skip(colon) and parser { safeInstruction } map {
+          (pred, instr) -> Gated(pred, instr)
+        }
+        private val groupedGatedInstruction = group(bareGatedInstruction)
+        private val oneInstruction: Parser<Instruction> = perInstruction or perableInstruction or groupedGatedInstruction
 
         // OR binds more tightly than ,
         private val orInstruction = separatedMultiple(oneInstruction or parser { groupedMultiInstruction }, or) map Instruction::Or
         private val multiInstruction: Parser<Instruction.Multi> =
             separatedMultiple(orInstruction or oneInstruction, comma) map Instruction::Multi
         private val groupedMultiInstruction = skip(leftParen) and multiInstruction and skip(rightParen)
+        private val groupedOrInstruction: Parser<Instruction> = skip(leftParen) and orInstruction and skip(rightParen)
+        private val safeInstruction = groupedMultiInstruction or groupedOrInstruction or oneInstruction
 
-        val instruction = multiInstruction or orInstruction or oneInstruction
+        val instruction = multiInstruction or orInstruction or bareGatedInstruction or perInstruction or perableInstruction
       }.instruction,
   )
 
@@ -205,6 +217,8 @@ object PetaformParser {
       listOf(first) + rest
     }
   }
+
+  private inline fun <reified T> group(contents: Parser<T>) = skip(leftParen) and contents and skip(rightParen)
 
   private inline fun <reified P : PetaformObject> publish(parser: Parser<P>): Parser<P> {
     parsers[P::class] = parser

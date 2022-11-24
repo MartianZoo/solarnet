@@ -87,7 +87,7 @@
       "tags": [ "PowerTag", "BuildingTag" ],
       "immediate": [ "37, PROD[Steel]" ],
       "actions": [
-//        "-> (MAX 0 Energy: PROD[Energy])", // TODO
+        "-> MAX 0 Energy: PROD[Energy]",
         "3 -> ProjectCard"
       ]
     },
