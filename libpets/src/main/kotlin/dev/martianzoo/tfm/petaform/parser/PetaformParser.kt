@@ -7,7 +7,11 @@ import com.github.h0tk3y.betterParse.combinators.or
 import com.github.h0tk3y.betterParse.combinators.separatedTerms
 import com.github.h0tk3y.betterParse.combinators.skip
 import com.github.h0tk3y.betterParse.grammar.parser
+import com.github.h0tk3y.betterParse.lexer.DefaultTokenizer
 import com.github.h0tk3y.betterParse.lexer.Token
+import com.github.h0tk3y.betterParse.lexer.TokenMatch
+import com.github.h0tk3y.betterParse.lexer.literalToken
+import com.github.h0tk3y.betterParse.lexer.regexToken
 import com.github.h0tk3y.betterParse.parser.ParseException
 import com.github.h0tk3y.betterParse.parser.Parser
 import com.github.h0tk3y.betterParse.parser.parseToEnd
@@ -30,24 +34,6 @@ import dev.martianzoo.tfm.petaform.api.This
 import dev.martianzoo.tfm.petaform.api.Trigger
 import dev.martianzoo.tfm.petaform.api.Trigger.OnGain
 import dev.martianzoo.tfm.petaform.api.Trigger.OnRemove
-import dev.martianzoo.tfm.petaform.parser.Tokens.`this`
-import dev.martianzoo.tfm.petaform.parser.Tokens.arrow
-import dev.martianzoo.tfm.petaform.parser.Tokens.colon
-import dev.martianzoo.tfm.petaform.parser.Tokens.comma
-import dev.martianzoo.tfm.petaform.parser.Tokens.ident
-import dev.martianzoo.tfm.petaform.parser.Tokens.leftAngle
-import dev.martianzoo.tfm.petaform.parser.Tokens.leftBracket
-import dev.martianzoo.tfm.petaform.parser.Tokens.leftParen
-import dev.martianzoo.tfm.petaform.parser.Tokens.max
-import dev.martianzoo.tfm.petaform.parser.Tokens.minus
-import dev.martianzoo.tfm.petaform.parser.Tokens.or
-import dev.martianzoo.tfm.petaform.parser.Tokens.prod
-import dev.martianzoo.tfm.petaform.parser.Tokens.rightAngle
-import dev.martianzoo.tfm.petaform.parser.Tokens.rightBracket
-import dev.martianzoo.tfm.petaform.parser.Tokens.rightParen
-import dev.martianzoo.tfm.petaform.parser.Tokens.scalar
-import dev.martianzoo.tfm.petaform.parser.Tokens.slash
-import dev.martianzoo.tfm.petaform.parser.Tokens.twoColons
 import kotlin.reflect.KClass
 import kotlin.reflect.cast
 
@@ -62,134 +48,130 @@ object PetaformParser {
   fun <P : PetaformObject> parse(type: KClass<P>, petaform: String): P {
     val parser: Parser<PetaformObject> = parsers[type]!!
     try {
-      val pet = parser.parseToEnd(Tokens.tokenizer.tokenize(petaform))
+      val pet = parser.parseToEnd(DefaultTokenizer(tokens).tokenize(petaform))
       return type.cast(pet)
     } catch (e: ParseException) {
       throw IllegalArgumentException("expecting ${type.simpleName}, input was: $petaform", e)
     }
   }
 
-  private lateinit var expression: Parser<Expression>
-  private lateinit var quantifiedExpression: Parser<QuantifiedExpression>
-  private lateinit var predicate: Parser<Predicate>
-  private lateinit var instruction: Parser<Instruction>
-  private lateinit var trigger: Parser<Trigger>
-  private lateinit var effect: Parser<Effect>
-  private lateinit var action: Parser<Action>
+  private val tokens = mutableListOf<Token>()
 
-  // sigh ... TODO
-  private lateinit var groupedAndPredicate: Parser<Predicate>
-  private lateinit var groupedMultiInstruction: Parser<Instruction>
+  private val comment = regex("//[^\n]*", ignore = true)
+  private val whitespace = regex("\\s+", ignore = true)
+  private val arrow = literal("->")
+  private val comma = literal(",")
+  private val minus = literal("-")
+  private val slash = literal("/")
+  private val colon = literal(":")
+  private val twoColons = literal("::")
+  private val leftParen = literal("(")
+  private val rightParen = literal(")")
+  private val leftAngle = literal("<")
+  private val rightAngle = literal(">")
+  private val leftBracket = literal("[")
+  private val rightBracket = literal("]")
+  private val prod = literal("PROD")
+  private val max = literal("MAX")
+  private val or = literal("OR")
+  private val `this` = literal("This")
+  private val scalar = regex("0|[1-9][0-9]*")
+  private val ident = regex("[A-Z][a-z][A-Za-z0-9_]*")
 
   private val parsers = mutableMapOf<KClass<out PetaformObject>, Parser<PetaformObject>>()
 
-  init {
-    setUpAllParsers()
-    register(expression)
-    register(quantifiedExpression)
-    register(predicate)
-    register(instruction)
-    register(trigger)
-    register(effect)
-    register(action)
-  }
+  val prodStart = prod and leftBracket
+  val prodEnd = rightBracket
 
-  fun setUpAllParsers() {
-
-    // Expressions (no precedence issues), no need to deal with PROD
-
-    val className: Parser<ClassName> = ident map { ClassName(it.text) } // Plant
-    val thisComponent: Parser<This> = `this` map { This } // This
-    val rootType: Parser<RootType> = thisComponent or className // Plant
-
-    val refinements: Parser<List<Expression>> = // <Player1, LandArea>
-        skip(leftAngle) and separatedTerms(parser { getParser<Expression>() }, comma) and skip(rightAngle)
-    val optionalRefinements = optional(refinements) map { it ?: listOf() }
-
+  val expression = publish(object {
+    private val className: Parser<ClassName> = ident map { ClassName(it.text) } // Plant
+    private val thisComponent: Parser<This> = `this` map { This } // This
+    private val rootType: Parser<RootType> = thisComponent or className // Plant
+    private val refinements: Parser<List<Expression>> = // <Player1, LandArea>
+        skip(leftAngle) and separatedTerms(parser { expression }, comma) and skip(rightAngle)
+    private val optionalRefinements = optional(refinements) map { it ?: listOf() }
     // CityTile<Player1, LandArea>
-    expression = rootType and optionalRefinements map { (type, refs) -> Expression(type, refs) }
+    val expression = rootType and optionalRefinements map { (type, refs) -> Expression(type, refs) }
+  }.expression)
 
-    // Quantified expressions -- require scalar or type or both
-    // No precedence issues, no need to deal with PROD
+  private val explicitScalar: Parser<Int> = scalar map { it.text.toInt() } // 3
+  private val implicitScalar: Parser<Int> = optional(explicitScalar) map { it ?: 1 } // "", meaning 1
+  private val implicitExpression: Parser<Expression> = optional(expression) map { // "", meaning "Megacredit"
+    it ?: Expression.DEFAULT
+  }
+  // "1" or "1 Plant"
+  val qeWithExplicitScalar = explicitScalar and implicitExpression map { (scalar, expr) ->
+    QuantifiedExpression(expr, scalar)
+  }
+  // "Plant" or "1 Plant"
+  val qeWithExplicitExpression = implicitScalar and expression map { (scalar, expr) ->
+    QuantifiedExpression(expr, scalar)
+  }
+  // "1" or "Plant" or "1 Plant" -- if both rules would match it doesn't matter which
+  val quantifiedExpression = qeWithExplicitScalar or qeWithExplicitExpression
 
-    val scalar: Parser<Int> = scalar map { it.text.toInt() } // 3
-    val implicitScalar: Parser<Int> = optional(scalar) map { it ?: 1 } // "", meaning 1
-    val implicitExpression: Parser<Expression> = optional(expression) map { // "", meaning "Megacredit"
-      it ?: Expression.DEFAULT
-    }
-
-    // "1" or "1 Plant"
-    val qeWithExplicitScalar = scalar and implicitExpression map {
-      (scalar, expr) -> QuantifiedExpression(expr, scalar)
-    }
-    // "Plant" or "1 Plant"
-    val qeWithExplicitExpression = implicitScalar and expression map {
-      (scalar, expr) -> QuantifiedExpression(expr, scalar)
-    }
-    // "1" or "Plant" or "1 Plant" -- if both rules would match it doesn't matter which
-    quantifiedExpression = qeWithExplicitScalar or qeWithExplicitExpression
-
-    // Predicates
-
-    val minPredicate = quantifiedExpression map Predicate::Min
-    val maxPredicate = skip(max) and qeWithExplicitScalar map Predicate::Max
-    val prodPredicate = prodBox(parser { predicate }) map Predicate::Prod
-    val onePredicate = minPredicate or maxPredicate or prodPredicate
+  private val predicate = publish(object {
+    private val minPredicate = quantifiedExpression map Predicate::Min
+    private val maxPredicate = skip(max) and qeWithExplicitScalar map Predicate::Max
+    private val prodPredicate = prodBox(parser { predicate }) map Predicate::Prod
+    private val onePredicate: Parser<Predicate> = minPredicate or maxPredicate or prodPredicate
 
     // OR binds more tightly than ,
-    val orPredicate = separatedMultiple(onePredicate or parser { groupedAndPredicate }, or) map Predicate::Or
-    val andPredicate = separatedMultiple(orPredicate or onePredicate, comma) map Predicate::And
+    private val orPredicate = separatedMultiple(onePredicate or parser { groupedAndPredicate }, or) map Predicate::Or
+    private val andPredicate: Parser<Predicate.And> = separatedMultiple(orPredicate or onePredicate, comma) map Predicate::And
 
-    predicate = andPredicate or orPredicate or onePredicate
-    groupedAndPredicate = skip(leftParen) and andPredicate and skip(rightParen)
+    private val groupedAndPredicate = skip(leftParen) and andPredicate and skip(rightParen)
 
-    // Instructions
+    val predicate = andPredicate or orPredicate or onePredicate
+  }.predicate)
 
-    val gainInstruction = quantifiedExpression map ::Gain
-    val removeInstruction = skip(minus) and quantifiedExpression map ::Remove
-
-    val prodInstruction = prodBox(parser { instruction }) map Instruction::Prod
-    val perableInstruction = gainInstruction or removeInstruction or prodInstruction
+  private val instruction = publish(object {
+    private val gainInstruction = quantifiedExpression map ::Gain
+    private val removeInstruction = skip(minus) and quantifiedExpression map ::Remove
+    private val prodInstruction: Parser<Instruction.Prod> = prodBox(parser { instruction }) map Instruction::Prod
+    private val perableInstruction = gainInstruction or removeInstruction or prodInstruction
 
     // for now, can't contain an Or/Multi; will have to be distributed
-    val perInstruction = perableInstruction and skip(slash) and qeWithExplicitExpression map {
-      (instr, qe) -> Per(instr, qe)
+    private val perInstruction = perableInstruction and skip(slash) and qeWithExplicitExpression map { (instr, qe) ->
+      Per(instr, qe)
     }
-    val oneInstruction = perInstruction or perableInstruction
+    private val oneInstruction = perInstruction or perableInstruction
 
     // OR binds more tightly than ,
-    val orInstruction = separatedMultiple(oneInstruction or parser { groupedMultiInstruction }, or) map Instruction::Or
-    val multiInstruction = separatedMultiple(orInstruction or oneInstruction, comma) map ::Multi
+    private val orInstruction = separatedMultiple(oneInstruction or parser { groupedMultiInstruction }, or) map Instruction::Or
+    private val multiInstruction: Parser<Multi> = separatedMultiple(orInstruction or oneInstruction, comma) map ::Multi
+    private val groupedMultiInstruction = skip(leftParen) and multiInstruction and skip(rightParen)
 
-    instruction = multiInstruction or orInstruction or oneInstruction
-    groupedMultiInstruction = skip(leftParen) and multiInstruction and skip(rightParen)
+    val instruction = multiInstruction or orInstruction or oneInstruction
+  }.instruction)
 
-    // Actions - fix this
+  // Actions - fix this
+  val action = publish(object {
+    private val groupedCost = skip(leftParen) and parser { cost } and skip(rightParen)
+    private val spendCost = quantifiedExpression map ::Spend
+    private val prodCost = prodBox(parser { cost }) map Cost::Prod
+    private val atomCost = groupedCost or spendCost or prodCost
+    private val singleCost = separatedTerms(atomCost, or) map Cost::or
+    private val cost: Parser<Cost> = separatedTerms(singleCost, comma) map Cost::and
 
-    val groupedCost = skip(leftParen) and parser { getParser<Cost>() } and skip(rightParen)
-    val spendCost = quantifiedExpression map ::Spend
-    val prodCost = prodBox(parser { getParser<Cost>() }) map Cost::Prod
-    val atomCost = groupedCost or spendCost or prodCost
-    val singleCost = separatedTerms(atomCost, or) map Cost::or
-    val cost = separatedTerms(singleCost, comma) map Cost::and
+    val action = publish(optional(cost) and skip(arrow) and instruction map { (c, i) -> Action(c, i) })
+  }.action)
 
-    action = optional(cost) and skip(arrow) and instruction map { (c, i) -> Action(c, i) }
+  val effect = publish(object {
+    private val onGainTrigger = expression map { OnGain(it) }
+    private val onRemoveTrigger = skip(minus) and expression map { OnRemove(it) }
+    private val nonProdTrigger = onGainTrigger or onRemoveTrigger
+    private val prodTrigger = prodBox(nonProdTrigger) map Trigger::Prod
+    private val trigger = publish(nonProdTrigger or prodTrigger)
 
-    // Triggers
-    val onGainTrigger = expression map { OnGain(it) }
-    val onRemoveTrigger = skip(minus) and expression map { OnRemove(it) }
-    val nonProdTrigger = onGainTrigger or onRemoveTrigger
-    val prodTrigger = prodBox(nonProdTrigger) map Trigger::Prod
-    trigger = nonProdTrigger or prodTrigger
+    private val colons = colon map { false } or twoColons map { true }
+    val effect = publish(trigger and colons and instruction map { (a, b, c) -> Effect(a, c, b) })
+  }.effect)
 
-    // Effects
-    val colons = colon map { false } or twoColons map { true }
-    effect = trigger and colons and instruction map { (a, b, c) -> Effect(a, c, b) }
-  }
+  private fun regex(r: String, ignore: Boolean = false) = regexToken(r, ignore).also { tokens += it }
+  private fun literal(l: String, ignore: Boolean = false) = literalToken(l, ignore).also { tokens += it }
 
   private inline fun <reified T> prodBox(parser: Parser<T>): Parser<T> {
-    val prodStart = prod and leftBracket
-    val prodEnd = rightBracket
     return skip(prodStart) and parser and skip(prodEnd)
   }
 
@@ -199,7 +181,8 @@ object PetaformParser {
     }
   }
 
-  private inline fun <reified P : PetaformObject> register(parser: Parser<P>) {
+  private inline fun <reified P : PetaformObject> publish(parser: Parser<P>): Parser<P> {
     parsers[P::class] = parser
+    return parser
   }
 }
