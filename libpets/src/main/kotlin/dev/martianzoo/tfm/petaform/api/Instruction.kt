@@ -1,14 +1,18 @@
 package dev.martianzoo.tfm.petaform.api
 
 sealed interface Instruction : PetaformObject {
-  data class Gain(val qe: QuantifiedExpression) : Instruction {
-    constructor(expr: Expression, scalar: Int = 1) : this(QuantifiedExpression(expr, scalar))
-    override val petaform = qe.petaform
+  data class Gain(val qe: QuantifiedExpression, val intensity: Intensity? = null) : Instruction {
+    constructor(expr: Expression, scalar: Int = 1, intensity: Intensity? = null) :
+        this(QuantifiedExpression(expr, scalar), intensity)
+    init { qe.scalar >= 0 }
+    override val petaform = "${qe.petaform}${intensity?.petaform ?: ""}"
   }
 
-  data class Remove(val qe: QuantifiedExpression) : Instruction {
-    constructor(expr: Expression, scalar: Int = 1) : this(QuantifiedExpression(expr, scalar))
-    override val petaform = "-${qe.petaform}"
+  data class Remove(val qe: QuantifiedExpression, val intensity: Intensity? = null) : Instruction {
+    constructor(expr: Expression, scalar: Int = 1, intensity: Intensity? = null) :
+        this(QuantifiedExpression(expr, scalar), intensity)
+    init { qe.scalar >= 0 }
+    override val petaform = "-${qe.petaform}${intensity?.petaform ?: ""}"
   }
 
   data class Multi(var instructions: List<Instruction>) : Instruction {
@@ -17,17 +21,30 @@ sealed interface Instruction : PetaformObject {
 
   data class Or(var instructions: List<Instruction>) : Instruction {
     override val petaform = instructions.joinToString(" OR ") {
-      // precedence is against us ... TODO: does that fix it?
+      // precedence is against us
       if (it is Multi) "(${it.petaform})" else it.petaform
     }
   }
 
   data class Prod(val instruction: Instruction) : Instruction {
-    override val petaform = "PROD[$instruction]"
+    override val petaform = "PROD[${instruction.petaform}]"
   }
 
   data class Per(val instruction: Instruction, val qe: QuantifiedExpression): Instruction {
     override val petaform: String = "${instruction.petaform} / ${qe.petaform(forceExpression = true)}"
+  }
+
+  enum class Intensity(val symbol: String): PetaformObject {
+    MANDATORY("!"),
+    AMAP("."),
+    OPTIONAL("?"),
+    ;
+
+    override val petaform: String = symbol
+
+    companion object {
+      fun forSymbol(symbol: String) = values().first { it.symbol == symbol }
+    }
   }
 
   companion object {

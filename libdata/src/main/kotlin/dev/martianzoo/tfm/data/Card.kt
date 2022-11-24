@@ -2,6 +2,7 @@ package dev.martianzoo.tfm.data
 
 import com.squareup.moshi.Json
 import dev.martianzoo.tfm.data.Card.ProjectKind.ACTIVE
+import dev.martianzoo.tfm.petaform.api.Action
 import dev.martianzoo.tfm.petaform.api.Effect
 import dev.martianzoo.tfm.petaform.api.Expression
 import dev.martianzoo.tfm.petaform.api.Instruction
@@ -116,8 +117,8 @@ data class Card(
     require(resourceTypePetaform?.isNotEmpty() ?: true)
     require(requirementPetaform?.isNotEmpty() ?: true)
     if (resourceTypePetaform != null) {
-      val thing = "$resourceTypePetaform<This>"
-      require((actionsPetaform + effectsPetaform).any { it.contains(thing) }) {
+      val resourceUsage = "$resourceTypePetaform<This>"
+      require((actionsPetaform + effectsPetaform).any { it.contains(resourceUsage) }) {
         "Card can't use its resource type: $id"
       }
     }
@@ -143,7 +144,7 @@ data class Card(
   val tags: List<Expression> by lazy { tagsPetaform.map { Expression(it) } }
   val resourceType: Expression? by lazy { resourceTypePetaform?.let { Expression(it) } }
   val immediate: List<Instruction> by lazy { immediatePetaform.map(PetaformParser::parse) }
-  val actions: List<Effect> by lazy { actionsPetaform.map(PetaformParser::parse) }
+  val actions: List<Action> by lazy { actionsPetaform.map(PetaformParser::parse) }
   val effects: List<Effect> by lazy { effectsPetaform.map(PetaformParser::parse) }
   val requirement: Predicate? by lazy { requirementPetaform?.let(PetaformParser::parse) }
 

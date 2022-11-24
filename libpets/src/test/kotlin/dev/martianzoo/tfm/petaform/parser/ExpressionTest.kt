@@ -30,7 +30,7 @@ class ExpressionTest {
 
   @Test
   fun complexRoundTrip() {
-    testRoundTrip("Aa<Bb<Cc<Dd, Ee, Ff<Gg<Hh<Ii>>, Jj>>, Kk>>")
+    testRoundTrip("Aa<Bb<Cc<Dd, Ee, This<Gg<Hh<Ii>>, Jj>>, Kk>>")
   }
 
   @Test

@@ -9,7 +9,6 @@ import com.github.h0tk3y.betterParse.combinators.skip
 import com.github.h0tk3y.betterParse.grammar.parser
 import com.github.h0tk3y.betterParse.lexer.DefaultTokenizer
 import com.github.h0tk3y.betterParse.lexer.Token
-import com.github.h0tk3y.betterParse.lexer.TokenMatch
 import com.github.h0tk3y.betterParse.lexer.literalToken
 import com.github.h0tk3y.betterParse.lexer.regexToken
 import com.github.h0tk3y.betterParse.parser.ParseException
@@ -23,8 +22,7 @@ import dev.martianzoo.tfm.petaform.api.Effect
 import dev.martianzoo.tfm.petaform.api.Expression
 import dev.martianzoo.tfm.petaform.api.Instruction
 import dev.martianzoo.tfm.petaform.api.Instruction.Gain
-import dev.martianzoo.tfm.petaform.api.Instruction.Multi
-import dev.martianzoo.tfm.petaform.api.Instruction.Per
+import dev.martianzoo.tfm.petaform.api.Instruction.Intensity
 import dev.martianzoo.tfm.petaform.api.Instruction.Remove
 import dev.martianzoo.tfm.petaform.api.PetaformObject
 import dev.martianzoo.tfm.petaform.api.Predicate
@@ -59,22 +57,29 @@ object PetaformParser {
 
   private val comment = regex("//[^\n]*", ignore = true)
   private val whitespace = regex("\\s+", ignore = true)
+
   private val arrow = literal("->")
+  private val twoColons = literal("::")
+
   private val comma = literal(",")
   private val minus = literal("-")
   private val slash = literal("/")
   private val colon = literal(":")
-  private val twoColons = literal("::")
+  private val bang = literal("!")
+  private val dot = literal(".")
+  private val questy = literal("?")
   private val leftParen = literal("(")
   private val rightParen = literal(")")
   private val leftAngle = literal("<")
   private val rightAngle = literal(">")
   private val leftBracket = literal("[")
   private val rightBracket = literal("]")
+
   private val prod = literal("PROD")
   private val max = literal("MAX")
   private val or = literal("OR")
   private val `this` = literal("This")
+
   private val scalar = regex("0|[1-9][0-9]*")
   private val ident = regex("[A-Z][a-z][A-Za-z0-9_]*")
 
@@ -125,34 +130,54 @@ object PetaformParser {
     val predicate = andPredicate or orPredicate or onePredicate
   }.predicate)
 
-  private val instruction = publish(object {
-    private val gainInstruction = quantifiedExpression map ::Gain
-    private val removeInstruction = skip(minus) and quantifiedExpression map ::Remove
-    private val prodInstruction: Parser<Instruction.Prod> = prodBox(parser { instruction }) map Instruction::Prod
-    private val perableInstruction = gainInstruction or removeInstruction or prodInstruction
+  private val instruction = publish(
+      object {
+        private val intensity = optional(bang or dot or questy) map {
+          it?.let { Intensity.forSymbol(it.text) }
+        }
 
-    // for now, can't contain an Or/Multi; will have to be distributed
-    private val perInstruction = perableInstruction and skip(slash) and qeWithExplicitExpression map { (instr, qe) ->
-      Per(instr, qe)
+        private val gainInstruction = quantifiedExpression and intensity map {
+          (qe, intens) -> Gain(qe, intens)
+        }
+        private val removeInstruction = skip(minus) and quantifiedExpression and intensity map {
+          (qe, intens) -> Remove(qe, intens)
+        }
+        private val prodInstruction: Parser<Instruction.Prod> = prodBox(parser { instruction }) map Instruction::Prod
+        private val perableInstruction = gainInstruction or removeInstruction or prodInstruction
+
+        // for now, can't contain an Or/Multi; will have to be distributed
+        private val perInstruction = perableInstruction and skip(slash) and qeWithExplicitExpression map { (instr, qe) ->
+          Instruction.Per(instr, qe)
+        }
+        private val oneInstruction = perInstruction or perableInstruction
+
+        // OR binds more tightly than ,
+        private val orInstruction = separatedMultiple(oneInstruction or parser { groupedMultiInstruction }, or) map Instruction::Or
+        private val multiInstruction: Parser<Instruction.Multi> =
+            separatedMultiple(orInstruction or oneInstruction, comma) map Instruction::Multi
+        private val groupedMultiInstruction = skip(leftParen) and multiInstruction and skip(rightParen)
+
+        val instruction = multiInstruction or orInstruction or oneInstruction
+      }.instruction,
+  )
+
+  val action = publish(object {
+    private val spendCost = quantifiedExpression map ::Spend
+    private val prodCost: Parser<Cost.Prod> = prodBox(parser { cost }) map Cost::Prod
+    private val perableCost = spendCost or prodCost
+
+    // for now, a per can't contain an Or/Multi; will have to be distributed
+    private val perCost = perableCost and skip(slash) and qeWithExplicitExpression map {
+      (cost, qe) -> Cost.Per(cost, qe)
     }
-    private val oneInstruction = perInstruction or perableInstruction
+    private val oneCost = perCost or perableCost
 
     // OR binds more tightly than ,
-    private val orInstruction = separatedMultiple(oneInstruction or parser { groupedMultiInstruction }, or) map Instruction::Or
-    private val multiInstruction: Parser<Multi> = separatedMultiple(orInstruction or oneInstruction, comma) map ::Multi
-    private val groupedMultiInstruction = skip(leftParen) and multiInstruction and skip(rightParen)
+    private val orCost = separatedMultiple(oneCost or parser { groupedMultiCost }, or) map Cost::Or
+    private val multiCost: Parser<Cost.Multi> = separatedMultiple(orCost or oneCost, comma) map Cost::Multi
+    private val groupedMultiCost = skip(leftParen) and multiCost and skip(rightParen)
 
-    val instruction = multiInstruction or orInstruction or oneInstruction
-  }.instruction)
-
-  // Actions - fix this
-  val action = publish(object {
-    private val groupedCost = skip(leftParen) and parser { cost } and skip(rightParen)
-    private val spendCost = quantifiedExpression map ::Spend
-    private val prodCost = prodBox(parser { cost }) map Cost::Prod
-    private val atomCost = groupedCost or spendCost or prodCost
-    private val singleCost = separatedTerms(atomCost, or) map Cost::or
-    private val cost: Parser<Cost> = separatedTerms(singleCost, comma) map Cost::and
+    private val cost = multiCost or orCost or oneCost
 
     val action = publish(optional(cost) and skip(arrow) and instruction map { (c, i) -> Action(c, i) })
   }.action)
@@ -164,7 +189,7 @@ object PetaformParser {
     private val prodTrigger = prodBox(nonProdTrigger) map Trigger::Prod
     private val trigger = publish(nonProdTrigger or prodTrigger)
 
-    private val colons = colon map { false } or twoColons map { true }
+    private val colons = twoColons map { true } or colon map { false }
     val effect = publish(trigger and colons and instruction map { (a, b, c) -> Effect(a, c, b) })
   }.effect)
 

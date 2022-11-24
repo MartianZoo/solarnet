@@ -87,7 +87,7 @@
       "tags": [ "PowerTag", "BuildingTag" ],
       "immediate": [ "37, PROD[Steel]" ],
       "actions": [
-        "-> (MAX 0 Energy: PROD[Energy])",
+//        "-> (MAX 0 Energy: PROD[Energy])", // TODO
         "3 -> ProjectCard"
       ]
     },
@@ -1977,8 +1977,8 @@
       "deck": "PROJECT",
       "tags": [ "ScienceTag" ],
       "actions": [
-        "3 -> ProjectCard",
-        "-> O"
+        "3 -> ProjectCard" // TODO: wtf?
+//        "-> O"
       ],
       "cost": 9,
       "projectKind": "ACTIVE"
@@ -2382,8 +2382,8 @@
       "tags": [ "EarthTag" ],
       "immediate": [ "PROD[-1]" ],
       "actions": [
-        "3 -> ProjectCard",
-        "-> 0"
+        "3 -> ProjectCard"
+//        "-> 0" // TODO: wtf?
       ],
       "cost": 4,
       "projectKind": "ACTIVE"
@@ -2583,7 +2583,7 @@
       "deck": "PROJECT",
       "immediate": [ "PROD[1]" ],
       "effects": [ "End: VictoryPoint" ],
-      "requirement": "2 CityTile <Anyone>",
+      "requirement": "2 CityTile<Anyone>",
       "cost": 6,
       "projectKind": "AUTOMATED"
     },

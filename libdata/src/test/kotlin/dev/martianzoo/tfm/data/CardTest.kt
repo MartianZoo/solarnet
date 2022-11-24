@@ -8,6 +8,8 @@ import dev.martianzoo.tfm.data.Card.Deck.PROJECT
 import dev.martianzoo.tfm.data.Card.ProjectKind.ACTIVE
 import dev.martianzoo.tfm.data.Card.ProjectKind.AUTOMATED
 import dev.martianzoo.tfm.data.Card.ProjectKind.EVENT
+import dev.martianzoo.tfm.petaform.api.PetaformObject
+import dev.martianzoo.tfm.petaform.parser.PetaformParser
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 
@@ -154,17 +156,26 @@ class CardTest {
   }
 
   @Test fun slurp() {
-    Canon.cardData.values.forEach {
-      it.tags.forEach {}
-      it.requirement
-      it.resourceType
+    Canon.cardData.values.forEach { card ->
+      card.requirement?.let { assertThat(it.petaform).isEqualTo(card.requirementPetaform) }
+      card.resourceType?.let { assertThat(it.petaform).isEqualTo(card.resourceTypePetaform) }
+
+      checkRoundTrip(card.tagsPetaform, card.tags)
+      checkRoundTrip(card.actionsPetaform, card.actions)
+      checkRoundTrip(card.effectsPetaform, card.effects)
+
       try {
-        it.immediate.forEach {}
-        it.actions.forEach {}
-        it.effects.forEach {}
+        card.immediate.forEach {}
       } catch (e: Exception) {
-        println("failed: ${it.effects}")
+        println("failed immediate: ${card.immediatePetaform.joinToString("; ")}")
       }
+    }
+  }
+
+  fun checkRoundTrip(source: List<String>, cooked: List<PetaformObject>) {
+    assertThat(source.size).isEqualTo(cooked.size)
+    source.zip(cooked).forEach {
+      assertThat(it.second.petaform).isEqualTo(it.first)
     }
   }
 }

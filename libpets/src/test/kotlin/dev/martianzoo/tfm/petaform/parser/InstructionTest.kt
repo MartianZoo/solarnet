@@ -12,6 +12,8 @@ class InstructionTest {
   @Test
   fun testGainInstruction() {
     val list = listOf(
+        "1",
+        "0",
         "OceanTile",
         "1 OceanTile<WaterArea>",
         "1024 OceanTile",

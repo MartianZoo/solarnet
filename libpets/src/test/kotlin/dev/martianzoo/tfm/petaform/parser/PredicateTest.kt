@@ -26,6 +26,7 @@ class PredicateTest {
     assertThat(Min(Expression("Foo"), 1).petaform).isEqualTo("Foo")
     assertThat(Min(Expression("Foo"), 3).petaform).isEqualTo("3 Foo")
     assertThat(Min(Expression("Megacredit"), 3).petaform).isEqualTo("3")
+    assertThat(Max(Expression("Foo"), 0).petaform).isEqualTo("MAX 0 Foo")
     assertThat(Max(Expression("Foo"), 1).petaform).isEqualTo("MAX 1 Foo")
     assertThat(Max(Expression("Foo"), 3).petaform).isEqualTo("MAX 3 Foo")
     assertThat(Max(Expression("Megacredit"), 3).petaform).isEqualTo("MAX 3")
@@ -33,13 +34,19 @@ class PredicateTest {
 
   @Test
   fun roundTrips() {
-    testRoundTrip("OceanTile")
-    testRoundTrip("OceanTile<WaterArea>")
-    testRoundTrip("MAX 1024 OceanTile")
+    testRoundTrip("0")
+    testRoundTrip("1")
+    testRoundTrip("Megacredit", "1")
+    testRoundTrip("1 Megacredit", "1")
+    testRoundTrip("Plant")
+    testRoundTrip("1 Plant", "Plant")
+    testRoundTrip("3 Plant")
+    testRoundTrip("MAX 0 Plant")
+    testRoundTrip("MAX 1 Plant")
+    testRoundTrip("MAX 3 Plant")
     testRoundTrip("CityTile<LandArea>, GreeneryTile<WaterArea>")
     testRoundTrip("PlantTag, MicrobeTag OR AnimalTag")
-
-    testRoundTrip("1 OceanTile", "OceanTile")
+    testRoundTrip("(PlantTag, MicrobeTag) OR AnimalTag")
   }
 
   private fun testRoundTrip(start: String, end: String = start) {
@@ -51,6 +58,7 @@ class PredicateTest {
     testRoundTrip("PROD[1]")
     testRoundTrip("Steel, PROD[1]")
     testRoundTrip("PROD[Steel, 1]")
+    testRoundTrip("PROD[Steel OR 1]")
   }
 
   @Test fun hairy() {

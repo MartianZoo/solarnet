@@ -9,7 +9,7 @@ sealed interface Cost : PetaformObject {
     override val hasProd = false
   }
 
-  data class And(var costs: List<Cost>) : Cost {
+  data class Multi(var costs: List<Cost>) : Cost {
     init { require(costs.size >= 2) }
     override val petaform = costs.joinToString { it.petaform }
     override val hasProd = costs.any { it.hasProd }
@@ -19,7 +19,7 @@ sealed interface Cost : PetaformObject {
     init { require(costs.size >= 2) }
     override val petaform = costs.joinToString(" OR ") {
       // precedence is against us ...
-      if (it is And) "(${it.petaform})" else it.petaform
+      if (it is Multi) "(${it.petaform})" else it.petaform
     }
     override val hasProd = costs.any { it.hasProd }
   }
@@ -28,8 +28,16 @@ sealed interface Cost : PetaformObject {
     init {
       require(!cost.hasProd)
     }
-    override val petaform = "PROD[$cost]"
+    override val petaform = "PROD[${cost.petaform}]"
     override val hasProd = true
+  }
+
+  // can't do non-prod per prod yet
+  data class Per(val cost: Cost, val qe: QuantifiedExpression) : Cost {
+    init { require(qe.scalar != 0) }
+
+    override val petaform = "$cost / $qe" // parens
+    override val hasProd = cost.hasProd
   }
 
   companion object {
@@ -38,8 +46,8 @@ sealed interface Cost : PetaformObject {
         if (costs.size == 1) {
           costs[0]
         } else {
-          And(costs.flatMap {
-            if (it is And) it.costs else listOf(it)
+          Multi(costs.flatMap {
+            if (it is Multi) it.costs else listOf(it)
           })
         }
 
