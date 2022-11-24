@@ -116,7 +116,10 @@ data class Card(
     require(resourceTypePetaform?.isNotEmpty() ?: true)
     require(requirementPetaform?.isNotEmpty() ?: true)
     if (resourceTypePetaform != null) {
-      require(actionsPetaform.isNotEmpty() || effectsPetaform.isNotEmpty())
+      val thing = "$resourceTypePetaform<This>"
+      require((actionsPetaform + effectsPetaform).any { it.contains(thing) }) {
+        "Card can't use its resource type: $id"
+      }
     }
 
     when (deck) {
@@ -124,15 +127,15 @@ data class Card(
         require(cost >= 0)
         // a project should be ACTIVE iff it has persistent effects
         when (projectKind) {
-          null -> error("")
-          ACTIVE -> require(!inactive())
-          else -> require(inactive())
+          null -> error("Missing project kind: $id")
+          ACTIVE -> require(!inactive()) { "No persistent effects: $id" }
+          else -> require(inactive()) { "Persistent effects: $id" }
         }
       }
       else -> {
-        require(requirementPetaform == null)
-        require(cost == 0)
-        require(projectKind == null)
+        require(requirementPetaform == null) { "can't have requirement: $id" }
+        require(cost == 0) { "can't have cost: $id" }
+        require(projectKind == null) { "not a project: $id" }
       }
     }
   }

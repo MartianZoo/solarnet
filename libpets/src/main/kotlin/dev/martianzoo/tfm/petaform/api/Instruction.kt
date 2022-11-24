@@ -11,19 +11,23 @@ sealed interface Instruction : PetaformObject {
     override val petaform = "-${qe.petaform}"
   }
 
-  data class And(var instructions: List<Instruction>) : Instruction {
+  data class Multi(var instructions: List<Instruction>) : Instruction {
     override val petaform = instructions.joinToString { it.petaform }
   }
 
   data class Or(var instructions: List<Instruction>) : Instruction {
     override val petaform = instructions.joinToString(" OR ") {
       // precedence is against us ... TODO: does that fix it?
-      if (it is And) "(${it.petaform})" else it.petaform
+      if (it is Multi) "(${it.petaform})" else it.petaform
     }
   }
 
   data class Prod(val instruction: Instruction) : Instruction {
     override val petaform = "PROD[$instruction]"
+  }
+
+  data class Per(val instruction: Instruction, val qe: QuantifiedExpression): Instruction {
+    override val petaform: String = "${instruction.petaform} / ${qe.petaform(forceExpression = true)}"
   }
 
   companion object {
@@ -32,8 +36,8 @@ sealed interface Instruction : PetaformObject {
         if (instructions.size == 1) {
           instructions[0]
         } else {
-          And(instructions.flatMap {
-            if (it is And) it.instructions else listOf(it)
+          Multi(instructions.flatMap {
+            if (it is Multi) it.instructions else listOf(it)
           })
         }
 

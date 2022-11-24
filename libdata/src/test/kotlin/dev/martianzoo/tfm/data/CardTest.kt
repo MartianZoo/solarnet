@@ -158,13 +158,13 @@ class CardTest {
       it.tags.forEach {}
       it.requirement
       it.resourceType
-      //try {
-      //  it.immediate.forEach {}
-      //  it.actions.forEach {}
-      //  it.effects.forEach {}
-      //} catch (e: Exception) {
-      //  println("failed: ${it.effects}")
-      //}
+      try {
+        it.immediate.forEach {}
+        it.actions.forEach {}
+        it.effects.forEach {}
+      } catch (e: Exception) {
+        println("failed: ${it.effects}")
+      }
     }
   }
 }

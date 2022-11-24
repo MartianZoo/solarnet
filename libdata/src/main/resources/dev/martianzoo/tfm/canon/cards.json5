@@ -580,7 +580,7 @@
       "bundle": "B",
       "deck": "PROJECT",
       "tags": [ "ScienceTag", "CityTag", "BuildingTag" ],
-      "immediate": [ "CityTile<LandArea(HAS MAX 0 Neighbor)>" ],
+//      "immediate": [ "CityTile<LandArea(HAS MAX 0 Neighbor)>" ],
       "effects": [ "Purchase<CardFront>: -Owed" ],
       "cost": 18,
       "projectKind": "ACTIVE"
@@ -650,7 +650,7 @@
       "bundle": "B",
       "deck": "PROJECT",
       "tags": [ "SpaceTag" ],
-      "effects": [ "EventCard(HAS SpaceTag): 3, 3 Heat" ],
+      "effects": [ "EventCard: 3, 3 Heat" ], // TODO: (HAS SpaceTag)
       "cost": 7,
       "projectKind": "ACTIVE"
     },
@@ -799,7 +799,7 @@
       "bundle": "B",
       "deck": "PROJECT",
       "tags": [ "ScienceTag", "BuildingTag" ],
-      "immediate": [ "PROD[1], SpecialTile<LandArea(HAS MAX 0 Neighbor)>" ],
+      "immediate": [ "PROD[1], SpecialTile<LandArea>" ], // TODO (HAS MAX 0 Neighbor)
       "effects": [ "End: VictoryPoint" ],
       "requirement": "MAX 4 OxygenStep",
       "cost": 9,
@@ -1264,8 +1264,8 @@
       "deck": "PROJECT",
       "tags": [ "CityTag", "BuildingTag" ],
       "immediate": [
-        "PROD[-Energy, 2]",
-        "CityTile<LandArea(HAS 2 Neighbor<CityTile<Anyone>>)>"
+        "PROD[-Energy, 2]"
+//        "CityTile<LandArea(HAS 2 Neighbor<CityTile<Anyone>>)>"
       ],
       "cost": 10,
       "projectKind": "AUTOMATED"
@@ -1310,9 +1310,10 @@
       "bundle": "B",
       "deck": "PROJECT",
       "tags": [ "AnimalTag", "PlantTag" ],
-      "immediate": [ "SpecialTile<LandArea(HAS Neighbor<GreeneryTile<Anyone>>)>" ],
+//      "immediate": [ "SpecialTile<LandArea(HAS Neighbor<GreeneryTile<Anyone>>)>" ],
       "effects": [
-        "AnimalTag OR PlantTag: Animal<This>",
+        "AnimalTag: Animal<This>", // TODO: an OR would be slightly nice?
+        "PlantTag: Animal<This>",
         "End: VictoryPoint / Animal<This>"
       ],
       "resourceType": "Animal",
@@ -1738,7 +1739,7 @@
       "immediate": [ "Animal<This>" ],
       "effects": [
         "CityTile<Anyone>: Animal<This>",
-        "End: VictoryPoint / 2 Animal<This>" // TODO
+        "End: VictoryPoint / 2 Animal<This>" // TODO: undeletable
       ],
       "resourceType": "Animal",
       "cost": 10,
@@ -2427,7 +2428,7 @@
       "bundle": "R",
       "deck": "PROJECT",
       "tags": [ "BuildingTag" ],
-      "immediate": [ "SpecialTile<LandArea(HAS Neighbor<CityTile<Anyone>>)>" ],
+//      "immediate": [ "SpecialTile<LandArea(HAS Neighbor<CityTile<Anyone>>)>" ],
       "actions": [ "7 -> PROD[Steel]" ],
       "cost": 4,
       "projectKind": "ACTIVE"
@@ -2780,7 +2781,7 @@
       "bundle": "V",
       "deck": "PROJECT",
       "tags": [ "VenusTag" ],
-      "immediate": [ "VenusStep, 3 Floater<CardFront(HAS VenusTag)>" ],
+//      "immediate": [ "VenusStep, 3 Floater<CardFront(HAS VenusTag)>" ],
       "cost": 13,
       "projectKind": "EVENT"
     },
@@ -2817,7 +2818,7 @@
       "bundle": "V",
       "deck": "PROJECT",
       "tags": [ "SpaceTag" ],
-      "immediate": [ "VenusStep, -4 Megacredit<Anyone(HAS VenusTag)>?" ],
+//      "immediate": [ "VenusStep, -4 Megacredit<Anyone(HAS VenusTag)>?" ],
       "cost": 11,
       "projectKind": "EVENT"
     },
@@ -2828,7 +2829,7 @@
       "bundle": "V",
       "deck": "PROJECT",
       "tags": [ "VenusTag" ],
-      "immediate": [ "PROD[2], CardResource<CardFront(HAS VenusTag)>" ],
+//      "immediate": [ "PROD[2], CardResource<CardFront(HAS VenusTag)>" ],
       "cost": 8,
       "projectKind": "AUTOMATED"
     },
@@ -2926,7 +2927,7 @@
       "deck": "PROJECT",
       "tags": [ "VenusTag", "PlantTag" ],
       "immediate": [
-        "2 Microbe<CardFront(HAS VenusTag)> OR 2 Animal<CardFront(HAS VenusTag)>",
+//        "2 Microbe<CardFront(HAS VenusTag)> OR 2 Animal<CardFront(HAS VenusTag)>",
         "PROD[-Energy, 2]"
       ],
       "effects": [ "End: VictoryPoint" ],
@@ -2974,7 +2975,7 @@
       "bundle": "V",
       "deck": "PROJECT",
       "tags": [ "SpaceTag" ],
-      "immediate": [ "VenusStep, Floater<CardFront(HAS VenusTag)> / JovianTag" ],
+//      "immediate": [ "VenusStep, Floater<CardFront(HAS VenusTag)> / JovianTag" ],
       "cost": 11,
       "projectKind": "EVENT"
     },
@@ -3063,7 +3064,7 @@
       "deck": "PROJECT",
       "tags": [ "VenusTag", "CityTag" ],
       "immediate": [ "PROD[-Energy], CityTile<Card238Area>" ],
-      "actions": [ "-> CardResource<CardFront(HAS VenusTag)>" ],
+      "actions": [ "-> CardResource<CardFront>" ], // TODO (HAS VenusTag)
       "effects": [ "End: 3 VictoryPoint" ],
       "requirement": "6 VenusStep",
       "cost": 18,
@@ -3176,7 +3177,7 @@
       "deck": "PROJECT",
       "tags": [ "VenusTag", "CityTag" ],
       "immediate": [ "PROD[2], CityTile<Card248Area>" ],
-      "actions": [ "-> 2 Floater<CardFront(HAS VenusTag)>" ],
+      "actions": [ "-> 2 Floater<CardFront>" ], // TODO (HAS VenusTag)
       "effects": [ "End: VictoryPoint / 3 Floater<This>" ],
       "resourceType": "Floater",
       "requirement": "2 ScienceTag",
@@ -3229,7 +3230,7 @@
       "deck": "PROJECT",
       "tags": [ "VenusTag", "MicrobeTag" ],
       "actions": [
-        "-> Microbe<CardFront(HAS VenusTag)>",
+//        "-> Microbe<CardFront(HAS VenusTag)>",
         "2 Microbe<This> -> VenusTag"
       ],
       "resourceType": "Microbe",
@@ -3335,8 +3336,8 @@
       "deck": "PROJECT",
       "tags": [ "VenusTag", "PlantTag" ],
       "immediate": [
-        "VenusStep",
-        "Microbe<CardFront(HAS VenusTag)> OR Animal<CardFront(HAS VenusTag)>"
+        "VenusStep"
+//        "Microbe<CardFront(HAS VenusTag)> OR Animal<CardFront(HAS VenusTag)>"
       ],
       "effects": [ "End: VictoryPoint" ],
       "requirement": "8 VenusStep",
@@ -3584,8 +3585,8 @@
       "deck": "PROJECT",
       "tags": [ "SpaceTag" ],
       "immediate": [
-        "3 TemperatureStep, 4 Steel, -6 Plant<Anyone>?",
-        "SpecialTile<LandArea(HAS MAX 0 Neighbor<CityTile<Anyone>>)>"
+        "3 TemperatureStep, 4 Steel, -6 Plant<Anyone>?"
+//        "SpecialTile<LandArea(HAS MAX 0 Neighbor<CityTile<Anyone>>)>"
       ],
       "cost": 31,
       "projectKind": "EVENT"
@@ -3597,7 +3598,7 @@
       "bundle": "X",
       "deck": "PROJECT",
       "tags": [ "PowerTag", "BuildingTag" ],
-      "immediate": [ "PROD[2 Energy], SpecialTile<LandArea(HAS Neighbor<OceanTile>)>" ],
+//      "immediate": [ "PROD[2 Energy], SpecialTile<LandArea(HAS Neighbor<OceanTile>)>" ],
       "effects": [ "End: VictoryPoint" ],
       "requirement": "4 OceanTile",
       "cost": 15,

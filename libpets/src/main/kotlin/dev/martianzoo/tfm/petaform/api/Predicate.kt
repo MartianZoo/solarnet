@@ -11,7 +11,7 @@ sealed interface Predicate : PetaformObject {
 
   data class Max(val qe: QuantifiedExpression) : Predicate {
     constructor(expr: Expression, scalar: Int = 1) : this(QuantifiedExpression(expr, scalar))
-    override val petaform = qe.petaformWithScalar()
+    override val petaform = "MAX ${qe.petaform(forceScalar = true)}"
   }
 
   data class Or(val predicates: List<Predicate>) : Predicate {

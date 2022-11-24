@@ -14,6 +14,7 @@ object Tokens {
   val arrow = literal("->")
   val comma = literal(",")
   val minus = literal("-")
+  val slash = literal("/")
   val colon = literal(":")
   val twoColons = literal("::")
 
@@ -29,7 +30,7 @@ object Tokens {
   val prod = literal("PROD")
   val `this` = literal("This")
 
-  val scalar = regex("[1-9][0-9]*")
+  val scalar = regex("0|[1-9][0-9]*")
   val ident = regex("[A-Z][a-z][A-Za-z0-9_]*")
 
   private fun regex(r: String, ignore: Boolean = false) =

@@ -47,17 +47,6 @@ class InstructionTest {
   }
 
   @Test
-  fun testGroupedAndInstruction() {
-    val instr = parse<Instruction>("(-5 Heat, 4 Plant)")
-    assertThat(instr).isEqualTo(
-        Instruction.and(
-            Remove(Expression("Heat"), 5),
-            Gain(Expression("Plant"), 4)
-        ),
-    )
-  }
-
-  @Test
   fun `Local Heat Trapping`() {
     val input = "-5 Heat, 4 Plant OR 2 Animal"
     val instruction = parse<Instruction>(input)

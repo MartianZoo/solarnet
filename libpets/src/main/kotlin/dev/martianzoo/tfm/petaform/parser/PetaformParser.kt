@@ -19,6 +19,8 @@ import dev.martianzoo.tfm.petaform.api.Effect
 import dev.martianzoo.tfm.petaform.api.Expression
 import dev.martianzoo.tfm.petaform.api.Instruction
 import dev.martianzoo.tfm.petaform.api.Instruction.Gain
+import dev.martianzoo.tfm.petaform.api.Instruction.Multi
+import dev.martianzoo.tfm.petaform.api.Instruction.Per
 import dev.martianzoo.tfm.petaform.api.Instruction.Remove
 import dev.martianzoo.tfm.petaform.api.PetaformObject
 import dev.martianzoo.tfm.petaform.api.Predicate
@@ -44,6 +46,7 @@ import dev.martianzoo.tfm.petaform.parser.Tokens.rightAngle
 import dev.martianzoo.tfm.petaform.parser.Tokens.rightBracket
 import dev.martianzoo.tfm.petaform.parser.Tokens.rightParen
 import dev.martianzoo.tfm.petaform.parser.Tokens.scalar
+import dev.martianzoo.tfm.petaform.parser.Tokens.slash
 import dev.martianzoo.tfm.petaform.parser.Tokens.twoColons
 import kotlin.reflect.KClass
 import kotlin.reflect.cast
@@ -76,6 +79,7 @@ object PetaformParser {
 
   // sigh ... TODO
   private lateinit var groupedAndPredicate: Parser<Predicate>
+  private lateinit var groupedMultiInstruction: Parser<Instruction>
 
   private val parsers = mutableMapOf<KClass<out PetaformObject>, Parser<PetaformObject>>()
 
@@ -108,25 +112,28 @@ object PetaformParser {
     // Quantified expressions -- require scalar or type or both
     // No precedence issues, no need to deal with PROD
 
-    val explicitScalar: Parser<Int> = scalar map { it.text.toInt() } // 3
-    val impliedExpression: Parser<Expression> = optional(expression) map { // "", meaning "Megacredit"
+    val scalar: Parser<Int> = scalar map { it.text.toInt() } // 3
+    val implicitScalar: Parser<Int> = optional(scalar) map { it ?: 1 } // "", meaning 1
+    val implicitExpression: Parser<Expression> = optional(expression) map { // "", meaning "Megacredit"
       it ?: Expression.DEFAULT
     }
 
     // "1" or "1 Plant"
-    val qeWithExplicitScalar = explicitScalar and impliedExpression map { (scalar, expr) ->
-      QuantifiedExpression(expr, scalar)
+    val qeWithExplicitScalar = scalar and implicitExpression map {
+      (scalar, expr) -> QuantifiedExpression(expr, scalar)
     }
-    // "Plant"
-    val unquantifiedExpression = expression map { QuantifiedExpression(it) }
-    // "1" or "Plant" or "1 Plant"
-    quantifiedExpression = qeWithExplicitScalar or unquantifiedExpression
+    // "Plant" or "1 Plant"
+    val qeWithExplicitExpression = implicitScalar and expression map {
+      (scalar, expr) -> QuantifiedExpression(expr, scalar)
+    }
+    // "1" or "Plant" or "1 Plant" -- if both rules would match it doesn't matter which
+    quantifiedExpression = qeWithExplicitScalar or qeWithExplicitExpression
 
     // Predicates
 
     val minPredicate = quantifiedExpression map Predicate::Min
     val maxPredicate = skip(max) and qeWithExplicitScalar map Predicate::Max
-    val prodPredicate = wrapInProd(parser { predicate }) map Predicate::Prod
+    val prodPredicate = prodBox(parser { predicate }) map Predicate::Prod
     val onePredicate = minPredicate or maxPredicate or prodPredicate
 
     // OR binds more tightly than ,
@@ -138,19 +145,30 @@ object PetaformParser {
 
     // Instructions
 
-    val groupedInstruction = skip(leftParen) and parser { getParser<Instruction>() } and skip(rightParen)
     val gainInstruction = quantifiedExpression map ::Gain
     val removeInstruction = skip(minus) and quantifiedExpression map ::Remove
-    val prodInstruction = wrapInProd(parser { getParser<Instruction>() }) map Instruction::Prod
 
-    val atomInstruction = groupedInstruction or gainInstruction or removeInstruction or prodInstruction
-    val singleInstruction = separatedTerms(atomInstruction, or) map Instruction::or
-    instruction = separatedTerms(singleInstruction, comma) map Instruction::and
+    val prodInstruction = prodBox(parser { instruction }) map Instruction::Prod
+    val perableInstruction = gainInstruction or removeInstruction or prodInstruction
 
-    // Actions
+    // for now, can't contain an Or/Multi; will have to be distributed
+    val perInstruction = perableInstruction and skip(slash) and qeWithExplicitExpression map {
+      (instr, qe) -> Per(instr, qe)
+    }
+    val oneInstruction = perInstruction or perableInstruction
+
+    // OR binds more tightly than ,
+    val orInstruction = separatedMultiple(oneInstruction or parser { groupedMultiInstruction }, or) map Instruction::Or
+    val multiInstruction = separatedMultiple(orInstruction or oneInstruction, comma) map ::Multi
+
+    instruction = multiInstruction or orInstruction or oneInstruction
+    groupedMultiInstruction = skip(leftParen) and multiInstruction and skip(rightParen)
+
+    // Actions - fix this
+
     val groupedCost = skip(leftParen) and parser { getParser<Cost>() } and skip(rightParen)
     val spendCost = quantifiedExpression map ::Spend
-    val prodCost = wrapInProd(parser { getParser<Cost>() }) map Cost::Prod
+    val prodCost = prodBox(parser { getParser<Cost>() }) map Cost::Prod
     val atomCost = groupedCost or spendCost or prodCost
     val singleCost = separatedTerms(atomCost, or) map Cost::or
     val cost = separatedTerms(singleCost, comma) map Cost::and
@@ -161,7 +179,7 @@ object PetaformParser {
     val onGainTrigger = expression map { OnGain(it) }
     val onRemoveTrigger = skip(minus) and expression map { OnRemove(it) }
     val nonProdTrigger = onGainTrigger or onRemoveTrigger
-    val prodTrigger = wrapInProd(nonProdTrigger) map Trigger::Prod
+    val prodTrigger = prodBox(nonProdTrigger) map Trigger::Prod
     trigger = nonProdTrigger or prodTrigger
 
     // Effects
@@ -169,7 +187,7 @@ object PetaformParser {
     effect = trigger and colons and instruction map { (a, b, c) -> Effect(a, c, b) }
   }
 
-  private inline fun <reified T> wrapInProd(parser: Parser<T>): Parser<T> {
+  private inline fun <reified T> prodBox(parser: Parser<T>): Parser<T> {
     val prodStart = prod and leftBracket
     val prodEnd = rightBracket
     return skip(prodStart) and parser and skip(prodEnd)

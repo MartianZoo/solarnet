@@ -1,8 +1,5 @@
 package dev.martianzoo.tfm.petaform.api
 
-import dev.martianzoo.tfm.petaform.api.Instruction.And
-import dev.martianzoo.tfm.petaform.api.Instruction.Or
-
 sealed interface Cost : PetaformObject {
   val hasProd : Boolean
 
