@@ -79,6 +79,7 @@ object PetaformParser {
   private val prod = literal("PROD")
   private val max = literal("MAX")
   private val or = literal("OR")
+  private val has = literal("HAS")
   private val `this` = literal("This")
 
   private val scalar = regex("0|[1-9][0-9]*")
@@ -93,11 +94,19 @@ object PetaformParser {
     private val className: Parser<ClassName> = ident map { ClassName(it.text) } // Plant
     private val thisComponent: Parser<This> = `this` map { This } // This
     private val rootType: Parser<RootType> = thisComponent or className // Plant
+
     private val refinements: Parser<List<Expression>> = // <Player1, LandArea>
         skip(leftAngle) and separatedTerms(parser { expression }, comma) and skip(rightAngle)
     private val optionalRefinements = optional(refinements) map { it ?: listOf() }
-    // CityTile<Player1, LandArea>
-    val expression = rootType and optionalRefinements map { (type, refs) -> Expression(type, refs) }
+
+    private val hazzer = skip(has) and parser { predicate }
+    private val predicates: Parser<List<Predicate>> = skip(leftParen) and separatedTerms(hazzer, comma) and skip(rightParen)
+    private val optionalPredicates = optional(predicates) map { it ?: listOf() }
+
+    // CityTile<Player1, LandArea>(HAS blahblah)
+    val expression = rootType and optionalRefinements and optionalPredicates map {
+      (type, refs, preds) -> Expression(type, refs, preds)
+    }
   }.expression)
 
   private val explicitScalar: Parser<Int> = scalar map { it.text.toInt() } // 3
@@ -131,9 +140,10 @@ object PetaformParser {
 
     val groupedAndPredicate: Parser<Predicate.And> = skip(leftParen) and bareAndPredicate and skip(rightParen)
     val groupedOrPredicate: Parser<Predicate.Or> = skip(leftParen) and bareOrPredicate and skip(rightParen)
-    val predicate = bareAndPredicate or bareOrPredicate or onePredicate
+    val predicate: Parser<Predicate> = bareAndPredicate or bareOrPredicate or onePredicate
     val safePredicate = groupedAndPredicate or groupedOrPredicate or onePredicate
   }
+  val predicate = predicates.predicate
 
   private val instruction = publish(
       object {

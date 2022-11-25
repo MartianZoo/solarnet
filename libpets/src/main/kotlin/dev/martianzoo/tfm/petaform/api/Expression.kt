@@ -11,7 +11,8 @@ import dev.martianzoo.util.joinOrEmpty
  */
 data class Expression(
     val rootType: RootType,
-    val refinements: List<Expression> = listOf()) : PetaformObject {
+    val refinements: List<Expression> = listOf(),
+    val predicates: List<Predicate> = listOf()) : PetaformObject {
 
   constructor(rootType: RootType, vararg refinement: Expression) :
       this(rootType, refinement.toList())
@@ -19,7 +20,9 @@ data class Expression(
       this(ClassName(rootType), refinement.toList())
 
   override val petaform : String =
-      rootType.petaform + refinements.map { it.petaform }.joinOrEmpty(prefix = "<", suffix = ">")
+      rootType.petaform +
+          refinements.map { it.petaform }.joinOrEmpty(prefix = "<", suffix = ">") +
+          predicates.map { "HAS ${it.petaform}" }.joinOrEmpty(prefix = "(", suffix = ")")
 
   companion object {
     val DEFAULT = Expression("Megacredit")

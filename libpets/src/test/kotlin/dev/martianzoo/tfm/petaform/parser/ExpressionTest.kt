@@ -26,6 +26,9 @@ class ExpressionTest {
     testRoundTrip("Foo<Bar>")
     testRoundTrip("Foo<Bar, Baz>")
     testRoundTrip("Foo<Bar<Qux>, Baz>")
+    testRoundTrip("Foo(HAS Bar)")
+    testRoundTrip("Foo(HAS MAX 0 Bar)")
+    testRoundTrip("Foo<Bar>(HAS Baz, HAS 2 Qux)")
   }
 
   @Test
