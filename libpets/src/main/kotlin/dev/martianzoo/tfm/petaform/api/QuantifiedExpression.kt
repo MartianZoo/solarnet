@@ -1,6 +1,6 @@
 package dev.martianzoo.tfm.petaform.api
 
-data class QuantifiedExpression(val expr: Expression, val scalar: Int = 1): PetaformObject() {
+data class QuantifiedExpression(val expr: Expression, val scalar: Int = 1): PetaformNode() {
   init { require(scalar >= 0) }
   override val children = listOf(expr)
   override fun toString() = petaform()

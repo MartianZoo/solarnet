@@ -2,7 +2,7 @@ package dev.martianzoo.tfm.petaform.api
 
 import com.google.common.collect.Lists
 
-sealed class Predicate : PetaformObject() {
+sealed class Predicate : PetaformNode() {
 
   data class Min(val qe: QuantifiedExpression) : Predicate() {
     constructor(expr: Expression, scalar: Int = 1) : this(QuantifiedExpression(expr, scalar))

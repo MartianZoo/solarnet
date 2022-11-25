@@ -12,7 +12,7 @@ import dev.martianzoo.util.joinOrEmpty
 data class Expression(
     val rootType: RootType,
     val refinements: List<Expression> = listOf(),
-    val predicates: List<Predicate> = listOf()) : PetaformObject() {
+    val predicates: List<Predicate> = listOf()) : PetaformNode() {
 
   constructor(rootType: RootType, vararg refinement: Expression) :
       this(rootType, refinement.toList())
@@ -33,8 +33,8 @@ data class Expression(
   }
 }
 
-sealed class RootType : PetaformObject() {
-  override val children = listOf<PetaformObject>()
+sealed class RootType : PetaformNode() {
+  override val children = listOf<PetaformNode>()
   override val hasProd = false
 }
 

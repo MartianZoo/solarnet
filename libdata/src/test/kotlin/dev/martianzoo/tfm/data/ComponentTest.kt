@@ -2,8 +2,7 @@ package dev.martianzoo.tfm.data
 
 import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.tfm.canon.Canon
-import dev.martianzoo.tfm.petaform.api.Expression
-import dev.martianzoo.tfm.petaform.api.PetaformObject
+import dev.martianzoo.tfm.petaform.api.PetaformNode
 import org.junit.jupiter.api.Test
 
 // Not testing much, just a bit of the canon data
@@ -37,7 +36,7 @@ class ComponentTest {
     }
   }
 
-  fun checkRoundTrip(source: Collection<String>, cooked: Collection<PetaformObject>) {
+  fun checkRoundTrip(source: Collection<String>, cooked: Collection<PetaformNode>) {
     assertThat(source.size).isEqualTo(cooked.size)
     source.zip(cooked).forEach {
       assertThat("${it.second}").isEqualTo(it.first)

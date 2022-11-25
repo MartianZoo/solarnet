@@ -28,7 +28,7 @@ import dev.martianzoo.tfm.petaform.api.Instruction.Gain
 import dev.martianzoo.tfm.petaform.api.Instruction.Gated
 import dev.martianzoo.tfm.petaform.api.Instruction.Intensity
 import dev.martianzoo.tfm.petaform.api.Instruction.Remove
-import dev.martianzoo.tfm.petaform.api.PetaformObject
+import dev.martianzoo.tfm.petaform.api.PetaformNode
 import dev.martianzoo.tfm.petaform.api.Predicate
 import dev.martianzoo.tfm.petaform.api.QuantifiedExpression
 import dev.martianzoo.tfm.petaform.api.RootType
@@ -38,14 +38,14 @@ import kotlin.reflect.cast
 
 object PetaformParser {
   @Suppress("UNCHECKED_CAST")
-  inline fun <reified P : PetaformObject> getParser() = getParser(P::class) as Parser<P>
+  inline fun <reified P : PetaformNode> getParser() = getParser(P::class) as Parser<P>
 
-  inline fun <reified P : PetaformObject> parse(petaform: String) = parse(P::class, petaform)
+  inline fun <reified P : PetaformNode> parse(petaform: String) = parse(P::class, petaform)
 
-  fun <P : PetaformObject> getParser(type: KClass<P>) = parsers[type]!!
+  fun <P : PetaformNode> getParser(type: KClass<P>) = parsers[type]!!
 
-  fun <P : PetaformObject> parse(type: KClass<P>, petaform: String): P {
-    val parser: Parser<PetaformObject> = parsers[type]!!
+  fun <P : PetaformNode> parse(type: KClass<P>, petaform: String): P {
+    val parser: Parser<PetaformNode> = parsers[type]!!
     try {
       val pet = parser.parseToEnd(DefaultTokenizer(tokens).tokenize(petaform))
       return type.cast(pet)
@@ -85,7 +85,7 @@ object PetaformParser {
   private val scalar = regex("0|[1-9][0-9]*")
   private val ident = regex("[A-Z][a-z][A-Za-z0-9_]*")
 
-  private val parsers = mutableMapOf<KClass<out PetaformObject>, Parser<PetaformObject>>()
+  private val parsers = mutableMapOf<KClass<out PetaformNode>, Parser<PetaformNode>>()
 
   val prodStart = prod and leftBracket
   val prodEnd = rightBracket
@@ -240,7 +240,7 @@ object PetaformParser {
 
   private inline fun <reified T> group(contents: Parser<T>) = skip(leftParen) and contents and skip(rightParen)
 
-  private inline fun <reified P : PetaformObject> publish(parser: Parser<P>): Parser<P> {
+  private inline fun <reified P : PetaformNode> publish(parser: Parser<P>): Parser<P> {
     parsers[P::class] = parser
     return parser
   }

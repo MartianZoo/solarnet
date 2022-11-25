@@ -1,6 +1,6 @@
 package dev.martianzoo.tfm.petaform.api
 
-sealed class Instruction : PetaformObject() {
+sealed class Instruction : PetaformNode() {
   data class Gain(val qe: QuantifiedExpression, val intensity: Intensity? = null) : Instruction() {
     constructor(expr: Expression, scalar: Int = 1, intensity: Intensity? = null) :
         this(QuantifiedExpression(expr, scalar), intensity)

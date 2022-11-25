@@ -1,15 +1,11 @@
 package dev.martianzoo.tfm.petaform.api
 
-import java.util.*
-import kotlin.jvm.optionals.toList
-import kotlin.jvm.optionals.toSet
-
-data class Action(val cost: Cost?, val instruction: Instruction) : PetaformObject() {
+data class Action(val cost: Cost?, val instruction: Instruction) : PetaformNode() {
   override val children = listOfNotNull(cost) + instruction
   override fun toString() = (cost?.let { "${cost} -> " } ?: "-> ") + instruction
   override val hasProd = hasZeroOrOneProd(cost, instruction)
 
-  sealed class Cost : PetaformObject() {
+  sealed class Cost : PetaformNode() {
     data class Spend(val qe: QuantifiedExpression) : Cost() {
       constructor(expr: Expression, scalar: Int = 1) : this(QuantifiedExpression(expr, scalar))
       override val children = listOf(qe)

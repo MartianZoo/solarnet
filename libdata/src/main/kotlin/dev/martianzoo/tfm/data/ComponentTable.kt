@@ -5,7 +5,7 @@ import dev.martianzoo.tfm.petaform.api.ClassName
 import dev.martianzoo.tfm.petaform.api.Effect
 import dev.martianzoo.tfm.petaform.api.Expression
 import dev.martianzoo.tfm.petaform.api.Instruction
-import dev.martianzoo.tfm.petaform.api.PetaformObject
+import dev.martianzoo.tfm.petaform.api.PetaformNode
 import dev.martianzoo.tfm.petaform.parser.PetaformParser.parse
 
 class ComponentTable {
@@ -38,11 +38,11 @@ class ComponentTable {
 
   operator fun get(name: String) = table[name]
 
-  private fun verifyClassNames(nodes: Iterable<PetaformObject>) {
+  private fun verifyClassNames(nodes: Iterable<PetaformNode>) {
     nodes.forEach(::verifyClassNames)
   }
 
-  private fun verifyClassNames(node: PetaformObject) {
+  private fun verifyClassNames(node: PetaformNode) {
     if (node is ClassName) {
       require(node.ctypeName in table) { node.ctypeName }
     } else {

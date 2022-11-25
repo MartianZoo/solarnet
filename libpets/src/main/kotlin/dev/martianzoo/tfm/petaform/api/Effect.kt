@@ -4,12 +4,12 @@ data class Effect(
     val trigger: Trigger,
     val instruction: Instruction,
     val immediate: Boolean = false,
-) : PetaformObject() {
+) : PetaformNode() {
   override val children = listOf(trigger, instruction)
   override fun toString() = "${trigger}${if (immediate) "::" else ":"} ${instruction}"
   override val hasProd = hasZeroOrOneProd(trigger, instruction)
 
-  sealed class Trigger : PetaformObject() {
+  sealed class Trigger : PetaformNode() {
     data class OnGain(val expression: Expression) : Trigger() {
       override val children = listOf(expression)
       override fun toString() = "$expression"
