@@ -96,11 +96,13 @@ object PetaformParser {
     private val rootType: Parser<RootType> = thisComponent or className // Plant
 
     private val refinements: Parser<List<Expression>> = // <Player1, LandArea>
-        skip(leftAngle) and separatedTerms(parser { expression }, comma) and skip(rightAngle)
+        skip(leftAngle) and
+        separatedTerms(parser { expression }, comma) and
+        skip(rightAngle)
     private val optionalRefinements = optional(refinements) map { it ?: listOf() }
 
     private val hazzer = skip(has) and parser { predicate }
-    private val predicates: Parser<List<Predicate>> = skip(leftParen) and separatedTerms(hazzer, comma) and skip(rightParen)
+    private val predicates: Parser<List<Predicate>> = group(separatedTerms(hazzer, comma))
     private val optionalPredicates = optional(predicates) map { it ?: listOf() }
 
     // CityTile<Player1, LandArea>(HAS blahblah)
@@ -115,31 +117,31 @@ object PetaformParser {
     it ?: Expression.DEFAULT
   }
   // "1" or "1 Plant"
-  val qeWithExplicitScalar = explicitScalar and implicitExpression map { (scalar, expr) ->
-    QuantifiedExpression(expr, scalar)
+  val qeWithExplicitScalar = explicitScalar and implicitExpression map {
+    (scalar, expr) -> QuantifiedExpression(expr, scalar)
   }
   // "Plant" or "1 Plant"
-  val qeWithExplicitExpression = implicitScalar and expression map { (scalar, expr) ->
-    QuantifiedExpression(expr, scalar)
+  val qeWithExplicitExpression = implicitScalar and expression map {
+    (scalar, expr) -> QuantifiedExpression(expr, scalar)
   }
   // "1" or "Plant" or "1 Plant" -- if both rules would match it doesn't matter which
   val quantifiedExpression = qeWithExplicitScalar or qeWithExplicitExpression
 
-  val predicates = PredicateParsers().also {
-    publish(it.predicate)
-  }
+  val predicates = PredicateParsers().also { publish(it.predicate) }
   class PredicateParsers {
     private val minPredicate = quantifiedExpression map Predicate::Min
     private val maxPredicate = skip(max) and qeWithExplicitScalar map Predicate::Max
     private val prodPredicate = prodBox(parser { predicate }) map Predicate::Prod
-    val onePredicate: Parser<Predicate> = minPredicate or maxPredicate or prodPredicate
+    private val onePredicate: Parser<Predicate> = minPredicate or maxPredicate or prodPredicate
 
     // OR binds more tightly than ,
-    private val bareOrPredicate = separatedMultiple(onePredicate or parser { groupedAndPredicate }, or) map Predicate::Or
-    private val bareAndPredicate: Parser<Predicate.And> = separatedMultiple(bareOrPredicate or onePredicate, comma) map Predicate::And
+    private val bareOrPredicate =
+        separatedMultiple(onePredicate or parser { groupedAndPredicate }, or) map Predicate::Or
+    private val bareAndPredicate =
+        separatedMultiple(bareOrPredicate or onePredicate, comma) map Predicate::And
 
-    val groupedAndPredicate: Parser<Predicate.And> = skip(leftParen) and bareAndPredicate and skip(rightParen)
-    val groupedOrPredicate: Parser<Predicate.Or> = skip(leftParen) and bareOrPredicate and skip(rightParen)
+    val groupedAndPredicate: Parser<Predicate> = group(bareAndPredicate)
+    val groupedOrPredicate = group(bareOrPredicate)
     val predicate: Parser<Predicate> = bareAndPredicate or bareOrPredicate or onePredicate
     val safePredicate = groupedAndPredicate or groupedOrPredicate or onePredicate
   }
@@ -157,29 +159,36 @@ object PetaformParser {
         private val removeInstruction = skip(minus) and quantifiedExpression and intensity map {
           (qe, intens) -> Remove(qe, intens)
         }
-        private val prodInstruction: Parser<Instruction.Prod> = prodBox(parser { instruction }) map Instruction::Prod
+        private val prodInstruction: Parser<Instruction> =
+            prodBox(parser { instruction }) map Instruction::Prod
         private val perableInstruction = gainInstruction or removeInstruction or prodInstruction
 
         // for now, can't contain an Or/Multi; will have to be distributed
         private val perInstruction = perableInstruction and skip(slash) and qeWithExplicitExpression map {
           (instr, qe) -> Instruction.Per(instr, qe)
         }
+        val maybePerInstruction = perInstruction or perableInstruction
 
-        private val bareGatedInstruction = predicates.safePredicate and skip(colon) and parser { safeInstruction } map {
-          (pred, instr) -> Gated(pred, instr)
-        }
+        private val bareGatedInstruction =
+            predicates.safePredicate and
+            skip(colon) and
+            parser { safeInstruction } map { (pred, instr) -> Gated(pred, instr) }
         private val groupedGatedInstruction = group(bareGatedInstruction)
-        private val oneInstruction: Parser<Instruction> = perInstruction or perableInstruction or groupedGatedInstruction
+        private val oneInstruction: Parser<Instruction> = maybePerInstruction or groupedGatedInstruction
 
         // OR binds more tightly than ,
-        private val orInstruction = separatedMultiple(oneInstruction or parser { groupedMultiInstruction }, or) map Instruction::Or
-        private val multiInstruction: Parser<Instruction.Multi> =
-            separatedMultiple(orInstruction or oneInstruction, comma) map Instruction::Multi
-        private val groupedMultiInstruction = skip(leftParen) and multiInstruction and skip(rightParen)
-        private val groupedOrInstruction: Parser<Instruction> = skip(leftParen) and orInstruction and skip(rightParen)
-        private val safeInstruction = groupedMultiInstruction or groupedOrInstruction or oneInstruction
+        val orTerm = oneInstruction or parser { groupedMultiInstruction }
+        private val orInstruction = separatedMultiple(orTerm, or) map Instruction::Or
 
-        val instruction = multiInstruction or orInstruction or bareGatedInstruction or perInstruction or perableInstruction
+        val multiTerm = orInstruction or oneInstruction
+        private val multiInstruction: Parser<Instruction.Multi> =
+            separatedMultiple(multiTerm, comma) map Instruction::Multi
+
+        private val groupedMultiInstruction = group(multiInstruction)
+        private val safeInstruction = groupedMultiInstruction or group(orInstruction) or oneInstruction
+
+        val instruction =
+            multiInstruction or orInstruction or bareGatedInstruction or maybePerInstruction
       }.instruction,
   )
 
@@ -195,9 +204,8 @@ object PetaformParser {
     private val oneCost = perCost or perableCost
 
     // OR binds more tightly than ,
-    private val orCost = separatedMultiple(oneCost or parser { groupedMultiCost }, or) map Cost::Or
+    private val orCost = separatedMultiple(oneCost or group(parser { multiCost }), or) map Cost::Or
     private val multiCost: Parser<Cost.Multi> = separatedMultiple(orCost or oneCost, comma) map Cost::Multi
-    private val groupedMultiCost = skip(leftParen) and multiCost and skip(rightParen)
 
     private val cost = multiCost or orCost or oneCost
 
