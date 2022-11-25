@@ -3,4 +3,6 @@ package dev.martianzoo.tfm.petaform.api
 /**
  * An API object that can be represented as Petaform source code.
  */
-abstract class PetaformObject
+abstract class PetaformObject {
+  abstract val hasProd: Boolean
+}

@@ -6,6 +6,7 @@ sealed class Instruction : PetaformObject() {
         this(QuantifiedExpression(expr, scalar), intensity)
     init { qe.scalar >= 0 }
     override fun toString() = "${qe}${intensity?.petaform ?: ""}"
+    override val hasProd = false
   }
 
   data class Remove(val qe: QuantifiedExpression, val intensity: Intensity? = null) : Instruction() {
@@ -13,6 +14,7 @@ sealed class Instruction : PetaformObject() {
         this(QuantifiedExpression(expr, scalar), intensity)
     init { qe.scalar >= 0 }
     override fun toString() = "-${qe}${intensity?.petaform ?: ""}"
+    override val hasProd = false
   }
 
   data class Multi(var instructions: List<Instruction>) : Instruction() {
@@ -22,6 +24,7 @@ sealed class Instruction : PetaformObject() {
         else -> "$it"
       }
     }
+    override val hasProd = hasZeroOrOneProd(instructions)
   }
 
   data class Or(var instructions: List<Instruction>) : Instruction() {
@@ -33,14 +36,18 @@ sealed class Instruction : PetaformObject() {
         else -> "$it"
       }
     }
+    override val hasProd = hasZeroOrOneProd(instructions)
   }
 
   data class Prod(val instruction: Instruction) : Instruction() {
+    init { require(!instruction.hasProd) }
     override fun toString() = "PROD[${instruction}]"
+    override val hasProd = true
   }
 
   data class Per(val instruction: Instruction, val qe: QuantifiedExpression): Instruction() {
     override fun toString() = "${instruction} / ${qe.petaform(forceExpression = true)}"
+    override val hasProd = instruction.hasProd
   }
 
   data class Gated(val predicate: Predicate, val instruction: Instruction): Instruction() {
@@ -57,6 +64,8 @@ sealed class Instruction : PetaformObject() {
       }
       return "$pred: $instr"
     }
+
+    override val hasProd = hasZeroOrOneProd(predicate, instruction)
   }
 
   enum class Intensity(val symbol: String) {

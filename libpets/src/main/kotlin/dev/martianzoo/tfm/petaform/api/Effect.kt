@@ -6,4 +6,5 @@ data class Effect(
     val immediate: Boolean = false,
 ) : PetaformObject() {
   override fun toString() = "${trigger}${if (immediate) "::" else ":"} ${instruction}"
+  override val hasProd = hasZeroOrOneProd(trigger, instruction)
 }

@@ -1,8 +1,6 @@
 package dev.martianzoo.tfm.petaform.api
 
 sealed class Cost : PetaformObject() {
-  abstract val hasProd : Boolean
-
   data class Spend(val qe: QuantifiedExpression) : Cost() {
     constructor(expr: Expression, scalar: Int = 1) : this(QuantifiedExpression(expr, scalar))
     override fun toString() = qe.toString()
@@ -12,7 +10,7 @@ sealed class Cost : PetaformObject() {
   data class Multi(var costs: List<Cost>) : Cost() {
     init { require(costs.size >= 2) }
     override fun toString() = costs.joinToString()
-    override val hasProd = costs.any { it.hasProd }
+    override val hasProd = hasZeroOrOneProd(costs)
   }
 
   data class Or(var costs: List<Cost>) : Cost() {
@@ -21,13 +19,11 @@ sealed class Cost : PetaformObject() {
       // precedence is against us ...
       if (it is Multi) "(${it})" else "$it"
     }
-    override val hasProd = costs.any { it.hasProd }
+    override val hasProd = hasZeroOrOneProd(costs)
   }
 
   data class Prod(val cost: Cost) : Cost() {
-    init {
-      require(!cost.hasProd)
-    }
+    init { require(!cost.hasProd) }
     override fun toString() = "PROD[${cost}]"
     override val hasProd = true
   }

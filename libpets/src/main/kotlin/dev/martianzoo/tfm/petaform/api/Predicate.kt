@@ -8,12 +8,14 @@ sealed class Predicate : PetaformObject() {
     constructor(expr: Expression, scalar: Int = 1) : this(QuantifiedExpression(expr, scalar))
     init { require(qe.scalar >= 0) }
     override fun toString() = "$qe"
+    override val hasProd = false
   }
 
   data class Max(val qe: QuantifiedExpression) : Predicate() {
     constructor(expr: Expression, scalar: Int = 1) : this(QuantifiedExpression(expr, scalar))
     init { require(qe.scalar >= 0) }
     override fun toString() = "MAX ${qe.petaform(forceScalar = true)}"
+    override val hasProd = false
   }
 
   data class Or(val predicates: List<Predicate>) : Predicate() {
@@ -24,6 +26,7 @@ sealed class Predicate : PetaformObject() {
       // precedence is against us
       if (it is And) "(${it})" else "$it"
     }
+    override val hasProd = hasZeroOrOneProd(predicates)
   }
 
   data class And(val predicates: List<Predicate>) : Predicate() {
@@ -32,10 +35,13 @@ sealed class Predicate : PetaformObject() {
     init { require(predicates.size >= 2) }
 
     override fun toString() = predicates.joinToString()
+    override val hasProd = hasZeroOrOneProd(predicates)
   }
 
   data class Prod(val predicate: Predicate) : Predicate() {
+    init { require(!predicate.hasProd) }
     override fun toString() = "PROD[${predicate}]"
+    override val hasProd = true
   }
 
   companion object {

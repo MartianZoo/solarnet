@@ -24,12 +24,16 @@ data class Expression(
           refinements.joinOrEmpty(prefix = "<", suffix = ">") +
           predicates.map { "HAS $it" }.joinOrEmpty(prefix = "(", suffix = ")")
 
+  override val hasProd = false
+
   companion object {
     val DEFAULT = Expression("Megacredit")
   }
 }
 
-sealed class RootType : PetaformObject()
+sealed class RootType : PetaformObject() {
+  override val hasProd = false
+}
 
 object This : RootType() {
   override fun toString() = "This"
