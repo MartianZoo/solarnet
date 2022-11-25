@@ -11,7 +11,6 @@ class ComponentTest {
     val data = Canon.componentClassData
     val tr = data["TerraformRating"]!!
     assertThat(tr.name).isEqualTo("TerraformRating")
-    assertThat(tr.system).isFalse()
     assertThat(tr.abstract).isFalse()
     assertThat(tr.supertypesPetaform).containsExactly("Owned<Player>", "Plural").inOrder()
     assertThat(tr.dependenciesPetaform).isEmpty()

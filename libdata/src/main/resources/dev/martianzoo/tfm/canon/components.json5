@@ -3,41 +3,19 @@
 
     { // Signifies that multiple *identical* can exist (be tracked by count)
       "name": "Plural",
-      "system": true,
       "abstract": true
     },
     { // Impossible to actually create
       "name": "Die", // TODO
-      "system": true,
     },
 
-    { // Can own things
-      "name": "Anyone",
-      "abstract": true
-    },
-    { // A real player
-      "name": "Player",
-      "supertypes": [ "Anyone" ],
-      "abstract": true
-    },
-    {
-      "name": "SoloPlayer",
-      "supertypes": [ "Player" ]
-    },
+    { "name": "Anyone", "abstract": true }, // Can own things
+    { "name": "Player", "supertypes": [ "Anyone" ], "abstract": true }, // A real player
+    { "name": "SoloPlayer", "supertypes": [ "Player" ] },
 
-    {
-      "name": "Phase",
-      "system": true,
-      "abstract": true
-    },
-    {
-      "name": "ProductionPhase",
-      "supertypes": [ "Phase" ]
-    },
-    {
-      "name": "End",
-      "supertypes": [ "Phase" ]
-    },
+    { "name": "Phase", "abstract": true },
+    { "name": "ProductionPhase", "supertypes": [ "Phase" ] },
+    { "name": "End", "supertypes": [ "Phase" ] },
 
     {
       "name": "Generation",

@@ -12,7 +12,7 @@ class ComponentTable {
   private val table = mutableMapOf<String, RichComponent>()
 
   init {
-    add(Component("Component", true, true))
+    add(Component("Component", abstract = true)) // TODO constant somewhere
   }
 
   fun addAll(objects: Iterable<TfmObject>) = objects.forEach(::add)

@@ -16,9 +16,6 @@ data class Component(
     /** Unique name for this component class. */
     val name: String,
 
-    /** If true, it's a "bookkeeping" component usually hidden from the user. Inherited. */
-    val system: Boolean = false,
-
     /** If `true`, types are always abstract, even when all dependencies are concrete. Not inherited. */
     val abstract: Boolean = false,
 
