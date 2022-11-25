@@ -20,20 +20,18 @@ class ComponentTest {
 
   @Test fun slurp() {
     val table = ComponentTable()
-    val list: List<TfmObject> =
-        Canon.componentClassData.values +
-        Canon.mapData.values.flatMap { it } +
-        Canon.cardData.values
-    list.forEach { obj ->
-      table.add(obj)
-      val cc = obj.asComponent
-      val rc = table[cc.name]!!
+    table.addAll(Canon.componentClassData.values)
+    table.addAll(Canon.mapData.values.flatMap { it })
+    table.addAll(Canon.cardData.values)
+    table.all().forEach { rc ->
+      val cc = rc.backing
       checkRoundTrip(cc.supertypesPetaform, rc.supertypes)
       checkRoundTrip(cc.dependenciesPetaform, rc.dependencies)
       checkRoundTrip(listOfNotNull(cc.immediatePetaform), listOfNotNull(rc.immediate))
       checkRoundTrip(cc.actionsPetaform, rc.actions)
       checkRoundTrip(cc.effectsPetaform, rc.effects)
     }
+    assertThat(table.all().size).isGreaterThan(580)
   }
 
   fun checkRoundTrip(source: Collection<String>, cooked: Collection<PetaformNode>) {

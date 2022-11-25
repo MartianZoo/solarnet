@@ -161,7 +161,9 @@ data class Card(
     Component(
         name = "Card$id",
         supertypesPetaform = setOf(type),
-        effectsPetaform = effectsPetaform) // TODO immediate, actions?
+        immediatePetaform = immediate?.toString(), // TODO hack
+        actionsPetaform = actionsPetaform,
+        effectsPetaform = effectsPetaform)
   }
 
   private fun inactive(): Boolean {

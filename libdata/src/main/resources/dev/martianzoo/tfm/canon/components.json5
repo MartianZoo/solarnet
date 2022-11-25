@@ -81,6 +81,7 @@
     { "name": "Card236Area", "supertypes": ["RemoteArea"] },
     { "name": "Card238Area", "supertypes": ["RemoteArea"] },
     { "name": "Card248Area", "supertypes": ["RemoteArea"] },
+    { "name": "CardX12Area", "supertypes": ["RemoteArea"] },
 
     {
       "name": "Owned",
@@ -210,7 +211,7 @@
     { "name": "Card008Tile", "supertypes": ["CityTile"] },
     { "name": "Card085Tile", "supertypes": ["SpecialTile"] },
 
-    {
+    { // only exists once the card has been played
       "name": "CardFront",
       "supertypes": [ "Owned" ],
       "abstract": true,
@@ -218,6 +219,10 @@
     {"name": "ActiveCard",    "supertypes": [ "CardFront" ], "abstract": true},
     {"name": "AutomatedCard", "supertypes": [ "CardFront" ], "abstract": true},
     {"name": "EventCard",     "supertypes": [ "CardFront" ], "abstract": true},
+    {
+      "name": "PlayedEvent",
+      "supertypes": [ "Owned<Player>" ],
+    },
 
     {
       "name": "Cardbound",

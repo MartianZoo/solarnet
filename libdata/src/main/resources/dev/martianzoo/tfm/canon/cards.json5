@@ -3414,7 +3414,7 @@
       "bundle": "X",
       "deck": "PROJECT",
       "tags": [ "CityTag", "SpaceTag" ],
-      "immediate": [ "CityTile<FloatingInSpace>" ],
+      "immediate": [ "CityTile<CardX12Area>" ],
       "effects": [ "End: 2 VictoryPoint" ],
       "cost": 12,
       "projectKind": "AUTOMATED",

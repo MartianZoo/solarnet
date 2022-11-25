@@ -15,6 +15,8 @@ class ComponentTable {
     add(Component("Component", true, true))
   }
 
+  fun addAll(objects: Iterable<TfmObject>) = objects.forEach(::add)
+
   fun add(obj: TfmObject) {
     val backing = obj.asComponent
 
@@ -35,6 +37,8 @@ class ComponentTable {
 
     table[backing.name] = RichComponent(backing, supertypes, dependencies, immediate, actions, effects)
   }
+
+  fun all() = table.values
 
   operator fun get(name: String) = table[name]
 
