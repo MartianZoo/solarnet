@@ -5,7 +5,7 @@
     {
       "id": "B00",
       "bundle": "B",
-      "immediate": [ "42, 10 ProjectCard" ], // TODO
+      "immediate": [ "42, 10 ProjectCard" ], // TODO replaces normal buying
     },
 
     // Interplanetary Cinematics
@@ -25,7 +25,7 @@
       "deck": "CORPORATION",
       "tags": [ "PowerTag" ],
       "immediate": [ "PROD[Energy], 48" ],
-      "effects": [ "Purchase<PowerTag>: -3 Owed" ], // TODO
+      "effects": [ "Purchase<PowerTag>: -3 Owed" ], // TODO standard project
     },
 
     // Saturn Systems
@@ -75,7 +75,7 @@
       "deck": "CORPORATION",
       "tags": [ "MicrobeTag", "BuildingTag" ],
       "immediate": [ "38, PROD[Steel]" ],
-      "effects": [ "BuildingTag: Microbe<This> OR (-2 Microbe<This>, PROD[Plant])" ], // TODO
+      "effects": [ "BuildingTag: Microbe<This> OR (-2 Microbe<This>, PROD[Plant])" ], // TODO THEN
       "resourceType": "Microbe",
     },
 
@@ -432,8 +432,8 @@
       "bundle": "B",
       "deck": "PROJECT",
       "tags": [ "ScienceTag" ],
-      "actions": [ "1 -> Science<This>?" ],
-      "effects": [ "End: 3 VictoryPoint / Science<This>" ], // TODO
+      "actions": [ "1 -> Science<This>?" ], // honor system
+      "effects": [ "End: Science<This>: 3 VictoryPoint" ],
       "resourceType": "Science",
       "requirement": "MAX 6 OxygenStep",
       "cost": 3,
@@ -507,7 +507,7 @@
       "deck": "PROJECT",
       "tags": [ "JovianTag", "SpaceTag" ],
       "actions": [ "12 -> OceanTile" ],
-      "effects": [ "End: VictoryPoint / JovianTag" ], // TODO
+      "effects": [ "End: VictoryPoint / JovianTag" ],
       "cost": 25,
       "projectKind": "ACTIVE",
     },
@@ -650,7 +650,7 @@
       "bundle": "B",
       "deck": "PROJECT",
       "tags": [ "SpaceTag" ],
-      "effects": [ "EventCard: 3, 3 Heat" ], // TODO: (HAS SpaceTag)
+      "effects": [ "EventCard(HAS SpaceTag): 3, 3 Heat" ],
       "cost": 7,
       "projectKind": "ACTIVE",
     },
@@ -799,7 +799,7 @@
       "bundle": "B",
       "deck": "PROJECT",
       "tags": [ "ScienceTag", "BuildingTag" ],
-      "immediate": [ "PROD[1], SpecialTile<LandArea>" ], // TODO (HAS MAX 0 Neighbor)
+      "immediate": [ "PROD[1], SpecialTile<LandArea(HAS MAX 0 Neighbor)>" ],
       "effects": [ "End: VictoryPoint" ],
       "requirement": "MAX 4 OxygenStep",
       "cost": 9,
@@ -1739,7 +1739,8 @@
       "immediate": [ "Animal<This>" ],
       "effects": [
         "CityTile<Anyone>: Animal<This>",
-        "End: VictoryPoint / 2 Animal<This>", // TODO: undeletable
+        "-Animal<This>: Die",
+        "End: VictoryPoint / 2 Animal<This>",
       ],
       "resourceType": "Animal",
       "cost": 10,
@@ -1851,7 +1852,7 @@
       "bundle": "B",
       "deck": "PROJECT",
       "tags": [ "BuildingTag" ],
-      "actions": [ "8 -> OceanTile" ], // TODO
+      "actions": [ "8 -> OceanTile" ], // TODO Steel
       "cost": 18,
       "projectKind": "ACTIVE",
     },
@@ -2197,7 +2198,7 @@
       "deck": "PROJECT",
       "tags": [ "ScienceTag", "BuildingTag" ],
       "effects": [
-        "ScienceTag: 0",
+        "ScienceTag: ProjectCard, -ProjectCard", // kinda pointless
         "End: VictoryPoint",
       ],
       "cost": 8,
@@ -2568,8 +2569,8 @@
       "deck": "PROJECT",
       "tags": [ "ScienceTag", "EarthTag", "BuildingTag" ],
       "effects": [
-        "ScienceTag: Science<This> OR (ProjectCard, -Science<This>)",
-        "End: VictoryPoint", // TODO
+        "ScienceTag: Science<This> OR (ProjectCard, -Science<This>)", // TODO FROM
+        "End: VictoryPoint",
       ],
       "resourceType": "Science",
       "cost": 10,
@@ -3064,7 +3065,7 @@
       "deck": "PROJECT",
       "tags": [ "VenusTag", "CityTag" ],
       "immediate": [ "PROD[-Energy], CityTile<Card238Area>" ],
-      "actions": [ "-> CardResource<CardFront>" ], // TODO (HAS VenusTag)
+      "actions": [ "-> CardResource<CardFront(HAS VenusTag)>" ],
       "effects": [ "End: 3 VictoryPoint" ],
       "requirement": "6 VenusStep",
       "cost": 18,
@@ -3125,8 +3126,8 @@
       "deck": "PROJECT",
       "tags": [ "SpaceTag" ],
       "actions": [
-        "6 -> Asteroid<This>",
-        "Asteroid<This> -> VenusStep", // TODO
+        "6 -> Asteroid<This>", // TODO Titanium
+        "Asteroid<This> -> VenusStep",
       ],
       "resourceType": "Asteroid",
       "requirement": "MAX 7 VenusStep",
@@ -3177,7 +3178,7 @@
       "deck": "PROJECT",
       "tags": [ "VenusTag", "CityTag" ],
       "immediate": [ "PROD[2], CityTile<Card248Area>" ],
-      "actions": [ "-> 2 Floater<CardFront>" ], // TODO (HAS VenusTag)
+      "actions": [ "-> 2 Floater<CardFront(HAS VenusTag)>" ],
       "effects": [ "End: VictoryPoint / 3 Floater<This>" ],
       "resourceType": "Floater",
       "requirement": "2 ScienceTag",
@@ -3454,8 +3455,8 @@
       "deck": "PROJECT",
       "tags": [ "SpaceTag" ],
       "actions": [
-        "6 -> Asteroid",
-        "Asteroid<This> -> TemperatureStep", // TODO
+        "6 -> Asteroid", // TODO Titanium
+        "Asteroid<This> -> TemperatureStep",
       ],
       "resourceType": "Asteroid",
       "cost": 8,
