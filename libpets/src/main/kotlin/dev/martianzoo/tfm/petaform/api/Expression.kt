@@ -21,8 +21,8 @@ data class Expression(
 
   override fun toString() =
       "$rootType" +
-          specializations.joinOrEmpty(prefix = "<", suffix = ">") +
-          predicates.map { "HAS $it" }.joinOrEmpty(prefix = "(", suffix = ")")
+          specializations.joinOrEmpty(surround = "<>") +
+          predicates.map { "HAS $it" }.joinOrEmpty(surround = "()")
 
   override val hasProd = false
 
