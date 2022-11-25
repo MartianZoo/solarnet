@@ -15,10 +15,13 @@ import com.github.h0tk3y.betterParse.parser.ParseException
 import com.github.h0tk3y.betterParse.parser.Parser
 import com.github.h0tk3y.betterParse.parser.parseToEnd
 import dev.martianzoo.tfm.petaform.api.Action
+import dev.martianzoo.tfm.petaform.api.Action.Cost
+import dev.martianzoo.tfm.petaform.api.Action.Cost.Spend
 import dev.martianzoo.tfm.petaform.api.ClassName
-import dev.martianzoo.tfm.petaform.api.Cost
-import dev.martianzoo.tfm.petaform.api.Cost.Spend
 import dev.martianzoo.tfm.petaform.api.Effect
+import dev.martianzoo.tfm.petaform.api.Effect.Trigger
+import dev.martianzoo.tfm.petaform.api.Effect.Trigger.OnGain
+import dev.martianzoo.tfm.petaform.api.Effect.Trigger.OnRemove
 import dev.martianzoo.tfm.petaform.api.Expression
 import dev.martianzoo.tfm.petaform.api.Instruction
 import dev.martianzoo.tfm.petaform.api.Instruction.Gain
@@ -30,9 +33,6 @@ import dev.martianzoo.tfm.petaform.api.Predicate
 import dev.martianzoo.tfm.petaform.api.QuantifiedExpression
 import dev.martianzoo.tfm.petaform.api.RootType
 import dev.martianzoo.tfm.petaform.api.This
-import dev.martianzoo.tfm.petaform.api.Trigger
-import dev.martianzoo.tfm.petaform.api.Trigger.OnGain
-import dev.martianzoo.tfm.petaform.api.Trigger.OnRemove
 import kotlin.reflect.KClass
 import kotlin.reflect.cast
 
