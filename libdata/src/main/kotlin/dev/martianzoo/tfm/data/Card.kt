@@ -8,6 +8,7 @@ import dev.martianzoo.tfm.petaform.api.Expression
 import dev.martianzoo.tfm.petaform.api.Instruction
 import dev.martianzoo.tfm.petaform.api.Predicate
 import dev.martianzoo.tfm.petaform.parser.PetaformParser
+import dev.martianzoo.tfm.petaform.parser.PetaformParser.parse
 
 /**
  * Everything there is to know about a Terraforming Mars card, except for text (including the card
@@ -66,21 +67,21 @@ data class Card(
      * Immediate effects on the card, if any, each expressed as a Petaform `Instruction`.
      */
     @Json(name = "immediate")
-    val immediatePetaform: List<String> = listOf(),
+    val immediatePetaform: Set<String> = setOf(),
 
     /**
      * Actions on the card, if any, each expressed as a Petaform `Action`. `AUTOMATED` and `EVENT`
      * cards may not have these.
      */
     @Json(name = "actions")
-    val actionsPetaform: List<String> = listOf(),
+    val actionsPetaform: Set<String> = setOf(),
 
     /**
      * Effects on the card, if any, each expressed as a Petaform `Effect`. `AUTOMATED` and
      * `EVENT` cards may not have these.
      */
     @Json(name = "effects")
-    val effectsPetaform: List<String> = listOf(),
+    val effectsPetaform: Set<String> = setOf(),
 
     /**
      * Which resource type, if any, this card can hold, expressed as a Petaform `ComponentClass`.
@@ -108,7 +109,7 @@ data class Card(
      * officially don't count as such.
      */
     val projectKind: ProjectKind? = null,
-) {
+) : TfmObject {
 
   init {
     require(id.isNotEmpty())
@@ -143,10 +144,25 @@ data class Card(
 
   val tags: List<Expression> by lazy { tagsPetaform.map { Expression(it) } }
   val resourceType: Expression? by lazy { resourceTypePetaform?.let { Expression(it) } }
-  val immediate: List<Instruction> by lazy { immediatePetaform.map(PetaformParser::parse) }
-  val actions: List<Action> by lazy { actionsPetaform.map(PetaformParser::parse) }
-  val effects: List<Effect> by lazy { effectsPetaform.map(PetaformParser::parse) }
+  val immediate: Instruction? by lazy {
+    val set = immediatePetaform.map { parse<Instruction>(it) }.toSet()
+    when (set.size) {
+      0 -> null
+      1 -> set.iterator().next()
+      else -> Instruction.Multi(set.toList())
+    }
+  }
+  val actions by lazy { actionsPetaform.map { parse<Action>(it) }.toSet() }
+  val effects by lazy { effectsPetaform.map { parse<Effect>(it) }.toSet() }
   val requirement: Predicate? by lazy { requirementPetaform?.let(PetaformParser::parse) }
+
+  override val asComponent by lazy {
+    val type = if (projectKind == null) "CardFront" else projectKind.type
+    Component(
+        name = "Card$id",
+        supertypesPetaform = setOf(type),
+        effectsPetaform = effectsPetaform) // TODO immediate, actions?
+  }
 
   private fun inactive(): Boolean {
     return actionsPetaform.isEmpty() &&
@@ -162,9 +178,9 @@ data class Card(
   /**
    * A kind (color) of project; see [Card.projectKind].
    */
-  enum class ProjectKind {
-    EVENT, // red
-    AUTOMATED, // green
-    ACTIVE // blue
+  enum class ProjectKind(val type: String) {
+    EVENT("EventCard"), // red
+    AUTOMATED("AutomatedCard"), // green
+    ACTIVE("ActiveCard") // blue
   }
 }

@@ -30,7 +30,7 @@ data class MarsArea(
 
     /** In cryptic text form */
     val textual: String,
-) {
+) : TfmObject {
 
   init {
     require(mapName.isNotEmpty())
@@ -42,7 +42,7 @@ data class MarsArea(
   val bonus: Instruction? by lazy { bonusPetaform?.let { parse(it) } }
   val type: Expression by lazy { parse(typePetaform) }
 
-  val asComponent by lazy {
+  override val asComponent by lazy {
     val effects =
         if (bonusPetaform == null) {
           setOf()

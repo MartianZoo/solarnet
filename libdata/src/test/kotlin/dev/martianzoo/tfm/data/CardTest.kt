@@ -18,7 +18,7 @@ class CardTest {
    */
   @Test
   fun minimal() {
-    val dumbCard = Card("xxx", deck = PRELUDE, effectsPetaform = listOf("This: Plant"))
+    val dumbCard = Card("xxx", deck = PRELUDE, effectsPetaform = setOf("This: Plant"))
 
     assertThat(dumbCard.id).isEqualTo("xxx")
     assertThat(dumbCard.bundle).isNull()
@@ -37,9 +37,9 @@ class CardTest {
       bundle = "B",
       deck = PROJECT,
       tagsPetaform = listOf("AnimalTag"),
-      immediatePetaform = listOf("PROD[-2 Plant<Anyone>]"),
-      actionsPetaform = listOf("-> Animal<This>"),
-      effectsPetaform = listOf("End: VictoryPoint / Animal<This>"),
+      immediatePetaform = setOf("PROD[-2 Plant<Anyone>]"),
+      actionsPetaform = setOf("-> Animal<This>"),
+      effectsPetaform = setOf("End: VictoryPoint / Animal<This>"),
       resourceTypePetaform = "Animal",
       requirementPetaform = "13 OxygenStep",
       cost = 10,
@@ -130,22 +130,22 @@ class CardTest {
   @Test
   fun badActiveCard() {
     assertThrows<RuntimeException> {
-      C.copy(projectKind = EVENT, effectsPetaform = listOf("Foo: Bar"))
+      C.copy(projectKind = EVENT, effectsPetaform = setOf("Foo: Bar"))
     }
     assertThrows<RuntimeException> {
-      C.copy(projectKind = AUTOMATED, effectsPetaform = listOf("Bar: Qux"))
+      C.copy(projectKind = AUTOMATED, effectsPetaform = setOf("Bar: Qux"))
     }
     assertThrows<RuntimeException> {
-      C.copy(projectKind = EVENT, actionsPetaform = listOf("Foo -> Bar"))
+      C.copy(projectKind = EVENT, actionsPetaform = setOf("Foo -> Bar"))
     }
     assertThrows<RuntimeException> {
-      C.copy(projectKind = AUTOMATED, actionsPetaform = listOf("Bar -> Qux"))
+      C.copy(projectKind = AUTOMATED, actionsPetaform = setOf("Bar -> Qux"))
     }
     assertThrows<RuntimeException> {
       C.copy(projectKind = AUTOMATED, resourceTypePetaform = "Whatever")
     }
     assertThrows<RuntimeException> {
-      C.copy(projectKind = ACTIVE, immediatePetaform = listOf("Whatever"))
+      C.copy(projectKind = ACTIVE, immediatePetaform = setOf("Whatever"))
     }
   }
 
@@ -160,13 +160,17 @@ class CardTest {
       card.resourceType?.let { assertThat("$it").isEqualTo(card.resourceTypePetaform) }
 
       checkRoundTrip(card.tagsPetaform, card.tags)
-      checkRoundTrip(card.immediatePetaform, card.immediate)
+      if (card.immediatePetaform.isNotEmpty()) {
+        checkRoundTrip(listOf(card.immediatePetaform.joinToString()), listOf(card.immediate!!))
+      } else {
+        assertThat(card.immediate).isNull()
+      }
       checkRoundTrip(card.actionsPetaform, card.actions)
       checkRoundTrip(card.effectsPetaform, card.effects)
     }
   }
 
-  private fun checkRoundTrip(source: List<String>, cooked: List<PetaformObject>) {
+  private fun checkRoundTrip(source: Collection<String>, cooked: Collection<PetaformObject>) {
     assertThat(source.size).isEqualTo(cooked.size)
     source.zip(cooked).forEach {
       assertThat("${it.second}").isEqualTo(it.first)

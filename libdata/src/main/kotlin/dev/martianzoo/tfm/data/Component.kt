@@ -1,9 +1,12 @@
 package dev.martianzoo.tfm.data
 
 import com.squareup.moshi.Json
+import dev.martianzoo.tfm.petaform.api.Action
 import dev.martianzoo.tfm.petaform.api.Effect
 import dev.martianzoo.tfm.petaform.api.Expression
+import dev.martianzoo.tfm.petaform.api.Instruction
 import dev.martianzoo.tfm.petaform.parser.PetaformParser
+import dev.martianzoo.tfm.petaform.parser.PetaformParser.parse
 
 /**
  * The declaration of a component class, such as GreeneryTile. Models the declaration textually as
@@ -35,6 +38,12 @@ data class Component(
     @Json(name = "dependencies")
     val dependenciesPetaform: List<String> = listOf(),
 
+    @Json(name = "immediate")
+    val immediatePetaform: String? = null,
+
+    @Json(name = "actions")
+    val actionsPetaform: Set<String> = setOf(),
+
     /**
      * Zero or more unordered effects that belong to each *instance* of this component class, expressed in
      * Petaform. If the exact name of a dependency type is used in
@@ -44,16 +53,20 @@ data class Component(
      */
     @Json(name = "effects")
     val effectsPetaform: Set<String> = setOf(),
-) {
+) : TfmObject {
 
   init {
     require(name !in RESERVED_NAMES)
     require(name.matches(NAME_PATTERN))
   }
 
-  val supertypes: List<Expression> by lazy { supertypesPetaform.map(PetaformParser::parse) }
-  val dependencies: List<Expression> by lazy { dependenciesPetaform.map(PetaformParser::parse) }
-  val effects: List<Effect> by lazy { effectsPetaform.map(PetaformParser::parse) }
+  val supertypes by lazy { supertypesPetaform.map { parse<Expression>(it) }.toSet() }
+  val dependencies: List<Expression> by lazy { dependenciesPetaform.map(::parse) }
+  val immediate: Instruction? by lazy { immediatePetaform?.let(::parse) }
+  val actions: Set<Action> by lazy { actionsPetaform.map { parse<Action>(it) }.toSet() }
+  val effects: Set<Effect> by lazy { effectsPetaform.map { parse<Effect>(it) }.toSet() }
+
+  override val asComponent = this
 }
 
 private val NAME_PATTERN = Regex("^[A-Z][a-z][A-Za-z0-9_]*$") // TODO: it's repeated 3 times
