@@ -47,7 +47,6 @@ class InstructionTest {
             Gain(Expression("Plant"), 4)
         ),
     )
-    assertThat(instr.debug()).isEqualTo("x")
   }
 
   @Test
