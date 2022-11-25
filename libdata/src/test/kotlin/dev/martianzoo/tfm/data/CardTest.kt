@@ -166,7 +166,7 @@ class CardTest {
     }
   }
 
-  fun checkRoundTrip(source: List<String>, cooked: List<PetaformObject>) {
+  private fun checkRoundTrip(source: List<String>, cooked: List<PetaformObject>) {
     assertThat(source.size).isEqualTo(cooked.size)
     source.zip(cooked).forEach {
       assertThat("${it.second}").isEqualTo(it.first)

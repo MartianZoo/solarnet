@@ -40,7 +40,7 @@ data class MarsArea(
   }
 
   val bonus: Instruction? by lazy { bonusPetaform?.let { parse(it) } }
-  val supertype: Expression by lazy { parse(typePetaform) }
+  val type: Expression by lazy { parse(typePetaform) }
 
   val asComponent by lazy {
     val effects =

@@ -2,6 +2,7 @@ package dev.martianzoo.tfm.data
 
 import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.tfm.canon.Canon
+import dev.martianzoo.tfm.petaform.api.Expression
 import org.junit.jupiter.api.Test
 
 internal class ParseMapTest {
@@ -19,6 +20,8 @@ internal class ParseMapTest {
 
     assertThat(thar.grid[1, 4]!!.typePetaform).isEqualTo("WaterArea")
     assertThat(thar.grid[1, 4]!!.bonusPetaform).isEqualTo("Card")
+
+    assertThat(thar.grid.count { it.type == Expression("WaterArea") }).isEqualTo(12)
   }
 
   @Test
@@ -31,6 +34,8 @@ internal class ParseMapTest {
 
     assertThat(hell.grid[9, 7]!!.typePetaform).isEqualTo("LandArea")
     assertThat(hell.grid[9, 7]!!.bonusPetaform).isEqualTo("OceanTile, -6")
+
+    assertThat(hell.grid.count { it.type == Expression("WaterArea") }).isEqualTo(12)
   }
 
   @Test
@@ -43,6 +48,8 @@ internal class ParseMapTest {
 
     assertThat(elys.grid[3, 7]!!.typePetaform).isEqualTo("VolcanicArea")
     assertThat(elys.grid[3, 7]!!.bonusPetaform).isEqualTo("3 Card")
+
+    assertThat(elys.grid.count { it.type == Expression("WaterArea") }).isEqualTo(12)
   }
 
   @Test
