@@ -17,44 +17,48 @@ Petaform text can serve as the authoritative definition of a component's behavio
 * Be executed correctly by an actual running game engine (exactly matching the published rules)
 * Test another game engine implementation against
 * Be understood by an AI player
+* Produce game logs that are ripe for statistical analysis
 
-### Expressions supported
+### Language elements
 
-* Instructions (`2 Plant` means "gain two plants")
+These are context-sensitive -- the same text might represent different types depending on where it appears.
+
+* Instructions (`-2 Plant` means "lose two plants")
 * Predicates (`MAX 4 OxygenStep` means "is oxygen is at most 4%?")
-* Metrics (`SpaceTag<Anyone> - SpaceTag<Me>` means "count up all opponents' space tags")
+* Metrics (`SpaceTag<!Me>` means "number of opponents' space tags", as in `PROD[1 / SpaceTag<!Me>]`)
 * Effects (`EventCard: 3` means "when you play an event card, gain 3 MC")
-* Actions (`Steel -> 5` means "as an action, spend 1 steel to gain 5 MC")
-* Complex component types (`Tile<MarsArea(neighbors HAS This)>` means "a tile on an area neighboring this one")
+* Actions (`Steel -> 5` means "spend 1 steel to gain 5 MC")
+* Complex component type expressions (`CityTile<LandArea(HAS 2 Neighbor<CityTile<Anyone>>)>` means "a city tile on an area with 2 neighboring city tiles", no matter which of the above constructs it's used in)
+* Production boxes (`PROD[2 Plant], Plant` means "increase plant production 2 steps and gain a plant")
+* Change records (`13: OceanTile<Tharsis5_5> BY Aquifer; 14: 2 Plant<Player3> BY Card023<Player3> BECAUSE 13`)
 
-## What this project will include
+## What this project will eventually include
 
-* Parser and runtime API for the Petaform language
+* A parser and runtime API for the Petaform language
 * Data model and API for: game components, game configuration, game state, game history
 * Potentially, tools for generating text or iconographic representations from Petaform source
 * **Solarnet**, a reference engine
-* **Rego Plastics**, a very bad command-line UI ("REPL") to the reference engine
+* **Aerobrake**, an optimized engine (parity-tested against Solarnet) (very low priority right now)
+* **Rego Plastics**, an extremely bad command-line UI ("REPL") to either engine
 
 ### Solarnet
 
-Solarnet is a *reference engine*. A reference implementation has very different priorities from production software! Its priorities are, in descending order:
+Solarnet is a *reference engine*. A reference implementation has very different priorities from production software! These are, in order:
 
 1. To implement the official game rules with absolute fidelity
 2. To do so in as simple and understandable a manner as possible (making it hard for bugs to hide)
 3. To cover as much of the official published content as possible
 
-The long-term dream is that Solarnet becomes useful as a trustworthy authority on correct rules interpretation.
+Solarnet should eventually become a trustworthy authority on correct rules interpretation. For example, if a fan card is expressible in Petaform then this engine would provide a definitive answer on how that card should interact with canonical cards.
 
-**But expect it to be slow af.** An optimized engine with good performance could potentially follow at some point. By parity-testing itself against the reference engine, we can prove that it is just as correct. If someone wants to make this, please name it Aerobrake. :-)
+**But expect Solarnet to be slow af.** 
 
-## Why?
-
-Why are we doing all this?
+## Why do all this?
 
 * Because it's hard
-* Because it's fun
-* Because we're learning stuff
-* Because the game is just that good
+* Because it's interesting
+* Because I think it will be cool
+* Because I really love this game
 
 ## Building
 
