@@ -3,60 +3,59 @@ package dev.martianzoo.tfm.data
 import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.petaform.api.Expression
+import dev.martianzoo.util.Grid
 import org.junit.jupiter.api.Test
 
 internal class ParseMapTest {
 
   @Test
   fun testTharsis() {
-    val thar: MarsMap = Canon.mapData["Tharsis"]!!
-    assertThat(thar.name).isEqualTo("Tharsis")
+    val thar: Grid<MarsArea> = Canon.mapData["Tharsis"]!!
+    checkWaterAreaCount(thar)
 
-    assertThat(thar.grid[5, 3]!!.typePetaform).isEqualTo("NoctisArea")
-    assertThat(thar.grid[5, 3]!!.bonusPetaform).isEqualTo("2 Plant")
+    assertThat(thar[5, 3]!!.typePetaform).isEqualTo("NoctisArea")
+    assertThat(thar[5, 3]!!.bonusPetaform).isEqualTo("2 Plant")
 
-    assertThat(thar.grid[3, 2]!!.typePetaform).isEqualTo("LandArea")
-    assertThat(thar.grid[3, 2]!!.bonusPetaform).isNull()
+    assertThat(thar[3, 2]!!.typePetaform).isEqualTo("LandArea")
+    assertThat(thar[3, 2]!!.bonusPetaform).isNull()
 
-    assertThat(thar.grid[1, 4]!!.typePetaform).isEqualTo("WaterArea")
-    assertThat(thar.grid[1, 4]!!.bonusPetaform).isEqualTo("Card")
-
-    assertThat(thar.grid.count { it.type == Expression("WaterArea") }).isEqualTo(12)
+    assertThat(thar[1, 4]!!.typePetaform).isEqualTo("WaterArea")
+    assertThat(thar[1, 4]!!.bonusPetaform).isEqualTo("Card")
   }
 
   @Test
   fun testHellas() {
-    val hell: MarsMap = Canon.mapData["Hellas"]!!
-    assertThat(hell.name).isEqualTo("Hellas")
+    val hell: Grid<MarsArea> = Canon.mapData["Hellas"]!!
+    checkWaterAreaCount(hell)
 
-    assertThat(hell.grid[5, 7]!!.typePetaform).isEqualTo("WaterArea")
-    assertThat(hell.grid[5, 7]!!.bonusPetaform).isEqualTo("3 Heat")
+    assertThat(hell[5, 7]!!.typePetaform).isEqualTo("WaterArea")
+    assertThat(hell[5, 7]!!.bonusPetaform).isEqualTo("3 Heat")
 
-    assertThat(hell.grid[9, 7]!!.typePetaform).isEqualTo("LandArea")
-    assertThat(hell.grid[9, 7]!!.bonusPetaform).isEqualTo("OceanTile, -6")
-
-    assertThat(hell.grid.count { it.type == Expression("WaterArea") }).isEqualTo(12)
+    assertThat(hell[9, 7]!!.typePetaform).isEqualTo("LandArea")
+    assertThat(hell[9, 7]!!.bonusPetaform).isEqualTo("OceanTile, -6")
   }
 
   @Test
   fun testElysium() {
-    val elys: MarsMap = Canon.mapData["Elysium"]!!
-    assertThat(elys.name).isEqualTo("Elysium")
+    val elys: Grid<MarsArea> = Canon.mapData["Elysium"]!!
+    checkWaterAreaCount(elys)
 
-    assertThat(elys.grid[1, 1]!!.typePetaform).isEqualTo("WaterArea")
-    assertThat(elys.grid[1, 1]!!.bonusPetaform).isNull()
+    assertThat(elys[1, 1]!!.typePetaform).isEqualTo("WaterArea")
+    assertThat(elys[1, 1]!!.bonusPetaform).isNull()
 
-    assertThat(elys.grid[3, 7]!!.typePetaform).isEqualTo("VolcanicArea")
-    assertThat(elys.grid[3, 7]!!.bonusPetaform).isEqualTo("3 Card")
+    assertThat(elys[3, 7]!!.typePetaform).isEqualTo("VolcanicArea")
+    assertThat(elys[3, 7]!!.bonusPetaform).isEqualTo("3 Card")
+  }
 
-    assertThat(elys.grid.count { it.type == Expression("WaterArea") }).isEqualTo(12)
+  private fun checkWaterAreaCount(map: Grid<MarsArea>) {
+    assertThat(map.count { it.type == Expression("WaterArea") }).isEqualTo(12)
   }
 
   @Test
   fun parseAllInstructions() {
     val uniqueAreas = Canon.mapData.values
         .asSequence()
-        .flatMap { it.grid }
+        .flatMap { it }
         .mapNotNull { it.bonus }
         .distinct()
         .map { it.toString() }

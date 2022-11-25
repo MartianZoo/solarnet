@@ -61,12 +61,12 @@ internal object MoshiReader {
 
   private val MOSHI_MAP = MOSHI.adapter(MapsImportFormat::class.java).nullSafe().lenient()
 
-  fun readMaps(json5: String): List<MarsMap> {
+  // Nothing like three different meanings of the same word in the same place
+  fun readMaps(json5: String): Map<String, Grid<MarsArea>> {
     val import: MapsImportFormat = MOSHI_MAP.fromJson(json5ToJson(json5))!!
     val legend = Legend(import.legend)
 
-    return import.maps.map { map ->
-      val id = map.id
+    return import.maps.associateBy(MapImportFormat::id) { map ->
       val areas = map.rows.flatMapIndexed { row, line ->
         line.chunked(6)
             .map(String::trim)
@@ -74,10 +74,10 @@ internal object MoshiReader {
             .filter { it.value.isNotEmpty() }
             .map { (column, code) ->
               val (type, bonus) = legend.translate(code)
-              MarsArea(id, row + 1, column, type, bonus, code)
+              MarsArea(map.id, row + 1, column, type, bonus, code)
             }
       }
-      MarsMap(id, Grid.grid(areas, { it.row }, { it.column }))
+      Grid.grid(areas, { it.row }, { it.column })
     }
   }
 
