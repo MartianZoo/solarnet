@@ -211,8 +211,10 @@ object PetaformParser {
     private val prodTrigger = prodBox(nonProdTrigger) map Trigger::Prod
     private val trigger = publish(nonProdTrigger or prodTrigger)
 
-    private val colons = twoColons map { true } or colon map { false }
-    val effect = publish(trigger and colons and instruction map { (a, b, c) -> Effect(a, c, b) })
+    private val colons = (twoColons map { true }) or (colon map { false })
+    val effect = publish(trigger and colons and instruction map {
+      (trig, immed, instr) -> Effect(trig, instr, immed)
+    })
   }.effect)
 
   private fun regex(r: String, ignore: Boolean = false) = regexToken(r, ignore).also { tokens += it }
