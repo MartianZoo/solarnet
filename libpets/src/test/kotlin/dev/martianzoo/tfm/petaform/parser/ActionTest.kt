@@ -12,7 +12,7 @@ class ActionTest {
 
   private fun testRoundTrip(start: String, end: String = start) {
     val parse: Action = PetaformParser.parse(start)
-    Truth.assertThat(parse.petaform).isEqualTo(end)
+    Truth.assertThat(parse.toString()).isEqualTo(end)
   }
 
 }

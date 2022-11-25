@@ -1,42 +1,42 @@
 package dev.martianzoo.tfm.petaform.api
 
-sealed interface Cost : PetaformObject {
-  val hasProd : Boolean
+sealed class Cost : PetaformObject() {
+  abstract val hasProd : Boolean
 
-  data class Spend(val qe: QuantifiedExpression) : Cost {
+  data class Spend(val qe: QuantifiedExpression) : Cost() {
     constructor(expr: Expression, scalar: Int = 1) : this(QuantifiedExpression(expr, scalar))
-    override val petaform = qe.petaform
+    override fun toString() = qe.toString()
     override val hasProd = false
   }
 
-  data class Multi(var costs: List<Cost>) : Cost {
+  data class Multi(var costs: List<Cost>) : Cost() {
     init { require(costs.size >= 2) }
-    override val petaform = costs.joinToString { it.petaform }
+    override fun toString() = costs.joinToString()
     override val hasProd = costs.any { it.hasProd }
   }
 
-  data class Or(var costs: List<Cost>) : Cost {
+  data class Or(var costs: List<Cost>) : Cost() {
     init { require(costs.size >= 2) }
-    override val petaform = costs.joinToString(" OR ") {
+    override fun toString() = costs.joinToString(" OR ") {
       // precedence is against us ...
-      if (it is Multi) "(${it.petaform})" else it.petaform
+      if (it is Multi) "(${it})" else "$it"
     }
     override val hasProd = costs.any { it.hasProd }
   }
 
-  data class Prod(val cost: Cost) : Cost {
+  data class Prod(val cost: Cost) : Cost() {
     init {
       require(!cost.hasProd)
     }
-    override val petaform = "PROD[${cost.petaform}]"
+    override fun toString() = "PROD[${cost}]"
     override val hasProd = true
   }
 
   // can't do non-prod per prod yet
-  data class Per(val cost: Cost, val qe: QuantifiedExpression) : Cost {
+  data class Per(val cost: Cost, val qe: QuantifiedExpression) : Cost() {
     init { require(qe.scalar != 0) }
 
-    override val petaform = "$cost / $qe" // parens
+    override fun toString() = "$cost / $qe" // parens
     override val hasProd = cost.hasProd
   }
 

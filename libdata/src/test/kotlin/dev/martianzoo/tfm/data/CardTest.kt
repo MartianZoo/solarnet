@@ -9,7 +9,6 @@ import dev.martianzoo.tfm.data.Card.ProjectKind.ACTIVE
 import dev.martianzoo.tfm.data.Card.ProjectKind.AUTOMATED
 import dev.martianzoo.tfm.data.Card.ProjectKind.EVENT
 import dev.martianzoo.tfm.petaform.api.PetaformObject
-import dev.martianzoo.tfm.petaform.parser.PetaformParser
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 
@@ -157,8 +156,8 @@ class CardTest {
 
   @Test fun slurp() {
     Canon.cardData.values.forEach { card ->
-      card.requirement?.let { assertThat(it.petaform).isEqualTo(card.requirementPetaform) }
-      card.resourceType?.let { assertThat(it.petaform).isEqualTo(card.resourceTypePetaform) }
+      card.requirement?.let { assertThat("$it").isEqualTo(card.requirementPetaform) }
+      card.resourceType?.let { assertThat("$it").isEqualTo(card.resourceTypePetaform) }
 
       checkRoundTrip(card.tagsPetaform, card.tags)
       checkRoundTrip(card.immediatePetaform, card.immediate)
@@ -170,7 +169,7 @@ class CardTest {
   fun checkRoundTrip(source: List<String>, cooked: List<PetaformObject>) {
     assertThat(source.size).isEqualTo(cooked.size)
     source.zip(cooked).forEach {
-      assertThat(it.second.petaform).isEqualTo(it.first)
+      assertThat("${it.second}").isEqualTo(it.first)
     }
   }
 }

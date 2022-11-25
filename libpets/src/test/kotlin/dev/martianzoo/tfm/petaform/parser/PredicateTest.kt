@@ -22,14 +22,14 @@ class PredicateTest {
 
   @Test
   fun simpleApiToSource() {
-    assertThat(Min(Expression("Foo")).petaform).isEqualTo("Foo")
-    assertThat(Min(Expression("Foo"), 1).petaform).isEqualTo("Foo")
-    assertThat(Min(Expression("Foo"), 3).petaform).isEqualTo("3 Foo")
-    assertThat(Min(Expression("Megacredit"), 3).petaform).isEqualTo("3")
-    assertThat(Max(Expression("Foo"), 0).petaform).isEqualTo("MAX 0 Foo")
-    assertThat(Max(Expression("Foo"), 1).petaform).isEqualTo("MAX 1 Foo")
-    assertThat(Max(Expression("Foo"), 3).petaform).isEqualTo("MAX 3 Foo")
-    assertThat(Max(Expression("Megacredit"), 3).petaform).isEqualTo("MAX 3")
+    assertThat(Min(Expression("Foo")).toString()).isEqualTo("Foo")
+    assertThat(Min(Expression("Foo"), 1).toString()).isEqualTo("Foo")
+    assertThat(Min(Expression("Foo"), 3).toString()).isEqualTo("3 Foo")
+    assertThat(Min(Expression("Megacredit"), 3).toString()).isEqualTo("3")
+    assertThat(Max(Expression("Foo"), 0).toString()).isEqualTo("MAX 0 Foo")
+    assertThat(Max(Expression("Foo"), 1).toString()).isEqualTo("MAX 1 Foo")
+    assertThat(Max(Expression("Foo"), 3).toString()).isEqualTo("MAX 3 Foo")
+    assertThat(Max(Expression("Megacredit"), 3).toString()).isEqualTo("MAX 3")
   }
 
   @Test
@@ -51,7 +51,7 @@ class PredicateTest {
 
   private fun testRoundTrip(start: String, end: String = start) {
     val parse: Predicate = PetaformParser.parse(start)
-    assertThat(parse.petaform).isEqualTo(end)
+    assertThat(parse.toString()).isEqualTo(end)
   }
 
   @Test fun testProd() {

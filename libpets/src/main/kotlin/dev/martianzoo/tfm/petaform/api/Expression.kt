@@ -12,34 +12,34 @@ import dev.martianzoo.util.joinOrEmpty
 data class Expression(
     val rootType: RootType,
     val refinements: List<Expression> = listOf(),
-    val predicates: List<Predicate> = listOf()) : PetaformObject {
+    val predicates: List<Predicate> = listOf()) : PetaformObject() {
 
   constructor(rootType: RootType, vararg refinement: Expression) :
       this(rootType, refinement.toList())
   constructor(rootType: String, vararg refinement: Expression) :
       this(ClassName(rootType), refinement.toList())
 
-  override val petaform : String =
-      rootType.petaform +
-          refinements.map { it.petaform }.joinOrEmpty(prefix = "<", suffix = ">") +
-          predicates.map { "HAS ${it.petaform}" }.joinOrEmpty(prefix = "(", suffix = ")")
+  override fun toString() =
+      "$rootType" +
+          refinements.joinOrEmpty(prefix = "<", suffix = ">") +
+          predicates.map { "HAS $it" }.joinOrEmpty(prefix = "(", suffix = ")")
 
   companion object {
     val DEFAULT = Expression("Megacredit")
   }
 }
 
-sealed interface RootType : PetaformObject
+sealed class RootType : PetaformObject()
 
-object This : RootType {
-  override val petaform = "This"
+object This : RootType() {
+  override fun toString() = "This"
 }
 
-data class ClassName(val ctypeName: String) : RootType {
+data class ClassName(val ctypeName: String) : RootType() {
   init {
     require(ctypeName.matches(Regex("^[A-Z][a-z][A-Za-z0-9_]*$"))) { ctypeName }
-    require(ctypeName != This.petaform)
+    require(ctypeName != This.toString())
     require(ctypeName != "Production")
   }
-  override val petaform = ctypeName
+  override fun toString() = ctypeName
 }

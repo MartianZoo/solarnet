@@ -47,7 +47,7 @@ class ComponentTest {
   fun checkRoundTrip(source: Collection<String>, cooked: Collection<PetaformObject>) {
     assertThat(source.size).isEqualTo(cooked.size)
     source.zip(cooked).forEach {
-      assertThat(it.second.petaform).isEqualTo(it.first)
+      assertThat("${it.second}").isEqualTo(it.first)
     }
   }
 }

@@ -1,71 +1,71 @@
 package dev.martianzoo.tfm.petaform.api
 
-sealed interface Instruction : PetaformObject {
-  data class Gain(val qe: QuantifiedExpression, val intensity: Intensity? = null) : Instruction {
+sealed class Instruction : PetaformObject() {
+  data class Gain(val qe: QuantifiedExpression, val intensity: Intensity? = null) : Instruction() {
     constructor(expr: Expression, scalar: Int = 1, intensity: Intensity? = null) :
         this(QuantifiedExpression(expr, scalar), intensity)
     init { qe.scalar >= 0 }
-    override val petaform = "${qe.petaform}${intensity?.petaform ?: ""}"
+    override fun toString() = "${qe}${intensity?.petaform ?: ""}"
   }
 
-  data class Remove(val qe: QuantifiedExpression, val intensity: Intensity? = null) : Instruction {
+  data class Remove(val qe: QuantifiedExpression, val intensity: Intensity? = null) : Instruction() {
     constructor(expr: Expression, scalar: Int = 1, intensity: Intensity? = null) :
         this(QuantifiedExpression(expr, scalar), intensity)
     init { qe.scalar >= 0 }
-    override val petaform = "-${qe.petaform}${intensity?.petaform ?: ""}"
+    override fun toString() = "-${qe}${intensity?.petaform ?: ""}"
   }
 
-  data class Multi(var instructions: List<Instruction>) : Instruction {
-    override val petaform = instructions.joinToString {
+  data class Multi(var instructions: List<Instruction>) : Instruction() {
+    override fun toString() = instructions.joinToString {
       when (it) {
-        is Gated -> "(${it.petaform})"
-        else -> it.petaform
+        is Gated -> "(${it})"
+        else -> "$it"
       }
     }
   }
 
-  data class Or(var instructions: List<Instruction>) : Instruction {
-    override val petaform = instructions.joinToString(" OR ") {
+  data class Or(var instructions: List<Instruction>) : Instruction() {
+    override fun toString() = instructions.joinToString(" OR ") {
       // precedence is against us
       when (it) {
-        is Multi -> "(${it.petaform})"
-        is Gated -> "(${it.petaform})"
-        else -> it.petaform
+        is Multi -> "(${it})"
+        is Gated -> "(${it})"
+        else -> "$it"
       }
     }
   }
 
-  data class Prod(val instruction: Instruction) : Instruction {
-    override val petaform = "PROD[${instruction.petaform}]"
+  data class Prod(val instruction: Instruction) : Instruction() {
+    override fun toString() = "PROD[${instruction}]"
   }
 
-  data class Per(val instruction: Instruction, val qe: QuantifiedExpression): Instruction {
-    override val petaform: String = "${instruction.petaform} / ${qe.petaform(forceExpression = true)}"
+  data class Per(val instruction: Instruction, val qe: QuantifiedExpression): Instruction() {
+    override fun toString() = "${instruction} / ${qe.petaform(forceExpression = true)}"
   }
 
-  data class Gated(val predicate: Predicate, val instruction: Instruction): Instruction {
-    override val petaform: String get() {
+  data class Gated(val predicate: Predicate, val instruction: Instruction): Instruction() {
+    override fun toString(): String {
       val pred = when (predicate) {
-        is Predicate.Or -> "(${predicate.petaform})"
-        is Predicate.And -> "(${predicate.petaform})"
-        else -> predicate.petaform
+        is Predicate.Or -> "(${predicate})"
+        is Predicate.And -> "(${predicate})"
+        else -> "$predicate"
       }
       val instr = when (instruction) {
-        is Or -> "(${instruction.petaform})"
-        is Multi -> "(${instruction.petaform})"
-        else -> instruction.petaform
+        is Or -> "(${instruction})"
+        is Multi -> "(${instruction})"
+        else -> "$instruction"
       }
       return "$pred: $instr"
     }
   }
 
-  enum class Intensity(val symbol: String): PetaformObject {
+  enum class Intensity(val symbol: String) {
     MANDATORY("!"),
     AMAP("."),
     OPTIONAL("?"),
     ;
 
-    override val petaform: String = symbol
+    val petaform: String = symbol
 
     companion object {
       fun forSymbol(symbol: String) = values().first { it.symbol == symbol }

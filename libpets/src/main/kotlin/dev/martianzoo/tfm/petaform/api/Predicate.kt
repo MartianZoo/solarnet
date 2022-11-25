@@ -2,40 +2,40 @@ package dev.martianzoo.tfm.petaform.api
 
 import com.google.common.collect.Lists
 
-sealed interface Predicate : PetaformObject {
+sealed class Predicate : PetaformObject() {
 
-  data class Min(val qe: QuantifiedExpression) : Predicate {
+  data class Min(val qe: QuantifiedExpression) : Predicate() {
     constructor(expr: Expression, scalar: Int = 1) : this(QuantifiedExpression(expr, scalar))
     init { require(qe.scalar >= 0) }
-    override val petaform = qe.petaform
+    override fun toString() = "$qe"
   }
 
-  data class Max(val qe: QuantifiedExpression) : Predicate {
+  data class Max(val qe: QuantifiedExpression) : Predicate() {
     constructor(expr: Expression, scalar: Int = 1) : this(QuantifiedExpression(expr, scalar))
     init { require(qe.scalar >= 0) }
-    override val petaform = "MAX ${qe.petaform(forceScalar = true)}"
+    override fun toString() = "MAX ${qe.petaform(forceScalar = true)}"
   }
 
-  data class Or(val predicates: List<Predicate>) : Predicate {
+  data class Or(val predicates: List<Predicate>) : Predicate() {
     constructor(pred1: Predicate, pred2: Predicate, vararg rest: Predicate) :
         this(Lists.asList(pred1, pred2, rest))
     init { require(predicates.size >= 2) }
-    override val petaform = predicates.joinToString(" OR ") {
+    override fun toString() = predicates.joinToString(" OR ") {
       // precedence is against us
-      if (it is And) "(${it.petaform})" else it.petaform
+      if (it is And) "(${it})" else "$it"
     }
   }
 
-  data class And(val predicates: List<Predicate>) : Predicate {
+  data class And(val predicates: List<Predicate>) : Predicate() {
     constructor(pred1: Predicate, pred2: Predicate, vararg rest: Predicate) :
         this(Lists.asList(pred1, pred2, rest))
     init { require(predicates.size >= 2) }
 
-    override val petaform = predicates.joinToString { it.petaform }
+    override fun toString() = predicates.joinToString()
   }
 
-  data class Prod(val predicate: Predicate): Predicate {
-    override val petaform: String = "PROD[${predicate.petaform}]"
+  data class Prod(val predicate: Predicate) : Predicate() {
+    override fun toString() = "PROD[${predicate}]"
   }
 
   companion object {
