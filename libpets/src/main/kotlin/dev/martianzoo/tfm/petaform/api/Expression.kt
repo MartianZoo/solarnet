@@ -4,26 +4,24 @@ import dev.martianzoo.util.joinOrEmpty
 
 /**
  * A component type expression in Petaform. This is parsed purely textually, with no knowledge of
- * the symbol table.
- *
- * @param ctypeName the root type, e.g. `"Foo"` for the expression `Foo<Bar, Qux>`
- * @param refinements the ordered list of refinements, e.g. `["Bar", "Qux"]` for the same example
+ * the symbol table. In adding TfmObjects to a `ComponentTable`, all expressions are checked at
+ * that time.
  */
 data class Expression(
     val rootType: RootType,
-    val refinements: List<Expression> = listOf(),
+    val specializations: List<Expression> = listOf(),
     val predicates: List<Predicate> = listOf()) : PetaformNode() {
 
-  constructor(rootType: RootType, vararg refinement: Expression) :
-      this(rootType, refinement.toList())
-  constructor(rootType: String, vararg refinement: Expression) :
-      this(ClassName(rootType), refinement.toList())
+  constructor(rootType: RootType, vararg specialization: Expression) :
+      this(rootType, specialization.toList())
+  constructor(rootType: String, vararg specialization: Expression) :
+      this(ClassName(rootType), specialization.toList())
 
-  override val children = listOf(rootType) + refinements + predicates
+  override val children = listOf(rootType) + specializations + predicates
 
   override fun toString() =
       "$rootType" +
-          refinements.joinOrEmpty(prefix = "<", suffix = ">") +
+          specializations.joinOrEmpty(prefix = "<", suffix = ">") +
           predicates.map { "HAS $it" }.joinOrEmpty(prefix = "(", suffix = ")")
 
   override val hasProd = false

@@ -23,8 +23,8 @@ data class Component(
     val abstract: Boolean = false,
 
     /**
-     * Zero or more direct supertypes, including refinements, as Petaform Expressions. Don't
-     * include `Component` or any types that are already indirect supertypes (unless refining them).
+     * Zero or more direct supertypes, including specializations, as Petaform Expressions. Don't
+     * include `Component` or any types that are already indirect supertypes (unless specializing them).
      */
     @Json(name = "supertypes")
     val supertypesPetaform: Set<String> = setOf(),
@@ -45,11 +45,11 @@ data class Component(
     val actionsPetaform: Set<String> = setOf(),
 
     /**
-     * Zero or more unordered effects that belong to each *instance* of this component class, expressed in
-     * Petaform. If the exact name of a dependency type is used in
-     * an effect, and a subtype of this type refines that dependency, then its inherited copy
-     * of this effect will have that type refined in the same way. These petaform expressions
-     * can (and should) make use of `This` and `Me` and can rely on type defaults.
+     * Zero or more unordered effects that belong to each *instance* of this component class,
+     * expressed in Petaform. If the exact name of a dependency type is used in an effect, and a
+     * subtype of this type specializes that dependency, then its inherited copy of this effect will
+     * have that type specialized in the same way. These petaform expressions can (and should) make
+     * use of `This` and `Me` and can rely on type defaults.
      */
     @Json(name = "effects")
     val effectsPetaform: Set<String> = setOf(),

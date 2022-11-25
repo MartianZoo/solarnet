@@ -95,18 +95,18 @@ object PetaformParser {
     private val thisComponent: Parser<This> = `this` map { This } // This
     private val rootType: Parser<RootType> = thisComponent or className // Plant
 
-    private val refinements: Parser<List<Expression>> = // <Player1, LandArea>
+    private val specializations: Parser<List<Expression>> = // <Player1, LandArea>
         skip(leftAngle) and
         separatedTerms(parser { expression }, comma) and
         skip(rightAngle)
-    private val optionalRefinements = optional(refinements) map { it ?: listOf() }
+    private val optionalSpecializations = optional(specializations) map { it ?: listOf() }
 
     private val hazzer = skip(has) and parser { predicate }
     private val predicates: Parser<List<Predicate>> = group(separatedTerms(hazzer, comma))
     private val optionalPredicates = optional(predicates) map { it ?: listOf() }
 
     // CityTile<Player1, LandArea>(HAS blahblah)
-    val expression = rootType and optionalRefinements and optionalPredicates map {
+    val expression = rootType and optionalSpecializations and optionalPredicates map {
       (type, refs, preds) -> Expression(type, refs, preds)
     }
   }.expression)
