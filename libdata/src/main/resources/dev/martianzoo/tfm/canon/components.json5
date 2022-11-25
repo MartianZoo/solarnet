@@ -20,11 +20,6 @@
       "name": "SoloPlayer",
       "supertypes": [ "Player" ]
     },
-    {
-      "name": "Owned",
-      "dependencies": [ "Anyone" ], // 1: owned to owner
-      "abstract": true
-    },
 
     {
       "name": "Phase",
@@ -43,49 +38,6 @@
     {
       "name": "Generation",
       "supertypes": [ "Plural" ]
-    },
-    {
-      "name": "VictoryPoint",
-      "supertypes": [ "Owned<Player>", "Plural" ]
-    },
-    {
-      "name": "TerraformRating",
-      "supertypes": [ "Owned<Player>", "Plural" ],
-      "effects": [
-        "ProductionPhase: 1",
-        "End: VictoryPoint"
-      ]
-    },
-
-    {
-      "name": "Resource",
-      "supertypes": [ "Owned", "Plural" ],
-      "abstract": true
-    },
-    {
-      "name": "StandardResource",
-      "supertypes": [ "Resource" ],
-      "abstract": true
-    },
-    {"name": "Megacredit", "supertypes": ["StandardResource"]},
-    {"name": "Steel",      "supertypes": ["StandardResource"]},
-    {"name": "Titanium",   "supertypes": ["StandardResource"]},
-    {"name": "Plant",      "supertypes": ["StandardResource"]},
-    {"name": "Heat",       "supertypes": ["StandardResource"]},
-    {
-      "name": "Energy",
-      "supertypes": [ "StandardResource" ],
-      "effects": [
-        "ProductionPhase:: -This, Heat" // Heat FROM This
-      ]
-    },
-    {
-      "name": "Production",
-      "supertypes": [ "Owned", "Plural" ],
-      "dependencies": [ "StandardResource" ], // 2: production to resource type - TYPE
-      "effects": [
-        "ProductionPhase: StandardResource"
-      ]
     },
 
     {"name": "Area", "abstract": true},
@@ -119,40 +71,71 @@
       "abstract": true
     },
 
+    { "name": "Card021Area", "supertypes": ["RemoteArea"] },
+    { "name": "Card081Area", "supertypes": ["RemoteArea"] },
+    { "name": "Card220Area", "supertypes": ["RemoteArea"] },
+    { "name": "Card236Area", "supertypes": ["RemoteArea"] },
+    { "name": "Card238Area", "supertypes": ["RemoteArea"] },
+    { "name": "Card248Area", "supertypes": ["RemoteArea"] },
+
     {
-      "name": "OwnedTile",
-      "supertypes": [ "Owned", "Tile" ],
-      "abstract": true
+      "name": "Owned",
+      "dependencies": [ "Anyone" ], // 1: owned to owner
+      "abstract": true,
     },
+
+
+    // Owned things -- come back to global parameters later
+
+
+    { "name": "VictoryPoint", "supertypes": [ "Owned<Player>", "Plural" ] },
     {
-      "name": "GreeneryTile",
-      "supertypes": [ "OwnedTile<MarsArea>" ],
+      "name": "TerraformRating",
+      "supertypes": [ "Owned<Player>", "Plural" ],
       "effects": [
-        "End: VictoryPoint"
+        "ProductionPhase: 1",
+        "End: VictoryPoint",
       ]
-    },
-    {
-      "name": "CityTile",
-      "supertypes": [ "OwnedTile" ],
-      "effects": [
-        "End: VictoryPoint / Adjacency<This, GreeneryTile<Anyone>>",
-        "End: VictoryPoint / Adjacency<GreeneryTile<Anyone>, This>"
-      ]
-    },
-    {
-      "name": "SpecialTile",
-      "supertypes": [ "OwnedTile<MarsArea>" ],
-      "abstract": true
     },
 
     {
+      "name": "Resource",
+      "supertypes": [ "Owned", "Plural" ],
+      "abstract": true,
+    },
+    {
+      "name": "StandardResource",
+      "supertypes": [ "Resource" ],
+      "abstract": true,
+    },
+    {"name": "Megacredit", "supertypes": ["StandardResource"]},
+    {"name": "Steel",      "supertypes": ["StandardResource"]},
+    {"name": "Titanium",   "supertypes": ["StandardResource"]},
+    {"name": "Plant",      "supertypes": ["StandardResource"]},
+    {"name": "Heat",       "supertypes": ["StandardResource"]},
+    {
+      "name": "Energy",
+      "supertypes": [ "StandardResource" ],
+      "effects": [ "ProductionPhase:: -This, Heat" ], // Heat FROM This
+    },
+    {
+      "name": "Production",
+      "supertypes": [ "Owned", "Plural" ],
+      "dependencies": [ "StandardResource" ], // 2: production to resource type - TYPE
+      "effects": [ "ProductionPhase: StandardResource" ],
+    },
+    {
       "name": "CardBack",
       "supertypes": [ "Owned<Player>", "Plural" ],
-      "abstract": true
+      "abstract": true,
     },
     {"name": "ProjectCard",     "supertypes": ["CardBack"]},
     {"name": "PreludeCard",     "supertypes": ["CardBack"]},
     {"name": "CorporationCard", "supertypes": ["CardBack"]},
+
+
+    // Back to unowned things
+
 
     // How to deal with splitting 3 into 1, 1, 1?
     {
@@ -160,19 +143,19 @@
       "supertypes": [ "Plural" ],
       "abstract": true,
       "effects": [
-        "This: TerraformRating"
+        "This: TerraformRating" // player?
       ]
     },
     {
       "name": "OceanTile",
       "supertypes": [ "Tile<MarsArea>", "GlobalParameter" ],
-      "effects": [ "Adjacency<This, Tile>: 2" ]
+      "effects": [ "Adjacency<This, Tile>: 2" ] // player?
     },
     {
       "name": "TemperatureStep",
       "supertypes": [ "GlobalParameter" ],
       "effects": [
-        // "This IF =3 This: PROD[Heat]",
+        // "This IF =3 This: PROD[Heat]", //player?
         // "This IF =5 This: PROD[Heat]",
         // "This IF =15 This: OceanTile",
       ]
@@ -188,15 +171,44 @@
       "name": "VenusStep",
       "supertypes": [ "GlobalParameter" ],
       "effects": [
-        // "This IF =4 This: ProjectCard",
-        // "This IF =8 This: TerraformRating",
+        // "This IF =4 This: ProjectCard", // player?
+        // "This IF =8 This: TerraformRating", // player?
       ]
     },
+
+    // Back to owned things
+
+    {
+      "name": "OwnedTile",
+      "supertypes": [ "Owned", "Tile" ],
+      "abstract": true,
+    },
+    {
+      "name": "GreeneryTile",
+      "supertypes": [ "OwnedTile<MarsArea>" ],
+      "effects": [ "End: VictoryPoint" ]
+    },
+    {
+      "name": "CityTile",
+      "supertypes": [ "OwnedTile" ],
+      "effects": [
+        "End: VictoryPoint / Adjacency<This, GreeneryTile<Anyone>>",
+        "End: VictoryPoint / Adjacency<GreeneryTile<Anyone>, This>",
+      ]
+    },
+    {
+      "name": "SpecialTile",
+      "supertypes": [ "OwnedTile<MarsArea>" ],
+      "abstract": true,
+    },
+
+    { "name": "Card008Tile", "supertypes": ["CityTile"] },
+    { "name": "Card085Tile", "supertypes": ["SpecialTile"] },
 
     {
       "name": "CardFront",
       "supertypes": [ "Owned" ],
-      "abstract": true
+      "abstract": true,
     },
     {"name": "ActiveCard",    "supertypes": [ "CardFront" ], "abstract": true},
     {"name": "AutomatedCard", "supertypes": [ "CardFront" ], "abstract": true},
@@ -206,7 +218,7 @@
       "name": "Cardbound",
       "supertypes": [ "Owned" ],
       "dependencies": [ "CardFront" ], // 4: cardbound cpt to card it's on
-      "abstract": true
+      "abstract": true,
     },
 
     {"name": "Tag", "supertypes": [ "Cardbound" ], "abstract": true},
@@ -229,7 +241,7 @@
     {
       "name": "CardResource",
       "abstract": true,
-      "supertypes": [ "Resource", "Cardbound<ActiveCard>" ]
+      "supertypes": [ "Resource", "Cardbound<ActiveCard>" ],
     },
     {"name": "Animal",   "supertypes": ["CardResource"]},
     {"name": "Asteroid", "supertypes": ["CardResource"]},
@@ -240,16 +252,7 @@
 
     {
       "name": "ActionCardUsage",
-      "supertypes": [ "Cardbound<ActiveCard>" ]
+      "supertypes": [ "Cardbound<ActiveCard>" ],
     },
-
-    { "name": "Card008Tile", "supertypes": ["CityTile"] },
-    { "name": "Card085Tile", "supertypes": ["SpecialTile"] },
-    { "name": "Card021Area", "supertypes": ["RemoteArea"] },
-    { "name": "Card081Area", "supertypes": ["RemoteArea"] },
-    { "name": "Card220Area", "supertypes": ["RemoteArea"] },
-    { "name": "Card236Area", "supertypes": ["RemoteArea"] },
-    { "name": "Card238Area", "supertypes": ["RemoteArea"] },
-    { "name": "Card248Area", "supertypes": ["RemoteArea"] }
   ]
 }

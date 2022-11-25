@@ -1312,7 +1312,7 @@
       "tags": [ "AnimalTag", "PlantTag" ],
       "immediate": [ "SpecialTile<LandArea(HAS Neighbor<GreeneryTile<Anyone>>)>" ],
       "effects": [
-        "AnimalTag: Animal<This>", // TODO: an OR would be slightly nice?
+        "AnimalTag: Animal<This>",
         "PlantTag: Animal<This>",
         "End: VictoryPoint / Animal<This>",
       ],
@@ -1739,7 +1739,7 @@
       "immediate": [ "Animal<This>" ],
       "effects": [
         "CityTile<Anyone>: Animal<This>",
-        "-Animal<This>: Die",
+        "-Animal<This>:: Die",
         "End: VictoryPoint / 2 Animal<This>",
       ],
       "resourceType": "Animal",
