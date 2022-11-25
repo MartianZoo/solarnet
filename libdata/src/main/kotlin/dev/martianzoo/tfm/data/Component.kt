@@ -60,12 +60,6 @@ data class Component(
     require(name.matches(NAME_PATTERN))
   }
 
-  val supertypes by lazy { supertypesPetaform.map { parse<Expression>(it) }.toSet() }
-  val dependencies: List<Expression> by lazy { dependenciesPetaform.map(::parse) }
-  val immediate: Instruction? by lazy { immediatePetaform?.let(::parse) }
-  val actions: Set<Action> by lazy { actionsPetaform.map { parse<Action>(it) }.toSet() }
-  val effects: Set<Effect> by lazy { effectsPetaform.map { parse<Effect>(it) }.toSet() }
-
   override val asComponent = this
 }
 

@@ -19,6 +19,8 @@ data class Expression(
   constructor(rootType: String, vararg refinement: Expression) :
       this(ClassName(rootType), refinement.toList())
 
+  override val children = listOf(rootType) + refinements + predicates
+
   override fun toString() =
       "$rootType" +
           refinements.joinOrEmpty(prefix = "<", suffix = ">") +
@@ -32,6 +34,7 @@ data class Expression(
 }
 
 sealed class RootType : PetaformObject() {
+  override val children = listOf<PetaformObject>()
   override val hasProd = false
 }
 

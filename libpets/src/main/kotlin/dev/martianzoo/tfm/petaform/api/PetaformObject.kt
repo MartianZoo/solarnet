@@ -5,4 +5,5 @@ package dev.martianzoo.tfm.petaform.api
  */
 abstract class PetaformObject {
   abstract val hasProd: Boolean
+  abstract val children: Collection<PetaformObject>
 }

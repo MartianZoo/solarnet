@@ -1,17 +1,21 @@
 {
   "components": [
-    // Signifies that multiple *identical* can exist (be tracked by count)
-    {
+
+    { // Signifies that multiple *identical* can exist (be tracked by count)
       "name": "Plural",
       "system": true,
       "abstract": true
     },
-    // Can own things
-    {
+    { // Impossible to actually create
+      "name": "Die", // TODO
+      "system": true,
+    },
+
+    { // Can own things
       "name": "Anyone",
       "abstract": true
     },
-    {
+    { // A real player
       "name": "Player",
       "supertypes": [ "Anyone" ],
       "abstract": true
@@ -88,16 +92,6 @@
     // Owned things -- come back to global parameters later
 
 
-    { "name": "VictoryPoint", "supertypes": [ "Owned<Player>", "Plural" ] },
-    {
-      "name": "TerraformRating",
-      "supertypes": [ "Owned<Player>", "Plural" ],
-      "effects": [
-        "ProductionPhase: 1",
-        "End: VictoryPoint",
-      ]
-    },
-
     {
       "name": "Resource",
       "supertypes": [ "Owned", "Plural" ],
@@ -124,6 +118,17 @@
       "dependencies": [ "StandardResource" ], // 2: production to resource type - TYPE
       "effects": [ "ProductionPhase: StandardResource" ],
     },
+
+    { "name": "VictoryPoint", "supertypes": [ "Owned<Player>", "Plural" ] },
+    {
+      "name": "TerraformRating",
+      "supertypes": [ "Owned<Player>", "Plural" ],
+      "effects": [
+        "ProductionPhase: 1",
+        "End: VictoryPoint",
+      ]
+    },
+
     {
       "name": "CardBack",
       "supertypes": [ "Owned<Player>", "Plural" ],
@@ -254,5 +259,21 @@
       "name": "ActionCardUsage",
       "supertypes": [ "Cardbound<ActiveCard>" ],
     },
+
+    {
+      "name": "Purchase",
+      "supertypes": [ "Owned<Player>" ], // temporary
+      "dependencies": [ "Component" ], // 5: purchase to what it's of - TYPE
+    },
+    {
+      "name": "Owed",
+      "supertypes": [ "Owned<Player>", "Plural" ], // temporary
+      "dependencies": [ "StandardResource" ], // 6: what is owed - TYPE
+    },
+
+    {
+      "name": "StandardProject",
+    }
+
   ]
 }

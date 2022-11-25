@@ -5,6 +5,7 @@ sealed class Instruction : PetaformObject() {
     constructor(expr: Expression, scalar: Int = 1, intensity: Intensity? = null) :
         this(QuantifiedExpression(expr, scalar), intensity)
     init { qe.scalar >= 0 }
+    override val children = listOf(qe)
     override fun toString() = "${qe}${intensity?.petaform ?: ""}"
     override val hasProd = false
   }
@@ -13,11 +14,13 @@ sealed class Instruction : PetaformObject() {
     constructor(expr: Expression, scalar: Int = 1, intensity: Intensity? = null) :
         this(QuantifiedExpression(expr, scalar), intensity)
     init { qe.scalar >= 0 }
+    override val children = listOf(qe)
     override fun toString() = "-${qe}${intensity?.petaform ?: ""}"
     override val hasProd = false
   }
 
   data class Multi(var instructions: List<Instruction>) : Instruction() {
+    override val children = instructions
     override fun toString() = instructions.joinToString {
       when (it) {
         is Gated -> "(${it})"
@@ -28,6 +31,7 @@ sealed class Instruction : PetaformObject() {
   }
 
   data class Or(var instructions: List<Instruction>) : Instruction() {
+    override val children = instructions
     override fun toString() = instructions.joinToString(" OR ") {
       // precedence is against us
       when (it) {
@@ -41,18 +45,21 @@ sealed class Instruction : PetaformObject() {
 
   data class Prod(val instruction: Instruction) : Instruction() {
     init { require(!instruction.hasProd) }
+    override val children = listOf(instruction)
     override fun toString() = "PROD[${instruction}]"
     override val hasProd = true
   }
 
   data class Per(val instruction: Instruction, val qe: QuantifiedExpression): Instruction() {
+    override val children = listOf(instruction, qe)
     override fun toString() = "${instruction} / ${qe.petaform(forceExpression = true)}"
     override val hasProd = instruction.hasProd
   }
 
   data class Gated(val predicate: Predicate, val instruction: Instruction): Instruction() {
+    override val children = listOf(predicate, instruction)
     override fun toString(): String {
-      val pred = when (predicate) {
+      val pred = when (predicate) { // TODO generalize somehow
         is Predicate.Or -> "(${predicate})"
         is Predicate.And -> "(${predicate})"
         else -> "$predicate"

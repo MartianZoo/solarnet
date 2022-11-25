@@ -17,30 +17,23 @@ class ComponentTest {
     assertThat(tr.supertypesPetaform).containsExactly("Owned<Player>", "Plural").inOrder()
     assertThat(tr.dependenciesPetaform).isEmpty()
     assertThat(tr.effectsPetaform).containsExactly("ProductionPhase: 1", "End: VictoryPoint")
-
-    assertThat(tr.supertypes).containsExactly(
-        Expression("Owned", Expression("Player")), Expression("Plural")).inOrder()
   }
-
-  // We might have to go circular some day, but not yet
-  @Test fun noForwardRefs() {
-    val sofar = mutableSetOf("Ctype", "This")
-    Canon.componentClassData.forEach { (name, cpt) ->
-      sofar += name
-      assertThat(sofar).containsAtLeastElementsIn(pullNamesOutOf(cpt))
-    }
-  }
-
-  private fun pullNamesOutOf(cpt: Component) =
-      (cpt.supertypesPetaform + cpt.dependenciesPetaform + cpt.effectsPetaform).flatMap {
-        it.split(Regex("[\\W\\d]+"))
-      }.filterNot { it == "" }.toHashSet()
 
   @Test fun slurp() {
-    Canon.componentClassData.values.forEach { cc ->
-      checkRoundTrip(cc.supertypesPetaform, cc.supertypes)
-      checkRoundTrip(cc.dependenciesPetaform, cc.dependencies)
-      checkRoundTrip(cc.effectsPetaform, cc.effects)
+    val table = ComponentTable()
+    val list: List<TfmObject> =
+        Canon.componentClassData.values +
+        Canon.mapData.values.flatMap { it } +
+        Canon.cardData.values
+    list.forEach { obj ->
+      table.add(obj)
+      val cc = obj.asComponent
+      val rc = table[cc.name]!!
+      checkRoundTrip(cc.supertypesPetaform, rc.supertypes)
+      checkRoundTrip(cc.dependenciesPetaform, rc.dependencies)
+      checkRoundTrip(listOfNotNull(cc.immediatePetaform), listOfNotNull(rc.immediate))
+      checkRoundTrip(cc.actionsPetaform, rc.actions)
+      checkRoundTrip(cc.effectsPetaform, rc.effects)
     }
   }
 

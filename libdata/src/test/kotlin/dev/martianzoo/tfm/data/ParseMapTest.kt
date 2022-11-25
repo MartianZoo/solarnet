@@ -20,7 +20,7 @@ internal class ParseMapTest {
     assertThat(thar[3, 2]!!.bonusPetaform).isNull()
 
     assertThat(thar[1, 4]!!.typePetaform).isEqualTo("WaterArea")
-    assertThat(thar[1, 4]!!.bonusPetaform).isEqualTo("Card")
+    assertThat(thar[1, 4]!!.bonusPetaform).isEqualTo("ProjectCard")
   }
 
   @Test
@@ -44,7 +44,7 @@ internal class ParseMapTest {
     assertThat(elys[1, 1]!!.bonusPetaform).isNull()
 
     assertThat(elys[3, 7]!!.typePetaform).isEqualTo("VolcanicArea")
-    assertThat(elys[3, 7]!!.bonusPetaform).isEqualTo("3 Card")
+    assertThat(elys[3, 7]!!.bonusPetaform).isEqualTo("3 ProjectCard")
   }
 
   private fun checkWaterAreaCount(map: Grid<MarsArea>) {
@@ -62,10 +62,10 @@ internal class ParseMapTest {
         .toSet()
 
     assertThat(uniqueAreas).containsExactly(
-        "Card", "Plant", "Steel", "Titanium",
-        "2 Card", "2 Heat", "2 Plant", "2 Steel", "2 Titanium",
-        "Plant, Card", "Plant, Steel", "Plant, Titanium",
-        "3 Card", "3 Heat", "3 Plant",
+        "ProjectCard", "Plant", "Steel", "Titanium",
+        "2 ProjectCard", "2 Heat", "2 Plant", "2 Steel", "2 Titanium",
+        "Plant, ProjectCard", "Plant, Steel", "Plant, Titanium",
+        "3 ProjectCard", "3 Heat", "3 Plant",
         "OceanTile, -6",
     )
   }
