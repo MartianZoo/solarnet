@@ -1,18 +1,12 @@
 package dev.martianzoo.tfm.data
 
 import com.squareup.moshi.Json
-import dev.martianzoo.tfm.petaform.api.Action
-import dev.martianzoo.tfm.petaform.api.Effect
-import dev.martianzoo.tfm.petaform.api.Expression
-import dev.martianzoo.tfm.petaform.api.Instruction
-import dev.martianzoo.tfm.petaform.parser.PetaformParser
-import dev.martianzoo.tfm.petaform.parser.PetaformParser.parse
 
 /**
  * The declaration of a component class, such as GreeneryTile. Models the declaration textually as
  * it was provided.
  */
-data class RawComponentType(
+data class ComponentTypeData(
     /** Unique name for this component class. */
     val name: String,
 
@@ -50,7 +44,7 @@ data class RawComponentType(
      */
     @Json(name = "effects")
     val effectsPetaform: Set<String> = setOf(),
-) : TfmObject {
+) : TfmData {
 
   init {
     require(name !in RESERVED_NAMES)

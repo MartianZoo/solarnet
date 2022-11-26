@@ -12,12 +12,12 @@ class ComponentTable {
   private val table = mutableMapOf<String, ComponentType>()
 
   init {
-    add(RawComponentType("Component", abstract = true)) // TODO constant somewhere
+    add(ComponentTypeData("Component", abstract = true)) // TODO constant somewhere
   }
 
-  fun addAll(objects: Iterable<TfmObject>) = objects.forEach(::add)
+  fun addAll(objects: Iterable<TfmData>) = objects.forEach(::add)
 
-  fun add(obj: TfmObject) {
+  fun add(obj: TfmData) {
     val backing = obj.asRawComponentType
 
     val supertypes = backing.supertypesPetaform.map { parse<Expression>(it) }.toSet()

@@ -6,11 +6,11 @@ import dev.martianzoo.tfm.petaform.api.Expression
 import dev.martianzoo.util.Grid
 import org.junit.jupiter.api.Test
 
-internal class ParseMapTest {
+internal class MarsAreaDataTest {
 
   @Test
   fun testTharsis() {
-    val thar: Grid<MarsArea> = Canon.mapData["Tharsis"]!!
+    val thar: Grid<MarsAreaData> = Canon.mapData["Tharsis"]!!
     checkWaterAreaCount(thar)
 
     assertThat(thar[5, 3]!!.typePetaform).isEqualTo("NoctisArea")
@@ -25,7 +25,7 @@ internal class ParseMapTest {
 
   @Test
   fun testHellas() {
-    val hell: Grid<MarsArea> = Canon.mapData["Hellas"]!!
+    val hell: Grid<MarsAreaData> = Canon.mapData["Hellas"]!!
     checkWaterAreaCount(hell)
 
     assertThat(hell[5, 7]!!.typePetaform).isEqualTo("WaterArea")
@@ -37,7 +37,7 @@ internal class ParseMapTest {
 
   @Test
   fun testElysium() {
-    val elys: Grid<MarsArea> = Canon.mapData["Elysium"]!!
+    val elys: Grid<MarsAreaData> = Canon.mapData["Elysium"]!!
     checkWaterAreaCount(elys)
 
     assertThat(elys[1, 1]!!.typePetaform).isEqualTo("WaterArea")
@@ -47,7 +47,7 @@ internal class ParseMapTest {
     assertThat(elys[3, 7]!!.bonusPetaform).isEqualTo("3 ProjectCard")
   }
 
-  private fun checkWaterAreaCount(map: Grid<MarsArea>) {
+  private fun checkWaterAreaCount(map: Grid<MarsAreaData>) {
     assertThat(map.count { it.type == Expression("WaterArea") }).isEqualTo(12)
   }
 

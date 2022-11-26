@@ -11,7 +11,7 @@ internal object MoshiReader {
 
   // Components
 
-  internal data class ComponentTypeList(val components: List<RawComponentType>) {
+  internal data class ComponentTypeList(val components: List<ComponentTypeData>) {
     fun toMap() = components.associateBy { it.name }.also { require(it.size == components.size) }
   }
 
@@ -21,7 +21,7 @@ internal object MoshiReader {
 
   // Cards
 
-  internal data class CardList(val cards: List<Card>) {
+  internal data class CardList(val cards: List<CardData>) {
     fun toMap() = cards.associateBy { it.id }.also { require(it.size == cards.size) }
   }
 
@@ -62,7 +62,7 @@ internal object MoshiReader {
   private val MOSHI_MAP = MOSHI.adapter(MapsImportFormat::class.java).nullSafe().lenient()
 
   // Nothing like three different meanings of the same word in the same place
-  fun readMaps(json5: String): Map<String, Grid<MarsArea>> {
+  fun readMaps(json5: String): Map<String, Grid<MarsAreaData>> {
     val import: MapsImportFormat = MOSHI_MAP.fromJson(json5ToJson(json5))!!
     val legend = Legend(import.legend)
 
@@ -74,7 +74,7 @@ internal object MoshiReader {
             .filter { it.value.isNotEmpty() }
             .map { (column, code) ->
               val (type, bonus) = legend.translate(code)
-              MarsArea(map.id, row + 1, column, type, bonus, code)
+              MarsAreaData(map.id, row + 1, column, type, bonus, code)
             }
       }
       Grid.grid(areas, { it.row }, { it.column })

@@ -2,23 +2,23 @@ package dev.martianzoo.tfm.data
 
 import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.tfm.canon.Canon
-import dev.martianzoo.tfm.data.Card.Deck.CORPORATION
-import dev.martianzoo.tfm.data.Card.Deck.PRELUDE
-import dev.martianzoo.tfm.data.Card.Deck.PROJECT
-import dev.martianzoo.tfm.data.Card.ProjectKind.ACTIVE
-import dev.martianzoo.tfm.data.Card.ProjectKind.AUTOMATED
-import dev.martianzoo.tfm.data.Card.ProjectKind.EVENT
+import dev.martianzoo.tfm.data.CardData.Deck.CORPORATION
+import dev.martianzoo.tfm.data.CardData.Deck.PRELUDE
+import dev.martianzoo.tfm.data.CardData.Deck.PROJECT
+import dev.martianzoo.tfm.data.CardData.ProjectKind.ACTIVE
+import dev.martianzoo.tfm.data.CardData.ProjectKind.AUTOMATED
+import dev.martianzoo.tfm.data.CardData.ProjectKind.EVENT
 import dev.martianzoo.tfm.petaform.api.PetaformNode
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 
-class CardTest {
+class CardDataTest {
   /**
    * This is honestly an incredibly stupid test that data classes shouldn't need to have.
    */
   @Test
   fun minimal() {
-    val dumbCard = Card("xxx", deck = PRELUDE, effectsPetaform = setOf("This: Plant"))
+    val dumbCard = CardData("xxx", deck = PRELUDE, effectsPetaform = setOf("This: Plant"))
 
     assertThat(dumbCard.id).isEqualTo("xxx")
     assertThat(dumbCard.bundle).isNull()
@@ -32,7 +32,7 @@ class CardTest {
     assertThat(dumbCard.projectKind).isNull()
   }
 
-  val BIRDS = Card(
+  val BIRDS = CardData(
       id = "072",
       bundle = "B",
       deck = PROJECT,
@@ -89,7 +89,7 @@ class CardTest {
   }
 
   // Just so we don't have to keep repeating the "x" part
-  private val C: Card = Card("x")
+  private val C: CardData = CardData("x")
 
   /** Since we only use C expecting an exception, we should make sure it normally works. */
   @Test
@@ -100,7 +100,7 @@ class CardTest {
 
   @Test
   fun emptyStrings() {
-    assertThrows<RuntimeException> { Card("") }
+    assertThrows<RuntimeException> { CardData("") }
     assertThrows<RuntimeException> { C.copy(bundle = "") }
     assertThrows<RuntimeException> { C.copy(replacesId = "") }
     assertThrows<RuntimeException> { C.copy(resourceTypePetaform = "") }
