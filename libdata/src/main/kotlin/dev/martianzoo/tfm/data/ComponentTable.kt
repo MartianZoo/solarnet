@@ -9,16 +9,16 @@ import dev.martianzoo.tfm.petaform.api.PetaformNode
 import dev.martianzoo.tfm.petaform.parser.PetaformParser.parse
 
 class ComponentTable {
-  private val table = mutableMapOf<String, RichComponent>()
+  private val table = mutableMapOf<String, ComponentType>()
 
   init {
-    add(ComponentType("Component", abstract = true)) // TODO constant somewhere
+    add(RawComponentType("Component", abstract = true)) // TODO constant somewhere
   }
 
   fun addAll(objects: Iterable<TfmObject>) = objects.forEach(::add)
 
   fun add(obj: TfmObject) {
-    val backing = obj.asComponentType
+    val backing = obj.asRawComponentType
 
     val supertypes = backing.supertypesPetaform.map { parse<Expression>(it) }.toSet()
     verifyClassNames(supertypes)
@@ -35,7 +35,7 @@ class ComponentTable {
     val effects: Set<Effect> = backing.effectsPetaform.map { parse<Effect>(it) }.toSet()
     verifyClassNames(effects)
 
-    table[backing.name] = RichComponent(backing, supertypes, dependencies, immediate, actions, effects)
+    table[backing.name] = ComponentType(backing, supertypes, dependencies, immediate, actions, effects)
   }
 
   fun all() = table.values
@@ -54,11 +54,4 @@ class ComponentTable {
     }
   }
 
-  data class RichComponent(
-      val backing: ComponentType,
-      val supertypes: Set<Expression>,
-      val dependencies: List<Expression>,
-      val immediate: Instruction?,
-      val actions: Set<Action>,
-      val effects: Set<Effect>)
 }
