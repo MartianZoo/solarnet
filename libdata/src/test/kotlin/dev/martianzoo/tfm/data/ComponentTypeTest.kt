@@ -23,7 +23,7 @@ class ComponentTypeTest {
     table.addAll(Canon.mapData.values.flatMap { it })
     table.addAll(Canon.cardData.values)
     table.all().forEach { rc ->
-      val cc = rc.backing
+      val cc = rc.data
       checkRoundTrip(cc.supertypesPetaform, rc.supertypes)
       checkRoundTrip(cc.dependenciesPetaform, rc.dependencies)
       checkRoundTrip(listOfNotNull(cc.immediatePetaform), listOfNotNull(rc.immediate))

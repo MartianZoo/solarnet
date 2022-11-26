@@ -18,24 +18,24 @@ class ComponentTable {
   fun addAll(objects: Iterable<TfmData>) = objects.forEach(::add)
 
   fun add(obj: TfmData) {
-    val backing = obj.asRawComponentType
+    val data = obj.asRawComponentType
 
-    val supertypes = backing.supertypesPetaform.map { parse<Expression>(it) }.toSet()
+    val supertypes = data.supertypesPetaform.map { parse<Expression>(it) }.toSet()
     verifyClassNames(supertypes)
 
-    val dependencies: List<Expression> = backing.dependenciesPetaform.map(::parse)
+    val dependencies: List<Expression> = data.dependenciesPetaform.map(::parse)
     verifyClassNames(dependencies)
 
-    val immediate: Instruction? = backing.immediatePetaform?.let(::parse)
+    val immediate: Instruction? = data.immediatePetaform?.let(::parse)
     immediate?.let(::verifyClassNames)
 
-    val actions: Set<Action> = backing.actionsPetaform.map { parse<Action>(it) }.toSet()
+    val actions: Set<Action> = data.actionsPetaform.map { parse<Action>(it) }.toSet()
     verifyClassNames(actions)
 
-    val effects: Set<Effect> = backing.effectsPetaform.map { parse<Effect>(it) }.toSet()
+    val effects: Set<Effect> = data.effectsPetaform.map { parse<Effect>(it) }.toSet()
     verifyClassNames(effects)
 
-    table[backing.name] = ComponentType(backing, supertypes, dependencies, immediate, actions, effects)
+    table[data.name] = ComponentType(data, supertypes, dependencies, immediate, actions, effects)
   }
 
   fun all() = table.values

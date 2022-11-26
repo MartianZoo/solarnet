@@ -6,7 +6,7 @@ import dev.martianzoo.tfm.petaform.api.Expression
 import dev.martianzoo.tfm.petaform.api.Instruction
 
 data class ComponentType(
-    val backing: ComponentTypeData,
+    val data: ComponentTypeData,
     val supertypes: Set<Expression>,
     val dependencies: List<Expression>,
     val immediate: Instruction?,
