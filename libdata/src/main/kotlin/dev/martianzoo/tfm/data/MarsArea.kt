@@ -42,14 +42,14 @@ data class MarsArea(
   val bonus: Instruction? by lazy { bonusPetaform?.let { parse(it) } }
   val type: Expression by lazy { parse(typePetaform) }
 
-  override val asComponent by lazy {
+  override val asComponentType by lazy {
     val effects =
         if (bonusPetaform == null) {
           setOf()
         } else {
           setOf("Tile<This>: $bonusPetaform") // don't want to have to do this in code like that
         }
-    Component(componentName(), supertypesPetaform = setOf(typePetaform), effectsPetaform = effects)
+    ComponentType(componentName(), supertypesPetaform = setOf(typePetaform), effectsPetaform = effects)
   }
 
   fun componentName() = "${mapName}${row}_$column"

@@ -11,13 +11,13 @@ internal object MoshiReader {
 
   // Components
 
-  internal data class ComponentList(val components: List<Component>) {
+  internal data class ComponentTypeList(val components: List<ComponentType>) {
     fun toMap() = components.associateBy { it.name }.also { require(it.size == components.size) }
   }
 
-  private val MOSHI_COMPONENT = MOSHI.adapter(ComponentList::class.java).nullSafe().lenient()
+  private val MOSHI_COMPONENT = MOSHI.adapter(ComponentTypeList::class.java).nullSafe().lenient()
 
-  internal fun readComponents(json5: String) = MOSHI_COMPONENT.fromJson(json5ToJson(json5))!!.toMap()
+  internal fun readComponentTypes(json5: String) = MOSHI_COMPONENT.fromJson(json5ToJson(json5))!!.toMap()
 
   // Cards
 

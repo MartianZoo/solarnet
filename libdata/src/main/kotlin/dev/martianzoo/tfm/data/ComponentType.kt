@@ -12,7 +12,7 @@ import dev.martianzoo.tfm.petaform.parser.PetaformParser.parse
  * The declaration of a component class, such as GreeneryTile. Models the declaration textually as
  * it was provided.
  */
-data class Component(
+data class ComponentType(
     /** Unique name for this component class. */
     val name: String,
 
@@ -57,7 +57,7 @@ data class Component(
     require(name.matches(NAME_PATTERN))
   }
 
-  override val asComponent = this
+  override val asComponentType = this
 }
 
 private val NAME_PATTERN = Regex("^[A-Z][a-z][A-Za-z0-9_]*$") // TODO: it's repeated 3 times

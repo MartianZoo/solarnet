@@ -12,13 +12,13 @@ class ComponentTable {
   private val table = mutableMapOf<String, RichComponent>()
 
   init {
-    add(Component("Component", abstract = true)) // TODO constant somewhere
+    add(ComponentType("Component", abstract = true)) // TODO constant somewhere
   }
 
   fun addAll(objects: Iterable<TfmObject>) = objects.forEach(::add)
 
   fun add(obj: TfmObject) {
-    val backing = obj.asComponent
+    val backing = obj.asComponentType
 
     val supertypes = backing.supertypesPetaform.map { parse<Expression>(it) }.toSet()
     verifyClassNames(supertypes)
@@ -55,7 +55,7 @@ class ComponentTable {
   }
 
   data class RichComponent(
-      val backing: Component,
+      val backing: ComponentType,
       val supertypes: Set<Expression>,
       val dependencies: List<Expression>,
       val immediate: Instruction?,

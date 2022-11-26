@@ -156,9 +156,9 @@ data class Card(
   val effects by lazy { effectsPetaform.map { parse<Effect>(it) }.toSet() }
   val requirement: Predicate? by lazy { requirementPetaform?.let(PetaformParser::parse) }
 
-  override val asComponent by lazy {
+  override val asComponentType by lazy {
     val type = if (projectKind == null) "CardFront" else projectKind.type
-    Component(
+    ComponentType(
         name = "Card$id",
         supertypesPetaform = setOf(type),
         immediatePetaform = immediate?.toString(), // TODO hack

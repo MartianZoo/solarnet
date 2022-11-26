@@ -6,9 +6,9 @@ import dev.martianzoo.tfm.petaform.api.PetaformNode
 import org.junit.jupiter.api.Test
 
 // Not testing much, just a bit of the canon data
-class ComponentTest {
+class ComponentTypeTest {
   @Test fun foo() {
-    val data = Canon.componentClassData
+    val data = Canon.componentTypeData
     val tr = data["TerraformRating"]!!
     assertThat(tr.name).isEqualTo("TerraformRating")
     assertThat(tr.abstract).isFalse()
@@ -19,7 +19,7 @@ class ComponentTest {
 
   @Test fun slurp() {
     val table = ComponentTable()
-    table.addAll(Canon.componentClassData.values)
+    table.addAll(Canon.componentTypeData.values)
     table.addAll(Canon.mapData.values.flatMap { it })
     table.addAll(Canon.cardData.values)
     table.all().forEach { rc ->
