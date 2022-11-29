@@ -17,7 +17,6 @@ import com.github.h0tk3y.betterParse.parser.parseToEnd
 import dev.martianzoo.tfm.petaform.api.Action
 import dev.martianzoo.tfm.petaform.api.Action.Cost
 import dev.martianzoo.tfm.petaform.api.Action.Cost.Spend
-import dev.martianzoo.tfm.petaform.api.ClassName
 import dev.martianzoo.tfm.petaform.api.Effect
 import dev.martianzoo.tfm.petaform.api.Effect.Trigger
 import dev.martianzoo.tfm.petaform.api.Effect.Trigger.OnGain
@@ -28,12 +27,10 @@ import dev.martianzoo.tfm.petaform.api.Instruction.Gain
 import dev.martianzoo.tfm.petaform.api.Instruction.Gated
 import dev.martianzoo.tfm.petaform.api.Instruction.Intensity
 import dev.martianzoo.tfm.petaform.api.Instruction.Remove
-import dev.martianzoo.tfm.petaform.api.Me
 import dev.martianzoo.tfm.petaform.api.PetaformNode
 import dev.martianzoo.tfm.petaform.api.Predicate
 import dev.martianzoo.tfm.petaform.api.QuantifiedExpression
 import dev.martianzoo.tfm.petaform.api.RootType
-import dev.martianzoo.tfm.petaform.api.This
 import kotlin.reflect.KClass
 import kotlin.reflect.cast
 
@@ -81,8 +78,6 @@ object PetaformParser {
   private val max = regex("\\bMAX\\b")
   private val or = regex("\\bOR\\b")
   private val has = regex("\\bHAS\\b")
-  private val me = regex("\\bMe\\b")
-  private val `this` = regex("\\bThis\\b")
 
   private val scalar = regex("\\b(0|[1-9][0-9]*)\\b")
   private val ident = regex("\\b[A-Z][a-z][A-Za-z0-9_]*\\b")
@@ -93,10 +88,7 @@ object PetaformParser {
   val prodEnd = rightBracket
 
   val expression = publish(object {
-    private val className: Parser<ClassName> = ident map { ClassName(it.text) } // Plant
-    private val meComponent: Parser<Me> = me map { Me } // This
-    private val thisComponent: Parser<This> = `this` map { This } // This
-    private val rootType: Parser<RootType> = meComponent or thisComponent or className // Plant
+    private val rootType: Parser<RootType> = ident map { RootType(it.text) } // Plant
 
     private val specializations: Parser<List<Expression>> = // <Player1, LandArea>
         skip(leftAngle) and

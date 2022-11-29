@@ -47,7 +47,6 @@ data class CTypeData(
 ) : TfmData {
 
   init {
-    require(name !in RESERVED_CTYPES)
     require(name.matches(CTYPE_PATTERN))
   }
 

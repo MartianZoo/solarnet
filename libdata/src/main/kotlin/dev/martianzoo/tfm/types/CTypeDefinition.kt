@@ -17,9 +17,24 @@ class CTypeDefinition(
     val data: CTypeData,
     val table: CTypeTable
 ) {
+  fun isSubtypeOf(other: Expression) = other in supertypes // TODO
 
   override fun equals(other: Any?) = other is CTypeDefinition &&
       table == other.table && name == other.name
 
   override fun hashCode() = hash(table, name)
+
+  // ("Owned", table.resolve("Anyone"))
+  // ("Tile", table.resolve("Area"))
+  // ("Cardbound", table.resolve("CardFront"))
+  // ("Production", table.resolve("StandardResource"), true)
+  // ("Adjacency", table.resolve("Tile"), 0)
+  // ("Adjacency", table.resolve("Tile"), 1)
+  data class BaseDependency(
+      val dependentTypeName: String,
+      val dependencyType: CType,
+      val isTypeOnly: Boolean = false,
+      val index: Int = 0,
+  )
+
 }

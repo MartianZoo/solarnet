@@ -25,7 +25,9 @@ class ComponentTypeTest {
     table.addAll(Canon.cardData.values)
     table.all().forEach { rc ->
       val cc = rc.data
-      checkRoundTrip(cc.supertypesPetaform, rc.supertypes)
+      if (cc.supertypesPetaform.isNotEmpty()) {
+        checkRoundTrip(cc.supertypesPetaform, rc.supertypes)
+      }
       checkRoundTrip(listOfNotNull(cc.immediatePetaform), listOfNotNull(rc.immediate))
       checkRoundTrip(cc.actionsPetaform, rc.actions)
       checkRoundTrip(cc.effectsPetaform, rc.effects)

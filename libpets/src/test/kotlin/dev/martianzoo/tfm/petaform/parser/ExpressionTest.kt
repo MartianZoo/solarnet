@@ -2,9 +2,6 @@ package dev.martianzoo.tfm.petaform.parser
 
 import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.tfm.petaform.api.Expression
-import dev.martianzoo.tfm.petaform.api.Me
-import dev.martianzoo.tfm.petaform.api.RootType
-import dev.martianzoo.tfm.petaform.api.This
 import org.junit.jupiter.api.Test
 
 class ExpressionTest {
@@ -52,7 +49,7 @@ class ExpressionTest {
             "Red",
             Expression(
                 "Blue",
-                Expression(This),
+                Expression("This"),
                 Expression("Teal")
             ),
             Expression("Gold")
@@ -72,11 +69,11 @@ class ExpressionTest {
         Expression(
             "Ee",
             Expression(
-                This,
+                "This",
                 Expression("Gg"),
                 Expression("Hh")
             ),
-            Expression(Me)
+            Expression("Me")
         ),
         Expression("Jj")
     )

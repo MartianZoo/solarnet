@@ -1,7 +1,7 @@
 package dev.martianzoo.tfm.canon
 
-import dev.martianzoo.tfm.data.CardData
 import dev.martianzoo.tfm.data.CTypeData
+import dev.martianzoo.tfm.data.CardData
 import dev.martianzoo.tfm.data.MarsAreaData
 import dev.martianzoo.tfm.data.MoshiReader
 import dev.martianzoo.util.Grid

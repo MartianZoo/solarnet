@@ -15,7 +15,7 @@ data class Expression(
   constructor(rootType: RootType, vararg specialization: Expression) :
       this(rootType, specialization.toList())
   constructor(rootType: String, vararg specialization: Expression) :
-      this(ClassName(rootType), specialization.toList())
+      this(RootType(rootType), specialization.toList())
 
   override val children = listOf(rootType) + specializations + predicates
 
@@ -31,18 +31,11 @@ data class Expression(
   }
 }
 
-sealed class RootType : PetaformNode() {
+data class RootType(val ctypeName: String) : PetaformNode() {
   override val children = listOf<PetaformNode>()
   override val hasProd = false
-}
-
-object Me : RootType() { override fun toString() = "Me" }
-object This : RootType() { override fun toString() = "This" }
-
-data class ClassName(val ctypeName: String) : RootType() {
   init {
     require(ctypeName.matches(Regex("^[A-Z][a-z][A-Za-z0-9_]*$"))) { ctypeName }
-    require(ctypeName != This.toString())
     require(ctypeName != "Production")
   }
   override fun toString() = ctypeName
