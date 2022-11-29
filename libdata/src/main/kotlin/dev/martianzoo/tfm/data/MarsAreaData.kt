@@ -49,7 +49,7 @@ data class MarsAreaData(
         } else {
           setOf("Tile<This>: $bonusPetaform") // don't want to have to do this in code like that
         }
-    ComponentTypeData(componentName(), supertypesPetaform = setOf(typePetaform), effectsPetaform = effects)
+    CTypeData(componentName(), supertypesPetaform = setOf(typePetaform), effectsPetaform = effects)
   }
 
   fun componentName() = "${mapName}${row}_$column"

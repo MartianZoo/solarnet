@@ -11,7 +11,7 @@ internal object MoshiReader {
 
   // Components
 
-  internal data class ComponentTypeList(val components: List<ComponentTypeData>) {
+  internal data class ComponentTypeList(val components: List<CTypeData>) {
     fun toMap() = components.associateBy { it.name }.also { require(it.size == components.size) }
   }
 

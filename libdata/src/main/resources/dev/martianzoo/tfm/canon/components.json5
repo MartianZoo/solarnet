@@ -94,7 +94,7 @@
     {
       "name": "Production",
       "supertypes": [ "Owned", "Plural" ],
-      "dependencies": [ "StandardResource" ], // 2: production to resource type - TYPE
+      "dependencies": [ "TYPE StandardResource" ], // 2: production to resource type - TYPE
       "effects": [ "ProductionPhase: StandardResource" ],
     },
 
@@ -246,12 +246,12 @@
     {
       "name": "Purchase",
       "supertypes": [ "Owned<Player>" ], // temporary
-      "dependencies": [ "Component" ], // 5: purchase to what it's of - TYPE
+      "dependencies": [ "TYPE Component" ], // 5: purchase to what it's of - TYPE
     },
     {
       "name": "Owed",
       "supertypes": [ "Owned<Player>", "Plural" ], // temporary
-      "dependencies": [ "StandardResource" ], // 6: what is owed - TYPE
+      "dependencies": [ "TYPE StandardResource" ], // 6: what is owed - TYPE
     },
 
     {

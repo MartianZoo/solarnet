@@ -3,6 +3,7 @@ package dev.martianzoo.tfm.data
 import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.petaform.api.PetaformNode
+import dev.martianzoo.tfm.types.CTypeTable
 import org.junit.jupiter.api.Test
 
 // Not testing much, just a bit of the canon data
@@ -18,17 +19,18 @@ class ComponentTypeTest {
   }
 
   @Test fun slurp() {
-    val table = ComponentTable()
+    val table = CTypeTable()
     table.addAll(Canon.componentTypeData.values)
     table.addAll(Canon.mapData.values.flatMap { it })
     table.addAll(Canon.cardData.values)
     table.all().forEach { rc ->
       val cc = rc.data
       checkRoundTrip(cc.supertypesPetaform, rc.supertypes)
-      checkRoundTrip(cc.dependenciesPetaform, rc.dependencies)
       checkRoundTrip(listOfNotNull(cc.immediatePetaform), listOfNotNull(rc.immediate))
       checkRoundTrip(cc.actionsPetaform, rc.actions)
       checkRoundTrip(cc.effectsPetaform, rc.effects)
+
+      // deps??
     }
     assertThat(table.all().size).isGreaterThan(580)
   }

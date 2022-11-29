@@ -6,7 +6,7 @@ import com.squareup.moshi.Json
  * The declaration of a component class, such as GreeneryTile. Models the declaration textually as
  * it was provided.
  */
-data class ComponentTypeData(
+data class CTypeData(
     /** Unique name for this component class. */
     val name: String,
 
@@ -47,12 +47,9 @@ data class ComponentTypeData(
 ) : TfmData {
 
   init {
-    require(name !in RESERVED_NAMES)
-    require(name.matches(NAME_PATTERN))
+    require(name !in RESERVED_CTYPES)
+    require(name.matches(CTYPE_PATTERN))
   }
 
   override val asRawComponentType = this
 }
-
-private val NAME_PATTERN = Regex("^[A-Z][a-z][A-Za-z0-9_]*$") // TODO: it's repeated 3 times
-private val RESERVED_NAMES = setOf("This", "It", "Always")

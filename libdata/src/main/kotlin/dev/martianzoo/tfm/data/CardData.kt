@@ -158,7 +158,7 @@ data class CardData(
 
   override val asRawComponentType by lazy {
     val type = if (projectKind == null) "CardFront" else projectKind.type
-    ComponentTypeData(
+    CTypeData(
         name = "Card$id",
         supertypesPetaform = setOf(type),
         immediatePetaform = immediate?.toString(), // TODO hack

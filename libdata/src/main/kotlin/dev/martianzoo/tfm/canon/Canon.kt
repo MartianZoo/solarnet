@@ -1,13 +1,13 @@
 package dev.martianzoo.tfm.canon
 
 import dev.martianzoo.tfm.data.CardData
-import dev.martianzoo.tfm.data.ComponentTypeData
+import dev.martianzoo.tfm.data.CTypeData
 import dev.martianzoo.tfm.data.MarsAreaData
 import dev.martianzoo.tfm.data.MoshiReader
 import dev.martianzoo.util.Grid
 
 object Canon {
-  val componentTypeData: Map<String, ComponentTypeData> by lazy {
+  val componentTypeData: Map<String, CTypeData> by lazy {
     MoshiReader.readComponentTypes(readResource("components.json5"))
   }
 
