@@ -28,6 +28,7 @@ import dev.martianzoo.tfm.petaform.api.Instruction.Gain
 import dev.martianzoo.tfm.petaform.api.Instruction.Gated
 import dev.martianzoo.tfm.petaform.api.Instruction.Intensity
 import dev.martianzoo.tfm.petaform.api.Instruction.Remove
+import dev.martianzoo.tfm.petaform.api.Me
 import dev.martianzoo.tfm.petaform.api.PetaformNode
 import dev.martianzoo.tfm.petaform.api.Predicate
 import dev.martianzoo.tfm.petaform.api.QuantifiedExpression
@@ -76,14 +77,15 @@ object PetaformParser {
   private val leftBracket = literal("[")
   private val rightBracket = literal("]")
 
-  private val prod = literal("PROD")
-  private val max = literal("MAX")
-  private val or = literal("OR")
-  private val has = literal("HAS")
-  private val `this` = literal("This")
+  private val prod = regex("\\bPROD\\b")
+  private val max = regex("\\bMAX\\b")
+  private val or = regex("\\bOR\\b")
+  private val has = regex("\\bHAS\\b")
+  private val me = regex("\\bMe\\b")
+  private val `this` = regex("\\bThis\\b")
 
-  private val scalar = regex("0|[1-9][0-9]*")
-  private val ident = regex("[A-Z][a-z][A-Za-z0-9_]*")
+  private val scalar = regex("\\b(0|[1-9][0-9]*)\\b")
+  private val ident = regex("\\b[A-Z][a-z][A-Za-z0-9_]*\\b")
 
   private val parsers = mutableMapOf<KClass<out PetaformNode>, Parser<PetaformNode>>()
 
@@ -92,8 +94,9 @@ object PetaformParser {
 
   val expression = publish(object {
     private val className: Parser<ClassName> = ident map { ClassName(it.text) } // Plant
+    private val meComponent: Parser<Me> = me map { Me } // This
     private val thisComponent: Parser<This> = `this` map { This } // This
-    private val rootType: Parser<RootType> = thisComponent or className // Plant
+    private val rootType: Parser<RootType> = meComponent or thisComponent or className // Plant
 
     private val specializations: Parser<List<Expression>> = // <Player1, LandArea>
         skip(leftAngle) and

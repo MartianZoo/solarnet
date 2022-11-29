@@ -36,9 +36,8 @@ sealed class RootType : PetaformNode() {
   override val hasProd = false
 }
 
-object This : RootType() {
-  override fun toString() = "This"
-}
+object Me : RootType() { override fun toString() = "Me" }
+object This : RootType() { override fun toString() = "This" }
 
 data class ClassName(val ctypeName: String) : RootType() {
   init {

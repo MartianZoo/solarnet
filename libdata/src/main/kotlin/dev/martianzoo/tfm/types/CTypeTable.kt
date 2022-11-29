@@ -12,6 +12,7 @@ import dev.martianzoo.tfm.petaform.api.Instruction
 import dev.martianzoo.tfm.petaform.api.PetaformNode
 import dev.martianzoo.tfm.petaform.parser.PetaformParser
 import dev.martianzoo.tfm.petaform.parser.PetaformParser.parse
+import dev.martianzoo.tfm.types.CType.Me
 
 class CTypeTable {
   private val table = mutableMapOf<String, CTypeDefinition>()
@@ -55,7 +56,7 @@ class CTypeTable {
     val rootType = expr.rootType
     return when (rootType) {
       is dev.martianzoo.tfm.petaform.api.This -> This
-      // is Me -> Me
+      is dev.martianzoo.tfm.petaform.api.Me -> Me
       is ClassName -> RegularCType(
           table[rootType.ctypeName]!!,
           mapOf(),

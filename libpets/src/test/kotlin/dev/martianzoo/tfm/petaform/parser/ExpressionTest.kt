@@ -2,6 +2,8 @@ package dev.martianzoo.tfm.petaform.parser
 
 import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.tfm.petaform.api.Expression
+import dev.martianzoo.tfm.petaform.api.Me
+import dev.martianzoo.tfm.petaform.api.RootType
 import dev.martianzoo.tfm.petaform.api.This
 import org.junit.jupiter.api.Test
 
@@ -33,7 +35,7 @@ class ExpressionTest {
 
   @Test
   fun complexRoundTrip() {
-    testRoundTrip("Aa<Bb<Cc<Dd, Ee, This<Gg<Hh<Ii>>, Jj>>, Kk>>")
+    testRoundTrip("Aa<Bb<Cc<Dd, Ee, This<Gg<Hh<Me>>, Jj>>, Kk>>")
   }
 
   @Test
@@ -74,10 +76,10 @@ class ExpressionTest {
                 Expression("Gg"),
                 Expression("Hh")
             ),
-            Expression("Ii")
+            Expression(Me)
         ),
         Expression("Jj")
     )
-    assertThat(expr.toString()).isEqualTo("Aa<Bb, Cc<Dd>, Ee<This<Gg, Hh>, Ii>, Jj>")
+    assertThat(expr.toString()).isEqualTo("Aa<Bb, Cc<Dd>, Ee<This<Gg, Hh>, Me>, Jj>")
   }
 }
