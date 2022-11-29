@@ -2,23 +2,23 @@ package dev.martianzoo.tfm.data
 
 import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.tfm.canon.Canon
-import dev.martianzoo.tfm.data.CardData.Deck.CORPORATION
-import dev.martianzoo.tfm.data.CardData.Deck.PRELUDE
-import dev.martianzoo.tfm.data.CardData.Deck.PROJECT
-import dev.martianzoo.tfm.data.CardData.ProjectKind.ACTIVE
-import dev.martianzoo.tfm.data.CardData.ProjectKind.AUTOMATED
-import dev.martianzoo.tfm.data.CardData.ProjectKind.EVENT
+import dev.martianzoo.tfm.data.CardDefinition.Deck.CORPORATION
+import dev.martianzoo.tfm.data.CardDefinition.Deck.PRELUDE
+import dev.martianzoo.tfm.data.CardDefinition.Deck.PROJECT
+import dev.martianzoo.tfm.data.CardDefinition.ProjectKind.ACTIVE
+import dev.martianzoo.tfm.data.CardDefinition.ProjectKind.AUTOMATED
+import dev.martianzoo.tfm.data.CardDefinition.ProjectKind.EVENT
 import dev.martianzoo.tfm.petaform.api.PetaformNode
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 
-class CardDataTest {
+class CardDefinitionTest {
   /**
    * This is honestly an incredibly stupid test that data classes shouldn't need to have.
    */
   @Test
   fun minimal() {
-    val dumbCard = CardData("xxx", deck = PRELUDE, effectsPetaform = setOf("This: Plant"))
+    val dumbCard = CardDefinition("xxx", deck = PRELUDE, effectsPetaform = setOf("This: Plant"))
 
     assertThat(dumbCard.id).isEqualTo("xxx")
     assertThat(dumbCard.bundle).isNull()
@@ -32,7 +32,7 @@ class CardDataTest {
     assertThat(dumbCard.projectKind).isNull()
   }
 
-  val BIRDS = CardData(
+  val BIRDS = CardDefinition(
       id = "072",
       bundle = "B",
       deck = PROJECT,
@@ -89,7 +89,7 @@ class CardDataTest {
   }
 
   // Just so we don't have to keep repeating the "x" part
-  private val C: CardData = CardData("x")
+  private val C: CardDefinition = CardDefinition("x")
 
   /** Since we only use C expecting an exception, we should make sure it normally works. */
   @Test
@@ -100,7 +100,7 @@ class CardDataTest {
 
   @Test
   fun emptyStrings() {
-    assertThrows<RuntimeException> { CardData("") }
+    assertThrows<RuntimeException> { CardDefinition("") }
     assertThrows<RuntimeException> { C.copy(bundle = "") }
     assertThrows<RuntimeException> { C.copy(replacesId = "") }
     assertThrows<RuntimeException> { C.copy(resourceTypePetaform = "") }
@@ -150,12 +150,12 @@ class CardDataTest {
   }
 
   @Test fun birdsFromDataFile() {
-    val cards = Canon.cardData
+    val cards = Canon.cardDefinitions
     assertThat(cards["072"]).isEqualTo(BIRDS)
   }
 
   @Test fun slurp() {
-    Canon.cardData.values.forEach { card ->
+    Canon.cardDefinitions.values.forEach { card ->
       card.requirement?.let { assertThat("$it").isEqualTo(card.requirementPetaform) }
       card.resourceType?.let { assertThat("$it").isEqualTo(card.resourceTypePetaform) }
 

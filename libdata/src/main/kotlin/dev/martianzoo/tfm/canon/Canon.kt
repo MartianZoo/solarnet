@@ -1,21 +1,21 @@
 package dev.martianzoo.tfm.canon
 
-import dev.martianzoo.tfm.data.CTypeData
-import dev.martianzoo.tfm.data.CardData
-import dev.martianzoo.tfm.data.MarsAreaData
+import dev.martianzoo.tfm.data.CTypeDefinition
+import dev.martianzoo.tfm.data.CardDefinition
+import dev.martianzoo.tfm.data.MarsAreaDefinition
 import dev.martianzoo.tfm.data.MoshiReader
 import dev.martianzoo.util.Grid
 
 object Canon {
-  val componentTypeData: Map<String, CTypeData> by lazy {
+  val cTypeDefinitions: Map<String, CTypeDefinition> by lazy {
     MoshiReader.readComponentTypes(readResource("components.json5"))
   }
 
-  val cardData: Map<String, CardData> by lazy {
+  val cardDefinitions: Map<String, CardDefinition> by lazy {
     MoshiReader.readCards(readResource("cards.json5"))
   }
 
-  val mapData: Map<String, Grid<MarsAreaData>> by lazy {
+  val mapAreaDefinitions: Map<String, Grid<MarsAreaDefinition>> by lazy {
     MoshiReader.readMaps(readResource("maps.json5"))
   }
 

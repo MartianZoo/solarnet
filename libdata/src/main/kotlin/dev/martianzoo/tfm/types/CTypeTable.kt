@@ -1,7 +1,7 @@
 package dev.martianzoo.tfm.types
 
-import dev.martianzoo.tfm.data.CTypeData
-import dev.martianzoo.tfm.data.TfmData
+import dev.martianzoo.tfm.data.CTypeDefinition
+import dev.martianzoo.tfm.data.TfmDefinitionObject
 import dev.martianzoo.tfm.petaform.api.Action
 import dev.martianzoo.tfm.petaform.api.Effect
 import dev.martianzoo.tfm.petaform.api.Expression
@@ -14,9 +14,9 @@ import dev.martianzoo.tfm.types.CTypeClass.DependencyKey
 class CTypeTable {
   internal val table = mutableMapOf<String, CTypeClass>()
 
-  fun addAll(objects: Iterable<TfmData>) = objects.forEach(::add)
+  fun addAll(objects: Iterable<TfmDefinitionObject>) = objects.forEach(::add)
 
-  fun add(obj: TfmData): CTypeClass {
+  fun add(obj: TfmDefinitionObject): CTypeClass {
     val data = obj.asRawComponentType
 
     val supertypeExpressions = deriveSupertypes(data)
@@ -47,46 +47,46 @@ class CTypeTable {
       immediate: Instruction?,
       actions: Set<Action>,
       effects: Set<Effect>,
-      data: CTypeData): CTypeClass {
+      definition: CTypeDefinition): CTypeClass {
     require(name !in table)
     val cTypeClass = CTypeClass(
-        name, superclasses, dependencies, immediate, actions, effects, data, this)
+        name, superclasses, dependencies, immediate, actions, effects, definition, this)
     table[name] = cTypeClass
     return cTypeClass
   }
 
-  private fun deriveSupertypes(data: CTypeData): Set<CType> {
-    return if (data.name == "Component") {
+  private fun deriveSupertypes(defn: CTypeDefinition): Set<CType> {
+    return if (defn.name == "Component") {
       setOf()
-    } else if (data.supertypesPetaform.isEmpty()) {
+    } else if (defn.supertypesPetaform.isEmpty()) {
       setOf(resolve("Component"))
     } else {
-      data.supertypesPetaform.map { resolve(it) }.toSet()
+      defn.supertypesPetaform.map(::resolve).toSet()
     }
   }
 
-  private fun deriveDependencies(data: CTypeData, supertypesAsGiven: Set<CType>): DependencyMap {
-    val newDeps = data.dependenciesPetaform.withIndex().map { (i, depText) ->
+  private fun deriveDependencies(defn: CTypeDefinition, supertypesAsGiven: Set<CType>): DependencyMap {
+    val newDeps = defn.dependenciesPetaform.withIndex().map { (i, depText) ->
       if (depText.startsWith("TYPE ")) {
-        DependencyKey(data.name, isTypeOnly = true, index = i) to resolve(depText.substring(5))
+        DependencyKey(defn.name, isTypeOnly = true, index = i) to resolve(depText.substring(5))
       } else {
-        DependencyKey(data.name, isTypeOnly = false, index = i) to resolve(depText)
+        DependencyKey(defn.name, isTypeOnly = false, index = i) to resolve(depText)
       }
     }.toMap()
     return DependencyMap.merge(supertypesAsGiven.map { it.dependencies } + DependencyMap(newDeps))
   }
 
-  private fun deriveImmediate(data: CTypeData): Instruction? {
-    val immediate: Instruction? = data.immediatePetaform?.let(::parse)
+  private fun deriveImmediate(defn: CTypeDefinition): Instruction? {
+    val immediate: Instruction? = defn.immediatePetaform?.let(::parse)
     immediate?.let(::verifyClassNames)
     return immediate
   }
 
-  private fun deriveActions(data: CTypeData) =
-      data.actionsPetaform.map { parse<Action>(it) }.toSet().also(::verifyClassNames)
+  private fun deriveActions(defn: CTypeDefinition) =
+      defn.actionsPetaform.map { parse<Action>(it) }.toSet().also(::verifyClassNames)
 
-  private fun deriveEffects(data: CTypeData) =
-      data.effectsPetaform.map { parse<Effect>(it) }.toSet().also(::verifyClassNames)
+  private fun deriveEffects(defn: CTypeDefinition) =
+      defn.effectsPetaform.map { parse<Effect>(it) }.toSet().also(::verifyClassNames)
 
   private fun verifyClassNames(nodes: Iterable<PetaformNode>) {
     nodes.forEach(::verifyClassNames)

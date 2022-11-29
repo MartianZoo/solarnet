@@ -7,9 +7,9 @@ import dev.martianzoo.tfm.types.CTypeTable
 import org.junit.jupiter.api.Test
 
 // Not testing much, just a bit of the canon data
-class ComponentTypeTest {
+class CTypeDefinitionTest {
   @Test fun foo() {
-    val data = Canon.componentTypeData
+    val data = Canon.cTypeDefinitions
     val tr = data["TerraformRating"]!!
     assertThat(tr.name).isEqualTo("TerraformRating")
     assertThat(tr.abstract).isFalse()
@@ -20,11 +20,11 @@ class ComponentTypeTest {
 
   @Test fun slurp() {
     val table = CTypeTable()
-    table.addAll(Canon.componentTypeData.values)
-    table.addAll(Canon.mapData.values.flatMap { it })
-    table.addAll(Canon.cardData.values)
+    table.addAll(Canon.cTypeDefinitions.values)
+    table.addAll(Canon.mapAreaDefinitions.values.flatMap { it })
+    table.addAll(Canon.cardDefinitions.values)
     table.all().forEach { rc ->
-      val cc = rc.data
+      val cc = rc.definition
       if (cc.supertypesPetaform.isNotEmpty()) {
         // checkRoundTrip(cc.supertypesPetaform, rc.superclasses)
       }

@@ -1,6 +1,7 @@
 package dev.martianzoo.tfm.types
 
 import dev.martianzoo.tfm.types.CTypeClass.DependencyKey
+import dev.martianzoo.util.joinOrEmpty
 import java.util.*
 
 data class DependencyMap(val map: Map<DependencyKey, CType>) {
@@ -22,7 +23,7 @@ data class DependencyMap(val map: Map<DependencyKey, CType>) {
         newMap[dep] = type.specialize(DependencyMap(specs))
       }
     }
-    require(unhandled.isEmpty()) { "$this $unhandled" }
+    require(unhandled.isEmpty()) { "$this\n\n$specializations\n\n$unhandled" }
     return DependencyMap(newMap)
   }
 
@@ -35,6 +36,9 @@ data class DependencyMap(val map: Map<DependencyKey, CType>) {
     }
     return DependencyMap(newMap)
   }
+
+  override fun toString() =
+      map.map { "${it.key}=${it.value}" }.joinOrEmpty(surround = "<>")
 
   companion object {
     fun merge(maps: List<DependencyMap>): DependencyMap {

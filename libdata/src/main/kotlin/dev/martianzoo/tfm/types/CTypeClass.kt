@@ -1,6 +1,6 @@
 package dev.martianzoo.tfm.types
 
-import dev.martianzoo.tfm.data.CTypeData
+import dev.martianzoo.tfm.data.CTypeDefinition
 import dev.martianzoo.tfm.petaform.api.Action
 import dev.martianzoo.tfm.petaform.api.Effect
 import dev.martianzoo.tfm.petaform.api.Instruction
@@ -13,7 +13,7 @@ class CTypeClass(
     val immediate: Instruction?, // TODO: specialize these 3?
     val actions: Set<Action>,
     val effects: Set<Effect>,
-    val data: CTypeData,
+    val definition: CTypeDefinition,
     val table: CTypeTable
 ) {
   init {
@@ -21,7 +21,7 @@ class CTypeClass(
     if (name == "Component") {
       require(superclasses.isEmpty())
     } else {
-      require(superclasses.any { it.name == "Component" })
+      require(superclasses.isNotEmpty())
     }
   }
 
@@ -30,6 +30,8 @@ class CTypeClass(
 
   override fun hashCode() = hash(table, name)
   fun isSubclassOf(other: CTypeClass) = other in superclasses
+
+  override fun toString() = name
 
   // ("Owned", table.resolve("Anyone"))
   // ("Tile", table.resolve("Area"))
@@ -40,5 +42,7 @@ class CTypeClass(
       val dependentTypeName: String,
       val isTypeOnly: Boolean = false,
       val index: Int = 0,
-  )
+  ) {
+    override fun toString() = "DEP:$dependentTypeName[$index]" + if (isTypeOnly) " (TYPE)" else ""
+  }
 }

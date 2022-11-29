@@ -19,6 +19,14 @@ data class CType(
     return copy(dependencies = dependencies.specialize(specs))
   }
 
+  override fun toString(): String {
+    var s = "$rootType$dependencies"
+    if (predicates.isNotEmpty()) {
+      s += "(HAS ${predicates.joinToString()})"
+    }
+    return s
+  }
+
   companion object {
     fun min(a: CType, b: CType) = when {
       a.isSubtypeOf(b) -> a

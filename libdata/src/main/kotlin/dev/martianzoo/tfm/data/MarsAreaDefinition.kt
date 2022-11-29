@@ -4,7 +4,7 @@ import dev.martianzoo.tfm.petaform.api.Expression
 import dev.martianzoo.tfm.petaform.api.Instruction
 import dev.martianzoo.tfm.petaform.parser.PetaformParser.parse
 
-data class MarsAreaData(
+data class MarsAreaDefinition(
     /** Shortname of the MarsMap this area belongs to (e.g "Tharsis"). */
     val mapName: String,
 
@@ -30,7 +30,7 @@ data class MarsAreaData(
 
     /** In cryptic text form */
     val textual: String,
-) : TfmData {
+) : TfmDefinitionObject {
 
   init {
     require(mapName.isNotEmpty())
@@ -49,7 +49,7 @@ data class MarsAreaData(
         } else {
           setOf("Tile<This>: $bonusPetaform") // don't want to have to do this in code like that
         }
-    CTypeData(componentName(), supertypesPetaform = setOf(typePetaform), effectsPetaform = effects)
+    CTypeDefinition(componentName(), supertypesPetaform = setOf(typePetaform), effectsPetaform = effects)
   }
 
   fun componentName() = "${mapName}${row}_$column"

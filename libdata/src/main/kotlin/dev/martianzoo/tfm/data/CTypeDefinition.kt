@@ -6,7 +6,7 @@ import com.squareup.moshi.Json
  * The declaration of a component class, such as GreeneryTile. Models the declaration textually as
  * it was provided.
  */
-data class CTypeData(
+data class CTypeDefinition(
     /** Unique name for this component class. */
     val name: String,
 
@@ -44,7 +44,7 @@ data class CTypeData(
      */
     @Json(name = "effects")
     val effectsPetaform: Set<String> = setOf(),
-) : TfmData {
+) : TfmDefinitionObject {
 
   init {
     require(name.matches(CTYPE_PATTERN))

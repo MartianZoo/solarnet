@@ -1,7 +1,7 @@
 package dev.martianzoo.tfm.data
 
 import com.squareup.moshi.Json
-import dev.martianzoo.tfm.data.CardData.ProjectKind.ACTIVE
+import dev.martianzoo.tfm.data.CardDefinition.ProjectKind.ACTIVE
 import dev.martianzoo.tfm.petaform.api.Action
 import dev.martianzoo.tfm.petaform.api.Effect
 import dev.martianzoo.tfm.petaform.api.Expression
@@ -19,7 +19,7 @@ import dev.martianzoo.tfm.petaform.parser.PetaformParser.parse
  * able to internally validate those conditions. Actual parsing of the strings must be handled by a
  * Petaform parser external to this library.
  */
-data class CardData(
+data class CardDefinition(
     /**
      * This card's unique id string: its printed id if it has one; otherwise the one we made up. A
      * number of id ranges, such as `"000"`-`"999"`, are reserved for canon (officially published)
@@ -109,7 +109,7 @@ data class CardData(
      * officially don't count as such.
      */
     val projectKind: ProjectKind? = null,
-) : TfmData {
+) : TfmDefinitionObject {
 
   init {
     require(id.isNotEmpty())
@@ -158,7 +158,7 @@ data class CardData(
 
   override val asRawComponentType by lazy {
     val type = if (projectKind == null) "CardFront" else projectKind.type
-    CTypeData(
+    CTypeDefinition(
         name = "Card$id",
         supertypesPetaform = setOf(type),
         immediatePetaform = immediate?.toString(), // TODO hack
@@ -173,12 +173,12 @@ data class CardData(
   }
 
   /**
-   * The deck this card belongs to; see [CardData.deck].
+   * The deck this card belongs to; see [CardDefinition.deck].
    */
   enum class Deck { PROJECT, PRELUDE, CORPORATION }
 
   /**
-   * A kind (color) of project; see [CardData.projectKind].
+   * A kind (color) of project; see [CardDefinition.projectKind].
    */
   enum class ProjectKind(val type: String) {
     EVENT("EventCard"), // red
