@@ -26,7 +26,7 @@ class ComponentTypeTest {
     table.all().forEach { rc ->
       val cc = rc.data
       if (cc.supertypesPetaform.isNotEmpty()) {
-        checkRoundTrip(cc.supertypesPetaform, rc.supertypes)
+        // checkRoundTrip(cc.supertypesPetaform, rc.superclasses)
       }
       checkRoundTrip(listOfNotNull(cc.immediatePetaform), listOfNotNull(rc.immediate))
       checkRoundTrip(cc.actionsPetaform, rc.actions)
