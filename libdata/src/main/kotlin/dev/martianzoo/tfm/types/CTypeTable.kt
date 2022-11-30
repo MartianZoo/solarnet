@@ -14,16 +14,18 @@ import dev.martianzoo.tfm.types.CTypeClass.DependencyKey
 class CTypeTable {
   internal val table = mutableMapOf<String, CTypeClass>()
 
-  fun addAll(objects: Iterable<TfmDefinitionObject>) = objects.forEach(::add)
+  fun loadAll(objects: Iterable<TfmDefinitionObject>) = objects.forEach(::load)
 
-  fun add(obj: TfmDefinitionObject): CTypeClass {
+  fun load(obj: TfmDefinitionObject): CTypeClass {
     val data = obj.asRawComponentType
 
     val supertypeExpressions = deriveSupertypes(data)
     val dependencies = deriveDependencies(data, supertypeExpressions)
-    val superclasses = supertypeExpressions.map(CType::rootType).toSet()
-    return create(data.name, superclasses, dependencies, deriveImmediate(data),
-        deriveActions(data), deriveEffects(data), data)
+    val superclasses = supertypeExpressions.map(CType::cTypeClass).toSet()
+    return CTypeClass(
+        data.name, superclasses, dependencies, deriveImmediate(data),
+        deriveActions(data), deriveEffects(data), data, this
+    )
   }
 
   fun all() = table.values
@@ -36,33 +38,13 @@ class CTypeTable {
 
   fun resolve(exprPetaform: String): CType = resolve(parse(exprPetaform))
 
+  operator fun contains(name: String) = name in table
   operator fun get(name: String) = table[name]
 
-  operator fun contains(name: String) = name in table
-
-  private fun create(
-      name: String,
-      superclasses: Set<CTypeClass>,
-      dependencies: DependencyMap,
-      immediate: Instruction?,
-      actions: Set<Action>,
-      effects: Set<Effect>,
-      definition: CTypeDefinition): CTypeClass {
-    require(name !in table)
-    val cTypeClass = CTypeClass(
-        name, superclasses, dependencies, immediate, actions, effects, definition, this)
-    table[name] = cTypeClass
-    return cTypeClass
-  }
-
-  private fun deriveSupertypes(defn: CTypeDefinition): Set<CType> {
-    return if (defn.name == "Component") {
-      setOf()
-    } else if (defn.supertypesPetaform.isEmpty()) {
-      setOf(resolve("Component"))
-    } else {
-      defn.supertypesPetaform.map(::resolve).toSet()
-    }
+  private fun deriveSupertypes(defn: CTypeDefinition) = when {
+    defn.name == "Component" -> setOf()
+    defn.supertypesPetaform.isEmpty() -> setOf(resolve("Component"))
+    else -> defn.supertypesPetaform.map(::resolve).toSet()
   }
 
   private fun deriveDependencies(defn: CTypeDefinition, supertypesAsGiven: Set<CType>): DependencyMap {

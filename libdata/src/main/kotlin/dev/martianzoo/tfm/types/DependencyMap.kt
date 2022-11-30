@@ -45,7 +45,7 @@ data class DependencyMap(val map: Map<DependencyKey, CType>) {
       val result = mutableMapOf<DependencyKey, CType>()
       maps.forEach {
         depMap -> depMap.map.forEach {
-          result.merge(it.key, it.value, CType.Companion::min)
+          result.merge(it.key, it.value, CType::glb)
         }
       }
       return DependencyMap(result)

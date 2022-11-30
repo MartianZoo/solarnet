@@ -17,19 +17,22 @@ class CTypeClass(
     val table: CTypeTable
 ) {
   init {
+    require((name == "Component") == superclasses.isEmpty())
     require(name !in table)
-    if (name == "Component") {
-      require(superclasses.isEmpty())
-    } else {
-      require(superclasses.isNotEmpty())
-    }
+    table.table[name] = this
+  }
+
+  fun isSubclassOf(other: CTypeClass) = other in superclasses
+
+  fun glb(other: CTypeClass) = when {
+    this.isSubclassOf(other) -> this
+    other.isSubclassOf(this) -> other
+    else -> error("ad-hoc intersection types not supported")
   }
 
   override fun equals(other: Any?) = other is CTypeClass &&
       table == other.table && name == other.name
-
   override fun hashCode() = hash(table, name)
-  fun isSubclassOf(other: CTypeClass) = other in superclasses
 
   override fun toString() = name
 

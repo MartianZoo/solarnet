@@ -20,9 +20,9 @@ class CTypeDefinitionTest {
 
   @Test fun slurp() {
     val table = CTypeTable()
-    table.addAll(Canon.cTypeDefinitions.values)
-    table.addAll(Canon.mapAreaDefinitions.values.flatMap { it })
-    table.addAll(Canon.cardDefinitions.values)
+    table.loadAll(Canon.cTypeDefinitions.values)
+    table.loadAll(Canon.mapAreaDefinitions.values.flatMap { it })
+    table.loadAll(Canon.cardDefinitions.values)
     table.all().forEach { rc ->
       val cc = rc.definition
       if (cc.supertypesPetaform.isNotEmpty()) {
