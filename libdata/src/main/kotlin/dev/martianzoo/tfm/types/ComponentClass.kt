@@ -13,7 +13,7 @@ class ComponentClass(
     val name: String,
     val superclasses: Set<ComponentClass>,
     val dependencies: DependencyMap,
-    // val isAbstract: Boolean,
+    val abstract: Boolean,
     val immediate: Instruction?, // TODO: specialize these 3? null instruction?
     val actions: Set<Action>,
     val effects: Set<Effect>, // TODO: Map<Trigger, Effect>?
@@ -21,8 +21,7 @@ class ComponentClass(
 ) {
   init {
     require((name == "Component") == superclasses.isEmpty())
-    require(name !in loader.table)
-    loader.table[name] = this
+    require(loader.table.put(name, this) == null)
   }
 
   fun isSubclassOf(other: ComponentClass): Boolean {

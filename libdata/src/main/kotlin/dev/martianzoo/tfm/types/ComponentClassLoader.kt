@@ -25,7 +25,7 @@ class ComponentClassLoader {
     val dependencies = deriveDependencies(defn, supertypeExpressions)
     val superclasses = supertypeExpressions.map(ComponentType::componentClass).toSet()
     return ComponentClass(
-        defn.name, superclasses, dependencies, deriveImmediate(defn),
+        defn.name, superclasses, dependencies, defn.abstract, deriveImmediate(defn),
         deriveActions(defn), deriveEffects(defn), this
     )
   }
