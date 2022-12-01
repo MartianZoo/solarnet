@@ -1,17 +1,17 @@
 package dev.martianzoo.tfm.types
 
-import dev.martianzoo.tfm.types.CTypeClass.DependencyKey
+import dev.martianzoo.tfm.types.ComponentClass.DependencyKey
 import dev.martianzoo.util.joinOrEmpty
 import java.util.*
 
-data class DependencyMap(val map: Map<DependencyKey, CType>) {
+data class DependencyMap(val map: Map<DependencyKey, ComponentType>) {
   fun specializes(dependencies: DependencyMap) =
       dependencies.map.all { (k, v) -> map[k]!!.isSubtypeOf(v) }
 
-  fun specialize(specializations: List<CType>): DependencyMap {
-    val unhandled: Queue<CType> = ArrayDeque(specializations)
-    val newMap = mutableMapOf<DependencyKey, CType>()
-    val specs = mutableMapOf<DependencyKey, CType>()
+  fun specialize(specializations: List<ComponentType>): DependencyMap {
+    val unhandled: Queue<ComponentType> = ArrayDeque(specializations)
+    val newMap = mutableMapOf<DependencyKey, ComponentType>()
+    val specs = mutableMapOf<DependencyKey, ComponentType>()
 
     for ((dep, type) in map) {
       val peeked = unhandled.peek()
@@ -42,10 +42,10 @@ data class DependencyMap(val map: Map<DependencyKey, CType>) {
 
   companion object {
     fun merge(maps: List<DependencyMap>): DependencyMap {
-      val result = mutableMapOf<DependencyKey, CType>()
+      val result = mutableMapOf<DependencyKey, ComponentType>()
       maps.forEach {
         depMap -> depMap.map.forEach {
-          result.merge(it.key, it.value, CType::glb)
+          result.merge(it.key, it.value, ComponentType::glb)
         }
       }
       return DependencyMap(result)

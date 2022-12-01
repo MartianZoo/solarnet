@@ -1,13 +1,13 @@
 package dev.martianzoo.tfm.canon
 
-import dev.martianzoo.tfm.data.CTypeDefinition
 import dev.martianzoo.tfm.data.CardDefinition
+import dev.martianzoo.tfm.data.ComponentClassDefinition
 import dev.martianzoo.tfm.data.MarsAreaDefinition
 import dev.martianzoo.tfm.data.MoshiReader
 import dev.martianzoo.util.Grid
 
 object Canon {
-  val cTypeDefinitions: Map<String, CTypeDefinition> by lazy {
+  val componentClassDefinitions: Map<String, ComponentClassDefinition> by lazy {
     MoshiReader.readComponentTypes(readResource("components.json5"))
   }
 
@@ -17,6 +17,16 @@ object Canon {
 
   val mapAreaDefinitions: Map<String, Grid<MarsAreaDefinition>> by lazy {
     MoshiReader.readMaps(readResource("maps.json5"))
+  }
+
+  val allDefinitions: Map<String, ComponentClassDefinition> by lazy {
+    val ct = componentClassDefinitions.values
+    val cards = cardDefinitions.values
+    val areas =  mapAreaDefinitions.values.flatMap { it }
+    val expected = ct.size + cards.size + areas.size
+    (ct + cards + areas).map { it.asComponentClassDefinition }.associateBy { it.name }.also {
+      require(it.size == expected)
+    }
   }
 
   private fun readResource(filename: String): String {

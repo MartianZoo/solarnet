@@ -6,7 +6,7 @@ import com.squareup.moshi.Json
  * The declaration of a component class, such as GreeneryTile. Models the declaration textually as
  * it was provided.
  */
-data class CTypeDefinition(
+data class ComponentClassDefinition(
     /** Unique name for this component class. */
     val name: String,
 
@@ -50,5 +50,5 @@ data class CTypeDefinition(
     require(name.matches(CTYPE_PATTERN))
   }
 
-  override val asRawComponentType = this
+  override val asComponentClassDefinition = this
 }

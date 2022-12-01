@@ -11,7 +11,7 @@ internal object MoshiReader {
 
   // Components
 
-  internal data class ComponentTypeList(val components: List<CTypeDefinition>) {
+  internal data class ComponentTypeList(val components: List<ComponentClassDefinition>) {
     fun toMap() = components.associateBy { it.name }.also { require(it.size == components.size) }
   }
 
@@ -56,7 +56,7 @@ internal object MoshiReader {
       return type to emptyToNull(result.joinToString())
     }
 
-    private fun emptyToNull(s: String?) = if (s?.length ?: 0 > 0) s else null
+    private fun emptyToNull(s: String?) = if ((s?.length ?: 0) > 0) s else null
   }
 
   private val MOSHI_MAP = MOSHI.adapter(MapsImportFormat::class.java).nullSafe().lenient()

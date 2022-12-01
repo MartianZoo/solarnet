@@ -3,13 +3,13 @@ package dev.martianzoo.tfm.data
 import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.petaform.api.PetaformNode
-import dev.martianzoo.tfm.types.CTypeTable
+import dev.martianzoo.tfm.types.ComponentClassLoader
 import org.junit.jupiter.api.Test
 
 // Not testing much, just a bit of the canon data
-class CTypeDefinitionTest {
+class ComponentClassDefinitionTest {
   @Test fun foo() {
-    val data = Canon.cTypeDefinitions
+    val data = Canon.componentClassDefinitions
     val tr = data["TerraformRating"]!!
     assertThat(tr.name).isEqualTo("TerraformRating")
     assertThat(tr.abstract).isFalse()
@@ -19,22 +19,23 @@ class CTypeDefinitionTest {
   }
 
   @Test fun slurp() {
-    val table = CTypeTable()
-    table.loadAll(Canon.cTypeDefinitions.values)
-    table.loadAll(Canon.mapAreaDefinitions.values.flatMap { it })
-    table.loadAll(Canon.cardDefinitions.values)
+    val defns = Canon.allDefinitions
+    assertThat(defns.size).isGreaterThan(550)
+
+    val loader = ComponentClassLoader()
+    loader.loadAll(defns.values)
+    val table = loader.snapshot()
+
     table.all().forEach { rc ->
-      val cc = rc.definition
+      val cc = defns[rc.name]!!
       if (cc.supertypesPetaform.isNotEmpty()) {
         // checkRoundTrip(cc.supertypesPetaform, rc.superclasses)
       }
       checkRoundTrip(listOfNotNull(cc.immediatePetaform), listOfNotNull(rc.immediate))
       checkRoundTrip(cc.actionsPetaform, rc.actions)
       checkRoundTrip(cc.effectsPetaform, rc.effects)
-
       // deps??
     }
-    assertThat(table.all().size).isGreaterThan(580)
   }
 
   fun checkRoundTrip(source: Collection<String>, cooked: Collection<PetaformNode>) {

@@ -1,6 +1,6 @@
 package dev.martianzoo.tfm.types
 
-import dev.martianzoo.tfm.data.CTypeDefinition
+import dev.martianzoo.tfm.data.ComponentClassDefinition
 import dev.martianzoo.tfm.data.TfmDefinitionObject
 import dev.martianzoo.tfm.petaform.api.Action
 import dev.martianzoo.tfm.petaform.api.Effect
@@ -9,45 +9,42 @@ import dev.martianzoo.tfm.petaform.api.Instruction
 import dev.martianzoo.tfm.petaform.api.PetaformNode
 import dev.martianzoo.tfm.petaform.api.RootType
 import dev.martianzoo.tfm.petaform.parser.PetaformParser.parse
-import dev.martianzoo.tfm.types.CTypeClass.DependencyKey
+import dev.martianzoo.tfm.types.ComponentClass.DependencyKey
 
-class CTypeTable {
-  internal val table = mutableMapOf<String, CTypeClass>()
+class ComponentClassLoader {
+  internal val table = mutableMapOf<String, ComponentClass>()
+
+  fun snapshot() = ComponentClassTable(table)
 
   fun loadAll(objects: Iterable<TfmDefinitionObject>) = objects.forEach(::load)
 
-  fun load(obj: TfmDefinitionObject): CTypeClass {
-    val data = obj.asRawComponentType
+  fun load(obj: TfmDefinitionObject): ComponentClass {
+    val defn = obj.asComponentClassDefinition
 
-    val supertypeExpressions = deriveSupertypes(data)
-    val dependencies = deriveDependencies(data, supertypeExpressions)
-    val superclasses = supertypeExpressions.map(CType::cTypeClass).toSet()
-    return CTypeClass(
-        data.name, superclasses, dependencies, deriveImmediate(data),
-        deriveActions(data), deriveEffects(data), data, this
+    val supertypeExpressions = deriveSupertypes(defn)
+    val dependencies = deriveDependencies(defn, supertypeExpressions)
+    val superclasses = supertypeExpressions.map(ComponentType::componentClass).toSet()
+    return ComponentClass(
+        defn.name, superclasses, dependencies, deriveImmediate(defn),
+        deriveActions(defn), deriveEffects(defn), this
     )
   }
 
-  fun all() = table.values
-
-  fun resolve(expr: Expression): CType {
+  fun resolve(expr: Expression): ComponentType {
     val rootType = table[expr.rootType.ctypeName]!!
     val specializations = expr.specializations.map(::resolve)
-    return CType(rootType, rootType.dependencies.specialize(specializations))
+    return ComponentType(rootType, rootType.dependencies.specialize(specializations))
   }
 
-  fun resolve(exprPetaform: String): CType = resolve(parse(exprPetaform))
+  fun resolve(exprPetaform: String): ComponentType = resolve(parse(exprPetaform))
 
-  operator fun contains(name: String) = name in table
-  operator fun get(name: String) = table[name]
-
-  private fun deriveSupertypes(defn: CTypeDefinition) = when {
+  private fun deriveSupertypes(defn: ComponentClassDefinition) = when {
     defn.name == "Component" -> setOf()
     defn.supertypesPetaform.isEmpty() -> setOf(resolve("Component"))
     else -> defn.supertypesPetaform.map(::resolve).toSet()
   }
 
-  private fun deriveDependencies(defn: CTypeDefinition, supertypesAsGiven: Set<CType>): DependencyMap {
+  private fun deriveDependencies(defn: ComponentClassDefinition, supertypesAsGiven: Set<ComponentType>): DependencyMap {
     val newDeps = defn.dependenciesPetaform.withIndex().map { (i, depText) ->
       if (depText.startsWith("TYPE ")) {
         DependencyKey(defn.name, isTypeOnly = true, index = i) to resolve(depText.substring(5))
@@ -58,16 +55,16 @@ class CTypeTable {
     return DependencyMap.merge(supertypesAsGiven.map { it.dependencies } + DependencyMap(newDeps))
   }
 
-  private fun deriveImmediate(defn: CTypeDefinition): Instruction? {
+  private fun deriveImmediate(defn: ComponentClassDefinition): Instruction? {
     val immediate: Instruction? = defn.immediatePetaform?.let(::parse)
     immediate?.let(::verifyClassNames)
     return immediate
   }
 
-  private fun deriveActions(defn: CTypeDefinition) =
+  private fun deriveActions(defn: ComponentClassDefinition) =
       defn.actionsPetaform.map { parse<Action>(it) }.toSet().also(::verifyClassNames)
 
-  private fun deriveEffects(defn: CTypeDefinition) =
+  private fun deriveEffects(defn: ComponentClassDefinition) =
       defn.effectsPetaform.map { parse<Effect>(it) }.toSet().also(::verifyClassNames)
 
   private fun verifyClassNames(nodes: Iterable<PetaformNode>) {
