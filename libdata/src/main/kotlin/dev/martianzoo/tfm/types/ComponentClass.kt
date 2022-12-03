@@ -6,18 +6,19 @@ import dev.martianzoo.tfm.petaform.api.Instruction
 import java.util.Objects.hash
 
 /**
- * Complete knowledge about a component class, irrespective of how it happened to be defined.
- * This data is "cooked" as much as possible, such as including all inherited information.
+ * Complete knowledge about a component class, irrespective of how it happened to be defined. This
+ * data is relatively "cooked", but I'm still deciding how much inherited information it should
+ * include.
  */
 class ComponentClass(
+    val loader: ComponentClassLoader,
     val name: String,
-    val superclasses: Set<ComponentClass>,
-    val dependencies: DependencyMap,
     val abstract: Boolean,
-    val immediate: Instruction?, // TODO: specialize these 3? null instruction?
-    val actions: Set<Action>,
-    val effects: Set<Effect>, // TODO: Map<Trigger, Effect>?
-    val loader: ComponentClassLoader
+    val superclasses: Set<ComponentClass> = setOf(),
+    val dependencies: DependencyMap = DependencyMap(),
+    val immediate: Instruction? = null, // TODO: specialize these 3? null instruction?
+    val actions: Set<Action> = setOf(), // TODO: Map<Trigger, Effect>?
+    val effects: Set<Effect> = setOf()
 ) {
   init {
     require((name == "Component") == superclasses.isEmpty())

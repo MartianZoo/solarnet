@@ -4,7 +4,7 @@ import dev.martianzoo.tfm.types.ComponentClass.DependencyKey
 import dev.martianzoo.util.joinOrEmpty
 import java.util.*
 
-data class DependencyMap(val map: Map<DependencyKey, ComponentType>) {
+data class DependencyMap(val map: Map<DependencyKey, ComponentType> = mapOf()) {
   fun specializes(dependencies: DependencyMap) =
       dependencies.map.all { (k, v) -> map[k]!!.isSubtypeOf(v) }
 

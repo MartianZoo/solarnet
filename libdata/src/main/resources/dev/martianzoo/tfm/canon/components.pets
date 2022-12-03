@@ -1,17 +1,20 @@
 abstract Component {
-    defaults { +Component!, -Component! }
+    defaults { Component!, -Component! }
 
     component This
-    component Die
-    abstract Plural
-    abstract Singleton
-    abstract Atomized
 
+    // 0..0
+    component Die
+
+    // 0..1 (insufficient)
     abstract Phase {
+        MAX 1 Phase // forced to do "ThisPhase FROM Phase" // NOspec
+
         component ProductionPhase, End
     }
 
-    abstract singleton Anyone {
+    // 1
+    abstract Anyone {
         component Npc
 
         abstract Player {
@@ -22,9 +25,16 @@ abstract Component {
         }
     }
 
-    component Generation : Plural
+    component Generation
 
-    abstract singleton Area {
+    abstract Generational {
+        Generation: -This
+    }
+
+    // 1
+    abstract Area {
+        Occupant<This> IF 2 Occupant<This>: Die
+
         abstract RemoteArea
         abstract MarsArea {
             abstract LandArea {
@@ -35,21 +45,25 @@ abstract Component {
         }
     }
 
+    // 0..1 (insufficient)
     abstract Tile<Area> {
         // This: $createAdjacencies(This)
     }
 
+    // 0..1
     component AreaAdjacency<MarsArea, MarsArea>
-    component Neighbor<MarsArea, Tile>
-    component Adjacency<Tile, Tile>
-
-    abstract singleton StandardAction
-    abstract singleton StandardProject
+    component Neighbor<MarsArea, Tile> {
+        This: (Tile: 0)
+    }
+    component Adjacency<Tile, Tile> {
+        // This: how to make sure both tiles exist??
+        -Tile(HAS This): -This // shouldn't be necessary
+    }
 
     abstract Owned<Anyone> {
         defaults { *Owned<Me> }
 
-        abstract Resource : Plural {
+        abstract Resource {
             abstract StandardResource {
                 component Megacredit, Steel, Titanium, Plant, Heat
                 component Energy {
@@ -58,44 +72,62 @@ abstract Component {
             }
         }
 
-        component Production<TYPE StandardResource> : Plural {
+        component Production<StandardResource> {
             ProductionPhase: StandardResource
         }
 
-        component VictoryPoint : Plural
+        component VictoryPoint
 
-        component TerraformRating : Plural {
+        // 0..1
+        component HasRaisedTR : Generational
+
+        component TerraformRating {
+            This:: HasRaisedTR. // boo!
             ProductionPhase: 1
             End: VictoryPoint
         }
 
-        abstract CardBack : Plural {
+        abstract CardBack {
             component CorporationCard, PreludeCard, ProjectCard
         }
 
-        abstract OwnedTile : Tile {
-            component GreeneryTile : OwnedTile<MarsArea> {
-                defaults { +GreeneryTile<LandArea(HAS Neighbor<OwnedTile>)> }
-                This: OxygenStep
-                End: VictoryPoint
+        abstract OwnedOccupant: Occupant {
+            abstract OwnedTile : Tile {
+                component GreeneryTile : OwnedTile<MarsArea> {
+                    defaults { GreeneryTile<LandArea(HAS Neighbor<OwnedTile>)> }
+                    This: OxygenStep
+                    End: VictoryPoint
+                }
+                component CityTile {
+                    defaults { CityTile<LandArea(HAS MAX 0 Neighbor<CityTile<Anyone>>)> }
+                    End: VictoryPoint / Adjacency<This><GreeneryTile<Anyone>>
+                }
+                component SpecialTile : OwnedTile<MarsArea> {
+                    defaults { SpecialTile<LandArea> }
+                }
             }
-            component CityTile {
-                defaults { +CityTile<LandArea(HAS MAX 0 Neighbor<CityTile<Anyone>>)> }
-                End: VictoryPoint / Adjacency<This><GreeneryTile<Anyone>>
-            }
-            component SpecialTile : OwnedTile<MarsArea> {
-                defaults { +SpecialTile<LandArea> }
-            }
+
+            component Community
         }
 
-        abstract CardFront {
-          abstract ActiveCard, AutomatedCard, EventCard
+        abstract CardFront {  // <Resource>? But it's optional...
+          abstract EventCard {
+            This: PlayedEvent FROM This // shouldn't really be able to do this early
+          }
+          abstract AutomatedCard
+          abstract ActiveCard
         }
 
-        component PlayedEvent : Plural
+        component PlayedEvent
 
         abstract Cardbound<CardFront> {
-            abstract Tag : Plural {
+            This:: (CardFront: 0)
+            -CardFront: -This // happens when becoming a PlayedEvent
+
+            abstract Tag {
+                Purchase<CardFront>:: Purchase<This>     // VERY IFFY
+                CardFront:: This                         // VERY IFFY
+
                 component BuildingTag, SpaceTag, CityTag, PowerTag, ScienceTag
 
                 abstract BioTag {
@@ -105,41 +137,119 @@ abstract Component {
                     component EarthTag, VenusTag, JovianTag
                 }
             }
+
+            // component WildTag {
+            //     BeginAction: ActiveWildTag<Tag> // TODO ????
+            // }
+
             abstract CardResource : Resource {
-                 defaults { +CardResource. }
-                 component Animal, Asteroid, Fighter Floater, Microbe, Science
+                -CardFront: Die // gotta deal with resources first
+                defaults { CardResource. }
+
+                component Animal, Asteroid, Fighter Floater, Microbe, Science
             }
-            component ActionCardUsage
+
+            abstract UseAction : Ephemeral {
+                component UseAction1, UseAction2, UseAction3
+            }
+
+            // 0..1
+            component CardUsed : Generational
         }
 
-        component Purchase<TYPE Component>
-        component Owed<TYPE StandardResource>, Plural
-        component Required<TYPE GlobalParameter>: Plural {
-            defaults { -Required. }
+        abstract PayWall : Temporary {
+            component Required<GlobalParameter>
+            component Owed<Resource> {
+              defaults { -Owed. }
+              This: Accept<Resource>.
+            }
+        }
+
+        // 0..1 (insufficient)
+        component Purchase<Component> : Ephemeral {
+            This: (MAX 0 PayWall: Component) // TODO
+        }
+
+        // 0..1 (insufficient)
+        component PlayCard: Purchase<CardFront> {
+            This:: $handleRequirement(CardFront), Owed<Megacredit> / $costOf(CardFront)
+            This: (MAX 0 PayWall: CardFront FROM ProjectCard) // TODO
+        }
+
+        component Pay<Resource> : Ephemeral {
+          This:: -Owed<Resource>
+        }
+
+        // 0..1
+        component Accept<Resource>: Temporary {
+            -> X Pay<Resource> FROM Resource
+            -Owed IF MAX 0 Owed:: -This
         }
     }
 
-    abstract GlobalParameter : Plural, Atomized {
-        defaults { +GlobalParameter., -GlobalParameter. }
+    // 1..1 TODO
+    component GlobalEffects {
+        Purchase<BuildingTag>: Accept<Steel>
+        Purchase<SpaceTag>: Accept<Titanium>
+    }
+
+    // TODO atomized?
+    abstract GlobalParameter {
+        defaults { GlobalParameter., -GlobalParameter. }
 
         This: TerraformRating
 
+        // 0..9
         component OceanTile : Tile<MarsArea> {
-            defaults { +OceanTile<WaterArea> }
+            defaults { OceanTile<WaterArea> }
             Adjacency<This, Tile>: 2
         }
+
+        // 0..19
         component TemperatureStep {
             This IF =3 This: PROD[Heat]
             This IF =5 This: PROD[Heat]
             This IF =15 This: OceanTile
         }
+
+        // 0..14
         component OxygenStep {
             This IF =8 This: TemperatureStep
         }
+
+        // 0..15
         component VenusStep {
             This IF =4 This: ProjectCard
             This IF =8 This: TerraformRating
         }
+    }
+
+    // 1..1
+    component StandardAction {
+        component PlayCardFromHand   { -> PlayCard<CardFront> }
+        component UseStandardProject { -> UseAction<StandardProject> }
+        component UseCardAction      { -> CardUsed<CardFront> THEN UseAction<CardFront> }
+        component ConvertPlants      { 8 Plant -> GreeneryTile }
+        component ConvertHeat        { 8 Heat -> TemperatureStep }
+        component SellPatents        { X ProjectCard -> X }
+    }
+
+    // so there is viron which lets you pick an already-used action.
+
+
+    // 1..1
+    component StandardProject {
+        component PowerPlant   { 11 -> PROD[Energy] }
+        component AsteroidSP   { 14 -> TemperatureStep }
+        component AirScrapping { 15 -> VenusStep }
+        component BufferGas    { 16 -> TerraformRating }
+        component Aquifer      { 18 -> OceanTile }
+        component Greenery     { 23 -> GreeneryTile }
+        component City         { 25 -> CityTile, PROD[1] }
+    }
+
+    abstract NextCardEffect : Generational {
+        Purchase<CardFront>:: -This
     }
 
     // TODO: move these to card defns

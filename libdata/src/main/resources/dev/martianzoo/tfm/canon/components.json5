@@ -5,64 +5,81 @@
       "name": "Component",
       "supertypes": [ ],
       "abstract": true,
-      "defaults": [ "+Component!", "-Component!" ],
+      "defaults": [ "Component!", "-Component!" ],
     },
 
-    { "name": "This" },
-    { "name": "Die" },
+    { "name": "This" }, // special
+    { "name": "Die" }, //  0..0
 
-    { "name": "Plural", "abstract": true },    // can have abs. identical
-    { "name": "Singleton", "abstract": true }, // one always exists if type exists
-    { "name": "Atomized", "abstract": true },  // always gain/lose one-by-one
-
+    // 0..1 (insufficient)
     { "name": "Phase", "abstract": true },
-    { "name": "ProductionPhase", "supertypes": [ "Phase" ] },
-    { "name": "End", "supertypes": [ "Phase" ] },
+    { "name": "ProductionPhase", "supertypes": ["Phase"] },
+    { "name": "End",             "supertypes": ["Phase"] },
 
-    { "name": "Anyone", "abstract": true, "singleton": true },
-    { "name": "Npc", "supertypes": [ "Anyone" ] },
+    // 1..1
+    { "name": "Anyone", "abstract": true },
+    { "name": "Npc", "supertypes": ["Anyone"] },
     {
       "name": "Player",
       "supertypes": [ "Anyone" ],
-      // "effects": [ "ProductionPhase: -5" ],
+//    "effects": [ "ProductionPhase: -5" ], // terrible wart
       "abstract": true,
     },
-    { "name": "Me", "supertypes": [ "Player" ] }, // The placeholder for the context owner
-    { "name": "Player1", "supertypes": [ "Player" ] }, // The actual solo player
+    { "name": "Me",      "supertypes": ["Player"] }, // The placeholder for the context owner
+    { "name": "Player1", "supertypes": ["Player"] }, // The actual solo player
 
+    { "name": "Generation" },
+    { "name": "Generational", "effects": ["Generation: -This"], "abstract": true },
 
+    // 1..1
     {
-      "name": "Generation",
-      "supertypes": [ "Plural" ]
+      "name": "Area",
+//    "effects": ["Occupant<This> IF 2 Occupant<This>: Die"], // TODO conditionals
+      "abstract": true,
+    },
+    { "name": "RemoteArea",   "supertypes": ["Area"],      "abstract": true },
+    { "name": "MarsArea",     "supertypes": ["Area"],      "abstract": true },
+    { "name": "LandArea",     "supertypes": ["MarsArea"],  "abstract": true },
+    { "name": "VolcanicArea", "supertypes": ["LandArea"],  "abstract": true },
+    { "name": "WaterArea",    "supertypes": ["MarsArea"],  "abstract": true },
+    { "name": "NoctisArea",   "supertypes": ["MarsArea"],  "abstract": true },
+
+    // 0..1 (insufficient)
+    {
+      "name": "Occupant",
+      "dependencies": [ "Area" ],
+      "abstract": true,
     },
 
-    {"name": "Area", "abstract": true, "singleton": true },
-    {"name": "RemoteArea",   "supertypes": ["Area"],     "abstract": true},
-    {"name": "MarsArea",     "supertypes": ["Area"],     "abstract": true},
-    {"name": "LandArea",     "supertypes": ["MarsArea"], "abstract": true},
-    {"name": "VolcanicArea", "supertypes": ["LandArea"], "abstract": true},
-    {"name": "WaterArea",    "supertypes": ["MarsArea"], "abstract": true},
-    {"name": "NoctisArea",   "supertypes": ["MarsArea"], "abstract": true},
-
+    // 0..1 (insufficient)
     {
       "name": "Tile",
-      "dependencies": [ "Area" ], // 3: tile to area it's on
+      "supertypes": [ "Occupant" ],
       // "immediate": [ "$createAdjacencies(This)" ],
-      "abstract": true
+      "abstract": true,
     },
 
+    // 0..1 all of these
     { "name": "AreaAdjacency", "dependencies": [ "MarsArea", "MarsArea" ] },
-    { "name": "Neighbor",      "dependencies": [ "MarsArea", "Tile"     ] },
-    { "name": "Adjacency",     "dependencies": [ "Tile",     "Tile"     ] },
-
-    { "name": "StandardAction", "abstract": true, "singleton": true },
-    { "name": "StandardProject", "abstract": true, "singleton": true },
+    {
+      "name": "Neighbor",
+      "dependencies": ["MarsArea", "Tile"],
+//    "effects": [ "This: (Tile: 0)" ], // requires that Tile exist
+    },
+    {
+      "name": "Adjacency",
+      "dependencies": [ "Tile", "Tile" ],
+      "effects": [
+        "-Tile(HAS This): -This",
+        // TODO: how to make sure both tiles exist??
+      ]
+    },
 
     {
       "name": "Owned",
-      "dependencies": [ "Anyone" ], // 1: owned to owner
+      "dependencies": [ "Anyone" ],
       "abstract": true,
-      "defaults": "*Owned<Me>",
+      "defaults": [ "*Owned<Me>" ],
     },
 
 
@@ -71,19 +88,15 @@
 
     {
       "name": "Resource",
-      "supertypes": [ "Owned", "Plural" ],
+      "supertypes": [ "Owned" ],
       "abstract": true,
     },
-    {
-      "name": "StandardResource",
-      "supertypes": [ "Resource" ],
-      "abstract": true,
-    },
-    {"name": "Megacredit", "supertypes": ["StandardResource"]},
-    {"name": "Steel",      "supertypes": ["StandardResource"]},
-    {"name": "Titanium",   "supertypes": ["StandardResource"]},
-    {"name": "Plant",      "supertypes": ["StandardResource"]},
-    {"name": "Heat",       "supertypes": ["StandardResource"]},
+    { "name": "StandardResource", "supertypes": ["Resource"], "abstract": true },
+    { "name": "Megacredit", "supertypes": ["StandardResource"] },
+    { "name": "Steel",      "supertypes": ["StandardResource"] },
+    { "name": "Titanium",   "supertypes": ["StandardResource"] },
+    { "name": "Plant",      "supertypes": ["StandardResource"] },
+    { "name": "Heat",       "supertypes": ["StandardResource"] },
     {
       "name": "Energy",
       "supertypes": [ "StandardResource" ],
@@ -91,16 +104,21 @@
     },
     {
       "name": "Production",
-      "supertypes": [ "Owned", "Plural" ],
-      "dependencies": [ "TYPE StandardResource" ], // 2: production to resource type - TYPE
+      "supertypes": [ "Owned" ],
+      "dependencies": [ "StandardResource" ], // 2: production to resource type - TYPE
       "effects": [ "ProductionPhase: StandardResource" ],
     },
 
-    { "name": "VictoryPoint", "supertypes": [ "Owned<Player>", "Plural" ] },
+    { "name": "VictoryPoint", "supertypes": [ "Owned<Player>" ] },
+
+    // 0..1
+    { "name": "HasRaisedTR", "supertypes": ["Generational"] },
+
     {
       "name": "TerraformRating",
-      "supertypes": [ "Owned<Player>", "Plural" ],
+      "supertypes": [ "Owned<Player>" ],
       "effects": [
+        "This:: HasRaisedTR.", // boo!
         "ProductionPhase: 1",
         "End: VictoryPoint",
       ]
@@ -108,7 +126,7 @@
 
     {
       "name": "CardBack",
-      "supertypes": [ "Owned<Player>", "Plural" ],
+      "supertypes": [ "Owned<Player>" ],
       "abstract": true,
     },
     { "name": "ProjectCard",     "supertypes": ["CardBack"] },
@@ -118,20 +136,18 @@
 
     // Back to unowned things
 
-
-    // How to deal with splitting 3 into 1, 1, 1?
+    // TODO: atomized?
     {
       "name": "GlobalParameter",
-      "supertypes": [ "Plural" ],
-      "abstract": true,
       "effects": [  "This: TerraformRating" ],
-      "defaults": [ "+GlobalParameter.", "-GlobalParameter." ],
+      "defaults": [ "GlobalParameter.", "-GlobalParameter." ],
+      "abstract": true
     },
     {
       "name": "OceanTile",
       "supertypes": [ "Tile<MarsArea>", "GlobalParameter" ],
       "effects": [ "Adjacency<This, Tile>: 2" ],
-      "defaults": [ "+OceanTile<WaterArea>"],
+      "defaults": [ "OceanTile<WaterArea>" ],
     },
     {
       "name": "TemperatureStep",
@@ -160,9 +176,14 @@
 
     // Back to owned things
 
+//    {
+//      "name": "OwnedOccupant",
+//      "supertypes": [ "Owned", "Occupant" ],
+//      "abstract": true,
+//    },
     {
       "name": "OwnedTile",
-      "supertypes": [ "Owned", "Tile" ],
+      "supertypes": [ "Tile" ],
       "abstract": true,
     },
     {
@@ -172,7 +193,7 @@
         "This: OxygenStep",
         "End: VictoryPoint",
       ],
-      "defaults": [ "+GreeneryTile<LandArea(HAS Neighbor<OwnedTile>)>" ],
+      "defaults": [ "GreeneryTile<LandArea(HAS Neighbor<OwnedTile>)>" ],
     },
     {
       "name": "CityTile",
@@ -180,57 +201,63 @@
       "effects": [
         "End: VictoryPoint / Adjacency<This, GreeneryTile<Anyone>>", // TODO ><
       ],
-      "defaults": [ "+CityTile<LandArea(HAS MAX 0 Neighbor<CityTile<Anyone>>)>" ],
+      "defaults": [ "CityTile<LandArea(HAS MAX 0 Neighbor<CityTile<Anyone>>)>" ],
     },
     {
       "name": "SpecialTile",
       "supertypes": [ "OwnedTile<MarsArea>" ],
-      "defaults": [ "+SpecialTile<LandArea>" ],
+      "defaults": [ "SpecialTile<LandArea>" ],
     },
 
-    { // only exists once the card has been played
-      "name": "CardFront",
-      "supertypes": [ "Owned" ],
-      "abstract": true,
-    },
-    {"name": "ActiveCard",    "supertypes": [ "CardFront" ], "abstract": true},
-    {"name": "AutomatedCard", "supertypes": [ "CardFront" ], "abstract": true},
-    {"name": "EventCard",     "supertypes": [ "CardFront" ], "abstract": true},
+//    { "name": "Community", "supertypes": ["OwnedOccupant"]},
     {
       "name": "PlayedEvent",
       "supertypes": [ "Owned<Player>" ],
-      "plural": true,
+    },
+
+    { "name": "CardFront",     "supertypes": [ "Owned" ],     "abstract": true },
+    { "name": "ActiveCard",    "supertypes": [ "CardFront" ], "abstract": true },
+    { "name": "AutomatedCard", "supertypes": [ "CardFront" ], "abstract": true },
+    {
+      "name": "EventCard",
+      "supertypes": [ "CardFront" ],
+      "effects": ["This: PlayedEvent, -This"], // TODO: FROM
+      "abstract": true
     },
 
     {
       "name": "Cardbound",
       "supertypes": [ "Owned" ],
-      "dependencies": [ "CardFront" ], // 4: cardbound cpt to card it's on
+      "dependencies": [ "CardFront" ],
+      "effects": [
+        "This:: CardFront: 0",
+        "-CardFront: -This",
+      ],
       "abstract": true,
     },
 
-    {"name": "Tag", "supertypes": [ "Cardbound", "Plural" ], "abstract": true},
-    {"name": "BuildingTag",  "supertypes": ["Tag"]},
-    {"name": "SpaceTag",     "supertypes": ["Tag"]},
-    {"name": "CityTag",      "supertypes": ["Tag"]},
-    {"name": "PowerTag",     "supertypes": ["Tag"]},
-    {"name": "ScienceTag",   "supertypes": ["Tag"]},
+    { "name": "Tag", "supertypes": [ "Cardbound" ], "abstract": true },
+    { "name": "BuildingTag",  "supertypes": ["Tag"] },
+    { "name": "SpaceTag",     "supertypes": ["Tag"] },
+    { "name": "CityTag",      "supertypes": ["Tag"] },
+    { "name": "PowerTag",     "supertypes": ["Tag"] },
+    { "name": "ScienceTag",   "supertypes": ["Tag"] },
 
-    {"name": "BioTag",       "supertypes": ["Tag"], "abstract": true},
-    {"name": "PlantTag",     "supertypes": ["BioTag"]},
-    {"name": "MicrobeTag",   "supertypes": ["BioTag"]},
-    {"name": "AnimalTag",    "supertypes": ["BioTag"]},
+    { "name": "BioTag",       "supertypes": ["Tag"], "abstract": true },
+    { "name": "PlantTag",     "supertypes": ["BioTag"] },
+    { "name": "MicrobeTag",   "supertypes": ["BioTag"] },
+    { "name": "AnimalTag",    "supertypes": ["BioTag"] },
 
-    {"name": "PlanetaryTag", "supertypes": ["Tag"], "abstract": true},
-    {"name": "EarthTag",     "supertypes": ["PlanetaryTag"]},
-    {"name": "JovianTag",    "supertypes": ["PlanetaryTag"]},
-    {"name": "VenusTag",     "supertypes": ["PlanetaryTag"]},
+    { "name": "PlanetaryTag", "supertypes": ["Tag"], "abstract": true },
+    { "name": "EarthTag",     "supertypes": ["PlanetaryTag"] },
+    { "name": "JovianTag",    "supertypes": ["PlanetaryTag"] },
+    { "name": "VenusTag",     "supertypes": ["PlanetaryTag"] },
 
     {
       "name": "CardResource",
       "abstract": true,
       "supertypes": [ "Resource", "Cardbound<ActiveCard>" ],
-      "defaults": [ "+CardResource." ],
+      "defaults": [ "CardResource." ],
     },
     { "name": "Animal",   "supertypes": ["CardResource"] },
     { "name": "Asteroid", "supertypes": ["CardResource"] },
@@ -239,27 +266,24 @@
     { "name": "Science",  "supertypes": ["CardResource"] },
     { "name": "Fighter",  "supertypes": ["CardResource"] },
 
-    {
-      "name": "ActionCardUsage",
-      "supertypes": [ "Cardbound<ActiveCard>" ],
-    },
+    { "name": "UseAction", "supertypes": ["Ephemeral"], "abstract": true },
+    { "name": "UseAction1", "supertypes": ["UseAction"] },
+    { "name": "UseAction2", "supertypes": ["UseAction"] },
+    { "name": "UseAction3", "supertypes": ["UseAction"] },
+
+    // 0..1
+    { "name": "CardUsed", "supertypes": ["Cardbound"] },
 
     {
-      "name": "Purchase",
-      "supertypes": [ "Owned<Player>" ], // temporary
-      "dependencies": [ "TYPE Component" ], // 5: purchase to what it's of - TYPE
+      "name": "Global", // TODO
+      "effects": [
+        "Purchase<BuildingTag>: Accept<Steel>",
+        "Purchase<SpaceTag>: Accept<Titanium>",
+      ],
     },
-    {
-      "name": "Owed",
-      "supertypes": [ "Owned<Player>", "Plural" ], // temporary
-      "dependencies": [ "TYPE StandardResource" ], // 6: what is owed - TYPE
-    },
-    {
-      "name": "Required",
-      "supertypes": [ "Owned<Player>", "Plural" ], // temporary
-      "dependencies": [ "TYPE GlobalParameter" ], // 6: what is owed - TYPE
-      "defaults": [ "-Required." ],
-    },
+
+    { "name": "StandardAction",  "abstract": true },
+    { "name": "StandardProject", "abstract": true },
 
     { "name": "Card021Area", "supertypes": ["RemoteArea"] },
     { "name": "Card081Area", "supertypes": ["RemoteArea"] },

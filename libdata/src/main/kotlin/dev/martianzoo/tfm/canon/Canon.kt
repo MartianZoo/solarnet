@@ -19,6 +19,7 @@ object Canon {
     MoshiReader.readMaps(readResource("maps.json5"))
   }
 
+  // You wouldn't normally use this, but have only a single map in play.
   val allDefinitions: Map<String, ComponentClassDefinition> by lazy {
     val ct = componentClassDefinitions.values
     val cards = cardDefinitions.values

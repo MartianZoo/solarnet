@@ -20,18 +20,19 @@ class ComponentClassLoader {
 
   fun load(obj: TfmDefinitionObject): ComponentClass {
     val defn = obj.asComponentClassDefinition
+    println(defn.name)
 
     val supertypeExpressions = deriveSupertypes(defn)
     val dependencies = deriveDependencies(defn, supertypeExpressions)
     val superclasses = supertypeExpressions.map(ComponentType::componentClass).toSet()
     return ComponentClass(
-        defn.name, superclasses, dependencies, defn.abstract, deriveImmediate(defn),
-        deriveActions(defn), deriveEffects(defn), this
+        this, defn.name, defn.abstract, superclasses, dependencies,
+        deriveImmediate(defn), deriveActions(defn), deriveEffects(defn)
     )
   }
 
   fun resolve(expr: Expression): ComponentType {
-    val rootType = table[expr.rootType.ctypeName]!!
+    val rootType = table[expr.rootType.ctypeName] ?: error(expr.rootType.ctypeName)
     val specializations = expr.specializations.map(::resolve)
     return ComponentType(rootType, rootType.dependencies.specialize(specializations))
   }
