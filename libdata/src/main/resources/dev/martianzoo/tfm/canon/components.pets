@@ -1,0 +1,155 @@
+abstract Component {
+    defaults { +Component!, -Component! }
+
+    component This
+    component Die
+    abstract Plural
+    abstract Singleton
+    abstract Atomized
+
+    abstract Phase {
+        component ProductionPhase, End
+    }
+
+    abstract singleton Anyone {
+        component Npc
+
+        abstract Player {
+            ProductionPhase: -5 // terrible wart
+
+            component Me
+            component Player1
+        }
+    }
+
+    component Generation : Plural
+
+    abstract singleton Area {
+        abstract RemoteArea
+        abstract MarsArea {
+            abstract LandArea {
+                abstract VolcanicArea
+            }
+            abstract WaterArea
+            abstract NoctisArea
+        }
+    }
+
+    abstract Tile<Area> {
+        // This: $createAdjacencies(This)
+    }
+
+    component AreaAdjacency<MarsArea, MarsArea>
+    component Neighbor<MarsArea, Tile>
+    component Adjacency<Tile, Tile>
+
+    abstract singleton StandardAction
+    abstract singleton StandardProject
+
+    abstract Owned<Anyone> {
+        defaults { *Owned<Me> }
+
+        abstract Resource : Plural {
+            abstract StandardResource {
+                component Megacredit, Steel, Titanium, Plant, Heat
+                component Energy {
+                    ProductionPhase:: Heat FROM This
+                }
+            }
+        }
+
+        component Production<TYPE StandardResource> : Plural {
+            ProductionPhase: StandardResource
+        }
+
+        component VictoryPoint : Plural
+
+        component TerraformRating : Plural {
+            ProductionPhase: 1
+            End: VictoryPoint
+        }
+
+        abstract CardBack : Plural {
+            component CorporationCard, PreludeCard, ProjectCard
+        }
+
+        abstract OwnedTile : Tile {
+            component GreeneryTile : OwnedTile<MarsArea> {
+                defaults { +GreeneryTile<LandArea(HAS Neighbor<OwnedTile>)> }
+                This: OxygenStep
+                End: VictoryPoint
+            }
+            component CityTile {
+                defaults { +CityTile<LandArea(HAS MAX 0 Neighbor<CityTile<Anyone>>)> }
+                End: VictoryPoint / Adjacency<This><GreeneryTile<Anyone>>
+            }
+            component SpecialTile : OwnedTile<MarsArea> {
+                defaults { +SpecialTile<LandArea> }
+            }
+        }
+
+        abstract CardFront {
+          abstract ActiveCard, AutomatedCard, EventCard
+        }
+
+        component PlayedEvent : Plural
+
+        abstract Cardbound<CardFront> {
+            abstract Tag : Plural {
+                component BuildingTag, SpaceTag, CityTag, PowerTag, ScienceTag
+
+                abstract BioTag {
+                    component PlantTag, MicrobeTag, AnimalTag
+                }
+                abstract PlanetaryTag {
+                    component EarthTag, VenusTag, JovianTag
+                }
+            }
+            abstract CardResource : Resource {
+                 defaults { +CardResource. }
+                 component Animal, Asteroid, Fighter Floater, Microbe, Science
+            }
+            component ActionCardUsage
+        }
+
+        component Purchase<TYPE Component>
+        component Owed<TYPE StandardResource>, Plural
+        component Required<TYPE GlobalParameter>: Plural {
+            defaults { -Required. }
+        }
+    }
+
+    abstract GlobalParameter : Plural, Atomized {
+        defaults { +GlobalParameter., -GlobalParameter. }
+
+        This: TerraformRating
+
+        component OceanTile : Tile<MarsArea> {
+            defaults { +OceanTile<WaterArea> }
+            Adjacency<This, Tile>: 2
+        }
+        component TemperatureStep {
+            This IF =3 This: PROD[Heat]
+            This IF =5 This: PROD[Heat]
+            This IF =15 This: OceanTile
+        }
+        component OxygenStep {
+            This IF =8 This: TemperatureStep
+        }
+        component VenusStep {
+            This IF =4 This: ProjectCard
+            This IF =8 This: TerraformRating
+        }
+    }
+
+    // TODO: move these to card defns
+    component Card008Tile : CityTile
+    component Card085Tile : SpecialTile
+    component Card021Area : RemoteArea
+    component Card081Area : RemoteArea
+    component Card220Area : RemoteArea
+    component Card236Area : RemoteArea
+    component Card238Area : RemoteArea
+    component Card248Area : RemoteArea
+    component CardX12Area : RemoteArea
+}
