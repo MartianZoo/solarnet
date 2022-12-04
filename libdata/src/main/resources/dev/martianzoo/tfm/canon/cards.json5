@@ -27,7 +27,7 @@
       "immediate": [ "PROD[Energy], 48" ],
       "effects": [
           "Purchase<PowerTag>:: -3 Owed",
-          "Purchase<UseAction<PowerPlantSP>>:: -3 Owed",
+          "Purchase<UseAction<PowerPlant>>:: -3 Owed",
       ],
     },
 

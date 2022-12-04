@@ -161,7 +161,7 @@ abstract Component {
             component Required<GlobalParameter>
             component Owed<Resource> {
               defaults { -Owed. }
-              This: Accept<Resource>.
+              This:: Accept<Resource>.
             }
         }
 
@@ -253,6 +253,13 @@ abstract Component {
     }
 
     // TODO: move these to card defns
+    component Card206Effect : NextCardEffect {
+        Purchase<CardFront>:: -2 Required<GlobalParameter>
+    }
+    component Card195Effect : NextCardEffect {
+        Purchase<CardFront>:: -8 Owed
+    }
+
     component Card008Tile : CityTile
     component Card085Tile : SpecialTile
     component Card021Area : RemoteArea

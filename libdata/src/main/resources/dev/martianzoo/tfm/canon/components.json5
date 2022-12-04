@@ -10,6 +10,7 @@
 
     { "name": "This" }, // special
     { "name": "Die" }, //  0..0
+    { "name": "Ephemeral", "abstract": true },
 
     // 0..1 (insufficient)
     { "name": "Phase", "abstract": true },
@@ -256,7 +257,7 @@
     {
       "name": "CardResource",
       "abstract": true,
-      "supertypes": [ "Resource", "Cardbound<ActiveCard>" ],
+      "supertypes": [ "Resource", "Cardbound" ],
       "defaults": [ "CardResource." ],
     },
     { "name": "Animal",   "supertypes": ["CardResource"] },
@@ -274,6 +275,44 @@
     // 0..1
     { "name": "CardUsed", "supertypes": ["Cardbound"] },
 
+    { "name": "PayWall", "supertypes": ["Owned"], "abstract": true },
+    { "name": "Required", "supertypes": ["PayWall"], "dependencies": ["GlobalParameter"] },
+    {
+      "name": "Owed",
+      "supertypes": [ "PayWall" ],
+      "dependencies": [ "Resource" ],
+      "defaults": [ "-Owed." ],
+      "effects": [
+//        "This:: Accept<Resource>."
+      ],
+    },
+    {
+      "name": "Purchase",
+      "supertypes": [ "Owned" ],
+      "dependencies": [ "Component" ],
+      "effects": [
+//        "This: (MAX 0 PayWall: Component)" // TODO
+      ],
+    },
+//    {
+//      "name": "PlayCard",
+//      "supertypes": [ "Purchase<CardFront>" ],
+//      "effects": [
+//        "This:: $handleRequirement(CardFront), Owed<Megacredit> / $costOf(CardFront)",
+//        "This: MAX 0 PayWall: (CardFront, -ProjectCard)", // TODO
+//      ],
+//    },
+
+    {
+      "name": "Accept",
+      "dependencies": ["Resource"],
+      "effects": [
+//        "-> X Pay<Resource> FROM Resource",
+//        "-Owed IF MAX 0 Owed:: -This"
+      ],
+    },
+
+
     {
       "name": "Global", // TODO
       "effects": [
@@ -284,6 +323,25 @@
 
     { "name": "StandardAction",  "abstract": true },
     { "name": "StandardProject", "abstract": true },
+    { "name": "PowerPlant", "supertypes": ["StandardProject"] },
+
+    {
+      "name": "NextCardEffect",
+      "supertypes": ["Owned"],
+      "effects": ["Purchase<CardFront>: -This"],
+      "abstract": true,
+    },
+
+    {
+      "name": "Card195Effect",
+      "supertypes": ["NextCardEffect"],
+      "effects": ["Purchase<CardFront>: -8 Owed"],
+    },
+    {
+      "name": "Card206Effect",
+      "supertypes": ["NextCardEffect"],
+      "effects": ["Purchase<CardFront>:: -2 Required<GlobalParameter>"],
+    },
 
     { "name": "Card021Area", "supertypes": ["RemoteArea"] },
     { "name": "Card081Area", "supertypes": ["RemoteArea"] },
@@ -292,6 +350,7 @@
     { "name": "Card238Area", "supertypes": ["RemoteArea"] },
     { "name": "Card248Area", "supertypes": ["RemoteArea"] },
     { "name": "CardX12Area", "supertypes": ["RemoteArea"] },
+
     { "name": "Card008Tile", "supertypes": ["CityTile"] },
     { "name": "Card085Tile", "supertypes": ["SpecialTile"] },
   ]

@@ -20,11 +20,11 @@ class ComponentClassLoader {
 
   fun load(obj: TfmDefinitionObject): ComponentClass {
     val defn = obj.asComponentClassDefinition
-    println(defn.name)
+    //println(defn.name)
 
-    val supertypeExpressions = deriveSupertypes(defn)
-    val dependencies = deriveDependencies(defn, supertypeExpressions)
-    val superclasses = supertypeExpressions.map(ComponentType::componentClass).toSet()
+    val supertypes = deriveSupertypes(defn)
+    val superclasses = supertypes.map(ComponentType::componentClass).toSet()
+    val dependencies = deriveDependencies(defn, supertypes)
     return ComponentClass(
         this, defn.name, defn.abstract, superclasses, dependencies,
         deriveImmediate(defn), deriveActions(defn), deriveEffects(defn)
@@ -46,12 +46,8 @@ class ComponentClassLoader {
   }
 
   private fun deriveDependencies(defn: ComponentClassDefinition, supertypesAsGiven: Set<ComponentType>): DependencyMap {
-    val newDeps = defn.dependenciesPetaform.withIndex().map { (i, depText) ->
-      if (depText.startsWith("TYPE ")) {
-        DependencyKey(defn.name, isTypeOnly = true, index = i) to resolve(depText.substring(5))
-      } else {
-        DependencyKey(defn.name, isTypeOnly = false, index = i) to resolve(depText)
-      }
+    val newDeps = defn.dependenciesPetaform.withIndex().map { (i, typeExpr) ->
+      DependencyKey(defn.name, index = i) to resolve(typeExpr)
     }.toMap()
     return DependencyMap.merge(supertypesAsGiven.map { it.dependencies } + DependencyMap(newDeps))
   }

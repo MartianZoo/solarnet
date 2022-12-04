@@ -26,7 +26,7 @@ class ComponentClass(
   }
 
   fun isSubclassOf(other: ComponentClass): Boolean {
-    return other in superclasses
+    return other == this || superclasses.any { it.isSubclassOf(other) }
   }
 
   fun glb(other: ComponentClass) = when {
@@ -48,9 +48,8 @@ class ComponentClass(
   // ("Adjacency", table.resolve("Tile"), 1)
   data class DependencyKey(
       val dependentTypeName: String,
-      val isTypeOnly: Boolean = false,
       val index: Int = 0,
   ) {
-    override fun toString() = "DEP:$dependentTypeName[$index]" + if (isTypeOnly) " (TYPE)" else ""
+    override fun toString() = "DEP:$dependentTypeName[$index]"
   }
 }
