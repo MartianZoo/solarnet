@@ -2,6 +2,7 @@ package dev.martianzoo.tfm.data
 
 import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.tfm.canon.Canon
+import dev.martianzoo.tfm.canon.Canon.newComponentClassDefinitions
 import dev.martianzoo.tfm.petaform.api.ComponentDecls
 import dev.martianzoo.tfm.petaform.api.PetaformNode
 import dev.martianzoo.tfm.petaform.parser.PetaformParser
@@ -12,7 +13,7 @@ import org.junit.jupiter.api.Test
 // Not testing much, just a bit of the canon data
 class ComponentClassDefinitionTest {
   @Test fun foo() {
-    val data = Canon.componentClassDefinitions
+    val data = Canon.newComponentClassDefinitions
     val tr = data["TerraformRating"]!!
     assertThat(tr.name).isEqualTo("TerraformRating")
     assertThat(tr.abstract).isFalse()
@@ -50,6 +51,16 @@ class ComponentClassDefinitionTest {
   }
 
   @Test fun craxy() {
-    parse<ComponentDecls>(Canon.newStyleComponents)
+    val decls = parse<ComponentDecls>(Canon.newStyleComponents)
+    decls.decls.forEach {
+      print(if (it.abstract) "abstract" else "concrete")
+      println(" ${it.expression} : ${it.supertypes}")
+    }
+  }
+
+  @Test fun craxier() {
+    newComponentClassDefinitions.values.forEach {
+      println(it)
+    }
   }
 }

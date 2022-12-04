@@ -1,6 +1,5 @@
 package dev.martianzoo.tfm.types
 
-import dev.martianzoo.tfm.types.ComponentClass.DependencyKey
 import dev.martianzoo.util.joinOrEmpty
 import java.util.*
 
@@ -8,31 +7,34 @@ data class DependencyMap(val map: Map<DependencyKey, ComponentType> = mapOf()) {
   fun specializes(dependencies: DependencyMap) =
       dependencies.map.all { (k, v) -> map[k]!!.isSubtypeOf(v) }
 
+  /**
+   * TODO Stricter than necessary; insists on exact order
+   */
   fun specialize(specializations: List<ComponentType>): DependencyMap {
+    if (specializations.isEmpty()) {
+      return this
+    }
     val unhandled: Queue<ComponentType> = ArrayDeque(specializations)
     val newMap = mutableMapOf<DependencyKey, ComponentType>()
-    val specs = mutableMapOf<DependencyKey, ComponentType>()
-
-    for ((dep, type) in map) {
-      val peeked = unhandled.peek()
-      if (peeked?.isSubtypeOf(type) == true) {
-        newMap[dep] = peeked
-        specs[dep] = peeked
-        unhandled.poll() // remove `peeked` from queue
+    map.forEach { (key, depType) ->
+      val nextType = unhandled.peek()
+      if (nextType != null && nextType.isSubtypeOf(depType)) {
+        newMap.put(key, nextType);
+        unhandled.poll()
       } else {
-        newMap[dep] = type.specialize(DependencyMap(specs))
+        newMap.put(key, depType)
       }
     }
-    require(unhandled.isEmpty()) { "$this\n\n$specializations\n\n$unhandled" }
+    require(unhandled.isEmpty()) { unhandled }
     return DependencyMap(newMap)
   }
 
   fun specialize(other: DependencyMap): DependencyMap {
     val newMap = map.toMutableMap()
-    other.map.forEach {
-      val existing = newMap[it.key]!!
-      require(it.value.isSubtypeOf(existing))
-      newMap[it.key] = it.value
+    other.map.forEach { (key, specialType) ->
+      val previousType = map[key] ?: error("expected to find all of ${other.map} in $map")
+      require(specialType.isSubtypeOf(previousType))
+      newMap[key] = specialType
     }
     return DependencyMap(newMap)
   }
@@ -50,5 +52,17 @@ data class DependencyMap(val map: Map<DependencyKey, ComponentType> = mapOf()) {
       }
       return DependencyMap(result)
     }
+  }
+
+  // ("Owned", table.resolve("Anyone"))
+  // ("Tile", table.resolve("Area"))
+  // ("Production", table.resolve("StandardResource"), true)
+  // ("Adjacency", table.resolve("Tile"), 0)
+  // ("Adjacency", table.resolve("Tile"), 1)
+  data class DependencyKey(
+      val dependentTypeName: String,
+      val index: Int = 0,
+  ) {
+    override fun toString() = "${dependentTypeName}_$index"
   }
 }

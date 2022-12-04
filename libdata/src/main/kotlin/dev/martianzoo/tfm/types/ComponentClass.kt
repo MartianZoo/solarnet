@@ -41,15 +41,4 @@ class ComponentClass(
 
   override fun toString() = name
 
-  // ("Owned", table.resolve("Anyone"))
-  // ("Tile", table.resolve("Area"))
-  // ("Production", table.resolve("StandardResource"), true)
-  // ("Adjacency", table.resolve("Tile"), 0)
-  // ("Adjacency", table.resolve("Tile"), 1)
-  data class DependencyKey(
-      val dependentTypeName: String,
-      val index: Int = 0,
-  ) {
-    override fun toString() = "DEP:$dependentTypeName[$index]"
-  }
 }

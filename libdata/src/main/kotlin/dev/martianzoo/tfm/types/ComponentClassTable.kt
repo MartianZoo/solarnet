@@ -9,7 +9,7 @@ class ComponentClassTable(map: Map<String, ComponentClass>) {
   fun all() = table.values
 
   fun resolve(expr: Expression): ComponentType {
-    val rootType = table[expr.rootType.ctypeName]!!
+    val rootType = table[expr.rootType.name]!!
     val specializations = expr.specializations.map(::resolve)
     return ComponentType(rootType, rootType.dependencies.specialize(specializations))
   }

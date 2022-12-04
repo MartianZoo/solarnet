@@ -31,12 +31,12 @@ data class Expression(
   }
 }
 
-data class RootType(val ctypeName: String) : PetaformNode() {
+data class RootType(val name: String) : PetaformNode() {
   override val children = listOf<PetaformNode>()
   override val hasProd = false
   init {
-    require(ctypeName.matches(Regex("^[A-Z][a-z][A-Za-z0-9_]*$"))) { ctypeName }
+    require(name.matches(Regex("^[A-Z][a-z][A-Za-z0-9_]*$"))) { name }
 //    require(ctypeName != "Production")
   }
-  override fun toString() = ctypeName
+  override fun toString() = name
 }

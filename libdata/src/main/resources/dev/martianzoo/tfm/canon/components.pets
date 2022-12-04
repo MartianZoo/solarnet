@@ -2,9 +2,19 @@ abstract Component {
     default Component!
     default -Component!
 
-    component This
+    component This // TODO: abstract???
 
     component Die    // 0..0
+
+    abstract Ephemeral {
+      This:: -This
+    }
+    abstract Transient {
+      This: -This.
+    }
+    abstract Litter {
+      // This: (MAX 0 This: 0)
+    }
 
     abstract Phase { // 0..1 (insufficient)
         // MAX 1 Phase // forced to do "ThisPhase FROM Phase" // NOspec
@@ -31,7 +41,7 @@ abstract Component {
     }
 
     // 1
-    abstract Area(HAS MAX 1 Occupant) {
+    abstract Area(HAS MAX 1 Tile) {
         abstract RemoteArea
         abstract MarsArea {
             abstract LandArea {
@@ -80,7 +90,7 @@ abstract Component {
         // 0..1
         component HasRaisedTR : Generational
 
-        component TerraformRating {
+        component TerraformRating : Owned<Player> { // maybe important for WGT?
             This:: HasRaisedTR. // boo!
             ProductionPhase: 1
             End: VictoryPoint
@@ -92,23 +102,19 @@ abstract Component {
             component ProjectCard
         }
 
-        abstract OwnedOccupant: Occupant {
-            abstract OwnedTile : Tile {
-                component GreeneryTile : OwnedTile<MarsArea> {
-                    default GreeneryTile<LandArea(HAS Neighbor<OwnedTile>)>
-                    This: OxygenStep
-                    End: VictoryPoint
-                }
-                component CityTile {
-                    default CityTile<LandArea(HAS MAX 0 Neighbor<CityTile<Anyone>>)>
-                    End: VictoryPoint / Adjacency(HAS This, GreeneryTile<Anyone>)
-                }
-                component SpecialTile : OwnedTile<MarsArea> {
-                    default SpecialTile<LandArea>
-                }
+        abstract OwnedTile : Tile {
+            component GreeneryTile : OwnedTile<MarsArea> {
+                default GreeneryTile<LandArea(HAS Neighbor<OwnedTile>)>
+                This: OxygenStep
+                End: VictoryPoint
             }
-
-            component Community
+            component CityTile {
+                default CityTile<LandArea(HAS MAX 0 Neighbor<CityTile<Anyone>>)>
+                End: VictoryPoint / Adjacency(HAS This, GreeneryTile<Anyone>)
+            }
+            component SpecialTile : OwnedTile<MarsArea> {
+                default SpecialTile<LandArea>
+            }
         }
 
         abstract CardFront {  // <Resource>? But it's optional...
@@ -126,8 +132,8 @@ abstract Component {
             -CardFront: -This // happens when becoming a PlayedEvent
 
             abstract Tag {
-                Purchase<CardFront>:: Purchase<This>     // VERY IFFY
-                CardFront:: This                         // VERY IFFY
+                // Purchase<CardFront>:: Purchase<This>     // VERY IFFY
+                // CardFront:: This                         // VERY IFFY
 
                 component BuildingTag
                 component SpaceTag
@@ -146,10 +152,6 @@ abstract Component {
                     component JovianTag
                 }
             }
-
-            // component WildTag {
-            //     BeginAction: ActiveWildTag<Tag> // TODO ????
-            // }
 
             abstract CardResource : Resource {
                 -CardFront: Die // gotta deal with resources first
@@ -173,8 +175,8 @@ abstract Component {
             component CardUsed : Generational
         }
 
-        abstract PayWall : Temporary {
-            component Required<GlobalParameter>
+        abstract PayWall : Litter {
+            component Required<Component> // GlobalParameter
             component Owed<Resource> {
               default -Owed.
               This:: Accept<Resource>.
@@ -197,7 +199,7 @@ abstract Component {
         }
 
         // 0..1
-        component Accept<Resource>: Temporary {
+        component Accept<Resource> : Transient {
             -> Pay<Resource>, -Resource // TODO: FROM; X
             // -Owed IF MAX 0 Owed:: -This
         }
@@ -207,11 +209,6 @@ abstract Component {
     component GlobalEffects {
         Purchase<BuildingTag>: Accept<Steel>
         Purchase<SpaceTag>: Accept<Titanium>
-    }
-
-    component Complete<GlobalParameter> {
-        GlobalParameter: Die
-        -GlobalParameter: Die
     }
 
     // TODO atomized?
@@ -258,7 +255,13 @@ abstract Component {
             This: Complete<VenusStep>
         }
 
-        }
+    }
+
+    // 0..1
+    component Complete<GlobalParameter> {
+        GlobalParameter: Die
+        -GlobalParameter: Die
+    }
 
     // 1..1
     component StandardAction {

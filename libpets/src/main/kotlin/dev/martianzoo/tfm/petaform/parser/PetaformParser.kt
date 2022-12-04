@@ -252,19 +252,26 @@ object PetaformParser {
             val defs = contents.filterIsInstance<Instruction>().toSet()
             val subs = contents.filterIsInstance<ComponentDecls>().toSet()
 
-            val cd = ComponentDecl(expr, abst, sups.toSet(), acts, effs, defs)
-            ComponentDecls((subs.flatMap { it.decls }.map { insertSupertype(it, expr) } + cd).toSet())
+            val cd = ComponentDecl(expr, false, abst, sups.toSet(), acts, effs, defs)
+            ComponentDecls(setOf(cd) + subs.flatMap { it.decls }.map { insertSupertype(it, expr) }.toSet())
         }
 
-    private fun insertSupertype(it: ComponentDecl, supertype: Expression) =
-        it.copy(supertypes = it.supertypes + Expression(supertype.rootType))
+    private fun insertSupertype(comp: ComponentDecl, supertype: Expression) =
+        if (comp.complete) {
+          comp
+        } else if (comp.supertypes.any { it.rootType == supertype.rootType }) { // TODO
+          comp.copy(complete = true)
+        } else {
+          comp.copy(supertypes = comp.supertypes + Expression(supertype.rootType), complete = true)
+        }
 
     internal val componentDeclaration: Parser<ComponentDecls> =
         optional(singleComponent) map { it ?: ComponentDecls() }
 
-    internal val components: Parser<ComponentDecls> = separatedTerms(componentDeclaration, newline) map {
-      ComponentDecls(it.flatMap(ComponentDecls::decls).toSet())
-    }
+    internal val components: Parser<ComponentDecls> =
+        separatedTerms(componentDeclaration, newline) map {
+          ComponentDecls(it.flatMap(ComponentDecls::decls).map { it.copy(complete=true) }.toSet())
+        }
   }
 
   internal val components = publish(ComponentStuff.components)

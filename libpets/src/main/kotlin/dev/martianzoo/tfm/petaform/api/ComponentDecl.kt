@@ -6,6 +6,7 @@ package dev.martianzoo.tfm.petaform.api
  */
 data class ComponentDecl(
     val expression: Expression,
+    val complete: Boolean = true,
     val abstract: Boolean = false,
     val supertypes: Set<Expression> = setOf(),
     val actions: Set<Action> = setOf(),
