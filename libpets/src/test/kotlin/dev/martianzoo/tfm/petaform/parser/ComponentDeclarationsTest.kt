@@ -1,6 +1,5 @@
 package dev.martianzoo.tfm.petaform.parser
 
-import com.github.h0tk3y.betterParse.parser.parseToEnd
 import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.tfm.petaform.api.ComponentDecl
 import dev.martianzoo.tfm.petaform.api.ComponentDecls
@@ -17,21 +16,21 @@ class ComponentDeclarationsTest {
     val cs = parse<ComponentDecls>("""
         abstract One
     """)
-    assertThat(cs.decls).containsExactly(ComponentDecl(Expression("One"), true))
+    assertThat(cs.decls).containsExactly(ComponentDecl(Expression("One"), abstract=true))
   }
 
   @Test
   fun threeSimple() {
     val cs = parse<ComponentDecls>("""
         abstract One
-        abstract Two
+        component Two
 
         abstract Three
     """)
     assertThat(cs.decls).containsExactly(
-        ComponentDecl(Expression("One"), true),
-        ComponentDecl(Expression("Two"), true),
-        ComponentDecl(Expression("Three"), true),
+        ComponentDecl(Expression("One"), abstract=true),
+        ComponentDecl(Expression("Two"), abstract=false),
+        ComponentDecl(Expression("Three"), abstract=true),
     )
   }
 
@@ -40,8 +39,11 @@ class ComponentDeclarationsTest {
         component One : Two, Three
     """)
     assertThat(cs.decls).containsExactly(
-        ComponentDecl(Expression("One"), supertypes = setOf(
-            Expression("Two"), Expression("Three")))
+        ComponentDecl(
+            Expression("One"),
+            supertypes = setOf(
+                Expression("Two"), Expression("Three"))
+        )
     )
   }
 
@@ -50,8 +52,11 @@ class ComponentDeclarationsTest {
         component One<Two<Three>(HAS Four)> : Five(HAS 6 Seven), Eight<Nine>
     """)
     assertThat(cs.decls).containsExactly(
-        ComponentDecl(parse("One<Two<Three>(HAS Four)>"), supertypes = setOf(
-            parse("Five(HAS 6 Seven)"), parse("Eight<Nine>")))
+        ComponentDecl(
+            parse("One<Two<Three>(HAS Four)>"),
+            supertypes = setOf(
+                parse("Five(HAS 6 Seven)"), parse("Eight<Nine>"))
+        )
     )
   }
 
@@ -65,7 +70,7 @@ class ComponentDeclarationsTest {
     """)
     assertThat(cs.decls).containsExactly(
         ComponentDecl(parse("One")),
-        ComponentDecl(parse("Two"), supertypes = setOf(parse("One")), abstract = true),
+        ComponentDecl(parse("Two"), abstract = true, supertypes = setOf(parse("One"))),
         ComponentDecl(parse("Three"), supertypes = setOf(parse("One"), parse("Four"))),
     )
   }

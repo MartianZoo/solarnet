@@ -13,7 +13,7 @@ abstract Component {
       This: -This.
     }
     abstract Litter {
-      // This: (MAX 0 This: 0)
+      This: (MAX 0 This: 0)
     }
 
     abstract Phase { // 0..1 (insufficient)
@@ -128,7 +128,7 @@ abstract Component {
         component PlayedEvent
 
         abstract Cardbound<CardFront> {
-            // This:: (CardFront: 0)
+            This:: (CardFront: 0)
             -CardFront: -This // happens when becoming a PlayedEvent
 
             abstract Tag {
@@ -185,13 +185,13 @@ abstract Component {
 
         // 0..1 (insufficient)
         component Purchase<Component> : Ephemeral {
-//          This: (MAX 0 PayWall: Component) // TODO
+          This: (MAX 0 PayWall: Component)
         }
 
         // 0..1 (insufficient)
         component PlayCard: Purchase<CardFront> {
-//          This:: $handleRequirement(CardFront), Owed<Megacredit> / $costOf(CardFront)
-//          This: (MAX 0 PayWall: CardFront, -ProjectCard) // TODO
+//        This:: $handleRequirement(CardFront), Owed<Megacredit> / $costOf(CardFront)
+          This: (MAX 0 PayWall: (CardFront, -ProjectCard))
         }
 
         component Pay<Resource> : Ephemeral {

@@ -5,7 +5,6 @@ import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.canon.Canon.newComponentClassDefinitions
 import dev.martianzoo.tfm.petaform.api.ComponentDecls
 import dev.martianzoo.tfm.petaform.api.PetaformNode
-import dev.martianzoo.tfm.petaform.parser.PetaformParser
 import dev.martianzoo.tfm.petaform.parser.PetaformParser.parse
 import dev.martianzoo.tfm.types.ComponentClassLoader
 import org.junit.jupiter.api.Test

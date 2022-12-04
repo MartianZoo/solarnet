@@ -65,8 +65,7 @@ sealed class Instruction : PetaformNode() {
         else -> "$predicate"
       }
       val instr = when (instruction) {
-        is Or -> "(${instruction})"
-        is Multi -> "(${instruction})"
+        is Or, is Gated, is Multi -> "(${instruction})"
         else -> "$instruction"
       }
       return "$pred: $instr"

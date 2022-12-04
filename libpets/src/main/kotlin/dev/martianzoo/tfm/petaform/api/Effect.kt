@@ -1,12 +1,22 @@
 package dev.martianzoo.tfm.petaform.api
 
+import dev.martianzoo.tfm.petaform.api.Instruction.Gated
+
 data class Effect(
     val trigger: Trigger,
     val instruction: Instruction,
     val immediate: Boolean = false,
 ) : PetaformNode() {
   override val children = listOf(trigger, instruction)
-  override fun toString() = "${trigger}${if (immediate) "::" else ":"} ${instruction}"
+
+  override fun toString(): String {
+    val instext = when (instruction) {
+      is Gated -> "($instruction)"
+      else -> "$instruction"
+    }
+    return "${trigger}${if (immediate) "::" else ":"} $instext"
+  }
+
   override val hasProd = hasZeroOrOneProd(trigger, instruction)
 
   sealed class Trigger : PetaformNode() {

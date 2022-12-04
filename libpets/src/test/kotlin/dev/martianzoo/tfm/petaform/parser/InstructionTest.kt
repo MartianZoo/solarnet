@@ -107,6 +107,8 @@ class InstructionTest {
     testRoundTrip("Foo: (Bar, Baz)")
     testRoundTrip("(Foo: Bar), Baz")
     assertThrows<RuntimeException> { parse<Instruction>("Foo: Bar, Baz") }
+
+    testRoundTrip("Foo: (MAX 0 Bar: 0)")
   }
 
   private fun testRoundTrip(start: String, end: String = start) {

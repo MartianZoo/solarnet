@@ -223,7 +223,7 @@ object PetaformParser {
     private val trigger = publish(nonProdTrigger or prodTrigger)
 
     private val colons = (twoColons map { true }) or (colon map { false })
-    val effect = publish(trigger and colons and instruction map {
+    val effect = publish(trigger and colons and maybeGroup(instruction) map {
       (trig, immed, instr) -> Effect(trig, instr, immed)
     })
   }.effect)
@@ -252,7 +252,7 @@ object PetaformParser {
             val defs = contents.filterIsInstance<Instruction>().toSet()
             val subs = contents.filterIsInstance<ComponentDecls>().toSet()
 
-            val cd = ComponentDecl(expr, false, abst, sups.toSet(), acts, effs, defs)
+            val cd = ComponentDecl(expr, abst, sups.toSet(), acts, effs, defs, false)
             ComponentDecls(setOf(cd) + subs.flatMap { it.decls }.map { insertSupertype(it, expr) }.toSet())
         }
 
@@ -291,7 +291,11 @@ object PetaformParser {
     }
   }
 
-  private inline fun <reified T> group(contents: Parser<T>) = skip(leftParen) and contents and skip(rightParen)
+  private inline fun <reified T> group(contents: Parser<T>) =
+      skip(leftParen) and contents and skip(rightParen)
+
+  private inline fun <reified T> maybeGroup(contents: Parser<T>) =
+      group(contents) or contents
 
   private inline fun <reified P : PetaformNode> publish(parser: Parser<P>): Parser<P> {
     parsers[P::class] = parser
