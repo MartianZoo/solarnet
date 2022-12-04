@@ -9,7 +9,6 @@ sealed class Predicate : PetaformNode() {
     init { require(qe.scalar >= 0) }
     override val children = listOf(qe)
     override fun toString() = "$qe"
-    override val hasProd = false
   }
 
   data class Max(val qe: QuantifiedExpression) : Predicate() {
@@ -17,7 +16,6 @@ sealed class Predicate : PetaformNode() {
     init { require(qe.scalar >= 0) }
     override val children = listOf(qe)
     override fun toString() = "MAX ${qe.petaform(forceScalar = true)}"
-    override val hasProd = false
   }
 
   data class Or(val predicates: List<Predicate>) : Predicate() {
@@ -29,7 +27,6 @@ sealed class Predicate : PetaformNode() {
       // precedence is against us
       if (it is And) "(${it})" else "$it"
     }
-    override val hasProd = hasZeroOrOneProd(predicates)
   }
 
   data class And(val predicates: List<Predicate>) : Predicate() {
@@ -38,14 +35,12 @@ sealed class Predicate : PetaformNode() {
     init { require(predicates.size >= 2) }
     override val children = predicates
     override fun toString() = predicates.joinToString()
-    override val hasProd = hasZeroOrOneProd(predicates)
   }
 
-  data class Prod(val predicate: Predicate) : Predicate() {
-    init { require(!predicate.hasProd) }
+  data class Prod(val predicate: Predicate) : Predicate(), ProdBox {
     override val children = listOf(predicate)
     override fun toString() = "PROD[${predicate}]"
-    override val hasProd = true
+    override fun countProds() = super.countProds() + 1
   }
 
   companion object {

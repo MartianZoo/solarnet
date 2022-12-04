@@ -24,7 +24,6 @@ data class Expression(
           specializations.joinOrEmpty(surround = "<>") +
           predicates.map { "HAS $it" }.joinOrEmpty(surround = "()")
 
-  override val hasProd = false
 
   companion object {
     val DEFAULT = Expression("Megacredit")
@@ -33,7 +32,6 @@ data class Expression(
 
 data class RootType(val name: String) : PetaformNode() {
   override val children = listOf<PetaformNode>()
-  override val hasProd = false
   init {
     require(name.matches(Regex("^[A-Z][a-z][A-Za-z0-9_]*$"))) { name }
 //    require(ctypeName != "Production")

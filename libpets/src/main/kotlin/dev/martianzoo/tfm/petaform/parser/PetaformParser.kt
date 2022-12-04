@@ -42,12 +42,11 @@ import kotlin.reflect.cast
 object PetaformParser {
   inline fun <reified P : PetaformNode> parse(petaform: String) = parse(P::class, petaform)
 
-  fun <P : PetaformNode> getParser(type: KClass<P>) = parsers[type]!!
-
   fun <P : PetaformNode> parse(type: KClass<P>, petaform: String): P {
     val parser: Parser<PetaformNode> = parsers[type]!!
     try {
       val pet = parser.parse(petaform)
+      require(type == ComponentDecls::class || pet.countProds() <= 1) { petaform }
       return type.cast(pet)
     } catch (e: ParseException) {
       throw IllegalArgumentException("expecting ${type.simpleName}, input was: $petaform", e)

@@ -3,21 +3,18 @@ package dev.martianzoo.tfm.petaform.api
 data class Action(val cost: Cost?, val instruction: Instruction) : PetaformNode() {
   override val children = listOfNotNull(cost) + instruction
   override fun toString() = (cost?.let { "${cost} -> " } ?: "-> ") + instruction
-  override val hasProd = hasZeroOrOneProd(cost, instruction)
 
   sealed class Cost : PetaformNode() {
     data class Spend(val qe: QuantifiedExpression) : Cost() {
       constructor(expr: Expression, scalar: Int = 1) : this(QuantifiedExpression(expr, scalar))
       override val children = listOf(qe)
       override fun toString() = qe.toString()
-      override val hasProd = false
     }
 
     data class Multi(var costs: List<Cost>) : Cost() {
       init { require(costs.size >= 2) }
       override val children = costs
       override fun toString() = costs.joinToString()
-      override val hasProd = hasZeroOrOneProd(costs)
     }
 
     data class Or(var costs: List<Cost>) : Cost() {
@@ -27,14 +24,12 @@ data class Action(val cost: Cost?, val instruction: Instruction) : PetaformNode(
         // precedence is against us ...
         if (it is Multi) "(${it})" else "$it"
       }
-      override val hasProd = hasZeroOrOneProd(costs)
     }
 
-    data class Prod(val cost: Cost) : Cost() {
+    data class Prod(val cost: Cost) : Cost(), ProdBox {
       override val children = listOf(cost)
-      init { require(!cost.hasProd) }
       override fun toString() = "PROD[${cost}]"
-      override val hasProd = true
+      override fun countProds() = super.countProds() + 1
     }
 
     // can't do non-prod per prod yet
@@ -42,7 +37,6 @@ data class Action(val cost: Cost?, val instruction: Instruction) : PetaformNode(
       init { require(qe.scalar != 0) }
       override val children = listOf(cost, qe)
       override fun toString() = "$cost / $qe" // parens
-      override val hasProd = cost.hasProd
     }
   }
 

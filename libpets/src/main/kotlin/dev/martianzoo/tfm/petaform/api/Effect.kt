@@ -17,26 +17,21 @@ data class Effect(
     return "${trigger}${if (immediate) "::" else ":"} $instext"
   }
 
-  override val hasProd = hasZeroOrOneProd(trigger, instruction)
-
   sealed class Trigger : PetaformNode() {
     data class OnGain(val expression: Expression) : Trigger() {
       override val children = listOf(expression)
       override fun toString() = "$expression"
-      override val hasProd = false
     }
 
     data class OnRemove(val expression: Expression) : Trigger() {
       override val children = listOf(expression)
       override fun toString() = "-${expression}"
-      override val hasProd = false
     }
 
-    data class Prod(val trigger: Trigger) : Trigger() {
-      init { require(!trigger.hasProd) }
+    data class Prod(val trigger: Trigger) : Trigger(), ProdBox {
       override val children = listOf(trigger)
       override fun toString() = "PROD[${trigger}]"
-      override val hasProd = true
+      override fun countProds() = super.countProds() + 1
     }
   }
 }

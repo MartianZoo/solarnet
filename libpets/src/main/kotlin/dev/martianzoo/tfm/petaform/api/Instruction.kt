@@ -7,7 +7,6 @@ sealed class Instruction : PetaformNode() {
     init { qe.scalar >= 0 }
     override val children = listOf(qe)
     override fun toString() = "${qe}${intensity?.petaform ?: ""}"
-    override val hasProd = false
   }
 
   data class Remove(val qe: QuantifiedExpression, val intensity: Intensity? = null) : Instruction() {
@@ -16,7 +15,6 @@ sealed class Instruction : PetaformNode() {
     init { qe.scalar >= 0 }
     override val children = listOf(qe)
     override fun toString() = "-${qe}${intensity?.petaform ?: ""}"
-    override val hasProd = false
   }
 
   data class Multi(var instructions: List<Instruction>) : Instruction() {
@@ -24,7 +22,6 @@ sealed class Instruction : PetaformNode() {
     override fun toString() = instructions.joinToString {
       it.toStringWithin(this)
     }
-    override val hasProd = hasZeroOrOneProd(instructions)
     override fun precedence() = 1
   }
 
@@ -33,21 +30,18 @@ sealed class Instruction : PetaformNode() {
     override fun toString() = instructions.joinToString(" OR ") {
       it.toStringWithin(this)
     }
-    override val hasProd = hasZeroOrOneProd(instructions)
     override fun precedence() = 3
   }
 
-  data class Prod(val instruction: Instruction) : Instruction() {
-    init { require(!instruction.hasProd) }
+  data class Prod(val instruction: Instruction) : Instruction(), ProdBox {
     override val children = listOf(instruction)
     override fun toString() = "PROD[$instruction]"
-    override val hasProd = true
+    override fun countProds() = super.countProds() + 1
   }
 
   data class Per(val instruction: Instruction, val qe: QuantifiedExpression): Instruction() {
     override val children = listOf(instruction, qe)
     override fun toString() = "$instruction / ${qe.petaform(forceExpression = true)}"
-    override val hasProd = instruction.hasProd
     override fun precedence() = 5
   }
 
@@ -63,7 +57,6 @@ sealed class Instruction : PetaformNode() {
       return "$pred: $instr"
     }
 
-    override val hasProd = hasZeroOrOneProd(predicate, instruction)
     override fun precedence() = 4
 
     // let's over-group for clarity
