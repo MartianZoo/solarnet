@@ -149,7 +149,7 @@ data class CardDefinition(
     when (set.size) {
       0 -> null
       1 -> set.iterator().next()
-      else -> Instruction.Multi(set.toList())
+      else -> Instruction.multi(set.toList())
     }
   }
   val actions by lazy { actionsPetaform.map { parse<Action>(it) }.toSet() }

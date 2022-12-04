@@ -7,7 +7,6 @@ import dev.martianzoo.tfm.petaform.api.Instruction.Gain
 import dev.martianzoo.tfm.petaform.api.Instruction.Remove
 import dev.martianzoo.tfm.petaform.parser.PetaformParser.parse
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
 
 class InstructionTest {
   @Test
@@ -42,7 +41,7 @@ class InstructionTest {
   fun testAndInstruction() {
     val instr = parse<Instruction>("-5 Heat, 4 Plant")
     assertThat(instr).isEqualTo(
-        Instruction.and(
+        Instruction.multi(
             Remove(Expression("Heat"), 5),
             Gain(Expression("Plant"), 4)
         ),
@@ -55,7 +54,7 @@ class InstructionTest {
     val instruction = parse<Instruction>(input)
     assertThat(instruction.toString()).isEqualTo(input)
     assertThat(instruction).isEqualTo(
-        Instruction.and(
+        Instruction.multi(
             Remove(Expression("Heat"), 5),
             Instruction.or(
                 Gain(Expression("Plant"), 4),
@@ -71,7 +70,7 @@ class InstructionTest {
     val instruction = parse<Instruction>(input)
     assertThat(instruction.toString()).isEqualTo(input)
     assertThat(instruction).isEqualTo(
-        Instruction.and(
+        Instruction.multi(
             Remove(Expression("Heat"), 1),
             Instruction.or(
                 Gain(Expression("Plant"), 4),
@@ -88,7 +87,7 @@ class InstructionTest {
     assertThat(instruction.toString()).isEqualTo(input)
     assertThat(instruction).isEqualTo(
         Instruction.or(
-            Instruction.and(
+            Instruction.multi(
                 Remove(Expression("Heat"), 5),
                 Gain(Expression("Plant"), 4)
             ),
@@ -102,11 +101,11 @@ class InstructionTest {
 
     testRoundTrip("Foo: (Bar OR Baz)")
     testRoundTrip("(Foo: Bar) OR Baz")
-    assertThrows<RuntimeException> { parse<Instruction>("Foo: Bar OR Baz") }
+    testRoundTrip("Foo: Bar OR Baz", "(Foo: Bar) OR Baz")
 
     testRoundTrip("Foo: (Bar, Baz)")
-    testRoundTrip("(Foo: Bar), Baz")
-    assertThrows<RuntimeException> { parse<Instruction>("Foo: Bar, Baz") }
+    testRoundTrip("Foo: Bar, Baz")
+    testRoundTrip("(Foo: Bar), Baz", "Foo: Bar, Baz")
 
     testRoundTrip("Foo: (MAX 0 Bar: 0)")
   }

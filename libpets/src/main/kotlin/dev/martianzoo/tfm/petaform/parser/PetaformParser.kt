@@ -14,6 +14,7 @@ import com.github.h0tk3y.betterParse.lexer.regexToken
 import com.github.h0tk3y.betterParse.parser.ParseException
 import com.github.h0tk3y.betterParse.parser.Parser
 import com.github.h0tk3y.betterParse.parser.parseToEnd
+import com.github.h0tk3y.betterParse.utils.Tuple2
 import dev.martianzoo.tfm.petaform.api.Action
 import dev.martianzoo.tfm.petaform.api.Action.Cost
 import dev.martianzoo.tfm.petaform.api.Action.Cost.Spend
@@ -28,6 +29,8 @@ import dev.martianzoo.tfm.petaform.api.Instruction
 import dev.martianzoo.tfm.petaform.api.Instruction.Gain
 import dev.martianzoo.tfm.petaform.api.Instruction.Gated
 import dev.martianzoo.tfm.petaform.api.Instruction.Intensity
+import dev.martianzoo.tfm.petaform.api.Instruction.Intensity.Companion.intensity
+import dev.martianzoo.tfm.petaform.api.Instruction.Per
 import dev.martianzoo.tfm.petaform.api.Instruction.Remove
 import dev.martianzoo.tfm.petaform.api.PetaformNode
 import dev.martianzoo.tfm.petaform.api.Predicate
@@ -81,7 +84,7 @@ object PetaformParser {
 
   private val prod = regex("\\bPROD\\b")
   private val max = regex("\\bMAX\\b")
-  private val or = regex("\\bOR\\b")
+  private val orToken = regex("\\bOR\\b")
   private val has = regex("\\bHAS\\b")
   private val component = regex("\\bcomponent\\b")
   private val abstract = regex("\\babstract\\b")
@@ -117,30 +120,27 @@ object PetaformParser {
 
   private val explicitScalar: Parser<Int> = scalar map { it.text.toInt() } // 3
   private val implicitScalar: Parser<Int> = optional(explicitScalar) map { it ?: 1 } // "", meaning 1
-  private val implicitExpression: Parser<Expression> = optional(expression) map { // "", meaning "Megacredit"
+  private val implicitType: Parser<Expression> = optional(expression) map { // "", meaning "Megacredit"
     it ?: Expression.DEFAULT
   }
-  // "1" or "1 Plant"
-  val qeWithExplicitScalar = explicitScalar and implicitExpression map {
+  val qeWithScalar = explicitScalar and implicitType map {
     (scalar, expr) -> QuantifiedExpression(expr, scalar)
   }
-  // "Plant" or "1 Plant"
-  val qeWithExplicitExpression = implicitScalar and expression map {
+  val qeWithType = implicitScalar and expression map {
     (scalar, expr) -> QuantifiedExpression(expr, scalar)
   }
-  // "1" or "Plant" or "1 Plant" -- if both rules would match it doesn't matter which
-  val quantifiedExpression = qeWithExplicitScalar or qeWithExplicitExpression
+  val qe = qeWithScalar or qeWithType
 
   val predicates = PredicateParsers().also { publish(it.predicate) }
   class PredicateParsers {
-    private val minPredicate = quantifiedExpression map Predicate::Min
-    private val maxPredicate = skip(max) and qeWithExplicitScalar map Predicate::Max
+    private val minPredicate = qe map Predicate::Min
+    private val maxPredicate = skip(max) and qeWithScalar map Predicate::Max
     private val prodPredicate = prodBox(parser { predicate }) map Predicate::Prod
     private val onePredicate: Parser<Predicate> = minPredicate or maxPredicate or prodPredicate
 
     // OR binds more tightly than ,
     private val bareOrPredicate =
-        separatedMultiple(onePredicate or parser { groupedAndPredicate }, or) map Predicate::Or
+        separatedMultiple(onePredicate or parser { groupedAndPredicate }, orToken) map Predicate::Or
     private val bareAndPredicate =
         separatedMultiple(bareOrPredicate or onePredicate, comma) map Predicate::And
 
@@ -151,63 +151,59 @@ object PetaformParser {
   }
   val predicate = predicates.predicate
 
+  // slash > gate > or > then > comma -- keep in sync with Instruction.precedence()
   private val instruction = publish(
       object {
-        private val intensity = optional(bang or dot or questy) map {
-          it?.let { Intensity.forSymbol(it.text) }
+
+        // Atoms
+        val intensity = optional(bang or dot or questy) map { intensity(it?.text) }
+        val gain = qe and intensity map { gain(it) }
+        val remove = skip(minus) and qe and intensity map { remove(it) }
+        val atom = gain or remove
+
+        // Reentrancy
+        val anyInstr: Parser<Instruction> = parser { instruction }
+        val anyGroup = group(anyInstr)
+
+        // Slash binds most tightly
+        val maybePer = atom and optional(skip(slash) and qeWithType) map { (instr, qe) ->
+          if (qe == null) instr else Per(instr, qe)
         }
-        private val gainInstruction = quantifiedExpression and intensity map {
-          (qe, intens) -> Gain(qe, intens)
-        }
-        private val removeInstruction = skip(minus) and quantifiedExpression and intensity map {
-          (qe, intens) -> Remove(qe, intens)
-        }
-        private val prodInstruction: Parser<Instruction> =
-            prodBox(parser { instruction }) map Instruction::Prod
-        private val perableInstruction = gainInstruction or removeInstruction or prodInstruction
 
-        // for now, can't contain an Or/Multi; will have to be distributed
-        private val perInstruction = perableInstruction and skip(slash) and qeWithExplicitExpression map {
-          (instr, qe) -> Instruction.Per(instr, qe)
-        }
-        val maybePerInstruction = perInstruction or perableInstruction
+        // Prod can wrap anything as it is self-grouping
+        val maybeProd = maybePer or (prodBox(anyInstr) map Instruction::Prod)
 
-        private val bareGatedInstruction =
-            predicates.safePredicate and
-            skip(colon) and
-            parser { safeInstruction } map { (pred, instr) -> Gated(pred, instr) }
-        private val groupedGatedInstruction = group(bareGatedInstruction)
-        private val oneInstruction: Parser<Instruction> = maybePerInstruction or groupedGatedInstruction
+        // Gating colon binds next
+        val gateable = maybeProd or anyGroup
+        val gated = predicates.safePredicate and skip(colon) and gateable map { gated(it) }
+        val maybeGated = gated or maybeProd
 
-        // OR binds more tightly than ,
-        val orTerm = oneInstruction or parser { groupedMultiInstruction }
-        private val orInstruction = separatedMultiple(orTerm, or) map Instruction::Or
+        // Then OR
+        val orTerm = maybeGated or anyGroup
+        val orInstr = separatedMultiple(orTerm, orToken) map Instruction::or
+        val maybeOr = orInstr or maybeGated
 
-        val multiTerm = orInstruction or oneInstruction
-        private val multiInstruction: Parser<Instruction.Multi> =
-            separatedMultiple(multiTerm, comma) map Instruction::Multi
+        // Lastly the comma binds most loosely of all
+        val andTerm = maybeOr or anyGroup
+        val multi = separatedMultiple(andTerm, comma) map Instruction::multi
 
-        private val groupedMultiInstruction = group(multiInstruction)
-        private val safeInstruction = groupedMultiInstruction or group(orInstruction) or oneInstruction
-
-        val instruction =
-            multiInstruction or orInstruction or bareGatedInstruction or maybePerInstruction
+        val instruction = multi or maybeOr
       }.instruction,
   )
 
   val action = publish(object {
-    private val spendCost = quantifiedExpression map ::Spend
+    private val spendCost = qe map ::Spend
     private val prodCost: Parser<Cost.Prod> = prodBox(parser { cost }) map Cost::Prod
     private val perableCost = spendCost or prodCost
 
     // for now, a per can't contain an Or/Multi; will have to be distributed
-    private val perCost = perableCost and skip(slash) and qeWithExplicitExpression map {
+    private val perCost = perableCost and skip(slash) and qeWithType map {
       (cost, qe) -> Cost.Per(cost, qe)
     }
     private val oneCost = perCost or perableCost
 
     // OR binds more tightly than ,
-    private val orCost = separatedMultiple(oneCost or group(parser { multiCost }), or) map Cost::Or
+    private val orCost = separatedMultiple(oneCost or group(parser { multiCost }), orToken) map Cost::Or
     private val multiCost: Parser<Cost.Multi> = separatedMultiple(orCost or oneCost, comma) map Cost::Multi
 
     private val cost = multiCost or orCost or oneCost
@@ -229,22 +225,22 @@ object PetaformParser {
   }.effect)
 
   object ComponentStuff {
-    internal val isAbstract: Parser<Boolean> = (component map {false}) or (abstract map {true})
-    //private val multiComponentLine: Parser<ComponentDecls> =
-    //    isAbstract and separatedMultiple(expression, comma) and skip(newline) map {
+    val isAbstract: Parser<Boolean> = (component map {false}) or (abstract map {true})
+    //  val multiComponentLine: Parser<ComponentDecls> =
+    //  isAbstract and separatedMultiple(expression, comma) and skip(newline) map {
     //  (abst, exprs) -> ComponentDecls(exprs.map { ComponentDecl(it, abst) }.toSet())
     //}
 
-    internal val defaultSpec = skip(default) and instruction
-    internal val componentContent: Parser<PetaformNode> =
+    val defaultSpec = skip(default) and instruction
+    val componentContent: Parser<PetaformNode> =
         defaultSpec or action or effect or parser { componentDeclaration }
 
     val contents = separatedTerms(optional(componentContent), newline) map { it.filterNotNull() }
-    internal val body: Parser<List<PetaformNode>> =
+    val body: Parser<List<PetaformNode>> =
         optionalList(skip(leftBrace and newline) and contents and skip(rightBrace))
 
-    internal val supertypes = optionalList(skip(colon) and separatedTerms(expression, comma))
-    internal val singleComponent: Parser<ComponentDecls> =
+    val supertypes = optionalList(skip(colon) and separatedTerms(expression, comma))
+    val singleComponent: Parser<ComponentDecls> =
         isAbstract and expression and supertypes and body map {
           (abst, expr, sups, contents) ->
             val acts = contents.filterIsInstance<Action>().toSet()
@@ -265,19 +261,23 @@ object PetaformParser {
           comp.copy(supertypes = comp.supertypes + Expression(supertype.rootType), complete = true)
         }
 
-    internal val componentDeclaration: Parser<ComponentDecls> =
+    val componentDeclaration: Parser<ComponentDecls> =
         optional(singleComponent) map { it ?: ComponentDecls() }
 
-    internal val components: Parser<ComponentDecls> =
+    val components: Parser<ComponentDecls> =
         separatedTerms(componentDeclaration, newline) map {
           ComponentDecls(it.flatMap(ComponentDecls::decls).map { it.copy(complete=true) }.toSet())
         }
   }
 
-  internal val components = publish(ComponentStuff.components)
+  val components = publish(ComponentStuff.components)
 
   private fun regex(r: String, ignore: Boolean = false) = regexToken(r, ignore).also { tokens += it }
   private fun literal(l: String, ignore: Boolean = false) = literalToken(l, ignore).also { tokens += it }
+
+  private fun gated(pair: Tuple2<Predicate, Instruction>) = Gated(pair.t1, pair.t2)
+  private fun gain(pair: Tuple2<QuantifiedExpression, Intensity?>) = Gain(pair.t1, pair.t2)
+  private fun remove(pair: Tuple2<QuantifiedExpression, Intensity?>) = Remove(pair.t1, pair.t2)
 
   private inline fun <reified T> optionalList(parser: Parser<List<T>>) =
       optional(parser) map { it ?: listOf() }
