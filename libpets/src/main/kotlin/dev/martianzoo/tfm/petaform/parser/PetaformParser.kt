@@ -17,6 +17,8 @@ import com.github.h0tk3y.betterParse.parser.parseToEnd
 import dev.martianzoo.tfm.petaform.api.Action
 import dev.martianzoo.tfm.petaform.api.Action.Cost
 import dev.martianzoo.tfm.petaform.api.Action.Cost.Spend
+import dev.martianzoo.tfm.petaform.api.ComponentDecl
+import dev.martianzoo.tfm.petaform.api.ComponentDecls
 import dev.martianzoo.tfm.petaform.api.Effect
 import dev.martianzoo.tfm.petaform.api.Effect.Trigger
 import dev.martianzoo.tfm.petaform.api.Effect.Trigger.OnGain
@@ -35,9 +37,6 @@ import kotlin.reflect.KClass
 import kotlin.reflect.cast
 
 object PetaformParser {
-  @Suppress("UNCHECKED_CAST")
-  inline fun <reified P : PetaformNode> getParser() = getParser(P::class) as Parser<P>
-
   inline fun <reified P : PetaformNode> parse(petaform: String) = parse(P::class, petaform)
 
   fun <P : PetaformNode> getParser(type: KClass<P>) = parsers[type]!!
@@ -45,17 +44,20 @@ object PetaformParser {
   fun <P : PetaformNode> parse(type: KClass<P>, petaform: String): P {
     val parser: Parser<PetaformNode> = parsers[type]!!
     try {
-      val pet = parser.parseToEnd(DefaultTokenizer(tokens).tokenize(petaform))
+      val pet = parser.parse(petaform)
       return type.cast(pet)
     } catch (e: ParseException) {
       throw IllegalArgumentException("expecting ${type.simpleName}, input was: $petaform", e)
     }
   }
 
+  fun <T> Parser<T>.parse(petaform: String) =
+      parseToEnd(DefaultTokenizer(tokens).tokenize(petaform))
+
   private val tokens = mutableListOf<Token>()
 
   private val comment = regex("//[^\n]*", ignore = true)
-  private val whitespace = regex("\\s+", ignore = true)
+  private val whitespace = regex(" +", ignore = true)
 
   private val arrow = literal("->")
   private val twoColons = literal("::")
@@ -73,32 +75,39 @@ object PetaformParser {
   private val rightAngle = literal(">")
   private val leftBracket = literal("[")
   private val rightBracket = literal("]")
+  private val leftBrace = literal("{")
+  private val rightBrace = literal("}")
+  private val newline = literal("\n")
 
   private val prod = regex("\\bPROD\\b")
   private val max = regex("\\bMAX\\b")
   private val or = regex("\\bOR\\b")
   private val has = regex("\\bHAS\\b")
+  private val component = regex("\\bcomponent\\b")
+  private val abstract = regex("\\babstract\\b")
+  private val default = regex("\\bdefault\\b")
 
   private val scalar = regex("\\b(0|[1-9][0-9]*)\\b")
   private val ident = regex("\\b[A-Z][a-z][A-Za-z0-9_]*\\b")
 
   private val parsers = mutableMapOf<KClass<out PetaformNode>, Parser<PetaformNode>>()
 
-  val prodStart = prod and leftBracket
-  val prodEnd = rightBracket
+  private val prodStart = prod and leftBracket
+  private val prodEnd = rightBracket
+
+  private val rootType: Parser<RootType> = ident map { RootType(it.text) } // Plant
 
   val expression = publish(object {
-    private val rootType: Parser<RootType> = ident map { RootType(it.text) } // Plant
 
     private val specializations: Parser<List<Expression>> = // <Player1, LandArea>
         skip(leftAngle) and
         separatedTerms(parser { expression }, comma) and
         skip(rightAngle)
-    private val optionalSpecializations = optional(specializations) map { it ?: listOf() }
+    private val optionalSpecializations = optionalList(specializations)
 
     private val hazzer = skip(has) and parser { predicate }
     private val predicates: Parser<List<Predicate>> = group(separatedTerms(hazzer, comma))
-    private val optionalPredicates = optional(predicates) map { it ?: listOf() }
+    private val optionalPredicates = optionalList(predicates)
 
     // CityTile<Player1, LandArea>(HAS blahblah)
     val expression = rootType and optionalSpecializations and optionalPredicates map {
@@ -135,8 +144,8 @@ object PetaformParser {
     private val bareAndPredicate =
         separatedMultiple(bareOrPredicate or onePredicate, comma) map Predicate::And
 
-    val groupedAndPredicate: Parser<Predicate> = group(bareAndPredicate)
-    val groupedOrPredicate = group(bareOrPredicate)
+    private val groupedAndPredicate: Parser<Predicate> = group(bareAndPredicate)
+    private val groupedOrPredicate = group(bareOrPredicate)
     val predicate: Parser<Predicate> = bareAndPredicate or bareOrPredicate or onePredicate
     val safePredicate = groupedAndPredicate or groupedOrPredicate or onePredicate
   }
@@ -147,7 +156,6 @@ object PetaformParser {
         private val intensity = optional(bang or dot or questy) map {
           it?.let { Intensity.forSymbol(it.text) }
         }
-
         private val gainInstruction = quantifiedExpression and intensity map {
           (qe, intens) -> Gain(qe, intens)
         }
@@ -220,12 +228,55 @@ object PetaformParser {
     })
   }.effect)
 
+  object ComponentStuff {
+    internal val isAbstract: Parser<Boolean> = (component map {false}) or (abstract map {true})
+    //private val multiComponentLine: Parser<ComponentDecls> =
+    //    isAbstract and separatedMultiple(expression, comma) and skip(newline) map {
+    //  (abst, exprs) -> ComponentDecls(exprs.map { ComponentDecl(it, abst) }.toSet())
+    //}
+
+    internal val defaultSpec = skip(default) and instruction
+    internal val componentContent: Parser<PetaformNode> =
+        defaultSpec or action or effect or parser { componentDeclaration }
+
+    val contents = separatedTerms(optional(componentContent), newline) map { it.filterNotNull() }
+    internal val body: Parser<List<PetaformNode>> =
+        optionalList(skip(leftBrace and newline) and contents and skip(rightBrace))
+
+    internal val supertypes = optionalList(skip(colon) and separatedTerms(expression, comma))
+    internal val singleComponent: Parser<ComponentDecls> =
+        isAbstract and expression and supertypes and body map {
+          (abst, expr, sups, contents) ->
+            val acts = contents.filterIsInstance<Action>().toSet()
+            val effs = contents.filterIsInstance<Effect>().toSet()
+            val defs = contents.filterIsInstance<Instruction>().toSet()
+            val subs = contents.filterIsInstance<ComponentDecls>().toSet()
+
+            val cd = ComponentDecl(expr, abst, sups.toSet(), acts, effs, defs)
+            ComponentDecls((subs.flatMap { it.decls }.map { insertSupertype(it, expr) } + cd).toSet())
+        }
+
+    private fun insertSupertype(it: ComponentDecl, supertype: Expression) =
+        it.copy(supertypes = it.supertypes + Expression(supertype.rootType))
+
+    internal val componentDeclaration: Parser<ComponentDecls> =
+        optional(singleComponent) map { it ?: ComponentDecls() }
+
+    internal val components: Parser<ComponentDecls> = separatedTerms(componentDeclaration, newline) map {
+      ComponentDecls(it.flatMap(ComponentDecls::decls).toSet())
+    }
+  }
+
+  internal val components = publish(ComponentStuff.components)
+
   private fun regex(r: String, ignore: Boolean = false) = regexToken(r, ignore).also { tokens += it }
   private fun literal(l: String, ignore: Boolean = false) = literalToken(l, ignore).also { tokens += it }
 
-  private inline fun <reified T> prodBox(parser: Parser<T>): Parser<T> {
-    return skip(prodStart) and parser and skip(prodEnd)
-  }
+  private inline fun <reified T> optionalList(parser: Parser<List<T>>) =
+      optional(parser) map { it ?: listOf() }
+
+  private inline fun <reified T> prodBox(parser: Parser<T>) =
+      skip(prodStart) and parser and skip(prodEnd)
 
   private inline fun <reified T> separatedMultiple(term: Parser<T>, sep: Token): Parser<List<T>> {
     return term and skip(sep) and separatedTerms(term, sep) map { (first, rest) ->

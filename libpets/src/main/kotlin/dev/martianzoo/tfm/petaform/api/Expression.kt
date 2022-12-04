@@ -36,7 +36,7 @@ data class RootType(val ctypeName: String) : PetaformNode() {
   override val hasProd = false
   init {
     require(ctypeName.matches(Regex("^[A-Z][a-z][A-Za-z0-9_]*$"))) { ctypeName }
-    require(ctypeName != "Production")
+//    require(ctypeName != "Production")
   }
   override fun toString() = ctypeName
 }

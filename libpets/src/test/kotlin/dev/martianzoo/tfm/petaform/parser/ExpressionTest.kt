@@ -37,13 +37,7 @@ class ExpressionTest {
 
   @Test
   fun complexSourceToApi() {
-    val parsed: Expression = PetaformParser.parse(
-        """
-      Red<  // comment works
-         Blue  < This,Teal>
-        , Gold >
-    """
-    )
+    val parsed: Expression = PetaformParser.parse(" Red< Blue  < This,Teal> , Gold > ")
     assertThat(parsed).isEqualTo(
         Expression(
             "Red",

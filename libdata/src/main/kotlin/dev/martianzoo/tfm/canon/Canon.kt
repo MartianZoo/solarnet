@@ -30,6 +30,8 @@ object Canon {
     }
   }
 
+  val newStyleComponents = readResource("components.pets")
+
   private fun readResource(filename: String): String {
     val dir = javaClass.packageName.replace('.', '/')
     return javaClass.getResource("/$dir/$filename")!!.readText()
