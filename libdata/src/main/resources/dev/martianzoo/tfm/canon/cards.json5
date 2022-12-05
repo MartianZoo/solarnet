@@ -178,6 +178,20 @@
       "resourceType": "Asteroid",
     },
 
+    // Pharmacy Union[F]
+    {
+      "id": "XC8F",
+      "bundle": "X",
+      "deck": "CORPORATION",
+      "tags": [ "MicrobeTag", "MicrobeTag" ],
+      "immediate": [ "54, ProjectCard" ],
+      "effects": [
+          "MicrobeTag<Anyone>: Disease<This>, -4.",
+          "ScienceTag: TerraformRating FROM Disease<This> OR (=0 Disease<This>: ((PlayedEvent FROM This, 3 TerraformRating) OR Ok))"
+      ],
+      "resourceType": "Disease",
+    },
+
     // Allied Bank
     {
       "id": "P01",
