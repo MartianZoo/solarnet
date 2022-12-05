@@ -272,7 +272,7 @@ abstract Component {
             -> UseAction<StandardProject>
         }
         component UseCardAction {
-            -> CardUsed<CardFront>, UseAction<CardFront> // THEN?
+            -> CardUsed<CardFront> THEN UseAction<CardFront>
         }
         component ConvertPlants {
             8 Plant -> GreeneryTile

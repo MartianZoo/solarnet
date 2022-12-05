@@ -19,7 +19,7 @@ sealed class Instruction : PetaformNode() {
     override fun toString() = "-${qe}${intensity?.petaform ?: ""}"
   }
 
-  data class Multi(var instructions: List<Instruction>) : Instruction() {
+  data class Multi(val instructions: List<Instruction>) : Instruction() {
     override val children = instructions
     override fun toString() = instructions.joinToString {
       it.toStringWithin(this)
@@ -27,12 +27,21 @@ sealed class Instruction : PetaformNode() {
     override fun precedence() = 1
   }
 
-  data class Or(var instructions: List<Instruction>) : Instruction() {
+  data class Then(val cause: Instruction, val effect: Instruction): Instruction() {
+    override val children = listOf(cause, effect)
+    override fun toString() = "${cause.toStringWithin(this)} THEN ${effect.toStringWithin(this)}"
+    override fun precedence() = 2
+  }
+
+  data class Or(val instructions: List<Instruction>) : Instruction() {
     override val children = instructions
     override fun toString() = instructions.joinToString(" OR ") {
       it.toStringWithin(this)
     }
     override fun precedence() = 3
+    override fun groupWithin(container: Instruction): Boolean {
+      return container is Then || super.groupWithin(container)
+    }
   }
 
   data class Prod(val instruction: Instruction) : Instruction(), ProdBox {

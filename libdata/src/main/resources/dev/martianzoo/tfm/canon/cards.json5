@@ -78,7 +78,7 @@
       "deck": "CORPORATION",
       "tags": [ "MicrobeTag", "BuildingTag" ],
       "immediate": [ "38, PROD[Steel]" ],
-      "effects": [ "BuildingTag: Microbe<This> OR (-2 Microbe<This>, PROD[Plant])" ], // TODO THEN
+      "effects": [ "BuildingTag: Microbe<This> OR (-2 Microbe<This> THEN PROD[Plant])" ],
       "resourceType": "Microbe",
     },
 

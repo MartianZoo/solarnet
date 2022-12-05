@@ -5,8 +5,11 @@ import dev.martianzoo.tfm.petaform.api.Expression
 import dev.martianzoo.tfm.petaform.api.Instruction
 import dev.martianzoo.tfm.petaform.api.Instruction.Gain
 import dev.martianzoo.tfm.petaform.api.Instruction.Remove
+import dev.martianzoo.tfm.petaform.api.PetaformNode
 import dev.martianzoo.tfm.petaform.parser.PetaformParser.parse
 import org.junit.jupiter.api.Test
+import kotlin.random.Random
+import kotlin.reflect.KClass
 
 class InstructionTest {
   @Test
@@ -106,6 +109,20 @@ class InstructionTest {
     testRoundTrip("Foo: (Bar, Baz)")
     testRoundTrip("Foo: Bar, Baz")
     testRoundTrip("(Foo: Bar), Baz", "Foo: Bar, Baz")
+
+    testRoundTrip("Foo: (MAX 0 Bar: 0)")
+  }
+
+  @Test fun then() {
+    testRoundTrip("Foo THEN Bar")
+
+    testRoundTrip("Foo THEN (Bar OR Baz)")
+    testRoundTrip("(Foo THEN Bar) OR Baz")
+    testRoundTrip("Foo THEN Bar OR Baz", "Foo THEN (Bar OR Baz)")
+
+    testRoundTrip("Foo THEN (Bar, Baz)")
+    testRoundTrip("Foo THEN Bar, Baz")
+    testRoundTrip("(Foo THEN Bar), Baz", "Foo THEN Bar, Baz")
 
     testRoundTrip("Foo: (MAX 0 Bar: 0)")
   }

@@ -32,6 +32,7 @@ import dev.martianzoo.tfm.petaform.api.Instruction.Intensity
 import dev.martianzoo.tfm.petaform.api.Instruction.Intensity.Companion.intensity
 import dev.martianzoo.tfm.petaform.api.Instruction.Per
 import dev.martianzoo.tfm.petaform.api.Instruction.Remove
+import dev.martianzoo.tfm.petaform.api.Instruction.Then
 import dev.martianzoo.tfm.petaform.api.PetaformNode
 import dev.martianzoo.tfm.petaform.api.Predicate
 import dev.martianzoo.tfm.petaform.api.QuantifiedExpression
@@ -81,10 +82,11 @@ object PetaformParser {
   private val rightBrace = literal("}")
   private val newline = literal("\n")
 
-  private val prodToken = regex("\\bPROD\\b")
+  private val hasToken = regex("\\bHAS\\b")
   private val maxToken = regex("\\bMAX\\b")
   private val orToken = regex("\\bOR\\b")
-  private val hasToken = regex("\\bHAS\\b")
+  private val prodToken = regex("\\bPROD\\b")
+  private val thenToken = regex("\\bTHEN\\b")
 
   private val component = regex("\\bcomponent\\b")
   private val abstract = regex("\\babstract\\b")
@@ -185,11 +187,16 @@ object PetaformParser {
         val orInstr = separatedMultiple(orTerm, orToken) map Instruction::or
         val maybeOr = orInstr or maybeGated
 
+        // Then THEN
+        val thenTerm = maybeOr or anyGroup
+        val thenInstr = thenTerm and skip(thenToken) and thenTerm map { (one, two) -> Then(one, two) }
+        val maybeThen = thenInstr or maybeOr
+
         // Lastly the comma binds most loosely of all
-        val andTerm = maybeOr or anyGroup
+        val andTerm = maybeThen or anyGroup
         val multi = separatedMultiple(andTerm, comma) map Instruction::multi
 
-        val instruction = multi or maybeOr
+        val instruction = multi or maybeThen
       }.instruction,
   )
 
