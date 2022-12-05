@@ -81,10 +81,11 @@ object PetaformParser {
   private val rightBrace = literal("}")
   private val newline = literal("\n")
 
-  private val prod = regex("\\bPROD\\b")
-  private val max = regex("\\bMAX\\b")
+  private val prodToken = regex("\\bPROD\\b")
+  private val maxToken = regex("\\bMAX\\b")
   private val orToken = regex("\\bOR\\b")
-  private val has = regex("\\bHAS\\b")
+  private val hasToken = regex("\\bHAS\\b")
+
   private val component = regex("\\bcomponent\\b")
   private val abstract = regex("\\babstract\\b")
   private val default = regex("\\bdefault\\b")
@@ -94,7 +95,7 @@ object PetaformParser {
 
   private val parsers = mutableMapOf<KClass<out PetaformNode>, Parser<PetaformNode>>()
 
-  private val prodStart = prod and leftBracket
+  private val prodStart = prodToken and leftBracket
   private val prodEnd = rightBracket
 
   private val rootType: Parser<RootType> = ident map { RootType(it.text) } // Plant
@@ -107,7 +108,7 @@ object PetaformParser {
         skip(rightAngle)
     private val optionalSpecializations = optionalList(specializations)
 
-    private val hazzer = skip(has) and parser { predicate }
+    private val hazzer = skip(hasToken) and parser { predicate }
     private val predicates: Parser<List<Predicate>> = group(separatedTerms(hazzer, comma))
     private val optionalPredicates = optionalList(predicates)
 
@@ -131,22 +132,30 @@ object PetaformParser {
   val qe = qeWithScalar or qeWithType
 
   val predicates = PredicateParsers().also { publish(it.predicate) }
+
   class PredicateParsers {
-    private val minPredicate = qe map Predicate::Min
-    private val maxPredicate = skip(max) and qeWithScalar map Predicate::Max
-    private val prodPredicate = prodBox(parser { predicate }) map Predicate::Prod
-    private val onePredicate: Parser<Predicate> = minPredicate or maxPredicate or prodPredicate
+
+    // Reentrancy
+    val anyPred: Parser<Predicate> = parser { predicate }
+    val anyGroup = group(anyPred)
+
+    //Atoms
+    val min = qe map Predicate::Min
+    val max = skip(maxToken) and qeWithScalar map Predicate::Max
+    val atom = min or max
+
+    // Prod can wrap anything as it is self-grouping
+    val prod = prodBox(anyPred) map Predicate::Prod
 
     // OR binds more tightly than ,
-    private val bareOrPredicate =
-        separatedMultiple(onePredicate or parser { groupedAndPredicate }, orToken) map Predicate::Or
-    private val bareAndPredicate =
-        separatedMultiple(bareOrPredicate or onePredicate, comma) map Predicate::And
+    val orTerm = atom or prod
 
-    private val groupedAndPredicate: Parser<Predicate> = group(bareAndPredicate)
-    private val groupedOrPredicate = group(bareOrPredicate)
-    val predicate: Parser<Predicate> = bareAndPredicate or bareOrPredicate or onePredicate
-    val safePredicate = groupedAndPredicate or groupedOrPredicate or onePredicate
+    // Lastly the comma binds most loosely of all
+    val andTerm = separatedTerms(orTerm or anyGroup, orToken) map Predicate::or
+    val whole = separatedTerms(andTerm or anyGroup, comma) map Predicate::and
+
+    val safePredicate = anyGroup or orTerm
+    val predicate: Parser<Predicate> = whole or safePredicate
   }
   val predicate = predicates.predicate
 
