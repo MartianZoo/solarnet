@@ -1,5 +1,7 @@
 package dev.martianzoo.tfm.petaform.api
 
+import kotlin.Int.Companion.MAX_VALUE
+
 sealed class Instruction : PetaformNode() {
   data class Gain(val qe: QuantifiedExpression, val intensity: Intensity? = null) : Instruction() {
     constructor(expr: Expression, scalar: Int = 1, intensity: Intensity? = null) :
@@ -40,6 +42,7 @@ sealed class Instruction : PetaformNode() {
   }
 
   data class Per(val instruction: Instruction, val qe: QuantifiedExpression): Instruction() {
+    init { require(qe.scalar != 0) }
     override val children = listOf(instruction, qe)
     override fun toString() = "$instruction / ${qe.petaform(forceExpression = true)}"
     override fun precedence() = 5
@@ -100,10 +103,7 @@ sealed class Instruction : PetaformNode() {
         }
   }
 
-  open fun precedence(): Int = 99
-
-  fun toStringWithin(container: Instruction) =
-      if (groupWithin(container)) "(${this})" else "$this"
-
+  open fun precedence(): Int = MAX_VALUE
+  fun toStringWithin(container: Instruction) = if (groupWithin(container)) "(${this})" else "$this"
   open fun groupWithin(container: Instruction) = precedence() <= container.precedence()
 }

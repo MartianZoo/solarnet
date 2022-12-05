@@ -24,9 +24,9 @@ sealed class Predicate : PetaformNode() {
     init { require(predicates.size >= 2) }
     override val children = predicates
     override fun toString() = predicates.joinToString(" OR ") {
-      // precedence is against us
-      if (it is And) "(${it})" else "$it"
+      it.toStringWithin(this)
     }
+    override fun precedence() = 3
   }
 
   data class And(val predicates: List<Predicate>) : Predicate() {
@@ -34,7 +34,10 @@ sealed class Predicate : PetaformNode() {
         this(Lists.asList(pred1, pred2, rest))
     init { require(predicates.size >= 2) }
     override val children = predicates
-    override fun toString() = predicates.joinToString()
+    override fun toString() = predicates.joinToString() {
+      it.toStringWithin(this)
+    }
+    override fun precedence() = 1
   }
 
   data class Prod(val predicate: Predicate) : Predicate(), ProdBox {
@@ -50,4 +53,8 @@ sealed class Predicate : PetaformNode() {
     fun or(predicates: List<Predicate>) =
         if (predicates.size == 1) predicates[0] else Or(predicates)
   }
+
+  open fun precedence(): Int = Int.MAX_VALUE
+  fun toStringWithin(container: Predicate) = if (groupWithin(container)) "(${this})" else "$this"
+  open fun groupWithin(container: Predicate) = precedence() <= container.precedence()
 }

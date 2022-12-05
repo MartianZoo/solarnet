@@ -134,24 +134,18 @@ object PetaformParser {
   val predicates = PredicateParsers().also { publish(it.predicate) }
 
   class PredicateParsers {
-
-    // Reentrancy
     val anyPred: Parser<Predicate> = parser { predicate }
     val anyGroup = group(anyPred)
 
-    //Atoms
     val min = qe map Predicate::Min
     val max = skip(maxToken) and qeWithScalar map Predicate::Max
     val atom = min or max
 
-    // Prod can wrap anything as it is self-grouping
     val prod = prodBox(anyPred) map Predicate::Prod
 
-    // OR binds more tightly than ,
     val orTerm = atom or prod
-
-    // Lastly the comma binds most loosely of all
     val andTerm = separatedTerms(orTerm or anyGroup, orToken) map Predicate::or
+
     val whole = separatedTerms(andTerm or anyGroup, comma) map Predicate::and
 
     val safePredicate = anyGroup or orTerm
@@ -173,9 +167,9 @@ object PetaformParser {
         val anyInstr: Parser<Instruction> = parser { instruction }
         val anyGroup = group(anyInstr)
 
-        // Slash binds most tightly
-        val maybePer = atom and optional(skip(slash) and qeWithType) map { (instr, qe) ->
-          if (qe == null) instr else Per(instr, qe)
+        // Slash binds most tightly (for now)
+        val maybePer = atom and optional(skip(slash) and qeWithType) map {
+          (instr, qe) -> if (qe == null) instr else Per(instr, qe)
         }
 
         // Prod can wrap anything as it is self-grouping
@@ -200,22 +194,18 @@ object PetaformParser {
   )
 
   val action = publish(object {
-    private val spendCost = qe map ::Spend
-    private val prodCost: Parser<Cost.Prod> = prodBox(parser { cost }) map Cost::Prod
-    private val perableCost = spendCost or prodCost
+    val anyCost: Parser<Cost> = parser { cost }
+    val anyGroup = group(anyCost)
 
-    // for now, a per can't contain an Or/Multi; will have to be distributed
-    private val perCost = perableCost and skip(slash) and qeWithType map {
-      (cost, qe) -> Cost.Per(cost, qe)
+    val spend = qe map ::Spend
+    val maybeProd = spend or (prodBox(anyCost) map Cost::Prod)
+    val perCost = maybeProd and optional(skip(slash) and qeWithType) map { (cost, qe) ->
+      if (qe == null) cost else Cost.Per(cost, qe)
     }
-    private val oneCost = perCost or perableCost
+    val orCost = separatedTerms(perCost or anyGroup, orToken) map Cost::or
+    val cost = separatedTerms(orCost or anyGroup, comma) map Cost::and
 
-    // OR binds more tightly than ,
-    private val orCost = separatedMultiple(oneCost or group(parser { multiCost }), orToken) map Cost::Or
-    private val multiCost: Parser<Cost.Multi> = separatedMultiple(orCost or oneCost, comma) map Cost::Multi
-
-    private val cost = multiCost or orCost or oneCost
-
+    // Action
     val action = publish(optional(cost) and skip(arrow) and instruction map { (c, i) -> Action(c, i) })
   }.action)
 

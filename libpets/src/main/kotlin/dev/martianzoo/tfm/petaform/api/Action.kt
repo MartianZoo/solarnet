@@ -7,6 +7,7 @@ data class Action(val cost: Cost?, val instruction: Instruction) : PetaformNode(
   sealed class Cost : PetaformNode() {
     data class Spend(val qe: QuantifiedExpression) : Cost() {
       constructor(expr: Expression, scalar: Int = 1) : this(QuantifiedExpression(expr, scalar))
+
       override val children = listOf(qe)
       override fun toString() = qe.toString()
     }
@@ -14,16 +15,19 @@ data class Action(val cost: Cost?, val instruction: Instruction) : PetaformNode(
     data class Multi(var costs: List<Cost>) : Cost() {
       init { require(costs.size >= 2) }
       override val children = costs
-      override fun toString() = costs.joinToString()
+      override fun toString() = costs.joinToString() {
+        it.toStringWithin(this)
+      }
+      override fun precedence() = 1
     }
 
     data class Or(var costs: List<Cost>) : Cost() {
       init { require(costs.size >= 2) }
       override val children = costs
       override fun toString() = costs.joinToString(" OR ") {
-        // precedence is against us ...
-        if (it is Multi) "(${it})" else "$it"
+        it.toStringWithin(this)
       }
+      override fun precedence() = 3
     }
 
     data class Prod(val cost: Cost) : Cost(), ProdBox {
@@ -37,28 +41,36 @@ data class Action(val cost: Cost?, val instruction: Instruction) : PetaformNode(
       init { require(qe.scalar != 0) }
       override val children = listOf(cost, qe)
       override fun toString() = "$cost / $qe" // parens
+      override fun precedence() = 5
     }
-  }
 
-  companion object {
-    fun and(vararg costs: Cost) = and(costs.toList())
-    fun and(costs: List<Cost>): Cost =
-        if (costs.size == 1) {
-          costs[0]
-        } else {
-          Cost.Multi(costs.flatMap {
-            if (it is Cost.Multi) it.costs else listOf(it)
-          })
-        }
+    companion object {
+      fun and(vararg costs: Cost) = and(costs.toList())
+      fun and(costs: List<Cost>): Cost = if (costs.size == 1) {
+        costs[0]
+      } else {
+        Cost.Multi(
+            costs.flatMap {
+              if (it is Cost.Multi) it.costs else listOf(it)
+            }
+        )
+      }
 
-    fun or(vararg costs: Cost) = or(costs.toList())
-    fun or(costs: List<Cost>) =
-        if (costs.size == 1) {
-          costs[0]
-        } else {
-          Cost.Or(costs.flatMap {
-            if (it is Cost.Or) it.costs else listOf(it)
-          })
-        }
+      fun or(vararg costs: Cost) = or(costs.toList())
+      fun or(costs: List<Cost>) = if (costs.size == 1) {
+        costs[0]
+      } else {
+        Cost.Or(
+            costs.flatMap {
+              if (it is Cost.Or) it.costs else listOf(it)
+            }
+        )
+      }
+    }
+
+    open fun precedence(): Int = Int.MAX_VALUE
+    fun toStringWithin(container: Cost) = if (groupWithin(container)) "(${this})" else "$this"
+    open fun groupWithin(container: Cost) = precedence() <= container.precedence()
+
   }
 }
