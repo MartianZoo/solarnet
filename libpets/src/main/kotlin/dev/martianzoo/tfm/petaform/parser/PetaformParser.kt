@@ -22,6 +22,7 @@ import dev.martianzoo.tfm.petaform.api.ComponentDecl
 import dev.martianzoo.tfm.petaform.api.ComponentDecls
 import dev.martianzoo.tfm.petaform.api.Effect
 import dev.martianzoo.tfm.petaform.api.Effect.Trigger
+import dev.martianzoo.tfm.petaform.api.Effect.Trigger.Conditional
 import dev.martianzoo.tfm.petaform.api.Effect.Trigger.OnGain
 import dev.martianzoo.tfm.petaform.api.Effect.Trigger.OnRemove
 import dev.martianzoo.tfm.petaform.api.Expression
@@ -30,7 +31,6 @@ import dev.martianzoo.tfm.petaform.api.Instruction.Gain
 import dev.martianzoo.tfm.petaform.api.Instruction.Gated
 import dev.martianzoo.tfm.petaform.api.Instruction.Intensity
 import dev.martianzoo.tfm.petaform.api.Instruction.Intensity.Companion.intensity
-import dev.martianzoo.tfm.petaform.api.Instruction.Per
 import dev.martianzoo.tfm.petaform.api.Instruction.Remove
 import dev.martianzoo.tfm.petaform.api.Instruction.Then
 import dev.martianzoo.tfm.petaform.api.PetaformNode
@@ -72,6 +72,7 @@ object PetaformParser {
   private val bang = literal("!")
   private val dot = literal(".")
   private val questy = literal("?")
+  private val equals = literal("=")
   private val leftParen = literal("(")
   private val rightParen = literal(")")
   private val leftAngle = literal("<")
@@ -80,9 +81,10 @@ object PetaformParser {
   private val rightBracket = literal("]")
   private val leftBrace = literal("{")
   private val rightBrace = literal("}")
-  private val newline = literal("\n")
 
+  private val newline = literal("\n")
   private val hasToken = regex("\\bHAS\\b")
+  private val ifToken = regex("\\bIF\\b")
   private val maxToken = regex("\\bMAX\\b")
   private val orToken = regex("\\bOR\\b")
   private val prodToken = regex("\\bPROD\\b")
@@ -141,7 +143,8 @@ object PetaformParser {
 
     val min = qe map Predicate::Min
     val max = skip(maxToken) and qeWithScalar map Predicate::Max
-    val atom = min or max
+    val exact = skip(equals) and qeWithScalar map Predicate::Exact
+    val atom = min or max or exact
 
     val prod = prodBox(anyPred) map Predicate::Prod
 
@@ -171,7 +174,7 @@ object PetaformParser {
 
         // Slash binds most tightly (for now)
         val maybePer = atom and optional(skip(slash) and qeWithType) map {
-          (instr, qe) -> if (qe == null) instr else Per(instr, qe)
+          (instr, qe) -> if (qe == null) instr else Instruction.Per(instr, qe)
         }
 
         // Prod can wrap anything as it is self-grouping
@@ -217,11 +220,14 @@ object PetaformParser {
   }.action)
 
   val effect = publish(object {
-    private val onGainTrigger = expression map { OnGain(it) }
-    private val onRemoveTrigger = skip(minus) and expression map { OnRemove(it) }
-    private val nonProdTrigger = onGainTrigger or onRemoveTrigger
-    private val prodTrigger = prodBox(nonProdTrigger) map Trigger::Prod
-    private val trigger = publish(nonProdTrigger or prodTrigger)
+    private val anyTrigger = parser { trigger }
+    private val onGain = expression map ::OnGain
+    private val onRemove = skip(minus) and expression map ::OnRemove
+    private val atom = onGain or onRemove
+    private val prod = prodBox(atom) map Trigger::Prod
+    private val uncond = atom or prod
+    private val condit = uncond and skip(ifToken) and predicate map { (a, b) -> Conditional(a, b) }
+    private val trigger = publish(condit or uncond)
 
     private val colons = (twoColons map { true }) or (colon map { false })
     val effect = publish(trigger and colons and maybeGroup(instruction) map {

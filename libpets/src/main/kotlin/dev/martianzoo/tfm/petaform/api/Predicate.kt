@@ -18,6 +18,13 @@ sealed class Predicate : PetaformNode() {
     override fun toString() = "MAX ${qe.petaform(forceScalar = true)}"
   }
 
+  data class Exact(val qe: QuantifiedExpression) : Predicate() {
+    constructor(expr: Expression, scalar: Int) : this(QuantifiedExpression(expr, scalar))
+    init { require(qe.scalar >= 0) }
+    override val children = listOf(qe)
+    override fun toString() = "=${qe.petaform(forceScalar = true)}"
+  }
+
   data class Or(val predicates: List<Predicate>) : Predicate() {
     constructor(pred1: Predicate, pred2: Predicate, vararg rest: Predicate) :
         this(Lists.asList(pred1, pred2, rest))

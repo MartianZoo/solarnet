@@ -33,5 +33,10 @@ data class Effect(
       override fun toString() = "PROD[${trigger}]"
       override fun countProds() = super.countProds() + 1
     }
+
+    data class Conditional(val trigger: Trigger, val predicate: Predicate) : Trigger() {
+      override val children = listOf(trigger, predicate)
+      override fun toString() = "$trigger IF $predicate"
+    }
   }
 }
