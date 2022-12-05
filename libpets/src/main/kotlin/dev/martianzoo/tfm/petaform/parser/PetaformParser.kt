@@ -33,6 +33,7 @@ import dev.martianzoo.tfm.petaform.api.Instruction.Intensity
 import dev.martianzoo.tfm.petaform.api.Instruction.Intensity.Companion.intensity
 import dev.martianzoo.tfm.petaform.api.Instruction.Remove
 import dev.martianzoo.tfm.petaform.api.Instruction.Then
+import dev.martianzoo.tfm.petaform.api.Instruction.Transmute
 import dev.martianzoo.tfm.petaform.api.PetaformNode
 import dev.martianzoo.tfm.petaform.api.Predicate
 import dev.martianzoo.tfm.petaform.api.QuantifiedExpression
@@ -83,6 +84,7 @@ object PetaformParser {
   private val rightBrace = literal("}")
 
   private val newline = literal("\n")
+  private val fromToken = regex("\\bFROM\\b")
   private val hasToken = regex("\\bHAS\\b")
   private val ifToken = regex("\\bIF\\b")
   private val maxToken = regex("\\bMAX\\b")
@@ -166,7 +168,11 @@ object PetaformParser {
         val intensity = optional(bang or dot or questy) map { intensity(it?.text) }
         val gain = qe and intensity map { gain(it) }
         val remove = skip(minus) and qe and intensity map { remove(it) }
-        val atom = gain or remove
+        val transmute = optional(explicitScalar) and expression and intensity and skip(fromToken) and expression map {
+          (scal, to, intens, from) ->
+            Transmute(to, from, scal, intens)
+        }
+        val atom = transmute or gain or remove
 
         // Reentrancy
         val anyInstr: Parser<Instruction> = parser { instruction }

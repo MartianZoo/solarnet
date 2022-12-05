@@ -19,6 +19,19 @@ sealed class Instruction : PetaformNode() {
     override fun toString() = "-${qe}${intensity?.petaform ?: ""}"
   }
 
+  data class Transmute(
+      val toExpression: Expression,
+      val fromExpression: Expression,
+      val scalar: Int? = null,
+      val intensity: Intensity? = null) : Instruction() {
+    init {
+      scalar?.let { require(it >= 0) }
+    }
+    override val children = listOf(toExpression, fromExpression)
+    override fun toString() =
+        (scalar?.let { "$it " } ?: "") + "$toExpression${intensity?.petaform ?: ""} FROM $fromExpression"
+  }
+
   data class Multi(val instructions: List<Instruction>) : Instruction() {
     override val children = instructions
     override fun toString() = instructions.joinToString {

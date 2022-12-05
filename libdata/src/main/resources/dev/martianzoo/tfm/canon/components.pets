@@ -76,7 +76,7 @@ abstract Component {
                 component Plant
                 component Heat
                 component Energy {
-                    ProductionPhase:: -This, Heat // FROM This
+                    ProductionPhase:: Heat FROM This
                 }
             }
         }
@@ -119,7 +119,7 @@ abstract Component {
 
         abstract CardFront {  // <Resource>? But it's optional...
             abstract EventCard {
-                This: PlayedEvent, -This // FROM. shouldn't really be able to do this early
+                This: PlayedEvent FROM This // shouldn't really be able to do this early
             }
             abstract AutomatedCard
             abstract ActiveCard
@@ -200,7 +200,7 @@ abstract Component {
 
         // 0..1
         component Accept<Resource> : Transient {
-            -> Pay<Resource>, -Resource // TODO: FROM; X
+            -> Pay<Resource> FROM Resource
             -Owed IF MAX 0 Owed:: -This
         }
     }

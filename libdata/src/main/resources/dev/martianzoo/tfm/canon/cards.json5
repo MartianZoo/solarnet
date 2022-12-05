@@ -2576,7 +2576,7 @@
       "deck": "PROJECT",
       "tags": [ "ScienceTag", "EarthTag", "BuildingTag" ],
       "effects": [
-        "ScienceTag: Science<This> OR (ProjectCard, -Science<This>)", // TODO FROM
+        "ScienceTag: Science<This> OR (ProjectCard FROM Science<This>)",
         "End: VictoryPoint",
       ],
       "resourceType": "Science",
