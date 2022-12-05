@@ -1,49 +1,73 @@
-abstract Component {
+abstract Component { // TODO nah stop wrapping everything
     default Component!
     default -Component!
 
-    component This // TODO: abstract???
+    abstract This
 
-    component Die    // 0..0
+    abstract System
 
-    abstract Ephemeral {
-      This:: -This
-    }
-    abstract Transient {
-      This: -This.
-    }
-    abstract Litter {
-      This: (MAX 0 This: 0)
+    abstract Ephemeral { // removes itself immediately - will never observe it existing
+        // count 0..0
+
+        This:: -This
     }
 
-    abstract Phase { // 0..1 (insufficient)
-        // MAX 1 Phase // forced to do "ThisPhase FROM Phase" // NOspec
+    component Ok : System, Ephemeral // when you need to do nothing
+
+    abstract Transient { // will be gone before end of action (or user can remove)
+        This: -This.
+    }
+
+    abstract Litter { // player must clean up themselves, by end of action
+        This: (=0 This: Ok)
+    }
+
+    component Die : System { // anything that tries to create this will stall
+        // count 0..0
+    }
+
+    abstract Atomized // for global params which are always increased one by one
+
+    component Generation
+
+    abstract Generational { // things that disappear when the generation changes over
+        Generation:: -This
+    }
+
+    abstract Phase : System {
+        // count 0..1 // insufficient
+
+        // Phase IF =2 Phase:: Die    // forced to do "ThisPhase FROM Phase" // ack, no spec
+        // -Phase IF =0 Phase:: Die
 
         component ProductionPhase
         component End
     }
-    // 1
+
     abstract Anyone {
-        component Npc
+        // count 1..1
+
+        component Npc : System
 
         abstract Player {
-            ProductionPhase: -5 // terrible wart
+            This:: 14 TerraformRating
+            This:: PROD[5]         // an ugly wart
+            ProductionPhase: -5    // same ugly wart
 
             component Me
-            component Player1
+            // concrete players to be created dynamically
         }
     }
 
-    component Generation
+    abstract Area {
+        // count 1..1
 
-    abstract Generational {
-        Generation: -This
-    }
+        // Tile<This>:: (=1 Tile<This>: Ok) // TODO cycle
 
-    // 1
-    abstract Area(HAS MAX 1 Tile) {
         abstract RemoteArea
         abstract MarsArea {
+            // Tile<This>: $bonus(This)
+
             abstract LandArea {
                 abstract VolcanicArea
             }
@@ -52,27 +76,47 @@ abstract Component {
         }
     }
 
-    // 0..1 (insufficient)
     abstract Tile<Area> {
-        // This: $createAdjacencies(This)
+        // count 0..1 // insufficient; see Area effect
+
+        // This:: $createAdjacencies(This)
     }
 
-    // 0..1
-    component AreaAdjacency<MarsArea, MarsArea>
-    component Neighbor<MarsArea, Tile> // (HAS Tile)
-    component Adjacency<Tile, Tile> { // (HAS 2 Tile)
-        // This: how to make sure both tiles exist??
-        -Tile(HAS This): -This // shouldn't be necessary
+    component AreaAdjacency<MarsArea, MarsArea> : System {
+        // count 0..1
+    }
+
+    component Neighbor<MarsArea, Tile> : System { // (HAS =1 Tile)
+        // count 0..1
+    }
+
+    component Adjacency<Tile, Tile> : System { // (HAS =2 Tile)
+        // count 0..1
+
+        // How to make sure both tiles exist??
+        -Tile(HAS This):: -This // shouldn't be necessary
     }
 
     abstract Owned<Anyone> {
         // default *Owned<Me>
 
+        abstract PayWall : Litter, System {
+            component Required<Component> // GlobalParameter
+        }
+
+        component Purchase<Component> : Ephemeral, System { // exists just to trigger things
+            This: (=0 PayWall: Component) //  TODO don't trigger for PlayCard
+        }
+
         abstract Resource {
             abstract StandardResource {
                 component Megacredit
-                component Steel
-                component Titanium
+                component Steel {
+                    // Purchase<BuildingTag>:: Accept<This>
+                }
+                component Titanium {
+                    // Purchase<SpaceTag>:: Accept<This>
+                }
                 component Plant
                 component Heat
                 component Energy {
@@ -81,21 +125,43 @@ abstract Component {
             }
         }
 
-        component Production<StandardResource> {
+        component Production<StandardResource> { // TODO ensure owner == owner?
             ProductionPhase: StandardResource
         }
 
-        component VictoryPoint
+        component Owed<Resource> : PayWall {
+           default -Owed.
 
-        // 0..1
-        component HasRaisedTR : Generational
+           This:: Accept<Resource>
+        }
 
-        component TerraformRating : Owned<Player> { // maybe important for WGT?
-            This:: HasRaisedTR. // boo!
+        component Pay<Resource> : Ephemeral, System {
+            This:: -Owed<Resource>
+        }
+
+        component Accept<Resource> : Transient, System {
+            // count 0..1
+            default Accept.
+
+            -> Pay<Resource> FROM Resource // okay it is handled more specially than this
+            -Owed IF =0 Owed:: -This
+        }
+
+        component VictoryPoint {
+            // This:: (End: Ok) // can't exist until endgame
+        }
+
+        component HasRaisedTR : Generational, System {
+            // count 0..1
+        }
+
+        component TerraformRating : Owned<Player> {
+            This:: HasRaisedTR.
             ProductionPhase: 1
             End: VictoryPoint
         }
 
+        // For "follow mode"
         abstract CardBack {
             component CorporationCard
             component PreludeCard
@@ -105,11 +171,13 @@ abstract Component {
         abstract OwnedTile : Tile {
             component GreeneryTile : OwnedTile<MarsArea> {
                 default GreeneryTile<LandArea(HAS Neighbor<OwnedTile>)>
+
                 This: OxygenStep
                 End: VictoryPoint
             }
             component CityTile {
-                default CityTile<LandArea(HAS MAX 0 Neighbor<CityTile<Anyone>>)>
+                default CityTile<LandArea(HAS =0 Neighbor<CityTile<Anyone>>)>
+
                 End: VictoryPoint / Adjacency(HAS This, GreeneryTile<Anyone>)
             }
             component SpecialTile : OwnedTile<MarsArea> {
@@ -117,19 +185,23 @@ abstract Component {
             }
         }
 
-        abstract CardFront {  // <Resource>? But it's optional...
+        abstract CardFront { // <CardResource> {  TODO circular
+            // count 0..1
+
             abstract EventCard {
                 This: PlayedEvent FROM This // shouldn't really be able to do this early
             }
             abstract AutomatedCard
             abstract ActiveCard
+
+            // Remember, corps and preludes have none of those types
         }
 
         component PlayedEvent
 
         abstract Cardbound<CardFront> {
-            This:: (CardFront: 0)
-            -CardFront: -This // happens when becoming a PlayedEvent
+            This:: (CardFront: Ok) // the card must actually be in play
+            -CardFront:: -This     // becoming a PlayedEvent removes the tags
 
             abstract Tag {
                 // Purchase<CardFront>:: Purchase<This>     // VERY IFFY
@@ -153,8 +225,8 @@ abstract Component {
                 }
             }
 
-            abstract CardResource : Resource {
-                -CardFront: Die // gotta deal with resources first
+            abstract CardResource : Resource { // , Cardbound<CardFront<CardResource>> { TODO
+                -CardFront:: Die // gotta remove the resources first
                 default CardResource.
 
                 component Animal
@@ -163,98 +235,66 @@ abstract Component {
                 component Floater
                 component Microbe
                 component Science
+
+                component NoResource : Die // so that non-holding cards have a type
             }
 
-            abstract UseAction : Ephemeral {
-                component UseAction1
-                component UseAction2
-                component UseAction3
-            }
-
-            // 0..1
-            component CardUsed : Generational
-        }
-
-        abstract PayWall : Litter {
-            component Required<Component> // GlobalParameter
-            component Owed<Resource> {
-              default -Owed.
-              This:: Accept<Resource>.
+            component CardUsed : Generational {
+                // count 0..1
             }
         }
 
-        // 0..1 (insufficient)
-        component Purchase<Component> : Ephemeral {
-          This: (MAX 0 PayWall: Component)
+        abstract UseAction : Ephemeral, System {
+            component UseAction1
+            component UseAction2
+            component UseAction3
         }
 
-        // 0..1 (insufficient)
-        component PlayCard: Purchase<CardFront> {
-//        This:: $handleRequirement(CardFront), Owed<Megacredit> / $costOf(CardFront)
-          This: (MAX 0 PayWall: (CardFront, -ProjectCard))
-        }
-
-        component Pay<Resource> : Ephemeral {
-          This:: -Owed<Resource>
-        }
-
-        // 0..1
-        component Accept<Resource> : Transient {
-            -> Pay<Resource> FROM Resource
-            -Owed IF MAX 0 Owed:: -This
+        component PlayCard : Purchase<CardFront> {
+//          This:: $handleRequirement(CardFront), Owed<Megacredit> / $costOf(CardFront)
+            This: (=0 PayWall: (CardFront, -ProjectCard))
         }
     }
 
-    // 1..1 TODO
-    component GlobalEffects {
-        Purchase<BuildingTag>: Accept<Steel>
-        Purchase<SpaceTag>: Accept<Titanium>
-    }
-
-    // TODO atomized?
-    abstract GlobalParameter {
+    abstract GlobalParameter : Atomized {
         default GlobalParameter.
+        // default -GlobalParameter.
 
         This: TerraformRating
 
-        // 0..9
         component OceanTile : Tile<MarsArea> {
+            // // count 0..9 // TODO that doesn't work
             default OceanTile<WaterArea>
-            This IF =9 This: Complete<OceanTile> // fail: that's abstract
+
             Adjacency<This, Tile>: 2
         }
 
-        // 0..19
         component TemperatureStep {
+            // count 0..19
+
             This IF =3 This: PROD[Heat]
             This IF =5 This: PROD[Heat]
             This IF =15 This: OceanTile
-            This IF =19 This: Complete<TemperatureStep>
         }
 
-        // 0..14
         component OxygenStep {
+            // count 0..14
+
             This IF =8 This: TemperatureStep
-            This IF =14 This: Complete<OxygenStep>
         }
 
-        // 0..15
         component VenusStep {
+            // count 0..15
+
             This IF =4 This: ProjectCard
             This IF =8 This: TerraformRating
-            This IF =15 This: Complete<VenusStep>
         }
-
     }
 
-    // 0..1
-    component Complete<GlobalParameter> {
-        GlobalParameter: Die
-        -GlobalParameter: Die
-    }
-
-    // 1..1
+    // TODO figure out how to get these back on one line
     component StandardAction {
+        // count 1..1
+
         component PlayCardFromHand {
             -> PlayCard<CardFront>
         }
@@ -271,12 +311,13 @@ abstract Component {
             8 Heat -> TemperatureStep
         }
         component SellPatents {
-            1 ProjectCard -> 1 // X
+            1 ProjectCard -> 1 // TODO X
         }
     }
 
-    // 1..1
     component StandardProject {
+        // count 1..1
+
         component PowerPlant {
             11 -> PROD[Energy]
         }
@@ -300,11 +341,13 @@ abstract Component {
         }
     }
 
-    abstract NextCardEffect : Generational {
-        Purchase<CardFront>:: -This
+    abstract NextCardEffect : Generational, System {
+        // count 0..1
+
+        Purchase<CardFront>:: -This // goes away whether you use it or not
     }
 
-    // TODO: move these to card defns
+    // TODO move these to card defns?
     component Card206Effect : NextCardEffect {
         Purchase<CardFront>:: -2 Required<GlobalParameter>
     }
