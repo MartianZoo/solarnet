@@ -8,6 +8,31 @@
       "immediate": [ "42, 10 ProjectCard" ], // TODO replaces normal buying
     },
 
+    // Ecoline
+    {
+      "id": "B02",
+      "bundle": "B",
+      "deck": "CORPORATION",
+      "tags": [ "PlantTag" ],
+      "immediate": [ "PROD[2 Plant], 36, 3 Plant" ],
+      "effects": [
+        "Purchase<UseAction<ConvertPlants>>:: -Owed<Plant>!",
+      ],
+    },
+
+    // Helion
+    {
+      "id": "B03",
+      "bundle": "B",
+      "deck": "CORPORATION",
+      "tags": [ "SpaceTag" ],
+      "immediate": [ "PROD[3 Heat], 42" ],
+      "effects": [
+        "Accept<Megacredit>: Accept<Heat>",
+        "Pay<Heat>: Pay<Megacredit>",
+      ],
+    },
+
     // Interplanetary Cinematics
     {
       "id": "B04",
@@ -16,6 +41,18 @@
       "tags": [ "BuildingTag" ],
       "immediate": [ "30, 20 Steel" ],
       "effects": [ "EventCard: 2" ],
+    },
+
+    // Phobolog
+    {
+      "id": "B07",
+      "bundle": "B",
+      "deck": "CORPORATION",
+      "tags": [ "SpaceTag" ],
+      "immediate": [ "23, 10 Titanium" ],
+      "effects": [
+        "Pay<Titanium>: Pay<Megacredit>",
+      ],
     },
 
     // ThorGate
@@ -29,6 +66,16 @@
           "Purchase<PowerTag>:: -3 Owed",
           "Purchase<UseAction<PowerPlant>>:: -3 Owed",
       ],
+    },
+
+    // United Nations Mars Initiative
+    {
+      "id": "B10",
+      "bundle": "B",
+      "deck": "CORPORATION",
+      "tags": [ "EarthTag" ],
+      "immediate": [ "40" ],
+      "actions": [ "3 -> HasRaisedTR: TerraformRating" ],
     },
 
     // Saturn Systems
@@ -69,6 +116,28 @@
       "tags": [ "EarthTag", "SpaceTag" ],
       "immediate": [ "PROD[Titanium], 38" ],
       "effects": [ "EarthTag: ProjectCard" ],
+    },
+
+    // Manutech
+    {
+      "id": "V03",
+      "bundle": "V",
+      "deck": "CORPORATION",
+      "tags": [ "BuildingTag" ],
+      "immediate": [ "PROD[Steel], 35" ],
+      "effects": [
+        "PROD[StandardResource]: StandardResource",
+      ],
+    },
+
+    // Viron
+    {
+      "id": "V05",
+      "bundle": "V",
+      "deck": "CORPORATION",
+      "tags": [ "MicrobeTag" ],
+      "immediate": [ "48" ],
+      "actions": [ "-> UseAction<CardFront(HAS CardUsed)>" ],
     },
 
     // Recyclon
@@ -1864,6 +1933,19 @@
       "projectKind": "ACTIVE",
     },
 
+    // Flooding
+    {
+      "id": "188",
+      "bundle": "B",
+      "deck": "PROJECT",
+      "immediate": [ "OceanTile OR (OceanTile<WaterArea(HAS Neighbor<OwnedTile<Player>>)>, -4 Megacredit<Player>?)" ],
+      "effects": [
+        "End: -VictoryPoint",
+      ],
+      "cost": 7,
+      "projectKind": "EVENT",
+    },
+
     // Energy Saving
     {
       "id": "189",
@@ -1963,6 +2045,17 @@
       "immediate": [ "PROD[-Energy], 2 TerraformRating" ],
       "cost": 8,
       "projectKind": "AUTOMATED",
+    },
+
+    // Special Design
+    {
+      "id": "206",
+      "bundle": "B",
+      "deck": "PROJECT",
+      "tags": [ "ScienceTag" ],
+      "immediate": [ "Card206Effect" ],
+      "cost": 4,
+      "projectKind": "EVENT",
     },
 
     // Asteroid Mining Consortium
@@ -2475,6 +2568,16 @@
       "projectKind": "AUTOMATED",
     },
 
+    // CEO's Favorite Project
+    {
+      "id": "149",
+      "bundle": "R",
+      "deck": "PROJECT",
+      "immediate": [ "CardResource<CardFront(HAS CardResource)>" ],
+      "cost": 1,
+      "projectKind": "EVENT",
+    },
+
     // Anti-Gravity Technology
     {
       "id": "150",
@@ -2576,7 +2679,7 @@
       "deck": "PROJECT",
       "tags": [ "ScienceTag", "EarthTag", "BuildingTag" ],
       "effects": [
-        "ScienceTag: Science<This> OR (ProjectCard FROM Science<This>)",
+        "ScienceTag: Science<This> OR ProjectCard FROM Science<This>",
         "End: VictoryPoint",
       ],
       "resourceType": "Science",
@@ -2604,6 +2707,19 @@
       "tags": [ "ScienceTag" ],
       "immediate": [ "ProjectCard" ],
       "cost": 2,
+      "projectKind": "EVENT",
+    },
+
+    // Indentured Workers
+    {
+      "id": "195",
+      "bundle": "R",
+      "deck": "PROJECT",
+      "immediate": [ "Card195Effect" ],
+      "effects": [
+        "End: -VictoryPoint",
+      ],
+      "cost": 0,
       "projectKind": "EVENT",
     },
 
@@ -2729,6 +2845,21 @@
       "requirement": "MAX 4 OxygenStep",
       "cost": 9,
       "projectKind": "EVENT",
+    },
+
+    // Psychrophiles
+    {
+      "id": "P39",
+      "bundle": "P",
+      "deck": "PROJECT",
+      "tags": [ "MicrobeTag" ],
+      "actions": [ "-> Microbe" ],
+      "effects": [
+        "Purchase<PlantTag>: Accept<Microbe<This>>",
+        "Pay<Microbe<This>>: 2 Pay<Megacredit>",
+      ],
+      "cost": 2,
+      "projectKind": "ACTIVE",
     },
 
     // SF Memorial
@@ -3179,6 +3310,20 @@
       "projectKind": "EVENT",
     },
 
+    // Sponsored Academies
+    {
+      "id": "247",
+      "bundle": "V",
+      "deck": "PROJECT",
+      "tags": [ "ScienceTag", "EarthTag" ],
+      "immediate": [ "-ProjectCard THEN 3 ProjectCard" ],
+      "effects": [
+        "End: VictoryPoint",
+      ],
+      "cost": 9,
+      "projectKind": "AUTOMATED",
+    },
+
     // Stratopolis
     {
       "id": "248",
@@ -3403,6 +3548,29 @@
       "projectKind": "AUTOMATED",
     },
 
+    // Project Inspection
+    {
+      "id": "X02",
+      "bundle": "X",
+      "deck": "PROJECT",
+      "immediate": [ "UseAction<CardFront(HAS CardUsed)>" ],
+      "cost": 0,
+      "projectKind": "EVENT",
+    },
+
+    // Mercurian Alloys
+    {
+      "id": "X07",
+      "bundle": "X",
+      "deck": "PROJECT",
+      "tags": [ "SpaceTag" ],
+      "effects": [
+        "Pay<Titanium>: Pay<Megacredit>",
+      ],
+      "cost": 3,
+      "projectKind": "ACTIVE",
+    },
+
     // Orbital Cleanup
     {
       "id": "X08",
@@ -3413,6 +3581,20 @@
       "actions": [ "-> 1 / ScienceTag" ],
       "effects": [ "End: 2 VictoryPoint" ],
       "cost": 14,
+      "projectKind": "ACTIVE",
+    },
+
+    // Rego Plastics
+    {
+      "id": "X10",
+      "bundle": "X",
+      "deck": "PROJECT",
+      "tags": [ "BuildingTag" ],
+      "effects": [
+        "Pay<Steel>: Pay<Megacredit>",
+        "End: VictoryPoint",
+      ],
+      "cost": 10,
       "projectKind": "ACTIVE",
     },
 
