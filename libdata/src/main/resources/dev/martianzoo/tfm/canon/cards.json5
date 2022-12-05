@@ -187,7 +187,8 @@
       "immediate": [ "54, ProjectCard" ],
       "effects": [
           "MicrobeTag<Anyone>: Disease<This>, -4.",
-          "ScienceTag: TerraformRating FROM Disease<This> OR (=0 Disease<This>: ((PlayedEvent FROM This, 3 TerraformRating) OR Ok))"
+      //  "ScienceTag: TerraformRating FROM Disease OR (PlayedEvent FROM This, 3 TerraformRating) OR Ok",
+          "ScienceTag: TerraformRating FROM Disease<This> OR (MAX 0 Disease<This>: ((PlayedEvent FROM This, 3 TerraformRating) OR Ok))"
       ],
       "resourceType": "Disease",
     },

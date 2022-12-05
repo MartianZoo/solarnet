@@ -19,7 +19,7 @@ abstract Component { // TODO nah stop wrapping everything
     }
 
     abstract Litter { // player must clean up themselves, by end of action
-        This: (=0 This: Ok)
+        This: (MAX 0 This: Ok)
     }
 
     component Die : System { // anything that tries to create this will stall
@@ -37,8 +37,8 @@ abstract Component { // TODO nah stop wrapping everything
     abstract Phase : System {
         // count 0..1 // insufficient
 
-        // Phase IF =2 Phase:: Die    // forced to do "ThisPhase FROM Phase" // ack, no spec
-        // -Phase IF =0 Phase:: Die
+        // Phase IF 2 Phase:: Die    // forced to do "ThisPhase FROM Phase" // ack, no spec
+        // -Phase IF MAX 0 Phase:: Die
 
         component ProductionPhase
         component End
@@ -105,7 +105,7 @@ abstract Component { // TODO nah stop wrapping everything
         }
 
         component Purchase<Component> : Ephemeral, System { // exists just to trigger things
-            This: (=0 PayWall: Component) //  TODO don't trigger for PlayCard
+            This: (MAX 0 PayWall: Component) //  TODO don't trigger for PlayCard
         }
 
         abstract Resource {
@@ -144,7 +144,7 @@ abstract Component { // TODO nah stop wrapping everything
             default Accept.
 
             -> Pay<Resource> FROM Resource // okay it is handled more specially than this
-            -Owed IF =0 Owed:: -This
+            -Owed IF MAX 0 Owed:: -This
         }
 
         component VictoryPoint {
@@ -176,7 +176,7 @@ abstract Component { // TODO nah stop wrapping everything
                 End: VictoryPoint
             }
             component CityTile {
-                default CityTile<LandArea(HAS =0 Neighbor<CityTile<Anyone>>)>
+                default CityTile<LandArea(HAS MAX 0 Neighbor<CityTile<Anyone>>)>
 
                 End: VictoryPoint / Adjacency(HAS This, GreeneryTile<Anyone>)
             }
@@ -251,7 +251,7 @@ abstract Component { // TODO nah stop wrapping everything
 
         component PlayCard : Purchase<CardFront> {
 //          This:: $handleRequirement(CardFront), Owed<Megacredit> / $costOf(CardFront)
-            This: (=0 PayWall: (CardFront, -ProjectCard))
+            This: (MAX 0 PayWall: (CardFront, -ProjectCard))
         }
     }
 
