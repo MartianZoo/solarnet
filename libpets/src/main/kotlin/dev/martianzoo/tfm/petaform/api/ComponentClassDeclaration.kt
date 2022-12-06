@@ -4,7 +4,7 @@ package dev.martianzoo.tfm.petaform.api
  * The declaration of a component class, such as GreeneryTile. Models the declaration textually as
  * it was provided.
  */
-data class ComponentDecl(
+data class ComponentClassDeclaration(
     val expression: Expression,
     val abstract: Boolean = false,
     val supertypes: Set<Expression> = setOf(),
@@ -16,6 +16,6 @@ data class ComponentDecl(
   override val children = supertypes + actions + effects + expression
 }
 
-data class ComponentDecls(val decls: Set<ComponentDecl> = setOf()) : PetaformNode() {
+data class ComponentDecls(val decls: Set<ComponentClassDeclaration> = setOf()) : PetaformNode() {
   override val children = decls
 }

@@ -10,19 +10,19 @@ import dev.martianzoo.util.joinOrEmpty
 data class Expression(
     val rootType: RootType,
     val specializations: List<Expression> = listOf(),
-    val predicates: List<Predicate> = listOf()) : PetaformNode() {
+    val predicate: Predicate? = null) : PetaformNode() {
 
   constructor(rootType: RootType, vararg specialization: Expression) :
       this(rootType, specialization.toList())
   constructor(rootType: String, vararg specialization: Expression) :
       this(RootType(rootType), specialization.toList())
 
-  override val children = listOf(rootType) + specializations + predicates
+  override val children = listOfNotNull(predicate) + specializations + rootType
 
   override fun toString() =
       "$rootType" +
-          specializations.joinOrEmpty(surround = "<>") +
-          predicates.map { "HAS $it" }.joinOrEmpty(surround = "()")
+      specializations.joinOrEmpty(surround = "<>") +
+      (predicate?.let { "(HAS $it)" } ?: "")
 
 
   companion object {

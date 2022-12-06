@@ -3,15 +3,34 @@ package dev.martianzoo.tfm.petaform.parser
 import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.tfm.petaform.api.Expression
 import dev.martianzoo.tfm.petaform.api.Instruction
+import dev.martianzoo.tfm.petaform.api.Instruction.Companion.multi
 import dev.martianzoo.tfm.petaform.api.Instruction.Gain
 import dev.martianzoo.tfm.petaform.api.Instruction.Remove
-import dev.martianzoo.tfm.petaform.api.PetaformNode
+import dev.martianzoo.tfm.petaform.api.QuantifiedExpression
+import dev.martianzoo.tfm.petaform.parser.PetaformParser.Instructions
+import dev.martianzoo.tfm.petaform.parser.PetaformParser.QEs
 import dev.martianzoo.tfm.petaform.parser.PetaformParser.parse
 import org.junit.jupiter.api.Test
-import kotlin.random.Random
-import kotlin.reflect.KClass
 
 class InstructionTest {
+  @Test fun wtf() {
+    val expected = listOf(
+        Gain(Expression("Megacredit"), 42),
+        Gain(Expression("ProjectCard"), 10))
+
+    assertThat(parse(QEs.explicitScalar, "42")).isEqualTo(42)
+    assertThat(parse(QEs.qe, "42")).isEqualTo(QuantifiedExpression(Expression("Megacredit"), 42))
+    assertThat(parse(Instructions.gain, "42")).isEqualTo(expected[0])
+    assertThat(parse(Instructions.perable, "42")).isEqualTo(expected[0])
+    assertThat(parse(Instructions.maybePer, "42")).isEqualTo(expected[0])
+    assertThat(parse(Instructions.maybeProd, "42")).isEqualTo(expected[0])
+    assertThat(parse(Instructions.atomInstruction, "42")).isEqualTo(expected[0])
+    assertThat(parse(Instructions.gated, "42")).isEqualTo(expected[0])
+    assertThat(parse(Instructions.orInstr, "42")).isEqualTo(expected[0])
+    assertThat(parse(Instructions.then, "10 ProjectCard")).isEqualTo(expected[1])
+    assertThat(parse(Instructions.instruction, "42, 10 ProjectCard")).isEqualTo(multi(expected))
+  }
+
   @Test
   fun testGainInstruction() {
     val list = listOf(
@@ -110,7 +129,12 @@ class InstructionTest {
     testRoundTrip("Foo: Bar, Baz")
     testRoundTrip("(Foo: Bar), Baz", "Foo: Bar, Baz")
 
-    testRoundTrip("Foo: (MAX 0 Bar: 0)")
+    testRoundTrip("Foo: (2 Bar: Ok)")
+    testRoundTrip("Bar: Ok")
+    testRoundTrip("2 Bar: Ok")
+    testRoundTrip("MAX 2 Bar: Ok")
+    testRoundTrip("MAX 0 Bar: Ok")
+    testRoundTrip("Foo: (MAX 0 Bar: Ok)")
   }
 
   @Test fun then() {
@@ -123,12 +147,9 @@ class InstructionTest {
     testRoundTrip("Foo THEN (Bar, Baz)")
     testRoundTrip("Foo THEN Bar, Baz")
     testRoundTrip("(Foo THEN Bar), Baz", "Foo THEN Bar, Baz")
-
-    testRoundTrip("Foo: (MAX 0 Bar: 0)")
   }
 
   private fun testRoundTrip(start: String, end: String = start) {
-    val parse: Instruction = PetaformParser.parse(start)
-    assertThat(parse.toString()).isEqualTo(end)
+    assertThat(parse<Instruction>(start).toString()).isEqualTo(end)
   }
 }

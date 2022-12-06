@@ -5,13 +5,20 @@ import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.canon.Canon.newComponentClassDefinitions
 import dev.martianzoo.tfm.petaform.api.ComponentDecls
 import dev.martianzoo.tfm.petaform.api.PetaformNode
+import dev.martianzoo.tfm.petaform.parser.PetaformParser
 import dev.martianzoo.tfm.petaform.parser.PetaformParser.parse
 import dev.martianzoo.tfm.types.ComponentClassLoader
 import org.junit.jupiter.api.Test
 
 // Not testing much, just a bit of the canon data
 class ComponentClassDefinitionTest {
-  @Test fun foo() {
+  @Test
+  fun whoKnows() {
+    PetaformParser.parseComponentClasses(Canon.newStyleComponents)
+  }
+
+  @Test
+  fun foo() {
     val data = Canon.newComponentClassDefinitions
     val tr = data["TerraformRating"]!!
     assertThat(tr.name).isEqualTo("TerraformRating")
@@ -19,10 +26,12 @@ class ComponentClassDefinitionTest {
     assertThat(tr.supertypesPetaform).containsExactly("Owned<Player>")
     assertThat(tr.dependenciesPetaform).isEmpty()
     assertThat(tr.effectsPetaform).containsExactly(
-        "This:: HasRaisedTR.", "ProductionPhase: 1", "End: VictoryPoint")
+        "This:: HasRaisedTR.", "ProductionPhase: 1", "End: VictoryPoint"
+    )
   }
 
-  @Test fun slurp() {
+  @Test
+  fun slurp() {
     val defns = Canon.allDefinitions
     assertThat(defns.size).isGreaterThan(550)
 
@@ -49,7 +58,8 @@ class ComponentClassDefinitionTest {
     }
   }
 
-  @Test fun craxy() {
+  @Test
+  fun craxy() {
     val decls = parse<ComponentDecls>(Canon.newStyleComponents)
     decls.decls.forEach {
       print(if (it.abstract) "abstract" else "concrete")
@@ -57,7 +67,8 @@ class ComponentClassDefinitionTest {
     }
   }
 
-  @Test fun craxier() {
+  @Test
+  fun craxier() {
     newComponentClassDefinitions.values.forEach {
       println(it)
     }

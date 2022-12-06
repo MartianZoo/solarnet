@@ -1,24 +1,35 @@
 package dev.martianzoo.tfm.petaform.parser
 
+import com.github.h0tk3y.betterParse.combinators.SkipParser
 import com.github.h0tk3y.betterParse.combinators.and
 import com.github.h0tk3y.betterParse.combinators.map
+import com.github.h0tk3y.betterParse.combinators.oneOrMore
 import com.github.h0tk3y.betterParse.combinators.optional
 import com.github.h0tk3y.betterParse.combinators.or
 import com.github.h0tk3y.betterParse.combinators.separatedTerms
 import com.github.h0tk3y.betterParse.combinators.skip
+import com.github.h0tk3y.betterParse.combinators.zeroOrMore
 import com.github.h0tk3y.betterParse.grammar.parser
 import com.github.h0tk3y.betterParse.lexer.DefaultTokenizer
 import com.github.h0tk3y.betterParse.lexer.Token
 import com.github.h0tk3y.betterParse.lexer.literalToken
 import com.github.h0tk3y.betterParse.lexer.regexToken
+import com.github.h0tk3y.betterParse.parser.AlternativesFailure
+import com.github.h0tk3y.betterParse.parser.ErrorResult
 import com.github.h0tk3y.betterParse.parser.ParseException
+import com.github.h0tk3y.betterParse.parser.ParseResult
+import com.github.h0tk3y.betterParse.parser.Parsed
 import com.github.h0tk3y.betterParse.parser.Parser
+import com.github.h0tk3y.betterParse.parser.UnexpectedEof
 import com.github.h0tk3y.betterParse.parser.parseToEnd
 import com.github.h0tk3y.betterParse.utils.Tuple2
+import com.google.common.cache.CacheBuilder
+import com.google.common.cache.CacheLoader
+import com.google.common.cache.LoadingCache
 import dev.martianzoo.tfm.petaform.api.Action
 import dev.martianzoo.tfm.petaform.api.Action.Cost
 import dev.martianzoo.tfm.petaform.api.Action.Cost.Spend
-import dev.martianzoo.tfm.petaform.api.ComponentDecl
+import dev.martianzoo.tfm.petaform.api.ComponentClassDeclaration
 import dev.martianzoo.tfm.petaform.api.ComponentDecls
 import dev.martianzoo.tfm.petaform.api.Effect
 import dev.martianzoo.tfm.petaform.api.Effect.Trigger
@@ -44,10 +55,28 @@ import kotlin.reflect.cast
 object PetaformParser {
   inline fun <reified P : PetaformNode> parse(petaform: String) = parse(P::class, petaform)
 
+  fun <T> parse(parser: Parser<T>, petaform: String) =
+      parser.parseToEnd(this.tokenizer.tokenize(petaform))
+
+  fun parseComponentClasses(arg: String): List<ComponentClassDeclaration> {
+    var index = 0
+    val comps = mutableListOf<ComponentClassDeclaration>()
+    var result: ParseResult<ComponentDecls>? = null
+    do {
+      if (result is ErrorResult) throw ParseException(result)
+      result = components.tryParse(tokenizer.tokenize(arg), index)
+      if (result is Parsed) {
+        comps += result.value.decls
+        index = result.nextPosition
+      }
+    } while (!isEOF(result!!))
+    return comps
+  }
+
   fun <P : PetaformNode> parse(type: KClass<P>, petaform: String): P {
     val parser: Parser<PetaformNode> = parsers[type]!!
     try {
-      val pet = parser.parse(petaform)
+      val pet = parse(parser, petaform)
       require(type == ComponentDecls::class || pet.countProds() <= 1) { petaform }
       return type.cast(pet)
     } catch (e: ParseException) {
@@ -55,267 +84,224 @@ object PetaformParser {
     }
   }
 
-  fun <T> Parser<T>.parse(petaform: String) =
-      parseToEnd(DefaultTokenizer(tokens).tokenize(petaform))
+  val parsers = mutableMapOf<KClass<out PetaformNode>, Parser<PetaformNode>>()
 
-  private val tokens = mutableListOf<Token>()
+  val literalCache: LoadingCache<String, Token> = makeCache(::literalToken)
 
-  private val comment = regex("//[^\n]*", ignore = true)
-  private val whitespace = regex(" +", ignore = true)
+  val regexCache: LoadingCache<String, Token> = makeCache(::regexToken)
 
-  private val arrow = literal("->")
-  private val twoColons = literal("::")
+  val ignored = listOf(
+      regexToken("//[^\n]*", true),
+      regexToken(" +", true))
 
-  private val comma = literal(",")
-  private val minus = literal("-")
-  private val slash = literal("/")
-  private val colon = literal(":")
-  private val bang = literal("!")
-  private val dot = literal(".")
-  private val questy = literal("?")
-  private val equals = literal("=")
-  private val leftParen = literal("(")
-  private val rightParen = literal(")")
-  private val leftAngle = literal("<")
-  private val rightAngle = literal(">")
-  private val leftBracket = literal("[")
-  private val rightBracket = literal("]")
-  private val leftBrace = literal("{")
-  private val rightBrace = literal("}")
+  val prodStart = word("PROD") and char('[')
+  val prodEnd = char(']')
 
-  private val newline = literal("\n")
-  private val fromToken = regex("\\bFROM\\b")
-  private val hasToken = regex("\\bHAS\\b")
-  private val ifToken = regex("\\bIF\\b")
-  private val maxToken = regex("\\bMAX\\b")
-  private val orToken = regex("\\bOR\\b")
-  private val prodToken = regex("\\bPROD\\b")
-  private val thenToken = regex("\\bTHEN\\b")
+  val rootType: Parser<RootType> = regex("\\b[A-Z][a-z][A-Za-z0-9_]*\\b") map { RootType(it.text) }
 
-  private val component = regex("\\bcomponent\\b")
-  private val abstract = regex("\\babstract\\b")
-  private val default = regex("\\bdefault\\b")
+  object Expressions {
+    val anyExpression: Parser<Expression> = parser { expression }
+    val specializations = optionalList(skipChar('<') and commaSeparated(anyExpression) and skipChar('>'))
+    val refinement = optional(parens(skipWord("HAS") and parser { Predicates.predicate }))
 
-  private val scalar = regex("\\b(0|[1-9][0-9]*)\\b")
-  private val ident = regex("\\b[A-Z][a-z][A-Za-z0-9_]*\\b")
-
-  private val parsers = mutableMapOf<KClass<out PetaformNode>, Parser<PetaformNode>>()
-
-  private val prodStart = prodToken and leftBracket
-  private val prodEnd = rightBracket
-
-  private val rootType: Parser<RootType> = ident map { RootType(it.text) } // Plant
-
-  val expression = publish(object {
-
-    private val specializations: Parser<List<Expression>> = // <Player1, LandArea>
-        skip(leftAngle) and
-        separatedTerms(parser { expression }, comma) and
-        skip(rightAngle)
-    private val optionalSpecializations = optionalList(specializations)
-
-    private val hazzer = skip(hasToken) and parser { predicate }
-    private val predicates: Parser<List<Predicate>> = group(separatedTerms(hazzer, comma))
-    private val optionalPredicates = optionalList(predicates)
-
-    // CityTile<Player1, LandArea>(HAS blahblah)
-    val expression = rootType and optionalSpecializations and optionalPredicates map {
-      (type, refs, preds) -> Expression(type, refs, preds)
+    val expression = rootType and specializations and refinement map {
+      (type, refs, pred) -> Expression(type, refs, pred)
     }
-  }.expression)
-
-  private val explicitScalar: Parser<Int> = scalar map { it.text.toInt() } // 3
-  private val implicitScalar: Parser<Int> = optional(explicitScalar) map { it ?: 1 } // "", meaning 1
-  private val implicitType: Parser<Expression> = optional(expression) map { // "", meaning "Megacredit"
-    it ?: Expression.DEFAULT
   }
-  val qeWithScalar = explicitScalar and implicitType map {
-    (scalar, expr) -> QuantifiedExpression(expr, scalar)
-  }
-  val qeWithType = implicitScalar and expression map {
-    (scalar, expr) -> QuantifiedExpression(expr, scalar)
-  }
-  val qe = qeWithScalar or qeWithType
+  val expression = publish(Expressions.expression)
 
-  val predicates = PredicateParsers().also { publish(it.predicate) }
+  object QEs {
+    val explicitScalar: Parser<Int> = regex("\\b(0|[1-9][0-9]*)\\b") map { it.text.toInt() }
+    val implicitScalar: Parser<Int> = optional(explicitScalar) map { it ?: 1 }
+    val implicitType: Parser<Expression> = optional(Expressions.anyExpression) map {
+      it ?: Expression.DEFAULT
+    }
 
-  class PredicateParsers {
-    val anyPred: Parser<Predicate> = parser { predicate }
-    val anyGroup = group(anyPred)
+    val qeWithScalar = explicitScalar and implicitType map { (scalar, expr) ->
+      QuantifiedExpression(expr, scalar)
+    }
+    val qeWithType = implicitScalar and Expressions.anyExpression map { (scalar, expr) ->
+      QuantifiedExpression(expr, scalar)
+    }
+    val qe = qeWithScalar or qeWithType
+  }
+  val qe = QEs.qe
+
+  object Predicates {
+    val anyPredicate: Parser<Predicate> = parser { predicate }
+    val anyGroup = parens(anyPredicate)
 
     val min = qe map Predicate::Min
-    val max = skip(maxToken) and qeWithScalar map Predicate::Max
-    val exact = skip(equals) and qeWithScalar map Predicate::Exact
-    val atom = min or max or exact
+    val max = skipWord("MAX") and QEs.qeWithScalar map Predicate::Max
+    val exact = skipChar('=') and QEs.qeWithScalar map Predicate::Exact
+    val prod = prodBox(anyPredicate) map Predicate::Prod
+    val atomPredicate = min or max or exact or prod or anyGroup
+    val single = separatedTerms(atomPredicate, word("OR")) map Predicate::or
 
-    val prod = prodBox(anyPred) map Predicate::Prod
-
-    val orTerm = atom or prod
-    val andTerm = separatedTerms(orTerm or anyGroup, orToken) map Predicate::or
-
-    val whole = separatedTerms(andTerm or anyGroup, comma) map Predicate::and
-
-    val safePredicate = anyGroup or orTerm
-    val predicate: Parser<Predicate> = whole or safePredicate
+    val predicate = commaSeparated(single) map Predicate::and
   }
-  val predicate = predicates.predicate
+  val predicate = publish(Predicates.predicate)
 
-  // slash > gate > or > then > comma -- keep in sync with Instruction.precedence()
-  private val instruction = publish(
-      object {
+  object Instructions {
+    // Reentrancy
+    val anyInstr: Parser<Instruction> = parser { instruction }
+    val anyGroup = parens(anyInstr)
 
-        // Atoms
-        val intensity = optional(bang or dot or questy) map { intensity(it?.text) }
-        val gain = qe and intensity map { gain(it) }
-        val remove = skip(minus) and qe and intensity map { remove(it) }
-        val transmute = optional(explicitScalar) and expression and intensity and skip(fromToken) and expression map {
-          (scal, to, intens, from) ->
-            Transmute(to, from, scal, intens)
-        }
-        val atom = transmute or gain or remove
+    val intensity = optional(regex("[!.?]")) map { intensity(it?.text) }
+    val gain = qe and intensity map { (qe, intens) -> Gain(qe, intens) }
+    val remove = skipChar('-') and qe and intensity map { (qe, intens) -> Remove(qe, intens) }
+    val transmute = optional(QEs.explicitScalar) and expression and intensity and skipWord("FROM") and expression map { (scal, to, intens, from) ->
+      Transmute(to, from, scal, intens)
+    }
+    val perable = transmute or gain or remove
 
-        // Reentrancy
-        val anyInstr: Parser<Instruction> = parser { instruction }
-        val anyGroup = group(anyInstr)
+    val maybePer = perable and optional(skipChar('/') and QEs.qeWithType) map { (instr, qe) ->
+      if (qe == null) instr else Instruction.Per(instr, qe)
+    }
 
-        // Slash binds most tightly (for now)
-        val maybePer = atom and optional(skip(slash) and qeWithType) map {
-          (instr, qe) -> if (qe == null) instr else Instruction.Per(instr, qe)
-        }
+    val maybeProd = maybePer or (prodBox(anyInstr) map Instruction::Prod)
 
-        // Prod can wrap anything as it is self-grouping
-        val maybeProd = maybePer or (prodBox(anyInstr) map Instruction::Prod)
+    val atomInstruction = maybeProd or anyGroup
 
-        // Gating colon binds next
-        val gateable = maybeProd or anyGroup
-        val gated = predicates.safePredicate and skip(colon) and gateable map { gated(it) }
-        val maybeGated = gated or maybeProd
+    val gated = optional(Predicates.atomPredicate and skipChar(':')) and atomInstruction map {
+      (one, two) -> if (one == null) two else Gated(one, two)
+    }
+    val orInstr = separatedTerms(gated, word("OR")) map Instruction::or
+    val then = optional(orInstr and skipWord("THEN")) and orInstr map {
+      (one, two) -> if (one == null) two else Then(one, two)
+    }
+    val instruction = commaSeparated(then) map Instruction::multi
+  }
+  val instruction = publish(Instructions.instruction)
 
-        // Then OR
-        val orTerm = maybeGated or anyGroup
-        val orInstr = separatedMultiple(orTerm, orToken) map Instruction::or
-        val maybeOr = orInstr or maybeGated
-
-        // Then THEN
-        val thenTerm = maybeOr or anyGroup
-        val thenInstr = thenTerm and skip(thenToken) and thenTerm map { (one, two) -> Then(one, two) }
-        val maybeThen = thenInstr or maybeOr
-
-        // Lastly the comma binds most loosely of all
-        val andTerm = maybeThen or anyGroup
-        val multi = separatedMultiple(andTerm, comma) map Instruction::multi
-
-        val instruction = multi or maybeThen
-      }.instruction,
-  )
-
-  val action = publish(object {
+  object Actions {
     val anyCost: Parser<Cost> = parser { cost }
-    val anyGroup = group(anyCost)
+    val anyGroup = parens(anyCost)
 
     val spend = qe map ::Spend
     val maybeProd = spend or (prodBox(anyCost) map Cost::Prod)
-    val perCost = maybeProd and optional(skip(slash) and qeWithType) map { (cost, qe) ->
+    val perCost = maybeProd and optional(skipChar('/') and QEs.qeWithType) map { (cost, qe) ->
       if (qe == null) cost else Cost.Per(cost, qe)
     }
-    val orCost = separatedTerms(perCost or anyGroup, orToken) map Cost::or
-    val cost = separatedTerms(orCost or anyGroup, comma) map Cost::and
+    val orCost = separatedTerms(perCost or anyGroup, word("OR")) map Cost::or
+    val cost = commaSeparated(orCost or anyGroup) map Cost::and
 
     // Action
-    val action = publish(optional(cost) and skip(arrow) and instruction map { (c, i) -> Action(c, i) })
-  }.action)
+    val action = publish(
+        optional(cost) and skip(char('-') and char('>')) and instruction map { (c, i) ->
+          Action(c, i)
+        }
+    )
+  }
+  val action = publish(Actions.action)
 
-  val effect = publish(object {
-    private val anyTrigger = parser { trigger }
-    private val onGain = expression map ::OnGain
-    private val onRemove = skip(minus) and expression map ::OnRemove
-    private val atom = onGain or onRemove
-    private val prod = prodBox(atom) map Trigger::Prod
-    private val uncond = atom or prod
-    private val condit = uncond and skip(ifToken) and predicate map { (a, b) -> Conditional(a, b) }
-    private val trigger = publish(condit or uncond)
+  object Effects {
+    val onGain = expression map ::OnGain
+    val onRemove = skipChar('-') and expression map ::OnRemove
+    val atom = onGain or onRemove
+    val prod = prodBox(atom) map Trigger::Prod
+    val uncond = atom or prod
+    val condit = uncond and skipWord("IF") and predicate map { (a, b) -> Conditional(a, b) }
+    val trigger = publish(condit or uncond)
 
-    private val colons = (twoColons map { true }) or (colon map { false })
-    val effect = publish(trigger and colons and maybeGroup(instruction) map {
-      (trig, immed, instr) -> Effect(trig, instr, immed)
-    })
-  }.effect)
+    val colons = skipChar(':') and optional(char(':')) map { it != null }
+    val effect = publish(
+        trigger and colons and maybeGroup(instruction) map { (trig, immed, instr) ->
+          Effect(trig, instr, immed)
+        }
+    )
+  }
+  val effect = publish(Effects.effect)
 
-  object ComponentStuff {
-    val isAbstract: Parser<Boolean> = (component map {false}) or (abstract map {true})
+  object ComponentClasses {
     //  val multiComponentLine: Parser<ComponentDecls> =
     //  isAbstract and separatedMultiple(expression, comma) and skip(newline) map {
-    //  (abst, exprs) -> ComponentDecls(exprs.map { ComponentDecl(it, abst) }.toSet())
+    //  (abst, exprs) -> ComponentDecls(exprs.map { ComponentClassDeclaration(it, abst) }.toSet())
     //}
 
-    val defaultSpec = skip(default) and instruction
-    val componentContent: Parser<PetaformNode> =
-        defaultSpec or action or effect or parser { componentDeclaration }
+    val nls: SkipParser = skip(zeroOrMore(char('\n')))
 
-    val contents = separatedTerms(optional(componentContent), newline) map { it.filterNotNull() }
-    val body: Parser<List<PetaformNode>> =
-        optionalList(skip(leftBrace and newline) and contents and skip(rightBrace))
+    val isAbstract: Parser<Boolean> = (word("component") map { false }) or (word("abstract") map { true })
+    val supertypes: Parser<List<Expression>> = optionalList(skipChar(':') and commaSeparated(expression))
 
-    val supertypes = optionalList(skip(colon) and separatedTerms(expression, comma))
-    val singleComponent: Parser<ComponentDecls> =
+    val default: Parser<Instruction> = skipWord("default") and instruction
+
+    val bodyElement: Parser<Any> = default or action or effect or parser { oneComponent }
+    val bodyContents: Parser<List<Any>> = separatedTerms(bodyElement, oneOrMore(char('\n')), acceptZero = true)
+    val body: Parser<List<Any>> = skipChar('{') and nls and bodyContents and nls and skipChar('}')
+
+    val oneComponentWithBody: Parser<List<ComponentClassDeclaration>> =
         isAbstract and expression and supertypes and body map {
-          (abst, expr, sups, contents) ->
-            val acts = contents.filterIsInstance<Action>().toSet()
-            val effs = contents.filterIsInstance<Effect>().toSet()
-            val defs = contents.filterIsInstance<Instruction>().toSet()
-            val subs = contents.filterIsInstance<ComponentDecls>().toSet()
-
-            val cd = ComponentDecl(expr, abst, sups.toSet(), acts, effs, defs, false)
-            ComponentDecls(setOf(cd) + subs.flatMap { it.decls }.map { insertSupertype(it, expr) }.toSet())
+          (abst, expr, sups, contents) -> declarations(abst, expr, sups, contents)
         }
 
-    private fun insertSupertype(comp: ComponentDecl, supertype: Expression) =
-        if (comp.complete) {
-          comp
-        } else if (comp.supertypes.any { it.rootType == supertype.rootType }) { // TODO
-          comp.copy(complete = true)
+    private fun declarations(abst: Boolean, expr: Expression, sups: List<Expression>, contents: List<Any>):
+        List<ComponentClassDeclaration> {
+      val acts = contents.filterIsInstance<Action>().toSet()
+      val effs = contents.filterIsInstance<Effect>().toSet()
+      val defs = contents.filterIsInstance<Instruction>().toSet()
+      val subs = contents.filterIsInstance<List<ComponentClassDeclaration>>().toSet()
+
+      val cd = ComponentClassDeclaration(expr, abst, sups.toSet(), acts, effs, defs, complete = false)
+      return listOf(cd) + subs.flatten().map {
+        if (it.complete) {
+          it
+        } else if (it.supertypes.any { it.rootType == expr.rootType }) { // TODO
+          it.copy(complete = true)
         } else {
-          comp.copy(supertypes = comp.supertypes + Expression(supertype.rootType), complete = true)
+          it.copy(supertypes = it.supertypes + Expression(expr.rootType), complete = true)
         }
+      }
+    }
 
-    val componentDeclaration: Parser<ComponentDecls> =
-        optional(singleComponent) map { it ?: ComponentDecls() }
+    val oneComponentWithoutBody = isAbstract and expression and supertypes map {
+      (abst, expr, sups) -> listOf(ComponentClassDeclaration(expr, abst, sups.toSet(), complete=false))
+    }
+    val oneComponent = oneComponentWithBody or oneComponentWithoutBody
 
     val components: Parser<ComponentDecls> =
-        separatedTerms(componentDeclaration, newline) map {
-          ComponentDecls(it.flatMap(ComponentDecls::decls).map { it.copy(complete=true) }.toSet())
+        nls and separatedTerms(oneComponent, oneOrMore(char('\n'))) and nls map {
+          ComponentDecls(it.flatten().map { it.copy(complete = true) }.toSet())
         }
+
+  }
+  val components = publish(ComponentClasses.components)
+
+  fun literal(l: String) = literalCache.get(l)
+  fun char(c: Char) = literal("$c")
+  fun regex(r: String) = regexCache.get(r)
+  fun word(w: String) = regex("\\b$w\\b")
+
+  fun skipChar(c: Char) = skip(char(c))
+  fun skipWord(w: String) = skip(word(w))
+
+  val tokenizer by lazy {
+    DefaultTokenizer(ignored + regexCache.asMap().values + literalCache.asMap().values)
   }
 
-  val components = publish(ComponentStuff.components)
-
-  private fun regex(r: String, ignore: Boolean = false) = regexToken(r, ignore).also { tokens += it }
-  private fun literal(l: String, ignore: Boolean = false) = literalToken(l, ignore).also { tokens += it }
-
-  private fun gated(pair: Tuple2<Predicate, Instruction>) = Gated(pair.t1, pair.t2)
-  private fun gain(pair: Tuple2<QuantifiedExpression, Intensity?>) = Gain(pair.t1, pair.t2)
-  private fun remove(pair: Tuple2<QuantifiedExpression, Intensity?>) = Remove(pair.t1, pair.t2)
-
-  private inline fun <reified T> optionalList(parser: Parser<List<T>>) =
+  inline fun <reified T> optionalList(parser: Parser<List<T>>) =
       optional(parser) map { it ?: listOf() }
 
-  private inline fun <reified T> prodBox(parser: Parser<T>) =
+  inline fun <reified T> prodBox(parser: Parser<T>) =
       skip(prodStart) and parser and skip(prodEnd)
 
-  private inline fun <reified T> separatedMultiple(term: Parser<T>, sep: Token): Parser<List<T>> {
-    return term and skip(sep) and separatedTerms(term, sep) map { (first, rest) ->
-      listOf(first) + rest
-    }
-  }
+  inline fun <reified P> commaSeparated(p: Parser<P>) = separatedTerms(p, char(','))
 
-  private inline fun <reified T> group(contents: Parser<T>) =
-      skip(leftParen) and contents and skip(rightParen)
+  inline fun <reified T> parens(contents: Parser<T>) = skipChar('(') and contents and skipChar(')')
 
-  private inline fun <reified T> maybeGroup(contents: Parser<T>) =
-      group(contents) or contents
+  inline fun <reified T> maybeGroup(contents: Parser<T>) = parens(contents) or contents
 
-  private inline fun <reified P : PetaformNode> publish(parser: Parser<P>): Parser<P> {
+  inline fun <reified P : PetaformNode> publish(parser: Parser<P>): Parser<P> {
     parsers[P::class] = parser
     return parser
   }
+
+  fun makeCache(thing: (String) -> Token) = CacheBuilder.newBuilder().build(CacheLoader.from(thing))
+
+  fun isEOF(result: ParseResult<Any>): Boolean =
+      when (result) {
+        is UnexpectedEof -> true
+        is AlternativesFailure -> result.errors.any(::isEOF)
+        else -> false
+      }
 }
