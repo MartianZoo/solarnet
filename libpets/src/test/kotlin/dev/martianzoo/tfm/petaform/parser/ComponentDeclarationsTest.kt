@@ -30,10 +30,7 @@ class ComponentDeclarationsTest {
 
   @Test
   fun body() {
-    assertThat(
-        parse(
-            ComponentClasses.oneComponent,
-            """
+    assertThat(parse(ComponentClasses.componentClump, """
           component Bar : Qux { default Foo?
             Foo -> Bar
 
@@ -42,17 +39,12 @@ class ComponentDeclarationsTest {
             component Foo
 
           }
-        """.trim()
-        )
-    ).hasSize(2)
+        """.trim())).hasSize(2)
   }
 
   @Test
   fun series() {
-    assertThat(
-        parse(
-            ComponentClasses.components,
-            """
+    assertThat(parse(ComponentClasses.componentsFile, """
         component Die {
         }
         component DieHard {
@@ -131,6 +123,21 @@ class ComponentDeclarationsTest {
         ComponentClassDeclaration(parse("Two"), abstract = true, supertypes = setOf(parse("One"))),
         ComponentClassDeclaration(parse("Three"), supertypes = setOf(parse("One"), parse("Four"))),
     )
+  }
+
+  @Test fun oneLiner() {
+    val cs = parse<ComponentDecls>("""
+      component One { This: That }
+    """)
+  }
+
+  @Test fun nestedOneLiner() {
+    val cs = parse<ComponentDecls>("""
+      component One {
+        component Two { This: That }
+        component Three { This: That }
+      }
+    """)
   }
 
   @Test fun default() {

@@ -94,7 +94,7 @@ class InstructionTest {
   }
 
   @Test fun random() {
-    for (i in 1..10000) {
+    for (i in 1..1000) {
       testRandom<Instruction>()
     }
   }

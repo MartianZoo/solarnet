@@ -3,9 +3,8 @@ abstract Component {
     default -Component!
 }
 
-abstract This
-
 abstract System
+abstract This : System
 
 abstract Ephemeral { // removes itself immediately - will never observe it existing
     // count 0..0
@@ -112,17 +111,11 @@ abstract Owned<Anyone> {
     abstract Resource {
         abstract StandardResource {
             component Megacredit
-            component Steel {
-                // Purchase<BuildingTag>:: Accept<This>
-            }
-            component Titanium {
-                // Purchase<SpaceTag>:: Accept<This>
-            }
+            component Steel // Purchase<BuildingTag>:: Accept<This>
+            component Titanium // Purchase<SpaceTag>:: Accept<This>
             component Plant
             component Heat
-            component Energy {
-                ProductionPhase:: Heat FROM This
-            }
+            component Energy { ProductionPhase:: Heat FROM This }
         }
     }
 
@@ -163,11 +156,7 @@ abstract Owned<Anyone> {
     }
 
     // For "follow mode"
-    abstract CardBack {
-        component CorporationCard
-        component PreludeCard
-        component ProjectCard
-    }
+    abstract CardBack { component CorporationCard, PreludeCard, ProjectCard }
 
     abstract OwnedTile : Tile {
         component GreeneryTile : OwnedTile<MarsArea> {
@@ -208,33 +197,16 @@ abstract Owned<Anyone> {
             // Purchase<CardFront>:: Purchase<This>     // VERY IFFY
             // CardFront:: This                         // VERY IFFY
 
-            component BuildingTag
-            component SpaceTag
-            component CityTag
-            component PowerTag
-            component ScienceTag
-
-            abstract BioTag {
-                component PlantTag
-                component MicrobeTag
-                component AnimalTag
-            }
-            abstract PlanetaryTag {
-                component EarthTag
-                component VenusTag
-                component JovianTag
-            }
+            component BuildingTag, SpaceTag, CityTag, PowerTag, ScienceTag
+            abstract BioTag    { component PlantTag, MicrobeTag, AnimalTag }
+            abstract PlanetTag { component EarthTag, JovianTag, VenusTag }
         }
 
         abstract CardResource : Resource { // , Cardbound<CardFront<CardResource>> { TODO
             -CardFront:: Die // gotta remove the resources first
             default CardResource.
 
-            component Animal
-            component Asteroid
-            component Floater
-            component Microbe
-            component Science
+            component Animal, Asteroid, Floater, Microbe, Science
 
             component NoResource : Die // so that non-holding cards have a type
         }
@@ -245,20 +217,18 @@ abstract Owned<Anyone> {
     }
 
     abstract UseAction : Ephemeral, System {
-        component UseAction1
-        component UseAction2
-        component UseAction3
+        component UseAction1, UseAction2, UseAction3, UseAction4
     }
 
     component PlayCard : Purchase<CardFront> {
-//          This:: $handleRequirement(CardFront), Owed<Megacredit> / $costOf(CardFront)
+//      This:: $handleRequirement(CardFront), Owed<Megacredit> / $costOf(CardFront)
         This: (MAX 0 PayWall: (CardFront, -ProjectCard))
     }
 }
 
 abstract GlobalParameter : Atomized {
     default GlobalParameter.
-    // default -GlobalParameter.
+    default -GlobalParameter.
 
     This: TerraformRating
 
@@ -295,50 +265,24 @@ abstract GlobalParameter : Atomized {
 component StandardAction {
     // count 1..1
 
-    component PlayCardFromHand {
-        -> PlayCard<CardFront>
-    }
-    component UseStandardProject {
-        -> UseAction<StandardProject>
-    }
-    component UseCardAction {
-        -> CardUsed<CardFront> THEN UseAction<CardFront>
-    }
-    component ConvertPlants {
-        8 Plant -> GreeneryTile
-    }
-    component ConvertHeat {
-        8 Heat -> TemperatureStep
-    }
-    component SellPatents {
-        1 ProjectCard -> 1 // TODO X
-    }
+    component PlayCardFromHand   { -> PlayCard<CardFront> }
+    component UseStandardProject { -> UseAction<StandardProject> }
+    component UseCardAction      { -> CardUsed<CardFront> THEN UseAction<CardFront> }
+    component ConvertPlants      { 8 Plant -> GreeneryTile }
+    component ConvertHeat        { 8 Heat -> TemperatureStep }
+    component SellPatents        { 1 ProjectCard -> 1 } // TODO X
 }
 
 component StandardProject {
     // count 1..1
 
-    component PowerPlant {
-        11 -> PROD[Energy]
-    }
-    component AsteroidSP {
-        14 -> TemperatureStep
-    }
-    component AirScrapping {
-        15 -> VenusStep
-    }
-    component BufferGas {
-        16 -> TerraformRating
-    }
-    component Aquifer {
-        18 -> OceanTile
-    }
-    component Greenery {
-        23 -> GreeneryTile
-    }
-    component City {
-        25 -> CityTile, PROD[1]
-    }
+    component PowerPlant   { 11 -> PROD[Energy] }
+    component AsteroidSP   { 14 -> TemperatureStep }
+    component AirScrapping { 15 -> VenusStep }
+    component BufferGas    { 16 -> TerraformRating }
+    component Aquifer      { 18 -> OceanTile }
+    component Greenery     { 23 -> GreeneryTile }
+    component City         { 25 -> CityTile, PROD[1] }
 }
 
 abstract NextCardEffect : Generational, System {
@@ -348,12 +292,8 @@ abstract NextCardEffect : Generational, System {
 }
 
 // TODO move these to card defns?
-component Card206Effect : NextCardEffect {
-    Purchase<CardFront>:: -2 Required<GlobalParameter>
-}
-component Card195Effect : NextCardEffect {
-    Purchase<CardFront>:: -8 Owed
-}
+component Card206Effect : NextCardEffect { Purchase<CardFront>:: -2 Required<GlobalParameter> }
+component Card195Effect : NextCardEffect { Purchase<CardFront>:: -8 Owed }
 
 component Disease : CardResource
 component Fighter: CardResource

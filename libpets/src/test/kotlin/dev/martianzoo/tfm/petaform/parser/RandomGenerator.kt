@@ -22,8 +22,13 @@ object RandomGenerator {
   }
 
   init {
-    register { Expression(random(), listOfSize(choose(16 to 0, 2 to 1, 1 to 2, 1 to 3)), chooseS(12 to { null }, 1 to { random() })) }
-    register { RootType(choose("Foo", "Bar", "Baz", "Bat", "Qux", "Abc", "Xyz", "Wau")) }
+    register {
+      Expression(
+          random(),
+          listOfSize(choose(16 to 0, 2 to 1, 1 to 2, 1 to 3)),
+          chooseS(12 to { null }, 1 to { random() }))
+    }
+    register { RootType(choose("Foo", "Bar", "Baz", "Qux", "Abc", "Xyz", "One", "Two", "Six", "Wau")) }
 
     register { Action(choose(1 to null, 3 to random()), random()) }
 
