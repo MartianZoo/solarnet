@@ -1,7 +1,5 @@
 package dev.martianzoo.tfm.petaform.api
 
-import kotlin.Int.Companion.MAX_VALUE
-
 sealed class Instruction : PetaformNode() {
   data class Gain(val qe: QuantifiedExpression, val intensity: Intensity? = null) : Instruction() {
     constructor(expr: Expression, scalar: Int = 1, intensity: Intensity? = null) :
@@ -52,25 +50,32 @@ sealed class Instruction : PetaformNode() {
       it.toStringWithin(this)
     }
     override fun precedence() = 3
-    override fun groupWithin(container: Instruction): Boolean {
+    override fun groupWithin(container: PetaformNode): Boolean {
       return container is Then || super.groupWithin(container)
     }
   }
 
-  data class Prod(val instruction: Instruction) : Instruction(), ProdBox {
+  data class Prod(val instruction: Instruction) : Instruction() {
     override val children = listOf(instruction)
     override fun toString() = "PROD[$instruction]"
     override fun countProds() = super.countProds() + 1
   }
 
   data class Per(val instruction: Instruction, val qe: QuantifiedExpression): Instruction() {
-    init { require(qe.scalar != 0) }
+    init {
+      require(qe.scalar != 0)
+      when (instruction) {
+        is Gain, is Remove, is Transmute -> {}
+        else -> error("")
+      }
+    }
     override val children = listOf(instruction, qe)
     override fun toString() = "$instruction / ${qe.petaform(forceExpression = true)}"
     override fun precedence() = 5
   }
 
   data class Gated(val predicate: Predicate, val instruction: Instruction): Instruction() {
+    init { require(instruction !is Gated) } // you don't gate a gater
     override val children = listOf(predicate, instruction)
     override fun toString(): String {
       val pred = when (predicate) { // TODO generalize somehow
@@ -85,7 +90,7 @@ sealed class Instruction : PetaformNode() {
     override fun precedence() = 4
 
     // let's over-group for clarity
-    override fun groupWithin(container: Instruction) =
+    override fun groupWithin(container: PetaformNode) =
         container is Or || super.groupWithin(container)
   }
 
@@ -124,8 +129,4 @@ sealed class Instruction : PetaformNode() {
           })
         }
   }
-
-  open fun precedence(): Int = MAX_VALUE
-  fun toStringWithin(container: Instruction) = if (groupWithin(container)) "(${this})" else "$this"
-  open fun groupWithin(container: Instruction) = precedence() <= container.precedence()
 }

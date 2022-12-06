@@ -33,8 +33,9 @@ data class Expression(
 data class RootType(val name: String) : PetaformNode() {
   override val children = listOf<PetaformNode>()
   init {
-    require(name.matches(Regex("^[A-Z][a-z][A-Za-z0-9_]*$"))) { name }
-//    require(ctypeName != "Production")
+    require(name.matches(NAME_REGEX)) { name }
   }
   override fun toString() = name
 }
+
+val NAME_REGEX = Regex("^[A-Z][a-z][A-Za-z0-9_]*$")

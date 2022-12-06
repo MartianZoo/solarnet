@@ -47,7 +47,7 @@ sealed class Predicate : PetaformNode() {
     override fun precedence() = 1
   }
 
-  data class Prod(val predicate: Predicate) : Predicate(), ProdBox {
+  data class Prod(val predicate: Predicate) : Predicate() {
     override val children = listOf(predicate)
     override fun toString() = "PROD[${predicate}]"
     override fun countProds() = super.countProds() + 1
@@ -60,8 +60,4 @@ sealed class Predicate : PetaformNode() {
     fun or(predicates: List<Predicate>) =
         if (predicates.size == 1) predicates[0] else Or(predicates)
   }
-
-  open fun precedence(): Int = Int.MAX_VALUE
-  fun toStringWithin(container: Predicate) = if (groupWithin(container)) "(${this})" else "$this"
-  open fun groupWithin(container: Predicate) = precedence() <= container.precedence()
 }

@@ -30,7 +30,7 @@ data class Action(val cost: Cost?, val instruction: Instruction) : PetaformNode(
       override fun precedence() = 3
     }
 
-    data class Prod(val cost: Cost) : Cost(), ProdBox {
+    data class Prod(val cost: Cost) : Cost() {
       override val children = listOf(cost)
       override fun toString() = "PROD[${cost}]"
       override fun countProds() = super.countProds() + 1
@@ -67,10 +67,5 @@ data class Action(val cost: Cost?, val instruction: Instruction) : PetaformNode(
         )
       }
     }
-
-    open fun precedence(): Int = Int.MAX_VALUE
-    fun toStringWithin(container: Cost) = if (groupWithin(container)) "(${this})" else "$this"
-    open fun groupWithin(container: Cost) = precedence() <= container.precedence()
-
   }
 }

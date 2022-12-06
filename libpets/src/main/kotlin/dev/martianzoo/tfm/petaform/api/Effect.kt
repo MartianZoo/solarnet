@@ -28,7 +28,7 @@ data class Effect(
       override fun toString() = "-${expression}"
     }
 
-    data class Prod(val trigger: Trigger) : Trigger(), ProdBox {
+    data class Prod(val trigger: Trigger) : Trigger() {
       override val children = listOf(trigger)
       override fun toString() = "PROD[${trigger}]"
       override fun countProds() = super.countProds() + 1
