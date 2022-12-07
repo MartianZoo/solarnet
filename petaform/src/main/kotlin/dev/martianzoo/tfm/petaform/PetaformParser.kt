@@ -45,10 +45,10 @@ object PetaformParser {
   fun <T> parse(parser: Parser<T>, petaform: String) =
       parser.parseToEnd(tokenizer.tokenize(petaform))
 
-  fun parseComponentClasses(arg: String): List<ComponentClassDeclaration> {
+  fun parseComponentClasses(arg: String): List<ComponentDeclaration> {
     var index = 0
-    val comps = mutableListOf<ComponentClassDeclaration>()
-    var result: ParseResult<List<ComponentClassDeclaration>>? = null
+    val comps = mutableListOf<ComponentDeclaration>()
+    var result: ParseResult<List<ComponentDeclaration>>? = null
     do {
       if (result is ErrorResult) throw ParseException(result)
       result = ComponentClasses.componentClump.tryParse(tokenizer.tokenize(arg), index)
@@ -239,18 +239,18 @@ object PetaformParser {
 
     val interior = separatedTerms(count or default or action or effect, char(';'))
     val oneLineBody = skipChar('{') and interior and skipChar('}')
-    val oneLineComponent: Parser<ComponentClassDeclaration> =
+    val oneLineComponent: Parser<ComponentDeclaration> =
         isAbstract and signature and optionalList(oneLineBody) map {
       (abs, sig, body) -> createCcd(abs, sig, body).first().copy(complete = true)
     }
 
     private fun createCcd(abst: Boolean, sig: Signature, contents: List<Any> = listOf()):
-        List<ComponentClassDeclaration> {
+        List<ComponentDeclaration> {
       val cnts = contents.filterIsInstance<Count>().toSet()
       val defs = contents.filterIsInstance<Instruction>().toSet()
       val acts = contents.filterIsInstance<Action>().toSet()
       val effs = contents.filterIsInstance<Effect>().toSet()
-      val subs = contents.filterIsInstance<List<ComponentClassDeclaration>>().toSet()
+      val subs = contents.filterIsInstance<List<ComponentDeclaration>>().toSet()
 
       val count = when (cnts.size) {
         0 -> Count(0, null)
@@ -258,7 +258,7 @@ object PetaformParser {
         else -> error("")
       }
 
-      val cd = ComponentClassDeclaration(
+      val cd = ComponentDeclaration(
           sig.expr, abst, sig.sups.toSet(), acts, effs, defs, count.min, count.max, complete = false)
       return listOf(cd) + subs.flatten().map {
         if (it.supertypes.any { it.className == sig.expr.className }) { // TODO

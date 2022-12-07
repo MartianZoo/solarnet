@@ -1,7 +1,7 @@
 package dev.martianzoo.tfm.data
 
 import com.squareup.moshi.Json
-import dev.martianzoo.tfm.petaform.ComponentClassDeclaration
+import dev.martianzoo.tfm.petaform.ComponentDeclaration
 import dev.martianzoo.tfm.petaform.classNamePattern
 
 /**
@@ -55,7 +55,7 @@ data class ComponentDefinition(
   override val asComponentDefinition = this
 
   companion object {
-    fun from(ccd: ComponentClassDeclaration): ComponentDefinition {
+    fun from(ccd: ComponentDeclaration): ComponentDefinition {
       return ComponentDefinition(
           ccd.expression.className,
           ccd.abstract,

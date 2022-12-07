@@ -21,7 +21,7 @@ class ComponentDeclarationsTest {
         .isEqualTo(Action(Spend(Expression("Foo")), Gain(Expression("Bar"))))
     assertThat(parse(ComponentClasses.repeatableElement, "Foo: Bar")).isInstanceOf(Effect::class.java)
     assertThat(parse(ComponentClasses.repeatableElement, "class Foo"))
-        .isEqualTo(listOf(ComponentClassDeclaration(Expression("Foo"), complete=false)))
+        .isEqualTo(listOf(ComponentDeclaration(Expression("Foo"), complete=false)))
   }
 
   @Test
@@ -62,7 +62,7 @@ class ComponentDeclarationsTest {
     val cs = parseComponentClasses("""
         abstract class One
     """)
-    assertThat(cs).containsExactly(ComponentClassDeclaration(Expression("One"), abstract=true))
+    assertThat(cs).containsExactly(ComponentDeclaration(Expression("One"), abstract=true))
   }
 
   @Test
@@ -74,9 +74,9 @@ class ComponentDeclarationsTest {
         abstract class Three
     """)
     assertThat(cs).containsExactly(
-        ComponentClassDeclaration(Expression("One"), abstract=true),
-        ComponentClassDeclaration(Expression("Two"), abstract=false),
-        ComponentClassDeclaration(Expression("Three"), abstract=true),
+        ComponentDeclaration(Expression("One"), abstract=true),
+        ComponentDeclaration(Expression("Two"), abstract=false),
+        ComponentDeclaration(Expression("Three"), abstract=true),
     )
   }
 
@@ -85,7 +85,7 @@ class ComponentDeclarationsTest {
         class One : Two, Three
     """)
     assertThat(cs).containsExactly(
-        ComponentClassDeclaration(
+        ComponentDeclaration(
             Expression("One"),
             supertypes = setOf(
                 Expression("Two"), Expression("Three")
@@ -99,7 +99,7 @@ class ComponentDeclarationsTest {
         class One<Two<Three>(HAS Four)> : Five(HAS 6 Seven), Eight<Nine>
     """)
     assertThat(cs).containsExactly(
-        ComponentClassDeclaration(
+        ComponentDeclaration(
             parse("One<Two<Three>(HAS Four)>"),
             supertypes = setOf(
                 parse("Five(HAS 6 Seven)"), parse("Eight<Nine>"))
@@ -116,9 +116,9 @@ class ComponentDeclarationsTest {
         }
     """)
     assertThat(cs).containsExactly(
-        ComponentClassDeclaration(parse("One")),
-        ComponentClassDeclaration(parse("Two"), abstract = true, supertypes = setOf(parse("One"))),
-        ComponentClassDeclaration(parse("Three"), supertypes = setOf(parse("One"), parse("Four"))),
+        ComponentDeclaration(parse("One")),
+        ComponentDeclaration(parse("Two"), abstract = true, supertypes = setOf(parse("One"))),
+        ComponentDeclaration(parse("Three"), supertypes = setOf(parse("One"), parse("Four"))),
     )
   }
 

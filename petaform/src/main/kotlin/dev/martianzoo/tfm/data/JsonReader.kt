@@ -2,7 +2,7 @@ package dev.martianzoo.tfm.data
 
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
-import dev.martianzoo.tfm.petaform.ComponentClassDeclaration
+import dev.martianzoo.tfm.petaform.ComponentDeclaration
 import dev.martianzoo.tfm.petaform.PetaformParser.parse
 import dev.martianzoo.util.Grid
 import java.util.*
@@ -67,7 +67,7 @@ internal object JsonReader {
 
   fun auxiliaryComponentDefinitions(cardDefs: Collection<CardDefinition>): Map<String, ComponentDefinition> =
     cardDefs.flatMap { it.componentsPetaform }
-        .map { parse<ComponentClassDeclaration>(it) }
+        .map { parse<ComponentDeclaration>(it) }
         .map { ComponentDefinition(
             it.expression.className,
             it.abstract,
@@ -81,7 +81,7 @@ internal object JsonReader {
         .associateBy { it.name }
 
   // You wouldn't normally use this, but have only a single map in play.
-  fun combine(vararg defs: Collection<out Definition>): Map<String, ComponentDefinition> {
+  fun combine(vararg defs: Collection<Definition>): Map<String, ComponentDefinition> {
     val allDefns: List<Definition> = defs.flatMap { it }
     return allDefns.map { it.asComponentDefinition }.associateBy { it.name }.also {
       require(it.size == allDefns.size)
