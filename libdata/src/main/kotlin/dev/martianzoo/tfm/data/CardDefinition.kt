@@ -109,7 +109,7 @@ data class CardDefinition(
      * officially don't count as such.
      */
     val projectKind: ProjectKind? = null,
-) : TfmDefinitionObject {
+) : Definition {
 
   init {
     require(id.isNotEmpty())
@@ -156,9 +156,9 @@ data class CardDefinition(
   val effects by lazy { effectsPetaform.map { parse<Effect>(it) }.toSet() }
   val requirement: Predicate? by lazy { requirementPetaform?.let(PetaformParser::parse) }
 
-  override val asComponentClassDefinition by lazy {
+  override val asComponentDefinition by lazy {
     val type = if (projectKind == null) "CardFront" else projectKind.type
-    ComponentClassDefinition(
+    ComponentDefinition(
         name = "Card$id",
         supertypesPetaform = setOf(type),
         immediatePetaform = immediate?.toString(), // TODO hack

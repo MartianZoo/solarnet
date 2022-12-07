@@ -30,6 +30,7 @@ import dev.martianzoo.tfm.petaform.api.Action.Cost
 import dev.martianzoo.tfm.petaform.api.Action.Cost.Spend
 import dev.martianzoo.tfm.petaform.api.ComponentClassDeclaration
 import dev.martianzoo.tfm.petaform.api.ComponentDecls
+import dev.martianzoo.tfm.petaform.api.DEFAULT_EXPRESSION
 import dev.martianzoo.tfm.petaform.api.Effect
 import dev.martianzoo.tfm.petaform.api.Effect.Trigger
 import dev.martianzoo.tfm.petaform.api.Effect.Trigger.Conditional
@@ -41,12 +42,10 @@ import dev.martianzoo.tfm.petaform.api.Instruction.Gain
 import dev.martianzoo.tfm.petaform.api.Instruction.Gated
 import dev.martianzoo.tfm.petaform.api.Instruction.Intensity.Companion.intensity
 import dev.martianzoo.tfm.petaform.api.Instruction.Remove
-import dev.martianzoo.tfm.petaform.api.Instruction.Then
 import dev.martianzoo.tfm.petaform.api.Instruction.Transmute
 import dev.martianzoo.tfm.petaform.api.PetaformNode
 import dev.martianzoo.tfm.petaform.api.Predicate
 import dev.martianzoo.tfm.petaform.api.QuantifiedExpression
-import dev.martianzoo.tfm.petaform.api.RootType
 import kotlin.reflect.KClass
 import kotlin.reflect.cast
 
@@ -95,14 +94,14 @@ object PetaformParser {
   val prodStart = word("PROD") and char('[')
   val prodEnd = char(']')
 
-  val rootType: Parser<RootType> = regex("\\b[A-Z][a-z][A-Za-z0-9_]*\\b") map { RootType(it.text) }
+  val className: Parser<String> = regex("\\b[A-Z][a-z][A-Za-z0-9_]*\\b") map { it.text }
 
   object Expressions {
     val anyExpression: Parser<Expression> = parser { expression }
     val specializations = optionalList(skipChar('<') and commaSeparated(anyExpression) and skipChar('>'))
     val refinement = optional(parens(skipWord("HAS") and parser { Predicates.predicate }))
 
-    val expression = rootType and specializations and refinement map {
+    val expression = className and specializations and refinement map {
       (type, refs, pred) -> Expression(type, refs, pred)
     }
   }
@@ -112,7 +111,7 @@ object PetaformParser {
     val scalar: Parser<Int> = regex("\\b(0|[1-9][0-9]*)\\b") map { it.text.toInt() }
     val implicitScalar: Parser<Int> = optional(scalar) map { it ?: 1 }
     val implicitType: Parser<Expression> = optional(Expressions.anyExpression) map {
-      it ?: Expression.DEFAULT
+      it ?: DEFAULT_EXPRESSION
     }
 
     val qeWithScalar = scalar and implicitType map { (scalar, expr) ->
@@ -158,15 +157,13 @@ object PetaformParser {
 
     val maybeProd = maybePer or (prodBox(anyInstr) map Instruction::Prod)
 
-    val atomInstruction = maybeProd or anyGroup
+    val atomInstruction = anyGroup or maybeProd
 
     val gated = optional(Predicates.atomPredicate and skipChar(':')) and atomInstruction map {
       (one, two) -> if (one == null) two else Gated(one, two)
     }
     val orInstr = separatedTerms(gated, word("OR")) map Instruction::or
-    val then = optional(orInstr and skipWord("THEN")) and orInstr map {
-      (one, two) -> if (one == null) two else Then(one, two)
-    }
+    val then = separatedTerms(orInstr, word("THEN")) map Instruction::then
     val instruction = commaSeparated(then) map Instruction::multi
   }
   val instruction = publish(Instructions.instruction)
@@ -270,10 +267,10 @@ object PetaformParser {
       val cd = ComponentClassDeclaration(
           sig.expr, abst, sig.sups.toSet(), acts, effs, defs, count.min, count.max, complete = false)
       return listOf(cd) + subs.flatten().map {
-        if (it.supertypes.any { it.rootType == sig.expr.rootType }) { // TODO
+        if (it.supertypes.any { it.className == sig.expr.className }) { // TODO
           it.copy(complete = true)
         } else {
-          it.copy(supertypes = it.supertypes + Expression(sig.expr.rootType), complete = true)
+          it.copy(supertypes = it.supertypes + Expression(sig.expr.className), complete = true)
         }
       }
     }

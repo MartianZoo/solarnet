@@ -31,6 +31,10 @@ sealed class Instruction : PetaformNode() {
   }
 
   data class Multi(val instructions: List<Instruction>) : Instruction() {
+    init {
+      if (instructions.any { it is Multi })
+        throw PetaformException()
+    }
     override val children = instructions
     override fun toString() = instructions.joinToString {
       it.toStringWithin(this)
@@ -38,13 +42,23 @@ sealed class Instruction : PetaformNode() {
     override fun precedence() = 1
   }
 
-  data class Then(val cause: Instruction, val effect: Instruction): Instruction() {
-    override val children = listOf(cause, effect)
-    override fun toString() = "${cause.toStringWithin(this)} THEN ${effect.toStringWithin(this)}"
+  data class Then(val instructions: List<Instruction>) : Instruction() {
+    init {
+      if (instructions.any { it is Then })
+        throw PetaformException()
+    }
+    override val children = instructions
+    override fun toString() = instructions.joinToString (" THEN ") {
+      it.toStringWithin(this)
+    }
     override fun precedence() = 2
   }
 
   data class Or(val instructions: List<Instruction>) : Instruction() {
+    init {
+      if (instructions.any { it is Or })
+        throw PetaformException()
+    }
     override val children = instructions
     override fun toString() = instructions.joinToString(" OR ") {
       it.toStringWithin(this)
@@ -83,13 +97,7 @@ sealed class Instruction : PetaformNode() {
     }
     override val children = listOf(predicate, instruction)
     override fun toString(): String {
-      val pred = when (predicate) { // TODO generalize somehow
-        is Predicate.Or -> "(${predicate})"
-        is Predicate.And -> "(${predicate})"
-        else -> "$predicate"
-      }
-      val instr = instruction.toStringWithin(this)
-      return "$pred: $instr"
+      return "${predicate.toStringWithin(this)}: ${instruction.toStringWithin(this)}"
     }
 
     override fun precedence() = 4
@@ -121,6 +129,16 @@ sealed class Instruction : PetaformNode() {
         } else {
           Multi(instructions.flatMap {
             if (it is Multi) it.instructions else listOf(it)
+          })
+        }
+
+    fun then(vararg instructions: Instruction) = then(instructions.toList())
+    fun then(instructions: List<Instruction>): Instruction =
+        if (instructions.size == 1) {
+          instructions[0]
+        } else {
+          Then(instructions.flatMap {
+            if (it is Then) it.instructions else listOf(it)
           })
         }
 

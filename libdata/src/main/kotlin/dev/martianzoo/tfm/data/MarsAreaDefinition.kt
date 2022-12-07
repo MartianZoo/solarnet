@@ -30,7 +30,7 @@ data class MarsAreaDefinition(
 
     /** In cryptic text form */
     val textual: String,
-) : TfmDefinitionObject {
+) : Definition {
 
   init {
     require(mapName.isNotEmpty())
@@ -42,14 +42,14 @@ data class MarsAreaDefinition(
   val bonus: Instruction? by lazy { bonusPetaform?.let { parse(it) } }
   val type: Expression by lazy { parse(typePetaform) }
 
-  override val asComponentClassDefinition by lazy {
+  override val asComponentDefinition by lazy {
     val effects =
         if (bonusPetaform == null) {
           setOf()
         } else {
           setOf("Tile<This>: $bonusPetaform") // don't want to have to do this in code like that
         }
-    ComponentClassDefinition(componentName(), supertypesPetaform = setOf(typePetaform), effectsPetaform = effects)
+    ComponentDefinition(componentName(), supertypesPetaform = setOf(typePetaform), effectsPetaform = effects)
   }
 
   fun componentName() = "${mapName}${row}_$column"

@@ -2,7 +2,7 @@ package dev.martianzoo.tfm.types
 
 import com.google.common.truth.Truth.assertThat
 import org.junit.jupiter.api.Test
-import dev.martianzoo.tfm.data.ComponentClassDefinition as CCD
+import dev.martianzoo.tfm.data.ComponentDefinition as CCD
 
 class ComponentTypesTest {
   @Test

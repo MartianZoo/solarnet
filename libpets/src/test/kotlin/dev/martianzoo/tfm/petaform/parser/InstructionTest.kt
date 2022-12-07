@@ -2,9 +2,9 @@ package dev.martianzoo.tfm.petaform.parser
 
 import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.tfm.petaform.api.Instruction
+import dev.martianzoo.tfm.petaform.parser.PetaformParser.Instructions
 import dev.martianzoo.tfm.petaform.parser.PetaformParser.parse
 import org.junit.jupiter.api.Test
-import javax.swing.text.html.HTML.Tag.P
 import kotlin.math.pow
 
 class InstructionTest {
@@ -66,7 +66,7 @@ class InstructionTest {
     5 Bar<Bar<Foo>>, 1 Foo FROM Abc, 1 Foo FROM Qux<Qux, Abc>
     Bar: -Abc, (Foo, MAX 1 Bar): (Foo, -Foo, Foo), -3 Foo<Foo>
     1 Ahh FROM Abc<Abc> OR 3 Bar<Xyz<Foo<Abc>, Bar<Abc<Foo>>>>!
-    MAX 1 Foo: ((Abc / Foo OR Qux) THEN ((-Foo, Bar) THEN -Foo))
+    MAX 1 Foo: ((Abc / Foo OR Qux) THEN (-Foo, Bar) THEN -Foo)
     Foo<Foo<Qux>>, -Qux!, Bar<Bar<Foo>>, 1 Ahh<Eep> FROM Ahh<Abc>
     (-Foo THEN (Foo, Foo)) OR (1 Qux FROM Bar THEN Qux / Qux<Foo>)
     3 Bar., (Foo<Abc>, Qux OR 3 Foo) THEN -Foo<Foo, Foo<Bar>> / Foo
@@ -82,12 +82,10 @@ class InstructionTest {
     5 Foo(HAS Foo<Bar>). FROM Foo THEN (Foo OR -3 Foo! OR (MAX 1 Bar: 3 Foo))
     (Foo, Xyz, (MAX 1 Qux<Foo>, Foo<Bar>): Qux) OR (3 Bar: (-Foo / Bar, -Foo))
     Foo OR Bar / Foo, (Qux, Foo, Foo<Foo>) OR 3 Abc, Bar / Xyz THEN -3 Foo, Qux
-    (MAX 1 Bar<Foo<Foo>> OR MAX 1 Foo): ((Foo<Foo> THEN Foo) THEN Foo: Foo<Foo>)
     (Foo<Bar<Bar>> THEN Foo) OR (Qux<Foo>, 3 Bar, 3 Foo, Foo / Qux) OR (Bar, Bar)
-    MAX 1 Bar: ((Bar / Qux THEN Qux) THEN (3 Bar<Bar> THEN (-Foo OR Foo / 3 Foo)))
+    MAX 1 Bar: (Bar / Qux THEN Qux THEN 3 Bar<Bar> THEN (-Foo OR Foo / 3 Foo))
     (Foo, Abc / Foo) OR (Foo<Foo, Abc>: Qux) OR (MAX 1 Foo: (Foo OR Abc<Qux<Foo>>))
     3 Bar! OR 5 Qux, 1 Qux<Foo> FROM Eep OR (Foo, (Foo, Foo): Foo, -Foo) OR Bar<Bar>
-    (Foo THEN (Foo THEN Xyz<Bar<Foo>>)) OR ((Foo OR MAX 1 Foo<Foo>): (Abc, Foo<Abc>))
     (((Qux OR MAX 1 Foo<Bar>) OR Bar<Foo>) OR (Bar, MAX 1 Foo)): (-Bar, Bar, Foo, Foo)
     Bar, -5 Foo<Foo<Foo, Bar>> THEN (Bar OR (MAX 1 Qux OR Bar)): Bar, Abc / 3 Foo, -Bar
     Ahh: (1 Xyz<Foo<Foo<Bar>>> FROM Bar OR (Foo<Foo> OR 1 Bar FROM Foo, 1 Bar FROM Foo))
@@ -105,12 +103,12 @@ class InstructionTest {
   """.trimIndent().split('\n')
 
   @Test fun testSampleStrings() {
-    assertThat(inputs.filterNot { checkRoundTrip(it) }).isEmpty()
+    inputs.forEach { testRoundTrip(it) }
   }
 
   @Test fun stressTest() {
     val gen = generator(20)
-    assertThat((1..10000).flatMap {
+    assertThat((1..1000).flatMap {
       val node = gen.makeRandomNode<Instruction>()
       val str = node.toString()
       val trip: Instruction = parse(str)
@@ -121,6 +119,22 @@ class InstructionTest {
     }).isEmpty()
   }
 
+  @Test fun thens() {
+    val s = "MAX 1 Foo: ((Abc / Foo OR Qux) THEN (-Foo, Bar) THEN -Foo)"
+    parse(Instructions.perable, "Abc")
+    parse(Instructions.maybePer, "Abc / Foo")
+    parse(Instructions.orInstr, "Abc / Foo OR Qux")
+    parse(Instructions.anyGroup, "(Abc / Foo OR Qux)")
+    parse(Instructions.then, "(Abc / Foo OR Qux) THEN (-Foo, Bar) THEN -Foo")
+  }
+
+  @Test fun debug2() {
+    val s = "Qux: (Foo: -Foo) OR -Bar / 5 Foo<Foo<Foo, Bar>, Qux<Foo>>"
+    parse(PetaformParser.expression, "Foo<Foo<Foo, Bar>, Qux<Foo>>")
+    parse(PetaformParser.qe, "5 Foo<Foo<Foo, Bar>, Qux<Foo>>")
+    parse(Instructions.maybePer, "-Bar / 5 Foo<Foo<Foo, Bar>, Qux<Foo>>")
+    parse(Instructions.maybePer, "-Bar / 5 Foo<Foo<Foo, Bar>, Qux<Foo>>")
+  }
   private fun testRoundTrip(start: String, end: String = start) =
       assertThat(parse<Instruction>(start).toString()).isEqualTo(end)
 

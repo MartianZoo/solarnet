@@ -35,6 +35,11 @@ data class Effect(
     }
 
     data class Conditional(val trigger: Trigger, val predicate: Predicate) : Trigger() {
+      init {
+        if (trigger is Conditional) {
+          throw PetaformException()
+        }
+      }
       override val children = listOf(trigger, predicate)
       override fun toString() = "$trigger IF $predicate"
     }

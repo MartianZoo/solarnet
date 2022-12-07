@@ -6,7 +6,7 @@ import com.squareup.moshi.Json
  * The declaration of a component class, such as GreeneryTile. Models the declaration textually as
  * it was provided.
  */
-data class ComponentClassDefinition(
+data class ComponentDefinition(
     /** Unique name for this component class. */
     val name: String,
 
@@ -44,11 +44,11 @@ data class ComponentClassDefinition(
      */
     @Json(name = "effects")
     val effectsPetaform: Set<String> = setOf(),
-) : TfmDefinitionObject {
+) : Definition {
 
   init {
     require(name.matches(CTYPE_PATTERN))
   }
 
-  override val asComponentClassDefinition = this
+  override val asComponentDefinition = this
 }

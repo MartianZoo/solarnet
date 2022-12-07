@@ -23,13 +23,11 @@ class PetaformGenerator(scaling: (Int) -> Double = { 1.5 / 1.2.pow(it) - 1.0 })
       val specSizes = toListWeirdly(multiset(27 to 0, 9 to 1, 3 to 2, 1 to 3)) // count to value
       register {
         Expression(
-            recurse(),
+            choose("Foo", "Bar", "Qux", "Abc", "Xyz", "Ooh", "Ahh", "Eep", "Wau"),
             listOfSize(choose(specSizes)),
             chooseS(9 to { null }, 1 to { recurse() })
         )
       }
-      register { RootType(choose("Foo", "Bar", "Qux", "Abc", "Xyz", "Ooh", "Ahh", "Eep", "Wau")) }
-
       register { Action(choose(1 to null, 3 to recurse<Cost>()), recurse<Instruction>()) }
 
       val costTypes = toListWeirdly(multiset(
@@ -72,9 +70,9 @@ class PetaformGenerator(scaling: (Int) -> Double = { 1.5 / 1.2.pow(it) - 1.0 })
       register { Instruction.Gain(recurse(), intensity()) }
       register { Instruction.Remove(recurse(), intensity()) }
       register { Instruction.Transmute(recurse(), recurse(), recurse<QuantifiedExpression>().scalar, intensity()) }
-      register { Instruction.Then(recurse(), recurse()) }
       register { Instruction.Gated(recurse(), recurse()) }
       register { Instruction.Per(recurse(), recurse()) }
+      register { Instruction.then(listOfSize(choose(2, 2, 2, 3))) as Instruction.Then }
       register { Instruction.multi(listOfSize(choose(2, 2, 2, 2, 2, 3, 4))) as Instruction.Multi }
       register { Instruction.or(listOfSize(choose(2, 2, 2, 2, 3))) as Instruction.Or }
 

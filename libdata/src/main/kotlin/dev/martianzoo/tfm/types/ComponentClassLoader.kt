@@ -1,13 +1,12 @@
 package dev.martianzoo.tfm.types
 
-import dev.martianzoo.tfm.data.ComponentClassDefinition
-import dev.martianzoo.tfm.data.TfmDefinitionObject
+import dev.martianzoo.tfm.data.ComponentDefinition
+import dev.martianzoo.tfm.data.Definition
 import dev.martianzoo.tfm.petaform.api.Action
 import dev.martianzoo.tfm.petaform.api.Effect
 import dev.martianzoo.tfm.petaform.api.Expression
 import dev.martianzoo.tfm.petaform.api.Instruction
 import dev.martianzoo.tfm.petaform.api.PetaformNode
-import dev.martianzoo.tfm.petaform.api.RootType
 import dev.martianzoo.tfm.petaform.parser.PetaformParser.parse
 import dev.martianzoo.tfm.types.DependencyMap.DependencyKey
 
@@ -16,10 +15,10 @@ class ComponentClassLoader {
 
   fun snapshot() = ComponentClassTable(table)
 
-  fun loadAll(objects: Iterable<TfmDefinitionObject>) = objects.forEach(::load)
+  fun loadAll(objects: Iterable<Definition>) = objects.forEach(::load)
 
-  fun load(obj: TfmDefinitionObject): ComponentClass {
-    val defn = obj.asComponentClassDefinition
+  fun load(obj: Definition): ComponentClass {
+    val defn = obj.asComponentDefinition
     val supertypes = deriveSupertypes(defn)
     val superclasses = supertypes.map(ComponentType::componentClass).toSet()
     val dependencies = deriveDependencies(defn, supertypes)
@@ -32,14 +31,14 @@ class ComponentClassLoader {
   fun pad(s: Any, width: Int) = ("$s" + " ".repeat(width)).substring(0, width)
 
   fun resolve(expr: Expression): ComponentType {
-    val rootType = table[expr.rootType.name] ?: error(expr.rootType.name)
+    val theClass = table[expr.className] ?: error(expr.className)
     val specializations = expr.specializations.map(::resolve)
-    return ComponentType(rootType, rootType.dependencies.specialize(specializations))
+    return ComponentType(theClass, theClass.dependencies.specialize(specializations))
   }
 
   fun resolve(exprPetaform: String): ComponentType = resolve(parse(exprPetaform))
 
-  private fun deriveSupertypes(defn: ComponentClassDefinition) = when {
+  private fun deriveSupertypes(defn: ComponentDefinition) = when {
     defn.name == "Component" -> setOf()
     defn.supertypesPetaform.isEmpty() -> setOf(resolve("Component"))
     else -> {
@@ -54,25 +53,25 @@ class ComponentClassLoader {
     }
   }
 
-  private fun deriveDependencies(defn: ComponentClassDefinition, supertypes: Set<ComponentType>): DependencyMap {
+  private fun deriveDependencies(defn: ComponentDefinition, supertypes: Set<ComponentType>): DependencyMap {
     val brandNewDeps = defn.dependenciesPetaform.withIndex().map { (i, typeExpr) ->
       DependencyKey(defn.name, index = i + 1) to resolve(typeExpr)
     }.toMap()
     return DependencyMap.merge(supertypes.map { it.dependencies } + DependencyMap(brandNewDeps))
   }
 
-  private fun deriveImmediate(defn: ComponentClassDefinition): Instruction? {
+  private fun deriveImmediate(defn: ComponentDefinition): Instruction? {
     val immediate: Instruction? = defn.immediatePetaform?.let(::parse)
     immediate?.let(::verifyClassNames)
     return immediate
   }
 
-  private fun deriveActions(defn: ComponentClassDefinition) =
+  private fun deriveActions(defn: ComponentDefinition) =
       defn.actionsPetaform.map { parse<Action>(it) }.toSet().also {
         verifyClassNames(it.mapNotNull(Action::cost))
       }
 
-  private fun deriveEffects(defn: ComponentClassDefinition): Set<Effect> {
+  private fun deriveEffects(defn: ComponentDefinition): Set<Effect> {
     val fx = defn.effectsPetaform.map { parse<Effect>(it) }.toSet()
     fx.forEach { verifyClassNames(it.trigger) }
     return fx
@@ -83,8 +82,8 @@ class ComponentClassLoader {
   }
 
   private fun verifyClassNames(node: PetaformNode) {
-    if (node is RootType) {
-      require(node.name in table) { node.name }
+    if (node is Expression) {
+      require(node.className in table) { node.className }
     } else {
       verifyClassNames(node.children)
     }

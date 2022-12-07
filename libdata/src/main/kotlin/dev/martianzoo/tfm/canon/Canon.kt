@@ -1,7 +1,7 @@
 package dev.martianzoo.tfm.canon
 
 import dev.martianzoo.tfm.data.CardDefinition
-import dev.martianzoo.tfm.data.ComponentClassDefinition
+import dev.martianzoo.tfm.data.ComponentDefinition
 import dev.martianzoo.tfm.data.MarsAreaDefinition
 import dev.martianzoo.tfm.data.MoshiReader
 import dev.martianzoo.tfm.petaform.api.ComponentDecls
@@ -18,27 +18,27 @@ object Canon {
   }
 
   // You wouldn't normally use this, but have only a single map in play.
-  val allDefinitions: Map<String, ComponentClassDefinition> by lazy {
-    val ct = newComponentClassDefinitions.values
+  val allDefinitions: Map<String, ComponentDefinition> by lazy {
+    val ct = componentDefinitions.values
     val cards = cardDefinitions.values
     val areas =  mapAreaDefinitions.values.flatMap { it }
     val expected = ct.size + cards.size + areas.size
-    (ct + cards + areas).map { it.asComponentClassDefinition }.associateBy { it.name }.also {
+    (ct + cards + areas).map { it.asComponentDefinition }.associateBy { it.name }.also {
       require(it.size == expected)
     }
   }
 
-  val newStyleComponents by lazy { readResource("components.pets") }
+  val componentDefnsString by lazy { readResource("components.pets") }
 
   fun pad(s: Any, width: Int) = ("$s" + " ".repeat(width)).substring(0, width)
 
-  val newComponentClassDefinitions: Map<String, ComponentClassDefinition> by lazy {
-    val decls = parse<ComponentDecls>(newStyleComponents)
+  val componentDefinitions: Map<String, ComponentDefinition> by lazy {
+    val decls = parse<ComponentDecls>(componentDefnsString)
     decls.decls.map { comp ->
-      val name = comp.expression.rootType.name
+      val name = comp.expression.className
       // println("${pad(name, 19)} ${pad(comp.expression.specializations, 29)} ${comp.supertypes}")
 
-      ComponentClassDefinition(
+      ComponentDefinition(
           name,
           comp.abstract,
           comp.supertypes.map(Any::toString).toSet(),

@@ -9,9 +9,9 @@ class ComponentClassTable(map: Map<String, ComponentClass>) {
   fun all() = table.values
 
   fun resolve(expr: Expression): ComponentType {
-    val rootType = table[expr.rootType.name]!!
+    val theClass = table[expr.className]!!
     val specializations = expr.specializations.map(::resolve)
-    return ComponentType(rootType, rootType.dependencies.specialize(specializations))
+    return ComponentType(theClass, theClass.dependencies.specialize(specializations))
   }
 
   fun resolve(exprPetaform: String): ComponentType = resolve(parse(exprPetaform))

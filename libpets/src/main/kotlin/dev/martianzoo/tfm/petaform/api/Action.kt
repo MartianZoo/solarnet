@@ -55,9 +55,9 @@ data class Action(val cost: Cost?, val instruction: Instruction) : PetaformNode(
       fun and(costs: List<Cost>): Cost = if (costs.size == 1) {
         costs[0]
       } else {
-        Cost.Multi(
+        Multi(
             costs.flatMap {
-              if (it is Cost.Multi) it.costs else listOf(it)
+              if (it is Multi) it.costs else listOf(it)
             }
         )
       }
@@ -66,9 +66,9 @@ data class Action(val cost: Cost?, val instruction: Instruction) : PetaformNode(
       fun or(costs: List<Cost>) = if (costs.size == 1) {
         costs[0]
       } else {
-        Cost.Or(
+        Or(
             costs.flatMap {
-              if (it is Cost.Or) it.costs else listOf(it)
+              if (it is Or) it.costs else listOf(it)
             }
         )
       }

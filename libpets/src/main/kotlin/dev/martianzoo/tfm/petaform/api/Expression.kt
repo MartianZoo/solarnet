@@ -1,5 +1,6 @@
 package dev.martianzoo.tfm.petaform.api
 
+import dev.martianzoo.tfm.petaform.parser.PetaformParser
 import dev.martianzoo.util.joinOrEmpty
 
 /**
@@ -8,34 +9,22 @@ import dev.martianzoo.util.joinOrEmpty
  * that time.
  */
 data class Expression(
-    val rootType: RootType,
+    val className: String,
     val specializations: List<Expression> = listOf(),
     val predicate: Predicate? = null) : PetaformNode() {
+  constructor(className: String, vararg specialization: Expression) :
+      this(className, specialization.toList())
 
-  constructor(rootType: RootType, vararg specialization: Expression) :
-      this(rootType, specialization.toList())
-  constructor(rootType: String, vararg specialization: Expression) :
-      this(RootType(rootType), specialization.toList())
+  init {
+    require(className.matches(namePattern())) { className }
+  }
 
-  override val children = listOfNotNull(predicate) + specializations + rootType
+  override val children = listOfNotNull(predicate) + specializations
+
 
   override fun toString() =
-      "$rootType" +
+      className +
       specializations.joinOrEmpty(surround = "<>") +
       (predicate?.let { "(HAS $it)" } ?: "")
 
-
-  companion object {
-    val DEFAULT = Expression("Megacredit")
-  }
 }
-
-data class RootType(val name: String) : PetaformNode() {
-  override val children = listOf<PetaformNode>()
-  init {
-    require(name.matches(NAME_REGEX)) { name }
-  }
-  override fun toString() = name
-}
-
-val NAME_REGEX = Regex("^[A-Z][a-z][A-Za-z0-9_]*$")
