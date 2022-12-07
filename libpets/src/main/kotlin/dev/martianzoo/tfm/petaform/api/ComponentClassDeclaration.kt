@@ -11,8 +11,14 @@ data class ComponentClassDeclaration(
     val actions: Set<Action> = setOf(),
     val effects: Set<Effect> = setOf(),
     val defaults: Set<Instruction> = setOf(),
+    val min: Int = 0,
+    val max: Int? = null,
     val complete: Boolean = true,
 ) : PetaformNode() {
+  init {
+    require(min >= 0)
+    require(max == null || max >= min)
+  }
   override val children = supertypes + actions + effects + expression
 }
 

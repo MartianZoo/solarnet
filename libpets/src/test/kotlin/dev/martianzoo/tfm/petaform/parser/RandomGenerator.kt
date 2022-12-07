@@ -1,134 +1,105 @@
 package dev.martianzoo.tfm.petaform.parser
 
-import com.google.common.truth.Truth
-import com.google.common.truth.Truth.assertThat
-import dev.martianzoo.tfm.petaform.api.*
-import dev.martianzoo.tfm.petaform.api.Action.Cost
-import dev.martianzoo.tfm.petaform.api.Effect.Trigger
-import dev.martianzoo.tfm.petaform.api.Instruction.Intensity
+import com.google.common.collect.Multiset
+import dev.martianzoo.tfm.petaform.api.PetaformException
+import kotlin.math.PI
+import kotlin.math.min
+import kotlin.math.pow
+import kotlin.math.tan
 import kotlin.random.Random
+import kotlin.random.Random.Default.nextInt
 import kotlin.reflect.KClass
 
-object RandomGenerator {
+abstract class RandomGenerator<B : Any>(val registry: Registry<B>, val scaling: (Int) -> Double) {
+  abstract class Registry<B : Any> {
+    val map = mutableMapOf<KClass<out B>, (RandomGenerator<B>) -> B>()
 
-  val rng = Random.Default
-  val registry = mutableMapOf<KClass<out PetaformNode>, () -> PetaformNode>()
+    inline fun <reified P : B> register(
+        noinline creator: RandomGenerator<B>.() -> P) = register(P::class, creator)
 
-  inline fun <reified P : PetaformNode> testRandom(): Boolean {
-    val node = random<P>()
-    val str = node.toString()
-    val trip = PetaformParser.parse<P>(str)
-    return trip == node && trip.toString() == str
-  }
-
-  init {
-    register {
-      Expression(
-          random(),
-          listOfSize(choose(16 to 0, 2 to 1, 1 to 2, 1 to 3)),
-          chooseS(12 to { null }, 1 to { random() }))
+    fun <P : B> register(type: KClass<P>, creator: RandomGenerator<B>.() -> P) {
+      map[type] = creator
     }
-    register { RootType(choose("Foo", "Bar", "Baz", "Qux", "Abc", "Xyz", "One", "Two", "Six", "Wau")) }
 
-    register { Action(choose(1 to null, 3 to random()), random()) }
-
-    register { random(choose(
-        9 to Cost.Spend::class,
-        4 to Cost.Or::class,
-        2 to Cost.Multi::class,
-        3 to Cost.Per::class,
-    )) }
-    register { Cost.Spend(qe = random()) }
-    register { Cost.Per(random(), random()) }
-    register { Cost.and(listOfSize(choose(2, 2, 2, 3))) as Cost.Multi }
-    register { Cost.or(listOfSize(choose(2, 2, 2, 2, 3, 4))) as Cost.Or }
-
-    register { random(choose(
-        9 to Trigger.OnGain::class,
-        4 to Trigger.OnRemove::class,
-        2 to Trigger.Conditional::class,
-    )) }
-    register { Trigger.OnGain(random()) }
-    register { Trigger.OnRemove(random()) }
-    register { Trigger.Conditional(random(), random()) }
-
-    register { Effect(random(), random()) }
-
-    register { random(choose(
-      12 to Instruction.Gain::class,
-      4 to Instruction.Remove::class,
-      2 to Instruction.Transmute::class,
-      5 to Instruction.Multi::class,
-      3 to Instruction.Per::class,
-      4 to Instruction.Or::class,
-      2 to Instruction.Then::class,
-      2 to Instruction.Gated::class,
-    )) }
-    register { Instruction.Gain(random(), intensity()) }
-    register { Instruction.Remove(random(), intensity()) }
-    register { Instruction.Transmute(random(), random(), random<QuantifiedExpression>().scalar, intensity()) }
-    register { Instruction.multi(listOfSize(choose(2, 2, 2, 2, 2, 3, 4))) as Instruction.Multi }
-    register { Instruction.Per(random(), random()) }
-    register { Instruction.or(listOfSize(choose(2, 2, 2, 2, 3))) as Instruction.Or }
-    register { Instruction.Then(random(), random()) }
-    register { Instruction.Gated(random(), random()) }
-
-    register { random(choose(
-        9 to Predicate.Min::class,
-        4 to Predicate.Max::class,
-        2 to Predicate.Exact::class,
-        2 to Predicate.And::class,
-        3 to Predicate.Or::class,
-    )) }
-    register { Predicate.Min(qe=random()) }
-    register { Predicate.Max(qe=random()) }
-    register { Predicate.Exact(random()) }
-    register { Predicate.or(listOfSize(choose(2, 2, 2, 2, 2, 3, 4))) as Predicate.Or }
-    register { Predicate.and(listOfSize(choose(2, 2, 2, 2, 2, 3, 4))) as Predicate.And }
-
-    register { QuantifiedExpression(random(), choose(1, 1, 3, 11)) }
+    @Suppress("UNCHECKED_CAST")
+    operator fun <N : B> get(type: KClass<N>) = map[type]!! as RandomGenerator<B>.() -> N
   }
 
-  inline fun <reified P : PetaformNode> random() = random(P::class)
-  fun <P : PetaformNode> random(type: KClass<out P>): P {
-    val function: () -> PetaformNode = registry[type]!!
+  var depth: Int? = null
+
+  inline fun <reified N : B> makeRandomNode() = makeRandomNode(N::class)
+
+  fun <N : B> makeRandomNode(type: KClass<N>): N {
+    depth = 0
+    return recurse(type).also { depth = null  }
+  }
+
+  inline fun <reified N : B> recurse() = recurse(N::class)
+
+  fun <N : B> recurse(type: KClass<N>): N {
+    val d = depth!!
+    depth = d + 1
+    //println("$depth ${type.simpleName}")
+    if (depth!! > 100) error("")
     while (true) {
-      try {
-        return function.invoke() as P
-      } catch (ignore: Exception) {
+      return try {
+        registry[type].invoke(this)
+      } catch (ignore: PetaformException) { // TODO
+        continue
+      }.also {
+        //println("$depth $it")
+        depth = depth!! - 1
+        require(depth == d)
       }
     }
   }
 
-  inline fun <reified E : Enum<E>> randomEnum() = enumValues<E>().random()
+  // Helpers
 
-  inline fun <reified P : PetaformNode> listOfSize(size: Int): List<P> =
+  fun nextInt(limit: Int): Int {
+    val d = Random.Default.nextDouble()
+    val x = scaling(depth!!)
+    require(x in -1.0..1.0)
+
+    val power: Double = tan((x + 1.0) * PI / 4)
+    return min(((1 - d.pow(power)) * limit).toInt(), limit - 1)
+  }
+
+  inline fun <reified E : Enum<E>> randomEnum() = choose(*enumValues<E>())
+
+  inline fun <reified P : B> listOfSize(size: Int): List<P> =
       mutableListOf<P>().also {
         while (it.size < size) {
-          it.add(random())
+          it.add(recurse())
         }
       }
 
-  inline fun <reified P : PetaformNode> setOfSize(size: Int): Set<P> =
+  inline fun <reified P : B> setOfSize(size: Int): Set<P> =
       mutableSetOf<P>().also {
         while (it.size < size) {
-          it.add(random())
+          it.add(recurse())
         }
       }
 
-  fun <T : Any?> choose(vararg choice: T): T = choice.random()
+  fun <T : Any?> choose(vararg choices: T): T = choices[nextInt(choices.size)]
+  fun <T : Any?> choose(choices: List<T>): T = choices[nextInt(choices.size)]
 
-  inline fun <reified P : PetaformNode> register(noinline creator: () -> P) {
-    register(P::class, creator)
-  }
+  fun <T : Any?> choose(choices: Multiset<T>) = getNth(choices, nextInt(choices.size))
 
-  fun <P : PetaformNode> register(type: KClass<P>, creator: () -> P) {
-    registry[type] = creator
+  fun <T : Any?> getNth(choices: Multiset<T>, index: Int): T {
+    var skip = index
+    for (wc in choices.entrySet()) {
+      skip -= wc.count
+      if (skip < 0) {
+        return wc.element
+      }
+    }
+    error("")
   }
 
   fun <T : Any?> choose(vararg weightToChoice: Pair<Int, T>): T {
     val sum =  weightToChoice.map { it.first }.sum()
-    var skip = rng.nextInt(sum)
+    var skip = nextInt(sum)
     for (wc in weightToChoice) {
       skip -= wc.first
       if (skip < 0) {
@@ -140,7 +111,7 @@ object RandomGenerator {
 
   fun <T : Any?> chooseS(vararg weightToChoiceSupplier: Pair<Int, () -> T>): T {
     val sum =  weightToChoiceSupplier.map { it.first }.sum()
-    var skip = rng.nextInt(sum)
+    var skip = nextInt(sum)
     for (wc in weightToChoiceSupplier) {
       skip -= wc.first
       if (skip < 0) {
@@ -149,6 +120,4 @@ object RandomGenerator {
     }
     error("")
   }
-
-  private fun intensity() = choose(1 to randomEnum<Intensity>(), 3 to null)
 }

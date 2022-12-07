@@ -2,26 +2,25 @@ package dev.martianzoo.tfm.petaform.parser
 
 import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.tfm.petaform.api.Expression
-import dev.martianzoo.tfm.petaform.api.Instruction
 import dev.martianzoo.tfm.petaform.api.Predicate
 import dev.martianzoo.tfm.petaform.api.Predicate.Max
 import dev.martianzoo.tfm.petaform.api.Predicate.Min
-import dev.martianzoo.tfm.petaform.parser.RandomGenerator.random
-import dev.martianzoo.tfm.petaform.parser.RandomGenerator.testRandom
 import org.junit.jupiter.api.Test
 
 class PredicateTest {
-  @Test fun printEm() {
+  fun printEm() {
     val set = sortedSetOf<String>(Comparator.comparing { it.length })
+    val gen = PetaformGenerator()
     for (i in 1..10000) {
-      set += random<Predicate>().toString()
+      set += gen.makeRandomNode<Predicate>().toString()
     }
     set.forEach(::println)
   }
 
   @Test fun barrage() {
+    val gen = PetaformGenerator()
     for (i in 1..10000) {
-      assertThat(testRandom<Predicate>()).isTrue()
+      assertThat(gen.testRandom<Predicate>()).isTrue()
     }
   }
 

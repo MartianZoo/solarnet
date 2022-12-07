@@ -109,13 +109,13 @@ object PetaformParser {
   val expression = publish(Expressions.expression)
 
   object QEs {
-    val explicitScalar: Parser<Int> = regex("\\b(0|[1-9][0-9]*)\\b") map { it.text.toInt() }
-    val implicitScalar: Parser<Int> = optional(explicitScalar) map { it ?: 1 }
+    val scalar: Parser<Int> = regex("\\b(0|[1-9][0-9]*)\\b") map { it.text.toInt() }
+    val implicitScalar: Parser<Int> = optional(scalar) map { it ?: 1 }
     val implicitType: Parser<Expression> = optional(Expressions.anyExpression) map {
       it ?: Expression.DEFAULT
     }
 
-    val qeWithScalar = explicitScalar and implicitType map { (scalar, expr) ->
+    val qeWithScalar = scalar and implicitType map { (scalar, expr) ->
       QuantifiedExpression(expr, scalar)
     }
     val qeWithType = implicitScalar and Expressions.anyExpression map { (scalar, expr) ->
@@ -147,7 +147,7 @@ object PetaformParser {
     val intensity = optional(regex("[!.?]")) map { intensity(it?.text) }
     val gain = qe and intensity map { (qe, intens) -> Gain(qe, intens) }
     val remove = skipChar('-') and qe and intensity map { (qe, intens) -> Remove(qe, intens) }
-    val transmute = optional(QEs.explicitScalar) and expression and intensity and skipWord("FROM") and expression map { (scal, to, intens, from) ->
+    val transmute = optional(QEs.scalar) and expression and intensity and skipWord("FROM") and expression map { (scal, to, intens, from) ->
       Transmute(to, from, scal, intens)
     }
     val perable = transmute or gain or remove
@@ -184,7 +184,7 @@ object PetaformParser {
     val cost = commaSeparated(orCost or anyGroup) map Cost::and
 
     val action = publish(
-        optional(cost) and skip(char('-') and char('>')) and instruction map { (c, i) ->
+        optional(cost) and skip(literal("->")) and instruction map { (c, i) ->
           Action(c, i)
         }
     )
@@ -212,29 +212,39 @@ object PetaformParser {
   object ComponentClasses {
     var containing: Expression? = null
 
+    data class Count(val min: Int, val max: Int?)
+    data class Signature(val expr: Expression, val sups: List<Expression>)
+
     val nls: SkipParser = skip(zeroOrMore(char('\n')))
 
     val default: Parser<Instruction> = skipWord("default") and instruction
 
-    val isAbstract: Parser<Boolean> = (word("component") map { false }) or (word("abstract") map { true })
+    val twoDots = literal("..")
+    val upper = QEs.scalar or (char('*') map { null })
+    val count = skipWord("count") and QEs.scalar and skip(twoDots) and upper map { (a, b) -> Count(a, b) }
+
+    val isAbstract: Parser<Boolean> = optional(word("abstract")) and skipWord("class") map { it != null }
     val supertypes: Parser<List<Expression>> = optionalList(skipChar(':') and commaSeparated(expression))
-
-    val bodyElement = parser { componentClump } or default or action or effect
-    val bodyContents = separatedTerms(bodyElement, oneOrMore(char('\n')), acceptZero = true)
-    val body: Parser<List<Any>> = skipChar('{') and nls and bodyContents and nls and skipChar('}')
-
-    data class Signature(val e: Expression, val sups: List<Expression>)
-
     val signature = expression and supertypes map { (e, s) -> Signature(e, s) }
     val moreSignatures: Parser<List<Signature>> = skipChar(',') and separatedTerms(signature, char(','))
 
+    val bodyElement = parser { componentClump } or default or action or effect
+    val bodyContents = optional(count and nls) and separatedTerms(bodyElement, oneOrMore(char('\n')), acceptZero = true) map {
+      listOfNotNull(it.t1) + it.t2
+    }
+    val body: Parser<List<Any>> = skipChar('{') and nls and bodyContents and nls and skipChar('}')
+
     val componentClump = isAbstract and signature and (body or optionalList(moreSignatures)) map {
-      (abs, sig, wtf) ->
-        if (wtf.isNotEmpty() && wtf[0] is Signature) {
-          val signatures: List<Signature> = listOf(sig) + (wtf as List<Signature>)
-          signatures.map { ComponentClassDeclaration(it.e, abs, it.sups.toSet(), complete = false) }
+      (abs, sig, bodyOrMoreSigs) ->
+        // more signatures
+        if (bodyOrMoreSigs.isNotEmpty() && bodyOrMoreSigs[0] is Signature) {
+          @Suppress("UNCHECKED_CAST")
+          val signatures = listOf(sig) + (bodyOrMoreSigs as List<Signature>)
+          signatures.flatMap { createCcd(abs, it) }
+
+        // body
         } else {
-          declarations(abs, sig.e, sig.sups, wtf)
+          createCcd(abs, sig, bodyOrMoreSigs)
         }
     }
 
@@ -243,27 +253,32 @@ object PetaformParser {
           ComponentDecls(it.flatten().map { it.copy(complete = true) }.toSet())
         }
 
-  }
-  val components = publish(ComponentClasses.componentsFile)
+    private fun createCcd(abst: Boolean, sig: Signature, contents: List<Any> = listOf()):
+        List<ComponentClassDeclaration> {
+      val cnts = contents.filterIsInstance<Count>().toSet()
+      val defs = contents.filterIsInstance<Instruction>().toSet()
+      val acts = contents.filterIsInstance<Action>().toSet()
+      val effs = contents.filterIsInstance<Effect>().toSet()
+      val subs = contents.filterIsInstance<List<ComponentClassDeclaration>>().toSet()
 
-  private fun declarations(abst: Boolean, expr: Expression, sups: List<Expression>, contents: List<Any>):
-      List<ComponentClassDeclaration> {
-    val acts = contents.filterIsInstance<Action>().toSet()
-    val effs = contents.filterIsInstance<Effect>().toSet()
-    val defs = contents.filterIsInstance<Instruction>().toSet()
-    val subs = contents.filterIsInstance<List<ComponentClassDeclaration>>().toSet()
+      val count = when (cnts.size) {
+        0 -> Count(0, null)
+        1 -> cnts.first()
+        else -> error("")
+      }
 
-    val cd = ComponentClassDeclaration(expr, abst, sups.toSet(), acts, effs, defs, complete = false)
-    return listOf(cd) + subs.flatten().map {
-      if (it.complete) {
-        it
-      } else if (it.supertypes.any { it.rootType == expr.rootType }) { // TODO
-        it.copy(complete = true)
-      } else {
-        it.copy(supertypes = it.supertypes + Expression(expr.rootType), complete = true)
+      val cd = ComponentClassDeclaration(
+          sig.expr, abst, sig.sups.toSet(), acts, effs, defs, count.min, count.max, complete = false)
+      return listOf(cd) + subs.flatten().map {
+        if (it.supertypes.any { it.rootType == sig.expr.rootType }) { // TODO
+          it.copy(complete = true)
+        } else {
+          it.copy(supertypes = it.supertypes + Expression(sig.expr.rootType), complete = true)
+        }
       }
     }
   }
+  val components = publish(ComponentClasses.componentsFile)
 
   fun literal(l: String) = literalCache.get(l)
   fun char(c: Char) = literal("$c")
@@ -274,7 +289,11 @@ object PetaformParser {
   fun skipWord(w: String) = skip(word(w))
 
   val tokenizer by lazy {
-    DefaultTokenizer(ignored + regexCache.asMap().values + literalCache.asMap().values)
+    // println(regexCache.asMap().keys)
+    // println(literalCache.asMap().keys)
+    DefaultTokenizer(ignored +
+        literalCache.asMap().entries.sortedBy { -it.key.length }.map { it.value } +
+        regexCache.asMap().values)
   }
 
   inline fun <reified T> optionalList(parser: Parser<List<T>>) =

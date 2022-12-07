@@ -1,102 +1,124 @@
 package dev.martianzoo.tfm.petaform.parser
 
 import com.google.common.truth.Truth.assertThat
-import dev.martianzoo.tfm.petaform.api.Expression
 import dev.martianzoo.tfm.petaform.api.Instruction
-import dev.martianzoo.tfm.petaform.api.Instruction.Companion.multi
-import dev.martianzoo.tfm.petaform.api.Instruction.Gain
-import dev.martianzoo.tfm.petaform.api.Instruction.Remove
-import dev.martianzoo.tfm.petaform.api.QuantifiedExpression
-import dev.martianzoo.tfm.petaform.parser.PetaformParser.Instructions
-import dev.martianzoo.tfm.petaform.parser.PetaformParser.QEs
 import dev.martianzoo.tfm.petaform.parser.PetaformParser.parse
-import dev.martianzoo.tfm.petaform.parser.RandomGenerator.testRandom
 import org.junit.jupiter.api.Test
+import javax.swing.text.html.HTML.Tag.P
+import kotlin.math.pow
 
 class InstructionTest {
   val inputs = """
-    Foo
-    -Bat
-    Foo!
-    Baz.
-    -Xyz.
-    3 Xyz
-    -3 Qux
-    11 Abc
-    3 Foo.
-    -3 Baz.
-    Xyz<Baz>?
-    -3 Wau, Bar
-    -3 Xyz<Abc>
-    3 Baz / Xyz
-    3 Qux<Bar>.
-    11 Foo<Qux>!
-    3 Bar, -Wau!
-    Abc / 11 Bat
-    Abc<Baz, Baz>
-    1 Xyz FROM Abc
-    11 Xyz: -3 Foo
-    -Wau?, Wau, Xyz
-    11 Foo FROM Xyz
-    Wau(HAS 3 Wau)!
-    -3 Bat<Xyz, Qux>
-    3 Bar / Bar<Xyz>
-    3 Baz(HAS 3 Foo)!
-    -11 Foo / Abc<Bat>
-    Qux. OR -Bat<Xyz>.
-    1 Qux<Abc> FROM Foo
-    11 Bat<Abc(HAS Baz)>
-    3 Qux FROM Bar / Foo
-    11 Wau(HAS MAX 1 Baz)
-    MAX 1 Foo: -Bat<Abc>.
-    -11 Foo(HAS MAX 1 Abc)
-    Xyz<Xyz, Bar> THEN Xyz
-    1 Abc<Xyz, Wau> FROM Bar
-    1 Qux<Baz> FROM Xyz<Foo>
-    3 Abc / 11 Bar<Xyz, Wau>
-    Bar<Foo<Baz, Foo, Wau>>?
-    (11 Foo: -11 Xyz) OR -Xyz
-    Foo!, -Foo<Foo>, Bar, Wau
-    Qux. / Abc<Bar>(HAS =3 Foo)
-    Bat, Xyz / Abc(HAS 11 Xyz<Bat>)
-    11 Wau FROM Foo<Baz, Foo> OR Wau
-    3 Wau<Foo(HAS 11 Bat, MAX 1 Bat)>
-    11 Qux!, 11 Xyz / 3 Bar OR Xyz / Baz
-    11 Qux? / 11 Bar<Abc, Xyz<Qux>, Bat>
-    Abc! OR Xyz<Bat<Wau, Baz>, Wau, Wau>.
-    Abc<Bat, Bat<Xyz<Foo>, Qux, Abc<Xyz, Bat, Foo>>>
-    1 Qux<Foo> FROM Abc(HAS MAX 1 Abc(HAS MAX 1 Baz))
-    Qux<Wau, Bat, Wau>!, 3 Bat FROM Xyz<Wau, Abc, Abc>
-    Xyz / 11 Xyz OR 1 Bar<Abc>! FROM Baz / 3 Xyz OR Abc
-    Foo<Bat, Abc>(HAS 11 Foo): 1 Bar. FROM Wau THEN Baz
-    Bar / Bat<Bar<Bat(HAS Bat(HAS Bar)), Qux>, Bat, Xyz>
-    MAX 3 Bar: Qux? THEN MAX 1 Baz: (Foo OR 3 Xyz(HAS =3 Baz).)
-    3 Qux: 3 Bar<Abc<Bat>> THEN 11 Foo<Bat, Baz, Foo<Bar>> FROM Foo
-    3 Bat<Baz, Bar> THEN (Qux THEN (1 Wau. FROM Wau / Wau OR -Bar))
-    (Wau, (Abc THEN (-Abc, 11 Abc)) THEN 3 Qux?) OR 11 Xyz OR -11 Baz
-    (1 Abc? FROM Wau / 11 Foo, 11 Foo FROM Xyz OR -11 Bat / Qux) OR -Wau
-    3 Xyz<Bar>: 3 Abc / 3 Foo<Bat, Abc, Xyz>, -3 Qux<Abc(HAS Wau)>, Abc!
-    -Wau<Baz> OR 11 Baz OR 3 Xyz<Bar<Bat>, Bat<Qux>, Qux>(HAS Abc, 11 Bat)
-    (Foo OR (MAX 3 Baz<Xyz>, 11 Abc)): 1 Xyz<Qux, Wau, Baz<Baz>> FROM Bat / Foo<Wau>
-    Wau OR Qux<Abc, Baz, Xyz>. / 3 Qux OR Bar OR 3 Xyz?, Qux<Bat<Qux, Xyz>, Bat, Xyz>
-    11 Abc<Foo, Bar<Baz<Xyz>, Foo>, Bar>?, Bat<Bar, Xyz<Xyz<Abc>, Baz(HAS 3 Bar), Baz>>!
-    Abc, 11 Foo<Foo, Wau<Xyz>, Bat(HAS Bat)>. / 3 Wau, (MAX 11 Xyz OR =3 Baz): Bat. / 3 Bar
+    Qux
+    Ooh!
+    -Bar!
+    5 Ooh!
+    -11 Foo
+    Foo<Qux>
+    Xyz / Xyz
+    -Xyz<Foo>.
+    -3 Foo<Abc>
+    11 Qux<Foo>.
+    3 Xyz OR -Qux
+    1 Foo FROM Ahh
+    5 Foo: Qux<Eep>
+    11 Ooh<Qux>: Xyz
+    -3 Qux / Qux<Eep>
+    Bar<Qux, Foo>: Xyz
+    1 Qux FROM Bar<Xyz>
+    -3 Foo<Foo> / 11 Ahh
+    11 Foo<Abc, Qux, Ooh>
+    -Qux OR -3 Qux / 5 Foo
+    Qux<Qux, Foo>, Ahh<Bar>
+    Abc: 1 Abc<Abc> FROM Bar
+    Qux(HAS 3 Foo<Foo>) / Qux
+    5 Xyz / Xyz<Qux, Foo<Ahh>>
+    -Xyz OR -Bar<Bar>(HAS Qux)!
+    3 Xyz: (3 Foo THEN Ahh<Qux>)
+    -Foo<Abc<Xyz>> OR -5 Foo<Bar>
+    -3 Qux OR -3 Ooh OR -Abc / Xyz
+    3 Qux<Bar> / 3 Xyz, 3 Xyz, -Abc
+    (1 Qux FROM Abc, Foo.) OR -5 Bar
+    -Foo<Xyz>, 3 Foo<Qux>, -Ooh / Qux
+    Xyz: -Abc THEN 5 Qux: (3 Bar, Foo)
+    11 Ahh FROM Foo<Bar<Abc<Foo>, Xyz>>
+    1 Qux(HAS Foo OR Bar<Bar>). FROM Foo
+    3 Foo, 3 Foo, 3 Bar / Bar, -Xyz / Bar
+    Foo<Ahh>: (1 Foo FROM Bar<Qux> OR Bar)
+    Foo OR -Bar OR Foo OR Foo OR Qux, 5 Abc
+    1 Ooh FROM Ooh<Xyz>, -Qux?, Foo THEN Foo
+    Bar OR Foo<Bar> OR Qux OR 11 Qux FROM Bar
+    Foo, -Bar / Qux, Bar OR Qux<Foo>, Foo, Bar
+    1 Ooh FROM Abc<Xyz<Foo<Abc, Qux>>> THEN Qux
+    Ahh<Qux> OR (1 Foo FROM Foo, 1 Foo FROM Bar)
+    (Abc THEN 3 Qux) OR 1 Abc FROM Qux / Abc<Foo>
+    Bar: Foo, (-3 Qux, 1 Xyz FROM Foo) THEN -3 Foo
+    Bar: 5 Foo<Foo<Qux>>, Ooh!, MAX 1 Abc: Bar<Foo>
+    5 Qux<Bar> OR (-Foo, Bar, -Foo, Qux, -Foo / Bar)
+    Foo. / Eep OR Bar / Foo OR 5 Qux<Bar, Foo> OR Xyz
+    Bar, (Qux<Qux> OR MAX 1 Bar): Foo / Foo, Foo, -Bar
+    Ooh, 5 Foo, -Qux, Ooh, Foo<Foo<Foo<Foo>, Bar>>, Bar
+    Qux OR ((Bar OR ((Foo, Foo), Foo)): -Foo<Foo> / Bar)
+    -Foo, Foo / Qux<Bar<Foo>>, -3 Foo<Bar<Foo>, Bar<Foo>>
+    Foo / Qux, (MAX 1 Bar, Foo): 1 Xyz<Foo> FROM Foo / Qux
+    3 Foo FROM Abc, Xyz<Qux>, Abc, Bar<Foo>: Bar / Abc<Abc>
+    Foo, 3 Qux FROM Qux, Bar THEN -Foo, -Qux / Foo<Bar<Abc>>
+    5 Bar<Bar<Foo>>, 1 Foo FROM Abc, 1 Foo FROM Qux<Qux, Abc>
+    Bar: -Abc, (Foo, MAX 1 Bar): (Foo, -Foo, Foo), -3 Foo<Foo>
+    1 Ahh FROM Abc<Abc> OR 3 Bar<Xyz<Foo<Abc>, Bar<Abc<Foo>>>>!
+    MAX 1 Foo: ((Abc / Foo OR Qux) THEN ((-Foo, Bar) THEN -Foo))
+    Foo<Foo<Qux>>, -Qux!, Bar<Bar<Foo>>, 1 Ahh<Eep> FROM Ahh<Abc>
+    (-Foo THEN (Foo, Foo)) OR (1 Qux FROM Bar THEN Qux / Qux<Foo>)
+    3 Bar., (Foo<Abc>, Qux OR 3 Foo) THEN -Foo<Foo, Foo<Bar>> / Foo
+    (Foo OR Foo / Bar OR Foo / 3 Foo) THEN (Qux THEN -Foo, Xyz, Abc)
+    1 Abc<Bar, Abc>(HAS =1 Bar) FROM Qux<Foo<Abc<Qux<Foo>>>>(HAS Bar)
+    Foo<Qux, Xyz<Qux>>, Ooh<Bar>, (Foo<Foo<Bar>>, Foo / Foo) THEN -Foo
+    Foo OR -3 Xyz! OR Foo OR Bar OR -3 Foo OR (Foo / 3 Foo, -Bar / Bar)
+    (-Bar, -Foo / Bar, -Bar THEN 3 Foo<Qux> FROM Bar<Foo<Qux>>) THEN Qux
+    5 Foo, -Xyz, Qux<Foo>, (Foo<Foo> / Qux, Foo) THEN -Bar<Foo>, Foo, Qux
+    -3 Qux THEN (5 Bar OR (((Foo OR Foo) OR (Foo OR Bar<Foo>)): Foo, Bar))
+    Bar OR (=1 Qux: Abc) OR ((Bar OR (Foo OR MAX 1 Foo)): Foo, -3 Foo<Foo>)
+    (Bar OR Foo OR (5 Bar, Bar)) THEN 3 Foo: ((Foo OR -Foo OR Foo) THEN Bar)
+    5 Foo(HAS Foo<Bar>). FROM Foo THEN (Foo OR -3 Foo! OR (MAX 1 Bar: 3 Foo))
+    (Foo, Xyz, (MAX 1 Qux<Foo>, Foo<Bar>): Qux) OR (3 Bar: (-Foo / Bar, -Foo))
+    Foo OR Bar / Foo, (Qux, Foo, Foo<Foo>) OR 3 Abc, Bar / Xyz THEN -3 Foo, Qux
+    (MAX 1 Bar<Foo<Foo>> OR MAX 1 Foo): ((Foo<Foo> THEN Foo) THEN Foo: Foo<Foo>)
+    (Foo<Bar<Bar>> THEN Foo) OR (Qux<Foo>, 3 Bar, 3 Foo, Foo / Qux) OR (Bar, Bar)
+    MAX 1 Bar: ((Bar / Qux THEN Qux) THEN (3 Bar<Bar> THEN (-Foo OR Foo / 3 Foo)))
+    (Foo, Abc / Foo) OR (Foo<Foo, Abc>: Qux) OR (MAX 1 Foo: (Foo OR Abc<Qux<Foo>>))
+    3 Bar! OR 5 Qux, 1 Qux<Foo> FROM Eep OR (Foo, (Foo, Foo): Foo, -Foo) OR Bar<Bar>
+    (Foo THEN (Foo THEN Xyz<Bar<Foo>>)) OR ((Foo OR MAX 1 Foo<Foo>): (Abc, Foo<Abc>))
+    (((Qux OR MAX 1 Foo<Bar>) OR Bar<Foo>) OR (Bar, MAX 1 Foo)): (-Bar, Bar, Foo, Foo)
+    Bar, -5 Foo<Foo<Foo, Bar>> THEN (Bar OR (MAX 1 Qux OR Bar)): Bar, Abc / 3 Foo, -Bar
+    Ahh: (1 Xyz<Foo<Foo<Bar>>> FROM Bar OR (Foo<Foo> OR 1 Bar FROM Foo, 1 Bar FROM Foo))
+    Foo, Foo / Qux<Bar>, -Foo / Foo<Foo, Abc>, MAX 1 Foo: (Foo OR (Foo OR Foo, Foo)), Foo
+    ((Foo, Foo<Foo>): Bar / Qux) OR Bar / Foo OR (Foo / Bar THEN (Qux OR (Foo, Bar, Foo)))
+    Foo OR Bar<Foo<Foo>> OR 1 Qux<Bar> FROM Foo, Foo THEN (Foo, MAX 1 Foo<Qux>: -Foo, -Foo)
+    ((Foo OR Bar, 3 Foo): Bar) OR (Abc OR Foo<Foo> OR Foo OR (Foo THEN Bar), 1 Foo FROM Abc)
+    (Foo<Bar> OR Foo<Foo>) THEN Foo, -Bar<Bar<Qux>> THEN ((MAX 1 Foo: Foo) OR Foo, Foo: -Foo)
+    (5 Qux<Bar> THEN ((1 Foo FROM Foo THEN Foo) OR Qux)) OR 3 Foo OR 11 Bar FROM Abc<Xyz, Ahh>
+    Foo / Foo, Foo, 3 Foo OR Bar, Bar: -Foo / Foo, -Bar, -Qux<Qux<Qux>>, Ahh, Qux OR -Foo / Foo
+    Foo<Foo>, -Bar OR 3 Bar<Bar>, (MAX 1 Foo OR ((MAX 1 Foo OR (Foo, Foo)) OR Qux)): -5 Foo<Bar>
+    Foo: Qux THEN (MAX 1 Foo: (-Foo OR -Foo), -Bar<Bar<Foo>>, 1 Bar FROM Xyz<Foo<Bar<Foo<Foo>>>>)
+    5 Ooh FROM Abc THEN (Foo OR Bar, Foo<Ooh<Foo<Qux>, Foo<Bar>>>): (Bar OR (Foo / Foo, Foo<Foo>))
+    (1 Qux<Bar> FROM Qux, -Bar, MAX 1 Foo: -Qux, 3 Foo FROM Foo<Foo>, 1 Abc FROM Foo) THEN Bar<Bar>
   """.trimIndent().split('\n')
 
-  @Test fun test() {
+  @Test fun testSampleStrings() {
     assertThat(inputs.filterNot { checkRoundTrip(it) }).isEmpty()
   }
 
-  @Test
-  fun testStrangeCases() {
-    testRoundTrip("1")
-    testRoundTrip("0")
-  }
-
-  @Test fun random() {
-    for (i in 1..1000) {
-      testRandom<Instruction>()
-    }
+  @Test fun stressTest() {
+    val gen = generator(20)
+    assertThat((1..10000).flatMap {
+      val node = gen.makeRandomNode<Instruction>()
+      val str = node.toString()
+      val trip: Instruction = parse(str)
+      if (trip == node && trip.toString() == str)
+        listOf()
+      else
+        listOf(str)
+    }).isEmpty()
   }
 
   private fun testRoundTrip(start: String, end: String = start) =
@@ -104,4 +126,19 @@ class InstructionTest {
 
   private fun checkRoundTrip(start: String, end: String = start) =
       parse<Instruction>(start).toString() == end
+
+  fun generator(avInsLen: Int): PetaformGenerator {
+    val factor: Double = 0.737 + 0.0325 * avInsLen - .000169 * avInsLen * avInsLen
+    println("$avInsLen -> $factor")
+    return PetaformGenerator { factor / 1.2.pow(it) - 1.0 }
+  }
+
+  fun generateTestStrings() {
+    val set = sortedSetOf<String>(Comparator.comparing { it.length })
+    val gen = generator(20)
+    for (i in 1..10000) {
+      set += gen.makeRandomNode<Instruction>().toString()
+    }
+    set.forEach(::println)
+  }
 }

@@ -66,7 +66,7 @@ sealed class Instruction : PetaformNode() {
       require(qe.scalar != 0)
       when (instruction) {
         is Gain, is Remove, is Transmute -> {}
-        else -> error("")
+        else -> throw PetaformException()
       }
     }
     override val children = listOf(instruction, qe)
@@ -75,7 +75,12 @@ sealed class Instruction : PetaformNode() {
   }
 
   data class Gated(val predicate: Predicate, val instruction: Instruction): Instruction() {
-    init { require(instruction !is Gated) } // you don't gate a gater
+    init {
+      if (instruction is Gated) {
+        // you don't gate a gater
+        throw PetaformException()
+      }
+    }
     override val children = listOf(predicate, instruction)
     override fun toString(): String {
       val pred = when (predicate) { // TODO generalize somehow

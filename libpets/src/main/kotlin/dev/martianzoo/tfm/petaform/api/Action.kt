@@ -38,7 +38,13 @@ data class Action(val cost: Cost?, val instruction: Instruction) : PetaformNode(
 
     // can't do non-prod per prod yet
     data class Per(val cost: Cost, val qe: QuantifiedExpression) : Cost() {
-      init { require(qe.scalar != 0) }
+      init {
+        require(qe.scalar != 0)
+        when (cost) {
+          is Or, is Multi, is Per -> throw PetaformException()
+          else -> {}
+        }
+      }
       override val children = listOf(cost, qe)
       override fun toString() = "$cost / $qe" // parens
       override fun precedence() = 5
