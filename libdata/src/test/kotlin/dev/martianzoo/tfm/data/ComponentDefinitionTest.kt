@@ -3,8 +3,10 @@ package dev.martianzoo.tfm.data
 import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.canon.Canon.componentDefinitions
+import dev.martianzoo.tfm.petaform.api.Action
 import dev.martianzoo.tfm.petaform.api.ComponentClassDeclaration
 import dev.martianzoo.tfm.petaform.api.ComponentDecls
+import dev.martianzoo.tfm.petaform.api.Effect
 import dev.martianzoo.tfm.petaform.api.PetaformNode
 import dev.martianzoo.tfm.petaform.parser.PetaformParser.parse
 import dev.martianzoo.tfm.petaform.parser.PetaformParser.parseComponentClasses
@@ -13,18 +15,13 @@ import org.junit.jupiter.api.Test
 
 // Not testing much, just a bit of the canon data
 class ComponentDefinitionTest {
-  @Test
-  fun whoKnows() {
-    val ccs: List<ComponentClassDeclaration> = parseComponentClasses(Canon.componentDefnsString)
-    ccs.forEach {
-      it.actions.forEach { testRoundTrip(it) }
-      it.effects.forEach { testRoundTrip(it) }
-      it.defaults.forEach { testRoundTrip(it) }
-    }
-  }
 
   inline fun <reified P : PetaformNode> testRoundTrip(node: P) {
     assertThat(parse<P>(node.toString())).isEqualTo(node)
+  }
+
+  inline fun <reified P : PetaformNode> testRoundTrip(str: String) {
+    assertThat(parse<P>(str).toString()).isEqualTo(str)
   }
 
   @Test
@@ -63,22 +60,6 @@ class ComponentDefinitionTest {
     assertThat(source.size).isEqualTo(cooked.size)
     source.zip(cooked).forEach {
       assertThat("${it.second}").isEqualTo(it.first)
-    }
-  }
-
-  @Test
-  fun craxy() {
-    val decls = parse<ComponentDecls>(Canon.componentDefnsString)
-    decls.decls.forEach {
-      print(if (it.abstract) "abstract" else "concrete")
-      println(" ${it.expression} : ${it.supertypes}")
-    }
-  }
-
-  @Test
-  fun craxier() {
-    componentDefinitions.values.forEach {
-      println(it)
     }
   }
 }

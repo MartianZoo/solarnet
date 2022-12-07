@@ -85,7 +85,7 @@ class CardDefinitionTest {
       }
     """
 
-    assertThat(MoshiReader.readCards(json)).containsExactly("072", BIRDS)
+    assertThat(JsonReader.readCards(json)).containsExactly("072", BIRDS)
   }
 
   // Just so we don't have to keep repeating the "x" part
