@@ -27,31 +27,21 @@ class PetaformGenerator(scaling: (Int) -> Double = { 1.5 / 1.2.pow(it) - 1.0 })
             chooseS(9 to { null }, 1 to { recurse() })
         )
       }
-      register { Action(choose(1 to null, 3 to recurse<Cost>()), recurse<Instruction>()) }
+      register { QuantifiedExpression(recurse(), choose(1, 1, 3, 5, 11)) }
 
-      val costTypes = toListWeirdly(multiset(
-          9 to Cost.Spend::class,
-          3 to Cost.Per::class,
-          3 to Cost.Or::class,
-          2 to Cost.Multi::class,
+      val predicateTypes = toListWeirdly(multiset(
+          9 to Predicate.Min::class,
+          4 to Predicate.Max::class,
+          1 to Predicate.Exact::class,
+          2 to Predicate.And::class,
+          4 to Predicate.Or::class,
       ))
-      register<Cost> { recurse(choose(costTypes)) }
-      register { Cost.Spend(qe = recurse()) }
-      register { Cost.Per(recurse(), recurse()) }
-      register { Cost.or(listOfSize(choose(2, 2, 2, 2, 3, 4))) as Cost.Or }
-      register { Cost.and(listOfSize(choose(2, 2, 2, 3))) as Cost.Multi }
-
-      val triggerTypes = toListWeirdly(multiset(
-          9 to Trigger.OnGain::class,
-          4 to Trigger.OnRemove::class,
-          3 to Trigger.Conditional::class,
-      ))
-      register<Trigger> { recurse(choose(triggerTypes)) }
-      register { Trigger.OnGain(recurse()) }
-      register { Trigger.OnRemove(recurse()) }
-      register { Trigger.Conditional(recurse(), recurse()) }
-
-      register { Effect(recurse(), recurse()) }
+      register<Predicate> { recurse(choose(predicateTypes)) }
+      register { Predicate.Min(qe = recurse()) }
+      register { Predicate.Max(qe = recurse()) }
+      register { Predicate.Exact(recurse()) }
+      register { Predicate.and(listOfSize(choose(2, 2, 2, 2, 3))) as Predicate.And }
+      register { Predicate.or(listOfSize(choose(2, 2, 2, 2, 2, 3, 4))) as Predicate.Or }
 
       fun RandomGenerator<*>.intensity() = choose(3 to null, 1 to randomEnum<Intensity>())
 
@@ -75,21 +65,31 @@ class PetaformGenerator(scaling: (Int) -> Double = { 1.5 / 1.2.pow(it) - 1.0 })
       register { Instruction.multi(listOfSize(choose(2, 2, 2, 2, 2, 3, 4))) as Instruction.Multi }
       register { Instruction.or(listOfSize(choose(2, 2, 2, 2, 3))) as Instruction.Or }
 
-      val predicateTypes = toListWeirdly(multiset(
-          9 to Predicate.Min::class,
-          4 to Predicate.Max::class,
-          1 to Predicate.Exact::class,
-          2 to Predicate.And::class,
-          4 to Predicate.Or::class,
+      val triggerTypes = toListWeirdly(multiset(
+          9 to Trigger.OnGain::class,
+          4 to Trigger.OnRemove::class,
+          3 to Trigger.Conditional::class,
       ))
-      register<Predicate> { recurse(choose(predicateTypes)) }
-      register { Predicate.Min(qe = recurse()) }
-      register { Predicate.Max(qe = recurse()) }
-      register { Predicate.Exact(recurse()) }
-      register { Predicate.and(listOfSize(choose(2, 2, 2, 2, 3))) as Predicate.And }
-      register { Predicate.or(listOfSize(choose(2, 2, 2, 2, 2, 3, 4))) as Predicate.Or }
+      register<Trigger> { recurse(choose(triggerTypes)) }
+      register { Trigger.OnGain(recurse()) }
+      register { Trigger.OnRemove(recurse()) }
+      register { Trigger.Conditional(recurse(), recurse()) }
 
-      register { QuantifiedExpression(recurse(), choose(1, 1, 3, 5, 11)) }
+      register { Effect(recurse(), recurse()) }
+
+      val costTypes = toListWeirdly(multiset(
+          9 to Cost.Spend::class,
+          3 to Cost.Per::class,
+          3 to Cost.Or::class,
+          2 to Cost.Multi::class,
+      ))
+      register<Cost> { recurse(choose(costTypes)) }
+      register { Cost.Spend(qe = recurse()) }
+      register { Cost.Per(recurse(), recurse()) }
+      register { Cost.or(listOfSize(choose(2, 2, 2, 2, 3, 4))) as Cost.Or }
+      register { Cost.and(listOfSize(choose(2, 2, 2, 3))) as Cost.Multi }
+
+      register { Action(choose(1 to null, 3 to recurse<Cost>()), recurse<Instruction>()) }
     }
   }
 }
