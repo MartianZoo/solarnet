@@ -2,10 +2,9 @@ package dev.martianzoo.tfm.canon
 
 import dev.martianzoo.tfm.data.CardDefinition
 import dev.martianzoo.tfm.data.ComponentDefinition
-import dev.martianzoo.tfm.data.MarsAreaDefinition
 import dev.martianzoo.tfm.data.JsonReader
 import dev.martianzoo.tfm.data.JsonReader.combine
-import dev.martianzoo.tfm.petaform.api.ComponentClassDeclaration
+import dev.martianzoo.tfm.data.MarsAreaDefinition
 import dev.martianzoo.tfm.petaform.parser.PetaformParser
 import dev.martianzoo.util.Grid
 

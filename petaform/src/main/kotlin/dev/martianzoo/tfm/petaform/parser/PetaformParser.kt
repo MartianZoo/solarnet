@@ -29,7 +29,6 @@ import dev.martianzoo.tfm.petaform.api.Action
 import dev.martianzoo.tfm.petaform.api.Action.Cost
 import dev.martianzoo.tfm.petaform.api.Action.Cost.Spend
 import dev.martianzoo.tfm.petaform.api.ComponentClassDeclaration
-import dev.martianzoo.tfm.petaform.api.ComponentDecls
 import dev.martianzoo.tfm.petaform.api.DEFAULT_EXPRESSION
 import dev.martianzoo.tfm.petaform.api.Effect
 import dev.martianzoo.tfm.petaform.api.Effect.Trigger
@@ -43,9 +42,11 @@ import dev.martianzoo.tfm.petaform.api.Instruction.Gated
 import dev.martianzoo.tfm.petaform.api.Instruction.Intensity.Companion.intensity
 import dev.martianzoo.tfm.petaform.api.Instruction.Remove
 import dev.martianzoo.tfm.petaform.api.Instruction.Transmute
+import dev.martianzoo.tfm.petaform.api.PetaformException
 import dev.martianzoo.tfm.petaform.api.PetaformNode
 import dev.martianzoo.tfm.petaform.api.Predicate
 import dev.martianzoo.tfm.petaform.api.QuantifiedExpression
+import dev.martianzoo.tfm.petaform.parser.PetaformParser.ComponentClasses.componentClump
 import kotlin.reflect.KClass
 import kotlin.reflect.cast
 
@@ -58,23 +59,24 @@ object PetaformParser {
   fun parseComponentClasses(arg: String): List<ComponentClassDeclaration> {
     var index = 0
     val comps = mutableListOf<ComponentClassDeclaration>()
-    var result: ParseResult<ComponentDecls>? = null
+    var result: ParseResult<List<ComponentClassDeclaration>>? = null
     do {
       if (result is ErrorResult) throw ParseException(result)
-      result = components.tryParse(tokenizer.tokenize(arg), index)
+      result = componentClump.tryParse(tokenizer.tokenize(arg), index)
       if (result is Parsed) {
-        comps += result.value.decls
+        comps += result.value
         index = result.nextPosition
       }
     } while (!isEOF(result!!))
-    return comps
+    return comps.map { it.copy(complete = true) }
   }
 
   fun <P : PetaformNode> parse(type: KClass<P>, petaform: String): P {
     val parser: Parser<PetaformNode> = parsers[type]!!
     try {
       val pet = parse(parser, petaform)
-      require(type == ComponentDecls::class || pet.countProds() <= 1) { petaform }
+      if (pet.countProds() > 1)
+        throw PetaformException()
       return type.cast(pet)
     } catch (e: ParseException) {
       throw IllegalArgumentException("expecting ${type.simpleName}, input was: $petaform", e)
@@ -232,7 +234,7 @@ object PetaformParser {
     }
     val body: Parser<List<Any>> = skipChar('{') and nls and bodyContents and nls and skipChar('}')
 
-    val componentClump = isAbstract and signature and (body or optionalList(moreSignatures)) map {
+    val componentClump = nls and isAbstract and signature and (body or optionalList(moreSignatures)) map {
       (abs, sig, bodyOrMoreSigs) ->
         // more signatures
         if (bodyOrMoreSigs.isNotEmpty() && bodyOrMoreSigs[0] is Signature) {
@@ -252,11 +254,6 @@ object PetaformParser {
         isAbstract and signature and optionalList(oneLineBody) map {
       (abs, sig, body) -> createCcd(abs, sig, body).first().copy(complete = true)
     }
-
-    val componentsFile: Parser<ComponentDecls> =
-        nls and separatedTerms(componentClump, oneOrMore(char('\n'))) and nls map {
-          ComponentDecls(it.flatten().map { it.copy(complete = true) }.toSet())
-        }
 
     private fun createCcd(abst: Boolean, sig: Signature, contents: List<Any> = listOf()):
         List<ComponentClassDeclaration> {
@@ -283,7 +280,6 @@ object PetaformParser {
       }
     }
   }
-  val components = publish(ComponentClasses.componentsFile)
   val oneLineComponent = publish(ComponentClasses.oneLineComponent)
 
   fun literal(l: String) = literalCache.get(l)

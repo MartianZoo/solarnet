@@ -21,7 +21,3 @@ data class ComponentClassDeclaration(
   }
   override val children = supertypes + actions + effects + expression
 }
-
-data class ComponentDecls(val decls: Set<ComponentClassDeclaration> = setOf()) : PetaformNode() {
-  override val children = decls
-}

@@ -4,7 +4,6 @@ import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.tfm.petaform.api.Action
 import dev.martianzoo.tfm.petaform.api.Action.Cost.Spend
 import dev.martianzoo.tfm.petaform.api.ComponentClassDeclaration
-import dev.martianzoo.tfm.petaform.api.ComponentDecls
 import dev.martianzoo.tfm.petaform.api.Effect
 import dev.martianzoo.tfm.petaform.api.Expression
 import dev.martianzoo.tfm.petaform.api.Instruction
@@ -16,6 +15,7 @@ import dev.martianzoo.tfm.petaform.parser.PetaformParser.ComponentClasses
 import dev.martianzoo.tfm.petaform.parser.PetaformParser.ComponentClasses.Count
 import dev.martianzoo.tfm.petaform.parser.PetaformParser.QEs
 import dev.martianzoo.tfm.petaform.parser.PetaformParser.parse
+import dev.martianzoo.tfm.petaform.parser.PetaformParser.parseComponentClasses
 import org.junit.jupiter.api.Test
 
 class ComponentDeclarationsTest {
@@ -32,7 +32,7 @@ class ComponentDeclarationsTest {
 
   @Test
   fun body() {
-    assertThat(parse(ComponentClasses.componentClump, """
+    assertThat(parseComponentClasses("""
           class Bar : Qux { default Foo?
             Foo -> Bar
 
@@ -46,7 +46,7 @@ class ComponentDeclarationsTest {
 
   @Test
   fun series() {
-    assertThat(parse(ComponentClasses.componentsFile, """
+    assertThat(parseComponentClasses("""
         class Die {
         }
         class DieHard {
@@ -65,21 +65,21 @@ class ComponentDeclarationsTest {
 
   @Test
   fun oneSimple() {
-    val cs = parse<ComponentDecls>("""
+    val cs = parseComponentClasses("""
         abstract class One
     """)
-    assertThat(cs.decls).containsExactly(ComponentClassDeclaration(Expression("One"), abstract=true))
+    assertThat(cs).containsExactly(ComponentClassDeclaration(Expression("One"), abstract=true))
   }
 
   @Test
   fun threeSimple() {
-    val cs = parse<ComponentDecls>("""
+    val cs = parseComponentClasses("""
         abstract class One
         class Two
 
         abstract class Three
     """)
-    assertThat(cs.decls).containsExactly(
+    assertThat(cs).containsExactly(
         ComponentClassDeclaration(Expression("One"), abstract=true),
         ComponentClassDeclaration(Expression("Two"), abstract=false),
         ComponentClassDeclaration(Expression("Three"), abstract=true),
@@ -87,10 +87,10 @@ class ComponentDeclarationsTest {
   }
 
   @Test fun withSupers() {
-    val cs = parse<ComponentDecls>("""
+    val cs = parseComponentClasses("""
         class One : Two, Three
     """)
-    assertThat(cs.decls).containsExactly(
+    assertThat(cs).containsExactly(
         ComponentClassDeclaration(
             Expression("One"),
             supertypes = setOf(
@@ -100,10 +100,10 @@ class ComponentDeclarationsTest {
   }
 
   @Test fun complexExprs() {
-    val cs = parse<ComponentDecls>("""
+    val cs = parseComponentClasses("""
         class One<Two<Three>(HAS Four)> : Five(HAS 6 Seven), Eight<Nine>
     """)
-    assertThat(cs.decls).containsExactly(
+    assertThat(cs).containsExactly(
         ComponentClassDeclaration(
             parse("One<Two<Three>(HAS Four)>"),
             supertypes = setOf(
@@ -113,14 +113,14 @@ class ComponentDeclarationsTest {
   }
 
   @Test fun nested() {
-    val cs = parse<ComponentDecls>("""
+    val cs = parseComponentClasses("""
         class One { // comment
           abstract class Two
           // comment
           class Three : Four
         }
     """)
-    assertThat(cs.decls).containsExactly(
+    assertThat(cs).containsExactly(
         ComponentClassDeclaration(parse("One")),
         ComponentClassDeclaration(parse("Two"), abstract = true, supertypes = setOf(parse("One"))),
         ComponentClassDeclaration(parse("Three"), supertypes = setOf(parse("One"), parse("Four"))),
@@ -128,13 +128,13 @@ class ComponentDeclarationsTest {
   }
 
   @Test fun oneLiner() {
-    val cs = parse<ComponentDecls>("""
+    val cs = parseComponentClasses("""
       class One { This: That }
     """)
   }
 
   @Test fun nestedOneLiner() {
-    val cs = parse<ComponentDecls>("""
+    val cs = parseComponentClasses("""
       class One {
         class Two { This: That }
         class Three { This: That }
@@ -150,7 +150,7 @@ class ComponentDeclarationsTest {
     assertThat(parse(ComponentClasses.twoDots, "..")).isNotNull()
     assertThat(parse(ComponentClasses.twoDots, " .. ")).isNotNull()
     assertThat(parse(ComponentClasses.count, "count 2..3")).isEqualTo(Count(2, 3))
-    val cs = parse<ComponentDecls>("""
+    val cs = parseComponentClasses("""
       class One {
         count 2..3
       }
@@ -163,7 +163,7 @@ class ComponentDeclarationsTest {
   }
 
   @Test fun withDefaults() {
-    val cs = parse<ComponentDecls>("""
+    val cs = parseComponentClasses("""
         abstract class Component {
            default Component!
            default -Component!
@@ -178,6 +178,5 @@ class ComponentDeclarationsTest {
            }
         }
     """)
-    //  assertThat(cs.decls).containsExactly(
   }
 }
