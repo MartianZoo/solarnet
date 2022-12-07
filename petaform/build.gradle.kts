@@ -18,3 +18,12 @@ dependencies {
   testImplementation("com.google.truth:truth:1.0")
 }
 
+sourceSets {
+  val main by getting {
+    resources {
+      srcDir("src/main/kotlin")
+      exclude("**/*.kt")
+
+    }
+  }
+}

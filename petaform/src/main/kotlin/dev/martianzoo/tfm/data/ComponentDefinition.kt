@@ -2,7 +2,7 @@ package dev.martianzoo.tfm.data
 
 import com.squareup.moshi.Json
 import dev.martianzoo.tfm.petaform.ComponentClassDeclaration
-import dev.martianzoo.tfm.petaform.api.classNamePattern
+import dev.martianzoo.tfm.petaform.classNamePattern
 
 /**
  * The declaration of a component class, such as GreeneryTile. Models the declaration textually as
