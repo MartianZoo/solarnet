@@ -8,6 +8,5 @@
  */
 
 rootProject.name = "petaform"
-include("libdata")
-include("libpets")
+include("petaform")
 

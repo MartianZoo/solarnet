@@ -4,6 +4,7 @@ plugins {
 
 dependencies {
     implementation("com.github.h0tk3y.betterParse:better-parse:0.4.4")
+    implementation("com.squareup.moshi:moshi-kotlin:1.12.0")
 }
 
 dependencies {
@@ -16,3 +17,4 @@ dependencies {
   testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.8.1")
   testImplementation("com.google.truth:truth:1.0")
 }
+
