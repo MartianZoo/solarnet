@@ -6,7 +6,6 @@ import dev.martianzoo.tfm.petaform.api.Action
 import dev.martianzoo.tfm.petaform.api.Effect
 import dev.martianzoo.tfm.petaform.api.Expression
 import dev.martianzoo.tfm.petaform.api.Instruction
-import dev.martianzoo.tfm.petaform.api.PetaformNode
 import dev.martianzoo.tfm.petaform.parser.PetaformParser.parse
 import dev.martianzoo.tfm.types.DependencyMap.DependencyKey
 
@@ -61,31 +60,12 @@ class ComponentClassLoader {
   }
 
   private fun deriveImmediate(defn: ComponentDefinition): Instruction? {
-    val immediate: Instruction? = defn.immediatePetaform?.let(::parse)
-    immediate?.let(::verifyClassNames)
-    return immediate
+    return defn.immediatePetaform?.let(::parse)
   }
 
   private fun deriveActions(defn: ComponentDefinition) =
-      defn.actionsPetaform.map { parse<Action>(it) }.toSet().also {
-        verifyClassNames(it.mapNotNull(Action::cost))
-      }
+      defn.actionsPetaform.map { parse<Action>(it) }.toSet()
 
-  private fun deriveEffects(defn: ComponentDefinition): Set<Effect> {
-    val fx = defn.effectsPetaform.map { parse<Effect>(it) }.toSet()
-    fx.forEach { verifyClassNames(it.trigger) }
-    return fx
-  }
-
-  private fun verifyClassNames(nodes: Iterable<PetaformNode>) {
-    nodes.forEach(::verifyClassNames)
-  }
-
-  private fun verifyClassNames(node: PetaformNode) {
-    if (node is Expression) {
-      require(node.className in table) { node.className }
-    } else {
-      verifyClassNames(node.children)
-    }
-  }
+  private fun deriveEffects(defn: ComponentDefinition) =
+      defn.effectsPetaform.map<String, Effect> { parse(it) }.toSet()
 }

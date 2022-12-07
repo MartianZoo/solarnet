@@ -75,7 +75,11 @@
       "deck": "CORPORATION",
       "tags": [ "EarthTag" ],
       "immediate": [ "40" ],
-      "actions": [ "3 -> HasRaisedTR: TerraformRating" ],
+      "actions": [ "3 -> HasRaisedTr: TerraformRating" ],
+      "components": [
+        "class HasRaisedTr : Owned, Generational, System { count 0..1 }",
+        "class TrWatcher : System { count 1..1; TerraformRating<Player>: HasRaisedTr<Player>. }",
+      ]
     },
 
     // Saturn Systems
@@ -187,10 +191,10 @@
       "immediate": [ "54, ProjectCard" ],
       "effects": [
           "MicrobeTag<Anyone>: Disease<This>, -4.",
-      //  "ScienceTag: TerraformRating FROM Disease OR (PlayedEvent FROM This, 3 TerraformRating) OR Ok",
-          "ScienceTag: TerraformRating FROM Disease<This> OR (MAX 0 Disease<This>: ((PlayedEvent FROM This, 3 TerraformRating) OR Ok))"
+          "ScienceTag: TerraformRating FROM Disease OR (MAX 0 Disease: ((PlayedEvent FROM This, 3 TerraformRating) OR Ok))"
       ],
       "resourceType": "Disease",
+      "components": [ "class Disease : CardResource" ],
     },
 
     // Allied Bank
@@ -544,11 +548,12 @@
       "bundle": "B",
       "deck": "PROJECT",
       "tags": [ "CityTag", "BuildingTag" ],
-      "immediate": [ "PROD[-2 Energy, 5], Card008Tile" ],
+      "immediate": [ "PROD[-2 Energy, 5], CapitalTile" ],
       "effects": [
-        "End: VictoryPoint / Adjacency<Card008Tile, OceanTile>",
-        "End: VictoryPoint / Adjacency<OceanTile, Card008Tile>",
+        // The points attach to the card, not the tile
+        "End: VictoryPoint / Adjacency(HAS CapitalTile, OceanTile)",
       ],
+      "components": [ "class CapitalTile : CityTile { This IF 2 CapitalTile: Die }" ],
       "requirement": "4 OceanTile",
       "cost": 26,
       "projectKind": "AUTOMATED",
@@ -683,6 +688,7 @@
       "deck": "PROJECT",
       "tags": [ "SpaceTag", "CityTag" ],
       "immediate": [ "PROD[Titanium], CityTile<Card021Area>" ],
+      "components": [ "class Card021Area : RemoteArea" ],
       "effects": [ "End: 3 VictoryPoint" ],
       "cost": 25,
       "projectKind": "AUTOMATED",
@@ -1110,6 +1116,7 @@
       "deck": "PROJECT",
       "tags": [ "JovianTag", "SpaceTag", "CityTag" ],
       "immediate": [ "CityTile<Card081Area>" ],
+      "components": [ "class Card081Area : RemoteArea" ],
       "effects": [ "End: VictoryPoint / JovianTag" ],
       "cost": 20,
       "projectKind": "AUTOMATED",
@@ -2069,6 +2076,7 @@
       "deck": "PROJECT",
       "tags": [ "ScienceTag" ],
       "immediate": [ "Card206Effect" ],
+      "components": [ "class Card206Effect : NextCardEffect { Purchase<CardFront>:: -2 Required<GlobalParameter> }" ],
       "cost": 4,
       "projectKind": "EVENT",
     },
@@ -2159,6 +2167,7 @@
       "actions": [ "Titanium -> Fighter<This>" ],
       "effects": [ "End: VictoryPoint / Fighter<This>" ],
       "resourceType": "Fighter",
+      "components": [ "class Fighter : CardResource" ],
       "cost": 12,
       "projectKind": "ACTIVE",
     },
@@ -2362,11 +2371,11 @@
       "bundle": "R",
       "deck": "PROJECT",
       "tags": [ "BuildingTag" ],
-      "immediate": [ "PROD[-Energy, 4], Card085Tile" ],
+      "immediate": [ "PROD[-Energy, 4], CommercialDistrictTile" ],
       "effects": [
-        "End: VictoryPoint / Adjacency<Card085Tile, CityTile<Anyone>>",
-        "End: VictoryPoint / Adjacency<CityTile<Anyone>, Card085Tile>",
+        "End: VictoryPoint / Adjacency(HAS CommercialDistrictTile, CityTile<Anyone>)",
       ],
+      "components": [ "class CommercialDistrictTile : SpecialTile { This IF 2 CommercialDistrictTile: Die }" ],
       "cost": 16,
       "projectKind": "AUTOMATED",
     },
@@ -2734,6 +2743,7 @@
       "effects": [
         "End: -VictoryPoint",
       ],
+      "components": [ "class Card195Effect : NextCardEffect { Purchase<CardFront>:: -8 Owed }" ],
       "cost": 0,
       "projectKind": "EVENT",
     },
@@ -2995,6 +3005,7 @@
       "deck": "PROJECT",
       "tags": [ "SpaceTag", "CityTag" ],
       "immediate": [ "PROD[-Energy, Titanium], CityTile<Card220Area>" ],
+      "components": [ "class Card220Area : RemoteArea" ],
       "requirement": "4 ScienceTag",
       "cost": 15,
       "projectKind": "AUTOMATED",
@@ -3195,6 +3206,7 @@
       "deck": "PROJECT",
       "tags": [ "SpaceTag", "EarthTag", "CityTag" ],
       "immediate": [ "PROD[1 / EarthTag], CityTile<Card236Area>" ],
+      "components": [ "class Card236Area : RemoteArea" ],
       "effects": [ "End: 2 VictoryPoint" ],
       "cost": 21,
       "projectKind": "AUTOMATED",
@@ -3218,6 +3230,7 @@
       "deck": "PROJECT",
       "tags": [ "VenusTag", "CityTag" ],
       "immediate": [ "PROD[-Energy], CityTile<Card238Area>" ],
+      "components": [ "class Card238Area : RemoteArea" ],
       "actions": [ "-> CardResource<CardFront(HAS VenusTag)>" ],
       "effects": [ "End: 3 VictoryPoint" ],
       "requirement": "6 VenusStep",
@@ -3346,6 +3359,7 @@
       "deck": "PROJECT",
       "tags": [ "VenusTag", "CityTag" ],
       "immediate": [ "PROD[2], CityTile<Card248Area>" ],
+      "components": [ "class Card248Area : RemoteArea" ],
       "actions": [ "-> 2 Floater<CardFront(HAS VenusTag)>" ],
       "effects": [ "End: VictoryPoint / 3 Floater<This>" ],
       "resourceType": "Floater",

@@ -146,12 +146,7 @@ abstract class Owned<Anyone> {
         This:: (End: Ok) // can't exist until endgame
     }
 
-    class HasRaisedTR : Generational, System {
-        count 0..1
-    }
-
     class TerraformRating : Owned<Player> {
-        This:: HasRaisedTR.
         ProductionPhase: 1
         End: VictoryPoint
     }
@@ -291,21 +286,3 @@ abstract class NextCardEffect : Generational, System {
 
     Purchase<CardFront>:: -This // goes away whether you use it or not
 }
-
-// TODO move these to card defns?
-class Card206Effect : NextCardEffect { Purchase<CardFront>:: -2 Required<GlobalParameter> }
-class Card195Effect : NextCardEffect { Purchase<CardFront>:: -8 Owed }
-
-class Disease : CardResource
-class Fighter: CardResource
-class Preservation: CardResource
-
-class Card008Tile : CityTile
-class Card085Tile : SpecialTile
-class Card021Area : RemoteArea
-class Card081Area : RemoteArea
-class Card220Area : RemoteArea
-class Card236Area : RemoteArea
-class Card238Area : RemoteArea
-class Card248Area : RemoteArea
-class CardX12Area : RemoteArea

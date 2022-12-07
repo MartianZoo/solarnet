@@ -35,9 +35,7 @@ class ComponentDefinitionTest {
     assertThat(tr.abstract).isFalse()
     assertThat(tr.supertypesPetaform).containsExactly("Owned<Player>")
     assertThat(tr.dependenciesPetaform).isEmpty()
-    assertThat(tr.effectsPetaform).containsExactly(
-        "This:: HasRaisedTR.", "ProductionPhase: 1", "End: VictoryPoint"
-    )
+    assertThat(tr.effectsPetaform).containsExactly("ProductionPhase: 1", "End: VictoryPoint")
   }
 
   @Test

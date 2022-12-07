@@ -1,6 +1,7 @@
 package dev.martianzoo.tfm.data
 
 import com.squareup.moshi.Json
+import dev.martianzoo.tfm.petaform.api.classNamePattern
 
 /**
  * The declaration of a component class, such as GreeneryTile. Models the declaration textually as
@@ -47,7 +48,7 @@ data class ComponentDefinition(
 ) : Definition {
 
   init {
-    require(name.matches(CTYPE_PATTERN))
+    require(name.matches(classNamePattern()))
   }
 
   override val asComponentDefinition = this

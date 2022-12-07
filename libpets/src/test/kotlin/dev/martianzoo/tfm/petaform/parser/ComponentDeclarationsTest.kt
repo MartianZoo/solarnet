@@ -21,12 +21,12 @@ import org.junit.jupiter.api.Test
 class ComponentDeclarationsTest {
   @Test
   fun bodyElements() {
-    assertThat(parse(ComponentClasses.bodyElement, "default Foo?"))
+    assertThat(parse(ComponentClasses.repeatableElement, "default Foo?"))
         .isEqualTo(Gain(Expression("Foo"), 1, OPTIONAL))
-    assertThat(parse(ComponentClasses.bodyElement, "Foo -> Bar"))
+    assertThat(parse(ComponentClasses.repeatableElement, "Foo -> Bar"))
         .isEqualTo(Action(Spend(Expression("Foo")), Gain(Expression("Bar"))))
-    assertThat(parse(ComponentClasses.bodyElement, "Foo: Bar")).isInstanceOf(Effect::class.java)
-    assertThat(parse(ComponentClasses.bodyElement, "class Foo"))
+    assertThat(parse(ComponentClasses.repeatableElement, "Foo: Bar")).isInstanceOf(Effect::class.java)
+    assertThat(parse(ComponentClasses.repeatableElement, "class Foo"))
         .isEqualTo(listOf(ComponentClassDeclaration(Expression("Foo"), complete=false)))
   }
 

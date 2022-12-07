@@ -89,6 +89,12 @@ data class CardDefinition(
     @Json(name = "resourceType")
     val resourceTypePetaform: String? = null,
 
+    /**
+     * Any extra components the card defines (needed by no other card).
+     */
+    @Json(name = "components")
+    val componentsPetaform: Set<String> = setOf(),
+
     // Project info
 
     /**
@@ -120,7 +126,7 @@ data class CardDefinition(
     if (resourceTypePetaform != null) {
       val resourceUsage = "$resourceTypePetaform<This>"
       require((actionsPetaform + effectsPetaform).any { it.contains(resourceUsage) }) {
-        "Card can't use its resource type: $id"
+        "Card can't use its own resource type: $id"
       }
     }
 

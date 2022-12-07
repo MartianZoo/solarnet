@@ -225,8 +225,9 @@ object PetaformParser {
     val signature = expression and supertypes map { (e, s) -> Signature(e, s) }
     val moreSignatures: Parser<List<Signature>> = skipChar(',') and separatedTerms(signature, char(','))
 
-    val bodyElement = parser { componentClump } or default or action or effect
-    val bodyContents = optional(count and nls) and separatedTerms(bodyElement, oneOrMore(char('\n')), acceptZero = true) map {
+    val repeatableElement = parser { componentClump } or default or action or effect
+    val repeatedElements = separatedTerms(repeatableElement, oneOrMore(char('\n')), acceptZero = true)
+    val bodyContents = optional(count and nls) and repeatedElements map {
       listOfNotNull(it.t1) + it.t2
     }
     val body: Parser<List<Any>> = skipChar('{') and nls and bodyContents and nls and skipChar('}')
@@ -243,6 +244,13 @@ object PetaformParser {
         } else {
           createCcd(abs, sig, bodyOrMoreSigs)
         }
+    }
+
+    val interior = separatedTerms(count or default or action or effect, char(';'))
+    val oneLineBody = skipChar('{') and interior and skipChar('}')
+    val oneLineComponent: Parser<ComponentClassDeclaration> =
+        isAbstract and signature and optionalList(oneLineBody) map {
+      (abs, sig, body) -> createCcd(abs, sig, body).first().copy(complete = true)
     }
 
     val componentsFile: Parser<ComponentDecls> =
@@ -276,6 +284,7 @@ object PetaformParser {
     }
   }
   val components = publish(ComponentClasses.componentsFile)
+  val oneLineComponent = publish(ComponentClasses.oneLineComponent)
 
   fun literal(l: String) = literalCache.get(l)
   fun char(c: Char) = literal("$c")

@@ -15,7 +15,7 @@ data class Expression(
       this(className, specialization.toList())
 
   init {
-    require(className.matches(namePattern())) { className }
+    require(className.matches(classNamePattern())) { className }
   }
 
   override val children = listOfNotNull(predicate) + specializations
