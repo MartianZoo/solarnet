@@ -5,8 +5,6 @@ import dev.martianzoo.tfm.petaform.api.Effect
 import dev.martianzoo.tfm.petaform.api.Instruction
 import dev.martianzoo.tfm.petaform.parser.PetaformParser.parse
 import org.junit.jupiter.api.Test
-import javax.swing.text.html.HTML.Tag.P
-import kotlin.math.pow
 
 class EffectTest {
   // TODO
@@ -29,6 +27,11 @@ class EffectTest {
       else
         listOf(str)
     }).isEmpty()
+  }
+
+  @Test fun debug() {
+    val s = "Qux: (Foo, Bar) THEN Xyz"
+    testRoundTrip(s)
   }
 
   private fun testRoundTrip(start: String, end: String = start) =

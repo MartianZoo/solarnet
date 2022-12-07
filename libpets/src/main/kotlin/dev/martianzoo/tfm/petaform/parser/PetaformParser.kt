@@ -306,7 +306,7 @@ object PetaformParser {
 
   inline fun <reified T> parens(contents: Parser<T>) = skipChar('(') and contents and skipChar(')')
 
-  inline fun <reified T> maybeGroup(contents: Parser<T>) = parens(contents) or contents
+  inline fun <reified T> maybeGroup(contents: Parser<T>) = contents or parens(contents)
 
   inline fun <reified P : PetaformNode> publish(parser: Parser<P>): Parser<P> {
     parsers[P::class] = parser

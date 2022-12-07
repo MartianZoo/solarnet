@@ -7,7 +7,6 @@ import kotlin.math.min
 import kotlin.math.pow
 import kotlin.math.tan
 import kotlin.random.Random
-import kotlin.random.Random.Default.nextInt
 import kotlin.reflect.KClass
 
 abstract class RandomGenerator<B : Any>(val registry: Registry<B>, val scaling: (Int) -> Double) {

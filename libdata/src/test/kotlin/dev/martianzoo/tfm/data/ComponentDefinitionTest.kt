@@ -3,10 +3,11 @@ package dev.martianzoo.tfm.data
 import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.canon.Canon.componentDefinitions
+import dev.martianzoo.tfm.petaform.api.ComponentClassDeclaration
 import dev.martianzoo.tfm.petaform.api.ComponentDecls
 import dev.martianzoo.tfm.petaform.api.PetaformNode
-import dev.martianzoo.tfm.petaform.parser.PetaformParser
 import dev.martianzoo.tfm.petaform.parser.PetaformParser.parse
+import dev.martianzoo.tfm.petaform.parser.PetaformParser.parseComponentClasses
 import dev.martianzoo.tfm.types.ComponentClassLoader
 import org.junit.jupiter.api.Test
 
@@ -14,7 +15,16 @@ import org.junit.jupiter.api.Test
 class ComponentDefinitionTest {
   @Test
   fun whoKnows() {
-    PetaformParser.parseComponentClasses(Canon.componentDefnsString)
+    val ccs: List<ComponentClassDeclaration> = parseComponentClasses(Canon.componentDefnsString)
+    ccs.forEach {
+      it.actions.forEach { testRoundTrip(it) }
+      it.effects.forEach { testRoundTrip(it) }
+      it.defaults.forEach { testRoundTrip(it) }
+    }
+  }
+
+  inline fun <reified P : PetaformNode> testRoundTrip(node: P) {
+    assertThat(parse<P>(node.toString())).isEqualTo(node)
   }
 
   @Test

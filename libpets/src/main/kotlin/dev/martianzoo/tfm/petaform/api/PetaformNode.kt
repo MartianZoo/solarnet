@@ -1,7 +1,5 @@
 package dev.martianzoo.tfm.petaform.api
 
-import kotlin.Int.Companion
-
 /**
  * An API object that can be represented as Petaform source code.
  */

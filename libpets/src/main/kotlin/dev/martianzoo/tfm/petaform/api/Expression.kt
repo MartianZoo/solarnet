@@ -1,6 +1,5 @@
 package dev.martianzoo.tfm.petaform.api
 
-import dev.martianzoo.tfm.petaform.parser.PetaformParser
 import dev.martianzoo.util.joinOrEmpty
 
 /**
