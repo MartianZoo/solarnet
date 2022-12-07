@@ -2,13 +2,13 @@ package dev.martianzoo.tfm.data
 
 import com.squareup.moshi.Json
 import dev.martianzoo.tfm.data.CardDefinition.ProjectKind.ACTIVE
-import dev.martianzoo.tfm.petaform.api.Action
-import dev.martianzoo.tfm.petaform.api.Effect
-import dev.martianzoo.tfm.petaform.api.Expression
-import dev.martianzoo.tfm.petaform.api.Instruction
-import dev.martianzoo.tfm.petaform.api.Predicate
-import dev.martianzoo.tfm.petaform.parser.PetaformParser
-import dev.martianzoo.tfm.petaform.parser.PetaformParser.parse
+import dev.martianzoo.tfm.petaform.Action
+import dev.martianzoo.tfm.petaform.Effect
+import dev.martianzoo.tfm.petaform.Expression
+import dev.martianzoo.tfm.petaform.Instruction
+import dev.martianzoo.tfm.petaform.Predicate
+import dev.martianzoo.tfm.petaform.PetaformParser
+import dev.martianzoo.tfm.petaform.PetaformParser.parse
 
 /**
  * Everything there is to know about a Terraforming Mars card, except for text (including the card

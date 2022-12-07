@@ -2,7 +2,7 @@ package dev.martianzoo.tfm.data
 
 import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.tfm.canon.Canon
-import dev.martianzoo.tfm.petaform.api.Expression
+import dev.martianzoo.tfm.petaform.Expression
 import dev.martianzoo.util.Grid
 import org.junit.jupiter.api.Test
 

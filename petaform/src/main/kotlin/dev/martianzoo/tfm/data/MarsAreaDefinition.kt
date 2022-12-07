@@ -1,8 +1,8 @@
 package dev.martianzoo.tfm.data
 
-import dev.martianzoo.tfm.petaform.api.Expression
-import dev.martianzoo.tfm.petaform.api.Instruction
-import dev.martianzoo.tfm.petaform.parser.PetaformParser.parse
+import dev.martianzoo.tfm.petaform.Expression
+import dev.martianzoo.tfm.petaform.Instruction
+import dev.martianzoo.tfm.petaform.PetaformParser.parse
 
 data class MarsAreaDefinition(
     /** Shortname of the MarsMap this area belongs to (e.g "Tharsis"). */

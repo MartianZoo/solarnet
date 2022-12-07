@@ -1,4 +1,4 @@
-package dev.martianzoo.tfm.petaform.api
+package dev.martianzoo.tfm.petaform
 
 data class Action(val cost: Cost?, val instruction: Instruction) : PetaformNode() {
   override val children = listOfNotNull(cost) + instruction

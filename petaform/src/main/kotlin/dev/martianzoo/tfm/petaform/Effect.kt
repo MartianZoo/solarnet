@@ -1,6 +1,6 @@
-package dev.martianzoo.tfm.petaform.api
+package dev.martianzoo.tfm.petaform
 
-import dev.martianzoo.tfm.petaform.api.Instruction.Gated
+import dev.martianzoo.tfm.petaform.Instruction.Gated
 
 data class Effect(
     val trigger: Trigger,

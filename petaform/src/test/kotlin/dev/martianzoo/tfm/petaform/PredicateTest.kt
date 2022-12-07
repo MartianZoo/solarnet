@@ -1,10 +1,8 @@
-package dev.martianzoo.tfm.petaform.parser
+package dev.martianzoo.tfm.petaform
 
 import com.google.common.truth.Truth.assertThat
-import dev.martianzoo.tfm.petaform.api.Expression
-import dev.martianzoo.tfm.petaform.api.Predicate
-import dev.martianzoo.tfm.petaform.api.Predicate.Max
-import dev.martianzoo.tfm.petaform.api.Predicate.Min
+import dev.martianzoo.tfm.petaform.Predicate.Max
+import dev.martianzoo.tfm.petaform.Predicate.Min
 import org.junit.jupiter.api.Test
 
 class PredicateTest {

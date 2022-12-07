@@ -8,7 +8,7 @@ import dev.martianzoo.tfm.data.CardDefinition.Deck.PROJECT
 import dev.martianzoo.tfm.data.CardDefinition.ProjectKind.ACTIVE
 import dev.martianzoo.tfm.data.CardDefinition.ProjectKind.AUTOMATED
 import dev.martianzoo.tfm.data.CardDefinition.ProjectKind.EVENT
-import dev.martianzoo.tfm.petaform.api.PetaformNode
+import dev.martianzoo.tfm.petaform.PetaformNode
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 

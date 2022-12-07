@@ -1,15 +1,8 @@
-package dev.martianzoo.tfm.petaform.parser
+package dev.martianzoo.tfm.petaform
 
-import dev.martianzoo.tfm.petaform.api.Action
-import dev.martianzoo.tfm.petaform.api.Action.Cost
-import dev.martianzoo.tfm.petaform.api.Effect
-import dev.martianzoo.tfm.petaform.api.Effect.Trigger
-import dev.martianzoo.tfm.petaform.api.Expression
-import dev.martianzoo.tfm.petaform.api.Instruction
-import dev.martianzoo.tfm.petaform.api.Instruction.Intensity
-import dev.martianzoo.tfm.petaform.api.PetaformNode
-import dev.martianzoo.tfm.petaform.api.Predicate
-import dev.martianzoo.tfm.petaform.api.QuantifiedExpression
+import dev.martianzoo.tfm.petaform.Action.Cost
+import dev.martianzoo.tfm.petaform.Effect.Trigger
+import dev.martianzoo.tfm.petaform.Instruction.Intensity
 import dev.martianzoo.util.multiset
 import dev.martianzoo.util.toListWeirdly
 import kotlin.math.pow

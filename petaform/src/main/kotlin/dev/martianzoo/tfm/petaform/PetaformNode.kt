@@ -1,4 +1,4 @@
-package dev.martianzoo.tfm.petaform.api
+package dev.martianzoo.tfm.petaform
 
 /**
  * An API object that can be represented as Petaform source code.

@@ -5,7 +5,7 @@ import dev.martianzoo.tfm.data.ComponentDefinition
 import dev.martianzoo.tfm.data.JsonReader
 import dev.martianzoo.tfm.data.JsonReader.combine
 import dev.martianzoo.tfm.data.MarsAreaDefinition
-import dev.martianzoo.tfm.petaform.parser.PetaformParser
+import dev.martianzoo.tfm.petaform.PetaformParser
 import dev.martianzoo.util.Grid
 
 object Canon {

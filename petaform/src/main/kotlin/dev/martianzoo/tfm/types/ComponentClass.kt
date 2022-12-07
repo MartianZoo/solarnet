@@ -1,8 +1,8 @@
 package dev.martianzoo.tfm.types
 
-import dev.martianzoo.tfm.petaform.api.Action
-import dev.martianzoo.tfm.petaform.api.Effect
-import dev.martianzoo.tfm.petaform.api.Instruction
+import dev.martianzoo.tfm.petaform.Action
+import dev.martianzoo.tfm.petaform.Effect
+import dev.martianzoo.tfm.petaform.Instruction
 import java.util.Objects.hash
 
 /**

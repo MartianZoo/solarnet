@@ -1,6 +1,6 @@
 package dev.martianzoo.tfm.types
 
-import dev.martianzoo.tfm.petaform.api.Predicate
+import dev.martianzoo.tfm.petaform.Predicate
 import dev.martianzoo.util.joinOrEmpty
 
 /** An actual type type, like the one represented by `CityTile<LandArea>`. */

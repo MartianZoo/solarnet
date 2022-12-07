@@ -1,9 +1,7 @@
-package dev.martianzoo.tfm.petaform.parser
+package dev.martianzoo.tfm.petaform
 
 import com.google.common.truth.Truth.assertThat
-import dev.martianzoo.tfm.petaform.api.Effect
-import dev.martianzoo.tfm.petaform.api.Instruction
-import dev.martianzoo.tfm.petaform.parser.PetaformParser.parse
+import dev.martianzoo.tfm.petaform.PetaformParser.parse
 import org.junit.jupiter.api.Test
 
 class EffectTest {

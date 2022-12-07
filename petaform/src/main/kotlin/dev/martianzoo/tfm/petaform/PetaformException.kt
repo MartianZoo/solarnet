@@ -1,3 +1,3 @@
-package dev.martianzoo.tfm.petaform.api
+package dev.martianzoo.tfm.petaform
 
 class PetaformException : Exception() {}

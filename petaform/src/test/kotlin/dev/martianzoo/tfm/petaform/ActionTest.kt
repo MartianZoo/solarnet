@@ -1,7 +1,6 @@
-package dev.martianzoo.tfm.petaform.parser
+package dev.martianzoo.tfm.petaform
 
 import com.google.common.truth.Truth
-import dev.martianzoo.tfm.petaform.api.Action
 import org.junit.jupiter.api.Test
 
 class ActionTest {

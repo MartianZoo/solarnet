@@ -1,4 +1,4 @@
-package dev.martianzoo.tfm.petaform.api
+package dev.martianzoo.tfm.petaform
 
 val DEFAULT_EXPRESSION = Expression("Megacredit")
 

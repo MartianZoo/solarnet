@@ -1,4 +1,4 @@
-package dev.martianzoo.tfm.petaform.parser
+package dev.martianzoo.tfm.petaform
 
 import com.github.h0tk3y.betterParse.combinators.SkipParser
 import com.github.h0tk3y.betterParse.combinators.and
@@ -25,28 +25,17 @@ import com.github.h0tk3y.betterParse.parser.parseToEnd
 import com.google.common.cache.CacheBuilder
 import com.google.common.cache.CacheLoader
 import com.google.common.cache.LoadingCache
-import dev.martianzoo.tfm.petaform.api.Action
-import dev.martianzoo.tfm.petaform.api.Action.Cost
-import dev.martianzoo.tfm.petaform.api.Action.Cost.Spend
-import dev.martianzoo.tfm.petaform.api.ComponentClassDeclaration
-import dev.martianzoo.tfm.petaform.api.DEFAULT_EXPRESSION
-import dev.martianzoo.tfm.petaform.api.Effect
-import dev.martianzoo.tfm.petaform.api.Effect.Trigger
-import dev.martianzoo.tfm.petaform.api.Effect.Trigger.Conditional
-import dev.martianzoo.tfm.petaform.api.Effect.Trigger.OnGain
-import dev.martianzoo.tfm.petaform.api.Effect.Trigger.OnRemove
-import dev.martianzoo.tfm.petaform.api.Expression
-import dev.martianzoo.tfm.petaform.api.Instruction
-import dev.martianzoo.tfm.petaform.api.Instruction.Gain
-import dev.martianzoo.tfm.petaform.api.Instruction.Gated
-import dev.martianzoo.tfm.petaform.api.Instruction.Intensity.Companion.intensity
-import dev.martianzoo.tfm.petaform.api.Instruction.Remove
-import dev.martianzoo.tfm.petaform.api.Instruction.Transmute
-import dev.martianzoo.tfm.petaform.api.PetaformException
-import dev.martianzoo.tfm.petaform.api.PetaformNode
-import dev.martianzoo.tfm.petaform.api.Predicate
-import dev.martianzoo.tfm.petaform.api.QuantifiedExpression
-import dev.martianzoo.tfm.petaform.parser.PetaformParser.ComponentClasses.componentClump
+import dev.martianzoo.tfm.petaform.Action.Cost
+import dev.martianzoo.tfm.petaform.Action.Cost.Spend
+import dev.martianzoo.tfm.petaform.Effect.Trigger
+import dev.martianzoo.tfm.petaform.Effect.Trigger.Conditional
+import dev.martianzoo.tfm.petaform.Effect.Trigger.OnGain
+import dev.martianzoo.tfm.petaform.Effect.Trigger.OnRemove
+import dev.martianzoo.tfm.petaform.Instruction.Gain
+import dev.martianzoo.tfm.petaform.Instruction.Gated
+import dev.martianzoo.tfm.petaform.Instruction.Intensity.Companion.intensity
+import dev.martianzoo.tfm.petaform.Instruction.Remove
+import dev.martianzoo.tfm.petaform.Instruction.Transmute
 import kotlin.reflect.KClass
 import kotlin.reflect.cast
 
@@ -54,7 +43,7 @@ object PetaformParser {
   inline fun <reified P : PetaformNode> parse(petaform: String) = parse(P::class, petaform)
 
   fun <T> parse(parser: Parser<T>, petaform: String) =
-      parser.parseToEnd(this.tokenizer.tokenize(petaform))
+      parser.parseToEnd(tokenizer.tokenize(petaform))
 
   fun parseComponentClasses(arg: String): List<ComponentClassDeclaration> {
     var index = 0
@@ -62,7 +51,7 @@ object PetaformParser {
     var result: ParseResult<List<ComponentClassDeclaration>>? = null
     do {
       if (result is ErrorResult) throw ParseException(result)
-      result = componentClump.tryParse(tokenizer.tokenize(arg), index)
+      result = ComponentClasses.componentClump.tryParse(tokenizer.tokenize(arg), index)
       if (result is Parsed) {
         comps += result.value
         index = result.nextPosition
@@ -293,7 +282,8 @@ object PetaformParser {
   val tokenizer by lazy {
     // println(regexCache.asMap().keys)
     // println(literalCache.asMap().keys)
-    DefaultTokenizer(ignored +
+    DefaultTokenizer(
+        ignored +
         literalCache.asMap().entries.sortedBy { -it.key.length }.map { it.value } +
         regexCache.asMap().values)
   }
@@ -323,7 +313,7 @@ object PetaformParser {
   fun isEOF(result: ParseResult<Any>): Boolean =
       when (result) {
         is UnexpectedEof -> true
-        is AlternativesFailure -> result.errors.any(::isEOF)
+        is AlternativesFailure -> result.errors.any(PetaformParser::isEOF)
         else -> false
       }
 }

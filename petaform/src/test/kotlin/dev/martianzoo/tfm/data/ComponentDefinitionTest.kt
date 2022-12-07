@@ -2,8 +2,8 @@ package dev.martianzoo.tfm.data
 
 import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.tfm.canon.Canon
-import dev.martianzoo.tfm.petaform.api.PetaformNode
-import dev.martianzoo.tfm.petaform.parser.PetaformParser.parse
+import dev.martianzoo.tfm.petaform.PetaformNode
+import dev.martianzoo.tfm.petaform.PetaformParser.parse
 import dev.martianzoo.tfm.types.ComponentClassLoader
 import org.junit.jupiter.api.Test
 

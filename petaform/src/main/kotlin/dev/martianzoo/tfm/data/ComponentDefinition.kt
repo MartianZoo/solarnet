@@ -1,7 +1,7 @@
 package dev.martianzoo.tfm.data
 
 import com.squareup.moshi.Json
-import dev.martianzoo.tfm.petaform.api.ComponentClassDeclaration
+import dev.martianzoo.tfm.petaform.ComponentClassDeclaration
 import dev.martianzoo.tfm.petaform.api.classNamePattern
 
 /**

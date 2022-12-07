@@ -1,7 +1,7 @@
 package dev.martianzoo.tfm.types
 
-import dev.martianzoo.tfm.petaform.api.Expression
-import dev.martianzoo.tfm.petaform.parser.PetaformParser.parse
+import dev.martianzoo.tfm.petaform.Expression
+import dev.martianzoo.tfm.petaform.PetaformParser.parse
 
 class ComponentClassTable(map: Map<String, ComponentClass>) {
   internal val table = map.toMap()

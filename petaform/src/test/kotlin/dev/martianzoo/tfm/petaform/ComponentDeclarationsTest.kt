@@ -1,21 +1,15 @@
-package dev.martianzoo.tfm.petaform.parser
+package dev.martianzoo.tfm.petaform
 
 import com.google.common.truth.Truth.assertThat
-import dev.martianzoo.tfm.petaform.api.Action
-import dev.martianzoo.tfm.petaform.api.Action.Cost.Spend
-import dev.martianzoo.tfm.petaform.api.ComponentClassDeclaration
-import dev.martianzoo.tfm.petaform.api.Effect
-import dev.martianzoo.tfm.petaform.api.Expression
-import dev.martianzoo.tfm.petaform.api.Instruction
-import dev.martianzoo.tfm.petaform.api.Instruction.Gain
-import dev.martianzoo.tfm.petaform.api.Instruction.Intensity
-import dev.martianzoo.tfm.petaform.api.Instruction.Intensity.OPTIONAL
-import dev.martianzoo.tfm.petaform.api.PetaformNode
-import dev.martianzoo.tfm.petaform.parser.PetaformParser.ComponentClasses
-import dev.martianzoo.tfm.petaform.parser.PetaformParser.ComponentClasses.Count
-import dev.martianzoo.tfm.petaform.parser.PetaformParser.QEs
-import dev.martianzoo.tfm.petaform.parser.PetaformParser.parse
-import dev.martianzoo.tfm.petaform.parser.PetaformParser.parseComponentClasses
+import dev.martianzoo.tfm.petaform.Action.Cost.Spend
+import dev.martianzoo.tfm.petaform.Instruction.Gain
+import dev.martianzoo.tfm.petaform.Instruction.Intensity
+import dev.martianzoo.tfm.petaform.Instruction.Intensity.OPTIONAL
+import dev.martianzoo.tfm.petaform.PetaformParser.ComponentClasses
+import dev.martianzoo.tfm.petaform.PetaformParser.ComponentClasses.Count
+import dev.martianzoo.tfm.petaform.PetaformParser.QEs
+import dev.martianzoo.tfm.petaform.PetaformParser.parse
+import dev.martianzoo.tfm.petaform.PetaformParser.parseComponentClasses
 import org.junit.jupiter.api.Test
 
 class ComponentDeclarationsTest {
@@ -94,7 +88,8 @@ class ComponentDeclarationsTest {
         ComponentClassDeclaration(
             Expression("One"),
             supertypes = setOf(
-                Expression("Two"), Expression("Three"))
+                Expression("Two"), Expression("Three")
+            )
         )
     )
   }

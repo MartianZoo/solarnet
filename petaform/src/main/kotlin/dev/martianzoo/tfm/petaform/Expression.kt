@@ -1,5 +1,6 @@
-package dev.martianzoo.tfm.petaform.api
+package dev.martianzoo.tfm.petaform
 
+import dev.martianzoo.tfm.petaform.api.classNamePattern
 import dev.martianzoo.util.joinOrEmpty
 
 /**

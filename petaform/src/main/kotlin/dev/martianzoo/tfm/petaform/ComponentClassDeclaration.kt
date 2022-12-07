@@ -1,4 +1,4 @@
-package dev.martianzoo.tfm.petaform.api
+package dev.martianzoo.tfm.petaform
 
 /**
  * The declaration of a component class, such as GreeneryTile. Models the declaration textually as

@@ -1,7 +1,6 @@
-package dev.martianzoo.tfm.petaform.parser
+package dev.martianzoo.tfm.petaform
 
 import com.google.common.collect.Multiset
-import dev.martianzoo.tfm.petaform.api.PetaformException
 import kotlin.math.PI
 import kotlin.math.min
 import kotlin.math.pow
