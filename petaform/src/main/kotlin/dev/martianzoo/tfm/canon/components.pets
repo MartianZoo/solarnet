@@ -257,7 +257,6 @@ abstract class GlobalParameter : Atomized {
     }
 }
 
-// TODO figure out how to get these back on one line
 class StandardAction {
     count 1..1
 

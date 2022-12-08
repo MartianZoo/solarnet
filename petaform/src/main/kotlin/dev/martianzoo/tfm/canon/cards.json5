@@ -1,13 +1,6 @@
 {
   "cards": [
 
-    // Beginner Corporation
-    {
-      "id": "B00",
-      "bundle": "B",
-      "immediate": [ "42, 10 ProjectCard" ], // TODO replaces normal buying
-    },
-
     // Ecoline
     {
       "id": "B02",
@@ -16,7 +9,7 @@
       "tags": [ "PlantTag" ],
       "immediate": [ "PROD[2 Plant], 36, 3 Plant" ],
       "effects": [
-        "Purchase<UseAction<ConvertPlants>>:: -Owed<Plant>!",
+        "Purchase<UseAction<ConvertPlants>>:: -Owed<Plant>",
       ],
     },
 
@@ -43,6 +36,19 @@
       "effects": [ "EventCard: 2" ],
     },
 
+    // Inventrix[F]
+    {
+      "id": "B05F",
+      "bundle": "B",
+      "deck": "CORPORATION",
+      "tags": [ "ScienceTag" ],
+      "immediate": [ "45" ],
+      "effects": [
+        "FirstAction: 3 ProjectCard",
+        "Purchase<CardFront>:: -2 Required<GlobalParameter>",
+      ],
+    },
+
     // Phobolog
     {
       "id": "B07",
@@ -52,6 +58,20 @@
       "immediate": [ "23, 10 Titanium" ],
       "effects": [
         "Pay<Titanium>: Pay<Megacredit>",
+      ],
+    },
+
+    // Tharsis Republic
+    {
+      "id": "B08",
+      "bundle": "B",
+      "deck": "CORPORATION",
+      "tags": [ "BuildingTag" ],
+      "immediate": [ "40" ],
+      "effects": [
+        "FirstAction: CityTile",
+        "CityTile<Anyone, MarsArea>: PROD[1]",
+        "CityTile: 3",
       ],
     },
 
@@ -122,6 +142,21 @@
       "effects": [ "EarthTag: ProjectCard" ],
     },
 
+    // Celestic[F]
+    {
+      "id": "V02F",
+      "bundle": "V",
+      "deck": "CORPORATION",
+      "tags": [ "VenusTag" ],
+      "immediate": [ "42" ],
+      "actions": [ "-> Floater" ],
+      "effects": [
+        "FirstAction: 2 ProjectCard",
+        "End: VictoryPoint / 3 Floater<This>",
+      ],
+      "resourceType": "Floater",
+    },
+
     // Manutech
     {
       "id": "V03",
@@ -131,6 +166,19 @@
       "immediate": [ "PROD[Steel], 35" ],
       "effects": [
         "PROD[StandardResource]: StandardResource",
+      ],
+    },
+
+    // Morning Star Inc.[F]
+    {
+      "id": "V04F",
+      "bundle": "V",
+      "deck": "CORPORATION",
+      "tags": [ "VenusTag" ],
+      "immediate": [ "50" ],
+      "effects": [
+        "FirstAction: 3 ProjectCard",
+        "Purchase<CardFront>:: -2 Required<VenusStep>",
       ],
     },
 
@@ -598,7 +646,7 @@
       "bundle": "B",
       "deck": "PROJECT",
       "tags": [ "JovianTag", "SpaceTag" ],
-      "actions": [ "12 -> OceanTile" ],
+      "actions": [ "12 -> OceanTile" ], // TODO 12[+Titanium],
       "effects": [
           "Purchase<UseAction<This>>:: Accept<Titanium>",
           "End: VictoryPoint / JovianTag",
@@ -704,6 +752,20 @@
       "projectKind": "AUTOMATED",
     },
 
+    // Predators
+    {
+      "id": "024",
+      "bundle": "B",
+      "deck": "PROJECT",
+      "tags": [ "AnimalTag" ],
+//      "actions": [ "-> Animal<This FROM CardFront<Anyone>>" ],
+      "effects": [ "End: VictoryPoint / Animal<This>" ],
+      "resourceType": "Animal",
+      "requirement": "11 OxygenStep",
+      "cost": 14,
+      "projectKind": "ACTIVE",
+    },
+
     // Eos Chasma National Park
     {
       "id": "026",
@@ -790,6 +852,20 @@
       "resourceType": "Microbe",
       "requirement": "4 OxygenStep",
       "cost": 8,
+      "projectKind": "ACTIVE",
+    },
+
+    // Ants
+    {
+      "id": "035",
+      "bundle": "B",
+      "deck": "PROJECT",
+      "tags": [ "MicrobeTag" ],
+//      "actions": [ "-> Microbe<This FROM CardFront<Anyone>>" ],
+      "effects": [ "End: VictoryPoint / 2 Microbe<This>" ],
+      "resourceType": "Microbe",
+      "requirement": "4 OxygenStep",
+      "cost": 9,
       "projectKind": "ACTIVE",
     },
 
@@ -1647,6 +1723,20 @@
       "projectKind": "AUTOMATED",
     },
 
+    // Adaptation Technology
+    {
+      "id": "153",
+      "bundle": "B",
+      "deck": "PROJECT",
+      "tags": [ "ScienceTag" ],
+      "effects": [
+        "Purchase<CardFront>:: -2 Required<GlobalParameter>.",
+        "End: VictoryPoint",
+      ],
+      "cost": 12,
+      "projectKind": "ACTIVE",
+    },
+
     // Designed Microorganisms
     {
       "id": "155",
@@ -1949,7 +2039,7 @@
       "bundle": "B",
       "deck": "PROJECT",
       "tags": [ "BuildingTag" ],
-      "actions": [ "8 -> OceanTile" ],
+      "actions": [ "8 -> OceanTile" ], // TODO "6[+Steel]"
       "effects": [ "Purchase<UseAction<This>>:: Accept<Steel>" ],
       "cost": 18,
       "projectKind": "ACTIVE",
@@ -2076,7 +2166,7 @@
       "deck": "PROJECT",
       "tags": [ "ScienceTag" ],
       "immediate": [ "Card206Effect" ],
-      "components": [ "class Card206Effect : NextCardEffect { Purchase<CardFront>:: -2 Required<GlobalParameter> }" ],
+      "components": [ "class Card206Effect : NextCardEffect { Purchase<CardFront>:: -2 Required<GlobalParameter>. }" ],
       "cost": 4,
       "projectKind": "EVENT",
     },
@@ -2101,8 +2191,8 @@
       "deck": "PROJECT",
       "tags": [ "ScienceTag" ],
       "actions": [
-        "3 -> ProjectCard" // TODO: wtf?
-//        "-> O",
+        "3 -> ProjectCard",
+        "-> 0",
       ],
       "cost": 9,
       "projectKind": "ACTIVE",
@@ -2315,6 +2405,20 @@
       "projectKind": "ACTIVE",
     },
 
+    // Advanced Alloys
+    {
+      "id": "071",
+      "bundle": "R",
+      "deck": "PROJECT",
+      "tags": [ "ScienceTag" ],
+      "effects": [
+        "Pay<Steel>:: Pay<Megacredit>",
+        "Pay<Titanium>:: Pay<Megacredit>",
+      ],
+      "cost": 9,
+      "projectKind": "ACTIVE",
+    },
+
     // Mars University[F],
     {
       "id": "073F",
@@ -2322,7 +2426,7 @@
       "deck": "PROJECT",
       "tags": [ "ScienceTag", "BuildingTag" ],
       "effects": [
-        "ScienceTag: 0", // kinda pointless
+        "ScienceTag: 0", // pointless in Follow Mode
         "End: VictoryPoint",
       ],
       "cost": 8,
@@ -2508,7 +2612,7 @@
       "immediate": [ "PROD[-1]" ],
       "actions": [
         "3 -> ProjectCard",
-//        "-> 0", // TODO: wtf?
+        "-> 0",
       ],
       "cost": 4,
       "projectKind": "ACTIVE",
@@ -2557,6 +2661,16 @@
       "actions": [ "7 -> PROD[Steel]" ],
       "cost": 4,
       "projectKind": "ACTIVE",
+    },
+
+    // Hired Raiders
+    {
+      "id": "124",
+      "bundle": "R",
+      "deck": "PROJECT",
+//      "immediate": [ "2 Steel<Me FROM Anyone>? OR 3 Megacredit<Me FROM Anyone>?" ],
+      "cost": 1,
+      "projectKind": "EVENT",
     },
 
     // Hackers
@@ -2645,7 +2759,7 @@
       "bundle": "R",
       "deck": "PROJECT",
       "tags": [ "ScienceTag" ],
-      "effects": [ "UseAction<StandardProject>: 3" ], // TODO
+      "effects": [ "UseAction<StandardProject>: 3" ],
       "cost": 6,
       "projectKind": "ACTIVE",
     },
@@ -3020,6 +3134,24 @@
       "actions": [
         "-> Floater<This>",
         "Floater<This> -> PROD[Energy]",
+      ],
+      "resourceType": "Floater",
+      "cost": 11,
+      "projectKind": "ACTIVE",
+    },
+
+    // Dirigibles
+    {
+      "id": "222",
+      "bundle": "V",
+      "deck": "PROJECT",
+      "tags": [ "VenusTag" ],
+      "actions": [
+        "-> Floater",
+      ],
+      "effects": [
+        "Purchase<Card(HAS VenusTag)>: Accept<Floater<This>>",
+        "Pay<Floater<This>>: -3 Owed",
       ],
       "resourceType": "Floater",
       "cost": 11,
@@ -3528,6 +3660,341 @@
       "projectKind": "AUTOMATED",
     },
 
+    // Airliners
+    {
+      "id": "C01",
+      "bundle": "C",
+      "deck": "PROJECT",
+      "immediate": [ "PROD[2], 2 Floater" ],
+      "effects": [ "End: VictoryPoint" ],
+      "requirement": "3 Floater",
+      "cost": 11,
+      "projectKind": "AUTOMATED",
+    },
+
+    // Air Raid
+    {
+      "id": "C02",
+      "bundle": "C",
+      "deck": "PROJECT",
+//      "immediate": [ "-Floater, 5 Megacredit<Me FROM Anyone>?" ],
+      "cost": 0,
+      "projectKind": "EVENT",
+    },
+
+    // Atmo Collectors
+    {
+      "id": "C03",
+      "bundle": "C",
+      "deck": "PROJECT",
+      "immediate": [ "2 Floater" ],
+      "actions": [
+        "-> Floater<This>",
+        "Floater<This> -> 2 Titanium OR 3 Energy OR 4 Heat"
+      ],
+      "resourceType": "Floater",
+      "cost": 15,
+      "projectKind": "ACTIVE",
+    },
+
+    // Community Services
+    {
+      "id": "C04",
+      "bundle": "C",
+      "deck": "PROJECT",
+      "immediate": [ "PROD[1 / CardFront(HAS MAX 0 Tag)]" ],
+      "effects": [ "End: VictoryPoint" ],
+      "cost": 13,
+      "projectKind": "AUTOMATED",
+    },
+
+    // Conscription
+    {
+      "id": "C05",
+      "bundle": "C",
+      "deck": "PROJECT",
+      "tags": [ "EarthTag" ],
+      "immediate": [ "CardC05Effect" ],
+      "components": [ "class CardC05Effect : NextCardEffect { Purchase<CardFront>:: -16 Owed }" ],
+      "requirement": "2 EarthTag",
+      "cost": 5,
+      "projectKind": "EVENT",
+    },
+
+    // Corona Extractor
+    {
+      "id": "C06",
+      "bundle": "C",
+      "deck": "PROJECT",
+      "tags": [ "PowerTag", "SpaceTag" ],
+      "immediate": [ "PROD[4 Energy]" ],
+      "requirement": "4 ScienceTag",
+      "cost": 10,
+      "projectKind": "AUTOMATED",
+    },
+
+    // Earth Elevator
+    {
+      "id": "C08",
+      "bundle": "C",
+      "deck": "PROJECT",
+      "tags": [ "EarthTag", "SpaceTag" ],
+      "immediate": [ "PROD[3 Titanium]" ],
+      "effects": [ "End: 4 VictoryPoint" ],
+      "cost": 43,
+      "projectKind": "AUTOMATED",
+    },
+
+    // Floater Leasing
+    {
+      "id": "C10",
+      "bundle": "C",
+      "deck": "PROJECT",
+      "immediate": [ "PROD[1 / 3 Floater]" ],
+      "cost": 3,
+      "projectKind": "AUTOMATED",
+    },
+
+    // Floater Prototypes
+    {
+      "id": "C11",
+      "bundle": "C",
+      "deck": "PROJECT",
+      "tags": [ "ScienceTag" ],
+      "immediate": [ "2 Floater" ],
+      "cost": 2,
+      "projectKind": "EVENT",
+    },
+
+    // Floater Technology
+    {
+      "id": "C12",
+      "bundle": "C",
+      "deck": "PROJECT",
+      "tags": [ "ScienceTag" ],
+      "actions": [ "-> Floater" ],
+      "cost": 7,
+      "projectKind": "ACTIVE",
+    },
+
+    // Galilean Waystation
+    {
+      "id": "C13",
+      "bundle": "C",
+      "deck": "PROJECT",
+      "tags": [ "SpaceTag" ],
+      "immediate": [ "PROD[1 / JovianTag<Anyone>]" ],
+      "effects": [ "End: VictoryPoint" ],
+      "cost": 15,
+      "projectKind": "AUTOMATED",
+    },
+
+    // Heavy Taxation
+    {
+      "id": "C14",
+      "bundle": "C",
+      "deck": "PROJECT",
+      "tags": [ "EarthTag" ],
+      "immediate": [ "PROD[2], 4" ],
+      "effects": [ "End: -VictoryPoint" ],
+      "requirement": "2 EarthTag",
+      "cost": 3,
+      "projectKind": "AUTOMATED",
+    },
+
+    // Impactor Swarm
+    {
+      "id": "C16",
+      "bundle": "C",
+      "deck": "PROJECT",
+      "tags": [ "SpaceTag" ],
+      "immediate": [ "12 Heat, -2 Plant<Anyone>?" ],
+      "requirement": "2 JovianTag",
+      "cost": 11,
+      "projectKind": "EVENT",
+    },
+
+    // Jovian Lanterns
+    {
+      "id": "C18",
+      "bundle": "C",
+      "deck": "PROJECT",
+      "tags": [ "JovianTag" ],
+      "immediate": [ "TerraformRating, 2 Floater" ],
+      "actions": [ "Titanium -> 2 Floater<This>" ],
+      "effects": [ "End: VictoryPoint / 2 Floater<This>" ],
+      "resourceType": "Floater",
+      "requirement": "JovianTag",
+      "cost": 20,
+      "projectKind": "ACTIVE",
+    },
+
+    // Luna Governor
+    {
+      "id": "C20",
+      "bundle": "C",
+      "deck": "PROJECT",
+      "tags": [ "EarthTag", "EarthTag" ],
+      "immediate": [ "PROD[2]" ],
+      "requirement": "2 EarthTag",
+      "cost": 4,
+      "projectKind": "AUTOMATED",
+    },
+
+    // Lunar Exports
+    {
+      "id": "C21",
+      "bundle": "C",
+      "deck": "PROJECT",
+      "tags": [ "SpaceTag", "EarthTag" ],
+      "immediate": [ "PROD[2 Plant OR 5]" ],
+      "cost": 19,
+      "projectKind": "AUTOMATED",
+    },
+
+    // Lunar Mining
+    {
+      "id": "C22",
+      "bundle": "C",
+      "deck": "PROJECT",
+      "tags": [ "EarthTag" ],
+      "immediate": [ "PROD[Titanium / 2 EarthTag]" ],
+      "cost": 11,
+      "projectKind": "AUTOMATED",
+    },
+
+    // Martian Zoo
+    {
+      "id": "C24",
+      "bundle": "C",
+      "deck": "PROJECT",
+      "tags": [ "AnimalTag", "BuildingTag" ],
+      "actions": [ "-> 1 / Animal<This>" ],
+      "effects": [
+        "EarthTag: Animal<This>",
+        "End: VictoryPoint",
+      ],
+      "resourceType": "Animal",
+      "requirement": "2 CityTile<Anyone>",
+      "cost": 12,
+      "projectKind": "ACTIVE",
+    },
+
+    // Nitrogen From Titan
+    {
+      "id": "C28",
+      "bundle": "C",
+      "deck": "PROJECT",
+      "tags": [ "JovianTag", "SpaceTag" ],
+      "immediate": [ "2 TerraformRating, 2 Floater<CardFront(HAS JovianTag)>" ],
+      "effects": [ "End: VictoryPoint" ],
+      "cost": 25,
+      "projectKind": "AUTOMATED",
+    },
+
+    // Red Spot Observatory
+    {
+      "id": "C32",
+      "bundle": "C",
+      "deck": "PROJECT",
+      "tags": [ "ScienceTag", "JovianTag" ],
+      "immediate": [ "2 ProjectCard" ],
+      "actions": [
+	"-> Floater<This>",
+	"Floater<This> -> ProjectCard"
+      ],
+      "effects": [ "End: 2 VictoryPoint" ],
+      "resourceType": "Floater",
+      "requirement": "3 ScienceTag",
+      "cost": 17,
+      "projectKind": "ACTIVE",
+    },
+
+    // Refugee Camps
+    {
+      "id": "C33",
+      "bundle": "C",
+      "deck": "PROJECT",
+      "tags": [ "EarthTag" ],
+      "actions": [ "PROD[1] -> Camp<This>" ],
+      "effects": [ "End: VictoryPoint / Camp<This>" ],
+      "components": [ "class Camp : CardResource" ],
+      "resourceType": "Camp",
+      "cost": 10,
+      "projectKind": "ACTIVE",
+    },
+
+    // Solar Probe
+    {
+      "id": "C37",
+      "bundle": "C",
+      "deck": "PROJECT",
+      "tags": [ "ScienceTag", "SpaceTag" ],
+      "immediate": [ "ProjectCard / 3 ScienceTag" ],
+      "effects": [ "End: VictoryPoint" ],
+      "cost": 9,
+      "projectKind": "EVENT",
+    },
+
+    // Solar Reflectors
+    {
+      "id": "C38",
+      "bundle": "C",
+      "deck": "PROJECT",
+      "tags": [ "SpaceTag" ],
+      "immediate": [ "PROD[5 Heat]" ],
+      "cost": 23,
+      "projectKind": "AUTOMATED",
+    },
+
+    // Sub-Zero Salt Fish
+    {
+      "id": "C42",
+      "bundle": "C",
+      "deck": "PROJECT",
+      "tags": [ "AnimalTag" ],
+      "immediate": [ "PROD[-Plant<Anyone>]" ],
+      "actions": [ "-> Animal<This>" ],
+      "effects": [ "End: VictoryPoint / 2 Animal<This>" ],
+      "resourceType": "Animal",
+      "requirement": "12 TemperatureStep",
+      "cost": 5,
+      "projectKind": "ACTIVE",
+    },
+
+    // Titan Air-Scrapping
+    {
+      "id": "C43",
+      "bundle": "C",
+      "deck": "PROJECT",
+      "tags": [ "JovianTag" ],
+      "actions": [
+	"Titanium -> 2 Floater<This>",
+	"2 Floater<This> -> TerraformRating"
+      ],
+      "effects": [
+        "End: 2 VictoryPoint"
+      ],
+      "resourceType": "Floater",
+      "cost": 21,
+      "projectKind": "ACTIVE",
+    },
+
+    // Warp Drive
+    {
+      "id": "C49",
+      "bundle": "C",
+      "deck": "PROJECT",
+      "tags": [ "ScienceTag" ],
+      "effects": [
+        "Purchase<SpaceTag>:: -4 Owed",
+        "End: 2 VictoryPoint",
+      ],
+      "requirement": "5 ScienceTag",
+      "cost": 14,
+      "projectKind": "ACTIVE",
+    },
+
     // Small Asteroid
     {
       "id": "209",
@@ -3674,7 +4141,7 @@
       "deck": "PROJECT",
       "tags": [ "SpaceTag" ],
       "actions": [
-        "6 -> Asteroid",
+        "6 -> Asteroid", // TODO 6[+Titanium]
         "Asteroid<This> -> TemperatureStep",
       ],
       "effects": [ "Purchase<UseAction1<This>>:: Accept<Titanium>" ],
@@ -3893,8 +4360,7 @@
       "bundle": "X",
       "deck": "PROJECT",
       "immediate": [ "PROD[2]" ],
-      // order matters, which is sad in this case
-      "requirement": "Adjacency<CityTile<Anyone>, OceanTile> OR Adjacency<OceanTile, CityTile<Anyone>>",
+      "requirement": "Adjacency(HAS CityTile<Anyone>, OceanTile)",
       "cost": 8,
       "projectKind": "AUTOMATED",
     },
