@@ -4,8 +4,8 @@ package dev.martianzoo.tfm.petaform
  * The declaration of a component class, such as GreeneryTile. Models the declaration textually as
  * it was provided.
  */
-data class ComponentDeclaration(
-    val expression: TypeExpression,
+data class Component(
+    val expression: TypeExpression, // TODO split it up?
     val abstract: Boolean = false,
     val supertypes: Set<TypeExpression> = setOf(),
     val actions: Set<Action> = setOf(),

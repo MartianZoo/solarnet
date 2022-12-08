@@ -10,7 +10,7 @@ import dev.martianzoo.util.Grid
 
 object Canon {
   val componentDefinitions: Map<String, ComponentDefinition> by lazy {
-    PetaformParser.parseComponentClasses(readResource("components.pets"))
+    PetaformParser.parseComponent(readResource("components.pets"))
         .map { ComponentDefinition.from(it) }.associateBy { it.name }
   }
 

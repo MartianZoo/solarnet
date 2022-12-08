@@ -45,13 +45,13 @@ object PetaformParser {
   fun <T> parse(parser: Parser<T>, petaform: String) =
       parser.parseToEnd(tokenizer.tokenize(petaform))
 
-  fun parseComponentClasses(arg: String): List<ComponentDeclaration> {
+  fun parseComponent(arg: String): List<Component> {
     var index = 0
-    val comps = mutableListOf<ComponentDeclaration>()
-    var result: ParseResult<List<ComponentDeclaration>>? = null
+    val comps = mutableListOf<Component>()
+    var result: ParseResult<List<Component>>? = null
     do {
       if (result is ErrorResult) throw ParseException(result)
-      result = ComponentClasses.componentClump.tryParse(tokenizer.tokenize(arg), index)
+      result = Components.componentClump.tryParse(tokenizer.tokenize(arg), index)
       if (result is Parsed) {
         comps += result.value
         index = result.nextPosition
@@ -197,7 +197,7 @@ object PetaformParser {
   }
   val effect = publish(Effects.effect)
 
-  object ComponentClasses {
+  object Components {
     var containing: TypeExpression? = null
 
     data class Count(val min: Int, val max: Int?)
@@ -239,28 +239,28 @@ object PetaformParser {
 
     val interior = separatedTerms(count or default or action or effect, char(';'))
     val oneLineBody = skipChar('{') and interior and skipChar('}')
-    val oneLineComponent: Parser<ComponentDeclaration> =
+    val oneLineComponent: Parser<Component> =
         isAbstract and signature and optionalList(oneLineBody) map {
       (abs, sig, body) -> createCcd(abs, sig, body).first().copy(complete = true)
     }
 
     private fun createCcd(abst: Boolean, sig: Signature, contents: List<Any> = listOf()):
-        List<ComponentDeclaration> {
-      val cnts = contents.filterIsInstance<Count>().toSet()
+        List<Component> {
+      val counts = contents.filterIsInstance<Count>().toSet()
       val defs = contents.filterIsInstance<Instruction>().toSet()
       val acts = contents.filterIsInstance<Action>().toSet()
       val effs = contents.filterIsInstance<Effect>().toSet()
-      val subs = contents.filterIsInstance<List<ComponentDeclaration>>().toSet()
+      val subs = contents.filterIsInstance<List<Component>>().toSet()
 
-      val count = when (cnts.size) {
+      val count = when (counts.size) {
         0 -> Count(0, null)
-        1 -> cnts.first()
+        1 -> counts.first()
         else -> error("")
       }
 
-      val cd = ComponentDeclaration(
+      val comp = Component(
           sig.expr, abst, sig.sups.toSet(), acts, effs, defs, count.min, count.max, complete = false)
-      return listOf(cd) + subs.flatten().map {
+      return listOf(comp) + subs.flatten().map {
         if (it.supertypes.any { it.className == sig.expr.className }) { // TODO
           it.copy(complete = true)
         } else {
@@ -269,7 +269,7 @@ object PetaformParser {
       }
     }
   }
-  val oneLineComponent = publish(ComponentClasses.oneLineComponent)
+  val oneLineComponent = publish(Components.oneLineComponent)
 
   fun literal(l: String) = literalCache.get(l)
   fun char(c: Char) = literal("$c")
@@ -280,8 +280,6 @@ object PetaformParser {
   fun skipWord(w: String) = skip(word(w))
 
   val tokenizer by lazy {
-    // println(regexCache.asMap().keys)
-    // println(literalCache.asMap().keys)
     DefaultTokenizer(
         ignored +
         literalCache.asMap().entries.sortedBy { -it.key.length }.map { it.value } +
