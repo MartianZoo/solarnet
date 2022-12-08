@@ -13,17 +13,11 @@ data class TypeExpression(
     val predicate: Predicate? = null) : PetaformNode() {
   constructor(className: String, vararg specialization: TypeExpression) :
       this(className, specialization.toList())
-
-  init {
-    require(className.matches(classNamePattern())) { className }
-  }
-
-  override val children = listOfNotNull(predicate) + specializations
-
-
+  init { require(className.matches(classNamePattern())) { className } }
   override fun toString() =
       className +
       specializations.joinOrEmpty(surround = "<>") +
       (predicate?.let { "(HAS $it)" } ?: "")
 
+  override val children = listOfNotNull(predicate) + specializations
 }

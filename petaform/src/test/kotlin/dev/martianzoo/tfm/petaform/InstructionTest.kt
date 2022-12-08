@@ -142,7 +142,6 @@ class InstructionTest {
 
   fun generator(avInsLen: Int): PetaformGenerator {
     val factor: Double = 0.737 + 0.0325 * avInsLen - .000169 * avInsLen * avInsLen
-    println("$avInsLen -> $factor")
     return PetaformGenerator { factor / 1.2.pow(it) - 1.0 }
   }
 

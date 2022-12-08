@@ -5,16 +5,16 @@ sealed class Instruction : PetaformNode() {
     constructor(expr: TypeExpression, scalar: Int = 1, intensity: Intensity? = null) :
         this(QuantifiedExpression(expr, scalar), intensity)
     init { qe.scalar >= 0 }
-    override val children = listOf(qe)
     override fun toString() = "${qe}${intensity?.petaform ?: ""}"
+    override val children = listOf(qe)
   }
 
   data class Remove(val qe: QuantifiedExpression, val intensity: Intensity? = null) : Instruction() {
     constructor(expr: TypeExpression, scalar: Int = 1, intensity: Intensity? = null) :
         this(QuantifiedExpression(expr, scalar), intensity)
     init { qe.scalar >= 0 }
-    override val children = listOf(qe)
     override fun toString() = "-${qe}${intensity?.petaform ?: ""}"
+    override val children = listOf(qe)
   }
 
   data class Transmute(
@@ -25,54 +25,9 @@ sealed class Instruction : PetaformNode() {
     init {
       scalar?.let { require(it >= 0) }
     }
-    override val children = listOf(toExpression, fromExpression)
     override fun toString() =
         (scalar?.let { "$it " } ?: "") + "$toExpression${intensity?.petaform ?: ""} FROM $fromExpression"
-  }
-
-  data class Multi(val instructions: List<Instruction>) : Instruction() {
-    init {
-      if (instructions.any { it is Multi })
-        throw PetaformException()
-    }
-    override val children = instructions
-    override fun toString() = instructions.joinToString {
-      it.toStringWithin(this)
-    }
-    override fun precedence() = 1
-  }
-
-  data class Then(val instructions: List<Instruction>) : Instruction() {
-    init {
-      if (instructions.any { it is Then })
-        throw PetaformException()
-    }
-    override val children = instructions
-    override fun toString() = instructions.joinToString (" THEN ") {
-      it.toStringWithin(this)
-    }
-    override fun precedence() = 2
-  }
-
-  data class Or(val instructions: List<Instruction>) : Instruction() {
-    init {
-      if (instructions.any { it is Or })
-        throw PetaformException()
-    }
-    override val children = instructions
-    override fun toString() = instructions.joinToString(" OR ") {
-      it.toStringWithin(this)
-    }
-    override fun precedence() = 3
-    override fun groupWithin(container: PetaformNode): Boolean {
-      return container is Then || super.groupWithin(container)
-    }
-  }
-
-  data class Prod(val instruction: Instruction) : Instruction() {
-    override val children = listOf(instruction)
-    override fun toString() = "PROD[$instruction]"
-    override fun countProds() = super.countProds() + 1
+    override val children = listOf(toExpression, fromExpression)
   }
 
   data class Per(val instruction: Instruction, val qe: QuantifiedExpression): Instruction() {
@@ -83,9 +38,9 @@ sealed class Instruction : PetaformNode() {
         else -> throw PetaformException()
       }
     }
-    override val children = listOf(instruction, qe)
     override fun toString() = "$instruction / ${qe.petaform(forceExpression = true)}"
     override fun precedence() = 5
+    override val children = listOf(instruction, qe)
   }
 
   data class Gated(val predicate: Predicate, val instruction: Instruction): Instruction() {
@@ -95,16 +50,61 @@ sealed class Instruction : PetaformNode() {
         throw PetaformException()
       }
     }
-    override val children = listOf(predicate, instruction)
     override fun toString(): String {
       return "${predicate.toStringWithin(this)}: ${instruction.toStringWithin(this)}"
     }
 
-    override fun precedence() = 4
-
     // let's over-group for clarity
     override fun groupWithin(container: PetaformNode) =
         container is Or || super.groupWithin(container)
+
+    override fun precedence() = 4
+    override val children = listOf(predicate, instruction)
+  }
+
+  data class Or(val instructions: List<Instruction>) : Instruction() {
+    init {
+      if (instructions.any { it is Or })
+        throw PetaformException()
+    }
+    override fun toString() = instructions.joinToString(" OR ") {
+      it.toStringWithin(this)
+    }
+    override fun groupWithin(container: PetaformNode): Boolean {
+      return container is Then || super.groupWithin(container)
+    }
+    override fun precedence() = 3
+    override val children = instructions
+  }
+
+  data class Then(val instructions: List<Instruction>) : Instruction() {
+    init {
+      if (instructions.any { it is Then })
+        throw PetaformException()
+    }
+    override fun toString() = instructions.joinToString (" THEN ") {
+      it.toStringWithin(this)
+    }
+    override fun precedence() = 2
+    override val children = instructions
+  }
+
+  data class Multi(val instructions: List<Instruction>) : Instruction() {
+    init {
+      if (instructions.any { it is Multi })
+        throw PetaformException()
+    }
+    override fun toString() = instructions.joinToString {
+      it.toStringWithin(this)
+    }
+    override fun precedence() = 1
+    override val children = instructions
+  }
+
+  data class Prod(val instruction: Instruction) : Instruction() {
+    override fun toString() = "PROD[$instruction]"
+    override val children = listOf(instruction)
+    override fun countProds() = super.countProds() + 1
   }
 
   enum class Intensity(val symbol: String) {

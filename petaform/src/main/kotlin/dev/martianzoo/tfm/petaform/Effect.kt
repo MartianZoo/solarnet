@@ -7,8 +7,6 @@ data class Effect(
     val instruction: Instruction,
     val immediate: Boolean = false,
 ) : PetaformNode() {
-  override val children = listOf(trigger, instruction)
-
   override fun toString(): String {
     val instext = when (instruction) {
       is Gated -> "($instruction)"
@@ -16,32 +14,29 @@ data class Effect(
     }
     return "${trigger}${if (immediate) "::" else ":"} $instext"
   }
+  override val children = listOf(trigger, instruction)
 
   sealed class Trigger : PetaformNode() {
     data class OnGain(val expression: TypeExpression) : Trigger() {
-      override val children = listOf(expression)
       override fun toString() = "$expression"
+      override val children = listOf(expression)
     }
 
     data class OnRemove(val expression: TypeExpression) : Trigger() {
-      override val children = listOf(expression)
       override fun toString() = "-${expression}"
-    }
-
-    data class Prod(val trigger: Trigger) : Trigger() {
-      override val children = listOf(trigger)
-      override fun toString() = "PROD[${trigger}]"
-      override fun countProds() = super.countProds() + 1
+      override val children = listOf(expression)
     }
 
     data class Conditional(val trigger: Trigger, val predicate: Predicate) : Trigger() {
-      init {
-        if (trigger is Conditional) {
-          throw PetaformException()
-        }
-      }
-      override val children = listOf(trigger, predicate)
+      init { if (trigger is Conditional) throw PetaformException() }
       override fun toString() = "$trigger IF $predicate"
+      override val children = listOf(trigger, predicate)
+    }
+
+    data class Prod(val trigger: Trigger) : Trigger() {
+      override fun toString() = "PROD[${trigger}]"
+      override val children = listOf(trigger)
+      override fun countProds() = super.countProds() + 1
     }
   }
 }
