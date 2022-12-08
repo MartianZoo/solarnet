@@ -25,25 +25,25 @@ class PredicateTest {
   @Test
   fun simpleSourceToApi() {
     assertThat(PetaformParser.parse<Predicate>("Foo"))
-        .isEqualTo(Min(Expression("Foo")))
+        .isEqualTo(Min(TypeExpression("Foo")))
     assertThat(PetaformParser.parse<Predicate>("3 Foo"))
-        .isEqualTo(Min(Expression("Foo"), 3))
+        .isEqualTo(Min(TypeExpression("Foo"), 3))
     assertThat(PetaformParser.parse<Predicate>("3"))
-        .isEqualTo(Min(Expression("Megacredit"), 3))
+        .isEqualTo(Min(TypeExpression("Megacredit"), 3))
     assertThat(PetaformParser.parse<Predicate>("MAX 3 Foo"))
-        .isEqualTo(Max(Expression("Foo"), 3))
+        .isEqualTo(Max(TypeExpression("Foo"), 3))
   }
 
   @Test
   fun simpleApiToSource() {
-    assertThat(Min(Expression("Foo")).toString()).isEqualTo("Foo")
-    assertThat(Min(Expression("Foo"), 1).toString()).isEqualTo("Foo")
-    assertThat(Min(Expression("Foo"), 3).toString()).isEqualTo("3 Foo")
-    assertThat(Min(Expression("Megacredit"), 3).toString()).isEqualTo("3")
-    assertThat(Max(Expression("Foo"), 0).toString()).isEqualTo("MAX 0 Foo")
-    assertThat(Max(Expression("Foo"), 1).toString()).isEqualTo("MAX 1 Foo")
-    assertThat(Max(Expression("Foo"), 3).toString()).isEqualTo("MAX 3 Foo")
-    assertThat(Max(Expression("Megacredit"), 3).toString()).isEqualTo("MAX 3")
+    assertThat(Min(TypeExpression("Foo")).toString()).isEqualTo("Foo")
+    assertThat(Min(TypeExpression("Foo"), 1).toString()).isEqualTo("Foo")
+    assertThat(Min(TypeExpression("Foo"), 3).toString()).isEqualTo("3 Foo")
+    assertThat(Min(TypeExpression("Megacredit"), 3).toString()).isEqualTo("3")
+    assertThat(Max(TypeExpression("Foo"), 0).toString()).isEqualTo("MAX 0 Foo")
+    assertThat(Max(TypeExpression("Foo"), 1).toString()).isEqualTo("MAX 1 Foo")
+    assertThat(Max(TypeExpression("Foo"), 3).toString()).isEqualTo("MAX 3 Foo")
+    assertThat(Max(TypeExpression("Megacredit"), 3).toString()).isEqualTo("MAX 3")
   }
 
   val inputs = """
@@ -186,15 +186,15 @@ class PredicateTest {
     // This is kinda absurd
     assertThat(parsed).isEqualTo(
         Predicate.Or(
-            Min(Expression("Adjacency",
-                    Expression("CityTile",
-                        Expression("Anyone")),
-                    Expression("OceanTile")),
+            Min(TypeExpression("Adjacency",
+                    TypeExpression("CityTile",
+                        TypeExpression("Anyone")),
+                    TypeExpression("OceanTile")),
                 1),
-            Min(Expression("Adjacency",
-                    Expression("OceanTile"),
-                    Expression("CityTile",
-                        Expression("Anyone"))),
+            Min(TypeExpression("Adjacency",
+                    TypeExpression("OceanTile"),
+                    TypeExpression("CityTile",
+                        TypeExpression("Anyone"))),
                 1)
         )
     )

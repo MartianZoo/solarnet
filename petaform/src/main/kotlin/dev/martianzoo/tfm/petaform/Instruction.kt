@@ -2,7 +2,7 @@ package dev.martianzoo.tfm.petaform
 
 sealed class Instruction : PetaformNode() {
   data class Gain(val qe: QuantifiedExpression, val intensity: Intensity? = null) : Instruction() {
-    constructor(expr: Expression, scalar: Int = 1, intensity: Intensity? = null) :
+    constructor(expr: TypeExpression, scalar: Int = 1, intensity: Intensity? = null) :
         this(QuantifiedExpression(expr, scalar), intensity)
     init { qe.scalar >= 0 }
     override val children = listOf(qe)
@@ -10,7 +10,7 @@ sealed class Instruction : PetaformNode() {
   }
 
   data class Remove(val qe: QuantifiedExpression, val intensity: Intensity? = null) : Instruction() {
-    constructor(expr: Expression, scalar: Int = 1, intensity: Intensity? = null) :
+    constructor(expr: TypeExpression, scalar: Int = 1, intensity: Intensity? = null) :
         this(QuantifiedExpression(expr, scalar), intensity)
     init { qe.scalar >= 0 }
     override val children = listOf(qe)
@@ -18,8 +18,8 @@ sealed class Instruction : PetaformNode() {
   }
 
   data class Transmute(
-      val toExpression: Expression,
-      val fromExpression: Expression,
+      val toExpression: TypeExpression,
+      val fromExpression: TypeExpression,
       val scalar: Int? = null,
       val intensity: Intensity? = null) : Instruction() {
     init {

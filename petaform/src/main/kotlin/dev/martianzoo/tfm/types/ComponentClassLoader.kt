@@ -4,7 +4,7 @@ import dev.martianzoo.tfm.data.ComponentDefinition
 import dev.martianzoo.tfm.data.Definition
 import dev.martianzoo.tfm.petaform.Action
 import dev.martianzoo.tfm.petaform.Effect
-import dev.martianzoo.tfm.petaform.Expression
+import dev.martianzoo.tfm.petaform.TypeExpression
 import dev.martianzoo.tfm.petaform.Instruction
 import dev.martianzoo.tfm.petaform.PetaformParser.parse
 import dev.martianzoo.tfm.types.DependencyMap.DependencyKey
@@ -29,7 +29,7 @@ class ComponentClassLoader {
   }
   fun pad(s: Any, width: Int) = ("$s" + " ".repeat(width)).substring(0, width)
 
-  fun resolve(expr: Expression): ComponentType {
+  fun resolve(expr: TypeExpression): ComponentType {
     val theClass = table[expr.className] ?: error(expr.className)
     val specializations = expr.specializations.map(::resolve)
     return ComponentType(theClass, theClass.dependencies.specialize(specializations))

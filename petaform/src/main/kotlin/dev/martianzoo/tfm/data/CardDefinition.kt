@@ -4,7 +4,7 @@ import com.squareup.moshi.Json
 import dev.martianzoo.tfm.data.CardDefinition.ProjectKind.ACTIVE
 import dev.martianzoo.tfm.petaform.Action
 import dev.martianzoo.tfm.petaform.Effect
-import dev.martianzoo.tfm.petaform.Expression
+import dev.martianzoo.tfm.petaform.TypeExpression
 import dev.martianzoo.tfm.petaform.Instruction
 import dev.martianzoo.tfm.petaform.Predicate
 import dev.martianzoo.tfm.petaform.PetaformParser
@@ -148,8 +148,8 @@ data class CardDefinition(
     }
   }
 
-  val tags: List<Expression> by lazy { tagsPetaform.map { Expression(it) } }
-  val resourceType: Expression? by lazy { resourceTypePetaform?.let { Expression(it) } }
+  val tags: List<TypeExpression> by lazy { tagsPetaform.map { TypeExpression(it) } }
+  val resourceType: TypeExpression? by lazy { resourceTypePetaform?.let { TypeExpression(it) } }
   val immediate: Instruction? by lazy {
     val set = immediatePetaform.map { parse<Instruction>(it) }.toSet()
     when (set.size) {

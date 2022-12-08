@@ -5,9 +5,9 @@ package dev.martianzoo.tfm.petaform
  * it was provided.
  */
 data class ComponentDeclaration(
-    val expression: Expression,
+    val expression: TypeExpression,
     val abstract: Boolean = false,
-    val supertypes: Set<Expression> = setOf(),
+    val supertypes: Set<TypeExpression> = setOf(),
     val actions: Set<Action> = setOf(),
     val effects: Set<Effect> = setOf(),
     val defaults: Set<Instruction> = setOf(),

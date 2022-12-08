@@ -87,28 +87,28 @@ object PetaformParser {
 
   val className: Parser<String> = regex("\\b[A-Z][a-z][A-Za-z0-9_]*\\b") map { it.text }
 
-  object Expressions {
-    val anyExpression: Parser<Expression> = parser { expression }
-    val specializations = optionalList(skipChar('<') and commaSeparated(anyExpression) and skipChar('>'))
+  object TypeExpressions {
+    val anyTypeExpr: Parser<TypeExpression> = parser { typeExpression }
+    val specializations = optionalList(skipChar('<') and commaSeparated(anyTypeExpr) and skipChar('>'))
     val refinement = optional(parens(skipWord("HAS") and parser { Predicates.predicate }))
 
-    val expression = className and specializations and refinement map {
-      (type, refs, pred) -> Expression(type, refs, pred)
+    val typeExpression = className and specializations and refinement map {
+      (type, refs, pred) -> TypeExpression(type, refs, pred)
     }
   }
-  val expression = publish(Expressions.expression)
+  val typeExpression = publish(TypeExpressions.typeExpression)
 
   object QEs {
     val scalar: Parser<Int> = regex("\\b(0|[1-9][0-9]*)\\b") map { it.text.toInt() }
     val implicitScalar: Parser<Int> = optional(scalar) map { it ?: 1 }
-    val implicitType: Parser<Expression> = optional(Expressions.anyExpression) map {
-      it ?: DEFAULT_EXPRESSION
+    val implicitType: Parser<TypeExpression> = optional(TypeExpressions.anyTypeExpr) map {
+      it ?: DEFAULT_TYPE_EXPRESSION
     }
 
     val qeWithScalar = scalar and implicitType map { (scalar, expr) ->
       QuantifiedExpression(expr, scalar)
     }
-    val qeWithType = implicitScalar and Expressions.anyExpression map { (scalar, expr) ->
+    val qeWithType = implicitScalar and TypeExpressions.anyTypeExpr map { (scalar, expr) ->
       QuantifiedExpression(expr, scalar)
     }
     val qe = qeWithScalar or qeWithType
@@ -137,7 +137,7 @@ object PetaformParser {
     val intensity = optional(regex("[!.?]")) map { intensity(it?.text) }
     val gain = qe and intensity map { (qe, intens) -> Gain(qe, intens) }
     val remove = skipChar('-') and qe and intensity map { (qe, intens) -> Remove(qe, intens) }
-    val transmute = optional(QEs.scalar) and expression and intensity and skipWord("FROM") and expression map { (scal, to, intens, from) ->
+    val transmute = optional(QEs.scalar) and typeExpression and intensity and skipWord("FROM") and typeExpression map { (scal, to, intens, from) ->
       Transmute(to, from, scal, intens)
     }
     val perable = transmute or gain or remove
@@ -180,8 +180,8 @@ object PetaformParser {
   val action = publish(Actions.action)
 
   object Effects {
-    val onGain = expression map ::OnGain
-    val onRemove = skipChar('-') and expression map ::OnRemove
+    val onGain = typeExpression map ::OnGain
+    val onRemove = skipChar('-') and typeExpression map ::OnRemove
     val atom = onGain or onRemove
     val prod = prodBox(atom) map Trigger::Prod
     val uncond = atom or prod
@@ -198,10 +198,10 @@ object PetaformParser {
   val effect = publish(Effects.effect)
 
   object ComponentClasses {
-    var containing: Expression? = null
+    var containing: TypeExpression? = null
 
     data class Count(val min: Int, val max: Int?)
-    data class Signature(val expr: Expression, val sups: List<Expression>)
+    data class Signature(val expr: TypeExpression, val sups: List<TypeExpression>)
 
     val nls: SkipParser = skip(zeroOrMore(char('\n')))
 
@@ -212,8 +212,8 @@ object PetaformParser {
     val count = skipWord("count") and QEs.scalar and skip(twoDots) and upper map { (a, b) -> Count(a, b) }
 
     val isAbstract: Parser<Boolean> = optional(word("abstract")) and skipWord("class") map { it != null }
-    val supertypes: Parser<List<Expression>> = optionalList(skipChar(':') and commaSeparated(expression))
-    val signature = expression and supertypes map { (e, s) -> Signature(e, s) }
+    val supertypes: Parser<List<TypeExpression>> = optionalList(skipChar(':') and commaSeparated(typeExpression))
+    val signature = typeExpression and supertypes map { (e, s) -> Signature(e, s) }
     val moreSignatures: Parser<List<Signature>> = skipChar(',') and separatedTerms(signature, char(','))
 
     val repeatableElement = parser { componentClump } or default or action or effect
@@ -264,7 +264,7 @@ object PetaformParser {
         if (it.supertypes.any { it.className == sig.expr.className }) { // TODO
           it.copy(complete = true)
         } else {
-          it.copy(supertypes = it.supertypes + Expression(sig.expr.className), complete = true)
+          it.copy(supertypes = it.supertypes + TypeExpression(sig.expr.className), complete = true)
         }
       }
     }

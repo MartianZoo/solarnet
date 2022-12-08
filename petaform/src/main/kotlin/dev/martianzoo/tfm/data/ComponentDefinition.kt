@@ -16,14 +16,14 @@ data class ComponentDefinition(
     val abstract: Boolean = false,
 
     /**
-     * Zero or more direct supertypes, including specializations, as Petaform Expressions. Don't
+     * Zero or more direct supertypes, including specializations, as Petaform TypeExpressions. Don't
      * include `Component` or any types that are already indirect supertypes (unless specializing them).
      */
     @Json(name = "supertypes")
     val supertypesPetaform: Set<String> = setOf(),
 
     /**
-     * Zero or more direct dependencies; a dependency is a Petaform Expression with the requirement
+     * Zero or more direct dependencies; a dependency is a Petaform TypeExpression with the requirement
      * that every instance of this class must relate to *exactly one* instance of the dependency
      * type. This relationship may be many-to-one. Supertype dependencies are inherited so should
      * never be restated here.

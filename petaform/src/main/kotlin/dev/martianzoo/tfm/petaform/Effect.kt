@@ -18,12 +18,12 @@ data class Effect(
   }
 
   sealed class Trigger : PetaformNode() {
-    data class OnGain(val expression: Expression) : Trigger() {
+    data class OnGain(val expression: TypeExpression) : Trigger() {
       override val children = listOf(expression)
       override fun toString() = "$expression"
     }
 
-    data class OnRemove(val expression: Expression) : Trigger() {
+    data class OnRemove(val expression: TypeExpression) : Trigger() {
       override val children = listOf(expression)
       override fun toString() = "-${expression}"
     }

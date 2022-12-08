@@ -129,7 +129,7 @@ class InstructionTest {
 
   @Test fun debug2() {
     val s = "Qux: (Foo: -Foo) OR -Bar / 5 Foo<Foo<Foo, Bar>, Qux<Foo>>"
-    parse(PetaformParser.expression, "Foo<Foo<Foo, Bar>, Qux<Foo>>")
+    parse(PetaformParser.typeExpression, "Foo<Foo<Foo, Bar>, Qux<Foo>>")
     parse(PetaformParser.qe, "5 Foo<Foo<Foo, Bar>, Qux<Foo>>")
     parse(Instructions.maybePer, "-Bar / 5 Foo<Foo<Foo, Bar>, Qux<Foo>>")
     parse(Instructions.maybePer, "-Bar / 5 Foo<Foo<Foo, Bar>, Qux<Foo>>")

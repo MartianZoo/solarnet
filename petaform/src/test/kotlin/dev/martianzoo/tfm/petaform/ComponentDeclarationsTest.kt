@@ -16,12 +16,12 @@ class ComponentDeclarationsTest {
   @Test
   fun bodyElements() {
     assertThat(parse(ComponentClasses.repeatableElement, "default Foo?"))
-        .isEqualTo(Gain(Expression("Foo"), 1, OPTIONAL))
+        .isEqualTo(Gain(TypeExpression("Foo"), 1, OPTIONAL))
     assertThat(parse(ComponentClasses.repeatableElement, "Foo -> Bar"))
-        .isEqualTo(Action(Spend(Expression("Foo")), Gain(Expression("Bar"))))
+        .isEqualTo(Action(Spend(TypeExpression("Foo")), Gain(TypeExpression("Bar"))))
     assertThat(parse(ComponentClasses.repeatableElement, "Foo: Bar")).isInstanceOf(Effect::class.java)
     assertThat(parse(ComponentClasses.repeatableElement, "class Foo"))
-        .isEqualTo(listOf(ComponentDeclaration(Expression("Foo"), complete=false)))
+        .isEqualTo(listOf(ComponentDeclaration(TypeExpression("Foo"), complete=false)))
   }
 
   @Test
@@ -62,7 +62,7 @@ class ComponentDeclarationsTest {
     val cs = parseComponentClasses("""
         abstract class One
     """)
-    assertThat(cs).containsExactly(ComponentDeclaration(Expression("One"), abstract=true))
+    assertThat(cs).containsExactly(ComponentDeclaration(TypeExpression("One"), abstract=true))
   }
 
   @Test
@@ -74,9 +74,9 @@ class ComponentDeclarationsTest {
         abstract class Three
     """)
     assertThat(cs).containsExactly(
-        ComponentDeclaration(Expression("One"), abstract=true),
-        ComponentDeclaration(Expression("Two"), abstract=false),
-        ComponentDeclaration(Expression("Three"), abstract=true),
+        ComponentDeclaration(TypeExpression("One"), abstract=true),
+        ComponentDeclaration(TypeExpression("Two"), abstract=false),
+        ComponentDeclaration(TypeExpression("Three"), abstract=true),
     )
   }
 
@@ -86,9 +86,9 @@ class ComponentDeclarationsTest {
     """)
     assertThat(cs).containsExactly(
         ComponentDeclaration(
-            Expression("One"),
+            TypeExpression("One"),
             supertypes = setOf(
-                Expression("Two"), Expression("Three")
+                TypeExpression("Two"), TypeExpression("Three")
             )
         )
     )
@@ -154,7 +154,7 @@ class ComponentDeclarationsTest {
 
   @Test fun default() {
     val instr: PetaformNode = parse(PetaformParser.ComponentClasses.default, "default -Component!")
-    assertThat(instr).isEqualTo(Instruction.Remove(Expression("Component"), 1,  Intensity.MANDATORY))
+    assertThat(instr).isEqualTo(Instruction.Remove(TypeExpression("Component"), 1,  Intensity.MANDATORY))
   }
 
   @Test fun withDefaults() {

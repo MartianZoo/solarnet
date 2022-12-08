@@ -6,7 +6,7 @@ data class Action(val cost: Cost?, val instruction: Instruction) : PetaformNode(
 
   sealed class Cost : PetaformNode() {
     data class Spend(val qe: QuantifiedExpression) : Cost() {
-      constructor(expr: Expression, scalar: Int = 1) : this(QuantifiedExpression(expr, scalar))
+      constructor(expr: TypeExpression, scalar: Int = 1) : this(QuantifiedExpression(expr, scalar))
 
       override val children = listOf(qe)
       override fun toString() = qe.toString()

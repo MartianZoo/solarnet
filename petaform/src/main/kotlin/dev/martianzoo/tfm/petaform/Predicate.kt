@@ -5,21 +5,21 @@ import com.google.common.collect.Lists
 sealed class Predicate : PetaformNode() {
 
   data class Min(val qe: QuantifiedExpression) : Predicate() {
-    constructor(expr: Expression, scalar: Int = 1) : this(QuantifiedExpression(expr, scalar))
+    constructor(expr: TypeExpression, scalar: Int = 1) : this(QuantifiedExpression(expr, scalar))
     init { require(qe.scalar >= 0) }
     override val children = listOf(qe)
     override fun toString() = "$qe"
   }
 
   data class Max(val qe: QuantifiedExpression) : Predicate() {
-    constructor(expr: Expression, scalar: Int = 1) : this(QuantifiedExpression(expr, scalar))
+    constructor(expr: TypeExpression, scalar: Int = 1) : this(QuantifiedExpression(expr, scalar))
     init { require(qe.scalar >= 0) }
     override val children = listOf(qe)
     override fun toString() = "MAX ${qe.petaform(forceScalar = true)}"
   }
 
   data class Exact(val qe: QuantifiedExpression) : Predicate() {
-    constructor(expr: Expression, scalar: Int) : this(QuantifiedExpression(expr, scalar))
+    constructor(expr: TypeExpression, scalar: Int) : this(QuantifiedExpression(expr, scalar))
     init { require(qe.scalar >= 0) }
     override val children = listOf(qe)
     override fun toString() = "=${qe.petaform(forceScalar = true)}"

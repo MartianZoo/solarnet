@@ -21,7 +21,7 @@ class PetaformGenerator(scaling: (Int) -> Double = { 1.5 / 1.2.pow(it) - 1.0 })
     init {
       val specSizes = toListWeirdly(multiset(27 to 0, 9 to 1, 3 to 2, 1 to 3)) // count to value
       register {
-        Expression(
+        TypeExpression(
             choose("Foo", "Bar", "Qux", "Abc", "Xyz", "Ooh", "Ahh", "Eep", "Wau"),
             listOfSize(choose(specSizes)),
             chooseS(9 to { null }, 1 to { recurse() })

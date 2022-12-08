@@ -1,6 +1,6 @@
 package dev.martianzoo.tfm.data
 
-import dev.martianzoo.tfm.petaform.Expression
+import dev.martianzoo.tfm.petaform.TypeExpression
 import dev.martianzoo.tfm.petaform.Instruction
 import dev.martianzoo.tfm.petaform.PetaformParser.parse
 
@@ -40,7 +40,7 @@ data class MarsAreaDefinition(
   }
 
   val bonus: Instruction? by lazy { bonusPetaform?.let { parse(it) } }
-  val type: Expression by lazy { parse(typePetaform) }
+  val type: TypeExpression by lazy { parse(typePetaform) }
 
   override val asComponentDefinition by lazy {
     val effects =

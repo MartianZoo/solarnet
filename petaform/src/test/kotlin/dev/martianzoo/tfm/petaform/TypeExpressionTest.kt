@@ -1,23 +1,21 @@
 package dev.martianzoo.tfm.petaform
 
 import com.google.common.truth.Truth.assertThat
-import dev.martianzoo.tfm.petaform.Expression
-import dev.martianzoo.tfm.petaform.PetaformParser
 import org.junit.jupiter.api.Test
 
-class ExpressionTest {
+class TypeExpressionTest {
   private fun testRoundTrip(petaform: String) =
-      assertThat(PetaformParser.parse<Expression>(petaform).toString()).isEqualTo(petaform)
+      assertThat(PetaformParser.parse<TypeExpression>(petaform).toString()).isEqualTo(petaform)
 
   @Test
   fun simpleSourceToApi() {
-    val foo: Expression = PetaformParser.parse("Foo")
-    assertThat(foo).isEqualTo(Expression("Foo"))
+    val foo: TypeExpression = PetaformParser.parse("Foo")
+    assertThat(foo).isEqualTo(TypeExpression("Foo"))
   }
 
   @Test
   fun simpleApiToSource() {
-    assertThat(Expression("Foo").toString()).isEqualTo("Foo")
+    assertThat(TypeExpression("Foo").toString()).isEqualTo("Foo")
   }
 
   @Test
@@ -38,39 +36,39 @@ class ExpressionTest {
 
   @Test
   fun complexSourceToApi() {
-    val parsed: Expression = PetaformParser.parse(" Red< Blue  < This,Teal> , Gold > ")
+    val parsed: TypeExpression = PetaformParser.parse(" Red< Blue  < This,Teal> , Gold > ")
     assertThat(parsed).isEqualTo(
-        Expression(
+        TypeExpression(
             "Red",
-            Expression(
+            TypeExpression(
                 "Blue",
-                Expression("This"),
-                Expression("Teal")
+                TypeExpression("This"),
+                TypeExpression("Teal")
             ),
-            Expression("Gold")
+            TypeExpression("Gold")
         )
     )
   }
 
   @Test
   fun complexApiToSource() {
-    val expr = Expression(
+    val expr = TypeExpression(
         "Aa",
-        Expression("Bb"),
-        Expression(
+        TypeExpression("Bb"),
+        TypeExpression(
             "Cc",
-            Expression("Dd")
+            TypeExpression("Dd")
         ),
-        Expression(
+        TypeExpression(
             "Ee",
-            Expression(
+            TypeExpression(
                 "This",
-                Expression("Gg"),
-                Expression("Hh")
+                TypeExpression("Gg"),
+                TypeExpression("Hh")
             ),
-            Expression("Me")
+            TypeExpression("Me")
         ),
-        Expression("Jj")
+        TypeExpression("Jj")
     )
     assertThat(expr.toString()).isEqualTo("Aa<Bb, Cc<Dd>, Ee<This<Gg, Hh>, Me>, Jj>")
   }
