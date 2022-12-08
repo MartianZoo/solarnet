@@ -65,7 +65,7 @@ class InstructionTest {
     5 Bar<Bar<Foo>>, 1 Foo FROM Abc, 1 Foo FROM Qux<Qux, Abc>
     Bar: -Abc, (Foo, MAX 1 Bar): (Foo, -Foo, Foo), -3 Foo<Foo>
     1 Ahh FROM Abc<Abc> OR 3 Bar<Xyz<Foo<Abc>, Bar<Abc<Foo>>>>!
-    MAX 1 Foo: ((Abc / Foo OR Qux) THEN (-Foo, Bar) THEN -Foo)
+    MAX 1 Foo: ((Abc / 3 Foo OR Qux) THEN (-Foo, Bar) THEN -Foo)
     Foo<Foo<Qux>>, -Qux!, Bar<Bar<Foo>>, 1 Ahh<Eep> FROM Ahh<Abc>
     (-Foo THEN (Foo, Foo)) OR (1 Qux FROM Bar THEN Qux / Qux<Foo>)
     3 Bar., (Foo<Abc>, Qux OR 3 Foo) THEN -Foo<Foo, Foo<Bar>> / Foo
@@ -82,7 +82,7 @@ class InstructionTest {
     (Foo, Xyz, (MAX 1 Qux<Foo>, Foo<Bar>): Qux) OR (3 Bar: (-Foo / Bar, -Foo))
     Foo OR Bar / Foo, (Qux, Foo, Foo<Foo>) OR 3 Abc, Bar / Xyz THEN -3 Foo, Qux
     (Foo<Bar<Bar>> THEN Foo) OR (Qux<Foo>, 3 Bar, 3 Foo, Foo / Qux) OR (Bar, Bar)
-    MAX 1 Bar: (Bar / Qux THEN Qux THEN 3 Bar<Bar> THEN (-Foo OR Foo / 3 Foo))
+    MAX 1 Bar: (Bar / Qux THEN Qux THEN 3 Bar<Bar<Eep>> THEN (Foo OR Foo / 3 Foo))
     (Foo, Abc / Foo) OR (Foo<Foo, Abc>: Qux) OR (MAX 1 Foo: (Foo OR Abc<Qux<Foo>>))
     3 Bar! OR 5 Qux, 1 Qux<Foo> FROM Eep OR (Foo, (Foo, Foo): Foo, -Foo) OR Bar<Bar>
     (((Qux OR MAX 1 Foo<Bar>) OR Bar<Foo>) OR (Bar, MAX 1 Foo)): (-Bar, Bar, Foo, Foo)
