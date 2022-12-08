@@ -1,7 +1,5 @@
 package dev.martianzoo.tfm.petaform
 
-import dev.martianzoo.tfm.petaform.PetaformParser.QEs.scalar
-
 data class Action(val cost: Cost?, val instruction: Instruction) : PetaformNode() {
   override fun toString() = (cost?.let { "${cost} -> " } ?: "-> ") + instruction
   override val children = listOfNotNull(cost) + instruction
@@ -10,7 +8,8 @@ data class Action(val cost: Cost?, val instruction: Instruction) : PetaformNode(
     data class Spend(val qe: QuantifiedExpression) : Cost() {
       constructor(expr: TypeExpression?, scalar: Int? = null) : this(QuantifiedExpression(expr, scalar))
       init {
-        if ((scalar ?: 1) == 0) throw PetaformException()
+        if ((qe.scalar ?: 1) == 0)
+          throw PetaformException("Cannot spend zero (omit the cost instead)")
       }
       override fun toString() = qe.toString()
       override val children = listOf(qe)
@@ -20,12 +19,13 @@ data class Action(val cost: Cost?, val instruction: Instruction) : PetaformNode(
     data class Per(val cost: Cost, val qe: QuantifiedExpression) : Cost() {
       init {
         if ((qe.scalar ?: 1) <= 0)
-          throw PetaformException()
+          throw PetaformException("Can't do something 'per' a non-positive amount")
         if (qe.typeExpression == null)
-          throw PetaformException()
+          throw PetaformException("Write '/ 2 Megacredit', not just '/ 2'")
 
         when (cost) {
-          is Or, is Multi, is Per -> throw PetaformException()
+          is Or, is Multi -> throw PetaformException("Break into separate Per instructions")
+          is Per -> throw PetaformException("Might support in future?")
           else -> {}
         }
       }

@@ -11,4 +11,8 @@ abstract class PetaformNode {
   abstract val children: Collection<PetaformNode>
 
   open fun countProds(): Int = children.map { it.countProds() }.sum()
+
+  fun descendants(): List<PetaformNode> {
+    return children.flatMap { listOf(it) + it.descendants() }
+  }
 }

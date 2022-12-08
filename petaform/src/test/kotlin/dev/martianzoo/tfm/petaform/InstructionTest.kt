@@ -1,10 +1,16 @@
 package dev.martianzoo.tfm.petaform
 
+import com.github.h0tk3y.betterParse.combinators.or
 import com.google.common.truth.Truth.assertThat
+import dev.martianzoo.tfm.petaform.Instruction.FromIsBelow
+import dev.martianzoo.tfm.petaform.Instruction.FromIsRightHere
+import dev.martianzoo.tfm.petaform.Instruction.Intensity.AMAP
+import dev.martianzoo.tfm.petaform.Instruction.Transmute
 import dev.martianzoo.tfm.petaform.PetaformParser.Instructions
+import dev.martianzoo.tfm.petaform.PetaformParser.Instructions.from
+import dev.martianzoo.tfm.petaform.PetaformParser.Instructions.noFrom
 import dev.martianzoo.tfm.petaform.PetaformParser.parse
 import org.junit.jupiter.api.Test
-import kotlin.math.pow
 
 class InstructionTest {
   val inputs = """
@@ -25,7 +31,7 @@ class InstructionTest {
     Bar<Foo> OR Ooh
     5 Foo<Qux, Ooh>!
     Bar / 42 Ahh<Bar>
-    Abc<Bar>! FROM Foo
+    Abc<Bar> FROM Foo!
     Abc / Foo<Qux, Foo>
     Foo OR (Qux: -1 Xyz)
     5 Bar, Foo OR 1 / Foo
@@ -63,7 +69,7 @@ class InstructionTest {
     1 Bar<Qux, Foo> THEN Abc / 1 Abc THEN -Abc / Foo<Abc>
     Bar FROM Xyz / Qux<Foo>, 5 Foo, Foo FROM Bar<Abc>, Foo
     1 Bar FROM Foo OR -Foo<Foo<Abc>, Bar<Foo>> / 5 Bar<Foo>
-    Foo / Foo<Qux<Foo, Ooh>> OR 1 OR Qux! FROM Foo<Bar<Ahh>>
+    Foo / Foo<Qux<Foo, Ooh>> OR 1 OR Qux FROM Foo<Bar<Ahh>>!
     (MAX 0: -Foo) OR -1 OR (Foo FROM Foo<Xyz>, Foo<Qux<Foo>>)
     ((Foo<Foo> OR Foo): Foo<Bar<Foo>>, Bar OR Bar<Foo>) OR Ooh
     MAX 1 Xyz: (Foo<Foo> OR Bar OR Foo OR (Foo: Foo, Qux: Foo))
@@ -111,7 +117,7 @@ class InstructionTest {
   }
 
   @Test fun stressTest() {
-    val gen = generator(20)
+    val gen = PetaformGenerator { -0.5 - 0.02 * it }
     assertThat((1..1000).flatMap {
       val node = gen.makeRandomNode<Instruction>()
       val str = node.toString()
@@ -139,20 +145,60 @@ class InstructionTest {
     parse(Instructions.maybePer, "-Bar / 5 Foo<Foo<Foo, Bar>, Qux<Foo>>")
     parse(Instructions.maybePer, "-Bar / 5 Foo<Foo<Foo, Bar>, Qux<Foo>>")
   }
+
+  @Test fun from() {
+    testRoundTrip("Foo FROM Bar")
+    testRoundTrip("Foo FROM Bar?")
+    testRoundTrip("3 Foo FROM Bar")
+    testRoundTrip("1 Foo FROM Bar.")
+
+    assertThat(parse<Instruction>("1 Foo FROM Bar.")).isEqualTo(
+        Transmute(
+            FromIsRightHere(
+                TypeExpression("Foo"),
+                TypeExpression("Bar"),
+            ),
+            1,
+            AMAP
+        )
+    )
+    parse(Instructions.fromIsHere, "Bar FROM Qux")
+    parse(Instructions.from, "Bar FROM Qux")
+    parse(from or noFrom, "Bar FROM Qux")
+    parse(Instructions.fromIsBelow, "Foo<Bar FROM Qux>")
+
+    testRoundTrip("Foo<Bar FROM Qux>")
+    testRoundTrip("Foo<Bar FROM Qux>.")
+
+    val instr = Transmute(
+        FromIsBelow("Foo", listOf(
+            FromIsBelow("Bar", listOf(
+                FromIsRightHere(
+                    TypeExpression("Qux"),
+                    TypeExpression("Abc", listOf(TypeExpression("Eep")))
+                ))
+            )),
+        ),
+        null,
+        null
+    )
+    assertThat(instr.toString()).isEqualTo("Foo<Bar<Qux FROM Abc<Eep>>>")
+    assertThat(parse<Instruction>("Foo<Bar<Qux FROM Abc<Eep>>>")).isEqualTo(instr)
+  }
+
+  @Test fun debug3() {
+    val s = "1 Bar<Bar, Qux>, Foo, Foo, 5 Bar, Bar: Foo, Bar, Foo, Qux<Bar>, 5 Abc, 1 Abc, Xyz<Ooh>, Qux<Abc>, Bar<Bar>, Bar, Bar, 1 Qux, Foo, 1 Foo<Qux, Foo>, Abc, Bar<Bar>, 1 Foo<Qux>, 1 Qux<Xyz>, Foo, Abc, Bar<Bar>, Bar<Abc>, Bar<Foo>"
+    testRoundTrip(s)
+  }
   private fun testRoundTrip(start: String, end: String = start) =
       assertThat(parse<Instruction>(start).toString()).isEqualTo(end)
 
   private fun checkRoundTrip(start: String, end: String = start) =
       parse<Instruction>(start).toString() == end
 
-  fun generator(avInsLen: Int): PetaformGenerator {
-    val factor: Double = 0.737 + 0.0325 * avInsLen - .000169 * avInsLen * avInsLen
-    return PetaformGenerator { factor / 1.2.pow(it) - 1.0 }
-  }
-
   fun generateTestStrings() {
     val set = sortedSetOf<String>(Comparator.comparing { it.length })
-    val gen = generator(15)
+    val gen = PetaformGenerator()
     for (i in 1..10000) {
       set += gen.makeRandomNode<Instruction>().toString()
     }

@@ -19,13 +19,3 @@ fun <T> multiset(vararg pairs: Pair<Int, T>): ImmutableMultiset<T> {
   pairs.forEach { builder.addCopies(it.second, it.first) }
   return builder.build()
 }
-
-fun <T> toListWeirdly(multiset: Multiset<T>): List<T> {
-  val multimap = MultimapBuilder.treeKeys().arrayListValues().build<Double, T>()
-  multiset.entrySet().forEach {
-    for (i in 1..it.count) {
-      multimap.put(i.toDouble() / it.count, it.element)
-    }
-  }
-  return multimap.values().toList()
-}

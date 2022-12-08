@@ -28,7 +28,7 @@ data class Effect(
     }
 
     data class Conditional(val trigger: Trigger, val predicate: Predicate) : Trigger() {
-      init { if (trigger is Conditional) throw PetaformException() }
+      init { if (trigger is Conditional) throw PetaformException("And the conditions together instead") }
       override fun toString() = "$trigger IF $predicate"
       override val children = listOf(trigger, predicate)
     }

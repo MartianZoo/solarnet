@@ -38,11 +38,12 @@ abstract class RandomGenerator<B : Any>(val registry: Registry<B>, val scaling: 
     val d = depth!!
     depth = d + 1
     //println("$depth ${type.simpleName}")
-    if (depth!! > 100) error("")
+    if (depth!! > 32) error("")
     while (true) {
       return try {
         registry[type].invoke(this)
       } catch (ignore: PetaformException) { // TODO
+        // println(ignore.message)
         continue
       }.also {
         //println("$depth $it")

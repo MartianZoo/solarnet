@@ -1,3 +1,3 @@
 package dev.martianzoo.tfm.petaform
 
-class PetaformException : Exception() {}
+class PetaformException(override val message: String = "(no message)") : Exception()

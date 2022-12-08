@@ -1,7 +1,6 @@
 package dev.martianzoo.tfm.petaform
 
 import com.google.common.collect.Lists
-import dev.martianzoo.tfm.petaform.PetaformParser.QEs.scalar
 
 sealed class Predicate : PetaformNode() {
 
@@ -10,7 +9,7 @@ sealed class Predicate : PetaformNode() {
     init {
       // if (qe.typeExpression == null) throw PetaformException() TODO
       if ((qe.scalar ?: 1) == 0) {
-        throw PetaformException()
+        throw PetaformException("This predicate is always true")
       }
     }
     override fun toString() = "$qe"
@@ -19,14 +18,14 @@ sealed class Predicate : PetaformNode() {
 
   data class Max(val qe: QuantifiedExpression) : Predicate() {
     constructor(expr: TypeExpression, scalar: Int) : this(QuantifiedExpression(expr, scalar))
-    init { if(qe.scalar == null) throw PetaformException() }
+    init { if(qe.scalar == null) throw PetaformException("'MAX <thing>' is confusing; use 'MAX 1 <thing>'") }
     override fun toString() = "MAX $qe"
     override val children = listOf(qe)
   }
 
   data class Exact(val qe: QuantifiedExpression) : Predicate() {
     constructor(expr: TypeExpression, scalar: Int) : this(QuantifiedExpression(expr, scalar))
-    init { if(qe.scalar == null) throw PetaformException() }
+    init { if(qe.scalar == null) throw PetaformException("Use '=1 <thing>', not '=<thing>'") }
     override fun toString() = "=$qe"
     override val children = listOf(qe)
   }

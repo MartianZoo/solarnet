@@ -2,6 +2,7 @@ package dev.martianzoo.tfm.petaform
 
 import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.tfm.petaform.PetaformParser.parse
+import dev.martianzoo.tfm.petaform.PrettyPrinter.pp
 import org.junit.jupiter.api.Test
 
 class EffectTest {
@@ -16,15 +17,17 @@ class EffectTest {
 
   @Test fun stressTest() {
     val gen = PetaformGenerator()
-    assertThat((1..1000).flatMap {
+    for (i in 1..1000) {
       val node = gen.makeRandomNode<Effect>()
       val str = node.toString()
       val trip: Effect = parse(str)
-      if (trip == node && trip.toString() == str)
-        listOf()
-      else
-        listOf(str)
-    }).isEmpty()
+      assertThat(trip.toString()).isEqualTo(str)
+      if (trip != node) {
+        println(pp(trip))
+        println(pp(node))
+        assertThat(trip).isEqualTo(node)
+      }
+    }
   }
 
   @Test fun debug() {

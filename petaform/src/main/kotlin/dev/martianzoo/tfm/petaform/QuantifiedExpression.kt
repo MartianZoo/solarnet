@@ -3,7 +3,7 @@ package dev.martianzoo.tfm.petaform
 data class QuantifiedExpression(val typeExpression: TypeExpression? = null, val scalar: Int? = null): PetaformNode() {
   init {
     if (scalar == null) {
-      if (typeExpression == null) throw PetaformException()
+      if (typeExpression == null) throw PetaformException("Must specify type or scalar")
     } else {
       require(scalar >= 0)
     }

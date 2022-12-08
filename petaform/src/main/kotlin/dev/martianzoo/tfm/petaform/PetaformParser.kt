@@ -31,11 +31,16 @@ import dev.martianzoo.tfm.petaform.Effect.Trigger
 import dev.martianzoo.tfm.petaform.Effect.Trigger.Conditional
 import dev.martianzoo.tfm.petaform.Effect.Trigger.OnGain
 import dev.martianzoo.tfm.petaform.Effect.Trigger.OnRemove
+import dev.martianzoo.tfm.petaform.Instruction.FromExpression
+import dev.martianzoo.tfm.petaform.Instruction.FromIsBelow
+import dev.martianzoo.tfm.petaform.Instruction.FromIsNowhere
+import dev.martianzoo.tfm.petaform.Instruction.FromIsRightHere
 import dev.martianzoo.tfm.petaform.Instruction.Gain
 import dev.martianzoo.tfm.petaform.Instruction.Gated
 import dev.martianzoo.tfm.petaform.Instruction.Intensity.Companion.intensity
 import dev.martianzoo.tfm.petaform.Instruction.Remove
 import dev.martianzoo.tfm.petaform.Instruction.Transmute
+import dev.martianzoo.tfm.petaform.PetaformParser.QEs.scalar
 import kotlin.reflect.KClass
 import kotlin.reflect.cast
 
@@ -64,8 +69,9 @@ object PetaformParser {
     val parser: Parser<PetaformNode> = parsers[type]!!
     try {
       val pet = parse(parser, petaform)
-      if (pet.countProds() > 1)
-        throw PetaformException()
+      if (pet.countProds() > 1) {
+        throw PetaformException("Can't have multiple PROD boxes")
+      }
       return type.cast(pet)
     } catch (e: ParseException) {
       throw IllegalArgumentException("expecting ${type.simpleName}, input was: $petaform", e)
@@ -135,9 +141,25 @@ object PetaformParser {
     val intensity = optional(regex("[!.?]")) map { intensity(it?.text) }
     val gain = qe and intensity map { (qe, intens) -> Gain(qe, intens) }
     val remove = skipChar('-') and qe and intensity map { (qe, intens) -> Remove(qe, intens) }
-    val transmute = optional(QEs.scalar) and typeExpression and intensity and skipWord("FROM") and typeExpression map { (scal, to, intens, from) ->
-      Transmute(to, from, scal, intens)
+
+    val fromIsHere = typeExpression and skipWord("FROM") and typeExpression map { (to, from) ->
+      FromIsRightHere(to, from)
     }
+    val fromIsBelow = className and skipChar('<') and parser { fromElements } and skipChar('>') and TypeExpressions.refinement map { (name, specs, refins) ->
+      FromIsBelow(name, specs, refins)
+    }
+
+    val from = fromIsHere or fromIsBelow
+    val noFrom = typeExpression map { FromIsNowhere(it) }
+
+    val fromElements: Parser<List<FromExpression>> =
+        zeroOrMore(noFrom and skipChar(',')) and
+        from and
+        zeroOrMore(skipChar(',') and noFrom) map { (a, b, c) -> a + b + c }
+    val transmute = optional(scalar) and from and intensity map { (scal, fro, intens) ->
+      Transmute(fro, scal, intens)
+    }
+
     val perable = transmute or gain or remove
 
     val maybePer = perable and optional(skipChar('/') and QEs.qeWithType) map { (instr, qe) ->
@@ -148,8 +170,8 @@ object PetaformParser {
 
     val atomInstruction = anyGroup or maybeProd
 
-    val gated = optional(Predicates.atomPredicate and skipChar(':')) and atomInstruction map {
-      (one, two) -> if (one == null) two else Gated(one, two)
+    val gated = optional(Predicates.atomPredicate and skipChar(':')) and atomInstruction map { (one, two) ->
+      if (one == null) two else Gated(one, two)
     }
     val orInstr = separatedTerms(gated, word("OR")) map Instruction::or
     val then = separatedTerms(orInstr, word("THEN")) map Instruction::then

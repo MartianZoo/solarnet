@@ -1,53 +1,68 @@
 package dev.martianzoo.util
 
+import com.google.common.collect.HashMultiset
+import com.google.common.collect.Multiset
 import com.google.common.truth.Truth.assertThat
+import dev.martianzoo.tfm.petaform.PetaformException
 import org.junit.jupiter.api.Test
+import kotlin.math.PI
+import kotlin.math.min
+import kotlin.math.pow
+import kotlin.math.tan
+import kotlin.random.Random
+import kotlin.reflect.KClass
 
 class CollectionHelpersTest {
-  @Test
-  fun weird() {
-    assertThat(toListWeirdly(multiset(0 to "x"))).containsExactly().inOrder()
-    assertThat(toListWeirdly(multiset(1 to "x"))).containsExactly("x").inOrder()
-    assertThat(toListWeirdly(multiset(3 to "x"))).containsExactly("x", "x", "x").inOrder()
-    assertThat(toListWeirdly(multiset(1 to "x", 1 to "y"))).containsExactly("x", "y").inOrder()
-    assertThat(toListWeirdly(multiset(2 to "x", 1 to "y"))).containsExactly("x", "x", "y").inOrder()
-    assertThat(toListWeirdly(multiset(1 to "x", 2 to "y"))).containsExactly("y", "x", "y").inOrder()
-    assertThat(toListWeirdly(multiset(2 to "x", 2 to "y"))).containsExactly("x", "y", "x", "y").inOrder()
-    assertThat(toListWeirdly(multiset(6 to "x", 10 to "y"))).containsExactly(
-        "y", "x", "y", "y", "x", "y", "x", "y", "y", "x", "y", "y", "x", "y", "x", "y").inOrder()
 
-    assertThat(toListWeirdly(multiset(6 to "x", 10 to "y", 15 to "z"))).containsExactly(
-        "z", // 07
-        "y", // 10
-        "z", // 13
-        "x", // 17
-        "y", // 20
-        "z", // 20
-        "z", // 27
-        "y", // 30
-        "x", // 33
-        "z", // 33
-        "y", // 40
-        "z", // 40
-        "z", // 47
-        "x", // 50
-        "y", // 50
-        "z", // 53
-        "y", // 60
-        "z", // 60
-        "x", // 67
-        "z", // 67
-        "y", // 70
-        "z", // 73
-        "y", // 80
-        "z", // 80
-        "x", // 83
-        "z", // 87
-        "y", // 90
-        "z", // 93
-        "x", // 100
-        "y", // 100
-        "z", // 100
-    )
+  class RanGen(val scale: Double) {
+
+    fun nextInt(limit: Int): Int {
+      val d = Random.Default.nextDouble()
+
+      val power: Double = tan((scale + 1.0) * PI / 4)
+      return min(((1 - d.pow(power)) * limit).toInt(), limit - 1)
+    }
+
+    inline fun <reified E : Enum<E>> randomEnum() = choose(*enumValues<E>())
+
+    fun <T : Any?> choose(vararg choices: T): T = choices[nextInt(choices.size)]
+    fun <T : Any?> choose(choices: List<T>): T = choices[nextInt(choices.size)]
+
+    fun <T : Any?> choose(choices: Multiset<T>) = getNth(choices, nextInt(choices.size))
+
+    fun <T : Any?> getNth(choices: Multiset<T>, index: Int): T {
+      var skip = index
+      for (wc in choices.entrySet()) {
+        skip -= wc.count
+        if (skip < 0) {
+          return wc.element
+        }
+      }
+      error("")
+    }
+
+    fun <T : Any?> choose(vararg weightToChoice: Pair<Int, T>): T {
+      val sum = weightToChoice.map { it.first }.sum()
+      var skip = nextInt(sum)
+      for (wc in weightToChoice) {
+        skip -= wc.first
+        if (skip < 0) {
+          return wc.second
+        }
+      }
+      error("")
+    }
+
+    fun <T : Any?> chooseS(vararg weightToChoiceSupplier: Pair<Int, () -> T>): T {
+      val sum = weightToChoiceSupplier.map { it.first }.sum()
+      var skip = nextInt(sum)
+      for (wc in weightToChoiceSupplier) {
+        skip -= wc.first
+        if (skip < 0) {
+          return wc.second()
+        }
+      }
+      error("")
+    }
   }
 }
