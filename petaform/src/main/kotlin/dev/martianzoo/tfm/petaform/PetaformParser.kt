@@ -100,10 +100,8 @@ object PetaformParser {
 
   object QEs {
     val scalar: Parser<Int> = regex("\\b(0|[1-9][0-9]*)\\b") map { it.text.toInt() }
-    val implicitScalar: Parser<Int> = optional(scalar) map { it ?: 1 }
-    val implicitType: Parser<TypeExpression> = optional(TypeExpressions.anyTypeExpr) map {
-      it ?: DEFAULT_TYPE_EXPRESSION
-    }
+    val implicitScalar: Parser<Int?> = optional(scalar)
+    val implicitType: Parser<TypeExpression?> = optional(TypeExpressions.anyTypeExpr)
 
     val qeWithScalar = scalar and implicitType map { (scalar, expr) ->
       QuantifiedExpression(expr, scalar)

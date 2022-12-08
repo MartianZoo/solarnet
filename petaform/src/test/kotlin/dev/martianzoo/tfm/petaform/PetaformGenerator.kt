@@ -27,7 +27,7 @@ class PetaformGenerator(scaling: (Int) -> Double = { 1.5 / 1.2.pow(it) - 1.0 })
             chooseS(9 to { null }, 1 to { recurse() })
         )
       }
-      register { QuantifiedExpression(recurse(), choose(1, 1, 3, 5, 11)) }
+      register { QuantifiedExpression(choose(1 to null, 4 to recurse()), choose(null, null, 0, 1, 5, 42)) }
 
       val predicateTypes = toListWeirdly(multiset(
           9 to Predicate.Min::class,
@@ -38,7 +38,7 @@ class PetaformGenerator(scaling: (Int) -> Double = { 1.5 / 1.2.pow(it) - 1.0 })
       ))
       register<Predicate> { recurse(choose(predicateTypes)) }
       register { Predicate.Min(qe = recurse()) }
-      register { Predicate.Max(qe = recurse()) }
+      register { Predicate.Max(recurse()) }
       register { Predicate.Exact(recurse()) }
       register { Predicate.and(listOfSize(choose(2, 2, 2, 2, 3))) as Predicate.And }
       register { Predicate.or(listOfSize(choose(2, 2, 2, 2, 2, 3, 4))) as Predicate.Or }

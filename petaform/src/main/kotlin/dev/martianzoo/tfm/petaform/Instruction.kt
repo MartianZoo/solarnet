@@ -2,17 +2,17 @@ package dev.martianzoo.tfm.petaform
 
 sealed class Instruction : PetaformNode() {
   data class Gain(val qe: QuantifiedExpression, val intensity: Intensity? = null) : Instruction() {
-    constructor(expr: TypeExpression, scalar: Int = 1, intensity: Intensity? = null) :
+    constructor(expr: TypeExpression?, scalar: Int? = null, intensity: Intensity? = null) :
         this(QuantifiedExpression(expr, scalar), intensity)
-    init { qe.scalar >= 0 }
+    init { if ((qe.scalar ?: 1) < 1) throw PetaformException() }
     override fun toString() = "${qe}${intensity?.petaform ?: ""}"
     override val children = listOf(qe)
   }
 
   data class Remove(val qe: QuantifiedExpression, val intensity: Intensity? = null) : Instruction() {
-    constructor(expr: TypeExpression, scalar: Int = 1, intensity: Intensity? = null) :
+    constructor(expr: TypeExpression?, scalar: Int? = null, intensity: Intensity? = null) :
         this(QuantifiedExpression(expr, scalar), intensity)
-    init { qe.scalar >= 0 }
+    init { if ((qe.scalar ?: 1) <= 0) throw PetaformException() }
     override fun toString() = "-${qe}${intensity?.petaform ?: ""}"
     override val children = listOf(qe)
   }
@@ -23,7 +23,7 @@ sealed class Instruction : PetaformNode() {
       val scalar: Int? = null,
       val intensity: Intensity? = null) : Instruction() {
     init {
-      scalar?.let { require(it >= 0) }
+      if ((scalar ?: 1) < 1) throw PetaformException()
     }
     override fun toString() =
         (scalar?.let { "$it " } ?: "") + "$toExpression${intensity?.petaform ?: ""} FROM $fromExpression"
@@ -32,13 +32,15 @@ sealed class Instruction : PetaformNode() {
 
   data class Per(val instruction: Instruction, val qe: QuantifiedExpression): Instruction() {
     init {
-      require(qe.scalar != 0)
+      if (qe.typeExpression == null) throw PetaformException()
+      if ((qe.scalar ?: 1) <= 0) throw PetaformException()
       when (instruction) {
-        is Gain, is Remove, is Transmute -> {}
+        is Gain -> { if (instruction.qe.scalar == 0) throw PetaformException() }
+        is Remove, is Transmute -> {}
         else -> throw PetaformException()
       }
     }
-    override fun toString() = "$instruction / ${qe.petaform(forceExpression = true)}"
+    override fun toString() = "$instruction / $qe"
     override fun precedence() = 5
     override val children = listOf(instruction, qe)
   }

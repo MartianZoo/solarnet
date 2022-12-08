@@ -16,7 +16,7 @@ class ComponentDeclarationsTest {
   @Test
   fun bodyElements() {
     assertThat(parse(Components.repeatableElement, "default Foo?"))
-        .isEqualTo(Gain(TypeExpression("Foo"), 1, OPTIONAL))
+        .isEqualTo(Gain(TypeExpression("Foo"), null, OPTIONAL))
     assertThat(parse(Components.repeatableElement, "Foo -> Bar"))
         .isEqualTo(Action(Spend(TypeExpression("Foo")), Gain(TypeExpression("Bar"))))
     assertThat(parse(Components.repeatableElement, "Foo: Bar")).isInstanceOf(Effect::class.java)
@@ -154,7 +154,7 @@ class ComponentDeclarationsTest {
 
   @Test fun default() {
     val instr: PetaformNode = parse(PetaformParser.Components.default, "default -Component!")
-    assertThat(instr).isEqualTo(Instruction.Remove(TypeExpression("Component"), 1,  Intensity.MANDATORY))
+    assertThat(instr).isEqualTo(Instruction.Remove(TypeExpression("Component"), null, Intensity.MANDATORY))
   }
 
   @Test fun withDefaults() {

@@ -1,12 +1,17 @@
 package dev.martianzoo.tfm.petaform
 
+import dev.martianzoo.tfm.petaform.PetaformParser.QEs.scalar
+
 data class Action(val cost: Cost?, val instruction: Instruction) : PetaformNode() {
   override fun toString() = (cost?.let { "${cost} -> " } ?: "-> ") + instruction
   override val children = listOfNotNull(cost) + instruction
 
   sealed class Cost : PetaformNode() {
     data class Spend(val qe: QuantifiedExpression) : Cost() {
-      constructor(expr: TypeExpression, scalar: Int = 1) : this(QuantifiedExpression(expr, scalar))
+      constructor(expr: TypeExpression?, scalar: Int? = null) : this(QuantifiedExpression(expr, scalar))
+      init {
+        if ((scalar ?: 1) == 0) throw PetaformException()
+      }
       override fun toString() = qe.toString()
       override val children = listOf(qe)
     }
@@ -14,7 +19,11 @@ data class Action(val cost: Cost?, val instruction: Instruction) : PetaformNode(
     // can't do non-prod per prod yet
     data class Per(val cost: Cost, val qe: QuantifiedExpression) : Cost() {
       init {
-        require(qe.scalar != 0)
+        if ((qe.scalar ?: 1) <= 0)
+          throw PetaformException()
+        if (qe.typeExpression == null)
+          throw PetaformException()
+
         when (cost) {
           is Or, is Multi, is Per -> throw PetaformException()
           else -> {}

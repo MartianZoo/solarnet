@@ -1,13 +1,19 @@
 package dev.martianzoo.tfm.petaform
 
-data class QuantifiedExpression(val expr: TypeExpression, val scalar: Int = 1): PetaformNode() {
-  init { require(scalar >= 0) }
-  override fun toString() = petaform()
-  override val children = listOf(expr)
-
-  fun petaform(forceScalar: Boolean = false, forceExpression: Boolean = false) = when {
-    (!forceExpression && expr == DEFAULT_TYPE_EXPRESSION) -> "$scalar"
-    (!forceScalar && scalar == 1) -> "$expr"
-    else -> "$scalar ${expr}"
+data class QuantifiedExpression(val typeExpression: TypeExpression? = null, val scalar: Int? = null): PetaformNode() {
+  init {
+    if (scalar == null) {
+      if (typeExpression == null) throw PetaformException()
+    } else {
+      require(scalar >= 0)
+    }
   }
+  override fun toString() = listOfNotNull(scalar, typeExpression).joinToString(" ")
+  override val children = listOfNotNull(typeExpression)
+
+  //fun petaform(forceScalar: Boolean = false, forceExpression: Boolean = false) = when {
+  //  (!forceExpression && typeExpression == null) -> "$scalar"
+  //  (!forceScalar && scalar == 1) -> "$typeExpression"
+  //  else -> "$scalar ${typeExpression}"
+  //}
 }

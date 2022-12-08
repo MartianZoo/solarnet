@@ -1388,7 +1388,7 @@
       "bundle": "B",
       "deck": "PROJECT",
       "tags": [ "BuildingTag" ],
-      "immediate": [ "OceanTile<LandArea>! OR (9 OceanTile: 0)" ],
+      "immediate": [ "OceanTile<LandArea>! OR (9 OceanTile: Ok)" ],
       "effects": [ "End: VictoryPoint" ],
       "requirement": "12 TemperatureStep",
       "cost": 15,
@@ -2192,7 +2192,7 @@
       "tags": [ "ScienceTag" ],
       "actions": [
         "3 -> ProjectCard",
-        "-> 0",
+        "-> Ok",
       ],
       "cost": 9,
       "projectKind": "ACTIVE",
@@ -2426,7 +2426,7 @@
       "deck": "PROJECT",
       "tags": [ "ScienceTag", "BuildingTag" ],
       "effects": [
-        "ScienceTag: 0", // pointless in Follow Mode
+        "ScienceTag: Ok", // pointless in Follow Mode
         "End: VictoryPoint",
       ],
       "cost": 8,
@@ -2612,7 +2612,7 @@
       "immediate": [ "PROD[-1]" ],
       "actions": [
         "3 -> ProjectCard",
-        "-> 0",
+        "-> Ok",
       ],
       "cost": 4,
       "projectKind": "ACTIVE",

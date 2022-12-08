@@ -16,7 +16,7 @@ class EffectTest {
 
   @Test fun stressTest() {
     val gen = PetaformGenerator()
-    assertThat((1..10000).flatMap {
+    assertThat((1..1000).flatMap {
       val node = gen.makeRandomNode<Effect>()
       val str = node.toString()
       val trip: Effect = parse(str)

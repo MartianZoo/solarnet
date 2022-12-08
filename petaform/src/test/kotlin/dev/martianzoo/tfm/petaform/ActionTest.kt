@@ -23,7 +23,7 @@ class ActionTest {
 
   @Test
   fun stupid() {
-    testRoundTrip("-> 0")
+    testRoundTrip("-> Ok")
   }
 
   private fun testRoundTrip(start: String, end: String = start) {

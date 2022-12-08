@@ -1,27 +1,33 @@
 package dev.martianzoo.tfm.petaform
 
 import com.google.common.collect.Lists
+import dev.martianzoo.tfm.petaform.PetaformParser.QEs.scalar
 
 sealed class Predicate : PetaformNode() {
 
   data class Min(val qe: QuantifiedExpression) : Predicate() {
-    constructor(expr: TypeExpression, scalar: Int = 1) : this(QuantifiedExpression(expr, scalar))
-    init { require(qe.scalar >= 0) }
+    constructor(expr: TypeExpression, scalar: Int? = null) : this(QuantifiedExpression(expr, scalar))
+    init {
+      // if (qe.typeExpression == null) throw PetaformException() TODO
+      if ((qe.scalar ?: 1) == 0) {
+        throw PetaformException()
+      }
+    }
     override fun toString() = "$qe"
     override val children = listOf(qe)
   }
 
   data class Max(val qe: QuantifiedExpression) : Predicate() {
-    constructor(expr: TypeExpression, scalar: Int = 1) : this(QuantifiedExpression(expr, scalar))
-    init { require(qe.scalar >= 0) }
-    override fun toString() = "MAX ${qe.petaform(forceScalar = true)}"
+    constructor(expr: TypeExpression, scalar: Int) : this(QuantifiedExpression(expr, scalar))
+    init { if(qe.scalar == null) throw PetaformException() }
+    override fun toString() = "MAX $qe"
     override val children = listOf(qe)
   }
 
   data class Exact(val qe: QuantifiedExpression) : Predicate() {
     constructor(expr: TypeExpression, scalar: Int) : this(QuantifiedExpression(expr, scalar))
-    init { require(qe.scalar >= 0) }
-    override fun toString() = "=${qe.petaform(forceScalar = true)}"
+    init { if(qe.scalar == null) throw PetaformException() }
+    override fun toString() = "=$qe"
     override val children = listOf(qe)
   }
 

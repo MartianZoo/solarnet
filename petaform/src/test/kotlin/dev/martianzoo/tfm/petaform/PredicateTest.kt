@@ -28,8 +28,6 @@ class PredicateTest {
         .isEqualTo(Min(TypeExpression("Foo")))
     assertThat(PetaformParser.parse<Predicate>("3 Foo"))
         .isEqualTo(Min(TypeExpression("Foo"), 3))
-    assertThat(PetaformParser.parse<Predicate>("3"))
-        .isEqualTo(Min(TypeExpression("Megacredit"), 3))
     assertThat(PetaformParser.parse<Predicate>("MAX 3 Foo"))
         .isEqualTo(Max(TypeExpression("Foo"), 3))
   }
@@ -37,13 +35,12 @@ class PredicateTest {
   @Test
   fun simpleApiToSource() {
     assertThat(Min(TypeExpression("Foo")).toString()).isEqualTo("Foo")
-    assertThat(Min(TypeExpression("Foo"), 1).toString()).isEqualTo("Foo")
+    assertThat(Min(TypeExpression("Foo"), 1).toString()).isEqualTo("1 Foo")
     assertThat(Min(TypeExpression("Foo"), 3).toString()).isEqualTo("3 Foo")
-    assertThat(Min(TypeExpression("Megacredit"), 3).toString()).isEqualTo("3")
+    assertThat(Min(TypeExpression("Megacredit"), 3).toString()).isEqualTo("3 Megacredit")
     assertThat(Max(TypeExpression("Foo"), 0).toString()).isEqualTo("MAX 0 Foo")
     assertThat(Max(TypeExpression("Foo"), 1).toString()).isEqualTo("MAX 1 Foo")
     assertThat(Max(TypeExpression("Foo"), 3).toString()).isEqualTo("MAX 3 Foo")
-    assertThat(Max(TypeExpression("Megacredit"), 3).toString()).isEqualTo("MAX 3")
   }
 
   val inputs = """
@@ -158,12 +155,10 @@ class PredicateTest {
 
   @Test
   fun roundTrips() {
-    testRoundTrip("0")
-    testRoundTrip("1")
-    testRoundTrip("Megacredit", "1")
-    testRoundTrip("1 Megacredit", "1")
+    testRoundTrip("Megacredit")
+    testRoundTrip("1 Megacredit")
     testRoundTrip("Plant")
-    testRoundTrip("1 Plant", "Plant")
+    testRoundTrip("1 Plant")
     testRoundTrip("3 Plant")
     testRoundTrip("MAX 0 Plant")
     testRoundTrip("MAX 1 Plant")
@@ -182,15 +177,14 @@ class PredicateTest {
 
   @Test fun hairy() {
     val parsed : Predicate = PetaformParser.parse(
-        "Adjacency<CityTile<Anyone>, OceanTile> OR Adjacency<OceanTile, CityTile<Anyone>>")
+        "Adjacency<CityTile<Anyone>, OceanTile> OR 1 Adjacency<OceanTile, CityTile<Anyone>>")
     // This is kinda absurd
     assertThat(parsed).isEqualTo(
         Predicate.Or(
             Min(TypeExpression("Adjacency",
                     TypeExpression("CityTile",
                         TypeExpression("Anyone")),
-                    TypeExpression("OceanTile")),
-                1),
+                    TypeExpression("OceanTile"))),
             Min(TypeExpression("Adjacency",
                     TypeExpression("OceanTile"),
                     TypeExpression("CityTile",
