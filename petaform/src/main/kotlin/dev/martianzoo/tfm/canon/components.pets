@@ -34,8 +34,12 @@ abstract class Generational { // things that disappear when the generation chang
 abstract class Phase : System {
     count 0..1 // insufficient
 
-    This IF 2 Phase:: Die    // forced to do "ThisPhase FROM Phase" // ack, no spec
-    -This IF MAX 0 Phase:: Die  // cycles
+    // this seems like a roundabout way to express "there must always be exactly 1"
+    NOW 2 Phase OR MAX 0 Phase:: Die
+    // Phases must be changed like `WhateverPhase FROM Phase`
+    // can't just do `This:: -Phase.` unless it knows not to remove itself somehow
+    // `This:: -(Phase-This)` might do it but blegh
+    // could we have a special directive in here like `This FROM Phase` or `This:: FROM Phase`?
 
     // There will be a heck of a lot more
     class ProductionPhase
@@ -70,7 +74,7 @@ abstract class GlobalParameter { // TODO splittable...
     class VenusStep       { count 0..15 }
 }
 
-class TrackBonuser {
+class TrackBonuser : System {
     count 1..1
 
     NOW 3 TemperatureStep: PROD[Heat]
@@ -78,7 +82,9 @@ class TrackBonuser {
     NOW 15 TemperatureStep: OceanTile
 
     NOW 8 OxygenStep: TemperatureStep
+}
 
+class VenusBonuser : System {
     NOW 4 VenusStep: ProjectCard
     NOW 8 VenusStep: TerraformRating
 }
@@ -86,7 +92,8 @@ class TrackBonuser {
 abstract class Area {
     count 1..1
 
-    // Tile<This>:: (=1 Tile<This>: Ok) // prevent 2 tiles same area. TODO cycle
+    NOW 2 Tile<This>:: Die
+    // or Tile<This>:: (MAX 1 Tile<This>: Ok)
 
     abstract class RemoteArea
     abstract class MarsArea {
@@ -104,11 +111,10 @@ abstract class Tile<Area> {
     // This:: $createAdjacencies(This)
 
     class OceanTile : GlobalParameter {
-        // count 0..9 wouldn't actually work
-
         default OceanTile<WaterArea>
 
-        This:: (MAX 9 OceanTile: Ok)
+        // count 0..9 wouldn't actually work
+        NOW 10 OceanTile:: Die
         Adjacency<This, Tile>: 2
     }
 }
@@ -121,17 +127,19 @@ class Adjacency<Tile, Tile>(HAS 2 Tile)  : System { count 0..1 }
 abstract class Owned<Anyone> {
     // default *Owned<Me>
 
+    class VictoryPoint
+
     class Required<Component> : Barrier
 
-    class Purchase<Component> : Ephemeral {
-        This: (MAX 0 Barrier: Component) //  TODO don't trigger for PlayCard
+    class Purchase<Component> { // TODO but this would need to be a barrier too
+        NOW MAX 0 Barrier: Component, -This
     }
 
     abstract class Resource {
         abstract class StandardResource {
             class Megacredit
-            class Steel // Purchase<BuildingTag>:: Accept<This> - cycle
-            class Titanium // Purchase<SpaceTag>:: Accept<This>
+            class Steel
+            class Titanium
             class Plant
             class Heat
             class Energy { ProductionPhase:: Heat FROM This }
@@ -139,7 +147,7 @@ abstract class Owned<Anyone> {
     }
 
     class Production<StandardResource> { // TODO ensure owner == owner?
-        ProductionPhase: StandardResource
+        ProductionPhase: StandardResource // not ::, to ensure E->H happens first
     }
 
     class Owed<Resource> : Barrier {
@@ -153,12 +161,21 @@ abstract class Owned<Anyone> {
 
     class Accept<Resource> : System {
         count 0..1
-        default Accept.
+        default Accept. // never hurts to accept twice
 
-        -Resource:: Pay<Resource>
-        -Owed IF MAX 0 Owed:: -This // NOW MAX 0 Owed
+        -Resource:: Pay<Resource> // TODO this is not quite right?
+        NOW MAX 0 Owed:: -This // TODO what if there never had been any Owed's?
     }
 
+    // TODO I prefer not having a bunch of these system singletons hanging around
+    // In theory, your steel resources themselves could have this trigger!
+    class TagAbilities {
+      count 1..1
+      Purchase<BuildingTag>:: Accept<Steel>
+      Purchase<SpaceTag>:: Accept<Titanium>
+    }
+
+    // TODO what else should be <Player> and why
     class TerraformRating : Owned<Player> {
         ProductionPhase: 1
         End: VictoryPoint
@@ -168,7 +185,7 @@ abstract class Owned<Anyone> {
     abstract class CardBack { class CorporationCard, PreludeCard, ProjectCard }
 
     abstract class OwnedTile : Tile {
-        class GreeneryTile : OwnedTile<MarsArea> {
+        class GreeneryTile : Tile<MarsArea> {
             default GreeneryTile<LandArea(HAS Neighbor<OwnedTile>)>
 
             This: OxygenStep
@@ -189,11 +206,10 @@ abstract class Owned<Anyone> {
 
         abstract class EventCard {
             This: PlayedEvent FROM This // shouldn't really be able to do this early
+            // problem: how to still get the VPs??
         }
         abstract class AutomatedCard
         abstract class ActiveCard
-
-        // Remember, corps and preludes have none of those types
     }
 
     class PlayedEvent

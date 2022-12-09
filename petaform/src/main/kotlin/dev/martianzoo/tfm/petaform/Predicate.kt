@@ -9,7 +9,7 @@ sealed class Predicate : PetaformNode() {
     init {
       // if (qe.typeExpression == null) throw PetaformException() TODO
       if ((qe.scalar ?: 1) == 0) {
-        throw PetaformException("This predicate is always true")
+        throw PetaformException("This predicate is always true (${qe})")
       }
     }
     override fun toString() = "$qe"
