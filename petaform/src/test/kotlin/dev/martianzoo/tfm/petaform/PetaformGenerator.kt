@@ -113,11 +113,15 @@ class PetaformGenerator(scaling: (Int) -> Double = { 1.5 / 1.2.pow(it) - 1.0 })
           9 to Trigger.OnGain::class,
           4 to Trigger.OnRemove::class,
           3 to Trigger.Conditional::class,
+          1 to Trigger.Now::class,
+          1 to Trigger.Prod::class,
       ))
       register<Trigger> { recurse(choose(triggerTypes)) }
       register { Trigger.OnGain(recurse()) }
       register { Trigger.OnRemove(recurse()) }
       register { Trigger.Conditional(recurse(), recurse()) }
+      register { Trigger.Now(recurse()) }
+      register { Trigger.Prod(recurse()) }
 
       register { Effect(recurse(), recurse()) }
 

@@ -4,11 +4,11 @@ import com.squareup.moshi.Json
 import dev.martianzoo.tfm.data.CardDefinition.ProjectKind.ACTIVE
 import dev.martianzoo.tfm.petaform.Action
 import dev.martianzoo.tfm.petaform.Effect
-import dev.martianzoo.tfm.petaform.TypeExpression
 import dev.martianzoo.tfm.petaform.Instruction
-import dev.martianzoo.tfm.petaform.Predicate
 import dev.martianzoo.tfm.petaform.PetaformParser
 import dev.martianzoo.tfm.petaform.PetaformParser.parse
+import dev.martianzoo.tfm.petaform.Predicate
+import dev.martianzoo.tfm.petaform.TypeExpression
 
 /**
  * Everything there is to know about a Terraforming Mars card, except for text (including the card
@@ -57,8 +57,8 @@ data class CardDefinition(
     /**
      * The tags on the card, each expressed as a Petaform component name. If a card (such as Venus
      * Governor) has multiple of the same tag, the same string should appear that many times in the
-     * list. Order is irrelevant, but should ideally match the order on the printed card (if it
-     * exists).
+     * list. Order is irrelevant (but the Canon data preserves the tag order from the printed
+     * cards).
      */
     @Json(name = "tags")
     val tagsPetaform: List<String> = listOf(),
@@ -67,14 +67,14 @@ data class CardDefinition(
      * Immediate effects on the card, if any, each expressed as a Petaform `Instruction`.
      */
     @Json(name = "immediate")
-    val immediatePetaform: Set<String> = setOf(),
+    val immediatePetaform: Set<String> = setOf(), // TODO there should be only one
 
     /**
      * Actions on the card, if any, each expressed as a Petaform `Action`. `AUTOMATED` and `EVENT`
      * cards may not have these.
      */
     @Json(name = "actions")
-    val actionsPetaform: Set<String> = setOf(),
+    val actionsPetaform: Set<String> = setOf(), // TODO change to list
 
     /**
      * Effects on the card, if any, each expressed as a Petaform `Effect`. `AUTOMATED` and
@@ -84,13 +84,14 @@ data class CardDefinition(
     val effectsPetaform: Set<String> = setOf(),
 
     /**
-     * Which resource type, if any, this card can hold, expressed as a Petaform `ComponentClass`.
+     * Which resource type, if any, this card can hold, expressed as a Petaform `TypeExpression`.
      */
     @Json(name = "resourceType")
     val resourceTypePetaform: String? = null,
 
     /**
-     * Any extra components the card defines (needed by no other card).
+     * Any extra components the card defines (needed by no other card), expressed as a Petaform
+     * `Component`.
      */
     @Json(name = "components")
     val componentsPetaform: Set<String> = setOf(),
@@ -98,8 +99,8 @@ data class CardDefinition(
     // Project info
 
     /**
-     * The card's requirement, expressed as a nonempty Petaform `Predicate`, or `null` if it has none.
-     * Only cards in the `PROJECT` deck may have this.
+     * The card's requirement, if it has one, expressed as a Petaform `Predicate`. Only cards in
+     * the `PROJECT` deck may have this.
      */
     @Json(name = "requirement")
     val requirementPetaform: String? = null,

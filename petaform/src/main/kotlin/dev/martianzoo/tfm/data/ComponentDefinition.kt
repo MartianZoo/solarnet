@@ -23,10 +23,8 @@ data class ComponentDefinition(
     val supertypesPetaform: Set<String> = setOf(),
 
     /**
-     * Zero or more direct dependencies; a dependency is a Petaform TypeExpression with the requirement
-     * that every instance of this class must relate to *exactly one* instance of the dependency
-     * type. This relationship may be many-to-one. Supertype dependencies are inherited so should
-     * never be restated here.
+     * Dependencies declared for this component class; it will also inherit the dependencies of its
+     * supertypes but those are not listed here.
      */
     @Json(name = "dependencies")
     val dependenciesPetaform: List<String> = listOf(),

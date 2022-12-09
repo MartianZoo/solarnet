@@ -1,32 +1,29 @@
+// Root of the hierarchy; everything with no other supertypes has this supertype
 abstract class Component {
+    count 0..*
+
     default Component!
     default -Component!
 }
 
 abstract class System
-abstract class This : System
+abstract class This : System // no subtypes, so you can never actually create a literal `This`
 
-abstract class Ephemeral { // removes itself immediately - will never observe it existing
-    count 0..0
+abstract class Ephemeral : System { // removes itself immediately - will never observe it existing
+    count 0..0 // cardinalities can probably only be enforced after :: triggers are done
 
     This:: -This
 }
 
-class Ok : System, Ephemeral // when you need to do nothing
+class Ok : Ephemeral // when you need to do nothing
 
-abstract class Transient { // will be gone before end of action (or user can remove)
-    This: -This.
-}
-
-abstract class Litter { // player must clean up themselves, by end of action
-    This: (MAX 0 This: Ok)
+abstract class Barrier { // player must clean up themselves, by end of action
+    This: (MAX 0 Barrier: Ok) // puts a task on the queue that can only be handled if 0 barriers left
 }
 
 class Die : System { // anything that tries to create this will stall
     count 0..0
 }
-
-abstract class Atomized // for global params which are always increased one by one
 
 class Generation
 
@@ -37,37 +34,62 @@ abstract class Generational { // things that disappear when the generation chang
 abstract class Phase : System {
     count 0..1 // insufficient
 
-    // This IF 2 Phase:: Die    // forced to do "ThisPhase FROM Phase" // ack, no spec
-    // -This IF MAX 0 Phase:: Die  // cycles
+    This IF 2 Phase:: Die    // forced to do "ThisPhase FROM Phase" // ack, no spec
+    -This IF MAX 0 Phase:: Die  // cycles
 
+    // There will be a heck of a lot more
     class ProductionPhase
     class End
 }
 
-abstract class Anyone {
+abstract class Anyone { // : Owned<Anyone> !?
+    // minimum of 1 means the engine will create an instance automatically - so,
+    // in a 2-player game no Player3 class should even be defined.
     count 1..1
 
     class Npc : System
 
     abstract class Player {
-        This:: 14 TerraformRating
-        This:: PROD[5]         // an ugly wart
-        ProductionPhase: -5    // same ugly wart
+        This:: 14 TerraformRating // not supporting multiplayer for a while yet
+        This:: PROD[5]            // an ugly wart
+        ProductionPhase: -5       // same ugly wart
 
         class Me
         // concrete players to be created dynamically
     }
 }
 
+abstract class GlobalParameter { // TODO splittable...
+    default GlobalParameter.
+    default -GlobalParameter.
+
+    This: TerraformRating
+
+    class TemperatureStep { count 0..19 }
+    class OxygenStep      { count 0..14 }
+    class VenusStep       { count 0..15 }
+}
+
+class TrackBonuser {
+    count 1..1
+
+    NOW 3 TemperatureStep: PROD[Heat]
+    NOW 5 TemperatureStep: PROD[Heat]
+    NOW 15 TemperatureStep: OceanTile
+
+    NOW 8 OxygenStep: TemperatureStep
+
+    NOW 4 VenusStep: ProjectCard
+    NOW 8 VenusStep: TerraformRating
+}
+
 abstract class Area {
     count 1..1
 
-    // Tile<This>:: (=1 Tile<This>: Ok) // TODO cycle
+    // Tile<This>:: (=1 Tile<This>: Ok) // prevent 2 tiles same area. TODO cycle
 
     abstract class RemoteArea
     abstract class MarsArea {
-        // Tile<This>: $bonus(This)
-
         abstract class LandArea {
             abstract class VolcanicArea
         }
@@ -80,33 +102,29 @@ abstract class Tile<Area> {
     count 0..1 // insufficient; see Area effect
 
     // This:: $createAdjacencies(This)
+
+    class OceanTile : GlobalParameter {
+        // count 0..9 wouldn't actually work
+
+        default OceanTile<WaterArea>
+
+        This:: (MAX 9 OceanTile: Ok)
+        Adjacency<This, Tile>: 2
+    }
 }
 
-class AreaAdjacency<MarsArea, MarsArea> : System {
-    count 0..1
-}
-
-class Neighbor<MarsArea, Tile>(HAS Tile) : System {
-    count 0..1
-}
-
-class Adjacency<Tile, Tile>(HAS 2 Tile) : System {
-    count 0..1
-
-    // TODO How to make sure both tiles exist??
-
-    -Tile(HAS This):: -This
-}
+// Have to be created the hard way...
+class AreaAdjacency<MarsArea, MarsArea>  : System { count 0..1 }
+class Neighbor<MarsArea, Tile>(HAS Tile) : System { count 0..1 }
+class Adjacency<Tile, Tile>(HAS 2 Tile)  : System { count 0..1 }
 
 abstract class Owned<Anyone> {
     // default *Owned<Me>
 
-    abstract class PayWall : Litter, System {
-        class Required<Component> // GlobalParameter
-    }
+    class Required<Component> : Barrier
 
-    class Purchase<Component> : Ephemeral, System { // exists just to trigger things
-        This: (MAX 0 PayWall: Component) //  TODO don't trigger for PlayCard
+    class Purchase<Component> : Ephemeral {
+        This: (MAX 0 Barrier: Component) //  TODO don't trigger for PlayCard
     }
 
     abstract class Resource {
@@ -124,26 +142,21 @@ abstract class Owned<Anyone> {
         ProductionPhase: StandardResource
     }
 
-    class Owed<Resource> : PayWall {
+    class Owed<Resource> : Barrier {
        default -Owed.
-
        This:: Accept<Resource>
     }
 
-    class Pay<Resource> : Ephemeral, System {
-        This:: -Owed<Resource>
+    class Pay<Resource> : Ephemeral { // TODO lets you overpay like mad
+        This:: -Owed<Resource>.
     }
 
-    class Accept<Resource> : Transient, System {
+    class Accept<Resource> : System {
         count 0..1
         default Accept.
 
-        -> Pay<Resource> FROM Resource // okay it is handled more specially than this
-        -Owed IF MAX 0 Owed:: -This
-    }
-
-    class VictoryPoint {
-        This:: (End: Ok) // can't exist until endgame
+        -Resource:: Pay<Resource>
+        -Owed IF MAX 0 Owed:: -This // NOW MAX 0 Owed
     }
 
     class TerraformRating : Owned<Player> {
@@ -207,68 +220,35 @@ abstract class Owned<Anyone> {
             class NoResource : Die // so that non-holding cards have a type
         }
 
-        class CardUsed : Generational {
+        class ActionUsed : Generational {
             count 0..1
         }
     }
 
-    abstract class UseAction : Ephemeral, System {
+    abstract class UseAction : Ephemeral {
         class UseAction1, UseAction2, UseAction3, UseAction4
     }
 
-    class PlayCard : Purchase<CardFront> {
-//      This:: $handleRequirement(CardFront), Owed<Megacredit> / $costOf(CardFront)
-        This: (MAX 0 PayWall: (CardFront, -ProjectCard))
+    class PlayCard<CardBack> : Purchase<CardFront> {
+//      This:: CardBack: $handleRequirement(CardFront), Owed<Megacredit> / $costOf(CardFront)
+        This: (MAX 0 Barrier: CardFront FROM CardBack)
     }
 }
 
-abstract class GlobalParameter : Atomized {
-    default GlobalParameter.
-    default -GlobalParameter.
-
-    This: TerraformRating
-
-    class OceanTile : Tile<MarsArea> {
-        // count 0..9 // TODO that doesn't work
-        default OceanTile<WaterArea>
-
-        Adjacency<This, Tile>: 2
-    }
-
-    class TemperatureStep {
-        count 0..19
-
-        This IF =3 This: PROD[Heat]
-        This IF =5 This: PROD[Heat]
-        This IF =15 This: OceanTile
-    }
-
-    class OxygenStep {
-        count 0..14
-
-        This IF =8 This: TemperatureStep
-    }
-
-    class VenusStep {
-        count 0..15
-
-        This IF =4 This: ProjectCard
-        This IF =8 This: TerraformRating
-    }
-}
-
-class StandardAction {
+abstract class StandardAction {
     count 1..1
 
     class PlayCardFromHand   { -> PlayCard<CardFront> }
     class UseStandardProject { -> UseAction<StandardProject> }
-    class UseCardAction      { -> CardUsed<CardFront> THEN UseAction<CardFront> }
+    class UseCardAction      { -> UseAction<CardFront> THEN ActionUsed<CardFront> } // TODO weird
     class ConvertPlants      { 8 Plant -> GreeneryTile }
     class ConvertHeat        { 8 Heat -> TemperatureStep }
+
+    // Technically a standard project, but that makes things harder
     class SellPatents        { 1 ProjectCard -> 1 } // TODO X
 }
 
-class StandardProject {
+abstract class StandardProject {
     count 1..1
 
     class PowerPlant   { 11 -> PROD[Energy] }
@@ -283,5 +263,5 @@ class StandardProject {
 abstract class NextCardEffect : Generational, System {
     count 0..1
 
-    Purchase<CardFront>:: -This // goes away whether you use it or not
+    CardFront:: -This
 }

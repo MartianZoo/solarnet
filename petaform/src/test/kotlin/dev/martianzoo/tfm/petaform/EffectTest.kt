@@ -1,6 +1,9 @@
 package dev.martianzoo.tfm.petaform
 
 import com.google.common.truth.Truth.assertThat
+import dev.martianzoo.tfm.petaform.PetaformParser.Effects
+import dev.martianzoo.tfm.petaform.PetaformParser.Instructions
+import dev.martianzoo.tfm.petaform.PetaformParser.Predicates
 import dev.martianzoo.tfm.petaform.PetaformParser.parse
 import dev.martianzoo.tfm.petaform.PrettyPrinter.pp
 import org.junit.jupiter.api.Test
@@ -33,6 +36,17 @@ class EffectTest {
   @Test fun debug() {
     val s = "Qux: (Foo, Bar) THEN Xyz"
     testRoundTrip(s)
+  }
+
+  @Test fun moreDebug() {
+    val s = "NOW Foo IF Bar, Qux: 1 Bar FROM Qux"
+
+    parse(Instructions.instruction, "1 Bar FROM Qux")
+    parse(Predicates.predicate, "Foo")
+    parse(Predicates.predicate, "Bar, Qux")
+    parse(Effects.now, "NOW Foo")
+    parse(Effects.condit, "NOW Foo IF Bar, Qux")
+    parse(Effects.effect, "NOW Foo IF Bar, Qux: 1")
   }
 
   private fun testRoundTrip(start: String, end: String = start) =

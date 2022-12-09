@@ -1,9 +1,17 @@
 package dev.martianzoo.tfm.data
 
+import com.google.common.collect.MultimapBuilder
 import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.tfm.canon.Canon
+import dev.martianzoo.tfm.petaform.Action
+import dev.martianzoo.tfm.petaform.Effect
+import dev.martianzoo.tfm.petaform.Effect.Trigger
+import dev.martianzoo.tfm.petaform.Instruction
 import dev.martianzoo.tfm.petaform.PetaformNode
 import dev.martianzoo.tfm.petaform.PetaformParser.parse
+import dev.martianzoo.tfm.petaform.Predicate
+import dev.martianzoo.tfm.petaform.QuantifiedExpression
+import dev.martianzoo.tfm.petaform.TypeExpression
 import dev.martianzoo.tfm.types.ComponentClassLoader
 import org.junit.jupiter.api.Test
 
@@ -38,15 +46,96 @@ class ComponentDefinitionTest {
     loader.loadAll(defns.values)
     val table = loader.snapshot()
 
-    table.all().forEach { rc ->
-      val cc = defns[rc.name]!!
-      if (cc.supertypesPetaform.isNotEmpty()) {
+    table.all().forEach { clazz ->
+      val def = defns[clazz.name]!!
+      if (def.supertypesPetaform.isNotEmpty()) {
         // checkRoundTrip(cc.supertypesPetaform, rc.superclasses)
       }
-      checkRoundTrip(listOfNotNull(cc.immediatePetaform), listOfNotNull(rc.immediate))
-      checkRoundTrip(cc.actionsPetaform, rc.actions)
-      checkRoundTrip(cc.effectsPetaform, rc.effects)
+      checkRoundTrip(listOfNotNull(def.immediatePetaform), listOfNotNull(clazz.immediate))
+      checkRoundTrip(def.actionsPetaform, clazz.actions)
+      checkRoundTrip(def.effectsPetaform, clazz.effects)
       // deps??
+    }
+  }
+
+  @Test fun nuts() {
+    val defns = Canon.allDefinitions
+    val loader = ComponentClassLoader()
+    loader.loadAll(defns.values)
+    val table = loader.snapshot()
+
+    val mmap = MultimapBuilder.treeKeys().hashSetValues().build<String, PetaformNode>()
+    table.all().forEach { clazz ->
+      (clazz.effects + clazz.actions + listOfNotNull(clazz.immediate))
+          .map { san(it) }
+          .flatMap { listOf(it) + it.descendants() }
+          .forEach { mmap.put(it::class.qualifiedName, it) }
+    }
+
+    mmap.keySet().forEach {
+      println(it)
+      println()
+      mmap.get(it).map { it.toString() }.sorted().forEach(::println)
+      println()
+      println()
+    }
+  }
+
+  fun san(i: Int?): Int? {
+    return when (i) {
+      null -> null
+      0 -> 0
+      else -> 5
+    }
+  }
+
+  fun <P : PetaformNode> san(coll: Iterable<P>) = coll.map { san(it) }.sortedBy { it.toString().length }
+
+  fun <P : PetaformNode?> san(n: P): P {
+    n.apply {
+      return when (this) {
+        null -> null as P
+
+        is TypeExpression -> TypeExpression("Foo", san(specializations), san(predicate))
+        is QuantifiedExpression -> QuantifiedExpression(san(typeExpression), san(scalar))
+
+        is Predicate.Or -> Predicate.Or(san(predicates))
+        is Predicate.And -> Predicate.And(san(predicates))
+        is Predicate.Min -> Predicate.Min(san(qe))
+        is Predicate.Max -> Predicate.Max(san(qe))
+        is Predicate.Exact -> Predicate.Exact(san(qe))
+        is Predicate.Prod -> Predicate.Prod(san(predicate))
+
+        is Instruction.Gain -> copy(san(qe))
+        is Instruction.Remove ->copy(san(qe))
+        is Instruction.Gated -> Instruction.Gated(san(predicate), san(instruction))
+        is Instruction.Then -> Instruction.Then(san(instructions))
+        is Instruction.Or -> Instruction.Or(san(instructions))
+        is Instruction.Multi -> Instruction.Multi(san(instructions))
+        is Instruction.Transmute -> copy(san(trans), san(scalar))
+        is Instruction.FromIsBelow -> Instruction.FromIsBelow("Foo", san(specializations), san(predicate))
+        is Instruction.FromIsRightHere -> Instruction.FromIsRightHere(san(to), san(from))
+        is Instruction.FromIsNowhere -> Instruction.FromIsNowhere(san(type))
+        is Instruction.Per -> Instruction.Per(san(instruction), san(qe))
+        is Instruction.Prod -> Instruction.Prod(san(instruction))
+
+        is Trigger.OnGain -> copy(san(expression))
+        is Trigger.OnRemove -> copy(san(expression))
+        is Trigger.Conditional -> copy(san(trigger), san(predicate))
+        is Trigger.Now -> Trigger.Now(san(predicate))
+        is Trigger.Prod -> copy(san(trigger))
+        is Effect -> copy(san(trigger), san(instruction))
+
+        is Action.Cost.Spend -> copy(san(qe))
+        is Action.Cost.Per -> copy(san(cost), san(qe))
+        is Action.Cost.Or -> copy(san(costs))
+        is Action.Cost.Multi -> copy(san(costs))
+        is Action.Cost.Prod -> copy(san(cost))
+        is Action -> copy(san(cost), san(instruction))
+
+        // I can't figure out wtf is missing.. and all the classes are sealed
+        else -> error("")
+      } as P
     }
   }
 

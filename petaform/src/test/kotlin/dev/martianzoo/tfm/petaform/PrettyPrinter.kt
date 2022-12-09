@@ -38,6 +38,7 @@ object PrettyPrinter {
         is Trigger.OnGain -> "OnGain(${pp(expression)})"
         is Trigger.OnRemove -> "OnRemove(${pp(expression)})"
         is Trigger.Conditional -> "Conditional(${pp(trigger)}, ${pp(predicate)})"
+        is Trigger.Now -> "Now(${pp(predicate)})"
         is Trigger.Prod -> "Trigger.Prod(${pp(trigger)})"
         is Effect -> "Effect(${pp(trigger)}, ${pp(instruction)})"
 

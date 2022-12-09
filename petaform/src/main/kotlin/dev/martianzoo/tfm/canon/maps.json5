@@ -1,7 +1,7 @@
 {
   "maps": [
     {
-      "id": "Demo",
+      "name": "Demo",
       "rows": [ "       VS     L     ",
 
              "       VPT   WPP   WPC ",
@@ -10,7 +10,7 @@
       ]
     },
     {
-      "id": "Tharsis",
+      "name": "Tharsis",
       "rows": [                  "       LSS   WSS    L    WC     W               ",
 
                               "        L    VS     L     L     L    WCC           ",
@@ -32,7 +32,7 @@
     },
 
     {
-      "id": "Hellas",
+      "name": "Hellas",
       "rows": [                  "       WPP   LPP   LPP   LPS   LP               ",
 
                               "       WPP   LPP   LP    LPS   LP    LP            ",
@@ -54,7 +54,7 @@
     },
 
     {
-      "id": "Elysium",
+      "name": "Elysium",
       "rows": [                  "        W    WT    WC    WS    LC               ",
 
                               "       VT     L     L     W     W    LSS           ",

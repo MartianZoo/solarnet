@@ -189,7 +189,7 @@
       "deck": "CORPORATION",
       "tags": [ "MicrobeTag" ],
       "immediate": [ "48" ],
-      "actions": [ "-> UseAction<CardFront(HAS CardUsed)>" ],
+      "actions": [ "-> UseAction<CardFront(HAS ActionUsed)>" ],
     },
 
     // Recyclon
@@ -4049,7 +4049,7 @@
       "id": "X02",
       "bundle": "X",
       "deck": "PROJECT",
-      "immediate": [ "UseAction<CardFront(HAS CardUsed)>" ],
+      "immediate": [ "UseAction<CardFront(HAS ActionUsed)>" ],
       "cost": 0,
       "projectKind": "EVENT",
     },

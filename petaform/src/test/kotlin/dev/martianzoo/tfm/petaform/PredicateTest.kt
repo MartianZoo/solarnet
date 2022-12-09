@@ -18,7 +18,11 @@ class PredicateTest {
   @Test fun barrage() {
     val gen = PetaformGenerator()
     for (i in 1..10000) {
-      assertThat(gen.testRandom<Predicate>()).isTrue()
+      val node = gen.makeRandomNode(Predicate::class)
+      val str = node.toString()
+      val trip = PetaformParser.parse<Predicate>(str)
+      assertThat(trip).isEqualTo(node)
+      assertThat(trip.toString()).isEqualTo(str)
     }
   }
 

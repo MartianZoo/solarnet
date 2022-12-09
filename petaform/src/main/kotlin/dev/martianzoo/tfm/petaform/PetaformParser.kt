@@ -29,6 +29,7 @@ import dev.martianzoo.tfm.petaform.Action.Cost
 import dev.martianzoo.tfm.petaform.Action.Cost.Spend
 import dev.martianzoo.tfm.petaform.Effect.Trigger
 import dev.martianzoo.tfm.petaform.Effect.Trigger.Conditional
+import dev.martianzoo.tfm.petaform.Effect.Trigger.Now
 import dev.martianzoo.tfm.petaform.Effect.Trigger.OnGain
 import dev.martianzoo.tfm.petaform.Effect.Trigger.OnRemove
 import dev.martianzoo.tfm.petaform.Instruction.FromExpression
@@ -46,6 +47,7 @@ import kotlin.reflect.cast
 
 object PetaformParser {
   inline fun <reified P : PetaformNode> parse(petaform: String) = parse(P::class, petaform)
+
 
   fun <T> parse(parser: Parser<T>, petaform: String) =
       parser.parseToEnd(tokenizer.tokenize(petaform))
@@ -121,16 +123,17 @@ object PetaformParser {
 
   object Predicates {
     val anyPredicate: Parser<Predicate> = parser { predicate }
-    val anyGroup = parens(anyPredicate)
 
     val min = qe map Predicate::Min
     val max = skipWord("MAX") and QEs.qeWithScalar map Predicate::Max
     val exact = skipChar('=') and QEs.qeWithScalar map Predicate::Exact
     val prod = prodBox(anyPredicate) map Predicate::Prod
-    val atomPredicate = min or max or exact or prod or anyGroup
-    val single = separatedTerms(atomPredicate, word("OR")) map Predicate::or
 
-    val predicate = commaSeparated(single) map Predicate::and
+    // These are things that we basically can't have any precedence worries about
+    val atom = min or max or exact or prod or parens(anyPredicate)
+
+    val orPred = separatedTerms(atom, word("OR")) map Predicate::or
+    val predicate = commaSeparated(orPred) map Predicate::and
   }
   val predicate = publish(Predicates.predicate)
 
@@ -168,9 +171,9 @@ object PetaformParser {
 
     val maybeProd = maybePer or (prodBox(anyInstr) map Instruction::Prod)
 
-    val atomInstruction = anyGroup or maybeProd
+    val atom = anyGroup or maybeProd
 
-    val gated = optional(Predicates.atomPredicate and skipChar(':')) and atomInstruction map { (one, two) ->
+    val gated = optional(Predicates.atom and skipChar(':')) and atom map { (one, two) ->
       if (one == null) two else Gated(one, two)
     }
     val orInstr = separatedTerms(gated, word("OR")) map Instruction::or
@@ -203,10 +206,13 @@ object PetaformParser {
     val onGain = typeExpression map ::OnGain
     val onRemove = skipChar('-') and typeExpression map ::OnRemove
     val atom = onGain or onRemove
-    val prod = prodBox(atom) map Trigger::Prod
-    val uncond = atom or prod
-    val condit = uncond and skipWord("IF") and predicate map { (a, b) -> Conditional(a, b) }
-    val trigger = publish(condit or uncond)
+    val prod = prodBox(atom) map Trigger::Prod or atom
+
+    val now = skipWord("NOW") and predicate map ::Now
+    val condit = (prod or now) and optional(skipWord("IF") and predicate) map { (a, b) ->
+      if (b == null) a else Conditional(a, b)
+    }
+    val trigger = publish(condit or now)
 
     val colons = skipChar(':') and optional(char(':')) map { it != null }
     val effect = publish(

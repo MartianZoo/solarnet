@@ -33,7 +33,17 @@ data class Effect(
       override val children = listOf(trigger, predicate)
     }
 
+    data class Now(val predicate: Predicate) : Trigger() {
+      override fun toString() = "NOW $predicate"
+      override val children = listOf(predicate)
+    }
+
     data class Prod(val trigger: Trigger) : Trigger() {
+      init {
+        if (trigger !is OnGain && trigger !is OnRemove) {
+          throw PetaformException("only gain/remove trigger can go in prod block")
+        }
+      }
       override fun toString() = "PROD[${trigger}]"
       override val children = listOf(trigger)
       override fun countProds() = super.countProds() + 1

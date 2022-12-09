@@ -19,7 +19,7 @@ internal object JsonReader {
   // Maps
 
   internal data class MapsImportFormat(val maps: List<MapImportFormat>, val legend: Map<Char, String>)
-  internal data class MapImportFormat(val id: String, val rows: List<String>)
+  internal data class MapImportFormat(val name: String, val rows: List<String>)
   internal data class Legend(private val table: Map<Char, String>) {
     fun translate(code: String): Pair<String, String?> {
       val q: Queue<Char> = ArrayDeque(code.trim().toList())
@@ -50,7 +50,7 @@ internal object JsonReader {
     val import: MapsImportFormat = MOSHI_MAP.fromJson(json5ToJson(json5))!!
     val legend = Legend(import.legend)
 
-    return import.maps.associateBy(MapImportFormat::id) { map ->
+    return import.maps.associateBy(MapImportFormat::name) { map ->
       val areas = map.rows.flatMapIndexed { row, line ->
         line.chunked(6)
             .map(String::trim)
@@ -58,7 +58,7 @@ internal object JsonReader {
             .filter { it.value.isNotEmpty() }
             .map { (column, code) ->
               val (type, bonus) = legend.translate(code)
-              MarsAreaDefinition(map.id, row + 1, column, type, bonus, code)
+              MarsAreaDefinition(map.name, row + 1, column, type, bonus, code)
             }
       }
       Grid.grid(areas, { it.row }, { it.column })
