@@ -18,7 +18,7 @@ import dev.martianzoo.tfm.petaform.Predicate.Max
 import dev.martianzoo.tfm.petaform.Predicate.Min
 import org.junit.jupiter.api.Test
 
-// Most testing is done by AutoTest
+// Most testing is done by AutomatedTest
 class EffectTest {
 
   // TODO

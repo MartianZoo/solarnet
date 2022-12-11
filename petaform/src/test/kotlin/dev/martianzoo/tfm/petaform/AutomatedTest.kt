@@ -1,9 +1,10 @@
 package dev.martianzoo.tfm.petaform
 
 import dev.martianzoo.tfm.petaform.Effect.Trigger
+import dev.martianzoo.tfm.testlib.PetaformGenerator
 import org.junit.jupiter.api.Test
 
-class AutoTest {
+class AutomatedTest {
   @Test
   fun expressions() {
     val gen = PetaformGenerator()

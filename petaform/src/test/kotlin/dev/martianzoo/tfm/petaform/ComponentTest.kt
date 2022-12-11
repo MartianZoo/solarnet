@@ -12,7 +12,7 @@ import dev.martianzoo.tfm.petaform.PetaformParser.parse
 import dev.martianzoo.tfm.petaform.PetaformParser.parseComponents
 import org.junit.jupiter.api.Test
 
-class ComponentDeclarationsTest {
+class ComponentTest {
   @Test
   fun bodyElements() {
     assertThat(parse(Components.repeatableElement, "default Foo?"))

@@ -1,4 +1,4 @@
-package dev.martianzoo.tfm.petaform
+package dev.martianzoo.tfm.testlib
 
 import com.google.common.collect.Multiset
 import kotlin.math.PI

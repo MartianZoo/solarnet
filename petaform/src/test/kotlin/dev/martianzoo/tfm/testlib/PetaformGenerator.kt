@@ -1,13 +1,35 @@
-package dev.martianzoo.tfm.petaform
+package dev.martianzoo.tfm.testlib
 
 import com.google.common.truth.Truth
+import dev.martianzoo.tfm.petaform.Action
 import dev.martianzoo.tfm.petaform.Action.Cost
+import dev.martianzoo.tfm.petaform.Effect
 import dev.martianzoo.tfm.petaform.Effect.Trigger
+import dev.martianzoo.tfm.petaform.Instruction
+import dev.martianzoo.tfm.petaform.Instruction.Custom
 import dev.martianzoo.tfm.petaform.Instruction.FromExpression
 import dev.martianzoo.tfm.petaform.Instruction.FromIsBelow
 import dev.martianzoo.tfm.petaform.Instruction.FromIsNowhere
 import dev.martianzoo.tfm.petaform.Instruction.FromIsRightHere
+import dev.martianzoo.tfm.petaform.Instruction.Gain
+import dev.martianzoo.tfm.petaform.Instruction.Gated
 import dev.martianzoo.tfm.petaform.Instruction.Intensity
+import dev.martianzoo.tfm.petaform.Instruction.Multi
+import dev.martianzoo.tfm.petaform.Instruction.Per
+import dev.martianzoo.tfm.petaform.Instruction.Remove
+import dev.martianzoo.tfm.petaform.Instruction.Then
+import dev.martianzoo.tfm.petaform.Instruction.Transmute
+import dev.martianzoo.tfm.petaform.PetaformException
+import dev.martianzoo.tfm.petaform.PetaformNode
+import dev.martianzoo.tfm.petaform.PetaformParser
+import dev.martianzoo.tfm.petaform.Predicate
+import dev.martianzoo.tfm.petaform.Predicate.And
+import dev.martianzoo.tfm.petaform.Predicate.Exact
+import dev.martianzoo.tfm.petaform.Predicate.Max
+import dev.martianzoo.tfm.petaform.Predicate.Min
+import dev.martianzoo.tfm.petaform.Predicate.Or
+import dev.martianzoo.tfm.petaform.QuantifiedExpression
+import dev.martianzoo.tfm.petaform.TypeExpression
 import dev.martianzoo.util.multiset
 import kotlin.math.pow
 import kotlin.math.roundToInt
@@ -32,42 +54,42 @@ class PetaformGenerator(scaling: (Int) -> Double)
       register { QuantifiedExpression(choose(1 to null, 3 to recurse()), choose(null, null, 0, 1, 5, 11)) }
 
       val predicateTypes = (multiset(
-          9 to Predicate.Min::class,
-          4 to Predicate.Max::class,
-          2 to Predicate.Exact::class,
-          3 to Predicate.And::class,
-          5 to Predicate.Or::class,
+          9 to Min::class,
+          4 to Max::class,
+          2 to Exact::class,
+          3 to And::class,
+          5 to Or::class,
       ))
       register<Predicate> { recurse(choose(predicateTypes)) }
-      register { Predicate.Min(qe = recurse()) }
-      register { Predicate.Max(recurse()) }
-      register { Predicate.Exact(recurse()) }
-      register { Predicate.and(listOfSize(choose(2, 2, 2, 2, 3))) as Predicate.And }
-      register { Predicate.or(listOfSize(choose(2, 2, 2, 2, 2, 3, 4))) as Predicate.Or }
+      register { Min(qe = recurse()) }
+      register { Max(recurse()) }
+      register { Exact(recurse()) }
+      register { Predicate.and(listOfSize(choose(2, 2, 2, 2, 3))) as And }
+      register { Predicate.or(listOfSize(choose(2, 2, 2, 2, 2, 3, 4))) as Or }
 
       fun RandomGenerator<*>.intensity() = choose(3 to null, 1 to randomEnum<Intensity>())
 
       val instructionTypes = (multiset(
-          9 to Instruction.Gain::class,
-          4 to Instruction.Remove::class,
-          2 to Instruction.Transmute::class,
-          2 to Instruction.Gated::class,
-          3 to Instruction.Per::class,
-          1 to Instruction.Then::class,
+          9 to Gain::class,
+          4 to Remove::class,
+          2 to Transmute::class,
+          2 to Gated::class,
+          3 to Per::class,
+          1 to Then::class,
           3 to Instruction.Or::class,
-          5 to Instruction.Multi::class,
-          0 to Instruction.Custom::class,
+          5 to Multi::class,
+          0 to Custom::class,
       ))
       register<Instruction> { recurse(choose(instructionTypes)) }
-      register { Instruction.Gain(recurse(), intensity()) }
-      register { Instruction.Remove(recurse(), intensity()) }
-      register { Instruction.Transmute(recurse(), recurse<QuantifiedExpression>().scalar, intensity()) }
-      register { Instruction.Gated(recurse(), recurse()) }
-      register { Instruction.Per(recurse(), recurse()) }
-      register { Instruction.then(listOfSize(choose(2, 2, 2, 3))) as Instruction.Then }
-      register { Instruction.multi(listOfSize(choose(2, 2, 2, 2, 2, 3, 4))) as Instruction.Multi }
+      register { Gain(recurse(), intensity()) }
+      register { Remove(recurse(), intensity()) }
+      register { Transmute(recurse(), recurse<QuantifiedExpression>().scalar, intensity()) }
+      register { Gated(recurse(), recurse()) }
+      register { Per(recurse(), recurse()) }
+      register { Instruction.then(listOfSize(choose(2, 2, 2, 3))) as Then }
+      register { Instruction.multi(listOfSize(choose(2, 2, 2, 2, 2, 3, 4))) as Multi }
       register { Instruction.or(listOfSize(choose(2, 2, 2, 2, 3))) as Instruction.Or }
-      register { Instruction.Custom("name", listOfSize(choose(1, 1, 1, 2))) }
+      register { Custom("name", listOfSize(choose(1, 1, 1, 2))) }
 
       register<FromExpression> {
         val one: TypeExpression = recurse()
@@ -162,9 +184,9 @@ class PetaformGenerator(scaling: (Int) -> Double)
       val trip = PetaformParser.parse<T>(str)
       Truth.assertThat(trip.toString()).isEqualTo(str)
       if (trip != node) {
-        println(PrettyPrinter.pp(trip))
+        println(ToKotlin.pp(trip))
         println()
-        println(PrettyPrinter.pp(node))
+        println(ToKotlin.pp(node))
         Truth.assertThat(trip).isEqualTo(node)
       }
     }
@@ -208,7 +230,7 @@ class PetaformGenerator(scaling: (Int) -> Double)
   inline fun <reified T : PetaformNode> generateTestApiConstructions(count: Int = 10) {
     for (i in 1..count) {
       val node = makeRandomNode<T>()
-      println("assertThat(${PrettyPrinter.pp(node)}.toString()).isEqualTo($node)")
+      println("assertThat(${ToKotlin.pp(node)}.toString()).isEqualTo($node)")
     }
   }
 

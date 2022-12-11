@@ -12,7 +12,7 @@ import dev.martianzoo.tfm.petaform.PetaformParser.Instructions.noFrom
 import dev.martianzoo.tfm.petaform.PetaformParser.parse
 import org.junit.jupiter.api.Test
 
-// Most testing is done by AutoTest
+// Most testing is done by AutomatedTest
 class InstructionTest {
   val inputs = """
     1

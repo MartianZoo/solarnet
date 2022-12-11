@@ -3,7 +3,7 @@ package dev.martianzoo.tfm.petaform
 import com.google.common.truth.Truth.assertThat
 import org.junit.jupiter.api.Test
 
-// Most testing is done by AutoTest
+// Most testing is done by AutomatedTest
 class TypeExpressionTest {
   private fun testRoundTrip(petaform: String) = testRoundTrip<TypeExpression>(petaform)
 

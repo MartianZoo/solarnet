@@ -5,7 +5,7 @@ import dev.martianzoo.tfm.petaform.Predicate.Max
 import dev.martianzoo.tfm.petaform.Predicate.Min
 import org.junit.jupiter.api.Test
 
-// Most testing is done by AutoTest
+// Most testing is done by AutomatedTest
 class PredicateTest {
   @Test
   fun simpleSourceToApi() {
@@ -109,7 +109,7 @@ class PredicateTest {
     ((Bar OR Bar) OR MAX 1 Foo) OR 5 Bar<Wau<Qux, Qux>>(HAS MAX 0 Eep) OR Bar OR 1
     Bar OR (=5 Foo OR MAX 5 Ooh) OR ((1 OR (MAX 0, Bar)) OR (Foo, MAX 0)) OR 11 Foo
     MAX 0 OR (11, (1 Abc, MAX 1 Foo)) OR (5 OR ((=0 Bar OR Bar, Bar) OR (Bar, Abc)))
-"""
+  """
 
   @Test fun testSampleStrings() {
     inputs.split('\n').forEach { testRoundTrip<Predicate>(it) }
