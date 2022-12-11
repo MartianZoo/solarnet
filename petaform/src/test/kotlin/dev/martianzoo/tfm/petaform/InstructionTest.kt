@@ -95,7 +95,7 @@ class InstructionTest {
     -1 Qux, Abc, -Bar<Foo>, Xyz., (MAX 0: Foo / Qux) OR Abc OR 1 Abc OR 5 Foo., -5
     1 Bar THEN (1! OR 5, -1 Qux!, 1, 1 Bar) THEN (Bar OR (1 THEN Foo) OR -Ahh, Foo)
     -Foo<Foo> OR (Qux THEN -Bar), -Qux, Foo<Foo>, 5 Xyz OR -1 Abc!, 1 Foo, Qux<Abc>!
-  """
+  """.trimIndent()
 
   @Test fun testSampleStrings() {
     inputs.split('\n').forEach { testRoundTrip<Instruction>(it) }

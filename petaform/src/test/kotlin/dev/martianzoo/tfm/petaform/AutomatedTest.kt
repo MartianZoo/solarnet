@@ -24,15 +24,15 @@ class AutomatedTest {
     val gen = PetaformGenerator()
     // gen.printTestStrings<Predicate>(10)
     gen.goNuts<Predicate>(5000)
-    gen.printTestStringOfEachLength<Predicate>(80)
+    // gen.printTestStringOfEachLength<Predicate>(80)
   }
 
   @Test
   fun instructions() {
     val gen = PetaformGenerator()
     // gen.printTestStrings<Instruction>(10)
-    gen.goNuts<Instruction>(5000)
-    gen.printTestStringOfEachLength<Instruction>(80)
+    gen.goNuts<Instruction>(2000)
+    // gen.printTestStringOfEachLength<Instruction>(80)
   }
 
   @Test
@@ -40,7 +40,7 @@ class AutomatedTest {
     val gen = PetaformGenerator(0.9)
     // gen.printTestStrings<Effect>(10)
     gen.goNuts<Effect>(2000)
-    gen.printTestStringOfEachLength<Effect>(80)
+    // gen.printTestStringOfEachLength<Effect>(80)
   }
 
   @Test
@@ -55,6 +55,6 @@ class AutomatedTest {
     val gen = PetaformGenerator()
     // gen.printTestStrings<Action>(10)
     gen.goNuts<Action>(2000)
-    gen.printTestStringOfEachLength<Action>(80)
+    // gen.printTestStringOfEachLength<Action>(80)
   }
 }

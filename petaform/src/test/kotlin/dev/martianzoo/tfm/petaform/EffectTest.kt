@@ -96,7 +96,7 @@ class EffectTest {
     Eep<Xyz<Foo, Ooh<Ooh, Bar>>>: 11 Abc(HAS Bar) FROM Wau, Foo, 5 Foo, 1 Qux<Ooh>
     -Ooh<Foo<Xyz, Foo, Qux>>: 5 Qux<Ooh, Xyz, Bar> OR 5?, =0 Qux: -Bar, 5: Foo<Abc>
     NOW Foo IF 11 Eep<Foo> OR ((Bar, Foo) OR MAX 5 Bar<Qux, Foo>): Ooh<Abc(HAS =0)>.
-  """
+  """.trimIndent()
 
   @Test fun testSampleStrings() {
     inputs.split('\n').forEach { testRoundTrip<Effect>(it) }

@@ -87,7 +87,7 @@ class ActionTest {
     PROD[Bar<Bar>] / Ooh OR 1 Xyz -> Xyz<Foo>, 1 Ooh, -Qux / 1 Xyz, -1, Foo THEN 1
     Qux<Bar, Qux> / 5 Xyz OR (11, Qux) -> Bar<Qux> / Xyz THEN 1 Bar, -Xyz<Foo, Qux>
     Foo<Ahh, Qux<Eep, Abc<Bar>>> -> 1 Bar, Bar<Foo, Foo>, Bar, -Foo, 1 Abc, Qux: Qux
-  """
+  """.trimIndent()
 
   @Test fun testSampleStrings() {
     inputs.split('\n').forEach { testRoundTrip<Action>(it) }
