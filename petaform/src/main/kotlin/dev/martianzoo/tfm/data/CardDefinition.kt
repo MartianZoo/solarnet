@@ -167,10 +167,10 @@ data class CardDefinition(
     val type = if (projectKind == null) "CardFront" else projectKind.type
     ComponentDefinition(
         name = "Card$id",
-        supertypesPetaform = setOf(type),
-        immediatePetaform = immediate?.toString(), // TODO hack
-        actionsPetaform = actionsText,
-        effectsPetaform = effectsText)
+        supertypesText = setOf(type),
+        immediateText = immediate?.toString(), // TODO hack
+        actionsText = actionsText,
+        effectsText = effectsText)
   }
 
   private fun inactive(): Boolean {

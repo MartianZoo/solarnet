@@ -4,9 +4,9 @@ import dev.martianzoo.tfm.data.ComponentDefinition
 import dev.martianzoo.tfm.data.Definition
 import dev.martianzoo.tfm.petaform.Action
 import dev.martianzoo.tfm.petaform.Effect
-import dev.martianzoo.tfm.petaform.TypeExpression
 import dev.martianzoo.tfm.petaform.Instruction
 import dev.martianzoo.tfm.petaform.PetaformParser.parse
+import dev.martianzoo.tfm.petaform.TypeExpression
 import dev.martianzoo.tfm.types.DependencyMap.DependencyKey
 
 class ComponentClassLoader {
@@ -35,15 +35,15 @@ class ComponentClassLoader {
     return ComponentType(theClass, theClass.dependencies.specialize(specializations))
   }
 
-  fun resolve(exprPetaform: String): ComponentType = resolve(parse(exprPetaform))
+  fun resolve(exprText: String): ComponentType = resolve(parse(exprText))
 
   private fun deriveSupertypes(defn: ComponentDefinition) = when {
     defn.name == "Component" -> setOf()
-    defn.supertypesPetaform.isEmpty() -> setOf(resolve("Component"))
+    defn.supertypesText.isEmpty() -> setOf(resolve("Component"))
     else -> {
       // TODO: feeble attempt to prune
       val set = mutableSetOf<ComponentType>()
-      defn.supertypesPetaform.map(::resolve).forEach { next ->
+      defn.supertypesText.map(::resolve).forEach { next ->
         if (!set.any { it.isSubtypeOf(next) }) {
           set.add(next)
         }
@@ -53,19 +53,19 @@ class ComponentClassLoader {
   }
 
   private fun deriveDependencies(defn: ComponentDefinition, supertypes: Set<ComponentType>): DependencyMap {
-    val brandNewDeps = defn.dependenciesPetaform.withIndex().map { (i, typeExpr) ->
+    val brandNewDeps = defn.dependenciesText.withIndex().map { (i, typeExpr) ->
       DependencyKey(defn.name, index = i + 1) to resolve(typeExpr)
     }.toMap()
     return DependencyMap.merge(supertypes.map { it.dependencies } + DependencyMap(brandNewDeps))
   }
 
   private fun deriveImmediate(defn: ComponentDefinition): Instruction? {
-    return defn.immediatePetaform?.let(::parse)
+    return defn.immediateText?.let(::parse)
   }
 
   private fun deriveActions(defn: ComponentDefinition) =
-      defn.actionsPetaform.map { parse<Action>(it) }.toSet()
+      defn.actionsText.map { parse<Action>(it) }.toSet()
 
   private fun deriveEffects(defn: ComponentDefinition) =
-      defn.effectsPetaform.map<String, Effect> { parse(it) }.toSet()
+      defn.effectsText.map<String, Effect> { parse(it) }.toSet()
 }

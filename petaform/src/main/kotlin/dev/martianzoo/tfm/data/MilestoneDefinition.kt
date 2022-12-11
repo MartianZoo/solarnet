@@ -26,7 +26,7 @@ data class MilestoneDefinition(
     ComponentDefinition(
         "Milestone$id",
         abstract = false,
-        supertypesPetaform = setOf("Milestone"),
-        immediatePetaform = "$requirementText: Ok")
+        supertypesText = setOf("Milestone"),
+        immediateText = "$requirementText: Ok")
   }
 }

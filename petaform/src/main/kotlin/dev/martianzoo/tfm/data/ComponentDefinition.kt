@@ -20,20 +20,20 @@ data class ComponentDefinition(
      * include `Component` or any types that are already indirect supertypes (unless specializing them).
      */
     @Json(name = "supertypes")
-    val supertypesPetaform: Set<String> = setOf(),
+    val supertypesText: Set<String> = setOf(),
 
     /**
      * Dependencies declared for this component class; it will also inherit the dependencies of its
      * supertypes but those are not listed here.
      */
     @Json(name = "dependencies")
-    val dependenciesPetaform: List<String> = listOf(),
+    val dependenciesText: List<String> = listOf(),
 
     @Json(name = "immediate")
-    val immediatePetaform: String? = null,
+    val immediateText: String? = null,
 
     @Json(name = "actions")
-    val actionsPetaform: Set<String> = setOf(),
+    val actionsText: Set<String> = setOf(),
 
     /**
      * Zero or more unordered effects that belong to each *instance* of this component class,
@@ -43,7 +43,7 @@ data class ComponentDefinition(
      * use of `This` and `Me` and can rely on type defaults.
      */
     @Json(name = "effects")
-    val effectsPetaform: Set<String> = setOf(),
+    val effectsText: Set<String> = setOf(),
 ) : Definition {
 
   init {

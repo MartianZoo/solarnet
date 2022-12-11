@@ -1,7 +1,7 @@
 package dev.martianzoo.tfm.types
 
-import dev.martianzoo.tfm.petaform.TypeExpression
 import dev.martianzoo.tfm.petaform.PetaformParser.parse
+import dev.martianzoo.tfm.petaform.TypeExpression
 
 class ComponentClassTable(map: Map<String, ComponentClass>) {
   internal val table = map.toMap()
@@ -14,7 +14,7 @@ class ComponentClassTable(map: Map<String, ComponentClass>) {
     return ComponentType(theClass, theClass.dependencies.specialize(specializations))
   }
 
-  fun resolve(exprPetaform: String): ComponentType = resolve(parse(exprPetaform))
+  fun resolve(exprText: String): ComponentType = resolve(parse(exprText))
 
   operator fun contains(name: String) = name in table
   operator fun get(name: String) = table[name]

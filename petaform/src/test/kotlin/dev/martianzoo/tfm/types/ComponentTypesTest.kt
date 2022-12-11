@@ -11,9 +11,9 @@ class ComponentTypesTest {
 
     loader.load(CCD("Component"))
     loader.load(CCD("Anyone"))
-    loader.load(CCD("Player", supertypesPetaform=setOf("Anyone")))
-    loader.load(CCD("Owned", dependenciesPetaform=listOf("Anyone")))
-    loader.load(CCD("VictoryPoint", supertypesPetaform=setOf("Owned<Player>")))
+    loader.load(CCD("Player", supertypesText=setOf("Anyone")))
+    loader.load(CCD("Owned", dependenciesText=listOf("Anyone")))
+    loader.load(CCD("VictoryPoint", supertypesText=setOf("Owned<Player>")))
 
     val vp: ComponentType = loader.resolve("VictoryPoint")
     assertThat(vp.isSubtypeOf(loader.resolve("Component")))

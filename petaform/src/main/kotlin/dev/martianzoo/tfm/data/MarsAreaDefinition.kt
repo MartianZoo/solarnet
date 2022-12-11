@@ -46,7 +46,7 @@ data class MarsAreaDefinition(
         } else {
           setOf("Tile<This>: $bonusText") // don't want to have to do this in code like that
         }
-    ComponentDefinition(componentName(), supertypesPetaform = setOf(typeText), effectsPetaform = effects)
+    ComponentDefinition(componentName(), supertypesText = setOf(typeText), effectsText = effects)
   }
 
   fun componentName() = "${mapName}${row}_$column"

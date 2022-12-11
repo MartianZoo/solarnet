@@ -35,9 +35,9 @@ class ComponentDefinitionTest {
     val tr = data["TerraformRating"]!!
     assertThat(tr.name).isEqualTo("TerraformRating")
     assertThat(tr.abstract).isFalse()
-    assertThat(tr.supertypesPetaform).containsExactly("Owned<Player>")
-    assertThat(tr.dependenciesPetaform).isEmpty()
-    assertThat(tr.effectsPetaform).containsExactly("ProductionPhase: 1", "End: VictoryPoint")
+    assertThat(tr.supertypesText).containsExactly("Owned<Player>")
+    assertThat(tr.dependenciesText).isEmpty()
+    assertThat(tr.effectsText).containsExactly("ProductionPhase: 1", "End: VictoryPoint")
   }
 
   @Test
@@ -51,12 +51,12 @@ class ComponentDefinitionTest {
 
     table.all().forEach { clazz ->
       val def = defns[clazz.name]!!
-      if (def.supertypesPetaform.isNotEmpty()) {
-        // checkRoundTrip(cc.supertypesPetaform, rc.superclasses)
+      if (def.supertypesText.isNotEmpty()) {
+        // checkRoundTrip(cc.supertypesText, rc.superclasses)
       }
-      checkRoundTrip(listOfNotNull(def.immediatePetaform), listOfNotNull(clazz.immediate))
-      checkRoundTrip(def.actionsPetaform, clazz.actions)
-      checkRoundTrip(def.effectsPetaform, clazz.effects)
+      checkRoundTrip(listOfNotNull(def.immediateText), listOfNotNull(clazz.immediate))
+      checkRoundTrip(def.actionsText, clazz.actions)
+      checkRoundTrip(def.effectsText, clazz.effects)
       // deps??
     }
   }
