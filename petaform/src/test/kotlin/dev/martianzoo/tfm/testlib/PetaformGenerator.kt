@@ -234,6 +234,20 @@ class PetaformGenerator(scaling: (Int) -> Double)
     }
   }
 
+  inline fun <reified T : PetaformNode> uniqueNodes(
+      count: Int = 100, depthLimit: Int = 10, stopAtDrySpell: Int = 200): Set<T> {
+    val set = mutableSetOf<T>()
+    var drySpell = 0
+    while (set.size < count && drySpell < stopAtDrySpell) {
+      val node = makeRandomNode<T>()
+      if (node.descendants().size <= depthLimit && set.add(node)) {
+        drySpell = 0
+      } else {
+        drySpell++
+      }
+    }
+    return set
+  }
 }
 
 fun scaling(greed: Double, backoff: Double): (Int) -> Double {
