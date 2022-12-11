@@ -1,0 +1,33 @@
+// Root of the hierarchy; everything with no other supertypes has this supertype
+abstract class Component {
+    count 0..*
+
+    default Component! // all gains/removes are mandatory unless overridden
+    default -Component!
+}
+
+abstract class This // no subtypes, so you can never actually create a literal `This`
+
+abstract class Ephemeral { // removes itself immediately - will never observe it existing
+    count 0..0 // cardinalities can probably only be enforced after :: triggers are done
+
+    This:: -This
+}
+
+class Ok : Ephemeral // when you need to do nothing
+
+abstract class Barrier { // player must clean up themselves, by end of action
+    This: (MAX 0 Barrier: Ok) // puts a task on the queue that can only be handled if 0 barriers left
+}
+
+class Die { // anything that tries to create this will stall
+    count 0..0
+}
+
+abstract class Anyone {
+    // minimum of 1 means the engine will create an instance automatically - so,
+    // in a 2-player game no Player3 class should even be defined.
+    count 1..1
+
+    class Npc
+}

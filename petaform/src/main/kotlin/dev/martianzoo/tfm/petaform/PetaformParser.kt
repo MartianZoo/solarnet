@@ -42,6 +42,9 @@ import dev.martianzoo.tfm.petaform.Instruction.Intensity.Companion.intensity
 import dev.martianzoo.tfm.petaform.Instruction.Remove
 import dev.martianzoo.tfm.petaform.Instruction.Transmute
 import dev.martianzoo.tfm.petaform.PetaformParser.QEs.scalar
+import dev.martianzoo.tfm.petaform.Predicate.Exact
+import dev.martianzoo.tfm.petaform.Predicate.Max
+import dev.martianzoo.tfm.petaform.Predicate.Min
 import kotlin.reflect.KClass
 import kotlin.reflect.cast
 
@@ -52,7 +55,7 @@ object PetaformParser {
   fun <T> parse(parser: Parser<T>, petaform: String) =
       parser.parseToEnd(tokenizer.tokenize(petaform))
 
-  fun parseComponent(arg: String): List<Component> {
+  fun parseComponents(arg: String): List<Component> {
     var index = 0
     val comps = mutableListOf<Component>()
     var result: ParseResult<List<Component>>? = null
@@ -124,9 +127,9 @@ object PetaformParser {
   object Predicates {
     val anyPredicate: Parser<Predicate> = parser { predicate }
 
-    val min = qe map Predicate::Min
-    val max = skipWord("MAX") and QEs.qeWithScalar map Predicate::Max
-    val exact = skipChar('=') and QEs.qeWithScalar map Predicate::Exact
+    val min = qe map ::Min
+    val max = skipWord("MAX") and QEs.qeWithScalar map ::Max
+    val exact = skipChar('=') and QEs.qeWithScalar map ::Exact
     val prod = prodBox(anyPredicate) map Predicate::Prod
 
     // These are things that we basically can't have any precedence worries about
@@ -170,6 +173,10 @@ object PetaformParser {
     }
 
     val maybeProd = maybePer or (prodBox(anyInstr) map Instruction::Prod)
+    //val custom = regex("\$[a-z][a-zA-Z0-9]*\\b") and parens(commaSeparated(typeExpression)) map {
+    //  (name, args) -> Custom(name.text, args)
+    //}
+    //val atom = anyGroup or maybeProd or custom
 
     val atom = anyGroup or maybeProd
 
@@ -224,8 +231,6 @@ object PetaformParser {
   val effect = publish(Effects.effect)
 
   object Components {
-    var containing: TypeExpression? = null
-
     data class Count(val min: Int, val max: Int?)
     data class Signature(val expr: TypeExpression, val sups: List<TypeExpression>)
 

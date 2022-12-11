@@ -5,13 +5,22 @@ import dev.martianzoo.tfm.data.ComponentDefinition
 import dev.martianzoo.tfm.data.JsonReader
 import dev.martianzoo.tfm.data.JsonReader.combine
 import dev.martianzoo.tfm.data.MarsAreaDefinition
-import dev.martianzoo.tfm.petaform.PetaformParser
+import dev.martianzoo.tfm.petaform.Component
+import dev.martianzoo.tfm.petaform.PetaformParser.parseComponents
 import dev.martianzoo.util.Grid
 
 object Canon {
+  private val FILENAMES = listOf("system.pets", "options.pets", "components.pets", "payment.pets")
+
   val componentDefinitions: Map<String, ComponentDefinition> by lazy {
-    PetaformParser.parseComponent(readResource("components.pets"))
-        .map { ComponentDefinition.from(it) }.associateBy { it.name }
+    val list = mutableListOf<Component>()
+    for (f in FILENAMES) {
+      val s = readResource(f)
+      println("Parsing $f")
+      list += parseComponents(s)
+    }
+    list.map(ComponentDefinition.Companion::from)
+        .associateBy { it.name }
   }
 
   val cardDefinitions: Map<String, CardDefinition> by lazy {
@@ -36,6 +45,7 @@ object Canon {
   }
 
   private fun readResource(filename: String): String {
+    println("reading filename $filename")
     val dir = javaClass.packageName.replace('.', '/')
     return javaClass.getResource("/$dir/$filename")!!.readText()
   }

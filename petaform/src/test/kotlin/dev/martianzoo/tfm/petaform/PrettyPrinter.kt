@@ -34,6 +34,7 @@ object PrettyPrinter {
         is Instruction.FromIsNowhere -> "FromIsNowhere(${pp(type)})"
         is Instruction.Per -> "Instruction.Per(${pp(instruction)}, ${pp(qe)})"
         is Instruction.Prod -> "Instruction.Prod(${pp(instruction)})"
+        is Instruction.Custom -> "Instruction.Custom(\"$name\", listOf(${pp(arguments.joinToString())}))"
 
         is Trigger.OnGain -> "OnGain(${pp(expression)})"
         is Trigger.OnRemove -> "OnRemove(${pp(expression)})"

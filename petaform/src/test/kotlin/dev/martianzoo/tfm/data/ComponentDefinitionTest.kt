@@ -4,9 +4,12 @@ import com.google.common.collect.MultimapBuilder
 import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.petaform.Action
+import dev.martianzoo.tfm.petaform.Action.Cost
+import dev.martianzoo.tfm.petaform.Component
 import dev.martianzoo.tfm.petaform.Effect
 import dev.martianzoo.tfm.petaform.Effect.Trigger
 import dev.martianzoo.tfm.petaform.Instruction
+import dev.martianzoo.tfm.petaform.Instruction.FromExpression
 import dev.martianzoo.tfm.petaform.PetaformNode
 import dev.martianzoo.tfm.petaform.PetaformParser.parse
 import dev.martianzoo.tfm.petaform.Predicate
@@ -92,10 +95,9 @@ class ComponentDefinitionTest {
   fun <P : PetaformNode> san(coll: Iterable<P>) = coll.map { san(it) }.sortedBy { it.toString().length }
 
   fun <P : PetaformNode?> san(n: P): P {
-    n.apply {
-      return when (this) {
-        null -> null as P
-
+    if (n == null) return null as P
+    return n.apply {
+      when (this) {
         is TypeExpression -> TypeExpression("Foo", san(specializations), san(predicate))
         is QuantifiedExpression -> QuantifiedExpression(san(typeExpression), san(scalar))
 
@@ -107,7 +109,7 @@ class ComponentDefinitionTest {
         is Predicate.Prod -> Predicate.Prod(san(predicate))
 
         is Instruction.Gain -> copy(san(qe))
-        is Instruction.Remove ->copy(san(qe))
+        is Instruction.Remove -> copy(san(qe))
         is Instruction.Gated -> Instruction.Gated(san(predicate), san(instruction))
         is Instruction.Then -> Instruction.Then(san(instructions))
         is Instruction.Or -> Instruction.Or(san(instructions))
@@ -118,6 +120,7 @@ class ComponentDefinitionTest {
         is Instruction.FromIsNowhere -> Instruction.FromIsNowhere(san(type))
         is Instruction.Per -> Instruction.Per(san(instruction), san(qe))
         is Instruction.Prod -> Instruction.Prod(san(instruction))
+        is Instruction.Custom -> Instruction.Custom("foo", san(arguments))
 
         is Trigger.OnGain -> copy(san(expression))
         is Trigger.OnRemove -> copy(san(expression))
@@ -126,15 +129,21 @@ class ComponentDefinitionTest {
         is Trigger.Prod -> copy(san(trigger))
         is Effect -> copy(san(trigger), san(instruction))
 
-        is Action.Cost.Spend -> copy(san(qe))
-        is Action.Cost.Per -> copy(san(cost), san(qe))
-        is Action.Cost.Or -> copy(san(costs))
-        is Action.Cost.Multi -> copy(san(costs))
-        is Action.Cost.Prod -> copy(san(cost))
+        is Cost.Spend -> copy(san(qe))
+        is Cost.Per -> copy(san(cost), san(qe))
+        is Cost.Or -> copy(san(costs))
+        is Cost.Multi -> copy(san(costs))
+        is Cost.Prod -> copy(san(cost))
         is Action -> copy(san(cost), san(instruction))
 
-        // I can't figure out wtf is missing.. and all the classes are sealed
-        else -> error("")
+        is Predicate -> TODO()
+        is Instruction -> TODO()
+        is Cost -> TODO()
+        is FromExpression -> TODO()
+        is Trigger -> TODO()
+        is Component -> TODO()
+
+        else -> { error("this really oughtta be impossible") }
       } as P
     }
   }

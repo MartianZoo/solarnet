@@ -9,7 +9,7 @@ import dev.martianzoo.tfm.petaform.PetaformParser.Components
 import dev.martianzoo.tfm.petaform.PetaformParser.Components.Count
 import dev.martianzoo.tfm.petaform.PetaformParser.QEs
 import dev.martianzoo.tfm.petaform.PetaformParser.parse
-import dev.martianzoo.tfm.petaform.PetaformParser.parseComponent
+import dev.martianzoo.tfm.petaform.PetaformParser.parseComponents
 import org.junit.jupiter.api.Test
 
 class ComponentDeclarationsTest {
@@ -26,7 +26,7 @@ class ComponentDeclarationsTest {
 
   @Test
   fun body() {
-    assertThat(parseComponent("""
+    assertThat(parseComponents("""
           class Bar : Qux { default Foo?
             Foo -> Bar
 
@@ -40,7 +40,7 @@ class ComponentDeclarationsTest {
 
   @Test
   fun series() {
-    assertThat(parseComponent("""
+    assertThat(parseComponents("""
         class Die {
         }
         class DieHard {
@@ -59,7 +59,7 @@ class ComponentDeclarationsTest {
 
   @Test
   fun oneSimple() {
-    val cs = parseComponent("""
+    val cs = parseComponents("""
         abstract class One
     """)
     assertThat(cs).containsExactly(Component(TypeExpression("One"), abstract=true))
@@ -67,7 +67,7 @@ class ComponentDeclarationsTest {
 
   @Test
   fun threeSimple() {
-    val cs = parseComponent("""
+    val cs = parseComponents("""
         abstract class One
         class Two
 
@@ -81,7 +81,7 @@ class ComponentDeclarationsTest {
   }
 
   @Test fun withSupers() {
-    val cs = parseComponent("""
+    val cs = parseComponents("""
         class One : Two, Three
     """)
     assertThat(cs).containsExactly(
@@ -95,7 +95,7 @@ class ComponentDeclarationsTest {
   }
 
   @Test fun complexExprs() {
-    val cs = parseComponent("""
+    val cs = parseComponents("""
         class One<Two<Three>(HAS Four)> : Five(HAS 6 Seven), Eight<Nine>
     """)
     assertThat(cs).containsExactly(
@@ -108,7 +108,7 @@ class ComponentDeclarationsTest {
   }
 
   @Test fun nested() {
-    val cs = parseComponent("""
+    val cs = parseComponents("""
         class One { // comment
           abstract class Two
           // comment
@@ -123,13 +123,13 @@ class ComponentDeclarationsTest {
   }
 
   @Test fun oneLiner() {
-    val cs = parseComponent("""
+    val cs = parseComponents("""
       class One { This: That }
     """)
   }
 
   @Test fun nestedOneLiner() {
-    val cs = parseComponent("""
+    val cs = parseComponents("""
       class One {
         class Two { This: That }
         class Three { This: That }
@@ -145,7 +145,7 @@ class ComponentDeclarationsTest {
     assertThat(parse(Components.twoDots, "..")).isNotNull()
     assertThat(parse(Components.twoDots, " .. ")).isNotNull()
     assertThat(parse(Components.count, "count 2..3")).isEqualTo(Count(2, 3))
-    val cs = parseComponent("""
+    val cs = parseComponents("""
       class One {
         count 2..3
       }
@@ -158,7 +158,7 @@ class ComponentDeclarationsTest {
   }
 
   @Test fun withDefaults() {
-    val cs = parseComponent("""
+    val cs = parseComponents("""
         abstract class Component {
            default Component!
            default -Component!

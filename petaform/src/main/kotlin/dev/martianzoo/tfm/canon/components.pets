@@ -1,71 +1,25 @@
-// Root of the hierarchy; everything with no other supertypes has this supertype
-abstract class Component {
-    count 0..*
-
-    default Component!
-    default -Component!
+class Generation {
+    count 1..*
 }
 
-abstract class System
-abstract class This : System // no subtypes, so you can never actually create a literal `This`
-
-abstract class Ephemeral : System { // removes itself immediately - will never observe it existing
-    count 0..0 // cardinalities can probably only be enforced after :: triggers are done
-
-    This:: -This
+abstract class Generational {                          // things that disappear when the generation changes over
+    Generation:: -This                                 // and look, there they go (TODO ProductionPhase?)
 }
 
-class Ok : Ephemeral // when you need to do nothing
+abstract class Player : Anyone {
+    This:: 20 TerraformRating
 
-abstract class Barrier { // player must clean up themselves, by end of action
-    This: (MAX 0 Barrier: Ok) // puts a task on the queue that can only be handled if 0 barriers left
+    This:: PROD[5]                                     // No negative Components! So we need a hack; at least this one
+    ProductionPhase: -5                                // confines the damage to Specialist/Generalist (and Robinson but it
+                                                       // needs custom code anyway).
+                                                       // `Instr / PROD[1]` must be banned! But no great loss.
+    class SoloPlayer
+
+    abstract class Me
 }
 
-class Die : System { // anything that tries to create this will stall
-    count 0..0
-}
-
-class Generation
-
-abstract class Generational { // things that disappear when the generation changes over
-    Generation:: -This
-}
-
-abstract class Phase : System {
-    count 0..1 // insufficient
-
-    // this seems like a roundabout way to express "there must always be exactly 1"
-    NOW 2 Phase OR MAX 0 Phase:: Die
-    // Phases must be changed like `WhateverPhase FROM Phase`
-    // can't just do `This:: -Phase.` unless it knows not to remove itself somehow
-    // `This:: -(Phase-This)` might do it but blegh
-    // could we have a special directive in here like `This FROM Phase` or `This:: FROM Phase`?
-
-    // There will be a heck of a lot more
-    class ProductionPhase
-    class End
-}
-
-abstract class Anyone { // : Owned<Anyone> !?
-    // minimum of 1 means the engine will create an instance automatically - so,
-    // in a 2-player game no Player3 class should even be defined.
-    count 1..1
-
-    class Npc : System
-
-    abstract class Player {
-        This:: 14 TerraformRating // not supporting multiplayer for a while yet
-        This:: PROD[5]            // an ugly wart
-        ProductionPhase: -5       // same ugly wart
-
-        class Me
-        // concrete players to be created dynamically
-    }
-}
-
-abstract class GlobalParameter { // TODO splittable...
-    default GlobalParameter.
-    default -GlobalParameter.
+abstract class GlobalParameter {                       // TODO splittable...
+    default GlobalParameter.                           // By default, gains are "if possible"
 
     This: TerraformRating
 
@@ -74,27 +28,26 @@ abstract class GlobalParameter { // TODO splittable...
     class VenusStep       { count 0..15 }
 }
 
-class TrackBonuser : System {
+class TrackBonuser {
     count 1..1
 
-    NOW 3 TemperatureStep: PROD[Heat]
-    NOW 5 TemperatureStep: PROD[Heat]
+    NOW 3 TemperatureStep: PROD[Heat]                  // `NOW <predicate>` fires whenever that predicate transitions
+    NOW 5 TemperatureStep: PROD[Heat]                  // from false to true
     NOW 15 TemperatureStep: OceanTile
 
     NOW 8 OxygenStep: TemperatureStep
-}
 
-class VenusBonuser : System {
     NOW 4 VenusStep: ProjectCard
     NOW 8 VenusStep: TerraformRating
+
+    NOW 10 OceanTile:: Die                             // Putting count 0..9 on OceanTile doesn't work!
 }
 
 abstract class Area {
     count 1..1
 
-    NOW 2 Tile<This>:: Die
-    // or Tile<This>:: (MAX 1 Tile<This>: Ok)
-
+    NOW 2 Tile<This>:: Die                             // The engine will never let a Die exist, so this prevents 2 tiles
+                                                       // (TODO 2 Occupants) from ever using the same Area
     abstract class RemoteArea
     abstract class MarsArea {
         abstract class LandArea {
@@ -106,34 +59,27 @@ abstract class Area {
 }
 
 abstract class Tile<Area> {
-    count 0..1 // insufficient; see Area effect
-
-    // This:: $createAdjacencies(This)
+    count 0..1                                         // insufficient; see Area effect
 
     class OceanTile : GlobalParameter {
         default OceanTile<WaterArea>
 
-        // count 0..9 wouldn't actually work
-        NOW 10 OceanTile:: Die
         Adjacency<This, Tile>: 2
     }
 }
 
-// Have to be created the hard way...
-class AreaAdjacency<MarsArea, MarsArea>  : System { count 0..1 }
-class Neighbor<MarsArea, Tile>(HAS Tile) : System { count 0..1 }
-class Adjacency<Tile, Tile>(HAS 2 Tile)  : System { count 0..1 }
+class AreaAdjacency<MarsArea, MarsArea> {              // TODO figure this shit out
+    count 0..1
+}
+class Neighbor<MarsArea, Tile>(HAS Tile) {
+    count 0..1
+}
+class Adjacency<Tile, Tile>(HAS 2 Tile) {
+    count 0..1
+}
 
-abstract class Owned<Anyone> {
-    // default *Owned<Me>
-
+abstract class Owned<Anyone> {                         // TODO default *Owned<Me>??
     class VictoryPoint
-
-    class Required<Component> : Barrier
-
-    class Purchase<Component> { // TODO but this would need to be a barrier too
-        NOW MAX 0 Barrier: Component, -This
-    }
 
     abstract class Resource {
         abstract class StandardResource {
@@ -142,47 +88,24 @@ abstract class Owned<Anyone> {
             class Titanium
             class Plant
             class Heat
-            class Energy { ProductionPhase:: Heat FROM This }
+            class Energy {
+                ProductionPhase:: Heat FROM This       // :: ensures it happens before production
+            }
         }
     }
 
-    class Production<StandardResource> { // TODO ensure owner == owner?
-        ProductionPhase: StandardResource // not ::, to ensure E->H happens first
+    class Production<StandardResource> {
+        ProductionPhase: StandardResource              // Specializing to Production<Heat> specializes this too
     }
 
-    class Owed<Resource> : Barrier {
-       default -Owed.
-       This:: Accept<Resource>
-    }
-
-    class Pay<Resource> : Ephemeral { // TODO lets you overpay like mad
-        This:: -Owed<Resource>.
-    }
-
-    class Accept<Resource> : System {
-        count 0..1
-        default Accept. // never hurts to accept twice
-
-        -Resource:: Pay<Resource> // TODO this is not quite right?
-        NOW MAX 0 Owed:: -This // TODO what if there never had been any Owed's?
-    }
-
-    // TODO I prefer not having a bunch of these system singletons hanging around
-    // In theory, your steel resources themselves could have this trigger!
-    class TagAbilities {
-      count 1..1
-      Purchase<BuildingTag>:: Accept<Steel>
-      Purchase<SpaceTag>:: Accept<Titanium>
-    }
-
-    // TODO what else should be <Player> and why
-    class TerraformRating : Owned<Player> {
+    class TerraformRating : Owned<Player> {            // TODO what else should be <Player> and why
         ProductionPhase: 1
         End: VictoryPoint
     }
 
-    // For "follow mode"
-    abstract class CardBack { class CorporationCard, PreludeCard, ProjectCard }
+    abstract class CardBack {                          // For "follow mode" only
+        class CorporationCard, PreludeCard, ProjectCard
+    }
 
     abstract class OwnedTile : Tile {
         class GreeneryTile : Tile<MarsArea> {
@@ -191,23 +114,22 @@ abstract class Owned<Anyone> {
             This: OxygenStep
             End: VictoryPoint
         }
-        class CityTile {
+        class CityTile {                               // TODO "open" to allow Capital to subclass it
             default CityTile<LandArea(HAS MAX 0 Neighbor<CityTile<Anyone>>)>
 
             End: VictoryPoint / Adjacency(HAS This, GreeneryTile<Anyone>)
         }
-        class SpecialTile : OwnedTile<MarsArea> {
+        class SpecialTile : OwnedTile<MarsArea> {      // TODO "open"
             default SpecialTile<LandArea>
         }
     }
 
-    abstract class CardFront { // <CardResource> {  TODO circular
+    abstract class CardFront {                         // <CardResource>  TODO circular
         count 0..1
 
         abstract class EventCard {
-            This: PlayedEvent FROM This // shouldn't really be able to do this early
-            // problem: how to still get the VPs??
-        }
+            This: PlayedEvent FROM This                // problem: how to still get the VPs??
+        }                                              // could we get this happen autom. at EOT?
         abstract class AutomatedCard
         abstract class ActiveCard
     }
@@ -215,25 +137,32 @@ abstract class Owned<Anyone> {
     class PlayedEvent
 
     abstract class Cardbound<CardFront> {
-        This:: (CardFront: Ok) // the card must actually be in play
-        -CardFront:: -This     // becoming a PlayedEvent removes the tags
+        This:: (CardFront: Ok)                         // i.e., the card must actually be in play
+        -CardFront:: -This                             // on becoming a PlayedEvent
 
         abstract class Tag {
-            // Purchase<CardFront>:: Purchase<This>     // VERY IFFY
-            // CardFront:: This                         // VERY IFFY
+         // Purchase<CardFront>:: Purchase<This>       // VERY VERY IFFY
+         // CardFront:: This                           // VERY VERY IFFY
 
-            class BuildingTag, SpaceTag, CityTag, PowerTag, ScienceTag
-            abstract class BioTag    { class PlantTag, MicrobeTag, AnimalTag }
-            abstract class PlanetTag { class EarthTag, JovianTag, VenusTag }
+            class BuildingTag, SpaceTag
+            class CityTag, PowerTag, ScienceTag
+
+            abstract class BioTag {
+                class PlantTag, MicrobeTag, AnimalTag
+            }
+            abstract class PlanetTag {
+                class EarthTag, JovianTag, VenusTag
+            }
         }
 
-        abstract class CardResource : Resource { // , Cardbound<CardFront<CardResource>> { TODO
-            -CardFront:: Die // gotta remove the resources first
+        abstract class CardResource : Resource {       // , Cardbound<CardFront<CardResource>> { TODO
+            -CardFront:: Die                           // gotta remove the resources first
             default CardResource.
 
-            class Animal, Asteroid, Floater, Microbe, Science
+            class Animal, Microbe, Science
+            class Floater, Asteroid
 
-            class NoResource : Die // so that non-holding cards have a type
+            class NoResource : Die                     // Because all cards must have a resource type
         }
 
         class ActionUsed : Generational {
@@ -245,7 +174,7 @@ abstract class Owned<Anyone> {
         class UseAction1, UseAction2, UseAction3, UseAction4
     }
 
-    class PlayCard<CardBack> : Purchase<CardFront> {
+    class PlayCard<CardBack> {   // not open ... extend Purchase???
 //      This:: CardBack: $handleRequirement(CardFront), Owed<Megacredit> / $costOf(CardFront)
         This: (MAX 0 Barrier: CardFront FROM CardBack)
     }
@@ -256,12 +185,14 @@ abstract class StandardAction {
 
     class PlayCardFromHand   { -> PlayCard<CardFront> }
     class UseStandardProject { -> UseAction<StandardProject> }
-    class UseCardAction      { -> UseAction<CardFront> THEN ActionUsed<CardFront> } // TODO weird
+    class UseCardAction      { -> UseAction<CardFront> THEN ActionUsed<CardFront> }
     class ConvertPlants      { 8 Plant -> GreeneryTile }
     class ConvertHeat        { 8 Heat -> TemperatureStep }
 
-    // Technically a standard project, but that makes things harder
-    class SellPatents        { 1 ProjectCard -> 1 } // TODO X
+    // TODO Milestone/Award
+
+    class SellPatents        { 1 ProjectCard -> 1 }    // Technically a standard project, but that makes things hard
+                                                       // TODO X
 }
 
 abstract class StandardProject {
@@ -270,14 +201,40 @@ abstract class StandardProject {
     class PowerPlant   { 11 -> PROD[Energy] }
     class AsteroidSP   { 14 -> TemperatureStep }
     class AirScrapping { 15 -> VenusStep }
-    class BufferGas    { 16 -> TerraformRating }
     class Aquifer      { 18 -> OceanTile }
     class Greenery     { 23 -> GreeneryTile }
     class City         { 25 -> CityTile, PROD[1] }
+
+    class BufferGas {                                  // TODO figure out the right way to make this not exist in non-TRsolo games
+        count 0..1
+        16 -> TerraformRating
+    }
 }
 
-abstract class NextCardEffect : Generational, System {
+abstract class NextCardEffect : Generational {
     count 0..1
 
     CardFront:: -This
+}
+
+abstract class Phase {
+    count 0..1                                         // insufficient, see next
+
+    NOW 2 Phase OR MAX 0 Phase:: Die                   // Once any Phase exists there must always be exactly one. The
+                                                       // new one can't remove the old one itself. This here forces
+                                                       // phase changes to be like `WhateverPhase FROM Phase`
+                                                       // TODO such a roundabout way to say it
+
+                                                       // `This:: -Phase.` wouldn't know not to remove itself, and would
+                                                       // let a strange phase with `-This:: Die` stick around. We'd need
+                                                       // `This:: -(Phase !This).` or `PRE This: -Phase.` or a new
+                                                       // directive like `This FROM Phase.` but all this is gross.
+    class SetupPhase
+    class CorporationPhase
+    class PreludePhase                                 // TODO how to skip it when not using Prelude
+    class ResearchPhase
+    class ActionPhase
+    class ProductionPhase
+    class SolarPhase
+    class End
 }

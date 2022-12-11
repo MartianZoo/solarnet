@@ -1,0 +1,47 @@
+// These must all get created before other things (except system.pets)
+abstract class GameOption {
+    count 0..1
+
+    abstract class Map {
+        // This:: $createAreaAdjacencies(This)
+
+        class Tharsis, Hellas, Elysium
+    }
+
+    class CorporateEra
+    class VenusNext
+    class Prelude {
+        SolarPhase IF (Solo, 12 Generation):: VictoryCheck
+    }
+
+    // TODO Colonies, but damn, Turmoil can wait
+
+    abstract class Solo {
+        This IF 2 Player:: Die
+        This IF 2 Solo:: Die
+        This:: CorporateEra.
+        Player:: -6 TerraformRating<Player>
+
+        // SetupPhase:: $placeStartingTiles()
+
+        class StandardSolo {
+            // SoloVictoryCheck IF Complete / GlobalParameter:: Winner
+        }
+        class Tr63Solo {
+            This:: BufferGas
+            SoloVictoryCheck IF 63 TerraformRating<SoloPlayer>:: Winner
+        }
+    }
+
+    class FollowMode // actually all we support right now
+
+    class TerraformingMars
+}
+
+// This is a weird hack because we don't support "looping". We need a generic type with a
+// "count 1" which causes the engine to create 1 of each possible subtype (Steel<Player2>,
+// Plant<Player1>, etc. Then each one can gift a Production and be done.
+// class NoCorpEraProductionGiver<StandardResource> : Ephemeral {
+//     count 1..1 // TODO how to remove when we don't need it?
+//     This IF MAX 0 CorporateEra:: PROD[StandardResource]
+// }

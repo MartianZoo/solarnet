@@ -58,6 +58,7 @@ class PetaformGenerator(scaling: (Int) -> Double = { 1.5 / 1.2.pow(it) - 1.0 })
           1 to Instruction.Then::class,
           2 to Instruction.Or::class,
           3 to Instruction.Multi::class,
+          0 to Instruction.Custom::class,
       ))
       register<Instruction> { recurse(choose(instructionTypes)) }
       register { Instruction.Gain(recurse(), intensity()) }
@@ -68,6 +69,7 @@ class PetaformGenerator(scaling: (Int) -> Double = { 1.5 / 1.2.pow(it) - 1.0 })
       register { Instruction.then(listOfSize(choose(2, 2, 2, 3))) as Instruction.Then }
       register { Instruction.multi(listOfSize(choose(2, 2, 2, 2, 2, 3, 4))) as Instruction.Multi }
       register { Instruction.or(listOfSize(choose(2, 2, 2, 2, 3))) as Instruction.Or }
+      register { Instruction.Custom("name", listOfSize(choose(1, 1, 1, 2))) }
 
       register<FromExpression> {
         val one: TypeExpression = recurse()

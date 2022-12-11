@@ -97,8 +97,8 @@
       "immediate": [ "40" ],
       "actions": [ "3 -> HasRaisedTr: TerraformRating" ],
       "components": [
-        "class HasRaisedTr : Owned, Generational, System { count 0..1 }",
-        "class TrWatcher : System { count 1..1; TerraformRating<Player>: HasRaisedTr<Player>. }",
+        "class HasRaisedTr : Owned, Generational { count 0..1 }",
+        "class TrWatcher { count 1..1; TerraformRating<Player>: HasRaisedTr<Player>. }",
       ]
     },
 
@@ -601,7 +601,7 @@
         // The points attach to the card, not the tile
         "End: VictoryPoint / Adjacency(HAS CapitalTile, OceanTile)",
       ],
-      "components": [ "class CapitalTile : CityTile { This IF 2 CapitalTile: Die }" ],
+      "components": [ "class CapitalTile : CityTile, SpecialTile { This IF 2 CapitalTile: Die }" ],
       "requirement": "4 OceanTile",
       "cost": 26,
       "projectKind": "AUTOMATED",

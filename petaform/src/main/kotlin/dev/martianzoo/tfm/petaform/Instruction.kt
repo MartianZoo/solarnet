@@ -150,6 +150,11 @@ sealed class Instruction : PetaformNode() {
     override fun countProds() = super.countProds() + 1
   }
 
+  data class Custom(val name: String, val arguments: List<TypeExpression>) : Instruction() {
+    override fun toString() = "$$name(${arguments.joinToString()})"
+    override val children = arguments
+  }
+
   enum class Intensity(val symbol: String) {
     MANDATORY("!"),
     AMAP("."),
