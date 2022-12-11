@@ -13,14 +13,14 @@ internal class MarsAreaDefinitionTest {
     val thar: Grid<MarsAreaDefinition> = Canon.mapAreaDefinitions["Tharsis"]!!
     checkWaterAreaCount(thar)
 
-    assertThat(thar[5, 3]!!.typePetaform).isEqualTo("NoctisArea")
-    assertThat(thar[5, 3]!!.bonusPetaform).isEqualTo("2 Plant")
+    assertThat(thar[5, 3]!!.typeText).isEqualTo("NoctisArea")
+    assertThat(thar[5, 3]!!.bonusText).isEqualTo("2 Plant")
 
-    assertThat(thar[3, 2]!!.typePetaform).isEqualTo("LandArea")
-    assertThat(thar[3, 2]!!.bonusPetaform).isNull()
+    assertThat(thar[3, 2]!!.typeText).isEqualTo("LandArea")
+    assertThat(thar[3, 2]!!.bonusText).isNull()
 
-    assertThat(thar[1, 4]!!.typePetaform).isEqualTo("WaterArea")
-    assertThat(thar[1, 4]!!.bonusPetaform).isEqualTo("ProjectCard")
+    assertThat(thar[1, 4]!!.typeText).isEqualTo("WaterArea")
+    assertThat(thar[1, 4]!!.bonusText).isEqualTo("ProjectCard")
   }
 
   @Test
@@ -28,11 +28,11 @@ internal class MarsAreaDefinitionTest {
     val hell: Grid<MarsAreaDefinition> = Canon.mapAreaDefinitions["Hellas"]!!
     checkWaterAreaCount(hell)
 
-    assertThat(hell[5, 7]!!.typePetaform).isEqualTo("WaterArea")
-    assertThat(hell[5, 7]!!.bonusPetaform).isEqualTo("3 Heat")
+    assertThat(hell[5, 7]!!.typeText).isEqualTo("WaterArea")
+    assertThat(hell[5, 7]!!.bonusText).isEqualTo("3 Heat")
 
-    assertThat(hell[9, 7]!!.typePetaform).isEqualTo("LandArea")
-    assertThat(hell[9, 7]!!.bonusPetaform).isEqualTo("OceanTile, -6")
+    assertThat(hell[9, 7]!!.typeText).isEqualTo("LandArea")
+    assertThat(hell[9, 7]!!.bonusText).isEqualTo("OceanTile, -6")
   }
 
   @Test
@@ -40,11 +40,11 @@ internal class MarsAreaDefinitionTest {
     val elys: Grid<MarsAreaDefinition> = Canon.mapAreaDefinitions["Elysium"]!!
     checkWaterAreaCount(elys)
 
-    assertThat(elys[1, 1]!!.typePetaform).isEqualTo("WaterArea")
-    assertThat(elys[1, 1]!!.bonusPetaform).isNull()
+    assertThat(elys[1, 1]!!.typeText).isEqualTo("WaterArea")
+    assertThat(elys[1, 1]!!.bonusText).isNull()
 
-    assertThat(elys[3, 7]!!.typePetaform).isEqualTo("VolcanicArea")
-    assertThat(elys[3, 7]!!.bonusPetaform).isEqualTo("3 ProjectCard")
+    assertThat(elys[3, 7]!!.typeText).isEqualTo("VolcanicArea")
+    assertThat(elys[3, 7]!!.bonusText).isEqualTo("3 ProjectCard")
   }
 
   private fun checkWaterAreaCount(map: Grid<MarsAreaDefinition>) {

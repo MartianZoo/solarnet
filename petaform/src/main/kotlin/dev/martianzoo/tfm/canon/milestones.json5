@@ -1,0 +1,42 @@
+{
+  "milestones": [
+    // Terraformer
+    { "id": "MM1", "bundle": "M", "requirement": "35 TerraformRating" },
+    // Mayor
+    { "id": "MM2", "bundle": "M", "requirement": "3 CityTile" },
+    // Gardener
+    { "id": "MM3", "bundle": "M", "requirement": "3 GreeneryTile" },
+    // Builder
+    { "id": "MM4", "bundle": "M", "requirement": "8 BuildingTag" },
+    // Planner
+    { "id": "MM5", "bundle": "M", "requirement": "16 ProjectCard" },
+
+    // Diversifier
+    { "id": "HM1", "bundle": "H", "requirement": "8 TagType" },
+    // Tactician
+    // { "id": "HM2", "bundle": "H", "requirement": "5 CardFront(HAS requirement)" },
+    // Polar Explorer
+    // { "id": "HM3", "bundle": "H", "requirement": "3 OwnedTile<MarsArea(HAS 8 row)>" },
+    // Energizer
+    { "id": "HM4", "bundle": "H", "requirement": "PROD[6 Energy]" },
+    // Rim Settler
+    { "id": "HM5", "bundle": "H", "requirement": "3 JovianTag" },
+
+    // Generalist
+    { "id": "EM1", "bundle": "E", "requirement": "PROD[7, 2 Steel, 2 Titanium, 2 Plant, 2 Energy, 2 Heat]" },
+    // Specialist
+    { "id": "EM2", "bundle": "E", "requirement": "PROD[15 OR 10 Steel OR 10 Titanium OR 10 Plant OR 10 Energy OR 10 Heat]" },
+    // Ecologist
+    { "id": "EM3", "bundle": "E", "requirement": "4 BioTag" },
+    // Tycoon
+    // { "id": "EM4", "bundle": "E", "requirement": "15 (ActiveCard OR AutomatedCard)" },
+    // Legend
+    { "id": "EM5", "bundle": "E", "requirement": "5 PlayedEvent" },
+
+    // Generalist[R]
+    { "id": "EM1R", "bundle": "E","requirement": "PROD[6, Steel, Titanium, Plant, Energy, Heat]", "replaces": "EM1" },
+
+    // Hoverlord
+    { "id": "VM1", "bundle": "V", "requirement": "7 Floater" },
+  ]
+}

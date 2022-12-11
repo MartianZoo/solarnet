@@ -5,6 +5,7 @@ import dev.martianzoo.tfm.data.ComponentDefinition
 import dev.martianzoo.tfm.data.JsonReader
 import dev.martianzoo.tfm.data.JsonReader.combine
 import dev.martianzoo.tfm.data.MarsAreaDefinition
+import dev.martianzoo.tfm.data.MilestoneDefinition
 import dev.martianzoo.tfm.petaform.Component
 import dev.martianzoo.tfm.petaform.PetaformParser.parseComponents
 import dev.martianzoo.util.Grid
@@ -27,6 +28,10 @@ object Canon {
     JsonReader.readCards(readResource("cards.json5"))
   }
 
+  val milestoneDefinitions: Map<String, MilestoneDefinition> by lazy {
+    JsonReader.readMilestones(readResource("milestones.json5"))
+  }
+
   val auxiliaryComponentDefinitions: Map<String, ComponentDefinition> by lazy {
     JsonReader.auxiliaryComponentDefinitions(cardDefinitions.values)
   }
@@ -40,6 +45,7 @@ object Canon {
     combine(
         componentDefinitions.values,
         cardDefinitions.values,
+        milestoneDefinitions.values,
         auxiliaryComponentDefinitions.values,
         mapAreaDefinitions.values.flatten())
   }

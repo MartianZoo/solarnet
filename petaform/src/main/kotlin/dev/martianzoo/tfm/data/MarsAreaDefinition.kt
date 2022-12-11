@@ -1,8 +1,8 @@
 package dev.martianzoo.tfm.data
 
-import dev.martianzoo.tfm.petaform.TypeExpression
 import dev.martianzoo.tfm.petaform.Instruction
 import dev.martianzoo.tfm.petaform.PetaformParser.parse
+import dev.martianzoo.tfm.petaform.TypeExpression
 
 data class MarsAreaDefinition(
     /** Shortname of the MarsMap this area belongs to (e.g "Tharsis"). */
@@ -21,35 +21,32 @@ data class MarsAreaDefinition(
      * The type of this area; standard types include "LandArea", "WaterArea", "VolcanicArea",
      * and "NoctisArea".
      */
-    val typePetaform: String,
+    val typeText: String,
 
     /**
      * The petaform instruction for this map area's bonus.
      */
-    val bonusPetaform: String?,
-
-    /** In cryptic text form */
-    val textual: String,
+    val bonusText: String?,
 ) : Definition {
 
   init {
     require(mapName.isNotEmpty())
     require(row >= 1) { "bad row: $row" }
     require(column >= 1) { "bad column: $column" }
-    require(bonusPetaform?.isEmpty() != true) // nonempty if present
+    require(bonusText?.isEmpty() != true) // nonempty if present
   }
 
-  val bonus: Instruction? by lazy { bonusPetaform?.let { parse(it) } }
-  val type: TypeExpression by lazy { parse(typePetaform) }
+  val bonus: Instruction? by lazy { bonusText?.let { parse(it) } }
+  val type: TypeExpression by lazy { parse(typeText) }
 
   override val asComponentDefinition by lazy {
     val effects =
-        if (bonusPetaform == null) {
+        if (bonusText == null) {
           setOf()
         } else {
-          setOf("Tile<This>: $bonusPetaform") // don't want to have to do this in code like that
+          setOf("Tile<This>: $bonusText") // don't want to have to do this in code like that
         }
-    ComponentDefinition(componentName(), supertypesPetaform = setOf(typePetaform), effectsPetaform = effects)
+    ComponentDefinition(componentName(), supertypesPetaform = setOf(typeText), effectsPetaform = effects)
   }
 
   fun componentName() = "${mapName}${row}_$column"

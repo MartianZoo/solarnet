@@ -124,6 +124,12 @@ abstract class Owned<Anyone> {                         // TODO default *Owned<Me
         }
     }
 
+    abstract class Milestone {
+        count 0..1
+
+        NOW 4 Milestone<Anyone>: Die
+    }
+
     abstract class CardFront {                         // <CardResource>  TODO circular
         count 0..1
 
@@ -170,6 +176,8 @@ abstract class Owned<Anyone> {                         // TODO default *Owned<Me
         }
     }
 
+    class TagType                                      // No idea yet how this will actually work
+
     abstract class UseAction : Ephemeral {
         class UseAction1, UseAction2, UseAction3, UseAction4
     }
@@ -188,8 +196,9 @@ abstract class StandardAction {
     class UseCardAction      { -> UseAction<CardFront> THEN ActionUsed<CardFront> }
     class ConvertPlants      { 8 Plant -> GreeneryTile }
     class ConvertHeat        { 8 Heat -> TemperatureStep }
+    class ClaimMilestone     { 8 -> Milestone }
 
-    // TODO Milestone/Award
+    // TODO Award
 
     class SellPatents        { 1 ProjectCard -> 1 }    // Technically a standard project, but that makes things hard
                                                        // TODO X

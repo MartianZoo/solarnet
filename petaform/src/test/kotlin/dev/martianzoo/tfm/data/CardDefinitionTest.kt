@@ -18,16 +18,16 @@ class CardDefinitionTest {
    */
   @Test
   fun minimal() {
-    val dumbCard = CardDefinition("xxx", deck = PRELUDE, effectsPetaform = setOf("This: Plant"))
+    val dumbCard = CardDefinition("xxx", deck = PRELUDE, effectsText = setOf("This: Plant"))
 
     assertThat(dumbCard.id).isEqualTo("xxx")
     assertThat(dumbCard.bundle).isNull()
     assertThat(dumbCard.deck).isEqualTo(PRELUDE)
-    assertThat(dumbCard.replacesId).isNull()
-    assertThat(dumbCard.tagsPetaform).isEmpty()
-    assertThat(dumbCard.effectsPetaform).containsExactly("This: Plant")
-    assertThat(dumbCard.resourceTypePetaform).isNull()
-    assertThat(dumbCard.requirementPetaform).isNull()
+    assertThat(dumbCard.replaces).isNull()
+    assertThat(dumbCard.tagsText).isEmpty()
+    assertThat(dumbCard.effectsText).containsExactly("This: Plant")
+    assertThat(dumbCard.resourceTypeText).isNull()
+    assertThat(dumbCard.requirementText).isNull()
     assertThat(dumbCard.cost).isEqualTo(0)
     assertThat(dumbCard.projectKind).isNull()
   }
@@ -36,12 +36,12 @@ class CardDefinitionTest {
       id = "072",
       bundle = "B",
       deck = PROJECT,
-      tagsPetaform = listOf("AnimalTag"),
-      immediatePetaform = setOf("PROD[-2 Plant<Anyone>]"),
-      actionsPetaform = setOf("-> Animal<This>"),
-      effectsPetaform = setOf("End: VictoryPoint / Animal<This>"),
-      resourceTypePetaform = "Animal",
-      requirementPetaform = "13 OxygenStep",
+      tagsText = listOf("AnimalTag"),
+      immediateText = setOf("PROD[-2 Plant<Anyone>]"),
+      actionsText = setOf("-> Animal<This>"),
+      effectsText = setOf("End: VictoryPoint / Animal<This>"),
+      resourceTypeText = "Animal",
+      requirementText = "13 OxygenStep",
       cost = 10,
       projectKind = ACTIVE,
   )
@@ -52,13 +52,13 @@ class CardDefinitionTest {
     assertThat(BIRDS.id).isEqualTo("072")
     assertThat(BIRDS.bundle).isEqualTo("B")
     assertThat(BIRDS.deck).isEqualTo(PROJECT)
-    assertThat(BIRDS.tagsPetaform).containsExactly("AnimalTag")
-    assertThat(BIRDS.immediatePetaform).containsExactly("PROD[-2 Plant<Anyone>]")
-    assertThat(BIRDS.actionsPetaform).containsExactly("-> Animal<This>")
-    assertThat(BIRDS.effectsPetaform).containsExactly("End: VictoryPoint / Animal<This>")
-    assertThat(BIRDS.replacesId).isNull()
-    assertThat(BIRDS.resourceTypePetaform).isEqualTo("Animal")
-    assertThat(BIRDS.requirementPetaform).isEqualTo("13 OxygenStep")
+    assertThat(BIRDS.tagsText).containsExactly("AnimalTag")
+    assertThat(BIRDS.immediateText).containsExactly("PROD[-2 Plant<Anyone>]")
+    assertThat(BIRDS.actionsText).containsExactly("-> Animal<This>")
+    assertThat(BIRDS.effectsText).containsExactly("End: VictoryPoint / Animal<This>")
+    assertThat(BIRDS.replaces).isNull()
+    assertThat(BIRDS.resourceTypeText).isEqualTo("Animal")
+    assertThat(BIRDS.requirementText).isEqualTo("13 OxygenStep")
     assertThat(BIRDS.cost).isEqualTo(10)
     assertThat(BIRDS.projectKind).isEqualTo(ACTIVE)
   }
@@ -102,9 +102,9 @@ class CardDefinitionTest {
   fun emptyStrings() {
     assertThrows<RuntimeException> { CardDefinition("") }
     assertThrows<RuntimeException> { C.copy(bundle = "") }
-    assertThrows<RuntimeException> { C.copy(replacesId = "") }
-    assertThrows<RuntimeException> { C.copy(resourceTypePetaform = "") }
-    assertThrows<RuntimeException> { C.copy(requirementPetaform = "") }
+    assertThrows<RuntimeException> { C.copy(replaces = "") }
+    assertThrows<RuntimeException> { C.copy(resourceTypeText = "") }
+    assertThrows<RuntimeException> { C.copy(requirementText = "") }
   }
 
   @Test
@@ -130,22 +130,22 @@ class CardDefinitionTest {
   @Test
   fun badActiveCard() {
     assertThrows<RuntimeException> {
-      C.copy(projectKind = EVENT, effectsPetaform = setOf("Foo: Bar"))
+      C.copy(projectKind = EVENT, effectsText = setOf("Foo: Bar"))
     }
     assertThrows<RuntimeException> {
-      C.copy(projectKind = AUTOMATED, effectsPetaform = setOf("Bar: Qux"))
+      C.copy(projectKind = AUTOMATED, effectsText = setOf("Bar: Qux"))
     }
     assertThrows<RuntimeException> {
-      C.copy(projectKind = EVENT, actionsPetaform = setOf("Foo -> Bar"))
+      C.copy(projectKind = EVENT, actionsText = setOf("Foo -> Bar"))
     }
     assertThrows<RuntimeException> {
-      C.copy(projectKind = AUTOMATED, actionsPetaform = setOf("Bar -> Qux"))
+      C.copy(projectKind = AUTOMATED, actionsText = setOf("Bar -> Qux"))
     }
     assertThrows<RuntimeException> {
-      C.copy(projectKind = AUTOMATED, resourceTypePetaform = "Whatever")
+      C.copy(projectKind = AUTOMATED, resourceTypeText = "Whatever")
     }
     assertThrows<RuntimeException> {
-      C.copy(projectKind = ACTIVE, immediatePetaform = setOf("Whatever"))
+      C.copy(projectKind = ACTIVE, immediateText = setOf("Whatever"))
     }
   }
 
@@ -156,17 +156,17 @@ class CardDefinitionTest {
 
   @Test fun slurp() {
     Canon.cardDefinitions.values.forEach { card ->
-      card.requirement?.let { assertThat("$it").isEqualTo(card.requirementPetaform) }
-      card.resourceType?.let { assertThat("$it").isEqualTo(card.resourceTypePetaform) }
+      card.requirement?.let { assertThat("$it").isEqualTo(card.requirementText) }
+      card.resourceType?.let { assertThat("$it").isEqualTo(card.resourceTypeText) }
 
-      checkRoundTrip(card.tagsPetaform, card.tags)
-      if (card.immediatePetaform.isNotEmpty()) {
-        checkRoundTrip(listOf(card.immediatePetaform.joinToString()), listOf(card.immediate!!))
+      checkRoundTrip(card.tagsText, card.tags)
+      if (card.immediateText.isNotEmpty()) {
+        checkRoundTrip(listOf(card.immediateText.joinToString()), listOf(card.immediate!!))
       } else {
         assertThat(card.immediate).isNull()
       }
-      checkRoundTrip(card.actionsPetaform, card.actions)
-      checkRoundTrip(card.effectsPetaform, card.effects)
+      checkRoundTrip(card.actionsText, card.actions)
+      checkRoundTrip(card.effectsText, card.effects)
     }
   }
 

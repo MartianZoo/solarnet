@@ -45,6 +45,13 @@ internal object JsonReader {
     private fun emptyToNull(s: String?) = if ((s?.length ?: 0) > 0) s else null
   }
 
+  // Milestones
+  internal fun readMilestones(json5: String) = MOSHI_MILESTONE.fromJson(json5ToJson(json5))!!.toMap()
+
+  internal data class MilestoneList(val milestones: List<MilestoneDefinition>) {
+    fun toMap() = milestones.associateBy { it.id }.also { require(it.size == milestones.size) }
+  }
+
   // Nothing like three different meanings of the same word in the same place
   fun readMaps(json5: String): Map<String, Grid<MarsAreaDefinition>> {
     val import: MapsImportFormat = MOSHI_MAP.fromJson(json5ToJson(json5))!!
@@ -58,7 +65,7 @@ internal object JsonReader {
             .filter { it.value.isNotEmpty() }
             .map { (column, code) ->
               val (type, bonus) = legend.translate(code)
-              MarsAreaDefinition(map.name, row + 1, column, type, bonus, code)
+              MarsAreaDefinition(map.name, row + 1, column, type, bonus)
             }
       }
       Grid.grid(areas, { it.row }, { it.column })
@@ -66,7 +73,7 @@ internal object JsonReader {
   }
 
   fun auxiliaryComponentDefinitions(cardDefs: Collection<CardDefinition>): Map<String, ComponentDefinition> =
-    cardDefs.flatMap { it.componentsPetaform }
+    cardDefs.flatMap { it.extraComponentsText }
         .map { parse<Component>(it) }
         .map { ComponentDefinition(
             it.expression.className,
@@ -98,5 +105,6 @@ internal object JsonReader {
 
   private val MOSHI = Moshi.Builder().addLast(KotlinJsonAdapterFactory()).build()
   private val MOSHI_CARD = MOSHI.adapter(CardList::class.java).nullSafe().lenient()
+  private val MOSHI_MILESTONE = MOSHI.adapter(MilestoneList::class.java).nullSafe().lenient()
   private val MOSHI_MAP = MOSHI.adapter(MapsImportFormat::class.java).nullSafe().lenient()
 }

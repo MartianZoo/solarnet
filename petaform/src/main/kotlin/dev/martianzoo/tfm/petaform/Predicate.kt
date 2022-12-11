@@ -5,9 +5,8 @@ import com.google.common.collect.Lists
 sealed class Predicate : PetaformNode() {
 
   data class Min(val qe: QuantifiedExpression) : Predicate() {
-    constructor(expr: TypeExpression, scalar: Int? = null) : this(QuantifiedExpression(expr, scalar))
+    constructor(expr: TypeExpression? = null, scalar: Int? = null) : this(QuantifiedExpression(expr, scalar))
     init {
-      // if (qe.typeExpression == null) throw PetaformException() TODO
       if ((qe.scalar ?: 1) == 0) {
         throw PetaformException("This predicate is always true (${qe})")
       }

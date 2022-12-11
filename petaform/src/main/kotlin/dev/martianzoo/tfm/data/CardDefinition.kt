@@ -52,7 +52,7 @@ data class CardDefinition(
      * The id of the card this card replaces, if any. For example, the `"X31"` Deimos Down replaces
      * the `"039"` Deimos Down.
      */
-    val replacesId: String? = null,
+    val replaces: String? = null,
 
     /**
      * The tags on the card, each expressed as a Petaform component name. If a card (such as Venus
@@ -61,40 +61,40 @@ data class CardDefinition(
      * cards).
      */
     @Json(name = "tags")
-    val tagsPetaform: List<String> = listOf(),
+    val tagsText: List<String> = listOf(),
 
     /**
      * Immediate effects on the card, if any, each expressed as a Petaform `Instruction`.
      */
     @Json(name = "immediate")
-    val immediatePetaform: Set<String> = setOf(), // TODO there should be only one
+    val immediateText: Set<String> = setOf(), // TODO there should be only one
 
     /**
      * Actions on the card, if any, each expressed as a Petaform `Action`. `AUTOMATED` and `EVENT`
      * cards may not have these.
      */
     @Json(name = "actions")
-    val actionsPetaform: Set<String> = setOf(), // TODO change to list
+    val actionsText: Set<String> = setOf(), // TODO change to list
 
     /**
      * Effects on the card, if any, each expressed as a Petaform `Effect`. `AUTOMATED` and
      * `EVENT` cards may not have these.
      */
     @Json(name = "effects")
-    val effectsPetaform: Set<String> = setOf(),
+    val effectsText: Set<String> = setOf(),
 
     /**
      * Which resource type, if any, this card can hold, expressed as a Petaform `TypeExpression`.
      */
     @Json(name = "resourceType")
-    val resourceTypePetaform: String? = null,
+    val resourceTypeText: String? = null,
 
     /**
      * Any extra components the card defines (needed by no other card), expressed as a Petaform
      * `Component`.
      */
     @Json(name = "components")
-    val componentsPetaform: Set<String> = setOf(),
+    val extraComponentsText: Set<String> = setOf(),
 
     // Project info
 
@@ -103,7 +103,7 @@ data class CardDefinition(
      * the `PROJECT` deck may have this.
      */
     @Json(name = "requirement")
-    val requirementPetaform: String? = null,
+    val requirementText: String? = null,
 
     /**
      * The card's nonnegative cost in megacredits. Is only nonzero for Project cards.
@@ -121,12 +121,12 @@ data class CardDefinition(
   init {
     require(id.isNotEmpty())
     require(bundle?.isNotEmpty() ?: true)
-    require(replacesId?.isNotEmpty() ?: true)
-    require(resourceTypePetaform?.isNotEmpty() ?: true)
-    require(requirementPetaform?.isNotEmpty() ?: true)
-    if (resourceTypePetaform != null) {
-      val resourceUsage = "$resourceTypePetaform<This>"
-      require((actionsPetaform + effectsPetaform).any { it.contains(resourceUsage) }) {
+    require(replaces?.isNotEmpty() ?: true)
+    require(resourceTypeText?.isNotEmpty() ?: true)
+    require(requirementText?.isNotEmpty() ?: true)
+    if (resourceTypeText != null) {
+      val resourceUsage = "$resourceTypeText<This>"
+      require((actionsText + effectsText).any { it.contains(resourceUsage) }) {
         "Card can't use its own resource type: $id"
       }
     }
@@ -142,26 +142,26 @@ data class CardDefinition(
         }
       }
       else -> {
-        require(requirementPetaform == null) { "can't have requirement: $id" }
+        require(requirementText == null) { "can't have requirement: $id" }
         require(cost == 0) { "can't have cost: $id" }
         require(projectKind == null) { "not a project: $id" }
       }
     }
   }
 
-  val tags: List<TypeExpression> by lazy { tagsPetaform.map { TypeExpression(it) } }
-  val resourceType: TypeExpression? by lazy { resourceTypePetaform?.let { TypeExpression(it) } }
+  val tags: List<TypeExpression> by lazy { tagsText.map { TypeExpression(it) } }
+  val resourceType: TypeExpression? by lazy { resourceTypeText?.let { TypeExpression(it) } }
   val immediate: Instruction? by lazy {
-    val set = immediatePetaform.map { parse<Instruction>(it) }.toSet()
+    val set = immediateText.map { parse<Instruction>(it) }.toSet()
     when (set.size) {
       0 -> null
       1 -> set.iterator().next()
       else -> Instruction.multi(set.toList())
     }
   }
-  val actions by lazy { actionsPetaform.map { parse<Action>(it) }.toSet() }
-  val effects by lazy { effectsPetaform.map { parse<Effect>(it) }.toSet() }
-  val requirement: Predicate? by lazy { requirementPetaform?.let(PetaformParser::parse) }
+  val actions by lazy { actionsText.map { parse<Action>(it) }.toSet() }
+  val effects by lazy { effectsText.map { parse<Effect>(it) }.toSet() }
+  val requirement: Predicate? by lazy { requirementText?.let(PetaformParser::parse) }
 
   override val asComponentDefinition by lazy {
     val type = if (projectKind == null) "CardFront" else projectKind.type
@@ -169,14 +169,14 @@ data class CardDefinition(
         name = "Card$id",
         supertypesPetaform = setOf(type),
         immediatePetaform = immediate?.toString(), // TODO hack
-        actionsPetaform = actionsPetaform,
-        effectsPetaform = effectsPetaform)
+        actionsPetaform = actionsText,
+        effectsPetaform = effectsText)
   }
 
   private fun inactive(): Boolean {
-    return actionsPetaform.isEmpty() &&
-        effectsPetaform.all { it.startsWith("End:") } &&
-        resourceTypePetaform == null
+    return actionsText.isEmpty() &&
+        effectsText.all { it.startsWith("End:") } && // doing it low-tech ok?
+        resourceTypeText == null
   }
 
   /**
