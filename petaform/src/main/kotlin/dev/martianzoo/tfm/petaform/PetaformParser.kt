@@ -41,7 +41,6 @@ import dev.martianzoo.tfm.petaform.Instruction.Gated
 import dev.martianzoo.tfm.petaform.Instruction.Intensity.Companion.intensity
 import dev.martianzoo.tfm.petaform.Instruction.Remove
 import dev.martianzoo.tfm.petaform.Instruction.Transmute
-import dev.martianzoo.tfm.petaform.PetaformParser.QEs.scalar
 import dev.martianzoo.tfm.petaform.Predicate.Exact
 import dev.martianzoo.tfm.petaform.Predicate.Max
 import dev.martianzoo.tfm.petaform.Predicate.Min
@@ -122,7 +121,7 @@ object PetaformParser {
     }
     val qe = qeWithScalar or qeWithType
   }
-  val qe = QEs.qe
+  val qe = publish(QEs.qe)
 
   object Predicates {
     val anyPredicate: Parser<Predicate> = parser { predicate }
@@ -162,7 +161,7 @@ object PetaformParser {
         zeroOrMore(noFrom and skipChar(',')) and
         from and
         zeroOrMore(skipChar(',') and noFrom) map { (a, b, c) -> a + b + c }
-    val transmute = optional(scalar) and from and intensity map { (scal, fro, intens) ->
+    val transmute = optional(QEs.scalar) and from and intensity map { (scal, fro, intens) ->
       Transmute(fro, scal, intens)
     }
 
@@ -199,7 +198,7 @@ object PetaformParser {
       if (qe == null) cost else Cost.Per(cost, qe)
     }
     val orCost = separatedTerms(perCost or anyGroup, word("OR")) map Cost::or
-    val cost = commaSeparated(orCost or anyGroup) map Cost::and
+    val cost = publish(commaSeparated(orCost or anyGroup) map Cost::and)
 
     val action = publish(
         optional(cost) and skip(literal("->")) and instruction map { (c, i) ->
@@ -300,6 +299,7 @@ object PetaformParser {
       }
     }
   }
+  @Suppress("unused")
   val oneLineComponent = publish(Components.oneLineComponent)
 
   fun literal(l: String) = literalCache.get(l)

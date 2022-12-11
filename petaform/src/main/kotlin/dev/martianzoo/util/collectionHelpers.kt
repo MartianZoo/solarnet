@@ -1,12 +1,10 @@
 package dev.martianzoo.util
 
 import com.google.common.collect.ImmutableMultiset
-import com.google.common.collect.MultimapBuilder
-import com.google.common.collect.Multiset
 
 // should go in libutil but man, so many libs!
 
-fun Iterable<Any>.joinOrEmpty(sep: String = ", ", prefix: String = "", suffix: String = "") =
+fun Iterable<Any?>.joinOrEmpty(sep: String = ", ", prefix: String = "", suffix: String = "") =
     if (any()) joinToString(sep, prefix, suffix) else ""
 
 fun Iterable<Any>.joinOrEmpty(sep: String = ", ", surround: String): String {

@@ -21,15 +21,17 @@ abstract class RandomGenerator<B : Any>(val registry: Registry<B>, val scaling: 
 
     @Suppress("UNCHECKED_CAST")
     operator fun <N : B> get(type: KClass<N>) = map[type]!! as RandomGenerator<B>.() -> N
+
+    open fun <T : B> invoke(type: KClass<T>, gen: RandomGenerator<B>): T? = get(type).invoke(gen)
   }
 
   var depth: Int? = null
 
   inline fun <reified N : B> makeRandomNode() = makeRandomNode(N::class)
 
-  fun <N : B> makeRandomNode(type: KClass<N>): N {
+  open fun <N : B> makeRandomNode(type: KClass<N>): N {
     depth = 0
-    return recurse(type).also { depth = null  }
+    return recurse(type).also { depth = null }
   }
 
   inline fun <reified N : B> recurse() = recurse(N::class)
@@ -40,16 +42,10 @@ abstract class RandomGenerator<B : Any>(val registry: Registry<B>, val scaling: 
     //println("$depth ${type.simpleName}")
     if (depth!! > 32) error("")
     while (true) {
-      return try {
-        registry[type].invoke(this)
-      } catch (ignore: PetaformException) { // TODO
-        // println(ignore.message)
-        continue
-      }.also {
-        //println("$depth $it")
-        depth = depth!! - 1
-        require(depth == d)
-      }
+      val x = registry.invoke(type, this) ?: continue
+      depth = depth!! - 1
+      require(depth == d)
+      return x
     }
   }
 

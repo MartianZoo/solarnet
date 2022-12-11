@@ -3,9 +3,9 @@ package dev.martianzoo.tfm.petaform
 import com.google.common.truth.Truth.assertThat
 import org.junit.jupiter.api.Test
 
+// Most testing is done by AutoTest
 class TypeExpressionTest {
-  private fun testRoundTrip(petaform: String) =
-      assertThat(PetaformParser.parse<TypeExpression>(petaform).toString()).isEqualTo(petaform)
+  private fun testRoundTrip(petaform: String) = testRoundTrip<TypeExpression>(petaform)
 
   @Test
   fun simpleSourceToApi() {
