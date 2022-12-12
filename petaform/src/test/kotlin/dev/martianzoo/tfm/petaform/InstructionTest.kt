@@ -98,7 +98,7 @@ class InstructionTest {
   """.trimIndent()
 
   @Test fun testSampleStrings() {
-    inputs.split('\n').forEach { testRoundTrip<Instruction>(it) }
+    inputs.split('\n').forEach { testRoundTrip(it) }
   }
 
   @Test fun debug1() {
@@ -117,10 +117,10 @@ class InstructionTest {
   }
 
   @Test fun from() {
-    testRoundTrip<Instruction>("Foo FROM Bar")
-    testRoundTrip<Instruction>("Foo FROM Bar?")
-    testRoundTrip<Instruction>("3 Foo FROM Bar")
-    testRoundTrip<Instruction>("1 Foo FROM Bar.")
+    testRoundTrip("Foo FROM Bar")
+    testRoundTrip("Foo FROM Bar?")
+    testRoundTrip("3 Foo FROM Bar")
+    testRoundTrip("1 Foo FROM Bar.")
 
     assertThat(parse<Instruction>("1 Foo FROM Bar.")).isEqualTo(
         Transmute(
@@ -134,8 +134,8 @@ class InstructionTest {
     parse(from or noFrom, "Bar FROM Qux")
     parse(Instructions.fromIsBelow, "Foo<Bar FROM Qux>")
 
-    testRoundTrip<Instruction>("Foo<Bar FROM Qux>")
-    testRoundTrip<Instruction>("Foo<Bar FROM Qux>.")
+    testRoundTrip("Foo<Bar FROM Qux>")
+    testRoundTrip("Foo<Bar FROM Qux>.")
 
     val instr = Transmute(
         FromIsBelow("Foo", listOf(
@@ -155,6 +155,13 @@ class InstructionTest {
 
   @Test fun debug3() {
     val s = "1 Bar<Bar, Qux>, Foo, Foo, 5 Bar, Bar: Foo, Bar, Foo, Qux<Bar>, 5 Abc, 1 Abc, Xyz<Ooh>, Qux<Abc>, Bar<Bar>, Bar, Bar, 1 Qux, Foo, 1 Foo<Qux, Foo>, Abc, Bar<Bar>, 1 Foo<Qux>, 1 Qux<Xyz>, Foo, Abc, Bar<Bar>, Bar<Abc>, Bar<Foo>"
-    testRoundTrip<Instruction>(s)
+    testRoundTrip(s)
   }
+
+  @Test fun debug4() {
+    // Qux, Bar<Abc>, 5 Abc, -1 Foo, $name(Bar, Bar<Qux<Bar>(HAS 5 Xyz), Abc<Qux>>)
+    testRoundTrip("\$foo(Bar)")
+  }
+
+  fun testRoundTrip(start: String, end: String = start) = testRoundTrip<Instruction>(start, end)
 }

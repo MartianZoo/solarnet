@@ -8,9 +8,7 @@
       "deck": "CORPORATION",
       "tags": [ "PlantTag" ],
       "immediate": [ "PROD[2 Plant], 36, 3 Plant" ],
-      "effects": [
-        "Purchase<UseAction<ConvertPlants>>:: -Owed<Plant>",
-      ],
+      "effects": [ "Purchase<UseAction<ConvertPlants>>:: -Owed<Plant>" ],
     },
 
     // Helion
@@ -56,9 +54,7 @@
       "deck": "CORPORATION",
       "tags": [ "SpaceTag" ],
       "immediate": [ "23, 10 Titanium" ],
-      "effects": [
-        "Pay<Titanium>: Pay<Megacredit>",
-      ],
+      "effects": [ "Pay<Titanium>: Pay<Megacredit>" ],
     },
 
     // Tharsis Republic
@@ -83,8 +79,8 @@
       "tags": [ "PowerTag" ],
       "immediate": [ "PROD[Energy], 48" ],
       "effects": [
-          "Purchase<PowerTag>:: -3 Owed",
-          "Purchase<UseAction<PowerPlant>>:: -3 Owed",
+        "Purchase<PowerTag>:: -3 Owed",
+        "Purchase<UseAction<PowerPlant>>:: -3 Owed",
       ],
     },
 
@@ -164,9 +160,7 @@
       "deck": "CORPORATION",
       "tags": [ "BuildingTag" ],
       "immediate": [ "PROD[Steel], 35" ],
-      "effects": [
-        "PROD[StandardResource]: StandardResource",
-      ],
+      "effects": [ "PROD[StandardResource]: StandardResource" ],
     },
 
     // Morning Star Inc.[F]
@@ -238,8 +232,8 @@
       "tags": [ "MicrobeTag", "MicrobeTag" ],
       "immediate": [ "54, ProjectCard" ],
       "effects": [
-          "MicrobeTag<Anyone>: Disease<This>, -4.",
-          "ScienceTag: TerraformRating FROM Disease OR (MAX 0 Disease: ((PlayedEvent FROM This, 3 TerraformRating) OR Ok))"
+        "MicrobeTag<Anyone>: Disease<This>, -4.",
+        "ScienceTag: TerraformRating FROM Disease OR (MAX 0 Disease: ((PlayedEvent FROM This, 3 TerraformRating) OR Ok))"
       ],
       "resourceType": "Disease",
       "components": [ "class Disease : CardResource" ],
@@ -1730,7 +1724,7 @@
       "deck": "PROJECT",
       "tags": [ "ScienceTag" ],
       "effects": [
-        "Purchase<CardFront>:: -2 Required<GlobalParameter>.",
+        "Purchase<CardFront>:: -2 Required<GlobalParameter>",
         "End: VictoryPoint",
       ],
       "cost": 12,
@@ -2051,9 +2045,7 @@
       "bundle": "B",
       "deck": "PROJECT",
       "immediate": [ "OceanTile OR (OceanTile<WaterArea(HAS Neighbor<OwnedTile<Player>>)>, -4 Megacredit<Player>?)" ],
-      "effects": [
-        "End: -VictoryPoint",
-      ],
+      "effects": [ "End: -VictoryPoint" ],
       "cost": 7,
       "projectKind": "EVENT",
     },
@@ -2166,7 +2158,7 @@
       "deck": "PROJECT",
       "tags": [ "ScienceTag" ],
       "immediate": [ "Card206Effect" ],
-      "components": [ "class Card206Effect : NextCardEffect { Purchase<CardFront>:: -2 Required<GlobalParameter>. }" ],
+      "components": [ "class Card206Effect : NextCardEffect { Purchase<CardFront>:: -2 Required<GlobalParameter> }" ],
       "cost": 4,
       "projectKind": "EVENT",
     },
@@ -2476,9 +2468,7 @@
       "deck": "PROJECT",
       "tags": [ "BuildingTag" ],
       "immediate": [ "PROD[-Energy, 4], CommercialDistrictTile" ],
-      "effects": [
-        "End: VictoryPoint / Adjacency(HAS CommercialDistrictTile, CityTile<Anyone>)",
-      ],
+      "effects": [ "End: VictoryPoint / Adjacency(HAS CommercialDistrictTile, CityTile<Anyone>)" ],
       "components": [ "class CommercialDistrictTile : SpecialTile { This IF 2 CommercialDistrictTile: Die }" ],
       "cost": 16,
       "projectKind": "AUTOMATED",
@@ -2854,9 +2844,7 @@
       "bundle": "R",
       "deck": "PROJECT",
       "immediate": [ "Card195Effect" ],
-      "effects": [
-        "End: -VictoryPoint",
-      ],
+      "effects": [ "End: -VictoryPoint" ],
       "components": [ "class Card195Effect : NextCardEffect { Purchase<CardFront>:: -8 Owed }" ],
       "cost": 0,
       "projectKind": "EVENT",
@@ -3146,11 +3134,9 @@
       "bundle": "V",
       "deck": "PROJECT",
       "tags": [ "VenusTag" ],
-      "actions": [
-        "-> Floater",
-      ],
+      "actions": [ "-> Floater" ],
       "effects": [
-        "Purchase<Card(HAS VenusTag)>: Accept<Floater<This>>",
+        "Purchase<VenusTag>: Accept<Floater<This>>",
         "Pay<Floater<This>>: -3 Owed",
       ],
       "resourceType": "Floater",
@@ -3477,9 +3463,7 @@
       "deck": "PROJECT",
       "tags": [ "ScienceTag", "EarthTag" ],
       "immediate": [ "-ProjectCard THEN 3 ProjectCard" ],
-      "effects": [
-        "End: VictoryPoint",
-      ],
+      "effects": [ "End: VictoryPoint" ],
       "cost": 9,
       "projectKind": "AUTOMATED",
     },
@@ -3900,8 +3884,8 @@
       "tags": [ "ScienceTag", "JovianTag" ],
       "immediate": [ "2 ProjectCard" ],
       "actions": [
-	"-> Floater<This>",
-	"Floater<This> -> ProjectCard"
+        "-> Floater<This>",
+        "Floater<This> -> ProjectCard"
       ],
       "effects": [ "End: 2 VictoryPoint" ],
       "resourceType": "Floater",
@@ -3969,12 +3953,10 @@
       "deck": "PROJECT",
       "tags": [ "JovianTag" ],
       "actions": [
-	"Titanium -> 2 Floater<This>",
-	"2 Floater<This> -> TerraformRating"
+        "Titanium -> 2 Floater<This>",
+        "2 Floater<This> -> TerraformRating"
       ],
-      "effects": [
-        "End: 2 VictoryPoint"
-      ],
+      "effects": [ "End: 2 VictoryPoint" ],
       "resourceType": "Floater",
       "cost": 21,
       "projectKind": "ACTIVE",
@@ -4060,9 +4042,7 @@
       "bundle": "X",
       "deck": "PROJECT",
       "tags": [ "SpaceTag" ],
-      "effects": [
-        "Pay<Titanium>: Pay<Megacredit>",
-      ],
+      "effects": [ "Pay<Titanium>: Pay<Megacredit>" ],
       "cost": 3,
       "projectKind": "ACTIVE",
     },

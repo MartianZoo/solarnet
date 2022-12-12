@@ -2,7 +2,8 @@
 abstract class GameOption {
     count 0..1
 
-    abstract class Map {
+    abstract class MarsMap {
+        NOW 2 MarsMap:: Die
         // This:: $createAreaAdjacencies(This)
 
         class Tharsis, Hellas, Elysium

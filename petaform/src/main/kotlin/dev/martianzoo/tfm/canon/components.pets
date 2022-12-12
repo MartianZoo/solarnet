@@ -58,6 +58,10 @@ abstract class Area {
     }
 }
 
+class Row<MarsArea> {
+    count 0..*                                         // really the min is 1, but we don't need it to be autocreated...
+}
+
 abstract class Tile<Area> {
     count 0..1                                         // insufficient; see Area effect
 
@@ -146,6 +150,7 @@ abstract class Owned<Anyone> {                         // TODO default *Owned<Me
         This:: (CardFront: Ok)                         // i.e., the card must actually be in play
         -CardFront:: -This                             // on becoming a PlayedEvent
 
+        // TODO .. but.. these have to exist as soon as the card does, for triggers....
         abstract class Tag {
          // Purchase<CardFront>:: Purchase<This>       // VERY VERY IFFY
          // CardFront:: This                           // VERY VERY IFFY
@@ -174,6 +179,12 @@ abstract class Owned<Anyone> {                         // TODO default *Owned<Me
         class ActionUsed : Generational {
             count 0..1
         }
+
+        // WildTag?
+
+        // got some paradoxes here too... this can't be created until after the card is,
+        // and triggers would have already fired
+        class Cost { count 0..* }
     }
 
     class TagType                                      // No idea yet how this will actually work

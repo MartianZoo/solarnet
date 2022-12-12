@@ -78,7 +78,7 @@ class PetaformGenerator(scaling: (Int) -> Double)
           1 to Then::class,
           3 to Instruction.Or::class,
           5 to Multi::class,
-          0 to Custom::class,
+          1 to Custom::class,
       ))
       register<Instruction> { recurse(choose(instructionTypes)) }
       register { Gain(recurse(), intensity()) }

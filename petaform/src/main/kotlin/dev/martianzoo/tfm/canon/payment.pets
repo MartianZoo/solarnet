@@ -7,7 +7,9 @@ class Purchase<Component> { // TODO but this would need to be a barrier too
     NOW MAX 0 Barrier: Component, -This
 }
 
-class Required<Component> : Barrier
+class Required<Component> : Barrier {
+    default -Required.
+}
 
 class Owed<Resource> : Barrier {
    default -Owed.

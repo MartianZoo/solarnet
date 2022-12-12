@@ -14,9 +14,9 @@
     // Diversifier
     { "id": "HM1", "bundle": "H", "requirement": "8 TagType" },
     // Tactician
-    // { "id": "HM2", "bundle": "H", "requirement": "5 CardFront(HAS requirement)" },
+    { "id": "HM2", "bundle": "H", "requirement": "5 CardFront(HAS Requirement)" },
     // Polar Explorer
-    // { "id": "HM3", "bundle": "H", "requirement": "3 OwnedTile<MarsArea(HAS 8 row)>" },
+    { "id": "HM3", "bundle": "H", "requirement": "3 OwnedTile<MarsArea(HAS 8 Row)>" },
     // Energizer
     { "id": "HM4", "bundle": "H", "requirement": "PROD[6 Energy]" },
     // Rim Settler
@@ -24,7 +24,7 @@
 
     // Generalist
     { "id": "EM1", "bundle": "E", "requirement": "PROD[7, 2 Steel, 2 Titanium, 2 Plant, 2 Energy, 2 Heat]" },
-    // Specialist
+    // Specialist - TODO can we use `!Megacredit` somehow?
     { "id": "EM2", "bundle": "E", "requirement": "PROD[15 OR 10 Steel OR 10 Titanium OR 10 Plant OR 10 Energy OR 10 Heat]" },
     // Ecologist
     { "id": "EM3", "bundle": "E", "requirement": "4 BioTag" },

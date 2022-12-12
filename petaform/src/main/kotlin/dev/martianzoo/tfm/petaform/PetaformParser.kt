@@ -32,6 +32,7 @@ import dev.martianzoo.tfm.petaform.Effect.Trigger.Conditional
 import dev.martianzoo.tfm.petaform.Effect.Trigger.Now
 import dev.martianzoo.tfm.petaform.Effect.Trigger.OnGain
 import dev.martianzoo.tfm.petaform.Effect.Trigger.OnRemove
+import dev.martianzoo.tfm.petaform.Instruction.Custom
 import dev.martianzoo.tfm.petaform.Instruction.FromExpression
 import dev.martianzoo.tfm.petaform.Instruction.FromIsBelow
 import dev.martianzoo.tfm.petaform.Instruction.FromIsNowhere
@@ -172,12 +173,10 @@ object PetaformParser {
     }
 
     val maybeProd = maybePer or (prodBox(anyInstr) map Instruction::Prod)
-    //val custom = regex("\$[a-z][a-zA-Z0-9]*\\b") and parens(commaSeparated(typeExpression)) map {
-    //  (name, args) -> Custom(name.text, args)
-    //}
-    //val atom = anyGroup or maybeProd or custom
-
-    val atom = anyGroup or maybeProd
+    val custom = regex("\\$[a-z][a-zA-Z0-9]*\\b") and parens(commaSeparated(typeExpression)) map {
+      (name, args) -> Custom(name.text.substring(1), args)
+    }
+    val atom = anyGroup or maybeProd or custom
 
     val gated = optional(Predicates.atom and skipChar(':')) and atom map { (one, two) ->
       if (one == null) two else Gated(one, two)
