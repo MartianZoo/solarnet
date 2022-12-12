@@ -5,6 +5,8 @@ import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import dev.martianzoo.tfm.petaform.Component
 import dev.martianzoo.tfm.petaform.PetaformParser.parse
 import dev.martianzoo.util.Grid
+import dev.martianzoo.util.associateByCareful
+import dev.martianzoo.util.toSetCareful
 import java.util.*
 import kotlin.text.RegexOption.DOT_MATCHES_ALL
 
@@ -13,7 +15,7 @@ internal object JsonReader {
   internal fun readCards(json5: String) = MOSHI_CARD.fromJson(json5ToJson(json5))!!.toMap()
 
   internal data class CardList(val cards: List<CardDefinition>) {
-    fun toMap() = cards.associateBy { it.id }.also { require(it.size == cards.size) }
+    fun toMap() = cards.associateByCareful { it.id }
   }
 
   // Maps
@@ -78,11 +80,11 @@ internal object JsonReader {
         .map { ComponentDefinition(
             it.expression.className,
             it.abstract,
-            it.supertypes.map(Any::toString).toSet(),
+            it.supertypes.map(Any::toString).toSetCareful(),
             it.expression.specializations.map(Any::toString),
             null,
-            it.actions.map(Any::toString).toSet(),
-            it.effects.map(Any::toString).toSet(),
+            it.actions.map(Any::toString).toSetCareful(),
+            it.effects.map(Any::toString).toSetCareful(),
           )
         }
         .associateBy { it.name }
@@ -90,9 +92,7 @@ internal object JsonReader {
   // You wouldn't normally use this, but have only a single map in play.
   fun combine(vararg defs: Collection<Definition>): Map<String, ComponentDefinition> {
     val allDefns: List<Definition> = defs.flatMap { it }
-    return allDefns.map { it.asComponentDefinition }.associateBy { it.name }.also {
-      require(it.size == allDefns.size)
-    }
+    return allDefns.map { it.asComponentDefinition }.associateByCareful { it.name }
   }
 
   // Stuff

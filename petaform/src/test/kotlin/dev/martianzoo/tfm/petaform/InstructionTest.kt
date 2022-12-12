@@ -42,13 +42,13 @@ class InstructionTest {
     Abc, Foo, Qux, -Qux, -Foo
     -5 Wau(HAS =1 OR (1, Abc))
     1, -Abc., -Bar?, -Bar / Abc
-    1 Qux FROM Qux!, 1, Abc<Foo>
+    1 Qux FROM Abc!, 1, Abc<Foo>
     Qux<Abc FROM Ooh>, -1 / 1 Ahh
     (1 Wau OR 5 Foo, (1, 1)): Ahh!
     -11 Foo / 11 Foo(HAS MAX 1 Bar)
     -Abc / Abc OR Abc OR Xyz / 1 Qux
     1 Qux OR -Ooh / Qux OR (Qux: Foo)
-    5, -Ooh, 1 Foo FROM Foo, Eep<Xyz>.
+    5, -Ooh, 1 Foo FROM Ooh, Eep<Xyz>.
     -Abc, 5, -Xyz, (5 Bar, Ahh, Qux): 1
     11! / 1 Qux<Eep<Wau>, Wau<Ahh<Qux>>>
     Xyz, Bar, Qux, 5 Bar., -Abc<Xyz<Foo>>
@@ -70,24 +70,24 @@ class InstructionTest {
     (-1 Xyz, Qux / Ooh, Xyz, Ooh<Xyz, Ooh> FROM Foo) OR 5
     Abc<Abc, Qux>., 1 Ooh<Bar, Qux>, 11 Qux FROM Xyz, -Ahh
     (-Foo, 1 Foo, -5) OR -1, -Abc / Bar, Bar, -1 Foo, 1 Abc
-    =5 Foo: ((5 Qux / 11 Bar<Bar>, -Ooh) OR 11 Qux FROM Ahh)
+    =5 Foo: ((5 Qux / 11 Bar<Bar>, -1) OR (11 Qux FROM Ahh))
     Ahh / Xyz<Abc, Ahh> OR (-1 Bar OR 1 OR (Foo: 5 Bar), Foo)
     (5 OR 5 Xyz OR MAX 1 Xyz<Abc> OR (Bar, Foo)): -1 Ooh / Abc
     Ahh / 1 Eep, 5 OR -Abc, 1, 11, -Qux?, (MAX 0, Foo, =5): Abc
     (1 Eep<Bar>, Foo. THEN Bar) OR (MAX 0 Qux: Foo) OR -Qux<Foo>
-    1 Bar? OR Xyz FROM Eep, Foo(HAS MAX 1 Bar), 1 / 5 Qux, -1 Foo
+    1 Bar? OR (Xyz FROM Eep!), Foo(HAS 11 Bar), 1 / 5 Qux, -1 Foo
     Qux, 5 Xyz / 5 Qux, 5 OR Xyz, -1, 1, Qux, 1 Wau<Foo<Bar, Foo>>
     5. THEN 1 Foo / 1 Foo THEN (5 Bar FROM Qux, 1., Bar / Qux, Ahh)
     5 Foo<Wau<Foo<Ooh<Xyz>>> FROM Ahh<Ahh, Ooh>(HAS MAX 0 Foo), Ahh>
     Xyz<Bar, Ooh, Bar<Bar, Bar>> / Eep, 5 Wau<Ahh, Ooh, Abc FROM Qux>
     -Bar<Foo> OR 5, -Foo, 1 Qux FROM Eep, 11 Xyz., (1, Abc / Abc) OR 1
-    Xyz OR Foo<Foo>, 1 / Qux, 1 Abc FROM Bar OR -1 / Xyz, 5, Qux, 1 Bar
+    Xyz OR Foo<Foo>, 1 / Qux, (Abc FROM Bar) OR -1 / Xyz, 5, Qux, 1 Bar
     -5., 11 Ooh., 1 Xyz, Qux FROM Ooh, Abc / Bar, -Abc OR Xyz OR -11 Abc
     Bar OR (Foo / Foo, Qux, Ooh) OR (Foo: -11 Ahh, 1 Xyz, Foo / Qux, Xyz)
     Abc<Ahh, Abc<Qux<Qux>>, Xyz(HAS Abc OR (Foo OR (Foo, MAX 0)))>(HAS 1)!
     Qux, -1, Foo, -5 Foo<Ahh>, -Xyz, Abc, 5 OR -Bar, -Bar OR Foo, -Bar<Bar>
     1 Qux<Qux>, 11 Bar., 5, -1 Xyz?, -Qux / Bar, -Ooh OR Foo, -11 Xyz!, -Bar
-    -5 Eep<Qux>, (-1 THEN 1!) OR 5, 5 Eep<Ooh>, Eep OR Ahh FROM Qux OR -5 Ooh
+    5 Eep, (1 THEN Foo) OR 5 Bar, 5 Eep<Ooh>, Eep OR (Ahh FROM Qux) OR -5 Ooh
     5 Eep<Eep>, Abc, Bar, Qux, 5 Bar<Eep, Qux>, 5 Eep<Qux<Bar, Bar<Foo>, Bar>>
     11 Foo FROM Ooh? / Bar, -Foo!, 11 Ooh<Bar, Eep<Bar<Bar> FROM Abc>>, -11 Abc
     Qux!, Qux<Foo<Qux>>., 1 Bar, 1 Bar<Foo, Ooh FROM Bar>, -Bar, 5 Bar, Xyz, Ahh
@@ -98,7 +98,8 @@ class InstructionTest {
   """.trimIndent()
 
   @Test fun testSampleStrings() {
-    inputs.split('\n').forEach { testRoundTrip(it) }
+    val pass = testSampleStrings<Instruction>(inputs)
+    assertThat(pass).isTrue()
   }
 
   @Test fun debug1() {

@@ -1,5 +1,6 @@
 package dev.martianzoo.tfm.petaform
 
+import com.google.common.truth.Truth
 import org.junit.jupiter.api.Test
 
 // Most testing is done by AutomatedTest
@@ -26,7 +27,7 @@ class ActionTest {
     Eep -> -1, -1 Ooh
     5 Eep<Eep> -> Eep!
     Ooh OR Foo -> 1 Foo
-    1 -> 11 Ooh FROM Ooh
+    1 -> 11 Ooh FROM Ahh
     11 -> -1 Eep(HAS Foo)
     Wau -> 1 Xyz<Ooh, Qux>
     5 Abc -> -Qux<Ooh<Qux>>
@@ -53,10 +54,10 @@ class ActionTest {
     Xyz<Abc, Qux>, Xyz, Bar, Xyz / Ahh -> -1 Wau
     PROD[Ooh<Bar>] -> (Ahh, MAX 0: 1) OR Bar OR 1
     1 Ooh OR 1 Foo<Foo<Bar>> -> Foo<Abc, Ahh<Bar>>
-    PROD[5 Qux OR (Bar, Bar)] -> 11 OR Foo FROM Xyz
+    PROD[5 Qux OR (Bar, 1)] -> 11 OR (Foo FROM Xyz)
     PROD[Bar / Qux<Qux>, 1 Foo] -> -1 Foo<Ahh<Abc>>?
     PROD[1 Foo] / 5 Xyz -> 5 Eep<Foo<Abc>, Qux<Foo>>!
-    Xyz -> 11 Bar FROM Qux, -Bar, 5?, -Bar OR -Bar, 11
+    Xyz -> 11 Bar FROM Qux, -Bar, 5?, -Bar! OR Bar, 11
     1 Ooh, (1 / Foo, 1 Ooh) OR (1, Foo<Foo>) -> -11 Foo
     5 Bar, Qux, Bar OR 1 Abc OR Qux -> -11 Ooh OR 5 Eep.
     PROD[1 Eep<Abc>] -> =0: ((-5 OR Qux) THEN 1 Foo<Foo>)
@@ -77,7 +78,7 @@ class ActionTest {
     11 Xyz<Xyz<Bar, Abc>> -> 5 Bar<Xyz> / 5 Bar OR -1 Bar<Ooh> OR 11 Bar
     11 -> -Abc / Abc, Bar. OR -Bar<Abc>, Xyz FROM Bar / Xyz, -Qux / 5 Xyz
     -> -11 Foo<Qux<Bar>> / Ooh<Eep, Foo<Eep<Ooh>, Bar<Bar, Foo>>>(HAS Foo)
-    Ooh / 1 Ooh -> (5, Foo): Bar, Foo FROM Foo / Foo, Qux., 5 Abc THEN -Qux
+    Ooh / 1 Ooh -> (5, Foo): Bar, Foo FROM Xyz / Foo, Qux., 5 Abc THEN -Qux
     PROD[Abc<Eep>] -> -1 OR -5 Bar OR -Abc, Ahh OR Foo OR ((Abc, Foo): -Xyz)
     11 Ooh<Bar> -> Abc, 1, Xyz<Qux FROM Foo>, Qux / Qux, 1 Foo, -5 Bar, 1 Eep
     Ooh OR Xyz OR (5 OR Abc OR Bar, 1, 1 Foo, 5 Qux) OR PROD[Ahh] -> 1 / 1 Foo
@@ -90,6 +91,7 @@ class ActionTest {
   """.trimIndent()
 
   @Test fun testSampleStrings() {
-    inputs.split('\n').forEach { testRoundTrip<Action>(it) }
+    val pass = testSampleStrings<Action>(inputs)
+    Truth.assertThat(pass).isTrue()
   }
 }

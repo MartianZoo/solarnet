@@ -1,6 +1,7 @@
 package dev.martianzoo.tfm.petaform
 
 import dev.martianzoo.util.joinOrEmpty
+import dev.martianzoo.util.toSetCarefulP
 
 sealed class Instruction : PetaformNode() {
   data class Gain(val qe: QuantifiedExpression, val intensity: Intensity? = null) : Instruction() {
@@ -11,7 +12,7 @@ sealed class Instruction : PetaformNode() {
     }
 
     override fun toString() = "${qe}${intensity?.petaform ?: ""}"
-    override val children = listOf(qe)
+    override val children = setOf(qe)
   }
 
   data class Remove(val qe: QuantifiedExpression, val intensity: Intensity? = null) : Instruction() {
@@ -22,7 +23,7 @@ sealed class Instruction : PetaformNode() {
     }
 
     override fun toString() = "-${qe}${intensity?.petaform ?: ""}"
-    override val children = listOf(qe)
+    override val children = setOf(qe)
   }
 
   sealed class FromExpression : PetaformNode()
@@ -43,17 +44,22 @@ sealed class Instruction : PetaformNode() {
         className +
         specializations.joinOrEmpty(surround = "<>") +
         (predicate?.let { "(HAS $it)" } ?: "")
-    override val children = specializations + listOfNotNull(predicate)
+    override val children = specializations + setOfNotNull(predicate)
   }
 
   data class FromIsRightHere(val to: TypeExpression, val from: TypeExpression) : FromExpression() {
+    init {
+      if (to == from) {
+        throw PetaformException("to and from are the same: $to")
+      }
+    }
     override fun toString() = "$to FROM $from"
-    override val children = listOf(to, from)
+    override val children = setOf(to, from)
   }
 
   data class FromIsNowhere(val type: TypeExpression) : FromExpression() {
     override fun toString() = "$type"
-    override val children = listOf(type)
+    override val children = setOf(type)
   }
 
   data class Transmute(
@@ -69,7 +75,15 @@ sealed class Instruction : PetaformNode() {
       val scal = if (scalar != null) "$scalar " else ""
       return "$scal$trans$intens"
     }
-    override val children = listOf(trans)
+    override val children = setOf(trans)
+    override fun parenthesizeThisWhenInside(container: PetaformNode): Boolean {
+      if (trans is FromIsRightHere && container is Or) {
+        return true // not technically necessary, but helpful
+      }
+      return super.parenthesizeThisWhenInside(container)
+    }
+
+    override fun precedence() = if (trans is FromIsRightHere) 7 else 10
   }
 
   data class Per(val instruction: Instruction, val qe: QuantifiedExpression): Instruction() {
@@ -82,8 +96,8 @@ sealed class Instruction : PetaformNode() {
       }
     }
     override fun toString() = "$instruction / $qe"
-    override fun precedence() = 5
-    override val children = listOf(instruction, qe)
+    override fun precedence() = 8
+    override val children = setOf(instruction, qe)
   }
 
   data class Gated(val predicate: Predicate, val instruction: Instruction): Instruction() {
@@ -93,29 +107,29 @@ sealed class Instruction : PetaformNode() {
       }
     }
     override fun toString(): String {
-      return "${predicate.toStringWithin(this)}: ${instruction.toStringWithin(this)}"
+      return "${predicate.toStringWhenInside(this)}: ${instruction.toStringWhenInside(this)}"
     }
 
     // let's over-group for clarity
-    override fun groupWithin(container: PetaformNode) =
-        container is Or || super.groupWithin(container)
+    override fun parenthesizeThisWhenInside(container: PetaformNode) =
+        container is Or || super.parenthesizeThisWhenInside(container)
 
-    override fun precedence() = 4
-    override val children = listOf(predicate, instruction)
+    override fun precedence() = 6
+    override val children = setOf(predicate, instruction)
   }
 
-  data class Or(val instructions: List<Instruction>) : Instruction() {
+  data class Or(val instructions: Set<Instruction>) : Instruction() {
     init {
       if (instructions.any { it is Or })
         throw PetaformException("Should have used Instruction.or()")
     }
     override fun toString() = instructions.joinToString(" OR ") {
-      it.toStringWithin(this)
+      it.toStringWhenInside(this)
     }
-    override fun groupWithin(container: PetaformNode): Boolean {
-      return container is Then || super.groupWithin(container)
+    override fun parenthesizeThisWhenInside(container: PetaformNode): Boolean {
+      return container is Then || super.parenthesizeThisWhenInside(container)
     }
-    override fun precedence() = 3
+    override fun precedence() = 4
     override val children = instructions
   }
 
@@ -125,7 +139,7 @@ sealed class Instruction : PetaformNode() {
         throw PetaformException()
     }
     override fun toString() = instructions.joinToString (" THEN ") {
-      it.toStringWithin(this)
+      it.toStringWhenInside(this)
     }
     override fun precedence() = 2
     override val children = instructions
@@ -138,15 +152,15 @@ sealed class Instruction : PetaformNode() {
       }
     }
     override fun toString() = instructions.joinToString {
-      it.toStringWithin(this)
+      it.toStringWhenInside(this)
     }
-    override fun precedence() = 1
+    override fun precedence() = 0
     override val children = instructions
   }
 
   data class Prod(val instruction: Instruction) : Instruction() {
     override fun toString() = "PROD[$instruction]"
-    override val children = listOf(instruction)
+    override val children = setOf(instruction)
     override fun countProds() = super.countProds() + 1
   }
 
@@ -190,14 +204,13 @@ sealed class Instruction : PetaformNode() {
           })
         }
 
+    fun or(instructions: List<Instruction>) = or(instructions.toSetCarefulP())
     fun or(vararg instructions: Instruction) = or(instructions.toList())
-    fun or(instructions: List<Instruction>) =
+    fun or(instructions: Set<Instruction>) =
         if (instructions.size == 1) {
-          instructions[0]
+          instructions.first()
         } else {
-          Or(instructions.flatMap {
-            if (it is Or) it.instructions else listOf(it)
-          })
+          Or(instructions.flatMap { if (it is Or) it.instructions else setOf(it) }.toSetCarefulP())
         }
   }
 }

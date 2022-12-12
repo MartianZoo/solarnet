@@ -166,7 +166,7 @@ object PetaformParser {
       Transmute(fro, scal, intens)
     }
 
-    val perable = transmute or gain or remove
+    val perable = transmute or parens(transmute) or gain or remove
 
     val maybePer = perable and optional(skipChar('/') and QEs.qeWithType) map { (instr, qe) ->
       if (qe == null) instr else Instruction.Per(instr, qe)

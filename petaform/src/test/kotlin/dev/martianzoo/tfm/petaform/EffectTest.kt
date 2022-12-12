@@ -55,7 +55,7 @@ class EffectTest {
     -Bar IF MAX 1 OR Foo: 1 Eep?, -11 Abc
     Xyz(HAS (1 OR Bar) OR =0 Foo): 1., Foo
     PROD[-Qux]: 5 Bar FROM Ooh, -1 Xyz, -11
-    NOW Bar OR (Foo OR Foo), MAX 11: -11 Qux
+    NOW Bar OR (Qux OR Foo), MAX 11: -11 Qux
     PROD[Bar<Abc, Wau>]: (5 Xyz: 5 Bar / Abc)
     PROD[-Eep]: (Abc: (1 OR (1 OR -Abc, Foo)))
     NOW Abc: -5 Qux, Foo / Abc, Qux OR Abc, Qux
@@ -68,7 +68,7 @@ class EffectTest {
     -Foo IF (Qux OR 5) OR 1 Foo<Abc, Abc>: 11 Ooh<Bar>
     PROD[-Bar]: Ooh<Qux<Wau FROM Bar(HAS 1 Foo<Foo>)>>!
     PROD[-Qux]: 11 Bar FROM Eep(HAS =0 Foo<Foo> OR Foo)?
-    NOW Qux OR Foo, MAX 1 OR MAX 1: 5 Foo, 5 Ooh FROM Foo
+    NOW Qux OR Foo, MAX 1 OR 5 Eep: 5 Foo, 5 Ooh FROM Foo
     NOW Abc OR 1: Abc, (Ahh: 1) OR Bar / Foo, MAX 1: 1 Xyz
     PROD[Abc]: 5: Bar THEN 1 Qux!, Foo<Bar> / Eep<Bar<Qux>>
     Foo<Wau<Xyz>>: 1 Xyz: 1 Bar, 5: (Qux<Foo> FROM Ooh, Bar)
@@ -99,7 +99,8 @@ class EffectTest {
   """.trimIndent()
 
   @Test fun testSampleStrings() {
-    inputs.split('\n').forEach { testRoundTrip<Effect>(it) }
+    val pass = testSampleStrings<Effect>(inputs)
+    assertThat(pass).isTrue()
   }
 
   @Test fun apiCreation() {

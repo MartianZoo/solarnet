@@ -1,8 +1,10 @@
 package dev.martianzoo.tfm.petaform
 
+import dev.martianzoo.util.toSetCarefulP
+
 data class Action(val cost: Cost?, val instruction: Instruction) : PetaformNode() {
   override fun toString() = (cost?.let { "${cost} -> " } ?: "-> ") + instruction
-  override val children = listOfNotNull(cost) + instruction
+  override val children = setOfNotNull(cost) + instruction
 
   sealed class Cost : PetaformNode() {
     data class Spend(val qe: QuantifiedExpression) : Cost() {
@@ -12,7 +14,7 @@ data class Action(val cost: Cost?, val instruction: Instruction) : PetaformNode(
           throw PetaformException("Cannot spend zero (omit the cost instead)")
       }
       override fun toString() = qe.toString()
-      override val children = listOf(qe)
+      override val children = setOf(qe)
     }
 
     // can't do non-prod per prod yet
@@ -31,13 +33,13 @@ data class Action(val cost: Cost?, val instruction: Instruction) : PetaformNode(
       }
       override fun toString() = "$cost / $qe" // parens
       override fun precedence() = 5
-      override val children = listOf(cost, qe)
+      override val children = setOf(cost, qe)
     }
 
-    data class Or(var costs: List<Cost>) : Cost() {
+    data class Or(var costs: Set<Cost>) : Cost() {
       init { require(costs.size >= 2) }
       override fun toString() = costs.joinToString(" OR ") {
-        it.toStringWithin(this)
+        it.toStringWhenInside(this)
       }
       override fun precedence() = 3
       override val children = costs
@@ -46,7 +48,7 @@ data class Action(val cost: Cost?, val instruction: Instruction) : PetaformNode(
     data class Multi(var costs: List<Cost>) : Cost() {
       init { require(costs.size >= 2) }
       override fun toString() = costs.joinToString() {
-        it.toStringWithin(this)
+        it.toStringWhenInside(this)
       }
       override fun precedence() = 1
       override val children = costs
@@ -54,31 +56,24 @@ data class Action(val cost: Cost?, val instruction: Instruction) : PetaformNode(
 
     data class Prod(val cost: Cost) : Cost() {
       override fun toString() = "PROD[${cost}]"
-      override val children = listOf(cost)
+      override val children = setOf(cost)
       override fun countProds() = super.countProds() + 1
     }
 
     companion object {
       fun and(vararg costs: Cost) = and(costs.toList())
       fun and(costs: List<Cost>): Cost = if (costs.size == 1) {
-        costs[0]
+        costs.first()
       } else {
-        Multi(
-            costs.flatMap {
-              if (it is Multi) it.costs else listOf(it)
-            }
-        )
+        Multi(costs.flatMap { if (it is Multi) it.costs else listOf(it) })
       }
 
-      fun or(vararg costs: Cost) = or(costs.toList())
-      fun or(costs: List<Cost>) = if (costs.size == 1) {
-        costs[0]
+      fun or(costs: List<Cost>): Cost = or(costs.toSetCarefulP())
+      fun or(vararg costs: Cost): Cost = or(costs.toList())
+      fun or(costs: Set<Cost>) = if (costs.size == 1) {
+        costs.first()
       } else {
-        Or(
-            costs.flatMap {
-              if (it is Or) it.costs else listOf(it)
-            }
-        )
+        Or(costs.flatMap { if (it is Or) it.costs else setOf(it) }.toSetCarefulP())
       }
     }
   }

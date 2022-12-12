@@ -233,7 +233,7 @@
       "immediate": [ "54, ProjectCard" ],
       "effects": [
         "MicrobeTag<Anyone>: Disease<This>, -4.",
-        "ScienceTag: TerraformRating FROM Disease OR (MAX 0 Disease: ((PlayedEvent FROM This, 3 TerraformRating) OR Ok))"
+        "ScienceTag: (TerraformRating FROM Disease) OR (MAX 0 Disease: ((PlayedEvent FROM This, 3 TerraformRating) OR Ok))"
       ],
       "resourceType": "Disease",
       "components": [ "class Disease : CardResource" ],
@@ -2838,7 +2838,7 @@
       "deck": "PROJECT",
       "tags": [ "ScienceTag", "EarthTag", "BuildingTag" ],
       "effects": [
-        "ScienceTag: Science<This> OR ProjectCard FROM Science<This>",
+        "ScienceTag: Science<This> OR (ProjectCard FROM Science<This>)",
         "End: VictoryPoint",
       ],
       "resourceType": "Science",

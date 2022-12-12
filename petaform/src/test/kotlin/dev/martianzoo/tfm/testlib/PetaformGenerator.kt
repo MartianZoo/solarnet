@@ -178,16 +178,38 @@ class PetaformGenerator(scaling: (Int) -> Double)
   }
 
   inline fun <reified T : PetaformNode> goNuts(count: Int = 10_000) {
+    return goNuts(T::class, count)
+  }
+
+  fun <T : PetaformNode> goNuts(type: KClass<T>, count: Int = 10_000) {
     for (i in 1..count) {
-      val node = makeRandomNode<T>()
-      val str = node.toString()
-      val trip = PetaformParser.parse<T>(str)
-      Truth.assertThat(trip.toString()).isEqualTo(str)
-      if (trip != node) {
-        println(ToKotlin.pp(trip))
+      val randomNode = makeRandomNode(type)
+      val originalStringOut = randomNode.toString()
+      val reparsedNode =
+          try {
+            PetaformParser.parse(type, originalStringOut)
+          } catch (e: Exception) {
+            println("string is $originalStringOut")
+            println("node is ${ToKotlin.pp(randomNode)}")
+            println()
+            continue
+          }
+      if (reparsedNode != randomNode) {
+        println("Original node was:\n")
+        println(ToKotlin.pp(randomNode))
         println()
-        println(ToKotlin.pp(node))
-        Truth.assertThat(trip).isEqualTo(node)
+        println("Reparsed node was:\n")
+        println(ToKotlin.pp(reparsedNode))
+        println()
+        Truth.assertThat(reparsedNode).isEqualTo(randomNode)
+      }
+
+      val regurgitated = reparsedNode.toString()
+      if (regurgitated != originalStringOut) {
+        println("Reparsed node was:\n")
+        println(ToKotlin.pp(reparsedNode))
+        println()
+        Truth.assertThat(regurgitated).isEqualTo(originalStringOut)
       }
     }
   }

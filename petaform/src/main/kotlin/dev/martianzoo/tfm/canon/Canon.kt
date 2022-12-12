@@ -9,9 +9,10 @@ import dev.martianzoo.tfm.data.MilestoneDefinition
 import dev.martianzoo.tfm.petaform.Component
 import dev.martianzoo.tfm.petaform.PetaformParser.parseComponents
 import dev.martianzoo.util.Grid
+import dev.martianzoo.util.associateByCareful
 
 object Canon {
-  private val FILENAMES = listOf("system.pets", "options.pets", "components.pets", "payment.pets")
+  private val FILENAMES = setOf("system.pets", "options.pets", "components.pets", "payment.pets")
 
   val componentDefinitions: Map<String, ComponentDefinition> by lazy {
     val list = mutableListOf<Component>()
@@ -20,8 +21,7 @@ object Canon {
       println("Parsing $f")
       list += parseComponents(s)
     }
-    list.map(ComponentDefinition.Companion::from)
-        .associateBy { it.name }
+    list.map(ComponentDefinition.Companion::from).associateByCareful { it.name }
   }
 
   val cardDefinitions: Map<String, CardDefinition> by lazy {

@@ -3,6 +3,7 @@ package dev.martianzoo.tfm.data
 import com.squareup.moshi.Json
 import dev.martianzoo.tfm.petaform.Component
 import dev.martianzoo.tfm.petaform.classNamePattern
+import dev.martianzoo.util.toSetCareful
 
 /**
  * The declaration of a component class, such as GreeneryTile. Models the declaration textually as
@@ -57,11 +58,11 @@ data class ComponentDefinition(
       return ComponentDefinition(
           component.expression.className,
           component.abstract,
-          component.supertypes.map(Any::toString).toSet(),
+          component.supertypes.map(Any::toString).toSetCareful(),
           component.expression.specializations.map(Any::toString),
           null,
-          component.actions.map(Any::toString).toSet(),
-          component.effects.map(Any::toString).toSet(),
+          component.actions.map(Any::toString).toSetCareful(),
+          component.effects.map(Any::toString).toSetCareful(),
       )
     }
   }

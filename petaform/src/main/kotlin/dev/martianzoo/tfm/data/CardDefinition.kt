@@ -9,6 +9,7 @@ import dev.martianzoo.tfm.petaform.PetaformParser
 import dev.martianzoo.tfm.petaform.PetaformParser.parse
 import dev.martianzoo.tfm.petaform.Predicate
 import dev.martianzoo.tfm.petaform.TypeExpression
+import dev.martianzoo.util.toSetCareful
 
 /**
  * Everything there is to know about a Terraforming Mars card, except for text (including the card
@@ -152,15 +153,15 @@ data class CardDefinition(
   val tags: List<TypeExpression> by lazy { tagsText.map { TypeExpression(it) } }
   val resourceType: TypeExpression? by lazy { resourceTypeText?.let { TypeExpression(it) } }
   val immediate: Instruction? by lazy {
-    val set = immediateText.map { parse<Instruction>(it) }.toSet()
+    val set = immediateText.map { parse<Instruction>(it) }.toSetCareful()
     when (set.size) {
       0 -> null
-      1 -> set.iterator().next()
+      1 -> set.first()
       else -> Instruction.multi(set.toList())
     }
   }
-  val actions by lazy { actionsText.map { parse<Action>(it) }.toSet() }
-  val effects by lazy { effectsText.map { parse<Effect>(it) }.toSet() }
+  val actions by lazy { actionsText.map { parse<Action>(it) }.toSetCareful() }
+  val effects by lazy { effectsText.map { parse<Effect>(it) }.toSetCareful() }
   val requirement: Predicate? by lazy { requirementText?.let(PetaformParser::parse) }
 
   override val asComponentDefinition by lazy {

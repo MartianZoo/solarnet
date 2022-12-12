@@ -9,7 +9,7 @@ data class QuantifiedExpression(val typeExpression: TypeExpression? = null, val 
     }
   }
   override fun toString() = listOfNotNull(scalar, typeExpression).joinToString(" ")
-  override val children = listOfNotNull(typeExpression)
+  override val children = setOfNotNull(typeExpression)
 
   //fun petaform(forceScalar: Boolean = false, forceExpression: Boolean = false) = when {
   //  (!forceExpression && typeExpression == null) -> "$scalar"

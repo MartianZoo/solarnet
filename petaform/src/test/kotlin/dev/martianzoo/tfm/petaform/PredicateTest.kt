@@ -81,38 +81,39 @@ class PredicateTest {
     MAX 0 Abc OR 11 Ooh<Ooh, Bar> OR (5 Ooh OR =5 Qux)
     (11 OR (1 Abc, 1) OR (Qux OR 1)) OR (Ooh<Bar>, Ooh)
     MAX 5 OR 5, MAX 5 OR (=1 Abc OR (1 Qux, Abc)), MAX 0
-    (11 OR 5) OR (((Foo OR Foo) OR Qux<Bar>) OR (Foo, 1))
-    ((Bar OR 1 Bar) OR (1 Wau OR 5 Ahh)) OR MAX 1 Abc<Xyz>
+    (11 OR 5) OR (((Foo OR Wau) OR Qux<Bar>) OR (Foo, 1))
+    ((Bar OR 1 Foo) OR (1 Wau OR 5 Ahh)) OR MAX 1 Abc<Xyz>
     =1 Wau<Qux<Foo<Abc<Bar>>>> OR MAX 1 Ahh OR MAX 0 OR Bar
     (Qux, Xyz OR Bar) OR =0 OR Bar<Abc>(HAS Bar) OR Ooh<Xyz>
-    MAX 0, Foo OR 5 OR ((Ooh OR Bar) OR Bar) OR Qux<Xyz, Ooh>
+    MAX 0, Foo OR 5 OR ((Ooh OR Ahh) OR Bar) OR Qux<Xyz, Ooh>
     MAX 1 Eep OR Abc OR =1 Qux OR ((Qux, MAX 5) OR 1 Foo<Foo>)
     11 OR (Abc, Ahh<Wau>, 5 Foo<Ooh>) OR Xyz<Bar> OR 1 Qux<Ooh>
     =1 Xyz OR Qux, MAX 1 Ahh OR =11, (1, 1 Qux OR 1 OR Foo<Bar>)
     ((=0 Foo OR MAX 5) OR =1 Ahh<Bar>) OR (=1 OR 1 OR Foo OR Ooh)
     11 Bar<Qux> OR MAX 11 Bar<Ooh<Abc<Abc>, Ahh>> OR Foo<Qux<Qux>>
-    ((Abc OR Abc) OR 11 Ahh OR 1 Foo OR MAX 1) OR (1 Foo, 1 Foo, 5)
+    ((Abc OR Xyz) OR 11 Ahh OR 1 Foo OR MAX 1) OR (1 Foo, 1 Foo, 5)
     Eep, =0 Ahh<Ahh<Abc<Qux<Foo, Abc>>>>, (5 Foo, MAX 0) OR Qux<Abc>
     11 Bar<Ahh<Foo>> OR Abc(HAS =1 Xyz) OR (=0 OR MAX 0 Ooh) OR 1 Qux
     Abc OR 11 OR MAX 0 OR (5 Abc<Bar>, Bar<Foo> OR MAX 0 OR MAX 5 Bar)
-    =1 OR (Abc, 1, 1) OR Qux OR (MAX 0 OR =11 Foo OR MAX 0 OR Ooh<Qux>)
+    =1 OR (Abc, 1, 1) OR Qux OR (MAX 0 OR =11 Foo OR MAX 5 OR Ooh<Qux>)
     5 Abc OR 11 Qux<Foo<Foo, Qux>, Wau> OR =5 Xyz<Foo> OR (5 Foo, 1 Foo)
     Qux OR (MAX 0 Foo OR 1 Bar OR (Ooh, MAX 0 Xyz) OR MAX 1 Ahh(HAS Xyz))
     MAX 11 OR ((MAX 0 Bar OR Abc) OR MAX 0 Qux), ((MAX 1 Foo, 5 Bar), Xyz)
-    =0 Xyz, (Abc OR MAX 0) OR (MAX 0 Xyz OR MAX 0 Foo, 11), MAX 0 Ooh OR =0
+    =0 Xyz, (Abc OR MAX 0) OR (MAX 0 Xyz OR MAX 5 Foo, 11), MAX 0 Ooh OR =0
     (MAX 5 Xyz<Ooh> OR 1 Foo) OR MAX 0 Abc<Abc, Foo, Foo> OR MAX 11 Xyz<Abc>
     (MAX 1 Qux OR Eep) OR (5 OR MAX 5 OR 11 Qux OR (MAX 1, (Bar, MAX 0 Abc)))
     (1 Bar<Ahh> OR Abc) OR MAX 0 Bar OR (MAX 11 Foo OR =5) OR (1 Qux OR MAX 1)
     1 Wau<Wau<Wau>, Qux<Xyz, Foo<Xyz, Ooh<Xyz>, Ooh>, Abc<Xyz<Ahh<Xyz>>, Qux>>>
     (Qux OR (5, 1 Foo)) OR =0 Bar, (Xyz<Foo>, 1) OR 1 Ooh, 5 Qux OR (Foo, 1 Bar)
     1 Abc<Foo, Abc> OR MAX 1 OR 1 Qux OR (MAX 1 Foo<Foo>, 1 OR MAX 0 Ooh, =0 Qux)
-    ((Bar OR Bar) OR MAX 1 Foo) OR 5 Bar<Wau<Qux, Qux>>(HAS MAX 0 Eep) OR Bar OR 1
+    ((Wau OR Bar) OR MAX 1 Foo) OR 5 Bar<Wau<Qux, Qux>>(HAS MAX 0 Eep) OR Bar OR 1
     Bar OR (=5 Foo OR MAX 5 Ooh) OR ((1 OR (MAX 0, Bar)) OR (Foo, MAX 0)) OR 11 Foo
     MAX 0 OR (11, (1 Abc, MAX 1 Foo)) OR (5 OR ((=0 Bar OR Bar, Bar) OR (Bar, Abc)))
   """.trimIndent()
 
   @Test fun testSampleStrings() {
-    inputs.split('\n').forEach { testRoundTrip<Predicate>(it) }
+    val pass = testSampleStrings<Predicate>(inputs)
+    assertThat(pass).isTrue()
   }
 
   private fun testRoundTrip(start: String, end: String = start) =

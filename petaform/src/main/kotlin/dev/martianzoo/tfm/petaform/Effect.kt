@@ -14,28 +14,28 @@ data class Effect(
     }
     return "${trigger}${if (immediate) "::" else ":"} $instext"
   }
-  override val children = listOf(trigger, instruction)
+  override val children = setOf(trigger, instruction)
 
   sealed class Trigger : PetaformNode() {
     data class OnGain(val expression: TypeExpression) : Trigger() {
       override fun toString() = "$expression"
-      override val children = listOf(expression)
+      override val children = setOf(expression)
     }
 
     data class OnRemove(val expression: TypeExpression) : Trigger() {
       override fun toString() = "-${expression}"
-      override val children = listOf(expression)
+      override val children = setOf(expression)
     }
 
     data class Conditional(val trigger: Trigger, val predicate: Predicate) : Trigger() {
       init { if (trigger is Conditional) throw PetaformException("And the conditions together instead") }
       override fun toString() = "$trigger IF $predicate"
-      override val children = listOf(trigger, predicate)
+      override val children = setOf(trigger, predicate)
     }
 
     data class Now(val predicate: Predicate) : Trigger() {
       override fun toString() = "NOW $predicate"
-      override val children = listOf(predicate)
+      override val children = setOf(predicate)
     }
 
     data class Prod(val trigger: Trigger) : Trigger() {
@@ -45,7 +45,7 @@ data class Effect(
         }
       }
       override fun toString() = "PROD[${trigger}]"
-      override val children = listOf(trigger)
+      override val children = setOf(trigger)
       override fun countProds() = super.countProds() + 1
     }
   }

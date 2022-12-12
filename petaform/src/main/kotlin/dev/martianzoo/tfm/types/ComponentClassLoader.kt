@@ -8,18 +8,19 @@ import dev.martianzoo.tfm.petaform.Instruction
 import dev.martianzoo.tfm.petaform.PetaformParser.parse
 import dev.martianzoo.tfm.petaform.TypeExpression
 import dev.martianzoo.tfm.types.DependencyMap.DependencyKey
+import dev.martianzoo.util.toSetCareful
 
 class ComponentClassLoader {
   internal val table = mutableMapOf<String, ComponentClass>()
 
-  fun all() = table.values.toList()
+  fun all() = table.values.toSetCareful()
 
   fun loadAll(objects: Iterable<Definition>) = objects.forEach(::load)
 
   fun load(obj: Definition): ComponentClass {
     val defn = obj.asComponentDefinition
     val supertypes = deriveSupertypes(defn)
-    val superclasses = supertypes.map(ComponentType::componentClass).toSet()
+    val superclasses = supertypes.map(ComponentType::componentClass).toSetCareful()
     val dependencies = deriveDependencies(defn, supertypes)
 
     // println("${pad(defn.name, 19)} ${pad(supertypes, 59)} $dependencies")
@@ -45,7 +46,7 @@ class ComponentClassLoader {
       val set = mutableSetOf<ComponentType>()
       defn.supertypesText.map(::resolve).forEach { next ->
         if (!set.any { it.isSubtypeOf(next) }) {
-          set.add(next)
+          require(set.add(next))
         }
       }
       set
@@ -64,8 +65,8 @@ class ComponentClassLoader {
   }
 
   private fun deriveActions(defn: ComponentDefinition) =
-      defn.actionsText.map { parse<Action>(it) }.toSet()
+      defn.actionsText.map { parse<Action>(it) }.toSetCareful()
 
   private fun deriveEffects(defn: ComponentDefinition) =
-      defn.effectsText.map<String, Effect> { parse(it) }.toSet()
+      defn.effectsText.map<String, Effect> { parse(it) }.toSetCareful()
 }
