@@ -1,6 +1,8 @@
 # petaform
 
-(If you're here because you want to play the game, you're in the wrong place! [See this amazing app](http://github.com/bafolts/terraforming-mars).)
+If you're here because you want to play the game, you're in the wrong place! [See this amazing app](http://github.com/bafolts/terraforming-mars), and I would also *strongly* encourage you to buy a copy of the physical game.
+
+This project has no relationship with other apps.
 
 ## The Petaform language
 
@@ -9,6 +11,8 @@ Petaform is a specification language for game component behaviors in the board g
 This project is a library for parsing that language, and a data set of published cards with specifications expressed in the language.
 
 The library is written in Kotlin, which is supposed to be able to translate to JavaScript or native code...
+
+The name is stupid, it just comes from "1000 x teraform" and I also enjoy abbreviating it "Pets" whenever I want to.
 
 ### The goal
 
