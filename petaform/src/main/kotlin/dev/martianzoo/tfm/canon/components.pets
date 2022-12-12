@@ -1,11 +1,3 @@
-class Generation {
-    count 1..*
-}
-
-abstract class Generational {                          // things that disappear when the generation changes over
-    Generation:: -This                                 // and look, there they go (TODO ProductionPhase?)
-}
-
 abstract class Player : Anyone {
     This:: 20 TerraformRating
 
@@ -13,6 +5,9 @@ abstract class Player : Anyone {
     ProductionPhase: -5                                // confines the damage to Specialist/Generalist (and Robinson but it
                                                        // needs custom code anyway).
                                                        // `Instr / PROD[1]` must be banned! But no great loss.
+    Purchase<BuildingTag>:: Accept<Steel>
+    Purchase<SpaceTag>:: Accept<Titanium>
+
     class SoloPlayer
 
     abstract class Me
@@ -82,6 +77,14 @@ class Adjacency<Tile, Tile>(HAS 2 Tile) {
     count 0..1
 }
 
+class Generation {
+    count 1..*
+}
+
+abstract class Generational {                          // things that disappear when the generation changes over
+    Generation:: -This                                 // and look, there they go (TODO ProductionPhase?)
+}
+
 abstract class Owned<Anyone> {                         // TODO default *Owned<Me>??
     class VictoryPoint
 
@@ -100,6 +103,12 @@ abstract class Owned<Anyone> {                         // TODO default *Owned<Me
 
     class Production<StandardResource> {
         ProductionPhase: StandardResource              // Specializing to Production<Heat> specializes this too
+    }
+
+    class FreeProduction<StandardResource> : Signal {  // Odd hack because we don't have loops. The min count 1 causes
+        count 1..1 // 1..0                             // 1 of each possible concrete subtype to be created autom.,
+                                                       // upon which it can gift a free production and be done
+        This IF =0 CorporateEra:: PROD[StandardResource]
     }
 
     class TerraformRating : Owned<Player> {            // TODO what else should be <Player> and why
@@ -189,7 +198,7 @@ abstract class Owned<Anyone> {                         // TODO default *Owned<Me
 
     class TagType                                      // No idea yet how this will actually work
 
-    abstract class UseAction : Ephemeral {
+    abstract class UseAction : Signal {
         class UseAction1, UseAction2, UseAction3, UseAction4
     }
 

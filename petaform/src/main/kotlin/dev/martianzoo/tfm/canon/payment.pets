@@ -3,8 +3,8 @@
 // Weirdly, though all this stuff is player-local it doesn't really need to be Owned, since every
 // class has some Owned component as a parameter/dependency.
 
-class Purchase<Component> { // TODO but this would need to be a barrier too
-    NOW MAX 0 Barrier: Component, -This
+class Purchase<Component> : Barrier {
+    NOW MAX 1 Barrier: Component FROM This // must be me, right?
 }
 
 class Required<Component> : Barrier {
@@ -24,15 +24,6 @@ class Accept<Resource> {
     NOW MAX 0 Owed:: -This // TODO what if there never had been any Owed's?
 }
 
-class Pay<Resource> : Ephemeral { // TODO lets you overpay like mad
+class Pay<Resource> : Signal { // TODO lets you overpay like mad
     This:: -Owed<Resource>.
-}
-
-// TODO I prefer not having a bunch of these system singletons hanging around
-// TODO In theory, your steel resources themselves could have this trigger!
-class TagAbilities {
-  count 1..1
-
-  Purchase<BuildingTag<Player>>:: Accept<Player, Steel>
-  Purchase<SpaceTag<Player>>:: Accept<Player, Titanium>
 }

@@ -8,13 +8,13 @@ abstract class Component {
 
 abstract class This // no subtypes, so you can never actually create a literal `This`
 
-abstract class Ephemeral { // removes itself immediately - will never observe it existing
+abstract class Signal { // removes itself immediately - will never observe it existing
     count 0..0 // cardinalities can probably only be enforced after :: triggers are done
 
     This:: -This
 }
 
-class Ok : Ephemeral // when you need to do nothing
+class Ok : Signal // when you need to do nothing
 
 abstract class Barrier { // player must clean up themselves, by end of action
     This: (MAX 0 Barrier: Ok) // puts a task on the queue that can only be handled if 0 barriers left

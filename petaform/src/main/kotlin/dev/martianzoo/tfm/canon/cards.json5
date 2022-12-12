@@ -34,9 +34,9 @@
       "effects": [ "EventCard: 2" ],
     },
 
-    // Inventrix[F]
+    // Inventrix
     {
-      "id": "B05F",
+      "id": "B05",
       "bundle": "B",
       "deck": "CORPORATION",
       "tags": [ "ScienceTag" ],
@@ -522,7 +522,32 @@
       "id": "X39F",
       "bundle": "X",
       "deck": "PRELUDE",
+      "tags": [ "ScienceTag" ],
       "immediate": [ "13, 2 ProjectCard" ],
+    },
+
+    // Double Down
+    {
+      "id": "X40",
+      "bundle": "X",
+      "deck": "PRELUDE",
+      "immediate": [ "$copyImmediate(CardFront)" ], // that should make sure it's a prelude...
+    },
+
+    // Merger[F]
+    {
+      "id": "X41F",
+      "bundle": "X",
+      "deck": "PRELUDE",
+      "immediate": [ "CardFront THEN -42" ],
+    },
+
+    // New Partner[F]
+    {
+      "id": "X42F",
+      "bundle": "X",
+      "deck": "PRELUDE",
+      "immediate": [ "PROD[1], CardFront" ],
     },
 
     // Colonizer Training Camp
@@ -3462,7 +3487,8 @@
       "bundle": "V",
       "deck": "PROJECT",
       "tags": [ "ScienceTag", "EarthTag" ],
-      "immediate": [ "-ProjectCard THEN 3 ProjectCard" ],
+      "immediate": [ "-ProjectCard THEN 2 ProjectCard" ],
+      "components": [ "class Card247Watcher : Owned { count 1..1; Card247<Anyone>: ProjectCard FROM This }" ],
       "effects": [ "End: VictoryPoint" ],
       "cost": 9,
       "projectKind": "AUTOMATED",
