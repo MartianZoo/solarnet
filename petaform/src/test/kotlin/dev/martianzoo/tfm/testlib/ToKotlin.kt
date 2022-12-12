@@ -6,17 +6,17 @@ import dev.martianzoo.tfm.petaform.Action.Cost.Spend
 import dev.martianzoo.tfm.petaform.Effect
 import dev.martianzoo.tfm.petaform.Effect.Trigger
 import dev.martianzoo.tfm.petaform.Instruction
+import dev.martianzoo.tfm.petaform.Instruction.ComplexFrom
 import dev.martianzoo.tfm.petaform.Instruction.Custom
-import dev.martianzoo.tfm.petaform.Instruction.FromIsBelow
-import dev.martianzoo.tfm.petaform.Instruction.FromIsNowhere
-import dev.martianzoo.tfm.petaform.Instruction.FromIsRightHere
 import dev.martianzoo.tfm.petaform.Instruction.Gain
 import dev.martianzoo.tfm.petaform.Instruction.Gated
 import dev.martianzoo.tfm.petaform.Instruction.Multi
 import dev.martianzoo.tfm.petaform.Instruction.Per
 import dev.martianzoo.tfm.petaform.Instruction.Remove
+import dev.martianzoo.tfm.petaform.Instruction.SimpleFrom
 import dev.martianzoo.tfm.petaform.Instruction.Then
 import dev.martianzoo.tfm.petaform.Instruction.Transmute
+import dev.martianzoo.tfm.petaform.Instruction.TypeInFrom
 import dev.martianzoo.tfm.petaform.PetaformNode
 import dev.martianzoo.tfm.petaform.PetaformParser
 import dev.martianzoo.tfm.petaform.Predicate.And
@@ -65,9 +65,9 @@ object ToKotlin {
         is Instruction.Or -> "Instruction.or(${instructions.joinToString{ pp(it) }})"
         is Multi -> "Instruction.multi(${instructions.joinToString{ pp(it) }})"
         is Transmute -> "Transmute(${pp(trans)}${scalar.pre(", ")}${intensity.pre(", ")})"
-        is FromIsBelow -> "FromIsBelow(\"$className\", listOf(${specializations.joinToString{ pp(it) }})${predicate.pre(", ")}"
-        is FromIsRightHere -> "FromIsRightHere(${pp(to)}, ${pp(from)})"
-        is FromIsNowhere -> "FromIsNowhere(${pp(type)})"
+        is ComplexFrom -> "ComplexFrom(\"$className\", listOf(${specializations.joinToString{ pp(it) }})${predicate.pre(", ")}"
+        is SimpleFrom -> "SimpleFrom(${pp(to)}, ${pp(from)})"
+        is TypeInFrom -> "TypeInFrom(${pp(type)})"
         is Per -> "Instruction.Per(${pp(instruction)}, ${pp(qe)})"
         is Instruction.Prod -> "Instruction.Prod(${pp(instruction)})"
         is Custom -> "Instruction.Custom(\"$name\", listOf(${pp(arguments.joinToString())}))"

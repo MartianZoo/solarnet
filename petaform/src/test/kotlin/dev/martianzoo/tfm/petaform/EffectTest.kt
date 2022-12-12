@@ -7,11 +7,11 @@ import dev.martianzoo.tfm.petaform.Effect.Trigger.Now
 import dev.martianzoo.tfm.petaform.Effect.Trigger.OnGain
 import dev.martianzoo.tfm.petaform.Effect.Trigger.OnRemove
 import dev.martianzoo.tfm.petaform.Instruction.Companion.then
-import dev.martianzoo.tfm.petaform.Instruction.FromIsRightHere
 import dev.martianzoo.tfm.petaform.Instruction.Gain
 import dev.martianzoo.tfm.petaform.Instruction.Intensity.MANDATORY
 import dev.martianzoo.tfm.petaform.Instruction.Intensity.OPTIONAL
 import dev.martianzoo.tfm.petaform.Instruction.Remove
+import dev.martianzoo.tfm.petaform.Instruction.SimpleFrom
 import dev.martianzoo.tfm.petaform.Instruction.Transmute
 import dev.martianzoo.tfm.petaform.PetaformParser.parse
 import dev.martianzoo.tfm.petaform.Predicate.Max
@@ -123,7 +123,7 @@ class EffectTest {
                 Gain(null, 42),
                 Instruction.multi(
                     Transmute(
-                        FromIsRightHere(
+                        SimpleFrom(
                             TypeExpression("Xyz", listOf()),
                             TypeExpression("Qux", listOf())),
                         1),

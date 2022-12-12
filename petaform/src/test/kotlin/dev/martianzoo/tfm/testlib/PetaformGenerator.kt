@@ -6,19 +6,19 @@ import dev.martianzoo.tfm.petaform.Action.Cost
 import dev.martianzoo.tfm.petaform.Effect
 import dev.martianzoo.tfm.petaform.Effect.Trigger
 import dev.martianzoo.tfm.petaform.Instruction
+import dev.martianzoo.tfm.petaform.Instruction.ComplexFrom
 import dev.martianzoo.tfm.petaform.Instruction.Custom
 import dev.martianzoo.tfm.petaform.Instruction.FromExpression
-import dev.martianzoo.tfm.petaform.Instruction.FromIsBelow
-import dev.martianzoo.tfm.petaform.Instruction.FromIsNowhere
-import dev.martianzoo.tfm.petaform.Instruction.FromIsRightHere
 import dev.martianzoo.tfm.petaform.Instruction.Gain
 import dev.martianzoo.tfm.petaform.Instruction.Gated
 import dev.martianzoo.tfm.petaform.Instruction.Intensity
 import dev.martianzoo.tfm.petaform.Instruction.Multi
 import dev.martianzoo.tfm.petaform.Instruction.Per
 import dev.martianzoo.tfm.petaform.Instruction.Remove
+import dev.martianzoo.tfm.petaform.Instruction.SimpleFrom
 import dev.martianzoo.tfm.petaform.Instruction.Then
 import dev.martianzoo.tfm.petaform.Instruction.Transmute
+import dev.martianzoo.tfm.petaform.Instruction.TypeInFrom
 import dev.martianzoo.tfm.petaform.PetaformException
 import dev.martianzoo.tfm.petaform.PetaformNode
 import dev.martianzoo.tfm.petaform.PetaformParser
@@ -118,13 +118,13 @@ class PetaformGenerator(scaling: (Int) -> Double)
 
         fun convert(type: TypeExpression): FromExpression {
           if (type == target) {
-            return FromIsRightHere(if (b) inject else target, if (b) target else inject)
+            return SimpleFrom(if (b) inject else target, if (b) target else inject)
           }
           val specs = type.specializations.map { convert(it) }
-          return if (specs.all { it is FromIsNowhere }) {
-            FromIsNowhere(type)
+          return if (specs.all { it is TypeInFrom }) {
+            TypeInFrom(type)
           } else {
-            FromIsBelow(type.className, specs, type.predicate)
+            ComplexFrom(type.className, specs, type.predicate)
           }
         }
         convert(into)

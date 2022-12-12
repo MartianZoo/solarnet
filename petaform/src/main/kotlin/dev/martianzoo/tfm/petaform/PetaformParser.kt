@@ -32,16 +32,16 @@ import dev.martianzoo.tfm.petaform.Effect.Trigger.Conditional
 import dev.martianzoo.tfm.petaform.Effect.Trigger.Now
 import dev.martianzoo.tfm.petaform.Effect.Trigger.OnGain
 import dev.martianzoo.tfm.petaform.Effect.Trigger.OnRemove
+import dev.martianzoo.tfm.petaform.Instruction.ComplexFrom
 import dev.martianzoo.tfm.petaform.Instruction.Custom
 import dev.martianzoo.tfm.petaform.Instruction.FromExpression
-import dev.martianzoo.tfm.petaform.Instruction.FromIsBelow
-import dev.martianzoo.tfm.petaform.Instruction.FromIsNowhere
-import dev.martianzoo.tfm.petaform.Instruction.FromIsRightHere
 import dev.martianzoo.tfm.petaform.Instruction.Gain
 import dev.martianzoo.tfm.petaform.Instruction.Gated
 import dev.martianzoo.tfm.petaform.Instruction.Intensity.Companion.intensity
 import dev.martianzoo.tfm.petaform.Instruction.Remove
+import dev.martianzoo.tfm.petaform.Instruction.SimpleFrom
 import dev.martianzoo.tfm.petaform.Instruction.Transmute
+import dev.martianzoo.tfm.petaform.Instruction.TypeInFrom
 import dev.martianzoo.tfm.petaform.Predicate.Exact
 import dev.martianzoo.tfm.petaform.Predicate.Max
 import dev.martianzoo.tfm.petaform.Predicate.Min
@@ -148,20 +148,25 @@ object PetaformParser {
     val gain = qe and intensity map { (qe, intens) -> Gain(qe, intens) }
     val remove = skipChar('-') and qe and intensity map { (qe, intens) -> Remove(qe, intens) }
 
-    val fromIsHere = typeExpression and skipWord("FROM") and typeExpression map { (to, from) ->
-      FromIsRightHere(to, from)
+    val simpleFrom = typeExpression and skipWord("FROM") and typeExpression map { (to, from) ->
+      SimpleFrom(to, from)
     }
-    val fromIsBelow = className and skipChar('<') and parser { fromElements } and skipChar('>') and TypeExpressions.refinement map { (name, specs, refins) ->
-      FromIsBelow(name, specs, refins)
+    val complexFrom =
+        className and
+        skipChar('<') and
+        parser { fromElements } and
+        skipChar('>') and
+        TypeExpressions.refinement map {
+      (name, specs, refins) -> ComplexFrom(name, specs, refins)
     }
+    val from = simpleFrom or complexFrom
+    val typeInFrom = typeExpression map { TypeInFrom(it) }
 
-    val from = fromIsHere or fromIsBelow
-    val noFrom = typeExpression map { FromIsNowhere(it) }
-
+    // A list of one or more but where exactly one is of a certain kind
     val fromElements: Parser<List<FromExpression>> =
-        zeroOrMore(noFrom and skipChar(',')) and
+        zeroOrMore(typeInFrom and skipChar(',')) and
         from and
-        zeroOrMore(skipChar(',') and noFrom) map { (a, b, c) -> a + b + c }
+        zeroOrMore(skipChar(',') and typeInFrom) map { (a, b, c) -> a + b + c }
     val transmute = optional(QEs.scalar) and from and intensity map { (scal, fro, intens) ->
       Transmute(fro, scal, intens)
     }

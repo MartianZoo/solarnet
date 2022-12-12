@@ -28,26 +28,7 @@ sealed class Instruction : PetaformNode() {
 
   sealed class FromExpression : PetaformNode()
 
-  data class FromIsBelow(
-      val className: String,
-      val specializations: List<FromExpression> = listOf(),
-      val predicate: Predicate? = null
-  ) : FromExpression() {
-    init {
-      require(className.matches(classNamePattern())) { className }
-      if (specializations.count { it is FromIsBelow || it is FromIsRightHere } != 1) {
-        throw PetaformException("Can only have one FROM in an expression")
-      }
-    }
-
-    override fun toString() =
-        className +
-        specializations.joinOrEmpty(surround = "<>") +
-        (predicate?.let { "(HAS $it)" } ?: "")
-    override val children = specializations + setOfNotNull(predicate)
-  }
-
-  data class FromIsRightHere(val to: TypeExpression, val from: TypeExpression) : FromExpression() {
+  data class SimpleFrom(val to: TypeExpression, val from: TypeExpression) : FromExpression() {
     init {
       if (to == from) {
         throw PetaformException("to and from are the same: $to")
@@ -57,7 +38,26 @@ sealed class Instruction : PetaformNode() {
     override val children = setOf(to, from)
   }
 
-  data class FromIsNowhere(val type: TypeExpression) : FromExpression() {
+  data class ComplexFrom(
+      val className: String,
+      val specializations: List<FromExpression> = listOf(),
+      val predicate: Predicate? = null
+  ) : FromExpression() {
+    init {
+      require(className.matches(classNamePattern())) { className }
+      if (specializations.count { it is ComplexFrom || it is SimpleFrom } != 1) {
+        throw PetaformException("Can only have one FROM in an expression")
+      }
+    }
+
+    override fun toString() =
+        className +
+            specializations.joinOrEmpty(surround = "<>") +
+            (predicate?.let { "(HAS $it)" } ?: "")
+    override val children = specializations + setOfNotNull(predicate)
+  }
+
+  data class TypeInFrom(val type: TypeExpression) : FromExpression() {
     override fun toString() = "$type"
     override val children = setOf(type)
   }
@@ -68,7 +68,7 @@ sealed class Instruction : PetaformNode() {
       val intensity: Intensity? = null) : Instruction() {
     init {
       if ((scalar ?: 1) < 1) throw PetaformException("Can't do a non-positive number of transmutes")
-      if (trans is FromIsNowhere) throw PetaformException("Should be a regular gain instruction")
+      if (trans is TypeInFrom) throw PetaformException("Should be a regular gain instruction")
     }
     override fun toString(): String {
       val intens = intensity?.petaform ?: ""
@@ -77,13 +77,13 @@ sealed class Instruction : PetaformNode() {
     }
     override val children = setOf(trans)
     override fun parenthesizeThisWhenInside(container: PetaformNode): Boolean {
-      if (trans is FromIsRightHere && container is Or) {
+      if (trans is SimpleFrom && container is Or) {
         return true // not technically necessary, but helpful
       }
       return super.parenthesizeThisWhenInside(container)
     }
 
-    override fun precedence() = if (trans is FromIsRightHere) 7 else 10
+    override fun precedence() = if (trans is SimpleFrom) 7 else 10
   }
 
   data class Per(val instruction: Instruction, val qe: QuantifiedExpression): Instruction() {

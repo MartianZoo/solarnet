@@ -2,13 +2,13 @@ package dev.martianzoo.tfm.petaform
 
 import com.github.h0tk3y.betterParse.combinators.or
 import com.google.common.truth.Truth.assertThat
-import dev.martianzoo.tfm.petaform.Instruction.FromIsBelow
-import dev.martianzoo.tfm.petaform.Instruction.FromIsRightHere
+import dev.martianzoo.tfm.petaform.Instruction.ComplexFrom
 import dev.martianzoo.tfm.petaform.Instruction.Intensity.AMAP
+import dev.martianzoo.tfm.petaform.Instruction.SimpleFrom
 import dev.martianzoo.tfm.petaform.Instruction.Transmute
 import dev.martianzoo.tfm.petaform.PetaformParser.Instructions
 import dev.martianzoo.tfm.petaform.PetaformParser.Instructions.from
-import dev.martianzoo.tfm.petaform.PetaformParser.Instructions.noFrom
+import dev.martianzoo.tfm.petaform.PetaformParser.Instructions.typeInFrom
 import dev.martianzoo.tfm.petaform.PetaformParser.parse
 import org.junit.jupiter.api.Test
 
@@ -125,23 +125,23 @@ class InstructionTest {
 
     assertThat(parse<Instruction>("1 Foo FROM Bar.")).isEqualTo(
         Transmute(
-            FromIsRightHere(
+            SimpleFrom(
                 TypeExpression("Foo"),
                 TypeExpression("Bar"),
             ), 1, AMAP)
     )
-    parse(Instructions.fromIsHere, "Bar FROM Qux")
+    parse(Instructions.simpleFrom, "Bar FROM Qux")
     parse(from, "Bar FROM Qux")
-    parse(from or noFrom, "Bar FROM Qux")
-    parse(Instructions.fromIsBelow, "Foo<Bar FROM Qux>")
+    parse(from or typeInFrom, "Bar FROM Qux")
+    parse(Instructions.complexFrom, "Foo<Bar FROM Qux>")
 
     testRoundTrip("Foo<Bar FROM Qux>")
     testRoundTrip("Foo<Bar FROM Qux>.")
 
     val instr = Transmute(
-        FromIsBelow("Foo", listOf(
-            FromIsBelow("Bar", listOf(
-                FromIsRightHere(
+        ComplexFrom("Foo", listOf(
+            ComplexFrom("Bar", listOf(
+                SimpleFrom(
                     TypeExpression("Qux"),
                     TypeExpression("Abc", listOf(TypeExpression("Eep")))
                 ))
