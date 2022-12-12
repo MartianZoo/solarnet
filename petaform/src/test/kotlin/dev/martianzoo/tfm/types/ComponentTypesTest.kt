@@ -24,4 +24,6 @@ class ComponentTypesTest {
     assertThat(vp.dependencies.map.values).containsExactly(loader.resolve("Player"))
 
   }
+
+
 }

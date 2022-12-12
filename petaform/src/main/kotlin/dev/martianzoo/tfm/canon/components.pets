@@ -132,7 +132,8 @@ abstract class Owned<Anyone> {                         // TODO default *Owned<Me
 
             End: VictoryPoint / Adjacency(HAS This, GreeneryTile<Anyone>)
         }
-        class SpecialTile : OwnedTile<MarsArea> {      // TODO "open"
+        abstract class SpecialTile : OwnedTile<MarsArea> {
+            NOW 2 SpecialTile<Area>: Die               // Fishy; this is tryna get specialized
             default SpecialTile<LandArea>
         }
     }
@@ -182,7 +183,7 @@ abstract class Owned<Anyone> {                         // TODO default *Owned<Me
             class Animal, Microbe, Science
             class Floater, Asteroid
 
-            class NoResource : Die                     // Because all cards must have a resource type
+            class NoResource { This:: Die }            // Because all cards must have a resource type
         }
 
         class ActionUsed : Generational {

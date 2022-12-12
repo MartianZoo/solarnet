@@ -12,7 +12,7 @@ import dev.martianzoo.tfm.types.DependencyMap.DependencyKey
 class ComponentClassLoader {
   internal val table = mutableMapOf<String, ComponentClass>()
 
-  fun snapshot() = ComponentClassTable(table)
+  fun all() = table.values.toList()
 
   fun loadAll(objects: Iterable<Definition>) = objects.forEach(::load)
 
