@@ -7,8 +7,7 @@ class Owed<Resource<Player>> : Owned<Player>, Barrier {
    This:: Accept<Resource>
 }
 
-class Accept<Resource> : Owned<Player> {
-    count 0..1
+class Accept<Resource>(HAS MAX 1 This) : Owned<Player> {
     default Accept. // never hurts to accept twice
 
     -Resource:: Pay<Resource> // TODO this is not quite right?

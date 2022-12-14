@@ -4,9 +4,7 @@ abstract class Component {
     default -Component!
 }
 
-abstract class Signal { // removes itself immediately - will never observe it existing
-    count 0..0 // cardinalities can probably only be enforced after :: triggers are done
-
+abstract class Signal(HAS MAX 0 This) { // removes itself immediately - will never observe it existing
     This:: -This
 }
 
@@ -16,6 +14,4 @@ abstract class Barrier { // player must clean up themselves, by end of action
     This: (MAX 0 Barrier: Ok) // puts a task on the queue that can only be handled if 0 barriers left
 }
 
-class Die { // anything that tries to create this will stall
-    count 0..0
-}
+class Die(HAS MAX 0 This)

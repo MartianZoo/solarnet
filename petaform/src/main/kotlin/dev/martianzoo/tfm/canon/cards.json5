@@ -11,19 +11,6 @@
       "effects": [ "Purchase<UseAction<ConvertPlants>>:: -Owed<Plant>" ],
     },
 
-    // Helion
-    {
-      "id": "B03",
-      "bundle": "B",
-      "deck": "CORPORATION",
-      "tags": [ "SpaceTag" ],
-      "immediate": [ "PROD[3 Heat], 42" ],
-      "effects": [
-        "Accept<Megacredit>: Accept<Heat>",
-        "Pay<Heat>: Pay<Megacredit>",
-      ],
-    },
-
     // Interplanetary Cinematics
     {
       "id": "B04",
@@ -78,10 +65,10 @@
       "deck": "CORPORATION",
       "tags": [ "EarthTag" ],
       "immediate": [ "40" ],
-      "actions": [ "3 -> HasRaisedTr: TerraformRating" ],
+      "actions": [ "3 -> HasRaisedTR: TerraformRating" ],
       "components": [
-        "class HasRaisedTr : Owned, Generational { count 0..1 }",
-        "class TrWatcher { count 1..1; TerraformRating<Player>: HasRaisedTr<Player>. }",
+        "class HasRaisedTR(HAS MAX 1 This) : Owned, Generational",
+        "class TrWatcher { TerraformRating<Player>: HasRaisedTR<Player>. }",
       ]
     },
 
@@ -500,20 +487,12 @@
       "immediate": [ "13, 2 ProjectCard" ],
     },
 
-    // Double Down
-    {
-      "id": "X40",
-      "bundle": "X",
-      "deck": "PRELUDE",
-      "immediate": [ "$copyImmediate(CardFront)" ], // that should make sure it's a prelude...
-    },
-
     // Merger[F]
     {
       "id": "X41F",
       "bundle": "X",
       "deck": "PRELUDE",
-      "immediate": [ "CardFront THEN -42" ],
+      "immediate": [ "CardFront THEN -42" ], // in follow mode, it's that easy
     },
 
     // New Partner[F]
@@ -594,7 +573,7 @@
         // The points attach to the card, not the tile
         "End: VictoryPoint / Adjacency(HAS Tile008, OceanTile)",
       ],
-      "components": [ "class Tile008 : CityTile" ], // the only case of subclassing a concrete class!
+      "components": [ "class Tile008 : CityTile" ],
       "requirement": "4 OceanTile",
       "cost": 26,
       "projectKind": "AUTOMATED",
@@ -801,7 +780,7 @@
       "bundle": "B",
       "deck": "PROJECT",
       "tags": [ "SpaceTag" ],
-      "effects": [ "EventCard(HAS SpaceTag): 3, 3 Heat" ],
+      "effects": [ "SpaceTag<EventCard>: 3, 3 Heat" ], // TODO
       "cost": 7,
       "projectKind": "ACTIVE",
     },
@@ -900,7 +879,7 @@
       "projectKind": "ACTIVE",
     },
 
-    // Deimos Down
+    // Deimos Down (original)
     {
       "id": "039",
       "bundle": "B",
@@ -1581,7 +1560,7 @@
       "projectKind": "AUTOMATED",
     },
 
-    // Great Dam
+    // Great Dam (original)
     {
       "id": "136",
       "bundle": "B",
@@ -1815,7 +1794,7 @@
       "projectKind": "AUTOMATED",
     },
 
-    // Magnetic Field Generators
+    // Magnetic Field Generators (original)
     {
       "id": "165",
       "bundle": "B",
@@ -2029,17 +2008,6 @@
       "projectKind": "ACTIVE",
     },
 
-    // Flooding
-    {
-      "id": "188",
-      "bundle": "B",
-      "deck": "PROJECT",
-      "immediate": [ "OceanTile OR (OceanTile<WaterArea(HAS Neighbor<OwnedTile<Player>>)>, -4 Megacredit<Player>?)" ],
-      "effects": [ "End: -VictoryPoint" ],
-      "cost": 7,
-      "projectKind": "EVENT",
-    },
-
     // Energy Saving
     {
       "id": "189",
@@ -2154,7 +2122,7 @@
       "projectKind": "AUTOMATED",
     },
 
-    // Inventors' Guild[F],
+    // Inventors' Guild[F]
     {
       "id": "006F",
       "bundle": "R",
@@ -2389,7 +2357,7 @@
       "projectKind": "ACTIVE",
     },
 
-    // Mars University[F],
+    // Mars University[F]
     {
       "id": "073F",
       "bundle": "R",
@@ -2571,7 +2539,7 @@
       "projectKind": "ACTIVE",
     },
 
-    // Business Network[F],
+    // Business Network[F]
     {
       "id": "110F",
       "bundle": "R",
@@ -2586,7 +2554,7 @@
       "projectKind": "ACTIVE",
     },
 
-    // Business Contacts[F],
+    // Business Contacts[F]
     {
       "id": "111F",
       "bundle": "R",
@@ -2806,7 +2774,7 @@
       "projectKind": "AUTOMATED",
     },
 
-    // Invention Contest[F],
+    // Invention Contest[F]
     {
       "id": "192F",
       "bundle": "R",
@@ -3424,19 +3392,6 @@
       "projectKind": "EVENT",
     },
 
-    // Sponsored Academies
-    {
-      "id": "247",
-      "bundle": "V",
-      "deck": "PROJECT",
-      "tags": [ "ScienceTag", "EarthTag" ],
-      "immediate": [ "-ProjectCard THEN 2 ProjectCard" ],
-      "components": [ "class Card247Watcher : Owned { count 1..1; Card247<Anyone>: ProjectCard FROM This }" ],
-      "effects": [ "End: VictoryPoint" ],
-      "cost": 9,
-      "projectKind": "AUTOMATED",
-    },
-
     // Stratopolis
     {
       "id": "248",
@@ -3864,18 +3819,6 @@
       "projectKind": "ACTIVE",
     },
 
-    // Solar Probe
-    {
-      "id": "C37",
-      "bundle": "C",
-      "deck": "PROJECT",
-      "tags": [ "ScienceTag", "SpaceTag" ],
-      "immediate": [ "ProjectCard / 3 ScienceTag" ],
-      "effects": [ "End: VictoryPoint" ],
-      "cost": 9,
-      "projectKind": "EVENT",
-    },
-
     // Solar Reflectors
     {
       "id": "C38",
@@ -4202,7 +4145,7 @@
       "projectKind": "ACTIVE",
     },
 
-    // Deimos Down*
+    // Deimos Down (promo)
     {
       "id": "X31",
       "bundle": "X",
@@ -4218,7 +4161,7 @@
       "projectKind": "EVENT",
     },
 
-    // Great Dam*
+    // Great Dam (promo)
     {
       "id": "X32",
       "bundle": "X",
@@ -4233,7 +4176,7 @@
       "projectKind": "AUTOMATED",
     },
 
-    // Magnetic Field Generators*
+    // Magnetic Field Generators (promo)
     {
       "id": "X33",
       "bundle": "X",

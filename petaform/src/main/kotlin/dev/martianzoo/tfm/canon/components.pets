@@ -1,10 +1,6 @@
-abstract class MarsMap {
-    NOW 2 MarsMap:: Die
+class Game(HAS MAX 1 MarsMap, MAX 1 Phase, MAX 9 OceanTile)
 
-    class Tharsis, Hellas, Elysium
-}
-
-abstract class Anyone {
+abstract class Anyone(HAS =1 This) {
     abstract class Player : Anyone {
         This:: 20 TerraformRating
 
@@ -13,11 +9,7 @@ abstract class Anyone {
     }                                                  // needs custom code anyway).
 }                                                      // `Instr / PROD[1]` must be banned! But no great loss.
 
-abstract class Area {
-    count 1..1
-
-    NOW 2 Tile<This>:: Die                             // The engine will never let a Die exist, so this prevents 2 tiles
-                                                       // (TODO 2 Occupants) from ever using the same Area
+abstract class Area(HAS =1 This, MAX 1 Tile) {
     abstract class RemoteArea
     abstract class MarsArea {
         abstract class LandArea {
@@ -28,40 +20,40 @@ abstract class Area {
     }
 }
 
-abstract class Tile<Area> {
-    count 0..1                                         // insufficient; see Area effect
+abstract class Tile<Area>
+
+abstract class MarsMap {
+    This:: $createMarsAreas(This) THEN $createBorders(This)
+
+    class Tharsis, Hellas, Elysium
 }
 
-class AreaAdjacency<MarsArea, MarsArea> {              // TODO figure this shit out
-    count 0..1
+class Border<MarsArea, MarsArea>(HAS MAX 1 This) {
+    // These probably have to be created programmatically; e.g. on Border<Tharsis3_3, Tharsis3_4>
+    // we have `Tile<Tharsis3_4>: Neighbor<Tile, Tharsis3_3>`
 }
-class Neighbor<MarsArea, Tile>(HAS Tile) {
-    count 0..1
+class Neighbor<Tile, MarsArea>(HAS MAX 1 This) {
+    Tile<MarsArea>: Adjacency<Tile, Tile<MarsArea>>
 }
-class Adjacency<Tile, Tile>(HAS 2 Tile) {
-    count 0..1
-}
+class Adjacency<Tile, Tile>(HAS MAX 1 This)
 
 abstract class GlobalParameter {                       // TODO splittable...
     default GlobalParameter.                           // By default, gains are "if possible"
 
     This: TerraformRating
 
-    class TemperatureStep { count 0..19 }
-    class OxygenStep      { count 0..14 }
-    class VenusStep       { count 0..15 }
+    class TemperatureStep(HAS MAX 19 This)
+    class OxygenStep(HAS MAX 14 This)
+    class VenusStep(HAS MAX 15 This)
 
     class OceanTile : Tile<MarsArea> {
-        // count 0..9 wouldn't work
         default OceanTile<WaterArea>
 
         Adjacency<This, Tile>: 2
     }
 }
 
-class TrackBonuser {
-    count 1..1
-
+class TrackBonuser(HAS =1 This) {
     NOW 3 TemperatureStep: PROD[Heat]                  // `NOW <predicate>` fires whenever that predicate transitions
     NOW 5 TemperatureStep: PROD[Heat]                  // from false to true
     NOW 15 TemperatureStep: OceanTile
@@ -71,10 +63,10 @@ class TrackBonuser {
     NOW 4 VenusStep: ProjectCard
     NOW 8 VenusStep: TerraformRating
 
-    NOW 10 OceanTile:: Die                             // Putting count 0..9 on OceanTile doesn't work!
+    NOW 10 OceanTile:: Die                             // OceanTile(HAS MAX 9 This) won't work
 }
 
-class Generation { count 1..* }
+class Generation
 
 abstract class Generational {                          // things that disappear when the generation changes over
     Generation:: -This                                 // and look, there they go (TODO ProductionPhase?)
@@ -115,7 +107,7 @@ abstract class Owned<Anyone> {                         // TODO default *Owned<Me
 
     abstract class OwnedTile : Tile {
         class GreeneryTile : Tile<MarsArea> {
-            default GreeneryTile<LandArea(HAS Neighbor<OwnedTile>)> // TODO
+            default GreeneryTile<LandArea(HAS Neighbor<OwnedTile>)> // TODO - yikes
             This: OxygenStep
             End: VictoryPoint
         }
@@ -131,8 +123,6 @@ abstract class Owned<Anyone> {                         // TODO default *Owned<Me
     abstract class Milestone                           // not really doing anything with this yet
 
     abstract class CardFront {                         // <CardResource>  TODO circular
-        count 0..1
-
         abstract class EventCard {
             This: PlayedEvent FROM This                // problem: how to still get the VPs??
         }                                              // could we get this happen autom. at EOT?
@@ -169,16 +159,8 @@ abstract class Owned<Anyone> {                         // TODO default *Owned<Me
             class NoResource { This:: Die }            // Because all cards must have a resource type
         }
 
-        class ActionUsed : Generational {
-            count 0..1
-        }
-
-        // got some paradoxes here too... this can't be created until after the card is,
-        // and triggers would have already fired
-        class Cost { count 0..* }
+        class ActionUsed(HAS MAX 1 This) : Generational
     }
-
-    class TagType                                      // No idea yet how this will actually work
 
     abstract class UseAction : Signal {
         class UseAction1, UseAction2, UseAction3, UseAction4
@@ -190,9 +172,7 @@ abstract class Owned<Anyone> {                         // TODO default *Owned<Me
     }
 }
 
-abstract class StandardAction {
-    count 1..1
-
+abstract class StandardAction(HAS =1 This) {
     class PlayCardFromHand   { -> PlayCard<CardFront> }
     class UseStandardProject { -> UseAction<StandardProject> }
     class UseCardAction      { -> UseAction<CardFront> THEN ActionUsed<CardFront> }
@@ -203,9 +183,7 @@ abstract class StandardAction {
                                                        // TODO X
 }
 
-abstract class StandardProject {
-    count 1..1
-
+abstract class StandardProject(HAS =1 This) {
     class PowerPlant   { 11 -> PROD[Energy] }
     class AsteroidSP   { 14 -> TemperatureStep }
     class AirScrapping { 15 -> VenusStep }
@@ -215,20 +193,9 @@ abstract class StandardProject {
 }
 
 abstract class Phase {
-    count 0..1                                         // insufficient, see next
-
-    NOW 2 Phase OR MAX 0 Phase:: Die                   // Once any Phase exists there must always be exactly one. The
-                                                       // new one can't remove the old one itself. This here forces
-                                                       // phase changes to be like `WhateverPhase FROM Phase`
-                                                       // TODO such a roundabout way to say it
-
-                                                       // `This:: -Phase.` wouldn't know not to remove itself, and would
-                                                       // let a strange phase with `-This:: Die` stick around. We'd need
-                                                       // `This:: -(Phase !This).` or `PRE This: -Phase.` or a new
-                                                       // directive like `This FROM Phase.` but all this is gross.
     class SetupPhase
     class CorporationPhase
-    class PreludePhase                                 // TODO how to skip it when not using Prelude
+    class PreludePhase
     class ResearchPhase
     class ActionPhase
     class ProductionPhase

@@ -13,10 +13,10 @@
 
     // Diversifier
     { "id": "HM1", "bundle": "H", "requirement": "8 TagType" },
-    // Tactician
-    { "id": "HM2", "bundle": "H", "requirement": "5 CardFront(HAS Requirement)" },
-    // Polar Explorer
-    { "id": "HM3", "bundle": "H", "requirement": "3 OwnedTile<MarsArea(HAS 8 Row)>" },
+//    // Tactician
+//    { "id": "HM2", "bundle": "H", "requirement": "5 CardFront(HAS Requirement)" },
+//    // Polar Explorer
+//    { "id": "HM3", "bundle": "H", "requirement": "3 OwnedTile<MarsArea(HAS 8 Row)>" },
     // Energizer
     { "id": "HM4", "bundle": "H", "requirement": "PROD[6 Energy]" },
     // Rim Settler

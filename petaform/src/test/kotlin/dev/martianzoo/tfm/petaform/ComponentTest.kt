@@ -144,12 +144,6 @@ class ComponentTest {
     assertThat(parse(Components.upper, "*")).isNull()
     assertThat(parse(Components.twoDots, "..")).isNotNull()
     assertThat(parse(Components.twoDots, " .. ")).isNotNull()
-    assertThat(parse(Components.count, "count 2..3")).isEqualTo(Count(2, 3))
-    val cs = parseComponents("""
-      class One {
-        count 2..3
-      }
-    """)
   }
 
   @Test fun default() {

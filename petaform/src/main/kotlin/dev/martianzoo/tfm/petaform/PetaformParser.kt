@@ -243,7 +243,6 @@ object PetaformParser {
 
     val twoDots = literal("..")
     val upper = QEs.scalar or (char('*') map { null })
-    val count = skipWord("count") and QEs.scalar and skip(twoDots) and upper map { (a, b) -> Count(a, b) }
 
     val isAbstract: Parser<Boolean> = optional(word("abstract")) and skipWord("class") map { it != null }
     val supertypes: Parser<List<TypeExpression>> = optionalList(skipChar(':') and commaSeparated(typeExpression))
@@ -252,9 +251,7 @@ object PetaformParser {
 
     val repeatableElement = parser { componentClump } or default or action or effect
     val repeatedElements = separatedTerms(repeatableElement, oneOrMore(char('\n')), acceptZero = true)
-    val bodyContents = optional(count and nls) and repeatedElements map {
-      listOfNotNull(it.t1) + it.t2
-    }
+    val bodyContents = nls and repeatedElements
     val body: Parser<List<Any>> = skipChar('{') and nls and bodyContents and nls and skipChar('}')
 
     val componentClump = nls and isAbstract and signature and (body or optionalList(moreSignatures)) map {
@@ -271,7 +268,7 @@ object PetaformParser {
         }
     }
 
-    val interior = separatedTerms(count or default or action or effect, char(';'))
+    val interior = separatedTerms(default or action or effect, char(';'))
     val oneLineBody = skipChar('{') and interior and skipChar('}')
     val oneLineComponent: Parser<Component> =
         isAbstract and signature and optionalList(oneLineBody) map {

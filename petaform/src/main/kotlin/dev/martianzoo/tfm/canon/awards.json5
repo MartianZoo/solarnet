@@ -1,11 +1,11 @@
 {
   "milestones": [
     // Celebrity
-    { "id": "EA1", "metric": "CardFront(HAS 20 cost)" },
+    { "id": "EA1", "metric": "CardFront(HAS 20 Cost)" },
     // Industrialist
     { "id": "EA2", "metric": "Steel OR Energy" },
     // Desert Settler
-    { "id": "EA3", "metric": "OwnedTile<MarsArea(HAS 5 row)>" },
+    { "id": "EA3", "metric": "OwnedTile<MarsArea(HAS 5 Row)>" },
     // Estate Dealer
     { "id": "EA4", "metric": "Adjacency(HAS OwnedTile, OceanTile)" },
     // Benefactor
