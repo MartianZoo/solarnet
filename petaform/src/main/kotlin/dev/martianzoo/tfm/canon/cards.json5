@@ -34,19 +34,6 @@
       "effects": [ "EventCard: 2" ],
     },
 
-    // Inventrix
-    {
-      "id": "B05",
-      "bundle": "B",
-      "deck": "CORPORATION",
-      "tags": [ "ScienceTag" ],
-      "immediate": [ "45" ],
-      "effects": [
-        "FirstAction: 3 ProjectCard",
-        "Purchase<CardFront>:: -2 Required<GlobalParameter>",
-      ],
-    },
-
     // Phobolog
     {
       "id": "B07",
@@ -161,19 +148,6 @@
       "tags": [ "BuildingTag" ],
       "immediate": [ "PROD[Steel], 35" ],
       "effects": [ "PROD[StandardResource]: StandardResource" ],
-    },
-
-    // Morning Star Inc.[F]
-    {
-      "id": "V04F",
-      "bundle": "V",
-      "deck": "CORPORATION",
-      "tags": [ "VenusTag" ],
-      "immediate": [ "50" ],
-      "effects": [
-        "FirstAction: 3 ProjectCard",
-        "Purchase<CardFront>:: -2 Required<VenusStep>",
-      ],
     },
 
     // Viron
@@ -1747,20 +1721,6 @@
       "projectKind": "AUTOMATED",
     },
 
-    // Adaptation Technology
-    {
-      "id": "153",
-      "bundle": "B",
-      "deck": "PROJECT",
-      "tags": [ "ScienceTag" ],
-      "effects": [
-        "Purchase<CardFront>:: -2 Required<GlobalParameter>",
-        "End: VictoryPoint",
-      ],
-      "cost": 12,
-      "projectKind": "ACTIVE",
-    },
-
     // Designed Microorganisms
     {
       "id": "155",
@@ -2179,18 +2139,6 @@
       "immediate": [ "PROD[-Energy], 2 TerraformRating" ],
       "cost": 8,
       "projectKind": "AUTOMATED",
-    },
-
-    // Special Design
-    {
-      "id": "206",
-      "bundle": "B",
-      "deck": "PROJECT",
-      "tags": [ "ScienceTag" ],
-      "immediate": [ "Card206Effect" ],
-      "components": [ "class Card206Effect : NextCardEffect { Purchase<CardFront>:: -2 Required<GlobalParameter> }" ],
-      "cost": 4,
-      "projectKind": "EVENT",
     },
 
     // Asteroid Mining Consortium
@@ -2866,18 +2814,6 @@
       "tags": [ "ScienceTag" ],
       "immediate": [ "ProjectCard" ],
       "cost": 2,
-      "projectKind": "EVENT",
-    },
-
-    // Indentured Workers
-    {
-      "id": "195",
-      "bundle": "R",
-      "deck": "PROJECT",
-      "immediate": [ "Card195Effect" ],
-      "effects": [ "End: -VictoryPoint" ],
-      "components": [ "class Card195Effect : NextCardEffect { Purchase<CardFront>:: -8 Owed }" ],
-      "cost": 0,
       "projectKind": "EVENT",
     },
 
@@ -3723,19 +3659,6 @@
       "effects": [ "End: VictoryPoint" ],
       "cost": 13,
       "projectKind": "AUTOMATED",
-    },
-
-    // Conscription
-    {
-      "id": "C05",
-      "bundle": "C",
-      "deck": "PROJECT",
-      "tags": [ "EarthTag" ],
-      "immediate": [ "CardC05Effect" ],
-      "components": [ "class CardC05Effect : NextCardEffect { Purchase<CardFront>:: -16 Owed }" ],
-      "requirement": "2 EarthTag",
-      "cost": 5,
-      "projectKind": "EVENT",
     },
 
     // Corona Extractor

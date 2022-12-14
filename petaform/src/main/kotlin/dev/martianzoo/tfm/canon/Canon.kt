@@ -12,7 +12,7 @@ import dev.martianzoo.util.Grid
 import dev.martianzoo.util.associateByCareful
 
 object Canon {
-  private val FILENAMES = setOf("system.pets", "options.pets", "components.pets", "payment.pets")
+  private val FILENAMES = setOf("system.pets", "components.pets", "payment.pets")
 
   val componentDefinitions: Map<String, ComponentDefinition> by lazy {
     val list = mutableListOf<Component>()

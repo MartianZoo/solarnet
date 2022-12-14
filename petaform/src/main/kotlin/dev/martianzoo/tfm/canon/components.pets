@@ -1,16 +1,45 @@
-abstract class Player : Anyone {
-    This:: 20 TerraformRating
+abstract class MarsMap {
+    NOW 2 MarsMap:: Die
 
-    This:: PROD[5]                                     // No negative Components! So we need a hack; at least this one
-    ProductionPhase: -5                                // confines the damage to Specialist/Generalist (and Robinson but it
-                                                       // needs custom code anyway).
-                                                       // `Instr / PROD[1]` must be banned! But no great loss.
-    Purchase<BuildingTag>:: Accept<Steel>
-    Purchase<SpaceTag>:: Accept<Titanium>
+    class Tharsis, Hellas, Elysium
+}
 
-    class SoloPlayer
+abstract class Anyone {
+    abstract class Player : Anyone {
+        This:: 20 TerraformRating
 
-    abstract class Me
+        This:: PROD[5]                                 // No negative Components! So we need a hack; at least this one
+        ProductionPhase: -5                            // confines the damage to Specialist/Generalist (and Robinson but it
+    }                                                  // needs custom code anyway).
+}                                                      // `Instr / PROD[1]` must be banned! But no great loss.
+
+abstract class Area {
+    count 1..1
+
+    NOW 2 Tile<This>:: Die                             // The engine will never let a Die exist, so this prevents 2 tiles
+                                                       // (TODO 2 Occupants) from ever using the same Area
+    abstract class RemoteArea
+    abstract class MarsArea {
+        abstract class LandArea {
+            abstract class VolcanicArea
+        }
+        abstract class WaterArea
+        abstract class NoctisArea
+    }
+}
+
+abstract class Tile<Area> {
+    count 0..1                                         // insufficient; see Area effect
+}
+
+class AreaAdjacency<MarsArea, MarsArea> {              // TODO figure this shit out
+    count 0..1
+}
+class Neighbor<MarsArea, Tile>(HAS Tile) {
+    count 0..1
+}
+class Adjacency<Tile, Tile>(HAS 2 Tile) {
+    count 0..1
 }
 
 abstract class GlobalParameter {                       // TODO splittable...
@@ -21,6 +50,13 @@ abstract class GlobalParameter {                       // TODO splittable...
     class TemperatureStep { count 0..19 }
     class OxygenStep      { count 0..14 }
     class VenusStep       { count 0..15 }
+
+    class OceanTile : Tile<MarsArea> {
+        // count 0..9 wouldn't work
+        default OceanTile<WaterArea>
+
+        Adjacency<This, Tile>: 2
+    }
 }
 
 class TrackBonuser {
@@ -38,48 +74,7 @@ class TrackBonuser {
     NOW 10 OceanTile:: Die                             // Putting count 0..9 on OceanTile doesn't work!
 }
 
-abstract class Area {
-    count 1..1
-
-    NOW 2 Tile<This>:: Die                             // The engine will never let a Die exist, so this prevents 2 tiles
-                                                       // (TODO 2 Occupants) from ever using the same Area
-    abstract class RemoteArea
-    abstract class MarsArea {
-        abstract class LandArea {
-            abstract class VolcanicArea
-        }
-        abstract class WaterArea
-        abstract class NoctisArea
-    }
-}
-
-class Row<MarsArea> {
-    count 0..*                                         // really the min is 1, but we don't need it to be autocreated...
-}
-
-abstract class Tile<Area> {
-    count 0..1                                         // insufficient; see Area effect
-
-    class OceanTile : GlobalParameter {
-        default OceanTile<WaterArea>
-
-        Adjacency<This, Tile>: 2
-    }
-}
-
-class AreaAdjacency<MarsArea, MarsArea> {              // TODO figure this shit out
-    count 0..1
-}
-class Neighbor<MarsArea, Tile>(HAS Tile) {
-    count 0..1
-}
-class Adjacency<Tile, Tile>(HAS 2 Tile) {
-    count 0..1
-}
-
-class Generation {
-    count 1..*
-}
+class Generation { count 1..* }
 
 abstract class Generational {                          // things that disappear when the generation changes over
     Generation:: -This                                 // and look, there they go (TODO ProductionPhase?)
@@ -91,24 +86,22 @@ abstract class Owned<Anyone> {                         // TODO default *Owned<Me
     abstract class Resource {
         abstract class StandardResource {
             class Megacredit
-            class Steel
-            class Titanium
+            class Steel {                              // It's certainly strange that your steel resources themselves
+                Purchase<BuildingTag>:: Accept<This>   // export their own power to pay for cards. But it should work?
+            }
+            class Titanium {
+                Purchase<SpaceTag>:: Accept<This>
+            }
             class Plant
-            class Heat
             class Energy {
                 ProductionPhase:: Heat FROM This       // :: ensures it happens before production
             }
+            class Heat
         }
     }
 
     class Production<StandardResource> {
         ProductionPhase: StandardResource              // Specializing to Production<Heat> specializes this too
-    }
-
-    class FreeProduction<StandardResource> : Signal {  // Odd hack because we don't have loops. The min count 1 causes
-        count 1..1 // 1..0                             // 1 of each possible concrete subtype to be created autom.,
-                                                       // upon which it can gift a free production and be done
-        This IF =0 CorporateEra:: PROD[StandardResource]
     }
 
     class TerraformRating : Owned<Player> {            // TODO what else should be <Player> and why
@@ -122,27 +115,20 @@ abstract class Owned<Anyone> {                         // TODO default *Owned<Me
 
     abstract class OwnedTile : Tile {
         class GreeneryTile : Tile<MarsArea> {
-            default GreeneryTile<LandArea(HAS Neighbor<OwnedTile>)>
-
+            default GreeneryTile<LandArea(HAS Neighbor<OwnedTile>)> // TODO
             This: OxygenStep
             End: VictoryPoint
         }
-        class CityTile {                               // TODO "open" to allow Capital to subclass it
+        class CityTile {
             default CityTile<LandArea(HAS MAX 0 Neighbor<CityTile<Anyone>>)>
-
             End: VictoryPoint / Adjacency(HAS This, GreeneryTile<Anyone>)
         }
         abstract class SpecialTile : OwnedTile<MarsArea> {
-            NOW 2 SpecialTile<Area>: Die               // Fishy; this is tryna get specialized
             default SpecialTile<LandArea>
         }
     }
 
-    abstract class Milestone {
-        count 0..1
-
-        NOW 4 Milestone<Anyone>: Die
-    }
+    abstract class Milestone                           // not really doing anything with this yet
 
     abstract class CardFront {                         // <CardResource>  TODO circular
         count 0..1
@@ -162,9 +148,6 @@ abstract class Owned<Anyone> {                         // TODO default *Owned<Me
 
         // TODO .. but.. these have to exist as soon as the card does, for triggers....
         abstract class Tag {
-         // Purchase<CardFront>:: Purchase<This>       // VERY VERY IFFY
-         // CardFront:: This                           // VERY VERY IFFY
-
             class BuildingTag, SpaceTag
             class CityTag, PowerTag, ScienceTag
 
@@ -189,8 +172,6 @@ abstract class Owned<Anyone> {                         // TODO default *Owned<Me
         class ActionUsed : Generational {
             count 0..1
         }
-
-        // WildTag?
 
         // got some paradoxes here too... this can't be created until after the card is,
         // and triggers would have already fired
@@ -217,9 +198,6 @@ abstract class StandardAction {
     class UseCardAction      { -> UseAction<CardFront> THEN ActionUsed<CardFront> }
     class ConvertPlants      { 8 Plant -> GreeneryTile }
     class ConvertHeat        { 8 Heat -> TemperatureStep }
-    class ClaimMilestone     { 8 -> Milestone }
-
-    // TODO Award
 
     class SellPatents        { 1 ProjectCard -> 1 }    // Technically a standard project, but that makes things hard
                                                        // TODO X
@@ -234,17 +212,6 @@ abstract class StandardProject {
     class Aquifer      { 18 -> OceanTile }
     class Greenery     { 23 -> GreeneryTile }
     class City         { 25 -> CityTile, PROD[1] }
-
-    class BufferGas {                                  // TODO figure out the right way to make this not exist in non-TRsolo games
-        count 0..1
-        16 -> TerraformRating
-    }
-}
-
-abstract class NextCardEffect : Generational {
-    count 0..1
-
-    CardFront:: -This
 }
 
 abstract class Phase {

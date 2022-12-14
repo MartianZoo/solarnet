@@ -1,22 +1,13 @@
-// version 0.1
-
-// Weirdly, though all this stuff is player-local it doesn't really need to be Owned, since every
-// class has some Owned component as a parameter/dependency.
-
-class Purchase<Component> : Barrier {
+class Purchase<Component> : Owned<Player>, Barrier {
     NOW MAX 1 Barrier: Component FROM This // must be me, right?
 }
 
-class Required<Component> : Barrier {
-    default -Required.
-}
-
-class Owed<Resource> : Barrier {
+class Owed<Resource<Player>> : Owned<Player>, Barrier {
    default -Owed.
    This:: Accept<Resource>
 }
 
-class Accept<Resource> {
+class Accept<Resource> : Owned<Player> {
     count 0..1
     default Accept. // never hurts to accept twice
 
@@ -24,6 +15,6 @@ class Accept<Resource> {
     NOW MAX 0 Owed:: -This // TODO what if there never had been any Owed's?
 }
 
-class Pay<Resource> : Signal { // TODO lets you overpay like mad
+class Pay<Resource> : Owned<Player>, Signal { // TODO lets you overpay like mad
     This:: -Owed<Resource>.
 }
