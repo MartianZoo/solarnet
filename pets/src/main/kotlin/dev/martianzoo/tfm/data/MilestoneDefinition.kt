@@ -1,8 +1,14 @@
 package dev.martianzoo.tfm.data
 
 import com.squareup.moshi.Json
+import dev.martianzoo.tfm.pets.ComponentDef
+import dev.martianzoo.tfm.pets.Effect
+import dev.martianzoo.tfm.pets.Effect.Trigger.OnGain
+import dev.martianzoo.tfm.pets.Instruction.Gain
+import dev.martianzoo.tfm.pets.Instruction.Gated
 import dev.martianzoo.tfm.pets.PetsParser.parse
 import dev.martianzoo.tfm.pets.Predicate
+import dev.martianzoo.tfm.pets.TypeExpression
 
 data class MilestoneDefinition(
     val id: String,
@@ -22,11 +28,14 @@ data class MilestoneDefinition(
 
   val requirement: Predicate by lazy { parse(requirementText) }
 
-  override val asComponentDefinition: ComponentDefinition by lazy {
-    ComponentDefinition(
+  override val toComponentDef: ComponentDef by lazy {
+    ComponentDef(
         "Milestone$id",
         abstract = false,
-        supertypesText = setOf("Milestone"),
-        immediateText = "$requirementText: Ok")
+        supertypes = setOf(TypeExpression("Milestone")),
+        effects = setOf(Effect(
+            OnGain(TypeExpression("This")),
+            Gated(requirement, Gain(TypeExpression("Ok")))))
+    )
   }
 }

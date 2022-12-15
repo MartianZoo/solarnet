@@ -45,6 +45,7 @@ import dev.martianzoo.tfm.pets.Instruction.TypeInFrom
 import dev.martianzoo.tfm.pets.Predicate.Exact
 import dev.martianzoo.tfm.pets.Predicate.Max
 import dev.martianzoo.tfm.pets.Predicate.Min
+import dev.martianzoo.util.toSetCareful
 import kotlin.reflect.KClass
 import kotlin.reflect.cast
 
@@ -55,19 +56,19 @@ object PetsParser {
   fun <T> parse(parser: Parser<T>, petsText: String) =
       parser.parseToEnd(tokenizer.tokenize(petsText))
 
-  fun parseComponents(arg: String): List<Component> {
+  fun parseComponents(arg: String): List<ComponentDef> {
     var index = 0
-    val comps = mutableListOf<Component>()
-    var result: ParseResult<List<Component>>? = null
+    val comps = mutableListOf<ComponentDef>()
+    var result: ParseResult<List<ComponentDef>>? = null
     do {
       if (result is ErrorResult) throw ParseException(result)
-      result = Components.componentClump.tryParse(tokenizer.tokenize(arg), index)
+      result = Components.componentFile.tryParse(tokenizer.tokenize(arg), index)
       if (result is Parsed) {
         comps += result.value
         index = result.nextPosition
       }
     } while (!isEOF(result!!))
-    return comps.map { it.copy(complete = true) }
+    return comps
   }
 
   fun <P : PetsNode> parse(type: KClass<P>, petsText: String): P {
@@ -234,7 +235,6 @@ object PetsParser {
   val effect = publish(Effects.effect)
 
   object Components {
-    data class Count(val min: Int, val max: Int?)
     data class Signature(val expr: TypeExpression, val sups: List<TypeExpression>)
 
     val nls: SkipParser = skip(zeroOrMore(char('\n')))
@@ -267,37 +267,62 @@ object PetsParser {
           createCcd(abs, sig, bodyOrMoreSigs)
         }
     }
+    val componentFile = componentClump map { it.map { it.getDef() } }
 
     val interior = separatedTerms(default or action or effect, char(';'))
     val oneLineBody = skipChar('{') and interior and skipChar('}')
-    val oneLineComponent: Parser<Component> =
+    val oneLineComponent: Parser<ComponentDef> =
         isAbstract and signature and optionalList(oneLineBody) map {
-      (abs, sig, body) -> createCcd(abs, sig, body).first().copy(complete = true)
+      (abs, sig, body) -> createCcd(abs, sig, body).first().getDef()
+    }
+
+    class ComponentDefInProcess(
+        private val def: ComponentDef,
+        private val isComplete: Boolean) {
+
+      fun getDef() = if (isComplete) def else fixSupertypes()
+
+      fun fillInSuperclass(s: String) =
+          if (isComplete || def.supertypes.any { it.className == s }) {
+            this
+          } else {
+            val altered = def.copy(supertypes = def.supertypes + TypeExpression(s))
+            ComponentDefInProcess(altered, true)
+          }
+
+      private fun fixSupertypes(): ComponentDef {
+        val sups = def.supertypes
+        return when {
+          def.name == "Component" -> {
+            require(sups.isEmpty())
+            def
+          } sups.isEmpty() -> {
+            def.copy(supertypes = setOf(TypeExpression("Component")))
+          } else -> {
+            require(TypeExpression("Component") !in sups)
+            def
+          }
+        }
+      }
     }
 
     private fun createCcd(abst: Boolean, sig: Signature, contents: List<Any> = listOf()):
-        List<Component> {
-      val counts = contents.filterIsInstance<Count>().toSet()
-      val defs = contents.filterIsInstance<Instruction>().toSet()
-      val acts = contents.filterIsInstance<Action>().toSet()
-      val effs = contents.filterIsInstance<Effect>().toSet()
-      val subs = contents.filterIsInstance<List<Component>>().toSet()
+        List<ComponentDefInProcess> {
+      val defs = contents.filterIsInstance<Instruction>().toSetCareful()
+      val acts = contents.filterIsInstance<Action>().toSetCareful()
+      val effs = contents.filterIsInstance<Effect>().toSetCareful()
+      val subs = contents.filterIsInstance<List<ComponentDefInProcess>>().toSetCareful()
 
-      val count = when (counts.size) {
-        0 -> Count(0, null)
-        1 -> counts.first()
-        else -> error("")
-      }
-
-      val comp = Component(
-          sig.expr, abst, sig.sups.toSet(), acts, effs, defs, count.min, count.max, complete = false)
-      return listOf(comp) + subs.flatten().map {
-        if (it.supertypes.any { it.className == sig.expr.className }) { // TODO
-          it.copy(complete = true)
-        } else {
-          it.copy(supertypes = it.supertypes + TypeExpression(sig.expr.className), complete = true)
-        }
-      }
+      val comp = ComponentDef(
+          name = sig.expr.className,
+          abstract = abst,
+          supertypes = sig.sups.toSetCareful(),
+          dependencies = sig.expr.specializations,
+          effs + acts.withIndex().map { (i, act) -> actionToEffect(act, i) },
+          defs
+      )
+      return listOf(ComponentDefInProcess(comp, false)) +
+          subs.flatten().map { it.fillInSuperclass(sig.expr.className) }
     }
   }
   @Suppress("unused")

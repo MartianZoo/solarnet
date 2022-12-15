@@ -3,12 +3,15 @@ package dev.martianzoo.tfm.data
 import com.squareup.moshi.Json
 import dev.martianzoo.tfm.data.CardDefinition.ProjectKind.ACTIVE
 import dev.martianzoo.tfm.pets.Action
+import dev.martianzoo.tfm.pets.ComponentDef
 import dev.martianzoo.tfm.pets.Effect
+import dev.martianzoo.tfm.pets.Effect.Trigger.OnGain
 import dev.martianzoo.tfm.pets.Instruction
 import dev.martianzoo.tfm.pets.PetsParser
 import dev.martianzoo.tfm.pets.PetsParser.parse
 import dev.martianzoo.tfm.pets.Predicate
 import dev.martianzoo.tfm.pets.TypeExpression
+import dev.martianzoo.tfm.pets.actionToEffect
 import dev.martianzoo.util.toSetCareful
 
 /**
@@ -164,15 +167,18 @@ data class CardDefinition(
   val effects by lazy { effectsText.map { parse<Effect>(it) }.toSetCareful() }
   val requirement: Predicate? by lazy { requirementText?.let(PetsParser::parse) }
 
-  override val asComponentDefinition by lazy {
-    val type = if (projectKind == null) "CardFront" else projectKind.type
-    ComponentDefinition(
-        name = "Card$id",
-        supertypesText = setOf(type),
-        immediateText = immediate?.toString(), // TODO hack
-        actionsText = actionsText,
-        effectsText = effectsText)
+  override val toComponentDef by lazy {
+    val type = TypeExpression(if (projectKind == null) "CardFront" else projectKind.type)
+    ComponentDef(name = "Card$id", supertypes = setOf(type), effects = allEffects)
   }
+
+  val allEffects: Set<Effect> by lazy {
+    (listOfNotNull(immediate).map(::immediateToEffect) +
+        effects +
+        actions.withIndex().map { (i, act) -> actionToEffect(act, i) }).toSetCareful()
+  }
+
+  private fun immediateToEffect(instr: Instruction) = Effect(OnGain(TypeExpression("This")), instr)
 
   private fun inactive(): Boolean {
     return actionsText.isEmpty() &&

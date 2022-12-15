@@ -1,12 +1,11 @@
 package dev.martianzoo.tfm.canon
 
 import dev.martianzoo.tfm.data.CardDefinition
-import dev.martianzoo.tfm.data.ComponentDefinition
 import dev.martianzoo.tfm.data.JsonReader
 import dev.martianzoo.tfm.data.JsonReader.combine
 import dev.martianzoo.tfm.data.MarsAreaDefinition
 import dev.martianzoo.tfm.data.MilestoneDefinition
-import dev.martianzoo.tfm.pets.Component
+import dev.martianzoo.tfm.pets.ComponentDef
 import dev.martianzoo.tfm.pets.PetsParser.parseComponents
 import dev.martianzoo.util.Grid
 import dev.martianzoo.util.associateByCareful
@@ -14,14 +13,14 @@ import dev.martianzoo.util.associateByCareful
 object Canon {
   private val FILENAMES = setOf("system.pets", "components.pets", "payment.pets")
 
-  val componentDefinitions: Map<String, ComponentDefinition> by lazy {
-    val list = mutableListOf<Component>()
+  val componentDefinitions: Map<String, ComponentDef> by lazy {
+    val list = mutableListOf<ComponentDef>()
     for (f in FILENAMES) {
       val s = readResource(f)
       println("Parsing $f")
       list += parseComponents(s)
     }
-    list.map(ComponentDefinition.Companion::from).associateByCareful { it.name }
+    list.associateByCareful { it.name }
   }
 
   val cardDefinitions: Map<String, CardDefinition> by lazy {
@@ -32,7 +31,7 @@ object Canon {
     JsonReader.readMilestones(readResource("milestones.json5"))
   }
 
-  val auxiliaryComponentDefinitions: Map<String, ComponentDefinition> by lazy {
+  val auxiliaryComponentDefinitions: Map<String, ComponentDef> by lazy {
     JsonReader.auxiliaryComponentDefinitions(cardDefinitions.values)
   }
 
@@ -41,7 +40,7 @@ object Canon {
   }
 
   // You wouldn't normally use this, but have only a single map in play.
-  val allDefinitions: Map<String, ComponentDefinition> by lazy {
+  val allDefinitions: Map<String, ComponentDef> by lazy {
     combine(
         componentDefinitions.values,
         cardDefinitions.values,

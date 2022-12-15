@@ -4,32 +4,32 @@ import dev.martianzoo.tfm.pets.Predicate
 import dev.martianzoo.util.joinOrEmpty
 
 /** An actual type type, like the one represented by `CityTile<LandArea>`. */
-data class ComponentType(
-    val componentClass: ComponentClass,
+data class PetType(
+    val petClass: PetClass,
     val dependencies: DependencyMap,
     val predicates: Set<Predicate> = setOf()) {
   init {
     // specializations.forEach { }
   }
 
-  fun isSubtypeOf(other: ComponentType): Boolean =
-      componentClass.isSubclassOf(other.componentClass) &&
+  fun isSubtypeOf(other: PetType): Boolean =
+      petClass.isSubclassOf(other.petClass) &&
       dependencies.specializes(other.dependencies)
 
-  fun specialize(specs: DependencyMap): ComponentType {
+  fun specialize(specs: DependencyMap): PetType {
     return copy(dependencies = dependencies.specialize(specs))
   }
 
-  fun glb(other: ComponentType): ComponentType {
-    val newClass = componentClass.glb(other.componentClass)
+  fun glb(other: PetType): PetType {
+    val newClass = petClass.glb(other.petClass)
     val newDeps = DependencyMap.merge(listOf(dependencies, other.dependencies))
     val newPredicates = predicates.union(other.predicates)
-    return ComponentType(newClass, newDeps, newPredicates).also {
+    return PetType(newClass, newDeps, newPredicates).also {
       require(it.isSubtypeOf(this))
       require(it.isSubtypeOf(other))
     }
   }
 
   override fun toString() =
-      "$componentClass$dependencies${predicates.joinOrEmpty(prefix = "(HAS ", suffix = ")")}"
+      "$petClass$dependencies${predicates.joinOrEmpty(prefix = "(HAS ", suffix = ")")}"
 }

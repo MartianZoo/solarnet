@@ -1,7 +1,7 @@
 package dev.martianzoo.tfm.data
 
 import dev.martianzoo.tfm.pets.Action
-import dev.martianzoo.tfm.pets.Component
+import dev.martianzoo.tfm.pets.ComponentDef
 import dev.martianzoo.tfm.pets.Effect
 import dev.martianzoo.tfm.pets.Instruction
 import dev.martianzoo.tfm.pets.PetsNode
@@ -66,7 +66,7 @@ object Vanillafier {
                 is Action.Cost -> TODO()
                 is Instruction.FromExpression -> TODO()
                 is Effect.Trigger -> TODO()
-                is Component -> TODO()
+                is ComponentDef -> TODO()
 
                 else -> {
                     error("this really oughtta be impossible")

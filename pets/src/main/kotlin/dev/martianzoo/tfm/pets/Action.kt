@@ -1,5 +1,7 @@
 package dev.martianzoo.tfm.pets
 
+import dev.martianzoo.tfm.pets.Instruction.Intensity.MANDATORY
+import dev.martianzoo.tfm.pets.Instruction.Remove
 import dev.martianzoo.util.toSetCarefulP
 
 data class Action(val cost: Cost?, val instruction: Instruction) : PetsNode() {
@@ -7,6 +9,8 @@ data class Action(val cost: Cost?, val instruction: Instruction) : PetsNode() {
   override val children = setOfNotNull(cost) + instruction
 
   sealed class Cost : PetsNode() {
+    abstract fun toInstruction(): Instruction
+
     data class Spend(val qe: QuantifiedExpression) : Cost() {
       constructor(expr: TypeExpression?, scalar: Int? = null) : this(QuantifiedExpression(expr, scalar))
       init {
@@ -15,6 +19,7 @@ data class Action(val cost: Cost?, val instruction: Instruction) : PetsNode() {
       }
       override fun toString() = qe.toString()
       override val children = setOf(qe)
+      override fun toInstruction() = Remove(qe, MANDATORY)
     }
 
     // can't do non-prod per prod yet
@@ -34,6 +39,7 @@ data class Action(val cost: Cost?, val instruction: Instruction) : PetsNode() {
       override fun toString() = "$cost / $qe" // parens
       override fun precedence() = 5
       override val children = setOf(cost, qe)
+      override fun toInstruction() = Instruction.Per(cost.toInstruction(), qe)
     }
 
     data class Or(var costs: Set<Cost>) : Cost() {
@@ -43,6 +49,7 @@ data class Action(val cost: Cost?, val instruction: Instruction) : PetsNode() {
       }
       override fun precedence() = 3
       override val children = costs
+      override fun toInstruction() = Instruction.or(costs.map(Cost::toInstruction))
     }
 
     data class Multi(var costs: List<Cost>) : Cost() {
@@ -52,12 +59,14 @@ data class Action(val cost: Cost?, val instruction: Instruction) : PetsNode() {
       }
       override fun precedence() = 1
       override val children = costs
+      override fun toInstruction() = Instruction.multi(costs.map(Cost::toInstruction))
     }
 
     data class Prod(val cost: Cost) : Cost() {
       override fun toString() = "PROD[${cost}]"
       override val children = setOf(cost)
       override fun countProds() = super.countProds() + 1
+      override fun toInstruction() = Instruction.Prod(cost.toInstruction())
     }
 
     companion object {

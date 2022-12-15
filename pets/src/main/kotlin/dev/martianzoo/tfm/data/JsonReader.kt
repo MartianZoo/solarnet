@@ -2,11 +2,10 @@ package dev.martianzoo.tfm.data
 
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
-import dev.martianzoo.tfm.pets.Component
+import dev.martianzoo.tfm.pets.ComponentDef
 import dev.martianzoo.tfm.pets.PetsParser.parse
 import dev.martianzoo.util.Grid
 import dev.martianzoo.util.associateByCareful
-import dev.martianzoo.util.toSetCareful
 import java.util.*
 import kotlin.text.RegexOption.DOT_MATCHES_ALL
 
@@ -74,25 +73,15 @@ internal object JsonReader {
     }
   }
 
-  fun auxiliaryComponentDefinitions(cardDefs: Collection<CardDefinition>): Map<String, ComponentDefinition> =
+  fun auxiliaryComponentDefinitions(cardDefs: Collection<CardDefinition>): Map<String, ComponentDef> =
     cardDefs.flatMap { it.extraComponentsText }
-        .map { parse<Component>(it) }
-        .map { ComponentDefinition(
-            it.expression.className,
-            it.abstract,
-            it.supertypes.map(Any::toString).toSetCareful(),
-            it.expression.specializations.map(Any::toString),
-            null,
-            it.actions.map(Any::toString).toSetCareful(),
-            it.effects.map(Any::toString).toSetCareful(),
-          )
-        }
+        .map { parse<ComponentDef>(it) }
         .associateBy { it.name }
 
   // You wouldn't normally use this, but have only a single map in play.
-  fun combine(vararg defs: Collection<Definition>): Map<String, ComponentDefinition> {
+  fun combine(vararg defs: Collection<Definition>): Map<String, ComponentDef> {
     val allDefns: List<Definition> = defs.flatMap { it }
-    return allDefns.map { it.asComponentDefinition }.associateByCareful { it.name }
+    return allDefns.map { it.toComponentDef }.associateByCareful { it.name }
   }
 
   // Stuff

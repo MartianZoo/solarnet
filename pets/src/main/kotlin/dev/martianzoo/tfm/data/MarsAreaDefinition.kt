@@ -1,5 +1,8 @@
 package dev.martianzoo.tfm.data
 
+import dev.martianzoo.tfm.pets.ComponentDef
+import dev.martianzoo.tfm.pets.Effect
+import dev.martianzoo.tfm.pets.Effect.Trigger
 import dev.martianzoo.tfm.pets.Instruction
 import dev.martianzoo.tfm.pets.PetsParser.parse
 import dev.martianzoo.tfm.pets.TypeExpression
@@ -39,15 +42,16 @@ data class MarsAreaDefinition(
   val bonus: Instruction? by lazy { bonusText?.let { parse(it) } }
   val type: TypeExpression by lazy { parse(typeText) }
 
-  override val asComponentDefinition by lazy {
-    val effects =
-        if (bonusText == null) {
-          setOf()
-        } else {
-          setOf("Tile<This>: $bonusText") // don't want to have to do this in code like that
-        }
-    ComponentDefinition(componentName(), supertypesText = setOf(typeText), effectsText = effects)
+  override val toComponentDef by lazy {
+    ComponentDef(
+        componentName(),
+        abstract = false,
+        supertypes = setOf(type),
+        effects = setOfNotNull(bonus?.let { Effect(trigger, it) })
+    )
   }
 
   fun componentName() = "${mapName}${row}_$column"
 }
+
+val trigger = parse<Trigger>("Tile<This>")
