@@ -90,3 +90,7 @@ Note that *why* these formulations work will take more explaining. I believe PET
 * Because it's really hard
 * Because I think it will be cool
 * Because for some reason I just love this game that much
+
+## Why the name PETS
+
+Who doesn't love pets?
