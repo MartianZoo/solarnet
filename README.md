@@ -1,11 +1,5 @@
 # PETS
 
-Were you looking to play a game of _Terraforming Mars_? Sorry, in the wrong place! [See this amazing app](http://github.com/bafolts/terraforming-mars) and please buy a copy of the physical game too if you haven't. (I simply can't in good conscience recommend the official video game adaptation.)
-
-The project you see here has no relationship with any other apps.
-
-## What's this then?
-
 PETS is a simple specification language for representing game component behaviors in _Terraforming Mars_. It lets components with heterogeneous behaviors (cards, milestones, maps, etc.) be expressed as pure data. The idea is that we could generate both the *iconographic* and *natural-language* instructions on a card from the same single source. Nifty huh?
 
 Here's Freyja Biodomes. Okay, it looks like a block of JSON data, yeah, but the parts inside the immediate/effects/requirement sections are each written in PETS:
