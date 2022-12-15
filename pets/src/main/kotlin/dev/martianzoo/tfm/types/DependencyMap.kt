@@ -39,8 +39,17 @@ data class DependencyMap(val map: Map<DependencyKey, PetType> = mapOf()) {
     return DependencyMap(newMap)
   }
 
+  // just a hack for debugging purposes
+  fun translate(d: DependencyKey): String {
+    return when (d.toString()) {
+      "Owned_1" -> "owner"
+      "Tile_1" -> "location"
+      "Cardbound_1" -> "onCard"
+      else -> d.toString()
+    }
+  }
   override fun toString() =
-      map.map { "${it.key}=${it.value}" }.joinOrEmpty(surround = "<>")
+      map.map { "${translate(it.key)}=${it.value}" }.joinOrEmpty(surround = "<>")
 
   companion object {
     fun merge(maps: List<DependencyMap>): DependencyMap {
