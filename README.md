@@ -39,8 +39,8 @@ Solarnet is a game engine. It's slightly more accurate to say it will be a game 
 
 Now you might be wondering where the following goals went
 
-1. It won't be slow as fuck
-2. It won't be a gobsmacking pain in the ass to use
+4. It won't be slow as fuck
+5. It won't be a gobsmacking pain in the ass to use
 
 They don't exist because these things just aren't important right now. We can always make them better later. And the goal is NOT to make something that could be used in an actual running game. The most exciting thing to me would be if one of the existing apps would use it to parity-test against.
 
