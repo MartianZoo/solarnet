@@ -137,6 +137,21 @@
       "effects": [ "PROD[StandardResource]: StandardResource" ],
     },
 
+    // Arklight
+    {
+      "id": "CC2",
+      "bundle": "C",
+      "deck": "CORPORATION",
+      "tags": [ "AnimalTag" ],
+      "immediate": [ "45, PROD[2]" ],
+      "effects" : [
+        "AnimalTag: Animal<This>", // TODO: OR triggers
+        "PlantTag: Animal<This>",
+        "End: VictoryPoint / 2 Animal<This>",
+      ],
+      "resourceType": "Animal",
+    },
+
     // Viron
     {
       "id": "V05",

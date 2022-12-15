@@ -1,11 +1,11 @@
 {
   "milestones": [
-    // Celebrity
-    { "id": "EA1", "metric": "CardFront(HAS 20 Cost)" },
-    // Industrialist
-    { "id": "EA2", "metric": "Steel OR Energy" },
-    // Desert Settler
-    { "id": "EA3", "metric": "OwnedTile<MarsArea(HAS 5 Row)>" },
+//    // Celebrity
+//    { "id": "EA1", "metric": "CardFront(HAS 20 Cost)" },
+//    // Industrialist
+//    { "id": "EA2", "metric": "Steel OR Energy" },
+//    // Desert Settler
+//    { "id": "EA3", "metric": "OwnedTile<MarsArea(HAS 5 Row)>" },
     // Estate Dealer
     { "id": "EA4", "metric": "Adjacency(HAS OwnedTile, OceanTile)" },
     // Benefactor
@@ -30,8 +30,8 @@
     { "id": "MA3", "metric": "ScienceTag" },
     // Thermalist
     { "id": "MA4", "metric": "Heat" },
-    // Miner
-    { "id": "MA5", "metric": "Steel OR Titanium" },
+//    // Miner
+//    { "id": "MA5", "metric": "Steel OR Titanium" },
 
     // Venuphile
     { "id": "VA1", "metric": "VenusTag" },

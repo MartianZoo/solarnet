@@ -49,7 +49,7 @@ abstract class GlobalParameter {                       // TODO splittable...
     class OceanTile : Tile<MarsArea> {
         default OceanTile<WaterArea>
 
-        Adjacency<This, Tile>: 2
+        Adjacency<This, Tile>: 2                       // TODO "BY Me"
     }
 }
 
