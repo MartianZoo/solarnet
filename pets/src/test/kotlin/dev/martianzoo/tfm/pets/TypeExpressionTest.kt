@@ -1,15 +1,15 @@
-package dev.martianzoo.tfm.petaform
+package dev.martianzoo.tfm.pets
 
 import com.google.common.truth.Truth.assertThat
 import org.junit.jupiter.api.Test
 
 // Most testing is done by AutomatedTest
 class TypeExpressionTest {
-  private fun testRoundTrip(petaform: String) = testRoundTrip<TypeExpression>(petaform)
+  private fun testRoundTrip(petsText: String) = testRoundTrip<TypeExpression>(petsText)
 
   @Test
   fun simpleSourceToApi() {
-    val foo: TypeExpression = PetaformParser.parse("Foo")
+    val foo: TypeExpression = PetsParser.parse("Foo")
     assertThat(foo).isEqualTo(TypeExpression("Foo"))
   }
 
@@ -36,7 +36,7 @@ class TypeExpressionTest {
 
   @Test
   fun complexSourceToApi() {
-    val parsed: TypeExpression = PetaformParser.parse(" Red< Blue  < This,Teal> , Gold > ")
+    val parsed: TypeExpression = PetsParser.parse(" Red< Blue  < This,Teal> , Gold > ")
     assertThat(parsed).isEqualTo(
         TypeExpression(
             "Red",

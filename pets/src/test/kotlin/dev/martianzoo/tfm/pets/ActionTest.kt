@@ -1,4 +1,4 @@
-package dev.martianzoo.tfm.petaform
+package dev.martianzoo.tfm.pets
 
 import com.google.common.truth.Truth
 import org.junit.jupiter.api.Test

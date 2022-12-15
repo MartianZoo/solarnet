@@ -2,13 +2,13 @@ package dev.martianzoo.tfm.data
 
 import com.squareup.moshi.Json
 import dev.martianzoo.tfm.data.CardDefinition.ProjectKind.ACTIVE
-import dev.martianzoo.tfm.petaform.Action
-import dev.martianzoo.tfm.petaform.Effect
-import dev.martianzoo.tfm.petaform.Instruction
-import dev.martianzoo.tfm.petaform.PetaformParser
-import dev.martianzoo.tfm.petaform.PetaformParser.parse
-import dev.martianzoo.tfm.petaform.Predicate
-import dev.martianzoo.tfm.petaform.TypeExpression
+import dev.martianzoo.tfm.pets.Action
+import dev.martianzoo.tfm.pets.Effect
+import dev.martianzoo.tfm.pets.Instruction
+import dev.martianzoo.tfm.pets.PetsParser
+import dev.martianzoo.tfm.pets.PetsParser.parse
+import dev.martianzoo.tfm.pets.Predicate
+import dev.martianzoo.tfm.pets.TypeExpression
 import dev.martianzoo.util.toSetCareful
 
 /**
@@ -18,7 +18,7 @@ import dev.martianzoo.util.toSetCareful
  *
  * *Validation:*  the properties state numerous "guarantees", but in most cases this class is not
  * able to internally validate those conditions. Actual parsing of the strings must be handled by a
- * Petaform parser external to this library.
+ * PETS parser external to this library.
  */
 data class CardDefinition(
     /**
@@ -56,7 +56,7 @@ data class CardDefinition(
     val replaces: String? = null,
 
     /**
-     * The tags on the card, each expressed as a Petaform component name. If a card (such as Venus
+     * The tags on the card, each expressed as a PETS component name. If a card (such as Venus
      * Governor) has multiple of the same tag, the same string should appear that many times in the
      * list. Order is irrelevant (but the Canon data preserves the tag order from the printed
      * cards).
@@ -65,33 +65,33 @@ data class CardDefinition(
     val tagsText: List<String> = listOf(),
 
     /**
-     * Immediate effects on the card, if any, each expressed as a Petaform `Instruction`.
+     * Immediate effects on the card, if any, each expressed as a PETS `Instruction`.
      */
     @Json(name = "immediate")
     val immediateText: Set<String> = setOf(), // TODO there should be only one
 
     /**
-     * Actions on the card, if any, each expressed as a Petaform `Action`. `AUTOMATED` and `EVENT`
+     * Actions on the card, if any, each expressed as a PETS `Action`. `AUTOMATED` and `EVENT`
      * cards may not have these.
      */
     @Json(name = "actions")
     val actionsText: Set<String> = setOf(), // TODO change to list
 
     /**
-     * Effects on the card, if any, each expressed as a Petaform `Effect`. `AUTOMATED` and
+     * Effects on the card, if any, each expressed as a PETS `Effect`. `AUTOMATED` and
      * `EVENT` cards may not have these.
      */
     @Json(name = "effects")
     val effectsText: Set<String> = setOf(),
 
     /**
-     * Which resource type, if any, this card can hold, expressed as a Petaform `TypeExpression`.
+     * Which resource type, if any, this card can hold, expressed as a PETS `TypeExpression`.
      */
     @Json(name = "resourceType")
     val resourceTypeText: String? = null,
 
     /**
-     * Any extra components the card defines (needed by no other card), expressed as a Petaform
+     * Any extra components the card defines (needed by no other card), expressed as a PETS
      * `Component`.
      */
     @Json(name = "components")
@@ -100,7 +100,7 @@ data class CardDefinition(
     // Project info
 
     /**
-     * The card's requirement, if it has one, expressed as a Petaform `Predicate`. Only cards in
+     * The card's requirement, if it has one, expressed as a PETS `Predicate`. Only cards in
      * the `PROJECT` deck may have this.
      */
     @Json(name = "requirement")
@@ -162,7 +162,7 @@ data class CardDefinition(
   }
   val actions by lazy { actionsText.map { parse<Action>(it) }.toSetCareful() }
   val effects by lazy { effectsText.map { parse<Effect>(it) }.toSetCareful() }
-  val requirement: Predicate? by lazy { requirementText?.let(PetaformParser::parse) }
+  val requirement: Predicate? by lazy { requirementText?.let(PetsParser::parse) }
 
   override val asComponentDefinition by lazy {
     val type = if (projectKind == null) "CardFront" else projectKind.type

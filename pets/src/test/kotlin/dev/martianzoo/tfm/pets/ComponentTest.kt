@@ -1,15 +1,14 @@
-package dev.martianzoo.tfm.petaform
+package dev.martianzoo.tfm.pets
 
 import com.google.common.truth.Truth.assertThat
-import dev.martianzoo.tfm.petaform.Action.Cost.Spend
-import dev.martianzoo.tfm.petaform.Instruction.Gain
-import dev.martianzoo.tfm.petaform.Instruction.Intensity
-import dev.martianzoo.tfm.petaform.Instruction.Intensity.OPTIONAL
-import dev.martianzoo.tfm.petaform.PetaformParser.Components
-import dev.martianzoo.tfm.petaform.PetaformParser.Components.Count
-import dev.martianzoo.tfm.petaform.PetaformParser.QEs
-import dev.martianzoo.tfm.petaform.PetaformParser.parse
-import dev.martianzoo.tfm.petaform.PetaformParser.parseComponents
+import dev.martianzoo.tfm.pets.Action.Cost.Spend
+import dev.martianzoo.tfm.pets.Instruction.Gain
+import dev.martianzoo.tfm.pets.Instruction.Intensity
+import dev.martianzoo.tfm.pets.Instruction.Intensity.OPTIONAL
+import dev.martianzoo.tfm.pets.PetsParser.Components
+import dev.martianzoo.tfm.pets.PetsParser.QEs
+import dev.martianzoo.tfm.pets.PetsParser.parse
+import dev.martianzoo.tfm.pets.PetsParser.parseComponents
 import org.junit.jupiter.api.Test
 
 class ComponentTest {
@@ -147,7 +146,7 @@ class ComponentTest {
   }
 
   @Test fun default() {
-    val instr: PetaformNode = parse(PetaformParser.Components.default, "default -Component!")
+    val instr: PetsNode = parse(PetsParser.Components.default, "default -Component!")
     assertThat(instr).isEqualTo(Instruction.Remove(TypeExpression("Component"), null, Intensity.MANDATORY))
   }
 

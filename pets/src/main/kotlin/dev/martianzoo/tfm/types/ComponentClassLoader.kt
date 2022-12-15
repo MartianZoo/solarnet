@@ -2,11 +2,11 @@ package dev.martianzoo.tfm.types
 
 import dev.martianzoo.tfm.data.ComponentDefinition
 import dev.martianzoo.tfm.data.Definition
-import dev.martianzoo.tfm.petaform.Action
-import dev.martianzoo.tfm.petaform.Effect
-import dev.martianzoo.tfm.petaform.Instruction
-import dev.martianzoo.tfm.petaform.PetaformParser.parse
-import dev.martianzoo.tfm.petaform.TypeExpression
+import dev.martianzoo.tfm.pets.Action
+import dev.martianzoo.tfm.pets.Effect
+import dev.martianzoo.tfm.pets.Instruction
+import dev.martianzoo.tfm.pets.PetsParser.parse
+import dev.martianzoo.tfm.pets.TypeExpression
 import dev.martianzoo.tfm.types.DependencyMap.DependencyKey
 import dev.martianzoo.util.toSetCareful
 

@@ -1,8 +1,8 @@
 package dev.martianzoo.tfm.data
 
 import com.squareup.moshi.Json
-import dev.martianzoo.tfm.petaform.Component
-import dev.martianzoo.tfm.petaform.classNamePattern
+import dev.martianzoo.tfm.pets.Component
+import dev.martianzoo.tfm.pets.classNamePattern
 import dev.martianzoo.util.toSetCareful
 
 /**
@@ -17,7 +17,7 @@ data class ComponentDefinition(
     val abstract: Boolean = false,
 
     /**
-     * Zero or more direct supertypes, including specializations, as Petaform TypeExpressions. Don't
+     * Zero or more direct supertypes, including specializations, as PETS TypeExpressions. Don't
      * include `Component` or any types that are already indirect supertypes (unless specializing them).
      */
     @Json(name = "supertypes")
@@ -38,9 +38,9 @@ data class ComponentDefinition(
 
     /**
      * Zero or more unordered effects that belong to each *instance* of this component class,
-     * expressed in Petaform. If the exact name of a dependency type is used in an effect, and a
+     * expressed in PETS. If the exact name of a dependency type is used in an effect, and a
      * subtype of this type specializes that dependency, then its inherited copy of this effect will
-     * have that type specialized in the same way. These petaform expressions can (and should) make
+     * have that type specialized in the same way. These pets expressions can (and should) make
      * use of `This` and `Me` and can rely on type defaults.
      */
     @Json(name = "effects")

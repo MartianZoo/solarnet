@@ -1,36 +1,36 @@
 package dev.martianzoo.tfm.testlib
 
-import dev.martianzoo.tfm.petaform.Action
-import dev.martianzoo.tfm.petaform.Action.Cost
-import dev.martianzoo.tfm.petaform.Action.Cost.Spend
-import dev.martianzoo.tfm.petaform.Effect
-import dev.martianzoo.tfm.petaform.Effect.Trigger
-import dev.martianzoo.tfm.petaform.Instruction
-import dev.martianzoo.tfm.petaform.Instruction.ComplexFrom
-import dev.martianzoo.tfm.petaform.Instruction.Custom
-import dev.martianzoo.tfm.petaform.Instruction.Gain
-import dev.martianzoo.tfm.petaform.Instruction.Gated
-import dev.martianzoo.tfm.petaform.Instruction.Multi
-import dev.martianzoo.tfm.petaform.Instruction.Per
-import dev.martianzoo.tfm.petaform.Instruction.Remove
-import dev.martianzoo.tfm.petaform.Instruction.SimpleFrom
-import dev.martianzoo.tfm.petaform.Instruction.Then
-import dev.martianzoo.tfm.petaform.Instruction.Transmute
-import dev.martianzoo.tfm.petaform.Instruction.TypeInFrom
-import dev.martianzoo.tfm.petaform.PetaformNode
-import dev.martianzoo.tfm.petaform.PetaformParser
-import dev.martianzoo.tfm.petaform.Predicate.And
-import dev.martianzoo.tfm.petaform.Predicate.Exact
-import dev.martianzoo.tfm.petaform.Predicate.Max
-import dev.martianzoo.tfm.petaform.Predicate.Min
-import dev.martianzoo.tfm.petaform.Predicate.Or
-import dev.martianzoo.tfm.petaform.Predicate.Prod
-import dev.martianzoo.tfm.petaform.QuantifiedExpression
-import dev.martianzoo.tfm.petaform.TypeExpression
+import dev.martianzoo.tfm.pets.Action
+import dev.martianzoo.tfm.pets.Action.Cost
+import dev.martianzoo.tfm.pets.Action.Cost.Spend
+import dev.martianzoo.tfm.pets.Effect
+import dev.martianzoo.tfm.pets.Effect.Trigger
+import dev.martianzoo.tfm.pets.Instruction
+import dev.martianzoo.tfm.pets.Instruction.ComplexFrom
+import dev.martianzoo.tfm.pets.Instruction.Custom
+import dev.martianzoo.tfm.pets.Instruction.Gain
+import dev.martianzoo.tfm.pets.Instruction.Gated
+import dev.martianzoo.tfm.pets.Instruction.Multi
+import dev.martianzoo.tfm.pets.Instruction.Per
+import dev.martianzoo.tfm.pets.Instruction.Remove
+import dev.martianzoo.tfm.pets.Instruction.SimpleFrom
+import dev.martianzoo.tfm.pets.Instruction.Then
+import dev.martianzoo.tfm.pets.Instruction.Transmute
+import dev.martianzoo.tfm.pets.Instruction.TypeInFrom
+import dev.martianzoo.tfm.pets.PetsNode
+import dev.martianzoo.tfm.pets.PetsParser
+import dev.martianzoo.tfm.pets.Predicate.And
+import dev.martianzoo.tfm.pets.Predicate.Exact
+import dev.martianzoo.tfm.pets.Predicate.Max
+import dev.martianzoo.tfm.pets.Predicate.Min
+import dev.martianzoo.tfm.pets.Predicate.Or
+import dev.martianzoo.tfm.pets.Predicate.Prod
+import dev.martianzoo.tfm.pets.QuantifiedExpression
+import dev.martianzoo.tfm.pets.TypeExpression
 
 object ToKotlin {
   fun pp(instr: String): String {
-    return pp(PetaformParser.parse<Instruction>(instr))
+    return pp(PetsParser.parse<Instruction>(instr))
   }
 
   fun <T : Any?> T.surround(prefix: String, suffix: String, fn: (T) -> String = { "$it" }) =
@@ -39,9 +39,9 @@ object ToKotlin {
   fun <T : Any?> T.pre(prefix: String, fn: (T) -> String = { "$it" }) = surround(prefix, "", fn)
   fun <T : Any?> T.suf(suffix: String, fn: (T) -> String = { "$it" }) = surround("", suffix, fn)
 
-  fun <T : PetaformNode?> T.pre(prefix: String): String = pre(prefix, ToKotlin::pp)
+  fun <T : PetsNode?> T.pre(prefix: String): String = pre(prefix, ToKotlin::pp)
 
-  fun pp(n: PetaformNode?): String {
+  fun pp(n: PetsNode?): String {
     n.apply {
       return when (this) {
         null -> "null"

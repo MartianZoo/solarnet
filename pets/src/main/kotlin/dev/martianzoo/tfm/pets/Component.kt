@@ -1,4 +1,4 @@
-package dev.martianzoo.tfm.petaform
+package dev.martianzoo.tfm.pets
 
 /**
  * The declaration of a component class, such as GreeneryTile. Models the declaration textually as
@@ -14,7 +14,7 @@ data class Component(
     val min: Int = 0,
     val max: Int? = null,
     val complete: Boolean = true,
-) : PetaformNode() {
+) : PetsNode() {
   init {
     require(min >= 0)
     require(max == null || max >= min)

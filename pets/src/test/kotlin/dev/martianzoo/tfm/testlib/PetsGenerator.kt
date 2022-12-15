@@ -1,47 +1,47 @@
 package dev.martianzoo.tfm.testlib
 
 import com.google.common.truth.Truth
-import dev.martianzoo.tfm.petaform.Action
-import dev.martianzoo.tfm.petaform.Action.Cost
-import dev.martianzoo.tfm.petaform.Effect
-import dev.martianzoo.tfm.petaform.Effect.Trigger
-import dev.martianzoo.tfm.petaform.Instruction
-import dev.martianzoo.tfm.petaform.Instruction.ComplexFrom
-import dev.martianzoo.tfm.petaform.Instruction.Custom
-import dev.martianzoo.tfm.petaform.Instruction.FromExpression
-import dev.martianzoo.tfm.petaform.Instruction.Gain
-import dev.martianzoo.tfm.petaform.Instruction.Gated
-import dev.martianzoo.tfm.petaform.Instruction.Intensity
-import dev.martianzoo.tfm.petaform.Instruction.Multi
-import dev.martianzoo.tfm.petaform.Instruction.Per
-import dev.martianzoo.tfm.petaform.Instruction.Remove
-import dev.martianzoo.tfm.petaform.Instruction.SimpleFrom
-import dev.martianzoo.tfm.petaform.Instruction.Then
-import dev.martianzoo.tfm.petaform.Instruction.Transmute
-import dev.martianzoo.tfm.petaform.Instruction.TypeInFrom
-import dev.martianzoo.tfm.petaform.PetaformException
-import dev.martianzoo.tfm.petaform.PetaformNode
-import dev.martianzoo.tfm.petaform.PetaformParser
-import dev.martianzoo.tfm.petaform.Predicate
-import dev.martianzoo.tfm.petaform.Predicate.And
-import dev.martianzoo.tfm.petaform.Predicate.Exact
-import dev.martianzoo.tfm.petaform.Predicate.Max
-import dev.martianzoo.tfm.petaform.Predicate.Min
-import dev.martianzoo.tfm.petaform.Predicate.Or
-import dev.martianzoo.tfm.petaform.QuantifiedExpression
-import dev.martianzoo.tfm.petaform.TypeExpression
+import dev.martianzoo.tfm.pets.Action
+import dev.martianzoo.tfm.pets.Action.Cost
+import dev.martianzoo.tfm.pets.Effect
+import dev.martianzoo.tfm.pets.Effect.Trigger
+import dev.martianzoo.tfm.pets.Instruction
+import dev.martianzoo.tfm.pets.Instruction.ComplexFrom
+import dev.martianzoo.tfm.pets.Instruction.Custom
+import dev.martianzoo.tfm.pets.Instruction.FromExpression
+import dev.martianzoo.tfm.pets.Instruction.Gain
+import dev.martianzoo.tfm.pets.Instruction.Gated
+import dev.martianzoo.tfm.pets.Instruction.Intensity
+import dev.martianzoo.tfm.pets.Instruction.Multi
+import dev.martianzoo.tfm.pets.Instruction.Per
+import dev.martianzoo.tfm.pets.Instruction.Remove
+import dev.martianzoo.tfm.pets.Instruction.SimpleFrom
+import dev.martianzoo.tfm.pets.Instruction.Then
+import dev.martianzoo.tfm.pets.Instruction.Transmute
+import dev.martianzoo.tfm.pets.Instruction.TypeInFrom
+import dev.martianzoo.tfm.pets.PetsException
+import dev.martianzoo.tfm.pets.PetsNode
+import dev.martianzoo.tfm.pets.PetsParser
+import dev.martianzoo.tfm.pets.Predicate
+import dev.martianzoo.tfm.pets.Predicate.And
+import dev.martianzoo.tfm.pets.Predicate.Exact
+import dev.martianzoo.tfm.pets.Predicate.Max
+import dev.martianzoo.tfm.pets.Predicate.Min
+import dev.martianzoo.tfm.pets.Predicate.Or
+import dev.martianzoo.tfm.pets.QuantifiedExpression
+import dev.martianzoo.tfm.pets.TypeExpression
 import dev.martianzoo.util.multiset
 import kotlin.math.pow
 import kotlin.math.roundToInt
 import kotlin.random.Random
 import kotlin.reflect.KClass
 
-class PetaformGenerator(scaling: (Int) -> Double)
-    : RandomGenerator<PetaformNode>(Registry, scaling) {
+class PetsGenerator(scaling: (Int) -> Double)
+    : RandomGenerator<PetsNode>(Registry, scaling) {
 
   constructor(greed: Double = 0.8, backoff: Double = 0.15) : this(scaling(greed, backoff))
 
-  private object Registry : RandomGenerator.Registry<PetaformNode>() {
+  private object Registry : RandomGenerator.Registry<PetsNode>() {
     init {
       val specSizes = (multiset(8 to 0, 4 to 1, 2 to 2, 1 to 3)) // weight to value
       register {
@@ -163,31 +163,31 @@ class PetaformGenerator(scaling: (Int) -> Double)
       register { Action(choose(1 to null, 3 to recurse<Cost>()), recurse<Instruction>()) }
     }
 
-    override fun <T : PetaformNode> invoke(type: KClass<T>, gen: RandomGenerator<PetaformNode>): T? {
+    override fun <T : PetsNode> invoke(type: KClass<T>, gen: RandomGenerator<PetsNode>): T? {
       try {
         val result = super.invoke(type, gen)
         if (result!!.countProds() > 1) return null
         return result
-      } catch (e: PetaformException) {
+      } catch (e: PetsException) {
         return null // TODO this better
       }
     }
 
-    fun RandomGenerator<PetaformNode>.refinement() = chooseS(9 to { null }, 1 to { recurse<Predicate>() })
-    fun RandomGenerator<PetaformNode>.randomName() = choose("Foo", "Bar", "Qux", "Abc", "Xyz", "Ooh", "Ahh", "Eep", "Wau")
+    fun RandomGenerator<PetsNode>.refinement() = chooseS(9 to { null }, 1 to { recurse<Predicate>() })
+    fun RandomGenerator<PetsNode>.randomName() = choose("Foo", "Bar", "Qux", "Abc", "Xyz", "Ooh", "Ahh", "Eep", "Wau")
   }
 
-  inline fun <reified T : PetaformNode> goNuts(count: Int = 10_000) {
+  inline fun <reified T : PetsNode> goNuts(count: Int = 10_000) {
     return goNuts(T::class, count)
   }
 
-  fun <T : PetaformNode> goNuts(type: KClass<T>, count: Int = 10_000) {
+  fun <T : PetsNode> goNuts(type: KClass<T>, count: Int = 10_000) {
     for (i in 1..count) {
       val randomNode = makeRandomNode(type)
       val originalStringOut = randomNode.toString()
       val reparsedNode =
           try {
-            PetaformParser.parse(type, originalStringOut)
+            PetsParser.parse(type, originalStringOut)
           } catch (e: Exception) {
             println("string is $originalStringOut")
             println("node is ${ToKotlin.pp(randomNode)}")
@@ -214,23 +214,23 @@ class PetaformGenerator(scaling: (Int) -> Double)
     }
   }
 
-  inline fun <reified T : PetaformNode> findAverageTextLength(): Int {
+  inline fun <reified T : PetsNode> findAverageTextLength(): Int {
     val samples = 1000
     val sum = (1..samples).map { makeRandomNode<T>().toString().length }.sum()
     return (sum.toDouble() / samples).roundToInt()
   }
 
-  inline fun <reified T : PetaformNode> printTestStrings(count: Int) {
+  inline fun <reified T : PetsNode> printTestStrings(count: Int) {
     for (i in 1..count) {
       println(makeRandomNode<T>())
     }
   }
 
-  inline fun <reified T : PetaformNode> printTestStringOfEachLength(maxLength: Int) {
+  inline fun <reified T : PetsNode> printTestStringOfEachLength(maxLength: Int) {
     getTestStringOfEachLength<T>(maxLength).forEach(::println)
   }
 
-  inline fun <reified T : PetaformNode> getTestStringOfEachLength(maxLength: Int) : List<String> {
+  inline fun <reified T : PetsNode> getTestStringOfEachLength(maxLength: Int) : List<String> {
     require(maxLength >= 20) // just cause
 
     val set = sortedSetOf<String>(Comparator.comparing { it.length })
@@ -249,14 +249,14 @@ class PetaformGenerator(scaling: (Int) -> Double)
     return set.toList()
   }
 
-  inline fun <reified T : PetaformNode> generateTestApiConstructions(count: Int = 10) {
+  inline fun <reified T : PetsNode> generateTestApiConstructions(count: Int = 10) {
     for (i in 1..count) {
       val node = makeRandomNode<T>()
       println("assertThat(${ToKotlin.pp(node)}.toString()).isEqualTo($node)")
     }
   }
 
-  inline fun <reified T : PetaformNode> uniqueNodes(
+  inline fun <reified T : PetsNode> uniqueNodes(
       count: Int = 100, depthLimit: Int = 10, stopAtDrySpell: Int = 200): Set<T> {
     val set = mutableSetOf<T>()
     var drySpell = 0

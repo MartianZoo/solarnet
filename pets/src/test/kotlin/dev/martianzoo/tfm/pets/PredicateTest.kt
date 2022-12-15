@@ -1,19 +1,19 @@
-package dev.martianzoo.tfm.petaform
+package dev.martianzoo.tfm.pets
 
 import com.google.common.truth.Truth.assertThat
-import dev.martianzoo.tfm.petaform.Predicate.Max
-import dev.martianzoo.tfm.petaform.Predicate.Min
+import dev.martianzoo.tfm.pets.Predicate.Max
+import dev.martianzoo.tfm.pets.Predicate.Min
 import org.junit.jupiter.api.Test
 
 // Most testing is done by AutomatedTest
 class PredicateTest {
   @Test
   fun simpleSourceToApi() {
-    assertThat(PetaformParser.parse<Predicate>("Foo"))
+    assertThat(PetsParser.parse<Predicate>("Foo"))
         .isEqualTo(Min(TypeExpression("Foo")))
-    assertThat(PetaformParser.parse<Predicate>("3 Foo"))
+    assertThat(PetsParser.parse<Predicate>("3 Foo"))
         .isEqualTo(Min(TypeExpression("Foo"), 3))
-    assertThat(PetaformParser.parse<Predicate>("MAX 3 Foo"))
+    assertThat(PetsParser.parse<Predicate>("MAX 3 Foo"))
         .isEqualTo(Max(TypeExpression("Foo"), 3))
   }
 
@@ -142,7 +142,7 @@ class PredicateTest {
   }
 
   @Test fun hairy() {
-    val parsed : Predicate = PetaformParser.parse(
+    val parsed : Predicate = PetsParser.parse(
         "Adjacency<CityTile<Anyone>, OceanTile> OR 1 Adjacency<OceanTile, CityTile<Anyone>>")
     assertThat(parsed).isEqualTo(
         Predicate.or(

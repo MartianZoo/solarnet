@@ -1,17 +1,17 @@
-package dev.martianzoo.tfm.petaform
+package dev.martianzoo.tfm.pets
 
 import dev.martianzoo.util.joinOrEmpty
 import dev.martianzoo.util.toSetCarefulP
 
-sealed class Instruction : PetaformNode() {
+sealed class Instruction : PetsNode() {
   data class Gain(val qe: QuantifiedExpression, val intensity: Intensity? = null) : Instruction() {
     constructor(expr: TypeExpression?, scalar: Int? = null, intensity: Intensity? = null) : this(QuantifiedExpression(expr, scalar), intensity)
 
     init {
-      if ((qe.scalar ?: 1) <= 0) throw PetaformException("Can't gain a non-positive amount")
+      if ((qe.scalar ?: 1) <= 0) throw PetsException("Can't gain a non-positive amount")
     }
 
-    override fun toString() = "${qe}${intensity?.petaform ?: ""}"
+    override fun toString() = "${qe}${intensity?.pets ?: ""}"
     override val children = setOf(qe)
   }
 
@@ -19,19 +19,19 @@ sealed class Instruction : PetaformNode() {
     constructor(expr: TypeExpression?, scalar: Int? = null, intensity: Intensity? = null) : this(QuantifiedExpression(expr, scalar), intensity)
 
     init {
-      if ((qe.scalar ?: 1) <= 0) throw PetaformException("Can't remove a non-positive amount")
+      if ((qe.scalar ?: 1) <= 0) throw PetsException("Can't remove a non-positive amount")
     }
 
-    override fun toString() = "-${qe}${intensity?.petaform ?: ""}"
+    override fun toString() = "-${qe}${intensity?.pets ?: ""}"
     override val children = setOf(qe)
   }
 
-  sealed class FromExpression : PetaformNode()
+  sealed class FromExpression : PetsNode()
 
   data class SimpleFrom(val to: TypeExpression, val from: TypeExpression) : FromExpression() {
     init {
       if (to == from) {
-        throw PetaformException("to and from are the same: $to")
+        throw PetsException("to and from are the same: $to")
       }
     }
     override fun toString() = "$to FROM $from"
@@ -46,7 +46,7 @@ sealed class Instruction : PetaformNode() {
     init {
       require(className.matches(classNamePattern())) { className }
       if (specializations.count { it is ComplexFrom || it is SimpleFrom } != 1) {
-        throw PetaformException("Can only have one FROM in an expression")
+        throw PetsException("Can only have one FROM in an expression")
       }
     }
 
@@ -67,16 +67,16 @@ sealed class Instruction : PetaformNode() {
       val scalar: Int? = null,
       val intensity: Intensity? = null) : Instruction() {
     init {
-      if ((scalar ?: 1) < 1) throw PetaformException("Can't do a non-positive number of transmutes")
-      if (trans is TypeInFrom) throw PetaformException("Should be a regular gain instruction")
+      if ((scalar ?: 1) < 1) throw PetsException("Can't do a non-positive number of transmutes")
+      if (trans is TypeInFrom) throw PetsException("Should be a regular gain instruction")
     }
     override fun toString(): String {
-      val intens = intensity?.petaform ?: ""
+      val intens = intensity?.pets ?: ""
       val scal = if (scalar != null) "$scalar " else ""
       return "$scal$trans$intens"
     }
     override val children = setOf(trans)
-    override fun parenthesizeThisWhenInside(container: PetaformNode): Boolean {
+    override fun parenthesizeThisWhenInside(container: PetsNode): Boolean {
       if (trans is SimpleFrom && container is Or) {
         return true // not technically necessary, but helpful
       }
@@ -88,11 +88,11 @@ sealed class Instruction : PetaformNode() {
 
   data class Per(val instruction: Instruction, val qe: QuantifiedExpression): Instruction() {
     init {
-      if (qe.typeExpression == null) throw PetaformException("Use '/ 2 Megacredit', not just '/ 2'")
-      if ((qe.scalar ?: 1) <= 0) throw PetaformException("Can't do something 'per' a nonpositive amount")
+      if (qe.typeExpression == null) throw PetsException("Use '/ 2 Megacredit', not just '/ 2'")
+      if ((qe.scalar ?: 1) <= 0) throw PetsException("Can't do something 'per' a nonpositive amount")
       when (instruction) {
         is Gain, is Remove, is Transmute -> {}
-        else -> throw PetaformException("Per can only contain gain/remove/transmute")
+        else -> throw PetsException("Per can only contain gain/remove/transmute")
       }
     }
     override fun toString() = "$instruction / $qe"
@@ -103,7 +103,7 @@ sealed class Instruction : PetaformNode() {
   data class Gated(val predicate: Predicate, val instruction: Instruction): Instruction() {
     init {
       if (instruction is Gated) {
-        throw PetaformException("You don't gate a gater")
+        throw PetsException("You don't gate a gater")
       }
     }
     override fun toString(): String {
@@ -111,7 +111,7 @@ sealed class Instruction : PetaformNode() {
     }
 
     // let's over-group for clarity
-    override fun parenthesizeThisWhenInside(container: PetaformNode) =
+    override fun parenthesizeThisWhenInside(container: PetsNode) =
         container is Or || super.parenthesizeThisWhenInside(container)
 
     override fun precedence() = 6
@@ -121,12 +121,12 @@ sealed class Instruction : PetaformNode() {
   data class Or(val instructions: Set<Instruction>) : Instruction() {
     init {
       if (instructions.any { it is Or })
-        throw PetaformException("Should have used Instruction.or()")
+        throw PetsException("Should have used Instruction.or()")
     }
     override fun toString() = instructions.joinToString(" OR ") {
       it.toStringWhenInside(this)
     }
-    override fun parenthesizeThisWhenInside(container: PetaformNode): Boolean {
+    override fun parenthesizeThisWhenInside(container: PetsNode): Boolean {
       return container is Then || super.parenthesizeThisWhenInside(container)
     }
     override fun precedence() = 4
@@ -136,7 +136,7 @@ sealed class Instruction : PetaformNode() {
   data class Then(val instructions: List<Instruction>) : Instruction() {
     init {
       if (instructions.any { it is Then })
-        throw PetaformException()
+        throw PetsException()
     }
     override fun toString() = instructions.joinToString (" THEN ") {
       it.toStringWhenInside(this)
@@ -148,7 +148,7 @@ sealed class Instruction : PetaformNode() {
   data class Multi(val instructions: List<Instruction>) : Instruction() {
     init {
       if (instructions.any { it is Multi }) {
-        throw PetaformException("Should have used Instruction.then()")
+        throw PetsException("Should have used Instruction.then()")
       }
     }
     override fun toString() = instructions.joinToString {
@@ -175,7 +175,7 @@ sealed class Instruction : PetaformNode() {
     OPTIONAL("?"),
     ;
 
-    val petaform: String = symbol
+    val pets: String = symbol
 
     companion object {
       fun intensity(symbol: String?) =

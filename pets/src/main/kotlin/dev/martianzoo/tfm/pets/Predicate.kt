@@ -1,16 +1,16 @@
-package dev.martianzoo.tfm.petaform
+package dev.martianzoo.tfm.pets
 
 import com.google.common.collect.Lists
 import dev.martianzoo.util.toSetCareful
 import dev.martianzoo.util.toSetCarefulP
 
-sealed class Predicate : PetaformNode() {
+sealed class Predicate : PetsNode() {
 
   data class Min(val qe: QuantifiedExpression) : Predicate() {
     constructor(expr: TypeExpression? = null, scalar: Int? = null) : this(QuantifiedExpression(expr, scalar))
     init {
       if ((qe.scalar ?: 1) == 0) {
-        throw PetaformException("This predicate is always true (${qe})")
+        throw PetsException("This predicate is always true (${qe})")
       }
     }
     override fun toString() = "$qe"
@@ -19,14 +19,14 @@ sealed class Predicate : PetaformNode() {
 
   data class Max(val qe: QuantifiedExpression) : Predicate() {
     constructor(expr: TypeExpression, scalar: Int) : this(QuantifiedExpression(expr, scalar))
-    init { if(qe.scalar == null) throw PetaformException("'MAX <thing>' is confusing; use 'MAX 1 <thing>'") }
+    init { if(qe.scalar == null) throw PetsException("'MAX <thing>' is confusing; use 'MAX 1 <thing>'") }
     override fun toString() = "MAX $qe"
     override val children = setOf(qe)
   }
 
   data class Exact(val qe: QuantifiedExpression) : Predicate() {
     constructor(expr: TypeExpression, scalar: Int) : this(QuantifiedExpression(expr, scalar))
-    init { if(qe.scalar == null) throw PetaformException("Use '=1 <thing>', not '=<thing>'") }
+    init { if(qe.scalar == null) throw PetsException("Use '=1 <thing>', not '=<thing>'") }
     override fun toString() = "=$qe"
     override val children = setOf(qe)
   }
@@ -34,7 +34,7 @@ sealed class Predicate : PetaformNode() {
   data class Or(val predicates: Set<Predicate>) : Predicate() {
     constructor(pred1: Predicate, pred2: Predicate, vararg rest: Predicate) :
         this(Lists.asList(pred1, pred2, rest).toSetCareful())
-    init { if(predicates.size < 2) throw PetaformException("$predicates") }
+    init { if(predicates.size < 2) throw PetsException("$predicates") }
     override fun toString() = predicates.joinToString(" OR ") {
       it.toStringWhenInside(this)
     }

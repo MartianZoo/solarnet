@@ -1,8 +1,8 @@
 package dev.martianzoo.tfm.data
 
 import com.squareup.moshi.Json
-import dev.martianzoo.tfm.petaform.PetaformParser.parse
-import dev.martianzoo.tfm.petaform.Predicate
+import dev.martianzoo.tfm.pets.PetsParser.parse
+import dev.martianzoo.tfm.pets.Predicate
 
 data class MilestoneDefinition(
     val id: String,

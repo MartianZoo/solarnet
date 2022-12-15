@@ -1,17 +1,17 @@
-package dev.martianzoo.tfm.petaform
+package dev.martianzoo.tfm.pets
 
 import dev.martianzoo.util.toSetCarefulP
 
-data class Action(val cost: Cost?, val instruction: Instruction) : PetaformNode() {
+data class Action(val cost: Cost?, val instruction: Instruction) : PetsNode() {
   override fun toString() = (cost?.let { "${cost} -> " } ?: "-> ") + instruction
   override val children = setOfNotNull(cost) + instruction
 
-  sealed class Cost : PetaformNode() {
+  sealed class Cost : PetsNode() {
     data class Spend(val qe: QuantifiedExpression) : Cost() {
       constructor(expr: TypeExpression?, scalar: Int? = null) : this(QuantifiedExpression(expr, scalar))
       init {
         if ((qe.scalar ?: 1) == 0)
-          throw PetaformException("Cannot spend zero (omit the cost instead)")
+          throw PetsException("Cannot spend zero (omit the cost instead)")
       }
       override fun toString() = qe.toString()
       override val children = setOf(qe)
@@ -21,13 +21,13 @@ data class Action(val cost: Cost?, val instruction: Instruction) : PetaformNode(
     data class Per(val cost: Cost, val qe: QuantifiedExpression) : Cost() {
       init {
         if ((qe.scalar ?: 1) <= 0)
-          throw PetaformException("Can't do something 'per' a non-positive amount")
+          throw PetsException("Can't do something 'per' a non-positive amount")
         if (qe.typeExpression == null)
-          throw PetaformException("Write '/ 2 Megacredit', not just '/ 2'")
+          throw PetsException("Write '/ 2 Megacredit', not just '/ 2'")
 
         when (cost) {
-          is Or, is Multi -> throw PetaformException("Break into separate Per instructions")
-          is Per -> throw PetaformException("Might support in future?")
+          is Or, is Multi -> throw PetsException("Break into separate Per instructions")
+          is Per -> throw PetsException("Might support in future?")
           else -> {}
         }
       }

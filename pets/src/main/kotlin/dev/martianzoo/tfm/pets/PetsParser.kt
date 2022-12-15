@@ -1,4 +1,4 @@
-package dev.martianzoo.tfm.petaform
+package dev.martianzoo.tfm.pets
 
 import com.github.h0tk3y.betterParse.combinators.SkipParser
 import com.github.h0tk3y.betterParse.combinators.and
@@ -25,35 +25,35 @@ import com.github.h0tk3y.betterParse.parser.parseToEnd
 import com.google.common.cache.CacheBuilder
 import com.google.common.cache.CacheLoader
 import com.google.common.cache.LoadingCache
-import dev.martianzoo.tfm.petaform.Action.Cost
-import dev.martianzoo.tfm.petaform.Action.Cost.Spend
-import dev.martianzoo.tfm.petaform.Effect.Trigger
-import dev.martianzoo.tfm.petaform.Effect.Trigger.Conditional
-import dev.martianzoo.tfm.petaform.Effect.Trigger.Now
-import dev.martianzoo.tfm.petaform.Effect.Trigger.OnGain
-import dev.martianzoo.tfm.petaform.Effect.Trigger.OnRemove
-import dev.martianzoo.tfm.petaform.Instruction.ComplexFrom
-import dev.martianzoo.tfm.petaform.Instruction.Custom
-import dev.martianzoo.tfm.petaform.Instruction.FromExpression
-import dev.martianzoo.tfm.petaform.Instruction.Gain
-import dev.martianzoo.tfm.petaform.Instruction.Gated
-import dev.martianzoo.tfm.petaform.Instruction.Intensity.Companion.intensity
-import dev.martianzoo.tfm.petaform.Instruction.Remove
-import dev.martianzoo.tfm.petaform.Instruction.SimpleFrom
-import dev.martianzoo.tfm.petaform.Instruction.Transmute
-import dev.martianzoo.tfm.petaform.Instruction.TypeInFrom
-import dev.martianzoo.tfm.petaform.Predicate.Exact
-import dev.martianzoo.tfm.petaform.Predicate.Max
-import dev.martianzoo.tfm.petaform.Predicate.Min
+import dev.martianzoo.tfm.pets.Action.Cost
+import dev.martianzoo.tfm.pets.Action.Cost.Spend
+import dev.martianzoo.tfm.pets.Effect.Trigger
+import dev.martianzoo.tfm.pets.Effect.Trigger.Conditional
+import dev.martianzoo.tfm.pets.Effect.Trigger.Now
+import dev.martianzoo.tfm.pets.Effect.Trigger.OnGain
+import dev.martianzoo.tfm.pets.Effect.Trigger.OnRemove
+import dev.martianzoo.tfm.pets.Instruction.ComplexFrom
+import dev.martianzoo.tfm.pets.Instruction.Custom
+import dev.martianzoo.tfm.pets.Instruction.FromExpression
+import dev.martianzoo.tfm.pets.Instruction.Gain
+import dev.martianzoo.tfm.pets.Instruction.Gated
+import dev.martianzoo.tfm.pets.Instruction.Intensity.Companion.intensity
+import dev.martianzoo.tfm.pets.Instruction.Remove
+import dev.martianzoo.tfm.pets.Instruction.SimpleFrom
+import dev.martianzoo.tfm.pets.Instruction.Transmute
+import dev.martianzoo.tfm.pets.Instruction.TypeInFrom
+import dev.martianzoo.tfm.pets.Predicate.Exact
+import dev.martianzoo.tfm.pets.Predicate.Max
+import dev.martianzoo.tfm.pets.Predicate.Min
 import kotlin.reflect.KClass
 import kotlin.reflect.cast
 
-object PetaformParser {
-  inline fun <reified P : PetaformNode> parse(petaform: String) = parse(P::class, petaform)
+object PetsParser {
+  inline fun <reified P : PetsNode> parse(petsText: String) = parse(P::class, petsText)
 
 
-  fun <T> parse(parser: Parser<T>, petaform: String) =
-      parser.parseToEnd(tokenizer.tokenize(petaform))
+  fun <T> parse(parser: Parser<T>, petsText: String) =
+      parser.parseToEnd(tokenizer.tokenize(petsText))
 
   fun parseComponents(arg: String): List<Component> {
     var index = 0
@@ -70,20 +70,20 @@ object PetaformParser {
     return comps.map { it.copy(complete = true) }
   }
 
-  fun <P : PetaformNode> parse(type: KClass<P>, petaform: String): P {
-    val parser: Parser<PetaformNode> = parsers[type]!!
+  fun <P : PetsNode> parse(type: KClass<P>, petsText: String): P {
+    val parser: Parser<PetsNode> = parsers[type]!!
     try {
-      val pet = parse(parser, petaform)
+      val pet = parse(parser, petsText)
       if (pet.countProds() > 1) {
-        throw PetaformException("Can't have multiple PROD boxes")
+        throw PetsException("Can't have multiple PROD boxes")
       }
       return type.cast(pet)
     } catch (e: ParseException) {
-      throw IllegalArgumentException("expecting ${type.simpleName}, input was: $petaform", e)
+      throw IllegalArgumentException("expecting ${type.simpleName}, input was: $petsText", e)
     }
   }
 
-  val parsers = mutableMapOf<KClass<out PetaformNode>, Parser<PetaformNode>>()
+  val parsers = mutableMapOf<KClass<out PetsNode>, Parser<PetsNode>>()
 
   val literalCache: LoadingCache<String, Token> = makeCache(::literalToken)
 
@@ -333,7 +333,7 @@ object PetaformParser {
 
   inline fun <reified T> maybeGroup(contents: Parser<T>) = contents or parens(contents)
 
-  inline fun <reified P : PetaformNode> publish(parser: Parser<P>): Parser<P> {
+  inline fun <reified P : PetsNode> publish(parser: Parser<P>): Parser<P> {
     parsers[P::class] = parser
     return parser
   }
@@ -343,7 +343,7 @@ object PetaformParser {
   fun isEOF(result: ParseResult<Any>): Boolean =
       when (result) {
         is UnexpectedEof -> true
-        is AlternativesFailure -> result.errors.any(PetaformParser::isEOF)
+        is AlternativesFailure -> result.errors.any(PetsParser::isEOF)
         else -> false
       }
 }

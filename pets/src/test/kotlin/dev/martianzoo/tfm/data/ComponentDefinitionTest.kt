@@ -3,7 +3,7 @@ package dev.martianzoo.tfm.data
 import com.google.common.collect.MultimapBuilder
 import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.tfm.canon.Canon
-import dev.martianzoo.tfm.petaform.PetaformNode
+import dev.martianzoo.tfm.pets.PetsNode
 import dev.martianzoo.tfm.types.ComponentClassLoader
 import org.junit.jupiter.api.Test
 
@@ -43,7 +43,7 @@ class ComponentDefinitionTest {
     val table = ComponentClassLoader()
     table.loadAll(Canon.allDefinitions.values)
 
-    val mmap = MultimapBuilder.treeKeys().hashSetValues().build<String, PetaformNode>()
+    val mmap = MultimapBuilder.treeKeys().hashSetValues().build<String, PetsNode>()
     table.all().forEach { clazz ->
       (clazz.effects + clazz.actions + listOfNotNull(clazz.immediate))
           .map { Vanillafier.san(it) }
@@ -69,7 +69,7 @@ class ComponentDefinitionTest {
     assertThat(extendsNonabstract).containsExactly("CityTile" to "Tile008")
   }
 
-  fun checkRoundTrip(source: Collection<String>, cooked: Collection<PetaformNode>) {
+  fun checkRoundTrip(source: Collection<String>, cooked: Collection<PetsNode>) {
     assertThat(source.size).isEqualTo(cooked.size)
     source.zip(cooked).forEach {
       assertThat("${it.second}").isEqualTo(it.first)

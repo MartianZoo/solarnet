@@ -1,8 +1,8 @@
 package dev.martianzoo.tfm.data
 
-import dev.martianzoo.tfm.petaform.Instruction
-import dev.martianzoo.tfm.petaform.PetaformParser.parse
-import dev.martianzoo.tfm.petaform.TypeExpression
+import dev.martianzoo.tfm.pets.Instruction
+import dev.martianzoo.tfm.pets.PetsParser.parse
+import dev.martianzoo.tfm.pets.TypeExpression
 
 data class MarsAreaDefinition(
     /** Shortname of the MarsMap this area belongs to (e.g "Tharsis"). */
@@ -24,7 +24,7 @@ data class MarsAreaDefinition(
     val typeText: String,
 
     /**
-     * The petaform instruction for this map area's bonus.
+     * The pets instruction for this map area's bonus.
      */
     val bonusText: String?,
 ) : Definition {

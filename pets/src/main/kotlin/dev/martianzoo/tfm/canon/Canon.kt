@@ -6,8 +6,8 @@ import dev.martianzoo.tfm.data.JsonReader
 import dev.martianzoo.tfm.data.JsonReader.combine
 import dev.martianzoo.tfm.data.MarsAreaDefinition
 import dev.martianzoo.tfm.data.MilestoneDefinition
-import dev.martianzoo.tfm.petaform.Component
-import dev.martianzoo.tfm.petaform.PetaformParser.parseComponents
+import dev.martianzoo.tfm.pets.Component
+import dev.martianzoo.tfm.pets.PetsParser.parseComponents
 import dev.martianzoo.util.Grid
 import dev.martianzoo.util.associateByCareful
 

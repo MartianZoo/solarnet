@@ -8,7 +8,7 @@ import dev.martianzoo.tfm.data.CardDefinition.Deck.PROJECT
 import dev.martianzoo.tfm.data.CardDefinition.ProjectKind.ACTIVE
 import dev.martianzoo.tfm.data.CardDefinition.ProjectKind.AUTOMATED
 import dev.martianzoo.tfm.data.CardDefinition.ProjectKind.EVENT
-import dev.martianzoo.tfm.petaform.PetaformNode
+import dev.martianzoo.tfm.pets.PetsNode
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 
@@ -170,7 +170,7 @@ class CardDefinitionTest {
     }
   }
 
-  private fun checkRoundTrip(source: Collection<String>, cooked: Collection<PetaformNode>) {
+  private fun checkRoundTrip(source: Collection<String>, cooked: Collection<PetsNode>) {
     assertThat(source.size).isEqualTo(cooked.size)
     source.zip(cooked).forEach {
       assertThat("${it.second}").isEqualTo(it.first)

@@ -2,9 +2,9 @@ package dev.martianzoo.tfm.data
 
 import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.tfm.canon.Canon
-import dev.martianzoo.tfm.petaform.Predicate
-import dev.martianzoo.tfm.petaform.Predicate.Min
-import dev.martianzoo.tfm.petaform.TypeExpression
+import dev.martianzoo.tfm.pets.Predicate
+import dev.martianzoo.tfm.pets.Predicate.Min
+import dev.martianzoo.tfm.pets.TypeExpression
 import org.junit.jupiter.api.Test
 
 class MilestoneDefinitionTest {

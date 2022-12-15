@@ -1,15 +1,15 @@
-package dev.martianzoo.tfm.petaform
+package dev.martianzoo.tfm.pets
 
 import com.github.h0tk3y.betterParse.combinators.or
 import com.google.common.truth.Truth.assertThat
-import dev.martianzoo.tfm.petaform.Instruction.ComplexFrom
-import dev.martianzoo.tfm.petaform.Instruction.Intensity.AMAP
-import dev.martianzoo.tfm.petaform.Instruction.SimpleFrom
-import dev.martianzoo.tfm.petaform.Instruction.Transmute
-import dev.martianzoo.tfm.petaform.PetaformParser.Instructions
-import dev.martianzoo.tfm.petaform.PetaformParser.Instructions.from
-import dev.martianzoo.tfm.petaform.PetaformParser.Instructions.typeInFrom
-import dev.martianzoo.tfm.petaform.PetaformParser.parse
+import dev.martianzoo.tfm.pets.Instruction.ComplexFrom
+import dev.martianzoo.tfm.pets.Instruction.Intensity.AMAP
+import dev.martianzoo.tfm.pets.Instruction.SimpleFrom
+import dev.martianzoo.tfm.pets.Instruction.Transmute
+import dev.martianzoo.tfm.pets.PetsParser.Instructions
+import dev.martianzoo.tfm.pets.PetsParser.Instructions.from
+import dev.martianzoo.tfm.pets.PetsParser.Instructions.typeInFrom
+import dev.martianzoo.tfm.pets.PetsParser.parse
 import org.junit.jupiter.api.Test
 
 // Most testing is done by AutomatedTest
@@ -111,8 +111,8 @@ class InstructionTest {
   }
 
   @Test fun debug2() {
-    parse(PetaformParser.typeExpression, "Foo<Foo<Foo, Bar>, Qux<Foo>>")
-    parse(PetaformParser.qe, "5 Foo<Foo<Foo, Bar>, Qux<Foo>>")
+    parse(PetsParser.typeExpression, "Foo<Foo<Foo, Bar>, Qux<Foo>>")
+    parse(PetsParser.qe, "5 Foo<Foo<Foo, Bar>, Qux<Foo>>")
     parse(Instructions.maybePer, "-Bar / 5 Foo<Foo<Foo, Bar>, Qux<Foo>>")
     parse(Instructions.maybePer, "-Bar / 5 Foo<Foo<Foo, Bar>, Qux<Foo>>")
   }

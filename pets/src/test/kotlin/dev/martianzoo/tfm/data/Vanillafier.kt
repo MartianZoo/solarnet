@@ -1,13 +1,13 @@
 package dev.martianzoo.tfm.data
 
-import dev.martianzoo.tfm.petaform.Action
-import dev.martianzoo.tfm.petaform.Component
-import dev.martianzoo.tfm.petaform.Effect
-import dev.martianzoo.tfm.petaform.Instruction
-import dev.martianzoo.tfm.petaform.PetaformNode
-import dev.martianzoo.tfm.petaform.Predicate
-import dev.martianzoo.tfm.petaform.QuantifiedExpression
-import dev.martianzoo.tfm.petaform.TypeExpression
+import dev.martianzoo.tfm.pets.Action
+import dev.martianzoo.tfm.pets.Component
+import dev.martianzoo.tfm.pets.Effect
+import dev.martianzoo.tfm.pets.Instruction
+import dev.martianzoo.tfm.pets.PetsNode
+import dev.martianzoo.tfm.pets.Predicate
+import dev.martianzoo.tfm.pets.QuantifiedExpression
+import dev.martianzoo.tfm.pets.TypeExpression
 
 object Vanillafier {
     fun san(i: Int?): Int? {
@@ -18,9 +18,9 @@ object Vanillafier {
         }
     }
 
-    fun <P : PetaformNode> san(coll: Iterable<P>) = coll.map { san(it) }.sortedBy { it.toString().length }
+    fun <P : PetsNode> san(coll: Iterable<P>) = coll.map { san(it) }.sortedBy { it.toString().length }
 
-    fun <P : PetaformNode?> san(n: P): P {
+    fun <P : PetsNode?> san(n: P): P {
         if (n == null) return null as P
         return n.apply {
             when (this) {

@@ -1,21 +1,21 @@
-package dev.martianzoo.tfm.petaform
+package dev.martianzoo.tfm.pets
 
 import com.google.common.truth.Truth.assertThat
-import dev.martianzoo.tfm.petaform.Effect.Trigger
-import dev.martianzoo.tfm.petaform.Effect.Trigger.Conditional
-import dev.martianzoo.tfm.petaform.Effect.Trigger.Now
-import dev.martianzoo.tfm.petaform.Effect.Trigger.OnGain
-import dev.martianzoo.tfm.petaform.Effect.Trigger.OnRemove
-import dev.martianzoo.tfm.petaform.Instruction.Companion.then
-import dev.martianzoo.tfm.petaform.Instruction.Gain
-import dev.martianzoo.tfm.petaform.Instruction.Intensity.MANDATORY
-import dev.martianzoo.tfm.petaform.Instruction.Intensity.OPTIONAL
-import dev.martianzoo.tfm.petaform.Instruction.Remove
-import dev.martianzoo.tfm.petaform.Instruction.SimpleFrom
-import dev.martianzoo.tfm.petaform.Instruction.Transmute
-import dev.martianzoo.tfm.petaform.PetaformParser.parse
-import dev.martianzoo.tfm.petaform.Predicate.Max
-import dev.martianzoo.tfm.petaform.Predicate.Min
+import dev.martianzoo.tfm.pets.Effect.Trigger
+import dev.martianzoo.tfm.pets.Effect.Trigger.Conditional
+import dev.martianzoo.tfm.pets.Effect.Trigger.Now
+import dev.martianzoo.tfm.pets.Effect.Trigger.OnGain
+import dev.martianzoo.tfm.pets.Effect.Trigger.OnRemove
+import dev.martianzoo.tfm.pets.Instruction.Companion.then
+import dev.martianzoo.tfm.pets.Instruction.Gain
+import dev.martianzoo.tfm.pets.Instruction.Intensity.MANDATORY
+import dev.martianzoo.tfm.pets.Instruction.Intensity.OPTIONAL
+import dev.martianzoo.tfm.pets.Instruction.Remove
+import dev.martianzoo.tfm.pets.Instruction.SimpleFrom
+import dev.martianzoo.tfm.pets.Instruction.Transmute
+import dev.martianzoo.tfm.pets.PetsParser.parse
+import dev.martianzoo.tfm.pets.Predicate.Max
+import dev.martianzoo.tfm.pets.Predicate.Min
 import org.junit.jupiter.api.Test
 
 // Most testing is done by AutomatedTest
