@@ -10,7 +10,7 @@ class PetClassCanonTest {
     val cl = PetClassLoader(defs)
     cl.loadAll()
     cl.all().sortedBy { it.name }.forEach {
-      println("${it.name} : ${it.directSupertypes}")
+      println("${it.name} : ${it.directSuperclasses}")
     }
   }
 }

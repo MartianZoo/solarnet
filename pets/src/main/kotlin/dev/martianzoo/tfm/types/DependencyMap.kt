@@ -1,77 +1,17 @@
 package dev.martianzoo.tfm.types
 
-import dev.martianzoo.util.joinOrEmpty
-import java.util.*
+data class DependencyMap(val map: Map<DependencyKey, PetClass> = mapOf()) {
 
-data class DependencyMap(val map: Map<DependencyKey, PetType> = mapOf()) {
-  fun specializes(dependencies: DependencyMap) =
-      dependencies.map.all { (k, v) -> map[k]!!.isSubtypeOf(v) }
-
-  /**
-   * TODO Stricter than necessary; insists on exact order
-   */
-  fun specialize(specializations: List<PetType>): DependencyMap {
-    if (specializations.isEmpty()) {
-      return this
-    }
-    val unhandled: Queue<PetType> = ArrayDeque(specializations)
-    val newMap = mutableMapOf<DependencyKey, PetType>()
-    map.forEach { (key, depType) ->
-      val nextType = unhandled.peek()
-      if (nextType != null && nextType.isSubtypeOf(depType)) {
-        newMap.put(key, nextType);
-        unhandled.poll()
-      } else {
-        newMap.put(key, depType)
-      }
-    }
-    require(unhandled.isEmpty()) { unhandled }
-    return DependencyMap(newMap)
-  }
-
-  fun specialize(other: DependencyMap): DependencyMap {
-    val newMap = map.toMutableMap()
-    other.map.forEach { (key, specialType) ->
-      val previousType = map[key] ?: error("expected to find all of ${other.map} in $map")
-      require(specialType.isSubtypeOf(previousType))
-      newMap[key] = specialType
-    }
-    return DependencyMap(newMap)
-  }
-
-  // just a hack for debugging purposes
-  fun translate(d: DependencyKey): String {
-    return when (d.toString()) {
-      "Owned_1" -> "owner"
-      "Tile_1" -> "location"
-      "Cardbound_1" -> "onCard"
-      else -> d.toString()
-    }
-  }
-  override fun toString() =
-      map.map { "${translate(it.key)}=${it.value}" }.joinOrEmpty(surround = "<>")
+  // Let's maybe have two text formats
+  // Foo<Bar> -> much to figure out
+  // Foo<name=Bar, other=Qux> -- the complete form
+  // now the Foo class determines exactly what the keys will be - the union all from supertypes plus its own, but decomposed
 
   companion object {
-    fun merge(maps: List<DependencyMap>): DependencyMap {
-      val result = mutableMapOf<DependencyKey, PetType>()
-      maps.forEach {
-        depMap -> depMap.map.forEach {
-          result.merge(it.key, it.value, PetType::glb)
-        }
-      }
-      return DependencyMap(result)
-    }
   }
 
-  // ("Owned", table.resolve("Anyone"))
-  // ("Tile", table.resolve("Area"))
-  // ("Production", table.resolve("StandardResource"), true)
-  // ("Adjacency", table.resolve("Tile"), 0)
-  // ("Adjacency", table.resolve("Tile"), 1)
-  data class DependencyKey(
-      val dependentTypeName: String,
-      val index: Int = 0,
-  ) {
-    override fun toString() = "${dependentTypeName}_$index"
+  data class DependencyKey(val declaringClass: PetClass, val index: Int) {
+    init { require(index > 0) }
+    override fun toString() = "${declaringClass.name}_$index"
   }
 }

@@ -15,3 +15,9 @@ internal fun actionToEffect(action: Action, index: Int) : Effect  {
 }
 
 fun pad(s: Any, width: Int) = ("$s" + " ".repeat(width)).substring(0, width)
+
+fun te(s: String) = TypeExpression(s)
+
+internal val rootName = "Component"
+
+internal val rootEx = te(rootName)

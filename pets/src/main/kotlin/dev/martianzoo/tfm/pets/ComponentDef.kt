@@ -14,12 +14,14 @@ data class ComponentDef( // TODO not sure abt data class after complete is gone
     val effects: Set<Effect> = setOf(),
     val defaults: Set<Instruction> = setOf(),
 ) : PetsNode(), Definition {
+  init {
+    if (name == rootName) {
+      require(supertypes.isEmpty())
+      require(dependencies.isEmpty())
+    }
+  }
   // TODO: this should really enforce rules
   override val children = supertypes + dependencies + effects + defaults
 
   override val toComponentDef = this
-
-  companion object {
-
-  }
 }

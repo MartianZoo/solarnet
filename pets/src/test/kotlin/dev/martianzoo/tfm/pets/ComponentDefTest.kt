@@ -60,18 +60,15 @@ class ComponentDefTest {
 
     assertThat(cs).containsExactly(
         ComponentDef("Component", supertypes=setOf()),
-        ComponentDef("One", supertypes=setOf(cpt())),
+        ComponentDef("One", supertypes=setOf(rootEx)),
         ComponentDef("Two", supertypes=setOf(te("One"))),
-        ComponentDef("Three", supertypes=setOf(cpt())),
+        ComponentDef("Three", supertypes=setOf(rootEx)),
         ComponentDef("Four", supertypes=setOf(te("Three"))),
         ComponentDef("Five", supertypes=setOf(te("One"), te("Three"))),
         ComponentDef("Six", supertypes=setOf(te("Three"))),
         ComponentDef("Seven", supertypes=setOf(te("Six"))),
         ComponentDef("Eight", supertypes=setOf(te("One"), te("Six"))))
   }
-
-  fun te(s: String) = TypeExpression(s)
-  fun cpt() = te("Component")
 
   @Test fun oneLiner() {
     val cs = parseComponents("""
@@ -98,8 +95,8 @@ class ComponentDefTest {
   }
 
   @Test fun default() {
-    val instr: PetsNode = parse(PetsParser.Components.default, "default -Component!")
-    assertThat(instr).isEqualTo(Instruction.Remove(TypeExpression("Component"), null, Intensity.MANDATORY))
+    val instr: PetsNode = parse(Components.default, "default -Component!")
+    assertThat(instr).isEqualTo(Instruction.Remove(rootEx, null, Intensity.MANDATORY))
   }
 
   @Test fun withDefaults() {
@@ -120,5 +117,3 @@ class ComponentDefTest {
     """)
   }
 }
-
-val comp = setOf(TypeExpression("Component"))

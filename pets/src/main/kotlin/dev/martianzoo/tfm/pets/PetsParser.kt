@@ -293,13 +293,13 @@ object PetsParser {
       private fun fixSupertypes(): ComponentDef {
         val sups = def.supertypes
         return when {
-          def.name == "Component" -> {
+          def.name == rootName -> {
             require(sups.isEmpty())
             def
           } sups.isEmpty() -> {
-            def.copy(supertypes = setOf(TypeExpression("Component")))
+            def.copy(supertypes = setOf(rootEx))
           } else -> {
-            require(TypeExpression("Component") !in sups)
+            require(rootEx !in sups)
             def
           }
         }
