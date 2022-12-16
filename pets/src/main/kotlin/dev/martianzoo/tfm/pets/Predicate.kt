@@ -1,8 +1,7 @@
 package dev.martianzoo.tfm.pets
 
-import com.google.common.collect.Lists
+import com.google.common.collect.Lists.asList
 import dev.martianzoo.util.toSetCareful
-import dev.martianzoo.util.toSetCarefulP
 
 sealed class Predicate : PetsNode() {
 
@@ -33,7 +32,7 @@ sealed class Predicate : PetsNode() {
 
   data class Or(val predicates: Set<Predicate>) : Predicate() {
     constructor(pred1: Predicate, pred2: Predicate, vararg rest: Predicate) :
-        this(Lists.asList(pred1, pred2, rest).toSetCareful())
+        this(asList(pred1, pred2, rest).toSetCareful())
     init { if(predicates.size < 2) throw PetsException("$predicates") }
     override fun toString() = predicates.joinToString(" OR ") {
       it.toStringWhenInside(this)
@@ -44,7 +43,7 @@ sealed class Predicate : PetsNode() {
 
   data class And(val predicates: List<Predicate>) : Predicate() {
     constructor(pred1: Predicate, pred2: Predicate, vararg rest: Predicate) :
-        this(Lists.asList(pred1, pred2, rest))
+        this(asList(pred1, pred2, rest))
     init { require(predicates.size >= 2) }
     override fun toString() = predicates.joinToString() {
       it.toStringWhenInside(this)
@@ -63,13 +62,12 @@ sealed class Predicate : PetsNode() {
     fun and(predicates: List<Predicate>) =
         if (predicates.size == 1) predicates[0] else And(predicates)
     fun and(p1: Predicate, p2: Predicate, vararg rest: Predicate) =
-        and(Lists.asList(p1, p2, rest))
+        and(asList(p1, p2, rest))
 
-    // TODO why is deduping effing up
-    fun or(predicates: Set<Predicate>) = or(predicates.toList())
-    fun or(predicates: List<Predicate>) =
-        if (predicates.size == 1) predicates.first() else Or(predicates.toSet())
-    fun or(p1: Predicate, p2: Predicate, vararg rest: Predicate) =
-        or(Lists.asList(p1, p2, rest).toSetCarefulP())
+    fun or(predicates: Set<Predicate>): Predicate {
+      return if (predicates.size == 1) predicates.first() else Or(predicates)
+    }
+    fun or(predicates: List<Predicate>) = or(predicates.toSet()) // careful??
+    fun or(p1: Predicate, p2: Predicate, vararg rest: Predicate) = or(asList(p1, p2, rest))
   }
 }

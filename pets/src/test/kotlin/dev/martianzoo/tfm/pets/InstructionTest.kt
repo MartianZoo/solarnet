@@ -3,13 +3,18 @@ package dev.martianzoo.tfm.pets
 import com.github.h0tk3y.betterParse.combinators.or
 import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.tfm.pets.Instruction.ComplexFrom
+import dev.martianzoo.tfm.pets.Instruction.Gain
+import dev.martianzoo.tfm.pets.Instruction.Gated
 import dev.martianzoo.tfm.pets.Instruction.Intensity.AMAP
+import dev.martianzoo.tfm.pets.Instruction.Intensity.OPTIONAL
+import dev.martianzoo.tfm.pets.Instruction.Remove
 import dev.martianzoo.tfm.pets.Instruction.SimpleFrom
 import dev.martianzoo.tfm.pets.Instruction.Transmute
 import dev.martianzoo.tfm.pets.PetsParser.Instructions
 import dev.martianzoo.tfm.pets.PetsParser.Instructions.from
 import dev.martianzoo.tfm.pets.PetsParser.Instructions.typeInFrom
 import dev.martianzoo.tfm.pets.PetsParser.parse
+import dev.martianzoo.tfm.pets.Predicate.Min
 import org.junit.jupiter.api.Test
 
 // Most testing is done by AutomatedTest
@@ -164,5 +169,30 @@ class InstructionTest {
     testRoundTrip("\$foo(Bar)")
   }
 
+  @Test fun debug5() {
+    // for some reason, this creates Predicate.Or(Bar, Bar), so toSetCareful would blow up
+    val actual = parse<Instruction>("(Bar OR Bar? OR -Foo, Foo) OR (5, -Bar, Bar<Foo, Qux>: (-Bar, 1))")
+    val expected = Instruction.or(
+        Instruction.multi(
+            Instruction.or(
+                Gain(TypeExpression("Bar", listOf())),
+                Gain(TypeExpression("Bar", listOf()), intensity = OPTIONAL),
+                Remove(TypeExpression("Foo", listOf()))),
+            Gain(TypeExpression("Foo", listOf())),
+        ),
+        Instruction.multi(
+            Gain(null, 5),
+            Remove(TypeExpression("Bar", listOf())),
+            Gated(
+                Min(TypeExpression("Bar", listOf(TypeExpression("Foo", listOf()), TypeExpression("Qux", listOf())))),
+                Instruction.multi(
+                    Remove(TypeExpression("Bar", listOf())),
+                    Gain(null, 1),
+                ),
+            ),
+        ),
+    )
+    assertThat(actual).isEqualTo(expected)
+  }
   fun testRoundTrip(start: String, end: String = start) = testRoundTrip<Instruction>(start, end)
 }

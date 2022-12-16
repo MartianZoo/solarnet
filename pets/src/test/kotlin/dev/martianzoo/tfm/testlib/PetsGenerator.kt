@@ -65,7 +65,7 @@ class PetsGenerator(scaling: (Int) -> Double)
       register { Max(recurse()) }
       register { Exact(recurse()) }
       register { Predicate.and(listOfSize(choose(2, 2, 2, 2, 3))) as And }
-      register { Predicate.or(listOfSize(choose(2, 2, 2, 2, 2, 3, 4))) as Or }
+      register { Predicate.or(setOfSize(choose(2, 2, 2, 2, 2, 3, 4))) as Or }
 
       fun RandomGenerator<*>.intensity() = choose(3 to null, 1 to randomEnum<Intensity>())
 
@@ -88,7 +88,7 @@ class PetsGenerator(scaling: (Int) -> Double)
       register { Per(recurse(), recurse()) }
       register { Instruction.then(listOfSize(choose(2, 2, 2, 3))) as Then }
       register { Instruction.multi(listOfSize(choose(2, 2, 2, 2, 2, 3, 4))) as Multi }
-      register { Instruction.or(listOfSize(choose(2, 2, 2, 2, 3))) as Instruction.Or }
+      register { Instruction.or(setOfSize(choose(2, 2, 2, 2, 3))) as Instruction.Or }
       register { Custom("name", listOfSize(choose(1, 1, 1, 2))) }
 
       register<FromExpression> {
@@ -156,7 +156,7 @@ class PetsGenerator(scaling: (Int) -> Double)
       register<Cost> { recurse(choose(costTypes)) }
       register { Cost.Spend(qe = recurse()) }
       register { Cost.Per(recurse(), recurse()) }
-      register { Cost.or(listOfSize(choose(2, 2, 2, 2, 3, 4))) as Cost.Or }
+      register { Cost.or(setOfSize(choose(2, 2, 2, 2, 3, 4))) as Cost.Or }
       register { Cost.and(listOfSize(choose(2, 2, 2, 3))) as Cost.Multi }
       register { Cost.Prod(recurse()) }
 
