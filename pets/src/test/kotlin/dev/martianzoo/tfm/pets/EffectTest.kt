@@ -13,7 +13,7 @@ import dev.martianzoo.tfm.pets.Instruction.Intensity.OPTIONAL
 import dev.martianzoo.tfm.pets.Instruction.Remove
 import dev.martianzoo.tfm.pets.Instruction.SimpleFrom
 import dev.martianzoo.tfm.pets.Instruction.Transmute
-import dev.martianzoo.tfm.pets.PetsParser.parse
+import dev.martianzoo.tfm.pets.Parser.parse
 import dev.martianzoo.tfm.pets.Predicate.Max
 import dev.martianzoo.tfm.pets.Predicate.Min
 import org.junit.jupiter.api.Test

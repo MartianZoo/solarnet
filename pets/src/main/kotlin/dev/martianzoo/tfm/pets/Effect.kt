@@ -38,7 +38,7 @@ data class Effect(
       override val children = setOf(predicate)
     }
 
-    data class Prod(val trigger: Trigger) : Trigger() {
+    data class Prod(val trigger: Trigger) : Trigger(), ProductionBox<Trigger> {
       init {
         if (trigger !is OnGain && trigger !is OnRemove) {
           throw PetsException("only gain/remove trigger can go in prod block")
@@ -47,6 +47,7 @@ data class Effect(
       override fun toString() = "PROD[${trigger}]"
       override val children = setOf(trigger)
       override fun countProds() = super.countProds() + 1
+      override fun extract() = trigger
     }
   }
 }

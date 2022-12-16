@@ -1,5 +1,6 @@
 package dev.martianzoo.tfm.types
 
+import dev.martianzoo.tfm.pets.Deprodifier.Companion.deprodify
 import dev.martianzoo.tfm.types.DependencyMap.DependencyKey
 import dev.martianzoo.util.toSetCareful
 
@@ -15,7 +16,8 @@ data class PetClass(val name: String, val loader: PetClassLoader) {
   // Not usually a fan of the escaping `this` but this is fairly controlled
   init { loader.define(this) }
 
-  // Superclass stuff
+
+// SUPERCLASSES
 
   val directSuperclasses: Set<PetClass> by lazy {
     val directSuperclassNames: Set<String> = def.supertypes.map { it.className }.toSetCareful()
@@ -34,8 +36,12 @@ data class PetClass(val name: String, val loader: PetClassLoader) {
     } + this).toSet()
   }
 
+  fun allSubclasses() = loader.all().filter { it.isSubclassOf(this) }.toSetCareful()
   fun isSubclassOf(other: PetClass) = other in allSuperclasses
   fun isSuperclassOf(other: PetClass) = other.isSubclassOf(this)
+
+
+// DEPENDENCIES
 
   val directDependencyKeys: Set<DependencyKey> by lazy {
     def.dependencies.indices.map { DependencyKey(this, it + 1) }.toSet()
@@ -48,22 +54,17 @@ data class PetClass(val name: String, val loader: PetClassLoader) {
     keys
   }
 
-  private fun visitSuperclasses(fn: (PetClass) -> Unit) = visitSuperclasses(mutableSetOf(), fn)
 
-  private fun visitSuperclasses(visited: MutableSet<PetClass>, fn: (PetClass) -> Unit) {
-    if (visited.add(this)) {
-      directSuperclasses.forEach { it.visitSuperclasses(visited, fn) }
-      fn(this)
-    }
+// EFFECTS
+
+  val directEffects by lazy {
+    val sr = loader.get("StandardResource")
+    val stdResNames = sr.allSubclasses().map { it.name }.toSetCareful()
+    def.effects.map { deprodify(it, stdResNames, "Production") }
   }
 
-  //fun type(key: DependencyKey): PetClass {
-  //  if (key.declaringClass == this) {
-  //    return loader.getOrDefine(def.dependencies[key.index - 1].className)
-  //  }
-  //}
 
-  val directEffects = def.effects
+// OTHER
 
   /** Returns the one of `this` or `that` that is a subclass of the other. */
   fun glb(that: PetClass) = when {
@@ -78,9 +79,24 @@ data class PetClass(val name: String, val loader: PetClassLoader) {
     else -> {
       // has to be one of these, even if just Component
       val candidates = allSuperclasses.intersect(other.allSuperclasses)
-      candidates.maxBy { it.allSuperclasses.size } // TODO is this even right?
+
+      // well, there cannot be a nearer choice, so... good?
+      candidates.maxBy { it.allSuperclasses.size }
     }
   }
+
+
+// HELPERS
+
+  private fun visitSuperclasses(fn: (PetClass) -> Unit) = visitSuperclasses(mutableSetOf(), fn)
+
+  private fun visitSuperclasses(visited: MutableSet<PetClass>, fn: (PetClass) -> Unit) {
+    if (visited.add(this)) {
+      directSuperclasses.forEach { it.visitSuperclasses(visited, fn) }
+      fn(this)
+    }
+  }
+
 
   override fun toString() = name
 }

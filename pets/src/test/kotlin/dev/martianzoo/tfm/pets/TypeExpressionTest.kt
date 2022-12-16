@@ -9,7 +9,7 @@ class TypeExpressionTest {
 
   @Test
   fun simpleSourceToApi() {
-    val foo: TypeExpression = PetsParser.parse("Foo")
+    val foo: TypeExpression = Parser.parse("Foo")
     assertThat(foo).isEqualTo(TypeExpression("Foo"))
   }
 
@@ -36,7 +36,7 @@ class TypeExpressionTest {
 
   @Test
   fun complexSourceToApi() {
-    val parsed: TypeExpression = PetsParser.parse(" Red< Blue  < This,Teal> , Gold > ")
+    val parsed: TypeExpression = Parser.parse(" Red< Blue  < This,Teal> , Gold > ")
     assertThat(parsed).isEqualTo(
         TypeExpression(
             "Red",

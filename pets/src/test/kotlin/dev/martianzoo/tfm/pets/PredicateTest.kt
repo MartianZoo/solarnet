@@ -9,11 +9,11 @@ import org.junit.jupiter.api.Test
 class PredicateTest {
   @Test
   fun simpleSourceToApi() {
-    assertThat(PetsParser.parse<Predicate>("Foo"))
+    assertThat(Parser.parse<Predicate>("Foo"))
         .isEqualTo(Min(TypeExpression("Foo")))
-    assertThat(PetsParser.parse<Predicate>("3 Foo"))
+    assertThat(Parser.parse<Predicate>("3 Foo"))
         .isEqualTo(Min(TypeExpression("Foo"), 3))
-    assertThat(PetsParser.parse<Predicate>("MAX 3 Foo"))
+    assertThat(Parser.parse<Predicate>("MAX 3 Foo"))
         .isEqualTo(Max(TypeExpression("Foo"), 3))
   }
 
@@ -142,7 +142,7 @@ class PredicateTest {
   }
 
   @Test fun hairy() {
-    val parsed : Predicate = PetsParser.parse(
+    val parsed : Predicate = Parser.parse(
         "Adjacency<CityTile<Anyone>, OceanTile> OR 1 Adjacency<OceanTile, CityTile<Anyone>>")
     assertThat(parsed).isEqualTo(
         Predicate.or(

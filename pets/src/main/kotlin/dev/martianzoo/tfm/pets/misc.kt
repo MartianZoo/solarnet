@@ -11,7 +11,7 @@ internal fun actionToEffect(action: Action, index: Int) : Effect  {
   } else {
     Instruction.then(action.cost.toInstruction(), action.instruction)
   }
-  return Effect(PetsParser.parse("UseAction${index + 1}<This>"), merged)
+  return Effect(Parser.parse("UseAction${index + 1}<This>"), merged)
 }
 
 fun pad(s: Any, width: Int) = ("$s" + " ".repeat(width)).substring(0, width)
@@ -21,3 +21,4 @@ fun te(s: String) = TypeExpression(s)
 internal val rootName = "Component"
 
 internal val rootEx = te(rootName)
+

@@ -4,7 +4,7 @@ import dev.martianzoo.tfm.pets.ComponentDef
 import dev.martianzoo.tfm.pets.Effect
 import dev.martianzoo.tfm.pets.Effect.Trigger
 import dev.martianzoo.tfm.pets.Instruction
-import dev.martianzoo.tfm.pets.PetsParser.parse
+import dev.martianzoo.tfm.pets.Parser.parse
 import dev.martianzoo.tfm.pets.TypeExpression
 
 data class MarsAreaDefinition(

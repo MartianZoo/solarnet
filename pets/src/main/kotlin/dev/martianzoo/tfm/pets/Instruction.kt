@@ -158,10 +158,11 @@ sealed class Instruction : PetsNode() {
     override val children = instructions
   }
 
-  data class Prod(val instruction: Instruction) : Instruction() {
+  data class Prod(val instruction: Instruction) : Instruction(), ProductionBox<Instruction> {
     override fun toString() = "PROD[$instruction]"
     override val children = setOf(instruction)
     override fun countProds() = super.countProds() + 1
+    override fun extract() = instruction
   }
 
   data class Custom(val name: String, val arguments: List<TypeExpression>) : Instruction() {

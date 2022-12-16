@@ -2,10 +2,10 @@ package dev.martianzoo.tfm.pets
 
 import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.tfm.pets.Instruction.Intensity
-import dev.martianzoo.tfm.pets.PetsParser.Components
-import dev.martianzoo.tfm.pets.PetsParser.QEs
-import dev.martianzoo.tfm.pets.PetsParser.parse
-import dev.martianzoo.tfm.pets.PetsParser.parseComponents
+import dev.martianzoo.tfm.pets.Parser.Components
+import dev.martianzoo.tfm.pets.Parser.QEs
+import dev.martianzoo.tfm.pets.Parser.parse
+import dev.martianzoo.tfm.pets.Parser.parseComponents
 import org.junit.jupiter.api.Test
 
 class ComponentDefTest {

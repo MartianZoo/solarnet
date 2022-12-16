@@ -7,8 +7,8 @@ import dev.martianzoo.tfm.pets.ComponentDef
 import dev.martianzoo.tfm.pets.Effect
 import dev.martianzoo.tfm.pets.Effect.Trigger.OnGain
 import dev.martianzoo.tfm.pets.Instruction
-import dev.martianzoo.tfm.pets.PetsParser
-import dev.martianzoo.tfm.pets.PetsParser.parse
+import dev.martianzoo.tfm.pets.Parser
+import dev.martianzoo.tfm.pets.Parser.parse
 import dev.martianzoo.tfm.pets.Predicate
 import dev.martianzoo.tfm.pets.TypeExpression
 import dev.martianzoo.tfm.pets.actionToEffect
@@ -165,7 +165,7 @@ data class CardDefinition(
   }
   val actions by lazy { actionsText.map { parse<Action>(it) }.toSetCareful() }
   val effects by lazy { effectsText.map { parse<Effect>(it) }.toSetCareful() }
-  val requirement: Predicate? by lazy { requirementText?.let(PetsParser::parse) }
+  val requirement: Predicate? by lazy { requirementText?.let(Parser::parse) }
 
   override val toComponentDef by lazy {
     val type = TypeExpression(if (projectKind == null) "CardFront" else projectKind.type)

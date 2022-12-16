@@ -52,10 +52,11 @@ sealed class Predicate : PetsNode() {
     override val children = predicates
   }
 
-  data class Prod(val predicate: Predicate) : Predicate() {
+  data class Prod(val predicate: Predicate) : Predicate(), ProductionBox<Predicate> {
     override fun toString() = "PROD[${predicate}]"
     override val children = setOf(predicate)
     override fun countProds() = super.countProds() + 1
+    override fun extract() = predicate
   }
 
   companion object {

@@ -62,11 +62,12 @@ data class Action(val cost: Cost?, val instruction: Instruction) : PetsNode() {
       override fun toInstruction() = Instruction.multi(costs.map(Cost::toInstruction))
     }
 
-    data class Prod(val cost: Cost) : Cost() {
+    data class Prod(val cost: Cost) : Cost(), ProductionBox<Cost> {
       override fun toString() = "PROD[${cost}]"
       override val children = setOf(cost)
       override fun countProds() = super.countProds() + 1
       override fun toInstruction() = Instruction.Prod(cost.toInstruction())
+      override fun extract() = cost
     }
 
     companion object {

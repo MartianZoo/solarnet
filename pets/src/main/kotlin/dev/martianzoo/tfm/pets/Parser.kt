@@ -49,7 +49,7 @@ import dev.martianzoo.util.toSetCareful
 import kotlin.reflect.KClass
 import kotlin.reflect.cast
 
-object PetsParser {
+object Parser {
   inline fun <reified P : PetsNode> parse(petsText: String) = parse(P::class, petsText)
 
 
@@ -368,7 +368,7 @@ object PetsParser {
   fun isEOF(result: ParseResult<Any>): Boolean =
       when (result) {
         is UnexpectedEof -> true
-        is AlternativesFailure -> result.errors.any(PetsParser::isEOF)
+        is AlternativesFailure -> result.errors.any(dev.martianzoo.tfm.pets.Parser::isEOF)
         else -> false
       }
 }
