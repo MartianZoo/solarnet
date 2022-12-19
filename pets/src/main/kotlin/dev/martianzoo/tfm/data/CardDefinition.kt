@@ -12,7 +12,7 @@ import dev.martianzoo.tfm.pets.Parser.parse
 import dev.martianzoo.tfm.pets.Predicate
 import dev.martianzoo.tfm.pets.TypeExpression
 import dev.martianzoo.tfm.pets.actionToEffect
-import dev.martianzoo.util.toSetCareful
+import dev.martianzoo.util.toSetStrict
 
 /**
  * Everything there is to know about a Terraforming Mars card, except for text (including the card
@@ -156,15 +156,15 @@ data class CardDefinition(
   val tags: List<TypeExpression> by lazy { tagsText.map { TypeExpression(it) } }
   val resourceType: TypeExpression? by lazy { resourceTypeText?.let { TypeExpression(it) } }
   val immediate: Instruction? by lazy {
-    val set = immediateText.map { parse<Instruction>(it) }.toSetCareful()
+    val set = immediateText.map { parse<Instruction>(it) }.toSetStrict()
     when (set.size) {
       0 -> null
       1 -> set.first()
       else -> Instruction.multi(set.toList())
     }
   }
-  val actions by lazy { actionsText.map { parse<Action>(it) }.toSetCareful() }
-  val effects by lazy { effectsText.map { parse<Effect>(it) }.toSetCareful() }
+  val actions by lazy { actionsText.map { parse<Action>(it) }.toSetStrict() }
+  val effects by lazy { effectsText.map { parse<Effect>(it) }.toSetStrict() }
   val requirement: Predicate? by lazy { requirementText?.let(Parser::parse) }
 
   override val toComponentDef by lazy {
@@ -175,7 +175,7 @@ data class CardDefinition(
   val allEffects: Set<Effect> by lazy {
     (listOfNotNull(immediate).map(::immediateToEffect) +
         effects +
-        actions.withIndex().map { (i, act) -> actionToEffect(act, i) }).toSetCareful()
+        actions.withIndex().map { (i, act) -> actionToEffect(act, i) }).toSetStrict()
   }
 
   private fun immediateToEffect(instr: Instruction) = Effect(OnGain(TypeExpression("This")), instr)

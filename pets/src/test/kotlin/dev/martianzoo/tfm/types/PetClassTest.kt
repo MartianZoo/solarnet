@@ -3,7 +3,7 @@ package dev.martianzoo.tfm.types
 import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.tfm.pets.Parser.parseComponents
 import dev.martianzoo.tfm.pets.rootName
-import dev.martianzoo.tfm.types.DependencyMap.DependencyKey
+import dev.martianzoo.tfm.types.PetType.DependencyKey
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 
@@ -80,7 +80,7 @@ class PetClassTest {
     """)
     val bar = loader.get("Bar")
     assertThat(bar.directSuperclasses.names()).containsExactly(rootName)
-    assertThat(bar.directDependencyKeys).containsExactly(DependencyKey(bar, 1))
+    assertThat(bar.directDependencyKeys).containsExactly(DependencyKey(bar, 0))
   }
 
   @Test fun inheritedDependency() {
@@ -94,7 +94,7 @@ class PetClassTest {
     val qux = loader.get("Qux")
     assertThat(qux.directSuperclasses.names()).containsExactly("Bar")
 
-    val key = DependencyKey(bar, 1)
+    val key = DependencyKey(bar, 0)
     assertThat(bar.allDependencyKeys).containsExactly(key)
     assertThat(qux.allDependencyKeys).containsExactly(key)
   }
@@ -110,7 +110,7 @@ class PetClassTest {
     val qux = loader.get("Qux")
     assertThat(qux.directSuperclasses.names()).containsExactly("Bar")
 
-    val key = DependencyKey(bar, 1)
+    val key = DependencyKey(bar, 0)
     assertThat(bar.allDependencyKeys).containsExactly(key)
     assertThat(qux.allDependencyKeys).containsExactly(key)
   }
@@ -126,8 +126,8 @@ class PetClassTest {
     val bar = loader.get("Bar")
     val qux = loader.get("Qux")
 
-    assertThat(bar.allDependencyKeys).containsExactly(DependencyKey(bar, 1))
-    assertThat(qux.allDependencyKeys).containsExactly(DependencyKey(bar, 1),  DependencyKey(qux, 1))
+    assertThat(bar.allDependencyKeys).containsExactly(DependencyKey(bar, 0))
+    assertThat(qux.allDependencyKeys).containsExactly(DependencyKey(bar, 0),  DependencyKey(qux, 0))
   }
 
   @Test fun refinedDependency() {
@@ -142,10 +142,20 @@ class PetClassTest {
     val qux = loader.get("Qux")
     assertThat(qux.directSuperclasses.names()).containsExactly("Bar")
 
-    val key = DependencyKey(bar, 1)
+    val key = DependencyKey(bar, 0)
     assertThat(bar.allDependencyKeys).containsExactly(key)
     assertThat(qux.allDependencyKeys).containsExactly(key)
   }
+
+  @Test fun cycleDependency() {
+    val loader = loader("""
+      abstract class $rootName
+      class Foo<Bar>
+      class Bar<Foo>
+    """)
+    val foo = loader.get("Foo")
+    val bar = loader.get("Bar")
+ }
 
   private fun loader(petsText: String) =
       PetClassLoader(parseComponents(petsText)).also { it.loadAll() }

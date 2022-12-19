@@ -5,7 +5,7 @@ import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import dev.martianzoo.tfm.pets.ComponentDef
 import dev.martianzoo.tfm.pets.Parser.parse
 import dev.martianzoo.util.Grid
-import dev.martianzoo.util.associateByCareful
+import dev.martianzoo.util.associateByStrict
 import java.util.*
 import kotlin.text.RegexOption.DOT_MATCHES_ALL
 
@@ -14,7 +14,7 @@ internal object JsonReader {
   internal fun readCards(json5: String) = MOSHI_CARD.fromJson(json5ToJson(json5))!!.toMap()
 
   internal data class CardList(val cards: List<CardDefinition>) {
-    fun toMap() = cards.associateByCareful { it.id }
+    fun toMap() = cards.associateByStrict { it.id }
   }
 
   // Maps
@@ -81,7 +81,7 @@ internal object JsonReader {
   // You wouldn't normally use this, but have only a single map in play.
   fun combine(vararg defs: Collection<Definition>): Map<String, ComponentDef> {
     val allDefns: List<Definition> = defs.flatMap { it }
-    return allDefns.map { it.toComponentDef }.associateByCareful { it.name }
+    return allDefns.map { it.toComponentDef }.associateByStrict { it.name }
   }
 
   // Stuff

@@ -19,8 +19,7 @@ fun <T> multiset(vararg pairs: Pair<Int, T>): ImmutableMultiset<T> {
   return builder.build()
 }
 
-fun <T> Collection<T>.toSetCareful() = toSet().also { require(it.size == size) }
-fun <T> Collection<T>.toSetCarefulP() = toSet().also { if(it.size != size) throw PetsException("{$this}") }
+fun <T> Collection<T>.toSetStrict() = toSet().also { require(it.size == size) }
+fun <T> Collection<T>.toSetCarefulP() = toSet().also { if (it.size != size) throw PetsException("{$this}") }
 
-fun <T, K> Collection<T>.associateByCareful(x: (T) -> K) =
-    associateBy(x).also { require(it.size == size) }
+fun <T, K> Collection<T>.associateByStrict(x: (T) -> K) = associateBy(x).also { require(it.size == size) }

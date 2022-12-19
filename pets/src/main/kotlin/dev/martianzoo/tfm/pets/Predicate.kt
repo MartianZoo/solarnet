@@ -1,7 +1,7 @@
 package dev.martianzoo.tfm.pets
 
 import com.google.common.collect.Lists.asList
-import dev.martianzoo.util.toSetCareful
+import dev.martianzoo.util.toSetStrict
 
 sealed class Predicate : PetsNode() {
 
@@ -32,7 +32,7 @@ sealed class Predicate : PetsNode() {
 
   data class Or(val predicates: Set<Predicate>) : Predicate() {
     constructor(pred1: Predicate, pred2: Predicate, vararg rest: Predicate) :
-        this(asList(pred1, pred2, rest).toSetCareful())
+        this(asList(pred1, pred2, rest).toSetStrict())
     init { if(predicates.size < 2) throw PetsException("$predicates") }
     override fun toString() = predicates.joinToString(" OR ") {
       it.toStringWhenInside(this)

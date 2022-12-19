@@ -8,7 +8,7 @@ import dev.martianzoo.tfm.data.MilestoneDefinition
 import dev.martianzoo.tfm.pets.ComponentDef
 import dev.martianzoo.tfm.pets.Parser.parseComponents
 import dev.martianzoo.util.Grid
-import dev.martianzoo.util.associateByCareful
+import dev.martianzoo.util.associateByStrict
 
 object Canon {
   private val FILENAMES = setOf("system.pets", "components.pets", "payment.pets")
@@ -20,15 +20,11 @@ object Canon {
       println("Parsing $f")
       list += parseComponents(s)
     }
-    list.associateByCareful { it.name }
+    list.associateByStrict { it.name }
   }
 
   val cardDefinitions: Map<String, CardDefinition> by lazy {
     JsonReader.readCards(readResource("cards.json5"))
-  }
-
-  val milestoneDefinitions: Map<String, MilestoneDefinition> by lazy {
-    JsonReader.readMilestones(readResource("milestones.json5"))
   }
 
   val auxiliaryComponentDefinitions: Map<String, ComponentDef> by lazy {
@@ -39,14 +35,17 @@ object Canon {
     JsonReader.readMaps(readResource("maps.json5"))
   }
 
-  // You wouldn't normally use this, but have only a single map in play.
+  val milestoneDefinitions: Map<String, MilestoneDefinition> by lazy {
+    JsonReader.readMilestones(readResource("milestones.json5"))
+  }
+
   val allDefinitions: Map<String, ComponentDef> by lazy {
     combine(
         componentDefinitions.values,
         cardDefinitions.values,
-        milestoneDefinitions.values,
         auxiliaryComponentDefinitions.values,
-        mapAreaDefinitions.values.flatten())
+        mapAreaDefinitions.values.flatten(),
+        milestoneDefinitions.values)
   }
 
   private fun readResource(filename: String): String {

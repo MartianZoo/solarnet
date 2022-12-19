@@ -45,7 +45,7 @@ import dev.martianzoo.tfm.pets.Instruction.TypeInFrom
 import dev.martianzoo.tfm.pets.Predicate.Exact
 import dev.martianzoo.tfm.pets.Predicate.Max
 import dev.martianzoo.tfm.pets.Predicate.Min
-import dev.martianzoo.util.toSetCareful
+import dev.martianzoo.util.toSetStrict
 import kotlin.reflect.KClass
 import kotlin.reflect.cast
 
@@ -308,15 +308,15 @@ object Parser {
 
     private fun createCcd(abst: Boolean, sig: Signature, contents: List<Any> = listOf()):
         List<ComponentDefInProcess> {
-      val defs = contents.filterIsInstance<Instruction>().toSetCareful()
-      val acts = contents.filterIsInstance<Action>().toSetCareful()
-      val effs = contents.filterIsInstance<Effect>().toSetCareful()
-      val subs = contents.filterIsInstance<List<ComponentDefInProcess>>().toSetCareful()
+      val defs = contents.filterIsInstance<Instruction>().toSetStrict()
+      val acts = contents.filterIsInstance<Action>().toSetStrict()
+      val effs = contents.filterIsInstance<Effect>().toSetStrict()
+      val subs = contents.filterIsInstance<List<ComponentDefInProcess>>().toSetStrict()
 
       val comp = ComponentDef(
           name = sig.expr.className,
           abstract = abst,
-          supertypes = sig.sups.toSetCareful(),
+          supertypes = sig.sups.toSetStrict(),
           dependencies = sig.expr.specializations,
           effs + acts.withIndex().map { (i, act) -> actionToEffect(act, i) },
           defs

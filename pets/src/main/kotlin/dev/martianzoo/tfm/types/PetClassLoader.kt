@@ -1,23 +1,25 @@
 package dev.martianzoo.tfm.types
 
+import com.google.common.graph.ElementOrder.insertion
 import com.google.common.graph.Graph
 import com.google.common.graph.GraphBuilder
-import com.google.common.graph.Graphs.reachableNodes
 import com.google.common.graph.Graphs.transitiveClosure
 import com.google.common.graph.MutableGraph
+import com.google.common.graph.Traverser
 import dev.martianzoo.tfm.pets.ComponentDef
-import dev.martianzoo.util.associateByCareful
-import dev.martianzoo.util.toSetCareful
+import dev.martianzoo.tfm.pets.TypeExpression
+import dev.martianzoo.util.associateByStrict
 
-// it has access to all the data when it needs it
+// TODO restrict viz?
 class PetClassLoader(val definitions: Map<String, ComponentDef>) : PetClassTable {
   constructor(definitions: Collection<ComponentDef>) :
-      this(definitions.associateByCareful { it.name })
+      this(definitions.associateByStrict { it.name })
 
-  internal val directSubclasses: MutableGraph<PetClass> = GraphBuilder.directed()
-      .allowsSelfLoops(false)
-      .expectedNodeCount(500)
-      .build()
+  internal val directSubclasses: MutableGraph<PetClass> =
+      GraphBuilder.directed()
+          .allowsSelfLoops(false)
+          .nodeOrder(insertion<PetClass>())
+          .build()
 
   internal val allSubclasses: Graph<PetClass> by lazy {
     require(frozen)
@@ -25,9 +27,12 @@ class PetClassLoader(val definitions: Map<String, ComponentDef>) : PetClassTable
   }
 
   private fun putSuperToSub(supe: PetClass, sub: PetClass) {
-    require(supe !in reachableNodes(directSubclasses, sub)) { "cycle between $supe and $sub"}
+    require(!hasPath(sub, supe)) { "cycle between $supe and $sub"}
     directSubclasses.putEdge(supe, sub)
   }
+
+  private fun hasPath(from: PetClass, to: PetClass) =
+      Traverser.forGraph(directSubclasses).breadthFirst(from).contains(to)
 
   private val table = mutableMapOf<String, PetClass>()
 
@@ -44,6 +49,7 @@ class PetClassLoader(val definitions: Map<String, ComponentDef>) : PetClassTable
     // We can insist that the superclasses are defined first, since there can't be cycles
     val petClass = PetClass(def, this)
     require(table.put(petClass.name, petClass) == null)
+
     directSubclasses.addNode(petClass)
     def.superclassNames.map(::load).forEach { putSuperToSub(it, petClass) }
     return petClass
@@ -59,5 +65,12 @@ class PetClassLoader(val definitions: Map<String, ComponentDef>) : PetClassTable
     return freeze()
   }
 
-  override fun all() = table.values.toSetCareful().also { require(frozen) }
+  override fun all() = table.values.toSet().also { require(frozen) }
+
+  // TODO TODO
+  override fun resolve(expression: TypeExpression): PetType {
+    val specs: List<PetType> = expression.specializations.map { resolve(it) }
+    val petClass = get(expression.className)
+    return petClass.baseType.specialize(specs)
+  }
 }
