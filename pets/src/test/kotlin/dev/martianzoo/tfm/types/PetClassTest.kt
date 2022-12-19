@@ -27,7 +27,7 @@ class PetClassTest {
     assertThat(foo.name).isEqualTo("Foo")
     assertThat(foo.abstract).isFalse()
     assertThat(foo.directSuperclasses.names()).containsExactly(rootName)
-    assertThat(foo.allSuperclasses.names()).containsExactly(rootName, "Foo").inOrder()
+    assertThat(foo.allSuperclasses.names()).containsExactly(rootName, "Foo")
     assertThat(foo.directDependencyKeys).isEmpty()
   }
 
@@ -39,7 +39,7 @@ class PetClassTest {
     """)
     val bar = loader.get("Bar")
     assertThat(bar.directSuperclasses.names()).containsExactly("Foo")
-    assertThat(bar.allSuperclasses.names()).containsExactly(rootName, "Foo", "Bar").inOrder()
+    assertThat(bar.allSuperclasses.names()).containsExactly(rootName, "Foo", "Bar")
     assertThat(bar.directDependencyKeys).isEmpty()
   }
 
@@ -51,32 +51,25 @@ class PetClassTest {
     """)
     val bar = loader.get("Bar")
     assertThat(bar.directSuperclasses.names()).containsExactly("Foo")
-    assertThat(bar.allSuperclasses.names()).containsExactly(rootName, "Foo", "Bar").inOrder()
+    assertThat(bar.allSuperclasses.names()).containsExactly(rootName, "Foo", "Bar")
     assertThat(bar.directDependencyKeys).isEmpty()
   }
 
   @Test fun cycle() {
-    val loader = loader("""
+    val s = """
       abstract class $rootName
       class Foo : Bar
       class Bar : Foo
-    """)
-    val foo = loader.get("Foo")
-    assertThat(foo.directSuperclasses.names()).containsExactly("Bar")
-    assertThrows<IllegalArgumentException> { foo.allSuperclasses.names() }
-    val bar = loader.get("Bar")
-    assertThat(bar.directSuperclasses.names()).containsExactly("Foo")
-    assertThrows<IllegalArgumentException> { bar.allSuperclasses.names() }
+    """
+    assertThrows<IllegalArgumentException> { loader(s) }
   }
 
   @Test fun trivialCycle() {
-    val loader = loader("""
+    val s = """
       abstract class $rootName
       class Foo : Foo
-    """)
-    val foo = loader.get("Foo")
-    assertThat(foo.directSuperclasses.names()).containsExactly("Foo")
-    assertThrows<IllegalArgumentException> { foo.allSuperclasses.names() }
+    """
+    assertThrows<IllegalArgumentException> { loader(s) }
   }
 
   @Test fun dependency() {

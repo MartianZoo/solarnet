@@ -20,6 +20,9 @@ data class ComponentDef( // TODO not sure abt data class after complete is gone
       require(dependencies.isEmpty())
     }
   }
+
+  val superclassNames = supertypes.map { it.className }
+
   // TODO: this should really enforce rules
   override val children = supertypes + dependencies + effects + defaults
 

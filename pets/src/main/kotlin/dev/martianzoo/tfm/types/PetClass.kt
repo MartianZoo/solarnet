@@ -1,5 +1,6 @@
 package dev.martianzoo.tfm.types
 
+import dev.martianzoo.tfm.pets.ComponentDef
 import dev.martianzoo.tfm.pets.Deprodifier.Companion.deprodify
 import dev.martianzoo.tfm.types.DependencyMap.DependencyKey
 import dev.martianzoo.util.toSetCareful
@@ -7,39 +8,22 @@ import dev.martianzoo.util.toSetCareful
 /**
  * Complete knowledge about a component class, irrespective of how it happened to be defined. This
  * data is relatively "cooked", but I'm still deciding how much inherited information it should
- * include.
+ * include.«
  */
-data class PetClass(val name: String, val loader: PetClassLoader) {
-  val def = loader.definitions[name]!!
-  val abstract = def.abstract
-
-  // Not usually a fan of the escaping `this` but this is fairly controlled
-  init { loader.define(this) }
-
+data class PetClass(val def: ComponentDef, val loader: PetClassLoader) {
+  val name by def::name
+  val abstract by def::abstract
 
 // SUPERCLASSES
 
-  val directSuperclasses: Set<PetClass> by lazy {
-    val directSuperclassNames: Set<String> = def.supertypes.map { it.className }.toSetCareful()
-    // TODO prune
-    directSuperclassNames.map { loader.getOrDefine(it) }.toSetCareful()
-  }
+  val directSuperclasses: Set<PetClass> get() = loader.superToSubDirect.predecessors(this)
+  val directSubclasses: Set<PetClass> get() = loader.superToSubDirect.successors(this)
 
-  val allSuperclasses: Set<PetClass> by lazy {
-    allSuperclasses(poison = this)
-  }
+  val allSuperclasses: Set<PetClass> get() = loader.superToSubAll!!.predecessors(this)
+  val allSubclasses: Set<PetClass> get() = loader.superToSubAll!!.successors(this)
 
-  fun allSuperclasses(poison: PetClass): Set<PetClass> {
-    return (directSuperclasses.flatMap {
-      require(it != poison)
-      it.allSuperclasses(poison)
-    } + this).toSet()
-  }
-
-  fun allSubclasses() = loader.all().filter { it.isSubclassOf(this) }.toSetCareful()
-  fun isSubclassOf(other: PetClass) = other in allSuperclasses
-  fun isSuperclassOf(other: PetClass) = other.isSubclassOf(this)
-
+  fun isSubclassOf(that: PetClass) = loader.superToSubAll.hasEdgeConnecting(that, this)
+  fun isSuperclassOf(that: PetClass) = loader.superToSubAll.hasEdgeConnecting(this, that)
 
 // DEPENDENCIES
 
@@ -49,9 +33,7 @@ data class PetClass(val name: String, val loader: PetClassLoader) {
 
   // Any dep declared in any supertype all goes together
   val allDependencyKeys: Set<DependencyKey> by lazy {
-    val keys = mutableSetOf<DependencyKey>()
-    visitSuperclasses { keys += it.directDependencyKeys }
-    keys
+    allSuperclasses.flatMap { it.directDependencyKeys }.toSetCareful()
   }
 
 
@@ -59,8 +41,8 @@ data class PetClass(val name: String, val loader: PetClassLoader) {
 
   val directEffects by lazy {
     val sr = loader.get("StandardResource")
-    val stdResNames = sr.allSubclasses().map { it.name }.toSetCareful()
-    def.effects.map { deprodify(it, stdResNames, "Production") }
+    val resourceNames = sr.allSubclasses.map { it.name }.toSetCareful()
+    def.effects.map { deprodify(it, resourceNames, "Production") }
   }
 
 
@@ -82,18 +64,6 @@ data class PetClass(val name: String, val loader: PetClassLoader) {
 
       // well, there cannot be a nearer choice, so... good?
       candidates.maxBy { it.allSuperclasses.size }
-    }
-  }
-
-
-// HELPERS
-
-  private fun visitSuperclasses(fn: (PetClass) -> Unit) = visitSuperclasses(mutableSetOf(), fn)
-
-  private fun visitSuperclasses(visited: MutableSet<PetClass>, fn: (PetClass) -> Unit) {
-    if (visited.add(this)) {
-      directSuperclasses.forEach { it.visitSuperclasses(visited, fn) }
-      fn(this)
     }
   }
 
