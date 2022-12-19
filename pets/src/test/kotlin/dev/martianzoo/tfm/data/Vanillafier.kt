@@ -20,6 +20,7 @@ object Vanillafier {
 
     fun <P : PetsNode> san(coll: Iterable<P>) = coll.map { san(it) }.sortedBy { it.toString().length }
 
+    @Suppress("UNCHECKED_CAST")
     fun <P : PetsNode?> san(n: P): P {
         if (n == null) return null as P
         return n.apply {

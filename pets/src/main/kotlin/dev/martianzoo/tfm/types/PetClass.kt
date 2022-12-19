@@ -14,16 +14,17 @@ data class PetClass(val def: ComponentDef, val loader: PetClassLoader) {
   val name by def::name
   val abstract by def::abstract
 
-// SUPERCLASSES
 
-  val directSuperclasses: Set<PetClass> get() = loader.superToSubDirect.predecessors(this)
-  val directSubclasses: Set<PetClass> get() = loader.superToSubDirect.successors(this)
+// HIERARCHY
 
-  val allSuperclasses: Set<PetClass> get() = loader.superToSubAll!!.predecessors(this)
-  val allSubclasses: Set<PetClass> get() = loader.superToSubAll!!.successors(this)
+  fun isSubclassOf(that: PetClass) = loader.allSubclasses.hasEdgeConnecting(that, this)
+  fun isSuperclassOf(that: PetClass) = loader.allSubclasses.hasEdgeConnecting(this, that)
 
-  fun isSubclassOf(that: PetClass) = loader.superToSubAll.hasEdgeConnecting(that, this)
-  fun isSuperclassOf(that: PetClass) = loader.superToSubAll.hasEdgeConnecting(this, that)
+  val directSubclasses: Set<PetClass> get() = loader.directSubclasses.successors(this)
+  val directSuperclasses: Set<PetClass> get() = loader.directSubclasses.predecessors(this)
+
+  val allSubclasses: Set<PetClass> get() = loader.allSubclasses.successors(this)
+  val allSuperclasses: Set<PetClass> get() = loader.allSubclasses.predecessors(this)
 
 // DEPENDENCIES
 
