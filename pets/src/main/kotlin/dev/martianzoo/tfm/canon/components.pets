@@ -1,13 +1,31 @@
 // class Game(HAS MAX 1 MarsMap, MAX 1 Phase, MAX 9 OceanTile)
 
+// Root of the hierarchy; everything with no other supertypes has this supertype
+abstract class Component {
+    default Component! // all gains/removes are mandatory unless overridden
+    default -Component!
+}
+
+abstract class Signal(HAS MAX 0 This) {                // removes itself immediately - will never observe it existing
+    This:: -This                                       // but can be triggered by it
+}
+
+class Ok : Signal                                      // when you need to do nothing
+
+abstract class Barrier {                               // player must clean up themselves, by end of action
+    This: (MAX 0 Barrier: Ok)                          // weird. add a task that can only be handled if 0 barriers left
+}
+
+class Die(HAS MAX 0 This)
+
 abstract class Anyone(HAS =1 This) {
     abstract class Player : Anyone {
         This:: 20 TerraformRating
 
         This:: PROD[5]                                 // No negative Components! So we need a hack; at least this one
-        ProductionPhase: -5                            // confines the damage to Specialist/Generalist (and Robinson but it
-    }                                                  // needs custom code anyway).
-}                                                      // `Instr / PROD[1]` must be banned! But no great loss.
+        ProductionPhase: -5                            // confines the damage to Specialist/Generalist (and Robinson,
+    }                                                  // but it needs custom code anyway). Other hacks seem worse.
+}                                                      // `Instr / PROD[1]` is very very dodgy but works for Banker.
 
 abstract class Area(HAS =1 This, MAX 1 Tile) {
     abstract class RemoteArea
@@ -84,10 +102,10 @@ abstract class Owned<Anyone> {                         // TODO default *Owned<Me
         abstract class StandardResource {
             class Megacredit
             class Steel {                              // It's certainly strange that your steel resources themselves
-                Purchase<BuildingTag>:: Accept<This>   // export their own power to pay for cards. But it should work?
+                PlayTag<BuildingTag>:: Accept<This>   // export their own power to pay for cards. But it should work?
             }
             class Titanium {
-                Purchase<SpaceTag>:: Accept<This>
+                PlayTag<SpaceTag>:: Accept<This>
             }
             class Plant
             class Energy {
@@ -137,8 +155,7 @@ abstract class Owned<Anyone> {                         // TODO default *Owned<Me
 
     class PlayedEvent
 
-    abstract class Cardbound<CardFront> {
-        This:: (CardFront: Ok)                         // i.e., the card must actually be in play
+    abstract class Cardbound<CardFront>(HAS CardFront) {
         -CardFront:: -This                             // on becoming a PlayedEvent
 
         abstract class CardResource : Resource {       // , Cardbound<CardFront<This>> ?
@@ -171,9 +188,31 @@ abstract class Owned<Anyone> {                         // TODO default *Owned<Me
         class UseAction1, UseAction2, UseAction3, UseAction4
     }
 
-    class PlayCard<CardFront> { // TODO extend Purchase??
+    class Owed<Resource> : Barrier {
+       default -Owed.
+       This:: Accept<Resource>
+    }
+
+    class Accept<Resource>(HAS MAX 1 This) {
+        default Accept.                                // never hurts to accept twice
+
+        -Resource:: Pay<Resource>                      // TODO this is not quite right?
+        NOW MAX 0 Owed:: -This                         // TODO what if there never are/were any Oweds?
+    }
+
+    class Pay<Resource> : Signal {                     // TODO lets you overpay like mad
+        This:: -Owed<Resource>
+    }
+
+    class BuyCard {
+        NOW MAX 0 Barrier: ProjectCard FROM This
+    }
+
+    class PlayTag<Tag> : Signal
+
+    class PlayCard<CardFront> {
         This:: $handleRequirement(CardFront), $handleCost(CardFront) // TODO Owed<Mc> / $costOf(CardFront)
-        This: (MAX 0 Barrier: CardFront FROM CardBack)
+        NOW MAX 0 Barrier: (CardFront FROM CardBack, -This)
     }
 }
 

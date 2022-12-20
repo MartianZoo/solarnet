@@ -8,7 +8,7 @@
       "deck": "CORPORATION",
       "tags": [ "PlantTag" ],
       "immediate": [ "PROD[2 Plant], 36, 3 Plant" ],
-      "effects": [ "Purchase<UseAction<ConvertPlants>>:: -Owed<Plant>" ],
+      "effects": [ "UseAction<ConvertPlants>: -Owed<Plant>" ],
     },
 
     // Interplanetary Cinematics
@@ -31,20 +31,6 @@
       "effects": [ "Pay<Titanium>: Pay<Megacredit>" ],
     },
 
-    // Tharsis Republic
-    {
-      "id": "B08",
-      "bundle": "B",
-      "deck": "CORPORATION",
-      "tags": [ "BuildingTag" ],
-      "immediate": [ "40" ],
-      "effects": [
-        "FirstAction: CityTile",
-        "CityTile<Anyone, MarsArea>: PROD[1]",
-        "CityTile: 3",
-      ],
-    },
-
     // ThorGate
     {
       "id": "B09",
@@ -53,8 +39,8 @@
       "tags": [ "PowerTag" ],
       "immediate": [ "PROD[Energy], 48" ],
       "effects": [
-        "Purchase<PowerTag>:: -3 Owed",
-        "Purchase<UseAction<PowerPlant>>:: -3 Owed",
+        "PlayTag<PowerTag>:: -3 Owed",
+        "UseAction<PowerPlant>: -3 Owed",
       ],
     },
 
@@ -89,7 +75,7 @@
       "deck": "CORPORATION",
       "tags": [ "EarthTag" ],
       "immediate": [ "60" ],
-      "effects": [ "Purchase<EarthTag>:: -3 Owed" ],
+      "effects": [ "PlayTag<EarthTag>:: -3 Owed" ],
     },
 
     // Cheung Shing Mars
@@ -99,7 +85,7 @@
       "deck": "CORPORATION",
       "tags": [ "BuildingTag" ],
       "immediate": [ "PROD[3], 44" ],
-      "effects": [ "Purchase<BuildingTag>:: -2 Owed" ],
+      "effects": [ "PlayTag<BuildingTag>:: -2 Owed" ],
     },
 
     // Point Luna
@@ -110,21 +96,6 @@
       "tags": [ "EarthTag", "SpaceTag" ],
       "immediate": [ "PROD[Titanium], 38" ],
       "effects": [ "EarthTag: ProjectCard" ],
-    },
-
-    // Celestic[F]
-    {
-      "id": "V02F",
-      "bundle": "V",
-      "deck": "CORPORATION",
-      "tags": [ "VenusTag" ],
-      "immediate": [ "42" ],
-      "actions": [ "-> Floater" ],
-      "effects": [
-        "FirstAction: 2 ProjectCard",
-        "End: VictoryPoint / 3 Floater<This>",
-      ],
-      "resourceType": "Floater",
     },
 
     // Arklight
@@ -625,7 +596,7 @@
       "tags": [ "JovianTag", "SpaceTag" ],
       "actions": [ "12 -> OceanTile" ], // TODO 12[+Titanium],
       "effects": [
-          "Purchase<UseAction<This>>:: Accept<Titanium>",
+          "UseAction1<This>:: Accept<Titanium>",
           "End: VictoryPoint / JovianTag",
       ],
       "cost": 25,
@@ -701,7 +672,7 @@
       "deck": "PROJECT",
       "tags": [ "ScienceTag", "CityTag", "BuildingTag" ],
       "immediate": [ "CityTile<LandArea(HAS MAX 0 Neighbor)>" ],
-      "effects": [ "Purchase<CardFront>:: -Owed" ],
+      "effects": [ "PlayCard: -Owed" ],
       "cost": 18,
       "projectKind": "ACTIVE",
     },
@@ -1818,7 +1789,7 @@
       "tags": [ "SpaceTag" ],
       "immediate": [ "PROD[-Energy, 2]" ],
       "effects": [
-        "Purchase<SpaceTag>:: -2 Owed",
+        "PlayTag<SpaceTag>:: -2 Owed",
         "End: VictoryPoint",
       ],
       "requirement": "5 OxygenStep",
@@ -2008,7 +1979,7 @@
       "deck": "PROJECT",
       "tags": [ "BuildingTag" ],
       "actions": [ "8 -> OceanTile" ], // TODO "6[+Steel]"
-      "effects": [ "Purchase<UseAction<This>>:: Accept<Steel>" ],
+      "effects": [ "UseAction1<This>:: Accept<Steel>" ],
       "cost": 18,
       "projectKind": "ACTIVE",
     },
@@ -2172,7 +2143,7 @@
       "deck": "PROJECT",
       "tags": [ "SpaceTag" ],
       "effects": [
-        "Purchase<SpaceTag>:: -2 Owed",
+        "PlayTag<SpaceTag>:: -2 Owed",
         "End: VictoryPoint",
       ],
       "cost": 10,
@@ -2341,7 +2312,7 @@
       "deck": "PROJECT",
       "tags": [ "EarthTag" ],
       "effects": [
-        "Purchase<CardFront>:: -2 Owed",
+        "PlayCard: -2 Owed",
         "End: 2 VictoryPoint",
       ],
       "cost": 23,
@@ -2383,7 +2354,7 @@
       "deck": "PROJECT",
       "tags": [ "ScienceTag", "PowerTag" ],
       "immediate": [ "PROD[4 Energy]" ],
-      "effects": [ "Purchase<SpaceTag>:: -2 Owed" ],
+      "effects": [ "PlayTag<SpaceTag>:: -2 Owed" ],
       "requirement": "4 ScienceTag",
       "cost": 13,
       "projectKind": "ACTIVE",
@@ -2469,7 +2440,7 @@
       "deck": "PROJECT",
       "tags": [ "ScienceTag", "PowerTag" ],
       "immediate": [ "PROD[6 Energy]" ],
-      "effects": [ "Purchase<SpaceTag>:: -2 Owed" ],
+      "effects": [ "PlayTag<SpaceTag>:: -2 Owed" ],
       "requirement": "5 ScienceTag",
       "cost": 8,
       "projectKind": "ACTIVE",
@@ -2506,7 +2477,7 @@
       "bundle": "R",
       "deck": "PROJECT",
       "tags": [ "EarthTag" ],
-      "effects": [ "Purchase<EarthTag>:: -3 Owed" ],
+      "effects": [ "PlayTag<EarthTag>:: -3 Owed" ],
       "cost": 1,
       "projectKind": "ACTIVE",
     },
@@ -2665,7 +2636,7 @@
       "deck": "PROJECT",
       "tags": [ "ScienceTag" ],
       "effects": [
-        "Purchase<CardFront>:: -2 Owed",
+        "PlayCard: -2 Owed",
         "End: 3 VictoryPoint",
       ],
       "requirement": "7 ScienceTag",
@@ -2923,8 +2894,8 @@
       "tags": [ "MicrobeTag" ],
       "actions": [ "-> Microbe" ],
       "effects": [
-        "Purchase<PlantTag>: Accept<Microbe<This>>",
-        "Pay<Microbe<This>>: 2 Pay<Megacredit>",
+        "PlayTag<PlantTag>:: Accept<Microbe<This>>",
+        "Pay<Microbe<This>>:: 2 Pay<Megacredit>",
       ],
       "cost": 2,
       "projectKind": "ACTIVE",
@@ -3077,7 +3048,7 @@
       "tags": [ "VenusTag" ],
       "actions": [ "-> Floater" ],
       "effects": [
-        "Purchase<VenusTag>: Accept<Floater<This>>",
+        "PlayTag<VenusTag>: Accept<Floater<This>>",
         "Pay<Floater<This>>: -3 Owed",
       ],
       "resourceType": "Floater",
@@ -3354,7 +3325,7 @@
         "6 -> Asteroid<This>", // TODO "6[+Titanium]"
         "Asteroid<This> -> VenusStep",
       ],
-      "effects": [ "Purchase<UseAction1<This>>:: Accept<Titanium>" ],
+      "effects": [ "UseAction1<This>:: Accept<Titanium>" ],
       "resourceType": "Asteroid",
       "requirement": "MAX 7 VenusStep",
       "cost": 6,
@@ -3520,7 +3491,7 @@
       "deck": "PROJECT",
       "tags": [ "VenusTag", "SpaceTag" ],
       "effects": [
-        "Purchase<VenusTag>:: -2 Owed",
+        "PlayTag<VenusTag>:: -2 Owed",
         "End: VictoryPoint",
       ],
       "cost": 9,
@@ -3873,7 +3844,7 @@
       "deck": "PROJECT",
       "tags": [ "ScienceTag" ],
       "effects": [
-        "Purchase<SpaceTag>:: -4 Owed",
+        "PlayTag<SpaceTag>:: -4 Owed",
         "End: 2 VictoryPoint",
       ],
       "requirement": "5 ScienceTag",
@@ -4028,7 +3999,7 @@
         "6 -> Asteroid", // TODO 6[+Titanium]
         "Asteroid<This> -> TemperatureStep",
       ],
-      "effects": [ "Purchase<UseAction1<This>>:: Accept<Titanium>" ],
+      "effects": [ "UseAction1<This>:: Accept<Titanium>" ],
       "resourceType": "Asteroid",
       "cost": 8,
       "projectKind": "ACTIVE",
