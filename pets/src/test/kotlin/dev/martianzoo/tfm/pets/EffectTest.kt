@@ -14,8 +14,8 @@ import dev.martianzoo.tfm.pets.Instruction.Remove
 import dev.martianzoo.tfm.pets.Instruction.SimpleFrom
 import dev.martianzoo.tfm.pets.Instruction.Transmute
 import dev.martianzoo.tfm.pets.Parser.parse
-import dev.martianzoo.tfm.pets.Predicate.Max
-import dev.martianzoo.tfm.pets.Predicate.Min
+import dev.martianzoo.tfm.pets.Requirement.Max
+import dev.martianzoo.tfm.pets.Requirement.Min
 import org.junit.jupiter.api.Test
 
 // Most testing is done by AutomatedTest
@@ -141,7 +141,7 @@ class EffectTest {
             Gain(
                 TypeExpression("Abc",
                     listOf(),
-                    predicate = Min(TypeExpression("Xyz", listOf()), 1)
+                    requirement = Min(TypeExpression("Xyz", listOf()), 1)
                 )
             ),
         ),
@@ -152,7 +152,7 @@ class EffectTest {
                         TypeExpression("Ooh", listOf()),
                         TypeExpression("Foo",
                             listOf(),
-                            predicate = Predicate.or(
+                            requirement = Requirement.or(
                                 Min(TypeExpression("Abc", listOf()), 42),
                                 Min(TypeExpression("Xyz", listOf()), 1),
                             ),
@@ -162,7 +162,7 @@ class EffectTest {
                 ),
             ),
             Remove(
-                TypeExpression("Ooh", listOf(), predicate = Min(TypeExpression("Abc", listOf()))),
+                TypeExpression("Ooh", listOf(), requirement = Min(TypeExpression("Abc", listOf()))),
                 42),
         ),
         Effect(
@@ -182,7 +182,7 @@ class EffectTest {
             OnRemove(
                 TypeExpression("Foo",
                     listOf(TypeExpression("Eep", listOf())),
-                    Predicate.and(Max(TypeExpression("Abc", listOf()), 0), Max(TypeExpression("Ooh", listOf()), 42)),
+                    Requirement.and(Max(TypeExpression("Abc", listOf()), 0), Max(TypeExpression("Ooh", listOf()), 42)),
                 ),
             ),
             Remove(TypeExpression("Wau", listOf()), intensity = MANDATORY),
@@ -190,8 +190,8 @@ class EffectTest {
         Effect(
             Conditional(
                 OnGain(TypeExpression("Ahh", listOf())),
-                Predicate.or(
-                    Predicate.or(
+                Requirement.or(
+                    Requirement.or(
                         Min(TypeExpression("Abc", listOf()), 42),
                         Min(TypeExpression("Abc", listOf(TypeExpression("Foo", listOf())))),
                         Min(TypeExpression("Foo", listOf()), 1), Min(TypeExpression("Bar", listOf()), 5),

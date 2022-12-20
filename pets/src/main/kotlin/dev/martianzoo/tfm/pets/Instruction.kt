@@ -41,7 +41,7 @@ sealed class Instruction : PetsNode() {
   data class ComplexFrom(
       val className: String,
       val specializations: List<FromExpression> = listOf(),
-      val predicate: Predicate? = null
+      val requirement: Requirement? = null
   ) : FromExpression() {
     init {
       require(className.matches(classNamePattern())) { className }
@@ -53,8 +53,8 @@ sealed class Instruction : PetsNode() {
     override fun toString() =
         className +
             specializations.joinOrEmpty(surround = "<>") +
-            (predicate?.let { "(HAS $it)" } ?: "")
-    override val children = specializations + setOfNotNull(predicate)
+            (requirement?.let { "(HAS $it)" } ?: "")
+    override val children = specializations + setOfNotNull(requirement)
   }
 
   data class TypeInFrom(val type: TypeExpression) : FromExpression() {
@@ -100,14 +100,14 @@ sealed class Instruction : PetsNode() {
     override val children = setOf(instruction, qe)
   }
 
-  data class Gated(val predicate: Predicate, val instruction: Instruction): Instruction() {
+  data class Gated(val requirement: Requirement, val instruction: Instruction): Instruction() {
     init {
       if (instruction is Gated) {
         throw PetsException("You don't gate a gater")
       }
     }
     override fun toString(): String {
-      return "${predicate.toStringWhenInside(this)}: ${instruction.toStringWhenInside(this)}"
+      return "${requirement.toStringWhenInside(this)}: ${instruction.toStringWhenInside(this)}"
     }
 
     // let's over-group for clarity
@@ -115,7 +115,7 @@ sealed class Instruction : PetsNode() {
         container is Or || super.parenthesizeThisWhenInside(container)
 
     override fun precedence() = 6
-    override val children = setOf(predicate, instruction)
+    override val children = setOf(requirement, instruction)
   }
 
   data class Or(val instructions: Set<Instruction>) : Instruction() {

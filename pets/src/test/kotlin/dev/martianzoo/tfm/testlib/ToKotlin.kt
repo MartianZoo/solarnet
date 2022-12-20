@@ -19,12 +19,12 @@ import dev.martianzoo.tfm.pets.Instruction.Transmute
 import dev.martianzoo.tfm.pets.Instruction.TypeInFrom
 import dev.martianzoo.tfm.pets.Parser
 import dev.martianzoo.tfm.pets.PetsNode
-import dev.martianzoo.tfm.pets.Predicate.And
-import dev.martianzoo.tfm.pets.Predicate.Exact
-import dev.martianzoo.tfm.pets.Predicate.Max
-import dev.martianzoo.tfm.pets.Predicate.Min
-import dev.martianzoo.tfm.pets.Predicate.Or
-import dev.martianzoo.tfm.pets.Predicate.Prod
+import dev.martianzoo.tfm.pets.Requirement.And
+import dev.martianzoo.tfm.pets.Requirement.Exact
+import dev.martianzoo.tfm.pets.Requirement.Max
+import dev.martianzoo.tfm.pets.Requirement.Min
+import dev.martianzoo.tfm.pets.Requirement.Or
+import dev.martianzoo.tfm.pets.Requirement.Prod
 import dev.martianzoo.tfm.pets.QuantifiedExpression
 import dev.martianzoo.tfm.pets.TypeExpression
 
@@ -48,24 +48,24 @@ object ToKotlin {
 
         is TypeExpression -> "TypeExpression(\"$className\"" +
             specializations.joinToString(", ", ", listOf(", ")") { pp(it) } +
-            "${predicate.pre(", " + if (specializations.isEmpty()) "predicate=" else "")})"
+            "${requirement.pre(", " + if (specializations.isEmpty()) "requirement=" else "")})"
         is QuantifiedExpression -> "QuantifiedExpression(${pp(typeExpression)}${scalar.pre(", ")})"
 
-        is Or -> "Predicate.or(${predicates.joinToString{ pp(it) }})"
-        is And -> "Predicate.and(${predicates.joinToString{ pp(it) }})"
+        is Or -> "Requirement.or(${requirements.joinToString{ pp(it) }})"
+        is And -> "Requirement.and(${requirements.joinToString{ pp(it) }})"
         is Min -> "Min(${pp(qe.typeExpression)}${qe.scalar.pre(", ")})"
         is Max -> "Max(${pp(qe.typeExpression)}, ${qe.scalar})"
         is Exact -> "Exact(${pp(qe.typeExpression)}, ${qe.scalar})"
-        is Prod -> "Predicate.Prod(${pp(predicate)})"
+        is Prod -> "Requirement.Prod(${pp(requirement)})"
 
         is Gain -> "Gain(${pp(qe.typeExpression)}${qe.scalar.pre(", ")}${intensity.pre(if (qe.scalar != null) ", " else ", intensity=")})"
         is Remove -> "Remove(${pp(qe.typeExpression)}${qe.scalar.pre(", ")}${intensity.pre(", ")})"
-        is Gated -> "Gated(${pp(predicate)}, ${pp(instruction)})"
+        is Gated -> "Gated(${pp(requirement)}, ${pp(instruction)})"
         is Then -> "Instruction.then(${instructions.joinToString{ pp(it) }})"
         is Instruction.Or -> "Instruction.or(${instructions.joinToString{ pp(it) }})"
         is Multi -> "Instruction.multi(${instructions.joinToString{ pp(it) }})"
         is Transmute -> "Transmute(${pp(trans)}${scalar.pre(", ")}${intensity.pre(", ")})"
-        is ComplexFrom -> "ComplexFrom(\"$className\", listOf(${specializations.joinToString{ pp(it) }})${predicate.pre(", ")}"
+        is ComplexFrom -> "ComplexFrom(\"$className\", listOf(${specializations.joinToString{ pp(it) }})${requirement.pre(", ")}"
         is SimpleFrom -> "SimpleFrom(${pp(to)}, ${pp(from)})"
         is TypeInFrom -> "TypeInFrom(${pp(type)})"
         is Per -> "Instruction.Per(${pp(instruction)}, ${pp(qe)})"
@@ -74,8 +74,8 @@ object ToKotlin {
 
         is Trigger.OnGain -> "OnGain(${pp(expression)})"
         is Trigger.OnRemove -> "OnRemove(${pp(expression)})"
-        is Trigger.Conditional -> "Conditional(${pp(trigger)}, ${pp(predicate)})"
-        is Trigger.Now -> "Now(${pp(predicate)})"
+        is Trigger.Conditional -> "Conditional(${pp(trigger)}, ${pp(requirement)})"
+        is Trigger.Now -> "Now(${pp(requirement)})"
         is Trigger.Prod -> "Trigger.Prod(${pp(trigger)})"
         is Effect -> "Effect(${pp(trigger)}, ${pp(instruction)})"
 

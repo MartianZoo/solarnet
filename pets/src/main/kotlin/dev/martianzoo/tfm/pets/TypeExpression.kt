@@ -10,7 +10,7 @@ import dev.martianzoo.util.joinOrEmpty
 data class TypeExpression(
     val className: String,
     val specializations: List<TypeExpression> = listOf(),
-    val predicate: Predicate? = null,
+    val requirement: Requirement? = null,
 //    val discriminator: Int? = null
     ) : PetsNode() {
   constructor(className: String, vararg specialization: TypeExpression) :
@@ -19,7 +19,7 @@ data class TypeExpression(
   override fun toString() =
       className +
       specializations.joinOrEmpty(surround = "<>") +
-      (predicate?.let { "(HAS $it)" } ?: "")
+      (requirement?.let { "(HAS $it)" } ?: "")
 
-  override val children = listOfNotNull(predicate) + specializations
+  override val children = listOfNotNull(requirement) + specializations
 }

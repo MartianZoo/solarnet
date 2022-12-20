@@ -59,8 +59,8 @@ abstract class GlobalParameter {                       // TODO splittable...
 }
 
 class TrackBonuser(HAS =1 This) {
-    NOW 3 TemperatureStep: PROD[Heat]                  // `NOW <predicate>` fires whenever that predicate transitions
-    NOW 5 TemperatureStep: PROD[Heat]                  // from false to true
+    NOW 3 TemperatureStep: PROD[Heat]                  // `NOW <reqt>` fires whenever that reqt transitions
+    NOW 5 TemperatureStep: PROD[Heat]                  // from unmet to met
     NOW 15 TemperatureStep: OceanTile
 
     NOW 8 OxygenStep: TemperatureStep

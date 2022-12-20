@@ -42,9 +42,9 @@ import dev.martianzoo.tfm.pets.Instruction.Remove
 import dev.martianzoo.tfm.pets.Instruction.SimpleFrom
 import dev.martianzoo.tfm.pets.Instruction.Transmute
 import dev.martianzoo.tfm.pets.Instruction.TypeInFrom
-import dev.martianzoo.tfm.pets.Predicate.Exact
-import dev.martianzoo.tfm.pets.Predicate.Max
-import dev.martianzoo.tfm.pets.Predicate.Min
+import dev.martianzoo.tfm.pets.Requirement.Exact
+import dev.martianzoo.tfm.pets.Requirement.Max
+import dev.martianzoo.tfm.pets.Requirement.Min
 import dev.martianzoo.util.toSetStrict
 import kotlin.reflect.KClass
 import kotlin.reflect.cast
@@ -102,10 +102,10 @@ object Parser {
   object TypeExpressions {
     val anyTypeExpr: Parser<TypeExpression> = parser { typeExpression }
     val specializations = optionalList(skipChar('<') and commaSeparated(anyTypeExpr) and skipChar('>'))
-    val refinement = optional(parens(skipWord("HAS") and parser { Predicates.predicate }))
+    val refinement = optional(parens(skipWord("HAS") and parser { Requirements.requirement }))
 
     val typeExpression = className and specializations and refinement map {
-      (type, refs, pred) -> TypeExpression(type, refs, pred)
+      (type, refs, reqt) -> TypeExpression(type, refs, reqt)
     }
   }
   val typeExpression = publish(TypeExpressions.typeExpression)
@@ -125,21 +125,21 @@ object Parser {
   }
   val qe = publish(QEs.qe)
 
-  object Predicates {
-    val anyPredicate: Parser<Predicate> = parser { predicate }
+  object Requirements {
+    val anyRequirement: Parser<Requirement> = parser { requirement }
 
     val min = qe map ::Min
     val max = skipWord("MAX") and QEs.qeWithScalar map ::Max
     val exact = skipChar('=') and QEs.qeWithScalar map ::Exact
-    val prod = prodBox(anyPredicate) map Predicate::Prod
+    val prod = prodBox(anyRequirement) map Requirement::Prod
 
     // These are things that we basically can't have any precedence worries about
-    val atom = min or max or exact or prod or parens(anyPredicate)
+    val atom = min or max or exact or prod or parens(anyRequirement)
 
-    val orPred = separatedTerms(atom, word("OR")) map Predicate::or
-    val predicate = commaSeparated(orPred) map Predicate::and
+    val orReqt = separatedTerms(atom, word("OR")) map Requirement::or
+    val requirement = commaSeparated(orReqt) map Requirement::and
   }
-  val predicate = publish(Predicates.predicate)
+  val requirement = publish(Requirements.requirement)
 
   object Instructions {
     val anyInstr: Parser<Instruction> = parser { instruction }
@@ -184,7 +184,7 @@ object Parser {
     }
     val atom = anyGroup or maybeProd or custom
 
-    val gated = optional(Predicates.atom and skipChar(':')) and atom map { (one, two) ->
+    val gated = optional(Requirements.atom and skipChar(':')) and atom map { (one, two) ->
       if (one == null) two else Gated(one, two)
     }
     val orInstr = separatedTerms(gated, word("OR")) map Instruction::or
@@ -219,8 +219,8 @@ object Parser {
     val atom = onGain or onRemove
     val prod = prodBox(atom) map Trigger::Prod or atom
 
-    val now = skipWord("NOW") and predicate map ::Now
-    val condit = (prod or now) and optional(skipWord("IF") and predicate) map { (a, b) ->
+    val now = skipWord("NOW") and requirement map ::Now
+    val condit = (prod or now) and optional(skipWord("IF") and requirement) map { (a, b) ->
       if (b == null) a else Conditional(a, b)
     }
     val trigger = publish(condit or now)

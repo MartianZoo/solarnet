@@ -5,7 +5,7 @@ import dev.martianzoo.tfm.pets.ComponentDef
 import dev.martianzoo.tfm.pets.Effect
 import dev.martianzoo.tfm.pets.Instruction
 import dev.martianzoo.tfm.pets.PetsNode
-import dev.martianzoo.tfm.pets.Predicate
+import dev.martianzoo.tfm.pets.Requirement
 import dev.martianzoo.tfm.pets.QuantifiedExpression
 import dev.martianzoo.tfm.pets.TypeExpression
 
@@ -25,24 +25,24 @@ object Vanillafier {
         if (n == null) return null as P
         return n.apply {
             when (this) {
-                is TypeExpression -> TypeExpression("Foo", san(specializations), san(predicate))
+                is TypeExpression -> TypeExpression("Foo", san(specializations), san(requirement))
                 is QuantifiedExpression -> QuantifiedExpression(san(typeExpression), san(scalar))
 
-                is Predicate.Or -> Predicate.or(san(predicates))
-                is Predicate.And -> Predicate.and(san(predicates))
-                is Predicate.Min -> copy(san(qe))
-                is Predicate.Max -> copy(san(qe))
-                is Predicate.Exact -> copy(san(qe))
-                is Predicate.Prod -> copy(san(predicate))
+                is Requirement.Or -> Requirement.or(san(requirements))
+                is Requirement.And -> Requirement.and(san(requirements))
+                is Requirement.Min -> copy(san(qe))
+                is Requirement.Max -> copy(san(qe))
+                is Requirement.Exact -> copy(san(qe))
+                is Requirement.Prod -> copy(san(requirement))
 
                 is Instruction.Gain -> copy(san(qe))
                 is Instruction.Remove -> copy(san(qe))
-                is Instruction.Gated -> copy(san(predicate), san(instruction))
+                is Instruction.Gated -> copy(san(requirement), san(instruction))
                 is Instruction.Then -> Instruction.then(san(instructions))
                 is Instruction.Or -> Instruction.or(san(instructions))
                 is Instruction.Multi -> Instruction.multi(san(instructions))
                 is Instruction.Transmute -> copy(san(trans), san(scalar))
-                is Instruction.ComplexFrom -> copy("Foo", san(specializations), san(predicate))
+                is Instruction.ComplexFrom -> copy("Foo", san(specializations), san(requirement))
                 is Instruction.SimpleFrom -> copy(san(to), san(from))
                 is Instruction.TypeInFrom -> copy(san(type))
                 is Instruction.Per -> copy(san(instruction), san(qe))
@@ -51,8 +51,8 @@ object Vanillafier {
 
                 is Effect.Trigger.OnGain -> copy(san(expression))
                 is Effect.Trigger.OnRemove -> copy(san(expression))
-                is Effect.Trigger.Conditional -> copy(san(trigger), san(predicate))
-                is Effect.Trigger.Now -> copy(san(predicate))
+                is Effect.Trigger.Conditional -> copy(san(trigger), san(requirement))
+                is Effect.Trigger.Now -> copy(san(requirement))
                 is Effect.Trigger.Prod -> copy(san(trigger))
                 is Effect -> copy(san(trigger), san(instruction))
 
@@ -62,7 +62,7 @@ object Vanillafier {
                 is Action.Cost.Prod -> copy(san(cost))
                 is Action -> copy(san(cost), san(instruction))
 
-                is Predicate -> TODO()
+                is Requirement -> TODO()
                 is Instruction -> TODO()
                 is Action.Cost -> TODO()
                 is Instruction.FromExpression -> TODO()

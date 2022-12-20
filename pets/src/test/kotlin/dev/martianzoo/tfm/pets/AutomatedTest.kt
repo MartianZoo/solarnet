@@ -23,11 +23,11 @@ class AutomatedTest {
   }
 
   @Test
-  fun predicates() {
+  fun requirements() {
     val gen = PetsGenerator()
-    // gen.printTestStrings<Predicate>(10)
-    gen.goNuts<Predicate>(5000 * FACTOR)
-    // gen.printTestStringOfEachLength<Predicate>(80)
+    // gen.printTestStrings<Requirement>(10)
+    gen.goNuts<Requirement>(5000 * FACTOR)
+    // gen.printTestStringOfEachLength<Requirement>(80)
   }
 
   @Test

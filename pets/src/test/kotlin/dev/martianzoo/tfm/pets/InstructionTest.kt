@@ -14,7 +14,7 @@ import dev.martianzoo.tfm.pets.Parser.Instructions
 import dev.martianzoo.tfm.pets.Parser.Instructions.from
 import dev.martianzoo.tfm.pets.Parser.Instructions.typeInFrom
 import dev.martianzoo.tfm.pets.Parser.parse
-import dev.martianzoo.tfm.pets.Predicate.Min
+import dev.martianzoo.tfm.pets.Requirement.Min
 import org.junit.jupiter.api.Test
 
 // Most testing is done by AutomatedTest
@@ -170,7 +170,7 @@ class InstructionTest {
   }
 
   @Test fun debug5() {
-    // for some reason, this creates Predicate.Or(Bar, Bar), so toSetCareful would blow up
+    // for some reason, this creates Requirement.Or(Bar, Bar), so toSetCareful would blow up
     val actual = parse<Instruction>("(Bar OR Bar? OR -Foo, Foo) OR (5, -Bar, Bar<Foo, Qux>: (-Bar, 1))")
     val expected = Instruction.or(
         Instruction.multi(

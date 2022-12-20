@@ -9,7 +9,7 @@ import dev.martianzoo.tfm.pets.Effect.Trigger.OnGain
 import dev.martianzoo.tfm.pets.Instruction
 import dev.martianzoo.tfm.pets.Parser
 import dev.martianzoo.tfm.pets.Parser.parse
-import dev.martianzoo.tfm.pets.Predicate
+import dev.martianzoo.tfm.pets.Requirement
 import dev.martianzoo.tfm.pets.TypeExpression
 import dev.martianzoo.tfm.pets.actionToEffect
 import dev.martianzoo.util.toSetStrict
@@ -103,7 +103,7 @@ data class CardDefinition(
     // Project info
 
     /**
-     * The card's requirement, if it has one, expressed as a PETS `Predicate`. Only cards in
+     * The card's requirement, if it has one, expressed as a PETS `Requirement`. Only cards in
      * the `PROJECT` deck may have this.
      */
     @Json(name = "requirement")
@@ -165,7 +165,7 @@ data class CardDefinition(
   }
   val actions by lazy { actionsText.map { parse<Action>(it) }.toSetStrict() }
   val effects by lazy { effectsText.map { parse<Effect>(it) }.toSetStrict() }
-  val requirement: Predicate? by lazy { requirementText?.let(Parser::parse) }
+  val requirement: Requirement? by lazy { requirementText?.let(Parser::parse) }
 
   override val toComponentDef by lazy {
     val type = TypeExpression(

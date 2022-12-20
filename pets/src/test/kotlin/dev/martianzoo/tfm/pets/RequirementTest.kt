@@ -1,19 +1,19 @@
 package dev.martianzoo.tfm.pets
 
 import com.google.common.truth.Truth.assertThat
-import dev.martianzoo.tfm.pets.Predicate.Max
-import dev.martianzoo.tfm.pets.Predicate.Min
+import dev.martianzoo.tfm.pets.Requirement.Max
+import dev.martianzoo.tfm.pets.Requirement.Min
 import org.junit.jupiter.api.Test
 
 // Most testing is done by AutomatedTest
-class PredicateTest {
+class RequirementTest {
   @Test
   fun simpleSourceToApi() {
-    assertThat(Parser.parse<Predicate>("Foo"))
+    assertThat(Parser.parse<Requirement>("Foo"))
         .isEqualTo(Min(TypeExpression("Foo")))
-    assertThat(Parser.parse<Predicate>("3 Foo"))
+    assertThat(Parser.parse<Requirement>("3 Foo"))
         .isEqualTo(Min(TypeExpression("Foo"), 3))
-    assertThat(Parser.parse<Predicate>("MAX 3 Foo"))
+    assertThat(Parser.parse<Requirement>("MAX 3 Foo"))
         .isEqualTo(Max(TypeExpression("Foo"), 3))
   }
 
@@ -112,12 +112,12 @@ class PredicateTest {
   """.trimIndent()
 
   @Test fun testSampleStrings() {
-    val pass = testSampleStrings<Predicate>(inputs)
+    val pass = testSampleStrings<Requirement>(inputs)
     assertThat(pass).isTrue()
   }
 
   private fun testRoundTrip(start: String, end: String = start) =
-      testRoundTrip<Predicate>(start, end)
+      testRoundTrip<Requirement>(start, end)
 
   @Test
   fun roundTrips() {
@@ -142,10 +142,10 @@ class PredicateTest {
   }
 
   @Test fun hairy() {
-    val parsed : Predicate = Parser.parse(
+    val parsed : Requirement = Parser.parse(
         "Adjacency<CityTile<Anyone>, OceanTile> OR 1 Adjacency<OceanTile, CityTile<Anyone>>")
     assertThat(parsed).isEqualTo(
-        Predicate.or(
+        Requirement.or(
             Min(TypeExpression("Adjacency",
                     TypeExpression("CityTile", TypeExpression("Anyone")),
                     TypeExpression("OceanTile"))),

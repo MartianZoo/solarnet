@@ -22,12 +22,12 @@ import dev.martianzoo.tfm.pets.Instruction.TypeInFrom
 import dev.martianzoo.tfm.pets.Parser
 import dev.martianzoo.tfm.pets.PetsException
 import dev.martianzoo.tfm.pets.PetsNode
-import dev.martianzoo.tfm.pets.Predicate
-import dev.martianzoo.tfm.pets.Predicate.And
-import dev.martianzoo.tfm.pets.Predicate.Exact
-import dev.martianzoo.tfm.pets.Predicate.Max
-import dev.martianzoo.tfm.pets.Predicate.Min
-import dev.martianzoo.tfm.pets.Predicate.Or
+import dev.martianzoo.tfm.pets.Requirement
+import dev.martianzoo.tfm.pets.Requirement.And
+import dev.martianzoo.tfm.pets.Requirement.Exact
+import dev.martianzoo.tfm.pets.Requirement.Max
+import dev.martianzoo.tfm.pets.Requirement.Min
+import dev.martianzoo.tfm.pets.Requirement.Or
 import dev.martianzoo.tfm.pets.QuantifiedExpression
 import dev.martianzoo.tfm.pets.TypeExpression
 import dev.martianzoo.util.multiset
@@ -53,19 +53,19 @@ class PetsGenerator(scaling: (Int) -> Double)
       }
       register { QuantifiedExpression(choose(1 to null, 3 to recurse()), choose(null, null, 0, 1, 5, 11)) }
 
-      val predicateTypes = (multiset(
+      val requirementTypes = (multiset(
           9 to Min::class,
           4 to Max::class,
           2 to Exact::class,
           3 to And::class,
           5 to Or::class,
       ))
-      register<Predicate> { recurse(choose(predicateTypes)) }
+      register<Requirement> { recurse(choose(requirementTypes)) }
       register { Min(qe = recurse()) }
       register { Max(recurse()) }
       register { Exact(recurse()) }
-      register { Predicate.and(listOfSize(choose(2, 2, 2, 2, 3))) as And }
-      register { Predicate.or(setOfSize(choose(2, 2, 2, 2, 2, 3, 4))) as Or }
+      register { Requirement.and(listOfSize(choose(2, 2, 2, 2, 3))) as And }
+      register { Requirement.or(setOfSize(choose(2, 2, 2, 2, 2, 3, 4))) as Or }
 
       fun RandomGenerator<*>.intensity() = choose(3 to null, 1 to randomEnum<Intensity>())
 
@@ -124,7 +124,7 @@ class PetsGenerator(scaling: (Int) -> Double)
           return if (specs.all { it is TypeInFrom }) {
             TypeInFrom(type)
           } else {
-            ComplexFrom(type.className, specs, type.predicate)
+            ComplexFrom(type.className, specs, type.requirement)
           }
         }
         convert(into)
@@ -173,7 +173,7 @@ class PetsGenerator(scaling: (Int) -> Double)
       }
     }
 
-    fun RandomGenerator<PetsNode>.refinement() = chooseS(9 to { null }, 1 to { recurse<Predicate>() })
+    fun RandomGenerator<PetsNode>.refinement() = chooseS(9 to { null }, 1 to { recurse<Requirement>() })
     fun RandomGenerator<PetsNode>.randomName() = choose("Foo", "Bar", "Qux", "Abc", "Xyz", "Ooh", "Ahh", "Eep", "Wau")
   }
 

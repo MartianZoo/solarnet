@@ -7,7 +7,7 @@ import dev.martianzoo.tfm.pets.Effect.Trigger.OnGain
 import dev.martianzoo.tfm.pets.Instruction.Gain
 import dev.martianzoo.tfm.pets.Instruction.Gated
 import dev.martianzoo.tfm.pets.Parser.parse
-import dev.martianzoo.tfm.pets.Predicate
+import dev.martianzoo.tfm.pets.Requirement
 import dev.martianzoo.tfm.pets.TypeExpression
 
 data class MilestoneDefinition(
@@ -26,7 +26,7 @@ data class MilestoneDefinition(
     require(replaces?.isNotEmpty() ?: true)
   }
 
-  val requirement: Predicate by lazy { parse(requirementText) }
+  val requirement: Requirement by lazy { parse(requirementText) }
 
   override val toComponentDef: ComponentDef by lazy {
     ComponentDef(

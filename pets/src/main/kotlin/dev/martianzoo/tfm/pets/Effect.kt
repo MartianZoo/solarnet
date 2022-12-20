@@ -27,15 +27,15 @@ data class Effect(
       override val children = setOf(expression)
     }
 
-    data class Conditional(val trigger: Trigger, val predicate: Predicate) : Trigger() {
+    data class Conditional(val trigger: Trigger, val requirement: Requirement) : Trigger() {
       init { if (trigger is Conditional) throw PetsException("And the conditions together instead") }
-      override fun toString() = "$trigger IF $predicate"
-      override val children = setOf(trigger, predicate)
+      override fun toString() = "$trigger IF $requirement"
+      override val children = setOf(trigger, requirement)
     }
 
-    data class Now(val predicate: Predicate) : Trigger() {
-      override fun toString() = "NOW $predicate"
-      override val children = setOf(predicate)
+    data class Now(val requirement: Requirement) : Trigger() {
+      override fun toString() = "NOW $requirement"
+      override val children = setOf(requirement)
     }
 
     data class Prod(val trigger: Trigger) : Trigger(), ProductionBox<Trigger> {
