@@ -155,7 +155,34 @@ class PetClassTest {
     """)
     val foo = loader.get("Foo")
     val bar = loader.get("Bar")
- }
+  }
+
+  @Test fun depsAndSpecs() {
+    val loader = loader("""
+      abstract class $rootName
+      class SuperFoo
+      class Foo : SuperFoo
+      class SubFoo : Foo
+
+      class SuperBar<SuperFoo>
+      class Bar : SuperBar<Foo>
+      class SubBar : Bar<SubFoo>
+
+      class Qux
+    """)
+
+    loader.resolve("SuperBar<SuperFoo>")
+    loader.resolve("SuperBar<Foo>")
+    loader.resolve("SuperBar<SubFoo>")
+    loader.resolve("Bar<Foo>")
+    loader.resolve("Bar<SubFoo>")
+    loader.resolve("SubBar<SubFoo>")
+
+    assertThrows<RuntimeException> { loader.resolve("Bar<Qux>") }
+    // assertThrows<RuntimeException> { loader.resolve("Bar<SuperFoo>") }
+    //assertThrows<RuntimeException> { loader.resolve("Foo<Bar>") }
+  }
+
 
   private fun loader(petsText: String) =
       PetClassLoader(parseComponents(petsText)).also { it.loadAll() }

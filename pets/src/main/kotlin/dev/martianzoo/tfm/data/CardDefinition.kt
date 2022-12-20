@@ -168,7 +168,9 @@ data class CardDefinition(
   val requirement: Predicate? by lazy { requirementText?.let(Parser::parse) }
 
   override val toComponentDef by lazy {
-    val type = TypeExpression(if (projectKind == null) "CardFront" else projectKind.type)
+    val type = TypeExpression(
+        if (projectKind == null) "CardFront" else projectKind.type,
+        resourceType ?: TypeExpression("NoResource"))
     ComponentDef(name = "Card$id", supertypes = setOf(type), effects = allEffects)
   }
 

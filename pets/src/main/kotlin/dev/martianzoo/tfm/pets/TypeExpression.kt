@@ -10,7 +10,9 @@ import dev.martianzoo.util.joinOrEmpty
 data class TypeExpression(
     val className: String,
     val specializations: List<TypeExpression> = listOf(),
-    val predicate: Predicate? = null) : PetsNode() {
+    val predicate: Predicate? = null,
+//    val discriminator: Int? = null
+    ) : PetsNode() {
   constructor(className: String, vararg specialization: TypeExpression) :
       this(className, specialization.toList())
   init { require(className.matches(classNamePattern())) { className } }

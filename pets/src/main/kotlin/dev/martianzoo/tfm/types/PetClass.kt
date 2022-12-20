@@ -30,24 +30,16 @@ data class PetClass(val def: ComponentDef, val loader: PetClassLoader) {
     def.dependencies.indices.map { DependencyKey(this, it) }.toSet()
   }
 
-  //val directDependencies: DependencyMap by lazy {
-  //  val map = MutableDependencyMap()
-  //  directDependencyKeys.forEach {
-  //    val te = def.dependencies[it.index]
-  //    map.merge(it, loader.resolve(te))
-  //  }
-  //  map
-  //}
-
   val allDependencyKeys: Set<DependencyKey> by lazy {
     allSuperclasses.flatMap { it.directDependencyKeys }.toSetStrict()
   }
 
+  /** Common supertype of all types with petClass==this */
   val baseType: PetType by lazy {
     val map = mutableMapOf<DependencyKey, PetType>()
     mergeDepsInto(map)
     require(map.keys == allDependencyKeys)
-    PetType(this, map)
+    PetType(this, map, _doNotPassThis = false)
   }
 
   fun mergeDepsInto(map: MutableMap<DependencyKey, PetType>) {

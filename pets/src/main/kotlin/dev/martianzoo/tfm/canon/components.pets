@@ -1,4 +1,4 @@
-class Game(HAS MAX 1 MarsMap, MAX 1 Phase, MAX 9 OceanTile)
+// class Game(HAS MAX 1 MarsMap, MAX 1 Phase, MAX 9 OceanTile)
 
 abstract class Anyone(HAS =1 This) {
     abstract class Player : Anyone {
@@ -28,13 +28,18 @@ abstract class MarsMap {
     class Tharsis, Hellas, Elysium
 }
 
+// <MarsArea^1, MarsArea^2> ?
 class Border<MarsArea, MarsArea>(HAS MAX 1 This) {
     // These probably have to be created programmatically; e.g. on Border<Tharsis3_3, Tharsis3_4>
     // we have `Tile<Tharsis3_4>: Neighbor<Tile, Tharsis3_3>`
 }
+
+// <Tile<MarsArea^1>, MarsArea^2> ?
 class Neighbor<Tile, MarsArea>(HAS MAX 1 This) {
-    Tile<MarsArea>: Adjacency<Tile, Tile<MarsArea>>
+    Tile<MarsArea>: Adjacency<Tile, Tile<MarsArea>> // SPEC
 }
+
+// <Tile^1, Tile^2> ?
 class Adjacency<Tile, Tile>(HAS MAX 1 This)
 
 abstract class GlobalParameter {                       // TODO splittable...
@@ -122,7 +127,7 @@ abstract class Owned<Anyone> {                         // TODO default *Owned<Me
 
     abstract class Milestone                           // not really doing anything with this yet
 
-    abstract class CardFront {                         // <CardResource>  TODO circular
+    abstract class CardFront { // TODO <CardResource> {           // TODO <This> ?
         abstract class EventCard {
             This: PlayedEvent FROM This                // problem: how to still get the VPs??
         }                                              // could we get this happen autom. at EOT?
@@ -135,6 +140,16 @@ abstract class Owned<Anyone> {                         // TODO default *Owned<Me
     abstract class Cardbound<CardFront> {
         This:: (CardFront: Ok)                         // i.e., the card must actually be in play
         -CardFront:: -This                             // on becoming a PlayedEvent
+
+        abstract class CardResource : Resource {       // , Cardbound<CardFront<This>> ?
+            -CardFront:: Die                           // gotta remove the resources first
+            default CardResource.
+
+            class Animal, Microbe, Science
+            class Floater, Asteroid
+
+            class NoResource { This:: Die }            // Because all cards must have a resource type
+        }
 
         // TODO .. but.. these have to exist as soon as the card does, for triggers....
         abstract class Tag {
@@ -149,16 +164,6 @@ abstract class Owned<Anyone> {                         // TODO default *Owned<Me
             }
         }
 
-        abstract class CardResource : Resource {       // , Cardbound<CardFront<CardResource>> { TODO
-            -CardFront:: Die                           // gotta remove the resources first
-            default CardResource.
-
-            class Animal, Microbe, Science
-            class Floater, Asteroid
-
-            class NoResource { This:: Die }            // Because all cards must have a resource type
-        }
-
         class ActionUsed(HAS MAX 1 This) : Generational
     }
 
@@ -166,8 +171,8 @@ abstract class Owned<Anyone> {                         // TODO default *Owned<Me
         class UseAction1, UseAction2, UseAction3, UseAction4
     }
 
-    class PlayCard<CardBack> {   // not open ... extend Purchase???
-//      This:: CardBack: $handleRequirement(CardFront), Owed<Megacredit> / $costOf(CardFront)
+    class PlayCard<CardFront> { // TODO extend Purchase??
+        This:: $handleRequirement(CardFront), $handleCost(CardFront) // TODO Owed<Mc> / $costOf(CardFront)
         This: (MAX 0 Barrier: CardFront FROM CardBack)
     }
 }

@@ -68,7 +68,7 @@
       "actions": [ "3 -> HasRaisedTR: TerraformRating" ],
       "components": [
         "class HasRaisedTR(HAS MAX 1 This) : Owned, Generational",
-        "class TrWatcher { TerraformRating<Player>: HasRaisedTR<Player>. }",
+        "class TrWatcher(HAS =1 This) : Owned { TerraformRating: HasRaisedTR. }",
       ]
     },
 
@@ -125,16 +125,6 @@
         "End: VictoryPoint / 3 Floater<This>",
       ],
       "resourceType": "Floater",
-    },
-
-    // Manutech
-    {
-      "id": "V03",
-      "bundle": "V",
-      "deck": "CORPORATION",
-      "tags": [ "BuildingTag" ],
-      "immediate": [ "PROD[Steel], 35" ],
-      "effects": [ "PROD[StandardResource]: StandardResource" ],
     },
 
     // Arklight

@@ -7,7 +7,12 @@ import dev.martianzoo.tfm.types.PetType.DependencyKey
  * of course each spec type must be a subtype of the existing from the petclass
  * But equivalent pettypes are equal regardless of how they happened to be specified.
  */
-data class PetType(val petClass: PetClass, val deps: Map<DependencyKey, PetType>) { // TODO: pred
+data class PetType(val petClass: PetClass, val deps: Map<DependencyKey, PetType>, val _doNotPassThis : Boolean = true) { // TODO: pred
+  init {
+    if (_doNotPassThis) {
+      require (this.isSubtypeOf(petClass.baseType))
+    }
+  }
 
   fun glb(other: PetType): PetType {
     val clazz = petClass.glb(other.petClass)
@@ -35,9 +40,11 @@ data class PetType(val petClass: PetClass, val deps: Map<DependencyKey, PetType>
         v
       }
     }
+    require (unhandled.isEmpty()) { "Unrecognized specializations: $unhandled"}
     return copy(deps = list.toMap())
   }
 
+  data class DependencyMap(val map: Map<DependencyKey, PetType>)
   data class DependencyKey(val declaringClass: PetClass, val index: Int) {
     init { require(index >= 0) }
     override fun toString() = "${declaringClass.name}_$index"

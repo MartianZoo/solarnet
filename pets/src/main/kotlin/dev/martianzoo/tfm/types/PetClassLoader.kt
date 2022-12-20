@@ -67,10 +67,18 @@ class PetClassLoader(val definitions: Map<String, ComponentDef>) : PetClassTable
 
   override fun all() = table.values.toSet().also { require(frozen) }
 
-  // TODO TODO
   override fun resolve(expression: TypeExpression): PetType {
     val specs: List<PetType> = expression.specializations.map { resolve(it) }
     val petClass = get(expression.className)
     return petClass.baseType.specialize(specs)
+  }
+
+  override fun isValid(expression: TypeExpression): Boolean {
+    return try {
+      resolve(expression)
+      true
+    } catch (e: RuntimeException) {
+      false
+    }
   }
 }
