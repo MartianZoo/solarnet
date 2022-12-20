@@ -5,8 +5,8 @@ import dev.martianzoo.tfm.pets.ComponentDef
 import dev.martianzoo.tfm.pets.Effect
 import dev.martianzoo.tfm.pets.Instruction
 import dev.martianzoo.tfm.pets.PetsNode
-import dev.martianzoo.tfm.pets.Requirement
 import dev.martianzoo.tfm.pets.QuantifiedExpression
+import dev.martianzoo.tfm.pets.Requirement
 import dev.martianzoo.tfm.pets.TypeExpression
 
 object Vanillafier {
@@ -51,7 +51,6 @@ object Vanillafier {
 
                 is Effect.Trigger.OnGain -> copy(san(expression))
                 is Effect.Trigger.OnRemove -> copy(san(expression))
-                is Effect.Trigger.Conditional -> copy(san(trigger), san(requirement))
                 is Effect.Trigger.Now -> copy(san(requirement))
                 is Effect.Trigger.Prod -> copy(san(trigger))
                 is Effect -> copy(san(trigger), san(instruction))

@@ -3,7 +3,6 @@ package dev.martianzoo.tfm.types
 import com.google.common.truth.Truth
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.pets.testRoundTrip
-import dev.martianzoo.util.toSetStrict
 import org.junit.jupiter.api.Test
 
 class PetClassCanonTest {

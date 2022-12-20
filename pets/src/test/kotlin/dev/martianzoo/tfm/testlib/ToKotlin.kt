@@ -19,13 +19,13 @@ import dev.martianzoo.tfm.pets.Instruction.Transmute
 import dev.martianzoo.tfm.pets.Instruction.TypeInFrom
 import dev.martianzoo.tfm.pets.Parser
 import dev.martianzoo.tfm.pets.PetsNode
+import dev.martianzoo.tfm.pets.QuantifiedExpression
 import dev.martianzoo.tfm.pets.Requirement.And
 import dev.martianzoo.tfm.pets.Requirement.Exact
 import dev.martianzoo.tfm.pets.Requirement.Max
 import dev.martianzoo.tfm.pets.Requirement.Min
 import dev.martianzoo.tfm.pets.Requirement.Or
 import dev.martianzoo.tfm.pets.Requirement.Prod
-import dev.martianzoo.tfm.pets.QuantifiedExpression
 import dev.martianzoo.tfm.pets.TypeExpression
 
 object ToKotlin {
@@ -74,7 +74,6 @@ object ToKotlin {
 
         is Trigger.OnGain -> "OnGain(${pp(expression)})"
         is Trigger.OnRemove -> "OnRemove(${pp(expression)})"
-        is Trigger.Conditional -> "Conditional(${pp(trigger)}, ${pp(requirement)})"
         is Trigger.Now -> "Now(${pp(requirement)})"
         is Trigger.Prod -> "Trigger.Prod(${pp(trigger)})"
         is Effect -> "Effect(${pp(trigger)}, ${pp(instruction)})"

@@ -28,7 +28,6 @@ import com.google.common.cache.LoadingCache
 import dev.martianzoo.tfm.pets.Action.Cost
 import dev.martianzoo.tfm.pets.Action.Cost.Spend
 import dev.martianzoo.tfm.pets.Effect.Trigger
-import dev.martianzoo.tfm.pets.Effect.Trigger.Conditional
 import dev.martianzoo.tfm.pets.Effect.Trigger.Now
 import dev.martianzoo.tfm.pets.Effect.Trigger.OnGain
 import dev.martianzoo.tfm.pets.Effect.Trigger.OnRemove
@@ -220,10 +219,7 @@ object Parser {
     val prod = prodBox(atom) map Trigger::Prod or atom
 
     val now = skipWord("NOW") and requirement map ::Now
-    val condit = (prod or now) and optional(skipWord("IF") and requirement) map { (a, b) ->
-      if (b == null) a else Conditional(a, b)
-    }
-    val trigger = publish(condit or now)
+    val trigger = publish(prod or now)
 
     val colons = skipChar(':') and optional(char(':')) map { it != null }
     val effect = publish(

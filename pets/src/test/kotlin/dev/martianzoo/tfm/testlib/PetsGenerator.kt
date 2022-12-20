@@ -22,13 +22,13 @@ import dev.martianzoo.tfm.pets.Instruction.TypeInFrom
 import dev.martianzoo.tfm.pets.Parser
 import dev.martianzoo.tfm.pets.PetsException
 import dev.martianzoo.tfm.pets.PetsNode
+import dev.martianzoo.tfm.pets.QuantifiedExpression
 import dev.martianzoo.tfm.pets.Requirement
 import dev.martianzoo.tfm.pets.Requirement.And
 import dev.martianzoo.tfm.pets.Requirement.Exact
 import dev.martianzoo.tfm.pets.Requirement.Max
 import dev.martianzoo.tfm.pets.Requirement.Min
 import dev.martianzoo.tfm.pets.Requirement.Or
-import dev.martianzoo.tfm.pets.QuantifiedExpression
 import dev.martianzoo.tfm.pets.TypeExpression
 import dev.martianzoo.util.multiset
 import kotlin.math.pow
@@ -133,14 +133,12 @@ class PetsGenerator(scaling: (Int) -> Double)
       val triggerTypes = (multiset(
           9 to Trigger.OnGain::class,
           5 to Trigger.OnRemove::class,
-          2 to Trigger.Conditional::class,
           2 to Trigger.Now::class,
           1 to Trigger.Prod::class,
       ))
       register<Trigger> { recurse(choose(triggerTypes)) }
       register { Trigger.OnGain(recurse()) }
       register { Trigger.OnRemove(recurse()) }
-      register { Trigger.Conditional(recurse(), recurse()) }
       register { Trigger.Now(recurse()) }
       register { Trigger.Prod(recurse()) }
 

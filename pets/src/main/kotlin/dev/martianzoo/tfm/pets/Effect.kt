@@ -27,12 +27,6 @@ data class Effect(
       override val children = setOf(expression)
     }
 
-    data class Conditional(val trigger: Trigger, val requirement: Requirement) : Trigger() {
-      init { if (trigger is Conditional) throw PetsException("And the conditions together instead") }
-      override fun toString() = "$trigger IF $requirement"
-      override val children = setOf(trigger, requirement)
-    }
-
     data class Now(val requirement: Requirement) : Trigger() {
       override fun toString() = "NOW $requirement"
       override val children = setOf(requirement)

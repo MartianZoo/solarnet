@@ -74,7 +74,7 @@ class TrackBonuser(HAS =1 This) {
 class Generation
 
 abstract class Generational {                          // things that disappear when the generation changes over
-    Generation:: -This                                 // and look, there they go (TODO ProductionPhase?)
+    Generation:: -This                                 // and look, there they go
 }
 
 abstract class Owned<Anyone> {                         // TODO default *Owned<Me>??
@@ -101,7 +101,7 @@ abstract class Owned<Anyone> {                         // TODO default *Owned<Me
         ProductionPhase: StandardResource              // Specializing to Production<Heat> specializes this too
     }
 
-    class TerraformRating : Owned<Player> {            // TODO what else should be <Player> and why
+    class TerraformRating : Owned<Player> {
         ProductionPhase: 1
         End: VictoryPoint
     }

@@ -36,7 +36,6 @@ open class NodeVisitor {
 
         is Effect.Trigger.OnGain -> copy(s(expression))
         is Effect.Trigger.OnRemove -> copy(s(expression))
-        is Effect.Trigger.Conditional -> copy(s(trigger), s(requirement))
         is Effect.Trigger.Now -> copy(s(requirement))
         is Effect.Trigger.Prod -> copy(s(trigger))
         is Effect -> copy(s(trigger), s(instruction))
