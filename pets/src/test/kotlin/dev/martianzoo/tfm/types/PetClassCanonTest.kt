@@ -4,13 +4,13 @@ import com.google.common.truth.Truth
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.pets.testRoundTrip
 import org.junit.jupiter.api.Test
+import java.util.*
 
 class PetClassCanonTest {
   @Test
   fun spew() {
-    val defs = Canon.allDefinitions
-    val cl = PetClassLoader(defs).loadAll()
-    cl.all().sortedBy { it.name }.forEach {
+    val table = PetClassLoader(Canon.allDefinitions).loadAll()
+    table.all().sortedBy { it.name }.forEach {
       println("${it.name} : ${it.directSuperclasses} : ${it.directEffects}")
     }
   }
@@ -39,26 +39,56 @@ class PetClassCanonTest {
 
   @Test fun findValidTypes() {
     val table = PetClassLoader(Canon.allDefinitions).loadAll()
-    val names: List<String> = table.all().map { it.name }
+    val names: List<String> = table.all().map { it.name }.filterNot {
+      it.matches(Regex("^Card.{3,4}$")) && it.hashCode() % 6 != 0
+    }.filterNot {
+      it.matches(Regex("^(Tharsis|Hellas|Elysium)")) && it.hashCode() % 4 != 0
+    }
 
-    var found: Int = 0
+    val abstracts = TreeSet<String>()
+    val concretes = TreeSet<String>()
 
-    while (found < 100) {
+    while (abstracts.size < 200 || concretes.size < 200) {
       val name1 = names.random()
       val name2 = names.random()
       val name3 = names.random()
+      val name4 = names.random()
       val tryThese = setOf(
           "$name1<$name2>",
-          "$name1<$name2<$name3>>",
           "$name1<$name2, $name3>",
+          "$name1<$name2<$name3>>",
+          "$name1<$name2, $name3, $name4>",
+          "$name1<$name2<$name3>, $name4>",
+          "$name1<$name2, $name3<$name4>>",
+          "$name1<$name2<$name3<$name4>>>",
+          "$name1<Player1>",
+          "$name1<Player1, $name3>",
+          "$name1<Player1, $name3, $name4>",
+          "$name1<Player1, $name3<$name4>>",
+          "$name1<$name2, Player1>",
+          "$name1<$name2<Player1>>",
+          "$name1<$name2, Player1, $name4>",
+          "$name1<$name2<Player1>, $name4>",
+          "$name1<$name2, $name3, Player1>",
+          "$name1<$name2<$name3>, Player1>",
+          "$name1<$name2, $name3<Player1>>",
+          "$name1<$name2<$name3<Player1>>>",
       )
       for (thing in tryThese) {
         if (table.isValid(thing)) {
-          found++
-          println(thing)
+          val type = table.resolve(thing)
+          if (type.abstract) {
+            if (abstracts.size < 200) abstracts.add(thing)
+          } else {
+            if (concretes.size < 200) concretes.add(thing)
+          }
         }
       }
     }
-
+    println("ABSTRACTS")
+    abstracts.forEach(::println)
+    println()
+    println("CONCRETES")
+    concretes.forEach(::println)
   }
 }

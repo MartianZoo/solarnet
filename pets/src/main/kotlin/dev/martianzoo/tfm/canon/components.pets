@@ -22,10 +22,16 @@ abstract class Anyone(HAS =1 This) {
     abstract class Player : Anyone {
         This:: 20 TerraformRating
 
+        PlayTag<BuildingTag>:: Accept<Steel>           // These don't seem to belong anywhere
+        PlayTag<SpaceTag>:: Accept<Titanium>
+
         This:: PROD[5]                                 // No negative Components! So we need a hack; at least this one
         ProductionPhase: -5                            // confines the damage to Specialist/Generalist (and Robinson,
     }                                                  // but it needs custom code anyway). Other hacks seem worse.
 }                                                      // `Instr / PROD[1]` is very very dodgy but works for Banker.
+
+class Player1 : Player
+class Player2 : Player
 
 abstract class Area(HAS =1 This, MAX 1 Tile) {
     abstract class RemoteArea
@@ -47,18 +53,18 @@ abstract class MarsMap {
 }
 
 // <MarsArea^1, MarsArea^2> ?
-class Border<MarsArea, MarsArea>(HAS MAX 1 This) {
+class Border<MarsArea, MarsArea>(HAS 2 MarsArea, MAX 1 This) {
     // These probably have to be created programmatically; e.g. on Border<Tharsis3_3, Tharsis3_4>
     // we have `Tile<Tharsis3_4>: Neighbor<Tile, Tharsis3_3>`
 }
 
 // <Tile<MarsArea^1>, MarsArea^2> ?
-class Neighbor<Tile, MarsArea>(HAS MAX 1 This) {
+class Neighbor<Tile, MarsArea>(HAS Tile, MAX 1 This) {
     Tile<MarsArea>: Adjacency<Tile, Tile<MarsArea>> // SPEC
 }
 
 // <Tile^1, Tile^2> ?
-class Adjacency<Tile, Tile>(HAS MAX 1 This)
+class Adjacency<Tile, Tile>(HAS 2 Tile, MAX 1 This)
 
 abstract class GlobalParameter {                       // TODO splittable...
     default GlobalParameter.                           // By default, gains are "if possible"
@@ -100,18 +106,8 @@ abstract class Owned<Anyone> {                         // TODO default *Owned<Me
 
     abstract class Resource {
         abstract class StandardResource {
-            class Megacredit
-            class Steel {                              // It's certainly strange that your steel resources themselves
-                PlayTag<BuildingTag>:: Accept<This>   // export their own power to pay for cards. But it should work?
-            }
-            class Titanium {
-                PlayTag<SpaceTag>:: Accept<This>
-            }
-            class Plant
-            class Energy {
-                ProductionPhase:: Heat FROM This       // :: ensures it happens before production
-            }
-            class Heat
+            class Megacredit, Steel, Titanium, Plant, Heat
+            class Energy { ProductionPhase:: Heat FROM This }
         }
     }
 
@@ -145,12 +141,12 @@ abstract class Owned<Anyone> {                         // TODO default *Owned<Me
 
     abstract class Milestone                           // not really doing anything with this yet
 
-    abstract class CardFront { // TODO <CardResource> {           // TODO <This> ?
+    abstract class CardFront {                         // TODO <CardResource> { // TODO <This> ?
         abstract class EventCard {
             This: PlayedEvent FROM This                // problem: how to still get the VPs??
         }                                              // could we get this happen autom. at EOT?
         abstract class AutomatedCard
-        abstract class ActiveCard
+        abstract class ActiveCard : ActionHaver        // TODO maybe only have actual action cards do that
     }
 
     class PlayedEvent
@@ -184,7 +180,7 @@ abstract class Owned<Anyone> {                         // TODO default *Owned<Me
         class ActionUsed(HAS MAX 1 This) : Generational
     }
 
-    abstract class UseAction : Signal {
+    abstract class UseAction<ActionHaver> : Signal {
         class UseAction1, UseAction2, UseAction3, UseAction4
     }
 
@@ -216,24 +212,27 @@ abstract class Owned<Anyone> {                         // TODO default *Owned<Me
     }
 }
 
-abstract class StandardAction(HAS =1 This) {
-    class PlayCardFromHand   { -> PlayCard<CardFront> }
-    class UseStandardProject { -> UseAction<StandardProject> }
-    class UseCardAction      { -> UseAction<CardFront> THEN ActionUsed<CardFront> }
-    class ConvertPlants      { 8 Plant -> GreeneryTile }
-    class ConvertHeat        { 8 Heat -> TemperatureStep }
+abstract class ActionHaver {
 
-    class SellPatents        { 1 ProjectCard -> 1 }    // Technically a standard project, but that makes things hard
+    abstract class StandardAction(HAS =1 This) {
+        class PlayCardFromHand   { -> PlayCard<CardFront> }
+        class UseStandardProject { -> UseAction<StandardProject> }
+        class UseCardAction      { -> UseAction<CardFront> THEN ActionUsed<CardFront> }
+        class ConvertPlants      { 8 Plant -> GreeneryTile }
+        class ConvertHeat        { 8 Heat -> TemperatureStep }
+
+        class SellPatents        { 1 ProjectCard -> 1 }// Technically a standard project, but that makes things hard
                                                        // TODO X
-}
+    }
 
-abstract class StandardProject(HAS =1 This) {
-    class PowerPlant   { 11 -> PROD[Energy] }
-    class AsteroidSP   { 14 -> TemperatureStep }
-    class AirScrapping { 15 -> VenusStep }
-    class Aquifer      { 18 -> OceanTile }
-    class Greenery     { 23 -> GreeneryTile }
-    class City         { 25 -> CityTile, PROD[1] }
+    abstract class StandardProject(HAS =1 This) {
+        class PowerPlant   { 11 -> PROD[Energy] }
+        class AsteroidSP   { 14 -> TemperatureStep }
+        class AirScrapping { 15 -> VenusStep }
+        class Aquifer      { 18 -> OceanTile }
+        class Greenery     { 23 -> GreeneryTile }
+        class City         { 25 -> CityTile, PROD[1] }
+    }
 }
 
 abstract class Phase {

@@ -8,6 +8,8 @@ import dev.martianzoo.tfm.types.PetType.DependencyKey
  * But equivalent pettypes are equal regardless of how they happened to be specified.
  */
 data class PetType(val petClass: PetClass, val deps: Map<DependencyKey, PetType>, val _doNotPassThis : Boolean = true) { // TODO: pred
+  val abstract: Boolean = petClass.abstract || deps.values.any { it.abstract }
+
   init {
     if (_doNotPassThis) {
       require (this.isSubtypeOf(petClass.baseType))
