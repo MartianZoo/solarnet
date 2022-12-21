@@ -2,6 +2,8 @@ package dev.martianzoo.util
 
 import com.google.common.collect.ImmutableMultiset
 import dev.martianzoo.tfm.pets.PetsException
+import dev.martianzoo.tfm.types.PetType
+import dev.martianzoo.tfm.types.PetType.DependencyKey
 
 // should go in libutil but man, so many libs!
 
@@ -23,3 +25,8 @@ fun <T> Collection<T>.toSetStrict() = toSet().also { require(it.size == size) }
 fun <T> Collection<T>.toSetCarefulP() = toSet().also { if (it.size != size) throw PetsException("{$this}") }
 
 fun <T, K> Collection<T>.associateByStrict(x: (T) -> K) = associateBy(x).also { require(it.size == size) }
+
+fun <K : Any, V : Any> merge(one: Map<out K, V>, two: Map<out K, V>, merger: (V, V) -> V) =
+    one.toMutableMap().apply {
+      two.forEach { merge(it.key, it.value, merger) }
+    }

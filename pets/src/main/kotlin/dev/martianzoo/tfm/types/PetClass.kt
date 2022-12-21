@@ -3,6 +3,7 @@ package dev.martianzoo.tfm.types
 import dev.martianzoo.tfm.pets.ComponentDef
 import dev.martianzoo.tfm.pets.Deprodifier.Companion.deprodify
 import dev.martianzoo.tfm.types.PetType.DependencyKey
+import dev.martianzoo.tfm.types.PetType.DependencyMap
 import dev.martianzoo.util.toSetStrict
 
 /**
@@ -37,9 +38,9 @@ data class PetClass(val def: ComponentDef, val loader: PetClassLoader) {
   /** Common supertype of all types with petClass==this */
   val baseType: PetType by lazy {
     val map = mutableMapOf<DependencyKey, PetType>()
-    mergeDepsInto(map)
+    mergeDepsInto(map) // TODO have DM handle this
     require(map.keys == allDependencyKeys)
-    PetType(this, map, _doNotPassThis = false)
+    PetType(this, DependencyMap(map))
   }
 
   fun mergeDepsInto(map: MutableMap<DependencyKey, PetType>) {
