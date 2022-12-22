@@ -2,6 +2,7 @@ package dev.martianzoo.tfm.types
 
 import com.google.common.truth.Truth
 import dev.martianzoo.tfm.canon.Canon
+import dev.martianzoo.tfm.pets.rootName
 import dev.martianzoo.tfm.pets.testRoundTrip
 import org.junit.jupiter.api.Test
 import java.util.*
@@ -43,17 +44,18 @@ class PetClassCanonTest {
   @Test fun findValidTypes() {
     val table = PetClassLoader(Canon.allDefinitions).loadAll()
     val names: List<String> = table.all().map { it.name }.filterNot {
-      it.matches(Regex("^Card.{3,4}$")) && it.hashCode() % 6 != 0
+      it.matches(Regex("^Card.{3,4}$")) && it.hashCode() % 12 != 0
     }.filterNot {
-      it.matches(Regex("^(Tharsis|Hellas|Elysium)")) && it.hashCode() % 4 != 0
+      it.matches(Regex("^(Tharsis|Hellas|Elysium)")) && it.hashCode() % 8 != 0
     }.filterNot {
       it in setOf("Component", "Die", "Class")
     }
 
     val abstracts = TreeSet<String>()
     val concretes = TreeSet<String>()
+    val invalids = TreeSet<String>()
 
-    while (abstracts.size < 200 || concretes.size < 200) {
+    while (abstracts.size < 100 || concretes.size < 100 || invalids.size < 100) {
       val name1 = names.random()
       val name2 = names.random()
       val name3 = names.random()
@@ -83,10 +85,12 @@ class PetClassCanonTest {
         if (table.isValid(thing)) {
           val type = table.resolve(thing)
           if (type.abstract) {
-            if (abstracts.size < 200) abstracts.add(thing)
+            if (abstracts.size < 100) abstracts.add(thing)
           } else {
-            if (concretes.size < 200) concretes.add(thing)
+            if (concretes.size < 100) concretes.add(thing)
           }
+        } else {
+          if (invalids.size < 100) invalids.add(thing)
         }
       }
     }
@@ -95,5 +99,15 @@ class PetClassCanonTest {
     println()
     println("CONCRETES")
     concretes.forEach(::println)
+    println()
+    println("INVALIDS")
+    invalids.forEach(::println)
+  }
+
+  @Test fun describeEverything() {
+    val table = PetClassLoader(Canon.allDefinitions).loadAll()
+    table.all().sortedBy { it.name }.forEach { c ->
+      println("${c.baseType} : ${c.allSuperclasses.filter { it.name !in setOf(rootName, c.name) }}")
+    }
   }
 }

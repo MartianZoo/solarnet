@@ -9,7 +9,7 @@ class PetTypeTest {
 
   @Test
   fun wtf1() {
-    assertThat(table.isValid("GreeneryTile<Area220>")).isTrue() // TODO FALSE
+    assertThat(table.isValid("GreeneryTile<Area220>")).isFalse()
   }
 
   // also UseAction2, PlayCard
@@ -42,12 +42,12 @@ class PetTypeTest {
     println(birds.directDependencyKeys)
     println(birds.allDependencyKeys)
     assertThat(table.resolve("Player1").abstract).isFalse()
-    assertThat(table.resolve("Card072<Player1>").abstract).isTrue() // TODO FALSE
-    assertThat(table.resolve("Animal<Player1, Card072<Player1>>").abstract).isTrue() // TODO FALSE
+    assertThat(table.resolve("Card072<Player1>").abstract).isFalse()
+    assertThat(table.resolve("Animal<Player1, Card072<Player1>>").abstract).isFalse()
   }
 
   @Test
   fun wtf7() {
-    assertThat(table.resolve("Animal<Card072<Player1>, Player1>").abstract).isTrue() // TODO FALSE
+    assertThat(table.resolve("Animal<Card072<Player1>, Player1>").abstract).isFalse()
   }
 }

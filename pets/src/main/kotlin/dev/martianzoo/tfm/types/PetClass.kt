@@ -2,7 +2,6 @@ package dev.martianzoo.tfm.types
 
 import dev.martianzoo.tfm.pets.ComponentDef
 import dev.martianzoo.tfm.pets.Deprodifier.Companion.deprodify
-import dev.martianzoo.util.toSetStrict
 
 /**
  */
@@ -22,6 +21,9 @@ data class PetClass(val def: ComponentDef, val loader: PetClassLoader): Dependen
   val allSubclasses: Set<PetClass> get() = loader.allSubclasses.successors(this)
   val allSuperclasses: Set<PetClass> get() = loader.allSubclasses.predecessors(this)
 
+  val directSupertypes: Set<PetType> by lazy {
+    def.supertypes.map { loader.resolve(it) }.toSet()
+  }
 
 // DEPENDENCIES
 
@@ -32,29 +34,30 @@ data class PetClass(val def: ComponentDef, val loader: PetClassLoader): Dependen
   }
 
   val allDependencyKeys: Set<DependencyKey> by lazy {
-    allSuperclasses.flatMap { it.directDependencyKeys }.toSetStrict()
+    allSuperclasses.flatMap { it.directDependencyKeys }.toSet()
   }
 
   /** Common supertype of all types with petClass==this */
   val baseType: PetType by lazy {
-    val map = mutableMapOf<DependencyKey, DependencyTarget>()
-    mergeDepsInto(map) // TODO have DM handle this
-    require(map.keys == allDependencyKeys)
-    PetType(this, DependencyMap(map))
+    val deps = DependencyMap.merge(directSupertypes.map { it.dependencies })
+
+    val newDeps = directDependencyKeys.map {
+      val typeExpression = def.dependencies[it.index].type
+      val depType = if (it.classDep) {
+        loader.get(typeExpression.className)
+      } else {
+        loader.resolve(typeExpression)
+      }
+      it to depType
+    }.toMap()
+    val allDeps = deps.merge(DependencyMap(newDeps))
+    require(allDeps.keyToType.keys == allDependencyKeys)
+    PetType(this, allDeps)
   }
 
   fun mergeDepsInto(map: MutableMap<DependencyKey, DependencyTarget>) {
     for (supe in directSuperclasses) {
       supe.mergeDepsInto(map)
-    }
-    for (key in directDependencyKeys) {
-      val typeExpression = def.dependencies[key.index].type
-      val depType = if (key.classDep) {
-        loader.get(typeExpression.className)
-      } else {
-        loader.resolve(typeExpression)
-      }
-      map.merge(key, depType) { type1, type2 -> type1.glb(type2) }
     }
   }
 

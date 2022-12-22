@@ -162,7 +162,7 @@ abstract class Owned<Anyone> {                         // TODO default *Owned<Me
 
     abstract class Cardbound<CardFront> {              // make Anyones match?
         // TODO specialization
-        abstract class CardResource : Resource, Cardbound<Holder<This>> {
+        abstract class CardResource : Resource, Cardbound<Holder> { // TODO
             default CardResource.
 
             class Animal, Microbe, Science, Floater, Asteroid // others are card-specific

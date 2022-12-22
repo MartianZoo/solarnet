@@ -24,7 +24,11 @@ data class PetType(val petClass: PetClass, val dependencies: DependencyMap = Dep
   }
 
   fun specialize(specs: List<PetType>): PetType {
-    return copy(dependencies = dependencies.specialize(specs))
+    return try {
+      copy(dependencies = dependencies.specialize(specs))
+    } catch (e: RuntimeException) {
+      throw RuntimeException("2. PetType is $this", e)
+    }
   }
 
   override fun toString(): String {

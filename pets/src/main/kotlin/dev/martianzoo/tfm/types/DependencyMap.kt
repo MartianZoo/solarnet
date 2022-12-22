@@ -23,6 +23,16 @@ data class DependencyMap(val keyToType: Map<DependencyKey, DependencyTarget>) {
   fun merge(that: DependencyMap) = DependencyMap(
       dev.martianzoo.util.merge(this.keyToType, that.keyToType) { type1, type2 -> type1.glb(type2) })
 
+  companion object {
+    fun merge(maps: Collection<DependencyMap>): DependencyMap {
+      var map = DependencyMap()
+      maps.forEach {
+        map = map.merge(it)
+      }
+      return map
+    }
+  }
+
   // determines the map that could be merged with this one to specialize, by inferring which
   // keys the provided specs go with
   fun findMatchups(specs: List<PetType>): DependencyMap {
@@ -31,8 +41,7 @@ data class DependencyMap(val keyToType: Map<DependencyKey, DependencyTarget>) {
       (key, originalValue) ->
         if (key.classDep) {
           val matchType: PetType? = unhandled.firstOrNull {
-            require(it.dependencies.keyToType.isEmpty())
-            it.petClass.isSubtypeOf(originalValue)
+            it.petClass.isSubtypeOf(originalValue) && it.petClass.baseType == it
           }
           matchType?.let { key to it.also(unhandled::remove).petClass }
         } else {
@@ -40,7 +49,7 @@ data class DependencyMap(val keyToType: Map<DependencyKey, DependencyTarget>) {
           matchType?.let { key to it.also(unhandled::remove) }
         }
     }.toMap()
-    require (unhandled.isEmpty()) { "Unrecognized specializations: $unhandled"}
+    require (unhandled.isEmpty()) { "3. Unrecognized specializations: $unhandled\nThis is: $this"}
     return DependencyMap(newMap)
   }
 
