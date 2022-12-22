@@ -6,7 +6,6 @@ import com.github.h0tk3y.betterParse.combinators.oneOrMore
 import com.github.h0tk3y.betterParse.combinators.optional
 import com.github.h0tk3y.betterParse.combinators.or
 import com.github.h0tk3y.betterParse.combinators.separatedTerms
-import com.github.h0tk3y.betterParse.combinators.times
 import com.github.h0tk3y.betterParse.combinators.unaryMinus
 import com.github.h0tk3y.betterParse.combinators.zeroOrMore
 import com.github.h0tk3y.betterParse.grammar.parser
@@ -375,7 +374,7 @@ object Parser {
   fun isEOF(result: ParseResult<Any>): Boolean =
       when (result) {
         is UnexpectedEof -> true
-        is AlternativesFailure -> result.errors.any(dev.martianzoo.tfm.pets.Parser::isEOF)
+        is AlternativesFailure -> result.errors.any(::isEOF)
         else -> false
       }
 }

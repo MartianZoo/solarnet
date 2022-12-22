@@ -78,12 +78,6 @@ internal object JsonReader {
         .map { parse<ComponentDef>(it) }
         .associateBy { it.name }
 
-  // You wouldn't normally use this, but have only a single map in play.
-  fun combine(vararg defs: Collection<Definition>): Map<String, ComponentDef> {
-    val allDefns: List<Definition> = defs.flatMap { it }
-    return allDefns.map { it.toComponentDef }.associateByStrict { it.name }
-  }
-
   // Stuff
 
   private fun json5ToJson(json5: String): String {

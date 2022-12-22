@@ -1,10 +1,8 @@
 package dev.martianzoo.tfm.pets
 
-import dev.martianzoo.tfm.data.Definition
-
 /**
  * The declaration of a component class, such as GreeneryTile. Models the declaration textually as
- * it was provided. DIRECT INFO ONLY.
+ * it was provided. DIRECT INFO ONLY; stuff is inherited among *loaded* classes (PetClasses).
  */
 data class ComponentDef( // TODO not sure abt data class after complete is gone
     val name: String,
@@ -13,7 +11,7 @@ data class ComponentDef( // TODO not sure abt data class after complete is gone
     val dependencies: List<Dependency> = listOf(),
     val effects: Set<Effect> = setOf(),
     val defaults: Set<Instruction> = setOf(),
-) : PetsNode(), Definition {
+) : PetsNode() {
   init {
     if (name == rootName) {
       require(supertypes.isEmpty())
@@ -25,8 +23,6 @@ data class ComponentDef( // TODO not sure abt data class after complete is gone
 
   // TODO: this should really enforce rules
   override val children = supertypes + dependencies + effects + defaults
-
-  override val toComponentDef = this
 
   data class Dependency(val type: TypeExpression, val classDep: Boolean = false) : PetsNode() {
     override val children = listOf(type)

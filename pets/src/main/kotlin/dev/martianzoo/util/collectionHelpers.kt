@@ -1,9 +1,6 @@
 package dev.martianzoo.util
 
 import com.google.common.collect.ImmutableMultiset
-import dev.martianzoo.tfm.pets.PetsException
-
-// should go in libutil but man, so many libs!
 
 fun Iterable<Any?>.joinOrEmpty(sep: String = ", ", prefix: String = "", suffix: String = "") =
     if (any()) joinToString(sep, prefix, suffix) else ""
@@ -20,11 +17,10 @@ fun <T> multiset(vararg pairs: Pair<Int, T>): ImmutableMultiset<T> {
 }
 
 fun <T> Collection<T>.toSetStrict() = toSet().also { require(it.size == size) }
-fun <T> Collection<T>.toSetCarefulP() = toSet().also { if (it.size != size) throw PetsException("{$this}") }
 
 fun <T, K> Collection<T>.associateByStrict(x: (T) -> K) = associateBy(x).also { require(it.size == size) }
 
-fun <K : Any, V : Any> merge(one: Map<out K, V>, two: Map<out K, V>, merger: (V, V) -> V) =
+fun <K : Any, V : Any> mergeMaps(one: Map<out K, V>, two: Map<out K, V>, merger: (V, V) -> V) =
     one.toMutableMap().apply {
       two.forEach { merge(it.key, it.value, merger) }
     }

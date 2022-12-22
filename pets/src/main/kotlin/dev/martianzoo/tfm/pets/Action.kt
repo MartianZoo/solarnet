@@ -2,7 +2,6 @@ package dev.martianzoo.tfm.pets
 
 import dev.martianzoo.tfm.pets.Instruction.Intensity.MANDATORY
 import dev.martianzoo.tfm.pets.Instruction.Remove
-import dev.martianzoo.util.toSetCarefulP
 
 data class Action(val cost: Cost?, val instruction: Instruction) : PetsNode() {
   override fun toString() = (cost?.let { "${cost} -> " } ?: "-> ") + instruction

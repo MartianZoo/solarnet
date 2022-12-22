@@ -2,7 +2,6 @@ package dev.martianzoo.tfm.canon
 
 import dev.martianzoo.tfm.data.CardDefinition
 import dev.martianzoo.tfm.data.JsonReader
-import dev.martianzoo.tfm.data.JsonReader.combine
 import dev.martianzoo.tfm.data.MarsAreaDefinition
 import dev.martianzoo.tfm.data.MilestoneDefinition
 import dev.martianzoo.tfm.pets.ComponentDef
@@ -42,11 +41,14 @@ object Canon {
   val allDefinitions: Map<String, ComponentDef> by lazy {
     combine(
         componentDefinitions.values,
-        cardDefinitions.values,
+        cardDefinitions.values.map { it.toComponentDef },
         auxiliaryComponentDefinitions.values,
-        mapAreaDefinitions.values.flatten(),
-        milestoneDefinitions.values)
+        mapAreaDefinitions.values.flatten().map { it.toComponentDef },
+        milestoneDefinitions.values.map { it.toComponentDef })
   }
+
+  fun combine(vararg defs: Collection<ComponentDef>) =
+      defs.flatMap { it }.associateByStrict { it.name }
 
   private fun readResource(filename: String): String {
     println("reading filename $filename")

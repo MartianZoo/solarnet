@@ -2,6 +2,9 @@ package dev.martianzoo.tfm.types
 
 import dev.martianzoo.tfm.pets.ComponentDef
 import dev.martianzoo.tfm.pets.Deprodifier.Companion.deprodify
+import dev.martianzoo.tfm.pets.Instruction
+import dev.martianzoo.tfm.pets.Instruction.Intensity
+import dev.martianzoo.tfm.pets.rootName
 
 /**
  */
@@ -55,10 +58,30 @@ data class PetClass(val def: ComponentDef, val loader: PetClassLoader): Dependen
     PetType(this, allDeps)
   }
 
-  fun mergeDepsInto(map: MutableMap<DependencyKey, DependencyTarget>) {
-    for (supe in directSuperclasses) {
-      supe.mergeDepsInto(map)
+// General inheritable stuff
+
+  val explicitDefaultGain: Instruction.Gain? by lazy {
+    val gains = def.defaults.filterIsInstance(Instruction.Gain::class.java)
+    require (gains.size <= 1)
+    gains.firstOrNull()
+  }
+
+  val heritableDefaultGainIntensity: Intensity? by lazy {
+    val intens: Intensity? = explicitDefaultGain?.intensity
+    if (intens != null) { // override
+      intens
+    } else {
+      val inherited = directSuperclasses
+          .filter { it.name != rootName }
+          .map { it.heritableDefaultGainIntensity }
+          .toSet()
+      require(inherited.size <= 1)
+      inherited.firstOrNull()
     }
+  }
+
+  val defaultGainIntensity: Intensity by lazy {
+    heritableDefaultGainIntensity ?: loader[rootName].explicitDefaultGain?.intensity!!
   }
 
 // EFFECTS

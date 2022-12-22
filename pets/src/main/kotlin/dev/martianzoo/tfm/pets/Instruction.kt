@@ -1,7 +1,6 @@
 package dev.martianzoo.tfm.pets
 
 import dev.martianzoo.util.joinOrEmpty
-import dev.martianzoo.util.toSetCarefulP
 
 sealed class Instruction : PetsNode() {
   data class Gain(val qe: QuantifiedExpression, val intensity: Intensity? = null) : Instruction() {

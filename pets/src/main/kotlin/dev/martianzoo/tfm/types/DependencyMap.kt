@@ -1,5 +1,7 @@
 package dev.martianzoo.tfm.types
 
+import dev.martianzoo.util.mergeMaps
+
 data class DependencyMap(val keyToType: Map<DependencyKey, DependencyTarget>) {
 
   constructor() : this(mapOf<DependencyKey, DependencyTarget>())
@@ -20,15 +22,13 @@ data class DependencyMap(val keyToType: Map<DependencyKey, DependencyTarget>) {
       that.keyToType.all { (thatKey, thatType) -> keyToType[thatKey]!!.isSubtypeOf(thatType) }
 
   // Combines all entries, using the glb when both maps have the same key
-  fun merge(that: DependencyMap) = DependencyMap(
-      dev.martianzoo.util.merge(this.keyToType, that.keyToType) { type1, type2 -> type1.glb(type2) })
+  fun merge(that: DependencyMap): DependencyMap = DependencyMap(
+      mergeMaps(this.keyToType, that.keyToType) { type1, type2 -> type1.glb(type2) })
 
   companion object {
     fun merge(maps: Collection<DependencyMap>): DependencyMap {
       var map = DependencyMap()
-      maps.forEach {
-        map = map.merge(it)
-      }
+      maps.forEach { map = map.merge(it) }
       return map
     }
   }

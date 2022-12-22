@@ -63,16 +63,13 @@ abstract class MarsMap {
     class Tharsis, Hellas, Elysium
 }
 
-class Border<MarsArea, MarsArea>(HAS 2 MarsArea, MAX 1 This) {
-    // These probably have to be created programmatically; e.g. on Border<Tharsis3_3, Tharsis3_4>
-    // we have `Tile<Tharsis3_4>: Neighbor<Tile, Tharsis3_3>`
+class Border<MarsArea, MarsArea>(HAS MAX 1 This)
+
+class Neighbor<Tile, MarsArea>(HAS MAX 1 This) {
+    Tile<MarsArea>: Adjacency<Tile, Tile<MarsArea>>    // TODO need both T<MA>'s to be the same
 }
 
-class Neighbor<Tile, MarsArea>(HAS Tile, MAX 1 This) {
-    Tile<MarsArea>: Adjacency<Tile, Tile<MarsArea>> // SPEC
-}
-
-class Adjacency<Tile, Tile>(HAS 2 Tile, MAX 1 This)
+class Adjacency<Tile, Tile>(HAS MAX 1 This)
 
 abstract class GlobalParameter {                       // TODO splittable...
     default GlobalParameter.                           // By default, gains are "if possible"
@@ -86,11 +83,11 @@ abstract class GlobalParameter {                       // TODO splittable...
     class OceanTile(HAS MAX 9 OceanTile) : Tile<MarsArea> {
         default OceanTile<WaterArea>
 
-        Adjacency<This, Tile>: 2                       // TODO "BY Me"
+        Adjacency<This, Tile>: 2                       // TODO "BY Player: 2 Megacredit<Player>"
     }
 }
 
-class TrackBonuser(HAS =1 This) {
+class TrackBonuser(HAS =1 This) {                      // TODO understand how this attaches to a player
     NOW 3 TemperatureStep: PROD[Heat]                  // `NOW <reqt>` fires whenever that reqt transitions
     NOW 5 TemperatureStep: PROD[Heat]                  // from unmet to met
     NOW 15 TemperatureStep: OceanTile
@@ -118,7 +115,7 @@ abstract class Owned<Anyone> {                         // TODO default *Owned<Me
     }
 
     class Production<CLASS StandardResource> {
-        ProductionPhase: StandardResource              // Specializing to Production<Heat> must spec. this too
+        ProductionPhase: StandardResource              // TODO subtype specialization
     }
 
     class TerraformRating : Owned<Player> {
@@ -126,23 +123,25 @@ abstract class Owned<Anyone> {                         // TODO default *Owned<Me
         End: VictoryPoint
     }
 
-    abstract class CardBack {                          // For "follow mode" only
+    abstract class CardBack : Owned<Player> {          // For "follow mode" only
         class CorporationCard, PreludeCard, ProjectCard
     }
 
-    abstract class OwnedTile : Tile {
-        class GreeneryTile : Tile<MarsArea> {
-            default GreeneryTile<LandArea(HAS Neighbor<OwnedTile>)> // TODO: `HAS?` ?
-            This: OxygenStep
-            End: VictoryPoint
-        }
-        class CityTile {
-            default CityTile<LandArea(HAS MAX 0 Neighbor<CityTile<Anyone>>)>
-            End: VictoryPoint / Adjacency(HAS This, GreeneryTile<Anyone>)
-        }
-        abstract class SpecialTile : OwnedTile<MarsArea> {
-            default SpecialTile<LandArea>
-        }
+    abstract class OwnedTile : Tile
+
+    class GreeneryTile : OwnedTile<MarsArea> {
+        default GreeneryTile<LandArea(HAS Neighbor<OwnedTile>)> // TODO: `HAS?`
+        This: OxygenStep
+        End: VictoryPoint
+    }
+
+    class CityTile : OwnedTile {
+        default CityTile<LandArea(HAS MAX 0 Neighbor<CityTile<Anyone>>)>
+        End: VictoryPoint / Adjacency(HAS This, GreeneryTile<Anyone>)
+    }
+
+    abstract class SpecialTile : OwnedTile<MarsArea> {
+        default SpecialTile<LandArea>
     }
 
     abstract class Milestone : Owned<Player>           // not really doing anything with this yet
@@ -152,7 +151,7 @@ abstract class Owned<Anyone> {                         // TODO default *Owned<Me
             This: PlayedEvent FROM This                // problem: how to still get the VPs??
         }                                              // could we get this happen autom. at EOT?
         abstract class AutomatedCard
-        abstract class ActiveCard
+        abstract class ActiveCard                      // these types can all be mixed; what prevents bogus combos?
 
         abstract class Holder<CLASS CardResource>
         abstract class ActionCard : HasActions
@@ -160,9 +159,9 @@ abstract class Owned<Anyone> {                         // TODO default *Owned<Me
 
     class PlayedEvent
 
-    abstract class Cardbound<CardFront> {              // make Anyones match?
+    abstract class Cardbound<CardFront<Anyone>> : Owned<Anyone> {   // TODO Anyones must match
         // TODO specialization
-        abstract class CardResource : Resource, Cardbound<Holder> { // TODO
+        abstract class CardResource : Resource, Cardbound<Holder> { // TODO Cardbound<Holder<CardResource>> matching
             default CardResource.
 
             class Animal, Microbe, Science, Floater, Asteroid // others are card-specific
@@ -184,6 +183,7 @@ abstract class Owned<Anyone> {                         // TODO default *Owned<Me
         class ActionUsed(HAS MAX 1 This) : Cardbound<ActionCard>, Generational
     }
 
+    // TODO restrict to same owner, but how?
     abstract class UseAction<HasActions> : Signal {
         class UseAction1, UseAction2, UseAction3, UseAction4, UseAction5
     }
@@ -194,7 +194,7 @@ abstract class Owned<Anyone> {                         // TODO default *Owned<Me
     }
 
     class Accept<CLASS Resource>(HAS MAX 1 This) {
-        default Accept.                                // never hurts to accept twice
+        default Accept.
 
         -Resource:: Pay<Resource>                      // TODO this is not quite right?
         NOW MAX 0 Owed:: -This                         // TODO what if there never are/were any Oweds?
@@ -211,22 +211,20 @@ abstract class Owned<Anyone> {                         // TODO default *Owned<Me
     class PlayTag<CLASS Tag> : Signal
 
     class PlayCard<CLASS CardBack, CLASS CardFront> {
-        This:: $handleRequirement(CardFront), $handleCost(CardFront) // TODO Owed<Mc> / $costOf(CardFront)
-        NOW MAX 0 Barrier: (CardFront FROM CardBack, -This)
+        This:: $handleRequirement(CardFront), $handleCost(CardFront)
+        NOW MAX 0 Barrier: CardFront FROM CardBack, -This
     }
 }
 
 abstract class HasActions {
 
     abstract class StandardAction(HAS =1 This) {
-        class PlayCardFromHand   { -> PlayCard<ProjectCard, CardFront> }
-        class UseStandardProject { -> UseAction<StandardProject> }
-        class UseCardAction      { -> UseAction<ActionCard> THEN ActionUsed<ActionCard> }
-        class ConvertPlants      { 8 Plant -> GreeneryTile }
-        class ConvertHeat        { 8 Heat -> TemperatureStep }
-
-        class SellPatents        { 1 ProjectCard -> 1 }// Technically a standard project, but that makes things hard
-                                                       // TODO X
+        class PlayCardFromHand  { -> PlayCard<ProjectCard, CardFront> }
+        class UseStandardProject{ -> UseAction<StandardProject> }
+        class UseCardAction     { -> UseAction<ActionCard> THEN ActionUsed<ActionCard> }
+        class ConvertPlants     { 8 Plant -> GreeneryTile }
+        class ConvertHeat       { 8 Heat -> TemperatureStep }
+        class SellPatents       { 1 ProjectCard -> 1 } // TODO "X"; technically an SP but makes Credi/StTech annoying
     }
 
     abstract class StandardProject(HAS =1 This) {
