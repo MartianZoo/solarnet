@@ -9,7 +9,7 @@ import org.junit.jupiter.api.assertThrows
 
 class PetClassTest {
   @Test fun nothingness() {
-    val loader = loader("abstract class $rootName")
+    val loader = loadTypes()
     val cpt = loader.get(rootName)
     assertThat(cpt.name).isEqualTo(rootName)
     assertThat(cpt.abstract).isTrue()
@@ -19,10 +19,7 @@ class PetClassTest {
   }
 
   @Test fun onethingness() {
-    val loader = loader("""
-      abstract class $rootName
-      class Foo
-    """)
+    val loader = loadTypes("class Foo")
     val foo = loader.get("Foo")
     assertThat(foo.name).isEqualTo("Foo")
     assertThat(foo.abstract).isFalse()
@@ -32,11 +29,7 @@ class PetClassTest {
   }
 
   @Test fun subclass() {
-    val loader = loader("""
-      abstract class $rootName
-      class Foo
-      class Bar : Foo
-    """)
+    val loader = loadTypes("class Foo", "class Bar : Foo")
     val bar = loader.get("Bar")
     assertThat(bar.directSuperclasses.names()).containsExactly("Foo")
     assertThat(bar.allSuperclasses.names()).containsExactly(rootName, "Foo", "Bar")
@@ -44,11 +37,7 @@ class PetClassTest {
   }
 
   @Test fun forwardReference() {
-    val loader = loader("""
-      abstract class $rootName
-      class Bar : Foo
-      class Foo
-    """)
+    val loader = loadTypes("class Bar : Foo", "class Foo")
     val bar = loader.get("Bar")
     assertThat(bar.directSuperclasses.names()).containsExactly("Foo")
     assertThat(bar.allSuperclasses.names()).containsExactly(rootName, "Foo", "Bar")
@@ -73,23 +62,14 @@ class PetClassTest {
   }
 
   @Test fun dependency() {
-    val loader = loader("""
-      abstract class $rootName
-      class Foo
-      class Bar<Foo>
-    """)
+    val loader = loadTypes("class Foo", "class Bar<Foo>")
     val bar = loader.get("Bar")
     assertThat(bar.directSuperclasses.names()).containsExactly(rootName)
     assertThat(bar.directDependencyKeys).containsExactly(DependencyKey(bar, 0))
   }
 
   @Test fun inheritedDependency() {
-    val loader = loader("""
-      abstract class $rootName
-      class Foo
-      class Bar<Foo>
-      class Qux : Bar
-    """)
+    val loader = loadTypes("class Foo", "class Bar<Foo>", "class Qux : Bar")
     val bar = loader.get("Bar")
     val qux = loader.get("Qux")
     assertThat(qux.directSuperclasses.names()).containsExactly("Bar")
@@ -100,12 +80,7 @@ class PetClassTest {
   }
 
   @Test fun restatedDependency() {
-    val loader = loader("""
-      abstract class $rootName
-      class Foo
-      class Bar<Foo>
-      class Qux : Bar<Foo>
-    """)
+    val loader = loadTypes("class Foo", "class Bar<Foo>", "class Qux : Bar<Foo>")
     val bar = loader.get("Bar")
     val qux = loader.get("Qux")
     assertThat(qux.directSuperclasses.names()).containsExactly("Bar")
@@ -116,13 +91,7 @@ class PetClassTest {
   }
 
   @Test fun addedDependency() {
-    val loader = loader("""
-      abstract class $rootName
-      class Foo
-      class Bar<Foo>
-      class Baz
-      class Qux<Baz> : Bar<Foo>
-    """)
+    val loader = loadTypes("class Foo", "class Bar<Foo>", "class Baz", "class Qux<Baz> : Bar<Foo>")
     val bar = loader.get("Bar")
     val qux = loader.get("Qux")
 
@@ -131,13 +100,7 @@ class PetClassTest {
   }
 
   @Test fun refinedDependency() {
-    val loader = loader("""
-      abstract class $rootName
-      class Foo
-      class Bar<Foo>
-      class Baz : Foo
-      class Qux : Bar<Baz>
-    """)
+    val loader = loadTypes("class Foo", "class Bar<Foo>", "class Baz : Foo", "class Qux : Bar<Baz>")
     val bar = loader.get("Bar")
     val qux = loader.get("Qux")
     assertThat(qux.directSuperclasses.names()).containsExactly("Bar")
@@ -148,36 +111,30 @@ class PetClassTest {
   }
 
   @Test fun cycleDependency() {
-    val loader = loader("""
-      abstract class $rootName
-      class Foo<Bar>
-      class Bar<Foo>
-    """)
+    val loader = loadTypes("class Foo<Bar>", "class Bar<Foo>")
     val foo = loader.get("Foo")
     val bar = loader.get("Bar")
   }
 
   @Test fun depsAndSpecs() {
-    val loader = loader("""
-      abstract class $rootName
-      abstract class SuperFoo
-      abstract class Foo : SuperFoo
-      class SubFoo : Foo
+    val table = loadTypes(
+      "abstract class SuperFoo",
+      "abstract class Foo : SuperFoo",
+      "class SubFoo : Foo",
 
-      abstract class SuperBar<SuperFoo>
-      class Bar : SuperBar<Foo>
-      class SubBar : Bar<SubFoo>
+      "abstract class SuperBar<SuperFoo>",
+      "class Bar : SuperBar<Foo>",
+      "class SubBar : Bar<SubFoo>",
 
-      class Qux
-    """)
+      "class Qux")
 
     // abstract: SuperFoo, SuperBar, Foo
-    val supSup = loader.resolve("SuperBar<SuperFoo>")
-    val supFoo = loader.resolve("SuperBar<Foo>")
-    val supSub = loader.resolve("SuperBar<SubFoo>")
-    val barFoo = loader.resolve("Bar<Foo>")
-    val barSub = loader.resolve("Bar<SubFoo>")
-    val subSub = loader.resolve("SubBar<SubFoo>")
+    val supSup = table.resolve("SuperBar<SuperFoo>")
+    val supFoo = table.resolve("SuperBar<Foo>")
+    val supSub = table.resolve("SuperBar<SubFoo>")
+    val barFoo = table.resolve("Bar<Foo>")
+    val barSub = table.resolve("Bar<SubFoo>")
+    val subSub = table.resolve("SubBar<SubFoo>")
 
     assertThat(supSup.abstract).isTrue()
     assertThat(supSup.isSubtypeOf(supSup)).isTrue()
@@ -211,18 +168,22 @@ class PetClassTest {
     assertThat(subSub.isSubtypeOf(barSub)).isTrue()
     assertThat(subSub.isSubtypeOf(subSub)).isTrue()
 
-    noWork("Bar<SuperFoo>", loader)
-    noWork("SubBar<SuperFoo>", loader)
-    noWork("SubBar<Foo>", loader)
-    noWork("Foo<Bar>", loader)
+    noWork("Bar<SuperFoo>", table)
+    noWork("SubBar<SuperFoo>", table)
+    noWork("SubBar<Foo>", table)
+    noWork("Foo<Bar>", table)
   }
 
-  private fun noWork(s: String, loader: PetClassLoader) {
-    Assertions.assertThrows(RuntimeException::class.java, { loader.resolve("s") }, "s")
+  private fun noWork(s: String, table: PetClassTable) {
+    Assertions.assertThrows(RuntimeException::class.java, { table.resolve("s") }, "s")
 
   }
   private fun loader(petsText: String) =
       PetClassLoader(parseComponents(petsText)).also { it.loadAll() }
+
+  fun loadTypes(vararg decl: String): PetClassTable {
+    return loader("abstract class $rootName\n" + decl.joinToString("") { "$it\n" } )
+  }
 
   private fun Iterable<PetClass>.names() = map { it.name }
 
