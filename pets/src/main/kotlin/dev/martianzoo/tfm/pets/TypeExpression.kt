@@ -15,7 +15,15 @@ data class TypeExpression(
     ) : PetsNode() {
   constructor(className: String, vararg specialization: TypeExpression) :
       this(className, specialization.toList())
-  init { require(className.matches(classNamePattern())) { className } }
+  init {
+    require(className.matches(classNamePattern())) { className }
+    if (className == "Class") {
+      require(specializations.size == 1) { specializations }
+      require(specializations.first().specializations.isEmpty())
+    } else if (className == "This") {
+      require(specializations.isEmpty()) { specializations }
+    }
+  }
   override fun toString() =
       className +
       specializations.joinOrEmpty(surround = "<>") +

@@ -1,13 +1,13 @@
 package dev.martianzoo.tfm.pets
 
-import com.github.h0tk3y.betterParse.combinators.SkipParser
 import com.github.h0tk3y.betterParse.combinators.and
 import com.github.h0tk3y.betterParse.combinators.map
 import com.github.h0tk3y.betterParse.combinators.oneOrMore
 import com.github.h0tk3y.betterParse.combinators.optional
 import com.github.h0tk3y.betterParse.combinators.or
 import com.github.h0tk3y.betterParse.combinators.separatedTerms
-import com.github.h0tk3y.betterParse.combinators.skip
+import com.github.h0tk3y.betterParse.combinators.times
+import com.github.h0tk3y.betterParse.combinators.unaryMinus
 import com.github.h0tk3y.betterParse.combinators.zeroOrMore
 import com.github.h0tk3y.betterParse.grammar.parser
 import com.github.h0tk3y.betterParse.lexer.DefaultTokenizer
@@ -27,6 +27,7 @@ import com.google.common.cache.CacheLoader
 import com.google.common.cache.LoadingCache
 import dev.martianzoo.tfm.pets.Action.Cost
 import dev.martianzoo.tfm.pets.Action.Cost.Spend
+import dev.martianzoo.tfm.pets.ComponentDef.Dependency
 import dev.martianzoo.tfm.pets.Effect.Trigger
 import dev.martianzoo.tfm.pets.Effect.Trigger.Now
 import dev.martianzoo.tfm.pets.Effect.Trigger.OnGain
@@ -205,7 +206,7 @@ object Parser {
     val cost = publish(commaSeparated(orCost or anyGroup) map Cost::and)
 
     val action = publish(
-        optional(cost) and skip(literal("->")) and instruction map { (c, i) ->
+        optional(cost) and -literal("->") and instruction map { (c, i) ->
           Action(c, i)
         }
     )
@@ -231,18 +232,29 @@ object Parser {
   val effect = publish(Effects.effect)
 
   object Components {
-    data class Signature(val expr: TypeExpression, val sups: List<TypeExpression>)
+    data class Signature(
+        val className: String,
+        val dependencies: List<Dependency>,
+        val refinement: Requirement?,
+        val supertypes: List<TypeExpression>)
 
-    val nls: SkipParser = skip(zeroOrMore(char('\n')))
+    val nls = -zeroOrMore(char('\n'))
 
     val default: Parser<Instruction> = skipWord("default") and instruction
 
     val twoDots = literal("..")
     val upper = QEs.scalar or (char('*') map { null })
 
-    val isAbstract: Parser<Boolean> = optional(word("abstract")) and skipWord("class") map { it != null }
-    val supertypes: Parser<List<TypeExpression>> = optionalList(skipChar(':') and commaSeparated(typeExpression))
-    val signature = typeExpression and supertypes map { (e, s) -> Signature(e, s) }
+    val dependency = optional(word("CLASS")) and typeExpression map {
+      (classDep, type) -> Dependency(type, classDep != null)
+    }
+    val dependencies = optionalList(skipChar('<') and commaSeparated(dependency) and skipChar('>'))
+
+    val isAbstract = optional(word("abstract")) and skipWord("class") map { it != null }
+    val supertypes = optionalList(skipChar(':') and commaSeparated(typeExpression))
+    val signature = className and dependencies and TypeExpressions.refinement and supertypes map {
+      (c, d, r, s) -> Signature(c, d, r, s)
+    }
     val moreSignatures: Parser<List<Signature>> = skipChar(',') and separatedTerms(signature, char(','))
 
     val repeatableElement = parser { componentClump } or default or action or effect
@@ -310,15 +322,15 @@ object Parser {
       val subs = contents.filterIsInstance<List<ComponentDefInProcess>>().toSetStrict()
 
       val comp = ComponentDef(
-          name = sig.expr.className,
+          name = sig.className,
           abstract = abst,
-          supertypes = sig.sups.toSetStrict(),
-          dependencies = sig.expr.specializations,
+          supertypes = sig.supertypes.toSetStrict(),
+          dependencies = sig.dependencies,
           effs + acts.withIndex().map { (i, act) -> actionToEffect(act, i) },
           defs
       )
       return listOf(ComponentDefInProcess(comp, false)) +
-          subs.flatten().map { it.fillInSuperclass(sig.expr.className) }
+          subs.flatten().map { it.fillInSuperclass(sig.className) }
     }
   }
   @Suppress("unused")
@@ -329,8 +341,8 @@ object Parser {
   fun regex(r: String) = regexCache.get(r)
   fun word(w: String) = regex("\\b$w\\b")
 
-  fun skipChar(c: Char) = skip(char(c))
-  fun skipWord(w: String) = skip(word(w))
+  fun skipChar(c: Char) = -char(c)
+  fun skipWord(w: String) = -word(w)
 
   val tokenizer by lazy {
     DefaultTokenizer(
@@ -342,13 +354,12 @@ object Parser {
   inline fun <reified T> optionalList(parser: Parser<List<T>>) =
       optional(parser) map { it ?: listOf() }
 
-  inline fun <reified T> prodBox(parser: Parser<T>) =
-      skip(prodStart) and parser and skip(prodEnd)
+  inline fun <reified T> prodBox(parser: Parser<T>) = -prodStart and parser and -prodEnd
 
   inline fun <reified P> commaSeparated(p: Parser<P>) = separatedTerms(p, char(','))
 
   inline fun <reified P, reified S> separatedMultiple(p: Parser<P>, s: Parser<S>) =
-      separatedTerms(p, s) and skip(s) and p map { (list, extra) -> list + extra }
+      separatedTerms(p, s) and -s and p map { (list, extra) -> list + extra }
 
   inline fun <reified T> parens(contents: Parser<T>) = skipChar('(') and contents and skipChar(')')
 

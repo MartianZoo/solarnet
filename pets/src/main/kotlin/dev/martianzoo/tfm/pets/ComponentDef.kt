@@ -10,7 +10,7 @@ data class ComponentDef( // TODO not sure abt data class after complete is gone
     val name: String,
     val abstract: Boolean = false,
     val supertypes: Set<TypeExpression> = setOf(),
-    val dependencies: List<TypeExpression> = listOf(),
+    val dependencies: List<Dependency> = listOf(),
     val effects: Set<Effect> = setOf(),
     val defaults: Set<Instruction> = setOf(),
 ) : PetsNode(), Definition {
@@ -27,4 +27,8 @@ data class ComponentDef( // TODO not sure abt data class after complete is gone
   override val children = supertypes + dependencies + effects + defaults
 
   override val toComponentDef = this
+
+  data class Dependency(val type: TypeExpression, val classDep: Boolean = false) : PetsNode() {
+    override val children = listOf(type)
+  }
 }

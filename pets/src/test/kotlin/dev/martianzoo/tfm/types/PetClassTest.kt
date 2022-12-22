@@ -3,7 +3,7 @@ package dev.martianzoo.tfm.types
 import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.tfm.pets.Parser.parseComponents
 import dev.martianzoo.tfm.pets.rootName
-import dev.martianzoo.tfm.types.PetType.DependencyKey
+import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 
@@ -160,30 +160,67 @@ class PetClassTest {
   @Test fun depsAndSpecs() {
     val loader = loader("""
       abstract class $rootName
-      class SuperFoo
-      class Foo : SuperFoo
+      abstract class SuperFoo
+      abstract class Foo : SuperFoo
       class SubFoo : Foo
 
-      class SuperBar<SuperFoo>
+      abstract class SuperBar<SuperFoo>
       class Bar : SuperBar<Foo>
       class SubBar : Bar<SubFoo>
 
       class Qux
     """)
 
-    loader.resolve("SuperBar<SuperFoo>")
-    loader.resolve("SuperBar<Foo>")
-    loader.resolve("SuperBar<SubFoo>")
-    loader.resolve("Bar<Foo>")
-    loader.resolve("Bar<SubFoo>")
-    loader.resolve("SubBar<SubFoo>")
+    // abstract: SuperFoo, SuperBar, Foo
+    val supSup = loader.resolve("SuperBar<SuperFoo>")
+    val supFoo = loader.resolve("SuperBar<Foo>")
+    val supSub = loader.resolve("SuperBar<SubFoo>")
+    val barFoo = loader.resolve("Bar<Foo>")
+    val barSub = loader.resolve("Bar<SubFoo>")
+    val subSub = loader.resolve("SubBar<SubFoo>")
 
-    assertThrows<RuntimeException> { loader.resolve("Bar<Qux>") }
-    // assertThrows<RuntimeException> { loader.resolve("Bar<SuperFoo>") }
-    //assertThrows<RuntimeException> { loader.resolve("Foo<Bar>") }
+    assertThat(supSup.abstract).isTrue()
+    assertThat(supSup.isSubtypeOf(supSup)).isTrue()
+
+    assertThat(supFoo.abstract).isTrue()
+    assertThat(supFoo.isSubtypeOf(supSup)).isTrue()
+    assertThat(supFoo.isSubtypeOf(supFoo)).isTrue()
+
+    assertThat(supSub.abstract).isTrue()
+    assertThat(supSub.isSubtypeOf(supSup)).isTrue()
+    assertThat(supSub.isSubtypeOf(supFoo)).isTrue()
+    assertThat(supSub.isSubtypeOf(supSub)).isTrue()
+
+    assertThat(barFoo.abstract).isTrue()
+    assertThat(barFoo.isSubtypeOf(supSup)).isTrue()
+    assertThat(barFoo.isSubtypeOf(supFoo)).isTrue()
+    assertThat(barFoo.isSubtypeOf(barFoo)).isTrue()
+
+    assertThat(barSub.abstract).isFalse()
+    assertThat(barSub.isSubtypeOf(supSup)).isTrue()
+    assertThat(barSub.isSubtypeOf(supFoo)).isTrue()
+    assertThat(barSub.isSubtypeOf(supSub)).isTrue()
+    assertThat(barSub.isSubtypeOf(barFoo)).isTrue()
+    assertThat(barSub.isSubtypeOf(barSub)).isTrue()
+
+    assertThat(subSub.abstract).isFalse()
+    assertThat(subSub.isSubtypeOf(supSup)).isTrue()
+    assertThat(subSub.isSubtypeOf(supFoo)).isTrue()
+    assertThat(subSub.isSubtypeOf(supSub)).isTrue()
+    assertThat(subSub.isSubtypeOf(barFoo)).isTrue()
+    assertThat(subSub.isSubtypeOf(barSub)).isTrue()
+    assertThat(subSub.isSubtypeOf(subSub)).isTrue()
+
+    noWork("Bar<SuperFoo>", loader)
+    noWork("SubBar<SuperFoo>", loader)
+    noWork("SubBar<Foo>", loader)
+    noWork("Foo<Bar>", loader)
   }
 
+  private fun noWork(s: String, loader: PetClassLoader) {
+    Assertions.assertThrows(RuntimeException::class.java, { loader.resolve("s") }, "s")
 
+  }
   private fun loader(petsText: String) =
       PetClassLoader(parseComponents(petsText)).also { it.loadAll() }
 

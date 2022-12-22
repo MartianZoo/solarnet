@@ -34,7 +34,10 @@ class PetClassCanonTest {
     }
 
     // only one case of subclassing a concrete class in the whole canon
-    Truth.assertThat(subConcrete).containsExactly("Tile008" to "CityTile")
+    Truth.assertThat(subConcrete).containsExactly(
+        "Tile008" to "CityTile",
+        "Psychrophile" to "Microbe",
+        "Dirigible" to "Floater")
   }
 
   @Test fun findValidTypes() {
@@ -43,6 +46,8 @@ class PetClassCanonTest {
       it.matches(Regex("^Card.{3,4}$")) && it.hashCode() % 6 != 0
     }.filterNot {
       it.matches(Regex("^(Tharsis|Hellas|Elysium)")) && it.hashCode() % 4 != 0
+    }.filterNot {
+      it in setOf("Component", "Die", "Class")
     }
 
     val abstracts = TreeSet<String>()

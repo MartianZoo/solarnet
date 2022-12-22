@@ -2,6 +2,7 @@ package dev.martianzoo.tfm.pets
 
 import com.google.common.truth.Truth.assertThat
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 
 // Most testing is done by AutomatedTest
 class TypeExpressionTest {
@@ -31,7 +32,7 @@ class TypeExpressionTest {
 
   @Test
   fun complexRoundTrip() {
-    testRoundTrip("Aa<Bb<Cc<Dd, Ee, This<Gg<Hh<Me>>, Jj>>, Kk>>")
+    testRoundTrip("Aa<Bb<Cc<Dd, Ee, Ff<Gg<Hh<Me>>, Jj>>, Kk>>")
   }
 
   @Test
@@ -55,21 +56,19 @@ class TypeExpressionTest {
     val expr = TypeExpression(
         "Aa",
         TypeExpression("Bb"),
-        TypeExpression(
-            "Cc",
-            TypeExpression("Dd")
-        ),
+        TypeExpression("Cc", TypeExpression("Dd")),
         TypeExpression(
             "Ee",
-            TypeExpression(
-                "This",
-                TypeExpression("Gg"),
-                TypeExpression("Hh")
-            ),
+            TypeExpression("Ff", TypeExpression("Gg"), TypeExpression("Hh")),
             TypeExpression("Me")
         ),
         TypeExpression("Jj")
     )
-    assertThat(expr.toString()).isEqualTo("Aa<Bb, Cc<Dd>, Ee<This<Gg, Hh>, Me>, Jj>")
+    assertThat(expr.toString()).isEqualTo("Aa<Bb, Cc<Dd>, Ee<Ff<Gg, Hh>, Me>, Jj>")
+  }
+
+  @Test fun classAndThis() {
+    assertThrows<RuntimeException> { TypeExpression("This", te("Foo")) }
+    assertThrows<RuntimeException> { TypeExpression("Class", TypeExpression("Foo", te("Bar"))) }
   }
 }

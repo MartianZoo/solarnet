@@ -2,8 +2,6 @@ package dev.martianzoo.util
 
 import com.google.common.collect.ImmutableMultiset
 import dev.martianzoo.tfm.pets.PetsException
-import dev.martianzoo.tfm.types.PetType
-import dev.martianzoo.tfm.types.PetType.DependencyKey
 
 // should go in libutil but man, so many libs!
 

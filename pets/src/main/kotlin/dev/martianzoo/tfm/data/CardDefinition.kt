@@ -128,12 +128,6 @@ data class CardDefinition(
     require(replaces?.isNotEmpty() ?: true)
     require(resourceTypeText?.isNotEmpty() ?: true)
     require(requirementText?.isNotEmpty() ?: true)
-    if (resourceTypeText != null) {
-      val resourceUsage = "$resourceTypeText<This>"
-      require((actionsText + effectsText).any { it.contains(resourceUsage) }) {
-        "Card can't use its own resource type: $id"
-      }
-    }
 
     when (deck) {
       Deck.PROJECT -> {
@@ -168,10 +162,14 @@ data class CardDefinition(
   val requirement: Requirement? by lazy { requirementText?.let(Parser::parse) }
 
   override val toComponentDef by lazy {
-    val type = TypeExpression(
-        if (projectKind == null) "CardFront" else projectKind.type,
-        resourceType ?: TypeExpression("NoResource"))
-    ComponentDef(name = "Card$id", supertypes = setOf(type), effects = allEffects)
+    val supertypes = mutableSetOf<TypeExpression>()
+
+    if (projectKind != null) supertypes.add(TypeExpression(projectKind.type))
+    if (actions.isNotEmpty()) supertypes.add(TypeExpression("ActionCard"))
+    if (resourceType != null) supertypes.add(TypeExpression("Holder", listOf(resourceType!!)))
+    if (supertypes.isEmpty()) supertypes.add(TypeExpression("CardFront"))
+
+    ComponentDef(name = "Card$id", abstract = false, supertypes = supertypes, effects = allEffects)
   }
 
   val allEffects: Set<Effect> by lazy {

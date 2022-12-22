@@ -1,41 +1,52 @@
-// class Game(HAS MAX 1 MarsMap, MAX 1 Phase, MAX 9 OceanTile)
+// CLASSES WITH SPECIAL MAGIC PROPERTIES
+                                                       // Component is the single root of the hierarchy
+abstract class Component {                             // no need to write `: Component`; it's assumed
+    default Component!
+    default -Component!                                // all gains & removes are mandatory unless overridden
+}
+                                                       // 1st magic rule: nested generics are forbidden, and Class<Heat>
+class Class<Component>(HAS =1 This) {                  // is considered concrete (since it's as much so as it can be)
+}                                                      // 2nd magic rule: if `class Foo<CLASS Bar>`, then it is really
+                                                       // `Foo<Class<Bar>>`, and usage `Foo<Qux>` is `Foo<Class<Qux>>`
 
-// Root of the hierarchy; everything with no other supertypes has this supertype
-abstract class Component {
-    default Component! // all gains/removes are mandatory unless overridden
-    default -Component!
+class Ok(HAS MAX 0 This) {                             // magic rule: won't trigger anything else (TODO)
+    This:: -This
+}
+                                                       // Don't define This or Me, to prevent *actual* usage
+// OTHER SYSTEM CLASSES
+
+abstract class Signal(HAS MAX 0 This) {                // removes itself immediately - you'll never observe it existing
+    This:: -This                                       // but things can still be triggered by it
+}                                                      // TODO magic rule that at least 1 effect must be triggered??
+
+abstract class Barrier(HAS MAX 1 This) {               // player must clean up themselves, by end of action
+    This: (MAX 0 This: Ok)                             // weird. add a task that can only be handled if 0 barriers left
 }
 
-abstract class Signal(HAS MAX 0 This) {                // removes itself immediately - will never observe it existing
-    This:: -This                                       // but can be triggered by it
-}
+class Die(HAS MAX 0 This)                              // impossible to create one, signals a dead-end
 
-class Ok : Signal                                      // when you need to do nothing
 
-abstract class Barrier {                               // player must clean up themselves, by end of action
-    This: (MAX 0 Barrier: Ok)                          // weird. add a task that can only be handled if 0 barriers left
-}
+// THE GAME OF TERRAFORMING MARS
 
-class Die(HAS MAX 0 This)
+class Game(HAS MAX 1 This, MAX 1 MarsMap, MAX 1 Phase, MAX 9 OceanTile)
 
-abstract class Anyone(HAS =1 This) {
+abstract class Anyone(HAS =1 This) {                   // magic rule: same as Owned
     abstract class Player : Anyone {
-        This:: 20 TerraformRating
+        This: 20 TerraformRating
 
         PlayTag<BuildingTag>:: Accept<Steel>           // These don't seem to belong anywhere
         PlayTag<SpaceTag>:: Accept<Titanium>
-
-        This:: PROD[5]                                 // No negative Components! So we need a hack; at least this one
-        ProductionPhase: -5                            // confines the damage to Specialist/Generalist (and Robinson,
-    }                                                  // but it needs custom code anyway). Other hacks seem worse.
-}                                                      // `Instr / PROD[1]` is very very dodgy but works for Banker.
-
-class Player1 : Player
-class Player2 : Player
+                                                       // No negative Components! So we need a hack; at least this one
+        This: PROD[5]                                  // confines the damage to Specialist/Generalist (and Robinson,
+        ProductionPhase: -5                            // but it needs custom code anyway). Other hacks seem worse.
+                                                       // `Instr / PROD[1]` is very very dodgy but works for Banker.
+        class Player1, Player2, Player3, Player4, Player5
+    }
+}
 
 abstract class Area(HAS =1 This, MAX 1 Tile) {
     abstract class RemoteArea
-    abstract class MarsArea {
+    abstract class MarsArea {                          // TODO <MarsMap>?
         abstract class LandArea {
             abstract class VolcanicArea
         }
@@ -52,18 +63,15 @@ abstract class MarsMap {
     class Tharsis, Hellas, Elysium
 }
 
-// <MarsArea^1, MarsArea^2> ?
 class Border<MarsArea, MarsArea>(HAS 2 MarsArea, MAX 1 This) {
     // These probably have to be created programmatically; e.g. on Border<Tharsis3_3, Tharsis3_4>
     // we have `Tile<Tharsis3_4>: Neighbor<Tile, Tharsis3_3>`
 }
 
-// <Tile<MarsArea^1>, MarsArea^2> ?
 class Neighbor<Tile, MarsArea>(HAS Tile, MAX 1 This) {
     Tile<MarsArea>: Adjacency<Tile, Tile<MarsArea>> // SPEC
 }
 
-// <Tile^1, Tile^2> ?
 class Adjacency<Tile, Tile>(HAS 2 Tile, MAX 1 This)
 
 abstract class GlobalParameter {                       // TODO splittable...
@@ -75,7 +83,7 @@ abstract class GlobalParameter {                       // TODO splittable...
     class OxygenStep(HAS MAX 14 This)
     class VenusStep(HAS MAX 15 This)
 
-    class OceanTile : Tile<MarsArea> {
+    class OceanTile(HAS MAX 9 OceanTile) : Tile<MarsArea> {
         default OceanTile<WaterArea>
 
         Adjacency<This, Tile>: 2                       // TODO "BY Me"
@@ -91,8 +99,6 @@ class TrackBonuser(HAS =1 This) {
 
     NOW 4 VenusStep: ProjectCard
     NOW 8 VenusStep: TerraformRating
-
-    NOW 10 OceanTile:: Die                             // OceanTile(HAS MAX 9 This) won't work
 }
 
 class Generation
@@ -111,8 +117,8 @@ abstract class Owned<Anyone> {                         // TODO default *Owned<Me
         }
     }
 
-    class Production<StandardResource> {
-        ProductionPhase: StandardResource              // Specializing to Production<Heat> specializes this too
+    class Production<CLASS StandardResource> {
+        ProductionPhase: StandardResource              // Specializing to Production<Heat> must spec. this too
     }
 
     class TerraformRating : Owned<Player> {
@@ -126,7 +132,7 @@ abstract class Owned<Anyone> {                         // TODO default *Owned<Me
 
     abstract class OwnedTile : Tile {
         class GreeneryTile : Tile<MarsArea> {
-            default GreeneryTile<LandArea(HAS Neighbor<OwnedTile>)> // TODO - yikes
+            default GreeneryTile<LandArea(HAS Neighbor<OwnedTile>)> // TODO: `HAS?` ?
             This: OxygenStep
             End: VictoryPoint
         }
@@ -139,32 +145,30 @@ abstract class Owned<Anyone> {                         // TODO default *Owned<Me
         }
     }
 
-    abstract class Milestone                           // not really doing anything with this yet
+    abstract class Milestone : Owned<Player>           // not really doing anything with this yet
 
-    abstract class CardFront {                         // TODO <CardResource> { // TODO <This> ?
+    abstract class CardFront {
         abstract class EventCard {
             This: PlayedEvent FROM This                // problem: how to still get the VPs??
         }                                              // could we get this happen autom. at EOT?
         abstract class AutomatedCard
-        abstract class ActiveCard : ActionHaver        // TODO maybe only have actual action cards do that
+        abstract class ActiveCard
+
+        abstract class Holder<CLASS CardResource>
+        abstract class ActionCard : HasActions
     }
 
     class PlayedEvent
 
-    abstract class Cardbound<CardFront>(HAS CardFront) {
-        -CardFront:: -This                             // on becoming a PlayedEvent
-
-        abstract class CardResource : Resource {       // , Cardbound<CardFront<This>> ?
-            -CardFront:: Die                           // gotta remove the resources first
+    abstract class Cardbound<CardFront> {              // make Anyones match?
+        // TODO specialization
+        abstract class CardResource : Resource, Cardbound<Holder<This>> {
             default CardResource.
 
-            class Animal, Microbe, Science
-            class Floater, Asteroid
-
-            class NoResource { This:: Die }            // Because all cards must have a resource type
+            class Animal, Microbe, Science, Floater, Asteroid // others are card-specific
         }
 
-        // TODO .. but.. these have to exist as soon as the card does, for triggers....
+        // TODO but... these have to exist as soon as the card does, for triggers....
         abstract class Tag {
             class BuildingTag, SpaceTag
             class CityTag, PowerTag, ScienceTag
@@ -176,27 +180,27 @@ abstract class Owned<Anyone> {                         // TODO default *Owned<Me
                 class EarthTag, JovianTag, VenusTag
             }
         }
-
-        class ActionUsed(HAS MAX 1 This) : Generational
+                                                       // TODO still consider inverting this?
+        class ActionUsed(HAS MAX 1 This) : Cardbound<ActionCard>, Generational
     }
 
-    abstract class UseAction<ActionHaver> : Signal {
-        class UseAction1, UseAction2, UseAction3, UseAction4
+    abstract class UseAction<HasActions> : Signal {
+        class UseAction1, UseAction2, UseAction3, UseAction4, UseAction5
     }
 
-    class Owed<Resource> : Barrier {
+    class Owed<CLASS Resource> : Barrier {
        default -Owed.
        This:: Accept<Resource>
     }
 
-    class Accept<Resource>(HAS MAX 1 This) {
+    class Accept<CLASS Resource>(HAS MAX 1 This) {
         default Accept.                                // never hurts to accept twice
 
         -Resource:: Pay<Resource>                      // TODO this is not quite right?
         NOW MAX 0 Owed:: -This                         // TODO what if there never are/were any Oweds?
     }
 
-    class Pay<Resource> : Signal {                     // TODO lets you overpay like mad
+    class Pay<CLASS Resource> : Signal {               // TODO lets you overpay like mad
         This:: -Owed<Resource>
     }
 
@@ -204,20 +208,20 @@ abstract class Owned<Anyone> {                         // TODO default *Owned<Me
         NOW MAX 0 Barrier: ProjectCard FROM This
     }
 
-    class PlayTag<Tag> : Signal
+    class PlayTag<CLASS Tag> : Signal
 
-    class PlayCard<CardFront> {
+    class PlayCard<CLASS CardBack, CLASS CardFront> {
         This:: $handleRequirement(CardFront), $handleCost(CardFront) // TODO Owed<Mc> / $costOf(CardFront)
         NOW MAX 0 Barrier: (CardFront FROM CardBack, -This)
     }
 }
 
-abstract class ActionHaver {
+abstract class HasActions {
 
     abstract class StandardAction(HAS =1 This) {
-        class PlayCardFromHand   { -> PlayCard<CardFront> }
+        class PlayCardFromHand   { -> PlayCard<ProjectCard, CardFront> }
         class UseStandardProject { -> UseAction<StandardProject> }
-        class UseCardAction      { -> UseAction<CardFront> THEN ActionUsed<CardFront> }
+        class UseCardAction      { -> UseAction<ActionCard> THEN ActionUsed<ActionCard> }
         class ConvertPlants      { 8 Plant -> GreeneryTile }
         class ConvertHeat        { 8 Heat -> TemperatureStep }
 
@@ -239,7 +243,8 @@ abstract class Phase {
     class SetupPhase
     class CorporationPhase
     class PreludePhase
-    class ResearchPhase
+    class GenerationPhase
+    class ResearchPhase // follow mode
     class ActionPhase
     class ProductionPhase
     class SolarPhase
