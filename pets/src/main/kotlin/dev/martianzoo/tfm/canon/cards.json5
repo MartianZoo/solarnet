@@ -468,7 +468,7 @@
       "id": "X41F",
       "bundle": "X",
       "deck": "PRELUDE",
-      "immediate": [ "CardFront THEN -42" ], // in follow mode, it's that easy
+      "immediate": [ "CardFront, -42" ], // in follow mode, it's that easy
     },
 
     // New Partner[F]

@@ -27,6 +27,7 @@ class PetClassCanonTest {
     table.all().forEach {
       clazz -> clazz.directEffects.forEach {fx ->
           testRoundTrip(fx)
+          println("$clazz - $fx")
           fx.descendants().filterIsInstance<TypeExpression>().forEach {
             try {
               table.resolve(it)

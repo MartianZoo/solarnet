@@ -24,7 +24,8 @@ abstract class Anyone(HAS =1 This) {                        // magic rule: same 
 
 // PLAYER PROPERTY / GENERAL -------------------------
 
-abstract class Owned<Anyone> {                              // magic rule: default param is always `Me` when possible
+abstract class Owned<Anyone> {
+    default This<Player>                                   // applies to ALL unspec'd references to anything Owned
 
     abstract class Outcome {                                // the only 100% useless component
         class Winner, Place2, Place3, Place4, Place5
@@ -32,15 +33,14 @@ abstract class Owned<Anyone> {                              // magic rule: defau
 
     class VictoryPoint
 
-    class TerraformRating : Owned<Player> {                 // limiting to <Player> might be important for solar phase?
+    class TerraformRating {
         ProductionPhase: 1
         End: VictoryPoint
     }
 
-    class StartToken(HAS MAX 1 StartToken) : Owned<Player>
+    class StartToken(HAS MAX 1 StartToken)
 
     abstract class Milestone                                // not really doing anything with this yet
-
 }
 
 
@@ -49,18 +49,18 @@ abstract class Owned<Anyone> {                              // magic rule: defau
 abstract class OwnedTile : Owned, Tile {
     class GreeneryTile : Tile<MarsArea> {
         // TODO this needs to use `HAS?` or something like that
-        default GreeneryTile<LandArea(HAS Neighbor<OwnedTile>)>
+        default +This<LandArea(HAS Neighbor<OwnedTile>)>
         This: OxygenStep
         End: VictoryPoint
     }
 
     class CityTile {
-        default CityTile<LandArea(HAS MAX 0 Neighbor<CityTile<Anyone>>)>
+        default +This<LandArea(HAS MAX 0 Neighbor<CityTile<Anyone>>)>
         End: VictoryPoint / Adjacency(HAS This, GreeneryTile<Anyone>)
     }
 
     abstract class SpecialTile : Tile<MarsArea> {
-        default SpecialTile<LandArea>
+        default +This<LandArea>
     }
 }
 
@@ -75,7 +75,7 @@ abstract class Resource : Owned {
 
     // TODO Cardbound<Holder<CardResource>>, matching
     abstract class CardResource : Cardbound<Holder> {
-        default CardResource.
+        default +This.
 
         // All others are card-specific; see cards.json5
         class Animal, Microbe, Science, Floater, Asteroid
@@ -91,7 +91,7 @@ abstract class Holder<CLASS CardResource> : CardFront
 
 // CARDS ---------------------------------------------
 
-abstract class CardBack : Owned<Player> {
+abstract class CardBack : Owned {
     class CorporationCard                                   // once a card is played and becomes a CardFront, nothing in
     class PreludeCard                                       // the game ever cares what kind of CardBack it used to be..
     class ProjectCard                                       // well that used to be true until "Double Down" in Dec 2022
@@ -129,7 +129,7 @@ abstract class Cardbound<CardFront<Anyone>> : Owned<Anyone> {
 // ACTIONS -------------------------------------------
 
 // TODO restrict to same owner, but how?
-abstract class UseAction<HasActions> : Owned<Player>, Signal {
+abstract class UseAction<HasActions> : Owned, Signal {
     class UseAction1, UseAction2, UseAction3
     class UseAction4, UseAction5
 }
@@ -140,20 +140,20 @@ class ActionUsedMarker(HAS MAX 1 This) : Cardbound<ActionCard>, Generational
 
 // PAYMENT MECHANICS ---------------------------------
 
-abstract class PaymentMechanic : Owned<Player>, Temporary {
+abstract class PaymentMechanic : Owned, Temporary {
     abstract class Barrier(HAS MAX 1 This) {                // player must clean up themselves, by end of action
         This: (MAX 0 This: Ok)                              // adds a task that can only be handled if 0 barriers left
     }
 
 
     class Owed<CLASS Resource> : Barrier {                  // created when payment due, removed by discount cards/
-       default -Owed.                                       // Alloys/Ecoline, added to by Polyphemos
+       default -This.                                       // Alloys/Ecoline, added to by Polyphemos
        This:: Accept<Resource>
     }
 
     // Created in response to PlayTag, actions on 4 special cards
     class Accept<CLASS Resource>(HAS MAX 1 This) : Temporary {
-        default Accept.
+        default +This.
     }
 
     class Pay<CLASS Resource> : Signal {                    // player uses it like `8 Pay<Heat> FROM Heat`

@@ -13,7 +13,7 @@ class ComponentDefTest {
   @Test
   fun body() {
     assertThat(parseComponents("""
-          class Bar : Qux { default Foo?
+          class Bar : Qux { default +This?
             Foo -> Bar
 
 
@@ -94,16 +94,12 @@ class ComponentDefTest {
     assertThat(parse(Components.twoDots, " .. ")).isNotNull()
   }
 
-  @Test fun default() {
-    val instr: PetsNode = parse(Components.default, "default -Component!")
-    assertThat(instr).isEqualTo(Instruction.Remove(rootEx, null, Intensity.MANDATORY))
-  }
-
   @Test fun withDefaults() {
     val cs = parseComponents("""
         abstract class Component {
-           default Component!
-           default -Component!
+           default +This!
+           default -This!
+           default This<Foo>
 
            class This   // comment
 

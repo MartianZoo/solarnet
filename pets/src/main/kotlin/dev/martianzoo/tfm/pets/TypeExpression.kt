@@ -19,11 +19,12 @@ data class TypeExpression(
     require(className.matches(classNamePattern())) { className }
     if (className == "Class") {
       require(specializations.size == 1) { specializations }
-      require(specializations.first().specializations.isEmpty())
-    } else if (className == "This") {
-      require(specializations.isEmpty()) { specializations }
+      require(specializations.first().isClassOnly())
     }
   }
+
+  fun isClassOnly() = (this == te(className))
+
   override fun toString() =
       className +
       specializations.joinOrEmpty(surround = "<>") +

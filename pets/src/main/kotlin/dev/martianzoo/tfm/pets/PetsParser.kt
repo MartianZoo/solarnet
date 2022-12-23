@@ -26,6 +26,7 @@ import com.google.common.cache.CacheLoader
 import com.google.common.cache.LoadingCache
 import dev.martianzoo.tfm.pets.Action.Cost
 import dev.martianzoo.tfm.pets.Action.Cost.Spend
+import dev.martianzoo.tfm.pets.ComponentDef.Defaults
 import dev.martianzoo.tfm.pets.ComponentDef.Dependency
 import dev.martianzoo.tfm.pets.Effect.Trigger
 import dev.martianzoo.tfm.pets.Effect.Trigger.Now
@@ -41,6 +42,7 @@ import dev.martianzoo.tfm.pets.Instruction.Remove
 import dev.martianzoo.tfm.pets.Instruction.SimpleFrom
 import dev.martianzoo.tfm.pets.Instruction.Transmute
 import dev.martianzoo.tfm.pets.Instruction.TypeInFrom
+import dev.martianzoo.tfm.pets.PetsParser.Instructions.intensity
 import dev.martianzoo.tfm.pets.Requirement.Exact
 import dev.martianzoo.tfm.pets.Requirement.Max
 import dev.martianzoo.tfm.pets.Requirement.Min
@@ -238,7 +240,16 @@ object PetsParser {
 
     val nls = -zeroOrMore(char('\n'))
 
-    val default: Parser<Instruction> = skipWord("default") and instruction
+    val gainDefault = skipChar('+') and typeExpression and intensity map {
+      (type, intens) -> Defaults(gainType=type, gainIntensity=intens)
+    }
+    val removeDefault = skipChar('-') and typeExpression and intensity map {
+      (type, intens) -> Defaults(removeType=type, removeIntensity=intens)
+    }
+    val typeDefault = typeExpression map {
+      Defaults(typeExpression=it)
+    }
+    val default: Parser<Defaults> = skipWord("default") and (gainDefault or removeDefault or typeDefault)
 
     val twoDots = literal("..")
     val upper = QEs.scalar or (char('*') map { null })
@@ -314,7 +325,7 @@ object PetsParser {
 
     private fun createCcd(abst: Boolean, sig: Signature, contents: List<Any> = listOf()):
         List<ComponentDefInProcess> {
-      val defs = contents.filterIsInstance<Instruction>().toSetStrict()
+      val defs = contents.filterIsInstance<Defaults>().toSetStrict()
       val acts = contents.filterIsInstance<Action>().toSetStrict()
       val effs = contents.filterIsInstance<Effect>().toSetStrict()
       val subs = contents.filterIsInstance<List<ComponentDefInProcess>>().toSetStrict()
@@ -325,7 +336,7 @@ object PetsParser {
           supertypes = sig.supertypes.toSetStrict(),
           dependencies = sig.dependencies,
           effs + acts.withIndex().map { (i, act) -> actionToEffect(act, i) },
-          defs
+          Defaults().merge(defs)
       )
       return listOf(ComponentDefInProcess(comp, false)) +
           subs.flatten().map { it.fillInSuperclass(sig.className) }

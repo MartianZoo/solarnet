@@ -67,8 +67,8 @@ class TypeExpressionTest {
     assertThat(expr.toString()).isEqualTo("Aa<Bb, Cc<Dd>, Ee<Ff<Gg, Hh>, Me>, Jj>")
   }
 
-  @Test fun classAndThis() {
-    assertThrows<RuntimeException> { TypeExpression("This", te("Foo")) }
+  @Test fun classAlone() {
     assertThrows<RuntimeException> { TypeExpression("Class", TypeExpression("Foo", te("Bar"))) }
+    assertThrows<RuntimeException> { TypeExpression("Class", TypeExpression("Foo", requirement = Requirement.Min(te("Heat")))) }
   }
 }
