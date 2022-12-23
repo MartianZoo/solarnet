@@ -28,7 +28,7 @@
       "deck": "CORPORATION",
       "tags": [ "SpaceTag" ],
       "immediate": [ "23, 10 Titanium" ],
-      "effects": [ "Pay<Titanium>: Pay<Megacredit>" ],
+      "effects": [ "Pay<Titanium>:: Pay<Megacredit>" ],
     },
 
     // ThorGate
@@ -120,7 +120,7 @@
       "deck": "CORPORATION",
       "tags": [ "MicrobeTag" ],
       "immediate": [ "48" ],
-      "actions": [ "-> UseAction<CardFront(HAS ActionUsed)>" ],
+      "actions": [ "-> UseAction<ActionCard(HAS ActionUsedMarker)>" ],
     },
 
     // Recyclon
@@ -3909,7 +3909,7 @@
       "id": "X02",
       "bundle": "X",
       "deck": "PROJECT",
-      "immediate": [ "UseAction<CardFront(HAS ActionUsed)>" ],
+      "immediate": [ "UseAction<ActionCard(HAS ActionUsedMarker)>" ],
       "cost": 0,
       "projectKind": "EVENT",
     },
@@ -3920,7 +3920,7 @@
       "bundle": "X",
       "deck": "PROJECT",
       "tags": [ "SpaceTag" ],
-      "effects": [ "Pay<Titanium>: Pay<Megacredit>" ],
+      "effects": [ "Pay<Titanium>:: Pay<Megacredit>" ],
       "cost": 3,
       "projectKind": "ACTIVE",
     },
@@ -3945,7 +3945,7 @@
       "deck": "PROJECT",
       "tags": [ "BuildingTag" ],
       "effects": [
-        "Pay<Steel>: Pay<Megacredit>",
+        "Pay<Steel>:: Pay<Megacredit>",
         "End: VictoryPoint",
       ],
       "cost": 10,

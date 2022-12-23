@@ -1,0 +1,175 @@
+// PLAYERS -------------------------------------------
+
+abstract class Anyone(HAS =1 This) {                   // magic rule: same as Owned
+    abstract class Player : Anyone {
+        This: 20 TerraformRating
+
+        // Hack!                                       // No negative Components! So we need a hack; at least this one
+        This: PROD[5]                                  // confines the damage to Specialist/Generalist (and Robinson,
+        ProductionPhase: -5                            // but it needs custom code anyway). Other hacks seem worse.
+                                                       // `Instr / PROD[1]` is very very dodgy... but works for Banker.
+
+        PlayTag<BuildingTag>:: Accept<Steel>           // TODO where do these really belong??
+        Pay<Steel>:: 2 Pay<Megacredit>
+
+        PlayTag<SpaceTag>:: Accept<Titanium>
+        Pay<Titanium>:: 3 Pay<Megacredit>              // should be innocuous for TradeAction
+
+        class Player1, Player2, Player3, Player4, Player5
+    }
+
+    class Npc                                          // Not 100% clear what this will be used for yet
+}
+
+
+// PLAYER PROPERTY / GENERAL -------------------------
+
+abstract class Owned<Anyone> {                         // magic rule: default param is always `Me` whenever possible
+
+    abstract class Outcome {                           // the only 100% useless component
+        class Winner, Place2, Place3, Place4, Place5
+    }
+
+    class VictoryPoint
+
+    class TerraformRating : Owned<Player> {            // limiting to <Player> might be important for solar phase?
+        ProductionPhase: 1
+        End: VictoryPoint
+    }
+
+    class StartToken(HAS MAX 1 StartToken) : Owned<Player>
+
+    abstract class Milestone                           // not really doing anything with this yet
+
+}
+
+
+// TILES ---------------------------------------------
+
+abstract class OwnedTile : Owned, Tile {
+    class GreeneryTile : Tile<MarsArea> {
+        // TODO this needs to use `HAS?` or something like that
+        default GreeneryTile<LandArea(HAS Neighbor<OwnedTile>)>
+        This: OxygenStep
+        End: VictoryPoint
+    }
+
+    class CityTile {
+        default CityTile<LandArea(HAS MAX 0 Neighbor<CityTile<Anyone>>)>
+        End: VictoryPoint / Adjacency(HAS This, GreeneryTile<Anyone>)
+    }
+
+    abstract class SpecialTile : Tile<MarsArea> {
+        default SpecialTile<LandArea>
+    }
+}
+
+
+// RESOURCES -----------------------------------------
+
+abstract class Resource : Owned {
+    abstract class StandardResource {
+        class Megacredit, Steel, Titanium, Plant, Heat
+        class Energy { ProductionPhase:: Heat FROM This }
+    }
+
+    // TODO Cardbound<Holder<CardResource>>, matching
+    abstract class CardResource : Cardbound<Holder> {
+        default CardResource.
+
+        // All others are card-specific; see cards.json5
+        class Animal, Microbe, Science, Floater, Asteroid
+    }
+}
+
+class Production<CLASS StandardResource> : Owned {
+    ProductionPhase: StandardResource                  // TODO subtype specialization
+}
+
+abstract class Holder<CLASS CardResource> : CardFront
+
+
+// CARDS ---------------------------------------------
+
+abstract class CardBack : Owned<Player> {
+    class CorporationCard                              // once a card is played and becomes a CardFront, nothing in the
+    class PreludeCard                                  // game ever cares what kind of CardBack it used to be... well,
+    class ProjectCard                                  // that used to be true until "Double Down" in Dec 2022
+}
+
+abstract class CardFront : Owned {
+    abstract class EventCard {
+        This: PlayedEvent FROM This                    // problem: how to still get the VPs??
+    }                                                  // could we get this happen autom. at EOT?
+    abstract class AutomatedCard
+    abstract class ActiveCard                          // these types can all be mixed; what prevents bogus combos?
+
+    abstract class ActionCard : HasActions
+}
+
+class PlayedEvent : Owned<Player>
+
+// TODO require the two `Anyone`s to match
+abstract class Cardbound<CardFront<Anyone>> : Owned<Anyone> {
+    // TODO but... these have to exist as soon as the card does, for triggers....
+    abstract class Tag {
+        class BuildingTag, SpaceTag
+        class CityTag, PowerTag, ScienceTag
+
+        abstract class BioTag {
+            class PlantTag, MicrobeTag, AnimalTag
+        }
+        abstract class PlanetTag {
+            class EarthTag, JovianTag, VenusTag
+        }
+    }
+}
+
+
+// ACTIONS -------------------------------------------
+
+// TODO restrict to same owner, but how?
+abstract class UseAction<HasActions> : Owned<Player>, Signal {
+    class UseAction1, UseAction2, UseAction3
+    class UseAction4, UseAction5
+}
+
+// TODO still consider inverting this?
+class ActionUsedMarker(HAS MAX 1 This) : Cardbound<ActionCard>, Generational
+
+
+// PAYMENT MECHANICS ---------------------------------
+
+abstract class PaymentMechanic : Owned<Player>, Temporary {
+    abstract class Barrier(HAS MAX 1 This) {           // player must clean up themselves, by end of action
+        This: (MAX 0 This: Ok)                         // weird: adds a task that can only be handled if 0 barriers left
+    }
+
+    // Created when payment due, removed by discount cards/Alloys/Ecoline, added to by Polyphemos
+    class Owed<CLASS Resource> : Barrier {
+       default -Owed.
+       This:: Accept<Resource>
+    }
+
+    // Created in response to PlayTag, actions on 4 special cards
+    class Accept<CLASS Resource>(HAS MAX 1 This) : Temporary {
+        default Accept.
+    }
+
+    class Pay<CLASS Resource> : Signal {               // Player uses it like `8 Pay<Heat> FROM Heat`
+        This:: -Owed<Resource>                         // But also cards can pay in response to signals
+    }
+
+    // used by ResearchPhase, InvGuild, BusNet; triggers Polyphemos/Terralabs
+    class BuyCard : Signal
+
+    // triggers Accept<Steel/Titanium/Psych/Dirig> and tag-based discounts
+    class PlayTag<CLASS Tag> : Signal
+
+    // used by PlayCard SA, ValTrust, EcoExperts, ExSponsor, New Partner, Merger
+    // triggers Earth Catapult etc.
+    class PlayCard<CLASS CardFront> {
+        This:: $handleRequirement(CardFront) THEN $handleCost(CardFront)
+        This: MAX 0 Barrier: (CardFront FROM This)     // TODO who should remove the ProjectCard etc.?
+    }
+}

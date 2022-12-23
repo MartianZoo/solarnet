@@ -10,7 +10,7 @@ import dev.martianzoo.util.Grid
 import dev.martianzoo.util.associateByStrict
 
 object Canon {
-  private val FILENAMES = setOf("components.pets") // TODO organize?
+  private val FILENAMES = setOf("system.pets", "components.pets", "player.pets")
 
   val componentDefinitions: Map<String, ComponentDef> by lazy {
     val list = mutableListOf<ComponentDef>()
