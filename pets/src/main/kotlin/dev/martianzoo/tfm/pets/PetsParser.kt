@@ -343,7 +343,7 @@ object PetsParser {
     }
   }
   @Suppress("unused")
-  val oneLineComponent = publish(Components.oneLineComponent)
+  val oneLineComponent = Components.oneLineComponent
 
   fun literal(l: String) = literalCache.get(l)
   fun char(c: Char) = literal("$c")
