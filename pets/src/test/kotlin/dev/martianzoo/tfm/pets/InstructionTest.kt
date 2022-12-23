@@ -13,6 +13,7 @@ import dev.martianzoo.tfm.pets.Instruction.Transmute
 import dev.martianzoo.tfm.pets.PetsParser.Instructions
 import dev.martianzoo.tfm.pets.PetsParser.Instructions.from
 import dev.martianzoo.tfm.pets.PetsParser.Instructions.typeInFrom
+import dev.martianzoo.tfm.pets.PetsParser.Types
 import dev.martianzoo.tfm.pets.PetsParser.parse
 import dev.martianzoo.tfm.pets.Requirement.Min
 import org.junit.jupiter.api.Test
@@ -107,21 +108,6 @@ class InstructionTest {
     assertThat(pass).isTrue()
   }
 
-  @Test fun debug1() {
-    parse(Instructions.perable, "Abc")
-    parse(Instructions.maybePer, "Abc / Foo")
-    parse(Instructions.orInstr, "Abc / Foo OR Qux")
-    parse(Instructions.anyGroup, "(Abc / Foo OR Qux)")
-    parse(Instructions.then, "(Abc / Foo OR Qux) THEN (-Foo, Bar) THEN -Foo")
-  }
-
-  @Test fun debug2() {
-    parse(PetsParser.typeExpression, "Foo<Foo<Foo, Bar>, Qux<Foo>>")
-    parse(PetsParser.qe, "5 Foo<Foo<Foo, Bar>, Qux<Foo>>")
-    parse(Instructions.maybePer, "-Bar / 5 Foo<Foo<Foo, Bar>, Qux<Foo>>")
-    parse(Instructions.maybePer, "-Bar / 5 Foo<Foo<Foo, Bar>, Qux<Foo>>")
-  }
-
   @Test fun from() {
     testRoundTrip("Foo FROM Bar")
     testRoundTrip("Foo FROM Bar?")
@@ -157,16 +143,6 @@ class InstructionTest {
     )
     assertThat(instr.toString()).isEqualTo("Foo<Bar<Qux FROM Abc<Eep>>>")
     assertThat(parse<Instruction>("Foo<Bar<Qux FROM Abc<Eep>>>")).isEqualTo(instr)
-  }
-
-  @Test fun debug3() {
-    val s = "1 Bar<Bar, Qux>, Foo, Foo, 5 Bar, Bar: Foo, Bar, Foo, Qux<Bar>, 5 Abc, 1 Abc, Xyz<Ooh>, Qux<Abc>, Bar<Bar>, Bar, Bar, 1 Qux, Foo, 1 Foo<Qux, Foo>, Abc, Bar<Bar>, 1 Foo<Qux>, 1 Qux<Xyz>, Foo, Abc, Bar<Bar>, Bar<Abc>, Bar<Foo>"
-    testRoundTrip(s)
-  }
-
-  @Test fun debug4() {
-    // Qux, Bar<Abc>, 5 Abc, -1 Foo, $name(Bar, Bar<Qux<Bar>(HAS 5 Xyz), Abc<Qux>>)
-    testRoundTrip("\$foo(Bar)")
   }
 
   @Test fun debug5() {

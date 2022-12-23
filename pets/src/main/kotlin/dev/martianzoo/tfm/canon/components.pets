@@ -1,10 +1,10 @@
-// GLOBAL PARAMETERS ---------------------------------
+// GLOBAL PARAMETERS ---------------------------------------
 
-abstract class GlobalParameter {                       // TODO splittable...
-    default +This.                                     // by default, gains are "if possible"
-    default -This.                                     // removes too
+abstract class GlobalParameter {                            // TODO splittable...
+    default +This.                                          // by default, gains are "if possible"
+    default -This.                                          // removes too
 
-    This: TerraformRating                              // how connects to a player?
+    This: TerraformRating                                   // rule: unspec'd Player -> active
 
     class TemperatureStep(HAS MAX 19 This)
     class OxygenStep(HAS MAX 14 This)
@@ -12,24 +12,23 @@ abstract class GlobalParameter {                       // TODO splittable...
 
     class OceanTile(HAS MAX 9 OceanTile) : Tile<MarsArea> {
         default +This<WaterArea>
-
-        Adjacency<This, Tile>: 2                       // TODO "BY Player: 2 Megacredit<Player>"
+        Adjacency<This, Tile>: 2
     }
 }
 
-class TrackBonuser(HAS =1 This) {                      // TODO understand how this attaches to a player
-    NOW 3 TemperatureStep: PROD[Heat]                  // A `NOW <reqt>` trigger fires whenever that reqt *transitions*
-    NOW 5 TemperatureStep: PROD[Heat]                  // from unmet to met
-    NOW 15 TemperatureStep: OceanTile
+class TrackBonuser(HAS =1 This) {
+    NOW 3 TemperatureStep: PROD[Heat]                       // A `NOW <reqt>` trigger fires whenever
+    NOW 5 TemperatureStep: PROD[Heat]                       // that reqt *transitions* from unmet to
+    NOW 15 TemperatureStep: OceanTile                       // met. Annoying that nothing else needs
+                                                            // it but this, but I see no options.
+    NOW 8 OxygenStep: TemperatureStep
 
-    NOW 8 OxygenStep: TemperatureStep                  // Annoyingly, this seems to be the ONLY class that needs that
-                                                       // feature. But what alternatives?
-    NOW 4 VenusStep: ProjectCard                       // `This: (=4 VenusStep: ProjectCard) OR Ok` would *require* GP
-    NOW 8 VenusStep: TerraformRating                   // changes to be atomized, rather than just allowing it
+    NOW 4 VenusStep: ProjectCard
+    NOW 8 VenusStep: TerraformRating
 }
 
 
-// MAPS AND TILES ------------------------------------
+// MAPS AND TILES ------------------------------------------
 
 abstract class MarsMap {
     This:: $createMarsAreas(This)
@@ -39,7 +38,7 @@ abstract class MarsMap {
 
 abstract class Area(HAS =1 This, MAX 1 Tile) {
     abstract class RemoteArea
-    abstract class MarsArea {                          // TODO <MarsMap>?
+    abstract class MarsArea {                               // TODO <MarsMap>?
         abstract class LandArea {
             abstract class VolcanicArea
         }
@@ -53,26 +52,25 @@ abstract class Tile<Area>
 class Border<MarsArea, MarsArea>(HAS MAX 1 This)
 
 class Neighbor<Tile, MarsArea>(HAS MAX 1 This) {
-    Tile<MarsArea>: Adjacency<Tile, Tile<MarsArea>>    // TODO need trigger-specialization
+    Tile<MarsArea>: Adjacency<Tile, Tile<MarsArea>>         // TODO need trigger-specialization
 }
 
 class Adjacency<Tile, Tile>(HAS MAX 1 This)
 
 
-// ACTIONS -------------------------------------------
+// ACTIONS -------------------------------------------------
 
 abstract class HasActions {
 
     abstract class StandardAction(HAS =1 This) {
-        class PlayCardFromHand  { -> PlayCard<ProjectCard, CardFront> }
-        class UseStandardProject{ -> UseAction<StandardProject> }
-        class UseCardAction     { -> UseAction<ActionCard> THEN ActionUsedMarker<ActionCard> }
-        class ConvertPlants     { 8 Plant -> GreeneryTile }
-        class ConvertHeat       { 8 Heat -> TemperatureStep }
+        class PlayCardFromHand   { -> PlayCard<ProjectCard, CardFront> }
+        class UseStandardProject { -> UseAction<StandardProject> }
+        class UseActionFromCard  { -> UseAction<ActionCard> THEN ActionUsedMarker<ActionCard> }
+        class ConvertPlants      { 8 Plant -> GreeneryTile }
+        class ConvertHeat        { 8 Heat -> TemperatureStep }
 
-        // Technically this is a std project, but that makes credicor & std tech annoying. TODO "X"
-        class SellPatents       { 1 ProjectCard -> 1 }
-    }
+        class SellPatents        { 1 ProjectCard -> 1 }     // Technically an SP but then std tech &
+    }                                                       // credicor are annoying. TODO "X"
 
     abstract class StandardProject(HAS =1 This) {
         class PowerPlant   { 11 -> PROD[Energy] }
@@ -85,24 +83,24 @@ abstract class HasActions {
 }
 
 
-// WORKFLOW ------------------------------------------
+// WORKFLOW ------------------------------------------------
 
 class Generation(HAS 1 This)
 
-abstract class Generational {                          // things that disappear when the generation changes over
-    Generation:: -This                                 // <-- and look, there they go
+abstract class Generational {                               // things that disappear between gens
+    Generation:: -This                                      // <-- and look, there they go
 }
+                                                            // Phases should *do * as little as
+abstract class Phase {                                      // possible, just be triggers.
 
-// As much as possible, Phase objects shouldn't themselves do anything, but be more like signals.
-abstract class Phase {
-    class SetupPhase                                   // start of gameplay decisions, until players done discarding
-    class CorporationPhase                             // each player plays corp & buys cards
-    class PreludePhase                                 // each player does twice: play or discard a prelude card
-    class ResearchPhase { This:: Generation }          // skipped in gen1
-    class ActionPhase                                  // continues until all players have passed
-    class ProductionPhase                              // self-explanatory
-    class SolarPhase                                   // maybe we don't need to split it up
-    class EndgameConvertPlantsPhase                    //
-    class End                                          // triggers VP payouts
-    class Shutdown                                     // assigns Outcomes then no more changes
+    class SetupPhase                                        // start of gameplay thru discarding
+    class CorporationPhase                                  // each player plays corp & buys cards
+    class PreludePhase                                      // each: play or discard prelude 2x
+    class ResearchPhase { This:: Generation }               // skipped in gen1
+    class ActionPhase                                       // continues until all have passed
+    class ProductionPhase                                   // self-explanatory
+    class SolarPhase                                        // maybe we don't need to split it up
+    class ConvertPlantsPhase                                // each does X UseAction<ConvertPlants>
+    class End                                               // triggers VP payouts
+    class Shutdown                                          // assigns Outcomes then no more changes
 }

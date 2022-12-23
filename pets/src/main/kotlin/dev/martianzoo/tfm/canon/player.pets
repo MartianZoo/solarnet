@@ -1,13 +1,14 @@
-// PLAYERS -------------------------------------------
+// PLAYERS -------------------------------------------------
 
 abstract class Anyone(HAS =1 This) {                        // magic rule: same as Owned
-    abstract class Player : Anyone {
+    abstract class Player : Anyone {                        // in PETS, nesting = subtyping
         This: 20 TerraformRating
 
-        // Hack!                                            // No negative Components! Needs a hack; at least this one
-        This: PROD[5]                                       // confines the damage to Specialist/Generalist (& Robinson,
-        ProductionPhase: -5                                 // but it needs custom code anyway). Other hacks seem worse.
-                                                            // `Instr / PROD[1]` is VERY dodgy... but works for Banker.
+        // Hack!                                            // At least this hack confines the
+        This: PROD[5]                                       // damage to Specialist/Generalist/
+        ProductionPhase: -5                                 // Robinson and UI. Alterns seem worse.
+                                                            // This makes `/ PROD[1]` VERY dodgy
+                                                            // but it still works for Banker.
 
         PlayTag<BuildingTag>:: Accept<Steel>                // TODO where do these really belong??
         Pay<Steel>:: 2 Pay<Megacredit>
@@ -17,15 +18,14 @@ abstract class Anyone(HAS =1 This) {                        // magic rule: same 
 
         class Player1, Player2, Player3, Player4, Player5
     }
-
-    class Npc                                               // Not 100% clear what this will be used for yet
+    class Npc                                               // TODO what is this for?
 }
 
 
-// PLAYER PROPERTY / GENERAL -------------------------
+// PLAYER PROPERTY / GENERAL -------------------------------
 
 abstract class Owned<Anyone> {
-    default This<Player>                                   // applies to ALL unspec'd references to anything Owned
+    default This<Player>                                   // affects ALL Owned without <>()
 
     abstract class Outcome {                                // the only 100% useless component
         class Winner, Place2, Place3, Place4, Place5
@@ -40,15 +40,15 @@ abstract class Owned<Anyone> {
 
     class StartToken(HAS MAX 1 StartToken)
 
-    abstract class Milestone                                // not really doing anything with this yet
+    abstract class Milestone
 }
 
 
-// TILES ---------------------------------------------
+// TILES ---------------------------------------------------
 
 abstract class OwnedTile : Owned, Tile {
     class GreeneryTile : Tile<MarsArea> {
-        // TODO this needs to use `HAS?` or something like that
+        // TODO this needs to use `HAS?` or something
         default +This<LandArea(HAS Neighbor<OwnedTile>)>
         This: OxygenStep
         End: VictoryPoint
@@ -65,7 +65,7 @@ abstract class OwnedTile : Owned, Tile {
 }
 
 
-// RESOURCES -----------------------------------------
+// RESOURCES -----------------------------------------------
 
 abstract class Resource : Owned {
     abstract class StandardResource {
@@ -89,7 +89,7 @@ class Production<CLASS StandardResource> : Owned {
 abstract class Holder<CLASS CardResource> : CardFront
 
 
-// CARDS ---------------------------------------------
+// CARDS ---------------------------------------------------
 
 abstract class CardBack : Owned {
     class CorporationCard                                   // once a card is played and becomes a CardFront, nothing in
@@ -110,8 +110,7 @@ abstract class CardFront : Owned {
 class PlayedEvent : Owned
 
 // TODO require the two `Anyone`s to match
-abstract class Cardbound<CardFront<Anyone>> : Owned<Anyone> {
-    // TODO but... these have to exist as soon as the card does, for triggers....
+abstract class Cardbound<CardFront<Anyone>> : Owned<Anyone>{// TODO how to require the `Anyone`s to match
     abstract class Tag {
         class BuildingTag, SpaceTag
         class CityTag, PowerTag, ScienceTag
@@ -126,7 +125,7 @@ abstract class Cardbound<CardFront<Anyone>> : Owned<Anyone> {
 }
 
 
-// ACTIONS -------------------------------------------
+// ACTIONS -------------------------------------------------
 
 // TODO restrict to same owner, but how?
 abstract class UseAction<HasActions> : Owned, Signal {
@@ -138,7 +137,7 @@ abstract class UseAction<HasActions> : Owned, Signal {
 class ActionUsedMarker(HAS MAX 1 This) : Cardbound<ActionCard>, Generational
 
 
-// PAYMENT MECHANICS ---------------------------------
+// PAYMENT MECHANICS ---------------------------------------
 
 abstract class PaymentMechanic : Owned, Temporary {
     abstract class Barrier(HAS MAX 1 This) {                // player must clean up themselves, by end of action
@@ -151,9 +150,8 @@ abstract class PaymentMechanic : Owned, Temporary {
        This:: Accept<Resource>
     }
 
-    // Created in response to PlayTag, actions on 4 special cards
-    class Accept<CLASS Resource>(HAS MAX 1 This) : Temporary {
-        default +This.
+    class Accept<CLASS Resource>(HAS MAX 1 This) {          // Created in response to PlayTag or the actions on 4
+        default +This.                                      // special cards. (extend Temporary?)
     }
 
     class Pay<CLASS Resource> : Signal {                    // player uses it like `8 Pay<Heat> FROM Heat`
@@ -165,9 +163,10 @@ abstract class PaymentMechanic : Owned, Temporary {
 
     class PlayTag<CLASS Tag> : Signal                       // triggers Accept<Steel/Dirig/etc> and tag-based discounts
 
-    // used by PlayCard SA, ValTrust, EcoEx, ExSpons, NewPart, Merger; triggers EarthCat etc.
-    class PlayCard<CLASS CardBack, CLASS CardFront> {
-        This:: $handleRequirement(CardFront) THEN $handleCost(CardFront)
-        This: MAX 0 Barrier: (CardFront FROM CardBack, -This)
+                                                            // used by PlayCardFromHand, ValTrust, EcoEx, ExSponsor,
+    class PlayCard<CLASS CardBack, CLASS CardFront> {       // NewPartner, Merger; triggers EarthCat etc.
+        This:: $handleRequirement(CardFront)
+        This:: $handleCost(CardFront)
+        This: =0 Barrier: (CardFront FROM CardBack, -This)  // adds task to queue that must eventually be completed
     }
 }
