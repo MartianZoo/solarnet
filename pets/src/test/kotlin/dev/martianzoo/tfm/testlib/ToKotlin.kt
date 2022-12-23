@@ -17,7 +17,7 @@ import dev.martianzoo.tfm.pets.Instruction.SimpleFrom
 import dev.martianzoo.tfm.pets.Instruction.Then
 import dev.martianzoo.tfm.pets.Instruction.Transmute
 import dev.martianzoo.tfm.pets.Instruction.TypeInFrom
-import dev.martianzoo.tfm.pets.Parser
+import dev.martianzoo.tfm.pets.PetsParser
 import dev.martianzoo.tfm.pets.PetsNode
 import dev.martianzoo.tfm.pets.QuantifiedExpression
 import dev.martianzoo.tfm.pets.Requirement.And
@@ -30,7 +30,7 @@ import dev.martianzoo.tfm.pets.TypeExpression
 
 object ToKotlin {
   fun pp(instr: String): String {
-    return pp(Parser.parse<Instruction>(instr))
+    return pp(PetsParser.parse<Instruction>(instr))
   }
 
   fun <T : Any?> T.surround(prefix: String, suffix: String, fn: (T) -> String = { "$it" }) =

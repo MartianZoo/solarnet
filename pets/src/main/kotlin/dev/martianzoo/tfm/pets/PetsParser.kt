@@ -48,9 +48,8 @@ import dev.martianzoo.util.toSetStrict
 import kotlin.reflect.KClass
 import kotlin.reflect.cast
 
-object Parser {
+object PetsParser {
   inline fun <reified P : PetsNode> parse(petsText: String) = parse(P::class, petsText)
-
 
   fun <T> parse(parser: Parser<T>, petsText: String) =
       parser.parseToEnd(tokenizer.tokenize(petsText))

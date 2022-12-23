@@ -3,7 +3,7 @@ package dev.martianzoo.tfm.data
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import dev.martianzoo.tfm.pets.ComponentDef
-import dev.martianzoo.tfm.pets.Parser.parse
+import dev.martianzoo.tfm.pets.PetsParser.parse
 import dev.martianzoo.util.Grid
 import dev.martianzoo.util.associateByStrict
 import java.util.*

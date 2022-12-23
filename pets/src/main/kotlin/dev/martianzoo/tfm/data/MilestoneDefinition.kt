@@ -6,7 +6,7 @@ import dev.martianzoo.tfm.pets.Effect
 import dev.martianzoo.tfm.pets.Effect.Trigger.OnGain
 import dev.martianzoo.tfm.pets.Instruction.Gain
 import dev.martianzoo.tfm.pets.Instruction.Gated
-import dev.martianzoo.tfm.pets.Parser.parse
+import dev.martianzoo.tfm.pets.PetsParser.parse
 import dev.martianzoo.tfm.pets.Requirement
 import dev.martianzoo.tfm.pets.TypeExpression
 

@@ -1,6 +1,6 @@
 package dev.martianzoo.tfm.types
 
-import dev.martianzoo.tfm.pets.Parser.parse
+import dev.martianzoo.tfm.pets.PetsParser.parse
 import dev.martianzoo.tfm.pets.TypeExpression
 
 interface PetClassTable {

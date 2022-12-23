@@ -10,10 +10,10 @@ import dev.martianzoo.tfm.pets.Instruction.Intensity.OPTIONAL
 import dev.martianzoo.tfm.pets.Instruction.Remove
 import dev.martianzoo.tfm.pets.Instruction.SimpleFrom
 import dev.martianzoo.tfm.pets.Instruction.Transmute
-import dev.martianzoo.tfm.pets.Parser.Instructions
-import dev.martianzoo.tfm.pets.Parser.Instructions.from
-import dev.martianzoo.tfm.pets.Parser.Instructions.typeInFrom
-import dev.martianzoo.tfm.pets.Parser.parse
+import dev.martianzoo.tfm.pets.PetsParser.Instructions
+import dev.martianzoo.tfm.pets.PetsParser.Instructions.from
+import dev.martianzoo.tfm.pets.PetsParser.Instructions.typeInFrom
+import dev.martianzoo.tfm.pets.PetsParser.parse
 import dev.martianzoo.tfm.pets.Requirement.Min
 import org.junit.jupiter.api.Test
 
@@ -116,8 +116,8 @@ class InstructionTest {
   }
 
   @Test fun debug2() {
-    parse(Parser.typeExpression, "Foo<Foo<Foo, Bar>, Qux<Foo>>")
-    parse(Parser.qe, "5 Foo<Foo<Foo, Bar>, Qux<Foo>>")
+    parse(PetsParser.typeExpression, "Foo<Foo<Foo, Bar>, Qux<Foo>>")
+    parse(PetsParser.qe, "5 Foo<Foo<Foo, Bar>, Qux<Foo>>")
     parse(Instructions.maybePer, "-Bar / 5 Foo<Foo<Foo, Bar>, Qux<Foo>>")
     parse(Instructions.maybePer, "-Bar / 5 Foo<Foo<Foo, Bar>, Qux<Foo>>")
   }

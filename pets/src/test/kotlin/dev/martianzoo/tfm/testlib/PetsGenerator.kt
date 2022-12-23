@@ -19,7 +19,7 @@ import dev.martianzoo.tfm.pets.Instruction.SimpleFrom
 import dev.martianzoo.tfm.pets.Instruction.Then
 import dev.martianzoo.tfm.pets.Instruction.Transmute
 import dev.martianzoo.tfm.pets.Instruction.TypeInFrom
-import dev.martianzoo.tfm.pets.Parser
+import dev.martianzoo.tfm.pets.PetsParser
 import dev.martianzoo.tfm.pets.PetsException
 import dev.martianzoo.tfm.pets.PetsNode
 import dev.martianzoo.tfm.pets.QuantifiedExpression
@@ -185,7 +185,7 @@ class PetsGenerator(scaling: (Int) -> Double)
       val originalStringOut = randomNode.toString()
       val reparsedNode =
           try {
-            Parser.parse(type, originalStringOut)
+            PetsParser.parse(type, originalStringOut)
           } catch (e: Exception) {
             println("string is $originalStringOut")
             println("node is ${ToKotlin.pp(randomNode)}")
