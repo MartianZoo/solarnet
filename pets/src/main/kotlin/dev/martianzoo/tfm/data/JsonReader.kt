@@ -3,6 +3,7 @@ package dev.martianzoo.tfm.data
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import dev.martianzoo.tfm.pets.ComponentDef
+import dev.martianzoo.tfm.pets.PetsParser.Components.oneLineComponent
 import dev.martianzoo.tfm.pets.PetsParser.parse
 import dev.martianzoo.util.Grid
 import dev.martianzoo.util.associateByStrict
@@ -75,7 +76,7 @@ internal object JsonReader {
 
   fun auxiliaryComponentDefinitions(cardDefs: Collection<CardDefinition>): Map<String, ComponentDef> =
     cardDefs.flatMap { it.extraComponentsText }
-        .map { parse<ComponentDef>(it) }
+        .map { parse(oneLineComponent, it) }
         .associateBy { it.name }
 
   // Stuff

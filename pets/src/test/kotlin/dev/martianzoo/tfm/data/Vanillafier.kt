@@ -66,7 +66,6 @@ object Vanillafier {
                 is Action.Cost -> TODO()
                 is Instruction.FromExpression -> TODO()
                 is Effect.Trigger -> TODO()
-                is ComponentDef -> TODO()
 
                 else -> {
                     error("this really oughtta be impossible")

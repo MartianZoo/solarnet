@@ -7,14 +7,14 @@ import dev.martianzoo.tfm.pets.Instruction.Intensity
  * The declaration of a component class, such as GreeneryTile. Models the declaration textually as
  * it was provided. DIRECT INFO ONLY; stuff is inherited among *loaded* classes (PetClasses).
  */
-data class ComponentDef( // TODO not sure abt data class after complete is gone
+data class ComponentDef(
     val name: String,
     val abstract: Boolean = false,
     val supertypes: Set<TypeExpression> = setOf(),
     val dependencies: List<Dependency> = listOf(),
     val effects: Set<Effect> = setOf(),
     val defaults: Defaults = Defaults()
-) : PetsNode() {
+) {
   init {
     if (name == rootName) {
       require(supertypes.isEmpty())
@@ -24,25 +24,19 @@ data class ComponentDef( // TODO not sure abt data class after complete is gone
 
   val superclassNames = supertypes.map { it.className }
 
-  // TODO: this should really enforce rules
-  override val children = supertypes + dependencies + effects + defaults
-
-  data class Dependency(val type: TypeExpression, val classDep: Boolean = false) : PetsNode() {
-    override val children = listOf(type)
-  }
+  data class Dependency(val type: TypeExpression, val classDep: Boolean = false)
 
   data class Defaults(
       val typeExpression: TypeExpression? = null,
       val gainType: TypeExpression? = null,
       val gainIntensity: Intensity? = null,
       val removeType: TypeExpression? = null,
-      val removeIntensity: Intensity? = null): PetsNode() {
+      val removeIntensity: Intensity? = null) {
     init {
       require(typeExpression?.className in setOf("This", null))
       require(gainType?.className in setOf("This", null))
       require(removeType?.className in setOf("This", null))
     }
-    override val children = listOfNotNull(typeExpression, gainType, removeType)
 
     fun merge(others: Collection<Defaults>): Defaults {
       val defaultses = listOf(this) + others

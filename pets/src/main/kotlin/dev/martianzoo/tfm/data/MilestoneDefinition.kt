@@ -21,9 +21,9 @@ data class MilestoneDefinition(
 
   init {
     require(id.isNotEmpty())
-    require(bundle?.isNotEmpty() ?: true)
+    require(bundle?.isEmpty() != true)
     require(requirementText.isNotEmpty())
-    require(replaces?.isNotEmpty() ?: true)
+    require(replaces?.isEmpty() != true)
   }
 
   val requirement: Requirement by lazy { parse(requirementText) }
