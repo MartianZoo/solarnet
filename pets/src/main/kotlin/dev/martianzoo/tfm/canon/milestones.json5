@@ -12,7 +12,7 @@
     { "id": "MM5", "bundle": "M", "requirement": "16 ProjectCard" },
 
     // Diversifier
-    { "id": "HM1", "bundle": "H", "requirement": "8 TagType" },
+//    { "id": "HM1", "bundle": "H", "requirement": "8 TagType" },
 //    // Tactician
 //    { "id": "HM2", "bundle": "H", "requirement": "5 CardFront(HAS Requirement)" },
 //    // Polar Explorer

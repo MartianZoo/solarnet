@@ -1,45 +1,45 @@
 // PLAYERS -------------------------------------------
 
-abstract class Anyone(HAS =1 This) {                   // magic rule: same as Owned
+abstract class Anyone(HAS =1 This) {                        // magic rule: same as Owned
     abstract class Player : Anyone {
         This: 20 TerraformRating
 
-        // Hack!                                       // No negative Components! So we need a hack; at least this one
-        This: PROD[5]                                  // confines the damage to Specialist/Generalist (and Robinson,
-        ProductionPhase: -5                            // but it needs custom code anyway). Other hacks seem worse.
-                                                       // `Instr / PROD[1]` is very very dodgy... but works for Banker.
+        // Hack!                                            // No negative Components! Needs a hack; at least this one
+        This: PROD[5]                                       // confines the damage to Specialist/Generalist (& Robinson,
+        ProductionPhase: -5                                 // but it needs custom code anyway). Other hacks seem worse.
+                                                            // `Instr / PROD[1]` is VERY dodgy... but works for Banker.
 
-        PlayTag<BuildingTag>:: Accept<Steel>           // TODO where do these really belong??
+        PlayTag<BuildingTag>:: Accept<Steel>                // TODO where do these really belong??
         Pay<Steel>:: 2 Pay<Megacredit>
 
         PlayTag<SpaceTag>:: Accept<Titanium>
-        Pay<Titanium>:: 3 Pay<Megacredit>              // should be innocuous for TradeAction
+        Pay<Titanium>:: 3 Pay<Megacredit>                   // should be innocuous for TradeAction
 
         class Player1, Player2, Player3, Player4, Player5
     }
 
-    class Npc                                          // Not 100% clear what this will be used for yet
+    class Npc                                               // Not 100% clear what this will be used for yet
 }
 
 
 // PLAYER PROPERTY / GENERAL -------------------------
 
-abstract class Owned<Anyone> {                         // magic rule: default param is always `Me` whenever possible
+abstract class Owned<Anyone> {                              // magic rule: default param is always `Me` when possible
 
-    abstract class Outcome {                           // the only 100% useless component
+    abstract class Outcome {                                // the only 100% useless component
         class Winner, Place2, Place3, Place4, Place5
     }
 
     class VictoryPoint
 
-    class TerraformRating : Owned<Player> {            // limiting to <Player> might be important for solar phase?
+    class TerraformRating : Owned<Player> {                 // limiting to <Player> might be important for solar phase?
         ProductionPhase: 1
         End: VictoryPoint
     }
 
     class StartToken(HAS MAX 1 StartToken) : Owned<Player>
 
-    abstract class Milestone                           // not really doing anything with this yet
+    abstract class Milestone                                // not really doing anything with this yet
 
 }
 
@@ -83,7 +83,7 @@ abstract class Resource : Owned {
 }
 
 class Production<CLASS StandardResource> : Owned {
-    ProductionPhase: StandardResource                  // TODO subtype specialization
+    ProductionPhase: StandardResource                       // TODO subtype specialization
 }
 
 abstract class Holder<CLASS CardResource> : CardFront
@@ -92,22 +92,22 @@ abstract class Holder<CLASS CardResource> : CardFront
 // CARDS ---------------------------------------------
 
 abstract class CardBack : Owned<Player> {
-    class CorporationCard                              // once a card is played and becomes a CardFront, nothing in the
-    class PreludeCard                                  // game ever cares what kind of CardBack it used to be... well,
-    class ProjectCard                                  // that used to be true until "Double Down" in Dec 2022
+    class CorporationCard                                   // once a card is played and becomes a CardFront, nothing in
+    class PreludeCard                                       // the game ever cares what kind of CardBack it used to be..
+    class ProjectCard                                       // well that used to be true until "Double Down" in Dec 2022
 }
 
 abstract class CardFront : Owned {
     abstract class EventCard {
-        This: PlayedEvent FROM This                    // problem: how to still get the VPs??
-    }                                                  // could we get this happen autom. at EOT?
+        This: PlayedEvent FROM This                         // problem: how to still get the VPs??
+    }                                                       // could we get this happen autom. at EOT?
     abstract class AutomatedCard
-    abstract class ActiveCard                          // these types can all be mixed; what prevents bogus combos?
+    abstract class ActiveCard                               // these types can all be mixed; what prevents bogus combos?
 
     abstract class ActionCard : HasActions
 }
 
-class PlayedEvent : Owned<Player>
+class PlayedEvent : Owned
 
 // TODO require the two `Anyone`s to match
 abstract class Cardbound<CardFront<Anyone>> : Owned<Anyone> {
@@ -141,13 +141,13 @@ class ActionUsedMarker(HAS MAX 1 This) : Cardbound<ActionCard>, Generational
 // PAYMENT MECHANICS ---------------------------------
 
 abstract class PaymentMechanic : Owned<Player>, Temporary {
-    abstract class Barrier(HAS MAX 1 This) {           // player must clean up themselves, by end of action
-        This: (MAX 0 This: Ok)                         // weird: adds a task that can only be handled if 0 barriers left
+    abstract class Barrier(HAS MAX 1 This) {                // player must clean up themselves, by end of action
+        This: (MAX 0 This: Ok)                              // adds a task that can only be handled if 0 barriers left
     }
 
-    // Created when payment due, removed by discount cards/Alloys/Ecoline, added to by Polyphemos
-    class Owed<CLASS Resource> : Barrier {
-       default -Owed.
+
+    class Owed<CLASS Resource> : Barrier {                  // created when payment due, removed by discount cards/
+       default -Owed.                                       // Alloys/Ecoline, added to by Polyphemos
        This:: Accept<Resource>
     }
 
@@ -156,20 +156,18 @@ abstract class PaymentMechanic : Owned<Player>, Temporary {
         default Accept.
     }
 
-    class Pay<CLASS Resource> : Signal {               // Player uses it like `8 Pay<Heat> FROM Heat`
-        This:: -Owed<Resource>                         // But also cards can pay in response to signals
+    class Pay<CLASS Resource> : Signal {                    // player uses it like `8 Pay<Heat> FROM Heat`
+        This:: -Owed<Resource>                              // But also cards can pay in response to signals
     }
 
-    // used by ResearchPhase, InvGuild, BusNet; triggers Polyphemos/Terralabs
-    class BuyCard : Signal
+    class BuyCard : Signal                                  // used by ResearchPhase, InvGuild, BusNet
+                                                            // triggers Polyphemos, Terralabs
 
-    // triggers Accept<Steel/Titanium/Psych/Dirig> and tag-based discounts
-    class PlayTag<CLASS Tag> : Signal
+    class PlayTag<CLASS Tag> : Signal                       // triggers Accept<Steel/Dirig/etc> and tag-based discounts
 
-    // used by PlayCard SA, ValTrust, EcoExperts, ExSponsor, New Partner, Merger
-    // triggers Earth Catapult etc.
-    class PlayCard<CLASS CardFront> {
+    // used by PlayCard SA, ValTrust, EcoEx, ExSpons, NewPart, Merger; triggers EarthCat etc.
+    class PlayCard<CLASS CardBack, CLASS CardFront> {
         This:: $handleRequirement(CardFront) THEN $handleCost(CardFront)
-        This: MAX 0 Barrier: (CardFront FROM This)     // TODO who should remove the ProjectCard etc.?
+        This: MAX 0 Barrier: (CardFront FROM CardBack, -This)
     }
 }

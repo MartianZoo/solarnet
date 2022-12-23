@@ -37,10 +37,6 @@ class PetTypeTest {
   @Test
   fun wtf6() {
     val birds = table.resolve("Card072").petClass
-    println(birds.allSuperclasses)
-    println(birds.baseType)
-    println(birds.directDependencyKeys)
-    println(birds.allDependencyKeys)
     assertThat(table.resolve("Player1").abstract).isFalse()
     assertThat(table.resolve("Card072<Player1>").abstract).isFalse()
     assertThat(table.resolve("Animal<Player1, Card072<Player1>>").abstract).isFalse()

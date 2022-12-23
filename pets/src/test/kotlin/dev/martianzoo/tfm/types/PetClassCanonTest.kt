@@ -2,6 +2,7 @@ package dev.martianzoo.tfm.types
 
 import com.google.common.truth.Truth
 import dev.martianzoo.tfm.canon.Canon
+import dev.martianzoo.tfm.pets.TypeExpression
 import dev.martianzoo.tfm.pets.rootName
 import dev.martianzoo.tfm.pets.testRoundTrip
 import org.junit.jupiter.api.Test
@@ -12,7 +13,7 @@ class PetClassCanonTest {
   fun spew() {
     val table = PetClassLoader(Canon.allDefinitions).loadAll()
     table.all().sortedBy { it.name }.forEach {
-      println("${it.name} : ${it.directSuperclasses} : ${it.directEffects}")
+      // println("${it.name} : ${it.directSuperclasses} : ${it.directEffects}")
     }
   }
 
@@ -24,7 +25,16 @@ class PetClassCanonTest {
     val table = PetClassLoader(defns).loadAll()
 
     table.all().forEach {
-      clazz -> clazz.directEffects.forEach { testRoundTrip(it) }
+      clazz -> clazz.directEffects.forEach {fx ->
+          testRoundTrip(fx)
+          fx.descendants().filterIsInstance<TypeExpression>().forEach {
+            try {
+              table.resolve(it)
+            } catch (e: Exception) {
+              if (!it.toString().contains(Regex("\\b(This|HAS)\\b"))) println("$clazz - $it")
+            }
+          }
+      }
     }
   }
 
@@ -41,7 +51,7 @@ class PetClassCanonTest {
         "Dirigible" to "Floater")
   }
 
-  @Test fun findValidTypes() {
+  fun findValidTypes() {
     val table = PetClassLoader(Canon.allDefinitions).loadAll()
     val names: List<String> = table.all().map { it.name }.filterNot {
       it.matches(Regex("^Card.{3,4}$")) && it.hashCode() % 12 != 0
@@ -104,7 +114,7 @@ class PetClassCanonTest {
     invalids.forEach(::println)
   }
 
-  @Test fun describeEverything() {
+  fun describeEverything() {
     val table = PetClassLoader(Canon.allDefinitions).loadAll()
     table.all().sortedBy { it.name }.forEach { c ->
       println("${c.baseType} : ${c.allSuperclasses.filter { it.name !in setOf(rootName, c.name) }}")

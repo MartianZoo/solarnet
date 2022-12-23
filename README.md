@@ -61,15 +61,15 @@ Here's your turn actions
 
 ```
 abstract class StandardAction(HAS =1 This) {
-    class PlayCardFromHand   { -> PlayCard<CardFront> }
+    class PlayCardFromHand   { -> PlayCard<ProjectCard, CardFront> }
     class UseStandardProject { -> UseAction<StandardProject> }
-    class UseCardAction      { -> UseAction<CardFront> THEN ActionUsed<CardFront> }
+    class UseCardAction      { -> UseAction<ActionCard> THEN ActionUsedMarker<ActionCard> }
     class ConvertPlants      { 8 Plant -> GreeneryTile }
     class ConvertHeat        { 8 Heat -> TemperatureStep }
+    class SellPatents        { X ProjectCard -> X }
     class ClaimMilestone     { 8 -> Milestone }
     class FundAward          { 8, 6 / Award -> Award }
     class TradeAction        { 3 Energy OR 3 Titanium OR 9 -> Trade }
-    class SendDelegate       { LobbyDelegate -> Delegate; 5 -> Delegate }
 }
 ```
 
