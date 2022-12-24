@@ -130,8 +130,7 @@ object PetsParser {
     private val exact = skipChar('=') and QEs.qeWithScalar map ::Exact
     private val prod = prod(requirement) map Requirement::Prod
 
-    // These are things that we basically can't have any precedence worries about
-    internal val atom = min or max or exact or prod or parens(requirement)
+    internal val atom = min or max or exact or prod or parens(requirement)      // can have no precedence worries
 
     private val orReqt = separatedTerms(atom, word("OR")) map Requirement::or
     private val whole = commaSeparated(orReqt) map Requirement::and
@@ -172,7 +171,6 @@ object PetsParser {
     private val from = simpleFrom or complexFrom
     private val typeInFrom = Types.typeExpression map { TypeInFrom(it) }
 
-    // A list of one or more but where exactly one is of a certain kind
     private val fromElements: Parser<List<FromExpression>> =
         zeroOrMore(typeInFrom and skipChar(',')) and
         from and
@@ -192,10 +190,12 @@ object PetsParser {
       (instr, qe) -> if (qe == null) instr else Instruction.Per(instr, qe)
     }
 
-    private val maybeProd = maybePer or (prod(instruction) map Instruction::Prod)
+    private val maybeProd =
+        maybePer or (prod(instruction) map Instruction::Prod)
+
+    val arguments = separatedTerms(Types.typeExpression, char(','), true)
     internal val custom =
-        regex("\\$[a-z][a-zA-Z0-9]*\\b") and
-        parens(separatedTerms(Types.typeExpression, char(','), acceptZero = true)) map {
+        regex("\\$[a-z][a-zA-Z0-9]*\\b") and parens(arguments) map {
       (name, args) -> Custom(name.text.substring(1), args)
     }
     internal val atom = anyGroup or maybeProd or custom
@@ -278,31 +278,36 @@ object PetsParser {
   object Components { // -------------------------------------------------------
     private val nls = -zeroOrMore(char('\n'))
 
-    private val isAbstract = optional(word("abstract")) and skipWord("class") map { it != null }
+    private val isAbstract =
+        optional(word("abstract")) and skipWord("class") map { it != null }
     private val dependency =
-        optional(word("CLASS")) and Types.typeExpression map { (classDep, type) ->
-          Dependency(type, classDep != null)
+        optional(word("CLASS")) and Types.typeExpression map {
+          (classDep, type) -> Dependency(type, classDep != null)
         }
     private val dependencies = optionalList(
         skipChar('<') and commaSeparated(dependency) and skipChar('>')
     )
-    private val supertypes = optionalList(skipChar(':') and commaSeparated(Types.typeExpression))
+    private val supertypes =
+        optionalList(skipChar(':') and commaSeparated(Types.typeExpression))
 
     private val signature =
-        Types.className and dependencies and Types.refinement and supertypes map { (c, d, r, s) ->
-          Signature(c, d, r, s)
-        }
+        Types.className and
+        dependencies and
+        Types.refinement and
+        supertypes map {
+      (c, d, r, s) -> Signature(c, d, r, s)
+    }
 
     private val moreSignatures: Parser<List<Signature>> =
         skipChar(',') and separatedTerms(signature, char(','))
 
     private val gainDefault =
-        skipChar('+') and Types.typeExpression and Instructions.intensity map { (type, intens) ->
-          Defaults(gainType = type, gainIntensity = intens)
+        skipChar('+') and Types.typeExpression and Instructions.intensity map {
+          (type, int) -> Defaults(gainType = type, gainIntensity = int)
         }
     private val removeDefault =
-        skipChar('-') and Types.typeExpression and Instructions.intensity map { (type, intens) ->
-          Defaults(removeType = type, removeIntensity = intens)
+        skipChar('-') and Types.typeExpression and Instructions.intensity map {
+          (type, int) -> Defaults(removeType = type, removeIntensity = int)
         }
 
     private val typeDefault = Types.typeExpression map {
@@ -314,11 +319,14 @@ object PetsParser {
 
     private val bodyElement = default or Actions.action or Effects.effect
 
-    private val oneLineBodyContents = separatedTerms(bodyElement, char(';'))
-    private val oneLineBody = skipChar('{') and oneLineBodyContents and skipChar('}')
+    private val oneLineBody =
+        skipChar('{') and
+        separatedTerms(bodyElement, char(';')) and
+        skipChar('}')
+
     internal val oneLineComponentDef: Parser<ComponentDef> =
-        isAbstract and signature and optionalList(oneLineBody) map { (abs, sig, body) ->
-          createCcd(abs, sig, body).first().getDef()
+        isAbstract and signature and optionalList(oneLineBody) map {
+          (abs, sig, body) -> createCcd(abs, sig, body).first().getDef()
         }
 
     private val blockBodyContents = separatedTerms(
@@ -330,16 +338,21 @@ object PetsParser {
         skipChar('{') and nls and blockBodyContents and nls and skipChar('}')
 
     private val incompleteComponentDefs =
-        nls and isAbstract and signature and (blockBody or optionalList(moreSignatures)) map { (abs, sig, bodyOrSigs) ->
-          if (bodyOrSigs.firstOrNull() !is Signature) { // sigs
-            createCcd(abs, sig, bodyOrSigs)
-          } else { // body
-            @Suppress("UNCHECKED_CAST") val signatures =
-                listOf(sig) + (bodyOrSigs as List<Signature>)
-            signatures.flatMap { createCcd(abs, it) }
-          }
+        nls and
+        isAbstract and
+        signature and
+        (blockBody or optionalList(moreSignatures)) map {
+      (abs, sig, bodyOrSigs) ->
+        if (bodyOrSigs.firstOrNull() !is Signature) { // sigs
+          createCcd(abs, sig, bodyOrSigs)
+        } else { // body
+          @Suppress("UNCHECKED_CAST")
+          val signatures = listOf(sig) + (bodyOrSigs as List<Signature>)
+          signatures.flatMap { createCcd(abs, it) }
         }
-    internal val componentFile = incompleteComponentDefs map { it.map { it.getDef() } }
+    }
+    internal val componentFile =
+        incompleteComponentDefs map { defs -> defs.map { it.getDef() } }
 
     class ComponentDefInProcess(
         private val def: ComponentDef,
@@ -352,8 +365,9 @@ object PetsParser {
           if (isComplete || def.supertypes.any { it.className == s }) {
             this
           } else {
-            val altered = def.copy(supertypes = def.supertypes + TypeExpression(s))
-            ComponentDefInProcess(altered, true)
+            ComponentDefInProcess(
+                def.copy(supertypes = def.supertypes + TypeExpression(s)),
+                true)
           }
 
       private fun fixSupertypes(): ComponentDef {
@@ -413,7 +427,10 @@ object PetsParser {
   private val tokenizer by lazy {
     DefaultTokenizer(
         ignored +
-        literalCache.asMap().entries.sortedBy { -it.key.length }.map { it.value } +
+        literalCache.asMap()
+            .entries
+            .sortedBy { -it.key.length }
+            .map { it.value } +
         regexCache.asMap().values)
   }
 
@@ -435,8 +452,8 @@ object PetsParser {
   private inline fun <reified T> maybeGroup(contents: Parser<T>) =
       contents or parens(contents)
 
-  private inline fun <reified P : PetsNode> publish(noinline parser: () -> Parser<P>) =
-      publish(P::class, parser)
+  private inline fun <reified P : PetsNode> publish(
+      noinline parser: () -> Parser<P>) = publish(P::class, parser)
 
   private fun <P : PetsNode> publish(type: KClass<P>, parser: () -> Parser<P>) =
       parser(parser).also { parsers[type] = it }
