@@ -3,6 +3,7 @@ package dev.martianzoo.tfm.data
 import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.pets.ast.TypeExpression
+import dev.martianzoo.tfm.pets.ast.TypeExpression.Companion.te
 import dev.martianzoo.util.Grid
 import org.junit.jupiter.api.Test
 
@@ -48,7 +49,7 @@ internal class MarsAreaDefinitionTest {
   }
 
   private fun checkWaterAreaCount(map: Grid<MarsAreaDefinition>) {
-    assertThat(map.count { it.type == TypeExpression("WaterArea") }).isEqualTo(12)
+    assertThat(map.count { it.type == te("WaterArea") }).isEqualTo(12)
   }
 
   @Test

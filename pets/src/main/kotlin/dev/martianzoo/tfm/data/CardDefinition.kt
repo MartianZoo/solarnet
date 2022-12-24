@@ -15,6 +15,7 @@ import dev.martianzoo.tfm.pets.ast.Instruction
 import dev.martianzoo.tfm.pets.ast.Instruction.Multi
 import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.pets.ast.TypeExpression
+import dev.martianzoo.tfm.pets.ast.TypeExpression.Companion.te
 import dev.martianzoo.util.toSetStrict
 
 /**
@@ -150,8 +151,8 @@ data class CardDefinition(
     }
   }
 
-  val tags: List<TypeExpression> by lazy { tagsText.map { TypeExpression(it) } }
-  val resourceType: TypeExpression? by lazy { resourceTypeText?.let { TypeExpression(it) } }
+  val tags: List<TypeExpression> by lazy { tagsText.map(::te) }
+  val resourceType: TypeExpression? by lazy { resourceTypeText?.let(::te) }
   val immediate: Instruction? by lazy {
     val set = immediateText.map { parse<Instruction>(it) }.toSetStrict()
     when (set.size) {
@@ -171,10 +172,10 @@ data class CardDefinition(
   override val toComponentDef by lazy {
     val supertypes = mutableSetOf<TypeExpression>()
 
-    if (projectKind != null) supertypes.add(TypeExpression(projectKind.type))
-    if (actions.isNotEmpty()) supertypes.add(TypeExpression("ActionCard"))
+    if (projectKind != null) supertypes.add(te(projectKind.type))
+    if (actions.isNotEmpty()) supertypes.add(te("ActionCard"))
     if (resourceType != null) supertypes.add(TypeExpression("Holder", listOf(resourceType!!)))
-    if (supertypes.isEmpty()) supertypes.add(TypeExpression("CardFront"))
+    if (supertypes.isEmpty()) supertypes.add(te("CardFront"))
 
     ComponentDef(name = "Card$id", abstract = false, supertypes = supertypes, effects = allEffects)
   }

@@ -48,6 +48,7 @@ import dev.martianzoo.tfm.pets.ast.Requirement.Exact
 import dev.martianzoo.tfm.pets.ast.Requirement.Max
 import dev.martianzoo.tfm.pets.ast.Requirement.Min
 import dev.martianzoo.tfm.pets.ast.TypeExpression
+import dev.martianzoo.tfm.pets.ast.TypeExpression.Companion.te
 import dev.martianzoo.util.toSetStrict
 import kotlin.reflect.KClass
 import kotlin.reflect.cast
@@ -73,7 +74,7 @@ object PetsParser {
    * Parses an entire PETS component defs source file.
    */
   fun parseComponents(arg: String): List<ComponentDef> =
-    Components.componentFile.parseRepeated(tokenizer.tokenize(arg))
+    parseRepeated(Components.nestedComponentDefs, tokenizer.tokenize(arg))
 
   private val parsers =                                                         // internal bookkeeping
       mutableMapOf<KClass<out PetsNode>, Parser<PetsNode>>()
@@ -372,7 +373,7 @@ object PetsParser {
           signatures.flatMap { createCcd(abs, it) }
         }
     }
-    internal val componentFile =
+    internal val nestedComponentDefs =
         incompleteComponentDefs map { defs -> defs.map { it.getDef() } }
 
     class ComponentDefInProcess(
@@ -382,31 +383,20 @@ object PetsParser {
 
       fun getDef() = if (isComplete) def else fixSupertypes()
 
-      fun fillInSuperclass(s: String) =
-          if (isComplete || def.supertypes.any { it.className == s }) {
+      fun fillInSuperclass(name: String) =
+          if (isComplete || def.supertypes.any { it.className == name }) {
             this
           } else {
             ComponentDefInProcess(
-                def.copy(supertypes = def.supertypes + TypeExpression(s)),
-                true)
+                def.copy(supertypes = def.supertypes + te(name)), true)
           }
 
       private fun fixSupertypes(): ComponentDef {
-        val sups = def.supertypes
+        val supes = def.supertypes
         return when {
-          def.name == rootName -> {
-            require(sups.isEmpty())
-            def
-          }
-
-          sups.isEmpty() -> {
-            def.copy(supertypes = setOf(COMPONENT.type))
-          }
-
-          else -> {
-            require(COMPONENT.type !in sups)
-            def
-          }
+          def.name == "$COMPONENT" -> def.also { require(supes.isEmpty()) }
+          supes.isEmpty() -> def.copy(supertypes = setOf(COMPONENT.type))
+          else -> def.also { require(COMPONENT.type !in supes) }
         }
       }
     }

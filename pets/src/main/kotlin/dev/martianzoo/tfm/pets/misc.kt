@@ -16,12 +16,12 @@ import dev.martianzoo.tfm.pets.ast.Effect
 import dev.martianzoo.tfm.pets.ast.Instruction
 import dev.martianzoo.tfm.pets.ast.TypeExpression
 
-fun <T> Parser<List<T>>.parseRepeated(tokens: TokenMatchesSequence): List<T> {
+fun <T> parseRepeated(listParser: Parser<List<T>>, tokens: TokenMatchesSequence): List<T> {
   var index = 0
   val components = mutableListOf<T>()
   var isEOF = false
   while (!isEOF) {
-    val parseResult = tryParse(tokens, index)
+    val parseResult = listParser.tryParse(tokens, index)
     when (parseResult) {
       is Parsed -> {
         components += parseResult.value
@@ -46,17 +46,3 @@ fun classNamePattern(): Regex {
   val CLASS_NAME_PATTERN by lazy { Regex("^[A-Z][a-z][A-Za-z0-9_]*$") }
   return CLASS_NAME_PATTERN
 }
-
-internal fun actionToEffect(action: Action, index: Int) : Effect {
-  val merged = if (action.cost == null) {
-    action.instruction
-  } else {
-    Instruction.Then(listOf(action.cost.toInstruction(), action.instruction))
-  }
-  return Effect(PetsParser.parse("$USE_ACTION${index + 1}<$THIS>"), merged)
-}
-
-fun te(s: String) = TypeExpression(s)
-
-internal val rootName = "$COMPONENT"
-

@@ -2,7 +2,8 @@ package dev.martianzoo.tfm.pets
 
 import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.tfm.pets.PetsParser.parseComponents
-import dev.martianzoo.tfm.pets.SpecialComponent.COMPONENT
+import dev.martianzoo.tfm.pets.ast.TypeExpression
+import dev.martianzoo.tfm.pets.ast.TypeExpression.Companion.te
 import org.junit.jupiter.api.Test
 
 class ComponentDefTest {
@@ -57,9 +58,9 @@ class ComponentDefTest {
 
     assertThat(cs).containsExactly(
         ComponentDef("Component", supertypes=setOf()),
-        ComponentDef("One", supertypes= setOf(te("Component"))),
+        ComponentDef("One", supertypes=setOf(te("Component"))),
         ComponentDef("Two", supertypes=setOf(te("One"))),
-        ComponentDef("Three", supertypes= setOf(te("Component"))),
+        ComponentDef("Three", supertypes=setOf(te("Component"))),
         ComponentDef("Four", supertypes=setOf(te("Three"))),
         ComponentDef("Five", supertypes=setOf(te("One"), te("Three"))),
         ComponentDef("Six", supertypes=setOf(te("Three"))),

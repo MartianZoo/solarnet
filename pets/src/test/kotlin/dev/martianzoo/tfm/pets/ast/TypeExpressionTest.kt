@@ -3,7 +3,7 @@ package dev.martianzoo.tfm.pets.ast
 import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.tfm.pets.PetsParser
 import dev.martianzoo.tfm.pets.ast.Requirement.Min
-import dev.martianzoo.tfm.pets.te
+import dev.martianzoo.tfm.pets.ast.TypeExpression.Companion.te
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 
@@ -15,12 +15,12 @@ class TypeExpressionTest {
   @Test
   fun simpleSourceToApi() {
     val foo: TypeExpression = PetsParser.parse("Foo")
-    assertThat(foo).isEqualTo(TypeExpression("Foo"))
+    assertThat(foo).isEqualTo(te("Foo"))
   }
 
   @Test
   fun simpleApiToSource() {
-    assertThat(TypeExpression("Foo").toString()).isEqualTo("Foo")
+    assertThat(te("Foo").toString()).isEqualTo("Foo")
   }
 
   @Test
@@ -45,12 +45,8 @@ class TypeExpressionTest {
     assertThat(parsed).isEqualTo(
         TypeExpression(
             "Red",
-            TypeExpression(
-                "Blue",
-                TypeExpression("This"),
-                TypeExpression("Teal")
-            ),
-            TypeExpression("Gold")
+            TypeExpression("Blue", te("This"), te("Teal")),
+            te("Gold")
         )
     )
   }
@@ -59,14 +55,14 @@ class TypeExpressionTest {
   fun complexApiToSource() {
     val expr = TypeExpression(
         "Aa",
-        TypeExpression("Bb"),
-        TypeExpression("Cc", TypeExpression("Dd")),
+        te("Bb"),
+        TypeExpression("Cc", te("Dd")),
         TypeExpression(
             "Ee",
-            TypeExpression("Ff", TypeExpression("Gg"), TypeExpression("Hh")),
-            TypeExpression("Me")
+            TypeExpression("Ff", te("Gg"), te("Hh")),
+            te("Me")
         ),
-        TypeExpression("Jj")
+        te("Jj")
     )
     assertThat(expr.toString()).isEqualTo("Aa<Bb, Cc<Dd>, Ee<Ff<Gg, Hh>, Me>, Jj>")
   }

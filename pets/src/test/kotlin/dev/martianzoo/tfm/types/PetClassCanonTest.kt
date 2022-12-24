@@ -2,8 +2,8 @@ package dev.martianzoo.tfm.types
 
 import com.google.common.truth.Truth
 import dev.martianzoo.tfm.canon.Canon
+import dev.martianzoo.tfm.pets.SpecialComponent.COMPONENT
 import dev.martianzoo.tfm.pets.ast.TypeExpression
-import dev.martianzoo.tfm.pets.rootName
 import dev.martianzoo.tfm.pets.testRoundTrip
 import org.junit.jupiter.api.Test
 import java.util.*
@@ -118,7 +118,7 @@ class PetClassCanonTest {
   fun describeEverything() {
     val table = PetClassLoader(Canon.allDefinitions).loadAll()
     table.all().sortedBy { it.name }.forEach { c ->
-      println("${c.baseType} : ${c.allSuperclasses.filter { it.name !in setOf(rootName, c.name) }}")
+      println("${c.baseType} : ${c.allSuperclasses.filter { it.name !in setOf("$COMPONENT", c.name) }}")
     }
   }
 }

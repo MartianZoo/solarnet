@@ -1,6 +1,7 @@
 package dev.martianzoo.tfm.pets
 
 import dev.martianzoo.tfm.pets.ComponentDef.Defaults
+import dev.martianzoo.tfm.pets.SpecialComponent.COMPONENT
 import dev.martianzoo.tfm.pets.SpecialComponent.THIS
 import dev.martianzoo.tfm.pets.ast.Effect
 import dev.martianzoo.tfm.pets.ast.Instruction.Intensity
@@ -19,9 +20,11 @@ data class ComponentDef(
     val defaults: Defaults = Defaults()
 ) {
   init {
-    if (name == rootName) {
+    if (name == "$COMPONENT") {
       require(supertypes.isEmpty())
       require(dependencies.isEmpty())
+    } else {
+      // require(supertypes.isNotEmpty()) // TODO
     }
   }
 

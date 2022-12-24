@@ -2,7 +2,7 @@ package dev.martianzoo.tfm.types
 
 import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.tfm.pets.PetsParser.parseComponents
-import dev.martianzoo.tfm.pets.rootName
+import dev.martianzoo.tfm.pets.SpecialComponent.COMPONENT
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -10,11 +10,11 @@ import org.junit.jupiter.api.assertThrows
 class PetClassTest {
   @Test fun nothingness() {
     val loader = loadTypes()
-    val cpt = loader.get(rootName)
-    assertThat(cpt.name).isEqualTo(rootName)
+    val cpt = loader.get("$COMPONENT")
+    assertThat(cpt.name).isEqualTo("$COMPONENT")
     assertThat(cpt.abstract).isTrue()
     assertThat(cpt.directSuperclasses).isEmpty()
-    assertThat(cpt.allSuperclasses.names()).containsExactly(rootName)
+    assertThat(cpt.allSuperclasses.names()).containsExactly("$COMPONENT")
     assertThat(cpt.directDependencyKeys).isEmpty()
   }
 
@@ -23,8 +23,8 @@ class PetClassTest {
     val foo = loader.get("Foo")
     assertThat(foo.name).isEqualTo("Foo")
     assertThat(foo.abstract).isFalse()
-    assertThat(foo.directSuperclasses.names()).containsExactly(rootName)
-    assertThat(foo.allSuperclasses.names()).containsExactly(rootName, "Foo")
+    assertThat(foo.directSuperclasses.names()).containsExactly("$COMPONENT")
+    assertThat(foo.allSuperclasses.names()).containsExactly("$COMPONENT", "Foo")
     assertThat(foo.directDependencyKeys).isEmpty()
   }
 
@@ -32,7 +32,7 @@ class PetClassTest {
     val loader = loadTypes("class Foo", "class Bar : Foo")
     val bar = loader.get("Bar")
     assertThat(bar.directSuperclasses.names()).containsExactly("Foo")
-    assertThat(bar.allSuperclasses.names()).containsExactly(rootName, "Foo", "Bar")
+    assertThat(bar.allSuperclasses.names()).containsExactly("$COMPONENT", "Foo", "Bar")
     assertThat(bar.directDependencyKeys).isEmpty()
   }
 
@@ -40,13 +40,13 @@ class PetClassTest {
     val loader = loadTypes("class Bar : Foo", "class Foo")
     val bar = loader.get("Bar")
     assertThat(bar.directSuperclasses.names()).containsExactly("Foo")
-    assertThat(bar.allSuperclasses.names()).containsExactly(rootName, "Foo", "Bar")
+    assertThat(bar.allSuperclasses.names()).containsExactly("$COMPONENT", "Foo", "Bar")
     assertThat(bar.directDependencyKeys).isEmpty()
   }
 
   @Test fun cycle() {
     val s = """
-      abstract class $rootName
+      abstract class ${"$COMPONENT"}
       class Foo : Bar
       class Bar : Foo
     """
@@ -55,7 +55,7 @@ class PetClassTest {
 
   @Test fun trivialCycle() {
     val s = """
-      abstract class $rootName
+      abstract class ${"$COMPONENT"}
       class Foo : Foo
     """
     assertThrows<IllegalArgumentException> { loader(s) }
@@ -64,7 +64,7 @@ class PetClassTest {
   @Test fun dependency() {
     val loader = loadTypes("class Foo", "class Bar<Foo>")
     val bar = loader.get("Bar")
-    assertThat(bar.directSuperclasses.names()).containsExactly(rootName)
+    assertThat(bar.directSuperclasses.names()).containsExactly("$COMPONENT")
     assertThat(bar.directDependencyKeys).containsExactly(DependencyKey(bar, 0))
   }
 
@@ -182,7 +182,7 @@ class PetClassTest {
       PetClassLoader(parseComponents(petsText)).also { it.loadAll() }
 
   fun loadTypes(vararg decl: String): PetClassTable {
-    return loader("abstract class $rootName\n" + decl.joinToString("") { "$it\n" } )
+    return loader("abstract class $COMPONENT\n" + decl.joinToString("") { "$it\n" })
   }
 
   private fun Iterable<PetClass>.names() = map { it.name }

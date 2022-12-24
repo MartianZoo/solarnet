@@ -11,6 +11,7 @@ import dev.martianzoo.tfm.pets.ast.Instruction.Gain
 import dev.martianzoo.tfm.pets.ast.Instruction.Gated
 import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.pets.ast.TypeExpression
+import dev.martianzoo.tfm.pets.ast.TypeExpression.Companion.te
 
 data class MilestoneDefinition(
     val id: String,
@@ -34,7 +35,7 @@ data class MilestoneDefinition(
     ComponentDef(
         "Milestone$id",
         abstract = false,
-        supertypes = setOf(TypeExpression("Milestone")),
+        supertypes = setOf(te("Milestone")),
         effects = setOf(
             Effect(OnGain(THIS.type), Gated(requirement, Gain(OK.type)))
         )

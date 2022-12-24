@@ -2,13 +2,26 @@ package dev.martianzoo.tfm.pets
 
 import dev.martianzoo.tfm.pets.SpecialComponent.PRODUCTION
 import dev.martianzoo.tfm.pets.SpecialComponent.STANDARD_RESOURCE
+import dev.martianzoo.tfm.pets.SpecialComponent.THIS
+import dev.martianzoo.tfm.pets.SpecialComponent.USE_ACTION
+import dev.martianzoo.tfm.pets.ast.Action
+import dev.martianzoo.tfm.pets.ast.Effect
+import dev.martianzoo.tfm.pets.ast.Instruction
 import dev.martianzoo.tfm.pets.ast.PetsNode
 import dev.martianzoo.tfm.pets.ast.ProductionBox
 import dev.martianzoo.tfm.pets.ast.TypeExpression
 import dev.martianzoo.tfm.types.PetClassLoader
 
+internal fun actionToEffect(action: Action, index: Int) : Effect {
+  val merged = if (action.cost == null) {
+    action.instruction
+  } else {
+    Instruction.Then(listOf(action.cost.toInstruction(), action.instruction))
+  }
+  return Effect(PetsParser.parse("$USE_ACTION${index + 1}<$THIS>"), merged)
+}
 
-fun <P : PetsNode> replaceTypesIn(node: P, from: TypeExpression, to: TypeExpression) =
+internal fun <P : PetsNode> replaceTypesIn(node: P, from: TypeExpression, to: TypeExpression) =
     TypeReplacer(from, to).s(node)
 
 private class TypeReplacer(val from: TypeExpression, val to: TypeExpression) : NodeVisitor() {
@@ -21,11 +34,11 @@ private class TypeReplacer(val from: TypeExpression, val to: TypeExpression) : N
       }
 }
 
-fun <P : PetsNode> deprodify(node: P, producibleClassNames: Set<String>): P {
+internal fun <P : PetsNode> deprodify(node: P, producibleClassNames: Set<String>): P {
   return Deprodifier(producibleClassNames).s(node)
 }
 
-fun <P : PetsNode> deprodify(node: P, loader: PetClassLoader): P {
+internal fun <P : PetsNode> deprodify(node: P, loader: PetClassLoader): P {
   val resourceNames = loader["$STANDARD_RESOURCE"].allSubclasses.map { it.name }.toSet()
   return deprodify(node, resourceNames)
 }

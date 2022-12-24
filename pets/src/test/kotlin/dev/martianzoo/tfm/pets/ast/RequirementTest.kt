@@ -4,6 +4,7 @@ import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.tfm.pets.PetsParser
 import dev.martianzoo.tfm.pets.ast.Requirement.Max
 import dev.martianzoo.tfm.pets.ast.Requirement.Min
+import dev.martianzoo.tfm.pets.ast.TypeExpression.Companion.te
 import org.junit.jupiter.api.Test
 
 // Most testing is done by AutomatedTest
@@ -11,22 +12,22 @@ class RequirementTest {
   @Test
   fun simpleSourceToApi() {
     assertThat(PetsParser.parse<Requirement>("Foo"))
-        .isEqualTo(Min(TypeExpression("Foo")))
+        .isEqualTo(Min(te("Foo")))
     assertThat(PetsParser.parse<Requirement>("3 Foo"))
-        .isEqualTo(Min(TypeExpression("Foo"), 3))
+        .isEqualTo(Min(te("Foo"), 3))
     assertThat(PetsParser.parse<Requirement>("MAX 3 Foo"))
-        .isEqualTo(Max(TypeExpression("Foo"), 3))
+        .isEqualTo(Max(te("Foo"), 3))
   }
 
   @Test
   fun simpleApiToSource() {
-    assertThat(Min(TypeExpression("Foo")).toString()).isEqualTo("Foo")
-    assertThat(Min(TypeExpression("Foo"), 1).toString()).isEqualTo("1 Foo")
-    assertThat(Min(TypeExpression("Foo"), 3).toString()).isEqualTo("3 Foo")
-    assertThat(Min(TypeExpression("Megacredit"), 3).toString()).isEqualTo("3 Megacredit")
-    assertThat(Max(TypeExpression("Foo"), 0).toString()).isEqualTo("MAX 0 Foo")
-    assertThat(Max(TypeExpression("Foo"), 1).toString()).isEqualTo("MAX 1 Foo")
-    assertThat(Max(TypeExpression("Foo"), 3).toString()).isEqualTo("MAX 3 Foo")
+    assertThat(Min(te("Foo")).toString()).isEqualTo("Foo")
+    assertThat(Min(te("Foo"), 1).toString()).isEqualTo("1 Foo")
+    assertThat(Min(te("Foo"), 3).toString()).isEqualTo("3 Foo")
+    assertThat(Min(te("Megacredit"), 3).toString()).isEqualTo("3 Megacredit")
+    assertThat(Max(te("Foo"), 0).toString()).isEqualTo("MAX 0 Foo")
+    assertThat(Max(te("Foo"), 1).toString()).isEqualTo("MAX 1 Foo")
+    assertThat(Max(te("Foo"), 3).toString()).isEqualTo("MAX 3 Foo")
   }
 
   val inputs = """
@@ -150,14 +151,14 @@ class RequirementTest {
         Requirement.or(
             Min(
                 TypeExpression("Adjacency",
-                    TypeExpression("CityTile", TypeExpression("Anyone")),
-                    TypeExpression("OceanTile")
+                    TypeExpression("CityTile", te("Anyone")),
+                    te("OceanTile")
                 )
             ),
             Min(
                 TypeExpression("Adjacency",
-                    TypeExpression("OceanTile"),
-                    TypeExpression("CityTile", TypeExpression("Anyone"))
+                    te("OceanTile"),
+                    TypeExpression("CityTile", te("Anyone"))
                 ),
                 1)
         )

@@ -2,7 +2,6 @@ package dev.martianzoo.tfm.pets.ast
 
 import dev.martianzoo.tfm.pets.SpecialComponent.CLASS
 import dev.martianzoo.tfm.pets.classNamePattern
-import dev.martianzoo.tfm.pets.te
 import dev.martianzoo.util.joinOrEmpty
 
 /**
@@ -34,4 +33,8 @@ data class TypeExpression(
       (requirement?.let { "(HAS $it)" } ?: "")
 
   override val children = listOfNotNull(requirement) + specializations
+
+  companion object {
+    fun te(s: String) = TypeExpression(s)
+  }
 }
