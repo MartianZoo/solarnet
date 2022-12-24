@@ -1,18 +1,18 @@
-package dev.martianzoo.tfm.pets
+package dev.martianzoo.tfm.pets.ast
 
 import com.google.common.truth.Truth.assertThat
-import dev.martianzoo.tfm.pets.Effect.Trigger
-import dev.martianzoo.tfm.pets.Effect.Trigger.OnGain
-import dev.martianzoo.tfm.pets.Effect.Trigger.OnRemove
-import dev.martianzoo.tfm.pets.Instruction.Gain
-import dev.martianzoo.tfm.pets.Instruction.Intensity.MANDATORY
-import dev.martianzoo.tfm.pets.Instruction.Intensity.OPTIONAL
-import dev.martianzoo.tfm.pets.Instruction.Remove
-import dev.martianzoo.tfm.pets.Instruction.SimpleFrom
-import dev.martianzoo.tfm.pets.Instruction.Transmute
 import dev.martianzoo.tfm.pets.PetsParser.parse
-import dev.martianzoo.tfm.pets.Requirement.Max
-import dev.martianzoo.tfm.pets.Requirement.Min
+import dev.martianzoo.tfm.pets.ast.Effect.Trigger.OnGain
+import dev.martianzoo.tfm.pets.ast.Effect.Trigger.OnRemove
+import dev.martianzoo.tfm.pets.ast.Effect.Trigger.Prod
+import dev.martianzoo.tfm.pets.ast.Instruction.Gain
+import dev.martianzoo.tfm.pets.ast.Instruction.Intensity.MANDATORY
+import dev.martianzoo.tfm.pets.ast.Instruction.Intensity.OPTIONAL
+import dev.martianzoo.tfm.pets.ast.Instruction.Remove
+import dev.martianzoo.tfm.pets.ast.Instruction.SimpleFrom
+import dev.martianzoo.tfm.pets.ast.Instruction.Transmute
+import dev.martianzoo.tfm.pets.ast.Requirement.Max
+import dev.martianzoo.tfm.pets.ast.Requirement.Min
 import org.junit.jupiter.api.Test
 
 // Most testing is done by AutomatedTest
@@ -89,7 +89,7 @@ class EffectTest {
   """.trimIndent()
 
   @Test fun testSampleStrings() {
-    val pass = testSampleStrings<Effect>(inputs)
+    val pass = dev.martianzoo.tfm.pets.testSampleStrings<Effect>(inputs)
     assertThat(pass).isTrue()
   }
 
@@ -103,14 +103,15 @@ class EffectTest {
                     Transmute(
                         SimpleFrom(
                             TypeExpression("Xyz", listOf()),
-                            TypeExpression("Qux", listOf())),
+                            TypeExpression("Qux", listOf())
+                        ),
                         1),
                     Remove(null, 1),
                 ),
                 Gain(TypeExpression("Xyz", listOf()), 5, OPTIONAL),
             ),
         ),
-        Effect(Trigger.Prod(OnRemove(TypeExpression("Foo", listOf()))), Remove(null, 42)),
+        Effect(Prod(OnRemove(TypeExpression("Foo", listOf()))), Remove(null, 42)),
         Effect(
             OnGain(
                 TypeExpression("Ahh",

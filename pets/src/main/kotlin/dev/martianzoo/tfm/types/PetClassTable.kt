@@ -1,7 +1,7 @@
 package dev.martianzoo.tfm.types
 
 import dev.martianzoo.tfm.pets.PetsParser.parse
-import dev.martianzoo.tfm.pets.TypeExpression
+import dev.martianzoo.tfm.pets.ast.TypeExpression
 
 interface PetClassTable {
   operator fun get(name: String): PetClass

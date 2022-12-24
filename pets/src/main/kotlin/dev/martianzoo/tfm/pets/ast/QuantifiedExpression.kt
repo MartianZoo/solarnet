@@ -1,4 +1,7 @@
-package dev.martianzoo.tfm.pets
+package dev.martianzoo.tfm.pets.ast
+
+import dev.martianzoo.tfm.pets.PetsException
+import dev.martianzoo.tfm.pets.te
 
 data class QuantifiedExpression(val typeExpression: TypeExpression? = null, val scalar: Int? = null): PetsNode() {
   init {

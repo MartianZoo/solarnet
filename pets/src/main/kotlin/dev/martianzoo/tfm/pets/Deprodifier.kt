@@ -1,5 +1,8 @@
 package dev.martianzoo.tfm.pets
 
+import dev.martianzoo.tfm.pets.ast.PetsNode
+import dev.martianzoo.tfm.pets.ast.ProductionBox
+import dev.martianzoo.tfm.pets.ast.TypeExpression
 import dev.martianzoo.tfm.types.PetClassLoader
 
 class Deprodifier(val productionable: Set<String>, val prodType: String) : NodeVisitor() {

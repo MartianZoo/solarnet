@@ -1,6 +1,7 @@
-package dev.martianzoo.tfm.pets
+package dev.martianzoo.tfm.pets.ast
 
 import com.google.common.collect.Lists.asList
+import dev.martianzoo.tfm.pets.PetsException
 import dev.martianzoo.util.toSetStrict
 
 sealed class Requirement : PetsNode() {

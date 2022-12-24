@@ -1,7 +1,11 @@
-package dev.martianzoo.tfm.pets
+package dev.martianzoo.tfm.pets.ast
 
-import dev.martianzoo.tfm.pets.Instruction.Intensity.MANDATORY
-import dev.martianzoo.tfm.pets.Instruction.Remove
+import dev.martianzoo.tfm.pets.PetsException
+import dev.martianzoo.tfm.pets.ast.Instruction.Intensity.MANDATORY
+import dev.martianzoo.tfm.pets.ast.Instruction.Per
+import dev.martianzoo.tfm.pets.ast.Instruction.Prod
+import dev.martianzoo.tfm.pets.ast.Instruction.Remove
+import dev.martianzoo.tfm.pets.toSetCarefulP
 
 data class Action(val cost: Cost?, val instruction: Instruction) : PetsNode() {
   override fun toString() = (cost?.let { "${cost} -> " } ?: "-> ") + instruction
@@ -38,7 +42,7 @@ data class Action(val cost: Cost?, val instruction: Instruction) : PetsNode() {
       override fun toString() = "$cost / $qe" // parens
       override fun precedence() = 5
       override val children = setOf(cost, qe)
-      override fun toInstruction() = Instruction.Per(cost.toInstruction(), qe)
+      override fun toInstruction() = Per(cost.toInstruction(), qe)
     }
 
     data class Or(var costs: Set<Cost>) : Cost() {
@@ -65,7 +69,7 @@ data class Action(val cost: Cost?, val instruction: Instruction) : PetsNode() {
       override fun toString() = "PROD[${cost}]"
       override val children = setOf(cost)
       override fun countProds() = super.countProds() + 1
-      override fun toInstruction() = Instruction.Prod(cost.toInstruction())
+      override fun toInstruction() = Prod(cost.toInstruction())
       override fun extract() = cost
     }
 

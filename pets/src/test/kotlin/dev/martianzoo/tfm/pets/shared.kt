@@ -2,6 +2,7 @@ package dev.martianzoo.tfm.pets
 
 import com.google.common.truth.Truth
 import dev.martianzoo.tfm.pets.PetsParser.parse
+import dev.martianzoo.tfm.pets.ast.PetsNode
 
 inline fun <reified T : PetsNode> testRoundTrip(start: String, end: String = start) =
     Truth.assertThat(parse<T>(start).toString()).isEqualTo(end)

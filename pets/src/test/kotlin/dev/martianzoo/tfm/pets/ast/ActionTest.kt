@@ -1,8 +1,9 @@
-package dev.martianzoo.tfm.pets
+package dev.martianzoo.tfm.pets.ast
 
 import com.google.common.truth.Truth
 import dev.martianzoo.tfm.pets.PetsParser.Requirements
 import dev.martianzoo.tfm.pets.PetsParser.parse
+import dev.martianzoo.tfm.pets.testRoundTrip
 import org.junit.jupiter.api.Test
 
 // Most testing is done by AutomatedTest
@@ -93,7 +94,7 @@ class ActionTest {
   """.trimIndent()
 
   @Test fun testSampleStrings() {
-    val pass = testSampleStrings<Action>(inputs)
+    val pass = dev.martianzoo.tfm.pets.testSampleStrings<Action>(inputs)
     Truth.assertThat(pass).isTrue()
   }
 

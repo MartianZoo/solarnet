@@ -1,6 +1,6 @@
-package dev.martianzoo.tfm.pets
+package dev.martianzoo.tfm.pets.ast
 
-import dev.martianzoo.tfm.pets.Effect.Trigger
+import dev.martianzoo.tfm.pets.ast.Effect.Trigger
 import dev.martianzoo.tfm.testlib.PetsGenerator
 import org.junit.jupiter.api.Test
 

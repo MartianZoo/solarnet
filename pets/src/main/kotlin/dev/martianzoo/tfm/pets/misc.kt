@@ -8,7 +8,10 @@ import com.github.h0tk3y.betterParse.parser.ParseResult
 import com.github.h0tk3y.betterParse.parser.Parsed
 import com.github.h0tk3y.betterParse.parser.Parser
 import com.github.h0tk3y.betterParse.parser.UnexpectedEof
-import dev.martianzoo.tfm.pets.Effect.Trigger.OnGain
+import dev.martianzoo.tfm.pets.ast.Action
+import dev.martianzoo.tfm.pets.ast.Effect
+import dev.martianzoo.tfm.pets.ast.Instruction
+import dev.martianzoo.tfm.pets.ast.TypeExpression
 
 fun <T> Parser<List<T>>.parseRepeated(tokens: TokenMatchesSequence): List<T> {
   var index = 0
@@ -41,7 +44,7 @@ fun classNamePattern(): Regex {
   return CLASS_NAME_PATTERN
 }
 
-internal fun actionToEffect(action: Action, index: Int) : Effect  {
+internal fun actionToEffect(action: Action, index: Int) : Effect {
   val merged = if (action.cost == null) {
     action.instruction
   } else {

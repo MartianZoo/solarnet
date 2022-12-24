@@ -3,12 +3,12 @@ package dev.martianzoo.tfm.types
 import dev.martianzoo.tfm.pets.ComponentDef
 import dev.martianzoo.tfm.pets.ComponentDef.Defaults
 import dev.martianzoo.tfm.pets.Deprodifier.Companion.deprodify
-import dev.martianzoo.tfm.pets.Instruction.Gain
-import dev.martianzoo.tfm.pets.Instruction.Remove
 import dev.martianzoo.tfm.pets.NodeVisitor
-import dev.martianzoo.tfm.pets.PetsNode
-import dev.martianzoo.tfm.pets.QuantifiedExpression
-import dev.martianzoo.tfm.pets.TypeExpression
+import dev.martianzoo.tfm.pets.ast.Instruction.Gain
+import dev.martianzoo.tfm.pets.ast.Instruction.Remove
+import dev.martianzoo.tfm.pets.ast.PetsNode
+import dev.martianzoo.tfm.pets.ast.QuantifiedExpression
+import dev.martianzoo.tfm.pets.ast.TypeExpression
 import dev.martianzoo.tfm.pets.te
 
 /**

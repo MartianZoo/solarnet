@@ -1,18 +1,17 @@
-package dev.martianzoo.tfm.pets
+package dev.martianzoo.tfm.pets.ast
 
-import com.github.h0tk3y.betterParse.combinators.or
 import com.google.common.truth.Truth.assertThat
-import dev.martianzoo.tfm.pets.Instruction.ComplexFrom
-import dev.martianzoo.tfm.pets.Instruction.Gain
-import dev.martianzoo.tfm.pets.Instruction.Gated
-import dev.martianzoo.tfm.pets.Instruction.Intensity.AMAP
-import dev.martianzoo.tfm.pets.Instruction.Intensity.OPTIONAL
-import dev.martianzoo.tfm.pets.Instruction.Remove
-import dev.martianzoo.tfm.pets.Instruction.SimpleFrom
-import dev.martianzoo.tfm.pets.Instruction.Transmute
 import dev.martianzoo.tfm.pets.PetsParser.Instructions
 import dev.martianzoo.tfm.pets.PetsParser.parse
-import dev.martianzoo.tfm.pets.Requirement.Min
+import dev.martianzoo.tfm.pets.ast.Instruction.ComplexFrom
+import dev.martianzoo.tfm.pets.ast.Instruction.Gain
+import dev.martianzoo.tfm.pets.ast.Instruction.Gated
+import dev.martianzoo.tfm.pets.ast.Instruction.Intensity.AMAP
+import dev.martianzoo.tfm.pets.ast.Instruction.Intensity.OPTIONAL
+import dev.martianzoo.tfm.pets.ast.Instruction.Remove
+import dev.martianzoo.tfm.pets.ast.Instruction.SimpleFrom
+import dev.martianzoo.tfm.pets.ast.Instruction.Transmute
+import dev.martianzoo.tfm.pets.ast.Requirement.Min
 import org.junit.jupiter.api.Test
 
 // Most testing is done by AutomatedTest
@@ -101,7 +100,7 @@ class InstructionTest {
   """.trimIndent()
 
   @Test fun testSampleStrings() {
-    val pass = testSampleStrings<Instruction>(inputs)
+    val pass = dev.martianzoo.tfm.pets.testSampleStrings<Instruction>(inputs)
     assertThat(pass).isTrue()
   }
 
@@ -172,5 +171,6 @@ class InstructionTest {
     )
     assertThat(actual).isEqualTo(expected)
   }
-  fun testRoundTrip(start: String, end: String = start) = testRoundTrip<Instruction>(start, end)
+  fun testRoundTrip(start: String, end: String = start) =
+      dev.martianzoo.tfm.pets.testRoundTrip<Instruction>(start, end)
 }

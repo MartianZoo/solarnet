@@ -1,12 +1,16 @@
-package dev.martianzoo.tfm.pets
+package dev.martianzoo.tfm.pets.ast
 
 import com.google.common.truth.Truth.assertThat
+import dev.martianzoo.tfm.pets.PetsParser
+import dev.martianzoo.tfm.pets.ast.Requirement.Min
+import dev.martianzoo.tfm.pets.te
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 
 // Most testing is done by AutomatedTest
 class TypeExpressionTest {
-  private fun testRoundTrip(petsText: String) = testRoundTrip<TypeExpression>(petsText)
+  private fun testRoundTrip(petsText: String) =
+      dev.martianzoo.tfm.pets.testRoundTrip<TypeExpression>(petsText)
 
   @Test
   fun simpleSourceToApi() {
@@ -69,6 +73,8 @@ class TypeExpressionTest {
 
   @Test fun classAlone() {
     assertThrows<RuntimeException> { TypeExpression("Class", TypeExpression("Foo", te("Bar"))) }
-    assertThrows<RuntimeException> { TypeExpression("Class", TypeExpression("Foo", requirement = Requirement.Min(te("Heat")))) }
+    assertThrows<RuntimeException> { TypeExpression("Class", TypeExpression("Foo", requirement = Min(
+        te("Heat")
+    ))) }
   }
 }

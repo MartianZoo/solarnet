@@ -1,10 +1,14 @@
-package dev.martianzoo.tfm.pets
+package dev.martianzoo.tfm.pets.ast
 
+import dev.martianzoo.tfm.pets.PetsException
+import dev.martianzoo.tfm.pets.classNamePattern
+import dev.martianzoo.tfm.pets.toSetCarefulP
 import dev.martianzoo.util.joinOrEmpty
 
 sealed class Instruction : PetsNode() {
   data class Gain(val qe: QuantifiedExpression, val intensity: Intensity? = null) : Instruction() {
-    constructor(expr: TypeExpression?, scalar: Int? = null, intensity: Intensity? = null) : this(QuantifiedExpression(expr, scalar), intensity)
+    constructor(expr: TypeExpression?, scalar: Int? = null, intensity: Intensity? = null) : this(
+        QuantifiedExpression(expr, scalar), intensity)
 
     init {
       if ((qe.scalar ?: 1) <= 0) throw PetsException("Can't gain a non-positive amount")
@@ -15,7 +19,8 @@ sealed class Instruction : PetsNode() {
   }
 
   data class Remove(val qe: QuantifiedExpression, val intensity: Intensity? = null) : Instruction() {
-    constructor(expr: TypeExpression?, scalar: Int? = null, intensity: Intensity? = null) : this(QuantifiedExpression(expr, scalar), intensity)
+    constructor(expr: TypeExpression?, scalar: Int? = null, intensity: Intensity? = null) : this(
+        QuantifiedExpression(expr, scalar), intensity)
 
     init {
       if ((qe.scalar ?: 1) <= 0) throw PetsException("Can't remove a non-positive amount")
@@ -204,7 +209,7 @@ sealed class Instruction : PetsNode() {
           })
         }
 
-    fun or(instructions: List<Instruction>) = or(instructions.toSetCarefulP())
+    fun or(instructions: List<Instruction>) = Companion.or(instructions.toSetCarefulP())
     fun or(vararg instructions: Instruction) = or(instructions.toList())
     fun or(instructions: Set<Instruction>) =
         if (instructions.size == 1) {

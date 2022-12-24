@@ -7,7 +7,7 @@ import com.google.common.graph.Graphs.transitiveClosure
 import com.google.common.graph.MutableGraph
 import com.google.common.graph.Traverser
 import dev.martianzoo.tfm.pets.ComponentDef
-import dev.martianzoo.tfm.pets.TypeExpression
+import dev.martianzoo.tfm.pets.ast.TypeExpression
 import dev.martianzoo.tfm.types.PetClass.Defaulter
 import dev.martianzoo.util.associateByStrict
 

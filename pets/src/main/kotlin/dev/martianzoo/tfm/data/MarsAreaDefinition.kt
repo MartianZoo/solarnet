@@ -1,11 +1,11 @@
 package dev.martianzoo.tfm.data
 
 import dev.martianzoo.tfm.pets.ComponentDef
-import dev.martianzoo.tfm.pets.Effect
-import dev.martianzoo.tfm.pets.Effect.Trigger
-import dev.martianzoo.tfm.pets.Instruction
 import dev.martianzoo.tfm.pets.PetsParser.parse
-import dev.martianzoo.tfm.pets.TypeExpression
+import dev.martianzoo.tfm.pets.ast.Effect
+import dev.martianzoo.tfm.pets.ast.Effect.Trigger
+import dev.martianzoo.tfm.pets.ast.Instruction
+import dev.martianzoo.tfm.pets.ast.TypeExpression
 
 data class MarsAreaDefinition(
     /** Shortname of the MarsMap this area belongs to (e.g "Tharsis"). */

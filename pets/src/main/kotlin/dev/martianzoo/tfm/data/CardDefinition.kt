@@ -2,16 +2,16 @@ package dev.martianzoo.tfm.data
 
 import com.squareup.moshi.Json
 import dev.martianzoo.tfm.data.CardDefinition.ProjectKind.ACTIVE
-import dev.martianzoo.tfm.pets.Action
 import dev.martianzoo.tfm.pets.ComponentDef
-import dev.martianzoo.tfm.pets.Effect
-import dev.martianzoo.tfm.pets.Effect.Trigger.OnGain
-import dev.martianzoo.tfm.pets.Instruction
 import dev.martianzoo.tfm.pets.PetsParser
 import dev.martianzoo.tfm.pets.PetsParser.parse
-import dev.martianzoo.tfm.pets.Requirement
-import dev.martianzoo.tfm.pets.TypeExpression
 import dev.martianzoo.tfm.pets.actionToEffect
+import dev.martianzoo.tfm.pets.ast.Action
+import dev.martianzoo.tfm.pets.ast.Effect
+import dev.martianzoo.tfm.pets.ast.Effect.Trigger.OnGain
+import dev.martianzoo.tfm.pets.ast.Instruction
+import dev.martianzoo.tfm.pets.ast.Requirement
+import dev.martianzoo.tfm.pets.ast.TypeExpression
 import dev.martianzoo.util.toSetStrict
 
 /**

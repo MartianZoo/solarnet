@@ -1,5 +1,7 @@
-package dev.martianzoo.tfm.pets
+package dev.martianzoo.tfm.pets.ast
 
+import dev.martianzoo.tfm.pets.classNamePattern
+import dev.martianzoo.tfm.pets.te
 import dev.martianzoo.util.joinOrEmpty
 
 /**

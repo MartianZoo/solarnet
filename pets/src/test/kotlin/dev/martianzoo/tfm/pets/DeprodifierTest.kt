@@ -3,6 +3,7 @@ package dev.martianzoo.tfm.pets
 import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.tfm.pets.Deprodifier.Companion.deprodify
 import dev.martianzoo.tfm.pets.PetsParser.parse
+import dev.martianzoo.tfm.pets.ast.Effect
 import org.junit.jupiter.api.Test
 
 class DeprodifierTest {

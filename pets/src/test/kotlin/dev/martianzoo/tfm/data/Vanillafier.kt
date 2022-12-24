@@ -1,13 +1,12 @@
 package dev.martianzoo.tfm.data
 
-import dev.martianzoo.tfm.pets.Action
-import dev.martianzoo.tfm.pets.ComponentDef
-import dev.martianzoo.tfm.pets.Effect
-import dev.martianzoo.tfm.pets.Instruction
-import dev.martianzoo.tfm.pets.PetsNode
-import dev.martianzoo.tfm.pets.QuantifiedExpression
-import dev.martianzoo.tfm.pets.Requirement
-import dev.martianzoo.tfm.pets.TypeExpression
+import dev.martianzoo.tfm.pets.ast.Action
+import dev.martianzoo.tfm.pets.ast.Effect
+import dev.martianzoo.tfm.pets.ast.Instruction
+import dev.martianzoo.tfm.pets.ast.PetsNode
+import dev.martianzoo.tfm.pets.ast.QuantifiedExpression
+import dev.martianzoo.tfm.pets.ast.Requirement
+import dev.martianzoo.tfm.pets.ast.TypeExpression
 
 object Vanillafier {
     fun san(i: Int?): Int? {

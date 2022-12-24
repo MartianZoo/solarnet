@@ -1,7 +1,9 @@
 package dev.martianzoo.tfm.pets
 
 import dev.martianzoo.tfm.pets.ComponentDef.Defaults
-import dev.martianzoo.tfm.pets.Instruction.Intensity
+import dev.martianzoo.tfm.pets.ast.Effect
+import dev.martianzoo.tfm.pets.ast.Instruction.Intensity
+import dev.martianzoo.tfm.pets.ast.TypeExpression
 
 /**
  * The declaration of a component class, such as GreeneryTile. Models the declaration textually as

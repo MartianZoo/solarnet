@@ -1,6 +1,7 @@
-package dev.martianzoo.tfm.pets
+package dev.martianzoo.tfm.pets.ast
 
-import dev.martianzoo.tfm.pets.Instruction.Gated
+import dev.martianzoo.tfm.pets.PetsException
+import dev.martianzoo.tfm.pets.ast.Instruction.Gated
 
 data class Effect(
     val trigger: Trigger,

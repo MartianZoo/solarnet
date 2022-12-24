@@ -1,8 +1,9 @@
-package dev.martianzoo.tfm.pets
+package dev.martianzoo.tfm.pets.ast
 
 import com.google.common.truth.Truth.assertThat
-import dev.martianzoo.tfm.pets.Requirement.Max
-import dev.martianzoo.tfm.pets.Requirement.Min
+import dev.martianzoo.tfm.pets.PetsParser
+import dev.martianzoo.tfm.pets.ast.Requirement.Max
+import dev.martianzoo.tfm.pets.ast.Requirement.Min
 import org.junit.jupiter.api.Test
 
 // Most testing is done by AutomatedTest
@@ -112,12 +113,12 @@ class RequirementTest {
   """.trimIndent()
 
   @Test fun testSampleStrings() {
-    val pass = testSampleStrings<Requirement>(inputs)
+    val pass = dev.martianzoo.tfm.pets.testSampleStrings<Requirement>(inputs)
     assertThat(pass).isTrue()
   }
 
   private fun testRoundTrip(start: String, end: String = start) =
-      testRoundTrip<Requirement>(start, end)
+      dev.martianzoo.tfm.pets.testRoundTrip<Requirement>(start, end)
 
   @Test
   fun roundTrips() {
@@ -143,15 +144,21 @@ class RequirementTest {
 
   @Test fun hairy() {
     val parsed : Requirement = PetsParser.parse(
-        "Adjacency<CityTile<Anyone>, OceanTile> OR 1 Adjacency<OceanTile, CityTile<Anyone>>")
+        "Adjacency<CityTile<Anyone>, OceanTile> OR 1 Adjacency<OceanTile, CityTile<Anyone>>"
+    )
     assertThat(parsed).isEqualTo(
         Requirement.or(
-            Min(TypeExpression("Adjacency",
+            Min(
+                TypeExpression("Adjacency",
                     TypeExpression("CityTile", TypeExpression("Anyone")),
-                    TypeExpression("OceanTile"))),
-            Min(TypeExpression("Adjacency",
+                    TypeExpression("OceanTile")
+                )
+            ),
+            Min(
+                TypeExpression("Adjacency",
                     TypeExpression("OceanTile"),
-                    TypeExpression("CityTile", TypeExpression("Anyone"))),
+                    TypeExpression("CityTile", TypeExpression("Anyone"))
+                ),
                 1)
         )
     )
