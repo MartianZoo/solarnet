@@ -14,7 +14,6 @@ import dev.martianzoo.tfm.pets.ast.Instruction.FromExpression
 import dev.martianzoo.tfm.pets.ast.Instruction.Gain
 import dev.martianzoo.tfm.pets.ast.Instruction.Gated
 import dev.martianzoo.tfm.pets.ast.Instruction.Intensity
-import dev.martianzoo.tfm.pets.ast.Instruction.Multi
 import dev.martianzoo.tfm.pets.ast.Instruction.Per
 import dev.martianzoo.tfm.pets.ast.Instruction.Remove
 import dev.martianzoo.tfm.pets.ast.Instruction.SimpleFrom
@@ -24,11 +23,9 @@ import dev.martianzoo.tfm.pets.ast.Instruction.TypeInFrom
 import dev.martianzoo.tfm.pets.ast.PetsNode
 import dev.martianzoo.tfm.pets.ast.QuantifiedExpression
 import dev.martianzoo.tfm.pets.ast.Requirement
-import dev.martianzoo.tfm.pets.ast.Requirement.And
 import dev.martianzoo.tfm.pets.ast.Requirement.Exact
 import dev.martianzoo.tfm.pets.ast.Requirement.Max
 import dev.martianzoo.tfm.pets.ast.Requirement.Min
-import dev.martianzoo.tfm.pets.ast.Requirement.Or
 import dev.martianzoo.tfm.pets.ast.TypeExpression
 import dev.martianzoo.util.multiset
 import kotlin.math.pow
@@ -57,15 +54,15 @@ class PetsGenerator(scaling: (Int) -> Double)
           9 to Min::class,
           4 to Max::class,
           2 to Exact::class,
-          3 to And::class,
-          5 to Or::class,
+          3 to Requirement.And::class,
+          5 to Requirement.Or::class,
       ))
       register<Requirement> { recurse(choose(requirementTypes)) }
       register { Min(qe = recurse()) }
       register { Max(recurse()) }
       register { Exact(recurse()) }
-      register { Requirement.and(listOfSize(choose(2, 2, 2, 2, 3))) as And }
-      register { Requirement.or(setOfSize(choose(2, 2, 2, 2, 2, 3, 4))) as Or }
+      register { Requirement.And(listOfSize(choose(2, 2, 2, 2, 3))) }
+      register { Requirement.Or(setOfSize(choose(2, 2, 2, 2, 2, 3, 4))) }
 
       fun RandomGenerator<*>.intensity() = choose(3 to null, 1 to randomEnum<Intensity>())
 
@@ -77,7 +74,7 @@ class PetsGenerator(scaling: (Int) -> Double)
           3 to Per::class,
           1 to Then::class,
           3 to Instruction.Or::class,
-          5 to Multi::class,
+          5 to Instruction.Multi::class,
           1 to Custom::class,
       ))
       register<Instruction> { recurse(choose(instructionTypes)) }
@@ -86,9 +83,9 @@ class PetsGenerator(scaling: (Int) -> Double)
       register { Transmute(recurse(), recurse<QuantifiedExpression>().scalar, intensity()) }
       register { Gated(recurse(), recurse()) }
       register { Per(recurse(), recurse()) }
-      register { Instruction.then(listOfSize(choose(2, 2, 2, 3))) as Then }
-      register { Instruction.multi(listOfSize(choose(2, 2, 2, 2, 2, 3, 4))) as Multi }
-      register { Instruction.or(setOfSize(choose(2, 2, 2, 2, 3))) as Instruction.Or }
+      register { Then(listOfSize(choose(2, 2, 2, 3))) }
+      register { Instruction.Multi(listOfSize(choose(2, 2, 2, 2, 2, 3, 4))) }
+      register { Instruction.Or(setOfSize(choose(2, 2, 2, 2, 3))) }
       register { Custom("name", listOfSize(choose(1, 1, 1, 2))) }
 
       register<FromExpression> {
@@ -154,8 +151,8 @@ class PetsGenerator(scaling: (Int) -> Double)
       register<Cost> { recurse(choose(costTypes)) }
       register { Cost.Spend(qe = recurse()) }
       register { Cost.Per(recurse(), recurse()) }
-      register { Cost.or(setOfSize(choose(2, 2, 2, 2, 3, 4))) as Cost.Or }
-      register { Cost.and(listOfSize(choose(2, 2, 2, 3))) as Cost.Multi }
+      register { Cost.Or(setOfSize(choose(2, 2, 2, 2, 3, 4))) }
+      register { Cost.Multi(listOfSize(choose(2, 2, 2, 3))) }
       register { Cost.Prod(recurse()) }
 
       register { Action(choose(1 to null, 3 to recurse<Cost>()), recurse<Instruction>()) }

@@ -149,20 +149,20 @@ class InstructionTest {
   @Test fun debug5() {
     // for some reason, this creates Requirement.Or(Bar, Bar), so toSetCareful would blow up
     val actual = parse<Instruction>("(Bar OR Bar? OR -Foo, Foo) OR (5, -Bar, Bar<Foo, Qux>: (-Bar, 1))")
-    val expected = Instruction.or(
-        Instruction.multi(
-            Instruction.or(
+    val expected = Instruction.Or(
+        Instruction.Multi(
+            Instruction.Or(
                 Gain(TypeExpression("Bar", listOf())),
                 Gain(TypeExpression("Bar", listOf()), intensity = OPTIONAL),
                 Remove(TypeExpression("Foo", listOf()))),
             Gain(TypeExpression("Foo", listOf())),
         ),
-        Instruction.multi(
+        Instruction.Multi(
             Gain(null, 5),
             Remove(TypeExpression("Bar", listOf())),
             Gated(
                 Min(TypeExpression("Bar", listOf(TypeExpression("Foo", listOf()), TypeExpression("Qux", listOf())))),
-                Instruction.multi(
+                Instruction.Multi(
                     Remove(TypeExpression("Bar", listOf())),
                     Gain(null, 1),
                 ),

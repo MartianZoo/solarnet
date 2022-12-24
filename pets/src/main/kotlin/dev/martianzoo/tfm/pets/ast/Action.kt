@@ -5,7 +5,6 @@ import dev.martianzoo.tfm.pets.ast.Instruction.Intensity.MANDATORY
 import dev.martianzoo.tfm.pets.ast.Instruction.Per
 import dev.martianzoo.tfm.pets.ast.Instruction.Prod
 import dev.martianzoo.tfm.pets.ast.Instruction.Remove
-import dev.martianzoo.tfm.pets.toSetCarefulP
 
 data class Action(val cost: Cost?, val instruction: Instruction) : PetsNode() {
   override fun toString() = (cost?.let { "${cost} -> " } ?: "-> ") + instruction
@@ -15,11 +14,6 @@ data class Action(val cost: Cost?, val instruction: Instruction) : PetsNode() {
     abstract fun toInstruction(): Instruction
 
     data class Spend(val qe: QuantifiedExpression) : Cost() {
-      constructor(expr: TypeExpression?, scalar: Int? = null) : this(QuantifiedExpression(expr, scalar))
-      init {
-        if ((qe.scalar ?: 1) == 0)
-          throw PetsException("Cannot spend zero (omit the cost instead)")
-      }
       override fun toString() = qe.toString()
       override val children = setOf(qe)
       override fun toInstruction() = Remove(qe, MANDATORY)
@@ -30,8 +24,6 @@ data class Action(val cost: Cost?, val instruction: Instruction) : PetsNode() {
       init {
         if ((qe.scalar ?: 1) <= 0)
           throw PetsException("Can't do something 'per' a non-positive amount")
-        if (qe.typeExpression == null)
-          throw PetsException("Write '/ 2 Megacredit', not just '/ 2'")
 
         when (cost) {
           is Or, is Multi -> throw PetsException("Break into separate Per instructions")
@@ -46,23 +38,23 @@ data class Action(val cost: Cost?, val instruction: Instruction) : PetsNode() {
     }
 
     data class Or(var costs: Set<Cost>) : Cost() {
-      init { require(costs.size >= 2) }
+      constructor(vararg costs: Cost) : this(costs.toSet())
       override fun toString() = costs.joinToString(" OR ") {
         it.toStringWhenInside(this)
       }
       override fun precedence() = 3
       override val children = costs
-      override fun toInstruction() = Instruction.or(costs.map(Cost::toInstruction))
+      override fun toInstruction() = Instruction.Or(costs.map(Cost::toInstruction).toSet())
     }
 
     data class Multi(var costs: List<Cost>) : Cost() {
-      init { require(costs.size >= 2) }
+      constructor(vararg costs: Cost) : this(costs.toList())
       override fun toString() = costs.joinToString() {
         it.toStringWhenInside(this)
       }
       override fun precedence() = 1
       override val children = costs
-      override fun toInstruction() = Instruction.multi(costs.map(Cost::toInstruction))
+      override fun toInstruction() = Instruction.Multi(costs.map(Cost::toInstruction))
     }
 
     data class Prod(val cost: Cost) : Cost(), ProductionBox<Cost> {
@@ -71,23 +63,6 @@ data class Action(val cost: Cost?, val instruction: Instruction) : PetsNode() {
       override fun countProds() = super.countProds() + 1
       override fun toInstruction() = Prod(cost.toInstruction())
       override fun extract() = cost
-    }
-
-    companion object {
-      fun and(vararg costs: Cost) = and(costs.toList())
-      fun and(costs: List<Cost>): Cost = if (costs.size == 1) {
-        costs.first()
-      } else {
-        Multi(costs.flatMap { if (it is Multi) it.costs else listOf(it) })
-      }
-
-      fun or(costs: List<Cost>): Cost = or(costs.toSetCarefulP())
-      fun or(vararg costs: Cost): Cost = or(costs.toList())
-      fun or(costs: Set<Cost>) = if (costs.size == 1) {
-        costs.first()
-      } else {
-        Or(costs.flatMap { if (it is Or) it.costs else setOf(it) }.toSetCarefulP())
-      }
     }
   }
 }

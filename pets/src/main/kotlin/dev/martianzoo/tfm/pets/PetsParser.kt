@@ -83,9 +83,6 @@ object PetsParser {
       regexToken("//[^\n]*", true),
       regexToken(" +", true))
 
-  val prodStart = word("PROD") and char('[')
-  val prodEnd = char(']')
-
   object Types { // ------------------------------------------------------------
 
     internal val typeExpression: Parser<TypeExpression> = publish { whole }
@@ -139,8 +136,13 @@ object PetsParser {
 
     internal val atom = min or max or exact or prod or parens(requirement)      // can have no precedence worries
 
-    private val orReqt = separatedTerms(atom, word("OR")) map Requirement::or
-    private val whole = commaSeparated(orReqt) map Requirement::and
+    private val orReqt = separatedTerms(atom, word("OR")) map {
+      val set = it.toSet()
+      if (set.size == 1) set.first() else Requirement.Or(set)
+    }
+    private val whole = commaSeparated(orReqt) map {
+      if (it.size == 1) it.first() else Requirement.And(it)
+    }
   }
   val xr = Requirements.requirement
 
@@ -212,11 +214,18 @@ object PetsParser {
       (one, two) -> if (one == null) two else Gated(one, two)
     }
     internal val orInstr =
-        separatedTerms(gated, word("OR")) map Instruction::or
+        separatedTerms(gated, word("OR")) map {
+          val set = it.toSet()
+          if (set.size == 1) set.first() else Instruction.Or(set)
+        }
     internal val then =
-        separatedTerms(orInstr, word("THEN")) map Instruction::then
+        separatedTerms(orInstr, word("THEN")) map {
+          if (it.size == 1) it.first() else Instruction.Then(it)
+        }
 
-    private val whole = commaSeparated(then) map Instruction::multi
+    private val whole = commaSeparated(then) map {
+      if (it.size == 1) it.first() else Instruction.Multi(it)
+    }
   }
   val xi = Instructions.instruction
 
@@ -237,10 +246,14 @@ object PetsParser {
       (cost, qe) -> if (qe == null) cost else Cost.Per(cost, qe)
     }
 
-    private val orCost =
-        separatedTerms(perCost or groupedCost, word("OR")) map Cost::or
+    private val orCost = separatedTerms(perCost or groupedCost, word("OR")) map {
+      val set = it.toSet()
+      if (set.size == 1) set.first() else Cost.Or(set)
+    }
 
-    private val wholeCost = commaSeparated(orCost or groupedCost) map Cost::and
+    private val wholeCost = commaSeparated(orCost or groupedCost) map {
+      if (it.size == 1) it.first() else Cost.Multi(it)
+    }
 
     private val whole =
         optional(wholeCost) and

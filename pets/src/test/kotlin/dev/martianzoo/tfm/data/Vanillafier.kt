@@ -7,6 +7,7 @@ import dev.martianzoo.tfm.pets.ast.PetsNode
 import dev.martianzoo.tfm.pets.ast.QuantifiedExpression
 import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.pets.ast.TypeExpression
+import dev.martianzoo.util.toSetStrict
 
 object Vanillafier {
     fun san(i: Int?): Int? {
@@ -17,7 +18,8 @@ object Vanillafier {
         }
     }
 
-    fun <P : PetsNode> san(coll: Iterable<P>) = coll.map { san(it) }.sortedBy { it.toString().length }
+    fun <P : PetsNode> san(coll: List<P>) = coll.map { san(it) }.sortedBy { it.toString().length }
+    fun <P : PetsNode> san(coll: Set<P>) = coll.map { san(it) }.sortedBy { it.toString().length }.toSetStrict()
 
     @Suppress("UNCHECKED_CAST")
     fun <P : PetsNode?> san(n: P): P {
@@ -27,8 +29,8 @@ object Vanillafier {
                 is TypeExpression -> TypeExpression("Foo", san(specializations), san(requirement))
                 is QuantifiedExpression -> QuantifiedExpression(san(typeExpression), san(scalar))
 
-                is Requirement.Or -> Requirement.or(san(requirements))
-                is Requirement.And -> Requirement.and(san(requirements))
+                is Requirement.Or -> Requirement.Or(san(requirements))
+                is Requirement.And -> Requirement.And(san(requirements))
                 is Requirement.Min -> copy(san(qe))
                 is Requirement.Max -> copy(san(qe))
                 is Requirement.Exact -> copy(san(qe))
@@ -37,9 +39,9 @@ object Vanillafier {
                 is Instruction.Gain -> copy(san(qe))
                 is Instruction.Remove -> copy(san(qe))
                 is Instruction.Gated -> copy(san(requirement), san(instruction))
-                is Instruction.Then -> Instruction.then(san(instructions))
-                is Instruction.Or -> Instruction.or(san(instructions))
-                is Instruction.Multi -> Instruction.multi(san(instructions))
+                is Instruction.Then -> Instruction.Then(san(instructions))
+                is Instruction.Or -> Instruction.Or(san(instructions))
+                is Instruction.Multi -> Instruction.Multi(san(instructions))
                 is Instruction.Transmute -> copy(san(trans), san(scalar))
                 is Instruction.ComplexFrom -> copy("Foo", san(specializations), san(requirement))
                 is Instruction.SimpleFrom -> copy(san(to), san(from))
@@ -56,7 +58,8 @@ object Vanillafier {
 
                 is Action.Cost.Spend -> copy(san(qe))
                 is Action.Cost.Per -> copy(san(cost), san(qe))
-                is Action.Cost.Or -> Action.Cost.or(san(costs))
+                is Action.Cost.Or -> Action.Cost.Or(san(costs))
+                is Action.Cost.Multi -> Action.Cost.Multi(san(costs))
                 is Action.Cost.Prod -> copy(san(cost))
                 is Action -> copy(san(cost), san(instruction))
 

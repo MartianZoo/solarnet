@@ -8,25 +8,22 @@ sealed class Requirement : PetsNode() {
 
   data class Min(val qe: QuantifiedExpression) : Requirement() {
     constructor(expr: TypeExpression? = null, scalar: Int? = null) : this(QuantifiedExpression(expr, scalar))
-    init {
-      if ((qe.scalar ?: 1) == 0) {
-        throw PetsException("This requirement is always true (${qe})")
-      }
-    }
     override fun toString() = "$qe"
     override val children = setOf(qe)
   }
 
   data class Max(val qe: QuantifiedExpression) : Requirement() {
     constructor(expr: TypeExpression, scalar: Int) : this(QuantifiedExpression(expr, scalar))
-    init { if(qe.scalar == null) throw PetsException("'MAX <thing>' is confusing; use 'MAX 1 <thing>'") }
+    // could remove this but make it parseable
+    init { if(qe.scalar == null) throw PetsException("use 'MAX 1 ${qe.typeExpression}'") }
     override fun toString() = "MAX $qe"
     override val children = setOf(qe)
   }
 
   data class Exact(val qe: QuantifiedExpression) : Requirement() {
     constructor(expr: TypeExpression, scalar: Int) : this(QuantifiedExpression(expr, scalar))
-    init { if(qe.scalar == null) throw PetsException("Use '=1 <thing>', not '=<thing>'") }
+    // could remove this but make it parseable
+    init { if(qe.scalar == null) throw PetsException("Use '=1 ${qe.typeExpression}'") }
     override fun toString() = "=$qe"
     override val children = setOf(qe)
   }
@@ -34,7 +31,6 @@ sealed class Requirement : PetsNode() {
   data class Or(val requirements: Set<Requirement>) : Requirement() {
     constructor(reqt1: Requirement, reqt2: Requirement, vararg rest: Requirement) :
         this(asList(reqt1, reqt2, rest).toSetStrict())
-    init { if(requirements.size < 2) throw PetsException("$requirements") }
     override fun toString() = requirements.joinToString(" OR ") {
       it.toStringWhenInside(this)
     }
@@ -45,7 +41,6 @@ sealed class Requirement : PetsNode() {
   data class And(val requirements: List<Requirement>) : Requirement() {
     constructor(reqt1: Requirement, reqt2: Requirement, vararg rest: Requirement) :
         this(asList(reqt1, reqt2, rest))
-    init { require(requirements.size >= 2) }
     override fun toString() = requirements.joinToString() {
       it.toStringWhenInside(this)
     }

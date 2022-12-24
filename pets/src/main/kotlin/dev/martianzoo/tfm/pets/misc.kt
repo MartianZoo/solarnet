@@ -48,12 +48,10 @@ internal fun actionToEffect(action: Action, index: Int) : Effect {
   val merged = if (action.cost == null) {
     action.instruction
   } else {
-    Instruction.then(action.cost.toInstruction(), action.instruction)
+    Instruction.Then(listOf(action.cost.toInstruction(), action.instruction))
   }
   return Effect(PetsParser.parse("UseAction${index + 1}<This>"), merged)
 }
-
-fun pad(s: Any, width: Int) = ("$s" + " ".repeat(width)).substring(0, width)
 
 fun te(s: String) = TypeExpression(s)
 

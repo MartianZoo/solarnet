@@ -2,7 +2,6 @@ package dev.martianzoo.tfm.pets.ast
 
 import dev.martianzoo.tfm.pets.PetsException
 import dev.martianzoo.tfm.pets.classNamePattern
-import dev.martianzoo.tfm.pets.toSetCarefulP
 import dev.martianzoo.util.joinOrEmpty
 
 sealed class Instruction : PetsNode() {
@@ -33,11 +32,6 @@ sealed class Instruction : PetsNode() {
   sealed class FromExpression : PetsNode()
 
   data class SimpleFrom(val to: TypeExpression, val from: TypeExpression) : FromExpression() {
-    init {
-      if (to == from) {
-        throw PetsException("to and from are the same: $to")
-      }
-    }
     override fun toString() = "$to FROM $from"
     override val children = setOf(to, from)
   }
@@ -92,7 +86,6 @@ sealed class Instruction : PetsNode() {
 
   data class Per(val instruction: Instruction, val qe: QuantifiedExpression): Instruction() {
     init {
-      if (qe.typeExpression == null) throw PetsException("Use '/ 2 Megacredit', not just '/ 2'")
       if ((qe.scalar ?: 1) <= 0) throw PetsException("Can't do something 'per' a nonpositive amount")
       when (instruction) {
         is Gain, is Remove, is Transmute -> {}
@@ -107,7 +100,7 @@ sealed class Instruction : PetsNode() {
   data class Gated(val requirement: Requirement, val instruction: Instruction): Instruction() {
     init {
       if (instruction is Gated) {
-        throw PetsException("You don't gate a gater")
+        throw PetsException("You don't gate a gater") // TODO keep??
       }
     }
     override fun toString(): String {
@@ -123,10 +116,7 @@ sealed class Instruction : PetsNode() {
   }
 
   data class Or(val instructions: Set<Instruction>) : Instruction() {
-    init {
-      if (instructions.any { it is Or })
-        throw PetsException("Should have used Instruction.or()")
-    }
+    constructor(vararg instructions: Instruction) : this(instructions.toSet())
     override fun toString() = instructions.joinToString(" OR ") {
       it.toStringWhenInside(this)
     }
@@ -138,10 +128,7 @@ sealed class Instruction : PetsNode() {
   }
 
   data class Then(val instructions: List<Instruction>) : Instruction() {
-    init {
-      if (instructions.any { it is Then })
-        throw PetsException()
-    }
+    constructor(vararg instructions: Instruction) : this(instructions.toList())
     override fun toString() = instructions.joinToString (" THEN ") {
       it.toStringWhenInside(this)
     }
@@ -150,11 +137,7 @@ sealed class Instruction : PetsNode() {
   }
 
   data class Multi(val instructions: List<Instruction>) : Instruction() {
-    init {
-      if (instructions.any { it is Multi }) {
-        throw PetsException("Should have used Instruction.then()")
-      }
-    }
+    constructor(vararg instructions: Instruction) : this(instructions.toList())
     override fun toString() = instructions.joinToString {
       it.toStringWhenInside(this)
     }
@@ -186,36 +169,5 @@ sealed class Instruction : PetsNode() {
       fun intensity(symbol: String?) =
           symbol?.let { s -> values().first { it.symbol == s } }
     }
-  }
-
-  companion object {
-    fun multi(vararg instructions: Instruction) = multi(instructions.toList())
-    fun multi(instructions: List<Instruction>): Instruction =
-        if (instructions.size == 1) {
-          instructions[0]
-        } else {
-          Multi(instructions.flatMap {
-            if (it is Multi) it.instructions else listOf(it)
-          })
-        }
-
-    fun then(vararg instructions: Instruction) = then(instructions.toList())
-    fun then(instructions: List<Instruction>): Instruction =
-        if (instructions.size == 1) {
-          instructions[0]
-        } else {
-          Then(instructions.flatMap {
-            if (it is Then) it.instructions else listOf(it)
-          })
-        }
-
-    fun or(instructions: List<Instruction>) = Companion.or(instructions.toSetCarefulP())
-    fun or(vararg instructions: Instruction) = or(instructions.toList())
-    fun or(instructions: Set<Instruction>) =
-        if (instructions.size == 1) {
-          instructions.first()
-        } else {
-          Or(instructions.flatMap { if (it is Or) it.instructions else setOf(it) }.toSetCarefulP())
-        }
   }
 }

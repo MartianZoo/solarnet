@@ -10,6 +10,7 @@ import dev.martianzoo.tfm.pets.ast.Action
 import dev.martianzoo.tfm.pets.ast.Effect
 import dev.martianzoo.tfm.pets.ast.Effect.Trigger.OnGain
 import dev.martianzoo.tfm.pets.ast.Instruction
+import dev.martianzoo.tfm.pets.ast.Instruction.Multi
 import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.pets.ast.TypeExpression
 import dev.martianzoo.util.toSetStrict
@@ -154,7 +155,11 @@ data class CardDefinition(
     when (set.size) {
       0 -> null
       1 -> set.first()
-      else -> Instruction.multi(set.toList())
+      else -> {
+        Multi(set.flatMap {
+          if (it is Multi) it.instructions else listOf(it)
+        })
+      }
     }
   }
   val actions by lazy { actionsText.map { parse<Action>(it) }.toSetStrict() }

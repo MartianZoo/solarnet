@@ -97,9 +97,9 @@ class EffectTest {
     val effects = listOf(
         Effect(
             OnGain(TypeExpression("Eep", listOf(TypeExpression("Abc", listOf())))),
-            Instruction.or(
+            Instruction.Or(
                 Gain(null, 42),
-                Instruction.multi(
+                Instruction.Multi(
                     Transmute(
                         SimpleFrom(
                             TypeExpression("Xyz", listOf()),
@@ -134,7 +134,7 @@ class EffectTest {
         ),
         Effect(
             OnGain(TypeExpression("Qux", listOf())),
-            Instruction.or(
+            Instruction.Or(
                 Instruction.Per(
                     Gain(TypeExpression("Qux", listOf()), 42),
                     QuantifiedExpression(TypeExpression("Eep", listOf(TypeExpression("Qux", listOf())))),
