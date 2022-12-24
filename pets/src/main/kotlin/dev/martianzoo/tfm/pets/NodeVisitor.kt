@@ -14,7 +14,7 @@ open class NodeVisitor {
   private fun <P : PetsNode> s(ns: Set<P>) = ns.map { s(it) }.toSetStrict()
 
   open fun <P : PetsNode?> s(node: P): P {
-    if (node == null) return null as P
+    if (node == null) return null as P // TODO how'm I even getting away with this
     return node.run {
       when (this) {
         is TypeExpression -> TypeExpression(className, s(specializations), s(requirement))

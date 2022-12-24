@@ -8,7 +8,6 @@ import com.google.common.graph.MutableGraph
 import com.google.common.graph.Traverser
 import dev.martianzoo.tfm.pets.ComponentDef
 import dev.martianzoo.tfm.pets.ast.TypeExpression
-import dev.martianzoo.tfm.types.PetClass.Defaulter
 import dev.martianzoo.util.associateByStrict
 
 // TODO restrict viz?
@@ -69,7 +68,7 @@ class PetClassLoader(val definitions: Map<String, ComponentDef>) : PetClassTable
   override fun all() = table.values.toSet().also { require(frozen) }
 
   override fun resolveWithDefaults(expression: TypeExpression): PetType {
-    return resolve(Defaulter(this).s(expression))
+    return resolve(applyDefaultsIn(expression, this))
   }
 
   override fun resolve(expression: TypeExpression): PetType {
