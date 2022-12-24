@@ -2,6 +2,7 @@ package dev.martianzoo.tfm.types
 
 import dev.martianzoo.tfm.pets.NodeVisitor
 import dev.martianzoo.tfm.pets.SpecialComponent.MEGACREDIT
+import dev.martianzoo.tfm.pets.SpecialComponent.THIS
 import dev.martianzoo.tfm.pets.ast.Instruction
 import dev.martianzoo.tfm.pets.ast.PetsNode
 import dev.martianzoo.tfm.pets.ast.QuantifiedExpression
@@ -13,18 +14,16 @@ fun <P : PetsNode> applyDefaultsIn(node: P, table: PetClassTable) =
 private class Defaulter(val table: PetClassTable): NodeVisitor() {
   override fun <P : PetsNode?> s(node: P): P {
     return when {
+      node == THIS.type -> node
+
       node is TypeExpression && node.isClassOnly() -> {
         val defs = table[node.className].defaults
         defs.typeExpression?.copy(className = node.className) ?: node
       }
 
-      node is QuantifiedExpression -> node.copy(
-          s(node.typeExpression ?: MEGACREDIT.type),
-          node.scalar ?: 1
-      )
-
       node is Instruction.Gain -> {
-        val te = node.qe.explicit().typeExpression!!
+        val te = node.qe.typeExpression!!
+        if (te == THIS.type) return node // TODO hmmmmm
         val defs = table[te.className].defaults
 
         val gain = if (te.isClassOnly()) {
@@ -37,7 +36,8 @@ private class Defaulter(val table: PetClassTable): NodeVisitor() {
       }
 
       node is Instruction.Remove -> {
-        val te = node.qe.explicit().typeExpression!!
+        val te = node.qe.typeExpression!!
+        if (te == THIS.type) return node // TODO hmmmmm
         val defs = table[te.className].defaults
 
         val remove = if (te.isClassOnly()) {
@@ -49,7 +49,7 @@ private class Defaulter(val table: PetClassTable): NodeVisitor() {
         remove.copy(intensity = listOfNotNull(remove.intensity, defs.removeIntensity).firstOrNull())
       }
 
-      else -> node
+      else -> super.s(node)
     } as P
   }
 }

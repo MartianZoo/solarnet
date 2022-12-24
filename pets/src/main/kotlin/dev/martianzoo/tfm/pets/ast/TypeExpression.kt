@@ -2,6 +2,7 @@ package dev.martianzoo.tfm.pets.ast
 
 import dev.martianzoo.tfm.pets.CLASS_NAME_PATTERN
 import dev.martianzoo.tfm.pets.SpecialComponent.CLASS
+import dev.martianzoo.tfm.pets.SpecialComponent.THIS
 import dev.martianzoo.util.joinOrEmpty
 
 /**
@@ -25,7 +26,7 @@ data class TypeExpression(
     }
   }
 
-  fun isClassOnly() = (this == te(className))
+  fun isClassOnly() = (this != THIS.type && this == te(className))
 
   override fun toString() =
       className +

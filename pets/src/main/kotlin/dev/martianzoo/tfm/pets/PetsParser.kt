@@ -415,8 +415,8 @@ object PetsParser {
           abstract = abst,
           supertypes = sig.supertypes.toSetStrict(),
           dependencies = sig.dependencies,
-          effs + acts.withIndex().map { (i, act) -> actionToEffect(act, i) },
-          Defaults().merge(defs)
+          effectsRaw = effs + actionsToEffects(acts),
+          defaults = Defaults().merge(defs)
       )
       return listOf(ComponentDefInProcess(comp, false)) + subs.flatten()
           .map { it.fillInSuperclass(sig.className) }

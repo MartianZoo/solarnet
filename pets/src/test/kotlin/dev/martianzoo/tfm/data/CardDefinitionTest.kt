@@ -156,17 +156,17 @@ class CardDefinitionTest {
 
   @Test fun slurp() {
     Canon.cardDefinitions.values.forEach { card ->
-      card.requirement?.let { assertThat("$it").isEqualTo(card.requirementText) }
+      card.requirementRaw?.let { assertThat("$it").isEqualTo(card.requirementText) }
       card.resourceType?.let { assertThat("$it").isEqualTo(card.resourceTypeText) }
 
       checkRoundTrip(card.tagsText, card.tags)
       if (card.immediateText.isNotEmpty()) {
-        checkRoundTrip(listOf(card.immediateText.joinToString()), listOf(card.immediate!!))
+        checkRoundTrip(listOf(card.immediateText.joinToString()), listOf(card.immediateRaw!!))
       } else {
-        assertThat(card.immediate).isNull()
+        assertThat(card.immediateRaw).isNull()
       }
-      checkRoundTrip(card.actionsText, card.actions)
-      checkRoundTrip(card.effectsText, card.effects)
+      checkRoundTrip(card.actionsText, card.actionsRaw)
+      checkRoundTrip(card.effectsText, card.effectsRaw)
     }
   }
 

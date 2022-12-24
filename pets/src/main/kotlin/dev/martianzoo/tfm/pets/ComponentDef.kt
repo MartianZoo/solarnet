@@ -6,6 +6,7 @@ import dev.martianzoo.tfm.pets.SpecialComponent.THIS
 import dev.martianzoo.tfm.pets.ast.Effect
 import dev.martianzoo.tfm.pets.ast.Instruction.Intensity
 import dev.martianzoo.tfm.pets.ast.TypeExpression
+import dev.martianzoo.util.toSetStrict
 
 /**
  * The declaration of a component class, such as GreeneryTile. Models the declaration textually as
@@ -16,7 +17,7 @@ data class ComponentDef(
     val abstract: Boolean = false,
     val supertypes: Set<TypeExpression> = setOf(),
     val dependencies: List<Dependency> = listOf(),
-    val effects: Set<Effect> = setOf(),
+    private val effectsRaw: Set<Effect> = setOf(),
     val defaults: Defaults = Defaults()
 ) {
   init {
@@ -27,6 +28,9 @@ data class ComponentDef(
       // require(supertypes.isNotEmpty()) // TODO
     }
   }
+
+  // Canonicalize -- *currently* only spelling out QEs
+  val effects = effectsRaw.map(::spellOutQes).toSetStrict()
 
   val superclassNames = supertypes.map { it.className }
 
@@ -58,6 +62,6 @@ data class ComponentDef(
 
 private fun <T> getZeroOrOne(defaultses: List<Defaults>, extractor: (Defaults) -> T?): T? {
   val set = defaultses.mapNotNull(extractor).toSet()
-  require(set.size <= 1)
+  // require(set.size <= 1) // TODO yipes
   return set.firstOrNull()
 }

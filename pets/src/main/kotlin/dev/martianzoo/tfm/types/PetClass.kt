@@ -2,6 +2,8 @@ package dev.martianzoo.tfm.types
 
 import dev.martianzoo.tfm.pets.ComponentDef
 import dev.martianzoo.tfm.pets.ComponentDef.Defaults
+import dev.martianzoo.tfm.pets.SpecialComponent.STANDARD_RESOURCE
+import dev.martianzoo.tfm.pets.ast.PetsNode
 import dev.martianzoo.tfm.pets.deprodify
 
 /**
@@ -74,10 +76,12 @@ data class PetClass(val def: ComponentDef, val loader: PetClassLoader): Dependen
 // EFFECTS
 
   val directEffects by lazy {
+    val resourceNames = loader["$STANDARD_RESOURCE"].allSubclasses.map { it.name }.toSet()
     def.effects
-        .map { deprodify(it, loader) }
+        .map { deprodify(it, resourceNames) }
         .map { applyDefaultsIn(it, loader) }
   }
+
 
 // OTHER
 

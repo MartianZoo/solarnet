@@ -7,7 +7,7 @@ import dev.martianzoo.tfm.pets.PetsParser
 import dev.martianzoo.tfm.pets.PetsParser.parse
 import dev.martianzoo.tfm.pets.SpecialComponent.END
 import dev.martianzoo.tfm.pets.SpecialComponent.THIS
-import dev.martianzoo.tfm.pets.actionToEffect
+import dev.martianzoo.tfm.pets.actionsToEffects
 import dev.martianzoo.tfm.pets.ast.Action
 import dev.martianzoo.tfm.pets.ast.Effect
 import dev.martianzoo.tfm.pets.ast.Effect.Trigger.OnGain
@@ -16,6 +16,8 @@ import dev.martianzoo.tfm.pets.ast.Instruction.Multi
 import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.pets.ast.TypeExpression
 import dev.martianzoo.tfm.pets.ast.TypeExpression.Companion.te
+import dev.martianzoo.tfm.pets.immediateToEffect
+import dev.martianzoo.tfm.pets.spellOutQes
 import dev.martianzoo.util.toSetStrict
 
 /**
@@ -152,8 +154,10 @@ data class CardDefinition(
   }
 
   val tags: List<TypeExpression> by lazy { tagsText.map(::te) }
+
   val resourceType: TypeExpression? by lazy { resourceTypeText?.let(::te) }
-  val immediate: Instruction? by lazy {
+
+  val immediateRaw: Instruction? by lazy {
     val set = immediateText.map { parse<Instruction>(it) }.toSetStrict()
     when (set.size) {
       0 -> null
@@ -165,32 +169,39 @@ data class CardDefinition(
       }
     }
   }
-  val actions by lazy { actionsText.map { parse<Action>(it) }.toSetStrict() }
-  val effects by lazy { effectsText.map { parse<Effect>(it) }.toSetStrict() }
-  val requirement: Requirement? by lazy { requirementText?.let(PetsParser::parse) }
+  val actionsRaw by lazy { actionsText.map { parse<Action>(it) }.toSetStrict() }
+  val effectsRaw by lazy { effectsText.map { parse<Effect>(it) }.toSetStrict() }
+  val requirementRaw: Requirement? by lazy { requirementText?.let(PetsParser::parse) }
+
+  // This doesn't get converted to an effect (yet??) so we have to canonicalize
+  // TODO rethink
+  val requirement by lazy { requirementRaw?.let(::spellOutQes) }
+
+  val allEffects: Set<Effect> by lazy {
+    (listOfNotNull(immediateRaw).map(::immediateToEffect) +
+        effectsRaw +
+        actionsToEffects(actionsRaw)).toSetStrict()
+  }
 
   override val toComponentDef by lazy {
     val supertypes = mutableSetOf<TypeExpression>()
 
     if (projectKind != null) supertypes.add(te(projectKind.type))
-    if (actions.isNotEmpty()) supertypes.add(te("ActionCard"))
+    if (actionsRaw.isNotEmpty()) supertypes.add(te("ActionCard"))
     if (resourceType != null) supertypes.add(TypeExpression("Holder", listOf(resourceType!!)))
     if (supertypes.isEmpty()) supertypes.add(te("CardFront"))
 
-    ComponentDef(name = "Card$id", abstract = false, supertypes = supertypes, effects = allEffects)
+    ComponentDef(
+        name = "Card$id",
+        abstract = false,
+        supertypes = supertypes,
+        effectsRaw = allEffects)
   }
-
-  val allEffects: Set<Effect> by lazy {
-    (listOfNotNull(immediate).map(::immediateToEffect) +
-        effects +
-        actions.withIndex().map { (i, act) -> actionToEffect(act, i) }).toSetStrict()
-  }
-
-  private fun immediateToEffect(instr: Instruction) = Effect(OnGain(THIS.type), instr)
 
   private fun inactive(): Boolean {
+    // do this low-tech to avoid unlazifying
     return actionsText.isEmpty() &&
-        effectsText.all { it.startsWith("$END:") } && // doing it low-tech ok?
+        effectsText.all { it.startsWith("$END:") } &&
         resourceTypeText == null
   }
 

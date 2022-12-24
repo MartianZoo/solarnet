@@ -49,7 +49,7 @@ data class MarsAreaDefinition(
         componentName(),
         abstract = false,
         supertypes = setOf(type),
-        effects = setOfNotNull(bonus?.let { Effect(trigger, it) })
+        effectsRaw = setOfNotNull(bonus?.let { Effect(trigger, it) })
     )
   }
 
