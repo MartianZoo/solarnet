@@ -11,9 +11,6 @@ import dev.martianzoo.tfm.pets.Instruction.Remove
 import dev.martianzoo.tfm.pets.Instruction.SimpleFrom
 import dev.martianzoo.tfm.pets.Instruction.Transmute
 import dev.martianzoo.tfm.pets.PetsParser.Instructions
-import dev.martianzoo.tfm.pets.PetsParser.Instructions.from
-import dev.martianzoo.tfm.pets.PetsParser.Instructions.typeInFrom
-import dev.martianzoo.tfm.pets.PetsParser.Types
 import dev.martianzoo.tfm.pets.PetsParser.parse
 import dev.martianzoo.tfm.pets.Requirement.Min
 import org.junit.jupiter.api.Test
@@ -121,11 +118,6 @@ class InstructionTest {
                 TypeExpression("Bar"),
             ), 1, AMAP)
     )
-    parse(Instructions.simpleFrom, "Bar FROM Qux")
-    parse(from, "Bar FROM Qux")
-    parse(from or typeInFrom, "Bar FROM Qux")
-    parse(Instructions.complexFrom, "Foo<Bar FROM Qux>")
-
     testRoundTrip("Foo<Bar FROM Qux>")
     testRoundTrip("Foo<Bar FROM Qux>.")
 
@@ -143,6 +135,16 @@ class InstructionTest {
     )
     assertThat(instr.toString()).isEqualTo("Foo<Bar<Qux FROM Abc<Eep>>>")
     assertThat(parse<Instruction>("Foo<Bar<Qux FROM Abc<Eep>>>")).isEqualTo(instr)
+  }
+
+  @Test fun custom() {
+    parse(Instructions.custom, "\$foo()")
+    parse(Instructions.atom, "\$foo()")
+    parse(Instructions.gated, "\$foo()")
+    parse(Instructions.orInstr, "\$foo()")
+    parse(Instructions.then, "\$foo()")
+    parse(Instructions.instruction, "\$foo()")
+    parse<Instruction>("\$foo()")
   }
 
   @Test fun debug5() {

@@ -1,6 +1,8 @@
 package dev.martianzoo.tfm.pets
 
 import com.google.common.truth.Truth
+import dev.martianzoo.tfm.pets.PetsParser.Requirements
+import dev.martianzoo.tfm.pets.PetsParser.parse
 import org.junit.jupiter.api.Test
 
 // Most testing is done by AutomatedTest
@@ -93,5 +95,30 @@ class ActionTest {
   @Test fun testSampleStrings() {
     val pass = testSampleStrings<Action>(inputs)
     Truth.assertThat(pass).isTrue()
+  }
+
+  @Test fun debug() {
+    testRoundTrip<Instruction>("\$name()")
+    testRoundTrip<Instruction>("\$name(Abc)")
+    testRoundTrip<Instruction>("\$name(Abc, Def)")
+    testRoundTrip<Instruction>("\$name(Abc<Xyz, Bar>)")
+    testRoundTrip<TypeExpression>("Abc")
+    testRoundTrip<TypeExpression>("Abc<Bar>")
+    testRoundTrip<TypeExpression>("Abc(HAS Bar)")
+    testRoundTrip<TypeExpression>("Abc(HAS 11 Bar)")
+    testRoundTrip<Requirement>("Bar")
+    testRoundTrip<Requirement>("11 Bar")
+    parse(Requirements.min, "Bar")
+    parse(Requirements.min, "11 Bar")
+    parse(Requirements.max, "MAX 11 Bar")
+
+    testRoundTrip<TypeExpression>("Abc(HAS MAX 11 Bar)")
+
+    testRoundTrip<Instruction>("\$name(Abc(HAS MAX 11 Bar))")
+    testRoundTrip<Instruction>("\$name(Abc(HAS MAX 11 Bar<Xyz, Bar>))")
+  }
+
+  @Test fun debug2() {
+    testRoundTrip<Action>("PROD[1] -> Foo")
   }
 }

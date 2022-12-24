@@ -85,15 +85,6 @@ class ComponentDefTest {
     """)
   }
 
-  @Test fun withCount1() {
-    assertThat(parse(QEs.scalar, "0")).isEqualTo(0)
-    assertThat(parse(QEs.scalar, "2")).isEqualTo(2)
-    assertThat(parse(Components.upper, "2")).isEqualTo(2)
-    assertThat(parse(Components.upper, "*")).isNull()
-    assertThat(parse(Components.twoDots, "..")).isNotNull()
-    assertThat(parse(Components.twoDots, " .. ")).isNotNull()
-  }
-
   @Test fun withDefaults() {
     val cs = parseComponents("""
         abstract class Component {
