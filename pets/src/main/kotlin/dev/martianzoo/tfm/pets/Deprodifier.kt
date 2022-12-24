@@ -5,38 +5,30 @@ import dev.martianzoo.tfm.pets.ast.ProductionBox
 import dev.martianzoo.tfm.pets.ast.TypeExpression
 import dev.martianzoo.tfm.types.PetClassLoader
 
-class Deprodifier(val productionable: Set<String>, val prodType: String) : NodeVisitor() {
+class Deprodifier(val producible: Set<String>) : NodeVisitor() {
   companion object {
-    fun <P : PetsNode> deprodify(node: P, productionable: Set<String>, prodType: String): P {
-      return Deprodifier(productionable, prodType).s(node)
+    fun <P : PetsNode> deprodify(node: P, producibleClassNames: Set<String>): P {
+      return Deprodifier(producibleClassNames).s(node)
     }
 
     fun <P : PetsNode> deprodify(node: P, loader: PetClassLoader): P {
       val resourceNames = loader["StandardResource"].allSubclasses.map { it.name }.toSet()
-      return deprodify(node, resourceNames, "Production")
+      return deprodify(node, resourceNames)
     }
   }
-  enum class Prodding { NOT_YET, DOIN_IT, DID_THAT }
-  var inProd = Prodding.NOT_YET
 
-  val types: List<PetsNode> = productionable.map(::te)
+  var inProd : Boolean = false
 
-  override fun <P : PetsNode?> s(node: P): P {
-    return when {
-      node is TypeExpression && node.className == prodType -> error("wtf dude")
-
+  override fun <P : PetsNode?> s(node: P): P =
+    when {
       node is ProductionBox<*> -> {
-        require(inProd == Prodding.NOT_YET)
-        inProd = Prodding.DOIN_IT
-        s(node.extract()).also { inProd = Prodding.DID_THAT }
+        require(!inProd)
+        inProd = true
+        s(node.extract()).also { inProd = false }
       }
-
-      node is TypeExpression && node.className in productionable && inProd == Prodding.DOIN_IT -> {
-        TypeExpression(prodType, listOf(node as TypeExpression))
-      }
+      inProd && node is TypeExpression && node.className in producible ->
+        TypeExpression("Production", listOf(node))
 
       else -> super.s(node)
-
     } as P
-  }
 }

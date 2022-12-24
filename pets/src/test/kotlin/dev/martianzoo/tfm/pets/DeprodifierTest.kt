@@ -16,18 +16,16 @@ class DeprodifierTest {
       "Energy",
       "Heat")
 
-  val prodType = "Production"
-
   @Test fun noProd() {
     val s = "Foo<Bar>: Bax OR Qux"
     val e: Effect = parse(s)
-    val ep: Effect = deprodify(e, resources, prodType)
+    val ep: Effect = deprodify(e, resources)
     assertThat(ep.toString()).isEqualTo(s)
   }
 
   @Test fun simpleProd() {
     val prodden: Effect = parse("This: PROD[Plant / PlantTag]")
-    val deprodded: Effect = deprodify(prodden, resources, prodType)
+    val deprodded: Effect = deprodify(prodden, resources)
     assertThat(deprodded.toString()).isEqualTo("This: Production<Plant> / PlantTag")
   }
 }
