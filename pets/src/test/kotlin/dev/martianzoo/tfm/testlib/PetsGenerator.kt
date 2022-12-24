@@ -54,39 +54,39 @@ class PetsGenerator(scaling: (Int) -> Double)
           9 to Min::class,
           4 to Max::class,
           2 to Exact::class,
-          3 to Requirement.And::class,
           5 to Requirement.Or::class,
+          3 to Requirement.And::class,
       ))
       register<Requirement> { recurse(choose(requirementTypes)) }
       register { Min(qe = recurse()) }
       register { Max(recurse()) }
       register { Exact(recurse()) }
-      register { Requirement.And(listOfSize(choose(2, 2, 2, 2, 3))) }
       register { Requirement.Or(setOfSize(choose(2, 2, 2, 2, 2, 3, 4))) }
+      register { Requirement.And(listOfSize(choose(2, 2, 2, 2, 3))) }
 
       fun RandomGenerator<*>.intensity() = choose(3 to null, 1 to randomEnum<Intensity>())
 
       val instructionTypes = (multiset(
           9 to Gain::class,
           4 to Remove::class,
-          2 to Transmute::class,
-          2 to Gated::class,
           3 to Per::class,
+          2 to Gated::class,
+          2 to Transmute::class,
+          1 to Custom::class,
           1 to Then::class,
           3 to Instruction.Or::class,
           5 to Instruction.Multi::class,
-          1 to Custom::class,
       ))
       register<Instruction> { recurse(choose(instructionTypes)) }
       register { Gain(recurse(), intensity()) }
       register { Remove(recurse(), intensity()) }
-      register { Transmute(recurse(), recurse<QuantifiedExpression>().scalar, intensity()) }
-      register { Gated(recurse(), recurse()) }
       register { Per(recurse(), recurse()) }
-      register { Then(listOfSize(choose(2, 2, 2, 3))) }
-      register { Instruction.Multi(listOfSize(choose(2, 2, 2, 2, 2, 3, 4))) }
-      register { Instruction.Or(setOfSize(choose(2, 2, 2, 2, 3))) }
+      register { Gated(recurse(), recurse()) }
+      register { Transmute(recurse(), recurse<QuantifiedExpression>().scalar, intensity()) }
       register { Custom("name", listOfSize(choose(1, 1, 1, 2))) }
+      register { Then(listOfSize(choose(2, 2, 2, 3))) }
+      register { Instruction.Or(setOfSize(choose(2, 2, 2, 2, 3))) }
+      register { Instruction.Multi(listOfSize(choose(2, 2, 2, 2, 2, 3, 4))) }
 
       register<FromExpression> {
         val one: TypeExpression = recurse()

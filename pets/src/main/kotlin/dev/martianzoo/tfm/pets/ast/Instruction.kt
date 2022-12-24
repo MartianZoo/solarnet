@@ -29,61 +29,6 @@ sealed class Instruction : PetsNode() {
     override val children = setOf(qe)
   }
 
-  sealed class FromExpression : PetsNode()
-
-  data class SimpleFrom(val to: TypeExpression, val from: TypeExpression) : FromExpression() {
-    override fun toString() = "$to FROM $from"
-    override val children = setOf(to, from)
-  }
-
-  data class ComplexFrom(
-      val className: String,
-      val specializations: List<FromExpression> = listOf(),
-      val requirement: Requirement? = null
-  ) : FromExpression() {
-    init {
-      require(className.matches(Regex(CLASS_NAME_PATTERN))) { className }
-      if (specializations.count { it is ComplexFrom || it is SimpleFrom } != 1) {
-        throw PetsException("Can only have one FROM in an expression")
-      }
-    }
-
-    override fun toString() =
-        className +
-            specializations.joinOrEmpty(surround = "<>") +
-            (requirement?.let { "(HAS $it)" } ?: "")
-    override val children = specializations + setOfNotNull(requirement)
-  }
-
-  data class TypeInFrom(val type: TypeExpression) : FromExpression() {
-    override fun toString() = "$type"
-    override val children = setOf(type)
-  }
-
-  data class Transmute(
-      val trans: FromExpression,
-      val scalar: Int? = null,
-      val intensity: Intensity? = null) : Instruction() {
-    init {
-      if ((scalar ?: 1) < 1) throw PetsException("Can't do a non-positive number of transmutes")
-      if (trans is TypeInFrom) throw PetsException("Should be a regular gain instruction")
-    }
-    override fun toString(): String {
-      val intens = intensity?.pets ?: ""
-      val scal = if (scalar != null) "$scalar " else ""
-      return "$scal$trans$intens"
-    }
-    override val children = setOf(trans)
-    override fun parenthesizeThisWhenInside(container: PetsNode): Boolean {
-      if (trans is SimpleFrom && container is Or) {
-        return true // not technically necessary, but helpful
-      }
-      return super.parenthesizeThisWhenInside(container)
-    }
-
-    override fun precedence() = if (trans is SimpleFrom) 7 else 10
-  }
-
   data class Per(val instruction: Instruction, val qe: QuantifiedExpression): Instruction() {
     init {
       if ((qe.scalar ?: 1) <= 0) throw PetsException("Can't do something 'per' a nonpositive amount")
@@ -115,6 +60,73 @@ sealed class Instruction : PetsNode() {
     override val children = setOf(requirement, instruction)
   }
 
+  data class Transmute(
+      val trans: FromExpression,
+      val scalar: Int? = null,
+      val intensity: Intensity? = null) : Instruction() {
+    init {
+      if ((scalar ?: 1) < 1) throw PetsException("Can't do a non-positive number of transmutes")
+      if (trans is TypeInFrom) throw PetsException("Should be a regular gain instruction")
+    }
+    override fun toString(): String {
+      val intens = intensity?.pets ?: ""
+      val scal = if (scalar != null) "$scalar " else ""
+      return "$scal$trans$intens"
+    }
+    override val children = setOf(trans)
+    override fun parenthesizeThisWhenInside(container: PetsNode): Boolean {
+      if (trans is SimpleFrom && container is Or) {
+        return true // not technically necessary, but helpful
+      }
+      return super.parenthesizeThisWhenInside(container)
+    }
+
+    override fun precedence() = if (trans is SimpleFrom) 7 else 10
+  }
+
+  sealed class FromExpression : PetsNode()
+
+  data class SimpleFrom(val to: TypeExpression, val from: TypeExpression) : FromExpression() {
+    override fun toString() = "$to FROM $from"
+    override val children = setOf(to, from)
+  }
+
+  data class ComplexFrom(
+      val className: String,
+      val specializations: List<FromExpression> = listOf(),
+      val requirement: Requirement? = null
+  ) : FromExpression() {
+    init {
+      require(className.matches(Regex(CLASS_NAME_PATTERN))) { className }
+      if (specializations.count { it is ComplexFrom || it is SimpleFrom } != 1) {
+        throw PetsException("Can only have one FROM in an expression")
+      }
+    }
+
+    override fun toString() =
+        className +
+            specializations.joinOrEmpty(surround = "<>") +
+            (requirement?.let { "(HAS $it)" } ?: "")
+    override val children = specializations + setOfNotNull(requirement)
+  }
+
+  data class TypeInFrom(val type: TypeExpression) : FromExpression() {
+    override fun toString() = "$type"
+    override val children = setOf(type)
+  }
+
+  data class Custom(val name: String, val arguments: List<TypeExpression>) : Instruction() {
+    override fun toString() = "$$name(${arguments.joinToString()})"
+    override val children = arguments
+  }
+
+  data class Then(val instructions: List<Instruction>) : Instruction() {
+    constructor(vararg instructions: Instruction) : this(instructions.toList())
+    override fun toString() = instructions.map(::groupIfNeeded).joinToString (" THEN ")
+    override fun precedence() = 2
+    override val children = instructions
+  }
+
   data class Or(val instructions: Set<Instruction>) : Instruction() {
     constructor(vararg instructions: Instruction) : this(instructions.toSet())
     override fun toString() = instructions.map(::groupIfNeeded).joinToString(" OR ")
@@ -122,13 +134,6 @@ sealed class Instruction : PetsNode() {
       return container is Then || super.parenthesizeThisWhenInside(container)
     }
     override fun precedence() = 4
-    override val children = instructions
-  }
-
-  data class Then(val instructions: List<Instruction>) : Instruction() {
-    constructor(vararg instructions: Instruction) : this(instructions.toList())
-    override fun toString() = instructions.map(::groupIfNeeded).joinToString (" THEN ")
-    override fun precedence() = 2
     override val children = instructions
   }
 
@@ -143,11 +148,6 @@ sealed class Instruction : PetsNode() {
     override fun toString() = "PROD[$instruction]"
     override val children = setOf(instruction)
     override fun extract() = instruction
-  }
-
-  data class Custom(val name: String, val arguments: List<TypeExpression>) : Instruction() {
-    override fun toString() = "$$name(${arguments.joinToString()})"
-    override val children = arguments
   }
 
   enum class Intensity(val symbol: String) {
