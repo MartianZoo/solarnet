@@ -1,11 +1,11 @@
 package dev.martianzoo.tfm.types
 
 import dev.martianzoo.tfm.pets.NodeVisitor
+import dev.martianzoo.tfm.pets.SpecialComponent.MEGACREDIT
 import dev.martianzoo.tfm.pets.ast.Instruction
 import dev.martianzoo.tfm.pets.ast.PetsNode
 import dev.martianzoo.tfm.pets.ast.QuantifiedExpression
 import dev.martianzoo.tfm.pets.ast.TypeExpression
-import dev.martianzoo.tfm.pets.te
 
 fun <P : PetsNode> applyDefaultsIn(node: P, table: PetClassTable) =
     Defaulter(table).s(node)
@@ -19,7 +19,7 @@ private class Defaulter(val table: PetClassTable): NodeVisitor() {
       }
 
       node is QuantifiedExpression -> node.copy(
-          s(node.typeExpression ?: te("Megacredit")),
+          s(node.typeExpression ?: MEGACREDIT.type),
           node.scalar ?: 1
       )
 

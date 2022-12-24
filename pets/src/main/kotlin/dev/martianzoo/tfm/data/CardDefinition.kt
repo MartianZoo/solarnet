@@ -5,6 +5,8 @@ import dev.martianzoo.tfm.data.CardDefinition.ProjectKind.ACTIVE
 import dev.martianzoo.tfm.pets.ComponentDef
 import dev.martianzoo.tfm.pets.PetsParser
 import dev.martianzoo.tfm.pets.PetsParser.parse
+import dev.martianzoo.tfm.pets.SpecialComponent.END
+import dev.martianzoo.tfm.pets.SpecialComponent.THIS
 import dev.martianzoo.tfm.pets.actionToEffect
 import dev.martianzoo.tfm.pets.ast.Action
 import dev.martianzoo.tfm.pets.ast.Effect
@@ -183,11 +185,11 @@ data class CardDefinition(
         actions.withIndex().map { (i, act) -> actionToEffect(act, i) }).toSetStrict()
   }
 
-  private fun immediateToEffect(instr: Instruction) = Effect(OnGain(TypeExpression("This")), instr)
+  private fun immediateToEffect(instr: Instruction) = Effect(OnGain(THIS.type), instr)
 
   private fun inactive(): Boolean {
     return actionsText.isEmpty() &&
-        effectsText.all { it.startsWith("End:") } && // doing it low-tech ok?
+        effectsText.all { it.startsWith("$END:") } && // doing it low-tech ok?
         resourceTypeText == null
   }
 

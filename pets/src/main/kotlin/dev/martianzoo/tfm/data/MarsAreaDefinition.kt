@@ -2,8 +2,10 @@ package dev.martianzoo.tfm.data
 
 import dev.martianzoo.tfm.pets.ComponentDef
 import dev.martianzoo.tfm.pets.PetsParser.parse
+import dev.martianzoo.tfm.pets.SpecialComponent.THIS
+import dev.martianzoo.tfm.pets.SpecialComponent.TILE
 import dev.martianzoo.tfm.pets.ast.Effect
-import dev.martianzoo.tfm.pets.ast.Effect.Trigger
+import dev.martianzoo.tfm.pets.ast.Effect.Trigger.OnGain
 import dev.martianzoo.tfm.pets.ast.Instruction
 import dev.martianzoo.tfm.pets.ast.TypeExpression
 
@@ -54,4 +56,4 @@ data class MarsAreaDefinition(
   fun componentName() = "${mapName}${row}_$column"
 }
 
-val trigger = parse<Trigger>("Tile<This>")
+val trigger = OnGain(TypeExpression(TILE.toString(), THIS.type))

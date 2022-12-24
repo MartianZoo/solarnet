@@ -8,6 +8,9 @@ import com.github.h0tk3y.betterParse.parser.ParseResult
 import com.github.h0tk3y.betterParse.parser.Parsed
 import com.github.h0tk3y.betterParse.parser.Parser
 import com.github.h0tk3y.betterParse.parser.UnexpectedEof
+import dev.martianzoo.tfm.pets.SpecialComponent.COMPONENT
+import dev.martianzoo.tfm.pets.SpecialComponent.THIS
+import dev.martianzoo.tfm.pets.SpecialComponent.USE_ACTION
 import dev.martianzoo.tfm.pets.ast.Action
 import dev.martianzoo.tfm.pets.ast.Effect
 import dev.martianzoo.tfm.pets.ast.Instruction
@@ -50,12 +53,10 @@ internal fun actionToEffect(action: Action, index: Int) : Effect {
   } else {
     Instruction.Then(listOf(action.cost.toInstruction(), action.instruction))
   }
-  return Effect(PetsParser.parse("UseAction${index + 1}<This>"), merged)
+  return Effect(PetsParser.parse("$USE_ACTION${index + 1}<$THIS>"), merged)
 }
 
 fun te(s: String) = TypeExpression(s)
 
-internal val rootName = "Component"
-
-internal val rootEx = te(rootName)
+internal val rootName = "$COMPONENT"
 

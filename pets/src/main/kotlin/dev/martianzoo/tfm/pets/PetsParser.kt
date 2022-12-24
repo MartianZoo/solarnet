@@ -21,6 +21,7 @@ import com.google.common.cache.CacheBuilder
 import com.google.common.cache.CacheLoader
 import dev.martianzoo.tfm.pets.ComponentDef.Defaults
 import dev.martianzoo.tfm.pets.ComponentDef.Dependency
+import dev.martianzoo.tfm.pets.SpecialComponent.COMPONENT
 import dev.martianzoo.tfm.pets.ast.Action
 import dev.martianzoo.tfm.pets.ast.Action.Cost
 import dev.martianzoo.tfm.pets.ast.Action.Cost.Spend
@@ -399,11 +400,11 @@ object PetsParser {
           }
 
           sups.isEmpty() -> {
-            def.copy(supertypes = setOf(rootEx))
+            def.copy(supertypes = setOf(COMPONENT.type))
           }
 
           else -> {
-            require(rootEx !in sups)
+            require(COMPONENT.type !in sups)
             def
           }
         }

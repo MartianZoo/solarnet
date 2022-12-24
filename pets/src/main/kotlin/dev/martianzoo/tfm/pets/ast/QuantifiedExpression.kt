@@ -1,7 +1,7 @@
 package dev.martianzoo.tfm.pets.ast
 
 import dev.martianzoo.tfm.pets.PetsException
-import dev.martianzoo.tfm.pets.te
+import dev.martianzoo.tfm.pets.SpecialComponent.MEGACREDIT
 
 data class QuantifiedExpression(val typeExpression: TypeExpression? = null, val scalar: Int? = null): PetsNode() {
   init {
@@ -14,11 +14,5 @@ data class QuantifiedExpression(val typeExpression: TypeExpression? = null, val 
   override fun toString() = listOfNotNull(scalar, typeExpression).joinToString(" ")
   override val children = setOfNotNull(typeExpression)
 
-  fun explicit() = copy(typeExpression ?: te("Megacredit"), scalar ?: 1)
-
-  //fun pets(forceScalar: Boolean = false, forceExpression: Boolean = false) = when {
-  //  (!forceExpression && typeExpression == null) -> "$scalar"
-  //  (!forceScalar && scalar == 1) -> "$typeExpression"
-  //  else -> "$scalar ${typeExpression}"
-  //}
+  fun explicit() = copy(typeExpression ?: MEGACREDIT.type, scalar ?: 1)
 }

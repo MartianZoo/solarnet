@@ -1,6 +1,7 @@
 package dev.martianzoo.tfm.pets
 
 import dev.martianzoo.tfm.pets.ComponentDef.Defaults
+import dev.martianzoo.tfm.pets.SpecialComponent.THIS
 import dev.martianzoo.tfm.pets.ast.Effect
 import dev.martianzoo.tfm.pets.ast.Instruction.Intensity
 import dev.martianzoo.tfm.pets.ast.TypeExpression
@@ -35,9 +36,9 @@ data class ComponentDef(
       val removeType: TypeExpression? = null,
       val removeIntensity: Intensity? = null) {
     init {
-      require(typeExpression?.className in setOf("This", null))
-      require(gainType?.className in setOf("This", null))
-      require(removeType?.className in setOf("This", null))
+      require(typeExpression?.className in setOf("$THIS", null))
+      require(gainType?.className in setOf("$THIS", null))
+      require(removeType?.className in setOf("$THIS", null))
     }
 
     fun merge(others: Collection<Defaults>): Defaults {

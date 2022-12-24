@@ -1,5 +1,6 @@
 package dev.martianzoo.tfm.pets.ast
 
+import dev.martianzoo.tfm.pets.SpecialComponent.CLASS
 import dev.martianzoo.tfm.pets.classNamePattern
 import dev.martianzoo.tfm.pets.te
 import dev.martianzoo.util.joinOrEmpty
@@ -19,9 +20,9 @@ data class TypeExpression(
       this(className, specialization.toList())
   init {
     require(className.matches(classNamePattern())) { className }
-    if (className == "Class") {
-      require(specializations.size == 1) { specializations }
-      require(specializations.first().isClassOnly())
+    if (className == "$CLASS") {
+      require(specializations.size <= 1) { specializations }
+      require(specializations.isEmpty() || specializations.first().isClassOnly())
     }
   }
 
