@@ -42,7 +42,4 @@ private fun isEOF(result: ParseResult<*>?): Boolean =
       else -> false
     }
 
-fun classNamePattern(): Regex {
-  val CLASS_NAME_PATTERN by lazy { Regex("^[A-Z][a-z][A-Za-z0-9_]*$") }
-  return CLASS_NAME_PATTERN
-}
+val CLASS_NAME_PATTERN = "\\b[A-Z][a-z][A-Za-z0-9_]*\\b"

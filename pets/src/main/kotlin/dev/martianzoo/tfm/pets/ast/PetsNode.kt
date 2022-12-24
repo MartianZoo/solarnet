@@ -15,7 +15,10 @@ sealed class PetsNode {
 
   abstract val children: Collection<PetsNode>
 
-  fun descendants(): List<PetsNode> {
-    return children.flatMap { listOf(it) + it.descendants() }
+  fun descendants(): List<PetsNode> =
+      children.flatMap { listOf(it) + it.descendants() }
+
+  interface ProductionBox<P : PetsNode> {
+    fun extract(): P
   }
 }

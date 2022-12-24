@@ -1,7 +1,7 @@
 package dev.martianzoo.tfm.pets.ast
 
+import dev.martianzoo.tfm.pets.CLASS_NAME_PATTERN
 import dev.martianzoo.tfm.pets.PetsException
-import dev.martianzoo.tfm.pets.classNamePattern
 import dev.martianzoo.util.joinOrEmpty
 
 sealed class Instruction : PetsNode() {
@@ -42,7 +42,7 @@ sealed class Instruction : PetsNode() {
       val requirement: Requirement? = null
   ) : FromExpression() {
     init {
-      require(className.matches(classNamePattern())) { className }
+      require(className.matches(Regex(CLASS_NAME_PATTERN))) { className }
       if (specializations.count { it is ComplexFrom || it is SimpleFrom } != 1) {
         throw PetsException("Can only have one FROM in an expression")
       }

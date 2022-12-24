@@ -28,11 +28,8 @@ private class Defaulter(val table: PetClassTable): NodeVisitor() {
         val defs = table[te.className].defaults
 
         val gain = if (te.isClassOnly()) {
-          node.copy(
-              qe = node.qe.copy(
-                  typeExpression = s(defs.typeExpression?.copy(className = te.className) ?: te)
-              )
-          )
+          val fixedTe = s(defs.typeExpression?.copy(className = te.className) ?: te)
+          node.copy(qe = node.qe.copy(fixedTe))
         } else {
           node
         }
@@ -44,20 +41,12 @@ private class Defaulter(val table: PetClassTable): NodeVisitor() {
         val defs = table[te.className].defaults
 
         val remove = if (te.isClassOnly()) {
-          node.copy(
-              qe = node.qe.copy(
-                  typeExpression = s(defs.typeExpression?.copy(className = te.className) ?: te)
-              )
-          )
+          val fixedTe = s(defs.typeExpression?.copy(className = te.className) ?: te)
+          node.copy(qe = node.qe.copy(typeExpression = fixedTe))
         } else {
           node
         }
-        remove.copy(
-            intensity = listOfNotNull(
-                remove.intensity,
-                defs.removeIntensity
-            ).firstOrNull()
-        )
+        remove.copy(intensity = listOfNotNull(remove.intensity, defs.removeIntensity).firstOrNull())
       }
 
       else -> node

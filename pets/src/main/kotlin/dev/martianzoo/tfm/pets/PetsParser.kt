@@ -89,8 +89,7 @@ object PetsParser {
 
     internal val typeExpression: Parser<TypeExpression> = publish { whole }
 
-    internal val className =
-        regex("\\b[A-Z][a-z][A-Za-z0-9]*\\b") map { it.text }
+    internal val className = regex(CLASS_NAME_PATTERN) map { it.text }
 
     private val specializations =
         optionalList(skipChar('<') and

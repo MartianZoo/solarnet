@@ -8,7 +8,7 @@ import dev.martianzoo.tfm.pets.ast.Action
 import dev.martianzoo.tfm.pets.ast.Effect
 import dev.martianzoo.tfm.pets.ast.Instruction
 import dev.martianzoo.tfm.pets.ast.PetsNode
-import dev.martianzoo.tfm.pets.ast.ProductionBox
+import dev.martianzoo.tfm.pets.ast.PetsNode.ProductionBox
 import dev.martianzoo.tfm.pets.ast.TypeExpression
 import dev.martianzoo.tfm.types.PetClassLoader
 

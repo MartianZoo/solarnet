@@ -7,7 +7,10 @@ import dev.martianzoo.util.joinOrEmpty
  * of course each spec type must be a subtype of the existing from the petclass
  * But equivalent pettypes are equal regardless of how they happened to be specified.
  */
-data class PetType(val petClass: PetClass, val dependencies: DependencyMap = DependencyMap()) : DependencyTarget {
+data class PetType(
+    val petClass: PetClass,
+    val dependencies: DependencyMap = DependencyMap()
+) : DependencyTarget {
   override val abstract: Boolean = petClass.abstract || dependencies.abstract
 
   override fun isSubtypeOf(that: DependencyTarget): Boolean =

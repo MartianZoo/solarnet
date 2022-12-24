@@ -45,20 +45,18 @@ class PetClassLoader(val definitions: Map<String, ComponentDef>) : PetClassTable
 
   private fun construct(def: ComponentDef): PetClass {
     require(!frozen)
+    require(def.name !in table)
 
     // We can insist that the superclasses are defined first, since there can't be cycles
     val petClass = PetClass(def, this)
-    require(table.put(petClass.name, petClass) == null)
+    table[petClass.name] = petClass
 
     directSubclasses.addNode(petClass)
     def.superclassNames.map(::load).forEach { putSuperToSub(it, petClass) }
     return petClass
   }
 
-  fun freeze(): PetClassTable {
-    frozen = true
-    return this
-  }
+  fun freeze() = this.also { frozen = true }
 
   fun loadAll(): PetClassTable {
     definitions.keys.forEach(::load)
@@ -67,9 +65,8 @@ class PetClassLoader(val definitions: Map<String, ComponentDef>) : PetClassTable
 
   override fun all() = table.values.toSet().also { require(frozen) }
 
-  override fun resolveWithDefaults(expression: TypeExpression): PetType {
-    return resolve(applyDefaultsIn(expression, this))
-  }
+  override fun resolveWithDefaults(expression: TypeExpression) =
+      resolve(applyDefaultsIn(expression, this))
 
   override fun resolve(expression: TypeExpression): PetType {
     val specs: List<PetType> = expression.specializations.map { resolve(it) }
@@ -77,16 +74,19 @@ class PetClassLoader(val definitions: Map<String, ComponentDef>) : PetClassTable
     try {
       return petClass.baseType.specialize(specs)
     } catch (e: Exception) {
-      throw RuntimeException("1. trying to resolve $expression\npetClass is $petClass\nbaseType is ${petClass.baseType}\n", e)
+      throw RuntimeException("""
+        1. trying to resolve $expression
+        petClass is $petClass
+        baseType is ${petClass.baseType}
+      """, e)
     }
   }
 
-  override fun isValid(expression: TypeExpression): Boolean {
-    return try {
-      resolve(expression)
-      true
-    } catch (e: RuntimeException) {
-      false
-    }
-  }
+  override fun isValid(expression: TypeExpression) =
+      try {
+        resolve(expression)
+        true
+      } catch (e: RuntimeException) {
+        false
+      }
 }
