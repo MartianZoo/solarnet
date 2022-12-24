@@ -104,7 +104,7 @@ sealed class Instruction : PetsNode() {
       }
     }
     override fun toString(): String {
-      return "${requirement.toStringWhenInside(this)}: ${instruction.toStringWhenInside(this)}"
+      return "${groupIfNeeded(requirement)}: ${groupIfNeeded(instruction)}"
     }
 
     // let's over-group for clarity
@@ -117,9 +117,7 @@ sealed class Instruction : PetsNode() {
 
   data class Or(val instructions: Set<Instruction>) : Instruction() {
     constructor(vararg instructions: Instruction) : this(instructions.toSet())
-    override fun toString() = instructions.joinToString(" OR ") {
-      it.toStringWhenInside(this)
-    }
+    override fun toString() = instructions.map(::groupIfNeeded).joinToString(" OR ")
     override fun parenthesizeThisWhenInside(container: PetsNode): Boolean {
       return container is Then || super.parenthesizeThisWhenInside(container)
     }
@@ -129,18 +127,14 @@ sealed class Instruction : PetsNode() {
 
   data class Then(val instructions: List<Instruction>) : Instruction() {
     constructor(vararg instructions: Instruction) : this(instructions.toList())
-    override fun toString() = instructions.joinToString (" THEN ") {
-      it.toStringWhenInside(this)
-    }
+    override fun toString() = instructions.map(::groupIfNeeded).joinToString (" THEN ")
     override fun precedence() = 2
     override val children = instructions
   }
 
   data class Multi(val instructions: List<Instruction>) : Instruction() {
     constructor(vararg instructions: Instruction) : this(instructions.toList())
-    override fun toString() = instructions.joinToString {
-      it.toStringWhenInside(this)
-    }
+    override fun toString() = instructions.map(::groupIfNeeded).joinToString()
     override fun precedence() = 0
     override val children = instructions
   }
@@ -148,7 +142,6 @@ sealed class Instruction : PetsNode() {
   data class Prod(val instruction: Instruction) : Instruction(), ProductionBox<Instruction> {
     override fun toString() = "PROD[$instruction]"
     override val children = setOf(instruction)
-    override fun countProds() = super.countProds() + 1
     override fun extract() = instruction
   }
 

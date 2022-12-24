@@ -41,7 +41,6 @@ data class Effect(
       }
       override fun toString() = "PROD[${trigger}]"
       override val children = setOf(trigger)
-      override fun countProds() = super.countProds() + 1
       override fun extract() = trigger
     }
   }

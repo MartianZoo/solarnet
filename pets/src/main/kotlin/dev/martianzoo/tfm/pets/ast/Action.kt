@@ -39,9 +39,7 @@ data class Action(val cost: Cost?, val instruction: Instruction) : PetsNode() {
 
     data class Or(var costs: Set<Cost>) : Cost() {
       constructor(vararg costs: Cost) : this(costs.toSet())
-      override fun toString() = costs.joinToString(" OR ") {
-        it.toStringWhenInside(this)
-      }
+      override fun toString() = costs.map(::groupIfNeeded).joinToString(" OR ")
       override fun precedence() = 3
       override val children = costs
       override fun toInstruction() = Instruction.Or(costs.map(Cost::toInstruction).toSet())
@@ -49,9 +47,7 @@ data class Action(val cost: Cost?, val instruction: Instruction) : PetsNode() {
 
     data class Multi(var costs: List<Cost>) : Cost() {
       constructor(vararg costs: Cost) : this(costs.toList())
-      override fun toString() = costs.joinToString() {
-        it.toStringWhenInside(this)
-      }
+      override fun toString() = costs.map(::groupIfNeeded).joinToString()
       override fun precedence() = 1
       override val children = costs
       override fun toInstruction() = Instruction.Multi(costs.map(Cost::toInstruction))
@@ -60,7 +56,6 @@ data class Action(val cost: Cost?, val instruction: Instruction) : PetsNode() {
     data class Prod(val cost: Cost) : Cost(), ProductionBox<Cost> {
       override fun toString() = "PROD[${cost}]"
       override val children = setOf(cost)
-      override fun countProds() = super.countProds() + 1
       override fun toInstruction() = Prod(cost.toInstruction())
       override fun extract() = cost
     }

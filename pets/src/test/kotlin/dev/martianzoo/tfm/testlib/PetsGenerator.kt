@@ -160,9 +160,7 @@ class PetsGenerator(scaling: (Int) -> Double)
 
     override fun <T : PetsNode> invoke(type: KClass<T>, gen: RandomGenerator<PetsNode>): T? {
       try {
-        val result = super.invoke(type, gen)
-        if (result!!.countProds() > 1) return null
-        return result
+        return super.invoke(type, gen)
       } catch (e: PetsException) {
         return null // TODO this better
       }

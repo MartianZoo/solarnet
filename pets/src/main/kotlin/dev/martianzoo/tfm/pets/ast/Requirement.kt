@@ -31,9 +31,7 @@ sealed class Requirement : PetsNode() {
   data class Or(val requirements: Set<Requirement>) : Requirement() {
     constructor(reqt1: Requirement, reqt2: Requirement, vararg rest: Requirement) :
         this(asList(reqt1, reqt2, rest).toSetStrict())
-    override fun toString() = requirements.joinToString(" OR ") {
-      it.toStringWhenInside(this)
-    }
+    override fun toString() = requirements.map(::groupIfNeeded).joinToString(" OR ")
     override fun precedence() = 3
     override val children = requirements
   }
@@ -41,9 +39,7 @@ sealed class Requirement : PetsNode() {
   data class And(val requirements: List<Requirement>) : Requirement() {
     constructor(reqt1: Requirement, reqt2: Requirement, vararg rest: Requirement) :
         this(asList(reqt1, reqt2, rest))
-    override fun toString() = requirements.joinToString() {
-      it.toStringWhenInside(this)
-    }
+    override fun toString() = requirements.map(::groupIfNeeded).joinToString()
     override fun precedence() = 1
     override val children = requirements
   }
@@ -51,7 +47,6 @@ sealed class Requirement : PetsNode() {
   data class Prod(val requirement: Requirement) : Requirement(), ProductionBox<Requirement> {
     override fun toString() = "PROD[${requirement}]"
     override val children = setOf(requirement)
-    override fun countProds() = super.countProds() + 1
     override fun extract() = requirement
   }
 
