@@ -14,8 +14,7 @@ data class TypeExpression(
     val className: String,
     val specializations: List<TypeExpression> = listOf(),
     val requirement: Requirement? = null,
-//    val discriminator: Int? = null
-    ) : PetsNode() {
+) : PetsNode() {
   constructor(className: String, vararg specialization: TypeExpression) :
       this(className, specialization.toList())
   init {

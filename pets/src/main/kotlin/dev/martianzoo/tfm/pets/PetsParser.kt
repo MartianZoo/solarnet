@@ -324,19 +324,15 @@ object PetsParser {
 
     private val gainDefault =
         skipChar('+') and Types.typeExpression and Instructions.intensity map {
-          (type, int) -> Defaults(gainType = type, gainIntensity = int)
-        }
-    private val removeDefault =
-        skipChar('-') and Types.typeExpression and Instructions.intensity map {
-          (type, int) -> Defaults(removeType = type, removeIntensity = int)
+          (type, int) -> Defaults(gainDefault = oneDefault(type), gainIntensity = int)
         }
 
     private val typeDefault = Types.typeExpression map {
-      Defaults(typeExpression = it)
+      Defaults(allDefault = oneDefault(it))
     }
 
     private val default: Parser<Defaults> =
-        skipWord("default") and (gainDefault or removeDefault or typeDefault)
+        skipWord("default") and (gainDefault or typeDefault)
 
     private val bodyElement = default or Actions.action or Effects.effect
 
@@ -410,19 +406,26 @@ object PetsParser {
       val effs = contents.filterIsInstance<Effect>().toSetStrict()
       val subs = contents.filterIsInstance<List<ComponentDefInProcess>>().toSetStrict()
 
+      val mergedDefaults = Defaults(
+          allDefault = defs.firstNotNullOfOrNull { it.allDefault },
+          gainDefault = defs.firstNotNullOfOrNull { it.gainDefault },
+          gainIntensity = defs.firstNotNullOfOrNull { it.gainIntensity },
+      )
+
       val comp = ComponentDef(
           name = sig.className,
           abstract = abst,
           supertypes = sig.supertypes.toSetStrict(),
           dependencies = sig.dependencies,
           effectsRaw = effs + actionsToEffects(acts),
-          defaults = Defaults().merge(defs)
+          defaults = mergedDefaults
       )
       return listOf(ComponentDefInProcess(comp, false)) + subs.flatten()
           .map { it.fillInSuperclass(sig.className) }
     }
   }
   val xc = Components.oneLineComponentDef
+
 
   // PRIVATE HELPERS -----------------------------------------------------------
 

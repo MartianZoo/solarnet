@@ -146,7 +146,6 @@ abstract class PaymentMechanic : Owned, Temporary {
 
 
     class Owed<CLASS Resource> : Barrier {                  // created when payment due, removed by discount cards/
-       default -This.                                       // Alloys/Ecoline, added to by Polyphemos
        This:: Accept<Resource>
     }
 
@@ -155,7 +154,7 @@ abstract class PaymentMechanic : Owned, Temporary {
     }
 
     class Pay<CLASS Resource> : Signal {                    // player uses it like `8 Pay<Heat> FROM Heat`
-        This:: -Owed<Resource>                              // But also cards can pay in response to signals
+        This:: -Owed<Resource>.                             // But also cards can pay in response to signals
     }
 
     class BuyCard : Signal                                  // used by ResearchPhase, InvGuild, BusNet

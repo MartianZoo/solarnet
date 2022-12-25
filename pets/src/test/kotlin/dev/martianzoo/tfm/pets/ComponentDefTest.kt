@@ -87,7 +87,6 @@ class ComponentDefTest {
     val cs = parseComponents("""
         abstract class Component {
            default +This!
-           default -This!
            default This<Foo>
 
            class This   // comment

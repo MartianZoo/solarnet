@@ -2,9 +2,16 @@ package dev.martianzoo.tfm.types
 
 import dev.martianzoo.tfm.pets.ComponentDef
 import dev.martianzoo.tfm.pets.ComponentDef.Defaults
+import dev.martianzoo.tfm.pets.NodeVisitor
+import dev.martianzoo.tfm.pets.SpecialComponent.COMPONENT
 import dev.martianzoo.tfm.pets.SpecialComponent.STANDARD_RESOURCE
+import dev.martianzoo.tfm.pets.SpecialComponent.THIS
+import dev.martianzoo.tfm.pets.ast.Effect
 import dev.martianzoo.tfm.pets.ast.PetsNode
+import dev.martianzoo.tfm.pets.ast.TypeExpression
+import dev.martianzoo.tfm.pets.ast.TypeExpression.Companion.te
 import dev.martianzoo.tfm.pets.deprodify
+import dev.martianzoo.tfm.pets.replaceTypesIn
 
 /**
  */
@@ -41,6 +48,9 @@ data class PetClass(val def: ComponentDef, val loader: PetClassLoader): Dependen
     allSuperclasses.flatMap { it.directDependencyKeys }.toSet()
   }
 
+  fun resolveSpecializations(specs: List<TypeExpression>): DependencyMap =
+      baseType.dependencies.findMatchups(specs.map { loader.resolve(it) })
+
   /** Common supertype of all types with petClass==this */
   val baseType: PetType by lazy {
     val deps = DependencyMap.merge(directSupertypes.map { it.dependencies })
@@ -62,14 +72,21 @@ data class PetClass(val def: ComponentDef, val loader: PetClassLoader): Dependen
 // DEFAULTS
 
   val defaults: Defaults by lazy {
-    val fromSupes = Defaults().merge(directSuperclasses.map { it.defaults })
-    Defaults(
-        listOfNotNull(def.defaults.typeExpression, fromSupes.typeExpression).firstOrNull(),
-        listOfNotNull(def.defaults.gainType, fromSupes.gainType).firstOrNull(),
-        listOfNotNull(def.defaults.gainIntensity, fromSupes.gainIntensity).firstOrNull(),
-        listOfNotNull(def.defaults.removeType, fromSupes.removeType).firstOrNull(),
-        listOfNotNull(def.defaults.removeIntensity, fromSupes.removeIntensity).firstOrNull()
-    )
+    // do inheritance but ignoring Component
+    // expect no conflicts
+    Defaults()
+  }
+
+  val defaultsIgnoringRoot: Defaults by lazy {
+    if (name == "$COMPONENT") {
+      Defaults()
+    } else {
+      if (defaults != null) {
+
+
+      }
+    }
+    Defaults()
   }
 
 
@@ -80,10 +97,32 @@ data class PetClass(val def: ComponentDef, val loader: PetClassLoader): Dependen
     def.effects
         .map { deprodify(it, resourceNames) }
         .map { applyDefaultsIn(it, loader) }
+        .also { findInvalidTypes(it, loader) }
   }
 
+  private fun findInvalidTypes(effects: List<Effect>, loader: PetClassLoader) {
+    val fx = effects.map { replaceTypesIn(it, THIS.type, te(name)) }
+    val validator = Validator(loader)
+    validator.s(fx)
+    if (validator.invalid.isNotEmpty()) {
+      println("$name - ${validator.invalid}")
+    }
+  }
 
-// OTHER
+  internal class Validator(val loader: PetClassLoader) : NodeVisitor() {
+    val invalid = mutableSetOf<TypeExpression>()
+    override fun <P : PetsNode?> s(node: P): P {
+      if (node is TypeExpression && !loader.isValid(node)) {
+        invalid.add(node)
+      }
+      return super.s(node)
+    }
+  }
+
+  override fun toTypeExpression() = te(name)
+
+
+  // OTHER
 
   /** Returns the one of `this` or `that` that is a subclass of the other. */
   override fun glb(that: DependencyTarget) = when {

@@ -1,6 +1,5 @@
 abstract class Component {                             // Component is the single root of the hierarchy
     default +This!                                     // no need to write `: Component`; it's assumed
-    default -This!                                     // <- means all gains & removes are mandatory unless overridden
 }
                                                        // magic rules: no nested specs. Class<Heat> is concrete. If decl
 class Class<Component>(HAS =1 This)                    // is `class Foo<CLASS Bar>`, (a) it is really `Foo<Class<Bar>>`,

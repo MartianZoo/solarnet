@@ -1,5 +1,6 @@
 package dev.martianzoo.tfm.types
 
+import dev.martianzoo.tfm.pets.ast.TypeExpression
 import dev.martianzoo.util.joinOrEmpty
 
 /**
@@ -39,4 +40,8 @@ data class PetType(
     return "$petClass$deps"
   }
 
+  override fun toTypeExpression(): TypeExpression {
+    val map = dependencies.keyToType.values.map { it.toTypeExpression() }
+    return TypeExpression(petClass.name, map)
+  }
 }

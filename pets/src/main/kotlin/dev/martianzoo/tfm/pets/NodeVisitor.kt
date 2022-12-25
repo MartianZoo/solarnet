@@ -10,8 +10,8 @@ import dev.martianzoo.tfm.pets.ast.TypeExpression
 import dev.martianzoo.util.toSetStrict
 
 open class NodeVisitor {
-  private fun <P : PetsNode> s(ns: List<P>) = ns.map { s(it) }
-  private fun <P : PetsNode> s(ns: Set<P>) = ns.map { s(it) }.toSetStrict()
+  fun <P : PetsNode> s(ns: List<P>) = ns.map { s(it) }
+  fun <P : PetsNode> s(ns: Set<P>) = ns.map { s(it) }.toSetStrict()
 
   open fun <P : PetsNode?> s(node: P): P {
     if (node == null) return null as P // TODO how'm I even getting away with this

@@ -1,10 +1,12 @@
 package dev.martianzoo.tfm.pets
 
 import dev.martianzoo.tfm.pets.ComponentDef.Defaults
+import dev.martianzoo.tfm.pets.ComponentDef.OneDefault
 import dev.martianzoo.tfm.pets.SpecialComponent.COMPONENT
 import dev.martianzoo.tfm.pets.SpecialComponent.THIS
 import dev.martianzoo.tfm.pets.ast.Effect
 import dev.martianzoo.tfm.pets.ast.Instruction.Intensity
+import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.pets.ast.TypeExpression
 import dev.martianzoo.util.toSetStrict
 
@@ -37,28 +39,18 @@ data class ComponentDef(
   data class Dependency(val type: TypeExpression, val classDep: Boolean = false)
 
   data class Defaults(
-      val typeExpression: TypeExpression? = null,
-      val gainType: TypeExpression? = null,
-      val gainIntensity: Intensity? = null,
-      val removeType: TypeExpression? = null,
-      val removeIntensity: Intensity? = null) {
-    init {
-      require(typeExpression?.className in setOf("$THIS", null))
-      require(gainType?.className in setOf("$THIS", null))
-      require(removeType?.className in setOf("$THIS", null))
-    }
-
-    fun merge(others: Collection<Defaults>): Defaults {
-      val defaultses = listOf(this) + others
-      return Defaults(
-          getZeroOrOne(defaultses) { it.typeExpression },
-          getZeroOrOne(defaultses) { it.gainType },
-          getZeroOrOne(defaultses) { it.gainIntensity },
-          getZeroOrOne(defaultses) { it.removeType },
-          getZeroOrOne(defaultses) { it.removeIntensity })
-    }
+      val allDefault: OneDefault? = null,
+      val gainDefault: OneDefault? = null,
+      val gainIntensity: Intensity? = null) {
   }
+
+
+  data class OneDefault(val specializations: List<TypeExpression>, val requirement: Requirement?)
 }
+
+fun oneDefault(te: TypeExpression) =
+    OneDefault(te.specializations, te.requirement)
+        .also { require(te.className == "$THIS") }
 
 private fun <T> getZeroOrOne(defaultses: List<Defaults>, extractor: (Defaults) -> T?): T? {
   val set = defaultses.mapNotNull(extractor).toSet()

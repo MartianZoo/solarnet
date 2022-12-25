@@ -2,7 +2,6 @@
 
 abstract class GlobalParameter {                            // TODO splittable...
     default +This.                                          // by default, gains are "if possible"
-    default -This.                                          // removes too
 
     This: TerraformRating                                   // rule: unspec'd Player -> active
 

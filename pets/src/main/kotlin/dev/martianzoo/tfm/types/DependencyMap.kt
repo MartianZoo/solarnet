@@ -25,6 +25,12 @@ data class DependencyMap(val keyToType: Map<DependencyKey, DependencyTarget>) {
   fun merge(that: DependencyMap): DependencyMap = DependencyMap(
       mergeMaps(this.keyToType, that.keyToType) { type1, type2 -> type1.glb(type2) })
 
+  fun overlayOn(that: DependencyMap): DependencyMap {
+    val map = that.keyToType.toMutableMap()
+    map.putAll(keyToType)
+    return DependencyMap(map)
+  }
+
   companion object {
     fun merge(maps: Collection<DependencyMap>): DependencyMap {
       var map = DependencyMap()

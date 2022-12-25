@@ -25,17 +25,7 @@ class PetClassCanonTest {
     val table = PetClassLoader(defns).loadAll()
 
     table.all().forEach {
-      clazz -> clazz.directEffects.forEach {fx ->
-          testRoundTrip(fx)
-          println("$clazz - $fx")
-          fx.descendants().filterIsInstance<TypeExpression>().forEach {
-            try {
-              table.resolve(it)
-            } catch (e: Exception) {
-              if (!it.toString().contains(Regex("\\b(This|HAS)\\b"))) println("$clazz - $it")
-            }
-          }
-      }
+      clazz -> clazz.directEffects.forEach { fx -> testRoundTrip(fx) }
     }
   }
 

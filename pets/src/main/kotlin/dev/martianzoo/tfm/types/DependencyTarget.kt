@@ -1,5 +1,7 @@
 package dev.martianzoo.tfm.types
 
+import dev.martianzoo.tfm.pets.ast.TypeExpression
+
 interface DependencyTarget {
   val abstract: Boolean
 
@@ -9,4 +11,5 @@ interface DependencyTarget {
    * Returns the common supertype of every subtype of both `this` and `that`, if possible.
    */
   fun glb(that: DependencyTarget): DependencyTarget
+  fun toTypeExpression(): TypeExpression
 }
