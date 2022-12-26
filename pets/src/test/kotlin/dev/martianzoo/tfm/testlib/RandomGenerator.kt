@@ -39,7 +39,6 @@ abstract class RandomGenerator<B : Any>(val registry: Registry<B>, val scaling: 
   fun <N : B> recurse(type: KClass<N>): N {
     val d = depth!!
     depth = d + 1
-    //println("$depth ${type.simpleName}")
     if (depth!! > 32) error("")
     while (true) {
       val x = registry.invoke(type, this) ?: continue

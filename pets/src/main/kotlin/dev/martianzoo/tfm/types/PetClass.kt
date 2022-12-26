@@ -1,7 +1,6 @@
 package dev.martianzoo.tfm.types
 
 import dev.martianzoo.tfm.pets.ComponentDef
-import dev.martianzoo.tfm.pets.ComponentDef.Defaults
 import dev.martianzoo.tfm.pets.NodeVisitor
 import dev.martianzoo.tfm.pets.SpecialComponent.COMPONENT
 import dev.martianzoo.tfm.pets.SpecialComponent.STANDARD_RESOURCE
@@ -72,21 +71,21 @@ data class PetClass(val def: ComponentDef, val loader: PetClassLoader): Dependen
 // DEFAULTS
 
   val defaults: Defaults by lazy {
-    // do inheritance but ignoring Component
-    // expect no conflicts
-    Defaults()
+    if (name == "$COMPONENT") {
+      Defaults.from(def.rawDefaults, this)
+    } else {
+      val rootDefaults = loader["$COMPONENT"].defaults
+      defaultsIgnoringRoot.overlayOn(listOf(rootDefaults))
+    }
   }
 
   val defaultsIgnoringRoot: Defaults by lazy {
     if (name == "$COMPONENT") {
       Defaults()
     } else {
-      if (defaults != null) {
-
-
-      }
+      Defaults.from(def.rawDefaults, this)
+          .overlayOn(directSuperclasses.map { it.defaultsIgnoringRoot })
     }
-    Defaults()
   }
 
 
@@ -96,25 +95,19 @@ data class PetClass(val def: ComponentDef, val loader: PetClassLoader): Dependen
     val resourceNames = loader["$STANDARD_RESOURCE"].allSubclasses.map { it.name }.toSet()
     def.effects
         .map { deprodify(it, resourceNames) }
+        .map { replaceTypesIn(it, THIS.type, te(name)) }
         .map { applyDefaultsIn(it, loader) }
-        .also { findInvalidTypes(it, loader) }
+        .also { validateAllTypes(it, loader) }
   }
 
-  private fun findInvalidTypes(effects: List<Effect>, loader: PetClassLoader) {
-    val fx = effects.map { replaceTypesIn(it, THIS.type, te(name)) }
-    val validator = Validator(loader)
-    validator.s(fx)
-    if (validator.invalid.isNotEmpty()) {
-      println("$name - ${validator.invalid}")
-    }
+  private fun validateAllTypes(effects: List<Effect>, loader: PetClassLoader) {
+    // val fx = effects.map { replaceTypesIn(it, THIS.type, te(name)) }
+    Validator(loader).s(effects)
   }
 
   internal class Validator(val loader: PetClassLoader) : NodeVisitor() {
-    val invalid = mutableSetOf<TypeExpression>()
     override fun <P : PetsNode?> s(node: P): P {
-      if (node is TypeExpression && !loader.isValid(node)) {
-        invalid.add(node)
-      }
+      if (node is TypeExpression) loader.resolve(node)
       return super.s(node)
     }
   }

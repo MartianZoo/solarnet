@@ -1,6 +1,6 @@
 package dev.martianzoo.tfm.pets
 
-import dev.martianzoo.tfm.pets.ComponentDef.Defaults
+import dev.martianzoo.tfm.pets.ComponentDef.RawDefaults
 import dev.martianzoo.tfm.pets.ComponentDef.OneDefault
 import dev.martianzoo.tfm.pets.SpecialComponent.COMPONENT
 import dev.martianzoo.tfm.pets.SpecialComponent.THIS
@@ -20,7 +20,7 @@ data class ComponentDef(
     val supertypes: Set<TypeExpression> = setOf(),
     val dependencies: List<Dependency> = listOf(),
     private val effectsRaw: Set<Effect> = setOf(),
-    val defaults: Defaults = Defaults()
+    val rawDefaults: RawDefaults = RawDefaults()
 ) {
   init {
     if (name == "$COMPONENT") {
@@ -38,13 +38,10 @@ data class ComponentDef(
 
   data class Dependency(val type: TypeExpression, val classDep: Boolean = false)
 
-  data class Defaults(
+  data class RawDefaults(
       val allDefault: OneDefault? = null,
       val gainDefault: OneDefault? = null,
-      val gainIntensity: Intensity? = null) {
-  }
-
-
+      val gainIntensity: Intensity? = null)
   data class OneDefault(val specializations: List<TypeExpression>, val requirement: Requirement?)
 }
 
@@ -52,8 +49,8 @@ fun oneDefault(te: TypeExpression) =
     OneDefault(te.specializations, te.requirement)
         .also { require(te.className == "$THIS") }
 
-private fun <T> getZeroOrOne(defaultses: List<Defaults>, extractor: (Defaults) -> T?): T? {
-  val set = defaultses.mapNotNull(extractor).toSet()
-  // require(set.size <= 1) // TODO yipes
+private fun <T> getZeroOrOne(rawDefaultses: List<RawDefaults>, extractor: (RawDefaults) -> T?): T? {
+  val set = rawDefaultses.mapNotNull(extractor).toSet()
+  require(set.size <= 1) // TODO yipes
   return set.firstOrNull()
 }

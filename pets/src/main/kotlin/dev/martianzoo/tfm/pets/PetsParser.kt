@@ -19,7 +19,7 @@ import com.github.h0tk3y.betterParse.parser.Parser
 import com.github.h0tk3y.betterParse.parser.parseToEnd
 import com.google.common.cache.CacheBuilder
 import com.google.common.cache.CacheLoader
-import dev.martianzoo.tfm.pets.ComponentDef.Defaults
+import dev.martianzoo.tfm.pets.ComponentDef.RawDefaults
 import dev.martianzoo.tfm.pets.ComponentDef.Dependency
 import dev.martianzoo.tfm.pets.SpecialComponent.COMPONENT
 import dev.martianzoo.tfm.pets.ast.Action
@@ -324,14 +324,14 @@ object PetsParser {
 
     private val gainDefault =
         skipChar('+') and Types.typeExpression and Instructions.intensity map {
-          (type, int) -> Defaults(gainDefault = oneDefault(type), gainIntensity = int)
+          (type, int) -> RawDefaults(gainDefault = oneDefault(type), gainIntensity = int)
         }
 
     private val typeDefault = Types.typeExpression map {
-      Defaults(allDefault = oneDefault(it))
+      RawDefaults(allDefault = oneDefault(it))
     }
 
-    private val default: Parser<Defaults> =
+    private val default: Parser<RawDefaults> =
         skipWord("default") and (gainDefault or typeDefault)
 
     private val bodyElement = default or Actions.action or Effects.effect
@@ -401,12 +401,12 @@ object PetsParser {
         sig: Signature,
         contents: List<Any> = listOf()
     ): List<ComponentDefInProcess> {
-      val defs = contents.filterIsInstance<Defaults>().toSetStrict()
+      val defs = contents.filterIsInstance<RawDefaults>().toSetStrict()
       val acts = contents.filterIsInstance<Action>().toSetStrict()
       val effs = contents.filterIsInstance<Effect>().toSetStrict()
       val subs = contents.filterIsInstance<List<ComponentDefInProcess>>().toSetStrict()
 
-      val mergedDefaults = Defaults(
+      val mergedDefaults = RawDefaults(
           allDefault = defs.firstNotNullOfOrNull { it.allDefault },
           gainDefault = defs.firstNotNullOfOrNull { it.gainDefault },
           gainIntensity = defs.firstNotNullOfOrNull { it.gainIntensity },
@@ -418,7 +418,7 @@ object PetsParser {
           supertypes = sig.supertypes.toSetStrict(),
           dependencies = sig.dependencies,
           effectsRaw = effs + actionsToEffects(acts),
-          defaults = mergedDefaults
+          rawDefaults = mergedDefaults
       )
       return listOf(ComponentDefInProcess(comp, false)) + subs.flatten()
           .map { it.fillInSuperclass(sig.className) }

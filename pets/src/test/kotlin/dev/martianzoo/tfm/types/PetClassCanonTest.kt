@@ -13,7 +13,6 @@ class PetClassCanonTest {
   fun spew() {
     val table = PetClassLoader(Canon.allDefinitions).loadAll()
     table.all().sortedBy { it.name }.forEach {
-      // println("${it.name} : ${it.directSuperclasses} : ${it.directEffects}")
     }
   }
 
@@ -24,8 +23,11 @@ class PetClassCanonTest {
 
     val table = PetClassLoader(defns).loadAll()
 
-    table.all().forEach {
-      clazz -> clazz.directEffects.forEach { fx -> testRoundTrip(fx) }
+    table.all().forEach { clazz ->
+      clazz.directEffects.forEach { fx ->
+        testRoundTrip(fx)
+        println("$clazz - $fx")
+      }
     }
   }
 

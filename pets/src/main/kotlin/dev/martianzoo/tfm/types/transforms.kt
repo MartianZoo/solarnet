@@ -1,10 +1,10 @@
 package dev.martianzoo.tfm.types
 
-import dev.martianzoo.tfm.pets.ComponentDef.OneDefault
 import dev.martianzoo.tfm.pets.NodeVisitor
 import dev.martianzoo.tfm.pets.SpecialComponent.THIS
 import dev.martianzoo.tfm.pets.ast.Instruction.Gain
 import dev.martianzoo.tfm.pets.ast.PetsNode
+import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.pets.ast.TypeExpression
 
 fun <P : PetsNode> applyDefaultsIn(node: P, table: PetClassTable) =
@@ -18,16 +18,17 @@ private class Defaulter(val table: PetClassTable): NodeVisitor() {
       is TypeExpression -> {
         val petClass = table[node.className]
         // TODO should we be recursing?
-        applyOneDefault(node, petClass, petClass.defaults.allDefault)
+        applyDefaultSpecs(node, petClass, petClass.defaults.allDeps, petClass.defaults.allReqs)
       }
       is Gain -> {
         val statedTypeExpr = node.qe.typeExpression!!
         val petClass = table[statedTypeExpr.className]
         val defaults = petClass.defaults
-        val newTypeExpr = applyOneDefault(
+        val newTypeExpr = applyDefaultSpecs(
             statedTypeExpr,
             petClass,
-            defaults.gainDefault)
+            defaults.gainDeps,
+            defaults.gainReqs)
         node.copy(
             node.qe.copy(s(newTypeExpr)),
             node.intensity ?: defaults.gainIntensity)
@@ -39,24 +40,17 @@ private class Defaulter(val table: PetClassTable): NodeVisitor() {
     return rewritten as P
   }
 
-  private fun applyOneDefault(
+  internal fun applyDefaultSpecs(
       original: TypeExpression,
       petClass: PetClass,
-      default: OneDefault?,
+      defaultDeps: DependencyMap,
+      reqs: Requirement?
   ): TypeExpression {
-    val defaultSpecs = default?.specializations ?: listOf()
-    if (defaultSpecs.isEmpty()) {
-      return original
-    }
-
-    val defaultType = TypeExpression(petClass.name, defaultSpecs)
-    val defaultDeps = table.resolve(defaultType).dependencies
     val explicitStatedDeps =
-        petClass.resolveSpecializations(
-            original.specializations)
+        petClass.resolveSpecializations(original.specializations)
     val mergedDeps = explicitStatedDeps.overlayOn(defaultDeps)
 
-    // TODO: a little weird that we're going backwards here?
+    //// TODO: a little weird that we're going backwards here?
     return PetType(petClass, mergedDeps).toTypeExpression()
   }
 }

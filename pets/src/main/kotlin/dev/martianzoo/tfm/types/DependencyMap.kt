@@ -17,6 +17,10 @@ data class DependencyMap(val keyToType: Map<DependencyKey, DependencyTarget>) {
   }
   val abstract = keyToType.values.any { type -> type.abstract }
 
+  val keys = keyToType.keys
+
+  operator fun get(key: DependencyKey): DependencyTarget? = keyToType[key]
+
   fun sub(that: DependencyMap) =
       // For each of *its* keys, my type must be a subtype of its type
       that.keyToType.all { (thatKey, thatType) -> keyToType[thatKey]!!.isSubtypeOf(thatType) }
