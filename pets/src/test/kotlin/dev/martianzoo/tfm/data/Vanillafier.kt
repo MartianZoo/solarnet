@@ -52,7 +52,6 @@ object Vanillafier {
 
                 is Effect.Trigger.OnGain -> copy(san(expression))
                 is Effect.Trigger.OnRemove -> copy(san(expression))
-                is Effect.Trigger.Now -> copy(san(requirement))
                 is Effect.Trigger.Prod -> copy(san(trigger))
                 is Effect -> copy(san(trigger), san(instruction))
 

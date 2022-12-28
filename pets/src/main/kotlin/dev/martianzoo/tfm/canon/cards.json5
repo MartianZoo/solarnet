@@ -170,6 +170,7 @@
       "immediate": [ "54, ProjectCard" ],
       "effects": [
         "MicrobeTag<Anyone>: Disease<This>, -4.",
+        // ideally: `TR FROM Disease ELSE (PlayedEvent FROM This, 3 TR)?`
         "ScienceTag: (TerraformRating FROM Disease) OR (MAX 0 Disease: ((PlayedEvent FROM This, 3 TerraformRating) OR Ok))"
       ],
       "resourceType": "Disease",

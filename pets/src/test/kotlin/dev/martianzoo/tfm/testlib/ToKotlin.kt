@@ -74,7 +74,6 @@ object ToKotlin {
 
         is Trigger.OnGain -> "OnGain(${pp(expression)})"
         is Trigger.OnRemove -> "OnRemove(${pp(expression)})"
-        is Trigger.Now -> "Now(${pp(requirement)})"
         is Trigger.Prod -> "Trigger.Prod(${pp(trigger)})"
         is Effect -> "Effect(${pp(trigger)}, ${pp(instruction)})"
 

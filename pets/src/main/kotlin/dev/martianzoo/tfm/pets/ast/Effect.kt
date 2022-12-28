@@ -28,11 +28,6 @@ data class Effect(
       override val children = setOf(expression)
     }
 
-    data class Now(val requirement: Requirement) : Trigger() {
-      override fun toString() = "NOW $requirement"
-      override val children = setOf(requirement)
-    }
-
     data class Prod(val trigger: Trigger) : Trigger(), ProductionBox<Trigger> {
       init {
         if (trigger !is OnGain && trigger !is OnRemove) {

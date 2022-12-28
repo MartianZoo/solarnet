@@ -27,7 +27,6 @@ import dev.martianzoo.tfm.pets.ast.Action.Cost
 import dev.martianzoo.tfm.pets.ast.Action.Cost.Spend
 import dev.martianzoo.tfm.pets.ast.Effect
 import dev.martianzoo.tfm.pets.ast.Effect.Trigger
-import dev.martianzoo.tfm.pets.ast.Effect.Trigger.Now
 import dev.martianzoo.tfm.pets.ast.Effect.Trigger.OnGain
 import dev.martianzoo.tfm.pets.ast.Effect.Trigger.OnRemove
 import dev.martianzoo.tfm.pets.ast.Instruction
@@ -273,10 +272,7 @@ object PetsParser {
     private val onRemove = skipChar('-') and Types.typeExpression map ::OnRemove
     private val atom = onGain or onRemove
 
-    private val prod = prod(atom) map Trigger::Prod or atom
-    private val now = skipWord("NOW") and Requirements.requirement map ::Now
-
-    private val wholeTrigger = prod or now
+    private val wholeTrigger = prod(atom) map Trigger::Prod or atom
 
     private val colons = skipChar(':') and optional(char(':')) map {
       it != null

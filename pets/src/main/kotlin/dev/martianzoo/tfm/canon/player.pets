@@ -1,33 +1,36 @@
+// This file has player-specific game stuff
+
 // PLAYERS -------------------------------------------------
 
 abstract class Anyone(HAS =1 This) {                        // magic rule: same as Owned
-    abstract class Player : Anyone {                        // in PETS, nesting = subtyping
-        This: 20 TerraformRating
+    abstract class Player : Anyone {
+        This: 20 TerraformRating<This>
 
-        // Hack!                                            // At least this hack confines the
-        This: PROD[5]                                       // damage to Specialist/Generalist/
-        ProductionPhase: -5                                 // Robinson and UI. Alterns seem worse.
-                                                            // This makes `/ PROD[1]` VERY dodgy
-                                                            // but it still works for Banker.
+        // Hack!                                            // We're forced to use some ugly hack; at least this one
+        This: PROD[5]                                       // confines the damage to Specialist/Generalist/Robinson and
+        ProductionPhase: -5                                 // presentation issues. All the alternatives look worse.
+                                                            // This makes `/ PROD[1]` extremely dodgy, almost worth
+                                                            // banning... except it does still work fine for Banker.
 
-        PlayTag<BuildingTag>:: Accept<Steel>                // TODO where do these really belong??
-        Pay<Steel>:: 2 Pay<Megacredit>
+        PlayTag<BuildingTag>:: Accept<Steel>                // becomes `Pay<S> BY Player:: 2 Pay<MC, Player>` (but how?)
+        Pay<Steel>:: 2 Pay<Megacredit>                      // TODO where do these really belong??
 
         PlayTag<SpaceTag>:: Accept<Titanium>
-        Pay<Titanium>:: 3 Pay<Megacredit>                   // should be innocuous for TradeAction
+        Pay<Titanium>:: 3 Pay<Megacredit>                   // should be innocuous for TradeAction?
 
-        class Player1, Player2, Player3, Player4, Player5
+        class Player1, Player2, Player3, Player4, Player5   // in PETS, nesting = subtyping
     }
-    class Npc                                               // TODO what is this for?
+    class Npc                                               // this is who does WGT, etc
 }
 
 
 // PLAYER PROPERTY / GENERAL -------------------------------
 
 abstract class Owned<Anyone> {
-    default This<Player>                                   // affects ALL Owned without <>()
+    default This<Player>                                    // affects ALL references to owned cpts that don't specify
+                                                            // an owner -- the only default of this kind we need
 
-    abstract class Outcome {                                // the only 100% useless component
+    abstract class Outcome {                                // the only 100% useless component type
         class Winner, Place2, Place3, Place4, Place5
     }
 
@@ -40,8 +43,8 @@ abstract class Owned<Anyone> {
 
     class StartToken(HAS MAX 1 StartToken)
 
-    abstract class Milestone
-}
+    abstract class Milestone                                // The rest of the stuff in this file is also Owned, just
+}                                                           // explicitly instead of by nesting
 
 
 // TILES ---------------------------------------------------
@@ -55,7 +58,7 @@ abstract class OwnedTile : Owned, Tile {
     }
 
     class CityTile {
-        default +This<LandArea(HAS MAX 0 Neighbor<CityTile<Anyone>>)>
+        default +This<LandArea(HAS MAX 0 Neighbor<CityTile<Anyone>>)>           // TODO line-wrapping
         End: VictoryPoint / Adjacency(HAS This, GreeneryTile<Anyone>)
     }
 
@@ -73,8 +76,8 @@ abstract class Resource : Owned {
         class Energy { ProductionPhase:: Heat FROM This }
     }
 
-    // TODO Cardbound<Holder<CardResource>>, matching
-    abstract class CardResource : Cardbound<Holder> {
+
+    abstract class CardResource : Cardbound<Holder> {       // TODO Cardbound<Holder<CardResource>>, forcing match
         default +This.
 
         // All others are card-specific; see cards.json5
@@ -109,13 +112,12 @@ abstract class CardFront : Owned {
 
 class PlayedEvent : Owned
 
-// TODO require the two `Anyone`s to match
-abstract class Cardbound<CardFront<Anyone>> : Owned<Anyone>{// TODO how to require the `Anyone`s to match
-    abstract class Tag {
+abstract class Cardbound<CardFront<Anyone>>:Owned<Anyone> { // TODO require the two `Anyone`s to match, but only
+    abstract class Tag {                                    // because both were stated explicitly (not for Neighbor)
         class BuildingTag, SpaceTag
         class CityTag, PowerTag, ScienceTag
 
-        abstract class BioTag {
+        abstract class BioTag {                             // not really a game defined thing, but convenient
             class PlantTag, MicrobeTag, AnimalTag
         }
         abstract class PlanetTag {

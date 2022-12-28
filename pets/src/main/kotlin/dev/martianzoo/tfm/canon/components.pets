@@ -1,29 +1,31 @@
+// This file has game stuff that isn't player-specific
+
 // GLOBAL PARAMETERS ---------------------------------------
 
-abstract class GlobalParameter {                            // TODO splittable...
+abstract class GlobalParameter {                            // TODO must be added 1-by-1 - how?
     default +This.                                          // by default, gains are "if possible"
 
-    This: TerraformRating                                   // rule: unspec'd Player -> active
+    This: TerraformRating                                   // becomes `This BY Player: TR<This>`
+                                                            // side effect: WGT doesn't trigger it
+    class TemperatureStep(HAS MAX 19 This) {
+        This: (=3 This: PROD[Heat]) OR Ok                   // gated instrs are still mandatory, so without the `OR Ok`
+        This: (=5 This: PROD[Heat]) OR Ok                   // we would be at a dead end
+        This: (=15 This: OceanTile) OR Ok
+    }
 
-    class TemperatureStep(HAS MAX 19 This)
-    class OxygenStep(HAS MAX 14 This)
-    class VenusStep(HAS MAX 15 This)
+    class OxygenStep(HAS MAX 14 This) {
+        This: (=8 OxygenStep: TemperatureStep) OR Ok
+    }
+
+    class VenusStep(HAS MAX 15 This) {
+        This: (=4 This: ProjectCard) OR Ok
+        This: (=8 This: TerraformRating) OR Ok
+    }
 
     class OceanTile(HAS MAX 9 OceanTile) : Tile<MarsArea> {
         default +This<WaterArea>
         Adjacency<This, Tile>: 2
     }
-}
-
-class TrackBonuser(HAS =1 This) {
-    NOW 3 TemperatureStep: PROD[Heat]                       // A `NOW <reqt>` trigger fires whenever
-    NOW 5 TemperatureStep: PROD[Heat]                       // that reqt *transitions* from unmet to
-    NOW 15 TemperatureStep: OceanTile                       // met. Annoying that nothing else needs
-                                                            // it but this, but I see no options.
-    NOW 8 OxygenStep: TemperatureStep
-
-    NOW 4 VenusStep: ProjectCard
-    NOW 8 VenusStep: TerraformRating
 }
 
 
@@ -68,8 +70,8 @@ abstract class HasActions {
         class ConvertPlants      { 8 Plant -> GreeneryTile }
         class ConvertHeat        { 8 Heat -> TemperatureStep }
 
-        class SellPatents        { 1 ProjectCard -> 1 }     // Technically an SP but then std tech &
-    }                                                       // credicor are annoying. TODO "X"
+        class SellPatents        { 1 ProjectCard -> 1 }     // Technically a standard project, but that makes Credicor
+    }                                                       // and Std Tech annoying for no benefit. TODO "X"
 
     abstract class StandardProject(HAS =1 This) {
         class PowerPlant   { 11 -> PROD[Energy] }
@@ -89,8 +91,8 @@ class Generation(HAS 1 This)
 abstract class Generational {                               // things that disappear between gens
     Generation:: -This                                      // <-- and look, there they go
 }
-                                                            // Phases should *do * as little as
-abstract class Phase {                                      // possible, just be triggers.
+                                                            // Phases should *do* as little as possible, and just be
+abstract class Phase {                                      // triggers for other component types
 
     class SetupPhase                                        // start of gameplay thru discarding
     class CorporationPhase                                  // each player plays corp & buys cards

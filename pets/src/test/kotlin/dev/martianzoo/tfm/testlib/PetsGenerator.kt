@@ -130,13 +130,11 @@ class PetsGenerator(scaling: (Int) -> Double)
       val triggerTypes = (multiset(
           9 to Trigger.OnGain::class,
           5 to Trigger.OnRemove::class,
-          2 to Trigger.Now::class,
           1 to Trigger.Prod::class,
       ))
       register<Trigger> { recurse(choose(triggerTypes)) }
       register { Trigger.OnGain(recurse()) }
       register { Trigger.OnRemove(recurse()) }
-      register { Trigger.Now(recurse()) }
       register { Trigger.Prod(recurse()) }
 
       register { Effect(recurse(), recurse()) }
