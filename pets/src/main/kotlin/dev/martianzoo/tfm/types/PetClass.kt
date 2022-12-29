@@ -3,14 +3,13 @@ package dev.martianzoo.tfm.types
 import dev.martianzoo.tfm.pets.AstTransformer
 import dev.martianzoo.tfm.pets.ComponentDef
 import dev.martianzoo.tfm.pets.SpecialComponent.COMPONENT
-import dev.martianzoo.tfm.pets.SpecialComponent.STANDARD_RESOURCE
-import dev.martianzoo.tfm.pets.SpecialComponent.THIS
 import dev.martianzoo.tfm.pets.ast.Effect
 import dev.martianzoo.tfm.pets.ast.PetsNode
 import dev.martianzoo.tfm.pets.ast.TypeExpression
 import dev.martianzoo.tfm.pets.ast.TypeExpression.Companion.te
 import dev.martianzoo.tfm.pets.deprodify
-import dev.martianzoo.tfm.pets.replaceTypesIn
+import dev.martianzoo.tfm.pets.resolveThisIn
+import dev.martianzoo.tfm.pets.spellOutQes
 
 /**
  */
@@ -91,11 +90,13 @@ data class PetClass(val def: ComponentDef, val loader: PetClassLoader): Dependen
 
 // EFFECTS
 
+  val directEffectsRaw by def::effects
+
   val directEffects by lazy {
-    val resourceNames = loader["$STANDARD_RESOURCE"].allSubclasses.map { it.name }.toSet()
-    def.effects
-        .map { deprodify(it, resourceNames) }
-        .map { replaceTypesIn(it, THIS.type, te(name)) }
+    directEffectsRaw
+        .map { spellOutQes(it) }
+        .map { deprodify(it, loader.resourceNames) }
+        .map { resolveThisIn(it, te(name)) }
         .map { applyDefaultsIn(it, loader) }
         .also { validateAllTypes(it, loader) }
   }

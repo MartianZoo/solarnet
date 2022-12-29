@@ -2,7 +2,7 @@ abstract class Component {                             // Component is the singl
     default +This!                                     // no need to write `: Component`; it's assumed
 }
                                                        // magic rules: no nested specs. Class<Heat> is concrete. If decl
-class Class<Component>(HAS =1 This)                    // is `class Foo<CLASS Bar>`, (a) it is really `Foo<Class<Bar>>`,
+class Class<CLASS Component> (HAS =1 This)             // is `class Foo<CLASS Bar>`, (a) it is really `Foo<Class<Bar>>`,
                                                        // and (b) the usage `Foo<Qux>` is `Foo<Class<Qux>>`
 
 abstract class Temporary {                             // anything that can never survive across actions

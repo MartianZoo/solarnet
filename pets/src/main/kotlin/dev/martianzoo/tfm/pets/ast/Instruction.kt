@@ -8,24 +8,24 @@ sealed class Instruction : PetsNode() {
   data class Gain(val qe: QuantifiedExpression, val intensity: Intensity? = null) : Instruction() {
     constructor(expr: TypeExpression?, scalar: Int? = null, intensity: Intensity? = null) : this(
         QuantifiedExpression(expr, scalar), intensity)
-
     init {
       if ((qe.scalar ?: 1) <= 0) throw PetsException("Can't gain a non-positive amount")
     }
 
     override fun toString() = "${qe}${intensity?.pets ?: ""}"
+
     override val children = setOf(qe)
   }
 
   data class Remove(val qe: QuantifiedExpression, val intensity: Intensity? = null) : Instruction() {
     constructor(expr: TypeExpression?, scalar: Int? = null, intensity: Intensity? = null) : this(
         QuantifiedExpression(expr, scalar), intensity)
-
     init {
       if ((qe.scalar ?: 1) <= 0) throw PetsException("Can't remove a non-positive amount")
     }
 
     override fun toString() = "-${qe}${intensity?.pets ?: ""}"
+
     override val children = setOf(qe)
   }
 
@@ -51,12 +51,12 @@ sealed class Instruction : PetsNode() {
     override fun toString(): String {
       return "${groupIfNeeded(requirement)}: ${groupIfNeeded(instruction)}"
     }
-
     // let's over-group for clarity
     override fun parenthesizeThisWhenInside(container: PetsNode) =
         container is Or || super.parenthesizeThisWhenInside(container)
 
     override fun precedence() = 6
+
     override val children = setOf(requirement, instruction)
   }
 
@@ -80,11 +80,13 @@ sealed class Instruction : PetsNode() {
       }
       return super.parenthesizeThisWhenInside(container)
     }
-
     override fun precedence() = if (fromExpression is SimpleFrom) 7 else 10
+
   }
 
-  sealed class FromExpression : PetsNode()
+  sealed class FromExpression : PetsNode() {
+    override val kind = "FromExpression"
+  }
 
   data class SimpleFrom(val toType: TypeExpression, val fromType: TypeExpression) : FromExpression() {
     override fun toString() = "$toType FROM $fromType"
@@ -102,11 +104,11 @@ sealed class Instruction : PetsNode() {
         throw PetsException("Can only have one FROM in an expression")
       }
     }
-
     override fun toString() =
         className +
             specializations.joinOrEmpty(surround = "<>") +
             (requirement?.let { "(HAS $it)" } ?: "")
+
     override val children = specializations + setOfNotNull(requirement)
   }
 
@@ -163,4 +165,6 @@ sealed class Instruction : PetsNode() {
           symbol?.let { s -> values().first { it.symbol == s } }
     }
   }
+
+  override val kind = "Instruction"
 }

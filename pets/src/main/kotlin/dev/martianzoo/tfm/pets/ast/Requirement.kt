@@ -5,7 +5,6 @@ import dev.martianzoo.tfm.pets.PetsException
 import dev.martianzoo.util.toSetStrict
 
 sealed class Requirement : PetsNode() {
-
   data class Min(val qe: QuantifiedExpression) : Requirement() {
     constructor(expr: TypeExpression? = null, scalar: Int? = null) : this(QuantifiedExpression(expr, scalar))
     override fun toString() = "$qe"
@@ -49,4 +48,6 @@ sealed class Requirement : PetsNode() {
     override val children = setOf(requirement)
     override fun extract() = requirement
   }
+
+  override val kind = "Requirement"
 }

@@ -1,10 +1,13 @@
 package dev.martianzoo.tfm.pets
 
+import com.google.common.flogger.FluentLogger
+import dev.martianzoo.tfm.pets.PetsParser.parse
 import dev.martianzoo.tfm.pets.SpecialComponent.PRODUCTION
 import dev.martianzoo.tfm.pets.SpecialComponent.THIS
 import dev.martianzoo.tfm.pets.SpecialComponent.USE_ACTION
 import dev.martianzoo.tfm.pets.ast.Action
 import dev.martianzoo.tfm.pets.ast.Effect
+import dev.martianzoo.tfm.pets.ast.Effect.Trigger
 import dev.martianzoo.tfm.pets.ast.Effect.Trigger.OnGain
 import dev.martianzoo.tfm.pets.ast.Instruction
 import dev.martianzoo.tfm.pets.ast.PetsNode
@@ -12,31 +15,40 @@ import dev.martianzoo.tfm.pets.ast.PetsNode.ProductionBox
 import dev.martianzoo.tfm.pets.ast.QuantifiedExpression
 import dev.martianzoo.tfm.pets.ast.TypeExpression
 
-internal fun actionToEffect(action: Action, index: Int) : Effect {
+internal fun actionToEffect(action: Action, index: Int): Effect {
   val merged = if (action.cost == null) {
     action.instruction
   } else {
     Instruction.Then(listOf(action.cost.toInstruction(), action.instruction))
   }
-  return Effect(PetsParser.parse("$USE_ACTION${index + 1}<$THIS>"), merged)
+  val trigger: Trigger = parse("$USE_ACTION${index + 1}<$THIS>")
+  return Effect(trigger, merged).also {
+    log.atInfo().log("Converting action to effect:\n    $action\n    $it")
+  }
 }
 
 internal fun actionsToEffects(actions: Collection<Action>) =
     actions.withIndex().map { (i, act) -> actionToEffect(act, i) }
 
-internal fun immediateToEffect(instr: Instruction) = Effect(OnGain(THIS.type), instr)
+internal fun immediateToEffect(immediate: Instruction): Effect {
+  return Effect(OnGain(THIS.type), immediate)
+}
+
+internal fun <P : PetsNode> resolveThisIn(node: P, resolveTo: TypeExpression): P {
+  return replaceTypesIn(node, THIS.type, resolveTo).also {
+    log.atInfo().log("Resolving `This` to `$resolveTo` in ${node.kind}:\n    $node\n    $it")
+  }
+}
 
 internal fun <P : PetsNode> replaceTypesIn(node: P, from: TypeExpression, to: TypeExpression) =
     TypeReplacer(from, to).transform(node)
 
 private class TypeReplacer(val from: TypeExpression, val to: TypeExpression) : AstTransformer() {
-  override fun <P : PetsNode?> transform(node: P) =
-      if (node == from) {
-        @Suppress("UNCHECKED_CAST")
-        to as P
-      } else {
-        super.transform(node)
-      }
+  override fun <P : PetsNode?> transform(node: P) = if (node == from) {
+    to as P
+  } else {
+    super.transform(node)
+  }
 }
 
 internal fun <P : PetsNode> spellOutQes(node: P) = QeSpellerOuter.transform(node)
@@ -51,22 +63,28 @@ private object QeSpellerOuter : AstTransformer() {
 }
 
 internal fun <P : PetsNode> deprodify(node: P, producibleClassNames: Set<String>): P {
-  return Deprodifier(producibleClassNames).transform(node)
+  log.atInfo().log("Deprodifying ${node.kind}: $node")
+  return Deprodifier(producibleClassNames).transform(node).also {
+    log.atInfo().log("Deprodified a ${node.kind}\n    before: $node\n    after: $it")
+  }
 }
 
 private class Deprodifier(val producible: Set<String>) : AstTransformer() {
-  var inProd : Boolean = false
+  var inProd: Boolean = false
 
-  override fun <P : PetsNode?> transform(node: P): P =
-    when {
-      node is ProductionBox<*> -> {
-        require(!inProd)
-        inProd = true
-        transform(node.extract()).also { inProd = false }
-      }
-      inProd && node is TypeExpression && node.className in producible ->
-        PRODUCTION.type.copy(specializations=listOf(node))
+  override fun <P : PetsNode?> transform(node: P): P = when {
+    node is ProductionBox<*> -> {
+      require(!inProd)
+      inProd = true
+      transform(node.extract()).also { inProd = false }
+    }
 
-      else -> super.transform(node)
-    } as P
+    inProd && node is TypeExpression && node.className in producible -> PRODUCTION.type.copy(
+        specializations = listOf(node)
+    )
+
+    else -> super.transform(node)
+  } as P
 }
+
+private val log: FluentLogger = FluentLogger.forEnclosingClass()

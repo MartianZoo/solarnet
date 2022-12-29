@@ -193,7 +193,7 @@ data class CardDefinition(
         name = "Card$id",
         abstract = false,
         supertypes = supertypes,
-        effectsRaw = allEffects)
+        effectsRaw = { allEffects })
   }
 
   private fun inactive(): Boolean {

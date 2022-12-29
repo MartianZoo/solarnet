@@ -8,11 +8,10 @@ import dev.martianzoo.tfm.pets.ast.Instruction.Remove
 
 data class Action(val cost: Cost?, val instruction: Instruction) : PetsNode() {
   override fun toString() = (cost?.let { "${cost} -> " } ?: "-> ") + instruction
-  override val children = setOfNotNull(cost) + instruction
 
+  override val children = setOfNotNull(cost) + instruction
   sealed class Cost : PetsNode() {
     abstract fun toInstruction(): Instruction
-
     data class Spend(val qe: QuantifiedExpression) : Cost() {
       override fun toString() = qe.toString()
       override val children = setOf(qe)
@@ -59,5 +58,9 @@ data class Action(val cost: Cost?, val instruction: Instruction) : PetsNode() {
       override fun toInstruction() = Prod(cost.toInstruction())
       override fun extract() = cost
     }
+
+    override val kind = "Cost"
   }
+
+  override val kind = "Action"
 }

@@ -1,27 +1,46 @@
 package dev.martianzoo.tfm.types
 
 import com.google.common.truth.Truth
+import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.tfm.canon.Canon
+import dev.martianzoo.tfm.pets.SpecialComponent.CLASS
 import dev.martianzoo.tfm.pets.SpecialComponent.COMPONENT
 import dev.martianzoo.tfm.pets.testRoundTrip
 import org.junit.jupiter.api.Test
 import java.util.*
 
 class PetClassCanonTest {
-  @Test
-  fun spew() {
-    val table = PetClassLoader(Canon.allDefinitions).loadAll()
-    table.all().sortedBy { it.name }.forEach {
+
+  fun component() { // TODO make this pass by not forcing subclasses to get loaded early
+    val table = PetClassLoader(Canon.allDefinitions)
+
+    table.load("$COMPONENT").apply {
+      assertThat(name).isEqualTo("Component")
+      assertThat(abstract).isTrue()
+      assertThat(directDependencyKeys).isEmpty()
+      assertThat(allDependencyKeys).isEmpty()
+      assertThat(directSuperclasses).isEmpty()
+    }
+
+    table.load("$CLASS").apply {
+      assertThat(name).isEqualTo("Class")
+      assertThat(abstract).isTrue()
+      assertThat(directDependencyKeys).containsExactly(DependencyKey(this, 0, true))
+      assertThat(allDependencyKeys).containsExactly(DependencyKey(this, 0, true))
+      assertThat(directSuperclasses).containsExactly(table["$COMPONENT"])
     }
   }
 
   @Test
   fun slurp() {
     val defns = Canon.allDefinitions
-    Truth.assertThat(defns.size).isGreaterThan(650)
+    Truth.assertThat(defns.size).isGreaterThan(700)
 
     val table = PetClassLoader(defns).loadAll()
 
+    table.all().forEach {
+      it.directEffectsRaw.forEach(::testRoundTrip)
+    }
     table.all().forEach {
       it.directEffects.forEach(::testRoundTrip)
     }

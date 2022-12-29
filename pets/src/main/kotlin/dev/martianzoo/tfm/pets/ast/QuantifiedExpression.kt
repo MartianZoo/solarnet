@@ -12,7 +12,9 @@ data class QuantifiedExpression(val type: TypeExpression? = null, val scalar: In
     }
   }
   override fun toString() = listOfNotNull(scalar, type).joinToString(" ")
-  override val children = setOfNotNull(type)
 
+  override val children = setOfNotNull(type)
   fun explicit() = copy(type ?: MEGACREDIT.type, scalar ?: 1)
+
+  override val kind = "QuantifiedExpression"
 }

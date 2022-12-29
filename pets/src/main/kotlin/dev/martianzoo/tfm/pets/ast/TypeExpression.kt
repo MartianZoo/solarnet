@@ -41,6 +41,8 @@ data class TypeExpression(
     fun te(s: String, first: String, vararg rest: String): TypeExpression {
       return te(s, listOf(first) + rest)
     }
-
   }
+
+  override val kind = "TypeExpression"
 }
+

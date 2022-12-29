@@ -35,9 +35,9 @@ data class MilestoneDefinition(
         "Milestone$id",
         abstract = false,
         supertypes = setOf(te("Milestone")),
-        effectsRaw = setOf(
-            Effect(OnGain(THIS.type), Gated(requirement, Gain(OK.type)))
-        )
+        effectsRaw = {
+          setOf(Effect(OnGain(THIS.type), Gated(requirement, Gain(OK.type))))
+        }
     )
   }
 }

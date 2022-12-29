@@ -413,7 +413,7 @@ object PetsParser {
           abstract = abst,
           supertypes = sig.supertypes.toSetStrict(),
           dependencies = sig.dependencies,
-          effectsRaw = effs + actionsToEffects(acts),
+          effectsRaw = { effs + actionsToEffects(acts) },
           rawDefaults = mergedDefaults
       )
       return listOf(ComponentDefInProcess(comp, false)) + subs.flatten()

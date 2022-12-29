@@ -18,6 +18,8 @@ sealed class PetsNode {
   fun descendants(): List<PetsNode> =
       children.flatMap { listOf(it) + it.descendants() }
 
+  abstract val kind: String
+
   interface ProductionBox<P : PetsNode> {
     fun extract(): P
   }

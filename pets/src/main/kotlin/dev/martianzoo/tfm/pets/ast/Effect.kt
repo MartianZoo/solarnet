@@ -15,8 +15,8 @@ data class Effect(
     }
     return "${trigger}${if (immediate) "::" else ":"} $instext"
   }
-  override val children = setOf(trigger, instruction)
 
+  override val children = setOf(trigger, instruction)
   sealed class Trigger : PetsNode() {
     data class OnGain(val expression: TypeExpression) : Trigger() {
       override fun toString() = "$expression"
@@ -38,5 +38,9 @@ data class Effect(
       override val children = setOf(trigger)
       override fun extract() = trigger
     }
+
+    override val kind = "Trigger"
   }
+
+  override val kind = "Effect"
 }
