@@ -56,6 +56,6 @@ private class Defaulter(val table: PetClassTable) : AstTransformer() {
     val mergedDeps = explicitStatedDeps.overlayOn(defaultDeps)
 
     //// TODO: a little weird that we're going backwards here?
-    return PetType(petClass, mergedDeps).toTypeExpression()
+    return PetType(petClass, mergedDeps).toTypeExpressionFull()
   }
 }

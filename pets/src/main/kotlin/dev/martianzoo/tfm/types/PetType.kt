@@ -41,8 +41,8 @@ data class PetType(
     return "$petClass$deps"
   }
 
-  override fun toTypeExpression(): TypeExpression {
-    val map = dependencies.keyToType.values.map { it.toTypeExpression() }
+  override fun toTypeExpressionFull(): TypeExpression {
+    val map = dependencies.keyToType.values.map { it.toTypeExpressionFull() }
     return TypeExpression(petClass.name, map)
   }
 

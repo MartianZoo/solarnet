@@ -11,7 +11,7 @@ interface DependencyTarget {
    * Returns the common supertype of every subtype of both `this` and `that`, if possible.
    */
   fun glb(that: DependencyTarget): DependencyTarget
-  fun toTypeExpression(): TypeExpression
+  fun toTypeExpressionFull(): TypeExpression
 
   val isClassOnly: Boolean
 }
