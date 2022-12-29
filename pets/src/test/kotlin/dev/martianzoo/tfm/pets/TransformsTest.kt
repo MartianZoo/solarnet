@@ -92,4 +92,31 @@ class TransformsTest {
     // more round-trip checking doesn't hurt
     assertThat(tx.toString()).isEqualTo(expected)
   }
+
+  val resources = setOf(
+      "StandardResource", "Megacredit", "Steel",
+      "Titanium", "Plant", "Energy", "Heat")
+
+  @Test fun testDeprodify_noProd() {
+    val s = "Foo<Bar>: Bax OR Qux"
+    val e: Effect = parse(s)
+    val ep: Effect = deprodify(e, resources)
+    assertThat(ep.toString()).isEqualTo(s)
+  }
+
+  @Test fun testDeprodify_simple() {
+    val prodden: Effect = parse("This: PROD[Plant / PlantTag]")
+    val deprodden: Effect = deprodify(prodden, resources)
+    assertThat(deprodden.toString()).isEqualTo("This: Production<Plant> / PlantTag")
+  }
+
+  @Test fun testDeprodify_lessSimple() {
+    // TODO adds unnecessary grouping, do we care?
+    val prodden: Effect = parse("PROD[Plant]: PROD[Ooh?, Steel. / Ahh, Foo<Xyz FROM " +
+        "Heat>, -Qux!, 5 Ahh<Qux> FROM StandardResource], Heat")
+    val expected: Effect = parse("Production<Plant>: (Ooh?, Production<Steel>. / Ahh, Foo<Xyz FROM " +
+        "Production<Heat>>, -Qux!, 5 Ahh<Qux> FROM Production<StandardResource>), Heat")
+    val deprodden: Effect = deprodify(prodden, resources)
+    assertThat(deprodden).isEqualTo(expected)
+  }
 }
