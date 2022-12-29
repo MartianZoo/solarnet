@@ -1,5 +1,6 @@
 package dev.martianzoo.tfm.types
 
+import com.google.common.flogger.FluentLogger
 import dev.martianzoo.tfm.pets.AstTransformer
 import dev.martianzoo.tfm.pets.ComponentDef
 import dev.martianzoo.tfm.pets.SpecialComponent.COMPONENT
@@ -13,7 +14,7 @@ import dev.martianzoo.tfm.pets.spellOutQes
 
 /**
  */
-data class PetClass(val def: ComponentDef, val loader: PetClassLoader): DependencyTarget {
+class PetClass(val def: ComponentDef, val loader: PetClassLoader): DependencyTarget {
   val name by def::name
   override val abstract by def::abstract
 
@@ -64,7 +65,7 @@ data class PetClass(val def: ComponentDef, val loader: PetClassLoader): Dependen
     }.toMap()
     val allDeps = deps.merge(DependencyMap(newDeps))
     require(allDeps.keyToType.keys == allDependencyKeys)
-    PetType(this, allDeps)
+    PetType(this, allDeps).also { log.atInfo().log("$this baseType is $it") }
   }
 
 // DEFAULTS
@@ -94,6 +95,10 @@ data class PetClass(val def: ComponentDef, val loader: PetClassLoader): Dependen
 
   val directEffects by lazy {
     directEffectsRaw
+        .map {
+          log.atInfo().log("raw effect was: $it")
+          it
+        }
         .map { spellOutQes(it) }
         .map { deprodify(it, loader.resourceNames) }
         .map { resolveThisIn(it, te(name)) }
@@ -132,5 +137,17 @@ data class PetClass(val def: ComponentDef, val loader: PetClassLoader): Dependen
     else -> allSuperclasses.intersect(that.allSuperclasses).maxBy { it.allSuperclasses.size }
   }
 
+  override fun equals(that: Any?): Boolean {
+    return that is PetClass &&
+        this.name == that.name &&
+        this.loader === that.loader
+  }
+
+  override fun hashCode(): Int {
+    return name.hashCode() xor loader.hashCode()
+  }
+
   override fun toString() = name
 }
+
+private val log: FluentLogger = FluentLogger.forEnclosingClass()

@@ -23,7 +23,7 @@ internal fun actionToEffect(action: Action, index: Int): Effect {
   }
   val trigger: Trigger = parse("$USE_ACTION${index + 1}<$THIS>")
   return Effect(trigger, merged).also {
-    log.atInfo().log("Converting action to effect:\n    $action\n    $it")
+    log.atInfo().log("Converted action: $it")
   }
 }
 
@@ -36,7 +36,7 @@ internal fun immediateToEffect(immediate: Instruction): Effect {
 
 internal fun <P : PetsNode> resolveThisIn(node: P, resolveTo: TypeExpression): P {
   return replaceTypesIn(node, THIS.type, resolveTo).also {
-    log.atInfo().log("Resolving `This` to `$resolveTo` in ${node.kind}:\n    $node\n    $it")
+    log.atInfo().log("Resolved `This` to `$resolveTo` in ${node.kind}: $it")
   }
 }
 
@@ -51,7 +51,13 @@ private class TypeReplacer(val from: TypeExpression, val to: TypeExpression) : A
   }
 }
 
-internal fun <P : PetsNode> spellOutQes(node: P) = QeSpellerOuter.transform(node)
+internal fun <P : PetsNode> spellOutQes(node: P): P {
+  return QeSpellerOuter.transform(node).also {
+    if (it != node) {
+      log.atInfo().log("spelled out QEs in ${node.kind}: $it")
+    }
+  }
+}
 
 private object QeSpellerOuter : AstTransformer() {
   override fun <P : PetsNode?> transform(node: P): P {
@@ -63,9 +69,10 @@ private object QeSpellerOuter : AstTransformer() {
 }
 
 internal fun <P : PetsNode> deprodify(node: P, producibleClassNames: Set<String>): P {
-  log.atInfo().log("Deprodifying ${node.kind}: $node")
   return Deprodifier(producibleClassNames).transform(node).also {
-    log.atInfo().log("Deprodified a ${node.kind}\n    before: $node\n    after: $it")
+    if (it != node) {
+      log.atInfo().log("Deprodified a ${node.kind}: $it")
+    }
   }
 }
 

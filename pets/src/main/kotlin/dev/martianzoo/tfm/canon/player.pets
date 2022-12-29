@@ -131,9 +131,8 @@ abstract class Cardbound<CardFront<Anyone>>:Owned<Anyone> { // TODO require the 
 
 // ACTIONS -------------------------------------------------
 
-// TODO restrict to same owner, but how?
-abstract class UseAction<HasActions> : Owned, Signal {
-    class UseAction1, UseAction2, UseAction3
+abstract class UseAction<HasActions> : Owned, Signal {      // TODO How to make owner same, when HasActions has both
+    class UseAction1, UseAction2, UseAction3                // owned and unowned subclasses?
     class UseAction4, UseAction5, UseAction6                // it's enough to handle Utopia etc the hard way
 }
 

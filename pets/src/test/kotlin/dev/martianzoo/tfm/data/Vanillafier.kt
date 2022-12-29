@@ -62,12 +62,6 @@ object Vanillafier {
                 is Action.Cost.Prod -> copy(san(cost))
                 is Action -> copy(san(cost), san(instruction))
 
-                is Requirement -> TODO()
-                is Instruction -> TODO()
-                is Action.Cost -> TODO()
-                is Instruction.FromExpression -> TODO()
-                is Effect.Trigger -> TODO()
-
                 else -> {
                     error("this really oughtta be impossible")
                 }

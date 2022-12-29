@@ -2,6 +2,7 @@ package dev.martianzoo.tfm.pets
 
 import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.tfm.pets.PetsParser.parseComponents
+import dev.martianzoo.tfm.pets.ast.TypeExpression
 import dev.martianzoo.tfm.pets.ast.TypeExpression.Companion.te
 import org.junit.jupiter.api.Test
 
@@ -55,16 +56,17 @@ class ComponentDefTest {
       }
     """.trimIndent())
 
-    assertThat(cs).containsExactly(
-        ComponentDef("Component", supertypes=setOf()),
-        ComponentDef("One", supertypes=setOf(te("Component"))),
-        ComponentDef("Two", supertypes=setOf(te("One"))),
-        ComponentDef("Three", supertypes=setOf(te("Component"))),
-        ComponentDef("Four", supertypes=setOf(te("Three"))),
-        ComponentDef("Five", supertypes=setOf(te("One"), te("Three"))),
-        ComponentDef("Six", supertypes=setOf(te("Three"))),
-        ComponentDef("Seven", supertypes=setOf(te("Six"))),
-        ComponentDef("Eight", supertypes=setOf(te("One"), te("Six"))))
+    assertThat(cs.map { it.supertypes }).containsExactly(
+        setOf<TypeExpression>(),
+        setOf(te("Component")),
+        setOf(te("One")),
+        setOf(te("Component")),
+        setOf(te("Three")),
+        setOf(te("One"), te("Three")),
+        setOf(te("Three")),
+        setOf(te("Six")),
+        setOf(te("One"), te("Six")),
+    )
   }
 
   @Test fun oneLiner() {
