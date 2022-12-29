@@ -12,4 +12,6 @@ interface DependencyTarget {
    */
   fun glb(that: DependencyTarget): DependencyTarget
   fun toTypeExpression(): TypeExpression
+
+  val isClassOnly: Boolean
 }

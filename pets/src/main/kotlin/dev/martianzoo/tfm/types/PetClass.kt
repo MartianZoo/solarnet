@@ -120,7 +120,7 @@ class PetClass(val def: ComponentDef, val loader: PetClassLoader): DependencyTar
   }
 
   override fun toTypeExpression() = te(name)
-
+  override val isClassOnly = true
 
   // OTHER
 

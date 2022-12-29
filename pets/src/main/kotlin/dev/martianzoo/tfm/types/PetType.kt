@@ -15,7 +15,8 @@ data class PetType(
   override val abstract: Boolean = petClass.abstract || dependencies.abstract
 
   override fun isSubtypeOf(that: DependencyTarget): Boolean =
-      petClass.isSubtypeOf((that as PetType).petClass) && dependencies.sub(that.dependencies)
+      petClass.isSubtypeOf((that as PetType).petClass) &&
+      dependencies.specializes(that.dependencies)
 
   /**
    * Returns the common supertype of every subtype of both `this` and `that`, if possible.
@@ -44,4 +45,6 @@ data class PetType(
     val map = dependencies.keyToType.values.map { it.toTypeExpression() }
     return TypeExpression(petClass.name, map)
   }
+
+  override val isClassOnly = false
 }

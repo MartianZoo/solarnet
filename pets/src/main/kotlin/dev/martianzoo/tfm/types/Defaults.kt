@@ -76,7 +76,8 @@ data class Defaults(
     for (key in defaultses.flatMap { extract(it).keys }.toSet()) {
       if (key !in map) {
         // TODO some orders might work when others don't
-        map[key] = defaultses.mapNotNull { extract(it)[key] }.reduce { a, b -> a.glb(b) }
+        val depMapsWithThisKey = defaultses.map(extract).filter { key in it }
+        map[key] = depMapsWithThisKey.map { it[key] }.reduce { a, b -> a.glb(b) }
       }
     }
     return DependencyMap(map)

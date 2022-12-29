@@ -2,26 +2,24 @@ package dev.martianzoo.tfm.types
 
 import dev.martianzoo.util.mergeMaps
 
+// Takes care of everything inside the <> but knows nothing of what's outside it
 data class DependencyMap(val keyToType: Map<DependencyKey, DependencyTarget>) {
 
   constructor() : this(mapOf<DependencyKey, DependencyTarget>())
 
   init {
     keyToType.forEach {
-      if (it.key.classDep) {
-        require(it.value is PetClass) { it.key }
-      } else {
-        require(it.value is PetType) { it.key }
-      }
+      require(it.key.classDep == it.value.isClassOnly) { it.key }
     }
   }
-  val abstract = keyToType.values.any { type -> type.abstract }
+  val abstract = keyToType.values.any { it.abstract }
 
   val keys = keyToType.keys
 
-  operator fun get(key: DependencyKey): DependencyTarget? = keyToType[key]
+  operator fun contains(key: DependencyKey) = key in keyToType
+  operator fun get(key: DependencyKey): DependencyTarget = keyToType[key]!!
 
-  fun sub(that: DependencyMap) =
+  fun specializes(that: DependencyMap) =
       // For each of *its* keys, my type must be a subtype of its type
       that.keyToType.all { (thatKey, thatType) -> keyToType[thatKey]!!.isSubtypeOf(thatType) }
 
@@ -64,5 +62,6 @@ data class DependencyMap(val keyToType: Map<DependencyKey, DependencyTarget>) {
   }
 
   fun specialize(specs: List<PetType>) = merge(findMatchups(specs))
+
   override fun toString() = "$keyToType"
 }
