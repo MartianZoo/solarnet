@@ -1,36 +1,50 @@
 package dev.martianzoo.tfm.pets
 
-import dev.martianzoo.tfm.pets.PetsParser.parse
+import dev.martianzoo.tfm.pets.SpecialComponent.MEGACREDIT
 import dev.martianzoo.tfm.pets.SpecialComponent.PRODUCTION
 import dev.martianzoo.tfm.pets.SpecialComponent.THIS
 import dev.martianzoo.tfm.pets.SpecialComponent.USE_ACTION
 import dev.martianzoo.tfm.pets.ast.Action
 import dev.martianzoo.tfm.pets.ast.Effect
-import dev.martianzoo.tfm.pets.ast.Effect.Trigger
 import dev.martianzoo.tfm.pets.ast.Effect.Trigger.OnGain
 import dev.martianzoo.tfm.pets.ast.Instruction
+import dev.martianzoo.tfm.pets.ast.Instruction.Gain
+import dev.martianzoo.tfm.pets.ast.Instruction.Remove
+import dev.martianzoo.tfm.pets.ast.Instruction.SimpleFrom
 import dev.martianzoo.tfm.pets.ast.Instruction.Then
+import dev.martianzoo.tfm.pets.ast.Instruction.Transmute
 import dev.martianzoo.tfm.pets.ast.PetsNode
 import dev.martianzoo.tfm.pets.ast.PetsNode.ProductionBox
 import dev.martianzoo.tfm.pets.ast.QuantifiedExpression
 import dev.martianzoo.tfm.pets.ast.TypeExpression
+import dev.martianzoo.tfm.pets.ast.TypeExpression.Companion.te
 
 internal fun actionToEffect(action: Action, index1Ref: Int): Effect {
   require(index1Ref >= 1) { index1Ref }
-  val merged = if (action.cost == null) {
-    action.instruction
-  } else {
-    val costAsInstr = action.cost.toInstruction()
-    val allInstructions = when (action.instruction) {
-      is Then -> listOf(costAsInstr) + action.instruction.instructions
-      else -> listOf(costAsInstr, action.instruction)
-    }
-    Then(allInstructions)
+  val instruction = instructionFromAction(action.cost?.toInstruction(), action.instruction)
+  val trigger = OnGain(te("$USE_ACTION$index1Ref", THIS.type))
+  return Effect(trigger, instruction).also {
+    println("Converted from Action: $it")
   }
-  val trigger: Trigger = parse("$USE_ACTION$index1Ref<$THIS>")
-  return Effect(trigger, merged).also {
-    println("Converted action: $it")
+}
+
+private fun instructionFromAction(lhs: Instruction?, rhs: Instruction): Instruction {
+  if (lhs == null) return rhs
+
+  // Handle the Ants case (TODO intensity?)
+  if (lhs is Remove && rhs is Gain && lhs.qe.scalar == rhs.qe.scalar) {
+    return Transmute(SimpleFrom(
+        rhs.qe.type ?: MEGACREDIT.type,
+        lhs.qe.type ?: MEGACREDIT.type
+    ))
   }
+
+  // Nested THENs are just silly
+  val allInstructions = when (rhs) {
+    is Then -> listOf(lhs) + rhs.instructions
+    else -> listOf(lhs, rhs)
+  }
+  return Then(allInstructions)
 }
 
 internal fun actionsToEffects(actions: Collection<Action>) =
