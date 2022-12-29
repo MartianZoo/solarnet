@@ -1,5 +1,6 @@
 package dev.martianzoo.tfm.canon
 
+import com.google.common.flogger.FluentLogger
 import dev.martianzoo.tfm.data.CardDefinition
 import dev.martianzoo.tfm.data.JsonReader
 import dev.martianzoo.tfm.data.MarsAreaDefinition
@@ -13,13 +14,10 @@ object Canon {
   private val FILENAMES = setOf("system.pets", "components.pets", "player.pets")
 
   val componentDefinitions: Map<String, ComponentDef> by lazy {
-    val list = mutableListOf<ComponentDef>()
-    for (f in FILENAMES) {
-      val s = readResource(f)
-      println("Parsing $f")
-      list += parseComponents(s)
-    }
-    list.associateByStrict { it.name }
+    FILENAMES.flatMap {
+      logger.atInfo().log("Parsing $it")
+      parseComponents(readResource(it))
+    }.associateByStrict { it.name }
   }
 
   val cardDefinitions: Map<String, CardDefinition> by lazy {
@@ -68,3 +66,5 @@ object Canon {
     PROMOS('X'),
   }
 }
+
+private val logger: FluentLogger = FluentLogger.forEnclosingClass()

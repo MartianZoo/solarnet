@@ -13,6 +13,7 @@ import dev.martianzoo.tfm.pets.ast.Instruction.SimpleFrom
 import dev.martianzoo.tfm.pets.ast.Instruction.Transmute
 import dev.martianzoo.tfm.pets.ast.Requirement.Max
 import dev.martianzoo.tfm.pets.ast.Requirement.Min
+import dev.martianzoo.tfm.pets.ast.TypeExpression.Companion.te
 import org.junit.jupiter.api.Test
 
 // Most testing is done by AutomatedTest
@@ -77,6 +78,37 @@ class EffectTest {
   }
 
   @Test fun apiCreation() {
+    Effect(
+        OnGain(
+            te("Abc",
+                te("Foo"),
+                te("Bar", te("Qux", te("Foo"))),
+                te("Foo")
+            ),
+        ),
+        Instruction.Multi(
+            Instruction.Multi(
+                Remove(te("Foo")),
+                Gain(te("Ahh")),
+            ),
+            Instruction.Multi(
+                Instruction.Or(
+                    Instruction.Per(
+                        Gain(te("Foo")),
+                        QuantifiedExpression(null, 5),
+                    ),
+                    Gain(te("Bar")),
+                ),
+                Instruction.Or(
+                    Gain(null, 1),
+                    Gain(te("Bar")),
+                ),
+            ),
+            Gain(te("Bar"), 1),
+        ),
+    )
+
+
     val effects = listOf(
         Effect(
             OnGain(TypeExpression("Eep", listOf(TypeExpression("Abc", listOf())))),

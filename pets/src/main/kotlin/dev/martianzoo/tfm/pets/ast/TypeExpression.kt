@@ -35,6 +35,12 @@ data class TypeExpression(
   override val children = listOfNotNull(requirement) + specializations
 
   companion object {
-    fun te(s: String) = TypeExpression(s)
+    fun te(s: String) : TypeExpression = TypeExpression(s)
+    fun te(s: String, first: TypeExpression, vararg rest: TypeExpression): TypeExpression = TypeExpression(s, listOf(first) + rest)
+    fun te(s: String, specs: List<String>): TypeExpression = TypeExpression(s, specs.map(::te))
+    fun te(s: String, first: String, vararg rest: String): TypeExpression {
+      return te(s, listOf(first) + rest)
+    }
+
   }
 }

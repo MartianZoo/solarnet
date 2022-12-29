@@ -22,11 +22,8 @@ class PetClassCanonTest {
 
     val table = PetClassLoader(defns).loadAll()
 
-    table.all().forEach { clazz ->
-      clazz.directEffects.forEach { fx ->
-        testRoundTrip(fx)
-        println("$clazz - $fx")
-      }
+    table.all().forEach {
+      it.directEffects.forEach(::testRoundTrip)
     }
   }
 
@@ -36,7 +33,7 @@ class PetClassCanonTest {
       clazz.directSuperclasses.filterNot { it.abstract }.map { clazz.name to it.name }
     }
 
-    // only one case of subclassing a concrete class in the whole canon
+    // currently just 3 cases of subclassing a concrete class in the canon
     Truth.assertThat(subConcrete).containsExactly(
         "Tile008" to "CityTile",
         "Psychrophile" to "Microbe",

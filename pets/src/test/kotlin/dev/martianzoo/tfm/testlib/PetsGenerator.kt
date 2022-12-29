@@ -1,6 +1,7 @@
 package dev.martianzoo.tfm.testlib
 
-import com.google.common.truth.Truth
+import com.google.common.flogger.FluentLogger
+import com.google.common.truth.Truth.assertWithMessage
 import dev.martianzoo.tfm.pets.PetsException
 import dev.martianzoo.tfm.pets.PetsParser
 import dev.martianzoo.tfm.pets.ast.Action
@@ -27,7 +28,9 @@ import dev.martianzoo.tfm.pets.ast.Requirement.Exact
 import dev.martianzoo.tfm.pets.ast.Requirement.Max
 import dev.martianzoo.tfm.pets.ast.Requirement.Min
 import dev.martianzoo.tfm.pets.ast.TypeExpression
+import dev.martianzoo.tfm.testlib.ToKotlin.pp
 import dev.martianzoo.util.multiset
+import org.junit.jupiter.api.Assertions.fail
 import kotlin.math.pow
 import kotlin.math.roundToInt
 import kotlin.random.Random
@@ -175,33 +178,21 @@ class PetsGenerator(scaling: (Int) -> Double)
   fun <T : PetsNode> goNuts(type: KClass<T>, count: Int = 10_000) {
     for (i in 1..count) {
       val randomNode = makeRandomNode(type)
+
       val originalStringOut = randomNode.toString()
-      val reparsedNode =
-          try {
-            PetsParser.parse(type, originalStringOut)
-          } catch (e: Exception) {
-            println("string is $originalStringOut")
-            println("node is ${ToKotlin.pp(randomNode)}")
-            println()
-            continue
-          }
-      if (reparsedNode != randomNode) {
-        println("Original node was:\n")
-        println(ToKotlin.pp(randomNode))
-        println()
-        println("Reparsed node was:\n")
-        println(ToKotlin.pp(reparsedNode))
-        println()
-        Truth.assertThat(reparsedNode).isEqualTo(randomNode)
+
+      val reparsedNode = try {
+        PetsParser.parse(type, originalStringOut)
+      } catch (e: Exception) {
+        fail("node was ${ToKotlin.pp(randomNode)}", e)
       }
 
+      assertWithMessage("intermediate string form was $originalStringOut")
+          .that(reparsedNode).isEqualTo(randomNode)
+
       val regurgitated = reparsedNode.toString()
-      if (regurgitated != originalStringOut) {
-        println("Reparsed node was:\n")
-        println(ToKotlin.pp(reparsedNode))
-        println()
-        Truth.assertThat(regurgitated).isEqualTo(originalStringOut)
-      }
+      assertWithMessage("intermediate parsed form was:\n${pp(reparsedNode)}")
+            .that(regurgitated).isEqualTo(originalStringOut)
     }
   }
 
@@ -270,3 +261,5 @@ fun scaling(greed: Double, backoff: Double): (Int) -> Double {
   // must be in range -1..1
   return { (greed + 1) / (backoff + 1).pow(it) - 1 }
 }
+
+private val logger: FluentLogger = FluentLogger.forEnclosingClass()

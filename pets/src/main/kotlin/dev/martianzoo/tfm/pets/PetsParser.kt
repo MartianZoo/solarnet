@@ -115,10 +115,10 @@ object PetsParser {
     private val implicitType: Parser<TypeExpression?> =
         optional(Types.typeExpression)
 
-    internal val qeWithScalar = scalar and implicitType map {
+    private val qeWithScalar = scalar and implicitType map {
       (scalar, expr) -> QuantifiedExpression(expr, scalar)
     }
-    internal val qeWithType = implicitScalar and Types.typeExpression map {
+    private val qeWithType = implicitScalar and Types.typeExpression map {
       (scalar, expr) -> QuantifiedExpression(expr, scalar)
     }
     private val whole = qeWithScalar or qeWithType
@@ -130,8 +130,8 @@ object PetsParser {
     internal val requirement: Parser<Requirement> = publish { whole }
 
     internal val min = QEs.qe map ::Min
-    internal val max = skipWord("MAX") and QEs.qeWithScalar map ::Max
-    private val exact = skipChar('=') and QEs.qeWithScalar map ::Exact
+    internal val max = skipWord("MAX") and QEs.qe map ::Max
+    private val exact = skipChar('=') and QEs.qe map ::Exact
     private val prod = prod(requirement) map Requirement::Prod
 
     internal val atom = min or max or exact or prod or parens(requirement)      // can have no precedence worries
@@ -195,7 +195,7 @@ object PetsParser {
 
     private val maybePer =
         perable and
-        optional(skipChar('/') and QEs.qeWithType) map {
+        optional(skipChar('/') and QEs.qe) map {
       (instr, qe) -> if (qe == null) instr else Instruction.Per(instr, qe)
     }
 
@@ -242,7 +242,7 @@ object PetsParser {
     private val perCost =
         maybeProd and
         optional(skipChar('/') and
-        QEs.qeWithType) map {
+        QEs.qe) map {
       (cost, qe) -> if (qe == null) cost else Cost.Per(cost, qe)
     }
 

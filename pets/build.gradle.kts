@@ -3,8 +3,10 @@ plugins {
 }
 
 dependencies {
-    implementation("com.github.h0tk3y.betterParse:better-parse:0.4.4")
-    implementation("com.squareup.moshi:moshi-kotlin:1.14.0")
+  implementation("com.github.h0tk3y.betterParse:better-parse:0.4.4")
+  implementation("com.squareup.moshi:moshi-kotlin:1.14.0")
+  implementation("com.google.flogger:flogger:0.7.4")
+  implementation("com.google.flogger:flogger-system-backend:0.7.4")
 }
 
 dependencies {
