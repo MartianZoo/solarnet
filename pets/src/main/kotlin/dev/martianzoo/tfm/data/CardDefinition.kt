@@ -190,7 +190,7 @@ data class CardDefinition(
     if (supertypes.isEmpty()) supertypes.add(te("CardFront"))
 
     ComponentDef(
-        name = "Card$id",
+        className = "Card$id",
         abstract = false,
         supertypes = supertypes,
         effectsRaw = { allEffects })

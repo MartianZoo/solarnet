@@ -385,7 +385,7 @@ object PetsParser {
       private fun fixSupertypes(): ComponentDef {
         val supes = def.supertypes
         return when {
-          def.name == "$COMPONENT" -> def.also { require(supes.isEmpty()) }
+          def.className == "$COMPONENT" -> def.also { require(supes.isEmpty()) }
           supes.isEmpty() -> def.copy(supertypes = setOf(COMPONENT.type))
           else -> def.also { require(COMPONENT.type !in supes) }
         }
@@ -409,7 +409,7 @@ object PetsParser {
       )
 
       val comp = ComponentDef(
-          name = sig.className,
+          className = sig.className,
           abstract = abst,
           supertypes = sig.supertypes.toSetStrict(),
           dependencies = sig.dependencies,

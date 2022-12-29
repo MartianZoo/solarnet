@@ -15,7 +15,7 @@ import dev.martianzoo.tfm.pets.spellOutQes
 /**
  */
 class PetClass(val def: ComponentDef, val loader: PetClassLoader): DependencyTarget {
-  val name by def::name
+  val name by def::className
   override val abstract by def::abstract
 
 

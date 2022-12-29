@@ -8,7 +8,7 @@ import dev.martianzoo.util.associateByStrict
 
 // TODO restrict viz?
 class PetClassLoader(val definitions: Map<String, ComponentDef>) : PetClassTable {
-  constructor(definitions: Collection<ComponentDef>) : this(definitions.associateByStrict { it.name })
+  constructor(definitions: Collection<ComponentDef>) : this(definitions.associateByStrict { it.className })
 
   private val table = mutableMapOf<String, PetClass?>()
 
@@ -21,13 +21,13 @@ class PetClassLoader(val definitions: Map<String, ComponentDef>) : PetClassTable
 
   private fun construct(def: ComponentDef): PetClass {
     require(!frozen) { "Too late, this table is frozen!" }
-    require(def.name !in table) { def.name }
-    table[def.name] = null // signals loading has begun
+    require(def.className !in table) { def.className }
+    table[def.className] = null // signals loading has begun
 
     // One thing we do aggressively
     def.superclassNames.forEach(::load)
 
-    log.atInfo().log("loading class: ${def.name}")
+    log.atInfo().log("loading class: ${def.className}")
     return PetClass(def, this).also { table[it.name] = it }
   }
 

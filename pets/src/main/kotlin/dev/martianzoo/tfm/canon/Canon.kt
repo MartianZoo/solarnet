@@ -17,7 +17,7 @@ object Canon {
     FILENAMES.flatMap {
       logger.atInfo().log("Parsing $it")
       parseComponents(readResource(it))
-    }.associateByStrict { it.name }
+    }.associateByStrict { it.className }
   }
 
   val cardDefinitions: Map<String, CardDefinition> by lazy {
@@ -46,7 +46,7 @@ object Canon {
   }
 
   fun combine(vararg defs: Collection<ComponentDef>) =
-      defs.flatMap { it }.associateByStrict { it.name }
+      defs.flatMap { it }.associateByStrict { it.className }
 
   private fun readResource(filename: String): String {
     val dir = javaClass.packageName.replace('.', '/')

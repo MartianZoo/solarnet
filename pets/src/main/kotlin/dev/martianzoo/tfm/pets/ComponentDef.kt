@@ -13,7 +13,7 @@ import dev.martianzoo.tfm.pets.ast.TypeExpression
  * it was provided. DIRECT INFO ONLY; stuff is inherited among *loaded* classes (PetClasses).
  */
 data class ComponentDef(
-    val name: String, // TODO rename to className
+    val className: String, // TODO rename to className
     val abstract: Boolean = false,
     val supertypes: Set<TypeExpression> = setOf(),
     val dependencies: List<Dependency> = listOf(),
@@ -21,7 +21,7 @@ data class ComponentDef(
     val rawDefaults: RawDefaults = RawDefaults()
 ) {
   init {
-    if (name == "$COMPONENT") {
+    if (className == "$COMPONENT") {
       require(supertypes.isEmpty())
       require(dependencies.isEmpty())
     } else {

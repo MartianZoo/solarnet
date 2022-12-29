@@ -77,7 +77,7 @@ internal object JsonReader {
   fun auxiliaryComponentDefinitions(cardDefs: Collection<CardDefinition>): Map<String, ComponentDef> =
     cardDefs.flatMap { it.extraComponentsText }
         .map { parse(oneLineComponentDef, it) }
-        .associateBy { it.name }
+        .associateBy { it.className }
 
   // Stuff
 
