@@ -1,9 +1,7 @@
 package dev.martianzoo.tfm.testlib
 
-import dev.martianzoo.tfm.pets.PetsParser
 import dev.martianzoo.tfm.pets.ast.Action
 import dev.martianzoo.tfm.pets.ast.Action.Cost
-import dev.martianzoo.tfm.pets.ast.Action.Cost.Spend
 import dev.martianzoo.tfm.pets.ast.Effect
 import dev.martianzoo.tfm.pets.ast.Effect.Trigger
 import dev.martianzoo.tfm.pets.ast.Instruction
@@ -11,8 +9,6 @@ import dev.martianzoo.tfm.pets.ast.Instruction.ComplexFrom
 import dev.martianzoo.tfm.pets.ast.Instruction.Custom
 import dev.martianzoo.tfm.pets.ast.Instruction.Gain
 import dev.martianzoo.tfm.pets.ast.Instruction.Gated
-import dev.martianzoo.tfm.pets.ast.Instruction.Multi
-import dev.martianzoo.tfm.pets.ast.Instruction.Per
 import dev.martianzoo.tfm.pets.ast.Instruction.Remove
 import dev.martianzoo.tfm.pets.ast.Instruction.SimpleFrom
 import dev.martianzoo.tfm.pets.ast.Instruction.Then
@@ -20,71 +16,62 @@ import dev.martianzoo.tfm.pets.ast.Instruction.Transmute
 import dev.martianzoo.tfm.pets.ast.Instruction.TypeInFrom
 import dev.martianzoo.tfm.pets.ast.PetsNode
 import dev.martianzoo.tfm.pets.ast.QuantifiedExpression
-import dev.martianzoo.tfm.pets.ast.Requirement.And
-import dev.martianzoo.tfm.pets.ast.Requirement.Exact
-import dev.martianzoo.tfm.pets.ast.Requirement.Max
-import dev.martianzoo.tfm.pets.ast.Requirement.Min
-import dev.martianzoo.tfm.pets.ast.Requirement.Or
-import dev.martianzoo.tfm.pets.ast.Requirement.Prod
+import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.pets.ast.TypeExpression
+import dev.martianzoo.util.joinOrEmpty
+import dev.martianzoo.util.pre
 
 object ToKotlin {
-  fun pp(instr: String): String {
-    return pp(PetsParser.parse<Instruction>(instr))
+  fun <T : PetsNode?> T.pre(prefix: String): String = pre(prefix, ToKotlin::p2k)
+
+  fun <T : PetsNode?> Iterable<T>.join(separator: CharSequence = ", "): String {
+    return joinToString(separator) { p2k(it) }
   }
 
-  fun <T : Any?> T.surround(prefix: String, suffix: String, fn: (T) -> String = { "$it" }) =
-      if (this == null) "" else "$prefix${fn(this)}$suffix"
-
-  fun <T : Any?> T.pre(prefix: String, fn: (T) -> String = { "$it" }) = surround(prefix, "", fn)
-  fun <T : Any?> T.suf(suffix: String, fn: (T) -> String = { "$it" }) = surround("", suffix, fn)
-
-  fun <T : PetsNode?> T.pre(prefix: String): String = pre(prefix, ToKotlin::pp)
-
-  fun pp(n: PetsNode?): String {
+  fun p2k(n: PetsNode?): String {
     n.apply {
       return when (this) {
         null -> "null"
 
-        is TypeExpression -> "TypeExpression(\"$className\"" +
-            specializations.joinToString(", ", ", listOf(", ")") { pp(it) } +
+        is TypeExpression -> "te(\"$className\"" +
+            specializations.joinOrEmpty(", ", prefix=", listOf(", suffix=")") { p2k(it) } +
             "${requirement.pre(", " + if (specializations.isEmpty()) "requirement=" else "")})"
-        is QuantifiedExpression -> "QuantifiedExpression(${pp(type)}${scalar.pre(", ")})"
+        is QuantifiedExpression -> "QuantifiedExpression(${p2k(type)}${scalar.pre(", ")})"
 
-        is Min -> "Min(${pp(qe.type)}${qe.scalar.pre(", ")})"
-        is Max -> "Max(${pp(qe.type)}, ${qe.scalar})"
-        is Exact -> "Exact(${pp(qe.type)}, ${qe.scalar})"
-        is Or -> "Requirement.or(${requirements.joinToString{ pp(it) }})"
-        is And -> "Requirement.and(${requirements.joinToString{ pp(it) }})"
-        is Prod -> "Requirement.Prod(${pp(requirement)})"
+        is Requirement.Min -> "Min(${p2k(qe.type)}${qe.scalar.pre(", ")})"
+        is Requirement.Max -> "Max(${p2k(qe.type)}, ${qe.scalar})"
+        is Requirement.Exact -> "Exact(${p2k(qe.type)}, ${qe.scalar})"
+        is Requirement.Or -> "Requirement.Or(${requirements.join()})"
+        is Requirement.And -> "Requirement.And(${requirements.join()})"
+        is Requirement.Prod -> "Requirement.Prod(${p2k(requirement)})"
 
-        is Gain -> "Gain(${pp(qe.type)}${qe.scalar.pre(", ")}${intensity.pre(if (qe.scalar != null) ", " else ", intensity=")})"
-        is Remove -> "Remove(${pp(qe.type)}${qe.scalar.pre(", ")}${intensity.pre(", ")})"
-        is Per -> "Instruction.Per(${pp(instruction)}, ${pp(qe)})"
-        is Gated -> "Gated(${pp(requirement)}, ${pp(instruction)})"
-        is Transmute -> "Transmute(${pp(fromExpression)}${scalar.pre(", ")}${intensity.pre(", ")})"
-        is ComplexFrom -> "ComplexFrom(\"$className\", listOf(${specializations.joinToString{ pp(it) }})${requirement.pre(", ")}"
-        is SimpleFrom -> "SimpleFrom(${pp(toType)}, ${pp(fromType)})"
-        is TypeInFrom -> "TypeInFrom(${pp(type)})"
-        is Custom -> "Instruction.Custom(\"$functionName\", listOf(${pp(arguments.joinToString())}))"
-        is Then -> "Instruction.then(${instructions.joinToString{ pp(it) }})"
-        is Instruction.Or -> "Instruction.or(${instructions.joinToString{ pp(it) }})"
-        is Multi -> "Instruction.multi(${instructions.joinToString{ pp(it) }})"
-        is Instruction.Prod -> "Instruction.Prod(${pp(instruction)})"
+        is Gain -> "Gain(${p2k(qe.type)}${qe.scalar.pre(", ")}${intensity.pre(if (qe.scalar != null) ", " else ", intensity=")})"
+        is Remove -> "Remove(${p2k(qe.type)}${qe.scalar.pre(", ")}${intensity.pre(", ")})"
+        is Instruction.Per -> "Instruction.Per(${p2k(instruction)}, ${p2k(qe)})"
+        is Gated -> "Gated(${p2k(requirement)}, ${p2k(instruction)})"
+        is Transmute -> "Transmute(${p2k(fromExpression)}${scalar.pre(", ")}${intensity.pre(", ")})"
+        is ComplexFrom -> "ComplexFrom(\"$className\", listOf(${specializations.join()})${requirement.pre(", ")}"
+        is SimpleFrom -> "SimpleFrom(${p2k(toType)}, ${p2k(fromType)})"
+        is TypeInFrom -> "TypeInFrom(${p2k(type)})"
+        is Custom -> "Instruction.Custom(\"$functionName\"${arguments.joinToString("") {", ${p2k(it)}"}})"
+        is Then -> "Then(${instructions.join()})"
+        is Instruction.Or -> "Instruction.Or(${instructions.join()})"
+        is Instruction.Multi -> "Instruction.Multi(${instructions.join()})"
+        is Instruction.Prod -> "Instruction.Prod(${p2k(instruction)})"
 
-        is Trigger.OnGain -> "OnGain(${pp(expression)})"
-        is Trigger.OnRemove -> "OnRemove(${pp(expression)})"
-        is Trigger.Prod -> "Trigger.Prod(${pp(trigger)})"
-        is Effect -> "Effect(${pp(trigger)}, ${pp(instruction)})"
+        is Trigger.OnGain -> "OnGain(${p2k(expression)})"
+        is Trigger.OnRemove -> "OnRemove(${p2k(expression)})"
+        is Trigger.Prod -> "Trigger.Prod(${p2k(trigger)})"
+        is Effect -> "Effect(${p2k(trigger)}, ${p2k(instruction)})"
 
-        is Spend -> "Spend(${pp(qe.type)}${qe.scalar.pre(", ")}"
-        is Cost.Per -> "Cost.Per(${pp(cost)}, ${pp(qe)})"
-        is Cost.Or -> "Action.or(${costs.joinToString{ pp(it) }})"
-        is Cost.Multi -> "Action.and(${costs.joinToString{ pp(it) }})"
-        is Cost.Prod -> "Action.Prod(${pp(cost)})"
-        is Action -> "Action(${pp(cost)}, ${pp(instruction)})"
+        is Cost.Spend -> "Spend(${p2k(qe.type)}${qe.scalar.pre(", ")}"
+        is Cost.Per -> "Cost.Per(${p2k(cost)}, ${p2k(qe)})"
+        is Cost.Or -> "Cost.Or(${costs.join()})"
+        is Cost.Multi -> "Cost.Multi(${costs.join()})"
+        is Cost.Prod -> "Cost.Prod(${p2k(cost)})"
+        is Action -> "Action(${p2k(cost)}, ${p2k(instruction)})"
 
-        // I can't figure out wtf is missing.. and all the classes are sealed
+        // I can't figure out wtf is missing... and all the classes are sealed
         else -> error("")
       }
     }

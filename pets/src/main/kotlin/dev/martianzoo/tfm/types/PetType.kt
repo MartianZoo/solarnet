@@ -37,7 +37,7 @@ data class PetType(
   }
 
   override fun toString(): String {
-    val deps = dependencies.keyToType.map { "${it.key}=${it.value}" }.joinOrEmpty(", ", "<>")
+    val deps = dependencies.keyToType.map { "${it.key}=${it.value}" }.joinOrEmpty(", ", wrap="<>")
     return "$petClass$deps"
   }
 

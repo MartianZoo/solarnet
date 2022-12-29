@@ -6,8 +6,8 @@ import dev.martianzoo.util.joinOrEmpty
 
 sealed class Instruction : PetsNode() {
   data class Gain(val qe: QuantifiedExpression, val intensity: Intensity? = null) : Instruction() {
-    constructor(expr: TypeExpression?, scalar: Int? = null, intensity: Intensity? = null) : this(
-        QuantifiedExpression(expr, scalar), intensity)
+    constructor(expr: TypeExpression? = null, scalar: Int? = null, intensity: Intensity? = null) :
+        this(QuantifiedExpression(expr, scalar), intensity)
     init {
       if ((qe.scalar ?: 1) <= 0) throw PetsException("Can't gain a non-positive amount")
     }
@@ -106,7 +106,7 @@ sealed class Instruction : PetsNode() {
     }
     override fun toString() =
         className +
-            specializations.joinOrEmpty(surround = "<>") +
+            specializations.joinOrEmpty(wrap="<>") +
             (requirement?.let { "(HAS $it)" } ?: "")
 
     override val children = specializations + setOfNotNull(requirement)
@@ -118,6 +118,8 @@ sealed class Instruction : PetsNode() {
   }
 
   data class Custom(val functionName: String, val arguments: List<TypeExpression>) : Instruction() {
+    constructor(functionName: String, vararg arguments: TypeExpression) :
+        this(functionName, arguments.toList())
     override fun toString() = "$$functionName(${arguments.joinToString()})"
     override val children = arguments
   }

@@ -27,7 +27,7 @@ import dev.martianzoo.tfm.pets.ast.Requirement.Exact
 import dev.martianzoo.tfm.pets.ast.Requirement.Max
 import dev.martianzoo.tfm.pets.ast.Requirement.Min
 import dev.martianzoo.tfm.pets.ast.TypeExpression
-import dev.martianzoo.tfm.testlib.ToKotlin.pp
+import dev.martianzoo.tfm.testlib.ToKotlin.p2k
 import dev.martianzoo.util.multiset
 import org.junit.jupiter.api.Assertions.fail
 import kotlin.math.pow
@@ -183,14 +183,14 @@ class PetsGenerator(scaling: (Int) -> Double)
       val reparsedNode = try {
         PetsParser.parse(type, originalStringOut)
       } catch (e: Exception) {
-        fail("node was ${ToKotlin.pp(randomNode)}", e)
+        fail("node was ${p2k(randomNode)}", e)
       }
 
       assertWithMessage("intermediate string form was $originalStringOut")
           .that(reparsedNode).isEqualTo(randomNode)
 
       val regurgitated = reparsedNode.toString()
-      assertWithMessage("intermediate parsed form was:\n${pp(reparsedNode)}")
+      assertWithMessage("intermediate parsed form was:\n${p2k(reparsedNode)}")
             .that(regurgitated).isEqualTo(originalStringOut)
     }
   }
@@ -233,7 +233,7 @@ class PetsGenerator(scaling: (Int) -> Double)
   inline fun <reified T : PetsNode> generateTestApiConstructions(count: Int = 10) {
     for (i in 1..count) {
       val node = makeRandomNode<T>()
-      println("assertThat(${ToKotlin.pp(node)}.toString()).isEqualTo($node)")
+      println("assertThat(${p2k(node)}.toString()).isEqualTo($node)")
     }
   }
 

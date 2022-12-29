@@ -29,7 +29,7 @@ data class TypeExpression(
 
   override fun toString() =
       className +
-      specializations.joinOrEmpty(surround = "<>") +
+      specializations.joinOrEmpty(wrap="<>") +
       (requirement?.let { "(HAS $it)" } ?: "")
 
   override val children = listOfNotNull(requirement) + specializations

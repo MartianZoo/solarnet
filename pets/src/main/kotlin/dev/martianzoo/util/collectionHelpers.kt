@@ -2,25 +2,81 @@ package dev.martianzoo.util
 
 import com.google.common.collect.ImmutableMultiset
 
-fun Iterable<Any?>.joinOrEmpty(sep: String = ", ", prefix: String = "", suffix: String = "") =
-    if (any()) joinToString(sep, prefix, suffix) else ""
-
-fun Iterable<Any>.joinOrEmpty(sep: String = ", ", surround: String): String {
-  require(surround.length == 2)
-  return joinOrEmpty(sep, surround.substring(0, 1), surround.substring(1, 2))
-}
-
-fun <T> multiset(vararg pairs: Pair<Int, T>): ImmutableMultiset<T> {
+fun <T : Any> multiset(vararg pairs: Pair<Int, T>): ImmutableMultiset<T> {
   val builder = ImmutableMultiset.builder<T>()
-  pairs.forEach { builder.addCopies(it.second, it.first) }
+  pairs.forEach { (count, element) -> builder.addCopies(element, count) }
   return builder.build()
 }
 
 fun <T> Collection<T>.toSetStrict() = toSet().also { require(it.size == size) }
 
-fun <T, K> Collection<T>.associateByStrict(x: (T) -> K) = associateBy(x).also { require(it.size == size) }
+fun <T, K> Collection<T>.associateByStrict(x: (T) -> K) =
+    associateBy(x).also { require(it.size == size) }
 
 fun <K : Any, V : Any> mergeMaps(one: Map<out K, V>, two: Map<out K, V>, merger: (V, V) -> V) =
     one.toMutableMap().apply {
       two.forEach { merge(it.key, it.value, merger) }
     }
+
+// TODO fix overload hell
+
+fun <T> Iterable<T>.joinOrEmpty(
+    separator: CharSequence = ", ",
+    prefix: CharSequence,
+    suffix: CharSequence,
+    transform: ((T) -> CharSequence)? = null): String {
+  return if (any()) {
+    joinToString(
+        separator = separator,
+        prefix = prefix,
+        postfix = suffix,
+        transform = transform
+    )
+  } else {
+    ""
+  }
+}
+
+fun <T> Iterable<T>.joinOrEmpty(
+    separator: CharSequence = ", ",
+    transform: ((T) -> CharSequence)? = null): String {
+  return joinOrEmpty(
+      separator,
+      prefix = "",
+      suffix = "",
+      transform = transform,
+  )
+}
+
+fun <T> Iterable<T>.joinOrEmpty(
+    separator: CharSequence = ", ",
+    wrap: CharSequence,
+    transform: ((T) -> CharSequence)? = null): String {
+  require(wrap.length == 2)
+  return joinOrEmpty(
+      separator = separator,
+      prefix = wrap.substring(0, 1),
+      suffix = wrap.substring(1),
+      transform = transform)
+}
+
+// Ok the rest of these aren't really *collection* helpers
+
+fun <T : Any?> T.wrap(
+    prefix: CharSequence,
+    suffix: CharSequence,
+    transform: ((T) -> CharSequence) = { "$it" }) =
+    this?.let { "$prefix${transform(this)}$suffix" } ?: ""
+
+fun <T : Any?> T.wrap(
+    wrap: CharSequence,
+    transform: ((T) -> CharSequence) = { "$it" }): String {
+  require(wrap.length == 2)
+  return wrap(wrap.substring(0, 1), wrap.substring(1), transform)
+}
+
+fun <T : Any?> T.pre(prefix: String, transform: (T) -> String = { "$it" }) =
+    wrap(prefix, "", transform)
+
+fun <T : Any?> T.suf(suffix: String, transform: (T) -> String = { "$it" }) =
+    wrap("", suffix, transform)
