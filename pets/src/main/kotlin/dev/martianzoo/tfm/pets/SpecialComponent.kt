@@ -2,7 +2,6 @@ package dev.martianzoo.tfm.pets
 
 import com.google.common.base.CaseFormat.UPPER_CAMEL
 import com.google.common.base.CaseFormat.UPPER_UNDERSCORE
-import dev.martianzoo.tfm.pets.ast.TypeExpression
 import dev.martianzoo.tfm.pets.ast.TypeExpression.Companion.te
 
 enum class SpecialComponent {

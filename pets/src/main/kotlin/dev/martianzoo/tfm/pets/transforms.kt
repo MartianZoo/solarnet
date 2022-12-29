@@ -1,8 +1,6 @@
 package dev.martianzoo.tfm.pets
 
-import dev.martianzoo.tfm.pets.SpecialComponent.MEGACREDIT
 import dev.martianzoo.tfm.pets.SpecialComponent.PRODUCTION
-import dev.martianzoo.tfm.pets.SpecialComponent.STANDARD_RESOURCE
 import dev.martianzoo.tfm.pets.SpecialComponent.THIS
 import dev.martianzoo.tfm.pets.SpecialComponent.USE_ACTION
 import dev.martianzoo.tfm.pets.ast.Action
@@ -13,8 +11,6 @@ import dev.martianzoo.tfm.pets.ast.PetsNode
 import dev.martianzoo.tfm.pets.ast.PetsNode.ProductionBox
 import dev.martianzoo.tfm.pets.ast.QuantifiedExpression
 import dev.martianzoo.tfm.pets.ast.TypeExpression
-import dev.martianzoo.tfm.types.PetClassLoader
-import dev.martianzoo.util.toSetStrict
 
 internal fun actionToEffect(action: Action, index: Int) : Effect {
   val merged = if (action.cost == null) {

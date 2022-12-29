@@ -19,8 +19,8 @@ import com.github.h0tk3y.betterParse.parser.Parser
 import com.github.h0tk3y.betterParse.parser.parseToEnd
 import com.google.common.cache.CacheBuilder
 import com.google.common.cache.CacheLoader
-import dev.martianzoo.tfm.pets.ComponentDef.RawDefaults
 import dev.martianzoo.tfm.pets.ComponentDef.Dependency
+import dev.martianzoo.tfm.pets.ComponentDef.RawDefaults
 import dev.martianzoo.tfm.pets.SpecialComponent.COMPONENT
 import dev.martianzoo.tfm.pets.ast.Action
 import dev.martianzoo.tfm.pets.ast.Action.Cost

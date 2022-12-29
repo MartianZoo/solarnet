@@ -1,7 +1,7 @@
 package dev.martianzoo.tfm.pets
 
-import dev.martianzoo.tfm.pets.ComponentDef.RawDefaults
 import dev.martianzoo.tfm.pets.ComponentDef.OneDefault
+import dev.martianzoo.tfm.pets.ComponentDef.RawDefaults
 import dev.martianzoo.tfm.pets.SpecialComponent.COMPONENT
 import dev.martianzoo.tfm.pets.SpecialComponent.THIS
 import dev.martianzoo.tfm.pets.ast.Effect

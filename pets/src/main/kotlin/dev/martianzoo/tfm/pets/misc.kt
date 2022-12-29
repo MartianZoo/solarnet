@@ -8,13 +8,6 @@ import com.github.h0tk3y.betterParse.parser.ParseResult
 import com.github.h0tk3y.betterParse.parser.Parsed
 import com.github.h0tk3y.betterParse.parser.Parser
 import com.github.h0tk3y.betterParse.parser.UnexpectedEof
-import dev.martianzoo.tfm.pets.SpecialComponent.COMPONENT
-import dev.martianzoo.tfm.pets.SpecialComponent.THIS
-import dev.martianzoo.tfm.pets.SpecialComponent.USE_ACTION
-import dev.martianzoo.tfm.pets.ast.Action
-import dev.martianzoo.tfm.pets.ast.Effect
-import dev.martianzoo.tfm.pets.ast.Instruction
-import dev.martianzoo.tfm.pets.ast.TypeExpression
 
 fun <T> parseRepeated(listParser: Parser<List<T>>, tokens: TokenMatchesSequence): List<T> {
   var index = 0
