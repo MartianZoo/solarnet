@@ -1,5 +1,9 @@
 plugins {
-    id("org.jetbrains.kotlin.jvm") version "1.7.20"
+    id("org.jetbrains.kotlin.jvm") version "1.8.0"
+}
+
+kotlin {
+  jvmToolchain(19)
 }
 
 dependencies {
@@ -8,8 +12,8 @@ dependencies {
 }
 
 dependencies {
-  implementation(platform("org.jetbrains.kotlin:kotlin-bom"))
-  implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
+  implementation(platform("org.jetbrains.kotlin:kotlin-bom:1.8.0"))
+  implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.0")
 
   implementation("com.google.guava:guava:31.1-jre")
 
@@ -23,7 +27,6 @@ sourceSets {
     resources {
       srcDir("src/main/kotlin")
       exclude("**/*.kt")
-
     }
   }
 }
