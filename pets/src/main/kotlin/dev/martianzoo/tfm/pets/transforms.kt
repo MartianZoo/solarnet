@@ -56,7 +56,8 @@ internal fun immediateToEffect(immediate: Instruction): Effect {
   return Effect(OnGain(THIS.type), immediate)
 }
 
-internal fun <P : PetsNode> resolveThisIn(node: P, resolveTo: TypeExpression): P {
+// had to use an ungrammatical name
+internal fun <P : PetsNode> resolveSpecialThisType(node: P, resolveTo: TypeExpression): P {
   return replaceTypesIn(node, THIS.type, resolveTo).also {
     println("Resolved `This` to `$resolveTo` in ${node.kind}: $it")
   }

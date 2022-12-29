@@ -4,8 +4,11 @@ import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.tfm.pets.PetsParser.parse
 import dev.martianzoo.tfm.pets.actionToEffect
 import dev.martianzoo.tfm.pets.actionsToEffects
+import dev.martianzoo.tfm.pets.ast.TypeExpression.Companion.te
 import dev.martianzoo.tfm.pets.immediateToEffect
+import dev.martianzoo.tfm.pets.resolveSpecialThisType
 import org.junit.jupiter.api.Test
+import kotlin.reflect.KClass
 
 class TransformsTest {
   @Test
@@ -26,6 +29,11 @@ class TransformsTest {
         "UseAction2<This>: Plant FROM Plant")
   }
 
+  private fun checkActionToEffect(action: String, index: Int, effect: String) {
+    assertThat(actionToEffect(parse(action), index))
+        .isEqualTo(parse<Effect>(effect))
+  }
+
   @Test fun testActionsToEffects() {
     val actions: List<Action> = listOf(
         "-> Foo",
@@ -43,13 +51,44 @@ class TransformsTest {
     checkImmediateToEffect("Foo: Bar", "This: (Foo: Bar)")
   }
 
-  fun checkActionToEffect(action: String, index: Int, effect: String) {
-    assertThat(actionToEffect(parse(action), index))
+  private fun checkImmediateToEffect(immediate: String, effect: String) {
+    assertThat(immediateToEffect(parse(immediate)))
         .isEqualTo(parse<Effect>(effect))
   }
 
-  fun checkImmediateToEffect(immediate: String, effect: String) {
-    assertThat(immediateToEffect(parse(immediate)))
-        .isEqualTo(parse<Effect>(effect))
+  @Test fun testResolveSpecialThisType() {
+    checkResolveThis<Instruction>("Foo<This>", te("Bar"), "Foo<Bar>")
+    checkResolveThis<Instruction>("Foo<This>", te("Bar"), "Foo<Bar>")
+
+    // looks like a plain textual replacement but we know what's really happening
+    val petsIn = "-Ooh<Foo<Xyz, This, Qux>>: " +
+        "5 Qux<Ooh, Xyz, Bar> OR 5 This?, =0 This: -Bar, 5: Foo<This>"
+    val petsOut = "-Ooh<Foo<Xyz, It<Worked>, Qux>>: " +
+        "5 Qux<Ooh, Xyz, Bar> OR 5 It<Worked>?, =0 It<Worked>: -Bar, 5: Foo<It<Worked>>"
+    checkResolveThis<Effect>(petsIn, te("It", te("Worked")), petsOut)
+
+    // allows nonsense
+    checkResolveThis<Instruction>("This<Foo>", te("Bar"), "This<Foo>")
+  }
+
+  private inline fun <reified P : PetsNode> checkResolveThis(
+      original: String,
+      thiss: TypeExpression,
+      expected: String) {
+    checkResolveThis(P::class, original, thiss, expected)
+  }
+
+  private fun <P : PetsNode> checkResolveThis(
+      type: KClass<P>,
+      original: String,
+      thiss: TypeExpression,
+      expected: String) {
+    val parsedOriginal = parse(type, original)
+    val parsedExpected = parse(type, expected)
+    val tx = resolveSpecialThisType(parsedOriginal, thiss)
+    assertThat(tx).isEqualTo(parsedExpected)
+
+    // more round-trip checking doesn't hurt
+    assertThat(tx.toString()).isEqualTo(expected)
   }
 }

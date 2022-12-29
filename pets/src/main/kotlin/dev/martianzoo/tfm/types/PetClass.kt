@@ -8,7 +8,7 @@ import dev.martianzoo.tfm.pets.ast.PetsNode
 import dev.martianzoo.tfm.pets.ast.TypeExpression
 import dev.martianzoo.tfm.pets.ast.TypeExpression.Companion.te
 import dev.martianzoo.tfm.pets.deprodify
-import dev.martianzoo.tfm.pets.resolveThisIn
+import dev.martianzoo.tfm.pets.resolveSpecialThisType
 import dev.martianzoo.tfm.pets.spellOutQes
 
 /**
@@ -102,7 +102,7 @@ class PetClass(val def: ComponentDef, val loader: PetClassLoader): DependencyTar
         }
         .map { spellOutQes(it) }
         .map { deprodify(it, loader.resourceNames) }
-        .map { resolveThisIn(it, te(name)) }
+        .map { resolveSpecialThisType(it, te(name)) }
         .map { applyDefaultsIn(it, loader) }
         .also { validateAllTypes(it, loader) }
   }
