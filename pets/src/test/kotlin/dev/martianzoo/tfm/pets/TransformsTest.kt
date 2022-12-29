@@ -1,12 +1,13 @@
-package dev.martianzoo.tfm.pets.ast
+package dev.martianzoo.tfm.pets
 
 import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.tfm.pets.PetsParser.parse
-import dev.martianzoo.tfm.pets.actionToEffect
-import dev.martianzoo.tfm.pets.actionsToEffects
+import dev.martianzoo.tfm.pets.ast.Action
+import dev.martianzoo.tfm.pets.ast.Effect
+import dev.martianzoo.tfm.pets.ast.Instruction
+import dev.martianzoo.tfm.pets.ast.PetsNode
+import dev.martianzoo.tfm.pets.ast.TypeExpression
 import dev.martianzoo.tfm.pets.ast.TypeExpression.Companion.te
-import dev.martianzoo.tfm.pets.immediateToEffect
-import dev.martianzoo.tfm.pets.resolveSpecialThisType
 import org.junit.jupiter.api.Test
 import kotlin.reflect.KClass
 
