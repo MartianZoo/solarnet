@@ -1,12 +1,6 @@
 package dev.martianzoo.tfm.types
 
 import com.google.common.flogger.FluentLogger
-import com.google.common.graph.ElementOrder.insertion
-import com.google.common.graph.Graph
-import com.google.common.graph.GraphBuilder
-import com.google.common.graph.Graphs.transitiveClosure
-import com.google.common.graph.MutableGraph
-import com.google.common.graph.Traverser
 import dev.martianzoo.tfm.pets.ComponentDef
 import dev.martianzoo.tfm.pets.SpecialComponent.STANDARD_RESOURCE
 import dev.martianzoo.tfm.pets.ast.TypeExpression
@@ -16,23 +10,7 @@ import dev.martianzoo.util.associateByStrict
 class PetClassLoader(val definitions: Map<String, ComponentDef>) : PetClassTable {
   constructor(definitions: Collection<ComponentDef>) : this(definitions.associateByStrict { it.name })
 
-  internal val directSubclasses: MutableGraph<PetClass> =
-      GraphBuilder.directed().allowsSelfLoops(false).nodeOrder(insertion<PetClass>()).build()
-
-  internal val allSubclasses: Graph<PetClass> by lazy {
-    require(frozen) { "Cannot find all subclasses until table is frozen" }
-    transitiveClosure(directSubclasses)
-  }
-
-  private fun putSuperToSub(supe: PetClass, sub: PetClass) {
-    require(!hasPath(sub, supe)) { "cycle between $supe and $sub" }
-    directSubclasses.putEdge(supe, sub)
-  }
-
-  private fun hasPath(from: PetClass, to: PetClass) =
-      Traverser.forGraph(directSubclasses).breadthFirst(from).contains(to)
-
-  private val table = mutableMapOf<String, PetClass>()
+  private val table = mutableMapOf<String, PetClass?>()
 
   private var frozen: Boolean = false
 
@@ -44,19 +22,18 @@ class PetClassLoader(val definitions: Map<String, ComponentDef>) : PetClassTable
   private fun construct(def: ComponentDef): PetClass {
     require(!frozen) { "Too late, this table is frozen!" }
     require(def.name !in table) { def.name }
+    table[def.name] = null // signals loading has begun
+
+    // One thing we do aggressively
+    def.superclassNames.forEach(::load)
+
     log.atInfo().log("loading class: ${def.name}")
-
-    // We can insist that the superclasses are defined first, since there can't be cycles
-    val petClass = PetClass(def, this)
-    table[petClass.name] = petClass
-
-    directSubclasses.addNode(petClass)
-    def.superclassNames.map(::load).forEach { putSuperToSub(it, petClass) }
-    return petClass
+    return PetClass(def, this).also { table[it.name] = it }
   }
 
   fun freeze(): PetClassTable {
     log.atInfo().log("Freezing class table now with ${table.size} classes")
+    table.values.forEach { it!! }
     frozen = true
     return this
   }
@@ -66,14 +43,17 @@ class PetClassLoader(val definitions: Map<String, ComponentDef>) : PetClassTable
     return freeze()
   }
 
-  override fun all() = table.values.toSet().also { require(frozen) }
+  override fun all(): Set<PetClass> {
+    require(frozen)
+    return table.values.map { it!! }.toSet()
+  }
 
   override fun resolveWithDefaults(expression: TypeExpression) =
       resolve(applyDefaultsIn(expression, this))
 
   override fun resolve(expression: TypeExpression): PetType {
     val specs: List<PetType> = expression.specializations.map { resolve(it) }
-    val petClass = get(expression.className)
+    val petClass = load(expression.className)
     try {
       return petClass.baseType.specialize(specs)
     } catch (e: Exception) {
@@ -96,6 +76,8 @@ class PetClassLoader(val definitions: Map<String, ComponentDef>) : PetClassTable
   }
 
   val resourceNames by lazy { load("$STANDARD_RESOURCE").allSubclasses.map { it.name }.toSet() }
+
+  fun classesLoaded() = table.size
 }
 
 private val log: FluentLogger = FluentLogger.forEnclosingClass()

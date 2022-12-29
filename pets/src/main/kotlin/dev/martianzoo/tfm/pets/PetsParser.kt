@@ -379,7 +379,7 @@ object PetsParser {
             this
           } else {
             ComponentDefInProcess(
-                def.copy(supertypes = def.supertypes + te(name)), true)
+                def.copy(supertypes = (listOf(te(name)) + def.supertypes).toSetStrict()), true)
           }
 
       private fun fixSupertypes(): ComponentDef {

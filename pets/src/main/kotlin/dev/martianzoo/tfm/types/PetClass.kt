@@ -25,15 +25,17 @@ class PetClass(val def: ComponentDef, val loader: PetClassLoader): DependencyTar
     def.supertypes.map { loader.resolve/*WithDefaults*/(it) }.toSet()
   }
 
-  override fun isSubtypeOf(that: DependencyTarget) = loader.allSubclasses.hasEdgeConnecting(that as PetClass, this)
+  override fun isSubtypeOf(that: DependencyTarget) = that in allSuperclasses
 
-  fun isSuperclassOf(that: PetClass) = loader.allSubclasses.hasEdgeConnecting(this, that)
-  val directSubclasses: Set<PetClass> get() = loader.directSubclasses.successors(this)
+  fun isSuperclassOf(that: PetClass) = that.isSubtypeOf(this)
 
-  val directSuperclasses: Set<PetClass> get() = loader.directSubclasses.predecessors(this)
-  val allSubclasses: Set<PetClass> get() = loader.allSubclasses.successors(this)
+  val directSubclasses: Set<PetClass> by lazy { loader.all().filter { this in it.directSuperclasses }.toSet() }
+  val allSubclasses: Set<PetClass> by lazy { loader.all().filter { this in it.allSuperclasses }.toSet() }
 
-  val allSuperclasses: Set<PetClass> get() = loader.allSubclasses.predecessors(this)
+  val directSuperclasses: Set<PetClass> by lazy { def.superclassNames.map { loader.load(it) }.toSet() }
+  val allSuperclasses: Set<PetClass> by lazy {
+    (directSuperclasses.flatMap { it.allSuperclasses } + this).toSet()
+  }
 
 // DEPENDENCIES
 

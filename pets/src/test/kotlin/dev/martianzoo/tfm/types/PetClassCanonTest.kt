@@ -11,6 +11,7 @@ import java.util.*
 
 class PetClassCanonTest {
 
+  @Test
   fun component() { // TODO make this pass by not forcing subclasses to get loaded early
     val table = PetClassLoader(Canon.allDefinitions)
 
@@ -21,14 +22,29 @@ class PetClassCanonTest {
       assertThat(allDependencyKeys).isEmpty()
       assertThat(directSuperclasses).isEmpty()
     }
+    assertThat(table.classesLoaded()).isEqualTo(1)
 
     table.load("$CLASS").apply {
       assertThat(name).isEqualTo("Class")
-      assertThat(abstract).isTrue()
+      assertThat(abstract).isFalse()
       assertThat(directDependencyKeys).containsExactly(DependencyKey(this, 0, true))
       assertThat(allDependencyKeys).containsExactly(DependencyKey(this, 0, true))
       assertThat(directSuperclasses).containsExactly(table["$COMPONENT"])
     }
+    assertThat(table.classesLoaded()).isEqualTo(2)
+
+    table.load("OceanTile").apply {
+      assertThat(directDependencyKeys).isEmpty()
+      assertThat(allDependencyKeys).containsExactly(DependencyKey(table["Tile"], 0, false))
+      assertThat(directSuperclasses.map { it.name }).containsExactly(
+          "GlobalParameter", "Tile").inOrder()
+      assertThat(allSuperclasses.map { it.name }).containsExactly(
+          "Component", "GlobalParameter", "Tile", "OceanTile").inOrder()
+      assertThat(table.classesLoaded()).isEqualTo(5)
+
+      assertThat(baseType).isEqualTo(table.resolve("OceanTile<MarsArea>"))
+    }
+    assertThat(table.classesLoaded()).isEqualTo(7)
   }
 
   @Test
