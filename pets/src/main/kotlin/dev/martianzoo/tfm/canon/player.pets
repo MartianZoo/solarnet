@@ -124,7 +124,9 @@ abstract class Cardbound<CardFront<Anyone>>:Owned<Anyone> { // TODO require the 
             class EarthTag, JovianTag, VenusTag
         }
     }
-}
+
+    class Cost                                              // as part of creating Card001<P4>, make 8 Cost<Card001<P4>>
+}                                                           // does this really need to be `Owned`?
 
 
 // ACTIONS -------------------------------------------------
@@ -132,7 +134,7 @@ abstract class Cardbound<CardFront<Anyone>>:Owned<Anyone> { // TODO require the 
 // TODO restrict to same owner, but how?
 abstract class UseAction<HasActions> : Owned, Signal {
     class UseAction1, UseAction2, UseAction3
-    class UseAction4, UseAction5
+    class UseAction4, UseAction5, UseAction6                // it's enough to handle Utopia etc the hard way
 }
 
 // TODO still consider inverting this?
@@ -142,10 +144,9 @@ class ActionUsedMarker(HAS MAX 1 This) : Cardbound<ActionCard>, Generational
 // PAYMENT MECHANICS ---------------------------------------
 
 abstract class PaymentMechanic : Owned, Temporary {
-    abstract class Barrier(HAS MAX 1 This) {                // player must clean up themselves, by end of action
+    abstract class Barrier {                                // player must clean up themselves, by end of action
         This: (MAX 0 This: Ok)                              // adds a task that can only be handled if 0 barriers left
     }
-
 
     class Owed<CLASS Resource> : Barrier {                  // created when payment due, removed by discount cards/
        This:: Accept<Resource>
@@ -166,8 +167,8 @@ abstract class PaymentMechanic : Owned, Temporary {
 
                                                             // used by PlayCardFromHand, ValTrust, EcoEx, ExSponsor,
     class PlayCard<CLASS CardBack, CLASS CardFront> {       // NewPartner, Merger; triggers EarthCat etc.
-        This:: $handleRequirement(CardFront)
-        This:: $handleCost(CardFront)
+        This:: $handleRequirement(CardFront)                // ?
+        This: Owed<Megacredit> / Cost<CardFront>
         This: =0 Barrier: (CardFront FROM CardBack, -This)  // adds task to queue that must eventually be completed
     }
 }

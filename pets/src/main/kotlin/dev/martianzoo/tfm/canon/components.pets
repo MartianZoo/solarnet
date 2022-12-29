@@ -53,11 +53,12 @@ abstract class Tile<Area>
 class Border<MarsArea, MarsArea>(HAS MAX 1 This)
 
 class Neighbor<Tile, MarsArea>(HAS MAX 1 This) {
-    Tile<MarsArea>: Adjacency<Tile, Tile<MarsArea>>         // TODO need trigger-specialization
+    Tile<MarsArea>: Adjacency<Tile, Tile<MarsArea>>         // TODO need trigger-specialization (perhaps `It`??)
 }
 
 class Adjacency<Tile, Tile>(HAS MAX 1 This)
 
+class Row<MarsArea>(HAS This)                               // after creating Hellas_5_x then create 5 Row<Hellas_5_x>
 
 // ACTIONS -------------------------------------------------
 
