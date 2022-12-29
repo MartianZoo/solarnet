@@ -2,6 +2,7 @@ package dev.martianzoo.tfm.pets.ast
 
 import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.tfm.pets.PetsParser.Instructions
+import dev.martianzoo.tfm.pets.PetsParser.Requirements
 import dev.martianzoo.tfm.pets.PetsParser.parse
 import dev.martianzoo.tfm.pets.ast.Instruction.ComplexFrom
 import dev.martianzoo.tfm.pets.ast.Instruction.Gain
@@ -13,6 +14,7 @@ import dev.martianzoo.tfm.pets.ast.Instruction.SimpleFrom
 import dev.martianzoo.tfm.pets.ast.Instruction.Transmute
 import dev.martianzoo.tfm.pets.ast.Requirement.Min
 import dev.martianzoo.tfm.pets.ast.TypeExpression.Companion.te
+import dev.martianzoo.tfm.pets.testRoundTrip
 import org.junit.jupiter.api.Test
 
 // Most testing is done by AutomatedTest
@@ -130,7 +132,7 @@ class InstructionTest {
     assertThat(parse<Instruction>("Foo<Bar<Qux FROM Abc<Eep>>>")).isEqualTo(instr)
   }
 
-  @Test fun custom() {
+  @Test fun custom1() {
     parse(Instructions.custom, "\$foo()")
     parse(Instructions.atom, "\$foo()")
     parse(Instructions.gated, "\$foo()")
@@ -140,24 +142,46 @@ class InstructionTest {
     parse<Instruction>("\$foo()")
   }
 
+  @Test fun custom2() {
+    testRoundTrip<Instruction>("\$name()")
+    testRoundTrip<Instruction>("\$name(Abc)")
+    testRoundTrip<Instruction>("\$name(Abc, Def)")
+    testRoundTrip<Instruction>("\$name(Abc<Xyz, Bar>)")
+    testRoundTrip<TypeExpression>("Abc")
+    testRoundTrip<TypeExpression>("Abc<Bar>")
+    testRoundTrip<TypeExpression>("Abc(HAS Bar)")
+    testRoundTrip<TypeExpression>("Abc(HAS 11 Bar)")
+    testRoundTrip<Requirement>("Bar")
+    testRoundTrip<Requirement>("11 Bar")
+    parse(Requirements.min, "Bar")
+    parse(Requirements.min, "11 Bar")
+    parse(Requirements.max, "MAX 11 Bar")
+    testRoundTrip<Requirement>("MAX 11 Bar")
+
+    testRoundTrip<TypeExpression>("Abc(HAS MAX 11 Bar)")
+
+    testRoundTrip<Instruction>("\$name(Abc(HAS MAX 11 Bar))")
+    testRoundTrip<Instruction>("\$name(Abc(HAS MAX 11 Bar<Xyz, Bar>))")
+  }
+
   @Test fun debug5() {
     // for some reason, this creates Requirement.Or(Bar, Bar), so toSetCareful would blow up
     val actual = parse<Instruction>("(Bar OR Bar? OR -Foo, Foo) OR (5, -Bar, Bar<Foo, Qux>: (-Bar, 1))")
     val expected = Instruction.Or(
         Instruction.Multi(
             Instruction.Or(
-                Gain(TypeExpression("Bar", listOf())),
-                Gain(TypeExpression("Bar", listOf()), intensity = OPTIONAL),
-                Remove(TypeExpression("Foo", listOf()))),
-            Gain(TypeExpression("Foo", listOf())),
+                Gain(te("Bar")),
+                Gain(te("Bar"), intensity = OPTIONAL),
+                Remove(te("Foo"))),
+            Gain(te("Foo")),
         ),
         Instruction.Multi(
             Gain(null, 5),
-            Remove(TypeExpression("Bar", listOf())),
+            Remove(te("Bar")),
             Gated(
-                Min(TypeExpression("Bar", listOf(TypeExpression("Foo", listOf()), TypeExpression("Qux", listOf())))),
+                Min(te("Bar", te("Foo"), te("Qux"))),
                 Instruction.Multi(
-                    Remove(TypeExpression("Bar", listOf())),
+                    Remove(te("Bar")),
                     Gain(null, 1),
                 ),
             ),
@@ -166,5 +190,5 @@ class InstructionTest {
     assertThat(actual).isEqualTo(expected)
   }
   fun testRoundTrip(start: String, end: String = start) =
-      dev.martianzoo.tfm.pets.testRoundTrip<Instruction>(start, end)
+      testRoundTrip<Instruction>(start, end)
 }

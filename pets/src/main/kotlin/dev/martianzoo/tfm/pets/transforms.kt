@@ -9,25 +9,34 @@ import dev.martianzoo.tfm.pets.ast.Effect
 import dev.martianzoo.tfm.pets.ast.Effect.Trigger
 import dev.martianzoo.tfm.pets.ast.Effect.Trigger.OnGain
 import dev.martianzoo.tfm.pets.ast.Instruction
+import dev.martianzoo.tfm.pets.ast.Instruction.Then
 import dev.martianzoo.tfm.pets.ast.PetsNode
 import dev.martianzoo.tfm.pets.ast.PetsNode.ProductionBox
 import dev.martianzoo.tfm.pets.ast.QuantifiedExpression
 import dev.martianzoo.tfm.pets.ast.TypeExpression
 
-internal fun actionToEffect(action: Action, index: Int): Effect {
+internal fun actionToEffect(action: Action, index1Ref: Int): Effect {
+  require(index1Ref >= 1) { index1Ref }
   val merged = if (action.cost == null) {
     action.instruction
   } else {
-    Instruction.Then(listOf(action.cost.toInstruction(), action.instruction))
+    val costAsInstr = action.cost.toInstruction()
+    val allInstructions = when (action.instruction) {
+      is Then -> listOf(costAsInstr) + action.instruction.instructions
+      else -> listOf(costAsInstr, action.instruction)
+    }
+    Then(allInstructions)
   }
-  val trigger: Trigger = parse("$USE_ACTION${index + 1}<$THIS>")
+  val trigger: Trigger = parse("$USE_ACTION$index1Ref<$THIS>")
   return Effect(trigger, merged).also {
     println("Converted action: $it")
   }
 }
 
 internal fun actionsToEffects(actions: Collection<Action>) =
-    actions.withIndex().map { (i, act) -> actionToEffect(act, i) }
+    actions.withIndex().map {
+      (index0Ref, action) -> actionToEffect(action, index1Ref = index0Ref + 1)
+    }
 
 internal fun immediateToEffect(immediate: Instruction): Effect {
   return Effect(OnGain(THIS.type), immediate)

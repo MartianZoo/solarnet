@@ -15,6 +15,8 @@ data class Action(val cost: Cost?, val instruction: Instruction) : PetsNode() {
     data class Spend(val qe: QuantifiedExpression) : Cost() {
       override fun toString() = qe.toString()
       override val children = setOf(qe)
+
+      // I believe Ants/Predators are the reasons for MANDATORY here
       override fun toInstruction() = Remove(qe, MANDATORY)
     }
 
