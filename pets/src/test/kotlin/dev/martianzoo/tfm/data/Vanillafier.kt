@@ -27,7 +27,7 @@ object Vanillafier {
         return n.apply {
             when (this) {
                 is TypeExpression -> TypeExpression("Foo", san(specializations), san(requirement))
-                is QuantifiedExpression -> QuantifiedExpression(san(typeExpression), san(scalar))
+                is QuantifiedExpression -> QuantifiedExpression(san(type), san(scalar))
 
                 is Requirement.Or -> Requirement.Or(san(requirements))
                 is Requirement.And -> Requirement.And(san(requirements))
@@ -42,9 +42,9 @@ object Vanillafier {
                 is Instruction.Then -> Instruction.Then(san(instructions))
                 is Instruction.Or -> Instruction.Or(san(instructions))
                 is Instruction.Multi -> Instruction.Multi(san(instructions))
-                is Instruction.Transmute -> copy(san(trans), san(scalar))
+                is Instruction.Transmute -> copy(san(fromExpression), san(scalar))
                 is Instruction.ComplexFrom -> copy("Foo", san(specializations), san(requirement))
-                is Instruction.SimpleFrom -> copy(san(to), san(from))
+                is Instruction.SimpleFrom -> copy(san(toType), san(fromType))
                 is Instruction.TypeInFrom -> copy(san(type))
                 is Instruction.Per -> copy(san(instruction), san(qe))
                 is Instruction.Prod -> copy(san(instruction))

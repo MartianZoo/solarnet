@@ -35,4 +35,4 @@ private fun isEOF(result: ParseResult<*>?): Boolean =
       else -> false
     }
 
-val CLASS_NAME_PATTERN = "\\b[A-Z][a-z][A-Za-z0-9_]*\\b"
+const val CLASS_NAME_PATTERN = "\\b[A-Z][a-z][A-Za-z0-9_]*\\b"

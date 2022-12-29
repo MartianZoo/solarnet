@@ -148,7 +148,7 @@ class RequirementTest {
         "Adjacency<CityTile<Anyone>, OceanTile> OR 1 Adjacency<OceanTile, CityTile<Anyone>>"
     )
     assertThat(parsed).isEqualTo(
-        Requirement.or(
+        Requirement.Or(
             Min(
                 TypeExpression("Adjacency",
                     TypeExpression("CityTile", te("Anyone")),

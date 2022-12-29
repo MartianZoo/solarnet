@@ -61,34 +61,34 @@ sealed class Instruction : PetsNode() {
   }
 
   data class Transmute(
-      val trans: FromExpression,
+      val fromExpression: FromExpression,
       val scalar: Int? = null,
       val intensity: Intensity? = null) : Instruction() {
     init {
       if ((scalar ?: 1) < 1) throw PetsException("Can't do a non-positive number of transmutes")
-      if (trans is TypeInFrom) throw PetsException("Should be a regular gain instruction")
+      if (fromExpression is TypeInFrom) throw PetsException("Should be a regular gain instruction")
     }
     override fun toString(): String {
       val intens = intensity?.pets ?: ""
       val scal = if (scalar != null) "$scalar " else ""
-      return "$scal$trans$intens"
+      return "$scal$fromExpression$intens"
     }
-    override val children = setOf(trans)
+    override val children = setOf(fromExpression)
     override fun parenthesizeThisWhenInside(container: PetsNode): Boolean {
-      if (trans is SimpleFrom && container is Or) {
+      if (fromExpression is SimpleFrom && container is Or) {
         return true // not technically necessary, but helpful
       }
       return super.parenthesizeThisWhenInside(container)
     }
 
-    override fun precedence() = if (trans is SimpleFrom) 7 else 10
+    override fun precedence() = if (fromExpression is SimpleFrom) 7 else 10
   }
 
   sealed class FromExpression : PetsNode()
 
-  data class SimpleFrom(val to: TypeExpression, val from: TypeExpression) : FromExpression() {
-    override fun toString() = "$to FROM $from"
-    override val children = setOf(to, from)
+  data class SimpleFrom(val toType: TypeExpression, val fromType: TypeExpression) : FromExpression() {
+    override fun toString() = "$toType FROM $fromType"
+    override val children = setOf(toType, fromType)
   }
 
   data class ComplexFrom(
@@ -115,8 +115,8 @@ sealed class Instruction : PetsNode() {
     override val children = setOf(type)
   }
 
-  data class Custom(val name: String, val arguments: List<TypeExpression>) : Instruction() {
-    override fun toString() = "$$name(${arguments.joinToString()})"
+  data class Custom(val functionName: String, val arguments: List<TypeExpression>) : Instruction() {
+    override fun toString() = "$$functionName(${arguments.joinToString()})"
     override val children = arguments
   }
 

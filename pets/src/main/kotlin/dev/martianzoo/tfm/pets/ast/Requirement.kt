@@ -15,7 +15,7 @@ sealed class Requirement : PetsNode() {
   data class Max(val qe: QuantifiedExpression) : Requirement() {
     constructor(expr: TypeExpression, scalar: Int) : this(QuantifiedExpression(expr, scalar))
     // could remove this but make it parseable
-    init { if(qe.scalar == null) throw PetsException("use 'MAX 1 ${qe.typeExpression}'") }
+    init { if(qe.scalar == null) throw PetsException("use 'MAX 1 ${qe.type}'") }
     override fun toString() = "MAX $qe"
     override val children = setOf(qe)
   }
@@ -23,7 +23,7 @@ sealed class Requirement : PetsNode() {
   data class Exact(val qe: QuantifiedExpression) : Requirement() {
     constructor(expr: TypeExpression, scalar: Int) : this(QuantifiedExpression(expr, scalar))
     // could remove this but make it parseable
-    init { if(qe.scalar == null) throw PetsException("Use '=1 ${qe.typeExpression}'") }
+    init { if(qe.scalar == null) throw PetsException("Use '=1 ${qe.type}'") }
     override fun toString() = "=$qe"
     override val children = setOf(qe)
   }
@@ -48,18 +48,5 @@ sealed class Requirement : PetsNode() {
     override fun toString() = "PROD[${requirement}]"
     override val children = setOf(requirement)
     override fun extract() = requirement
-  }
-
-  companion object {
-    fun and(requirements: List<Requirement>) =
-        if (requirements.size == 1) requirements[0] else And(requirements)
-    fun and(p1: Requirement, p2: Requirement, vararg rest: Requirement) =
-        and(asList(p1, p2, rest))
-
-    fun or(requirements: Set<Requirement>): Requirement {
-      return if (requirements.size == 1) requirements.first() else Or(requirements)
-    }
-    fun or(requirements: List<Requirement>) = or(requirements.toSet()) // careful??
-    fun or(p1: Requirement, p2: Requirement, vararg rest: Requirement) = or(asList(p1, p2, rest))
   }
 }
