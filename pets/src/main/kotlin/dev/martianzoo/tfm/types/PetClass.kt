@@ -1,7 +1,7 @@
 package dev.martianzoo.tfm.types
 
+import dev.martianzoo.tfm.pets.AstTransformer
 import dev.martianzoo.tfm.pets.ComponentDef
-import dev.martianzoo.tfm.pets.NodeVisitor
 import dev.martianzoo.tfm.pets.SpecialComponent.COMPONENT
 import dev.martianzoo.tfm.pets.SpecialComponent.STANDARD_RESOURCE
 import dev.martianzoo.tfm.pets.SpecialComponent.THIS
@@ -102,13 +102,13 @@ data class PetClass(val def: ComponentDef, val loader: PetClassLoader): Dependen
 
   private fun validateAllTypes(effects: List<Effect>, loader: PetClassLoader) {
     // val fx = effects.map { replaceTypesIn(it, THIS.type, te(name)) }
-    Validator(loader).s(effects)
+    Validator(loader).transform(effects)
   }
 
-  internal class Validator(val loader: PetClassLoader) : NodeVisitor() {
-    override fun <P : PetsNode?> s(node: P): P {
+  internal class Validator(val loader: PetClassLoader) : AstTransformer() {
+    override fun <P : PetsNode?> transform(node: P): P {
       if (node is TypeExpression) loader.resolve(node)
-      return super.s(node)
+      return super.transform(node)
     }
   }
 

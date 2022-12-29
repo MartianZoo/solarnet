@@ -1,6 +1,6 @@
 package dev.martianzoo.tfm.types
 
-import dev.martianzoo.tfm.pets.NodeVisitor
+import dev.martianzoo.tfm.pets.AstTransformer
 import dev.martianzoo.tfm.pets.SpecialComponent.THIS
 import dev.martianzoo.tfm.pets.ast.Instruction.Gain
 import dev.martianzoo.tfm.pets.ast.PetsNode
@@ -8,10 +8,10 @@ import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.pets.ast.TypeExpression
 
 fun <P : PetsNode> applyDefaultsIn(node: P, table: PetClassTable) =
-    Defaulter(table).s(node)
+    Defaulter(table).transform(node)
 
-private class Defaulter(val table: PetClassTable): NodeVisitor() {
-  override fun <P : PetsNode?> s(node: P): P {
+private class Defaulter(val table: PetClassTable): AstTransformer() {
+  override fun <P : PetsNode?> transform(node: P): P {
     val rewritten: PetsNode? = when(node) {
       null -> null
       THIS.type -> node
@@ -30,10 +30,10 @@ private class Defaulter(val table: PetClassTable): NodeVisitor() {
             defaults.gainDeps,
             defaults.gainReqs)
         node.copy(
-            node.qe.copy(s(newTypeExpr)),
+            node.qe.copy(transform(newTypeExpr)),
             node.intensity ?: defaults.gainIntensity)
       }
-      else -> super.s(node)
+      else -> super.transform(node)
     }
 
     @Suppress("UNCHECKED_CAST")

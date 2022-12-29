@@ -27,46 +27,46 @@ internal fun actionsToEffects(actions: Collection<Action>) =
 internal fun immediateToEffect(instr: Instruction) = Effect(OnGain(THIS.type), instr)
 
 internal fun <P : PetsNode> replaceTypesIn(node: P, from: TypeExpression, to: TypeExpression) =
-    TypeReplacer(from, to).s(node)
+    TypeReplacer(from, to).transform(node)
 
-private class TypeReplacer(val from: TypeExpression, val to: TypeExpression) : NodeVisitor() {
-  override fun <P : PetsNode?> s(node: P) =
+private class TypeReplacer(val from: TypeExpression, val to: TypeExpression) : AstTransformer() {
+  override fun <P : PetsNode?> transform(node: P) =
       if (node == from) {
         @Suppress("UNCHECKED_CAST")
         to as P
       } else {
-        super.s(node)
+        super.transform(node)
       }
 }
 
-internal fun <P : PetsNode> spellOutQes(node: P) = QeSpellerOuter.s(node)
+internal fun <P : PetsNode> spellOutQes(node: P) = QeSpellerOuter.transform(node)
 
-private object QeSpellerOuter : NodeVisitor() {
-  override fun <P : PetsNode?> s(node: P): P {
+private object QeSpellerOuter : AstTransformer() {
+  override fun <P : PetsNode?> transform(node: P): P {
     return when {
       node is QuantifiedExpression -> node.explicit() as P
-      else -> super.s(node)
+      else -> super.transform(node)
     }
   }
 }
 
 internal fun <P : PetsNode> deprodify(node: P, producibleClassNames: Set<String>): P {
-  return Deprodifier(producibleClassNames).s(node)
+  return Deprodifier(producibleClassNames).transform(node)
 }
 
-private class Deprodifier(val producible: Set<String>) : NodeVisitor() {
+private class Deprodifier(val producible: Set<String>) : AstTransformer() {
   var inProd : Boolean = false
 
-  override fun <P : PetsNode?> s(node: P): P =
+  override fun <P : PetsNode?> transform(node: P): P =
     when {
       node is ProductionBox<*> -> {
         require(!inProd)
         inProd = true
-        s(node.extract()).also { inProd = false }
+        transform(node.extract()).also { inProd = false }
       }
       inProd && node is TypeExpression && node.className in producible ->
         PRODUCTION.type.copy(specializations=listOf(node))
 
-      else -> super.s(node)
+      else -> super.transform(node)
     } as P
 }
