@@ -1,6 +1,5 @@
 package dev.martianzoo.tfm.types
 
-import com.google.common.flogger.FluentLogger
 import dev.martianzoo.tfm.pets.ComponentDef
 import dev.martianzoo.tfm.pets.SpecialComponent.STANDARD_RESOURCE
 import dev.martianzoo.tfm.pets.ast.TypeExpression
@@ -27,12 +26,12 @@ class PetClassLoader(val definitions: Map<String, ComponentDef>) : PetClassTable
     // One thing we do aggressively
     def.superclassNames.forEach(::load)
 
-    log.atInfo().log("loading class: ${def.className}")
+    println("loading class: ${def.className}")
     return PetClass(def, this).also { table[it.name] = it }
   }
 
   fun freeze(): PetClassTable {
-    log.atInfo().log("Freezing class table now with ${table.size} classes")
+    println("Freezing class table now with ${table.size} classes")
     table.values.forEach { it!! }
     frozen = true
     return this
@@ -79,5 +78,3 @@ class PetClassLoader(val definitions: Map<String, ComponentDef>) : PetClassTable
 
   fun classesLoaded() = table.size
 }
-
-private val log: FluentLogger = FluentLogger.forEnclosingClass()

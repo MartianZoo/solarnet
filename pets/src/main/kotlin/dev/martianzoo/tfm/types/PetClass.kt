@@ -1,6 +1,5 @@
 package dev.martianzoo.tfm.types
 
-import com.google.common.flogger.FluentLogger
 import dev.martianzoo.tfm.pets.AstTransformer
 import dev.martianzoo.tfm.pets.ComponentDef
 import dev.martianzoo.tfm.pets.SpecialComponent.COMPONENT
@@ -67,7 +66,7 @@ class PetClass(val def: ComponentDef, val loader: PetClassLoader): DependencyTar
     }.toMap()
     val allDeps = deps.merge(DependencyMap(newDeps))
     require(allDeps.keyToType.keys == allDependencyKeys)
-    PetType(this, allDeps).also { log.atInfo().log("$this baseType is $it") }
+    PetType(this, allDeps).also { println("$this baseType is $it") }
   }
 
 // DEFAULTS
@@ -98,7 +97,7 @@ class PetClass(val def: ComponentDef, val loader: PetClassLoader): DependencyTar
   val directEffects by lazy {
     directEffectsRaw
         .map {
-          log.atInfo().log("raw effect was: $it")
+          println("raw effect was: $it")
           it
         }
         .map { spellOutQes(it) }
@@ -151,5 +150,3 @@ class PetClass(val def: ComponentDef, val loader: PetClassLoader): DependencyTar
 
   override fun toString() = name
 }
-
-private val log: FluentLogger = FluentLogger.forEnclosingClass()

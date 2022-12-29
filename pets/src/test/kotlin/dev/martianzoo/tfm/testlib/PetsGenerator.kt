@@ -1,6 +1,5 @@
 package dev.martianzoo.tfm.testlib
 
-import com.google.common.flogger.FluentLogger
 import com.google.common.truth.Truth.assertWithMessage
 import dev.martianzoo.tfm.pets.PetsException
 import dev.martianzoo.tfm.pets.PetsParser
@@ -261,5 +260,3 @@ fun scaling(greed: Double, backoff: Double): (Int) -> Double {
   // must be in range -1..1
   return { (greed + 1) / (backoff + 1).pow(it) - 1 }
 }
-
-private val logger: FluentLogger = FluentLogger.forEnclosingClass()

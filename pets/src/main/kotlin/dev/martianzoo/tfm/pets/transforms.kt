@@ -1,6 +1,5 @@
 package dev.martianzoo.tfm.pets
 
-import com.google.common.flogger.FluentLogger
 import dev.martianzoo.tfm.pets.PetsParser.parse
 import dev.martianzoo.tfm.pets.SpecialComponent.PRODUCTION
 import dev.martianzoo.tfm.pets.SpecialComponent.THIS
@@ -23,7 +22,7 @@ internal fun actionToEffect(action: Action, index: Int): Effect {
   }
   val trigger: Trigger = parse("$USE_ACTION${index + 1}<$THIS>")
   return Effect(trigger, merged).also {
-    log.atInfo().log("Converted action: $it")
+    println("Converted action: $it")
   }
 }
 
@@ -36,7 +35,7 @@ internal fun immediateToEffect(immediate: Instruction): Effect {
 
 internal fun <P : PetsNode> resolveThisIn(node: P, resolveTo: TypeExpression): P {
   return replaceTypesIn(node, THIS.type, resolveTo).also {
-    log.atInfo().log("Resolved `This` to `$resolveTo` in ${node.kind}: $it")
+    println("Resolved `This` to `$resolveTo` in ${node.kind}: $it")
   }
 }
 
@@ -54,7 +53,7 @@ private class TypeReplacer(val from: TypeExpression, val to: TypeExpression) : A
 internal fun <P : PetsNode> spellOutQes(node: P): P {
   return QeSpellerOuter.transform(node).also {
     if (it != node) {
-      log.atInfo().log("spelled out QEs in ${node.kind}: $it")
+      println("spelled out QEs in ${node.kind}: $it")
     }
   }
 }
@@ -71,7 +70,7 @@ private object QeSpellerOuter : AstTransformer() {
 internal fun <P : PetsNode> deprodify(node: P, producibleClassNames: Set<String>): P {
   return Deprodifier(producibleClassNames).transform(node).also {
     if (it != node) {
-      log.atInfo().log("Deprodified a ${node.kind}: $it")
+      println("Deprodified a ${node.kind}: $it")
     }
   }
 }
@@ -93,5 +92,3 @@ private class Deprodifier(val producible: Set<String>) : AstTransformer() {
     else -> super.transform(node)
   } as P
 }
-
-private val log: FluentLogger = FluentLogger.forEnclosingClass()

@@ -1,6 +1,5 @@
 package dev.martianzoo.tfm.types
 
-import com.google.common.flogger.FluentLogger
 import dev.martianzoo.tfm.pets.AstTransformer
 import dev.martianzoo.tfm.pets.SpecialComponent.THIS
 import dev.martianzoo.tfm.pets.ast.Instruction.Gain
@@ -10,7 +9,7 @@ import dev.martianzoo.tfm.pets.ast.TypeExpression
 
 fun <P : PetsNode> applyDefaultsIn(node: P, table: PetClassTable): P {
   return Defaulter(table).transform(node).also {
-    log.atInfo().log("applied defaults to a ${node.kind}: $it")
+    println("applied defaults to a ${node.kind}: $it")
   }
 }
 
@@ -60,5 +59,3 @@ private class Defaulter(val table: PetClassTable) : AstTransformer() {
     return PetType(petClass, mergedDeps).toTypeExpression()
   }
 }
-
-private val log: FluentLogger = FluentLogger.forEnclosingClass()
