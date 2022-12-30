@@ -13,7 +13,16 @@ class ComponentGraph(startingWith: Multiset<Component> = ImmutableMultiset.of())
   val multiset: /*Mutable*/Multiset<Component> = LinkedHashMultiset.create(startingWith)
   val changeLog: MutableList<StateChange> = mutableListOf() // starts with ordinal 1
 
-  fun applyChange(
+  fun gain(count: Int, gaining: Component, cause: Cause? = null) =
+      applyChange(count, gaining=gaining, cause=cause)
+
+  fun remove(count: Int, removing: Component, cause: Cause? = null) =
+      applyChange(count, removing=removing, cause=cause)
+
+  fun transmute(count: Int, gaining: Component, removing: Component, cause: Cause? = null) =
+      applyChange(count, gaining, removing, cause)
+
+  private fun applyChange(
       count: Int,
       gaining: Component? = null,
       removing: Component? = null,

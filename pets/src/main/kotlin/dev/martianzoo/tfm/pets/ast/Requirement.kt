@@ -1,19 +1,20 @@
 package dev.martianzoo.tfm.pets.ast
 
 import com.google.common.collect.Lists.asList
+import dev.martianzoo.tfm.pets.GameApi
 import dev.martianzoo.tfm.pets.PetsException
 import dev.martianzoo.util.toSetStrict
 
 sealed class Requirement : PetsNode() {
-  abstract fun evaluate(counter: (TypeExpression) -> Int): Boolean
+  abstract fun evaluate(counter: GameApi): Boolean
 
   data class Min(val qe: QuantifiedExpression) : Requirement() {
     constructor(expr: TypeExpression? = null, scalar: Int? = null) : this(QuantifiedExpression(expr, scalar))
     override fun toString() = "$qe"
     override val children = setOf(qe)
 
-    override fun evaluate(counter: (TypeExpression) -> Int) =
-        counter(qe.type!!) >= qe.scalar!!
+    override fun evaluate(counter: GameApi) =
+        counter.count(qe.type!!) >= qe.scalar!!
   }
 
   data class Max(val qe: QuantifiedExpression) : Requirement() {
@@ -23,8 +24,8 @@ sealed class Requirement : PetsNode() {
     override fun toString() = "MAX $qe"
     override val children = setOf(qe)
 
-    override fun evaluate(counter: (TypeExpression) -> Int) =
-        counter(qe.type!!) <= qe.scalar!!
+    override fun evaluate(counter: GameApi) =
+        counter.count(qe.type!!) <= qe.scalar!!
   }
 
   data class Exact(val qe: QuantifiedExpression) : Requirement() {
@@ -34,8 +35,8 @@ sealed class Requirement : PetsNode() {
     override fun toString() = "=$qe"
     override val children = setOf(qe)
 
-    override fun evaluate(counter: (TypeExpression) -> Int) =
-        counter(qe.type!!) == qe.scalar!!
+    override fun evaluate(counter: GameApi) =
+        counter.count(qe.type!!) == qe.scalar!!
   }
 
   data class Or(val requirements: Set<Requirement>) : Requirement() {
@@ -45,7 +46,7 @@ sealed class Requirement : PetsNode() {
     override fun precedence() = 3
     override val children = requirements
 
-    override fun evaluate(counter: (TypeExpression) -> Int) =
+    override fun evaluate(counter: GameApi) =
         requirements.any { it.evaluate(counter) }
   }
 
@@ -56,7 +57,7 @@ sealed class Requirement : PetsNode() {
     override fun precedence() = 1
     override val children = requirements
 
-    override fun evaluate(counter: (TypeExpression) -> Int) =
+    override fun evaluate(counter: GameApi) =
         requirements.all { it.evaluate(counter) }
   }
 
@@ -65,7 +66,7 @@ sealed class Requirement : PetsNode() {
     override val children = setOf(requirement)
     override fun extract() = requirement
 
-    override fun evaluate(counter: (TypeExpression) -> Int) = error("shoulda been deprodified by now")
+    override fun evaluate(counter: GameApi) = error("shoulda been deprodified by now")
   }
 
   override val kind = "Requirement"

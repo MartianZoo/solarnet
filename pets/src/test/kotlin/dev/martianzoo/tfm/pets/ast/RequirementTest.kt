@@ -1,6 +1,7 @@
 package dev.martianzoo.tfm.pets.ast
 
 import com.google.common.truth.Truth.assertThat
+import dev.martianzoo.tfm.pets.GameApi
 import dev.martianzoo.tfm.pets.PetsParser
 import dev.martianzoo.tfm.pets.PetsParser.parse
 import dev.martianzoo.tfm.pets.ast.Requirement.Max
@@ -169,35 +170,38 @@ class RequirementTest {
 
   // All type expressions with even-length string representations
   // exist and have a count equal to that string's length
-  fun fakeCounter(te: TypeExpression): Int {
-    val length = te.toString().length
-    return if (length % 2 == 0) length else 0
+  object FakeGame : GameApi {
+    override fun count(type: TypeExpression): Int {
+      val length = type.toString().length
+      return if (length % 2 == 0) length else 0
+    }
+    override fun isMet(requirement: Requirement) = requirement.evaluate(this)
   }
 
-  fun thing(s : String) = assertThat(spellOutQes(parse<Requirement>(s)).evaluate(::fakeCounter))
+  fun evalRequirement(s : String) = assertThat(spellOutQes(parse<Requirement>(s)).evaluate(FakeGame))
 
   @Test fun evaluation() {
-    thing("Foo").isFalse()
-    thing("11 Foo").isFalse()
-    thing("10").isTrue()
-    thing("11").isFalse()
-    thing("Foo<Bar>").isTrue()
-    thing("8 Foo<Bar>").isTrue()
-    thing("9 Foo<Bar>").isFalse()
+    evalRequirement("Foo").isFalse()
+    evalRequirement("11 Foo").isFalse()
+    evalRequirement("10").isTrue()
+    evalRequirement("11").isFalse()
+    evalRequirement("Foo<Bar>").isTrue()
+    evalRequirement("8 Foo<Bar>").isTrue()
+    evalRequirement("9 Foo<Bar>").isFalse()
 
-    thing("MAX 0 Foo").isTrue()
-    thing("MAX 7 Foo<Bar>").isFalse()
-    thing("MAX 8 Foo<Bar>").isTrue()
+    evalRequirement("MAX 0 Foo").isTrue()
+    evalRequirement("MAX 7 Foo<Bar>").isFalse()
+    evalRequirement("MAX 8 Foo<Bar>").isTrue()
 
-    thing("=0 Foo").isTrue()
-    thing("=1 Foo").isFalse()
-    thing("=8 Foo<Bar>").isTrue()
-    thing("=7 Foo<Bar>").isFalse()
+    evalRequirement("=0 Foo").isTrue()
+    evalRequirement("=1 Foo").isFalse()
+    evalRequirement("=8 Foo<Bar>").isTrue()
+    evalRequirement("=7 Foo<Bar>").isFalse()
 
-    thing("10, Foo<Bar>, 8 Foo<Bar>, MAX 0 Foo, MAX 8 Foo<Bar>, =0 Foo, =8 Foo<Bar>").isTrue()
-    thing("10, Foo<Bar>, 8 Foo<Bar>, MAX 0 Foo, MAX 8 Foo<Bar>, =1 Foo, =8 Foo<Bar>").isFalse()
+    evalRequirement("10, Foo<Bar>, 8 Foo<Bar>, MAX 0 Foo, MAX 8 Foo<Bar>, =0 Foo, =8 Foo<Bar>").isTrue()
+    evalRequirement("10, Foo<Bar>, 8 Foo<Bar>, MAX 0 Foo, MAX 8 Foo<Bar>, =1 Foo, =8 Foo<Bar>").isFalse()
 
-    thing("Foo OR 11 Foo OR 11 OR 9 Foo<Bar> OR MAX 7 Foo<Bar> OR =1 Foo OR =7 Foo<Bar>").isFalse()
-    thing("Foo OR 11 Foo OR 11 OR 9 Foo<Bar> OR MAX 7 Foo<Bar> OR =0 Foo OR =7 Foo<Bar>").isTrue()
+    evalRequirement("Foo OR 11 Foo OR 11 OR 9 Foo<Bar> OR MAX 7 Foo<Bar> OR =1 Foo OR =7 Foo<Bar>").isFalse()
+    evalRequirement("Foo OR 11 Foo OR 11 OR 9 Foo<Bar> OR MAX 7 Foo<Bar> OR =0 Foo OR =7 Foo<Bar>").isTrue()
   }
 }
