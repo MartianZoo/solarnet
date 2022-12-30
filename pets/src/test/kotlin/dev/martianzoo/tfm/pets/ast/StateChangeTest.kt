@@ -15,8 +15,8 @@ class StateChangeTest {
     assertThrows<RuntimeException> { valid.copy(ordinal = 2) }
     assertThrows<RuntimeException> { valid.copy(ordinal = 3) }
     assertThrows<RuntimeException> { valid.copy(count = 0) }
-    assertThrows<RuntimeException> { valid.copy(gained = null, removed = null) }
-    assertThrows<RuntimeException> { valid.copy(gained = te("Same"), removed = te("Same")) }
+    assertThrows<RuntimeException> { valid.copy(gaining = null, removing = null) }
+    assertThrows<RuntimeException> { valid.copy(gaining = te("Same"), removing = te("Same")) }
     assertThrows<RuntimeException> { valid.copy(cause = valid.cause!!.copy(change = 5)) }
     assertThrows<RuntimeException> { valid.cause!!.copy(change = 0) }
   }

@@ -11,13 +11,13 @@ data class StateChange(
     val count: Int = 1,
 
     /** The concrete component that was gained, or `null` if this was a remove. */
-    val gained: TypeExpression? = null,
+    val gaining: TypeExpression? = null,
 
     /**
      * The concrete component that was removed, or `null` if this was a gain. Can't be the same as
      * `gained` (e.g. both can't be null).
      */
-    val removed: TypeExpression? = null,
+    val removing: TypeExpression? = null,
 
     /** Information about what caused this state change, if we have it. */
     val cause: Cause? = null
@@ -26,17 +26,17 @@ data class StateChange(
   init {
     require(ordinal >= 0) // 0 used only for undocked changes
     require(count > 0)
-    require(gained != removed) { "both gaining and removing $gained" }
+    require(gaining != removing) { "both gaining and removing $gaining" }
     require((cause?.change ?: 0) < ordinal) { "${cause!!.change} >= $ordinal" }
   }
 
   override fun toString(): String {
     var desc = ""
-    when (gained) {
-      null -> desc += "-$count $removed"
+    when (gaining) {
+      null -> desc += "-$count $removing"
       else -> {
-        desc += "$count $gained"
-        if (removed != null) desc += " FROM $removed"
+        desc += "$count $gaining"
+        if (removing != null) desc += " FROM $removing"
       }
     }
 
@@ -45,7 +45,7 @@ data class StateChange(
     return "$desc BY $a BECAUSE $c"
   }
 
-  override val children = listOfNotNull(gained, removed, cause?.agent)
+  override val children = listOfNotNull(gaining, removing, cause?.agent)
   override val kind = "StateChange"
 
   data class Cause(
