@@ -1,12 +1,18 @@
 package dev.martianzoo.util
 
 import com.google.common.collect.ImmutableMultiset
+import com.google.common.collect.Multiset
 
 fun <T : Any> multiset(vararg pairs: Pair<Int, T>): ImmutableMultiset<T> {
   val builder = ImmutableMultiset.builder<T>()
   pairs.forEach { (count, element) -> builder.addCopies(element, count) }
   return builder.build()
 }
+
+// this is how to make sure the whole remove happens?
+// who designed this crap?
+fun <E : Any?> Multiset<E>.mustRemove(element: E, count: Int) =
+    setCount(element, count(element) - count)
 
 fun <T> Collection<T>.toSetStrict() = toSet().also { require(it.size == size) }
 
@@ -17,6 +23,7 @@ fun <K : Any, V : Any> mergeMaps(one: Map<out K, V>, two: Map<out K, V>, merger:
     one.toMutableMap().apply {
       two.forEach { merge(it.key, it.value, merger) }
     }
+
 
 // TODO fix overload hell
 
