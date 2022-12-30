@@ -11,21 +11,23 @@ import com.github.h0tk3y.betterParse.parser.UnexpectedEof
 
 fun <T> parseRepeated(listParser: Parser<List<T>>, tokens: TokenMatchesSequence): List<T> {
   var index = 0
-  val components = mutableListOf<T>()
-  var isEOF = false
-  while (!isEOF) {
-    val parseResult = listParser.tryParse(tokens, index)
-    when (parseResult) {
-      is Parsed -> {
-        components += parseResult.value
-        index = parseResult.nextPosition
-      }
-      is UnexpectedEof -> isEOF = true
-      is AlternativesFailure -> parseResult.errors.any(::isEOF)
-      is ErrorResult -> throw ParseException(parseResult)
+  val parsed = mutableListOf<T>()
+  while (true) {
+    println(index)
+    val result = listParser.tryParse(tokens, index)
+    when {
+        result is Parsed -> {
+          parsed += result.value
+          require(result.nextPosition != index) { index }
+          index = result.nextPosition
+        }
+        result is UnexpectedEof -> break
+        result is AlternativesFailure && result.errors.any(::isEOF) -> break
+        result is ErrorResult -> throw ParseException(result)
+        else -> error("huh?")
     }
   }
-  return components
+  return parsed
 }
 
 private fun isEOF(result: ParseResult<*>?): Boolean =

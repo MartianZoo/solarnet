@@ -6,6 +6,7 @@ import dev.martianzoo.tfm.data.MarsAreaDefinition
 import dev.martianzoo.tfm.data.MilestoneDefinition
 import dev.martianzoo.tfm.pets.ComponentDef
 import dev.martianzoo.tfm.pets.PetsParser.parseComponents
+import dev.martianzoo.tfm.pets.ast.Instruction.CustomInstruction
 import dev.martianzoo.util.Grid
 import dev.martianzoo.util.associateByStrict
 
@@ -50,6 +51,25 @@ object Canon {
   private fun readResource(filename: String): String {
     val dir = javaClass.packageName.replace('.', '/')
     return javaClass.getResource("/$dir/$filename")!!.readText()
+  }
+
+  fun customInstruction(name: String): CustomInstruction {
+    when (name) {
+      //"createMarsAreas" -> {
+      //  object : CustomInstruction {
+      //    override val name = "createMarsAreas"
+      //    override fun translate(game: GameApi, types: List<TypeExpression>): Instruction {
+      //      return Instruction.Multi(
+      //          mapAreaDefinitions.keys.filter {
+      //            it.startsWith("Tharsis")
+      //          }.map { Gain(te(it)) })
+      //    }
+      //  }
+      //}
+      "createBorders" -> TODO()
+      "handleRequirement" -> TODO()
+    }
+    TODO()
   }
 
   enum class Bundle(val id: Char) {

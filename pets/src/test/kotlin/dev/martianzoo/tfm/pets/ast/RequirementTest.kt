@@ -6,6 +6,7 @@ import dev.martianzoo.tfm.pets.PetsParser
 import dev.martianzoo.tfm.pets.PetsParser.parse
 import dev.martianzoo.tfm.pets.ast.Requirement.Max
 import dev.martianzoo.tfm.pets.ast.Requirement.Min
+import dev.martianzoo.tfm.pets.ast.StateChange.Cause
 import dev.martianzoo.tfm.pets.ast.TypeExpression.Companion.te
 import dev.martianzoo.tfm.pets.spellOutQes
 import org.junit.jupiter.api.Test
@@ -175,7 +176,17 @@ class RequirementTest {
       val length = type.toString().length
       return if (length % 2 == 0) length else 0
     }
+
     override fun isMet(requirement: Requirement) = requirement.evaluate(this)
+
+    override fun applyChange(
+        count: Int,
+        gaining: TypeExpression?,
+        removing: TypeExpression?,
+        cause: Cause?,
+    ) {
+      TODO("this is just a dumb fake")
+    }
   }
 
   fun evalRequirement(s : String) = assertThat(spellOutQes(parse<Requirement>(s)).evaluate(FakeGame))

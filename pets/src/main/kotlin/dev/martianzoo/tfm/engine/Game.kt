@@ -27,13 +27,10 @@ class Game(val components: ComponentGraph, private val table: PetClassTable) : G
   override fun isMet(requirement: Requirement) = requirement.evaluate(this)
   fun isMet(requirementText: String) = isMet(spellOutQes(parse(requirementText)))
 
-  fun applyChange(
-      count: Int,
-      gaining: Component? = null,
-      removing: Component? = null,
-      cause: Cause? = null) {
-    val g = gaining?.asTypeExpression
-    val r = gaining?.asTypeExpression
-
+  override fun applyChange(
+      count: Int, gaining: TypeExpression?, removing: TypeExpression?, cause: Cause?) {
+    val g = gaining?.let { Component(resolve(it)) }
+    val r = removing?.let { Component(resolve(it)) }
+    components.applyChange(count, g, r, cause)
   }
 }

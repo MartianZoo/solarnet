@@ -22,7 +22,7 @@ class ComponentGraph(startingWith: Multiset<Component> = ImmutableMultiset.of())
   fun transmute(count: Int, gaining: Component, removing: Component, cause: Cause? = null) =
       applyChange(count, gaining, removing, cause)
 
-  private fun applyChange(
+  fun applyChange(
       count: Int,
       gaining: Component? = null,
       removing: Component? = null,
