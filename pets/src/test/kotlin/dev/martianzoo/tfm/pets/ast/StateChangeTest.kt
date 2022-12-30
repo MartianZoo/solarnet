@@ -11,6 +11,7 @@ class StateChangeTest {
   fun bad() {
     val valid = StateChange(5, 42, te("Foo"), te("Bar"), Cause(te("Qux"), 3))
 
+    assertThrows<RuntimeException> { valid.copy(ordinal = -1) }
     assertThrows<RuntimeException> { valid.copy(ordinal = 2) }
     assertThrows<RuntimeException> { valid.copy(ordinal = 3) }
     assertThrows<RuntimeException> { valid.copy(count = 0) }

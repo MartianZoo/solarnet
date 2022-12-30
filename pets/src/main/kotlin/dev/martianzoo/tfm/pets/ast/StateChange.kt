@@ -24,7 +24,7 @@ data class StateChange(
 ) : PetsNode() {
 
   init {
-    require(ordinal > 0)
+    require(ordinal >= 0) // 0 used only for undocked changes
     require(count > 0)
     require(gained != removed) { "both gaining and removing $gained" }
     require((cause?.change ?: 0) < ordinal) { "${cause!!.change} >= $ordinal" }
