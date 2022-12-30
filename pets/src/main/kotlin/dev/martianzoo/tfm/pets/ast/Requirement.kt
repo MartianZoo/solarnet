@@ -5,10 +5,15 @@ import dev.martianzoo.tfm.pets.PetsException
 import dev.martianzoo.util.toSetStrict
 
 sealed class Requirement : PetsNode() {
+  abstract fun evaluate(counter: (TypeExpression) -> Int): Boolean
+
   data class Min(val qe: QuantifiedExpression) : Requirement() {
     constructor(expr: TypeExpression? = null, scalar: Int? = null) : this(QuantifiedExpression(expr, scalar))
     override fun toString() = "$qe"
     override val children = setOf(qe)
+
+    override fun evaluate(counter: (TypeExpression) -> Int) =
+        counter(qe.type!!) >= qe.scalar!!
   }
 
   data class Max(val qe: QuantifiedExpression) : Requirement() {
@@ -17,6 +22,9 @@ sealed class Requirement : PetsNode() {
     init { if(qe.scalar == null) throw PetsException("use 'MAX 1 ${qe.type}'") }
     override fun toString() = "MAX $qe"
     override val children = setOf(qe)
+
+    override fun evaluate(counter: (TypeExpression) -> Int) =
+        counter(qe.type!!) <= qe.scalar!!
   }
 
   data class Exact(val qe: QuantifiedExpression) : Requirement() {
@@ -25,6 +33,9 @@ sealed class Requirement : PetsNode() {
     init { if(qe.scalar == null) throw PetsException("Use '=1 ${qe.type}'") }
     override fun toString() = "=$qe"
     override val children = setOf(qe)
+
+    override fun evaluate(counter: (TypeExpression) -> Int) =
+        counter(qe.type!!) == qe.scalar!!
   }
 
   data class Or(val requirements: Set<Requirement>) : Requirement() {
@@ -33,6 +44,9 @@ sealed class Requirement : PetsNode() {
     override fun toString() = requirements.map(::groupIfNeeded).joinToString(" OR ")
     override fun precedence() = 3
     override val children = requirements
+
+    override fun evaluate(counter: (TypeExpression) -> Int) =
+        requirements.any { it.evaluate(counter) }
   }
 
   data class And(val requirements: List<Requirement>) : Requirement() {
@@ -41,12 +55,17 @@ sealed class Requirement : PetsNode() {
     override fun toString() = requirements.map(::groupIfNeeded).joinToString()
     override fun precedence() = 1
     override val children = requirements
+
+    override fun evaluate(counter: (TypeExpression) -> Int) =
+        requirements.all { it.evaluate(counter) }
   }
 
   data class Prod(val requirement: Requirement) : Requirement(), ProductionBox<Requirement> {
     override fun toString() = "PROD[${requirement}]"
     override val children = setOf(requirement)
     override fun extract() = requirement
+
+    override fun evaluate(counter: (TypeExpression) -> Int) = error("shoulda been deprodified by now")
   }
 
   override val kind = "Requirement"

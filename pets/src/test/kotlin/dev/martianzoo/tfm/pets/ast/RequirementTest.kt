@@ -2,9 +2,11 @@ package dev.martianzoo.tfm.pets.ast
 
 import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.tfm.pets.PetsParser
+import dev.martianzoo.tfm.pets.PetsParser.parse
 import dev.martianzoo.tfm.pets.ast.Requirement.Max
 import dev.martianzoo.tfm.pets.ast.Requirement.Min
 import dev.martianzoo.tfm.pets.ast.TypeExpression.Companion.te
+import dev.martianzoo.tfm.pets.spellOutQes
 import org.junit.jupiter.api.Test
 
 // Most testing is done by AutomatedTest
@@ -163,5 +165,39 @@ class RequirementTest {
                 1)
         )
     )
+  }
+
+  // All type expressions with even-length string representations
+  // exist and have a count equal to that string's length
+  fun fakeCounter(te: TypeExpression): Int {
+    val length = te.toString().length
+    return if (length % 2 == 0) length else 0
+  }
+
+  fun thing(s : String) = assertThat(spellOutQes(parse<Requirement>(s)).evaluate(::fakeCounter))
+
+  @Test fun evaluation() {
+    thing("Foo").isFalse()
+    thing("11 Foo").isFalse()
+    thing("10").isTrue()
+    thing("11").isFalse()
+    thing("Foo<Bar>").isTrue()
+    thing("8 Foo<Bar>").isTrue()
+    thing("9 Foo<Bar>").isFalse()
+
+    thing("MAX 0 Foo").isTrue()
+    thing("MAX 7 Foo<Bar>").isFalse()
+    thing("MAX 8 Foo<Bar>").isTrue()
+
+    thing("=0 Foo").isTrue()
+    thing("=1 Foo").isFalse()
+    thing("=8 Foo<Bar>").isTrue()
+    thing("=7 Foo<Bar>").isFalse()
+
+    thing("10, Foo<Bar>, 8 Foo<Bar>, MAX 0 Foo, MAX 8 Foo<Bar>, =0 Foo, =8 Foo<Bar>").isTrue()
+    thing("10, Foo<Bar>, 8 Foo<Bar>, MAX 0 Foo, MAX 8 Foo<Bar>, =1 Foo, =8 Foo<Bar>").isFalse()
+
+    thing("Foo OR 11 Foo OR 11 OR 9 Foo<Bar> OR MAX 7 Foo<Bar> OR =1 Foo OR =7 Foo<Bar>").isFalse()
+    thing("Foo OR 11 Foo OR 11 OR 9 Foo<Bar> OR MAX 7 Foo<Bar> OR =0 Foo OR =7 Foo<Bar>").isTrue()
   }
 }
