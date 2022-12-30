@@ -13,7 +13,7 @@ class PairingCheckerTest {
     PairingChecker.check("x(x<d[]>{f})")
   }
 
-  @Test fun testWeird() {
+  fun testWeird() {
     val chars = "[]<>O\"\\".toCharArray()
     val maxMisses = 1_000
     var length = 0
