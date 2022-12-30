@@ -6,15 +6,15 @@ import dev.martianzoo.tfm.pets.PetsException
 import dev.martianzoo.util.toSetStrict
 
 sealed class Requirement : PetsNode() {
-  abstract fun evaluate(counter: GameApi): Boolean
+  abstract fun evaluate(game: GameApi): Boolean
 
   data class Min(val qe: QuantifiedExpression) : Requirement() {
     constructor(expr: TypeExpression? = null, scalar: Int? = null) : this(QuantifiedExpression(expr, scalar))
     override fun toString() = "$qe"
     override val children = setOf(qe)
 
-    override fun evaluate(counter: GameApi) =
-        counter.count(qe.type!!) >= qe.scalar!!
+    override fun evaluate(game: GameApi) =
+        game.count(qe.type!!) >= qe.scalar!!
   }
 
   data class Max(val qe: QuantifiedExpression) : Requirement() {
@@ -24,8 +24,8 @@ sealed class Requirement : PetsNode() {
     override fun toString() = "MAX $qe"
     override val children = setOf(qe)
 
-    override fun evaluate(counter: GameApi) =
-        counter.count(qe.type!!) <= qe.scalar!!
+    override fun evaluate(game: GameApi) =
+        game.count(qe.type!!) <= qe.scalar!!
   }
 
   data class Exact(val qe: QuantifiedExpression) : Requirement() {
@@ -35,8 +35,8 @@ sealed class Requirement : PetsNode() {
     override fun toString() = "=$qe"
     override val children = setOf(qe)
 
-    override fun evaluate(counter: GameApi) =
-        counter.count(qe.type!!) == qe.scalar!!
+    override fun evaluate(game: GameApi) =
+        game.count(qe.type!!) == qe.scalar!!
   }
 
   data class Or(val requirements: Set<Requirement>) : Requirement() {
@@ -46,8 +46,8 @@ sealed class Requirement : PetsNode() {
     override fun precedence() = 3
     override val children = requirements
 
-    override fun evaluate(counter: GameApi) =
-        requirements.any { it.evaluate(counter) }
+    override fun evaluate(game: GameApi) =
+        requirements.any { it.evaluate(game) }
   }
 
   data class And(val requirements: List<Requirement>) : Requirement() {
@@ -57,8 +57,8 @@ sealed class Requirement : PetsNode() {
     override fun precedence() = 1
     override val children = requirements
 
-    override fun evaluate(counter: GameApi) =
-        requirements.all { it.evaluate(counter) }
+    override fun evaluate(game: GameApi) =
+        requirements.all { it.evaluate(game) }
   }
 
   data class Prod(val requirement: Requirement) : Requirement(), ProductionBox<Requirement> {
@@ -66,7 +66,7 @@ sealed class Requirement : PetsNode() {
     override val children = setOf(requirement)
     override fun extract() = requirement
 
-    override fun evaluate(counter: GameApi) = error("shoulda been deprodified by now")
+    override fun evaluate(game: GameApi) = error("shoulda been deprodified by now")
   }
 
   override val kind = "Requirement"
