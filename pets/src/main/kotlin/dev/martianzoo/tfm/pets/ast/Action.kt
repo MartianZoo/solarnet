@@ -29,9 +29,9 @@ data class Action(val cost: Cost?, val instruction: Instruction) : PetsNode() {
     // can't do non-prod per prod yet
     data class Per(val cost: Cost, val qe: QuantifiedExpression) : Cost() {
       init {
-        if ((qe.scalar ?: 1) <= 0)
+        if (qe.scalar == 0) {
           throw PetsException("Can't do something 'per' a non-positive amount")
-
+        }
         when (cost) {
           is Or, is Multi -> throw PetsException("Break into separate Per instructions")
           is Per -> throw PetsException("Might support in future?")
@@ -39,7 +39,7 @@ data class Action(val cost: Cost?, val instruction: Instruction) : PetsNode() {
         }
       }
       override val children = setOf(cost, qe)
-      override fun toString() = "$cost / $qe" // parens
+      override fun toString() = "$cost / ${qe.toString(forceType = true)}" // no "/ 2" but "/ Heat" is fine
       override fun precedence() = 5
 
       override fun toInstruction() = Per(cost.toInstruction(), qe)

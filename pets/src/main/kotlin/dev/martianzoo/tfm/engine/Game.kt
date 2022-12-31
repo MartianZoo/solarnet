@@ -6,7 +6,6 @@ import dev.martianzoo.tfm.pets.PetsParser.parse
 import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.pets.ast.StateChange.Cause
 import dev.martianzoo.tfm.pets.ast.TypeExpression
-import dev.martianzoo.tfm.pets.spellOutQes
 import dev.martianzoo.tfm.types.PetClassTable
 import dev.martianzoo.tfm.types.PetType
 
@@ -25,7 +24,7 @@ class Game(val components: ComponentGraph, private val table: PetClassTable) : G
   fun getAll(typeText: String) = getAll(resolve(typeText))
 
   override fun isMet(requirement: Requirement) = requirement.evaluate(this)
-  fun isMet(requirementText: String) = isMet(spellOutQes(parse(requirementText)))
+  fun isMet(requirementText: String) = isMet(parse(requirementText))
 
   override fun applyChange(
       count: Int, gaining: TypeExpression?, removing: TypeExpression?, cause: Cause?) {

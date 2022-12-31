@@ -15,7 +15,6 @@ import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.pets.ast.TypeExpression
 import dev.martianzoo.tfm.pets.ast.TypeExpression.Companion.te
 import dev.martianzoo.tfm.pets.immediateToEffect
-import dev.martianzoo.tfm.pets.spellOutQes
 import dev.martianzoo.util.toSetStrict
 
 /**
@@ -173,7 +172,7 @@ data class CardDefinition(
 
   // This doesn't get converted to an effect (yet??) so we have to canonicalize
   // TODO rethink
-  val requirement by lazy { requirementRaw?.let(::spellOutQes) }
+  val requirement by ::requirementRaw
 
   val allEffects: Set<Effect> by lazy {
     (listOfNotNull(immediateRaw).map(::immediateToEffect) +

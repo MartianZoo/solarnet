@@ -3,6 +3,7 @@ package dev.martianzoo.tfm.testlib
 import com.google.common.truth.Truth.assertWithMessage
 import dev.martianzoo.tfm.pets.PetsException
 import dev.martianzoo.tfm.pets.PetsParser
+import dev.martianzoo.tfm.pets.SpecialComponent.MEGACREDIT
 import dev.martianzoo.tfm.pets.ast.Action
 import dev.martianzoo.tfm.pets.ast.Action.Cost
 import dev.martianzoo.tfm.pets.ast.Effect
@@ -50,7 +51,7 @@ class PetsGenerator(scaling: (Int) -> Double)
             refinement()
         )
       }
-      register { QuantifiedExpression(choose(1 to null, 3 to recurse()), choose(null, null, 0, 1, 5, 11)) }
+      register { QuantifiedExpression(choose(1 to MEGACREDIT.type, 3 to recurse()), choose(0, 1, 1, 1, 5, 11)) }
 
       val requirementTypes = (multiset(
           9 to Min::class,
@@ -58,6 +59,7 @@ class PetsGenerator(scaling: (Int) -> Double)
           2 to Exact::class,
           5 to Requirement.Or::class,
           3 to Requirement.And::class,
+          1 to Requirement.Prod::class,
       ))
       register<Requirement> { recurse(choose(requirementTypes)) }
       register { Min(qe = recurse()) }
@@ -65,6 +67,7 @@ class PetsGenerator(scaling: (Int) -> Double)
       register { Exact(recurse()) }
       register { Requirement.Or(setOfSize(choose(2, 2, 2, 2, 2, 3, 4))) }
       register { Requirement.And(listOfSize(choose(2, 2, 2, 2, 3))) }
+      register { Requirement.Prod(recurse()) }
 
       fun RandomGenerator<*>.intensity() = choose(3 to null, 1 to randomEnum<Intensity>())
 
@@ -78,6 +81,7 @@ class PetsGenerator(scaling: (Int) -> Double)
           1 to Then::class,
           3 to Instruction.Or::class,
           5 to Instruction.Multi::class,
+          1 to Instruction.Prod::class,
       ))
       register<Instruction> { recurse(choose(instructionTypes)) }
       register { Gain(recurse(), intensity()) }
@@ -89,6 +93,7 @@ class PetsGenerator(scaling: (Int) -> Double)
       register { Then(listOfSize(choose(2, 2, 2, 3))) }
       register { Instruction.Or(setOfSize(choose(2, 2, 2, 2, 3))) }
       register { Instruction.Multi(listOfSize(choose(2, 2, 2, 2, 2, 3, 4))) }
+      register { Instruction.Prod(recurse()) }
 
       register<FromExpression> {
         val one: TypeExpression = recurse()

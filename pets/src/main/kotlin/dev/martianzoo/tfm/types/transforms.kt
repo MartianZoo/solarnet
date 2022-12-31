@@ -25,7 +25,7 @@ private class Defaulter(val table: PetClassTable) : AstTransformer() {
       }
 
       is Gain -> {
-        val statedTypeExpr = node.qe.type!!
+        val statedTypeExpr = node.qe.type
         val petClass = table[statedTypeExpr.className]
         val defaults = petClass.defaults
         val newTypeExpr = applyDefaultSpecs(

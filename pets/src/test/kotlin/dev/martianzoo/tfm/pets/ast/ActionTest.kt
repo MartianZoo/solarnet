@@ -14,82 +14,62 @@ class ActionTest {
 
   val inputs = """
     -> 1
-    -> 1?
-    -> -1!
-    -> -Ooh
-    -> 5 Wau
-    -> 1 Foo?
-    Foo -> Ahh
-    -> -11 Bar?
-    Eep -> -Xyz?
-    -> -Xyz<Ahh>?
-    Eep -> -5 Xyz!
-    Wau -> Foo<Ahh>
-    Xyz -> Abc / Qux
-    Eep -> -1, -1 Ooh
-    5 Eep<Eep> -> Eep!
-    Ooh OR Foo -> 1 Foo
-    1 -> 11 Ooh FROM Ahh
-    11 -> -1 Eep(HAS Foo)
-    Wau -> 1 Xyz<Ooh, Qux>
-    5 Abc -> -Qux<Ooh<Qux>>
-    5 OR 5 Bar / 5 Foo -> 11
-    5 / 11 Wau -> -Qux! / Qux
-    PROD[1 Bar] -> -Abc OR Ooh
-    11 Ooh -> -11, Foo, -11 Ooh
-    1 Eep -> -11 Ahh, MAX 5: Bar
-    Ooh / Qux -> 1 / Xyz OR 5 Wau
-    1 Xyz / Foo<Qux> -> Qux? / Ooh
-    5 -> Foo!, 1 Foo<Foo>, Bar<Foo>
-    PROD[Abc / 5 Bar] -> 11 Bar, Qux
-    1 -> -5 / Foo<Foo, Ahh<Foo>> OR 5
-    Ahh<Ooh<Qux>> -> -1 Xyz<Qux<Bar>>?
-    11 Wau<Foo<Eep<Ooh, Foo>>> -> 5 Xyz
-    PROD[Bar], 5 Ooh -> 11 Qux<Wau<Bar>>
-    11 Abc<Qux> -> Foo<Ahh<Foo>> OR 1 Qux
-    -> (-Ahh OR 1., Abc) OR -Ahh<Ooh, Foo>
-    5 / 1 Eep OR (11 Foo, 1 / Bar) -> 1 Ooh
-    5, Bar / 1 Xyz<Bar>, PROD[Ooh] -> 11 Ahh
-    Qux<Foo, Foo, Bar>, 1 / Bar, Abc -> -Xyz?
-    PROD[1 Bar<Foo>, Bar] -> 1, Abc / Ahh<Bar>
-    Wau -> Bar<Ahh> THEN (=1, (1, Foo)): -5 Xyz
-    Xyz<Abc, Qux>, Xyz, Bar, Xyz / Ahh -> -1 Wau
-    PROD[Ooh<Bar>] -> (Ahh, MAX 0: 1) OR Bar OR 1
-    1 Ooh OR 1 Foo<Foo<Bar>> -> Foo<Abc, Ahh<Bar>>
-    PROD[5 Qux OR (Bar, 1)] -> 11 OR (Foo FROM Xyz)
-    PROD[Bar / Qux<Qux>, 1 Foo] -> -1 Foo<Ahh<Abc>>?
-    PROD[1 Foo] / 5 Xyz -> 5 Eep<Foo<Abc>, Qux<Foo>>!
-    Xyz -> 11 Bar FROM Qux, -Bar, 5?, -Bar! OR Bar, 11
-    1 Ooh, (1 / Foo, 1 Ooh) OR (1, Foo<Foo>) -> -11 Foo
-    5 Bar, Qux, Bar OR 1 Abc OR Qux -> -11 Ooh OR 5 Eep.
-    PROD[1 Eep<Abc>] -> =0: ((-5 OR Qux) THEN 1 Foo<Foo>)
-    PROD[Abc] -> 1 Ooh OR ((1 OR -Abc<Qux<Abc>>) THEN Qux)
-    PROD[Foo] OR (Qux / Bar, 11 Bar, Ahh) -> 5, 11 Foo<Abc>
-    PROD[Qux OR 11 Foo] -> Qux, 5 Qux THEN (=0: 5 Foo, -Qux)
-    -> -1., MAX 5 Qux: (Qux: Foo THEN (Foo, Qux), 1 Bar<Foo>)
-    -> Ooh<Ooh> FROM Qux / 5 Bar OR ((1 Foo OR Foo OR 5): Foo)
-    Ahh, Qux OR PROD[5] -> Ooh, Ahh, 1 Ooh, Qux OR -Ooh<Abc>, 5
-    11, Foo / 1 Bar OR Bar OR Foo / Qux OR 1 / Abc -> 5 Ahh<Bar>
-    1 Ooh<Bar>, Foo, Foo / 1 Bar -> =0 Foo<Bar<Foo>>: (-Xyz, Xyz)
-    1 Abc<Abc> OR Abc / Qux OR Foo<Bar> -> 1 Abc(HAS Xyz) / 11 Wau
-    -> (Bar THEN Qux<Foo<Bar>> THEN 1 Bar FROM Foo THEN Xyz) OR Bar
-    PROD[Bar / 1 Foo] OR Bar -> Ooh, (Bar: Abc) OR (1 Qux THEN -Bar)
-    PROD[(Ahh, 5 OR Qux / Foo) OR (Ooh OR 5 Foo, Xyz / Ooh)] -> 1 Abc
-    1 Foo -> Qux<Foo>, Qux: -Qux, Qux, -Xyz<Xyz<Qux, Bar<Xyz>>>, 1 Qux
-    PROD[Foo / Qux OR 5 Ooh OR Qux OR 5 OR 5 Ooh<Ooh>] -> -Xyz(HAS Ooh)
-    11 Xyz<Xyz<Bar, Abc>> -> 5 Bar<Xyz> / 5 Bar OR -1 Bar<Ooh> OR 11 Bar
-    11 -> -Abc / Abc, Bar. OR -Bar<Abc>, Xyz FROM Bar / Xyz, -Qux / 5 Xyz
-    -> -11 Foo<Qux<Bar>> / Ooh<Eep, Foo<Eep<Ooh>, Bar<Bar, Foo>>>(HAS Foo)
-    Ooh / 1 Ooh -> (5, Foo): Bar, Foo FROM Xyz / Foo, Qux., 5 Abc THEN -Qux
-    PROD[Abc<Eep>] -> -1 OR -5 Bar OR -Abc, Ahh OR Foo OR ((Abc, Foo): -Xyz)
-    11 Ooh<Bar> -> Abc, 1, Xyz<Qux FROM Foo>, Qux / Qux, 1 Foo, -5 Bar, 1 Eep
-    Ooh OR Xyz OR (5 OR Abc OR Bar, 1, 1 Foo, 5 Qux) OR PROD[Ahh] -> 1 / 1 Foo
-    11 Qux<Bar, Foo<Abc>, Qux> -> Eep / Qux OR 11 Foo<Foo> / Eep<Ooh<Foo<Ahh>>>
-    PROD[1 / 11 Ooh] -> (MAX 5 Qux, Abc): 1, Wau, Xyz: (Bar OR -Bar OR 5 Foo), 5
-    PROD[Foo] -> 5 Foo FROM Bar, 1 OR Foo, 5 Abc<Bar>!, 1 Ooh, 5 Abc / 1 Foo<Ooh>
-    PROD[Bar<Bar>] / Ooh OR 1 Xyz -> Xyz<Foo>, 1 Ooh, -Qux / 1 Xyz, -1, Foo THEN 1
-    Qux<Bar, Qux> / 5 Xyz OR (11, Qux) -> Bar<Qux> / Xyz THEN 1 Bar, -Xyz<Foo, Qux>
-    Foo<Ahh, Qux<Eep, Abc<Bar>>> -> 1 Bar, Bar<Foo, Foo>, Bar, -Foo, 1 Abc, Qux: Qux
+    -> 5?
+    -> Bar
+    1 -> 5?
+    5 -> -11
+    -> 11 Abc
+    1 -> -Abc!
+    11 Bar -> 5
+    -> Xyz<Xyz>?
+    -> PROD[-Foo]
+    -> 1! / 11 Abc
+    Foo -> PROD[-1]
+    Ahh -> 11 Abc, 1
+    PROD[Bar] -> Abc!
+    1 -> PROD[PROD[1]]
+    1 / Qux<Bar> -> Abc
+    Abc -> Ooh<Qux>, Qux
+    PROD[0 Ahh] -> 11 Qux
+    0 Bar -> 11 Wau OR Abc
+    PROD[5 OR 0 Qux] -> Bar
+    11 Bar -> 1 Ahh FROM Foo
+    1, Ooh -> PROD[Ooh, -Bar]
+    PROD[PROD[0 Qux]] -> -Ooh!
+    1 / 5 Xyz -> PROD[Qux<Bar>]
+    0 Foo -> -Abc(HAS MAX 0 Qux)
+    PROD[Foo] -> Ooh OR (1., -1!)
+    PROD[Abc / Xyz] -> -5 Ooh<Foo>
+    1, Bar / Xyz -> ${'$'}name(Abc)
+    Qux -> Xyz? THEN ${'$'}name(Bar)
+    11 -> 1 Foo FROM Xyz<Bar(HAS 0)>?
+    PROD[Bar / Megacredit] -> Xyz<Xyz>
+    PROD[PROD[1]] -> (11, -1 OR Foo), 1
+    PROD[1] -> Foo<Bar>, ${'$'}name(Foo)
+    5 / Eep -> (Foo, Qux): 5 Bar FROM Foo
+    Abc, 0 Qux<Qux<Qux, Bar>> OR 0 -> -Qux
+    0 Xyz OR 1 / Foo OR 0 / Megacredit -> 1
+    PROD[1] -> PROD[Xyz<Qux<Xyz, Xyz, Xyz>>]
+    1 -> (1 OR MAX 1 Abc<Qux<Foo>>): 1. / Qux
+    5 Bar OR 0 / Megacredit -> 11 Wau FROM Ahh
+    (5 Bar OR Bar) OR 5 / Abc -> Wau<Qux, Ooh>?
+    PROD[Qux<Bar>], 0 -> (1 Xyz FROM Eep) OR -11
+    PROD[0 / 5 Foo] -> PROD[PROD[1 Foo FROM Foo]]
+    PROD[0 / 5 Ooh OR 0] -> Qux<Ooh, Xyz, Qux>!, 1
+    PROD[1] OR 0 -> 5 Qux<Foo>(HAS MAX 0 Bar<Foo>)!
+    5 Foo<Abc<Foo, Foo>, Qux, Wau<Foo>> -> PROD[Qux]
+    -> PROD[11 Ooh<Eep<Ooh FROM Bar<Eep<Bar, Foo>>>>]
+    1 / Ahh<Qux<Abc>> -> 0 Abc<Abc<Ooh<Foo>>>: (1, 1?)
+    PROD[0 Bar / Bar OR (1 OR Qux)] -> 1, 1, Ooh, 0: -1
+    PROD[0 Xyz] -> PROD[1, (${'$'}name(Xyz), 0: 1), Bar]
+    Xyz -> -5 Wau<Qux, Ahh>!, 5 Qux / Megacredit, PROD[5]
+    5 Foo<Qux(HAS (1 OR Abc) OR 0)> -> PROD[Ahh<Qux, Foo>]
+    PROD[0 / Foo<Qux<Xyz>>] OR PROD[Foo] -> 5 Eep THEN 1: 1
+    5 / Eep<Foo<Foo>> -> 1: 1 Abc<Foo FROM Xyz> / Megacredit
+    PROD[0 Bar<Foo<Foo>> OR (1, 0 Abc)] -> -1, 1, Bar OR -Abc
+    Ahh OR Foo<Bar> -> PROD[1: Bar, (MAX 1 Megacredit: 1, -1)]
+    5 Wau<Xyz<Bar>> -> 1 Qux<Abc<Foo<Abc FROM Foo, Xyz>>> / Ooh
+    PROD[0, 1 OR Foo / Megacredit] -> (0 Foo OR 0 Bar): Abc<Foo>
   """.trimIndent()
 
   @Test fun testSampleStrings() {

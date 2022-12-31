@@ -158,10 +158,18 @@ object PetsParser {
     private val implicitType: Parser<TypeExpression?> = optional(Types.typeExpression)
 
     private val qeWithScalar = scalar and implicitType map { (scalar, expr) ->
-      QuantifiedExpression(expr, scalar)
+      if (expr == null) {
+        QuantifiedExpression(scalar = scalar)
+      } else {
+        QuantifiedExpression(expr, scalar)
+      }
     }
     private val qeWithType = implicitScalar and Types.typeExpression map { (scalar, expr) ->
-      QuantifiedExpression(expr, scalar)
+      if (scalar == null) {
+        QuantifiedExpression(expr)
+      } else {
+        QuantifiedExpression(expr, scalar)
+      }
     }
     private val whole = qeWithScalar or qeWithType
   }

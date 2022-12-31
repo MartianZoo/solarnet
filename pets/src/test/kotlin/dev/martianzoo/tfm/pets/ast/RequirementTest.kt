@@ -7,118 +7,103 @@ import dev.martianzoo.tfm.pets.ast.Requirement.Max
 import dev.martianzoo.tfm.pets.ast.Requirement.Min
 import dev.martianzoo.tfm.pets.ast.StateChange.Cause
 import dev.martianzoo.tfm.pets.ast.TypeExpression.Companion.te
-import dev.martianzoo.tfm.pets.spellOutQes
+import dev.martianzoo.tfm.pets.testSampleStrings
 import org.junit.jupiter.api.Test
 
 // Most testing is done by AutomatedTest
 class RequirementTest {
+
+  val inputs = """
+    0
+    11
+    Bar
+    1, 5
+    0 Ahh
+    11 Foo
+    PROD[1]
+    PROD[11]
+    PROD[Ahh]
+    MAX 11 Eep
+    PROD[0 Qux]
+    PROD[11 Bar]
+    =1 Megacredit
+    =11 Megacredit
+    PROD[MAX 1 Ooh]
+    =0 Ooh<Ooh, Eep>
+    MAX 11 Megacredit
+    =1 Abc OR PROD[11]
+    =11 Xyz(HAS =0 Abc)
+    PROD[MAX 1 Abc<Bar>]
+    PROD[PROD[MAX 1 Qux]]
+    PROD[PROD[0 Foo<Qux>]]
+    PROD[5 Qux<Bar> OR Ahh]
+    PROD[Foo<Ahh<Foo, Ahh>>]
+    PROD[PROD[=1 Megacredit]]
+    (5 Foo, MAX 0 Foo, 0), Ahh
+    =5 Xyz<Foo>, MAX 1 Xyz<Foo>
+    0 Bar, 5 Eep<Foo>, MAX 1 Qux
+    MAX 1 Xyz<Eep<Qux<Ahh>>, Wau>
+    MAX 11 Bar<Ooh<Xyz, Foo<Bar>>>
+    Bar<Foo>(HAS MAX 1 Qux), =1 Bar
+    5 Foo<Ahh, Foo, Foo<Qux>(HAS 0)>
+    (Abc OR MAX 0 Qux) OR PROD[0 Abc]
+    MAX 1 Xyz<Eep<Ooh<Foo<Bar<Bar>>>>>
+    MAX 1 Megacredit, PROD[0], Wau<Ahh>
+    PROD[0 Abc, Wau, (=0 Megacredit, 1)]
+    11 Abc<Bar<Ooh<Bar>, Abc>(HAS 5 Foo)>
+    PROD[=5 Megacredit, =0 Xyz, MAX 0 Xyz]
+    MAX 1 Eep<Ooh>, =11 Qux, MAX 0 Eep<Ooh>
+    (MAX 5 Megacredit, Foo), PROD[MAX 1 Bar]
+    PROD[(0 Xyz OR ((0 OR 0 Bar) OR 1)) OR 0]
+    PROD[0 OR Abc], ((=1 Eep, Foo), =0 Xyz, 1)
+    (MAX 1 Qux, Ooh<Foo>, 0 Abc<Ahh, Qux>), Bar
+    Ahh<Xyz, Xyz>, PROD[Qux<Bar<Bar<Foo>>, Bar>]
+    (MAX 1 Megacredit, PROD[0]), MAX 0 Megacredit
+    MAX 1 Xyz OR (MAX 1 Megacredit, (0 Abc, 0)), 1
+    ((5 Bar<Xyz>, Ooh), 1) OR ((Bar, 0 Foo), 5 Bar)
+    PROD[(1 OR MAX 1 Ooh, 1), (0, MAX 0 Qux OR Qux)]
+    PROD[Foo, =1 Megacredit] OR PROD[1 OR 0 Qux<Bar>]
+    MAX 11 Ahh<Wau<Ahh<Ooh, Bar>, Ahh<Qux, Eep>>, Ahh>
+    PROD[0 OR MAX 1 Foo] OR PROD[=1 Ooh OR =0 Qux<Qux>]
+    (Xyz OR (1 OR Qux), 0 Qux), ((Bar, 0), (Bar, 0 Bar))
+    (5, PROD[MAX 1 Foo<Foo>]), ((0, Foo<Foo>), MAX 1 Abc)
+    PROD[(0 Abc OR MAX 5 Megacredit) OR (0 Qux OR 0), Foo]
+    MAX 1 Eep OR PROD[1] OR MAX 0 Eep OR (1 OR 0, Abc<Foo>)
+    PROD[Qux OR MAX 1 Megacredit OR MAX 1 Foo OR 1] OR 0 Xyz
+    (MAX 1 Ooh OR MAX 1 Foo<Ooh> OR =1 Foo) OR (1, MAX 1 Ooh)
+    (5 Abc OR MAX 5 Qux) OR (Bar OR 0 Bar) OR (MAX 0 Xyz, Abc)
+    (MAX 1 Foo OR (Bar OR (0 OR 0 Foo))) OR (=1 Abc, 1, (1, 1))
+    (MAX 1 Megacredit OR Qux) OR =1 Megacredit, =11 Abc OR 0 Qux
+  """.trimIndent()
+
+  @Test fun testSampleStrings() {
+    val pass = testSampleStrings<Requirement>(inputs)
+    assertThat(pass).isTrue()
+  }
+
   @Test
   fun simpleSourceToApi() {
     assertThat(parse<Requirement>("Foo"))
-        .isEqualTo(Min(te("Foo")))
+        .isEqualTo(Min(QuantifiedExpression(te("Foo"))))
     assertThat(parse<Requirement>("3 Foo"))
-        .isEqualTo(Min(te("Foo"), 3))
+        .isEqualTo(Min(QuantifiedExpression(te("Foo"), 3)))
     assertThat(parse<Requirement>("MAX 3 Foo"))
-        .isEqualTo(Max(te("Foo"), 3))
+        .isEqualTo(Max(QuantifiedExpression(te("Foo"), 3)))
   }
 
   @Test
   fun simpleApiToSource() {
-    assertThat(Min(te("Foo")).toString()).isEqualTo("Foo")
-    assertThat(Min(te("Foo"), 1).toString()).isEqualTo("1 Foo")
-    assertThat(Min(te("Foo"), 3).toString()).isEqualTo("3 Foo")
-    assertThat(Min(te("Megacredit"), 3).toString()).isEqualTo("3 Megacredit")
-    assertThat(Max(te("Foo"), 0).toString()).isEqualTo("MAX 0 Foo")
-    assertThat(Max(te("Foo"), 1).toString()).isEqualTo("MAX 1 Foo")
-    assertThat(Max(te("Foo"), 3).toString()).isEqualTo("MAX 3 Foo")
-  }
-
-  val inputs = """
-    5
-    11
-    Xyz
-    1, 5
-    MAX 5
-    11 Xyz
-    =11 Ooh
-    5 OR Ooh
-    MAX 5 Ooh
-    5 OR MAX 1
-    Ahh OR 5, 5
-    Ahh OR MAX 0
-    11 Qux, 1 Foo
-    MAX 5 Foo OR 1
-    11 Foo OR 1 Abc
-    11 Foo<Foo<Ooh>>
-    5 OR (Foo OR Ooh)
-    Foo OR 11 Abc<Foo>
-    1 Ooh OR 5 Foo<Abc>
-    1 Ooh OR =0 Foo<Bar>
-    =1 Bar<Foo, Qux, Wau>
-    MAX 1 Xyz OR MAX 1 Abc
-    Foo<Eep, Xyz<Ooh>, Ahh>
-    5 Foo<Bar>, 1 Abc, 1 Ooh
-    Foo<Ahh> OR (11 OR MAX 0)
-    Abc OR MAX 5 Ooh<Ooh, Bar>
-    1 Ooh(HAS Bar) OR MAX 5 Ahh
-    =11 OR (=1, Qux, Foo) OR Eep
-    MAX 11 Xyz<Eep> OR MAX 11 Qux
-    (1 Foo, =0 Qux<Foo>) OR =0 Ahh
-    =0 Ahh<Xyz, Qux<Abc>> OR =0 Foo
-    1 Abc, (MAX 1 Foo OR 1) OR 1 Xyz
-    =5 OR (MAX 11 Qux<Eep>, Foo<Ahh>)
-    =5 Xyz OR MAX 0 Abc<Wau<Qux>, Bar>
-    MAX 1 Wau<Ahh(HAS Qux, 5 Qux<Foo>)>
-    1 Foo OR ((Bar OR Xyz) OR MAX 1 Bar)
-    1 OR (MAX 0 OR (1 Bar, Foo OR 1 Bar))
-    Bar<Abc> OR (Bar<Xyz> OR 1 Foo, 5 Ahh)
-    =0 Eep OR (Ooh, Foo<Abc>) OR 5 Ooh OR 5
-    1 Ooh<Foo> OR Bar<Foo> OR MAX 1 Qux<Eep>
-    MAX 1 Foo<Xyz> OR (MAX 5 Eep OR Foo<Bar>)
-    (Abc, 1 Bar OR (Xyz, Xyz)), =11, MAX 5 Wau
-    11 Xyz<Abc> OR (=1 OR 1 Foo<Bar<Bar>, Foo>)
-    ((MAX 5, 1) OR MAX 1 Foo) OR (11 Qux OR Ahh)
-    Qux<Foo<Qux>> OR 11 Foo<Ahh<Ooh>, Foo> OR Foo
-    (=0 OR 1) OR (Bar<Foo<Xyz>> OR MAX 0 Foo<Xyz>)
-    (1 Foo<Bar<Xyz, Bar<Bar>>, Foo, Abc> OR 5) OR 1
-    (Ahh<Ooh> OR 1 Foo<Ahh> OR 11) OR (Foo, =11 Xyz)
-    (Abc<Xyz, Foo<Abc<Bar>>>, Abc), Qux OR 5 Abc<Qux>
-    MAX 0 Abc OR 11 Ooh<Ooh, Bar> OR (5 Ooh OR =5 Qux)
-    (11 OR (1 Abc, 1) OR (Qux OR 1)) OR (Ooh<Bar>, Ooh)
-    MAX 5 OR 5, MAX 5 OR (=1 Abc OR (1 Qux, Abc)), MAX 0
-    (11 OR 5) OR (((Foo OR Wau) OR Qux<Bar>) OR (Foo, 1))
-    ((Bar OR 1 Foo) OR (1 Wau OR 5 Ahh)) OR MAX 1 Abc<Xyz>
-    =1 Wau<Qux<Foo<Abc<Bar>>>> OR MAX 1 Ahh OR MAX 0 OR Bar
-    (Qux, Xyz OR Bar) OR =0 OR Bar<Abc>(HAS Bar) OR Ooh<Xyz>
-    MAX 0, Foo OR 5 OR ((Ooh OR Ahh) OR Bar) OR Qux<Xyz, Ooh>
-    MAX 1 Eep OR Abc OR =1 Qux OR ((Qux, MAX 5) OR 1 Foo<Foo>)
-    11 OR (Abc, Ahh<Wau>, 5 Foo<Ooh>) OR Xyz<Bar> OR 1 Qux<Ooh>
-    =1 Xyz OR Qux, MAX 1 Ahh OR =11, (1, 1 Qux OR 1 OR Foo<Bar>)
-    ((=0 Foo OR MAX 5) OR =1 Ahh<Bar>) OR (=1 OR 1 OR Foo OR Ooh)
-    11 Bar<Qux> OR MAX 11 Bar<Ooh<Abc<Abc>, Ahh>> OR Foo<Qux<Qux>>
-    ((Abc OR Xyz) OR 11 Ahh OR 1 Foo OR MAX 1) OR (1 Foo, 1 Foo, 5)
-    Eep, =0 Ahh<Ahh<Abc<Qux<Foo, Abc>>>>, (5 Foo, MAX 0) OR Qux<Abc>
-    11 Bar<Ahh<Foo>> OR Abc(HAS =1 Xyz) OR (=0 OR MAX 0 Ooh) OR 1 Qux
-    Abc OR 11 OR MAX 0 OR (5 Abc<Bar>, Bar<Foo> OR MAX 0 OR MAX 5 Bar)
-    =1 OR (Abc, 1, 1) OR Qux OR (MAX 0 OR =11 Foo OR MAX 5 OR Ooh<Qux>)
-    5 Abc OR 11 Qux<Foo<Foo, Qux>, Wau> OR =5 Xyz<Foo> OR (5 Foo, 1 Foo)
-    Qux OR (MAX 0 Foo OR 1 Bar OR (Ooh, MAX 0 Xyz) OR MAX 1 Ahh(HAS Xyz))
-    MAX 11 OR ((MAX 0 Bar OR Abc) OR MAX 0 Qux), ((MAX 1 Foo, 5 Bar), Xyz)
-    =0 Xyz, (Abc OR MAX 0) OR (MAX 0 Xyz OR MAX 5 Foo, 11), MAX 0 Ooh OR =0
-    (MAX 5 Xyz<Ooh> OR 1 Foo) OR MAX 0 Abc<Abc, Foo, Foo> OR MAX 11 Xyz<Abc>
-    (MAX 1 Qux OR Eep) OR (5 OR MAX 5 OR 11 Qux OR (MAX 1, (Bar, MAX 0 Abc)))
-    (1 Bar<Ahh> OR Abc) OR MAX 0 Bar OR (MAX 11 Foo OR =5) OR (1 Qux OR MAX 1)
-    1 Wau<Wau<Wau>, Qux<Xyz, Foo<Xyz, Ooh<Xyz>, Ooh>, Abc<Xyz<Ahh<Xyz>>, Qux>>>
-    (Qux OR (5, 1 Foo)) OR =0 Bar, (Xyz<Foo>, 1) OR 1 Ooh, 5 Qux OR (Foo, 1 Bar)
-    1 Abc<Foo, Abc> OR MAX 1 OR 1 Qux OR (MAX 1 Foo<Foo>, 1 OR MAX 0 Ooh, =0 Qux)
-    ((Wau OR Bar) OR MAX 1 Foo) OR 5 Bar<Wau<Qux, Qux>>(HAS MAX 0 Eep) OR Bar OR 1
-    Bar OR (=5 Foo OR MAX 5 Ooh) OR ((1 OR (MAX 0, Bar)) OR (Foo, MAX 0)) OR 11 Foo
-    MAX 0 OR (11, (1 Abc, MAX 1 Foo)) OR (5 OR ((=0 Bar OR Bar, Bar) OR (Bar, Abc)))
-  """.trimIndent()
-
-  @Test fun testSampleStrings() {
-    val pass = dev.martianzoo.tfm.pets.testSampleStrings<Requirement>(inputs)
-    assertThat(pass).isTrue()
+    assertThat(Min(QuantifiedExpression(te("Foo"))).toString()).isEqualTo("Foo")
+    assertThat(Min(QuantifiedExpression(te("Foo"), 1)).toString()).isEqualTo("Foo")
+    assertThat(Min(QuantifiedExpression(te("Foo"), 3)).toString()).isEqualTo("3 Foo")
+    assertThat(Min(QuantifiedExpression(scalar = 3)).toString()).isEqualTo("3")
+    assertThat(Min(QuantifiedExpression(te("Megacredit"), scalar = 3)).toString()).isEqualTo("3")
+    assertThat(Min(QuantifiedExpression(te("Megacredit"))).toString()).isEqualTo("1")
+    assertThat(Max(QuantifiedExpression(te("Foo"), 0)).toString()).isEqualTo("MAX 0 Foo")
+    assertThat(Max(QuantifiedExpression(te("Foo"))).toString()).isEqualTo("MAX 1 Foo")
+    assertThat(Max(QuantifiedExpression(te("Foo"), 1)).toString()).isEqualTo("MAX 1 Foo")
+    assertThat(Max(QuantifiedExpression(te("Foo"), 3)).toString()).isEqualTo("MAX 3 Foo")
+    assertThat(Max(QuantifiedExpression(scalar = 3)).toString()).isEqualTo("MAX 3 Megacredit")
   }
 
   private fun testRoundTrip(start: String, end: String = start) =
@@ -126,10 +111,11 @@ class RequirementTest {
 
   @Test
   fun roundTrips() {
-    testRoundTrip("Megacredit")
-    testRoundTrip("1 Megacredit")
+    testRoundTrip("1", "1")
+    testRoundTrip("Megacredit", "1")
+    testRoundTrip("1 Megacredit", "1")
     testRoundTrip("Plant")
-    testRoundTrip("1 Plant")
+    testRoundTrip("1 Plant", "Plant")
     testRoundTrip("3 Plant")
     testRoundTrip("MAX 0 Plant")
     testRoundTrip("MAX 1 Plant")
@@ -140,7 +126,7 @@ class RequirementTest {
   }
 
   @Test fun testProd() {
-    testRoundTrip("PROD[1]")
+    testRoundTrip("PROD[2]")
     testRoundTrip("Steel, PROD[1]")
     testRoundTrip("PROD[Steel, 1]")
     testRoundTrip("PROD[Steel OR 1]")
@@ -152,18 +138,18 @@ class RequirementTest {
     )
     assertThat(parsed).isEqualTo(
         Requirement.Or(setOf(
-            Min(
-                TypeExpression("Adjacency",
-                    TypeExpression("CityTile", te("Anyone")),
+            Min(QuantifiedExpression(
+                te("Adjacency",
+                    te("CityTile", te("Anyone")),
                     te("OceanTile")
                 )
-            ),
-            Min(
+            )),
+            Min(QuantifiedExpression(
                 TypeExpression("Adjacency",
                     te("OceanTile"),
                     TypeExpression("CityTile", te("Anyone"))
-                ),
-                1)
+                )
+            ))
         ))
     )
   }
@@ -188,7 +174,7 @@ class RequirementTest {
     }
   }
 
-  fun evalRequirement(s : String) = assertThat(spellOutQes(parse<Requirement>(s)).evaluate(FakeGame))!!
+  fun evalRequirement(s : String) = assertThat(parse<Requirement>(s).evaluate(FakeGame))!!
 
   @Test fun evaluation() {
     evalRequirement("Foo").isFalse()

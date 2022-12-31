@@ -14,7 +14,6 @@ import dev.martianzoo.tfm.pets.ast.Instruction.Then
 import dev.martianzoo.tfm.pets.ast.Instruction.Transmute
 import dev.martianzoo.tfm.pets.ast.PetsNode
 import dev.martianzoo.tfm.pets.ast.PetsNode.ProductionBox
-import dev.martianzoo.tfm.pets.ast.QuantifiedExpression
 import dev.martianzoo.tfm.pets.ast.TypeExpression
 import dev.martianzoo.tfm.pets.ast.TypeExpression.Companion.te
 
@@ -32,8 +31,7 @@ private fun instructionFromAction(lhs: Instruction?, rhs: Instruction): Instruct
 
   // Handle the Ants case (TODO intensity?)
   if (lhs is Remove && rhs is Gain && lhs.qe.scalar == rhs.qe.scalar) {
-    return Transmute(SimpleFrom(
-        rhs.qe.explicit().type!!, lhs.qe.explicit().type!!))
+    return Transmute(SimpleFrom(rhs.qe.type, lhs.qe.type))
   }
 
   // Nested THENs are just silly
@@ -68,23 +66,6 @@ private class TypeReplacer(val from: TypeExpression, val to: TypeExpression) : A
     to as P
   } else {
     super.transform(node)
-  }
-}
-
-internal fun <P : PetsNode> spellOutQes(node: P): P {
-  return QeSpellerOuter.transform(node).also {
-    if (it != node) {
-      println("spelled out QEs in ${node.kind}: $it")
-    }
-  }
-}
-
-private object QeSpellerOuter : AstTransformer() {
-  override fun <P : PetsNode?> transform(node: P): P {
-    return when (node) {
-      is QuantifiedExpression -> node.explicit() as P
-      else -> super.transform(node)
-    }
   }
 }
 

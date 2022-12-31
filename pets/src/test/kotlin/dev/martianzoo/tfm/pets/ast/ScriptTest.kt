@@ -29,11 +29,23 @@ class ScriptTest {
     """)
     assertThat(script.lines).containsExactly(
         ScriptPragmaPlayer(te("Player1")),
-        ScriptCommand(Instruction.Multi(Gain(te("Foo")), Gain(te("Bar"), 5))),
+        ScriptCommand(
+            Instruction.Multi(
+                Gain(QuantifiedExpression(te("Foo"))),
+                Gain(QuantifiedExpression(te("Bar"), 5)),
+            ),
+        ),
         ScriptCounter("num", te("Qux", te("Wow"))),
         ScriptPragmaPlayer(te("Player2")),
-        ScriptRequirement(Min(te("Bar"), 4)),
-        ScriptCommand(Instruction.Gated(Min(te("Abc")), Gain(te("Xyz"))), te("Who", "Even", "Cares")),
+        ScriptRequirement(
+            Min(QuantifiedExpression(te("Bar"), 4)),
+        ),
+        ScriptCommand(
+            Instruction.Gated(
+                Min(QuantifiedExpression(te("Abc"))),
+                Gain(QuantifiedExpression(te("Xyz")))),
+            te("Who", "Even", "Cares"),
+        ),
     )
   }
 }

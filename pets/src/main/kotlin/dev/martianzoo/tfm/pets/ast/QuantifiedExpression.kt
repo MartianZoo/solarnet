@@ -1,20 +1,21 @@
 package dev.martianzoo.tfm.pets.ast
 
-import dev.martianzoo.tfm.pets.PetsException
 import dev.martianzoo.tfm.pets.SpecialComponent.MEGACREDIT
 
-data class QuantifiedExpression(val type: TypeExpression? = null, val scalar: Int? = null): PetsNode() {
-  init {
-    if (scalar == null) {
-      if (type == null) throw PetsException("Must specify type or scalar")
-    } else {
-      require(scalar >= 0)
-    }
-  }
-  override val kind = "QuantifiedExpression"
+data class QuantifiedExpression(val type: TypeExpression = DEFAULT_TYPE, val scalar: Int = 1): PetsNode() {
+  init { require(scalar >= 0) }
+  override val kind = QuantifiedExpression::class.simpleName!!
 
-  fun explicit() = copy(type = type ?: MEGACREDIT.type, scalar = scalar ?: 1)
   override val children = setOfNotNull(type)
 
-  override fun toString() = listOfNotNull(scalar, type).joinToString(" ")
+  override fun toString() = toString(false, false)
+
+  fun toString(forceScalar: Boolean = false, forceType: Boolean = false) =
+      when {
+        !forceType && type == DEFAULT_TYPE -> "$scalar"
+        !forceScalar && scalar == 1 -> "$type"
+        else -> "$scalar $type"
+      }
 }
+
+val DEFAULT_TYPE = MEGACREDIT.type

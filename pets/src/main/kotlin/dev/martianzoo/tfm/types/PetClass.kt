@@ -9,7 +9,6 @@ import dev.martianzoo.tfm.pets.ast.TypeExpression
 import dev.martianzoo.tfm.pets.ast.TypeExpression.Companion.te
 import dev.martianzoo.tfm.pets.deprodify
 import dev.martianzoo.tfm.pets.resolveSpecialThisType
-import dev.martianzoo.tfm.pets.spellOutQes
 
 /**
  */
@@ -99,7 +98,6 @@ class PetClass(val def: ComponentDef, val loader: PetClassLoader): DependencyTar
           println("raw effect was: $it")
           it
         }
-        .map { spellOutQes(it) }
         .map { deprodify(it, loader.resourceNames) }
         .map { resolveSpecialThisType(it, te(name)) }
         .map { applyDefaultsIn(it, loader) }

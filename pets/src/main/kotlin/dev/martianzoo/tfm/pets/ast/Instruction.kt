@@ -15,50 +15,38 @@ sealed class Instruction : PetsNode() {
   abstract fun execute(game: GameApi)
 
   data class Gain(val qe: QuantifiedExpression, val intensity: Intensity? = null) : Instruction() {
-
-    constructor(expr: TypeExpression? = null, scalar: Int? = null, intensity: Intensity? = null) :
-        this(QuantifiedExpression(expr, scalar), intensity)
-
     init {
-      if ((qe.scalar ?: 1) <= 0) {
-        throw PetsException("Can't gain a non-positive amount")
+      if (qe.scalar == 0) {
+        throw PetsException("Can't gain zero")
       }
     }
 
-    override fun times(value: Int) = copy(qe = qe.copy(scalar = qe.scalar!! * value))
+    override fun times(value: Int) = copy(qe = qe.copy(scalar = qe.scalar * value))
     // TODO intensity
-    override fun execute(game: GameApi) = game.applyChange(qe.scalar!!, gaining = qe.type!!)
+    override fun execute(game: GameApi) = game.applyChange(qe.scalar, gaining = qe.type)
 
     override val children = setOf(qe)
-    override fun toString() = "${qe}${intensity?.pets ?: ""}"
+    override fun toString() = "$qe${intensity?.symbol ?: ""}"
   }
 
   data class Remove(val qe: QuantifiedExpression, val intensity: Intensity? = null) : Instruction() {
-
-    constructor(
-        expr: TypeExpression?,
-        scalar: Int? = null,
-        intensity: Intensity? = null) :
-            this(QuantifiedExpression(expr, scalar), intensity)
-
     init {
-      if ((qe.scalar ?: 1) <= 0) {
-        throw PetsException("Can't remove a non-positive amount")
+      if (qe.scalar == 0) {
+        throw PetsException("Can't remove zero")
       }
     }
 
-    override fun times(value: Int) = copy(qe = qe.copy(scalar = qe.scalar!! * value))
-    override fun execute(game: GameApi) =
-        game.applyChange(qe.scalar!!, removing = qe.type!!)
+    override fun times(value: Int) = copy(qe = qe.copy(scalar = qe.scalar * value))
+    override fun execute(game: GameApi) = game.applyChange(qe.scalar, removing = qe.type)
 
     override val children = setOf(qe)
-    override fun toString() = "-${qe}${intensity?.pets ?: ""}"
+    override fun toString() = "-$qe${intensity?.symbol ?: ""}"
   }
 
   data class Per(val instruction: Instruction, val qe: QuantifiedExpression): Instruction() {
     init {
-      if ((qe.scalar ?: 1) <= 0) {
-        throw PetsException("Can't do something 'per' a nonpositive amount")
+      if (qe.scalar == 0) {
+        throw PetsException("Can't do something 'per' zero")
       }
       when (instruction) {
         is Gain, is Remove, is Transmute -> {}
@@ -70,14 +58,16 @@ sealed class Instruction : PetsNode() {
     override fun times(value: Int) = copy(instruction = instruction * value)
 
     override fun execute(game: GameApi) {
-      val measurement = game.count(qe.type!!) / qe.scalar!!
-      (instruction * measurement).execute(game)
+      val measurement = game.count(qe.type) / qe.scalar
+      if (measurement > 0) {
+        (instruction * measurement).execute(game)
+      }
     }
 
     override val children = setOf(instruction, qe)
     override fun precedence() = 8
 
-    override fun toString() = "$instruction / $qe"
+    override fun toString() = "$instruction / ${qe.toString(forceType = true)}" // no `/ 5`, but `/ Heat` is okay
   }
 
   data class Gated(val requirement: Requirement, val instruction: Instruction): Instruction() {
@@ -132,7 +122,7 @@ sealed class Instruction : PetsNode() {
           removing = fromExpression.fromType)
 
     override fun toString(): String {
-      val intens = intensity?.pets ?: ""
+      val intens = intensity?.symbol ?: ""
       val scal = if (scalar != null) "$scalar " else ""
       return "$scal$fromExpression$intens"
     }
@@ -225,8 +215,6 @@ sealed class Instruction : PetsNode() {
     AMAP("."),
     OPTIONAL("?"),
     ;
-
-    val pets: String = symbol
 
     companion object {
       fun intensity(symbol: String?) =

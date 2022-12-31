@@ -6,104 +6,80 @@ import dev.martianzoo.tfm.pets.PetsParser.Requirements
 import dev.martianzoo.tfm.pets.PetsParser.parse
 import dev.martianzoo.tfm.pets.ast.FromExpression.ComplexFrom
 import dev.martianzoo.tfm.pets.ast.FromExpression.SimpleFrom
-import dev.martianzoo.tfm.pets.ast.Instruction.Gain
-import dev.martianzoo.tfm.pets.ast.Instruction.Gated
 import dev.martianzoo.tfm.pets.ast.Instruction.Intensity.AMAP
-import dev.martianzoo.tfm.pets.ast.Instruction.Intensity.OPTIONAL
-import dev.martianzoo.tfm.pets.ast.Instruction.Remove
 import dev.martianzoo.tfm.pets.ast.Instruction.Transmute
-import dev.martianzoo.tfm.pets.ast.Requirement.Min
 import dev.martianzoo.tfm.pets.ast.TypeExpression.Companion.te
 import dev.martianzoo.tfm.pets.testRoundTrip
+import dev.martianzoo.tfm.pets.testSampleStrings
 import org.junit.jupiter.api.Test
 
 // Most testing is done by AutomatedTest
 class InstructionTest {
   val inputs = """
-    1
-    1!
-    Xyz
-    Abc?
-    -Bar?
-    -1 Xyz
-    Foo, 11
-    -11 Abc?
-    Bar / Bar
-    5 Ahh<Bar>
-    -1? / 5 Xyz
-    -Foo / 1 Ahh
-    Qux?, 11 Ahh!
-    -Ahh<Ooh>, Ooh
-    11 Wau: 5 / Abc
-    1 Qux, 5, -1 Ooh
-    -11 Wau<Ooh<Eep>>
-    -11 Eep<Foo<Abc>>.
-    11 Foo<Foo>!, 1 Bar
-    -5 Abc<Xyz>. / 5 Foo
-    5 Abc FROM Foo! / Foo
-    5 Eep<Qux, Ooh>. / Foo
-    1, -11 Qux, Xyz!, 5 Abc
-    11 Eep FROM Ooh THEN Foo
-    Abc, Foo, Qux, -Qux, -Foo
-    -5 Wau(HAS =1 OR (1, Abc))
-    1, -Abc., -Bar?, -Bar / Abc
-    1 Qux FROM Abc!, 1, Abc<Foo>
-    Qux<Abc FROM Ooh>, -1 / 1 Ahh
-    (1 Wau OR 5 Foo, (1, 1)): Ahh!
-    -11 Foo / 11 Foo(HAS MAX 1 Bar)
-    -Abc / Abc OR Abc OR Xyz / 1 Qux
-    1 Qux OR -Ooh / Qux OR (Qux: Foo)
-    5, -Ooh, 1 Foo FROM Ooh, Eep<Xyz>.
-    -Abc, 5, -Xyz, (5 Bar, Ahh, Qux): 1
-    11! / 1 Qux<Eep<Wau>, Wau<Ahh<Qux>>>
-    Xyz, Bar, Qux, 5 Bar., -Abc<Xyz<Foo>>
-    Ahh, (5, 5 Bar): (Bar OR -11), -5 Xyz.
-    Xyz<Bar<Abc>, Foo, Bar(HAS MAX 0 Foo)>!
-    5! / 1 Bar<Ahh, Qux<Abc<Bar, Bar<Qux>>>>
-    (-Bar, -1 Abc(HAS Bar), Ahh) THEN -11 Bar
-    1, Wau, 5 OR 11, -Ooh, -11 Foo! OR -1 Abc!
-    1, -5, Abc, 1, -5 Xyz, 5 Wau FROM Abc, Qux!
-    Foo, Xyz<Bar>?, Foo, 1 OR Qux, -Bar THEN Bar
-    (Bar OR MAX 1): 5 Bar, 11 Qux FROM Abc. / Ooh
-    -5, 1 Foo: Foo, -1, Xyz: -Bar THEN 11 Foo, Ahh
-    Xyz, 1 OR 1 Bar / 5 Xyz, 11 Bar FROM Ooh, 1 Qux
-    Xyz, 1 Xyz<Foo, Ooh, Bar>., 5?, Bar / Bar OR Bar
-    11 Qux, 5 Bar<Bar>: (Bar / 1 Foo, 11, Qux, 1 Foo)
-    Xyz<Bar>., -5 Foo<Ahh>, -Bar., Qux<Eep>, Wau<Qux>.
-    1 Qux / Foo, -1 / Eep, 1 Foo(HAS 1 Foo<Xyz>, MAX 0)
-    1, Xyz!, Abc FROM Qux, Qux, Foo, -1 Bar!, 1 Bar<Ahh>
-    (-1 Xyz, Qux / Ooh, Xyz, Ooh<Xyz, Ooh> FROM Foo) OR 5
-    Abc<Abc, Qux>., 1 Ooh<Bar, Qux>, 11 Qux FROM Xyz, -Ahh
-    (-Foo, 1 Foo, -5) OR -1, -Abc / Bar, Bar, -1 Foo, 1 Abc
-    =5 Foo: ((5 Qux / 11 Bar<Bar>, -1) OR (11 Qux FROM Ahh))
-    Ahh / Xyz<Abc, Ahh> OR (-1 Bar OR 1 OR (Foo: 5 Bar), Foo)
-    (5 OR 5 Xyz OR MAX 1 Xyz<Abc> OR (Bar, Foo)): -1 Ooh / Abc
-    Ahh / 1 Eep, 5 OR -Abc, 1, 11, -Qux?, (MAX 0, Foo, =5): Abc
-    (1 Eep<Bar>, Foo. THEN Bar) OR (MAX 0 Qux: Foo) OR -Qux<Foo>
-    1 Bar? OR (Xyz FROM Eep!), Foo(HAS 11 Bar), 1 / 5 Qux, -1 Foo
-    Qux, 5 Xyz / 5 Qux, 5 OR Xyz, -1, 1, Qux, 1 Wau<Foo<Bar, Foo>>
-    5. THEN 1 Foo / 1 Foo THEN (5 Bar FROM Qux, 1., Bar / Qux, Ahh)
-    5 Foo<Wau<Foo<Ooh<Xyz>>> FROM Ahh<Ahh, Ooh>(HAS MAX 0 Foo), Ahh>
-    Xyz<Bar, Ooh, Bar<Bar, Bar>> / Eep, 5 Wau<Ahh, Ooh, Abc FROM Qux>
-    -Bar<Foo> OR 5, -Foo, 1 Qux FROM Eep, 11 Xyz., (1, Abc / Abc) OR 1
-    Xyz OR Foo<Foo>, 1 / Qux, (Abc FROM Bar) OR -1 / Xyz, 5, Qux, 1 Bar
-    -5., 11 Ooh., 1 Xyz, Qux FROM Ooh, Abc / Bar, -Abc OR Xyz OR -11 Abc
-    Bar OR (Foo / Foo, Qux, Ooh) OR (Foo: -11 Ahh, 1 Xyz, Foo / Qux, Xyz)
-    Abc<Ahh, Abc<Qux<Qux>>, Xyz(HAS Abc OR (Foo OR (Foo, MAX 0)))>(HAS 1)!
-    Qux, -1, Foo, -5 Foo<Ahh>, -Xyz, Abc, 5 OR -Bar, -Bar OR Foo, -Bar<Bar>
-    1 Qux<Qux>, 11 Bar., 5, -1 Xyz?, -Qux / Bar, -Ooh OR Foo, -11 Xyz!, -Bar
-    5 Eep, (1 THEN Foo) OR 5 Bar, 5 Eep<Ooh>, Eep OR (Ahh FROM Qux) OR -5 Ooh
-    5 Eep<Eep>, Abc, Bar, Qux, 5 Bar<Eep, Qux>, 5 Eep<Qux<Bar, Bar<Foo>, Bar>>
-    11 Foo FROM Ooh? / Bar, -Foo!, 11 Ooh<Bar, Eep<Bar<Bar> FROM Abc>>, -11 Abc
-    Qux!, Qux<Foo<Qux>>., 1 Bar, 1 Bar<Foo, Ooh FROM Bar>, -Bar, 5 Bar, Xyz, Ahh
-    -1 Abc, Foo THEN (-1, Bar), Xyz / 1 Foo OR Foo., -Foo<Xyz>!, -Xyz, 5 Foo<Ooh>
-    -1 Qux, Abc, -Bar<Foo>, Xyz., (MAX 0: Foo / Qux) OR Abc OR 1 Abc OR 5 Foo., -5
-    1 Bar THEN (1! OR 5, -1 Qux!, 1, 1 Bar) THEN (Bar OR (1 THEN Foo) OR -Ahh, Foo)
-    -Foo<Foo> OR (Qux THEN -Bar), -Qux, Foo<Foo>, 5 Xyz OR -1 Abc!, 1 Foo, Qux<Abc>!
+    5
+    11
+    11.
+    Ahh?
+    5 Xyz
+    11 Qux
+    -11 Eep
+    PROD[-1]
+    Foo<Foo>.
+    PROD[-Abc]
+    PROD[-Foo!]
+    11 Ooh<Xyz>?
+    PROD[-5 Ahh?]
+    PROD[-1 / Foo]
+    -Ooh<Abc, Wau>.
+    -5 Bar(HAS Foo).
+    PROD[0 Ahh]: Xyz!
+    -Abc<Bar> / 11 Xyz
+    MAX 5 Ooh<Foo>: Ooh
+    ${'$'}name(Ahh<Eep>)
+    Bar / Xyz, 5 Ahh<Qux>
+    PROD[1 / 5 Megacredit]
+    5 Xyz / 5 Qux<Wau<Xyz>>
+    1 Foo<Foo<Ahh> FROM Ahh>
+    PROD[Bar<Ahh, Abc> / Foo]
+    PROD[Bar<Abc<Abc>> THEN 1]
+    PROD[11 Abc<Ooh<Abc>, Qux>]
+    5 Xyz: Bar!, ${'$'}name(Foo)
+    1 Foo FROM Abc. THEN Bar<Bar>
+    11 Bar FROM Bar<Abc, Xyz, Bar>
+    PROD[=1 Megacredit: Qux? / Bar]
+    PROD[5 Ooh<Ooh<Abc>>. THEN -Qux]
+    PROD[(1 / Abc, -1), 11 Bar / Qux]
+    1 OR Qux OR (0 Bar: 11 Bar, 5 Foo)
+    PROD[1 Abc<Bar, Ooh FROM Ahh, Bar>]
+    PROD[5 Ahh<Abc<Abc, Bar<Qux<Qux>>>>]
+    -1 OR Abc / Qux<Qux<Foo>, Qux> OR 11!
+    -Ahh. / Xyz<Ooh, Bar>, PROD[-11 / Bar]
+    1 Qux(HAS MAX 1 Ooh<Bar<Foo>>) FROM Ahh
+    5 Xyz<Ooh, Qux<Bar<Bar, Foo>, Eep, Eep>>
+    =1 Xyz: (1 / 5 Qux THEN 1 THEN (-1, Xyz))
+    PROD[(1, -Foo<Xyz>) OR 1 OR Bar<Bar, Qux>]
+    PROD[1 Qux<Qux> FROM Foo<Bar> / Megacredit]
+    5 Abc, Bar: (Qux, ${'$'}name(Abc<Foo>, Abc))
+    ${'$'}name(Ahh<Eep<Xyz, Qux<Bar<Ahh>>>, Eep>)
+    11 Bar<Wau<Abc FROM Qux<Bar, Qux>, Bar>, Ooh>?
+    ${'$'}name(Abc<Foo<Eep<Abc>>>) OR PROD[Foo!, 5]
+    -1? OR (1 Foo FROM Bar, -Xyz) OR Bar, -Bar<Bar>.
+    -5 Qux<Abc>(HAS (0 OR MAX 0 Megacredit) OR 5 Qux)
+    (Bar, Foo, 5 Qux), PROD[(0 OR Bar<Bar> OR 1): Abc]
+    PROD[1 Ooh(HAS MAX 1 Foo) FROM Qux, 1 Qux FROM Ahh]
+    MAX 5 Megacredit: Bar THEN ${'$'}name(Xyz), 5 THEN 1
+    PROD[11 Abc FROM Bar, Bar<Foo<Abc, Foo(HAS 1), Foo>>]
+    PROD[(MAX 1 Foo<Foo>, =1 Megacredit): ${'$'}name(Xyz)]
+    1 Xyz<Foo FROM Bar, Ooh, Wau>(HAS 0 Abc, (1 OR 0) OR 1)
+    5 Bar / Xyz OR Qux OR -Ahh / Qux, (1 / 5 Foo, 5, -1, -5)
+    PROD[1 Bar<Qux<Xyz> FROM Foo, Qux, Qux<Eep>> THEN 11 Xyz]
+    ((Bar, -1), Xyz) OR ((Bar<Qux> THEN Bar: 1) OR (1 OR Bar))
+    -1 / Megacredit, 1, ${'$'}name(Foo, Qux<Bar>), 1 / Bar<Eep>
+    5 Abc FROM Qux / Eep<Bar<Abc<Xyz>, Bar, Foo<Foo, Abc<Xyz>>>>
   """.trimIndent()
 
   @Test fun testSampleStrings() {
-    val pass = dev.martianzoo.tfm.pets.testSampleStrings<Instruction>(inputs)
+    val pass = testSampleStrings<Instruction>(inputs)
     assertThat(pass).isTrue()
   }
 
@@ -164,38 +140,6 @@ class InstructionTest {
 
     testRoundTrip<Instruction>("\$name(Abc(HAS MAX 11 Bar))")
     testRoundTrip<Instruction>("\$name(Abc(HAS MAX 11 Bar<Xyz, Bar>))")
-  }
-
-  @Test fun debug5() {
-    // for some reason, this creates Requirement.Or(Bar, Bar), so toSetCareful would blow up
-    val actual = parse<Instruction>("(Bar OR Bar? OR -Foo, Foo) OR (5, -Bar, Bar<Foo, Qux>: (-Bar, 1))")
-    val expected = Instruction.Or(
-        Instruction.Multi(
-            Instruction.Or(
-                Gain(te("Bar")),
-                Gain(te("Bar"), intensity = OPTIONAL),
-                Remove(te("Foo"))),
-            Gain(te("Foo")),
-        ),
-        Instruction.Multi(
-            Gain(null, 5),
-            Remove(te("Bar")),
-            Gated(
-                Min(te("Bar", te("Foo"), te("Qux"))),
-                Instruction.Multi(
-                    Remove(te("Bar")),
-                    Gain(null, 1),
-                ),
-            ),
-        ),
-    )
-    assertThat(actual).isEqualTo(expected)
-  }
-
-  // we'll go ahead and use .engine code that the code being tested can't use
-  @Test fun doStuff() {
-    // TODO
-
   }
 
   fun testRoundTrip(start: String, end: String = start) =
