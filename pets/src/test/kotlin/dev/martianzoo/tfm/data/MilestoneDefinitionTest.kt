@@ -17,14 +17,14 @@ class MilestoneDefinitionTest {
 
     assertThat(generalist.requirement).isEqualTo(
         Requirement.Prod(
-            Requirement.And(
+            Requirement.And(listOf(
                 Min(scalar = 6),
                 Min(te("Steel")),
                 Min(te("Titanium")),
                 Min(te("Plant")),
                 Min(te("Energy")),
                 Min(te("Heat")),
-            )
+            ))
         )
     )
   }

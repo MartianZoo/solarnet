@@ -1,9 +1,7 @@
 package dev.martianzoo.tfm.pets.ast
 
-import com.google.common.collect.Lists.asList
 import dev.martianzoo.tfm.pets.GameApi
 import dev.martianzoo.tfm.pets.PetsException
-import dev.martianzoo.util.toSetStrict
 
 sealed class Requirement : PetsNode() {
   abstract fun evaluate(game: GameApi): Boolean
@@ -40,8 +38,6 @@ sealed class Requirement : PetsNode() {
   }
 
   data class Or(val requirements: Set<Requirement>) : Requirement() {
-    constructor(reqt1: Requirement, reqt2: Requirement, vararg rest: Requirement) :
-        this(asList(reqt1, reqt2, rest).toSetStrict())
     override fun toString() = requirements.joinToString(" OR ") { groupPartIfNeeded(it) }
     override fun precedence() = 3
     override val children = requirements
@@ -51,8 +47,6 @@ sealed class Requirement : PetsNode() {
   }
 
   data class And(val requirements: List<Requirement>) : Requirement() {
-    constructor(reqt1: Requirement, reqt2: Requirement, vararg rest: Requirement) :
-        this(asList(reqt1, reqt2, rest))
     override fun toString() = requirements.joinToString { groupPartIfNeeded(it) }
     override fun precedence() = 1
     override val children = requirements

@@ -134,10 +134,10 @@ class EffectTest {
                         TypeExpression("Ooh", listOf()),
                         TypeExpression("Foo",
                             listOf(),
-                            requirement = Requirement.Or(
+                            requirement = Requirement.Or(setOf(
                                 Min(TypeExpression("Abc", listOf()), 42),
                                 Min(TypeExpression("Xyz", listOf()), 1),
-                            ),
+                            )),
                         ),
                         TypeExpression("Qux", listOf()),
                     ),
@@ -164,7 +164,7 @@ class EffectTest {
             OnRemove(
                 TypeExpression("Foo",
                     listOf(TypeExpression("Eep", listOf())),
-                    Requirement.And(Max(TypeExpression("Abc", listOf()), 0), Max(TypeExpression("Ooh", listOf()), 42)),
+                    Requirement.And(listOf(Max(TypeExpression("Abc", listOf()), 0), Max(TypeExpression("Ooh", listOf()), 42))),
                 ),
             ),
             Remove(TypeExpression("Wau", listOf()), intensity = MANDATORY),
