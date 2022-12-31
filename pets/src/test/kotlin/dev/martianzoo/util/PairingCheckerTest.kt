@@ -13,20 +13,29 @@ class PairingCheckerTest {
     PairingChecker.check("x(x<d[]>{f})")
   }
 
-  fun testWeird() {
+  @Test
+  fun listValid() {
+    weird(true)
+  }
+
+  @Test
+  fun listInvalid() {
+    weird(false)
+  }
+
+  fun weird(expectValid: Boolean) {
     val chars = "[]<>O\"\\".toCharArray()
-    val maxMisses = 1_000
+    val maxMisses = 10_000
     var length = 0
-    while (length < 20) {
+    while (length < 6) {
       length++
       var misses = 0
       val set = TreeSet<String>()
       while (misses < maxMisses) {
         val s = (1..length).map { chars.random() }.joinToString("")
         if (s.contains("OO")) continue
-        if (PairingChecker.isValid(s)) {
-          val fixed = fix(s)
-          misses = if (set.add(fixed)) 0 else misses + 1
+        if (PairingChecker.isValid(s) == expectValid) {
+          misses = if (set.add(fix(s))) 0 else misses + 1
         }
       }
       set.forEach(::println)
