@@ -6,12 +6,23 @@ import com.github.h0tk3y.betterParse.combinators.or
 import com.github.h0tk3y.betterParse.combinators.skip
 import com.github.h0tk3y.betterParse.combinators.zeroOrMore
 
-object PairingChecker {
-  fun check(s: String) { parsers.parse<Ok>(s) }
-  fun isValid(s: String) = parsers.isValid<Ok>(s)
+const val allowEmpty = false
+const val allowRedundant = false
 
-  private val parsers: ParserGroup<Ok> by lazy {
-    val p = ParserGroupBuilder<Ok>()
+object PairingChecker {
+  fun check(s: String) {
+    require(parsers.parse<String>(s) != "ERR")
+  }
+
+  fun isValid(s: String) = try {
+    check(s)
+    true
+  } catch (e: Exception) {
+    false
+  }
+
+  private val parsers: ParserGroup<String> by lazy {
+    val p = ParserGroupBuilder<String>()
 
     val parenL = p.literal("("); val parenR = p.literal(")")
     val brackL = p.literal("["); val brackR = p.literal("]")
@@ -24,18 +35,26 @@ object PairingChecker {
         braceL or braceR or
         angleL or angleR
 
-    val any = p.parser<Ok>()
+    val any = p.parser<String>()
 
-    val parend = skip(parenL) and any and skip(parenR)
-    val brackd = skip(brackL) and any and skip(brackR)
-    val braced = skip(braceL) and any and skip(braceR)
-    val angled = skip(angleL) and any and skip(angleR)
+    val parend = parenL and any and skip(parenR)
+    val brackd = brackL and any and skip(brackR)
+    val braced = braceL and any and skip(braceR)
+    val angled = angleL and any and skip(angleR)
 
-    val paired = parend or brackd or braced or angled
+    val paired = parend or brackd or braced or angled map {
+      (opener, contains) ->
+          when {
+            contains == "ERR" -> "ERR"
+            !allowEmpty && contains == "mt" -> "ERR"
+            !allowRedundant && contains == opener.text -> "ERR"
+            else -> opener.text
+          }
+    }
 
     val quote = p.literal("\"")
     val backslash = p.literal("\\")
-    val filler = p.regex("""[^()\[\]{}<>"\\]*""")
+    val filler = p.regex("""[^()\[\]{}<>"\\]*""") map { "ok" }
 
     val quotable =
         (backslash and quote) or
@@ -43,12 +62,17 @@ object PairingChecker {
         pairChar or
         filler
 
-    val quoted = skip(quote) and zeroOrMore(quotable) and skip(quote)
+    val quoted = skip(quote) and zeroOrMore(quotable) and skip(quote) map { "ok" }
 
-    val whole = zeroOrMore(paired or quoted or filler) map { Ok.OK }
+    val whole = zeroOrMore(paired or quoted or filler) map {
+      when {
+        it.isEmpty() -> "mt"
+        it.contains("ERR") -> "ERR"
+        it.size == 1 -> it.first()
+        else -> "ok"
+      }
+    }
     p.publish(whole)
     p.freeze()
   }
-
-  enum class Ok { OK }
 }

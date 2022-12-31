@@ -1,60 +1,53 @@
 package dev.martianzoo.util
 
+import com.google.common.base.CharMatcher
+import com.google.common.collect.Lists.cartesianProduct
+import com.google.common.collect.Lists.charactersOf
+import com.google.common.truth.Truth.assertThat
 import org.junit.jupiter.api.Test
-import java.util.*
+import java.util.Collections.nCopies
 
 class PairingCheckerTest {
   @Test
   fun testStuff() {
     PairingChecker.check("")
-    PairingChecker.check("()")
-    PairingChecker.check("x()")
+    PairingChecker.check("(x)")
     PairingChecker.check("x(x)")
-    PairingChecker.check("x(x<d[]>{f})")
+    PairingChecker.check("x(x<d[e]>{f})")
+  }
+  @Test
+  fun testInvalid() {
+    assertThat(PairingChecker.isValid("(")).isFalse()
+    assertThat(PairingChecker.isValid("x()")).isFalse()
+    assertThat(PairingChecker.isValid("x((yx))")).isFalse()
+    assertThat(PairingChecker.isValid("a(b<c)d>e")).isFalse()
   }
 
   @Test
   fun listValid() {
-    weird(true)
+    weird(true, max = 8)
   }
 
-  @Test
+  // @Test
   fun listInvalid() {
-    weird(false)
+    weird(false, max = 6)
   }
 
-  fun weird(expectValid: Boolean) {
-    val chars = "[]<>O\"\\".toCharArray()
-    val maxMisses = 10_000
+  fun weird(expectValid: Boolean, max: Int) {
     var length = 0
-    while (length < 6) {
+    val allChars = charactersOf("[]<>X")
+    while (length <= max) {
       length++
-      var misses = 0
-      val set = TreeSet<String>()
-      while (misses < maxMisses) {
-        val s = (1..length).map { chars.random() }.joinToString("")
-        if (s.contains("OO")) continue
+      for (chars in cartesianProduct(nCopies(length, allChars))) {
+        val s = chars.joinToString("")
+        if (s.contains("XX")) continue
+        val pos = CharMatcher.anyOf("<>[]").indexIn(s)
+        if (pos < 0 || s[pos] == '<') continue
+        if (!s.contains('\\') && s > s.reversed()) continue
         if (PairingChecker.isValid(s) == expectValid) {
-          misses = if (set.add(fix(s))) 0 else misses + 1
+          println(s)
         }
       }
-      set.forEach(::println)
-    }
-  }
-
-  private fun fix(s: String): String {
-    return if (s.indexOf("<") < s.indexOf("[")) {
-      s
-    } else {
-      s.toCharArray().map {
-        when (it) {
-          '[' -> '<'
-          ']' -> '>'
-          '<' -> '['
-          '>' -> ']'
-          else -> it
-        }
-      }.joinToString("")
     }
   }
 }
