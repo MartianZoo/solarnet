@@ -32,7 +32,7 @@ class CardDefinitionTest {
     assertThat(dumbCard.projectKind).isNull()
   }
 
-  val BIRDS = CardDefinition(
+  val birds = CardDefinition(
       id = "072",
       bundle = "B",
       deck = PROJECT,
@@ -49,18 +49,18 @@ class CardDefinitionTest {
   /** This test is also quite pointless, but shows an example usage for readers. */
   @Test
   fun realCardFromApi() {
-    assertThat(BIRDS.id).isEqualTo("072")
-    assertThat(BIRDS.bundle).isEqualTo("B")
-    assertThat(BIRDS.deck).isEqualTo(PROJECT)
-    assertThat(BIRDS.tagsText).containsExactly("AnimalTag")
-    assertThat(BIRDS.immediateText).containsExactly("PROD[-2 Plant<Anyone>]")
-    assertThat(BIRDS.actionsText).containsExactly("-> Animal<This>")
-    assertThat(BIRDS.effectsText).containsExactly("End: VictoryPoint / Animal<This>")
-    assertThat(BIRDS.replaces).isNull()
-    assertThat(BIRDS.resourceTypeText).isEqualTo("Animal")
-    assertThat(BIRDS.requirementText).isEqualTo("13 OxygenStep")
-    assertThat(BIRDS.cost).isEqualTo(10)
-    assertThat(BIRDS.projectKind).isEqualTo(ACTIVE)
+    assertThat(birds.id).isEqualTo("072")
+    assertThat(birds.bundle).isEqualTo("B")
+    assertThat(birds.deck).isEqualTo(PROJECT)
+    assertThat(birds.tagsText).containsExactly("AnimalTag")
+    assertThat(birds.immediateText).containsExactly("PROD[-2 Plant<Anyone>]")
+    assertThat(birds.actionsText).containsExactly("-> Animal<This>")
+    assertThat(birds.effectsText).containsExactly("End: VictoryPoint / Animal<This>")
+    assertThat(birds.replaces).isNull()
+    assertThat(birds.resourceTypeText).isEqualTo("Animal")
+    assertThat(birds.requirementText).isEqualTo("13 OxygenStep")
+    assertThat(birds.cost).isEqualTo(10)
+    assertThat(birds.projectKind).isEqualTo(ACTIVE)
   }
 
   @Test
@@ -85,73 +85,73 @@ class CardDefinitionTest {
       }
     """
 
-    assertThat(JsonReader.readCards(json)).containsExactly("072", BIRDS)
+    assertThat(JsonReader.readCards(json)).containsExactly("072", birds)
   }
 
   // Just so we don't have to keep repeating the "x" part
-  private val C: CardDefinition = CardDefinition("x")
+  private val card: CardDefinition = CardDefinition("x")
 
   /** Since we only use C expecting an exception, we should make sure it normally works. */
   @Test
   fun justToBeSure() {
     @Suppress("UNUSED_VARIABLE")
-    val card = C.copy(id = "y")
+    val card = card.copy(id = "y")
   }
 
   @Test
   fun emptyStrings() {
     assertThrows<RuntimeException> { CardDefinition("") }
-    assertThrows<RuntimeException> { C.copy(bundle = "") }
-    assertThrows<RuntimeException> { C.copy(replaces = "") }
-    assertThrows<RuntimeException> { C.copy(resourceTypeText = "") }
-    assertThrows<RuntimeException> { C.copy(requirementText = "") }
+    assertThrows<RuntimeException> { card.copy(bundle = "") }
+    assertThrows<RuntimeException> { card.copy(replaces = "") }
+    assertThrows<RuntimeException> { card.copy(resourceTypeText = "") }
+    assertThrows<RuntimeException> { card.copy(requirementText = "") }
   }
 
   @Test
   fun badCost() {
-    assertThrows<RuntimeException> { C.copy(cost = -1) }
-    assertThrows<RuntimeException> { C.copy(deck = PRELUDE, cost = 1) }
-    assertThrows<RuntimeException> { C.copy(deck = CORPORATION, cost = 1) }
+    assertThrows<RuntimeException> { card.copy(cost = -1) }
+    assertThrows<RuntimeException> { card.copy(deck = PRELUDE, cost = 1) }
+    assertThrows<RuntimeException> { card.copy(deck = CORPORATION, cost = 1) }
   }
 
   @Test
   fun badProjectKind() {
-    assertThrows<RuntimeException> { C.copy(deck = CORPORATION, projectKind = ACTIVE) }
-    assertThrows<RuntimeException> { C.copy(deck = PRELUDE, projectKind = AUTOMATED) }
-    assertThrows<RuntimeException> { C.copy(deck = PROJECT) }
+    assertThrows<RuntimeException> { card.copy(deck = CORPORATION, projectKind = ACTIVE) }
+    assertThrows<RuntimeException> { card.copy(deck = PRELUDE, projectKind = AUTOMATED) }
+    assertThrows<RuntimeException> { card.copy(deck = PROJECT) }
   }
 
   @Test
   fun badRequirement() {
-    assertThrows<RuntimeException> { C.copy(deck = CORPORATION, projectKind = ACTIVE) }
-    assertThrows<RuntimeException> { C.copy(deck = PRELUDE, projectKind = AUTOMATED) }
+    assertThrows<RuntimeException> { card.copy(deck = CORPORATION, projectKind = ACTIVE) }
+    assertThrows<RuntimeException> { card.copy(deck = PRELUDE, projectKind = AUTOMATED) }
   }
 
   @Test
   fun badActiveCard() {
     assertThrows<RuntimeException> {
-      C.copy(projectKind = EVENT, effectsText = setOf("Foo: Bar"))
+      card.copy(projectKind = EVENT, effectsText = setOf("Foo: Bar"))
     }
     assertThrows<RuntimeException> {
-      C.copy(projectKind = AUTOMATED, effectsText = setOf("Bar: Qux"))
+      card.copy(projectKind = AUTOMATED, effectsText = setOf("Bar: Qux"))
     }
     assertThrows<RuntimeException> {
-      C.copy(projectKind = EVENT, actionsText = setOf("Foo -> Bar"))
+      card.copy(projectKind = EVENT, actionsText = setOf("Foo -> Bar"))
     }
     assertThrows<RuntimeException> {
-      C.copy(projectKind = AUTOMATED, actionsText = setOf("Bar -> Qux"))
+      card.copy(projectKind = AUTOMATED, actionsText = setOf("Bar -> Qux"))
     }
     assertThrows<RuntimeException> {
-      C.copy(projectKind = AUTOMATED, resourceTypeText = "Whatever")
+      card.copy(projectKind = AUTOMATED, resourceTypeText = "Whatever")
     }
     assertThrows<RuntimeException> {
-      C.copy(projectKind = ACTIVE, immediateText = setOf("Whatever"))
+      card.copy(projectKind = ACTIVE, immediateText = setOf("Whatever"))
     }
   }
 
   @Test fun birdsFromDataFile() {
     val cards = Canon.cardDefinitions
-    assertThat(cards["072"]).isEqualTo(BIRDS)
+    assertThat(cards["072"]).isEqualTo(birds)
   }
 
   @Test fun slurp() {

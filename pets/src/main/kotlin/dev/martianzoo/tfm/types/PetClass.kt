@@ -55,15 +55,14 @@ class PetClass(val def: ComponentDef, val loader: PetClassLoader): DependencyTar
   val baseType: PetType by lazy {
     val deps = DependencyMap.merge(directSupertypes.map { it.dependencies })
 
-    val newDeps = directDependencyKeys.map {
+    val newDeps = directDependencyKeys.associateWith {
       val typeExpression = def.dependencies[it.index].type
-      val depType = if (it.classDep) {
-        loader.get(typeExpression.className)
+      if (it.classDep) {
+        loader[typeExpression.className]
       } else {
         loader.resolve(typeExpression)
       }
-      it to depType
-    }.toMap()
+    }
     val allDeps = deps.merge(DependencyMap(newDeps))
     require(allDeps.keyToType.keys == allDependencyKeys)
     PetType(this, allDeps).also { println("$this baseType is $it") }
@@ -95,7 +94,7 @@ class PetClass(val def: ComponentDef, val loader: PetClassLoader): DependencyTar
   val directEffectsRaw by def::effects
 
   val directEffects by lazy {
-    directEffectsRaw
+    directEffectsRaw.asSequence()
         .map {
           println("raw effect was: $it")
           it
@@ -104,6 +103,7 @@ class PetClass(val def: ComponentDef, val loader: PetClassLoader): DependencyTar
         .map { deprodify(it, loader.resourceNames) }
         .map { resolveSpecialThisType(it, te(name)) }
         .map { applyDefaultsIn(it, loader) }
+        .toList()
         .also { validateAllTypes(it, loader) }
   }
 

@@ -18,7 +18,7 @@ sealed class Instruction : PetsNode() {
       if ((qe.scalar ?: 1) <= 0) throw PetsException("Can't gain a non-positive amount")
     }
 
-    override fun times(value: Int) = copy(qe.copy(scalar = qe.scalar!! * value))
+    override fun times(value: Int) = copy(qe = qe.copy(scalar = qe.scalar!! * value))
 
     // TODO intensity
     override fun execute(game: GameApi) = game.applyChange(qe.scalar!!, gaining = qe.type!!)
@@ -35,7 +35,7 @@ sealed class Instruction : PetsNode() {
       if ((qe.scalar ?: 1) <= 0) throw PetsException("Can't remove a non-positive amount")
     }
 
-    override fun times(value: Int) = copy(qe.copy(scalar = qe.scalar!! * value))
+    override fun times(value: Int) = copy(qe = qe.copy(scalar = qe.scalar!! * value))
 
     override fun execute(game: GameApi) = game.applyChange(qe.scalar!!, removing = qe.type!!)
 
@@ -81,7 +81,7 @@ sealed class Instruction : PetsNode() {
     }
 
     override fun toString(): String {
-      return "${groupIfNeeded(requirement)}: ${groupIfNeeded(instruction)}"
+      return "${groupPartIfNeeded(requirement)}: ${groupPartIfNeeded(instruction)}"
     }
     // let's over-group for clarity
     override fun parenthesizeThisWhenInside(container: PetsNode) =
@@ -185,7 +185,7 @@ sealed class Instruction : PetsNode() {
       Multi(instructions).execute(game)
     }
 
-    override fun toString() = instructions.map(::groupIfNeeded).joinToString (" THEN ")
+    override fun toString() = instructions.joinToString(" THEN ") { groupPartIfNeeded(it) }
     override fun precedence() = 2
     override val children = instructions
   }
@@ -198,7 +198,7 @@ sealed class Instruction : PetsNode() {
     }
 
     override fun times(value: Int) = copy(instructions.map { it * value}.toSet())
-    override fun toString() = instructions.map(::groupIfNeeded).joinToString(" OR ")
+    override fun toString() = instructions.joinToString(" OR ") { groupPartIfNeeded(it) }
     override fun parenthesizeThisWhenInside(container: PetsNode): Boolean {
       return container is Then || super.parenthesizeThisWhenInside(container)
     }
@@ -215,7 +215,7 @@ sealed class Instruction : PetsNode() {
     }
 
     override fun times(value: Int) = copy(instructions.map { it * value})
-    override fun toString() = instructions.map(::groupIfNeeded).joinToString()
+    override fun toString() = instructions.joinToString(transform = ::groupPartIfNeeded)
     override fun precedence() = 0
     override val children = instructions
   }

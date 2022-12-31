@@ -1,6 +1,5 @@
 package dev.martianzoo.tfm.types
 
-import com.google.common.truth.Truth
 import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.pets.SpecialComponent.CLASS
@@ -50,7 +49,7 @@ class PetClassCanonTest {
   @Test
   fun slurp() {
     val defns = Canon.allDefinitions
-    Truth.assertThat(defns.size).isGreaterThan(700)
+    assertThat(defns.size).isGreaterThan(700)
 
     val table = PetClassLoader(defns).loadAll()
 
@@ -69,7 +68,7 @@ class PetClassCanonTest {
     }
 
     // currently just 3 cases of subclassing a concrete class in the canon
-    Truth.assertThat(subConcrete).containsExactly(
+    assertThat(subConcrete).containsExactly(
         "Tile008" to "CityTile",
         "Psychrophile" to "Microbe",
         "Dirigible" to "Floater")

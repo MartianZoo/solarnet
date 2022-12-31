@@ -5,7 +5,7 @@ package dev.martianzoo.tfm.pets.ast
  */
 sealed class PetsNode {
 
-  fun groupIfNeeded(part: PetsNode) =
+  fun groupPartIfNeeded(part: PetsNode) =
       if (part.parenthesizeThisWhenInside(this)) "($part)" else "$part"
 
   open fun parenthesizeThisWhenInside(container: PetsNode) =

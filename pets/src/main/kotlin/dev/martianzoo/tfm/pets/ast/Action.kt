@@ -7,7 +7,7 @@ import dev.martianzoo.tfm.pets.ast.Instruction.Prod
 import dev.martianzoo.tfm.pets.ast.Instruction.Remove
 
 data class Action(val cost: Cost?, val instruction: Instruction) : PetsNode() {
-  override fun toString() = (cost?.let { "${cost} -> " } ?: "-> ") + instruction
+  override fun toString() = (cost?.let { "$cost -> " } ?: "-> ") + instruction
 
   override val children = setOfNotNull(cost) + instruction
   sealed class Cost : PetsNode() {
@@ -40,7 +40,7 @@ data class Action(val cost: Cost?, val instruction: Instruction) : PetsNode() {
 
     data class Or(var costs: Set<Cost>) : Cost() {
       constructor(vararg costs: Cost) : this(costs.toSet())
-      override fun toString() = costs.map(::groupIfNeeded).joinToString(" OR ")
+      override fun toString() = costs.joinToString(" OR ") { groupPartIfNeeded(it) }
       override fun precedence() = 3
       override val children = costs
       override fun toInstruction() = Instruction.Or(costs.map(Cost::toInstruction).toSet())
@@ -48,7 +48,7 @@ data class Action(val cost: Cost?, val instruction: Instruction) : PetsNode() {
 
     data class Multi(var costs: List<Cost>) : Cost() {
       constructor(vararg costs: Cost) : this(costs.toList())
-      override fun toString() = costs.map(::groupIfNeeded).joinToString()
+      override fun toString() = costs.joinToString { groupPartIfNeeded(it) }
       override fun precedence() = 1
       override val children = costs
       override fun toInstruction() = Instruction.Multi(costs.map(Cost::toInstruction))

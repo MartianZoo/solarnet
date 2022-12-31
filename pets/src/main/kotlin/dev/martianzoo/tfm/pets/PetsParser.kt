@@ -18,8 +18,6 @@ import com.github.h0tk3y.betterParse.parser.Parser
 import com.github.h0tk3y.betterParse.parser.parseToEnd
 import dev.martianzoo.tfm.pets.ComponentDef.Dependency
 import dev.martianzoo.tfm.pets.ComponentDef.RawDefaults
-import dev.martianzoo.tfm.pets.PetsParser.Instructions.instruction
-import dev.martianzoo.tfm.pets.PetsParser.Types.typeExpression
 import dev.martianzoo.tfm.pets.SpecialComponent.COMPONENT
 import dev.martianzoo.tfm.pets.ast.Action
 import dev.martianzoo.tfm.pets.ast.Action.Cost
@@ -322,20 +320,22 @@ object PetsParser {
 
   object Scripts { // ----------------------------------------------------------
     private val command: Parser<ScriptCommand> =
-        skip(_exec) and instruction and optional(skip(_by) and typeExpression) map { (instr, by) ->
-          ScriptCommand(instr, by)
-        }
+        skip(_exec) and
+        Instructions.instruction and
+        optional(skip(_by) and
+        Types.typeExpression) map { (instr, by) -> ScriptCommand(instr, by) }
 
     private val req: Parser<ScriptRequirement> =
         skip(_require) and Requirements.requirement map ::ScriptRequirement
 
     private val counter: Parser<ScriptCounter> =
-        skip(_count) and typeExpression and skip(char('-') and char('>')) and metricKeyRE map {
-          (type, key) -> ScriptCounter(key.text, type)
-        }
+        skip(_count) and
+        Types.typeExpression and
+        skip(char('-') and char('>')) and
+        metricKeyRE map { (type, key) -> ScriptCounter(key.text, type) }
 
     private val player: Parser<ScriptPragmaPlayer> =
-        skip(_become) and typeExpression map ::ScriptPragmaPlayer
+        skip(_become) and Types.typeExpression map ::ScriptPragmaPlayer
 
     internal val line: Parser<ScriptLine> =
         nls and (command or req or counter or player) and skipChar('\n')

@@ -4,9 +4,9 @@ import dev.martianzoo.tfm.pets.ast.Effect.Trigger
 import dev.martianzoo.tfm.testlib.PetsGenerator
 import org.junit.jupiter.api.Test
 
-class AutomatedTest {
+const val FACTOR = 1
 
-  val FACTOR = 1
+class AutomatedTest {
 
   @Test
   fun expressions() {

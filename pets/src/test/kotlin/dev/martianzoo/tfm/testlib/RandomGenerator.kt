@@ -92,7 +92,7 @@ abstract class RandomGenerator<B : Any>(val registry: Registry<B>, val scaling: 
   }
 
   fun <T : Any?> choose(vararg weightToChoice: Pair<Int, T>): T {
-    val sum =  weightToChoice.map { it.first }.sum()
+    val sum = weightToChoice.sumOf { it.first }
     var skip = nextInt(sum)
     for (wc in weightToChoice) {
       skip -= wc.first

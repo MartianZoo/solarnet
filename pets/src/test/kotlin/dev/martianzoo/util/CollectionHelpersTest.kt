@@ -37,7 +37,7 @@ class CollectionHelpersTest {
     }
 
     fun <T : Any?> choose(vararg weightToChoice: Pair<Int, T>): T {
-      val sum = weightToChoice.map { it.first }.sum()
+      val sum = weightToChoice.sumOf { it.first }
       var skip = nextInt(sum)
       for (wc in weightToChoice) {
         skip -= wc.first
@@ -49,7 +49,7 @@ class CollectionHelpersTest {
     }
 
     fun <T : Any?> chooseS(vararg weightToChoiceSupplier: Pair<Int, () -> T>): T {
-      val sum = weightToChoiceSupplier.map { it.first }.sum()
+      val sum = weightToChoiceSupplier.sumOf { it.first }
       var skip = nextInt(sum)
       for (wc in weightToChoiceSupplier) {
         skip -= wc.first

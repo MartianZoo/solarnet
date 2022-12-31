@@ -84,8 +84,8 @@ internal fun <P : PetsNode> spellOutQes(node: P): P {
 
 private object QeSpellerOuter : AstTransformer() {
   override fun <P : PetsNode?> transform(node: P): P {
-    return when {
-      node is QuantifiedExpression -> node.explicit() as P
+    return when (node) {
+      is QuantifiedExpression -> node.explicit() as P
       else -> super.transform(node)
     }
   }

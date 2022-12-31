@@ -35,7 +35,7 @@ private class Defaulter(val table: PetClassTable) : AstTransformer() {
             defaults.gainReqs
         )
         node.copy(
-            node.qe.copy(transform(newTypeExpr)),
+            node.qe.copy(type = transform(newTypeExpr)),
             node.intensity ?: defaults.gainIntensity
         )
       }
@@ -46,7 +46,7 @@ private class Defaulter(val table: PetClassTable) : AstTransformer() {
     @Suppress("UNCHECKED_CAST") return rewritten as P
   }
 
-  internal fun applyDefaultSpecs(
+  fun applyDefaultSpecs(
       original: TypeExpression,
       petClass: PetClass,
       defaultDeps: DependencyMap,

@@ -155,14 +155,14 @@ class PetsGenerator(scaling: (Int) -> Double)
       register { Cost.Multi(listOfSize(choose(2, 2, 2, 3))) }
       register { Cost.Prod(recurse()) }
 
-      register { Action(choose(1 to null, 3 to recurse<Cost>()), recurse<Instruction>()) }
+      register { Action(choose(1 to null, 3 to recurse()), recurse()) }
     }
 
     override fun <T : PetsNode> invoke(type: KClass<T>, gen: RandomGenerator<PetsNode>): T? {
-      try {
-        return super.invoke(type, gen)
+      return try {
+        super.invoke(type, gen)
       } catch (e: PetsException) {
-        return null // TODO this better
+        null // TODO this better
       }
     }
 
@@ -197,7 +197,7 @@ class PetsGenerator(scaling: (Int) -> Double)
 
   inline fun <reified T : PetsNode> findAverageTextLength(): Int {
     val samples = 1000
-    val sum = (1..samples).map { makeRandomNode<T>().toString().length }.sum()
+    val sum = (1..samples).sumOf { makeRandomNode<T>().toString().length }
     return (sum.toDouble() / samples).roundToInt()
   }
 
