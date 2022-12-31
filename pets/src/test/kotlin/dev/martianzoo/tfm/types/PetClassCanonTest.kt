@@ -26,8 +26,8 @@ class PetClassCanonTest {
     table.load("$CLASS").apply {
       assertThat(name).isEqualTo("Class")
       assertThat(abstract).isFalse()
-      assertThat(directDependencyKeys).containsExactly(DependencyKey(this, 0, true))
-      assertThat(allDependencyKeys).containsExactly(DependencyKey(this, 0, true))
+      assertThat(directDependencyKeys).containsExactly(DependencyKey(this, 0, false))
+      assertThat(allDependencyKeys).containsExactly(DependencyKey(this, 0, false))
       assertThat(directSuperclasses).containsExactly(table["$COMPONENT"])
     }
     assertThat(table.classesLoaded()).isEqualTo(2)

@@ -386,8 +386,9 @@ object PetsParser {
     }
 
     private val defaultStmt: Parser<RawDefaults> = skip(_default) and (gainDefault or typeDefault)
+    private val invariant = skip(_has) and Requirements.requirement
 
-    private val bodyElement = defaultStmt or Actions.action or Effects.effect
+    private val bodyElement = defaultStmt or invariant or Actions.action or Effects.effect
 
     private val oneLineBody =
         skipChar('{') and separatedTerms(bodyElement, char(';')) and skipChar('}')
@@ -449,6 +450,7 @@ object PetsParser {
         sig: Signature,
         contents: List<Any> = listOf()
     ): List<ComponentDefInProcess> {
+      val invs = contents.filterIsInstance<Requirement>().toSetStrict()
       val defs = contents.filterIsInstance<RawDefaults>().toSetStrict()
       val acts = contents.filterIsInstance<Action>().toSetStrict()
       val effs = contents.filterIsInstance<Effect>().toSetStrict()
@@ -459,12 +461,18 @@ object PetsParser {
           gainDefault = defs.firstNotNullOfOrNull { it.gainDefault },
           gainIntensity = defs.firstNotNullOfOrNull { it.gainIntensity },
       )
+      val mergedInvs = when (invs.size) {
+        0 -> null
+        1 -> invs.first()
+        else -> Requirement.And(invs.toList())
+      }
 
       val comp = ComponentDef(
           className = sig.className,
           abstract = abst,
           supertypes = sig.supertypes.toSetStrict(),
           dependencies = sig.dependencies,
+          invariant = mergedInvs,
           effectsRaw = { effs + actionsToEffects(acts) },
           rawDefaults = mergedDefaults
       )

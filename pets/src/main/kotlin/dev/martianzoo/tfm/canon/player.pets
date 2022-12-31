@@ -2,7 +2,9 @@
 
 // PLAYERS -------------------------------------------------
 
-abstract class Anyone(HAS =1 This) {                        // magic rule: same as Owned
+abstract class Anyone {
+    HAS =1 This
+
     abstract class Player : Anyone {
         This: 20 TerraformRating<This>
 
@@ -41,7 +43,7 @@ abstract class Owned<Anyone> {
         End: VictoryPoint
     }
 
-    class StartToken(HAS MAX 1 StartToken)
+    class StartToken { HAS MAX 1 StartToken }
 
     abstract class Milestone                                // The rest of the stuff in this file is also Owned, just
 }                                                           // explicitly instead of by nesting
@@ -75,7 +77,6 @@ abstract class Resource : Owned {
         class Megacredit, Steel, Titanium, Plant, Heat
         class Energy { ProductionPhase:: Heat FROM This }
     }
-
 
     abstract class CardResource : Cardbound<Holder> {       // TODO Cardbound<Holder<CardResource>>, forcing match
         default +This.
@@ -137,7 +138,9 @@ abstract class UseAction<HasActions> : Owned, Signal {      // TODO How to make 
 }
 
 // TODO still consider inverting this?
-class ActionUsedMarker(HAS MAX 1 This) : Cardbound<ActionCard>, Generational
+class ActionUsedMarker : Cardbound<ActionCard>, Generational {
+    HAS MAX 1 This
+}
 
 
 // PAYMENT MECHANICS ---------------------------------------
@@ -151,8 +154,9 @@ abstract class PaymentMechanic : Owned, Temporary {
        This:: Accept<Resource>
     }
 
-    class Accept<CLASS Resource>(HAS MAX 1 This) {          // Created in response to PlayTag or the actions on 4
-        default +This.                                      // special cards. (extend Temporary?)
+    class Accept<CLASS Resource> {                          // Created in response to PlayTag or the actions on 4
+        HAS MAX 1 This                                      // special cards. (extend Temporary?)
+        default +This.
     }
 
     class Pay<CLASS Resource> : Signal {                    // player uses it like `8 Pay<Heat> FROM Heat`

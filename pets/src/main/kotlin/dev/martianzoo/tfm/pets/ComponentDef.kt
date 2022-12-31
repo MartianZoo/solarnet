@@ -17,6 +17,7 @@ data class ComponentDef(
     val abstract: Boolean = false,
     val supertypes: Set<TypeExpression> = setOf(),
     val dependencies: List<Dependency> = listOf(),
+    val invariant: Requirement? = null,
     val effectsRaw: () -> Set<Effect> = { setOf() },
     val rawDefaults: RawDefaults = RawDefaults()
 ) {
@@ -24,6 +25,7 @@ data class ComponentDef(
     if (className == "$COMPONENT") {
       require(supertypes.isEmpty())
       require(dependencies.isEmpty())
+      require(invariant == null)
     } else {
       // require(supertypes.isNotEmpty()) // TODO
     }

@@ -7,22 +7,27 @@ abstract class GlobalParameter {                            // TODO must be adde
 
     This: TerraformRating                                   // becomes `This BY Player: TR<This>`
                                                             // side effect: WGT doesn't trigger it
-    class TemperatureStep(HAS MAX 19 This) {
+    class TemperatureStep {
+        HAS MAX 19 This
         This: (=3 This: PROD[Heat]) OR Ok                   // gated instrs are still mandatory, so without the `OR Ok`
         This: (=5 This: PROD[Heat]) OR Ok                   // we would be at a dead end
         This: (=15 This: OceanTile) OR Ok
     }
 
-    class OxygenStep(HAS MAX 14 This) {
+    class OxygenStep {
+        HAS MAX 14 This
         This: (=8 OxygenStep: TemperatureStep) OR Ok
     }
 
-    class VenusStep(HAS MAX 15 This) {
+    class VenusStep {
+        HAS MAX 15 This
         This: (=4 This: ProjectCard) OR Ok
         This: (=8 This: TerraformRating) OR Ok
     }
 
-    class OceanTile(HAS MAX 9 OceanTile) : Tile<MarsArea> {
+    class OceanTile : Tile<MarsArea> {
+        HAS MAX 9 OceanTile                                 // don't specialize
+
         default +This<WaterArea>
         Adjacency<This, Tile>: 2
     }
@@ -32,12 +37,14 @@ abstract class GlobalParameter {                            // TODO must be adde
 // MAPS AND TILES ------------------------------------------
 
 abstract class MarsMap {
-    This:: $createMarsAreas(This)
-    This:: $createBorders(This)
+    This:: $createBorders(This)                             // save all :: effects until after all
+                                                            // singletons are created...
     class Tharsis, Hellas, Elysium
 }
 
-abstract class Area(HAS =1 This, MAX 1 Tile) {
+abstract class Area(HAS MAX 1 Tile) {
+    HAS =1 This
+
     abstract class RemoteArea
     abstract class MarsArea {                               // TODO <MarsMap>?
         abstract class LandArea {
@@ -50,21 +57,28 @@ abstract class Area(HAS =1 This, MAX 1 Tile) {
 
 abstract class Tile<Area>
 
-class Border<MarsArea, MarsArea>(HAS MAX 1 This)
+class Border<MarsArea, MarsArea> {
+    HAS MAX 1 This
+}
 
-class Neighbor<Tile, MarsArea>(HAS MAX 1 This) {
+class Neighbor<Tile, MarsArea> {
+    HAS MAX 1 This
     Tile<MarsArea>: Adjacency<Tile, Tile<MarsArea>>         // TODO need trigger-specialization (perhaps `It`??)
 }
 
-class Adjacency<Tile, Tile>(HAS MAX 1 This)
+class Adjacency<Tile, Tile> {
+    HAS MAX 1 This
+}
 
-class Row<MarsArea>(HAS This)                               // after creating Hellas_5_x then create 5 Row<Hellas_5_x>
+class Row<MarsArea>                                         // after creating Hellas_5_x then create 5 Row<Hellas_5_x>
 
 // ACTIONS -------------------------------------------------
 
 abstract class HasActions {
 
-    abstract class StandardAction(HAS =1 This) {
+    abstract class StandardAction {
+        HAS =1 This
+
         class PlayCardFromHand   { -> PlayCard<ProjectCard, CardFront> }
         class UseStandardProject { -> UseAction<StandardProject> }
         class UseActionFromCard  { -> UseAction<ActionCard> THEN ActionUsedMarker<ActionCard> }
@@ -74,7 +88,9 @@ abstract class HasActions {
         class SellPatents        { 1 ProjectCard -> 1 }     // Technically a standard project, but that makes Credicor
     }                                                       // and Std Tech annoying for no benefit. TODO "X"
 
-    abstract class StandardProject(HAS =1 This) {
+    abstract class StandardProject {
+        HAS =1 This
+
         class PowerPlant   { 11 -> PROD[Energy] }
         class AsteroidSP   { 14 -> TemperatureStep }
         class AirScrapping { 15 -> VenusStep }
@@ -87,13 +103,14 @@ abstract class HasActions {
 
 // WORKFLOW ------------------------------------------------
 
-class Generation(HAS 1 This)
+class Generation { HAS 1 This }
 
 abstract class Generational {                               // things that disappear between gens
     Generation:: -This                                      // <-- and look, there they go
 }
-                                                            // Phases should *do* as little as possible, and just be
-abstract class Phase {                                      // triggers for other component types
+
+abstract class Phase {                                      // Phases should *do* as little as possible, and just be
+    HAS MAX 1 Phase                                         // triggers for other component types
 
     class SetupPhase                                        // start of gameplay thru discarding
     class CorporationPhase                                  // each player plays corp & buys cards
