@@ -7,14 +7,20 @@ import dev.martianzoo.tfm.pets.ast.Instruction.Prod
 import dev.martianzoo.tfm.pets.ast.Instruction.Remove
 
 data class Action(val cost: Cost?, val instruction: Instruction) : PetsNode() {
-  override fun toString() = (cost?.let { "$cost -> " } ?: "-> ") + instruction
+  override val kind = "Action"
 
   override val children = setOfNotNull(cost) + instruction
+
+  override fun toString() = (cost?.let { "$cost -> " } ?: "-> ") + instruction
+
   sealed class Cost : PetsNode() {
+    override val kind = "Cost"
+
     abstract fun toInstruction(): Instruction
+
     data class Spend(val qe: QuantifiedExpression) : Cost() {
-      override fun toString() = qe.toString()
       override val children = setOf(qe)
+      override fun toString() = qe.toString()
 
       // I believe Ants/Predators are the reasons for MANDATORY here
       override fun toInstruction() = Remove(qe, MANDATORY)
@@ -32,37 +38,40 @@ data class Action(val cost: Cost?, val instruction: Instruction) : PetsNode() {
           else -> {}
         }
       }
+      override val children = setOf(cost, qe)
       override fun toString() = "$cost / $qe" // parens
       override fun precedence() = 5
-      override val children = setOf(cost, qe)
+
       override fun toInstruction() = Per(cost.toInstruction(), qe)
     }
 
     data class Or(var costs: Set<Cost>) : Cost() {
       constructor(vararg costs: Cost) : this(costs.toSet())
+
+      override val children = costs
       override fun toString() = costs.joinToString(" OR ") { groupPartIfNeeded(it) }
       override fun precedence() = 3
-      override val children = costs
+
       override fun toInstruction() = Instruction.Or(costs.map(Cost::toInstruction).toSet())
     }
 
     data class Multi(var costs: List<Cost>) : Cost() {
       constructor(vararg costs: Cost) : this(costs.toList())
+
+      override val children = costs
       override fun toString() = costs.joinToString { groupPartIfNeeded(it) }
       override fun precedence() = 1
-      override val children = costs
+
       override fun toInstruction() = Instruction.Multi(costs.map(Cost::toInstruction))
     }
 
     data class Prod(val cost: Cost) : Cost(), ProductionBox<Cost> {
-      override fun toString() = "PROD[${cost}]"
       override val children = setOf(cost)
+      override fun toString() = "PROD[${cost}]"
+
       override fun toInstruction() = Prod(cost.toInstruction())
+
       override fun extract() = cost
     }
-
-    override val kind = "Cost"
   }
-
-  override val kind = "Action"
 }

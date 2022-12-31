@@ -4,13 +4,13 @@ import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.tfm.pets.PetsParser.Instructions
 import dev.martianzoo.tfm.pets.PetsParser.Requirements
 import dev.martianzoo.tfm.pets.PetsParser.parse
-import dev.martianzoo.tfm.pets.ast.Instruction.ComplexFrom
+import dev.martianzoo.tfm.pets.ast.FromExpression.ComplexFrom
+import dev.martianzoo.tfm.pets.ast.FromExpression.SimpleFrom
 import dev.martianzoo.tfm.pets.ast.Instruction.Gain
 import dev.martianzoo.tfm.pets.ast.Instruction.Gated
 import dev.martianzoo.tfm.pets.ast.Instruction.Intensity.AMAP
 import dev.martianzoo.tfm.pets.ast.Instruction.Intensity.OPTIONAL
 import dev.martianzoo.tfm.pets.ast.Instruction.Remove
-import dev.martianzoo.tfm.pets.ast.Instruction.SimpleFrom
 import dev.martianzoo.tfm.pets.ast.Instruction.Transmute
 import dev.martianzoo.tfm.pets.ast.Requirement.Min
 import dev.martianzoo.tfm.pets.ast.TypeExpression.Companion.te
@@ -122,8 +122,10 @@ class InstructionTest {
     val instr = Transmute(
         ComplexFrom("Foo", listOf(
             ComplexFrom("Bar", listOf(
-                SimpleFrom(te("Qux"), TypeExpression("Abc", listOf(te("Eep")))))
-            )),
+                SimpleFrom(te("Qux"), TypeExpression("Abc", listOf(te("Eep"))))
+            )
+            )
+        ),
         ),
         null,
         null

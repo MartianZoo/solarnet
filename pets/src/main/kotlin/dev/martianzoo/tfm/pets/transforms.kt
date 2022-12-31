@@ -1,16 +1,15 @@
 package dev.martianzoo.tfm.pets
 
-import dev.martianzoo.tfm.pets.SpecialComponent.MEGACREDIT
 import dev.martianzoo.tfm.pets.SpecialComponent.PRODUCTION
 import dev.martianzoo.tfm.pets.SpecialComponent.THIS
 import dev.martianzoo.tfm.pets.SpecialComponent.USE_ACTION
 import dev.martianzoo.tfm.pets.ast.Action
 import dev.martianzoo.tfm.pets.ast.Effect
 import dev.martianzoo.tfm.pets.ast.Effect.Trigger.OnGain
+import dev.martianzoo.tfm.pets.ast.FromExpression.SimpleFrom
 import dev.martianzoo.tfm.pets.ast.Instruction
 import dev.martianzoo.tfm.pets.ast.Instruction.Gain
 import dev.martianzoo.tfm.pets.ast.Instruction.Remove
-import dev.martianzoo.tfm.pets.ast.Instruction.SimpleFrom
 import dev.martianzoo.tfm.pets.ast.Instruction.Then
 import dev.martianzoo.tfm.pets.ast.Instruction.Transmute
 import dev.martianzoo.tfm.pets.ast.PetsNode
@@ -34,9 +33,7 @@ private fun instructionFromAction(lhs: Instruction?, rhs: Instruction): Instruct
   // Handle the Ants case (TODO intensity?)
   if (lhs is Remove && rhs is Gain && lhs.qe.scalar == rhs.qe.scalar) {
     return Transmute(SimpleFrom(
-        rhs.qe.type ?: MEGACREDIT.type,
-        lhs.qe.type ?: MEGACREDIT.type
-    ))
+        rhs.qe.explicit().type!!, lhs.qe.explicit().type!!))
   }
 
   // Nested THENs are just silly

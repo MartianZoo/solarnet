@@ -2,6 +2,9 @@ package dev.martianzoo.tfm.data
 
 import dev.martianzoo.tfm.pets.ast.Action
 import dev.martianzoo.tfm.pets.ast.Effect
+import dev.martianzoo.tfm.pets.ast.FromExpression.ComplexFrom
+import dev.martianzoo.tfm.pets.ast.FromExpression.SimpleFrom
+import dev.martianzoo.tfm.pets.ast.FromExpression.TypeInFrom
 import dev.martianzoo.tfm.pets.ast.Instruction
 import dev.martianzoo.tfm.pets.ast.PetsNode
 import dev.martianzoo.tfm.pets.ast.QuantifiedExpression
@@ -43,9 +46,9 @@ object Vanillafier {
                 is Instruction.Or -> Instruction.Or(san(instructions))
                 is Instruction.Multi -> Instruction.Multi(san(instructions))
                 is Instruction.Transmute -> copy(san(fromExpression), san(scalar))
-                is Instruction.ComplexFrom -> copy("Foo", san(specializations), san(requirement))
-                is Instruction.SimpleFrom -> copy(san(toType), san(fromType))
-                is Instruction.TypeInFrom -> copy(san(type))
+                is ComplexFrom -> copy("Foo", san(specializations), san(requirement))
+                is SimpleFrom -> copy(san(toType), san(fromType))
+                is TypeInFrom -> copy(san(type))
                 is Instruction.Per -> copy(san(instruction), san(qe))
                 is Instruction.Prod -> copy(san(instruction))
                 is Instruction.Custom -> copy("foo", san(arguments))

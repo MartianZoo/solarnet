@@ -5,11 +5,11 @@ import dev.martianzoo.tfm.pets.PetsParser.parse
 import dev.martianzoo.tfm.pets.ast.Effect.Trigger.OnGain
 import dev.martianzoo.tfm.pets.ast.Effect.Trigger.OnRemove
 import dev.martianzoo.tfm.pets.ast.Effect.Trigger.Prod
+import dev.martianzoo.tfm.pets.ast.FromExpression.SimpleFrom
 import dev.martianzoo.tfm.pets.ast.Instruction.Gain
 import dev.martianzoo.tfm.pets.ast.Instruction.Intensity.MANDATORY
 import dev.martianzoo.tfm.pets.ast.Instruction.Intensity.OPTIONAL
 import dev.martianzoo.tfm.pets.ast.Instruction.Remove
-import dev.martianzoo.tfm.pets.ast.Instruction.SimpleFrom
 import dev.martianzoo.tfm.pets.ast.Instruction.Transmute
 import dev.martianzoo.tfm.pets.ast.Requirement.Max
 import dev.martianzoo.tfm.pets.ast.Requirement.Min

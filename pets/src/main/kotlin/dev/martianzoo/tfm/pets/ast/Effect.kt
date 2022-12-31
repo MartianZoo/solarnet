@@ -8,24 +8,30 @@ data class Effect(
     val instruction: Instruction,
     val immediate: Boolean = false,
 ) : PetsNode() {
+
+  override val kind = "Effect"
+
+  override val children = setOf(trigger, instruction)
+
   override fun toString(): String {
     val instext = when (instruction) {
       is Gated -> "($instruction)"
       else -> "$instruction"
     }
-    return "${trigger}${if (immediate) "::" else ":"} $instext"
+    return "$trigger${if (immediate) "::" else ":"} $instext"
   }
 
-  override val children = setOf(trigger, instruction)
   sealed class Trigger : PetsNode() {
+    override val kind = "Trigger"
+
     data class OnGain(val expression: TypeExpression) : Trigger() {
-      override fun toString() = "$expression"
       override val children = setOf(expression)
+      override fun toString() = "$expression"
     }
 
     data class OnRemove(val expression: TypeExpression) : Trigger() {
-      override fun toString() = "-${expression}"
       override val children = setOf(expression)
+      override fun toString() = "-${expression}"
     }
 
     data class Prod(val trigger: Trigger) : Trigger(), ProductionBox<Trigger> {
@@ -34,13 +40,10 @@ data class Effect(
           throw PetsException("only gain/remove trigger can go in prod block")
         }
       }
-      override fun toString() = "PROD[${trigger}]"
       override val children = setOf(trigger)
+      override fun toString() = "PROD[${trigger}]"
+
       override fun extract() = trigger
     }
-
-    override val kind = "Trigger"
   }
-
-  override val kind = "Effect"
 }

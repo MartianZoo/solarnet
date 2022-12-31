@@ -4,6 +4,9 @@ import dev.martianzoo.tfm.pets.ast.Action
 import dev.martianzoo.tfm.pets.ast.Action.Cost
 import dev.martianzoo.tfm.pets.ast.Effect
 import dev.martianzoo.tfm.pets.ast.Effect.Trigger
+import dev.martianzoo.tfm.pets.ast.FromExpression.ComplexFrom
+import dev.martianzoo.tfm.pets.ast.FromExpression.SimpleFrom
+import dev.martianzoo.tfm.pets.ast.FromExpression.TypeInFrom
 import dev.martianzoo.tfm.pets.ast.Instruction
 import dev.martianzoo.tfm.pets.ast.PetsNode
 import dev.martianzoo.tfm.pets.ast.QuantifiedExpression
@@ -34,9 +37,9 @@ open class AstTransformer {
         is Instruction.Per         -> copy(x(instruction), x(qe))
         is Instruction.Gated       -> copy(x(requirement), x(instruction))
         is Instruction.Transmute   -> copy(x(fromExpression), scalar)
-        is Instruction.SimpleFrom  -> copy(x(toType), x(fromType))
-        is Instruction.ComplexFrom -> copy(className, x(specializations), x(requirement))
-        is Instruction.TypeInFrom  -> copy(x(type))
+        is SimpleFrom -> copy(x(toType), x(fromType))
+        is ComplexFrom -> copy(className, x(specializations), x(requirement))
+        is TypeInFrom -> copy(x(type))
         is Instruction.Custom      -> copy(functionName, x(arguments))
         is Instruction.Then        -> copy(x(instructions))
         is Instruction.Or          -> copy(x(instructions))

@@ -11,10 +11,10 @@ data class QuantifiedExpression(val type: TypeExpression? = null, val scalar: In
       require(scalar >= 0)
     }
   }
-  override fun toString() = listOfNotNull(scalar, type).joinToString(" ")
-
-  override val children = setOfNotNull(type)
-  fun explicit() = copy(type = type ?: MEGACREDIT.type, scalar = scalar ?: 1)
-
   override val kind = "QuantifiedExpression"
+
+  fun explicit() = copy(type = type ?: MEGACREDIT.type, scalar = scalar ?: 1)
+  override val children = setOfNotNull(type)
+
+  override fun toString() = listOfNotNull(scalar, type).joinToString(" ")
 }
