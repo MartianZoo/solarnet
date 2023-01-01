@@ -59,7 +59,7 @@ open class AstTransformer {
         is Cost.Prod  -> copy(x(cost))
         is Action     -> copy(x(cost), x(instruction))
 
-        else -> error("Forgot to add new node type ${this::class.simpleName}")
+        else -> error("Forgot to add new node type $kind")
       } as P
     }
   }
