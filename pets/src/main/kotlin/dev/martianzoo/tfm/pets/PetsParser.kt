@@ -16,9 +16,10 @@ import com.github.h0tk3y.betterParse.lexer.regexToken
 import com.github.h0tk3y.betterParse.parser.ParseException
 import com.github.h0tk3y.betterParse.parser.Parser
 import com.github.h0tk3y.betterParse.parser.parseToEnd
-import dev.martianzoo.tfm.pets.ComponentDef.Dependency
+import dev.martianzoo.tfm.pets.ComponentDef.DependencyDecl
 import dev.martianzoo.tfm.pets.ComponentDef.RawDefaults
 import dev.martianzoo.tfm.pets.SpecialComponent.COMPONENT
+import dev.martianzoo.tfm.pets.SpecialComponent.THIS
 import dev.martianzoo.tfm.pets.ast.Action
 import dev.martianzoo.tfm.pets.ast.Action.Cost
 import dev.martianzoo.tfm.pets.ast.Action.Cost.Spend
@@ -352,7 +353,7 @@ object PetsParser {
 
   private data class Signature(
       val className: String,
-      val dependencies: List<Dependency>,
+      val dependencies: List<DependencyDecl>,
       val topInvariant: Requirement?,
       val supertypes: List<TypeExpression>
   )
@@ -360,7 +361,7 @@ object PetsParser {
   object Components { // -------------------------------------------------------
     private val isAbstract = optional(_abstract) and skip(_class) map { it != null }
     private val dependency = optional(_class) and Types.typeExpression map { (classDep, type) ->
-      Dependency(type, classDep != null)
+      DependencyDecl(type, classDep != null)
     }
     private val dependencies = optionalList(
         skipChar('<') and commaSeparated(dependency) and skipChar('>')
@@ -377,11 +378,15 @@ object PetsParser {
 
     private val gainDefault =
         skipChar('+') and Types.typeExpression and Instructions.intensity map { (type, int) ->
-          RawDefaults(gainDefault = oneDefault(type), gainIntensity = int)
+          require(type.className == "$THIS")
+          require(type.refinement == null)
+          RawDefaults(gainDefault = type.specs, gainIntensity = int)
         }
 
     private val typeDefault = Types.typeExpression map {
-      RawDefaults(allDefault = oneDefault(it))
+      require(it.className == "$THIS")
+      require(it.refinement == null)
+      RawDefaults(allDefault = it.specs)
     }
 
     private val defaultStmt: Parser<RawDefaults> = skip(_default) and (gainDefault or typeDefault)
@@ -456,16 +461,16 @@ object PetsParser {
       val subs = contents.filterIsInstance<List<*>>().toSetStrict()
 
       val mergedDefaults = RawDefaults(
-          allDefault = defs.firstNotNullOfOrNull { it.allDefault },
-          gainDefault = defs.firstNotNullOfOrNull { it.gainDefault },
+          allDefault = defs.firstNotNullOfOrNull { it.allDefault } ?: listOf(),
+          gainDefault = defs.firstNotNullOfOrNull { it.gainDefault } ?: listOf(),
           gainIntensity = defs.firstNotNullOfOrNull { it.gainIntensity },
       )
 
       val comp = ComponentDef(
           className = sig.className,
           abstract = abst,
-          supertypes = sig.supertypes.toSetStrict(),
           dependencies = sig.dependencies,
+          supertypes = sig.supertypes.toSetStrict(),
           topInvariant = sig.topInvariant,
           otherInvariants = invs,
           effectsRaw = { effs + actionsToEffects(acts) },

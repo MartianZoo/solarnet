@@ -4,7 +4,6 @@ import dev.martianzoo.tfm.pets.AstTransformer
 import dev.martianzoo.tfm.pets.SpecialComponent.THIS
 import dev.martianzoo.tfm.pets.ast.Instruction.Gain
 import dev.martianzoo.tfm.pets.ast.PetsNode
-import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.pets.ast.TypeExpression
 
 fun <P : PetsNode> applyDefaultsIn(node: P, table: PetClassTable): P {
@@ -17,12 +16,7 @@ private class Defaulter(val table: PetClassTable) : AstTransformer() {
   override fun <P : PetsNode?> transform(node: P): P {
     val rewritten: PetsNode? = when (node) {
       null -> null
-      THIS.type -> node
-      is TypeExpression -> {
-        val petClass = table[node.className]
-        // TODO should we be recursing?
-        applyDefaultSpecs(node, petClass, petClass.defaults.allDeps, petClass.defaults.allReqs)
-      }
+      THIS.type -> node // leave This alone!
 
       is Gain -> {
         val statedTypeExpr = node.qe.expression
@@ -31,13 +25,18 @@ private class Defaulter(val table: PetClassTable) : AstTransformer() {
         val newTypeExpr = applyDefaultSpecs(
             statedTypeExpr,
             petClass,
-            defaults.gainDeps,
-            defaults.gainReqs
+            defaults.gainDeps
         )
         node.copy(
             node.qe.copy(expression = transform(newTypeExpr)),
             node.intensity ?: defaults.gainIntensity
         )
+      }
+
+      is TypeExpression -> {
+        val petClass = table[node.className]
+        // TODO should we be recursing?
+        applyDefaultSpecs(node, petClass, petClass.defaults.allDeps)
       }
 
       else -> super.transform(node)
@@ -50,7 +49,6 @@ private class Defaulter(val table: PetClassTable) : AstTransformer() {
       original: TypeExpression,
       petClass: PetClass,
       defaultDeps: DependencyMap,
-      reqs: Requirement?
   ): TypeExpression {
     val explicitStatedDeps = petClass.resolveSpecializations(original.specs)
     val mergedDeps = explicitStatedDeps.overlayOn(defaultDeps)

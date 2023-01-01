@@ -7,18 +7,14 @@ import dev.martianzoo.tfm.pets.ast.TypeExpression
 
 data class Defaults(
     val allDeps: DependencyMap = DependencyMap(),
-    val allReqs: Requirement? = null,  // TODO get rid of this!
     val gainDeps: DependencyMap = DependencyMap(),
-    val gainReqs: Requirement? = null,
     val gainIntensity: Intensity? = null
 ) {
 
   companion object {
     fun from(d: RawDefaults, petClass: PetClass) = Defaults(
-        toDependencyMap(d.allDefault?.specializations, petClass),
-        d.allDefault?.requirement,
-        toDependencyMap(d.gainDefault?.specializations, petClass),
-        d.gainDefault?.requirement,
+        toDependencyMap(d.allDefault, petClass),
+        toDependencyMap(d.gainDefault, petClass),
         d.gainIntensity)
 
     private fun toDependencyMap(specs: List<TypeExpression>?, petClass: PetClass): DependencyMap {
@@ -36,35 +32,22 @@ data class Defaults(
   internal fun overlayOn(defaultses: List<Defaults>): Defaults {
     return Defaults(
         overlayDMs(defaultses) { it.allDeps },
-        overlayReqs(defaultses) { it.allReqs },
         overlayDMs(defaultses) { it.gainDeps },
-        overlayReqs(defaultses) { it.gainReqs },
-        overlayInts(defaultses) { it.gainIntensity })
+        overlayIntensities(defaultses) { it.gainIntensity })
   }
 
-  private fun overlayInts(
+  private fun overlayIntensities(
       defaultses: List<Defaults>,
       extract: (Defaults) -> Intensity?
   ): Intensity? {
-    val ints = defaultses.mapNotNull(extract)
-    return extract(this) ?:
-        when (ints.size) {
-          0 -> null
-          1 -> ints.first()
-          else -> error("conflicting intensities: $ints")
-        }
-  }
+    val override = extract(this)
+    if (override != null) return override
 
-  private fun overlayReqs(
-      defaultses: List<Defaults>,
-      extract: (Defaults) -> Requirement?
-  ): Requirement? {
-    extract(this)?.let { return it }
-    val reqs = defaultses.mapNotNull(extract)
-    return when (reqs.size) {
-        0 -> null
-        1 -> reqs.first()
-        else -> Requirement.And(reqs)
+    val intensities = defaultses.mapNotNull(extract)
+    return when (intensities.size) {
+      0 -> null
+      1 -> intensities.first()
+      else -> error("conflicting intensities: $intensities")
     }
   }
 
@@ -81,5 +64,19 @@ data class Defaults(
       }
     }
     return DependencyMap(map)
+  }
+
+  // TODO might need this somewhere
+  private fun overlayReqs(
+      defaultses: List<Defaults>,
+      extract: (Defaults) -> Requirement?
+  ): Requirement? {
+    extract(this)?.let { return it }
+    val reqs = defaultses.mapNotNull(extract)
+    return when (reqs.size) {
+      0 -> null
+      1 -> reqs.first()
+      else -> Requirement.And(reqs)
+    }
   }
 }
