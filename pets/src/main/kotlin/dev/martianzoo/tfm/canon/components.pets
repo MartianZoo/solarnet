@@ -7,32 +7,32 @@
 
 // GLOBAL PARAMETERS ---------------------------------------
 
-abstract class GlobalParameter {                            // TODO must be added 1-by-1 - how?
-    default +This.                                          // by default, gains are "if possible"
+ABSTRACT CLASS GlobalParameter {                            // TODO must be added 1-by-1 - how?
+    DEFAULT +This.                                          // by default, gains are "if possible"
 
     This: TerraformRating                                   // becomes `This BY Player: TR<This>`
                                                             // side effect: WGT doesn't trigger it
-    class TemperatureStep {
+    CLASS TemperatureStep {
         HAS MAX 19 This
         This: (=3 This: PROD[Heat]) OR Ok                   // gated instrs are still mandatory, so without the `OR Ok`
         This: (=5 This: PROD[Heat]) OR Ok                   // we would be at a dead end
         This: (=15 This: OceanTile) OR Ok
     }
 
-    class OxygenStep {
+    CLASS OxygenStep {
         HAS MAX 14 This
         This: (=8 OxygenStep: TemperatureStep) OR Ok
     }
 
-    class VenusStep {
+    CLASS VenusStep {
         HAS MAX 15 This
         This: (=4 This: ProjectCard) OR Ok
         This: (=8 This: TerraformRating) OR Ok
     }
 
-    class OceanTile : Tile<MarsArea> {
+    CLASS OceanTile : Tile<MarsArea> {
         HAS MAX 9 OceanTile
-        default +This<WaterArea>
+        DEFAULT +This<WaterArea>
         ForwardAdjacency<This, Tile>: 2
     }
 }
@@ -40,95 +40,95 @@ abstract class GlobalParameter {                            // TODO must be adde
 
 // MAPS AND TILES ------------------------------------------
 
-abstract class MarsMap {
+ABSTRACT CLASS MarsMap {
     This:: $createBorders(This)                             // save all :: effects until after all
                                                             // singletons are created...
-    class Tharsis, Hellas, Elysium
+    CLASS Tharsis, Hellas, Elysium
 }
 
-abstract class Area(HAS MAX 1 Tile) {
+ABSTRACT CLASS Area(HAS MAX 1 Tile) {
     HAS =1 This                                             // singleton: if the *type* exists, the instance does too
 
-    abstract class MarsArea {                               // TODO <MarsMap>?
-        abstract class LandArea {
-            abstract class VolcanicArea
+    ABSTRACT CLASS MarsArea {                               // TODO <MarsMap>?
+        ABSTRACT CLASS LandArea {
+            ABSTRACT CLASS VolcanicArea
         }
-        abstract class WaterArea
-        abstract class NoctisArea
+        ABSTRACT CLASS WaterArea
+        ABSTRACT CLASS NoctisArea
     }
 
-    abstract class RemoteArea(HAS MAX 0 Border)
+    ABSTRACT CLASS RemoteArea(HAS MAX 0 Border)
 }
 
-abstract class Tile<Area>
+ABSTRACT CLASS Tile<Area>
                                                             // TODO figure out how to not need this
-class Border<Area, MarsArea> {                              // early on will create 3-6 of these for each MarsArea
+CLASS Border<Area, MarsArea> {                              // early on will create 3-6 of these for each MarsArea
     HAS MAX 1 This                                          // listing that one first. So each border will actually
                                                             // be here twice, once in each direction
     Tile<Area>: Neighbor<Tile<Area>, MarsArea>              // TODO BRUTAL HACK BRUTAL HACK
 }
 
-class Neighbor<Tile, MarsArea> {
+CLASS Neighbor<Tile, MarsArea> {
     HAS MAX 1 This
     Tile<MarsArea>:: ForwardAdjacency<Tile, Tile<MarsArea>>
     Tile<MarsArea>:: BackwardAdjacency<Tile<MarsArea>, Tile>
 }
 
-abstract class Adjacency<Tile, Tile> {
+ABSTRACT CLASS Adjacency<Tile, Tile> {
     HAS MAX 1 This
-    class ForwardAdjacency, BackwardAdjacency
+    CLASS ForwardAdjacency, BackwardAdjacency
 }
 
-class Row<MarsArea>                                         // after creating Hellas_5_x then create 5 Row<Hellas_5_x>
+CLASS Row<MarsArea>                                         // after creating Hellas_5_x then create 5 Row<Hellas_5_x>
 
 // ACTIONS -------------------------------------------------
 
-abstract class HasActions {
+ABSTRACT CLASS HasActions {
 
-    abstract class StandardAction {
+    ABSTRACT CLASS StandardAction {
         HAS =1 This
 
-        class PlayCardFromHand   { -> PlayCard<ProjectCard, CardFront> }
-        class UseStandardProject { -> UseAction<StandardProject> }
-        class UseActionFromCard  { -> UseAction<ActionCard> THEN ActionUsedMarker<ActionCard> }
-        class ConvertPlants      { 8 Plant -> GreeneryTile }
-        class ConvertHeat        { 8 Heat -> TemperatureStep }
+        CLASS PlayCardFromHand   { -> PlayCard<ProjectCard, CardFront> }
+        CLASS UseStandardProject { -> UseAction<StandardProject> }
+        CLASS UseActionFromCard  { -> UseAction<ActionCard> THEN ActionUsedMarker<ActionCard> }
+        CLASS ConvertPlants      { 8 Plant -> GreeneryTile }
+        CLASS ConvertHeat        { 8 Heat -> TemperatureStep }
 
-        class SellPatents        { 1 ProjectCard -> 1 }     // Technically a standard project, but that makes Credicor
+        CLASS SellPatents        { 1 ProjectCard -> 1 }     // Technically a standard project, but that makes Credicor
     }                                                       // and Std Tech annoying for no real benefit. TODO "X"
 
-    abstract class StandardProject {
+    ABSTRACT CLASS StandardProject {
         HAS =1 This
 
-        class PowerPlant   { 11 -> PROD[Energy] }
-        class AsteroidSP   { 14 -> TemperatureStep }
-        class AirScrapping { 15 -> VenusStep }
-        class Aquifer      { 18 -> OceanTile }
-        class Greenery     { 23 -> GreeneryTile }
-        class City         { 25 -> CityTile, PROD[1] }
+        CLASS PowerPlant   { 11 -> PROD[Energy] }
+        CLASS AsteroidSP   { 14 -> TemperatureStep }
+        CLASS AirScrapping { 15 -> VenusStep }
+        CLASS Aquifer      { 18 -> OceanTile }
+        CLASS Greenery     { 23 -> GreeneryTile }
+        CLASS City         { 25 -> CityTile, PROD[1] }
     }
 }
 
 
 // WORKFLOW ------------------------------------------------
 
-class Generation { HAS 1 This }                             // we're always in at least gen 1
+CLASS Generation { HAS 1 This }                             // we're always in at least gen 1
 
-abstract class Generational {                               // things that disappear between gens
+ABSTRACT CLASS Generational {                               // things that disappear between gens
     Generation:: -This                                      // <-- and look, there they go
 }
 
-abstract class Phase {                                      // Phases should *do* as little as possible, and just be
+ABSTRACT CLASS Phase {                                      // Phases should *do* as little as possible, and just be
     HAS MAX 1 Phase                                         // triggers for other component types
 
-    class SetupPhase                                        // start of gameplay thru discarding
-    class CorporationPhase                                  // each player plays corp & buys cards
-    class PreludePhase                                      // each: play or discard prelude 2x
-    class ResearchPhase { This:: Generation }               // skipped in gen1
-    class ActionPhase                                       // continues until all have passed
-    class ProductionPhase                                   // self-explanatory
-    class SolarPhase                                        // maybe we don't need to split it up
-    class ConvertPlantsPhase                                // each does X UseAction<ConvertPlants>
-    class End                                               // triggers VP payouts
-    class Shutdown                                          // assigns Outcomes then no more changes
+    CLASS SetupPhase                                        // start of gameplay thru discarding
+    CLASS CorporationPhase                                  // each player plays corp & buys cards
+    CLASS PreludePhase                                      // each: play or discard prelude 2x
+    CLASS ResearchPhase { This:: Generation }               // skipped in gen1
+    CLASS ActionPhase                                       // continues until all have passed
+    CLASS ProductionPhase                                   // self-explanatory
+    CLASS SolarPhase                                        // maybe we don't need to split it up
+    CLASS ConvertPlantsPhase                                // each does X UseAction<ConvertPlants>
+    CLASS End                                               // triggers VP payouts
+    CLASS Shutdown                                          // assigns Outcomes then no more changes
 }

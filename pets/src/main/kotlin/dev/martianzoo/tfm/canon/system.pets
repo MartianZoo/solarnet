@@ -1,27 +1,27 @@
-abstract class Component {                                  // Component is the single root of the hierarchy
-    default +This!                                          // no need to write `: Component`; it's assumed
+ABSTRACT CLASS Component {                                  // Component is the single root of the hierarchy
+    DEFAULT +This!                                          // no need to write `: Component`; it's assumed
 }
 
-class Class<Component> {                                    // magic rules: no nested specializations like `Class<A<B>>`
+CLASS Class<Component> {                                    // magic rules: no nested specializations like `Class<A<B>>`
      HAS =1 This                                            // or `Class<A(HAS C)>`. So `Class<Heat>` is considered
 }                                                           // concrete. The declaration `class Foo<CLASS Bar>` does two
                                                             // things: (a) it's treated as `Foo<Class<Bar>>`, and (b) it
                                                             // treats a usage like `Foo<SubBar>` as `Hi<Class<SubBar>>`.
                                                             // (this means `Foo<SubBar<Anything>>` is illegal.)
 
-abstract class Temporary {                                  // anything that can never survive across actions
+ABSTRACT CLASS Temporary {                                  // anything that can never survive across actions
 
-    class Ok {                                              // magic rule: won't trigger anything else (TODO)
+    CLASS Ok {                                              // magic rule: won't trigger anything else (TODO)
         HAS MAX 0 This
         This:: -This
     }
 
-    abstract class Signal {                                 // removes itself immediately - you'll never observe it existing,
+    ABSTRACT CLASS Signal {                                 // removes itself immediately - you'll never observe it existing,
         HAS MAX 0 This                                      // but things can still be triggered by it
         This:: -This                                        // TODO a magic rule that at least 1 effect must be triggered??
     }
 
-    class Die {                                             // since this has max 0 like Signal, but doesn't erase itself
+    CLASS Die {                                             // since this has max 0 like Signal, but doesn't erase itself
         HAS MAX 0 This                                      // like Signal does, it is impossible to create one
     }
 }

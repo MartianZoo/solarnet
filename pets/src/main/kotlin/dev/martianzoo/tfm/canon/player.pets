@@ -2,10 +2,10 @@
 
 // PLAYERS -------------------------------------------------
 
-abstract class Anyone {
+ABSTRACT CLASS Anyone {
     HAS =1 This
 
-    abstract class Player : Anyone {
+    ABSTRACT CLASS Player : Anyone {
         This: 20 TerraformRating<This>
 
         // Hack!                                            // We're forced to use some ugly hack; at least this one
@@ -20,160 +20,160 @@ abstract class Anyone {
         PlayTag<SpaceTag>:: Accept<Titanium>
         Pay<Titanium>:: 3 Pay<Megacredit>                   // should be innocuous for TradeAction?
 
-        class Player1, Player2, Player3, Player4, Player5   // in PETS, nesting = subtyping
+        CLASS Player1, Player2, Player3, Player4, Player5   // in PETS, nesting = subtyping
     }
-    class Npc                                               // this is who does WGT, etc
+    CLASS Npc                                               // this is who does WGT, etc
 }
 
 
 // PLAYER PROPERTY / GENERAL -------------------------------
 
-abstract class Owned<Anyone> {
-    default This<Player>                                    // affects ALL references to owned cpts that don't specify
-                                                            // an owner -- the only default of this kind we need
+ABSTRACT CLASS Owned<Anyone> {
+    DEFAULT This<Player>                                    // affects ALL references to owned cpts that don't specify
+                                                            // an owner -- the only DEFAULT of this kind we need
 
-    abstract class Outcome {                                // the only 100% useless component type
-        class Winner, Place2, Place3, Place4, Place5
+    ABSTRACT CLASS Outcome {                                // the only 100% useless component type
+        CLASS Winner, Place2, Place3, Place4, Place5
     }
 
-    class VictoryPoint
+    CLASS VictoryPoint
 
-    class TerraformRating {
+    CLASS TerraformRating {
         ProductionPhase: 1
         End: VictoryPoint
     }
 
-    class StartToken { HAS MAX 1 StartToken }
+    CLASS StartToken { HAS MAX 1 StartToken }
 
-    abstract class Milestone                                // The rest of the stuff in this file is also Owned, just
+    ABSTRACT CLASS Milestone                                // The rest of the stuff in this file is also Owned, just
 }                                                           // explicitly instead of by nesting
 
 
 // TILES ---------------------------------------------------
 
-abstract class OwnedTile : Owned, Tile {
-    class GreeneryTile : Tile<MarsArea> {
+ABSTRACT CLASS OwnedTile : Owned, Tile {
+    CLASS GreeneryTile : Tile<MarsArea> {
         // TODO this needs to use `HAS?` or something
-        default +This<LandArea(HAS Neighbor<OwnedTile>)>
+        DEFAULT +This<LandArea(HAS Neighbor<OwnedTile>)>
         This: OxygenStep
         End: VictoryPoint
     }
 
-    class CityTile {
-        default +This<LandArea(HAS MAX 0 Neighbor<CityTile<Anyone>>)>           // TODO line-wrapping
+    CLASS CityTile {
+        DEFAULT +This<LandArea(HAS MAX 0 Neighbor<CityTile<Anyone>>)>           // TODO line-wrapping
         End: VictoryPoint / Adjacency(HAS This, GreeneryTile<Anyone>)
     }
 
-    abstract class SpecialTile : Tile<MarsArea> {
-        default +This<LandArea>
+    ABSTRACT CLASS SpecialTile : Tile<MarsArea> {
+        DEFAULT +This<LandArea>
     }
 }
 
 
 // RESOURCES -----------------------------------------------
 
-abstract class Resource : Owned {
-    abstract class StandardResource {
-        abstract class Default                              // Things like `Foo: 5` become `Foo: Default`
-        class Megacredit : Default
+ABSTRACT CLASS Resource : Owned {
+    ABSTRACT CLASS StandardResource {
+        ABSTRACT CLASS Default                              // Things like `Foo: 5` become `Foo: Default`
+        CLASS Megacredit : Default
 
-        class Steel, Titanium, Plant, Heat
+        CLASS Steel, Titanium, Plant, Heat
 
-        class Energy { ProductionPhase:: Heat FROM This }
+        CLASS Energy { ProductionPhase:: Heat FROM This }
     }
 
-    abstract class CardResource : Cardbound<Holder> {       // TODO Cardbound<Holder<CardResource>>, forcing match
-        default +This.
+    ABSTRACT CLASS CardResource : Cardbound<Holder> {       // TODO Cardbound<Holder<CardResource>>, forcing match
+        DEFAULT +This.
 
         // All others are card-specific; see cards.json5
-        class Animal, Microbe, Science, Floater, Asteroid
+        CLASS Animal, Microbe, Science, Floater, Asteroid
     }
 }
 
-class Production<CLASS StandardResource> : Owned {
+CLASS Production<CLASS StandardResource> : Owned {
     ProductionPhase: StandardResource                       // TODO subtype specialization
 }
 
-abstract class Holder<CLASS CardResource> : CardFront
+ABSTRACT CLASS Holder<CLASS CardResource> : CardFront
 
 
 // CARDS ---------------------------------------------------
 
-abstract class CardBack : Owned {
-    class CorporationCard                                   // once a card is played and becomes a CardFront, nothing in
-    class PreludeCard                                       // the game ever cares what kind of CardBack it used to be..
-    class ProjectCard                                       // well that used to be true until "Double Down" in Dec 2022
+ABSTRACT CLASS CardBack : Owned {
+    CLASS CorporationCard                                   // once a card is played and becomes a CardFront, nothing in
+    CLASS PreludeCard                                       // the game ever cares what kind of CardBack it used to be..
+    CLASS ProjectCard                                       // well that used to be true until "Double Down" in Dec 2022
 }
 
-abstract class CardFront : Owned {
-    abstract class EventCard {
+ABSTRACT CLASS CardFront : Owned {
+    ABSTRACT CLASS EventCard {
         This: PlayedEvent FROM This                         // problem: how to still get the VPs??
     }                                                       // could we get this happen autom. at EOT?
-    abstract class AutomatedCard
-    abstract class ActiveCard                               // these types can all be mixed; what prevents bogus combos?
+    ABSTRACT CLASS AutomatedCard
+    ABSTRACT CLASS ActiveCard                               // these types can all be mixed; what prevents bogus combos?
 
-    abstract class ActionCard : HasActions
+    ABSTRACT CLASS ActionCard : HasActions
 }
 
-class PlayedEvent : Owned
+CLASS PlayedEvent : Owned
 
-abstract class Cardbound<CardFront<Anyone>>:Owned<Anyone> { // TODO require the two `Anyone`s to match, but only
-    abstract class Tag {                                    // because both were stated explicitly (not for Neighbor)
-        class BuildingTag, SpaceTag
-        class CityTag, PowerTag, ScienceTag
+ABSTRACT CLASS Cardbound<CardFront<Anyone>>:Owned<Anyone> { // TODO require the two `Anyone`s to match, but only
+    ABSTRACT CLASS Tag {                                    // because both were stated explicitly (not for Neighbor)
+        CLASS BuildingTag, SpaceTag
+        CLASS CityTag, PowerTag, ScienceTag
 
-        abstract class BioTag {                             // not really a game defined thing, but convenient
-            class PlantTag, MicrobeTag, AnimalTag
+        ABSTRACT CLASS BioTag {                             // not really a game defined thing, but convenient
+            CLASS PlantTag, MicrobeTag, AnimalTag
         }
-        abstract class PlanetTag {
-            class EarthTag, JovianTag, VenusTag
+        ABSTRACT CLASS PlanetTag {
+            CLASS EarthTag, JovianTag, VenusTag
         }
     }
 
-    class Cost                                              // as part of creating Card001<P4>, make 8 Cost<Card001<P4>>
+    CLASS Cost                                              // as part of creating Card001<P4>, make 8 Cost<Card001<P4>>
 }                                                           // does this really need to be `Owned`?
 
 
 // ACTIONS -------------------------------------------------
 
-abstract class UseAction<HasActions> : Owned, Signal {      // TODO How to make owner same, when HasActions has both
-    class UseAction1, UseAction2, UseAction3                // owned and unowned subclasses?
-    class UseAction4, UseAction5, UseAction6                // it's enough to handle Utopia etc the hard way
+ABSTRACT CLASS UseAction<HasActions> : Owned, Signal {      // TODO How to make owner same, when HasActions has both
+    CLASS UseAction1, UseAction2, UseAction3                // owned and unowned subclasses?
+    CLASS UseAction4, UseAction5, UseAction6                // it's enough to handle Utopia etc the hard way
 }
 
 // TODO still consider inverting this?
-class ActionUsedMarker : Cardbound<ActionCard>, Generational {
+CLASS ActionUsedMarker : Cardbound<ActionCard>, Generational {
     HAS MAX 1 This
 }
 
 
 // PAYMENT MECHANICS ---------------------------------------
 
-abstract class PaymentMechanic : Owned, Temporary {
-    abstract class Barrier {                                // player must clean up themselves, by end of action
+ABSTRACT CLASS PaymentMechanic : Owned, Temporary {
+    ABSTRACT CLASS Barrier {                                // player must clean up themselves, by end of action
         This: (MAX 0 This: Ok)                              // adds a task that can only be handled if 0 barriers left
     }
 
-    class Owed<CLASS Resource> : Barrier {                  // created when payment due, removed by discount cards/
+    CLASS Owed<CLASS Resource> : Barrier {                  // created when payment due, removed by discount cards/
        This:: Accept<Resource>
     }
 
-    class Accept<CLASS Resource> {                          // Created in response to PlayTag or the actions on 4
+    CLASS Accept<CLASS Resource> {                          // Created in response to PlayTag or the actions on 4
         HAS MAX 1 This                                      // special cards. (extend Temporary?)
-        default +This.
+        DEFAULT +This.
     }
 
-    class Pay<CLASS Resource> : Signal {                    // player uses it like `8 Pay<Heat> FROM Heat`
+    CLASS Pay<CLASS Resource> : Signal {                    // player uses it like `8 Pay<Heat> FROM Heat`
         This:: -Owed<Resource>.                             // But also cards can pay in response to signals
     }
 
-    class BuyCard : Signal                                  // used by ResearchPhase, InvGuild, BusNet
+    CLASS BuyCard : Signal                                  // used by ResearchPhase, InvGuild, BusNet
                                                             // triggers Polyphemos, Terralabs
 
-    class PlayTag<CLASS Tag> : Signal                       // triggers Accept<Steel/Dirig/etc> and tag-based discounts
+    CLASS PlayTag<CLASS Tag> : Signal                       // triggers Accept<Steel/Dirig/etc> and tag-based discounts
 
                                                             // used by PlayCardFromHand, ValTrust, EcoEx, ExSponsor,
-    class PlayCard<CLASS CardBack, CLASS CardFront> {       // NewPartner, Merger; triggers EarthCat etc.
+    CLASS PlayCard<CLASS CardBack, CLASS CardFront> {       // NewPartner, Merger; triggers EarthCat etc.
         This:: $handleRequirement(CardFront)                // ?
         This: Owed<Megacredit> / Cost<CardFront>
         This: =0 Barrier: (CardFront FROM CardBack, -This)  // adds task to queue that must eventually be completed

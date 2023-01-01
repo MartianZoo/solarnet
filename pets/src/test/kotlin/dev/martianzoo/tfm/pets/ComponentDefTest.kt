@@ -11,12 +11,12 @@ class ComponentDefTest {
   @Test
   fun body() {
     assertThat(parseComponents("""
-          class Bar : Qux { default +This?
+          CLASS Bar : Qux { DEFAULT +This?
             Foo -> Bar
 
 
             Foo: Bar
-            class Foo
+            CLASS Foo
 
           }
         """.trim())).hasSize(2)
@@ -25,15 +25,15 @@ class ComponentDefTest {
   @Test
   fun series() {
     assertThat(parseComponents("""
-        class Die {
+        CLASS Die {
         }
-        class DieHard {
+        CLASS DieHard {
           // whatever
         }
 
-        class Atomized
+        CLASS Atomized
 
-        class Generation
+        CLASS Generation
 
         """.trim()
         )
@@ -42,16 +42,16 @@ class ComponentDefTest {
 
   @Test fun nesting() {
     val cs = parseComponents("""
-      class Component
+      CLASS Component
 
-      class One
-      class Two: One
-      class Three {
-          class Four
-          class Five: One
-          class Six {
-              class Seven
-              class Eight: One
+      CLASS One
+      CLASS Two: One
+      CLASS Three {
+          CLASS Four
+          CLASS Five: One
+          CLASS Six {
+              CLASS Seven
+              CLASS Eight: One
           }
       }
     """.trimIndent())
@@ -71,32 +71,32 @@ class ComponentDefTest {
 
   @Test fun oneLiner() {
     val cs = parseComponents("""
-      class One { This: That }
+      CLASS One { This: That }
     """)
   }
 
   @Test fun nestedOneLiner() {
     val cs = parseComponents("""
-      class One {
-        class Two { This: That }
-        class Three { This: That }
+      CLASS One {
+        CLASS Two { This: That }
+        CLASS Three { This: That }
       }
     """)
   }
 
   @Test fun withDefaults() {
     val cs = parseComponents("""
-        abstract class Component {
-           default +This!
-           default This<Foo>
+        ABSTRACT CLASS Component {
+           DEFAULT +This!
+           DEFAULT This<Foo>
 
-           class This   // comment
+           CLASS This   // comment
 
 
-           abstract class Phase { // comment
+           ABSTRACT CLASS Phase { // comment
                // comment
 
-               class End
+               CLASS End
            }
         }
     """)

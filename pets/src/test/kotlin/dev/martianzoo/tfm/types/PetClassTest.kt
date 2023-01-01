@@ -19,7 +19,7 @@ class PetClassTest {
   }
 
   @Test fun onethingness() {
-    val loader = loadTypes("class Foo")
+    val loader = loadTypes("CLASS Foo")
     val foo = loader["Foo"]
     assertThat(foo.name).isEqualTo("Foo")
     assertThat(foo.abstract).isFalse()
@@ -29,7 +29,7 @@ class PetClassTest {
   }
 
   @Test fun subclass() {
-    val loader = loadTypes("class Foo", "class Bar : Foo")
+    val loader = loadTypes("CLASS Foo", "CLASS Bar : Foo")
     val bar = loader["Bar"]
     assertThat(bar.directSuperclasses.names()).containsExactly("Foo")
     assertThat(bar.allSuperclasses.names()).containsExactly("$COMPONENT", "Foo", "Bar")
@@ -37,7 +37,7 @@ class PetClassTest {
   }
 
   @Test fun forwardReference() {
-    val loader = loadTypes("class Bar : Foo", "class Foo")
+    val loader = loadTypes("CLASS Bar : Foo", "CLASS Foo")
     val bar = loader["Bar"]
     assertThat(bar.directSuperclasses.names()).containsExactly("Foo")
     assertThat(bar.allSuperclasses.names()).containsExactly("$COMPONENT", "Foo", "Bar")
@@ -46,30 +46,30 @@ class PetClassTest {
 
   @Test fun cycle() {
     val s = """
-      abstract class ${"$COMPONENT"}
-      class Foo : Bar
-      class Bar : Foo
+      ABSTRACT CLASS ${"$COMPONENT"}
+      CLASS Foo : Bar
+      CLASS Bar : Foo
     """
     assertThrows<IllegalArgumentException> { loader(s) }
   }
 
   @Test fun trivialCycle() {
     val s = """
-      abstract class ${"$COMPONENT"}
-      class Foo : Foo
+      ABSTRACT CLASS ${"$COMPONENT"}
+      CLASS Foo : Foo
     """
     assertThrows<IllegalArgumentException> { loader(s) }
   }
 
   @Test fun dependency() {
-    val loader = loadTypes("class Foo", "class Bar<Foo>")
+    val loader = loadTypes("CLASS Foo", "CLASS Bar<Foo>")
     val bar = loader["Bar"]
     assertThat(bar.directSuperclasses.names()).containsExactly("$COMPONENT")
     assertThat(bar.directDependencyKeys).containsExactly(DependencyKey(bar, 0))
   }
 
   @Test fun inheritedDependency() {
-    val loader = loadTypes("class Foo", "class Bar<Foo>", "class Qux : Bar")
+    val loader = loadTypes("CLASS Foo", "CLASS Bar<Foo>", "CLASS Qux : Bar")
     val bar = loader["Bar"]
     val qux = loader["Qux"]
     assertThat(qux.directSuperclasses.names()).containsExactly("Bar")
@@ -80,7 +80,7 @@ class PetClassTest {
   }
 
   @Test fun restatedDependency() {
-    val loader = loadTypes("class Foo", "class Bar<Foo>", "class Qux : Bar<Foo>")
+    val loader = loadTypes("CLASS Foo", "CLASS Bar<Foo>", "CLASS Qux : Bar<Foo>")
     val bar = loader["Bar"]
     val qux = loader["Qux"]
     assertThat(qux.directSuperclasses.names()).containsExactly("Bar")
@@ -91,7 +91,7 @@ class PetClassTest {
   }
 
   @Test fun addedDependency() {
-    val loader = loadTypes("class Foo", "class Bar<Foo>", "class Baz", "class Qux<Baz> : Bar<Foo>")
+    val loader = loadTypes("CLASS Foo", "CLASS Bar<Foo>", "CLASS Baz", "CLASS Qux<Baz> : Bar<Foo>")
     val bar = loader["Bar"]
     val qux = loader["Qux"]
 
@@ -100,7 +100,7 @@ class PetClassTest {
   }
 
   @Test fun refinedDependency() {
-    val loader = loadTypes("class Foo", "class Bar<Foo>", "class Baz : Foo", "class Qux : Bar<Baz>")
+    val loader = loadTypes("CLASS Foo", "CLASS Bar<Foo>", "CLASS Baz : Foo", "CLASS Qux : Bar<Baz>")
     val bar = loader["Bar"]
     val qux = loader["Qux"]
     assertThat(qux.directSuperclasses.names()).containsExactly("Bar")
@@ -111,22 +111,22 @@ class PetClassTest {
   }
 
   @Test fun cycleDependency() {
-    val loader = loadTypes("class Foo<Bar>", "class Bar<Foo>")
+    val loader = loadTypes("CLASS Foo<Bar>", "CLASS Bar<Foo>")
     val foo = loader["Foo"]
     val bar = loader["Bar"]
   }
 
   @Test fun depsAndSpecs() {
     val table = loadTypes(
-      "abstract class SuperFoo",
-      "abstract class Foo : SuperFoo",
-      "class SubFoo : Foo",
+      "ABSTRACT CLASS SuperFoo",
+      "ABSTRACT CLASS Foo : SuperFoo",
+      "CLASS SubFoo : Foo",
 
-      "abstract class SuperBar<SuperFoo>",
-      "class Bar : SuperBar<Foo>",
-      "class SubBar : Bar<SubFoo>",
+      "ABSTRACT CLASS SuperBar<SuperFoo>",
+      "CLASS Bar : SuperBar<Foo>",
+      "CLASS SubBar : Bar<SubFoo>",
 
-      "class Qux")
+      "CLASS Qux")
 
     // abstract: SuperFoo, SuperBar, Foo
     val supSup = table.resolve("SuperBar<SuperFoo>")
@@ -182,7 +182,7 @@ class PetClassTest {
       PetClassLoader(parseComponents(petsText)).also { it.loadAll() }
 
   fun loadTypes(vararg decl: String): PetClassTable {
-    return loader("abstract class $COMPONENT\n" + decl.joinToString("") { "$it\n" })
+    return loader("ABSTRACT CLASS $COMPONENT\n" + decl.joinToString("") { "$it\n" })
   }
 
   private fun Iterable<PetClass>.names() = map { it.name }

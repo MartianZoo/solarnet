@@ -105,10 +105,9 @@ object PetsParser {
   private val _then = word("THEN")
 
   // component defs
-  private val _abstract = word("abstract")
-  private val _class = word("class")
-  private val _CLASS = word("CLASS")
-  private val _default = word("default")
+  private val _abstract = word("ABSTRACT")
+  private val _class = word("CLASS")
+  private val _default = word("DEFAULT")
 
   // scripts
   private val _become = word("BECOME")
@@ -360,7 +359,7 @@ object PetsParser {
 
   object Components { // -------------------------------------------------------
     private val isAbstract = optional(_abstract) and skip(_class) map { it != null }
-    private val dependency = optional(_CLASS) and Types.typeExpression map { (classDep, type) ->
+    private val dependency = optional(_class) and Types.typeExpression map { (classDep, type) ->
       Dependency(type, classDep != null)
     }
     private val dependencies = optionalList(
