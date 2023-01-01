@@ -1,8 +1,8 @@
 package dev.martianzoo.tfm.pets.ast
 
-import dev.martianzoo.tfm.pets.SpecialComponent.MEGACREDIT
+import dev.martianzoo.tfm.pets.SpecialComponent.DEFAULT
 
-data class QuantifiedExpression(val type: TypeExpression = DEFAULT_TYPE, val scalar: Int = 1): PetsNode() {
+data class QuantifiedExpression(val type: TypeExpression = DEFAULT.type, val scalar: Int = 1): PetsNode() {
   init { require(scalar >= 0) }
   override val kind = QuantifiedExpression::class.simpleName!!
 
@@ -12,10 +12,8 @@ data class QuantifiedExpression(val type: TypeExpression = DEFAULT_TYPE, val sca
 
   fun toString(forceScalar: Boolean = false, forceType: Boolean = false) =
       when {
-        !forceType && type == DEFAULT_TYPE -> "$scalar"
+        !forceType && type == DEFAULT.type -> "$scalar"
         !forceScalar && scalar == 1 -> "$type"
         else -> "$scalar $type"
       }
 }
-
-val DEFAULT_TYPE = MEGACREDIT.type

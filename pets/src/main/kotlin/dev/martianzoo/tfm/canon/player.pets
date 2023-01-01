@@ -74,7 +74,11 @@ abstract class OwnedTile : Owned, Tile {
 
 abstract class Resource : Owned {
     abstract class StandardResource {
-        class Megacredit, Steel, Titanium, Plant, Heat
+        abstract class Default                              // Things like `Foo: 5` become `Foo: Default`
+        class Megacredit : Default
+
+        class Steel, Titanium, Plant, Heat
+
         class Energy { ProductionPhase:: Heat FROM This }
     }
 

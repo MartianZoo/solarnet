@@ -8,12 +8,11 @@ enum class SpecialComponent {
   COMPONENT,
   CLASS,
   THIS,
+  DEFAULT,
   OK,
 
   PRODUCTION,
   STANDARD_RESOURCE,
-  MEGACREDIT,
-  TILE,
   USE_ACTION,
 
   END,

@@ -1,3 +1,8 @@
+// These files contain definitions of classes. Not all of them will be defined during any actual
+// game; that depends on how the game was configured. However, if a class is defined then it forces
+// every other class its definition refers to to be defined as well (with the possible exception of
+// effect *triggers*, since we can reason tht those triggers would simply never happen anyway.
+
 // This file has game stuff that isn't player-specific
 
 // GLOBAL PARAMETERS ---------------------------------------
@@ -26,8 +31,7 @@ abstract class GlobalParameter {                            // TODO must be adde
     }
 
     class OceanTile : Tile<MarsArea> {
-        HAS MAX 9 OceanTile                                 // don't specialize
-
+        HAS MAX 9 OceanTile
         default +This<WaterArea>
         ForwardAdjacency<This, Tile>: 2
     }
@@ -43,9 +47,7 @@ abstract class MarsMap {
 }
 
 abstract class Area(HAS MAX 1 Tile) {
-    HAS =1 This
-
-    abstract class RemoteArea(HAS MAX 0 Border)
+    HAS =1 This                                             // singleton: if the *type* exists, the instance does too
 
     abstract class MarsArea {                               // TODO <MarsMap>?
         abstract class LandArea {
@@ -54,6 +56,8 @@ abstract class Area(HAS MAX 1 Tile) {
         abstract class WaterArea
         abstract class NoctisArea
     }
+
+    abstract class RemoteArea(HAS MAX 0 Border)
 }
 
 abstract class Tile<Area>
@@ -66,14 +70,12 @@ class Border<Area, MarsArea> {                              // early on will cre
 
 class Neighbor<Tile, MarsArea> {
     HAS MAX 1 This
-
     Tile<MarsArea>:: ForwardAdjacency<Tile, Tile<MarsArea>>
     Tile<MarsArea>:: BackwardAdjacency<Tile<MarsArea>, Tile>
 }
 
 abstract class Adjacency<Tile, Tile> {
     HAS MAX 1 This
-
     class ForwardAdjacency, BackwardAdjacency
 }
 
@@ -93,7 +95,7 @@ abstract class HasActions {
         class ConvertHeat        { 8 Heat -> TemperatureStep }
 
         class SellPatents        { 1 ProjectCard -> 1 }     // Technically a standard project, but that makes Credicor
-    }                                                       // and Std Tech annoying for no benefit. TODO "X"
+    }                                                       // and Std Tech annoying for no real benefit. TODO "X"
 
     abstract class StandardProject {
         HAS =1 This
@@ -110,7 +112,7 @@ abstract class HasActions {
 
 // WORKFLOW ------------------------------------------------
 
-class Generation { HAS 1 This }
+class Generation { HAS 1 This }                             // we're always in at least gen 1
 
 abstract class Generational {                               // things that disappear between gens
     Generation:: -This                                      // <-- and look, there they go

@@ -3,7 +3,6 @@ package dev.martianzoo.tfm.data
 import dev.martianzoo.tfm.pets.ComponentDef
 import dev.martianzoo.tfm.pets.PetsParser.parse
 import dev.martianzoo.tfm.pets.SpecialComponent.THIS
-import dev.martianzoo.tfm.pets.SpecialComponent.TILE
 import dev.martianzoo.tfm.pets.ast.Effect
 import dev.martianzoo.tfm.pets.ast.Effect.Trigger.OnGain
 import dev.martianzoo.tfm.pets.ast.Instruction
@@ -56,4 +55,4 @@ data class MarsAreaDefinition(
   fun componentName() = "${mapName}${row}_$column"
 }
 
-val trigger = OnGain(TypeExpression(TILE.toString(), THIS.type))
+val trigger = OnGain(TypeExpression("Tile", THIS.type))

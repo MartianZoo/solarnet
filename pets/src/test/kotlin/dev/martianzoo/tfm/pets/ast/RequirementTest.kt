@@ -97,13 +97,13 @@ class RequirementTest {
     assertThat(Min(QuantifiedExpression(te("Foo"), 1)).toString()).isEqualTo("Foo")
     assertThat(Min(QuantifiedExpression(te("Foo"), 3)).toString()).isEqualTo("3 Foo")
     assertThat(Min(QuantifiedExpression(scalar = 3)).toString()).isEqualTo("3")
-    assertThat(Min(QuantifiedExpression(te("Megacredit"), scalar = 3)).toString()).isEqualTo("3")
-    assertThat(Min(QuantifiedExpression(te("Megacredit"))).toString()).isEqualTo("1")
+    assertThat(Min(QuantifiedExpression(te("Default"), scalar = 3)).toString()).isEqualTo("3")
+    assertThat(Min(QuantifiedExpression(te("Default"))).toString()).isEqualTo("1")
     assertThat(Max(QuantifiedExpression(te("Foo"), 0)).toString()).isEqualTo("MAX 0 Foo")
     assertThat(Max(QuantifiedExpression(te("Foo"))).toString()).isEqualTo("MAX 1 Foo")
     assertThat(Max(QuantifiedExpression(te("Foo"), 1)).toString()).isEqualTo("MAX 1 Foo")
     assertThat(Max(QuantifiedExpression(te("Foo"), 3)).toString()).isEqualTo("MAX 3 Foo")
-    assertThat(Max(QuantifiedExpression(scalar = 3)).toString()).isEqualTo("MAX 3 Megacredit")
+    assertThat(Max(QuantifiedExpression(scalar = 3)).toString()).isEqualTo("MAX 3 Default")
   }
 
   private fun testRoundTrip(start: String, end: String = start) =
@@ -112,8 +112,8 @@ class RequirementTest {
   @Test
   fun roundTrips() {
     testRoundTrip("1", "1")
-    testRoundTrip("Megacredit", "1")
-    testRoundTrip("1 Megacredit", "1")
+    testRoundTrip("Default", "1")
+    testRoundTrip("1 Default", "1")
     testRoundTrip("Plant")
     testRoundTrip("1 Plant", "Plant")
     testRoundTrip("3 Plant")
@@ -179,8 +179,8 @@ class RequirementTest {
   @Test fun evaluation() {
     evalRequirement("Foo").isFalse()
     evalRequirement("11 Foo").isFalse()
-    evalRequirement("10").isTrue()
-    evalRequirement("11").isFalse()
+    evalRequirement("10 Megacredit").isTrue()
+    evalRequirement("11 Megacredit").isFalse()
     evalRequirement("Foo<Bar>").isTrue()
     evalRequirement("8 Foo<Bar>").isTrue()
     evalRequirement("9 Foo<Bar>").isFalse()
@@ -194,8 +194,8 @@ class RequirementTest {
     evalRequirement("=8 Foo<Bar>").isTrue()
     evalRequirement("=7 Foo<Bar>").isFalse()
 
-    evalRequirement("10, Foo<Bar>, 8 Foo<Bar>, MAX 0 Foo, MAX 8 Foo<Bar>, =0 Foo, =8 Foo<Bar>").isTrue()
-    evalRequirement("10, Foo<Bar>, 8 Foo<Bar>, MAX 0 Foo, MAX 8 Foo<Bar>, =1 Foo, =8 Foo<Bar>").isFalse()
+    evalRequirement("10 Megacredit, Foo<Bar>, 8 Foo<Bar>, MAX 0 Foo, MAX 8 Foo<Bar>, =0 Foo, =8 Foo<Bar>").isTrue()
+    evalRequirement("10 Megacredit, Foo<Bar>, 8 Foo<Bar>, MAX 0 Foo, MAX 8 Foo<Bar>, =1 Foo, =8 Foo<Bar>").isFalse()
 
     evalRequirement("Foo OR 11 Foo OR 11 OR 9 Foo<Bar> OR MAX 7 Foo<Bar> OR =1 Foo OR =7 Foo<Bar>").isFalse()
     evalRequirement("Foo OR 11 Foo OR 11 OR 9 Foo<Bar> OR MAX 7 Foo<Bar> OR =0 Foo OR =7 Foo<Bar>").isTrue()

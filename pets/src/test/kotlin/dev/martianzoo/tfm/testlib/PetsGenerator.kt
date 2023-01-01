@@ -3,7 +3,7 @@ package dev.martianzoo.tfm.testlib
 import com.google.common.truth.Truth.assertWithMessage
 import dev.martianzoo.tfm.pets.PetsException
 import dev.martianzoo.tfm.pets.PetsParser
-import dev.martianzoo.tfm.pets.SpecialComponent.MEGACREDIT
+import dev.martianzoo.tfm.pets.SpecialComponent.DEFAULT
 import dev.martianzoo.tfm.pets.ast.Action
 import dev.martianzoo.tfm.pets.ast.Action.Cost
 import dev.martianzoo.tfm.pets.ast.Effect
@@ -51,7 +51,7 @@ class PetsGenerator(scaling: (Int) -> Double)
             refinement()
         )
       }
-      register { QuantifiedExpression(choose(1 to MEGACREDIT.type, 3 to recurse()), choose(0, 1, 1, 1, 5, 11)) }
+      register { QuantifiedExpression(choose(1 to DEFAULT.type, 3 to recurse()), choose(0, 1, 1, 1, 5, 11)) }
 
       val requirementTypes = (multiset(
           9 to Min::class,
