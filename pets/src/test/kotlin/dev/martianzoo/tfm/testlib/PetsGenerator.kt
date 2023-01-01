@@ -99,7 +99,7 @@ class PetsGenerator(scaling: (Int) -> Double)
         val one: TypeExpression = recurse()
         val two: TypeExpression = recurse()
 
-        fun getTypes(type: TypeExpression): List<TypeExpression> = type.specializations.flatMap { getTypes(it) } + type
+        fun getTypes(type: TypeExpression): List<TypeExpression> = type.specs.flatMap { getTypes(it) } + type
 
         val oneTypes = getTypes(one)
         val twoTypes = getTypes(two)
@@ -124,11 +124,11 @@ class PetsGenerator(scaling: (Int) -> Double)
           if (type == target) {
             return SimpleFrom(if (b) inject else target, if (b) target else inject)
           }
-          val specs = type.specializations.map { convert(it) }
+          val specs = type.specs.map { convert(it) }
           return if (specs.all { it is TypeInFrom }) {
             TypeInFrom(type)
           } else {
-            ComplexFrom(type.className, specs, type.requirement)
+            ComplexFrom(type.className, specs, type.refinement)
           }
         }
         convert(into)

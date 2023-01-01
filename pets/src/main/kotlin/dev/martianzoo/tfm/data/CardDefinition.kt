@@ -150,9 +150,10 @@ data class CardDefinition(
     }
   }
 
+  // TODO ClassName
   val tags: List<TypeExpression> by lazy { tagsText.map(::te) }
 
-  val resourceType: TypeExpression? by lazy { resourceTypeText?.let(::te) }
+  val resourceType = resourceTypeText?.let(::te)
 
   val immediateRaw: Instruction? by lazy {
     val set = immediateText.map { parse<Instruction>(it) }.toSetStrict()
@@ -183,10 +184,10 @@ data class CardDefinition(
   override val toComponentDef by lazy {
     val supertypes = mutableSetOf<TypeExpression>()
 
-    if (projectKind != null) supertypes.add(te(projectKind.type))
-    if (actionsRaw.isNotEmpty()) supertypes.add(te("ActionCard"))
-    if (resourceType != null) supertypes.add(TypeExpression("Holder", listOf(resourceType!!)))
-    if (supertypes.isEmpty()) supertypes.add(te("CardFront"))
+    if (projectKind != null)   supertypes.add(te(projectKind.type))
+    if (!actionsRaw.isEmpty()) supertypes.add(te("ActionCard"))
+    if (resourceType != null)  supertypes.add(te("Holder", resourceType))
+    if (supertypes.isEmpty())  supertypes.add(te("CardFront"))
 
     ComponentDef(
         className = "Card$id",

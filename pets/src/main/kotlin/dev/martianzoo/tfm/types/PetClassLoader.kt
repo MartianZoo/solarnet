@@ -50,8 +50,8 @@ class PetClassLoader(val definitions: Map<String, ComponentDef>) : PetClassTable
   override fun resolveWithDefaults(expression: TypeExpression) =
       resolve(applyDefaultsIn(expression, this))
 
-  override fun resolve(expression: TypeExpression): PetType {
-    val specs: List<PetType> = expression.specializations.map { resolve(it) }
+  override fun resolve(expression: TypeExpression): PetType { // TODOTODO with refinement!
+    val specs: List<PetType> = expression.specs.map { resolve(it) }
     val petClass = load(expression.className)
     try {
       return petClass.baseType.specialize(specs)

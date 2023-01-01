@@ -23,7 +23,7 @@ sealed class Instruction : PetsNode() {
 
     override fun times(value: Int) = copy(qe = qe.copy(scalar = qe.scalar * value))
     // TODO intensity
-    override fun execute(game: GameApi) = game.applyChange(qe.scalar, gaining = qe.type)
+    override fun execute(game: GameApi) = game.applyChange(qe.scalar, gaining = qe.expression)
 
     override val children = setOf(qe)
     override fun toString() = "$qe${intensity?.symbol ?: ""}"
@@ -37,7 +37,7 @@ sealed class Instruction : PetsNode() {
     }
 
     override fun times(value: Int) = copy(qe = qe.copy(scalar = qe.scalar * value))
-    override fun execute(game: GameApi) = game.applyChange(qe.scalar, removing = qe.type)
+    override fun execute(game: GameApi) = game.applyChange(qe.scalar, removing = qe.expression)
 
     override val children = setOf(qe)
     override fun toString() = "-$qe${intensity?.symbol ?: ""}"
@@ -58,7 +58,7 @@ sealed class Instruction : PetsNode() {
     override fun times(value: Int) = copy(instruction = instruction * value)
 
     override fun execute(game: GameApi) {
-      val measurement = game.count(qe.type) / qe.scalar
+      val measurement = game.count(qe.expression) / qe.scalar
       if (measurement > 0) {
         (instruction * measurement).execute(game)
       }

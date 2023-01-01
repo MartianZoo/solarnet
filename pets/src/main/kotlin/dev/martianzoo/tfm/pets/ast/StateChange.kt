@@ -56,6 +56,7 @@ data class StateChange(
       val change: Int) {
     init {
       require(change > 0)
+      require(agent.isTypeOnly())
     }
   }
 }

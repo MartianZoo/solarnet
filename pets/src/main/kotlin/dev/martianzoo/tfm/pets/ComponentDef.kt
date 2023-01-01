@@ -1,7 +1,6 @@
 package dev.martianzoo.tfm.pets
 
 import dev.martianzoo.tfm.pets.ComponentDef.OneDefault
-import dev.martianzoo.tfm.pets.SpecialComponent.COMPONENT
 import dev.martianzoo.tfm.pets.SpecialComponent.THIS
 import dev.martianzoo.tfm.pets.ast.Effect
 import dev.martianzoo.tfm.pets.ast.Instruction.Intensity
@@ -12,26 +11,17 @@ import dev.martianzoo.tfm.pets.ast.TypeExpression
  * The declaration of a component class, such as GreeneryTile. Models the declaration textually as
  * it was provided. DIRECT INFO ONLY; stuff is inherited among *loaded* classes (PetClasses).
  */
-data class ComponentDef(
-    val className: String, // TODO rename to className
-    val abstract: Boolean = false,
-    val supertypes: Set<TypeExpression> = setOf(),
+data class ComponentDef( // TODO ComponentDecl?
+    val className: String,
+    val abstract: Boolean,
     val dependencies: List<Dependency> = listOf(),
-    val invariant: Requirement? = null,
-    val effectsRaw: () -> Set<Effect> = { setOf() },
-    val rawDefaults: RawDefaults = RawDefaults()
+    val supertypes: Set<TypeExpression> = setOf(),
+    val topInvariant: Requirement? = null,
+    val otherInvariants: Set<Requirement> = setOf(),
+    val rawDefaults: RawDefaults = RawDefaults(), // TODO needed? or pull instead from intf?
+    val effectsRaw: () -> Set<Effect> = { setOf() }
 ) {
-  init {
-    if (className == "$COMPONENT") {
-      require(supertypes.isEmpty())
-      require(dependencies.isEmpty())
-      require(invariant == null)
-    } else {
-      // require(supertypes.isNotEmpty()) // TODO
-    }
-  }
-
-  // Canonicalize -- *currently* only spelling out QEs
+  // TODO canonicalize??
   val effects by lazy { effectsRaw() }
 
   val superclassNames = supertypes.map { it.className }
@@ -42,9 +32,11 @@ data class ComponentDef(
       val allDefault: OneDefault? = null,
       val gainDefault: OneDefault? = null,
       val gainIntensity: Intensity? = null)
+
+  // TODO just use TypeExpression...
   data class OneDefault(val specializations: List<TypeExpression>, val requirement: Requirement?)
 }
 
 fun oneDefault(te: TypeExpression) =
-    OneDefault(te.specializations, te.requirement)
+    OneDefault(te.specs, te.refinement)
         .also { require(te.className == "$THIS") }

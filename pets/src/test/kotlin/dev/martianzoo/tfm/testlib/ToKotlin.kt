@@ -34,19 +34,19 @@ object ToKotlin {
         null -> "null"
 
         is TypeExpression -> "te(\"$className\"" +
-            specializations.joinOrEmpty(", ", prefix=", listOf(", suffix=")") { p2k(it) } +
-            "${requirement.pre(", " + if (specializations.isEmpty()) "requirement=" else "")})"
-        is QuantifiedExpression -> "QuantifiedExpression(${p2k(type)}${scalar.pre(", ")})"
+            specs.joinOrEmpty(", ", prefix=", listOf(", suffix=")") { p2k(it) } +
+            "${refinement.pre(", " + if (specs.isEmpty()) "requirement=" else "")})"
+        is QuantifiedExpression -> "QuantifiedExpression(${p2k(expression)}${scalar.pre(", ")})"
 
-        is Requirement.Min -> "Min(${p2k(qe.type)}${qe.scalar.pre(", ")})"
-        is Requirement.Max -> "Max(${p2k(qe.type)}, ${qe.scalar})"
-        is Requirement.Exact -> "Exact(${p2k(qe.type)}, ${qe.scalar})"
+        is Requirement.Min -> "Min(${p2k(qe.expression)}${qe.scalar.pre(", ")})"
+        is Requirement.Max -> "Max(${p2k(qe.expression)}, ${qe.scalar})"
+        is Requirement.Exact -> "Exact(${p2k(qe.expression)}, ${qe.scalar})"
         is Requirement.Or -> "Requirement.Or(${requirements.join()})"
         is Requirement.And -> "Requirement.And(${requirements.join()})"
         is Requirement.Prod -> "Requirement.Prod(${p2k(requirement)})"
 
-        is Gain -> "Gain(${p2k(qe.type)}${qe.scalar.pre(", ")}${intensity.pre(if (qe.scalar != null) ", " else ", intensity=")})"
-        is Remove -> "Remove(${p2k(qe.type)}${qe.scalar.pre(", ")}${intensity.pre(", ")})"
+        is Gain -> "Gain(${p2k(qe.expression)}${qe.scalar.pre(", ")}${intensity.pre(if (qe.scalar != null) ", " else ", intensity=")})"
+        is Remove -> "Remove(${p2k(qe.expression)}${qe.scalar.pre(", ")}${intensity.pre(", ")})"
         is Instruction.Per -> "Instruction.Per(${p2k(instruction)}, ${p2k(qe)})"
         is Gated -> "Gated(${p2k(requirement)}, ${p2k(instruction)})"
         is Transmute -> "Transmute(${p2k(fromExpression)}${scalar.pre(", ")}${intensity.pre(", ")})"
@@ -64,7 +64,7 @@ object ToKotlin {
         is Trigger.Prod -> "Trigger.Prod(${p2k(trigger)})"
         is Effect -> "Effect(${p2k(trigger)}, ${p2k(instruction)})"
 
-        is Cost.Spend -> "Spend(${p2k(qe.type)}${qe.scalar.pre(", ")}"
+        is Cost.Spend -> "Spend(${p2k(qe.expression)}${qe.scalar.pre(", ")}"
         is Cost.Per -> "Cost.Per(${p2k(cost)}, ${p2k(qe)})"
         is Cost.Or -> "Cost.Or(${costs.join()})"
         is Cost.Multi -> "Cost.Multi(${costs.join()})"

@@ -31,7 +31,7 @@ private fun instructionFromAction(lhs: Instruction?, rhs: Instruction): Instruct
 
   // Handle the Ants case (TODO intensity?)
   if (lhs is Remove && rhs is Gain && lhs.qe.scalar == rhs.qe.scalar) {
-    return Transmute(SimpleFrom(rhs.qe.type, lhs.qe.type))
+    return Transmute(SimpleFrom(rhs.qe.expression, lhs.qe.expression))
   }
 
   // Nested THENs are just silly
@@ -53,6 +53,7 @@ internal fun immediateToEffect(immediate: Instruction): Effect {
 
 // had to use an ungrammatical name
 internal fun <P : PetsNode> resolveSpecialThisType(node: P, resolveTo: TypeExpression): P {
+  require(resolveTo.isTypeOnly()) // I think?
   return replaceTypesIn(node, THIS.type, resolveTo).also {
     println("Resolved `This` to `$resolveTo` in ${node.kind}: $it")
   }
@@ -88,7 +89,7 @@ private class Deprodifier(val producible: Set<String>) : AstTransformer() {
     }
 
     inProd && node is TypeExpression && node.className in producible -> PRODUCTION.type.copy(
-        specializations = listOf(node)
+        specs = listOf(node)
     )
 
     else -> super.transform(node)

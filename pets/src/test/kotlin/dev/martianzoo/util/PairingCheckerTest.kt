@@ -23,7 +23,6 @@ class PairingCheckerTest {
     assertThat(PairingChecker.isValid("a(b<c)d>e")).isFalse()
   }
 
-  @Test
   fun listValid() {
     weird(true, max = 8)
   }

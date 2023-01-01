@@ -354,7 +354,7 @@ object PetsParser {
   private data class Signature(
       val className: String,
       val dependencies: List<Dependency>,
-      val refinement: Requirement?,
+      val topInvariant: Requirement?,
       val supertypes: List<TypeExpression>
   )
 
@@ -461,18 +461,14 @@ object PetsParser {
           gainDefault = defs.firstNotNullOfOrNull { it.gainDefault },
           gainIntensity = defs.firstNotNullOfOrNull { it.gainIntensity },
       )
-      val mergedInvs = when (invs.size) {
-        0 -> null
-        1 -> invs.first()
-        else -> Requirement.And(invs.toList())
-      }
 
       val comp = ComponentDef(
           className = sig.className,
           abstract = abst,
           supertypes = sig.supertypes.toSetStrict(),
           dependencies = sig.dependencies,
-          invariant = mergedInvs,
+          topInvariant = sig.topInvariant,
+          otherInvariants = invs,
           effectsRaw = { effs + actionsToEffects(acts) },
           rawDefaults = mergedDefaults
       )

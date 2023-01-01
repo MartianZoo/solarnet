@@ -69,6 +69,6 @@ class TypeExpressionTest {
 
   @Test fun classAlone() {
     assertThrows<RuntimeException> { TypeExpression("Class", TypeExpression("Foo", te("Bar"))) }
-    assertThrows<RuntimeException> { TypeExpression("Class", TypeExpression("Foo", requirement = Min(QuantifiedExpression(te("Heat"))))) }
+    assertThrows<RuntimeException> { TypeExpression("Class", TypeExpression("Foo", refinement = Min(QuantifiedExpression(te("Heat"))))) }
   }
 }

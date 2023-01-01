@@ -9,7 +9,7 @@ data class DependencyMap(val keyToType: Map<DependencyKey, DependencyTarget>) {
 
   init {
     keyToType.forEach {
-      require(it.key.classDep == it.value.isClassOnly) { it.key }
+      require(it.key.classDep == it.value.classOnly) { it.key }
     }
   }
   val abstract = keyToType.values.any { it.abstract }

@@ -19,6 +19,8 @@ class PetClass(val def: ComponentDef, val loader: PetClassLoader): DependencyTar
 
 // HIERARCHY
 
+  // TODO collapse invariants right?
+
   val directSupertypes: Set<PetType> by lazy {
     def.supertypes.map { loader.resolve/*WithDefaults*/(it) }.toSet()
   }
@@ -118,7 +120,8 @@ class PetClass(val def: ComponentDef, val loader: PetClassLoader): DependencyTar
   }
 
   override fun toTypeExpressionFull() = te(name)
-  override val isClassOnly = true
+  override val typeOnly = true
+  override val classOnly = true
 
   // OTHER
 

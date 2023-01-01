@@ -46,5 +46,7 @@ data class PetType(
     return TypeExpression(petClass.name, map)
   }
 
-  override val isClassOnly = false
+  override val typeOnly: Boolean by lazy { TODO() }
+
+  override val classOnly = false
 }

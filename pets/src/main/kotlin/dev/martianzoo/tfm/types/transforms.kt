@@ -25,7 +25,7 @@ private class Defaulter(val table: PetClassTable) : AstTransformer() {
       }
 
       is Gain -> {
-        val statedTypeExpr = node.qe.type
+        val statedTypeExpr = node.qe.expression
         val petClass = table[statedTypeExpr.className]
         val defaults = petClass.defaults
         val newTypeExpr = applyDefaultSpecs(
@@ -35,7 +35,7 @@ private class Defaulter(val table: PetClassTable) : AstTransformer() {
             defaults.gainReqs
         )
         node.copy(
-            node.qe.copy(type = transform(newTypeExpr)),
+            node.qe.copy(expression = transform(newTypeExpr)),
             node.intensity ?: defaults.gainIntensity
         )
       }
@@ -52,7 +52,7 @@ private class Defaulter(val table: PetClassTable) : AstTransformer() {
       defaultDeps: DependencyMap,
       reqs: Requirement?
   ): TypeExpression {
-    val explicitStatedDeps = petClass.resolveSpecializations(original.specializations)
+    val explicitStatedDeps = petClass.resolveSpecializations(original.specs)
     val mergedDeps = explicitStatedDeps.overlayOn(defaultDeps)
 
     //// TODO: a little weird that we're going backwards here?

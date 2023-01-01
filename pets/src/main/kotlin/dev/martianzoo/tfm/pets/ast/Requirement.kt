@@ -9,7 +9,7 @@ sealed class Requirement : PetsNode() {
     override fun toString() = "$qe"
     override val children = setOf(qe)
 
-    override fun evaluate(game: GameApi) = game.count(qe.type) >= qe.scalar
+    override fun evaluate(game: GameApi) = game.count(qe.expression) >= qe.scalar
   }
 
   data class Max(val qe: QuantifiedExpression) : Requirement() {
@@ -17,7 +17,7 @@ sealed class Requirement : PetsNode() {
     override fun toString() = "MAX ${qe.toString(true, true)}" // no "MAX 5" or "MAX Heat"
     override val children = setOf(qe)
 
-    override fun evaluate(game: GameApi) = game.count(qe.type) <= qe.scalar
+    override fun evaluate(game: GameApi) = game.count(qe.expression) <= qe.scalar
   }
 
   data class Exact(val qe: QuantifiedExpression) : Requirement() {
@@ -25,7 +25,7 @@ sealed class Requirement : PetsNode() {
     override fun toString() = "=${qe.toString(true, true)}" // no "=5" or "=Heat"
     override val children = setOf(qe)
 
-    override fun evaluate(game: GameApi) = game.count(qe.type) == qe.scalar
+    override fun evaluate(game: GameApi) = game.count(qe.expression) == qe.scalar
   }
 
   data class Or(val requirements: Set<Requirement>) : Requirement() {

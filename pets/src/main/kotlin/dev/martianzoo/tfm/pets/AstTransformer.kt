@@ -22,8 +22,8 @@ open class AstTransformer {
     if (node == null) return null as P // TODO how'm I even getting away with this
     return node.run {
       when (this) {
-        is TypeExpression       -> copy(className, x(specializations), x(requirement))
-        is QuantifiedExpression -> copy(x(type), scalar)
+        is TypeExpression       -> copy(className, x(specs), x(refinement))
+        is QuantifiedExpression -> copy(x(expression), scalar)
 
         is Requirement.Min   -> copy(x(qe))
         is Requirement.Max   -> copy(x(qe))

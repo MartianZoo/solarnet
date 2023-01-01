@@ -7,7 +7,7 @@ import dev.martianzoo.tfm.pets.ast.TypeExpression
 
 data class Defaults(
     val allDeps: DependencyMap = DependencyMap(),
-    val allReqs: Requirement? = null,
+    val allReqs: Requirement? = null,  // TODO get rid of this!
     val gainDeps: DependencyMap = DependencyMap(),
     val gainReqs: Requirement? = null,
     val gainIntensity: Intensity? = null
