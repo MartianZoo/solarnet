@@ -29,7 +29,7 @@ abstract class GlobalParameter {                            // TODO must be adde
         HAS MAX 9 OceanTile                                 // don't specialize
 
         default +This<WaterArea>
-        Adjacency<This, Tile>: 2
+        ForwardAdjacency<This, Tile>: 2
     }
 }
 
@@ -45,7 +45,8 @@ abstract class MarsMap {
 abstract class Area(HAS MAX 1 Tile) {
     HAS =1 This
 
-    abstract class RemoteArea
+    abstract class RemoteArea(HAS MAX 0 Border)
+
     abstract class MarsArea {                               // TODO <MarsMap>?
         abstract class LandArea {
             abstract class VolcanicArea
@@ -56,18 +57,24 @@ abstract class Area(HAS MAX 1 Tile) {
 }
 
 abstract class Tile<Area>
-
-class Border<MarsArea, MarsArea> {
-    HAS MAX 1 This
+                                                            // TODO figure out how to not need this
+class Border<Area, MarsArea> {                              // early on will create 3-6 of these for each MarsArea
+    HAS MAX 1 This                                          // listing that one first. So each border will actually
+                                                            // be here twice, once in each direction
+    Tile<Area>: Neighbor<Tile<Area>, MarsArea>              // TODO BRUTAL HACK BRUTAL HACK
 }
 
 class Neighbor<Tile, MarsArea> {
     HAS MAX 1 This
-    Tile<MarsArea>: Adjacency<Tile, Tile<MarsArea>>         // TODO need trigger-specialization (perhaps `It`??)
+
+    Tile<MarsArea>:: ForwardAdjacency<Tile, Tile<MarsArea>>
+    Tile<MarsArea>:: BackwardAdjacency<Tile<MarsArea>, Tile>
 }
 
-class Adjacency<Tile, Tile> {
+abstract class Adjacency<Tile, Tile> {
     HAS MAX 1 This
+
+    class ForwardAdjacency, BackwardAdjacency
 }
 
 class Row<MarsArea>                                         // after creating Hellas_5_x then create 5 Row<Hellas_5_x>

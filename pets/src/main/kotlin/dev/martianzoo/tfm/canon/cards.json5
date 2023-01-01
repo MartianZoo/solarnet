@@ -53,8 +53,8 @@
       "immediate": [ "40" ],
       "actions": [ "3 -> HasRaisedTR: TerraformRating" ],
       "components": [
-        "class HasRaisedTR(HAS MAX 1 This) : Owned, Generational",
-        "class TrWatcher(HAS =1 This) : Owned { TerraformRating: HasRaisedTR. }",
+        "class HasRaisedTR : Owned, Generational { HAS MAX 1 This }",
+        "class TrWatcher : Owned { HAS =1 This; TerraformRating: HasRaisedTR. }",
       ]
     },
 
@@ -548,7 +548,7 @@
       "immediate": [ "PROD[-2 Energy, 5], Tile008" ],
       "effects": [
         // The points attach to the card, not the tile
-        "End: VictoryPoint / Adjacency(HAS Tile008, OceanTile)",
+        "End: VictoryPoint / Adjacency<Tile008, OceanTile>",
       ],
       "components": [ "class Tile008 : CityTile" ],
       "requirement": "4 OceanTile",
@@ -2391,7 +2391,7 @@
       "deck": "PROJECT",
       "tags": [ "BuildingTag" ],
       "immediate": [ "PROD[-Energy, 4], Tile085" ],
-      "effects": [ "End: VictoryPoint / Adjacency(HAS Tile085, CityTile<Anyone>)" ],
+      "effects": [ "End: VictoryPoint / Adjacency<Tile085, CityTile<Anyone>>" ],
       "components": [ "class Tile085 : SpecialTile" ],
       "cost": 16,
       "projectKind": "AUTOMATED",
@@ -4226,7 +4226,7 @@
       "bundle": "X",
       "deck": "PROJECT",
       "immediate": [ "PROD[2]" ],
-      "requirement": "Adjacency(HAS CityTile<Anyone>, OceanTile)",
+      "requirement": "Adjacency<CityTile<Anyone>, OceanTile>",
       "cost": 8,
       "projectKind": "AUTOMATED",
     },

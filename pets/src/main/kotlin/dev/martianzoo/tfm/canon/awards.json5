@@ -7,7 +7,7 @@
     // Desert Settler
     { "id": "EA3", "metric": "OwnedTile<MarsArea(HAS 5 Row)>" },
     // Estate Dealer
-    { "id": "EA4", "metric": "Adjacency(HAS OwnedTile, OceanTile)" },
+    { "id": "EA4", "metric": "Adjacency<OwnedTile, OceanTile>" },
     // Benefactor
     { "id": "EA5", "metric": "TerraformRating" },
 
