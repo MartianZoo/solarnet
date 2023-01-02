@@ -16,8 +16,8 @@ import com.github.h0tk3y.betterParse.lexer.regexToken
 import com.github.h0tk3y.betterParse.parser.ParseException
 import com.github.h0tk3y.betterParse.parser.Parser
 import com.github.h0tk3y.betterParse.parser.parseToEnd
-import dev.martianzoo.tfm.pets.ComponentDeclaration.DefaultsDeclaration
-import dev.martianzoo.tfm.pets.ComponentDeclaration.DependencyDecl
+import dev.martianzoo.tfm.pets.ClassDeclaration.DefaultsDeclaration
+import dev.martianzoo.tfm.pets.ClassDeclaration.DependencyDecl
 import dev.martianzoo.tfm.pets.SpecialComponent.COMPONENT
 import dev.martianzoo.tfm.pets.SpecialComponent.THIS
 import dev.martianzoo.tfm.pets.ast.Action
@@ -61,7 +61,7 @@ object PetsParser {
   /**
    * Parses the PETS expression in `source`, expecting a construct of type
    * `P`, and returning the parsed `P`. `P` can only be one of the major
-   * elemental types like `Action`, not `ComponentDeclaration`, or something smaller.
+   * elemental types like `Action`, not `ClassDeclaration`, or something smaller.
    */
   inline fun <reified P : PetsNode> parse(source: String): P = parse(P::class, source)
 
@@ -74,7 +74,7 @@ object PetsParser {
   /**
    * Parses an entire PETS component defs source file.
    */
-  fun parseComponents(text: String): List<ComponentDeclaration> =
+  fun parseComponents(text: String): List<ClassDeclaration> =
       parseRepeated(Components.nestedComponentDefs, tokenizer.tokenize(text))
 
   fun parseScript(text: String): Script =
@@ -397,7 +397,7 @@ object PetsParser {
     private val oneLineBody =
         skipChar('{') and separatedTerms(bodyElement, char(';')) and skipChar('}')
 
-    internal val oneLineComponentDeclaration: Parser<ComponentDeclaration> =
+    internal val oneLineClassDeclaration: Parser<ClassDeclaration> =
         isAbstract and signature and optionalList(oneLineBody) map { (abs, sig, body) ->
           createCcd(abs, sig, body).first().getDef()
         }
@@ -424,7 +424,7 @@ object PetsParser {
         incompleteComponentDefs map { defs -> defs.map { it.getDef() } }
 
     class ComponentDefInProcess(
-        private val def: ComponentDeclaration,
+        private val def: ClassDeclaration,
         private val isComplete: Boolean
     ) {
 
@@ -439,7 +439,7 @@ object PetsParser {
             )
           }
 
-      private fun fixSupertypes(): ComponentDeclaration {
+      private fun fixSupertypes(): ClassDeclaration {
         val supes = def.supertypes
         return when {
           def.className == "$COMPONENT" -> def.also { require(supes.isEmpty()) }
@@ -466,7 +466,7 @@ object PetsParser {
           gainIntensity = defs.firstNotNullOfOrNull { it.gainIntensity },
       )
 
-      val comp = ComponentDeclaration(
+      val comp = ClassDeclaration(
           className = sig.className,
           abstract = abst,
           dependencies = sig.dependencies,
@@ -481,7 +481,7 @@ object PetsParser {
     }
   }
 
-  val xc = Components.oneLineComponentDeclaration
+  val xc = Components.oneLineClassDeclaration
 
   // PRIVATE HELPERS -----------------------------------------------------------
 

@@ -1,6 +1,6 @@
 package dev.martianzoo.tfm.types
 
-import dev.martianzoo.tfm.pets.ComponentDeclaration.DefaultsDeclaration
+import dev.martianzoo.tfm.pets.ClassDeclaration.DefaultsDeclaration
 import dev.martianzoo.tfm.pets.ast.Instruction.Intensity
 import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.pets.ast.TypeExpression

@@ -4,7 +4,7 @@ import dev.martianzoo.tfm.data.CardDefinition
 import dev.martianzoo.tfm.data.JsonReader
 import dev.martianzoo.tfm.data.MarsAreaDefinition
 import dev.martianzoo.tfm.data.MilestoneDefinition
-import dev.martianzoo.tfm.pets.ComponentDeclaration
+import dev.martianzoo.tfm.pets.ClassDeclaration
 import dev.martianzoo.tfm.pets.PetsParser.parseComponents
 import dev.martianzoo.tfm.pets.ast.Instruction.CustomInstruction
 import dev.martianzoo.util.Grid
@@ -13,7 +13,7 @@ import dev.martianzoo.util.associateByStrict
 object Canon {
   private val FILENAMES = setOf("system.pets", "components.pets", "player.pets")
 
-  val componentDefinitions: Map<String, ComponentDeclaration> by lazy {
+  val componentDefinitions: Map<String, ClassDeclaration> by lazy {
     FILENAMES.flatMap {
       println("Parsing $it")
       parseComponents(readResource(it))
@@ -24,7 +24,7 @@ object Canon {
     JsonReader.readCards(readResource("cards.json5"))
   }
 
-  val auxiliaryComponentDefinitions: Map<String, ComponentDeclaration> by lazy {
+  val auxiliaryComponentDefinitions: Map<String, ClassDeclaration> by lazy {
     JsonReader.auxiliaryComponentDefinitions(cardDefinitions.values)
   }
 
@@ -36,16 +36,16 @@ object Canon {
     JsonReader.readMilestones(readResource("milestones.json5"))
   }
 
-  val allDefinitions: Map<String, ComponentDeclaration> by lazy {
+  val allDefinitions: Map<String, ClassDeclaration> by lazy {
     combine(
         componentDefinitions.values,
-        cardDefinitions.values.map { it.toComponentDeclaration },
+        cardDefinitions.values.map { it.toClassDeclaration },
         auxiliaryComponentDefinitions.values,
-        mapAreaDefinitions.values.flatten().map { it.toComponentDeclaration },
-        milestoneDefinitions.values.map { it.toComponentDeclaration })
+        mapAreaDefinitions.values.flatten().map { it.toClassDeclaration },
+        milestoneDefinitions.values.map { it.toClassDeclaration })
   }
 
-  fun combine(vararg defs: Collection<ComponentDeclaration>) =
+  fun combine(vararg defs: Collection<ClassDeclaration>) =
       defs.flatMap { it }.associateByStrict { it.className }
 
   private fun readResource(filename: String): String {

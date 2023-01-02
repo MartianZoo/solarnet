@@ -9,7 +9,7 @@ import dev.martianzoo.tfm.pets.ast.TypeExpression
  * The declaration of a component class, such as GreeneryTile. Models the declaration textually as
  * it was provided. DIRECT INFO ONLY; stuff is inherited among *loaded* classes (PetClasses).
  */
-data class ComponentDeclaration(
+data class ClassDeclaration(
     val className: String,
     val abstract: Boolean,
     val dependencies: List<DependencyDecl> = listOf(),

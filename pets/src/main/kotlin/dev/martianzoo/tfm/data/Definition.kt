@@ -1,7 +1,7 @@
 package dev.martianzoo.tfm.data
 
-import dev.martianzoo.tfm.pets.ComponentDeclaration
+import dev.martianzoo.tfm.pets.ClassDeclaration
 
 interface Definition {
-  val toComponentDeclaration: ComponentDeclaration
+  val toClassDeclaration: ClassDeclaration
 }

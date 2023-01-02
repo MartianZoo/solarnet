@@ -1,6 +1,6 @@
 package dev.martianzoo.tfm.data
 
-import dev.martianzoo.tfm.pets.ComponentDeclaration
+import dev.martianzoo.tfm.pets.ClassDeclaration
 import dev.martianzoo.tfm.pets.PetsParser.parse
 import dev.martianzoo.tfm.pets.SpecialComponent.THIS
 import dev.martianzoo.tfm.pets.ast.Effect
@@ -43,8 +43,8 @@ data class MarsAreaDefinition(
   val bonus: Instruction? by lazy { bonusText?.let { parse(it) } }
   val type: TypeExpression by lazy { parse(typeText) }
 
-  override val toComponentDeclaration by lazy {
-    ComponentDeclaration(
+  override val toClassDeclaration by lazy {
+    ClassDeclaration(
         componentName(),
         abstract = false,
         supertypes = setOf(type),
