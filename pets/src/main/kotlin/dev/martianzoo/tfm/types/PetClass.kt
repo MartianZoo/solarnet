@@ -12,9 +12,9 @@ import dev.martianzoo.tfm.pets.resolveSpecialThisType
 
 /**
  */
-class PetClass(val def: ClassDeclaration, val loader: PetClassLoader): DependencyTarget {
-  val name by def::className
-  override val abstract by def::abstract
+class PetClass(val decl: ClassDeclaration, val loader: PetClassLoader): DependencyTarget {
+  val name by decl::className
+  override val abstract by decl::abstract
 
 
 // HIERARCHY
@@ -22,7 +22,7 @@ class PetClass(val def: ClassDeclaration, val loader: PetClassLoader): Dependenc
   // TODO collapse invariants right?
 
   val directSupertypes: Set<PetType> by lazy {
-    def.supertypes.map { loader.resolve/*WithDefaults*/(it) }.toSet()
+    decl.supertypes.map { loader.resolve/*WithDefaults*/(it) }.toSet()
   }
 
   override fun isSubtypeOf(that: DependencyTarget) = that in allSuperclasses
@@ -32,7 +32,7 @@ class PetClass(val def: ClassDeclaration, val loader: PetClassLoader): Dependenc
   val directSubclasses: Set<PetClass> by lazy { loader.all().filter { this in it.directSuperclasses }.toSet() }
   val allSubclasses: Set<PetClass> by lazy { loader.all().filter { this in it.allSuperclasses }.toSet() }
 
-  val directSuperclasses: Set<PetClass> by lazy { def.superclassNames.map { loader.load(it) }.toSet() }
+  val directSuperclasses: Set<PetClass> by lazy { decl.superclassNames.map { loader.load(it) }.toSet() }
   val allSuperclasses: Set<PetClass> by lazy {
     (directSuperclasses.flatMap { it.allSuperclasses } + this).toSet()
   }
@@ -40,7 +40,7 @@ class PetClass(val def: ClassDeclaration, val loader: PetClassLoader): Dependenc
 // DEPENDENCIES
 
   val directDependencyKeys: Set<DependencyKey> by lazy {
-    def.dependencies.withIndex().map {
+    decl.dependencies.withIndex().map {
       (i, dep) -> DependencyKey(this, i, dep.classDependency)
     }.toSet()
   }
@@ -57,7 +57,7 @@ class PetClass(val def: ClassDeclaration, val loader: PetClassLoader): Dependenc
     val deps = DependencyMap.merge(directSupertypes.map { it.dependencies })
 
     val newDeps = directDependencyKeys.associateWith {
-      val typeExpression = def.dependencies[it.index].upperBound
+      val typeExpression = decl.dependencies[it.index].upperBound
       if (it.classDep) {
         loader[typeExpression.className]
       } else {
@@ -73,7 +73,7 @@ class PetClass(val def: ClassDeclaration, val loader: PetClassLoader): Dependenc
 
   val defaults: Defaults by lazy {
     if (name == "$COMPONENT") {
-      Defaults.from(def.defaultsDeclaration, this)
+      Defaults.from(decl.defaultsDeclaration, this)
     } else {
       val rootDefaults = loader["$COMPONENT"].defaults
       defaultsIgnoringRoot.overlayOn(listOf(rootDefaults))
@@ -84,7 +84,7 @@ class PetClass(val def: ClassDeclaration, val loader: PetClassLoader): Dependenc
     if (name == "$COMPONENT") {
       Defaults()
     } else {
-      Defaults.from(def.defaultsDeclaration, this)
+      Defaults.from(decl.defaultsDeclaration, this)
           .overlayOn(directSuperclasses.map { it.defaultsIgnoringRoot })
     }
   }
@@ -92,7 +92,7 @@ class PetClass(val def: ClassDeclaration, val loader: PetClassLoader): Dependenc
 
 // EFFECTS
 
-  val directEffectsRaw by def::effects
+  val directEffectsRaw by decl::effects
 
   val directEffects by lazy {
     directEffectsRaw.asSequence()

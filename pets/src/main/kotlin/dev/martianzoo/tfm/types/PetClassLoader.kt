@@ -18,16 +18,16 @@ class PetClassLoader(val definitions: Map<String, ClassDeclaration>) : PetClassT
   /** Returns the petclass named `name`, loading it first if necessary. */
   internal fun load(name: String) = table[name] ?: construct(definitions[name]!!)
 
-  private fun construct(def: ClassDeclaration): PetClass {
+  private fun construct(decl: ClassDeclaration): PetClass {
     require(!frozen) { "Too late, this table is frozen!" }
-    require(def.className !in table) { def.className }
-    table[def.className] = null // signals loading has begun
+    require(decl.className !in table) { decl.className }
+    table[decl.className] = null // signals loading has begun
 
     // One thing we do aggressively
-    def.superclassNames.forEach(::load)
+    decl.superclassNames.forEach(::load)
 
-    println("loading class: ${def.className}")
-    return PetClass(def, this).also { table[it.name] = it }
+    println("loading class: ${decl.className}")
+    return PetClass(decl, this).also { table[it.name] = it }
   }
 
   fun freeze(): PetClassTable {

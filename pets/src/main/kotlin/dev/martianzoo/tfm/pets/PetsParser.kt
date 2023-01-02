@@ -424,27 +424,27 @@ object PetsParser {
         incompleteComponentDefs map { defs -> defs.map { it.getDef() } }
 
     class ComponentDefInProcess(
-        private val def: ClassDeclaration,
+        private val decl: ClassDeclaration,
         private val isComplete: Boolean
     ) {
 
-      fun getDef() = if (isComplete) def else fixSupertypes()
+      fun getDef() = if (isComplete) decl else fixSupertypes()
 
       fun fillInSuperclass(name: String) =
-          if (isComplete || def.supertypes.any { it.className == name }) {
+          if (isComplete || decl.supertypes.any { it.className == name }) {
             this
           } else {
             ComponentDefInProcess(
-                def.copy(supertypes = (listOf(te(name)) + def.supertypes).toSetStrict()), true
+                decl.copy(supertypes = (listOf(te(name)) + decl.supertypes).toSetStrict()), true
             )
           }
 
       private fun fixSupertypes(): ClassDeclaration {
-        val supes = def.supertypes
+        val supes = decl.supertypes
         return when {
-          def.className == "$COMPONENT" -> def.also { require(supes.isEmpty()) }
-          supes.isEmpty() -> def.copy(supertypes = setOf(COMPONENT.type))
-          else -> def.also { require(COMPONENT.type !in supes) }
+          decl.className == "$COMPONENT" -> decl.also { require(supes.isEmpty()) }
+          supes.isEmpty() -> decl.copy(supertypes = setOf(COMPONENT.type))
+          else -> decl.also { require(COMPONENT.type !in supes) }
         }
       }
     }
