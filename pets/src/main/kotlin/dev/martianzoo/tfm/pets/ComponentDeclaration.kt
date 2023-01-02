@@ -24,10 +24,10 @@ data class ComponentDeclaration(
 
   val superclassNames = supertypes.map { it.className }
 
-  data class DependencyDecl(val type: TypeExpression, val classDep: Boolean = false)
+  data class DependencyDecl(val upperBound: TypeExpression, val classDependency: Boolean = false)
 
   data class DefaultsDeclaration(
-      val allDefault: List<TypeExpression> = listOf(),
-      val gainDefault: List<TypeExpression> = listOf(),
+      val universalSpecs: List<TypeExpression> = listOf(),
+      val gainOnlySpecs: List<TypeExpression> = listOf(),
       val gainIntensity: Intensity? = null)
 }

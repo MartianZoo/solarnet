@@ -380,13 +380,13 @@ object PetsParser {
         skipChar('+') and Types.typeExpression and Instructions.intensity map { (type, int) ->
           require(type.className == "$THIS")
           require(type.refinement == null)
-          DefaultsDeclaration(gainDefault = type.specs, gainIntensity = int)
+          DefaultsDeclaration(gainOnlySpecs = type.specs, gainIntensity = int)
         }
 
     private val typeDefault = Types.typeExpression map {
       require(it.className == "$THIS")
       require(it.refinement == null)
-      DefaultsDeclaration(allDefault = it.specs)
+      DefaultsDeclaration(universalSpecs = it.specs)
     }
 
     private val defaultStmt: Parser<DefaultsDeclaration> = skip(_default) and (gainDefault or typeDefault)
@@ -461,8 +461,8 @@ object PetsParser {
       val subs = contents.filterIsInstance<List<*>>().toSetStrict()
 
       val mergedDefaults = DefaultsDeclaration(
-          allDefault = defs.firstNotNullOfOrNull { it.allDefault } ?: listOf(),
-          gainDefault = defs.firstNotNullOfOrNull { it.gainDefault } ?: listOf(),
+          universalSpecs = defs.firstNotNullOfOrNull { it.universalSpecs } ?: listOf(),
+          gainOnlySpecs = defs.firstNotNullOfOrNull { it.gainOnlySpecs } ?: listOf(),
           gainIntensity = defs.firstNotNullOfOrNull { it.gainIntensity },
       )
 

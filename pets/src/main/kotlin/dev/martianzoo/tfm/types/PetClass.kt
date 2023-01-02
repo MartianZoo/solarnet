@@ -41,7 +41,7 @@ class PetClass(val def: ComponentDeclaration, val loader: PetClassLoader): Depen
 
   val directDependencyKeys: Set<DependencyKey> by lazy {
     def.dependencies.withIndex().map {
-      (i, dep) -> DependencyKey(this, i, dep.classDep)
+      (i, dep) -> DependencyKey(this, i, dep.classDependency)
     }.toSet()
   }
 
@@ -57,7 +57,7 @@ class PetClass(val def: ComponentDeclaration, val loader: PetClassLoader): Depen
     val deps = DependencyMap.merge(directSupertypes.map { it.dependencies })
 
     val newDeps = directDependencyKeys.associateWith {
-      val typeExpression = def.dependencies[it.index].type
+      val typeExpression = def.dependencies[it.index].upperBound
       if (it.classDep) {
         loader[typeExpression.className]
       } else {

@@ -13,8 +13,8 @@ data class Defaults(
 
   companion object {
     fun from(d: DefaultsDeclaration, petClass: PetClass) = Defaults(
-        toDependencyMap(d.allDefault, petClass),
-        toDependencyMap(d.gainDefault, petClass),
+        toDependencyMap(d.universalSpecs, petClass),
+        toDependencyMap(d.gainOnlySpecs, petClass),
         d.gainIntensity)
 
     private fun toDependencyMap(specs: List<TypeExpression>?, petClass: PetClass): DependencyMap {
