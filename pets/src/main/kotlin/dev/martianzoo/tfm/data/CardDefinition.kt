@@ -186,7 +186,7 @@ data class CardDefinition(
 
     if (projectKind != null)   supertypes.add(te(projectKind.type))
     if (!actionsRaw.isEmpty()) supertypes.add(te("ActionCard"))
-    if (resourceType != null)  supertypes.add(te("Holder", resourceType))
+    if (resourceType != null)  supertypes.add(te("ResourcefulCard", resourceType))
     if (supertypes.isEmpty())  supertypes.add(te("CardFront"))
 
     ClassDeclaration(

@@ -82,7 +82,7 @@ ABSTRACT CLASS Resource : Owned {
         CLASS Energy { ProductionPhase:: Heat FROM This }
     }
 
-    ABSTRACT CLASS CardResource : Cardbound<Holder> {       // TODO Cardbound<Holder<CardResource>>, forcing match
+    ABSTRACT CLASS CardResource : Cardbound<ResourcefulCard> {       // TODO Cardbound<ResourcefulCard<CardResource>>, forcing match
         DEFAULT +This.
 
         // All others are card-specific; see cards.json5
@@ -94,7 +94,7 @@ CLASS Production<CLASS StandardResource> : Owned {
     ProductionPhase: StandardResource                       // TODO subtype specialization
 }
 
-ABSTRACT CLASS Holder<CLASS CardResource> : CardFront
+ABSTRACT CLASS ResourcefulCard<CLASS CardResource> : CardFront
 
 
 // CARDS ---------------------------------------------------
