@@ -1,6 +1,6 @@
 package dev.martianzoo.tfm.types
 
-import dev.martianzoo.tfm.pets.ComponentDef.RawDefaults
+import dev.martianzoo.tfm.pets.ComponentDeclaration.DefaultsDeclaration
 import dev.martianzoo.tfm.pets.ast.Instruction.Intensity
 import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.pets.ast.TypeExpression
@@ -12,7 +12,7 @@ data class Defaults(
 ) {
 
   companion object {
-    fun from(d: RawDefaults, petClass: PetClass) = Defaults(
+    fun from(d: DefaultsDeclaration, petClass: PetClass) = Defaults(
         toDependencyMap(d.allDefault, petClass),
         toDependencyMap(d.gainDefault, petClass),
         d.gainIntensity)
@@ -27,7 +27,7 @@ data class Defaults(
     }
   }
 
-  // Return a RawDefaults that uses the information from *this* one if present,
+  // Return a DefaultsDeclaration that uses the information from *this* one if present,
   // but otherwise attempt to find agreement among all of `defaultses`.
   internal fun overlayOn(defaultses: List<Defaults>): Defaults {
     return Defaults(

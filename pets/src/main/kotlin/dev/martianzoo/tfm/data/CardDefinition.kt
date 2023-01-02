@@ -2,7 +2,7 @@ package dev.martianzoo.tfm.data
 
 import com.squareup.moshi.Json
 import dev.martianzoo.tfm.data.CardDefinition.ProjectKind.ACTIVE
-import dev.martianzoo.tfm.pets.ComponentDef
+import dev.martianzoo.tfm.pets.ComponentDeclaration
 import dev.martianzoo.tfm.pets.PetsParser
 import dev.martianzoo.tfm.pets.PetsParser.parse
 import dev.martianzoo.tfm.pets.SpecialComponent.END
@@ -181,7 +181,7 @@ data class CardDefinition(
         actionsToEffects(actionsRaw)).toSetStrict()
   }
 
-  override val toComponentDef by lazy {
+  override val toComponentDeclaration by lazy {
     val supertypes = mutableSetOf<TypeExpression>()
 
     if (projectKind != null)   supertypes.add(te(projectKind.type))
@@ -189,7 +189,7 @@ data class CardDefinition(
     if (resourceType != null)  supertypes.add(te("Holder", resourceType))
     if (supertypes.isEmpty())  supertypes.add(te("CardFront"))
 
-    ComponentDef(
+    ComponentDeclaration(
         className = "Card$id",
         abstract = false,
         supertypes = supertypes,

@@ -16,8 +16,8 @@ import com.github.h0tk3y.betterParse.lexer.regexToken
 import com.github.h0tk3y.betterParse.parser.ParseException
 import com.github.h0tk3y.betterParse.parser.Parser
 import com.github.h0tk3y.betterParse.parser.parseToEnd
-import dev.martianzoo.tfm.pets.ComponentDef.DependencyDecl
-import dev.martianzoo.tfm.pets.ComponentDef.RawDefaults
+import dev.martianzoo.tfm.pets.ComponentDeclaration.DefaultsDeclaration
+import dev.martianzoo.tfm.pets.ComponentDeclaration.DependencyDecl
 import dev.martianzoo.tfm.pets.SpecialComponent.COMPONENT
 import dev.martianzoo.tfm.pets.SpecialComponent.THIS
 import dev.martianzoo.tfm.pets.ast.Action
@@ -61,7 +61,7 @@ object PetsParser {
   /**
    * Parses the PETS expression in `source`, expecting a construct of type
    * `P`, and returning the parsed `P`. `P` can only be one of the major
-   * elemental types like `Action`, not `ComponentDef`, or something smaller.
+   * elemental types like `Action`, not `ComponentDeclaration`, or something smaller.
    */
   inline fun <reified P : PetsNode> parse(source: String): P = parse(P::class, source)
 
@@ -74,7 +74,7 @@ object PetsParser {
   /**
    * Parses an entire PETS component defs source file.
    */
-  fun parseComponents(text: String): List<ComponentDef> =
+  fun parseComponents(text: String): List<ComponentDeclaration> =
       parseRepeated(Components.nestedComponentDefs, tokenizer.tokenize(text))
 
   fun parseScript(text: String): Script =
@@ -380,16 +380,16 @@ object PetsParser {
         skipChar('+') and Types.typeExpression and Instructions.intensity map { (type, int) ->
           require(type.className == "$THIS")
           require(type.refinement == null)
-          RawDefaults(gainDefault = type.specs, gainIntensity = int)
+          DefaultsDeclaration(gainDefault = type.specs, gainIntensity = int)
         }
 
     private val typeDefault = Types.typeExpression map {
       require(it.className == "$THIS")
       require(it.refinement == null)
-      RawDefaults(allDefault = it.specs)
+      DefaultsDeclaration(allDefault = it.specs)
     }
 
-    private val defaultStmt: Parser<RawDefaults> = skip(_default) and (gainDefault or typeDefault)
+    private val defaultStmt: Parser<DefaultsDeclaration> = skip(_default) and (gainDefault or typeDefault)
     private val invariant = skip(_has) and Requirements.requirement
 
     private val bodyElement = defaultStmt or invariant or Actions.action or Effects.effect
@@ -397,7 +397,7 @@ object PetsParser {
     private val oneLineBody =
         skipChar('{') and separatedTerms(bodyElement, char(';')) and skipChar('}')
 
-    internal val oneLineComponentDef: Parser<ComponentDef> =
+    internal val oneLineComponentDeclaration: Parser<ComponentDeclaration> =
         isAbstract and signature and optionalList(oneLineBody) map { (abs, sig, body) ->
           createCcd(abs, sig, body).first().getDef()
         }
@@ -424,7 +424,7 @@ object PetsParser {
         incompleteComponentDefs map { defs -> defs.map { it.getDef() } }
 
     class ComponentDefInProcess(
-        private val def: ComponentDef,
+        private val def: ComponentDeclaration,
         private val isComplete: Boolean
     ) {
 
@@ -439,7 +439,7 @@ object PetsParser {
             )
           }
 
-      private fun fixSupertypes(): ComponentDef {
+      private fun fixSupertypes(): ComponentDeclaration {
         val supes = def.supertypes
         return when {
           def.className == "$COMPONENT" -> def.also { require(supes.isEmpty()) }
@@ -455,18 +455,18 @@ object PetsParser {
         contents: List<Any> = listOf()
     ): List<ComponentDefInProcess> {
       val invs = contents.filterIsInstance<Requirement>().toSetStrict()
-      val defs = contents.filterIsInstance<RawDefaults>().toSetStrict()
+      val defs = contents.filterIsInstance<DefaultsDeclaration>().toSetStrict()
       val acts = contents.filterIsInstance<Action>().toSetStrict()
       val effs = contents.filterIsInstance<Effect>().toSetStrict()
       val subs = contents.filterIsInstance<List<*>>().toSetStrict()
 
-      val mergedDefaults = RawDefaults(
+      val mergedDefaults = DefaultsDeclaration(
           allDefault = defs.firstNotNullOfOrNull { it.allDefault } ?: listOf(),
           gainDefault = defs.firstNotNullOfOrNull { it.gainDefault } ?: listOf(),
           gainIntensity = defs.firstNotNullOfOrNull { it.gainIntensity },
       )
 
-      val comp = ComponentDef(
+      val comp = ComponentDeclaration(
           className = sig.className,
           abstract = abst,
           dependencies = sig.dependencies,
@@ -474,14 +474,14 @@ object PetsParser {
           topInvariant = sig.topInvariant,
           otherInvariants = invs,
           effectsRaw = { effs + actionsToEffects(acts) },
-          rawDefaults = mergedDefaults
+          defaultsDeclaration = mergedDefaults
       )
       return listOf(ComponentDefInProcess(comp, false)) + subs.flatten()
           .map { (it as ComponentDefInProcess).fillInSuperclass(sig.className) }
     }
   }
 
-  val xc = Components.oneLineComponentDef
+  val xc = Components.oneLineComponentDeclaration
 
   // PRIVATE HELPERS -----------------------------------------------------------
 

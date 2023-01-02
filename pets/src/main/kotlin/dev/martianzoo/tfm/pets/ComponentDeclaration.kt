@@ -9,7 +9,7 @@ import dev.martianzoo.tfm.pets.ast.TypeExpression
  * The declaration of a component class, such as GreeneryTile. Models the declaration textually as
  * it was provided. DIRECT INFO ONLY; stuff is inherited among *loaded* classes (PetClasses).
  */
-data class ComponentDef( // TODO ComponentDecl?
+data class ComponentDeclaration(
     val className: String,
     val abstract: Boolean,
     val dependencies: List<DependencyDecl> = listOf(),
@@ -17,7 +17,7 @@ data class ComponentDef( // TODO ComponentDecl?
     val topInvariant: Requirement? = null,
     val otherInvariants: Set<Requirement> = setOf(),
     val effectsRaw: () -> Set<Effect> = { setOf() }, // TODO needed? or pull instead from intf?
-    val rawDefaults: RawDefaults = RawDefaults()
+    val defaultsDeclaration: DefaultsDeclaration = DefaultsDeclaration()
 ) {
   // TODO canonicalize??
   val effects by lazy { effectsRaw() }
@@ -26,7 +26,7 @@ data class ComponentDef( // TODO ComponentDecl?
 
   data class DependencyDecl(val type: TypeExpression, val classDep: Boolean = false)
 
-  data class RawDefaults(
+  data class DefaultsDeclaration(
       val allDefault: List<TypeExpression> = listOf(),
       val gainDefault: List<TypeExpression> = listOf(),
       val gainIntensity: Intensity? = null)

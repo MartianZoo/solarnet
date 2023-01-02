@@ -1,13 +1,13 @@
 package dev.martianzoo.tfm.types
 
-import dev.martianzoo.tfm.pets.ComponentDef
+import dev.martianzoo.tfm.pets.ComponentDeclaration
 import dev.martianzoo.tfm.pets.SpecialComponent.STANDARD_RESOURCE
 import dev.martianzoo.tfm.pets.ast.TypeExpression
 import dev.martianzoo.util.associateByStrict
 
 // TODO restrict viz?
-class PetClassLoader(val definitions: Map<String, ComponentDef>) : PetClassTable {
-  constructor(definitions: Collection<ComponentDef>) : this(definitions.associateByStrict { it.className })
+class PetClassLoader(val definitions: Map<String, ComponentDeclaration>) : PetClassTable {
+  constructor(definitions: Collection<ComponentDeclaration>) : this(definitions.associateByStrict { it.className })
 
   private val table = mutableMapOf<String, PetClass?>()
 
@@ -18,7 +18,7 @@ class PetClassLoader(val definitions: Map<String, ComponentDef>) : PetClassTable
   /** Returns the petclass named `name`, loading it first if necessary. */
   internal fun load(name: String) = table[name] ?: construct(definitions[name]!!)
 
-  private fun construct(def: ComponentDef): PetClass {
+  private fun construct(def: ComponentDeclaration): PetClass {
     require(!frozen) { "Too late, this table is frozen!" }
     require(def.className !in table) { def.className }
     table[def.className] = null // signals loading has begun

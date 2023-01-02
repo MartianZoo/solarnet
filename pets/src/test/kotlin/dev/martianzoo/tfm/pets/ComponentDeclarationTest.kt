@@ -6,7 +6,7 @@ import dev.martianzoo.tfm.pets.ast.TypeExpression
 import dev.martianzoo.tfm.pets.ast.TypeExpression.Companion.te
 import org.junit.jupiter.api.Test
 
-class ComponentDefTest {
+class ComponentDeclarationTest {
 
   @Test
   fun body() {

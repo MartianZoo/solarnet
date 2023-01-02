@@ -1,7 +1,7 @@
 package dev.martianzoo.tfm.data
 
 import com.squareup.moshi.Json
-import dev.martianzoo.tfm.pets.ComponentDef
+import dev.martianzoo.tfm.pets.ComponentDeclaration
 import dev.martianzoo.tfm.pets.PetsParser.parse
 import dev.martianzoo.tfm.pets.SpecialComponent.OK
 import dev.martianzoo.tfm.pets.SpecialComponent.THIS
@@ -31,8 +31,8 @@ data class MilestoneDefinition(
 
   val requirement: Requirement by lazy { parse(requirementText) }
 
-  override val toComponentDef: ComponentDef by lazy {
-    ComponentDef(
+  override val toComponentDeclaration: ComponentDeclaration by lazy {
+    ComponentDeclaration(
         "Milestone$id",
         abstract = false,
         supertypes = setOf(te("Milestone")),

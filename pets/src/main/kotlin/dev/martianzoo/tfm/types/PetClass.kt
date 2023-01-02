@@ -1,7 +1,7 @@
 package dev.martianzoo.tfm.types
 
 import dev.martianzoo.tfm.pets.AstTransformer
-import dev.martianzoo.tfm.pets.ComponentDef
+import dev.martianzoo.tfm.pets.ComponentDeclaration
 import dev.martianzoo.tfm.pets.SpecialComponent.COMPONENT
 import dev.martianzoo.tfm.pets.ast.Effect
 import dev.martianzoo.tfm.pets.ast.PetsNode
@@ -12,7 +12,7 @@ import dev.martianzoo.tfm.pets.resolveSpecialThisType
 
 /**
  */
-class PetClass(val def: ComponentDef, val loader: PetClassLoader): DependencyTarget {
+class PetClass(val def: ComponentDeclaration, val loader: PetClassLoader): DependencyTarget {
   val name by def::className
   override val abstract by def::abstract
 
@@ -73,7 +73,7 @@ class PetClass(val def: ComponentDef, val loader: PetClassLoader): DependencyTar
 
   val defaults: Defaults by lazy {
     if (name == "$COMPONENT") {
-      Defaults.from(def.rawDefaults, this)
+      Defaults.from(def.defaultsDeclaration, this)
     } else {
       val rootDefaults = loader["$COMPONENT"].defaults
       defaultsIgnoringRoot.overlayOn(listOf(rootDefaults))
@@ -84,7 +84,7 @@ class PetClass(val def: ComponentDef, val loader: PetClassLoader): DependencyTar
     if (name == "$COMPONENT") {
       Defaults()
     } else {
-      Defaults.from(def.rawDefaults, this)
+      Defaults.from(def.defaultsDeclaration, this)
           .overlayOn(directSuperclasses.map { it.defaultsIgnoringRoot })
     }
   }
