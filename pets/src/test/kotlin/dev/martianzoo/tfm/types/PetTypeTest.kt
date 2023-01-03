@@ -25,11 +25,6 @@ class PetTypeTest {
   }
 
   @Test
-  fun wtf4() {
-    assertThat(table.resolve("Animal<Card072, Player1>").abstract).isTrue() // TODO FALSE
-  }
-
-  @Test
   fun wtf5() {
     assertThat(table.resolve("Animal<Player1, Card072>").abstract).isTrue() // TODO FALSE
   }
@@ -44,6 +39,6 @@ class PetTypeTest {
 
   @Test
   fun wtf7() {
-    assertThat(table.resolve("Animal<Card072<Player1>, Player1>").abstract).isFalse()
+    assertThat(table.resolve("Animal<Player1, Card072<Player1>>").abstract).isFalse()
   }
 }

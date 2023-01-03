@@ -16,7 +16,7 @@ class PetClassLoader(val definitions: Map<String, ClassDeclaration>) : PetClassT
   override fun get(name: String) = table[name] ?: error(name)
 
   /** Returns the petclass named `name`, loading it first if necessary. */
-  internal fun load(name: String) = table[name] ?: construct(definitions[name]!!)
+  fun load(name: String) = table[name] ?: construct(definitions[name]!!)
 
   private fun construct(decl: ClassDeclaration): PetClass {
     require(!frozen) { "Too late, this table is frozen!" }
@@ -51,19 +51,15 @@ class PetClassLoader(val definitions: Map<String, ClassDeclaration>) : PetClassT
       resolve(applyDefaultsIn(expression, this))
 
   override fun resolve(expression: TypeExpression): PetType { // TODOTODO with refinement!
-    val specs: List<PetType> = expression.specs.map { resolve(it) }
     val petClass = load(expression.className)
     try {
-      return petClass.baseType.specialize(specs)
+      return petClass.baseType.specialize(expression.specs)
     } catch (e: Exception) {
-      throw RuntimeException(
-          """
+      throw RuntimeException("""
         1. trying to resolve $expression
         petClass is $petClass
         baseType is ${petClass.baseType}
-      """,
-          e
-      )
+      """, e)
     }
   }
 

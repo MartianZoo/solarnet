@@ -29,7 +29,7 @@ data class Defaults(
 
   // Return a DefaultsDeclaration that uses the information from *this* one if present,
   // but otherwise attempt to find agreement among all of `defaultses`.
-  internal fun overlayOn(defaultses: List<Defaults>): Defaults {
+  fun overlayOn(defaultses: List<Defaults>): Defaults {
     return Defaults(
         overlayDMs(defaultses) { it.allDeps },
         overlayDMs(defaultses) { it.gainDeps },
@@ -55,12 +55,12 @@ data class Defaults(
       defaultses: List<Defaults>,
       extract: (Defaults) -> DependencyMap
   ): DependencyMap {
-    val map = extract(this).keyToType.toMutableMap()
+    val map = extract(this).keyToDep.toMutableMap()
     for (key in defaultses.flatMap { extract(it).keys }.toSet()) {
       if (key !in map) {
         // TODO some orders might work when others don't
         val depMapsWithThisKey = defaultses.map(extract).filter { key in it }
-        map[key] = depMapsWithThisKey.map { it[key] }.reduce { a, b -> a.glb(b) }
+        map[key] = depMapsWithThisKey.map { it[key] }.reduce { a, b -> a.combine(b) }
       }
     }
     return DependencyMap(map)

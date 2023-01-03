@@ -13,7 +13,6 @@ fun <T> parseRepeated(listParser: Parser<List<T>>, tokens: TokenMatchesSequence)
   var index = 0
   val parsed = mutableListOf<T>()
   while (true) {
-    println(index)
     val result = listParser.tryParse(tokens, index)
     when {
         result is Parsed -> {

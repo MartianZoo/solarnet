@@ -89,8 +89,8 @@ private class Deprodifier(val producible: Set<String>) : AstTransformer() {
     }
 
     inProd && node is TypeExpression && node.className in producible -> PRODUCTION.type.copy(
-        specs = listOf(node)
-    )
+        specs = node.specs + node.copy(specs = listOf())
+    ) // TODO this is weird and fragile
 
     else -> super.transform(node)
   } as P

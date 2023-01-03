@@ -1,7 +1,6 @@
 package dev.martianzoo.tfm.types
 
 import dev.martianzoo.tfm.pets.ast.TypeExpression
-import dev.martianzoo.util.joinOrEmpty
 
 /**
  * So a TypeExpression resolves into a PetType by matching up the specs with appropriate deps.
@@ -11,42 +10,43 @@ import dev.martianzoo.util.joinOrEmpty
 data class PetType(
     val petClass: PetClass,
     val dependencies: DependencyMap = DependencyMap()
-) : DependencyTarget {
-  override val abstract: Boolean = petClass.abstract || dependencies.abstract
+) {
+  val abstract: Boolean = petClass.abstract || dependencies.abstract
 
-  override fun isSubtypeOf(that: DependencyTarget): Boolean =
-      petClass.isSubtypeOf((that as PetType).petClass) &&
+  fun isSubtypeOf(that: PetType): Boolean =
+      petClass.isSubtypeOf(that.petClass) &&
       dependencies.specializes(that.dependencies)
 
   /**
    * Returns the common supertype of every subtype of both `this` and `that`, if possible.
    */
-  override fun glb(that: DependencyTarget): DependencyTarget {
-    if (that !is PetType) error("")
+  fun glb(that: PetType): PetType {
     return PetType(
         petClass.glb(that.petClass),
         dependencies.merge(that.dependencies))
   }
 
-  fun specialize(specs: List<PetType>): PetType {
+  fun specialize(specs: List<TypeExpression>): PetType {
     return try {
-      copy(dependencies = dependencies.specialize(specs))
+      copy(dependencies = dependencies.specialize(specs, petClass.loader))
     } catch (e: RuntimeException) {
       throw RuntimeException("2. PetType is $this", e)
     }
   }
 
-  override fun toString(): String {
-    val deps = dependencies.keyToType.map { "${it.key}=${it.value}" }.joinOrEmpty(", ", wrap="<>")
-    return "$petClass$deps"
+  override fun toString() = toTypeExpressionFull().toString()
+
+  fun toTypeExpressionFull(): TypeExpression {
+    val specs = dependencies.keyToDep.values.map { it.toTypeExpressionFull() }
+    return TypeExpression(petClass.name, specs)
   }
 
-  override fun toTypeExpressionFull(): TypeExpression {
-    val map = dependencies.keyToType.values.map { it.toTypeExpressionFull() }
-    return TypeExpression(petClass.name, map)
+  fun hasGlbWith(type: PetType): Boolean {
+    return try {
+      glb(type)
+      true
+    } catch (e: Exception) {
+      false
+    }
   }
-
-  override val typeOnly: Boolean by lazy { TODO() }
-
-  override val classOnly = false
 }

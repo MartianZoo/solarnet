@@ -1,35 +1,37 @@
 package dev.martianzoo.tfm.types
 
+import dev.martianzoo.tfm.pets.ast.TypeExpression
 import dev.martianzoo.util.mergeMaps
 
 // Takes care of everything inside the <> but knows nothing of what's outside it
-data class DependencyMap(val keyToType: Map<DependencyKey, DependencyTarget>) {
+data class DependencyMap(val keyToDep: Map<DependencyKey, Dependency>) {
 
-  constructor() : this(mapOf<DependencyKey, DependencyTarget>())
+  constructor() : this(mapOf<DependencyKey, Dependency>())
 
   init {
-    keyToType.forEach {
-      require(it.key.classDep == it.value.classOnly) { it.key }
+    keyToDep.forEach { (key, dep) ->
+      require(key == dep.key) { key }
     }
   }
-  val abstract = keyToType.values.any { it.abstract }
+  val abstract = keyToDep.values.any { it.abstract }
 
-  val keys = keyToType.keys
+  val keys = keyToDep.keys
 
-  operator fun contains(key: DependencyKey) = key in keyToType
-  operator fun get(key: DependencyKey): DependencyTarget = keyToType[key]!!
+  operator fun contains(key: DependencyKey) = key in keyToDep
+  operator fun get(key: DependencyKey): Dependency = keyToDep[key]!!
 
   fun specializes(that: DependencyMap) =
       // For each of *its* keys, my type must be a subtype of its type
-      that.keyToType.all { (thatKey, thatType) -> keyToType[thatKey]!!.isSubtypeOf(thatType) }
+      that.keyToDep.all { (thatKey, thatType) -> keyToDep[thatKey]!!.specializes(thatType) }
 
   // Combines all entries, using the glb when both maps have the same key
-  fun merge(that: DependencyMap): DependencyMap = DependencyMap(
-      mergeMaps(this.keyToType, that.keyToType) { type1, type2 -> type1.glb(type2) })
+  fun merge(that: DependencyMap) =
+      DependencyMap(mergeMaps(this.keyToDep, that.keyToDep, Dependency::combine)
+  )
 
   fun overlayOn(that: DependencyMap): DependencyMap {
-    val map = that.keyToType.toMutableMap()
-    map.putAll(keyToType)
+    val map = that.keyToDep.toMutableMap()
+    map.putAll(keyToDep)
     return DependencyMap(map)
   }
 
@@ -43,25 +45,22 @@ data class DependencyMap(val keyToType: Map<DependencyKey, DependencyTarget>) {
 
   // determines the map that could be merged with this one to specialize, by inferring which
   // keys the provided specs go with
-  fun findMatchups(specs: List<PetType>): DependencyMap {
+  fun findMatchups(specs: List<TypeExpression>, loader: PetClassLoader): DependencyMap {
+    if (specs.isEmpty()) return DependencyMap()
+
     val unhandled = specs.toMutableList()
-    val newMap: Map<DependencyKey, DependencyTarget> = keyToType.mapNotNull {
-      (key, originalValue) ->
-        if (key.classDep) {
-          val matchType: PetType? = unhandled.firstOrNull {
-            it.petClass.isSubtypeOf(originalValue) && it.petClass.baseType == it
-          }
-          matchType?.let { key to it.also(unhandled::remove).petClass }
-        } else {
-          val matchType = unhandled.firstOrNull { it.isSubtypeOf(originalValue) }
-          matchType?.let { key to it.also(unhandled::remove) }
-        }
-    }.toMap()
-    require (unhandled.isEmpty()) { "3. Unrecognized specializations: $unhandled\nThis is: $this"}
+    val newMap = keyToDep.mapValues { (key, dep) ->
+      if (unhandled.isNotEmpty() && dep.acceptsSpecialization(unhandled.first(), loader)) {
+        dep.specialize(unhandled.removeFirst(), loader)
+      } else {
+        dep
+      }
+    }
+    require(unhandled.isEmpty()) { "This: $this\nSpecs: $specs\nUnhandled : $unhandled" }
     return DependencyMap(newMap)
   }
 
-  fun specialize(specs: List<PetType>) = merge(findMatchups(specs))
+  fun specialize(specs: List<TypeExpression>, loader: PetClassLoader) = merge(findMatchups(specs, loader))
 
-  override fun toString() = "$keyToType"
+  override fun toString() = "${keyToDep.values}"
 }

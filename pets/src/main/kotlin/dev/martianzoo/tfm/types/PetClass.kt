@@ -9,12 +9,14 @@ import dev.martianzoo.tfm.pets.ast.TypeExpression
 import dev.martianzoo.tfm.pets.ast.TypeExpression.Companion.te
 import dev.martianzoo.tfm.pets.deprodify
 import dev.martianzoo.tfm.pets.resolveSpecialThisType
+import dev.martianzoo.tfm.types.Dependency.ClassDependency
+import dev.martianzoo.tfm.types.Dependency.TypeDependency
 
 /**
  */
-class PetClass(val decl: ClassDeclaration, val loader: PetClassLoader): DependencyTarget {
+class PetClass(val decl: ClassDeclaration, val loader: PetClassLoader) {
   val name by decl::className
-  override val abstract by decl::abstract
+  val abstract by decl::abstract
 
 
 // HIERARCHY
@@ -25,9 +27,7 @@ class PetClass(val decl: ClassDeclaration, val loader: PetClassLoader): Dependen
     decl.supertypes.map { loader.resolve/*WithDefaults*/(it) }.toSet()
   }
 
-  override fun isSubtypeOf(that: DependencyTarget) = that in allSuperclasses
-
-  fun isSuperclassOf(that: PetClass) = that.isSubtypeOf(this)
+  fun isSubtypeOf(that: PetClass) = that in allSuperclasses
 
   val directSubclasses: Set<PetClass> by lazy { loader.all().filter { this in it.directSuperclasses }.toSet() }
   val allSubclasses: Set<PetClass> by lazy { loader.all().filter { this in it.allSuperclasses }.toSet() }
@@ -49,8 +49,10 @@ class PetClass(val decl: ClassDeclaration, val loader: PetClassLoader): Dependen
     allSuperclasses.flatMap { it.directDependencyKeys }.toSet()
   }
 
-  fun resolveSpecializations(specs: List<TypeExpression>): DependencyMap =
-      baseType.dependencies.findMatchups(specs.map { loader.resolve(it) })
+  fun resolveSpecializations(specs: List<TypeExpression>): DependencyMap {
+    val dependencies = baseType.dependencies
+    return dependencies.findMatchups(specs, loader)
+  }
 
   /** Common supertype of all types with petClass==this */
   val baseType: PetType by lazy {
@@ -59,14 +61,14 @@ class PetClass(val decl: ClassDeclaration, val loader: PetClassLoader): Dependen
     val newDeps = directDependencyKeys.associateWith {
       val typeExpression = decl.dependencies[it.index].upperBound
       if (it.classDep) {
-        loader[typeExpression.className]
+        ClassDependency(it, loader[typeExpression.className])
       } else {
-        loader.resolve(typeExpression)
+        TypeDependency(it, loader.resolve(typeExpression))
       }
     }
     val allDeps = deps.merge(DependencyMap(newDeps))
-    require(allDeps.keyToType.keys == allDependencyKeys)
-    PetType(this, allDeps).also { println("$this baseType is $it") }
+    require(allDeps.keyToDep.keys == allDependencyKeys)
+    PetType(this, allDeps)
   }
 
 // DEFAULTS
@@ -112,22 +114,17 @@ class PetClass(val decl: ClassDeclaration, val loader: PetClassLoader): Dependen
     Validator(loader).transform(effects)
   }
 
-  internal class Validator(val loader: PetClassLoader) : AstTransformer() {
+  class Validator(val loader: PetClassLoader) : AstTransformer() {
     override fun <P : PetsNode?> transform(node: P): P {
       if (node is TypeExpression) loader.resolve(node)
       return super.transform(node)
     }
   }
 
-  override fun toTypeExpressionFull() = te(name)
-  override val typeOnly = true
-  override val classOnly = true
-
   // OTHER
 
   /** Returns the one of `this` or `that` that is a subclass of the other. */
-  override fun glb(that: DependencyTarget) = when {
-    that !is PetClass -> error("")
+  fun glb(that: PetClass) = when {
     this.isSubtypeOf(that) -> this
     that.isSubtypeOf(this) -> that
     else -> error("we ain't got no intersection types")
