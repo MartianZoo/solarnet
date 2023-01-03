@@ -9,8 +9,6 @@ import dev.martianzoo.tfm.pets.ast.Instruction.Remove
 data class Action(val cost: Cost?, val instruction: Instruction) : PetsNode() {
   override val kind = "Action"
 
-  override val children = setOfNotNull(cost) + instruction
-
   override fun toString() = (cost?.let { "$cost -> " } ?: "-> ") + instruction
 
   sealed class Cost : PetsNode() {
@@ -19,7 +17,6 @@ data class Action(val cost: Cost?, val instruction: Instruction) : PetsNode() {
     abstract fun toInstruction(): Instruction
 
     data class Spend(val qe: QuantifiedExpression) : Cost() {
-      override val children = setOf(qe)
       override fun toString() = qe.toString()
 
       // I believe Ants/Predators are the reasons for MANDATORY here
@@ -38,7 +35,7 @@ data class Action(val cost: Cost?, val instruction: Instruction) : PetsNode() {
           else -> {}
         }
       }
-      override val children = setOf(cost, qe)
+
       override fun toString() = "$cost / ${qe.toString(forceType = true)}" // no "/ 2" but "/ Heat" is fine
       override fun precedence() = 5
 
@@ -48,7 +45,6 @@ data class Action(val cost: Cost?, val instruction: Instruction) : PetsNode() {
     data class Or(var costs: Set<Cost>) : Cost() {
       constructor(vararg costs: Cost) : this(costs.toSet())
 
-      override val children = costs
       override fun toString() = costs.joinToString(" OR ") { groupPartIfNeeded(it) }
       override fun precedence() = 3
 
@@ -58,7 +54,6 @@ data class Action(val cost: Cost?, val instruction: Instruction) : PetsNode() {
     data class Multi(var costs: List<Cost>) : Cost() {
       constructor(vararg costs: Cost) : this(costs.toList())
 
-      override val children = costs
       override fun toString() = costs.joinToString { groupPartIfNeeded(it) }
       override fun precedence() = 1
 
@@ -66,7 +61,6 @@ data class Action(val cost: Cost?, val instruction: Instruction) : PetsNode() {
     }
 
     data class Prod(val cost: Cost) : Cost(), ProductionBox<Cost> {
-      override val children = setOf(cost)
       override fun toString() = "PROD[${cost}]"
 
       override fun toInstruction() = Prod(cost.toInstruction())

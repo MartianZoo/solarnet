@@ -1,14 +1,25 @@
 package dev.martianzoo.tfm.pets.ast
 
+import dev.martianzoo.tfm.pets.AstTransformer
+
 /**
  * An API object that can be represented as PETS source code.
  */
 sealed class PetsNode {
   abstract val kind: String
-  abstract val children: Collection<PetsNode>
 
-  fun descendants(): List<PetsNode> =
-      children.flatMap { listOf(it) + it.descendants() }
+  fun nodeCount(): Int {
+    class NodeCounter : AstTransformer() {
+      var count = 0
+      override fun <P : PetsNode?> transform(node: P): P {
+        if (node != null) count++
+        return super.transform(node)
+      }
+    }
+    val nc = NodeCounter()
+    nc.transform(this)
+    return nc.count
+  }
 
   fun groupPartIfNeeded(part: PetsNode) =
       if (part.shouldGroupInside(this)) "($part)" else "$part"

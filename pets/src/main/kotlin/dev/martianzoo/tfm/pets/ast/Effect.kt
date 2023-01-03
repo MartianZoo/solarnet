@@ -11,8 +11,6 @@ data class Effect(
 
   override val kind = "Effect"
 
-  override val children = setOf(trigger, instruction)
-
   override fun toString(): String {
     val instext = when (instruction) {
       is Gated -> "($instruction)"
@@ -25,12 +23,10 @@ data class Effect(
     override val kind = "Trigger"
 
     data class OnGain(val expression: TypeExpression) : Trigger() {
-      override val children = setOf(expression)
       override fun toString() = "$expression"
     }
 
     data class OnRemove(val expression: TypeExpression) : Trigger() {
-      override val children = setOf(expression)
       override fun toString() = "-${expression}"
     }
 
@@ -40,7 +36,7 @@ data class Effect(
           throw PetsException("only gain/remove trigger can go in prod block")
         }
       }
-      override val children = setOf(trigger)
+
       override fun toString() = "PROD[${trigger}]"
 
       override fun extract() = trigger

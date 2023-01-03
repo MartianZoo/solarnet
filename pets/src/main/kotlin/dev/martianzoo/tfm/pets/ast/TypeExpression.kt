@@ -40,8 +40,6 @@ data class TypeExpression(
       specs.joinOrEmpty(wrap="<>") +
       (refinement?.let { "(HAS $it)" } ?: "")
 
-  override val children = listOfNotNull(refinement) + specs
-
   companion object {
     fun te(s: String) : TypeExpression = TypeExpression(s)
     fun te(s: String, specs: List<String>, ref: Requirement? = null): TypeExpression =

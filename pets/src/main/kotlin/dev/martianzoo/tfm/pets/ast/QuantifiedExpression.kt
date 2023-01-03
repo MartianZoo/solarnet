@@ -6,8 +6,6 @@ data class QuantifiedExpression(val expression: TypeExpression = DEFAULT.type, v
   init { require(scalar >= 0) }
   override val kind = QuantifiedExpression::class.simpleName!!
 
-  override val children = setOfNotNull(expression)
-
   override fun toString() = toString(false, false)
 
   fun isTypeOnly() = expression.isTypeOnly()

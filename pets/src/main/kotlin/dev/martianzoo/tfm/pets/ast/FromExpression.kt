@@ -14,7 +14,6 @@ sealed class FromExpression : PetsNode() {
     override val toType = type
     override val fromType = type
 
-    override val children = setOf(type)
     override fun toString() = "$type"
   }
 
@@ -22,7 +21,6 @@ sealed class FromExpression : PetsNode() {
       override val toType: TypeExpression,
       override val fromType: TypeExpression) : FromExpression() {
 
-    override val children = setOf(toType, fromType)
     override fun toString() = "$toType FROM $fromType"
   }
 
@@ -38,8 +36,6 @@ sealed class FromExpression : PetsNode() {
     }
     override val toType = TypeExpression(className, specializations.map { it.toType })
     override val fromType = TypeExpression(className, specializations.map { it.fromType })
-
-    override val children = specializations + setOfNotNull(requirement)
 
     override fun toString() =
         className +

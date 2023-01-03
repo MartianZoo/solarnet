@@ -25,7 +25,6 @@ sealed class Instruction : PetsNode() {
     // TODO intensity
     override fun execute(game: GameApi) = game.applyChange(qe.scalar, gaining = qe.expression)
 
-    override val children = setOf(qe)
     override fun toString() = "$qe${intensity?.symbol ?: ""}"
   }
 
@@ -39,7 +38,6 @@ sealed class Instruction : PetsNode() {
     override fun times(value: Int) = copy(qe = qe.copy(scalar = qe.scalar * value))
     override fun execute(game: GameApi) = game.applyChange(qe.scalar, removing = qe.expression)
 
-    override val children = setOf(qe)
     override fun toString() = "-$qe${intensity?.symbol ?: ""}"
   }
 
@@ -64,7 +62,6 @@ sealed class Instruction : PetsNode() {
       }
     }
 
-    override val children = setOf(instruction, qe)
     override fun precedence() = 8
 
     override fun toString() = "$instruction / ${qe.toString(forceType = true)}" // no `/ 5`, but `/ Heat` is okay
@@ -86,8 +83,6 @@ sealed class Instruction : PetsNode() {
         throw PetsException("Die")
       }
     }
-
-    override val children = setOf(requirement, instruction)
 
     override fun toString(): String {
       return "${groupPartIfNeeded(requirement)}: ${groupPartIfNeeded(instruction)}"
@@ -127,8 +122,6 @@ sealed class Instruction : PetsNode() {
       return "$scal$fromExpression$intens"
     }
 
-    override val children = setOf(fromExpression)
-
     override fun shouldGroupInside(container: PetsNode) =
         (fromExpression is SimpleFrom && container is Or) || super.shouldGroupInside(container)
 
@@ -150,7 +143,6 @@ sealed class Instruction : PetsNode() {
           .execute(game)
     }
 
-    override val children = arguments
     override fun toString() = "$$functionName(${arguments.joinToString()})"
   }
 
@@ -162,7 +154,6 @@ sealed class Instruction : PetsNode() {
       Multi(instructions).execute(game)
     }
 
-    override val children = instructions
     override fun toString() =
         instructions.joinToString(" THEN ") { groupPartIfNeeded(it) }
 
@@ -175,7 +166,6 @@ sealed class Instruction : PetsNode() {
     override fun times(value: Int) = copy(instructions.map { it * value }.toSet())
     override fun execute(game: GameApi) = error("abstract instruction")
 
-    override val children = instructions
     override fun toString() = instructions.joinToString(" OR ") { groupPartIfNeeded(it) }
 
     override fun shouldGroupInside(container: PetsNode) =
@@ -193,7 +183,6 @@ sealed class Instruction : PetsNode() {
       instructions.forEach { it.execute(game) }
     }
 
-    override val children = instructions
     override fun toString() = instructions.joinToString(transform = ::groupPartIfNeeded)
 
     override fun precedence() = 0
@@ -204,7 +193,6 @@ sealed class Instruction : PetsNode() {
 
     override fun execute(game: GameApi) = error("should have been deprodified by now")
 
-    override val children = setOf(instruction)
     override fun toString() = "PROD[$instruction]"
 
     override fun extract() = instruction

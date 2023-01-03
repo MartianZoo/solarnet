@@ -45,7 +45,6 @@ data class StateChange(
     return "$desc BY $a BECAUSE $c"
   }
 
-  override val children = listOfNotNull(gaining, removing, cause?.agent)
   override val kind = "StateChange"
 
   data class Cause(
