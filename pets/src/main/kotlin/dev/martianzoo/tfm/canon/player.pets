@@ -86,7 +86,11 @@ ABSTRACT CLASS Resource : Owned {
         DEFAULT +This.
 
         // All others are card-specific; see cards.json5
-        CLASS Animal, Microbe, Science, Floater, Asteroid
+        CLASS Animal : CardResource<ResourcefulCard<Animal>>
+        CLASS Microbe : CardResource<ResourcefulCard<Microbe>>
+        CLASS Science : CardResource<ResourcefulCard<Science>>
+        CLASS Floater : CardResource<ResourcefulCard<Floater>>
+        CLASS Asteroid : CardResource<ResourcefulCard<Asteroid>>
     }
 }
 
