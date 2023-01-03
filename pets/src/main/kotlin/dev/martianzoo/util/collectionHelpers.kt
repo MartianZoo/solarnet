@@ -16,8 +16,13 @@ fun <E : Any?> Multiset<E>.mustRemove(element: E, count: Int) =
 
 fun <T> Collection<T>.toSetStrict() = toSet().also { require(it.size == size) }
 
-fun <T, K> Collection<T>.associateByStrict(x: (T) -> K) =
-    associateBy(x).also { require(it.size == size) }
+fun <T, K> Collection<T>.associateByStrict(x: (T) -> K): Map<K, T> {
+  val map: Map<K, T> = associateBy(x)
+  require (map.size == size) {
+    groupBy(x).filterValues { it.size > 1 }.keys
+  }
+  return map
+}
 
 fun <K : Any, V : Any> mergeMaps(one: Map<out K, V>, two: Map<out K, V>, merger: (V, V) -> V) =
     one.toMutableMap().apply {

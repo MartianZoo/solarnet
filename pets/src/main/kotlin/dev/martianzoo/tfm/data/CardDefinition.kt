@@ -190,7 +190,7 @@ data class CardDefinition(
     if (supertypes.isEmpty())  supertypes.add(te("CardFront"))
 
     ClassDeclaration(
-        className = "Card$id",
+        className = englishHack(id),
         abstract = false,
         supertypes = supertypes,
         effectsRaw = { allEffects })

@@ -99,7 +99,7 @@ class PetClass(val decl: ClassDeclaration, val loader: PetClassLoader) {
   val directEffects by lazy {
     directEffectsRaw.asSequence()
         .map {
-          println("raw effect was: $it")
+          println("\n0. Class $name, raw effect is: $it")
           it
         }
         .map { deprodify(it, loader.resourceNames) }
@@ -110,7 +110,6 @@ class PetClass(val decl: ClassDeclaration, val loader: PetClassLoader) {
   }
 
   private fun validateAllTypes(effects: List<Effect>, loader: PetClassLoader) {
-    // val fx = effects.map { replaceTypesIn(it, THIS.type, te(name)) }
     Validator(loader).transform(effects)
   }
 

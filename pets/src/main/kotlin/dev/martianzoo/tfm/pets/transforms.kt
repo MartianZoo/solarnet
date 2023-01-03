@@ -55,7 +55,7 @@ internal fun immediateToEffect(immediate: Instruction): Effect {
 internal fun <P : PetsNode> resolveSpecialThisType(node: P, resolveTo: TypeExpression): P {
   require(resolveTo.isTypeOnly()) // I think?
   return replaceTypesIn(node, THIS.type, resolveTo).also {
-    println("Resolved `This` to `$resolveTo` in ${node.kind}: $it")
+    println("3. Resolved `This` to `$resolveTo` in ${node.kind}: $it")
   }
 }
 
@@ -73,7 +73,9 @@ private class TypeReplacer(val from: TypeExpression, val to: TypeExpression) : A
 internal fun <P : PetsNode> deprodify(node: P, producibleClassNames: Set<String>): P {
   return Deprodifier(producibleClassNames).transform(node).also {
     if (it != node) {
-      println("Deprodified a ${node.kind}: $it")
+      println("1. Deprodified a ${node.kind}: $it")
+    } else {
+      println("1. No PROD to handle")
     }
   }
 }

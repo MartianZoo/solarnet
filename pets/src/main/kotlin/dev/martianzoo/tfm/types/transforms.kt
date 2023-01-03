@@ -8,7 +8,7 @@ import dev.martianzoo.tfm.pets.ast.TypeExpression
 
 fun <P : PetsNode> applyDefaultsIn(node: P, table: PetClassTable): P {
   return Defaulter(table).transform(node).also {
-    println("applied defaults to a ${node.kind}: $it")
+    println("2. applied defaults to a ${node.kind}: $it")
   }
 }
 

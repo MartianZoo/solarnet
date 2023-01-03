@@ -100,7 +100,7 @@ ABSTRACT CLASS HasActions {
     ABSTRACT CLASS StandardProject {
         HAS =1 This
 
-        CLASS PowerPlant   { 11 -> PROD[Energy] }
+        CLASS PowerPlantSP { 11 -> PROD[Energy] }
         CLASS AsteroidSP   { 14 -> TemperatureStep }
         CLASS AirScrapping { 15 -> VenusStep }
         CLASS Aquifer      { 18 -> OceanTile }

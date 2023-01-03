@@ -40,7 +40,7 @@
       "immediate": [ "PROD[Energy], 48" ],
       "effects": [
         "PlayTag<PowerTag>:: -3 Owed.",
-        "UseAction<PowerPlant>: -3 Owed",
+        "UseAction<PowerPlantSP>: -3 Owed",
       ],
     },
 

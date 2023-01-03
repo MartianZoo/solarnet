@@ -16,7 +16,7 @@ class PetTypeTest {
 
   @Test
   fun wtf2() {
-    assertThat(table.resolve("Animal<Card072>").abstract).isTrue()
+    assertThat(table.resolve("Animal<Birds>").abstract).isTrue()
   }
 
   @Test
@@ -26,19 +26,19 @@ class PetTypeTest {
 
   @Test
   fun wtf5() {
-    assertThat(table.resolve("Animal<Player1, Card072>").abstract).isTrue() // TODO FALSE
+    assertThat(table.resolve("Animal<Player1, Birds>").abstract).isTrue() // TODO FALSE
   }
 
   @Test
   fun wtf6() {
-    val birds = table.resolve("Card072").petClass
+    val birds = table.resolve("Birds").petClass
     assertThat(table.resolve("Player1").abstract).isFalse()
-    assertThat(table.resolve("Card072<Player1>").abstract).isFalse()
-    assertThat(table.resolve("Animal<Player1, Card072<Player1>>").abstract).isFalse()
+    assertThat(table.resolve("Birds<Player1>").abstract).isFalse()
+    assertThat(table.resolve("Animal<Player1, Birds<Player1>>").abstract).isFalse()
   }
 
   @Test
   fun wtf7() {
-    assertThat(table.resolve("Animal<Player1, Card072<Player1>>").abstract).isFalse()
+    assertThat(table.resolve("Animal<Player1, Birds<Player1>>").abstract).isFalse()
   }
 }
