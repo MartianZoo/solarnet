@@ -66,8 +66,8 @@ interface PetType {
             petClass.intersect(that.petClass),
             dependencies.intersect((that as PetGenericType).dependencies))
 
-    fun specialize(specs: List<TypeExpression>) =
-        copy(dependencies = dependencies.specialize(specs, petClass.loader))
+    fun specialize(specs: List<PetType>) =
+        copy(dependencies = dependencies.specialize(specs))
 
     override fun toTypeExpressionFull(): GenericTypeExpression {
       val specs = dependencies.keyToDependency.values.map { it.toTypeExpressionFull() }

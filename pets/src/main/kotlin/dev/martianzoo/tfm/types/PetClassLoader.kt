@@ -6,6 +6,7 @@ import dev.martianzoo.tfm.pets.ast.TypeExpression
 import dev.martianzoo.tfm.pets.ast.TypeExpression.ClassExpression
 import dev.martianzoo.tfm.pets.ast.TypeExpression.GenericTypeExpression
 import dev.martianzoo.tfm.types.PetType.PetClassType
+import dev.martianzoo.tfm.types.PetType.PetGenericType
 import dev.martianzoo.util.associateByStrict
 
 // TODO restrict viz?
@@ -62,8 +63,8 @@ class PetClassLoader(val definitions: Map<String, ClassDeclaration>) : PetClassT
   override fun resolve(expression: ClassExpression) =
       PetClassType(load(expression.className))
 
-  override fun resolve(expression: GenericTypeExpression) =
-      load(expression.className).baseType.specialize(expression.specs)
+  override fun resolve(expression: GenericTypeExpression): PetGenericType =
+      load(expression.className).baseType.specialize(expression.specs.map { resolve(it) })
 
   override fun isValid(expression: TypeExpression) = try {
     resolve(expression)

@@ -63,9 +63,8 @@ class PetClass(val decl: ClassDeclaration, val loader: PetClassLoader) {
     allSuperclasses.flatMap { it.directDependencyKeys }.toSet()
   }
 
-  fun resolveSpecializations(specs: List<TypeExpression>): DependencyMap {
-    val dependencies = baseType.dependencies
-    return dependencies.findMatchups(specs, loader)
+  fun resolveSpecializations(specs: List<PetType>): DependencyMap {
+    return baseType.dependencies.findMatchups(specs)
   }
 
   private var reentryCheck = false
@@ -122,19 +121,19 @@ class PetClass(val decl: ClassDeclaration, val loader: PetClassLoader) {
         .map { resolveSpecialThisType(it, te(name)) }
         .map { applyDefaultsIn(it, loader) }
         .toList()
-        .also { validateAllTypes(it, loader) }
+        .also { validateAllTypes(it) }
   }
 
 
 // VALIDATION
 
-  private fun validateAllTypes(effects: List<Effect>, loader: PetClassLoader) {
+  private fun validateAllTypes(effects: List<Effect>) {
     Validator(loader).transform(effects)
   }
 
-  class Validator(val loader: PetClassLoader) : AstTransformer() {
+  class Validator(val table: PetClassTable) : AstTransformer() {
     override fun <P : PetsNode?> transform(node: P): P {
-      if (node is TypeExpression) loader.resolve(node)
+      if (node is TypeExpression) table.resolve(node)
       return super.transform(node)
     }
   }

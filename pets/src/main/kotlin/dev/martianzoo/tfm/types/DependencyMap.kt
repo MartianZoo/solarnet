@@ -1,6 +1,5 @@
 package dev.martianzoo.tfm.types
 
-import dev.martianzoo.tfm.pets.ast.TypeExpression
 import dev.martianzoo.util.mergeMaps
 import dev.martianzoo.util.overlayMaps
 
@@ -48,9 +47,9 @@ data class DependencyMap(val keyToDependency: Map<Dependency.Key, Dependency>) {
 
   // determines the map that could be merged with this one to specialize, by inferring which
   // keys the provided specs go with
-  fun findMatchups(specs: List<TypeExpression>, loader: PetClassLoader): DependencyMap {
+  fun findMatchups(specs: List<PetType>): DependencyMap {
     val newMap = mutableMapOf<Dependency.Key, Dependency>()
-    val unhandled = specs.map { loader.resolve(it) }.toMutableList()
+    val unhandled = specs.toMutableList()
 
     for ((key, dependency) in keyToDependency) {
       if (unhandled.isEmpty()) break
@@ -64,8 +63,7 @@ data class DependencyMap(val keyToDependency: Map<Dependency.Key, Dependency>) {
     return DependencyMap(newMap)
   }
 
-  fun specialize(specs: List<TypeExpression>, loader: PetClassLoader) =
-      intersect(findMatchups(specs, loader))
+  fun specialize(specs: List<PetType>) = intersect(findMatchups(specs))
 
   override fun toString() = "${keyToDependency.values}"
 }

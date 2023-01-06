@@ -1,7 +1,5 @@
 package dev.martianzoo.tfm.types
 
-import dev.martianzoo.tfm.pets.ast.TypeExpression
-
 data class Dependency(val key: Key, val type: PetType) {
   val abstract by type::abstract
 
@@ -18,9 +16,6 @@ data class Dependency(val key: Key, val type: PetType) {
 
   infix fun intersect(otherType: PetType) =
       copy(type = this.type intersect otherType)
-
-  fun intersect(otherType: TypeExpression, loader: PetClassLoader) =
-      this intersect loader.resolve(otherType)
 
   fun toTypeExpressionFull() = type.toTypeExpressionFull()
 
