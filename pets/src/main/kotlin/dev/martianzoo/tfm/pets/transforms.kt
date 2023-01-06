@@ -15,7 +15,9 @@ import dev.martianzoo.tfm.pets.ast.Instruction.Transmute
 import dev.martianzoo.tfm.pets.ast.PetsNode
 import dev.martianzoo.tfm.pets.ast.PetsNode.ProductionBox
 import dev.martianzoo.tfm.pets.ast.TypeExpression
+import dev.martianzoo.tfm.pets.ast.TypeExpression.ClassExpression
 import dev.martianzoo.tfm.pets.ast.TypeExpression.Companion.te
+import dev.martianzoo.tfm.pets.ast.TypeExpression.GenericTypeExpression
 
 internal fun actionToEffect(action: Action, index1Ref: Int): Effect {
   require(index1Ref >= 1) { index1Ref }
@@ -53,7 +55,6 @@ internal fun immediateToEffect(immediate: Instruction): Effect {
 
 // had to use an ungrammatical name
 internal fun <P : PetsNode> resolveSpecialThisType(node: P, resolveTo: TypeExpression): P {
-  require(resolveTo.isTypeOnly()) // I think?
   return replaceTypesIn(node, THIS.type, resolveTo).also {
     println("3. Resolved `This` to `$resolveTo` in ${node.kind}: $it")
   }
@@ -90,8 +91,8 @@ private class Deprodifier(val producible: Set<String>) : AstTransformer() {
       transform(node.extract()).also { inProd = false }
     }
 
-    inProd && node is TypeExpression && node.className in producible -> PRODUCTION.type.copy(
-        specs = node.specs + node.copy(specs = listOf())
+    inProd && node is GenericTypeExpression && node.className in producible -> PRODUCTION.type.copy(
+        specs = node.specs + ClassExpression(node.className)
     ) // TODO this is weird and fragile
 
     else -> super.transform(node)

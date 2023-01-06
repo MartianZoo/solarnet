@@ -2,6 +2,7 @@ package dev.martianzoo.tfm.pets.ast
 
 import dev.martianzoo.tfm.pets.CLASS_NAME_PATTERN
 import dev.martianzoo.tfm.pets.PetsException
+import dev.martianzoo.tfm.pets.ast.TypeExpression.Companion.te
 import dev.martianzoo.util.joinOrEmpty
 
 sealed class FromExpression : PetsNode() {
@@ -34,12 +35,12 @@ sealed class FromExpression : PetsNode() {
         throw PetsException("Can only have one FROM in an expression")
       }
     }
-    override val toType = TypeExpression(className, specializations.map { it.toType })
-    override val fromType = TypeExpression(className, specializations.map { it.fromType })
+    override val toType = te(className, specializations.map { it.toType })
+    override val fromType = te(className, specializations.map { it.fromType })
 
     override fun toString() =
         className +
-            specializations.joinOrEmpty(wrap="<>") +
-            (requirement?.let { "(HAS $it)" } ?: "")
+        specializations.joinOrEmpty(wrap="<>") +
+        (requirement?.let { "(HAS $it)" } ?: "")
   }
 }

@@ -8,8 +8,6 @@ data class QuantifiedExpression(val expression: TypeExpression = DEFAULT.type, v
 
   override fun toString() = toString(false, false)
 
-  fun isTypeOnly() = expression.isTypeOnly()
-
   fun toString(forceScalar: Boolean = false, forceType: Boolean = false) =
       when {
         !forceType && expression == DEFAULT.type -> "$scalar"

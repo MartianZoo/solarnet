@@ -1,8 +1,6 @@
 package dev.martianzoo.tfm.pets.ast
 
-import dev.martianzoo.tfm.pets.CLASS_NAME_PATTERN
-import dev.martianzoo.tfm.pets.SpecialComponent.CLASS
-import dev.martianzoo.tfm.pets.SpecialComponent.THIS
+import dev.martianzoo.tfm.pets.classNameRegex
 import dev.martianzoo.util.joinOrEmpty
 
 /**
@@ -10,46 +8,43 @@ import dev.martianzoo.util.joinOrEmpty
  * (`Foo<Bar, Qux>`) or a *refined* type (`Foo<Bar(HAS 3 Qux)>(HAS Wau)`). A
  * refined type is the combination of a real type with various predicates.
  */
-data class TypeExpression(
-    val className: String,
-    val specs: List<TypeExpression> = listOf(),
-    val refinement: Requirement? = null,
-) : PetsNode() {
-  constructor(className: String, vararg specialization: TypeExpression) :
-      this(className, specialization.toList())
-  init {
-    require(className.matches(Regex(CLASS_NAME_PATTERN))) { className }
-    if (className == "$CLASS") { // TODO what about This?
-      require(specs.size <= 1) { specs }
-      require(specs.isEmpty() || specs.first().isClassOnly())
-      require(refinement == null)
+sealed class TypeExpression: PetsNode() {
+  abstract val className: String
+
+  data class GenericTypeExpression(
+      override val className: String,
+      val specs: List<TypeExpression> = listOf(),
+      val refinement: Requirement? = null,
+  ) : TypeExpression() {
+    init {
+      require(className.matches(classNameRegex())) { className }
+      require(className != "Class")
     }
+
+    override fun toString() =
+        className + specs.joinOrEmpty(wrap = "<>") + (refinement?.let { "(HAS $it)" } ?: "")
   }
 
-  // TODO props
-  fun isTypeOnly(): Boolean =
-      refinement == null && specs.all { it.isTypeOnly() }
-
-  fun isClassOnly() = (this != THIS.type && this == te(className)) // TODO why This?
-
-  //fun pureTypeOnly(): TypeExpression =
-  //    copy(refinement = null, specs = specs.map { it.pureTypeOnly() })
-
-  override fun toString() =
-      className +
-      specs.joinOrEmpty(wrap="<>") +
-      (refinement?.let { "(HAS $it)" } ?: "")
+  data class ClassExpression(override val className: String) : TypeExpression() {
+    init {
+      require(className.matches(classNameRegex())) { className }
+      if (className == "CardFront") error("hey")
+    }
+    override fun toString() = "$className.CLASS"
+  }
 
   companion object {
-    fun te(s: String) : TypeExpression = TypeExpression(s)
-    fun te(s: String, specs: List<String>, ref: Requirement? = null): TypeExpression =
-        TypeExpression(s, specs.map(::te), ref)
-    fun te(s: String, first: TypeExpression, vararg rest: TypeExpression): TypeExpression =
-        TypeExpression(s, listOf(first) + rest)
-    fun te(s: String, first: String, vararg rest: String) =
-        te(s, listOf(first) + rest)
+    fun te(s: String) = GenericTypeExpression(s)
+    fun te(s: String, specs: List<String>, ref: Requirement? = null): GenericTypeExpression =
+        GenericTypeExpression(s, specs.map(::te), ref)
+
+    fun te(s: String, first: TypeExpression, vararg rest: TypeExpression) =
+        GenericTypeExpression(s, listOf(first) + rest)
+
+    fun te(s: String, first: String, vararg rest: String) = te(s, listOf(first) + rest)
+
+    fun te(s: String, specs: List<TypeExpression>) = GenericTypeExpression(s, specs)
   }
 
   override val kind = "TypeExpression"
 }
-

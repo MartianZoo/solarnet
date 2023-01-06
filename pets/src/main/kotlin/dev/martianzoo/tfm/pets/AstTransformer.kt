@@ -11,7 +11,8 @@ import dev.martianzoo.tfm.pets.ast.Instruction
 import dev.martianzoo.tfm.pets.ast.PetsNode
 import dev.martianzoo.tfm.pets.ast.QuantifiedExpression
 import dev.martianzoo.tfm.pets.ast.Requirement
-import dev.martianzoo.tfm.pets.ast.TypeExpression
+import dev.martianzoo.tfm.pets.ast.TypeExpression.ClassExpression
+import dev.martianzoo.tfm.pets.ast.TypeExpression.GenericTypeExpression
 import dev.martianzoo.util.toSetStrict
 
 open class AstTransformer {
@@ -22,7 +23,8 @@ open class AstTransformer {
     if (node == null) return null as P // TODO how'm I even getting away with this
     return node.run {
       when (this) {
-        is TypeExpression -> TypeExpression(className, x(specs), x(refinement))
+        is ClassExpression -> this
+        is GenericTypeExpression -> GenericTypeExpression(className, x(specs), x(refinement))
         is QuantifiedExpression -> QuantifiedExpression(x(expression), scalar)
 
         is Requirement.Min -> Requirement.Min(x(qe))

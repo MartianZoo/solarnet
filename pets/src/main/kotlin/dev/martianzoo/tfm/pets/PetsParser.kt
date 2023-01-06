@@ -51,7 +51,9 @@ import dev.martianzoo.tfm.pets.ast.Script.ScriptLine
 import dev.martianzoo.tfm.pets.ast.Script.ScriptPragmaPlayer
 import dev.martianzoo.tfm.pets.ast.Script.ScriptRequirement
 import dev.martianzoo.tfm.pets.ast.TypeExpression
+import dev.martianzoo.tfm.pets.ast.TypeExpression.ClassExpression
 import dev.martianzoo.tfm.pets.ast.TypeExpression.Companion.te
+import dev.martianzoo.tfm.pets.ast.TypeExpression.GenericTypeExpression
 import dev.martianzoo.util.toSetStrict
 import kotlin.reflect.KClass
 import kotlin.reflect.cast
@@ -136,16 +138,22 @@ object PetsParser {
 
     internal val className = classNameRE map { it.text }
 
+    internal val classExpression = className and skipChar('.') and skip(_class) map ::ClassExpression
+
     private val specializations = optionalList(
         skipChar('<') and commaSeparated(typeExpression) and skipChar('>')
     )
-    internal val refinement = optional(parens(skip(_has) and Requirements.requirement))
+    internal val refinement = optional(parens(skip(_has) and parser { Requirements.requirement }))
 
-    internal val whole = className and specializations and refinement map { (type, refs, reqt) ->
-      TypeExpression(type, refs, reqt)
+    internal val gte: Parser<GenericTypeExpression> =
+        className and
+        specializations and
+        refinement map {
+      (type, refs, reqt) -> GenericTypeExpression(type, refs, reqt)
     }
-  }
 
+    internal val whole = classExpression or gte
+  }
   val xt = Types.typeExpression
 
   object QEs { // --------------------------------------------------------------
@@ -155,16 +163,16 @@ object PetsParser {
     internal val scalar: Parser<Int> = scalarRE map { it.text.toInt() }
 
     private val implicitScalar: Parser<Int?> = optional(scalar)
-    private val implicitType: Parser<TypeExpression?> = optional(Types.typeExpression)
+    private val implicitType: Parser<GenericTypeExpression?> = optional(Types.gte)
 
-    private val qeWithScalar = scalar and implicitType map { (scalar, expr) ->
+    private val qeWithScalar = scalar and implicitType map { (scalar, expr: TypeExpression?) ->
       if (expr == null) {
         QuantifiedExpression(scalar = scalar)
       } else {
         QuantifiedExpression(expr, scalar)
       }
     }
-    private val qeWithType = implicitScalar and Types.typeExpression map { (scalar, expr) ->
+    private val qeWithType = implicitScalar and Types.gte map { (scalar, expr) ->
       if (scalar == null) {
         QuantifiedExpression(expr)
       } else {
@@ -219,7 +227,7 @@ object PetsParser {
     }
 
     private val simpleFrom =
-        Types.typeExpression and skip(_from) and Types.typeExpression map { (to, from) ->
+        Types.gte and skip(_from) and Types.gte map { (to, from) ->
           SimpleFrom(to, from)
         }
 
@@ -228,7 +236,7 @@ object PetsParser {
           ComplexFrom(name, specs, refins)
         }
     private val from = simpleFrom or complexFrom
-    private val typeInFrom = Types.typeExpression map { TypeInFrom(it) }
+    private val typeInFrom = Types.gte map { TypeInFrom(it) }
 
     private val fromElements: Parser<List<FromExpression>> =
         zeroOrMore(typeInFrom and skipChar(',')) and from and zeroOrMore(skipChar(',') and typeInFrom) map { (before, from, after) ->
@@ -309,8 +317,8 @@ object PetsParser {
     internal val trigger: Parser<Trigger> = publish { wholeTrigger }
     internal val effect: Parser<Effect> = publish { whole }
 
-    private val onGain = Types.typeExpression map ::OnGain
-    private val onRemove = skipChar('-') and Types.typeExpression map ::OnRemove
+    private val onGain = Types.gte map ::OnGain
+    private val onRemove = skipChar('-') and Types.gte map ::OnRemove
     private val atom = onGain or onRemove
 
     private val wholeTrigger = prod(atom) map Trigger::Prod or atom
@@ -331,19 +339,19 @@ object PetsParser {
         skip(_exec) and
         Instructions.instruction and
         optional(skip(_by) and
-        Types.typeExpression) map { (instr, by) -> ScriptCommand(instr, by) }
+        Types.gte) map { (instr, by) -> ScriptCommand(instr, by) }
 
     private val req: Parser<ScriptRequirement> =
         skip(_require) and Requirements.requirement map ::ScriptRequirement
 
     private val counter: Parser<ScriptCounter> =
         skip(_count) and
-        Types.typeExpression and
+        Types.gte and
         skip(char('-') and char('>')) and
         metricKeyRE map { (type, key) -> ScriptCounter(key.text, type) }
 
     private val player: Parser<ScriptPragmaPlayer> =
-        skip(_become) and Types.typeExpression map ::ScriptPragmaPlayer
+        skip(_become) and Types.gte map ::ScriptPragmaPlayer
 
     internal val line: Parser<ScriptLine> =
         nls and (command or req or counter or player) and skipChar('\n')
@@ -355,18 +363,16 @@ object PetsParser {
       val className: String,
       val dependencies: List<DependencyDecl>,
       val topInvariant: Requirement?,
-      val supertypes: List<TypeExpression>
+      val supertypes: List<GenericTypeExpression>
   )
 
   object Components { // -------------------------------------------------------
     private val isAbstract = optional(_abstract) and skip(_class) map { it != null }
-    private val dependency = optional(_class) and Types.typeExpression map { (classDep, type) ->
-      DependencyDecl(type, classDep != null)
-    }
+    private val dependency = Types.typeExpression map ::DependencyDecl
     private val dependencies = optionalList(
         skipChar('<') and commaSeparated(dependency) and skipChar('>')
     )
-    private val supertypes = optionalList(skipChar(':') and commaSeparated(Types.typeExpression))
+    private val supertypes = optionalList(skipChar(':') and commaSeparated(Types.gte))
 
     private val signature =
         Types.className and dependencies and Types.refinement and supertypes map { (c, d, r, s) ->
@@ -377,13 +383,13 @@ object PetsParser {
         skipChar(',') and separatedTerms(signature, char(','))
 
     private val gainDefault =
-        skipChar('+') and Types.typeExpression and Instructions.intensity map { (type, int) ->
+        skipChar('+') and Types.gte and Instructions.intensity map { (type, int) ->
           require(type.className == "$THIS")
           require(type.refinement == null)
           DefaultsDeclaration(gainOnlySpecs = type.specs, gainIntensity = int)
         }
 
-    private val typeDefault = Types.typeExpression map {
+    private val typeDefault = Types.gte map {
       require(it.className == "$THIS")
       require(it.refinement == null)
       DefaultsDeclaration(universalSpecs = it.specs)

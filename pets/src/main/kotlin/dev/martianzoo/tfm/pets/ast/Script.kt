@@ -5,7 +5,6 @@ data class Script(val lines: List<ScriptLine>) {
   interface ScriptLine
 
   data class ScriptCommand(val command: Instruction, val ownedBy: TypeExpression? = null) : ScriptLine {
-    init { ownedBy?.let { require(it.isTypeOnly()) } }
   }
 
   data class ScriptRequirement(val req: Requirement) : ScriptLine
