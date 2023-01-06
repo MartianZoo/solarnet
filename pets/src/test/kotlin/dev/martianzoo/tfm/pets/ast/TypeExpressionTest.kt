@@ -2,11 +2,8 @@ package dev.martianzoo.tfm.pets.ast
 
 import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.tfm.pets.PetsParser
-import dev.martianzoo.tfm.pets.ast.Requirement.Min
 import dev.martianzoo.tfm.pets.ast.TypeExpression.Companion.te
-import dev.martianzoo.tfm.pets.ast.TypeExpression.GenericTypeExpression
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
 
 // Most testing is done by AutomatedTest
 class TypeExpressionTest {
@@ -66,10 +63,5 @@ class TypeExpressionTest {
         te("Jj")
     )
     assertThat(expr.toString()).isEqualTo("Aa<Bb, Cc<Dd>, Ee<Ff<Gg, Hh>, Me>, Jj>")
-  }
-
-  @Test fun classAlone() {
-    assertThrows<RuntimeException> { te("Class", te("Foo", te("Bar"))) }
-    assertThrows<RuntimeException> { te("Class", GenericTypeExpression("Foo", refinement = Min(QuantifiedExpression(te("Heat"))))) }
   }
 }

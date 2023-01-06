@@ -1,7 +1,7 @@
 package dev.martianzoo.tfm.types
 
+import dev.martianzoo.tfm.data.ClassDeclaration
 import dev.martianzoo.tfm.pets.AstTransformer
-import dev.martianzoo.tfm.pets.ClassDeclaration
 import dev.martianzoo.tfm.pets.SpecialComponent.COMPONENT
 import dev.martianzoo.tfm.pets.ast.Effect
 import dev.martianzoo.tfm.pets.ast.PetsNode
@@ -117,7 +117,7 @@ class PetClass(val decl: ClassDeclaration, val loader: PetClassLoader) {
           println("\n0. Class $name, raw effect is: $it")
           it
         }
-        .map { deprodify(it, loader.resourceNames) }
+        .map { deprodify(it, loader.resourceNames()) }
         .map { resolveSpecialThisType(it, te(name)) }
         .map { applyDefaultsIn(it, loader) }
         .toList()

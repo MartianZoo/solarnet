@@ -6,7 +6,7 @@ ABSTRACT CLASS Anyone {
     HAS =1 This
 
     ABSTRACT CLASS Player : Anyone {
-        This: 20 TerraformRating<This>
+        This: 20 TerraformRating
 
         // Hack!                                            // We're forced to use some ugly hack; at least this one
         This: PROD[5]                                       // confines the damage to Specialist/Generalist/Robinson and
@@ -21,7 +21,10 @@ ABSTRACT CLASS Anyone {
         Pay<Titanium.CLASS>:: 3 Pay<Megacredit.CLASS>       // should be innocuous for TradeAction?
 
         CLASS Player1, Player2, Player3, Player4, Player5   // in PETS, nesting = subtyping
+
+        // CLASS Me                                         // or it's purely magical, not sure
     }
+
     CLASS Npc                                               // this is who does WGT, etc
 }
 

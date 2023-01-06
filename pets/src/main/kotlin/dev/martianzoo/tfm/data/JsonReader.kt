@@ -2,21 +2,15 @@ package dev.martianzoo.tfm.data
 
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
-import dev.martianzoo.tfm.pets.ClassDeclaration
-import dev.martianzoo.tfm.pets.PetsParser.Components.oneLineClassDeclaration
-import dev.martianzoo.tfm.pets.PetsParser.parse
 import dev.martianzoo.util.Grid
-import dev.martianzoo.util.associateByStrict
 import java.util.*
 import kotlin.text.RegexOption.DOT_MATCHES_ALL
 
 internal object JsonReader {
   // Cards
-  internal fun readCards(json5: String) = MOSHI_CARD.fromJson(json5ToJson(json5))!!.toMap()
+  internal fun readCards(json5: String) = MOSHI_CARD.fromJson(json5ToJson(json5))!!.cards
 
-  internal data class CardList(val cards: List<CardDefinition>) {
-    fun toMap() = cards.associateByStrict { it.id }
-  }
+  internal data class CardList(val cards: List<CardDefinition>)
 
   // Maps
 
@@ -48,11 +42,9 @@ internal object JsonReader {
   }
 
   // Milestones
-  internal fun readMilestones(json5: String) = MOSHI_MILESTONE.fromJson(json5ToJson(json5))!!.toMap()
+  internal fun readMilestones(json5: String) = MOSHI_MILESTONE.fromJson(json5ToJson(json5))!!.milestones
 
-  internal data class MilestoneList(val milestones: List<MilestoneDefinition>) {
-    fun toMap() = milestones.associateBy { it.id }.also { require(it.size == milestones.size) }
-  }
+  internal data class MilestoneList(val milestones: List<MilestoneDefinition>)
 
   // Nothing like three different meanings of the same word in the same place
   fun readMaps(json5: String): Map<String, Grid<MarsAreaDefinition>> {
@@ -73,11 +65,6 @@ internal object JsonReader {
       Grid.grid(areas, { it.row }, { it.column })
     }
   }
-
-  fun auxiliaryComponentDefinitions(cardDefs: Collection<CardDefinition>): Map<String, ClassDeclaration> =
-    cardDefs.flatMap { it.extraComponentsText }
-        .map { parse(oneLineClassDeclaration, it) }
-        .associateBy { it.className }
 
   // Stuff
 

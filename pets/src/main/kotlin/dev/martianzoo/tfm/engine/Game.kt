@@ -1,5 +1,6 @@
 package dev.martianzoo.tfm.engine
 
+import dev.martianzoo.tfm.data.Authority
 import dev.martianzoo.tfm.engine.ComponentGraph.Component
 import dev.martianzoo.tfm.pets.GameApi
 import dev.martianzoo.tfm.pets.PetsParser.parse
@@ -9,7 +10,11 @@ import dev.martianzoo.tfm.pets.ast.TypeExpression
 import dev.martianzoo.tfm.types.PetClassTable
 import dev.martianzoo.tfm.types.PetType
 
-class Game(val components: ComponentGraph, private val table: PetClassTable) : GameApi {
+class Game(
+    override val authority: Authority,
+    val components: ComponentGraph,
+    private val table: PetClassTable
+) : GameApi {
   // val tasks = mutableListOf<Task>()
 
   fun resolve(type: TypeExpression) = table.resolve(type)

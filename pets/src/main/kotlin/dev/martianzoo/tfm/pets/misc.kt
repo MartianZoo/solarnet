@@ -40,4 +40,4 @@ const val CLASS_NAME_PATTERN = "\\b[A-Z][a-z][A-Za-z0-9_]*\\b"
 val thing by lazy { Regex(CLASS_NAME_PATTERN) }
 fun classNameRegex() = thing
 
-val reservedClassNames = setOf("Class", "This", "Me")
+val reservedClassNames = setOf("This", "Me")

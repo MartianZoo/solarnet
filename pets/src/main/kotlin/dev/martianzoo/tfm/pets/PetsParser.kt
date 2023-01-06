@@ -16,8 +16,9 @@ import com.github.h0tk3y.betterParse.lexer.regexToken
 import com.github.h0tk3y.betterParse.parser.ParseException
 import com.github.h0tk3y.betterParse.parser.Parser
 import com.github.h0tk3y.betterParse.parser.parseToEnd
-import dev.martianzoo.tfm.pets.ClassDeclaration.DefaultsDeclaration
-import dev.martianzoo.tfm.pets.ClassDeclaration.DependencyDecl
+import dev.martianzoo.tfm.data.ClassDeclaration
+import dev.martianzoo.tfm.data.ClassDeclaration.DefaultsDeclaration
+import dev.martianzoo.tfm.data.ClassDeclaration.DependencyDecl
 import dev.martianzoo.tfm.pets.SpecialComponent.COMPONENT
 import dev.martianzoo.tfm.pets.SpecialComponent.THIS
 import dev.martianzoo.tfm.pets.ast.Action

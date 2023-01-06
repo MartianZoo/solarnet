@@ -1,18 +1,16 @@
 package dev.martianzoo.tfm.types
 
-import dev.martianzoo.tfm.pets.ClassDeclaration
+import dev.martianzoo.tfm.data.Authority
+import dev.martianzoo.tfm.data.ClassDeclaration
 import dev.martianzoo.tfm.pets.SpecialComponent.STANDARD_RESOURCE
 import dev.martianzoo.tfm.pets.ast.TypeExpression
 import dev.martianzoo.tfm.pets.ast.TypeExpression.ClassExpression
 import dev.martianzoo.tfm.pets.ast.TypeExpression.GenericTypeExpression
 import dev.martianzoo.tfm.types.PetType.PetClassType
 import dev.martianzoo.tfm.types.PetType.PetGenericType
-import dev.martianzoo.util.associateByStrict
 
 // TODO restrict viz?
-class PetClassLoader(val definitions: Map<String, ClassDeclaration>) : PetClassTable {
-  constructor(definitions: Collection<ClassDeclaration>) : this(definitions.associateByStrict { it.className })
-
+class PetClassLoader(val authority: Authority) : PetClassTable {
   private val table = mutableMapOf<String, PetClass?>()
 
   private var frozen: Boolean = false
@@ -20,7 +18,8 @@ class PetClassLoader(val definitions: Map<String, ClassDeclaration>) : PetClassT
   override fun get(name: String) = table[name] ?: error(name)
 
   /** Returns the petclass named `name`, loading it first if necessary. */
-  fun load(name: String) = table[name] ?: construct(definitions[name]!!)
+  fun load(name: String) =
+      table[name] ?: construct(authority.declaration(name))
 
   private fun construct(decl: ClassDeclaration): PetClass {
     println("Loading ${decl.className}")
@@ -41,8 +40,10 @@ class PetClassLoader(val definitions: Map<String, ClassDeclaration>) : PetClassT
     return this
   }
 
+  fun loadAll(names: Collection<String>) = names.forEach(::load)
+
   fun loadAll(): PetClassTable {
-    definitions.keys.forEach(::load)
+    loadAll(authority.allClassDeclarations.keys)
     return freeze()
   }
 
@@ -73,7 +74,20 @@ class PetClassLoader(val definitions: Map<String, ClassDeclaration>) : PetClassT
     false
   }
 
-  val resourceNames by lazy { load("$STANDARD_RESOURCE").allSubclasses.map { it.name }.toSet() }
+  // It is probably enough to return just the resource names we know about so far?
+  fun resourceNames() = if (frozen) allResourceNames else findResourceNames()
+
+  private val allResourceNames: Set<String> by lazy {
+    require(frozen)
+    findResourceNames()
+  }
+
+  private fun findResourceNames(): Set<String> {
+    val stdRes = this.load("$STANDARD_RESOURCE")
+    return loadedClassNames().filter { stdRes in this[it].allSuperclasses }.toSet()
+  }
 
   fun classesLoaded() = table.size
+
+  override fun loadedClassNames() = table.keys.toSet()
 }

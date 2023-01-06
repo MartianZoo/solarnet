@@ -1,6 +1,5 @@
 package dev.martianzoo.tfm.pets.ast
 
-import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.pets.GameApi
 import dev.martianzoo.tfm.pets.PetsException
 import dev.martianzoo.tfm.pets.ast.FromExpression.SimpleFrom
@@ -138,7 +137,7 @@ sealed class Instruction : PetsNode() {
         this(functionName, arguments.toList())
 
     override fun execute(game: GameApi) {
-      Canon.customInstruction(functionName)
+      game.authority.customInstructions[functionName]!!
           .translate(game, arguments)
           .execute(game)
     }

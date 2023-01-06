@@ -1,8 +1,16 @@
 package dev.martianzoo.tfm.types
 
 import com.google.common.truth.Truth.assertThat
+import dev.martianzoo.tfm.data.Authority
+import dev.martianzoo.tfm.data.CardDefinition
+import dev.martianzoo.tfm.data.ClassDeclaration
+import dev.martianzoo.tfm.data.MarsAreaDefinition
+import dev.martianzoo.tfm.data.MilestoneDefinition
 import dev.martianzoo.tfm.pets.PetsParser.parseComponents
 import dev.martianzoo.tfm.pets.SpecialComponent.COMPONENT
+import dev.martianzoo.tfm.pets.ast.Instruction.CustomInstruction
+import dev.martianzoo.tfm.types.Dependency.Key
+import dev.martianzoo.util.Grid
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -65,7 +73,7 @@ class PetClassTest {
     val loader = loadTypes("CLASS Foo", "CLASS Bar<Foo>")
     val bar = loader["Bar"]
     assertThat(bar.directSuperclasses.names()).containsExactly("$COMPONENT")
-    assertThat(bar.directDependencyKeys).containsExactly(Dependency.Key(bar, 0))
+    assertThat(bar.directDependencyKeys).containsExactly(Key(bar, 0))
   }
 
   @Test fun inheritedDependency() {
@@ -74,7 +82,7 @@ class PetClassTest {
     val qux = loader["Qux"]
     assertThat(qux.directSuperclasses.names()).containsExactly("Bar")
 
-    val key = Dependency.Key(bar, 0)
+    val key = Key(bar, 0)
     assertThat(bar.allDependencyKeys).containsExactly(key)
     assertThat(qux.allDependencyKeys).containsExactly(key)
   }
@@ -85,7 +93,7 @@ class PetClassTest {
     val qux = loader["Qux"]
     assertThat(qux.directSuperclasses.names()).containsExactly("Bar")
 
-    val key = Dependency.Key(bar, 0)
+    val key = Key(bar, 0)
     assertThat(bar.allDependencyKeys).containsExactly(key)
     assertThat(qux.allDependencyKeys).containsExactly(key)
   }
@@ -95,8 +103,8 @@ class PetClassTest {
     val bar = loader["Bar"]
     val qux = loader["Qux"]
 
-    assertThat(bar.allDependencyKeys).containsExactly(Dependency.Key(bar, 0))
-    assertThat(qux.allDependencyKeys).containsExactly(Dependency.Key(bar, 0),  Dependency.Key(qux, 0))
+    assertThat(bar.allDependencyKeys).containsExactly(Key(bar, 0))
+    assertThat(qux.allDependencyKeys).containsExactly(Key(bar, 0),  Key(qux, 0))
   }
 
   @Test fun refinedDependency() {
@@ -105,7 +113,7 @@ class PetClassTest {
     val qux = loader["Qux"]
     assertThat(qux.directSuperclasses.names()).containsExactly("Bar")
 
-    val key = Dependency.Key(bar, 0)
+    val key = Key(bar, 0)
     assertThat(bar.allDependencyKeys).containsExactly(key)
     assertThat(qux.allDependencyKeys).containsExactly(key)
   }
@@ -183,8 +191,19 @@ class PetClassTest {
 
 }
 
-private fun loader(petsText: String) =
-    PetClassLoader(parseComponents(petsText)).also { it.loadAll() }
+private fun loader(petsText: String): PetClassLoader {
+  val classes: List<ClassDeclaration> = parseComponents(petsText)
+  val authority = FakeAuthority(classes)
+  return PetClassLoader(authority).also { it.loadAll() }
+}
+
+class FakeAuthority(classes: List<ClassDeclaration>) : Authority() {
+  override val explicitClassDeclarations = classes
+  override val mapAreaDefinitions = mapOf<String, Grid<MarsAreaDefinition>>()
+  override val cardDefinitions = listOf<CardDefinition>()
+  override val milestoneDefinitions = listOf<MilestoneDefinition>()
+  override val customInstructions = mapOf<String, CustomInstruction>()
+}
 
 fun loadTypes(vararg decl: String): PetClassTable {
   return loader("ABSTRACT CLASS $COMPONENT\n" + decl.joinToString("") { "$it\n" })

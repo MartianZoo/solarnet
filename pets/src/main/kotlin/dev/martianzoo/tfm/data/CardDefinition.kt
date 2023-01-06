@@ -2,7 +2,6 @@ package dev.martianzoo.tfm.data
 
 import com.squareup.moshi.Json
 import dev.martianzoo.tfm.data.CardDefinition.ProjectKind.ACTIVE
-import dev.martianzoo.tfm.pets.ClassDeclaration
 import dev.martianzoo.tfm.pets.PetsParser
 import dev.martianzoo.tfm.pets.PetsParser.parse
 import dev.martianzoo.tfm.pets.SpecialComponent.END
@@ -152,6 +151,8 @@ data class CardDefinition(
     }
   }
 
+  override val componentName = englishHack(id)
+
   // TODO ClassName
   val tags: List<TypeExpression> by lazy { tagsText.map(::te) }
 
@@ -183,7 +184,7 @@ data class CardDefinition(
         actionsToEffects(actionsRaw)).toSetStrict()
   }
 
-  override val toClassDeclaration by lazy {
+  override val asClassDeclaration by lazy {
     val supertypes = mutableSetOf<GenericTypeExpression>()
 
     if (projectKind != null)   supertypes.add(te(projectKind.type))
@@ -192,7 +193,7 @@ data class CardDefinition(
     if (supertypes.isEmpty())  supertypes.add(te("CardFront"))
 
     ClassDeclaration(
-        className = englishHack(id),
+        className = componentName,
         abstract = false,
         supertypes = supertypes,
         effectsRaw = { allEffects })

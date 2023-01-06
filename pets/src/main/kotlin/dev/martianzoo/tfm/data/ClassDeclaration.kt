@@ -1,10 +1,11 @@
-package dev.martianzoo.tfm.pets
+package dev.martianzoo.tfm.data
 
 import dev.martianzoo.tfm.pets.ast.Effect
 import dev.martianzoo.tfm.pets.ast.Instruction.Intensity
 import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.pets.ast.TypeExpression
 import dev.martianzoo.tfm.pets.ast.TypeExpression.GenericTypeExpression
+import dev.martianzoo.tfm.pets.reservedClassNames
 
 /**
  * The declaration of a component class, such as GreeneryTile. Models the declaration textually as
@@ -19,8 +20,12 @@ data class ClassDeclaration(
     val otherInvariants: Set<Requirement> = setOf(),
     val effectsRaw: () -> Set<Effect> = { setOf() }, // TODO needed? or pull instead from intf?
     val defaultsDeclaration: DefaultsDeclaration = DefaultsDeclaration()
-) {
+): Definition {
   init { require(className !in reservedClassNames) }
+
+  override val componentName = className // TODO
+
+  override val asClassDeclaration = this
 
   // TODO canonicalize??
   val effects by lazy { effectsRaw() }

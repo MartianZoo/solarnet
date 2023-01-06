@@ -85,7 +85,7 @@ class CardDefinitionTest {
       }
     """
 
-    assertThat(JsonReader.readCards(json)).containsExactly("072", birds)
+    assertThat(JsonReader.readCards(json)).containsExactly(birds)
   }
 
   // Just so we don't have to keep repeating the "x" part
@@ -150,12 +150,12 @@ class CardDefinitionTest {
   }
 
   @Test fun birdsFromDataFile() {
-    val cards = Canon.cardDefinitions
-    assertThat(cards["072"]).isEqualTo(birds)
+    val card = Canon.cardDefinitions.first { it.id == "072" }
+    assertThat(card).isEqualTo(birds)
   }
 
   @Test fun slurp() {
-    Canon.cardDefinitions.values.forEach { card ->
+    Canon.cardDefinitions.forEach { card ->
       card.requirementRaw?.let { assertThat("$it").isEqualTo(card.requirementText) }
       card.resourceType?.let { assertThat(it.className).isEqualTo(card.resourceTypeText) }
 

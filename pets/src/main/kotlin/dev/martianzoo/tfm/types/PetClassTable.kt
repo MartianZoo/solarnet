@@ -21,4 +21,5 @@ interface PetClassTable {
   fun isValid(expression: String) = isValid(parse(expression))
 
   fun all(): Set<PetClass>
+  fun loadedClassNames(): Set<String>
 }

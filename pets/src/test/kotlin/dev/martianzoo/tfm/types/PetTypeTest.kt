@@ -1,6 +1,6 @@
 package dev.martianzoo.tfm.types
 
-import com.google.common.truth.Truth
+import com.google.common.truth.Truth.assertThat
 import org.junit.jupiter.api.Test
 
 class PetTypeTest {
@@ -18,9 +18,12 @@ class PetTypeTest {
         "ABSTRACT CLASS ResourcefulCard<CardResource.CLASS> : CardFront",
         "CLASS Fish : ResourcefulCard<Animal.CLASS>",
     )
-    Truth.assertThat(table.resolve("Animal<Fish>").abstract).isTrue()
+    assertThat(table.resolve("Animal<Fish>").abstract).isTrue()
 
     val fish = table.resolve("Animal<Player1, Fish<Player1>>")
-    Truth.assertThat(fish.abstract).isFalse()
+    assertThat(fish.abstract).isFalse()
+
+    assertThat(table["Fish"].baseType.toString()).isEqualTo("Fish<Player, Animal.CLASS>")
+    assertThat(table["Animal"].baseType.toString()).isEqualTo("Animal<Player, ResourcefulCard<Player, Animal.CLASS>>")
   }
 }

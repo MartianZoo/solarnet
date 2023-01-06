@@ -11,7 +11,7 @@ class PetClassCanonTest {
 
   @Test
   fun component() { // TODO make this pass by not forcing subclasses to get loaded early
-    val table = PetClassLoader(Canon.allDefinitions)
+    val table = PetClassLoader(Canon)
 
     table.load("$COMPONENT").apply {
       assertThat(name).isEqualTo("Component")
@@ -38,10 +38,7 @@ class PetClassCanonTest {
 
   @Test
   fun slurp() {
-    val defns = Canon.allDefinitions
-    assertThat(defns.size).isGreaterThan(700)
-
-    val table = PetClassLoader(defns).loadAll()
+    val table = PetClassLoader(Canon).loadAll()
 
     table.all().forEach {
       it.directEffectsRaw.forEach(::testRoundTrip)
@@ -55,7 +52,7 @@ class PetClassCanonTest {
   }
 
   @Test fun subConcrete() {
-    val table = PetClassLoader(Canon.allDefinitions).loadAll()
+    val table = PetClassLoader(Canon).loadAll()
     val subConcrete = table.all().flatMap { clazz ->
       clazz.directSuperclasses.filterNot { it.abstract }.map { clazz.name to it.name }
     }
@@ -68,13 +65,13 @@ class PetClassCanonTest {
   }
 
   fun findValidTypes() {
-    val table = PetClassLoader(Canon.allDefinitions).loadAll()
+    val table = PetClassLoader(Canon).loadAll()
     val names: List<String> = table.all().map { it.name }.filterNot {
       it.matches(Regex("^Card.{3,4}$")) && it.hashCode() % 12 != 0
     }.filterNot {
       it.matches(Regex("^(Tharsis|Hellas|Elysium)")) && it.hashCode() % 8 != 0
     }.filterNot {
-      it in setOf("Component", "Die", "Class")
+      it in setOf("Component", "Die")
     }
 
     val abstracts = TreeSet<String>()
@@ -131,7 +128,7 @@ class PetClassCanonTest {
   }
 
   fun describeEverything() {
-    val table = PetClassLoader(Canon.allDefinitions).loadAll()
+    val table = PetClassLoader(Canon).loadAll()
     table.all().sortedBy { it.name }.forEach { c ->
       println("${c.baseType} : ${c.allSuperclasses.filter { it.name !in setOf("$COMPONENT", c.name) }}")
     }

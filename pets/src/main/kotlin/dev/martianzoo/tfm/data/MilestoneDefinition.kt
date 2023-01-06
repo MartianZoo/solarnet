@@ -1,7 +1,6 @@
 package dev.martianzoo.tfm.data
 
 import com.squareup.moshi.Json
-import dev.martianzoo.tfm.pets.ClassDeclaration
 import dev.martianzoo.tfm.pets.PetsParser.parse
 import dev.martianzoo.tfm.pets.SpecialComponent.OK
 import dev.martianzoo.tfm.pets.SpecialComponent.THIS
@@ -31,9 +30,11 @@ data class MilestoneDefinition(
 
   val requirement: Requirement by lazy { parse(requirementText) }
 
-  override val toClassDeclaration: ClassDeclaration by lazy {
+  override val componentName = "Milestone$id"
+
+  override val asClassDeclaration: ClassDeclaration by lazy {
     ClassDeclaration(
-        "Milestone$id",
+        componentName,
         abstract = false,
         supertypes = setOf(te("Milestone")),
         effectsRaw = {

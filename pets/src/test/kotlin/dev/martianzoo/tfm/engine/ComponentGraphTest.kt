@@ -13,9 +13,9 @@ class ComponentGraphTest {
 
   @Test
   fun basic() {
-    val table = PetClassLoader(Canon.allDefinitions).loadAll()
+    val table = PetClassLoader(Canon).loadAll()
     val cg = ComponentGraph()
-    val game = Game(cg, table) // it's just more convenient
+    val game = Game(Canon, cg, table) // it's just more convenient
 
     assertThat(game.count("Heat")).isEqualTo(0)
 

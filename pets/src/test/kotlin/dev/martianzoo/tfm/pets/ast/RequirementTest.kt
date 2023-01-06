@@ -1,6 +1,7 @@
 package dev.martianzoo.tfm.pets.ast
 
 import com.google.common.truth.Truth.assertThat
+import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.pets.GameApi
 import dev.martianzoo.tfm.pets.PetsParser.parse
 import dev.martianzoo.tfm.pets.ast.Requirement.Max
@@ -157,6 +158,8 @@ class RequirementTest {
   // All type expressions with even-length string representations
   // exist and have a count equal to that string's length
   object FakeGame : GameApi {
+    override val authority = Canon // why not
+
     override fun count(type: TypeExpression): Int {
       val length = type.toString().length
       return if (length % 2 == 0) length else 0

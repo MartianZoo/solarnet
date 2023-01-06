@@ -18,7 +18,6 @@ sealed class TypeExpression: PetsNode() {
   ) : TypeExpression() {
     init {
       require(className.matches(classNameRegex())) { className }
-      require(className != "Class")
     }
 
     override fun toString() =
