@@ -9,8 +9,7 @@ import dev.martianzoo.tfm.pets.ast.TypeExpression
 import dev.martianzoo.tfm.pets.ast.TypeExpression.Companion.te
 import dev.martianzoo.tfm.pets.deprodify
 import dev.martianzoo.tfm.pets.resolveSpecialThisType
-import dev.martianzoo.tfm.types.Dependency.ClassDependency
-import dev.martianzoo.tfm.types.Dependency.TypeDependency
+import dev.martianzoo.tfm.types.PetType.PetGenericType
 
 /**
  */
@@ -18,13 +17,12 @@ class PetClass(val decl: ClassDeclaration, val loader: PetClassLoader) {
   val name by decl::className
   val abstract by decl::abstract
 
-
 // HIERARCHY
 
   // TODO collapse invariants right?
 
-  val directSupertypes: Set<PetType> by lazy {
-    decl.supertypes.map { loader.resolve/*WithDefaults*/(it) }.toSet()
+  val directSupertypes: Set<PetGenericType> by lazy {
+    decl.supertypes.map { loader.resolve/*WithDefaults*/(it) as PetGenericType }.toSet()
   }
 
   fun isSubtypeOf(that: PetClass) = that in allSuperclasses
@@ -37,12 +35,26 @@ class PetClass(val decl: ClassDeclaration, val loader: PetClassLoader) {
     (directSuperclasses.flatMap { it.allSuperclasses } + this).toSet()
   }
 
+  /** Returns the one of `this` or `that` that is a subclass of the other. */
+  fun glb(that: PetClass) = when {
+    this.isSubtypeOf(that) -> this
+    that.isSubtypeOf(this) -> that
+    else -> error("we ain't got no intersection types")
+  }
+
+  fun hasGlbWith(that: PetClass) = isSubtypeOf(that) || that.isSubtypeOf(this)
+
+  fun lub(that: PetClass) = when {
+    this.isSubtypeOf(that) -> that
+    that.isSubtypeOf(this) -> this
+    else -> allSuperclasses.intersect(that.allSuperclasses).maxBy { it.allSuperclasses.size }
+  }
+
+
 // DEPENDENCIES
 
   val directDependencyKeys: Set<DependencyKey> by lazy {
-    decl.dependencies.withIndex().map {
-      (i, dep) -> DependencyKey(this, i, dep.classDependency)
-    }.toSet()
+    decl.dependencies.indices.map { DependencyKey(this, it) }.toSet()
   }
 
   val allDependencyKeys: Set<DependencyKey> by lazy {
@@ -54,21 +66,21 @@ class PetClass(val decl: ClassDeclaration, val loader: PetClassLoader) {
     return dependencies.findMatchups(specs, loader)
   }
 
+  private var reentryCheck = false
   /** Common supertype of all types with petClass==this */
-  val baseType: PetType by lazy {
+  val baseType: PetGenericType by lazy {
+    require(!reentryCheck)
+    reentryCheck = true
+
     val deps = DependencyMap.merge(directSupertypes.map { it.dependencies })
 
     val newDeps = directDependencyKeys.associateWith {
       val typeExpression = decl.dependencies[it.index].upperBound
-      if (it.classDep) {
-        ClassDependency(it, loader[typeExpression.className])
-      } else {
-        TypeDependency(it, loader.resolve(typeExpression))
-      }
+      Dependency(it, loader.resolve(typeExpression))
     }
     val allDeps = deps.merge(DependencyMap(newDeps))
     require(allDeps.keyToDep.keys == allDependencyKeys)
-    PetType(this, allDeps)
+    PetGenericType(this, allDeps)
   }
 
 // DEFAULTS
@@ -109,6 +121,9 @@ class PetClass(val decl: ClassDeclaration, val loader: PetClassLoader) {
         .also { validateAllTypes(it, loader) }
   }
 
+
+// VALIDATION
+
   private fun validateAllTypes(effects: List<Effect>, loader: PetClassLoader) {
     Validator(loader).transform(effects)
   }
@@ -120,20 +135,8 @@ class PetClass(val decl: ClassDeclaration, val loader: PetClassLoader) {
     }
   }
 
-  // OTHER
 
-  /** Returns the one of `this` or `that` that is a subclass of the other. */
-  fun glb(that: PetClass) = when {
-    this.isSubtypeOf(that) -> this
-    that.isSubtypeOf(this) -> that
-    else -> error("we ain't got no intersection types")
-  }
-
-  fun lub(that: PetClass) = when {
-    this.isSubtypeOf(that) -> that
-    that.isSubtypeOf(this) -> this
-    else -> allSuperclasses.intersect(that.allSuperclasses).maxBy { it.allSuperclasses.size }
-  }
+// OTHER
 
   override fun equals(that: Any?): Boolean {
     return that is PetClass &&

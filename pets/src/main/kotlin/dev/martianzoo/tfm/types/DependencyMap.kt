@@ -50,7 +50,7 @@ data class DependencyMap(val keyToDep: Map<DependencyKey, Dependency>) {
 
     val unhandled = specs.toMutableList()
     val newMap = keyToDep.mapValues { (key, dep) ->
-      if (unhandled.isNotEmpty() && dep.acceptsSpecialization(unhandled.first(), loader)) {
+      if (unhandled.isNotEmpty() && dep.acceptsSpecialization(loader.resolve(unhandled.first()))) {
         dep.specialize(unhandled.removeFirst(), loader)
       } else {
         dep

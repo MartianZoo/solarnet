@@ -7,6 +7,8 @@ import dev.martianzoo.tfm.pets.ast.Effect
 import dev.martianzoo.tfm.pets.ast.Effect.Trigger.OnGain
 import dev.martianzoo.tfm.pets.ast.Instruction
 import dev.martianzoo.tfm.pets.ast.TypeExpression
+import dev.martianzoo.tfm.pets.ast.TypeExpression.Companion.te
+import dev.martianzoo.tfm.pets.ast.TypeExpression.GenericTypeExpression
 
 data class MarsAreaDefinition(
     /** Shortname of the MarsMap this area belongs to (e.g "Tharsis"). */
@@ -41,7 +43,7 @@ data class MarsAreaDefinition(
   }
 
   val bonus: Instruction? by lazy { bonusText?.let { parse(it) } }
-  val type: TypeExpression by lazy { parse(typeText) }
+  val type by lazy { parse<TypeExpression>(typeText) as GenericTypeExpression }
 
   override val toClassDeclaration by lazy {
     ClassDeclaration(
@@ -55,4 +57,4 @@ data class MarsAreaDefinition(
   fun componentName() = "${mapName}${row}_$column"
 }
 
-val trigger = OnGain(TypeExpression("Tile", THIS.type))
+val trigger = OnGain(te("Tile", THIS.type))

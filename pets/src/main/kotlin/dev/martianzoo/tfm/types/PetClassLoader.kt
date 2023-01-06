@@ -3,6 +3,9 @@ package dev.martianzoo.tfm.types
 import dev.martianzoo.tfm.pets.ClassDeclaration
 import dev.martianzoo.tfm.pets.SpecialComponent.STANDARD_RESOURCE
 import dev.martianzoo.tfm.pets.ast.TypeExpression
+import dev.martianzoo.tfm.pets.ast.TypeExpression.ClassExpression
+import dev.martianzoo.tfm.pets.ast.TypeExpression.GenericTypeExpression
+import dev.martianzoo.tfm.types.PetType.PetClassType
 import dev.martianzoo.util.associateByStrict
 
 // TODO restrict viz?
@@ -19,6 +22,7 @@ class PetClassLoader(val definitions: Map<String, ClassDeclaration>) : PetClassT
   fun load(name: String) = table[name] ?: construct(definitions[name]!!)
 
   private fun construct(decl: ClassDeclaration): PetClass {
+    println("Loading ${decl.className}")
     require(!frozen) { "Too late, this table is frozen!" }
     require(decl.className !in table) { decl.className }
     table[decl.className] = null // signals loading has begun
@@ -26,7 +30,6 @@ class PetClassLoader(val definitions: Map<String, ClassDeclaration>) : PetClassT
     // One thing we do aggressively
     decl.superclassNames.forEach(::load)
 
-    println("loading class: ${decl.className}")
     return PetClass(decl, this).also { table[it.name] = it }
   }
 
@@ -52,14 +55,9 @@ class PetClassLoader(val definitions: Map<String, ClassDeclaration>) : PetClassT
 
   override fun resolve(expression: TypeExpression): PetType { // TODOTODO with refinement!
     val petClass = load(expression.className)
-    try {
-      return petClass.baseType.specialize(expression.specs)
-    } catch (e: Exception) {
-      throw RuntimeException("""
-        1. trying to resolve $expression
-        petClass is $petClass
-        baseType is ${petClass.baseType}
-      """, e)
+    return when (expression) {
+      is ClassExpression -> PetClassType(petClass)
+      is GenericTypeExpression -> petClass.baseType.specialize(expression.specs)
     }
   }
 

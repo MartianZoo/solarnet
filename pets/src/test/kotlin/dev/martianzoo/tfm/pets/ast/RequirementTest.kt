@@ -145,9 +145,9 @@ class RequirementTest {
                 )
             )),
             Min(QuantifiedExpression(
-                TypeExpression("Adjacency",
+                te("Adjacency",
                     te("OceanTile"),
-                    TypeExpression("CityTile", te("Anyone"))
+                    te("CityTile", te("Anyone"))
                 )
             ))
         ))

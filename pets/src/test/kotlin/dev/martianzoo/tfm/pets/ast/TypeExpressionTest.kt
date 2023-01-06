@@ -4,6 +4,7 @@ import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.tfm.pets.PetsParser
 import dev.martianzoo.tfm.pets.ast.Requirement.Min
 import dev.martianzoo.tfm.pets.ast.TypeExpression.Companion.te
+import dev.martianzoo.tfm.pets.ast.TypeExpression.GenericTypeExpression
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 
@@ -43,9 +44,9 @@ class TypeExpressionTest {
   fun complexSourceToApi() {
     val parsed: TypeExpression = PetsParser.parse(" Red< Blue  < This,Teal> , Gold > ")
     assertThat(parsed).isEqualTo(
-        TypeExpression(
+        te(
             "Red",
-            TypeExpression("Blue", te("This"), te("Teal")),
+            te("Blue", te("This"), te("Teal")),
             te("Gold")
         )
     )
@@ -53,13 +54,13 @@ class TypeExpressionTest {
 
   @Test
   fun complexApiToSource() {
-    val expr = TypeExpression(
+    val expr = te(
         "Aa",
         te("Bb"),
-        TypeExpression("Cc", te("Dd")),
-        TypeExpression(
+        te("Cc", te("Dd")),
+        te(
             "Ee",
-            TypeExpression("Ff", te("Gg"), te("Hh")),
+            te("Ff", te("Gg"), te("Hh")),
             te("Me")
         ),
         te("Jj")
@@ -68,7 +69,7 @@ class TypeExpressionTest {
   }
 
   @Test fun classAlone() {
-    assertThrows<RuntimeException> { TypeExpression("Class", TypeExpression("Foo", te("Bar"))) }
-    assertThrows<RuntimeException> { TypeExpression("Class", TypeExpression("Foo", refinement = Min(QuantifiedExpression(te("Heat"))))) }
+    assertThrows<RuntimeException> { te("Class", te("Foo", te("Bar"))) }
+    assertThrows<RuntimeException> { te("Class", GenericTypeExpression("Foo", refinement = Min(QuantifiedExpression(te("Heat"))))) }
   }
 }

@@ -98,7 +98,7 @@ class InstructionTest {
     val instr = Transmute(
         ComplexFrom("Foo", listOf(
             ComplexFrom("Bar", listOf(
-                SimpleFrom(te("Qux"), TypeExpression("Abc", listOf(te("Eep"))))
+                SimpleFrom(te("Qux"), te("Abc", te("Eep")))
             )
             )
         ),

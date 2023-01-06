@@ -2,7 +2,6 @@ package dev.martianzoo.tfm.types
 
 import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.tfm.canon.Canon
-import dev.martianzoo.tfm.pets.SpecialComponent.CLASS
 import dev.martianzoo.tfm.pets.SpecialComponent.COMPONENT
 import dev.martianzoo.tfm.pets.testRoundTrip
 import org.junit.jupiter.api.Test
@@ -23,27 +22,18 @@ class PetClassCanonTest {
     }
     assertThat(table.classesLoaded()).isEqualTo(1)
 
-    table.load("$CLASS").apply {
-      assertThat(name).isEqualTo("Class")
-      assertThat(abstract).isFalse()
-      assertThat(directDependencyKeys).containsExactly(DependencyKey(this, 0, false))
-      assertThat(allDependencyKeys).containsExactly(DependencyKey(this, 0, false))
-      assertThat(directSuperclasses).containsExactly(table["$COMPONENT"])
-    }
-    assertThat(table.classesLoaded()).isEqualTo(2)
-
     table.load("OceanTile").apply {
       assertThat(directDependencyKeys).isEmpty()
-      assertThat(allDependencyKeys).containsExactly(DependencyKey(table["Tile"], 0, false))
+      assertThat(allDependencyKeys).containsExactly(DependencyKey(table["Tile"], 0))
       assertThat(directSuperclasses.map { it.name }).containsExactly(
           "GlobalParameter", "Tile").inOrder()
       assertThat(allSuperclasses.map { it.name }).containsExactly(
           "Component", "GlobalParameter", "Tile", "OceanTile").inOrder()
-      assertThat(table.classesLoaded()).isEqualTo(5)
+      assertThat(table.classesLoaded()).isEqualTo(4)
 
       assertThat(baseType).isEqualTo(table.resolve("OceanTile<MarsArea>"))
     }
-    assertThat(table.classesLoaded()).isEqualTo(7)
+    assertThat(table.classesLoaded()).isEqualTo(6)
   }
 
   @Test
@@ -55,6 +45,9 @@ class PetClassCanonTest {
 
     table.all().forEach {
       it.directEffectsRaw.forEach(::testRoundTrip)
+    }
+    table.all().forEach {
+      it.baseType
     }
     table.all().forEach {
       it.directEffects.forEach(::testRoundTrip)

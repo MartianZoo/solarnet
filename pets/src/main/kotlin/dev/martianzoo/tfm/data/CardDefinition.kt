@@ -13,7 +13,9 @@ import dev.martianzoo.tfm.pets.ast.Instruction
 import dev.martianzoo.tfm.pets.ast.Instruction.Multi
 import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.pets.ast.TypeExpression
+import dev.martianzoo.tfm.pets.ast.TypeExpression.ClassExpression
 import dev.martianzoo.tfm.pets.ast.TypeExpression.Companion.te
+import dev.martianzoo.tfm.pets.ast.TypeExpression.GenericTypeExpression
 import dev.martianzoo.tfm.pets.immediateToEffect
 import dev.martianzoo.util.toSetStrict
 
@@ -153,7 +155,7 @@ data class CardDefinition(
   // TODO ClassName
   val tags: List<TypeExpression> by lazy { tagsText.map(::te) }
 
-  val resourceType = resourceTypeText?.let(::te)
+  val resourceType = resourceTypeText?.let(::ClassExpression)
 
   val immediateRaw: Instruction? by lazy {
     val set = immediateText.map { parse<Instruction>(it) }.toSetStrict()
@@ -182,7 +184,7 @@ data class CardDefinition(
   }
 
   override val toClassDeclaration by lazy {
-    val supertypes = mutableSetOf<TypeExpression>()
+    val supertypes = mutableSetOf<GenericTypeExpression>()
 
     if (projectKind != null)   supertypes.add(te(projectKind.type))
     if (!actionsRaw.isEmpty()) supertypes.add(te("ActionCard"))

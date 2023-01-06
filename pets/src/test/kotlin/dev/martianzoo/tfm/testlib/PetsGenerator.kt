@@ -28,6 +28,7 @@ import dev.martianzoo.tfm.pets.ast.Requirement.Exact
 import dev.martianzoo.tfm.pets.ast.Requirement.Max
 import dev.martianzoo.tfm.pets.ast.Requirement.Min
 import dev.martianzoo.tfm.pets.ast.TypeExpression
+import dev.martianzoo.tfm.pets.ast.TypeExpression.GenericTypeExpression
 import dev.martianzoo.tfm.testlib.ToKotlin.p2k
 import dev.martianzoo.util.multiset
 import org.junit.jupiter.api.Assertions.fail
@@ -44,13 +45,17 @@ class PetsGenerator(scaling: (Int) -> Double)
   private object Registry : RandomGenerator.Registry<PetsNode>() {
     init {
       val specSizes = (multiset(8 to 0, 4 to 1, 2 to 2, 1 to 3)) // weight to value
-      register {
-        TypeExpression(
+      register<TypeExpression> {
+        recurse<GenericTypeExpression>()
+      }
+      register<GenericTypeExpression> {
+        GenericTypeExpression(
             randomName(),
             listOfSize(choose(specSizes)),
             refinement()
         )
       }
+//    register { ClassExpression(randomName()) }
       register { QuantifiedExpression(choose(1 to DEFAULT.type, 3 to recurse()), choose(0, 1, 1, 1, 5, 11)) }
 
       val requirementTypes = (multiset(
@@ -63,8 +68,8 @@ class PetsGenerator(scaling: (Int) -> Double)
       ))
       register<Requirement> { recurse(choose(requirementTypes)) }
       register { Min(qe = recurse()) }
-      register { Max(recurse()) }
-      register { Exact(recurse()) }
+      register { Max(qe = recurse()) }
+      register { Exact(qe = recurse()) }
       register { Requirement.Or(setOfSize(choose(2, 2, 2, 2, 2, 3, 4))) }
       register { Requirement.And(listOfSize(choose(2, 2, 2, 2, 3))) }
       register { Requirement.Prod(recurse()) }
@@ -96,10 +101,10 @@ class PetsGenerator(scaling: (Int) -> Double)
       register { Instruction.Prod(recurse()) }
 
       register<FromExpression> {
-        val one: TypeExpression = recurse()
-        val two: TypeExpression = recurse()
+        val one: GenericTypeExpression = recurse()
+        val two: GenericTypeExpression = recurse()
 
-        fun getTypes(type: TypeExpression): List<TypeExpression> = type.specs.flatMap { getTypes(it) } + type
+        fun getTypes(type: GenericTypeExpression): List<GenericTypeExpression> = type.specs.flatMap { getTypes(it as GenericTypeExpression) } + type
 
         val oneTypes = getTypes(one)
         val twoTypes = getTypes(two)
@@ -120,11 +125,11 @@ class PetsGenerator(scaling: (Int) -> Double)
 
         val b = Random.Default.nextBoolean()
 
-        fun convert(type: TypeExpression): FromExpression {
+        fun convert(type: GenericTypeExpression): FromExpression {
           if (type == target) {
             return SimpleFrom(if (b) inject else target, if (b) target else inject)
           }
-          val specs = type.specs.map { convert(it) }
+          val specs = type.specs.map { convert(it as GenericTypeExpression) }
           return if (specs.all { it is TypeInFrom }) {
             TypeInFrom(type)
           } else {

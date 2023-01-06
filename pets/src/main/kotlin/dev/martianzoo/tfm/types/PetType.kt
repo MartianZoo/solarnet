@@ -1,52 +1,86 @@
 package dev.martianzoo.tfm.types
 
 import dev.martianzoo.tfm.pets.ast.TypeExpression
+import dev.martianzoo.tfm.pets.ast.TypeExpression.ClassExpression
+import dev.martianzoo.tfm.pets.ast.TypeExpression.GenericTypeExpression
 
-/**
- * So a TypeExpression resolves into a PetType by matching up the specs with appropriate deps.
- * of course each spec type must be a subtype of the existing from the petclass
- * But equivalent pettypes are equal regardless of how they happened to be specified.
- */
-data class PetType(
-    val petClass: PetClass,
-    val dependencies: DependencyMap = DependencyMap()
-) {
-  val abstract: Boolean = petClass.abstract || dependencies.abstract
+interface PetType {
+  val petClass: PetClass
+  val dependencies: DependencyMap
+  val abstract: Boolean
 
-  fun isSubtypeOf(that: PetType): Boolean =
-      petClass.isSubtypeOf(that.petClass) &&
-      dependencies.specializes(that.dependencies)
+  fun toTypeExpressionFull(): TypeExpression
 
-  /**
-   * Returns the common supertype of every subtype of both `this` and `that`, if possible.
-   */
-  fun glb(that: PetType): PetType {
-    return PetType(
-        petClass.glb(that.petClass),
-        dependencies.merge(that.dependencies))
-  }
+  fun isSubtypeOf(that: PetType): Boolean
 
-  fun specialize(specs: List<TypeExpression>): PetType {
-    return try {
-      copy(dependencies = dependencies.specialize(specs, petClass.loader))
-    } catch (e: RuntimeException) {
-      throw RuntimeException("2. PetType is $this", e)
+  fun hasGlbWith(that: PetType): Boolean
+
+  fun glb(that: PetType): PetType
+
+  // a type like Tile.CLASS
+  class PetClassType(override val petClass: PetClass) : PetType {
+    override val dependencies = DependencyMap()
+    override val abstract = petClass.abstract
+
+    override fun toTypeExpressionFull() = ClassExpression(petClass.name)
+
+    override fun isSubtypeOf(that: PetType) =
+        that is PetClassType && petClass.isSubtypeOf(that.petClass)
+
+    override fun hasGlbWith(that: PetType): Boolean {
+      that as PetClassType
+      return petClass.hasGlbWith(that.petClass)
     }
+
+    override fun glb(that: PetType): PetClassType {
+      that as PetClassType
+      return PetClassType(petClass.glb(that.petClass))
+    }
+
+    override fun toString() = toTypeExpressionFull().toString()
   }
 
-  override fun toString() = toTypeExpressionFull().toString()
+  data class PetGenericType(
+      override val petClass: PetClass,
+      override val dependencies: DependencyMap = DependencyMap()
+  ) : PetType {
+    override val abstract: Boolean = petClass.abstract || dependencies.abstract
 
-  fun toTypeExpressionFull(): TypeExpression {
-    val specs = dependencies.keyToDep.values.map { it.toTypeExpressionFull() }
-    return TypeExpression(petClass.name, specs)
-  }
+    override fun isSubtypeOf(that: PetType): Boolean =
+        that is PetGenericType && petClass.isSubtypeOf(that.petClass) && dependencies.specializes(
+            that.dependencies
+        )
 
-  fun hasGlbWith(type: PetType): Boolean {
-    return try {
-      glb(type)
-      true
-    } catch (e: Exception) {
-      false
+    override fun glb(that: PetType): PetGenericType {
+      that as PetGenericType
+      return PetGenericType(
+          petClass.glb(that.petClass),
+          dependencies.merge(that.dependencies)
+      )
+    }
+
+    fun specialize(specs: List<TypeExpression>): PetGenericType {
+      return try {
+        copy(dependencies = dependencies.specialize(specs, petClass.loader))
+      } catch (e: RuntimeException) {
+        throw RuntimeException("2. PetType is $this", e)
+      }
+    }
+
+    override fun toString() = toTypeExpressionFull().toString()
+
+    override fun toTypeExpressionFull(): TypeExpression {
+      val specs = dependencies.keyToDep.values.map { it.toTypeExpressionFull() }
+      return GenericTypeExpression(petClass.name, specs)
+    }
+
+    override fun hasGlbWith(type: PetType): Boolean {
+      return try {
+        glb(type)
+        true
+      } catch (e: Exception) {
+        false
+      }
     }
   }
 }

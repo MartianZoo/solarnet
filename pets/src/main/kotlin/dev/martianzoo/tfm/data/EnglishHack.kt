@@ -4,7 +4,6 @@ package dev.martianzoo.tfm.data
 const val USE_ENGLISH_HACK = true
 
 fun englishHack(id: String): String {
-  println(id)
   if (!USE_ENGLISH_HACK) return "Card$id"
   if (id in ENGLISH_HACK) return ENGLISH_HACK[id]!!
   if (id.endsWith("F")) return ENGLISH_HACK[id.substring(0, id.length - 1)]!!

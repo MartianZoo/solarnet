@@ -4,7 +4,8 @@ import dev.martianzoo.tfm.pets.AstTransformer
 import dev.martianzoo.tfm.pets.SpecialComponent.THIS
 import dev.martianzoo.tfm.pets.ast.Instruction.Gain
 import dev.martianzoo.tfm.pets.ast.PetsNode
-import dev.martianzoo.tfm.pets.ast.TypeExpression
+import dev.martianzoo.tfm.pets.ast.TypeExpression.GenericTypeExpression
+import dev.martianzoo.tfm.types.PetType.PetGenericType
 
 fun <P : PetsNode> applyDefaultsIn(node: P, table: PetClassTable): P {
   return Defaulter(table).transform(node).also {
@@ -19,21 +20,25 @@ private class Defaulter(val table: PetClassTable) : AstTransformer() {
       THIS.type -> node // leave This alone!
 
       is Gain -> {
-        val statedTypeExpr = node.qe.expression
-        val petClass = table[statedTypeExpr.className]
-        val defaults = petClass.defaults
-        val newTypeExpr = applyDefaultSpecs(
-            statedTypeExpr,
-            petClass,
-            defaults.gainDeps
-        )
-        node.copy(
-            node.qe.copy(expression = transform(newTypeExpr)),
-            node.intensity ?: defaults.gainIntensity
-        )
+        val writtenType = node.qe.expression
+        if (writtenType !is GenericTypeExpression) {
+          node
+        } else {
+          val petClass = table[writtenType.className]
+          val defaults = petClass.defaults
+          val newTypeExpr = applyDefaultSpecs(
+              writtenType,
+              petClass,
+              defaults.gainDeps
+          )
+          node.copy(
+              node.qe.copy(expression = transform(newTypeExpr)),
+              node.intensity ?: defaults.gainIntensity
+          )
+        }
       }
 
-      is TypeExpression -> {
+      is GenericTypeExpression -> {
         val petClass = table[node.className]
         // TODO should we be recursing?
         applyDefaultSpecs(node, petClass, petClass.defaults.allDeps)
@@ -46,14 +51,14 @@ private class Defaulter(val table: PetClassTable) : AstTransformer() {
   }
 
   fun applyDefaultSpecs(
-      original: TypeExpression,
+      original: GenericTypeExpression,
       petClass: PetClass,
       defaultDeps: DependencyMap,
-  ): TypeExpression {
+  ): GenericTypeExpression {
     val explicitStatedDeps = petClass.resolveSpecializations(original.specs)
     val mergedDeps = explicitStatedDeps.overlayOn(defaultDeps)
 
     //// TODO: a little weird that we're going backwards here?
-    return PetType(petClass, mergedDeps).toTypeExpressionFull()
+    return PetGenericType(petClass, mergedDeps).toTypeExpressionFull() as GenericTypeExpression
   }
 }

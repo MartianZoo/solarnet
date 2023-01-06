@@ -107,15 +107,15 @@ class TransformsTest {
   @Test fun testDeprodify_simple() {
     val prodden: Effect = parse("This: PROD[Plant / PlantTag]")
     val deprodden: Effect = deprodify(prodden, resources)
-    assertThat(deprodden.toString()).isEqualTo("This: Production<Plant> / PlantTag")
+    assertThat(deprodden.toString()).isEqualTo("This: Production<Plant.CLASS> / PlantTag")
   }
 
   @Test fun testDeprodify_lessSimple() {
     // TODO adds unnecessary grouping, do we care?
     val prodden: Effect = parse("PROD[Plant]: PROD[Ooh?, Steel. / Ahh, Foo<Xyz FROM " +
         "Heat>, -Qux!, 5 Ahh<Qux> FROM StandardResource], Heat")
-    val expected: Effect = parse("Production<Plant>: (Ooh?, Production<Steel>. / Ahh, Foo<Xyz FROM " +
-        "Production<Heat>>, -Qux!, 5 Ahh<Qux> FROM Production<StandardResource>), Heat")
+    val expected: Effect = parse("Production<Plant.CLASS>: (Ooh?, Production<Steel.CLASS>. / Ahh, Foo<Xyz FROM " +
+        "Production<Heat.CLASS>>, -Qux!, 5 Ahh<Qux> FROM Production<StandardResource.CLASS>), Heat")
     val deprodden: Effect = deprodify(prodden, resources)
     assertThat(deprodden).isEqualTo(expected)
   }

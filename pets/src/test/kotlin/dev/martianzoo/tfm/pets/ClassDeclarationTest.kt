@@ -90,7 +90,7 @@ class ClassDeclarationTest {
            DEFAULT +This!
            DEFAULT This<Foo>
 
-           CLASS This   // comment
+           CLASS What   // comment
 
 
            ABSTRACT CLASS Phase { // comment

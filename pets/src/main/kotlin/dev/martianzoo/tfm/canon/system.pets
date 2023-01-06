@@ -2,13 +2,6 @@ ABSTRACT CLASS Component {                                  // Component is the 
     DEFAULT +This!                                          // no need to write `: Component`; it's assumed
 }
 
-CLASS Class<Component> {                                    // magic rules: no nested specializations like `Class<A<B>>`
-     HAS =1 This                                            // or `Class<A(HAS C)>`. So `Class<Heat>` is considered
-}                                                           // concrete. The declaration `class Foo<CLASS Bar>` does two
-                                                            // things: (a) it's treated as `Foo<Class<Bar>>`, and (b) it
-                                                            // treats a usage like `Foo<SubBar>` as `Hi<Class<SubBar>>`.
-                                                            // (this means `Foo<SubBar<Anything>>` is illegal.)
-
 ABSTRACT CLASS Temporary {                                  // anything that can never survive across actions
 
     CLASS Ok {                                              // magic rule: won't trigger anything else (TODO)

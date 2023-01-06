@@ -4,6 +4,8 @@ import dev.martianzoo.tfm.pets.ClassDeclaration.DefaultsDeclaration
 import dev.martianzoo.tfm.pets.ast.Instruction.Intensity
 import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.pets.ast.TypeExpression
+import dev.martianzoo.tfm.pets.ast.TypeExpression.GenericTypeExpression
+import dev.martianzoo.tfm.types.PetType.PetGenericType
 
 data class Defaults(
     val allDeps: DependencyMap = DependencyMap(),
@@ -21,8 +23,8 @@ data class Defaults(
       return if (specs == null) {
         DependencyMap()
       } else {
-        val type = TypeExpression(petClass.name, specs)
-        petClass.loader.resolve(type).dependencies
+        val type = GenericTypeExpression(petClass.name, specs)
+        (petClass.loader.resolve(type) as PetGenericType).dependencies
       }
     }
   }

@@ -1,44 +1,26 @@
 package dev.martianzoo.tfm.types
 
-import com.google.common.truth.Truth.assertThat
-import dev.martianzoo.tfm.canon.Canon
+import com.google.common.truth.Truth
 import org.junit.jupiter.api.Test
 
 class PetTypeTest {
-  val table = PetClassLoader(Canon.allDefinitions).loadAll()
 
   @Test
-  fun wtf1() {
-    assertThat(table.isValid("GreeneryTile<Area220>")).isFalse()
-  }
+  fun testCycle() {
+    val table: PetClassTable = loadTypes(
+        "ABSTRACT CLASS Player",
+        "CLASS Player1 : Player",
+        "ABSTRACT CLASS Owned<Player>",
+        "ABSTRACT CLASS CardFront : Owned",
+        "ABSTRACT CLASS Cardbound<CardFront> : Owned",
+        "ABSTRACT CLASS CardResource : Cardbound<ResourcefulCard>",
+        "CLASS Animal : CardResource<ResourcefulCard<Animal.CLASS>>",
+        "ABSTRACT CLASS ResourcefulCard<CardResource.CLASS> : CardFront",
+        "CLASS Fish : ResourcefulCard<Animal.CLASS>",
+    )
+    Truth.assertThat(table.resolve("Animal<Fish>").abstract).isTrue()
 
-  // also UseAction2, PlayCard
-
-  @Test
-  fun wtf2() {
-    assertThat(table.resolve("Animal<Birds>").abstract).isTrue()
-  }
-
-  @Test
-  fun wtf3() {
-    assertThat(table.resolve("Animal<Player1>").abstract).isTrue()
-  }
-
-  @Test
-  fun wtf5() {
-    assertThat(table.resolve("Animal<Player1, Birds>").abstract).isTrue() // TODO FALSE
-  }
-
-  @Test
-  fun wtf6() {
-    val birds = table.resolve("Birds").petClass
-    assertThat(table.resolve("Player1").abstract).isFalse()
-    assertThat(table.resolve("Birds<Player1>").abstract).isFalse()
-    assertThat(table.resolve("Animal<Player1, Birds<Player1>>").abstract).isFalse()
-  }
-
-  @Test
-  fun wtf7() {
-    assertThat(table.resolve("Animal<Player1, Birds<Player1>>").abstract).isFalse()
+    val fish = table.resolve("Animal<Player1, Fish<Player1>>")
+    Truth.assertThat(fish.abstract).isFalse()
   }
 }

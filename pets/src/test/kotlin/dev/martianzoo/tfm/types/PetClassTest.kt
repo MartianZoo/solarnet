@@ -178,13 +178,15 @@ class PetClassTest {
     Assertions.assertThrows(RuntimeException::class.java, { table.resolve("s") }, "s")
 
   }
-  private fun loader(petsText: String) =
-      PetClassLoader(parseComponents(petsText)).also { it.loadAll() }
-
-  fun loadTypes(vararg decl: String): PetClassTable {
-    return loader("ABSTRACT CLASS $COMPONENT\n" + decl.joinToString("") { "$it\n" })
-  }
 
   private fun Iterable<PetClass>.names() = map { it.name }
 
 }
+
+private fun loader(petsText: String) =
+    PetClassLoader(parseComponents(petsText)).also { it.loadAll() }
+
+fun loadTypes(vararg decl: String): PetClassTable {
+  return loader("ABSTRACT CLASS $COMPONENT\n" + decl.joinToString("") { "$it\n" })
+}
+

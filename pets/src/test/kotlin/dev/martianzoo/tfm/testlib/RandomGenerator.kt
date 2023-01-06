@@ -20,7 +20,7 @@ abstract class RandomGenerator<B : Any>(val registry: Registry<B>, val scaling: 
     }
 
     @Suppress("UNCHECKED_CAST")
-    operator fun <N : B> get(type: KClass<N>) = map[type]!! as RandomGenerator<B>.() -> N
+    operator fun <N : B> get(type: KClass<N>) = (map[type] ?: error(type)) as RandomGenerator<B>.() -> N
 
     open fun <T : B> invoke(type: KClass<T>, gen: RandomGenerator<B>): T? = get(type).invoke(gen)
   }

@@ -88,7 +88,7 @@ ABSTRACT CLASS HasActions {
     ABSTRACT CLASS StandardAction {
         HAS =1 This
 
-        CLASS PlayCardFromHand   { -> PlayCard<ProjectCard, CardFront> }
+        CLASS PlayCardFromHand   { -> PlayCard }
         CLASS UseStandardProject { -> UseAction<StandardProject> }
         CLASS UseActionFromCard  { -> UseAction<ActionCard> THEN ActionUsedMarker<ActionCard> }
         CLASS ConvertPlants      { 8 Plant -> GreeneryTile }

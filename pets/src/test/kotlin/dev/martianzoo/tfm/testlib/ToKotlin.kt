@@ -17,7 +17,7 @@ import dev.martianzoo.tfm.pets.ast.Instruction.Transmute
 import dev.martianzoo.tfm.pets.ast.PetsNode
 import dev.martianzoo.tfm.pets.ast.QuantifiedExpression
 import dev.martianzoo.tfm.pets.ast.Requirement
-import dev.martianzoo.tfm.pets.ast.TypeExpression
+import dev.martianzoo.tfm.pets.ast.TypeExpression.GenericTypeExpression
 import dev.martianzoo.util.joinOrEmpty
 import dev.martianzoo.util.pre
 
@@ -33,7 +33,7 @@ object ToKotlin {
       return when (this) {
         null -> "null"
 
-        is TypeExpression -> "te(\"$className\"" +
+        is GenericTypeExpression -> "te(\"$className\"" +
             specs.joinOrEmpty(", ", prefix=", listOf(", suffix=")") { p2k(it) } +
             "${refinement.pre(", " + if (specs.isEmpty()) "requirement=" else "")})"
         is QuantifiedExpression -> "QuantifiedExpression(${p2k(expression)}${scalar.pre(", ")})"

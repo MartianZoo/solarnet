@@ -157,7 +157,7 @@ class CardDefinitionTest {
   @Test fun slurp() {
     Canon.cardDefinitions.values.forEach { card ->
       card.requirementRaw?.let { assertThat("$it").isEqualTo(card.requirementText) }
-      card.resourceType?.let { assertThat("$it").isEqualTo(card.resourceTypeText) }
+      card.resourceType?.let { assertThat(it.className).isEqualTo(card.resourceTypeText) }
 
       checkRoundTrip(card.tagsText, card.tags)
       if (card.immediateText.isNotEmpty()) {

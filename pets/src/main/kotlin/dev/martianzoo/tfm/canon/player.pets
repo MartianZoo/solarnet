@@ -14,11 +14,11 @@ ABSTRACT CLASS Anyone {
                                                             // This makes `/ PROD[1]` extremely dodgy, almost worth
                                                             // banning... except it does still work fine for Banker.
 
-        PlayTag<BuildingTag>:: Accept<Steel>                // becomes `Pay<S> BY Player:: 2 Pay<MC, Player>` (but how?)
-        Pay<Steel>:: 2 Pay<Megacredit>                      // TODO where do these really belong??
+        PlayTag<BuildingTag.CLASS>:: Accept<Steel.CLASS>
+        PlayTag<SpaceTag.CLASS>:: Accept<Titanium.CLASS>    // TODO where do these really belong??
 
-        PlayTag<SpaceTag>:: Accept<Titanium>
-        Pay<Titanium>:: 3 Pay<Megacredit>                   // should be innocuous for TradeAction?
+        Pay<Steel.CLASS>:: 2 Pay<Megacredit.CLASS>
+        Pay<Titanium.CLASS>:: 3 Pay<Megacredit.CLASS>       // should be innocuous for TradeAction?
 
         CLASS Player1, Player2, Player3, Player4, Player5   // in PETS, nesting = subtyping
     }
@@ -82,23 +82,23 @@ ABSTRACT CLASS Resource : Owned {
         CLASS Energy { ProductionPhase:: Heat FROM This }
     }
 
-    ABSTRACT CLASS CardResource : Cardbound<ResourcefulCard> {       // TODO Cardbound<ResourcefulCard<CardResource>>, forcing match
+    ABSTRACT CLASS CardResource : Cardbound<ResourcefulCard> {       // TODO Cardbound<ResourcefulCard<CardResource.CLASS>>, forcing match
         DEFAULT +This.
 
         // All others are card-specific; see cards.json5
-        CLASS Animal : CardResource<ResourcefulCard<Animal>>
-        CLASS Microbe : CardResource<ResourcefulCard<Microbe>>
-        CLASS Science : CardResource<ResourcefulCard<Science>>
-        CLASS Floater : CardResource<ResourcefulCard<Floater>>
-        CLASS Asteroid : CardResource<ResourcefulCard<Asteroid>>
+        CLASS Animal : CardResource<ResourcefulCard<Animal.CLASS>>
+        CLASS Microbe : CardResource<ResourcefulCard<Microbe.CLASS>>
+        CLASS Science : CardResource<ResourcefulCard<Science.CLASS>>
+        CLASS Floater : CardResource<ResourcefulCard<Floater.CLASS>>
+        CLASS Asteroid : CardResource<ResourcefulCard<Asteroid.CLASS>>
     }
 }
 
-CLASS Production<CLASS StandardResource> : Owned {
+CLASS Production<StandardResource.CLASS> : Owned {
     ProductionPhase: StandardResource                       // TODO subtype specialization
 }
 
-ABSTRACT CLASS ResourcefulCard<CLASS CardResource> : CardFront
+ABSTRACT CLASS ResourcefulCard<CardResource.CLASS> : CardFront
 
 
 // CARDS ---------------------------------------------------
@@ -158,28 +158,28 @@ ABSTRACT CLASS PaymentMechanic : Owned, Temporary {
         This: (MAX 0 This: Ok)                              // adds a task that can only be handled if 0 barriers left
     }
 
-    CLASS Owed<CLASS Resource> : Barrier {                  // created when payment due, removed by discount cards/
-       This:: Accept<Resource>
+    CLASS Owed<Resource.CLASS> : Barrier {                  // created when payment due, removed by discount cards/
+       This:: Accept<Resource.CLASS>
     }
 
-    CLASS Accept<CLASS Resource> {                          // Created in response to PlayTag or the actions on 4
+    CLASS Accept<Resource.CLASS> {                          // Created in response to PlayTag or the actions on 4
         HAS MAX 1 This                                      // special cards. (extend Temporary?)
         DEFAULT +This.
     }
 
-    CLASS Pay<CLASS Resource> : Signal {                    // player uses it like `8 Pay<Heat> FROM Heat`
-        This:: -Owed<Resource>.                             // But also cards can pay in response to signals
+    CLASS Pay<Resource.CLASS> : Signal {                    // player uses it like `8 Pay<Heat.CLASS> FROM Heat`
+        This:: -Owed<Resource.CLASS>.                             // But also cards can pay in response to signals
     }
 
     CLASS BuyCard : Signal                                  // used by ResearchPhase, InvGuild, BusNet
                                                             // triggers Polyphemos, Terralabs
 
-    CLASS PlayTag<CLASS Tag> : Signal                       // triggers Accept<Steel/Dirig/etc> and tag-based discounts
+    CLASS PlayTag<Tag.CLASS> : Signal                       // triggers Accept<Steel/Dirig/etc.CLASS> and tag-based discounts
 
                                                             // used by PlayCardFromHand, ValTrust, EcoEx, ExSponsor,
-    CLASS PlayCard<CLASS CardBack, CLASS CardFront> {       // NewPartner, Merger; triggers EarthCat etc.
-        This:: $handleRequirement(CardFront)                // ?
-        This: Owed<Megacredit> / Cost<CardFront>
-        This: =0 Barrier: (CardFront FROM CardBack, -This)  // adds task to queue that must eventually be completed
+    CLASS PlayCard { // CardBack.CLASS, CardFront.CLASS> {       // NewPartner, Merger; triggers EarthCat etc.
+//        This:: (CardBack: $handleRequirement(CardFront.CLASS)) // ??
+//        This: Owed<Megacredit.CLASS> / Cost<CardFront.CLASS>// ??
+//        This: =0 Barrier: (CardFront FROM CardBack, -This)  // adds task to queue that must eventually be completed
     }
 }
