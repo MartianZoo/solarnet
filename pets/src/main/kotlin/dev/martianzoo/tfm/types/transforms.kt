@@ -29,7 +29,7 @@ private class Defaulter(val table: PetClassTable) : AstTransformer() {
           val newTypeExpr = applyDefaultSpecs(
               writtenType,
               petClass,
-              defaults.gainDeps
+              defaults.gainOnlyDependencies
           )
           node.copy(
               node.qe.copy(expression = transform(newTypeExpr)),
@@ -41,7 +41,7 @@ private class Defaulter(val table: PetClassTable) : AstTransformer() {
       is GenericTypeExpression -> {
         val petClass = table[node.className]
         // TODO should we be recursing?
-        applyDefaultSpecs(node, petClass, petClass.defaults.allDeps)
+        applyDefaultSpecs(node, petClass, petClass.defaults.allCasesDependencies)
       }
 
       else -> super.transform(node)
@@ -59,6 +59,6 @@ private class Defaulter(val table: PetClassTable) : AstTransformer() {
     val mergedDeps = explicitStatedDeps.overlayOn(defaultDeps)
 
     //// TODO: a little weird that we're going backwards here?
-    return PetGenericType(petClass, mergedDeps).toTypeExpressionFull() as GenericTypeExpression
+    return PetGenericType(petClass, mergedDeps).toTypeExpressionFull()
   }
 }

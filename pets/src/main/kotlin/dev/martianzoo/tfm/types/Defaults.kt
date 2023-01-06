@@ -5,26 +5,25 @@ import dev.martianzoo.tfm.pets.ast.Instruction.Intensity
 import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.pets.ast.TypeExpression
 import dev.martianzoo.tfm.pets.ast.TypeExpression.GenericTypeExpression
-import dev.martianzoo.tfm.types.PetType.PetGenericType
 
 data class Defaults(
-    val allDeps: DependencyMap = DependencyMap(),
-    val gainDeps: DependencyMap = DependencyMap(),
+    val allCasesDependencies: DependencyMap = DependencyMap(),
+    val gainOnlyDependencies: DependencyMap = DependencyMap(),
     val gainIntensity: Intensity? = null
 ) {
 
   companion object {
     fun from(d: DefaultsDeclaration, petClass: PetClass) = Defaults(
-        toDependencyMap(d.universalSpecs, petClass),
-        toDependencyMap(d.gainOnlySpecs, petClass),
+        toDependencyMap(petClass, d.universalSpecs),
+        toDependencyMap(petClass, d.gainOnlySpecs),
         d.gainIntensity)
 
-    private fun toDependencyMap(specs: List<TypeExpression>?, petClass: PetClass): DependencyMap {
+    private fun toDependencyMap(petClass: PetClass, specs: List<TypeExpression>?): DependencyMap {
       return if (specs == null) {
         DependencyMap()
       } else {
         val type = GenericTypeExpression(petClass.name, specs)
-        (petClass.loader.resolve(type) as PetGenericType).dependencies
+        petClass.loader.resolve(type).dependencies
       }
     }
   }
@@ -33,8 +32,8 @@ data class Defaults(
   // but otherwise attempt to find agreement among all of `defaultses`.
   fun overlayOn(defaultses: List<Defaults>): Defaults {
     return Defaults(
-        overlayDMs(defaultses) { it.allDeps },
-        overlayDMs(defaultses) { it.gainDeps },
+        overlayDMs(defaultses) { it.allCasesDependencies },
+        overlayDMs(defaultses) { it.gainOnlyDependencies },
         overlayIntensities(defaultses) { it.gainIntensity })
   }
 
@@ -57,12 +56,12 @@ data class Defaults(
       defaultses: List<Defaults>,
       extract: (Defaults) -> DependencyMap
   ): DependencyMap {
-    val map = extract(this).keyToDep.toMutableMap()
+    val map = extract(this).keyToDependency.toMutableMap()
     for (key in defaultses.flatMap { extract(it).keys }.toSet()) {
       if (key !in map) {
         // TODO some orders might work when others don't
         val depMapsWithThisKey = defaultses.map(extract).filter { key in it }
-        map[key] = depMapsWithThisKey.map { it[key] }.reduce { a, b -> a.combine(b) }
+        map[key] = depMapsWithThisKey.map { it[key] }.reduce { a, b -> a.intersect(b) }
       }
     }
     return DependencyMap(map)

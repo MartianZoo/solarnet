@@ -29,6 +29,13 @@ fun <K : Any, V : Any> mergeMaps(one: Map<out K, V>, two: Map<out K, V>, merger:
       two.forEach { merge(it.key, it.value, merger) }
     }
 
+fun <K : Any, V : Any> overlayMaps(front: Map<out K, V>, back: Map<out K, V>): MutableMap<K, V> {
+  // Not the easiest way but this way makes front's ordering more significant
+  val overlay = front.toMutableMap()
+  back.forEach { (k, v) -> if (k !in front) overlay[k] = v }
+  return overlay
+}
+
 
 // TODO fix overload hell
 

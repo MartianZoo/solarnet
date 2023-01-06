@@ -65,7 +65,7 @@ class PetClassTest {
     val loader = loadTypes("CLASS Foo", "CLASS Bar<Foo>")
     val bar = loader["Bar"]
     assertThat(bar.directSuperclasses.names()).containsExactly("$COMPONENT")
-    assertThat(bar.directDependencyKeys).containsExactly(DependencyKey(bar, 0))
+    assertThat(bar.directDependencyKeys).containsExactly(Dependency.Key(bar, 0))
   }
 
   @Test fun inheritedDependency() {
@@ -74,7 +74,7 @@ class PetClassTest {
     val qux = loader["Qux"]
     assertThat(qux.directSuperclasses.names()).containsExactly("Bar")
 
-    val key = DependencyKey(bar, 0)
+    val key = Dependency.Key(bar, 0)
     assertThat(bar.allDependencyKeys).containsExactly(key)
     assertThat(qux.allDependencyKeys).containsExactly(key)
   }
@@ -85,7 +85,7 @@ class PetClassTest {
     val qux = loader["Qux"]
     assertThat(qux.directSuperclasses.names()).containsExactly("Bar")
 
-    val key = DependencyKey(bar, 0)
+    val key = Dependency.Key(bar, 0)
     assertThat(bar.allDependencyKeys).containsExactly(key)
     assertThat(qux.allDependencyKeys).containsExactly(key)
   }
@@ -95,8 +95,8 @@ class PetClassTest {
     val bar = loader["Bar"]
     val qux = loader["Qux"]
 
-    assertThat(bar.allDependencyKeys).containsExactly(DependencyKey(bar, 0))
-    assertThat(qux.allDependencyKeys).containsExactly(DependencyKey(bar, 0),  DependencyKey(qux, 0))
+    assertThat(bar.allDependencyKeys).containsExactly(Dependency.Key(bar, 0))
+    assertThat(qux.allDependencyKeys).containsExactly(Dependency.Key(bar, 0),  Dependency.Key(qux, 0))
   }
 
   @Test fun refinedDependency() {
@@ -105,7 +105,7 @@ class PetClassTest {
     val qux = loader["Qux"]
     assertThat(qux.directSuperclasses.names()).containsExactly("Bar")
 
-    val key = DependencyKey(bar, 0)
+    val key = Dependency.Key(bar, 0)
     assertThat(bar.allDependencyKeys).containsExactly(key)
     assertThat(qux.allDependencyKeys).containsExactly(key)
   }

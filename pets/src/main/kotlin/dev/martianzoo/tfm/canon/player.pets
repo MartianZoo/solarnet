@@ -51,8 +51,8 @@ ABSTRACT CLASS Owned<Anyone> {
 
 // TILES ---------------------------------------------------
 
-ABSTRACT CLASS OwnedTile : Owned, Tile {
-    CLASS GreeneryTile : Tile<MarsArea> {
+ABSTRACT CLASS OwnedTile : Tile, Owned {                    // TODO need to make sure nothing extends both Owned and
+    CLASS GreeneryTile : Tile<MarsArea> {                   // Tile without extending this
         // TODO this needs to use `HAS?` or something
         DEFAULT +This<LandArea(HAS Neighbor<OwnedTile>)>
         This: OxygenStep

@@ -24,7 +24,7 @@ class PetClassCanonTest {
 
     table.load("OceanTile").apply {
       assertThat(directDependencyKeys).isEmpty()
-      assertThat(allDependencyKeys).containsExactly(DependencyKey(table["Tile"], 0))
+      assertThat(allDependencyKeys).containsExactly(Dependency.Key(table["Tile"], 0))
       assertThat(directSuperclasses.map { it.name }).containsExactly(
           "GlobalParameter", "Tile").inOrder()
       assertThat(allSuperclasses.map { it.name }).containsExactly(

@@ -9,13 +9,13 @@ interface PetType {
   val dependencies: DependencyMap
   val abstract: Boolean
 
-  fun toTypeExpressionFull(): TypeExpression
-
   fun isSubtypeOf(that: PetType): Boolean
 
-  fun hasGlbWith(that: PetType): Boolean
+  fun canIntersect(that: PetType): Boolean
 
-  fun glb(that: PetType): PetType
+  infix fun intersect(that: PetType): PetType
+
+  fun toTypeExpressionFull(): TypeExpression
 
   // a type like Tile.CLASS
   class PetClassType(override val petClass: PetClass) : PetType {
@@ -27,14 +27,13 @@ interface PetType {
     override fun isSubtypeOf(that: PetType) =
         that is PetClassType && petClass.isSubtypeOf(that.petClass)
 
-    override fun hasGlbWith(that: PetType): Boolean {
-      that as PetClassType
-      return petClass.hasGlbWith(that.petClass)
+    override fun canIntersect(that: PetType): Boolean {
+      return that is PetClassType && this.petClass.canIntersect(that.petClass)
     }
 
-    override fun glb(that: PetType): PetClassType {
+    override fun intersect(that: PetType): PetClassType {
       that as PetClassType
-      return PetClassType(petClass.glb(that.petClass))
+      return PetClassType(petClass.intersect(that.petClass))
     }
 
     override fun toString() = toTypeExpressionFull().toString()
@@ -46,41 +45,35 @@ interface PetType {
   ) : PetType {
     override val abstract: Boolean = petClass.abstract || dependencies.abstract
 
-    override fun isSubtypeOf(that: PetType): Boolean =
-        that is PetGenericType && petClass.isSubtypeOf(that.petClass) && dependencies.specializes(
-            that.dependencies
-        )
+    override fun isSubtypeOf(that: PetType) =
+        that is PetGenericType &&
+        petClass.isSubtypeOf(that.petClass)
+        && dependencies.specializes(that.dependencies)
 
-    override fun glb(that: PetType): PetGenericType {
-      that as PetGenericType
-      return PetGenericType(
-          petClass.glb(that.petClass),
-          dependencies.merge(that.dependencies)
-      )
-    }
-
-    fun specialize(specs: List<TypeExpression>): PetGenericType {
-      return try {
-        copy(dependencies = dependencies.specialize(specs, petClass.loader))
-      } catch (e: RuntimeException) {
-        throw RuntimeException("2. PetType is $this", e)
-      }
-    }
-
-    override fun toString() = toTypeExpressionFull().toString()
-
-    override fun toTypeExpressionFull(): TypeExpression {
-      val specs = dependencies.keyToDep.values.map { it.toTypeExpressionFull() }
-      return GenericTypeExpression(petClass.name, specs)
-    }
-
-    override fun hasGlbWith(type: PetType): Boolean {
-      return try {
-        glb(type)
+    override fun canIntersect(that: PetType): Boolean {
+      return try { // TODO yuck
+        intersect(that)
         true
       } catch (e: Exception) {
+        println(e.message)
+        e.stackTrace.take(2).forEach(::println)
         false
       }
     }
+
+    override fun intersect(that: PetType) =
+        PetGenericType(
+            petClass.intersect(that.petClass),
+            dependencies.intersect((that as PetGenericType).dependencies))
+
+    fun specialize(specs: List<TypeExpression>) =
+        copy(dependencies = dependencies.specialize(specs, petClass.loader))
+
+    override fun toTypeExpressionFull(): GenericTypeExpression {
+      val specs = dependencies.keyToDependency.values.map { it.toTypeExpressionFull() }
+      return GenericTypeExpression(petClass.name, specs)
+    }
+
+    override fun toString() = toTypeExpressionFull().toString()
   }
 }

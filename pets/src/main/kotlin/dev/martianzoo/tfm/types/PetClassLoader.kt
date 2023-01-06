@@ -53,13 +53,17 @@ class PetClassLoader(val definitions: Map<String, ClassDeclaration>) : PetClassT
   override fun resolveWithDefaults(expression: TypeExpression) =
       resolve(applyDefaultsIn(expression, this))
 
-  override fun resolve(expression: TypeExpression): PetType { // TODOTODO with refinement!
-    val petClass = load(expression.className)
-    return when (expression) {
-      is ClassExpression -> PetClassType(petClass)
-      is GenericTypeExpression -> petClass.baseType.specialize(expression.specs)
-    }
-  }
+  override fun resolve(expression: TypeExpression) =
+      when (expression) {
+        is ClassExpression -> resolve(expression)
+        is GenericTypeExpression -> resolve(expression)
+      }
+
+  override fun resolve(expression: ClassExpression) =
+      PetClassType(load(expression.className))
+
+  override fun resolve(expression: GenericTypeExpression) =
+      load(expression.className).baseType.specialize(expression.specs)
 
   override fun isValid(expression: TypeExpression) = try {
     resolve(expression)

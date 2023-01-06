@@ -36,13 +36,15 @@ class PetClass(val decl: ClassDeclaration, val loader: PetClassLoader) {
   }
 
   /** Returns the one of `this` or `that` that is a subclass of the other. */
-  fun glb(that: PetClass) = when {
+  fun intersect(that: PetClass) = when {
     this.isSubtypeOf(that) -> this
     that.isSubtypeOf(this) -> that
-    else -> error("we ain't got no intersection types")
+    else -> error("no intersection: $this, $that")
   }
 
-  fun hasGlbWith(that: PetClass) = isSubtypeOf(that) || that.isSubtypeOf(this)
+  fun canIntersect(that: PetClass) =
+      this.isSubtypeOf(that) ||
+      that.isSubtypeOf(this)
 
   fun lub(that: PetClass) = when {
     this.isSubtypeOf(that) -> that
@@ -53,11 +55,11 @@ class PetClass(val decl: ClassDeclaration, val loader: PetClassLoader) {
 
 // DEPENDENCIES
 
-  val directDependencyKeys: Set<DependencyKey> by lazy {
-    decl.dependencies.indices.map { DependencyKey(this, it) }.toSet()
+  val directDependencyKeys: Set<Dependency.Key> by lazy {
+    decl.dependencies.indices.map { Dependency.Key(this, it) }.toSet()
   }
 
-  val allDependencyKeys: Set<DependencyKey> by lazy {
+  val allDependencyKeys: Set<Dependency.Key> by lazy {
     allSuperclasses.flatMap { it.directDependencyKeys }.toSet()
   }
 
@@ -72,15 +74,17 @@ class PetClass(val decl: ClassDeclaration, val loader: PetClassLoader) {
     require(!reentryCheck)
     reentryCheck = true
 
-    val deps = DependencyMap.merge(directSupertypes.map { it.dependencies })
+    val deps = DependencyMap.intersect(directSupertypes.map { it.dependencies })
 
     val newDeps = directDependencyKeys.associateWith {
       val typeExpression = decl.dependencies[it.index].upperBound
       Dependency(it, loader.resolve(typeExpression))
     }
-    val allDeps = deps.merge(DependencyMap(newDeps))
-    require(allDeps.keyToDep.keys == allDependencyKeys)
-    PetGenericType(this, allDeps)
+    val allDeps = deps.intersect(DependencyMap(newDeps))
+    require(allDeps.keys == allDependencyKeys)
+    PetGenericType(this, allDeps).also {
+      println("baseType is $it")
+    }
   }
 
 // DEFAULTS
