@@ -63,7 +63,7 @@ abstract class Authority {
   }
 
   private fun toMapByComponentName(thing: Collection<Definition>) =
-      thing.associateByStrict { it.componentName }
+      thing.associateByStrict { it.className }
 
   private fun gatherDeclarations(vararg defs: Collection<Definition>) =
       defs.toList()

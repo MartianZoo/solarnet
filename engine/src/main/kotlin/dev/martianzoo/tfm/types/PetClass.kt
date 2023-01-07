@@ -121,7 +121,7 @@ class PetClass(private val declaration: ClassDeclaration, private val loader: Pe
 
 // EFFECTS
 
-  val directEffectsRaw by declaration::effects
+  val directEffectsRaw by declaration::effectsRaw
 
   val directEffects by lazy {
     directEffectsRaw.asSequence()

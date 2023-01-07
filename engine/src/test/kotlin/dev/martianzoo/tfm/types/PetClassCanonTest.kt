@@ -55,14 +55,14 @@ class PetClassCanonTest {
     loader.loadAllSingletons()
 
     val nonVenusCards = Canon.cardDefinitions.filterNot { it.bundle == "V" }
-    loader.loadAll(nonVenusCards.map { it.componentName })
+    loader.loadAll(nonVenusCards.map { it.className })
     loader.loadAll(nonVenusCards.mapNotNull { it.resourceTypeText }.toSet())
 
-    loader.loadAll(Canon.milestoneDefinitions.filterNot { it.bundle == "V" }.map { it.componentName })
+    loader.loadAll(Canon.milestoneDefinitions.filterNot { it.bundle == "V" }.map { it.className })
 
     // Game config should take care of this
     loader.load("Hellas")
-    loader.loadAll(Canon.mapAreaDefinitions["Hellas"]!!.map { it.componentName })
+    loader.loadAll(Canon.mapAreaDefinitions["Hellas"]!!.map { it.className })
 
     // TODO: something should eventually pull these in
     loader.load("CorporationCard")
@@ -85,7 +85,7 @@ class PetClassCanonTest {
 
     val all = PetClassLoader(Canon).loadAll().loadedClassNames()
 
-    val venusThings = Canon.cardDefinitions.filter { it.bundle == "V" }.map { it.componentName } +
+    val venusThings = Canon.cardDefinitions.filter { it.bundle == "V" }.map { it.className } +
         setOf("VenusTag", "MilestoneVM1", "Dirigible", "Area220", "Area236", "Area238", "Area248")
 
     assertThat(all.containsAll(venusThings)).isTrue()

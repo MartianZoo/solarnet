@@ -46,14 +46,14 @@ data class MarsAreaDefinition( // TODO rename
 
   override val asClassDeclaration by lazy {
     ClassDeclaration(
-        componentName,
+        className,
         abstract = false,
         supertypes = setOf(type),
-        effectsRaw = { setOfNotNull(bonus?.let { Effect(trigger, it) }) }
+        effectsRaw = bonus?.let { setOf(Effect(trigger, it)) } ?: setOf()
     )
   }
 
-  override val componentName = "${mapName}${row}_$column"
+  override val className = "${mapName}${row}_$column"
 }
 
 val trigger = OnGain(te("Tile", THIS.type))

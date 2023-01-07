@@ -30,16 +30,16 @@ data class MilestoneDefinition(
 
   val requirement: Requirement by lazy { parse(requirementText) }
 
-  override val componentName = "Milestone$id"
+  override val className = "Milestone$id"
 
   override val asClassDeclaration: ClassDeclaration by lazy {
     ClassDeclaration(
-        componentName,
+        className,
         abstract = false,
         supertypes = setOf(te("Milestone")),
-        effectsRaw = {
-          setOf(Effect(OnGain(THIS.type), Gated(requirement, Gain(QuantifiedExpression(OK.type)))))
-        }
+        effectsRaw = setOf(Effect(
+            OnGain(THIS.type),
+            Gated(requirement, Gain(QuantifiedExpression(OK.type)))))
     )
   }
 }

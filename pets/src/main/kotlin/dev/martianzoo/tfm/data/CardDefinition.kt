@@ -151,7 +151,7 @@ data class CardDefinition(
     }
   }
 
-  override val componentName = englishHack(id)
+  override val className = englishHack(id)
 
   // TODO ClassName
   val tags: List<TypeExpression> by lazy { tagsText.map(::te) }
@@ -193,10 +193,10 @@ data class CardDefinition(
     if (supertypes.isEmpty())  supertypes.add(te("CardFront"))
 
     ClassDeclaration(
-        className = componentName,
+        className = className,
         abstract = false,
         supertypes = supertypes,
-        effectsRaw = { allEffects })
+        effectsRaw = allEffects)
   }
 
   private fun inactive(): Boolean {

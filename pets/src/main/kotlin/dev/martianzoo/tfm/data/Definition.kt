@@ -1,6 +1,6 @@
 package dev.martianzoo.tfm.data
 
 interface Definition {
-  val componentName: String
+  val className: String
   val asClassDeclaration: ClassDeclaration
 }

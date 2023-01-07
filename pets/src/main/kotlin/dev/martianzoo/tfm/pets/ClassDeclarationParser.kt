@@ -11,7 +11,7 @@ import com.github.h0tk3y.betterParse.grammar.parser
 import com.github.h0tk3y.betterParse.parser.Parser
 import dev.martianzoo.tfm.data.ClassDeclaration
 import dev.martianzoo.tfm.data.ClassDeclaration.DefaultsDeclaration
-import dev.martianzoo.tfm.data.ClassDeclaration.DependencyDecl
+import dev.martianzoo.tfm.data.ClassDeclaration.DependencyDeclaration
 import dev.martianzoo.tfm.pets.PetsParser.Instructions
 import dev.martianzoo.tfm.pets.PetsParser.Types
 import dev.martianzoo.tfm.pets.PetsParser._abstract
@@ -44,18 +44,11 @@ object ClassDeclarationParser {
    * Parses an entire PETS component defs source file.
    */
   fun parseClassDeclarations(text: String): List<ClassDeclaration> =
-      parseRepeated(nestedClassDeclarations, tokenizer.tokenize(text))
-
-  private data class Signature(
-      val className: String,
-      val dependencies: List<DependencyDecl>,
-      val topInvariant: Requirement?,
-      val supertypes: List<GenericTypeExpression>
-  )
+      parseRepeated(Components.nestedClassDeclarations, tokenizer.tokenize(text))
 
   private object Components { // -------------------------------------------------------
     private val isAbstract = optional(_abstract) and skip(_class) map { it != null }
-    private val dependency = typeExpression map ::DependencyDecl
+    private val dependency = typeExpression map ::DependencyDeclaration
     private val dependencies = optionalList(
         skipChar('<') and commaSeparated(dependency) and skipChar('>')
     )
@@ -82,7 +75,8 @@ object ClassDeclarationParser {
       DefaultsDeclaration(universalSpecs = it.specs)
     }
 
-    private val defaultStmt: Parser<DefaultsDeclaration> = skip(_default) and (gainDefault or typeDefault)
+    private val defaultStmt: Parser<DefaultsDeclaration> =
+        skip(_default) and (gainDefault or typeDefault)
     private val invariant = skip(_has) and requirement
 
     private val bodyElement = defaultStmt or invariant or action or effect
@@ -92,7 +86,7 @@ object ClassDeclarationParser {
 
     val ocd: Parser<ClassDeclaration> =
         isAbstract and signature and optionalList(oneLineBody) map { (abs, sig, body) ->
-          createIncomplete(abs, sig, body).first().getDef()
+          createIncomplete(abs, sig, body).first().declaration()
         }
 
     private val blockBodyContents = separatedTerms(
@@ -114,66 +108,69 @@ object ClassDeclarationParser {
           }
         }
 
-    val ncd = incompleteComponentDefs map { defs -> defs.map { it.getDef() } }
+    val nestedClassDeclarations = incompleteComponentDefs map { defs -> defs.map { it.declaration() } }
+  }
+  private fun createIncomplete(
+      abst: Boolean,
+      sig: Signature,
+      contents: List<Any> = listOf()
+  ): List<DeclarationInProgress> {
+    val invs = contents.filterIsInstance<Requirement>().toSetStrict()
+    val defs = contents.filterIsInstance<DefaultsDeclaration>().toSetStrict()
+    val acts = contents.filterIsInstance<Action>().toSetStrict()
+    val effs = contents.filterIsInstance<Effect>().toSetStrict()
+    val subs = contents.filterIsInstance<List<*>>().toSetStrict()
 
-    class Declaring(
-        private val decl: ClassDeclaration,
-        private val isComplete: Boolean
-    ) {
+    val mergedDefaults = DefaultsDeclaration(
+        universalSpecs = defs.firstNotNullOfOrNull { it.universalSpecs } ?: listOf(),
+        gainOnlySpecs = defs.firstNotNullOfOrNull { it.gainOnlySpecs } ?: listOf(),
+        gainIntensity = defs.firstNotNullOfOrNull { it.gainIntensity },
+    )
 
-      fun getDef() = if (isComplete) decl else fixSupertypes()
-
-      fun fillInSuperclass(name: String) =
-          if (isComplete || decl.supertypes.any { it.className == name }) {
-            this
-          } else {
-            Declaring(
-                decl.copy(supertypes = (listOf(te(name)) + decl.supertypes).toSetStrict()), true
-            )
-          }
-
-      private fun fixSupertypes(): ClassDeclaration {
-        val supes = decl.supertypes
-        return when {
-          decl.className == "$COMPONENT" -> decl.also { require(supes.isEmpty()) }
-          supes.isEmpty() -> decl.copy(supertypes = setOf(COMPONENT.type))
-          else -> decl.also { require(COMPONENT.type !in supes) }
-        }
-      }
-    }
-
-    private fun createIncomplete(
-        abst: Boolean,
-        sig: Signature,
-        contents: List<Any> = listOf()
-    ): List<Declaring> {
-      val invs = contents.filterIsInstance<Requirement>().toSetStrict()
-      val defs = contents.filterIsInstance<DefaultsDeclaration>().toSetStrict()
-      val acts = contents.filterIsInstance<Action>().toSetStrict()
-      val effs = contents.filterIsInstance<Effect>().toSetStrict()
-      val subs = contents.filterIsInstance<List<*>>().toSetStrict()
-
-      val mergedDefaults = DefaultsDeclaration(
-          universalSpecs = defs.firstNotNullOfOrNull { it.universalSpecs } ?: listOf(),
-          gainOnlySpecs = defs.firstNotNullOfOrNull { it.gainOnlySpecs } ?: listOf(),
-          gainIntensity = defs.firstNotNullOfOrNull { it.gainIntensity },
-      )
-
-      val comp = ClassDeclaration(
-          className = sig.className,
-          abstract = abst,
-          dependencies = sig.dependencies,
-          supertypes = sig.supertypes.toSetStrict(),
-          topInvariant = sig.topInvariant,
-          otherInvariants = invs,
-          effectsRaw = { effs + actionsToEffects(acts) },
-          defaultsDeclaration = mergedDefaults
-      )
-      return listOf(Declaring(comp, false)) + subs.flatten()
-          .map { (it as Declaring).fillInSuperclass(sig.className) }
-    }
+    val comp = ClassDeclaration(
+        className = sig.className,
+        abstract = abst,
+        dependencies = sig.dependencies,
+        supertypes = sig.supertypes.toSetStrict(),
+        topInvariant = sig.topInvariant,
+        otherInvariants = invs,
+        effectsRaw = effs + actionsToEffects(acts),
+        defaultsDeclaration = mergedDefaults
+    )
+    return listOf(DeclarationInProgress(comp, false)) + subs.flatten()
+        .map { (it as DeclarationInProgress).fillInSuperclass(sig.className) }
   }
 
-  private val nestedClassDeclarations = Components.ncd
   val oneLineClassDeclaration = Components.ocd
+
+  private data class Signature(
+      val className: String,
+      val dependencies: List<DependencyDeclaration>,
+      val topInvariant: Requirement?,
+      val supertypes: List<GenericTypeExpression>
+  )
+
+  class DeclarationInProgress(
+      private val declaration: ClassDeclaration,
+      private val isComplete: Boolean
+  ) {
+    fun declaration() = if (isComplete) declaration else fixSupertypes()
+
+    fun fillInSuperclass(name: String) =
+        if (isComplete || declaration.supertypes.any { it.className == name }) {
+          this
+        } else {
+          val supes = (listOf(te(name)) + declaration.supertypes)
+          DeclarationInProgress(declaration.copy(supertypes = supes.toSetStrict()), true)
+        }
+
+    private fun fixSupertypes(): ClassDeclaration {
+      val supes = declaration.supertypes
+      return when {
+        declaration.className == "$COMPONENT" -> declaration.also { require(supes.isEmpty()) }
+        supes.isEmpty() -> declaration.copy(supertypes = setOf(COMPONENT.type))
+        else -> declaration.also { require(COMPONENT.type !in supes) }
+      }
+    }
+  }
 }
