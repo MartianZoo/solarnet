@@ -1,7 +1,7 @@
 package dev.martianzoo.tfm.pets
 
 import com.google.common.truth.Truth.assertThat
-import dev.martianzoo.tfm.pets.ClassDeclarationParser.parseComponents
+import dev.martianzoo.tfm.pets.ClassDeclarationParser.parseClassDeclarations
 import dev.martianzoo.tfm.pets.ast.TypeExpression
 import dev.martianzoo.tfm.pets.ast.TypeExpression.Companion.te
 import org.junit.jupiter.api.Test
@@ -10,7 +10,7 @@ class ClassDeclarationTest {
 
   @Test
   fun body() {
-    assertThat(parseComponents("""
+    assertThat(parseClassDeclarations("""
           CLASS Bar : Qux { DEFAULT +This?
             Foo -> Bar
 
@@ -24,7 +24,7 @@ class ClassDeclarationTest {
 
   @Test
   fun series() {
-    assertThat(parseComponents("""
+    assertThat(parseClassDeclarations("""
         CLASS Die {
         }
         CLASS DieHard {
@@ -41,7 +41,7 @@ class ClassDeclarationTest {
   }
 
   @Test fun nesting() {
-    val cs = parseComponents("""
+    val cs = parseClassDeclarations("""
       CLASS Component
 
       CLASS One
@@ -70,13 +70,13 @@ class ClassDeclarationTest {
   }
 
   @Test fun oneLiner() {
-    val cs = parseComponents("""
+    parseClassDeclarations("""
       CLASS One { This: That }
     """)
   }
 
   @Test fun nestedOneLiner() {
-    val cs = parseComponents("""
+    parseClassDeclarations("""
       CLASS One {
         CLASS Two { This: That }
         CLASS Three { This: That }
@@ -85,7 +85,7 @@ class ClassDeclarationTest {
   }
 
   @Test fun withDefaults() {
-    val cs = parseComponents("""
+    parseClassDeclarations("""
         ABSTRACT CLASS Component {
            DEFAULT +This!
            DEFAULT This<Foo>

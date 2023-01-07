@@ -11,6 +11,7 @@
       <option name="taskNames">
         <list>
           <option value=":pets:test" />
+          <option value=":engine:test" />
         </list>
       </option>
       <option name="vmOptions" />

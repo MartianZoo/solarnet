@@ -13,7 +13,7 @@ import dev.martianzoo.tfm.types.PetType.PetGenericType
 
 /**
  */
-class PetClass(val decl: ClassDeclaration, val loader: PetClassLoader) {
+class PetClass(private val decl: ClassDeclaration, val loader: PetClassLoader) {
   val name by decl::className
   val abstract by decl::abstract
 
@@ -97,7 +97,7 @@ class PetClass(val decl: ClassDeclaration, val loader: PetClassLoader) {
     }
   }
 
-  val defaultsIgnoringRoot: Defaults by lazy {
+  private val defaultsIgnoringRoot: Defaults by lazy {
     if (name == "$COMPONENT") {
       Defaults()
     } else {
@@ -131,7 +131,7 @@ class PetClass(val decl: ClassDeclaration, val loader: PetClassLoader) {
     Validator(loader).transform(effects)
   }
 
-  class Validator(val table: PetClassTable) : AstTransformer() {
+  class Validator(private val table: PetClassTable) : AstTransformer() {
     override fun <P : PetsNode?> transform(node: P): P {
       if (node is TypeExpression) table.resolve(node)
       return super.transform(node)

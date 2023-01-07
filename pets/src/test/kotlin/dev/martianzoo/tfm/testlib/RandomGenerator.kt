@@ -8,9 +8,9 @@ import kotlin.math.tan
 import kotlin.random.Random
 import kotlin.reflect.KClass
 
-abstract class RandomGenerator<B : Any>(val registry: Registry<B>, val scaling: (Int) -> Double) {
+abstract class RandomGenerator<B : Any>(private val registry: Registry<B>, val scaling: (Int) -> Double) {
   abstract class Registry<B : Any> {
-    val map = mutableMapOf<KClass<out B>, (RandomGenerator<B>) -> B>()
+    private val map = mutableMapOf<KClass<out B>, (RandomGenerator<B>) -> B>()
 
     inline fun <reified P : B> register(
         noinline creator: RandomGenerator<B>.() -> P) = register(P::class, creator)
@@ -25,7 +25,7 @@ abstract class RandomGenerator<B : Any>(val registry: Registry<B>, val scaling: 
     open fun <T : B> invoke(type: KClass<T>, gen: RandomGenerator<B>): T? = get(type).invoke(gen)
   }
 
-  var depth: Int? = null
+  private var depth: Int? = null
 
   inline fun <reified N : B> makeRandomNode() = makeRandomNode(N::class)
 
@@ -50,7 +50,7 @@ abstract class RandomGenerator<B : Any>(val registry: Registry<B>, val scaling: 
 
   // Helpers
 
-  fun nextInt(limit: Int): Int {
+  private fun nextInt(limit: Int): Int {
     val d = Random.Default.nextDouble()
     val x = scaling(depth!!)
     require(x in -1.0..1.0)
@@ -80,7 +80,7 @@ abstract class RandomGenerator<B : Any>(val registry: Registry<B>, val scaling: 
 
   fun <T : Any?> choose(choices: Multiset<T>) = getNth(choices, nextInt(choices.size))
 
-  fun <T : Any?> getNth(choices: Multiset<T>, index: Int): T {
+  private fun <T : Any?> getNth(choices: Multiset<T>, index: Int): T {
     var skip = index
     for (wc in choices.entrySet()) {
       skip -= wc.count
@@ -104,7 +104,7 @@ abstract class RandomGenerator<B : Any>(val registry: Registry<B>, val scaling: 
   }
 
   fun <T : Any?> chooseS(vararg weightToChoiceSupplier: Pair<Int, () -> T>): T {
-    val sum =  weightToChoiceSupplier.map { it.first }.sum()
+    val sum =  weightToChoiceSupplier.sumOf { it.first }
     var skip = nextInt(sum)
     for (wc in weightToChoiceSupplier) {
       skip -= wc.first

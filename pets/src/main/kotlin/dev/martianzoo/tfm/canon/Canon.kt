@@ -14,7 +14,7 @@ object Canon : Authority() {
 
   override val explicitClassDeclarations: Collection<ClassDeclaration> by lazy {
     EXPLICIT_CLASS_FILENAMES.flatMap {
-      ClassDeclarationParser.parseComponents(readResource(it))
+      ClassDeclarationParser.parseClassDeclarations(readResource(it))
     }
   }
 

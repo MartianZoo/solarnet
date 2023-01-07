@@ -10,7 +10,7 @@ import dev.martianzoo.tfm.types.PetType
 import dev.martianzoo.util.mustRemove
 
 class ComponentGraph(startingWith: Multiset<Component> = ImmutableMultiset.of()) {
-  val multiset: /*Mutable*/Multiset<Component> = LinkedHashMultiset.create(startingWith)
+  private val multiset: /*Mutable*/Multiset<Component> = LinkedHashMultiset.create(startingWith)
   val changeLog: MutableList<StateChange> = mutableListOf() // starts with ordinal 1
 
   fun gain(count: Int, gaining: Component, cause: Cause? = null) =

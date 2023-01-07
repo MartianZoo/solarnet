@@ -18,7 +18,7 @@ Here's Freyja Biodomes. Okay, it looks like a block of JSON data, yeah, but the 
     "requirement": "5 VenusStep",
     "cost": 14,
     "projectKind": "AUTOMATED"
-},
+}
 ```
 
 I've got the parser parsing [350 cards](https://github.com/MartianZoo/pets/blob/main/pets/src/main/kotlin/dev/martianzoo/tfm/canon/cards.json5) so far.

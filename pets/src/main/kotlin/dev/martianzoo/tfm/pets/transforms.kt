@@ -65,6 +65,7 @@ internal fun <P : PetsNode> replaceTypesIn(node: P, from: TypeExpression, to: Ty
 
 private class TypeReplacer(val from: TypeExpression, val to: TypeExpression) : AstTransformer() {
   override fun <P : PetsNode?> transform(node: P) = if (node == from) {
+    @Suppress("UNCHECKED_CAST")
     to as P
   } else {
     super.transform(node)
@@ -84,17 +85,21 @@ fun <P : PetsNode> deprodify(node: P, producibleClassNames: Set<String>): P {
 private class Deprodifier(val producible: Set<String>) : AstTransformer() {
   var inProd: Boolean = false
 
-  override fun <P : PetsNode?> transform(node: P): P = when {
-    node is ProductionBox<*> -> {
-      require(!inProd)
-      inProd = true
-      transform(node.extract()).also { inProd = false }
+  override fun <P : PetsNode?> transform(node: P): P {
+    val rewritten = when {
+      node is ProductionBox<*> -> {
+        require(!inProd)
+        inProd = true
+        transform(node.extract()).also { inProd = false }
+      }
+
+      inProd && node is GenericTypeExpression && node.className in producible -> PRODUCTION.type.copy(
+          specs = node.specs + ClassExpression(node.className)
+      ) // TODO this is weird and fragile
+
+      else -> super.transform(node)
     }
-
-    inProd && node is GenericTypeExpression && node.className in producible -> PRODUCTION.type.copy(
-        specs = node.specs + ClassExpression(node.className)
-    ) // TODO this is weird and fragile
-
-    else -> super.transform(node)
-  } as P
+    @Suppress("UNCHECKED_CAST")
+    return rewritten as P
+  }
 }

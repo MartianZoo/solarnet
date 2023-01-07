@@ -16,7 +16,7 @@ import dev.martianzoo.tfm.types.PetType.PetClassType
 import dev.martianzoo.tfm.types.PetType.PetGenericType
 
 // TODO restrict viz?
-class PetClassLoader(val authority: Authority) : PetClassTable {
+class PetClassLoader(private val authority: Authority) : PetClassTable {
   private val table = mutableMapOf<String, PetClass?>()
 
   private var frozen: Boolean = false
@@ -41,7 +41,7 @@ class PetClassLoader(val authority: Authority) : PetClassTable {
     return PetClass(decl, this).also { table[it.name] = it }
   }
 
-  fun freeze(): PetClassTable {
+  private fun freeze(): PetClassTable {
     println("Freezing class table now with ${table.size} classes")
     table.values.forEach { it!! }
     frozen = true

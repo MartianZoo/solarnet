@@ -595,7 +595,7 @@
       "bundle": "B",
       "deck": "PROJECT",
       "tags": [ "JovianTag", "SpaceTag" ],
-      "actions": [ "12 -> OceanTile" ], // TODO 12[+Titanium],
+      "actions": [ "12 -> OceanTile" ],
       "effects": [
           "UseAction1<This>:: Accept<Titanium.CLASS>",
           "End: VictoryPoint / JovianTag",
@@ -757,7 +757,7 @@
       "bundle": "B",
       "deck": "PROJECT",
       "tags": [ "SpaceTag" ],
-      "effects": [ "SpaceTag<EventCard>: 3, 3 Heat" ], // TODO
+      "effects": [ "SpaceTag<EventCard>: 3, 3 Heat" ],
       "cost": 7,
       "projectKind": "ACTIVE",
     },
@@ -1979,7 +1979,7 @@
       "bundle": "B",
       "deck": "PROJECT",
       "tags": [ "BuildingTag" ],
-      "actions": [ "8 -> OceanTile" ], // TODO "6[+Steel]"
+      "actions": [ "8 -> OceanTile" ],
       "effects": [ "UseAction1<This>:: Accept<Steel.CLASS>" ],
       "cost": 18,
       "projectKind": "ACTIVE",
@@ -3326,7 +3326,7 @@
       "deck": "PROJECT",
       "tags": [ "SpaceTag" ],
       "actions": [
-        "6 -> Asteroid<This>", // TODO "6[+Titanium]"
+        "6 -> Asteroid<This>",
         "Asteroid<This> -> VenusStep",
       ],
       "effects": [ "UseAction1<This>:: Accept<Titanium.CLASS>" ],
@@ -4001,7 +4001,7 @@
       "deck": "PROJECT",
       "tags": [ "SpaceTag" ],
       "actions": [
-        "6 -> Asteroid", // TODO 6[+Titanium]
+        "6 -> Asteroid",
         "Asteroid<This> -> TemperatureStep",
       ],
       "effects": [ "UseAction1<This>:: Accept<Titanium.CLASS>" ],

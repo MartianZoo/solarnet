@@ -31,7 +31,6 @@ class PetTypeCanonTest {
 
   @Test
   fun wtf6() {
-    val birds = table.resolve("Birds").petClass
     assertThat(table.resolve("Player1").abstract).isFalse()
     assertThat(table.resolve("Birds<Player1>").abstract).isFalse()
     assertThat(table.resolve("Animal<Player1, Birds<Player1>>").abstract).isFalse()

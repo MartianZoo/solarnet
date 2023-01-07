@@ -47,5 +47,5 @@ class ParserGroupBuilder<B : Any> : ParserGroup<B>() {
     return parser(type).tryParseToEnd(toker!!.tokenize(input), 0) is Parsed
   }
 
-  override fun <T : B> parser(type: KClass<T>): Parser<T> = parser { parsers[type] as Parser<T> }
+  override fun <T : B> parser(type: KClass<T>): Parser<T> = parser { parsers[type]  as Parser<T> }
 }

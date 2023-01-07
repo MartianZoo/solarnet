@@ -74,7 +74,7 @@ ABSTRACT CLASS Resource : Owned {
         CLASS Energy { ProductionPhase:: Heat FROM This }
     }
 
-    ABSTRACT CLASS CardResource : Cardbound<ResourcefulCard> {       // TODO Cardbound<ResourcefulCard<CardResource.CLASS>>, forcing match
+    ABSTRACT CLASS CardResource : Cardbound<ResourcefulCard<CardResource.CLASS>> { // force match?
         DEFAULT +This.
 
         // All others are card-specific; see cards.json5

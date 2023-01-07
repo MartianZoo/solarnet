@@ -1,8 +1,8 @@
 package dev.martianzoo.tfm.types
 
 import com.google.common.truth.Truth.assertThat
-import dev.martianzoo.tfm.pets.ast.PetsNode
 import dev.martianzoo.tfm.pets.PetsParser.parse
+import dev.martianzoo.tfm.pets.ast.PetsNode
 import kotlin.reflect.KClass
 
 inline fun <reified T : PetsNode> testRoundTrip(start: String, end: String = start) =

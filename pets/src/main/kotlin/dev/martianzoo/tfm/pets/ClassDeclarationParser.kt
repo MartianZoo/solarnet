@@ -43,7 +43,7 @@ object ClassDeclarationParser {
   /**
    * Parses an entire PETS component defs source file.
    */
-  fun parseComponents(text: String): List<ClassDeclaration> =
+  fun parseClassDeclarations(text: String): List<ClassDeclaration> =
       parseRepeated(nestedClassDeclarations, tokenizer.tokenize(text))
 
   private data class Signature(
@@ -90,7 +90,7 @@ object ClassDeclarationParser {
     private val oneLineBody =
         skipChar('{') and separatedTerms(bodyElement, char(';')) and skipChar('}')
 
-    internal val ocd: Parser<ClassDeclaration> =
+    val ocd: Parser<ClassDeclaration> =
         isAbstract and signature and optionalList(oneLineBody) map { (abs, sig, body) ->
           createIncomplete(abs, sig, body).first().getDef()
         }
@@ -174,6 +174,6 @@ object ClassDeclarationParser {
     }
   }
 
-  val nestedClassDeclarations = Components.ncd
+  private val nestedClassDeclarations = Components.ncd
   val oneLineClassDeclaration = Components.ocd
 }

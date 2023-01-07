@@ -1,5 +1,6 @@
 package dev.martianzoo.tfm.data
 
+import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.pets.ClassDeclarationParser.oneLineClassDeclaration
 import dev.martianzoo.tfm.pets.PetsParser.parse
 import dev.martianzoo.tfm.pets.ast.Instruction.CustomInstruction

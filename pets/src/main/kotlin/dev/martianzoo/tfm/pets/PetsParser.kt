@@ -1,3 +1,5 @@
+@file:Suppress("ObjectPropertyName")
+
 package dev.martianzoo.tfm.pets
 
 import com.github.h0tk3y.betterParse.combinators.and
@@ -67,7 +69,7 @@ object PetsParser {
   fun <T> parse(parser: Parser<T>, source: String) = parser.parseToEnd(tokenizer.tokenize(source))
 
   fun parseScript(text: String): Script =
-      Script(parseRepeated(Scripts.line map { listOf(it) }, tokenizer.tokenize(text)))
+      Script(parseRepeated(scriptLine map { listOf(it) }, tokenizer.tokenize(text)))
 
   private val primaryParsers = // internal bookkeeping
       mutableMapOf<KClass<out PetsNode>, Parser<PetsNode>>()
@@ -125,7 +127,7 @@ object PetsParser {
 
     internal val className = classNameRE map { it.text }
 
-    internal val classExpression = className and skipChar('.') and skip(_class) map ::ClassExpression
+    private val classExpression = className and skipChar('.') and skip(_class) map ::ClassExpression
 
     private val specializations = optionalList(
         skipChar('<') and commaSeparated(typeExpression) and skipChar('>')
@@ -235,7 +237,7 @@ object PetsParser {
 
     private val maybeProd = maybePer or (prod(instruction) map Instruction::Prod)
 
-    val arguments = separatedTerms(typeExpression, char(','), true)
+    private val arguments = separatedTerms(typeExpression, char(','), true)
     internal val custom = customRE and parens(arguments) map { (name, args) ->
       Custom(name.text.substring(1), args)
     }
@@ -328,7 +330,7 @@ object PetsParser {
     internal val line: Parser<ScriptLine> =
         nls and (command or req or counter or player) and skipChar('\n')
   }
-  val xs = Scripts.line
+  val scriptLine = Scripts.line
 
 
   // PRIVATE HELPERS -----------------------------------------------------------
@@ -347,12 +349,6 @@ object PetsParser {
 
   private inline fun <reified T> maybeGroup(contents: Parser<T>) =
       contents or parens(contents)
-
-  private inline fun <reified P : PetsNode> publish(
-      noinline parser: () -> Parser<P>) = publish(P::class, parser)
-
-  private fun <P : PetsNode> publish(type: KClass<P>, parser: () -> Parser<P>) =
-      parser(parser).also { primaryParsers[type] = it }
 
   private inline fun <reified P : PetsNode> publish(
       parser: Parser<P>) = publish(P::class, parser)
