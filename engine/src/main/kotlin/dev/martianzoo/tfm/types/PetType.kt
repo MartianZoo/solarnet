@@ -6,7 +6,6 @@ import dev.martianzoo.tfm.pets.ast.TypeExpression.GenericTypeExpression
 
 interface PetType {
   val petClass: PetClass
-  val dependencies: DependencyMap
   val abstract: Boolean
 
   fun isSubtypeOf(that: PetType): Boolean
@@ -17,37 +16,15 @@ interface PetType {
 
   fun toTypeExpressionFull(): TypeExpression
 
-  // a type like Tile.CLASS
-  class PetClassType(override val petClass: PetClass) : PetType {
-    override val dependencies = DependencyMap()
-    override val abstract = petClass.abstract
-
-    override fun toTypeExpressionFull() = ClassExpression(petClass.name)
-
-    override fun isSubtypeOf(that: PetType) =
-        that is PetClassType && petClass.isSubtypeOf(that.petClass)
-
-    override fun canIntersect(that: PetType): Boolean {
-      return that is PetClassType && this.petClass.canIntersect(that.petClass)
-    }
-
-    override fun intersect(that: PetType): PetClassType {
-      that as PetClassType
-      return PetClassType(petClass.intersect(that.petClass))
-    }
-
-    override fun toString() = toTypeExpressionFull().toString()
-  }
-
   data class PetGenericType(
       override val petClass: PetClass,
-      override val dependencies: DependencyMap = DependencyMap()
+      val dependencies: DependencyMap
   ) : PetType {
     override val abstract: Boolean = petClass.abstract || dependencies.abstract
 
     override fun isSubtypeOf(that: PetType) =
         that is PetGenericType &&
-        petClass.isSubtypeOf(that.petClass)
+        petClass.isSubclassOf(that.petClass)
         && dependencies.specializes(that.dependencies)
 
     override fun canIntersect(that: PetType): Boolean {
@@ -55,8 +32,6 @@ interface PetType {
         intersect(that)
         true
       } catch (e: Exception) {
-        println(e.message)
-        e.stackTrace.take(2).forEach(::println)
         false
       }
     }

@@ -6,6 +6,7 @@ import dev.martianzoo.tfm.pets.SpecialComponent.COMPONENT
 import dev.martianzoo.tfm.pets.ast.Effect
 import dev.martianzoo.tfm.pets.ast.PetsNode
 import dev.martianzoo.tfm.pets.ast.TypeExpression
+import dev.martianzoo.tfm.pets.ast.TypeExpression.ClassExpression
 import dev.martianzoo.tfm.pets.ast.TypeExpression.Companion.te
 import dev.martianzoo.tfm.pets.ast.TypeExpression.GenericTypeExpression
 import dev.martianzoo.tfm.pets.deprodify
@@ -14,11 +15,15 @@ import dev.martianzoo.tfm.types.PetType.PetGenericType
 
 /**
  */
-class PetClass(private val declaration: ClassDeclaration, private val loader: PetClassLoader) {
+class PetClass(
+    private val declaration: ClassDeclaration,
+    private val loader: PetClassLoader
+) : PetType {
   val name by declaration::className
-  val abstract by declaration::abstract
+  override val abstract by declaration::abstract
+  override val petClass = this
 
-// HIERARCHY
+  // HIERARCHY
 
   // TODO collapse invariants right?
 
@@ -26,7 +31,9 @@ class PetClass(private val declaration: ClassDeclaration, private val loader: Pe
     declaration.supertypes.map { loader.resolve(resolveSpecialThisType(it, te(name))) }.toSet()
   }
 
-  fun isSubtypeOf(that: PetClass) = that in allSuperclasses
+  fun isSubclassOf(that: PetClass) = that in allSuperclasses
+
+  override fun isSubtypeOf(that: PetType) = that is PetClass && isSubclassOf(that.petClass)
 
   val directSubclasses: Set<PetClass> by lazy { loader.all().filter { this in it.directSuperclasses }.toSet() }
   val allSubclasses: Set<PetClass> by lazy { loader.all().filter { this in it.allSuperclasses }.toSet() }
@@ -46,19 +53,27 @@ class PetClass(private val declaration: ClassDeclaration, private val loader: Pe
 
   /** Returns the one of `this` or `that` that is a subclass of the other. */
   fun intersect(that: PetClass) = when {
-    this.isSubtypeOf(that) -> this
-    that.isSubtypeOf(this) -> that
+    this.isSubclassOf(that) -> this
+    that.isSubclassOf(this) -> that
     else -> error("no intersection: $this, $that")
   }
 
   fun canIntersect(that: PetClass) =
-      this.isSubtypeOf(that) ||
-      that.isSubtypeOf(this)
+      this.isSubclassOf(that) ||
+      that.isSubclassOf(this)
 
   fun lub(that: PetClass) = when {
-    this.isSubtypeOf(that) -> that
-    that.isSubtypeOf(this) -> this
+    this.isSubclassOf(that) -> that
+    that.isSubclassOf(this) -> this
     else -> allSuperclasses.intersect(that.allSuperclasses).maxBy { it.allSuperclasses.size }
+  }
+
+  override fun canIntersect(that: PetType): Boolean {
+    return that is PetClass && this.canIntersect(that.petClass)
+  }
+
+  override fun intersect(that: PetType): PetClass {
+    return intersect(that as PetClass)
   }
 
 
@@ -72,14 +87,12 @@ class PetClass(private val declaration: ClassDeclaration, private val loader: Pe
     allSuperclasses.flatMap { it.directDependencyKeys }.toSet()
   }
 
-  fun resolveSpecializations(specs: List<PetType>): DependencyMap {
-    return baseType.dependencies.findMatchups(specs)
-  }
+  fun resolveSpecializations(specs: List<PetType>) =
+      baseType.dependencies.findMatchups(specs)
 
   @JvmName("whoCares")
-  fun resolveSpecializations(specs: List<TypeExpression>): DependencyMap {
-    return resolveSpecializations(specs.map { loader.resolve(it) })
-  }
+  fun resolveSpecializations(specs: List<TypeExpression>) =
+      resolveSpecializations(specs.map { loader.resolve(it) })
 
   private var reentryCheck = false
   /** Common supertype of all types with petClass==this */
@@ -170,6 +183,8 @@ class PetClass(private val declaration: ClassDeclaration, private val loader: Pe
   override fun hashCode(): Int {
     return name.hashCode() xor loader.hashCode()
   }
+
+  override fun toTypeExpressionFull() = ClassExpression(name)
 
   override fun toString() = name
 }
