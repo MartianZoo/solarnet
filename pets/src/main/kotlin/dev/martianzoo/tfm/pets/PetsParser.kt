@@ -75,8 +75,7 @@ object PetsParser {
       mutableMapOf<KClass<out PetsNode>, Parser<PetsNode>>()
 
   private val ignored = listOf(
-      // automatically skipped
-      regexToken("//[^\n]*", true),
+      regexToken("\\\\\n", true),
       regexToken(" +", true)
   )
 

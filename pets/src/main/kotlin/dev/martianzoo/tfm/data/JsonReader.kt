@@ -82,11 +82,7 @@ internal object JsonReader {
           .build()
           .adapter(T::class.java)
           .lenient()
-          .fromJson(json5ToJson(input))!!
-
-  private fun json5ToJson(json5: String): String {
-    return TRAILING_COMMA_REGEX.replace(json5, "")
-  }
+          .fromJson(TRAILING_COMMA_REGEX.replace(input, ""))!!
 
   private val TRAILING_COMMA_REGEX = Regex(""",(?=\s*(//[^\n]*\n\s*)?[\]}])""", DOT_MATCHES_ALL)
 }

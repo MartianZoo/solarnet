@@ -52,8 +52,10 @@ ABSTRACT CLASS OwnedTile : Tile, Owned {                    // TODO need to make
     }
 
     CLASS CityTile {
-        DEFAULT +This<LandArea(HAS MAX 0 Neighbor<CityTile<Anyone>>)>           // TODO line-wrapping
-        End: VictoryPoint / Adjacency(HAS This, GreeneryTile<Anyone>)
+        DEFAULT +This<LandArea(\
+            HAS MAX 0 Neighbor<CityTile<Anyone>>)>
+        End: VictoryPoint / Adjacency(\
+            HAS This, GreeneryTile<Anyone>)
     }
 
     ABSTRACT CLASS SpecialTile : Tile<MarsArea> {
@@ -74,7 +76,8 @@ ABSTRACT CLASS Resource : Owned {
         CLASS Energy { ProductionPhase:: Heat FROM This }
     }
 
-    ABSTRACT CLASS CardResource : Cardbound<ResourcefulCard<CardResource.CLASS>> { // force match?
+    ABSTRACT CLASS CardResource :\
+            Cardbound<ResourcefulCard<CardResource.CLASS>> {// force match?
         DEFAULT +This.
 
         // All others are card-specific; see cards.json5
@@ -139,7 +142,8 @@ ABSTRACT CLASS UseAction<HasActions> : Owned, Signal {      // TODO How to make 
 }
 
 // TODO still consider inverting this?
-CLASS ActionUsedMarker : Cardbound<ActionCard>, Generational {
+CLASS ActionUsedMarker :\
+        Cardbound<ActionCard>, Generational {
     HAS MAX 1 This
 }
 
@@ -167,7 +171,7 @@ ABSTRACT CLASS PaymentMechanic : Owned, Temporary {
     CLASS PlayTag<Tag.CLASS> : Signal                       // triggers Accept<Steel/Dirig/etc.CLASS> and tag-based discounts
 
                                                             // used by PlayCardFromHand, ValTrust, EcoEx, ExSponsor,
-    CLASS PlayCard { // CardBack.CLASS, CardFront.CLASS> {       // NewPartner, Merger; triggers EarthCat etc.
+    CLASS PlayCard<CardBack.CLASS, CardFront.CLASS> {       // NewPartner, Merger; triggers EarthCat etc.
 //        This:: (CardBack: $handleRequirement(CardFront.CLASS)) // ??
 //        This: Owed<Megacredit.CLASS> / Cost<CardFront.CLASS>// ??
 //        This: =0 Barrier: (CardFront FROM CardBack, -This)  // adds task to queue that must eventually be completed

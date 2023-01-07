@@ -43,8 +43,12 @@ object ClassDeclarationParser {
   /**
    * Parses an entire PETS component defs source file.
    */
-  fun parseClassDeclarations(text: String): List<ClassDeclaration> =
-      parseRepeated(Components.nestedClassDeclarations, tokenizer.tokenize(text))
+  fun parseClassDeclarations(text: String): List<ClassDeclaration> {
+    val tokens = tokenizer.tokenize(stripLineComments(text))
+    return parseRepeated(Components.nestedClassDeclarations, tokens)
+  }
+
+  private fun stripLineComments(text: String) = Regex(""" *(//[^\n]*)*\n""").replace(text, "\n")
 
   private object Components { // -------------------------------------------------------
     private val isAbstract = optional(_abstract) and skip(_class) map { it != null }
@@ -108,8 +112,10 @@ object ClassDeclarationParser {
           }
         }
 
-    val nestedClassDeclarations = incompleteComponentDefs map { defs -> defs.map { it.declaration() } }
+    val nestedClassDeclarations =
+        incompleteComponentDefs map { defs -> defs.map { it.declaration() } }
   }
+
   private fun createIncomplete(
       abst: Boolean,
       sig: Signature,
