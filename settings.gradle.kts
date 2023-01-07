@@ -9,4 +9,5 @@
 
 rootProject.name = "pets"
 include("pets")
+include("engine")
 

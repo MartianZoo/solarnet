@@ -54,7 +54,7 @@ internal fun immediateToEffect(immediate: Instruction): Effect {
 }
 
 // had to use an ungrammatical name
-internal fun <P : PetsNode> resolveSpecialThisType(node: P, resolveTo: TypeExpression): P {
+fun <P : PetsNode> resolveSpecialThisType(node: P, resolveTo: TypeExpression): P {
   return replaceTypesIn(node, THIS.type, resolveTo).also {
     println("3. Resolved `This` to `$resolveTo` in ${node.kind}: $it")
   }
@@ -71,7 +71,7 @@ private class TypeReplacer(val from: TypeExpression, val to: TypeExpression) : A
   }
 }
 
-internal fun <P : PetsNode> deprodify(node: P, producibleClassNames: Set<String>): P {
+fun <P : PetsNode> deprodify(node: P, producibleClassNames: Set<String>): P {
   return Deprodifier(producibleClassNames).transform(node).also {
     if (it != node) {
       println("1. Deprodified a ${node.kind}: $it")
