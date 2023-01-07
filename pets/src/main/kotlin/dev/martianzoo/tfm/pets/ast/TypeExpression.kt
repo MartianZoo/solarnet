@@ -27,7 +27,6 @@ sealed class TypeExpression: PetsNode() {
   data class ClassExpression(override val className: String) : TypeExpression() {
     init {
       require(className.matches(classNameRegex())) { className }
-      if (className == "CardFront") error("hey")
     }
     override fun toString() = "$className.CLASS"
   }

@@ -54,10 +54,13 @@ internal fun immediateToEffect(immediate: Instruction): Effect {
 }
 
 // had to use an ungrammatical name
-fun <P : PetsNode> resolveSpecialThisType(node: P, resolveTo: TypeExpression): P {
-  return replaceTypesIn(node, THIS.type, resolveTo).also {
-    println("3. Resolved `This` to `$resolveTo` in ${node.kind}: $it")
-  }
+fun <P : PetsNode> resolveSpecialThisType(node: P, resolveTo: GenericTypeExpression) =
+    node.replaceTypes(THIS.type, resolveTo)
+        .replaceTypes(ClassExpression("This"), ClassExpression(resolveTo.className))
+        .also { println("3. Resolved `This` to `$resolveTo` in ${node.kind}: $it") }
+
+fun <P : PetsNode> P.replaceTypes(from: TypeExpression, to: TypeExpression): P {
+  return replaceTypesIn(this, from, to)
 }
 
 internal fun <P : PetsNode> replaceTypesIn(node: P, from: TypeExpression, to: TypeExpression) =

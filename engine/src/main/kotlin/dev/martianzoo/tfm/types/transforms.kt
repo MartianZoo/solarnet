@@ -55,7 +55,7 @@ private class Defaulter(val loader: PetClassLoader) : AstTransformer() {
       petClass: PetClass,
       defaultDeps: DependencyMap,
   ): GenericTypeExpression {
-    val explicitStatedDeps = petClass.resolveSpecializations(original.specs.map { petClass.loader.resolve(it) })
+    val explicitStatedDeps = petClass.resolveSpecializations(original.specs)
     val mergedDeps = explicitStatedDeps.overlayOn(defaultDeps)
 
     //// TODO: a little weird that we're going backwards here?

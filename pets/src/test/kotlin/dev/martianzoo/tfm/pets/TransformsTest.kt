@@ -8,6 +8,7 @@ import dev.martianzoo.tfm.pets.ast.Instruction
 import dev.martianzoo.tfm.pets.ast.PetsNode
 import dev.martianzoo.tfm.pets.ast.TypeExpression
 import dev.martianzoo.tfm.pets.ast.TypeExpression.Companion.te
+import dev.martianzoo.tfm.pets.ast.TypeExpression.GenericTypeExpression
 import org.junit.jupiter.api.Test
 import kotlin.reflect.KClass
 
@@ -74,7 +75,7 @@ class TransformsTest {
 
   private inline fun <reified P : PetsNode> checkResolveThis(
       original: String,
-      thiss: TypeExpression,
+      thiss: GenericTypeExpression,
       expected: String) {
     checkResolveThis(P::class, original, thiss, expected)
   }
@@ -82,7 +83,7 @@ class TransformsTest {
   private fun <P : PetsNode> checkResolveThis(
       type: KClass<P>,
       original: String,
-      thiss: TypeExpression,
+      thiss: GenericTypeExpression,
       expected: String) {
     val parsedOriginal = parse(type, original)
     val parsedExpected = parse(type, expected)

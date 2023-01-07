@@ -14,18 +14,9 @@ data class Defaults(
 
   companion object {
     fun from(d: DefaultsDeclaration, petClass: PetClass) = Defaults(
-        toDependencyMap(petClass, d.universalSpecs),
-        toDependencyMap(petClass, d.gainOnlySpecs),
+        petClass.toDependencyMap(d.universalSpecs),
+        petClass.toDependencyMap(d.gainOnlySpecs),
         d.gainIntensity)
-
-    private fun toDependencyMap(petClass: PetClass, specs: List<TypeExpression>?): DependencyMap {
-      return if (specs == null) {
-        DependencyMap()
-      } else {
-        val type = GenericTypeExpression(petClass.name, specs)
-        petClass.loader.resolve(type).dependencies
-      }
-    }
   }
 
   // Return a DefaultsDeclaration that uses the information from *this* one if present,
