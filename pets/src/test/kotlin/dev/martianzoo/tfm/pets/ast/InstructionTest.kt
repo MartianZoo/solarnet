@@ -116,7 +116,7 @@ class InstructionTest {
     parse(Instructions.gated, "\$foo()")
     parse(Instructions.orInstr, "\$foo()")
     parse(Instructions.then, "\$foo()")
-    parse(Instructions.instruction, "\$foo()")
+    parse(Instructions.whole, "\$foo()")
     parse<Instruction>("\$foo()")
   }
 
