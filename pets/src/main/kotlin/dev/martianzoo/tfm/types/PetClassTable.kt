@@ -8,6 +8,7 @@ import dev.martianzoo.tfm.types.PetType.PetClassType
 import dev.martianzoo.tfm.types.PetType.PetGenericType
 
 interface PetClassTable {
+  fun isLoaded(name: String): Boolean
   operator fun get(name: String): PetClass
   fun resolve(expression: String): PetType =
       resolve(parse<TypeExpression>(expression))

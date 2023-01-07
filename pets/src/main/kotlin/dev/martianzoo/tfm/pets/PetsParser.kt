@@ -430,7 +430,7 @@ object PetsParser {
     internal val nestedComponentDefs =
         incompleteComponentDefs map { defs -> defs.map { it.getDef() } }
 
-    class ComponentDefInProcess(
+    class Declaring(
         private val decl: ClassDeclaration,
         private val isComplete: Boolean
     ) {
@@ -441,7 +441,7 @@ object PetsParser {
           if (isComplete || decl.supertypes.any { it.className == name }) {
             this
           } else {
-            ComponentDefInProcess(
+            Declaring(
                 decl.copy(supertypes = (listOf(te(name)) + decl.supertypes).toSetStrict()), true
             )
           }
@@ -460,7 +460,7 @@ object PetsParser {
         abst: Boolean,
         sig: Signature,
         contents: List<Any> = listOf()
-    ): List<ComponentDefInProcess> {
+    ): List<Declaring> {
       val invs = contents.filterIsInstance<Requirement>().toSetStrict()
       val defs = contents.filterIsInstance<DefaultsDeclaration>().toSetStrict()
       val acts = contents.filterIsInstance<Action>().toSetStrict()
@@ -483,8 +483,8 @@ object PetsParser {
           effectsRaw = { effs + actionsToEffects(acts) },
           defaultsDeclaration = mergedDefaults
       )
-      return listOf(ComponentDefInProcess(comp, false)) + subs.flatten()
-          .map { (it as ComponentDefInProcess).fillInSuperclass(sig.className) }
+      return listOf(Declaring(comp, false)) + subs.flatten()
+          .map { (it as Declaring).fillInSuperclass(sig.className) }
     }
   }
 

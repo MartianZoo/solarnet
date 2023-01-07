@@ -21,11 +21,7 @@ ABSTRACT CLASS Anyone {
         Pay<Titanium.CLASS>:: 3 Pay<Megacredit.CLASS>       // should be innocuous for TradeAction?
 
         CLASS Player1, Player2, Player3, Player4, Player5   // in PETS, nesting = subtyping
-
-        // CLASS Me                                         // or it's purely magical, not sure
     }
-
-    CLASS Npc                                               // this is who does WGT, etc
 }
 
 
@@ -34,19 +30,12 @@ ABSTRACT CLASS Anyone {
 ABSTRACT CLASS Owned<Anyone> {
     DEFAULT This<Player>                                    // affects ALL references to owned cpts that don't specify
                                                             // an owner -- the only DEFAULT of this kind we need
-
-    ABSTRACT CLASS Outcome {                                // the only 100% useless component type
-        CLASS Winner, Place2, Place3, Place4, Place5
-    }
-
     CLASS VictoryPoint
 
     CLASS TerraformRating {
         ProductionPhase: 1
         End: VictoryPoint
     }
-
-    CLASS StartToken { HAS MAX 1 StartToken }
 
     ABSTRACT CLASS Milestone                                // The rest of the stuff in this file is also Owned, just
 }                                                           // explicitly instead of by nesting
@@ -113,6 +102,8 @@ ABSTRACT CLASS CardBack : Owned {
 }
 
 ABSTRACT CLASS CardFront : Owned {
+    This:: $createAll(Cost, This)
+
     ABSTRACT CLASS EventCard {
         This: PlayedEvent FROM This                         // problem: how to still get the VPs??
     }                                                       // could we get this happen autom. at EOT?
@@ -144,8 +135,7 @@ ABSTRACT CLASS Cardbound<CardFront<Anyone>>:Owned<Anyone> { // TODO require the 
 // ACTIONS -------------------------------------------------
 
 ABSTRACT CLASS UseAction<HasActions> : Owned, Signal {      // TODO How to make owner same, when HasActions has both
-    CLASS UseAction1, UseAction2, UseAction3                // owned and unowned subclasses?
-    CLASS UseAction4, UseAction5, UseAction6                // it's enough to handle Utopia etc the hard way
+    CLASS UseAction1, UseAction2                            // owned and unowned subclasses?
 }
 
 // TODO still consider inverting this?
@@ -162,7 +152,7 @@ ABSTRACT CLASS PaymentMechanic : Owned, Temporary {
     }
 
     CLASS Owed<Resource.CLASS> : Barrier {                  // created when payment due, removed by discount cards/
-       This:: Accept<Resource.CLASS>
+        This:: Accept<Resource.CLASS>
     }
 
     CLASS Accept<Resource.CLASS> {                          // Created in response to PlayTag or the actions on 4
@@ -173,9 +163,6 @@ ABSTRACT CLASS PaymentMechanic : Owned, Temporary {
     CLASS Pay<Resource.CLASS> : Signal {                    // player uses it like `8 Pay<Heat.CLASS> FROM Heat`
         This:: -Owed<Resource.CLASS>.                             // But also cards can pay in response to signals
     }
-
-    CLASS BuyCard : Signal                                  // used by ResearchPhase, InvGuild, BusNet
-                                                            // triggers Polyphemos, Terralabs
 
     CLASS PlayTag<Tag.CLASS> : Signal                       // triggers Accept<Steel/Dirig/etc.CLASS> and tag-based discounts
 

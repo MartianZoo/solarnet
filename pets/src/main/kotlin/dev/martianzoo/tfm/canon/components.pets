@@ -41,15 +41,19 @@ ABSTRACT CLASS GlobalParameter {                            // TODO must be adde
 // MAPS AND TILES ------------------------------------------
 
 ABSTRACT CLASS MarsMap {
-    This:: $createBorders(This)                             // save all :: effects until after all
+    HAS MAX 1 MarsMap
+
+    This:: $createAll(Border, This)                         // save all :: effects until after all
                                                             // singletons are created...
     CLASS Tharsis, Hellas, Elysium
 }
 
 ABSTRACT CLASS Area(HAS MAX 1 Tile) {
-    HAS =1 This                                             // singleton: if the *type* exists, the instance does too
+    HAS MAX 1 This
 
     ABSTRACT CLASS MarsArea {                               // TODO <MarsMap>?
+        This:: $createAll(Row, This)
+
         ABSTRACT CLASS LandArea {
             ABSTRACT CLASS VolcanicArea
         }
@@ -118,17 +122,9 @@ ABSTRACT CLASS Generational {                               // things that disap
     Generation:: -This                                      // <-- and look, there they go
 }
 
-ABSTRACT CLASS Phase {                                      // Phases should *do* as little as possible, and just be
-    HAS MAX 1 Phase                                         // triggers for other component types
+ABSTRACT CLASS Phase {
+    HAS MAX 1 Phase
 
-    CLASS SetupPhase                                        // start of gameplay thru discarding
-    CLASS CorporationPhase                                  // each player plays corp & buys cards
-    CLASS PreludePhase                                      // each: play or discard prelude 2x
-    CLASS ResearchPhase { This:: Generation }               // skipped in gen1
-    CLASS ActionPhase                                       // continues until all have passed
-    CLASS ProductionPhase                                   // self-explanatory
-    CLASS SolarPhase                                        // maybe we don't need to split it up
-    CLASS ConvertPlantsPhase                                // each does X UseAction<ConvertPlants>
-    CLASS End                                               // triggers VP payouts
-    CLASS Shutdown                                          // assigns Outcomes then no more changes
+    CLASS ProductionPhase
+    CLASS End
 }

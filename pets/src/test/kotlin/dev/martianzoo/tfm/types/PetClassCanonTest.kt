@@ -51,6 +51,54 @@ class PetClassCanonTest {
     }
   }
 
+  @Test fun loadsOnlyWhatItNeeds() {
+    val loader = PetClassLoader(Canon)
+    loader.loadAllSingletons()
+
+    val nonVenusCards = Canon.cardDefinitions.filterNot { it.bundle == "V" }
+    loader.loadAll(nonVenusCards.map { it.componentName })
+    loader.loadAll(nonVenusCards.mapNotNull { it.resourceTypeText }.toSet())
+
+    loader.loadAll(Canon.milestoneDefinitions.filterNot { it.bundle == "V" }.map { it.componentName })
+
+    // Game config should take care of this
+    loader.load("Hellas")
+    loader.loadAll(Canon.mapAreaDefinitions["Hellas"]!!.map { it.componentName })
+
+    // TODO: something should eventually pull these in
+    loader.load("CorporationCard")
+    loader.load("PreludeCard")
+
+    // interesting: the only tag that does nothing
+    loader.load("CityTag")
+
+    var loadedSoFar = loader.loadedClassNames()
+    while (true) {
+      loadedSoFar.forEach {
+        val petClass = loader[it]
+        petClass.baseType
+        petClass.directEffects
+      }
+      val loadedNow = loader.loadedClassNames()
+      if (loadedNow == loadedSoFar) break
+      loadedSoFar = loadedNow
+    }
+
+    val all = PetClassLoader(Canon).loadAll().loadedClassNames()
+
+    val venusThings = Canon.cardDefinitions.filter { it.bundle == "V" }.map { it.componentName } +
+        setOf("VenusTag", "MilestoneVM1", "Dirigible", "Area220", "Area236", "Area238", "Area248")
+
+    assertThat(all.containsAll(venusThings)).isTrue()
+
+    val expected = all.filterNot {
+      it.matches(Regex("^(Tharsis|Elysium|Demo).*")) ||
+          it in venusThings
+    }
+
+    assertThat(loadedSoFar).containsExactlyElementsIn(expected)
+  }
+
   @Test fun subConcrete() {
     val table = PetClassLoader(Canon).loadAll()
     val subConcrete = table.all().flatMap { clazz ->
