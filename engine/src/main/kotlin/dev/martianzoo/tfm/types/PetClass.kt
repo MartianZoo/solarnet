@@ -33,7 +33,15 @@ class PetClass(private val declaration: ClassDeclaration, private val loader: Pe
 
   val directSuperclasses: Set<PetClass> by lazy { declaration.superclassNames.map { loader.load(it) }.toSet() }
   val allSuperclasses: Set<PetClass> by lazy {
-    (directSuperclasses.flatMap { it.allSuperclasses } + this).toSet()
+    val result = (directSuperclasses.flatMap { it.allSuperclasses } + this).toSet()
+
+    // TODO well, this is a giant hack. Some milestones/awards and GreeneryTile won't work right
+    // unless we make sure of this. TODO do it differently
+    if (result.any { it.name == "Owned" } &&
+        result.any { it.name == "Tile" }) {
+      require(result.any { it.name == "OwnedTile" }) { name }
+    }
+    result
   }
 
   /** Returns the one of `this` or `that` that is a subclass of the other. */
