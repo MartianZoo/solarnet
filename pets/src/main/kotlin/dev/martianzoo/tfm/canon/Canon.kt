@@ -4,7 +4,7 @@ import dev.martianzoo.tfm.data.Authority
 import dev.martianzoo.tfm.data.CardDefinition
 import dev.martianzoo.tfm.data.ClassDeclaration
 import dev.martianzoo.tfm.data.JsonReader
-import dev.martianzoo.tfm.data.MarsAreaDefinition
+import dev.martianzoo.tfm.data.MapAreaDefinition
 import dev.martianzoo.tfm.data.MilestoneDefinition
 import dev.martianzoo.tfm.pets.ClassDeclarationParser
 import dev.martianzoo.tfm.pets.ast.Instruction.CustomInstruction
@@ -18,7 +18,7 @@ object Canon : Authority() {
     }
   }
 
-  override val mapAreaDefinitions: Map<String, Grid<MarsAreaDefinition>> by lazy {
+  override val mapAreaDefinitions: Map<String, Grid<MapAreaDefinition>> by lazy {
     JsonReader.readMaps(readResource("maps.json5"))
   }
 

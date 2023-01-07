@@ -9,7 +9,7 @@ import dev.martianzoo.tfm.pets.ast.TypeExpression
 import dev.martianzoo.tfm.pets.ast.TypeExpression.Companion.te
 import dev.martianzoo.tfm.pets.ast.TypeExpression.GenericTypeExpression
 
-data class MarsAreaDefinition( // TODO rename
+data class MapAreaDefinition(
     /** Shortname of the MarsMap this area belongs to (e.g "Tharsis"). */
     val mapName: String,
 
@@ -32,6 +32,9 @@ data class MarsAreaDefinition( // TODO rename
      * The pets instruction for this map area's bonus.
      */
     val bonusText: String?,
+
+    /** A short code like `LPP` summarizing this map area. */
+    val code: String,
 ) : Definition {
 
   init {

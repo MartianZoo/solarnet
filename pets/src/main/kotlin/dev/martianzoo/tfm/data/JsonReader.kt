@@ -1,5 +1,6 @@
 package dev.martianzoo.tfm.data
 
+import com.google.common.base.Strings.emptyToNull
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import dev.martianzoo.util.Grid
@@ -7,75 +8,85 @@ import java.util.*
 import kotlin.text.RegexOption.DOT_MATCHES_ALL
 
 internal object JsonReader {
-  // Cards
-  internal fun readCards(json5: String) = MOSHI_CARD.fromJson(json5ToJson(json5))!!.cards
+
+// CARDS
+
+  internal fun readCards(json5: String) = fromJson5<CardList>(json5).cards
 
   internal data class CardList(val cards: List<CardDefinition>)
 
-  // Maps
+// MILESTONES
 
-  internal data class MapsImportFormat(val maps: List<MapImportFormat>, val legend: Map<Char, String>)
-  internal data class MapImportFormat(val name: String, val rows: List<String>)
-  internal data class Legend(private val table: Map<Char, String>) {
-    fun translate(code: String): Pair<String, String?> {
-      val q: Queue<Char> = ArrayDeque(code.trim().toList())
-      val result = mutableListOf<String>()
-      val type = table[q.poll()]!!
-      while (q.any()) {
-        val next = q.remove()
-        result.add(
-            when (next) {
-              in '2'..'9' -> "$next ${table[q.remove()]!!}"
-              else -> if (q.peek() == next) {
-                q.poll()
-                "2 ${table[next]!!}"
-              } else {
-                table[next]!!
-              }
-            },
-        )
-      }
-      return type to emptyToNull(result.joinToString())
-    }
-
-    private fun emptyToNull(s: String?) = if ((s?.length ?: 0) > 0) s else null
-  }
-
-  // Milestones
-  internal fun readMilestones(json5: String) = MOSHI_MILESTONE.fromJson(json5ToJson(json5))!!.milestones
+  internal fun readMilestones(json5: String) = fromJson5<MilestoneList>(json5).milestones
 
   internal data class MilestoneList(val milestones: List<MilestoneDefinition>)
 
-  // Nothing like three different meanings of the same word in the same place
-  fun readMaps(json5: String): Map<String, Grid<MarsAreaDefinition>> {
-    val import: MapsImportFormat = MOSHI_MAP.fromJson(json5ToJson(json5))!!
-    val legend = Legend(import.legend)
+// MAPS
 
-    return import.maps.associateBy(MapImportFormat::name) { map ->
-      val areas = map.rows.flatMapIndexed { row, line ->
-        line.chunked(6)
-            .map(String::trim)
-            .withIndex()
-            .filter { it.value.isNotEmpty() }
-            .map { (column, code) ->
-              val (type, bonus) = legend.translate(code)
-              MarsAreaDefinition(map.name, row + 1, column, type, bonus)
-            }
+  fun readMaps(json5: String): Map<String, Grid<MapAreaDefinition>> =
+      fromJson5<MapsImportFormat>(json5).toGrids()
+
+  internal class MapsImportFormat(val maps: List<MapImportFormat>, val legend: Map<Char, String>) {
+    fun toGrids() = maps.associateBy(MapImportFormat::name) { it.toGrid(Legend(legend)) }
+
+    internal class MapImportFormat(val name: String, val rows: List<List<String>>) {
+
+      internal fun toGrid(legend: Legend): Grid<MapAreaDefinition> {
+        val areas = rows.flatMapIndexed() { row0Index, cells ->
+          cells.mapIndexedNotNull { col0Index, code ->
+            mapArea(name, row0Index, col0Index, code, legend)
+          }
+        }
+        return Grid.grid(areas, { it.row }, { it.column })
       }
-      Grid.grid(areas, { it.row }, { it.column })
+
+      private fun mapArea(
+          mapName: String, row0Index: Int, col0Index: Int, code: String, legend: Legend,
+      ): MapAreaDefinition? {
+        if (code.isEmpty()) return null
+        return MapAreaDefinition(
+            mapName, row0Index + 1, col0Index + 1, legend.getType(code), legend.getBonus(code), code
+        )
+      }
+    }
+
+    internal class Legend(private val table: Map<Char, String>) {
+
+      fun getType(code: String) = lookUp(code[0])
+      fun getBonus(code: String): String? {
+        val q = ArrayDeque(code.substring(1).toList())
+        val result = generateSequence {
+          if (q.any()) {
+            val next = q.remove()
+            when {
+              next in '2'..'9' -> "$next ${lookUp(q.remove())}"
+              q.peek() == next -> "2 ${lookUp(q.poll())}"
+              else -> lookUp(next)
+            }
+          } else {
+            null
+          }
+        }
+        return emptyToNull(result.joinToString())
+      }
+
+      private fun lookUp(c: Char) = table[c] ?: "not found: $c"
     }
   }
 
-  // Stuff
+// HELP
+
+  private inline fun <reified T : Any> fromJson5(input: String): T =
+      Moshi.Builder()
+          .addLast(KotlinJsonAdapterFactory())
+          .build()
+          .adapter(T::class.java)
+          .lenient()
+          .fromJson(json5ToJson(input))!!
 
   private fun json5ToJson(json5: String): String {
     return TRAILING_COMMA_REGEX.replace(json5, "")
   }
 
   private val TRAILING_COMMA_REGEX = Regex(""",(?=\s*(//[^\n]*\n\s*)?[\]}])""", DOT_MATCHES_ALL)
-
-  private val MOSHI = Moshi.Builder().addLast(KotlinJsonAdapterFactory()).build()
-  private val MOSHI_CARD = MOSHI.adapter(CardList::class.java).nullSafe().lenient()
-  private val MOSHI_MILESTONE = MOSHI.adapter(MilestoneList::class.java).nullSafe().lenient()
-  private val MOSHI_MAP = MOSHI.adapter(MapsImportFormat::class.java).nullSafe().lenient()
 }

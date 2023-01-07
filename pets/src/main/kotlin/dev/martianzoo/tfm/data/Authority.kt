@@ -31,7 +31,7 @@ abstract class Authority {
 
   protected abstract val explicitClassDeclarations: Collection<ClassDeclaration>
 
-  abstract val mapAreaDefinitions: Map<String, Grid<MarsAreaDefinition>>
+  abstract val mapAreaDefinitions: Map<String, Grid<MapAreaDefinition>>
 
   val mapAreasByComponentName by lazy {
     toMapByComponentName(mapAreaDefinitions.values.flatten())

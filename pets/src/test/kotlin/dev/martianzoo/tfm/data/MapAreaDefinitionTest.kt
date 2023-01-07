@@ -6,11 +6,11 @@ import dev.martianzoo.tfm.pets.ast.TypeExpression.Companion.te
 import dev.martianzoo.util.Grid
 import org.junit.jupiter.api.Test
 
-internal class MarsAreaDefinitionTest {
+internal class MapAreaDefinitionTest {
 
   @Test
   fun testTharsis() {
-    val thar: Grid<MarsAreaDefinition> = Canon.mapAreaDefinitions["Tharsis"]!!
+    val thar: Grid<MapAreaDefinition> = Canon.mapAreaDefinitions["Tharsis"]!!
     checkWaterAreaCount(thar)
 
     assertThat(thar[5, 3]!!.typeText).isEqualTo("NoctisArea")
@@ -25,7 +25,7 @@ internal class MarsAreaDefinitionTest {
 
   @Test
   fun testHellas() {
-    val hell: Grid<MarsAreaDefinition> = Canon.mapAreaDefinitions["Hellas"]!!
+    val hell: Grid<MapAreaDefinition> = Canon.mapAreaDefinitions["Hellas"]!!
     checkWaterAreaCount(hell)
 
     assertThat(hell[5, 7]!!.typeText).isEqualTo("WaterArea")
@@ -37,7 +37,7 @@ internal class MarsAreaDefinitionTest {
 
   @Test
   fun testElysium() {
-    val elys: Grid<MarsAreaDefinition> = Canon.mapAreaDefinitions["Elysium"]!!
+    val elys: Grid<MapAreaDefinition> = Canon.mapAreaDefinitions["Elysium"]!!
     checkWaterAreaCount(elys)
 
     assertThat(elys[1, 1]!!.typeText).isEqualTo("WaterArea")
@@ -47,7 +47,7 @@ internal class MarsAreaDefinitionTest {
     assertThat(elys[3, 7]!!.bonusText).isEqualTo("3 ProjectCard")
   }
 
-  private fun checkWaterAreaCount(map: Grid<MarsAreaDefinition>) {
+  private fun checkWaterAreaCount(map: Grid<MapAreaDefinition>) {
     assertThat(map.count { it.type == te("WaterArea") }).isEqualTo(12)
   }
 
