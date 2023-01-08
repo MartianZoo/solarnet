@@ -2,6 +2,7 @@ package dev.martianzoo.tfm.data
 
 import com.squareup.moshi.Json
 import dev.martianzoo.tfm.data.CardDefinition.ProjectKind.ACTIVE
+import dev.martianzoo.tfm.pets.ClassDeclarationParser.oneLineClassDeclaration
 import dev.martianzoo.tfm.pets.PetsParser
 import dev.martianzoo.tfm.pets.PetsParser.parse
 import dev.martianzoo.tfm.pets.SpecialComponent.End
@@ -10,6 +11,7 @@ import dev.martianzoo.tfm.pets.ast.Action
 import dev.martianzoo.tfm.pets.ast.Effect
 import dev.martianzoo.tfm.pets.ast.Instruction
 import dev.martianzoo.tfm.pets.ast.Instruction.Multi
+import dev.martianzoo.tfm.pets.ast.PetsNode
 import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.pets.ast.TypeExpression
 import dev.martianzoo.tfm.pets.ast.TypeExpression.ClassExpression
@@ -184,10 +186,14 @@ data class CardDefinition(
         actionsToEffects(actionsRaw)).toSetStrict()
   }
 
+  val extraComponents: List<ClassDeclaration> by lazy {
+    extraComponentsText.map { parse(oneLineClassDeclaration, it) }
+  }
+
   override val asClassDeclaration by lazy {
     val supertypes = mutableSetOf<GenericTypeExpression>()
 
-    if (projectKind != null)   supertypes.add(gte(projectKind.type))
+    if (projectKind != null)   supertypes.add(gte(projectKind.className))
     if (!actionsRaw.isEmpty()) supertypes.add(gte("ActionCard"))
     if (resourceType != null)  supertypes.add(gte("ResourcefulCard", resourceType))
     if (supertypes.isEmpty())  supertypes.add(gte("CardFront"))
@@ -196,7 +202,8 @@ data class CardDefinition(
         className = className,
         abstract = false,
         supertypes = supertypes,
-        effectsRaw = allEffects)
+        effectsRaw = allEffects,
+        extraNodes = extraNodes)
   }
 
   private fun inactive(): Boolean {
@@ -206,17 +213,36 @@ data class CardDefinition(
         resourceTypeText == null
   }
 
+  val extraNodes by lazy {
+    val set = mutableSetOf<PetsNode>()
+    set += tags
+    set += setOfNotNull(resourceType)
+    set += setOfNotNull(requirementRaw)
+    set += extraComponents.flatMap { it.allNodes }
+    set += setOfNotNull(projectKind?.classEx)
+    set += setOfNotNull(deck?.classEx)
+    set
+  }
+
   /**
    * The deck this card belongs to; see [CardDefinition.deck].
    */
-  enum class Deck { PROJECT, PRELUDE, CORPORATION }
+  enum class Deck(val className: String) {
+    PROJECT("ProjectCard"),
+    PRELUDE("AutomatedCard"),
+    CORPORATION("CorporationCard"),
+    ;
+    val classEx = ClassExpression(className)
+  }
 
   /**
    * A kind (color) of project; see [CardDefinition.projectKind].
    */
-  enum class ProjectKind(val type: String) {
+  enum class ProjectKind(val className: String) {
     EVENT("EventCard"), // red
     AUTOMATED("AutomatedCard"), // green
-    ACTIVE("ActiveCard") // blue
+    ACTIVE("ActiveCard"), // blue
+    ;
+    val classEx = ClassExpression(className)
   }
 }

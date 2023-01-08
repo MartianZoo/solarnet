@@ -2,6 +2,7 @@ package dev.martianzoo.tfm.data
 
 import dev.martianzoo.tfm.pets.ast.Effect
 import dev.martianzoo.tfm.pets.ast.Instruction.Intensity
+import dev.martianzoo.tfm.pets.ast.PetsNode
 import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.pets.ast.TypeExpression
 import dev.martianzoo.tfm.pets.ast.TypeExpression.GenericTypeExpression
@@ -19,7 +20,8 @@ data class ClassDeclaration(
     val topInvariant: Requirement? = null,
     val otherInvariants: Set<Requirement> = setOf(),
     val effectsRaw: Set<Effect> = setOf(),
-    val defaultsDeclaration: DefaultsDeclaration = DefaultsDeclaration()
+    val defaultsDeclaration: DefaultsDeclaration = DefaultsDeclaration(),
+    val extraNodes: Set<PetsNode> = setOf()
 ): Definition {
   init { require(this.className !in reservedClassNames) }
 
@@ -27,9 +29,20 @@ data class ClassDeclaration(
 
   val superclassNames = supertypes.map { it.className }
 
+  val allNodes: Set<PetsNode> by lazy {
+    setOf<PetsNode>() +
+        supertypes +
+        dependencies.map { it.upperBound } +
+        setOfNotNull(topInvariant) +
+        otherInvariants +
+        effectsRaw +
+        defaultsDeclaration.universalSpecs +
+        defaultsDeclaration.gainOnlySpecs
+  }
+
   data class DependencyDeclaration(
       val upperBound: TypeExpression,
-      val classDependency: Boolean = false)
+      val classDependency: Boolean = false) // TODO whut?
 
   data class DefaultsDeclaration(
       val universalSpecs: List<TypeExpression> = listOf(),

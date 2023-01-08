@@ -1,8 +1,6 @@
 package dev.martianzoo.tfm.data
 
 import dev.martianzoo.tfm.canon.Canon
-import dev.martianzoo.tfm.pets.ClassDeclarationParser.oneLineClassDeclaration
-import dev.martianzoo.tfm.pets.PetsParser.parse
 import dev.martianzoo.tfm.pets.ast.Instruction.CustomInstruction
 import dev.martianzoo.util.Grid
 import dev.martianzoo.util.associateByStrict
@@ -56,10 +54,7 @@ abstract class Authority {
   abstract val customInstructions: Map<String, CustomInstruction>
 
   private val extraClassDeclarationsFromCards: Map<String, ClassDeclaration> by lazy {
-    cardDefinitions
-        .flatMap { it.extraComponentsText }
-        .map { parse(oneLineClassDeclaration, it) }
-        .associateBy { it.className }
+    cardDefinitions.flatMap { it.extraComponents }.associateBy { it.className }
   }
 
   private fun toMapByComponentName(thing: Collection<Definition>) =
