@@ -6,7 +6,7 @@ import dev.martianzoo.tfm.pets.ast.TypeExpression.Companion.te
 import org.junit.jupiter.api.Test
 
 // Most testing is done by AutomatedTest
-class TypeExpressionTest {
+private class TypeExpressionTest {
   private fun testRoundTrip(petsText: String) =
       dev.martianzoo.tfm.pets.testRoundTrip<TypeExpression>(petsText)
 

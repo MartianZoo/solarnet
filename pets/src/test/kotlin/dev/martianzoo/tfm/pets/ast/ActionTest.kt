@@ -6,7 +6,7 @@ import dev.martianzoo.tfm.pets.testSampleStrings
 import org.junit.jupiter.api.Test
 
 // Most testing is done by AutomatedTest
-class ActionTest {
+private class ActionTest {
   @Test
   fun stupid() {
     testRoundTrip<Action>("-> Ok")

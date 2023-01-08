@@ -14,7 +14,7 @@ import dev.martianzoo.tfm.pets.testSampleStrings
 import org.junit.jupiter.api.Test
 
 // Most testing is done by AutomatedTest
-class InstructionTest {
+private class InstructionTest {
   val inputs = """
     5
     11

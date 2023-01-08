@@ -11,7 +11,7 @@ import dev.martianzoo.tfm.pets.ast.Script.ScriptRequirement
 import dev.martianzoo.tfm.pets.ast.TypeExpression.Companion.te
 import org.junit.jupiter.api.Test
 
-class ScriptTest {
+private class ScriptTest {
 
   @Test
   fun testScript() {

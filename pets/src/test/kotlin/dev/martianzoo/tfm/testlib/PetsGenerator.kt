@@ -37,7 +37,7 @@ import kotlin.math.roundToInt
 import kotlin.random.Random
 import kotlin.reflect.KClass
 
-class PetsGenerator(scaling: (Int) -> Double)
+internal class PetsGenerator(scaling: (Int) -> Double)
     : RandomGenerator<PetsNode>(Registry, scaling) {
 
   constructor(greed: Double = 0.8, backoff: Double = 0.15) : this(scaling(greed, backoff))

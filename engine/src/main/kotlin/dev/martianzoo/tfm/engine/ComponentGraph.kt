@@ -9,7 +9,7 @@ import dev.martianzoo.tfm.pets.ast.StateChange.Cause
 import dev.martianzoo.tfm.types.PetType
 import dev.martianzoo.util.mustRemove
 
-class ComponentGraph(startingWith: Multiset<Component> = ImmutableMultiset.of()) {
+internal class ComponentGraph(startingWith: Multiset<Component> = ImmutableMultiset.of()) {
   private val multiset: /*Mutable*/Multiset<Component> = LinkedHashMultiset.create(startingWith)
   val changeLog: MutableList<StateChange> = mutableListOf() // starts with ordinal 1
 
@@ -42,13 +42,13 @@ class ComponentGraph(startingWith: Multiset<Component> = ImmutableMultiset.of())
     changeLog.add(change)
   }
 
-  fun count(type: PetType) = multiset.entrySet()
+  internal fun count(type: PetType) = multiset.entrySet()
       .filter { it.element.hasType(type) }
       .sumOf { it.count }
 
-  fun getAll(type: PetType): Multiset<Component> = Multisets.filter(multiset) { it!!.hasType(type) }
+  internal fun getAll(type: PetType): Multiset<Component> = Multisets.filter(multiset) { it!!.hasType(type) }
 
-  data class Component(val type: PetType) {
+  internal data class Component(val type: PetType) {
     init { require(!type.abstract) }
     val asTypeExpression = type.toTypeExpressionFull()
     fun hasType(thatType: PetType) = type.isSubtypeOf(thatType)

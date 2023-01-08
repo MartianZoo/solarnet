@@ -14,7 +14,7 @@ import dev.martianzoo.util.Grid
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 
-class PetClassTest {
+private class PetClassTest {
   @Test
   fun nothingness() {
     val loader = loadTypes()
@@ -210,7 +210,8 @@ class FakeAuthority(classes: List<ClassDeclaration>) : Authority() {
   override val customInstructions = mapOf<String, CustomInstruction>()
 }
 
-fun loadTypes(vararg decl: String): PetClassTable {
+// TODO move to shared utils
+internal fun loadTypes(vararg decl: String): PetClassTable {
   return loader("ABSTRACT CLASS $COMPONENT\n" + decl.joinToString("") { "$it\n" })
 }
 

@@ -6,7 +6,7 @@ import dev.martianzoo.tfm.pets.ast.TypeExpression.Companion.te
 import dev.martianzoo.util.Grid
 import org.junit.jupiter.api.Test
 
-internal class MapAreaDefinitionTest {
+private class MapAreaDefinitionTest {
 
   @Test
   fun testTharsis() {

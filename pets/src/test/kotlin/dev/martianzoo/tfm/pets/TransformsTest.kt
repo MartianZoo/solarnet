@@ -11,7 +11,7 @@ import dev.martianzoo.tfm.pets.ast.TypeExpression.GenericTypeExpression
 import org.junit.jupiter.api.Test
 import kotlin.reflect.KClass
 
-class TransformsTest {
+private class TransformsTest {
   @Test
   fun testActionToEffect() {
     checkActionToEffect("-> Ok", 5,

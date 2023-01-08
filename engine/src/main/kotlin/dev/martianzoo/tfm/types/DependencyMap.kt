@@ -4,7 +4,7 @@ import dev.martianzoo.util.mergeMaps
 import dev.martianzoo.util.overlayMaps
 
 // Takes care of everything inside the <> but knows nothing of what's outside it
-data class DependencyMap(val keyToDependency: Map<Dependency.Key, Dependency>) {
+internal data class DependencyMap(val keyToDependency: Map<Dependency.Key, Dependency>) {
 
   constructor() : this(mapOf<Dependency.Key, Dependency>())
 

@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Test
 
 const val FACTOR = 2
 
-class AutomatedTest {
+private class AutomatedTest {
 
   @Test
   fun expressions() {

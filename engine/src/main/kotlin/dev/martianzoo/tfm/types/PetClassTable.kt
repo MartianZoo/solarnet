@@ -5,7 +5,7 @@ import dev.martianzoo.tfm.pets.ast.TypeExpression
 import dev.martianzoo.tfm.pets.ast.TypeExpression.GenericTypeExpression
 import dev.martianzoo.tfm.types.PetType.PetGenericType
 
-interface PetClassTable {
+internal interface PetClassTable {
   operator fun get(name: String): PetClass
 
   fun loadedClassNames(): Set<String>

@@ -6,14 +6,14 @@ import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.pets.ast.TypeExpression
 import dev.martianzoo.tfm.pets.ast.TypeExpression.GenericTypeExpression
 
-data class Defaults(
+internal data class Defaults(
     val allCasesDependencies: DependencyMap = DependencyMap(),
     val gainOnlyDependencies: DependencyMap = DependencyMap(),
     val gainIntensity: Intensity? = null
 ) {
 
   companion object {
-    fun from(d: DefaultsDeclaration, petClass: PetClass) = Defaults(
+    internal fun from(d: DefaultsDeclaration, petClass: PetClass) = Defaults(
         petClass.toDependencyMap(d.universalSpecs),
         petClass.toDependencyMap(d.gainOnlySpecs),
         d.gainIntensity)

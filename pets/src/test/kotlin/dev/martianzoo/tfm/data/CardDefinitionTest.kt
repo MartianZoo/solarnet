@@ -12,7 +12,7 @@ import dev.martianzoo.tfm.pets.ast.PetsNode
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 
-class CardDefinitionTest {
+private class CardDefinitionTest {
   /**
    * This is honestly an incredibly stupid test that data classes shouldn't need to have.
    */

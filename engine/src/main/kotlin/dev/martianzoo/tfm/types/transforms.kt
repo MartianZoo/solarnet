@@ -7,7 +7,7 @@ import dev.martianzoo.tfm.pets.ast.PetsNode
 import dev.martianzoo.tfm.pets.ast.TypeExpression.GenericTypeExpression
 import dev.martianzoo.tfm.types.PetType.PetGenericType
 
-fun <P : PetsNode> applyDefaultsIn(node: P, loader: PetClassLoader): P {
+internal fun <P : PetsNode> applyDefaultsIn(node: P, loader: PetClassLoader): P {
   return Defaulter(loader).transform(node).also {
     println("2. applied defaults to a ${node.kind}: $it")
   }
@@ -50,7 +50,7 @@ private class Defaulter(val loader: PetClassLoader) : AstTransformer() {
     @Suppress("UNCHECKED_CAST") return rewritten as P
   }
 
-  fun applyDefaultSpecs(
+  private fun applyDefaultSpecs(
       original: GenericTypeExpression,
       petClass: PetClass,
       defaultDeps: DependencyMap,

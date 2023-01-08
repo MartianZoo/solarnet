@@ -12,7 +12,7 @@ import dev.martianzoo.tfm.pets.testSampleStrings
 import org.junit.jupiter.api.Test
 
 // Most testing is done by AutomatedTest
-class RequirementTest {
+private class RequirementTest {
 
   val inputs = """
     0

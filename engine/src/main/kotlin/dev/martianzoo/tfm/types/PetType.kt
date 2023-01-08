@@ -4,7 +4,7 @@ import dev.martianzoo.tfm.pets.ast.TypeExpression
 import dev.martianzoo.tfm.pets.ast.TypeExpression.ClassExpression
 import dev.martianzoo.tfm.pets.ast.TypeExpression.GenericTypeExpression
 
-interface PetType {
+internal interface PetType {
   val petClass: PetClass
   val abstract: Boolean
 

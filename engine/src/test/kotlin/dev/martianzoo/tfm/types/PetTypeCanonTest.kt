@@ -5,7 +5,7 @@ import dev.martianzoo.tfm.canon.Canon
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 
-class PetTypeCanonTest {
+private class PetTypeCanonTest {
   val table = PetClassLoader(Canon).loadAll()
 
   @Test

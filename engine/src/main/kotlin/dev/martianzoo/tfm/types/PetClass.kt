@@ -16,7 +16,7 @@ import dev.martianzoo.util.toSetStrict
 
 /**
  */
-class PetClass(
+internal class PetClass(
     private val declaration: ClassDeclaration,
     val directSuperclasses: List<PetClass>,
     private val loader: PetClassLoader

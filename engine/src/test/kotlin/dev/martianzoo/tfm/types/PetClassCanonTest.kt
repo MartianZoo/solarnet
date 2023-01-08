@@ -6,7 +6,7 @@ import dev.martianzoo.tfm.pets.SpecialComponent.COMPONENT
 import org.junit.jupiter.api.Test
 import java.util.*
 
-class PetClassCanonTest {
+private class PetClassCanonTest {
 
   @Test
   fun component() { // TODO make this pass by not forcing subclasses to get loaded early

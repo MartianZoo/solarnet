@@ -5,7 +5,7 @@ import dev.martianzoo.tfm.pets.ast.TypeExpression.Companion.te
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 
-class StateChangeTest {
+private class StateChangeTest {
 
   @Test
   fun bad() {

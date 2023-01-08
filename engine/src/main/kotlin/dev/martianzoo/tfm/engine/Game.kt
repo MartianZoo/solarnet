@@ -10,7 +10,7 @@ import dev.martianzoo.tfm.pets.ast.TypeExpression
 import dev.martianzoo.tfm.types.PetClassTable
 import dev.martianzoo.tfm.types.PetType
 
-class Game(
+internal class Game(
     override val authority: Authority,
     val components: ComponentGraph,
     private val table: PetClassTable

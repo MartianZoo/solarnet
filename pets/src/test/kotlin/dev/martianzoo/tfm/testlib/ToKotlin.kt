@@ -21,7 +21,7 @@ import dev.martianzoo.tfm.pets.ast.TypeExpression.GenericTypeExpression
 import dev.martianzoo.util.joinOrEmpty
 import dev.martianzoo.util.pre
 
-object ToKotlin {
+internal object ToKotlin {
   fun <T : PetsNode?> T.pre(prefix: String): String = pre(prefix, ToKotlin::p2k)
 
   fun <T : PetsNode?> Iterable<T>.join(separator: CharSequence = ", "): String {

@@ -8,7 +8,7 @@ import kotlin.math.tan
 import kotlin.random.Random
 import kotlin.reflect.KClass
 
-abstract class RandomGenerator<B : Any>(private val registry: Registry<B>, val scaling: (Int) -> Double) {
+internal abstract class RandomGenerator<B : Any>(private val registry: Registry<B>, val scaling: (Int) -> Double) {
   abstract class Registry<B : Any> {
     private val map = mutableMapOf<KClass<out B>, (RandomGenerator<B>) -> B>()
 

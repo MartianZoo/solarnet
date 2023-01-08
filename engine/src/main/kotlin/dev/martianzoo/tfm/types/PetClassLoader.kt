@@ -15,7 +15,7 @@ import dev.martianzoo.tfm.pets.ast.TypeExpression.GenericTypeExpression
 import dev.martianzoo.tfm.types.PetType.PetGenericType
 
 // TODO restrict viz?
-class PetClassLoader(private val authority: Authority) : PetClassTable {
+internal class PetClassLoader(private val authority: Authority) : PetClassTable {
   private val nameToPetClass = mutableMapOf<String, PetClass?>()
 
   private var frozen: Boolean = false

@@ -7,7 +7,7 @@ import com.google.common.truth.Truth.assertThat
 import org.junit.jupiter.api.Test
 import java.util.Collections.nCopies
 
-class PairingCheckerTest {
+private class PairingCheckerTest {
   @Test
   fun testStuff() {
     PairingChecker.check("")

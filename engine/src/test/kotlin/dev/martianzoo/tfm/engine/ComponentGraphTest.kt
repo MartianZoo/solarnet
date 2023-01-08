@@ -9,7 +9,7 @@ import dev.martianzoo.tfm.types.PetClassLoader
 import dev.martianzoo.tfm.types.PetClassTable
 import org.junit.jupiter.api.Test
 
-class ComponentGraphTest {
+private class ComponentGraphTest {
 
   @Test
   fun basic() {

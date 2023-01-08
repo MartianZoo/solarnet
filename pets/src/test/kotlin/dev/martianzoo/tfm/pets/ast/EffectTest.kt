@@ -6,7 +6,7 @@ import dev.martianzoo.tfm.pets.testSampleStrings
 import org.junit.jupiter.api.Test
 
 // Most testing is done by AutomatedTest
-class EffectTest {
+private class EffectTest {
 
   // TODO
   val inputs = """

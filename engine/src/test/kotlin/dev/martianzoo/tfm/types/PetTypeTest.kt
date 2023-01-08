@@ -3,7 +3,7 @@ package dev.martianzoo.tfm.types
 import com.google.common.truth.Truth.assertThat
 import org.junit.jupiter.api.Test
 
-class PetTypeTest {
+private class PetTypeTest {
 
   @Test
   fun testCycle() {
