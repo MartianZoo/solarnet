@@ -96,9 +96,8 @@ private class Deprodifier(val producible: Set<String>) : AstTransformer() {
         transform(node.extract()).also { inProd = false }
       }
 
-      inProd && node is GenericTypeExpression && node.className in producible -> Production.type.copy(
-          specs = node.specs + ClassExpression(node.className)
-      ) // TODO this is weird and fragile
+      inProd && node is GenericTypeExpression && node.className in producible ->
+          Production.type.copy(specs = node.specs + ClassExpression(node.className))
 
       else -> super.transform(node)
     }

@@ -114,7 +114,8 @@ private class TransformsTest {
     // TODO adds unnecessary grouping, do we care?
     val prodden: Effect = parse("PROD[Plant]: PROD[Ooh?, Steel. / Ahh, Foo<Xyz FROM " +
         "Heat>, -Qux!, 5 Ahh<Qux> FROM StandardResource], Heat")
-    val expected: Effect = parse("Production<Plant.CLASS>: (Ooh?, Production<Steel.CLASS>. / Ahh, Foo<Xyz FROM " +
+    val expected: Effect = parse(
+        "Production<Plant.CLASS>: (Ooh?, Production<Steel.CLASS>. / Ahh, Foo<Xyz FROM " +
         "Production<Heat.CLASS>>, -Qux!, 5 Ahh<Qux> FROM Production<StandardResource.CLASS>), Heat")
     val deprodden: Effect = deprodify(prodden, resources)
     assertThat(deprodden).isEqualTo(expected)

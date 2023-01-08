@@ -40,9 +40,12 @@ private class ComponentGraphTest {
         StateChange(1, 5, gaining = gte("Heat", gte("Player2"))),
         StateChange(2, 10, gaining = gte("Heat", gte("Player3"))),
         StateChange(3, 4, removing = gte("Heat", gte("Player2"))),
-        StateChange(4, 3, gaining = gte("Steel", gte("Player3")), removing = gte("Heat", gte("Player3"))),
+        StateChange(4, 3,
+            gaining = gte("Steel", gte("Player3")),
+            removing = gte("Heat", gte("Player3"))),
     ).inOrder()
   }
 
-  private fun PetClassTable.cpt(expression: String) = Component(resolve(expression) as PetGenericType)
+  private fun PetClassTable.cpt(expression: String) =
+      Component(resolve(expression) as PetGenericType)
 }

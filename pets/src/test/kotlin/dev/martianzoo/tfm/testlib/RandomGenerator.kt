@@ -8,7 +8,10 @@ import kotlin.math.tan
 import kotlin.random.Random
 import kotlin.reflect.KClass
 
-internal abstract class RandomGenerator<B : Any>(private val registry: Registry<B>, val scaling: (Int) -> Double) {
+internal abstract class RandomGenerator<B : Any>(
+    private val registry: Registry<B>,
+    val scaling: (Int) -> Double
+) {
   abstract class Registry<B : Any> {
     private val map = mutableMapOf<KClass<out B>, (RandomGenerator<B>) -> B>()
 
@@ -20,7 +23,8 @@ internal abstract class RandomGenerator<B : Any>(private val registry: Registry<
     }
 
     @Suppress("UNCHECKED_CAST")
-    operator fun <N : B> get(type: KClass<N>) = (map[type] ?: error(type)) as RandomGenerator<B>.() -> N
+    operator fun <N : B> get(type: KClass<N>) =
+        (map[type] ?: error(type)) as RandomGenerator<B>.() -> N
 
     open fun <T : B> invoke(type: KClass<T>, gen: RandomGenerator<B>): T? = get(type).invoke(gen)
   }

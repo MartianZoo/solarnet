@@ -35,7 +35,11 @@ interface Grid<E> : Set<E> {
       return mutableGrid(cells, rowFn, columnFn)
     }
 
-    fun <E> mutableGrid(cells: Iterable<E>, rowFn: (E) -> Int, columnFn: (E) -> Int): MutableGrid<E> {
+    fun <E> mutableGrid(
+        cells: Iterable<E>,
+        rowFn: (E) -> Int,
+        columnFn: (E) -> Int
+    ): MutableGrid<E> {
       val maxRowIndex = cells.maxOfOrNull(rowFn) ?: 0
       val maxColIndex = cells.maxOfOrNull(columnFn) ?: 0
 

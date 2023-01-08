@@ -23,12 +23,16 @@ sealed class Instruction : PetsNode() {
 
     override fun times(value: Int) = copy(qe = qe.copy(scalar = qe.scalar * value))
     // TODO intensity
-    override fun execute(game: GameApi) = game.applyChange(qe.scalar, gaining = qe.expression as GenericTypeExpression)
+    override fun execute(game: GameApi) =
+        game.applyChange(qe.scalar, gaining = qe.expression as GenericTypeExpression)
 
     override fun toString() = "$qe${intensity?.symbol ?: ""}"
   }
 
-  data class Remove(val qe: QuantifiedExpression, val intensity: Intensity? = null) : Instruction() {
+  data class Remove(
+      val qe: QuantifiedExpression,
+      val intensity: Intensity? = null
+  ) : Instruction() {
     init {
       if (qe.scalar == 0) {
         throw PetsException("Can't remove zero")
@@ -36,7 +40,8 @@ sealed class Instruction : PetsNode() {
     }
 
     override fun times(value: Int) = copy(qe = qe.copy(scalar = qe.scalar * value))
-    override fun execute(game: GameApi) = game.applyChange(qe.scalar, removing = qe.expression as GenericTypeExpression)
+    override fun execute(game: GameApi) =
+        game.applyChange(qe.scalar, removing = qe.expression as GenericTypeExpression)
 
     override fun toString() = "-$qe${intensity?.symbol ?: ""}"
   }
@@ -64,7 +69,7 @@ sealed class Instruction : PetsNode() {
 
     override fun precedence() = 8
 
-    override fun toString() = "$instruction / ${qe.toString(forceType = true)}" // no `/ 5`, but `/ Heat` is okay
+    override fun toString() = "$instruction / ${qe.toString(forceType = true)}"
   }
 
   data class Gated(val requirement: Requirement, val instruction: Instruction): Instruction() {

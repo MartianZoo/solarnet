@@ -36,7 +36,7 @@ data class Action(val cost: Cost?, val instruction: Instruction) : PetsNode() {
         }
       }
 
-      override fun toString() = "$cost / ${qe.toString(forceType = true)}" // no "/ 2" but "/ Heat" is fine
+      override fun toString() = "$cost / ${qe.toString(forceType = true)}"
       override fun precedence() = 5
 
       override fun toInstruction() = Per(cost.toInstruction(), qe)

@@ -43,7 +43,8 @@ sealed class TypeExpression: PetsNode() {
 
     fun gte(s: String, first: String, vararg rest: String) = gte(s, listOf(first) + rest, null)
 
-    fun gte(s: String, specs: List<TypeExpression>, ref: Requirement?) = GenericTypeExpression(s, specs, ref)
+    fun gte(s: String, specs: List<TypeExpression>, ref: Requirement?) =
+        GenericTypeExpression(s, specs, ref)
   }
 
   override val kind = "TypeExpression"

@@ -15,7 +15,8 @@ private class PetTypeTest {
         "ABSTRACT CLASS CardFront : Owned",
         "ABSTRACT CLASS Cardbound<CardFront> : Owned",
         "ABSTRACT CLASS ResourcefulCard<CardResource.CLASS> : CardFront",
-        "ABSTRACT CLASS CardResource : Owned<Player>, Cardbound<Player, ResourcefulCard<This.CLASS>>",
+        "ABSTRACT CLASS CardResource : " +
+            "Owned<Player>, Cardbound<Player, ResourcefulCard<This.CLASS>>",
 
         "CLASS Animal : CardResource",
         "CLASS Microbe : CardResource<ResourcefulCard<Microbe.CLASS>>",
@@ -32,7 +33,10 @@ private class PetTypeTest {
 
     // TODO get these working
     //assertThrows<RuntimeException> { table.resolve("Animal<Ants>") }
-    //assertThat(table["Animal"].baseType.toString()).isEqualTo("Animal<Player, ResourcefulCard<Player, Animal.CLASS>>")
-    //assertThrows<RuntimeException> { table.resolve("Microbe<Player1, Ants<Player2>>") }
+    //assertThat(table["Animal"].baseType.toString())
+    //    .isEqualTo("Animal<Player, ResourcefulCard<Player, Animal.CLASS>>")
+    //assertThrows<RuntimeException> {
+    //  table.resolve("Microbe<Player1, Ants<Player2>>")
+    //}
   }
 }

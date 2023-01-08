@@ -56,7 +56,9 @@ internal class PetsGenerator(scaling: (Int) -> Double)
         )
       }
 //    register { ClassExpression(randomName()) }
-      register { QuantifiedExpression(choose(1 to Default.type, 3 to recurse()), choose(0, 1, 1, 1, 5, 11)) }
+      register { QuantifiedExpression(
+          choose(1 to Default.type, 3 to recurse()),
+          choose(0, 1, 1, 1, 5, 11)) }
 
       val requirementTypes = (multiset(
           9 to Min::class,
@@ -104,7 +106,8 @@ internal class PetsGenerator(scaling: (Int) -> Double)
         val one: GenericTypeExpression = recurse()
         val two: GenericTypeExpression = recurse()
 
-        fun getTypes(type: GenericTypeExpression): List<GenericTypeExpression> = type.specs.flatMap { getTypes(it as GenericTypeExpression) } + type
+        fun getTypes(type: GenericTypeExpression): List<GenericTypeExpression> =
+            type.specs.flatMap { getTypes(it as GenericTypeExpression) } + type
 
         val oneTypes = getTypes(one)
         val twoTypes = getTypes(two)
@@ -176,8 +179,10 @@ internal class PetsGenerator(scaling: (Int) -> Double)
       }
     }
 
-    fun RandomGenerator<PetsNode>.refinement() = chooseS(9 to { null }, 1 to { recurse<Requirement>() })
-    fun RandomGenerator<PetsNode>.randomName() = choose("Foo", "Bar", "Qux", "Abc", "Xyz", "Ooh", "Ahh", "Eep", "Wau")
+    fun RandomGenerator<PetsNode>.refinement() =
+        chooseS(9 to { null }, 1 to { recurse<Requirement>() })
+    fun RandomGenerator<PetsNode>.randomName() =
+        choose("Foo", "Bar", "Qux", "Abc", "Xyz", "Ooh", "Ahh", "Eep", "Wau")
   }
 
   inline fun <reified T : PetsNode> goNuts(count: Int = 10_000) {

@@ -217,16 +217,22 @@ object PetsParser {
         }
 
     private val complexFrom =
-        Types.className and skipChar('<') and parser { fromElements } and skipChar('>') and Types.refinement map { (name, specs, refins) ->
-          ComplexFrom(name, specs, refins)
-        }
+        Types.className and
+        skipChar('<') and
+        parser { fromElements } and
+        skipChar('>') and
+        Types.refinement map {
+      (name, specs, refins) -> ComplexFrom(name, specs, refins)
+    }
     private val from = simpleFrom or complexFrom
     private val typeInFrom = Types.genericType map { TypeInFrom(it) }
 
     private val fromElements: Parser<List<FromExpression>> =
-        zeroOrMore(typeInFrom and skipChar(',')) and from and zeroOrMore(skipChar(',') and typeInFrom) map { (before, from, after) ->
-          before + from + after
-        }
+        zeroOrMore(typeInFrom and skipChar(',')) and
+        from and
+        zeroOrMore(skipChar(',') and typeInFrom) map {
+      (before, from, after) -> before + from + after
+    }
 
     private val transmute =
         optional(QEs.scalar) and from and intensity map { (scal, fro, intens) ->

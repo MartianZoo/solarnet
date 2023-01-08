@@ -52,7 +52,8 @@ internal class ComponentGraph(startingWith: Multiset<Component> = ImmutableMulti
       .filter { it.element.hasType(type) }
       .sumOf { it.count }
 
-  internal fun getAll(type: PetType): Multiset<Component> = Multisets.filter(multiset) { it!!.hasType(type) }
+  internal fun getAll(type: PetType): Multiset<Component> =
+      Multisets.filter(multiset) { it!!.hasType(type) }
 
   internal data class Component(val type: PetGenericType) {
     init { require(!type.abstract) }

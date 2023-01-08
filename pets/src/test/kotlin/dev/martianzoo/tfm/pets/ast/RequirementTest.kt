@@ -198,10 +198,14 @@ private class RequirementTest {
     evalRequirement("=8 Foo<Bar>").isTrue()
     evalRequirement("=7 Foo<Bar>").isFalse()
 
-    evalRequirement("10 Megacredit, Foo<Bar>, 8 Foo<Bar>, MAX 0 Foo, MAX 8 Foo<Bar>, =0 Foo, =8 Foo<Bar>").isTrue()
-    evalRequirement("10 Megacredit, Foo<Bar>, 8 Foo<Bar>, MAX 0 Foo, MAX 8 Foo<Bar>, =1 Foo, =8 Foo<Bar>").isFalse()
+    evalRequirement("10 Megacredit, Foo<Bar>, 8 Foo<Bar>, MAX 0 Foo, " +
+        "MAX 8 Foo<Bar>, =0 Foo, =8 Foo<Bar>").isTrue()
+    evalRequirement("10 Megacredit, Foo<Bar>, 8 Foo<Bar>, MAX 0 Foo, " +
+        "MAX 8 Foo<Bar>, =1 Foo, =8 Foo<Bar>").isFalse()
 
-    evalRequirement("Foo OR 11 Foo OR 11 OR 9 Foo<Bar> OR MAX 7 Foo<Bar> OR =1 Foo OR =7 Foo<Bar>").isFalse()
-    evalRequirement("Foo OR 11 Foo OR 11 OR 9 Foo<Bar> OR MAX 7 Foo<Bar> OR =0 Foo OR =7 Foo<Bar>").isTrue()
+    evalRequirement("Foo OR 11 Foo OR 11 OR 9 Foo<Bar> OR MAX 7 Foo<Bar> " +
+        "OR =1 Foo OR =7 Foo<Bar>").isFalse()
+    evalRequirement("Foo OR 11 Foo OR 11 OR 9 Foo<Bar> OR MAX 7 Foo<Bar> " +
+        "OR =0 Foo OR =7 Foo<Bar>").isTrue()
   }
 }

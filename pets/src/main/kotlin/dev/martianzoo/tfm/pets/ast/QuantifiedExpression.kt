@@ -2,7 +2,10 @@ package dev.martianzoo.tfm.pets.ast
 
 import dev.martianzoo.tfm.pets.SpecialComponent.Default
 
-data class QuantifiedExpression(val expression: TypeExpression = Default.type, val scalar: Int = 1): PetsNode() {
+data class QuantifiedExpression(
+    val expression: TypeExpression = Default.type,
+    val scalar: Int = 1
+): PetsNode() {
   init { require(scalar >= 0) }
   override val kind = QuantifiedExpression::class.simpleName!!
 
