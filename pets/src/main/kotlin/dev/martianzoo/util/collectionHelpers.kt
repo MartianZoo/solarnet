@@ -99,3 +99,5 @@ fun <T : Any?> T.pre(prefix: String, transform: (T) -> String = { "$it" }) =
 
 fun <T : Any?> T.suf(suffix: String, transform: (T) -> String = { "$it" }) =
     wrap("", suffix, transform)
+
+fun iff(b: Boolean, s: String) = if(b) s else ""

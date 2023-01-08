@@ -23,7 +23,7 @@ internal fun actionToEffect(action: Action, index1Ref: Int): Effect {
   require(index1Ref >= 1) { index1Ref }
   val instruction = instructionFromAction(action.cost?.toInstruction(), action.instruction)
   val trigger = OnGain(te("$USE_ACTION$index1Ref", THIS.type))
-  return Effect(trigger, instruction, immediate = false).also {
+  return Effect(trigger, instruction, automatic = false).also {
     println("Converted from Action: $it")
   }
 }
@@ -50,7 +50,7 @@ internal fun actionsToEffects(actions: Collection<Action>) =
     }
 
 internal fun immediateToEffect(instruction: Instruction): Effect {
-  return Effect(OnGain(THIS.type), instruction, immediate = false) // ironic
+  return Effect(OnGain(THIS.type), instruction, automatic = false) // ironic
 }
 
 // had to use an ungrammatical name

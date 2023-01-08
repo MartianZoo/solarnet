@@ -2,11 +2,12 @@ package dev.martianzoo.tfm.pets.ast
 
 import dev.martianzoo.tfm.pets.PetsException
 import dev.martianzoo.tfm.pets.ast.Instruction.Gated
+import dev.martianzoo.util.iff
 
 data class Effect(
     val trigger: Trigger,
     val instruction: Instruction,
-    val immediate: Boolean,
+    val automatic: Boolean,
 ) : PetsNode() {
 
   override val kind = "Effect"
@@ -16,7 +17,7 @@ data class Effect(
       is Gated -> "($instruction)"
       else -> "$instruction"
     }
-    return "$trigger${if (immediate) "::" else ":"} $instext"
+    return "$trigger:${iff(automatic, ":")} $instext"
   }
 
   sealed class Trigger : PetsNode() {

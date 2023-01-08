@@ -54,7 +54,7 @@ data class MapAreaDefinition(
         supertypes = setOf(type),
         effectsRaw =
             bonus?.let {
-              setOf(Effect(trigger, it, immediate = false))
+              setOf(Effect(trigger, it, automatic = false))
             } ?: setOf()
     )
   }

@@ -174,10 +174,10 @@ class PetClass(
 
 // OTHER
 
-  override fun equals(that: Any?): Boolean {
-    return that is PetClass &&
-        this.name == that.name &&
-        this.loader === that.loader
+  override fun equals(other: Any?): Boolean {
+    return other is PetClass &&
+        this.name == other.name &&
+        this.loader === other.loader
   }
 
   override fun hashCode(): Int {

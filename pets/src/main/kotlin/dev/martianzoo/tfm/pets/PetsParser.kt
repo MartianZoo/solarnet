@@ -308,7 +308,7 @@ object PetsParser {
         colons and
         maybeGroup(instruction) map {
       (trig, immed, instr) ->
-          Effect(trigger = trig, immediate = immed, instruction = instr)
+          Effect(trigger = trig, automatic = immed, instruction = instr)
     }
   }
 

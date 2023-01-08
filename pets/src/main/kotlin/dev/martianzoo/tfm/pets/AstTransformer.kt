@@ -20,9 +20,10 @@ open class AstTransformer {
   fun <P : PetsNode> transform(nodes: Set<P>) = nodes.map { transform(it) }.toSetStrict()
 
   open fun <P : PetsNode?> transform(node: P): P {
+    @Suppress("UNCHECKED_CAST")
     if (node == null) return null as P // TODO how'm I even getting away with this
     return node.run {
-      when (this) {
+      val rewritten = when (this) {
         is ClassExpression -> this
         is GenericTypeExpression -> GenericTypeExpression(className, x(specs), x(refinement))
         is QuantifiedExpression -> QuantifiedExpression(x(expression), scalar)
@@ -52,7 +53,7 @@ open class AstTransformer {
         is Trigger.OnGain -> Trigger.OnGain(x(expression))
         is Trigger.OnRemove -> Trigger.OnRemove(x(expression))
         is Trigger.Prod -> Trigger.Prod(x(trigger))
-        is Effect -> Effect(x(trigger), x(instruction), immediate)
+        is Effect -> Effect(x(trigger), x(instruction), automatic)
 
         is Cost.Spend -> Cost.Spend(x(qe))
         is Cost.Per -> Cost.Per(x(cost), x(qe))
@@ -62,7 +63,9 @@ open class AstTransformer {
         is Action -> Action(x(cost), x(instruction))
 
         else -> error("Forgot to add new node type $kind")
-      } as P
+      }
+      @Suppress("UNCHECKED_CAST")
+      rewritten as P
     }
   }
 
