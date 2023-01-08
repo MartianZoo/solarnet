@@ -1,5 +1,6 @@
 package dev.martianzoo.tfm.engine
 
+import com.google.common.collect.Multiset
 import dev.martianzoo.tfm.data.Authority
 import dev.martianzoo.tfm.engine.ComponentGraph.Component
 import dev.martianzoo.tfm.pets.GameApi
@@ -7,6 +8,8 @@ import dev.martianzoo.tfm.pets.PetsParser.parse
 import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.pets.ast.StateChange.Cause
 import dev.martianzoo.tfm.pets.ast.TypeExpression
+import dev.martianzoo.tfm.pets.ast.TypeExpression.GenericTypeExpression
+import dev.martianzoo.tfm.types.PetClass
 import dev.martianzoo.tfm.types.PetClassTable
 import dev.martianzoo.tfm.types.PetType
 
@@ -20,11 +23,17 @@ internal class Game(
   fun resolve(type: TypeExpression) = table.resolve(type)
   fun resolve(typeText: String) = resolve(parse(typeText))
 
-  fun count(type: PetType) = components.count(type)
+  fun count(type: PetType): Int {
+    return if (type is PetClass) {
+      type.allSubclasses.count { !it.abstract }
+    } else {
+      components.count(type)
+    }
+  }
   override fun count(type: TypeExpression) = count(resolve(type))
   fun count(typeText: String) = count(resolve(typeText))
 
-  fun getAll(type: PetType) = components.getAll(type)
+  fun getAll(type: PetType): Multiset<Component> = components.getAll(type)
   fun getAll(type: TypeExpression) = getAll(resolve(type))
   fun getAll(typeText: String) = getAll(resolve(typeText))
 
@@ -32,9 +41,12 @@ internal class Game(
   fun isMet(requirementText: String) = isMet(parse(requirementText))
 
   override fun applyChange(
-      count: Int, gaining: TypeExpression?, removing: TypeExpression?, cause: Cause?) {
-    val g = gaining?.let { Component(resolve(it)) }
-    val r = removing?.let { Component(resolve(it)) }
+      count: Int,
+      gaining: GenericTypeExpression?,
+      removing: GenericTypeExpression?,
+      cause: Cause?) {
+    val g = gaining?.let { Component(table.resolve(it)) }
+    val r = removing?.let { Component(table.resolve(it)) }
     components.applyChange(count, g, r, cause)
   }
 }

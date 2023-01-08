@@ -13,20 +13,20 @@ internal object JsonReader {
 
   internal fun readCards(json5: String) = fromJson5<CardList>(json5).cards
 
-  internal data class CardList(val cards: List<CardDefinition>)
+  private class CardList(val cards: List<CardDefinition>)
 
 // MILESTONES
 
   internal fun readMilestones(json5: String) = fromJson5<MilestoneList>(json5).milestones
 
-  internal data class MilestoneList(val milestones: List<MilestoneDefinition>)
+  private class MilestoneList(val milestones: List<MilestoneDefinition>)
 
 // MAPS
 
   fun readMaps(json5: String): Map<String, Grid<MapAreaDefinition>> =
       fromJson5<MapsImportFormat>(json5).toGrids()
 
-  internal class MapsImportFormat(val maps: List<MapImportFormat>, val legend: Map<Char, String>) {
+  private class MapsImportFormat(val maps: List<MapImportFormat>, val legend: Map<Char, String>) {
     fun toGrids() = maps.associateBy(MapImportFormat::name) { it.toGrid(Legend(legend)) }
 
     internal class MapImportFormat(val name: String, val rows: List<List<String>>) {

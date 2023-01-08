@@ -6,7 +6,7 @@ import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.pets.ast.TypeExpression
 import dev.martianzoo.tfm.pets.ast.TypeExpression.GenericTypeExpression
 
-internal data class Defaults(
+internal class Defaults(
     val allCasesDependencies: DependencyMap = DependencyMap(),
     val gainOnlyDependencies: DependencyMap = DependencyMap(),
     val gainIntensity: Intensity? = null

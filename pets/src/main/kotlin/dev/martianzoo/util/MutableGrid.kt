@@ -1,7 +1,7 @@
 package dev.martianzoo.util
 
 // this is honestly bogus - it can't grow
-data class MutableGrid<E>(private val rows: List<MutableList<E?>>) :
+public class MutableGrid<E>(private val rows: List<MutableList<E?>>) :
     Grid<E>, AbstractSet<E>() {
 
   override val rowCount = rows.size

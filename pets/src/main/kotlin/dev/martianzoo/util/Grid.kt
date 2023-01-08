@@ -1,12 +1,19 @@
 package dev.martianzoo.util
 
-// A crappy abstraction for a fixed-size 2-dim array of nullable elements, where the elements
-// know their own row and column number.
-// Elements are adjacent if they are adjacent in one of the rows() or columns()
 
-// This works equally well for a "parallelogram" shaped hex grid slanted this way / /
-// In that case, adjacent elements in the "diagonals" are also adjacent in the grid.
 
+/**
+ * A fixed-size two-dimensional array of nullable elements, where the elements
+ * "know" their own row and column number (as opposed to their being placed there).
+ * Important: there is no distinction made between a null cell, a missing cell,
+ * and a cell that is "off the edge" of the grid!
+ *
+ * This actually works equally well for a hex grid. Imagine a parallelogram-
+ * shaped section of the hex grid, slanted like `/ /`. That is, rows are still
+ * horizontal, but what this class considers to be "columns" will actually slant
+ * up and to the right. In this case, the *diagonals* of this grid represent the
+ * columns that slant the other way.
+ */
 interface Grid<E> : Set<E> {
   val rowCount: Int
   val columnCount: Int

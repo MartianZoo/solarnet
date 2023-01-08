@@ -8,6 +8,7 @@ import dev.martianzoo.tfm.pets.ast.Requirement.Max
 import dev.martianzoo.tfm.pets.ast.Requirement.Min
 import dev.martianzoo.tfm.pets.ast.StateChange.Cause
 import dev.martianzoo.tfm.pets.ast.TypeExpression.Companion.te
+import dev.martianzoo.tfm.pets.ast.TypeExpression.GenericTypeExpression
 import dev.martianzoo.tfm.pets.testSampleStrings
 import org.junit.jupiter.api.Test
 
@@ -169,8 +170,8 @@ private class RequirementTest {
 
     override fun applyChange(
         count: Int,
-        gaining: TypeExpression?,
-        removing: TypeExpression?,
+        gaining: GenericTypeExpression?,
+        removing: GenericTypeExpression?,
         cause: Cause?,
     ) {
       TODO("this is just a dumb fake")

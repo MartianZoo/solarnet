@@ -4,6 +4,7 @@ import dev.martianzoo.tfm.pets.GameApi
 import dev.martianzoo.tfm.pets.PetsException
 import dev.martianzoo.tfm.pets.ast.FromExpression.SimpleFrom
 import dev.martianzoo.tfm.pets.ast.FromExpression.TypeInFrom
+import dev.martianzoo.tfm.pets.ast.TypeExpression.GenericTypeExpression
 
 sealed class Instruction : PetsNode() {
 
@@ -22,7 +23,7 @@ sealed class Instruction : PetsNode() {
 
     override fun times(value: Int) = copy(qe = qe.copy(scalar = qe.scalar * value))
     // TODO intensity
-    override fun execute(game: GameApi) = game.applyChange(qe.scalar, gaining = qe.expression)
+    override fun execute(game: GameApi) = game.applyChange(qe.scalar, gaining = qe.expression as GenericTypeExpression)
 
     override fun toString() = "$qe${intensity?.symbol ?: ""}"
   }
@@ -35,7 +36,7 @@ sealed class Instruction : PetsNode() {
     }
 
     override fun times(value: Int) = copy(qe = qe.copy(scalar = qe.scalar * value))
-    override fun execute(game: GameApi) = game.applyChange(qe.scalar, removing = qe.expression)
+    override fun execute(game: GameApi) = game.applyChange(qe.scalar, removing = qe.expression as GenericTypeExpression)
 
     override fun toString() = "-$qe${intensity?.symbol ?: ""}"
   }
@@ -112,8 +113,8 @@ sealed class Instruction : PetsNode() {
     override fun execute(game: GameApi) =
       game.applyChange(
           scalar ?: 1,
-          gaining = fromExpression.toType,
-          removing = fromExpression.fromType)
+          gaining = fromExpression.toType as GenericTypeExpression,
+          removing = fromExpression.fromType as GenericTypeExpression)
 
     override fun toString(): String {
       val intens = intensity?.symbol ?: ""

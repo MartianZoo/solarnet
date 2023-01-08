@@ -7,6 +7,7 @@ import com.google.common.collect.Multisets
 import dev.martianzoo.tfm.pets.ast.StateChange
 import dev.martianzoo.tfm.pets.ast.StateChange.Cause
 import dev.martianzoo.tfm.types.PetType
+import dev.martianzoo.tfm.types.PetType.PetGenericType
 import dev.martianzoo.util.mustRemove
 
 internal class ComponentGraph(startingWith: Multiset<Component> = ImmutableMultiset.of()) {
@@ -48,7 +49,7 @@ internal class ComponentGraph(startingWith: Multiset<Component> = ImmutableMulti
 
   internal fun getAll(type: PetType): Multiset<Component> = Multisets.filter(multiset) { it!!.hasType(type) }
 
-  internal data class Component(val type: PetType) {
+  internal data class Component(val type: PetGenericType) {
     init { require(!type.abstract) }
     val asTypeExpression = type.toTypeExpressionFull()
     fun hasType(thatType: PetType) = type.isSubtypeOf(thatType)

@@ -156,7 +156,7 @@ object ClassDeclarationParser {
 
   val oneLineClassDeclaration = Components.ocd
 
-  private data class Signature(
+  private class Signature(
       val className: String,
       val dependencies: List<DependencyDeclaration>,
       val topInvariant: Requirement?,

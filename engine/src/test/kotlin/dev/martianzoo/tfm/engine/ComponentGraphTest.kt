@@ -5,8 +5,10 @@ import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.engine.ComponentGraph.Component
 import dev.martianzoo.tfm.pets.ast.StateChange
 import dev.martianzoo.tfm.pets.ast.TypeExpression.Companion.te
+import dev.martianzoo.tfm.pets.ast.TypeExpression.GenericTypeExpression
 import dev.martianzoo.tfm.types.PetClassLoader
 import dev.martianzoo.tfm.types.PetClassTable
+import dev.martianzoo.tfm.types.PetType.PetGenericType
 import org.junit.jupiter.api.Test
 
 private class ComponentGraphTest {
@@ -43,5 +45,5 @@ private class ComponentGraphTest {
     ).inOrder()
   }
 
-  private fun PetClassTable.cpt(expression: String) = Component(resolve(expression))
+  private fun PetClassTable.cpt(expression: String) = Component(resolve(expression) as PetGenericType)
 }
