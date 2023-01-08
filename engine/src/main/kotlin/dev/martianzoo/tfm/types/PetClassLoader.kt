@@ -2,7 +2,7 @@ package dev.martianzoo.tfm.types
 
 import dev.martianzoo.tfm.data.Authority
 import dev.martianzoo.tfm.data.ClassDeclaration
-import dev.martianzoo.tfm.pets.SpecialComponent.STANDARD_RESOURCE
+import dev.martianzoo.tfm.pets.SpecialComponent.StandardResource
 import dev.martianzoo.tfm.pets.ast.QuantifiedExpression
 import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.pets.ast.Requirement.And
@@ -94,7 +94,7 @@ internal class PetClassLoader(private val authority: Authority) : PetClassTable 
   }
 
   private fun findResourceNames(): Set<String> {
-    val stdRes = load("$STANDARD_RESOURCE")
+    val stdRes = load(StandardResource.name)
     return nameToPetClass.values.mapNotNull {
       if (it?.isSubclassOf(stdRes) == true) it.name else null
     }.toSet()

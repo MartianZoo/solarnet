@@ -1,8 +1,8 @@
 package dev.martianzoo.tfm.pets.ast
 
-import dev.martianzoo.tfm.pets.SpecialComponent.DEFAULT
+import dev.martianzoo.tfm.pets.SpecialComponent.Default
 
-data class QuantifiedExpression(val expression: TypeExpression = DEFAULT.type, val scalar: Int = 1): PetsNode() {
+data class QuantifiedExpression(val expression: TypeExpression = Default.type, val scalar: Int = 1): PetsNode() {
   init { require(scalar >= 0) }
   override val kind = QuantifiedExpression::class.simpleName!!
 
@@ -10,7 +10,7 @@ data class QuantifiedExpression(val expression: TypeExpression = DEFAULT.type, v
 
   fun toString(forceScalar: Boolean = false, forceType: Boolean = false) =
       when {
-        !forceType && expression == DEFAULT.type -> "$scalar"
+        !forceType && expression == Default.type -> "$scalar"
         !forceScalar && scalar == 1 -> "$expression"
         else -> "$scalar $expression"
       }

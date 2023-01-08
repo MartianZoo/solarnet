@@ -4,7 +4,7 @@ import com.squareup.moshi.Json
 import dev.martianzoo.tfm.data.CardDefinition.ProjectKind.ACTIVE
 import dev.martianzoo.tfm.pets.PetsParser
 import dev.martianzoo.tfm.pets.PetsParser.parse
-import dev.martianzoo.tfm.pets.SpecialComponent.END
+import dev.martianzoo.tfm.pets.SpecialComponent.End
 import dev.martianzoo.tfm.pets.actionsToEffects
 import dev.martianzoo.tfm.pets.ast.Action
 import dev.martianzoo.tfm.pets.ast.Effect
@@ -202,7 +202,7 @@ data class CardDefinition(
   private fun inactive(): Boolean {
     // do this low-tech to avoid unlazifying
     return actionsText.isEmpty() &&
-        effectsText.all { it.startsWith("$END:") } &&
+        effectsText.all { it.startsWith("$End:") } &&
         resourceTypeText == null
   }
 

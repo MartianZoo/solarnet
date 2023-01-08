@@ -2,7 +2,7 @@ package dev.martianzoo.tfm.types
 
 import dev.martianzoo.tfm.data.ClassDeclaration
 import dev.martianzoo.tfm.pets.AstTransformer
-import dev.martianzoo.tfm.pets.SpecialComponent.COMPONENT
+import dev.martianzoo.tfm.pets.SpecialComponent.Component
 import dev.martianzoo.tfm.pets.ast.Effect
 import dev.martianzoo.tfm.pets.ast.PetsNode
 import dev.martianzoo.tfm.pets.ast.TypeExpression
@@ -141,16 +141,16 @@ internal class PetClass(
 // DEFAULTS
 
   val defaults: Defaults by lazy {
-    if (name == "$COMPONENT") {
+    if (name == Component.name) {
       Defaults.from(declaration.defaultsDeclaration, this)
     } else {
-      val rootDefaults = loader["$COMPONENT"].defaults
+      val rootDefaults = loader[Component.name].defaults
       defaultsIgnoringRoot.overlayOn(listOf(rootDefaults))
     }
   }
 
   private val defaultsIgnoringRoot: Defaults by lazy {
-    if (name == "$COMPONENT") {
+    if (name == Component.name) {
       Defaults()
     } else {
       Defaults.from(declaration.defaultsDeclaration, this)

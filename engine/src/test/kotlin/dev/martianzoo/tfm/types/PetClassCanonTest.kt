@@ -2,7 +2,7 @@ package dev.martianzoo.tfm.types
 
 import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.tfm.canon.Canon
-import dev.martianzoo.tfm.pets.SpecialComponent.COMPONENT
+import dev.martianzoo.tfm.pets.SpecialComponent.Component
 import org.junit.jupiter.api.Test
 import java.util.*
 
@@ -12,7 +12,7 @@ private class PetClassCanonTest {
   fun component() { // TODO make this pass by not forcing subclasses to get loaded early
     val table = PetClassLoader(Canon)
 
-    table.load("$COMPONENT").apply {
+    table.load(Component.name).apply {
       assertThat(name).isEqualTo("Component")
       assertThat(abstract).isTrue()
       assertThat(directDependencyKeys).isEmpty()
@@ -187,7 +187,7 @@ private class PetClassCanonTest {
     val all = table.loadedClassNames().map { table[it] }
     all.sortedBy { it.name }.forEach { c ->
       val interestingSupes = c.allSuperclasses.filter {
-        it.name !in setOf("$COMPONENT", c.name)
+        it.name !in setOf(Component.name, c.name)
       }
       println("${c.baseType} : $interestingSupes")
     }

@@ -1,9 +1,10 @@
 package dev.martianzoo.tfm.testlib
 
+import com.google.common.collect.ImmutableMultiset
 import com.google.common.truth.Truth.assertWithMessage
 import dev.martianzoo.tfm.pets.PetsException
 import dev.martianzoo.tfm.pets.PetsParser
-import dev.martianzoo.tfm.pets.SpecialComponent.DEFAULT
+import dev.martianzoo.tfm.pets.SpecialComponent.Default
 import dev.martianzoo.tfm.pets.ast.Action
 import dev.martianzoo.tfm.pets.ast.Action.Cost
 import dev.martianzoo.tfm.pets.ast.Effect
@@ -30,7 +31,6 @@ import dev.martianzoo.tfm.pets.ast.Requirement.Min
 import dev.martianzoo.tfm.pets.ast.TypeExpression
 import dev.martianzoo.tfm.pets.ast.TypeExpression.GenericTypeExpression
 import dev.martianzoo.tfm.testlib.ToKotlin.p2k
-import dev.martianzoo.util.multiset
 import org.junit.jupiter.api.Assertions.fail
 import kotlin.math.pow
 import kotlin.math.roundToInt
@@ -56,7 +56,7 @@ internal class PetsGenerator(scaling: (Int) -> Double)
         )
       }
 //    register { ClassExpression(randomName()) }
-      register { QuantifiedExpression(choose(1 to DEFAULT.type, 3 to recurse()), choose(0, 1, 1, 1, 5, 11)) }
+      register { QuantifiedExpression(choose(1 to Default.type, 3 to recurse()), choose(0, 1, 1, 1, 5, 11)) }
 
       val requirementTypes = (multiset(
           9 to Min::class,
@@ -261,6 +261,13 @@ internal class PetsGenerator(scaling: (Int) -> Double)
     }
     return set
   }
+
+}
+
+private fun <T : Any> multiset(vararg pairs: Pair<Int, T>): ImmutableMultiset<T> {
+  val builder = ImmutableMultiset.builder<T>()
+  pairs.forEach { (count, element) -> builder.addCopies(element, count) }
+  return builder.build()
 }
 
 fun scaling(greed: Double, backoff: Double): (Int) -> Double {

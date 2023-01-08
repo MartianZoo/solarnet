@@ -8,7 +8,6 @@ import dev.martianzoo.tfm.pets.ast.StateChange
 import dev.martianzoo.tfm.pets.ast.StateChange.Cause
 import dev.martianzoo.tfm.types.PetType
 import dev.martianzoo.tfm.types.PetType.PetGenericType
-import dev.martianzoo.util.mustRemove
 
 internal class ComponentGraph(startingWith: Multiset<Component> = ImmutableMultiset.of()) {
   private val multiset: /*Mutable*/Multiset<Component> = LinkedHashMultiset.create(startingWith)
@@ -42,6 +41,12 @@ internal class ComponentGraph(startingWith: Multiset<Component> = ImmutableMulti
     gaining?.let { multiset.add(it, count) }
     changeLog.add(change)
   }
+
+  // this is how to make sure the whole remove happens?
+  // who designed this crap?
+  private fun <E : Any?> Multiset<E>.mustRemove(element: E, count: Int) =
+      setCount(element, count(element) - count)
+
 
   internal fun count(type: PetType) = multiset.entrySet()
       .filter { it.element.hasType(type) }

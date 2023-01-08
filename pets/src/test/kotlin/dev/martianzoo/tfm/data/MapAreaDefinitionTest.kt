@@ -45,6 +45,9 @@ private class MapAreaDefinitionTest {
 
     assertThat(elys[3, 7]!!.typeText).isEqualTo("VolcanicArea")
     assertThat(elys[3, 7]!!.bonusText).isEqualTo("3 ProjectCard")
+
+    assertThat(elys[5, 9]!!.typeText).isEqualTo("VolcanicArea")
+    assertThat(elys[5, 9]!!.bonusText).isEqualTo("Plant, Titanium")
   }
 
   private fun checkWaterAreaCount(map: Grid<MapAreaDefinition>) {

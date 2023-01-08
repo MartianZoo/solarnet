@@ -1,8 +1,8 @@
 package dev.martianzoo.tfm.pets
 
-import dev.martianzoo.tfm.pets.SpecialComponent.PRODUCTION
-import dev.martianzoo.tfm.pets.SpecialComponent.THIS
-import dev.martianzoo.tfm.pets.SpecialComponent.USE_ACTION
+import dev.martianzoo.tfm.pets.SpecialComponent.Production
+import dev.martianzoo.tfm.pets.SpecialComponent.This
+import dev.martianzoo.tfm.pets.SpecialComponent.UseAction
 import dev.martianzoo.tfm.pets.ast.Action
 import dev.martianzoo.tfm.pets.ast.Effect
 import dev.martianzoo.tfm.pets.ast.Effect.Trigger.OnGain
@@ -22,7 +22,7 @@ import dev.martianzoo.tfm.pets.ast.TypeExpression.GenericTypeExpression
 internal fun actionToEffect(action: Action, index1Ref: Int): Effect {
   require(index1Ref >= 1) { index1Ref }
   val instruction = instructionFromAction(action.cost?.toInstruction(), action.instruction)
-  val trigger = OnGain(gte("$USE_ACTION$index1Ref", THIS.type))
+  val trigger = OnGain(gte("$UseAction$index1Ref", This.type))
   return Effect(trigger, instruction, automatic = false).also {
     println("Converted from Action: $it")
   }
@@ -50,12 +50,12 @@ internal fun actionsToEffects(actions: Collection<Action>) =
     }
 
 internal fun immediateToEffect(instruction: Instruction): Effect {
-  return Effect(OnGain(THIS.type), instruction, automatic = false) // ironic
+  return Effect(OnGain(This.type), instruction, automatic = false) // ironic
 }
 
 // had to use an ungrammatical name
 fun <P : PetsNode> replaceThis(node: P, resolveTo: GenericTypeExpression) =
-    node.replaceTypes(THIS.type, resolveTo)
+    node.replaceTypes(This.type, resolveTo)
         .replaceTypes(ClassExpression("This"), ClassExpression(resolveTo.className))
         .also { println("3. Resolved `This` to `$resolveTo` in ${node.kind}: $it") }
 
@@ -96,7 +96,7 @@ private class Deprodifier(val producible: Set<String>) : AstTransformer() {
         transform(node.extract()).also { inProd = false }
       }
 
-      inProd && node is GenericTypeExpression && node.className in producible -> PRODUCTION.type.copy(
+      inProd && node is GenericTypeExpression && node.className in producible -> Production.type.copy(
           specs = node.specs + ClassExpression(node.className)
       ) // TODO this is weird and fragile
 

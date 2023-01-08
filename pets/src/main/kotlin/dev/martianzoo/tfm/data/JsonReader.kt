@@ -1,10 +1,14 @@
 package dev.martianzoo.tfm.data
 
-import com.google.common.base.Strings.emptyToNull
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
+import dev.martianzoo.tfm.pets.PetsParser.parse
 import dev.martianzoo.util.Grid
-import java.util.*
+import dev.martianzoo.tfm.pets.ast.Instruction
+import dev.martianzoo.tfm.pets.ast.Instruction.Gain
+import dev.martianzoo.tfm.pets.ast.Instruction.Multi
+import dev.martianzoo.tfm.pets.ast.QuantifiedExpression
+import dev.martianzoo.tfm.pets.ast.TypeExpression.Companion.gte
 import kotlin.text.RegexOption.DOT_MATCHES_ALL
 
 internal object JsonReader {
@@ -57,10 +61,10 @@ internal object JsonReader {
         val q = ArrayDeque(code.substring(1).toList())
         val result = generateSequence {
           if (q.any()) {
-            val next = q.remove()
+            val next = q.removeFirst()
             when {
-              next in '2'..'9' -> "$next ${lookUp(q.remove())}"
-              q.peek() == next -> "2 ${lookUp(q.poll())}"
+              next in '2'..'9' -> "$next ${lookUp(q.removeFirst())}"
+              q.firstOrNull() == next -> "2 ${lookUp(q.removeFirst())}"
               else -> lookUp(next)
             }
           } else {
@@ -70,6 +74,7 @@ internal object JsonReader {
         return emptyToNull(result.joinToString())
       }
 
+      private fun emptyToNull(s: String) = if (s.isEmpty()) null else s
       private fun lookUp(c: Char) = table[c] ?: "not found: $c"
     }
   }

@@ -1,7 +1,7 @@
 package dev.martianzoo.tfm.types
 
 import dev.martianzoo.tfm.pets.AstTransformer
-import dev.martianzoo.tfm.pets.SpecialComponent.THIS
+import dev.martianzoo.tfm.pets.SpecialComponent.This
 import dev.martianzoo.tfm.pets.ast.Instruction.Gain
 import dev.martianzoo.tfm.pets.ast.PetsNode
 import dev.martianzoo.tfm.pets.ast.TypeExpression.GenericTypeExpression
@@ -17,7 +17,7 @@ private class Defaulter(val loader: PetClassLoader) : AstTransformer() {
   override fun <P : PetsNode?> transform(node: P): P {
     val rewritten: PetsNode? = when (node) {
       null -> null
-      THIS.type -> node // leave This alone!
+      This.type -> node // leave This alone!
 
       is Gain -> {
         val writtenType = node.qe.expression

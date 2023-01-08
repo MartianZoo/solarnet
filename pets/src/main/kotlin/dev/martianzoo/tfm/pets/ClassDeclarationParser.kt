@@ -28,8 +28,8 @@ import dev.martianzoo.tfm.pets.PetsParser.requirement
 import dev.martianzoo.tfm.pets.PetsParser.skipChar
 import dev.martianzoo.tfm.pets.PetsParser.tokenizer
 import dev.martianzoo.tfm.pets.PetsParser.typeExpression
-import dev.martianzoo.tfm.pets.SpecialComponent.COMPONENT
-import dev.martianzoo.tfm.pets.SpecialComponent.THIS
+import dev.martianzoo.tfm.pets.SpecialComponent.Component
+import dev.martianzoo.tfm.pets.SpecialComponent.This
 import dev.martianzoo.tfm.pets.ast.Action
 import dev.martianzoo.tfm.pets.ast.Effect
 import dev.martianzoo.tfm.pets.ast.Requirement
@@ -68,13 +68,13 @@ object ClassDeclarationParser {
 
     private val gainDefault =
         skipChar('+') and Types.genericType and Instructions.intensity map { (type, int) ->
-          require(type.className == "$THIS")
+          require(type.className == This.name)
           require(type.refinement == null)
           DefaultsDeclaration(gainOnlySpecs = type.specs, gainIntensity = int)
         }
 
     private val typeDefault = Types.genericType map {
-      require(it.className == "$THIS")
+      require(it.className == This.name)
       require(it.refinement == null)
       DefaultsDeclaration(universalSpecs = it.specs)
     }
@@ -180,9 +180,9 @@ object ClassDeclarationParser {
     private fun fixSupertypes(): ClassDeclaration {
       val supes = declaration.supertypes
       return when {
-        declaration.className == "$COMPONENT" -> declaration.also { require(supes.isEmpty()) }
-        supes.isEmpty() -> declaration.copy(supertypes = setOf(COMPONENT.type))
-        else -> declaration.also { require(COMPONENT.type !in supes) }
+        declaration.className == Component.name -> declaration.also { require(supes.isEmpty()) }
+        supes.isEmpty() -> declaration.copy(supertypes = setOf(Component.type))
+        else -> declaration.also { require(Component.type !in supes) }
       }
     }
   }
