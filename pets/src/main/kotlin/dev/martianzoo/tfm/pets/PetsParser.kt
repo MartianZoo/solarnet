@@ -74,37 +74,39 @@ object PetsParser {
   private val primaryParsers = // internal bookkeeping
       mutableMapOf<KClass<out PetsNode>, Parser<PetsNode>>()
 
-  private val ignored = listOf(
-      regexToken("\\\\\n", true),
+  private val tokenList = mutableListOf<Token>(
+      regexToken("\\\\\n", true), // ignore these
       regexToken(" +", true)
   )
 
+  private val arrow = literal("->")
+  private val doubleColon = literal("::")
+
   // I simply don't want to name all of these and would rather look them up by the char itself
-  private val characters = "!+,-./:;=?()[]{}<>\n".map { it to literalToken("$it") }.toMap()
+  private val characters = "!+,-./:;=?()[]{}<>\n"
+      .map { it to literal("$it") }.toMap()
 
-  private val tokenList = (ignored + characters.values).toMutableList()
-
-  internal fun word(w: String) = regex("\\b$w\\b")
+  internal fun literal(w: String) = literalToken(w).also { tokenList += it }
   internal fun regex(r: String) = regexToken(r).also { tokenList += it }
 
-  internal val _by = word("BY")
-  internal val _from = word("FROM")
-  internal val _has = word("HAS")
-  internal val _max = word("MAX")
-  internal val _or = word("OR")
-  internal val _prod = word("PROD")
-  internal val _then = word("THEN")
+  internal val _by   = literal("BY")
+  internal val _from = literal("FROM")
+  internal val _has  = literal("HAS")
+  internal val _max  = literal("MAX")
+  internal val _or   = literal("OR")
+  internal val _prod = literal("PROD")
+  internal val _then = literal("THEN")
 
-  // component defs
-  internal val _abstract = word("ABSTRACT")
-  internal val _class = word("CLASS")
-  internal val _default = word("DEFAULT")
+  // class declarations
+  internal val _abstract = literal("ABSTRACT")
+  internal val _class = literal("CLASS")
+  internal val _default = literal("DEFAULT")
 
   // scripts
-  internal val _become = word("BECOME")
-  internal val _count = word("COUNT")
-  internal val _exec = word("EXEC")
-  internal val _require = word("REQUIRE")
+  internal val _become = literal("BECOME")
+  internal val _count = literal("COUNT")
+  internal val _exec = literal("EXEC")
+  internal val _require = literal("REQUIRE")
 
   // regexes
   internal val classNameRE = regex("\\b[A-Z][a-z][A-Za-z0-9_]*\\b") // must begin UPPER Lower
@@ -118,7 +120,7 @@ object PetsParser {
 
   internal fun skipChar(c: Char) = skip(char(c))
 
-  internal val nls = skip(zeroOrMore(char('\n')))
+  internal val nls = zeroOrMore(char('\n'))
 
   object Types { // ------------------------------------------------------------
 
@@ -126,21 +128,24 @@ object PetsParser {
 
     internal val className = classNameRE map { it.text }
 
-    private val classExpression = className and skipChar('.') and skip(_class) map ::ClassExpression
+    private val classType =
+        className and
+        skipChar('.') and
+        skip(_class) map ::ClassExpression
 
     private val specializations = optionalList(
         skipChar('<') and commaSeparated(typeExpression) and skipChar('>')
     )
     internal val refinement = optional(parens(skip(_has) and parser { requirement }))
 
-    internal val gte: Parser<GenericTypeExpression> =
+    internal val genericType: Parser<GenericTypeExpression> =
         className and
         specializations and
         refinement map {
       (type, refs, reqt) -> GenericTypeExpression(type, refs, reqt)
     }
 
-    internal val whole = classExpression or gte
+    internal val whole = classType or genericType
   }
   val typeExpression = publish(Types.whole)
 
@@ -148,7 +153,7 @@ object PetsParser {
     internal val scalar: Parser<Int> = scalarRE map { it.text.toInt() }
 
     private val implicitScalar: Parser<Int?> = optional(scalar)
-    private val implicitType: Parser<GenericTypeExpression?> = optional(Types.gte)
+    private val implicitType: Parser<GenericTypeExpression?> = optional(Types.genericType)
 
     private val qeWithScalar = scalar and implicitType map { (scalar, expr: TypeExpression?) ->
       if (expr == null) {
@@ -157,7 +162,7 @@ object PetsParser {
         QuantifiedExpression(expr, scalar)
       }
     }
-    private val qeWithType = implicitScalar and Types.gte map { (scalar, expr) ->
+    private val qeWithType = implicitScalar and Types.genericType map { (scalar, expr) ->
       if (scalar == null) {
         QuantifiedExpression(expr)
       } else {
@@ -207,7 +212,7 @@ object PetsParser {
     }
 
     private val simpleFrom =
-        Types.gte and skip(_from) and Types.gte map { (to, from) ->
+        Types.genericType and skip(_from) and Types.genericType map { (to, from) ->
           SimpleFrom(to, from)
         }
 
@@ -216,7 +221,7 @@ object PetsParser {
           ComplexFrom(name, specs, refins)
         }
     private val from = simpleFrom or complexFrom
-    private val typeInFrom = Types.gte map { TypeInFrom(it) }
+    private val typeInFrom = Types.genericType map { TypeInFrom(it) }
 
     private val fromElements: Parser<List<FromExpression>> =
         zeroOrMore(typeInFrom and skipChar(',')) and from and zeroOrMore(skipChar(',') and typeInFrom) map { (before, from, after) ->
@@ -282,7 +287,7 @@ object PetsParser {
     }
 
     internal val whole =
-        optional(wholeCost) and skipChar('-') and skipChar('>') and instruction map { (c, i) ->
+        optional(wholeCost) and skip(arrow) and instruction map { (c, i) ->
           Action(c, i)
         }
   }
@@ -290,20 +295,23 @@ object PetsParser {
   val action = publish(Actions.whole)
 
   object Effects { // ----------------------------------------------------------
-    private val onGain = Types.gte map ::OnGain
-    private val onRemove = skipChar('-') and Types.gte map ::OnRemove
+    private val onGain = Types.genericType map ::OnGain
+    private val onRemove = skipChar('-') and Types.genericType map ::OnRemove
     private val atom = onGain or onRemove
 
     internal val wholeTrigger = prod(atom) map Trigger::Prod or atom
 
-    private val colons = skipChar(':') and optional(char(':')) map {
-      it != null
-    }
+    private val colons = doubleColon or char(':') map { it.text == "::" }
+
     internal val whole =
-        wholeTrigger and colons and maybeGroup(instruction) map { (trig, immed, instr) ->
-          Effect(trig, instr, immed)
-        }
+        wholeTrigger and
+        colons and
+        maybeGroup(instruction) map {
+      (trig, immed, instr) ->
+          Effect(trigger = trig, immediate = immed, instruction = instr)
+    }
   }
+
   val trigger = publish(Effects.wholeTrigger)
   val effect = publish(Effects.whole)
 
@@ -312,22 +320,24 @@ object PetsParser {
         skip(_exec) and
         instruction and
         optional(skip(_by) and
-        Types.gte) map { (instr, by) -> ScriptCommand(instr, by) }
+        Types.genericType) map { (instr, by) -> ScriptCommand(instr, by) }
 
     private val req: Parser<ScriptRequirement> =
         skip(_require) and requirement map ::ScriptRequirement
 
     private val counter: Parser<ScriptCounter> =
         skip(_count) and
-        Types.gte and
-        skip(char('-') and char('>')) and
+        Types.genericType and
+        skip(arrow) and
         metricKeyRE map { (type, key) -> ScriptCounter(key.text, type) }
 
     private val player: Parser<ScriptPragmaPlayer> =
-        skip(_become) and Types.gte map ::ScriptPragmaPlayer
+        skip(_become) and Types.genericType map ::ScriptPragmaPlayer
 
     internal val line: Parser<ScriptLine> =
-        nls and (command or req or counter or player) and skipChar('\n')
+        skip(nls) and
+        (command or req or counter or player) and
+        skipChar('\n')
   }
   val scriptLine = Scripts.line
 

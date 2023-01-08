@@ -56,7 +56,7 @@ object ClassDeclarationParser {
     private val dependencies = optionalList(
         skipChar('<') and commaSeparated(dependency) and skipChar('>')
     )
-    private val supertypes = optionalList(skipChar(':') and commaSeparated(Types.gte))
+    private val supertypes = optionalList(skipChar(':') and commaSeparated(Types.genericType))
 
     private val signature =
         Types.className and dependencies and Types.refinement and supertypes map { (c, d, r, s) ->
@@ -67,13 +67,13 @@ object ClassDeclarationParser {
         skipChar(',') and separatedTerms(signature, char(','))
 
     private val gainDefault =
-        skipChar('+') and Types.gte and Instructions.intensity map { (type, int) ->
+        skipChar('+') and Types.genericType and Instructions.intensity map { (type, int) ->
           require(type.className == "$THIS")
           require(type.refinement == null)
           DefaultsDeclaration(gainOnlySpecs = type.specs, gainIntensity = int)
         }
 
-    private val typeDefault = Types.gte map {
+    private val typeDefault = Types.genericType map {
       require(it.className == "$THIS")
       require(it.refinement == null)
       DefaultsDeclaration(universalSpecs = it.specs)
@@ -98,18 +98,25 @@ object ClassDeclarationParser {
         oneOrMore(char('\n')),
         acceptZero = true
     )
-    private val blockBody: Parser<List<Any>> =
-        skipChar('{') and nls and blockBodyContents and nls and skipChar('}')
+    private val blockBody: Parser<List<Any>> = skipChar('{') and
+        skip(nls) and
+        blockBodyContents and
+        skip(nls) and
+        skipChar('}')
 
     private val incompleteComponentDefs =
-        nls and isAbstract and signature and (blockBody or optionalList(moreSignatures)) map { (abs, sig, bodyOrSigs) ->
-          if (bodyOrSigs.firstOrNull() !is Signature) { // sigs
-            createIncomplete(abs, sig, bodyOrSigs)
-          } else { // body
-            @Suppress("UNCHECKED_CAST") val signatures =
-                listOf(sig) + (bodyOrSigs as List<Signature>)
-            signatures.flatMap { createIncomplete(abs, it) }
-          }
+        skip(nls) and
+        isAbstract and
+        signature and
+        (blockBody or optionalList(moreSignatures)) map {
+          (abs, sig, bodyOrSigs) ->
+              if (bodyOrSigs.firstOrNull() !is Signature) { // sigs
+                createIncomplete(abs, sig, bodyOrSigs)
+              } else { // body
+                @Suppress("UNCHECKED_CAST")
+                val signatures = listOf(sig) + (bodyOrSigs as List<Signature>)
+                signatures.flatMap { createIncomplete(abs, it) }
+              }
         }
 
     val nestedClassDeclarations =

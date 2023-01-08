@@ -149,7 +149,7 @@ class PetsGenerator(scaling: (Int) -> Double)
       register { Trigger.OnRemove(recurse()) }
       register { Trigger.Prod(recurse()) }
 
-      register { Effect(recurse(), recurse()) }
+      register { Effect(recurse(), recurse(), choose(true, false)) }
 
       val costTypes = (multiset(
           9 to Cost.Spend::class,

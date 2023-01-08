@@ -62,7 +62,7 @@ object ToKotlin {
         is Trigger.OnGain -> "OnGain(${p2k(expression)})"
         is Trigger.OnRemove -> "OnRemove(${p2k(expression)})"
         is Trigger.Prod -> "Trigger.Prod(${p2k(trigger)})"
-        is Effect -> "Effect(${p2k(trigger)}, ${p2k(instruction)})"
+        is Effect -> "Effect(${p2k(trigger)}, ${p2k(instruction)}, $immediate)"
 
         is Cost.Spend -> "Spend(${p2k(qe.expression)}${qe.scalar.pre(", ")}"
         is Cost.Per -> "Cost.Per(${p2k(cost)}, ${p2k(qe)})"

@@ -6,7 +6,7 @@ import dev.martianzoo.tfm.pets.ast.Instruction.Gated
 data class Effect(
     val trigger: Trigger,
     val instruction: Instruction,
-    val immediate: Boolean = false,
+    val immediate: Boolean,
 ) : PetsNode() {
 
   override val kind = "Effect"

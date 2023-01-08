@@ -52,7 +52,10 @@ data class MapAreaDefinition(
         className,
         abstract = false,
         supertypes = setOf(type),
-        effectsRaw = bonus?.let { setOf(Effect(trigger, it)) } ?: setOf()
+        effectsRaw =
+            bonus?.let {
+              setOf(Effect(trigger, it, immediate = false))
+            } ?: setOf()
     )
   }
 

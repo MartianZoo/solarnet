@@ -52,7 +52,7 @@ open class AstTransformer {
         is Trigger.OnGain -> Trigger.OnGain(x(expression))
         is Trigger.OnRemove -> Trigger.OnRemove(x(expression))
         is Trigger.Prod -> Trigger.Prod(x(trigger))
-        is Effect -> Effect(x(trigger), x(instruction))
+        is Effect -> Effect(x(trigger), x(instruction), immediate)
 
         is Cost.Spend -> Cost.Spend(x(qe))
         is Cost.Per -> Cost.Per(x(cost), x(qe))
