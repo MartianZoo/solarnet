@@ -28,19 +28,19 @@ sealed class FromExpression : PetsNode() {
   data class ComplexFrom(
       val className: String,
       val specializations: List<FromExpression> = listOf(),
-      val requirement: Requirement? = null) : FromExpression() {
+      val refinement: Requirement? = null) : FromExpression() {
     init {
       require(className.matches(Regex(CLASS_NAME_PATTERN))) { className }
       if (specializations.count { it is ComplexFrom || it is SimpleFrom } != 1) {
         throw PetsException("Can only have one FROM in an expression")
       }
     }
-    override val toType = gte(className, specializations.map { it.toType })
-    override val fromType = gte(className, specializations.map { it.fromType })
+    override val toType = gte(className, specializations.map { it.toType }, null)
+    override val fromType = gte(className, specializations.map { it.fromType }, refinement)
 
     override fun toString() =
         className +
         specializations.joinOrEmpty(wrap="<>") +
-        (requirement?.let { "(HAS $it)" } ?: "")
+        (refinement?.let { "(HAS $it)" } ?: "")
   }
 }

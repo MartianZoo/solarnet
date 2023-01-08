@@ -59,6 +59,6 @@ private class Defaulter(val loader: PetClassLoader) : AstTransformer() {
     val mergedDeps = explicitStatedDeps.overlayOn(defaultDeps)
 
     //// TODO: a little weird that we're going backwards here?
-    return PetGenericType(petClass, mergedDeps).toTypeExpressionFull()
+    return PetGenericType(petClass, mergedDeps, original.refinement).toTypeExpressionFull()
   }
 }

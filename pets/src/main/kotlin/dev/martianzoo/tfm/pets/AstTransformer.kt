@@ -47,7 +47,7 @@ open class AstTransformer {
         is Instruction.Prod -> Instruction.Prod(x(instruction))
 
         is SimpleFrom -> SimpleFrom(x(toType), x(fromType))
-        is ComplexFrom -> ComplexFrom(className, x(specializations), x(requirement))
+        is ComplexFrom -> ComplexFrom(className, x(specializations), x(refinement))
         is TypeInFrom -> TypeInFrom(x(type))
 
         is Trigger.OnGain -> Trigger.OnGain(x(expression))

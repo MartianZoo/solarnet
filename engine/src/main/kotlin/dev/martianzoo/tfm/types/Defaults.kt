@@ -57,18 +57,4 @@ internal class Defaults(
     }
     return DependencyMap(map)
   }
-
-  // TODO might need this somewhere
-  private fun overlayReqs(
-      defaultses: List<Defaults>,
-      extract: (Defaults) -> Requirement?
-  ): Requirement? {
-    extract(this)?.let { return it }
-    val reqs = defaultses.mapNotNull(extract)
-    return when (reqs.size) {
-      0 -> null
-      1 -> reqs.first()
-      else -> Requirement.And(reqs)
-    }
-  }
 }

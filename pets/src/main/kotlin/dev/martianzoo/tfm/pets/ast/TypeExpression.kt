@@ -33,15 +33,17 @@ sealed class TypeExpression: PetsNode() {
 
   companion object {
     fun gte(s: String) = GenericTypeExpression(s)
-    fun gte(s: String, specs: List<String>, ref: Requirement? = null): GenericTypeExpression =
+
+    @JvmName("whoCares")
+    fun gte(s: String, specs: List<String>, ref: Requirement?): GenericTypeExpression =
         GenericTypeExpression(s, specs.map(::gte), ref)
 
     fun gte(s: String, first: TypeExpression, vararg rest: TypeExpression) =
         GenericTypeExpression(s, listOf(first) + rest)
 
-    fun gte(s: String, first: String, vararg rest: String) = gte(s, listOf(first) + rest)
+    fun gte(s: String, first: String, vararg rest: String) = gte(s, listOf(first) + rest, null)
 
-    fun gte(s: String, specs: List<TypeExpression>) = GenericTypeExpression(s, specs)
+    fun gte(s: String, specs: List<TypeExpression>, ref: Requirement?) = GenericTypeExpression(s, specs, ref)
   }
 
   override val kind = "TypeExpression"

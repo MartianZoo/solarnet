@@ -50,7 +50,7 @@ internal object ToKotlin {
         is Instruction.Per -> "Instruction.Per(${p2k(instruction)}, ${p2k(qe)})"
         is Gated -> "Gated(${p2k(requirement)}, ${p2k(instruction)})"
         is Transmute -> "Transmute(${p2k(fromExpression)}${scalar.pre(", ")}${intensity.pre(", ")})"
-        is ComplexFrom -> "ComplexFrom(\"$className\", listOf(${specializations.join()})${requirement.pre(", ")}"
+        is ComplexFrom -> "ComplexFrom(\"$className\", listOf(${specializations.join()})${refinement.pre(", ")}"
         is SimpleFrom -> "SimpleFrom(${p2k(toType)}, ${p2k(fromType)})"
         is TypeInFrom -> "TypeInFrom(${p2k(type)})"
         is Custom -> "Instruction.Custom(\"$functionName\"${arguments.joinToString("") {", ${p2k(it)}"}})"

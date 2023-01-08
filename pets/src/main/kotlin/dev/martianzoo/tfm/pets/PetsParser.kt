@@ -142,7 +142,7 @@ object PetsParser {
         className and
         specializations and
         refinement map {
-      (type, refs, reqt) -> GenericTypeExpression(type, refs, reqt)
+      (type, specs, ref) -> GenericTypeExpression(type, specs, ref)
     }
 
     internal val whole = classType or genericType

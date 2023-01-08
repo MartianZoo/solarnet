@@ -5,6 +5,7 @@ import dev.martianzoo.tfm.pets.AstTransformer
 import dev.martianzoo.tfm.pets.SpecialComponent.Component
 import dev.martianzoo.tfm.pets.ast.Effect
 import dev.martianzoo.tfm.pets.ast.PetsNode
+import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.pets.ast.TypeExpression
 import dev.martianzoo.tfm.pets.ast.TypeExpression.ClassExpression
 import dev.martianzoo.tfm.pets.ast.TypeExpression.Companion.gte
@@ -127,10 +128,13 @@ internal class PetClass(
     }
     val allDeps = deps.intersect(DependencyMap(newDeps))
     require(allDeps.keys == allDependencyKeys)
-    PetGenericType(this, allDeps).also {
+    PetGenericType(this, allDeps, null).also {
       println("baseType is $it")
     }
   }
+
+  fun formGenericType(specs: List<PetType>, ref: Requirement?) =
+      PetGenericType(this, baseType.dependencies.specialize(specs), ref)
 
   internal fun toDependencyMap(specs: List<TypeExpression>?) =
       specs?.let {
