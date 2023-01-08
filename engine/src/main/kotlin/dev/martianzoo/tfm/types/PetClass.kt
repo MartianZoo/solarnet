@@ -10,13 +10,15 @@ import dev.martianzoo.tfm.pets.ast.TypeExpression.ClassExpression
 import dev.martianzoo.tfm.pets.ast.TypeExpression.Companion.te
 import dev.martianzoo.tfm.pets.ast.TypeExpression.GenericTypeExpression
 import dev.martianzoo.tfm.pets.deprodify
-import dev.martianzoo.tfm.pets.resolveSpecialThisType
+import dev.martianzoo.tfm.pets.replaceThis
 import dev.martianzoo.tfm.types.PetType.PetGenericType
+import dev.martianzoo.util.toSetStrict
 
 /**
  */
 class PetClass(
     private val declaration: ClassDeclaration,
+    val directSuperclasses: List<PetClass>,
     private val loader: PetClassLoader
 ) : PetType {
   val name by declaration::className
@@ -28,29 +30,46 @@ class PetClass(
   // TODO collapse invariants right?
 
   val directSupertypes: Set<PetGenericType> by lazy {
-    declaration.supertypes.map { loader.resolve(resolveSpecialThisType(it, te(name))) }.toSet()
+    declaration.supertypes.map {
+      loader.resolve(replaceThis(it, te(name)))
+    }.toSet()
   }
 
-  fun isSubclassOf(that: PetClass) = that in allSuperclasses
+  fun isSubclassOf(that: PetClass): Boolean =
+      this == that || directSuperclasses.any { it.isSubclassOf(that) }
 
-  override fun isSubtypeOf(that: PetType) = that is PetClass && isSubclassOf(that.petClass)
+  fun isSuperclassOf(that: PetClass) = that.isSubclassOf(this)
 
-  val directSubclasses: Set<PetClass> by lazy { loader.all().filter { this in it.directSuperclasses }.toSet() }
-  val allSubclasses: Set<PetClass> by lazy { loader.all().filter { this in it.allSuperclasses }.toSet() }
+  override fun isSubtypeOf(that: PetType) =
+      that is PetClass && isSubclassOf(that.petClass)
 
-  val directSuperclasses: Set<PetClass> by lazy { declaration.superclassNames.map { loader.load(it) }.toSet() }
+  val directSubclasses: Set<PetClass> by lazy {
+    allClasses().filter { this in it.directSuperclasses }.toSet()
+  }
+
+  val allSubclasses: Set<PetClass> by lazy {
+    allClasses().filter { this in it.allSuperclasses }.toSet()
+  }
+
+  private fun allClasses(): Set<PetClass> {
+    require(loader.isFrozen())
+    return loader.loadedClassNames().map { loader[it] }.toSetStrict()
+  }
+
   val allSuperclasses: Set<PetClass> by lazy {
-    val result = (directSuperclasses.flatMap { it.allSuperclasses } + this).toSet()
-
-    // TODO well, this is a giant hack. Some milestones/awards and GreeneryTile won't work right
-    // unless we make sure of this. TODO do it differently
-    if (result.any { it.name == "Owned" } &&
-        result.any { it.name == "Tile" }) {
-      require(result.any { it.name == "OwnedTile" }) { name }
-    }
-    result
+    (directSuperclasses.flatMap { it.allSuperclasses } + this).toSet()
   }
 
+  val intersectionType: Boolean by lazy {
+    if (directSuperclasses.size < 2) {
+      false
+    } else {
+      val sharesAllMySuperclasses = allClasses().filter {
+        directSuperclasses.all(it::isSubclassOf)
+      }
+      sharesAllMySuperclasses.all(::isSuperclassOf)
+    }
+  }
   /** Returns the one of `this` or `that` that is a subclass of the other. */
   fun intersect(that: PetClass) = when {
     this.isSubclassOf(that) -> this
@@ -151,7 +170,7 @@ class PetClass(
           it
         }
         .map { deprodify(it, loader.resourceNames()) }
-        .map { resolveSpecialThisType(it, te(name)) }
+        .map { replaceThis(it, te(name)) }
         .map { applyDefaultsIn(it, loader) }
         .toList()
         .also { validateAllTypes(it) }

@@ -15,7 +15,8 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 
 class PetClassTest {
-  @Test fun nothingness() {
+  @Test
+  fun nothingness() {
     val loader = loadTypes()
     val cpt = loader["$COMPONENT"]
     assertThat(cpt.name).isEqualTo("$COMPONENT")
@@ -25,7 +26,8 @@ class PetClassTest {
     assertThat(cpt.directDependencyKeys).isEmpty()
   }
 
-  @Test fun onethingness() {
+  @Test
+  fun onethingness() {
     val loader = loadTypes("CLASS Foo")
     val foo = loader["Foo"]
     assertThat(foo.name).isEqualTo("Foo")
@@ -35,7 +37,8 @@ class PetClassTest {
     assertThat(foo.directDependencyKeys).isEmpty()
   }
 
-  @Test fun subclass() {
+  @Test
+  fun subclass() {
     val loader = loadTypes("CLASS Foo", "CLASS Bar : Foo")
     val bar = loader["Bar"]
     assertThat(bar.directSuperclasses.names()).containsExactly("Foo")
@@ -43,7 +46,8 @@ class PetClassTest {
     assertThat(bar.directDependencyKeys).isEmpty()
   }
 
-  @Test fun forwardReference() {
+  @Test
+  fun forwardReference() {
     val loader = loadTypes("CLASS Bar : Foo", "CLASS Foo")
     val bar = loader["Bar"]
     assertThat(bar.directSuperclasses.names()).containsExactly("Foo")
@@ -68,14 +72,16 @@ class PetClassTest {
     assertThrows<IllegalArgumentException> { loader(s) }
   }
 
-  @Test fun dependency() {
+  @Test
+  fun dependency() {
     val loader = loadTypes("CLASS Foo", "CLASS Bar<Foo>")
     val bar = loader["Bar"]
     assertThat(bar.directSuperclasses.names()).containsExactly("$COMPONENT")
     assertThat(bar.directDependencyKeys).containsExactly(Key(bar, 0))
   }
 
-  @Test fun inheritedDependency() {
+  @Test
+  fun inheritedDependency() {
     val loader = loadTypes("CLASS Foo", "CLASS Bar<Foo>", "CLASS Qux : Bar")
     val bar = loader["Bar"]
     val qux = loader["Qux"]
@@ -86,7 +92,8 @@ class PetClassTest {
     assertThat(qux.allDependencyKeys).containsExactly(key)
   }
 
-  @Test fun restatedDependency() {
+  @Test
+  fun restatedDependency() {
     val loader = loadTypes("CLASS Foo", "CLASS Bar<Foo>", "CLASS Qux : Bar<Foo>")
     val bar = loader["Bar"]
     val qux = loader["Qux"]
@@ -97,16 +104,18 @@ class PetClassTest {
     assertThat(qux.allDependencyKeys).containsExactly(key)
   }
 
-  @Test fun addedDependency() {
+  @Test
+  fun addedDependency() {
     val loader = loadTypes("CLASS Foo", "CLASS Bar<Foo>", "CLASS Baz", "CLASS Qux<Baz> : Bar<Foo>")
     val bar = loader["Bar"]
     val qux = loader["Qux"]
 
     assertThat(bar.allDependencyKeys).containsExactly(Key(bar, 0))
-    assertThat(qux.allDependencyKeys).containsExactly(Key(bar, 0),  Key(qux, 0))
+    assertThat(qux.allDependencyKeys).containsExactly(Key(bar, 0), Key(qux, 0))
   }
 
-  @Test fun refinedDependency() {
+  @Test
+  fun refinedDependency() {
     val loader = loadTypes("CLASS Foo", "CLASS Bar<Foo>", "CLASS Baz : Foo", "CLASS Qux : Bar<Baz>")
     val bar = loader["Bar"]
     val qux = loader["Qux"]
@@ -119,8 +128,6 @@ class PetClassTest {
 
   @Test fun cycleDependency() {
     val loader = loadTypes("CLASS Foo<Bar>", "CLASS Bar<Foo>")
-    loader["Foo"]
-    loader["Bar"]
   }
 
   @Test fun depsAndSpecs() {

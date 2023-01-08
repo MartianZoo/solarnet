@@ -16,33 +16,37 @@ import dev.martianzoo.tfm.types.PetType.PetGenericType
 
 // TODO restrict viz?
 class PetClassLoader(private val authority: Authority) : PetClassTable {
-  private val table = mutableMapOf<String, PetClass?>()
+  private val nameToPetClass = mutableMapOf<String, PetClass?>()
 
   private var frozen: Boolean = false
+  internal fun isFrozen() = frozen
 
-  override fun isLoaded(name: String) = name in table
-
-  override fun get(name: String) = table[name] ?: error(name)
+  override fun get(name: String): PetClass {
+    return nameToPetClass[name] ?: error(name)
+  }
 
   /** Returns the petclass named `name`, loading it first if necessary. */
-  fun load(name: String) =
-      table[name] ?: construct(authority.declaration(name))
+  internal fun load(name: String) =
+      nameToPetClass[name] ?: construct(authority.declaration(name))
 
   private fun construct(decl: ClassDeclaration): PetClass {
     println("Loading ${decl.className}")
     require(!frozen) { "Too late, this table is frozen!" }
-    require(decl.className !in table) { decl.className }
-    table[decl.className] = null // signals loading has begun
 
-    // One thing we do aggressively
-    decl.superclassNames.forEach(::load)
+    // detect an infinite recursion before it SOEs
+    require(decl.className !in nameToPetClass) { decl.className }
+    nameToPetClass[decl.className] = null
 
-    return PetClass(decl, this).also { table[it.name] = it }
+    val superclasses: List<PetClass> = decl.superclassNames.map(::load)
+
+    val petClass = PetClass(decl, superclasses, this)
+    nameToPetClass[petClass.name] = petClass
+    return petClass
   }
 
   private fun freeze(): PetClassTable {
-    println("Freezing class table now with ${table.size} classes")
-    table.values.forEach { it!! }
+    println("Freezing class table now with ${nameToPetClass.size} classes")
+    nameToPetClass.values.forEach { it!! }
     frozen = true
     return this
   }
@@ -54,32 +58,14 @@ class PetClassLoader(private val authority: Authority) : PetClassTable {
     return freeze()
   }
 
-  override fun all(): Set<PetClass> {
-    require(frozen)
-    return table.values.map { it!! }.toSet()
-  }
-
-  override fun resolveWithDefaults(expression: TypeExpression) =
-      resolve(applyDefaultsIn(expression, this))
-
   override fun resolve(expression: TypeExpression) =
       when (expression) {
-        is ClassExpression -> resolve(expression)
+        is ClassExpression -> load(expression.className)
         is GenericTypeExpression -> resolve(expression)
       }
 
-  override fun resolve(expression: ClassExpression) =
-      load(expression.className)
-
   override fun resolve(expression: GenericTypeExpression): PetGenericType =
       load(expression.className).baseType.specialize(expression.specs.map { resolve(it) })
-
-  override fun isValid(expression: TypeExpression) = try {
-    resolve(expression)
-    true
-  } catch (e: RuntimeException) {
-    false
-  }
 
   // It is probably enough to return just the resource names we know about so far?
   fun resourceNames() = if (frozen) allResourceNames else findResourceNames()
@@ -108,11 +94,13 @@ class PetClassLoader(private val authority: Authority) : PetClassTable {
   }
 
   private fun findResourceNames(): Set<String> {
-    val stdRes = this.load("$STANDARD_RESOURCE")
-    return loadedClassNames().filter { stdRes in this[it].allSuperclasses }.toSet()
+    val stdRes = load("$STANDARD_RESOURCE")
+    return nameToPetClass.values.mapNotNull {
+      if (it?.isSubclassOf(stdRes) == true) it.name else null
+    }.toSet()
   }
 
-  fun classesLoaded() = table.size
+  fun classesLoaded() = nameToPetClass.size
 
-  override fun loadedClassNames() = table.keys.toSet()
+  override fun loadedClassNames() = nameToPetClass.keys.toSet()
 }

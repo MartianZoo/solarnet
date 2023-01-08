@@ -38,16 +38,11 @@ class PetClassCanonTest {
   @Test
   fun slurp() {
     val table = PetClassLoader(Canon).loadAll()
+    val all = table.loadedClassNames().map { table[it] }
 
-    table.all().forEach {
-      it.directEffectsRaw.forEach(::testRoundTrip)
-    }
-    table.all().forEach {
-      it.baseType
-    }
-    table.all().forEach {
-      it.directEffects.forEach(::testRoundTrip)
-    }
+    all.forEach { it.directEffectsRaw.forEach(::testRoundTrip) }
+    all.forEach { it.baseType }
+    all.forEach { it.directEffects.forEach(::testRoundTrip) }
   }
 
   @Test fun loadsOnlyWhatItNeeds() {
@@ -100,7 +95,8 @@ class PetClassCanonTest {
 
   @Test fun subConcrete() {
     val table = PetClassLoader(Canon).loadAll()
-    val subConcrete = table.all().flatMap { clazz ->
+    val all = table.loadedClassNames().map { table[it] }
+    val subConcrete = all.flatMap { clazz ->
       clazz.directSuperclasses.filterNot { it.abstract }.map { clazz.name to it.name }
     }
 
@@ -111,9 +107,21 @@ class PetClassCanonTest {
         "Dirigible" to "Floater")
   }
 
+  @Test fun intersectionTypes() {
+    val table = PetClassLoader(Canon).loadAll()
+
+    // Nothing can be both Owned and a Tile without being an OwnedTile!
+    assertThat(table["OwnedTile"].intersectionType).isTrue()
+
+    // Nothing can be both a CardFront and a HasActions but an ActionCard!
+    assertThat(table["ActionCard"].intersectionType).isTrue()
+  }
+
   fun findValidTypes() {
     val table = PetClassLoader(Canon).loadAll()
-    val names: List<String> = table.all().map { it.name }.filterNot {
+    val all = table.loadedClassNames().map { table[it] }
+
+    val names: List<String> = all.map { it.name }.filterNot {
       it.matches(Regex("^Card.{3,4}$")) && it.hashCode() % 12 != 0
     }.filterNot {
       it.matches(Regex("^(Tharsis|Hellas|Elysium)")) && it.hashCode() % 8 != 0
@@ -152,14 +160,14 @@ class PetClassCanonTest {
           "$name1<$name2<$name3<Player1>>>",
       )
       for (thing in tryThese) {
-        if (table.isValid(thing)) {
+        try {
           val type = table.resolve(thing)
           if (type.abstract) {
             if (abstracts.size < 100) abstracts.add(thing)
           } else {
             if (concretes.size < 100) concretes.add(thing)
           }
-        } else {
+        } catch (e: Exception) {
           if (invalids.size < 100) invalids.add(thing)
         }
       }
@@ -176,8 +184,12 @@ class PetClassCanonTest {
 
   fun describeEverything() {
     val table = PetClassLoader(Canon).loadAll()
-    table.all().sortedBy { it.name }.forEach { c ->
-      println("${c.baseType} : ${c.allSuperclasses.filter { it.name !in setOf("$COMPONENT", c.name) }}")
+    val all = table.loadedClassNames().map { table[it] }
+    all.sortedBy { it.name }.forEach { c ->
+      val interestingSupes = c.allSuperclasses.filter {
+        it.name !in setOf("$COMPONENT", c.name)
+      }
+      println("${c.baseType} : $interestingSupes")
     }
   }
 }

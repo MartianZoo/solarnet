@@ -6,7 +6,6 @@ import dev.martianzoo.tfm.pets.ast.Action
 import dev.martianzoo.tfm.pets.ast.Effect
 import dev.martianzoo.tfm.pets.ast.Instruction
 import dev.martianzoo.tfm.pets.ast.PetsNode
-import dev.martianzoo.tfm.pets.ast.TypeExpression
 import dev.martianzoo.tfm.pets.ast.TypeExpression.Companion.te
 import dev.martianzoo.tfm.pets.ast.TypeExpression.GenericTypeExpression
 import org.junit.jupiter.api.Test
@@ -87,7 +86,7 @@ class TransformsTest {
       expected: String) {
     val parsedOriginal = parse(type, original)
     val parsedExpected = parse(type, expected)
-    val tx = resolveSpecialThisType(parsedOriginal, thiss)
+    val tx = replaceThis(parsedOriginal, thiss)
     assertThat(tx).isEqualTo(parsedExpected)
 
     // more round-trip checking doesn't hurt

@@ -3,13 +3,14 @@ package dev.martianzoo.tfm.types
 import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.tfm.canon.Canon
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 
 class PetTypeCanonTest {
   val table = PetClassLoader(Canon).loadAll()
 
   @Test
   fun wtf1() {
-    assertThat(table.isValid("GreeneryTile<Area220>")).isFalse()
+    assertThrows<RuntimeException> { table.resolve("GreeneryTile<Area220>") }
   }
 
   // also UseAction2, PlayCard
