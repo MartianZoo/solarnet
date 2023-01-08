@@ -4,8 +4,7 @@ import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.engine.ComponentGraph.Component
 import dev.martianzoo.tfm.pets.ast.StateChange
-import dev.martianzoo.tfm.pets.ast.TypeExpression.Companion.te
-import dev.martianzoo.tfm.pets.ast.TypeExpression.GenericTypeExpression
+import dev.martianzoo.tfm.pets.ast.TypeExpression.Companion.gte
 import dev.martianzoo.tfm.types.PetClassLoader
 import dev.martianzoo.tfm.types.PetClassTable
 import dev.martianzoo.tfm.types.PetType.PetGenericType
@@ -38,10 +37,10 @@ private class ComponentGraphTest {
     assertThat(game.count("Steel")).isEqualTo(3)
 
     assertThat(game.components.changeLog).containsExactly(
-        StateChange(1, 5, gaining = te("Heat", te("Player2"))),
-        StateChange(2, 10, gaining = te("Heat", te("Player3"))),
-        StateChange(3, 4, removing = te("Heat", te("Player2"))),
-        StateChange(4, 3, gaining = te("Steel", te("Player3")), removing = te("Heat", te("Player3"))),
+        StateChange(1, 5, gaining = gte("Heat", gte("Player2"))),
+        StateChange(2, 10, gaining = gte("Heat", gte("Player3"))),
+        StateChange(3, 4, removing = gte("Heat", gte("Player2"))),
+        StateChange(4, 3, gaining = gte("Steel", gte("Player3")), removing = gte("Heat", gte("Player3"))),
     ).inOrder()
   }
 

@@ -8,7 +8,7 @@ import dev.martianzoo.tfm.pets.ast.Script.ScriptCommand
 import dev.martianzoo.tfm.pets.ast.Script.ScriptCounter
 import dev.martianzoo.tfm.pets.ast.Script.ScriptPragmaPlayer
 import dev.martianzoo.tfm.pets.ast.Script.ScriptRequirement
-import dev.martianzoo.tfm.pets.ast.TypeExpression.Companion.te
+import dev.martianzoo.tfm.pets.ast.TypeExpression.Companion.gte
 import org.junit.jupiter.api.Test
 
 private class ScriptTest {
@@ -28,23 +28,23 @@ private class ScriptTest {
 
     """)
     assertThat(script.lines).containsExactly(
-        ScriptPragmaPlayer(te("Player1")),
+        ScriptPragmaPlayer(gte("Player1")),
         ScriptCommand(
             Instruction.Multi(
-                Gain(QuantifiedExpression(te("Foo"))),
-                Gain(QuantifiedExpression(te("Bar"), 5)),
+                Gain(QuantifiedExpression(gte("Foo"))),
+                Gain(QuantifiedExpression(gte("Bar"), 5)),
             ),
         ),
-        ScriptCounter("num", te("Qux", te("Wow"))),
-        ScriptPragmaPlayer(te("Player2")),
+        ScriptCounter("num", gte("Qux", gte("Wow"))),
+        ScriptPragmaPlayer(gte("Player2")),
         ScriptRequirement(
-            Min(QuantifiedExpression(te("Bar"), 4)),
+            Min(QuantifiedExpression(gte("Bar"), 4)),
         ),
         ScriptCommand(
             Instruction.Gated(
-                Min(QuantifiedExpression(te("Abc"))),
-                Gain(QuantifiedExpression(te("Xyz")))),
-            te("Who", "Even", "Cares"),
+                Min(QuantifiedExpression(gte("Abc"))),
+                Gain(QuantifiedExpression(gte("Xyz")))),
+            gte("Who", "Even", "Cares"),
         ),
     )
   }

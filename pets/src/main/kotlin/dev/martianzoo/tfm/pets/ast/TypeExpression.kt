@@ -32,16 +32,16 @@ sealed class TypeExpression: PetsNode() {
   }
 
   companion object {
-    fun te(s: String) = GenericTypeExpression(s)
-    fun te(s: String, specs: List<String>, ref: Requirement? = null): GenericTypeExpression =
-        GenericTypeExpression(s, specs.map(::te), ref)
+    fun gte(s: String) = GenericTypeExpression(s)
+    fun gte(s: String, specs: List<String>, ref: Requirement? = null): GenericTypeExpression =
+        GenericTypeExpression(s, specs.map(::gte), ref)
 
-    fun te(s: String, first: TypeExpression, vararg rest: TypeExpression) =
+    fun gte(s: String, first: TypeExpression, vararg rest: TypeExpression) =
         GenericTypeExpression(s, listOf(first) + rest)
 
-    fun te(s: String, first: String, vararg rest: String) = te(s, listOf(first) + rest)
+    fun gte(s: String, first: String, vararg rest: String) = gte(s, listOf(first) + rest)
 
-    fun te(s: String, specs: List<TypeExpression>) = GenericTypeExpression(s, specs)
+    fun gte(s: String, specs: List<TypeExpression>) = GenericTypeExpression(s, specs)
   }
 
   override val kind = "TypeExpression"

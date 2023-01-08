@@ -6,7 +6,7 @@ import dev.martianzoo.tfm.pets.ast.Action
 import dev.martianzoo.tfm.pets.ast.Effect
 import dev.martianzoo.tfm.pets.ast.Instruction
 import dev.martianzoo.tfm.pets.ast.PetsNode
-import dev.martianzoo.tfm.pets.ast.TypeExpression.Companion.te
+import dev.martianzoo.tfm.pets.ast.TypeExpression.Companion.gte
 import dev.martianzoo.tfm.pets.ast.TypeExpression.GenericTypeExpression
 import org.junit.jupiter.api.Test
 import kotlin.reflect.KClass
@@ -58,18 +58,18 @@ private class TransformsTest {
   }
 
   @Test fun testResolveSpecialThisType() {
-    checkResolveThis<Instruction>("Foo<This>", te("Bar"), "Foo<Bar>")
-    checkResolveThis<Instruction>("Foo<This>", te("Bar"), "Foo<Bar>")
+    checkResolveThis<Instruction>("Foo<This>", gte("Bar"), "Foo<Bar>")
+    checkResolveThis<Instruction>("Foo<This>", gte("Bar"), "Foo<Bar>")
 
     // looks like a plain textual replacement but we know what's really happening
     val petsIn = "-Ooh<Foo<Xyz, This, Qux>>: " +
         "5 Qux<Ooh, Xyz, Bar> OR 5 This?, =0 This: -Bar, 5: Foo<This>"
     val petsOut = "-Ooh<Foo<Xyz, It<Worked>, Qux>>: " +
         "5 Qux<Ooh, Xyz, Bar> OR 5 It<Worked>?, =0 It<Worked>: -Bar, 5: Foo<It<Worked>>"
-    checkResolveThis<Effect>(petsIn, te("It", te("Worked")), petsOut)
+    checkResolveThis<Effect>(petsIn, gte("It", gte("Worked")), petsOut)
 
     // allows nonsense
-    checkResolveThis<Instruction>("This<Foo>", te("Bar"), "This<Foo>")
+    checkResolveThis<Instruction>("This<Foo>", gte("Bar"), "This<Foo>")
   }
 
   private inline fun <reified P : PetsNode> checkResolveThis(

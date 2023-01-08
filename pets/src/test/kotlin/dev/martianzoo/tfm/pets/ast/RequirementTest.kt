@@ -7,7 +7,7 @@ import dev.martianzoo.tfm.pets.PetsParser.parse
 import dev.martianzoo.tfm.pets.ast.Requirement.Max
 import dev.martianzoo.tfm.pets.ast.Requirement.Min
 import dev.martianzoo.tfm.pets.ast.StateChange.Cause
-import dev.martianzoo.tfm.pets.ast.TypeExpression.Companion.te
+import dev.martianzoo.tfm.pets.ast.TypeExpression.Companion.gte
 import dev.martianzoo.tfm.pets.ast.TypeExpression.GenericTypeExpression
 import dev.martianzoo.tfm.pets.testSampleStrings
 import org.junit.jupiter.api.Test
@@ -86,25 +86,25 @@ private class RequirementTest {
   @Test
   fun simpleSourceToApi() {
     assertThat(parse<Requirement>("Foo"))
-        .isEqualTo(Min(QuantifiedExpression(te("Foo"))))
+        .isEqualTo(Min(QuantifiedExpression(gte("Foo"))))
     assertThat(parse<Requirement>("3 Foo"))
-        .isEqualTo(Min(QuantifiedExpression(te("Foo"), 3)))
+        .isEqualTo(Min(QuantifiedExpression(gte("Foo"), 3)))
     assertThat(parse<Requirement>("MAX 3 Foo"))
-        .isEqualTo(Max(QuantifiedExpression(te("Foo"), 3)))
+        .isEqualTo(Max(QuantifiedExpression(gte("Foo"), 3)))
   }
 
   @Test
   fun simpleApiToSource() {
-    assertThat(Min(QuantifiedExpression(te("Foo"))).toString()).isEqualTo("Foo")
-    assertThat(Min(QuantifiedExpression(te("Foo"), 1)).toString()).isEqualTo("Foo")
-    assertThat(Min(QuantifiedExpression(te("Foo"), 3)).toString()).isEqualTo("3 Foo")
+    assertThat(Min(QuantifiedExpression(gte("Foo"))).toString()).isEqualTo("Foo")
+    assertThat(Min(QuantifiedExpression(gte("Foo"), 1)).toString()).isEqualTo("Foo")
+    assertThat(Min(QuantifiedExpression(gte("Foo"), 3)).toString()).isEqualTo("3 Foo")
     assertThat(Min(QuantifiedExpression(scalar = 3)).toString()).isEqualTo("3")
-    assertThat(Min(QuantifiedExpression(te("Default"), scalar = 3)).toString()).isEqualTo("3")
-    assertThat(Min(QuantifiedExpression(te("Default"))).toString()).isEqualTo("1")
-    assertThat(Max(QuantifiedExpression(te("Foo"), 0)).toString()).isEqualTo("MAX 0 Foo")
-    assertThat(Max(QuantifiedExpression(te("Foo"))).toString()).isEqualTo("MAX 1 Foo")
-    assertThat(Max(QuantifiedExpression(te("Foo"), 1)).toString()).isEqualTo("MAX 1 Foo")
-    assertThat(Max(QuantifiedExpression(te("Foo"), 3)).toString()).isEqualTo("MAX 3 Foo")
+    assertThat(Min(QuantifiedExpression(gte("Default"), scalar = 3)).toString()).isEqualTo("3")
+    assertThat(Min(QuantifiedExpression(gte("Default"))).toString()).isEqualTo("1")
+    assertThat(Max(QuantifiedExpression(gte("Foo"), 0)).toString()).isEqualTo("MAX 0 Foo")
+    assertThat(Max(QuantifiedExpression(gte("Foo"))).toString()).isEqualTo("MAX 1 Foo")
+    assertThat(Max(QuantifiedExpression(gte("Foo"), 1)).toString()).isEqualTo("MAX 1 Foo")
+    assertThat(Max(QuantifiedExpression(gte("Foo"), 3)).toString()).isEqualTo("MAX 3 Foo")
     assertThat(Max(QuantifiedExpression(scalar = 3)).toString()).isEqualTo("MAX 3 Default")
   }
 
@@ -141,15 +141,15 @@ private class RequirementTest {
     assertThat(parsed).isEqualTo(
         Requirement.Or(setOf(
             Min(QuantifiedExpression(
-                te("Adjacency",
-                    te("CityTile", te("Anyone")),
-                    te("OceanTile")
+                gte("Adjacency",
+                    gte("CityTile", gte("Anyone")),
+                    gte("OceanTile")
                 )
             )),
             Min(QuantifiedExpression(
-                te("Adjacency",
-                    te("OceanTile"),
-                    te("CityTile", te("Anyone"))
+                gte("Adjacency",
+                    gte("OceanTile"),
+                    gte("CityTile", gte("Anyone"))
                 )
             ))
         ))

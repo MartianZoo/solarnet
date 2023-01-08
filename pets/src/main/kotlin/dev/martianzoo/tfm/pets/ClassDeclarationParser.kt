@@ -33,7 +33,7 @@ import dev.martianzoo.tfm.pets.SpecialComponent.THIS
 import dev.martianzoo.tfm.pets.ast.Action
 import dev.martianzoo.tfm.pets.ast.Effect
 import dev.martianzoo.tfm.pets.ast.Requirement
-import dev.martianzoo.tfm.pets.ast.TypeExpression.Companion.te
+import dev.martianzoo.tfm.pets.ast.TypeExpression.Companion.gte
 import dev.martianzoo.tfm.pets.ast.TypeExpression.GenericTypeExpression
 import dev.martianzoo.util.toSetStrict
 
@@ -173,7 +173,7 @@ object ClassDeclarationParser {
         if (isComplete || declaration.supertypes.any { it.className == name }) {
           this
         } else {
-          val supes = (listOf(te(name)) + declaration.supertypes)
+          val supes = (listOf(gte(name)) + declaration.supertypes)
           DeclarationInProgress(declaration.copy(supertypes = supes.toSetStrict()), true)
         }
 

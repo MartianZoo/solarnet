@@ -8,7 +8,7 @@ import dev.martianzoo.tfm.pets.ast.FromExpression.ComplexFrom
 import dev.martianzoo.tfm.pets.ast.FromExpression.SimpleFrom
 import dev.martianzoo.tfm.pets.ast.Instruction.Intensity.AMAP
 import dev.martianzoo.tfm.pets.ast.Instruction.Transmute
-import dev.martianzoo.tfm.pets.ast.TypeExpression.Companion.te
+import dev.martianzoo.tfm.pets.ast.TypeExpression.Companion.gte
 import dev.martianzoo.tfm.pets.testRoundTrip
 import dev.martianzoo.tfm.pets.testSampleStrings
 import org.junit.jupiter.api.Test
@@ -90,7 +90,7 @@ private class InstructionTest {
     testRoundTrip("1 Foo FROM Bar.")
 
     assertThat(parse<Instruction>("1 Foo FROM Bar.")).isEqualTo(
-        Transmute(SimpleFrom(te("Foo"), te("Bar")), 1, AMAP)
+        Transmute(SimpleFrom(gte("Foo"), gte("Bar")), 1, AMAP)
     )
     testRoundTrip("Foo<Bar FROM Qux>")
     testRoundTrip("Foo<Bar FROM Qux>.")
@@ -98,7 +98,7 @@ private class InstructionTest {
     val instr = Transmute(
         ComplexFrom("Foo", listOf(
             ComplexFrom("Bar", listOf(
-                SimpleFrom(te("Qux"), te("Abc", te("Eep")))
+                SimpleFrom(gte("Qux"), gte("Abc", gte("Eep")))
             )
             )
         ),

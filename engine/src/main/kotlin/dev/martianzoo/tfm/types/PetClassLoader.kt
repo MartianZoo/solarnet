@@ -10,7 +10,7 @@ import dev.martianzoo.tfm.pets.ast.Requirement.Exact
 import dev.martianzoo.tfm.pets.ast.Requirement.Min
 import dev.martianzoo.tfm.pets.ast.TypeExpression
 import dev.martianzoo.tfm.pets.ast.TypeExpression.ClassExpression
-import dev.martianzoo.tfm.pets.ast.TypeExpression.Companion.te
+import dev.martianzoo.tfm.pets.ast.TypeExpression.Companion.gte
 import dev.martianzoo.tfm.pets.ast.TypeExpression.GenericTypeExpression
 import dev.martianzoo.tfm.types.PetType.PetGenericType
 
@@ -83,8 +83,8 @@ internal class PetClassLoader(private val authority: Authority) : PetClassTable 
         c.superclassNames.any { isSingleton(authority.declaration(it)) }
   }
   private fun isSingleton(r: Requirement): Boolean {
-    return r is Min && r.qe == QuantifiedExpression(te("This"), 1) ||
-        r is Exact && r.qe == QuantifiedExpression(te("This"), 1) ||
+    return r is Min && r.qe == QuantifiedExpression(gte("This"), 1) ||
+        r is Exact && r.qe == QuantifiedExpression(gte("This"), 1) ||
         r is And && r.requirements.any { isSingleton(it) }
   }
 

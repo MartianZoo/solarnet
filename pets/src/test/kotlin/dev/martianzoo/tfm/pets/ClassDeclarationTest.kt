@@ -3,7 +3,7 @@ package dev.martianzoo.tfm.pets
 import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.tfm.pets.ClassDeclarationParser.parseClassDeclarations
 import dev.martianzoo.tfm.pets.ast.TypeExpression
-import dev.martianzoo.tfm.pets.ast.TypeExpression.Companion.te
+import dev.martianzoo.tfm.pets.ast.TypeExpression.Companion.gte
 import org.junit.jupiter.api.Test
 
 private class ClassDeclarationTest {
@@ -58,14 +58,14 @@ private class ClassDeclarationTest {
 
     assertThat(cs.map { it.supertypes }).containsExactly(
         setOf<TypeExpression>(),
-        setOf(te("Component")),
-        setOf(te("One")),
-        setOf(te("Component")),
-        setOf(te("Three")),
-        setOf(te("One"), te("Three")),
-        setOf(te("Three")),
-        setOf(te("Six")),
-        setOf(te("One"), te("Six")),
+        setOf(gte("Component")),
+        setOf(gte("One")),
+        setOf(gte("Component")),
+        setOf(gte("Three")),
+        setOf(gte("One"), gte("Three")),
+        setOf(gte("Three")),
+        setOf(gte("Six")),
+        setOf(gte("One"), gte("Six")),
     )
   }
 

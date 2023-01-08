@@ -2,7 +2,7 @@ package dev.martianzoo.tfm.pets.ast
 
 import dev.martianzoo.tfm.pets.CLASS_NAME_PATTERN
 import dev.martianzoo.tfm.pets.PetsException
-import dev.martianzoo.tfm.pets.ast.TypeExpression.Companion.te
+import dev.martianzoo.tfm.pets.ast.TypeExpression.Companion.gte
 import dev.martianzoo.util.joinOrEmpty
 
 sealed class FromExpression : PetsNode() {
@@ -35,8 +35,8 @@ sealed class FromExpression : PetsNode() {
         throw PetsException("Can only have one FROM in an expression")
       }
     }
-    override val toType = te(className, specializations.map { it.toType })
-    override val fromType = te(className, specializations.map { it.fromType })
+    override val toType = gte(className, specializations.map { it.toType })
+    override val fromType = gte(className, specializations.map { it.fromType })
 
     override fun toString() =
         className +

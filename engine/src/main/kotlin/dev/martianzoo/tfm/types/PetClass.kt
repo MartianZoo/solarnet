@@ -7,7 +7,7 @@ import dev.martianzoo.tfm.pets.ast.Effect
 import dev.martianzoo.tfm.pets.ast.PetsNode
 import dev.martianzoo.tfm.pets.ast.TypeExpression
 import dev.martianzoo.tfm.pets.ast.TypeExpression.ClassExpression
-import dev.martianzoo.tfm.pets.ast.TypeExpression.Companion.te
+import dev.martianzoo.tfm.pets.ast.TypeExpression.Companion.gte
 import dev.martianzoo.tfm.pets.ast.TypeExpression.GenericTypeExpression
 import dev.martianzoo.tfm.pets.deprodify
 import dev.martianzoo.tfm.pets.replaceThis
@@ -31,7 +31,7 @@ internal class PetClass(
 
   val directSupertypes: Set<PetGenericType> by lazy {
     declaration.supertypes.map {
-      loader.resolve(replaceThis(it, te(name)))
+      loader.resolve(replaceThis(it, gte(name)))
     }.toSet()
   }
 
@@ -170,7 +170,7 @@ internal class PetClass(
           it
         }
         .map { deprodify(it, loader.resourceNames()) }
-        .map { replaceThis(it, te(name)) }
+        .map { replaceThis(it, gte(name)) }
         .map { applyDefaultsIn(it, loader) }
         .toList()
         .also { validateAllTypes(it) }

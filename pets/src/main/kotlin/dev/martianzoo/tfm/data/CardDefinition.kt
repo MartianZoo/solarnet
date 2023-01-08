@@ -13,7 +13,7 @@ import dev.martianzoo.tfm.pets.ast.Instruction.Multi
 import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.pets.ast.TypeExpression
 import dev.martianzoo.tfm.pets.ast.TypeExpression.ClassExpression
-import dev.martianzoo.tfm.pets.ast.TypeExpression.Companion.te
+import dev.martianzoo.tfm.pets.ast.TypeExpression.Companion.gte
 import dev.martianzoo.tfm.pets.ast.TypeExpression.GenericTypeExpression
 import dev.martianzoo.tfm.pets.immediateToEffect
 import dev.martianzoo.util.toSetStrict
@@ -154,7 +154,7 @@ data class CardDefinition(
   override val className = englishHack(id)
 
   // TODO ClassName
-  val tags: List<TypeExpression> by lazy { tagsText.map(::te) }
+  val tags: List<TypeExpression> by lazy { tagsText.map(::gte) }
 
   val resourceType = resourceTypeText?.let(::ClassExpression)
 
@@ -187,10 +187,10 @@ data class CardDefinition(
   override val asClassDeclaration by lazy {
     val supertypes = mutableSetOf<GenericTypeExpression>()
 
-    if (projectKind != null)   supertypes.add(te(projectKind.type))
-    if (!actionsRaw.isEmpty()) supertypes.add(te("ActionCard"))
-    if (resourceType != null)  supertypes.add(te("ResourcefulCard", resourceType))
-    if (supertypes.isEmpty())  supertypes.add(te("CardFront"))
+    if (projectKind != null)   supertypes.add(gte(projectKind.type))
+    if (!actionsRaw.isEmpty()) supertypes.add(gte("ActionCard"))
+    if (resourceType != null)  supertypes.add(gte("ResourcefulCard", resourceType))
+    if (supertypes.isEmpty())  supertypes.add(gte("CardFront"))
 
     ClassDeclaration(
         className = className,

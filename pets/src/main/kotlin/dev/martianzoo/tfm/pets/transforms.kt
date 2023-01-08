@@ -16,13 +16,13 @@ import dev.martianzoo.tfm.pets.ast.PetsNode
 import dev.martianzoo.tfm.pets.ast.PetsNode.ProductionBox
 import dev.martianzoo.tfm.pets.ast.TypeExpression
 import dev.martianzoo.tfm.pets.ast.TypeExpression.ClassExpression
-import dev.martianzoo.tfm.pets.ast.TypeExpression.Companion.te
+import dev.martianzoo.tfm.pets.ast.TypeExpression.Companion.gte
 import dev.martianzoo.tfm.pets.ast.TypeExpression.GenericTypeExpression
 
 internal fun actionToEffect(action: Action, index1Ref: Int): Effect {
   require(index1Ref >= 1) { index1Ref }
   val instruction = instructionFromAction(action.cost?.toInstruction(), action.instruction)
-  val trigger = OnGain(te("$USE_ACTION$index1Ref", THIS.type))
+  val trigger = OnGain(gte("$USE_ACTION$index1Ref", THIS.type))
   return Effect(trigger, instruction, automatic = false).also {
     println("Converted from Action: $it")
   }
