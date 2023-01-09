@@ -1,7 +1,5 @@
 package dev.martianzoo.util
 
-
-
 /**
  * A fixed-size two-dimensional array of nullable elements, where the elements
  * "know" their own row and column number (as opposed to their being placed there).
@@ -38,7 +36,7 @@ interface Grid<E> : Set<E> {
     fun <E> mutableGrid(
         cells: Iterable<E>,
         rowFn: (E) -> Int,
-        columnFn: (E) -> Int
+        columnFn: (E) -> Int,
     ): MutableGrid<E> {
       val maxRowIndex = cells.maxOfOrNull(rowFn) ?: 0
       val maxColIndex = cells.maxOfOrNull(columnFn) ?: 0

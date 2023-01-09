@@ -83,17 +83,16 @@ object PetsParser {
   private val doubleColon = literal("::")
 
   // I simply don't want to name all of these and would rather look them up by the char itself
-  private val characters = "!+,-./:;=?()[]{}<>\n"
-      .map { it to literal("$it") }.toMap()
+  private val characters = "!+,-./:;=?()[]{}<>\n".map { it to literal("$it") }.toMap()
 
   internal fun literal(w: String) = literalToken(w).also { tokenList += it }
   internal fun regex(r: String) = regexToken(r).also { tokenList += it }
 
-  internal val _by   = literal("BY")
+  internal val _by = literal("BY")
   internal val _from = literal("FROM")
-  internal val _has  = literal("HAS")
-  internal val _max  = literal("MAX")
-  internal val _or   = literal("OR")
+  internal val _has = literal("HAS")
+  internal val _max = literal("MAX")
+  internal val _or = literal("OR")
   internal val _prod = literal("PROD")
   internal val _then = literal("THEN")
 
@@ -128,25 +127,20 @@ object PetsParser {
 
     internal val className = classNameRE map { it.text }
 
-    private val classType =
-        className and
-        skipChar('.') and
-        skip(_class) map ::ClassExpression
+    private val classType = className and skipChar('.') and skip(_class) map ::ClassExpression
 
-    private val specializations = optionalList(
-        skipChar('<') and commaSeparated(typeExpression) and skipChar('>')
-    )
+    private val specializations =
+        optionalList(skipChar('<') and commaSeparated(typeExpression) and skipChar('>'))
     internal val refinement = optional(parens(skip(_has) and parser { requirement }))
 
     internal val genericType: Parser<GenericTypeExpression> =
-        className and
-        specializations and
-        refinement map {
-      (type, specs, ref) -> GenericTypeExpression(type, specs, ref)
-    }
+        className and specializations and refinement map { (type, specs, ref) ->
+          GenericTypeExpression(type, specs, ref)
+        }
 
     internal val whole = classType or genericType
   }
+
   val typeExpression = publish(Types.whole)
 
   object QEs { // --------------------------------------------------------------
@@ -171,6 +165,7 @@ object PetsParser {
     }
     internal val whole = qeWithScalar or qeWithType
   }
+
   val qe = publish(QEs.whole)
 
   object Requirements { // -----------------------------------------------------
@@ -192,6 +187,7 @@ object PetsParser {
       if (it.size == 1) it.first() else Requirement.And(it)
     }
   }
+
   val requirement = publish(Requirements.whole)
 
   object Instructions { // -----------------------------------------------------
@@ -235,9 +231,11 @@ object PetsParser {
     }
 
     private val transmute =
-        optional(QEs.scalar) and from and intensity map { (scal, fro, intens) ->
-          Transmute(fro, scal, intens)
-        }
+        optional(QEs.scalar) and
+        from and
+        intensity map {
+      (scal, fro, intens) -> Transmute(fro, scal, intens)
+    }
 
     private val perable = transmute or parens(transmute) or gain or remove
 
@@ -268,6 +266,7 @@ object PetsParser {
       if (it.size == 1) it.first() else Instruction.Multi(it)
     }
   }
+
   val instruction = publish(Instructions.whole)
 
   object Actions { // ----------------------------------------------------------
@@ -277,9 +276,7 @@ object PetsParser {
     private val spend = qe map ::Spend
     private val maybeProd = spend or (prod(cost) map Cost::Prod)
 
-    private val perCost = maybeProd and optional(
-        skipChar('/') and qe
-    ) map { (cost, qe) ->
+    private val perCost = maybeProd and optional(skipChar('/') and qe) map { (cost, qe) ->
       if (qe == null) cost else Cost.Per(cost, qe)
     }
 
@@ -293,10 +290,13 @@ object PetsParser {
     }
 
     internal val whole =
-        optional(wholeCost) and skip(arrow) and instruction map { (c, i) ->
-          Action(c, i)
-        }
+        optional(wholeCost) and
+        skip(arrow) and
+        instruction map {
+      (c, i) -> Action(c, i)
+    }
   }
+
   val cost = publish(Actions.wholeCost)
   val action = publish(Actions.whole)
 
@@ -313,8 +313,7 @@ object PetsParser {
         wholeTrigger and
         colons and
         maybeGroup(instruction) map {
-      (trig, immed, instr) ->
-          Effect(trigger = trig, automatic = immed, instruction = instr)
+      (trig, immed, instr) -> Effect(trigger = trig, automatic = immed, instruction = instr)
     }
   }
 
@@ -326,7 +325,9 @@ object PetsParser {
         skip(_exec) and
         instruction and
         optional(skip(_by) and
-        Types.genericType) map { (instr, by) -> ScriptCommand(instr, by) }
+        Types.genericType) map {
+      (instr, by) -> ScriptCommand(instr, by)
+    }
 
     private val req: Parser<ScriptRequirement> =
         skip(_require) and requirement map ::ScriptRequirement
@@ -335,18 +336,18 @@ object PetsParser {
         skip(_count) and
         Types.genericType and
         skip(arrow) and
-        metricKeyRE map { (type, key) -> ScriptCounter(key.text, type) }
+        metricKeyRE map {
+      (type, key) -> ScriptCounter(key.text, type)
+    }
 
     private val player: Parser<ScriptPragmaPlayer> =
         skip(_become) and Types.genericType map ::ScriptPragmaPlayer
 
     internal val line: Parser<ScriptLine> =
-        skip(nls) and
-        (command or req or counter or player) and
-        skipChar('\n')
+        skip(nls) and (command or req or counter or player) and skipChar('\n')
   }
-  val scriptLine = Scripts.line
 
+  val scriptLine = Scripts.line
 
   // PRIVATE HELPERS -----------------------------------------------------------
 
@@ -356,17 +357,14 @@ object PetsParser {
   private inline fun <reified T> prod(parser: Parser<T>) =
       skip(_prod) and skipChar('[') and parser and skipChar(']')
 
-  internal inline fun <reified P> commaSeparated(p: Parser<P>) =
-      separatedTerms(p, char(','))
+  internal inline fun <reified P> commaSeparated(p: Parser<P>) = separatedTerms(p, char(','))
 
   private inline fun <reified T> parens(contents: Parser<T>) =
       skipChar('(') and contents and skipChar(')')
 
-  private inline fun <reified T> maybeGroup(contents: Parser<T>) =
-      contents or parens(contents)
+  private inline fun <reified T> maybeGroup(contents: Parser<T>) = contents or parens(contents)
 
-  private inline fun <reified P : PetsNode> publish(
-      parser: Parser<P>) = publish(P::class, parser)
+  private inline fun <reified P : PetsNode> publish(parser: Parser<P>) = publish(P::class, parser)
 
   private fun <P : PetsNode> publish(type: KClass<P>, parser: Parser<P>) =
       parser.also { primaryParsers[type] = it }
@@ -378,14 +376,11 @@ object PetsParser {
     val pet = try {
       parse(parser, source)
     } catch (e: ParseException) {
-      throw IllegalArgumentException(
-          """
+      throw IllegalArgumentException("""
           Expecting ${expectedType.simpleName} ...
           Input was:
           $source
-      """.trimIndent(),
-          e
-      )
+      """.trimIndent(), e)
     }
     return expectedType.cast(pet)
   }

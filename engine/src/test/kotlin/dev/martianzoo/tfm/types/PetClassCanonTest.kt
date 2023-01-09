@@ -3,8 +3,8 @@ package dev.martianzoo.tfm.types
 import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.pets.SpecialComponent.Component
+import java.util.TreeSet
 import org.junit.jupiter.api.Test
-import java.util.*
 
 private class PetClassCanonTest {
 
@@ -24,10 +24,12 @@ private class PetClassCanonTest {
     table.load("OceanTile").apply {
       assertThat(directDependencyKeys).isEmpty()
       assertThat(allDependencyKeys).containsExactly(Dependency.Key(table["Tile"], 0))
-      assertThat(directSuperclasses.map { it.name }).containsExactly(
-          "GlobalParameter", "Tile").inOrder()
-      assertThat(allSuperclasses.map { it.name }).containsExactly(
-          "Component", "GlobalParameter", "Tile", "OceanTile").inOrder()
+      assertThat(directSuperclasses.map { it.name }).containsExactly("GlobalParameter", "Tile")
+          .inOrder()
+      assertThat(allSuperclasses.map { it.name }).containsExactly("Component",
+          "GlobalParameter",
+          "Tile",
+          "OceanTile").inOrder()
       assertThat(table.classesLoaded()).isEqualTo(4)
 
       assertThat(baseType).isEqualTo(table.resolve("OceanTile<MarsArea>"))
@@ -45,7 +47,8 @@ private class PetClassCanonTest {
     all.forEach { it.directEffects.forEach(::testRoundTrip) }
   }
 
-  @Test fun loadsOnlyWhatItNeeds() {
+  @Test
+  fun loadsOnlyWhatItNeeds() {
     val loader = PetClassLoader(Canon)
     loader.loadAllSingletons()
 
@@ -80,20 +83,23 @@ private class PetClassCanonTest {
 
     val all = PetClassLoader(Canon).loadAll().loadedClassNames()
 
-    val venusThings = Canon.cardDefinitions.filter { it.bundle == "V" }.map { it.className } +
+    val venusThings =
+        Canon.cardDefinitions
+            .filter { it.bundle == "V" }
+            .map { it.className } +
         setOf("VenusTag", "MilestoneVM1", "Dirigible", "Area220", "Area236", "Area238", "Area248")
 
     assertThat(all.containsAll(venusThings)).isTrue()
 
     val expected = all.filterNot {
-      it.matches(Regex("^(Tharsis|Elysium|Demo).*")) ||
-          it in venusThings
+      it.matches(Regex("^(Tharsis|Elysium|Demo).*")) || it in venusThings
     }
 
     assertThat(loadedSoFar).containsExactlyElementsIn(expected)
   }
 
-  @Test fun subConcrete() {
+  @Test
+  fun subConcrete() {
     val table = PetClassLoader(Canon).loadAll()
     val all = table.loadedClassNames().map { table[it] }
     val subConcrete = all.flatMap { clazz ->
@@ -107,7 +113,8 @@ private class PetClassCanonTest {
         "Dirigible" to "Floater")
   }
 
-  @Test fun intersectionTypes() {
+  @Test
+  fun intersectionTypes() {
     val table = PetClassLoader(Canon).loadAll()
 
     // Nothing can be both Owned and a Tile without being an OwnedTile!

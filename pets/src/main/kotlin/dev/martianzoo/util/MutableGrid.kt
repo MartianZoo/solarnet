@@ -1,8 +1,7 @@
 package dev.martianzoo.util
 
 // this is honestly bogus - it can't grow
-public class MutableGrid<E>(private val rows: List<MutableList<E?>>) :
-    Grid<E>, AbstractSet<E>() {
+public class MutableGrid<E>(private val rows: List<MutableList<E?>>) : Grid<E>, AbstractSet<E>() {
 
   override val rowCount = rows.size
   override val columnCount = rows[0].size
@@ -19,8 +18,7 @@ public class MutableGrid<E>(private val rows: List<MutableList<E?>>) :
 
   override fun columns() = List(columnCount) { column(it) }
 
-  override fun diagonals() =
-      List(rowCount + columnCount - 1) { diagonal(it - rowCount + 1) }
+  override fun diagonals() = List(rowCount + columnCount - 1) { diagonal(it - rowCount + 1) }
 
   override fun row(rowIndex: Int) = rows[rowIndex]
 
@@ -63,16 +61,16 @@ public class MutableGrid<E>(private val rows: List<MutableList<E?>>) :
 
     init {
       if (columnMinusRow <= 0 - grid.rowCount ||
-          columnMinusRow >= grid.columnCount - 0)
+          columnMinusRow >= grid.columnCount - 0) {
         throw IndexOutOfBoundsException(columnMinusRow)
+      }
     }
 
     override val size = grid.rowCount
 
     override fun get(index: Int) = grid.row(index).getOrNull(columnMinusRow + index)
 
-    override fun set(index: Int, element: E?) =
-        grid.row(index).set(columnMinusRow + index, element)
+    override fun set(index: Int, element: E?) = grid.row(index).set(columnMinusRow + index, element)
 
     override fun add(index: Int, element: E?) = error("fixed-size")
     override fun removeAt(index: Int) = error("fixed-size")

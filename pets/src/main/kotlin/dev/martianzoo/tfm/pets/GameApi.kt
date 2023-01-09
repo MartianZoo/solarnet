@@ -18,5 +18,6 @@ public interface GameApi {
       count: Int = 1,
       gaining: GenericTypeExpression? = null,
       removing: GenericTypeExpression? = null,
-      cause: Cause? = null)
+      cause: Cause? = null,
+  )
 }

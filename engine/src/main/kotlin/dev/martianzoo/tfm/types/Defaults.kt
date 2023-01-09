@@ -2,21 +2,20 @@ package dev.martianzoo.tfm.types
 
 import dev.martianzoo.tfm.data.ClassDeclaration.DefaultsDeclaration
 import dev.martianzoo.tfm.pets.ast.Instruction.Intensity
-import dev.martianzoo.tfm.pets.ast.Requirement
-import dev.martianzoo.tfm.pets.ast.TypeExpression
-import dev.martianzoo.tfm.pets.ast.TypeExpression.GenericTypeExpression
 
 internal class Defaults(
     val allCasesDependencies: DependencyMap = DependencyMap(),
     val gainOnlyDependencies: DependencyMap = DependencyMap(),
-    val gainIntensity: Intensity? = null
+    val gainIntensity: Intensity? = null,
 ) {
 
   companion object {
-    internal fun from(d: DefaultsDeclaration, petClass: PetClass) = Defaults(
-        petClass.toDependencyMap(d.universalSpecs),
-        petClass.toDependencyMap(d.gainOnlySpecs),
-        d.gainIntensity)
+    internal fun from(d: DefaultsDeclaration, petClass: PetClass) =
+        Defaults(
+            petClass.toDependencyMap(d.universalSpecs),
+            petClass.toDependencyMap(d.gainOnlySpecs),
+            d.gainIntensity,
+        )
   }
 
   // Return a DefaultsDeclaration that uses the information from *this* one if present,
@@ -30,7 +29,7 @@ internal class Defaults(
 
   private fun overlayIntensities(
       defaultses: List<Defaults>,
-      extract: (Defaults) -> Intensity?
+      extract: (Defaults) -> Intensity?,
   ): Intensity? {
     val override = extract(this)
     if (override != null) return override
@@ -45,7 +44,7 @@ internal class Defaults(
 
   private fun overlayDMs(
       defaultses: List<Defaults>,
-      extract: (Defaults) -> DependencyMap
+      extract: (Defaults) -> DependencyMap,
   ): DependencyMap {
     val map = extract(this).keyToDependency.toMutableMap()
     for (key in defaultses.flatMap { extract(it).keys }.toSet()) {

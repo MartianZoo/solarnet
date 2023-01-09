@@ -48,14 +48,12 @@ data class MapAreaDefinition(
   val type by lazy { parse<TypeExpression>(typeText) as GenericTypeExpression }
 
   override val asClassDeclaration by lazy {
-    ClassDeclaration(
-        className,
+    ClassDeclaration(className,
         abstract = false,
         supertypes = setOf(type),
-        effectsRaw =
-            bonus?.let {
-              setOf(Effect(trigger, it, automatic = false))
-            } ?: setOf()
+        effectsRaw = bonus?.let {
+          setOf(Effect(trigger, it, automatic = false))
+        } ?: setOf(),
     )
   }
 

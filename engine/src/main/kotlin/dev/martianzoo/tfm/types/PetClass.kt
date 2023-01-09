@@ -20,7 +20,7 @@ import dev.martianzoo.util.toSetStrict
 internal class PetClass(
     private val declaration: ClassDeclaration,
     val directSuperclasses: List<PetClass>,
-    private val loader: PetClassLoader
+    private val loader: PetClassLoader,
 ) : PetType {
   val name by declaration::className
   override val abstract by declaration::abstract
@@ -41,8 +41,7 @@ internal class PetClass(
 
   fun isSuperclassOf(that: PetClass) = that.isSubclassOf(this)
 
-  override fun isSubtypeOf(that: PetType) =
-      that is PetClass && isSubclassOf(that.petClass)
+  override fun isSubtypeOf(that: PetType) = that is PetClass && isSubclassOf(that.petClass)
 
   val directSubclasses: Set<PetClass> by lazy {
     allClasses().filter { this in it.directSuperclasses }.toSet()
@@ -71,6 +70,7 @@ internal class PetClass(
       sharesAllMySuperclasses.all(::isSuperclassOf)
     }
   }
+
   /** Returns the one of `this` or `that` that is a subclass of the other. */
   fun intersect(that: PetClass) = when {
     this.isSubclassOf(that) -> this
@@ -78,9 +78,7 @@ internal class PetClass(
     else -> error("no intersection: $this, $that")
   }
 
-  fun canIntersect(that: PetClass) =
-      this.isSubclassOf(that) ||
-      that.isSubclassOf(this)
+  fun canIntersect(that: PetClass) = this.isSubclassOf(that) || that.isSubclassOf(this)
 
   fun lub(that: PetClass) = when {
     this.isSubclassOf(that) -> that
@@ -96,7 +94,6 @@ internal class PetClass(
     return intersect(that as PetClass)
   }
 
-
 // DEPENDENCIES
 
   val directDependencyKeys: Set<Dependency.Key> by lazy {
@@ -107,14 +104,14 @@ internal class PetClass(
     allSuperclasses.flatMap { it.directDependencyKeys }.toSet()
   }
 
-  fun resolveSpecializations(specs: List<PetType>) =
-      baseType.dependencies.findMatchups(specs)
+  fun resolveSpecializations(specs: List<PetType>) = baseType.dependencies.findMatchups(specs)
 
   @JvmName("whoCares")
   fun resolveSpecializations(specs: List<TypeExpression>) =
       resolveSpecializations(specs.map { loader.resolve(it) })
 
   private var reentryCheck = false
+
   /** Common supertype of all types with petClass==this */
   val baseType: PetGenericType by lazy {
     require(!reentryCheck)
@@ -136,11 +133,9 @@ internal class PetClass(
   fun formGenericType(specs: List<PetType>, ref: Requirement?) =
       PetGenericType(this, baseType.dependencies.specialize(specs), ref)
 
-  internal fun toDependencyMap(specs: List<TypeExpression>?) =
-      specs?.let {
-        loader.resolve(GenericTypeExpression(name, it)).dependencies
-      } ?: DependencyMap()
-
+  internal fun toDependencyMap(specs: List<TypeExpression>?) = specs?.let {
+    loader.resolve(GenericTypeExpression(name, it)).dependencies
+  } ?: DependencyMap()
 
 // DEFAULTS
 
@@ -162,7 +157,6 @@ internal class PetClass(
     }
   }
 
-
 // EFFECTS
 
   val directEffectsRaw by declaration::effectsRaw
@@ -180,7 +174,6 @@ internal class PetClass(
         .also { validateAllTypes(it) }
   }
 
-
 // VALIDATION
 
   private fun validateAllTypes(effects: List<Effect>) {
@@ -194,20 +187,16 @@ internal class PetClass(
     }
   }
 
-
 // OTHER
 
-  override fun equals(other: Any?): Boolean {
-    return other is PetClass &&
-        this.name == other.name &&
-        this.loader === other.loader
-  }
-
-  override fun hashCode(): Int {
-    return name.hashCode() xor loader.hashCode()
-  }
-
   override fun toTypeExpressionFull() = ClassExpression(name)
+
+  override fun equals(other: Any?) =
+      other is PetClass &&
+      this.name == other.name &&
+      this.loader === other.loader
+
+  override fun hashCode() = name.hashCode() xor loader.hashCode()
 
   override fun toString() = name
 }

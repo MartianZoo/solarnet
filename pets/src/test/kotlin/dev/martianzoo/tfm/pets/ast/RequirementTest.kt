@@ -78,19 +78,17 @@ private class RequirementTest {
     (MAX 1 Megacredit OR Qux) OR =1 Megacredit, =11 Abc OR 0 Qux
   """.trimIndent()
 
-  @Test fun testSampleStrings() {
+  @Test
+  fun testSampleStrings() {
     val pass = testSampleStrings<Requirement>(inputs)
     assertThat(pass).isTrue()
   }
 
   @Test
   fun simpleSourceToApi() {
-    assertThat(parse<Requirement>("Foo"))
-        .isEqualTo(Min(QuantifiedExpression(gte("Foo"))))
-    assertThat(parse<Requirement>("3 Foo"))
-        .isEqualTo(Min(QuantifiedExpression(gte("Foo"), 3)))
-    assertThat(parse<Requirement>("MAX 3 Foo"))
-        .isEqualTo(Max(QuantifiedExpression(gte("Foo"), 3)))
+    assertThat(parse<Requirement>("Foo")).isEqualTo(Min(QuantifiedExpression(gte("Foo"))))
+    assertThat(parse<Requirement>("3 Foo")).isEqualTo(Min(QuantifiedExpression(gte("Foo"), 3)))
+    assertThat(parse<Requirement>("MAX 3 Foo")).isEqualTo(Max(QuantifiedExpression(gte("Foo"), 3)))
   }
 
   @Test
@@ -127,33 +125,24 @@ private class RequirementTest {
     testRoundTrip("(PlantTag, MicrobeTag) OR AnimalTag")
   }
 
-  @Test fun testProd() {
+  @Test
+  fun testProd() {
     testRoundTrip("PROD[2]")
     testRoundTrip("Steel, PROD[1]")
     testRoundTrip("PROD[Steel, 1]")
     testRoundTrip("PROD[Steel OR 1]")
   }
 
-  @Test fun hairy() {
-    val parsed : Requirement = parse(
-        "Adjacency<CityTile<Anyone>, OceanTile> OR 1 Adjacency<OceanTile, CityTile<Anyone>>"
-    )
-    assertThat(parsed).isEqualTo(
-        Requirement.Or(setOf(
-            Min(QuantifiedExpression(
-                gte("Adjacency",
-                    gte("CityTile", gte("Anyone")),
-                    gte("OceanTile")
-                )
-            )),
-            Min(QuantifiedExpression(
-                gte("Adjacency",
-                    gte("OceanTile"),
-                    gte("CityTile", gte("Anyone"))
-                )
-            ))
-        ))
-    )
+  @Test
+  fun hairy() {
+    val parsed: Requirement =
+        parse("Adjacency<CityTile<Anyone>, OceanTile> OR 1 Adjacency<OceanTile, CityTile<Anyone>>")
+    assertThat(parsed).isEqualTo(Requirement.Or(setOf(Min(QuantifiedExpression(gte("Adjacency",
+        gte("CityTile", gte("Anyone")),
+        gte("OceanTile")))),
+        Min(QuantifiedExpression(gte("Adjacency",
+            gte("OceanTile"),
+            gte("CityTile", gte("Anyone"))))))))
   }
 
   // All type expressions with even-length string representations
@@ -178,9 +167,10 @@ private class RequirementTest {
     }
   }
 
-  fun evalRequirement(s : String) = assertThat(parse<Requirement>(s).evaluate(FakeGame))!!
+  fun evalRequirement(s: String) = assertThat(parse<Requirement>(s).evaluate(FakeGame))!!
 
-  @Test fun evaluation() {
+  @Test
+  fun evaluation() {
     evalRequirement("Foo").isFalse()
     evalRequirement("11 Foo").isFalse()
     evalRequirement("10 Megacredit").isTrue()

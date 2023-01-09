@@ -26,14 +26,10 @@ private class Defaulter(val loader: PetClassLoader) : AstTransformer() {
         } else {
           val petClass = loader.load(writtenType.className)
           val defaults = petClass.defaults
-          val newTypeExpr = applyDefaultSpecs(
-              writtenType,
-              petClass,
-              defaults.gainOnlyDependencies
-          )
+          val newTypeExpr = applyDefaultSpecs(writtenType, petClass, defaults.gainOnlyDependencies)
           node.copy(
               node.qe.copy(expression = transform(newTypeExpr)),
-              node.intensity ?: defaults.gainIntensity
+              node.intensity ?: defaults.gainIntensity,
           )
         }
       }

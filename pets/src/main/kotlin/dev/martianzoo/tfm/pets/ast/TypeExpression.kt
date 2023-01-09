@@ -8,7 +8,7 @@ import dev.martianzoo.util.joinOrEmpty
  * (`Foo<Bar, Qux>`) or a *refined* type (`Foo<Bar(HAS 3 Qux)>(HAS Wau)`). A
  * refined type is the combination of a real type with various predicates.
  */
-sealed class TypeExpression: PetsNode() {
+sealed class TypeExpression : PetsNode() {
   abstract val className: String
 
   data class GenericTypeExpression(
@@ -28,6 +28,7 @@ sealed class TypeExpression: PetsNode() {
     init {
       require(className.matches(classNameRegex())) { className }
     }
+
     override fun toString() = "$className.CLASS"
   }
 

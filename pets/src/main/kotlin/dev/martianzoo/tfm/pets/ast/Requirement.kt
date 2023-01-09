@@ -29,16 +29,14 @@ sealed class Requirement : PetsNode() {
     override fun toString() = requirements.joinToString(" OR ") { groupPartIfNeeded(it) }
     override fun precedence() = 3
 
-    override fun evaluate(game: GameApi) =
-        requirements.any { it.evaluate(game) }
+    override fun evaluate(game: GameApi) = requirements.any { it.evaluate(game) }
   }
 
   data class And(val requirements: List<Requirement>) : Requirement() {
     override fun toString() = requirements.joinToString { groupPartIfNeeded(it) }
     override fun precedence() = 1
 
-    override fun evaluate(game: GameApi) =
-        requirements.all { it.evaluate(game) }
+    override fun evaluate(game: GameApi) = requirements.all { it.evaluate(game) }
   }
 
   data class Prod(val requirement: Requirement) : Requirement(), ProductionBox<Requirement> {

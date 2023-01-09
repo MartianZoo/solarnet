@@ -35,12 +35,11 @@ private class ClassDeclarationTest {
 
         CLASS Generation
 
-        """.trim()
-        )
-    )
+        """.trim()))
   }
 
-  @Test fun nesting() {
+  @Test
+  fun nesting() {
     val cs = parseClassDeclarations("""
       CLASS Component
 
@@ -69,13 +68,15 @@ private class ClassDeclarationTest {
     )
   }
 
-  @Test fun oneLiner() {
+  @Test
+  fun oneLiner() {
     parseClassDeclarations("""
       CLASS One { This: That }
     """)
   }
 
-  @Test fun nestedOneLiner() {
+  @Test
+  fun nestedOneLiner() {
     parseClassDeclarations("""
       CLASS One {
         CLASS Two { This: That }
@@ -84,7 +85,8 @@ private class ClassDeclarationTest {
     """)
   }
 
-  @Test fun withDefaults() {
+  @Test
+  fun withDefaults() {
     parseClassDeclarations("""
         ABSTRACT CLASS Component {
            DEFAULT +This!

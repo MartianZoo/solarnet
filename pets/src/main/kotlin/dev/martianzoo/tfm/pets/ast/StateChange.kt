@@ -22,7 +22,7 @@ data class StateChange(
     val removing: GenericTypeExpression? = null,
 
     /** Information about what caused this state change, if we have it. */
-    val cause: Cause? = null
+    val cause: Cause? = null,
 ) : PetsNode() {
 
   init {
@@ -54,7 +54,8 @@ data class StateChange(
       val agent: TypeExpression,
 
       /** The ordinal of the previous change which triggered that instruction. */
-      val change: Int) {
+      val change: Int,
+  ) {
     init {
       require(change > 0)
     }

@@ -22,6 +22,7 @@ sealed class Instruction : PetsNode() {
     }
 
     override fun times(value: Int) = copy(qe = qe.copy(scalar = qe.scalar * value))
+
     // TODO intensity
     override fun execute(game: GameApi) =
         game.applyChange(qe.scalar, gaining = qe.expression as GenericTypeExpression)
@@ -31,7 +32,7 @@ sealed class Instruction : PetsNode() {
 
   data class Remove(
       val qe: QuantifiedExpression,
-      val intensity: Intensity? = null
+      val intensity: Intensity? = null,
   ) : Instruction() {
     init {
       if (qe.scalar == 0) {
@@ -46,15 +47,14 @@ sealed class Instruction : PetsNode() {
     override fun toString() = "-$qe${intensity?.symbol ?: ""}"
   }
 
-  data class Per(val instruction: Instruction, val qe: QuantifiedExpression): Instruction() {
+  data class Per(val instruction: Instruction, val qe: QuantifiedExpression) : Instruction() {
     init {
       if (qe.scalar == 0) {
         throw PetsException("Can't do something 'per' zero")
       }
       when (instruction) {
         is Gain, is Remove, is Transmute -> {}
-        else -> throw PetsException(
-            "Per can only contain gain/remove/transmute")
+        else -> throw PetsException("Per can only contain gain/remove/transmute")
       }
     }
 
@@ -72,7 +72,7 @@ sealed class Instruction : PetsNode() {
     override fun toString() = "$instruction / ${qe.toString(forceType = true)}"
   }
 
-  data class Gated(val requirement: Requirement, val instruction: Instruction): Instruction() {
+  data class Gated(val requirement: Requirement, val instruction: Instruction) : Instruction() {
     init {
       if (instruction is Gated) {
         throw PetsException("You don't gate a gater") // TODO keep??
@@ -103,7 +103,8 @@ sealed class Instruction : PetsNode() {
   data class Transmute(
       val fromExpression: FromExpression,
       val scalar: Int? = null,
-      val intensity: Intensity? = null) : Instruction() {
+      val intensity: Intensity? = null,
+  ) : Instruction() {
     init {
       if ((scalar ?: 1) < 1) {
         throw PetsException("Can't do a non-positive number of transmutes")
@@ -115,11 +116,10 @@ sealed class Instruction : PetsNode() {
 
     override fun times(value: Int) = copy(scalar = scalar!! * value)
 
-    override fun execute(game: GameApi) =
-      game.applyChange(
-          scalar ?: 1,
-          gaining = fromExpression.toType as GenericTypeExpression,
-          removing = fromExpression.fromType as GenericTypeExpression)
+    override fun execute(game: GameApi) = game.applyChange(
+        scalar ?: 1,
+        gaining = fromExpression.toType as GenericTypeExpression,
+        removing = fromExpression.fromType as GenericTypeExpression)
 
     override fun toString(): String {
       val intens = intensity?.symbol ?: ""
@@ -143,9 +143,8 @@ sealed class Instruction : PetsNode() {
         this(functionName, arguments.toList())
 
     override fun execute(game: GameApi) {
-      game.authority.customInstructions[functionName]!!
-          .translate(game, arguments)
-          .execute(game)
+      val instr = game.authority.customInstructions[functionName]!!
+      instr.translate(game, arguments).execute(game)
     }
 
     override fun toString() = "$$functionName(${arguments.joinToString()})"
@@ -159,8 +158,7 @@ sealed class Instruction : PetsNode() {
       Multi(instructions).execute(game)
     }
 
-    override fun toString() =
-        instructions.joinToString(" THEN ") { groupPartIfNeeded(it) }
+    override fun toString() = instructions.joinToString(" THEN ") { groupPartIfNeeded(it) }
 
     override fun precedence() = 2
   }
@@ -175,6 +173,7 @@ sealed class Instruction : PetsNode() {
 
     override fun shouldGroupInside(container: PetsNode) =
         container is Then || super.shouldGroupInside(container)
+
     override fun precedence() = 4
   }
 
@@ -210,8 +209,7 @@ sealed class Instruction : PetsNode() {
     ;
 
     companion object {
-      fun intensity(symbol: String?) =
-          symbol?.let { s -> values().first { it.symbol == s } }
+      fun intensity(symbol: String?) = symbol?.let { s -> values().first { it.symbol == s } }
     }
   }
 }

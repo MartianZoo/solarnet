@@ -16,18 +16,19 @@ sealed class PetsNode {
         return super.transform(node)
       }
     }
+
     val nc = NodeCounter()
     nc.transform(this)
     return nc.count
   }
 
-  fun groupPartIfNeeded(part: PetsNode) =
-      if (part.shouldGroupInside(this)) "($part)" else "$part"
+  fun groupPartIfNeeded(part: PetsNode) = if (part.shouldGroupInside(this)) "($part)" else "$part"
 
-  open fun shouldGroupInside(container: PetsNode) =
-      precedence() <= container.precedence()
+  open fun shouldGroupInside(container: PetsNode) = precedence() <= container.precedence()
 
   open fun precedence(): Int = Int.MAX_VALUE
 
-  interface ProductionBox<P : PetsNode> { fun extract(): P }
+  interface ProductionBox<P : PetsNode> {
+    fun extract(): P
+  }
 }

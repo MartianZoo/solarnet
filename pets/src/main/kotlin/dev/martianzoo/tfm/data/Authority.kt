@@ -61,9 +61,5 @@ abstract class Authority {
       thing.associateByStrict { it.className }
 
   private fun gatherDeclarations(vararg defs: Collection<Definition>) =
-      defs.toList()
-          .flatten()
-          .map { it.asClassDeclaration }
-          .associateByStrict { it.className }
+      defs.toList().flatten().map { it.asClassDeclaration }.associateByStrict { it.className }
 }
-

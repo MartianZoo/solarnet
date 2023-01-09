@@ -16,4 +16,3 @@ internal inline fun <reified T : PetsNode> testRoundTrip(start: T, end: T = star
 
 internal fun <T : PetsNode> testRoundTrip(type: KClass<T>, start: T, end: T = start) =
     assertThat(parse(type, start.toString())).isEqualTo(end)
-

@@ -30,8 +30,7 @@ class ParserGroupBuilder<B : Any> : ParserGroup<B>() {
 
   inline fun <reified T : B> publish(parser: Parser<T>) = publish(T::class, parser)
 
-  fun <T : B> publish(type: KClass<T>, parser: Parser<T>) =
-      parser.also { parsers[type] = it }
+  fun <T : B> publish(type: KClass<T>, parser: Parser<T>) = parser.also { parsers[type] = it }
 
   fun freeze(): ParserGroup<B> {
     toker = DefaultTokenizer(tokens.toList())
@@ -39,13 +38,13 @@ class ParserGroupBuilder<B : Any> : ParserGroup<B>() {
     return this
   }
 
-  override fun <T: B> parse(type: KClass<T>, input: String) : T {
+  override fun <T : B> parse(type: KClass<T>, input: String): T {
     return parser(type).parseToEnd(toker!!.tokenize(input))
   }
 
-  override fun <T: B> isValid(type: KClass<T>, input: String) : Boolean {
+  override fun <T : B> isValid(type: KClass<T>, input: String): Boolean {
     return parser(type).tryParseToEnd(toker!!.tokenize(input), 0) is Parsed
   }
 
-  override fun <T : B> parser(type: KClass<T>): Parser<T> = parser { parsers[type]  as Parser<T> }
+  override fun <T : B> parser(type: KClass<T>): Parser<T> = parser { parsers[type] as Parser<T> }
 }

@@ -55,7 +55,8 @@ private class GameStateTest {
     ).inOrder()
   }
 
-  @Test fun script() {
+  @Test
+  fun script() {
     val table = PetClassLoader(Canon).loadAll()
     val cg = ComponentGraph()
     val game = Game(Canon, cg, table) // it's just more convenient

@@ -53,9 +53,8 @@ object ClassDeclarationParser {
   private object Components { // -------------------------------------------------------
     private val isAbstract = optional(_abstract) and skip(_class) map { it != null }
     private val dependency = typeExpression map ::DependencyDeclaration
-    private val dependencies = optionalList(
-        skipChar('<') and commaSeparated(dependency) and skipChar('>')
-    )
+    private val dependencies =
+        optionalList(skipChar('<') and commaSeparated(dependency) and skipChar('>'))
     private val supertypes = optionalList(skipChar(':') and commaSeparated(Types.genericType))
 
     private val signature =
@@ -110,13 +109,13 @@ object ClassDeclarationParser {
         signature and
         (blockBody or optionalList(moreSignatures)) map {
           (abs, sig, bodyOrSigs) ->
-              if (bodyOrSigs.firstOrNull() !is Signature) { // sigs
-                createIncomplete(abs, sig, bodyOrSigs)
-              } else { // body
-                @Suppress("UNCHECKED_CAST")
-                val signatures = listOf(sig) + (bodyOrSigs as List<Signature>)
-                signatures.flatMap { createIncomplete(abs, it) }
-              }
+            if (bodyOrSigs.firstOrNull() !is Signature) { // sigs
+              createIncomplete(abs, sig, bodyOrSigs)
+            } else { // body
+              @Suppress("UNCHECKED_CAST")
+              val signatures = listOf(sig) + (bodyOrSigs as List<Signature>)
+              signatures.flatMap { createIncomplete(abs, it) }
+            }
         }
 
     val nestedClassDeclarations =
@@ -126,7 +125,7 @@ object ClassDeclarationParser {
   private fun createIncomplete(
       abst: Boolean,
       sig: Signature,
-      contents: List<Any> = listOf()
+      contents: List<Any> = listOf(),
   ): List<DeclarationInProgress> {
     val invs = contents.filterIsInstance<Requirement>().toSetStrict()
     val defs = contents.filterIsInstance<DefaultsDeclaration>().toSetStrict()
@@ -148,7 +147,7 @@ object ClassDeclarationParser {
         topInvariant = sig.topInvariant,
         otherInvariants = invs,
         effectsRaw = effs + actionsToEffects(acts),
-        defaultsDeclaration = mergedDefaults
+        defaultsDeclaration = mergedDefaults,
     )
     return listOf(DeclarationInProgress(comp, false)) + subs.flatten()
         .map { (it as DeclarationInProgress).fillInSuperclass(sig.className) }
@@ -160,12 +159,12 @@ object ClassDeclarationParser {
       val className: String,
       val dependencies: List<DependencyDeclaration>,
       val topInvariant: Requirement?,
-      val supertypes: List<GenericTypeExpression>
+      val supertypes: List<GenericTypeExpression>,
   )
 
   class DeclarationInProgress(
       private val declaration: ClassDeclaration,
-      private val isComplete: Boolean
+      private val isComplete: Boolean,
   ) {
     fun declaration() = if (isComplete) declaration else fixSupertypes()
 

@@ -31,18 +31,18 @@ object Canon : Authority() {
   }
 
   override val customInstructions: Map<String, CustomInstruction> by lazy {
-      //when (name) {
-      //"createMarsAreas" -> {
-      //  object : CustomInstruction {
-      //    override val name = "createMarsAreas"
-      //    override fun translate(game: GameApi, types: List<TypeExpression>): Instruction {
-      //      return Instruction.Multi(
-      //          mapAreaDefinitions.keys.filter {
-      //            it.startsWith("Tharsis")
-      //          }.map { Gain(te(it)) })
-      //    }
-      //  }
-      //}
+    // when (name) {
+    //"createMarsAreas" -> {
+    //  object : CustomInstruction {
+    //    override val name = "createMarsAreas"
+    //    override fun translate(game: GameApi, types: List<TypeExpression>): Instruction {
+    //      return Instruction.Multi(
+    //          mapAreaDefinitions.keys.filter {
+    //            it.startsWith("Tharsis")
+    //          }.map { Gain(te(it)) })
+    //    }
+    //  }
+    //}
     mapOf()
   }
 

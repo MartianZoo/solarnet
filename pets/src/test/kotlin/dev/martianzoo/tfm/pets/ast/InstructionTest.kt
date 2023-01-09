@@ -78,39 +78,34 @@ private class InstructionTest {
     5 Abc FROM Qux / Eep<Bar<Abc<Xyz>, Bar, Foo<Foo, Abc<Xyz>>>>
   """.trimIndent()
 
-  @Test fun testSampleStrings() {
+  @Test
+  fun testSampleStrings() {
     val pass = testSampleStrings<Instruction>(inputs)
     assertThat(pass).isTrue()
   }
 
-  @Test fun from() {
+  @Test
+  fun from() {
     testRoundTrip("Foo FROM Bar")
     testRoundTrip("Foo FROM Bar?")
     testRoundTrip("3 Foo FROM Bar")
     testRoundTrip("1 Foo FROM Bar.")
 
-    assertThat(parse<Instruction>("1 Foo FROM Bar.")).isEqualTo(
-        Transmute(SimpleFrom(gte("Foo"), gte("Bar")), 1, AMAP)
-    )
+    assertThat(parse<Instruction>("1 Foo FROM Bar."))
+        .isEqualTo(Transmute(SimpleFrom(gte("Foo"), gte("Bar")), 1, AMAP))
     testRoundTrip("Foo<Bar FROM Qux>")
     testRoundTrip("Foo<Bar FROM Qux>.")
 
-    val instr = Transmute(
-        ComplexFrom("Foo", listOf(
-            ComplexFrom("Bar", listOf(
-                SimpleFrom(gte("Qux"), gte("Abc", gte("Eep")))
-            )
-            )
-        ),
-        ),
-        null,
-        null
-    )
+    val instr = Transmute(ComplexFrom(
+        "Foo",
+        listOf(ComplexFrom("Bar", listOf(SimpleFrom(gte("Qux"), gte("Abc", gte("Eep")))))),
+    ), null, null)
     assertThat(instr.toString()).isEqualTo("Foo<Bar<Qux FROM Abc<Eep>>>")
     assertThat(parse<Instruction>("Foo<Bar<Qux FROM Abc<Eep>>>")).isEqualTo(instr)
   }
 
-  @Test fun custom1() {
+  @Test
+  fun custom1() {
     parse(Instructions.custom, "\$foo()")
     parse(Instructions.atom, "\$foo()")
     parse(Instructions.gated, "\$foo()")
@@ -120,7 +115,8 @@ private class InstructionTest {
     parse<Instruction>("\$foo()")
   }
 
-  @Test fun custom2() {
+  @Test
+  fun custom2() {
     testRoundTrip<Instruction>("\$name()")
     testRoundTrip<Instruction>("\$name(Abc)")
     testRoundTrip<Instruction>("\$name(Abc, Def)")
@@ -142,6 +138,5 @@ private class InstructionTest {
     testRoundTrip<Instruction>("\$name(Abc(HAS MAX 11 Bar<Xyz, Bar>))")
   }
 
-  fun testRoundTrip(start: String, end: String = start) =
-      testRoundTrip<Instruction>(start, end)
+  fun testRoundTrip(start: String, end: String = start) = testRoundTrip<Instruction>(start, end)
 }

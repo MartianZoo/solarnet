@@ -40,7 +40,8 @@ data class MilestoneDefinition(
         effectsRaw = setOf(Effect(
             OnGain(This.type),
             Gated(requirement, Gain(QuantifiedExpression(Ok.type))),
-            automatic = true))
+            automatic = true,
+        ))
     )
   }
 }

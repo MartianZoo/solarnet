@@ -72,12 +72,14 @@ private class ActionTest {
     PROD[0, 1 OR Foo / Megacredit] -> (0 Foo OR 0 Bar): Abc<Foo>
   """.trimIndent()
 
-  @Test fun testSampleStrings() {
+  @Test
+  fun testSampleStrings() {
     val pass = testSampleStrings<Action>(inputs)
     Truth.assertThat(pass).isTrue()
   }
 
-  @Test fun simple() {
+  @Test
+  fun simple() {
     testRoundTrip<Action>("PROD[1] -> Foo")
   }
 }

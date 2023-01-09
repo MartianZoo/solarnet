@@ -44,12 +44,12 @@ object PairingChecker {
 
     val paired = parend or brackd or braced or angled map {
       (opener, contains) ->
-          when {
-            contains == "ERR" -> "ERR"
-            !allowEmpty && contains == "mt" -> "ERR"
-            !allowRedundant && contains == opener.text -> "ERR"
-            else -> opener.text
-          }
+        when {
+          contains == "ERR" -> "ERR"
+          !allowEmpty && contains == "mt" -> "ERR"
+          !allowRedundant && contains == opener.text -> "ERR"
+          else -> opener.text
+        }
     }
 
     val quote = p.literal("\"")

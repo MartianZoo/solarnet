@@ -15,26 +15,25 @@ fun <T> parseRepeated(listParser: Parser<List<T>>, tokens: TokenMatchesSequence)
   while (true) {
     val result = listParser.tryParse(tokens, index)
     when {
-        result is Parsed -> {
-          parsed += result.value
-          require(result.nextPosition != index) { index }
-          index = result.nextPosition
-        }
-        result is UnexpectedEof -> break
-        result is AlternativesFailure && result.errors.any(::isEOF) -> break
-        result is ErrorResult -> throw ParseException(result)
-        else -> error("huh?")
+      result is Parsed -> {
+        parsed += result.value
+        require(result.nextPosition != index) { index }
+        index = result.nextPosition
+      }
+      result is UnexpectedEof -> break
+      result is AlternativesFailure && result.errors.any(::isEOF) -> break
+      result is ErrorResult -> throw ParseException(result)
+      else -> error("huh?")
     }
   }
   return parsed
 }
 
-private fun isEOF(result: ParseResult<*>?): Boolean =
-    when (result) {
-      is UnexpectedEof -> true
-      is AlternativesFailure -> result.errors.any(::isEOF)
-      else -> false
-    }
+private fun isEOF(result: ParseResult<*>?): Boolean = when (result) {
+  is UnexpectedEof -> true
+  is AlternativesFailure -> result.errors.any(::isEOF)
+  else -> false
+}
 
 const val CLASS_NAME_PATTERN = "\\b[A-Z][a-z][A-Za-z0-9_]*\\b"
 val thing by lazy { Regex(CLASS_NAME_PATTERN) }

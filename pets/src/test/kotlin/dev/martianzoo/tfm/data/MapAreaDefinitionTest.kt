@@ -56,8 +56,7 @@ private class MapAreaDefinitionTest {
 
   @Test
   fun parseAllInstructions() {
-    val uniqueAreas = Canon.mapAreaDefinitions.values
-        .asSequence()
+    val uniqueAreas = Canon.mapAreaDefinitions.values.asSequence()
         .flatMap { it }
         .mapNotNull { it.bonus }
         .distinct()

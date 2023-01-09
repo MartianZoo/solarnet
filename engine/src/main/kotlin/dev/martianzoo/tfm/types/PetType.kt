@@ -19,7 +19,7 @@ internal interface PetType {
   data class PetGenericType(
       override val petClass: PetClass,
       val dependencies: DependencyMap,
-      val refinement: Requirement?
+      val refinement: Requirement?,
   ) : PetType {
     override val abstract: Boolean =
         petClass.abstract || dependencies.abstract || refinement != null

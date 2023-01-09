@@ -14,10 +14,10 @@ internal class ComponentGraph(startingWith: Multiset<Component> = ImmutableMulti
   val changeLog: MutableList<StateChange> = mutableListOf() // starts with ordinal 1
 
   fun gain(count: Int, gaining: Component, cause: Cause? = null) =
-      applyChange(count, gaining=gaining, cause=cause)
+      applyChange(count, gaining = gaining, cause = cause)
 
   fun remove(count: Int, removing: Component, cause: Cause? = null) =
-      applyChange(count, removing=removing, cause=cause)
+      applyChange(count, removing = removing, cause = cause)
 
   fun transmute(count: Int, gaining: Component, removing: Component, cause: Cause? = null) =
       applyChange(count, gaining, removing, cause)
@@ -26,7 +26,8 @@ internal class ComponentGraph(startingWith: Multiset<Component> = ImmutableMulti
       count: Int,
       gaining: Component? = null,
       removing: Component? = null,
-      cause: Cause? = null) {
+      cause: Cause? = null,
+  ) {
 
     // Creating this first should catch various errors
     val change = StateChange(
@@ -34,7 +35,7 @@ internal class ComponentGraph(startingWith: Multiset<Component> = ImmutableMulti
         count = count,
         gaining = gaining?.asTypeExpression,
         removing = removing?.asTypeExpression,
-        cause = cause
+        cause = cause,
     )
 
     removing?.let { multiset.mustRemove(it, count) }
@@ -47,16 +48,19 @@ internal class ComponentGraph(startingWith: Multiset<Component> = ImmutableMulti
   private fun <E : Any?> Multiset<E>.mustRemove(element: E, count: Int) =
       setCount(element, count(element) - count)
 
-
-  internal fun count(type: PetType) = multiset.entrySet()
-      .filter { it.element.hasType(type) }
-      .sumOf { it.count }
+  internal fun count(type: PetType) =
+      multiset.entrySet()
+          .filter { it.element.hasType(type) }
+          .sumOf { it.count }
 
   internal fun getAll(type: PetType): Multiset<Component> =
       Multisets.filter(multiset) { it!!.hasType(type) }
 
   internal data class Component(val type: PetGenericType) {
-    init { require(!type.abstract) }
+    init {
+      require(!type.abstract)
+    }
+
     val asTypeExpression = type.toTypeExpressionFull()
     fun hasType(thatType: PetType) = type.isSubtypeOf(thatType)
   }

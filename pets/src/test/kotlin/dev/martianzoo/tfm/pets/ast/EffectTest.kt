@@ -67,12 +67,14 @@ private class EffectTest {
     PROD[Bar<Eep<Ahh<Ooh>>>]: (MAX 1 Megacredit: 1 Bar FROM Foo)
   """.trimIndent()
 
-  @Test fun testSampleStrings() {
+  @Test
+  fun testSampleStrings() {
     val pass = testSampleStrings<Effect>(inputs)
     assertThat(pass).isTrue()
   }
 
-  @Test fun nodeCount() {
+  @Test
+  fun nodeCount() {
     val eff: Effect = parse("Xyz<Xyz>: PROD[(1 Abc FROM Qux) OR 1]")
     // ef, og, te, te, pr, or, tr, fr, te, te ga, qe, te
     assertThat(eff.nodeCount()).isEqualTo(13)

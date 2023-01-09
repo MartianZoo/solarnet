@@ -70,41 +70,35 @@ data class CardDefinition(
      * list. Order is irrelevant (but the Canon data preserves the tag order from the printed
      * cards).
      */
-    @Json(name = "tags")
-    val tagsText: List<String> = listOf(),
+    @Json(name = "tags") val tagsText: List<String> = listOf(),
 
     /**
      * Immediate effects on the card, if any, each expressed as a PETS `Instruction`.
      */
-    @Json(name = "immediate")
-    val immediateText: Set<String> = setOf(), // TODO there should be only one
+    @Json(name = "immediate") val immediateText: Set<String> = setOf(), // TODO there should be only one
 
     /**
      * Actions on the card, if any, each expressed as a PETS `Action`. `AUTOMATED` and `EVENT`
      * cards may not have these.
      */
-    @Json(name = "actions")
-    val actionsText: Set<String> = setOf(), // TODO change to list
+    @Json(name = "actions") val actionsText: Set<String> = setOf(), // TODO change to list
 
     /**
      * Effects on the card, if any, each expressed as a PETS `Effect`. `AUTOMATED` and
      * `EVENT` cards may not have these.
      */
-    @Json(name = "effects")
-    val effectsText: Set<String> = setOf(),
+    @Json(name = "effects") val effectsText: Set<String> = setOf(),
 
     /**
      * Which resource type, if any, this card can hold, expressed as a PETS `TypeExpression`.
      */
-    @Json(name = "resourceType")
-    val resourceTypeText: String? = null,
+    @Json(name = "resourceType") val resourceTypeText: String? = null,
 
     /**
      * Any extra components the card defines (needed by no other card), expressed as a PETS
      * `Component`.
      */
-    @Json(name = "components")
-    val extraComponentsText: Set<String> = setOf(),
+    @Json(name = "components") val extraComponentsText: Set<String> = setOf(),
 
     // Project info
 
@@ -112,8 +106,7 @@ data class CardDefinition(
      * The card's requirement, if it has one, expressed as a PETS `Requirement`. Only cards in
      * the `PROJECT` deck may have this.
      */
-    @Json(name = "requirement")
-    val requirementText: String? = null,
+    @Json(name = "requirement") val requirementText: String? = null,
 
     /**
      * The card's nonnegative cost in megacredits. Is only nonzero for Project cards.
@@ -145,6 +138,7 @@ data class CardDefinition(
           else -> require(inactive()) { "Persistent effects: $id" }
         }
       }
+
       else -> {
         require(requirementText == null) { "can't have requirement: $id" }
         require(cost == 0) { "can't have cost: $id" }
@@ -193,10 +187,10 @@ data class CardDefinition(
   override val asClassDeclaration by lazy {
     val supertypes = mutableSetOf<GenericTypeExpression>()
 
-    if (projectKind != null)   supertypes.add(gte(projectKind.className))
+    if (projectKind != null) supertypes.add(gte(projectKind.className))
     if (!actionsRaw.isEmpty()) supertypes.add(gte("ActionCard"))
-    if (resourceType != null)  supertypes.add(gte("ResourcefulCard", resourceType))
-    if (supertypes.isEmpty())  supertypes.add(gte("CardFront"))
+    if (resourceType != null) supertypes.add(gte("ResourcefulCard", resourceType))
+    if (supertypes.isEmpty()) supertypes.add(gte("CardFront"))
 
     ClassDeclaration(
         className = className,
@@ -228,10 +222,8 @@ data class CardDefinition(
    * The deck this card belongs to; see [CardDefinition.deck].
    */
   enum class Deck(val className: String) {
-    PROJECT("ProjectCard"),
-    PRELUDE("AutomatedCard"),
-    CORPORATION("CorporationCard"),
-    ;
+    PROJECT("ProjectCard"), PRELUDE("AutomatedCard"), CORPORATION("CorporationCard");
+
     val classEx = ClassExpression(className)
   }
 
@@ -239,10 +231,8 @@ data class CardDefinition(
    * A kind (color) of project; see [CardDefinition.projectKind].
    */
   enum class ProjectKind(val className: String) {
-    EVENT("EventCard"), // red
-    AUTOMATED("AutomatedCard"), // green
-    ACTIVE("ActiveCard"), // blue
-    ;
+    EVENT("EventCard"), AUTOMATED("AutomatedCard"), ACTIVE("ActiveCard");
+
     val classEx = ClassExpression(className)
   }
 }

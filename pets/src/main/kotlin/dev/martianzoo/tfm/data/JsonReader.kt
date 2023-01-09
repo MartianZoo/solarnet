@@ -2,13 +2,7 @@ package dev.martianzoo.tfm.data
 
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
-import dev.martianzoo.tfm.pets.PetsParser.parse
 import dev.martianzoo.util.Grid
-import dev.martianzoo.tfm.pets.ast.Instruction
-import dev.martianzoo.tfm.pets.ast.Instruction.Gain
-import dev.martianzoo.tfm.pets.ast.Instruction.Multi
-import dev.martianzoo.tfm.pets.ast.QuantifiedExpression
-import dev.martianzoo.tfm.pets.ast.TypeExpression.Companion.gte
 import kotlin.text.RegexOption.DOT_MATCHES_ALL
 
 internal object JsonReader {
@@ -48,9 +42,12 @@ internal object JsonReader {
           mapName: String, row0Index: Int, col0Index: Int, code: String, legend: Legend,
       ): MapAreaDefinition? {
         if (code.isEmpty()) return null
-        return MapAreaDefinition(
-            mapName, row0Index + 1, col0Index + 1, legend.getType(code), legend.getBonus(code), code
-        )
+        return MapAreaDefinition(mapName,
+            row0Index + 1,
+            col0Index + 1,
+            legend.getType(code),
+            legend.getBonus(code),
+            code)
       }
     }
 
@@ -81,13 +78,12 @@ internal object JsonReader {
 
 // HELP
 
-  private inline fun <reified T : Any> fromJson5(input: String): T =
-      Moshi.Builder()
-          .addLast(KotlinJsonAdapterFactory())
-          .build()
-          .adapter(T::class.java)
-          .lenient()
-          .fromJson(TRAILING_COMMA_REGEX.replace(input, ""))!!
+  private inline fun <reified T : Any> fromJson5(input: String): T = Moshi.Builder()
+      .addLast(KotlinJsonAdapterFactory())
+      .build()
+      .adapter(T::class.java)
+      .lenient()
+      .fromJson(TRAILING_COMMA_REGEX.replace(input, ""))!!
 
   private val TRAILING_COMMA_REGEX = Regex(""",(?=\s*(//[^\n]*\n\s*)?[\]}])""", DOT_MATCHES_ALL)
 }

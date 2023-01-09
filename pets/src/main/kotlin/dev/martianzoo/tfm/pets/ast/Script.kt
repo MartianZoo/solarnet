@@ -22,7 +22,7 @@ data class Script(val lines: List<ScriptLine>) {
 
   data class ScriptCommand(
       val command: Instruction,
-      val ownedBy: TypeExpression? = null
+      val ownedBy: TypeExpression? = null,
   ) : ScriptLine {
     override fun doIt(game: GameApi) {
       command.execute(game)
@@ -34,13 +34,14 @@ data class Script(val lines: List<ScriptLine>) {
       if (!req.evaluate(game)) throw PetsAbortException()
     }
   }
-  data class ScriptCounter(val key: String, val type: TypeExpression): ScriptLine {
+
+  data class ScriptCounter(val key: String, val type: TypeExpression) : ScriptLine {
     override fun doIt(game: GameApi): Pair<String, Int> {
       return key to game.count(type)
     }
   }
 
-  data class ScriptPragmaPlayer(val player: TypeExpression): ScriptLine { // also mode
+  data class ScriptPragmaPlayer(val player: TypeExpression) : ScriptLine { // also mode
     override fun doIt(game: GameApi): Any {
       TODO("Not yet implemented")
     }

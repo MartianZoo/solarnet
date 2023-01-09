@@ -55,7 +55,8 @@ private class PetClassTest {
     assertThat(bar.directDependencyKeys).isEmpty()
   }
 
-  @Test fun cycle() {
+  @Test
+  fun cycle() {
     val s = """
       ABSTRACT CLASS $Component
       CLASS Foo : Bar
@@ -64,7 +65,8 @@ private class PetClassTest {
     assertThrows<IllegalArgumentException> { loader(s) }
   }
 
-  @Test fun trivialCycle() {
+  @Test
+  fun trivialCycle() {
     val s = """
       ABSTRACT CLASS $Component
       CLASS Foo : Foo
@@ -126,11 +128,13 @@ private class PetClassTest {
     assertThat(qux.allDependencyKeys).containsExactly(key)
   }
 
-  @Test fun cycleDependency() {
+  @Test
+  fun cycleDependency() {
     val loader = loadTypes("CLASS Foo<Bar>", "CLASS Bar<Foo>")
   }
 
-  @Test fun depsAndSpecs() {
+  @Test
+  fun depsAndSpecs() {
     val table = loadTypes(
       "ABSTRACT CLASS SuperFoo",
       "ABSTRACT CLASS Foo : SuperFoo",
@@ -214,4 +218,3 @@ class FakeAuthority(classes: List<ClassDeclaration>) : Authority() {
 internal fun loadTypes(vararg decl: String): PetClassTable {
   return loader("ABSTRACT CLASS $Component\n" + decl.joinToString("") { "$it\n" })
 }
-

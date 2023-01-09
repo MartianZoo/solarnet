@@ -26,8 +26,7 @@ internal class PetClassLoader(private val authority: Authority) : PetClassTable 
   }
 
   /** Returns the petclass named `name`, loading it first if necessary. */
-  internal fun load(name: String) =
-      nameToPetClass[name] ?: construct(authority.declaration(name))
+  internal fun load(name: String) = nameToPetClass[name] ?: construct(authority.declaration(name))
 
   private fun construct(decl: ClassDeclaration): PetClass {
     println("Loading ${decl.className}")
@@ -58,11 +57,10 @@ internal class PetClassLoader(private val authority: Authority) : PetClassTable 
     return freeze()
   }
 
-  override fun resolve(expression: TypeExpression) =
-      when (expression) {
-        is ClassExpression -> load(expression.className)
-        is GenericTypeExpression -> resolve(expression)
-      }
+  override fun resolve(expression: TypeExpression) = when (expression) {
+    is ClassExpression -> load(expression.className)
+    is GenericTypeExpression -> resolve(expression)
+  }
 
   override fun resolve(expression: GenericTypeExpression): PetGenericType =
       load(expression.className).baseType.specialize(expression.specs.map { resolve(it) })
@@ -71,17 +69,14 @@ internal class PetClassLoader(private val authority: Authority) : PetClassTable 
   fun resourceNames() = if (frozen) allResourceNames else findResourceNames()
 
   fun loadAllSingletons() {
-    loadAll(authority
-        .allClassDeclarations
-        .values
-        .filter { isSingleton(it) }
-        .map { it.className })
+    loadAll(authority.allClassDeclarations.values.filter { isSingleton(it) }.map { it.className })
   }
 
   private fun isSingleton(c: ClassDeclaration): Boolean {
     return c.otherInvariants.any { isSingleton(it) } ||
         c.superclassNames.any { isSingleton(authority.declaration(it)) }
   }
+
   private fun isSingleton(r: Requirement): Boolean {
     return r is Min && r.qe == QuantifiedExpression(gte("This"), 1) ||
         r is Exact && r.qe == QuantifiedExpression(gte("This"), 1) ||

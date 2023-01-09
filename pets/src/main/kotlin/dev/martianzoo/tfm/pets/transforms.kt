@@ -45,8 +45,8 @@ private fun instructionFromAction(lhs: Instruction?, rhs: Instruction): Instruct
 }
 
 internal fun actionsToEffects(actions: Collection<Action>) =
-    actions.withIndex().map {
-      (index0Ref, action) -> actionToEffect(action, index1Ref = index0Ref + 1)
+    actions.withIndex().map { (index0Ref, action) ->
+      actionToEffect(action, index1Ref = index0Ref + 1)
     }
 
 internal fun immediateToEffect(instruction: Instruction): Effect {

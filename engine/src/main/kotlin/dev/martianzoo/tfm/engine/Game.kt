@@ -18,7 +18,7 @@ import dev.martianzoo.tfm.types.PetType
 internal class Game(
     override val authority: Authority,
     val components: ComponentGraph,
-    private val table: PetClassTable
+    private val table: PetClassTable,
 ) : GameApi {
   // val tasks = mutableListOf<Task>()
 
@@ -52,7 +52,8 @@ internal class Game(
       count: Int,
       gaining: GenericTypeExpression?,
       removing: GenericTypeExpression?,
-      cause: Cause?) {
+      cause: Cause?,
+  ) {
     val g = gaining?.let { Component(table.resolve(it)) }
     val r = removing?.let { Component(table.resolve(it)) }
     components.applyChange(count, g, r, cause)

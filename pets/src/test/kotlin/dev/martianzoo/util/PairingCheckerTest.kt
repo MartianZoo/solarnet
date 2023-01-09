@@ -4,8 +4,8 @@ import com.google.common.base.CharMatcher
 import com.google.common.collect.Lists.cartesianProduct
 import com.google.common.collect.Lists.charactersOf
 import com.google.common.truth.Truth.assertThat
-import org.junit.jupiter.api.Test
 import java.util.Collections.nCopies
+import org.junit.jupiter.api.Test
 
 private class PairingCheckerTest {
   @Test
@@ -15,6 +15,7 @@ private class PairingCheckerTest {
     PairingChecker.check("x(x)")
     PairingChecker.check("x(x<d[e]>{f})")
   }
+
   @Test
   fun testInvalid() {
     assertThat(PairingChecker.isValid("(")).isFalse()

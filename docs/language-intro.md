@@ -50,5 +50,3 @@ A game state is nothing but a set of components -- actually a "multiset", since 
 A change to that state is nothing but adding components, removing components, or transmuting some components into an equal number of other components.
 
 (Well, this is almost true. There are also task queues, which keep track of what the game is waiting on each player to do. But this is a topic for later.)
-
-

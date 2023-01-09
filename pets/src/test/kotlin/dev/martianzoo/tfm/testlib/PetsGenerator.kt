@@ -31,14 +31,14 @@ import dev.martianzoo.tfm.pets.ast.Requirement.Min
 import dev.martianzoo.tfm.pets.ast.TypeExpression
 import dev.martianzoo.tfm.pets.ast.TypeExpression.GenericTypeExpression
 import dev.martianzoo.tfm.testlib.ToKotlin.p2k
-import org.junit.jupiter.api.Assertions.fail
 import kotlin.math.pow
 import kotlin.math.roundToInt
 import kotlin.random.Random
 import kotlin.reflect.KClass
+import org.junit.jupiter.api.Assertions.fail
 
-internal class PetsGenerator(scaling: (Int) -> Double)
-    : RandomGenerator<PetsNode>(Registry, scaling) {
+internal class PetsGenerator(scaling: (Int) -> Double) :
+    RandomGenerator<PetsNode>(Registry, scaling) {
 
   constructor(greed: Double = 0.8, backoff: Double = 0.15) : this(scaling(greed, backoff))
 
@@ -49,16 +49,12 @@ internal class PetsGenerator(scaling: (Int) -> Double)
         recurse<GenericTypeExpression>()
       }
       register<GenericTypeExpression> {
-        GenericTypeExpression(
-            randomName(),
-            listOfSize(choose(specSizes)),
-            refinement()
-        )
+        GenericTypeExpression(randomName(), listOfSize(choose(specSizes)), refinement())
       }
 //    register { ClassExpression(randomName()) }
-      register { QuantifiedExpression(
-          choose(1 to Default.type, 3 to recurse()),
-          choose(0, 1, 1, 1, 5, 11)) }
+      register {
+        QuantifiedExpression(choose(1 to Default.type, 3 to recurse()), choose(0, 1, 1, 1, 5, 11))
+      }
 
       val requirementTypes = (multiset(
           9 to Min::class,
@@ -181,6 +177,7 @@ internal class PetsGenerator(scaling: (Int) -> Double)
 
     fun RandomGenerator<PetsNode>.refinement() =
         chooseS(9 to { null }, 1 to { recurse<Requirement>() })
+
     fun RandomGenerator<PetsNode>.randomName() =
         choose("Foo", "Bar", "Qux", "Abc", "Xyz", "Ooh", "Ahh", "Eep", "Wau")
   }
@@ -202,11 +199,13 @@ internal class PetsGenerator(scaling: (Int) -> Double)
       }
 
       assertWithMessage("intermediate string form was $originalStringOut")
-          .that(reparsedNode).isEqualTo(randomNode)
+          .that(reparsedNode)
+          .isEqualTo(randomNode)
 
       val regurgitated = reparsedNode.toString()
       assertWithMessage("intermediate parsed form was:\n${p2k(reparsedNode)}")
-            .that(regurgitated).isEqualTo(originalStringOut)
+          .that(regurgitated)
+          .isEqualTo(originalStringOut)
     }
   }
 
@@ -226,7 +225,7 @@ internal class PetsGenerator(scaling: (Int) -> Double)
     getTestStringOfEachLength<T>(maxLength).forEach(::println)
   }
 
-  inline fun <reified T : PetsNode> getTestStringOfEachLength(maxLength: Int) : List<String> {
+  inline fun <reified T : PetsNode> getTestStringOfEachLength(maxLength: Int): List<String> {
     require(maxLength >= 20) // just cause
 
     val set = sortedSetOf<String>(Comparator.comparing { it.length })
@@ -253,7 +252,8 @@ internal class PetsGenerator(scaling: (Int) -> Double)
   }
 
   inline fun <reified T : PetsNode> uniqueNodes(
-      count: Int = 100, depthLimit: Int = 10, stopAtDrySpell: Int = 200): Set<T> {
+      count: Int = 100, depthLimit: Int = 10, stopAtDrySpell: Int = 200,
+  ): Set<T> {
     val set = mutableSetOf<T>()
     var drySpell = 0
     while (set.size < count && drySpell < stopAtDrySpell) {
@@ -266,7 +266,6 @@ internal class PetsGenerator(scaling: (Int) -> Double)
     }
     return set
   }
-
 }
 
 private fun <T : Any> multiset(vararg pairs: Pair<Int, T>): ImmutableMultiset<T> {

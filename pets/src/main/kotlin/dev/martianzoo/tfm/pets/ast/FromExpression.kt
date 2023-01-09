@@ -20,7 +20,8 @@ sealed class FromExpression : PetsNode() {
 
   data class SimpleFrom(
       override val toType: TypeExpression,
-      override val fromType: TypeExpression) : FromExpression() {
+      override val fromType: TypeExpression,
+  ) : FromExpression() {
 
     override fun toString() = "$toType FROM $fromType"
   }
@@ -28,13 +29,15 @@ sealed class FromExpression : PetsNode() {
   data class ComplexFrom(
       val className: String,
       val specializations: List<FromExpression> = listOf(),
-      val refinement: Requirement? = null) : FromExpression() {
+      val refinement: Requirement? = null,
+  ) : FromExpression() {
     init {
       require(className.matches(Regex(CLASS_NAME_PATTERN))) { className }
       if (specializations.count { it is ComplexFrom || it is SimpleFrom } != 1) {
         throw PetsException("Can only have one FROM in an expression")
       }
     }
+
     override val toType = gte(className, specializations.map { it.toType }, null)
     override val fromType = gte(className, specializations.map { it.fromType }, refinement)
 

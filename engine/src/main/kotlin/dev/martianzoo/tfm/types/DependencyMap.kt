@@ -13,6 +13,7 @@ internal data class DependencyMap(val keyToDependency: Map<Dependency.Key, Depen
       require(key == dep.key) { key }
     }
   }
+
   val abstract = keyToDependency.values.any { it.abstract }
 
   val keys = keyToDependency.keys
@@ -23,14 +24,12 @@ internal data class DependencyMap(val keyToDependency: Map<Dependency.Key, Depen
   fun specializes(that: DependencyMap) =
       // For each of *its* keys, my type must be a subtype of its type
       that.keyToDependency.all { (thatKey, thatType) ->
-        keyToDependency[thatKey]!!.specializes(thatType) }
+        keyToDependency[thatKey]!!.specializes(thatType)
+      }
 
   // Combines all entries, using the glb when both maps have the same key
   fun intersect(that: DependencyMap): DependencyMap {
-    val merged = mergeMaps(
-        this.keyToDependency,
-        that.keyToDependency,
-        Dependency::intersect)
+    val merged = mergeMaps(this.keyToDependency, that.keyToDependency, Dependency::intersect)
     return DependencyMap(merged)
   }
 

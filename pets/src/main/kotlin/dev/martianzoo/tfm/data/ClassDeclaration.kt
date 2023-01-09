@@ -21,9 +21,11 @@ data class ClassDeclaration(
     val otherInvariants: Set<Requirement> = setOf(),
     val effectsRaw: Set<Effect> = setOf(),
     val defaultsDeclaration: DefaultsDeclaration = DefaultsDeclaration(),
-    val extraNodes: Set<PetsNode> = setOf()
-): Definition {
-  init { require(this.className !in reservedClassNames) }
+    val extraNodes: Set<PetsNode> = setOf(),
+) : Definition {
+  init {
+    require(this.className !in reservedClassNames)
+  }
 
   override val asClassDeclaration = this
 
@@ -42,10 +44,12 @@ data class ClassDeclaration(
 
   data class DependencyDeclaration(
       val upperBound: TypeExpression,
-      val classDependency: Boolean = false) // TODO whut?
+      val classDependency: Boolean = false, // TODO whut?
+  )
 
   data class DefaultsDeclaration(
       val universalSpecs: List<TypeExpression> = listOf(),
       val gainOnlySpecs: List<TypeExpression> = listOf(),
-      val gainIntensity: Intensity? = null)
+      val gainIntensity: Intensity? = null,
+  )
 }

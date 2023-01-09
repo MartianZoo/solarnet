@@ -32,10 +32,10 @@ private class PetTypeTest {
     assertThat(table["Fish"].baseType.toString()).isEqualTo("Fish<Player, Animal.CLASS>")
 
     // TODO get these working
-    //assertThrows<RuntimeException> { table.resolve("Animal<Ants>") }
-    //assertThat(table["Animal"].baseType.toString())
+    // assertThrows<RuntimeException> { table.resolve("Animal<Ants>") }
+    // assertThat(table["Animal"].baseType.toString())
     //    .isEqualTo("Animal<Player, ResourcefulCard<Player, Animal.CLASS>>")
-    //assertThrows<RuntimeException> {
+    // assertThrows<RuntimeException> {
     //  table.resolve("Microbe<Player1, Ants<Player2>>")
     //}
   }

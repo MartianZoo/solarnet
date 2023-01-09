@@ -10,13 +10,13 @@ import kotlin.reflect.KClass
 
 internal abstract class RandomGenerator<B : Any>(
     private val registry: Registry<B>,
-    val scaling: (Int) -> Double
+    val scaling: (Int) -> Double,
 ) {
   abstract class Registry<B : Any> {
     private val map = mutableMapOf<KClass<out B>, (RandomGenerator<B>) -> B>()
 
-    inline fun <reified P : B> register(
-        noinline creator: RandomGenerator<B>.() -> P) = register(P::class, creator)
+    inline fun <reified P : B> register(noinline creator: RandomGenerator<B>.() -> P) =
+        register(P::class, creator)
 
     fun <P : B> register(type: KClass<P>, creator: RandomGenerator<B>.() -> P) {
       map[type] = creator
@@ -65,19 +65,21 @@ internal abstract class RandomGenerator<B : Any>(
 
   inline fun <reified E : Enum<E>> randomEnum() = choose(*enumValues<E>())
 
-  inline fun <reified P : B> listOfSize(size: Int): List<P> =
-      mutableListOf<P>().also {
-        while (it.size < size) {
-          it.add(recurse())
-        }
+  inline fun <reified P : B> listOfSize(size: Int): List<P> {
+    return mutableListOf<P>().also {
+      while (it.size < size) {
+        it.add(recurse())
       }
+    }
+  }
 
-  inline fun <reified P : B> setOfSize(size: Int): Set<P> =
-      mutableSetOf<P>().also {
-        while (it.size < size) {
-          it.add(recurse())
-        }
+  inline fun <reified P : B> setOfSize(size: Int): Set<P> {
+    return mutableSetOf<P>().also {
+      while (it.size < size) {
+        it.add(recurse())
       }
+    }
+  }
 
   fun <T : Any?> choose(vararg choices: T): T = choices[nextInt(choices.size)]
   fun <T : Any?> choose(choices: List<T>): T = choices[nextInt(choices.size)]
@@ -108,7 +110,7 @@ internal abstract class RandomGenerator<B : Any>(
   }
 
   fun <T : Any?> chooseS(vararg weightToChoiceSupplier: Pair<Int, () -> T>): T {
-    val sum =  weightToChoiceSupplier.sumOf { it.first }
+    val sum = weightToChoiceSupplier.sumOf { it.first }
     var skip = nextInt(sum)
     for (wc in weightToChoiceSupplier) {
       skip -= wc.first
