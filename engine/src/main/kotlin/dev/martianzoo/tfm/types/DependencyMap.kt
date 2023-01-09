@@ -48,6 +48,7 @@ internal data class DependencyMap(val keyToDependency: Map<Dependency.Key, Depen
   // determines the map that could be merged with this one to specialize, by inferring which
   // keys the provided specs go with
   fun findMatchups(specs: List<PetType>): DependencyMap {
+    if (specs.isEmpty()) return this
     val newMap = mutableMapOf<Dependency.Key, Dependency>()
     val unhandled = specs.toMutableList()
 
@@ -60,7 +61,7 @@ internal data class DependencyMap(val keyToDependency: Map<Dependency.Key, Depen
       }
     }
     require(unhandled.isEmpty()) { "This: $this\nSpecs: $specs\nUnhandled : $unhandled" }
-    return DependencyMap(newMap)
+    return DependencyMap(newMap) //.d { "findMatchups of $this with $specs: $it" } too noisy
   }
 
   fun specialize(specs: List<PetType>) = intersect(findMatchups(specs))

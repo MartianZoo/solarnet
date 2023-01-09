@@ -8,9 +8,7 @@ import dev.martianzoo.tfm.pets.ast.TypeExpression.GenericTypeExpression
 import dev.martianzoo.tfm.types.PetType.PetGenericType
 
 internal fun <P : PetsNode> applyDefaultsIn(node: P, loader: PetClassLoader): P {
-  return Defaulter(loader).transform(node).also {
-    println("2. applied defaults to a ${node.kind}: $it")
-  }
+  return Defaulter(loader).transform(node)
 }
 
 private class Defaulter(val loader: PetClassLoader) : AstTransformer() {

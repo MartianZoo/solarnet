@@ -43,9 +43,7 @@ internal fun actionToEffect(action: Action, index1Ref: Int): Effect {
   require(index1Ref >= 1) { index1Ref }
   val instruction = instructionFromAction(action.cost?.toInstruction(), action.instruction)
   val trigger = OnGain(gte("$UseAction$index1Ref", This.type))
-  return Effect(trigger, instruction, automatic = false).also {
-    println("Converted from Action: $it")
-  }
+  return Effect(trigger, instruction, automatic = false)
 }
 
 private fun instructionFromAction(lhs: Instruction?, rhs: Instruction): Instruction {
@@ -70,14 +68,12 @@ internal fun actionsToEffects(actions: Collection<Action>) =
     }
 
 internal fun immediateToEffect(instruction: Instruction): Effect {
-  return Effect(OnGain(This.type), instruction, automatic = false) // ironic
+  return Effect(OnGain(This.type), instruction, automatic = false)
 }
 
-// had to use an ungrammatical name
 fun <P : PetsNode> replaceThis(node: P, resolveTo: GenericTypeExpression) =
     node.replaceTypes(This.type, resolveTo)
         .replaceTypes(ClassExpression("This"), ClassExpression(resolveTo.className))
-        .also { println("3. Resolved `This` to `$resolveTo` in ${node.kind}: $it") }
 
 fun <P : PetsNode> P.replaceTypes(from: TypeExpression, to: TypeExpression): P {
   return replaceTypesIn(this, from, to)
@@ -95,33 +91,26 @@ private class TypeReplacer(val from: TypeExpression, val to: TypeExpression) : A
   }
 }
 
-fun <P : PetsNode> deprodify(node: P, producibleClassNames: Set<String>): P {
-  return Deprodifier(producibleClassNames).transform(node).also {
-    if (it != node) {
-      println("1. Deprodified a ${node.kind}: $it")
-    } else {
-      println("1. No PROD to handle")
-    }
-  }
-}
+fun <P : PetsNode> deprodify(node: P, producible: Set<String>): P {
+  val deprodifier = object : AstTransformer() {
+    var inProd: Boolean = false
 
-private class Deprodifier(val producible: Set<String>) : AstTransformer() {
-  var inProd: Boolean = false
+    override fun <P : PetsNode?> transform(node: P): P {
+      val rewritten = when {
+        node is ProductionBox<*> -> {
+          require(!inProd)
+          inProd = true
+          transform(node.extract()).also { inProd = false }
+        }
 
-  override fun <P : PetsNode?> transform(node: P): P {
-    val rewritten = when {
-      node is ProductionBox<*> -> {
-        require(!inProd)
-        inProd = true
-        transform(node.extract()).also { inProd = false }
+        inProd && node is GenericTypeExpression && node.className in producible -> Production.type.copy(
+            specs = node.specs + ClassExpression(node.className))
+
+        else -> super.transform(node)
       }
-
-      inProd && node is GenericTypeExpression && node.className in producible ->
-          Production.type.copy(specs = node.specs + ClassExpression(node.className))
-
-      else -> super.transform(node)
+      @Suppress("UNCHECKED_CAST")
+      return rewritten as P
     }
-    @Suppress("UNCHECKED_CAST")
-    return rewritten as P
   }
+  return deprodifier.transform(node)
 }

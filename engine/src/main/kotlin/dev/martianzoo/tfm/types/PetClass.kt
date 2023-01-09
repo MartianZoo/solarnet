@@ -17,7 +17,7 @@ import dev.martianzoo.tfm.pets.ast.TypeExpression.GenericTypeExpression
 import dev.martianzoo.tfm.pets.deprodify
 import dev.martianzoo.tfm.pets.replaceThis
 import dev.martianzoo.tfm.types.PetType.PetGenericType
-import dev.martianzoo.util.toSetStrict
+import dev.martianzoo.util.Debug.d
 
 /**
  */
@@ -37,7 +37,9 @@ internal class PetClass(
   val directSupertypes: Set<PetGenericType> by lazy {
     declaration.supertypes.map {
       loader.resolve(replaceThis(it, gte(name)))
-    }.toSet()
+    }.toSet().also {
+      if (it.size > 1) (it - Component.type).d("$this supertypes")
+    }
   }
 
   fun isSubclassOf(that: PetClass): Boolean =
@@ -48,7 +50,7 @@ internal class PetClass(
   override fun isSubtypeOf(that: PetType) = that is PetClass && isSubclassOf(that.petClass)
 
   val directSubclasses: Set<PetClass> by lazy {
-    allClasses().filter { this in it.directSuperclasses }.toSet()
+    allClasses().filter { this in it.directSuperclasses }.toSet().d("$this dirsubs")
   }
 
   val allSubclasses: Set<PetClass> by lazy {
@@ -57,7 +59,7 @@ internal class PetClass(
 
   private fun allClasses(): Set<PetClass> {
     require(loader.isFrozen())
-    return loader.loadedClassNames().map { loader[it] }.toSetStrict()
+    return loader.loadedClasses()
   }
 
   val allSuperclasses: Set<PetClass> by lazy {
@@ -105,12 +107,13 @@ internal class PetClass(
   }
 
   val allDependencyKeys: Set<Dependency.Key> by lazy {
-    allSuperclasses.flatMap { it.directDependencyKeys }.toSet()
+    (directSuperclasses.flatMap { it.allDependencyKeys } + directDependencyKeys).toSet()
+        .d { "$this has ${it.size} deps" }
   }
 
   fun resolveSpecializations(specs: List<PetType>) = baseType.dependencies.findMatchups(specs)
 
-  @JvmName("whoCares")
+  @JvmName("resolveSpecializations2")
   fun resolveSpecializations(specs: List<TypeExpression>) =
       resolveSpecializations(specs.map { loader.resolve(it) })
 
@@ -129,9 +132,7 @@ internal class PetClass(
     }
     val allDeps = deps.intersect(DependencyMap(newDeps))
     require(allDeps.keys == allDependencyKeys)
-    PetGenericType(this, allDeps, null).also {
-      println("baseType is $it")
-    }
+    PetGenericType(this, allDeps, null).d { "$this baseType: $it" }
   }
 
   fun formGenericType(specs: List<PetType>, ref: Requirement?) =
@@ -144,12 +145,14 @@ internal class PetClass(
 // DEFAULTS
 
   val defaults: Defaults by lazy {
-    if (name == Component.name) {
+    val result = if (name == Component.name) {
       Defaults.from(declaration.defaultsDeclaration, this)
     } else {
       val rootDefaults = loader[Component.name].defaults
       defaultsIgnoringRoot.overlayOn(listOf(rootDefaults))
     }
+    if (!result.isEmpty()) d("defaults: $result")
+    result
   }
 
   private val defaultsIgnoringRoot: Defaults by lazy {
@@ -163,17 +166,13 @@ internal class PetClass(
 
 // EFFECTS
 
-  val directEffectsRaw by declaration::effectsRaw
+  val effectsRaw by declaration::effectsRaw
 
-  val directEffects by lazy {
-    directEffectsRaw.asSequence()
-        .map {
-          println("\n0. Class $name, raw effect is: $it")
-          it
-        }
+  val effects: List<Effect> by lazy {
+    effectsRaw
         .map { deprodify(it, loader.resourceNames()) }
         .map { replaceThis(it, gte(name)) }
-        .map { applyDefaultsIn(it, loader) }
+        .map { applyDefaultsIn(it, loader).d("$this effect") }
         .toList()
         .also { validateAllTypes(it) }
   }
@@ -181,14 +180,13 @@ internal class PetClass(
 // VALIDATION
 
   private fun validateAllTypes(effects: List<Effect>) {
-    Validator(loader).transform(effects)
-  }
-
-  class Validator(private val table: PetClassTable) : AstTransformer() {
-    override fun <P : PetsNode?> transform(node: P): P {
-      if (node is TypeExpression) table.resolve(node)
-      return super.transform(node)
+    class Validator(private val table: PetClassTable) : AstTransformer() {
+      override fun <P : PetsNode?> transform(node: P): P {
+        if (node is TypeExpression) table.resolve(node)
+        return super.transform(node)
+      }
     }
+    Validator(loader).transform(effects)
   }
 
 // OTHER

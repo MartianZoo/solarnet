@@ -9,7 +9,13 @@ internal class Defaults(
     val gainIntensity: Intensity? = null,
 ) {
 
+  override fun toString() =
+      "{ALL $allCasesDependencies GAIN $gainOnlyDependencies INTENS $gainIntensity}"
+
+  fun isEmpty() = this == EMPTY
+
   companion object {
+    val EMPTY = Defaults()
     internal fun from(d: DefaultsDeclaration, petClass: PetClass) =
         Defaults(
             petClass.toDependencyMap(d.universalSpecs),

@@ -8,6 +8,7 @@ import dev.martianzoo.tfm.pets.ast.TypeExpression.ClassExpression
 import dev.martianzoo.tfm.pets.ast.TypeExpression.GenericTypeExpression
 import dev.martianzoo.tfm.pets.findAllClassNames
 import dev.martianzoo.tfm.types.PetType.PetGenericType
+import dev.martianzoo.util.Debug.d
 
 // TODO restrict viz?
 internal class PetClassLoader(private val authority: Authority) : PetClassTable {
@@ -64,8 +65,9 @@ internal class PetClassLoader(private val authority: Authority) : PetClassTable 
       val next = queue.removeFirst()
       if (next !in nameToPetClass) {
         loadSingle(next)
-        val needed = authority.declaration(next).allNodes.flatMap(::findAllClassNames).toSet()
-        queue.addAll(needed - nameToPetClass.keys)
+        val needed = authority.declaration(next).allNodes.flatMap(::findAllClassNames)
+        val addToQueue = needed.toSet() - nameToPetClass.keys
+        queue.addAll(addToQueue.d("adding to queue"))
       }
     }
   }
@@ -78,16 +80,16 @@ internal class PetClassLoader(private val authority: Authority) : PetClassTable 
   private fun construct(decl: ClassDeclaration): PetClass {
     require(!frozen) { "Too late, this table is frozen!" }
 
+    val name = decl.className.d("loading")
+
     // signal with `null` that loading is in process so we can detect infinite recursion
     require(decl.className !in nameToPetClass) { decl.className }
 
-    nameToPetClass[decl.className] = null
+    nameToPetClass[name] = null
     val superclasses = decl.superclassNames.map(::loadSingle) // we do most other things lazily...
 
-    println("Loading ${decl.className}")
-
     return PetClass(decl, superclasses, this)
-        .also { nameToPetClass[it.name] = it }
+        .also { nameToPetClass[name] = it }
   }
 
 // FREEZING
@@ -97,7 +99,6 @@ internal class PetClassLoader(private val authority: Authority) : PetClassTable 
   internal fun isFrozen() = frozen
 
   internal fun freeze(): PetClassTable {
-    println("Freezing class table now with ${nameToPetClass.size} classes")
     nameToPetClass.values.forEach { it!! }
     frozen = true
     return this
