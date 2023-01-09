@@ -27,7 +27,7 @@ abstract class Authority {
     )
   }
 
-  protected abstract val explicitClassDeclarations: Collection<ClassDeclaration>
+  abstract val explicitClassDeclarations: Collection<ClassDeclaration>
 
   abstract val mapAreaDefinitions: Map<String, Grid<MapAreaDefinition>>
 

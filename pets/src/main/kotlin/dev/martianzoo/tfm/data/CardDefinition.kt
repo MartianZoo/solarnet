@@ -49,7 +49,7 @@ data class CardDefinition(
      * easily include or exclude sets of cards. The bundle ids `"A"`-`"Z"` are reserved for canon
      * (for example, `"B"` is "base", and `"R"` is "corporate era").
      */
-    val bundle: String? = null,
+    val bundle: String,
 
     /**
      * Which deck this card belongs to, if any (i.e., Beginner Corporation does not). Note that this
@@ -207,12 +207,12 @@ data class CardDefinition(
         resourceTypeText == null
   }
 
-  val extraNodes by lazy {
+  val extraNodes: Set<PetsNode> by lazy {
     val set = mutableSetOf<PetsNode>()
     set += tags
     set += setOfNotNull(resourceType)
     set += setOfNotNull(requirementRaw)
-    set += extraComponents.flatMap { it.allNodes }
+    set += extraComponents.flatMap { it.allNodes + ClassExpression(it.className) }
     set += setOfNotNull(projectKind?.classEx)
     set += setOfNotNull(deck?.classEx)
     set
@@ -222,7 +222,7 @@ data class CardDefinition(
    * The deck this card belongs to; see [CardDefinition.deck].
    */
   enum class Deck(val className: String) {
-    PROJECT("ProjectCard"), PRELUDE("AutomatedCard"), CORPORATION("CorporationCard");
+    PROJECT("ProjectCard"), PRELUDE("PreludeCard"), CORPORATION("CorporationCard");
 
     val classEx = ClassExpression(className)
   }

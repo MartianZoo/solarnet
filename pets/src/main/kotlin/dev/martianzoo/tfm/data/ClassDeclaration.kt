@@ -44,7 +44,8 @@ data class ClassDeclaration(
         otherInvariants +
         effectsRaw +
         defaultsDeclaration.universalSpecs +
-        defaultsDeclaration.gainOnlySpecs
+        defaultsDeclaration.gainOnlySpecs +
+        extraNodes
   }
 
   fun isSingleton() = otherInvariants.any() { requiresOneInstance(it) }

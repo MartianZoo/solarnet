@@ -24,11 +24,9 @@ fun findAllClassNames(node: PetsNode): Set<String> {
   class ClassNameFinder : AstTransformer() {
     val found = mutableSetOf<String>()
     override fun <P : PetsNode?> transform(node: P): P {
-      // TODO ClassExpression
       when (node) {
         is TypeExpression -> found += node.className
         is ComplexFrom -> found += node.className
-        else -> {}
       }
       return super.transform(node)
     }

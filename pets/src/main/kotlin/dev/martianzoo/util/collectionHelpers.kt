@@ -10,6 +10,11 @@ fun <T, K> Collection<T>.associateByStrict(x: (T) -> K): Map<K, T> {
   return map
 }
 
+fun <T : Any?> Collection<T>.onlyElement(): T {
+  require(size == 1)
+  return first()
+}
+
 fun <K : Any, V : Any> mergeMaps(one: Map<out K, V>, two: Map<out K, V>, merger: (V, V) -> V) =
     one.toMutableMap().apply {
       two.forEach { merge(it.key, it.value, merger) }

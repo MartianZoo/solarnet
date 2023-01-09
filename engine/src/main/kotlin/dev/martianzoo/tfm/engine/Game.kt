@@ -18,11 +18,11 @@ import dev.martianzoo.tfm.types.PetType
 internal class Game(
     override val authority: Authority,
     val components: ComponentGraph,
-    private val table: PetClassTable,
+    val classTable: PetClassTable,
 ) : GameApi {
   // val tasks = mutableListOf<Task>()
 
-  fun resolve(type: TypeExpression) = table.resolve(type)
+  fun resolve(type: TypeExpression) = classTable.resolve(type)
   fun resolve(typeText: String) = resolve(parse(typeText))
 
   fun count(type: PetType): Int {
@@ -54,8 +54,8 @@ internal class Game(
       removing: GenericTypeExpression?,
       cause: Cause?,
   ) {
-    val g = gaining?.let { Component(table.resolve(it)) }
-    val r = removing?.let { Component(table.resolve(it)) }
+    val g = gaining?.let { Component(classTable.resolve(it)) }
+    val r = removing?.let { Component(classTable.resolve(it)) }
     components.applyChange(count, g, r, cause)
   }
 }

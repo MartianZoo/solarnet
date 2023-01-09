@@ -92,24 +92,24 @@ ABSTRACT CLASS HasActions {
     ABSTRACT CLASS StandardAction {
         HAS =1 This
 
-        CLASS PlayCardFromHand   { -> PlayCard }
-        CLASS UseStandardProject { -> UseAction<StandardProject> }
-        CLASS UseActionFromCard  { -> UseAction<ActionCard> THEN ActionUsedMarker<ActionCard> }
-        CLASS ConvertPlants      { 8 Plant -> GreeneryTile }
-        CLASS ConvertHeat        { 8 Heat -> TemperatureStep }
+        CLASS PlayCardFromHandSA   { -> PlayCard }
+        CLASS UseStandardProjectSA { -> UseAction<StandardProject> }
+        CLASS UseActionFromCardSA  { -> UseAction<ActionCard> THEN ActionUsedMarker<ActionCard> }
+        CLASS ConvertPlantsSA      { 8 Plant -> GreeneryTile }
+        CLASS ConvertHeatSA        { 8 Heat -> TemperatureStep }
 
-        CLASS SellPatents        { 1 ProjectCard -> 1 }     // Technically a standard project, but that makes Credicor
+        CLASS SellPatentsSA        { 1 ProjectCard -> 1 }   // Technically a standard project, but that makes Credicor
     }                                                       // and Std Tech annoying for no real benefit. TODO "X"
 
     ABSTRACT CLASS StandardProject {
         HAS =1 This
 
-        CLASS PowerPlantSP { 11 -> PROD[Energy] }
-        CLASS AsteroidSP   { 14 -> TemperatureStep }
-        CLASS AirScrapping { 15 -> VenusStep }
-        CLASS Aquifer      { 18 -> OceanTile }
-        CLASS Greenery     { 23 -> GreeneryTile }
-        CLASS City         { 25 -> CityTile, PROD[1] }
+        CLASS PowerPlantSP   { 11 -> PROD[Energy] }
+        CLASS AsteroidSP     { 14 -> TemperatureStep }
+        CLASS AirScrappingSP { 15 -> VenusStep }
+        CLASS AquiferSP      { 18 -> OceanTile }
+        CLASS GreenerySP     { 23 -> GreeneryTile }
+        CLASS CitySP         { 25 -> CityTile, PROD[1] }
     }
 }
 

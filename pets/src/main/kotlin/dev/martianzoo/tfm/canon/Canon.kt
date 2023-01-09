@@ -1,9 +1,5 @@
 package dev.martianzoo.tfm.canon
 
-import dev.martianzoo.tfm.canon.Canon.Bundle.BASE
-import dev.martianzoo.tfm.canon.Canon.Bundle.ELYSIUM
-import dev.martianzoo.tfm.canon.Canon.Bundle.HELLAS
-import dev.martianzoo.tfm.canon.Canon.Bundle.THARSIS
 import dev.martianzoo.tfm.data.Authority
 import dev.martianzoo.tfm.data.CardDefinition
 import dev.martianzoo.tfm.data.ClassDeclaration
@@ -26,14 +22,8 @@ object Canon : Authority() {
     JsonReader.readMaps(readResource("maps.json5"))
   }
 
-  fun getMap(bundle: Bundle): Grid<MapAreaDefinition> {
-    return when (bundle) {
-      BASE, THARSIS -> mapAreaDefinitions["Tharsis"]!!
-      HELLAS -> mapAreaDefinitions["Hellas"]!!
-      ELYSIUM -> mapAreaDefinitions["Elysium"]!!
-      else -> throw IllegalArgumentException("No map in $bundle")
-    }
-  }
+  fun getMap(bundle: Bundle): Grid<MapAreaDefinition> =
+      mapAreaDefinitions[bundle.name] ?: error("not a map: $bundle")
 
   override val cardDefinitions: Collection<CardDefinition> by lazy {
     JsonReader.readCards(readResource("cards.json5"))
@@ -66,16 +56,16 @@ object Canon : Authority() {
     return javaClass.getResource("/$dir/$filename")!!.readText()
   }
 
-  enum class Bundle(val id: Char) {
-    BASE('B'),
-    CORPORATE_ERA('R'),  // well the letter R appears 3 times so...
-    THARSIS('M'),        // for "map", ooh
-    HELLAS('H'),
-    ELYSIUM('E'),
-    VENUS_NEXT('V'),
-    PRELUDE('P'),
-    COLONIES('C'),
-    TURMOIL('T'),
-    PROMOS('X'),
+  enum class Bundle(val id: Char, val isMap: Boolean = false) {
+    Base('B'),
+    CorporateEra('R'),  // well the letter R appears 3 times so...
+    Tharsis('M', true),  // M for "map", ooh
+    Hellas('H', true),
+    Elysium('E', true),
+    VenusNext('V'),
+    Prelude('P'),
+    Colonies('C'),
+    Turmoil('T'),
+    Promos('X'),
   }
 }

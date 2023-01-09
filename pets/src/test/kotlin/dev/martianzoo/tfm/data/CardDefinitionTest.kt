@@ -18,10 +18,11 @@ private class CardDefinitionTest {
    */
   @Test
   fun minimal() {
-    val dumbCard = CardDefinition("xxx", deck = PRELUDE, effectsText = setOf("This: Plant"))
+    val dumbCard = CardDefinition(
+        "xxx", deck = PRELUDE, effectsText = setOf("This: Plant"), bundle =  "Z")
 
     assertThat(dumbCard.id).isEqualTo("xxx")
-    assertThat(dumbCard.bundle).isNull()
+    assertThat(dumbCard.bundle).isEqualTo("Z")
     assertThat(dumbCard.deck).isEqualTo(PRELUDE)
     assertThat(dumbCard.replaces).isNull()
     assertThat(dumbCard.tagsText).isEmpty()
@@ -89,7 +90,7 @@ private class CardDefinitionTest {
   }
 
   // Just so we don't have to keep repeating the "x" part
-  private val card: CardDefinition = CardDefinition("x")
+  private val card: CardDefinition = CardDefinition("x", bundle = "Z")
 
   /** Since we only use C expecting an exception, we should make sure it normally works. */
   @Test
@@ -100,7 +101,7 @@ private class CardDefinitionTest {
 
   @Test
   fun emptyStrings() {
-    assertThrows<RuntimeException> { CardDefinition("") }
+    assertThrows<RuntimeException> { CardDefinition("", bundle = "Z") }
     assertThrows<RuntimeException> { card.copy(bundle = "") }
     assertThrows<RuntimeException> { card.copy(replaces = "") }
     assertThrows<RuntimeException> { card.copy(resourceTypeText = "") }

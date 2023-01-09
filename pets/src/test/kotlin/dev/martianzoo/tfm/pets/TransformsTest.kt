@@ -53,6 +53,12 @@ private class TransformsTest {
   }
 
   @Test
+  fun testFindAllClassNames() {
+    val instr = parse<Instruction>('$' + "foo(Bar, Qux<Dog>)")
+    assertThat(findAllClassNames(instr)).containsExactly("Bar", "Qux", "Dog")
+  }
+
+  @Test
   fun testResolveSpecialThisType() {
     checkResolveThis<Instruction>("Foo<This>", gte("Bar"), "Foo<Bar>")
     checkResolveThis<Instruction>("Foo<This>", gte("Bar"), "Foo<Bar>")

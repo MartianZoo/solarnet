@@ -86,7 +86,7 @@ internal class PetClassLoader(private val authority: Authority) : PetClassTable 
     require(decl.className !in nameToPetClass) { decl.className }
 
     nameToPetClass[name] = null
-    val superclasses = decl.superclassNames.map(::loadSingle) // we do most other things lazily...
+    val superclasses = decl.superclassNames.map(::load) // we do most other things lazily...
 
     return PetClass(decl, superclasses, this)
         .also { nameToPetClass[name] = it }
