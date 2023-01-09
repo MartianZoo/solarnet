@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 
 private class PetTypeCanonTest {
-  val table = PetClassLoader(Canon).loadAll()
+  val table = PetClassLoader(Canon).loadEverything()
 
   @Test
   fun wtf1() {

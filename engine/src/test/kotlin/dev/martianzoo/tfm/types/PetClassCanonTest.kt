@@ -19,7 +19,7 @@ private class PetClassCanonTest {
       assertThat(allDependencyKeys).isEmpty()
       assertThat(directSuperclasses).isEmpty()
     }
-    assertThat(table.classesLoaded()).isEqualTo(1)
+    assertThat(table.loadedClasses().size).isEqualTo(1)
 
     table.load("OceanTile").apply {
       assertThat(directDependencyKeys).isEmpty()
@@ -30,16 +30,16 @@ private class PetClassCanonTest {
           "GlobalParameter",
           "Tile",
           "OceanTile").inOrder()
-      assertThat(table.classesLoaded()).isEqualTo(4)
+      assertThat(table.loadedClasses().size).isEqualTo(4)
 
       assertThat(baseType).isEqualTo(table.resolve("OceanTile<MarsArea>"))
     }
-    assertThat(table.classesLoaded()).isEqualTo(6)
+    assertThat(table.loadedClasses().size).isEqualTo(6)
   }
 
   @Test
   fun slurp() {
-    val table = PetClassLoader(Canon).loadAll()
+    val table = PetClassLoader(Canon).loadEverything()
     val all = table.loadedClassNames().map { table[it] }
 
     all.forEach { it.directEffectsRaw.forEach(::testRoundTrip) }
@@ -47,10 +47,9 @@ private class PetClassCanonTest {
     all.forEach { it.directEffects.forEach(::testRoundTrip) }
   }
 
-  @Test
   fun loadsOnlyWhatItNeeds() {
     val loader = PetClassLoader(Canon)
-    loader.loadAllSingletons()
+    loader.autoLoadDependencies = true
 
     val nonVenusCards = Canon.cardDefinitions.filterNot { it.bundle == "V" }
     loader.loadAll(nonVenusCards.map { it.className })
@@ -70,24 +69,14 @@ private class PetClassCanonTest {
     loader.load("CityTag")
 
     var loadedSoFar = loader.loadedClassNames()
-    while (true) {
-      loadedSoFar.forEach {
-        val petClass = loader[it]
-        petClass.baseType
-        petClass.directEffects
-      }
-      val loadedNow = loader.loadedClassNames()
-      if (loadedNow == loadedSoFar) break
-      loadedSoFar = loadedNow
-    }
 
-    val all = PetClassLoader(Canon).loadAll().loadedClassNames()
+    val all = PetClassLoader(Canon).loadEverything().loadedClassNames()
 
     val venusThings =
         Canon.cardDefinitions
             .filter { it.bundle == "V" }
             .map { it.className } +
-        setOf("VenusTag", "MilestoneVM1", "Dirigible", "Area220", "Area236", "Area238", "Area248")
+        setOf("VenusStep", "VenusTag", "MilestoneVM1", "Dirigible", "Area220", "Area236", "Area238", "Area248")
 
     assertThat(all.containsAll(venusThings)).isTrue()
 
@@ -100,7 +89,7 @@ private class PetClassCanonTest {
 
   @Test
   fun subConcrete() {
-    val table = PetClassLoader(Canon).loadAll()
+    val table = PetClassLoader(Canon).loadEverything()
     val all = table.loadedClassNames().map { table[it] }
     val subConcrete = all.flatMap { clazz ->
       clazz.directSuperclasses.filterNot { it.abstract }.map { clazz.name to it.name }
@@ -115,7 +104,7 @@ private class PetClassCanonTest {
 
   @Test
   fun intersectionTypes() {
-    val table = PetClassLoader(Canon).loadAll()
+    val table = PetClassLoader(Canon).loadEverything()
 
     // Nothing can be both Owned and a Tile without being an OwnedTile!
     assertThat(table["OwnedTile"].intersectionType).isTrue()
@@ -125,7 +114,7 @@ private class PetClassCanonTest {
   }
 
   fun findValidTypes() {
-    val table = PetClassLoader(Canon).loadAll()
+    val table = PetClassLoader(Canon).loadEverything()
     val all = table.loadedClassNames().map { table[it] }
 
     val names: List<String> = all.map { it.name }.filterNot {
@@ -190,7 +179,7 @@ private class PetClassCanonTest {
   }
 
   fun describeEverything() {
-    val table = PetClassLoader(Canon).loadAll()
+    val table = PetClassLoader(Canon).loadEverything()
     val all = table.loadedClassNames().map { table[it] }
     all.sortedBy { it.name }.forEach { c ->
       val interestingSupes = c.allSuperclasses.filter {

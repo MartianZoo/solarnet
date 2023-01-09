@@ -1,5 +1,9 @@
 package dev.martianzoo.tfm.canon
 
+import dev.martianzoo.tfm.canon.Canon.Bundle.BASE
+import dev.martianzoo.tfm.canon.Canon.Bundle.ELYSIUM
+import dev.martianzoo.tfm.canon.Canon.Bundle.HELLAS
+import dev.martianzoo.tfm.canon.Canon.Bundle.THARSIS
 import dev.martianzoo.tfm.data.Authority
 import dev.martianzoo.tfm.data.CardDefinition
 import dev.martianzoo.tfm.data.ClassDeclaration
@@ -20,6 +24,15 @@ object Canon : Authority() {
 
   override val mapAreaDefinitions: Map<String, Grid<MapAreaDefinition>> by lazy {
     JsonReader.readMaps(readResource("maps.json5"))
+  }
+
+  fun getMap(bundle: Bundle): Grid<MapAreaDefinition> {
+    return when (bundle) {
+      BASE, THARSIS -> mapAreaDefinitions["Tharsis"]!!
+      HELLAS -> mapAreaDefinitions["Hellas"]!!
+      ELYSIUM -> mapAreaDefinitions["Elysium"]!!
+      else -> throw IllegalArgumentException("No map in $bundle")
+    }
   }
 
   override val cardDefinitions: Collection<CardDefinition> by lazy {

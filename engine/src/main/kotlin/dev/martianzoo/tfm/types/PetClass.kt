@@ -5,7 +5,11 @@ import dev.martianzoo.tfm.pets.AstTransformer
 import dev.martianzoo.tfm.pets.SpecialComponent.Component
 import dev.martianzoo.tfm.pets.ast.Effect
 import dev.martianzoo.tfm.pets.ast.PetsNode
+import dev.martianzoo.tfm.pets.ast.QuantifiedExpression
 import dev.martianzoo.tfm.pets.ast.Requirement
+import dev.martianzoo.tfm.pets.ast.Requirement.And
+import dev.martianzoo.tfm.pets.ast.Requirement.Exact
+import dev.martianzoo.tfm.pets.ast.Requirement.Min
 import dev.martianzoo.tfm.pets.ast.TypeExpression
 import dev.martianzoo.tfm.pets.ast.TypeExpression.ClassExpression
 import dev.martianzoo.tfm.pets.ast.TypeExpression.Companion.gte
@@ -188,6 +192,17 @@ internal class PetClass(
   }
 
 // OTHER
+
+  // includes abstract
+  fun isSingleton(): Boolean =
+      declaration.otherInvariants.any { requiresAnInstance(it) } ||
+          directSuperclasses.any { it.isSingleton() }
+
+  private fun requiresAnInstance(r: Requirement): Boolean {
+    return r is Min && r.qe == QuantifiedExpression(gte("This"), 1) ||
+        r is Exact && r.qe == QuantifiedExpression(gte("This"), 1) ||
+        r is And && r.requirements.any { requiresAnInstance(it) }
+  }
 
   override fun toTypeExpressionFull() = ClassExpression(name)
 

@@ -58,10 +58,11 @@ internal class ComponentGraph(startingWith: Multiset<Component> = ImmutableMulti
 
   internal data class Component(val type: PetGenericType) {
     init {
-      require(!type.abstract)
+      require(!type.abstract) { type }
     }
 
-    val asTypeExpression = type.toTypeExpressionFull()
     fun hasType(thatType: PetType) = type.isSubtypeOf(thatType)
+    val asTypeExpression = type.toTypeExpressionFull()
+    override fun toString() = "[$type]"
   }
 }

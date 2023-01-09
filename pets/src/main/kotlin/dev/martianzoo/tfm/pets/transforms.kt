@@ -6,6 +6,7 @@ import dev.martianzoo.tfm.pets.SpecialComponent.UseAction
 import dev.martianzoo.tfm.pets.ast.Action
 import dev.martianzoo.tfm.pets.ast.Effect
 import dev.martianzoo.tfm.pets.ast.Effect.Trigger.OnGain
+import dev.martianzoo.tfm.pets.ast.FromExpression.ComplexFrom
 import dev.martianzoo.tfm.pets.ast.FromExpression.SimpleFrom
 import dev.martianzoo.tfm.pets.ast.Instruction
 import dev.martianzoo.tfm.pets.ast.Instruction.Gain
@@ -18,6 +19,25 @@ import dev.martianzoo.tfm.pets.ast.TypeExpression
 import dev.martianzoo.tfm.pets.ast.TypeExpression.ClassExpression
 import dev.martianzoo.tfm.pets.ast.TypeExpression.Companion.gte
 import dev.martianzoo.tfm.pets.ast.TypeExpression.GenericTypeExpression
+
+fun findAllClassNames(node: PetsNode): Set<String> {
+  class ClassNameFinder : AstTransformer() {
+    val found = mutableSetOf<String>()
+    override fun <P : PetsNode?> transform(node: P): P {
+      // TODO ClassExpression
+      when (node) {
+        is TypeExpression -> found += node.className
+        is ComplexFrom -> found += node.className
+        else -> {}
+      }
+      return super.transform(node)
+    }
+  }
+
+  val f = ClassNameFinder()
+  f.transform(node)
+  return f.found - setOf(This.name)
+}
 
 internal fun actionToEffect(action: Action, index1Ref: Int): Effect {
   require(index1Ref >= 1) { index1Ref }

@@ -15,7 +15,7 @@ private class GameStateTest {
 
   @Test
   fun basic() {
-    val table = PetClassLoader(Canon).loadAll()
+    val table = PetClassLoader(Canon).loadEverything()
     val cg = ComponentGraph()
     val game = Game(Canon, cg, table)
 
@@ -57,7 +57,7 @@ private class GameStateTest {
 
   @Test
   fun script() {
-    val table = PetClassLoader(Canon).loadAll()
+    val table = PetClassLoader(Canon).loadEverything()
     val cg = ComponentGraph()
     val game = Game(Canon, cg, table) // it's just more convenient
 

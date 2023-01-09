@@ -9,6 +9,7 @@ internal interface PetClassTable {
   operator fun get(name: String): PetClass
 
   fun loadedClassNames(): Set<String>
+  fun loadedClasses(): Set<PetClass>
 
   // TODO rename to resolveType?
   fun resolve(expression: String): PetType = resolve(parse<TypeExpression>(expression))

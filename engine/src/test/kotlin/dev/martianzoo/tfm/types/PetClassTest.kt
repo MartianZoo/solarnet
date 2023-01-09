@@ -203,7 +203,7 @@ private class PetClassTest {
 private fun loader(petsText: String): PetClassLoader {
   val classes: List<ClassDeclaration> = ClassDeclarationParser.parseClassDeclarations(petsText)
   val authority = FakeAuthority(classes)
-  return PetClassLoader(authority).also { it.loadAll() }
+  return PetClassLoader(authority).also { it.loadEverything() }
 }
 
 class FakeAuthority(classes: List<ClassDeclaration>) : Authority() {
