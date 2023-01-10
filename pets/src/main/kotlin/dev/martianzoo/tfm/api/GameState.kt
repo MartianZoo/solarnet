@@ -12,7 +12,7 @@ import dev.martianzoo.tfm.pets.ast.TypeExpression.GenericTypeExpression
  * This is a simple interface in the `pets` module that code
  * outside the module can implement...
  */
-public interface GameApi : ReadOnlyGameState { // TODO GameState
+public interface GameState : ReadOnlyGameState {
   fun applyChange(
       count: Int = 1,
       gaining: GenericTypeExpression? = null,

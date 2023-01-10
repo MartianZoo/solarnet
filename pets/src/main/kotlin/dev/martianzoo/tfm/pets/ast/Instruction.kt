@@ -1,7 +1,7 @@
 package dev.martianzoo.tfm.pets.ast
 
 import dev.martianzoo.tfm.api.CustomInstruction.ExecuteInsteadException
-import dev.martianzoo.tfm.api.GameApi
+import dev.martianzoo.tfm.api.GameState
 import dev.martianzoo.tfm.api.standardResourceNames
 import dev.martianzoo.tfm.pets.PetsException
 import dev.martianzoo.tfm.pets.ast.FromExpression.SimpleFrom
@@ -15,7 +15,7 @@ sealed class Instruction : PetsNode() {
 
   open operator fun times(value: Int): Instruction = TODO()
 
-  abstract fun execute(game: GameApi)
+  abstract fun execute(game: GameState)
 
   data class Gain(val qe: QuantifiedExpression, val intensity: Intensity? = null) : Instruction() {
     init {
@@ -27,7 +27,7 @@ sealed class Instruction : PetsNode() {
     override fun times(value: Int) = copy(qe = qe.copy(scalar = qe.scalar * value))
 
     // TODO intensity
-    override fun execute(game: GameApi) =
+    override fun execute(game: GameState) =
         game.applyChange(qe.scalar, gaining = qe.expression as GenericTypeExpression)
 
     override fun toString() = "$qe${intensity?.symbol ?: ""}"
@@ -44,7 +44,7 @@ sealed class Instruction : PetsNode() {
     }
 
     override fun times(value: Int) = copy(qe = qe.copy(scalar = qe.scalar * value))
-    override fun execute(game: GameApi) =
+    override fun execute(game: GameState) =
         game.applyChange(qe.scalar, removing = qe.expression as GenericTypeExpression)
 
     override fun toString() = "-$qe${intensity?.symbol ?: ""}"
@@ -63,7 +63,7 @@ sealed class Instruction : PetsNode() {
 
     override fun times(value: Int) = copy(instruction = instruction * value)
 
-    override fun execute(game: GameApi) {
+    override fun execute(game: GameState) {
       val measurement = game.count(qe.expression) / qe.scalar
       if (measurement > 0) {
         (instruction * measurement).execute(game)
@@ -84,7 +84,7 @@ sealed class Instruction : PetsNode() {
 
     override fun times(value: Int) = copy(instruction = instruction * value)
 
-    override fun execute(game: GameApi) {
+    override fun execute(game: GameState) {
       if (game.isMet(requirement)) {
         instruction.execute(game)
       } else {
@@ -119,7 +119,7 @@ sealed class Instruction : PetsNode() {
 
     override fun times(value: Int) = copy(scalar = scalar!! * value)
 
-    override fun execute(game: GameApi) = game.applyChange(
+    override fun execute(game: GameState) = game.applyChange(
         scalar ?: 1,
         gaining = fromExpression.toType as GenericTypeExpression,
         removing = fromExpression.fromType as GenericTypeExpression)
@@ -140,7 +140,7 @@ sealed class Instruction : PetsNode() {
     constructor(functionName: String, vararg arguments: TypeExpression) :
         this(functionName, arguments.toList())
 
-    override fun execute(game: GameApi) {
+    override fun execute(game: GameState) {
       val instr = game.authority.customInstructionsByName[functionName]!!
       try {
         // We're not going to get far with this approach of just trying to execute directly.
@@ -162,7 +162,7 @@ sealed class Instruction : PetsNode() {
     constructor(vararg instructions: Instruction) : this(instructions.toList())
 
     override fun times(value: Int) = copy(instructions.map { it * value })
-    override fun execute(game: GameApi) {
+    override fun execute(game: GameState) {
       Multi(instructions).execute(game)
     }
 
@@ -175,7 +175,7 @@ sealed class Instruction : PetsNode() {
     constructor(vararg instructions: Instruction) : this(instructions.toSet())
 
     override fun times(value: Int) = copy(instructions.map { it * value }.toSet())
-    override fun execute(game: GameApi) = error("abstract instruction")
+    override fun execute(game: GameState) = error("abstract instruction")
 
     override fun toString() = instructions.joinToString(" OR ") { groupPartIfNeeded(it) }
 
@@ -191,7 +191,7 @@ sealed class Instruction : PetsNode() {
 
     override fun times(value: Int) = copy(instructions.map { it * value })
 
-    override fun execute(game: GameApi) {
+    override fun execute(game: GameState) {
       instructions.forEach { it.execute(game) }
     }
 
@@ -204,7 +204,7 @@ sealed class Instruction : PetsNode() {
       Instruction(), GenericTransform<Instruction> {
     override fun times(value: Int) = Transform(instruction * value, transform)
 
-    override fun execute(game: GameApi) = error("should have been transformed by now")
+    override fun execute(game: GameState) = error("should have been transformed by now")
 
     override fun toString() = "$transform[$instruction]"
 

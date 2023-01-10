@@ -21,7 +21,7 @@ abstract class CustomInstruction(val name: String) {
 
   class ExecuteInsteadException : RuntimeException("foo")
 
-  open fun execute(game: GameApi, arguments: List<TypeExpression>) {
+  open fun execute(game: GameState, arguments: List<TypeExpression>) {
     TODO()
   }
 }

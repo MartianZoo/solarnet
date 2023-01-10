@@ -3,7 +3,7 @@ package dev.martianzoo.tfm.engine
 import com.google.common.collect.HashMultiset
 import com.google.common.collect.ImmutableMultiset
 import com.google.common.collect.Multiset
-import dev.martianzoo.tfm.api.GameApi
+import dev.martianzoo.tfm.api.GameState
 import dev.martianzoo.tfm.api.standardResourceNames
 import dev.martianzoo.tfm.data.Authority
 import dev.martianzoo.tfm.engine.ComponentGraph.Component
@@ -24,7 +24,7 @@ internal class Game(
     override val authority: Authority,
     val components: ComponentGraph,
     val classTable: PetClassTable,
-) : GameApi {
+) : GameState {
   // val tasks = mutableListOf<Task>()
 
   val changeLog = components.changeLog

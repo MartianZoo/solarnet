@@ -1,7 +1,7 @@
 package dev.martianzoo.tfm.pets.ast
 
 import com.google.common.truth.Truth.assertThat
-import dev.martianzoo.tfm.api.GameApi
+import dev.martianzoo.tfm.api.GameState
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.pets.PetsParser.parse
 import dev.martianzoo.tfm.pets.StateChange.Cause
@@ -148,7 +148,7 @@ private class RequirementTest {
 
   // All type expressions with even-length string representations
   // exist and have a count equal to that string's length
-  object FakeGame : GameApi {
+  object FakeGame : GameState {
     override val authority = Canon // why not
 
     override fun count(type: TypeExpression): Int {

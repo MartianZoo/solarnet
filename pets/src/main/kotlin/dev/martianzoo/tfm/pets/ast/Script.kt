@@ -1,9 +1,9 @@
 package dev.martianzoo.tfm.pets.ast
 
-import dev.martianzoo.tfm.api.GameApi
+import dev.martianzoo.tfm.api.GameState
 
 data class Script(val lines: List<ScriptLine>) : PetsNode() {
-  fun execute(game: GameApi): Map<String, Int> {
+  fun execute(game: GameState): Map<String, Int> {
     val map = mutableMapOf<String, Int>()
     for (line in lines) {
       when (line) {
@@ -19,7 +19,7 @@ data class Script(val lines: List<ScriptLine>) : PetsNode() {
   override val kind = "Script"
 
   sealed class ScriptLine: PetsNode() {
-    abstract fun doIt(game: GameApi): Any
+    abstract fun doIt(game: GameState): Any
     override val kind = "ScriptLine"
   }
 
@@ -27,25 +27,25 @@ data class Script(val lines: List<ScriptLine>) : PetsNode() {
       val command: Instruction,
       val ownedBy: TypeExpression? = null,
   ) : ScriptLine() {
-    override fun doIt(game: GameApi) {
+    override fun doIt(game: GameState) {
       command.execute(game)
     }
   }
 
   data class ScriptRequirement(val req: Requirement) : ScriptLine() {
-    override fun doIt(game: GameApi) {
+    override fun doIt(game: GameState) {
       if (!req.evaluate(game)) throw PetsAbortException("Requirement failed: $req")
     }
   }
 
   data class ScriptCounter(val key: String, val type: TypeExpression) : ScriptLine() {
-    override fun doIt(game: GameApi): Pair<String, Int> {
+    override fun doIt(game: GameState): Pair<String, Int> {
       return key to game.count(type)
     }
   }
 
   data class ScriptPragmaPlayer(val player: TypeExpression) : ScriptLine() { // also mode
-    override fun doIt(game: GameApi): Any {
+    override fun doIt(game: GameState): Any {
       TODO("Not yet implemented")
     }
   }
