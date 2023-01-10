@@ -11,6 +11,7 @@
       <option name="taskNames">
         <list>
           <option value=":pets:test" />
+          <option value=":canon:test" />
           <option value=":engine:test" />
         </list>
       </option>
