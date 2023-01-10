@@ -3,7 +3,7 @@ package dev.martianzoo.tfm.testlib
 import com.google.common.collect.ImmutableMultiset
 import com.google.common.truth.Truth.assertWithMessage
 import dev.martianzoo.tfm.pets.PetsException
-import dev.martianzoo.tfm.pets.PetsParser
+import dev.martianzoo.tfm.pets.PetsParser.parsePets
 import dev.martianzoo.tfm.pets.SpecialComponent.Default
 import dev.martianzoo.tfm.pets.ast.Action
 import dev.martianzoo.tfm.pets.ast.Action.Cost
@@ -193,7 +193,7 @@ internal class PetsGenerator(scaling: (Int) -> Double) :
       val originalStringOut = randomNode.toString()
 
       val reparsedNode = try {
-        PetsParser.parse(type, originalStringOut)
+        parsePets(type, originalStringOut)
       } catch (e: Exception) {
         fail("node was ${p2k(randomNode)}", e)
       }

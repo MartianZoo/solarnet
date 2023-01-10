@@ -62,14 +62,13 @@ object PetsParser {
    * `P`, and returning the parsed `P`. `P` can only be one of the major
    * elemental types like `Action`, not `ClassDeclaration`, or something smaller.
    */
-  inline fun <reified P : PetsNode> parse(source: String): P = parse(P::class, source)
-  // TODO rename
+  inline fun <reified P : PetsNode> parsePets(source: String): P = parsePets(P::class, source)
 
   /**
    * Parses the PETS source code in `source` using any accessible parser
    * instance from the properties of this object; intended for testing.
    */
-  fun <T> parse(parser: Parser<T>, source: String) = parser.parseToEnd(tokenizer.tokenize(source))
+  fun <T> parsePets(parser: Parser<T>, source: String) = parser.parseToEnd(tokenizer.tokenize(source))
 
   fun parseScript(scriptText: String): Script {
     val scriptLines = try {
@@ -391,11 +390,11 @@ object PetsParser {
       parser.also { primaryParsers[type] = it }
 
   /** Non-reified version of `parse(source)`. */
-  fun <P : PetsNode> parse(expectedType: KClass<P>, source: String): P {
+  fun <P : PetsNode> parsePets(expectedType: KClass<P>, source: String): P {
     require(expectedType in primaryParsers) { expectedType }
     val parser: Parser<PetsNode> = primaryParsers[expectedType]!!
     val pet = try {
-      parse(parser, source)
+      parsePets(parser, source)
     } catch (e: ParseException) {
       throw IllegalArgumentException("""
           Expecting ${expectedType.simpleName} ...

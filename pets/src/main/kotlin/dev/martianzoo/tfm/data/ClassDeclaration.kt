@@ -37,7 +37,7 @@ data class ClassDeclaration(
   val allNodes: Set<PetsNode> by lazy {
     setOf<PetsNode>() +
         supertypes +
-        dependencies.map { it.upperBound } +
+        dependencies.map { it.type } +
         setOfNotNull(topInvariant) +
         otherInvariants +
         effectsRaw +
@@ -54,10 +54,7 @@ data class ClassDeclaration(
         r is And && r.requirements.any { requiresOneInstance(it) }
   }
 
-  data class DependencyDeclaration(
-      val upperBound: TypeExpression,
-      val classDependency: Boolean = false, // TODO whut?
-  )
+  data class DependencyDeclaration(val type: TypeExpression)
 
   data class DefaultsDeclaration(
       val universalSpecs: List<TypeExpression> = listOf(),

@@ -5,7 +5,7 @@ import dev.martianzoo.tfm.api.lookUpProductionLevels
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.engine.ComponentGraph.Component
 import dev.martianzoo.tfm.pets.PetsParser
-import dev.martianzoo.tfm.pets.PetsParser.parse
+import dev.martianzoo.tfm.pets.PetsParser.parsePets
 import dev.martianzoo.tfm.pets.StateChange
 import dev.martianzoo.tfm.pets.ast.TypeExpression
 import dev.martianzoo.tfm.pets.ast.TypeExpression.Companion.gte
@@ -71,7 +71,7 @@ private class GameStateTest {
     )
 
     game.applyChange(2, gaining =
-        parse<TypeExpression>("Production<Player1, Plant.CLASS>") as GenericTypeExpression)
+        parsePets<TypeExpression>("Production<Player1, Plant.CLASS>") as GenericTypeExpression)
     val prods2: Map<String, Int> = lookUpProductionLevels(game, gte("Player1"))
     assertThat(prods2).containsExactly(
         "Megacredit", -5,

@@ -1,6 +1,6 @@
 package dev.martianzoo.tfm.data
 
-import dev.martianzoo.tfm.pets.PetsParser.parse
+import dev.martianzoo.tfm.pets.PetsParser.parsePets
 import dev.martianzoo.tfm.pets.actionToEffect
 import dev.martianzoo.tfm.pets.ast.Action
 import dev.martianzoo.tfm.pets.ast.Requirement
@@ -22,7 +22,7 @@ data class ActionDefinition(
 
   override val className = englishHack(id)
 
-  val action by lazy { parse<Action>(actionText) }
+  val action by lazy { parsePets<Action>(actionText) }
 
   override val asClassDeclaration by lazy {
     ClassDeclaration(
@@ -35,4 +35,4 @@ data class ActionDefinition(
   }
 }
 
-private val invariants = setOf(parse<Requirement>("=1 This"))
+private val invariants = setOf(parsePets<Requirement>("=1 This"))

@@ -7,7 +7,7 @@ import dev.martianzoo.tfm.api.GameState
 import dev.martianzoo.tfm.api.standardResourceNames
 import dev.martianzoo.tfm.data.Authority
 import dev.martianzoo.tfm.engine.ComponentGraph.Component
-import dev.martianzoo.tfm.pets.PetsParser.parse
+import dev.martianzoo.tfm.pets.PetsParser.parsePets
 import dev.martianzoo.tfm.pets.StateChange.Cause
 import dev.martianzoo.tfm.pets.ast.Instruction
 import dev.martianzoo.tfm.pets.ast.Requirement
@@ -30,11 +30,11 @@ internal class Game(
   val changeLog = components.changeLog
 
   fun resolve(type: TypeExpression) = classTable.resolve(type)
-  fun resolve(typeText: String) = resolve(parse(typeText))
+  fun resolve(typeText: String) = resolve(parsePets(typeText))
 
   fun count(type: PetType) = components.count(type)
 
-  fun execute(instr: String) = execute(parse<Instruction>(instr))
+  fun execute(instr: String) = execute(parsePets<Instruction>(instr))
   fun execute(instr: Instruction) = instr.execute(this)
 
   fun execute(script: Script): Map<String, Int> =
@@ -60,10 +60,10 @@ internal class Game(
         .toSetStrict()
   }
 
-  override fun getAll(typeText: String) = getAll(parse<TypeExpression>(typeText))
+  override fun getAll(typeText: String) = getAll(parsePets<TypeExpression>(typeText))
 
   override fun isMet(requirement: Requirement) = requirement.evaluate(this)
-  fun isMet(requirementText: String) = isMet(parse(requirementText))
+  fun isMet(requirementText: String) = isMet(parsePets(requirementText))
 
   override fun applyChange(
       count: Int,

@@ -1,7 +1,7 @@
 package dev.martianzoo.tfm.pets
 
 import com.google.common.truth.Truth.assertThat
-import dev.martianzoo.tfm.pets.PetsParser.parse
+import dev.martianzoo.tfm.pets.PetsParser.parsePets
 import dev.martianzoo.tfm.pets.ast.Action
 import dev.martianzoo.tfm.pets.ast.Effect
 import dev.martianzoo.tfm.pets.ast.Effect.Trigger
@@ -33,15 +33,15 @@ private class TransformsTest {
   }
 
   private fun checkActionToEffect(action: String, index: Int, effect: String) {
-    assertThat(actionToEffect(parse(action), index)).isEqualTo(parse<Effect>(effect))
+    assertThat(actionToEffect(parsePets(action), index)).isEqualTo(parsePets<Effect>(effect))
   }
 
   @Test
   fun testActionsToEffects() {
-    val actions: List<Action> = listOf("-> Foo", "Foo -> 5 Bar").map(::parse)
+    val actions: List<Action> = listOf("-> Foo", "Foo -> 5 Bar").map(::parsePets)
     assertThat(actionsToEffects(actions)).containsExactly(
-        parse<Effect>("UseAction1<This>: Foo"),
-        parse<Effect>("UseAction2<This>: -Foo! THEN 5 Bar"),
+        parsePets<Effect>("UseAction1<This>: Foo"),
+        parsePets<Effect>("UseAction2<This>: -Foo! THEN 5 Bar"),
     ).inOrder()
   }
 
@@ -53,12 +53,12 @@ private class TransformsTest {
   }
 
   private fun checkImmediateToEffect(immediate: String, effect: String) {
-    assertThat(immediateToEffect(parse(immediate))).isEqualTo(parse<Effect>(effect))
+    assertThat(immediateToEffect(parsePets(immediate))).isEqualTo(parsePets<Effect>(effect))
   }
 
   @Test
   fun testFindAllClassNames() {
-    val instr = parse<Instruction>('$' + "foo(Bar, Qux<Dog>)")
+    val instr = parsePets<Instruction>('$' + "foo(Bar, Qux<Dog>)")
     assertThat(findAllClassNames(instr)).containsExactly("Bar", "Qux", "Dog")
   }
 
@@ -92,8 +92,8 @@ private class TransformsTest {
       thiss: GenericTypeExpression,
       expected: String,
   ) {
-    val parsedOriginal = parse(type, original)
-    val parsedExpected = parse(type, expected)
+    val parsedOriginal = parsePets(type, original)
+    val parsedExpected = parsePets(type, expected)
     val tx = replaceThis(parsedOriginal, thiss)
     assertThat(tx).isEqualTo(parsedExpected)
 
@@ -107,14 +107,14 @@ private class TransformsTest {
   @Test
   fun testDeprodify_noProd() {
     val s = "Foo<Bar>: Bax OR Qux"
-    val e: Effect = parse(s)
+    val e: Effect = parsePets(s)
     val ep: Effect = deprodify(e, resources)
     assertThat(ep.toString()).isEqualTo(s)
   }
 
   @Test
   fun testDeprodify_simple() {
-    val prodden: Effect = parse("This: PROD[Plant / PlantTag]")
+    val prodden: Effect = parsePets("This: PROD[Plant / PlantTag]")
     val deprodden: Effect = deprodify(prodden, resources)
     assertThat(deprodden.toString()).isEqualTo("This: Production<Plant.CLASS> / PlantTag")
   }
@@ -122,9 +122,9 @@ private class TransformsTest {
   @Test
   fun testDeprodify_lessSimple() {
     // TODO adds unnecessary grouping, do we care?
-    val prodden: Effect = parse("PROD[Plant]: PROD[Ooh?, Steel. / Ahh, Foo<Xyz FROM " +
+    val prodden: Effect = parsePets("PROD[Plant]: PROD[Ooh?, Steel. / Ahh, Foo<Xyz FROM " +
         "Heat>, -Qux!, 5 Ahh<Qux> FROM StandardResource], Heat")
-    val expected: Effect = parse(
+    val expected: Effect = parsePets(
         "Production<Plant.CLASS>: (Ooh?, Production<Steel.CLASS>. / Ahh, Foo<Xyz FROM " +
         "Production<Heat.CLASS>>, -Qux!, 5 Ahh<Qux> FROM Production<StandardResource.CLASS>), Heat")
     val deprodden: Effect = deprodify(prodden, resources)
@@ -133,7 +133,7 @@ private class TransformsTest {
 
   @Test
   fun testNonProd() {
-    val x = parse<Effect>("HAHA[Plant]: Heat, HAHA[Steel / 5 PowerTag]")
+    val x = parsePets<Effect>("HAHA[Plant]: Heat, HAHA[Steel / 5 PowerTag]")
     assertThat(x).isEqualTo(
         Effect(
             Trigger.Transform(

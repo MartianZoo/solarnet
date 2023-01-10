@@ -1,14 +1,13 @@
 package dev.martianzoo.tfm.pets.ast
 
 import com.google.common.truth.Truth.assertThat
-import dev.martianzoo.tfm.pets.PetsParser.parse
+import dev.martianzoo.tfm.pets.PetsParser.parsePets
 import dev.martianzoo.tfm.pets.testSampleStrings
 import org.junit.jupiter.api.Test
 
 // Most testing is done by AutomatedTest
 private class EffectTest {
 
-  // TODO
   val inputs = """
     Ooh: 1
     -Ahh: 1
@@ -75,7 +74,7 @@ private class EffectTest {
 
   @Test
   fun nodeCount() {
-    val eff: Effect = parse("Xyz<Xyz>: PROD[(1 Abc FROM Qux) OR 1]")
+    val eff: Effect = parsePets("Xyz<Xyz>: PROD[(1 Abc FROM Qux) OR 1]")
     // ef, og, te, te, pr, or, tr, fr, te, te ga, qe, te
     assertThat(eff.nodeCount()).isEqualTo(13)
   }

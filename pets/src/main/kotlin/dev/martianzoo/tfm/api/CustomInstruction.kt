@@ -1,6 +1,6 @@
 package dev.martianzoo.tfm.api
 
-import dev.martianzoo.tfm.pets.PetsParser.parse
+import dev.martianzoo.tfm.pets.PetsParser.parsePets
 import dev.martianzoo.tfm.pets.ast.Instruction
 import dev.martianzoo.tfm.pets.ast.TypeExpression
 
@@ -9,7 +9,7 @@ abstract class CustomInstruction(val name: String) {
 
   /** Preferred! */
   open fun translate(game: ReadOnlyGameState, arguments: List<TypeExpression>): Instruction {
-    return parse(translateToPets(game, arguments))
+    return parsePets(translateToPets(game, arguments))
   }
 
   /** Second choice! */

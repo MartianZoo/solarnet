@@ -1,6 +1,6 @@
 package dev.martianzoo.tfm.data
 
-import dev.martianzoo.tfm.pets.PetsParser.parse
+import dev.martianzoo.tfm.pets.PetsParser.parsePets
 import dev.martianzoo.tfm.pets.SpecialComponent.This
 import dev.martianzoo.tfm.pets.ast.Effect
 import dev.martianzoo.tfm.pets.ast.Effect.Trigger.OnGain
@@ -46,8 +46,8 @@ data class MapAreaDefinition(
     require(bonusText?.isEmpty() != true) // nonempty if present
   }
 
-  val bonus: Instruction? by lazy { bonusText?.let { parse(it) } }
-  val type by lazy { parse<TypeExpression>(typeText) as GenericTypeExpression }
+  val bonus: Instruction? by lazy { bonusText?.let { parsePets(it) } }
+  val type by lazy { parsePets<TypeExpression>(typeText) as GenericTypeExpression }
 
   override val asClassDeclaration by lazy {
     ClassDeclaration(className,

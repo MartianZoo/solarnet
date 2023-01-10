@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test
 private class PetClassCanonTest {
 
   @Test
-  fun component() { // TODO make this pass by not forcing subclasses to get loaded early
+  fun component() {
     val table = PetClassLoader(Canon)
 
     table.load(Component.name).apply {

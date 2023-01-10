@@ -3,7 +3,7 @@ package dev.martianzoo.tfm.pets.ast
 import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.tfm.pets.PetsParser.Instructions
 import dev.martianzoo.tfm.pets.PetsParser.Requirements
-import dev.martianzoo.tfm.pets.PetsParser.parse
+import dev.martianzoo.tfm.pets.PetsParser.parsePets
 import dev.martianzoo.tfm.pets.ast.FromExpression.ComplexFrom
 import dev.martianzoo.tfm.pets.ast.FromExpression.SimpleFrom
 import dev.martianzoo.tfm.pets.ast.Instruction.Intensity.AMAP
@@ -91,7 +91,7 @@ private class InstructionTest {
     testRoundTrip("3 Foo FROM Bar")
     testRoundTrip("1 Foo FROM Bar.")
 
-    assertThat(parse<Instruction>("1 Foo FROM Bar."))
+    assertThat(parsePets<Instruction>("1 Foo FROM Bar."))
         .isEqualTo(Transmute(SimpleFrom(gte("Foo"), gte("Bar")), 1, AMAP))
     testRoundTrip("Foo<Bar FROM Qux>")
     testRoundTrip("Foo<Bar FROM Qux>.")
@@ -101,18 +101,18 @@ private class InstructionTest {
         listOf(ComplexFrom("Bar", listOf(SimpleFrom(gte("Qux"), gte("Abc", gte("Eep")))))),
     ), null, null)
     assertThat(instr.toString()).isEqualTo("Foo<Bar<Qux FROM Abc<Eep>>>")
-    assertThat(parse<Instruction>("Foo<Bar<Qux FROM Abc<Eep>>>")).isEqualTo(instr)
+    assertThat(parsePets<Instruction>("Foo<Bar<Qux FROM Abc<Eep>>>")).isEqualTo(instr)
   }
 
   @Test
   fun custom1() {
-    parse(Instructions.custom, "\$foo()")
-    parse(Instructions.atom, "\$foo()")
-    parse(Instructions.gated, "\$foo()")
-    parse(Instructions.orInstr, "\$foo()")
-    parse(Instructions.then, "\$foo()")
-    parse(Instructions.whole, "\$foo()")
-    parse<Instruction>("\$foo()")
+    parsePets(Instructions.custom, "\$foo()")
+    parsePets(Instructions.atom, "\$foo()")
+    parsePets(Instructions.gated, "\$foo()")
+    parsePets(Instructions.orInstr, "\$foo()")
+    parsePets(Instructions.then, "\$foo()")
+    parsePets(Instructions.whole, "\$foo()")
+    parsePets<Instruction>("\$foo()")
   }
 
   @Test
@@ -127,9 +127,9 @@ private class InstructionTest {
     testRoundTrip<TypeExpression>("Abc(HAS 11 Bar)")
     testRoundTrip<Requirement>("Bar")
     testRoundTrip<Requirement>("11 Bar")
-    parse(Requirements.min, "Bar")
-    parse(Requirements.min, "11 Bar")
-    parse(Requirements.max, "MAX 11 Bar")
+    parsePets(Requirements.min, "Bar")
+    parsePets(Requirements.min, "11 Bar")
+    parsePets(Requirements.max, "MAX 11 Bar")
     testRoundTrip<Requirement>("MAX 11 Bar")
 
     testRoundTrip<TypeExpression>("Abc(HAS MAX 11 Bar)")

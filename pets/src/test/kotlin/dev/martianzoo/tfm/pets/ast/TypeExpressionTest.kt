@@ -1,7 +1,7 @@
 package dev.martianzoo.tfm.pets.ast
 
 import com.google.common.truth.Truth.assertThat
-import dev.martianzoo.tfm.pets.PetsParser
+import dev.martianzoo.tfm.pets.PetsParser.parsePets
 import dev.martianzoo.tfm.pets.ast.TypeExpression.Companion.gte
 import org.junit.jupiter.api.Test
 
@@ -12,7 +12,7 @@ private class TypeExpressionTest {
 
   @Test
   fun simpleSourceToApi() {
-    val foo: TypeExpression = PetsParser.parse("Foo")
+    val foo: TypeExpression = parsePets("Foo")
     assertThat(foo).isEqualTo(gte("Foo"))
   }
 
@@ -39,7 +39,7 @@ private class TypeExpressionTest {
 
   @Test
   fun complexSourceToApi() {
-    val parsed: TypeExpression = PetsParser.parse(" Red< Blue  < This,Teal> , Gold > ")
+    val parsed: TypeExpression = parsePets(" Red< Blue  < This,Teal> , Gold > ")
     assertThat(parsed).isEqualTo(
         gte(
             "Red",

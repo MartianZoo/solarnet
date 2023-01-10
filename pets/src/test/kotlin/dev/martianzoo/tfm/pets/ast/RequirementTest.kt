@@ -3,7 +3,7 @@ package dev.martianzoo.tfm.pets.ast
 import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.tfm.api.GameState
 import dev.martianzoo.tfm.canon.Canon
-import dev.martianzoo.tfm.pets.PetsParser.parse
+import dev.martianzoo.tfm.pets.PetsParser.parsePets
 import dev.martianzoo.tfm.pets.StateChange.Cause
 import dev.martianzoo.tfm.pets.ast.Requirement.Max
 import dev.martianzoo.tfm.pets.ast.Requirement.Min
@@ -87,9 +87,9 @@ private class RequirementTest {
 
   @Test
   fun simpleSourceToApi() {
-    assertThat(parse<Requirement>("Foo")).isEqualTo(Min(QuantifiedExpression(gte("Foo"))))
-    assertThat(parse<Requirement>("3 Foo")).isEqualTo(Min(QuantifiedExpression(gte("Foo"), 3)))
-    assertThat(parse<Requirement>("MAX 3 Foo")).isEqualTo(Max(QuantifiedExpression(gte("Foo"), 3)))
+    assertThat(parsePets<Requirement>("Foo")).isEqualTo(Min(QuantifiedExpression(gte("Foo"))))
+    assertThat(parsePets<Requirement>("3 Foo")).isEqualTo(Min(QuantifiedExpression(gte("Foo"), 3)))
+    assertThat(parsePets<Requirement>("MAX 3 Foo")).isEqualTo(Max(QuantifiedExpression(gte("Foo"), 3)))
   }
 
   @Test
@@ -137,7 +137,7 @@ private class RequirementTest {
   @Test
   fun hairy() {
     val parsed: Requirement =
-        parse("Adjacency<CityTile<Anyone>, OceanTile> OR 1 Adjacency<OceanTile, CityTile<Anyone>>")
+        parsePets("Adjacency<CityTile<Anyone>, OceanTile> OR 1 Adjacency<OceanTile, CityTile<Anyone>>")
     assertThat(parsed).isEqualTo(Requirement.Or(setOf(Min(QuantifiedExpression(gte("Adjacency",
         gte("CityTile", gte("Anyone")),
         gte("OceanTile")))),
@@ -173,7 +173,7 @@ private class RequirementTest {
     }
   }
 
-  fun evalRequirement(s: String) = assertThat(parse<Requirement>(s).evaluate(FakeGame))!!
+  fun evalRequirement(s: String) = assertThat(parsePets<Requirement>(s).evaluate(FakeGame))!!
 
   @Test
   fun evaluation() {

@@ -127,7 +127,7 @@ internal class PetClass(
     val deps = DependencyMap.intersect(directSupertypes.map { it.dependencies })
 
     val newDeps = directDependencyKeys.associateWith {
-      val typeExpression = declaration.dependencies[it.index].upperBound
+      val typeExpression = declaration.dependencies[it.index].type
       Dependency(it, loader.resolve(typeExpression))
     }
     val allDeps = deps.intersect(DependencyMap(newDeps))

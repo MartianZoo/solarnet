@@ -52,7 +52,7 @@ private class Defaulter(val loader: PetClassLoader) : AstTransformer() {
     val explicitStatedDeps = petClass.resolveSpecializations(original.specs)
     val mergedDeps = explicitStatedDeps.overlayOn(defaultDeps)
 
-    //// TODO: a little weird that we're going backwards here?
+    // TODO: a little weird that we're going backwards here?
     return PetGenericType(petClass, mergedDeps, original.refinement).toTypeExpressionFull()
   }
 }

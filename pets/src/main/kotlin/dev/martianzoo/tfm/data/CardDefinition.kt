@@ -3,8 +3,7 @@ package dev.martianzoo.tfm.data
 import com.squareup.moshi.Json
 import dev.martianzoo.tfm.data.CardDefinition.ProjectKind.ACTIVE
 import dev.martianzoo.tfm.pets.ClassDeclarationParser.oneLineClassDeclaration
-import dev.martianzoo.tfm.pets.PetsParser
-import dev.martianzoo.tfm.pets.PetsParser.parse
+import dev.martianzoo.tfm.pets.PetsParser.parsePets
 import dev.martianzoo.tfm.pets.SpecialComponent.End
 import dev.martianzoo.tfm.pets.actionsToEffects
 import dev.martianzoo.tfm.pets.ast.Action
@@ -155,7 +154,7 @@ data class CardDefinition(
   val resourceType = resourceTypeText?.let(::ClassExpression)
 
   val immediateRaw: Instruction? by lazy {
-    val set = immediateText.map { parse<Instruction>(it) }.toSetStrict()
+    val set = immediateText.map { parsePets<Instruction>(it) }.toSetStrict()
     when (set.size) {
       0 -> null
       1 -> set.first()
@@ -166,9 +165,9 @@ data class CardDefinition(
       }
     }
   }
-  val actionsRaw by lazy { actionsText.map { parse<Action>(it) }.toSetStrict() }
-  val effectsRaw by lazy { effectsText.map { parse<Effect>(it) }.toSetStrict() }
-  val requirementRaw: Requirement? by lazy { requirementText?.let(PetsParser::parse) }
+  val actionsRaw by lazy { actionsText.map { parsePets<Action>(it) }.toSetStrict() }
+  val effectsRaw by lazy { effectsText.map { parsePets<Effect>(it) }.toSetStrict() }
+  val requirementRaw: Requirement? by lazy { requirementText?.let(::parsePets) }
 
   // This doesn't get converted to an effect (yet??) so we have to canonicalize
   // TODO rethink
@@ -181,7 +180,7 @@ data class CardDefinition(
   }
 
   val extraComponents: List<ClassDeclaration> by lazy {
-    extraComponentsText.map { parse(oneLineClassDeclaration, it) }
+    extraComponentsText.map { parsePets(oneLineClassDeclaration, it) }
   }
 
   override val asClassDeclaration by lazy {
