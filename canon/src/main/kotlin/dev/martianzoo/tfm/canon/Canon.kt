@@ -1,5 +1,6 @@
 package dev.martianzoo.tfm.canon
 
+import dev.martianzoo.tfm.api.CustomInstruction
 import dev.martianzoo.tfm.data.ActionDefinition
 import dev.martianzoo.tfm.data.Authority
 import dev.martianzoo.tfm.data.CardDefinition
@@ -8,13 +9,14 @@ import dev.martianzoo.tfm.data.JsonReader
 import dev.martianzoo.tfm.data.MapAreaDefinition
 import dev.martianzoo.tfm.data.MilestoneDefinition
 import dev.martianzoo.tfm.pets.ClassDeclarationParser
-import dev.martianzoo.tfm.pets.ast.Instruction.CustomInstruction
 import dev.martianzoo.util.Grid
 
 object Canon : Authority() {
 
+  private val PETS_FILENAMES = setOf("system.pets", "components.pets", "player.pets")
+
   override val explicitClassDeclarations: Collection<ClassDeclaration> by lazy {
-    EXPLICIT_CLASS_FILENAMES.flatMap {
+    PETS_FILENAMES.flatMap {
       ClassDeclarationParser.parseClassDeclarations(readResource(it))
     }
   }
@@ -38,23 +40,7 @@ object Canon : Authority() {
     JsonReader.readMilestones(readResource("milestones.json5"))
   }
 
-  override val customInstructions: Map<String, CustomInstruction> by lazy {
-    // when (name) {
-    //"createMarsAreas" -> {
-    //  object : CustomInstruction {
-    //    override val name = "createMarsAreas"
-    //    override fun translate(game: GameApi, types: List<TypeExpression>): Instruction {
-    //      return Instruction.Multi(
-    //          mapAreaDefinitions.keys.filter {
-    //            it.startsWith("Tharsis")
-    //          }.map { Gain(te(it)) })
-    //    }
-    //  }
-    //}
-    mapOf()
-  }
-
-  private val EXPLICIT_CLASS_FILENAMES = setOf("system.pets", "components.pets", "player.pets")
+  override fun customInstructions(): List<CustomInstruction> = allCustomInstructions
 
   private fun readResource(filename: String): String {
     val dir = javaClass.packageName.replace('.', '/')

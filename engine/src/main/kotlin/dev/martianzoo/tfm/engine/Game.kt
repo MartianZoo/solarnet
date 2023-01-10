@@ -1,19 +1,24 @@
 package dev.martianzoo.tfm.engine
 
+import com.google.common.collect.HashMultiset
+import com.google.common.collect.ImmutableMultiset
 import com.google.common.collect.Multiset
+import dev.martianzoo.tfm.api.GameApi
+import dev.martianzoo.tfm.api.standardResourceNames
 import dev.martianzoo.tfm.data.Authority
 import dev.martianzoo.tfm.engine.ComponentGraph.Component
-import dev.martianzoo.tfm.pets.GameApi
 import dev.martianzoo.tfm.pets.PetsParser.parse
-import dev.martianzoo.tfm.pets.Script
 import dev.martianzoo.tfm.pets.StateChange.Cause
 import dev.martianzoo.tfm.pets.ast.Instruction
 import dev.martianzoo.tfm.pets.ast.Requirement
+import dev.martianzoo.tfm.pets.ast.Script
 import dev.martianzoo.tfm.pets.ast.TypeExpression
+import dev.martianzoo.tfm.pets.ast.TypeExpression.ClassExpression
 import dev.martianzoo.tfm.pets.ast.TypeExpression.GenericTypeExpression
-import dev.martianzoo.tfm.types.PetClass
+import dev.martianzoo.tfm.pets.deprodify
 import dev.martianzoo.tfm.types.PetClassTable
 import dev.martianzoo.tfm.types.PetType
+import dev.martianzoo.util.toSetStrict
 
 internal class Game(
     override val authority: Authority,
@@ -27,25 +32,35 @@ internal class Game(
   fun resolve(type: TypeExpression) = classTable.resolve(type)
   fun resolve(typeText: String) = resolve(parse(typeText))
 
-  fun count(type: PetType): Int {
-    return if (type is PetClass) {
-      type.allSubclasses.count { !it.abstract }
-    } else {
-      components.count(type)
-    }
-  }
+  fun count(type: PetType) = components.count(type)
 
   fun execute(instr: String) = execute(parse<Instruction>(instr))
   fun execute(instr: Instruction) = instr.execute(this)
 
-  fun execute(script: Script): Map<String, Int> = script.execute(this)
+  fun execute(script: Script): Map<String, Int> =
+      deprodify(script, standardResourceNames(this)).execute(this)
 
   override fun count(type: TypeExpression) = count(resolve(type))
-  fun count(typeText: String) = count(resolve(typeText))
+  override fun count(typeText: String) = count(resolve(typeText))
 
   fun getAll(type: PetType): Multiset<Component> = components.getAll(type)
-  fun getAll(type: TypeExpression) = getAll(resolve(type))
-  fun getAll(typeText: String) = getAll(resolve(typeText))
+
+  override fun getAll(type: TypeExpression): Multiset<TypeExpression> {
+    val all: Multiset<Component> = getAll(resolve(type))
+    val result: Multiset<TypeExpression> = HashMultiset.create()
+    all.forEachEntry {
+      component, count -> result.add(component.asTypeExpression, count)
+    }
+    return ImmutableMultiset.copyOf(result)
+  }
+
+  override fun getAll(type: ClassExpression): Set<ClassExpression> {
+    return getAll(resolve(type))
+        .map { it.asTypeExpression as ClassExpression }
+        .toSetStrict()
+  }
+
+  override fun getAll(typeText: String) = getAll(parse<TypeExpression>(typeText))
 
   override fun isMet(requirement: Requirement) = requirement.evaluate(this)
   fun isMet(requirementText: String) = isMet(parse(requirementText))

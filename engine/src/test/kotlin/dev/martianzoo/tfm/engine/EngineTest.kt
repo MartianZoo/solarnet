@@ -33,7 +33,26 @@ class EngineTest {
   fun createdSingletons() {
     val bundles = setOf(Base, CorporateEra, Tharsis, Prelude, Promos).map { it.id }
     val game = Engine.newGame(Canon, 3, bundles)
-    assertThat(game.components.getAll(game.classTable.resolve("Component"))).containsExactly()
-    // welp
+    val all = game.components.getAll(game.classTable.resolve("Component"))
+    assertThat(all.map { it.asTypeExpression.toString() }).containsExactly(
+      "Player1",
+      "Player2",
+      "Player3",
+      "Generation",
+
+      "ClaimMilestone",
+      "ConvertHeat",
+      "ConvertPlants",
+      "PlayCardFromHand",
+      "UseActionFromCard",
+      "UseStandardProject",
+      "SellPatents",
+
+      "PowerPlantSP",
+      "AsteroidSP",
+      "AquiferSP",
+      "GreenerySP",
+      "CitySP",
+    )
   }
 }

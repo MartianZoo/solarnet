@@ -33,8 +33,11 @@ object Engine {
 
     val multiset = HashMultiset.create<Component>()
     loader.loadedClasses().forEach {
+      if (!it.abstract) {
+        multiset.add(Component(it))
+      }
       if (it.isSingleton() && !it.baseType.abstract) {
-        Component(loader.resolve(gte(it.name)))
+        multiset.add(Component(loader.resolve(gte(it.name))))
       }
     }
     return Game(authority, ComponentGraph(multiset), loader)

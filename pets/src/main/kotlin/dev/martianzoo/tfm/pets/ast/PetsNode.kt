@@ -29,7 +29,7 @@ sealed class PetsNode {
   open fun precedence(): Int = Int.MAX_VALUE
 
   interface GenericTransform<P : PetsNode> {
-    open val transform: String
+    val transform: String
     fun extract(): P
   }
 }

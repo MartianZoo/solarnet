@@ -1,6 +1,6 @@
 package dev.martianzoo.tfm.data
 
-import dev.martianzoo.tfm.pets.ast.Instruction.CustomInstruction
+import dev.martianzoo.tfm.api.CustomInstruction
 import dev.martianzoo.util.Grid
 import dev.martianzoo.util.associateByStrict
 
@@ -8,7 +8,7 @@ import dev.martianzoo.util.associateByStrict
  * A source of data about Terraforming Mars components. This project provides
  * one, called `Canon`, containing only officially published materials.
  */
-abstract class Authority {
+abstract class Authority { // TODO move to api
   fun declaration(name: String): ClassDeclaration {
     val decl: ClassDeclaration? = allClassDeclarations[name]
     require(decl != null) { "no class declaration by name $name" }
@@ -61,7 +61,10 @@ abstract class Authority {
   // val awardDefinitions: Map<String, AwardDefinition>
   // val colonyTileDefinitions: Map<String, ColonyTileDefinition>
 
-  abstract val customInstructions: Map<String, CustomInstruction>
+  abstract fun customInstructions(): Collection<CustomInstruction>
+
+  val customInstructionsByName: Map<String, CustomInstruction> =
+      customInstructions().associateByStrict { it.name }
 
   private val extraClassDeclarationsFromCards: Map<String, ClassDeclaration> by lazy {
     cardDefinitions.flatMap { it.extraComponents }.associateBy { it.className }

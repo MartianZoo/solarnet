@@ -1,6 +1,7 @@
 package dev.martianzoo.tfm.types
 
 import com.google.common.truth.Truth.assertThat
+import dev.martianzoo.tfm.api.CustomInstruction
 import dev.martianzoo.tfm.data.ActionDefinition
 import dev.martianzoo.tfm.data.Authority
 import dev.martianzoo.tfm.data.CardDefinition
@@ -9,7 +10,6 @@ import dev.martianzoo.tfm.data.MapAreaDefinition
 import dev.martianzoo.tfm.data.MilestoneDefinition
 import dev.martianzoo.tfm.pets.ClassDeclarationParser
 import dev.martianzoo.tfm.pets.SpecialComponent.Component
-import dev.martianzoo.tfm.pets.ast.Instruction.CustomInstruction
 import dev.martianzoo.tfm.types.Dependency.Key
 import dev.martianzoo.util.Grid
 import org.junit.jupiter.api.Test
@@ -213,7 +213,7 @@ class FakeAuthority(classes: List<ClassDeclaration>) : Authority() {
   override val actionDefinitions = listOf<ActionDefinition>()
   override val cardDefinitions = listOf<CardDefinition>()
   override val milestoneDefinitions = listOf<MilestoneDefinition>()
-  override val customInstructions = mapOf<String, CustomInstruction>()
+  override fun customInstructions() = listOf<CustomInstruction>()
 }
 
 // TODO move to shared utils

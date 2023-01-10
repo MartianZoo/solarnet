@@ -6,8 +6,8 @@ import com.google.common.collect.Multiset
 import com.google.common.collect.Multisets
 import dev.martianzoo.tfm.pets.StateChange
 import dev.martianzoo.tfm.pets.StateChange.Cause
+import dev.martianzoo.tfm.pets.ast.TypeExpression.GenericTypeExpression
 import dev.martianzoo.tfm.types.PetType
-import dev.martianzoo.tfm.types.PetType.PetGenericType
 
 internal class ComponentGraph(startingWith: Multiset<Component> = ImmutableMultiset.of()) {
   private val multiset: /*Mutable*/Multiset<Component> = LinkedHashMultiset.create(startingWith)
@@ -33,8 +33,8 @@ internal class ComponentGraph(startingWith: Multiset<Component> = ImmutableMulti
     val change = StateChange(
         ordinal = changeLog.size + 1,
         count = count,
-        gaining = gaining?.asTypeExpression,
-        removing = removing?.asTypeExpression,
+        gaining = gaining?.asTypeExpression as GenericTypeExpression?,
+        removing = removing?.asTypeExpression as GenericTypeExpression?,
         cause = cause,
     )
 
@@ -56,7 +56,7 @@ internal class ComponentGraph(startingWith: Multiset<Component> = ImmutableMulti
   internal fun getAll(type: PetType): Multiset<Component> =
       Multisets.filter(multiset) { it!!.hasType(type) }
 
-  internal data class Component(val type: PetGenericType) {
+  internal data class Component(val type: PetType) {
     init {
       require(!type.abstract) { type }
     }

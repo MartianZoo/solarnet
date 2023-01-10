@@ -48,7 +48,8 @@ object ClassDeclarationParser {
     return parseRepeated(Components.nestedClassDeclarations, tokens)
   }
 
-  private fun stripLineComments(text: String) = Regex(""" *(//[^\n]*)*\n""").replace(text, "\n")
+  // TODO move
+  internal fun stripLineComments(text: String) = Regex(""" *(//[^\n]*)*\n""").replace(text, "\n")
 
   private object Components { // -------------------------------------------------------
     private val isAbstract = optional(_abstract) and skip(_class) map { it != null }

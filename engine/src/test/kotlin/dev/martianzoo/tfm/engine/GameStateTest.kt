@@ -1,14 +1,19 @@
 package dev.martianzoo.tfm.engine
 
 import com.google.common.truth.Truth.assertThat
+import dev.martianzoo.tfm.api.lookUpProductionLevels
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.engine.ComponentGraph.Component
 import dev.martianzoo.tfm.pets.PetsParser
+import dev.martianzoo.tfm.pets.PetsParser.parse
 import dev.martianzoo.tfm.pets.StateChange
+import dev.martianzoo.tfm.pets.ast.TypeExpression
 import dev.martianzoo.tfm.pets.ast.TypeExpression.Companion.gte
+import dev.martianzoo.tfm.pets.ast.TypeExpression.GenericTypeExpression
 import dev.martianzoo.tfm.types.PetClassTable
 import dev.martianzoo.tfm.types.PetType.PetGenericType
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 
 private class GameStateTest {
 
@@ -53,12 +58,84 @@ private class GameStateTest {
   }
 
   @Test
+  fun lookup() {
+    val game = Engine.newGame(Canon, 3, setOf("B"))
+    val prods: Map<String, Int> = lookUpProductionLevels(game, gte("Player1"))
+    assertThat(prods).containsExactly(
+        "Megacredit", -5,
+        "Steel", 0,
+        "Titanium", 0,
+        "Plant", 0,
+        "Energy", 0,
+        "Heat", 0
+    )
+
+    game.applyChange(2, gaining =
+        parse<TypeExpression>("Production<Player1, Plant.CLASS>") as GenericTypeExpression)
+    val prods2: Map<String, Int> = lookUpProductionLevels(game, gte("Player1"))
+    assertThat(prods2).containsExactly(
+        "Megacredit", -5,
+        "Steel", 0,
+        "Titanium", 0,
+        "Plant", 2,
+        "Energy", 0,
+        "Heat", 0
+    )
+  }
+
+  @Test
+  fun robinson() {
+    val game = Engine.newGame(Canon, 3, setOf("B"))
+    val s = """
+      // The standard hack for every player - ignore it!
+      EXEC PROD[5 Megacredit<Player1>]
+
+      EXEC PROD[Steel<Player1>, Titanium<Player1>, Plant<Player1>, Energy<Player1>, Heat<Player1>]
+      EXEC $${""}gainLowestProduction(Player1)
+      COUNT Production<Player1, Megacredit.CLASS> -> foo      
+    """
+    val script = PetsParser.parseScript(s)
+    val results = game.execute(script)
+    assertThat(results["foo"]).isEqualTo(6)
+  }
+
+  @Test
+  fun robinsonCant() {
+    val game = Engine.newGame(Canon, 3, setOf("B"))
+    val s = """
+      // The standard hack for every player - ignore it!
+      EXEC PROD[5 Megacredit<Player1>]
+
+      EXEC PROD[Steel<Player1>, Titanium<Player1>, Plant<Player1>, Heat<Player1>]
+      EXEC $${""}gainLowestProduction(Player1)
+    """
+    val script = PetsParser.parseScript(s)
+    assertThrows<RuntimeException> { game.execute(script) }
+    game.changeLog.forEach(::println)
+  }
+
+  @Test
+  fun robinson2() {
+    val game = Engine.newGame(Canon, 3, setOf("B"))
+    val s = """
+      // The standard hack for every player - ignore it!
+      EXEC PROD[5 Megacredit<Player1>]
+
+      EXEC PROD[-Megacredit<Player1>]
+      EXEC $${""}gainLowestProduction(Player1)
+      REQUIRE =5 Production<Player1, Megacredit.CLASS>
+    """
+    val script = PetsParser.parseScript(s)
+    game.execute(script)
+  }
+
+  @Test
   fun script() {
     val game = Engine.newGame(Canon, 3, setOf("B"))
 
     val s = """
       REQUIRE =0 Heat
-      REQUIRE =0 Component
+      REQUIRE =0 Resource
       EXEC 5 Heat<Player2>
       EXEC 10 Heat<Player3>
       REQUIRE =15 Heat

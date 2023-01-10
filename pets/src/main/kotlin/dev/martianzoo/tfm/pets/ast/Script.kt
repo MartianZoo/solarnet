@@ -1,10 +1,8 @@
-package dev.martianzoo.tfm.pets
+package dev.martianzoo.tfm.pets.ast
 
-import dev.martianzoo.tfm.pets.ast.Instruction
-import dev.martianzoo.tfm.pets.ast.Requirement
-import dev.martianzoo.tfm.pets.ast.TypeExpression
+import dev.martianzoo.tfm.api.GameApi
 
-data class Script(val lines: List<ScriptLine>) {
+data class Script(val lines: List<ScriptLine>) : PetsNode() {
   fun execute(game: GameApi): Map<String, Int> {
     val map = mutableMapOf<String, Int>()
     for (line in lines) {
@@ -18,36 +16,39 @@ data class Script(val lines: List<ScriptLine>) {
     return map
   }
 
-  sealed interface ScriptLine {
-    fun doIt(game: GameApi): Any
+  override val kind = "Script"
+
+  sealed class ScriptLine: PetsNode() {
+    abstract fun doIt(game: GameApi): Any
+    override val kind = "ScriptLine"
   }
 
   data class ScriptCommand(
       val command: Instruction,
       val ownedBy: TypeExpression? = null,
-  ) : ScriptLine {
+  ) : ScriptLine() {
     override fun doIt(game: GameApi) {
       command.execute(game)
     }
   }
 
-  data class ScriptRequirement(val req: Requirement) : ScriptLine {
+  data class ScriptRequirement(val req: Requirement) : ScriptLine() {
     override fun doIt(game: GameApi) {
-      if (!req.evaluate(game)) throw PetsAbortException()
+      if (!req.evaluate(game)) throw PetsAbortException("Requirement failed: $req")
     }
   }
 
-  data class ScriptCounter(val key: String, val type: TypeExpression) : ScriptLine {
+  data class ScriptCounter(val key: String, val type: TypeExpression) : ScriptLine() {
     override fun doIt(game: GameApi): Pair<String, Int> {
       return key to game.count(type)
     }
   }
 
-  data class ScriptPragmaPlayer(val player: TypeExpression) : ScriptLine { // also mode
+  data class ScriptPragmaPlayer(val player: TypeExpression) : ScriptLine() { // also mode
     override fun doIt(game: GameApi): Any {
       TODO("Not yet implemented")
     }
   }
 
-  class PetsAbortException : RuntimeException()
+  class PetsAbortException(message: String? = null) : RuntimeException(message)
 }

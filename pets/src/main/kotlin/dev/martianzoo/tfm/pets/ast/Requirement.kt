@@ -1,6 +1,6 @@
 package dev.martianzoo.tfm.pets.ast
 
-import dev.martianzoo.tfm.pets.GameApi
+import dev.martianzoo.tfm.api.GameApi
 
 sealed class Requirement : PetsNode() {
   abstract fun evaluate(game: GameApi): Boolean

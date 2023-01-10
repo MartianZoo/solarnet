@@ -10,6 +10,7 @@ dependencies {
   implementation(platform("org.jetbrains.kotlin:kotlin-bom:1.8.0"))
   implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.0")
 
+  // TODO will eventually deguavafy
   implementation("com.google.guava:guava:31.1-jre")
 
   testImplementation("org.junit.jupiter:junit-jupiter-api:5.9.0")
@@ -21,4 +22,3 @@ dependencies {
   testImplementation(project(":canon")) // easiest to test the engine this way
   testImplementation(project(":pets")) // eep
 }
-

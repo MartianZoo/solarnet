@@ -11,6 +11,11 @@ import dev.martianzoo.tfm.pets.ast.Instruction
 import dev.martianzoo.tfm.pets.ast.PetsNode
 import dev.martianzoo.tfm.pets.ast.QuantifiedExpression
 import dev.martianzoo.tfm.pets.ast.Requirement
+import dev.martianzoo.tfm.pets.ast.Script
+import dev.martianzoo.tfm.pets.ast.Script.ScriptCommand
+import dev.martianzoo.tfm.pets.ast.Script.ScriptCounter
+import dev.martianzoo.tfm.pets.ast.Script.ScriptPragmaPlayer
+import dev.martianzoo.tfm.pets.ast.Script.ScriptRequirement
 import dev.martianzoo.tfm.pets.ast.TypeExpression.ClassExpression
 import dev.martianzoo.tfm.pets.ast.TypeExpression.GenericTypeExpression
 import dev.martianzoo.util.toSetStrict
@@ -62,6 +67,11 @@ open class AstTransformer {
         is Cost.Transform -> Cost.Transform(x(cost), transform)
         is Action -> Action(x(cost), x(instruction))
 
+        is Script -> Script(x(lines))
+        is ScriptCommand -> ScriptCommand(x(command), x(ownedBy))
+        is ScriptCounter -> ScriptCounter(key, x(type))
+        is ScriptRequirement -> ScriptRequirement(x(req))
+        is ScriptPragmaPlayer -> ScriptPragmaPlayer(x(player))
         else -> error("Forgot to add new node type $kind")
       }
       @Suppress("UNCHECKED_CAST")

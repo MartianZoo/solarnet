@@ -1,10 +1,13 @@
 package dev.martianzoo.tfm.pets.ast
 
-import dev.martianzoo.tfm.pets.GameApi
+import dev.martianzoo.tfm.api.CustomInstruction.ExecuteInsteadException
+import dev.martianzoo.tfm.api.GameApi
+import dev.martianzoo.tfm.api.standardResourceNames
 import dev.martianzoo.tfm.pets.PetsException
 import dev.martianzoo.tfm.pets.ast.FromExpression.SimpleFrom
 import dev.martianzoo.tfm.pets.ast.FromExpression.TypeInFrom
 import dev.martianzoo.tfm.pets.ast.TypeExpression.GenericTypeExpression
+import dev.martianzoo.tfm.pets.deprodify
 
 sealed class Instruction : PetsNode() {
 
@@ -133,18 +136,23 @@ sealed class Instruction : PetsNode() {
     override fun precedence() = if (fromExpression is SimpleFrom) 7 else 10
   }
 
-  interface CustomInstruction {
-    val name: String
-    fun translate(game: GameApi, types: List<TypeExpression>): Instruction
-  }
-
   data class Custom(val functionName: String, val arguments: List<TypeExpression>) : Instruction() {
     constructor(functionName: String, vararg arguments: TypeExpression) :
         this(functionName, arguments.toList())
 
     override fun execute(game: GameApi) {
-      val instr = game.authority.customInstructions[functionName]!!
-      instr.translate(game, arguments).execute(game)
+      val instr = game.authority.customInstructionsByName[functionName]!!
+      try {
+        // We're not going to get far with this approach of just trying to execute directly.
+        // Already with my first attempt, Robinson, it returns an "OR", which can't be exec'd.
+        val translated = instr.translate(game, arguments)
+
+        // TODO what other conversions can we make...
+        val deprodded: Instruction = deprodify(translated, standardResourceNames(game))
+        deprodded.execute(game) // TODO!
+      } catch (e: ExecuteInsteadException) {
+        instr.execute(game, arguments)
+      }
     }
 
     override fun toString() = "$$functionName(${arguments.joinToString()})"

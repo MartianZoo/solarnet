@@ -18,11 +18,7 @@ import com.github.h0tk3y.betterParse.parser.ParseException
 import com.github.h0tk3y.betterParse.parser.Parser
 import com.github.h0tk3y.betterParse.parser.parseToEnd
 import com.github.h0tk3y.betterParse.utils.Tuple2
-import dev.martianzoo.tfm.pets.Script.ScriptCommand
-import dev.martianzoo.tfm.pets.Script.ScriptCounter
-import dev.martianzoo.tfm.pets.Script.ScriptLine
-import dev.martianzoo.tfm.pets.Script.ScriptPragmaPlayer
-import dev.martianzoo.tfm.pets.Script.ScriptRequirement
+import dev.martianzoo.tfm.pets.ClassDeclarationParser.stripLineComments
 import dev.martianzoo.tfm.pets.ast.Action
 import dev.martianzoo.tfm.pets.ast.Action.Cost
 import dev.martianzoo.tfm.pets.ast.Action.Cost.Spend
@@ -47,6 +43,12 @@ import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.pets.ast.Requirement.Exact
 import dev.martianzoo.tfm.pets.ast.Requirement.Max
 import dev.martianzoo.tfm.pets.ast.Requirement.Min
+import dev.martianzoo.tfm.pets.ast.Script
+import dev.martianzoo.tfm.pets.ast.Script.ScriptCommand
+import dev.martianzoo.tfm.pets.ast.Script.ScriptCounter
+import dev.martianzoo.tfm.pets.ast.Script.ScriptLine
+import dev.martianzoo.tfm.pets.ast.Script.ScriptPragmaPlayer
+import dev.martianzoo.tfm.pets.ast.Script.ScriptRequirement
 import dev.martianzoo.tfm.pets.ast.TypeExpression
 import dev.martianzoo.tfm.pets.ast.TypeExpression.ClassExpression
 import dev.martianzoo.tfm.pets.ast.TypeExpression.GenericTypeExpression
@@ -61,6 +63,7 @@ object PetsParser {
    * elemental types like `Action`, not `ClassDeclaration`, or something smaller.
    */
   inline fun <reified P : PetsNode> parse(source: String): P = parse(P::class, source)
+  // TODO rename
 
   /**
    * Parses the PETS source code in `source` using any accessible parser
@@ -68,8 +71,16 @@ object PetsParser {
    */
   fun <T> parse(parser: Parser<T>, source: String) = parser.parseToEnd(tokenizer.tokenize(source))
 
-  fun parseScript(text: String): Script =
-      Script(parseRepeated(scriptLine map { listOf(it) }, tokenizer.tokenize(text)))
+  fun parseScript(scriptText: String): Script {
+    val scriptLines = try {
+      val tokens = tokenizer.tokenize(stripLineComments(scriptText))
+      parseRepeated(scriptLine map { listOf(it) }, tokens)
+    } catch (e: Exception) {
+      println("Script was:\n$scriptText")
+      throw e
+    }
+    return Script(scriptLines)
+  }
 
   private val primaryParsers = // internal bookkeeping
       mutableMapOf<KClass<out PetsNode>, Parser<PetsNode>>()
@@ -352,7 +363,7 @@ object PetsParser {
         skip(_become) and Types.genericType map ::ScriptPragmaPlayer
 
     internal val line: Parser<ScriptLine> =
-        skip(nls) and (command or req or counter or player) and skipChar('\n')
+        skip(nls) and (command or req or counter or player)
   }
 
   val scriptLine = Scripts.line
