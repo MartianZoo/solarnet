@@ -22,6 +22,8 @@ internal class Game(
 ) : GameApi {
   // val tasks = mutableListOf<Task>()
 
+  val changeLog = components.changeLog
+
   fun resolve(type: TypeExpression) = classTable.resolve(type)
   fun resolve(typeText: String) = resolve(parse(typeText))
 

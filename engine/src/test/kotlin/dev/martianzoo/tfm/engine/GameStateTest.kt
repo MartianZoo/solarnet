@@ -2,11 +2,11 @@ package dev.martianzoo.tfm.engine
 
 import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.tfm.canon.Canon
+import dev.martianzoo.tfm.canon.Canon.Bundle.Base
 import dev.martianzoo.tfm.engine.ComponentGraph.Component
 import dev.martianzoo.tfm.pets.PetsParser
 import dev.martianzoo.tfm.pets.ast.StateChange
 import dev.martianzoo.tfm.pets.ast.TypeExpression.Companion.gte
-import dev.martianzoo.tfm.types.PetClassLoader
 import dev.martianzoo.tfm.types.PetClassTable
 import dev.martianzoo.tfm.types.PetType.PetGenericType
 import org.junit.jupiter.api.Test
@@ -15,9 +15,7 @@ private class GameStateTest {
 
   @Test
   fun basic() {
-    val table = PetClassLoader(Canon).loadEverything()
-    val cg = ComponentGraph()
-    val game = Game(Canon, cg, table)
+    val game = GameStarter.newGame(Canon, 3, setOf(Base))
 
     assertThat(game.count("Heat")).isEqualTo(0)
 
@@ -42,7 +40,7 @@ private class GameStateTest {
     assertThat(game.isMet("=3 Heat<Player2>")).isTrue()
     assertThat(game.isMet("=5 Heat<Player3>")).isTrue()
 
-    assertThat(game.components.changeLog).containsExactly(
+    assertThat(game.changeLog).containsExactly(
         StateChange(1, 5, gaining = gte("Heat", gte("Player2"))),
         StateChange(2, 10, gaining = gte("Heat", gte("Player3"))),
         StateChange(3, 4, removing = gte("Heat", gte("Player2"))),
@@ -57,9 +55,7 @@ private class GameStateTest {
 
   @Test
   fun script() {
-    val table = PetClassLoader(Canon).loadEverything()
-    val cg = ComponentGraph()
-    val game = Game(Canon, cg, table) // it's just more convenient
+    val game = GameStarter.newGame(Canon, 3, setOf(Base))
 
     val s = """
       REQUIRE =0 Heat
@@ -89,7 +85,15 @@ private class GameStateTest {
 
     assertThat(results).containsExactly("eleven", 11)
 
-    assertThat(game.components.changeLog).containsExactly(
+    assertThat(game.changeLog.map { "$it" }).containsExactly(
+        "1: 5 Heat<Player2> BY Unknown BECAUSE Unknown",
+        "2: 10 Heat<Player3> BY Unknown BECAUSE Unknown",
+        "3: -4 Heat<Player2> BY Unknown BECAUSE Unknown",
+        "4: 3 Steel<Player3> FROM Heat<Player3> BY Unknown BECAUSE Unknown",
+        "5: 2 Heat<Player2> FROM Heat<Player3> BY Unknown BECAUSE Unknown",
+    ).inOrder()
+
+    assertThat(game.changeLog).containsExactly(
         StateChange(1, 5, gaining = gte("Heat", gte("Player2"))),
         StateChange(2, 10, gaining = gte("Heat", gte("Player3"))),
         StateChange(3, 4, removing = gte("Heat", gte("Player2"))),
@@ -100,6 +104,8 @@ private class GameStateTest {
             gaining = gte("Heat", gte("Player2")),
             removing = gte("Heat", gte("Player3"))),
     ).inOrder()
+
+
   }
 
   private fun PetClassTable.cpt(expression: String) =

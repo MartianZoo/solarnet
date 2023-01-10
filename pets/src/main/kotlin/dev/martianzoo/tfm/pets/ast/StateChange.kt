@@ -33,7 +33,7 @@ data class StateChange(
   }
 
   override fun toString(): String {
-    var desc = ""
+    var desc = "$ordinal: "
     when (gaining) {
       null -> desc += "-$count $removing"
       else -> {
