@@ -16,7 +16,8 @@ internal class PetClassLoader(private val authority: Authority) : PetClassTable 
 
 // MAIN QUERIES
 
-  override fun get(name: String): PetClass = nameToPetClass[name] ?: error(name)
+  override fun get(name: String): PetClass =
+      nameToPetClass[name] ?: error("no class loaded named $name")
 
   override fun resolve(expression: TypeExpression) = when (expression) {
     is ClassExpression -> load(expression.className)
@@ -74,8 +75,14 @@ internal class PetClassLoader(private val authority: Authority) : PetClassTable 
 
 // OKAY BUT ACTUAL LOADING NOW
 
-  private fun loadSingle(name: String) =
-      nameToPetClass[name] ?: construct(authority.declaration(name))
+  // all loading goes through here
+  private fun loadSingle(name: String): PetClass {
+    if (frozen) {
+      return get(name)
+    } else {
+      return nameToPetClass[name] ?: construct(authority.declaration(name))
+    }
+  }
 
   private fun construct(decl: ClassDeclaration): PetClass {
     require(!frozen) { "Too late, this table is frozen!" }

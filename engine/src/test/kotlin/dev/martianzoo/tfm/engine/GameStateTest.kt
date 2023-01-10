@@ -2,7 +2,6 @@ package dev.martianzoo.tfm.engine
 
 import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.tfm.canon.Canon
-import dev.martianzoo.tfm.canon.Canon.Bundle.Base
 import dev.martianzoo.tfm.engine.ComponentGraph.Component
 import dev.martianzoo.tfm.pets.PetsParser
 import dev.martianzoo.tfm.pets.ast.StateChange
@@ -15,7 +14,7 @@ private class GameStateTest {
 
   @Test
   fun basic() {
-    val game = GameStarter.newGame(Canon, 3, setOf(Base))
+    val game = Engine.newGame(Canon, 3, setOf("B"))
 
     assertThat(game.count("Heat")).isEqualTo(0)
 
@@ -55,7 +54,7 @@ private class GameStateTest {
 
   @Test
   fun script() {
-    val game = GameStarter.newGame(Canon, 3, setOf(Base))
+    val game = Engine.newGame(Canon, 3, setOf("B"))
 
     val s = """
       REQUIRE =0 Heat
