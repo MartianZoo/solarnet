@@ -19,15 +19,33 @@ internal object JsonReader {
 
   private class MilestoneList(val milestones: List<MilestoneDefinition>)
 
+// ACTIONS
+
+  internal fun readActions(json5: String): List<ActionDefinition> {
+    val import = fromJson5<ActionsImport>(json5)
+
+    return import.actions.map { it.complete(false) } +
+        import.projects.map { it.complete(true) }
+  }
+
+  private class ActionsImport(
+      val actions: List<IncompleteActionDef>,
+      val projects: List<IncompleteActionDef>) {
+
+    class IncompleteActionDef(val id: String, val bundle: String, val action: String) {
+      fun complete(project: Boolean) = ActionDefinition(id, bundle, project, action)
+    }
+  }
+
 // MAPS
 
   fun readMaps(json5: String): Map<String, Grid<MapAreaDefinition>> =
-      fromJson5<MapsImportFormat>(json5).toGrids()
+      fromJson5<MapsImport>(json5).toGrids()
 
-  private class MapsImportFormat(val maps: List<MapImportFormat>, val legend: Map<Char, String>) {
-    fun toGrids() = maps.associateBy(MapImportFormat::name) { it.toGrid(Legend(legend)) }
+  private class MapsImport(val maps: List<MapImport>, val legend: Map<Char, String>) {
+    fun toGrids() = maps.associateBy(MapImport::name) { it.toGrid(Legend(legend)) }
 
-    internal class MapImportFormat(val name: String, val rows: List<List<String>>) {
+    internal class MapImport(val name: String, val rows: List<List<String>>) {
 
       internal fun toGrid(legend: Legend): Grid<MapAreaDefinition> {
         val areas = rows.flatMapIndexed() { row0Index, cells ->
@@ -43,10 +61,8 @@ internal object JsonReader {
       ): MapAreaDefinition? {
         if (code.isEmpty()) return null
         return MapAreaDefinition(mapName,
-            row0Index + 1,
-            col0Index + 1,
-            legend.getType(code),
-            legend.getBonus(code),
+            row0Index + 1, col0Index + 1,
+            legend.getType(code), legend.getBonus(code),
             code)
       }
     }
@@ -76,7 +92,7 @@ internal object JsonReader {
     }
   }
 
-// HELP
+// HELPERS
 
   private inline fun <reified T : Any> fromJson5(input: String): T = Moshi.Builder()
       .addLast(KotlinJsonAdapterFactory())

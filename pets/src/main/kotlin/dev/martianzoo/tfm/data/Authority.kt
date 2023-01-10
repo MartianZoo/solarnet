@@ -16,23 +16,24 @@ abstract class Authority {
     return decl
   }
 
-  /** Note that not every type will automatically be loaded. */
+  /** Note that not every type returned here will automatically be loaded. */
   val allClassDeclarations: Map<String, ClassDeclaration> by lazy {
     gatherDeclarations(
         explicitClassDeclarations,
+        actionDefinitions,
+        cardDefinitions,
         mapAreaDefinitions.values.flatten(),
         milestoneDefinitions,
-        cardDefinitions,
         extraClassDeclarationsFromCards.values,
     )
   }
 
   abstract val explicitClassDeclarations: Collection<ClassDeclaration>
 
-  abstract val mapAreaDefinitions: Map<String, Grid<MapAreaDefinition>>
+  abstract val actionDefinitions: Collection<ActionDefinition>
 
-  val mapAreasByComponentName by lazy {
-    toMapByComponentName(mapAreaDefinitions.values.flatten())
+  val actionsByComponentName: Map<String, ActionDefinition> by lazy {
+    toMapByComponentName(actionDefinitions)
   }
 
   abstract val cardDefinitions: Collection<CardDefinition>
@@ -41,15 +42,20 @@ abstract class Authority {
     toMapByComponentName(cardDefinitions)
   }
 
+  abstract val mapAreaDefinitions: Map<String, Grid<MapAreaDefinition>>
+
+  val mapAreasByComponentName by lazy {
+    toMapByComponentName(mapAreaDefinitions.values.flatten())
+  }
+
   abstract val milestoneDefinitions: Collection<MilestoneDefinition>
 
   val milestonesByComponentName by lazy {
     toMapByComponentName(milestoneDefinitions)
   }
 
-  // val colonyTileDefinitions: Map<String, ColonyTileDefinition>
-
   // val awardDefinitions: Map<String, AwardDefinition>
+  // val colonyTileDefinitions: Map<String, ColonyTileDefinition>
 
   abstract val customInstructions: Map<String, CustomInstruction>
 
@@ -57,7 +63,7 @@ abstract class Authority {
     cardDefinitions.flatMap { it.extraComponents }.associateBy { it.className }
   }
 
-  private fun toMapByComponentName(thing: Collection<Definition>) =
+  private fun <D : Definition> toMapByComponentName(thing: Collection<D>): Map<String, D> =
       thing.associateByStrict { it.className }
 
   private fun gatherDeclarations(vararg defs: Collection<Definition>) =

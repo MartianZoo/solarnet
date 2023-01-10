@@ -123,7 +123,7 @@ data class CardDefinition(
 
   init {
     require(id.isNotEmpty())
-    require(bundle?.isNotEmpty() ?: true)
+    require(bundle.isNotEmpty())
     require(replaces?.isNotEmpty() ?: true)
     require(resourceTypeText?.isNotEmpty() ?: true)
     require(requirementText?.isNotEmpty() ?: true)

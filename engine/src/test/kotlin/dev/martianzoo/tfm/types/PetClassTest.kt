@@ -1,6 +1,7 @@
 package dev.martianzoo.tfm.types
 
 import com.google.common.truth.Truth.assertThat
+import dev.martianzoo.tfm.data.ActionDefinition
 import dev.martianzoo.tfm.data.Authority
 import dev.martianzoo.tfm.data.CardDefinition
 import dev.martianzoo.tfm.data.ClassDeclaration
@@ -209,6 +210,7 @@ private fun loader(petsText: String): PetClassLoader {
 class FakeAuthority(classes: List<ClassDeclaration>) : Authority() {
   override val explicitClassDeclarations = classes
   override val mapAreaDefinitions = mapOf<String, Grid<MapAreaDefinition>>()
+  override val actionDefinitions = listOf<ActionDefinition>()
   override val cardDefinitions = listOf<CardDefinition>()
   override val milestoneDefinitions = listOf<MilestoneDefinition>()
   override val customInstructions = mapOf<String, CustomInstruction>()

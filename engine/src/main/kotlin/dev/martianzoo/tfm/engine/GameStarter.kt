@@ -4,7 +4,6 @@ import com.google.common.collect.HashMultiset
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.canon.Canon.Bundle
 import dev.martianzoo.tfm.canon.Canon.Bundle.Base
-import dev.martianzoo.tfm.canon.Canon.Bundle.VenusNext
 import dev.martianzoo.tfm.engine.ComponentGraph.Component
 import dev.martianzoo.tfm.pets.ast.TypeExpression.Companion.gte
 import dev.martianzoo.tfm.types.PetClassLoader
@@ -38,16 +37,12 @@ object GameStarter {
     loader.loadAll(allMiles.map { it.className }.sorted())
 
     println("\nLoading standard actions\n")
-    var std = Canon.explicitClassDeclarations.filter {
-      "StandardAction" in it.superclassNames ||
-          "StandardProject" in it.superclassNames
-    }.map { it.className }
-    if (VenusNext !in bundles) std = std - "AirScrappingSP"
+    val acts = Canon.actionDefinitions.filter { it.bundle in bundleCodes }
+    loader.loadAll(acts.map { it.className }.sorted())
 
-    // Hacks
+    // Hack because we haven't deprodified yet
     loader.loadAll("Production")
 
-    loader.loadAll(std)
     loader.freeze()
 
     val multiset = HashMultiset.create<Component>()

@@ -1,16 +1,38 @@
 package dev.martianzoo.tfm.data
 
-// Just for my own convenience during development
 const val USE_ENGLISH_HACK = true
 
+// I don't intend for English to be privileged; this is just for my convenience for the time being.
 fun englishHack(id: String): String {
-  if (!USE_ENGLISH_HACK) return "Card$id"
-  if (id in ENGLISH_HACK) return ENGLISH_HACK[id]!!
-  if (id.endsWith("F")) return ENGLISH_HACK[id.substring(0, id.length - 1)]!!
-  return "Card$id"
+  return when {
+    !USE_ENGLISH_HACK -> unhackedName(id)
+    id in ENGLISH_HACK -> ENGLISH_HACK[id]!!
+    id.endsWith("F") -> ENGLISH_HACK[id.substring(0, id.length - 1)]!!
+    else -> unhackedName(id)
+  }
+}
+
+private val noncards = Regex("SA.|SELL|SP\\d\\d")
+
+private fun unhackedName(id: String): String {
+  return if (id.matches(noncards)) id else "Card$id"
 }
 
 val ENGLISH_HACK = mapOf(
+    "SAA" to "PlayCardFromHand",
+    "SAB" to "UseStandardProject",
+    "SAC" to "ClaimMilestone",
+    "SAD" to "FundAward",
+    "SAE" to "UseActionFromCard",
+    "SAF" to "ConvertPlants",
+    "SAG" to "ConvertHeat",
+    "SELL" to "SellPatents",
+    "SP11" to "PowerPlantSP", // use SP because of 2 name conflicts & the last 2 would be confusing
+    "SP14" to "AsteroidSP",
+    "SP15" to "AirScrappingSP",
+    "SP18" to "AquiferSP",
+    "SP23" to "GreenerySP",
+    "SP25" to "CitySP",
     "001" to "ColonizerTrainingCamp",
     "002" to "AsteroidMiningConsortium",
     "003" to "DeepWellHeating",

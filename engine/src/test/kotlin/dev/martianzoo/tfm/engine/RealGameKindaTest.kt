@@ -12,18 +12,18 @@ import org.junit.jupiter.api.Test
 class RealGameKindaTest {
   @Test
   fun loadsExpectedClasses() {
-    println()
+    val game = GameStarter.newGame(4, setOf(Base, CorporateEra, Tharsis, Prelude, Promos))
 
-    val game = GameStarter.newGame(3, setOf(Base, CorporateEra, Tharsis, Prelude, Promos))
+    val unusedExpansionCards =
+        Canon.cardDefinitions.filter { "VC".contains(it.bundle) }.map { it.className }
 
-    val otherExps = Canon.cardDefinitions.filter { "VC".contains(it.bundle) }.map { it.className }
-
-    val expected = (Canon.allClassDeclarations.keys - otherExps).filterNot {
+    val expected = (Canon.allClassDeclarations.keys - unusedExpansionCards).filterNot {
       it.matches(Regex(
-          "(Hellas|Elysium|Milestone[HEV]|Player[45]|Camp" +
+          "(Hellas|Elysium|Milestone[HEV]|Player5|Camp" +
           "|Venus|Area2|Floater|Dirigible|AirScrappingSP).*"
       ))
     }
+
     assertThat(game.classTable.loadedClassNames()).containsExactlyElementsIn(expected)
   }
 

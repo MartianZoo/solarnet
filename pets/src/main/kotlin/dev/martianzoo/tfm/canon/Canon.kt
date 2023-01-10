@@ -1,5 +1,6 @@
 package dev.martianzoo.tfm.canon
 
+import dev.martianzoo.tfm.data.ActionDefinition
 import dev.martianzoo.tfm.data.Authority
 import dev.martianzoo.tfm.data.CardDefinition
 import dev.martianzoo.tfm.data.ClassDeclaration
@@ -24,6 +25,10 @@ object Canon : Authority() {
 
   fun getMap(bundle: Bundle): Grid<MapAreaDefinition> =
       mapAreaDefinitions[bundle.name] ?: error("not a map: $bundle")
+
+  override val actionDefinitions: Collection<ActionDefinition> by lazy {
+    JsonReader.readActions(readResource("actions.json5"))
+  }
 
   override val cardDefinitions: Collection<CardDefinition> by lazy {
     JsonReader.readCards(readResource("cards.json5"))

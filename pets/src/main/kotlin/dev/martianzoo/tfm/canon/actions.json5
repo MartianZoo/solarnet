@@ -1,0 +1,55 @@
+{
+  "actions": [
+
+    // Play card from hand
+    { "id": "SAA", "bundle": "B", "action": "-> PlayCard" },
+
+    // Use standard project
+    { "id": "SAB", "bundle": "B", "action": "-> UseAction<StandardProject>" },
+
+    // Claim milestone
+    { "id": "SAC", "bundle": "B", "action": "8 -> Milestone" },
+
+    // Fund award TODO
+    // { "id": "SAD", "bundle": "B", "action": "6, 8 / Award -> Award" },
+
+    // Use card action
+    { "id": "SAE", "bundle": "B",
+      "action": "-> UseAction<ActionCard> THEN ActionUsedMarker<ActionCard>" },
+
+    // Convert plants
+    { "id": "SAF", "bundle": "B", "action": "8 Plant -> GreeneryTile" },
+
+    // Convert heat
+    { "id": "SAG", "bundle": "B", "action": "8 Heat -> TemperatureStep" },
+
+    // TODO SAH = Trade, SAI = Send delegate
+
+    // Sell patents - yes, it's technically a project, but that makes things annoying
+    { "id": "SELL", "bundle": "B", "action": "1 ProjectCard -> 1" }, // TODO "X"
+  ],
+
+  "projects": [
+
+    // Power Plant
+    { "id": "SP11", "bundle": "B", "action": "11 -> PROD[Heat]" },
+
+    // Asteroid
+    { "id": "SP14", "bundle": "B", "action": "14 -> TemperatureStep" },
+
+    // Air-Scrapping
+    { "id": "SP15", "bundle": "V", "action": "15 -> VenusStep" },
+
+    // TODO Buffer gas, but we're a long way from supporting solo
+    // TODO Build colony, but we're a medium way from colonies
+
+    // Aquifer
+    { "id": "SP18", "bundle": "B", "action": "18 -> OceanTile" },
+
+    // Greenery
+    { "id": "SP23", "bundle": "B", "action": "23 -> GreeneryTile" },
+
+    // City
+    { "id": "SP25", "bundle": "B", "action": "25 -> CityTile, PROD[1]" },
+  ],
+}
