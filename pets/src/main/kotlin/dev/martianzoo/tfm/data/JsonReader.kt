@@ -5,23 +5,23 @@ import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import dev.martianzoo.util.Grid
 import kotlin.text.RegexOption.DOT_MATCHES_ALL
 
-internal object JsonReader {
+object JsonReader {
 
 // CARDS
 
-  internal fun readCards(json5: String) = fromJson5<CardList>(json5).cards
+  fun readCards(json5: String) = fromJson5<CardList>(json5).cards
 
   private class CardList(val cards: List<CardDefinition>)
 
 // MILESTONES
 
-  internal fun readMilestones(json5: String) = fromJson5<MilestoneList>(json5).milestones
+  fun readMilestones(json5: String) = fromJson5<MilestoneList>(json5).milestones
 
   private class MilestoneList(val milestones: List<MilestoneDefinition>)
 
 // ACTIONS
 
-  internal fun readActions(json5: String): List<ActionDefinition> {
+  fun readActions(json5: String): List<ActionDefinition> {
     val import = fromJson5<ActionsImport>(json5)
 
     return import.actions.map { it.complete(false) } +

@@ -1,13 +1,12 @@
 package dev.martianzoo.tfm.data
 
-import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.pets.ast.Instruction.CustomInstruction
 import dev.martianzoo.util.Grid
 import dev.martianzoo.util.associateByStrict
 
 /**
  * A source of data about Terraforming Mars components. This project provides
- * one, called [Canon], containing only officially published materials.
+ * one, called `Canon`, containing only officially published materials.
  */
 abstract class Authority {
   fun declaration(name: String): ClassDeclaration {
