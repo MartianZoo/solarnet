@@ -1,8 +1,8 @@
 package dev.martianzoo.tfm.pets
 
 import dev.martianzoo.tfm.data.Authority
+import dev.martianzoo.tfm.pets.StateChange.Cause
 import dev.martianzoo.tfm.pets.ast.Requirement
-import dev.martianzoo.tfm.pets.ast.StateChange.Cause
 import dev.martianzoo.tfm.pets.ast.TypeExpression
 import dev.martianzoo.tfm.pets.ast.TypeExpression.GenericTypeExpression
 

@@ -18,6 +18,11 @@ import com.github.h0tk3y.betterParse.parser.ParseException
 import com.github.h0tk3y.betterParse.parser.Parser
 import com.github.h0tk3y.betterParse.parser.parseToEnd
 import com.github.h0tk3y.betterParse.utils.Tuple2
+import dev.martianzoo.tfm.pets.Script.ScriptCommand
+import dev.martianzoo.tfm.pets.Script.ScriptCounter
+import dev.martianzoo.tfm.pets.Script.ScriptLine
+import dev.martianzoo.tfm.pets.Script.ScriptPragmaPlayer
+import dev.martianzoo.tfm.pets.Script.ScriptRequirement
 import dev.martianzoo.tfm.pets.ast.Action
 import dev.martianzoo.tfm.pets.ast.Action.Cost
 import dev.martianzoo.tfm.pets.ast.Action.Cost.Spend
@@ -42,12 +47,6 @@ import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.pets.ast.Requirement.Exact
 import dev.martianzoo.tfm.pets.ast.Requirement.Max
 import dev.martianzoo.tfm.pets.ast.Requirement.Min
-import dev.martianzoo.tfm.pets.ast.Script
-import dev.martianzoo.tfm.pets.ast.Script.ScriptCommand
-import dev.martianzoo.tfm.pets.ast.Script.ScriptCounter
-import dev.martianzoo.tfm.pets.ast.Script.ScriptLine
-import dev.martianzoo.tfm.pets.ast.Script.ScriptPragmaPlayer
-import dev.martianzoo.tfm.pets.ast.Script.ScriptRequirement
 import dev.martianzoo.tfm.pets.ast.TypeExpression
 import dev.martianzoo.tfm.pets.ast.TypeExpression.ClassExpression
 import dev.martianzoo.tfm.pets.ast.TypeExpression.GenericTypeExpression

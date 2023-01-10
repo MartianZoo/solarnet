@@ -1,5 +1,6 @@
-package dev.martianzoo.tfm.pets.ast
+package dev.martianzoo.tfm.pets
 
+import dev.martianzoo.tfm.pets.ast.TypeExpression
 import dev.martianzoo.tfm.pets.ast.TypeExpression.GenericTypeExpression
 
 data class StateChange(
@@ -23,7 +24,7 @@ data class StateChange(
 
     /** Information about what caused this state change, if we have it. */
     val cause: Cause? = null,
-) : PetsNode() {
+) {
 
   init {
     require(ordinal >= 0) // 0 used only for undocked changes
@@ -46,8 +47,6 @@ data class StateChange(
     val c = cause?.change ?: "Unknown"
     return "$desc BY $a BECAUSE $c"
   }
-
-  override val kind = "StateChange"
 
   data class Cause(
       /** The concrete component that owns the instruction that caused this change. */

@@ -1,6 +1,8 @@
-package dev.martianzoo.tfm.pets.ast
+package dev.martianzoo.tfm.pets
 
-import dev.martianzoo.tfm.pets.GameApi
+import dev.martianzoo.tfm.pets.ast.Instruction
+import dev.martianzoo.tfm.pets.ast.Requirement
+import dev.martianzoo.tfm.pets.ast.TypeExpression
 
 data class Script(val lines: List<ScriptLine>) {
   fun execute(game: GameApi): Map<String, Int> {

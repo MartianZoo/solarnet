@@ -1,6 +1,7 @@
 package dev.martianzoo.tfm.pets.ast
 
-import dev.martianzoo.tfm.pets.ast.StateChange.Cause
+import dev.martianzoo.tfm.pets.StateChange
+import dev.martianzoo.tfm.pets.StateChange.Cause
 import dev.martianzoo.tfm.pets.ast.TypeExpression.Companion.gte
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows

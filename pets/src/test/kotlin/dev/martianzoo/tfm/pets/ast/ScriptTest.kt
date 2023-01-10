@@ -2,12 +2,12 @@ package dev.martianzoo.tfm.pets.ast
 
 import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.tfm.pets.PetsParser.parseScript
+import dev.martianzoo.tfm.pets.Script.ScriptCommand
+import dev.martianzoo.tfm.pets.Script.ScriptCounter
+import dev.martianzoo.tfm.pets.Script.ScriptPragmaPlayer
+import dev.martianzoo.tfm.pets.Script.ScriptRequirement
 import dev.martianzoo.tfm.pets.ast.Instruction.Gain
 import dev.martianzoo.tfm.pets.ast.Requirement.Min
-import dev.martianzoo.tfm.pets.ast.Script.ScriptCommand
-import dev.martianzoo.tfm.pets.ast.Script.ScriptCounter
-import dev.martianzoo.tfm.pets.ast.Script.ScriptPragmaPlayer
-import dev.martianzoo.tfm.pets.ast.Script.ScriptRequirement
 import dev.martianzoo.tfm.pets.ast.TypeExpression.Companion.gte
 import org.junit.jupiter.api.Test
 

@@ -4,8 +4,8 @@ import com.google.common.collect.ImmutableMultiset
 import com.google.common.collect.LinkedHashMultiset
 import com.google.common.collect.Multiset
 import com.google.common.collect.Multisets
-import dev.martianzoo.tfm.pets.ast.StateChange
-import dev.martianzoo.tfm.pets.ast.StateChange.Cause
+import dev.martianzoo.tfm.pets.StateChange
+import dev.martianzoo.tfm.pets.StateChange.Cause
 import dev.martianzoo.tfm.types.PetType
 import dev.martianzoo.tfm.types.PetType.PetGenericType
 
