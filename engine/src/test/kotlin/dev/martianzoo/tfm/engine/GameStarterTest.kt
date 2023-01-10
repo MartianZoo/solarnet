@@ -9,10 +9,10 @@ import dev.martianzoo.tfm.canon.Canon.Bundle.Promos
 import dev.martianzoo.tfm.canon.Canon.Bundle.Tharsis
 import org.junit.jupiter.api.Test
 
-class RealGameKindaTest {
+class GameStarterTest {
   @Test
   fun loadsExpectedClasses() {
-    val game = GameStarter.newGame(4, setOf(Base, CorporateEra, Tharsis, Prelude, Promos))
+    val game = GameStarter.newGame(Canon, 4, setOf(Base, CorporateEra, Tharsis, Prelude, Promos))
 
     val unusedExpansionCards =
         Canon.cardDefinitions.filter { "VC".contains(it.bundle) }.map { it.className }
@@ -29,7 +29,7 @@ class RealGameKindaTest {
 
   @Test
   fun createdSingletons() {
-    val game = GameStarter.newGame(3, setOf(Base, CorporateEra, Tharsis, Prelude, Promos))
+    val game = GameStarter.newGame(Canon, 3, setOf(Base, CorporateEra, Tharsis, Prelude, Promos))
     assertThat(game.components.getAll(game.classTable.resolve("Component"))).containsExactly()
     // welp
   }

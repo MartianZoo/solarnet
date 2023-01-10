@@ -49,7 +49,7 @@ data class CardDefinition(
      * easily include or exclude sets of cards. The bundle ids `"A"`-`"Z"` are reserved for canon
      * (for example, `"B"` is "base", and `"R"` is "corporate era").
      */
-    val bundle: String,
+    override val bundle: String,
 
     /**
      * Which deck this card belongs to, if any (i.e., Beginner Corporation does not). Note that this

@@ -17,6 +17,7 @@
   "maps": [
     {
       "name": "Tharsis",
+      "bundle": "M",
       "rows": [
         [
                                      "LSS","WSS", "L", "WC",  "W"
@@ -42,6 +43,7 @@
 
     {
       "name": "Hellas",
+      "bundle": "H",
       "rows": [
         [
                                      "WPP","LPP","LPP","LPS","LP"
@@ -67,6 +69,7 @@
 
     {
       "name": "Elysium",
+      "bundle": "E",
       "rows": [
         [
                                       "W", "WT", "WC", "WS", "LC"

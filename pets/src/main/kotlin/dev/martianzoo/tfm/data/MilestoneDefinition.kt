@@ -14,7 +14,7 @@ import dev.martianzoo.tfm.pets.ast.TypeExpression.Companion.gte
 
 data class MilestoneDefinition(
     val id: String,
-    val bundle: String? = null,
+    override val bundle: String,
     val replaces: String? = null,
 
     @Json(name = "requirement")
@@ -23,7 +23,7 @@ data class MilestoneDefinition(
 
   init {
     require(id.isNotEmpty())
-    require(bundle?.isEmpty() != true)
+    require(bundle.isNotEmpty())
     require(requirementText.isNotEmpty())
     require(replaces?.isEmpty() != true)
   }

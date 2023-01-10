@@ -13,6 +13,8 @@ data class MapAreaDefinition(
     /** Shortname of the MarsMap this area belongs to (e.g "Tharsis"). */
     val mapName: String,
 
+    override val bundle: String,
+
     /** The row number of this area; the top row is row `1`. */
     val row: Int,
 

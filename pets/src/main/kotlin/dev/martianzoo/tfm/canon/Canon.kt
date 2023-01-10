@@ -61,16 +61,16 @@ object Canon : Authority() {
     return javaClass.getResource("/$dir/$filename")!!.readText()
   }
 
-  enum class Bundle(val id: Char, val isMap: Boolean = false) {
-    Base('B'),
-    CorporateEra('R'),  // well the letter R appears 3 times so...
-    Tharsis('M', true),  // M for "map", ooh
-    Hellas('H', true),
-    Elysium('E', true),
-    VenusNext('V'),
-    Prelude('P'),
-    Colonies('C'),
-    Turmoil('T'),
-    Promos('X'),
+  enum class Bundle(val id: String, val isMap: Boolean = false) {
+    Base("B"),
+    CorporateEra("R"),  // well the letter R appears 3 times so...
+    Tharsis("M", true),  // M for "map", ooh
+    Hellas("H", true),
+    Elysium("E", true),
+    VenusNext("V"),
+    Prelude("P"),
+    Colonies("C"),
+    Turmoil("T"),
+    Promos("X"),
   }
 }

@@ -9,7 +9,7 @@ import dev.martianzoo.tfm.pets.ast.TypeExpression.Companion.gte
 data class ActionDefinition(
     val id: String,
 
-    val bundle: String,
+    override val bundle: String,
 
     val project: Boolean,
 

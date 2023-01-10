@@ -18,7 +18,7 @@ import dev.martianzoo.tfm.pets.reservedClassNames
  * it was provided. DIRECT INFO ONLY; stuff is inherited among *loaded* classes (PetClasses).
  */
 data class ClassDeclaration(
-    override val className: String,
+    val className: String,
     val abstract: Boolean,
     val dependencies: List<DependencyDeclaration> = listOf(),
     val supertypes: Set<GenericTypeExpression> = setOf(),
@@ -27,12 +27,10 @@ data class ClassDeclaration(
     val effectsRaw: Set<Effect> = setOf(),
     val defaultsDeclaration: DefaultsDeclaration = DefaultsDeclaration(),
     val extraNodes: Set<PetsNode> = setOf(),
-) : Definition {
+) {
   init {
     require(this.className !in reservedClassNames)
   }
-
-  override val asClassDeclaration = this
 
   val superclassNames = supertypes.map { it.className }
 

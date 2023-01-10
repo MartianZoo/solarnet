@@ -40,18 +40,10 @@ ABSTRACT CLASS GlobalParameter {                            // TODO must be adde
 
 // MAPS AND TILES ------------------------------------------
 
-ABSTRACT CLASS MarsMap {
-    HAS MAX 1 MarsMap
-
-    This:: $createAll(Border, This)                         // save all :: effects until after all
-                                                            // singletons are created...
-    CLASS Tharsis, Hellas, Elysium
-}
-
 ABSTRACT CLASS Area(HAS MAX 1 Tile) {
     HAS MAX 1 This
 
-    ABSTRACT CLASS MarsArea {                               // TODO <MarsMap>?
+    ABSTRACT CLASS MarsArea {                               // the individual areas are loaded from `maps.json5`
         This:: $createAll(Row, This)
 
         ABSTRACT CLASS LandArea {
@@ -88,7 +80,7 @@ CLASS Row<MarsArea>                                         // after creating He
 
 // WORKFLOW-ISH --------------------------------------------
 
-ABSTRACT CLASS HasActions {
+ABSTRACT CLASS HasActions {                                 // the specific actions are loaded from `actions.json5`
     ABSTRACT CLASS StandardAction, StandardProject
 }
 
@@ -104,3 +96,5 @@ ABSTRACT CLASS Phase {
     CLASS ProductionPhase
     CLASS End
 }
+
+// Player-specific components are in `player.pets`

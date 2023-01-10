@@ -4,9 +4,15 @@ import dev.martianzoo.tfm.pets.ast.TypeExpression.Companion.gte
 import dev.martianzoo.tfm.pets.ast.TypeExpression.GenericTypeExpression
 
 enum class SpecialComponent {
-  Component, This, Default, Ok,
-  Production, StandardResource, UseAction,
+  Component,
+  Default,
   End,
+  Ok,
+  Player,
+  Production,
+  StandardResource,
+  This,
+  UseAction,
   ;
 
   val type: GenericTypeExpression = gte(name)

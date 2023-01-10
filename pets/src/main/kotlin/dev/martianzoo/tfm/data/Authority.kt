@@ -12,20 +12,25 @@ import dev.martianzoo.util.associateByStrict
 abstract class Authority {
   fun declaration(name: String): ClassDeclaration {
     val decl: ClassDeclaration? = allClassDeclarations[name]
-    require(decl != null) { "no class called $name" }
+    require(decl != null) { "no class declaration by name $name" }
     return decl
+  }
+
+  val allDefinitions : List<Definition> by lazy {
+    listOf<Definition>() +
+        cardDefinitions +
+        milestoneDefinitions +
+        actionDefinitions +
+        mapAreaDefinitions.values.flatten()
   }
 
   /** Note that not every type returned here will automatically be loaded. */
   val allClassDeclarations: Map<String, ClassDeclaration> by lazy {
-    gatherDeclarations(
-        explicitClassDeclarations,
-        actionDefinitions,
-        cardDefinitions,
-        mapAreaDefinitions.values.flatten(),
-        milestoneDefinitions,
-        extraClassDeclarationsFromCards.values,
-    )
+    val list: List<ClassDeclaration> =
+        explicitClassDeclarations +
+        extraClassDeclarationsFromCards.values +
+        allDefinitions.map { it.asClassDeclaration }
+    list.associateByStrict { it.className }
   }
 
   abstract val explicitClassDeclarations: Collection<ClassDeclaration>
@@ -65,7 +70,4 @@ abstract class Authority {
 
   private fun <D : Definition> toMapByComponentName(thing: Collection<D>): Map<String, D> =
       thing.associateByStrict { it.className }
-
-  private fun gatherDeclarations(vararg defs: Collection<Definition>) =
-      defs.toList().flatten().map { it.asClassDeclaration }.associateByStrict { it.className }
 }

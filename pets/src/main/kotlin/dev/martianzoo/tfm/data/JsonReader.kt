@@ -45,22 +45,23 @@ internal object JsonReader {
   private class MapsImport(val maps: List<MapImport>, val legend: Map<Char, String>) {
     fun toGrids() = maps.associateBy(MapImport::name) { it.toGrid(Legend(legend)) }
 
-    internal class MapImport(val name: String, val rows: List<List<String>>) {
+    internal class MapImport(val name: String, val bundle: String, val rows: List<List<String>>) {
 
       internal fun toGrid(legend: Legend): Grid<MapAreaDefinition> {
         val areas = rows.flatMapIndexed() { row0Index, cells ->
           cells.mapIndexedNotNull { col0Index, code ->
-            mapArea(name, row0Index, col0Index, code, legend)
+            mapArea(row0Index, col0Index, code, legend)
           }
         }
         return Grid.grid(areas, { it.row }, { it.column })
       }
 
       private fun mapArea(
-          mapName: String, row0Index: Int, col0Index: Int, code: String, legend: Legend,
+          row0Index: Int, col0Index: Int, code: String, legend: Legend
       ): MapAreaDefinition? {
         if (code.isEmpty()) return null
-        return MapAreaDefinition(mapName,
+        return MapAreaDefinition(
+            name, bundle,
             row0Index + 1, col0Index + 1,
             legend.getType(code), legend.getBonus(code),
             code)

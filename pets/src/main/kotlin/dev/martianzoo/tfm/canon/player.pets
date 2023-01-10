@@ -36,8 +36,7 @@ ABSTRACT CLASS Owned<Anyone> {
         End: VictoryPoint
     }
 
-    ABSTRACT CLASS Milestone                                // The rest of the stuff in this file is also Owned, just
-                                                            // explicitly instead of by nesting
+    ABSTRACT CLASS Milestone                                // specific milestones are loaded from `milestones.json5`
 
 // TILES ---------------------------------------------------
 
@@ -102,12 +101,12 @@ ABSTRACT CLASS Owned<Anyone> {
         CLASS ProjectCard                                   // well that used to be true until "Double Down" in Dec 2022
     }
 
-    ABSTRACT CLASS CardFront {
+    ABSTRACT CLASS CardFront {                               // specific CardFronts are loaded from `cards.json5`
         This:: $createAll(Cost, This)
 
         ABSTRACT CLASS EventCard {
             This: PlayedEvent FROM This                     // problem: how to still get the VPs??
-        }                                                   // could we get this happen autom. at EOT?
+        }                                                   // could we get this happen automatically at EOT?
         ABSTRACT CLASS AutomatedCard
         ABSTRACT CLASS ActiveCard                           // these types can all be mixed; what prevents bogus combos?
 
