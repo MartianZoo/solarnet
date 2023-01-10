@@ -192,12 +192,13 @@ sealed class Instruction : PetsNode() {
     override fun precedence() = 0
   }
 
-  data class Prod(val instruction: Instruction) : Instruction(), ProductionBox<Instruction> {
-    override fun times(value: Int) = copy(instruction * value)
+  data class Transform(val instruction: Instruction, override val transform: String) :
+      Instruction(), GenericTransform<Instruction> {
+    override fun times(value: Int) = Transform(instruction * value, transform)
 
-    override fun execute(game: GameApi) = error("should have been deprodified by now")
+    override fun execute(game: GameApi) = error("should have been transformed by now")
 
-    override fun toString() = "PROD[$instruction]"
+    override fun toString() = "$transform[$instruction]"
 
     override fun extract() = instruction
   }

@@ -28,7 +28,8 @@ sealed class PetsNode {
 
   open fun precedence(): Int = Int.MAX_VALUE
 
-  interface ProductionBox<P : PetsNode> {
+  interface GenericTransform<P : PetsNode> {
+    open val transform: String
     fun extract(): P
   }
 }

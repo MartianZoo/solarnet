@@ -62,7 +62,7 @@ internal class PetsGenerator(scaling: (Int) -> Double) :
           2 to Exact::class,
           5 to Requirement.Or::class,
           3 to Requirement.And::class,
-          1 to Requirement.Prod::class,
+          1 to Requirement.Transform::class,
       ))
       register<Requirement> { recurse(choose(requirementTypes)) }
       register { Min(qe = recurse()) }
@@ -70,7 +70,7 @@ internal class PetsGenerator(scaling: (Int) -> Double) :
       register { Exact(qe = recurse()) }
       register { Requirement.Or(setOfSize(choose(2, 2, 2, 2, 2, 3, 4))) }
       register { Requirement.And(listOfSize(choose(2, 2, 2, 2, 3))) }
-      register { Requirement.Prod(recurse()) }
+      register { Requirement.Transform(recurse(), "PROD") }
 
       fun RandomGenerator<*>.intensity() = choose(3 to null, 1 to randomEnum<Intensity>())
 
@@ -84,7 +84,7 @@ internal class PetsGenerator(scaling: (Int) -> Double) :
           1 to Then::class,
           3 to Instruction.Or::class,
           5 to Instruction.Multi::class,
-          1 to Instruction.Prod::class,
+          1 to Instruction.Transform::class,
       ))
       register<Instruction> { recurse(choose(instructionTypes)) }
       register { Gain(recurse(), intensity()) }
@@ -96,7 +96,7 @@ internal class PetsGenerator(scaling: (Int) -> Double) :
       register { Then(listOfSize(choose(2, 2, 2, 3))) }
       register { Instruction.Or(setOfSize(choose(2, 2, 2, 2, 3))) }
       register { Instruction.Multi(listOfSize(choose(2, 2, 2, 2, 2, 3, 4))) }
-      register { Instruction.Prod(recurse()) }
+      register { Instruction.Transform(recurse(), "PROD") }
 
       register<FromExpression> {
         val one: GenericTypeExpression = recurse()
@@ -141,12 +141,12 @@ internal class PetsGenerator(scaling: (Int) -> Double) :
       val triggerTypes = (multiset(
           9 to Trigger.OnGain::class,
           5 to Trigger.OnRemove::class,
-          1 to Trigger.Prod::class,
+          1 to Trigger.Transform::class,
       ))
       register<Trigger> { recurse(choose(triggerTypes)) }
       register { Trigger.OnGain(recurse()) }
       register { Trigger.OnRemove(recurse()) }
-      register { Trigger.Prod(recurse()) }
+      register { Trigger.Transform(recurse(), "PROD") }
 
       register { Effect(recurse(), recurse(), choose(true, false)) }
 
@@ -155,14 +155,14 @@ internal class PetsGenerator(scaling: (Int) -> Double) :
           3 to Cost.Per::class,
           3 to Cost.Or::class,
           2 to Cost.Multi::class,
-          2 to Cost.Prod::class,
+          2 to Cost.Transform::class,
       ))
       register<Cost> { recurse(choose(costTypes)) }
       register { Cost.Spend(qe = recurse()) }
       register { Cost.Per(recurse(), recurse()) }
       register { Cost.Or(setOfSize(choose(2, 2, 2, 2, 3, 4))) }
       register { Cost.Multi(listOfSize(choose(2, 2, 2, 3))) }
-      register { Cost.Prod(recurse()) }
+      register { Cost.Transform(recurse(), "PROD") }
 
       register { Action(choose(1 to null, 3 to recurse()), recurse()) }
     }

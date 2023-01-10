@@ -17,6 +17,7 @@ import com.github.h0tk3y.betterParse.lexer.regexToken
 import com.github.h0tk3y.betterParse.parser.ParseException
 import com.github.h0tk3y.betterParse.parser.Parser
 import com.github.h0tk3y.betterParse.parser.parseToEnd
+import com.github.h0tk3y.betterParse.utils.Tuple2
 import dev.martianzoo.tfm.pets.ast.Action
 import dev.martianzoo.tfm.pets.ast.Action.Cost
 import dev.martianzoo.tfm.pets.ast.Action.Cost.Spend
@@ -86,6 +87,7 @@ object PetsParser {
   private val characters = "!+,-./:;=?()[]{}<>\n".map { it to literal("$it") }.toMap()
 
   internal fun literal(w: String) = literalToken(w).also { tokenList += it }
+  internal fun regex(r: Regex) = regexToken(r).also { tokenList += it }
   internal fun regex(r: String) = regexToken(r).also { tokenList += it }
 
   internal val _by = literal("BY")
@@ -93,7 +95,6 @@ object PetsParser {
   internal val _has = literal("HAS")
   internal val _max = literal("MAX")
   internal val _or = literal("OR")
-  internal val _prod = literal("PROD")
   internal val _then = literal("THEN")
 
   // class declarations
@@ -107,11 +108,12 @@ object PetsParser {
   internal val _exec = literal("EXEC")
   internal val _require = literal("REQUIRE")
 
-  // regexes
-  internal val classNameRE = regex("\\b[A-Z][a-z][A-Za-z0-9_]*\\b") // must begin UPPER Lower
-  internal val scalarRE = regex("\\b(0|[1-9][0-9]*)\\b")   // must be all digits
-  internal val customRE = regex("\\$[a-z][a-zA-Z0-9]*\\b") // must begin $ then lowerCamel
-  internal val metricKeyRE = regex("\\b[a-z]\\w*\\b")      // must begin lower
+  // regexes - could leave the `Regex()` out, but it loses IDEA syntax highlighting!
+  internal val classNameRE = regex(Regex("""\b[A-Z][a-z][A-Za-z0-9_]*\b"""))
+  internal val scalarRE = regex(Regex("""\b(0|[1-9][0-9]*)\b"""))
+  internal val customRE = regex(Regex("""\$[a-z][a-zA-Z0-9]*\b"""))
+  internal val metricKeyRE = regex(Regex("""\b[a-z]\w*\b"""))
+  internal val transformStartRE = regex(Regex("""\b[A-Z]+\["""))
 
   internal val tokenizer = DefaultTokenizer(tokenList)
 
@@ -174,10 +176,12 @@ object PetsParser {
     internal val min = qe map ::Min
     internal val max = skip(_max) and qe map ::Max
     private val exact = skipChar('=') and qe map ::Exact
-    private val prod = prod(requirement) map Requirement::Prod
+    private val transform = transform(requirement) map {
+      (node, type) -> Requirement.Transform(node, type)
+    }
 
     internal val atom =
-        min or max or exact or prod or parens(requirement)      // can have no precedence worries
+        min or max or exact or transform or parens(requirement)      // can have no precedence worries
 
     private val orReq = separatedTerms(atom, _or) map {
       val set = it.toSet()
@@ -243,13 +247,15 @@ object PetsParser {
       if (qe == null) instr else Instruction.Per(instr, qe)
     }
 
-    private val maybeProd = maybePer or (prod(instruction) map Instruction::Prod)
+    private val maybeTransform = maybePer or (transform(instruction) map {
+      (node, type) -> Instruction.Transform(node, type)
+    })
 
     private val arguments = separatedTerms(typeExpression, char(','), true)
     internal val custom = customRE and parens(arguments) map { (name, args) ->
       Custom(name.text.substring(1), args)
     }
-    internal val atom = anyGroup or maybeProd or custom
+    internal val atom = anyGroup or maybeTransform or custom
 
     internal val gated = optional(Requirements.atom and skipChar(':')) and atom map { (one, two) ->
       if (one == null) two else Gated(one, two)
@@ -274,9 +280,11 @@ object PetsParser {
     private val groupedCost = parens(cost)
 
     private val spend = qe map ::Spend
-    private val maybeProd = spend or (prod(cost) map Cost::Prod)
+    private val maybeTransform = spend or (transform(cost) map  {
+      (node, type) -> Cost.Transform(node, type)
+    })
 
-    private val perCost = maybeProd and optional(skipChar('/') and qe) map { (cost, qe) ->
+    private val perCost = maybeTransform and optional(skipChar('/') and qe) map { (cost, qe) ->
       if (qe == null) cost else Cost.Per(cost, qe)
     }
 
@@ -305,7 +313,8 @@ object PetsParser {
     private val onRemove = skipChar('-') and Types.genericType map ::OnRemove
     private val atom = onGain or onRemove
 
-    internal val wholeTrigger = prod(atom) map Trigger::Prod or atom
+    internal val transform = transform(atom) map { (node, type) -> Trigger.Transform(node, type) }
+    internal val wholeTrigger = transform or atom
 
     private val colons = doubleColon or char(':') map { it.text == "::" }
 
@@ -354,8 +363,10 @@ object PetsParser {
   internal inline fun <reified T> optionalList(parser: Parser<List<T>>) =
       optional(parser) map { it ?: listOf() }
 
-  private inline fun <reified T> prod(parser: Parser<T>) =
-      skip(_prod) and skipChar('[') and parser and skipChar(']')
+  private inline fun <reified T> transform(interior: Parser<T>) =
+      transformStartRE and interior and skipChar(']') map {
+        (trans, inter) -> Tuple2(inter, trans.text.removeSuffix("["))
+      }
 
   internal inline fun <reified P> commaSeparated(p: Parser<P>) = separatedTerms(p, char(','))
 

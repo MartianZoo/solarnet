@@ -4,8 +4,12 @@ import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.tfm.pets.PetsParser.parse
 import dev.martianzoo.tfm.pets.ast.Action
 import dev.martianzoo.tfm.pets.ast.Effect
+import dev.martianzoo.tfm.pets.ast.Effect.Trigger
 import dev.martianzoo.tfm.pets.ast.Instruction
+import dev.martianzoo.tfm.pets.ast.Instruction.Gain
+import dev.martianzoo.tfm.pets.ast.Instruction.Per
 import dev.martianzoo.tfm.pets.ast.PetsNode
+import dev.martianzoo.tfm.pets.ast.QuantifiedExpression
 import dev.martianzoo.tfm.pets.ast.TypeExpression.Companion.gte
 import dev.martianzoo.tfm.pets.ast.TypeExpression.GenericTypeExpression
 import kotlin.reflect.KClass
@@ -125,5 +129,29 @@ private class TransformsTest {
         "Production<Heat.CLASS>>, -Qux!, 5 Ahh<Qux> FROM Production<StandardResource.CLASS>), Heat")
     val deprodden: Effect = deprodify(prodden, resources)
     assertThat(deprodden).isEqualTo(expected)
+  }
+
+  @Test
+  fun testNonProd() {
+    val x = parse<Effect>("HAHA[Plant]: Heat, HAHA[Steel / 5 PowerTag]")
+    assertThat(x).isEqualTo(
+        Effect(
+            Trigger.Transform(
+                Trigger.OnGain(gte("Plant")),
+                "HAHA"
+            ),
+            Instruction.Multi(
+                Gain(QuantifiedExpression(gte("Heat"), 1)),
+                Instruction.Transform(
+                    Per(
+                        Gain(QuantifiedExpression(gte("Steel"), 1)),
+                        QuantifiedExpression(gte("PowerTag"), 5)
+                    ),
+                    "HAHA"
+                )
+            ),
+            false
+        )
+    )
   }
 }

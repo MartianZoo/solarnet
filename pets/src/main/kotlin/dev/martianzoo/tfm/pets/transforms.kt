@@ -14,7 +14,7 @@ import dev.martianzoo.tfm.pets.ast.Instruction.Remove
 import dev.martianzoo.tfm.pets.ast.Instruction.Then
 import dev.martianzoo.tfm.pets.ast.Instruction.Transmute
 import dev.martianzoo.tfm.pets.ast.PetsNode
-import dev.martianzoo.tfm.pets.ast.PetsNode.ProductionBox
+import dev.martianzoo.tfm.pets.ast.PetsNode.GenericTransform
 import dev.martianzoo.tfm.pets.ast.TypeExpression
 import dev.martianzoo.tfm.pets.ast.TypeExpression.ClassExpression
 import dev.martianzoo.tfm.pets.ast.TypeExpression.Companion.gte
@@ -95,14 +95,14 @@ fun <P : PetsNode> deprodify(node: P, producible: Set<String>): P {
 
     override fun <P : PetsNode?> transform(node: P): P {
       val rewritten = when {
-        node is ProductionBox<*> -> {
+        node is GenericTransform<*> && node.transform == "PROD" -> { // TODO: support multiple better
           require(!inProd)
           inProd = true
           transform(node.extract()).also { inProd = false }
         }
 
-        inProd && node is GenericTypeExpression && node.className in producible -> Production.type.copy(
-            specs = node.specs + ClassExpression(node.className))
+        inProd && node is GenericTypeExpression && node.className in producible ->
+          Production.type.copy(specs = node.specs + ClassExpression(node.className))
 
         else -> super.transform(node)
       }

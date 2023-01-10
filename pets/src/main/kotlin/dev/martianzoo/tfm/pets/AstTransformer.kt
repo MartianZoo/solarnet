@@ -33,7 +33,7 @@ open class AstTransformer {
         is Requirement.Exact -> Requirement.Exact(x(qe))
         is Requirement.Or -> Requirement.Or(x(requirements))
         is Requirement.And -> Requirement.And(x(requirements))
-        is Requirement.Prod -> Requirement.Prod(x(requirement))
+        is Requirement.Transform -> Requirement.Transform(x(requirement), transform)
 
         is Instruction.Gain -> Instruction.Gain(x(qe), intensity)
         is Instruction.Remove -> Instruction.Remove(x(qe), intensity)
@@ -44,7 +44,7 @@ open class AstTransformer {
         is Instruction.Then -> Instruction.Then(x(instructions))
         is Instruction.Or -> Instruction.Or(x(instructions))
         is Instruction.Multi -> Instruction.Multi(x(instructions))
-        is Instruction.Prod -> Instruction.Prod(x(instruction))
+        is Instruction.Transform -> Instruction.Transform(x(instruction), transform)
 
         is SimpleFrom -> SimpleFrom(x(toType), x(fromType))
         is ComplexFrom -> ComplexFrom(className, x(specializations), x(refinement))
@@ -52,14 +52,14 @@ open class AstTransformer {
 
         is Trigger.OnGain -> Trigger.OnGain(x(expression))
         is Trigger.OnRemove -> Trigger.OnRemove(x(expression))
-        is Trigger.Prod -> Trigger.Prod(x(trigger))
+        is Trigger.Transform -> Trigger.Transform(x(trigger), transform)
         is Effect -> Effect(x(trigger), x(instruction), automatic)
 
         is Cost.Spend -> Cost.Spend(x(qe))
         is Cost.Per -> Cost.Per(x(cost), x(qe))
         is Cost.Or -> Cost.Or(x(costs))
         is Cost.Multi -> Cost.Multi(x(costs))
-        is Cost.Prod -> Cost.Prod(x(cost))
+        is Cost.Transform -> Cost.Transform(x(cost), transform)
         is Action -> Action(x(cost), x(instruction))
 
         else -> error("Forgot to add new node type $kind")

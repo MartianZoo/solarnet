@@ -39,11 +39,12 @@ sealed class Requirement : PetsNode() {
     override fun evaluate(game: GameApi) = requirements.all { it.evaluate(game) }
   }
 
-  data class Prod(val requirement: Requirement) : Requirement(), ProductionBox<Requirement> {
-    override fun toString() = "PROD[${requirement}]"
+  data class Transform(val requirement: Requirement, override val transform: String) :
+      Requirement(), GenericTransform<Requirement> {
+    override fun toString() = "$transform[${requirement}]"
     override fun extract() = requirement
 
-    override fun evaluate(game: GameApi) = error("shoulda been deprodified by now")
+    override fun evaluate(game: GameApi) = error("shoulda been transformed by now")
   }
 
   override val kind = "Requirement"

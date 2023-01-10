@@ -3,7 +3,6 @@ package dev.martianzoo.tfm.pets.ast
 import dev.martianzoo.tfm.pets.PetsException
 import dev.martianzoo.tfm.pets.ast.Instruction.Intensity.MANDATORY
 import dev.martianzoo.tfm.pets.ast.Instruction.Per
-import dev.martianzoo.tfm.pets.ast.Instruction.Prod
 import dev.martianzoo.tfm.pets.ast.Instruction.Remove
 
 data class Action(val cost: Cost?, val instruction: Instruction) : PetsNode() {
@@ -60,10 +59,11 @@ data class Action(val cost: Cost?, val instruction: Instruction) : PetsNode() {
       override fun toInstruction() = Instruction.Multi(costs.map(Cost::toInstruction))
     }
 
-    data class Prod(val cost: Cost) : Cost(), ProductionBox<Cost> {
-      override fun toString() = "PROD[${cost}]"
+    data class Transform(val cost: Cost, override val transform: String) :
+        Cost(), GenericTransform<Cost> {
+      override fun toString() = "$transform[${cost}]"
 
-      override fun toInstruction() = Prod(cost.toInstruction())
+      override fun toInstruction() = Instruction.Transform(cost.toInstruction(), transform)
 
       override fun extract() = cost
     }

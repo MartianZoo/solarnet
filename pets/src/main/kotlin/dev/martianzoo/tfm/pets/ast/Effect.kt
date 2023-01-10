@@ -31,14 +31,15 @@ data class Effect(
       override fun toString() = "-${expression}"
     }
 
-    data class Prod(val trigger: Trigger) : Trigger(), ProductionBox<Trigger> {
+    data class Transform(val trigger: Trigger, override val transform: String) :
+        Trigger(), GenericTransform<Trigger> {
       init {
         if (trigger !is OnGain && trigger !is OnRemove) {
-          throw PetsException("only gain/remove trigger can go in prod block")
+          throw PetsException("only gain/remove trigger can go in transform block")
         }
       }
 
-      override fun toString() = "PROD[${trigger}]"
+      override fun toString() = "$transform[${trigger}]"
 
       override fun extract() = trigger
     }
