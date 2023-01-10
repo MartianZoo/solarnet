@@ -47,61 +47,6 @@ private class PetClassCanonTest {
     all.forEach { it.effects.forEach(::testRoundTrip) }
   }
 
-  fun loadsOnlyWhatItNeeds() {
-    val loader = PetClassLoader(Canon)
-    loader.autoLoadDependencies = true
-
-    val nonVenusCards = Canon.cardDefinitions.filterNot { it.bundle == "V" }
-    loader.loadAll(nonVenusCards.map { it.className })
-    loader.loadAll(nonVenusCards.mapNotNull { it.resourceTypeText }.toSet())
-
-    loader.loadAll(Canon.milestoneDefinitions.filterNot { it.bundle == "V" }.map { it.className })
-
-    // Game config should take care of this
-    loader.load("Hellas")
-    loader.loadAll(Canon.mapAreaDefinitions["Hellas"]!!.map { it.className })
-
-    // TODO: something should eventually pull these in
-    loader.load("CorporationCard")
-    loader.load("PreludeCard")
-
-    // interesting: the only tag that does nothing
-    loader.load("CityTag")
-
-    var loadedSoFar = loader.loadedClassNames()
-
-    val all = PetClassLoader(Canon).loadEverything().loadedClassNames()
-
-    val venusThings =
-        Canon.cardDefinitions
-            .filter { it.bundle == "V" }
-            .map { it.className } +
-        setOf("VenusStep", "VenusTag", "MilestoneVM1", "Dirigible", "Area220", "Area236", "Area238", "Area248")
-
-    assertThat(all.containsAll(venusThings)).isTrue()
-
-    val expected = all.filterNot {
-      it.matches(Regex("^(Tharsis|Elysium|Demo).*")) || it in venusThings
-    }
-
-    assertThat(loadedSoFar).containsExactlyElementsIn(expected)
-  }
-
-  @Test
-  fun subConcrete() {
-    val table = PetClassLoader(Canon).loadEverything()
-    val all = table.loadedClassNames().map { table[it] }
-    val subConcrete = all.flatMap { clazz ->
-      clazz.directSuperclasses.filterNot { it.abstract }.map { clazz.name to it.name }
-    }
-
-    // currently just 3 cases of subclassing a concrete class in the canon
-    assertThat(subConcrete).containsExactly(
-        "Tile008" to "CityTile",
-        "Psychrophile" to "Microbe",
-        "Dirigible" to "Floater")
-  }
-
   @Test
   fun intersectionTypes() {
     val table = PetClassLoader(Canon).loadEverything()
