@@ -29,7 +29,7 @@ internal class Game(
 
   val changeLog = components.changeLog
 
-  fun resolve(type: TypeExpression) = classTable.resolve(type)
+  override fun resolve(type: TypeExpression): PetType = classTable.resolve(type)
   fun resolve(typeText: String) = resolve(parsePets(typeText))
 
   fun count(type: PetType) = components.count(type)

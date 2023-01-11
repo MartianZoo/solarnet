@@ -3,11 +3,11 @@ package dev.martianzoo.tfm.types
 import dev.martianzoo.tfm.data.Authority
 import dev.martianzoo.tfm.data.ClassDeclaration
 import dev.martianzoo.tfm.pets.SpecialComponent.StandardResource
+import dev.martianzoo.tfm.pets.SpecialComponent.This
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.TypeExpression
 import dev.martianzoo.tfm.pets.ast.TypeExpression.ClassLiteral
 import dev.martianzoo.tfm.pets.ast.TypeExpression.GenericTypeExpression
-import dev.martianzoo.tfm.pets.findAllClassNames
 import dev.martianzoo.tfm.types.PetType.PetGenericType
 import dev.martianzoo.util.Debug.d
 
@@ -71,8 +71,9 @@ internal class PetClassLoader(private val authority: Authority) : PetClassTable 
       val next = queue.removeFirst()
       if (next !in nameToPetClass) {
         loadSingle(next)
-        val needed = authority.declaration(next).allNodes.flatMap(::findAllClassNames)
-        val addToQueue = needed.toSet() - nameToPetClass.keys
+        val decl = authority.declaration(next)
+        val needed: List<ClassName> = decl.allNodes.flatMap { it.childNodesOfType() }
+        val addToQueue = needed.toSet() - nameToPetClass.keys - This.className
         queue.addAll(addToQueue.d("adding to queue"))
       }
     }

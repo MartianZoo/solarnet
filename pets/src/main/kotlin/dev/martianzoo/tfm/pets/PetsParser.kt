@@ -405,4 +405,8 @@ object PetsParser {
     }
     return expectedType.cast(pet)
   }
+
+  // For java
+  fun <P : PetsNode> parsePets(expectedType: Class<P>, source: String) =
+      parsePets(expectedType.kotlin, source)
 }

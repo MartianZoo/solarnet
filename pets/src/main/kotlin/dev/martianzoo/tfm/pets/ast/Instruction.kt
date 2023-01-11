@@ -143,6 +143,10 @@ sealed class Instruction : PetsNode() {
     override fun execute(game: GameState) {
       val instr = game.authority.customInstructionsByName[functionName]!!
       try {
+        val oops = arguments.filter { game.resolve(it).abstract }
+        if (oops.any()) {
+          throw PetsException("Abstract types given to $functionName: $oops")
+        }
         // We're not going to get far with this approach of just trying to execute directly.
         // Already with my first attempt, Robinson, it returns an "OR", which can't be exec'd.
         val translated = instr.translate(game, arguments)

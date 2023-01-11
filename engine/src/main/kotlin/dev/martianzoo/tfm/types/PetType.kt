@@ -1,12 +1,12 @@
 package dev.martianzoo.tfm.types
 
+import dev.martianzoo.tfm.api.TypeInfo
 import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.pets.ast.TypeExpression
 import dev.martianzoo.tfm.pets.ast.TypeExpression.GenericTypeExpression
 
-internal interface PetType {
+internal interface PetType : TypeInfo {
   val petClass: PetClass
-  val abstract: Boolean
 
   fun isSubtypeOf(that: PetType): Boolean
 

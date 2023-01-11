@@ -4,8 +4,8 @@ import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.tfm.api.lookUpProductionLevels
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.engine.ComponentGraph.Component
-import dev.martianzoo.tfm.pets.PetsParser
 import dev.martianzoo.tfm.pets.PetsParser.parsePets
+import dev.martianzoo.tfm.pets.PetsParser.parseScript
 import dev.martianzoo.tfm.pets.StateChange
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.TypeExpression
@@ -14,12 +14,11 @@ import dev.martianzoo.tfm.pets.ast.TypeExpression.GenericTypeExpression
 import dev.martianzoo.tfm.types.PetClassTable
 import dev.martianzoo.tfm.types.PetType.PetGenericType
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
 
 private class GameStateTest {
 
   @Test
-  fun basic() {
+  fun basicByApi() {
     val game = Engine.newGame(Canon, 3, setOf("B"))
 
     assertThat(game.count("Heat")).isEqualTo(0)
@@ -59,79 +58,7 @@ private class GameStateTest {
   }
 
   @Test
-  fun lookup() {
-    val game = Engine.newGame(Canon, 3, setOf("B"))
-    val prods: Map<ClassName, Int> = lookUpProductionLevels(game, gte("Player1"))
-    assertThat(prods).containsExactly(
-        ClassName("Megacredit"), -5,
-        ClassName("Steel"), 0,
-        ClassName("Titanium"), 0,
-        ClassName("Plant"), 0,
-        ClassName("Energy"), 0,
-        ClassName("Heat"), 0,
-    )
-
-    game.applyChange(2, gaining =
-        parsePets<TypeExpression>("Production<Player1, Plant.CLASS>") as GenericTypeExpression)
-    val prods2: Map<ClassName, Int> = lookUpProductionLevels(game, gte("Player1"))
-    assertThat(prods2).containsExactly(
-        ClassName("Megacredit"), -5,
-        ClassName("Steel"), 0,
-        ClassName("Titanium"), 0,
-        ClassName("Plant"), 2,
-        ClassName("Energy"), 0,
-        ClassName("Heat"), 0,
-    )
-  }
-
-  @Test
-  fun robinson() {
-    val game = Engine.newGame(Canon, 3, setOf("B"))
-    val s = """
-      // The standard hack for every player - ignore it!
-      EXEC PROD[5 Megacredit<Player1>]
-
-      EXEC PROD[Steel<Player1>, Titanium<Player1>, Plant<Player1>, Energy<Player1>, Heat<Player1>]
-      EXEC $${""}gainLowestProduction(Player1)
-      COUNT Production<Player1, Megacredit.CLASS> -> foo      
-    """
-    val script = PetsParser.parseScript(s)
-    val results = game.execute(script)
-    assertThat(results["foo"]).isEqualTo(6)
-  }
-
-  @Test
-  fun robinsonCant() {
-    val game = Engine.newGame(Canon, 3, setOf("B"))
-    val s = """
-      // The standard hack for every player - ignore it!
-      EXEC PROD[5 Megacredit<Player1>]
-
-      EXEC PROD[Steel<Player1>, Titanium<Player1>, Plant<Player1>, Heat<Player1>]
-      EXEC $${""}gainLowestProduction(Player1)
-    """
-    val script = PetsParser.parseScript(s)
-    assertThrows<RuntimeException> { game.execute(script) }
-    game.changeLog.forEach(::println)
-  }
-
-  @Test
-  fun robinson2() {
-    val game = Engine.newGame(Canon, 3, setOf("B"))
-    val s = """
-      // The standard hack for every player - ignore it!
-      EXEC PROD[5 Megacredit<Player1>]
-
-      EXEC PROD[-Megacredit<Player1>]
-      EXEC $${""}gainLowestProduction(Player1)
-      REQUIRE =5 Production<Player1, Megacredit.CLASS>
-    """
-    val script = PetsParser.parseScript(s)
-    game.execute(script)
-  }
-
-  @Test
-  fun script() {
+  fun basicByScript() {
     val game = Engine.newGame(Canon, 3, setOf("B"))
 
     val s = """
@@ -157,7 +84,7 @@ private class GameStateTest {
       REQUIRE =5 Heat<Player3>
     """
 
-    val script = PetsParser.parseScript(s)
+    val script = parseScript(s)
     val results = game.execute(script)
 
     assertThat(results).containsExactly("eleven", 11)
@@ -183,6 +110,32 @@ private class GameStateTest {
     ).inOrder()
 
 
+  }
+
+  @Test
+  fun lookup() { // TODO move where belongs
+    val game = Engine.newGame(Canon, 3, setOf("B"))
+    val prods: Map<ClassName, Int> = lookUpProductionLevels(game, gte("Player1"))
+    assertThat(prods).containsExactly(
+        ClassName("Megacredit"), -5,
+        ClassName("Steel"), 0,
+        ClassName("Titanium"), 0,
+        ClassName("Plant"), 0,
+        ClassName("Energy"), 0,
+        ClassName("Heat"), 0,
+    )
+
+    game.applyChange(2, gaining =
+        parsePets<TypeExpression>("Production<Player1, Plant.CLASS>") as GenericTypeExpression)
+    val prods2: Map<ClassName, Int> = lookUpProductionLevels(game, gte("Player1"))
+    assertThat(prods2).containsExactly(
+        ClassName("Megacredit"), -5,
+        ClassName("Steel"), 0,
+        ClassName("Titanium"), 0,
+        ClassName("Plant"), 2,
+        ClassName("Energy"), 0,
+        ClassName("Heat"), 0,
+    )
   }
 
   private fun PetClassTable.cpt(expression: String) =

@@ -23,10 +23,15 @@ public interface GameState : ReadOnlyGameState {
 
 public interface ReadOnlyGameState {
   val authority: Authority
+
+  fun resolve(type: TypeExpression): TypeInfo
+
   fun count(type: String): Int
   fun count(type: TypeExpression): Int
+
   fun getAll(type: TypeExpression): Multiset<TypeExpression>
   fun getAll(type: ClassLiteral): Set<ClassLiteral>
   fun getAll(type: String): Multiset<TypeExpression>
+
   fun isMet(requirement: Requirement): Boolean
 }

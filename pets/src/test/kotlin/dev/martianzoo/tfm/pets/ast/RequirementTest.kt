@@ -156,8 +156,10 @@ private class RequirementTest {
       return if (length % 2 == 0) length else 0
     }
 
+
     override fun isMet(requirement: Requirement) = requirement.evaluate(this)
 
+    override fun resolve(type: TypeExpression) = TODO()
     override fun getAll(type: TypeExpression) = TODO()
     override fun count(type: String) = TODO()
     override fun getAll(type: ClassLiteral) = TODO()

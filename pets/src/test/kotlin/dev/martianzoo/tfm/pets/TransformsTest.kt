@@ -60,7 +60,8 @@ private class TransformsTest {
   @Test
   fun testFindAllClassNames() {
     val instr = parsePets<Instruction>('$' + "foo(Bar, Qux<Dog>)")
-    assertThat(findAllClassNames(instr).map { it.asString }).containsExactly("Bar", "Qux", "Dog")
+    assertThat(instr.childNodesOfType<ClassName>().map { it.asString })
+        .containsExactly("Bar", "Qux", "Dog")
   }
 
   @Test

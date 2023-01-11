@@ -20,22 +20,6 @@ import dev.martianzoo.tfm.pets.ast.TypeExpression.ClassLiteral
 import dev.martianzoo.tfm.pets.ast.TypeExpression.Companion.gte
 import dev.martianzoo.tfm.pets.ast.TypeExpression.GenericTypeExpression
 
-fun findAllClassNames(node: PetsNode): Set<ClassName> {
-  class ClassNameFinder : AstTransformer() {
-    val found = mutableSetOf<ClassName>()
-    override fun <P : PetsNode?> transform(node: P): P {
-      when (node) {
-        is ClassName -> found += node
-      }
-      return super.transform(node)
-    }
-  }
-
-  val f = ClassNameFinder()
-  f.transform(node)
-  return f.found - setOf(This.className)
-}
-
 internal fun actionToEffect(action: Action, index1Ref: Int): Effect {
   require(index1Ref >= 1) { index1Ref }
   val instruction = instructionFromAction(action.cost?.toInstruction(), action.instruction)
