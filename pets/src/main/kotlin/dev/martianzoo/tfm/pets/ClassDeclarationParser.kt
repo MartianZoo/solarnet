@@ -31,6 +31,7 @@ import dev.martianzoo.tfm.pets.PetsParser.typeExpression
 import dev.martianzoo.tfm.pets.SpecialComponent.Component
 import dev.martianzoo.tfm.pets.SpecialComponent.This
 import dev.martianzoo.tfm.pets.ast.Action
+import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.Effect
 import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.pets.ast.TypeExpression.Companion.gte
@@ -68,13 +69,13 @@ object ClassDeclarationParser {
 
     private val gainDefault =
         skipChar('+') and Types.genericType and Instructions.intensity map { (type, int) ->
-          require(type.className == This.name)
+          require(type.className == This.className)
           require(type.refinement == null)
           DefaultsDeclaration(gainOnlySpecs = type.specs, gainIntensity = int)
         }
 
     private val typeDefault = Types.genericType map {
-      require(it.className == This.name)
+      require(it.className == This.className)
       require(it.refinement == null)
       DefaultsDeclaration(universalSpecs = it.specs)
     }
@@ -157,7 +158,7 @@ object ClassDeclarationParser {
   val oneLineClassDeclaration = Components.ocd
 
   private class Signature(
-      val className: String,
+      val className: ClassName,
       val dependencies: List<DependencyDeclaration>,
       val topInvariant: Requirement?,
       val supertypes: List<GenericTypeExpression>,
@@ -169,18 +170,18 @@ object ClassDeclarationParser {
   ) {
     fun declaration() = if (isComplete) declaration else fixSupertypes()
 
-    fun fillInSuperclass(name: String) =
-        if (isComplete || declaration.supertypes.any { it.className == name }) {
+    fun fillInSuperclass(className: ClassName) =
+        if (isComplete || declaration.supertypes.any { it.className == className }) {
           this
         } else {
-          val supes = (listOf(gte(name)) + declaration.supertypes)
+          val supes = (listOf(gte(className)) + declaration.supertypes)
           DeclarationInProgress(declaration.copy(supertypes = supes.toSetStrict()), true)
         }
 
     private fun fixSupertypes(): ClassDeclaration {
       val supes = declaration.supertypes
       return when {
-        declaration.className == Component.name -> declaration.also { require(supes.isEmpty()) }
+        declaration.className == Component.className -> declaration.also { require(supes.isEmpty()) }
         supes.isEmpty() -> declaration.copy(supertypes = setOf(Component.type))
         else -> declaration.also { require(Component.type !in supes) }
       }

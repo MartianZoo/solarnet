@@ -3,6 +3,8 @@ package dev.martianzoo.tfm.types
 import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.pets.SpecialComponent.Component
+import dev.martianzoo.tfm.pets.SpecialComponent.Die
+import dev.martianzoo.tfm.pets.ast.ClassName
 import java.util.TreeSet
 import org.junit.jupiter.api.Test
 
@@ -13,7 +15,7 @@ private class PetClassCanonTest {
     val table = PetClassLoader(Canon)
 
     table.load(Component.name).apply {
-      assertThat(name).isEqualTo("Component")
+      assertThat(name).isEqualTo(Component.className)
       assertThat(abstract).isTrue()
       assertThat(directDependencyKeys).isEmpty()
       assertThat(allDependencyKeys).isEmpty()
@@ -21,12 +23,11 @@ private class PetClassCanonTest {
     }
     assertThat(table.loadedClasses().size).isEqualTo(1)
 
-    table.load("OceanTile").apply {
+    table.load(ClassName("OceanTile")).apply {
       assertThat(directDependencyKeys).isEmpty()
       assertThat(allDependencyKeys).containsExactly(Dependency.Key(table["Tile"], 0))
-      assertThat(directSuperclasses.map { it.name }).containsExactly("GlobalParameter", "Tile")
-          .inOrder()
-      assertThat(allSuperclasses.map { it.name }).containsExactly("Component",
+      assertThat(directSuperclasses.map { it.name.asString }).containsExactly("GlobalParameter", "Tile").inOrder()
+      assertThat(allSuperclasses.map { it.name.asString }).containsExactly("Component",
           "GlobalParameter",
           "Tile",
           "OceanTile").inOrder()
@@ -62,12 +63,12 @@ private class PetClassCanonTest {
     val table = PetClassLoader(Canon).loadEverything()
     val all = table.loadedClassNames().map { table[it] }
 
-    val names: List<String> = all.map { it.name }.filterNot {
+    val names: List<ClassName> = all.map { it.name }.filterNot {
       it.matches(Regex("^Card.{3,4}$")) && it.hashCode() % 12 != 0
     }.filterNot {
       it.matches(Regex("^(Tharsis|Hellas|Elysium)")) && it.hashCode() % 8 != 0
     }.filterNot {
-      it in setOf("Component", "Die")
+      it in setOf(Component.className, Die.className)
     }
 
     val abstracts = TreeSet<String>()
@@ -128,7 +129,7 @@ private class PetClassCanonTest {
     val all = table.loadedClassNames().map { table[it] }
     all.sortedBy { it.name }.forEach { c ->
       val interestingSupes = c.allSuperclasses.filter {
-        it.name !in setOf(Component.name, c.name)
+        it.name !in setOf(Component.className, c.name)
       }
       println("${c.baseType} : $interestingSupes")
     }

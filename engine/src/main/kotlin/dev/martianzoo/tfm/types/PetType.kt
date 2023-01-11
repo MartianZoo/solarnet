@@ -56,8 +56,12 @@ internal interface PetType {
       }
     }
 
-    fun specialize(specs: List<PetType>): PetGenericType =
-        copy(dependencies = dependencies.specialize(specs))
+    fun specialize(specs: List<PetType>): PetGenericType {
+      if (specs.toString() == "[Animal<Anyone, ResourcefulCard<Anyone, Animal.CLASS>>]") {
+        println("waddap") // TODO
+      }
+      return copy(dependencies = dependencies.specialize(specs))
+    }
 
     override fun toTypeExpressionFull(): GenericTypeExpression {
       val specs = dependencies.keyToDependency.values.map { it.toTypeExpressionFull() }

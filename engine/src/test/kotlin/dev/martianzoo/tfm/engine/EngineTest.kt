@@ -19,11 +19,10 @@ class EngineTest {
     val unusedExpansionCards =
         Canon.cardDefinitions.filter { "VC".contains(it.bundle) }.map { it.className }
 
+    val regex = Regex("(Hellas|Elysium|Milestone[HEV]|Player5|Camp" +
+        "|Venus|Area2|Floater|Dirigible|AirScrappingSP).*")
     val expected = (Canon.allClassDeclarations.keys - unusedExpansionCards).filterNot {
-      it.matches(Regex(
-          "(Hellas|Elysium|Milestone[HEV]|Player5|Camp" +
-          "|Venus|Area2|Floater|Dirigible|AirScrappingSP).*"
-      ))
+      it.matches(regex)
     }
 
     assertThat(game.classTable.loadedClassNames()).containsExactlyElementsIn(expected)

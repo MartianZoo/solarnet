@@ -97,8 +97,9 @@ private class InstructionTest {
     testRoundTrip("Foo<Bar FROM Qux>.")
 
     val instr = Transmute(ComplexFrom(
-        "Foo",
-        listOf(ComplexFrom("Bar", listOf(SimpleFrom(gte("Qux"), gte("Abc", gte("Eep")))))),
+        ClassName("Foo"),
+        listOf(ComplexFrom(ClassName("Bar"), listOf(SimpleFrom(gte("Qux"), gte("Abc", gte("Eep")))
+        ))),
     ), null, null)
     assertThat(instr.toString()).isEqualTo("Foo<Bar<Qux FROM Abc<Eep>>>")
     assertThat(parsePets<Instruction>("Foo<Bar<Qux FROM Abc<Eep>>>")).isEqualTo(instr)

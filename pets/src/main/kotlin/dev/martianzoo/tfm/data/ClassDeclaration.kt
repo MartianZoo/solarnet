@@ -1,6 +1,7 @@
 package dev.martianzoo.tfm.data
 
 import dev.martianzoo.tfm.pets.SpecialComponent.This
+import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.Effect
 import dev.martianzoo.tfm.pets.ast.Instruction.Intensity
 import dev.martianzoo.tfm.pets.ast.PetsNode
@@ -11,14 +12,13 @@ import dev.martianzoo.tfm.pets.ast.Requirement.Exact
 import dev.martianzoo.tfm.pets.ast.Requirement.Min
 import dev.martianzoo.tfm.pets.ast.TypeExpression
 import dev.martianzoo.tfm.pets.ast.TypeExpression.GenericTypeExpression
-import dev.martianzoo.tfm.pets.reservedClassNames
 
 /**
  * The declaration of a component class, such as GreeneryTile. Models the declaration textually as
  * it was provided. DIRECT INFO ONLY; stuff is inherited among *loaded* classes (PetClasses).
  */
 data class ClassDeclaration(
-    val className: String,
+    val className: ClassName,
     val abstract: Boolean,
     val dependencies: List<DependencyDeclaration> = listOf(),
     val supertypes: Set<GenericTypeExpression> = setOf(),
@@ -28,14 +28,11 @@ data class ClassDeclaration(
     val defaultsDeclaration: DefaultsDeclaration = DefaultsDeclaration(),
     val extraNodes: Set<PetsNode> = setOf(),
 ) {
-  init {
-    require(this.className !in reservedClassNames)
-  }
-
-  val superclassNames = supertypes.map { it.className }
+  val superclassNames: List<ClassName> = supertypes.map { it.className }
 
   val allNodes: Set<PetsNode> by lazy {
     setOf<PetsNode>() +
+        className +
         supertypes +
         dependencies.map { it.type } +
         setOfNotNull(topInvariant) +

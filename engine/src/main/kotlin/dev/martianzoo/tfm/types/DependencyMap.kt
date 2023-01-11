@@ -60,7 +60,9 @@ internal data class DependencyMap(val keyToDependency: Map<Dependency.Key, Depen
         dependency
       }
     }
-    require(unhandled.isEmpty()) { "This: $this\nSpecs: $specs\nUnhandled : $unhandled" }
+    require(unhandled.isEmpty()) {
+      "This: $this\nSpecs: $specs\nUnhandled : $unhandled"
+    }
     return DependencyMap(newMap) //.d { "findMatchups of $this with $specs: $it" } too noisy
   }
 

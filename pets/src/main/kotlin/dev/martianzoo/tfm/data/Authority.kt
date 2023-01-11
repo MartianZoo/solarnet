@@ -1,6 +1,7 @@
 package dev.martianzoo.tfm.data
 
 import dev.martianzoo.tfm.api.CustomInstruction
+import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.util.Grid
 import dev.martianzoo.util.associateByStrict
 
@@ -9,7 +10,7 @@ import dev.martianzoo.util.associateByStrict
  * one, called `Canon`, containing only officially published materials.
  */
 abstract class Authority { // TODO move to api
-  fun declaration(name: String): ClassDeclaration {
+  fun declaration(name: ClassName): ClassDeclaration {
     val decl: ClassDeclaration? = allClassDeclarations[name]
     require(decl != null) { "no class declaration by name $name" }
     return decl
@@ -24,7 +25,7 @@ abstract class Authority { // TODO move to api
   }
 
   /** Note that not every type returned here will automatically be loaded. */
-  val allClassDeclarations: Map<String, ClassDeclaration> by lazy {
+  val allClassDeclarations: Map<ClassName, ClassDeclaration> by lazy {
     val list: List<ClassDeclaration> =
         explicitClassDeclarations +
         extraClassDeclarationsFromCards.values +
@@ -36,7 +37,7 @@ abstract class Authority { // TODO move to api
 
   abstract val actionDefinitions: Collection<ActionDefinition>
 
-  val actionsByComponentName: Map<String, ActionDefinition> by lazy {
+  val actionsByComponentName: Map<ClassName, ActionDefinition> by lazy {
     toMapByComponentName(actionDefinitions)
   }
 
@@ -64,12 +65,12 @@ abstract class Authority { // TODO move to api
   abstract fun customInstructions(): Collection<CustomInstruction>
 
   val customInstructionsByName: Map<String, CustomInstruction> =
-      customInstructions().associateByStrict { it.name }
+      customInstructions().associateByStrict { it.functionName }
 
-  private val extraClassDeclarationsFromCards: Map<String, ClassDeclaration> by lazy {
+  private val extraClassDeclarationsFromCards: Map<ClassName, ClassDeclaration> by lazy {
     cardDefinitions.flatMap { it.extraComponents }.associateBy { it.className }
   }
 
-  private fun <D : Definition> toMapByComponentName(thing: Collection<D>): Map<String, D> =
+  private fun <D : Definition> toMapByComponentName(thing: Collection<D>): Map<ClassName, D> =
       thing.associateByStrict { it.className }
 }

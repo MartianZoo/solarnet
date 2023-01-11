@@ -7,6 +7,7 @@ import dev.martianzoo.tfm.engine.ComponentGraph.Component
 import dev.martianzoo.tfm.pets.PetsParser
 import dev.martianzoo.tfm.pets.PetsParser.parsePets
 import dev.martianzoo.tfm.pets.StateChange
+import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.TypeExpression
 import dev.martianzoo.tfm.pets.ast.TypeExpression.Companion.gte
 import dev.martianzoo.tfm.pets.ast.TypeExpression.GenericTypeExpression
@@ -60,26 +61,26 @@ private class GameStateTest {
   @Test
   fun lookup() {
     val game = Engine.newGame(Canon, 3, setOf("B"))
-    val prods: Map<String, Int> = lookUpProductionLevels(game, gte("Player1"))
+    val prods: Map<ClassName, Int> = lookUpProductionLevels(game, gte("Player1"))
     assertThat(prods).containsExactly(
-        "Megacredit", -5,
-        "Steel", 0,
-        "Titanium", 0,
-        "Plant", 0,
-        "Energy", 0,
-        "Heat", 0
+        ClassName("Megacredit"), -5,
+        ClassName("Steel"), 0,
+        ClassName("Titanium"), 0,
+        ClassName("Plant"), 0,
+        ClassName("Energy"), 0,
+        ClassName("Heat"), 0,
     )
 
     game.applyChange(2, gaining =
         parsePets<TypeExpression>("Production<Player1, Plant.CLASS>") as GenericTypeExpression)
-    val prods2: Map<String, Int> = lookUpProductionLevels(game, gte("Player1"))
+    val prods2: Map<ClassName, Int> = lookUpProductionLevels(game, gte("Player1"))
     assertThat(prods2).containsExactly(
-        "Megacredit", -5,
-        "Steel", 0,
-        "Titanium", 0,
-        "Plant", 2,
-        "Energy", 0,
-        "Heat", 0
+        ClassName("Megacredit"), -5,
+        ClassName("Steel"), 0,
+        ClassName("Titanium"), 0,
+        ClassName("Plant"), 2,
+        ClassName("Energy"), 0,
+        ClassName("Heat"), 0,
     )
   }
 

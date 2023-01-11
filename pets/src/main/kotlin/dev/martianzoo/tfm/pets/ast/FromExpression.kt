@@ -1,6 +1,5 @@
 package dev.martianzoo.tfm.pets.ast
 
-import dev.martianzoo.tfm.pets.CLASS_NAME_PATTERN
 import dev.martianzoo.tfm.pets.PetsException
 import dev.martianzoo.tfm.pets.ast.TypeExpression.Companion.gte
 import dev.martianzoo.util.joinOrEmpty
@@ -27,22 +26,21 @@ sealed class FromExpression : PetsNode() {
   }
 
   data class ComplexFrom(
-      val className: String,
+      val className: ClassName,
       val specializations: List<FromExpression> = listOf(),
-      val refinement: Requirement? = null,
+      val refinement: Requirement? = null, // TODO get rid of?
   ) : FromExpression() {
     init {
-      require(className.matches(Regex(CLASS_NAME_PATTERN))) { className }
       if (specializations.count { it is ComplexFrom || it is SimpleFrom } != 1) {
         throw PetsException("Can only have one FROM in an expression")
       }
     }
 
-    override val toType = gte(className, specializations.map { it.toType }, null)
-    override val fromType = gte(className, specializations.map { it.fromType }, refinement)
+    override val toType = gte(className, specializations.map { it.toType })
+    override val fromType = gte(className, specializations.map { it.fromType }).refine(refinement)
 
     override fun toString() =
-        className +
+        "$className" +
         specializations.joinOrEmpty(wrap="<>") +
         (refinement?.let { "(HAS $it)" } ?: "")
   }

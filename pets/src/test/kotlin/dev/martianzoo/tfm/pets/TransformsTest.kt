@@ -3,6 +3,7 @@ package dev.martianzoo.tfm.pets
 import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.tfm.pets.PetsParser.parsePets
 import dev.martianzoo.tfm.pets.ast.Action
+import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.Effect
 import dev.martianzoo.tfm.pets.ast.Effect.Trigger
 import dev.martianzoo.tfm.pets.ast.Instruction
@@ -59,7 +60,7 @@ private class TransformsTest {
   @Test
   fun testFindAllClassNames() {
     val instr = parsePets<Instruction>('$' + "foo(Bar, Qux<Dog>)")
-    assertThat(findAllClassNames(instr)).containsExactly("Bar", "Qux", "Dog")
+    assertThat(findAllClassNames(instr).map { it.asString }).containsExactly("Bar", "Qux", "Dog")
   }
 
   @Test
@@ -101,8 +102,14 @@ private class TransformsTest {
     assertThat(tx.toString()).isEqualTo(expected)
   }
 
-  val resources =
-      setOf("StandardResource", "Megacredit", "Steel", "Titanium", "Plant", "Energy", "Heat")
+  val resources = listOf(
+      "StandardResource",
+      "Megacredit",
+      "Steel",
+      "Titanium",
+      "Plant",
+      "Energy",
+      "Heat").map { ClassName(it) }.toSet()
 
   @Test
   fun testDeprodify_noProd() {

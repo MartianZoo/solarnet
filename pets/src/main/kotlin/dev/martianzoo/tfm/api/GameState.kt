@@ -5,7 +5,7 @@ import dev.martianzoo.tfm.data.Authority
 import dev.martianzoo.tfm.pets.StateChange.Cause
 import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.pets.ast.TypeExpression
-import dev.martianzoo.tfm.pets.ast.TypeExpression.ClassExpression
+import dev.martianzoo.tfm.pets.ast.TypeExpression.ClassLiteral
 import dev.martianzoo.tfm.pets.ast.TypeExpression.GenericTypeExpression
 
 /**
@@ -26,7 +26,7 @@ public interface ReadOnlyGameState {
   fun count(type: String): Int
   fun count(type: TypeExpression): Int
   fun getAll(type: TypeExpression): Multiset<TypeExpression>
-  fun getAll(type: ClassExpression): Set<ClassExpression>
+  fun getAll(type: ClassLiteral): Set<ClassLiteral>
   fun getAll(type: String): Multiset<TypeExpression>
   fun isMet(requirement: Requirement): Boolean
 }

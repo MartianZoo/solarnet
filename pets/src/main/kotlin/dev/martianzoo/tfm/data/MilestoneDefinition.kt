@@ -4,6 +4,7 @@ import com.squareup.moshi.Json
 import dev.martianzoo.tfm.pets.PetsParser.parsePets
 import dev.martianzoo.tfm.pets.SpecialComponent.Ok
 import dev.martianzoo.tfm.pets.SpecialComponent.This
+import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.Effect
 import dev.martianzoo.tfm.pets.ast.Effect.Trigger.OnGain
 import dev.martianzoo.tfm.pets.ast.Instruction.Gain
@@ -30,7 +31,7 @@ data class MilestoneDefinition(
 
   val requirement: Requirement by lazy { parsePets(requirementText) }
 
-  override val className = "Milestone$id"
+  override val className = ClassName("Milestone$id")
 
   override val asClassDeclaration: ClassDeclaration by lazy {
     ClassDeclaration(

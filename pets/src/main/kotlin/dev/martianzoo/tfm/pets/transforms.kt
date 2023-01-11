@@ -4,9 +4,9 @@ import dev.martianzoo.tfm.pets.SpecialComponent.Production
 import dev.martianzoo.tfm.pets.SpecialComponent.This
 import dev.martianzoo.tfm.pets.SpecialComponent.UseAction
 import dev.martianzoo.tfm.pets.ast.Action
+import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.Effect
 import dev.martianzoo.tfm.pets.ast.Effect.Trigger.OnGain
-import dev.martianzoo.tfm.pets.ast.FromExpression.ComplexFrom
 import dev.martianzoo.tfm.pets.ast.FromExpression.SimpleFrom
 import dev.martianzoo.tfm.pets.ast.Instruction
 import dev.martianzoo.tfm.pets.ast.Instruction.Gain
@@ -16,17 +16,16 @@ import dev.martianzoo.tfm.pets.ast.Instruction.Transmute
 import dev.martianzoo.tfm.pets.ast.PetsNode
 import dev.martianzoo.tfm.pets.ast.PetsNode.GenericTransform
 import dev.martianzoo.tfm.pets.ast.TypeExpression
-import dev.martianzoo.tfm.pets.ast.TypeExpression.ClassExpression
+import dev.martianzoo.tfm.pets.ast.TypeExpression.ClassLiteral
 import dev.martianzoo.tfm.pets.ast.TypeExpression.Companion.gte
 import dev.martianzoo.tfm.pets.ast.TypeExpression.GenericTypeExpression
 
-fun findAllClassNames(node: PetsNode): Set<String> {
+fun findAllClassNames(node: PetsNode): Set<ClassName> {
   class ClassNameFinder : AstTransformer() {
-    val found = mutableSetOf<String>()
+    val found = mutableSetOf<ClassName>()
     override fun <P : PetsNode?> transform(node: P): P {
       when (node) {
-        is TypeExpression -> found += node.className
-        is ComplexFrom -> found += node.className
+        is ClassName -> found += node
       }
       return super.transform(node)
     }
@@ -34,7 +33,7 @@ fun findAllClassNames(node: PetsNode): Set<String> {
 
   val f = ClassNameFinder()
   f.transform(node)
-  return f.found - setOf(This.name)
+  return f.found - setOf(This.className)
 }
 
 internal fun actionToEffect(action: Action, index1Ref: Int): Effect {
@@ -71,7 +70,7 @@ internal fun immediateToEffect(instruction: Instruction): Effect {
 
 fun <P : PetsNode> replaceThis(node: P, resolveTo: GenericTypeExpression) =
     node.replaceTypes(This.type, resolveTo)
-        .replaceTypes(ClassExpression("This"), ClassExpression(resolveTo.className))
+        .replaceTypes(ClassLiteral(This.className), ClassLiteral(resolveTo.className))
 
 fun <P : PetsNode> P.replaceTypes(from: TypeExpression, to: TypeExpression): P {
   return replaceTypesIn(this, from, to)
@@ -89,7 +88,7 @@ private class TypeReplacer(val from: TypeExpression, val to: TypeExpression) : A
   }
 }
 
-fun <P : PetsNode> deprodify(node: P, producible: Set<String>): P {
+fun <P : PetsNode> deprodify(node: P, producible: Set<ClassName>): P {
   val deprodifier = object : AstTransformer() {
     var inProd: Boolean = false
 
@@ -102,7 +101,7 @@ fun <P : PetsNode> deprodify(node: P, producible: Set<String>): P {
         }
 
         inProd && node is GenericTypeExpression && node.className in producible ->
-          Production.type.copy(specs = node.specs + ClassExpression(node.className))
+          Production.type.copy(specs = node.specs + ClassLiteral(node.className))
 
         else -> super.transform(node)
       }

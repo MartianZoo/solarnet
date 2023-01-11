@@ -45,8 +45,11 @@ object JsonReader {
   private class MapsImport(val maps: List<MapImport>, val legend: Map<Char, String>) {
     fun toGrids() = maps.associateBy(MapImport::name) { it.toGrid(Legend(legend)) }
 
-    internal class MapImport(val name: String, val bundle: String, val rows: List<List<String>>) {
-
+    internal class MapImport(
+        val name: String,
+        val bundle: String,
+        val rows: List<List<String>>,
+    ) {
       internal fun toGrid(legend: Legend): Grid<MapAreaDefinition> {
         val areas = rows.flatMapIndexed() { row0Index, cells ->
           cells.mapIndexedNotNull { col0Index, code ->

@@ -4,6 +4,7 @@ import dev.martianzoo.tfm.api.CustomInstruction
 import dev.martianzoo.tfm.api.ReadOnlyGameState
 import dev.martianzoo.tfm.api.lookUpProductionLevels
 import dev.martianzoo.tfm.pets.PetsParser.parsePets
+import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.Instruction
 import dev.martianzoo.tfm.pets.ast.TypeExpression
 import dev.martianzoo.util.onlyElement
@@ -17,7 +18,7 @@ object GainLowestProduction : CustomInstruction("gainLowestProduction") {
 
   override fun translate(game: ReadOnlyGameState, arguments: List<TypeExpression>): Instruction {
     val player = arguments.onlyElement()
-    val prods: Map<String, Int> = lookUpProductionLevels(game, player)
+    val prods: Map<ClassName, Int> = lookUpProductionLevels(game, player)
     val lowest = prods.values.min()
     val lowestProds = prods.filterValues { it == lowest }
         .keys

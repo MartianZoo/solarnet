@@ -3,8 +3,9 @@ package dev.martianzoo.tfm.types
 import dev.martianzoo.tfm.data.Authority
 import dev.martianzoo.tfm.data.ClassDeclaration
 import dev.martianzoo.tfm.pets.SpecialComponent.StandardResource
+import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.TypeExpression
-import dev.martianzoo.tfm.pets.ast.TypeExpression.ClassExpression
+import dev.martianzoo.tfm.pets.ast.TypeExpression.ClassLiteral
 import dev.martianzoo.tfm.pets.ast.TypeExpression.GenericTypeExpression
 import dev.martianzoo.tfm.pets.findAllClassNames
 import dev.martianzoo.tfm.types.PetType.PetGenericType
@@ -12,15 +13,15 @@ import dev.martianzoo.util.Debug.d
 
 // TODO restrict viz?
 internal class PetClassLoader(private val authority: Authority) : PetClassTable {
-  private val nameToPetClass = mutableMapOf<String, PetClass?>()
+  private val nameToPetClass = mutableMapOf<ClassName, PetClass?>()
 
 // MAIN QUERIES
 
-  override fun get(name: String): PetClass =
+  override fun get(name: ClassName): PetClass =
       nameToPetClass[name] ?: error("no class loaded named $name")
 
   override fun resolve(expression: TypeExpression) = when (expression) {
-    is ClassExpression -> load(expression.className)
+    is ClassLiteral -> load(expression.className)
     is GenericTypeExpression -> resolve(expression)
   }
 
@@ -36,7 +37,7 @@ internal class PetClassLoader(private val authority: Authority) : PetClassTable 
   var autoLoadDependencies: Boolean = false
 
   /** Returns the class with the name [name], loading it first if necessary. */
-  fun load(name: String): PetClass {
+  fun load(name: ClassName): PetClass {
     return if (autoLoadDependencies) {
       loadTrees(listOf(name))
       get(name)
@@ -45,7 +46,11 @@ internal class PetClassLoader(private val authority: Authority) : PetClassTable 
     }
   }
 
-  fun loadAll(names: Collection<String>) =
+  fun load(name: String) = load(ClassName(name))
+
+  @JvmName("loadAllFromStrings")
+  fun loadAll(names: Collection<String>) = loadAll(names.map(::ClassName))
+  fun loadAll(names: Collection<ClassName>) =
       if (autoLoadDependencies) {
         loadTrees(names)
       } else {
@@ -60,7 +65,7 @@ internal class PetClassLoader(private val authority: Authority) : PetClassTable 
     return freeze()
   }
 
-  private fun loadTrees(names: Collection<String>) {
+  private fun loadTrees(names: Collection<ClassName>) {
     val queue = ArrayDeque(names.toSet())
     while (queue.isNotEmpty()) {
       val next = queue.removeFirst()
@@ -76,7 +81,7 @@ internal class PetClassLoader(private val authority: Authority) : PetClassTable 
 // OKAY BUT ACTUAL LOADING NOW
 
   // all loading goes through here
-  private fun loadSingle(name: String): PetClass {
+  private fun loadSingle(name: ClassName): PetClass {
     if (frozen) {
       return get(name)
     } else {
@@ -87,13 +92,13 @@ internal class PetClassLoader(private val authority: Authority) : PetClassTable 
   private fun construct(decl: ClassDeclaration): PetClass {
     require(!frozen) { "Too late, this table is frozen!" }
 
-    val name = decl.className.d("loading")
+    val name: ClassName = decl.className.d("loading")
 
     // signal with `null` that loading is in process so we can detect infinite recursion
     require(decl.className !in nameToPetClass) { decl.className }
 
     nameToPetClass[name] = null
-    val superclasses = decl.superclassNames.map(::load) // we do most other things lazily...
+    val superclasses: List<PetClass> = decl.superclassNames.map(::load) // we do most other things lazily...
 
     return PetClass(decl, superclasses, this)
         .also { nameToPetClass[name] = it }
@@ -116,12 +121,12 @@ internal class PetClassLoader(private val authority: Authority) : PetClassTable 
   // It is probably enough to return just the resource names we know about so far?
   internal fun resourceNames() = if (frozen) allResourceNames else findResourceNames()
 
-  private val allResourceNames: Set<String> by lazy {
+  private val allResourceNames: Set<ClassName> by lazy {
     require(frozen)
     findResourceNames()
   }
 
-  private fun findResourceNames(): Set<String> {
+  private fun findResourceNames(): Set<ClassName> {
     val stdRes = load(StandardResource.name)
     return nameToPetClass.values.mapNotNull {
       if (it?.isSubclassOf(stdRes) == true) it.name else null

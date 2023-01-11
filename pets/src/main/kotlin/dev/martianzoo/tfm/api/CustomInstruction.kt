@@ -4,7 +4,7 @@ import dev.martianzoo.tfm.pets.PetsParser.parsePets
 import dev.martianzoo.tfm.pets.ast.Instruction
 import dev.martianzoo.tfm.pets.ast.TypeExpression
 
-abstract class CustomInstruction(val name: String) {
+abstract class CustomInstruction(val functionName: String) {
   /** name should be lowerCamelCase; it will be usable in PETS by prefixing it with `$`. */
 
   /** Preferred! */

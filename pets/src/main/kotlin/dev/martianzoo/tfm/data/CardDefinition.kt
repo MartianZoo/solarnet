@@ -7,13 +7,14 @@ import dev.martianzoo.tfm.pets.PetsParser.parsePets
 import dev.martianzoo.tfm.pets.SpecialComponent.End
 import dev.martianzoo.tfm.pets.actionsToEffects
 import dev.martianzoo.tfm.pets.ast.Action
+import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.Effect
 import dev.martianzoo.tfm.pets.ast.Instruction
 import dev.martianzoo.tfm.pets.ast.Instruction.Multi
 import dev.martianzoo.tfm.pets.ast.PetsNode
 import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.pets.ast.TypeExpression
-import dev.martianzoo.tfm.pets.ast.TypeExpression.ClassExpression
+import dev.martianzoo.tfm.pets.ast.TypeExpression.ClassLiteral
 import dev.martianzoo.tfm.pets.ast.TypeExpression.Companion.gte
 import dev.martianzoo.tfm.pets.ast.TypeExpression.GenericTypeExpression
 import dev.martianzoo.tfm.pets.immediateToEffect
@@ -151,7 +152,7 @@ data class CardDefinition(
   // TODO ClassName
   val tags: List<TypeExpression> by lazy { tagsText.map(::gte) }
 
-  val resourceType = resourceTypeText?.let(::ClassExpression)
+  val resourceType = resourceTypeText?.let(::ClassName)
 
   val immediateRaw: Instruction? by lazy {
     val set = immediateText.map { parsePets<Instruction>(it) }.toSetStrict()
@@ -186,10 +187,10 @@ data class CardDefinition(
   override val asClassDeclaration by lazy {
     val supertypes = mutableSetOf<GenericTypeExpression>()
 
-    if (projectKind != null) supertypes.add(gte(projectKind.className))
-    if (!actionsRaw.isEmpty()) supertypes.add(gte("ActionCard"))
-    if (resourceType != null) supertypes.add(gte("ResourcefulCard", resourceType))
-    if (supertypes.isEmpty()) supertypes.add(gte("CardFront"))
+    if (projectKind != null) supertypes.add(projectKind.className.gte)
+    if (!actionsRaw.isEmpty()) supertypes.add(ClassName("ActionCard").gte)
+    if (resourceType != null) supertypes.add(gte("ResourcefulCard", ClassLiteral(resourceType)))
+    if (supertypes.isEmpty()) supertypes.add(ClassName("CardFront").gte)
 
     ClassDeclaration(
         className = className,
@@ -211,7 +212,7 @@ data class CardDefinition(
     set += tags
     set += setOfNotNull(resourceType)
     set += setOfNotNull(requirementRaw)
-    set += extraComponents.flatMap { it.allNodes + ClassExpression(it.className) }
+    set += extraComponents.flatMap { it.allNodes }
     set += setOfNotNull(projectKind?.classEx)
     set += setOfNotNull(deck?.classEx)
     set
@@ -220,18 +221,20 @@ data class CardDefinition(
   /**
    * The deck this card belongs to; see [CardDefinition.deck].
    */
-  enum class Deck(val className: String) {
+  enum class Deck(val className: ClassName) {
     PROJECT("ProjectCard"), PRELUDE("PreludeCard"), CORPORATION("CorporationCard");
 
-    val classEx = ClassExpression(className)
+    constructor(s: String) : this(ClassName(s))
+    val classEx = ClassLiteral(className)
   }
 
   /**
    * A kind (color) of project; see [CardDefinition.projectKind].
    */
-  enum class ProjectKind(val className: String) {
+  enum class ProjectKind(val className: ClassName) {
     EVENT("EventCard"), AUTOMATED("AutomatedCard"), ACTIVE("ActiveCard");
 
-    val classEx = ClassExpression(className)
+    constructor(s: String) : this(ClassName(s))
+    val classEx = ClassLiteral(className)
   }
 }

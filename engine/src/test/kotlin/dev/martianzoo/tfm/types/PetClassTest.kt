@@ -10,6 +10,7 @@ import dev.martianzoo.tfm.data.MapAreaDefinition
 import dev.martianzoo.tfm.data.MilestoneDefinition
 import dev.martianzoo.tfm.pets.ClassDeclarationParser
 import dev.martianzoo.tfm.pets.SpecialComponent.Component
+import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.types.Dependency.Key
 import dev.martianzoo.util.Grid
 import org.junit.jupiter.api.Test
@@ -20,7 +21,7 @@ private class PetClassTest {
   fun nothingness() {
     val loader = loadTypes()
     val cpt = loader[Component.name]
-    assertThat(cpt.name).isEqualTo("Component")
+    assertThat(cpt.name).isEqualTo(Component.className)
     assertThat(cpt.abstract).isTrue()
     assertThat(cpt.directSuperclasses).isEmpty()
     assertThat(cpt.allSuperclasses.names()).containsExactly(Component.name)
@@ -31,7 +32,7 @@ private class PetClassTest {
   fun onethingness() {
     val loader = loadTypes("CLASS Foo")
     val foo = loader["Foo"]
-    assertThat(foo.name).isEqualTo("Foo")
+    assertThat(foo.name).isEqualTo(ClassName("Foo"))
     assertThat(foo.abstract).isFalse()
     assertThat(foo.directSuperclasses.names()).containsExactly(Component.name)
     assertThat(foo.allSuperclasses.names()).containsExactly(Component.name, "Foo")
@@ -198,7 +199,7 @@ private class PetClassTest {
     // Assertions.assertThrows(RuntimeException::class.java, { table.resolve(s) }, s)
   }
 
-  private fun Iterable<PetClass>.names() = map { it.name }
+  private fun Iterable<PetClass>.names() = map { it.name.asString }
 }
 
 private fun loader(petsText: String): PetClassLoader {

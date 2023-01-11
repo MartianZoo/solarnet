@@ -13,7 +13,7 @@ import dev.martianzoo.tfm.pets.ast.Instruction
 import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.pets.ast.Script
 import dev.martianzoo.tfm.pets.ast.TypeExpression
-import dev.martianzoo.tfm.pets.ast.TypeExpression.ClassExpression
+import dev.martianzoo.tfm.pets.ast.TypeExpression.ClassLiteral
 import dev.martianzoo.tfm.pets.ast.TypeExpression.GenericTypeExpression
 import dev.martianzoo.tfm.pets.deprodify
 import dev.martianzoo.tfm.types.PetClassTable
@@ -54,9 +54,9 @@ internal class Game(
     return ImmutableMultiset.copyOf(result)
   }
 
-  override fun getAll(type: ClassExpression): Set<ClassExpression> {
+  override fun getAll(type: ClassLiteral): Set<ClassLiteral> {
     return getAll(resolve(type))
-        .map { it.asTypeExpression as ClassExpression }
+        .map { it.asTypeExpression as ClassLiteral }
         .toSetStrict()
   }
 

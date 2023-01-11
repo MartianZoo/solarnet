@@ -22,6 +22,7 @@ import dev.martianzoo.tfm.pets.ClassDeclarationParser.stripLineComments
 import dev.martianzoo.tfm.pets.ast.Action
 import dev.martianzoo.tfm.pets.ast.Action.Cost
 import dev.martianzoo.tfm.pets.ast.Action.Cost.Spend
+import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.Effect
 import dev.martianzoo.tfm.pets.ast.Effect.Trigger
 import dev.martianzoo.tfm.pets.ast.Effect.Trigger.OnGain
@@ -50,7 +51,7 @@ import dev.martianzoo.tfm.pets.ast.Script.ScriptLine
 import dev.martianzoo.tfm.pets.ast.Script.ScriptPragmaPlayer
 import dev.martianzoo.tfm.pets.ast.Script.ScriptRequirement
 import dev.martianzoo.tfm.pets.ast.TypeExpression
-import dev.martianzoo.tfm.pets.ast.TypeExpression.ClassExpression
+import dev.martianzoo.tfm.pets.ast.TypeExpression.ClassLiteral
 import dev.martianzoo.tfm.pets.ast.TypeExpression.GenericTypeExpression
 import kotlin.reflect.KClass
 import kotlin.reflect.cast
@@ -136,9 +137,9 @@ object PetsParser {
 
     private val typeExpression: Parser<TypeExpression> = parser { whole }
 
-    internal val className = classNameRE map { it.text }
+    internal val className = classNameRE map { ClassName(it.text) }
 
-    private val classType = className and skipChar('.') and skip(_class) map ::ClassExpression
+    private val classType = className and skipChar('.') and skip(_class) map ::ClassLiteral
 
     private val specializations =
         optionalList(skipChar('<') and commaSeparated(typeExpression) and skipChar('>'))

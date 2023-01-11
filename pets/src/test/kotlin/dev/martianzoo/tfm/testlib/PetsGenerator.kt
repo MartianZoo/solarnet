@@ -7,6 +7,7 @@ import dev.martianzoo.tfm.pets.PetsParser.parsePets
 import dev.martianzoo.tfm.pets.SpecialComponent.Default
 import dev.martianzoo.tfm.pets.ast.Action
 import dev.martianzoo.tfm.pets.ast.Action.Cost
+import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.Effect
 import dev.martianzoo.tfm.pets.ast.Effect.Trigger
 import dev.martianzoo.tfm.pets.ast.FromExpression
@@ -49,11 +50,14 @@ internal class PetsGenerator(scaling: (Int) -> Double) :
         recurse<GenericTypeExpression>()
       }
       register<GenericTypeExpression> {
-        GenericTypeExpression(randomName(), listOfSize(choose(specSizes)), refinement())
+        GenericTypeExpression(recurse(), listOfSize(choose(specSizes)), refinement())
       }
-//    register { ClassExpression(randomName()) }
+//    register { ClassLiteral(randomName()) }
       register {
         QuantifiedExpression(choose(1 to Default.type, 3 to recurse()), choose(0, 1, 1, 1, 5, 11))
+      }
+      register<ClassName> {
+        ClassName(randomName())
       }
 
       val requirementTypes = (multiset(

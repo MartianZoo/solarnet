@@ -3,6 +3,7 @@ package dev.martianzoo.tfm.types
 import dev.martianzoo.tfm.data.ClassDeclaration
 import dev.martianzoo.tfm.pets.AstTransformer
 import dev.martianzoo.tfm.pets.SpecialComponent.Component
+import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.Effect
 import dev.martianzoo.tfm.pets.ast.PetsNode
 import dev.martianzoo.tfm.pets.ast.QuantifiedExpression
@@ -11,7 +12,7 @@ import dev.martianzoo.tfm.pets.ast.Requirement.And
 import dev.martianzoo.tfm.pets.ast.Requirement.Exact
 import dev.martianzoo.tfm.pets.ast.Requirement.Min
 import dev.martianzoo.tfm.pets.ast.TypeExpression
-import dev.martianzoo.tfm.pets.ast.TypeExpression.ClassExpression
+import dev.martianzoo.tfm.pets.ast.TypeExpression.ClassLiteral
 import dev.martianzoo.tfm.pets.ast.TypeExpression.Companion.gte
 import dev.martianzoo.tfm.pets.ast.TypeExpression.GenericTypeExpression
 import dev.martianzoo.tfm.pets.deprodify
@@ -26,7 +27,7 @@ internal class PetClass(
     val directSuperclasses: List<PetClass>,
     private val loader: PetClassLoader,
 ) : PetType {
-  val name by declaration::className
+  val name: ClassName by declaration::className
   override val abstract by declaration::abstract
   override val petClass = this
 
@@ -36,7 +37,7 @@ internal class PetClass(
 
   val directSupertypes: Set<PetGenericType> by lazy {
     declaration.supertypes.map {
-      loader.resolve(replaceThis(it, gte(name)))
+      loader.resolve(replaceThis(it, gte(name))) // TODO eh?
     }.toSet().also {
       if (it.size > 1) (it - Component.type).d("$this supertypes")
     }
@@ -77,7 +78,11 @@ internal class PetClass(
     }
   }
 
-  /** Returns the one of `this` or `that` that is a subclass of the other. */
+  /**
+   * Returns the one of `this` or `that` that is a subclass of the other.
+   * In practice some types like `OwnedTile` and `ActionCard` could serve as intersection types.
+   * TODO
+   */
   fun intersect(that: PetClass) = when {
     this.isSubclassOf(that) -> this
     that.isSubclassOf(this) -> that
@@ -145,7 +150,7 @@ internal class PetClass(
 // DEFAULTS
 
   val defaults: Defaults by lazy {
-    val result = if (name == Component.name) {
+    val result = if (name == Component.className) {
       Defaults.from(declaration.defaultsDeclaration, this)
     } else {
       val rootDefaults = loader[Component.name].defaults
@@ -156,7 +161,7 @@ internal class PetClass(
   }
 
   private val defaultsIgnoringRoot: Defaults by lazy {
-    if (name == Component.name) {
+    if (name == Component.className) {
       Defaults()
     } else {
       Defaults.from(declaration.defaultsDeclaration, this)
@@ -202,7 +207,7 @@ internal class PetClass(
         r is And && r.requirements.any { requiresAnInstance(it) }
   }
 
-  override fun toTypeExpressionFull() = ClassExpression(name)
+  override fun toTypeExpressionFull() = ClassLiteral(name)
 
   override fun equals(other: Any?) =
       other is PetClass &&
@@ -211,5 +216,5 @@ internal class PetClass(
 
   override fun hashCode() = name.hashCode() xor loader.hashCode()
 
-  override fun toString() = toTypeExpressionFull().toString()
+  override fun toString() = name.asString
 }

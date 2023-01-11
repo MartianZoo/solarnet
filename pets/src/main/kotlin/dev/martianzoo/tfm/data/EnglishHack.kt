@@ -1,15 +1,17 @@
 package dev.martianzoo.tfm.data
 
+import dev.martianzoo.tfm.pets.ast.ClassName
+
 const val USE_ENGLISH_HACK = true
 
 // I don't intend for English to be privileged; this is just for my convenience for the time being.
-fun englishHack(id: String): String {
-  return when {
+fun englishHack(id: String): ClassName {
+  return ClassName(when {
     !USE_ENGLISH_HACK -> unhackedName(id)
     id in ENGLISH_HACK -> ENGLISH_HACK[id]!!
     id.endsWith("F") -> ENGLISH_HACK[id.substring(0, id.length - 1)]!!
     else -> unhackedName(id)
-  }
+  })
 }
 
 private val noncards = Regex("SA.|SELL|SP\\d\\d")
