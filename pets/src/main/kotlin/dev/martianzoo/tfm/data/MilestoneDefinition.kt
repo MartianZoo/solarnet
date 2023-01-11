@@ -2,8 +2,8 @@ package dev.martianzoo.tfm.data
 
 import com.squareup.moshi.Json
 import dev.martianzoo.tfm.pets.PetParser.parsePets
-import dev.martianzoo.tfm.pets.SpecialComponent.Ok
-import dev.martianzoo.tfm.pets.SpecialComponent.This
+import dev.martianzoo.tfm.pets.SpecialComponent.OK
+import dev.martianzoo.tfm.pets.SpecialComponent.THIS
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.Effect
 import dev.martianzoo.tfm.pets.ast.Effect.Trigger.OnGain
@@ -39,8 +39,8 @@ data class MilestoneDefinition(
         abstract = false,
         supertypes = setOf(gte("Milestone")),
         effectsRaw = setOf(Effect(
-            OnGain(This.type),
-            Gated(requirement, Gain(QuantifiedExpression(Ok.type))),
+            OnGain(THIS.gte),
+            Gated(requirement, Gain(QuantifiedExpression(OK.gte))),
             automatic = true,
         ))
     )

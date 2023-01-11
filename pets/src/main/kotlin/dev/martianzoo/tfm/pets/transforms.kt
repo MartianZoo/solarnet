@@ -1,8 +1,8 @@
 package dev.martianzoo.tfm.pets
 
-import dev.martianzoo.tfm.pets.SpecialComponent.Production
-import dev.martianzoo.tfm.pets.SpecialComponent.This
-import dev.martianzoo.tfm.pets.SpecialComponent.UseAction
+import dev.martianzoo.tfm.pets.SpecialComponent.PRODUCTION
+import dev.martianzoo.tfm.pets.SpecialComponent.THIS
+import dev.martianzoo.tfm.pets.SpecialComponent.USE_ACTION
 import dev.martianzoo.tfm.pets.ast.Action
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.Effect
@@ -23,7 +23,7 @@ import dev.martianzoo.tfm.pets.ast.TypeExpression.GenericTypeExpression
 internal fun actionToEffect(action: Action, index1Ref: Int): Effect {
   require(index1Ref >= 1) { index1Ref }
   val instruction = instructionFromAction(action.cost?.toInstruction(), action.instruction)
-  val trigger = OnGain(gte("$UseAction$index1Ref", This.type))
+  val trigger = OnGain(gte("$USE_ACTION$index1Ref", THIS.gte))
   return Effect(trigger, instruction, automatic = false)
 }
 
@@ -49,12 +49,12 @@ internal fun actionsToEffects(actions: Collection<Action>) =
     }
 
 internal fun immediateToEffect(instruction: Instruction): Effect {
-  return Effect(OnGain(This.type), instruction, automatic = false)
+  return Effect(OnGain(THIS.gte), instruction, automatic = false)
 }
 
 fun <P : PetNode> replaceThis(node: P, resolveTo: GenericTypeExpression) =
-    node.replaceTypes(This.type, resolveTo)
-        .replaceTypes(ClassLiteral(This.className), ClassLiteral(resolveTo.className))
+    node.replaceTypes(THIS.gte, resolveTo)
+        .replaceTypes(ClassLiteral(THIS), ClassLiteral(resolveTo.className))
 
 fun <P : PetNode> P.replaceTypes(from: TypeExpression, to: TypeExpression): P {
   return replaceTypesIn(this, from, to)
@@ -85,7 +85,7 @@ fun <P : PetNode> deprodify(node: P, producible: Set<ClassName>): P {
         }
 
         inProd && node is GenericTypeExpression && node.className in producible ->
-          Production.type.copy(specs = node.specs + ClassLiteral(node.className))
+          PRODUCTION.gte.copy(specs = node.specs + ClassLiteral(node.className))
 
         else -> super.transform(node)
       }

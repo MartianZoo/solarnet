@@ -28,8 +28,8 @@ import dev.martianzoo.tfm.pets.PetParser.requirement
 import dev.martianzoo.tfm.pets.PetParser.skipChar
 import dev.martianzoo.tfm.pets.PetParser.tokenizer
 import dev.martianzoo.tfm.pets.PetParser.typeExpression
-import dev.martianzoo.tfm.pets.SpecialComponent.Component
-import dev.martianzoo.tfm.pets.SpecialComponent.This
+import dev.martianzoo.tfm.pets.SpecialComponent.COMPONENT
+import dev.martianzoo.tfm.pets.SpecialComponent.THIS
 import dev.martianzoo.tfm.pets.ast.Action
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.Effect
@@ -69,13 +69,13 @@ object ClassDeclarationParser {
 
     private val gainDefault =
         skipChar('+') and Types.genericType and Instructions.intensity map { (type, int) ->
-          require(type.className == This.className)
+          require(type.className == THIS)
           require(type.refinement == null)
           DefaultsDeclaration(gainOnlySpecs = type.specs, gainIntensity = int)
         }
 
     private val typeDefault = Types.genericType map {
-      require(it.className == This.className)
+      require(it.className == THIS)
       require(it.refinement == null)
       DefaultsDeclaration(universalSpecs = it.specs)
     }
@@ -178,12 +178,12 @@ object ClassDeclarationParser {
           DeclarationInProgress(declaration.copy(supertypes = supes.toSetStrict()), true)
         }
 
-    private fun fixSupertypes(): ClassDeclaration {
+    private fun fixSupertypes(): ClassDeclaration { // TODO
       val supes = declaration.supertypes
       return when {
-        declaration.className == Component.className -> declaration.also { require(supes.isEmpty()) }
-        supes.isEmpty() -> declaration.copy(supertypes = setOf(Component.type))
-        else -> declaration.also { require(Component.type !in supes) }
+        declaration.className == COMPONENT -> declaration.also { require(supes.isEmpty()) }
+        supes.isEmpty() -> declaration.copy(supertypes = setOf(COMPONENT.gte))
+        else -> declaration.also { require(COMPONENT.gte !in supes) }
       }
     }
   }

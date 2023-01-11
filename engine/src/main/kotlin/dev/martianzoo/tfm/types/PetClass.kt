@@ -2,7 +2,7 @@ package dev.martianzoo.tfm.types
 
 import dev.martianzoo.tfm.data.ClassDeclaration
 import dev.martianzoo.tfm.pets.PetNodeVisitor
-import dev.martianzoo.tfm.pets.SpecialComponent.Component
+import dev.martianzoo.tfm.pets.SpecialComponent.COMPONENT
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.Effect
 import dev.martianzoo.tfm.pets.ast.PetNode
@@ -39,7 +39,7 @@ internal class PetClass(
     declaration.supertypes.map {
       loader.resolve(replaceThis(it, gte(name))) // TODO eh?
     }.toSet().also {
-      if (it.size > 1) (it - Component.type).d("$this supertypes")
+      if (it.size > 1) (it - COMPONENT.gte).d("$this supertypes")
     }
   }
 
@@ -150,10 +150,10 @@ internal class PetClass(
 // DEFAULTS
 
   val defaults: Defaults by lazy {
-    val result = if (name == Component.className) {
+    val result = if (name == COMPONENT) {
       Defaults.from(declaration.defaultsDeclaration, this)
     } else {
-      val rootDefaults = loader[Component.name].defaults
+      val rootDefaults = loader[COMPONENT].defaults
       defaultsIgnoringRoot.overlayOn(listOf(rootDefaults))
     }
     if (!result.isEmpty()) d("defaults: $result")
@@ -161,7 +161,7 @@ internal class PetClass(
   }
 
   private val defaultsIgnoringRoot: Defaults by lazy {
-    if (name == Component.className) {
+    if (name == COMPONENT) {
       Defaults()
     } else {
       Defaults.from(declaration.defaultsDeclaration, this)

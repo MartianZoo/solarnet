@@ -1,5 +1,6 @@
 package dev.martianzoo.tfm.pets.ast
 
+import dev.martianzoo.tfm.pets.ast.TypeExpression.ClassLiteral
 import dev.martianzoo.tfm.pets.ast.TypeExpression.GenericTypeExpression
 
 data class ClassName(val asString: String) : PetNode(), Comparable<ClassName> {
@@ -7,6 +8,7 @@ data class ClassName(val asString: String) : PetNode(), Comparable<ClassName> {
     require(asString.matches(classNameRegex())) { "Bad class name: $asString" }
   }
 
+  val literal = ClassLiteral(this)
   val gte = GenericTypeExpression(this)
 
   override fun compareTo(other: ClassName) = asString.compareTo(other.asString)

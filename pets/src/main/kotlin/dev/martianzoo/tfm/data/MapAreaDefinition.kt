@@ -1,7 +1,7 @@
 package dev.martianzoo.tfm.data
 
 import dev.martianzoo.tfm.pets.PetParser.parsePets
-import dev.martianzoo.tfm.pets.SpecialComponent.This
+import dev.martianzoo.tfm.pets.SpecialComponent.THIS
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.Effect
 import dev.martianzoo.tfm.pets.ast.Effect.Trigger.OnGain
@@ -63,4 +63,4 @@ data class MapAreaDefinition(
   override val className = ClassName("${mapName}${row}_$column")
 }
 
-val trigger = OnGain(gte("Tile", This.type))
+val trigger = OnGain(gte("Tile", THIS.gte))

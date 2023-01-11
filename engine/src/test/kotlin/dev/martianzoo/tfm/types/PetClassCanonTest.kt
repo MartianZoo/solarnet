@@ -2,8 +2,8 @@ package dev.martianzoo.tfm.types
 
 import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.tfm.canon.Canon
-import dev.martianzoo.tfm.pets.SpecialComponent.Component
-import dev.martianzoo.tfm.pets.SpecialComponent.Die
+import dev.martianzoo.tfm.pets.SpecialComponent.COMPONENT
+import dev.martianzoo.tfm.pets.SpecialComponent.DIE
 import dev.martianzoo.tfm.pets.ast.ClassName
 import java.util.TreeSet
 import org.junit.jupiter.api.Test
@@ -14,8 +14,8 @@ private class PetClassCanonTest {
   fun component() {
     val table = PetClassLoader(Canon)
 
-    table.load(Component.name).apply {
-      assertThat(name).isEqualTo(Component.className)
+    table.load(COMPONENT).apply {
+      assertThat(name).isEqualTo(COMPONENT)
       assertThat(abstract).isTrue()
       assertThat(directDependencyKeys).isEmpty()
       assertThat(allDependencyKeys).isEmpty()
@@ -68,7 +68,7 @@ private class PetClassCanonTest {
     }.filterNot {
       it.matches(Regex("^(Tharsis|Hellas|Elysium)")) && it.hashCode() % 8 != 0
     }.filterNot {
-      it in setOf(Component.className, Die.className)
+      it in setOf(COMPONENT, DIE)
     }
 
     val abstracts = TreeSet<String>()
@@ -129,7 +129,7 @@ private class PetClassCanonTest {
     val all = table.loadedClassNames().map { table[it] }
     all.sortedBy { it.name }.forEach { c ->
       val interestingSupes = c.allSuperclasses.filter {
-        it.name !in setOf(Component.className, c.name)
+        it.name !in setOf(COMPONENT, c.name)
       }
       println("${c.baseType} : $interestingSupes")
     }

@@ -3,7 +3,7 @@ package dev.martianzoo.tfm.engine
 import com.google.common.collect.HashMultiset
 import dev.martianzoo.tfm.data.Authority
 import dev.martianzoo.tfm.engine.ComponentGraph.Component
-import dev.martianzoo.tfm.pets.SpecialComponent.Production
+import dev.martianzoo.tfm.pets.SpecialComponent.PRODUCTION
 import dev.martianzoo.tfm.pets.ast.TypeExpression.Companion.gte
 import dev.martianzoo.tfm.types.PetClassLoader
 
@@ -27,7 +27,8 @@ object Engine {
     loader.loadAll(cards.map { it.className }.sorted())
 
     // Hacks TODO
-    loader.loadAll(Production.name, "Border")
+    loader.load(PRODUCTION)
+    loader.load("Border")
 
     loader.freeze()
 

@@ -1,7 +1,7 @@
 package dev.martianzoo.tfm.types
 
 import dev.martianzoo.tfm.pets.PetNodeVisitor
-import dev.martianzoo.tfm.pets.SpecialComponent.This
+import dev.martianzoo.tfm.pets.SpecialComponent.THIS
 import dev.martianzoo.tfm.pets.ast.Instruction.Gain
 import dev.martianzoo.tfm.pets.ast.PetNode
 import dev.martianzoo.tfm.pets.ast.TypeExpression.GenericTypeExpression
@@ -15,7 +15,7 @@ private class Defaulter(val loader: PetClassLoader) : PetNodeVisitor() {
   override fun <P : PetNode?> transform(node: P): P {
     val rewritten: PetNode? = when (node) {
       null -> null
-      This.type -> node // leave This alone!
+      THIS.gte -> node // leave This alone!
 
       is Gain -> {
         val writtenType = node.qe.expression

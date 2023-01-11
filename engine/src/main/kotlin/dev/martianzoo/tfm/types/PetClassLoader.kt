@@ -2,8 +2,8 @@ package dev.martianzoo.tfm.types
 
 import dev.martianzoo.tfm.data.Authority
 import dev.martianzoo.tfm.data.ClassDeclaration
-import dev.martianzoo.tfm.pets.SpecialComponent.StandardResource
-import dev.martianzoo.tfm.pets.SpecialComponent.This
+import dev.martianzoo.tfm.pets.SpecialComponent.STANDARD_RESOURCE
+import dev.martianzoo.tfm.pets.SpecialComponent.THIS
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.TypeExpression
 import dev.martianzoo.tfm.pets.ast.TypeExpression.ClassLiteral
@@ -73,7 +73,7 @@ internal class PetClassLoader(private val authority: Authority) : PetClassTable 
         loadSingle(next)
         val decl = authority.declaration(next)
         val needed: List<ClassName> = decl.allNodes.flatMap { it.childNodesOfType() }
-        val addToQueue = needed.toSet() - nameToPetClass.keys - This.className
+        val addToQueue = needed.toSet() - nameToPetClass.keys - THIS
         queue.addAll(addToQueue.d("adding to queue"))
       }
     }
@@ -128,7 +128,7 @@ internal class PetClassLoader(private val authority: Authority) : PetClassTable 
   }
 
   private fun findResourceNames(): Set<ClassName> {
-    val stdRes = load(StandardResource.name)
+    val stdRes = load(STANDARD_RESOURCE)
     return nameToPetClass.values.mapNotNull {
       if (it?.isSubclassOf(stdRes) == true) it.name else null
     }.toSet()

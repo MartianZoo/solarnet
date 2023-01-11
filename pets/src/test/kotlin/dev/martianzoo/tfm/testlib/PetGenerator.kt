@@ -4,7 +4,7 @@ import com.google.common.collect.ImmutableMultiset
 import com.google.common.truth.Truth.assertWithMessage
 import dev.martianzoo.tfm.pets.PetException
 import dev.martianzoo.tfm.pets.PetParser.parsePets
-import dev.martianzoo.tfm.pets.SpecialComponent.Default
+import dev.martianzoo.tfm.pets.SpecialComponent.DEFAULT
 import dev.martianzoo.tfm.pets.ast.Action
 import dev.martianzoo.tfm.pets.ast.Action.Cost
 import dev.martianzoo.tfm.pets.ast.ClassName
@@ -54,7 +54,7 @@ internal class PetGenerator(scaling: (Int) -> Double) :
       }
 //    register { ClassLiteral(randomName()) }
       register {
-        QuantifiedExpression(choose(1 to Default.type, 3 to recurse()), choose(0, 1, 1, 1, 5, 11))
+        QuantifiedExpression(choose(1 to DEFAULT.gte, 3 to recurse()), choose(0, 1, 1, 1, 5, 11))
       }
       register<ClassName> {
         ClassName(randomName())
