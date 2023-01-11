@@ -18,8 +18,8 @@
     {
       "name": "Tharsis",
       "bundle": "M",
-      "rows": [
-        [
+      "rows": [  //                       1     2     3     4     5     6     7     8     9
+        [        //                     /     /     /     /     /     /     /     /     /
                                      "LSS","WSS", "L", "WC",  "W"
         ], [
                                    "L", "VS",  "L",  "L",  "L", "WCC"
@@ -28,7 +28,7 @@
         ], [
                             "VPT","LP", "LP", "LP", "LPP","LP", "LP", "WPP"
         ], [
-                         "VPP","LPP","NPP","WPP","WPP","WPP","LPP","LPP","LPP"
+                         "VPP","LPP","NPP","WPP","WPP","WPP","LPP","LPP","LPP"   // row 5
         ], [
                        "",  "LP", "LPP","LP", "LP", "LP", "WP", "WP", "WP"
         ], [
@@ -36,7 +36,7 @@
         ], [
                  "",   "",   "",  "LSS", "L", "LC", "LC",  "L", "LT"
         ], [
-              "",   "",   "",   "",  "LSS","LSS", "L",  "L", "WTT"
+              "",   "",   "",   "",  "LSS","LSS", "L",  "L", "WTT"               // row 9
         ]
       ]
     },
