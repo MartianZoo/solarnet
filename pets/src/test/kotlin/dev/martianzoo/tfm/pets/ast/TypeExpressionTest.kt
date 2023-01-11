@@ -1,7 +1,7 @@
 package dev.martianzoo.tfm.pets.ast
 
 import com.google.common.truth.Truth.assertThat
-import dev.martianzoo.tfm.pets.PetsParser.parsePets
+import dev.martianzoo.tfm.pets.PetParser.parsePets
 import dev.martianzoo.tfm.pets.ast.TypeExpression.Companion.gte
 import org.junit.jupiter.api.Test
 

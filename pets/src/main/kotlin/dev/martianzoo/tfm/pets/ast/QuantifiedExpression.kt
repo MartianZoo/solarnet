@@ -5,7 +5,7 @@ import dev.martianzoo.tfm.pets.SpecialComponent.Default
 data class QuantifiedExpression(
     val expression: TypeExpression = Default.type,
     val scalar: Int = 1,
-) : PetsNode() {
+) : PetNode() {
   init {
     require(scalar >= 0)
   }

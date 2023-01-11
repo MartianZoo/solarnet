@@ -1,6 +1,6 @@
 package dev.martianzoo.tfm.pets.ast
 
-import dev.martianzoo.tfm.pets.PetsParser.parsePets
+import dev.martianzoo.tfm.pets.PetParser.parsePets
 import dev.martianzoo.util.joinOrEmpty
 
 /**
@@ -8,7 +8,7 @@ import dev.martianzoo.util.joinOrEmpty
  * (`Foo<Bar, Qux>`) or a *refined* type (`Foo<Bar(HAS 3 Qux)>(HAS Wau)`). A
  * refined type is the combination of a real type with various predicates.
  */
-sealed class TypeExpression : PetsNode() {
+sealed class TypeExpression : PetNode() {
   abstract val className: ClassName
 
   data class GenericTypeExpression(

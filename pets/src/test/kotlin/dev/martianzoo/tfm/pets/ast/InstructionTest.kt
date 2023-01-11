@@ -1,9 +1,9 @@
 package dev.martianzoo.tfm.pets.ast
 
 import com.google.common.truth.Truth.assertThat
-import dev.martianzoo.tfm.pets.PetsParser.Instructions
-import dev.martianzoo.tfm.pets.PetsParser.Requirements
-import dev.martianzoo.tfm.pets.PetsParser.parsePets
+import dev.martianzoo.tfm.pets.PetParser.Instructions
+import dev.martianzoo.tfm.pets.PetParser.Requirements
+import dev.martianzoo.tfm.pets.PetParser.parsePets
 import dev.martianzoo.tfm.pets.ast.FromExpression.ComplexFrom
 import dev.martianzoo.tfm.pets.ast.FromExpression.SimpleFrom
 import dev.martianzoo.tfm.pets.ast.Instruction.Intensity.AMAP

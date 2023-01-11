@@ -1,8 +1,9 @@
 package dev.martianzoo.tfm.pets.ast
 
 import dev.martianzoo.tfm.api.GameState
+import dev.martianzoo.tfm.pets.PetException
 
-data class Script(val lines: List<ScriptLine>) : PetsNode() {
+data class Script(val lines: List<ScriptLine>) : PetNode() {
   fun execute(game: GameState): Map<String, Int> {
     val map = mutableMapOf<String, Int>()
     for (line in lines) {
@@ -18,7 +19,7 @@ data class Script(val lines: List<ScriptLine>) : PetsNode() {
 
   override val kind = "Script"
 
-  sealed class ScriptLine: PetsNode() {
+  sealed class ScriptLine : PetNode() {
     abstract fun doIt(game: GameState): Any
     override val kind = "ScriptLine"
   }
@@ -34,7 +35,7 @@ data class Script(val lines: List<ScriptLine>) : PetsNode() {
 
   data class ScriptRequirement(val req: Requirement) : ScriptLine() {
     override fun doIt(game: GameState) {
-      if (!req.evaluate(game)) throw PetsAbortException("Requirement failed: $req")
+      if (!req.evaluate(game)) throw PetException("Requirement failed: $req")
     }
   }
 
@@ -49,6 +50,4 @@ data class Script(val lines: List<ScriptLine>) : PetsNode() {
       TODO("Not yet implemented")
     }
   }
-
-  class PetsAbortException(message: String? = null) : RuntimeException(message)
 }

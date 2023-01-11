@@ -13,8 +13,8 @@ import dev.martianzoo.tfm.pets.ast.Instruction.Gain
 import dev.martianzoo.tfm.pets.ast.Instruction.Remove
 import dev.martianzoo.tfm.pets.ast.Instruction.Then
 import dev.martianzoo.tfm.pets.ast.Instruction.Transmute
-import dev.martianzoo.tfm.pets.ast.PetsNode
-import dev.martianzoo.tfm.pets.ast.PetsNode.GenericTransform
+import dev.martianzoo.tfm.pets.ast.PetNode
+import dev.martianzoo.tfm.pets.ast.PetNode.GenericTransform
 import dev.martianzoo.tfm.pets.ast.TypeExpression
 import dev.martianzoo.tfm.pets.ast.TypeExpression.ClassLiteral
 import dev.martianzoo.tfm.pets.ast.TypeExpression.Companion.gte
@@ -52,19 +52,19 @@ internal fun immediateToEffect(instruction: Instruction): Effect {
   return Effect(OnGain(This.type), instruction, automatic = false)
 }
 
-fun <P : PetsNode> replaceThis(node: P, resolveTo: GenericTypeExpression) =
+fun <P : PetNode> replaceThis(node: P, resolveTo: GenericTypeExpression) =
     node.replaceTypes(This.type, resolveTo)
         .replaceTypes(ClassLiteral(This.className), ClassLiteral(resolveTo.className))
 
-fun <P : PetsNode> P.replaceTypes(from: TypeExpression, to: TypeExpression): P {
+fun <P : PetNode> P.replaceTypes(from: TypeExpression, to: TypeExpression): P {
   return replaceTypesIn(this, from, to)
 }
 
-internal fun <P : PetsNode> replaceTypesIn(node: P, from: TypeExpression, to: TypeExpression) =
+internal fun <P : PetNode> replaceTypesIn(node: P, from: TypeExpression, to: TypeExpression) =
     TypeReplacer(from, to).transform(node)
 
-private class TypeReplacer(val from: TypeExpression, val to: TypeExpression) : AstTransformer() {
-  override fun <P : PetsNode?> transform(node: P) = if (node == from) {
+private class TypeReplacer(val from: TypeExpression, val to: TypeExpression) : PetNodeVisitor() {
+  override fun <P : PetNode?> transform(node: P) = if (node == from) {
     @Suppress("UNCHECKED_CAST")
     to as P
   } else {
@@ -72,11 +72,11 @@ private class TypeReplacer(val from: TypeExpression, val to: TypeExpression) : A
   }
 }
 
-fun <P : PetsNode> deprodify(node: P, producible: Set<ClassName>): P {
-  val deprodifier = object : AstTransformer() {
+fun <P : PetNode> deprodify(node: P, producible: Set<ClassName>): P {
+  val deprodifier = object : PetNodeVisitor() {
     var inProd: Boolean = false
 
-    override fun <P : PetsNode?> transform(node: P): P {
+    override fun <P : PetNode?> transform(node: P): P {
       val rewritten = when {
         node is GenericTransform<*> && node.transform == "PROD" -> { // TODO: support multiple better
           require(!inProd)

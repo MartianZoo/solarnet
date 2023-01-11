@@ -14,21 +14,21 @@ import dev.martianzoo.tfm.pets.ast.Instruction.Gated
 import dev.martianzoo.tfm.pets.ast.Instruction.Remove
 import dev.martianzoo.tfm.pets.ast.Instruction.Then
 import dev.martianzoo.tfm.pets.ast.Instruction.Transmute
-import dev.martianzoo.tfm.pets.ast.PetsNode
+import dev.martianzoo.tfm.pets.ast.PetNode
 import dev.martianzoo.tfm.pets.ast.QuantifiedExpression
 import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.pets.ast.TypeExpression.GenericTypeExpression
 import dev.martianzoo.util.joinOrEmpty
 import dev.martianzoo.util.pre
 
-internal object ToKotlin {
-  fun <T : PetsNode?> T.pre(prefix: String): String = pre(prefix, ToKotlin::p2k)
+internal object PetToKotlin {
+  fun <T : PetNode?> T.pre(prefix: String): String = pre(prefix, PetToKotlin::p2k)
 
-  fun <T : PetsNode?> Iterable<T>.join(separator: CharSequence = ", "): String {
+  fun <T : PetNode?> Iterable<T>.join(separator: CharSequence = ", "): String {
     return joinToString(separator) { p2k(it) }
   }
 
-  fun p2k(n: PetsNode?): String {
+  fun p2k(n: PetNode?): String {
     n.apply {
       return when (this) {
         null -> "null"

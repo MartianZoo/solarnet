@@ -1,16 +1,16 @@
 package dev.martianzoo.tfm.pets.ast
 
-import dev.martianzoo.tfm.pets.PetsException
+import dev.martianzoo.tfm.pets.PetException
 import dev.martianzoo.tfm.pets.ast.Instruction.Intensity.MANDATORY
 import dev.martianzoo.tfm.pets.ast.Instruction.Per
 import dev.martianzoo.tfm.pets.ast.Instruction.Remove
 
-data class Action(val cost: Cost?, val instruction: Instruction) : PetsNode() {
+data class Action(val cost: Cost?, val instruction: Instruction) : PetNode() {
   override val kind = "Action"
 
   override fun toString() = (cost?.let { "$cost -> " } ?: "-> ") + instruction
 
-  sealed class Cost : PetsNode() {
+  sealed class Cost : PetNode() {
     override val kind = "Cost"
 
     abstract fun toInstruction(): Instruction
@@ -26,11 +26,11 @@ data class Action(val cost: Cost?, val instruction: Instruction) : PetsNode() {
     data class Per(val cost: Cost, val qe: QuantifiedExpression) : Cost() {
       init {
         if (qe.scalar == 0) {
-          throw PetsException("Can't do something 'per' a non-positive amount")
+          throw PetException("Can't do something 'per' a non-positive amount")
         }
         when (cost) {
-          is Or, is Multi -> throw PetsException("Break into separate Per instructions")
-          is Per -> throw PetsException("Might support in future?")
+          is Or, is Multi -> throw PetException("Break into separate Per instructions")
+          is Per -> throw PetException("Might support in future?")
           else -> {}
         }
       }

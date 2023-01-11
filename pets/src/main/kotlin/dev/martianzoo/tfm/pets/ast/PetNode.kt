@@ -1,18 +1,18 @@
 package dev.martianzoo.tfm.pets.ast
 
-import dev.martianzoo.tfm.pets.AstTransformer
+import dev.martianzoo.tfm.pets.PetNodeVisitor
 import kotlin.reflect.KClass
 
 /**
  * An API object that can be represented as PETS source code.
  */
-sealed class PetsNode {
+sealed class PetNode {
   abstract val kind: String
 
   fun nodeCount(): Int {
-    class NodeCounter : AstTransformer() {
+    class NodeCounter : PetNodeVisitor() {
       var count = 0
-      override fun <P : PetsNode?> transform(node: P): P {
+      override fun <P : PetNode?> transform(node: P): P {
         if (node != null) count++
         return super.transform(node)
       }
@@ -23,14 +23,14 @@ sealed class PetsNode {
     return nc.count
   }
 
-  inline fun <reified P : PetsNode> childNodesOfType(): Set<P> =
+  inline fun <reified P : PetNode> childNodesOfType(): Set<P> =
       childNodesOfType(P::class)
 
-  fun <P : PetsNode> childNodesOfType(type: KClass<P>): Set<P> {
+  fun <P : PetNode> childNodesOfType(type: KClass<P>): Set<P> {
     val found = mutableSetOf<P>()
 
-    class Finder : AstTransformer() {
-      override fun <Q : PetsNode?> transform(node: Q): Q {
+    class Finder : PetNodeVisitor() {
+      override fun <Q : PetNode?> transform(node: Q): Q {
         if (type.isInstance(node)) {
           found += node as P
         }
@@ -41,13 +41,13 @@ sealed class PetsNode {
     return found
   }
 
-  fun groupPartIfNeeded(part: PetsNode) = if (part.shouldGroupInside(this)) "($part)" else "$part"
+  fun groupPartIfNeeded(part: PetNode) = if (part.shouldGroupInside(this)) "($part)" else "$part"
 
-  open fun shouldGroupInside(container: PetsNode) = precedence() <= container.precedence()
+  open fun shouldGroupInside(container: PetNode) = precedence() <= container.precedence()
 
   open fun precedence(): Int = Int.MAX_VALUE
 
-  interface GenericTransform<P : PetsNode> {
+  interface GenericTransform<P : PetNode> {
     val transform: String
     fun extract(): P
   }

@@ -1,19 +1,19 @@
 package dev.martianzoo.tfm.types
 
-import dev.martianzoo.tfm.pets.AstTransformer
+import dev.martianzoo.tfm.pets.PetNodeVisitor
 import dev.martianzoo.tfm.pets.SpecialComponent.This
 import dev.martianzoo.tfm.pets.ast.Instruction.Gain
-import dev.martianzoo.tfm.pets.ast.PetsNode
+import dev.martianzoo.tfm.pets.ast.PetNode
 import dev.martianzoo.tfm.pets.ast.TypeExpression.GenericTypeExpression
 import dev.martianzoo.tfm.types.PetType.PetGenericType
 
-internal fun <P : PetsNode> applyDefaultsIn(node: P, loader: PetClassLoader): P {
+internal fun <P : PetNode> applyDefaultsIn(node: P, loader: PetClassLoader): P {
   return Defaulter(loader).transform(node)
 }
 
-private class Defaulter(val loader: PetClassLoader) : AstTransformer() {
-  override fun <P : PetsNode?> transform(node: P): P {
-    val rewritten: PetsNode? = when (node) {
+private class Defaulter(val loader: PetClassLoader) : PetNodeVisitor() {
+  override fun <P : PetNode?> transform(node: P): P {
+    val rewritten: PetNode? = when (node) {
       null -> null
       This.type -> node // leave This alone!
 

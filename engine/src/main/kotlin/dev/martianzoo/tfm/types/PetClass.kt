@@ -1,11 +1,11 @@
 package dev.martianzoo.tfm.types
 
 import dev.martianzoo.tfm.data.ClassDeclaration
-import dev.martianzoo.tfm.pets.AstTransformer
+import dev.martianzoo.tfm.pets.PetNodeVisitor
 import dev.martianzoo.tfm.pets.SpecialComponent.Component
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.Effect
-import dev.martianzoo.tfm.pets.ast.PetsNode
+import dev.martianzoo.tfm.pets.ast.PetNode
 import dev.martianzoo.tfm.pets.ast.QuantifiedExpression
 import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.pets.ast.Requirement.And
@@ -185,8 +185,8 @@ internal class PetClass(
 // VALIDATION
 
   private fun validateAllTypes(effects: List<Effect>) {
-    class Validator(private val table: PetClassTable) : AstTransformer() {
-      override fun <P : PetsNode?> transform(node: P): P {
+    class Validator(private val table: PetClassTable) : PetNodeVisitor() {
+      override fun <P : PetNode?> transform(node: P): P {
         if (node is TypeExpression) table.resolve(node)
         return super.transform(node)
       }

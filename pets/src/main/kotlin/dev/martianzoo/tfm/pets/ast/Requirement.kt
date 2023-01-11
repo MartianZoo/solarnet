@@ -2,7 +2,7 @@ package dev.martianzoo.tfm.pets.ast
 
 import dev.martianzoo.tfm.api.GameState
 
-sealed class Requirement : PetsNode() {
+sealed class Requirement : PetNode() {
   abstract fun evaluate(game: GameState): Boolean
 
   data class Min(val qe: QuantifiedExpression) : Requirement() {

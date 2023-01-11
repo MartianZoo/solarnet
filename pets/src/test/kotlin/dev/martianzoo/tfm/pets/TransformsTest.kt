@@ -1,7 +1,7 @@
 package dev.martianzoo.tfm.pets
 
 import com.google.common.truth.Truth.assertThat
-import dev.martianzoo.tfm.pets.PetsParser.parsePets
+import dev.martianzoo.tfm.pets.PetParser.parsePets
 import dev.martianzoo.tfm.pets.ast.Action
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.Effect
@@ -9,7 +9,7 @@ import dev.martianzoo.tfm.pets.ast.Effect.Trigger
 import dev.martianzoo.tfm.pets.ast.Instruction
 import dev.martianzoo.tfm.pets.ast.Instruction.Gain
 import dev.martianzoo.tfm.pets.ast.Instruction.Per
-import dev.martianzoo.tfm.pets.ast.PetsNode
+import dev.martianzoo.tfm.pets.ast.PetNode
 import dev.martianzoo.tfm.pets.ast.QuantifiedExpression
 import dev.martianzoo.tfm.pets.ast.TypeExpression.Companion.gte
 import dev.martianzoo.tfm.pets.ast.TypeExpression.GenericTypeExpression
@@ -80,7 +80,7 @@ private class TransformsTest {
     checkResolveThis<Instruction>("This<Foo>", gte("Bar"), "This<Foo>")
   }
 
-  private inline fun <reified P : PetsNode> checkResolveThis(
+  private inline fun <reified P : PetNode> checkResolveThis(
       original: String,
       thiss: GenericTypeExpression,
       expected: String,
@@ -88,7 +88,7 @@ private class TransformsTest {
     checkResolveThis(P::class, original, thiss, expected)
   }
 
-  private fun <P : PetsNode> checkResolveThis(
+  private fun <P : PetNode> checkResolveThis(
       type: KClass<P>,
       original: String,
       thiss: GenericTypeExpression,

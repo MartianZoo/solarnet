@@ -3,10 +3,10 @@ package dev.martianzoo.tfm.engine
 import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.tfm.api.lookUpProductionLevels
 import dev.martianzoo.tfm.canon.Canon
+import dev.martianzoo.tfm.data.StateChange
 import dev.martianzoo.tfm.engine.ComponentGraph.Component
-import dev.martianzoo.tfm.pets.PetsParser.parsePets
-import dev.martianzoo.tfm.pets.PetsParser.parseScript
-import dev.martianzoo.tfm.pets.StateChange
+import dev.martianzoo.tfm.pets.PetParser.parsePets
+import dev.martianzoo.tfm.pets.PetParser.parseScript
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.TypeExpression
 import dev.martianzoo.tfm.pets.ast.TypeExpression.Companion.gte

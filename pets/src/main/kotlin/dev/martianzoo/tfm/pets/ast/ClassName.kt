@@ -2,7 +2,7 @@ package dev.martianzoo.tfm.pets.ast
 
 import dev.martianzoo.tfm.pets.ast.TypeExpression.GenericTypeExpression
 
-data class ClassName(val asString: String) : PetsNode(), Comparable<ClassName> {
+data class ClassName(val asString: String) : PetNode(), Comparable<ClassName> {
   init {
     require(asString.matches(classNameRegex())) { "Bad class name: $asString" }
   }

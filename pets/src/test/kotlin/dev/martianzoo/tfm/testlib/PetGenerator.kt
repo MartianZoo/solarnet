@@ -2,8 +2,8 @@ package dev.martianzoo.tfm.testlib
 
 import com.google.common.collect.ImmutableMultiset
 import com.google.common.truth.Truth.assertWithMessage
-import dev.martianzoo.tfm.pets.PetsException
-import dev.martianzoo.tfm.pets.PetsParser.parsePets
+import dev.martianzoo.tfm.pets.PetException
+import dev.martianzoo.tfm.pets.PetParser.parsePets
 import dev.martianzoo.tfm.pets.SpecialComponent.Default
 import dev.martianzoo.tfm.pets.ast.Action
 import dev.martianzoo.tfm.pets.ast.Action.Cost
@@ -23,7 +23,7 @@ import dev.martianzoo.tfm.pets.ast.Instruction.Per
 import dev.martianzoo.tfm.pets.ast.Instruction.Remove
 import dev.martianzoo.tfm.pets.ast.Instruction.Then
 import dev.martianzoo.tfm.pets.ast.Instruction.Transmute
-import dev.martianzoo.tfm.pets.ast.PetsNode
+import dev.martianzoo.tfm.pets.ast.PetNode
 import dev.martianzoo.tfm.pets.ast.QuantifiedExpression
 import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.pets.ast.Requirement.Exact
@@ -31,19 +31,19 @@ import dev.martianzoo.tfm.pets.ast.Requirement.Max
 import dev.martianzoo.tfm.pets.ast.Requirement.Min
 import dev.martianzoo.tfm.pets.ast.TypeExpression
 import dev.martianzoo.tfm.pets.ast.TypeExpression.GenericTypeExpression
-import dev.martianzoo.tfm.testlib.ToKotlin.p2k
+import dev.martianzoo.tfm.testlib.PetToKotlin.p2k
 import kotlin.math.pow
 import kotlin.math.roundToInt
 import kotlin.random.Random
 import kotlin.reflect.KClass
 import org.junit.jupiter.api.Assertions.fail
 
-internal class PetsGenerator(scaling: (Int) -> Double) :
-    RandomGenerator<PetsNode>(Registry, scaling) {
+internal class PetGenerator(scaling: (Int) -> Double) :
+    RandomGenerator<PetNode>(Registry, scaling) {
 
   constructor(greed: Double = 0.8, backoff: Double = 0.15) : this(scaling(greed, backoff))
 
-  private object Registry : RandomGenerator.Registry<PetsNode>() {
+  private object Registry : RandomGenerator.Registry<PetNode>() {
     init {
       val specSizes = (multiset(8 to 0, 4 to 1, 2 to 2, 1 to 3)) // weight to value
       register<TypeExpression> {
@@ -171,26 +171,26 @@ internal class PetsGenerator(scaling: (Int) -> Double) :
       register { Action(choose(1 to null, 3 to recurse()), recurse()) }
     }
 
-    override fun <T : PetsNode> invoke(type: KClass<T>, gen: RandomGenerator<PetsNode>): T? {
+    override fun <T : PetNode> invoke(type: KClass<T>, gen: RandomGenerator<PetNode>): T? {
       return try {
         super.invoke(type, gen)
-      } catch (e: PetsException) {
+      } catch (e: PetException) {
         null // TODO this better
       }
     }
 
-    fun RandomGenerator<PetsNode>.refinement() =
+    fun RandomGenerator<PetNode>.refinement() =
         chooseS(9 to { null }, 1 to { recurse<Requirement>() })
 
-    fun RandomGenerator<PetsNode>.randomName() =
+    fun RandomGenerator<PetNode>.randomName() =
         choose("Foo", "Bar", "Qux", "Abc", "Xyz", "Ooh", "Ahh", "Eep", "Wau")
   }
 
-  inline fun <reified T : PetsNode> goNuts(count: Int = 10_000) {
+  inline fun <reified T : PetNode> goNuts(count: Int = 10_000) {
     return goNuts(T::class, count)
   }
 
-  fun <T : PetsNode> goNuts(type: KClass<T>, count: Int = 10_000) {
+  fun <T : PetNode> goNuts(type: KClass<T>, count: Int = 10_000) {
     for (i in 1..count) {
       val randomNode = makeRandomNode(type)
 
@@ -213,23 +213,23 @@ internal class PetsGenerator(scaling: (Int) -> Double) :
     }
   }
 
-  inline fun <reified T : PetsNode> findAverageTextLength(): Int {
+  inline fun <reified T : PetNode> findAverageTextLength(): Int {
     val samples = 1000
     val sum = (1..samples).sumOf { makeRandomNode<T>().toString().length }
     return (sum.toDouble() / samples).roundToInt()
   }
 
-  inline fun <reified T : PetsNode> printTestStrings(count: Int) {
+  inline fun <reified T : PetNode> printTestStrings(count: Int) {
     for (i in 1..count) {
       println(makeRandomNode<T>())
     }
   }
 
-  inline fun <reified T : PetsNode> printTestStringOfEachLength(maxLength: Int) {
+  inline fun <reified T : PetNode> printTestStringOfEachLength(maxLength: Int) {
     getTestStringOfEachLength<T>(maxLength).forEach(::println)
   }
 
-  inline fun <reified T : PetsNode> getTestStringOfEachLength(maxLength: Int): List<String> {
+  inline fun <reified T : PetNode> getTestStringOfEachLength(maxLength: Int): List<String> {
     require(maxLength >= 20) // just cause
 
     val set = sortedSetOf<String>(Comparator.comparing { it.length })
@@ -248,14 +248,14 @@ internal class PetsGenerator(scaling: (Int) -> Double) :
     return set.toList()
   }
 
-  inline fun <reified T : PetsNode> generateTestApiConstructions(count: Int = 10) {
+  inline fun <reified T : PetNode> generateTestApiConstructions(count: Int = 10) {
     for (i in 1..count) {
       val node = makeRandomNode<T>()
       println("assertThat(${p2k(node)}.toString()).isEqualTo($node)")
     }
   }
 
-  inline fun <reified T : PetsNode> uniqueNodes(
+  inline fun <reified T : PetNode> uniqueNodes(
       count: Int = 100, depthLimit: Int = 10, stopAtDrySpell: Int = 200,
   ): Set<T> {
     val set = mutableSetOf<T>()

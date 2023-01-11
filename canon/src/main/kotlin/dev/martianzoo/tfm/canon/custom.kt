@@ -3,8 +3,8 @@ package dev.martianzoo.tfm.canon
 import dev.martianzoo.tfm.api.CustomInstruction
 import dev.martianzoo.tfm.api.ReadOnlyGameState
 import dev.martianzoo.tfm.api.lookUpProductionLevels
-import dev.martianzoo.tfm.pets.PetsException
-import dev.martianzoo.tfm.pets.PetsParser.parsePets
+import dev.martianzoo.tfm.pets.PetException
+import dev.martianzoo.tfm.pets.PetParser.parsePets
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.Instruction
 import dev.martianzoo.tfm.pets.ast.Instruction.Transform
@@ -41,8 +41,8 @@ object CopyProductionBox : CustomInstruction("copyProductionBox") {
         ?: listOf()
     when (matches.size) {
       1 -> return matches.first()
-      0 -> throw PetsException("There is no immediate PROD box on $chosenCardName")
-      else -> throw PetsException("The immediate instructions on $chosenCardName " +
+      0 -> throw PetException("There is no immediate PROD box on $chosenCardName")
+      else -> throw PetException("The immediate instructions on $chosenCardName " +
           "have multiple PROD boxes, which should never happen")
     }
   }

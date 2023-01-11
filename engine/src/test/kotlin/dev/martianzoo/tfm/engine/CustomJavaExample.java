@@ -6,7 +6,7 @@ import static java.util.stream.Collectors.joining;
 
 import dev.martianzoo.tfm.api.CustomInstruction;
 import dev.martianzoo.tfm.api.ReadOnlyGameState;
-import dev.martianzoo.tfm.pets.PetsParser;
+import dev.martianzoo.tfm.pets.PetParser;
 import dev.martianzoo.tfm.pets.ast.Instruction;
 import dev.martianzoo.tfm.pets.ast.TypeExpression;
 import java.util.Collections;
@@ -28,7 +28,7 @@ public class CustomJavaExample {
           .filter(key -> prods.get(key) == lowest)
           .map(key -> key + "<" + player + ">")
           .collect(joining(" OR "));
-      return PetsParser.INSTANCE.parsePets(Instruction.class, lowestProds);
+      return PetParser.INSTANCE.parsePets(Instruction.class, lowestProds);
     }
   }
 }

@@ -4,7 +4,7 @@ import dev.martianzoo.tfm.pets.SpecialComponent.This
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.Effect
 import dev.martianzoo.tfm.pets.ast.Instruction.Intensity
-import dev.martianzoo.tfm.pets.ast.PetsNode
+import dev.martianzoo.tfm.pets.ast.PetNode
 import dev.martianzoo.tfm.pets.ast.QuantifiedExpression
 import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.pets.ast.Requirement.And
@@ -26,12 +26,12 @@ data class ClassDeclaration(
     val otherInvariants: Set<Requirement> = setOf(),
     val effectsRaw: Set<Effect> = setOf(),
     val defaultsDeclaration: DefaultsDeclaration = DefaultsDeclaration(),
-    val extraNodes: Set<PetsNode> = setOf(),
+    val extraNodes: Set<PetNode> = setOf(),
 ) {
   val superclassNames: List<ClassName> = supertypes.map { it.className }
 
-  val allNodes: Set<PetsNode> by lazy {
-    setOf<PetsNode>() +
+  val allNodes: Set<PetNode> by lazy {
+    setOf<PetNode>() +
         className +
         supertypes +
         dependencies.map { it.type } +

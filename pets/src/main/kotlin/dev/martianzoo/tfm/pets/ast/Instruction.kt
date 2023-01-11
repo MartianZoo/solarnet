@@ -3,13 +3,13 @@ package dev.martianzoo.tfm.pets.ast
 import dev.martianzoo.tfm.api.CustomInstruction.ExecuteInsteadException
 import dev.martianzoo.tfm.api.GameState
 import dev.martianzoo.tfm.api.standardResourceNames
-import dev.martianzoo.tfm.pets.PetsException
+import dev.martianzoo.tfm.pets.PetException
 import dev.martianzoo.tfm.pets.ast.FromExpression.SimpleFrom
 import dev.martianzoo.tfm.pets.ast.FromExpression.TypeInFrom
 import dev.martianzoo.tfm.pets.ast.TypeExpression.GenericTypeExpression
 import dev.martianzoo.tfm.pets.deprodify
 
-sealed class Instruction : PetsNode() {
+sealed class Instruction : PetNode() {
 
   override val kind = "Instruction"
 
@@ -20,7 +20,7 @@ sealed class Instruction : PetsNode() {
   data class Gain(val qe: QuantifiedExpression, val intensity: Intensity? = null) : Instruction() {
     init {
       if (qe.scalar == 0) {
-        throw PetsException("Can't gain zero")
+        throw PetException("Can't gain zero")
       }
     }
 
@@ -39,7 +39,7 @@ sealed class Instruction : PetsNode() {
   ) : Instruction() {
     init {
       if (qe.scalar == 0) {
-        throw PetsException("Can't remove zero")
+        throw PetException("Can't remove zero")
       }
     }
 
@@ -53,11 +53,11 @@ sealed class Instruction : PetsNode() {
   data class Per(val instruction: Instruction, val qe: QuantifiedExpression) : Instruction() {
     init {
       if (qe.scalar == 0) {
-        throw PetsException("Can't do something 'per' zero")
+        throw PetException("Can't do something 'per' zero")
       }
       when (instruction) {
         is Gain, is Remove, is Transmute -> {}
-        else -> throw PetsException("Per can only contain gain/remove/transmute")
+        else -> throw PetException("Per can only contain gain/remove/transmute")
       }
     }
 
@@ -78,7 +78,7 @@ sealed class Instruction : PetsNode() {
   data class Gated(val requirement: Requirement, val instruction: Instruction) : Instruction() {
     init {
       if (instruction is Gated) {
-        throw PetsException("You don't gate a gater") // TODO keep??
+        throw PetException("You don't gate a gater") // TODO keep??
       }
     }
 
@@ -88,7 +88,7 @@ sealed class Instruction : PetsNode() {
       if (game.isMet(requirement)) {
         instruction.execute(game)
       } else {
-        throw PetsException("Die")
+        throw PetException("Die")
       }
     }
 
@@ -97,7 +97,7 @@ sealed class Instruction : PetsNode() {
     }
 
     // let's over-group for clarity
-    override fun shouldGroupInside(container: PetsNode) =
+    override fun shouldGroupInside(container: PetNode) =
         container is Or || super.shouldGroupInside(container)
 
     override fun precedence() = 6
@@ -110,10 +110,10 @@ sealed class Instruction : PetsNode() {
   ) : Instruction() {
     init {
       if ((scalar ?: 1) < 1) {
-        throw PetsException("Can't do a non-positive number of transmutes")
+        throw PetException("Can't do a non-positive number of transmutes")
       }
       if (fromExpression is TypeInFrom) {
-        throw PetsException("Should be a regular gain instruction")
+        throw PetException("Should be a regular gain instruction")
       }
     }
 
@@ -130,7 +130,7 @@ sealed class Instruction : PetsNode() {
       return "$scal$fromExpression$intens"
     }
 
-    override fun shouldGroupInside(container: PetsNode) =
+    override fun shouldGroupInside(container: PetNode) =
         (fromExpression is SimpleFrom && container is Or) || super.shouldGroupInside(container)
 
     override fun precedence() = if (fromExpression is SimpleFrom) 7 else 10
@@ -145,7 +145,7 @@ sealed class Instruction : PetsNode() {
       try {
         val oops = arguments.filter { game.resolve(it).abstract }
         if (oops.any()) {
-          throw PetsException("Abstract types given to $functionName: $oops")
+          throw PetException("Abstract types given to $functionName: $oops")
         }
         // We're not going to get far with this approach of just trying to execute directly.
         // Already with my first attempt, Robinson, it returns an "OR", which can't be exec'd.
@@ -183,7 +183,7 @@ sealed class Instruction : PetsNode() {
 
     override fun toString() = instructions.joinToString(" OR ") { groupPartIfNeeded(it) }
 
-    override fun shouldGroupInside(container: PetsNode) =
+    override fun shouldGroupInside(container: PetNode) =
         container is Then || super.shouldGroupInside(container)
 
     override fun precedence() = 4

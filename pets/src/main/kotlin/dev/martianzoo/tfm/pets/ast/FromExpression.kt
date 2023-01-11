@@ -1,10 +1,10 @@
 package dev.martianzoo.tfm.pets.ast
 
-import dev.martianzoo.tfm.pets.PetsException
+import dev.martianzoo.tfm.pets.PetException
 import dev.martianzoo.tfm.pets.ast.TypeExpression.Companion.gte
 import dev.martianzoo.util.joinOrEmpty
 
-sealed class FromExpression : PetsNode() {
+sealed class FromExpression : PetNode() {
   override val kind = "FromExpression"
 
   abstract val toType: TypeExpression
@@ -32,7 +32,7 @@ sealed class FromExpression : PetsNode() {
   ) : FromExpression() {
     init {
       if (specializations.count { it is ComplexFrom || it is SimpleFrom } != 1) {
-        throw PetsException("Can only have one FROM in an expression")
+        throw PetException("Can only have one FROM in an expression")
       }
     }
 

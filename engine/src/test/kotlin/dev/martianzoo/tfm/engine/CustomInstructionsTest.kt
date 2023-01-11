@@ -8,7 +8,7 @@ import dev.martianzoo.tfm.data.CardDefinition
 import dev.martianzoo.tfm.data.ClassDeclaration
 import dev.martianzoo.tfm.data.MapAreaDefinition
 import dev.martianzoo.tfm.data.MilestoneDefinition
-import dev.martianzoo.tfm.pets.PetsParser.parseScript
+import dev.martianzoo.tfm.pets.PetParser.parseScript
 import dev.martianzoo.util.Grid
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows

@@ -10,7 +10,7 @@ import dev.martianzoo.tfm.pets.ast.FromExpression.ComplexFrom
 import dev.martianzoo.tfm.pets.ast.FromExpression.SimpleFrom
 import dev.martianzoo.tfm.pets.ast.FromExpression.TypeInFrom
 import dev.martianzoo.tfm.pets.ast.Instruction
-import dev.martianzoo.tfm.pets.ast.PetsNode
+import dev.martianzoo.tfm.pets.ast.PetNode
 import dev.martianzoo.tfm.pets.ast.QuantifiedExpression
 import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.pets.ast.Script
@@ -24,14 +24,14 @@ import dev.martianzoo.tfm.pets.ast.TypeExpression.ClassLiteral
 import dev.martianzoo.tfm.pets.ast.TypeExpression.GenericTypeExpression
 import dev.martianzoo.util.toSetStrict
 
-open class AstTransformer {
-  fun <P : PetsNode> transform(nodes: List<P>) = nodes.map { transform(it) }
-  fun <P : PetsNode> transform(nodes: Set<P>) = nodes.map { transform(it) }.toSetStrict()
+open class PetNodeVisitor {
+  fun <P : PetNode> transform(nodes: List<P>) = nodes.map { transform(it) }
+  fun <P : PetNode> transform(nodes: Set<P>) = nodes.map { transform(it) }.toSetStrict()
 
-  open fun <P : PetsNode?> transform(node: P): P {
+  open fun <P : PetNode?> transform(node: P): P {
     @Suppress("UNCHECKED_CAST")
     if (node == null) return null as P // TODO how'm I even getting away with this
-    return (node as PetsNode).run {
+    return (node as PetNode).run {
       val rewritten = when (this) {
         is ClassName -> this
 
@@ -98,7 +98,7 @@ open class AstTransformer {
     }
   }
 
-  private fun <P : PetsNode?> x(node: P) = transform(node)
-  private fun <P : PetsNode> x(nodes: List<P>) = transform(nodes)
-  private fun <P : PetsNode> x(nodes: Set<P>) = transform(nodes)
+  private fun <P : PetNode?> x(node: P) = transform(node)
+  private fun <P : PetNode> x(nodes: List<P>) = transform(nodes)
+  private fun <P : PetNode> x(nodes: Set<P>) = transform(nodes)
 }

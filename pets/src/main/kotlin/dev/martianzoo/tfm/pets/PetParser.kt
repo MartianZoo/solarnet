@@ -38,7 +38,7 @@ import dev.martianzoo.tfm.pets.ast.Instruction.Gated
 import dev.martianzoo.tfm.pets.ast.Instruction.Intensity
 import dev.martianzoo.tfm.pets.ast.Instruction.Remove
 import dev.martianzoo.tfm.pets.ast.Instruction.Transmute
-import dev.martianzoo.tfm.pets.ast.PetsNode
+import dev.martianzoo.tfm.pets.ast.PetNode
 import dev.martianzoo.tfm.pets.ast.QuantifiedExpression
 import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.pets.ast.Requirement.Exact
@@ -57,13 +57,13 @@ import kotlin.reflect.KClass
 import kotlin.reflect.cast
 
 /** Parses the Petaform language. */
-object PetsParser {
+object PetParser {
   /**
    * Parses the PETS expression in `source`, expecting a construct of type
    * `P`, and returning the parsed `P`. `P` can only be one of the major
    * elemental types like `Action`, not `ClassDeclaration`, or something smaller.
    */
-  inline fun <reified P : PetsNode> parsePets(source: String): P = parsePets(P::class, source)
+  inline fun <reified P : PetNode> parsePets(source: String): P = parsePets(P::class, source)
 
   /**
    * Parses the PETS source code in `source` using any accessible parser
@@ -83,7 +83,7 @@ object PetsParser {
   }
 
   private val primaryParsers = // internal bookkeeping
-      mutableMapOf<KClass<out PetsNode>, Parser<PetsNode>>()
+      mutableMapOf<KClass<out PetNode>, Parser<PetNode>>()
 
   private val tokenList = mutableListOf<Token>(
       regexToken("\\\\\n", true), // ignore these
@@ -385,15 +385,15 @@ object PetsParser {
 
   private inline fun <reified T> maybeGroup(contents: Parser<T>) = contents or parens(contents)
 
-  private inline fun <reified P : PetsNode> publish(parser: Parser<P>) = publish(P::class, parser)
+  private inline fun <reified P : PetNode> publish(parser: Parser<P>) = publish(P::class, parser)
 
-  private fun <P : PetsNode> publish(type: KClass<P>, parser: Parser<P>) =
+  private fun <P : PetNode> publish(type: KClass<P>, parser: Parser<P>) =
       parser.also { primaryParsers[type] = it }
 
   /** Non-reified version of `parse(source)`. */
-  fun <P : PetsNode> parsePets(expectedType: KClass<P>, source: String): P {
+  fun <P : PetNode> parsePets(expectedType: KClass<P>, source: String): P {
     require(expectedType in primaryParsers) { expectedType }
-    val parser: Parser<PetsNode> = primaryParsers[expectedType]!!
+    val parser: Parser<PetNode> = primaryParsers[expectedType]!!
     val pet = try {
       parsePets(parser, source)
     } catch (e: ParseException) {
@@ -407,6 +407,6 @@ object PetsParser {
   }
 
   // For java
-  fun <P : PetsNode> parsePets(expectedType: Class<P>, source: String) =
+  fun <P : PetNode> parsePets(expectedType: Class<P>, source: String) =
       parsePets(expectedType.kotlin, source)
 }

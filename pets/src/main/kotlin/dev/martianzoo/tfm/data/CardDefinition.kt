@@ -3,7 +3,7 @@ package dev.martianzoo.tfm.data
 import com.squareup.moshi.Json
 import dev.martianzoo.tfm.data.CardDefinition.ProjectKind.ACTIVE
 import dev.martianzoo.tfm.pets.ClassDeclarationParser.oneLineClassDeclaration
-import dev.martianzoo.tfm.pets.PetsParser.parsePets
+import dev.martianzoo.tfm.pets.PetParser.parsePets
 import dev.martianzoo.tfm.pets.SpecialComponent.End
 import dev.martianzoo.tfm.pets.actionsToEffects
 import dev.martianzoo.tfm.pets.ast.Action
@@ -11,7 +11,7 @@ import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.Effect
 import dev.martianzoo.tfm.pets.ast.Instruction
 import dev.martianzoo.tfm.pets.ast.Instruction.Multi
-import dev.martianzoo.tfm.pets.ast.PetsNode
+import dev.martianzoo.tfm.pets.ast.PetNode
 import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.pets.ast.TypeExpression
 import dev.martianzoo.tfm.pets.ast.TypeExpression.ClassLiteral
@@ -207,8 +207,8 @@ data class CardDefinition(
         resourceTypeText == null
   }
 
-  val extraNodes: Set<PetsNode> by lazy {
-    val set = mutableSetOf<PetsNode>()
+  val extraNodes: Set<PetNode> by lazy {
+    val set = mutableSetOf<PetNode>()
     set += tags
     set += setOfNotNull(resourceType)
     set += setOfNotNull(requirementRaw)

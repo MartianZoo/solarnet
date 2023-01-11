@@ -1,7 +1,7 @@
 package dev.martianzoo.tfm.data
 
 import com.squareup.moshi.Json
-import dev.martianzoo.tfm.pets.PetsParser.parsePets
+import dev.martianzoo.tfm.pets.PetParser.parsePets
 import dev.martianzoo.tfm.pets.SpecialComponent.Ok
 import dev.martianzoo.tfm.pets.SpecialComponent.This
 import dev.martianzoo.tfm.pets.ast.ClassName
