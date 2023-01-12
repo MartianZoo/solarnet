@@ -3,6 +3,7 @@ package dev.martianzoo.tfm.data
 import com.squareup.moshi.Json
 import dev.martianzoo.tfm.data.CardDefinition.ProjectKind.ACTIVE
 import dev.martianzoo.tfm.pets.ClassDeclarationParser.oneLineClassDeclaration
+import dev.martianzoo.tfm.pets.PetParser.parse
 import dev.martianzoo.tfm.pets.PetParser.parsePets
 import dev.martianzoo.tfm.pets.SpecialComponent.END
 import dev.martianzoo.tfm.pets.actionsToEffects
@@ -181,7 +182,7 @@ data class CardDefinition(
   }
 
   val extraComponents: List<ClassDeclaration> by lazy {
-    extraComponentsText.map { parsePets(oneLineClassDeclaration, it) }
+    extraComponentsText.map { parse(oneLineClassDeclaration, it) }
   }
 
   override val asClassDeclaration by lazy {
