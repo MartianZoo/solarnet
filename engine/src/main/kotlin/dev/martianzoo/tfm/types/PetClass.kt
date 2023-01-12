@@ -39,7 +39,7 @@ internal class PetClass(
     declaration.supertypes.map {
       loader.resolve(replaceThis(it, gte(name))) // TODO eh?
     }.toSet().also {
-      if (it.size > 1) (it - COMPONENT.gte).d("$this supertypes")
+      if (it.size > 1) (it - COMPONENT.baseType).d("$this supertypes")
     }
   }
 

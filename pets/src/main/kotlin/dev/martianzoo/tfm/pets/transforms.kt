@@ -23,7 +23,7 @@ import dev.martianzoo.tfm.pets.ast.TypeExpression.GenericTypeExpression
 internal fun actionToEffect(action: Action, index1Ref: Int): Effect {
   require(index1Ref >= 1) { index1Ref }
   val instruction = instructionFromAction(action.cost?.toInstruction(), action.instruction)
-  val trigger = OnGain(gte("$USE_ACTION$index1Ref", THIS.gte))
+  val trigger = OnGain(gte("$USE_ACTION$index1Ref", THIS.baseType))
   return Effect(trigger, instruction, automatic = false)
 }
 
@@ -49,11 +49,11 @@ internal fun actionsToEffects(actions: Collection<Action>) =
     }
 
 internal fun immediateToEffect(instruction: Instruction): Effect {
-  return Effect(OnGain(THIS.gte), instruction, automatic = false)
+  return Effect(OnGain(THIS.baseType), instruction, automatic = false)
 }
 
 fun <P : PetNode> replaceThis(node: P, resolveTo: GenericTypeExpression) =
-    node.replaceTypes(THIS.gte, resolveTo)
+    node.replaceTypes(THIS.baseType, resolveTo)
         .replaceTypes(ClassLiteral(THIS), ClassLiteral(resolveTo.className))
 
 fun <P : PetNode> P.replaceTypes(from: TypeExpression, to: TypeExpression): P {
@@ -85,7 +85,7 @@ fun <P : PetNode> deprodify(node: P, producible: Set<ClassName>): P {
         }
 
         inProd && node is GenericTypeExpression && node.className in producible ->
-          PRODUCTION.gte.copy(specs = node.specs + ClassLiteral(node.className))
+          PRODUCTION.baseType.copy(specs = node.specs + ClassLiteral(node.className))
 
         else -> super.transform(node)
       }

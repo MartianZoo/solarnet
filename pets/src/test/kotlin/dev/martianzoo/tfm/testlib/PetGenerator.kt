@@ -54,7 +54,7 @@ internal class PetGenerator(scaling: (Int) -> Double) :
       }
 //    register { ClassLiteral(randomName()) }
       register {
-        QuantifiedExpression(choose(1 to DEFAULT.gte, 3 to recurse()), choose(0, 1, 1, 1, 5, 11))
+        QuantifiedExpression(choose(1 to DEFAULT.baseType, 3 to recurse()), choose(0, 1, 1, 1, 5, 11))
       }
       register<ClassName> {
         ClassName(randomName())

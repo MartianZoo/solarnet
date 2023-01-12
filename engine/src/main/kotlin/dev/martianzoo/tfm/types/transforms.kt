@@ -15,7 +15,7 @@ private class Defaulter(val loader: PetClassLoader) : PetNodeVisitor() {
   override fun <P : PetNode?> transform(node: P): P {
     val rewritten: PetNode? = when (node) {
       null -> null
-      THIS.gte -> node // leave This alone!
+      THIS.baseType -> node // leave This alone!
 
       is Gain -> {
         val writtenType = node.qe.expression

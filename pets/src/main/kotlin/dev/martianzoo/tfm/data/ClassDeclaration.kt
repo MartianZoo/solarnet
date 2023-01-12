@@ -46,8 +46,8 @@ data class ClassDeclaration(
   fun isSingleton() = otherInvariants.any() { requiresOneInstance(it) }
 
   private fun requiresOneInstance(r: Requirement): Boolean {
-    return r is Min && r.qe == QuantifiedExpression(THIS.gte, 1) ||
-        r is Exact && r.qe == QuantifiedExpression(THIS.gte, 1) ||
+    return r is Min && r.qe == QuantifiedExpression(THIS.baseType, 1) ||
+        r is Exact && r.qe == QuantifiedExpression(THIS.baseType, 1) ||
         r is And && r.requirements.any { requiresOneInstance(it) }
   }
 

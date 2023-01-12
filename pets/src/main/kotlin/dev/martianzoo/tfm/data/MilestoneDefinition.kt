@@ -39,8 +39,8 @@ data class MilestoneDefinition(
         abstract = false,
         supertypes = setOf(gte("Milestone")),
         effectsRaw = setOf(Effect(
-            OnGain(THIS.gte),
-            Gated(requirement, Gain(QuantifiedExpression(OK.gte))),
+            OnGain(THIS.baseType),
+            Gated(requirement, Gain(QuantifiedExpression(OK.baseType))),
             automatic = true,
         ))
     )

@@ -63,4 +63,4 @@ data class MapAreaDefinition(
   override val className = ClassName("${mapName}${row}_$column")
 }
 
-val trigger = OnGain(gte("Tile", THIS.gte))
+val trigger = OnGain(gte("Tile", THIS.baseType))

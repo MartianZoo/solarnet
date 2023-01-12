@@ -187,10 +187,10 @@ data class CardDefinition(
   override val asClassDeclaration by lazy {
     val supertypes = mutableSetOf<GenericTypeExpression>()
 
-    if (projectKind != null) supertypes.add(projectKind.className.gte)
-    if (!actionsRaw.isEmpty()) supertypes.add(ClassName("ActionCard").gte)
+    if (projectKind != null) supertypes.add(projectKind.className.baseType)
+    if (!actionsRaw.isEmpty()) supertypes.add(ClassName("ActionCard").baseType)
     if (resourceType != null) supertypes.add(gte("ResourcefulCard", ClassLiteral(resourceType)))
-    if (supertypes.isEmpty()) supertypes.add(ClassName("CardFront").gte)
+    if (supertypes.isEmpty()) supertypes.add(ClassName("CardFront").baseType)
 
     ClassDeclaration(
         className = className,

@@ -182,8 +182,8 @@ object ClassDeclarationParser {
       val supes = declaration.supertypes
       return when {
         declaration.className == COMPONENT -> declaration.also { require(supes.isEmpty()) }
-        supes.isEmpty() -> declaration.copy(supertypes = setOf(COMPONENT.gte))
-        else -> declaration.also { require(COMPONENT.gte !in supes) }
+        supes.isEmpty() -> declaration.copy(supertypes = setOf(COMPONENT.baseType))
+        else -> declaration.also { require(COMPONENT.baseType !in supes) }
       }
     }
   }

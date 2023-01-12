@@ -9,7 +9,7 @@ data class ClassName(val asString: String) : PetNode(), Comparable<ClassName> {
   }
 
   val literal = ClassLiteral(this)
-  val gte = GenericTypeExpression(this)
+  val baseType = GenericTypeExpression(this)
 
   override fun compareTo(other: ClassName) = asString.compareTo(other.asString)
 
