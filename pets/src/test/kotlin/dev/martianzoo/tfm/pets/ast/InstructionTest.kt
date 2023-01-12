@@ -1,9 +1,6 @@
 package dev.martianzoo.tfm.pets.ast
 
 import com.google.common.truth.Truth.assertThat
-import dev.martianzoo.tfm.pets.PetParser.Instructions
-import dev.martianzoo.tfm.pets.PetParser.Requirements
-import dev.martianzoo.tfm.pets.PetParser.parse
 import dev.martianzoo.tfm.pets.PetParser.parsePets
 import dev.martianzoo.tfm.pets.ast.FromExpression.ComplexFrom
 import dev.martianzoo.tfm.pets.ast.FromExpression.SimpleFrom
@@ -107,17 +104,6 @@ private class InstructionTest {
   }
 
   @Test
-  fun custom1() {
-    parse(Instructions.custom, "\$foo()")
-    parse(Instructions.atom, "\$foo()")
-    parse(Instructions.gated, "\$foo()")
-    parse(Instructions.orInstr, "\$foo()")
-    parse(Instructions.then, "\$foo()")
-    parse(Instructions.whole, "\$foo()")
-    parsePets<Instruction>("\$foo()")
-  }
-
-  @Test
   fun custom2() {
     testRoundTrip<Instruction>("\$name()")
     testRoundTrip<Instruction>("\$name(Abc)")
@@ -129,9 +115,6 @@ private class InstructionTest {
     testRoundTrip<TypeExpression>("Abc(HAS 11 Bar)")
     testRoundTrip<Requirement>("Bar")
     testRoundTrip<Requirement>("11 Bar")
-    parse(Requirements.min, "Bar")
-    parse(Requirements.min, "11 Bar")
-    parse(Requirements.max, "MAX 11 Bar")
     testRoundTrip<Requirement>("MAX 11 Bar")
 
     testRoundTrip<TypeExpression>("Abc(HAS MAX 11 Bar)")
