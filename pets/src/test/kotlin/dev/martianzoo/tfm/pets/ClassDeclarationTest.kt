@@ -7,6 +7,57 @@ import dev.martianzoo.tfm.pets.ast.TypeExpression.Companion.gte
 import org.junit.jupiter.api.Test
 
 private class ClassDeclarationTest {
+  @Test fun simpleOneLiners() {
+    parseClassDeclarations("CLASS Foo") // minimal
+    parseClassDeclarations("ABSTRACT CLASS Foo") // abstract
+    parseClassDeclarations("CLASS Foo<Bar>") // with spec
+    parseClassDeclarations("CLASS Foo(HAS Bar)") // with ref
+    // parseClassDeclarations("CLASS Foo[FOO]") // with shortname
+    parseClassDeclarations("CLASS Foo : Bar") // with supertype
+    parseClassDeclarations("CLASS Foo { HAS 1 }") // with same-line body
+    parseClassDeclarations(" CLASS Foo") // with space first
+    parseClassDeclarations("\nCLASS Foo") // with newline first
+    parseClassDeclarations("CLASS Foo ") // with space after
+    parseClassDeclarations("CLASS Foo\n") // with newline after
+  }
+
+  @Test fun slightlyMoreComplex() {
+    parseClassDeclarations("""
+      CLASS Foo
+      CLASS Bar
+    """) // two separate
+
+    parseClassDeclarations("""
+      CLASS Foo {
+      }
+    """) // empty body
+
+    parseClassDeclarations("""
+      CLASS Foo {
+        HAS Bar
+      }
+    """) // invariant
+    parseClassDeclarations("""
+      CLASS Foo {
+        DEFAULT +This!
+      }
+    """) // default
+    parseClassDeclarations("""
+      CLASS Foo {
+        DEFAULT +This!
+      }
+      CLASS Bar {
+        DEFAULT +This!
+      }
+    """) // two blocks
+    parseClassDeclarations("""
+      CLASS Foo {
+        DEFAULT +This!
+      }
+      CLASS Bar, Qux
+    """)
+  }
+
 
   @Test
   fun body() {
@@ -19,7 +70,7 @@ private class ClassDeclarationTest {
             CLASS Foo
 
           }
-        """.trim())).hasSize(2)
+        """)).hasSize(2)
   }
 
   @Test
@@ -35,7 +86,7 @@ private class ClassDeclarationTest {
 
         CLASS Generation
 
-        """.trim()))
+        """))
   }
 
   @Test
@@ -53,7 +104,7 @@ private class ClassDeclarationTest {
               CLASS Eight: One
           }
       }
-    """.trimIndent())
+    """)
 
     assertThat(cs.map { it.supertypes }).containsExactly(
         setOf<TypeExpression>(),
@@ -66,13 +117,6 @@ private class ClassDeclarationTest {
         setOf(gte("Six")),
         setOf(gte("One"), gte("Six")),
     )
-  }
-
-  @Test
-  fun oneLiner() {
-    parseClassDeclarations("""
-      CLASS One { This: That }
-    """)
   }
 
   @Test

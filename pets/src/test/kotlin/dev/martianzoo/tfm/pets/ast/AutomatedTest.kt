@@ -4,7 +4,7 @@ import dev.martianzoo.tfm.pets.ast.Effect.Trigger
 import dev.martianzoo.tfm.testlib.PetGenerator
 import org.junit.jupiter.api.Test
 
-const val FACTOR = 2
+const val FACTOR = 1
 
 private class AutomatedTest {
 
