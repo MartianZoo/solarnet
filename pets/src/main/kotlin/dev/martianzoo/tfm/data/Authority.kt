@@ -37,26 +37,26 @@ abstract class Authority { // TODO move to api
 
   abstract val actionDefinitions: Collection<ActionDefinition>
 
-  val actionsByComponentName: Map<ClassName, ActionDefinition> by lazy {
-    toMapByComponentName(actionDefinitions)
+  val actionsByClassName: Map<ClassName, ActionDefinition> by lazy {
+    associateByClassName(actionDefinitions)
   }
 
   abstract val cardDefinitions: Collection<CardDefinition>
 
-  val cardsByComponentName by lazy {
-    toMapByComponentName(cardDefinitions)
+  val cardsByClassName by lazy {
+    associateByClassName(cardDefinitions)
   }
 
   abstract val mapAreaDefinitions: Map<String, Grid<MapAreaDefinition>>
 
-  val mapAreasByComponentName by lazy {
-    toMapByComponentName(mapAreaDefinitions.values.flatten())
+  val mapAreasByClassName by lazy {
+    associateByClassName(mapAreaDefinitions.values.flatten())
   }
 
   abstract val milestoneDefinitions: Collection<MilestoneDefinition>
 
-  val milestonesByComponentName by lazy {
-    toMapByComponentName(milestoneDefinitions)
+  val milestonesByClassName by lazy {
+    associateByClassName(milestoneDefinitions)
   }
 
   // val awardDefinitions: Map<String, AwardDefinition>
@@ -68,9 +68,9 @@ abstract class Authority { // TODO move to api
       customInstructions().associateByStrict { it.functionName }
 
   private val extraClassDeclarationsFromCards: Map<ClassName, ClassDeclaration> by lazy {
-    cardDefinitions.flatMap { it.extraComponents }.associateBy { it.className }
+    cardDefinitions.flatMap { it.extraClasses }.associateBy { it.className }
   }
 
-  private fun <D : Definition> toMapByComponentName(thing: Collection<D>): Map<ClassName, D> =
+  private fun <D : Definition> associateByClassName(thing: Collection<D>): Map<ClassName, D> =
       thing.associateByStrict { it.className }
 }

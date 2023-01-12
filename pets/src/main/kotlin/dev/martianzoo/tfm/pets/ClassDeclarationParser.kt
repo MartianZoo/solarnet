@@ -42,17 +42,17 @@ import dev.martianzoo.util.toSetStrict
 object ClassDeclarationParser {
 
   /**
-   * Parses an entire PETS component defs source file.
+   * Parses an entire PETS class declarations source file.
    */
   fun parseClassDeclarations(text: String): List<ClassDeclaration> {
     val tokens = tokenizer.tokenize(stripLineComments(text))
-    return parseRepeated(Components.nestedClassDeclarations, tokens)
+    return parseRepeated(Declarations.nestedClassDeclarations, tokens)
   }
 
   // TODO move
   internal fun stripLineComments(text: String) = Regex(""" *(//[^\n]*)*\n""").replace(text, "\n")
 
-  private object Components { // -------------------------------------------------------
+  private object Declarations { // -------------------------------------------------------
     private val isAbstract = optional(_abstract) and skip(_class) map { it != null }
     private val dependency = typeExpression map ::DependencyDeclaration
     private val dependencies =
@@ -155,7 +155,7 @@ object ClassDeclarationParser {
         .map { (it as DeclarationInProgress).fillInSuperclass(sig.className) }
   }
 
-  val oneLineClassDeclaration = Components.ocd
+  val oneLineClassDeclaration = Declarations.ocd
 
   private class Signature(
       val className: ClassName,

@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test
 class ActionDefinitionTest {
   @Test
   fun test() {
-    val claim = Canon.actionsByComponentName[ClassName("ClaimMilestone")]!!
+    val claim = Canon.actionsByClassName[ClassName("ClaimMilestone")]!!
     assertThat(claim.id).isEqualTo("SAC")
     assertThat(claim.bundle).isEqualTo("B")
     assertThat(claim.project).isFalse()

@@ -74,7 +74,7 @@ data class CardDefinition(
     val replaces: String? = null,
 
     /**
-     * The tags on the card, each expressed as a PETS component name. If a card (such as Venus
+     * The tags on the card, each expressed as a PETS class name. If a card (such as Venus
      * Governor) has multiple of the same tag, the same string should appear that many times in the
      * list. Order is irrelevant (but the Canon data preserves the tag order from the printed
      * cards).
@@ -104,10 +104,10 @@ data class CardDefinition(
     @Json(name = "resourceType") val resourceTypeText: String? = null,
 
     /**
-     * Any extra components the card defines (needed by no other card), expressed as a PETS
-     * `Component`.
+     * Any extra classes the card defines (needed by no other card), expressed as a PETS
+     * class declaration.
      */
-    @Json(name = "components") val extraComponentsText: Set<String> = setOf(),
+    @Json(name = "components") val extraClassesText: Set<String> = setOf(),
 
     // Project info
 
@@ -189,8 +189,8 @@ data class CardDefinition(
         actionsToEffects(actionsRaw)).toSetStrict()
   }
 
-  val extraComponents: List<ClassDeclaration> by lazy {
-    extraComponentsText.map { parse(oneLineClassDeclaration, it) }
+  val extraClasses: List<ClassDeclaration> by lazy {
+    extraClassesText.map { parse(oneLineClassDeclaration, it) }
   }
 
   override val asClassDeclaration by lazy {
@@ -219,7 +219,7 @@ data class CardDefinition(
   val extraNodes: Set<PetNode> by lazy {
       setOfNotNull(resourceType, requirementRaw, projectKind?.className, deck?.className) +
       tags +
-      extraComponents.flatMap { it.allNodes }
+      extraClasses.flatMap { it.allNodes }
   }
 
   /**
