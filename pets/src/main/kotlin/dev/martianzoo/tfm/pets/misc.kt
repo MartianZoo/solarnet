@@ -9,8 +9,12 @@ import com.github.h0tk3y.betterParse.parser.ParseResult
 import com.github.h0tk3y.betterParse.parser.Parsed
 import com.github.h0tk3y.betterParse.parser.Parser
 import com.github.h0tk3y.betterParse.parser.UnexpectedEof
+import dev.martianzoo.util.Debug
 
 fun <T> parseRepeated(listParser: Parser<List<T>>, tokens: TokenMatchesSequence): List<T> {
+  Debug.d(tokens.filterNot { it.type.ignored }.joinToString {
+    it.type.name?.replace("\n", "\\n") ?: "NULL"
+  })
   var index = 0
   val parsed = mutableListOf<T>()
   while (true) {
