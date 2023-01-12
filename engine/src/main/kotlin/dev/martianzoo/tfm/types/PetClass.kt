@@ -20,16 +20,17 @@ import dev.martianzoo.tfm.pets.replaceThis
 import dev.martianzoo.tfm.types.PetType.PetGenericType
 import dev.martianzoo.util.Debug.d
 
-/**
- */
 internal class PetClass(
-    private val declaration: ClassDeclaration,
+    declaration: ClassDeclaration,
     val directSuperclasses: List<PetClass>,
     private val loader: PetClassLoader,
 ) : PetType {
   val name: ClassName by declaration::name
   override val abstract by declaration::abstract
   override val petClass = this
+
+  val shortName by declaration::id
+  val invariants by declaration::otherInvariants
 
   // HIERARCHY
 
@@ -198,7 +199,7 @@ internal class PetClass(
 
   // includes abstract
   fun isSingleton(): Boolean =
-      declaration.otherInvariants.any { requiresAnInstance(it) } ||
+      invariants.any { requiresAnInstance(it) } ||
           directSuperclasses.any { it.isSingleton() }
 
   private fun requiresAnInstance(r: Requirement): Boolean {

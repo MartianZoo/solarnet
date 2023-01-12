@@ -13,12 +13,13 @@ import dev.martianzoo.util.Debug.d
 
 // TODO restrict viz?
 internal class PetClassLoader(private val authority: Authority) : PetClassTable {
-  private val nameToPetClass = mutableMapOf<ClassName, PetClass?>()
+  private val nameToClass = mutableMapOf<ClassName, PetClass?>()
+  private val idToClass = mutableMapOf<ClassName, PetClass>()
 
 // MAIN QUERIES
 
-  override fun get(name: ClassName): PetClass =
-      nameToPetClass[name] ?: error("no class loaded named $name")
+  override fun get(nameOrId: ClassName): PetClass =
+      nameToClass[nameOrId] ?: idToClass[nameOrId] ?: error("no class loaded named $nameOrId")
 
   override fun resolve(expression: TypeExpression) = when (expression) {
     is ClassLiteral -> load(expression.className)
@@ -28,33 +29,33 @@ internal class PetClassLoader(private val authority: Authority) : PetClassTable 
   override fun resolve(expression: GenericTypeExpression): PetGenericType =
       load(expression.className).baseType.specialize(expression.specs.map { resolve(it) })
 
-  override fun loadedClassNames() = nameToPetClass.keys.toSet()
+  override fun loadedClassNames() = nameToClass.keys.toSet()
 
-  override fun loadedClasses() = nameToPetClass.values.map { it!! }.toSet()
+  override fun loadedClasses() = idToClass.values.toSet()
 
 // LOADING
 
   var autoLoadDependencies: Boolean = false
 
-  /** Returns the class with the name [name], loading it first if necessary. */
-  fun load(name: ClassName): PetClass {
+  /** Returns the class with the name [idOrName], loading it first if necessary. */
+  fun load(idOrName: ClassName): PetClass {
     return if (autoLoadDependencies) {
-      loadTrees(listOf(name))
-      get(name)
+      loadTrees(listOf(idOrName))
+      get(idOrName)
     } else {
-      loadSingle(name)
+      loadSingle(idOrName)
     }
   }
 
-  fun load(name: String) = load(ClassName(name))
+  fun load(idOrName: String) = load(ClassName(idOrName))
 
   @JvmName("loadAllFromStrings")
-  fun loadAll(names: Collection<String>) = loadAll(names.map(::ClassName))
-  fun loadAll(names: Collection<ClassName>) =
+  fun loadAll(idsAndNames: Collection<String>) = loadAll(idsAndNames.map(::ClassName))
+  fun loadAll(idsAndNames: Collection<ClassName>) =
       if (autoLoadDependencies) {
-        loadTrees(names)
+        loadTrees(idsAndNames)
       } else {
-        names.forEach(::loadSingle)
+        idsAndNames.forEach(::loadSingle)
       }
 
   /** Vararg form of `loadAll(Collection)`. */
@@ -65,15 +66,15 @@ internal class PetClassLoader(private val authority: Authority) : PetClassTable 
     return freeze()
   }
 
-  private fun loadTrees(names: Collection<ClassName>) {
-    val queue = ArrayDeque(names.toSet())
+  private fun loadTrees(idsAndNames: Collection<ClassName>) {
+    val queue = ArrayDeque(idsAndNames.toSet())
     while (queue.isNotEmpty()) {
       val next = queue.removeFirst()
-      if (next !in nameToPetClass) {
+      if (next !in nameToClass && next !in idToClass) {
         loadSingle(next)
         val decl = authority.declaration(next)
         val needed: List<ClassName> = decl.allNodes.flatMap { it.childNodesOfType() }
-        val addToQueue = needed.toSet() - nameToPetClass.keys - THIS
+        val addToQueue = needed.toSet() - nameToClass.keys - idToClass.keys - THIS
         queue.addAll(addToQueue.d("adding to queue"))
       }
     }
@@ -82,11 +83,12 @@ internal class PetClassLoader(private val authority: Authority) : PetClassTable 
 // OKAY BUT ACTUAL LOADING NOW
 
   // all loading goes through here
-  private fun loadSingle(name: ClassName): PetClass {
+  private fun loadSingle(idOrName: ClassName): PetClass {
     if (frozen) {
-      return get(name)
+      return get(idOrName)
     } else {
-      return nameToPetClass[name] ?: construct(authority.declaration(name))
+      return nameToClass[idOrName] ?: idToClass[idOrName] ?:
+          construct(authority.declaration(idOrName))
     }
   }
 
@@ -95,14 +97,19 @@ internal class PetClassLoader(private val authority: Authority) : PetClassTable 
 
     val name: ClassName = decl.name.d("loading")
 
-    // signal with `null` that loading is in process so we can detect infinite recursion
-    require(decl.name !in nameToPetClass) { decl.name }
+    require(decl.name !in nameToClass) { decl.name }
+    require(decl.name !in idToClass) { decl.name }
+    require(decl.id !in nameToClass) { decl.id }
+    require(decl.id !in idToClass) { decl.id }
 
-    nameToPetClass[name] = null
+    // signal with `null` that loading is in process so we can detect infinite recursion
+    nameToClass[name] = null
     val superclasses: List<PetClass> = decl.superclassNames.map(::load) // we do most other things lazily...
 
-    return PetClass(decl, superclasses, this)
-        .also { nameToPetClass[name] = it }
+    val petClass = PetClass(decl, superclasses, this)
+    nameToClass[name] = petClass
+    idToClass[decl.id] = petClass
+    return petClass
   }
 
 // FREEZING
@@ -112,7 +119,7 @@ internal class PetClassLoader(private val authority: Authority) : PetClassTable 
   internal fun isFrozen() = frozen
 
   internal fun freeze(): PetClassTable {
-    nameToPetClass.values.forEach { it!! }
+    nameToClass.values.forEach { it!! }
     frozen = true
     return this
   }
@@ -129,7 +136,7 @@ internal class PetClassLoader(private val authority: Authority) : PetClassTable 
 
   private fun findResourceNames(): Set<ClassName> {
     val stdRes = load(STANDARD_RESOURCE)
-    return nameToPetClass.values.mapNotNull {
+    return nameToClass.values.mapNotNull {
       if (it?.isSubclassOf(stdRes) == true) it.name else null
     }.toSet()
   }
