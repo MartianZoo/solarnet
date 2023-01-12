@@ -1,10 +1,13 @@
 package dev.martianzoo.tfm.data
 
+import dev.martianzoo.tfm.data.SpecialClassNames.STANDARD_ACTION
+import dev.martianzoo.tfm.data.SpecialClassNames.STANDARD_PROJECT
 import dev.martianzoo.tfm.pets.PetParser.parsePets
+import dev.martianzoo.tfm.pets.SpecialClassNames.THIS
 import dev.martianzoo.tfm.pets.actionToEffect
 import dev.martianzoo.tfm.pets.ast.Action
-import dev.martianzoo.tfm.pets.ast.Requirement
-import dev.martianzoo.tfm.pets.ast.TypeExpression.Companion.gte
+import dev.martianzoo.tfm.pets.ast.QuantifiedExpression
+import dev.martianzoo.tfm.pets.ast.Requirement.Exact
 
 data class ActionDefinition(
     val id: String,
@@ -25,14 +28,15 @@ data class ActionDefinition(
   val action by lazy { parsePets<Action>(actionText) }
 
   override val asClassDeclaration by lazy {
+    val kind = if (project) STANDARD_PROJECT else STANDARD_ACTION
     ClassDeclaration(
         className = className,
         abstract = false,
-        supertypes =  setOf(gte(if (project) "StandardProject" else "StandardAction")),
-        otherInvariants = invariants,
+        supertypes =  setOf(kind.type),
+        otherInvariants = setOf(invariant),
         effectsRaw = setOf(actionToEffect(action, 1)),
     )
   }
 }
 
-private val invariants = setOf(parsePets<Requirement>("=1 This"))
+private val invariant = Exact(QuantifiedExpression(THIS.type, 1))

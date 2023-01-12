@@ -2,10 +2,19 @@ package dev.martianzoo.tfm.data
 
 import com.squareup.moshi.Json
 import dev.martianzoo.tfm.data.CardDefinition.ProjectKind.ACTIVE
+import dev.martianzoo.tfm.data.SpecialClassNames.ACTION_CARD
+import dev.martianzoo.tfm.data.SpecialClassNames.ACTIVE_CARD
+import dev.martianzoo.tfm.data.SpecialClassNames.AUTOMATED_CARD
+import dev.martianzoo.tfm.data.SpecialClassNames.CARD_FRONT
+import dev.martianzoo.tfm.data.SpecialClassNames.CORPORATION_CARD
+import dev.martianzoo.tfm.data.SpecialClassNames.EVENT_CARD
+import dev.martianzoo.tfm.data.SpecialClassNames.PRELUDE_CARD
+import dev.martianzoo.tfm.data.SpecialClassNames.PROJECT_CARD
+import dev.martianzoo.tfm.data.SpecialClassNames.RESOURCEFUL_CARD
 import dev.martianzoo.tfm.pets.ClassDeclarationParser.oneLineClassDeclaration
 import dev.martianzoo.tfm.pets.PetParser.parse
 import dev.martianzoo.tfm.pets.PetParser.parsePets
-import dev.martianzoo.tfm.pets.SpecialComponent.END
+import dev.martianzoo.tfm.pets.SpecialClassNames.END
 import dev.martianzoo.tfm.pets.actionsToEffects
 import dev.martianzoo.tfm.pets.ast.Action
 import dev.martianzoo.tfm.pets.ast.ClassName
@@ -15,7 +24,6 @@ import dev.martianzoo.tfm.pets.ast.Instruction.Multi
 import dev.martianzoo.tfm.pets.ast.PetNode
 import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.pets.ast.TypeExpression
-import dev.martianzoo.tfm.pets.ast.TypeExpression.ClassLiteral
 import dev.martianzoo.tfm.pets.ast.TypeExpression.Companion.gte
 import dev.martianzoo.tfm.pets.ast.TypeExpression.GenericTypeExpression
 import dev.martianzoo.tfm.pets.immediateToEffect
@@ -153,7 +161,7 @@ data class CardDefinition(
   // TODO ClassName
   val tags: List<TypeExpression> by lazy { tagsText.map(::gte) }
 
-  val resourceType = resourceTypeText?.let(::ClassName)
+  val resourceType: ClassName? = resourceTypeText?.let(::ClassName)
 
   val immediateRaw: Instruction? by lazy {
     val set = immediateText.map { parsePets<Instruction>(it) }.toSetStrict()
@@ -188,10 +196,10 @@ data class CardDefinition(
   override val asClassDeclaration by lazy {
     val supertypes = mutableSetOf<GenericTypeExpression>()
 
-    if (projectKind != null) supertypes.add(projectKind.className.baseType)
-    if (!actionsRaw.isEmpty()) supertypes.add(ClassName("ActionCard").baseType)
-    if (resourceType != null) supertypes.add(gte("ResourcefulCard", ClassLiteral(resourceType)))
-    if (supertypes.isEmpty()) supertypes.add(ClassName("CardFront").baseType)
+    projectKind?.let { supertypes += it.className.type }
+    if (actionsRaw.any()) supertypes += ACTION_CARD.type
+    resourceType?.let { supertypes += RESOURCEFUL_CARD.specialize(it.literal) }
+    if (supertypes.isEmpty()) supertypes += CARD_FRONT.type
 
     ClassDeclaration(
         className = className,
@@ -202,40 +210,29 @@ data class CardDefinition(
   }
 
   private fun inactive(): Boolean {
-    // do this low-tech to avoid unlazifying
+    // do this low-tech to avoid unlazifying TODO
     return actionsText.isEmpty() &&
         effectsText.all { it.startsWith("$END:") } &&
         resourceTypeText == null
   }
 
   val extraNodes: Set<PetNode> by lazy {
-    val set = mutableSetOf<PetNode>()
-    set += tags
-    set += setOfNotNull(resourceType)
-    set += setOfNotNull(requirementRaw)
-    set += extraComponents.flatMap { it.allNodes }
-    set += setOfNotNull(projectKind?.classEx)
-    set += setOfNotNull(deck?.classEx)
-    set
+      setOfNotNull(resourceType, requirementRaw, projectKind?.className, deck?.className) +
+      tags +
+      extraComponents.flatMap { it.allNodes }
   }
 
   /**
    * The deck this card belongs to; see [CardDefinition.deck].
    */
   enum class Deck(val className: ClassName) {
-    PROJECT("ProjectCard"), PRELUDE("PreludeCard"), CORPORATION("CorporationCard");
-
-    constructor(s: String) : this(ClassName(s))
-    val classEx = ClassLiteral(className)
+    PROJECT(PROJECT_CARD), PRELUDE(PRELUDE_CARD), CORPORATION(CORPORATION_CARD);
   }
 
   /**
    * A kind (color) of project; see [CardDefinition.projectKind].
    */
-  enum class ProjectKind(val className: ClassName) {
-    EVENT("EventCard"), AUTOMATED("AutomatedCard"), ACTIVE("ActiveCard");
-
-    constructor(s: String) : this(ClassName(s))
-    val classEx = ClassLiteral(className)
+  enum class ProjectKind(val className: ClassName) { // TODO json adapter?
+    EVENT(EVENT_CARD), AUTOMATED(AUTOMATED_CARD), ACTIVE(ACTIVE_CARD);
   }
 }

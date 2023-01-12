@@ -3,7 +3,7 @@ package dev.martianzoo.tfm.engine
 import com.google.common.collect.HashMultiset
 import dev.martianzoo.tfm.data.Authority
 import dev.martianzoo.tfm.engine.ComponentGraph.Component
-import dev.martianzoo.tfm.pets.SpecialComponent.PRODUCTION
+import dev.martianzoo.tfm.pets.SpecialClassNames.PRODUCTION
 import dev.martianzoo.tfm.pets.ast.TypeExpression.Companion.gte
 import dev.martianzoo.tfm.types.PetClassLoader
 

@@ -28,8 +28,8 @@ import dev.martianzoo.tfm.pets.PetParser.nls
 import dev.martianzoo.tfm.pets.PetParser.optionalList
 import dev.martianzoo.tfm.pets.PetParser.skipChar
 import dev.martianzoo.tfm.pets.PetParser.tokenizer
-import dev.martianzoo.tfm.pets.SpecialComponent.COMPONENT
-import dev.martianzoo.tfm.pets.SpecialComponent.THIS
+import dev.martianzoo.tfm.pets.SpecialClassNames.COMPONENT
+import dev.martianzoo.tfm.pets.SpecialClassNames.THIS
 import dev.martianzoo.tfm.pets.ast.Action
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.Effect
@@ -182,8 +182,8 @@ object ClassDeclarationParser {
       val supes = declaration.supertypes
       return when {
         declaration.className == COMPONENT -> declaration.also { require(supes.isEmpty()) }
-        supes.isEmpty() -> declaration.copy(supertypes = setOf(COMPONENT.baseType))
-        else -> declaration.also { require(COMPONENT.baseType !in supes) }
+        supes.isEmpty() -> declaration.copy(supertypes = setOf(COMPONENT.type))
+        else -> declaration.also { require(COMPONENT.type !in supes) }
       }
     }
   }

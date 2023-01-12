@@ -1,6 +1,6 @@
 package dev.martianzoo.tfm.data
 
-import dev.martianzoo.tfm.pets.SpecialComponent.THIS
+import dev.martianzoo.tfm.pets.SpecialClassNames.THIS
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.Effect
 import dev.martianzoo.tfm.pets.ast.Instruction.Intensity
@@ -46,8 +46,8 @@ data class ClassDeclaration(
   fun isSingleton() = otherInvariants.any() { requiresOneInstance(it) }
 
   private fun requiresOneInstance(r: Requirement): Boolean {
-    return r is Min && r.qe == QuantifiedExpression(THIS.baseType, 1) ||
-        r is Exact && r.qe == QuantifiedExpression(THIS.baseType, 1) ||
+    return r is Min && r.qe == QuantifiedExpression(THIS.type, 1) ||
+        r is Exact && r.qe == QuantifiedExpression(THIS.type, 1) ||
         r is And && r.requirements.any { requiresOneInstance(it) }
   }
 

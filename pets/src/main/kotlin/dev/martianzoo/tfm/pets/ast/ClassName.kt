@@ -9,7 +9,10 @@ data class ClassName(val asString: String) : PetNode(), Comparable<ClassName> {
   }
 
   val literal = ClassLiteral(this)
-  val baseType = GenericTypeExpression(this)
+  val type = GenericTypeExpression(this)
+
+  fun specialize(specs: List<TypeExpression>) = type.specialize(specs)
+  fun specialize(vararg specs: TypeExpression) = specialize(specs.toList())
 
   override fun compareTo(other: ClassName) = asString.compareTo(other.asString)
 

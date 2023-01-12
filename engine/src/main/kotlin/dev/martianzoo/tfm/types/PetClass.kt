@@ -2,7 +2,7 @@ package dev.martianzoo.tfm.types
 
 import dev.martianzoo.tfm.data.ClassDeclaration
 import dev.martianzoo.tfm.pets.PetNodeVisitor
-import dev.martianzoo.tfm.pets.SpecialComponent.COMPONENT
+import dev.martianzoo.tfm.pets.SpecialClassNames.COMPONENT
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.Effect
 import dev.martianzoo.tfm.pets.ast.PetNode
@@ -39,7 +39,7 @@ internal class PetClass(
     declaration.supertypes.map {
       loader.resolve(replaceThis(it, gte(name))) // TODO eh?
     }.toSet().also {
-      if (it.size > 1) (it - COMPONENT.baseType).d("$this supertypes")
+      if (it.size > 1) (it - COMPONENT.type).d("$this supertypes")
     }
   }
 

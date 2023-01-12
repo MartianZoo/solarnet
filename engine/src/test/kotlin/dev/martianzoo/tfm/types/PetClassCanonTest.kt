@@ -2,8 +2,8 @@ package dev.martianzoo.tfm.types
 
 import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.tfm.canon.Canon
-import dev.martianzoo.tfm.pets.SpecialComponent.COMPONENT
-import dev.martianzoo.tfm.pets.SpecialComponent.DIE
+import dev.martianzoo.tfm.pets.SpecialClassNames.COMPONENT
+import dev.martianzoo.tfm.pets.SpecialClassNames.DIE
 import dev.martianzoo.tfm.pets.ast.ClassName
 import java.util.TreeSet
 import org.junit.jupiter.api.Test

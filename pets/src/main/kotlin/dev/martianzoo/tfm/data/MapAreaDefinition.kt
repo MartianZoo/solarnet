@@ -1,13 +1,13 @@
 package dev.martianzoo.tfm.data
 
+import dev.martianzoo.tfm.data.SpecialClassNames.TILE
 import dev.martianzoo.tfm.pets.PetParser.parsePets
-import dev.martianzoo.tfm.pets.SpecialComponent.THIS
+import dev.martianzoo.tfm.pets.SpecialClassNames.THIS
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.Effect
 import dev.martianzoo.tfm.pets.ast.Effect.Trigger.OnGain
 import dev.martianzoo.tfm.pets.ast.Instruction
 import dev.martianzoo.tfm.pets.ast.TypeExpression
-import dev.martianzoo.tfm.pets.ast.TypeExpression.Companion.gte
 import dev.martianzoo.tfm.pets.ast.TypeExpression.GenericTypeExpression
 
 data class MapAreaDefinition(
@@ -48,7 +48,7 @@ data class MapAreaDefinition(
   }
 
   val bonus: Instruction? by lazy { bonusText?.let { parsePets(it) } }
-  val type by lazy { parsePets<TypeExpression>(typeText) as GenericTypeExpression }
+  val type by lazy { parsePets<TypeExpression>(typeText) as GenericTypeExpression } // TODO
 
   override val asClassDeclaration by lazy {
     ClassDeclaration(className,
@@ -63,4 +63,4 @@ data class MapAreaDefinition(
   override val className = ClassName("${mapName}${row}_$column")
 }
 
-val trigger = OnGain(gte("Tile", THIS.baseType))
+val trigger = OnGain(TILE.specialize(THIS.type))

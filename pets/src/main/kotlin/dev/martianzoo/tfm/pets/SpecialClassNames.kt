@@ -2,7 +2,7 @@ package dev.martianzoo.tfm.pets
 
 import dev.martianzoo.tfm.pets.ast.ClassName
 
-object SpecialComponent {
+object SpecialClassNames {
   val COMPONENT = ClassName("Component")
   val DEFAULT = ClassName("Default")
   val DIE = ClassName("Die")

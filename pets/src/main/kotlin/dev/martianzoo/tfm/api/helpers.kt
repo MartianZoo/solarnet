@@ -1,7 +1,7 @@
 package dev.martianzoo.tfm.api
 
-import dev.martianzoo.tfm.pets.SpecialComponent.PRODUCTION
-import dev.martianzoo.tfm.pets.SpecialComponent.STANDARD_RESOURCE
+import dev.martianzoo.tfm.pets.SpecialClassNames.PRODUCTION
+import dev.martianzoo.tfm.pets.SpecialClassNames.STANDARD_RESOURCE
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.TypeExpression
 
