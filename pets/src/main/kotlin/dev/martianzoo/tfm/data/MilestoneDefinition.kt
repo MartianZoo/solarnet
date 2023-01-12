@@ -14,7 +14,7 @@ import dev.martianzoo.tfm.pets.ast.QuantifiedExpression
 import dev.martianzoo.tfm.pets.ast.Requirement
 
 data class MilestoneDefinition(
-    val id: String,
+    override val id: ClassName,
     override val bundle: String,
     val replaces: String? = null,
 
@@ -23,7 +23,6 @@ data class MilestoneDefinition(
 ) : Definition {
 
   init {
-    require(id.isNotEmpty())
     require(bundle.isNotEmpty())
     require(requirementText.isNotEmpty())
     require(replaces?.isEmpty() != true)
@@ -31,11 +30,12 @@ data class MilestoneDefinition(
 
   val requirement: Requirement by lazy { parsePets(requirementText) }
 
-  override val className = ClassName("$MILESTONE$id")
+  override val name = englishHack(id.asString)
 
   override val asClassDeclaration: ClassDeclaration by lazy {
     ClassDeclaration(
-        className,
+        id,
+        name,
         abstract = false,
         supertypes = setOf(MILESTONE.type),
         effectsRaw = setOf(Effect(

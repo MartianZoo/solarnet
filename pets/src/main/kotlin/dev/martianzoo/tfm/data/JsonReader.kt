@@ -1,7 +1,9 @@
 package dev.martianzoo.tfm.data
 
+import com.squareup.moshi.FromJson
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
+import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.util.Grid
 import kotlin.text.RegexOption.DOT_MATCHES_ALL
 
@@ -32,7 +34,7 @@ object JsonReader {
       val actions: List<IncompleteActionDef>,
       val projects: List<IncompleteActionDef>) {
 
-    class IncompleteActionDef(val id: String, val bundle: String, val action: String) {
+    class IncompleteActionDef(val id: ClassName, val bundle: String, val action: String) {
       fun complete(project: Boolean) = ActionDefinition(id, bundle, project, action)
     }
   }
@@ -99,11 +101,17 @@ object JsonReader {
 // HELPERS
 
   private inline fun <reified T : Any> fromJson5(input: String): T = Moshi.Builder()
+      .add(ClassNameAdapter())
       .addLast(KotlinJsonAdapterFactory())
       .build()
       .adapter(T::class.java)
       .lenient()
       .fromJson(TRAILING_COMMA_REGEX.replace(input, ""))!!
+
+  class ClassNameAdapter {
+    @FromJson
+    fun fromJson(card: String) = ClassName(card)
+  }
 
   private val TRAILING_COMMA_REGEX = Regex(""",(?=\s*(//[^\n]*\n\s*)?[\]}])""", DOT_MATCHES_ALL)
 }

@@ -24,7 +24,7 @@ object Engine {
     }
 
     val cards = authority.allDefinitions.filter { it.bundle in bundles }
-    loader.loadAll(cards.map { it.className }.sorted())
+    loader.loadAll(cards.map { it.name }.sorted())
 
     // Hacks TODO
     loader.load(PRODUCTION)

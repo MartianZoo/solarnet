@@ -142,7 +142,8 @@ object ClassDeclarationParser {
     )
 
     val comp = ClassDeclaration(
-        className = sig.className,
+        id = sig.className, // TODO
+        name = sig.className,
         abstract = abst,
         dependencies = sig.dependencies,
         supertypes = sig.supertypes.toSetStrict(),
@@ -181,7 +182,7 @@ object ClassDeclarationParser {
     private fun fixSupertypes(): ClassDeclaration { // TODO
       val supes = declaration.supertypes
       return when {
-        declaration.className == COMPONENT -> declaration.also { require(supes.isEmpty()) }
+        declaration.name == COMPONENT -> declaration.also { require(supes.isEmpty()) }
         supes.isEmpty() -> declaration.copy(supertypes = setOf(COMPONENT.type))
         else -> declaration.also { require(COMPONENT.type !in supes) }
       }

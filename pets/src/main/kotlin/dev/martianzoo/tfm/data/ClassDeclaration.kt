@@ -18,7 +18,8 @@ import dev.martianzoo.tfm.pets.ast.TypeExpression.GenericTypeExpression
  * it was provided. DIRECT INFO ONLY; stuff is inherited among *loaded* classes (PetClasses).
  */
 data class ClassDeclaration(
-    val className: ClassName,
+    val id: ClassName,
+    val name: ClassName,
     val abstract: Boolean,
     val dependencies: List<DependencyDeclaration> = listOf(),
     val supertypes: Set<GenericTypeExpression> = setOf(),
@@ -32,7 +33,7 @@ data class ClassDeclaration(
 
   val allNodes: Set<PetNode> by lazy {
     setOf<PetNode>() +
-        className +
+        name +
         supertypes +
         dependencies.map { it.type } +
         setOfNotNull(topInvariant) +

@@ -51,7 +51,9 @@ data class MapAreaDefinition(
   val type by lazy { parsePets<TypeExpression>(typeText) as GenericTypeExpression } // TODO
 
   override val asClassDeclaration by lazy {
-    ClassDeclaration(className,
+    ClassDeclaration(
+        id = id,
+        name = name,
         abstract = false,
         supertypes = setOf(type),
         effectsRaw = bonus?.let {
@@ -60,7 +62,8 @@ data class MapAreaDefinition(
     )
   }
 
-  override val className = ClassName("${mapName}${row}_$column")
+  override val id = ClassName("${bundle}${row}$column")
+  override val name = ClassName("${mapName}_${row}_$column")
 }
 
 val trigger = OnGain(TILE.specialize(THIS.type))

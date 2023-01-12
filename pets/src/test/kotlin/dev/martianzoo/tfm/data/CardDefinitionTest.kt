@@ -8,6 +8,7 @@ import dev.martianzoo.tfm.data.CardDefinition.Deck.PROJECT
 import dev.martianzoo.tfm.data.CardDefinition.ProjectKind.ACTIVE
 import dev.martianzoo.tfm.data.CardDefinition.ProjectKind.AUTOMATED
 import dev.martianzoo.tfm.data.CardDefinition.ProjectKind.EVENT
+import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.PetNode
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -21,7 +22,7 @@ private class CardDefinitionTest {
     val dumbCard = CardDefinition(
         "xxx", deck = PRELUDE, effectsText = setOf("This: Plant"), bundle =  "Z")
 
-    assertThat(dumbCard.id).isEqualTo("xxx")
+    assertThat(dumbCard.id).isEqualTo(ClassName("Cxxx"))
     assertThat(dumbCard.bundle).isEqualTo("Z")
     assertThat(dumbCard.deck).isEqualTo(PRELUDE)
     assertThat(dumbCard.replaces).isNull()
@@ -34,7 +35,7 @@ private class CardDefinitionTest {
   }
 
   val birds = CardDefinition(
-      id = "072",
+      idRaw = "072",
       bundle = "B",
       deck = PROJECT,
       tagsText = listOf("AnimalTag"),
@@ -50,7 +51,7 @@ private class CardDefinitionTest {
   /** This test is also quite pointless, but shows an example usage for readers. */
   @Test
   fun realCardFromApi() {
-    assertThat(birds.id).isEqualTo("072")
+    assertThat(birds.id).isEqualTo(ClassName("C072"))
     assertThat(birds.bundle).isEqualTo("B")
     assertThat(birds.deck).isEqualTo(PROJECT)
     assertThat(birds.tagsText).containsExactly("AnimalTag")
@@ -96,7 +97,7 @@ private class CardDefinitionTest {
   @Test
   fun justToBeSure() {
     @Suppress("UNUSED_VARIABLE")
-    val card = card.copy(id = "y")
+    val card = card.copy(idRaw = "999")
   }
 
   @Test
@@ -152,7 +153,7 @@ private class CardDefinitionTest {
 
   @Test
   fun birdsFromDataFile() {
-    val card = Canon.cardDefinitions.first { it.id == "072" }
+    val card = Canon.cardDefinitions.first { it.id == ClassName("C072") }
     assertThat(card).isEqualTo(birds)
   }
 

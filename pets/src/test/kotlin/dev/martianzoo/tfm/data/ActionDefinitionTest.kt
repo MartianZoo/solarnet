@@ -9,7 +9,7 @@ class ActionDefinitionTest {
   @Test
   fun test() {
     val claim = Canon.actionsByClassName[ClassName("ClaimMilestone")]!!
-    assertThat(claim.id).isEqualTo("SAC")
+    assertThat(claim.id).isEqualTo(ClassName("SAC"))
     assertThat(claim.bundle).isEqualTo("B")
     assertThat(claim.project).isFalse()
     assertThat(claim.actionText).isEqualTo("8 -> Milestone")

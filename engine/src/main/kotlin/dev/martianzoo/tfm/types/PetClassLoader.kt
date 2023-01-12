@@ -93,10 +93,10 @@ internal class PetClassLoader(private val authority: Authority) : PetClassTable 
   private fun construct(decl: ClassDeclaration): PetClass {
     require(!frozen) { "Too late, this table is frozen!" }
 
-    val name: ClassName = decl.className.d("loading")
+    val name: ClassName = decl.name.d("loading")
 
     // signal with `null` that loading is in process so we can detect infinite recursion
-    require(decl.className !in nameToPetClass) { decl.className }
+    require(decl.name !in nameToPetClass) { decl.name }
 
     nameToPetClass[name] = null
     val superclasses: List<PetClass> = decl.superclassNames.map(::load) // we do most other things lazily...

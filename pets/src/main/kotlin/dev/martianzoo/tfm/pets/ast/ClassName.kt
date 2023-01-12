@@ -23,6 +23,6 @@ data class ClassName(val asString: String) : PetNode(), Comparable<ClassName> {
 }
 
 // TODO this weird
-const val CLASS_NAME_PATTERN = "\\b[A-Z][a-z][A-Za-z0-9_]*\\b"
+const val CLASS_NAME_PATTERN = "\\b[A-Z]([a-z][A-Za-z0-9_]*|[A-Z0-9]{0,4})\\b"
 val thing by lazy { Regex(CLASS_NAME_PATTERN) }
 fun classNameRegex() = thing

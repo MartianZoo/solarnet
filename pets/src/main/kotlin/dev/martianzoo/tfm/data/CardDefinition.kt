@@ -51,7 +51,8 @@ data class CardDefinition(
      * It is of course possible for non-canon cards to have colliding ids, which would prevent them
      * from being used simultaneously.
      */
-    val id: String,
+    @Json(name = "id")
+    val idRaw: String,
 
     /**
      * An optional textual identifier for the bundle this card belongs to, which can be used to
@@ -131,7 +132,7 @@ data class CardDefinition(
 ) : Definition {
 
   init {
-    require(id.isNotEmpty())
+    require(idRaw.isNotEmpty())
     require(bundle.isNotEmpty())
     require(replaces?.isNotEmpty() ?: true)
     require(resourceTypeText?.isNotEmpty() ?: true)
@@ -142,21 +143,22 @@ data class CardDefinition(
         require(cost >= 0)
         // a project should be ACTIVE iff it has persistent effects
         when (projectKind) {
-          null -> error("Missing project kind: $id")
-          ACTIVE -> require(!inactive()) { "No persistent effects: $id" }
-          else -> require(inactive()) { "Persistent effects: $id" }
+          null -> error("Missing project kind: $idRaw")
+          ACTIVE -> require(!inactive()) { "No persistent effects: $idRaw" }
+          else -> require(inactive()) { "Persistent effects: $idRaw" }
         }
       }
 
       else -> {
-        require(requirementText == null) { "can't have requirement: $id" }
-        require(cost == 0) { "can't have cost: $id" }
-        require(projectKind == null) { "not a project: $id" }
+        require(requirementText == null) { "can't have requirement: $idRaw" }
+        require(cost == 0) { "can't have cost: $idRaw" }
+        require(projectKind == null) { "not a project: $idRaw" }
       }
     }
   }
 
-  override val className = englishHack(id)
+  override val id = ClassName("C$idRaw")
+  override val name = englishHack(idRaw)
 
   // TODO ClassName
   val tags: List<TypeExpression> by lazy { tagsText.map(::gte) }
@@ -202,7 +204,8 @@ data class CardDefinition(
     if (supertypes.isEmpty()) supertypes += CARD_FRONT.type
 
     ClassDeclaration(
-        className = className,
+        id = id,
+        name = name,
         abstract = false,
         supertypes = supertypes,
         effectsRaw = allEffects,

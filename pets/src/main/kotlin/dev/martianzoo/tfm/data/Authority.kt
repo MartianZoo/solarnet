@@ -30,7 +30,7 @@ abstract class Authority { // TODO move to api
         explicitClassDeclarations +
         extraClassDeclarationsFromCards.values +
         allDefinitions.map { it.asClassDeclaration }
-    list.associateByStrict { it.className }
+    list.associateByStrict { it.name }
   }
 
   abstract val explicitClassDeclarations: Collection<ClassDeclaration>
@@ -68,9 +68,9 @@ abstract class Authority { // TODO move to api
       customInstructions().associateByStrict { it.functionName }
 
   private val extraClassDeclarationsFromCards: Map<ClassName, ClassDeclaration> by lazy {
-    cardDefinitions.flatMap { it.extraClasses }.associateBy { it.className }
+    cardDefinitions.flatMap { it.extraClasses }.associateBy { it.name }
   }
 
   private fun <D : Definition> associateByClassName(thing: Collection<D>): Map<ClassName, D> =
-      thing.associateByStrict { it.className }
+      thing.associateByStrict { it.name }
 }

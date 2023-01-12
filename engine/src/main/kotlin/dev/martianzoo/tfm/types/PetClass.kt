@@ -27,7 +27,7 @@ internal class PetClass(
     val directSuperclasses: List<PetClass>,
     private val loader: PetClassLoader,
 ) : PetType {
-  val name: ClassName by declaration::className
+  val name: ClassName by declaration::name
   override val abstract by declaration::abstract
   override val petClass = this
 

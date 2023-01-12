@@ -2,19 +2,16 @@ package dev.martianzoo.tfm.data
 
 import dev.martianzoo.tfm.pets.ast.ClassName
 
-const val USE_ENGLISH_HACK = true
-
 // I don't intend for English to be privileged; this is just for my convenience for the time being.
 fun englishHack(id: String): ClassName {
   return ClassName(when {
-    !USE_ENGLISH_HACK -> unhackedName(id)
     id in ENGLISH_HACK -> ENGLISH_HACK[id]!!
     id.endsWith("F") -> ENGLISH_HACK[id.substring(0, id.length - 1)]!!
     else -> unhackedName(id)
   })
 }
 
-private val noncards = Regex("SA.|SELL|SP\\d\\d")
+private val noncards = Regex("SA.|SELL|SP\\d\\d|^[MHEV]M")
 
 private fun unhackedName(id: String): String {
   return if (id.matches(noncards)) id else "Card$id"
@@ -35,6 +32,25 @@ val ENGLISH_HACK = mapOf(
     "SP18" to "AquiferSP",
     "SP23" to "GreenerySP",
     "SP25" to "CitySP",
+
+    "MM1" to "Terraformer",
+    "MM2" to "Mayor",
+    "MM3" to "Gardener",
+    "MM4" to "Builder",
+    "MM5" to "Planner",
+    "HM1" to "Diversifier", // TODO
+    "HM2" to "Tactician",
+    "HM3" to "PolarExplorer",
+    "HM4" to "Energizer",
+    "HM5" to "RimSettler",
+    "EM1" to "Generalist",
+    "EM2" to "Specialist",
+    "EM3" to "Ecologist",
+    "EM4" to "Tycoon",
+    "EM5" to "Legend",
+    "EM1R" to "GeneralistR",
+    "VM1" to "Hoverlord",
+
     "001" to "ColonizerTrainingCamp",
     "002" to "AsteroidMiningConsortium",
     "003" to "DeepWellHeating",
@@ -470,7 +486,7 @@ val ENGLISH_HACK = mapOf(
     "X28" to "Potatoes",
     "X29" to "SubCrustMeasurements",
     "X30" to "TopsoilContract",
-    "X31" to "DeimosDownPromo",
+    "X31" to "DeimosDownPromo", // TODO
     "X32" to "GreatDamPromo",
     "X33" to "MagneticFieldGeneratorsPromo",
     "X34" to "AsteroidRights",
