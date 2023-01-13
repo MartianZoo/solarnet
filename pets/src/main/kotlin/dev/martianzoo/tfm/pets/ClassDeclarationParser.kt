@@ -101,35 +101,32 @@ object ClassDeclarationParser {
     abstract fun convert(abstract: Boolean, firstSignature: Signature): NestableDeclGroup
   }
 
-  internal class Body(val elements: KClassMultimap<BodyElement<*>>) : BodyOrMoreSignatures() {
-    constructor(list: List<BodyElement<*>> = listOf()) : this(KClassMultimap(list))
+  internal class Body(val elements: KClassMultimap<BodyElement>) : BodyOrMoreSignatures() {
+    constructor(list: List<BodyElement> = listOf()) : this(KClassMultimap(list))
 
     val haveBeenExtracted = mutableSetOf<KClass<*>>()
 
     override fun convert(abstract: Boolean, firstSignature: Signature) =
         NestableDeclGroup(abstract, firstSignature, this)
 
-    inline fun <reified T, reified E : BodyElement<T>> getAllOfType(): Set<T> {
-      println("tried to extract ${T::class}")
-      return elements.get<E>().map { it.cargo }.toSetStrict()
-    }
+    inline fun <reified E : BodyElement> getAll() = elements.get<E>()
   }
+
   internal class MoreSignatures(val moreSignatures: List<Signature>) : BodyOrMoreSignatures() {
     override fun convert(abstract: Boolean, firstSignature: Signature) =
         NestableDeclGroup(
             (firstSignature plus moreSignatures).map {
-              NestableDecl(abstract, it)
+              IncompleteNestableDecl(abstract, it)
             })
   }
 
-  sealed class BodyElement<T>(open val cargo: T)
-  internal class InvariantElement(req: Requirement) : BodyElement<Requirement>(req)
-  internal class DefaultsElement(def: DefaultsDeclaration) : BodyElement<DefaultsDeclaration>(def)
-  internal class EffectElement(eff: Effect) : BodyElement<Effect>(eff)
-  internal class ActionElement(act: Action) : BodyElement<Action>(act)
+  sealed class BodyElement
+  internal class InvariantElement(val invariant: Requirement) : BodyElement()
+  internal class DefaultsElement(val defaults: DefaultsDeclaration) : BodyElement()
+  internal class EffectElement(val effect: Effect) : BodyElement()
+  internal class ActionElement(val action: Action) : BodyElement()
 
-  internal class NestedDeclGroup(declGroup: NestableDeclGroup) :
-      BodyElement<NestableDeclGroup>(declGroup)
+  internal class NestedDeclGroup(val declGroup: NestableDeclGroup) : BodyElement()
 
   internal class NestableDeclGroup(val declList: List<NestableDecl>) {
 
@@ -147,19 +144,19 @@ object ClassDeclarationParser {
       private fun createNestableDecls(
           abstract: Boolean, signature: Signature, body: Body,
       ): List<NestableDecl> {
-        val effects: Set<Effect> = body.getAllOfType<Effect, EffectElement>()
+        val effects = body.getAll<EffectElement>().map { it.effect }
+        val actions = body.getAll<ActionElement>().map { it.action }
 
         val newDecl = signature.asClassDecl.copy(
             abstract = abstract,
-            otherInvariants = body.getAllOfType<Requirement, InvariantElement>(),
-            effectsRaw = effects + actionsToEffects(body.getAllOfType<Action, ActionElement>()),
-            defaultsDeclaration = merge(body.getAllOfType<DefaultsDeclaration, DefaultsElement>()),
+            otherInvariants = body.getAll<InvariantElement>().map { it.invariant }.toSetStrict(),
+            effectsRaw = (effects + actionsToEffects(actions)).toSetStrict(),
+            defaultsDeclaration = merge(body.getAll<DefaultsElement>().map { it.defaults }),
         )
 
-        val thisDecl = NestableDecl(newDecl, false)
-        val nestableGroups = body.getAllOfType<NestableDeclGroup, NestedDeclGroup>()
+        val nestableGroups = body.getAll<NestedDeclGroup>().map { it.declGroup }
         val asSiblings = nestableGroups.flatMap { it.unnestAllFrom(signature.asClassDecl.name) }
-        return thisDecl plus asSiblings
+        return IncompleteNestableDecl(newDecl) plus asSiblings
       }
     }  }
 
@@ -183,7 +180,7 @@ object ClassDeclarationParser {
     private val invariant: Parser<Requirement> =
         skip(_has) and requirement
 
-    val bodyElementNoClass: Parser<BodyElement<*>> =
+    val bodyElementNoClass: Parser<BodyElement> =
         (invariant map ::InvariantElement) or
         (default map ::DefaultsElement) or
         (effect map ::EffectElement) or
@@ -200,7 +197,7 @@ object ClassDeclarationParser {
         NestableDeclGroup(abs, sig, body ?: Body()).finishOnlyDecl()
       }
 
-  private val bodyElement: Parser<BodyElement<*>> =
+  private val bodyElement: Parser<BodyElement> =
       Bodies.bodyElementNoClass or parser { nestedDecls }
 
   private val multilineBodyInterior: Parser<Body> =
@@ -233,50 +230,42 @@ private fun merge(defs: Collection<DefaultsDeclaration>) =
         gainIntensity = defs.firstNotNullOfOrNull { it.gainIntensity },
     )
 
-internal data class NestableDecl(
-    private val maybeCompleteDecl: ClassDeclaration,
-    internal val complete: Boolean,
-) {
-  constructor(abstract: Boolean, signature: Signature) :
-      this(signature.asClassDecl.copy(abstract = abstract), false)
+/** A declaration that might be nested, so we don't know if we have all its supertypes yet. */
+sealed class NestableDecl {
+  abstract val decl: ClassDeclaration
+  abstract fun unnestOneFrom(container: ClassName): NestableDecl
 
-  init {
-    if (complete) maybeCompleteDecl.validate()
+  fun finishAtTopLevel(): ClassDeclaration { // TODO
+    if (decl.name != COMPONENT && decl.supertypes.isEmpty()) {
+      return decl.copy(supertypes = setOf(COMPONENT.type)).also { it.validate() }
+    }
+    return decl.also { it.validate() }
   }
+}
+
+internal data class CompleteNestableDecl(override val decl: ClassDeclaration) : NestableDecl() {
+  init { decl.validate() }
+  override fun unnestOneFrom(container: ClassName) = this
+}
+
+internal data class IncompleteNestableDecl(override val decl: ClassDeclaration) : NestableDecl() {
+  constructor(abstract: Boolean, signature: Signature) :
+      this(signature.asClassDecl.copy(abstract = abstract))
 
   // This returns a new NestableDecl that looks like it could be a sibling to containingClass
   // instead of nested inside it
-  fun unnestOneFrom(container: ClassName): NestableDecl {
+  override fun unnestOneFrom(container: ClassName): NestableDecl {
     return when {
-      // it's already complete, so just lift it up as-is
-      complete -> this
-
-      // if nested inside Component, there's no supertype to add
-      container == COMPONENT -> this
-
       // the class name we'd insert is already there (TODO be even smarter)
-      maybeCompleteDecl.supertypes.any { it.className == container } -> copy(complete = true)
+      decl.supertypes.any { it.className == container } -> CompleteNestableDecl(decl)
 
       // jam the superclass in and mark it complete
-      else -> copy(prependSuperclass(container), complete = true)
+      else -> CompleteNestableDecl(prependSuperclass(container))
     }
   }
 
   private fun prependSuperclass(superclassName: ClassName): ClassDeclaration {
-    val allSupertypes = superclassName.type plus maybeCompleteDecl.supertypes
-    return maybeCompleteDecl.copy(supertypes = allSupertypes.toSetStrict())
-  }
-
-  internal fun finishAtTopLevel(): ClassDeclaration { // TODO
-    val supes = maybeCompleteDecl.supertypes
-    return when {
-      maybeCompleteDecl.name == COMPONENT -> maybeCompleteDecl.also { require(supes.isEmpty()) }
-      supes.isEmpty() -> maybeCompleteDecl.copy(supertypes = setOf(COMPONENT.type))
-      else -> maybeCompleteDecl.also {
-        require(COMPONENT.type !in supes) {
-          "${maybeCompleteDecl.name}: ${maybeCompleteDecl.supertypes}"
-        }
-      }
-    }
+    val allSupertypes = superclassName.type plus decl.supertypes
+    return decl.copy(supertypes = allSupertypes.toSetStrict())
   }
 }
