@@ -1,6 +1,5 @@
 package dev.martianzoo.tfm.pets
 
-import com.github.h0tk3y.betterParse.combinators.AndCombinator
 import com.github.h0tk3y.betterParse.combinators.and
 import com.github.h0tk3y.betterParse.combinators.map
 import com.github.h0tk3y.betterParse.combinators.oneOrMore
@@ -13,6 +12,12 @@ import com.github.h0tk3y.betterParse.parser.Parser
 import dev.martianzoo.tfm.data.ClassDeclaration
 import dev.martianzoo.tfm.data.ClassDeclaration.DefaultsDeclaration
 import dev.martianzoo.tfm.data.ClassDeclaration.DependencyDeclaration
+import dev.martianzoo.tfm.pets.ClassDeclarationParser.Declarations.ActionElement
+import dev.martianzoo.tfm.pets.ClassDeclarationParser.Declarations.BodyElement
+import dev.martianzoo.tfm.pets.ClassDeclarationParser.Declarations.DefaultsElement
+import dev.martianzoo.tfm.pets.ClassDeclarationParser.Declarations.EffectElement
+import dev.martianzoo.tfm.pets.ClassDeclarationParser.Declarations.InvariantElement
+import dev.martianzoo.tfm.pets.ClassDeclarationParser.Declarations.NestableDeclsElement
 import dev.martianzoo.tfm.pets.PetParser.Actions.action
 import dev.martianzoo.tfm.pets.PetParser.Effects.effect
 import dev.martianzoo.tfm.pets.PetParser.Instructions
@@ -36,6 +41,7 @@ import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.Effect
 import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.pets.ast.TypeExpression.GenericTypeExpression
+import dev.martianzoo.util.KClassMultimap
 import dev.martianzoo.util.toSetStrict
 
 /** Parses the Petaform language. */
@@ -89,61 +95,88 @@ object ClassDeclarationParser {
       DefaultsDeclaration(universalSpecs = it.specs)
     }
 
-    private val default: Parser<DefaultsDeclaration> =
-        skip(_default) and (gainOnlyDefaults or allCasesDefault)
+    private val default: Parser<DefaultsElement> =
+        skip(_default) and (gainOnlyDefaults or allCasesDefault) map ::DefaultsElement
 
-    private val invariant: Parser<Requirement> = skip(_has) and requirement
+    private val invariant: Parser<InvariantElement> = skip(_has) and requirement map ::InvariantElement
 
-    private val bodyElementNoClass: Parser<Any> = default or invariant or action or effect
+    sealed class BodyElement
+    class InvariantElement(val invariant: Requirement) : BodyElement()
+    class DefaultsElement(val defaults: DefaultsDeclaration) : BodyElement()
+    class ActionElement(val action: Action) : BodyElement()
+    class EffectElement(val effect: Effect) : BodyElement()
+    class NestableDeclsElement(val decls: List<NestableDecl>) : BodyElement()
 
-    private val oneLineBody: Parser<List<Any>> =
-        skipChar('{') and separatedTerms(bodyElementNoClass, char(';')) and skipChar('}')
+    private val bodyElementNoClass: Parser<BodyElement> =
+        default or
+        invariant or
+        (action map ::ActionElement) or
+        (effect map ::EffectElement)
 
-    val singleDecl: Parser<ClassDeclaration> =
-        isAbstract and signature and optionalList(oneLineBody) map { (abs, sig, body) ->
-          createIncomplete(abs, sig, body).first().finish()
+    private val oneLineBody: Parser<KClassMultimap<BodyElement>> =
+        skipChar('{') and
+        separatedTerms(bodyElementNoClass, char(';')) and
+        skipChar('}') map {
+          KClassMultimap(it)
         }
 
-    val bodyElement: Parser<Any> = bodyElementNoClass or parser { nestableDecls }
+    val singleDecl: Parser<ClassDeclaration> =
+        isAbstract and signature and optional(oneLineBody) map { (abs, sig, body) ->
+          createIncomplete(abs, sig, body ?: KClassMultimap()).first().finish()
+        }
 
-    private val multilineBodyInterior: Parser<List<Any>> =
+    val bodyElement: Parser<BodyElement> = bodyElementNoClass or parser { nestableDecls }
+
+    private val multilineBodyInterior: Parser<List<BodyElement>> =
         separatedTerms(bodyElement, oneOrMore(char('\n')), acceptZero = true)
 
-    private val multilineBody: Parser<List<Any>> =
+    private val multilineBody: Parser<Body> =
         skipChar('{') and
         skip(nls) and
         multilineBodyInterior and
         skip(nls) and
-        skipChar('}')
+        skipChar('}') map ::Body
 
-    private val nestableDecls: Parser<List<NestableDecl>> =
+    class Body(val elements: KClassMultimap<BodyElement>) {
+      constructor(list: List<BodyElement>) : this(KClassMultimap(list))
+    }
+    class Signatures(val signatures: List<Signature>)
+
+    val signatures: Parser<Signatures> = optionalList(moreSignatures) map :: Signatures
+
+    private val nestableDecls: Parser<NestableDeclsElement> =
         skip(nls) and
         isAbstract and
         signature and
-        (multilineBody or optionalList(moreSignatures)) map {
-          (abs, sig, bodyOrSigs) ->
-            if (bodyOrSigs.firstOrNull() !is Signature) { // sigs
-              createIncomplete(abs, sig, bodyOrSigs)
-            } else { // body
-              @Suppress("UNCHECKED_CAST")
-              val signatures = listOf(sig) + (bodyOrSigs as List<Signature>)
-              signatures.flatMap { createIncomplete(abs, it) }
+        (multilineBody or signatures) map { (abs, sig, bodyOrSigs: Any) ->
+          when (bodyOrSigs) {
+            is Body -> {
+              NestableDeclsElement(createIncomplete(abs, sig, bodyOrSigs.elements))
             }
+            is Signatures -> {
+              val combinedSigs: List<Signature> = listOf(sig) + bodyOrSigs.signatures
+              NestableDeclsElement(combinedSigs.flatMap {
+                createIncomplete(abs, it)
+              })
+            }
+            else -> error("")
+          }
         }
 
-    val nestedDecls: Parser<List<ClassDeclaration>> = nestableDecls map { defs -> defs.map { it.finish() } }
+    val nestedDecls: Parser<List<ClassDeclaration>> =
+        nestableDecls map { decls -> decls.decls.map { it.finish() } }
   }
 
   private fun createIncomplete(
       abst: Boolean,
       sig: Signature,
-      contents: List<Any> = listOf(),
+      contents: KClassMultimap<BodyElement> = KClassMultimap()
   ): List<NestableDecl> {
-    val invs = contents.filterIsInstance<Requirement>().toSetStrict()
-    val defs = contents.filterIsInstance<DefaultsDeclaration>().toSetStrict()
-    val acts = contents.filterIsInstance<Action>().toSetStrict()
-    val effs = contents.filterIsInstance<Effect>().toSetStrict()
-    val subs = contents.filterIsInstance<List<*>>().toSetStrict()
+    val invs = contents.get<InvariantElement>().map { it.invariant }.toSetStrict()
+    val defs = contents.get<DefaultsElement>().map { it.defaults }.toSetStrict()
+    val effs = contents.get<EffectElement>().map { it.effect }.toSetStrict()
+    val acts = contents.get<ActionElement>().map { it.action }.toSetStrict()
+    val subs = contents.get<NestableDeclsElement>().map { it.decls }.toSetStrict()
 
     val mergedDefaults = DefaultsDeclaration(
         universalSpecs = defs.firstNotNullOfOrNull { it.universalSpecs } ?: listOf(),
@@ -162,8 +195,7 @@ object ClassDeclarationParser {
         effectsRaw = effs + actionsToEffects(acts),
         defaultsDeclaration = mergedDefaults,
     )
-    return listOf(NestableDecl(comp, false)) + subs.flatten()
-        .map { (it as NestableDecl).withSuperclass(sig.className) }
+    return listOf(NestableDecl(comp, false)) + subs.flatten().map { it.withSuperclass(sig.className) }
   }
 
   val oneLineClassDeclaration = Declarations.singleDecl
@@ -175,7 +207,7 @@ object ClassDeclarationParser {
       val supertypes: List<GenericTypeExpression>,
   )
 
-  data class NestableDecl(
+  internal data class NestableDecl(
       private val declaration: ClassDeclaration,
       internal val isComplete: Boolean,
   ) {
