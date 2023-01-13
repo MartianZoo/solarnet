@@ -46,70 +46,80 @@ object ClassDeclarationParser {
    */
   fun parseClassDeclarations(text: String): List<ClassDeclaration> {
     val tokens = tokenizer.tokenize(stripLineComments(text))
-    return parseRepeated(Declarations.nestedClassDeclarations, tokens)
+    return parseRepeated(Declarations.nestedDecls, tokens)
   }
 
   // TODO move
   internal fun stripLineComments(text: String) = Regex(""" *(//[^\n]*)*\n""").replace(text, "\n")
 
   private object Declarations { // -------------------------------------------------------
+
     private val isAbstract = optional(_abstract) and skip(_class) map { it != null }
+
     private val dependency = typeExpression map ::DependencyDeclaration
+
     private val dependencies =
         optionalList(skipChar('<') and commaSeparated(dependency) and skipChar('>'))
-    private val supertypes = optionalList(skipChar(':') and commaSeparated(Types.genericType))
+
+    private val supertypes = optionalList(skipChar(':') and commaSeparated(parser { Types.genericType }))
 
     private val signature =
-        Types.className and dependencies and Types.refinement and supertypes map { (c, d, r, s) ->
-          Signature(c, d, r, s)
+        parser { Types.classFullName } and
+        dependencies and
+        parser { Types.optlRefinement } and
+        // optional(skipChar('[') and parser {Types.classShortName} and skipChar(']')) and
+        supertypes map {
+          (c, d, r, s) -> Signature(c, d, r, s)
         }
 
     private val moreSignatures: Parser<List<Signature>> =
         skipChar(',') and separatedTerms(signature, char(','))
 
-    private val gainDefault =
+    private val gainOnlyDefaults =
         skipChar('+') and Types.genericType and Instructions.intensity map { (type, int) ->
           require(type.className == THIS)
           require(type.refinement == null)
           DefaultsDeclaration(gainOnlySpecs = type.specs, gainIntensity = int)
         }
 
-    private val typeDefault = Types.genericType map {
+    private val allCasesDefault = Types.genericType map {
       require(it.className == THIS)
       require(it.refinement == null)
       DefaultsDeclaration(universalSpecs = it.specs)
     }
 
-    private val defaultStmt: Parser<DefaultsDeclaration> =
-        skip(_default) and (gainDefault or typeDefault)
-    private val invariant = skip(_has) and requirement
+    private val default: Parser<DefaultsDeclaration> =
+        skip(_default) and (gainOnlyDefaults or allCasesDefault)
 
-    private val bodyElement = defaultStmt or invariant or action or effect
+    private val invariant: Parser<Requirement> = skip(_has) and requirement
+
+    private val bodyElementNoClass: Parser<Any> = default or invariant or action or effect
 
     private val oneLineBody =
-        skipChar('{') and separatedTerms(bodyElement, char(';')) and skipChar('}')
+        skipChar('{') and separatedTerms(bodyElementNoClass, char(';')) and skipChar('}')
 
-    val ocd: Parser<ClassDeclaration> =
+    val singleDecl: Parser<ClassDeclaration> =
         isAbstract and signature and optionalList(oneLineBody) map { (abs, sig, body) ->
           createIncomplete(abs, sig, body).first().declaration()
         }
 
-    private val blockBodyContents = separatedTerms(
-        parser { incompleteComponentDefs } or bodyElement,
-        oneOrMore(char('\n')),
-        acceptZero = true
-    )
-    private val blockBody: Parser<List<Any>> = skipChar('{') and
+    val bodyElement = bodyElementNoClass or parser { incompleteDecls }
+
+    private val multilineBodyInterior =
+        separatedTerms(bodyElement, oneOrMore(char('\n')), acceptZero = true)
+
+    private val multilineBody: Parser<List<Any>> =
+        skipChar('{') and
         skip(nls) and
-        blockBodyContents and
+        multilineBodyInterior and
         skip(nls) and
         skipChar('}')
 
-    private val incompleteComponentDefs =
+    private val incompleteDecls =
         skip(nls) and
         isAbstract and
         signature and
-        (blockBody or optionalList(moreSignatures)) map {
+        (multilineBody or optionalList(moreSignatures)) map {
           (abs, sig, bodyOrSigs) ->
             if (bodyOrSigs.firstOrNull() !is Signature) { // sigs
               createIncomplete(abs, sig, bodyOrSigs)
@@ -120,8 +130,7 @@ object ClassDeclarationParser {
             }
         }
 
-    val nestedClassDeclarations =
-        incompleteComponentDefs map { defs -> defs.map { it.declaration() } }
+    val nestedDecls = incompleteDecls map { defs -> defs.map { it.declaration() } }
   }
 
   private fun createIncomplete(
@@ -156,7 +165,7 @@ object ClassDeclarationParser {
         .map { (it as DeclarationInProgress).fillInSuperclass(sig.className) }
   }
 
-  val oneLineClassDeclaration = Declarations.ocd
+  val oneLineClassDeclaration = Declarations.singleDecl
 
   private class Signature(
       val className: ClassName,

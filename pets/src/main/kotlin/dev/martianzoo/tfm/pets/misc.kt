@@ -12,7 +12,7 @@ import com.github.h0tk3y.betterParse.parser.UnexpectedEof
 import dev.martianzoo.util.Debug
 
 fun <T> parseRepeated(listParser: Parser<List<T>>, tokens: TokenMatchesSequence): List<T> {
-  Debug.d(tokens.filterNot { it.type.ignored }.joinToString {
+  Debug.d(tokens.filterNot { it.type.ignored }.joinToString(" ") {
     it.type.name?.replace("\n", "\\n") ?: "NULL"
   })
   var index = 0

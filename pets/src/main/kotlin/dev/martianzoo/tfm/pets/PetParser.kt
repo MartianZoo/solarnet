@@ -78,7 +78,7 @@ object PetParser {
    */
   fun <T> parse(parser: Parser<T>, source: String): T {
     val tokens = tokenizer.tokenize(source)
-    Debug.d(tokens.filterNot { it.type.ignored }.joinToString {
+    Debug.d(tokens.filterNot { it.type.ignored }.joinToString(" ") {
       it.type.name?.replace("\n", "\\n") ?: "NULL"
     })
     return parser.parseToEnd(tokens)
@@ -104,7 +104,7 @@ object PetParser {
   )
 
   internal val arrow = literal("->", "arrow")
-  internal val doubleColon = literal("::", "double colon")
+  internal val doubleColon = literal("::", "doublecolon")
 
   // I simply don't want to name all of these and would rather look them up by the char itself
   private val characters = "!$+,-./:;=?()[]{}<>\n".map { it to literal("$it") }.toMap()
@@ -131,7 +131,7 @@ object PetParser {
   internal val upperCamelRE = regex(Regex("""\b[A-Z][a-z][A-Za-z0-9_]*\b"""), "UpperCamel")
   internal val scalarRE = regex(Regex("""\b(0|[1-9][0-9]*)\b"""), "scalar")
   internal val lowerCamelRE = regex(Regex("""\b[a-z][a-zA-Z0-9]*\b"""), "lowerCamel")
-  internal val allCapsWordRE = regex(Regex("""\b[A-Z]+\b"""), "WORD")
+  internal val allCapsWordRE = regex(Regex("""\b[A-Z]+\b"""), "ALLCAPS")
 
   internal val tokenizer = DefaultTokenizer(tokenList)
 
@@ -142,16 +142,18 @@ object PetParser {
 
     internal val typeExpression: Parser<TypeExpression> = parser { whole }
 
-    internal val className = upperCamelRE map { ClassName(it.text) }
+    internal val classShortName = allCapsWordRE map { ClassName(it.text) }
+    internal val classFullName = upperCamelRE map { ClassName(it.text) }
+    internal val className = classFullName // or
 
     private val classType = className and skipChar('.') and skip(_class) map ::ClassLiteral
 
     private val specializations =
         optionalList(skipChar('<') and commaSeparated(typeExpression) and skipChar('>'))
-    internal val refinement = parser { optional(parens(skip(_has) and parser { requirement })) }
+    internal val optlRefinement = parser { optional(parens(skip(_has) and parser { requirement })) }
 
     internal val genericType: Parser<GenericTypeExpression> =
-        parser { className and specializations and refinement map { (type, specs, ref) ->
+        parser { className and specializations and optlRefinement map { (type, specs, ref) ->
           GenericTypeExpression(type, specs, ref)
         } }
 
@@ -243,7 +245,7 @@ object PetParser {
         skipChar('<') and
         parser { fromElements } and
         skipChar('>') and
-        Types.refinement map {
+        Types.optlRefinement map {
       (name, specs, refins) -> ComplexFrom(name, specs, refins)
     }
     private val from = simpleFrom or complexFrom
