@@ -11,7 +11,7 @@ import dev.martianzoo.tfm.data.SpecialClassNames.EVENT_CARD
 import dev.martianzoo.tfm.data.SpecialClassNames.PRELUDE_CARD
 import dev.martianzoo.tfm.data.SpecialClassNames.PROJECT_CARD
 import dev.martianzoo.tfm.data.SpecialClassNames.RESOURCEFUL_CARD
-import dev.martianzoo.tfm.pets.ClassDeclarationParser.oneLineClassDeclaration
+import dev.martianzoo.tfm.pets.ClassDeclarationParser.singleDecl
 import dev.martianzoo.tfm.pets.PetParser.parse
 import dev.martianzoo.tfm.pets.PetParser.parsePets
 import dev.martianzoo.tfm.pets.SpecialClassNames.END
@@ -192,7 +192,7 @@ data class CardDefinition(
   }
 
   val extraClasses: List<ClassDeclaration> by lazy {
-    extraClassesText.map { parse(oneLineClassDeclaration, it) }
+    extraClassesText.map { parse(singleDecl, it) }
   }
 
   override val asClassDeclaration by lazy {
