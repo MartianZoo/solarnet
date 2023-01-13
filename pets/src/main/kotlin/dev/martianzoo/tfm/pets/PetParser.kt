@@ -63,7 +63,7 @@ import kotlin.reflect.cast
 
 /** Parses the Petaform language. */
 object PetParser {
-  init { println ("start $this") }
+  init { Debug.d ("start $this") }
 
   /**
    * Parses the PETS expression in `source`, expecting a construct of type
@@ -89,7 +89,7 @@ object PetParser {
       val tokens = tokenizer.tokenize(stripLineComments(scriptText))
       parseRepeated(scriptLine map { listOf(it) }, tokens)
     } catch (e: Exception) {
-      println("Script was:\n$scriptText")
+      Debug.d("Script was:\n$scriptText")
       throw e
     }
     return Script(scriptLines)
@@ -138,13 +138,13 @@ object PetParser {
   internal val nls = zeroOrMore(char('\n'))
 
   object Types { // ------------------------------------------------------------
-    init { println("start $this") }
+    init { Debug.d("start $this") }
 
     internal val typeExpression: Parser<TypeExpression> = parser { whole }
 
     internal val classShortName = allCapsWordRE map { ClassName(it.text) }
     internal val classFullName = upperCamelRE map { ClassName(it.text) }
-    internal val className = classFullName // or
+    internal val className = classFullName // or classShortName -- why does that break everything?
 
     private val classType = className and skipChar('.') and skip(_class) map ::ClassLiteral
 
@@ -159,11 +159,11 @@ object PetParser {
 
     private val whole = publish(classType or genericType)
 
-    init { println("end $this") }
+    init { Debug.d("end $this") }
   }
 
   object QEs { // --------------------------------------------------------------
-    init { println("start $this") }
+    init { Debug.d("start $this") }
 
     internal val qe = parser { whole }
 
@@ -188,11 +188,11 @@ object PetParser {
     }
     private val whole = publish(qeWithScalar or qeWithType)
 
-    init { println("end $this") }
+    init { Debug.d("end $this") }
   }
 
   object Requirements { // -----------------------------------------------------
-    init { println("start $this") }
+    init { Debug.d("start $this") }
 
     internal val requirement: Parser<Requirement> = parser { whole }
 
@@ -214,11 +214,11 @@ object PetParser {
       if (it.size == 1) it.first() else Requirement.And(it)
     })
 
-    init { println("end $this") }
+    init { Debug.d("end $this") }
   }
 
   object Instructions { // -----------------------------------------------------
-    init { println ("start $this") }
+    init { Debug.d ("start $this") }
     internal val instruction: Parser<Instruction> = parser { whole }
     private val anyGroup = parens(instruction)
 
@@ -295,11 +295,11 @@ object PetParser {
     private val whole = publish(commaSeparated(then) map {
       if (it.size == 1) it.first() else Instruction.Multi(it)
     })
-    init { println ("end $this") }
+    init { Debug.d ("end $this") }
   }
 
   object Actions { // ----------------------------------------------------------
-    init { println("start $this") }
+    init { Debug.d("start $this") }
 
     internal val action = parser { whole }
     private val cost: Parser<Cost> = parser { wholeCost }
@@ -330,12 +330,12 @@ object PetParser {
         Action(c, i)
       }
     })
-    init { println("end $this") }
+    init { Debug.d("end $this") }
   }
   val xa = Actions
 
   object Effects { // ----------------------------------------------------------
-    init { println ("start $this") }
+    init { Debug.d ("start $this") }
     internal val effect = parser { whole }
     private val onGain = parser { Types.genericType } map ::OnGain
     private val onRemove = skipChar('-') and Types.genericType map ::OnRemove
@@ -352,12 +352,12 @@ object PetParser {
         maybeGroup(instruction) map {
       (trig, immed, instr) -> Effect(trigger = trig, automatic = immed, instruction = instr)
     })
-    init { println ("end $this") }
+    init { Debug.d ("end $this") }
   }
   val xe = Effects
 
   object Scripts { // ----------------------------------------------------------
-    init { println ("start $this") }
+    init { Debug.d ("start $this") }
     private val command: Parser<ScriptCommand> =
         skip(_exec) and
         instruction and
@@ -383,7 +383,7 @@ object PetParser {
     internal val line: Parser<ScriptLine> =
         skip(nls) and (command or req or counter or player)
 
-    init { println("end $this") }
+    init { Debug.d("end $this") }
   }
 
   val scriptLine = Scripts.line

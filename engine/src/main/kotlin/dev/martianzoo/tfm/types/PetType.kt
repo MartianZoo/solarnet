@@ -57,9 +57,6 @@ internal interface PetType : TypeInfo {
     }
 
     fun specialize(specs: List<PetType>): PetGenericType {
-      if (specs.toString() == "[Animal<Anyone, ResourcefulCard<Anyone, Animal.CLASS>>]") {
-        println("waddap") // TODO
-      }
       return copy(dependencies = dependencies.specialize(specs))
     }
 
