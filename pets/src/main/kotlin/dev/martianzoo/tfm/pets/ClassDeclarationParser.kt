@@ -7,19 +7,14 @@ import com.github.h0tk3y.betterParse.combinators.optional
 import com.github.h0tk3y.betterParse.combinators.or
 import com.github.h0tk3y.betterParse.combinators.separatedTerms
 import com.github.h0tk3y.betterParse.combinators.skip
+import com.github.h0tk3y.betterParse.combinators.zeroOrMore
 import com.github.h0tk3y.betterParse.grammar.parser
 import com.github.h0tk3y.betterParse.parser.Parser
 import dev.martianzoo.tfm.data.ClassDeclaration
 import dev.martianzoo.tfm.data.ClassDeclaration.DefaultsDeclaration
 import dev.martianzoo.tfm.data.ClassDeclaration.DependencyDeclaration
-import dev.martianzoo.tfm.pets.ClassDeclarationParser.ActionElement
-import dev.martianzoo.tfm.pets.ClassDeclarationParser.BodyElement
-import dev.martianzoo.tfm.pets.ClassDeclarationParser.DefaultsElement
-import dev.martianzoo.tfm.pets.ClassDeclarationParser.EffectElement
-import dev.martianzoo.tfm.pets.ClassDeclarationParser.InvariantElement
-import dev.martianzoo.tfm.pets.ClassDeclarationParser.NestableDeclsElement
-import dev.martianzoo.tfm.pets.ClassDeclarationParser.Sigs.signatures
-import dev.martianzoo.tfm.pets.ClassDeclarationParser.singleDecl
+import dev.martianzoo.tfm.pets.ClassDeclarationParser.Sigs.Signature
+import dev.martianzoo.tfm.pets.ClassDeclarationParser.Sigs.moreSignatures
 import dev.martianzoo.tfm.pets.PetParser.Actions.action
 import dev.martianzoo.tfm.pets.PetParser.Effects.effect
 import dev.martianzoo.tfm.pets.PetParser.Instructions
@@ -44,7 +39,10 @@ import dev.martianzoo.tfm.pets.ast.Effect
 import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.pets.ast.TypeExpression.GenericTypeExpression
 import dev.martianzoo.util.KClassMultimap
+import dev.martianzoo.util.onlyElement
+import dev.martianzoo.util.plus
 import dev.martianzoo.util.toSetStrict
+import kotlin.reflect.KClass
 
 /** Parses the Petaform language. */
 object ClassDeclarationParser {
@@ -54,7 +52,7 @@ object ClassDeclarationParser {
    */
   fun parseClassDeclarations(text: String): List<ClassDeclaration> {
     val tokens = tokenizer.tokenize(stripLineComments(text))
-    return parseRepeated(nestedDecls, tokens)
+    return parseRepeated(topLevelDeclsGroup, tokens)
   }
 
   // TODO move
@@ -69,29 +67,101 @@ object ClassDeclarationParser {
     private val supertypes: Parser<List<GenericTypeExpression>> =
         optionalList(skipChar(':') and commaSeparated(parser { Types.genericType }))
 
+    data class Signature(val asClassDecl: ClassDeclaration) {
+      constructor(
+        className: ClassName,
+        dependencies: List<DependencyDeclaration>,
+        topInvariant: Requirement?,
+        supertypes: List<GenericTypeExpression>,
+      ) : this(ClassDeclaration(
+          abstract = true,
+          name = className,
+          id = className,
+          dependencies = dependencies,
+          topInvariant = topInvariant,
+          supertypes = supertypes.toSetStrict()
+      ))
+    }
+
     val signature: Parser<Signature> =
         parser { Types.classFullName } and
             dependencies and
             parser { Types.optlRefinement } and
             // optional(skipChar('[') and parser {Types.classShortName} and skipChar(']')) and
-            supertypes map { (c, d, r, s) ->
-          Signature(c, d, r, s)
+            supertypes map { (name, deps, refin, supes) ->
+          Signature(name, deps, refin, supes)
         }
 
-    private val moreSignatures: Parser<List<Signature>> =
-        skipChar(',') and separatedTerms(Sigs.signature, char(','))
-
-    val signatures: Parser<Signatures> = optionalList(moreSignatures) map :: Signatures
+    val moreSignatures: Parser<MoreSignatures> = zeroOrMore(skipChar(',') and Sigs.signature) map ::MoreSignatures
   }
 
   private val isAbstract: Parser<Boolean> = optional(_abstract) and skip(_class) map { it != null }
 
-  sealed class BodyElement
-  internal class InvariantElement(val invariant: Requirement) : BodyElement()
-  internal class DefaultsElement(val defaults: DefaultsDeclaration) : BodyElement()
-  internal class ActionElement(val action: Action) : BodyElement()
-  internal class EffectElement(val effect: Effect) : BodyElement()
-  internal class NestableDeclsElement(val decls: List<NestableDecl>) : BodyElement()
+  internal sealed class BodyOrMoreSignatures {
+    abstract fun convert(abstract: Boolean, firstSignature: Signature): NestableDeclGroup
+  }
+
+  internal class Body(val elements: KClassMultimap<BodyElement<*>>) : BodyOrMoreSignatures() {
+    constructor(list: List<BodyElement<*>> = listOf()) : this(KClassMultimap(list))
+
+    val haveBeenExtracted = mutableSetOf<KClass<*>>()
+
+    override fun convert(abstract: Boolean, firstSignature: Signature) =
+        NestableDeclGroup(abstract, firstSignature, this)
+
+    inline fun <reified T, reified E : BodyElement<T>> getAllOfType(): Set<T> {
+      println("tried to extract ${T::class}")
+      return elements.get<E>().map { it.cargo }.toSetStrict()
+    }
+  }
+  internal class MoreSignatures(val moreSignatures: List<Signature>) : BodyOrMoreSignatures() {
+    override fun convert(abstract: Boolean, firstSignature: Signature) =
+        NestableDeclGroup(
+            (firstSignature plus moreSignatures).map {
+              NestableDecl(abstract, it)
+            })
+  }
+
+  sealed class BodyElement<T>(open val cargo: T)
+  internal class InvariantElement(req: Requirement) : BodyElement<Requirement>(req)
+  internal class DefaultsElement(def: DefaultsDeclaration) : BodyElement<DefaultsDeclaration>(def)
+  internal class EffectElement(eff: Effect) : BodyElement<Effect>(eff)
+  internal class ActionElement(act: Action) : BodyElement<Action>(act)
+
+  internal class NestedDeclGroup(declGroup: NestableDeclGroup) :
+      BodyElement<NestableDeclGroup>(declGroup)
+
+  internal class NestableDeclGroup(val declList: List<NestableDecl>) {
+
+    constructor(abstract: Boolean, signature: Signature, body: Body) :
+        this(createNestableDecls(abstract, signature, body))
+
+    fun unnestAllFrom(container: ClassName): List<NestableDecl> =
+        declList.map { it.unnestOneFrom(container) }
+
+    fun finishOnlyDecl() = declList.onlyElement().finishAtTopLevel()
+
+    fun finishAll() = declList.map { it.finishAtTopLevel() }
+
+    private companion object {
+      private fun createNestableDecls(
+          abstract: Boolean, signature: Signature, body: Body,
+      ): List<NestableDecl> {
+        val effects: Set<Effect> = body.getAllOfType<Effect, EffectElement>()
+
+        val newDecl = signature.asClassDecl.copy(
+            abstract = abstract,
+            otherInvariants = body.getAllOfType<Requirement, InvariantElement>(),
+            effectsRaw = effects + actionsToEffects(body.getAllOfType<Action, ActionElement>()),
+            defaultsDeclaration = merge(body.getAllOfType<DefaultsDeclaration, DefaultsElement>()),
+        )
+
+        val thisDecl = NestableDecl(newDecl, false)
+        val nestableGroups = body.getAllOfType<NestableDeclGroup, NestedDeclGroup>()
+        val asSiblings = nestableGroups.flatMap { it.unnestAllFrom(signature.asClassDecl.name) }
+        return thisDecl plus asSiblings
+      }
+    }  }
 
   object Bodies {
     private val gainOnlyDefaults: Parser<DefaultsDeclaration> =
@@ -107,132 +177,104 @@ object ClassDeclarationParser {
       DefaultsDeclaration(universalSpecs = it.specs)
     }
 
-    private val default: Parser<DefaultsElement> =
-        skip(_default) and (gainOnlyDefaults or allCasesDefault) map ::DefaultsElement
+    private val default: Parser<DefaultsDeclaration> =
+        skip(_default) and (gainOnlyDefaults or allCasesDefault)
 
-    private val invariant: Parser<InvariantElement> =
-        skip(_has) and requirement map ::InvariantElement
+    private val invariant: Parser<Requirement> =
+        skip(_has) and requirement
 
-    val bodyElementNoClass: Parser<BodyElement> =
-        default or
-            invariant or
-            (action map ::ActionElement) or
-            (effect map ::EffectElement)
+    val bodyElementNoClass: Parser<BodyElement<*>> =
+        (invariant map ::InvariantElement) or
+        (default map ::DefaultsElement) or
+        (effect map ::EffectElement) or
+        (action map ::ActionElement)
   }
 
-  private val oneLineBody: Parser<KClassMultimap<BodyElement>> =
+  private val oneLineBody: Parser<Body> =
       skipChar('{') and
       separatedTerms(Bodies.bodyElementNoClass, char(';')) and
-      skipChar('}') map {
-        KClassMultimap(it)
-      }
+      skipChar('}') map ::Body
 
   val singleDecl: Parser<ClassDeclaration> =
       isAbstract and Sigs.signature and optional(oneLineBody) map { (abs, sig, body) ->
-        createIncomplete(abs, sig, body ?: KClassMultimap()).first().finish()
+        NestableDeclGroup(abs, sig, body ?: Body()).finishOnlyDecl()
       }
 
-  val bodyElement: Parser<BodyElement> = Bodies.bodyElementNoClass or parser { nestableDecls }
+  private val bodyElement: Parser<BodyElement<*>> =
+      Bodies.bodyElementNoClass or parser { nestedDecls }
 
-  private val multilineBodyInterior: Parser<List<BodyElement>> =
-      separatedTerms(bodyElement, oneOrMore(char('\n')), acceptZero = true)
+  private val multilineBodyInterior: Parser<Body> =
+      separatedTerms(bodyElement, oneOrMore(char('\n')), acceptZero = true) map ::Body
 
   private val multilineBody: Parser<Body> =
-      skipChar('{') and
-      skip(nls) and
+      skipChar('{') and skip(nls) and
       multilineBodyInterior and
-      skip(nls) and
-      skipChar('}') map ::Body
+      skip(nls) and skipChar('}')
 
-  class Body(val elements: KClassMultimap<BodyElement>) {
-    constructor(list: List<BodyElement>) : this(KClassMultimap(list))
-  }
-  class Signatures(val signatures: List<Signature>)
-
-  private val nestableDecls: Parser<NestableDeclsElement> =
+  private val nestableDeclGroup: Parser<NestableDeclGroup> =
       skip(nls) and
       isAbstract and
       Sigs.signature and
-      (multilineBody or signatures) map { (abs, sig, bodyOrSigs: Any) ->
-        when (bodyOrSigs) {
-          is Body -> {
-            NestableDeclsElement(createIncomplete(abs, sig, bodyOrSigs.elements))
-          }
-          is Signatures -> {
-            val combinedSigs: List<Signature> = listOf(sig) + bodyOrSigs.signatures
-            NestableDeclsElement(combinedSigs.flatMap {
-              createIncomplete(abs, it)
-            })
-          }
-          else -> error("")
-        }
+      (multilineBody or moreSignatures) map {
+        (abs, sig, bodyOrSigs) -> bodyOrSigs.convert(abs, sig)
       }
 
-  val nestedDecls: Parser<List<ClassDeclaration>> =
-      nestableDecls map { decls -> decls.decls.map { it.finish() } }
+  // they not just *can* be nested, they *are* nested
+  private val nestedDecls: Parser<NestedDeclGroup> = nestableDeclGroup map ::NestedDeclGroup
+
+  // they *can* be nested, but they are *not*
+  val topLevelDeclsGroup: Parser<List<ClassDeclaration>> = nestableDeclGroup map { it.finishAll() }
 }
 
-private fun createIncomplete(
-    abst: Boolean,
-    sig: Signature,
-    contents: KClassMultimap<BodyElement> = KClassMultimap()
-): List<NestableDecl> {
-  val invs = contents.get<InvariantElement>().map { it.invariant }
-  val defs = contents.get<DefaultsElement>().map { it.defaults }
-  val effs = contents.get<EffectElement>().map { it.effect }
-  val acts = contents.get<ActionElement>().map { it.action }
-  val subs = contents.get<NestableDeclsElement>().map { it.decls }
-
-  val mergedDefaults = DefaultsDeclaration(
-      universalSpecs = defs.firstNotNullOfOrNull { it.universalSpecs } ?: listOf(),
-      gainOnlySpecs = defs.firstNotNullOfOrNull { it.gainOnlySpecs } ?: listOf(),
-      gainIntensity = defs.firstNotNullOfOrNull { it.gainIntensity },
-  )
-
-  val comp = ClassDeclaration(
-      id = sig.className, // TODO
-      name = sig.className,
-      abstract = abst,
-      dependencies = sig.dependencies,
-      supertypes = sig.supertypes.toSetStrict(),
-      topInvariant = sig.topInvariant,
-      otherInvariants = invs.toSetStrict(),
-      effectsRaw = effs.toSetStrict() + actionsToEffects(acts),
-      defaultsDeclaration = mergedDefaults,
-  )
-  return listOf(NestableDecl(comp, false)) + subs.flatten().map { it.withSuperclass(sig.className) }
-}
-
-class Signature(
-    val className: ClassName,
-    val dependencies: List<DependencyDeclaration>,
-    val topInvariant: Requirement?,
-    val supertypes: List<GenericTypeExpression>,
-)
+private fun merge(defs: Collection<DefaultsDeclaration>) =
+    DefaultsDeclaration(
+        universalSpecs = defs.firstNotNullOfOrNull { it.universalSpecs } ?: listOf(),
+        gainOnlySpecs = defs.firstNotNullOfOrNull { it.gainOnlySpecs } ?: listOf(),
+        gainIntensity = defs.firstNotNullOfOrNull { it.gainIntensity },
+    )
 
 internal data class NestableDecl(
-    private val declaration: ClassDeclaration,
-    internal val isComplete: Boolean,
+    private val maybeCompleteDecl: ClassDeclaration,
+    internal val complete: Boolean,
 ) {
-  fun withSuperclass(className: ClassName): NestableDecl =
-      if (className == COMPONENT || isComplete) {
-        this
-      } else if (declaration.supertypes.any { it.className == className }) {
-        this // it's redundant to add it again
-      } else {
-        val allSupertypes = listOf(className.type) + declaration.supertypes
-        val fixedDeclaration = declaration.copy(supertypes = allSupertypes.toSetStrict())
-        NestableDecl(fixedDeclaration, true)
-      }
+  constructor(abstract: Boolean, signature: Signature) :
+      this(signature.asClassDecl.copy(abstract = abstract), false)
 
-  internal fun finish(): ClassDeclaration { // TODO
-    val supes = declaration.supertypes
+  init {
+    if (complete) maybeCompleteDecl.validate()
+  }
+
+  // This returns a new NestableDecl that looks like it could be a sibling to containingClass
+  // instead of nested inside it
+  fun unnestOneFrom(container: ClassName): NestableDecl {
     return when {
-      declaration.name == COMPONENT -> declaration.also { require(supes.isEmpty()) }
-      supes.isEmpty() -> declaration.copy(supertypes = setOf(COMPONENT.type))
-      else -> declaration.also {
+      // it's already complete, so just lift it up as-is
+      complete -> this
+
+      // if nested inside Component, there's no supertype to add
+      container == COMPONENT -> this
+
+      // the class name we'd insert is already there (TODO be even smarter)
+      maybeCompleteDecl.supertypes.any { it.className == container } -> copy(complete = true)
+
+      // jam the superclass in and mark it complete
+      else -> copy(prependSuperclass(container), complete = true)
+    }
+  }
+
+  private fun prependSuperclass(superclassName: ClassName): ClassDeclaration {
+    val allSupertypes = superclassName.type plus maybeCompleteDecl.supertypes
+    return maybeCompleteDecl.copy(supertypes = allSupertypes.toSetStrict())
+  }
+
+  internal fun finishAtTopLevel(): ClassDeclaration { // TODO
+    val supes = maybeCompleteDecl.supertypes
+    return when {
+      maybeCompleteDecl.name == COMPONENT -> maybeCompleteDecl.also { require(supes.isEmpty()) }
+      supes.isEmpty() -> maybeCompleteDecl.copy(supertypes = setOf(COMPONENT.type))
+      else -> maybeCompleteDecl.also {
         require(COMPONENT.type !in supes) {
-          "${declaration.name}: ${declaration.supertypes}"
+          "${maybeCompleteDecl.name}: ${maybeCompleteDecl.supertypes}"
         }
       }
     }

@@ -20,7 +20,7 @@ object Canon : Authority() {
     PETS_FILENAMES.flatMap {
       Debug.d("Reading $it")
       ClassDeclarationParser.parseClassDeclarations(readResource(it))
-    }
+    }.also { it.sortedBy { it.name }.forEach(::println) }
   }
 
   override val mapAreaDefinitions: Map<String, Grid<MapAreaDefinition>> by lazy {

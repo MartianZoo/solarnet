@@ -20,7 +20,7 @@ class KClassMultimap<B : Any>(list: Collection<B> = listOf()) {
   operator fun plusAssign(values: Collection<B>) =
       values.forEach { doPut(it::class, it) }
 
-  inline fun <reified T : B> get() = get(T::class)
+  inline fun <reified T : B> get(): List<T> = get(T::class)
 
   fun <T : B> get(type: KClass<T>) = (map[type] as List<T>?) ?: listOf()
 }

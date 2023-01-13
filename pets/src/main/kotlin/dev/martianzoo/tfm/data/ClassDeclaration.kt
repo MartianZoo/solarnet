@@ -1,5 +1,6 @@
 package dev.martianzoo.tfm.data
 
+import dev.martianzoo.tfm.pets.SpecialClassNames.COMPONENT
 import dev.martianzoo.tfm.pets.SpecialClassNames.THIS
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.Effect
@@ -29,6 +30,17 @@ data class ClassDeclaration(
     val defaultsDeclaration: DefaultsDeclaration = DefaultsDeclaration(),
     val extraNodes: Set<PetNode> = setOf(),
 ) {
+  fun validate() {
+    if (name == COMPONENT) {
+      require(supertypes.isEmpty())
+    } else {
+      require(supertypes.isNotEmpty())
+    }
+    if (supertypes.size > 1) {
+      require(COMPONENT.type !in supertypes)
+    }
+  }
+
   val superclassNames: List<ClassName> = supertypes.map { it.className }
 
   val allNodes: Set<PetNode> by lazy {
@@ -44,6 +56,7 @@ data class ClassDeclaration(
         extraNodes
   }
 
+  // TODO why unused?
   fun isSingleton() = otherInvariants.any() { requiresOneInstance(it) }
 
   private fun requiresOneInstance(r: Requirement): Boolean {

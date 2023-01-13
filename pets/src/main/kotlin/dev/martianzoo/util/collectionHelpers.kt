@@ -102,3 +102,5 @@ fun <T : Any?> T.suf(suffix: String, transform: (T) -> String = { "$it" }) =
     wrap("", suffix, transform)
 
 fun iff(b: Boolean, s: String) = if(b) s else ""
+
+infix fun <T> T.plus(more: Collection<T>): List<T> = listOf(this) + more
