@@ -12,7 +12,6 @@ import com.github.h0tk3y.betterParse.combinators.zeroOrMore
 import com.github.h0tk3y.betterParse.grammar.parser
 import com.github.h0tk3y.betterParse.parser.ParseException
 import com.github.h0tk3y.betterParse.parser.Parser
-import com.github.h0tk3y.betterParse.parser.parseToEnd
 import dev.martianzoo.tfm.pets.ast.Action
 import dev.martianzoo.tfm.pets.ast.Action.Cost
 import dev.martianzoo.tfm.pets.ast.Action.Cost.Spend
@@ -28,7 +27,7 @@ import dev.martianzoo.tfm.pets.ast.FromExpression.TypeInFrom
 import dev.martianzoo.tfm.pets.ast.Instruction
 import dev.martianzoo.tfm.pets.ast.Instruction.Gain
 import dev.martianzoo.tfm.pets.ast.Instruction.Gated
-import dev.martianzoo.tfm.pets.ast.Instruction.Intensity
+import dev.martianzoo.tfm.pets.ast.Instruction.Intensity.Companion.forSymbol
 import dev.martianzoo.tfm.pets.ast.Instruction.Remove
 import dev.martianzoo.tfm.pets.ast.Instruction.Transmute
 import dev.martianzoo.tfm.pets.ast.PetNode
@@ -52,28 +51,12 @@ import kotlin.reflect.cast
 
 /** Parses the Petaform language. */
 internal object ElementParsers : PetTokenizer() {
-  private val pgb = ParserGroup.Builder<PetNode>()
-
   init { Debug.d ("start $this") }
 
-  /**
-   * Parses the PETS source code in `source` using any accessible parser
-   * instance from the properties of this object; intended for testing.
-   */
-  internal fun <T> parse(parser: Parser<T>, source: String): T {
-    val tokens = tokenize(source)
-    Debug.d(tokens.filterNot { it.type.ignored }.joinToString(" ") {
-      it.type.name?.replace("\n", "\\n") ?: "NULL"
-    })
-    return parser.parseToEnd(tokens)
-  }
-
-  internal val nls = zeroOrMore(char('\n'))
+  private val pgb = ParserGroup.Builder<PetNode>()
 
   internal object Types { // ------------------------------------------------------------
     init { Debug.d("start $this") }
-
-    private val typeExpression: Parser<TypeExpression> = parser { whole }
 
     // internal val classShortName = allCapsWordRE map { ClassName(it.text) }
     val classFullName = upperCamelRE map { ClassName(it.text) }
@@ -82,16 +65,14 @@ internal object ElementParsers : PetTokenizer() {
     private val classType = className and skipChar('.') and skip(_class) map ::ClassLiteral
 
     private val specializations =
-        optionalList(skipChar('<') and commaSeparated(typeExpression) and skipChar('>'))
+        optionalList(skipChar('<') and commaSeparated(parser { whole }) and skipChar('>'))
 
-    val optlRefinement = optional(parens(
-        skip(_has) and parser { requirement }
-    ))
+    val optlRefinement = optional(group(skip(_has) and parser { requirement }))
 
     val genericType: Parser<GenericTypeExpression> =
-        parser { className and specializations and optlRefinement map { (type, specs, ref) ->
-          GenericTypeExpression(type, specs, ref)
-        } }
+        className and specializations and optlRefinement map {
+          (type, specs, ref) -> GenericTypeExpression(type, specs, ref)
+        }
 
     internal val whole = classType or genericType
 
@@ -106,7 +87,7 @@ internal object ElementParsers : PetTokenizer() {
     internal val scalar: Parser<Int> = scalarRE map { it.text.toInt() }
 
     private val implicitScalar: Parser<Int?> = optional(scalar)
-    private val implicitType: Parser<GenericTypeExpression?> = optional(parser { Types.genericType })
+    private val implicitType: Parser<TypeExpression?> = optional(typeExpression)
 
     private val qeWithScalar = scalar and implicitType map { (scalar, expr: TypeExpression?) ->
       if (expr == null) {
@@ -115,7 +96,7 @@ internal object ElementParsers : PetTokenizer() {
         QuantifiedExpression(expr, scalar)
       }
     }
-    private val qeWithType = implicitScalar and Types.genericType map { (scalar, expr) ->
+    private val qeWithType = implicitScalar and typeExpression map { (scalar, expr) ->
       if (scalar == null) {
         QuantifiedExpression(expr)
       } else {
@@ -140,8 +121,7 @@ internal object ElementParsers : PetTokenizer() {
       (node, type) -> Requirement.Transform(node, type)
     }
 
-    internal val atom =
-        parser { min or max or exact or transform or parens(requirement) }
+    internal val atom = min or max or exact or transform or group(requirement)
 
     private val orReq = separatedTerms(atom, _or) map {
       val set = it.toSet()
@@ -161,9 +141,7 @@ internal object ElementParsers : PetTokenizer() {
     private val instruction: Parser<Instruction> = parser { whole }
 
     internal val intensity = optional( // TODO
-        (char('!') map { Intensity.MANDATORY }) or
-        (char('.') map { Intensity.AMAP }) or
-        (char('?') map { Intensity.OPTIONAL })
+        char('!') or char('.') or char('?') map { it.text } map ::forSymbol
     )
 
     private val gain = qe and intensity map {
@@ -173,7 +151,7 @@ internal object ElementParsers : PetTokenizer() {
       (qe, intens) -> Remove(qe, intens)
     }
 
-    private val simpleFrom = Types.genericType and skip(_from) and Types.genericType map {
+    private val simpleFrom = genericType and skip(_from) and genericType map {
       (to, from) -> SimpleFrom(to, from)
     }
 
@@ -186,7 +164,7 @@ internal object ElementParsers : PetTokenizer() {
       (name, specs, refins) -> ComplexFrom(name, specs, refins)
     }
     private val from = simpleFrom or complexFrom
-    private val typeInFrom = parser { Types.genericType } map { TypeInFrom(it) }
+    private val typeInFrom = typeExpression map ::TypeInFrom
 
     private val fromElements: Parser<List<FromExpression>> =
         zeroOrMore(typeInFrom and skipChar(',')) and
@@ -202,7 +180,7 @@ internal object ElementParsers : PetTokenizer() {
       (scal, fro, intens) -> Transmute(fro, scal, intens)
     }
 
-    private val perable = transmute or parens(transmute) or gain or remove
+    private val perable = transmute or group(transmute) or gain or remove
 
     private val maybePer = perable and optional(skipChar('/') and qe) map { (instr, qe) ->
       if (qe == null) instr else Instruction.Per(instr, qe)
@@ -212,11 +190,11 @@ internal object ElementParsers : PetTokenizer() {
       (node, type) -> Instruction.Transform(node, type)
     })
 
-    private val arguments = separatedTerms(typeExpression, char(','), true)
-    private val custom = skipChar('$') and lowerCamelRE and parens(arguments) map {
+    private val arguments = separatedTerms(typeExpression, char(','), acceptZero = true)
+    private val custom = skipChar('$') and lowerCamelRE and group(arguments) map {
       (name, args) -> Instruction.Custom(name.text, args)
     }
-    private val atom = parens(instruction) or maybeTransform or custom
+    private val atom = group(instruction) or maybeTransform or custom
 
     private val gated = optional(Requirements.atom and skipChar(':')) and atom map { (one, two) ->
       if (one == null) two else Gated(one, two)
@@ -240,33 +218,30 @@ internal object ElementParsers : PetTokenizer() {
     init { Debug.d("start $this") }
 
     private val cost: Parser<Cost> = parser { wholeCost }
-    private val groupedCost = parens(cost)
-
     private val spend = qe map ::Spend
+
     private val maybeTransform = spend or (transform(cost) map  {
       (node, type) -> Cost.Transform(node, type)
     })
-
     private val perCost = maybeTransform and optional(skipChar('/') and qe) map { (cost, qe) ->
       if (qe == null) cost else Cost.Per(cost, qe)
     }
 
-    private val orCost = separatedTerms(perCost or groupedCost, _or) map {
+    private val orCost = separatedTerms(perCost or group(cost), _or) map {
       val set = it.toSet()
       if (set.size == 1) set.first() else Cost.Or(set)
     }
 
-    val wholeCost = commaSeparated(orCost or groupedCost) map {
+    val wholeCost = commaSeparated(orCost or group(cost)) map {
       if (it.size == 1) it.first() else Cost.Multi(it)
     }
 
-    val whole = parser {
+    val whole =
       optional(wholeCost) and
           skip(arrow) and
           instruction map { (c, i) ->
         Action(c, i)
       }
-    }
     init { Debug.d("end $this") }
   }
   internal val cost = pgb.publish(Actions.wholeCost)
@@ -275,8 +250,8 @@ internal object ElementParsers : PetTokenizer() {
   internal object Effects { // ----------------------------------------------------------
     init { Debug.d ("start $this") }
 
-    private val onGain = parser { Types.genericType } map ::OnGain
-    private val onRemove = skipChar('-') and Types.genericType map ::OnRemove
+    private val onGain = genericType map ::OnGain
+    private val onRemove = skipChar('-') and genericType map ::OnRemove
     private val atom = onGain or onRemove
 
     private val transform = transform(atom) map { (node, type) -> Trigger.Transform(node, type) }
@@ -285,10 +260,7 @@ internal object ElementParsers : PetTokenizer() {
 
     private val colons = doubleColon or char(':') map { it.text == "::" }
 
-    val whole =
-        trigger and
-        colons and
-        maybeGroup(instruction) map {
+    val whole = trigger and colons and maybeGroup(instruction) map {
       (trig, immed, instr) -> Effect(trigger = trig, automatic = immed, instruction = instr)
     }
     init { Debug.d ("end $this") }
@@ -302,7 +274,7 @@ internal object ElementParsers : PetTokenizer() {
         skip(_exec) and
         instruction and
         optional(skip(_by) and
-        Types.genericType) map {
+        genericType) map {
       (instr, by) -> ScriptCommand(instr, by)
     }
 
@@ -311,17 +283,17 @@ internal object ElementParsers : PetTokenizer() {
 
     private val counter: Parser<ScriptCounter> =
         skip(_count) and
-        Types.genericType and
+        typeExpression and
         skip(arrow) and
         lowerCamelRE map {
       (type, key) -> ScriptCounter(key.text, type)
     }
 
     private val player: Parser<ScriptPragmaPlayer> =
-        skip(_become) and Types.genericType map ::ScriptPragmaPlayer
+        skip(_become) and genericType map ::ScriptPragmaPlayer
 
     val line: Parser<ScriptLine> =
-        skip(nls) and (command or req or counter or player)
+        skip(zeroOrMore(char('\n'))) and (command or req or counter or player)
 
     init { Debug.d("end $this") }
   }

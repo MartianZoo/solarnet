@@ -222,7 +222,7 @@ sealed class Instruction : PetNode() {
     ;
 
     companion object {
-      fun intensity(symbol: String?) = symbol?.let { s -> values().first { it.symbol == s } }
+      fun forSymbol(symbol: String) = values().first { it.symbol == symbol }
     }
   }
 }

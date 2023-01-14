@@ -1,6 +1,7 @@
 package dev.martianzoo.util
 
 import com.github.h0tk3y.betterParse.combinators.and
+import com.github.h0tk3y.betterParse.combinators.asJust
 import com.github.h0tk3y.betterParse.combinators.map
 import com.github.h0tk3y.betterParse.combinators.or
 import com.github.h0tk3y.betterParse.combinators.skip
@@ -60,7 +61,7 @@ object PairingChecker {
 
     val quote = literal("\"")
     val backslash = literal("\\")
-    val filler = regex(Regex("""[^()\[\]{}<>"\\]*""")) map { "ok" }
+    val filler = regex(Regex("""[^()\[\]{}<>"\\]*""")) asJust("ok")
 
     val quotable =
         (backslash and quote) or
@@ -68,7 +69,7 @@ object PairingChecker {
         pairChar or
         filler
 
-    val quoted = skip(quote) and zeroOrMore(quotable) and skip(quote) map { "ok" }
+    val quoted = skip(quote) and zeroOrMore(quotable) and skip(quote) asJust("ok")
 
     val whole = zeroOrMore(paired or quoted or filler) map {
       when {

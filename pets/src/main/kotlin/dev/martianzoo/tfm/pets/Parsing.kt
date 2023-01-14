@@ -1,9 +1,12 @@
 package dev.martianzoo.tfm.pets
 
 import com.github.h0tk3y.betterParse.combinators.map
+import com.github.h0tk3y.betterParse.parser.Parser
+import com.github.h0tk3y.betterParse.parser.parseToEnd
 import dev.martianzoo.tfm.data.ClassDeclaration
-import dev.martianzoo.tfm.pets.ClassDeclarationParser.tokenize
-import dev.martianzoo.tfm.pets.ClassDeclarationParser.topLevelDeclsGroup
+import dev.martianzoo.tfm.pets.ClassDeclarationParsers.oneLineDecl
+import dev.martianzoo.tfm.pets.ClassDeclarationParsers.topLevelGroup
+import dev.martianzoo.tfm.pets.ClassDeclarationParsers.tokenize
 import dev.martianzoo.tfm.pets.ast.Action
 import dev.martianzoo.tfm.pets.ast.Effect
 import dev.martianzoo.tfm.pets.ast.Instruction
@@ -42,14 +45,26 @@ object Parsing {
     return Script(scriptLines)
   }
 
+  fun parseOneLineClassDeclaration(declarationSource: String): ClassDeclaration {
+    return parse(oneLineDecl, declarationSource)
+  }
   /**
    * Parses an entire PETS class declarations source file.
    */
   fun parseClassDeclarations(declarationsSource: String): List<ClassDeclaration> {
     val tokens = tokenize(stripLineComments(declarationsSource))
-    return parseRepeated(topLevelDeclsGroup, tokens)
+    return parseRepeated(topLevelGroup, tokens)
   }
 
-  val lineCommentRegex = Regex(""" *(//[^\n]*)*\n""")
+  fun <T> parse(parser: Parser<T>, source: String): T {
+    val tokens = tokenize(source)
+    Debug.d(tokens.filterNot { it.type.ignored }.joinToString(" ") {
+      it.type.name?.replace("\n", "\\n") ?: "NULL"
+    })
+    return parser.parseToEnd(tokens)
+  }
+
+  private val lineCommentRegex = Regex(""" *(//[^\n]*)*\n""")
+
   private fun stripLineComments(text: String) = lineCommentRegex.replace(text, "\n")
 }

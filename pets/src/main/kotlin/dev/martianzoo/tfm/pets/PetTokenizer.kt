@@ -57,10 +57,10 @@ open class PetTokenizer {
 
   internal inline fun <reified P> commaSeparated(p: Parser<P>) = separatedTerms(p, char(','))
 
-  internal inline fun <reified T> parens(contents: Parser<T>) =
+  internal inline fun <reified T> group(contents: Parser<T>) =
       skipChar('(') and contents and skipChar(')')
 
-  internal inline fun <reified T> maybeGroup(contents: Parser<T>) = contents or parens(contents)
+  internal inline fun <reified T> maybeGroup(contents: Parser<T>) = contents or group(contents)
 
   internal fun char(c: Char): Token = characters[c] ?: error("add $c to `characters`")
 

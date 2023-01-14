@@ -71,5 +71,14 @@ data class ClassDeclaration(
       val universalSpecs: List<TypeExpression> = listOf(),
       val gainOnlySpecs: List<TypeExpression> = listOf(),
       val gainIntensity: Intensity? = null,
-  )
+  ) {
+    companion object {
+      fun merge(defs: Collection<DefaultsDeclaration>) =
+          DefaultsDeclaration(
+              universalSpecs = defs.firstNotNullOfOrNull { it.universalSpecs } ?: listOf(),
+              gainOnlySpecs = defs.firstNotNullOfOrNull { it.gainOnlySpecs } ?: listOf(),
+              gainIntensity = defs.firstNotNullOfOrNull { it.gainIntensity },
+          )
+    }
+  }
 }
