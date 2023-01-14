@@ -1,6 +1,11 @@
-package dev.martianzoo.tfm.data
+package dev.martianzoo.tfm.api
 
-import dev.martianzoo.tfm.api.CustomInstruction
+import dev.martianzoo.tfm.data.ActionDefinition
+import dev.martianzoo.tfm.data.CardDefinition
+import dev.martianzoo.tfm.data.ClassDeclaration
+import dev.martianzoo.tfm.data.Definition
+import dev.martianzoo.tfm.data.MapAreaDefinition
+import dev.martianzoo.tfm.data.MilestoneDefinition
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.util.Grid
 import dev.martianzoo.util.associateByStrict
@@ -9,7 +14,7 @@ import dev.martianzoo.util.associateByStrict
  * A source of data about Terraforming Mars components. This project provides
  * one, called `Canon`, containing only officially published materials.
  */
-abstract class Authority { // TODO move to api
+abstract class Authority {
   fun declaration(name: ClassName): ClassDeclaration {
     val decl: ClassDeclaration? = allClassDeclarations[name]
     require(decl != null) { "no class declaration by name $name" }

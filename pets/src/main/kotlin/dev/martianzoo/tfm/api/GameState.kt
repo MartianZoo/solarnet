@@ -1,7 +1,6 @@
 package dev.martianzoo.tfm.api
 
 import com.google.common.collect.Multiset
-import dev.martianzoo.tfm.data.Authority
 import dev.martianzoo.tfm.data.StateChange.Cause
 import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.pets.ast.TypeExpression

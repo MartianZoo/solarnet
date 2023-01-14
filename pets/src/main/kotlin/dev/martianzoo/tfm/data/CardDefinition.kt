@@ -20,7 +20,6 @@ import dev.martianzoo.tfm.pets.ast.Action
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.Effect
 import dev.martianzoo.tfm.pets.ast.Instruction
-import dev.martianzoo.tfm.pets.ast.Instruction.Multi
 import dev.martianzoo.tfm.pets.ast.PetNode
 import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.pets.ast.TypeExpression
@@ -85,13 +84,13 @@ data class CardDefinition(
     /**
      * Immediate effects on the card, if any, each expressed as a PETS `Instruction`.
      */
-    @Json(name = "immediate") val immediateText: Set<String> = setOf(), // TODO there should be only one
+    @Json(name = "immediate") val immediateText: String? = null,
 
     /**
      * Actions on the card, if any, each expressed as a PETS `Action`. `AUTOMATED` and `EVENT`
      * cards may not have these.
      */
-    @Json(name = "actions") val actionsText: Set<String> = setOf(), // TODO change to list
+    @Json(name = "actions") val actionsText: List<String> = listOf(),
 
     /**
      * Effects on the card, if any, each expressed as a PETS `Effect`. `AUTOMATED` and
@@ -166,18 +165,9 @@ data class CardDefinition(
   val resourceType: ClassName? = resourceTypeText?.let(::ClassName)
 
   val immediateRaw: Instruction? by lazy {
-    val set = immediateText.map { parsePets<Instruction>(it) }.toSetStrict()
-    when (set.size) {
-      0 -> null
-      1 -> set.first()
-      else -> {
-        Multi(set.flatMap {
-          if (it is Multi) it.instructions else listOf(it)
-        })
-      }
-    }
+    immediateText?.let { parsePets(it) }
   }
-  val actionsRaw by lazy { actionsText.map { parsePets<Action>(it) }.toSetStrict() }
+  val actionsRaw by lazy { actionsText.map { parsePets<Action>(it) } }
   val effectsRaw by lazy { effectsText.map { parsePets<Effect>(it) }.toSetStrict() }
   val requirementRaw: Requirement? by lazy { requirementText?.let { parsePets(it) } }
 

@@ -1,9 +1,9 @@
 package dev.martianzoo.tfm.types
 
 import com.google.common.truth.Truth.assertThat
+import dev.martianzoo.tfm.api.Authority
 import dev.martianzoo.tfm.api.CustomInstruction
 import dev.martianzoo.tfm.data.ActionDefinition
-import dev.martianzoo.tfm.data.Authority
 import dev.martianzoo.tfm.data.CardDefinition
 import dev.martianzoo.tfm.data.ClassDeclaration
 import dev.martianzoo.tfm.data.MapAreaDefinition

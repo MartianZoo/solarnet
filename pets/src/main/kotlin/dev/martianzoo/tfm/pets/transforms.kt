@@ -19,7 +19,6 @@ import dev.martianzoo.tfm.pets.ast.TypeExpression
 import dev.martianzoo.tfm.pets.ast.TypeExpression.ClassLiteral
 import dev.martianzoo.tfm.pets.ast.TypeExpression.Companion.gte
 import dev.martianzoo.tfm.pets.ast.TypeExpression.GenericTypeExpression
-import dev.martianzoo.util.toSetStrict
 
 internal fun actionToEffect(action: Action, index1Ref: Int): Effect {
   require(index1Ref >= 1) { index1Ref }
@@ -44,10 +43,7 @@ private fun instructionFromAction(lhs: Instruction?, rhs: Instruction): Instruct
   return Then(allInstructions)
 }
 
-internal fun actionsToEffects(actions: Set<Action>): Set<Effect> =
-    actionsToEffects(actions as Collection<Action>).toSetStrict()
-
-internal fun actionsToEffects(actions: Collection<Action>): List<Effect> =
+internal fun actionsToEffects(actions: List<Action>): List<Effect> =
     actions.withIndex().map { (index0Ref, action) ->
       actionToEffect(action, index1Ref = index0Ref + 1)
     }

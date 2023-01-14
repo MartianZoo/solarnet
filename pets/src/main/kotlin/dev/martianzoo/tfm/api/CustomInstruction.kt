@@ -15,13 +15,14 @@ abstract class CustomInstruction(val functionName: String) {
   /** Second choice! */
   /*@ForOverride*/ protected open fun translateToPets(
       game: ReadOnlyGameState,
-      arguments: List<TypeExpression>): String {
+      arguments: List<TypeExpression>
+  ): String {
     throw ExecuteInsteadException()
   }
 
   class ExecuteInsteadException : RuntimeException("foo")
 
   open fun execute(game: GameState, arguments: List<TypeExpression>) {
-    TODO()
+    throw NotImplementedError()
   }
 }

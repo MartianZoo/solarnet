@@ -1,6 +1,6 @@
 package dev.martianzoo.tfm.types
 
-import dev.martianzoo.tfm.data.Authority
+import dev.martianzoo.tfm.api.Authority
 import dev.martianzoo.tfm.data.ClassDeclaration
 import dev.martianzoo.tfm.pets.SpecialClassNames.STANDARD_RESOURCE
 import dev.martianzoo.tfm.pets.SpecialClassNames.THIS

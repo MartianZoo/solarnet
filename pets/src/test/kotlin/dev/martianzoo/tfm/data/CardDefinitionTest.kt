@@ -39,8 +39,8 @@ private class CardDefinitionTest {
       bundle = "B",
       deck = PROJECT,
       tagsText = listOf("AnimalTag"),
-      immediateText = setOf("PROD[-2 Plant<Anyone>]"),
-      actionsText = setOf("-> Animal<This>"),
+      immediateText = "PROD[-2 Plant<Anyone>]",
+      actionsText = listOf("-> Animal<This>"),
       effectsText = setOf("End: VictoryPoint / Animal<This>"),
       resourceTypeText = "Animal",
       requirementText = "13 OxygenStep",
@@ -55,7 +55,7 @@ private class CardDefinitionTest {
     assertThat(birds.bundle).isEqualTo("B")
     assertThat(birds.deck).isEqualTo(PROJECT)
     assertThat(birds.tagsText).containsExactly("AnimalTag")
-    assertThat(birds.immediateText).containsExactly("PROD[-2 Plant<Anyone>]")
+    assertThat(birds.immediateText).isEqualTo("PROD[-2 Plant<Anyone>]")
     assertThat(birds.actionsText).containsExactly("-> Animal<This>")
     assertThat(birds.effectsText).containsExactly("End: VictoryPoint / Animal<This>")
     assertThat(birds.replaces).isNull()
@@ -75,7 +75,7 @@ private class CardDefinitionTest {
             "bundle": "B",
             "deck": "PROJECT",
             "tags": [ "AnimalTag" ],
-            "immediate": [ "PROD[-2 Plant<Anyone>]" ],
+            "immediate": "PROD[-2 Plant<Anyone>]",
             "actions": [ "-> Animal<This>" ],
             "effects": [ "End: VictoryPoint / Animal<This>" ],
             "resourceType": "Animal",
@@ -138,16 +138,16 @@ private class CardDefinitionTest {
       card.copy(projectKind = AUTOMATED, effectsText = setOf("Bar: Qux"))
     }
     assertThrows<RuntimeException> {
-      card.copy(projectKind = EVENT, actionsText = setOf("Foo -> Bar"))
+      card.copy(projectKind = EVENT, actionsText = listOf("Foo -> Bar"))
     }
     assertThrows<RuntimeException> {
-      card.copy(projectKind = AUTOMATED, actionsText = setOf("Bar -> Qux"))
+      card.copy(projectKind = AUTOMATED, actionsText = listOf("Bar -> Qux"))
     }
     assertThrows<RuntimeException> {
       card.copy(projectKind = AUTOMATED, resourceTypeText = "Whatever")
     }
     assertThrows<RuntimeException> {
-      card.copy(projectKind = ACTIVE, immediateText = setOf("Whatever"))
+      card.copy(projectKind = ACTIVE, immediateText = "Whatever")
     }
   }
 
@@ -164,11 +164,7 @@ private class CardDefinitionTest {
       card.resourceType?.let { assertThat("$it").isEqualTo(card.resourceTypeText) }
 
       checkRoundTrip(card.tagsText, card.tags)
-      if (card.immediateText.isNotEmpty()) {
-        checkRoundTrip(listOf(card.immediateText.joinToString()), listOf(card.immediateRaw!!))
-      } else {
-        assertThat(card.immediateRaw).isNull()
-      }
+      checkRoundTrip(listOfNotNull(card.immediateText), listOfNotNull(card.immediateRaw))
       checkRoundTrip(card.actionsText, card.actionsRaw)
       checkRoundTrip(card.effectsText, card.effectsRaw)
     }
