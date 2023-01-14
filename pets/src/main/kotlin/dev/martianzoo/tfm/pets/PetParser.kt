@@ -10,19 +10,33 @@ import com.github.h0tk3y.betterParse.combinators.separatedTerms
 import com.github.h0tk3y.betterParse.combinators.skip
 import com.github.h0tk3y.betterParse.combinators.zeroOrMore
 import com.github.h0tk3y.betterParse.grammar.parser
-import com.github.h0tk3y.betterParse.lexer.DefaultTokenizer
-import com.github.h0tk3y.betterParse.lexer.Token
-import com.github.h0tk3y.betterParse.lexer.literalToken
-import com.github.h0tk3y.betterParse.lexer.regexToken
 import com.github.h0tk3y.betterParse.parser.ParseException
 import com.github.h0tk3y.betterParse.parser.Parser
 import com.github.h0tk3y.betterParse.parser.parseToEnd
-import com.github.h0tk3y.betterParse.utils.Tuple2
 import dev.martianzoo.tfm.pets.ClassDeclarationParser.stripLineComments
-import dev.martianzoo.tfm.pets.PetParser.Instructions.instruction
-import dev.martianzoo.tfm.pets.PetParser.QEs.qe
-import dev.martianzoo.tfm.pets.PetParser.Requirements.requirement
-import dev.martianzoo.tfm.pets.PetParser.Types.typeExpression
+import dev.martianzoo.tfm.pets.PetTokenizer._become
+import dev.martianzoo.tfm.pets.PetTokenizer._by
+import dev.martianzoo.tfm.pets.PetTokenizer._class
+import dev.martianzoo.tfm.pets.PetTokenizer._count
+import dev.martianzoo.tfm.pets.PetTokenizer._exec
+import dev.martianzoo.tfm.pets.PetTokenizer._from
+import dev.martianzoo.tfm.pets.PetTokenizer._has
+import dev.martianzoo.tfm.pets.PetTokenizer._max
+import dev.martianzoo.tfm.pets.PetTokenizer._or
+import dev.martianzoo.tfm.pets.PetTokenizer._require
+import dev.martianzoo.tfm.pets.PetTokenizer._then
+import dev.martianzoo.tfm.pets.PetTokenizer.arrow
+import dev.martianzoo.tfm.pets.PetTokenizer.char
+import dev.martianzoo.tfm.pets.PetTokenizer.commaSeparated
+import dev.martianzoo.tfm.pets.PetTokenizer.doubleColon
+import dev.martianzoo.tfm.pets.PetTokenizer.lowerCamelRE
+import dev.martianzoo.tfm.pets.PetTokenizer.maybeGroup
+import dev.martianzoo.tfm.pets.PetTokenizer.optionalList
+import dev.martianzoo.tfm.pets.PetTokenizer.parens
+import dev.martianzoo.tfm.pets.PetTokenizer.scalarRE
+import dev.martianzoo.tfm.pets.PetTokenizer.skipChar
+import dev.martianzoo.tfm.pets.PetTokenizer.transform
+import dev.martianzoo.tfm.pets.PetTokenizer.upperCamelRE
 import dev.martianzoo.tfm.pets.ast.Action
 import dev.martianzoo.tfm.pets.ast.Action.Cost
 import dev.martianzoo.tfm.pets.ast.Action.Cost.Spend
@@ -36,7 +50,6 @@ import dev.martianzoo.tfm.pets.ast.FromExpression.ComplexFrom
 import dev.martianzoo.tfm.pets.ast.FromExpression.SimpleFrom
 import dev.martianzoo.tfm.pets.ast.FromExpression.TypeInFrom
 import dev.martianzoo.tfm.pets.ast.Instruction
-import dev.martianzoo.tfm.pets.ast.Instruction.Custom
 import dev.martianzoo.tfm.pets.ast.Instruction.Gain
 import dev.martianzoo.tfm.pets.ast.Instruction.Gated
 import dev.martianzoo.tfm.pets.ast.Instruction.Intensity
@@ -58,11 +71,15 @@ import dev.martianzoo.tfm.pets.ast.TypeExpression
 import dev.martianzoo.tfm.pets.ast.TypeExpression.ClassLiteral
 import dev.martianzoo.tfm.pets.ast.TypeExpression.GenericTypeExpression
 import dev.martianzoo.util.Debug
+import dev.martianzoo.util.ParserGroup
 import kotlin.reflect.KClass
 import kotlin.reflect.cast
 
 /** Parses the Petaform language. */
 object PetParser {
+  private val toke = PetTokenizer.toke
+  private val pgb = ParserGroup.Builder<PetNode>()
+
   init { Debug.d ("start $this") }
 
   /**
@@ -77,7 +94,7 @@ object PetParser {
    * instance from the properties of this object; intended for testing.
    */
   fun <T> parse(parser: Parser<T>, source: String): T {
-    val tokens = tokenizer.tokenize(source)
+    val tokens = toke.tokenize(source)
     Debug.d(tokens.filterNot { it.type.ignored }.joinToString(" ") {
       it.type.name?.replace("\n", "\\n") ?: "NULL"
     })
@@ -86,7 +103,7 @@ object PetParser {
 
   fun parseScript(scriptText: String): Script {
     val scriptLines = try {
-      val tokens = tokenizer.tokenize(stripLineComments(scriptText))
+      val tokens = toke.tokenize(stripLineComments(scriptText))
       parseRepeated(scriptLine map { listOf(it) }, tokens)
     } catch (e: Exception) {
       Debug.d("Script was:\n$scriptText")
@@ -98,79 +115,47 @@ object PetParser {
   private val primaryParsers = // internal bookkeeping
       mutableMapOf<KClass<out PetNode>, Parser<PetNode>>()
 
-  private val tokenList = mutableListOf<Token>(
-      regexToken("backslash-newline", "\\\\\n", true), // ignore these
-      regexToken("spaces", " +", true)
-  )
-
-  internal val arrow = literal("->", "arrow")
-  internal val doubleColon = literal("::", "doublecolon")
-
-  // I simply don't want to name all of these and would rather look them up by the char itself
-  private val characters = "!$+,-./:;=?()[]{}<>\n".map { it to literal("$it") }.toMap()
-
-  internal val _by = literal("BY")
-  internal val _from = literal("FROM")
-  internal val _has = literal("HAS")
-  internal val _max = literal("MAX")
-  internal val _or = literal("OR")
-  internal val _then = literal("THEN")
-
-  // class declarations
-  internal val _abstract = literal("ABSTRACT")
-  internal val _class = literal("CLASS")
-  internal val _default = literal("DEFAULT")
-
-  // scripts
-  internal val _become = literal("BECOME")
-  internal val _count = literal("COUNT")
-  internal val _exec = literal("EXEC")
-  internal val _require = literal("REQUIRE")
-
-  // regexes - could leave the `Regex()` out, but it loses IDEA syntax highlighting!
-  internal val upperCamelRE = regex(Regex("""\b[A-Z][a-z][A-Za-z0-9_]*\b"""), "UpperCamel")
-  internal val scalarRE = regex(Regex("""\b(0|[1-9][0-9]*)\b"""), "scalar")
-  internal val lowerCamelRE = regex(Regex("""\b[a-z][a-zA-Z0-9]*\b"""), "lowerCamel")
-  internal val allCapsWordRE = regex(Regex("""\b[A-Z]+\b"""), "ALLCAPS")
-
-  internal val tokenizer = DefaultTokenizer(tokenList)
-
   internal val nls = zeroOrMore(char('\n'))
 
-  object Types { // ------------------------------------------------------------
+  internal object Types { // ------------------------------------------------------------
     init { Debug.d("start $this") }
 
-    internal val typeExpression: Parser<TypeExpression> = parser { whole }
+    private val typeExpression: Parser<TypeExpression> = parser { whole }
 
-    internal val classShortName = allCapsWordRE map { ClassName(it.text) }
-    internal val classFullName = upperCamelRE map { ClassName(it.text) }
-    internal val className = classFullName // or classShortName -- why does that break everything?
+    // internal val classShortName = allCapsWordRE map { ClassName(it.text) }
+    val classFullName = upperCamelRE map { ClassName(it.text) }
+    val className = classFullName // or classShortName -- why does that break everything?
 
     private val classType = className and skipChar('.') and skip(_class) map ::ClassLiteral
 
     private val specializations =
         optionalList(skipChar('<') and commaSeparated(typeExpression) and skipChar('>'))
-    internal val optlRefinement = parser { optional(parens(skip(_has) and parser { requirement })) }
 
-    internal val genericType: Parser<GenericTypeExpression> =
+    val optlRefinement = optional(parens(
+        skip(_has) and parser { requirement }
+    ))
+
+    val genericType: Parser<GenericTypeExpression> =
         parser { className and specializations and optlRefinement map { (type, specs, ref) ->
           GenericTypeExpression(type, specs, ref)
         } }
 
-    private val whole = publish(classType or genericType)
+    internal val whole = classType or genericType
 
     init { Debug.d("end $this") }
   }
+  val typeExpression = pgb.publish(Types.whole)
+  val genericType = pgb.publish(Types.genericType)
 
-  object QEs { // --------------------------------------------------------------
+  internal object QEs { // --------------------------------------------------------------
     init { Debug.d("start $this") }
 
-    internal val qe = parser { whole }
+    private val qe = parser { whole }
 
     internal val scalar: Parser<Int> = scalarRE map { it.text.toInt() }
 
     private val implicitScalar: Parser<Int?> = optional(scalar)
-    private val implicitType: Parser<GenericTypeExpression?> = optional(Types.genericType)
+    private val implicitType: Parser<GenericTypeExpression?> = optional(parser { Types.genericType })
 
     private val qeWithScalar = scalar and implicitType map { (scalar, expr: TypeExpression?) ->
       if (expr == null) {
@@ -186,15 +171,16 @@ object PetParser {
         QuantifiedExpression(expr, scalar)
       }
     }
-    private val whole = publish(qeWithScalar or qeWithType)
+    internal val whole = qeWithScalar or qeWithType
 
     init { Debug.d("end $this") }
   }
+  val qe = pgb.publish(QEs.whole)
 
-  object Requirements { // -----------------------------------------------------
+  internal object Requirements { // -----------------------------------------------------
     init { Debug.d("start $this") }
 
-    internal val requirement: Parser<Requirement> = parser { whole }
+    private val requirement: Parser<Requirement> = parser { whole }
 
     private val min = qe map ::Min
     private val max = skip(_max) and qe map ::Max
@@ -210,35 +196,35 @@ object PetParser {
       val set = it.toSet()
       if (set.size == 1) set.first() else Requirement.Or(set)
     }
-    private val whole = publish(commaSeparated(orReq) map {
+    internal val whole = commaSeparated(orReq) map {
       if (it.size == 1) it.first() else Requirement.And(it)
-    })
+    }
 
     init { Debug.d("end $this") }
   }
+  val requirement = pgb.publish(Requirements.whole)
 
-  object Instructions { // -----------------------------------------------------
+  internal object Instructions { // -----------------------------------------------------
     init { Debug.d ("start $this") }
-    internal val instruction: Parser<Instruction> = parser { whole }
-    private val anyGroup = parens(instruction)
 
-    internal val intensity = optional(
+    private val instruction: Parser<Instruction> = parser { whole }
+
+    internal val intensity = optional( // TODO
         (char('!') map { Intensity.MANDATORY }) or
         (char('.') map { Intensity.AMAP }) or
         (char('?') map { Intensity.OPTIONAL })
     )
 
-    private val gain = qe and intensity map { (qe, intens) ->
-      Gain(qe, intens)
+    private val gain = qe and intensity map {
+      (qe, intens) -> Gain(qe, intens)
     }
-    private val remove = skipChar('-') and qe and intensity map { (qe, intens) ->
-      Remove(qe, intens)
+    private val remove = skipChar('-') and qe and intensity map {
+      (qe, intens) -> Remove(qe, intens)
     }
 
-    private val simpleFrom =
-        Types.genericType and skip(_from) and Types.genericType map { (to, from) ->
-          SimpleFrom(to, from)
-        }
+    private val simpleFrom = Types.genericType and skip(_from) and Types.genericType map {
+      (to, from) -> SimpleFrom(to, from)
+    }
 
     private val complexFrom =
         Types.className and
@@ -249,7 +235,7 @@ object PetParser {
       (name, specs, refins) -> ComplexFrom(name, specs, refins)
     }
     private val from = simpleFrom or complexFrom
-    private val typeInFrom = Types.genericType map { TypeInFrom(it) }
+    private val typeInFrom = parser { Types.genericType } map { TypeInFrom(it) }
 
     private val fromElements: Parser<List<FromExpression>> =
         zeroOrMore(typeInFrom and skipChar(',')) and
@@ -277,9 +263,9 @@ object PetParser {
 
     private val arguments = separatedTerms(typeExpression, char(','), true)
     private val custom = skipChar('$') and lowerCamelRE and parens(arguments) map {
-      (name, args) -> Custom(name.text, args)
+      (name, args) -> Instruction.Custom(name.text, args)
     }
-    private val atom = anyGroup or maybeTransform or custom
+    private val atom = parens(instruction) or maybeTransform or custom
 
     private val gated = optional(Requirements.atom and skipChar(':')) and atom map { (one, two) ->
       if (one == null) two else Gated(one, two)
@@ -292,16 +278,16 @@ object PetParser {
       if (it.size == 1) it.first() else Instruction.Then(it)
     }
 
-    private val whole = publish(commaSeparated(then) map {
+    internal val whole = commaSeparated(then) map {
       if (it.size == 1) it.first() else Instruction.Multi(it)
-    })
+    }
     init { Debug.d ("end $this") }
   }
+  internal val instruction = pgb.publish(Instructions.whole)
 
-  object Actions { // ----------------------------------------------------------
+  internal object Actions { // ----------------------------------------------------------
     init { Debug.d("start $this") }
 
-    internal val action = parser { whole }
     private val cost: Parser<Cost> = parser { wholeCost }
     private val groupedCost = parens(cost)
 
@@ -319,44 +305,48 @@ object PetParser {
       if (set.size == 1) set.first() else Cost.Or(set)
     }
 
-    internal val wholeCost = publish(commaSeparated(orCost or groupedCost) map {
+    val wholeCost = commaSeparated(orCost or groupedCost) map {
       if (it.size == 1) it.first() else Cost.Multi(it)
-    })
+    }
 
-    private val whole = publish(parser {
+    val whole = parser {
       optional(wholeCost) and
           skip(arrow) and
           instruction map { (c, i) ->
         Action(c, i)
       }
-    })
+    }
     init { Debug.d("end $this") }
   }
-  val xa = Actions
+  internal val cost = pgb.publish(Actions.wholeCost)
+  internal val action = pgb.publish(Actions.whole)
 
-  object Effects { // ----------------------------------------------------------
+  internal object Effects { // ----------------------------------------------------------
     init { Debug.d ("start $this") }
-    internal val effect = parser { whole }
+
+    private val effect = parser { whole }
     private val onGain = parser { Types.genericType } map ::OnGain
     private val onRemove = skipChar('-') and Types.genericType map ::OnRemove
     private val atom = onGain or onRemove
 
     private val transform = transform(atom) map { (node, type) -> Trigger.Transform(node, type) }
-    internal val wholeTrigger = publish(transform or atom)
+
+    val trigger = transform or atom
 
     private val colons = doubleColon or char(':') map { it.text == "::" }
 
-    internal val whole = publish(
-        wholeTrigger and
+    val whole =
+        trigger and
         colons and
         maybeGroup(instruction) map {
       (trig, immed, instr) -> Effect(trigger = trig, automatic = immed, instruction = instr)
-    })
+    }
     init { Debug.d ("end $this") }
   }
-  val xe = Effects
+  internal val trigger = pgb.publish(Effects.trigger)
+  internal val effect = pgb.publish(Effects.whole)
 
-  object Scripts { // ----------------------------------------------------------
+  internal object Scripts { // ----------------------------------------------------------
     init { Debug.d ("start $this") }
     private val command: Parser<ScriptCommand> =
         skip(_exec) and
@@ -380,57 +370,18 @@ object PetParser {
     private val player: Parser<ScriptPragmaPlayer> =
         skip(_become) and Types.genericType map ::ScriptPragmaPlayer
 
-    internal val line: Parser<ScriptLine> =
+    val line: Parser<ScriptLine> =
         skip(nls) and (command or req or counter or player)
 
     init { Debug.d("end $this") }
   }
 
-  val scriptLine = Scripts.line
-
-  // PRIVATE HELPERS -----------------------------------------------------------
-
-  private fun remember(t: Token): Token {
-    require(t.name != null)
-    tokenList += t
-    return t
-  }
-
-  internal fun char(c: Char): Token = characters[c] ?: error("add $c to `characters`")
-
-  internal fun skipChar(c: Char) = skip(char(c))
-
-  internal fun literal(text: String, name: String = text) = remember(literalToken(name, text))
-
-  internal fun regex(regex: Regex, name: String = regex.toString()) =
-      remember(regexToken(name, regex))
-
-  internal inline fun <reified T> optionalList(parser: Parser<List<T>>) =
-      optional(parser) map { it ?: listOf() }
-
-  internal inline fun <reified T> transform(interior: Parser<T>) =
-      allCapsWordRE and skipChar('[') and interior and skipChar(']') map {
-        (trans, inter) -> Tuple2(inter, trans.text.removeSuffix("["))
-      }
-
-  internal inline fun <reified P> commaSeparated(p: Parser<P>) = separatedTerms(p, char(','))
-
-  internal inline fun <reified T> parens(contents: Parser<T>) =
-      skipChar('(') and contents and skipChar(')')
-
-  internal inline fun <reified T> maybeGroup(contents: Parser<T>) = contents or parens(contents)
-
-  private inline fun <reified P : PetNode> publish(parser: Parser<P>) = publish(P::class, parser)
-
-  private fun <P : PetNode> publish(type: KClass<P>, parser: Parser<P>) =
-      parser.also { primaryParsers[type] = it }
+  val scriptLine = pgb.publish(Scripts.line)
 
   /** Non-reified version of `parse(source)`. */
   fun <P : PetNode> parsePets(expectedType: KClass<P>, source: String): P {
-    require(expectedType in primaryParsers) { expectedType }
-    val parser: Parser<PetNode> = primaryParsers[expectedType]!!
     val pet = try {
-      parse(parser, source)
+      pgb.parse(expectedType, toke.tokenize(source))
     } catch (e: ParseException) {
       throw IllegalArgumentException("""
           Expecting ${expectedType.simpleName} ...
@@ -444,4 +395,5 @@ object PetParser {
   // For java
   fun <P : PetNode> parsePets(expectedType: Class<P>, source: String) =
       parsePets(expectedType.kotlin, source)
+
 }

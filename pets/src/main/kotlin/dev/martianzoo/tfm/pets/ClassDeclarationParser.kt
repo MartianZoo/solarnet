@@ -15,22 +15,22 @@ import dev.martianzoo.tfm.data.ClassDeclaration.DefaultsDeclaration
 import dev.martianzoo.tfm.data.ClassDeclaration.DependencyDeclaration
 import dev.martianzoo.tfm.pets.ClassDeclarationParser.Sigs.Signature
 import dev.martianzoo.tfm.pets.ClassDeclarationParser.Sigs.moreSignatures
-import dev.martianzoo.tfm.pets.PetParser.Actions.action
-import dev.martianzoo.tfm.pets.PetParser.Effects.effect
-import dev.martianzoo.tfm.pets.PetParser.Instructions
-import dev.martianzoo.tfm.pets.PetParser.Requirements.requirement
+import dev.martianzoo.tfm.pets.PetParser.Instructions.intensity
 import dev.martianzoo.tfm.pets.PetParser.Types
-import dev.martianzoo.tfm.pets.PetParser.Types.typeExpression
-import dev.martianzoo.tfm.pets.PetParser._abstract
-import dev.martianzoo.tfm.pets.PetParser._class
-import dev.martianzoo.tfm.pets.PetParser._default
-import dev.martianzoo.tfm.pets.PetParser._has
-import dev.martianzoo.tfm.pets.PetParser.char
-import dev.martianzoo.tfm.pets.PetParser.commaSeparated
+import dev.martianzoo.tfm.pets.PetParser.action
+import dev.martianzoo.tfm.pets.PetParser.effect
+import dev.martianzoo.tfm.pets.PetParser.genericType
 import dev.martianzoo.tfm.pets.PetParser.nls
-import dev.martianzoo.tfm.pets.PetParser.optionalList
-import dev.martianzoo.tfm.pets.PetParser.skipChar
-import dev.martianzoo.tfm.pets.PetParser.tokenizer
+import dev.martianzoo.tfm.pets.PetParser.requirement
+import dev.martianzoo.tfm.pets.PetParser.typeExpression
+import dev.martianzoo.tfm.pets.PetTokenizer._abstract
+import dev.martianzoo.tfm.pets.PetTokenizer._class
+import dev.martianzoo.tfm.pets.PetTokenizer._default
+import dev.martianzoo.tfm.pets.PetTokenizer._has
+import dev.martianzoo.tfm.pets.PetTokenizer.char
+import dev.martianzoo.tfm.pets.PetTokenizer.commaSeparated
+import dev.martianzoo.tfm.pets.PetTokenizer.optionalList
+import dev.martianzoo.tfm.pets.PetTokenizer.skipChar
 import dev.martianzoo.tfm.pets.SpecialClassNames.COMPONENT
 import dev.martianzoo.tfm.pets.SpecialClassNames.THIS
 import dev.martianzoo.tfm.pets.ast.Action
@@ -46,12 +46,12 @@ import kotlin.reflect.KClass
 
 /** Parses the Petaform language. */
 object ClassDeclarationParser {
-
+  private val toke = PetTokenizer.toke
   /**
    * Parses an entire PETS class declarations source file.
    */
   fun parseClassDeclarations(text: String): List<ClassDeclaration> {
-    val tokens = tokenizer.tokenize(stripLineComments(text))
+    val tokens = toke.tokenize(stripLineComments(text))
     return parseRepeated(topLevelDeclsGroup, tokens)
   }
 
@@ -65,7 +65,7 @@ object ClassDeclarationParser {
         optionalList(skipChar('<') and commaSeparated(dependency) and skipChar('>'))
 
     private val supertypes: Parser<List<GenericTypeExpression>> =
-        optionalList(skipChar(':') and commaSeparated(parser { Types.genericType }))
+        optionalList(skipChar(':') and commaSeparated(parser { genericType }))
 
     data class Signature(val asClassDecl: ClassDeclaration) {
       constructor(
@@ -85,14 +85,14 @@ object ClassDeclarationParser {
 
     val signature: Parser<Signature> =
         parser { Types.classFullName } and
-            dependencies and
-            parser { Types.optlRefinement } and
-            // optional(skipChar('[') and parser {Types.classShortName} and skipChar(']')) and
-            supertypes map { (name, deps, refin, supes) ->
+        dependencies and
+        parser { Types.optlRefinement } and
+        // optional(skipChar('[') and parser {Types.classShortName} and skipChar(']')) and
+        supertypes map { (name, deps, refin, supes) ->
           Signature(name, deps, refin, supes)
         }
 
-    val moreSignatures: Parser<MoreSignatures> = zeroOrMore(skipChar(',') and Sigs.signature) map ::MoreSignatures
+    val moreSignatures: Parser<MoreSignatures> = zeroOrMore(skipChar(',') and signature) map ::MoreSignatures
   }
 
   private val isAbstract: Parser<Boolean> = optional(_abstract) and skip(_class) map { it != null }
@@ -162,13 +162,13 @@ object ClassDeclarationParser {
 
   object Bodies {
     private val gainOnlyDefaults: Parser<DefaultsDeclaration> =
-        skipChar('+') and Types.genericType and Instructions.intensity map { (type, int) ->
+        skipChar('+') and genericType and intensity map { (type, int) ->
           require(type.className == THIS)
           require(type.refinement == null)
           DefaultsDeclaration(gainOnlySpecs = type.specs, gainIntensity = int)
         }
 
-    private val allCasesDefault: Parser<DefaultsDeclaration> = Types.genericType map {
+    private val allCasesDefault: Parser<DefaultsDeclaration> = parser { Types.genericType } map {
       require(it.className == THIS)
       require(it.refinement == null)
       DefaultsDeclaration(universalSpecs = it.specs)

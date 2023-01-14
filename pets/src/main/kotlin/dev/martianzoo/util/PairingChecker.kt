@@ -5,13 +5,19 @@ import com.github.h0tk3y.betterParse.combinators.map
 import com.github.h0tk3y.betterParse.combinators.or
 import com.github.h0tk3y.betterParse.combinators.skip
 import com.github.h0tk3y.betterParse.combinators.zeroOrMore
+import com.github.h0tk3y.betterParse.lexer.DefaultTokenizer
+import com.github.h0tk3y.betterParse.lexer.Token
+import com.github.h0tk3y.betterParse.lexer.literalToken
+import com.github.h0tk3y.betterParse.lexer.regexToken
+import dev.martianzoo.util.Tokenizer.literal
+import dev.martianzoo.util.Tokenizer.regex
 
 const val allowEmpty = false
 const val allowRedundant = false
 
 object PairingChecker {
   fun check(s: String) {
-    require(parsers.parse<String>(s) != "ERR")
+    require(parsers.parse<String>(Tokenizer.tokenize(s)) != "ERR")
   }
 
   fun isValid(s: String) = try {
@@ -22,12 +28,12 @@ object PairingChecker {
   }
 
   private val parsers: ParserGroup<String> by lazy {
-    val p = ParserGroupBuilder<String>()
+    val p = ParserGroup.Builder<String>()
 
-    val parenL = p.literal("("); val parenR = p.literal(")")
-    val brackL = p.literal("["); val brackR = p.literal("]")
-    val braceL = p.literal("{"); val braceR = p.literal("}")
-    val angleL = p.literal("<"); val angleR = p.literal(">")
+    val parenL = literal("("); val parenR = literal(")")
+    val brackL = literal("["); val brackR = literal("]")
+    val braceL = literal("{"); val braceR = literal("}")
+    val angleL = literal("<"); val angleR = literal(">")
 
     val pairChar =
         parenL or parenR or
@@ -52,9 +58,9 @@ object PairingChecker {
         }
     }
 
-    val quote = p.literal("\"")
-    val backslash = p.literal("\\")
-    val filler = p.regex("""[^()\[\]{}<>"\\]*""") map { "ok" }
+    val quote = literal("\"")
+    val backslash = literal("\\")
+    val filler = regex(Regex("""[^()\[\]{}<>"\\]*""")) map { "ok" }
 
     val quotable =
         (backslash and quote) or
@@ -73,6 +79,26 @@ object PairingChecker {
       }
     }
     p.publish(whole)
-    p.freeze()
+    p.finish()
+  }
+}
+
+internal object Tokenizer {
+  val tokenList = mutableListOf<Token>()
+
+  val toke by lazy {
+    DefaultTokenizer(tokenList)
+  }
+  fun tokenize(input: String) = toke.tokenize(input)
+
+  fun literal(text: String, name: String = text) = remember(literalToken(name, text))
+
+  fun regex(regex: Regex, name: String = regex.toString()) =
+      remember(regexToken(name, regex))
+
+  private fun remember(t: Token): Token {
+    require(t.name != null)
+    tokenList += t
+    return t
   }
 }

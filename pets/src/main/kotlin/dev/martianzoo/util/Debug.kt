@@ -16,4 +16,4 @@ object Debug {
   }
 }
 
-const val DEBUG = false
+const val DEBUG = true
