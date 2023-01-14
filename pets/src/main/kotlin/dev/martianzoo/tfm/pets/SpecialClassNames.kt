@@ -7,6 +7,7 @@ object SpecialClassNames {
   val DEFAULT = ClassName("Default")
   val DIE = ClassName("Die")
   val END = ClassName("End")
+  val MEGACREDIT = ClassName("Megacredit")
   val OK = ClassName("Ok")
   val PLAYER = ClassName("Player")
   val PRODUCTION = ClassName("Production")
