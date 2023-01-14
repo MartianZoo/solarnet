@@ -4,15 +4,12 @@ import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.tfm.api.lookUpProductionLevels
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.data.StateChange
-import dev.martianzoo.tfm.engine.ComponentGraph.Component
-import dev.martianzoo.tfm.pets.PetParser.parsePets
-import dev.martianzoo.tfm.pets.PetParser.parseScript
+import dev.martianzoo.tfm.pets.Parsing.parsePets
+import dev.martianzoo.tfm.pets.Parsing.parseScript
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.TypeExpression
 import dev.martianzoo.tfm.pets.ast.TypeExpression.Companion.gte
 import dev.martianzoo.tfm.pets.ast.TypeExpression.GenericTypeExpression
-import dev.martianzoo.tfm.types.PetClassTable
-import dev.martianzoo.tfm.types.PetType.PetGenericType
 import org.junit.jupiter.api.Test
 
 private class GameStateTest {
@@ -126,7 +123,7 @@ private class GameStateTest {
     )
 
     game.applyChange(2, gaining =
-        parsePets<TypeExpression>("Production<Player1, Plant.CLASS>") as GenericTypeExpression)
+    parsePets<TypeExpression>("Production<Player1, Plant.CLASS>") as GenericTypeExpression)
     val prods2: Map<ClassName, Int> = lookUpProductionLevels(game, gte("Player1"))
     assertThat(prods2).containsExactly(
         ClassName("Megacredit"), -5,
@@ -137,7 +134,4 @@ private class GameStateTest {
         ClassName("Heat"), 0,
     )
   }
-
-  private fun PetClassTable.cpt(expression: String) =
-      Component(resolve(expression) as PetGenericType)
 }

@@ -2,7 +2,7 @@ package dev.martianzoo.tfm.data
 
 import dev.martianzoo.tfm.data.SpecialClassNames.STANDARD_ACTION
 import dev.martianzoo.tfm.data.SpecialClassNames.STANDARD_PROJECT
-import dev.martianzoo.tfm.pets.PetParser.parsePets
+import dev.martianzoo.tfm.pets.Parsing.parsePets
 import dev.martianzoo.tfm.pets.SpecialClassNames.THIS
 import dev.martianzoo.tfm.pets.actionToEffect
 import dev.martianzoo.tfm.pets.ast.Action

@@ -2,14 +2,13 @@ package dev.martianzoo.tfm.engine
 
 import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.tfm.canon.Canon
-import dev.martianzoo.tfm.canon.CopyProductionBox
 import dev.martianzoo.tfm.data.ActionDefinition
 import dev.martianzoo.tfm.data.Authority
 import dev.martianzoo.tfm.data.CardDefinition
 import dev.martianzoo.tfm.data.ClassDeclaration
 import dev.martianzoo.tfm.data.MapAreaDefinition
 import dev.martianzoo.tfm.data.MilestoneDefinition
-import dev.martianzoo.tfm.pets.PetParser.parseScript
+import dev.martianzoo.tfm.pets.Parsing.parseScript
 import dev.martianzoo.util.Grid
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows

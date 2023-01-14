@@ -13,7 +13,6 @@ import com.github.h0tk3y.betterParse.grammar.parser
 import com.github.h0tk3y.betterParse.parser.ParseException
 import com.github.h0tk3y.betterParse.parser.Parser
 import com.github.h0tk3y.betterParse.parser.parseToEnd
-import dev.martianzoo.tfm.pets.ClassDeclarationParser.stripLineComments
 import dev.martianzoo.tfm.pets.ast.Action
 import dev.martianzoo.tfm.pets.ast.Action.Cost
 import dev.martianzoo.tfm.pets.ast.Action.Cost.Spend
@@ -38,7 +37,6 @@ import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.pets.ast.Requirement.Exact
 import dev.martianzoo.tfm.pets.ast.Requirement.Max
 import dev.martianzoo.tfm.pets.ast.Requirement.Min
-import dev.martianzoo.tfm.pets.ast.Script
 import dev.martianzoo.tfm.pets.ast.Script.ScriptCommand
 import dev.martianzoo.tfm.pets.ast.Script.ScriptCounter
 import dev.martianzoo.tfm.pets.ast.Script.ScriptLine
@@ -53,43 +51,22 @@ import kotlin.reflect.KClass
 import kotlin.reflect.cast
 
 /** Parses the Petaform language. */
-object PetParser : PetTokenizer() {
+internal object ElementParsers : PetTokenizer() {
   private val pgb = ParserGroup.Builder<PetNode>()
 
   init { Debug.d ("start $this") }
 
   /**
-   * Parses the PETS expression in `source`, expecting a construct of type
-   * `P`, and returning the parsed `P`. `P` can only be one of the major
-   * elemental types like `Action`, not `ClassDeclaration`, or something smaller.
-   */
-  inline fun <reified P : PetNode> parsePets(source: String): P = parsePets(P::class, source)
-
-  /**
    * Parses the PETS source code in `source` using any accessible parser
    * instance from the properties of this object; intended for testing.
    */
-  fun <T> parse(parser: Parser<T>, source: String): T {
+  internal fun <T> parse(parser: Parser<T>, source: String): T {
     val tokens = tokenize(source)
     Debug.d(tokens.filterNot { it.type.ignored }.joinToString(" ") {
       it.type.name?.replace("\n", "\\n") ?: "NULL"
     })
     return parser.parseToEnd(tokens)
   }
-
-  fun parseScript(scriptText: String): Script {
-    val scriptLines = try {
-      val tokens = tokenize(stripLineComments(scriptText))
-      parseRepeated(scriptLine map { listOf(it) }, tokens)
-    } catch (e: Exception) {
-      Debug.d("Script was:\n$scriptText")
-      throw e
-    }
-    return Script(scriptLines)
-  }
-
-  private val primaryParsers = // internal bookkeeping
-      mutableMapOf<KClass<out PetNode>, Parser<PetNode>>()
 
   internal val nls = zeroOrMore(char('\n'))
 
@@ -125,8 +102,6 @@ object PetParser : PetTokenizer() {
 
   internal object QEs { // --------------------------------------------------------------
     init { Debug.d("start $this") }
-
-    private val qe = parser { whole }
 
     internal val scalar: Parser<Int> = scalarRE map { it.text.toInt() }
 
@@ -300,7 +275,6 @@ object PetParser : PetTokenizer() {
   internal object Effects { // ----------------------------------------------------------
     init { Debug.d ("start $this") }
 
-    private val effect = parser { whole }
     private val onGain = parser { Types.genericType } map ::OnGain
     private val onRemove = skipChar('-') and Types.genericType map ::OnRemove
     private val atom = onGain or onRemove
@@ -367,9 +341,4 @@ object PetParser : PetTokenizer() {
     }
     return expectedType.cast(pet)
   }
-
-  // For java
-  fun <P : PetNode> parsePets(expectedType: Class<P>, source: String) =
-      parsePets(expectedType.kotlin, source)
-
 }

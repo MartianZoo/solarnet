@@ -1,7 +1,7 @@
 package dev.martianzoo.tfm.pets
 
 import com.google.common.truth.Truth.assertThat
-import dev.martianzoo.tfm.pets.PetParser.parsePets
+import dev.martianzoo.tfm.pets.Parsing.parsePets
 import dev.martianzoo.tfm.pets.ast.Action
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.Effect
@@ -34,12 +34,13 @@ private class TransformsTest {
   }
 
   private fun checkActionToEffect(action: String, index: Int, effect: String) {
-    assertThat(actionToEffect(parsePets(action), index)).isEqualTo(parsePets<Effect>(effect))
+    assertThat(actionToEffect(parsePets(action), index)).isEqualTo(parsePets<Effect>(
+        effect))
   }
 
   @Test
   fun testActionsToEffects() {
-    val actions: List<Action> = listOf("-> Foo", "Foo -> 5 Bar").map(::parsePets)
+    val actions: List<Action> = listOf("-> Foo", "Foo -> 5 Bar").map { parsePets(it) }
     assertThat(actionsToEffects(actions)).containsExactly(
         parsePets<Effect>("UseAction1<This>: Foo"),
         parsePets<Effect>("UseAction2<This>: -Foo! THEN 5 Bar"),
@@ -130,7 +131,8 @@ private class TransformsTest {
   @Test
   fun testDeprodify_lessSimple() {
     // TODO adds unnecessary grouping, do we care?
-    val prodden: Effect = parsePets("PROD[Plant]: PROD[Ooh?, Steel. / Ahh, Foo<Xyz FROM " +
+    val prodden: Effect = parsePets(
+        "PROD[Plant]: PROD[Ooh?, Steel. / Ahh, Foo<Xyz FROM " +
         "Heat>, -Qux!, 5 Ahh<Qux> FROM StandardResource], Heat")
     val expected: Effect = parsePets(
         "Production<Plant.CLASS>: (Ooh?, Production<Steel.CLASS>. / Ahh, Foo<Xyz FROM " +

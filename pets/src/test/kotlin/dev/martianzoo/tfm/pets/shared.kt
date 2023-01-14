@@ -1,7 +1,7 @@
 package dev.martianzoo.tfm.pets
 
 import com.google.common.truth.Truth
-import dev.martianzoo.tfm.pets.PetParser.parsePets
+import dev.martianzoo.tfm.pets.ElementParsers.parsePets
 import dev.martianzoo.tfm.pets.ast.PetNode
 import kotlin.reflect.KClass
 

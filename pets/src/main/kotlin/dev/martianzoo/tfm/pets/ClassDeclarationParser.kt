@@ -15,14 +15,14 @@ import dev.martianzoo.tfm.data.ClassDeclaration.DefaultsDeclaration
 import dev.martianzoo.tfm.data.ClassDeclaration.DependencyDeclaration
 import dev.martianzoo.tfm.pets.ClassDeclarationParser.Sigs.Signature
 import dev.martianzoo.tfm.pets.ClassDeclarationParser.Sigs.moreSignatures
-import dev.martianzoo.tfm.pets.PetParser.Instructions.intensity
-import dev.martianzoo.tfm.pets.PetParser.Types
-import dev.martianzoo.tfm.pets.PetParser.action
-import dev.martianzoo.tfm.pets.PetParser.effect
-import dev.martianzoo.tfm.pets.PetParser.genericType
-import dev.martianzoo.tfm.pets.PetParser.nls
-import dev.martianzoo.tfm.pets.PetParser.requirement
-import dev.martianzoo.tfm.pets.PetParser.typeExpression
+import dev.martianzoo.tfm.pets.ElementParsers.Instructions.intensity
+import dev.martianzoo.tfm.pets.ElementParsers.Types
+import dev.martianzoo.tfm.pets.ElementParsers.action
+import dev.martianzoo.tfm.pets.ElementParsers.effect
+import dev.martianzoo.tfm.pets.ElementParsers.genericType
+import dev.martianzoo.tfm.pets.ElementParsers.nls
+import dev.martianzoo.tfm.pets.ElementParsers.requirement
+import dev.martianzoo.tfm.pets.ElementParsers.typeExpression
 import dev.martianzoo.tfm.pets.SpecialClassNames.COMPONENT
 import dev.martianzoo.tfm.pets.SpecialClassNames.THIS
 import dev.martianzoo.tfm.pets.ast.Action
@@ -34,21 +34,9 @@ import dev.martianzoo.util.KClassMultimap
 import dev.martianzoo.util.onlyElement
 import dev.martianzoo.util.plus
 import dev.martianzoo.util.toSetStrict
-import kotlin.reflect.KClass
 
 /** Parses the Petaform language. */
 object ClassDeclarationParser : PetTokenizer() {
-  /**
-   * Parses an entire PETS class declarations source file.
-   */
-  fun parseClassDeclarations(text: String): List<ClassDeclaration> {
-    val tokens = tokenize(stripLineComments(text))
-    return parseRepeated(topLevelDeclsGroup, tokens)
-  }
-
-  // TODO move
-  internal fun stripLineComments(text: String) = Regex(""" *(//[^\n]*)*\n""").replace(text, "\n")
-
   internal object Sigs {
     private val dependency: Parser<DependencyDeclaration> =
         typeExpression map ::DependencyDeclaration
@@ -94,8 +82,6 @@ object ClassDeclarationParser : PetTokenizer() {
 
   internal class Body(val elements: KClassMultimap<BodyElement>) : BodyOrMoreSignatures() {
     constructor(list: List<BodyElement> = listOf()) : this(KClassMultimap(list))
-
-    val haveBeenExtracted = mutableSetOf<KClass<*>>()
 
     override fun convert(abstract: Boolean, firstSignature: Signature) =
         NestableDeclGroup(abstract, firstSignature, this)

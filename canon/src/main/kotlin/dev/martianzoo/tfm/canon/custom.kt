@@ -3,8 +3,8 @@ package dev.martianzoo.tfm.canon
 import dev.martianzoo.tfm.api.CustomInstruction
 import dev.martianzoo.tfm.api.ReadOnlyGameState
 import dev.martianzoo.tfm.api.lookUpProductionLevels
+import dev.martianzoo.tfm.pets.Parsing.parsePets
 import dev.martianzoo.tfm.pets.PetException
-import dev.martianzoo.tfm.pets.PetParser.parsePets
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.Instruction
 import dev.martianzoo.tfm.pets.ast.Instruction.Transform
@@ -12,7 +12,8 @@ import dev.martianzoo.tfm.pets.ast.TypeExpression
 import dev.martianzoo.util.onlyElement
 
 val allCustomInstructions = listOf(
-    GainLowestProduction
+    GainLowestProduction,
+    CopyProductionBox
 )
 
 // For Robinson Industries

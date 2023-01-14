@@ -26,12 +26,12 @@ public interface ReadOnlyGameState {
 
   fun resolve(type: TypeExpression): TypeInfo
 
-  fun count(type: String): Int
+  fun count(typeText: String): Int
   fun count(type: TypeExpression): Int
 
   fun getAll(type: TypeExpression): Multiset<TypeExpression>
   fun getAll(type: ClassLiteral): Set<ClassLiteral>
-  fun getAll(type: String): Multiset<TypeExpression>
+  fun getAll(typeText: String): Multiset<TypeExpression>
 
   fun isMet(requirement: Requirement): Boolean
 }

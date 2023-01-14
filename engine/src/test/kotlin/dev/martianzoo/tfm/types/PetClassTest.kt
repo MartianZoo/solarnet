@@ -8,7 +8,7 @@ import dev.martianzoo.tfm.data.CardDefinition
 import dev.martianzoo.tfm.data.ClassDeclaration
 import dev.martianzoo.tfm.data.MapAreaDefinition
 import dev.martianzoo.tfm.data.MilestoneDefinition
-import dev.martianzoo.tfm.pets.ClassDeclarationParser
+import dev.martianzoo.tfm.pets.Parsing.parseClassDeclarations
 import dev.martianzoo.tfm.pets.SpecialClassNames.COMPONENT
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.types.Dependency.Key
@@ -132,7 +132,7 @@ private class PetClassTest {
 
   @Test
   fun cycleDependency() {
-    val loader = loadTypes("CLASS Foo<Bar>", "CLASS Bar<Foo>")
+    loadTypes("CLASS Foo<Bar>", "CLASS Bar<Foo>")
   }
 
   @Test
@@ -203,7 +203,7 @@ private class PetClassTest {
 }
 
 private fun loader(petsText: String): PetClassLoader {
-  val classes: List<ClassDeclaration> = ClassDeclarationParser.parseClassDeclarations(petsText)
+  val classes: List<ClassDeclaration> = parseClassDeclarations(petsText)
   val authority = FakeAuthority(classes)
   return PetClassLoader(authority).also { it.loadEverything() }
 }

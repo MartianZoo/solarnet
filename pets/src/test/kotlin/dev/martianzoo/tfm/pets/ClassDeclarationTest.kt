@@ -1,13 +1,14 @@
 package dev.martianzoo.tfm.pets
 
 import com.google.common.truth.Truth.assertThat
-import dev.martianzoo.tfm.pets.ClassDeclarationParser.parseClassDeclarations
+import dev.martianzoo.tfm.pets.Parsing.parseClassDeclarations
 import dev.martianzoo.tfm.pets.ast.TypeExpression
 import dev.martianzoo.tfm.pets.ast.TypeExpression.Companion.gte
 import org.junit.jupiter.api.Test
 
 private class ClassDeclarationTest {
-  @Test fun simpleOneLiners() {
+  @Test
+  fun simpleOneLiners() {
     parseClassDeclarations("CLASS Foo") // minimal
     parseClassDeclarations("ABSTRACT CLASS Foo") // abstract
     parseClassDeclarations("CLASS Foo<Bar>") // with spec
@@ -21,7 +22,8 @@ private class ClassDeclarationTest {
     parseClassDeclarations("CLASS Foo\n") // with newline after
   }
 
-  @Test fun slightlyMoreComplex() {
+  @Test
+  fun slightlyMoreComplex() {
     parseClassDeclarations("""
       CLASS Foo
       CLASS Bar
@@ -57,7 +59,6 @@ private class ClassDeclarationTest {
       CLASS Bar, Qux
     """)
   }
-
 
   @Test
   fun body() {

@@ -1,6 +1,6 @@
 package dev.martianzoo.tfm.pets.ast
 
-import dev.martianzoo.tfm.pets.PetParser.parsePets
+import dev.martianzoo.tfm.pets.Parsing.parsePets
 import dev.martianzoo.util.joinOrEmpty
 
 /**
@@ -37,6 +37,7 @@ sealed class TypeExpression : PetNode() {
     override fun toString() = "$className.CLASS"
   }
 
+  // TODO
   companion object {
     fun gte(className: ClassName, specs: List<TypeExpression>) =
         GenericTypeExpression(className, specs)
@@ -46,7 +47,7 @@ sealed class TypeExpression : PetNode() {
     fun gte(className: String, specs: List<String>) = gte(ClassName(className), specs)
 
     @JvmName("gteFromStrings")
-    fun gte(className: ClassName, specs: List<String>) = gte(className, specs.map(::parsePets))
+    fun gte(className: ClassName, specs: List<String>) = gte(className, specs.map { parsePets(it) })
 
     fun gte(className: ClassName, first: String, vararg rest: String) =
         gte(className, listOf(first) + rest)

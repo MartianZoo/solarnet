@@ -15,7 +15,7 @@ import com.github.h0tk3y.betterParse.utils.Tuple2
 
 /** Parses the Petaform language. */
 open class PetTokenizer {
-  fun tokenize(input: String) = TokenCache.tokenize(input)
+  internal fun tokenize(input: String) = TokenCache.tokenize(input)
 
   internal val arrow = literal("->", "arrow")
   internal val doubleColon = literal("::", "doublecolon")
@@ -66,8 +66,8 @@ open class PetTokenizer {
 
   internal fun skipChar(c: Char) = skip(char(c))
 
-  internal object TokenCache {
-    internal val ignoreList = listOf<Token>(
+  private object TokenCache {
+    val ignoreList = listOf<Token>(
         regexToken("backslash-newline", "\\\\\n", true), // ignore these
         regexToken("spaces", " +", true)
     )

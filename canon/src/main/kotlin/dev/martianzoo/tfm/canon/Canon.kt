@@ -8,7 +8,7 @@ import dev.martianzoo.tfm.data.ClassDeclaration
 import dev.martianzoo.tfm.data.JsonReader
 import dev.martianzoo.tfm.data.MapAreaDefinition
 import dev.martianzoo.tfm.data.MilestoneDefinition
-import dev.martianzoo.tfm.pets.ClassDeclarationParser
+import dev.martianzoo.tfm.pets.Parsing.parseClassDeclarations
 import dev.martianzoo.util.Debug
 import dev.martianzoo.util.Grid
 
@@ -19,7 +19,7 @@ object Canon : Authority() {
   override val explicitClassDeclarations: Collection<ClassDeclaration> by lazy {
     PETS_FILENAMES.flatMap {
       Debug.d("Reading $it")
-      ClassDeclarationParser.parseClassDeclarations(readResource(it))
+      parseClassDeclarations(readResource(it))
     }
   }
 

@@ -8,7 +8,7 @@ import dev.martianzoo.tfm.api.standardResourceNames
 import dev.martianzoo.tfm.data.Authority
 import dev.martianzoo.tfm.data.StateChange.Cause
 import dev.martianzoo.tfm.engine.ComponentGraph.Component
-import dev.martianzoo.tfm.pets.PetParser.parsePets
+import dev.martianzoo.tfm.pets.Parsing.parsePets
 import dev.martianzoo.tfm.pets.ast.Instruction
 import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.pets.ast.Script

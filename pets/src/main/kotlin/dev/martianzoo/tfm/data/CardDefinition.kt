@@ -12,8 +12,8 @@ import dev.martianzoo.tfm.data.SpecialClassNames.PRELUDE_CARD
 import dev.martianzoo.tfm.data.SpecialClassNames.PROJECT_CARD
 import dev.martianzoo.tfm.data.SpecialClassNames.RESOURCEFUL_CARD
 import dev.martianzoo.tfm.pets.ClassDeclarationParser.singleDecl
-import dev.martianzoo.tfm.pets.PetParser.parse
-import dev.martianzoo.tfm.pets.PetParser.parsePets
+import dev.martianzoo.tfm.pets.ElementParsers.parse
+import dev.martianzoo.tfm.pets.Parsing.parsePets
 import dev.martianzoo.tfm.pets.SpecialClassNames.END
 import dev.martianzoo.tfm.pets.actionsToEffects
 import dev.martianzoo.tfm.pets.ast.Action
@@ -179,7 +179,7 @@ data class CardDefinition(
   }
   val actionsRaw by lazy { actionsText.map { parsePets<Action>(it) }.toSetStrict() }
   val effectsRaw by lazy { effectsText.map { parsePets<Effect>(it) }.toSetStrict() }
-  val requirementRaw: Requirement? by lazy { requirementText?.let(::parsePets) }
+  val requirementRaw: Requirement? by lazy { requirementText?.let { parsePets(it) } }
 
   // This doesn't get converted to an effect (yet??) so we have to canonicalize
   // TODO rethink
