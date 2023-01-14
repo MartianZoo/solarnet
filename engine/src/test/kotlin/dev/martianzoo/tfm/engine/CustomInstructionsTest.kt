@@ -2,6 +2,7 @@ package dev.martianzoo.tfm.engine
 
 import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.tfm.canon.Canon
+import dev.martianzoo.tfm.canon.CopyProductionBox
 import dev.martianzoo.tfm.data.ActionDefinition
 import dev.martianzoo.tfm.data.Authority
 import dev.martianzoo.tfm.data.CardDefinition
@@ -84,6 +85,28 @@ private class CustomInstructionsTest {
       EXEC PROD[-Megacredit<Player1>]
       EXEC $${""}gainLowestProduction(Player1)
       REQUIRE =5 Production<Player1, Megacredit.CLASS>
+    """
+    val script = parseScript(s)
+    game.execute(script)
+  }
+
+  fun roboWork() {
+    val game = Engine.newGame(Canon, 2, setOf("B", "R"))
+    val s = """
+      // The standard hack for every player - ignore it!
+      EXEC PROD[5 Megacredit<Player1>]
+
+      EXEC PROD[4 Energy<Player1>]
+      
+      EXEC StripMine<Player1>
+      // we don't have effects working yet so...
+      EXEC PROD[-2 Energy<Player1>, 2 Steel<Player1>, Titanium<Player1>]
+      
+      REQUIRE PROD[=2 Energy<Player1>, 2 Steel<Player1>]
+      EXEC $${""}copyProductionBox(StripMine<Player1>)
+
+      REQUIRE PROD[=0 Energy<Player1>, 4 Steel<Player1>]
+
     """
     val script = parseScript(s)
     game.execute(script)
