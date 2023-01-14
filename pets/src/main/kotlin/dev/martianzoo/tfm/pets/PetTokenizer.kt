@@ -14,13 +14,8 @@ import com.github.h0tk3y.betterParse.parser.Parser
 import com.github.h0tk3y.betterParse.utils.Tuple2
 
 /** Parses the Petaform language. */
-object PetTokenizer {
-  fun tokenize(input: String) = toke.tokenize(input)
-
-  internal val tokenList = mutableListOf<Token>(
-      regexToken("backslash-newline", "\\\\\n", true), // ignore these
-      regexToken("spaces", " +", true)
-  )
+open class PetTokenizer {
+  fun tokenize(input: String) = TokenCache.tokenize(input)
 
   internal val arrow = literal("->", "arrow")
   internal val doubleColon = literal("::", "doublecolon")
@@ -71,16 +66,24 @@ object PetTokenizer {
 
   internal fun skipChar(c: Char) = skip(char(c))
 
-  internal fun literal(text: String, name: String = text) = remember(literalToken(name, text))
+  internal object TokenCache {
+    internal val ignoreList = listOf<Token>(
+        regexToken("backslash-newline", "\\\\\n", true), // ignore these
+        regexToken("spaces", " +", true)
+    )
 
-  internal fun regex(regex: Regex, name: String = regex.toString()) =
-      remember(regexToken(name, regex))
+    val map = mutableMapOf<Pair<String, Boolean>, Token>()
 
-  private fun remember(t: Token): Token {
-    require(t.name != null)
-    tokenList += t
-    return t
+    fun cacheLiteral(text: String, name: String) =
+        map.computeIfAbsent(name to false) { literalToken(name, text) }
+    fun cacheRegex(regex: Regex, name: String) =
+        map.computeIfAbsent(name to true) { regexToken(name, regex) }
+
+    val toke by lazy { DefaultTokenizer(ignoreList + map.values) }
+
+    fun tokenize(input: String) = toke.tokenize(input)
   }
 
-  internal val toke = DefaultTokenizer(tokenList)
+  internal fun literal(text: String, name: String = text) = TokenCache.cacheLiteral(text, name)
+  internal fun regex(regex: Regex, name: String = "$regex") = TokenCache.cacheRegex(regex, name)
 }

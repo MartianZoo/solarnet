@@ -23,14 +23,6 @@ import dev.martianzoo.tfm.pets.PetParser.genericType
 import dev.martianzoo.tfm.pets.PetParser.nls
 import dev.martianzoo.tfm.pets.PetParser.requirement
 import dev.martianzoo.tfm.pets.PetParser.typeExpression
-import dev.martianzoo.tfm.pets.PetTokenizer._abstract
-import dev.martianzoo.tfm.pets.PetTokenizer._class
-import dev.martianzoo.tfm.pets.PetTokenizer._default
-import dev.martianzoo.tfm.pets.PetTokenizer._has
-import dev.martianzoo.tfm.pets.PetTokenizer.char
-import dev.martianzoo.tfm.pets.PetTokenizer.commaSeparated
-import dev.martianzoo.tfm.pets.PetTokenizer.optionalList
-import dev.martianzoo.tfm.pets.PetTokenizer.skipChar
 import dev.martianzoo.tfm.pets.SpecialClassNames.COMPONENT
 import dev.martianzoo.tfm.pets.SpecialClassNames.THIS
 import dev.martianzoo.tfm.pets.ast.Action
@@ -45,13 +37,12 @@ import dev.martianzoo.util.toSetStrict
 import kotlin.reflect.KClass
 
 /** Parses the Petaform language. */
-object ClassDeclarationParser {
-  private val toke = PetTokenizer.toke
+object ClassDeclarationParser : PetTokenizer() {
   /**
    * Parses an entire PETS class declarations source file.
    */
   fun parseClassDeclarations(text: String): List<ClassDeclaration> {
-    val tokens = toke.tokenize(stripLineComments(text))
+    val tokens = tokenize(stripLineComments(text))
     return parseRepeated(topLevelDeclsGroup, tokens)
   }
 

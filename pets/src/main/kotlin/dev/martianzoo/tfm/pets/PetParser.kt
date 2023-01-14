@@ -14,29 +14,6 @@ import com.github.h0tk3y.betterParse.parser.ParseException
 import com.github.h0tk3y.betterParse.parser.Parser
 import com.github.h0tk3y.betterParse.parser.parseToEnd
 import dev.martianzoo.tfm.pets.ClassDeclarationParser.stripLineComments
-import dev.martianzoo.tfm.pets.PetTokenizer._become
-import dev.martianzoo.tfm.pets.PetTokenizer._by
-import dev.martianzoo.tfm.pets.PetTokenizer._class
-import dev.martianzoo.tfm.pets.PetTokenizer._count
-import dev.martianzoo.tfm.pets.PetTokenizer._exec
-import dev.martianzoo.tfm.pets.PetTokenizer._from
-import dev.martianzoo.tfm.pets.PetTokenizer._has
-import dev.martianzoo.tfm.pets.PetTokenizer._max
-import dev.martianzoo.tfm.pets.PetTokenizer._or
-import dev.martianzoo.tfm.pets.PetTokenizer._require
-import dev.martianzoo.tfm.pets.PetTokenizer._then
-import dev.martianzoo.tfm.pets.PetTokenizer.arrow
-import dev.martianzoo.tfm.pets.PetTokenizer.char
-import dev.martianzoo.tfm.pets.PetTokenizer.commaSeparated
-import dev.martianzoo.tfm.pets.PetTokenizer.doubleColon
-import dev.martianzoo.tfm.pets.PetTokenizer.lowerCamelRE
-import dev.martianzoo.tfm.pets.PetTokenizer.maybeGroup
-import dev.martianzoo.tfm.pets.PetTokenizer.optionalList
-import dev.martianzoo.tfm.pets.PetTokenizer.parens
-import dev.martianzoo.tfm.pets.PetTokenizer.scalarRE
-import dev.martianzoo.tfm.pets.PetTokenizer.skipChar
-import dev.martianzoo.tfm.pets.PetTokenizer.transform
-import dev.martianzoo.tfm.pets.PetTokenizer.upperCamelRE
 import dev.martianzoo.tfm.pets.ast.Action
 import dev.martianzoo.tfm.pets.ast.Action.Cost
 import dev.martianzoo.tfm.pets.ast.Action.Cost.Spend
@@ -76,8 +53,7 @@ import kotlin.reflect.KClass
 import kotlin.reflect.cast
 
 /** Parses the Petaform language. */
-object PetParser {
-  private val toke = PetTokenizer.toke
+object PetParser : PetTokenizer() {
   private val pgb = ParserGroup.Builder<PetNode>()
 
   init { Debug.d ("start $this") }
@@ -94,7 +70,7 @@ object PetParser {
    * instance from the properties of this object; intended for testing.
    */
   fun <T> parse(parser: Parser<T>, source: String): T {
-    val tokens = toke.tokenize(source)
+    val tokens = tokenize(source)
     Debug.d(tokens.filterNot { it.type.ignored }.joinToString(" ") {
       it.type.name?.replace("\n", "\\n") ?: "NULL"
     })
@@ -103,7 +79,7 @@ object PetParser {
 
   fun parseScript(scriptText: String): Script {
     val scriptLines = try {
-      val tokens = toke.tokenize(stripLineComments(scriptText))
+      val tokens = tokenize(stripLineComments(scriptText))
       parseRepeated(scriptLine map { listOf(it) }, tokens)
     } catch (e: Exception) {
       Debug.d("Script was:\n$scriptText")
@@ -381,7 +357,7 @@ object PetParser {
   /** Non-reified version of `parse(source)`. */
   fun <P : PetNode> parsePets(expectedType: KClass<P>, source: String): P {
     val pet = try {
-      pgb.parse(expectedType, toke.tokenize(source))
+      pgb.parse(expectedType, tokenize(source))
     } catch (e: ParseException) {
       throw IllegalArgumentException("""
           Expecting ${expectedType.simpleName} ...
