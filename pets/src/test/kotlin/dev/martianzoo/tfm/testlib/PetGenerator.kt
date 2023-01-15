@@ -24,7 +24,7 @@ import dev.martianzoo.tfm.pets.ast.Instruction.Remove
 import dev.martianzoo.tfm.pets.ast.Instruction.Then
 import dev.martianzoo.tfm.pets.ast.Instruction.Transmute
 import dev.martianzoo.tfm.pets.ast.PetNode
-import dev.martianzoo.tfm.pets.ast.QuantifiedExpression
+import dev.martianzoo.tfm.pets.ast.ScalarAndType
 import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.pets.ast.Requirement.Exact
 import dev.martianzoo.tfm.pets.ast.Requirement.Max
@@ -54,7 +54,7 @@ internal class PetGenerator(scaling: (Int) -> Double) :
       }
 //    register { ClassLiteral(randomName()) }
       register {
-        QuantifiedExpression(choose(1 to DEFAULT.type, 3 to recurse()), choose(0, 1, 1, 1, 5, 11))
+        ScalarAndType(choose(0, 1, 1, 1, 5, 11), choose(1 to DEFAULT.type, 3 to recurse()))
       }
       register<ClassName> {
         ClassName(randomName())
@@ -69,9 +69,9 @@ internal class PetGenerator(scaling: (Int) -> Double) :
           1 to Requirement.Transform::class,
       ))
       register<Requirement> { recurse(choose(requirementTypes)) }
-      register { Min(qe = recurse()) }
-      register { Max(qe = recurse()) }
-      register { Exact(qe = recurse()) }
+      register { Min(sat = recurse()) }
+      register { Max(sat = recurse()) }
+      register { Exact(sat = recurse()) }
       register { Requirement.Or(setOfSize(choose(2, 2, 2, 2, 2, 3, 4))) }
       register { Requirement.And(listOfSize(choose(2, 2, 2, 2, 3))) }
       register { Requirement.Transform(recurse(), "PROD") }
@@ -95,7 +95,7 @@ internal class PetGenerator(scaling: (Int) -> Double) :
       register { Remove(recurse(), intensity()) }
       register { Per(recurse(), recurse()) }
       register { Gated(recurse(), recurse()) }
-      register { Transmute(recurse(), recurse<QuantifiedExpression>().scalar, intensity()) }
+      register { Transmute(recurse(), recurse<ScalarAndType>().scalar, intensity()) }
       register { Custom("name", listOfSize(choose(1, 1, 1, 2))) }
       register { Then(listOfSize(choose(2, 2, 2, 3))) }
       register { Instruction.Or(setOfSize(choose(2, 2, 2, 2, 3))) }
@@ -162,7 +162,7 @@ internal class PetGenerator(scaling: (Int) -> Double) :
           2 to Cost.Transform::class,
       ))
       register<Cost> { recurse(choose(costTypes)) }
-      register { Cost.Spend(qe = recurse()) }
+      register { Cost.Spend(sat = recurse()) }
       register { Cost.Per(recurse(), recurse()) }
       register { Cost.Or(setOfSize(choose(2, 2, 2, 2, 3, 4))) }
       register { Cost.Multi(listOfSize(choose(2, 2, 2, 3))) }

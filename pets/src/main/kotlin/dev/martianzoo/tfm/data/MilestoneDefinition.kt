@@ -10,7 +10,7 @@ import dev.martianzoo.tfm.pets.ast.Effect
 import dev.martianzoo.tfm.pets.ast.Effect.Trigger.OnGain
 import dev.martianzoo.tfm.pets.ast.Instruction.Gain
 import dev.martianzoo.tfm.pets.ast.Instruction.Gated
-import dev.martianzoo.tfm.pets.ast.QuantifiedExpression
+import dev.martianzoo.tfm.pets.ast.ScalarAndType
 import dev.martianzoo.tfm.pets.ast.Requirement
 
 data class MilestoneDefinition(
@@ -40,7 +40,7 @@ data class MilestoneDefinition(
         supertypes = setOf(MILESTONE.type),
         effectsRaw = setOf(Effect(
             OnGain(THIS.type),
-            Gated(requirement, Gain(QuantifiedExpression(OK.type))),
+            Gated(requirement, Gain(ScalarAndType(type = OK.type))),
             automatic = true,
         ))
     )

@@ -14,7 +14,7 @@ import dev.martianzoo.tfm.pets.ast.Effect
 import dev.martianzoo.tfm.pets.ast.Effect.Trigger
 import dev.martianzoo.tfm.pets.ast.Instruction
 import dev.martianzoo.tfm.pets.ast.PetNode
-import dev.martianzoo.tfm.pets.ast.QuantifiedExpression
+import dev.martianzoo.tfm.pets.ast.ScalarAndType
 import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.pets.ast.Script
 import dev.martianzoo.tfm.pets.ast.TypeExpression
@@ -30,7 +30,7 @@ object Parsing {
     val pgb = ParserGroup.Builder<PetNode>()
     pgb.publish(TypeParsers.genericType)
     pgb.publish(TypeParsers.typeExpression)
-    pgb.publish(QuantifiedExpression.parser())
+    pgb.publish(ScalarAndType.parser())
     pgb.publish(Requirement.parser())
     pgb.publish(Instruction.parser())
     pgb.publish(Cost.parser())

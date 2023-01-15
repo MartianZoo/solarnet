@@ -48,6 +48,8 @@ open class PetParser {
   internal val _lowerCamelRE = regex(Regex("""\b[a-z][a-zA-Z0-9]*\b"""), "lowerCamel")
   internal val _allCapsWordRE = regex(Regex("""\b[A-Z]+\b"""), "ALLCAPS")
 
+  val scalar: Parser<Int> = _scalarRE map { it.text.toInt() }
+
   internal val intensity = optional( // TODO
       char('!') or char('.') or char('?') map { it.text } map Companion::forSymbol
   )

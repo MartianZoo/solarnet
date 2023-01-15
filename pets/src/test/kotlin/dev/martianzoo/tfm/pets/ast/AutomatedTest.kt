@@ -11,7 +11,7 @@ private class AutomatedTest {
   @Test
   fun expressions() {
     val gen = PetGenerator()
-    gen.goNuts<QuantifiedExpression>(200 * FACTOR)
+    gen.goNuts<ScalarAndType>(200 * FACTOR)
   }
 
   @Test

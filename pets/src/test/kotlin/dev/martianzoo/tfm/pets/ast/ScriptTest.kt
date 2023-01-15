@@ -31,19 +31,19 @@ private class ScriptTest {
         ScriptPragmaPlayer(gte("Player1")),
         ScriptCommand(
             Instruction.Multi(
-                Gain(QuantifiedExpression(gte("Foo"))),
-                Gain(QuantifiedExpression(gte("Bar"), 5)),
+                Gain(ScalarAndType(type = gte("Foo"))),
+                Gain(ScalarAndType(5, gte("Bar"))),
             ),
         ),
         ScriptCounter("num", gte("Qux", gte("Wow"))),
         ScriptPragmaPlayer(gte("Player2")),
         ScriptRequirement(
-            Min(QuantifiedExpression(gte("Bar"), 4)),
+            Min(ScalarAndType(4, gte("Bar"))),
         ),
         ScriptCommand(
             Instruction.Gated(
-                Min(QuantifiedExpression(gte("Abc"))),
-                Gain(QuantifiedExpression(gte("Xyz")))),
+                Min(ScalarAndType(type = gte("Abc"))),
+                Gain(ScalarAndType(type = gte("Xyz")))),
             gte("Who", "Even", "Cares"),
         ),
     )

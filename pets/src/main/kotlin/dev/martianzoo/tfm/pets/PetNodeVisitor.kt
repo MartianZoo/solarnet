@@ -11,7 +11,7 @@ import dev.martianzoo.tfm.pets.ast.FromExpression.SimpleFrom
 import dev.martianzoo.tfm.pets.ast.FromExpression.TypeInFrom
 import dev.martianzoo.tfm.pets.ast.Instruction
 import dev.martianzoo.tfm.pets.ast.PetNode
-import dev.martianzoo.tfm.pets.ast.QuantifiedExpression
+import dev.martianzoo.tfm.pets.ast.ScalarAndType
 import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.pets.ast.Script
 import dev.martianzoo.tfm.pets.ast.Script.ScriptCommand
@@ -40,21 +40,21 @@ open class PetNodeVisitor {
           is GenericTypeExpression -> GenericTypeExpression(x(className), x(specs), x(refinement))
         }
 
-        is QuantifiedExpression -> QuantifiedExpression(x(expression), scalar)
+        is ScalarAndType -> ScalarAndType(scalar, x(type))
 
         is Requirement -> when (this) {
-          is Requirement.Min -> Requirement.Min(x(qe))
-          is Requirement.Max -> Requirement.Max(x(qe))
-          is Requirement.Exact -> Requirement.Exact(x(qe))
+          is Requirement.Min -> Requirement.Min(x(sat))
+          is Requirement.Max -> Requirement.Max(x(sat))
+          is Requirement.Exact -> Requirement.Exact(x(sat))
           is Requirement.Or -> Requirement.Or(x(requirements))
           is Requirement.And -> Requirement.And(x(requirements))
           is Requirement.Transform -> Requirement.Transform(x(requirement), transform)
         }
 
         is Instruction -> when (this) {
-          is Instruction.Gain -> Instruction.Gain(x(qe), intensity)
-          is Instruction.Remove -> Instruction.Remove(x(qe), intensity)
-          is Instruction.Per -> Instruction.Per(x(instruction), x(qe))
+          is Instruction.Gain -> Instruction.Gain(x(sat), intensity)
+          is Instruction.Remove -> Instruction.Remove(x(sat), intensity)
+          is Instruction.Per -> Instruction.Per(x(instruction), x(sat))
           is Instruction.Gated -> Instruction.Gated(x(requirement), x(instruction))
           is Instruction.Transmute -> Instruction.Transmute(x(fromExpression), scalar)
           is Instruction.Custom -> Instruction.Custom(functionName, x(arguments))
@@ -78,8 +78,8 @@ open class PetNodeVisitor {
 
         is Action -> Action(x(cost), x(instruction))
         is Cost -> when (this) {
-          is Cost.Spend -> Cost.Spend(x(qe))
-          is Cost.Per -> Cost.Per(x(cost), x(qe))
+          is Cost.Spend -> Cost.Spend(x(sat))
+          is Cost.Per -> Cost.Per(x(cost), x(sat))
           is Cost.Or -> Cost.Or(x(costs))
           is Cost.Multi -> Cost.Multi(x(costs))
           is Cost.Transform -> Cost.Transform(x(cost), transform)

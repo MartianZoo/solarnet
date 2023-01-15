@@ -26,42 +26,42 @@ sealed class Instruction : PetNode() {
 
   abstract fun execute(game: GameState)
 
-  data class Gain(val qe: QuantifiedExpression, val intensity: Intensity? = null) : Instruction() {
+  data class Gain(val sat: ScalarAndType, val intensity: Intensity? = null) : Instruction() {
     init {
-      if (qe.scalar == 0) {
+      if (sat.scalar == 0) {
         throw PetException("Can't gain zero")
       }
     }
 
-    override fun times(value: Int) = copy(qe = qe.copy(scalar = qe.scalar * value))
+    override fun times(value: Int) = copy(sat = sat.copy(scalar = sat.scalar * value))
 
     // TODO intensity
     override fun execute(game: GameState) =
-        game.applyChange(qe.scalar, gaining = qe.expression as GenericTypeExpression)
+        game.applyChange(sat.scalar, gaining = sat.type as GenericTypeExpression)
 
-    override fun toString() = "$qe${intensity?.symbol ?: ""}"
+    override fun toString() = "$sat${intensity?.symbol ?: ""}"
   }
 
   data class Remove(
-      val qe: QuantifiedExpression,
+      val sat: ScalarAndType,
       val intensity: Intensity? = null,
   ) : Instruction() {
     init {
-      if (qe.scalar == 0) {
+      if (sat.scalar == 0) {
         throw PetException("Can't remove zero")
       }
     }
 
-    override fun times(value: Int) = copy(qe = qe.copy(scalar = qe.scalar * value))
+    override fun times(value: Int) = copy(sat = sat.copy(scalar = sat.scalar * value))
     override fun execute(game: GameState) =
-        game.applyChange(qe.scalar, removing = qe.expression as GenericTypeExpression)
+        game.applyChange(sat.scalar, removing = sat.type as GenericTypeExpression)
 
-    override fun toString() = "-$qe${intensity?.symbol ?: ""}"
+    override fun toString() = "-$sat${intensity?.symbol ?: ""}"
   }
 
-  data class Per(val instruction: Instruction, val qe: QuantifiedExpression) : Instruction() {
+  data class Per(val instruction: Instruction, val sat: ScalarAndType) : Instruction() {
     init {
-      if (qe.scalar == 0) {
+      if (sat.scalar == 0) {
         throw PetException("Can't do something 'per' zero")
       }
       when (instruction) {
@@ -73,7 +73,7 @@ sealed class Instruction : PetNode() {
     override fun times(value: Int) = copy(instruction = instruction * value)
 
     override fun execute(game: GameState) {
-      val measurement = game.count(qe.expression) / qe.scalar
+      val measurement = game.count(sat.type) / sat.scalar
       if (measurement > 0) {
         (instruction * measurement).execute(game)
       }
@@ -81,7 +81,7 @@ sealed class Instruction : PetNode() {
 
     override fun precedence() = 8
 
-    override fun toString() = "$instruction / ${qe.toString(forceType = true)}"
+    override fun toString() = "$instruction / ${sat.toString(forceType = true)}"
   }
 
   data class Gated(val requirement: Requirement, val instruction: Instruction) : Instruction() {
@@ -238,12 +238,12 @@ sealed class Instruction : PetNode() {
   companion object : PetParser() {
     internal fun parser(): Parser<Instruction> {
       return parser {
-        val qe = QuantifiedExpression.parser()
+        val sat = ScalarAndType.parser()
 
         val scalar: Parser<Int> = _scalarRE map { it.text.toInt() }
         val optlIntens = optional(intensity)
-        val gain = qe and optlIntens map { (qe, intens) -> Gain(qe, intens) }
-        val remove = skipChar('-') and gain map { Remove(it.qe, it.intensity) }
+        val gain = sat and optlIntens map { (sat, intens) -> Gain(sat, intens) }
+        val remove = skipChar('-') and gain map { Remove(it.sat, it.intensity) }
 
         val transmute =
             optional(scalar) and
@@ -254,8 +254,8 @@ sealed class Instruction : PetNode() {
 
         val perable = transmute or group(transmute) or gain or remove
 
-        val maybePer = perable and optional(skipChar('/') and qe) map { (instr, qe) ->
-          if (qe == null) instr else Per(instr, qe)
+        val maybePer = perable and optional(skipChar('/') and sat) map { (instr, sat) ->
+          if (sat == null) instr else Per(instr, sat)
         }
 
         val instruction = parser { parser() }

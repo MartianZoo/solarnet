@@ -31,8 +31,8 @@ private fun instructionFromAction(lhs: Instruction?, rhs: Instruction): Instruct
   if (lhs == null) return rhs
 
   // Handle the Ants case (TODO intensity?)
-  if (lhs is Remove && rhs is Gain && lhs.qe.scalar == rhs.qe.scalar) {
-    return Transmute(SimpleFrom(rhs.qe.expression, lhs.qe.expression))
+  if (lhs is Remove && rhs is Gain && lhs.sat.scalar == rhs.sat.scalar) {
+    return Transmute(SimpleFrom(rhs.sat.type, lhs.sat.type))
   }
 
   // Nested THENs are just silly

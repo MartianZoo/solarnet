@@ -18,7 +18,7 @@ private class Defaulter(val loader: PetClassLoader) : PetNodeVisitor() {
       THIS.type -> node // leave This alone!
 
       is Gain -> {
-        val writtenType = node.qe.expression
+        val writtenType = node.sat.type
         if (writtenType !is GenericTypeExpression) {
           node
         } else {
@@ -26,7 +26,7 @@ private class Defaulter(val loader: PetClassLoader) : PetNodeVisitor() {
           val defaults = petClass.defaults
           val newTypeExpr = applyDefaultSpecs(writtenType, petClass, defaults.gainOnlyDependencies)
           node.copy(
-              node.qe.copy(expression = transform(newTypeExpr)),
+              node.sat.copy(type = transform(newTypeExpr)),
               node.intensity ?: defaults.gainIntensity,
           )
         }

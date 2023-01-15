@@ -13,24 +13,24 @@ import dev.martianzoo.tfm.pets.PetParser
 sealed class Requirement : PetNode() {
   abstract fun evaluate(game: GameState): Boolean
 
-  data class Min(val qe: QuantifiedExpression) : Requirement() {
-    override fun toString() = "$qe"
+  data class Min(val sat: ScalarAndType) : Requirement() {
+    override fun toString() = "$sat"
 
-    override fun evaluate(game: GameState) = game.count(qe.expression) >= qe.scalar
+    override fun evaluate(game: GameState) = game.count(sat.type) >= sat.scalar
   }
 
-  data class Max(val qe: QuantifiedExpression) : Requirement() {
+  data class Max(val sat: ScalarAndType) : Requirement() {
     // could remove this but make it parseable
-    override fun toString() = "MAX ${qe.toString(true, true)}" // no "MAX 5" or "MAX Heat"
+    override fun toString() = "MAX ${sat.toString(true, true)}" // no "MAX 5" or "MAX Heat"
 
-    override fun evaluate(game: GameState) = game.count(qe.expression) <= qe.scalar
+    override fun evaluate(game: GameState) = game.count(sat.type) <= sat.scalar
   }
 
-  data class Exact(val qe: QuantifiedExpression) : Requirement() {
+  data class Exact(val sat: ScalarAndType) : Requirement() {
     // could remove this but make it parseable
-    override fun toString() = "=${qe.toString(true, true)}" // no "=5" or "=Heat"
+    override fun toString() = "=${sat.toString(true, true)}" // no "=5" or "=Heat"
 
-    override fun evaluate(game: GameState) = game.count(qe.expression) == qe.scalar
+    override fun evaluate(game: GameState) = game.count(sat.type) == sat.scalar
   }
 
   data class Or(val requirements: Set<Requirement>) : Requirement() {
@@ -60,10 +60,10 @@ sealed class Requirement : PetNode() {
   companion object : PetParser() {
     internal fun atomParser(): Parser<Requirement> { //
       return parser {
-        val qe = QuantifiedExpression.parser()
-        val min = qe map ::Min
-        val max = skip(_max) and qe map ::Max
-        val exact = skipChar('=') and qe map ::Exact
+        val sat = ScalarAndType.parser()
+        val min = sat map ::Min
+        val max = skip(_max) and sat map ::Max
+        val exact = skipChar('=') and sat map ::Exact
         val transform = transform(parser()) map { (node, type) ->
           Transform(node, type)
         }

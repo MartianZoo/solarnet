@@ -23,17 +23,17 @@ data class Action(val cost: Cost?, val instruction: Instruction) : PetNode() {
 
     abstract fun toInstruction(): Instruction
 
-    data class Spend(val qe: QuantifiedExpression) : Cost() {
-      override fun toString() = qe.toString()
+    data class Spend(val sat: ScalarAndType) : Cost() {
+      override fun toString() = sat.toString()
 
       // I believe Ants/Predators are the reasons for MANDATORY here
-      override fun toInstruction() = Remove(qe, MANDATORY)
+      override fun toInstruction() = Remove(sat, MANDATORY)
     }
 
     // can't do non-prod per prod yet
-    data class Per(val cost: Cost, val qe: QuantifiedExpression) : Cost() {
+    data class Per(val cost: Cost, val sat: ScalarAndType) : Cost() {
       init {
-        if (qe.scalar == 0) {
+        if (sat.scalar == 0) {
           throw PetException("Can't do something 'per' a non-positive amount")
         }
         when (cost) {
@@ -43,10 +43,10 @@ data class Action(val cost: Cost?, val instruction: Instruction) : PetNode() {
         }
       }
 
-      override fun toString() = "$cost / ${qe.toString(forceType = true)}"
+      override fun toString() = "$cost / ${sat.toString(forceType = true)}"
       override fun precedence() = 5
 
-      override fun toInstruction() = Instruction.Per(cost.toInstruction(), qe)
+      override fun toInstruction() = Instruction.Per(cost.toInstruction(), sat)
     }
 
     data class Or(var costs: Set<Cost>) : Cost() {
@@ -79,15 +79,15 @@ data class Action(val cost: Cost?, val instruction: Instruction) : PetNode() {
     companion object : PetParser() {
       fun parser(): Parser<Cost> {
         return parser {
-          val qe = QuantifiedExpression.parser()
+          val sat = ScalarAndType.parser()
           val cost: Parser<Cost> = parser { parser() }
-          val spend = qe map Cost::Spend
+          val spend = sat map Cost::Spend
 
           val maybeTransform = spend or (transform(cost) map { (node, type) ->
             Transform(node, type)
           })
-          val perCost = maybeTransform and optional(skipChar('/') and qe) map {
-            (cost, qe) -> if (qe == null) cost else Per(cost, qe)
+          val perCost = maybeTransform and optional(skipChar('/') and sat) map {
+            (cost, sat) -> if (sat == null) cost else Per(cost, sat)
           }
 
           val orCost =

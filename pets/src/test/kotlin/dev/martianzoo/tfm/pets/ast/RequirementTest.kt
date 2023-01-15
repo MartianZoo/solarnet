@@ -87,24 +87,24 @@ private class RequirementTest {
 
   @Test
   fun simpleSourceToApi() {
-    assertThat(parsePets<Requirement>("Foo")).isEqualTo(Min(QuantifiedExpression(gte("Foo"))))
-    assertThat(parsePets<Requirement>("3 Foo")).isEqualTo(Min(QuantifiedExpression(gte("Foo"), 3)))
-    assertThat(parsePets<Requirement>("MAX 3 Foo")).isEqualTo(Max(QuantifiedExpression(gte("Foo"), 3)))
+    assertThat(parsePets<Requirement>("Foo")).isEqualTo(Min(ScalarAndType(type = gte("Foo"))))
+    assertThat(parsePets<Requirement>("3 Foo")).isEqualTo(Min(ScalarAndType(3, gte("Foo"))))
+    assertThat(parsePets<Requirement>("MAX 3 Foo")).isEqualTo(Max(ScalarAndType(3, gte("Foo"))))
   }
 
   @Test
   fun simpleApiToSource() {
-    assertThat(Min(QuantifiedExpression(gte("Foo"))).toString()).isEqualTo("Foo")
-    assertThat(Min(QuantifiedExpression(gte("Foo"), 1)).toString()).isEqualTo("Foo")
-    assertThat(Min(QuantifiedExpression(gte("Foo"), 3)).toString()).isEqualTo("3 Foo")
-    assertThat(Min(QuantifiedExpression(scalar = 3)).toString()).isEqualTo("3")
-    assertThat(Min(QuantifiedExpression(gte("Default"), scalar = 3)).toString()).isEqualTo("3")
-    assertThat(Min(QuantifiedExpression(gte("Default"))).toString()).isEqualTo("1")
-    assertThat(Max(QuantifiedExpression(gte("Foo"), 0)).toString()).isEqualTo("MAX 0 Foo")
-    assertThat(Max(QuantifiedExpression(gte("Foo"))).toString()).isEqualTo("MAX 1 Foo")
-    assertThat(Max(QuantifiedExpression(gte("Foo"), 1)).toString()).isEqualTo("MAX 1 Foo")
-    assertThat(Max(QuantifiedExpression(gte("Foo"), 3)).toString()).isEqualTo("MAX 3 Foo")
-    assertThat(Max(QuantifiedExpression(scalar = 3)).toString()).isEqualTo("MAX 3 Default")
+    assertThat(Min(ScalarAndType(type = gte("Foo"))).toString()).isEqualTo("Foo")
+    assertThat(Min(ScalarAndType(1, gte("Foo"))).toString()).isEqualTo("Foo")
+    assertThat(Min(ScalarAndType(3, gte("Foo"))).toString()).isEqualTo("3 Foo")
+    assertThat(Min(ScalarAndType(scalar = 3)).toString()).isEqualTo("3")
+    assertThat(Min(ScalarAndType(scalar = 3, gte("Default"))).toString()).isEqualTo("3")
+    assertThat(Min(ScalarAndType(type = gte("Default"))).toString()).isEqualTo("1")
+    assertThat(Max(ScalarAndType(0, gte("Foo"))).toString()).isEqualTo("MAX 0 Foo")
+    assertThat(Max(ScalarAndType(type = gte("Foo"))).toString()).isEqualTo("MAX 1 Foo")
+    assertThat(Max(ScalarAndType(1, gte("Foo"))).toString()).isEqualTo("MAX 1 Foo")
+    assertThat(Max(ScalarAndType(3, gte("Foo"))).toString()).isEqualTo("MAX 3 Foo")
+    assertThat(Max(ScalarAndType(scalar = 3)).toString()).isEqualTo("MAX 3 Default")
   }
 
   private fun testRoundTrip(start: String, end: String = start) =
@@ -138,10 +138,10 @@ private class RequirementTest {
   fun hairy() {
     val parsed: Requirement =
         parsePets("Adjacency<CityTile<Anyone>, OceanTile> OR 1 Adjacency<OceanTile, CityTile<Anyone>>")
-    assertThat(parsed).isEqualTo(Requirement.Or(setOf(Min(QuantifiedExpression(gte("Adjacency",
+    assertThat(parsed).isEqualTo(Requirement.Or(setOf(Min(ScalarAndType(type = gte("Adjacency",
         gte("CityTile", gte("Anyone")),
         gte("OceanTile")))),
-        Min(QuantifiedExpression(gte("Adjacency",
+        Min(ScalarAndType(type = gte("Adjacency",
             gte("OceanTile"),
             gte("CityTile", gte("Anyone"))))))))
   }

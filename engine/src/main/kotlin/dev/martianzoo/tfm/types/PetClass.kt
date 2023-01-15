@@ -6,7 +6,7 @@ import dev.martianzoo.tfm.pets.SpecialClassNames.COMPONENT
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.Effect
 import dev.martianzoo.tfm.pets.ast.PetNode
-import dev.martianzoo.tfm.pets.ast.QuantifiedExpression
+import dev.martianzoo.tfm.pets.ast.ScalarAndType
 import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.pets.ast.Requirement.And
 import dev.martianzoo.tfm.pets.ast.Requirement.Exact
@@ -203,8 +203,8 @@ internal class PetClass(
           directSuperclasses.any { it.isSingleton() }
 
   private fun requiresAnInstance(r: Requirement): Boolean {
-    return r is Min && r.qe == QuantifiedExpression(gte("This"), 1) ||
-        r is Exact && r.qe == QuantifiedExpression(gte("This"), 1) ||
+    return r is Min && r.sat == ScalarAndType(1, gte("This")) ||
+        r is Exact && r.sat == ScalarAndType(1, gte("This")) ||
         r is And && r.requirements.any { requiresAnInstance(it) }
   }
 

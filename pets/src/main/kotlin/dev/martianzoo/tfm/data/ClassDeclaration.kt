@@ -6,7 +6,7 @@ import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.Effect
 import dev.martianzoo.tfm.pets.ast.Instruction.Intensity
 import dev.martianzoo.tfm.pets.ast.PetNode
-import dev.martianzoo.tfm.pets.ast.QuantifiedExpression
+import dev.martianzoo.tfm.pets.ast.ScalarAndType
 import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.pets.ast.Requirement.And
 import dev.martianzoo.tfm.pets.ast.Requirement.Exact
@@ -60,8 +60,8 @@ data class ClassDeclaration(
   fun isSingleton() = otherInvariants.any() { requiresOneInstance(it) }
 
   private fun requiresOneInstance(r: Requirement): Boolean {
-    return r is Min && r.qe == QuantifiedExpression(THIS.type, 1) ||
-        r is Exact && r.qe == QuantifiedExpression(THIS.type, 1) ||
+    return r is Min && r.sat == ScalarAndType(1, THIS.type) ||
+        r is Exact && r.sat == ScalarAndType(1, THIS.type) ||
         r is And && r.requirements.any { requiresOneInstance(it) }
   }
 

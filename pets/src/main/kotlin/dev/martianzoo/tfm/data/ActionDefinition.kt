@@ -7,7 +7,7 @@ import dev.martianzoo.tfm.pets.SpecialClassNames.THIS
 import dev.martianzoo.tfm.pets.actionToEffect
 import dev.martianzoo.tfm.pets.ast.Action
 import dev.martianzoo.tfm.pets.ast.ClassName
-import dev.martianzoo.tfm.pets.ast.QuantifiedExpression
+import dev.martianzoo.tfm.pets.ast.ScalarAndType
 import dev.martianzoo.tfm.pets.ast.Requirement.Exact
 
 data class ActionDefinition(
@@ -40,4 +40,4 @@ data class ActionDefinition(
   }
 }
 
-private val invariant = Exact(QuantifiedExpression(THIS.type, 1))
+private val invariant = Exact(ScalarAndType(1, THIS.type))

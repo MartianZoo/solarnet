@@ -10,7 +10,7 @@ import dev.martianzoo.tfm.pets.ast.Instruction
 import dev.martianzoo.tfm.pets.ast.Instruction.Gain
 import dev.martianzoo.tfm.pets.ast.Instruction.Per
 import dev.martianzoo.tfm.pets.ast.PetNode
-import dev.martianzoo.tfm.pets.ast.QuantifiedExpression
+import dev.martianzoo.tfm.pets.ast.ScalarAndType
 import dev.martianzoo.tfm.pets.ast.TypeExpression.Companion.gte
 import dev.martianzoo.tfm.pets.ast.TypeExpression.GenericTypeExpression
 import kotlin.reflect.KClass
@@ -151,11 +151,11 @@ private class TransformsTest {
                 "HAHA"
             ),
             Instruction.Multi(
-                Gain(QuantifiedExpression(gte("Heat"), 1)),
+                Gain(ScalarAndType(1, gte("Heat"))),
                 Instruction.Transform(
                     Per(
-                        Gain(QuantifiedExpression(gte("Steel"), 1)),
-                        QuantifiedExpression(gte("PowerTag"), 5)
+                        Gain(ScalarAndType(1, gte("Steel"))),
+                        ScalarAndType(5, gte("PowerTag"))
                     ),
                     "HAHA"
                 )
