@@ -7,6 +7,7 @@ import com.github.h0tk3y.betterParse.combinators.or
 import com.github.h0tk3y.betterParse.combinators.separatedTerms
 import com.github.h0tk3y.betterParse.grammar.parser
 import com.github.h0tk3y.betterParse.parser.Parser
+import com.github.h0tk3y.betterParse.parser.parse
 import dev.martianzoo.tfm.api.CustomInstruction.ExecuteInsteadException
 import dev.martianzoo.tfm.api.GameState
 import dev.martianzoo.tfm.api.standardResourceNames
@@ -231,24 +232,25 @@ sealed class Instruction : PetNode() {
     ;
 
     companion object {
-      fun forSymbol(symbol: String) = values().first { it.symbol == symbol }
+      fun from(symbol: String) = values().first { it.symbol == symbol }
     }
   }
 
   companion object : PetParser() {
+    fun from(instruction: String) = parser().parse(tokenize(instruction))
+
     internal fun parser(): Parser<Instruction> {
       return parser {
         val sat = ScalarAndType.parser()
 
-        val scalar: Parser<Int> = _scalarRE map { it.text.toInt() }
         val optlIntens = optional(intensity)
         val gain = sat and optlIntens map { (sat, intens) -> Gain(sat, intens) }
         val remove = skipChar('-') and gain map { Remove(it.sat, it.intensity) }
 
         val transmute =
             optional(scalar) and
-                FromExpression.parser() and
-                optional(intensity) map { (scal, fro, intens) ->
+            FromExpression.parser() and
+            optional(intensity) map { (scal, fro, intens) ->
               Transmute(fro, scal, intens)
             }
 
@@ -258,9 +260,7 @@ sealed class Instruction : PetNode() {
           if (sat == null) instr else Per(instr, sat)
         }
 
-        val instruction = parser { parser() }
-
-        val maybeTransform = maybePer or (transform(instruction) map { (node, type) ->
+        val maybeTransform = maybePer or (transform(parser()) map { (node, type) ->
           Transform(node, type)
         })
 
@@ -269,7 +269,7 @@ sealed class Instruction : PetNode() {
             arguments) map { (name, args) ->
           Custom(name.text, args)
         }
-        val atom = group(instruction) or maybeTransform or custom
+        val atom = group(parser()) or maybeTransform or custom
 
         val gated = optional(Requirement.atomParser() and skipChar(':')) and atom map {
           (one, two) -> if (one == null) two else Gated(one, two)

@@ -51,7 +51,7 @@ open class PetParser {
   val scalar: Parser<Int> = _scalarRE map { it.text.toInt() }
 
   internal val intensity = optional( // TODO
-      char('!') or char('.') or char('?') map { it.text } map Companion::forSymbol
+      char('!') or char('.') or char('?') map { it.text } map Companion::from
   )
 
   internal inline fun <reified T> optionalList(parser: Parser<List<T>>) =
