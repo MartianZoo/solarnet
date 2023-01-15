@@ -1,12 +1,21 @@
 package dev.martianzoo.tfm.pets.ast
 
+import com.github.h0tk3y.betterParse.combinators.and
+import com.github.h0tk3y.betterParse.combinators.map
+import com.github.h0tk3y.betterParse.combinators.optional
+import com.github.h0tk3y.betterParse.combinators.or
+import com.github.h0tk3y.betterParse.combinators.separatedTerms
+import com.github.h0tk3y.betterParse.grammar.parser
+import com.github.h0tk3y.betterParse.parser.Parser
 import dev.martianzoo.tfm.api.CustomInstruction.ExecuteInsteadException
 import dev.martianzoo.tfm.api.GameState
 import dev.martianzoo.tfm.api.standardResourceNames
+import dev.martianzoo.tfm.pets.PetParser
 import dev.martianzoo.tfm.pets.PetException
 import dev.martianzoo.tfm.pets.ast.FromExpression.SimpleFrom
 import dev.martianzoo.tfm.pets.ast.FromExpression.TypeInFrom
 import dev.martianzoo.tfm.pets.ast.TypeExpression.GenericTypeExpression
+import dev.martianzoo.tfm.pets.ast.TypeExpression.TypeParsers.typeExpression
 import dev.martianzoo.tfm.pets.deprodify
 
 sealed class Instruction : PetNode() {
@@ -223,6 +232,59 @@ sealed class Instruction : PetNode() {
 
     companion object {
       fun forSymbol(symbol: String) = values().first { it.symbol == symbol }
+    }
+  }
+
+  companion object : PetParser() {
+    internal fun parser(): Parser<Instruction> {
+      return parser {
+        val qe = QuantifiedExpression.parser()
+
+        val scalar: Parser<Int> = _scalarRE map { it.text.toInt() }
+        val optlIntens = optional(intensity)
+        val gain = qe and optlIntens map { (qe, intens) -> Gain(qe, intens) }
+        val remove = skipChar('-') and gain map { Remove(it.qe, it.intensity) }
+
+        val transmute =
+            optional(scalar) and
+                FromExpression.parser() and
+                optional(intensity) map { (scal, fro, intens) ->
+              Transmute(fro, scal, intens)
+            }
+
+        val perable = transmute or group(transmute) or gain or remove
+
+        val maybePer = perable and optional(skipChar('/') and qe) map { (instr, qe) ->
+          if (qe == null) instr else Per(instr, qe)
+        }
+
+        val instruction = parser { parser() }
+
+        val maybeTransform = maybePer or (transform(instruction) map { (node, type) ->
+          Transform(node, type)
+        })
+
+        val arguments = separatedTerms(typeExpression, char(','), acceptZero = true)
+        val custom = skipChar('$') and _lowerCamelRE and group(
+            arguments) map { (name, args) ->
+          Custom(name.text, args)
+        }
+        val atom = group(instruction) or maybeTransform or custom
+
+        val gated = optional(Requirement.atomParser() and skipChar(':')) and atom map {
+          (one, two) -> if (one == null) two else Gated(one, two)
+        }
+        val orInstr = separatedTerms(gated, _or) map {
+          val set = it.toSet()
+          if (set.size == 1) set.first() else Or(set)
+        }
+        val then = separatedTerms(orInstr, _then) map {
+          if (it.size == 1) it.first() else Then(it)
+        }
+        commaSeparated(then) map {
+          if (it.size == 1) it.first() else Multi(it)
+        }
+      }
     }
   }
 }

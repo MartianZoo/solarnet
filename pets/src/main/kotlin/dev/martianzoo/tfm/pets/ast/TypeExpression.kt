@@ -1,6 +1,14 @@
 package dev.martianzoo.tfm.pets.ast
 
+import com.github.h0tk3y.betterParse.combinators.and
+import com.github.h0tk3y.betterParse.combinators.map
+import com.github.h0tk3y.betterParse.combinators.optional
+import com.github.h0tk3y.betterParse.combinators.or
+import com.github.h0tk3y.betterParse.combinators.skip
+import com.github.h0tk3y.betterParse.grammar.parser
+import com.github.h0tk3y.betterParse.parser.Parser
 import dev.martianzoo.tfm.pets.Parsing.parsePets
+import dev.martianzoo.tfm.pets.PetParser
 import dev.martianzoo.util.joinOrEmpty
 
 /**
@@ -63,4 +71,32 @@ sealed class TypeExpression : PetNode() {
   }
 
   override val kind = "TypeExpression"
+
+  // This is handled differently from the others because so many of the individual parsers end up
+  // being needed by the others. So we put them all in properties and pass the whole TypeParsers
+  // object around.
+  object TypeParsers : PetParser() {
+    val classShortName = _allCapsWordRE map { ClassName(it.text) }
+    val classFullName = _upperCamelRE map { ClassName(it.text) }
+    val className = classFullName // or classShortName -- why does that break everything?
+
+    val classLiteral =
+        className and
+        skipChar('.') and
+        skip(_class) map TypeExpression::ClassLiteral
+
+    val optlSpecs =
+        optionalList(skipChar('<') and
+        commaSeparated(parser { typeExpression }) and
+        skipChar('>'))
+
+    val refinement = group(skip(_has) and parser { Requirement.parser() })
+
+    val genericType: Parser<GenericTypeExpression> =
+        className and optlSpecs and optional(refinement) map { (type, specs, ref) ->
+          GenericTypeExpression(type, specs, ref)
+        }
+
+    val typeExpression = classLiteral or genericType
+  }
 }

@@ -1,8 +1,16 @@
 package dev.martianzoo.tfm.pets.ast
 
+import com.github.h0tk3y.betterParse.combinators.and
+import com.github.h0tk3y.betterParse.combinators.map
+import com.github.h0tk3y.betterParse.combinators.optional
+import com.github.h0tk3y.betterParse.combinators.or
+import com.github.h0tk3y.betterParse.combinators.separatedTerms
+import com.github.h0tk3y.betterParse.combinators.skip
+import com.github.h0tk3y.betterParse.grammar.parser
+import com.github.h0tk3y.betterParse.parser.Parser
+import dev.martianzoo.tfm.pets.PetParser
 import dev.martianzoo.tfm.pets.PetException
 import dev.martianzoo.tfm.pets.ast.Instruction.Intensity.MANDATORY
-import dev.martianzoo.tfm.pets.ast.Instruction.Per
 import dev.martianzoo.tfm.pets.ast.Instruction.Remove
 
 data class Action(val cost: Cost?, val instruction: Instruction) : PetNode() {
@@ -38,7 +46,7 @@ data class Action(val cost: Cost?, val instruction: Instruction) : PetNode() {
       override fun toString() = "$cost / ${qe.toString(forceType = true)}"
       override fun precedence() = 5
 
-      override fun toInstruction() = Per(cost.toInstruction(), qe)
+      override fun toInstruction() = Instruction.Per(cost.toInstruction(), qe)
     }
 
     data class Or(var costs: Set<Cost>) : Cost() {
@@ -66,6 +74,43 @@ data class Action(val cost: Cost?, val instruction: Instruction) : PetNode() {
       override fun toInstruction() = Instruction.Transform(cost.toInstruction(), transform)
 
       override fun extract() = cost
+    }
+
+    companion object : PetParser() {
+      fun parser(): Parser<Cost> {
+        return parser {
+          val qe = QuantifiedExpression.parser()
+          val cost: Parser<Cost> = parser { parser() }
+          val spend = qe map Cost::Spend
+
+          val maybeTransform = spend or (transform(cost) map { (node, type) ->
+            Transform(node, type)
+          })
+          val perCost = maybeTransform and optional(skipChar('/') and qe) map {
+            (cost, qe) -> if (qe == null) cost else Per(cost, qe)
+          }
+
+          val orCost =
+              separatedTerms(perCost or group(cost), _or) map {
+                val set = it.toSet()
+                if (set.size == 1) set.first() else Or(set)
+              }
+
+          commaSeparated(orCost or group(cost)) map {
+            if (it.size == 1) it.first() else Multi(it)
+          }
+        }
+      }
+    }
+  }
+
+  companion object : PetParser() {
+    internal fun parser(): Parser<Action> {
+      return optional(Cost.parser()) and
+          skip(_arrow) and
+          Instruction.parser() map { (c, i) ->
+        Action(c, i)
+      }
     }
   }
 }

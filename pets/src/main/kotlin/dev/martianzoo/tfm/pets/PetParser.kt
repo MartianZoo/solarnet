@@ -12,13 +12,14 @@ import com.github.h0tk3y.betterParse.lexer.literalToken
 import com.github.h0tk3y.betterParse.lexer.regexToken
 import com.github.h0tk3y.betterParse.parser.Parser
 import com.github.h0tk3y.betterParse.utils.Tuple2
+import dev.martianzoo.tfm.pets.ast.Instruction.Intensity.Companion
 
 /** Parses the Petaform language. */
-open class PetTokenizer {
+open class PetParser {
   internal fun tokenize(input: String) = TokenCache.tokenize(input)
 
-  internal val arrow = literal("->", "arrow")
-  internal val doubleColon = literal("::", "doublecolon")
+  internal val _arrow = literal("->", "arrow")
+  internal val _doubleColon = literal("::", "doublecolon")
 
   // I simply don't want to name all of these and would rather look them up by the char itself
   private val characters = "!$+,-./:;=?()[]{}<>\n".map { it to literal("$it") }.toMap()
@@ -42,16 +43,20 @@ open class PetTokenizer {
   internal val _require = literal("REQUIRE")
 
   // regexes - could leave the `Regex()` out, but it loses IDEA syntax highlighting!
-  internal val upperCamelRE = regex(Regex("""\b[A-Z][a-z][A-Za-z0-9_]*\b"""), "UpperCamel")
-  internal val scalarRE = regex(Regex("""\b(0|[1-9][0-9]*)\b"""), "scalar")
-  internal val lowerCamelRE = regex(Regex("""\b[a-z][a-zA-Z0-9]*\b"""), "lowerCamel")
-  internal val allCapsWordRE = regex(Regex("""\b[A-Z]+\b"""), "ALLCAPS")
+  internal val _upperCamelRE = regex(Regex("""\b[A-Z][a-z][A-Za-z0-9_]*\b"""), "UpperCamel")
+  internal val _scalarRE = regex(Regex("""\b(0|[1-9][0-9]*)\b"""), "scalar")
+  internal val _lowerCamelRE = regex(Regex("""\b[a-z][a-zA-Z0-9]*\b"""), "lowerCamel")
+  internal val _allCapsWordRE = regex(Regex("""\b[A-Z]+\b"""), "ALLCAPS")
+
+  internal val intensity = optional( // TODO
+      char('!') or char('.') or char('?') map { it.text } map Companion::forSymbol
+  )
 
   internal inline fun <reified T> optionalList(parser: Parser<List<T>>) =
       optional(parser) map { it ?: listOf() }
 
   internal inline fun <reified T> transform(interior: Parser<T>) =
-      allCapsWordRE and skipChar('[') and interior and skipChar(']') map {
+      _allCapsWordRE and skipChar('[') and interior and skipChar(']') map {
         (trans, inter) -> Tuple2(inter, trans.text.removeSuffix("["))
       }
 

@@ -21,13 +21,6 @@ import dev.martianzoo.tfm.pets.ClassDeclarationParsers.Body.BodyElement.Invarian
 import dev.martianzoo.tfm.pets.ClassDeclarationParsers.Body.BodyElement.NestedDeclGroup
 import dev.martianzoo.tfm.pets.ClassDeclarationParsers.Declarations.nestedGroup
 import dev.martianzoo.tfm.pets.ClassDeclarationParsers.NestableDecl.IncompleteNestableDecl
-import dev.martianzoo.tfm.pets.ElementParsers.Instructions.intensity
-import dev.martianzoo.tfm.pets.ElementParsers.Types
-import dev.martianzoo.tfm.pets.ElementParsers.action
-import dev.martianzoo.tfm.pets.ElementParsers.effect
-import dev.martianzoo.tfm.pets.ElementParsers.genericType
-import dev.martianzoo.tfm.pets.ElementParsers.requirement
-import dev.martianzoo.tfm.pets.ElementParsers.typeExpression
 import dev.martianzoo.tfm.pets.SpecialClassNames.COMPONENT
 import dev.martianzoo.tfm.pets.SpecialClassNames.THIS
 import dev.martianzoo.tfm.pets.ast.Action
@@ -35,13 +28,17 @@ import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.Effect
 import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.pets.ast.TypeExpression.GenericTypeExpression
+import dev.martianzoo.tfm.pets.ast.TypeExpression.TypeParsers.classFullName
+import dev.martianzoo.tfm.pets.ast.TypeExpression.TypeParsers.genericType
+import dev.martianzoo.tfm.pets.ast.TypeExpression.TypeParsers.refinement
+import dev.martianzoo.tfm.pets.ast.TypeExpression.TypeParsers.typeExpression
 import dev.martianzoo.util.KClassMultimap
 import dev.martianzoo.util.onlyElement
 import dev.martianzoo.util.plus
 import dev.martianzoo.util.toSetStrict
 
 /** Parses the Petaform language. */
-internal object ClassDeclarationParsers : PetTokenizer() {
+internal object ClassDeclarationParsers : PetParser() {
   internal val nls = zeroOrMore(char('\n'))
 
   internal object Signatures {
@@ -56,9 +53,9 @@ internal object ClassDeclarationParsers : PetTokenizer() {
         optionalList(skipChar(':') and commaSeparated(genericType))
 
     val signature: Parser<Signature> =
-        parser { Types.classFullName } and
+        parser { classFullName } and
         dependencies and
-        parser { Types.optlRefinement } and
+        optional(parser { refinement }) and
         // optional(skipChar('[') and parser {Types.classShortName} and skipChar(']')) and
         supertypes map { (name, deps, refin, supes) ->
           Signature(name, deps, refin, supes)
@@ -69,7 +66,7 @@ internal object ClassDeclarationParsers : PetTokenizer() {
   }
 
   internal object BodyElements {
-    private val invariant: Parser<Requirement> = skip(_has) and requirement
+    private val invariant: Parser<Requirement> = skip(_has) and Requirement.parser()
 
     private val gainOnlyDefaults: Parser<DefaultsDeclaration> =
         skipChar('+') and genericType and intensity map { (type, int) ->
@@ -92,8 +89,8 @@ internal object ClassDeclarationParsers : PetTokenizer() {
     val bodyElementNoClass: Parser<BodyElement> =
         (invariant map ::InvariantElement) or
         (default map ::DefaultsElement) or
-        (effect map ::EffectElement) or
-        (action map ::ActionElement)
+        (Effect.parser() map ::EffectElement) or
+        (Action.parser() map ::ActionElement)
 
     val bodyElement: Parser<BodyElement> = bodyElementNoClass or parser { nestedGroup }
   }

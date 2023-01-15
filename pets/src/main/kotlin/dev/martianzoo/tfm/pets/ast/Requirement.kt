@@ -1,6 +1,14 @@
 package dev.martianzoo.tfm.pets.ast
 
+import com.github.h0tk3y.betterParse.combinators.and
+import com.github.h0tk3y.betterParse.combinators.map
+import com.github.h0tk3y.betterParse.combinators.or
+import com.github.h0tk3y.betterParse.combinators.separatedTerms
+import com.github.h0tk3y.betterParse.combinators.skip
+import com.github.h0tk3y.betterParse.grammar.parser
+import com.github.h0tk3y.betterParse.parser.Parser
 import dev.martianzoo.tfm.api.GameState
+import dev.martianzoo.tfm.pets.PetParser
 
 sealed class Requirement : PetNode() {
   abstract fun evaluate(game: GameState): Boolean
@@ -48,4 +56,31 @@ sealed class Requirement : PetNode() {
   }
 
   override val kind = "Requirement"
+
+  companion object : PetParser() {
+    internal fun atomParser(): Parser<Requirement> { //
+      return parser {
+        val qe = QuantifiedExpression.parser()
+        val min = qe map ::Min
+        val max = skip(_max) and qe map ::Max
+        val exact = skipChar('=') and qe map ::Exact
+        val transform = transform(parser()) map { (node, type) ->
+          Transform(node, type)
+        }
+        min or max or exact or transform or group(parser())
+      }
+    }
+
+    internal fun parser(): Parser<Requirement> {
+      return parser {
+        val orReq = separatedTerms(atomParser(), _or) map {
+          val set = it.toSet()
+          if (set.size == 1) set.first() else Or(set)
+        }
+        commaSeparated(orReq) map {
+          if (it.size == 1) it.first() else And(it)
+        }
+      }
+    }
+  }
 }
