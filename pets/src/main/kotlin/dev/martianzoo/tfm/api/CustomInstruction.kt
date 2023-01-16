@@ -1,6 +1,5 @@
 package dev.martianzoo.tfm.api
 
-import dev.martianzoo.tfm.pets.Parsing.parsePets
 import dev.martianzoo.tfm.pets.ast.Instruction
 import dev.martianzoo.tfm.pets.ast.TypeExpression
 

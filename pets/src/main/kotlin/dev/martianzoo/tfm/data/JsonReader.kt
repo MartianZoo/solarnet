@@ -3,7 +3,7 @@ package dev.martianzoo.tfm.data
 import com.squareup.moshi.FromJson
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
-import dev.martianzoo.tfm.data.MapDefinition.MapAreaDefinition
+import dev.martianzoo.tfm.data.MarsMapDefinition.AreaDefinition
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.util.Grid
@@ -25,7 +25,7 @@ object JsonReader {
 
 // ACTIONS
 
-  fun readActions(json5: String): List<ActionDefinition> {
+  fun readActions(json5: String): List<StandardActionDefinition> {
     val import = fromJson5<ActionsImport>(json5)
 
     return import.actions.map { it.complete(false) } +
@@ -37,16 +37,16 @@ object JsonReader {
       val projects: List<IncompleteActionDef>) {
 
     class IncompleteActionDef(val id: ClassName, val bundle: String, val action: String) {
-      fun complete(project: Boolean) = ActionDefinition(id, bundle, project, action)
+      fun complete(project: Boolean) = StandardActionDefinition(id, bundle, project, action)
     }
   }
 
 // MAPS
 
-  fun readMaps(json5: String): List<MapDefinition> = fromJson5<MapsImport>(json5).definitions
+  fun readMaps(json5: String): List<MarsMapDefinition> = fromJson5<MapsImport>(json5).definitions
 
   private class MapsImport(val maps: List<MapImport>, val legend: Map<Char, String>) {
-    val definitions: List<MapDefinition> by lazy {
+    val definitions: List<MarsMapDefinition> by lazy {
       val leg = Legend(legend)
       maps.map { it.toDefinition(leg) }
     }
@@ -56,21 +56,21 @@ object JsonReader {
         val bundle: String,
         val rows: List<List<String>>,
     ) {
-      internal fun toDefinition(legend: Legend): MapDefinition {
+      internal fun toDefinition(legend: Legend): MarsMapDefinition {
         val areas = rows.flatMapIndexed() { row0Index, cells ->
           cells.mapIndexedNotNull { col0Index, code ->
             mapArea(row0Index, col0Index, code, legend)
           }
         }
         val grid = Grid.grid(areas, { it.row }, { it.column })
-        return MapDefinition(name, bundle, grid)
+        return MarsMapDefinition(name, bundle, grid)
       }
 
       private fun mapArea(
           row0Index: Int, col0Index: Int, code: String, legend: Legend
-      ): MapAreaDefinition? {
+      ): AreaDefinition? {
         if (code.isEmpty()) return null
-        return MapAreaDefinition(
+        return AreaDefinition(
             name, bundle,
             row0Index + 1, col0Index + 1,
             legend.getType(code), legend.getBonus(code),

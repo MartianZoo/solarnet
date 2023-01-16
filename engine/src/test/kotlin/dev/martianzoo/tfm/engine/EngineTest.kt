@@ -2,6 +2,7 @@ package dev.martianzoo.tfm.engine
 
 import com.google.common.collect.Multiset
 import com.google.common.truth.Truth.assertThat
+import dev.martianzoo.tfm.api.GameSetup
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.canon.Canon.Bundle.Base
 import dev.martianzoo.tfm.canon.Canon.Bundle.CorporateEra
@@ -15,19 +16,17 @@ import org.junit.jupiter.api.Test
 class EngineTest {
   @Test
   fun loadsExpectedClasses() {
-
-    val bundles = setOf(Base, CorporateEra, Tharsis, Prelude, Promos).map { it.id }
-    val game = Engine.newGame(Canon, 4, bundles)
-
+    val game = Engine.newGame(GameSetup(Canon, "BRMPX", 4))
     val unusedExpansionCards =
         Canon.cardDefinitions.filter { "VC".contains(it.bundle) }.map { it.name }.toSet()
 
+    val milestoneNames = Canon.milestoneDefinitions.map { it.name }
     val regex = Regex("(Hellas|Elysium|Player5|Camp|Row" +
         "|Venus|Area2|Floater|Dirigible|AirScrappingSP).*")
     val expected = (Canon.allClassDeclarations.keys - unusedExpansionCards).filterNot {
       it.matches(regex)
     }.filterNot {
-      "HEV".contains(Canon.milestonesByClassName[it]?.bundle ?: "x")
+      it in milestoneNames && "HEV".contains(Canon.milestone(it).bundle)
     }
 
     assertThat(game.classTable.loadedClassNames()).containsExactlyElementsIn(expected)
@@ -35,8 +34,7 @@ class EngineTest {
 
   @Test
   fun createdSingletons() {
-    val bundles = setOf(Base, CorporateEra, Tharsis, Prelude, Promos).map { it.id }
-    val game = Engine.newGame(Canon, 3, bundles)
+    val game = Engine.newGame(GameSetup(Canon, "BRMPX", 3))
     val all: Multiset<Component> = game.components.getAll(game.classTable.resolve("Component"))
 
     val isArea: (Component) -> Boolean =
@@ -55,6 +53,7 @@ class EngineTest {
       "Player2",
       "Player3",
       "Generation",
+      "Tharsis",
 
       "ClaimMilestone",
       "ConvertHeat",

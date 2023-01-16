@@ -1,21 +1,29 @@
 package dev.martianzoo.tfm.data
 
+import dev.martianzoo.tfm.data.SpecialClassNames.MARS_MAP
 import dev.martianzoo.tfm.data.SpecialClassNames.TILE
 import dev.martianzoo.tfm.pets.SpecialClassNames.THIS
 import dev.martianzoo.tfm.pets.ast.ClassName
-import dev.martianzoo.tfm.pets.ast.ClassName.Companion
 import dev.martianzoo.tfm.pets.ast.Effect
 import dev.martianzoo.tfm.pets.ast.Effect.Trigger.OnGain
 import dev.martianzoo.tfm.pets.ast.Instruction
 import dev.martianzoo.util.Grid
 
-data class MapDefinition(
-    val name: ClassName,
-    val bundle: String,
-    val areas: Grid<MapAreaDefinition>
-) {
-  data class MapAreaDefinition(
-      /** Mame of the MapDefinition this area belongs to (e.g "Tharsis"). */
+data class MarsMapDefinition(
+    override val name: ClassName,
+    override val bundle: String,
+    val areas: Grid<AreaDefinition>
+): Definition {
+  override val id = name
+  override val asClassDeclaration = ClassDeclaration(
+      id = id,
+      name = name,
+      abstract = false,
+      supertypes = setOf(MARS_MAP.type),
+  )
+
+  data class AreaDefinition(
+      /** Mame of the MarsMapDefinition this area belongs to (e.g "Tharsis"). */
       val mapName: ClassName,
 
       override val bundle: String,

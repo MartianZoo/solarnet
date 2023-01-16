@@ -2,14 +2,14 @@ package dev.martianzoo.tfm.repl
 
 import dev.martianzoo.tfm.api.GameState
 import dev.martianzoo.tfm.api.TypeInfo
-import dev.martianzoo.tfm.data.MapDefinition.MapAreaDefinition
+import dev.martianzoo.tfm.data.MarsMapDefinition.AreaDefinition
 import dev.martianzoo.tfm.pets.ast.TypeExpression
 import dev.martianzoo.util.Grid
 
 class MapToText(val game: GameState) {
 
   internal fun map(): List<String> {
-    val grid: Grid<MapAreaDefinition> = game.setup.map.areas
+    val grid: Grid<AreaDefinition> = game.setup.map.areas
     var lines = ""
     // TODO
 
@@ -39,7 +39,7 @@ class MapToText(val game: GameState) {
         }
   }
 
-  private fun describe(area: MapAreaDefinition?): String { // TODO rewrite using Grid<String>
+  private fun describe(area: AreaDefinition?): String { // TODO rewrite using Grid<String>
     if (area == null) return ""
     val tileType: TypeInfo = game.resolve("Tile<${area.asClassDeclaration.name}>")
     val tiles = game.getAll(tileType.toTypeExpressionFull())

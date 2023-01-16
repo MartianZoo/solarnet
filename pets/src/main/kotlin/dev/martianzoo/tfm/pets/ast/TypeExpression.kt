@@ -10,7 +10,6 @@ import com.github.h0tk3y.betterParse.parser.Parser
 import dev.martianzoo.tfm.pets.Parsing
 import dev.martianzoo.tfm.pets.PetParser
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.tfm.pets.ast.Instruction.Companion
 import dev.martianzoo.util.joinOrEmpty
 
 /**

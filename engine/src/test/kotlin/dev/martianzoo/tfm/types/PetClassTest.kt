@@ -1,7 +1,7 @@
 package dev.martianzoo.tfm.types
 
 import com.google.common.truth.Truth.assertThat
-import dev.martianzoo.tfm.api.FakeAuthority
+import dev.martianzoo.tfm.api.Authority
 import dev.martianzoo.tfm.pets.Parsing.parseClassDeclarations
 import dev.martianzoo.tfm.pets.SpecialClassNames.COMPONENT
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
@@ -197,7 +197,7 @@ private class PetClassTest {
 
 private fun loader(petsText: String): PetClassLoader {
   val classes = parseClassDeclarations(petsText)
-  val authority = object : FakeAuthority() {
+  val authority = object : Authority.Empty() {
     override val explicitClassDeclarations = classes
   }
   return PetClassLoader(authority).also { it.loadEverything() }

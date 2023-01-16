@@ -3,7 +3,6 @@ package dev.martianzoo.tfm.canon
 import dev.martianzoo.tfm.api.CustomInstruction
 import dev.martianzoo.tfm.api.ReadOnlyGameState
 import dev.martianzoo.tfm.api.lookUpProductionLevels
-import dev.martianzoo.tfm.pets.Parsing.parsePets
 import dev.martianzoo.tfm.pets.PetException
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.Instruction
@@ -35,7 +34,7 @@ object GainLowestProduction : CustomInstruction("gainLowestProduction") {
 object CopyProductionBox : CustomInstruction("copyProductionBox") {
   override fun translate(game: ReadOnlyGameState, arguments: List<TypeExpression>): Instruction {
     val chosenCardName = arguments.onlyElement().asGeneric().root
-    val def = game.setup.authority.cardsByClassName[chosenCardName]!!
+    val def = game.setup.authority.card(chosenCardName)
     val matches = def.immediateRaw
         ?.childNodesOfType<Transform>()
         ?.filter { it.transform == "PROD" }

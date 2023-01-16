@@ -10,7 +10,6 @@ import com.github.h0tk3y.betterParse.parser.Parser
 import dev.martianzoo.tfm.api.GameState
 import dev.martianzoo.tfm.pets.Parsing
 import dev.martianzoo.tfm.pets.PetParser
-import dev.martianzoo.tfm.pets.ast.Instruction.Companion
 
 sealed class Requirement : PetNode() {
   abstract fun evaluate(game: GameState): Boolean

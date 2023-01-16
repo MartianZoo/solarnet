@@ -1,11 +1,11 @@
 package dev.martianzoo.tfm.pets.ast
 
 import com.google.common.truth.Truth.assertThat
-import dev.martianzoo.tfm.api.FakeAuthority
+import dev.martianzoo.tfm.api.Authority
 import dev.martianzoo.tfm.api.GameSetup
 import dev.martianzoo.tfm.api.GameState
+import dev.martianzoo.tfm.data.MarsMapDefinition
 import dev.martianzoo.tfm.data.StateChange.Cause
-import dev.martianzoo.tfm.pets.Parsing.parsePets
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.pets.ast.Requirement.Max
 import dev.martianzoo.tfm.pets.ast.Requirement.Min
@@ -13,6 +13,7 @@ import dev.martianzoo.tfm.pets.ast.ScalarAndType.Companion.sat
 import dev.martianzoo.tfm.pets.ast.TypeExpression.ClassLiteral
 import dev.martianzoo.tfm.pets.ast.TypeExpression.GenericTypeExpression
 import dev.martianzoo.tfm.pets.testSampleStrings
+import dev.martianzoo.util.Grid
 import org.junit.jupiter.api.Test
 
 // Most testing is done by AutomatedTest
@@ -150,7 +151,13 @@ private class RequirementTest {
   // All type expressions with even-length string representations
   // exist and have a count equal to that string's length
   object FakeGame : GameState { // TODO stub?
-    override val setup = GameSetup(FakeAuthority(), 2, setOf("B", "M"))
+    override val setup by lazy {
+      val auth = object : Authority.Empty() {
+        override val marsMapDefinitions =
+            listOf(MarsMapDefinition(cn("FakeTharsis"), "M", Grid.empty()))
+      }
+      GameSetup(auth, "BM", 2)
+    }
 
     override fun resolve(typeText: String) = TODO()
     override fun resolve(type: TypeExpression) = TODO()

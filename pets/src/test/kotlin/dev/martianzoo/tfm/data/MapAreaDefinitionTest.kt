@@ -2,7 +2,7 @@ package dev.martianzoo.tfm.data
 
 import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.tfm.canon.Canon
-import dev.martianzoo.tfm.data.MapDefinition.MapAreaDefinition
+import dev.martianzoo.tfm.data.MarsMapDefinition.AreaDefinition
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.util.Grid
 import org.junit.jupiter.api.Test
@@ -11,7 +11,7 @@ private class MapAreaDefinitionTest {
 
   @Test
   fun testTharsis() {
-    val thar: Grid<MapAreaDefinition> = Canon.mapsByClassName[cn("Tharsis")]!!.areas
+    val thar: Grid<AreaDefinition> = Canon.marsMap(cn("Tharsis")).areas
     checkWaterAreaCount(thar)
 
     assertThat(thar[5, 3]!!.type.string).isEqualTo("NoctisArea")
@@ -26,7 +26,7 @@ private class MapAreaDefinitionTest {
 
   @Test
   fun testHellas() {
-    val hell: Grid<MapAreaDefinition> = Canon.mapsByClassName[cn("Hellas")]!!.areas
+    val hell: Grid<AreaDefinition> = Canon.marsMap(cn("Hellas")).areas
     checkWaterAreaCount(hell)
 
     assertThat(hell[5, 7]!!.type.string).isEqualTo("WaterArea")
@@ -38,7 +38,7 @@ private class MapAreaDefinitionTest {
 
   @Test
   fun testElysium() {
-    val elys: Grid<MapAreaDefinition> = Canon.mapsByClassName[cn("Elysium")]!!.areas
+    val elys: Grid<AreaDefinition> = Canon.marsMap(cn("Elysium")).areas
     checkWaterAreaCount(elys)
 
     assertThat(elys[1, 1]!!.type.string).isEqualTo("WaterArea")
@@ -51,13 +51,13 @@ private class MapAreaDefinitionTest {
     assertThat(elys[5, 9]!!.bonusText).isEqualTo("Plant, Titanium")
   }
 
-  private fun checkWaterAreaCount(map: Grid<MapAreaDefinition>) {
+  private fun checkWaterAreaCount(map: Grid<AreaDefinition>) {
     assertThat(map.count { it.type == cn("WaterArea") }).isEqualTo(12)
   }
 
   @Test
   fun parseAllInstructions() {
-    val uniqueAreas = Canon.mapDefinitions
+    val uniqueAreas = Canon.marsMapDefinitions
         .asSequence()
         .flatMap { it.areas }
         .mapNotNull { it.bonus }

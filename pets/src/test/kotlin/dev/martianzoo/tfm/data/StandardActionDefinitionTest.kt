@@ -5,10 +5,10 @@ import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import org.junit.jupiter.api.Test
 
-class ActionDefinitionTest {
+class StandardActionDefinitionTest {
   @Test
   fun test() {
-    val claim = Canon.actionsByClassName[cn("ClaimMilestone")]!!
+    val claim = Canon.action(cn("ClaimMilestone"))
     assertThat(claim.id).isEqualTo(cn("SAC"))
     assertThat(claim.bundle).isEqualTo("B")
     assertThat(claim.project).isFalse()

@@ -4,6 +4,7 @@ import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 
 object SpecialClassNames {
   val CARD_FRONT = cn("CardFront")
+  val MARS_MAP = cn("MarsMap")
   val MILESTONE = cn("Milestone")
   val RESOURCEFUL_CARD = cn("ResourcefulCard")
   val ACTION_CARD = cn("ActionCard")

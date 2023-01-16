@@ -13,6 +13,7 @@
           <option value=":pets:test" />
           <option value=":canon:test" />
           <option value=":engine:test" />
+          <option value=":repl:test" />
         </list>
       </option>
       <option name="vmOptions" />

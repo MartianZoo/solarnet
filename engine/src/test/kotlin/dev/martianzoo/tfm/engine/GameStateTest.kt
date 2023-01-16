@@ -1,10 +1,10 @@
 package dev.martianzoo.tfm.engine
 
 import com.google.common.truth.Truth.assertThat
+import dev.martianzoo.tfm.api.GameSetup
 import dev.martianzoo.tfm.api.lookUpProductionLevels
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.data.StateChange
-import dev.martianzoo.tfm.pets.Parsing.parsePets
 import dev.martianzoo.tfm.pets.Parsing.parseScript
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
@@ -15,7 +15,7 @@ private class GameStateTest {
 
   @Test
   fun basicByApi() {
-    val game = Engine.newGame(Canon, 3, setOf("B", "M"))
+    val game = Engine.newGame(GameSetup(Canon, "BM", 3))
 
     assertThat(game.count("Heat")).isEqualTo(0)
 
@@ -55,7 +55,7 @@ private class GameStateTest {
 
   @Test
   fun basicByScript() {
-    val game = Engine.newGame(Canon, 3, setOf("B", "M"))
+    val game = Engine.newGame(GameSetup(Canon, "BM", 3))
 
     val s = """
       REQUIRE =0 Heat
@@ -110,7 +110,7 @@ private class GameStateTest {
 
   @Test
   fun lookup() { // TODO move where belongs
-    val game = Engine.newGame(Canon, 3, setOf("B", "M"))
+    val game = Engine.newGame(GameSetup(Canon, "BM", 3))
     val prods: Map<ClassName, Int> = lookUpProductionLevels(game, cn("Player1").type)
     assertThat(prods).containsExactly(
         cn("Megacredit"), -5,

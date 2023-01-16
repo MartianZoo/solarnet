@@ -2,12 +2,12 @@ package dev.martianzoo.tfm.canon
 
 import dev.martianzoo.tfm.api.Authority
 import dev.martianzoo.tfm.api.CustomInstruction
-import dev.martianzoo.tfm.data.ActionDefinition
 import dev.martianzoo.tfm.data.CardDefinition
 import dev.martianzoo.tfm.data.ClassDeclaration
 import dev.martianzoo.tfm.data.JsonReader
-import dev.martianzoo.tfm.data.MapDefinition
+import dev.martianzoo.tfm.data.MarsMapDefinition
 import dev.martianzoo.tfm.data.MilestoneDefinition
+import dev.martianzoo.tfm.data.StandardActionDefinition
 import dev.martianzoo.tfm.pets.Parsing.parseClassDeclarations
 import dev.martianzoo.util.Debug
 
@@ -22,23 +22,23 @@ object Canon : Authority() {
     }
   }
 
-  override val mapDefinitions: Collection<MapDefinition> by lazy {
-    JsonReader.readMaps(readResource("maps.json5"))
+  override val cardDefinitions: Collection<CardDefinition> by lazy {
+    JsonReader.readCards(readResource("cards.json5"))
   }
 
-  override val actionDefinitions: Collection<ActionDefinition> by lazy {
+  override val standardActionDefinitions: Collection<StandardActionDefinition> by lazy {
     JsonReader.readActions(readResource("actions.json5"))
   }
 
-  override val cardDefinitions: Collection<CardDefinition> by lazy {
-    JsonReader.readCards(readResource("cards.json5"))
+  override val marsMapDefinitions: Collection<MarsMapDefinition> by lazy {
+    JsonReader.readMaps(readResource("maps.json5"))
   }
 
   override val milestoneDefinitions: Collection<MilestoneDefinition> by lazy {
     JsonReader.readMilestones(readResource("milestones.json5"))
   }
 
-  override fun customInstructions(): List<CustomInstruction> = allCustomInstructions
+  override val customInstructions: List<CustomInstruction> by ::allCustomInstructions
 
   private fun readResource(filename: String): String {
     val dir = javaClass.packageName.replace('.', '/')
@@ -59,9 +59,7 @@ object Canon : Authority() {
     ;
 
     companion object {
-      fun forId(id: String): Bundle {
-        return values().first { it.id == id }
-      }
+      fun forId(id: String) = values().first { it.id == id }
     }
   }
 }

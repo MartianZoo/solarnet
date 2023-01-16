@@ -1,9 +1,10 @@
 package dev.martianzoo.tfm.repl
 
-import dev.martianzoo.tfm.api.FakeAuthority
+import dev.martianzoo.tfm.api.Authority
 import dev.martianzoo.tfm.api.GameSetup
 import dev.martianzoo.tfm.api.GameState
 import dev.martianzoo.tfm.canon.Canon
+import dev.martianzoo.tfm.data.MarsMapDefinition
 import dev.martianzoo.tfm.data.StateChange.Cause
 import dev.martianzoo.tfm.engine.Engine
 import dev.martianzoo.tfm.engine.Game
@@ -24,16 +25,17 @@ import dev.martianzoo.tfm.types.PetClass
 import dev.martianzoo.tfm.types.PetClassLoader
 import dev.martianzoo.tfm.types.PetType
 import dev.martianzoo.tfm.types.PetType.PetGenericType
+import dev.martianzoo.util.Grid
 
 class ReplSession {
   private var game: Game? = null
   private var defaultPlayer: TypeExpression? = null
 
   fun newgame(args: String): List<String> {
-    val (players, bundles) = args.split(Regex("\\s+"), 2)
-    game = Engine.newGame(Canon, players.toInt(), bundles.asSequence().map { "$it" }.toList())
+    val (players, bundleString) = args.split(Regex("\\s+"), 2)
+    game = Engine.newGame(GameSetup(Canon, bundleString, players.toInt()))
     defaultPlayer = null
-    return listOf("New $players-player game created with bundles: $bundles")
+    return listOf("New $players-player game created with bundles: $bundleString")
   }
 
   fun become(args: String): List<String> {
@@ -169,7 +171,11 @@ class ReplSession {
         cause: Cause?,
     ) = TODO("Not yet implemented")
 
-    override val setup = GameSetup(FakeAuthority(), 2, listOf("M", "B"))
+    val auth = object : Authority.Empty() {
+      override val marsMapDefinitions =
+          listOf(MarsMapDefinition(cn("FakeTharsis"), "M", Grid.empty()))
+    }
+    override val setup = GameSetup(auth, "BM", 2)
 
     override fun resolve(type: TypeExpression) = throe()
     override fun resolve(typeText: String) = throe()

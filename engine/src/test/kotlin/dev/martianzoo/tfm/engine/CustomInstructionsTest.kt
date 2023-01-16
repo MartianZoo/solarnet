@@ -2,12 +2,8 @@ package dev.martianzoo.tfm.engine
 
 import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.tfm.api.Authority
+import dev.martianzoo.tfm.api.GameSetup
 import dev.martianzoo.tfm.canon.Canon
-import dev.martianzoo.tfm.data.ActionDefinition
-import dev.martianzoo.tfm.data.CardDefinition
-import dev.martianzoo.tfm.data.ClassDeclaration
-import dev.martianzoo.tfm.data.MapDefinition
-import dev.martianzoo.tfm.data.MilestoneDefinition
 import dev.martianzoo.tfm.pets.Parsing.parseScript
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -16,7 +12,7 @@ private class CustomInstructionsTest {
 
   @Test
   fun robinson() {
-    val game = Engine.newGame(Canon, 3, setOf("B", "M"))
+    val game = Engine.newGame(GameSetup(Canon, "BM", 3))
     val s = """
       // The standard hack for every player - ignore it!
       EXEC PROD[5 Megacredit<Player1>]
@@ -35,7 +31,7 @@ private class CustomInstructionsTest {
 
   @Test
   fun robinsonCant() {
-    val game = Engine.newGame(Canon, 3, setOf("B", "M"))
+    val game = Engine.newGame(GameSetup(Canon, "BM", 3))
     val s = """
       // The standard hack for every player - ignore it!
       EXEC PROD[5 Megacredit<Player1>]
@@ -51,16 +47,11 @@ private class CustomInstructionsTest {
   // TODO figure out how to make gradle compile the java code
   // It seemed like adding plugins { `java-library` } should have been enough
   fun java() {
-    val auth = object : Authority() { // todo Fwding
-      override val explicitClassDeclarations: Collection<ClassDeclaration> = Canon.explicitClassDeclarations
-      override val actionDefinitions: Collection<ActionDefinition> = Canon.actionDefinitions
-      override val cardDefinitions: Collection<CardDefinition> = Canon.cardDefinitions
-      override val mapDefinitions: Collection<MapDefinition> = Canon.mapDefinitions
-      override val milestoneDefinitions: Collection<MilestoneDefinition> = Canon.milestoneDefinitions
-      override fun customInstructions() = listOf(CustomJavaExample.GainLowestProduction())
+    val auth = object : Authority.Forwarding(Canon) {
+      override val customInstructions = listOf(CustomJavaExample.GainLowestProduction())
     }
 
-    val game = Engine.newGame(auth, 3, setOf("B", "R", "M"))
+    val game = Engine.newGame(GameSetup(Canon, "BRM", 3))
     val s = """
       // The standard hack for every player - ignore it!
       EXEC PROD[5 Megacredit<Player1>]
@@ -75,7 +66,7 @@ private class CustomInstructionsTest {
 
   @Test
   fun robinson2() {
-    val game = Engine.newGame(Canon, 3, setOf("B", "R", "M"))
+    val game = Engine.newGame(GameSetup(Canon, "BRM", 3))
     val s = """
       // The standard hack for every player - ignore it!
       EXEC PROD[5 Megacredit<Player1>]
@@ -89,7 +80,7 @@ private class CustomInstructionsTest {
   }
 
   fun roboWork() {
-    val game = Engine.newGame(Canon, 2, setOf("B", "R", "M"))
+    val game = Engine.newGame(GameSetup(Canon, "BM", 2))
     val s = """
       // The standard hack for every player - ignore it!
       EXEC PROD[5 Megacredit<Player1>]

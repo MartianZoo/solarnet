@@ -7,7 +7,6 @@ import com.github.h0tk3y.betterParse.combinators.or
 import com.github.h0tk3y.betterParse.combinators.separatedTerms
 import com.github.h0tk3y.betterParse.grammar.parser
 import com.github.h0tk3y.betterParse.parser.Parser
-import com.github.h0tk3y.betterParse.parser.parse
 import dev.martianzoo.tfm.api.CustomInstruction.ExecuteInsteadException
 import dev.martianzoo.tfm.api.GameState
 import dev.martianzoo.tfm.api.standardResourceNames
@@ -151,7 +150,7 @@ sealed class Instruction : PetNode() {
         this(functionName, arguments.toList())
 
     override fun execute(game: GameState) {
-      val instr = game.setup.authority.customInstructionsByName[functionName]!!
+      val instr = game.setup.authority.customInstruction(functionName)
       try {
         val oops = arguments.filter { game.resolve(it).abstract }
         if (oops.any()) {
