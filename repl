@@ -1,0 +1,4 @@
+#!/bin/sh
+cd `dirname $0`
+./gradlew engine:shadowJar && java -jar engine/build/libs/engine-all.jar
+

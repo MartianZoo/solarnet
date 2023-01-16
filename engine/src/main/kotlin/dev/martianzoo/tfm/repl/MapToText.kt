@@ -14,7 +14,7 @@ class MapToText(val game: GameState) {
     var lines = ""
     // TODO
 
-    var ind = "   ".repeat(grid.rowCount + 5)
+    val ind = "   ".repeat(grid.rowCount + 5)
     lines += "$ind 1     2     3     4     5     6     7     8     9\n"
     lines += "$ind/     /     /     /     /     /     /     /     /\n"
 

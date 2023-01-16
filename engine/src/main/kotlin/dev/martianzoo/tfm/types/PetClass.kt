@@ -29,6 +29,10 @@ internal class PetClass(
   override val abstract by declaration::abstract
   override val petClass = this
 
+  // These are for when this is used as a class type / class literal
+  override val dependencies = DependencyMap()
+  override val refinement = null
+
   val shortName by declaration::id
   val invariants by declaration::otherInvariants
 

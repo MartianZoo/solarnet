@@ -32,7 +32,7 @@ fun main() {
     } catch (e: EndOfFileException) {
       return
     } catch (e: Exception) {
-      println(e.message)
+      e.printStackTrace()
       println()
     }
   }

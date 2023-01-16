@@ -19,7 +19,7 @@ internal data class DependencyMap(val keyToDependency: Map<Dependency.Key, Depen
   val keys = keyToDependency.keys
 
   operator fun contains(key: Dependency.Key) = key in keyToDependency
-  operator fun get(key: Dependency.Key): Dependency = keyToDependency[key]!!
+  operator fun get(key: Dependency.Key): Dependency? = keyToDependency[key]
 
   fun specializes(that: DependencyMap) =
       // For each of *its* keys, my type must be a subtype of its type

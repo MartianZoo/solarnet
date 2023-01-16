@@ -28,8 +28,7 @@ sealed class TypeExpression : PetNode() {
         "$className" + specs.joinOrEmpty(wrap = "<>") + (refinement?.let { "(HAS $it)" } ?: "")
 
     fun specialize(specs: List<TypeExpression>): GenericTypeExpression {
-      require(this.specs.isEmpty())
-      return copy(specs = specs)
+      return copy(specs = this.specs + specs)
     }
     fun refine(ref: Requirement?): GenericTypeExpression {
       return if (ref == null) {

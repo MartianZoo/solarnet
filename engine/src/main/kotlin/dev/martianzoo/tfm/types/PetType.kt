@@ -7,6 +7,8 @@ import dev.martianzoo.tfm.pets.ast.TypeExpression.GenericTypeExpression
 
 internal interface PetType : TypeInfo {
   val petClass: PetClass
+  val dependencies: DependencyMap
+  val refinement: Requirement?
 
   fun isSubtypeOf(that: PetType): Boolean
 
@@ -18,8 +20,8 @@ internal interface PetType : TypeInfo {
 
   data class PetGenericType(
       override val petClass: PetClass,
-      val dependencies: DependencyMap,
-      val refinement: Requirement?,
+      override val dependencies: DependencyMap,
+      override val refinement: Requirement?,
   ) : PetType {
     override val abstract: Boolean =
         petClass.abstract || dependencies.abstract || refinement != null
@@ -42,7 +44,7 @@ internal interface PetType : TypeInfo {
     override fun intersect(that: PetType) =
         PetGenericType(
             petClass.intersect(that.petClass),
-            dependencies.intersect((that as PetGenericType).dependencies),
+            dependencies.intersect(that.dependencies),
             combine(this.refinement, that.refinement)
         )
 

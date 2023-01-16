@@ -1,6 +1,10 @@
+import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+
 plugins {
   id("org.jetbrains.kotlin.jvm") version "1.8.0"
+  id("com.github.johnrengelman.shadow") version "7.1.2"
   `java-library`
+  // application
 }
 
 kotlin {
@@ -26,4 +30,17 @@ dependencies {
 
   testImplementation(project(":canon")) // easiest to test the engine this way
   testImplementation(project(":pets")) // eep
+}
+
+// application {
+//   mainClass.set("dev.martianzoo.tfm.repl.MainKt")
+// }
+
+tasks {
+  named<ShadowJar>("shadowJar") {
+    mergeServiceFiles()
+    manifest {
+      attributes(mapOf("Main-Class" to "dev.martianzoo.tfm.repl.MainKt"))
+    }
+  }
 }
