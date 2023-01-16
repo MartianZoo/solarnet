@@ -5,14 +5,50 @@ import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.data.MarsMapDefinition.AreaDefinition
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.util.Grid
+import dev.martianzoo.util.onlyElement
 import dev.martianzoo.util.toStrings
 import org.junit.jupiter.api.Test
 
-private class MapAreaDefinitionTest {
+class MarsMapDefinitionTest {
+  @Test
+  fun test() {
+    val map: MarsMapDefinition = JsonReader.readMaps(demo).onlyElement()
+    assertThat(map.bundle).isEqualTo("D")
+    assertThat(map.name).isEqualTo(cn("Demo"))
+    assertThat(map.asClassDeclaration.superclassNames).containsExactly(cn("MarsMap"))
+    assertThat(map.areas).hasSize(7)
+  }
+
+  val demo = """{
+    "legend": {
+      "L": "LandArea", "W": "WaterArea", "V": "VolcanicArea",
+      "P": "Plant", "S": "Steel", "C": "ProjectCard",
+    },
+    "maps": [{
+      "name": "Demo",
+      "bundle": "D",
+      "rows": [
+        [ "VS", "L" ],
+        [ "V2P", "WPP", "WPC" ],
+        [ "", "LSS", "LC" ],
+      ]
+    }]
+  } """
 
   @Test
   fun testTharsis() {
     val thar: Grid<AreaDefinition> = Canon.marsMap(cn("Tharsis")).areas
+    assertThat(thar.rowCount).isEqualTo(10)
+    assertThat(thar.rows().first().toSet()).containsExactly(null)
+
+    assertThat(thar.columnCount).isEqualTo(10)
+    assertThat(thar.columns().first().toSet()).containsExactly(null)
+
+    assertThat(thar.diagonals().size).isEqualTo(19) // TODO whut
+    assertThat(thar.diagonals().take(5).flatten().toSet()).containsExactly(null)
+    assertThat(thar.diagonals().drop(14).flatten().toSet()).containsExactly(null)
+    assertThat(thar.diagonals().first().toSet()).containsExactly(null)
+
     checkWaterAreaCount(thar)
 
     assertThat(thar[5, 3]!!.type.string).isEqualTo("NoctisArea")
