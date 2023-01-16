@@ -7,8 +7,8 @@ import com.github.h0tk3y.betterParse.combinators.or
 import com.github.h0tk3y.betterParse.combinators.skip
 import com.github.h0tk3y.betterParse.grammar.parser
 import com.github.h0tk3y.betterParse.parser.Parser
-import dev.martianzoo.tfm.pets.Parsing.parsePets
 import dev.martianzoo.tfm.pets.PetParser
+import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.util.joinOrEmpty
 
 /**
@@ -17,19 +17,26 @@ import dev.martianzoo.util.joinOrEmpty
  * refined type is the combination of a real type with various predicates.
  */
 sealed class TypeExpression : PetNode() {
-  abstract val className: ClassName
+  abstract fun asGeneric(): GenericTypeExpression
 
   data class GenericTypeExpression(
-      override val className: ClassName,
-      val specs: List<TypeExpression> = listOf(),
+      val root: ClassName,
+      val args: List<TypeExpression> = listOf(),
       val refinement: Requirement? = null,
   ) : TypeExpression() {
     override fun toString() =
-        "$className" + specs.joinOrEmpty(wrap = "<>") + (refinement?.let { "(HAS $it)" } ?: "")
+        "$root" + args.joinOrEmpty(wrap = "<>") + (refinement?.let { "(HAS $it)" } ?: "")
 
-    fun specialize(specs: List<TypeExpression>): GenericTypeExpression {
-      return copy(specs = this.specs + specs)
+    override fun asGeneric() = this
+
+    fun addArgs(moreArgs: List<TypeExpression>): GenericTypeExpression {
+      return copy(args = args + moreArgs)
     }
+
+    fun replaceArgs(args: List<TypeExpression>): GenericTypeExpression {
+      return copy(args = args)
+    }
+
     fun refine(ref: Requirement?): GenericTypeExpression {
       return if (ref == null) {
         this
@@ -40,33 +47,10 @@ sealed class TypeExpression : PetNode() {
     }
   }
 
-  data class ClassLiteral(override val className: ClassName) : TypeExpression() {
+  data class ClassLiteral(val className: ClassName) : TypeExpression() {
     override fun toString() = "$className.CLASS"
-  }
-
-  // TODO
-  companion object {
-    fun gte(className: ClassName, specs: List<TypeExpression>) =
-        GenericTypeExpression(className, specs)
-    fun gte(className: String, specs: List<TypeExpression>) = gte(ClassName(className), specs)
-
-    @JvmName("gteFromStrings")
-    fun gte(className: String, specs: List<String>) = gte(ClassName(className), specs)
-
-    @JvmName("gteFromStrings")
-    fun gte(className: ClassName, specs: List<String>) = gte(className, specs.map { parsePets(it) })
-
-    fun gte(className: ClassName, first: String, vararg rest: String) =
-        gte(className, listOf(first) + rest)
-
-    fun gte(className: String, first: String, vararg rest: String) =
-        gte(className, listOf(first) + rest)
-
-    fun gte(className: ClassName, vararg specs: TypeExpression):GenericTypeExpression = gte(className, *specs)
-    fun gte(className: String, vararg specs: TypeExpression) = gte(className, specs.toList())
-
-    fun gte(className: ClassName) = gte(className, listOf<TypeExpression>())
-    fun gte(className: String) = gte(className, listOf<String>())
+    override fun asGeneric() =
+        error("Bzzt, this is not a generic type expression, it's a class literal")
   }
 
   override val kind = "TypeExpression"
@@ -75,25 +59,25 @@ sealed class TypeExpression : PetNode() {
   // being needed by the others. So we put them all in properties and pass the whole TypeParsers
   // object around.
   object TypeParsers : PetParser() {
-    val classShortName = _allCapsWordRE map { ClassName(it.text) }
-    val classFullName = _upperCamelRE map { ClassName(it.text) }
+    val classShortName = _allCapsWordRE map { cn(it.text) }
+    val classFullName = _upperCamelRE map { cn(it.text) }
     val className = classFullName // or classShortName -- why does that break everything?
 
-    val classLiteral =
+    private val classLiteral =
         className and
         skipChar('.') and
         skip(_class) map TypeExpression::ClassLiteral
 
-    val optlSpecs =
-        optionalList(skipChar('<') and
+    private val typeArgs =
+        skipChar('<') and
         commaSeparated(parser { typeExpression }) and
-        skipChar('>'))
+        skipChar('>')
 
     val refinement = group(skip(_has) and parser { Requirement.parser() })
 
     val genericType: Parser<GenericTypeExpression> =
-        className and optlSpecs and optional(refinement) map { (type, specs, ref) ->
-          GenericTypeExpression(type, specs, ref)
+        className and optionalList(typeArgs) and optional(refinement) map { (type, args, ref) ->
+          GenericTypeExpression(type, args, ref)
         }
 
     val typeExpression = classLiteral or genericType

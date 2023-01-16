@@ -5,7 +5,6 @@ import com.google.common.collect.Multiset
 import com.google.common.collect.Multisets
 import dev.martianzoo.tfm.data.StateChange
 import dev.martianzoo.tfm.data.StateChange.Cause
-import dev.martianzoo.tfm.pets.ast.TypeExpression.GenericTypeExpression
 import dev.martianzoo.tfm.types.PetType
 
 class ComponentGraph(startingWith: Collection<Component> = listOf()) {
@@ -32,8 +31,8 @@ class ComponentGraph(startingWith: Collection<Component> = listOf()) {
     val change = StateChange(
         ordinal = changeLog.size + 1,
         count = count,
-        gaining = gaining?.asTypeExpression as GenericTypeExpression?,
-        removing = removing?.asTypeExpression as GenericTypeExpression?,
+        gaining = gaining?.asTypeExpression?.asGeneric(),
+        removing = removing?.asTypeExpression?.asGeneric(),
         cause = cause,
     )
 

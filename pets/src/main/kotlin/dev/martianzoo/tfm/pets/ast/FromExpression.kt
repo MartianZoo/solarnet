@@ -10,7 +10,6 @@ import com.github.h0tk3y.betterParse.grammar.parser
 import com.github.h0tk3y.betterParse.parser.Parser
 import dev.martianzoo.tfm.pets.PetException
 import dev.martianzoo.tfm.pets.PetParser
-import dev.martianzoo.tfm.pets.ast.TypeExpression.Companion.gte
 import dev.martianzoo.tfm.pets.ast.TypeExpression.TypeParsers
 import dev.martianzoo.tfm.pets.ast.TypeExpression.TypeParsers.className
 import dev.martianzoo.tfm.pets.ast.TypeExpression.TypeParsers.genericType
@@ -40,21 +39,23 @@ sealed class FromExpression : PetNode() {
 
   data class ComplexFrom(
       val className: ClassName,
-      val specializations: List<FromExpression> = listOf(),
+      val args: List<FromExpression> = listOf(),
       val refinement: Requirement? = null, // TODO get rid of?
   ) : FromExpression() {
     init {
-      if (specializations.count { it is ComplexFrom || it is SimpleFrom } != 1) {
+      if (args.count { it is ComplexFrom || it is SimpleFrom } != 1) {
         throw PetException("Can only have one FROM in an expression")
       }
     }
 
-    override val toType = gte(className, specializations.map { it.toType })
-    override val fromType = gte(className, specializations.map { it.fromType }).refine(refinement)
+    override val toType = className.addArgs(
+        args.map { it.toType })
+    override val fromType = className.addArgs(
+        args.map { it.fromType }).refine(refinement)
 
     override fun toString() =
         "$className" +
-        specializations.joinOrEmpty(wrap="<>") +
+        args.joinOrEmpty(wrap="<>") +
         (refinement?.let { "(HAS $it)" } ?: "")
   }
 
@@ -78,8 +79,9 @@ sealed class FromExpression : PetNode() {
             className and
             skipChar('<') and fromElements and skipChar('>') and
             optional(TypeParsers.refinement) map {
-              (name, specs, refins) -> ComplexFrom(name, specs, refins)
+              (name, args, refins) -> ComplexFrom(name, args, refins)
             }
+
         simpleFrom or complexFrom
       }
     }

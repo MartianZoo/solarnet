@@ -14,9 +14,7 @@ data class ScalarAndType(
     val scalar: Int = 1,
     val type: TypeExpression = DEFAULT.type,
 ) : PetNode() {
-  init {
-    require(scalar >= 0)
-  }
+  init { require(scalar >= 0) }
 
   override val kind = ScalarAndType::class.simpleName!!
 
@@ -29,23 +27,26 @@ data class ScalarAndType(
   }
 
   companion object : PetParser() {
+    fun sat(scalar: Int = 1, type: TypeExpression = DEFAULT.type) =
+        ScalarAndType(scalar, type)
+
     fun parser(): Parser<ScalarAndType> {
       return parser {
         val scalarAndOptionalType =
             scalar and optional(typeExpression) map { (scalar, expr: TypeExpression?) ->
               if (expr == null) {
-                ScalarAndType(scalar = scalar)
+                sat(scalar = scalar)
               } else {
-                ScalarAndType(scalar, expr)
+                sat(scalar, expr)
               }
             }
 
         val optionalScalarAndType =
             optional(scalar) and typeExpression map { (scalar, expr) ->
               if (scalar == null) {
-                ScalarAndType(type = expr)
+                sat(type = expr)
               } else {
-                ScalarAndType(scalar, expr)
+                sat(scalar, expr)
               }
             }
 

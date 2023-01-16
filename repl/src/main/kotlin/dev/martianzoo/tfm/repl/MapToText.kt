@@ -4,7 +4,6 @@ import dev.martianzoo.tfm.api.GameState
 import dev.martianzoo.tfm.api.TypeInfo
 import dev.martianzoo.tfm.data.MapAreaDefinition
 import dev.martianzoo.tfm.pets.ast.TypeExpression
-import dev.martianzoo.tfm.pets.ast.TypeExpression.GenericTypeExpression
 import dev.martianzoo.util.Grid
 
 class MapToText(val game: GameState) {
@@ -52,9 +51,9 @@ class MapToText(val game: GameState) {
   }
 
   private fun describe(tile: TypeExpression): String {
-    val kind = tile.className.asString[0]
-    val player = (tile as GenericTypeExpression)
-        .specs
+    val gentile = tile.asGeneric()
+    val kind = gentile.root.string[0]
+    val player = gentile.args
         .map { "$it" }
         .firstOrNull { it.startsWith("Player") }
         ?.last()

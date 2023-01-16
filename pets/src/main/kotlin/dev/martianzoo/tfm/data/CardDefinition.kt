@@ -17,12 +17,12 @@ import dev.martianzoo.tfm.pets.SpecialClassNames.END
 import dev.martianzoo.tfm.pets.actionsToEffects
 import dev.martianzoo.tfm.pets.ast.Action
 import dev.martianzoo.tfm.pets.ast.ClassName
+import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.pets.ast.Effect
 import dev.martianzoo.tfm.pets.ast.Instruction
 import dev.martianzoo.tfm.pets.ast.PetNode
 import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.pets.ast.TypeExpression
-import dev.martianzoo.tfm.pets.ast.TypeExpression.Companion.gte
 import dev.martianzoo.tfm.pets.ast.TypeExpression.GenericTypeExpression
 import dev.martianzoo.tfm.pets.immediateToEffect
 import dev.martianzoo.util.toSetStrict
@@ -155,11 +155,11 @@ data class CardDefinition(
     }
   }
 
-  override val id = ClassName("C$idRaw")
+  override val id = cn("C$idRaw")
   override val name = englishHack(idRaw)
 
   // TODO ClassName
-  val tags: List<TypeExpression> by lazy { tagsText.map(::gte) }
+  val tags: List<TypeExpression> by lazy { tagsText.map { cn(it).type } }
 
   val resourceType: ClassName? = resourceTypeText?.let(::ClassName)
 
@@ -189,7 +189,7 @@ data class CardDefinition(
 
     projectKind?.let { supertypes += it.className.type }
     if (actionsRaw.any()) supertypes += ACTION_CARD.type
-    resourceType?.let { supertypes += RESOURCEFUL_CARD.specialize(it.literal) }
+    resourceType?.let { supertypes += RESOURCEFUL_CARD.addArgs(it.literal) }
     if (supertypes.isEmpty()) supertypes += CARD_FRONT.type
 
     ClassDeclaration(

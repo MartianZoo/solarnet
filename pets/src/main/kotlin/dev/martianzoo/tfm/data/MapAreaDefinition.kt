@@ -4,6 +4,7 @@ import dev.martianzoo.tfm.data.SpecialClassNames.TILE
 import dev.martianzoo.tfm.pets.Parsing.parsePets
 import dev.martianzoo.tfm.pets.SpecialClassNames.THIS
 import dev.martianzoo.tfm.pets.ast.ClassName
+import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.pets.ast.Effect
 import dev.martianzoo.tfm.pets.ast.Effect.Trigger.OnGain
 import dev.martianzoo.tfm.pets.ast.Instruction
@@ -58,8 +59,8 @@ data class MapAreaDefinition(
     )
   }
 
-  override val id = ClassName("${bundle}${row}$column")
-  override val name = ClassName("${mapName}_${row}_$column")
+  override val id = cn("${bundle}${row}$column")
+  override val name = cn("${mapName}_${row}_$column")
 }
 
-val trigger = OnGain(TILE.specialize(THIS.type))
+val trigger = OnGain(TILE.addArgs(THIS.type))

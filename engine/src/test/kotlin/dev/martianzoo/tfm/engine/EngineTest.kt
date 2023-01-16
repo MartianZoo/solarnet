@@ -9,7 +9,7 @@ import dev.martianzoo.tfm.canon.Canon.Bundle.Prelude
 import dev.martianzoo.tfm.canon.Canon.Bundle.Promos
 import dev.martianzoo.tfm.canon.Canon.Bundle.Tharsis
 import dev.martianzoo.tfm.engine.ComponentGraph.Component
-import dev.martianzoo.tfm.pets.ast.ClassName
+import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import org.junit.jupiter.api.Test
 
 class EngineTest {
@@ -40,12 +40,12 @@ class EngineTest {
     val all: Multiset<Component> = game.components.getAll(game.classTable.resolve("Component"))
 
     val isArea: (Component) -> Boolean =
-        { it.asTypeExpression.className.asString.startsWith("Tharsis_") }
+        { it.asTypeExpression.toString().startsWith("Tharsis_") }
 
     assertThat(all.elementSet().count(isArea)).isEqualTo(61)
 
     val isBorder: (Component) -> Boolean =
-        { it.asTypeExpression.className == ClassName("Border") }
+        { it.asTypeExpression.asGeneric().root == cn("Border") }
     assertThat(all.elementSet().count(isBorder)).isEqualTo(312)
 
     assertThat(all.filterNot(isArea)

@@ -13,6 +13,7 @@ import dev.martianzoo.tfm.pets.ast.Instruction
 import dev.martianzoo.tfm.pets.ast.PetNode
 import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.pets.ast.ScalarAndType
+import dev.martianzoo.tfm.pets.ast.ScalarAndType.Companion.sat
 import dev.martianzoo.tfm.pets.ast.Script
 import dev.martianzoo.tfm.pets.ast.Script.ScriptCommand
 import dev.martianzoo.tfm.pets.ast.Script.ScriptCounter
@@ -37,7 +38,7 @@ open class PetNodeVisitor {
 
         is TypeExpression -> when (this) {
           is ClassLiteral -> ClassLiteral(x(className))
-          is GenericTypeExpression -> GenericTypeExpression(x(className), x(specs), x(refinement))
+          is GenericTypeExpression -> GenericTypeExpression(x(root), x(args), x(refinement))
         }
 
         is ScalarAndType -> ScalarAndType(scalar, x(type))
@@ -65,7 +66,7 @@ open class PetNodeVisitor {
         }
         is FromExpression -> when (this) {
           is SimpleFrom -> SimpleFrom(x(toType), x(fromType))
-          is ComplexFrom -> ComplexFrom(x(className), x(specializations), x(refinement))
+          is ComplexFrom -> ComplexFrom(x(className), x(args), x(refinement))
           is TypeInFrom -> TypeInFrom(x(type))
         }
 

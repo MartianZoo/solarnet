@@ -2,8 +2,8 @@ package dev.martianzoo.tfm.pets
 
 import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.tfm.pets.Parsing.parseClassDeclarations
+import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.pets.ast.TypeExpression
-import dev.martianzoo.tfm.pets.ast.TypeExpression.Companion.gte
 import org.junit.jupiter.api.Test
 
 private class ClassDeclarationTest {
@@ -109,14 +109,14 @@ private class ClassDeclarationTest {
 
     assertThat(cs.map { it.supertypes }).containsExactly(
         setOf<TypeExpression>(),
-        setOf(gte("Component")),
-        setOf(gte("One")),
-        setOf(gte("Component")),
-        setOf(gte("Three")),
-        setOf(gte("One"), gte("Three")),
-        setOf(gte("Three")),
-        setOf(gte("Six")),
-        setOf(gte("One"), gte("Six")),
+        setOf(cn("Component").type),
+        setOf(cn("One").type),
+        setOf(cn("Component").type),
+        setOf(cn("Three").type),
+        setOf(cn("One").type, cn("Three").type),
+        setOf(cn("Three").type),
+        setOf(cn("Six").type),
+        setOf(cn("One").type, cn("Six").type),
     )
   }
 

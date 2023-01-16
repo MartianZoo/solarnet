@@ -7,9 +7,7 @@ import dev.martianzoo.tfm.data.StateChange
 import dev.martianzoo.tfm.pets.Parsing.parsePets
 import dev.martianzoo.tfm.pets.Parsing.parseScript
 import dev.martianzoo.tfm.pets.ast.ClassName
-import dev.martianzoo.tfm.pets.ast.TypeExpression
-import dev.martianzoo.tfm.pets.ast.TypeExpression.Companion.gte
-import dev.martianzoo.tfm.pets.ast.TypeExpression.GenericTypeExpression
+import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import org.junit.jupiter.api.Test
 
 private class GameStateTest {
@@ -42,15 +40,15 @@ private class GameStateTest {
     assertThat(game.isMet("=5 Heat<Player3>")).isTrue()
 
     assertThat(game.changeLog).containsExactly(
-        StateChange(1, 5, gaining = gte("Heat", gte("Player2"))),
-        StateChange(2, 10, gaining = gte("Heat", gte("Player3"))),
-        StateChange(3, 4, removing = gte("Heat", gte("Player2"))),
+        StateChange(1, 5, gaining = cn("Heat").addArgs(cn("Player2").type)),
+        StateChange(2, 10, gaining = cn("Heat").addArgs(cn("Player3").type)),
+        StateChange(3, 4, removing = cn("Heat").addArgs(cn("Player2").type)),
         StateChange(4, 3,
-            gaining = gte("Steel", gte("Player3")),
-            removing = gte("Heat", gte("Player3"))),
+            gaining = cn("Steel").addArgs(cn("Player3").type),
+            removing = cn("Heat").addArgs(cn("Player3").type)),
         StateChange(5, 2,
-            gaining = gte("Heat", gte("Player2")),
-            removing = gte("Heat", gte("Player3"))),
+            gaining = cn("Heat").addArgs(cn("Player2").type),
+            removing = cn("Heat").addArgs(cn("Player3").type)),
     ).inOrder()
   }
 
@@ -95,15 +93,15 @@ private class GameStateTest {
     ).inOrder()
 
     assertThat(game.changeLog).containsExactly(
-        StateChange(1, 5, gaining = gte("Heat", gte("Player2"))),
-        StateChange(2, 10, gaining = gte("Heat", gte("Player3"))),
-        StateChange(3, 4, removing = gte("Heat", gte("Player2"))),
+        StateChange(1, 5, gaining = cn("Heat").addArgs(cn("Player2").type)),
+        StateChange(2, 10, gaining = cn("Heat").addArgs(cn("Player3").type)),
+        StateChange(3, 4, removing = cn("Heat").addArgs(cn("Player2").type)),
         StateChange(4, 3,
-            gaining = gte("Steel", gte("Player3")),
-            removing = gte("Heat", gte("Player3"))),
+            gaining = cn("Steel").addArgs(cn("Player3").type),
+            removing = cn("Heat").addArgs(cn("Player3").type)),
         StateChange(5, 2,
-            gaining = gte("Heat", gte("Player2")),
-            removing = gte("Heat", gte("Player3"))),
+            gaining = cn("Heat").addArgs(cn("Player2").type),
+            removing = cn("Heat").addArgs(cn("Player3").type)),
     ).inOrder()
 
 
@@ -112,26 +110,25 @@ private class GameStateTest {
   @Test
   fun lookup() { // TODO move where belongs
     val game = Engine.newGame(Canon, 3, setOf("B", "M"))
-    val prods: Map<ClassName, Int> = lookUpProductionLevels(game, gte("Player1"))
+    val prods: Map<ClassName, Int> = lookUpProductionLevels(game, cn("Player1").type)
     assertThat(prods).containsExactly(
-        ClassName("Megacredit"), -5,
-        ClassName("Steel"), 0,
-        ClassName("Titanium"), 0,
-        ClassName("Plant"), 0,
-        ClassName("Energy"), 0,
-        ClassName("Heat"), 0,
+        cn("Megacredit"), -5,
+        cn("Steel"), 0,
+        cn("Titanium"), 0,
+        cn("Plant"), 0,
+        cn("Energy"), 0,
+        cn("Heat"), 0,
     )
 
-    game.applyChange(2, gaining =
-    parsePets<TypeExpression>("Production<Player1, Plant.CLASS>") as GenericTypeExpression)
-    val prods2: Map<ClassName, Int> = lookUpProductionLevels(game, gte("Player1"))
+    game.applyChange(2, gaining = parsePets("Production<Player1, Plant.CLASS>"))
+    val prods2: Map<ClassName, Int> = lookUpProductionLevels(game, cn("Player1").type)
     assertThat(prods2).containsExactly(
-        ClassName("Megacredit"), -5,
-        ClassName("Steel"), 0,
-        ClassName("Titanium"), 0,
-        ClassName("Plant"), 2,
-        ClassName("Energy"), 0,
-        ClassName("Heat"), 0,
+        cn("Megacredit"), -5,
+        cn("Steel"), 0,
+        cn("Titanium"), 0,
+        cn("Plant"), 2,
+        cn("Energy"), 0,
+        cn("Heat"), 0,
     )
   }
 }

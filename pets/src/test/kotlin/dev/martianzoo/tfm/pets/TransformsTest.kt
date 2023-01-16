@@ -4,14 +4,14 @@ import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.tfm.pets.Parsing.parsePets
 import dev.martianzoo.tfm.pets.ast.Action
 import dev.martianzoo.tfm.pets.ast.ClassName
+import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.pets.ast.Effect
 import dev.martianzoo.tfm.pets.ast.Effect.Trigger
 import dev.martianzoo.tfm.pets.ast.Instruction
 import dev.martianzoo.tfm.pets.ast.Instruction.Gain
 import dev.martianzoo.tfm.pets.ast.Instruction.Per
 import dev.martianzoo.tfm.pets.ast.PetNode
-import dev.martianzoo.tfm.pets.ast.ScalarAndType
-import dev.martianzoo.tfm.pets.ast.TypeExpression.Companion.gte
+import dev.martianzoo.tfm.pets.ast.ScalarAndType.Companion.sat
 import dev.martianzoo.tfm.pets.ast.TypeExpression.GenericTypeExpression
 import kotlin.reflect.KClass
 import org.junit.jupiter.api.Test
@@ -61,24 +61,24 @@ private class TransformsTest {
   @Test
   fun testFindAllClassNames() {
     val instr = parsePets<Instruction>('$' + "foo(Bar, Qux<Dog>)")
-    assertThat(instr.childNodesOfType<ClassName>().map { it.asString })
+    assertThat(instr.childNodesOfType<ClassName>().map { it.string })
         .containsExactly("Bar", "Qux", "Dog")
   }
 
   @Test
   fun testResolveSpecialThisType() {
-    checkResolveThis<Instruction>("Foo<This>", gte("Bar"), "Foo<Bar>")
-    checkResolveThis<Instruction>("Foo<This>", gte("Bar"), "Foo<Bar>")
+    checkResolveThis<Instruction>("Foo<This>", cn("Bar").type, "Foo<Bar>")
+    checkResolveThis<Instruction>("Foo<This>", cn("Bar").type, "Foo<Bar>")
 
     // looks like a plain textual replacement but we know what's really happening
     val petsIn = "-Ooh<Foo<Xyz, This, Qux>>: " +
         "5 Qux<Ooh, Xyz, Bar> OR 5 This?, =0 This: -Bar, 5: Foo<This>"
     val petsOut = "-Ooh<Foo<Xyz, It<Worked>, Qux>>: " +
         "5 Qux<Ooh, Xyz, Bar> OR 5 It<Worked>?, =0 It<Worked>: -Bar, 5: Foo<It<Worked>>"
-    checkResolveThis<Effect>(petsIn, gte("It", gte("Worked")), petsOut)
+    checkResolveThis<Effect>(petsIn, cn("It").addArgs(cn("Worked").type), petsOut)
 
     // allows nonsense
-    checkResolveThis<Instruction>("This<Foo>", gte("Bar"), "This<Foo>")
+    checkResolveThis<Instruction>("This<Foo>", cn("Bar").type, "This<Foo>")
   }
 
   private inline fun <reified P : PetNode> checkResolveThis(
@@ -111,7 +111,7 @@ private class TransformsTest {
       "Titanium",
       "Plant",
       "Energy",
-      "Heat").map { ClassName(it) }.toSet()
+      "Heat").map { cn(it) }.toSet()
 
   @Test
   fun testDeprodify_noProd() {
@@ -147,15 +147,15 @@ private class TransformsTest {
     assertThat(x).isEqualTo(
         Effect(
             Trigger.Transform(
-                Trigger.OnGain(gte("Plant")),
+                Trigger.OnGain(cn("Plant").type),
                 "HAHA"
             ),
             Instruction.Multi(
-                Gain(ScalarAndType(1, gte("Heat"))),
+                Gain(sat(1, cn("Heat").type)),
                 Instruction.Transform(
                     Per(
-                        Gain(ScalarAndType(1, gte("Steel"))),
-                        ScalarAndType(5, gte("PowerTag"))
+                        Gain(sat(1, cn("Steel").type)),
+                        sat(5, cn("PowerTag").type)
                     ),
                     "HAHA"
                 )

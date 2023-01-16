@@ -2,11 +2,11 @@ package dev.martianzoo.tfm.pets.ast
 
 import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.tfm.pets.Parsing.parsePets
+import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.pets.ast.FromExpression.ComplexFrom
 import dev.martianzoo.tfm.pets.ast.FromExpression.SimpleFrom
 import dev.martianzoo.tfm.pets.ast.Instruction.Intensity.AMAP
 import dev.martianzoo.tfm.pets.ast.Instruction.Transmute
-import dev.martianzoo.tfm.pets.ast.TypeExpression.Companion.gte
 import dev.martianzoo.tfm.pets.testRoundTrip
 import dev.martianzoo.tfm.pets.testSampleStrings
 import org.junit.jupiter.api.Test
@@ -90,13 +90,14 @@ private class InstructionTest {
     testRoundTrip("1 Foo FROM Bar.")
 
     assertThat(parsePets<Instruction>("1 Foo FROM Bar."))
-        .isEqualTo(Transmute(SimpleFrom(gte("Foo"), gte("Bar")), 1, AMAP))
+        .isEqualTo(Transmute(SimpleFrom(cn("Foo").type, cn("Bar").type), 1, AMAP))
     testRoundTrip("Foo<Bar FROM Qux>")
     testRoundTrip("Foo<Bar FROM Qux>.")
 
     val instr = Transmute(ComplexFrom(
-        ClassName("Foo"),
-        listOf(ComplexFrom(ClassName("Bar"), listOf(SimpleFrom(gte("Qux"), gte("Abc", gte("Eep")))
+        cn("Foo"),
+        listOf(ComplexFrom(cn("Bar"), listOf(SimpleFrom(cn("Qux").type,
+            cn("Abc").addArgs(cn("Eep").type))
         ))),
     ), null, null)
     assertThat(instr.toString()).isEqualTo("Foo<Bar<Qux FROM Abc<Eep>>>")

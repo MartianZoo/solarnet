@@ -8,7 +8,7 @@ import dev.martianzoo.tfm.pets.actionToEffect
 import dev.martianzoo.tfm.pets.ast.Action
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.Requirement.Exact
-import dev.martianzoo.tfm.pets.ast.ScalarAndType
+import dev.martianzoo.tfm.pets.ast.ScalarAndType.Companion.sat
 
 data class ActionDefinition(
     override val id: ClassName,
@@ -23,7 +23,7 @@ data class ActionDefinition(
     require(bundle.isNotEmpty())
   }
 
-  override val name = englishHack(id.asString)
+  override val name = englishHack(id.string)
 
   val action by lazy { parsePets<Action>(actionText) }
 
@@ -40,4 +40,4 @@ data class ActionDefinition(
   }
 }
 
-private val invariant = Exact(ScalarAndType(1, THIS.type))
+private val invariant = Exact(sat(1, THIS.type))

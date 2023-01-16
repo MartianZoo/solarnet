@@ -10,7 +10,7 @@ import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.pets.ast.Requirement.And
 import dev.martianzoo.tfm.pets.ast.Requirement.Exact
 import dev.martianzoo.tfm.pets.ast.Requirement.Min
-import dev.martianzoo.tfm.pets.ast.ScalarAndType
+import dev.martianzoo.tfm.pets.ast.ScalarAndType.Companion.sat
 import dev.martianzoo.tfm.pets.ast.TypeExpression
 import dev.martianzoo.tfm.pets.ast.TypeExpression.GenericTypeExpression
 
@@ -41,7 +41,7 @@ data class ClassDeclaration(
     }
   }
 
-  val superclassNames: List<ClassName> = supertypes.map { it.className }
+  val superclassNames: List<ClassName> = supertypes.map { it.root }
 
   val allNodes: Set<PetNode> by lazy {
     setOf<PetNode>() +
@@ -60,8 +60,8 @@ data class ClassDeclaration(
   fun isSingleton() = otherInvariants.any() { requiresOneInstance(it) }
 
   private fun requiresOneInstance(r: Requirement): Boolean {
-    return r is Min && r.sat == ScalarAndType(1, THIS.type) ||
-        r is Exact && r.sat == ScalarAndType(1, THIS.type) ||
+    return r is Min && r.sat == sat(1, THIS.type) ||
+        r is Exact && r.sat == sat(1, THIS.type) ||
         r is And && r.requirements.any { requiresOneInstance(it) }
   }
 

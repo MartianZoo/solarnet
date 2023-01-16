@@ -8,6 +8,7 @@ import dev.martianzoo.tfm.pets.SpecialClassNames.DEFAULT
 import dev.martianzoo.tfm.pets.ast.Action
 import dev.martianzoo.tfm.pets.ast.Action.Cost
 import dev.martianzoo.tfm.pets.ast.ClassName
+import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.pets.ast.Effect
 import dev.martianzoo.tfm.pets.ast.Effect.Trigger
 import dev.martianzoo.tfm.pets.ast.FromExpression
@@ -29,7 +30,9 @@ import dev.martianzoo.tfm.pets.ast.Requirement.Exact
 import dev.martianzoo.tfm.pets.ast.Requirement.Max
 import dev.martianzoo.tfm.pets.ast.Requirement.Min
 import dev.martianzoo.tfm.pets.ast.ScalarAndType
+import dev.martianzoo.tfm.pets.ast.ScalarAndType.Companion.sat
 import dev.martianzoo.tfm.pets.ast.TypeExpression
+import dev.martianzoo.tfm.pets.ast.TypeExpression.ClassLiteral
 import dev.martianzoo.tfm.pets.ast.TypeExpression.GenericTypeExpression
 import dev.martianzoo.tfm.testlib.PetToKotlin.p2k
 import kotlin.math.pow
@@ -45,29 +48,29 @@ internal class PetGenerator(scaling: (Int) -> Double) :
 
   private object Registry : RandomGenerator.Registry<PetNode>() {
     init {
-      val specSizes = (multiset(8 to 0, 4 to 1, 2 to 2, 1 to 3)) // weight to value
-      register<TypeExpression> {
-        recurse<GenericTypeExpression>()
+      val specSizes = multiset(8 to 0, 4 to 1, 2 to 2, 1 to 3) // weight to value
+      register {
+        cn(randomName())
       }
-      register<GenericTypeExpression> {
+      register { ClassLiteral(recurse()) }
+      register {
         GenericTypeExpression(recurse(), listOfSize(choose(specSizes)), refinement())
       }
-//    register { ClassLiteral(randomName()) }
       register {
-        ScalarAndType(choose(0, 1, 1, 1, 5, 11), choose(1 to DEFAULT.type, 3 to recurse()))
+        choose(5 to recurse<GenericTypeExpression>(), 0 to recurse<ClassLiteral>()) // TODO
       }
-      register<ClassName> {
-        ClassName(randomName())
+      register {
+        sat(choose(0, 1, 1, 1, 5, 11), choose(1 to DEFAULT.type, 3 to recurse()))
       }
 
-      val requirementTypes = (multiset(
+      val requirementTypes = multiset(
           9 to Min::class,
           4 to Max::class,
           2 to Exact::class,
           5 to Requirement.Or::class,
           3 to Requirement.And::class,
           1 to Requirement.Transform::class,
-      ))
+      )
       register<Requirement> { recurse(choose(requirementTypes)) }
       register { Min(sat = recurse()) }
       register { Max(sat = recurse()) }
@@ -78,7 +81,7 @@ internal class PetGenerator(scaling: (Int) -> Double) :
 
       fun RandomGenerator<*>.intensity() = choose(3 to null, 1 to randomEnum<Intensity>())
 
-      val instructionTypes = (multiset(
+      val instructionTypes = multiset(
           9 to Gain::class,
           4 to Remove::class,
           3 to Per::class,
@@ -89,7 +92,7 @@ internal class PetGenerator(scaling: (Int) -> Double) :
           3 to Instruction.Or::class,
           5 to Instruction.Multi::class,
           1 to Instruction.Transform::class,
-      ))
+      )
       register<Instruction> { recurse(choose(instructionTypes)) }
       register { Gain(recurse(), intensity()) }
       register { Remove(recurse(), intensity()) }
@@ -107,7 +110,7 @@ internal class PetGenerator(scaling: (Int) -> Double) :
         val two: GenericTypeExpression = recurse()
 
         fun getTypes(type: GenericTypeExpression): List<GenericTypeExpression> =
-            type.specs.flatMap { getTypes(it as GenericTypeExpression) } + type
+            type.args.flatMap { getTypes(it.asGeneric()) } + type
 
         val oneTypes = getTypes(one)
         val twoTypes = getTypes(two)
@@ -132,21 +135,21 @@ internal class PetGenerator(scaling: (Int) -> Double) :
           if (type == target) {
             return SimpleFrom(if (b) inject else target, if (b) target else inject)
           }
-          val specs = type.specs.map { convert(it as GenericTypeExpression) }
-          return if (specs.all { it is TypeInFrom }) {
+          val args = type.args.map { convert(it.asGeneric()) }
+          return if (args.all { it is TypeInFrom }) {
             TypeInFrom(type)
           } else {
-            ComplexFrom(type.className, specs, type.refinement)
+            ComplexFrom(type.root, args, type.refinement)
           }
         }
         convert(into)
       }
 
-      val triggerTypes = (multiset(
+      val triggerTypes = multiset(
           9 to Trigger.OnGain::class,
           5 to Trigger.OnRemove::class,
           1 to Trigger.Transform::class,
-      ))
+      )
       register<Trigger> { recurse(choose(triggerTypes)) }
       register { Trigger.OnGain(recurse()) }
       register { Trigger.OnRemove(recurse()) }
@@ -154,13 +157,13 @@ internal class PetGenerator(scaling: (Int) -> Double) :
 
       register { Effect(recurse(), recurse(), choose(true, false)) }
 
-      val costTypes = (multiset(
+      val costTypes = multiset(
           9 to Cost.Spend::class,
           3 to Cost.Per::class,
           3 to Cost.Or::class,
           2 to Cost.Multi::class,
           2 to Cost.Transform::class,
-      ))
+      )
       register<Cost> { recurse(choose(costTypes)) }
       register { Cost.Spend(sat = recurse()) }
       register { Cost.Per(recurse(), recurse()) }

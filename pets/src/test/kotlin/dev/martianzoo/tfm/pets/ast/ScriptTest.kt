@@ -2,13 +2,14 @@ package dev.martianzoo.tfm.pets.ast
 
 import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.tfm.pets.Parsing.parseScript
+import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.pets.ast.Instruction.Gain
 import dev.martianzoo.tfm.pets.ast.Requirement.Min
+import dev.martianzoo.tfm.pets.ast.ScalarAndType.Companion.sat
 import dev.martianzoo.tfm.pets.ast.Script.ScriptCommand
 import dev.martianzoo.tfm.pets.ast.Script.ScriptCounter
 import dev.martianzoo.tfm.pets.ast.Script.ScriptPragmaPlayer
 import dev.martianzoo.tfm.pets.ast.Script.ScriptRequirement
-import dev.martianzoo.tfm.pets.ast.TypeExpression.Companion.gte
 import org.junit.jupiter.api.Test
 
 private class ScriptTest {
@@ -28,23 +29,23 @@ private class ScriptTest {
 
     """)
     assertThat(script.lines).containsExactly(
-        ScriptPragmaPlayer(gte("Player1")),
+        ScriptPragmaPlayer(cn("Player1").type),
         ScriptCommand(
             Instruction.Multi(
-                Gain(ScalarAndType(type = gte("Foo"))),
-                Gain(ScalarAndType(5, gte("Bar"))),
+                Gain(sat(type = cn("Foo").type)),
+                Gain(sat(5, cn("Bar").type)),
             ),
         ),
-        ScriptCounter("num", gte("Qux", gte("Wow"))),
-        ScriptPragmaPlayer(gte("Player2")),
+        ScriptCounter("num", cn("Qux").addArgs(cn("Wow").type)),
+        ScriptPragmaPlayer(cn("Player2").type),
         ScriptRequirement(
-            Min(ScalarAndType(4, gte("Bar"))),
+            Min(sat(4, cn("Bar").type)),
         ),
         ScriptCommand(
             Instruction.Gated(
-                Min(ScalarAndType(type = gte("Abc"))),
-                Gain(ScalarAndType(type = gte("Xyz")))),
-            gte("Who", "Even", "Cares"),
+                Min(sat(type = cn("Abc").type)),
+                Gain(sat(type = cn("Xyz").type))),
+            cn("Who").addArgs(cn("Even").type, cn("Cares").type),
         ),
     )
   }

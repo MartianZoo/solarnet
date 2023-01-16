@@ -5,6 +5,7 @@ import dev.martianzoo.tfm.data.ClassDeclaration
 import dev.martianzoo.tfm.pets.SpecialClassNames.STANDARD_RESOURCE
 import dev.martianzoo.tfm.pets.SpecialClassNames.THIS
 import dev.martianzoo.tfm.pets.ast.ClassName
+import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.pets.ast.TypeExpression
 import dev.martianzoo.tfm.pets.ast.TypeExpression.ClassLiteral
 import dev.martianzoo.tfm.pets.ast.TypeExpression.GenericTypeExpression
@@ -27,7 +28,7 @@ class PetClassLoader(private val authority: Authority) : PetClassTable {
   }
 
   override fun resolve(expression: GenericTypeExpression): PetGenericType =
-      load(expression.className).baseType.specialize(expression.specs.map { resolve(it) })
+      load(expression.root).baseType.specialize(expression.args.map { resolve(it) })
 
   override fun loadedClassNames() = nameToClass.keys.toSet()
 
@@ -47,7 +48,7 @@ class PetClassLoader(private val authority: Authority) : PetClassTable {
     }
   }
 
-  fun load(idOrName: String) = load(ClassName(idOrName))
+  fun load(idOrName: String): PetClass = load(cn(idOrName))
 
   @JvmName("loadAllFromStrings")
   fun loadAll(idsAndNames: Collection<String>) = loadAll(idsAndNames.map(::ClassName))

@@ -1,19 +1,19 @@
 package dev.martianzoo.tfm.pets
 
-import dev.martianzoo.tfm.pets.ast.ClassName
+import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 
 object SpecialClassNames {
-  val COMPONENT = ClassName("Component")
-  val DEFAULT = ClassName("Default")
-  val DIE = ClassName("Die")
-  val END = ClassName("End")
-  val MEGACREDIT = ClassName("Megacredit")
-  val OK = ClassName("Ok")
-  val ANYONE = ClassName("Anyone")
-  val PLAYER = ClassName("Player")
-  val OWNED = ClassName("Owned")
-  val PRODUCTION = ClassName("Production")
-  val STANDARD_RESOURCE = ClassName("StandardResource")
-  val THIS = ClassName("This")
-  val USE_ACTION = ClassName("UseAction")
+  val COMPONENT = cn("Component")
+  val DEFAULT = cn("Default")
+  val DIE = cn("Die")
+  val END = cn("End")
+  val MEGACREDIT = cn("Megacredit")
+  val OK = cn("Ok")
+  val ANYONE = cn("Anyone")
+  val PLAYER = cn("Player")
+  val OWNED = cn("Owned")
+  val PRODUCTION = cn("Production")
+  val STANDARD_RESOURCE = cn("StandardResource")
+  val THIS = cn("This")
+  val USE_ACTION = cn("UseAction")
 }

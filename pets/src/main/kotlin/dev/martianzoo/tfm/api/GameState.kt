@@ -29,6 +29,7 @@ interface ReadOnlyGameState {
   fun count(typeText: String): Int
   fun count(type: TypeExpression): Int
 
+  fun getAll(type: GenericTypeExpression): Multiset<GenericTypeExpression>
   fun getAll(type: TypeExpression): Multiset<TypeExpression>
   fun getAll(type: ClassLiteral): Set<ClassLiteral>
   fun getAll(typeText: String): Multiset<TypeExpression>

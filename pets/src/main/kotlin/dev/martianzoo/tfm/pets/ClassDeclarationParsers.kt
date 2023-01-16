@@ -70,16 +70,16 @@ internal object ClassDeclarationParsers : PetParser() {
 
     private val gainOnlyDefaults: Parser<DefaultsDeclaration> =
         skipChar('+') and genericType and intensity map { (type, int) ->
-          require(type.className == THIS)
+          require(type.root == THIS)
           require(type.refinement == null)
-          DefaultsDeclaration(gainOnlySpecs = type.specs, gainIntensity = int)
+          DefaultsDeclaration(gainOnlySpecs = type.args, gainIntensity = int)
         }
 
     private val allCasesDefault: Parser<DefaultsDeclaration> =
         parser { genericType } map {
-          require(it.className == THIS)
+          require(it.root == THIS)
           require(it.refinement == null)
-          DefaultsDeclaration(universalSpecs = it.specs)
+          DefaultsDeclaration(universalSpecs = it.args)
         }
 
     private val default: Parser<DefaultsDeclaration> =
@@ -232,7 +232,7 @@ internal object ClassDeclarationParsers : PetParser() {
       override fun unnestOneFrom(container: ClassName): NestableDecl {
         return when {
           // the class name we'd insert is already there (TODO be even smarter)
-          decl.supertypes.any { it.className == container } -> CompleteNestableDecl(decl)
+          decl.supertypes.any { it.root == container } -> CompleteNestableDecl(decl)
 
           // jam the superclass in and mark it complete
           else -> CompleteNestableDecl(prependSuperclass(container))

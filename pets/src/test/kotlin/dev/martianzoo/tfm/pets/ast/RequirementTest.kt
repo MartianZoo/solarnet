@@ -6,10 +6,11 @@ import dev.martianzoo.tfm.api.GameSetup
 import dev.martianzoo.tfm.api.GameState
 import dev.martianzoo.tfm.data.StateChange.Cause
 import dev.martianzoo.tfm.pets.Parsing.parsePets
+import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.pets.ast.Requirement.Max
 import dev.martianzoo.tfm.pets.ast.Requirement.Min
+import dev.martianzoo.tfm.pets.ast.ScalarAndType.Companion.sat
 import dev.martianzoo.tfm.pets.ast.TypeExpression.ClassLiteral
-import dev.martianzoo.tfm.pets.ast.TypeExpression.Companion.gte
 import dev.martianzoo.tfm.pets.ast.TypeExpression.GenericTypeExpression
 import dev.martianzoo.tfm.pets.testSampleStrings
 import org.junit.jupiter.api.Test
@@ -88,24 +89,24 @@ private class RequirementTest {
 
   @Test
   fun simpleSourceToApi() {
-    assertThat(parsePets<Requirement>("Foo")).isEqualTo(Min(ScalarAndType(type = gte("Foo"))))
-    assertThat(parsePets<Requirement>("3 Foo")).isEqualTo(Min(ScalarAndType(3, gte("Foo"))))
-    assertThat(parsePets<Requirement>("MAX 3 Foo")).isEqualTo(Max(ScalarAndType(3, gte("Foo"))))
+    assertThat(parsePets<Requirement>("Foo")).isEqualTo(Min(sat(type = cn("Foo").type)))
+    assertThat(parsePets<Requirement>("3 Foo")).isEqualTo(Min(sat(3, cn("Foo").type)))
+    assertThat(parsePets<Requirement>("MAX 3 Foo")).isEqualTo(Max(sat(3, cn("Foo").type)))
   }
 
   @Test
   fun simpleApiToSource() {
-    assertThat(Min(ScalarAndType(type = gte("Foo"))).toString()).isEqualTo("Foo")
-    assertThat(Min(ScalarAndType(1, gte("Foo"))).toString()).isEqualTo("Foo")
-    assertThat(Min(ScalarAndType(3, gte("Foo"))).toString()).isEqualTo("3 Foo")
-    assertThat(Min(ScalarAndType(scalar = 3)).toString()).isEqualTo("3")
-    assertThat(Min(ScalarAndType(scalar = 3, gte("Default"))).toString()).isEqualTo("3")
-    assertThat(Min(ScalarAndType(type = gte("Default"))).toString()).isEqualTo("1")
-    assertThat(Max(ScalarAndType(0, gte("Foo"))).toString()).isEqualTo("MAX 0 Foo")
-    assertThat(Max(ScalarAndType(type = gte("Foo"))).toString()).isEqualTo("MAX 1 Foo")
-    assertThat(Max(ScalarAndType(1, gte("Foo"))).toString()).isEqualTo("MAX 1 Foo")
-    assertThat(Max(ScalarAndType(3, gte("Foo"))).toString()).isEqualTo("MAX 3 Foo")
-    assertThat(Max(ScalarAndType(scalar = 3)).toString()).isEqualTo("MAX 3 Default")
+    assertThat(Min(sat(type = cn("Foo").type)).toString()).isEqualTo("Foo")
+    assertThat(Min(sat(1, cn("Foo").type)).toString()).isEqualTo("Foo")
+    assertThat(Min(sat(3, cn("Foo").type)).toString()).isEqualTo("3 Foo")
+    assertThat(Min(sat(scalar = 3)).toString()).isEqualTo("3")
+    assertThat(Min(sat(scalar = 3, cn("Default").type)).toString()).isEqualTo("3")
+    assertThat(Min(sat(type = cn("Default").type)).toString()).isEqualTo("1")
+    assertThat(Max(sat(0, cn("Foo").type)).toString()).isEqualTo("MAX 0 Foo")
+    assertThat(Max(sat(type = cn("Foo").type)).toString()).isEqualTo("MAX 1 Foo")
+    assertThat(Max(sat(1, cn("Foo").type)).toString()).isEqualTo("MAX 1 Foo")
+    assertThat(Max(sat(3, cn("Foo").type)).toString()).isEqualTo("MAX 3 Foo")
+    assertThat(Max(sat(scalar = 3)).toString()).isEqualTo("MAX 3 Default")
   }
 
   private fun testRoundTrip(start: String, end: String = start) =
@@ -139,12 +140,11 @@ private class RequirementTest {
   fun hairy() {
     val parsed: Requirement =
         parsePets("Adjacency<CityTile<Anyone>, OceanTile> OR 1 Adjacency<OceanTile, CityTile<Anyone>>")
-    assertThat(parsed).isEqualTo(Requirement.Or(setOf(Min(ScalarAndType(type = gte("Adjacency",
-        gte("CityTile", gte("Anyone")),
-        gte("OceanTile")))),
-        Min(ScalarAndType(type = gte("Adjacency",
-            gte("OceanTile"),
-            gte("CityTile", gte("Anyone"))))))))
+    assertThat(parsed).isEqualTo(Requirement.Or(setOf(Min(sat(type = cn("Adjacency").addArgs(
+        cn("CityTile").addArgs(cn("Anyone").type),
+        cn("OceanTile").type))),
+        Min(sat(type = cn("Adjacency").addArgs(cn("OceanTile").type,
+            cn("CityTile").addArgs(cn("Anyone").type)))))))
   }
 
   // All type expressions with even-length string representations
@@ -152,21 +152,22 @@ private class RequirementTest {
   object FakeGame : GameState { // TODO stub?
     override val setup = GameSetup(FakeAuthority(), 2, setOf("B", "M"))
 
+    override fun resolve(typeText: String) = TODO()
+    override fun resolve(type: TypeExpression) = TODO()
+
     override fun count(type: TypeExpression): Int {
       val length = type.toString().length
       return if (length % 2 == 0) length else 0
     }
 
-    override fun isMet(requirement: Requirement) = requirement.evaluate(this)
-
-    override fun resolve(typeText: String) = TODO()
-    override fun resolve(type: TypeExpression) = TODO()
-
     override fun count(type: String) = TODO()
 
-    override fun getAll(type: TypeExpression) = TODO()
     override fun getAll(type: ClassLiteral) = TODO()
+    override fun getAll(type: GenericTypeExpression) = TODO()
     override fun getAll(type: String) = TODO()
+    override fun getAll(type: TypeExpression) = TODO()
+
+    override fun isMet(requirement: Requirement) = requirement.evaluate(this)
 
     override fun applyChange(
         count: Int,

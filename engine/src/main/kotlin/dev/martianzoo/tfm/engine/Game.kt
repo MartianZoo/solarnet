@@ -53,6 +53,13 @@ class Game(
     return ImmutableMultiset.copyOf(result)
   }
 
+  override fun getAll(type: GenericTypeExpression): Multiset<GenericTypeExpression> {
+    val result = HashMultiset.create<GenericTypeExpression>()
+    getAll(resolve(type)).entrySet()
+        .forEach { result.add(it.element.asTypeExpression.asGeneric(), it.count) }
+    return result
+  }
+
   override fun getAll(type: ClassLiteral): Set<ClassLiteral> {
     return getAll(resolve(type))
         .map { it.asTypeExpression as ClassLiteral }

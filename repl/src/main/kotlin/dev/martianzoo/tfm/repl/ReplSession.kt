@@ -12,7 +12,8 @@ import dev.martianzoo.tfm.pets.PetNodeVisitor
 import dev.martianzoo.tfm.pets.SpecialClassNames.ANYONE
 import dev.martianzoo.tfm.pets.SpecialClassNames.COMPONENT
 import dev.martianzoo.tfm.pets.SpecialClassNames.OWNED
-import dev.martianzoo.tfm.pets.ast.ClassName
+import dev.martianzoo.tfm.pets.SpecialClassNames.PLAYER
+import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.pets.ast.Instruction
 import dev.martianzoo.tfm.pets.ast.PetNode
 import dev.martianzoo.tfm.pets.ast.Requirement
@@ -36,7 +37,7 @@ class ReplSession {
 
   fun become(args: String): List<String> {
     val type: PetType = game!!.resolve(args)
-    require(!type.abstract && type.isSubtypeOf(game!!.classTable["Player"].baseType))
+    require(!type.abstract && type.isSubtypeOf(game!!.classTable[PLAYER].baseType))
     defaultPlayer = type.toTypeExpressionFull()
     return listOf("Hi, $defaultPlayer")
   }
@@ -51,7 +52,7 @@ class ReplSession {
     val g = game as Game
 
     // "list Heat" means my own unless I say "list Heat<Anyone>"
-    val typeToList = g.resolve(setDefaultPlayer(parsePets(args ?: COMPONENT.asString)))
+    val typeToList = g.resolve(setDefaultPlayer(parsePets(args ?: COMPONENT.string)))
     val theStuff = g.getAll(typeToList)
 
     // figure out how to break it down
@@ -88,7 +89,7 @@ class ReplSession {
   }
 
   fun desc(args: String): List<String> {
-    val petClass: PetClass = game!!.classTable[ClassName(args)]
+    val petClass: PetClass = game!!.classTable[cn(args)]
     val subs = petClass.allSubclasses
     return listOf(
         "Name: ${petClass.name}",
@@ -145,9 +146,9 @@ class ReplSession {
       override fun <P : PetNode?> transform(node: P): P {
         if (node is GenericTypeExpression) {
           if (g.resolve(node).isSubtypeOf(owned)) {
-            val hasPlayer = node.specs.any { g.resolve(it).isSubtypeOf(anyone) }
+            val hasPlayer = node.args.any { g.resolve(it).isSubtypeOf(anyone) }
             if (!hasPlayer) {
-              return node.specialize(listOf(defaultPlayer!!)) as P
+              return node.addArgs(listOf(defaultPlayer!!)) as P
             }
           }
           return node
@@ -169,13 +170,17 @@ class ReplSession {
 
     override val setup = GameSetup(FakeAuthority(), 2, listOf("M", "B"))
 
-    override fun resolve(typeText: String) = throe()
     override fun resolve(type: TypeExpression) = throe()
-    override fun count(typeText: String) = throe()
+    override fun resolve(typeText: String) = throe()
+
     override fun count(type: TypeExpression) = throe()
-    override fun getAll(type: TypeExpression) = throe()
+    override fun count(typeText: String) = throe()
+
     override fun getAll(type: ClassLiteral) = throe()
+    override fun getAll(type: GenericTypeExpression) = throe()
+    override fun getAll(type: TypeExpression) = throe()
     override fun getAll(typeText: String) = throe()
+
     override fun isMet(requirement: Requirement) = throe()
 
     private fun throe(): Nothing = throw RuntimeException("no game has been started")

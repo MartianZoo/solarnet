@@ -1,10 +1,11 @@
 package dev.martianzoo.tfm.data
 
 import dev.martianzoo.tfm.pets.ast.ClassName
+import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 
 // I don't intend for English to be privileged; this is just for my convenience for the time being.
 fun englishHack(id: String): ClassName {
-  return ClassName(when {
+  return cn(when {
     id in ENGLISH_HACK -> ENGLISH_HACK[id]!!
     id.endsWith("F") -> ENGLISH_HACK[id.substring(0, id.length - 1)]!!
     else -> unhackedName(id)

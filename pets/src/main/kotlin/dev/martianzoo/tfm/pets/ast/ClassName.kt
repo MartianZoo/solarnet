@@ -3,26 +3,32 @@ package dev.martianzoo.tfm.pets.ast
 import dev.martianzoo.tfm.pets.ast.TypeExpression.ClassLiteral
 import dev.martianzoo.tfm.pets.ast.TypeExpression.GenericTypeExpression
 
-data class ClassName(val asString: String) : PetNode(), Comparable<ClassName> {
-  init {
-    require(asString.matches(classNameRegex())) { "Bad class name: $asString" }
+const val CLASS_NAME_PATTERN = "\\b[A-Z]([a-z][A-Za-z0-9_]*|[A-Z0-9]{0,4})\\b"
+private val classNameRegex = Regex(CLASS_NAME_PATTERN)
+
+data class ClassName(val string: String) : PetNode(), Comparable<ClassName> {
+  companion object {
+    fun cn(name: String) = ClassName(name)
   }
 
-  val literal = ClassLiteral(this)
+  init {
+    require(string.matches(classNameRegex)) { "Bad class name: $string" }
+  }
+
   val type = GenericTypeExpression(this)
+  val literal = ClassLiteral(this)
 
-  fun specialize(specs: List<TypeExpression>) = type.specialize(specs)
-  fun specialize(vararg specs: TypeExpression) = specialize(specs.toList())
+  fun addArgs(specs: List<TypeExpression>) = type.addArgs(specs)
+  fun addArgs(vararg specs: TypeExpression) = addArgs(specs.toList())
 
-  override fun compareTo(other: ClassName) = asString.compareTo(other.asString)
+  @JvmName("addArgsFromClassNames")
+  fun addArgs(specs: List<ClassName>) = addArgs(specs.map { it.type })
+  fun addArgs(vararg specs: ClassName) = addArgs(specs.toList())
 
-  override fun toString() = asString
-  fun matches(regex: Regex) = asString.matches(regex)
+  fun matches(regex: Regex) = string.matches(regex)
+
+  override fun toString() = string
+  override fun compareTo(other: ClassName) = string.compareTo(other.string)
 
   override val kind = "ClassName"
 }
-
-// TODO this weird
-const val CLASS_NAME_PATTERN = "\\b[A-Z]([a-z][A-Za-z0-9_]*|[A-Z0-9]{0,4})\\b"
-val thing by lazy { Regex(CLASS_NAME_PATTERN) }
-fun classNameRegex() = thing

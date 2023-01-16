@@ -22,7 +22,7 @@ private class Defaulter(val loader: PetClassLoader) : PetNodeVisitor() {
         if (writtenType !is GenericTypeExpression) {
           node
         } else {
-          val petClass = loader.load(writtenType.className)
+          val petClass = loader.load(writtenType.root)
           val defaults = petClass.defaults
           val newTypeExpr = applyDefaultSpecs(writtenType, petClass, defaults.gainOnlyDependencies)
           node.copy(
@@ -33,7 +33,7 @@ private class Defaulter(val loader: PetClassLoader) : PetNodeVisitor() {
       }
 
       is GenericTypeExpression -> {
-        val petClass = loader.load(node.className)
+        val petClass = loader.load(node.root)
         // TODO should we be recursing?
         applyDefaultSpecs(node, petClass, petClass.defaults.allCasesDependencies)
       }
@@ -49,7 +49,7 @@ private class Defaulter(val loader: PetClassLoader) : PetNodeVisitor() {
       petClass: PetClass,
       defaultDeps: DependencyMap,
   ): GenericTypeExpression {
-    val explicitStatedDeps = petClass.resolveSpecializations(original.specs)
+    val explicitStatedDeps = petClass.resolveSpecializations(original.args)
     val mergedDeps = explicitStatedDeps.overlayOn(defaultDeps)
 
     // TODO: a little weird that we're going backwards here?

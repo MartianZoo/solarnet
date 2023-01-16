@@ -5,6 +5,7 @@ import dev.martianzoo.tfm.pets.SpecialClassNames.THIS
 import dev.martianzoo.tfm.pets.SpecialClassNames.USE_ACTION
 import dev.martianzoo.tfm.pets.ast.Action
 import dev.martianzoo.tfm.pets.ast.ClassName
+import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.pets.ast.Effect
 import dev.martianzoo.tfm.pets.ast.Effect.Trigger.OnGain
 import dev.martianzoo.tfm.pets.ast.FromExpression.SimpleFrom
@@ -17,13 +18,12 @@ import dev.martianzoo.tfm.pets.ast.PetNode
 import dev.martianzoo.tfm.pets.ast.PetNode.GenericTransform
 import dev.martianzoo.tfm.pets.ast.TypeExpression
 import dev.martianzoo.tfm.pets.ast.TypeExpression.ClassLiteral
-import dev.martianzoo.tfm.pets.ast.TypeExpression.Companion.gte
 import dev.martianzoo.tfm.pets.ast.TypeExpression.GenericTypeExpression
 
 internal fun actionToEffect(action: Action, index1Ref: Int): Effect {
   require(index1Ref >= 1) { index1Ref }
   val instruction = instructionFromAction(action.cost?.toInstruction(), action.instruction)
-  val trigger = OnGain(gte("$USE_ACTION$index1Ref", THIS.type))
+  val trigger = OnGain(cn("$USE_ACTION$index1Ref").addArgs(THIS.type))
   return Effect(trigger, instruction, automatic = false)
 }
 
@@ -54,7 +54,7 @@ internal fun immediateToEffect(instruction: Instruction): Effect {
 
 fun <P : PetNode> replaceThis(node: P, resolveTo: GenericTypeExpression) =
     node.replaceTypes(THIS.type, resolveTo)
-        .replaceTypes(ClassLiteral(THIS), ClassLiteral(resolveTo.className))
+        .replaceTypes(ClassLiteral(THIS), ClassLiteral(resolveTo.root))
 
 fun <P : PetNode> P.replaceTypes(from: TypeExpression, to: TypeExpression): P {
   return replaceTypesIn(this, from, to)
@@ -84,8 +84,8 @@ fun <P : PetNode> deprodify(node: P, producible: Set<ClassName>): P {
           transform(node.extract()).also { inProd = false }
         }
 
-        inProd && node is GenericTypeExpression && node.className in producible ->
-          PRODUCTION.type.copy(specs = node.specs + ClassLiteral(node.className))
+        inProd && node is GenericTypeExpression && node.root in producible ->
+          PRODUCTION.type.copy(args = node.args + ClassLiteral(node.root))
 
         else -> super.transform(node)
       }

@@ -4,6 +4,7 @@ import com.squareup.moshi.FromJson
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import dev.martianzoo.tfm.pets.ast.ClassName
+import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.util.Grid
 import kotlin.text.RegexOption.DOT_MATCHES_ALL
 
@@ -78,7 +79,7 @@ object JsonReader {
 
     class Legend(private val table: Map<Char, String>) {
 
-      fun getType(code: String) = ClassName(lookUp(code[0]))
+      fun getType(code: String) = cn(lookUp(code[0]))
       fun getBonus(code: String): String? {
         val q = ArrayDeque(code.substring(1).toList())
         val result = generateSequence {
@@ -113,7 +114,7 @@ object JsonReader {
 
   class ClassNameAdapter {
     @FromJson
-    fun fromJson(card: String) = ClassName(card)
+    fun fromJson(card: String) = cn(card)
   }
 
   private val TRAILING_COMMA_REGEX = Regex(""",(?=\s*(//[^\n]*\n\s*)?[\]}])""", DOT_MATCHES_ALL)

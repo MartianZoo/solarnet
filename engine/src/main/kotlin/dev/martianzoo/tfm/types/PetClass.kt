@@ -3,6 +3,7 @@ package dev.martianzoo.tfm.types
 import dev.martianzoo.tfm.data.ClassDeclaration
 import dev.martianzoo.tfm.pets.PetNodeVisitor
 import dev.martianzoo.tfm.pets.SpecialClassNames.COMPONENT
+import dev.martianzoo.tfm.pets.SpecialClassNames.THIS
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.Effect
 import dev.martianzoo.tfm.pets.ast.PetNode
@@ -10,10 +11,9 @@ import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.pets.ast.Requirement.And
 import dev.martianzoo.tfm.pets.ast.Requirement.Exact
 import dev.martianzoo.tfm.pets.ast.Requirement.Min
-import dev.martianzoo.tfm.pets.ast.ScalarAndType
+import dev.martianzoo.tfm.pets.ast.ScalarAndType.Companion.sat
 import dev.martianzoo.tfm.pets.ast.TypeExpression
 import dev.martianzoo.tfm.pets.ast.TypeExpression.ClassLiteral
-import dev.martianzoo.tfm.pets.ast.TypeExpression.Companion.gte
 import dev.martianzoo.tfm.pets.ast.TypeExpression.GenericTypeExpression
 import dev.martianzoo.tfm.pets.deprodify
 import dev.martianzoo.tfm.pets.replaceThis
@@ -42,7 +42,7 @@ class PetClass(
 
   val directSupertypes: Set<PetGenericType> by lazy {
     declaration.supertypes.map {
-      loader.resolve(replaceThis(it, gte(name))) // TODO eh?
+      loader.resolve(replaceThis(it, name.type)) // TODO eh?
     }.toSet().also {
       if (it.size > 1) (it - COMPONENT.type).d("$this supertypes")
     }
@@ -145,11 +145,8 @@ class PetClass(
     PetGenericType(this, allDeps, null).d { "$this baseType: $it" }
   }
 
-  fun formGenericType(specs: List<PetType>, ref: Requirement?) =
-      PetGenericType(this, baseType.dependencies.specialize(specs), ref)
-
   fun toDependencyMap(specs: List<TypeExpression>?) = specs?.let {
-    loader.resolve(GenericTypeExpression(name, it)).dependencies
+    loader.resolve(name.addArgs(it)).dependencies
   } ?: DependencyMap()
 
 // DEFAULTS
@@ -181,7 +178,7 @@ class PetClass(
   val effects: List<Effect> by lazy {
     effectsRaw
         .map { deprodify(it, loader.resourceNames()) }
-        .map { replaceThis(it, gte(name)) }
+        .map { replaceThis(it, name.type) }
         .map { applyDefaultsIn(it, loader).d("$this effect") }
         .toList()
         .also { validateAllTypes(it) }
@@ -207,12 +204,12 @@ class PetClass(
           directSuperclasses.any { it.isSingleton() }
 
   private fun requiresAnInstance(r: Requirement): Boolean {
-    return r is Min && r.sat == ScalarAndType(1, gte("This")) ||
-        r is Exact && r.sat == ScalarAndType(1, gte("This")) ||
+    return r is Min && r.sat == sat(1, THIS.type) ||
+        r is Exact && r.sat == sat(1, THIS.type) ||
         r is And && r.requirements.any { requiresAnInstance(it) }
   }
 
-  override fun toTypeExpressionFull() = ClassLiteral(name)
+  override fun toTypeExpressionFull() = name.literal
 
   override fun equals(other: Any?) =
       other is PetClass &&
@@ -221,5 +218,5 @@ class PetClass(
 
   override fun hashCode() = name.hashCode() xor loader.hashCode()
 
-  override fun toString() = name.asString
+  override fun toString() = name.string
 }

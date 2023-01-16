@@ -2,7 +2,7 @@ package dev.martianzoo.tfm.pets.ast
 
 import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.tfm.pets.Parsing.parsePets
-import dev.martianzoo.tfm.pets.ast.TypeExpression.Companion.gte
+import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import org.junit.jupiter.api.Test
 
 // Most testing is done by AutomatedTest
@@ -13,12 +13,12 @@ private class TypeExpressionTest {
   @Test
   fun simpleSourceToApi() {
     val foo: TypeExpression = parsePets("Foo")
-    assertThat(foo).isEqualTo(gte("Foo"))
+    assertThat(foo).isEqualTo(cn("Foo").type)
   }
 
   @Test
   fun simpleApiToSource() {
-    assertThat(gte("Foo").toString()).isEqualTo("Foo")
+    assertThat(cn("Foo").type.toString()).isEqualTo("Foo")
   }
 
   @Test
@@ -41,26 +41,20 @@ private class TypeExpressionTest {
   fun complexSourceToApi() {
     val parsed: TypeExpression = parsePets(" Red< Blue  < This,Teal> , Gold > ")
     assertThat(parsed).isEqualTo(
-        gte(
-            "Red",
-            gte("Blue", gte("This"), gte("Teal")),
-            gte("Gold")
+        cn("Red").addArgs(cn("Blue").addArgs(cn("This").type, cn("Teal").type),
+            cn("Gold").type
         )
     )
   }
 
   @Test
   fun complexApiToSource() {
-    val expr = gte(
-        "Aa",
-        gte("Bb"),
-        gte("Cc", gte("Dd")),
-        gte(
-            "Ee",
-            gte("Ff", gte("Gg"), gte("Hh")),
-            gte("Me")
+    val expr = cn("Aa").addArgs(cn("Bb").type,
+        cn("Cc").addArgs(cn("Dd").type),
+        cn("Ee").addArgs(cn("Ff").addArgs(cn("Gg").type, cn("Hh").type),
+            cn("Me").type
         ),
-        gte("Jj")
+        cn("Jj").type
     )
     assertThat(expr.toString()).isEqualTo("Aa<Bb, Cc<Dd>, Ee<Ff<Gg, Hh>, Me>, Jj>")
   }

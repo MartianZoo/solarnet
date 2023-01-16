@@ -4,7 +4,7 @@ import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.tfm.api.FakeAuthority
 import dev.martianzoo.tfm.pets.Parsing.parseClassDeclarations
 import dev.martianzoo.tfm.pets.SpecialClassNames.COMPONENT
-import dev.martianzoo.tfm.pets.ast.ClassName
+import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.types.Dependency.Key
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -17,7 +17,7 @@ private class PetClassTest {
     assertThat(cpt.name).isEqualTo(COMPONENT)
     assertThat(cpt.abstract).isTrue()
     assertThat(cpt.directSuperclasses).isEmpty()
-    assertThat(cpt.allSuperclasses.names()).containsExactly(COMPONENT.asString)
+    assertThat(cpt.allSuperclasses.names()).containsExactly(COMPONENT.string)
     assertThat(cpt.directDependencyKeys).isEmpty()
   }
 
@@ -25,10 +25,10 @@ private class PetClassTest {
   fun onethingness() {
     val loader = loadTypes("CLASS Foo")
     val foo = loader["Foo"]
-    assertThat(foo.name).isEqualTo(ClassName("Foo"))
+    assertThat(foo.name).isEqualTo(cn("Foo"))
     assertThat(foo.abstract).isFalse()
-    assertThat(foo.directSuperclasses.names()).containsExactly(COMPONENT.asString)
-    assertThat(foo.allSuperclasses.names()).containsExactly(COMPONENT.asString, "Foo")
+    assertThat(foo.directSuperclasses.names()).containsExactly(COMPONENT.string)
+    assertThat(foo.allSuperclasses.names()).containsExactly(COMPONENT.string, "Foo")
     assertThat(foo.directDependencyKeys).isEmpty()
   }
 
@@ -37,7 +37,7 @@ private class PetClassTest {
     val loader = loadTypes("CLASS Foo", "CLASS Bar : Foo")
     val bar = loader["Bar"]
     assertThat(bar.directSuperclasses.names()).containsExactly("Foo")
-    assertThat(bar.allSuperclasses.names()).containsExactly(COMPONENT.asString, "Foo", "Bar")
+    assertThat(bar.allSuperclasses.names()).containsExactly(COMPONENT.string, "Foo", "Bar")
     assertThat(bar.directDependencyKeys).isEmpty()
   }
 
@@ -46,7 +46,7 @@ private class PetClassTest {
     val loader = loadTypes("CLASS Bar : Foo", "CLASS Foo")
     val bar = loader["Bar"]
     assertThat(bar.directSuperclasses.names()).containsExactly("Foo")
-    assertThat(bar.allSuperclasses.names()).containsExactly(COMPONENT.asString, "Foo", "Bar")
+    assertThat(bar.allSuperclasses.names()).containsExactly(COMPONENT.string, "Foo", "Bar")
     assertThat(bar.directDependencyKeys).isEmpty()
   }
 
@@ -73,7 +73,7 @@ private class PetClassTest {
   fun dependency() {
     val loader = loadTypes("CLASS Foo", "CLASS Bar<Foo>")
     val bar = loader["Bar"]
-    assertThat(bar.directSuperclasses.names()).containsExactly(COMPONENT.asString)
+    assertThat(bar.directSuperclasses.names()).containsExactly(COMPONENT.string)
     assertThat(bar.directDependencyKeys).containsExactly(Key(bar, 0))
   }
 
@@ -192,7 +192,7 @@ private class PetClassTest {
     // Assertions.assertThrows(RuntimeException::class.java, { table.resolve(s) }, s)
   }
 
-  private fun Iterable<PetClass>.names() = map { it.name.asString }
+  private fun Iterable<PetClass>.names() = map { it.name.string }
 }
 
 private fun loader(petsText: String): PetClassLoader {

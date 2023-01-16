@@ -5,7 +5,7 @@ import dev.martianzoo.tfm.api.GameSetup
 import dev.martianzoo.tfm.data.MapDefinition
 import dev.martianzoo.tfm.engine.ComponentGraph.Component
 import dev.martianzoo.tfm.pets.SpecialClassNames.PRODUCTION
-import dev.martianzoo.tfm.pets.ast.ClassName
+import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.pets.ast.TypeExpression
 import dev.martianzoo.tfm.types.PetClassLoader
 import dev.martianzoo.util.filterNoNulls
@@ -56,7 +56,7 @@ object Engine {
   }
 
   fun borders(map: MapDefinition): List<TypeExpression> {
-    val border = ClassName("Border")
+    val border = cn("Border")
     return map.areas
         .let { it.rows() + it.columns() + it.diagonals() }
         .flatMap { it.windowed(2).filterNoNulls() }
@@ -64,8 +64,8 @@ object Engine {
           val type1 = one.name.type
           val type2 = two.name.type
           listOf(
-              border.specialize(type1, type2),
-              border.specialize(type2, type1),
+              border.addArgs(type1, type2),
+              border.addArgs(type2, type1),
           )
         }
   }

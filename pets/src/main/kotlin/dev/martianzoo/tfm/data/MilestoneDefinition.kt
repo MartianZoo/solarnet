@@ -11,7 +11,7 @@ import dev.martianzoo.tfm.pets.ast.Effect.Trigger.OnGain
 import dev.martianzoo.tfm.pets.ast.Instruction.Gain
 import dev.martianzoo.tfm.pets.ast.Instruction.Gated
 import dev.martianzoo.tfm.pets.ast.Requirement
-import dev.martianzoo.tfm.pets.ast.ScalarAndType
+import dev.martianzoo.tfm.pets.ast.ScalarAndType.Companion.sat
 
 data class MilestoneDefinition(
     override val id: ClassName,
@@ -30,7 +30,7 @@ data class MilestoneDefinition(
 
   val requirement: Requirement by lazy { parsePets(requirementText) }
 
-  override val name = englishHack(id.asString)
+  override val name = englishHack(id.string)
 
   override val asClassDeclaration: ClassDeclaration by lazy {
     ClassDeclaration(
@@ -40,7 +40,7 @@ data class MilestoneDefinition(
         supertypes = setOf(MILESTONE.type),
         effectsRaw = setOf(Effect(
             OnGain(THIS.type),
-            Gated(requirement, Gain(ScalarAndType(type = OK.type))),
+            Gated(requirement, Gain(sat(1, OK.type))),
             automatic = true,
         ))
     )
