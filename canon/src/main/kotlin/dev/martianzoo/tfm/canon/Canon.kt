@@ -45,12 +45,12 @@ object Canon : Authority() {
     return javaClass.getResource("/$dir/$filename")!!.readText()
   }
 
-  enum class Bundle(val id: String, val isMap: Boolean = false) {
+  enum class Bundle(val id: String) {
     Base("B"),
     CorporateEra("R"),  // well the letter R appears 3 times so...
-    Tharsis("M", true),  // M for "map", ooh
-    Hellas("H", true),
-    Elysium("E", true),
+    Tharsis("M"),  // M for "map", ooh
+    Hellas("H"),
+    Elysium("E"),
     VenusNext("V"),
     Prelude("P"),
     Colonies("C"),
@@ -59,8 +59,8 @@ object Canon : Authority() {
     ;
 
     companion object {
-      fun forId(code: String): Bundle {
-        return values().first { it.id == code }
+      fun forId(id: String): Bundle {
+        return values().first { it.id == id }
       }
     }
   }
