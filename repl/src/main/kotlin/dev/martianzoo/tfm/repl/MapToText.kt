@@ -2,7 +2,7 @@ package dev.martianzoo.tfm.repl
 
 import dev.martianzoo.tfm.api.GameState
 import dev.martianzoo.tfm.api.TypeInfo
-import dev.martianzoo.tfm.data.MapAreaDefinition
+import dev.martianzoo.tfm.data.MapDefinition.MapAreaDefinition
 import dev.martianzoo.tfm.pets.ast.TypeExpression
 import dev.martianzoo.util.Grid
 
