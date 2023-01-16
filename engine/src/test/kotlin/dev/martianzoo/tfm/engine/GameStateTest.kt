@@ -105,32 +105,5 @@ private class GameStateTest {
             gaining = cn("Heat").addArgs(cn("Player2").type),
             removing = cn("Heat").addArgs(cn("Player3").type)),
     ).inOrder()
-
-
-  }
-
-  @Test
-  fun lookup() { // TODO move where belongs
-    val game = Engine.newGame(GameSetup(Canon, "BM", 3))
-    val prods: Map<ClassName, Int> = lookUpProductionLevels(game, cn("Player1").type)
-    assertThat(prods).containsExactly(
-        cn("Megacredit"), -5,
-        cn("Steel"), 0,
-        cn("Titanium"), 0,
-        cn("Plant"), 0,
-        cn("Energy"), 0,
-        cn("Heat"), 0,
-    )
-
-    game.applyChange(2, gaining = TypeExpression.fromGeneric("Production<Player1, Plant.CLASS>"))
-    val prods2: Map<ClassName, Int> = lookUpProductionLevels(game, cn("Player1").type)
-    assertThat(prods2).containsExactly(
-        cn("Megacredit"), -5,
-        cn("Steel"), 0,
-        cn("Titanium"), 0,
-        cn("Plant"), 2,
-        cn("Energy"), 0,
-        cn("Heat"), 0,
-    )
   }
 }
