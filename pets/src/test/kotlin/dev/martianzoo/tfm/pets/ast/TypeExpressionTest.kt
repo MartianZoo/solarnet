@@ -12,7 +12,7 @@ private class TypeExpressionTest {
 
   @Test
   fun simpleSourceToApi() {
-    val foo: TypeExpression = parsePets("Foo")
+    val foo = TypeExpression.from("Foo")
     assertThat(foo).isEqualTo(cn("Foo").type)
   }
 
@@ -39,23 +39,17 @@ private class TypeExpressionTest {
 
   @Test
   fun complexSourceToApi() {
-    val parsed: TypeExpression = parsePets(" Red< Blue  < This,Teal> , Gold > ")
-    assertThat(parsed).isEqualTo(
-        cn("Red").addArgs(cn("Blue").addArgs(cn("This").type, cn("Teal").type),
-            cn("Gold").type
-        )
-    )
+    val parsed = TypeExpression.from(" Red< Blue  < This,Teal> , Gold > ")
+    assertThat(parsed).isEqualTo(cn("Red").addArgs(cn("Blue").addArgs(cn("This").type,
+        cn("Teal").type), cn("Gold").type))
   }
 
   @Test
   fun complexApiToSource() {
     val expr = cn("Aa").addArgs(cn("Bb").type,
         cn("Cc").addArgs(cn("Dd").type),
-        cn("Ee").addArgs(cn("Ff").addArgs(cn("Gg").type, cn("Hh").type),
-            cn("Me").type
-        ),
-        cn("Jj").type
-    )
+        cn("Ee").addArgs(cn("Ff").addArgs(cn("Gg").type, cn("Hh").type), cn("Me").type),
+        cn("Jj").type)
     assertThat(expr.toString()).isEqualTo("Aa<Bb, Cc<Dd>, Ee<Ff<Gg, Hh>, Me>, Jj>")
   }
 }

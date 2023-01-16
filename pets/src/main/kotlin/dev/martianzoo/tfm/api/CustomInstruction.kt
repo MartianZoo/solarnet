@@ -9,7 +9,7 @@ abstract class CustomInstruction(val functionName: String) {
 
   /** Preferred! */
   open fun translate(game: ReadOnlyGameState, arguments: List<TypeExpression>): Instruction {
-    return parsePets(translateToPets(game, arguments))
+    return Instruction.from(translateToPets(game, arguments))
   }
 
   /** Second choice! */

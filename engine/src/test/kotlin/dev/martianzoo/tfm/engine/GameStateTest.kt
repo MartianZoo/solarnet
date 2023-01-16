@@ -8,6 +8,7 @@ import dev.martianzoo.tfm.pets.Parsing.parsePets
 import dev.martianzoo.tfm.pets.Parsing.parseScript
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.tfm.pets.ast.TypeExpression
 import org.junit.jupiter.api.Test
 
 private class GameStateTest {
@@ -120,7 +121,7 @@ private class GameStateTest {
         cn("Heat"), 0,
     )
 
-    game.applyChange(2, gaining = parsePets("Production<Player1, Plant.CLASS>"))
+    game.applyChange(2, gaining = TypeExpression.fromGeneric("Production<Player1, Plant.CLASS>"))
     val prods2: Map<ClassName, Int> = lookUpProductionLevels(game, cn("Player1").type)
     assertThat(prods2).containsExactly(
         cn("Megacredit"), -5,

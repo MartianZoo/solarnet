@@ -89,9 +89,9 @@ private class RequirementTest {
 
   @Test
   fun simpleSourceToApi() {
-    assertThat(parsePets<Requirement>("Foo")).isEqualTo(Min(sat(type = cn("Foo").type)))
-    assertThat(parsePets<Requirement>("3 Foo")).isEqualTo(Min(sat(3, cn("Foo").type)))
-    assertThat(parsePets<Requirement>("MAX 3 Foo")).isEqualTo(Max(sat(3, cn("Foo").type)))
+    assertThat(Requirement.from("Foo")).isEqualTo(Min(sat(type = cn("Foo").type)))
+    assertThat(Requirement.from("3 Foo")).isEqualTo(Min(sat(3, cn("Foo").type)))
+    assertThat(Requirement.from("MAX 3 Foo")).isEqualTo(Max(sat(3, cn("Foo").type)))
   }
 
   @Test
@@ -138,8 +138,8 @@ private class RequirementTest {
 
   @Test
   fun hairy() {
-    val parsed: Requirement =
-        parsePets("Adjacency<CityTile<Anyone>, OceanTile> OR 1 Adjacency<OceanTile, CityTile<Anyone>>")
+    val parsed = Requirement.from(
+        "Adjacency<CityTile<Anyone>, OceanTile> OR 1 Adjacency<OceanTile, CityTile<Anyone>>")
     assertThat(parsed).isEqualTo(Requirement.Or(setOf(Min(sat(type = cn("Adjacency").addArgs(
         cn("CityTile").addArgs(cn("Anyone").type),
         cn("OceanTile").type))),
@@ -179,7 +179,7 @@ private class RequirementTest {
     }
   }
 
-  fun evalRequirement(s: String) = assertThat(parsePets<Requirement>(s).evaluate(FakeGame))!!
+  fun evalRequirement(s: String) = assertThat(Requirement.from(s).evaluate(FakeGame))!!
 
   @Test
   fun evaluation() {

@@ -27,7 +27,7 @@ object GainLowestProduction : CustomInstruction("gainLowestProduction") {
         .keys
         .map { "$it<$player>" }
         .joinToString(" OR ")
-    return parsePets("PROD[$lowestProds]")
+    return Instruction.from("PROD[$lowestProds]")
   }
 }
 

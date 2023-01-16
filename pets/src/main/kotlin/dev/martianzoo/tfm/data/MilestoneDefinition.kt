@@ -28,7 +28,9 @@ data class MilestoneDefinition(
     require(replaces?.isEmpty() != true)
   }
 
-  val requirement: Requirement by lazy { parsePets(requirementText) }
+  val requirement: Requirement by lazy {
+    Requirement.from(requirementText)
+  }
 
   override val name = englishHack(id.string)
 

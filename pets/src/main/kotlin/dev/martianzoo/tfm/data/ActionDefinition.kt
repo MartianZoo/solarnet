@@ -25,7 +25,7 @@ data class ActionDefinition(
 
   override val name = englishHack(id.string)
 
-  val action by lazy { parsePets<Action>(actionText) }
+  val action by lazy { Action.from(actionText) }
 
   override val asClassDeclaration by lazy {
     val kind = if (project) STANDARD_PROJECT else STANDARD_ACTION

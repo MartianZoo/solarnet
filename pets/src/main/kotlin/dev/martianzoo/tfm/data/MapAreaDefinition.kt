@@ -45,7 +45,9 @@ data class MapAreaDefinition(
     require(bonusText?.isEmpty() != true) // nonempty if present
   }
 
-  val bonus: Instruction? by lazy { bonusText?.let { parsePets(it) } }
+  val bonus: Instruction? by lazy {
+    bonusText?.let { Instruction.from(it) }
+  }
 
   override val asClassDeclaration by lazy {
     ClassDeclaration(

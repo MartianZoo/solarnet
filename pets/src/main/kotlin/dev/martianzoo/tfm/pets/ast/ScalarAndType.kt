@@ -6,8 +6,10 @@ import com.github.h0tk3y.betterParse.combinators.optional
 import com.github.h0tk3y.betterParse.combinators.or
 import com.github.h0tk3y.betterParse.grammar.parser
 import com.github.h0tk3y.betterParse.parser.Parser
+import dev.martianzoo.tfm.pets.Parsing
 import dev.martianzoo.tfm.pets.PetParser
 import dev.martianzoo.tfm.pets.SpecialClassNames.DEFAULT
+import dev.martianzoo.tfm.pets.ast.Instruction.Companion
 import dev.martianzoo.tfm.pets.ast.TypeExpression.TypeParsers.typeExpression
 
 data class ScalarAndType(
@@ -29,6 +31,8 @@ data class ScalarAndType(
   companion object : PetParser() {
     fun sat(scalar: Int = 1, type: TypeExpression = DEFAULT.type) =
         ScalarAndType(scalar, type)
+
+    fun from(text: String) = Parsing.parse(parser(), text)
 
     fun parser(): Parser<ScalarAndType> {
       return parser {

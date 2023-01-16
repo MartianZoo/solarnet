@@ -164,11 +164,17 @@ data class CardDefinition(
   val resourceType: ClassName? = resourceTypeText?.let(::ClassName)
 
   val immediateRaw: Instruction? by lazy {
-    immediateText?.let { parsePets(it) }
+    immediateText?.let { Instruction.from(it) }
   }
-  val actionsRaw by lazy { actionsText.map { parsePets<Action>(it) } }
-  val effectsRaw by lazy { effectsText.map { parsePets<Effect>(it) }.toSetStrict() }
-  val requirementRaw: Requirement? by lazy { requirementText?.let { parsePets(it) } }
+  val actionsRaw by lazy {
+    actionsText.map { Action.from(it) }
+  }
+  val effectsRaw by lazy {
+    effectsText.map { Effect.from(it) }.toSetStrict()
+  }
+  val requirementRaw: Requirement? by lazy {
+    requirementText?.let { Requirement.from(it) }
+  }
 
   // This doesn't get converted to an effect (yet??) so we have to canonicalize
   // TODO rethink

@@ -43,7 +43,7 @@ class ReplSession {
   }
 
   fun count(args: String): List<String> {
-    val fixedType = setDefaultPlayer(parsePets<TypeExpression>(args))
+    val fixedType = setDefaultPlayer(TypeExpression.from(args))
     val count = game!!.count(fixedType)
     return listOf("$count $fixedType")
   }
@@ -52,7 +52,7 @@ class ReplSession {
     val g = game as Game
 
     // "list Heat" means my own unless I say "list Heat<Anyone>"
-    val typeToList = g.resolve(setDefaultPlayer(parsePets(args ?: COMPONENT.string)))
+    val typeToList = g.resolve(setDefaultPlayer(TypeExpression.from(args ?: COMPONENT.string)))
     val theStuff = g.getAll(typeToList)
 
     // figure out how to break it down
@@ -73,7 +73,7 @@ class ReplSession {
   }
 
   fun has(args: String): List<String> {
-    val fixed = setDefaultPlayer(parsePets<Requirement>(args))
+    val fixed = setDefaultPlayer(Requirement.from(args))
     val result = game!!.isMet(args)
     return listOf("$result: $fixed")
   }
@@ -83,7 +83,7 @@ class ReplSession {
   fun history() = game!!.changeLog.map { it.toString() }
 
   fun exec(args: String): List<String> {
-    val instr = setDefaultPlayer(parsePets<Instruction>(args))
+    val instr = setDefaultPlayer(Instruction.from(args))
     game!!.execute(instr)
     return listOf("Ok: $instr")
   }

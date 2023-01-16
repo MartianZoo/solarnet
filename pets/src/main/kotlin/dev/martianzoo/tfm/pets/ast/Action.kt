@@ -8,8 +8,10 @@ import com.github.h0tk3y.betterParse.combinators.separatedTerms
 import com.github.h0tk3y.betterParse.combinators.skip
 import com.github.h0tk3y.betterParse.grammar.parser
 import com.github.h0tk3y.betterParse.parser.Parser
+import dev.martianzoo.tfm.pets.Parsing
 import dev.martianzoo.tfm.pets.PetException
 import dev.martianzoo.tfm.pets.PetParser
+import dev.martianzoo.tfm.pets.ast.FromExpression.Companion
 import dev.martianzoo.tfm.pets.ast.Instruction.Intensity.MANDATORY
 import dev.martianzoo.tfm.pets.ast.Instruction.Remove
 
@@ -105,12 +107,10 @@ data class Action(val cost: Cost?, val instruction: Instruction) : PetNode() {
   }
 
   companion object : PetParser() {
-    internal fun parser(): Parser<Action> {
-      return optional(Cost.parser()) and
-          skip(_arrow) and
-          Instruction.parser() map { (c, i) ->
-        Action(c, i)
-      }
-    }
+    fun from(text: String) = Parsing.parse(parser(), text)
+    internal fun parser() =
+        optional(Cost.parser()) and
+        skip(_arrow) and
+        Instruction.parser() map { (c, i) -> Action(c, i) }
   }
 }

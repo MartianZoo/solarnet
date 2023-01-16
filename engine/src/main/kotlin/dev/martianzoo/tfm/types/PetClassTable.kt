@@ -15,7 +15,7 @@ interface PetClassTable {
   fun loadedClasses(): Set<PetClass>
 
   // TODO rename to resolveType?
-  fun resolve(expression: String): PetType = resolve(parsePets<TypeExpression>(expression))
+  fun resolve(expression: String): PetType = resolve(TypeExpression.from(expression))
 
   fun resolve(expression: TypeExpression): PetType
 

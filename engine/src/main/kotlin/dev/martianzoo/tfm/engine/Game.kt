@@ -29,11 +29,11 @@ class Game(
   val changeLog = components.changeLog
 
   override fun resolve(type: TypeExpression): PetType = classTable.resolve(type)
-  override fun resolve(typeText: String) = resolve(parsePets(typeText))
+  override fun resolve(typeText: String) = resolve(TypeExpression.from(typeText))
 
   fun count(type: PetType) = components.count(type)
 
-  fun execute(instr: String) = execute(parsePets<Instruction>(instr))
+  fun execute(instr: String) = execute(Instruction.from(instr))
   fun execute(instr: Instruction) = instr.execute(this)
 
   fun execute(script: Script): Map<String, Int> =
@@ -66,10 +66,10 @@ class Game(
         .toSetStrict()
   }
 
-  override fun getAll(typeText: String) = getAll(parsePets<TypeExpression>(typeText))
+  override fun getAll(typeText: String) = getAll(TypeExpression.from(typeText))
 
   override fun isMet(requirement: Requirement) = requirement.evaluate(this)
-  fun isMet(requirementText: String) = isMet(parsePets(requirementText))
+  fun isMet(requirementText: String) = isMet(Requirement.from(requirementText))
 
   override fun applyChange(
       count: Int,

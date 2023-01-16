@@ -11,6 +11,7 @@ import com.github.h0tk3y.betterParse.parser.parse
 import dev.martianzoo.tfm.api.CustomInstruction.ExecuteInsteadException
 import dev.martianzoo.tfm.api.GameState
 import dev.martianzoo.tfm.api.standardResourceNames
+import dev.martianzoo.tfm.pets.Parsing
 import dev.martianzoo.tfm.pets.PetException
 import dev.martianzoo.tfm.pets.PetParser
 import dev.martianzoo.tfm.pets.ast.FromExpression.SimpleFrom
@@ -236,7 +237,7 @@ sealed class Instruction : PetNode() {
   }
 
   companion object : PetParser() {
-    fun from(instruction: String) = parser().parse(tokenize(instruction))
+    fun from(text: String) = Parsing.parse(parser(), text)
 
     internal fun parser(): Parser<Instruction> {
       return parser {

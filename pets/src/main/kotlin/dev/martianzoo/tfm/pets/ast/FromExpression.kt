@@ -8,6 +8,7 @@ import com.github.h0tk3y.betterParse.combinators.skip
 import com.github.h0tk3y.betterParse.combinators.zeroOrMore
 import com.github.h0tk3y.betterParse.grammar.parser
 import com.github.h0tk3y.betterParse.parser.Parser
+import dev.martianzoo.tfm.pets.Parsing
 import dev.martianzoo.tfm.pets.PetException
 import dev.martianzoo.tfm.pets.PetParser
 import dev.martianzoo.tfm.pets.ast.TypeExpression.TypeParsers
@@ -59,7 +60,9 @@ sealed class FromExpression : PetNode() {
         (refinement?.let { "(HAS $it)" } ?: "")
   }
 
-  companion object : PetParser(){
+  companion object : PetParser() {
+    fun from(text: String) = Parsing.parse(parser(), text)
+
     internal fun parser(): Parser<FromExpression> {
       return parser {
         val typeInFrom = typeExpression map ::TypeInFrom
