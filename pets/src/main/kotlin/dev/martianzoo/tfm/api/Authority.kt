@@ -4,10 +4,9 @@ import dev.martianzoo.tfm.data.ActionDefinition
 import dev.martianzoo.tfm.data.CardDefinition
 import dev.martianzoo.tfm.data.ClassDeclaration
 import dev.martianzoo.tfm.data.Definition
-import dev.martianzoo.tfm.data.MapAreaDefinition
+import dev.martianzoo.tfm.data.MapDefinition
 import dev.martianzoo.tfm.data.MilestoneDefinition
 import dev.martianzoo.tfm.pets.ast.ClassName
-import dev.martianzoo.util.Grid
 import dev.martianzoo.util.associateByStrict
 
 /**
@@ -26,7 +25,7 @@ abstract class Authority {
         cardDefinitions +
         milestoneDefinitions +
         actionDefinitions +
-        mapAreaDefinitions.values.flatten()
+        mapDefinitions.flatMap { it.areas }
   }
 
   /** Note that not every type returned here will automatically be loaded. */
@@ -48,22 +47,21 @@ abstract class Authority {
 
   abstract val cardDefinitions: Collection<CardDefinition>
 
-  val cardsByClassName by lazy {
+  val cardsByClassName: Map<ClassName, CardDefinition> by lazy {
     associateByClassName(cardDefinitions)
   }
 
-  abstract val mapAreaDefinitions: Map<String, Grid<MapAreaDefinition>>
+  abstract val mapDefinitions: Collection<MapDefinition>
 
-  abstract fun mapAreaDefinition(name: String): Grid<MapAreaDefinition>
+  val mapsByClassName: Map<ClassName, MapDefinition> by lazy {
+    mapDefinitions.associateByStrict { it.name }
+  }
 
   abstract val milestoneDefinitions: Collection<MilestoneDefinition>
 
-  val milestonesByClassName by lazy {
+  val milestonesByClassName: Map<ClassName, MilestoneDefinition> by lazy {
     associateByClassName(milestoneDefinitions)
   }
-
-  // val awardDefinitions: Map<String, AwardDefinition>
-  // val colonyTileDefinitions: Map<String, ColonyTileDefinition>
 
   abstract fun customInstructions(): Collection<CustomInstruction>
 

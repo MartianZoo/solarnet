@@ -8,8 +8,8 @@ import com.github.h0tk3y.betterParse.combinators.skip
 import com.github.h0tk3y.betterParse.combinators.zeroOrMore
 import com.github.h0tk3y.betterParse.grammar.parser
 import com.github.h0tk3y.betterParse.parser.Parser
-import dev.martianzoo.tfm.pets.PetParser
 import dev.martianzoo.tfm.pets.PetException
+import dev.martianzoo.tfm.pets.PetParser
 import dev.martianzoo.tfm.pets.ast.TypeExpression.Companion.gte
 import dev.martianzoo.tfm.pets.ast.TypeExpression.TypeParsers
 import dev.martianzoo.tfm.pets.ast.TypeExpression.TypeParsers.className

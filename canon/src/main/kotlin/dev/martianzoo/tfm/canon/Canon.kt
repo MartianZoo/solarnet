@@ -6,11 +6,10 @@ import dev.martianzoo.tfm.data.ActionDefinition
 import dev.martianzoo.tfm.data.CardDefinition
 import dev.martianzoo.tfm.data.ClassDeclaration
 import dev.martianzoo.tfm.data.JsonReader
-import dev.martianzoo.tfm.data.MapAreaDefinition
+import dev.martianzoo.tfm.data.MapDefinition
 import dev.martianzoo.tfm.data.MilestoneDefinition
 import dev.martianzoo.tfm.pets.Parsing.parseClassDeclarations
 import dev.martianzoo.util.Debug
-import dev.martianzoo.util.Grid
 
 object Canon : Authority() {
 
@@ -23,18 +22,9 @@ object Canon : Authority() {
     }
   }
 
-  // TODO what's the deal with the map name vs bundle
-  override val mapAreaDefinitions: Map<String, Grid<MapAreaDefinition>> by lazy {
+  override val mapDefinitions: Collection<MapDefinition> by lazy {
     JsonReader.readMaps(readResource("maps.json5"))
   }
-
-  override fun mapAreaDefinition(name: String): Grid<MapAreaDefinition> {
-    require (name in mapAreaDefinitions) { "No map named: $name"}
-    return mapAreaDefinitions[name]!!
-  }
-
-  fun getMap(bundle: Bundle): Grid<MapAreaDefinition> =
-      mapAreaDefinitions[bundle.name] ?: error("not a map: $bundle")
 
   override val actionDefinitions: Collection<ActionDefinition> by lazy {
     JsonReader.readActions(readResource("actions.json5"))

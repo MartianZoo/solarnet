@@ -1,6 +1,5 @@
 package dev.martianzoo.tfm.engine
 
-import com.google.common.collect.ImmutableMultiset
 import com.google.common.collect.LinkedHashMultiset
 import com.google.common.collect.Multiset
 import com.google.common.collect.Multisets
@@ -9,7 +8,7 @@ import dev.martianzoo.tfm.data.StateChange.Cause
 import dev.martianzoo.tfm.pets.ast.TypeExpression.GenericTypeExpression
 import dev.martianzoo.tfm.types.PetType
 
-internal class ComponentGraph(startingWith: Multiset<Component> = ImmutableMultiset.of()) {
+internal class ComponentGraph(startingWith: Collection<Component> = listOf()) {
   private val multiset: /*Mutable*/Multiset<Component> = LinkedHashMultiset.create(startingWith)
   val changeLog: MutableList<StateChange> = mutableListOf() // starts with ordinal 1
 

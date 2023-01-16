@@ -1,5 +1,6 @@
 package dev.martianzoo.tfm.repl
 
+import dev.martianzoo.tfm.api.FakeAuthority
 import dev.martianzoo.tfm.api.GameSetup
 import dev.martianzoo.tfm.api.GameState
 import dev.martianzoo.tfm.canon.Canon
@@ -55,7 +56,7 @@ class ReplSession(val output: (String) -> Unit) {
         cause: Cause?,
     ) = TODO("Not yet implemented")
 
-    override val setup = GameSetup(Canon, 2, listOf("M", "B"))
+    override val setup = GameSetup(FakeAuthority(), 2, listOf("M", "B"))
 
     override fun resolve(typeText: String) = throe()
     override fun resolve(type: TypeExpression) = throe()

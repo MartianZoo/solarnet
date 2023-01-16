@@ -4,8 +4,8 @@ import com.github.h0tk3y.betterParse.combinators.and
 import com.github.h0tk3y.betterParse.combinators.map
 import com.github.h0tk3y.betterParse.combinators.or
 import com.github.h0tk3y.betterParse.parser.Parser
-import dev.martianzoo.tfm.pets.PetParser
 import dev.martianzoo.tfm.pets.PetException
+import dev.martianzoo.tfm.pets.PetParser
 import dev.martianzoo.tfm.pets.ast.Instruction.Gated
 import dev.martianzoo.tfm.pets.ast.TypeExpression.TypeParsers.genericType
 import dev.martianzoo.util.iff

@@ -1,7 +1,5 @@
 package dev.martianzoo.tfm.api
 
-import dev.martianzoo.tfm.data.MapAreaDefinition
-import dev.martianzoo.util.Grid
 import dev.martianzoo.util.onlyElement
 
 data class GameSetup(
@@ -17,16 +15,7 @@ data class GameSetup(
     require("B" in bundles)
   }
 
-  fun fuck(): Grid<MapAreaDefinition>? {
-    val bundleCodeToGrid = authority.mapAreaDefinitions
-        .values
-        .associateBy { it.first().bundle }
-    println(bundleCodeToGrid.keys)
-    println(bundles)
-    val overlap = bundleCodeToGrid.keys.intersect(bundles)
-    require(overlap.size <= 1)
-    return bundleCodeToGrid[overlap.firstOrNull()]
-  }
-  val grid: Grid<MapAreaDefinition>? = fuck()
-
+  val map = authority.mapDefinitions
+      .filter { it.bundle in bundles }
+      .onlyElement()
 }

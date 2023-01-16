@@ -11,8 +11,8 @@ import com.github.h0tk3y.betterParse.parser.parse
 import dev.martianzoo.tfm.api.CustomInstruction.ExecuteInsteadException
 import dev.martianzoo.tfm.api.GameState
 import dev.martianzoo.tfm.api.standardResourceNames
-import dev.martianzoo.tfm.pets.PetParser
 import dev.martianzoo.tfm.pets.PetException
+import dev.martianzoo.tfm.pets.PetParser
 import dev.martianzoo.tfm.pets.ast.FromExpression.SimpleFrom
 import dev.martianzoo.tfm.pets.ast.FromExpression.TypeInFrom
 import dev.martianzoo.tfm.pets.ast.TypeExpression.GenericTypeExpression

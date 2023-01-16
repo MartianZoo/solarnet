@@ -16,7 +16,7 @@ private class GameStateTest {
 
   @Test
   fun basicByApi() {
-    val game = Engine.newGame(Canon, 3, setOf("B"))
+    val game = Engine.newGame(Canon, 3, setOf("B", "M"))
 
     assertThat(game.count("Heat")).isEqualTo(0)
 
@@ -56,7 +56,7 @@ private class GameStateTest {
 
   @Test
   fun basicByScript() {
-    val game = Engine.newGame(Canon, 3, setOf("B"))
+    val game = Engine.newGame(Canon, 3, setOf("B", "M"))
 
     val s = """
       REQUIRE =0 Heat
@@ -111,7 +111,7 @@ private class GameStateTest {
 
   @Test
   fun lookup() { // TODO move where belongs
-    val game = Engine.newGame(Canon, 3, setOf("B"))
+    val game = Engine.newGame(Canon, 3, setOf("B", "M"))
     val prods: Map<ClassName, Int> = lookUpProductionLevels(game, gte("Player1"))
     assertThat(prods).containsExactly(
         ClassName("Megacredit"), -5,

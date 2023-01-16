@@ -6,10 +6,9 @@ import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.data.ActionDefinition
 import dev.martianzoo.tfm.data.CardDefinition
 import dev.martianzoo.tfm.data.ClassDeclaration
-import dev.martianzoo.tfm.data.MapAreaDefinition
+import dev.martianzoo.tfm.data.MapDefinition
 import dev.martianzoo.tfm.data.MilestoneDefinition
 import dev.martianzoo.tfm.pets.Parsing.parseScript
-import dev.martianzoo.util.Grid
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 
@@ -53,11 +52,10 @@ private class CustomInstructionsTest {
   // It seemed like adding plugins { `java-library` } should have been enough
   fun java() {
     val auth = object : Authority() { // todo Fwding
-      override fun mapAreaDefinition(name: String) = Canon.mapAreaDefinition(name)
       override val explicitClassDeclarations: Collection<ClassDeclaration> = Canon.explicitClassDeclarations
       override val actionDefinitions: Collection<ActionDefinition> = Canon.actionDefinitions
       override val cardDefinitions: Collection<CardDefinition> = Canon.cardDefinitions
-      override val mapAreaDefinitions: Map<String, Grid<MapAreaDefinition>> = Canon.mapAreaDefinitions
+      override val mapDefinitions: Collection<MapDefinition> = Canon.mapDefinitions
       override val milestoneDefinitions: Collection<MilestoneDefinition> = Canon.milestoneDefinitions
       override fun customInstructions() = listOf(CustomJavaExample.GainLowestProduction())
     }

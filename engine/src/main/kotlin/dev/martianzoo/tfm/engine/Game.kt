@@ -3,7 +3,6 @@ package dev.martianzoo.tfm.engine
 import com.google.common.collect.HashMultiset
 import com.google.common.collect.ImmutableMultiset
 import com.google.common.collect.Multiset
-import dev.martianzoo.tfm.api.Authority
 import dev.martianzoo.tfm.api.GameSetup
 import dev.martianzoo.tfm.api.GameState
 import dev.martianzoo.tfm.api.standardResourceNames

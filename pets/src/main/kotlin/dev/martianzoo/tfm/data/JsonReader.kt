@@ -41,24 +41,27 @@ object JsonReader {
 
 // MAPS
 
-  fun readMaps(json5: String): Map<String, Grid<MapAreaDefinition>> =
-      fromJson5<MapsImport>(json5).toGrids()
+  fun readMaps(json5: String): List<MapDefinition> = fromJson5<MapsImport>(json5).definitions
 
   private class MapsImport(val maps: List<MapImport>, val legend: Map<Char, String>) {
-    fun toGrids() = maps.associateBy(MapImport::name) { it.toGrid(Legend(legend)) }
+    val definitions: List<MapDefinition> by lazy {
+      val leg = Legend(legend)
+      maps.map { it.toDefinition(leg) }
+    }
 
     class MapImport(
-        val name: String,
+        val name: ClassName,
         val bundle: String,
         val rows: List<List<String>>,
     ) {
-      internal fun toGrid(legend: Legend): Grid<MapAreaDefinition> {
+      internal fun toDefinition(legend: Legend): MapDefinition {
         val areas = rows.flatMapIndexed() { row0Index, cells ->
           cells.mapIndexedNotNull { col0Index, code ->
             mapArea(row0Index, col0Index, code, legend)
           }
         }
-        return Grid.grid(areas, { it.row }, { it.column })
+        val grid = Grid.grid(areas, { it.row }, { it.column })
+        return MapDefinition(name, bundle, grid)
       }
 
       private fun mapArea(
@@ -73,9 +76,9 @@ object JsonReader {
       }
     }
 
-    internal class Legend(private val table: Map<Char, String>) {
+    class Legend(private val table: Map<Char, String>) {
 
-      fun getType(code: String) = lookUp(code[0])
+      fun getType(code: String) = ClassName(lookUp(code[0]))
       fun getBonus(code: String): String? {
         val q = ArrayDeque(code.substring(1).toList())
         val result = generateSequence {

@@ -7,8 +7,8 @@ import dev.martianzoo.tfm.pets.SpecialClassNames.THIS
 import dev.martianzoo.tfm.pets.actionToEffect
 import dev.martianzoo.tfm.pets.ast.Action
 import dev.martianzoo.tfm.pets.ast.ClassName
-import dev.martianzoo.tfm.pets.ast.ScalarAndType
 import dev.martianzoo.tfm.pets.ast.Requirement.Exact
+import dev.martianzoo.tfm.pets.ast.ScalarAndType
 
 data class ActionDefinition(
     override val id: ClassName,

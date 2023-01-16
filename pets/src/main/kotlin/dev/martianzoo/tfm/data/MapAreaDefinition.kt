@@ -7,11 +7,10 @@ import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.Effect
 import dev.martianzoo.tfm.pets.ast.Effect.Trigger.OnGain
 import dev.martianzoo.tfm.pets.ast.Instruction
-import dev.martianzoo.tfm.pets.ast.TypeExpression.GenericTypeExpression
 
 data class MapAreaDefinition(
-    /** Shortname of the MarsMap this area belongs to (e.g "Tharsis"). */
-    val mapName: String,
+    /** Mame of the MapDefinition this area belongs to (e.g "Tharsis"). */
+    val mapName: ClassName,
 
     override val bundle: String,
 
@@ -28,7 +27,7 @@ data class MapAreaDefinition(
      * The type of this area; standard types include "LandArea", "WaterArea", "VolcanicArea",
      * and "NoctisArea".
      */
-    val typeText: String,
+    val type: ClassName,
 
     /**
      * The pets instruction for this map area's bonus.
@@ -40,21 +39,19 @@ data class MapAreaDefinition(
 ) : Definition {
 
   init {
-    require(mapName.isNotEmpty())
     require(row >= 1) { "bad row: $row" }
     require(column >= 1) { "bad column: $column" }
     require(bonusText?.isEmpty() != true) // nonempty if present
   }
 
   val bonus: Instruction? by lazy { bonusText?.let { parsePets(it) } }
-  val type by lazy { parsePets<GenericTypeExpression>(typeText) }
 
   override val asClassDeclaration by lazy {
     ClassDeclaration(
         id = id,
         name = name,
         abstract = false,
-        supertypes = setOf(type),
+        supertypes = setOf(type.type),
         effectsRaw = bonus?.let {
           setOf(Effect(trigger, it, automatic = false))
         } ?: setOf(),

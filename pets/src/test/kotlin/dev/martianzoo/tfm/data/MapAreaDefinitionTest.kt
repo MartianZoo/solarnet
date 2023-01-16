@@ -2,7 +2,7 @@ package dev.martianzoo.tfm.data
 
 import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.tfm.canon.Canon
-import dev.martianzoo.tfm.pets.ast.TypeExpression.Companion.gte
+import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.util.Grid
 import org.junit.jupiter.api.Test
 
@@ -10,57 +10,58 @@ private class MapAreaDefinitionTest {
 
   @Test
   fun testTharsis() {
-    val thar: Grid<MapAreaDefinition> = Canon.mapAreaDefinitions["Tharsis"]!!
+    val thar: Grid<MapAreaDefinition> = Canon.mapsByClassName[ClassName("Tharsis")]!!.areas
     checkWaterAreaCount(thar)
 
-    assertThat(thar[5, 3]!!.typeText).isEqualTo("NoctisArea")
+    assertThat(thar[5, 3]!!.type.asString).isEqualTo("NoctisArea")
     assertThat(thar[5, 3]!!.bonusText).isEqualTo("2 Plant")
 
-    assertThat(thar[3, 2]!!.typeText).isEqualTo("LandArea")
+    assertThat(thar[3, 2]!!.type.asString).isEqualTo("LandArea")
     assertThat(thar[3, 2]!!.bonusText).isNull()
 
-    assertThat(thar[1, 4]!!.typeText).isEqualTo("WaterArea")
+    assertThat(thar[1, 4]!!.type.asString).isEqualTo("WaterArea")
     assertThat(thar[1, 4]!!.bonusText).isEqualTo("ProjectCard")
   }
 
   @Test
   fun testHellas() {
-    val hell: Grid<MapAreaDefinition> = Canon.mapAreaDefinitions["Hellas"]!!
+    val hell: Grid<MapAreaDefinition> = Canon.mapsByClassName[ClassName("Hellas")]!!.areas
     checkWaterAreaCount(hell)
 
-    assertThat(hell[5, 7]!!.typeText).isEqualTo("WaterArea")
+    assertThat(hell[5, 7]!!.type.asString).isEqualTo("WaterArea")
     assertThat(hell[5, 7]!!.bonusText).isEqualTo("3 Heat")
 
-    assertThat(hell[9, 7]!!.typeText).isEqualTo("LandArea")
+    assertThat(hell[9, 7]!!.type.asString).isEqualTo("LandArea")
     assertThat(hell[9, 7]!!.bonusText).isEqualTo("OceanTile, -6")
   }
 
   @Test
   fun testElysium() {
-    val elys: Grid<MapAreaDefinition> = Canon.mapAreaDefinitions["Elysium"]!!
+    val elys: Grid<MapAreaDefinition> = Canon.mapsByClassName[ClassName("Elysium")]!!.areas
     checkWaterAreaCount(elys)
 
-    assertThat(elys[1, 1]!!.typeText).isEqualTo("WaterArea")
+    assertThat(elys[1, 1]!!.type.asString).isEqualTo("WaterArea")
     assertThat(elys[1, 1]!!.bonusText).isNull()
 
-    assertThat(elys[3, 7]!!.typeText).isEqualTo("VolcanicArea")
+    assertThat(elys[3, 7]!!.type.asString).isEqualTo("VolcanicArea")
     assertThat(elys[3, 7]!!.bonusText).isEqualTo("3 ProjectCard")
 
-    assertThat(elys[5, 9]!!.typeText).isEqualTo("VolcanicArea")
+    assertThat(elys[5, 9]!!.type.asString).isEqualTo("VolcanicArea")
     assertThat(elys[5, 9]!!.bonusText).isEqualTo("Plant, Titanium")
   }
 
   private fun checkWaterAreaCount(map: Grid<MapAreaDefinition>) {
-    assertThat(map.count { it.type == gte("WaterArea") }).isEqualTo(12)
+    assertThat(map.count { it.type == ClassName("WaterArea") }).isEqualTo(12)
   }
 
   @Test
   fun parseAllInstructions() {
-    val uniqueAreas = Canon.mapAreaDefinitions.values.asSequence()
-        .flatMap { it }
+    val uniqueAreas = Canon.mapDefinitions
+        .asSequence()
+        .flatMap { it.areas }
         .mapNotNull { it.bonus }
         .distinct()
-        .map { it.toString() }
+        .map(Any::toString)
         .toSet()
 
     assertThat(uniqueAreas).containsExactly(

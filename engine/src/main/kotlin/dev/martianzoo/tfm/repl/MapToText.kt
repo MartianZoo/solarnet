@@ -10,8 +10,7 @@ import dev.martianzoo.util.Grid
 class MapToText(val game: GameState) {
 
   internal fun map(): List<String> {
-    val grid: Grid<MapAreaDefinition> = game.setup.authority.mapAreaDefinition("Tharsis") // DERP
-    var indent: Int = grid.rowCount - 1
+    val grid: Grid<MapAreaDefinition> = game.setup.map.areas
     var lines = ""
     // TODO
 
@@ -19,16 +18,20 @@ class MapToText(val game: GameState) {
     lines += "$ind 1     2     3     4     5     6     7     8     9\n"
     lines += "$ind/     /     /     /     /     /     /     /     /\n"
 
-    val rows = grid.rows()
-    for ((i, row) in rows.withIndex()) {
-      if (i == 0) continue
-      lines += "\n"
-      lines += ("   ".repeat(indent--) + row.map { pad(describe(it)) }.joinToString("")).trimEnd() + "\n"
-    }
+    lines += grid.rows().mapIndexed { rowNum, row ->
+      if (rowNum == 0) {
+        ""
+      } else {
+        val rowString = row.map { padCenter(describe(it), 6) }.joinToString("")
+        val indent = "   ".repeat(grid.rowCount - rowNum)
+        "\n" + (indent + rowString).trimEnd() + "\n"
+      }
+    }.joinToString("")
+
     return lines.trimIndent()
         .split("\n")
         .mapIndexed { i, line ->
-          val label = (i - 1) / 2
+          val label = (i - 1) / 2 // TODO wow ugly
           if (i <= 2 || line.isEmpty()) {
             line
           } else {
@@ -49,20 +52,19 @@ class MapToText(val game: GameState) {
   }
 
   private fun describe(tile: TypeExpression): String {
-    if (tile.className.asString == "OceanTile") return "[O]"
-    for (c: TypeExpression in (tile  as GenericTypeExpression).specs) {
-      if (c.toString().startsWith("Player")) {
-        val p = c.toString().substring(6)
-        return when (tile.className.asString) {
-          "CityTile" -> "[C$p]"
-          "GreeneryTile" -> "[G$p]"
-          "SpecialTile" -> "[S$p]"
-          else -> error(tile)
-        }
-      }
-    }
-    error(tile)
+    val kind = tile.className.asString[0]
+    val player = (tile as GenericTypeExpression)
+        .specs
+        .map { "$it" }
+        .firstOrNull { it.startsWith("Player") }
+        ?.last()
+        ?: ""
+    return "[$kind$player]"
   }
 
-  private fun pad(s: String) = " ".repeat((7 - s.length) / 2) + s + " ".repeat((6 - s.length) / 2)
+  private fun padCenter(s: String, length: Int): String {
+    val before = (length - s.length + 1) / 2
+    val after = (length - s.length) / 2
+    return " ".repeat(before) + s + " ".repeat(after)
+  }
 }

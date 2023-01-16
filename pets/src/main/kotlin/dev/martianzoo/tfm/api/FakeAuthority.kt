@@ -3,14 +3,15 @@ package dev.martianzoo.tfm.api
 import dev.martianzoo.tfm.data.ActionDefinition
 import dev.martianzoo.tfm.data.CardDefinition
 import dev.martianzoo.tfm.data.ClassDeclaration
-import dev.martianzoo.tfm.data.MapAreaDefinition
+import dev.martianzoo.tfm.data.MapDefinition
 import dev.martianzoo.tfm.data.MilestoneDefinition
+import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.util.Grid
 
-class FakeAuthority(classes: List<ClassDeclaration> = listOf()) : Authority() {
-  override fun mapAreaDefinition(name: String) = TODO()
-  override val explicitClassDeclarations = classes
-  override val mapAreaDefinitions = mapOf<String, Grid<MapAreaDefinition>>()
+open class FakeAuthority() : Authority() {
+  override val explicitClassDeclarations = listOf<ClassDeclaration>()
+  override val mapDefinitions =
+      listOf(MapDefinition(ClassName("FakeTharsis"), "M", Grid.empty()))
   override val actionDefinitions = listOf<ActionDefinition>()
   override val cardDefinitions = listOf<CardDefinition>()
   override val milestoneDefinitions = listOf<MilestoneDefinition>()
