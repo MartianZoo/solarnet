@@ -1,6 +1,7 @@
 package dev.martianzoo.tfm.api
 
 import dev.martianzoo.util.onlyElement
+import dev.martianzoo.util.toSetStrict
 
 data class GameSetup(
     val authority: Authority,
@@ -11,14 +12,19 @@ data class GameSetup(
     // TODO milestones: Set<MilestoneDefinition>,
 ) {
   constructor(authority: Authority, bundles: String, players: Int) :
-      this(authority, bundles.asIterable().map { "$it" }, players)
+      this(authority, splitLetters(bundles), players)
 
   init {
-    require(players in 2..5) // TODO solo mode much later
-    require("B" in bundles)
+    // TODO solo mode much later
+    require(players in 2..5) { "player count not supported: $players" }
+    require("B" in bundles) { "missing base: $bundles" }
+    require(authority.allBundles.containsAll(bundles)) { bundles }
   }
 
   val map = authority.marsMapDefinitions
       .filter { it.bundle in bundles }
       .onlyElement()
 }
+
+private fun splitLetters(bundles: String) =
+    bundles.asIterable().map { "$it" }.toSetStrict()

@@ -37,6 +37,8 @@ object Engine {
     return Game(setup, ComponentGraph(prebuilt), loader)
   }
 
+  // TODO maybe the loader should report these
+
   private fun classLiterals(loader: PetClassLoader) =
       loader.loadedClasses()
           .filterNot { it.abstract }

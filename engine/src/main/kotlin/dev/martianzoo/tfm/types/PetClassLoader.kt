@@ -73,7 +73,7 @@ class PetClassLoader(private val authority: Authority) : PetClassTable {
       val next = queue.removeFirst()
       if (next !in nameToClass && next !in idToClass) {
         loadSingle(next)
-        val decl = authority.declaration(next)
+        val decl = authority.classDeclaration(next)
         val needed: List<ClassName> = decl.allNodes.flatMap { it.childNodesOfType() }
         val addToQueue = needed.toSet() - nameToClass.keys - idToClass.keys - THIS
         queue.addAll(addToQueue.d("adding to queue"))
@@ -90,7 +90,7 @@ class PetClassLoader(private val authority: Authority) : PetClassTable {
       return get(idOrName)
     } else {
       return nameToClass[idOrName] ?: idToClass[idOrName] ?:
-          construct(authority.declaration(idOrName))
+          construct(authority.classDeclaration(idOrName))
     }
   }
 

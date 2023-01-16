@@ -15,10 +15,14 @@ import dev.martianzoo.util.associateByStrict
  */
 abstract class Authority {
 
+  open val allBundles by lazy {
+    allDefinitions.map { it.bundle }.toSet()
+  }
+
 // CLASS DECLARATIONS
 
   /** Returns the class declaration having the full name [name]. */
-  fun declaration(name: ClassName): ClassDeclaration {
+  fun classDeclaration(name: ClassName): ClassDeclaration {
     val decl: ClassDeclaration? = allClassDeclarations[name]
     require(decl != null) { "no class declaration by name $name" }
     return decl
