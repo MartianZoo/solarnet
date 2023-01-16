@@ -18,7 +18,7 @@ private class PetClassTest {
     assertThat(cpt.name).isEqualTo(COMPONENT)
     assertThat(cpt.abstract).isTrue()
     assertThat(cpt.directSuperclasses).isEmpty()
-    assertThat(cpt.allSuperclasses.toStrings()).containsExactly(COMPONENT.string)
+    assertThat(cpt.allSuperclasses.toStrings()).containsExactly("$COMPONENT")
     assertThat(cpt.directDependencyKeys).isEmpty()
   }
 
@@ -28,8 +28,8 @@ private class PetClassTest {
     val foo = loader["Foo"]
     assertThat(foo.name).isEqualTo(cn("Foo"))
     assertThat(foo.abstract).isFalse()
-    assertThat(foo.directSuperclasses.toStrings()).containsExactly(COMPONENT.string)
-    assertThat(foo.allSuperclasses.toStrings()).containsExactly(COMPONENT.string, "Foo")
+    assertThat(foo.directSuperclasses.toStrings()).containsExactly("$COMPONENT")
+    assertThat(foo.allSuperclasses.toStrings()).containsExactly("$COMPONENT", "Foo")
     assertThat(foo.directDependencyKeys).isEmpty()
   }
 
@@ -38,7 +38,7 @@ private class PetClassTest {
     val loader = loadTypes("CLASS Foo", "CLASS Bar : Foo")
     val bar = loader["Bar"]
     assertThat(bar.directSuperclasses.toStrings()).containsExactly("Foo")
-    assertThat(bar.allSuperclasses.toStrings()).containsExactly(COMPONENT.string, "Foo", "Bar")
+    assertThat(bar.allSuperclasses.toStrings()).containsExactly("$COMPONENT", "Foo", "Bar")
     assertThat(bar.directDependencyKeys).isEmpty()
   }
 
@@ -47,7 +47,7 @@ private class PetClassTest {
     val loader = loadTypes("CLASS Bar : Foo", "CLASS Foo")
     val bar = loader["Bar"]
     assertThat(bar.directSuperclasses.toStrings()).containsExactly("Foo")
-    assertThat(bar.allSuperclasses.toStrings()).containsExactly(COMPONENT.string, "Foo", "Bar")
+    assertThat(bar.allSuperclasses.toStrings()).containsExactly("$COMPONENT", "Foo", "Bar")
     assertThat(bar.directDependencyKeys).isEmpty()
   }
 
@@ -74,7 +74,7 @@ private class PetClassTest {
   fun dependency() {
     val loader = loadTypes("CLASS Foo", "CLASS Bar<Foo>")
     val bar = loader["Bar"]
-    assertThat(bar.directSuperclasses.toStrings()).containsExactly(COMPONENT.string)
+    assertThat(bar.directSuperclasses.map { it.name }).containsExactly(COMPONENT)
     assertThat(bar.directDependencyKeys).containsExactly(Key(bar, 0))
   }
 

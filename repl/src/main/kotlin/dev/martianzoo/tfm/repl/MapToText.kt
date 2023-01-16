@@ -53,7 +53,7 @@ class MapToText(val game: GameState) {
 
   private fun describe(tile: TypeExpression): String {
     val gentile = tile.asGeneric()
-    val kind = gentile.root.string[0]
+    val kind = gentile.root.toString()[0]
     val player = gentile.args
         .toStrings()
         .firstOrNull { it.startsWith("Player") }

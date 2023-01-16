@@ -218,5 +218,5 @@ class PetClass(
 
   override fun hashCode() = name.hashCode() xor loader.hashCode()
 
-  override fun toString() = name.string
+  override fun toString() = "$name"
 }

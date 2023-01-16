@@ -34,7 +34,7 @@ internal object PetToKotlin {
       return when (this) {
         null -> "null"
 
-        is ClassName -> "cn($string)"
+        is ClassName -> "cn($this)"
         is ClassLiteral -> "${p2k(className)}.literal"
         is GenericTypeExpression -> {
           var s = p2k(root)

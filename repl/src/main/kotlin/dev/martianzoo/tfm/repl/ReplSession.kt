@@ -50,7 +50,7 @@ class ReplSession {
     val g = game as Game
 
     // "list Heat" means my own unless I say "list Heat<Anyone>"
-    val typeToList = g.resolve(cook(TypeExpression.from(args ?: COMPONENT.string)))
+    val typeToList = g.resolve(cook(TypeExpression.from(args ?: "$COMPONENT")))
     val theStuff = g.getAll(typeToList)
 
     // figure out how to break it down

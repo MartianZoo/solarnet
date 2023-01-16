@@ -22,7 +22,7 @@ data class StandardActionDefinition(
     require(bundle.isNotEmpty())
   }
 
-  override val name = englishHack(id.string)
+  override val name = englishHack(id.toString())
 
   val action by lazy { Action.from(actionText) }
 

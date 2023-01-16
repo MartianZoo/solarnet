@@ -3,7 +3,7 @@ package dev.martianzoo.tfm.pets.ast
 import dev.martianzoo.tfm.pets.ast.TypeExpression.ClassLiteral
 import dev.martianzoo.tfm.pets.ast.TypeExpression.GenericTypeExpression
 
-data class ClassName(val string: String) : PetNode(), Comparable<ClassName> {
+data class ClassName(private val asString: String) : PetNode(), Comparable<ClassName> {
   companion object {
     fun cn(name: String) = ClassName(name)
 
@@ -12,7 +12,7 @@ data class ClassName(val string: String) : PetNode(), Comparable<ClassName> {
   }
 
   init {
-    require(string.matches(classNameRegex)) { "Bad class name: $string" }
+    require(asString.matches(classNameRegex)) { "Bad class name: $asString" }
   }
 
   val type = GenericTypeExpression(this)
@@ -25,10 +25,10 @@ data class ClassName(val string: String) : PetNode(), Comparable<ClassName> {
   fun addArgs(specs: List<ClassName>) = addArgs(specs.map { it.type })
   fun addArgs(vararg specs: ClassName) = addArgs(specs.toList())
 
-  fun matches(regex: Regex) = string.matches(regex)
+  fun matches(regex: Regex) = asString.matches(regex)
 
-  override fun toString() = string
-  override fun compareTo(other: ClassName) = string.compareTo(other.string)
+  override fun toString() = asString
+  override fun compareTo(other: ClassName) = asString.compareTo(other.asString)
 
   override val kind = "ClassName"
 }
