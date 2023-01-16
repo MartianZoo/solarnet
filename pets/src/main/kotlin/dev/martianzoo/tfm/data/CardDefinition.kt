@@ -160,7 +160,7 @@ data class CardDefinition(
   // TODO ClassName
   val tags: List<TypeExpression> by lazy { tagsText.map { cn(it).type } }
 
-  val resourceType: ClassName? = resourceTypeText?.let(::ClassName)
+  val resourceType: ClassName? = resourceTypeText?.let { cn(it) }
 
   val immediateRaw: Instruction? by lazy {
     immediateText?.let { Instruction.from(it) }
@@ -180,13 +180,13 @@ data class CardDefinition(
   val requirement by ::requirementRaw
 
   val allEffects: Set<Effect> by lazy {
-    (listOfNotNull(immediateRaw).map(::immediateToEffect) +
+    (listOfNotNull(immediateRaw).map { immediateToEffect(it) } +
         effectsRaw +
         actionsToEffects(actionsRaw)).toSetStrict()
   }
 
   val extraClasses: List<ClassDeclaration> by lazy {
-    extraClassesText.map(::parseOneLineClassDeclaration)
+    extraClassesText.map { parseOneLineClassDeclaration(it) }
   }
 
   override val asClassDeclaration by lazy {

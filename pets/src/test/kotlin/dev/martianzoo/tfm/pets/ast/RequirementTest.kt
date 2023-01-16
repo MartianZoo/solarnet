@@ -12,6 +12,7 @@ import dev.martianzoo.tfm.pets.ast.Requirement.Min
 import dev.martianzoo.tfm.pets.ast.ScalarAndType.Companion.sat
 import dev.martianzoo.tfm.pets.ast.TypeExpression.ClassLiteral
 import dev.martianzoo.tfm.pets.ast.TypeExpression.GenericTypeExpression
+import dev.martianzoo.tfm.pets.testRoundTrip
 import dev.martianzoo.tfm.pets.testSampleStrings
 import org.junit.jupiter.api.Test
 
@@ -110,7 +111,7 @@ private class RequirementTest {
   }
 
   private fun testRoundTrip(start: String, end: String = start) =
-      dev.martianzoo.tfm.pets.testRoundTrip<Requirement>(start, end)
+      testRoundTrip<Requirement>(start, end)
 
   @Test
   fun roundTrips() {

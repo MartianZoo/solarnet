@@ -23,7 +23,7 @@ class EngineTest {
     val milestoneNames = Canon.milestoneDefinitions.map { it.name }
     val regex = Regex("(Hellas|Elysium|Player5|Camp|Row" +
         "|Venus|Area2|Floater|Dirigible|AirScrappingSP).*")
-    val expected = (Canon.allClassDeclarations.keys - unusedExpansionCards).filterNot {
+    val expected = (Canon.allClassNames - unusedExpansionCards).filterNot {
       it.matches(regex)
     }.filterNot {
       it in milestoneNames && "HEV".contains(Canon.milestone(it).bundle)

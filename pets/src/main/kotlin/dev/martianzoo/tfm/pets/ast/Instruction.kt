@@ -150,7 +150,7 @@ sealed class Instruction : PetNode() {
         this(functionName, arguments.toList())
 
     override fun execute(game: GameState) {
-      val instr = game.setup.authority.customInstruction(functionName)
+      val instr = game.authority.customInstruction(functionName)
       try {
         val oops = arguments.filter { game.resolve(it).abstract }
         if (oops.any()) {

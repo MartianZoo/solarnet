@@ -14,7 +14,7 @@ data class MarsMapDefinition(
     override val bundle: String,
     val areas: Grid<AreaDefinition>
 ): Definition {
-  override val id = name
+  override val id by ::name
   override val asClassDeclaration = ClassDeclaration(
       id = id,
       name = name,

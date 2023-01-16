@@ -2,12 +2,13 @@ package dev.martianzoo.tfm.pets.ast
 
 import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.tfm.pets.testRoundTrip
 import org.junit.jupiter.api.Test
 
 // Most testing is done by AutomatedTest
 private class TypeExpressionTest {
   private fun testRoundTrip(petsText: String) =
-      dev.martianzoo.tfm.pets.testRoundTrip<TypeExpression>(petsText)
+      testRoundTrip<TypeExpression>(petsText)
 
   @Test
   fun simpleSourceToApi() {

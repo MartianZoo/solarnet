@@ -24,8 +24,8 @@ sealed class FromExpression : PetNode() {
   abstract val fromType: TypeExpression
 
   data class TypeInFrom(val type: TypeExpression) : FromExpression() {
-    override val toType = type
-    override val fromType = type
+    override val toType by ::type
+    override val fromType by ::type
 
     override fun toString() = "$type"
   }

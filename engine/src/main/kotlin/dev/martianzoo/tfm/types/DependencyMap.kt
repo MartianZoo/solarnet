@@ -5,7 +5,7 @@ import dev.martianzoo.util.overlayMaps
 
 // Takes care of everything inside the <> but knows nothing of what's outside it
 data class DependencyMap(val keyToDependency: Map<Dependency.Key, Dependency>) {
-
+  // TODO make that private?
   constructor() : this(mapOf<Dependency.Key, Dependency>())
 
   init {
@@ -16,7 +16,7 @@ data class DependencyMap(val keyToDependency: Map<Dependency.Key, Dependency>) {
 
   val abstract = keyToDependency.values.any { it.abstract }
 
-  val keys = keyToDependency.keys
+  val keys by keyToDependency::keys
 
   operator fun contains(key: Dependency.Key) = key in keyToDependency
   operator fun get(key: Dependency.Key): Dependency? = keyToDependency[key]

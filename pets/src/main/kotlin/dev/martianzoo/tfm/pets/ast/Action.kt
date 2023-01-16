@@ -58,7 +58,7 @@ data class Action(val cost: Cost?, val instruction: Instruction) : PetNode() {
       override fun toString() = costs.joinToString(" OR ") { groupPartIfNeeded(it) }
       override fun precedence() = 3
 
-      override fun toInstruction() = Instruction.Or(costs.map(Cost::toInstruction).toSet())
+      override fun toInstruction() = Instruction.Or(costs.map { it.toInstruction() }.toSet())
     }
 
     data class Multi(var costs: List<Cost>) : Cost() {
@@ -69,7 +69,7 @@ data class Action(val cost: Cost?, val instruction: Instruction) : PetNode() {
       override fun toString() = costs.joinToString { groupPartIfNeeded(it) }
       override fun precedence() = 1
 
-      override fun toInstruction() = Instruction.Multi(costs.map(Cost::toInstruction))
+      override fun toInstruction() = Instruction.Multi(costs.map { it.toInstruction() })
     }
 
     data class Transform(val cost: Cost, override val transform: String) :

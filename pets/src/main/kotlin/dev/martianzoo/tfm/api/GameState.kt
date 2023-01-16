@@ -1,6 +1,7 @@
 package dev.martianzoo.tfm.api
 
 import com.google.common.collect.Multiset
+import dev.martianzoo.tfm.data.MarsMapDefinition
 import dev.martianzoo.tfm.data.StateChange.Cause
 import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.pets.ast.TypeExpression
@@ -22,6 +23,8 @@ interface GameState : ReadOnlyGameState {
 
 interface ReadOnlyGameState {
   val setup: GameSetup
+  val authority: Authority get() = setup.authority
+  val map: MarsMapDefinition get() = setup.map
 
   fun resolve(type: TypeExpression): TypeInfo
   fun resolve(typeText: String): TypeInfo

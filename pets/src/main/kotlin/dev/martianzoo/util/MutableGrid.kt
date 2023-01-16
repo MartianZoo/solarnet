@@ -3,8 +3,8 @@ package dev.martianzoo.util
 // this is honestly bogus - it can't grow
 public class MutableGrid<E>(private val rows: List<List<E?>>) : Grid<E>, AbstractSet<E>() {
 
-  override val rowCount = rows.size
-  override val columnCount = rows[0].size
+  override val rowCount by rows::size
+  override val columnCount by rows[0]::size
 
   override operator fun get(rowIndex: Int, columnIndex: Int): E? {
     return row(rowIndex)[columnIndex]
@@ -38,7 +38,7 @@ public class MutableGrid<E>(private val rows: List<List<E?>>) : Grid<E>, Abstrac
   private class MutableColumn<E>(val rows: List<List<E?>>, val columnIndex: Int) :
       AbstractMutableList<E?>() {
 
-    override val size = rows.size
+    override val size by rows::size
 
     override fun get(index: Int) = rows[index][columnIndex]
 
@@ -69,7 +69,7 @@ public class MutableGrid<E>(private val rows: List<List<E?>>) : Grid<E>, Abstrac
       }
     }
 
-    override val size = grid.rowCount
+    override val size by grid::rowCount
 
     override fun get(index: Int) = grid.row(index).getOrNull(columnMinusRow + index)
 

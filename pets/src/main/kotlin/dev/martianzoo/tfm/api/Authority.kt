@@ -42,6 +42,8 @@ abstract class Authority {
     list.associateByStrict { it.name }
   }
 
+  val allClassNames: Set<ClassName> by lazy { allClassDeclarations.keys }
+
   /**
    * All class declarations that were provided directly in source form (i.e., `CLASS Foo...` as
    * opposed to being converted from [Definition] objects.

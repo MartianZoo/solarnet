@@ -34,7 +34,7 @@ object GainLowestProduction : CustomInstruction("gainLowestProduction") {
 object CopyProductionBox : CustomInstruction("copyProductionBox") {
   override fun translate(game: ReadOnlyGameState, arguments: List<TypeExpression>): Instruction {
     val chosenCardName = arguments.onlyElement().asGeneric().root
-    val def = game.setup.authority.card(chosenCardName)
+    val def = game.authority.card(chosenCardName)
     val matches = def.immediateRaw
         ?.childNodesOfType<Transform>()
         ?.filter { it.transform == "PROD" }

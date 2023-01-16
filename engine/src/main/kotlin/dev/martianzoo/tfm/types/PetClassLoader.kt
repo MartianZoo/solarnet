@@ -51,7 +51,7 @@ class PetClassLoader(private val authority: Authority) : PetClassTable {
   fun load(idOrName: String): PetClass = load(cn(idOrName))
 
   @JvmName("loadAllFromStrings")
-  fun loadAll(idsAndNames: Collection<String>) = loadAll(idsAndNames.map(::ClassName))
+  fun loadAll(idsAndNames: Collection<String>) = loadAll(idsAndNames.map { cn(it) })
   fun loadAll(idsAndNames: Collection<ClassName>) =
       if (autoLoadDependencies) {
         loadTrees(idsAndNames)
@@ -63,7 +63,7 @@ class PetClassLoader(private val authority: Authority) : PetClassTable {
   fun loadAll(first: String, vararg rest: String) = loadAll(setOf(first) + rest)
 
   fun loadEverything(): PetClassTable {
-    authority.allClassDeclarations.keys.forEach(::loadSingle)
+    authority.allClassNames.forEach(::loadSingle)
     return freeze()
   }
 
@@ -106,7 +106,7 @@ class PetClassLoader(private val authority: Authority) : PetClassTable {
 
     // signal with `null` that loading is in process so we can detect infinite recursion
     nameToClass[name] = null
-    val superclasses: List<PetClass> = decl.superclassNames.map(::load) // we do most other things lazily...
+    val superclasses: List<PetClass> = decl.superclassNames.map { load(it) } // we do most other things lazily...
 
     val petClass = PetClass(decl, superclasses, this)
     nameToClass[name] = petClass

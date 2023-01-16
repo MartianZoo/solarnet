@@ -27,7 +27,7 @@ class Game(
   // val tasks = mutableListOf<Task>()
 
   // TODO maybe have `beginChangeLogging` instead of passing in a prebuilt multiset
-  val changeLog = components.changeLog
+  val changeLog by components::changeLog
 
   override fun resolve(type: TypeExpression): PetType = classTable.resolve(type)
   override fun resolve(typeText: String) = resolve(TypeExpression.from(typeText))
