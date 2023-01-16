@@ -4,7 +4,6 @@ import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 
 object SpecialClassNames {
   val COMPONENT = cn("Component")
-  val DEFAULT = cn("Default")
   val DIE = cn("Die")
   val END = cn("End")
   val MEGACREDIT = cn("Megacredit")

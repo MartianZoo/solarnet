@@ -65,11 +65,7 @@ ABSTRACT CLASS Owned<Anyone> {
 
     ABSTRACT CLASS Resource {
         ABSTRACT CLASS StandardResource {
-            ABSTRACT CLASS Default                          // Things like `Foo: 5` become `Foo: Default`
-            CLASS Megacredit : Default
-
-            CLASS Steel, Titanium, Plant, Heat
-
+            CLASS Megacredit, Steel, Titanium, Plant, Heat
             CLASS Energy { ProductionPhase:: Heat FROM This }
         }
 

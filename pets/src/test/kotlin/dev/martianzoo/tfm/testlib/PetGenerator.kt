@@ -4,10 +4,9 @@ import com.google.common.collect.ImmutableMultiset
 import com.google.common.truth.Truth.assertWithMessage
 import dev.martianzoo.tfm.pets.Parsing.parsePets
 import dev.martianzoo.tfm.pets.PetException
-import dev.martianzoo.tfm.pets.SpecialClassNames.DEFAULT
+import dev.martianzoo.tfm.pets.SpecialClassNames.MEGACREDIT
 import dev.martianzoo.tfm.pets.ast.Action
 import dev.martianzoo.tfm.pets.ast.Action.Cost
-import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.pets.ast.Effect
 import dev.martianzoo.tfm.pets.ast.Effect.Trigger
@@ -60,7 +59,7 @@ internal class PetGenerator(scaling: (Int) -> Double) :
         choose(5 to recurse<GenericTypeExpression>(), 0 to recurse<ClassLiteral>()) // TODO
       }
       register {
-        sat(choose(0, 1, 1, 1, 5, 11), choose(1 to DEFAULT.type, 3 to recurse()))
+        sat(choose(0, 1, 1, 1, 5, 11), choose(1 to MEGACREDIT.type, 3 to recurse()))
       }
 
       val requirementTypes = multiset(

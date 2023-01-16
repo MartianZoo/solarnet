@@ -100,13 +100,13 @@ private class RequirementTest {
     assertThat(Min(sat(1, cn("Foo").type)).toString()).isEqualTo("Foo")
     assertThat(Min(sat(3, cn("Foo").type)).toString()).isEqualTo("3 Foo")
     assertThat(Min(sat(scalar = 3)).toString()).isEqualTo("3")
-    assertThat(Min(sat(scalar = 3, cn("Default").type)).toString()).isEqualTo("3")
-    assertThat(Min(sat(type = cn("Default").type)).toString()).isEqualTo("1")
+    assertThat(Min(sat(scalar = 3, cn("Megacredit").type)).toString()).isEqualTo("3")
+    assertThat(Min(sat(type = cn("Megacredit").type)).toString()).isEqualTo("1")
     assertThat(Max(sat(0, cn("Foo").type)).toString()).isEqualTo("MAX 0 Foo")
     assertThat(Max(sat(type = cn("Foo").type)).toString()).isEqualTo("MAX 1 Foo")
     assertThat(Max(sat(1, cn("Foo").type)).toString()).isEqualTo("MAX 1 Foo")
     assertThat(Max(sat(3, cn("Foo").type)).toString()).isEqualTo("MAX 3 Foo")
-    assertThat(Max(sat(scalar = 3)).toString()).isEqualTo("MAX 3 Default")
+    assertThat(Max(sat(scalar = 3)).toString()).isEqualTo("MAX 3 Megacredit")
   }
 
   private fun testRoundTrip(start: String, end: String = start) =
@@ -115,8 +115,8 @@ private class RequirementTest {
   @Test
   fun roundTrips() {
     testRoundTrip("1", "1")
-    testRoundTrip("Default", "1")
-    testRoundTrip("1 Default", "1")
+    testRoundTrip("Megacredit", "1")
+    testRoundTrip("1 Megacredit", "1")
     testRoundTrip("Plant")
     testRoundTrip("1 Plant", "Plant")
     testRoundTrip("3 Plant")

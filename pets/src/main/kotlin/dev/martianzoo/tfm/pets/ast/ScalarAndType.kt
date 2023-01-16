@@ -8,13 +8,12 @@ import com.github.h0tk3y.betterParse.grammar.parser
 import com.github.h0tk3y.betterParse.parser.Parser
 import dev.martianzoo.tfm.pets.Parsing
 import dev.martianzoo.tfm.pets.PetParser
-import dev.martianzoo.tfm.pets.SpecialClassNames.DEFAULT
-import dev.martianzoo.tfm.pets.ast.Instruction.Companion
+import dev.martianzoo.tfm.pets.SpecialClassNames.MEGACREDIT
 import dev.martianzoo.tfm.pets.ast.TypeExpression.TypeParsers.typeExpression
 
 data class ScalarAndType(
     val scalar: Int = 1,
-    val type: TypeExpression = DEFAULT.type,
+    val type: TypeExpression = MEGACREDIT.type,
 ) : PetNode() {
   init { require(scalar >= 0) }
 
@@ -23,13 +22,13 @@ data class ScalarAndType(
   override fun toString() = toString(false, false)
 
   fun toString(forceScalar: Boolean = false, forceType: Boolean = false) = when {
-    !forceType && type == DEFAULT.type -> "$scalar"
+    !forceType && type == MEGACREDIT.type -> "$scalar"
     !forceScalar && scalar == 1 -> "$type"
     else -> "$scalar $type"
   }
 
   companion object : PetParser() {
-    fun sat(scalar: Int = 1, type: TypeExpression = DEFAULT.type) =
+    fun sat(scalar: Int = 1, type: TypeExpression = MEGACREDIT.type) =
         ScalarAndType(scalar, type)
 
     fun from(text: String) = Parsing.parse(parser(), text)

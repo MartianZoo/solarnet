@@ -7,7 +7,6 @@ import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.data.StateChange.Cause
 import dev.martianzoo.tfm.engine.Engine
 import dev.martianzoo.tfm.engine.Game
-import dev.martianzoo.tfm.pets.Parsing.parsePets
 import dev.martianzoo.tfm.pets.PetNodeVisitor
 import dev.martianzoo.tfm.pets.SpecialClassNames.ANYONE
 import dev.martianzoo.tfm.pets.SpecialClassNames.COMPONENT
@@ -20,7 +19,9 @@ import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.pets.ast.TypeExpression
 import dev.martianzoo.tfm.pets.ast.TypeExpression.ClassLiteral
 import dev.martianzoo.tfm.pets.ast.TypeExpression.GenericTypeExpression
+import dev.martianzoo.tfm.pets.deprodify
 import dev.martianzoo.tfm.types.PetClass
+import dev.martianzoo.tfm.types.PetClassLoader
 import dev.martianzoo.tfm.types.PetType
 import dev.martianzoo.tfm.types.PetType.PetGenericType
 
@@ -43,7 +44,7 @@ class ReplSession {
   }
 
   fun count(args: String): List<String> {
-    val fixedType = setDefaultPlayer(TypeExpression.from(args))
+    val fixedType = cook(TypeExpression.from(args))
     val count = game!!.count(fixedType)
     return listOf("$count $fixedType")
   }
@@ -52,7 +53,7 @@ class ReplSession {
     val g = game as Game
 
     // "list Heat" means my own unless I say "list Heat<Anyone>"
-    val typeToList = g.resolve(setDefaultPlayer(TypeExpression.from(args ?: COMPONENT.string)))
+    val typeToList = g.resolve(cook(TypeExpression.from(args ?: COMPONENT.string)))
     val theStuff = g.getAll(typeToList)
 
     // figure out how to break it down
@@ -73,7 +74,7 @@ class ReplSession {
   }
 
   fun has(args: String): List<String> {
-    val fixed = setDefaultPlayer(Requirement.from(args))
+    val fixed = cook(Requirement.from(args))
     val result = game!!.isMet(args)
     return listOf("$result: $fixed")
   }
@@ -83,7 +84,7 @@ class ReplSession {
   fun history() = game!!.changeLog.map { it.toString() }
 
   fun exec(args: String): List<String> {
-    val instr = setDefaultPlayer(Instruction.from(args))
+    val instr = cook(Instruction.from(args))
     game!!.execute(instr)
     return listOf("Ok: $instr")
   }
@@ -134,7 +135,7 @@ class ReplSession {
     }
   }
 
-  private fun <P : PetNode> setDefaultPlayer(node: P): P {
+  private fun <P : PetNode> cook(node: P): P {
     if (defaultPlayer == null) {
       return node
     }
@@ -157,7 +158,7 @@ class ReplSession {
       }
     }
     val fixt = Fixer().transform(node)
-    return fixt
+    return deprodify(fixt, (game!!.classTable as PetClassLoader).resourceNames())
   }
 
   object NullGame : GameState {
