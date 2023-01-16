@@ -1,7 +1,6 @@
 package dev.martianzoo.tfm.data
 
 import dev.martianzoo.tfm.data.SpecialClassNames.TILE
-import dev.martianzoo.tfm.pets.Parsing.parsePets
 import dev.martianzoo.tfm.pets.SpecialClassNames.THIS
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
@@ -56,7 +55,7 @@ data class MapAreaDefinition(
         abstract = false,
         supertypes = setOf(type.type),
         effectsRaw = bonus?.let {
-          setOf(Effect(trigger, it, automatic = false))
+          setOf(Effect(OnGain(TILE.addArgs(THIS.type)), it, automatic = false))
         } ?: setOf(),
     )
   }
@@ -64,5 +63,3 @@ data class MapAreaDefinition(
   override val id = cn("${bundle}${row}$column")
   override val name = cn("${mapName}_${row}_$column")
 }
-
-val trigger = OnGain(TILE.addArgs(THIS.type))
