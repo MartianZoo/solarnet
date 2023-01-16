@@ -13,8 +13,6 @@ import dev.martianzoo.tfm.pets.ast.Requirement.Exact
 import dev.martianzoo.tfm.pets.ast.Requirement.Min
 import dev.martianzoo.tfm.pets.ast.ScalarAndType.Companion.sat
 import dev.martianzoo.tfm.pets.ast.TypeExpression
-import dev.martianzoo.tfm.pets.ast.TypeExpression.ClassLiteral
-import dev.martianzoo.tfm.pets.ast.TypeExpression.GenericTypeExpression
 import dev.martianzoo.tfm.pets.deprodify
 import dev.martianzoo.tfm.pets.replaceThis
 import dev.martianzoo.tfm.types.PetType.PetGenericType
@@ -25,6 +23,7 @@ class PetClass(
     val directSuperclasses: List<PetClass>,
     private val loader: PetClassLoader,
 ) : PetType {
+
   val name: ClassName by declaration::name
   override val abstract by declaration::abstract
   override val petClass = this
@@ -88,13 +87,16 @@ class PetClass(
    * In practice some types like `OwnedTile` and `ActionCard` could serve as intersection types.
    * TODO
    */
-  fun intersect(that: PetClass) = when {
+  fun intersect(that: PetClass): PetClass? = when {
     this.isSubclassOf(that) -> this
     that.isSubclassOf(this) -> that
-    else -> error("no intersection: $this, $that")
+    else -> {
+      val inters = allSubclasses.filter {
+        it.intersectionType && this in it.directSuperclasses && that in it.directSuperclasses
+      }
+      if (inters.size == 1) inters.first() else null
+    }
   }
-
-  fun canIntersect(that: PetClass) = this.isSubclassOf(that) || that.isSubclassOf(this)
 
   fun lub(that: PetClass) = when {
     this.isSubclassOf(that) -> that
@@ -102,12 +104,10 @@ class PetClass(
     else -> allSuperclasses.intersect(that.allSuperclasses).maxBy { it.allSuperclasses.size }
   }
 
-  override fun canIntersect(that: PetType): Boolean {
-    return that is PetClass && this.canIntersect(that.petClass)
-  }
-
   override fun intersect(that: PetType): PetClass {
-    return intersect(that as PetClass)
+    val tried = intersect(that as PetClass)
+    require(tried != null) { "can't intersect $this and $that" }
+    return tried
   }
 
 // DEPENDENCIES

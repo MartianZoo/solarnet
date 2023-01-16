@@ -12,9 +12,7 @@ interface PetType : TypeInfo {
 
   fun isSubtypeOf(that: PetType): Boolean
 
-  fun canIntersect(that: PetType): Boolean
-
-  infix fun intersect(that: PetType): PetType
+  infix fun intersect(that: PetType): PetType?
 
   override fun toTypeExpressionFull(): TypeExpression
 
@@ -32,21 +30,14 @@ interface PetType : TypeInfo {
         dependencies.specializes(that.dependencies) &&
         that.refinement in setOf(null, refinement)
 
-    override fun canIntersect(that: PetType): Boolean {
-      return try { // TODO yuck
-        intersect(that)
-        true
-      } catch (e: Exception) {
-        false
-      }
+    override fun intersect(that: PetType): PetGenericType? {
+      val intersect: PetClass = petClass.intersect(that.petClass) ?: return null
+      return PetGenericType(
+          intersect,
+          dependencies.intersect(that.dependencies),
+          combine(this.refinement, that.refinement)
+      )
     }
-
-    override fun intersect(that: PetType) =
-        PetGenericType(
-            petClass.intersect(that.petClass),
-            dependencies.intersect(that.dependencies),
-            combine(this.refinement, that.refinement)
-        )
 
     private fun combine(one: Requirement?, two: Requirement?): Requirement? {
       val x = setOfNotNull(one, two)

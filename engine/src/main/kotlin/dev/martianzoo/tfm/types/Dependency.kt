@@ -8,11 +8,10 @@ data class Dependency(val key: Key, val type: PetType) {
 
   fun specializes(that: Dependency) = type.isSubtypeOf(checkKeys(that).type)
 
-  fun canIntersect(that: Dependency) = this.type.canIntersect(that.type)
+  fun intersect(that: Dependency): Dependency? = this intersect checkKeys(that).type
 
-  fun intersect(that: Dependency): Dependency = this intersect checkKeys(that).type
-
-  infix fun intersect(otherType: PetType) = copy(type = this.type intersect otherType)
+  infix fun intersect(otherType: PetType): Dependency? =
+      (this.type intersect otherType)?.let { copy(type = it) }
 
   fun toTypeExpressionFull() = type.toTypeExpressionFull()
 

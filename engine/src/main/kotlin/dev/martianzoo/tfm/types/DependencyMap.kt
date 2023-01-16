@@ -29,7 +29,7 @@ data class DependencyMap(val keyToDependency: Map<Dependency.Key, Dependency>) {
 
   // Combines all entries, using the glb when both maps have the same key
   fun intersect(that: DependencyMap): DependencyMap {
-    val merged = mergeMaps(this.keyToDependency, that.keyToDependency, Dependency::intersect)
+    val merged = mergeMaps(this.keyToDependency, that.keyToDependency) { a, b -> a.intersect(b)!! }
     return DependencyMap(merged)
   }
 
@@ -54,8 +54,10 @@ data class DependencyMap(val keyToDependency: Map<Dependency.Key, Dependency>) {
 
     for ((key, dependency) in keyToDependency) {
       if (unhandled.isEmpty()) break
-      newMap[key] = if (dependency.type.canIntersect(unhandled.first())) {
-        dependency intersect unhandled.removeFirst()
+      val intersect: PetType? = dependency.type.intersect(unhandled.first())
+      newMap[key] = if (intersect != null) {
+        unhandled.removeFirst()
+        dependency.copy(type = intersect)
       } else {
         dependency
       }
