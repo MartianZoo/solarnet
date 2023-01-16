@@ -179,6 +179,8 @@ sealed class Instruction : PetNode() {
   data class Then(val instructions: List<Instruction>) : Instruction() {
     constructor(vararg instructions: Instruction) : this(instructions.toList())
 
+    init { require(instructions.size >= 2) }
+
     override fun times(value: Int) = copy(instructions.map { it * value })
     override fun execute(game: GameState) {
       Multi(instructions).execute(game)
@@ -192,6 +194,8 @@ sealed class Instruction : PetNode() {
   data class Or(val instructions: Set<Instruction>) : Instruction() {
     constructor(vararg instructions: Instruction) : this(instructions.toSet())
 
+    init { require(instructions.size >= 2) }
+
     override fun times(value: Int) = copy(instructions.map { it * value }.toSet())
     override fun execute(game: GameState) = error("abstract instruction")
 
@@ -204,8 +208,9 @@ sealed class Instruction : PetNode() {
   }
 
   data class Multi(val instructions: List<Instruction>) : Instruction() {
-
     constructor(vararg instructions: Instruction) : this(instructions.toList())
+
+    init { require(instructions.size >= 2) }
 
     override fun times(value: Int) = copy(instructions.map { it * value })
 

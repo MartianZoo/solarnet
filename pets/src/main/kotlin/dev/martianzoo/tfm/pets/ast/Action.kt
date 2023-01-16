@@ -53,6 +53,8 @@ data class Action(val cost: Cost?, val instruction: Instruction) : PetNode() {
     data class Or(var costs: Set<Cost>) : Cost() {
       constructor(vararg costs: Cost) : this(costs.toSet())
 
+      init { require(costs.size >= 2) }
+
       override fun toString() = costs.joinToString(" OR ") { groupPartIfNeeded(it) }
       override fun precedence() = 3
 
@@ -61,6 +63,8 @@ data class Action(val cost: Cost?, val instruction: Instruction) : PetNode() {
 
     data class Multi(var costs: List<Cost>) : Cost() {
       constructor(vararg costs: Cost) : this(costs.toList())
+
+      init { require(costs.size >= 2) }
 
       override fun toString() = costs.joinToString { groupPartIfNeeded(it) }
       override fun precedence() = 1

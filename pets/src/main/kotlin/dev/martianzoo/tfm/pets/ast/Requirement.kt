@@ -35,6 +35,8 @@ sealed class Requirement : PetNode() {
   }
 
   data class Or(val requirements: Set<Requirement>) : Requirement() {
+    init { require(requirements.size >= 2) }
+
     override fun toString() = requirements.joinToString(" OR ") { groupPartIfNeeded(it) }
     override fun precedence() = 3
 
@@ -42,6 +44,8 @@ sealed class Requirement : PetNode() {
   }
 
   data class And(val requirements: List<Requirement>) : Requirement() {
+    init { require(requirements.size >= 2) }
+
     override fun toString() = requirements.joinToString { groupPartIfNeeded(it) }
     override fun precedence() = 1
 
