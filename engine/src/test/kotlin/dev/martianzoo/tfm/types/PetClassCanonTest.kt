@@ -2,8 +2,10 @@ package dev.martianzoo.tfm.types
 
 import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.tfm.canon.Canon
+import dev.martianzoo.tfm.data.SpecialClassNames.TILE
 import dev.martianzoo.tfm.pets.SpecialClassNames.COMPONENT
 import dev.martianzoo.tfm.pets.SpecialClassNames.DIE
+import dev.martianzoo.tfm.pets.SpecialClassNames.OWNED
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.util.toStrings
@@ -55,11 +57,16 @@ private class PetClassCanonTest {
   fun intersectionTypes() {
     val table = PetClassLoader(Canon).loadEverything()
 
+    val ot = table["OwnedTile"]
+    val ac = table["ActionCard"]
+
     // Nothing can be both Owned and a Tile without being an OwnedTile!
-    assertThat(table["OwnedTile"].intersectionType).isTrue()
+    assertThat(ot.intersectionType).isTrue()
 
     // Nothing can be both a CardFront and a HasActions but an ActionCard!
-    assertThat(table["ActionCard"].intersectionType).isTrue()
+    assertThat(ac.intersectionType).isTrue()
+
+    assertThat(table[OWNED].intersect(table[TILE])).isEqualTo(ot)
   }
 
   fun findValidTypes() {
