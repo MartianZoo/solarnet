@@ -37,10 +37,10 @@ open class PetParser {
   internal val _default = literal("DEFAULT")
 
   // scripts
-  internal val _become = literal("BECOME")
-  internal val _count = literal("COUNT")
-  internal val _exec = literal("EXEC")
-  internal val _require = literal("REQUIRE")
+  internal val _become = literal("BECOME") or literal("become")
+  internal val _count = literal("COUNT") or literal("count")
+  internal val _exec = literal("EXEC") or literal("exec")
+  internal val _require = literal("REQUIRE") or literal("require")
 
   // regexes - could leave the `Regex()` out, but it loses IDEA syntax highlighting!
   internal val _upperCamelRE = regex(Regex("""\b[A-Z][a-z][A-Za-z0-9_]*\b"""), "UpperCamel")

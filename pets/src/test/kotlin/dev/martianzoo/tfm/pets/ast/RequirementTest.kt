@@ -1,7 +1,10 @@
 package dev.martianzoo.tfm.pets.ast
 
 import com.google.common.truth.Truth.assertThat
+import dev.martianzoo.tfm.api.FakeAuthority
+import dev.martianzoo.tfm.api.GameSetup
 import dev.martianzoo.tfm.api.GameState
+import dev.martianzoo.tfm.api.TypeInfo
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.data.StateChange.Cause
 import dev.martianzoo.tfm.pets.Parsing.parsePets
@@ -148,20 +151,22 @@ private class RequirementTest {
 
   // All type expressions with even-length string representations
   // exist and have a count equal to that string's length
-  object FakeGame : GameState {
-    override val authority = Canon // why not
+  object FakeGame : GameState { // TODO stub?
+    override val setup = GameSetup(FakeAuthority(), 2, setOf("B", "M"))
 
     override fun count(type: TypeExpression): Int {
       val length = type.toString().length
       return if (length % 2 == 0) length else 0
     }
 
-
     override fun isMet(requirement: Requirement) = requirement.evaluate(this)
 
+    override fun resolve(typeText: String) = TODO()
     override fun resolve(type: TypeExpression) = TODO()
-    override fun getAll(type: TypeExpression) = TODO()
+
     override fun count(type: String) = TODO()
+
+    override fun getAll(type: TypeExpression) = TODO()
     override fun getAll(type: ClassLiteral) = TODO()
     override fun getAll(type: String) = TODO()
 

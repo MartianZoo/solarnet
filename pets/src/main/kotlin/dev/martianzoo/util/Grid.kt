@@ -30,7 +30,7 @@ interface Grid<E> : Set<E> {
 
   companion object {
     fun <E> grid(cells: Iterable<E>, rowFn: (E) -> Int, columnFn: (E) -> Int): Grid<E> {
-      return mutableGrid(cells, rowFn, columnFn)
+      return mutableGrid(cells, rowFn, columnFn).immutable()
     }
 
     fun <E> mutableGrid(

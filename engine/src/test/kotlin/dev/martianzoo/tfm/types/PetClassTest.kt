@@ -1,18 +1,12 @@
 package dev.martianzoo.tfm.types
 
 import com.google.common.truth.Truth.assertThat
-import dev.martianzoo.tfm.api.Authority
-import dev.martianzoo.tfm.api.CustomInstruction
-import dev.martianzoo.tfm.data.ActionDefinition
-import dev.martianzoo.tfm.data.CardDefinition
+import dev.martianzoo.tfm.api.FakeAuthority
 import dev.martianzoo.tfm.data.ClassDeclaration
-import dev.martianzoo.tfm.data.MapAreaDefinition
-import dev.martianzoo.tfm.data.MilestoneDefinition
 import dev.martianzoo.tfm.pets.Parsing.parseClassDeclarations
 import dev.martianzoo.tfm.pets.SpecialClassNames.COMPONENT
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.types.Dependency.Key
-import dev.martianzoo.util.Grid
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 
@@ -206,15 +200,6 @@ private fun loader(petsText: String): PetClassLoader {
   val classes: List<ClassDeclaration> = parseClassDeclarations(petsText)
   val authority = FakeAuthority(classes)
   return PetClassLoader(authority).also { it.loadEverything() }
-}
-
-class FakeAuthority(classes: List<ClassDeclaration>) : Authority() {
-  override val explicitClassDeclarations = classes
-  override val mapAreaDefinitions = mapOf<String, Grid<MapAreaDefinition>>()
-  override val actionDefinitions = listOf<ActionDefinition>()
-  override val cardDefinitions = listOf<CardDefinition>()
-  override val milestoneDefinitions = listOf<MilestoneDefinition>()
-  override fun customInstructions() = listOf<CustomInstruction>()
 }
 
 // TODO move to shared utils

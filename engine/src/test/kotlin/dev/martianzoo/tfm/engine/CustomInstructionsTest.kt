@@ -17,7 +17,7 @@ private class CustomInstructionsTest {
 
   @Test
   fun robinson() {
-    val game = Engine.newGame(Canon, 3, setOf("B"))
+    val game = Engine.newGame(Canon, 3, setOf("B", "M"))
     val s = """
       // The standard hack for every player - ignore it!
       EXEC PROD[5 Megacredit<Player1>]
@@ -36,7 +36,7 @@ private class CustomInstructionsTest {
 
   @Test
   fun robinsonCant() {
-    val game = Engine.newGame(Canon, 3, setOf("B"))
+    val game = Engine.newGame(Canon, 3, setOf("B", "M"))
     val s = """
       // The standard hack for every player - ignore it!
       EXEC PROD[5 Megacredit<Player1>]
@@ -52,7 +52,8 @@ private class CustomInstructionsTest {
   // TODO figure out how to make gradle compile the java code
   // It seemed like adding plugins { `java-library` } should have been enough
   fun java() {
-    val auth = object : Authority() {
+    val auth = object : Authority() { // todo Fwding
+      override fun mapAreaDefinition(name: String) = Canon.mapAreaDefinition(name)
       override val explicitClassDeclarations: Collection<ClassDeclaration> = Canon.explicitClassDeclarations
       override val actionDefinitions: Collection<ActionDefinition> = Canon.actionDefinitions
       override val cardDefinitions: Collection<CardDefinition> = Canon.cardDefinitions
@@ -61,7 +62,7 @@ private class CustomInstructionsTest {
       override fun customInstructions() = listOf(CustomJavaExample.GainLowestProduction())
     }
 
-    val game = Engine.newGame(auth, 3, setOf("B"))
+    val game = Engine.newGame(auth, 3, setOf("B", "R", "M"))
     val s = """
       // The standard hack for every player - ignore it!
       EXEC PROD[5 Megacredit<Player1>]
@@ -76,7 +77,7 @@ private class CustomInstructionsTest {
 
   @Test
   fun robinson2() {
-    val game = Engine.newGame(Canon, 3, setOf("B"))
+    val game = Engine.newGame(Canon, 3, setOf("B", "R", "M"))
     val s = """
       // The standard hack for every player - ignore it!
       EXEC PROD[5 Megacredit<Player1>]
@@ -90,7 +91,7 @@ private class CustomInstructionsTest {
   }
 
   fun roboWork() {
-    val game = Engine.newGame(Canon, 2, setOf("B", "R"))
+    val game = Engine.newGame(Canon, 2, setOf("B", "R", "M"))
     val s = """
       // The standard hack for every player - ignore it!
       EXEC PROD[5 Megacredit<Player1>]

@@ -4,12 +4,16 @@ plugins {
 }
 
 kotlin {
-  jvmToolchain(19)
+  jvmToolchain(18)
 }
 
 dependencies {
   implementation(platform("org.jetbrains.kotlin:kotlin-bom:1.8.0"))
   implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.0")
+
+  // TODO move to new repl module
+  implementation("org.jline:jline:3.21.0")
+  implementation(project(mapOf("path" to ":canon")))
 
   // TODO will eventually deguavafy
   implementation("com.google.guava:guava:31.1-jre")

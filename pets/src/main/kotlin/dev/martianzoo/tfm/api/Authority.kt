@@ -54,9 +54,7 @@ abstract class Authority {
 
   abstract val mapAreaDefinitions: Map<String, Grid<MapAreaDefinition>>
 
-  val mapAreasByClassName by lazy {
-    associateByClassName(mapAreaDefinitions.values.flatten())
-  }
+  abstract fun mapAreaDefinition(name: String): Grid<MapAreaDefinition>
 
   abstract val milestoneDefinitions: Collection<MilestoneDefinition>
 

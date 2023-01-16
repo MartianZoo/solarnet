@@ -1,7 +1,7 @@
 package dev.martianzoo.util
 
 // this is honestly bogus - it can't grow
-public class MutableGrid<E>(private val rows: List<MutableList<E?>>) : Grid<E>, AbstractSet<E>() {
+public class MutableGrid<E>(private val rows: List<List<E?>>) : Grid<E>, AbstractSet<E>() {
 
   override val rowCount = rows.size
   override val columnCount = rows[0].size
@@ -11,7 +11,7 @@ public class MutableGrid<E>(private val rows: List<MutableList<E?>>) : Grid<E>, 
   }
 
   fun set(rowIndex: Int, columnIndex: Int, value: E): E? {
-    return row(rowIndex).set(columnIndex, value)
+    return (row(rowIndex) as MutableList<E>).set(columnIndex, value)
   }
 
   override fun rows() = rows
@@ -32,14 +32,17 @@ public class MutableGrid<E>(private val rows: List<MutableList<E?>>) : Grid<E>, 
   override fun contains(element: E) = all().contains(element)
   override fun isEmpty() = false
 
-  private class MutableColumn<E>(val rows: List<MutableList<E?>>, val columnIndex: Int) :
+  fun immutable(): Grid<E> {
+    return MutableGrid(rows.map { it.toList() }.toList())
+  }
+  private class MutableColumn<E>(val rows: List<List<E?>>, val columnIndex: Int) :
       AbstractMutableList<E?>() {
 
     override val size = rows.size
 
     override fun get(index: Int) = rows[index][columnIndex]
 
-    override fun set(index: Int, element: E?) = rows[index].set(columnIndex, element)
+    override fun set(index: Int, element: E?) = (rows[index] as MutableList<E?>).set(columnIndex, element)
 
     override fun subList(fromIndex: Int, toIndex: Int): MutableList<E?> {
       return MutableColumn(rows.subList(fromIndex, toIndex), columnIndex)
@@ -70,7 +73,8 @@ public class MutableGrid<E>(private val rows: List<MutableList<E?>>) : Grid<E>, 
 
     override fun get(index: Int) = grid.row(index).getOrNull(columnMinusRow + index)
 
-    override fun set(index: Int, element: E?) = grid.row(index).set(columnMinusRow + index, element)
+    override fun set(index: Int, element: E?) =
+        (grid.row(index) as MutableList<E?>).set(columnMinusRow + index, element)
 
     override fun add(index: Int, element: E?) = error("fixed-size")
     override fun removeAt(index: Int) = error("fixed-size")

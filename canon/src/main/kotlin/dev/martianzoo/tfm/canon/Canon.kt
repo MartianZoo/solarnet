@@ -23,8 +23,14 @@ object Canon : Authority() {
     }
   }
 
+  // TODO what's the deal with the map name vs bundle
   override val mapAreaDefinitions: Map<String, Grid<MapAreaDefinition>> by lazy {
     JsonReader.readMaps(readResource("maps.json5"))
+  }
+
+  override fun mapAreaDefinition(name: String): Grid<MapAreaDefinition> {
+    require (name in mapAreaDefinitions) { "No map named: $name"}
+    return mapAreaDefinitions[name]!!
   }
 
   fun getMap(bundle: Bundle): Grid<MapAreaDefinition> =
@@ -60,5 +66,12 @@ object Canon : Authority() {
     Colonies("C"),
     Turmoil("T"),
     Promos("X"),
+    ;
+
+    companion object {
+      fun forId(code: String): Bundle {
+        return values().first { it.id == code }
+      }
+    }
   }
 }

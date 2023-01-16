@@ -47,7 +47,7 @@ object JsonReader {
   private class MapsImport(val maps: List<MapImport>, val legend: Map<Char, String>) {
     fun toGrids() = maps.associateBy(MapImport::name) { it.toGrid(Legend(legend)) }
 
-    internal class MapImport(
+    class MapImport(
         val name: String,
         val bundle: String,
         val rows: List<List<String>>,

@@ -4,6 +4,7 @@ import com.google.common.collect.HashMultiset
 import com.google.common.collect.ImmutableMultiset
 import com.google.common.collect.Multiset
 import dev.martianzoo.tfm.api.Authority
+import dev.martianzoo.tfm.api.GameSetup
 import dev.martianzoo.tfm.api.GameState
 import dev.martianzoo.tfm.api.standardResourceNames
 import dev.martianzoo.tfm.data.StateChange.Cause
@@ -21,16 +22,15 @@ import dev.martianzoo.tfm.types.PetType
 import dev.martianzoo.util.toSetStrict
 
 internal class Game(
-    override val authority: Authority,
+    override val setup: GameSetup,
     val components: ComponentGraph,
     val classTable: PetClassTable,
 ) : GameState {
   // val tasks = mutableListOf<Task>()
-
   val changeLog = components.changeLog
 
   override fun resolve(type: TypeExpression): PetType = classTable.resolve(type)
-  fun resolve(typeText: String) = resolve(parsePets(typeText))
+  override fun resolve(typeText: String) = resolve(parsePets(typeText))
 
   fun count(type: PetType) = components.count(type)
 

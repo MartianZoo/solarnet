@@ -14,7 +14,7 @@ internal interface PetType : TypeInfo {
 
   infix fun intersect(that: PetType): PetType
 
-  fun toTypeExpressionFull(): TypeExpression
+  override fun toTypeExpressionFull(): TypeExpression
 
   data class PetGenericType(
       override val petClass: PetClass,

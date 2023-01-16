@@ -11,7 +11,7 @@ fun <T, K> Collection<T>.associateByStrict(x: (T) -> K): Map<K, T> {
 }
 
 fun <T : Any?> Collection<T>.onlyElement(): T {
-  require(size == 1)
+  require(size == 1) { this }
   return first()
 }
 
@@ -94,6 +94,9 @@ fun <T : Any?> T.wrap(
   require(wrap.length == 2)
   return wrap(wrap.substring(0, 1), wrap.substring(1), transform)
 }
+
+fun <T : Any> Collection<List<T?>>.filterNoNulls() =
+    filter { null !in it } as List<List<T>>
 
 fun <T : Any?> T.pre(prefix: String, transform: (T) -> String = { "$it" }) =
     wrap(prefix, "", transform)

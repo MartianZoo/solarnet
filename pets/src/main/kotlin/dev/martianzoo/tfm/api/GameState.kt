@@ -11,7 +11,7 @@ import dev.martianzoo.tfm.pets.ast.TypeExpression.GenericTypeExpression
  * This is a simple interface in the `pets` module that code
  * outside the module can implement...
  */
-public interface GameState : ReadOnlyGameState {
+interface GameState : ReadOnlyGameState {
   fun applyChange(
       count: Int = 1,
       gaining: GenericTypeExpression? = null,
@@ -20,9 +20,10 @@ public interface GameState : ReadOnlyGameState {
   )
 }
 
-public interface ReadOnlyGameState {
-  val authority: Authority
+interface ReadOnlyGameState {
+  val setup: GameSetup
 
+  fun resolve(typeText: String): TypeInfo
   fun resolve(type: TypeExpression): TypeInfo
 
   fun count(typeText: String): Int

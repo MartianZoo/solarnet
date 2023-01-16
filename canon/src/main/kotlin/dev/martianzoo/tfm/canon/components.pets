@@ -44,7 +44,7 @@ ABSTRACT CLASS Area(HAS MAX 1 Tile) {
     HAS MAX 1 This
 
     ABSTRACT CLASS MarsArea {                               // the individual areas are loaded from `maps.json5`
-        This:: $createAll(Row, This)
+        HAS =1 This
 
         ABSTRACT CLASS LandArea {
             ABSTRACT CLASS VolcanicArea
