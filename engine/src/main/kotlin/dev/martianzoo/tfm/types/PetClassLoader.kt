@@ -84,6 +84,7 @@ internal class PetClassLoader(private val authority: Authority) : PetClassTable 
 
   // all loading goes through here
   private fun loadSingle(idOrName: ClassName): PetClass {
+    idOrName.d("loading")
     if (frozen) {
       return get(idOrName)
     } else {

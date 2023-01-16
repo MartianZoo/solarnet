@@ -7,30 +7,38 @@ import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.data.StateChange.Cause
 import dev.martianzoo.tfm.engine.Engine
 import dev.martianzoo.tfm.engine.Game
-import dev.martianzoo.tfm.pets.Parsing
 import dev.martianzoo.tfm.pets.Parsing.parsePets
 import dev.martianzoo.tfm.pets.PetNodeVisitor
 import dev.martianzoo.tfm.pets.SpecialClassNames.ANYONE
 import dev.martianzoo.tfm.pets.SpecialClassNames.COMPONENT
 import dev.martianzoo.tfm.pets.SpecialClassNames.OWNED
+import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.Instruction
 import dev.martianzoo.tfm.pets.ast.PetNode
 import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.pets.ast.TypeExpression
 import dev.martianzoo.tfm.pets.ast.TypeExpression.ClassLiteral
 import dev.martianzoo.tfm.pets.ast.TypeExpression.GenericTypeExpression
+import dev.martianzoo.tfm.types.PetClass
 import dev.martianzoo.tfm.types.PetType
 import dev.martianzoo.tfm.types.PetType.PetGenericType
 
-class ReplSession(val output: (String) -> Unit) {
+class ReplSession {
   private var game: Game? = null
   private var defaultPlayer: TypeExpression? = null
 
-  fun newgame(args: String?): List<String> {
-    val bundles = args ?: "BRM"
-    game = Engine.newGame(Canon, 2, bundles.asSequence().map { "$it" }.toList())
+  fun newgame(args: String): List<String> {
+    val (players, bundles) = args.split(Regex("\\s+"), 2)
+    game = Engine.newGame(Canon, players.toInt(), bundles.asSequence().map { "$it" }.toList())
     defaultPlayer = null
-    return listOf("New game created with bundles: $bundles")
+    return listOf("New $players-player game created with bundles: $bundles")
+  }
+
+  fun become(args: String): List<String> {
+    val type: PetType = game!!.resolve(args)
+    require(!type.abstract && type.isSubtypeOf(game!!.classTable["Player"].baseType))
+    defaultPlayer = type.toTypeExpressionFull()
+    return listOf("Hi, $defaultPlayer")
   }
 
   fun count(args: String): List<String> {
@@ -39,30 +47,18 @@ class ReplSession(val output: (String) -> Unit) {
     return listOf("$count $fixedType")
   }
 
-  // private fun setDefaultPlayer(type: PetType): PetType {
-  //   if (defaultPlayer != null) {
-  //     val key = Dependency.Key(game!!.classTable[OWNED], 0)
-  //     val owner: PetClass? = type.dependencies[key]?.type?.petClass
-  //     if (owner?.name in setOf(PLAYER, ANYONE)) {
-  //       return (type as PetGenericType).specialize(listOf(defaultPlayer!!))
-  //     }
-  //   }
-  //   return type
-  // }
-
   fun list(args: String?): List<String> {
     val g = game as Game
 
     // "list Heat" means my own unless I say "list Heat<Anyone>"
     val typeToList = g.resolve(setDefaultPlayer(parsePets(args ?: COMPONENT.asString)))
-
     val theStuff = g.getAll(typeToList)
 
     // figure out how to break it down
     val petClass = typeToList.petClass
     var subs = petClass.directSubclasses.sortedBy { it.name }
     if (subs.isEmpty()) subs = listOf(petClass)
-    return subs.mapNotNull {sub ->
+    return subs.mapNotNull { sub ->
       val thatType: PetGenericType = sub.baseType
       val count = theStuff.entrySet()
           .filter { it.element.hasType(thatType) }
@@ -91,28 +87,49 @@ class ReplSession(val output: (String) -> Unit) {
     return listOf("Ok: $instr")
   }
 
-  fun become(args: String): List<String> {
-    val type: PetType = game!!.resolve(args)
-    require(!type.abstract && type.isSubtypeOf(game!!.classTable["Player"].baseType))
-    defaultPlayer = type.toTypeExpressionFull()
-    return listOf("Hi, $defaultPlayer")
+  fun desc(args: String): List<String> {
+    val petClass: PetClass = game!!.classTable[ClassName(args)]
+    val subs = petClass.allSubclasses
+    return listOf(
+        "Name: ${petClass.name}",
+        "Abstract: ${petClass.abstract}",
+        "Superclasses: ${petClass.allSuperclasses.joinToString()}",
+        "Dependencies: ${petClass.dependencies.keyToDependency.values}",
+        "Subclasses: " +
+            if (subs.size <= 5) {
+              subs.joinToString()
+            } else {
+              "(${subs.size})"
+            },
+        "Effects:",
+    ) + petClass.effects.map { "    $it" }
   }
 
-  fun replCommand(command: String, args: String?) {
-    when (command) {
-      "newgame" -> newgame(args).forEach(output)
-      "count" -> count(args!!).forEach(output)
-      "list" -> list(args).forEach(output)
-      "has" -> has(args!!).forEach(output)
-      "map" -> map().forEach(output)
-      "history" -> history().forEach(output)
-      "exec" -> exec(args!!).forEach(output)
-      "become" -> become(args!!).forEach(output)
-      "help" -> println("Help will go here.")
-      else -> {
-        val script = Parsing.parseScript("$command $args")
-        script.execute(game!!)
-      }
+  fun replCommand(command: String, args: String?): List<String> {
+    return when (command) {
+      "newgame" ->  newgame(args!!)
+      "become" ->   become(args!!)
+      "count" ->    count(args!!)
+      "list" ->     list(args)
+      "has" ->      has(args!!)
+      "map" ->      map()
+      "history" ->  history()
+      "exec" ->     exec(args!!)
+      "desc" ->     desc(args!!)
+      "help" ->     listOf("""
+          newgame 3 BVE        -- begins a new 3p game with Base, Venus, Elysium
+          become Player1       -- make Player1 the default player for future commands
+          become               -- have no default Player anymore
+          count Plant          -- counts how many Plants the default player has
+          count Plant<Anyone>  -- counts how many Plants anyone has
+          list Tile            -- lists all Tiles you have
+          has MAX 3 OceanTile  -- evaluates a requirement against the current game state
+          exec 20 PROD[3 Heat] -- gives the default player 20 TR
+          map                  -- displays an extremely bad looking map
+          help                 -- see this message
+
+      """.trimIndent())
+      else -> exec("$command " + (args ?: ""))
     }
   }
 

@@ -16,7 +16,7 @@ fun main() {
       .build()
 
   println("Welcome to REgo PLastics.")
-  val repl = ReplSession(::println)
+  val repl = ReplSession()
 
   val space = Regex("\\s+")
   while (true) {
@@ -26,7 +26,7 @@ fun main() {
 
       val commandAndArgs = inputLine.split(space, 2)
       val command = commandAndArgs.first()
-      repl.replCommand(command, commandAndArgs.getOrNull(1))
+      repl.replCommand(command, commandAndArgs.getOrNull(1)).forEach(::println)
       println()
 
     } catch (e: EndOfFileException) {
