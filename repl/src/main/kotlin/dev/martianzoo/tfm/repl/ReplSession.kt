@@ -137,7 +137,6 @@ class ReplSession {
     if (defaultPlayer == null) {
       return node
     }
-    println("DEBUG: original is $node")
     val g = game!!
     val owned = g.resolve(OWNED.type)
     val anyone = g.resolve(ANYONE.type)
@@ -157,7 +156,6 @@ class ReplSession {
       }
     }
     val fixt = Fixer().transform(node)
-    println("DEBUG: fixed is $fixt")
     return fixt
   }
 

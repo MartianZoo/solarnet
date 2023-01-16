@@ -7,7 +7,7 @@ import dev.martianzoo.tfm.pets.ast.PetNode
 import dev.martianzoo.tfm.pets.ast.TypeExpression.GenericTypeExpression
 import dev.martianzoo.tfm.types.PetType.PetGenericType
 
-internal fun <P : PetNode> applyDefaultsIn(node: P, loader: PetClassLoader): P {
+fun <P : PetNode> applyDefaultsIn(node: P, loader: PetClassLoader): P {
   return Defaulter(loader).transform(node)
 }
 

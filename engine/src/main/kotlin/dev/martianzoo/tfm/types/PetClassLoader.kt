@@ -12,7 +12,7 @@ import dev.martianzoo.tfm.types.PetType.PetGenericType
 import dev.martianzoo.util.Debug.d
 
 // TODO restrict viz?
-internal class PetClassLoader(private val authority: Authority) : PetClassTable {
+class PetClassLoader(private val authority: Authority) : PetClassTable {
   private val nameToClass = mutableMapOf<ClassName, PetClass?>()
   private val idToClass = mutableMapOf<ClassName, PetClass>()
 
@@ -117,9 +117,9 @@ internal class PetClassLoader(private val authority: Authority) : PetClassTable 
 
   private var frozen: Boolean = false
 
-  internal fun isFrozen() = frozen
+  fun isFrozen() = frozen
 
-  internal fun freeze(): PetClassTable {
+  fun freeze(): PetClassTable {
     nameToClass.values.forEach { it!! }
     frozen = true
     return this
@@ -128,7 +128,7 @@ internal class PetClassLoader(private val authority: Authority) : PetClassTable 
 // WEIRD RESOURCE STUFF TODO
 
   // It is probably enough to return just the resource names we know about so far?
-  internal fun resourceNames() = if (frozen) allResourceNames else findResourceNames()
+  fun resourceNames() = if (frozen) allResourceNames else findResourceNames()
 
   private val allResourceNames: Set<ClassName> by lazy {
     require(frozen)

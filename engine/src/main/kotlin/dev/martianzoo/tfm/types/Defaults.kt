@@ -3,7 +3,7 @@ package dev.martianzoo.tfm.types
 import dev.martianzoo.tfm.data.ClassDeclaration.DefaultsDeclaration
 import dev.martianzoo.tfm.pets.ast.Instruction.Intensity
 
-internal class Defaults(
+class Defaults(
     val allCasesDependencies: DependencyMap = DependencyMap(),
     val gainOnlyDependencies: DependencyMap = DependencyMap(),
     val gainIntensity: Intensity? = null,
@@ -16,7 +16,7 @@ internal class Defaults(
 
   companion object {
     val EMPTY = Defaults()
-    internal fun from(d: DefaultsDeclaration, petClass: PetClass) =
+    fun from(d: DefaultsDeclaration, petClass: PetClass) =
         Defaults(
             petClass.toDependencyMap(d.universalSpecs),
             petClass.toDependencyMap(d.gainOnlySpecs),

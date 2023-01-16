@@ -11,4 +11,5 @@ rootProject.name = "pets"
 include("pets")
 include("canon")
 include("engine")
+include("repl")
 

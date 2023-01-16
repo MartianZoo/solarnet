@@ -20,7 +20,7 @@ import dev.martianzoo.tfm.pets.replaceThis
 import dev.martianzoo.tfm.types.PetType.PetGenericType
 import dev.martianzoo.util.Debug.d
 
-internal class PetClass(
+class PetClass(
     declaration: ClassDeclaration,
     val directSuperclasses: List<PetClass>,
     private val loader: PetClassLoader,
@@ -148,7 +148,7 @@ internal class PetClass(
   fun formGenericType(specs: List<PetType>, ref: Requirement?) =
       PetGenericType(this, baseType.dependencies.specialize(specs), ref)
 
-  internal fun toDependencyMap(specs: List<TypeExpression>?) = specs?.let {
+  fun toDependencyMap(specs: List<TypeExpression>?) = specs?.let {
     loader.resolve(GenericTypeExpression(name, it)).dependencies
   } ?: DependencyMap()
 

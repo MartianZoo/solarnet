@@ -5,7 +5,7 @@ import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.pets.ast.TypeExpression
 import dev.martianzoo.tfm.pets.ast.TypeExpression.GenericTypeExpression
 
-internal interface PetType : TypeInfo {
+interface PetType : TypeInfo {
   val petClass: PetClass
   val dependencies: DependencyMap
   val refinement: Requirement?

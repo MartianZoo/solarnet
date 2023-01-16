@@ -1,6 +1,6 @@
 package dev.martianzoo.tfm.types
 
-internal data class Dependency(val key: Key, val type: PetType) {
+data class Dependency(val key: Key, val type: PetType) {
   val abstract by type::abstract
 
   private fun checkKeys(that: Dependency): Dependency =
@@ -18,7 +18,7 @@ internal data class Dependency(val key: Key, val type: PetType) {
 
   override fun toString() = "$key=${toTypeExpressionFull()}"
 
-  internal data class Key(val declaringClass: PetClass, val index: Int) {
+  data class Key(val declaringClass: PetClass, val index: Int) {
     init {
       require(index >= 0)
     }

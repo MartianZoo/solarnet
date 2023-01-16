@@ -11,7 +11,7 @@ import dev.martianzoo.tfm.types.PetClassLoader
 import dev.martianzoo.util.filterNoNulls
 
 object Engine {
-  internal fun newGame(
+  fun newGame(
       authority: Authority,
       playerCount: Int,
       bundles: Collection<String>,
@@ -19,7 +19,7 @@ object Engine {
     return newGame(GameSetup(authority, playerCount, bundles))
   }
 
-  internal fun newGame(setup: GameSetup): Game {
+  fun newGame(setup: GameSetup): Game {
     val loader = PetClassLoader(setup.authority)
     loader.autoLoadDependencies = true
 
