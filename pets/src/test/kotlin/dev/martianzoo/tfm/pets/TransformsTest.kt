@@ -13,6 +13,7 @@ import dev.martianzoo.tfm.pets.ast.Instruction.Per
 import dev.martianzoo.tfm.pets.ast.PetNode
 import dev.martianzoo.tfm.pets.ast.ScalarAndType.Companion.sat
 import dev.martianzoo.tfm.pets.ast.TypeExpression.GenericTypeExpression
+import dev.martianzoo.util.toStrings
 import kotlin.reflect.KClass
 import org.junit.jupiter.api.Test
 
@@ -62,7 +63,7 @@ private class TransformsTest {
   @Test
   fun testFindAllClassNames() {
     val instr = Instruction.from('$' + "foo(Bar, Qux<Dog>)")
-    assertThat(instr.childNodesOfType<ClassName>().map { it.string })
+    assertThat(instr.childNodesOfType<ClassName>().toStrings())
         .containsExactly("Bar", "Qux", "Dog")
   }
 

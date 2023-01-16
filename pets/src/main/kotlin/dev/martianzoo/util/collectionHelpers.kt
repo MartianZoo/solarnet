@@ -17,6 +17,10 @@ fun <T : Any?> Collection<T>.onlyElement(): T {
   return first()
 }
 
+fun <C : Iterable<Any?>> C.toStrings(): List<String> = map { it?.toString() ?: "null" }
+
+fun <C : Sequence<Any?>> C.toStrings(): Sequence<String> = map { it?.toString() ?: "null" }
+
 fun <K : Any, V : Any> mergeMaps(one: Map<out K, V>, two: Map<out K, V>, merger: (V, V) -> V) =
     one.toMutableMap().apply {
       two.forEach { merge(it.key, it.value, merger) }

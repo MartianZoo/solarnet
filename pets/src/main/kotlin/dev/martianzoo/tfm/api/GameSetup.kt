@@ -2,6 +2,7 @@ package dev.martianzoo.tfm.api
 
 import dev.martianzoo.util.onlyElement
 import dev.martianzoo.util.toSetStrict
+import dev.martianzoo.util.toStrings
 
 data class GameSetup(
     val authority: Authority,
@@ -27,4 +28,4 @@ data class GameSetup(
 }
 
 private fun splitLetters(bundles: String) =
-    bundles.asIterable().map { "$it" }.toSetStrict()
+    bundles.asIterable().toStrings().toSetStrict()

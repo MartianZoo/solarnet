@@ -5,6 +5,7 @@ import dev.martianzoo.tfm.api.TypeInfo
 import dev.martianzoo.tfm.data.MarsMapDefinition.AreaDefinition
 import dev.martianzoo.tfm.pets.ast.TypeExpression
 import dev.martianzoo.util.Grid
+import dev.martianzoo.util.toStrings
 
 class MapToText(val game: GameState) {
 
@@ -54,7 +55,7 @@ class MapToText(val game: GameState) {
     val gentile = tile.asGeneric()
     val kind = gentile.root.string[0]
     val player = gentile.args
-        .map { "$it" }
+        .toStrings()
         .firstOrNull { it.startsWith("Player") }
         ?.last()
         ?: ""

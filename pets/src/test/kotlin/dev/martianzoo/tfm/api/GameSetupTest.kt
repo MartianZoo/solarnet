@@ -3,12 +3,13 @@ package dev.martianzoo.tfm.api
 import dev.martianzoo.tfm.data.MarsMapDefinition
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.util.Grid
+import dev.martianzoo.util.toStrings
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 
 class GameSetupTest {
   val authority = object : Authority.Empty() { // TODO share...
-    override val allBundles = "BRMEVPCX".asIterable().map { "$it" }.toSet()
+    override val allBundles = "BRMEVPCX".asIterable().toStrings().toSet()
     override val marsMapDefinitions = listOf(
         MarsMapDefinition(cn("Tharsis"), "M", Grid.empty()),
         MarsMapDefinition(cn("Elysium"), "E", Grid.empty()),

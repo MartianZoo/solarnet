@@ -5,6 +5,7 @@ import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.data.MarsMapDefinition.AreaDefinition
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.util.Grid
+import dev.martianzoo.util.toStrings
 import org.junit.jupiter.api.Test
 
 private class MapAreaDefinitionTest {
@@ -62,7 +63,7 @@ private class MapAreaDefinitionTest {
         .flatMap { it.areas }
         .mapNotNull { it.bonus }
         .distinct()
-        .map(Any::toString)
+        .toStrings()
         .toSet()
 
     assertThat(uniqueAreas).containsExactly(

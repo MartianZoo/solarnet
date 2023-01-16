@@ -26,6 +26,7 @@ import dev.martianzoo.tfm.types.PetClassLoader
 import dev.martianzoo.tfm.types.PetType
 import dev.martianzoo.tfm.types.PetType.PetGenericType
 import dev.martianzoo.util.Grid
+import dev.martianzoo.util.toStrings
 
 class ReplSession {
   private var game: Game? = null
@@ -83,7 +84,7 @@ class ReplSession {
 
   fun map() = MapToText(game!!).map()
 
-  fun history() = game!!.changeLog.map { it.toString() }
+  fun history() = game!!.changeLog.toStrings()
 
   fun exec(args: String): List<String> {
     val instr = cook(Instruction.from(args))

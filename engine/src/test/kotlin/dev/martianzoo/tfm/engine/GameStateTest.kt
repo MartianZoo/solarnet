@@ -9,6 +9,7 @@ import dev.martianzoo.tfm.pets.Parsing.parseScript
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.pets.ast.TypeExpression
+import dev.martianzoo.util.toStrings
 import org.junit.jupiter.api.Test
 
 private class GameStateTest {
@@ -85,7 +86,7 @@ private class GameStateTest {
 
     assertThat(results).containsExactly("eleven", 11)
 
-    assertThat(game.changeLog.map { "$it" }).containsExactly(
+    assertThat(game.changeLog.toStrings()).containsExactly(
         "1: 5 Heat<Player2> BY Unknown BECAUSE Unknown",
         "2: 10 Heat<Player3> BY Unknown BECAUSE Unknown",
         "3: -4 Heat<Player2> BY Unknown BECAUSE Unknown",

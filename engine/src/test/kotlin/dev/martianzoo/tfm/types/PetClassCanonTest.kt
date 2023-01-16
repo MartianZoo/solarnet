@@ -6,6 +6,7 @@ import dev.martianzoo.tfm.pets.SpecialClassNames.COMPONENT
 import dev.martianzoo.tfm.pets.SpecialClassNames.DIE
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.util.toStrings
 import java.util.TreeSet
 import org.junit.jupiter.api.Test
 
@@ -27,8 +28,9 @@ private class PetClassCanonTest {
     table.load(cn("OceanTile")).apply {
       assertThat(directDependencyKeys).isEmpty()
       assertThat(allDependencyKeys).containsExactly(Dependency.Key(table["Tile"], 0))
-      assertThat(directSuperclasses.map { it.name.string }).containsExactly("GlobalParameter", "Tile").inOrder()
-      assertThat(allSuperclasses.map { it.name.string }).containsExactly("Component",
+      assertThat(directSuperclasses.toStrings()).containsExactly("GlobalParameter", "Tile").inOrder()
+      assertThat(allSuperclasses.toStrings()).containsExactly(
+          "Component",
           "GlobalParameter",
           "Tile",
           "OceanTile").inOrder()
