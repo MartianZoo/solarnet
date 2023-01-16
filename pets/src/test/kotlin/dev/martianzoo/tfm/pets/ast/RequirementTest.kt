@@ -4,7 +4,7 @@ import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.tfm.api.Authority
 import dev.martianzoo.tfm.api.GameSetup
 import dev.martianzoo.tfm.api.GameState
-import dev.martianzoo.tfm.data.MarsMapDefinition
+import dev.martianzoo.tfm.api.StubGameState
 import dev.martianzoo.tfm.data.StateChange.Cause
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.pets.ast.Requirement.Max
@@ -13,7 +13,6 @@ import dev.martianzoo.tfm.pets.ast.ScalarAndType.Companion.sat
 import dev.martianzoo.tfm.pets.ast.TypeExpression.ClassLiteral
 import dev.martianzoo.tfm.pets.ast.TypeExpression.GenericTypeExpression
 import dev.martianzoo.tfm.pets.testSampleStrings
-import dev.martianzoo.util.Grid
 import org.junit.jupiter.api.Test
 
 // Most testing is done by AutomatedTest
@@ -150,40 +149,13 @@ private class RequirementTest {
 
   // All type expressions with even-length string representations
   // exist and have a count equal to that string's length
-  object FakeGame : GameState { // TODO stub?
-    override val setup by lazy {
-      val auth = object : Authority.Empty() {
-        override val marsMapDefinitions =
-            listOf(MarsMapDefinition(cn("FakeTharsis"), "M", Grid.empty()))
-      }
-      GameSetup(auth, "BM", 2)
-    }
-
-    override fun resolve(typeText: String) = TODO()
-    override fun resolve(type: TypeExpression) = TODO()
-
+  object FakeGame : StubGameState() {
     override fun count(type: TypeExpression): Int {
       val length = type.toString().length
       return if (length % 2 == 0) length else 0
     }
 
-    override fun count(type: String) = TODO()
-
-    override fun getAll(type: ClassLiteral) = TODO()
-    override fun getAll(type: GenericTypeExpression) = TODO()
-    override fun getAll(type: String) = TODO()
-    override fun getAll(type: TypeExpression) = TODO()
-
     override fun isMet(requirement: Requirement) = requirement.evaluate(this)
-
-    override fun applyChange(
-        count: Int,
-        gaining: GenericTypeExpression?,
-        removing: GenericTypeExpression?,
-        cause: Cause?,
-    ) {
-      TODO("this is just a dumb fake")
-    }
   }
 
   fun evalRequirement(s: String) = assertThat(Requirement.from(s).evaluate(FakeGame))!!

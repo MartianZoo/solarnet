@@ -7,6 +7,7 @@ import dev.martianzoo.tfm.data.MarsMapDefinition
 import dev.martianzoo.tfm.data.MilestoneDefinition
 import dev.martianzoo.tfm.data.StandardActionDefinition
 import dev.martianzoo.tfm.pets.ast.ClassName
+import dev.martianzoo.util.Grid
 import dev.martianzoo.util.associateByStrict
 
 /**
@@ -15,7 +16,7 @@ import dev.martianzoo.util.associateByStrict
  */
 abstract class Authority {
 
-  open val allBundles by lazy {
+  open val allBundles: Set<String> by lazy {
     allDefinitions.map { it.bundle }.toSet()
   }
 
@@ -102,8 +103,11 @@ abstract class Authority {
 
 // CUSTOM INSTRUCTIONS
 
-  fun customInstruction(functionName: String): CustomInstruction =
-      customInstructions.first { it.functionName == functionName }
+  fun customInstruction(functionName: String): CustomInstruction {
+    return customInstructions.firstOrNull { it.functionName == functionName }.also {
+      require(it != null) { "no instruction named $$functionName" }
+    }!!
+  }
 
   abstract val customInstructions: Collection<CustomInstruction>
 
@@ -119,6 +123,12 @@ abstract class Authority {
     override val milestoneDefinitions = listOf<MilestoneDefinition>()
     override val standardActionDefinitions = listOf<StandardActionDefinition>()
     override val customInstructions = listOf<CustomInstruction>()
+  }
+
+  open class Minimal : Empty() {
+    override val allBundles = setOf("B", "M")
+    override val marsMapDefinitions =
+        listOf(MarsMapDefinition(ClassName.cn("FakeTharsis"), "M", Grid.empty()))
   }
 
   abstract class Forwarding(val delegate: Authority) : Authority() {

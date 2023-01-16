@@ -158,11 +158,16 @@ sealed class Instruction : PetNode() {
         }
         // We're not going to get far with this approach of just trying to execute directly.
         // Already with my first attempt, Robinson, it returns an "OR", which can't be exec'd.
-        val translated = instr.translate(game, arguments)
+        var translated = instr.translate(game, arguments)
 
         // TODO what other conversions can we make...
-        val deprodded: Instruction = deprodify(translated, standardResourceNames(game))
-        deprodded.execute(game) // TODO!
+        if (translated.childNodesOfType<PetNode>().any {
+            // TODO deprodify could do this??
+            it is GenericTransform<*> && it.transform == "PROD"
+        }) {
+          translated = deprodify(translated, standardResourceNames(game))
+        }
+        translated.execute(game) // TODO!
       } catch (e: ExecuteInsteadException) {
         instr.execute(game, arguments)
       }

@@ -23,14 +23,14 @@ interface GameState : ReadOnlyGameState {
 interface ReadOnlyGameState {
   val setup: GameSetup
 
-  fun resolve(typeText: String): TypeInfo
   fun resolve(type: TypeExpression): TypeInfo
+  fun resolve(typeText: String): TypeInfo
 
-  fun count(typeText: String): Int
   fun count(type: TypeExpression): Int
+  fun count(typeText: String): Int
 
-  fun getAll(type: GenericTypeExpression): Multiset<GenericTypeExpression>
   fun getAll(type: TypeExpression): Multiset<TypeExpression>
+  fun getAll(type: GenericTypeExpression): Multiset<GenericTypeExpression>
   fun getAll(type: ClassLiteral): Set<ClassLiteral>
   fun getAll(typeText: String): Multiset<TypeExpression>
 

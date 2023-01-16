@@ -1,11 +1,7 @@
 package dev.martianzoo.tfm.repl
 
-import dev.martianzoo.tfm.api.Authority
 import dev.martianzoo.tfm.api.GameSetup
-import dev.martianzoo.tfm.api.GameState
 import dev.martianzoo.tfm.canon.Canon
-import dev.martianzoo.tfm.data.MarsMapDefinition
-import dev.martianzoo.tfm.data.StateChange.Cause
 import dev.martianzoo.tfm.engine.Engine
 import dev.martianzoo.tfm.engine.Game
 import dev.martianzoo.tfm.pets.PetNodeVisitor
@@ -18,14 +14,12 @@ import dev.martianzoo.tfm.pets.ast.Instruction
 import dev.martianzoo.tfm.pets.ast.PetNode
 import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.pets.ast.TypeExpression
-import dev.martianzoo.tfm.pets.ast.TypeExpression.ClassLiteral
 import dev.martianzoo.tfm.pets.ast.TypeExpression.GenericTypeExpression
 import dev.martianzoo.tfm.pets.deprodify
 import dev.martianzoo.tfm.types.PetClass
 import dev.martianzoo.tfm.types.PetClassLoader
 import dev.martianzoo.tfm.types.PetType
 import dev.martianzoo.tfm.types.PetType.PetGenericType
-import dev.martianzoo.util.Grid
 import dev.martianzoo.util.toStrings
 
 class ReplSession {
@@ -162,35 +156,5 @@ class ReplSession {
     }
     val fixt = Fixer().transform(node)
     return deprodify(fixt, (game!!.classTable as PetClassLoader).resourceNames())
-  }
-
-  object NullGame : GameState {
-    override fun applyChange(
-        count: Int,
-        gaining: GenericTypeExpression?,
-        removing: GenericTypeExpression?,
-        cause: Cause?,
-    ) = TODO("Not yet implemented")
-
-    val auth = object : Authority.Empty() {
-      override val marsMapDefinitions =
-          listOf(MarsMapDefinition(cn("FakeTharsis"), "M", Grid.empty()))
-    }
-    override val setup = GameSetup(auth, "BM", 2)
-
-    override fun resolve(type: TypeExpression) = throe()
-    override fun resolve(typeText: String) = throe()
-
-    override fun count(type: TypeExpression) = throe()
-    override fun count(typeText: String) = throe()
-
-    override fun getAll(type: ClassLiteral) = throe()
-    override fun getAll(type: GenericTypeExpression) = throe()
-    override fun getAll(type: TypeExpression) = throe()
-    override fun getAll(typeText: String) = throe()
-
-    override fun isMet(requirement: Requirement) = throe()
-
-    private fun throe(): Nothing = throw RuntimeException("no game has been started")
   }
 }
