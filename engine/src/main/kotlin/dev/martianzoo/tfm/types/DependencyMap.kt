@@ -4,37 +4,40 @@ import dev.martianzoo.util.mergeMaps
 import dev.martianzoo.util.overlayMaps
 
 // Takes care of everything inside the <> but knows nothing of what's outside it
-data class DependencyMap(val keyToDependency: Map<Dependency.Key, Dependency>) {
+data class DependencyMap(private val map: Map<Dependency.Key, Dependency>) {
   // TODO make that private?
   constructor() : this(mapOf<Dependency.Key, Dependency>())
 
   init {
-    keyToDependency.forEach { (key, dep) ->
+    map.forEach { (key, dep) ->
       require(key == dep.key) { key }
     }
   }
 
-  val abstract = keyToDependency.values.any { it.abstract }
 
-  val keys by keyToDependency::keys
+  val keys by map::keys
+  val types by map::values
+  fun isEmpty() = map.isEmpty()
 
-  operator fun contains(key: Dependency.Key) = key in keyToDependency
-  operator fun get(key: Dependency.Key): Dependency? = keyToDependency[key]
+  val abstract = types.any { it.abstract }
+
+  operator fun contains(key: Dependency.Key) = key in map
+  operator fun get(key: Dependency.Key): Dependency? = map[key]
 
   fun specializes(that: DependencyMap) =
       // For each of *its* keys, my type must be a subtype of its type
-      that.keyToDependency.all { (thatKey, thatType) ->
-        keyToDependency[thatKey]!!.specializes(thatType)
+      that.map.all { (thatKey, thatType) ->
+        map[thatKey]!!.specializes(thatType)
       }
 
   // Combines all entries, using the glb when both maps have the same key
   fun intersect(that: DependencyMap): DependencyMap {
-    val merged = mergeMaps(this.keyToDependency, that.keyToDependency) { a, b -> a.intersect(b)!! }
+    val merged = mergeMaps(this.map, that.map) { a, b -> a.intersect(b)!! }
     return DependencyMap(merged)
   }
 
   fun overlayOn(that: DependencyMap) =
-      DependencyMap(overlayMaps(this.keyToDependency, that.keyToDependency))
+      DependencyMap(overlayMaps(this.map, that.map))
 
   companion object {
     fun intersect(maps: Collection<DependencyMap>): DependencyMap {
@@ -47,12 +50,13 @@ data class DependencyMap(val keyToDependency: Map<Dependency.Key, Dependency>) {
 
   // determines the map that could be merged with this one to specialize, by inferring which
   // keys the provided specs go with
+  // TODO fix the strict-order problem!
   fun findMatchups(specs: List<PetType>): DependencyMap {
     if (specs.isEmpty()) return this
     val newMap = mutableMapOf<Dependency.Key, Dependency>()
     val unhandled = specs.toMutableList()
 
-    for ((key, dependency) in keyToDependency) {
+    for ((key, dependency) in map) {
       if (unhandled.isEmpty()) break
       val intersect: PetType? = dependency.type.intersect(unhandled.first())
       newMap[key] = if (intersect != null) {
@@ -70,5 +74,5 @@ data class DependencyMap(val keyToDependency: Map<Dependency.Key, Dependency>) {
 
   fun specialize(specs: List<PetType>) = intersect(findMatchups(specs))
 
-  override fun toString() = "${keyToDependency.values}"
+  override fun toString() = "$types"
 }

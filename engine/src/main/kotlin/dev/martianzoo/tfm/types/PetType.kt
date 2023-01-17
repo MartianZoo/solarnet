@@ -54,7 +54,7 @@ interface PetType : TypeInfo {
     }
 
     override fun toTypeExpression(): GenericTypeExpression {
-      val specs = dependencies.keyToDependency.values.map { it.toTypeExpressionFull() }
+      val specs = dependencies.types.map { it.toTypeExpressionFull() }
       return petClass.name.addArgs(specs).refine(refinement)
     }
 

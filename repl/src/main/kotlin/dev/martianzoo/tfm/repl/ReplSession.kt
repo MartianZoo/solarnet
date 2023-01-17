@@ -125,7 +125,7 @@ class ReplSession(val authority: Authority) {
               "Name: ${petClass.name}",
               "Abstract: ${petClass.abstract}",
               "Superclasses: ${petClass.allSuperclasses.joinToString()}",
-              "Dependencies: ${petClass.dependencies.keyToDependency.values}",
+              "Dependencies: ${petClass.dependencies.types}",
               "Subclasses: " +
                   if (subs.size <= 5) {
                     subs.joinToString()

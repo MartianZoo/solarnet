@@ -52,14 +52,15 @@ class Defaults(
       defaultses: List<Defaults>,
       extract: (Defaults) -> DependencyMap,
   ): DependencyMap {
-    val map = extract(this).keyToDependency.toMutableMap()
+    val defMap = mutableMapOf<Dependency.Key, Dependency>()
+    extract(this).keys.map { it to extract(this)[it]!! }.toMap(defMap)
     for (key in defaultses.flatMap { extract(it).keys }.toSet()) {
-      if (key !in map) {
+      if (key !in defMap) {
         // TODO some orders might work when others don't
         val depMapsWithThisKey = defaultses.map(extract).filter { key in it }
-        map[key] = depMapsWithThisKey.map { it[key]!! }.reduce { a, b -> a.intersect(b)!! }
+        defMap[key] = depMapsWithThisKey.map { it[key]!! }.reduce { a, b -> a.intersect(b)!! }
       }
     }
-    return DependencyMap(map)
+    return DependencyMap(defMap)
   }
 }

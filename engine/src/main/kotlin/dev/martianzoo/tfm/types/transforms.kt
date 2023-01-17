@@ -20,7 +20,7 @@ private class Defaulter(val loader: PetClassLoader) : PetNodeVisitor() {
         val writtenType = node.sat.type.asGeneric()
         val defaults = loader.load(writtenType.root).defaults
         val fixedType = if (writtenType.isTypeOnly) {
-          val deps = defaults.gainOnlyDependencies.keyToDependency.values
+          val deps = defaults.gainOnlyDependencies.types
           writtenType.addArgs(deps.map {
             it.type.toTypeExpression()
           })
@@ -35,16 +35,15 @@ private class Defaulter(val loader: PetClassLoader) : PetNodeVisitor() {
       is GenericTypeExpression -> {
         val petClass = loader.load(node.root)
         val allCasesDependencies = petClass.defaults.allCasesDependencies
-        if (allCasesDependencies.keyToDependency.isEmpty()) {
+        if (allCasesDependencies.isEmpty()) {
           node
         } else {
           // TODO have to reengineer what resolve would do because the pettype has forgotten
           val explicitDeps = petClass.baseType.dependencies
           val foo = explicitDeps.findMatchups(node.args.map { loader.resolve(it) })
-          val newArgs = foo.overlayOn(allCasesDependencies)
-              .keyToDependency.values.map {
-                it.toTypeExpressionFull() // TODO not full
-              }
+          val newArgs = foo.overlayOn(allCasesDependencies).types.map {
+            it.toTypeExpressionFull() // TODO not full
+          }
           node.replaceArgs(newArgs.map { transform(it) })
         }
       }
