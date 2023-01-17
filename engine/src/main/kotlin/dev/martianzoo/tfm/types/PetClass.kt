@@ -1,70 +1,43 @@
 package dev.martianzoo.tfm.types
 
 import dev.martianzoo.tfm.data.ClassDeclaration
-import dev.martianzoo.tfm.pets.PetNodeVisitor
 import dev.martianzoo.tfm.pets.SpecialClassNames.COMPONENT
-import dev.martianzoo.tfm.pets.SpecialClassNames.THIS
 import dev.martianzoo.tfm.pets.ast.ClassName
-import dev.martianzoo.tfm.pets.ast.Effect
-import dev.martianzoo.tfm.pets.ast.PetNode
-import dev.martianzoo.tfm.pets.ast.Requirement
-import dev.martianzoo.tfm.pets.ast.Requirement.And
-import dev.martianzoo.tfm.pets.ast.Requirement.Exact
-import dev.martianzoo.tfm.pets.ast.Requirement.Min
-import dev.martianzoo.tfm.pets.ast.ScalarAndType.Companion.sat
 import dev.martianzoo.tfm.pets.ast.TypeExpression
-import dev.martianzoo.tfm.pets.deprodify
 import dev.martianzoo.tfm.pets.replaceThis
 import dev.martianzoo.tfm.types.PetType.PetGenericType
 import dev.martianzoo.util.Debug.d
+import dev.martianzoo.util.toSetStrict
 
 class PetClass(
     declaration: ClassDeclaration,
     val directSuperclasses: List<PetClass>,
     private val loader: PetClassLoader,
-) : PetType {
+) {
 
   val name: ClassName by declaration::name
-  override val abstract by declaration::abstract
-  override val petClass = this
-
-  // These are for when this is used as a class type / class literal
-  override val dependencies = DependencyMap()
-  override val refinement = null
+  val abstract by declaration::abstract
 
   val shortName by declaration::id
-  val invariants by declaration::otherInvariants
+  val invariantsRaw by declaration::otherInvariants
 
   // HIERARCHY
 
-  // TODO collapse invariants right?
-
-  val directSupertypes: Set<PetGenericType> by lazy {
-    declaration.supertypes.map {
-      loader.resolve(replaceThis(it, name.type)) // TODO eh?
-    }.toSet().also {
-      if (it.size > 1) (it - COMPONENT.type).d("$this supertypes")
-    }
-  }
+  val directSupertypes: Set<PetGenericType> by lazy { loader.resolveAll(declaration.supertypes) }
 
   fun isSubclassOf(that: PetClass): Boolean =
       this == that || directSuperclasses.any { it.isSubclassOf(that) }
 
   fun isSuperclassOf(that: PetClass) = that.isSubclassOf(this)
 
-  override fun isSubtypeOf(that: PetType) = that is PetClass && isSubclassOf(that.petClass)
-
   val directSubclasses: Set<PetClass> by lazy {
-    allClasses().filter { this in it.directSuperclasses }.toSet().d("$this dirsubs")
+    require(loader.isFrozen())
+    loader.loadedClasses().filter { this in it.directSuperclasses }.toSet().d("$this dirsubs")
   }
 
   val allSubclasses: Set<PetClass> by lazy {
-    allClasses().filter { this in it.allSuperclasses }.toSet()
-  }
-
-  private fun allClasses(): Set<PetClass> {
     require(loader.isFrozen())
-    return loader.loadedClasses()
+    loader.loadedClasses().filter { this in it.allSuperclasses }.toSet()
   }
 
   val allSuperclasses: Set<PetClass> by lazy {
@@ -75,7 +48,8 @@ class PetClass(
     if (directSuperclasses.size < 2) {
       false
     } else {
-      val sharesAllMySuperclasses = allClasses().filter {
+      require(loader.isFrozen())
+      val sharesAllMySuperclasses = loader.loadedClasses().filter {
         directSuperclasses.all(it::isSubclassOf)
       }
       sharesAllMySuperclasses.all(::isSuperclassOf)
@@ -87,7 +61,7 @@ class PetClass(
    * In practice some types like `OwnedTile` and `ActionCard` could serve as intersection types.
    * TODO
    */
-  fun intersect(that: PetClass): PetClass? = when {
+  infix fun intersect(that: PetClass): PetClass? = when {
     this.isSubclassOf(that) -> this
     that.isSubclassOf(this) -> that
     else -> {
@@ -98,18 +72,6 @@ class PetClass(
     }
   }
 
-  fun lub(that: PetClass) = when {
-    this.isSubclassOf(that) -> that
-    that.isSubclassOf(this) -> this
-    else -> allSuperclasses.intersect(that.allSuperclasses).maxBy { it.allSuperclasses.size }
-  }
-
-  override fun intersect(that: PetType): PetClass {
-    val tried = intersect(that as PetClass)
-    require(tried != null) { "can't intersect $this and $that" }
-    return tried
-  }
-
 // DEPENDENCIES
 
   val directDependencyKeys: Set<Dependency.Key> by lazy {
@@ -118,14 +80,7 @@ class PetClass(
 
   val allDependencyKeys: Set<Dependency.Key> by lazy {
     (directSuperclasses.flatMap { it.allDependencyKeys } + directDependencyKeys).toSet()
-        .d { "$this has ${it.size} deps" }
   }
-
-  fun resolveSpecializations(specs: List<PetType>) = baseType.dependencies.findMatchups(specs)
-
-  @JvmName("resolveSpecializations2")
-  fun resolveSpecializations(specs: List<TypeExpression>) =
-      resolveSpecializations(specs.map { loader.resolve(it) })
 
   private var reentryCheck = false
 
@@ -162,7 +117,7 @@ class PetClass(
     result
   }
 
-  private val defaultsIgnoringRoot: Defaults by lazy {
+  private val defaultsIgnoringRoot: Defaults by lazy { // TODO hack
     if (name == COMPONENT) {
       Defaults()
     } else {
@@ -175,28 +130,7 @@ class PetClass(
 
   val effectsRaw by declaration::effectsRaw
 
-  val effects: List<Effect> by lazy {
-    effectsRaw
-        .map { deprodify(it, loader.resourceNames()) }
-        .map { replaceThis(it, name.type) }
-        .map { applyDefaultsIn(it, loader).d("$this effect") }
-        .toList()
-  }
-
 // OTHER
-
-  // includes abstract
-  fun isSingleton(): Boolean =
-      invariants.any { requiresAnInstance(it) } ||
-          directSuperclasses.any { it.isSingleton() }
-
-  private fun requiresAnInstance(r: Requirement): Boolean {
-    return r is Min && r.sat == sat(1, THIS.type) ||
-        r is Exact && r.sat == sat(1, THIS.type) ||
-        r is And && r.requirements.any { requiresAnInstance(it) }
-  }
-
-  override fun toTypeExpression() = name.literal
 
   override fun equals(other: Any?) =
       other is PetClass &&

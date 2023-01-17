@@ -16,7 +16,7 @@ private class PetTypeTest {
         "ABSTRACT CLASS Cardbound<CardFront> : Owned",
         "ABSTRACT CLASS ResourcefulCard<CardResource.CLASS> : CardFront",
         "ABSTRACT CLASS CardResource : " +
-            "Owned<Player>, Cardbound<Player, ResourcefulCard<This.CLASS>>",
+            "Owned<Player>, Cardbound<Player, ResourcefulCard>", // TODO <This.CLASS> ?
 
         "CLASS Animal : CardResource",
         "CLASS Microbe : CardResource<ResourcefulCard<Microbe.CLASS>>",

@@ -50,7 +50,6 @@ private class PetClassCanonTest {
 
     all.forEach { it.effectsRaw.forEach(::testRoundTrip) }
     all.forEach { it.baseType }
-    all.forEach { it.effects.forEach(::testRoundTrip) }
   }
 
   @Test

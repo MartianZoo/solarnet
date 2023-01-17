@@ -125,15 +125,14 @@ class ReplSession(val authority: Authority) {
               "Name: ${petClass.name}",
               "Abstract: ${petClass.abstract}",
               "Superclasses: ${petClass.allSuperclasses.joinToString()}",
-              "Dependencies: ${petClass.dependencies.types}",
+              "Dependencies: ${petClass.baseType.dependencies.types}",
               "Subclasses: " +
                   if (subs.size <= 5) {
                     subs.joinToString()
                   } else {
                     "(${subs.size})"
                   },
-              "Effects:",
-          ) + petClass.effects.map { "    $it" }
+          )
         } ?: listOf("Usage: desc <ClassName>")
       },
   )

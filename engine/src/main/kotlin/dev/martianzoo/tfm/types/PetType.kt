@@ -3,10 +3,11 @@ package dev.martianzoo.tfm.types
 import dev.martianzoo.tfm.api.TypeInfo
 import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.pets.ast.TypeExpression
+import dev.martianzoo.tfm.pets.ast.TypeExpression.ClassLiteral
 import dev.martianzoo.tfm.pets.ast.TypeExpression.GenericTypeExpression
 
 interface PetType : TypeInfo {
-  val petClass: PetClass
+  val petClass: PetClass // TODO should this really be shared?
   val dependencies: DependencyMap
   val refinement: Requirement?
 
@@ -15,6 +16,28 @@ interface PetType : TypeInfo {
   infix fun intersect(that: PetType): PetType?
 
   override fun toTypeExpression(): TypeExpression
+
+  data class PetClassLiteral(
+    override val petClass: PetClass
+  ) : PetType {
+    override val dependencies = DependencyMap()
+    override val refinement = null
+
+    override val abstract by petClass::abstract
+
+    override fun isSubtypeOf(that: PetType) =
+        that is PetClassLiteral &&
+        this.petClass.isSubclassOf(that.petClass)
+
+    override fun intersect(that: PetType): PetType? {
+      if (that !is PetClassLiteral) return null
+      val inter = (this.petClass intersect that.petClass) ?: return null
+      return PetClassLiteral(inter)
+    }
+
+    override fun toTypeExpression() = ClassLiteral(petClass.name)
+    override fun toString() = toTypeExpression().toString()
+  }
 
   data class PetGenericType(
       override val petClass: PetClass,
@@ -57,7 +80,6 @@ interface PetType : TypeInfo {
       val specs = dependencies.types.map { it.toTypeExpressionFull() }
       return petClass.name.addArgs(specs).refine(refinement)
     }
-
     override fun toString() = toTypeExpression().toString()
   }
 }

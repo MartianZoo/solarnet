@@ -6,7 +6,9 @@ import dev.martianzoo.tfm.engine.ComponentGraph.Component
 import dev.martianzoo.tfm.pets.SpecialClassNames.ME
 import dev.martianzoo.tfm.pets.SpecialClassNames.PRODUCTION
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.tfm.types.PetClass
 import dev.martianzoo.tfm.types.PetClassLoader
+import dev.martianzoo.tfm.types.PetType.PetClassLiteral
 import dev.martianzoo.util.filterNoNulls
 
 object Engine {
@@ -43,12 +45,18 @@ object Engine {
   private fun classLiterals(loader: PetClassLoader) =
       loader.loadedClasses()
           .filterNot { it.abstract }
-          .map { Component(it) }
+          .map { Component(PetClassLiteral(it)) }
 
   private fun singletons(loader: PetClassLoader) =
       loader.loadedClasses()
-          .filter { it.isSingleton() && !it.baseType.abstract } // TODO that's not right
+          .filter { isSingleton(it) && !it.baseType.abstract } // TODO that's not right
           .map { Component(loader.resolve(it.name.type)) }
+
+  // includes abstract
+  fun isSingleton(pc: PetClass): Boolean =
+      pc.invariantsRaw.any { it.requiresThis() } ||
+      pc.directSuperclasses.any { isSingleton(it) }
+
 
   fun borders(map: MarsMapDefinition, loader: PetClassLoader): List<Component> {
     val border = cn("Border")

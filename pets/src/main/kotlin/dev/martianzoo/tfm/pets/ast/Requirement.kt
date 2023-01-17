@@ -10,14 +10,19 @@ import com.github.h0tk3y.betterParse.parser.Parser
 import dev.martianzoo.tfm.api.GameState
 import dev.martianzoo.tfm.pets.Parsing
 import dev.martianzoo.tfm.pets.PetParser
+import dev.martianzoo.tfm.pets.SpecialClassNames.THIS
 
 sealed class Requirement : PetNode() {
   abstract fun evaluate(game: GameState): Boolean
+
+  open fun requiresThis() = false
 
   data class Min(val sat: ScalarAndType) : Requirement() {
     override fun toString() = "$sat"
 
     override fun evaluate(game: GameState) = game.count(sat.type) >= sat.scalar
+
+    override fun requiresThis() = this.sat == ScalarAndType.sat(1, THIS.type)
   }
 
   data class Max(val sat: ScalarAndType) : Requirement() {
@@ -32,6 +37,8 @@ sealed class Requirement : PetNode() {
     override fun toString() = "=${sat.toString(true, true)}" // no "=5" or "=Heat"
 
     override fun evaluate(game: GameState) = game.count(sat.type) == sat.scalar
+
+    override fun requiresThis() = this.sat == ScalarAndType.sat(1, THIS.type)
   }
 
   data class Or(val requirements: Set<Requirement>) : Requirement() {
@@ -50,6 +57,8 @@ sealed class Requirement : PetNode() {
     override fun precedence() = 1
 
     override fun evaluate(game: GameState) = requirements.all { it.evaluate(game) }
+
+    override fun requiresThis() = requirements.any { it.requiresThis() }
   }
 
   data class Transform(val requirement: Requirement, override val transform: String) :

@@ -10,8 +10,10 @@ import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.pets.ast.TypeExpression
 import dev.martianzoo.tfm.pets.ast.TypeExpression.ClassLiteral
 import dev.martianzoo.tfm.pets.ast.TypeExpression.GenericTypeExpression
+import dev.martianzoo.tfm.types.PetType.PetClassLiteral
 import dev.martianzoo.tfm.types.PetType.PetGenericType
 import dev.martianzoo.util.Debug.d
+import dev.martianzoo.util.toSetStrict
 
 // TODO restrict viz?
 class PetClassLoader(private val authority: Authority) : PetClassTable {
@@ -23,16 +25,18 @@ class PetClassLoader(private val authority: Authority) : PetClassTable {
   override fun get(nameOrId: ClassName): PetClass =
       nameToClass[nameOrId] ?: idToClass[nameOrId] ?: error("no class loaded named $nameOrId")
 
-  override fun resolve(expression: TypeExpression) = when (expression) {
-    is ClassLiteral -> load(expression.className)
+  override fun resolve(expression: TypeExpression): PetType = when (expression) {
+    is ClassLiteral -> PetClassLiteral(load(expression.className))
     is GenericTypeExpression -> resolve(expression)
   }
 
   override fun resolve(expression: GenericTypeExpression): PetGenericType =
       load(expression.root).baseType.specialize(expression.args.map { resolve(it) })
 
-  override fun loadedClassNames() = nameToClass.keys.toSet()
+  fun resolveAll(exprs: Set<GenericTypeExpression>): Set<PetGenericType> =
+      exprs.map { resolve(it) }.toSetStrict()
 
+  override fun loadedClassNames() = nameToClass.keys.toSet()
   override fun loadedClasses() = idToClass.values.toSet()
 
 // LOADING
@@ -118,7 +122,7 @@ class PetClassLoader(private val authority: Authority) : PetClassTable {
 
   private var frozen: Boolean = false
 
-  fun isFrozen() = frozen
+  fun isFrozen() = frozen // TODO property only?
 
   fun freeze(): PetClassTable {
     nameToClass.values.forEach { it!! }
