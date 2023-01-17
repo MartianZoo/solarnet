@@ -181,19 +181,6 @@ class PetClass(
         .map { replaceThis(it, name.type) }
         .map { applyDefaultsIn(it, loader).d("$this effect") }
         .toList()
-        .also { validateAllTypes(it) }
-  }
-
-// VALIDATION
-
-  private fun validateAllTypes(effects: List<Effect>) {
-    class Validator(private val table: PetClassTable) : PetNodeVisitor() {
-      override fun <P : PetNode?> transform(node: P): P {
-        if (node is TypeExpression) table.resolve(node)
-        return super.transform(node)
-      }
-    }
-    Validator(loader).transform(effects)
   }
 
 // OTHER
@@ -209,7 +196,7 @@ class PetClass(
         r is And && r.requirements.any { requiresAnInstance(it) }
   }
 
-  override fun toTypeExpressionFull() = name.literal
+  override fun toTypeExpression() = name.literal
 
   override fun equals(other: Any?) =
       other is PetClass &&

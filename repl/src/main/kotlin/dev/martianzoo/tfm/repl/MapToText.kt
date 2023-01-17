@@ -43,7 +43,7 @@ class MapToText(val game: GameState) {
   private fun describe(area: AreaDefinition?): String { // TODO rewrite using Grid<String>
     if (area == null) return ""
     val tileType: TypeInfo = game.resolve("Tile<${area.asClassDeclaration.name}>")
-    val tiles = game.getAll(tileType.toTypeExpressionFull())
+    val tiles = game.getAll(tileType.toTypeExpression())
     return when (tiles.size) {
       0 -> area.code
       1 -> describe(tiles.iterator().next())

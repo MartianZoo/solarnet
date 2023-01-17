@@ -60,7 +60,7 @@ class ComponentGraph(startingWith: Collection<Component> = listOf()) {
     }
 
     fun hasType(thatType: PetType) = type.isSubtypeOf(thatType)
-    val asTypeExpression = type.toTypeExpressionFull()
+    val asTypeExpression = type.toTypeExpression()
     override fun toString() = "[$type]"
   }
 }

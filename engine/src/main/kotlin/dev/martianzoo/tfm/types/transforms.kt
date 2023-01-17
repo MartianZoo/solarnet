@@ -1,11 +1,12 @@
 package dev.martianzoo.tfm.types
 
 import dev.martianzoo.tfm.pets.PetNodeVisitor
+import dev.martianzoo.tfm.pets.SpecialClassNames.ME
 import dev.martianzoo.tfm.pets.SpecialClassNames.THIS
 import dev.martianzoo.tfm.pets.ast.Instruction.Gain
 import dev.martianzoo.tfm.pets.ast.PetNode
+import dev.martianzoo.tfm.pets.ast.ScalarAndType.Companion.sat
 import dev.martianzoo.tfm.pets.ast.TypeExpression.GenericTypeExpression
-import dev.martianzoo.tfm.types.PetType.PetGenericType
 
 fun <P : PetNode> applyDefaultsIn(node: P, loader: PetClassLoader): P {
   return Defaulter(loader).transform(node)
@@ -13,46 +14,43 @@ fun <P : PetNode> applyDefaultsIn(node: P, loader: PetClassLoader): P {
 
 private class Defaulter(val loader: PetClassLoader) : PetNodeVisitor() {
   override fun <P : PetNode?> transform(node: P): P {
-    val rewritten: PetNode? = when (node) {
-      null -> null
-      THIS.type -> node // leave This alone!
-
+    val transformed: PetNode? = when (node) {
       is Gain -> {
-        val writtenType = node.sat.type
-        if (writtenType !is GenericTypeExpression) {
-          node
+        // this should be the real source form because we should run first
+        val writtenType = node.sat.type.asGeneric()
+        val defaults = loader.load(writtenType.root).defaults
+        val fixedType = if (writtenType.isTypeOnly) {
+          val deps = defaults.gainOnlyDependencies.keyToDependency.values
+          writtenType.addArgs(deps.map {
+            it.type.toTypeExpression()
+          })
         } else {
-          val petClass = loader.load(writtenType.root)
-          val defaults = petClass.defaults
-          val newTypeExpr = applyDefaultSpecs(writtenType, petClass, defaults.gainOnlyDependencies)
-          node.copy(
-              node.sat.copy(type = transform(newTypeExpr)),
-              node.intensity ?: defaults.gainIntensity,
-          )
+          writtenType
         }
+        Gain(sat(node.sat.scalar, transform(fixedType)),
+            node.intensity ?: defaults.gainIntensity)
       }
 
+      null, THIS.type, ME.type -> node
       is GenericTypeExpression -> {
         val petClass = loader.load(node.root)
-        // TODO should we be recursing?
-        applyDefaultSpecs(node, petClass, petClass.defaults.allCasesDependencies)
+        val allCasesDependencies = petClass.defaults.allCasesDependencies
+        if (allCasesDependencies.keyToDependency.isEmpty()) {
+          node
+        } else {
+          // TODO have to reengineer what resolve would do because the pettype has forgotten
+          val explicitDeps = petClass.baseType.dependencies
+          val foo = explicitDeps.findMatchups(node.args.map { loader.resolve(it) })
+          val newArgs = foo.overlayOn(allCasesDependencies)
+              .keyToDependency.values.map {
+                it.toTypeExpressionFull() // TODO not full
+              }
+          node.replaceArgs(newArgs.map { transform(it) })
+        }
       }
-
       else -> super.transform(node)
     }
-
-    @Suppress("UNCHECKED_CAST") return rewritten as P
-  }
-
-  private fun applyDefaultSpecs(
-      original: GenericTypeExpression,
-      petClass: PetClass,
-      defaultDeps: DependencyMap,
-  ): GenericTypeExpression {
-    val explicitStatedDeps = petClass.resolveSpecializations(original.args)
-    val mergedDeps = explicitStatedDeps.overlayOn(defaultDeps)
-
-    // TODO: a little weird that we're going backwards here?
-    return PetGenericType(petClass, mergedDeps, original.refinement).toTypeExpressionFull()
+    @Suppress("UNCHECKED_CAST")
+    return transformed as P
   }
 }

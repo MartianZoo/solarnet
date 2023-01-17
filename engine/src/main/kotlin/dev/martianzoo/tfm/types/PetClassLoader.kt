@@ -2,6 +2,7 @@ package dev.martianzoo.tfm.types
 
 import dev.martianzoo.tfm.api.Authority
 import dev.martianzoo.tfm.data.ClassDeclaration
+import dev.martianzoo.tfm.pets.SpecialClassNames.ME
 import dev.martianzoo.tfm.pets.SpecialClassNames.STANDARD_RESOURCE
 import dev.martianzoo.tfm.pets.SpecialClassNames.THIS
 import dev.martianzoo.tfm.pets.ast.ClassName
@@ -75,7 +76,7 @@ class PetClassLoader(private val authority: Authority) : PetClassTable {
         loadSingle(next)
         val decl = authority.classDeclaration(next)
         val needed: List<ClassName> = decl.allNodes.flatMap { it.childNodesOfType() }
-        val addToQueue = needed.toSet() - nameToClass.keys - idToClass.keys - THIS
+        val addToQueue = needed.toSet() - nameToClass.keys - idToClass.keys - THIS - ME
         queue.addAll(addToQueue.d("adding to queue"))
       }
     }
@@ -85,7 +86,6 @@ class PetClassLoader(private val authority: Authority) : PetClassTable {
 
   // all loading goes through here
   private fun loadSingle(idOrName: ClassName): PetClass {
-    idOrName.d("loading")
     if (frozen) {
       return get(idOrName)
     } else {

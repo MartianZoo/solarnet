@@ -56,15 +56,6 @@ data class ClassDeclaration(
         extraNodes
   }
 
-  // TODO why unused?
-  fun isSingleton() = otherInvariants.any() { requiresOneInstance(it) }
-
-  private fun requiresOneInstance(r: Requirement): Boolean {
-    return r is Min && r.sat == sat(1, THIS.type) ||
-        r is Exact && r.sat == sat(1, THIS.type) ||
-        r is And && r.requirements.any { requiresOneInstance(it) }
-  }
-
   data class DependencyDeclaration(val type: TypeExpression)
 
   data class DefaultsDeclaration(

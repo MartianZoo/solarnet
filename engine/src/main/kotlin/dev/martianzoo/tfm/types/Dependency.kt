@@ -13,7 +13,7 @@ data class Dependency(val key: Key, val type: PetType) {
   infix fun intersect(otherType: PetType): Dependency? =
       (this.type intersect otherType)?.let { copy(type = it) }
 
-  fun toTypeExpressionFull() = type.toTypeExpressionFull()
+  fun toTypeExpressionFull() = type.toTypeExpression()
 
   override fun toString() = "$key=${toTypeExpressionFull()}"
 

@@ -52,7 +52,7 @@ class ReplSession(val authority: Authority) {
         } else {
           val type: PetType = game!!.resolve(args)
           require(!type.abstract && type.isSubtypeOf(game!!.classTable[PLAYER].baseType))
-          defaultPlayer = type.toTypeExpressionFull()
+          defaultPlayer = type.toTypeExpression()
           "Hi, $defaultPlayer"
         }
         listOf(message)

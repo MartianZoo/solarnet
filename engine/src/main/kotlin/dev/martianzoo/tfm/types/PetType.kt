@@ -14,7 +14,7 @@ interface PetType : TypeInfo {
 
   infix fun intersect(that: PetType): PetType?
 
-  override fun toTypeExpressionFull(): TypeExpression
+  override fun toTypeExpression(): TypeExpression
 
   data class PetGenericType(
       override val petClass: PetClass,
@@ -53,11 +53,11 @@ interface PetType : TypeInfo {
       return copy(dependencies = dependencies.specialize(specs))
     }
 
-    override fun toTypeExpressionFull(): GenericTypeExpression {
+    override fun toTypeExpression(): GenericTypeExpression {
       val specs = dependencies.keyToDependency.values.map { it.toTypeExpressionFull() }
       return petClass.name.addArgs(specs).refine(refinement)
     }
 
-    override fun toString() = toTypeExpressionFull().toString()
+    override fun toString() = toTypeExpression().toString()
   }
 }

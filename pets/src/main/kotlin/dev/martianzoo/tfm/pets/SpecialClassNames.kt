@@ -3,14 +3,15 @@ package dev.martianzoo.tfm.pets
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 
 object SpecialClassNames {
+  val ANYONE = cn("Anyone")
   val COMPONENT = cn("Component")
   val DIE = cn("Die")
   val END = cn("End")
+  val ME = cn("Me")
   val MEGACREDIT = cn("Megacredit")
   val OK = cn("Ok")
-  val ANYONE = cn("Anyone")
-  val PLAYER = cn("Player")
   val OWNED = cn("Owned")
+  val PLAYER = cn("Player")
   val PRODUCTION = cn("Production")
   val STANDARD_RESOURCE = cn("StandardResource")
   val THIS = cn("This")

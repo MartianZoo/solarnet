@@ -36,6 +36,8 @@ sealed class TypeExpression : PetNode() {
 
     override fun asGeneric() = this
 
+    val isTypeOnly = args.isEmpty() && refinement == null
+
     fun addArgs(moreArgs: List<TypeExpression>): GenericTypeExpression {
       return copy(args = args + moreArgs)
     }

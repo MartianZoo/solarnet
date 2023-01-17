@@ -20,6 +20,8 @@ ABSTRACT CLASS Anyone {
         Pay<Titanium.CLASS>:: 3 Pay<Megacredit.CLASS>       // I think this will be innocuous for TradeAction
 
         CLASS Player1, Player2, Player3, Player4, Player5   // in PETS, nesting = subtyping
+
+        ABSTRACT CLASS Me                                   // TODO not sure about this
     }
 }
 
@@ -27,7 +29,7 @@ ABSTRACT CLASS Anyone {
 // PLAYER PROPERTY / GENERAL -------------------------------
 
 ABSTRACT CLASS Owned<Anyone> {
-    DEFAULT This<Player>                                    // affects ALL references to owned cpts that don't specify
+    DEFAULT This<Me>                                        // affects ALL references to owned cpts that don't specify
                                                             // an owner -- the only DEFAULT of this kind we need
     CLASS VictoryPoint
 
