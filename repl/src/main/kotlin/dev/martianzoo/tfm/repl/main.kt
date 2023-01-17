@@ -1,11 +1,13 @@
 package dev.martianzoo.tfm.repl
 
+import dev.martianzoo.tfm.canon.Canon
 import org.jline.reader.EndOfFileException
 import org.jline.reader.LineReaderBuilder
 import org.jline.reader.impl.history.DefaultHistory
-import org.jline.terminal.Attributes
 import org.jline.terminal.TerminalBuilder
 import org.jline.utils.InfoCmp.Capability
+
+val INPUT_REGEX = Regex("""^\s*(\S+)(.*)$""")
 
 fun main() {
   val terminal = TerminalBuilder.builder()
@@ -20,26 +22,23 @@ fun main() {
       .terminal(terminal)
       .history(DefaultHistory())
       .build()
+  reader.readLine("Welcome to REgo PLastics! Press enter.")
 
-  println("Welcome to REgo PLastics.")
-  val repl = ReplSession()
+  val repl = ReplSession(Canon)
+  repl.command("newgame BM 2").forEach(::println)
 
-  val space = Regex("\\s+")
   while (true) {
-    try {
-      val inputLine = reader.readLine("> ").trim()
-      if (inputLine.isEmpty()) continue
-
-      val commandAndArgs = inputLine.split(space, 2)
-      val command = commandAndArgs.first()
-      repl.replCommand(command, commandAndArgs.getOrNull(1)).forEach(::println)
-      println()
-
+    val inputLine = try {
+      reader.readLine("> ")
     } catch (e: EndOfFileException) {
       return
-    } catch (e: Exception) {
-      e.printStackTrace()
-      println()
     }
+    val results = try {
+      repl.command(inputLine)
+    } catch (e: Exception) {
+      listOf("${e::class}: ${e.message}")
+    }
+    results.forEach(::println)
+    println()
   }
 }
