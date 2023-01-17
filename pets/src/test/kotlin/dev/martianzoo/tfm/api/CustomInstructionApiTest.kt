@@ -15,7 +15,7 @@ import org.junit.jupiter.api.Test
  * through [Instruction.Custom].
  */
 class CustomInstructionApiTest {
-  val instruction = Instruction.from('$' + "foo()")
+  val instruction = Instruction.from("@foo()")
   val dumb = Gain(sat(1, OK.type))
 
   private fun fakeAuthority(custom: CustomInstruction) =

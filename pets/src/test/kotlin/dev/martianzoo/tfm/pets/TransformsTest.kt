@@ -62,7 +62,7 @@ private class TransformsTest {
 
   @Test
   fun testFindAllClassNames() {
-    val instr = Instruction.from('$' + "foo(Bar, Qux<Dog>)")
+    val instr = Instruction.from("@foo(Bar, Qux<Dog>)")
     assertThat(instr.childNodesOfType<ClassName>().toStrings())
         .containsExactly("Bar", "Qux", "Dog")
   }

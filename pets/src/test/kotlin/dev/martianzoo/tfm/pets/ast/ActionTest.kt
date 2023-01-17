@@ -40,12 +40,12 @@ private class ActionTest {
     0 Foo -> -Abc(HAS MAX 0 Qux)
     PROD[Foo] -> Ooh OR (1., -1!)
     PROD[Abc / Xyz] -> -5 Ooh<Foo>
-    1, Bar / Xyz -> ${'$'}name(Abc)
-    Qux -> Xyz? THEN ${'$'}name(Bar)
+    1, Bar / Xyz -> @name(Abc)
+    Qux -> Xyz? THEN @name(Bar)
     11 -> 1 Foo FROM Xyz<Bar(HAS 0)>?
     PROD[Bar / Megacredit] -> Xyz<Xyz>
     PROD[PROD[1]] -> (11, -1 OR Foo), 1
-    PROD[1] -> Foo<Bar>, ${'$'}name(Foo)
+    PROD[1] -> Foo<Bar>, @name(Foo)
     5 / Eep -> (Foo, Qux): 5 Bar FROM Foo
     Abc, 0 Qux<Qux<Qux, Bar>> OR 0 -> -Qux
     0 Xyz OR 1 / Foo OR 0 / Megacredit -> 1
@@ -61,7 +61,7 @@ private class ActionTest {
     -> PROD[11 Ooh<Eep<Ooh FROM Bar<Eep<Bar, Foo>>>>]
     1 / Ahh<Qux<Abc>> -> 0 Abc<Abc<Ooh<Foo>>>: (1, 1?)
     PROD[0 Bar / Bar OR (1 OR Qux)] -> 1, 1, Ooh, 0: -1
-    PROD[0 Xyz] -> PROD[1, (${'$'}name(Xyz), 0: 1), Bar]
+    PROD[0 Xyz] -> PROD[1, (@name(Xyz), 0: 1), Bar]
     Xyz -> -5 Wau<Qux, Ahh>!, 5 Qux / Megacredit, PROD[5]
     5 Foo<Qux(HAS (1 OR Abc) OR 0)> -> PROD[Ahh<Qux, Foo>]
     PROD[0 / Foo<Qux<Xyz>>] OR PROD[Foo] -> 5 Eep THEN 1: 1

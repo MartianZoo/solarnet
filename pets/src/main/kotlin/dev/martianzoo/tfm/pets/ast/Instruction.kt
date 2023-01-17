@@ -173,7 +173,7 @@ sealed class Instruction : PetNode() {
       }
     }
 
-    override fun toString() = "$$functionName(${arguments.joinToString()})"
+    override fun toString() = "@$functionName(${arguments.joinToString()})"
   }
 
   data class Then(val instructions: List<Instruction>) : Instruction() {
@@ -274,7 +274,7 @@ sealed class Instruction : PetNode() {
         })
 
         val arguments = separatedTerms(typeExpression, char(','), acceptZero = true)
-        val custom = skipChar('$') and _lowerCamelRE and group(
+        val custom = skipChar('@') and _lowerCamelRE and group(
             arguments) map { (name, args) ->
           Custom(name.text, args)
         }

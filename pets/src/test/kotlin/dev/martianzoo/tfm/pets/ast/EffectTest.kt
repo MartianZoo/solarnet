@@ -43,21 +43,21 @@ private class EffectTest {
     Bar: PROD[(Foo: -1, -1), 1, 5 Abc, 1.]
     PROD[Abc<Qux>]: PROD[Foo / Bar OR -Abc]
     Xyz: -Qux<Abc<Abc>, Foo> / Abc<Bar, Xyz>
-    PROD[Qux]: 11 Bar?, Foo., ${'$'}name(Xyz)
+    PROD[Qux]: 11 Bar?, Foo., @name(Xyz)
     -Xyz: (-Bar<Bar>, -1) OR (11 Qux FROM Eep)
     Ooh<Qux<Bar, Ahh>, Xyz>: -5 Ooh<Foo(HAS 1)>
-    Eep: 5 Bar: ${'$'}name(Foo), 5 Xyz: Foo<Xyz>
+    Eep: 5 Bar: @name(Foo), 5 Xyz: Foo<Xyz>
     -Foo: Xyz, 1 OR (-Qux / Megacredit, Bar<Ooh>)
     PROD[-Ahh<Bar>]: -Wau<Foo<Xyz<Bar, Xyz>, Bar>>
     PROD[-Qux]: PROD[1 Foo<Xyz FROM Bar, Xyz>, Bar]
-    PROD[-Foo]: -1, (Xyz?, ${'$'}name(Foo) OR 5 Bar)
+    PROD[-Foo]: -1, (Xyz?, @name(Foo) OR 5 Bar)
     Qux<Foo>: 1 Abc FROM Ahh<Xyz<Ooh>>, 1 OR (Abc: 1)
     PROD[-Ooh<Ahh>]: PROD[Abc / Megacredit, Qux OR -5]
     PROD[Eep]: Qux, (5, Foo) OR 1, 1 Ahh<Qux> FROM Xyz!
     Abc<Wau<Ahh, Bar>, Ooh<Foo>>: 5 Qux, Ooh OR (Bar: 1)
     -Wau: 1, Abc, (-5 Bar / 5 Bar<Abc<Abc>>, Wau), (1, 1)
     PROD[Xyz(HAS 0 OR 0 Abc)]: Bar? / 5 Abc<Ooh<Bar, Ooh>>
-    -Ahh: 1 Bar<Foo> FROM Xyz / Foo, (Abc, ${'$'}name(Ahh))
+    -Ahh: 1 Bar<Foo> FROM Xyz / Foo, (Abc, @name(Ahh))
     PROD[Ooh<Foo<Qux, Ahh>>]: PROD[1 Bar<Qux, Bar FROM Wau>]
     PROD[Bar<Eep>]: 11 Ahh<Ooh<Qux<Ooh, Eep FROM Qux>>, Bar>!
     PROD[Ahh]: 5, Wau, Ahh<Foo<Bar>>, PROD[Bar OR -1, 1 / Abc]

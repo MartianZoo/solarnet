@@ -43,7 +43,7 @@ ABSTRACT CLASS GlobalParameter {                            // TODO must be adde
 ABSTRACT CLASS MarsMap {                                    // Tharsis etc. are loaded from `maps.json5`
     HAS =1 This
 
-    // This:: $createBorders(This)
+    // This:: @createBorders(This)
 }
 
 ABSTRACT CLASS Area(HAS MAX 1 Tile) {

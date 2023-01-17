@@ -16,7 +16,7 @@ private class CustomInstructionsTest {
     repl.command("become Player1")
     repl.command("PROD[5]") // The standard hack for every player - ignore it!
     repl.command("PROD[Steel, Titanium, Plant, Energy, Heat]")
-    repl.command('$' + "gainLowestProduction(Player1)")
+    repl.command("@gainLowestProduction(Player1)")
 
     // TODO fix ordering problem
     assertThat(repl.command("count Production<Player1, Megacredit.CLASS>").first()).startsWith("6")
@@ -29,7 +29,7 @@ private class CustomInstructionsTest {
     repl.command("become Player1")
     repl.command("PROD[5]") // The standard hack for every player - ignore it!
     repl.command("PROD[Steel, Titanium, Plant, Heat]")
-    assertThrows<RuntimeException> { repl.command('$' + "gainLowestProduction(Player1)") }
+    assertThrows<RuntimeException> { repl.command("@gainLowestProduction(Player1)") }
   }
 
   // TODO figure out how to make gradle compile the java code
@@ -44,7 +44,7 @@ private class CustomInstructionsTest {
     repl.command("become Player1")
     repl.command("PROD[5]") // The standard hack for every player - ignore it!
     repl.command("PROD[Steel, Titanium, Plant, Energy, Heat]")
-    repl.command('$' + "gainLowestProduction(Player1)")
+    repl.command("@gainLowestProduction(Player1)")
 
     // TODO fix ordering problem
     assertThat(repl.command("count Production<Player1, Megacredit.CLASS>").first()).startsWith("6")
@@ -57,7 +57,7 @@ private class CustomInstructionsTest {
     repl.command("become Player1")
     repl.command("PROD[5]") // The standard hack for every player - ignore it!
     repl.command("PROD[-1]")
-    repl.command('$' + "gainLowestProduction(Player1)")
+    repl.command("@gainLowestProduction(Player1)")
     assertThat(repl.command("has PROD[=5 Megacredit]").first()).startsWith("true")
   }
 
@@ -71,7 +71,7 @@ private class CustomInstructionsTest {
   // EXEC PROD[-2 Energy<Player1>, 2 Steel<Player1>, Titanium<Player1>]
   //
   // REQUIRE PROD[=2 Energy<Player1>, 2 Steel<Player1>]
-  // EXEC $${""}copyProductionBox(StripMine<Player1>)
+  // EXEC @copyProductionBox(StripMine<Player1>)
   //
   // REQUIRE PROD[=0 Energy<Player1>, 4 Steel<Player1>]
 }

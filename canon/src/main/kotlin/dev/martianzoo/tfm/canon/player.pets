@@ -100,7 +100,7 @@ ABSTRACT CLASS Owned<Anyone> {
     }
 
     ABSTRACT CLASS CardFront {                               // specific CardFronts are loaded from `cards.json5`
-        This:: $createAll(Cost, This)
+        This:: @createAll(Cost, This)
 
         ABSTRACT CLASS EventCard {
             This: PlayedEvent FROM This                     // problem: how to still get the VPs??
@@ -169,7 +169,7 @@ ABSTRACT CLASS Owned<Anyone> {
 
                                                             // used by PlayCardFromHand, ValTrust, EcoEx, ExSponsor,
         CLASS PlayCard<CardBack.CLASS, CardFront.CLASS> {   // NewPartner, Merger; triggers EarthCat etc.
-  //        This:: (CardBack: $handleRequirement(CardFront.CLASS))
+  //        This:: (CardBack: @handleRequirement(CardFront.CLASS))
   //        This: Owed<Megacredit.CLASS> / Cost<CardFront.CLASS>
   //        This: =0 Barrier: (CardFront FROM CardBack, -This) // adds task to queue that must eventually be completed
         }
