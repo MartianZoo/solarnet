@@ -16,4 +16,5 @@ object Debug {
   }
 }
 
-const val DEBUG = true
+const val DEBUG = false
+// TODO log to a file
