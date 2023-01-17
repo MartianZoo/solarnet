@@ -4,11 +4,6 @@ import com.google.common.collect.Multiset
 import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.tfm.api.GameSetup
 import dev.martianzoo.tfm.canon.Canon
-import dev.martianzoo.tfm.canon.Canon.Bundle.Base
-import dev.martianzoo.tfm.canon.Canon.Bundle.CorporateEra
-import dev.martianzoo.tfm.canon.Canon.Bundle.Prelude
-import dev.martianzoo.tfm.canon.Canon.Bundle.Promos
-import dev.martianzoo.tfm.canon.Canon.Bundle.Tharsis
 import dev.martianzoo.tfm.engine.ComponentGraph.Component
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import org.junit.jupiter.api.Test

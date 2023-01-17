@@ -1,15 +1,11 @@
 package dev.martianzoo.tfm.api
 
 import com.google.common.collect.Multiset
-import dev.martianzoo.tfm.api.Authority.Empty
-import dev.martianzoo.tfm.data.MarsMapDefinition
 import dev.martianzoo.tfm.data.StateChange.Cause
-import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.pets.ast.TypeExpression
 import dev.martianzoo.tfm.pets.ast.TypeExpression.ClassLiteral
 import dev.martianzoo.tfm.pets.ast.TypeExpression.GenericTypeExpression
-import dev.martianzoo.util.Grid
 
 open class StubGameState(val auth: Authority = Authority.Minimal()) : GameState {
   override fun applyChange(

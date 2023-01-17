@@ -2,13 +2,10 @@ package dev.martianzoo.tfm.engine
 
 import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.tfm.api.GameSetup
-import dev.martianzoo.tfm.api.lookUpProductionLevels
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.data.StateChange
 import dev.martianzoo.tfm.pets.Parsing.parseScript
-import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.tfm.pets.ast.TypeExpression
 import dev.martianzoo.util.toStrings
 import org.junit.jupiter.api.Test
 
