@@ -15,6 +15,7 @@ dependencies {
   implementation("com.google.guava:guava:31.1-jre")
 
   testImplementation("org.junit.jupiter:junit-jupiter-api:5.9.0")
+  testImplementation(project(mapOf("path" to ":repl")))
   testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.9.0")
   testImplementation("com.google.truth:truth:1.1.3")
 
@@ -23,4 +24,3 @@ dependencies {
   testImplementation(project(":canon")) // easiest to test the engine this way
   testImplementation(project(":pets")) // eep
 }
-

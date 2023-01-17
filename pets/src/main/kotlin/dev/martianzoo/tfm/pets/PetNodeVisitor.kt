@@ -13,12 +13,6 @@ import dev.martianzoo.tfm.pets.ast.Instruction
 import dev.martianzoo.tfm.pets.ast.PetNode
 import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.pets.ast.ScalarAndType
-import dev.martianzoo.tfm.pets.ast.Script
-import dev.martianzoo.tfm.pets.ast.Script.ScriptCommand
-import dev.martianzoo.tfm.pets.ast.Script.ScriptCounter
-import dev.martianzoo.tfm.pets.ast.Script.ScriptLine
-import dev.martianzoo.tfm.pets.ast.Script.ScriptPragmaPlayer
-import dev.martianzoo.tfm.pets.ast.Script.ScriptRequirement
 import dev.martianzoo.tfm.pets.ast.TypeExpression
 import dev.martianzoo.tfm.pets.ast.TypeExpression.ClassLiteral
 import dev.martianzoo.tfm.pets.ast.TypeExpression.GenericTypeExpression
@@ -83,14 +77,6 @@ open class PetNodeVisitor {
           is Cost.Or -> Cost.Or(x(costs))
           is Cost.Multi -> Cost.Multi(x(costs))
           is Cost.Transform -> Cost.Transform(x(cost), transform)
-        }
-
-        is Script -> Script(x(lines))
-        is ScriptLine -> when (this) {
-          is ScriptCommand -> ScriptCommand(x(command), x(ownedBy))
-          is ScriptCounter -> ScriptCounter(key, x(type))
-          is ScriptRequirement -> ScriptRequirement(x(req))
-          is ScriptPragmaPlayer -> ScriptPragmaPlayer(x(player))
         }
       }
       @Suppress("UNCHECKED_CAST")

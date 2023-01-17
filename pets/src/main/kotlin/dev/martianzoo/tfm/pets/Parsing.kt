@@ -24,7 +24,6 @@ import dev.martianzoo.tfm.pets.ast.Instruction
 import dev.martianzoo.tfm.pets.ast.PetNode
 import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.pets.ast.ScalarAndType
-import dev.martianzoo.tfm.pets.ast.Script
 import dev.martianzoo.tfm.pets.ast.TypeExpression
 import dev.martianzoo.tfm.pets.ast.TypeExpression.TypeParsers
 import dev.martianzoo.util.Debug
@@ -45,7 +44,6 @@ object Parsing {
     pgb.publish(Action.parser())
     pgb.publish(Trigger.parser())
     pgb.publish(Effect.parser())
-    pgb.publish(Script.parser())
     pgb.finish()
   }
 
@@ -74,17 +72,6 @@ object Parsing {
   // For java
   fun <P : PetNode> parsePets(expectedType: Class<P>, source: String) =
       parsePets(expectedType.kotlin, source)
-
-  fun parseScript(scriptSource: String): Script {
-    val scriptLines = try {
-      val tokens = tokenize(stripLineComments(scriptSource))
-      parseRepeated(Script.parser() map { listOf(it) }, tokens)
-    } catch (e: Exception) {
-      Debug.d("Script was:\n$scriptSource")
-      throw e
-    }
-    return Script(scriptLines)
-  }
 
   fun parseOneLineClassDeclaration(declarationSource: String): ClassDeclaration {
     return parse(oneLineDecl, declarationSource)

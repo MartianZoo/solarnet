@@ -10,7 +10,6 @@ import dev.martianzoo.tfm.data.StateChange.Cause
 import dev.martianzoo.tfm.engine.ComponentGraph.Component
 import dev.martianzoo.tfm.pets.ast.Instruction
 import dev.martianzoo.tfm.pets.ast.Requirement
-import dev.martianzoo.tfm.pets.ast.Script
 import dev.martianzoo.tfm.pets.ast.TypeExpression
 import dev.martianzoo.tfm.pets.ast.TypeExpression.ClassLiteral
 import dev.martianzoo.tfm.pets.ast.TypeExpression.GenericTypeExpression
@@ -36,9 +35,6 @@ class Game(
 
   fun execute(instr: String) = execute(Instruction.from(instr))
   fun execute(instr: Instruction) = instr.execute(this)
-
-  fun execute(script: Script): Map<String, Int> =
-      deprodify(script, standardResourceNames(this)).execute(this)
 
   override fun count(type: TypeExpression) = count(resolve(type))
   override fun count(typeText: String) = count(resolve(typeText))
