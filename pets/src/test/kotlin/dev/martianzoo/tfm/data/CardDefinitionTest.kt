@@ -20,9 +20,9 @@ private class CardDefinitionTest {
   @Test
   fun minimal() {
     val dumbCard = CardDefinition(
-        "xxx", deck = PRELUDE, effectsText = setOf("This: Plant"), bundle =  "Z")
+        "123", deck = PRELUDE, effectsText = setOf("This: Plant"), bundle =  "Z")
 
-    assertThat(dumbCard.id).isEqualTo(cn("Cxxx"))
+    assertThat(dumbCard.id).isEqualTo(cn("C123"))
     assertThat(dumbCard.bundle).isEqualTo("Z")
     assertThat(dumbCard.deck).isEqualTo(PRELUDE)
     assertThat(dumbCard.replaces).isNull()
@@ -91,13 +91,13 @@ private class CardDefinitionTest {
   }
 
   // Just so we don't have to keep repeating the "x" part
-  private val card: CardDefinition = CardDefinition("x", bundle = "Z")
+  private val card: CardDefinition = CardDefinition("123", bundle = "Z")
 
   /** Since we only use C expecting an exception, we should make sure it normally works. */
   @Test
   fun justToBeSure() {
     @Suppress("UNUSED_VARIABLE")
-    val card = card.copy(idRaw = "999")
+    val card = card.copy(idRaw = "123")
   }
 
   @Test

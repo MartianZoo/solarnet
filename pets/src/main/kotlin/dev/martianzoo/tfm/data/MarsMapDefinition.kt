@@ -74,7 +74,12 @@ data class MarsMapDefinition(
       )
     }
 
-    override val id = ClassName.cn("${bundle}${row}$column")
+    override val id = ClassName.cn(
+        if (row > 9 || column > 9)
+            "${bundle}_${row}_$column"
+        else
+            "$bundle$row$column"
+    )
     override val name = ClassName.cn("${mapName}_${row}_$column")
   }
 }

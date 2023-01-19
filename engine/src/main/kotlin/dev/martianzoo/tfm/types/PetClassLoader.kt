@@ -12,18 +12,16 @@ import dev.martianzoo.tfm.pets.ast.TypeExpression.ClassLiteral
 import dev.martianzoo.tfm.pets.ast.TypeExpression.GenericTypeExpression
 import dev.martianzoo.tfm.types.PetType.PetClassLiteral
 import dev.martianzoo.tfm.types.PetType.PetGenericType
-import dev.martianzoo.util.Debug.d
 import dev.martianzoo.util.toSetStrict
 
 // TODO restrict viz?
 class PetClassLoader(private val authority: Authority) : PetClassTable {
-  private val nameToClass = mutableMapOf<ClassName, PetClass?>()
-  private val idToClass = mutableMapOf<ClassName, PetClass>()
+  private val table = mutableMapOf<ClassName, PetClass?>()
 
 // MAIN QUERIES
 
   override fun get(nameOrId: ClassName): PetClass =
-      nameToClass[nameOrId] ?: idToClass[nameOrId] ?: error("no class loaded named $nameOrId")
+      table[nameOrId] ?: error("no class loaded with id or name $nameOrId")
 
   override fun resolve(expression: TypeExpression): PetType = when (expression) {
     is ClassLiteral -> PetClassLiteral(load(expression.className))
@@ -36,8 +34,9 @@ class PetClassLoader(private val authority: Authority) : PetClassTable {
   fun resolveAll(exprs: Set<GenericTypeExpression>): Set<PetGenericType> =
       exprs.map { resolve(it) }.toSetStrict()
 
-  override fun loadedClassNames() = nameToClass.keys.toSet()
-  override fun loadedClasses() = idToClass.values.toSet()
+  override fun loadedClassNames() = loadedClasses().map { it.name }.toSetStrict()
+  fun loadedClassIds() = loadedClasses().map { it.id }.toSetStrict()
+  override fun loadedClasses() = table.values.filterNotNull().toSet()
 
 // LOADING
 
@@ -76,12 +75,13 @@ class PetClassLoader(private val authority: Authority) : PetClassTable {
     val queue = ArrayDeque(idsAndNames.toSet())
     while (queue.isNotEmpty()) {
       val next = queue.removeFirst()
-      if (next !in nameToClass && next !in idToClass) {
-        loadSingle(next)
+      if (next !in table) {
         val decl = authority.classDeclaration(next)
+        loadSingle(next, decl)
+        // shoot, this merges ids and names
         val needed: List<ClassName> = decl.allNodes.flatMap { it.childNodesOfType() }
-        val addToQueue = needed.toSet() - nameToClass.keys - idToClass.keys - THIS - ME
-        queue.addAll(addToQueue.d("adding to queue"))
+        val addToQueue = needed.toSet() - table.keys - THIS - ME
+        queue.addAll(addToQueue)
       }
     }
   }
@@ -93,39 +93,44 @@ class PetClassLoader(private val authority: Authority) : PetClassTable {
     if (frozen) {
       return get(idOrName)
     } else {
-      return nameToClass[idOrName] ?: idToClass[idOrName] ?:
-          construct(authority.classDeclaration(idOrName))
+      return table[idOrName] ?: construct(authority.classDeclaration(idOrName))
+    }
+  }
+
+  // all loading goes through here
+  private fun loadSingle(idOrName: ClassName, decl: ClassDeclaration): PetClass {
+    if (frozen) {
+      return get(idOrName)
+    } else {
+      return table[idOrName] ?: construct(decl)
     }
   }
 
   private fun construct(decl: ClassDeclaration): PetClass {
     require(!frozen) { "Too late, this table is frozen!" }
 
-    val name: ClassName = decl.name.d("loading")
-
-    require(decl.name !in nameToClass) { decl.name }
-    require(decl.name !in idToClass) { decl.name }
-    require(decl.id !in nameToClass) { decl.id }
-    require(decl.id !in idToClass) { decl.id }
+    require(decl.name !in table) { decl.name }
+    require(decl.id !in table) { decl.id }
 
     // signal with `null` that loading is in process so we can detect infinite recursion
-    nameToClass[name] = null
+    table[decl.name] = null
+    table[decl.id] = null
     val superclasses: List<PetClass> = decl.superclassNames.map { load(it) } // we do most other things lazily...
 
     val petClass = PetClass(decl, superclasses, this)
-    nameToClass[name] = petClass
-    idToClass[decl.id] = petClass
+    table[decl.name] = petClass
+    table[decl.id] = petClass
     return petClass
   }
 
 // FREEZING
 
   var frozen: Boolean = false
-    private set
+      private set
 
   fun freeze(): PetClassTable {
-    nameToClass.values.forEach { it!! }
     frozen = true
+    table.values.forEach { it!! }
     return this
   }
 
@@ -141,7 +146,7 @@ class PetClassLoader(private val authority: Authority) : PetClassTable {
 
   private fun findResourceNames(): Set<ClassName> {
     val stdRes = load(STANDARD_RESOURCE)
-    return nameToClass.values.mapNotNull {
+    return table.values.mapNotNull {
       if (it?.isSubclassOf(stdRes) == true) it.name else null
     }.toSet()
   }

@@ -8,9 +8,11 @@ fun englishHack(id: String): ClassName {
   return cn(when {
     id in ENGLISH_HACK -> ENGLISH_HACK[id]!!
     id.endsWith("F") -> ENGLISH_HACK[id.substring(0, id.length - 1)]!!
-    else -> unhackedName(id)
+    else -> error(id)
   })
 }
+
+fun englishHack(id: ClassName) = englishHack(id.toString())
 
 private val noncards = Regex("SA.|SELL|SP\\d\\d|^[MHEV]M")
 

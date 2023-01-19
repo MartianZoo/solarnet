@@ -31,7 +31,7 @@ data class MilestoneDefinition(
     Requirement.from(requirementText)
   }
 
-  override val name = englishHack(id.toString())
+  override val name = englishHack(id)
 
   override val asClassDeclaration: ClassDeclaration by lazy {
     ClassDeclaration(

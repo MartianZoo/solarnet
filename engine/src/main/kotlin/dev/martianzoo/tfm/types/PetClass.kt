@@ -15,7 +15,7 @@ data class PetClass(
   val name: ClassName by declaration::name
   val abstract by declaration::abstract
 
-  val shortName by declaration::id
+  val id by declaration::id
   val invariantsRaw by declaration::otherInvariants
 
   // HIERARCHY
