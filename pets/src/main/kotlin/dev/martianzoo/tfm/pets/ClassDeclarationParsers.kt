@@ -33,7 +33,6 @@ import dev.martianzoo.tfm.pets.ast.TypeExpression.TypeParsers.genericType
 import dev.martianzoo.tfm.pets.ast.TypeExpression.TypeParsers.refinement
 import dev.martianzoo.tfm.pets.ast.TypeExpression.TypeParsers.typeExpression
 import dev.martianzoo.util.KClassMultimap
-import dev.martianzoo.util.onlyElement
 import dev.martianzoo.util.plus
 import dev.martianzoo.util.toSetStrict
 
@@ -194,7 +193,7 @@ internal object ClassDeclarationParsers : PetParser() {
     fun unnestAllFrom(container: ClassName): List<NestableDecl> =
         declList.map { it.unnestOneFrom(container) }
 
-    fun finishOnlyDecl() = declList.onlyElement().finishAtTopLevel()
+    fun finishOnlyDecl() = declList.single().finishAtTopLevel()
 
     fun finishAll() = declList.map { it.finishAtTopLevel() }
 

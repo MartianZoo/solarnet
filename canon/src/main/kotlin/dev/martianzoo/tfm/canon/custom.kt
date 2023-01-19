@@ -8,7 +8,6 @@ import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.Instruction
 import dev.martianzoo.tfm.pets.ast.Instruction.Transform
 import dev.martianzoo.tfm.pets.ast.TypeExpression
-import dev.martianzoo.util.onlyElement
 
 val allCustomInstructions = listOf(
     GainLowestProduction,
@@ -19,7 +18,7 @@ val allCustomInstructions = listOf(
 object GainLowestProduction : CustomInstruction("gainLowestProduction") {
 
   override fun translate(game: ReadOnlyGameState, arguments: List<TypeExpression>): Instruction {
-    val player = arguments.onlyElement()
+    val player = arguments.single()
     val prods: Map<ClassName, Int> = lookUpProductionLevels(game, player)
     val lowest = prods.values.min()
     val lowestProds = prods.filterValues { it == lowest }
@@ -33,7 +32,7 @@ object GainLowestProduction : CustomInstruction("gainLowestProduction") {
 // For Robotic Workforce
 object CopyProductionBox : CustomInstruction("copyProductionBox") {
   override fun translate(game: ReadOnlyGameState, arguments: List<TypeExpression>): Instruction {
-    val chosenCardName = arguments.onlyElement().asGeneric().root
+    val chosenCardName = arguments.single().asGeneric().root
     val def = game.authority.card(chosenCardName)
     val matches = def.immediateRaw
         ?.childNodesOfType<Transform>()

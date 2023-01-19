@@ -12,11 +12,6 @@ fun <T, K> Collection<T>.associateByStrict(x: (T) -> K): Map<K, T> {
   return map
 }
 
-fun <T : Any?> Collection<T>.onlyElement(): T {
-  require(size == 1) { this }
-  return first()
-}
-
 fun <C : Iterable<Any?>> C.toStrings(): List<String> = map { it?.toString() ?: "null" }
 
 fun <C : Sequence<Any?>> C.toStrings(): Sequence<String> = map { it?.toString() ?: "null" }

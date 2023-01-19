@@ -1,6 +1,5 @@
 package dev.martianzoo.tfm.api
 
-import dev.martianzoo.util.onlyElement
 import dev.martianzoo.util.toSetStrict
 import dev.martianzoo.util.toStrings
 
@@ -24,7 +23,7 @@ data class GameSetup(
 
   val map = authority.marsMapDefinitions
       .filter { it.bundle in bundles }
-      .onlyElement()
+      .single()
 
   val allDefinitions by lazy {
     authority.allDefinitions.filter { it.bundle in bundles }

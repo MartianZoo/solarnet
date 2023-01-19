@@ -5,14 +5,13 @@ import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.data.MarsMapDefinition.AreaDefinition
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.util.Grid
-import dev.martianzoo.util.onlyElement
 import dev.martianzoo.util.toStrings
 import org.junit.jupiter.api.Test
 
 class MarsMapDefinitionTest {
   @Test
   fun test() {
-    val map: MarsMapDefinition = JsonReader.readMaps(demo).onlyElement()
+    val map: MarsMapDefinition = JsonReader.readMaps(demo).single()
     assertThat(map.bundle).isEqualTo("D")
     assertThat(map.name).isEqualTo(cn("Demo"))
     assertThat(map.asClassDeclaration.superclassNames).containsExactly(cn("MarsMap"))
