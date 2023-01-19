@@ -16,13 +16,8 @@ object Engine {
     val loader = PetClassLoader(setup.authority)
     loader.autoLoadDependencies = true
 
-    val classes = setup.authority
-        .allDefinitions
-        .filter { it.bundle in setup.bundles } // TODO auth
-        .map { it.name }
-        .sorted()
-
-    loader.loadAll(classes)
+    val defns = setup.allDefinitions.map { it.name }.sorted()
+    loader.loadAll(defns)
 
     for (seat in 1..setup.players) {
       loader.load("Player$seat")

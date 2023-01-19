@@ -25,6 +25,10 @@ data class GameSetup(
   val map = authority.marsMapDefinitions
       .filter { it.bundle in bundles }
       .onlyElement()
+
+  val allDefinitions by lazy {
+    authority.allDefinitions.filter { it.bundle in bundles }
+  }
 }
 
 private fun splitLetters(bundles: String) =
