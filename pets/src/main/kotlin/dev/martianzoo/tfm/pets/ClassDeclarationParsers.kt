@@ -13,6 +13,8 @@ import com.github.h0tk3y.betterParse.parser.Parser
 import dev.martianzoo.tfm.data.ClassDeclaration
 import dev.martianzoo.tfm.data.ClassDeclaration.DefaultsDeclaration
 import dev.martianzoo.tfm.data.ClassDeclaration.DependencyDeclaration
+import dev.martianzoo.tfm.data.SHORT_NAMES
+import dev.martianzoo.tfm.data.shortName
 import dev.martianzoo.tfm.pets.ClassDeclarationParsers.Body.BodyElement
 import dev.martianzoo.tfm.pets.ClassDeclarationParsers.Body.BodyElement.ActionElement
 import dev.martianzoo.tfm.pets.ClassDeclarationParsers.Body.BodyElement.DefaultsElement
@@ -144,7 +146,7 @@ internal object ClassDeclarationParsers : PetParser() {
     ) : this(ClassDeclaration(
         abstract = true,
         name = className,
-        id = className,
+        id = shortName(className),
         dependencies = dependencies,
         topInvariant = topInvariant,
         supertypes = supertypes.toSetStrict()
