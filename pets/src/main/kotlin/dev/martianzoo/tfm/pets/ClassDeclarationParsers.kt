@@ -25,10 +25,10 @@ import dev.martianzoo.tfm.pets.SpecialClassNames.COMPONENT
 import dev.martianzoo.tfm.pets.SpecialClassNames.THIS
 import dev.martianzoo.tfm.pets.ast.Action
 import dev.martianzoo.tfm.pets.ast.ClassName
+import dev.martianzoo.tfm.pets.ast.ClassName.Parsing.classFullName
 import dev.martianzoo.tfm.pets.ast.Effect
 import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.pets.ast.TypeExpression.GenericTypeExpression
-import dev.martianzoo.tfm.pets.ast.TypeExpression.TypeParsers.classFullName
 import dev.martianzoo.tfm.pets.ast.TypeExpression.TypeParsers.genericType
 import dev.martianzoo.tfm.pets.ast.TypeExpression.TypeParsers.refinement
 import dev.martianzoo.tfm.pets.ast.TypeExpression.TypeParsers.typeExpression

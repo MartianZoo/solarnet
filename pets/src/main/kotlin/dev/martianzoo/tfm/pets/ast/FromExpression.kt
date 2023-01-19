@@ -11,8 +11,8 @@ import com.github.h0tk3y.betterParse.parser.Parser
 import dev.martianzoo.tfm.pets.Parsing
 import dev.martianzoo.tfm.pets.PetException
 import dev.martianzoo.tfm.pets.PetParser
+import dev.martianzoo.tfm.pets.ast.ClassName.Parsing.className
 import dev.martianzoo.tfm.pets.ast.TypeExpression.TypeParsers
-import dev.martianzoo.tfm.pets.ast.TypeExpression.TypeParsers.className
 import dev.martianzoo.tfm.pets.ast.TypeExpression.TypeParsers.genericType
 import dev.martianzoo.tfm.pets.ast.TypeExpression.TypeParsers.typeExpression
 import dev.martianzoo.util.joinOrEmpty

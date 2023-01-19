@@ -9,7 +9,7 @@ import com.github.h0tk3y.betterParse.grammar.parser
 import com.github.h0tk3y.betterParse.parser.Parser
 import dev.martianzoo.tfm.pets.Parsing
 import dev.martianzoo.tfm.pets.PetParser
-import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.tfm.pets.ast.ClassName.Parsing.className
 import dev.martianzoo.util.joinOrEmpty
 
 /**
@@ -68,10 +68,6 @@ sealed class TypeExpression : PetNode() {
   // being needed by the others. So we put them all in properties and pass the whole TypeParsers
   // object around.
   object TypeParsers : PetParser() {
-    val classShortName = _allCapsWordRE map { cn(it.text) }
-    val classFullName = _upperCamelRE map { cn(it.text) }
-    val className = classFullName // or classShortName -- why does that break everything?
-
     private val classLiteral =
         className and
         skipChar('.') and

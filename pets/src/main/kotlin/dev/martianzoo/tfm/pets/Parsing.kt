@@ -1,6 +1,5 @@
 package dev.martianzoo.tfm.pets
 
-import com.github.h0tk3y.betterParse.combinators.map
 import com.github.h0tk3y.betterParse.lexer.TokenMatch
 import com.github.h0tk3y.betterParse.lexer.TokenMatchesSequence
 import com.github.h0tk3y.betterParse.parser.AlternativesFailure

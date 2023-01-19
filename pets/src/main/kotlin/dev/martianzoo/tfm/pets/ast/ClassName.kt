@@ -1,5 +1,7 @@
 package dev.martianzoo.tfm.pets.ast
 
+import com.github.h0tk3y.betterParse.combinators.map
+import dev.martianzoo.tfm.pets.PetParser
 import dev.martianzoo.tfm.pets.ast.TypeExpression.ClassLiteral
 import dev.martianzoo.tfm.pets.ast.TypeExpression.GenericTypeExpression
 
@@ -31,4 +33,10 @@ data class ClassName(private val asString: String) : PetNode(), Comparable<Class
   override fun compareTo(other: ClassName) = asString.compareTo(other.asString)
 
   override val kind = "ClassName"
+
+  object Parsing : PetParser() {
+    val classShortName = _allCapsWordRE map { cn(it.text) }
+    val classFullName = _upperCamelRE map { cn(it.text) }
+    val className = classFullName // or classShortName -- why does that break everything?
+  }
 }
