@@ -3,14 +3,11 @@ package dev.martianzoo.tfm.types
 import dev.martianzoo.tfm.data.ClassDeclaration
 import dev.martianzoo.tfm.pets.SpecialClassNames.COMPONENT
 import dev.martianzoo.tfm.pets.ast.ClassName
-import dev.martianzoo.tfm.pets.ast.TypeExpression
-import dev.martianzoo.tfm.pets.replaceThis
 import dev.martianzoo.tfm.types.PetType.PetGenericType
 import dev.martianzoo.util.Debug.d
-import dev.martianzoo.util.toSetStrict
 
-class PetClass(
-    declaration: ClassDeclaration,
+data class PetClass(
+    private val declaration: ClassDeclaration,
     val directSuperclasses: List<PetClass>,
     private val loader: PetClassLoader,
 ) {
@@ -31,12 +28,12 @@ class PetClass(
   fun isSuperclassOf(that: PetClass) = that.isSubclassOf(this)
 
   val directSubclasses: Set<PetClass> by lazy {
-    require(loader.isFrozen())
+    require(loader.frozen)
     loader.loadedClasses().filter { this in it.directSuperclasses }.toSet().d("$this dirsubs")
   }
 
   val allSubclasses: Set<PetClass> by lazy {
-    require(loader.isFrozen())
+    require(loader.frozen)
     loader.loadedClasses().filter { this in it.allSuperclasses }.toSet()
   }
 
@@ -48,7 +45,7 @@ class PetClass(
     if (directSuperclasses.size < 2) {
       false
     } else {
-      require(loader.isFrozen())
+      require(loader.frozen)
       val sharesAllMySuperclasses = loader.loadedClasses().filter {
         directSuperclasses.all(it::isSubclassOf)
       }
@@ -100,15 +97,11 @@ class PetClass(
     PetGenericType(this, allDeps, null).d { "$this baseType: $it" }
   }
 
-  fun toDependencyMap(specs: List<TypeExpression>?) = specs?.let {
-    loader.resolve(name.addArgs(it)).dependencies
-  } ?: DependencyMap()
-
 // DEFAULTS
 
   val defaults: Defaults by lazy {
     val result = if (name == COMPONENT) {
-      Defaults.from(declaration.defaultsDeclaration, this)
+      Defaults.from(declaration.defaultsDeclaration, this, loader)
     } else {
       val rootDefaults = loader[COMPONENT].defaults
       defaultsIgnoringRoot.overlayOn(listOf(rootDefaults))
@@ -121,7 +114,7 @@ class PetClass(
     if (name == COMPONENT) {
       Defaults()
     } else {
-      Defaults.from(declaration.defaultsDeclaration, this)
+      Defaults.from(declaration.defaultsDeclaration, this, loader)
           .overlayOn(directSuperclasses.map { it.defaultsIgnoringRoot })
     }
   }
@@ -129,15 +122,5 @@ class PetClass(
 // EFFECTS
 
   val effectsRaw by declaration::effectsRaw
-
-// OTHER
-
-  override fun equals(other: Any?) =
-      other is PetClass &&
-      this.name == other.name &&
-      this.loader === other.loader
-
-  override fun hashCode() = name.hashCode() xor loader.hashCode()
-
   override fun toString() = "$name"
 }

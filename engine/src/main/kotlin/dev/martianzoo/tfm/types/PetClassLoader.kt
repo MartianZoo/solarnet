@@ -120,9 +120,8 @@ class PetClassLoader(private val authority: Authority) : PetClassTable {
 
 // FREEZING
 
-  private var frozen: Boolean = false
-
-  fun isFrozen() = frozen // TODO property only?
+  var frozen: Boolean = false
+    private set
 
   fun freeze(): PetClassTable {
     nameToClass.values.forEach { it!! }
