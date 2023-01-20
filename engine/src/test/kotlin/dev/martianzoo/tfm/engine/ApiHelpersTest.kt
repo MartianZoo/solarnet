@@ -6,7 +6,7 @@ import dev.martianzoo.tfm.api.lookUpProductionLevels
 import dev.martianzoo.tfm.api.standardResourceNames
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.pets.ast.ClassName
-import dev.martianzoo.tfm.pets.ast.TypeExpression
+import dev.martianzoo.tfm.pets.ast.TypeExpression.Companion.genericTypeExpression
 import dev.martianzoo.util.toStrings
 import org.junit.jupiter.api.Test
 
@@ -24,7 +24,7 @@ class ApiHelpersTest {
         ClassName.cn("Heat"), 0,
     )
 
-    game.applyChange(2, gaining = TypeExpression.genericTypeExpression("Production<Player1, Plant.CLASS>"))
+    game.applyChange(2, gaining = genericTypeExpression("Production<Player1, Plant.CLASS>"))
     val prods2: Map<ClassName, Int> = lookUpProductionLevels(game, ClassName.cn("Player1").type)
     assertThat(prods2).containsExactly(
         ClassName.cn("Megacredit"), -5,

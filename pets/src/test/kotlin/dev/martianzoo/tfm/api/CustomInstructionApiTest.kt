@@ -4,6 +4,7 @@ import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.tfm.data.StateChange.Cause
 import dev.martianzoo.tfm.pets.SpecialClassNames.OK
 import dev.martianzoo.tfm.pets.ast.Instruction
+import dev.martianzoo.tfm.pets.ast.Instruction.Companion.instruction
 import dev.martianzoo.tfm.pets.ast.Instruction.Gain
 import dev.martianzoo.tfm.pets.ast.ScalarAndType.Companion.sat
 import dev.martianzoo.tfm.pets.ast.TypeExpression
@@ -15,7 +16,7 @@ import org.junit.jupiter.api.Test
  * through [Instruction.Custom].
  */
 class CustomInstructionApiTest {
-  val instruction = Instruction.instruction("@foo()")
+  val instruction = instruction("@foo()")
   val dumb = Gain(sat(1, OK.type))
 
   private fun fakeAuthority(custom: CustomInstruction) =

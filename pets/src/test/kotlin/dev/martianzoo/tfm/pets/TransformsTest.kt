@@ -10,6 +10,7 @@ import dev.martianzoo.tfm.pets.ast.Effect
 import dev.martianzoo.tfm.pets.ast.Effect.Companion.effect
 import dev.martianzoo.tfm.pets.ast.Effect.Trigger
 import dev.martianzoo.tfm.pets.ast.Instruction
+import dev.martianzoo.tfm.pets.ast.Instruction.Companion.instruction
 import dev.martianzoo.tfm.pets.ast.Instruction.Gain
 import dev.martianzoo.tfm.pets.ast.Instruction.Per
 import dev.martianzoo.tfm.pets.ast.PetNode
@@ -36,10 +37,6 @@ private class TransformsTest {
     checkActionToEffect("Plant -> Plant", 2, "UseAction2<This>: Plant FROM Plant")
   }
 
-  private fun checkActionToEffect(action: String, index: Int, effect: String) {
-    assertThat(actionToEffect(action(action), index)).isEqualTo(effect(effect))
-  }
-
   @Test
   fun testActionsToEffects() {
     val actions: List<Action> = listOf("-> Foo", "Foo -> 5 Bar").map(::action)
@@ -56,14 +53,15 @@ private class TransformsTest {
     checkImmediateToEffect("Foo: Bar", "This: (Foo: Bar)")
   }
 
-  private fun checkImmediateToEffect(immediate: String, effect: String) {
-    assertThat(immediateToEffect(Instruction.instruction(immediate)))
-        .isEqualTo(effect(effect))
-  }
+  private fun checkActionToEffect(action: String, index: Int, effect: String) =
+      assertThat(actionToEffect(action(action), index)).isEqualTo(effect(effect))
+
+  private fun checkImmediateToEffect(immediate: String, effect: String) =
+      assertThat(immediateToEffect(instruction(immediate))).isEqualTo(effect(effect))
 
   @Test
   fun testFindAllClassNames() {
-    val instr = Instruction.instruction("@foo(Bar, Qux<Dog>)")
+    val instr = instruction("@foo(Bar, Qux<Dog>)")
     assertThat(instr.childNodesOfType<ClassName>().toStrings())
         .containsExactly("Bar", "Qux", "Dog")
   }

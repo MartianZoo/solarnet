@@ -4,7 +4,7 @@ import dev.martianzoo.tfm.api.Authority
 import dev.martianzoo.tfm.api.GameSetup
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.tfm.pets.ast.Instruction
+import dev.martianzoo.tfm.pets.ast.Instruction.Companion.instruction
 import dev.martianzoo.tfm.pets.ast.Requirement.Companion.requirement
 import dev.martianzoo.tfm.pets.ast.TypeExpression.Companion.typeExpression
 import dev.martianzoo.tfm.types.PetClass
@@ -79,7 +79,7 @@ class ReplSession(val authority: Authority) {
 
       "exec" to {
         it?.let { args ->
-          val instr = session.execute(Instruction.instruction(args))
+          val instr = session.execute(instruction(args))
           listOf("Ok: $instr")
         } ?: listOf("Usage: exec <Instruction>")
       },

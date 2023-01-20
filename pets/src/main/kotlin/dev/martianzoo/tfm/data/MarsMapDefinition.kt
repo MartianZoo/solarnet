@@ -7,6 +7,7 @@ import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.Effect
 import dev.martianzoo.tfm.pets.ast.Effect.Trigger.OnGain
 import dev.martianzoo.tfm.pets.ast.Instruction
+import dev.martianzoo.tfm.pets.ast.Instruction.Companion.instruction
 import dev.martianzoo.util.Grid
 
 data class MarsMapDefinition(
@@ -59,7 +60,7 @@ data class MarsMapDefinition(
     }
 
     val bonus: Instruction? by lazy {
-      bonusText?.let { Instruction.instruction(it) }
+      bonusText?.let(::instruction)
     }
 
     override val asClassDeclaration by lazy {
