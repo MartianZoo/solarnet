@@ -13,7 +13,6 @@ import com.github.h0tk3y.betterParse.parser.Parser
 import dev.martianzoo.tfm.data.ClassDeclaration
 import dev.martianzoo.tfm.data.ClassDeclaration.DefaultsDeclaration
 import dev.martianzoo.tfm.data.ClassDeclaration.DependencyDeclaration
-import dev.martianzoo.tfm.data.SHORT_NAMES
 import dev.martianzoo.tfm.data.shortName
 import dev.martianzoo.tfm.pets.ClassDeclarationParsers.Body.BodyElement
 import dev.martianzoo.tfm.pets.ClassDeclarationParsers.Body.BodyElement.ActionElement
@@ -21,8 +20,10 @@ import dev.martianzoo.tfm.pets.ClassDeclarationParsers.Body.BodyElement.Defaults
 import dev.martianzoo.tfm.pets.ClassDeclarationParsers.Body.BodyElement.EffectElement
 import dev.martianzoo.tfm.pets.ClassDeclarationParsers.Body.BodyElement.InvariantElement
 import dev.martianzoo.tfm.pets.ClassDeclarationParsers.Body.BodyElement.NestedDeclGroup
-import dev.martianzoo.tfm.pets.ClassDeclarationParsers.Declarations.nestedGroup
+import dev.martianzoo.tfm.pets.ClassDeclarationParsers.BodyElements.bodyElementExceptNestedClasses
 import dev.martianzoo.tfm.pets.ClassDeclarationParsers.NestableDecl.IncompleteNestableDecl
+import dev.martianzoo.tfm.pets.ClassDeclarationParsers.Signatures.moreSignatures
+import dev.martianzoo.tfm.pets.ClassDeclarationParsers.Signatures.signature
 import dev.martianzoo.tfm.pets.SpecialClassNames.COMPONENT
 import dev.martianzoo.tfm.pets.SpecialClassNames.THIS
 import dev.martianzoo.tfm.pets.ast.Action
@@ -39,8 +40,26 @@ import dev.martianzoo.util.plus
 import dev.martianzoo.util.toSetStrict
 
 /** Parses the Petaform language. */
-internal object ClassDeclarationParsers : PetParser() {
+public object ClassDeclarationParsers : PetParser() {
+
+  /**
+   * Parses a section of `components.pets` etc.
+   */
+  public val topLevelDeclarationGroup = parser { Declarations.topLevelGroup }
+
+  /**
+   * Parses a one-line declaration such as found in `cards.json5` for cards like B10 (UNMI).
+   */
+  public val oneLineDeclaration = parser { Declarations.oneLineDecl }
+
+  // end public API
+
   internal val nls = zeroOrMore(char('\n'))
+
+  /*
+   * These objects like [Signatures] are purely for grouping and to limit visibility of the fine
+   * grained detailes never needed again.
+   */
 
   internal object Signatures {
 
@@ -50,18 +69,24 @@ internal object ClassDeclarationParsers : PetParser() {
         skipChar('>')
     )
 
-    private val supertypes: Parser<List<GenericTypeExpression>> =
+    private val supertypeList: Parser<List<GenericTypeExpression>> =
         optionalList(skipChar(':') and commaSeparated(genericType))
 
+    /*
+     * TODO I want to support letting classes declare a shortName as well, like
+     *   CLASS OxygenStep[O2] ...
+     * That's commented out below because it's blowing everything up
+     */
     val signature: Parser<Signature> =
-        parser { classFullName } and
+        parser { classFullName } and // `parser` is just for breaking initialization cycles
         dependencies and
         optional(parser { refinement }) and
-        // optional(skipChar('[') and parser {Types.classShortName} and skipChar(']')) and
-        supertypes map { (name, deps, refin, supes) ->
-          Signature(name, deps, refin, supes)
+        // optional(skipChar('[') and parser { classShortName } and skipChar(']')) and
+        supertypeList map { (name, deps, refin, /*short,*/ supes) ->
+          Signature(name, deps, refin, /*short,*/ supes)
         }
 
+    // This should only be included in the bodyless case
     val moreSignatures: Parser<MoreSignatures> =
         zeroOrMore(skipChar(',') and signature) map ::MoreSignatures
   }
@@ -86,56 +111,59 @@ internal object ClassDeclarationParsers : PetParser() {
     private val default: Parser<DefaultsDeclaration> =
         skip(_default) and (gainOnlyDefaults or allCasesDefault)
 
-
-    val bodyElementNoClass: Parser<BodyElement> =
+    val bodyElementExceptNestedClasses: Parser<BodyElement> =
         (invariant map ::InvariantElement) or
         (default map ::DefaultsElement) or
         (Effect.parser() map ::EffectElement) or
         (Action.parser() map ::ActionElement)
-
-    val bodyElement: Parser<BodyElement> = bodyElementNoClass or parser { nestedGroup }
   }
 
   internal object Declarations {
-    private val isAbstract: Parser<Boolean> = optional(_abstract) and skip(_class) map { it != null }
+    private val isAbstract: Parser<Boolean> =
+        optional(_abstract) and skip(_class) map { it != null }
+
+    val bodyElement = bodyElementExceptNestedClasses or parser { nestedGroup }
 
     private val multilineBodyInterior: Parser<Body> =
-        separatedTerms(BodyElements.bodyElement, oneOrMore(char('\n')), acceptZero = true) map ::Body
+        separatedTerms(bodyElement, oneOrMore(char('\n')), acceptZero = true) map ::Body
 
     private val multilineBody: Parser<Body> =
         skipChar('{') and skip(nls) and
-            multilineBodyInterior and
-            skip(nls) and skipChar('}')
+        multilineBodyInterior and
+        skip(nls) and skipChar('}')
 
     private val nestableGroup: Parser<NestableDeclGroup> =
         skip(nls) and
-            isAbstract and
-            Signatures.signature and
-            (multilineBody or Signatures.moreSignatures) map {
+        isAbstract and
+        signature and
+        (multilineBody or moreSignatures) map {
           (abs, sig, bodyOrSigs) -> bodyOrSigs.convert(abs, sig)
         }
 
-    // they not just *can* be nested, they *are* nested
+    // a declaration group that can be nested, that in this case *IS* nested
     val nestedGroup: Parser<NestedDeclGroup> = nestableGroup map ::NestedDeclGroup
 
-    // they *can* be nested, but they are *not*
+    // a declaration group that could've been nested but is *NOT*
     val topLevelGroup: Parser<List<ClassDeclaration>> = nestableGroup map { it.finishAll() }
 
     // For CardDefinition
 
     private val oneLineBody: Parser<Body> =
         skipChar('{') and
-            separatedTerms(BodyElements.bodyElementNoClass, char(';')) and
-            skipChar('}') map ::Body
+        separatedTerms(bodyElementExceptNestedClasses, char(';')) and
+        skipChar('}') map ::Body
 
     val oneLineDecl: Parser<ClassDeclaration> =
-        isAbstract and Signatures.signature and optional(oneLineBody) map { (abs, sig, body) ->
+        isAbstract and
+        signature and
+        optional(oneLineBody) map { (abs, sig, body) ->
           NestableDeclGroup(abs, sig, body ?: Body()).finishOnlyDecl()
         }
   }
 
-  val topLevelGroup = Declarations.topLevelGroup
-  val oneLineDecl = Declarations.oneLineDecl
+  /*
+   * The rest of the file is temporary types used only during parsing
+   */
 
   internal data class Signature(val asClassDecl: ClassDeclaration) {
     constructor(

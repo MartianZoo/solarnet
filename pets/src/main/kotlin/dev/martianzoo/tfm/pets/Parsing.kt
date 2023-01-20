@@ -12,9 +12,9 @@ import com.github.h0tk3y.betterParse.parser.Parser
 import com.github.h0tk3y.betterParse.parser.UnexpectedEof
 import com.github.h0tk3y.betterParse.parser.parseToEnd
 import dev.martianzoo.tfm.data.ClassDeclaration
-import dev.martianzoo.tfm.pets.ClassDeclarationParsers.oneLineDecl
+import dev.martianzoo.tfm.pets.ClassDeclarationParsers.oneLineDeclaration
 import dev.martianzoo.tfm.pets.ClassDeclarationParsers.tokenize
-import dev.martianzoo.tfm.pets.ClassDeclarationParsers.topLevelGroup
+import dev.martianzoo.tfm.pets.ClassDeclarationParsers.topLevelDeclarationGroup
 import dev.martianzoo.tfm.pets.ast.Action
 import dev.martianzoo.tfm.pets.ast.Action.Cost
 import dev.martianzoo.tfm.pets.ast.Effect
@@ -73,14 +73,14 @@ object Parsing {
       parsePets(expectedType.kotlin, source)
 
   fun parseOneLineClassDeclaration(declarationSource: String): ClassDeclaration {
-    return parse(oneLineDecl, declarationSource)
+    return parse(oneLineDeclaration, declarationSource)
   }
   /**
    * Parses an entire PETS class declarations source file.
    */
   fun parseClassDeclarations(declarationsSource: String): List<ClassDeclaration> {
     val tokens = tokenize(stripLineComments(declarationsSource))
-    return parseRepeated(topLevelGroup, tokens)
+    return parseRepeated(topLevelDeclarationGroup, tokens)
   }
 
   fun <T> parse(parser: Parser<T>, source: String): T {
