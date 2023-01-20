@@ -35,7 +35,7 @@ tasks {
   named<ShadowJar>("shadowJar") {
     mergeServiceFiles()
     manifest {
-      attributes(mapOf("Main-Class" to "dev.martianzoo.tfm.repl.MainKt"))
+      attributes(mapOf("Main-Class" to "dev.martianzoo.tfm.repl.ReplSessionKt"))
     }
   }
 }

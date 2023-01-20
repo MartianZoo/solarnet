@@ -2,19 +2,23 @@ package dev.martianzoo.tfm.repl
 
 import dev.martianzoo.tfm.api.Authority
 import dev.martianzoo.tfm.api.GameSetup
+import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.pets.ast.Instruction
 import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.pets.ast.TypeExpression
 import dev.martianzoo.tfm.types.PetClass
 import dev.martianzoo.util.toStrings
-
-typealias ReplCommand = (String?) -> List<String>
+import org.jline.reader.EndOfFileException
+import org.jline.reader.LineReaderBuilder
+import org.jline.reader.impl.history.DefaultHistory
+import org.jline.terminal.TerminalBuilder
+import org.jline.utils.InfoCmp.Capability
 
 class ReplSession(val authority: Authority) {
   private val session = InteractiveSession(authority)
 
-  val commands = mapOf<String, ReplCommand>(
+  val commands = mapOf<String, (String?) -> List<String>>(
       "help" to { listOf(HELP.trimIndent()) },
 
       "newgame" to {
@@ -112,6 +116,42 @@ class ReplSession(val authority: Authority) {
     return commands[command]?.invoke(args) ?: commands["exec"]!!(command + (args ?: ""))
   }
 
+}
+
+val INPUT_REGEX = Regex("""^\s*(\S+)(.*)$""")
+
+fun main() {
+  val terminal = TerminalBuilder.builder()
+      .color(true)
+      .build()
+
+  terminal.enterRawMode()
+  terminal.puts(Capability.enter_ca_mode)
+  terminal.puts(Capability.keypad_xmit)
+
+  val reader = LineReaderBuilder.builder()
+      .terminal(terminal)
+      .history(DefaultHistory())
+      .build()
+  reader.readLine("Welcome to REgo PLastics! Press enter.")
+
+  val repl = ReplSession(Canon)
+  repl.command("newgame BM 2").forEach(::println)
+
+  while (true) {
+    val inputLine = try {
+      reader.readLine("> ")
+    } catch (e: EndOfFileException) {
+      return
+    }
+    val results = try {
+      repl.command(inputLine)
+    } catch (e: Exception) {
+      listOf("${e::class}: ${e.message}")
+    }
+    results.forEach(::println)
+    println()
+  }
 }
 
 const val HELP = """
