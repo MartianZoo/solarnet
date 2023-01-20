@@ -35,7 +35,7 @@ data class ClassName(private val asString: String) : PetNode(), Comparable<Class
   override val kind = "ClassName"
 
   object Parsing : PetParser() {
-    val classShortName = _allCapsWordRE map { cn(it.text) }
+    val classShortName = _allCapsWordRE map { cn(it.text) } // currently unused
     val classFullName = _upperCamelRE map { cn(it.text) }
     val className = classFullName // or classShortName -- why does that break everything?
   }

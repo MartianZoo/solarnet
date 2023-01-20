@@ -2,6 +2,7 @@ package dev.martianzoo.tfm.pets.ast
 
 import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.tfm.pets.ast.TypeExpression.Companion.typeExpression
 import dev.martianzoo.tfm.pets.testRoundTrip
 import org.junit.jupiter.api.Test
 
@@ -12,7 +13,7 @@ private class TypeExpressionTest {
 
   @Test
   fun simpleSourceToApi() {
-    val foo = TypeExpression.from("Foo")
+    val foo = typeExpression("Foo")
     assertThat(foo).isEqualTo(cn("Foo").type)
   }
 
@@ -39,7 +40,7 @@ private class TypeExpressionTest {
 
   @Test
   fun complexSourceToApi() {
-    val parsed = TypeExpression.from(" Red< Blue  < This,Teal> , Gold > ")
+    val parsed = typeExpression(" Red< Blue  < This,Teal> , Gold > ")
     assertThat(parsed).isEqualTo(cn("Red").addArgs(cn("Blue").addArgs(cn("This").type,
         cn("Teal").type), cn("Gold").type))
   }

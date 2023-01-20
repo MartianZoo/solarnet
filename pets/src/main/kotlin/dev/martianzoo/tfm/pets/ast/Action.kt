@@ -82,6 +82,8 @@ data class Action(val cost: Cost?, val instruction: Instruction) : PetNode() {
     }
 
     companion object : PetParser() {
+      fun cost(text: String): Cost = Parsing.parse(parser(), text)
+
       fun parser(): Parser<Cost> {
         return parser {
           val sat = ScalarAndType.parser()
@@ -110,8 +112,9 @@ data class Action(val cost: Cost?, val instruction: Instruction) : PetNode() {
   }
 
   companion object : PetParser() {
-    fun from(text: String) = Parsing.parse(parser(), text)
-    internal fun parser() =
+    fun action(text: String): Action = Parsing.parse(parser(), text)
+
+    internal fun parser(): Parser<Action> =
         optional(Cost.parser()) and
         skip(_arrow) and
         Instruction.parser() map { (c, i) -> Action(c, i) }

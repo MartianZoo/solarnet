@@ -9,8 +9,10 @@ import dev.martianzoo.tfm.data.StateChange.Cause
 import dev.martianzoo.tfm.engine.ComponentGraph.Component
 import dev.martianzoo.tfm.pets.ast.Instruction
 import dev.martianzoo.tfm.pets.ast.Requirement
+import dev.martianzoo.tfm.pets.ast.Requirement.Companion.requirement
 import dev.martianzoo.tfm.pets.ast.TypeExpression
 import dev.martianzoo.tfm.pets.ast.TypeExpression.ClassLiteral
+import dev.martianzoo.tfm.pets.ast.TypeExpression.Companion.typeExpression
 import dev.martianzoo.tfm.pets.ast.TypeExpression.GenericTypeExpression
 import dev.martianzoo.tfm.types.PetClassTable
 import dev.martianzoo.tfm.types.PetType
@@ -27,11 +29,11 @@ class Game(
   val changeLog by components::changeLog
 
   override fun resolve(type: TypeExpression): PetType = classTable.resolve(type)
-  override fun resolve(typeText: String) = resolve(TypeExpression.from(typeText))
+  override fun resolve(typeText: String) = resolve(typeExpression(typeText))
 
   fun count(type: PetType) = components.count(type)
 
-  fun execute(instr: String) = execute(Instruction.from(instr))
+  fun execute(instr: String) = execute(Instruction.instruction(instr))
   fun execute(instr: Instruction) = instr.execute(this)
 
   override fun count(type: TypeExpression) = count(resolve(type))
@@ -61,10 +63,10 @@ class Game(
         .toSetStrict()
   }
 
-  override fun getAll(typeText: String) = getAll(TypeExpression.from(typeText))
+  override fun getAll(typeText: String) = getAll(typeExpression(typeText))
 
   override fun isMet(requirement: Requirement) = requirement.evaluate(this)
-  fun isMet(requirementText: String) = isMet(Requirement.from(requirementText))
+  fun isMet(requirementText: String) = isMet(requirement(requirementText))
 
   override fun applyChange(
       count: Int,

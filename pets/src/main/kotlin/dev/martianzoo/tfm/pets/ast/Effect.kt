@@ -52,6 +52,8 @@ data class Effect(
     }
 
     companion object : PetParser() {
+      fun trigger(text: String): Trigger = Parsing.parse(parser(), text)
+
       fun parser(): Parser<Trigger> {
         val onGain = genericType map Trigger::OnGain
         val onRemove = skipChar('-') and genericType map Trigger::OnRemove
@@ -65,7 +67,7 @@ data class Effect(
   }
 
   companion object : PetParser() {
-    fun from(text: String) = Parsing.parse(parser(), text)
+    fun effect(text: String): Effect = Parsing.parse(parser(), text)
 
     fun parser(): Parser<Effect> {
       val colons = _doubleColon or char(':') map { it.text == "::" }

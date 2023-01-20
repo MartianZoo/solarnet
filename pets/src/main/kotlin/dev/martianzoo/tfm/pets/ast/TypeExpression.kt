@@ -19,8 +19,10 @@ import dev.martianzoo.util.joinOrEmpty
  */
 sealed class TypeExpression : PetNode() {
   companion object {
-    fun from(text: String): TypeExpression = Parsing.parse(TypeParsers.typeExpression, text)
-    fun fromGeneric(text: String): GenericTypeExpression =
+    fun typeExpression(text: String): TypeExpression =
+        Parsing.parse(TypeParsers.typeExpression, text)
+
+    fun genericTypeExpression(text: String): GenericTypeExpression =
         Parsing.parse(TypeParsers.genericType, text)
   }
 

@@ -88,7 +88,7 @@ private class InstructionTest {
     testRoundTrip("3 Foo FROM Bar")
     testRoundTrip("1 Foo FROM Bar.")
 
-    assertThat(Instruction.from("1 Foo FROM Bar."))
+    assertThat(Instruction.instruction("1 Foo FROM Bar."))
         .isEqualTo(Transmute(SimpleFrom(cn("Foo").type, cn("Bar").type), 1, AMAP))
     testRoundTrip("Foo<Bar FROM Qux>")
     testRoundTrip("Foo<Bar FROM Qux>.")
@@ -100,7 +100,7 @@ private class InstructionTest {
         ))),
     ), null, null)
     assertThat(instr.toString()).isEqualTo("Foo<Bar<Qux FROM Abc<Eep>>>")
-    assertThat(Instruction.from("Foo<Bar<Qux FROM Abc<Eep>>>")).isEqualTo(instr)
+    assertThat(Instruction.instruction("Foo<Bar<Qux FROM Abc<Eep>>>")).isEqualTo(instr)
   }
 
   @Test

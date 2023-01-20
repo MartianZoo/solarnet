@@ -59,7 +59,7 @@ data class MarsMapDefinition(
     }
 
     val bonus: Instruction? by lazy {
-      bonusText?.let { Instruction.from(it) }
+      bonusText?.let { Instruction.instruction(it) }
     }
 
     override val asClassDeclaration by lazy {

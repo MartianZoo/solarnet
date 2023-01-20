@@ -72,20 +72,7 @@ sealed class Requirement : PetNode() {
   override val kind = "Requirement"
 
   companion object : PetParser() {
-    fun from(text: String) = Parsing.parse(parser(), text)
-
-    internal fun atomParser(): Parser<Requirement> { //
-      return parser {
-        val sat = ScalarAndType.parser()
-        val min = sat map ::Min
-        val max = skip(_max) and sat map ::Max
-        val exact = skipChar('=') and sat map ::Exact
-        val transform = transform(parser()) map { (node, type) ->
-          Transform(node, type)
-        }
-        min or max or exact or transform or group(parser())
-      }
-    }
+    fun requirement(text: String) = Parsing.parse(parser(), text)
 
     internal fun parser(): Parser<Requirement> {
       return parser {
@@ -96,6 +83,20 @@ sealed class Requirement : PetNode() {
         commaSeparated(orReq) map {
           if (it.size == 1) it.first() else And(it)
         }
+      }
+    }
+
+    /** A requirement suitable for being nested directly in something else. */
+    internal fun atomParser(): Parser<Requirement> {
+      return parser {
+        val sat = ScalarAndType.parser()
+        val min = sat map ::Min
+        val max = skip(_max) and sat map ::Max
+        val exact = skipChar('=') and sat map ::Exact
+        val transform = transform(parser()) map { (node, type) ->
+          Transform(node, type)
+        }
+        min or max or exact or transform or group(parser())
       }
     }
   }

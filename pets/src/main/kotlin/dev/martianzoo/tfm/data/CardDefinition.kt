@@ -14,14 +14,16 @@ import dev.martianzoo.tfm.data.SpecialClassNames.RESOURCEFUL_CARD
 import dev.martianzoo.tfm.pets.Parsing.parseOneLineClassDeclaration
 import dev.martianzoo.tfm.pets.SpecialClassNames.END
 import dev.martianzoo.tfm.pets.actionsToEffects
-import dev.martianzoo.tfm.pets.ast.Action
+import dev.martianzoo.tfm.pets.ast.Action.Companion.action
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.pets.ast.Effect
+import dev.martianzoo.tfm.pets.ast.Effect.Companion.effect
 import dev.martianzoo.tfm.pets.ast.Instruction
+import dev.martianzoo.tfm.pets.ast.Instruction.Companion.instruction
 import dev.martianzoo.tfm.pets.ast.PetNode
 import dev.martianzoo.tfm.pets.ast.Requirement
-import dev.martianzoo.tfm.pets.ast.TypeExpression
+import dev.martianzoo.tfm.pets.ast.Requirement.Companion.requirement
 import dev.martianzoo.tfm.pets.ast.TypeExpression.GenericTypeExpression
 import dev.martianzoo.tfm.pets.immediateToEffect
 import dev.martianzoo.util.toSetStrict
@@ -162,16 +164,16 @@ data class CardDefinition(
   val resourceType: ClassName? = resourceTypeText?.let(::cn)
 
   val immediateRaw: Instruction? by lazy {
-    immediateText?.let { Instruction.from(it) }
+    immediateText?.let(::instruction)
   }
   val actionsRaw by lazy {
-    actionsText.map { Action.from(it) }
+    actionsText.map(::action)
   }
   val effectsRaw by lazy {
-    effectsText.map { Effect.from(it) }.toSetStrict()
+    effectsText.map(::effect).toSetStrict()
   }
   val requirementRaw: Requirement? by lazy {
-    requirementText?.let { Requirement.from(it) }
+    requirementText?.let(::requirement)
   }
 
   // This doesn't get converted to an effect (yet??) so we have to canonicalize

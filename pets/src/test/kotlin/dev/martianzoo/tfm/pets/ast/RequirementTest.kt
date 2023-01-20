@@ -3,6 +3,7 @@ package dev.martianzoo.tfm.pets.ast
 import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.tfm.api.StubGameState
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.tfm.pets.ast.Requirement.Companion.requirement
 import dev.martianzoo.tfm.pets.ast.Requirement.Max
 import dev.martianzoo.tfm.pets.ast.Requirement.Min
 import dev.martianzoo.tfm.pets.ast.ScalarAndType.Companion.sat
@@ -84,9 +85,9 @@ private class RequirementTest {
 
   @Test
   fun simpleSourceToApi() {
-    assertThat(Requirement.from("Foo")).isEqualTo(Min(sat(type = cn("Foo").type)))
-    assertThat(Requirement.from("3 Foo")).isEqualTo(Min(sat(3, cn("Foo").type)))
-    assertThat(Requirement.from("MAX 3 Foo")).isEqualTo(Max(sat(3, cn("Foo").type)))
+    assertThat(requirement("Foo")).isEqualTo(Min(sat(type = cn("Foo").type)))
+    assertThat(requirement("3 Foo")).isEqualTo(Min(sat(3, cn("Foo").type)))
+    assertThat(requirement("MAX 3 Foo")).isEqualTo(Max(sat(3, cn("Foo").type)))
   }
 
   @Test
@@ -133,7 +134,7 @@ private class RequirementTest {
 
   @Test
   fun hairy() {
-    val parsed = Requirement.from(
+    val parsed = requirement(
         "Adjacency<CityTile<Anyone>, OceanTile> OR 1 Adjacency<OceanTile, CityTile<Anyone>>")
     assertThat(parsed).isEqualTo(Requirement.Or(setOf(Min(sat(type = cn("Adjacency").addArgs(
         cn("CityTile").addArgs(cn("Anyone").type),
@@ -153,7 +154,7 @@ private class RequirementTest {
     override fun isMet(requirement: Requirement) = requirement.evaluate(this)
   }
 
-  fun evalRequirement(s: String) = assertThat(Requirement.from(s).evaluate(FakeGame))!!
+  fun evalRequirement(s: String) = assertThat(requirement(s).evaluate(FakeGame))!!
 
   @Test
   fun evaluation() {

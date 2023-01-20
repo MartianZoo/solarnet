@@ -61,7 +61,7 @@ sealed class FromExpression : PetNode() {
   }
 
   companion object : PetParser() {
-    fun from(text: String) = Parsing.parse(parser(), text)
+    fun from(text: String): FromExpression = Parsing.parse(parser(), text)
 
     internal fun parser(): Parser<FromExpression> {
       return parser {

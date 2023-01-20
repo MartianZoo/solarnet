@@ -1,6 +1,7 @@
 package dev.martianzoo.tfm.api
 
 import dev.martianzoo.tfm.pets.ast.Instruction
+import dev.martianzoo.tfm.pets.ast.Instruction.Companion.instruction
 import dev.martianzoo.tfm.pets.ast.TypeExpression
 
 abstract class CustomInstruction(val functionName: String) {
@@ -8,7 +9,7 @@ abstract class CustomInstruction(val functionName: String) {
 
   /** Preferred! */
   open fun translate(game: ReadOnlyGameState, arguments: List<TypeExpression>): Instruction {
-    return Instruction.from(translateToPets(game, arguments))
+    return instruction(translateToPets(game, arguments))
   }
 
   /** Second choice! */

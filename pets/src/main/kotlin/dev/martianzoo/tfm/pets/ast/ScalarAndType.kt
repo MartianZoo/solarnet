@@ -31,7 +31,7 @@ data class ScalarAndType(
     fun sat(scalar: Int = 1, type: TypeExpression = MEGACREDIT.type) =
         ScalarAndType(scalar, type)
 
-    fun from(text: String) = Parsing.parse(parser(), text)
+    fun sat(text: String) = Parsing.parse(parser(), text)
 
     fun parser(): Parser<ScalarAndType> {
       return parser {

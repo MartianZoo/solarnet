@@ -1,6 +1,5 @@
 package dev.martianzoo.tfm.engine
 
-import com.google.common.truth.Truth
 import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.tfm.api.GameSetup
 import dev.martianzoo.tfm.api.lookUpProductionLevels
@@ -25,7 +24,7 @@ class ApiHelpersTest {
         ClassName.cn("Heat"), 0,
     )
 
-    game.applyChange(2, gaining = TypeExpression.fromGeneric("Production<Player1, Plant.CLASS>"))
+    game.applyChange(2, gaining = TypeExpression.genericTypeExpression("Production<Player1, Plant.CLASS>"))
     val prods2: Map<ClassName, Int> = lookUpProductionLevels(game, ClassName.cn("Player1").type)
     assertThat(prods2).containsExactly(
         ClassName.cn("Megacredit"), -5,

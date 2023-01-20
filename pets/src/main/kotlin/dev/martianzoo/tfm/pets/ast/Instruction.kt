@@ -246,7 +246,7 @@ sealed class Instruction : PetNode() {
   }
 
   companion object : PetParser() {
-    fun from(text: String) = Parsing.parse(parser(), text)
+    fun instruction(text: String): Instruction = Parsing.parse(parser(), text)
 
     internal fun parser(): Parser<Instruction> {
       return parser {

@@ -10,6 +10,7 @@ import dev.martianzoo.tfm.pets.ast.Effect.Trigger.OnGain
 import dev.martianzoo.tfm.pets.ast.Instruction.Gain
 import dev.martianzoo.tfm.pets.ast.Instruction.Gated
 import dev.martianzoo.tfm.pets.ast.Requirement
+import dev.martianzoo.tfm.pets.ast.Requirement.Companion.requirement
 import dev.martianzoo.tfm.pets.ast.ScalarAndType.Companion.sat
 
 data class MilestoneDefinition(
@@ -28,7 +29,7 @@ data class MilestoneDefinition(
   }
 
   val requirement: Requirement by lazy {
-    Requirement.from(requirementText)
+    requirement(requirementText)
   }
 
   override val name = englishHack(id)

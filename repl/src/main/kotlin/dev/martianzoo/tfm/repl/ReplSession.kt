@@ -5,8 +5,8 @@ import dev.martianzoo.tfm.api.GameSetup
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.pets.ast.Instruction
-import dev.martianzoo.tfm.pets.ast.Requirement
-import dev.martianzoo.tfm.pets.ast.TypeExpression
+import dev.martianzoo.tfm.pets.ast.Requirement.Companion.requirement
+import dev.martianzoo.tfm.pets.ast.TypeExpression.Companion.typeExpression
 import dev.martianzoo.tfm.types.PetClass
 import dev.martianzoo.util.toStrings
 import org.jline.reader.EndOfFileException
@@ -45,20 +45,20 @@ class ReplSession(val authority: Authority) {
 
       "count" to {
         it?.let { args ->
-          val type = session.fixTypes(TypeExpression.from(args))
+          val type = session.fixTypes(typeExpression(args))
           val count = session.count(type)
           listOf("$count $type")
         } ?: listOf("Usage: count <TypeExpression>")
       },
 
       "list" to { args ->
-        session.list(TypeExpression.from(args!!))
+        session.list(typeExpression(args!!))
         listOf()
       },
 
       "has" to {
         it?.let { args ->
-          val fixed = session.fixTypes(Requirement.from(args))
+          val fixed = session.fixTypes(requirement(args))
           val result = session.has(fixed)
           listOf("$result: $fixed")
         } ?: listOf("Usage: has <Requirement>")
@@ -79,7 +79,7 @@ class ReplSession(val authority: Authority) {
 
       "exec" to {
         it?.let { args ->
-          val instr = session.execute(Instruction.from(args))
+          val instr = session.execute(Instruction.instruction(args))
           listOf("Ok: $instr")
         } ?: listOf("Usage: exec <Instruction>")
       },

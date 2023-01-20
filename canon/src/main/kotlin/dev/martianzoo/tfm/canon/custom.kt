@@ -6,6 +6,7 @@ import dev.martianzoo.tfm.api.lookUpProductionLevels
 import dev.martianzoo.tfm.pets.PetException
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.Instruction
+import dev.martianzoo.tfm.pets.ast.Instruction.Companion.instruction
 import dev.martianzoo.tfm.pets.ast.Instruction.Transform
 import dev.martianzoo.tfm.pets.ast.TypeExpression
 
@@ -25,7 +26,7 @@ object GainLowestProduction : CustomInstruction("gainLowestProduction") {
         .keys
         .map { "$it<$player>" }
         .joinToString(" OR ")
-    return Instruction.from("PROD[$lowestProds]")
+    return instruction("PROD[$lowestProds]")
   }
 }
 
