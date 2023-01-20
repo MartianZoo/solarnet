@@ -2,32 +2,17 @@ package dev.martianzoo.tfm.repl
 
 import dev.martianzoo.tfm.api.Authority
 import dev.martianzoo.tfm.api.GameSetup
-import dev.martianzoo.tfm.engine.Engine
-import dev.martianzoo.tfm.engine.Game
-import dev.martianzoo.tfm.pets.PetNodeVisitor
-import dev.martianzoo.tfm.pets.SpecialClassNames.ANYONE
-import dev.martianzoo.tfm.pets.SpecialClassNames.COMPONENT
-import dev.martianzoo.tfm.pets.SpecialClassNames.OWNED
-import dev.martianzoo.tfm.pets.SpecialClassNames.PLAYER
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.pets.ast.Instruction
-import dev.martianzoo.tfm.pets.ast.PetNode
 import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.pets.ast.TypeExpression
-import dev.martianzoo.tfm.pets.ast.TypeExpression.GenericTypeExpression
-import dev.martianzoo.tfm.pets.deprodify
 import dev.martianzoo.tfm.types.PetClass
-import dev.martianzoo.tfm.types.PetClassLoader
-import dev.martianzoo.tfm.types.PetType
-import dev.martianzoo.tfm.types.PetType.PetGenericType
-import dev.martianzoo.util.Debug.d
 import dev.martianzoo.util.toStrings
 
 typealias ReplCommand = (String?) -> List<String>
 
 class ReplSession(val authority: Authority) {
-  private var game: Game? = null
-  private var defaultPlayer: TypeExpression? = null
+  private val session = InteractiveSession(authority)
 
   val commands = mapOf<String, ReplCommand>(
       "help" to { listOf(HELP.trimIndent()) },
@@ -35,91 +20,69 @@ class ReplSession(val authority: Authority) {
       "newgame" to {
         it?.let { args ->
           val (bundleString, players) = args.trim().split(Regex("\\s+"), 2)
-          game = Engine.newGame(GameSetup(authority, bundleString, players.toInt()))
-          defaultPlayer = null
+          session.newGame(GameSetup(authority, bundleString, players.toInt()))
           listOf("New $players-player game created with bundles: $bundleString")
         } ?: listOf("Usage: newgame <bundles> <player count>")
       },
 
       "become" to { args ->
         val message = if (args == null) {
-          if (defaultPlayer == null) {
-            "Become whom?"
-          } else {
-            defaultPlayer = null
-            "Okay you are back to being God again"
-          }
+          session.becomeNoOne()
+          "Okay you are no one"
         } else {
-          val type: PetType = game!!.resolve(args)
-          require(!type.abstract && type.isSubtypeOf(game!!.classTable[PLAYER].baseType))
-          defaultPlayer = type.toTypeExpression()
-          "Hi, $defaultPlayer"
+          val trimmed = args.trim()
+          require(trimmed.length == 7 && trimmed.startsWith("Player"))
+          val p = trimmed.substring(6).toInt()
+          session.becomePlayer(p)
+          "Hi, $trimmed"
         }
         listOf(message)
       },
 
       "count" to {
         it?.let { args ->
-          val fixedType = cook(TypeExpression.from(args))
-          val count = game!!.count(fixedType)
-          listOf("$count $fixedType")
+          val type = session.fixTypes(TypeExpression.from(args))
+          val count = session.count(type)
+          listOf("$count $type")
         } ?: listOf("Usage: count <TypeExpression>")
       },
 
       "list" to { args ->
-        val g = game as Game
-
-        // "list Heat" means my own unless I say "list Heat<Anyone>"
-        val typeToList = g.resolve(cook(TypeExpression.from(args ?: "$COMPONENT")))
-        val theStuff = g.getAll(typeToList)
-
-        // figure out how to break it down
-        val petClass = typeToList.petClass
-        var subs = petClass.directSubclasses.sortedBy { it.name }
-        if (subs.isEmpty()) subs = listOf(petClass)
-
-        subs.mapNotNull { sub ->
-          val thatType: PetGenericType = sub.baseType
-          val count = theStuff.entrySet()
-              .filter { it.element.hasType(thatType) }
-              .sumOf { it.count }
-          if (count > 0) {
-            "$count".padEnd(4) + thatType
-          } else {
-            null
-          }
-        }
+        session.list(TypeExpression.from(args!!))
+        listOf()
       },
 
       "has" to {
         it?.let { args ->
-          val fixed = cook(Requirement.from(args))
-          val result = game!!.isMet(fixed)
+          val fixed = session.fixTypes(Requirement.from(args))
+          val result = session.has(fixed)
           listOf("$result: $fixed")
         } ?: listOf("Usage: has <Requirement>")
       },
 
-      "map" to { args ->
-        args?.let { listOf("Arguments unexpected: $it") } ?:
-            MapToText(game!!).map()
+      "map" to {
+        if (it != null) {
+          MapToText(session.game!!).map()
+        } else {
+          listOf("Arguments unexpected: $it")
+        }
       },
 
       "history" to { args ->
         args?.let { listOf("Arguments unexpected: $it") } ?:
-            game!!.changeLog.toStrings()
+            session.game!!.changeLog.toStrings()
       },
 
       "exec" to {
         it?.let { args ->
-          val instr = cook(Instruction.from(args))
-          game!!.execute(instr)
+          val instr = session.execute(Instruction.from(args))
           listOf("Ok: $instr")
         } ?: listOf("Usage: exec <Instruction>")
       },
 
       "desc" to {
         it?.let { args ->
-          val petClass: PetClass = game!!.classTable[cn(args.trim())]
+          val petClass: PetClass = session.game!!.classTable[cn(args.trim())]
           val subs = petClass.allSubclasses
           listOf(
               "Name: ${petClass.name}",
@@ -143,37 +106,12 @@ class ReplSession(val authority: Authority) {
   }
 
   fun command(command: String, args: String?): List<String> {
-    if (command !in setOf("help", "newgame") && game == null) {
+    if (command !in setOf("help", "newgame") && session.game == null) {
       return listOf("no game active")
     }
     return commands[command]?.invoke(args) ?: commands["exec"]!!(command + (args ?: ""))
   }
 
-  private fun <P : PetNode> cook(node: P): P {
-    if (defaultPlayer == null) {
-      return node
-    }
-    val g = game!!
-    val owned = g.resolve(OWNED.type)
-    val anyone = g.resolve(ANYONE.type)
-
-    class Fixer : PetNodeVisitor() {
-      override fun <P : PetNode?> transform(node: P): P {
-        if (node is GenericTypeExpression) {
-          if (g.resolve(node).isSubtypeOf(owned)) {
-            val hasPlayer = node.args.any { g.resolve(it).isSubtypeOf(anyone) }
-            if (!hasPlayer) {
-              return node.addArgs(listOf(defaultPlayer!!)) as P
-            }
-          }
-          return node
-        }
-        return super.transform(node) as P
-      }
-    }
-    val fixt = Fixer().transform(node)
-    return deprodify(fixt, (game!!.classTable as PetClassLoader).resourceNames()).d("fixed: ")
-  }
 }
 
 const val HELP = """
