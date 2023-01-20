@@ -13,10 +13,10 @@ import org.junit.jupiter.api.Test
 
 class ApiHelpersTest {
   @Test
-  fun lookupProds() { // TODO move where belongs
+  fun lookupProds() {
     val game = Engine.newGame(GameSetup(Canon, "BM", 3))
     val prods: Map<ClassName, Int> = lookUpProductionLevels(game, ClassName.cn("Player1").type)
-    Truth.assertThat(prods).containsExactly(
+    assertThat(prods).containsExactly(
         ClassName.cn("Megacredit"), -5,
         ClassName.cn("Steel"), 0,
         ClassName.cn("Titanium"), 0,
@@ -27,7 +27,7 @@ class ApiHelpersTest {
 
     game.applyChange(2, gaining = TypeExpression.fromGeneric("Production<Player1, Plant.CLASS>"))
     val prods2: Map<ClassName, Int> = lookUpProductionLevels(game, ClassName.cn("Player1").type)
-    Truth.assertThat(prods2).containsExactly(
+    assertThat(prods2).containsExactly(
         ClassName.cn("Megacredit"), -5,
         ClassName.cn("Steel"), 0,
         ClassName.cn("Titanium"), 0,

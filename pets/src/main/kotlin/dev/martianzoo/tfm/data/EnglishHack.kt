@@ -41,7 +41,7 @@ val ENGLISH_HACK = mapOf(
     "MM3" to "Gardener",
     "MM4" to "Builder",
     "MM5" to "Planner",
-    "HM1" to "Diversifier", // TODO
+    "HM1" to "Diversifier",
     "HM2" to "Tactician",
     "HM3" to "PolarExplorer",
     "HM4" to "Energizer",

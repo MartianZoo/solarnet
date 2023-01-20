@@ -157,10 +157,9 @@ data class CardDefinition(
   override val id = cn("C$idRaw")
   override val name = englishHack(idRaw)
 
-  // TODO ClassName
-  val tags: List<TypeExpression> by lazy { tagsText.map { cn(it).type } }
+  val tags: List<ClassName> = tagsText.map(::cn)
 
-  val resourceType: ClassName? = resourceTypeText?.let { cn(it) }
+  val resourceType: ClassName? = resourceTypeText?.let(::cn)
 
   val immediateRaw: Instruction? by lazy {
     immediateText?.let { Instruction.from(it) }

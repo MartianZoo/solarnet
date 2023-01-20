@@ -53,11 +53,6 @@ data class PetClass(
     }
   }
 
-  /**
-   * Returns the one of `this` or `that` that is a subclass of the other.
-   * In practice some types like `OwnedTile` and `ActionCard` could serve as intersection types.
-   * TODO
-   */
   infix fun intersect(that: PetClass): PetClass? = when {
     this.isSubclassOf(that) -> this
     that.isSubclassOf(this) -> that

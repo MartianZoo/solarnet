@@ -13,7 +13,7 @@ open class StubGameState(val auth: Authority = Authority.Minimal()) : GameState 
       gaining: GenericTypeExpression?,
       removing: GenericTypeExpression?,
       cause: Cause?,
-  ): Unit = TODO("Not yet implemented")
+  ): Unit = throe()
 
   override val setup = GameSetup(auth, "BM", 2)
 

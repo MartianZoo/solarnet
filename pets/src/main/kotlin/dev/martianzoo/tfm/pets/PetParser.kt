@@ -12,7 +12,7 @@ import com.github.h0tk3y.betterParse.lexer.literalToken
 import com.github.h0tk3y.betterParse.lexer.regexToken
 import com.github.h0tk3y.betterParse.parser.Parser
 import com.github.h0tk3y.betterParse.utils.Tuple2
-import dev.martianzoo.tfm.pets.ast.Instruction.Intensity.Companion
+import dev.martianzoo.tfm.pets.ast.Instruction.Intensity
 
 /** Parses the Petaform language. */
 open class PetParser {
@@ -36,12 +36,6 @@ open class PetParser {
   internal val _class = literal("CLASS")
   internal val _default = literal("DEFAULT")
 
-  // scripts
-  internal val _become = literal("BECOME") or literal("become")
-  internal val _count = literal("COUNT") or literal("count")
-  internal val _exec = literal("EXEC") or literal("exec")
-  internal val _require = literal("REQUIRE") or literal("require")
-
   // regexes - could leave the `Regex()` out, but it loses IDEA syntax highlighting!
   internal val _upperCamelRE = regex(Regex("""\b[A-Z][a-z][A-Za-z0-9_]*\b"""), "UpperCamel")
   internal val _scalarRE = regex(Regex("""\b(0|[1-9][0-9]*)\b"""), "scalar")
@@ -50,8 +44,8 @@ open class PetParser {
 
   val scalar: Parser<Int> = _scalarRE map { it.text.toInt() }
 
-  internal val intensity = optional( // TODO
-      char('!') or char('.') or char('?') map { it.text } map Companion::from
+  internal val intensity = optional(
+      char('!') or char('.') or char('?') map { it.text } map Intensity::from
   )
 
   internal inline fun <reified T> optionalList(parser: Parser<List<T>>) =
