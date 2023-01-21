@@ -7,16 +7,16 @@
 
 // GLOBAL PARAMETERS ---------------------------------------
 
-ABSTRACT CLASS GlobalParameter {                            // TODO must be added 1-by-1 - how?
+ABSTRACT CLASS GlobalParameter {                            // TODO instances must be added 1-by-1 - how to ensure?
     DEFAULT +This.                                          // by default, gains are "if possible"
 
-    This: TerraformRating                                   // becomes `This BY Player: TR<This>`
-                                                            // side effect: WGT doesn't trigger it
-    CLASS TemperatureStep {
-        HAS MAX 19 This
-        This: (=3 This: PROD[Heat]) OR Ok                   // gated instrs are still mandatory, so without the `OR Ok`
-        This: (=5 This: PROD[Heat]) OR Ok                   // we would be at a dead end
-        This: (=15 This: OceanTile) OR Ok
+    This: TerraformRating                                   // becomes `This BY Player: TR<This>` TODO
+
+    CLASS TemperatureStep {                                 // In PETS, nested classes automatically have their
+        HAS MAX 19 This                                     // enclosing class as a superclass.
+        This: (=3 This: PROD[Heat]) OR Ok
+        This: (=5 This: PROD[Heat]) OR Ok                   // These are gated instructions, which are still mandatory
+        This: (=15 This: OceanTile) OR Ok                   // like usual, so without `OR Ok` we'd be at a dead end
     }
 
     CLASS OxygenStep {

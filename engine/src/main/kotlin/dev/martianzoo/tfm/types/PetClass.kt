@@ -94,7 +94,7 @@ data class PetClass(
 
 // DEFAULTS
 
-  val defaults: Defaults by lazy {
+  internal val defaults: Defaults by lazy {
     val result = if (name == COMPONENT) {
       Defaults.from(declaration.defaultsDeclaration, this, loader)
     } else {

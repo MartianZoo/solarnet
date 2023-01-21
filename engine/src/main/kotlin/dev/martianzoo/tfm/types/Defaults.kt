@@ -4,7 +4,7 @@ import dev.martianzoo.tfm.data.ClassDeclaration.DefaultsDeclaration
 import dev.martianzoo.tfm.pets.ast.Instruction.Intensity
 import dev.martianzoo.tfm.pets.ast.TypeExpression
 
-class Defaults(
+internal class Defaults(
     val allCasesDependencies: DependencyMap = DependencyMap(),
     val gainOnlyDependencies: DependencyMap = DependencyMap(),
     val gainIntensity: Intensity? = null,

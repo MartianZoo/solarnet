@@ -11,7 +11,7 @@ import dev.martianzoo.tfm.data.StandardActionDefinition
 import dev.martianzoo.tfm.pets.Parsing.parseClassDeclarations
 import dev.martianzoo.util.Debug
 
-object Canon : Authority() {
+public object Canon : Authority() {
 
   private val PETS_FILENAMES = setOf("system.pets", "components.pets", "player.pets")
 
@@ -45,7 +45,7 @@ object Canon : Authority() {
     return javaClass.getResource("/$dir/$filename")!!.readText()
   }
 
-  enum class Bundle(val id: String) {
+  public enum class Bundle(val id: String) {
     Base("B"),
     CorporateEra("R"),  // well the letter R appears 3 times so...
     Tharsis("M"),  // M for "map", ooh
@@ -59,7 +59,7 @@ object Canon : Authority() {
     ;
 
     companion object {
-      fun forId(id: String) = values().first { it.id == id }
+      public fun forId(id: String) = values().first { it.id == id }
     }
   }
 }

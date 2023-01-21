@@ -7,20 +7,20 @@ import dev.martianzoo.tfm.data.StateChange
 import dev.martianzoo.tfm.data.StateChange.Cause
 import dev.martianzoo.tfm.types.PetType
 
-class ComponentGraph(startingWith: Collection<Component> = listOf()) {
+public class ComponentGraph(startingWith: Collection<Component> = listOf()) {
   private val multiset: /*Mutable*/Multiset<Component> = LinkedHashMultiset.create(startingWith)
-  val changeLog: MutableList<StateChange> = mutableListOf() // starts with ordinal 1
+  internal val changeLog: MutableList<StateChange> = mutableListOf() // starts with ordinal 1
 
-  fun gain(count: Int, gaining: Component, cause: Cause? = null) =
+  public fun gain(count: Int, gaining: Component, cause: Cause? = null) =
       applyChange(count, gaining = gaining, cause = cause)
 
-  fun remove(count: Int, removing: Component, cause: Cause? = null) =
+  public fun remove(count: Int, removing: Component, cause: Cause? = null) =
       applyChange(count, removing = removing, cause = cause)
 
-  fun transmute(count: Int, gaining: Component, removing: Component, cause: Cause? = null) =
+  public fun transmute(count: Int, gaining: Component, removing: Component, cause: Cause? = null) =
       applyChange(count, gaining, removing, cause)
 
-  fun applyChange(
+  public fun applyChange(
       count: Int,
       gaining: Component? = null,
       removing: Component? = null,
@@ -46,21 +46,21 @@ class ComponentGraph(startingWith: Collection<Component> = listOf()) {
   private fun <E : Any?> Multiset<E>.mustRemove(element: E, count: Int) =
       setCount(element, count(element) - count)
 
-  fun count(type: PetType) =
+  public fun count(type: PetType) =
       multiset.entrySet()
           .filter { it.element.hasType(type) }
           .sumOf { it.count }
 
-  fun getAll(type: PetType): Multiset<Component> =
+  public fun getAll(type: PetType): Multiset<Component> =
       Multisets.filter(multiset) { it!!.hasType(type) }
 
-  data class Component(val type: PetType) {
+  public data class Component(val type: PetType) {
     init {
       require(!type.abstract) { type }
     }
 
-    fun hasType(thatType: PetType) = type.isSubtypeOf(thatType)
-    val asTypeExpression = type.toTypeExpression()
+    public fun hasType(thatType: PetType) = type.isSubtypeOf(thatType)
+    public val asTypeExpression = type.toTypeExpression()
     override fun toString() = "[$type]"
   }
 }

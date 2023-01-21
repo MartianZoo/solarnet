@@ -10,13 +10,13 @@ import dev.martianzoo.tfm.pets.ast.Instruction.Companion.instruction
 import dev.martianzoo.tfm.pets.ast.Instruction.Transform
 import dev.martianzoo.tfm.pets.ast.TypeExpression
 
-val allCustomInstructions = listOf(
+internal val allCustomInstructions = listOf(
     GainLowestProduction,
     CopyProductionBox,
 )
 
 // For Robinson Industries
-object GainLowestProduction : CustomInstruction("gainLowestProduction") {
+private object GainLowestProduction : CustomInstruction("gainLowestProduction") {
 
   override fun translate(game: ReadOnlyGameState, arguments: List<TypeExpression>): Instruction {
     val player = arguments.single()
@@ -31,7 +31,7 @@ object GainLowestProduction : CustomInstruction("gainLowestProduction") {
 }
 
 // For Robotic Workforce
-object CopyProductionBox : CustomInstruction("copyProductionBox") {
+private object CopyProductionBox : CustomInstruction("copyProductionBox") {
   override fun translate(game: ReadOnlyGameState, arguments: List<TypeExpression>): Instruction {
     val chosenCardName = arguments.single().asGeneric().root
     val def = game.authority.card(chosenCardName)

@@ -4,9 +4,9 @@ import dev.martianzoo.util.mergeMaps
 import dev.martianzoo.util.overlayMaps
 
 // Takes care of everything inside the <> but knows nothing of what's outside it
-data class DependencyMap(private val map: Map<Dependency.Key, Dependency>) {
+public data class DependencyMap(private val map: Map<Dependency.Key, Dependency>) {
   // TODO make that private?
-  constructor() : this(mapOf<Dependency.Key, Dependency>())
+  internal constructor() : this(mapOf<Dependency.Key, Dependency>())
 
   init {
     map.forEach { (key, dep) ->
@@ -14,33 +14,32 @@ data class DependencyMap(private val map: Map<Dependency.Key, Dependency>) {
     }
   }
 
+  public val keys by map::keys
+  public val types by map::values
+  public fun isEmpty() = map.isEmpty()
 
-  val keys by map::keys
-  val types by map::values
-  fun isEmpty() = map.isEmpty()
+  public val abstract = types.any { it.abstract }
 
-  val abstract = types.any { it.abstract }
+  public operator fun contains(key: Dependency.Key) = key in map
+  public operator fun get(key: Dependency.Key): Dependency? = map[key]
 
-  operator fun contains(key: Dependency.Key) = key in map
-  operator fun get(key: Dependency.Key): Dependency? = map[key]
-
-  fun specializes(that: DependencyMap) =
+  public fun specializes(that: DependencyMap) =
       // For each of *its* keys, my type must be a subtype of its type
       that.map.all { (thatKey, thatType) ->
         map[thatKey]!!.specializes(thatType)
       }
 
   // Combines all entries, using the glb when both maps have the same key
-  fun intersect(that: DependencyMap): DependencyMap {
+  public fun intersect(that: DependencyMap): DependencyMap {
     val merged = mergeMaps(this.map, that.map) { a, b -> a.intersect(b)!! }
     return DependencyMap(merged)
   }
 
-  fun overlayOn(that: DependencyMap) =
+  public fun overlayOn(that: DependencyMap) =
       DependencyMap(overlayMaps(this.map, that.map))
 
   companion object {
-    fun intersect(maps: Collection<DependencyMap>): DependencyMap {
+    public fun intersect(maps: Collection<DependencyMap>): DependencyMap {
       // TODO improve, watch out for order
       var map = DependencyMap()
       maps.forEach { map = map.intersect(it) }
@@ -51,7 +50,7 @@ data class DependencyMap(private val map: Map<Dependency.Key, Dependency>) {
   // determines the map that could be merged with this one to specialize, by inferring which
   // keys the provided specs go with
   // TODO fix the strict-order problem!
-  fun findMatchups(specs: List<PetType>): DependencyMap {
+  public fun findMatchups(specs: List<PetType>): DependencyMap {
     if (specs.isEmpty()) return this
     val newMap = mutableMapOf<Dependency.Key, Dependency>()
     val unhandled = specs.toMutableList()
@@ -72,7 +71,7 @@ data class DependencyMap(private val map: Map<Dependency.Key, Dependency>) {
     return DependencyMap(newMap) //.d { "findMatchups of $this with $specs: $it" } too noisy
   }
 
-  fun specialize(specs: List<PetType>) = intersect(findMatchups(specs))
+  public fun specialize(specs: List<PetType>) = intersect(findMatchups(specs))
 
   override fun toString() = "$types"
 }

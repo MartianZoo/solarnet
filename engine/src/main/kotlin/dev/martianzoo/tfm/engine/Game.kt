@@ -18,7 +18,7 @@ import dev.martianzoo.tfm.types.PetClassTable
 import dev.martianzoo.tfm.types.PetType
 import dev.martianzoo.util.toSetStrict
 
-class Game(
+public class Game(
     override val setup: GameSetup,
     val components: ComponentGraph,
     val classTable: PetClassTable,

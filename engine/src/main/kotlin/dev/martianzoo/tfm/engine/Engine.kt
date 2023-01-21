@@ -11,8 +11,8 @@ import dev.martianzoo.tfm.types.PetClassLoader
 import dev.martianzoo.tfm.types.PetType.PetClassLiteral
 import dev.martianzoo.util.filterNoNulls
 
-object Engine {
-  fun newGame(setup: GameSetup): Game {
+public object Engine {
+  public fun newGame(setup: GameSetup): Game {
     val loader = PetClassLoader(setup.authority)
     loader.autoLoadDependencies = true
 
@@ -48,12 +48,12 @@ object Engine {
           .map { Component(loader.resolve(it.name.type)) }
 
   // includes abstract
-  fun isSingleton(pc: PetClass): Boolean =
+  private fun isSingleton(pc: PetClass): Boolean =
       pc.invariantsRaw.any { it.requiresThis() } ||
       pc.directSuperclasses.any { isSingleton(it) }
 
 
-  fun borders(map: MarsMapDefinition, loader: PetClassLoader): List<Component> {
+  private fun borders(map: MarsMapDefinition, loader: PetClassLoader): List<Component> {
     val border = cn("Border")
     return map.areas
         .let { it.rows() + it.columns() + it.diagonals() }

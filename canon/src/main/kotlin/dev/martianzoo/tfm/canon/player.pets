@@ -40,6 +40,7 @@ ABSTRACT CLASS Owned<Anyone> {
 
     ABSTRACT CLASS Milestone                                // specific milestones are loaded from `milestones.json5`
 
+
 // TILES ---------------------------------------------------
 
     ABSTRACT CLASS OwnedTile : Tile, Owned {
