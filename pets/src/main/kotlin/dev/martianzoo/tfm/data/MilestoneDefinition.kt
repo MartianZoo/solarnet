@@ -17,9 +17,7 @@ data class MilestoneDefinition(
     override val id: ClassName,
     override val bundle: String,
     val replaces: String? = null,
-
-    @Json(name = "requirement")
-    val requirementText: String,
+    @Json(name = "requirement") val requirementText: String,
 ) : Definition {
 
   init {
@@ -28,9 +26,7 @@ data class MilestoneDefinition(
     require(replaces?.isEmpty() != true)
   }
 
-  val requirement: Requirement by lazy {
-    requirement(requirementText)
-  }
+  val requirement: Requirement by lazy { requirement(requirementText) }
 
   override val name = englishHack(id)
 
@@ -40,11 +36,12 @@ data class MilestoneDefinition(
         name,
         abstract = false,
         supertypes = setOf(MILESTONE.type),
-        effectsRaw = setOf(Effect(
-            OnGain(THIS.type),
-            Gated(requirement, Gain(sat(1, OK.type))),
-            automatic = true,
-        ))
-    )
+        effectsRaw =
+            setOf(
+                Effect(
+                    OnGain(THIS.type),
+                    Gated(requirement, Gain(sat(1, OK.type))),
+                    automatic = true,
+                )))
   }
 }

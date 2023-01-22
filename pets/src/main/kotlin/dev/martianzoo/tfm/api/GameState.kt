@@ -8,10 +8,7 @@ import dev.martianzoo.tfm.pets.ast.TypeExpression
 import dev.martianzoo.tfm.pets.ast.TypeExpression.ClassLiteral
 import dev.martianzoo.tfm.pets.ast.TypeExpression.GenericTypeExpression
 
-/**
- * This is a simple interface in the `pets` module that code
- * outside the module can implement...
- */
+/** This is a simple interface in the `pets` module that code outside the module can implement... */
 interface GameState : ReadOnlyGameState {
   fun applyChange(
       count: Int = 1,
@@ -23,8 +20,10 @@ interface GameState : ReadOnlyGameState {
 
 interface ReadOnlyGameState {
   val setup: GameSetup
-  val authority: Authority get() = setup.authority
-  val map: MarsMapDefinition get() = setup.map
+  val authority: Authority
+    get() = setup.authority
+  val map: MarsMapDefinition
+    get() = setup.map
 
   fun resolve(type: TypeExpression): TypeInfo
   fun resolve(typeText: String): TypeInfo

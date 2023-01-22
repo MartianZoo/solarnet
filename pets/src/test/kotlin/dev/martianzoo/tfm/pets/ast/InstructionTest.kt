@@ -13,7 +13,8 @@ import org.junit.jupiter.api.Test
 
 // Most testing is done by AutomatedTest
 private class InstructionTest {
-  val inputs = """
+  val inputs =
+      """
     5
     11
     11.
@@ -74,7 +75,8 @@ private class InstructionTest {
     ((Bar, -1), Xyz) OR ((Bar<Qux> THEN Bar: 1) OR (1 OR Bar))
     -1 / Megacredit, 1, @name(Foo, Qux<Bar>), 1 / Bar<Eep>
     5 Abc FROM Qux / Eep<Bar<Abc<Xyz>, Bar, Foo<Foo, Abc<Xyz>>>>
-  """.trimIndent()
+  """
+          .trimIndent()
 
   @Test
   fun testSampleStrings() {
@@ -94,12 +96,17 @@ private class InstructionTest {
     testRoundTrip("Foo<Bar FROM Qux>")
     testRoundTrip("Foo<Bar FROM Qux>.")
 
-    val instr = Transmute(ComplexFrom(
-        cn("Foo"),
-        listOf(ComplexFrom(cn("Bar"), listOf(SimpleFrom(cn("Qux").type,
-            cn("Abc").addArgs(cn("Eep").type))
-        ))),
-    ), null, null)
+    val instr =
+        Transmute(
+            ComplexFrom(
+                cn("Foo"),
+                listOf(
+                    ComplexFrom(
+                        cn("Bar"),
+                        listOf(SimpleFrom(cn("Qux").type, cn("Abc").addArgs(cn("Eep").type))))),
+            ),
+            null,
+            null)
     assertThat(instr.toString()).isEqualTo("Foo<Bar<Qux FROM Abc<Eep>>>")
     assertThat(instruction("Foo<Bar<Qux FROM Abc<Eep>>>")).isEqualTo(instr)
   }

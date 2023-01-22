@@ -131,16 +131,15 @@ private class PetClassTest {
 
   @Test
   fun depsAndSpecs() {
-    val table = loadTypes(
-      "ABSTRACT CLASS SuperFoo",
-      "ABSTRACT CLASS Foo : SuperFoo",
-      "CLASS SubFoo : Foo",
-
-      "ABSTRACT CLASS SuperBar<SuperFoo>",
-      "CLASS Bar : SuperBar<Foo>",
-      "CLASS SubBar : Bar<SubFoo>",
-
-      "CLASS Qux")
+    val table =
+        loadTypes(
+            "ABSTRACT CLASS SuperFoo",
+            "ABSTRACT CLASS Foo : SuperFoo",
+            "CLASS SubFoo : Foo",
+            "ABSTRACT CLASS SuperBar<SuperFoo>",
+            "CLASS Bar : SuperBar<Foo>",
+            "CLASS SubBar : Bar<SubFoo>",
+            "CLASS Qux")
 
     // abstract: SuperFoo, SuperBar, Foo
     val supSup = table.resolve("SuperBar<SuperFoo>")
@@ -196,9 +195,10 @@ private class PetClassTest {
 
 private fun loader(petsText: String): PetClassLoader {
   val classes = parseClassDeclarations(petsText)
-  val authority = object : Authority.Empty() {
-    override val explicitClassDeclarations = classes
-  }
+  val authority =
+      object : Authority.Empty() {
+        override val explicitClassDeclarations = classes
+      }
   return PetClassLoader(authority).also { it.loadEverything() }
 }
 

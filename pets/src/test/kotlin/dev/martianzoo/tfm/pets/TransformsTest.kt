@@ -40,10 +40,12 @@ private class TransformsTest {
   @Test
   fun testActionsToEffects() {
     val actions: List<Action> = listOf("-> Foo", "Foo -> 5 Bar").map(::action)
-    assertThat(actionsToEffects(actions)).containsExactly(
-        effect("UseAction1<This>: Foo"),
-        effect("UseAction2<This>: -Foo! THEN 5 Bar"),
-    ).inOrder()
+    assertThat(actionsToEffects(actions))
+        .containsExactly(
+            effect("UseAction1<This>: Foo"),
+            effect("UseAction2<This>: -Foo! THEN 5 Bar"),
+        )
+        .inOrder()
   }
 
   @Test
@@ -62,8 +64,7 @@ private class TransformsTest {
   @Test
   fun testFindAllClassNames() {
     val instr = instruction("@foo(Bar, Qux<Dog>)")
-    assertThat(instr.childNodesOfType<ClassName>().toStrings())
-        .containsExactly("Bar", "Qux", "Dog")
+    assertThat(instr.childNodesOfType<ClassName>().toStrings()).containsExactly("Bar", "Qux", "Dog")
   }
 
   @Test
@@ -72,10 +73,12 @@ private class TransformsTest {
     checkResolveThis<Instruction>("Foo<This>", cn("Bar").type, "Foo<Bar>")
 
     // looks like a plain textual replacement but we know what's really happening
-    val petsIn = "-Ooh<Foo<Xyz, This, Qux>>: " +
-        "5 Qux<Ooh, Xyz, Bar> OR 5 This?, =0 This: -Bar, 5: Foo<This>"
-    val petsOut = "-Ooh<Foo<Xyz, It<Worked>, Qux>>: " +
-        "5 Qux<Ooh, Xyz, Bar> OR 5 It<Worked>?, =0 It<Worked>: -Bar, 5: Foo<It<Worked>>"
+    val petsIn =
+        "-Ooh<Foo<Xyz, This, Qux>>: " +
+            "5 Qux<Ooh, Xyz, Bar> OR 5 This?, =0 This: -Bar, 5: Foo<This>"
+    val petsOut =
+        "-Ooh<Foo<Xyz, It<Worked>, Qux>>: " +
+            "5 Qux<Ooh, Xyz, Bar> OR 5 It<Worked>?, =0 It<Worked>: -Bar, 5: Foo<It<Worked>>"
     checkResolveThis<Effect>(petsIn, cn("It").addArgs(cn("Worked").type), petsOut)
 
     // allows nonsense
@@ -105,14 +108,10 @@ private class TransformsTest {
     assertThat(tx.toString()).isEqualTo(expected)
   }
 
-  val resources = listOf(
-      "StandardResource",
-      "Megacredit",
-      "Steel",
-      "Titanium",
-      "Plant",
-      "Energy",
-      "Heat").map { cn(it) }.toSet()
+  val resources =
+      listOf("StandardResource", "Megacredit", "Steel", "Titanium", "Plant", "Energy", "Heat")
+          .map { cn(it) }
+          .toSet()
 
   @Test
   fun testDeprodify_noProd() {
@@ -132,12 +131,14 @@ private class TransformsTest {
   @Test
   fun testDeprodify_lessSimple() {
     // TODO adds unnecessary grouping, do we care?
-    val prodden: Effect = effect(
-        "PROD[Plant]: PROD[Ooh?, Steel. / Ahh, Foo<Xyz FROM " +
-        "Heat>, -Qux!, 5 Ahh<Qux> FROM StandardResource], Heat")
-    val expected: Effect = effect(
-        "Production<Plant.CLASS>: (Ooh?, Production<Steel.CLASS>. / Ahh, Foo<Xyz FROM " +
-        "Production<Heat.CLASS>>, -Qux!, 5 Ahh<Qux> FROM Production<StandardResource.CLASS>), Heat")
+    val prodden: Effect =
+        effect(
+            "PROD[Plant]: PROD[Ooh?, Steel. / Ahh, Foo<Xyz FROM " +
+                "Heat>, -Qux!, 5 Ahh<Qux> FROM StandardResource], Heat")
+    val expected: Effect =
+        effect(
+            "Production<Plant.CLASS>: (Ooh?, Production<Steel.CLASS>. / Ahh, Foo<Xyz FROM " +
+                "Production<Heat.CLASS>>, -Qux!, 5 Ahh<Qux> FROM Production<StandardResource.CLASS>), Heat")
     val deprodden: Effect = deprodify(prodden, resources)
     assertThat(deprodden).isEqualTo(expected)
   }
@@ -145,24 +146,14 @@ private class TransformsTest {
   @Test
   fun testNonProd() {
     val x = effect("HAHA[Plant]: Heat, HAHA[Steel / 5 PowerTag]")
-    assertThat(x).isEqualTo(
-        Effect(
-            Trigger.Transform(
-                Trigger.OnGain(cn("Plant").type),
-                "HAHA"
-            ),
-            Instruction.Multi(
-                Gain(sat(1, cn("Heat").type)),
-                Instruction.Transform(
-                    Per(
-                        Gain(sat(1, cn("Steel").type)),
-                        sat(5, cn("PowerTag").type)
-                    ),
-                    "HAHA"
-                )
-            ),
-            false
-        )
-    )
+    assertThat(x)
+        .isEqualTo(
+            Effect(
+                Trigger.Transform(Trigger.OnGain(cn("Plant").type), "HAHA"),
+                Instruction.Multi(
+                    Gain(sat(1, cn("Heat").type)),
+                    Instruction.Transform(
+                        Per(Gain(sat(1, cn("Steel").type)), sat(5, cn("PowerTag").type)), "HAHA")),
+                false))
   }
 }

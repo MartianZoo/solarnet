@@ -17,17 +17,14 @@ interface PetType : TypeInfo {
 
   override fun toTypeExpression(): TypeExpression
 
-  data class PetClassLiteral(
-    override val petClass: PetClass
-  ) : PetType {
+  data class PetClassLiteral(override val petClass: PetClass) : PetType {
     override val dependencies = DependencyMap()
     override val refinement = null
 
     override val abstract by petClass::abstract
 
     override fun isSubtypeOf(that: PetType) =
-        that is PetClassLiteral &&
-        this.petClass.isSubclassOf(that.petClass)
+        that is PetClassLiteral && this.petClass.isSubclassOf(that.petClass)
 
     override fun intersect(that: PetType): PetType? {
       if (that !is PetClassLiteral) return null
@@ -49,17 +46,16 @@ interface PetType : TypeInfo {
 
     override fun isSubtypeOf(that: PetType) =
         that is PetGenericType &&
-        petClass.isSubclassOf(that.petClass) &&
-        dependencies.specializes(that.dependencies) &&
-        that.refinement in setOf(null, refinement)
+            petClass.isSubclassOf(that.petClass) &&
+            dependencies.specializes(that.dependencies) &&
+            that.refinement in setOf(null, refinement)
 
     override fun intersect(that: PetType): PetGenericType? {
       val intersect: PetClass = petClass.intersect(that.petClass) ?: return null
       return PetGenericType(
           intersect,
           dependencies.intersect(that.dependencies),
-          combine(this.refinement, that.refinement)
-      )
+          combine(this.refinement, that.refinement))
     }
 
     private fun combine(one: Requirement?, two: Requirement?): Requirement? {

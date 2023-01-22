@@ -3,8 +3,7 @@ package dev.martianzoo.tfm.types
 public data class Dependency(val key: Key, val type: PetType) {
   public val abstract by type::abstract
 
-  private fun checkKeys(that: Dependency): Dependency =
-      that.also { require(this.key == that.key) }
+  private fun checkKeys(that: Dependency): Dependency = that.also { require(this.key == that.key) }
 
   public fun specializes(that: Dependency) = type.isSubtypeOf(checkKeys(that).type)
 

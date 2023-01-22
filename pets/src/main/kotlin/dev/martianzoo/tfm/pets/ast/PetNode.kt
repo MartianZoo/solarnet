@@ -3,9 +3,7 @@ package dev.martianzoo.tfm.pets.ast
 import dev.martianzoo.tfm.pets.PetNodeVisitor
 import kotlin.reflect.KClass
 
-/**
- * An API object that can be represented as PETS source code.
- */
+/** An API object that can be represented as PETS source code. */
 sealed class PetNode {
   abstract val kind: String
 
@@ -23,8 +21,7 @@ sealed class PetNode {
     return nc.count
   }
 
-  inline fun <reified P : PetNode> childNodesOfType(): Set<P> =
-      childNodesOfType(P::class)
+  inline fun <reified P : PetNode> childNodesOfType(): Set<P> = childNodesOfType(P::class)
 
   fun <P : PetNode> childNodesOfType(type: KClass<P>): Set<P> {
     val found = mutableSetOf<P>()

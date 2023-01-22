@@ -8,11 +8,13 @@ import dev.martianzoo.tfm.pets.ast.TypeExpression
 
 // Note: this was easier to test in .engine than anywhere near here (ApiHelpersTest)
 fun lookUpProductionLevels(game: ReadOnlyGameState, player: TypeExpression): Map<ClassName, Int> {
-  return standardResourceNames(game).map { resourceName ->
-    val rawCount = game.count("$PRODUCTION<$player, $resourceName.CLASS>")
-    val sadAdjustment = if (resourceName == MEGACREDIT) 5 else 0
-    resourceName to rawCount - sadAdjustment
-  }.toMap()
+  return standardResourceNames(game)
+      .map { resourceName ->
+        val rawCount = game.count("$PRODUCTION<$player, $resourceName.CLASS>")
+        val sadAdjustment = if (resourceName == MEGACREDIT) 5 else 0
+        resourceName to rawCount - sadAdjustment
+      }
+      .toMap()
 }
 
 fun standardResourceNames(game: ReadOnlyGameState): Set<ClassName> =

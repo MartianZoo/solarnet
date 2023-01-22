@@ -8,8 +8,7 @@ import org.junit.jupiter.api.Test
 
 // Most testing is done by AutomatedTest
 private class TypeExpressionTest {
-  private fun testRoundTrip(petsText: String) =
-      testRoundTrip<TypeExpression>(petsText)
+  private fun testRoundTrip(petsText: String) = testRoundTrip<TypeExpression>(petsText)
 
   @Test
   fun simpleSourceToApi() {
@@ -41,16 +40,21 @@ private class TypeExpressionTest {
   @Test
   fun complexSourceToApi() {
     val parsed = typeExpression(" Red< Blue  < This,Teal> , Gold > ")
-    assertThat(parsed).isEqualTo(cn("Red").addArgs(cn("Blue").addArgs(cn("This").type,
-        cn("Teal").type), cn("Gold").type))
+    assertThat(parsed)
+        .isEqualTo(
+            cn("Red")
+                .addArgs(cn("Blue").addArgs(cn("This").type, cn("Teal").type), cn("Gold").type))
   }
 
   @Test
   fun complexApiToSource() {
-    val expr = cn("Aa").addArgs(cn("Bb").type,
-        cn("Cc").addArgs(cn("Dd").type),
-        cn("Ee").addArgs(cn("Ff").addArgs(cn("Gg").type, cn("Hh").type), cn("Me").type),
-        cn("Jj").type)
+    val expr =
+        cn("Aa")
+            .addArgs(
+                cn("Bb").type,
+                cn("Cc").addArgs(cn("Dd").type),
+                cn("Ee").addArgs(cn("Ff").addArgs(cn("Gg").type, cn("Hh").type), cn("Me").type),
+                cn("Jj").type)
     assertThat(expr.toString()).isEqualTo("Aa<Bb, Cc<Dd>, Ee<Ff<Gg, Hh>, Me>, Jj>")
   }
 }

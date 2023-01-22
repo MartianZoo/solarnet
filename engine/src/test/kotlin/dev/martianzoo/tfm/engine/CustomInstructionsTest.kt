@@ -35,9 +35,10 @@ private class CustomInstructionsTest {
   // TODO figure out how to make gradle compile the java code
   // It seemed like adding plugins { `java-library` } should have been enough
   fun java() {
-    val auth = object : Authority.Forwarding(Canon) {
-      override val customInstructions = listOf(CustomJavaExample.GainLowestProduction())
-    }
+    val auth =
+        object : Authority.Forwarding(Canon) {
+          override val customInstructions = listOf(CustomJavaExample.GainLowestProduction())
+        }
 
     val repl = ReplSession(auth)
     repl.command("newgame BM 3")

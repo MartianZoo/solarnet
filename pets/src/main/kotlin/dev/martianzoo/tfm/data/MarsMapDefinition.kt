@@ -14,19 +14,19 @@ data class MarsMapDefinition(
     override val name: ClassName,
     override val bundle: String,
     val areas: Grid<AreaDefinition>
-): Definition {
+) : Definition {
   override val id by ::name
-  override val asClassDeclaration = ClassDeclaration(
-      id = id,
-      name = name,
-      abstract = false,
-      supertypes = setOf(MARS_MAP.type),
-  )
+  override val asClassDeclaration =
+      ClassDeclaration(
+          id = id,
+          name = name,
+          abstract = false,
+          supertypes = setOf(MARS_MAP.type),
+      )
 
   data class AreaDefinition(
       /** Mame of the MarsMapDefinition this area belongs to (e.g "Tharsis"). */
       val mapName: ClassName,
-
       override val bundle: String,
 
       /** The row number of this area; the top row is row `1`. */
@@ -39,14 +39,12 @@ data class MarsMapDefinition(
       val column: Int,
 
       /**
-       * The type of this area; standard types include "LandArea", "WaterArea", "VolcanicArea",
-       * and "NoctisArea".
+       * The type of this area; standard types include "LandArea", "WaterArea", "VolcanicArea", and
+       * "NoctisArea".
        */
       val type: ClassName,
 
-      /**
-       * The pets instruction for this map area's bonus.
-       */
+      /** The pets instruction for this map area's bonus. */
       val bonusText: String?,
 
       /** A short code like `LPP` summarizing this map area. */
@@ -59,9 +57,7 @@ data class MarsMapDefinition(
       require(bonusText?.isEmpty() != true) // nonempty if present
     }
 
-    val bonus: Instruction? by lazy {
-      bonusText?.let(::instruction)
-    }
+    val bonus: Instruction? by lazy { bonusText?.let(::instruction) }
 
     override val asClassDeclaration by lazy {
       ClassDeclaration(
@@ -69,18 +65,15 @@ data class MarsMapDefinition(
           name = name,
           abstract = false,
           supertypes = setOf(type.type),
-          effectsRaw = bonus?.let {
-            setOf(Effect(OnGain(TILE.addArgs(THIS.type)), it, automatic = false))
-          } ?: setOf(),
+          effectsRaw =
+              bonus?.let { setOf(Effect(OnGain(TILE.addArgs(THIS.type)), it, automatic = false)) }
+                  ?: setOf(),
       )
     }
 
-    override val id = ClassName.cn(
-        if (row > 9 || column > 9)
-            "${bundle}_${row}_$column"
-        else
-            "$bundle$row$column"
-    )
+    override val id =
+        ClassName.cn(
+            if (row > 9 || column > 9) "${bundle}_${row}_$column" else "$bundle$row$column")
     override val name = ClassName.cn("${mapName}_${row}_$column")
   }
 }

@@ -14,7 +14,8 @@ import org.junit.jupiter.api.Test
 // Most testing is done by AutomatedTest
 private class RequirementTest {
 
-  val inputs = """
+  val inputs =
+      """
     0
     11
     Bar
@@ -75,7 +76,8 @@ private class RequirementTest {
     (5 Abc OR MAX 5 Qux) OR (Bar OR 0 Bar) OR (MAX 0 Xyz, Abc)
     (MAX 1 Foo OR (Bar OR (0 OR 0 Foo))) OR (=1 Abc, 1, (1, 1))
     (MAX 1 Megacredit OR Qux) OR =1 Megacredit, =11 Abc OR 0 Qux
-  """.trimIndent()
+  """
+          .trimIndent()
 
   @Test
   fun testSampleStrings() {
@@ -134,13 +136,27 @@ private class RequirementTest {
 
   @Test
   fun hairy() {
-    val parsed = requirement(
-        "Adjacency<CityTile<Anyone>, OceanTile> OR 1 Adjacency<OceanTile, CityTile<Anyone>>")
-    assertThat(parsed).isEqualTo(Requirement.Or(setOf(Min(sat(type = cn("Adjacency").addArgs(
-        cn("CityTile").addArgs(cn("Anyone").type),
-        cn("OceanTile").type))),
-        Min(sat(type = cn("Adjacency").addArgs(cn("OceanTile").type,
-            cn("CityTile").addArgs(cn("Anyone").type)))))))
+    val parsed =
+        requirement(
+            "Adjacency<CityTile<Anyone>, OceanTile> OR 1 Adjacency<OceanTile, CityTile<Anyone>>")
+    assertThat(parsed)
+        .isEqualTo(
+            Requirement.Or(
+                setOf(
+                    Min(
+                        sat(
+                            type =
+                                cn("Adjacency")
+                                    .addArgs(
+                                        cn("CityTile").addArgs(cn("Anyone").type),
+                                        cn("OceanTile").type))),
+                    Min(
+                        sat(
+                            type =
+                                cn("Adjacency")
+                                    .addArgs(
+                                        cn("OceanTile").type,
+                                        cn("CityTile").addArgs(cn("Anyone").type)))))))
   }
 
   // All type expressions with even-length string representations
@@ -175,14 +191,20 @@ private class RequirementTest {
     evalRequirement("=8 Foo<Bar>").isTrue()
     evalRequirement("=7 Foo<Bar>").isFalse()
 
-    evalRequirement("10 Megacredit, Foo<Bar>, 8 Foo<Bar>, MAX 0 Foo, " +
-        "MAX 8 Foo<Bar>, =0 Foo, =8 Foo<Bar>").isTrue()
-    evalRequirement("10 Megacredit, Foo<Bar>, 8 Foo<Bar>, MAX 0 Foo, " +
-        "MAX 8 Foo<Bar>, =1 Foo, =8 Foo<Bar>").isFalse()
+    evalRequirement(
+            "10 Megacredit, Foo<Bar>, 8 Foo<Bar>, MAX 0 Foo, " +
+                "MAX 8 Foo<Bar>, =0 Foo, =8 Foo<Bar>")
+        .isTrue()
+    evalRequirement(
+            "10 Megacredit, Foo<Bar>, 8 Foo<Bar>, MAX 0 Foo, " +
+                "MAX 8 Foo<Bar>, =1 Foo, =8 Foo<Bar>")
+        .isFalse()
 
-    evalRequirement("Foo OR 11 Foo OR 11 OR 9 Foo<Bar> OR MAX 7 Foo<Bar> " +
-        "OR =1 Foo OR =7 Foo<Bar>").isFalse()
-    evalRequirement("Foo OR 11 Foo OR 11 OR 9 Foo<Bar> OR MAX 7 Foo<Bar> " +
-        "OR =0 Foo OR =7 Foo<Bar>").isTrue()
+    evalRequirement(
+            "Foo OR 11 Foo OR 11 OR 9 Foo<Bar> OR MAX 7 Foo<Bar> " + "OR =1 Foo OR =7 Foo<Bar>")
+        .isFalse()
+    evalRequirement(
+            "Foo OR 11 Foo OR 11 OR 9 Foo<Bar> OR MAX 7 Foo<Bar> " + "OR =0 Foo OR =7 Foo<Bar>")
+        .isTrue()
   }
 }

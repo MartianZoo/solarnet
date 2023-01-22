@@ -44,23 +44,20 @@ public class Game(
   override fun getAll(type: TypeExpression): Multiset<TypeExpression> {
     val all: Multiset<Component> = getAll(resolve(type))
     val result: Multiset<TypeExpression> = HashMultiset.create()
-    all.forEachEntry {
-      component, count -> result.add(component.asTypeExpression, count)
-    }
+    all.forEachEntry { component, count -> result.add(component.asTypeExpression, count) }
     return ImmutableMultiset.copyOf(result)
   }
 
   override fun getAll(type: GenericTypeExpression): Multiset<GenericTypeExpression> {
     val result = HashMultiset.create<GenericTypeExpression>()
-    getAll(resolve(type)).entrySet()
-        .forEach { result.add(it.element.asTypeExpression.asGeneric(), it.count) }
+    getAll(resolve(type)).entrySet().forEach {
+      result.add(it.element.asTypeExpression.asGeneric(), it.count)
+    }
     return result
   }
 
   override fun getAll(type: ClassLiteral): Set<ClassLiteral> {
-    return getAll(resolve(type))
-        .map { it.asTypeExpression as ClassLiteral }
-        .toSetStrict()
+    return getAll(resolve(type)).map { it.asTypeExpression as ClassLiteral }.toSetStrict()
   }
 
   override fun getAll(typeText: String) = getAll(typeExpression(typeText))

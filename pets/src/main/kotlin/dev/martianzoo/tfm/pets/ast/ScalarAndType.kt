@@ -15,43 +15,49 @@ data class ScalarAndType(
     val scalar: Int = 1,
     val type: TypeExpression = MEGACREDIT.type,
 ) : PetNode() {
-  init { require(scalar >= 0) }
+  init {
+    require(scalar >= 0)
+  }
 
   override val kind = ScalarAndType::class.simpleName!!
 
   override fun toString() = toString(false, false)
 
-  fun toString(forceScalar: Boolean = false, forceType: Boolean = false) = when {
-    !forceType && type == MEGACREDIT.type -> "$scalar"
-    !forceScalar && scalar == 1 -> "$type"
-    else -> "$scalar $type"
-  }
+  fun toString(forceScalar: Boolean = false, forceType: Boolean = false) =
+      when {
+        !forceType && type == MEGACREDIT.type -> "$scalar"
+        !forceScalar && scalar == 1 -> "$type"
+        else -> "$scalar $type"
+      }
 
   companion object : PetParser() {
-    fun sat(scalar: Int = 1, type: TypeExpression = MEGACREDIT.type) =
-        ScalarAndType(scalar, type)
+    fun sat(scalar: Int = 1, type: TypeExpression = MEGACREDIT.type) = ScalarAndType(scalar, type)
 
     fun sat(text: String) = Parsing.parse(parser(), text)
 
     fun parser(): Parser<ScalarAndType> {
       return parser {
         val scalarAndOptionalType =
-            scalar and optional(typeExpression) map { (scalar, expr: TypeExpression?) ->
-              if (expr == null) {
-                sat(scalar = scalar)
-              } else {
-                sat(scalar, expr)
-              }
-            }
+            scalar and
+                optional(typeExpression) map
+                { (scalar, expr: TypeExpression?) ->
+                  if (expr == null) {
+                    sat(scalar = scalar)
+                  } else {
+                    sat(scalar, expr)
+                  }
+                }
 
         val optionalScalarAndType =
-            optional(scalar) and typeExpression map { (scalar, expr) ->
-              if (scalar == null) {
-                sat(type = expr)
-              } else {
-                sat(scalar, expr)
-              }
-            }
+            optional(scalar) and
+                typeExpression map
+                { (scalar, expr) ->
+                  if (scalar == null) {
+                    sat(type = expr)
+                  } else {
+                    sat(scalar, expr)
+                  }
+                }
 
         scalarAndOptionalType or optionalScalarAndType
       }

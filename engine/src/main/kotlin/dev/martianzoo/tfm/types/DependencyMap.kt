@@ -9,9 +9,7 @@ public data class DependencyMap(private val map: Map<Dependency.Key, Dependency>
   internal constructor() : this(mapOf<Dependency.Key, Dependency>())
 
   init {
-    map.forEach { (key, dep) ->
-      require(key == dep.key) { key }
-    }
+    map.forEach { (key, dep) -> require(key == dep.key) { key } }
   }
 
   public val keys by map::keys
@@ -25,9 +23,7 @@ public data class DependencyMap(private val map: Map<Dependency.Key, Dependency>
 
   public fun specializes(that: DependencyMap) =
       // For each of *its* keys, my type must be a subtype of its type
-      that.map.all { (thatKey, thatType) ->
-        map[thatKey]!!.specializes(thatType)
-      }
+      that.map.all { (thatKey, thatType) -> map[thatKey]!!.specializes(thatType) }
 
   // Combines all entries, using the glb when both maps have the same key
   public fun intersect(that: DependencyMap): DependencyMap {
@@ -35,8 +31,7 @@ public data class DependencyMap(private val map: Map<Dependency.Key, Dependency>
     return DependencyMap(merged)
   }
 
-  public fun overlayOn(that: DependencyMap) =
-      DependencyMap(overlayMaps(this.map, that.map))
+  public fun overlayOn(that: DependencyMap) = DependencyMap(overlayMaps(this.map, that.map))
 
   companion object {
     public fun intersect(maps: Collection<DependencyMap>): DependencyMap {
@@ -58,17 +53,16 @@ public data class DependencyMap(private val map: Map<Dependency.Key, Dependency>
     for ((key, dependency) in map) {
       if (unhandled.isEmpty()) break
       val intersect: PetType? = dependency.type.intersect(unhandled.first())
-      newMap[key] = if (intersect != null) {
-        unhandled.removeFirst()
-        dependency.copy(type = intersect)
-      } else {
-        dependency
-      }
+      newMap[key] =
+          if (intersect != null) {
+            unhandled.removeFirst()
+            dependency.copy(type = intersect)
+          } else {
+            dependency
+          }
     }
-    require(unhandled.isEmpty()) {
-      "This: $this\nSpecs: $specs\nUnhandled : $unhandled"
-    }
-    return DependencyMap(newMap) //.d { "findMatchups of $this with $specs: $it" } too noisy
+    require(unhandled.isEmpty()) { "This: $this\nSpecs: $specs\nUnhandled : $unhandled" }
+    return DependencyMap(newMap) // .d { "findMatchups of $this with $specs: $it" } too noisy
   }
 
   public fun specialize(specs: List<PetType>) = intersect(findMatchups(specs))

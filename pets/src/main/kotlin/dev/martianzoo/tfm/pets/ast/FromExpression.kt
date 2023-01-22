@@ -49,15 +49,11 @@ sealed class FromExpression : PetNode() {
       }
     }
 
-    override val toType = className.addArgs(
-        args.map { it.toType })
-    override val fromType = className.addArgs(
-        args.map { it.fromType }).refine(refinement)
+    override val toType = className.addArgs(args.map { it.toType })
+    override val fromType = className.addArgs(args.map { it.fromType }).refine(refinement)
 
     override fun toString() =
-        "$className" +
-        args.joinOrEmpty(wrap="<>") +
-        (refinement?.let { "(HAS $it)" } ?: "")
+        "$className" + args.joinOrEmpty(wrap = "<>") + (refinement?.let { "(HAS $it)" } ?: "")
   }
 
   companion object : PetParser() {
@@ -69,21 +65,24 @@ sealed class FromExpression : PetNode() {
 
         val fromElements =
             zeroOrMore(typeInFrom and skipChar(',')) and
-            parser() and
-            zeroOrMore(skipChar(',') and typeInFrom) map {
-              (before, from, after) -> before + from + after
-            }
+                parser() and
+                zeroOrMore(skipChar(',') and typeInFrom) map
+                { (before, from, after) ->
+                  before + from + after
+                }
 
-        val simpleFrom = genericType and skip(_from) and genericType map {
-          (to, from) -> SimpleFrom(to, from)
-        }
+        val simpleFrom =
+            genericType and skip(_from) and genericType map { (to, from) -> SimpleFrom(to, from) }
 
         val complexFrom =
             className and
-            skipChar('<') and fromElements and skipChar('>') and
-            optional(TypeParsers.refinement) map {
-              (name, args, refins) -> ComplexFrom(name, args, refins)
-            }
+                skipChar('<') and
+                fromElements and
+                skipChar('>') and
+                optional(TypeParsers.refinement) map
+                { (name, args, refins) ->
+                  ComplexFrom(name, args, refins)
+                }
 
         simpleFrom or complexFrom
       }

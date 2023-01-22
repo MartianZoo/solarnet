@@ -48,28 +48,23 @@ internal class PetGenerator(scaling: (Int) -> Double) :
   private object Registry : RandomGenerator.Registry<PetNode>() {
     init {
       val specSizes = multiset(8 to 0, 4 to 1, 2 to 2, 1 to 3) // weight to value
-      register {
-        cn(randomName())
-      }
+      register { cn(randomName()) }
       register { ClassLiteral(recurse()) }
-      register {
-        GenericTypeExpression(recurse(), listOfSize(choose(specSizes)), refinement())
-      }
+      register { GenericTypeExpression(recurse(), listOfSize(choose(specSizes)), refinement()) }
       register {
         choose(5 to recurse<GenericTypeExpression>(), 0 to recurse<ClassLiteral>()) // TODO
       }
-      register {
-        sat(choose(0, 1, 1, 1, 5, 11), choose(1 to MEGACREDIT.type, 3 to recurse()))
-      }
+      register { sat(choose(0, 1, 1, 1, 5, 11), choose(1 to MEGACREDIT.type, 3 to recurse())) }
 
-      val requirementTypes = multiset(
-          9 to Min::class,
-          4 to Max::class,
-          2 to Exact::class,
-          5 to Requirement.Or::class,
-          3 to Requirement.And::class,
-          1 to Requirement.Transform::class,
-      )
+      val requirementTypes =
+          multiset(
+              9 to Min::class,
+              4 to Max::class,
+              2 to Exact::class,
+              5 to Requirement.Or::class,
+              3 to Requirement.And::class,
+              1 to Requirement.Transform::class,
+          )
       register<Requirement> { recurse(choose(requirementTypes)) }
       register { Min(sat = recurse()) }
       register { Max(sat = recurse()) }
@@ -80,18 +75,19 @@ internal class PetGenerator(scaling: (Int) -> Double) :
 
       fun RandomGenerator<*>.intensity() = choose(3 to null, 1 to randomEnum<Intensity>())
 
-      val instructionTypes = multiset(
-          9 to Gain::class,
-          4 to Remove::class,
-          3 to Per::class,
-          2 to Gated::class,
-          2 to Transmute::class,
-          1 to Custom::class,
-          1 to Then::class,
-          3 to Instruction.Or::class,
-          5 to Instruction.Multi::class,
-          1 to Instruction.Transform::class,
-      )
+      val instructionTypes =
+          multiset(
+              9 to Gain::class,
+              4 to Remove::class,
+              3 to Per::class,
+              2 to Gated::class,
+              2 to Transmute::class,
+              1 to Custom::class,
+              1 to Then::class,
+              3 to Instruction.Or::class,
+              5 to Instruction.Multi::class,
+              1 to Instruction.Transform::class,
+          )
       register<Instruction> { recurse(choose(instructionTypes)) }
       register { Gain(recurse(), intensity()) }
       register { Remove(recurse(), intensity()) }
@@ -144,11 +140,12 @@ internal class PetGenerator(scaling: (Int) -> Double) :
         convert(into)
       }
 
-      val triggerTypes = multiset(
-          9 to Trigger.OnGain::class,
-          5 to Trigger.OnRemove::class,
-          1 to Trigger.Transform::class,
-      )
+      val triggerTypes =
+          multiset(
+              9 to Trigger.OnGain::class,
+              5 to Trigger.OnRemove::class,
+              1 to Trigger.Transform::class,
+          )
       register<Trigger> { recurse(choose(triggerTypes)) }
       register { Trigger.OnGain(recurse()) }
       register { Trigger.OnRemove(recurse()) }
@@ -156,13 +153,14 @@ internal class PetGenerator(scaling: (Int) -> Double) :
 
       register { Effect(recurse(), recurse(), choose(true, false)) }
 
-      val costTypes = multiset(
-          9 to Cost.Spend::class,
-          3 to Cost.Per::class,
-          3 to Cost.Or::class,
-          2 to Cost.Multi::class,
-          2 to Cost.Transform::class,
-      )
+      val costTypes =
+          multiset(
+              9 to Cost.Spend::class,
+              3 to Cost.Per::class,
+              3 to Cost.Or::class,
+              2 to Cost.Multi::class,
+              2 to Cost.Transform::class,
+          )
       register<Cost> { recurse(choose(costTypes)) }
       register { Cost.Spend(sat = recurse()) }
       register { Cost.Per(recurse(), recurse()) }
@@ -198,11 +196,12 @@ internal class PetGenerator(scaling: (Int) -> Double) :
 
       val originalStringOut = randomNode.toString()
 
-      val reparsedNode = try {
-        parsePets(type, originalStringOut)
-      } catch (e: Exception) {
-        fail("node was ${p2k(randomNode)}", e)
-      }
+      val reparsedNode =
+          try {
+            parsePets(type, originalStringOut)
+          } catch (e: Exception) {
+            fail("node was ${p2k(randomNode)}", e)
+          }
 
       assertWithMessage("intermediate string form was $originalStringOut")
           .that(reparsedNode)
@@ -258,7 +257,9 @@ internal class PetGenerator(scaling: (Int) -> Double) :
   }
 
   inline fun <reified T : PetNode> uniqueNodes(
-      count: Int = 100, depthLimit: Int = 10, stopAtDrySpell: Int = 200,
+      count: Int = 100,
+      depthLimit: Int = 10,
+      stopAtDrySpell: Int = 200,
   ): Set<T> {
     val set = mutableSetOf<T>()
     var drySpell = 0

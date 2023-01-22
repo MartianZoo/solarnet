@@ -6,9 +6,7 @@ import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.types.PetType.PetGenericType
 import dev.martianzoo.util.Debug.d
 
-/**
- * A class that has been loaded by a [PetClassLoader].
- */
+/** A class that has been loaded by a [PetClassLoader]. */
 public data class PetClass(
     private val declaration: ClassDeclaration,
     internal val directSuperclasses: List<PetClass>,
@@ -47,25 +45,30 @@ public data class PetClass(
       false
     } else {
       require(loader.frozen)
-      val sharesAllMySuperclasses = loader.loadedClasses().filter { petClass ->
-        directSuperclasses.all { petClass.isSubclassOf(it) }
-      }
+      val sharesAllMySuperclasses =
+          loader.loadedClasses().filter { petClass ->
+            directSuperclasses.all { petClass.isSubclassOf(it) }
+          }
       sharesAllMySuperclasses.all { it.isSubclassOf(this) }
     }
   }
 
-  public infix fun intersect(that: PetClass): PetClass? = when {
-    this.isSubclassOf(that) -> this
-    that.isSubclassOf(this) -> that
-    else -> {
-      val inters = allSubclasses.filter {
-        it.intersectionType && this in it.directSuperclasses && that in it.directSuperclasses
+  public infix fun intersect(that: PetClass): PetClass? =
+      when {
+        this.isSubclassOf(that) -> this
+        that.isSubclassOf(this) -> that
+        else -> {
+          val inters =
+              allSubclasses.filter {
+                it.intersectionType &&
+                    this in it.directSuperclasses &&
+                    that in it.directSuperclasses
+              }
+          if (inters.size == 1) inters.first() else null
+        }
       }
-      if (inters.size == 1) inters.first() else null
-    }
-  }
 
-// DEPENDENCIES
+  // DEPENDENCIES
 
   internal val directDependencyKeys: Set<Dependency.Key> by lazy {
     declaration.dependencies.indices.map { Dependency.Key(this, it) }.toSet()
@@ -84,24 +87,26 @@ public data class PetClass(
 
     val deps = DependencyMap.intersect(directSupertypes.map { it.dependencies })
 
-    val newDeps = directDependencyKeys.associateWith {
-      val typeExpression = declaration.dependencies[it.index].type
-      Dependency(it, loader.resolve(typeExpression))
-    }
+    val newDeps =
+        directDependencyKeys.associateWith {
+          val typeExpression = declaration.dependencies[it.index].type
+          Dependency(it, loader.resolve(typeExpression))
+        }
     val allDeps = deps.intersect(DependencyMap(newDeps))
     require(allDeps.keys == allDependencyKeys)
     PetGenericType(this, allDeps, null).d { "$this baseType: $it" }
   }
 
-// DEFAULTS
+  // DEFAULTS
 
   internal val defaults: Defaults by lazy {
-    val result = if (name == COMPONENT) {
-      Defaults.from(declaration.defaultsDeclaration, this, loader)
-    } else {
-      val rootDefaults = loader[COMPONENT].defaults
-      defaultsIgnoringRoot.overlayOn(listOf(rootDefaults))
-    }
+    val result =
+        if (name == COMPONENT) {
+          Defaults.from(declaration.defaultsDeclaration, this, loader)
+        } else {
+          val rootDefaults = loader[COMPONENT].defaults
+          defaultsIgnoringRoot.overlayOn(listOf(rootDefaults))
+        }
     if (!result.isEmpty()) d("defaults: $result")
     result
   }
@@ -115,12 +120,12 @@ public data class PetClass(
     }
   }
 
-// OTHER
+  // OTHER
 
   // includes abstract
   internal fun isSingleton(): Boolean =
       declaration.otherInvariants.any { it.requiresThis() } ||
-      directSuperclasses.any { it.isSingleton() }
+          directSuperclasses.any { it.isSingleton() }
 
   override fun toString() = "$name"
 }

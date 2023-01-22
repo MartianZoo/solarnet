@@ -30,12 +30,12 @@ private class PetClassCanonTest {
     table.load(cn("OceanTile")).apply {
       assertThat(directDependencyKeys).isEmpty()
       assertThat(allDependencyKeys).containsExactly(Dependency.Key(table["Tile"], 0))
-      assertThat(directSuperclasses.toStrings()).containsExactly("GlobalParameter", "Tile").inOrder()
-      assertThat(allSuperclasses.toStrings()).containsExactly(
-          "Component",
-          "GlobalParameter",
-          "Tile",
-          "OceanTile").inOrder()
+      assertThat(directSuperclasses.toStrings())
+          .containsExactly("GlobalParameter", "Tile")
+          .inOrder()
+      assertThat(allSuperclasses.toStrings())
+          .containsExactly("Component", "GlobalParameter", "Tile", "OceanTile")
+          .inOrder()
       assertThat(table.loadedClasses().size).isEqualTo(4)
 
       assertThat(baseType).isEqualTo(table.resolve("OceanTile<MarsArea>"))
@@ -71,13 +71,11 @@ private class PetClassCanonTest {
     val table = PetClassLoader(Canon).loadEverything()
     val all = table.loadedClassNames().map { table[it] }
 
-    val names: List<ClassName> = all.map { it.name }.filterNot {
-      it.matches(Regex("^Card.{3,4}$")) && it.hashCode() % 12 != 0
-    }.filterNot {
-      it.matches(Regex("^(Tharsis|Hellas|Elysium)")) && it.hashCode() % 8 != 0
-    }.filterNot {
-      it in setOf(COMPONENT, DIE)
-    }
+    val names: List<ClassName> =
+        all.map { it.name }
+            .filterNot { it.matches(Regex("^Card.{3,4}$")) && it.hashCode() % 12 != 0 }
+            .filterNot { it.matches(Regex("^(Tharsis|Hellas|Elysium)")) && it.hashCode() % 8 != 0 }
+            .filterNot { it in setOf(COMPONENT, DIE) }
 
     val abstracts = TreeSet<String>()
     val concretes = TreeSet<String>()
@@ -88,27 +86,28 @@ private class PetClassCanonTest {
       val name2 = names.random()
       val name3 = names.random()
       val name4 = names.random()
-      val tryThese = setOf(
-          "$name1<$name2>",
-          "$name1<$name2, $name3>",
-          "$name1<$name2<$name3>>",
-          "$name1<$name2, $name3, $name4>",
-          "$name1<$name2<$name3>, $name4>",
-          "$name1<$name2, $name3<$name4>>",
-          "$name1<$name2<$name3<$name4>>>",
-          "$name1<Player1>",
-          "$name1<Player1, $name3>",
-          "$name1<Player1, $name3, $name4>",
-          "$name1<Player1, $name3<$name4>>",
-          "$name1<$name2, Player1>",
-          "$name1<$name2<Player1>>",
-          "$name1<$name2, Player1, $name4>",
-          "$name1<$name2<Player1>, $name4>",
-          "$name1<$name2, $name3, Player1>",
-          "$name1<$name2<$name3>, Player1>",
-          "$name1<$name2, $name3<Player1>>",
-          "$name1<$name2<$name3<Player1>>>",
-      )
+      val tryThese =
+          setOf(
+              "$name1<$name2>",
+              "$name1<$name2, $name3>",
+              "$name1<$name2<$name3>>",
+              "$name1<$name2, $name3, $name4>",
+              "$name1<$name2<$name3>, $name4>",
+              "$name1<$name2, $name3<$name4>>",
+              "$name1<$name2<$name3<$name4>>>",
+              "$name1<Player1>",
+              "$name1<Player1, $name3>",
+              "$name1<Player1, $name3, $name4>",
+              "$name1<Player1, $name3<$name4>>",
+              "$name1<$name2, Player1>",
+              "$name1<$name2<Player1>>",
+              "$name1<$name2, Player1, $name4>",
+              "$name1<$name2<Player1>, $name4>",
+              "$name1<$name2, $name3, Player1>",
+              "$name1<$name2<$name3>, Player1>",
+              "$name1<$name2, $name3<Player1>>",
+              "$name1<$name2<$name3<Player1>>>",
+          )
       for (thing in tryThese) {
         try {
           val type = table.resolve(thing)
@@ -135,11 +134,10 @@ private class PetClassCanonTest {
   fun describeEverything() {
     val table = PetClassLoader(Canon).loadEverything()
     val all = table.loadedClassNames().map { table[it] }
-    all.sortedBy { it.name }.forEach { c ->
-      val interestingSupes = c.allSuperclasses.filter {
-        it.name !in setOf(COMPONENT, c.name)
-      }
-      println("${c.baseType} : $interestingSupes")
-    }
+    all.sortedBy { it.name }
+        .forEach { c ->
+          val interestingSupes = c.allSuperclasses.filter { it.name !in setOf(COMPONENT, c.name) }
+          println("${c.baseType} : $interestingSupes")
+        }
   }
 }

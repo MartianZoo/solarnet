@@ -18,9 +18,8 @@ internal class Defaults(
   companion object {
     val EMPTY = Defaults()
     fun from(d: DefaultsDeclaration, petClass: PetClass, loader: PetClassLoader): Defaults {
-      fun PetClass.toDependencyMap(specs: List<TypeExpression>?) = specs?.let {
-        loader.resolve(name.addArgs(it)).dependencies
-      } ?: DependencyMap()
+      fun PetClass.toDependencyMap(specs: List<TypeExpression>?) =
+          specs?.let { loader.resolve(name.addArgs(it)).dependencies } ?: DependencyMap()
 
       return Defaults(
           petClass.toDependencyMap(d.universalSpecs),

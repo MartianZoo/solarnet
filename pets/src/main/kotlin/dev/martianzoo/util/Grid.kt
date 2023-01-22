@@ -1,16 +1,14 @@
 package dev.martianzoo.util
 
 /**
- * A fixed-size two-dimensional array of nullable elements, where the elements
- * "know" their own row and column number (as opposed to their being placed there).
- * Important: there is no distinction made between a null cell, a missing cell,
- * and a cell that is "off the edge" of the grid!
+ * A fixed-size two-dimensional array of nullable elements, where the elements "know" their own row
+ * and column number (as opposed to their being placed there). Important: there is no distinction
+ * made between a null cell, a missing cell, and a cell that is "off the edge" of the grid!
  *
- * This actually works equally well for a hex grid. Imagine a parallelogram-
- * shaped section of the hex grid, slanted like `/ /`. That is, rows are still
- * horizontal, but what this class considers to be "columns" will actually slant
- * up and to the right. In this case, the *diagonals* of this grid represent the
- * columns that slant the other way.
+ * This actually works equally well for a hex grid. Imagine a parallelogram- shaped section of the
+ * hex grid, slanted like `/ /`. That is, rows are still horizontal, but what this class considers
+ * to be "columns" will actually slant up and to the right. In this case, the *diagonals* of this
+ * grid represent the columns that slant the other way.
  */
 interface Grid<E> : Set<E> {
   val rowCount: Int
@@ -44,11 +42,7 @@ interface Grid<E> : Set<E> {
       val maxRowIndex = cells.maxOfOrNull(rowFn) ?: 0
       val maxColIndex = cells.maxOfOrNull(columnFn) ?: 0
 
-      val grid = MutableGrid<E>(
-          List(maxRowIndex + 1) {
-            MutableList(maxColIndex + 1) { null }
-          }
-      )
+      val grid = MutableGrid<E>(List(maxRowIndex + 1) { MutableList(maxColIndex + 1) { null } })
       cells.forEach { grid.set(rowFn(it), columnFn(it), it) }
       return grid
     }

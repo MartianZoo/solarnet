@@ -14,13 +14,11 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 
 private class CardDefinitionTest {
-  /**
-   * This is honestly an incredibly stupid test that data classes shouldn't need to have.
-   */
+  /** This is honestly an incredibly stupid test that data classes shouldn't need to have. */
   @Test
   fun minimal() {
-    val dumbCard = CardDefinition(
-        "123", deck = PRELUDE, effectsText = setOf("This: Plant"), bundle =  "Z")
+    val dumbCard =
+        CardDefinition("123", deck = PRELUDE, effectsText = setOf("This: Plant"), bundle = "Z")
 
     assertThat(dumbCard.id).isEqualTo(cn("C123"))
     assertThat(dumbCard.bundle).isEqualTo("Z")
@@ -34,19 +32,20 @@ private class CardDefinitionTest {
     assertThat(dumbCard.projectKind).isNull()
   }
 
-  val birds = CardDefinition(
-      idRaw = "072",
-      bundle = "B",
-      deck = PROJECT,
-      tagsText = listOf("AnimalTag"),
-      immediateText = "PROD[-2 Plant<Anyone>]",
-      actionsText = listOf("-> Animal<This>"),
-      effectsText = setOf("End: VictoryPoint / Animal<This>"),
-      resourceTypeText = "Animal",
-      requirementText = "13 OxygenStep",
-      cost = 10,
-      projectKind = ACTIVE,
-  )
+  val birds =
+      CardDefinition(
+          idRaw = "072",
+          bundle = "B",
+          deck = PROJECT,
+          tagsText = listOf("AnimalTag"),
+          immediateText = "PROD[-2 Plant<Anyone>]",
+          actionsText = listOf("-> Animal<This>"),
+          effectsText = setOf("End: VictoryPoint / Animal<This>"),
+          resourceTypeText = "Animal",
+          requirementText = "13 OxygenStep",
+          cost = 10,
+          projectKind = ACTIVE,
+      )
 
   /** This test is also quite pointless, but shows an example usage for readers. */
   @Test
@@ -67,7 +66,8 @@ private class CardDefinitionTest {
 
   @Test
   fun realCardFromJson() {
-    val json = """
+    val json =
+        """
       {
         "cards": [
           {
@@ -96,8 +96,7 @@ private class CardDefinitionTest {
   /** Since we only use C expecting an exception, we should make sure it normally works. */
   @Test
   fun justToBeSure() {
-    @Suppress("UNUSED_VARIABLE")
-    val card = card.copy(idRaw = "123")
+    @Suppress("UNUSED_VARIABLE") val card = card.copy(idRaw = "123")
   }
 
   @Test
@@ -146,9 +145,7 @@ private class CardDefinitionTest {
     assertThrows<RuntimeException> {
       card.copy(projectKind = AUTOMATED, resourceTypeText = "Whatever")
     }
-    assertThrows<RuntimeException> {
-      card.copy(projectKind = ACTIVE, immediateText = "Whatever")
-    }
+    assertThrows<RuntimeException> { card.copy(projectKind = ACTIVE, immediateText = "Whatever") }
   }
 
   @Test
@@ -172,8 +169,6 @@ private class CardDefinitionTest {
 
   private fun checkRoundTrip(source: Collection<String>, cooked: Collection<PetNode>) {
     assertThat(source.size).isEqualTo(cooked.size)
-    source.zip(cooked).forEach {
-      assertThat("${it.second}").isEqualTo(it.first)
-    }
+    source.zip(cooked).forEach { assertThat("${it.second}").isEqualTo(it.first) }
   }
 }

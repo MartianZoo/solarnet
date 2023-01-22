@@ -17,26 +17,28 @@ class MapToText(val game: GameState) {
     lines += "$ind 1     2     3     4     5     6     7     8     9\n"
     lines += "$ind/     /     /     /     /     /     /     /     /\n"
 
-    lines += grid.rows().mapIndexed { rowNum, row ->
-      if (rowNum == 0) {
-        ""
-      } else {
-        val rowString = row.map { padCenter(describe(it), 6) }.joinToString("")
-        val indent = "   ".repeat(grid.rowCount - rowNum)
-        "\n" + (indent + rowString).trimEnd() + "\n"
-      }
-    }.joinToString("")
+    lines +=
+        grid
+            .rows()
+            .mapIndexed { rowNum, row ->
+              if (rowNum == 0) {
+                ""
+              } else {
+                val rowString = row.map { padCenter(describe(it), 6) }.joinToString("")
+                val indent = "   ".repeat(grid.rowCount - rowNum)
+                "\n" + (indent + rowString).trimEnd() + "\n"
+              }
+            }
+            .joinToString("")
 
-    return lines.trimIndent()
-        .split("\n")
-        .mapIndexed { i, line ->
-          val label = (i - 1) / 2 // TODO wow ugly
-          if (i <= 2 || line.isEmpty()) {
-            line
-          } else {
-            "$label —    $line"
-          }
-        }
+    return lines.trimIndent().split("\n").mapIndexed { i, line ->
+      val label = (i - 1) / 2 // TODO wow ugly
+      if (i <= 2 || line.isEmpty()) {
+        line
+      } else {
+        "$label —    $line"
+      }
+    }
   }
 
   private fun describe(area: AreaDefinition?): String { // TODO rewrite using Grid<String>
@@ -53,11 +55,7 @@ class MapToText(val game: GameState) {
   private fun describe(tile: TypeExpression): String {
     val gentile = tile.asGeneric()
     val kind = gentile.root.toString()[0]
-    val player = gentile.args
-        .toStrings()
-        .firstOrNull { it.startsWith("Player") }
-        ?.last()
-        ?: ""
+    val player = gentile.args.toStrings().firstOrNull { it.startsWith("Player") }?.last() ?: ""
     return "[$kind$player]"
   }
 

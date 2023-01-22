@@ -20,10 +20,11 @@ data class Effect(
   override val kind = "Effect"
 
   override fun toString(): String {
-    val instext = when (instruction) {
-      is Gated -> "($instruction)"
-      else -> "$instruction"
-    }
+    val instext =
+        when (instruction) {
+          is Gated -> "($instruction)"
+          else -> "$instruction"
+        }
     return "$trigger:${iff(automatic, ":")} $instext"
   }
 
@@ -75,8 +76,7 @@ data class Effect(
       return Trigger.parser() and
           colons and
           maybeGroup(Instruction.parser()) map {
-        (trig, immed, instr) ->
-            Effect(trigger = trig, automatic = immed, instruction = instr)
+            (trig, immed, instr) -> Effect(trigger = trig, automatic = immed, instruction = instr)
           }
     }
   }

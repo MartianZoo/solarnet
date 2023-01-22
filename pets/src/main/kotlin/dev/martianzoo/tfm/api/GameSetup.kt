@@ -7,12 +7,15 @@ data class GameSetup(
     val authority: Authority,
     val bundles: Collection<String>,
     val players: Int,
-    // TODO extraCards: Set<CardDefinition>,
-    // TODO removeCards: Set<CardDefinition>,
-    // TODO milestones: Set<MilestoneDefinition>,
+// TODO extraCards: Set<CardDefinition>,
+// TODO removeCards: Set<CardDefinition>,
+// TODO milestones: Set<MilestoneDefinition>,
 ) {
-  constructor(authority: Authority, bundles: String, players: Int) :
-      this(authority, splitLetters(bundles), players)
+  constructor(
+      authority: Authority,
+      bundles: String,
+      players: Int
+  ) : this(authority, splitLetters(bundles), players)
 
   init {
     // TODO solo mode much later
@@ -21,14 +24,9 @@ data class GameSetup(
     require(authority.allBundles.containsAll(bundles)) { bundles }
   }
 
-  val map = authority.marsMapDefinitions
-      .filter { it.bundle in bundles }
-      .single()
+  val map = authority.marsMapDefinitions.filter { it.bundle in bundles }.single()
 
-  val allDefinitions by lazy {
-    authority.allDefinitions.filter { it.bundle in bundles }
-  }
+  val allDefinitions by lazy { authority.allDefinitions.filter { it.bundle in bundles } }
 }
 
-private fun splitLetters(bundles: String) =
-    bundles.asIterable().toStrings().toSetStrict()
+private fun splitLetters(bundles: String) = bundles.asIterable().toStrings().toSetStrict()

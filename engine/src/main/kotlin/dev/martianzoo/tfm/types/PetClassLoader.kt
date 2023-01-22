@@ -18,15 +18,16 @@ import dev.martianzoo.util.toSetStrict
 class PetClassLoader(private val authority: Authority) : PetClassTable {
   private val table = mutableMapOf<ClassName, PetClass?>()
 
-// MAIN QUERIES
+  // MAIN QUERIES
 
   override fun get(nameOrId: ClassName): PetClass =
       table[nameOrId] ?: error("no class loaded with id or name $nameOrId")
 
-  override fun resolve(expression: TypeExpression): PetType = when (expression) {
-    is ClassLiteral -> PetClassLiteral(load(expression.className))
-    is GenericTypeExpression -> resolve(expression)
-  }
+  override fun resolve(expression: TypeExpression): PetType =
+      when (expression) {
+        is ClassLiteral -> PetClassLiteral(load(expression.className))
+        is GenericTypeExpression -> resolve(expression)
+      }
 
   override fun resolve(expression: GenericTypeExpression): PetGenericType =
       load(expression.root).baseType.specialize(expression.args.map { resolve(it) })
@@ -38,7 +39,7 @@ class PetClassLoader(private val authority: Authority) : PetClassTable {
   fun loadedClassIds() = loadedClasses().map { it.id }.toSetStrict()
   override fun loadedClasses() = table.values.filterNotNull().toSet()
 
-// LOADING
+  // LOADING
 
   var autoLoadDependencies: Boolean = false
 
@@ -86,7 +87,7 @@ class PetClassLoader(private val authority: Authority) : PetClassTable {
     }
   }
 
-// OKAY BUT ACTUAL LOADING NOW
+  // OKAY BUT ACTUAL LOADING NOW
 
   // all loading goes through here
   private fun loadSingle(idOrName: ClassName): PetClass {
@@ -115,7 +116,8 @@ class PetClassLoader(private val authority: Authority) : PetClassTable {
     // signal with `null` that loading is in process so we can detect infinite recursion
     table[decl.name] = null
     table[decl.id] = null
-    val superclasses: List<PetClass> = decl.superclassNames.map { load(it) } // we do most other things lazily...
+    val superclasses: List<PetClass> =
+        decl.superclassNames.map { load(it) } // we do most other things lazily...
 
     val petClass = PetClass(decl, superclasses, this)
     table[decl.name] = petClass
@@ -123,10 +125,10 @@ class PetClassLoader(private val authority: Authority) : PetClassTable {
     return petClass
   }
 
-// FREEZING
+  // FREEZING
 
   var frozen: Boolean = false
-      private set
+    private set
 
   fun freeze(): PetClassTable {
     frozen = true
@@ -134,7 +136,7 @@ class PetClassLoader(private val authority: Authority) : PetClassTable {
     return this
   }
 
-// WEIRD RESOURCE STUFF TODO
+  // WEIRD RESOURCE STUFF TODO
 
   // It is probably enough to return just the resource names we know about so far?
   fun resourceNames() = if (frozen) allResourceNames else findResourceNames()
@@ -146,8 +148,8 @@ class PetClassLoader(private val authority: Authority) : PetClassTable {
 
   private fun findResourceNames(): Set<ClassName> {
     val stdRes = load(STANDARD_RESOURCE)
-    return table.values.mapNotNull {
-      if (it?.isSubclassOf(stdRes) == true) it.name else null
-    }.toSet()
+    return table.values
+        .mapNotNull { if (it?.isSubclassOf(stdRes) == true) it.name else null }
+        .toSet()
   }
 }

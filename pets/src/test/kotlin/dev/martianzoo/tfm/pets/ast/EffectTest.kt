@@ -8,7 +8,8 @@ import org.junit.jupiter.api.Test
 // Most testing is done by AutomatedTest
 private class EffectTest {
 
-  val inputs = """
+  val inputs =
+      """
     Ooh: 1
     -Ahh: 1
     Qux: -1!
@@ -64,7 +65,8 @@ private class EffectTest {
     PROD[Ahh]: 5, Wau, Ahh<Foo<Bar>>, PROD[Bar OR -1, 1 / Abc]
     PROD[Abc<Abc<Abc>>]: (1 Abc<Qux, Bar FROM Ahh>, 5 Xyz), Qux
     PROD[Bar<Eep<Ahh<Ooh>>>]: (MAX 1 Megacredit: 1 Bar FROM Foo)
-  """.trimIndent()
+  """
+          .trimIndent()
 
   @Test
   fun testSampleStrings() {

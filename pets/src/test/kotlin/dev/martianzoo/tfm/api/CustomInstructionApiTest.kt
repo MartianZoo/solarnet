@@ -12,8 +12,8 @@ import dev.martianzoo.tfm.pets.ast.TypeExpression.GenericTypeExpression
 import org.junit.jupiter.api.Test
 
 /**
- * Tests implementing the [CustomInstruction] API. Doing this reasonably involves going
- * through [Instruction.Custom].
+ * Tests implementing the [CustomInstruction] API. Doing this reasonably involves going through
+ * [Instruction.Custom].
  */
 class CustomInstructionApiTest {
   val instruction = instruction("@foo()")
@@ -26,48 +26,49 @@ class CustomInstructionApiTest {
 
   private fun testIt(custom: CustomInstruction) {
     var gotIt = false
-    val game: GameState = object : StubGameState(fakeAuthority(custom)) {
-      override fun applyChange(
-          count: Int,
-          gaining: GenericTypeExpression?,
-          removing: GenericTypeExpression?,
-          cause: Cause?,
-      ) {
-        gotIt = true
-        assertThat(gaining).isEqualTo(OK.type)
-      }
-    }
+    val game: GameState =
+        object : StubGameState(fakeAuthority(custom)) {
+          override fun applyChange(
+              count: Int,
+              gaining: GenericTypeExpression?,
+              removing: GenericTypeExpression?,
+              cause: Cause?,
+          ) {
+            gotIt = true
+            assertThat(gaining).isEqualTo(OK.type)
+          }
+        }
     instruction.execute(game)
     assertThat(gotIt).isTrue()
   }
 
   @Test
   fun overridePreferred() {
-    val custom = object : CustomInstruction("foo") {
-      override fun translate(
-          game: ReadOnlyGameState, arguments: List<TypeExpression>
-      ) = dumb
-    }
+    val custom =
+        object : CustomInstruction("foo") {
+          override fun translate(game: ReadOnlyGameState, arguments: List<TypeExpression>) = dumb
+        }
     testIt(custom)
   }
 
   @Test
   fun overrideAlsoOkay() {
-    val custom = object : CustomInstruction("foo") {
-      override fun translateToPets(
-          game: ReadOnlyGameState, arguments: List<TypeExpression>
-      ) = dumb.toString()
-    }
+    val custom =
+        object : CustomInstruction("foo") {
+          override fun translateToPets(game: ReadOnlyGameState, arguments: List<TypeExpression>) =
+              dumb.toString()
+        }
     testIt(custom)
   }
 
   @Test
   fun overrideLastResort() {
-    val custom = object : CustomInstruction("foo") {
-      override fun execute(game: GameState, arguments: List<TypeExpression>) {
-        game.applyChange(1, gaining = OK.type)
-      }
-    }
+    val custom =
+        object : CustomInstruction("foo") {
+          override fun execute(game: GameState, arguments: List<TypeExpression>) {
+            game.applyChange(1, gaining = OK.type)
+          }
+        }
     testIt(custom)
   }
 }

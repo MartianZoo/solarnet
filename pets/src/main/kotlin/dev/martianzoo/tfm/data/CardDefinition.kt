@@ -33,7 +33,7 @@ import dev.martianzoo.util.toSetStrict
  * name). It's theoretically possible to reconstruct acceptable instruction text from this data,
  * just not the original wording.
  *
- * *Validation:*  the properties state numerous "guarantees", but in most cases this class is not
+ * *Validation:* the properties state numerous "guarantees", but in most cases this class is not
  * able to internally validate those conditions. Actual parsing of the strings must be handled by a
  * PETS parser external to this library.
  */
@@ -50,8 +50,7 @@ data class CardDefinition(
      * It is of course possible for non-canon cards to have colliding ids, which would prevent them
      * from being used simultaneously.
      */
-    @Json(name = "id")
-    val idRaw: String,
+    @Json(name = "id") val idRaw: String,
 
     /**
      * An optional textual identifier for the bundle this card belongs to, which can be used to
@@ -74,52 +73,45 @@ data class CardDefinition(
     val replaces: String? = null,
 
     /**
-     * The tags on the card, each expressed as a PETS class name. If a card (such as Venus
-     * Governor) has multiple of the same tag, the same string should appear that many times in the
-     * list. Order is irrelevant (but the Canon data preserves the tag order from the printed
-     * cards).
+     * The tags on the card, each expressed as a PETS class name. If a card (such as Venus Governor)
+     * has multiple of the same tag, the same string should appear that many times in the list.
+     * Order is irrelevant (but the Canon data preserves the tag order from the printed cards).
      */
     @Json(name = "tags") val tagsText: List<String> = listOf(),
 
-    /**
-     * Immediate effects on the card, if any, each expressed as a PETS `Instruction`.
-     */
+    /** Immediate effects on the card, if any, each expressed as a PETS `Instruction`. */
     @Json(name = "immediate") val immediateText: String? = null,
 
     /**
-     * Actions on the card, if any, each expressed as a PETS `Action`. `AUTOMATED` and `EVENT`
-     * cards may not have these.
+     * Actions on the card, if any, each expressed as a PETS `Action`. `AUTOMATED` and `EVENT` cards
+     * may not have these.
      */
     @Json(name = "actions") val actionsText: List<String> = listOf(),
 
     /**
-     * Effects on the card, if any, each expressed as a PETS `Effect`. `AUTOMATED` and
-     * `EVENT` cards may not have these.
+     * Effects on the card, if any, each expressed as a PETS `Effect`. `AUTOMATED` and `EVENT` cards
+     * may not have these.
      */
     @Json(name = "effects") val effectsText: Set<String> = setOf(),
 
-    /**
-     * Which resource type, if any, this card can hold, expressed as a PETS `TypeExpression`.
-     */
+    /** Which resource type, if any, this card can hold, expressed as a PETS `TypeExpression`. */
     @Json(name = "resourceType") val resourceTypeText: String? = null,
 
     /**
-     * Any extra classes the card defines (needed by no other card), expressed as a PETS
-     * class declaration.
+     * Any extra classes the card defines (needed by no other card), expressed as a PETS class
+     * declaration.
      */
     @Json(name = "components") val extraClassesText: Set<String> = setOf(),
 
     // Project info
 
     /**
-     * The card's requirement, if it has one, expressed as a PETS `Requirement`. Only cards in
-     * the `PROJECT` deck may have this.
+     * The card's requirement, if it has one, expressed as a PETS `Requirement`. Only cards in the
+     * `PROJECT` deck may have this.
      */
     @Json(name = "requirement") val requirementText: String? = null,
 
-    /**
-     * The card's nonnegative cost in megacredits. Is only nonzero for Project cards.
-     */
+    /** The card's nonnegative cost in megacredits. Is only nonzero for Project cards. */
     val cost: Int = 0,
 
     /**
@@ -147,7 +139,6 @@ data class CardDefinition(
           else -> require(inactive()) { "Persistent effects: $idRaw" }
         }
       }
-
       else -> {
         require(requirementText == null) { "can't have requirement: $idRaw" }
         require(cost == 0) { "can't have cost: $idRaw" }
@@ -163,18 +154,10 @@ data class CardDefinition(
 
   val resourceType: ClassName? = resourceTypeText?.let(::cn)
 
-  val immediateRaw: Instruction? by lazy {
-    immediateText?.let(::instruction)
-  }
-  val actionsRaw by lazy {
-    actionsText.map(::action)
-  }
-  val effectsRaw by lazy {
-    effectsText.map(::effect).toSetStrict()
-  }
-  val requirementRaw: Requirement? by lazy {
-    requirementText?.let(::requirement)
-  }
+  val immediateRaw: Instruction? by lazy { immediateText?.let(::instruction) }
+  val actionsRaw by lazy { actionsText.map(::action) }
+  val effectsRaw by lazy { effectsText.map(::effect).toSetStrict() }
+  val requirementRaw: Requirement? by lazy { requirementText?.let(::requirement) }
 
   // This doesn't get converted to an effect (yet??) so we have to canonicalize
   // TODO rethink
@@ -182,8 +165,9 @@ data class CardDefinition(
 
   val allEffects: Set<Effect> by lazy {
     (listOfNotNull(immediateRaw).map { immediateToEffect(it) } +
-        effectsRaw +
-        actionsToEffects(actionsRaw)).toSetStrict()
+            effectsRaw +
+            actionsToEffects(actionsRaw))
+        .toSetStrict()
   }
 
   val extraClasses: List<ClassDeclaration> by lazy {
@@ -215,22 +199,22 @@ data class CardDefinition(
   }
 
   val extraNodes: Set<PetNode> by lazy {
-      setOfNotNull(resourceType, requirementRaw, projectKind?.className, deck?.className) +
-      tags +
-      extraClasses.flatMap { it.allNodes }
+    setOfNotNull(resourceType, requirementRaw, projectKind?.className, deck?.className) +
+        tags +
+        extraClasses.flatMap { it.allNodes }
   }
 
-  /**
-   * The deck this card belongs to; see [CardDefinition.deck].
-   */
+  /** The deck this card belongs to; see [CardDefinition.deck]. */
   enum class Deck(val className: ClassName) {
-    PROJECT(PROJECT_CARD), PRELUDE(PRELUDE_CARD), CORPORATION(CORPORATION_CARD);
+    PROJECT(PROJECT_CARD),
+    PRELUDE(PRELUDE_CARD),
+    CORPORATION(CORPORATION_CARD)
   }
 
-  /**
-   * A kind (color) of project; see [CardDefinition.projectKind].
-   */
+  /** A kind (color) of project; see [CardDefinition.projectKind]. */
   enum class ProjectKind(val className: ClassName) { // TODO json adapter?
-    EVENT(EVENT_CARD), AUTOMATED(AUTOMATED_CARD), ACTIVE(ACTIVE_CARD);
+    EVENT(EVENT_CARD),
+    AUTOMATED(AUTOMATED_CARD),
+    ACTIVE(ACTIVE_CARD)
   }
 }

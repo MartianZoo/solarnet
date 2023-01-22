@@ -15,32 +15,33 @@ class ApiHelpersTest {
   fun lookupProds() {
     val game = Engine.newGame(GameSetup(Canon, "BM", 3))
     val prods: Map<ClassName, Int> = lookUpProductionLevels(game, ClassName.cn("Player1").type)
-    assertThat(prods).containsExactly(
-        ClassName.cn("Megacredit"), -5,
-        ClassName.cn("Steel"), 0,
-        ClassName.cn("Titanium"), 0,
-        ClassName.cn("Plant"), 0,
-        ClassName.cn("Energy"), 0,
-        ClassName.cn("Heat"), 0,
-    )
+    assertThat(prods.map { it.key to it.value })
+        .containsExactly(
+            ClassName.cn("Megacredit") to -5,
+            ClassName.cn("Steel") to 0,
+            ClassName.cn("Titanium") to 0,
+            ClassName.cn("Plant") to 0,
+            ClassName.cn("Energy") to 0,
+            ClassName.cn("Heat") to 0,
+        )
 
     game.applyChange(2, gaining = genericTypeExpression("Production<Player1, Plant.CLASS>"))
     val prods2: Map<ClassName, Int> = lookUpProductionLevels(game, ClassName.cn("Player1").type)
-    assertThat(prods2).containsExactly(
-        ClassName.cn("Megacredit"), -5,
-        ClassName.cn("Steel"), 0,
-        ClassName.cn("Titanium"), 0,
-        ClassName.cn("Plant"), 2,
-        ClassName.cn("Energy"), 0,
-        ClassName.cn("Heat"), 0,
-    )
+    assertThat(prods2.map { it.key to it.value })
+        .containsExactly(
+            ClassName.cn("Megacredit") to -5,
+            ClassName.cn("Steel") to 0,
+            ClassName.cn("Titanium") to 0,
+            ClassName.cn("Plant") to 2,
+            ClassName.cn("Energy") to 0,
+            ClassName.cn("Heat") to 0,
+        )
   }
 
   @Test
   fun stdResNames() {
     val game = Engine.newGame(GameSetup(Canon, "BM", 3))
-    assertThat(standardResourceNames(game).toStrings()).containsExactly(
-        "Megacredit", "Steel", "Titanium", "Plant", "Energy", "Heat"
-    )
+    assertThat(standardResourceNames(game).toStrings())
+        .containsExactly("Megacredit", "Steel", "Titanium", "Plant", "Energy", "Heat")
   }
 }

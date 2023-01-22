@@ -10,16 +10,17 @@ import org.junit.jupiter.api.Test
 class AuthorityTest {
   @Test
   fun test() {
-    val authority = object : Authority.Empty() {
-      override val cardDefinitions = listOf(
-          CardDefinition(
-              idRaw = "123",
-              deck = Deck.PRELUDE,
-              effectsText = setOf("This: Plant"),
-              bundle =  "Z",
-              extraClassesText = setOf("CLASS Foo<Boo> : Loo { HAS =1 Bar; Abc: Xyz }"))
-      )
-    }
+    val authority =
+        object : Authority.Empty() {
+          override val cardDefinitions =
+              listOf(
+                  CardDefinition(
+                      idRaw = "123",
+                      deck = Deck.PRELUDE,
+                      effectsText = setOf("This: Plant"),
+                      bundle = "Z",
+                      extraClassesText = setOf("CLASS Foo<Boo> : Loo { HAS =1 Bar; Abc: Xyz }")))
+        }
     assertThat(authority.allClassDeclarations).hasSize(2)
     assertThat(authority.classDeclaration(cn("IndustrialCenter")).abstract).isFalse()
     assertThat(authority.classDeclaration(cn("Foo")).dependencies).hasSize(1)

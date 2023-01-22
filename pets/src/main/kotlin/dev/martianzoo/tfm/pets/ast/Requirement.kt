@@ -42,7 +42,9 @@ sealed class Requirement : PetNode() {
   }
 
   data class Or(val requirements: Set<Requirement>) : Requirement() {
-    init { require(requirements.size >= 2) }
+    init {
+      require(requirements.size >= 2)
+    }
 
     override fun toString() = requirements.joinToString(" OR ") { groupPartIfNeeded(it) }
     override fun precedence() = 3
@@ -51,7 +53,9 @@ sealed class Requirement : PetNode() {
   }
 
   data class And(val requirements: List<Requirement>) : Requirement() {
-    init { require(requirements.size >= 2) }
+    init {
+      require(requirements.size >= 2)
+    }
 
     override fun toString() = requirements.joinToString { groupPartIfNeeded(it) }
     override fun precedence() = 1
@@ -76,13 +80,12 @@ sealed class Requirement : PetNode() {
 
     internal fun parser(): Parser<Requirement> {
       return parser {
-        val orReq = separatedTerms(atomParser(), _or) map {
-          val set = it.toSet()
-          if (set.size == 1) set.first() else Or(set)
-        }
-        commaSeparated(orReq) map {
-          if (it.size == 1) it.first() else And(it)
-        }
+        val orReq =
+            separatedTerms(atomParser(), _or) map {
+              val set = it.toSet()
+              if (set.size == 1) set.first() else Or(set)
+            }
+        commaSeparated(orReq) map { if (it.size == 1) it.first() else And(it) }
       }
     }
 
@@ -93,9 +96,7 @@ sealed class Requirement : PetNode() {
         val min = sat map ::Min
         val max = skip(_max) and sat map ::Max
         val exact = skipChar('=') and sat map ::Exact
-        val transform = transform(parser()) map { (node, type) ->
-          Transform(node, type)
-        }
+        val transform = transform(parser()) map { (node, type) -> Transform(node, type) }
         min or max or exact or transform or group(parser())
       }
     }

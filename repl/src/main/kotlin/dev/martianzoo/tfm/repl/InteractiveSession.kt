@@ -51,9 +51,7 @@ class InteractiveSession(val authority: Authority) {
 
     subs.mapNotNull { sub ->
       val thatType: PetGenericType = sub.baseType
-      val count = theStuff.entrySet()
-          .filter { it.element.hasType(thatType) }
-          .sumOf { it.count }
+      val count = theStuff.entrySet().filter { it.element.hasType(thatType) }.sumOf { it.count }
       if (count > 0) {
         "$count".padEnd(4) + thatType
       } else {
@@ -65,7 +63,7 @@ class InteractiveSession(val authority: Authority) {
 
   fun has(requirement: Requirement) = game!!.isMet(fixTypes(requirement))
 
-  fun execute(instruction: Instruction) : Instruction {
+  fun execute(instruction: Instruction): Instruction {
     val instr = fixTypes(instruction)
     game!!.execute(instr)
     return instr

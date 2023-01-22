@@ -44,7 +44,8 @@ private class ClassDeclarationTest {
         DEFAULT +This!
       }
     """) // default
-    parseClassDeclarations("""
+    parseClassDeclarations(
+        """
       CLASS Foo {
         DEFAULT +This!
       }
@@ -52,7 +53,8 @@ private class ClassDeclarationTest {
         DEFAULT +This!
       }
     """) // two blocks
-    parseClassDeclarations("""
+    parseClassDeclarations(
+        """
       CLASS Foo {
         DEFAULT +This!
       }
@@ -62,7 +64,9 @@ private class ClassDeclarationTest {
 
   @Test
   fun body() {
-    assertThat(parseClassDeclarations("""
+    assertThat(
+            parseClassDeclarations(
+                """
           CLASS Bar : Qux { DEFAULT +This?
             Foo -> Bar
 
@@ -71,12 +75,15 @@ private class ClassDeclarationTest {
             CLASS Foo
 
           }
-        """)).hasSize(2)
+        """))
+        .hasSize(2)
   }
 
   @Test
   fun series() {
-    assertThat(parseClassDeclarations("""
+    assertThat(
+        parseClassDeclarations(
+            """
         CLASS Die {
         }
         CLASS DieHard {
@@ -92,7 +99,9 @@ private class ClassDeclarationTest {
 
   @Test
   fun nesting() {
-    val cs = parseClassDeclarations("""
+    val cs =
+        parseClassDeclarations(
+            """
       CLASS Component
 
       CLASS One
@@ -107,22 +116,24 @@ private class ClassDeclarationTest {
       }
     """)
 
-    assertThat(cs.map { it.supertypes }).containsExactly(
-        setOf<TypeExpression>(),
-        setOf(cn("Component").type),
-        setOf(cn("One").type),
-        setOf(cn("Component").type),
-        setOf(cn("Three").type),
-        setOf(cn("One").type, cn("Three").type),
-        setOf(cn("Three").type),
-        setOf(cn("Six").type),
-        setOf(cn("One").type, cn("Six").type),
-    )
+    assertThat(cs.map { it.supertypes })
+        .containsExactly(
+            setOf<TypeExpression>(),
+            setOf(cn("Component").type),
+            setOf(cn("One").type),
+            setOf(cn("Component").type),
+            setOf(cn("Three").type),
+            setOf(cn("One").type, cn("Three").type),
+            setOf(cn("Three").type),
+            setOf(cn("Six").type),
+            setOf(cn("One").type, cn("Six").type),
+        )
   }
 
   @Test
   fun nestedOneLiner() {
-    parseClassDeclarations("""
+    parseClassDeclarations(
+        """
       CLASS One {
         CLASS Two { This: That }
         CLASS Three { This: That }
@@ -132,7 +143,8 @@ private class ClassDeclarationTest {
 
   @Test
   fun withDefaults() {
-    parseClassDeclarations("""
+    parseClassDeclarations(
+        """
         ABSTRACT CLASS Component {
            DEFAULT +This!
            DEFAULT This<Foo>

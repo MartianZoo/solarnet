@@ -13,9 +13,9 @@ import dev.martianzoo.tfm.pets.ast.ClassName.Parsing.className
 import dev.martianzoo.util.joinOrEmpty
 
 /**
- * A noun expression. May be a simple type (`ClassName`), a parameterized type
- * (`Foo<Bar, Qux>`) or a *refined* type (`Foo<Bar(HAS 3 Qux)>(HAS Wau)`). A
- * refined type is the combination of a real type with various predicates.
+ * A noun expression. May be a simple type (`ClassName`), a parameterized type (`Foo<Bar, Qux>`) or
+ * a *refined* type (`Foo<Bar(HAS 3 Qux)>(HAS Wau)`). A refined type is the combination of a real
+ * type with various predicates.
  */
 sealed class TypeExpression : PetNode() {
   companion object {
@@ -71,21 +71,20 @@ sealed class TypeExpression : PetNode() {
   // object around.
   object TypeParsers : PetParser() {
     private val classLiteral =
-        className and
-        skipChar('.') and
-        skip(_class) map TypeExpression::ClassLiteral
+        className and skipChar('.') and skip(_class) map TypeExpression::ClassLiteral
 
     private val typeArgs =
-        skipChar('<') and
-        commaSeparated(parser { typeExpression }) and
-        skipChar('>')
+        skipChar('<') and commaSeparated(parser { typeExpression }) and skipChar('>')
 
     val refinement = group(skip(_has) and parser { Requirement.parser() })
 
     val genericType: Parser<GenericTypeExpression> =
-        className and optionalList(typeArgs) and optional(refinement) map { (type, args, ref) ->
-          GenericTypeExpression(type, args, ref)
-        }
+        className and
+            optionalList(typeArgs) and
+            optional(refinement) map
+            { (type, args, ref) ->
+              GenericTypeExpression(type, args, ref)
+            }
 
     val typeExpression = classLiteral or genericType
   }

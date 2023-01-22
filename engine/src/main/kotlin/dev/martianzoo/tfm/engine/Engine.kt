@@ -6,7 +6,6 @@ import dev.martianzoo.tfm.engine.ComponentGraph.Component
 import dev.martianzoo.tfm.pets.SpecialClassNames.ME
 import dev.martianzoo.tfm.pets.SpecialClassNames.PRODUCTION
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.tfm.types.PetClass
 import dev.martianzoo.tfm.types.PetClassLoader
 import dev.martianzoo.tfm.types.PetType.PetClassLiteral
 import dev.martianzoo.util.filterNoNulls
@@ -28,9 +27,9 @@ public object Engine {
     loader.load(PRODUCTION)
     loader.freeze()
 
-    val prebuilt = classLiterals(loader) + // TODO make them just singletons too!?
-        singletons(loader) +
-        borders(setup.map, loader) // TODO
+    val prebuilt =
+        classLiterals(loader) + // TODO make them just singletons too!?
+        singletons(loader) + borders(setup.map, loader) // TODO
 
     return Game(setup, ComponentGraph(prebuilt), loader)
   }
@@ -38,12 +37,11 @@ public object Engine {
   // TODO maybe the loader should report these
 
   private fun classLiterals(loader: PetClassLoader) =
-      loader.loadedClasses()
-          .filterNot { it.abstract }
-          .map { Component(PetClassLiteral(it)) }
+      loader.loadedClasses().filterNot { it.abstract }.map { Component(PetClassLiteral(it)) }
 
   private fun singletons(loader: PetClassLoader) =
-      loader.loadedClasses()
+      loader
+          .loadedClasses()
           .filter { it.isSingleton() && !it.baseType.abstract } // TODO that's not right
           .map { Component(loader.resolve(it.name.type)) }
 

@@ -38,7 +38,8 @@ data class Action(val cost: Cost?, val instruction: Instruction) : PetNode() {
           throw PetException("Can't do something 'per' a non-positive amount")
         }
         when (cost) {
-          is Or, is Multi -> throw PetException("Break into separate Per instructions")
+          is Or,
+          is Multi -> throw PetException("Break into separate Per instructions")
           is Per -> throw PetException("Might support in future?")
           else -> {}
         }
@@ -53,7 +54,9 @@ data class Action(val cost: Cost?, val instruction: Instruction) : PetNode() {
     data class Or(var costs: Set<Cost>) : Cost() {
       constructor(vararg costs: Cost) : this(costs.toSet())
 
-      init { require(costs.size >= 2) }
+      init {
+        require(costs.size >= 2)
+      }
 
       override fun toString() = costs.joinToString(" OR ") { groupPartIfNeeded(it) }
       override fun precedence() = 3
@@ -64,7 +67,9 @@ data class Action(val cost: Cost?, val instruction: Instruction) : PetNode() {
     data class Multi(var costs: List<Cost>) : Cost() {
       constructor(vararg costs: Cost) : this(costs.toList())
 
-      init { require(costs.size >= 2) }
+      init {
+        require(costs.size >= 2)
+      }
 
       override fun toString() = costs.joinToString { groupPartIfNeeded(it) }
       override fun precedence() = 1
@@ -90,12 +95,14 @@ data class Action(val cost: Cost?, val instruction: Instruction) : PetNode() {
           val cost: Parser<Cost> = parser { parser() }
           val spend = sat map Cost::Spend
 
-          val maybeTransform = spend or (transform(cost) map { (node, type) ->
-            Transform(node, type)
-          })
-          val perCost = maybeTransform and optional(skipChar('/') and sat) map {
-            (cost, sat) -> if (sat == null) cost else Per(cost, sat)
-          }
+          val maybeTransform =
+              spend or (transform(cost) map { (node, type) -> Transform(node, type) })
+
+          val perCost =
+              maybeTransform and
+              optional(skipChar('/') and sat) map {
+                (cost, sat) -> if (sat == null) cost else Per(cost, sat)
+              }
 
           val orCost =
               separatedTerms(perCost or group(cost), _or) map {
@@ -103,9 +110,7 @@ data class Action(val cost: Cost?, val instruction: Instruction) : PetNode() {
                 if (set.size == 1) set.first() else Or(set)
               }
 
-          commaSeparated(orCost or group(cost)) map {
-            if (it.size == 1) it.first() else Multi(it)
-          }
+          commaSeparated(orCost or group(cost)) map { if (it.size == 1) it.first() else Multi(it) }
         }
       }
     }
@@ -117,6 +122,8 @@ data class Action(val cost: Cost?, val instruction: Instruction) : PetNode() {
     internal fun parser(): Parser<Action> =
         optional(Cost.parser()) and
         skip(_arrow) and
-        Instruction.parser() map { (c, i) -> Action(c, i) }
+        Instruction.parser() map {
+          (c, i) -> Action(c, i)
+        }
   }
 }

@@ -44,17 +44,20 @@ open class PetParser {
 
   val scalar: Parser<Int> = _scalarRE map { it.text.toInt() }
 
-  internal val intensity = optional(
-      char('!') or char('.') or char('?') map { it.text } map Intensity::from
-  )
+  internal val intensity =
+      optional(char('!') or char('.') or char('?') map { it.text } map Intensity::from)
 
   internal inline fun <reified T> optionalList(parser: Parser<List<T>>) =
       optional(parser) map { it ?: listOf() }
 
   internal inline fun <reified T> transform(interior: Parser<T>) =
-      _allCapsWordRE and skipChar('[') and interior and skipChar(']') map {
-        (trans, inter) -> Tuple2(inter, trans.text.removeSuffix("["))
-      }
+      _allCapsWordRE and
+          skipChar('[') and
+          interior and
+          skipChar(']') map
+          { (trans, inter) ->
+            Tuple2(inter, trans.text.removeSuffix("["))
+          }
 
   internal inline fun <reified P> commaSeparated(p: Parser<P>) = separatedTerms(p, char(','))
 
@@ -68,10 +71,10 @@ open class PetParser {
   internal fun skipChar(c: Char) = skip(char(c))
 
   private object TokenCache {
-    val ignoreList = listOf<Token>(
-        regexToken("backslash-newline", "\\\\\n", true), // ignore these
-        regexToken("spaces", " +", true)
-    )
+    val ignoreList =
+        listOf<Token>(
+            regexToken("backslash-newline", "\\\\\n", true), // ignore these
+            regexToken("spaces", " +", true))
 
     val map = mutableMapOf<Pair<String, Boolean>, Token>()
 

@@ -56,15 +56,19 @@ object Parsing {
 
   /** Non-reified version of `parse(source)`. */
   fun <P : PetNode> parsePets(expectedType: KClass<P>, source: String): P {
-    val pet = try {
-      parserGroup.parse(expectedType, tokenize(source))
-    } catch (e: ParseException) {
-      throw IllegalArgumentException("""
+    val pet =
+        try {
+          parserGroup.parse(expectedType, tokenize(source))
+        } catch (e: ParseException) {
+          throw IllegalArgumentException(
+              """
           Expecting ${expectedType.simpleName} ...
           Input was:
           $source
-      """.trimIndent(), e)
-    }
+      """
+                  .trimIndent(),
+              e)
+        }
     return expectedType.cast(pet)
   }
 
@@ -75,9 +79,7 @@ object Parsing {
   fun parseOneLineClassDeclaration(declarationSource: String): ClassDeclaration {
     return parse(oneLineDeclaration, declarationSource)
   }
-  /**
-   * Parses an entire PETS class declarations source file.
-   */
+  /** Parses an entire PETS class declarations source file. */
   fun parseClassDeclarations(declarationsSource: String): List<ClassDeclaration> {
     val tokens = tokenize(stripLineComments(declarationsSource))
     return parseRepeated(topLevelDeclarationGroup, tokens)
@@ -85,9 +87,10 @@ object Parsing {
 
   fun <T> parse(parser: Parser<T>, source: String): T {
     val tokens = tokenize(source)
-    Debug.d(tokens.filterNot { it.type.ignored }.joinToString(" ") {
-      it.type.name?.replace("\n", "\\n") ?: "NULL"
-    })
+    Debug.d(
+        tokens
+            .filterNot { it.type.ignored }
+            .joinToString(" ") { it.type.name?.replace("\n", "\\n") ?: "NULL" })
     return parser.parseToEnd(tokens)
   }
 
@@ -97,9 +100,10 @@ object Parsing {
 }
 
 fun <T> parseRepeated(listParser: Parser<List<T>>, tokens: TokenMatchesSequence): List<T> {
-  Debug.d(tokens.filterNot { it.type.ignored }.joinToString(" ") {
-    it.type.name?.replace("\n", "\\n") ?: "NULL"
-  })
+  Debug.d(
+      tokens
+          .filterNot { it.type.ignored }
+          .joinToString(" ") { it.type.name?.replace("\n", "\\n") ?: "NULL" })
   var index = 0
   val parsed = mutableListOf<T>()
   while (true) {
@@ -130,16 +134,18 @@ fun myThrow(result: ErrorResult) {
       is MismatchedToken -> {
         val match: TokenMatch = result.found
         val loc = match.row to match.column
-        val thisLoc = if (loc in locations) {
-          locations[loc]
-        } else {
-          locations[loc] = ctr
-          ctr++
-        }
+        val thisLoc =
+            if (loc in locations) {
+              locations[loc]
+            } else {
+              locations[loc] = ctr
+              ctr++
+            }
         input = match.input.toString()
         val found = match.text.replace("\n", "\\n")
         val expec = result.expected.name?.replace("\n", "\\n")
-        message.append("$thisLoc: at ${match.row}:${match.column}, looking for $expec, but found $found\n")
+        message.append(
+            "$thisLoc: at ${match.row}:${match.column}, looking for $expec, but found $found\n")
       }
       else -> message.append(result.toString())
     }
@@ -160,9 +166,9 @@ fun myThrow(result: ErrorResult) {
   throw RuntimeException(message.toString())
 }
 
-
-private fun isEOF(result: ParseResult<*>?): Boolean = when (result) {
-  is UnexpectedEof -> true
-  is AlternativesFailure -> result.errors.any(::isEOF)
-  else -> false
-}
+private fun isEOF(result: ParseResult<*>?): Boolean =
+    when (result) {
+      is UnexpectedEof -> true
+      is AlternativesFailure -> result.errors.any(::isEOF)
+      else -> false
+    }

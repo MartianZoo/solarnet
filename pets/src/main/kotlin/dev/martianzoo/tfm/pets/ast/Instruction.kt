@@ -65,7 +65,9 @@ sealed class Instruction : PetNode() {
         throw PetException("Can't do something 'per' zero")
       }
       when (instruction) {
-        is Gain, is Remove, is Transmute -> {}
+        is Gain,
+        is Remove,
+        is Transmute -> {}
         else -> throw PetException("Per can only contain gain/remove/transmute")
       }
     }
@@ -128,10 +130,11 @@ sealed class Instruction : PetNode() {
 
     override fun times(value: Int) = copy(scalar = scalar!! * value)
 
-    override fun execute(game: GameState) = game.applyChange(
-        scalar ?: 1,
-        gaining = fromExpression.toType.asGeneric(),
-        removing = fromExpression.fromType.asGeneric())
+    override fun execute(game: GameState) =
+        game.applyChange(
+            scalar ?: 1,
+            gaining = fromExpression.toType.asGeneric(),
+            removing = fromExpression.fromType.asGeneric())
 
     override fun toString(): String {
       val intens = intensity?.symbol ?: ""
@@ -146,8 +149,10 @@ sealed class Instruction : PetNode() {
   }
 
   data class Custom(val functionName: String, val arguments: List<TypeExpression>) : Instruction() {
-    constructor(functionName: String, vararg arguments: TypeExpression) :
-        this(functionName, arguments.toList())
+    constructor(
+        functionName: String,
+        vararg arguments: TypeExpression
+    ) : this(functionName, arguments.toList())
 
     override fun execute(game: GameState) {
       val instr = game.authority.customInstruction(functionName)
@@ -162,8 +167,8 @@ sealed class Instruction : PetNode() {
 
         // TODO what other conversions can we make...
         if (translated.childNodesOfType<PetNode>().any {
-            // TODO deprodify could do this??
-            it is GenericTransform<*> && it.transform == "PROD"
+          // TODO deprodify could do this??
+          it is GenericTransform<*> && it.transform == "PROD"
         }) {
           translated = deprodify(translated, standardResourceNames(game))
         }
@@ -179,7 +184,9 @@ sealed class Instruction : PetNode() {
   data class Then(val instructions: List<Instruction>) : Instruction() {
     constructor(vararg instructions: Instruction) : this(instructions.toList())
 
-    init { require(instructions.size >= 2) }
+    init {
+      require(instructions.size >= 2)
+    }
 
     override fun times(value: Int) = copy(instructions.map { it * value })
     override fun execute(game: GameState) {
@@ -194,7 +201,9 @@ sealed class Instruction : PetNode() {
   data class Or(val instructions: Set<Instruction>) : Instruction() {
     constructor(vararg instructions: Instruction) : this(instructions.toSet())
 
-    init { require(instructions.size >= 2) }
+    init {
+      require(instructions.size >= 2)
+    }
 
     override fun times(value: Int) = copy(instructions.map { it * value }.toSet())
     override fun execute(game: GameState) = error("abstract instruction")
@@ -210,7 +219,9 @@ sealed class Instruction : PetNode() {
   data class Multi(val instructions: List<Instruction>) : Instruction() {
     constructor(vararg instructions: Instruction) : this(instructions.toList())
 
-    init { require(instructions.size >= 2) }
+    init {
+      require(instructions.size >= 2)
+    }
 
     override fun times(value: Int) = copy(instructions.map { it * value })
 
@@ -259,40 +270,42 @@ sealed class Instruction : PetNode() {
         val transmute =
             optional(scalar) and
             FromExpression.parser() and
-            optional(intensity) map { (scal, fro, intens) ->
-              Transmute(fro, scal, intens)
+            optional(intensity) map {
+              (scal, fro, intens) -> Transmute(fro, scal, intens)
             }
 
         val perable = transmute or group(transmute) or gain or remove
 
-        val maybePer = perable and optional(skipChar('/') and sat) map { (instr, sat) ->
-          if (sat == null) instr else Per(instr, sat)
-        }
+        val maybePer =
+            perable and
+            optional(skipChar('/') and sat) map {
+              (instr, sat) -> if (sat == null) instr else Per(instr, sat)
+            }
 
-        val maybeTransform = maybePer or (transform(parser()) map { (node, type) ->
-          Transform(node, type)
-        })
+        val maybeTransform =
+            maybePer or (transform(parser()) map { (node, type) -> Transform(node, type) })
 
         val arguments = separatedTerms(typeExpression, char(','), acceptZero = true)
-        val custom = skipChar('@') and _lowerCamelRE and group(
-            arguments) map { (name, args) ->
-          Custom(name.text, args)
-        }
+        val custom =
+            skipChar('@') and
+            _lowerCamelRE and
+            group(arguments) map {
+              (name, args) -> Custom(name.text, args)
+            }
         val atom = group(parser()) or maybeTransform or custom
 
-        val gated = optional(Requirement.atomParser() and skipChar(':')) and atom map {
-          (one, two) -> if (one == null) two else Gated(one, two)
-        }
-        val orInstr = separatedTerms(gated, _or) map {
-          val set = it.toSet()
-          if (set.size == 1) set.first() else Or(set)
-        }
-        val then = separatedTerms(orInstr, _then) map {
-          if (it.size == 1) it.first() else Then(it)
-        }
-        commaSeparated(then) map {
-          if (it.size == 1) it.first() else Multi(it)
-        }
+        val gated =
+            optional(Requirement.atomParser() and skipChar(':')) and
+            atom map {
+              (one, two) -> if (one == null) two else Gated(one, two)
+            }
+        val orInstr =
+            separatedTerms(gated, _or) map {
+              val set = it.toSet()
+              if (set.size == 1) set.first() else Or(set)
+            }
+        val then = separatedTerms(orInstr, _then) map { if (it.size == 1) it.first() else Then(it) }
+        commaSeparated(then) map { if (it.size == 1) it.first() else Multi(it) }
       }
     }
   }

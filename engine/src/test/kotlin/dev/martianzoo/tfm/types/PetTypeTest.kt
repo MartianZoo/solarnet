@@ -7,23 +7,23 @@ private class PetTypeTest {
 
   @Test
   fun testCycle() {
-    val table: PetClassLoader = loadTypes(
-        "ABSTRACT CLASS Player",
-        "CLASS Player1 : Player",
-        "CLASS Player2 : Player",
-        "ABSTRACT CLASS Owned<Player>",
-        "ABSTRACT CLASS CardFront : Owned",
-        "ABSTRACT CLASS Cardbound<CardFront> : Owned",
-        "ABSTRACT CLASS ResourcefulCard<CardResource.CLASS> : CardFront",
-        "ABSTRACT CLASS CardResource : " +
-            "Owned<Player>, Cardbound<Player, ResourcefulCard>", // TODO <This.CLASS> ?
-
-        "CLASS Animal : CardResource",
-        "CLASS Microbe : CardResource<ResourcefulCard<Microbe.CLASS>>",
-
-        "CLASS Fish : ResourcefulCard<Animal.CLASS>",
-        "CLASS Ants : ResourcefulCard<Microbe.CLASS>",
-    ) as PetClassLoader
+    val table: PetClassLoader =
+        loadTypes(
+            "ABSTRACT CLASS Player",
+            "CLASS Player1 : Player",
+            "CLASS Player2 : Player",
+            "ABSTRACT CLASS Owned<Player>",
+            "ABSTRACT CLASS CardFront : Owned",
+            "ABSTRACT CLASS Cardbound<CardFront> : Owned",
+            "ABSTRACT CLASS ResourcefulCard<CardResource.CLASS> : CardFront",
+            "ABSTRACT CLASS CardResource : " +
+                "Owned<Player>, Cardbound<Player, ResourcefulCard>", // TODO <This.CLASS> ?
+            "CLASS Animal : CardResource",
+            "CLASS Microbe : CardResource<ResourcefulCard<Microbe.CLASS>>",
+            "CLASS Fish : ResourcefulCard<Animal.CLASS>",
+            "CLASS Ants : ResourcefulCard<Microbe.CLASS>",
+        )
+            as PetClassLoader
     assertThat(table.resolve("Animal<Fish>").abstract).isTrue()
 
     val fish = table.resolve("Animal<Player1, Fish<Player1>>")
@@ -37,6 +37,6 @@ private class PetTypeTest {
     //    .isEqualTo("Animal<Player, ResourcefulCard<Player, Animal.CLASS>>")
     // assertThrows<RuntimeException> {
     //  table.resolve("Microbe<Player1, Ants<Player2>>")
-    //}
+    // }
   }
 }

@@ -18,91 +18,98 @@ import org.jline.utils.InfoCmp.Capability
 class ReplSession(val authority: Authority) {
   private val session = InteractiveSession(authority)
 
-  val commands = mapOf<String, (String?) -> List<String>>(
-      "help" to { listOf(HELP.trimIndent()) },
-
-      "newgame" to {
-        it?.let { args ->
-          val (bundleString, players) = args.trim().split(Regex("\\s+"), 2)
-          session.newGame(GameSetup(authority, bundleString, players.toInt()))
-          listOf("New $players-player game created with bundles: $bundleString")
-        } ?: listOf("Usage: newgame <bundles> <player count>")
-      },
-
-      "become" to { args ->
-        val message = if (args == null) {
-          session.becomeNoOne()
-          "Okay you are no one"
-        } else {
-          val trimmed = args.trim()
-          require(trimmed.length == 7 && trimmed.startsWith("Player"))
-          val p = trimmed.substring(6).toInt()
-          session.becomePlayer(p)
-          "Hi, $trimmed"
-        }
-        listOf(message)
-      },
-
-      "count" to {
-        it?.let { args ->
-          val type = session.fixTypes(typeExpression(args))
-          val count = session.count(type)
-          listOf("$count $type")
-        } ?: listOf("Usage: count <TypeExpression>")
-      },
-
-      "list" to { args ->
-        session.list(typeExpression(args!!))
-        listOf()
-      },
-
-      "has" to {
-        it?.let { args ->
-          val fixed = session.fixTypes(requirement(args))
-          val result = session.has(fixed)
-          listOf("$result: $fixed")
-        } ?: listOf("Usage: has <Requirement>")
-      },
-
-      "map" to {
-        if (it != null) {
-          MapToText(session.game!!).map()
-        } else {
-          listOf("Arguments unexpected: $it")
-        }
-      },
-
-      "history" to { args ->
-        args?.let { listOf("Arguments unexpected: $it") } ?:
-            session.game!!.changeLog.toStrings()
-      },
-
-      "exec" to {
-        it?.let { args ->
-          val instr = session.execute(instruction(args))
-          listOf("Ok: $instr")
-        } ?: listOf("Usage: exec <Instruction>")
-      },
-
-      "desc" to {
-        it?.let { args ->
-          val petClass: PetClass = session.game!!.classTable[cn(args.trim())]
-          val subs = petClass.allSubclasses
-          listOf(
-              "Name: ${petClass.name}",
-              "Abstract: ${petClass.abstract}",
-              "Superclasses: ${petClass.allSuperclasses.joinToString()}",
-              "Dependencies: ${petClass.baseType.dependencies.types}",
-              "Subclasses: " +
-                  if (subs.size <= 5) {
-                    subs.joinToString()
-                  } else {
-                    "(${subs.size})"
-                  },
-          )
-        } ?: listOf("Usage: desc <ClassName>")
-      },
-  )
+  val commands =
+      mapOf<String, (String?) -> List<String>>(
+          "help" to { listOf(HELP.trimIndent()) },
+          "newgame" to
+              {
+                it?.let { args ->
+                  val (bundleString, players) = args.trim().split(Regex("\\s+"), 2)
+                  session.newGame(GameSetup(authority, bundleString, players.toInt()))
+                  listOf("New $players-player game created with bundles: $bundleString")
+                }
+                    ?: listOf("Usage: newgame <bundles> <player count>")
+              },
+          "become" to
+              { args ->
+                val message =
+                    if (args == null) {
+                      session.becomeNoOne()
+                      "Okay you are no one"
+                    } else {
+                      val trimmed = args.trim()
+                      require(trimmed.length == 7 && trimmed.startsWith("Player"))
+                      val p = trimmed.substring(6).toInt()
+                      session.becomePlayer(p)
+                      "Hi, $trimmed"
+                    }
+                listOf(message)
+              },
+          "count" to
+              {
+                it?.let { args ->
+                  val type = session.fixTypes(typeExpression(args))
+                  val count = session.count(type)
+                  listOf("$count $type")
+                }
+                    ?: listOf("Usage: count <TypeExpression>")
+              },
+          "list" to
+              { args ->
+                session.list(typeExpression(args!!))
+                listOf()
+              },
+          "has" to
+              {
+                it?.let { args ->
+                  val fixed = session.fixTypes(requirement(args))
+                  val result = session.has(fixed)
+                  listOf("$result: $fixed")
+                }
+                    ?: listOf("Usage: has <Requirement>")
+              },
+          "map" to
+              {
+                if (it != null) {
+                  MapToText(session.game!!).map()
+                } else {
+                  listOf("Arguments unexpected: $it")
+                }
+              },
+          "history" to
+              { args ->
+                args?.let { listOf("Arguments unexpected: $it") }
+                    ?: session.game!!.changeLog.toStrings()
+              },
+          "exec" to
+              {
+                it?.let { args ->
+                  val instr = session.execute(instruction(args))
+                  listOf("Ok: $instr")
+                }
+                    ?: listOf("Usage: exec <Instruction>")
+              },
+          "desc" to
+              {
+                it?.let { args ->
+                  val petClass: PetClass = session.game!!.classTable[cn(args.trim())]
+                  val subs = petClass.allSubclasses
+                  listOf(
+                      "Name: ${petClass.name}",
+                      "Abstract: ${petClass.abstract}",
+                      "Superclasses: ${petClass.allSuperclasses.joinToString()}",
+                      "Dependencies: ${petClass.baseType.dependencies.types}",
+                      "Subclasses: " +
+                          if (subs.size <= 5) {
+                            subs.joinToString()
+                          } else {
+                            "(${subs.size})"
+                          },
+                  )
+                }
+                    ?: listOf("Usage: desc <ClassName>")
+              },
+      )
 
   fun command(wholeCommand: String): List<String> {
     val (_, command, args) = INPUT_REGEX.matchEntire(wholeCommand)?.groupValues ?: return listOf()
@@ -115,46 +122,43 @@ class ReplSession(val authority: Authority) {
     }
     return commands[command]?.invoke(args) ?: commands["exec"]!!(command + (args ?: ""))
   }
-
 }
 
 val INPUT_REGEX = Regex("""^\s*(\S+)(.*)$""")
 
 fun main() {
-  val terminal = TerminalBuilder.builder()
-      .color(true)
-      .build()
+  val terminal = TerminalBuilder.builder().color(true).build()
 
   terminal.enterRawMode()
   terminal.puts(Capability.enter_ca_mode)
   terminal.puts(Capability.keypad_xmit)
 
-  val reader = LineReaderBuilder.builder()
-      .terminal(terminal)
-      .history(DefaultHistory())
-      .build()
+  val reader = LineReaderBuilder.builder().terminal(terminal).history(DefaultHistory()).build()
   reader.readLine("Welcome to REgo PLastics! Press enter.")
 
   val repl = ReplSession(Canon)
   repl.command("newgame BM 2").forEach(::println)
 
   while (true) {
-    val inputLine = try {
-      reader.readLine("> ")
-    } catch (e: EndOfFileException) {
-      return
-    }
-    val results = try {
-      repl.command(inputLine)
-    } catch (e: Exception) {
-      listOf("${e::class}: ${e.message}")
-    }
+    val inputLine =
+        try {
+          reader.readLine("> ")
+        } catch (e: EndOfFileException) {
+          return
+        }
+    val results =
+        try {
+          repl.command(inputLine)
+        } catch (e: Exception) {
+          listOf("${e::class}: ${e.message}")
+        }
     results.forEach(::println)
     println()
   }
 }
 
-const val HELP = """
+const val HELP =
+    """
   newgame BVE 3         ->  begins a new 3p game with Base, Venus, Elysium
   become Player1        ->  make Player1 the default player for future commands
   become                ->  have no default Player anymore

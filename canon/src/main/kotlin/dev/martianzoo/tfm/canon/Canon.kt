@@ -47,8 +47,8 @@ public object Canon : Authority() {
 
   public enum class Bundle(val id: String) {
     Base("B"),
-    CorporateEra("R"),  // well the letter R appears 3 times so...
-    Tharsis("M"),  // M for "map", ooh
+    CorporateEra("R"), // well the letter R appears 3 times so...
+    Tharsis("M"), // M for "map", ooh
     Hellas("H"),
     Elysium("E"),
     VenusNext("V"),

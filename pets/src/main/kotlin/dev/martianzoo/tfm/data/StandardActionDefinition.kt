@@ -11,11 +11,8 @@ import dev.martianzoo.tfm.pets.ast.ScalarAndType.Companion.sat
 
 data class StandardActionDefinition(
     override val id: ClassName,
-
     override val bundle: String,
-
     val project: Boolean,
-
     val actionText: String,
 ) : Definition {
   init {
@@ -32,7 +29,7 @@ data class StandardActionDefinition(
         id = id,
         name = name,
         abstract = false,
-        supertypes =  setOf(kind.type),
+        supertypes = setOf(kind.type),
         otherInvariants = setOf(invariant),
         effectsRaw = setOf(actionToEffect(action, 1)),
     )

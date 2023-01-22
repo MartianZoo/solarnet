@@ -11,37 +11,37 @@ import kotlin.text.RegexOption.DOT_MATCHES_ALL
 
 object JsonReader {
 
-// CARDS
+  // CARDS
 
   fun readCards(json5: String) = fromJson5<CardList>(json5).cards
 
   private class CardList(val cards: List<CardDefinition>)
 
-// MILESTONES
+  // MILESTONES
 
   fun readMilestones(json5: String) = fromJson5<MilestoneList>(json5).milestones
 
   private class MilestoneList(val milestones: List<MilestoneDefinition>)
 
-// ACTIONS
+  // ACTIONS
 
   fun readActions(json5: String): List<StandardActionDefinition> {
     val import = fromJson5<ActionsImport>(json5)
 
-    return import.actions.map { it.complete(false) } +
-        import.projects.map { it.complete(true) }
+    return import.actions.map { it.complete(false) } + import.projects.map { it.complete(true) }
   }
 
   private class ActionsImport(
       val actions: List<IncompleteActionDef>,
-      val projects: List<IncompleteActionDef>) {
+      val projects: List<IncompleteActionDef>
+  ) {
 
     class IncompleteActionDef(val id: ClassName, val bundle: String, val action: String) {
       fun complete(project: Boolean) = StandardActionDefinition(id, bundle, project, action)
     }
   }
 
-// MAPS
+  // MAPS
 
   fun readMaps(json5: String): List<MarsMapDefinition> = fromJson5<MapsImport>(json5).definitions
 
@@ -57,23 +57,30 @@ object JsonReader {
         val rows: List<List<String>>,
     ) {
       internal fun toDefinition(legend: Legend): MarsMapDefinition {
-        val areas = rows.flatMapIndexed() { row0Index, cells ->
-          cells.mapIndexedNotNull { col0Index, code ->
-            mapArea(row0Index, col0Index, code, legend)
-          }
-        }
+        val areas =
+            rows.flatMapIndexed() { row0Index, cells ->
+              cells.mapIndexedNotNull { col0Index, code ->
+                mapArea(row0Index, col0Index, code, legend)
+              }
+            }
         val grid = Grid.grid(areas, { it.row }, { it.column })
         return MarsMapDefinition(name, bundle, grid)
       }
 
       private fun mapArea(
-          row0Index: Int, col0Index: Int, code: String, legend: Legend
+          row0Index: Int,
+          col0Index: Int,
+          code: String,
+          legend: Legend
       ): AreaDefinition? {
         if (code.isEmpty()) return null
         return AreaDefinition(
-            name, bundle,
-            row0Index + 1, col0Index + 1,
-            legend.getType(code), legend.getBonus(code),
+            name,
+            bundle,
+            row0Index + 1,
+            col0Index + 1,
+            legend.getType(code),
+            legend.getBonus(code),
             code)
       }
     }
@@ -103,19 +110,19 @@ object JsonReader {
     }
   }
 
-// HELPERS
+  // HELPERS
 
-  private inline fun <reified T : Any> fromJson5(input: String): T = Moshi.Builder()
-      .add(ClassNameAdapter())
-      .addLast(KotlinJsonAdapterFactory())
-      .build()
-      .adapter(T::class.java)
-      .lenient()
-      .fromJson(TRAILING_COMMA_REGEX.replace(input, ""))!!
+  private inline fun <reified T : Any> fromJson5(input: String): T =
+      Moshi.Builder()
+          .add(ClassNameAdapter())
+          .addLast(KotlinJsonAdapterFactory())
+          .build()
+          .adapter(T::class.java)
+          .lenient()
+          .fromJson(TRAILING_COMMA_REGEX.replace(input, ""))!!
 
   class ClassNameAdapter {
-    @FromJson
-    fun fromJson(card: String) = cn(card)
+    @FromJson fun fromJson(card: String) = cn(card)
   }
 
   private val TRAILING_COMMA_REGEX = Regex(""",(?=\s*(//[^\n]*\n\s*)?[\]}])""", DOT_MATCHES_ALL)

@@ -8,7 +8,7 @@ import dev.martianzoo.tfm.data.StateChange.Cause
 import dev.martianzoo.tfm.types.PetType
 
 public class ComponentGraph(startingWith: Collection<Component> = listOf()) {
-  private val multiset: /*Mutable*/Multiset<Component> = LinkedHashMultiset.create(startingWith)
+  private val multiset: /*Mutable*/ Multiset<Component> = LinkedHashMultiset.create(startingWith)
   internal val changeLog: MutableList<StateChange> = mutableListOf() // starts with ordinal 1
 
   public fun gain(count: Int, gaining: Component, cause: Cause? = null) =
@@ -28,13 +28,14 @@ public class ComponentGraph(startingWith: Collection<Component> = listOf()) {
   ) {
 
     // Creating this first should catch various errors
-    val change = StateChange(
-        ordinal = changeLog.size + 1,
-        count = count,
-        gaining = gaining?.asTypeExpression?.asGeneric(),
-        removing = removing?.asTypeExpression?.asGeneric(),
-        cause = cause,
-    )
+    val change =
+        StateChange(
+            ordinal = changeLog.size + 1,
+            count = count,
+            gaining = gaining?.asTypeExpression?.asGeneric(),
+            removing = removing?.asTypeExpression?.asGeneric(),
+            cause = cause,
+        )
 
     removing?.let { multiset.mustRemove(it, count) }
     gaining?.let { multiset.add(it, count) }
@@ -47,9 +48,7 @@ public class ComponentGraph(startingWith: Collection<Component> = listOf()) {
       setCount(element, count(element) - count)
 
   public fun count(type: PetType) =
-      multiset.entrySet()
-          .filter { it.element.hasType(type) }
-          .sumOf { it.count }
+      multiset.entrySet().filter { it.element.hasType(type) }.sumOf { it.count }
 
   public fun getAll(type: PetType): Multiset<Component> =
       Multisets.filter(multiset) { it!!.hasType(type) }

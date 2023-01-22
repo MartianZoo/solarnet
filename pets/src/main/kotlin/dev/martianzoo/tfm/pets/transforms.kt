@@ -36,10 +36,11 @@ private fun instructionFromAction(lhs: Instruction?, rhs: Instruction): Instruct
   }
 
   // Nested THENs are just silly
-  val allInstructions = when (rhs) {
-    is Then -> listOf(lhs) + rhs.instructions
-    else -> listOf(lhs, rhs)
-  }
+  val allInstructions =
+      when (rhs) {
+        is Then -> listOf(lhs) + rhs.instructions
+        else -> listOf(lhs, rhs)
+      }
   return Then(allInstructions)
 }
 
@@ -53,7 +54,8 @@ internal fun immediateToEffect(instruction: Instruction): Effect {
 }
 
 fun <P : PetNode> replaceThis(node: P, resolveTo: GenericTypeExpression) =
-    node.replaceTypes(THIS.type, resolveTo)
+    node
+        .replaceTypes(THIS.type, resolveTo)
         .replaceTypes(ClassLiteral(THIS), ClassLiteral(resolveTo.root))
 
 fun <P : PetNode> P.replaceTypes(from: TypeExpression, to: TypeExpression): P {
@@ -64,34 +66,35 @@ internal fun <P : PetNode> replaceTypesIn(node: P, from: TypeExpression, to: Typ
     TypeReplacer(from, to).transform(node)
 
 private class TypeReplacer(val from: TypeExpression, val to: TypeExpression) : PetNodeVisitor() {
-  override fun <P : PetNode?> transform(node: P) = if (node == from) {
-    @Suppress("UNCHECKED_CAST")
-    to as P
-  } else {
-    super.transform(node)
-  }
+  override fun <P : PetNode?> transform(node: P) =
+      if (node == from) {
+        @Suppress("UNCHECKED_CAST")
+        to as P
+      } else {
+        super.transform(node)
+      }
 }
 
 fun <P : PetNode> deprodify(node: P, producible: Set<ClassName>): P {
-  val deprodifier = object : PetNodeVisitor() {
-    var inProd: Boolean = false
+  val deprodifier =
+      object : PetNodeVisitor() {
+        var inProd: Boolean = false
 
-    override fun <P : PetNode?> transform(node: P): P {
-      val rewritten = when {
-        node is GenericTransform<*> && node.transform == "PROD" -> { // TODO: support multiple better
-          require(!inProd)
-          inProd = true
-          transform(node.extract()).also { inProd = false }
+        override fun <P : PetNode?> transform(node: P): P {
+          val rewritten =
+              when {
+                node is GenericTransform<*> &&
+                    node.transform == "PROD" -> { // TODO: support multiple better
+                  require(!inProd)
+                  inProd = true
+                  transform(node.extract()).also { inProd = false }
+                }
+                inProd && node is GenericTypeExpression && node.root in producible ->
+                    PRODUCTION.type.copy(args = node.args + ClassLiteral(node.root))
+                else -> super.transform(node)
+              }
+          @Suppress("UNCHECKED_CAST") return rewritten as P
         }
-
-        inProd && node is GenericTypeExpression && node.root in producible ->
-          PRODUCTION.type.copy(args = node.args + ClassLiteral(node.root))
-
-        else -> super.transform(node)
       }
-      @Suppress("UNCHECKED_CAST")
-      return rewritten as P
-    }
-  }
   return deprodifier.transform(node)
 }

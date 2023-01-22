@@ -26,59 +26,60 @@ open class PetNodeVisitor {
     @Suppress("UNCHECKED_CAST")
     if (node == null) return null as P // TODO how'm I even getting away with this
     return (node as PetNode).run {
-      val rewritten = when (this) {
-        is ClassName -> this
-
-        is TypeExpression -> when (this) {
-          is ClassLiteral -> ClassLiteral(x(className))
-          is GenericTypeExpression -> GenericTypeExpression(x(root), x(args), x(refinement))
-        }
-
-        is ScalarAndType -> ScalarAndType(scalar, x(type))
-
-        is Requirement -> when (this) {
-          is Requirement.Min -> Requirement.Min(x(sat))
-          is Requirement.Max -> Requirement.Max(x(sat))
-          is Requirement.Exact -> Requirement.Exact(x(sat))
-          is Requirement.Or -> Requirement.Or(x(requirements))
-          is Requirement.And -> Requirement.And(x(requirements))
-          is Requirement.Transform -> Requirement.Transform(x(requirement), transform)
-        }
-
-        is Instruction -> when (this) {
-          is Instruction.Gain -> Instruction.Gain(x(sat), intensity)
-          is Instruction.Remove -> Instruction.Remove(x(sat), intensity)
-          is Instruction.Per -> Instruction.Per(x(instruction), x(sat))
-          is Instruction.Gated -> Instruction.Gated(x(requirement), x(instruction))
-          is Instruction.Transmute -> Instruction.Transmute(x(fromExpression), scalar)
-          is Instruction.Custom -> Instruction.Custom(functionName, x(arguments))
-          is Instruction.Then -> Instruction.Then(x(instructions))
-          is Instruction.Or -> Instruction.Or(x(instructions))
-          is Instruction.Multi -> Instruction.Multi(x(instructions))
-          is Instruction.Transform -> Instruction.Transform(x(instruction), transform)
-        }
-        is FromExpression -> when (this) {
-          is SimpleFrom -> SimpleFrom(x(toType), x(fromType))
-          is ComplexFrom -> ComplexFrom(x(className), x(args), x(refinement))
-          is TypeInFrom -> TypeInFrom(x(type))
-        }
-
-        is Effect -> Effect(x(trigger), x(instruction), automatic)
-        is Trigger -> when (this) {
-          is Trigger.OnGain -> Trigger.OnGain(x(expression))
-          is Trigger.OnRemove -> Trigger.OnRemove(x(expression))
-          is Trigger.Transform -> Trigger.Transform(x(trigger), transform)
-        }
-
-        is Action -> Action(x(cost), x(instruction))
-        is Cost -> when (this) {
-          is Cost.Spend -> Cost.Spend(x(sat))
-          is Cost.Per -> Cost.Per(x(cost), x(sat))
-          is Cost.Or -> Cost.Or(x(costs))
-          is Cost.Multi -> Cost.Multi(x(costs))
-          is Cost.Transform -> Cost.Transform(x(cost), transform)
-        }
-      }
+      val rewritten =
+          when (this) {
+            is ClassName -> this
+            is TypeExpression ->
+                when (this) {
+                  is ClassLiteral -> ClassLiteral(x(className))
+                  is GenericTypeExpression -> GenericTypeExpression(x(root), x(args), x(refinement))
+                }
+            is ScalarAndType -> ScalarAndType(scalar, x(type))
+            is Requirement ->
+                when (this) {
+                  is Requirement.Min -> Requirement.Min(x(sat))
+                  is Requirement.Max -> Requirement.Max(x(sat))
+                  is Requirement.Exact -> Requirement.Exact(x(sat))
+                  is Requirement.Or -> Requirement.Or(x(requirements))
+                  is Requirement.And -> Requirement.And(x(requirements))
+                  is Requirement.Transform -> Requirement.Transform(x(requirement), transform)
+                }
+            is Instruction ->
+                when (this) {
+                  is Instruction.Gain -> Instruction.Gain(x(sat), intensity)
+                  is Instruction.Remove -> Instruction.Remove(x(sat), intensity)
+                  is Instruction.Per -> Instruction.Per(x(instruction), x(sat))
+                  is Instruction.Gated -> Instruction.Gated(x(requirement), x(instruction))
+                  is Instruction.Transmute -> Instruction.Transmute(x(fromExpression), scalar)
+                  is Instruction.Custom -> Instruction.Custom(functionName, x(arguments))
+                  is Instruction.Then -> Instruction.Then(x(instructions))
+                  is Instruction.Or -> Instruction.Or(x(instructions))
+                  is Instruction.Multi -> Instruction.Multi(x(instructions))
+                  is Instruction.Transform -> Instruction.Transform(x(instruction), transform)
+                }
+            is FromExpression ->
+                when (this) {
+                  is SimpleFrom -> SimpleFrom(x(toType), x(fromType))
+                  is ComplexFrom -> ComplexFrom(x(className), x(args), x(refinement))
+                  is TypeInFrom -> TypeInFrom(x(type))
+                }
+            is Effect -> Effect(x(trigger), x(instruction), automatic)
+            is Trigger ->
+                when (this) {
+                  is Trigger.OnGain -> Trigger.OnGain(x(expression))
+                  is Trigger.OnRemove -> Trigger.OnRemove(x(expression))
+                  is Trigger.Transform -> Trigger.Transform(x(trigger), transform)
+                }
+            is Action -> Action(x(cost), x(instruction))
+            is Cost ->
+                when (this) {
+                  is Cost.Spend -> Cost.Spend(x(sat))
+                  is Cost.Per -> Cost.Per(x(cost), x(sat))
+                  is Cost.Or -> Cost.Or(x(costs))
+                  is Cost.Multi -> Cost.Multi(x(costs))
+                  is Cost.Transform -> Cost.Transform(x(cost), transform)
+                }
+          }
       @Suppress("UNCHECKED_CAST")
       rewritten as P
     }

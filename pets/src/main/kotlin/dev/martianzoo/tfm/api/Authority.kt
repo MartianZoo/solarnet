@@ -11,16 +11,14 @@ import dev.martianzoo.util.Grid
 import dev.martianzoo.util.associateByStrict
 
 /**
- * A source of data about Terraforming Mars components. This project provides
- * one, called `Canon`, containing only officially published materials.
+ * A source of data about Terraforming Mars components. This project provides one, called `Canon`,
+ * containing only officially published materials.
  */
 abstract class Authority {
 
-  open val allBundles: Set<String> by lazy {
-    allDefinitions.map { it.bundle }.toSet()
-  }
+  open val allBundles: Set<String> by lazy { allDefinitions.map { it.bundle }.toSet() }
 
-// CLASS DECLARATIONS
+  // CLASS DECLARATIONS
 
   /** Returns the class declaration having the full name [name]. */
   fun classDeclaration(name: ClassName): ClassDeclaration {
@@ -36,9 +34,8 @@ abstract class Authority {
   val allClassDeclarations: Map<ClassName, ClassDeclaration> by lazy {
     val extraFromCards = cardDefinitions.flatMap { it.extraClasses }
 
-    val list = explicitClassDeclarations +
-        allDefinitions.map { it.asClassDeclaration } +
-        extraFromCards
+    val list =
+        explicitClassDeclarations + allDefinitions.map { it.asClassDeclaration } + extraFromCards
     list.associateByStrict { it.name }
   }
 
@@ -51,7 +48,7 @@ abstract class Authority {
   abstract val explicitClassDeclarations: Collection<ClassDeclaration>
 
   /** Everything implementing [Definition] this authority knows about. */
-  val allDefinitions : List<Definition> by lazy {
+  val allDefinitions: List<Definition> by lazy {
     listOf<Definition>() +
         cardDefinitions +
         milestoneDefinitions +
@@ -60,7 +57,7 @@ abstract class Authority {
         marsMapDefinitions.flatMap { it.areas }
   }
 
-// CARDS
+  // CARDS
 
   /**
    * Returns the card definition having the full name [name]. If there are multiple, one must be
@@ -76,20 +73,20 @@ abstract class Authority {
     associateByClassName(cardDefinitions)
   }
 
-// STANDARD ACTIONS
+  // STANDARD ACTIONS
 
   fun action(name: ClassName): StandardActionDefinition =
       standardActionDefinitions.first { it.name == name }
 
   abstract val standardActionDefinitions: Collection<StandardActionDefinition>
 
-// MARS MAPS
+  // MARS MAPS
 
   fun marsMap(name: ClassName): MarsMapDefinition = marsMapDefinitions.first { it.name == name }
 
   abstract val marsMapDefinitions: Collection<MarsMapDefinition>
 
-// MILESTONES
+  // MILESTONES
 
   fun milestone(name: ClassName): MilestoneDefinition = milestonesByClassName[name]!!
 
@@ -99,21 +96,21 @@ abstract class Authority {
     associateByClassName(milestoneDefinitions)
   }
 
-// AWARDS
+  // AWARDS
 
-// COLONY TILES
+  // COLONY TILES
 
-// CUSTOM INSTRUCTIONS
+  // CUSTOM INSTRUCTIONS
 
   fun customInstruction(functionName: String): CustomInstruction {
-    return customInstructions.firstOrNull { it.functionName == functionName }.also {
-      require(it != null) { "no instruction named $$functionName" }
-    }!!
+    return customInstructions
+        .firstOrNull { it.functionName == functionName }
+        .also { require(it != null) { "no instruction named $$functionName" } }!!
   }
 
   abstract val customInstructions: Collection<CustomInstruction>
 
-// HELPERS
+  // HELPERS
 
   private fun <D : Definition> associateByClassName(defs: Collection<D>) =
       defs.associateByStrict { it.name }

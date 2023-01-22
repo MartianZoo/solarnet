@@ -5,7 +5,9 @@ import kotlin.reflect.KClass
 class KClassMultimap<B : Any>(list: Collection<B> = listOf()) {
   val map = mutableMapOf<KClass<out B>, MutableList<B>>()
 
-  init { this += list }
+  init {
+    this += list
+  }
 
   fun <T : B> put(type: KClass<T>, value: T) = doPut(type, value)
 
@@ -17,8 +19,7 @@ class KClassMultimap<B : Any>(list: Collection<B> = listOf()) {
     put(T::class, value)
   }
 
-  operator fun plusAssign(values: Collection<B>) =
-      values.forEach { doPut(it::class, it) }
+  operator fun plusAssign(values: Collection<B>) = values.forEach { doPut(it::class, it) }
 
   inline fun <reified T : B> get(): List<T> = get(T::class)
 

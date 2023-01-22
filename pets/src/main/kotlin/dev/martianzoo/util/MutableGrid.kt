@@ -27,7 +27,8 @@ public class MutableGrid<E>(private val rows: List<List<E?>>) : Grid<E>, Abstrac
   }
 
   private fun all() = rows.flatten().filterNotNull().toSet()
-  override val size get() = all().size
+  override val size
+    get() = all().size
   override fun iterator() = all().iterator()
   override fun contains(element: E) = all().contains(element)
   override fun isEmpty() = false
@@ -42,7 +43,8 @@ public class MutableGrid<E>(private val rows: List<List<E?>>) : Grid<E>, Abstrac
 
     override fun get(index: Int) = rows[index][columnIndex]
 
-    override fun set(index: Int, element: E?) = (rows[index] as MutableList<E?>).set(columnIndex, element)
+    override fun set(index: Int, element: E?) =
+        (rows[index] as MutableList<E?>).set(columnIndex, element)
 
     override fun subList(fromIndex: Int, toIndex: Int): MutableList<E?> {
       return MutableColumn(rows.subList(fromIndex, toIndex), columnIndex)
@@ -63,8 +65,7 @@ public class MutableGrid<E>(private val rows: List<List<E?>>) : Grid<E>, Abstrac
   ) : AbstractMutableList<E?>() {
 
     init {
-      if (columnMinusRow <= 0 - grid.rowCount ||
-          columnMinusRow >= grid.columnCount - 0) {
+      if (columnMinusRow <= 0 - grid.rowCount || columnMinusRow >= grid.columnCount - 0) {
         throw IndexOutOfBoundsException(columnMinusRow)
       }
     }

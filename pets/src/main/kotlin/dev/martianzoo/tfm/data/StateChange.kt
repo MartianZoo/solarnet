@@ -8,8 +8,8 @@ data class StateChange(
     val ordinal: Int,
 
     /**
-     * How many of the component were gained/removed/transmuted. A positive integer. Often
-     * 1, since many component types don't admit duplicates.
+     * How many of the component were gained/removed/transmuted. A positive integer. Often 1, since
+     * many component types don't admit duplicates.
      */
     val count: Int = 1,
 

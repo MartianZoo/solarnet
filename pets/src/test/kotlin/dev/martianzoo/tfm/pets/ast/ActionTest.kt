@@ -12,7 +12,8 @@ private class ActionTest {
     testRoundTrip<Action>("-> Ok")
   }
 
-  val inputs = """
+  val inputs =
+      """
     -> 1
     -> 5?
     -> Bar
@@ -70,7 +71,8 @@ private class ActionTest {
     Ahh OR Foo<Bar> -> PROD[1: Bar, (MAX 1 Megacredit: 1, -1)]
     5 Wau<Xyz<Bar>> -> 1 Qux<Abc<Foo<Abc FROM Foo, Xyz>>> / Ooh
     PROD[0, 1 OR Foo / Megacredit] -> (0 Foo OR 0 Bar): Abc<Foo>
-  """.trimIndent()
+  """
+          .trimIndent()
 
   @Test
   fun testSampleStrings() {

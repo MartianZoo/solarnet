@@ -18,7 +18,8 @@ class MarsMapDefinitionTest {
     assertThat(map.areas).hasSize(7)
   }
 
-  val demo = """{
+  val demo =
+      """{
     "legend": {
       "L": "LandArea", "W": "WaterArea", "V": "VolcanicArea",
       "P": "Plant", "S": "Steel", "C": "ProjectCard",
@@ -93,20 +94,33 @@ class MarsMapDefinitionTest {
 
   @Test
   fun parseAllInstructions() {
-    val uniqueAreas = Canon.marsMapDefinitions
-        .asSequence()
-        .flatMap { it.areas }
-        .mapNotNull { it.bonus }
-        .distinct()
-        .toStrings()
-        .toSet()
+    val uniqueAreas =
+        Canon.marsMapDefinitions
+            .asSequence()
+            .flatMap { it.areas }
+            .mapNotNull { it.bonus }
+            .distinct()
+            .toStrings()
+            .toSet()
 
-    assertThat(uniqueAreas).containsExactly(
-        "ProjectCard", "Plant", "Steel", "Titanium",
-        "2 ProjectCard", "2 Heat", "2 Plant", "2 Steel", "2 Titanium",
-        "Plant, ProjectCard", "Plant, Steel", "Plant, Titanium",
-        "3 ProjectCard", "3 Heat", "3 Plant",
-        "OceanTile, -6",
-    )
+    assertThat(uniqueAreas)
+        .containsExactly(
+            "ProjectCard",
+            "Plant",
+            "Steel",
+            "Titanium",
+            "2 ProjectCard",
+            "2 Heat",
+            "2 Plant",
+            "2 Steel",
+            "2 Titanium",
+            "Plant, ProjectCard",
+            "Plant, Steel",
+            "Plant, Titanium",
+            "3 ProjectCard",
+            "3 Heat",
+            "3 Plant",
+            "OceanTile, -6",
+        )
   }
 }

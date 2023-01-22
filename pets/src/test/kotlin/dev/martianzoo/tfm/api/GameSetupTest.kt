@@ -8,13 +8,15 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 
 class GameSetupTest {
-  val authority = object : Authority.Empty() {
-    override val allBundles = "BRMEVPCX".asIterable().toStrings().toSet()
-    override val marsMapDefinitions = listOf(
-        MarsMapDefinition(cn("Tharsis"), "M", Grid.empty()),
-        MarsMapDefinition(cn("Elysium"), "E", Grid.empty()),
-    )
-  }
+  val authority =
+      object : Authority.Empty() {
+        override val allBundles = "BRMEVPCX".asIterable().toStrings().toSet()
+        override val marsMapDefinitions =
+            listOf(
+                MarsMapDefinition(cn("Tharsis"), "M", Grid.empty()),
+                MarsMapDefinition(cn("Elysium"), "E", Grid.empty()),
+            )
+      }
 
   @Test
   fun good() {
