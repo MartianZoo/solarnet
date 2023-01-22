@@ -6,7 +6,6 @@ import dev.martianzoo.tfm.data.StateChange.Cause
 import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.pets.ast.TypeExpression
 import dev.martianzoo.tfm.pets.ast.TypeExpression.ClassLiteral
-import dev.martianzoo.tfm.pets.ast.TypeExpression.Companion
 import dev.martianzoo.tfm.pets.ast.TypeExpression.Companion.typeExpression
 import dev.martianzoo.tfm.pets.ast.TypeExpression.GenericTypeExpression
 

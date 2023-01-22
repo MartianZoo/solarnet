@@ -35,6 +35,5 @@ class InteractiveSessionTest {
     session.execute(instruction("4 Heat."))
     session.execute(instruction("-9 Heat."))
     assertThat(session.count(typeExpression("Heat"))).isEqualTo(0)
-
   }
 }
