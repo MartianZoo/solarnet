@@ -6,54 +6,55 @@ import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.types.PetType.PetGenericType
 import dev.martianzoo.util.Debug.d
 
-data class PetClass(
+/**
+ * A class that has been loaded by a [PetClassLoader].
+ */
+public data class PetClass(
     private val declaration: ClassDeclaration,
-    val directSuperclasses: List<PetClass>,
+    internal val directSuperclasses: List<PetClass>,
     private val loader: PetClassLoader,
 ) {
 
-  val name: ClassName by declaration::name
-  val abstract by declaration::abstract
-
-  val id by declaration::id
-  val invariantsRaw by declaration::otherInvariants
+  public val id: ClassName by declaration::id
+  public val name: ClassName by declaration::name
+  public val abstract: Boolean by declaration::abstract
 
   // HIERARCHY
 
-  val directSupertypes: Set<PetGenericType> by lazy { loader.resolveAll(declaration.supertypes) }
-
-  fun isSubclassOf(that: PetClass): Boolean =
-      this == that || directSuperclasses.any { it.isSubclassOf(that) }
-
-  fun isSuperclassOf(that: PetClass) = that.isSubclassOf(this)
-
-  val directSubclasses: Set<PetClass> by lazy {
-    require(loader.frozen)
-    loader.loadedClasses().filter { this in it.directSuperclasses }.toSet().d("$this dirsubs")
+  public val directSupertypes: Set<PetGenericType> by lazy {
+    loader.resolveAll(declaration.supertypes)
   }
 
-  val allSubclasses: Set<PetClass> by lazy {
+  public fun isSubclassOf(that: PetClass): Boolean =
+      this == that || directSuperclasses.any { it.isSubclassOf(that) }
+
+  public val directSubclasses: Set<PetClass> by lazy {
+    require(loader.frozen)
+    loader.loadedClasses().filter { this in it.directSuperclasses }.toSet()
+  }
+
+  public val allSubclasses: Set<PetClass> by lazy {
     require(loader.frozen)
     loader.loadedClasses().filter { this in it.allSuperclasses }.toSet()
   }
 
-  val allSuperclasses: Set<PetClass> by lazy {
+  public val allSuperclasses: Set<PetClass> by lazy {
     (directSuperclasses.flatMap { it.allSuperclasses } + this).toSet()
   }
 
-  val intersectionType: Boolean by lazy {
+  public val intersectionType: Boolean by lazy {
     if (directSuperclasses.size < 2) {
       false
     } else {
       require(loader.frozen)
-      val sharesAllMySuperclasses = loader.loadedClasses().filter {
-        directSuperclasses.all(it::isSubclassOf)
+      val sharesAllMySuperclasses = loader.loadedClasses().filter { petClass ->
+        directSuperclasses.all { petClass.isSubclassOf(it) }
       }
-      sharesAllMySuperclasses.all(::isSuperclassOf)
+      sharesAllMySuperclasses.all { it.isSubclassOf(this) }
     }
   }
 
-  infix fun intersect(that: PetClass): PetClass? = when {
+  public infix fun intersect(that: PetClass): PetClass? = when {
     this.isSubclassOf(that) -> this
     that.isSubclassOf(this) -> that
     else -> {
@@ -66,18 +67,18 @@ data class PetClass(
 
 // DEPENDENCIES
 
-  val directDependencyKeys: Set<Dependency.Key> by lazy {
+  internal val directDependencyKeys: Set<Dependency.Key> by lazy {
     declaration.dependencies.indices.map { Dependency.Key(this, it) }.toSet()
   }
 
-  val allDependencyKeys: Set<Dependency.Key> by lazy {
+  internal val allDependencyKeys: Set<Dependency.Key> by lazy {
     (directSuperclasses.flatMap { it.allDependencyKeys } + directDependencyKeys).toSet()
   }
 
   private var reentryCheck = false
 
   /** Common supertype of all types with petClass==this */
-  val baseType: PetGenericType by lazy {
+  public val baseType: PetGenericType by lazy {
     require(!reentryCheck)
     reentryCheck = true
 
@@ -114,8 +115,12 @@ data class PetClass(
     }
   }
 
-// EFFECTS
+// OTHER
 
-  val effectsRaw by declaration::effectsRaw
+  // includes abstract
+  internal fun isSingleton(): Boolean =
+      declaration.otherInvariants.any { it.requiresThis() } ||
+      directSuperclasses.any { it.isSingleton() }
+
   override fun toString() = "$name"
 }

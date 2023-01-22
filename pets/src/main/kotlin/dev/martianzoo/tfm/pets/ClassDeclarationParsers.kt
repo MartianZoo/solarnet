@@ -172,12 +172,12 @@ public object ClassDeclarationParsers : PetParser() {
         topInvariant: Requirement?,
         supertypes: List<GenericTypeExpression>,
     ) : this(ClassDeclaration(
-        abstract = true,
-        name = className,
         id = shortName(className),
+        name = className,
+        abstract = true,
         dependencies = dependencies,
-        topInvariant = topInvariant,
-        supertypes = supertypes.toSetStrict()
+        supertypes = supertypes.toSetStrict(),
+        topInvariant = topInvariant
     ))
   }
 

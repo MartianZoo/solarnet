@@ -199,8 +199,8 @@ data class CardDefinition(
     if (supertypes.isEmpty()) supertypes += CARD_FRONT.type
 
     ClassDeclaration(
-        name = name,
         id = id,
+        name = name,
         abstract = false,
         supertypes = supertypes,
         effectsRaw = allEffects,

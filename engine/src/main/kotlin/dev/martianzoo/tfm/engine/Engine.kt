@@ -44,14 +44,8 @@ public object Engine {
 
   private fun singletons(loader: PetClassLoader) =
       loader.loadedClasses()
-          .filter { isSingleton(it) && !it.baseType.abstract } // TODO that's not right
+          .filter { it.isSingleton() && !it.baseType.abstract } // TODO that's not right
           .map { Component(loader.resolve(it.name.type)) }
-
-  // includes abstract
-  private fun isSingleton(pc: PetClass): Boolean =
-      pc.invariantsRaw.any { it.requiresThis() } ||
-      pc.directSuperclasses.any { isSingleton(it) }
-
 
   private fun borders(map: MarsMapDefinition, loader: PetClassLoader): List<Component> {
     val border = cn("Border")

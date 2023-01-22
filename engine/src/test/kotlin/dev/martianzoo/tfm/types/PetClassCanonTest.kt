@@ -48,7 +48,6 @@ private class PetClassCanonTest {
     val table = PetClassLoader(Canon).loadEverything()
     val all = table.loadedClassNames().map { table[it] }
 
-    all.forEach { it.effectsRaw.forEach(::testRoundTrip) }
     all.forEach { it.baseType }
   }
 
