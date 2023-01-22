@@ -282,8 +282,11 @@ sealed class Instruction : PetNode() {
   override val kind = "Instruction"
 
   enum class Intensity(val symbol: String) {
+    /** The full amount must be gained/removed/transmuted. */
     MANDATORY("!"),
+    /** Do "as much as possible" of the amount. */
     AMAP("."),
+    /** The player can choose how much of the amount to do, including none of it. */
     OPTIONAL("?"),
     ;
 
