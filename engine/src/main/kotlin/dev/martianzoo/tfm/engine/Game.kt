@@ -29,7 +29,6 @@ public class Game(
   val changeLog by components::changeLog
 
   override fun resolve(type: TypeExpression): PetType = classTable.resolve(type)
-  override fun resolve(typeText: String) = resolve(typeExpression(typeText))
 
   fun count(type: PetType) = components.count(type)
 
@@ -37,7 +36,6 @@ public class Game(
   fun execute(instr: Instruction) = instr.execute(this)
 
   override fun count(type: TypeExpression) = count(resolve(type))
-  override fun count(typeText: String) = count(resolve(typeText))
 
   fun getAll(type: PetType): Multiset<Component> = components.getAll(type)
 
@@ -70,9 +68,10 @@ public class Game(
       gaining: GenericTypeExpression?,
       removing: GenericTypeExpression?,
       cause: Cause?,
+      amap: Boolean,
   ) {
     val g = gaining?.let { Component(classTable.resolve(it)) }
     val r = removing?.let { Component(classTable.resolve(it)) }
-    components.applyChange(count, g, r, cause)
+    components.applyChange(count, g, r, cause, amap)
   }
 }

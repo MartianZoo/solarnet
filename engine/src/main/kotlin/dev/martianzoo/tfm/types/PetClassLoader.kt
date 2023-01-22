@@ -45,6 +45,9 @@ class PetClassLoader(private val authority: Authority) : PetClassTable {
 
   /** Returns the class with the name [idOrName], loading it first if necessary. */
   fun load(idOrName: ClassName): PetClass {
+    if (frozen) {
+      return get(idOrName)
+    }
     return if (autoLoadDependencies) {
       loadTrees(listOf(idOrName))
       get(idOrName)

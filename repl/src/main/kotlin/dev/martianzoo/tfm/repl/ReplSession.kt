@@ -16,7 +16,7 @@ import org.jline.terminal.TerminalBuilder
 import org.jline.utils.InfoCmp.Capability
 
 class ReplSession(val authority: Authority) {
-  private val session = InteractiveSession(authority)
+  private val session = InteractiveSession()
 
   val commands =
       mapOf<String, (String?) -> List<String>>(

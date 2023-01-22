@@ -2,7 +2,6 @@ package dev.martianzoo.tfm.repl
 
 import com.google.common.collect.LinkedHashMultiset
 import com.google.common.collect.Multiset
-import dev.martianzoo.tfm.api.Authority
 import dev.martianzoo.tfm.api.GameSetup
 import dev.martianzoo.tfm.engine.Engine
 import dev.martianzoo.tfm.engine.Game
@@ -19,9 +18,8 @@ import dev.martianzoo.tfm.pets.ast.TypeExpression.GenericTypeExpression
 import dev.martianzoo.tfm.pets.deprodify
 import dev.martianzoo.tfm.types.PetClassLoader
 import dev.martianzoo.tfm.types.PetType.PetGenericType
-import dev.martianzoo.util.Debug.d
 
-class InteractiveSession(val authority: Authority) {
+class InteractiveSession {
   internal var game: Game? = null // TODO private?
   private var defaultPlayer: ClassName? = null
 
@@ -92,6 +90,8 @@ class InteractiveSession(val authority: Authority) {
       }
     }
     val fixt = Fixer().transform(node)
-    return deprodify(fixt, (game!!.classTable as PetClassLoader).resourceNames()).d("fixed: ")
+
+    // TODO hmm
+    return deprodify(fixt, (game!!.classTable as PetClassLoader).resourceNames())
   }
 }

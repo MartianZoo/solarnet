@@ -5,12 +5,13 @@ import dev.martianzoo.tfm.api.GameSetup
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.pets.ast.Instruction.Companion.instruction
 import dev.martianzoo.tfm.pets.ast.Requirement.Companion.requirement
+import dev.martianzoo.tfm.pets.ast.TypeExpression.Companion.typeExpression
 import org.junit.jupiter.api.Test
 
 class InteractiveSessionTest {
   @Test
   fun test() {
-    val session = InteractiveSession(Canon)
+    val session = InteractiveSession()
     session.newGame(GameSetup(Canon, "MB", 2))
     session.becomePlayer(2)
 
@@ -22,5 +23,18 @@ class InteractiveSessionTest {
 
     session.becomePlayer(1)
     assertThat(session.has(requirement("PROD[=0 Energy, =0 Steel]"))).isTrue()
+  }
+
+  @Test
+  fun removeAmap() {
+    val session = InteractiveSession()
+    session.newGame(GameSetup(Canon, "MB", 2))
+    session.becomePlayer(1)
+
+    session.execute(instruction("3 Heat!"))
+    session.execute(instruction("4 Heat."))
+    session.execute(instruction("-9 Heat."))
+    assertThat(session.count(typeExpression("Heat"))).isEqualTo(0)
+
   }
 }

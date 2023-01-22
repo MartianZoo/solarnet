@@ -5,7 +5,9 @@ import com.google.common.collect.Multiset
 import com.google.common.collect.Multisets
 import dev.martianzoo.tfm.data.StateChange
 import dev.martianzoo.tfm.data.StateChange.Cause
+import dev.martianzoo.tfm.pets.PetException
 import dev.martianzoo.tfm.types.PetType
+import kotlin.math.min
 
 public class ComponentGraph(startingWith: Collection<Component> = listOf()) {
   private val multiset: /*Mutable*/ Multiset<Component> = LinkedHashMultiset.create(startingWith)
@@ -25,27 +27,39 @@ public class ComponentGraph(startingWith: Collection<Component> = listOf()) {
       gaining: Component? = null,
       removing: Component? = null,
       cause: Cause? = null,
+      amap: Boolean = false,
   ) {
+    require(gaining != removing)
+
+    // TODO deal with limits
+
+    val current = multiset.count(removing)
+    val correctedCount =
+        if (removing == null) {
+          count // for now, we can just trust this works
+        } else {
+          if (amap) {
+            min(count, current)
+          } else {
+            if (current < count) throw PetException("not enough")
+            count
+          }
+        }
+
+    removing?.let { multiset.remove(it, correctedCount) }
+    gaining?.let { multiset.add(it, correctedCount) }
 
     // Creating this first should catch various errors
     val change =
         StateChange(
             ordinal = changeLog.size + 1,
-            count = count,
+            count = correctedCount,
             gaining = gaining?.asTypeExpression?.asGeneric(),
             removing = removing?.asTypeExpression?.asGeneric(),
             cause = cause,
         )
-
-    removing?.let { multiset.mustRemove(it, count) }
-    gaining?.let { multiset.add(it, count) }
     changeLog.add(change)
   }
-
-  // this is how to make sure the whole remove happens?
-  // who designed this crap?
-  private fun <E : Any?> Multiset<E>.mustRemove(element: E, count: Int) =
-      setCount(element, count(element) - count)
 
   public fun count(type: PetType) =
       multiset.entrySet().filter { it.element.hasType(type) }.sumOf { it.count }

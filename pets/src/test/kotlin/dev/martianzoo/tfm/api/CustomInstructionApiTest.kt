@@ -28,11 +28,19 @@ class CustomInstructionApiTest {
     var gotIt = false
     val game: GameState =
         object : StubGameState(fakeAuthority(custom)) {
+          override fun resolve(type: TypeExpression): TypeInfo {
+            return object : TypeInfo {
+              override val abstract = false
+              override fun toTypeExpression() = type
+            }
+          }
+
           override fun applyChange(
               count: Int,
               gaining: GenericTypeExpression?,
               removing: GenericTypeExpression?,
               cause: Cause?,
+              amap: Boolean,
           ) {
             gotIt = true
             assertThat(gaining).isEqualTo(OK.type)

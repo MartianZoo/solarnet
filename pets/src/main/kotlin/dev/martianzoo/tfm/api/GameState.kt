@@ -6,6 +6,8 @@ import dev.martianzoo.tfm.data.StateChange.Cause
 import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.pets.ast.TypeExpression
 import dev.martianzoo.tfm.pets.ast.TypeExpression.ClassLiteral
+import dev.martianzoo.tfm.pets.ast.TypeExpression.Companion
+import dev.martianzoo.tfm.pets.ast.TypeExpression.Companion.typeExpression
 import dev.martianzoo.tfm.pets.ast.TypeExpression.GenericTypeExpression
 
 /** This is a simple interface in the `pets` module that code outside the module can implement... */
@@ -15,6 +17,7 @@ interface GameState : ReadOnlyGameState {
       gaining: GenericTypeExpression? = null,
       removing: GenericTypeExpression? = null,
       cause: Cause? = null,
+      amap: Boolean = false,
   )
 }
 
@@ -26,10 +29,9 @@ interface ReadOnlyGameState {
     get() = setup.map
 
   fun resolve(type: TypeExpression): TypeInfo
-  fun resolve(typeText: String): TypeInfo
-
+  fun resolve(typeText: String) = resolve(typeExpression(typeText))
   fun count(type: TypeExpression): Int
-  fun count(typeText: String): Int
+  fun count(typeText: String) = count(typeExpression(typeText))
 
   fun getAll(type: TypeExpression): Multiset<TypeExpression>
   fun getAll(type: GenericTypeExpression): Multiset<GenericTypeExpression>

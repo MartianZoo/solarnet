@@ -15,12 +15,12 @@ import dev.martianzoo.tfm.pets.PetException
 import dev.martianzoo.tfm.pets.PetParser
 import dev.martianzoo.tfm.pets.ast.FromExpression.SimpleFrom
 import dev.martianzoo.tfm.pets.ast.FromExpression.TypeInFrom
+import dev.martianzoo.tfm.pets.ast.Instruction.Intensity.AMAP
+import dev.martianzoo.tfm.pets.ast.Instruction.Intensity.OPTIONAL
 import dev.martianzoo.tfm.pets.ast.TypeExpression.TypeParsers.typeExpression
 import dev.martianzoo.tfm.pets.deprodify
 
 sealed class Instruction : PetNode() {
-
-  override val kind = "Instruction"
 
   open operator fun times(value: Int): Instruction = TODO()
 
@@ -33,11 +33,19 @@ sealed class Instruction : PetNode() {
       }
     }
 
-    override fun times(value: Int) = copy(sat = sat.copy(scalar = sat.scalar * value))
+    override fun times(value: Int): Instruction {
+      require(value >= 1)
+      return copy(sat = sat.copy(scalar = sat.scalar * value))
+    }
 
     // TODO intensity
-    override fun execute(game: GameState) =
-        game.applyChange(sat.scalar, gaining = sat.type.asGeneric())
+    override fun execute(game: GameState) {
+      // treat null as MANDATORY (TODO)
+      if (intensity == OPTIONAL || game.resolve(sat.type).abstract) {
+        throw AbstractInstructionException("${sat.type}")
+      }
+      game.applyChange(sat.scalar, gaining = sat.type.asGeneric(), amap = (intensity == AMAP))
+    }
 
     override fun toString() = "$sat${intensity?.symbol ?: ""}"
   }
@@ -52,9 +60,18 @@ sealed class Instruction : PetNode() {
       }
     }
 
-    override fun times(value: Int) = copy(sat = sat.copy(scalar = sat.scalar * value))
-    override fun execute(game: GameState) =
-        game.applyChange(sat.scalar, removing = sat.type.asGeneric())
+    override fun times(value: Int): Instruction {
+      require(value >= 1)
+      return copy(sat = sat.copy(scalar = sat.scalar * value))
+    }
+
+    override fun execute(game: GameState) {
+      // treat null as MANDATORY (TODO)
+      if (intensity == OPTIONAL || game.resolve(sat.type).abstract) {
+        throw AbstractInstructionException("${sat.type}")
+      }
+      game.applyChange(sat.scalar, removing = sat.type.asGeneric(), amap = (intensity == AMAP))
+    }
 
     override fun toString() = "-$sat${intensity?.symbol ?: ""}"
   }
@@ -68,7 +85,7 @@ sealed class Instruction : PetNode() {
         is Gain,
         is Remove,
         is Transmute -> {}
-        else -> throw PetException("Per can only contain gain/remove/transmute")
+        else -> throw PetException("Per can only contain gain/remove/transmute") // TODO more
       }
     }
 
@@ -128,13 +145,32 @@ sealed class Instruction : PetNode() {
       }
     }
 
-    override fun times(value: Int) = copy(scalar = scalar!! * value)
+    override fun times(value: Int): Instruction {
+      require(value >= 1)
+      return if (value == 1) {
+        this
+      } else {
+        copy(scalar = (scalar ?: 1) * value)
+      }
+    }
 
-    override fun execute(game: GameState) =
-        game.applyChange(
-            scalar ?: 1,
-            gaining = fromExpression.toType.asGeneric(),
-            removing = fromExpression.fromType.asGeneric())
+    override fun execute(game: GameState) {
+      // treat null as MANDATORY (TODO)
+      if (intensity == OPTIONAL) {
+        throw AbstractInstructionException("optional")
+      }
+      if (game.resolve(fromExpression.fromType).abstract) {
+        throw AbstractInstructionException("${fromExpression.fromType}")
+      }
+      if (game.resolve(fromExpression.toType).abstract) {
+        throw AbstractInstructionException("${fromExpression.toType}")
+      }
+      game.applyChange(
+          scalar ?: 1,
+          removing = fromExpression.fromType.asGeneric(),
+          gaining = fromExpression.toType.asGeneric(),
+          amap = intensity == AMAP)
+    }
 
     override fun toString(): String {
       val intens = intensity?.symbol ?: ""
@@ -189,9 +225,8 @@ sealed class Instruction : PetNode() {
     }
 
     override fun times(value: Int) = copy(instructions.map { it * value })
-    override fun execute(game: GameState) {
-      Multi(instructions).execute(game)
-    }
+
+    override fun execute(game: GameState) = instructions.forEach { it.execute(game) }
 
     override fun toString() = instructions.joinToString(" THEN ") { groupPartIfNeeded(it) }
 
@@ -206,6 +241,7 @@ sealed class Instruction : PetNode() {
     }
 
     override fun times(value: Int) = copy(instructions.map { it * value }.toSet())
+
     override fun execute(game: GameState) = error("abstract instruction")
 
     override fun toString() = instructions.joinToString(" OR ") { groupPartIfNeeded(it) }
@@ -225,9 +261,7 @@ sealed class Instruction : PetNode() {
 
     override fun times(value: Int) = copy(instructions.map { it * value })
 
-    override fun execute(game: GameState) {
-      instructions.forEach { it.execute(game) }
-    }
+    override fun execute(game: GameState) = Then(instructions).execute(game)
 
     override fun toString() = instructions.joinToString(transform = ::groupPartIfNeeded)
 
@@ -245,6 +279,8 @@ sealed class Instruction : PetNode() {
     override fun extract() = instruction
   }
 
+  override val kind = "Instruction"
+
   enum class Intensity(val symbol: String) {
     MANDATORY("!"),
     AMAP("."),
@@ -255,6 +291,8 @@ sealed class Instruction : PetNode() {
       fun from(symbol: String) = values().first { it.symbol == symbol }
     }
   }
+
+  class AbstractInstructionException(message: String) : RuntimeException(message)
 
   companion object : PetParser() {
     fun instruction(text: String): Instruction = Parsing.parse(parser(), text)
