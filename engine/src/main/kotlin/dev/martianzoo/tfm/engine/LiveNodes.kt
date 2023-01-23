@@ -19,7 +19,6 @@ import dev.martianzoo.tfm.pets.ast.Requirement.Min
 import dev.martianzoo.tfm.pets.ast.TypeExpression
 import dev.martianzoo.tfm.pets.deprodify
 import dev.martianzoo.tfm.types.PetType
-import kotlin.Int.Companion.MAX_VALUE
 
 class LiveNodes(val game: Game) {
 
@@ -79,8 +78,8 @@ class LiveNodes(val game: Game) {
       game.applyChange(
           count = count,
           // TODO fix
-          gaining = gaining?.let { Component(it).asTypeExpression.asGeneric() },
-          removing = removing?.let { Component(it).asTypeExpression.asGeneric() },
+          gaining = gaining?.let(::Component),
+          removing = removing?.let(::Component),
           amap = intensity == AMAP)
     }
   }
@@ -136,26 +135,20 @@ class LiveNodes(val game: Game) {
 
   fun from(req: Requirement): LiveRequirement {
     return when (req) {
-      is Min -> InRange(LiveMetric(game.resolve(req.sat.type)), req.sat.scalar..MAX_VALUE)
-      is Max -> InRange(LiveMetric(game.resolve(req.sat.type)), 0..req.sat.scalar)
-      is Exact -> InRange(LiveMetric(game.resolve(req.sat.type)), req.sat.scalar..req.sat.scalar)
+      is Min -> LiveRequirement { game.count(req.sat.type) >= req.sat.scalar }
+      is Max -> LiveRequirement { game.count(req.sat.type) <= req.sat.scalar }
+      is Exact -> LiveRequirement { game.count(req.sat.type) == req.sat.scalar }
       is Requirement.Or ->
-          object : LiveRequirement() {
-            override fun isMet() = from(req.requirements.toList()).any { it.isMet() }
-          }
+        LiveRequirement { from(req.requirements.toList()).any { it.isMet() } }
+
       is Requirement.And ->
-          object : LiveRequirement() {
-            override fun isMet() = from(req.requirements).all { it.isMet() }
-          }
+        LiveRequirement { from(req.requirements.toList()).all { it.isMet() } }
+
       is Requirement.Transform -> error("should have been transformed by now")
     }
   }
 
-  abstract inner class LiveRequirement {
-    abstract fun isMet(): Boolean
-  }
-
-  inner class InRange(val metric: LiveMetric, val range: IntRange) : LiveRequirement() {
-    override fun isMet() = metric.measure() in range
+  inner class LiveRequirement(val isMet: () -> Boolean) {
+    fun isMet() = isMet.invoke()
   }
 }

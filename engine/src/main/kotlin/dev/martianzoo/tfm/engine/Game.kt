@@ -63,14 +63,12 @@ public class Game(
 
   fun applyChange(
       count: Int,
-      gaining: GenericTypeExpression? = null,
-      removing: GenericTypeExpression? = null,
+      gaining: Component? = null,
+      removing: Component? = null,
       amap: Boolean = false,
       cause: Cause? = null,
   ) {
-    val g = gaining?.let { Component(classTable.resolve(it)) }
-    val r = removing?.let { Component(classTable.resolve(it)) }
-    components.applyChange(count, g, r, cause, amap)
+    components.applyChange(count, gaining, removing, cause, amap)
   }
 
   val asGameState: GameState by lazy {
@@ -83,7 +81,11 @@ public class Game(
           amap: Boolean,
       ) {
         // TODO order
-        return this@Game.applyChange(count, gaining, removing, amap, cause)
+        return this@Game.applyChange(count,
+            gaining?.let { Component(resolve(it)) },
+            removing?.let { Component(resolve(it)) },
+            amap,
+            cause)
       }
 
       override val setup = this@Game.setup
