@@ -30,9 +30,9 @@ public class Game(
 
   fun resolve(type: TypeExpression): PetType = classTable.resolve(type)
 
-  fun count(type: PetType) = components.count(type)
+  fun isMet(requirement: Requirement) = LiveNodes.from(requirement, this).isMet(this)
 
-  fun execute(instr: Instruction) = LiveNodes.from(instr, this).execute(this)
+  fun count(type: PetType) = components.count(type)
 
   fun count(type: TypeExpression) = count(resolve(type))
 
@@ -57,33 +57,35 @@ public class Game(
     return getAll(resolve(type)).map { it.asTypeExpression as ClassLiteral }.toSetStrict()
   }
 
-  fun isMet(requirement: Requirement) = LiveNodes.from(requirement, this).isMet(this)
+  fun execute(instr: Instruction) = LiveNodes.from(instr, this).execute(this)
 
   fun applyChange(
       count: Int,
-      gaining: Component? = null,
       removing: Component? = null,
+      gaining: Component? = null,
       amap: Boolean = false,
       cause: Cause? = null,
   ) {
-    components.applyChange(count, gaining, removing, cause, amap)
+    components.applyChange(
+        count = count, removing = removing, gaining = gaining, amap = amap, cause = cause)
   }
 
   val asGameState: GameState by lazy {
     object : GameState {
       override fun applyChange(
           count: Int,
-          gaining: GenericTypeExpression?,
           removing: GenericTypeExpression?,
+          gaining: GenericTypeExpression?,
           cause: Cause?,
           amap: Boolean,
       ) {
         // TODO order
-        return this@Game.applyChange(count,
-            gaining?.let { Component(resolve(it)) },
-            removing?.let { Component(resolve(it)) },
-            amap,
-            cause)
+        return this@Game.applyChange(
+            count = count,
+            removing = removing?.let { Component(resolve(it)) },
+            gaining = gaining?.let { Component(resolve(it)) },
+            amap = amap,
+            cause = cause)
       }
 
       override val setup = this@Game.setup
@@ -92,15 +94,13 @@ public class Game(
 
       override fun resolve(type: TypeExpression) = this@Game.resolve(type)
 
+      override fun isMet(requirement: Requirement) = this@Game.isMet(requirement)
+
       override fun count(type: TypeExpression) = this@Game.count(type)
 
       override fun getAll(type: TypeExpression) = this@Game.getAll(type)
-
       override fun getAll(type: GenericTypeExpression) = this@Game.getAll(type)
-
       override fun getAll(type: ClassLiteral) = this@Game.getAll(type)
-
-      override fun isMet(requirement: Requirement) = this@Game.isMet(requirement)
     }
   }
 }

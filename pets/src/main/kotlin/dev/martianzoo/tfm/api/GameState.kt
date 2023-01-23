@@ -12,8 +12,8 @@ import dev.martianzoo.tfm.pets.ast.TypeExpression.GenericTypeExpression
 interface GameState : ReadOnlyGameState {
   fun applyChange(
       count: Int = 1,
-      gaining: GenericTypeExpression? = null,
       removing: GenericTypeExpression? = null,
+      gaining: GenericTypeExpression? = null,
       cause: Cause? = null,
       amap: Boolean = false,
   )

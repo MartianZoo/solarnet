@@ -10,8 +10,8 @@ import dev.martianzoo.tfm.pets.ast.TypeExpression.GenericTypeExpression
 open class StubGameState(val auth: Authority = Authority.Minimal()) : GameState {
   override fun applyChange(
       count: Int,
-      gaining: GenericTypeExpression?,
       removing: GenericTypeExpression?,
+      gaining: GenericTypeExpression?,
       cause: Cause?,
       amap: Boolean,
   ): Unit = throe()

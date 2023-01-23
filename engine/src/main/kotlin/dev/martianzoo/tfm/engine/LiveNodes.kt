@@ -74,8 +74,8 @@ object LiveNodes {
       game.applyChange(
           count = count,
           // TODO fix
-          gaining = gaining?.let(::Component),
           removing = removing?.let(::Component),
+          gaining = gaining?.let(::Component),
           amap = intensity == AMAP)
     }
   }
