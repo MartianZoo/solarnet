@@ -21,7 +21,7 @@ import dev.martianzoo.tfm.types.PetType.PetGenericType
 
 class InteractiveSession {
   internal var game: Game? = null // TODO private?
-  private var defaultPlayer: ClassName? = null
+  internal var defaultPlayer: ClassName? = null
 
   fun newGame(setup: GameSetup) {
     game = Engine.newGame(setup)
