@@ -5,12 +5,13 @@ import dev.martianzoo.tfm.pets.SpecialClassNames.PRODUCTION
 import dev.martianzoo.tfm.pets.SpecialClassNames.STANDARD_RESOURCE
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.TypeExpression
+import dev.martianzoo.tfm.pets.ast.TypeExpression.Companion.typeExpression
 
 // Note: this was easier to test in .engine than anywhere near here (ApiHelpersTest)
 fun lookUpProductionLevels(game: ReadOnlyGameState, player: TypeExpression): Map<ClassName, Int> {
   return standardResourceNames(game)
       .map { resourceName ->
-        val rawCount = game.count("$PRODUCTION<$player, $resourceName.CLASS>")
+        val rawCount = game.count(typeExpression("$PRODUCTION<$player, $resourceName.CLASS>"))
         val sadAdjustment = if (resourceName == MEGACREDIT) 5 else 0
         resourceName to rawCount - sadAdjustment
       }

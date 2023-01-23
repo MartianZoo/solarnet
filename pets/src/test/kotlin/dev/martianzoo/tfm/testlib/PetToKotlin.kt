@@ -55,7 +55,7 @@ internal object PetToKotlin {
         is Gain -> "Gain(${p2k(sat)}, $intensity)"
         is Remove -> "Remove(${p2k(sat)}, $intensity)"
         is Instruction.Per -> "Instruction.Per(${p2k(instruction)}, ${p2k(sat)})"
-        is Gated -> "Gated(${p2k(requirement)}, ${p2k(instruction)})"
+        is Gated -> "Gated(${p2k(gate)}, ${p2k(instruction)})"
         is Transmute -> "Transmute(${p2k(fromExpression)}${scalar.pre(", ")}${intensity.pre(", ")})"
         is ComplexFrom ->
             "ComplexFrom(c(\"$className\"), " +

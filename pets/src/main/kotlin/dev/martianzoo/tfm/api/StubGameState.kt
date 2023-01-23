@@ -25,7 +25,6 @@ open class StubGameState(val auth: Authority = Authority.Minimal()) : GameState 
   override fun getAll(type: TypeExpression): Multiset<TypeExpression> = throe()
   override fun getAll(type: GenericTypeExpression): Multiset<GenericTypeExpression> = throe()
   override fun getAll(type: ClassLiteral): Set<ClassLiteral> = throe()
-  override fun getAll(typeText: String): Multiset<TypeExpression> = throe()
 
   override fun isMet(requirement: Requirement): Boolean = throe()
 

@@ -9,44 +9,45 @@ import dev.martianzoo.tfm.data.StateChange.Cause
 import dev.martianzoo.tfm.engine.ComponentGraph.Component
 import dev.martianzoo.tfm.pets.ast.Instruction
 import dev.martianzoo.tfm.pets.ast.Requirement
-import dev.martianzoo.tfm.pets.ast.Requirement.Companion.requirement
 import dev.martianzoo.tfm.pets.ast.TypeExpression
 import dev.martianzoo.tfm.pets.ast.TypeExpression.ClassLiteral
-import dev.martianzoo.tfm.pets.ast.TypeExpression.Companion.typeExpression
 import dev.martianzoo.tfm.pets.ast.TypeExpression.GenericTypeExpression
 import dev.martianzoo.tfm.types.PetClassTable
 import dev.martianzoo.tfm.types.PetType
 import dev.martianzoo.util.toSetStrict
 
 public class Game(
-    override val setup: GameSetup,
+    val setup: GameSetup,
     val components: ComponentGraph,
     val classTable: PetClassTable,
-) : GameState {
+) {
   // val tasks = mutableListOf<Task>()
+
+  val authority by setup::authority
 
   // TODO maybe have `beginChangeLogging` instead of passing in a prebuilt multiset
   val changeLog by components::changeLog
 
-  override fun resolve(type: TypeExpression): PetType = classTable.resolve(type)
+  val liveNode = LiveNodes(this)
+
+  fun resolve(type: TypeExpression): PetType = classTable.resolve(type)
 
   fun count(type: PetType) = components.count(type)
 
-  fun execute(instr: String) = execute(Instruction.instruction(instr))
-  fun execute(instr: Instruction) = instr.execute(this)
+  fun execute(instr: Instruction) = liveNode.from(instr).execute()
 
-  override fun count(type: TypeExpression) = count(resolve(type))
+  fun count(type: TypeExpression) = count(resolve(type))
 
   fun getAll(type: PetType): Multiset<Component> = components.getAll(type)
 
-  override fun getAll(type: TypeExpression): Multiset<TypeExpression> {
+  fun getAll(type: TypeExpression): Multiset<TypeExpression> {
     val all: Multiset<Component> = getAll(resolve(type))
     val result: Multiset<TypeExpression> = HashMultiset.create()
     all.forEachEntry { component, count -> result.add(component.asTypeExpression, count) }
     return ImmutableMultiset.copyOf(result)
   }
 
-  override fun getAll(type: GenericTypeExpression): Multiset<GenericTypeExpression> {
+  fun getAll(type: GenericTypeExpression): Multiset<GenericTypeExpression> {
     val result = HashMultiset.create<GenericTypeExpression>()
     getAll(resolve(type)).entrySet().forEach {
       result.add(it.element.asTypeExpression.asGeneric(), it.count)
@@ -54,24 +55,52 @@ public class Game(
     return result
   }
 
-  override fun getAll(type: ClassLiteral): Set<ClassLiteral> {
+  fun getAll(type: ClassLiteral): Set<ClassLiteral> {
     return getAll(resolve(type)).map { it.asTypeExpression as ClassLiteral }.toSetStrict()
   }
 
-  override fun getAll(typeText: String) = getAll(typeExpression(typeText))
+  fun isMet(requirement: Requirement) = liveNode.from(requirement).isMet()
 
-  override fun isMet(requirement: Requirement) = requirement.evaluate(this)
-  fun isMet(requirementText: String) = isMet(requirement(requirementText))
-
-  override fun applyChange(
+  fun applyChange(
       count: Int,
-      gaining: GenericTypeExpression?,
-      removing: GenericTypeExpression?,
-      cause: Cause?,
-      amap: Boolean,
+      gaining: GenericTypeExpression? = null,
+      removing: GenericTypeExpression? = null,
+      amap: Boolean = false,
+      cause: Cause? = null,
   ) {
     val g = gaining?.let { Component(classTable.resolve(it)) }
     val r = removing?.let { Component(classTable.resolve(it)) }
     components.applyChange(count, g, r, cause, amap)
+  }
+
+  val asGameState: GameState by lazy {
+    object : GameState {
+      override fun applyChange(
+          count: Int,
+          gaining: GenericTypeExpression?,
+          removing: GenericTypeExpression?,
+          cause: Cause?,
+          amap: Boolean,
+      ) {
+        // TODO order
+        return this@Game.applyChange(count, gaining, removing, amap, cause)
+      }
+
+      override val setup = this@Game.setup
+      override val authority = this@Game.authority
+      override val map = this@Game.setup.map
+
+      override fun resolve(type: TypeExpression) = this@Game.resolve(type)
+
+      override fun count(type: TypeExpression) = this@Game.count(type)
+
+      override fun getAll(type: TypeExpression) = this@Game.getAll(type)
+
+      override fun getAll(type: GenericTypeExpression) = this@Game.getAll(type)
+
+      override fun getAll(type: ClassLiteral) = this@Game.getAll(type)
+
+      override fun isMet(requirement: Requirement) = this@Game.isMet(requirement)
+    }
   }
 }

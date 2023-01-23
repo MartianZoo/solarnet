@@ -5,10 +5,17 @@ import dev.martianzoo.tfm.api.GameSetup
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.data.StateChange
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.tfm.pets.ast.Instruction.Companion.instruction
+import dev.martianzoo.tfm.pets.ast.Requirement.Companion.requirement
+import dev.martianzoo.tfm.pets.ast.TypeExpression.Companion.typeExpression
 import dev.martianzoo.util.toStrings
 import org.junit.jupiter.api.Test
 
 private class GameStateTest {
+
+  fun Game.count(s: String) = count(typeExpression(s))
+  fun Game.execute(s: String) = execute(instruction(s))
+  fun Game.isMet(s: String) = isMet(requirement(s))
 
   @Test
   fun basicByApi() {

@@ -1,7 +1,6 @@
 package dev.martianzoo.tfm.pets.ast
 
 import com.google.common.truth.Truth.assertThat
-import dev.martianzoo.tfm.api.StubGameState
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.pets.ast.Requirement.Companion.requirement
 import dev.martianzoo.tfm.pets.ast.Requirement.Max
@@ -157,54 +156,5 @@ private class RequirementTest {
                                     .addArgs(
                                         cn("OceanTile").type,
                                         cn("CityTile").addArgs(cn("Anyone").type)))))))
-  }
-
-  // All type expressions with even-length string representations
-  // exist and have a count equal to that string's length
-  object FakeGame : StubGameState() {
-    override fun count(type: TypeExpression): Int {
-      val length = type.toString().length
-      return if (length % 2 == 0) length else 0
-    }
-
-    override fun isMet(requirement: Requirement) = requirement.evaluate(this)
-  }
-
-  fun evalRequirement(s: String) = assertThat(requirement(s).evaluate(FakeGame))!!
-
-  @Test
-  fun evaluation() {
-    evalRequirement("Foo").isFalse()
-    evalRequirement("11 Foo").isFalse()
-    evalRequirement("10 Megacredit").isTrue()
-    evalRequirement("11 Megacredit").isFalse()
-    evalRequirement("Foo<Bar>").isTrue()
-    evalRequirement("8 Foo<Bar>").isTrue()
-    evalRequirement("9 Foo<Bar>").isFalse()
-
-    evalRequirement("MAX 0 Foo").isTrue()
-    evalRequirement("MAX 7 Foo<Bar>").isFalse()
-    evalRequirement("MAX 8 Foo<Bar>").isTrue()
-
-    evalRequirement("=0 Foo").isTrue()
-    evalRequirement("=1 Foo").isFalse()
-    evalRequirement("=8 Foo<Bar>").isTrue()
-    evalRequirement("=7 Foo<Bar>").isFalse()
-
-    evalRequirement(
-            "10 Megacredit, Foo<Bar>, 8 Foo<Bar>, MAX 0 Foo, " +
-                "MAX 8 Foo<Bar>, =0 Foo, =8 Foo<Bar>")
-        .isTrue()
-    evalRequirement(
-            "10 Megacredit, Foo<Bar>, 8 Foo<Bar>, MAX 0 Foo, " +
-                "MAX 8 Foo<Bar>, =1 Foo, =8 Foo<Bar>")
-        .isFalse()
-
-    evalRequirement(
-            "Foo OR 11 Foo OR 11 OR 9 Foo<Bar> OR MAX 7 Foo<Bar> " + "OR =1 Foo OR =7 Foo<Bar>")
-        .isFalse()
-    evalRequirement(
-            "Foo OR 11 Foo OR 11 OR 9 Foo<Bar> OR MAX 7 Foo<Bar> " + "OR =0 Foo OR =7 Foo<Bar>")
-        .isTrue()
   }
 }

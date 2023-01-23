@@ -49,7 +49,7 @@ open class PetNodeVisitor {
                   is Instruction.Gain -> Instruction.Gain(x(sat), intensity)
                   is Instruction.Remove -> Instruction.Remove(x(sat), intensity)
                   is Instruction.Per -> Instruction.Per(x(instruction), x(sat))
-                  is Instruction.Gated -> Instruction.Gated(x(requirement), x(instruction))
+                  is Instruction.Gated -> Instruction.Gated(x(gate), x(instruction))
                   is Instruction.Transmute -> Instruction.Transmute(x(fromExpression), scalar)
                   is Instruction.Custom -> Instruction.Custom(functionName, x(arguments))
                   is Instruction.Then -> Instruction.Then(x(instructions))

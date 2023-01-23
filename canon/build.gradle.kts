@@ -14,6 +14,7 @@ dependencies {
 
   // TODO will eventually deguavafy
   implementation("com.google.guava:guava:31.1-jre")
+  implementation(project(mapOf("path" to ":engine")))
 
   testImplementation("org.junit.jupiter:junit-jupiter-api:5.9.0")
   testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.9.0")
