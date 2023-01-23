@@ -3,7 +3,10 @@ package dev.martianzoo.tfm.engine
 import dev.martianzoo.tfm.api.CustomInstruction
 import dev.martianzoo.tfm.api.CustomInstruction.ExecuteInsteadException
 import dev.martianzoo.tfm.api.standardResourceNames
+import dev.martianzoo.tfm.data.StateChange
 import dev.martianzoo.tfm.engine.ComponentGraph.Component
+import dev.martianzoo.tfm.pets.ast.Effect
+import dev.martianzoo.tfm.pets.ast.Effect.Trigger
 import dev.martianzoo.tfm.pets.ast.Instruction
 import dev.martianzoo.tfm.pets.ast.Instruction.AbstractInstructionException
 import dev.martianzoo.tfm.pets.ast.Instruction.Intensity
@@ -151,4 +154,34 @@ class LiveNodes(val game: Game) {
   inner class LiveRequirement(val isMet: () -> Boolean) {
     fun isMet() = isMet.invoke()
   }
+
+  fun from(trig: Trigger): LiveTrigger {
+    return when (trig) {
+      is Trigger.OnGain -> OnGain(resolve(trig.expression))
+      is Trigger.OnRemove -> OnRemove(resolve(trig.expression))
+      is Trigger.Transform -> error("")
+    }
+  }
+
+  abstract inner class LiveTrigger {
+    abstract fun hits(change: StateChange): Int
+  }
+
+  inner class OnGain(val type: PetType) : LiveTrigger() {
+    override fun hits(change: StateChange): Int {
+      val g = change.gaining
+      return if (g != null && resolve(g).isSubtypeOf(type)) change.count else 0
+    }
+  }
+
+  inner class OnRemove(val type: PetType) : LiveTrigger() {
+    override fun hits(change: StateChange): Int {
+      val r = change.removing
+      return if (r != null && resolve(r).isSubtypeOf(type)) change.count else 0
+    }
+  }
+
+  fun from(effect: Effect) = LiveEffect(from(effect.trigger), from(effect.instruction))
+
+  class LiveEffect(val trigger: LiveTrigger, val instruction: LiveInstruction)
 }
