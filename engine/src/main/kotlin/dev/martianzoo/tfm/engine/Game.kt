@@ -28,13 +28,11 @@ public class Game(
   // TODO maybe have `beginChangeLogging` instead of passing in a prebuilt multiset
   val changeLog by components::changeLog
 
-  val liveNode = LiveNodes(this)
-
   fun resolve(type: TypeExpression): PetType = classTable.resolve(type)
 
   fun count(type: PetType) = components.count(type)
 
-  fun execute(instr: Instruction) = liveNode.from(instr).execute()
+  fun execute(instr: Instruction) = LiveNodes.from(instr, this).execute(this)
 
   fun count(type: TypeExpression) = count(resolve(type))
 
@@ -59,7 +57,7 @@ public class Game(
     return getAll(resolve(type)).map { it.asTypeExpression as ClassLiteral }.toSetStrict()
   }
 
-  fun isMet(requirement: Requirement) = liveNode.from(requirement).isMet()
+  fun isMet(requirement: Requirement) = LiveNodes.from(requirement, this).isMet(this)
 
   fun applyChange(
       count: Int,
