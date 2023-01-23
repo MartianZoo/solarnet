@@ -8,7 +8,7 @@
       "deck": "CORPORATION",
       "tags": [ "PlantTag" ],
       "immediate": "PROD[2 Plant], 36, 3 Plant",
-      "effects": [ "UseAction<ConvertPlants>: -Owed<Plant.CLASS>" ],
+      "effects": [ "UseAction<ConvertPlants>: -Owed<Plant.CLASS>" ]
     },
 
     // Interplanetary Cinematics
@@ -18,7 +18,7 @@
       "deck": "CORPORATION",
       "tags": [ "BuildingTag" ],
       "immediate": "30, 20 Steel",
-      "effects": [ "EventCard: 2" ],
+      "effects": [ "EventCard: 2" ]
     },
 
     // Phobolog
@@ -28,7 +28,7 @@
       "deck": "CORPORATION",
       "tags": [ "SpaceTag" ],
       "immediate": "23, 10 Titanium",
-      "effects": [ "Pay<Titanium.CLASS>:: Pay<Megacredit.CLASS>" ],
+      "effects": [ "Pay<Titanium.CLASS>:: Pay<Megacredit.CLASS>" ]
     },
 
     // ThorGate
@@ -40,8 +40,8 @@
       "immediate": "PROD[Energy], 48",
       "effects": [
         "PlayTag<PowerTag.CLASS>:: -3 Owed.",
-        "UseAction<PowerPlantSP>: -3 Owed",
-      ],
+        "UseAction<PowerPlantSP>: -3 Owed"
+      ]
     },
 
     // United Nations Mars Initiative
@@ -54,7 +54,7 @@
       "actions": [ "3 -> HasRaisedTR: TerraformRating" ],
       "components": [
         "CLASS HasRaisedTR : Owned, Generational { HAS MAX 1 This }",
-        "CLASS TrWatcher : Owned { HAS =1 This; TerraformRating: HasRaisedTR. }",
+        "CLASS TrWatcher : Owned { HAS =1 This; TerraformRating: HasRaisedTR. }"
       ]
     },
 
@@ -65,7 +65,7 @@
       "deck": "CORPORATION",
       "tags": [ "JovianTag" ],
       "immediate": "PROD[Titanium], 42",
-      "effects": [ "JovianTag<Anyone>: PROD[1]" ],
+      "effects": [ "JovianTag<Anyone>: PROD[1]" ]
     },
 
     // Teractor
@@ -75,7 +75,7 @@
       "deck": "CORPORATION",
       "tags": [ "EarthTag" ],
       "immediate": "60",
-      "effects": [ "PlayTag<EarthTag.CLASS>:: -3 Owed." ],
+      "effects": [ "PlayTag<EarthTag.CLASS>:: -3 Owed." ]
     },
 
     // Cheung Shing Mars
@@ -85,7 +85,7 @@
       "deck": "CORPORATION",
       "tags": [ "BuildingTag" ],
       "immediate": "PROD[3], 44",
-      "effects": [ "PlayTag<BuildingTag.CLASS>:: -2 Owed." ],
+      "effects": [ "PlayTag<BuildingTag.CLASS>:: -2 Owed." ]
     },
 
     // Point Luna
@@ -95,7 +95,7 @@
       "deck": "CORPORATION",
       "tags": [ "EarthTag", "SpaceTag" ],
       "immediate": "PROD[Titanium], 38",
-      "effects": [ "EarthTag: ProjectCard" ],
+      "effects": [ "EarthTag: ProjectCard" ]
     },
 
     // Arklight
@@ -108,9 +108,9 @@
       "effects" : [
         "AnimalTag: Animal<This>",
         "PlantTag: Animal<This>",
-        "End: VictoryPoint / 2 Animal<This>",
+        "End: VictoryPoint / 2 Animal<This>"
       ],
-      "resourceType": "Animal",
+      "resourceType": "Animal"
     },
 
     // Viron
@@ -120,7 +120,7 @@
       "deck": "CORPORATION",
       "tags": [ "MicrobeTag" ],
       "immediate": "48",
-      "actions": [ "-> UseAction<ActionCard(HAS ActionUsedMarker)>" ],
+      "actions": [ "-> UseAction<ActionCard(HAS ActionUsedMarker)>" ]
     },
 
     // Recyclon
@@ -131,7 +131,7 @@
       "tags": [ "MicrobeTag", "BuildingTag" ],
       "immediate": "38, PROD[Steel]",
       "effects": [ "BuildingTag: Microbe<This> OR (-2 Microbe<This> THEN PROD[Plant])" ],
-      "resourceType": "Microbe",
+      "resourceType": "Microbe"
     },
 
     // Factorum[F]
@@ -143,8 +143,8 @@
       "immediate": "37, PROD[Steel]",
       "actions": [
         "-> MAX 0 Energy: PROD[Energy]",
-        "3 -> ProjectCard",
-      ],
+        "3 -> ProjectCard"
+      ]
     },
 
     // AstroDrill
@@ -156,9 +156,9 @@
       "immediate": "35, 3 Asteroid<This>",
       "actions": [
         "-> Asteroid OR StandardResource",
-        "Asteroid<This> -> 3 Titanium",
+        "Asteroid<This> -> 3 Titanium"
       ],
-      "resourceType": "Asteroid",
+      "resourceType": "Asteroid"
     },
 
     // Pharmacy Union[F]
@@ -174,7 +174,7 @@
         "ScienceTag: (TerraformRating FROM Disease) OR (MAX 0 Disease: ((PlayedEvent FROM This, 3 TerraformRating) OR Ok))"
       ],
       "resourceType": "Disease",
-      "components": [ "CLASS Disease : CardResource" ],
+      "components": [ "CLASS Disease : CardResource" ]
     },
 
     // Allied Bank
@@ -183,7 +183,7 @@
       "bundle": "P",
       "deck": "PRELUDE",
       "tags": [ "EarthTag" ],
-      "immediate": "PROD[4], 3",
+      "immediate": "PROD[4], 3"
     },
 
     // Aquifer Turbines
@@ -192,7 +192,7 @@
       "bundle": "P",
       "deck": "PRELUDE",
       "tags": [ "PowerTag" ],
-      "immediate": "OceanTile, PROD[2 Energy], -3",
+      "immediate": "OceanTile, PROD[2 Energy], -3"
     },
 
     // Biofuels
@@ -201,7 +201,7 @@
       "bundle": "P",
       "deck": "PRELUDE",
       "tags": [ "MicrobeTag" ],
-      "immediate": "PROD[Energy, Plant], 2 Plant",
+      "immediate": "PROD[Energy, Plant], 2 Plant"
     },
 
     // Biolab
@@ -210,7 +210,7 @@
       "bundle": "P",
       "deck": "PRELUDE",
       "tags": [ "ScienceTag" ],
-      "immediate": "PROD[Plant], 3 ProjectCard",
+      "immediate": "PROD[Plant], 3 ProjectCard"
     },
 
     // Biosphere Support
@@ -219,7 +219,7 @@
       "bundle": "P",
       "deck": "PRELUDE",
       "tags": [ "PlantTag" ],
-      "immediate": "PROD[-1, 2 Plant]",
+      "immediate": "PROD[-1, 2 Plant]"
     },
 
     // Business Empire
@@ -228,7 +228,7 @@
       "bundle": "P",
       "deck": "PRELUDE",
       "tags": [ "EarthTag" ],
-      "immediate": "PROD[6], -6",
+      "immediate": "PROD[6], -6"
     },
 
     // Dome Farming
@@ -237,7 +237,7 @@
       "bundle": "P",
       "deck": "PRELUDE",
       "tags": [ "PlantTag", "BuildingTag" ],
-      "immediate": "PROD[2, Plant]",
+      "immediate": "PROD[2, Plant]"
     },
 
     // Donation
@@ -245,7 +245,7 @@
       "id": "P08",
       "bundle": "P",
       "deck": "PRELUDE",
-      "immediate": "21",
+      "immediate": "21"
     },
 
     // Early Settlement
@@ -254,7 +254,7 @@
       "bundle": "P",
       "deck": "PRELUDE",
       "tags": [ "CityTag", "BuildingTag" ],
-      "immediate": "PROD[Plant], CityTile",
+      "immediate": "PROD[Plant], CityTile"
     },
 
     // Experimental Forest[F]
@@ -263,7 +263,7 @@
       "bundle": "P",
       "deck": "PRELUDE",
       "tags": [ "PlantTag" ],
-      "immediate": "GreeneryTile, 2 ProjectCard",
+      "immediate": "GreeneryTile, 2 ProjectCard"
     },
 
     // Galilean Mining
@@ -272,7 +272,7 @@
       "bundle": "P",
       "deck": "PRELUDE",
       "tags": [ "JovianTag" ],
-      "immediate": "PROD[2 Titanium], -5",
+      "immediate": "PROD[2 Titanium], -5"
     },
 
     // Great Aquifer
@@ -280,7 +280,7 @@
       "id": "P14",
       "bundle": "P",
       "deck": "PRELUDE",
-      "immediate": "2 OceanTile",
+      "immediate": "2 OceanTile"
     },
 
     // Huge Asteroid
@@ -288,7 +288,7 @@
       "id": "P15",
       "bundle": "P",
       "deck": "PRELUDE",
-      "immediate": "3 TemperatureStep, -5",
+      "immediate": "3 TemperatureStep, -5"
     },
 
     // Io Research Outpost
@@ -297,7 +297,7 @@
       "bundle": "P",
       "deck": "PRELUDE",
       "tags": [ "ScienceTag", "JovianTag" ],
-      "immediate": "PROD[Titanium], ProjectCard",
+      "immediate": "PROD[Titanium], ProjectCard"
     },
 
     // Loan
@@ -305,7 +305,7 @@
       "id": "P17",
       "bundle": "P",
       "deck": "PRELUDE",
-      "immediate": "PROD[-2], 30",
+      "immediate": "PROD[-2], 30"
     },
 
     // Martian Industries
@@ -314,7 +314,7 @@
       "bundle": "P",
       "deck": "PRELUDE",
       "tags": [ "BuildingTag" ],
-      "immediate": "PROD[Energy, Steel], 6",
+      "immediate": "PROD[Energy, Steel], 6"
     },
 
     // Metal-Rich Asteroid
@@ -322,7 +322,7 @@
       "id": "P19",
       "bundle": "P",
       "deck": "PRELUDE",
-      "immediate": "TemperatureStep, 4 Titanium, 4 Steel",
+      "immediate": "TemperatureStep, 4 Titanium, 4 Steel"
     },
 
     // Metals Company
@@ -330,7 +330,7 @@
       "id": "P20",
       "bundle": "P",
       "deck": "PRELUDE",
-      "immediate": "PROD[1, Steel, Titanium]",
+      "immediate": "PROD[1, Steel, Titanium]"
     },
 
     // Mining Operations
@@ -339,7 +339,7 @@
       "bundle": "P",
       "deck": "PRELUDE",
       "tags": [ "BuildingTag" ],
-      "immediate": "PROD[2 Steel], 4 Steel",
+      "immediate": "PROD[2 Steel], 4 Steel"
     },
 
     // Mohole
@@ -348,7 +348,7 @@
       "bundle": "P",
       "deck": "PRELUDE",
       "tags": [ "BuildingTag" ],
-      "immediate": "PROD[3 Heat], 3 Heat",
+      "immediate": "PROD[3 Heat], 3 Heat"
     },
 
     // Mohole Excavation
@@ -357,7 +357,7 @@
       "bundle": "P",
       "deck": "PRELUDE",
       "tags": [ "BuildingTag" ],
-      "immediate": "PROD[Steel, 2 Heat], 2 Heat",
+      "immediate": "PROD[Steel, 2 Heat], 2 Heat"
     },
 
     // Nitrogen Shipment
@@ -365,7 +365,7 @@
       "id": "P24",
       "bundle": "P",
       "deck": "PRELUDE",
-      "immediate": "PROD[Plant], TerraformRating, 5",
+      "immediate": "PROD[Plant], TerraformRating, 5"
     },
 
     // Orbital Construction Yard
@@ -374,7 +374,7 @@
       "bundle": "P",
       "deck": "PRELUDE",
       "tags": [ "SpaceTag" ],
-      "immediate": "PROD[Titanium], 4 Titanium",
+      "immediate": "PROD[Titanium], 4 Titanium"
     },
 
     // Polar Industries
@@ -383,7 +383,7 @@
       "bundle": "P",
       "deck": "PRELUDE",
       "tags": [ "BuildingTag" ],
-      "immediate": "PROD[2 Heat], OceanTile",
+      "immediate": "PROD[2 Heat], OceanTile"
     },
 
     // Power Generation
@@ -392,7 +392,7 @@
       "bundle": "P",
       "deck": "PRELUDE",
       "tags": [ "PowerTag" ],
-      "immediate": "PROD[3 Energy]",
+      "immediate": "PROD[3 Energy]"
     },
 
     // Self-Sufficient Settlement
@@ -401,7 +401,7 @@
       "bundle": "P",
       "deck": "PRELUDE",
       "tags": [ "CityTag", "BuildingTag" ],
-      "immediate": "PROD[2], CityTile",
+      "immediate": "PROD[2], CityTile"
     },
 
     // Smelting Plant
@@ -410,7 +410,7 @@
       "bundle": "P",
       "deck": "PRELUDE",
       "tags": [ "BuildingTag" ],
-      "immediate": "2 OxygenStep, 5 Steel",
+      "immediate": "2 OxygenStep, 5 Steel"
     },
 
     // Society Support
@@ -418,7 +418,7 @@
       "id": "P31",
       "bundle": "P",
       "deck": "PRELUDE",
-      "immediate": "PROD[-1, Plant, Energy, Heat]",
+      "immediate": "PROD[-1, Plant, Energy, Heat]"
     },
 
     // Supplier
@@ -427,7 +427,7 @@
       "bundle": "P",
       "deck": "PRELUDE",
       "tags": [ "PowerTag" ],
-      "immediate": "PROD[2 Energy], 4 Steel",
+      "immediate": "PROD[2 Energy], 4 Steel"
     },
 
     // Supply Drop
@@ -435,7 +435,7 @@
       "id": "P33",
       "bundle": "P",
       "deck": "PRELUDE",
-      "immediate": "3 Titanium, 8 Steel, 3 Plant",
+      "immediate": "3 Titanium, 8 Steel, 3 Plant"
     },
 
     // UNMI Contractor
@@ -444,7 +444,7 @@
       "bundle": "P",
       "deck": "PRELUDE",
       "tags": [ "EarthTag" ],
-      "immediate": "3 TerraformRating, ProjectCard",
+      "immediate": "3 TerraformRating, ProjectCard"
     },
 
     // Acquired Space Agency[F]
@@ -452,7 +452,7 @@
       "id": "P35F",
       "bundle": "P",
       "deck": "PRELUDE",
-      "immediate": "6 Titanium, 2 ProjectCard",
+      "immediate": "6 Titanium, 2 ProjectCard"
     },
 
     // Corporate Archives[F]
@@ -461,7 +461,7 @@
       "bundle": "X",
       "deck": "PRELUDE",
       "tags": [ "ScienceTag" ],
-      "immediate": "13, 2 ProjectCard",
+      "immediate": "13, 2 ProjectCard"
     },
 
     // Merger[F]
@@ -469,7 +469,7 @@
       "id": "X41F",
       "bundle": "X",
       "deck": "PRELUDE",
-      "immediate": "CardFront, -42", // in follow mode, it's that easy
+      "immediate": "CardFront, -42" // in follow mode, it's that easy
     },
 
     // New Partner[F]
@@ -477,7 +477,7 @@
       "id": "X42F",
       "bundle": "X",
       "deck": "PRELUDE",
-      "immediate": "PROD[1], CardFront",
+      "immediate": "PROD[1], CardFront"
     },
 
     // Colonizer Training Camp
@@ -489,7 +489,7 @@
       "effects": [ "End: 2 VictoryPoint" ],
       "requirement": "MAX 5 OxygenStep",
       "cost": 8,
-      "projectKind": "AUTOMATED",
+      "projectKind": "AUTOMATED"
     },
 
     // Deep Well Heating
@@ -500,7 +500,7 @@
       "tags": [ "PowerTag", "BuildingTag" ],
       "immediate": "PROD[Energy], TemperatureStep",
       "cost": 13,
-      "projectKind": "AUTOMATED",
+      "projectKind": "AUTOMATED"
     },
 
     // Cloud Seeding
@@ -511,7 +511,7 @@
       "immediate": "PROD[-1, -Heat<Anyone>, 2 Plant]",
       "requirement": "3 OceanTile",
       "cost": 11,
-      "projectKind": "AUTOMATED",
+      "projectKind": "AUTOMATED"
     },
 
     // Search For Life[F]
@@ -525,7 +525,7 @@
       "resourceType": "Science",
       "requirement": "MAX 6 OxygenStep",
       "cost": 3,
-      "projectKind": "ACTIVE",
+      "projectKind": "ACTIVE"
     },
 
     // Martian Rails
@@ -536,7 +536,7 @@
       "tags": [ "BuildingTag" ],
       "actions": [ "Energy -> 1 / CityTile<MarsArea, Anyone>" ],
       "cost": 13,
-      "projectKind": "ACTIVE",
+      "projectKind": "ACTIVE"
     },
 
     // Capital
@@ -548,12 +548,12 @@
       "immediate": "PROD[-2 Energy, 5], Tile008",
       "effects": [
         // The points attach to the card, not the tile
-        "End: VictoryPoint / Adjacency<Tile008, OceanTile>",
+        "End: VictoryPoint / Adjacency<Tile008, OceanTile>"
       ],
       "components": [ "CLASS Tile008 : CityTile" ],
       "requirement": "4 OceanTile",
       "cost": 26,
-      "projectKind": "AUTOMATED",
+      "projectKind": "AUTOMATED"
     },
 
     // Asteroid
@@ -564,7 +564,7 @@
       "tags": [ "SpaceTag" ],
       "immediate": "TemperatureStep, 2 Titanium, -3 Plant<Anyone>?",
       "cost": 14,
-      "projectKind": "EVENT",
+      "projectKind": "EVENT"
     },
 
     // Comet
@@ -575,7 +575,7 @@
       "tags": [ "SpaceTag" ],
       "immediate": "TemperatureStep, OceanTile, -3 Plant<Anyone>?",
       "cost": 21,
-      "projectKind": "EVENT",
+      "projectKind": "EVENT"
     },
 
     // Big Asteroid
@@ -586,7 +586,7 @@
       "tags": [ "SpaceTag" ],
       "immediate": "2 TemperatureStep, 4 Titanium, -4 Plant<Anyone>?",
       "cost": 27,
-      "projectKind": "EVENT",
+      "projectKind": "EVENT"
     },
 
     // Water Import From Europa
@@ -598,10 +598,10 @@
       "actions": [ "12 -> OceanTile" ],
       "effects": [
           "UseAction1<This>:: Accept<Titanium.CLASS>",
-          "End: VictoryPoint / JovianTag",
+          "End: VictoryPoint / JovianTag"
       ],
       "cost": 25,
-      "projectKind": "ACTIVE",
+      "projectKind": "ACTIVE"
     },
 
     // Equatorial Magnetizer
@@ -612,7 +612,7 @@
       "tags": [ "BuildingTag" ],
       "actions": [ "PROD[Energy] -> TerraformRating" ],
       "cost": 11,
-      "projectKind": "ACTIVE",
+      "projectKind": "ACTIVE"
     },
 
     // Domed Crater
@@ -625,7 +625,7 @@
       "effects": [ "End: VictoryPoint" ],
       "requirement": "MAX 7 OxygenStep",
       "cost": 24,
-      "projectKind": "AUTOMATED",
+      "projectKind": "AUTOMATED"
     },
 
     // Noctis City
@@ -636,7 +636,7 @@
       "tags": [ "CityTag", "BuildingTag" ],
       "immediate": "PROD[-Energy, 3], CityTile<NoctisArea> OR (MAX 0 NoctisArea: CityTile)",
       "cost": 18,
-      "projectKind": "AUTOMATED",
+      "projectKind": "AUTOMATED"
     },
 
     // Methane From Titan
@@ -649,7 +649,7 @@
       "effects": [ "End: 2 VictoryPoint" ],
       "requirement": "2 OxygenStep",
       "cost": 28,
-      "projectKind": "AUTOMATED",
+      "projectKind": "AUTOMATED"
     },
 
     // Imported Hydrogen
@@ -660,7 +660,7 @@
       "tags": [ "EarthTag", "SpaceTag" ],
       "immediate": "3 Plant OR 3 Microbe OR 3 Animal, OceanTile",
       "cost": 16,
-      "projectKind": "EVENT",
+      "projectKind": "EVENT"
     },
 
     // Research Outpost
@@ -672,7 +672,7 @@
       "immediate": "CityTile<LandArea(HAS MAX 0 Neighbor)>",
       "effects": [ "PlayCard: -Owed." ],
       "cost": 18,
-      "projectKind": "ACTIVE",
+      "projectKind": "ACTIVE"
     },
 
     // Phobos Space Haven
@@ -685,7 +685,7 @@
       "components": [ "CLASS Area021 : RemoteArea" ],
       "effects": [ "End: 3 VictoryPoint" ],
       "cost": 25,
-      "projectKind": "AUTOMATED",
+      "projectKind": "AUTOMATED"
     },
 
     // Black Polar Dust
@@ -695,7 +695,7 @@
       "deck": "PROJECT",
       "immediate": "PROD[-2, 3 Heat], OceanTile",
       "cost": 15,
-      "projectKind": "AUTOMATED",
+      "projectKind": "AUTOMATED"
     },
 
     // Predators
@@ -709,7 +709,7 @@
       "resourceType": "Animal",
       "requirement": "11 OxygenStep",
       "cost": 14,
-      "projectKind": "ACTIVE",
+      "projectKind": "ACTIVE"
     },
 
     // Eos Chasma National Park
@@ -722,7 +722,7 @@
       "effects": [ "End: VictoryPoint" ],
       "requirement": "8 TemperatureStep",
       "cost": 16,
-      "projectKind": "AUTOMATED",
+      "projectKind": "AUTOMATED"
     },
 
     // Cupola City
@@ -734,7 +734,7 @@
       "immediate": "PROD[-Energy, 3], CityTile",
       "requirement": "MAX 9 OxygenStep",
       "cost": 16,
-      "projectKind": "AUTOMATED",
+      "projectKind": "AUTOMATED"
     },
 
     // Lunar Beam
@@ -745,7 +745,7 @@
       "tags": [ "EarthTag", "PowerTag" ],
       "immediate": "PROD[-2, 2 Heat, 2 Energy]",
       "cost": 13,
-      "projectKind": "AUTOMATED",
+      "projectKind": "AUTOMATED"
     },
 
     // Optimal Aerobraking
@@ -756,7 +756,7 @@
       "tags": [ "SpaceTag" ],
       "effects": [ "SpaceTag<EventCard>: 3, 3 Heat" ],
       "cost": 7,
-      "projectKind": "ACTIVE",
+      "projectKind": "ACTIVE"
     },
 
     // Underground City
@@ -767,7 +767,7 @@
       "tags": [ "CityTag", "BuildingTag" ],
       "immediate": "PROD[-2 Energy, 2 Steel], CityTile",
       "cost": 18,
-      "projectKind": "AUTOMATED",
+      "projectKind": "AUTOMATED"
     },
 
     // Regolith Eaters
@@ -778,11 +778,11 @@
       "tags": [ "ScienceTag", "MicrobeTag" ],
       "actions": [
         "-> Microbe<This>",
-        "2 Microbe<This> -> OxygenStep",
+        "2 Microbe<This> -> OxygenStep"
       ],
       "resourceType": "Microbe",
       "cost": 13,
-      "projectKind": "ACTIVE",
+      "projectKind": "ACTIVE"
     },
 
     // GHG Producing Bacteria
@@ -793,12 +793,12 @@
       "tags": [ "ScienceTag", "MicrobeTag" ],
       "actions": [
         "-> Microbe<This>",
-        "2 Microbe<This> -> TemperatureStep",
+        "2 Microbe<This> -> TemperatureStep"
       ],
       "resourceType": "Microbe",
       "requirement": "4 OxygenStep",
       "cost": 8,
-      "projectKind": "ACTIVE",
+      "projectKind": "ACTIVE"
     },
 
     // Ants
@@ -812,7 +812,7 @@
       "resourceType": "Microbe",
       "requirement": "4 OxygenStep",
       "cost": 9,
-      "projectKind": "ACTIVE",
+      "projectKind": "ACTIVE"
     },
 
     // Release Of Inert Gases
@@ -822,7 +822,7 @@
       "deck": "PROJECT",
       "immediate": "2 TerraformRating",
       "cost": 14,
-      "projectKind": "EVENT",
+      "projectKind": "EVENT"
     },
 
     // Nitrogen-Rich Asteroid
@@ -833,7 +833,7 @@
       "tags": [ "SpaceTag" ],
       "immediate": "PROD[Plant OR (3 PlantTag: 4 Plant)], 2 TerraformRating, TemperatureStep",
       "cost": 31,
-      "projectKind": "EVENT",
+      "projectKind": "EVENT"
     },
 
     // Rover Construction
@@ -844,10 +844,10 @@
       "tags": [ "BuildingTag" ],
       "effects": [
         "CityTile<Anyone>: 2",
-        "End: VictoryPoint",
+        "End: VictoryPoint"
       ],
       "cost": 8,
-      "projectKind": "ACTIVE",
+      "projectKind": "ACTIVE"
     },
 
     // Deimos Down (original)
@@ -858,7 +858,7 @@
       "tags": [ "SpaceTag" ],
       "immediate": "3 TemperatureStep, 4 Steel, -8 Plant<Anyone>?",
       "cost": 31,
-      "projectKind": "EVENT",
+      "projectKind": "EVENT"
     },
 
     // Asteroid Mining
@@ -870,7 +870,7 @@
       "immediate": "PROD[2 Titanium]",
       "effects": [ "End: 2 VictoryPoint" ],
       "cost": 30,
-      "projectKind": "AUTOMATED",
+      "projectKind": "AUTOMATED"
     },
 
     // Food Factory
@@ -882,7 +882,7 @@
       "immediate": "PROD[-Plant, 4]",
       "effects": [ "End: VictoryPoint" ],
       "cost": 12,
-      "projectKind": "AUTOMATED",
+      "projectKind": "AUTOMATED"
     },
 
     // Archaebacteria
@@ -894,7 +894,7 @@
       "immediate": "PROD[Plant]",
       "requirement": "MAX 6 TemperatureStep",
       "cost": 6,
-      "projectKind": "AUTOMATED",
+      "projectKind": "AUTOMATED"
     },
 
     // Carbonate Processing
@@ -905,7 +905,7 @@
       "tags": [ "BuildingTag" ],
       "immediate": "PROD[-Energy, 3 Heat]",
       "cost": 6,
-      "projectKind": "AUTOMATED",
+      "projectKind": "AUTOMATED"
     },
 
     // Natural Preserve
@@ -919,7 +919,7 @@
       "components": [ "CLASS Tile044 : SpecialTile" ],
       "requirement": "MAX 4 OxygenStep",
       "cost": 9,
-      "projectKind": "AUTOMATED",
+      "projectKind": "AUTOMATED"
     },
 
     // Nuclear Power
@@ -930,7 +930,7 @@
       "tags": [ "PowerTag", "BuildingTag" ],
       "immediate": "PROD[-2, 3 Energy]",
       "cost": 10,
-      "projectKind": "AUTOMATED",
+      "projectKind": "AUTOMATED"
     },
 
     // Algae
@@ -942,7 +942,7 @@
       "immediate": "PROD[2 Plant], Plant",
       "requirement": "5 OceanTile",
       "cost": 10,
-      "projectKind": "AUTOMATED",
+      "projectKind": "AUTOMATED"
     },
 
     // Adapted Lichen
@@ -953,7 +953,7 @@
       "tags": [ "PlantTag" ],
       "immediate": "PROD[Plant]",
       "cost": 9,
-      "projectKind": "AUTOMATED",
+      "projectKind": "AUTOMATED"
     },
 
     // Fish
@@ -968,7 +968,7 @@
       "resourceType": "Animal",
       "requirement": "16 TemperatureStep",
       "cost": 9,
-      "projectKind": "ACTIVE",
+      "projectKind": "ACTIVE"
     },
 
     // Lake Marineris
@@ -980,7 +980,7 @@
       "effects": [ "End: 2 VictoryPoint" ],
       "requirement": "15 TemperatureStep",
       "cost": 18,
-      "projectKind": "AUTOMATED",
+      "projectKind": "AUTOMATED"
     },
 
     // Small Animals
@@ -995,7 +995,7 @@
       "resourceType": "Animal",
       "requirement": "6 OxygenStep",
       "cost": 6,
-      "projectKind": "ACTIVE",
+      "projectKind": "ACTIVE"
     },
 
     // Kelp Farming
@@ -1007,7 +1007,7 @@
       "immediate": "PROD[2, 3 Plant], 2 Plant",
       "requirement": "6 OceanTile",
       "cost": 17,
-      "projectKind": "AUTOMATED",
+      "projectKind": "AUTOMATED"
     },
 
     // Beam From A Thorium Asteroid
@@ -1020,7 +1020,7 @@
       "effects": [ "End: VictoryPoint" ],
       "requirement": "JovianTag",
       "cost": 32,
-      "projectKind": "AUTOMATED",
+      "projectKind": "AUTOMATED"
     },
 
     // Mangrove
@@ -1033,7 +1033,7 @@
       "effects": [ "End: VictoryPoint" ],
       "requirement": "17 TemperatureStep",
       "cost": 12,
-      "projectKind": "AUTOMATED",
+      "projectKind": "AUTOMATED"
     },
 
     // Trees
@@ -1046,7 +1046,7 @@
       "effects": [ "End: VictoryPoint" ],
       "requirement": "13 TemperatureStep",
       "cost": 13,
-      "projectKind": "AUTOMATED",
+      "projectKind": "AUTOMATED"
     },
 
     // Mining Expedition
@@ -1056,7 +1056,7 @@
       "deck": "PROJECT",
       "immediate": "OxygenStep, -2 Plant<Anyone>?, 2 Steel",
       "cost": 12,
-      "projectKind": "EVENT",
+      "projectKind": "EVENT"
     },
 
     // Birds
@@ -1071,7 +1071,7 @@
       "resourceType": "Animal",
       "requirement": "13 OxygenStep",
       "cost": 10,
-      "projectKind": "ACTIVE",
+      "projectKind": "ACTIVE"
     },
 
     // Towing A Comet
@@ -1082,7 +1082,7 @@
       "tags": [ "SpaceTag" ],
       "immediate": "OxygenStep, OceanTile, 2 Plant",
       "cost": 23,
-      "projectKind": "EVENT",
+      "projectKind": "EVENT"
     },
 
     // Space Mirrors
@@ -1093,7 +1093,7 @@
       "tags": [ "PowerTag", "SpaceTag" ],
       "actions": [ "7 -> PROD[Energy]" ],
       "cost": 3,
-      "projectKind": "ACTIVE",
+      "projectKind": "ACTIVE"
     },
 
     // Solar Wind Power
@@ -1104,7 +1104,7 @@
       "tags": [ "ScienceTag", "SpaceTag", "PowerTag" ],
       "immediate": "PROD[Energy], 2 Titanium",
       "cost": 11,
-      "projectKind": "AUTOMATED",
+      "projectKind": "AUTOMATED"
     },
 
     // Ice Asteroid
@@ -1115,7 +1115,7 @@
       "tags": [ "SpaceTag" ],
       "immediate": "OceanTile",
       "cost": 23,
-      "projectKind": "EVENT",
+      "projectKind": "EVENT"
     },
 
     // Giant Ice Asteroid
@@ -1126,7 +1126,7 @@
       "tags": [ "SpaceTag" ],
       "immediate": "2 TemperatureStep, 2 OceanTile, -6 Plant<Anyone>?",
       "cost": 36,
-      "projectKind": "EVENT",
+      "projectKind": "EVENT"
     },
 
     // Ganymede Colony
@@ -1139,7 +1139,7 @@
       "components": [ "CLASS Area081 : RemoteArea" ],
       "effects": [ "End: VictoryPoint / JovianTag" ],
       "cost": 20,
-      "projectKind": "AUTOMATED",
+      "projectKind": "AUTOMATED"
     },
 
     // Giant Space Mirror
@@ -1150,7 +1150,7 @@
       "tags": [ "PowerTag", "SpaceTag" ],
       "immediate": "PROD[3 Energy]",
       "cost": 17,
-      "projectKind": "AUTOMATED",
+      "projectKind": "AUTOMATED"
     },
 
     // Grass
@@ -1162,7 +1162,7 @@
       "immediate": "PROD[Plant], 3 Plant",
       "requirement": "7 TemperatureStep",
       "cost": 11,
-      "projectKind": "AUTOMATED",
+      "projectKind": "AUTOMATED"
     },
 
     // Heather
@@ -1174,7 +1174,7 @@
       "immediate": "PROD[Plant], Plant",
       "requirement": "8 TemperatureStep",
       "cost": 6,
-      "projectKind": "AUTOMATED",
+      "projectKind": "AUTOMATED"
     },
 
     // Peroxide Power
@@ -1185,7 +1185,7 @@
       "tags": [ "PowerTag", "BuildingTag" ],
       "immediate": "PROD[-1, 2 Energy]",
       "cost": 7,
-      "projectKind": "AUTOMATED",
+      "projectKind": "AUTOMATED"
     },
 
     // Bushes
@@ -1197,7 +1197,7 @@
       "immediate": "PROD[2 Plant], 2 Plant",
       "requirement": "10 TemperatureStep",
       "cost": 10,
-      "projectKind": "AUTOMATED",
+      "projectKind": "AUTOMATED"
     },
 
     // Greenhouses
@@ -1208,7 +1208,7 @@
       "tags": [ "PlantTag", "BuildingTag" ],
       "immediate": "Plant / CityTile<Anyone>",
       "cost": 6,
-      "projectKind": "AUTOMATED",
+      "projectKind": "AUTOMATED"
     },
 
     // Nuclear Zone
@@ -1221,7 +1221,7 @@
       "effects": [ "End: -2 VictoryPoint" ],
       "components": [ "CLASS Tile097 : SpecialTile" ],
       "cost": 10,
-      "projectKind": "AUTOMATED",
+      "projectKind": "AUTOMATED"
     },
 
     // Fueled Generators
@@ -1232,7 +1232,7 @@
       "tags": [ "PowerTag", "BuildingTag" ],
       "immediate": "PROD[-1, Energy]",
       "cost": 1,
-      "projectKind": "AUTOMATED",
+      "projectKind": "AUTOMATED"
     },
 
     // Ironworks
@@ -1243,7 +1243,7 @@
       "tags": [ "BuildingTag" ],
       "actions": [ "4 Energy -> Steel, OxygenStep" ],
       "cost": 11,
-      "projectKind": "ACTIVE",
+      "projectKind": "ACTIVE"
     },
 
     // Power Grid
@@ -1254,7 +1254,7 @@
       "tags": [ "PowerTag" ],
       "immediate": "PROD[Energy / PowerTag]",
       "cost": 18,
-      "projectKind": "AUTOMATED",
+      "projectKind": "AUTOMATED"
     },
 
     // Steelworks
@@ -1265,7 +1265,7 @@
       "tags": [ "BuildingTag" ],
       "actions": [ "4 Energy -> 2 Steel, OxygenStep" ],
       "cost": 15,
-      "projectKind": "ACTIVE",
+      "projectKind": "ACTIVE"
     },
 
     // Ore Processor
@@ -1276,7 +1276,7 @@
       "tags": [ "BuildingTag" ],
       "actions": [ "4 Energy -> Titanium, OxygenStep" ],
       "cost": 13,
-      "projectKind": "ACTIVE",
+      "projectKind": "ACTIVE"
     },
 
     // Open City
@@ -1289,7 +1289,7 @@
       "effects": [ "End: VictoryPoint" ],
       "requirement": "12 OxygenStep",
       "cost": 23,
-      "projectKind": "AUTOMATED",
+      "projectKind": "AUTOMATED"
     },
 
     // Solar Power
@@ -1301,7 +1301,7 @@
       "immediate": "PROD[Plant]",
       "effects": [ "End: VictoryPoint" ],
       "cost": 11,
-      "projectKind": "AUTOMATED",
+      "projectKind": "AUTOMATED"
     },
 
     // Breathing Filters
@@ -1313,7 +1313,7 @@
       "effects": [ "End: 2 VictoryPoint" ],
       "requirement": "7 OxygenStep",
       "cost": 11,
-      "projectKind": "AUTOMATED",
+      "projectKind": "AUTOMATED"
     },
 
     // Artificial Photosynthesis
@@ -1324,7 +1324,7 @@
       "tags": [ "ScienceTag" ],
       "immediate": "PROD[Plant OR 2 Energy]",
       "cost": 12,
-      "projectKind": "AUTOMATED",
+      "projectKind": "AUTOMATED"
     },
 
     // Artificial Lake
@@ -1337,7 +1337,7 @@
       "effects": [ "End: VictoryPoint" ],
       "requirement": "12 TemperatureStep",
       "cost": 15,
-      "projectKind": "AUTOMATED",
+      "projectKind": "AUTOMATED"
     },
 
     // Geothermal Power
@@ -1348,7 +1348,7 @@
       "tags": [ "PowerTag", "BuildingTag" ],
       "immediate": "PROD[2 Energy]",
       "cost": 11,
-      "projectKind": "AUTOMATED",
+      "projectKind": "AUTOMATED"
     },
 
     // Farming
@@ -1361,7 +1361,7 @@
       "effects": [ "End: 2 VictoryPoint" ],
       "requirement": "17 TemperatureStep",
       "cost": 16,
-      "projectKind": "AUTOMATED",
+      "projectKind": "AUTOMATED"
     },
 
     // Dust Seals
@@ -1372,7 +1372,7 @@
       "effects": [ "End: VictoryPoint" ],
       "requirement": "MAX 3 OceanTile",
       "cost": 2,
-      "projectKind": "AUTOMATED",
+      "projectKind": "AUTOMATED"
     },
 
     // Urbanized AreaDefinition
@@ -1383,7 +1383,7 @@
       "tags": [ "CityTag", "BuildingTag" ],
       "immediate": "PROD[-Energy, 2], CityTile<LandArea(HAS 2 Neighbor<CityTile<Anyone>>)>",
       "cost": 10,
-      "projectKind": "AUTOMATED",
+      "projectKind": "AUTOMATED"
     },
 
     // Moss
@@ -1395,7 +1395,7 @@
       "immediate": "PROD[Plant], -Plant",
       "requirement": "3 OceanTile",
       "cost": 4,
-      "projectKind": "AUTOMATED",
+      "projectKind": "AUTOMATED"
     },
 
     // GHG Factories
@@ -1406,7 +1406,7 @@
       "tags": [ "BuildingTag" ],
       "immediate": "PROD[-Energy, 4 Heat]",
       "cost": 11,
-      "projectKind": "AUTOMATED",
+      "projectKind": "AUTOMATED"
     },
 
     // Subterranean Reservoir
@@ -1416,7 +1416,7 @@
       "deck": "PROJECT",
       "immediate": "OceanTile",
       "cost": 11,
-      "projectKind": "EVENT",
+      "projectKind": "EVENT"
     },
 
     // Ecological Zone
@@ -1429,13 +1429,13 @@
       "effects": [
         "AnimalTag: Animal<This>",
         "PlantTag: Animal<This>",
-        "End: VictoryPoint / Animal<This>",
+        "End: VictoryPoint / Animal<This>"
       ],
       "resourceType": "Animal",
       "components": [ "CLASS Tile128 : SpecialTile" ],
       "requirement": "GreeneryTile",
       "cost": 12,
-      "projectKind": "ACTIVE",
+      "projectKind": "ACTIVE"
     },
 
     // Zeppelins
@@ -1446,7 +1446,7 @@
       "immediate": "PROD[1 / CityTile<MarsArea, Anyone>]",
       "requirement": "5 OxygenStep",
       "cost": 13,
-      "projectKind": "AUTOMATED",
+      "projectKind": "AUTOMATED"
     },
 
     // Worms
@@ -1458,7 +1458,7 @@
       "immediate": "PROD[Plant / 2 MicrobeTag]",
       "requirement": "4 OxygenStep",
       "cost": 8,
-      "projectKind": "AUTOMATED",
+      "projectKind": "AUTOMATED"
     },
 
     // Decomposers
@@ -1469,12 +1469,12 @@
       "tags": [ "MicrobeTag" ],
       "effects": [
         "BioTag: Microbe<This>",
-        "End: VictoryPoint / 3 Microbe<This>",
+        "End: VictoryPoint / 3 Microbe<This>"
       ],
       "resourceType": "Microbe",
       "requirement": "3 OxygenStep",
       "cost": 5,
-      "projectKind": "ACTIVE",
+      "projectKind": "ACTIVE"
     },
 
     // Fusion Power
@@ -1486,7 +1486,7 @@
       "immediate": "PROD[3 Energy]",
       "requirement": "2 PowerTag",
       "cost": 14,
-      "projectKind": "AUTOMATED",
+      "projectKind": "AUTOMATED"
     },
 
     // Symbiotic Fungus
@@ -1498,7 +1498,7 @@
       "actions": [ "-> Microbe" ],
       "requirement": "8 TemperatureStep",
       "cost": 4,
-      "projectKind": "ACTIVE",
+      "projectKind": "ACTIVE"
     },
 
     // Extreme-Cold Fungus
@@ -1509,11 +1509,11 @@
       "tags": [ "MicrobeTag" ],
       "actions": [
         "-> Plant",
-        "-> 2 Microbe",
+        "-> 2 Microbe"
       ],
       "requirement": "MAX 10 TemperatureStep",
       "cost": 13,
-      "projectKind": "ACTIVE",
+      "projectKind": "ACTIVE"
     },
 
     // Advanced Ecosystems
@@ -1525,7 +1525,7 @@
       "effects": [ "End: 3 VictoryPoint" ],
       "requirement": "PlantTag, MicrobeTag, AnimalTag",
       "cost": 11,
-      "projectKind": "AUTOMATED",
+      "projectKind": "AUTOMATED"
     },
 
     // Great Dam (original)
@@ -1538,7 +1538,7 @@
       "effects": [ "End: VictoryPoint" ],
       "requirement": "4 OceanTile",
       "cost": 12,
-      "projectKind": "AUTOMATED",
+      "projectKind": "AUTOMATED"
     },
 
     // Strip Mine
@@ -1549,7 +1549,7 @@
       "tags": [ "BuildingTag" ],
       "immediate": "PROD[-2 Energy, 2 Steel, Titanium], 2 OxygenStep",
       "cost": 25,
-      "projectKind": "AUTOMATED",
+      "projectKind": "AUTOMATED"
     },
 
     // Wave Power
@@ -1562,7 +1562,7 @@
       "effects": [ "End: VictoryPoint" ],
       "requirement": "3 OceanTile",
       "cost": 8,
-      "projectKind": "AUTOMATED",
+      "projectKind": "AUTOMATED"
     },
 
     // Lava Flows
@@ -1573,7 +1573,7 @@
       "immediate": "2 TemperatureStep, Tile140<VolcanicArea> OR (MAX 0 VolcanicArea: Tile140)",
       "components": [ "CLASS Tile140 : SpecialTile" ],
       "cost": 18,
-      "projectKind": "EVENT",
+      "projectKind": "EVENT"
     },
 
     // Power Plant
@@ -1584,7 +1584,7 @@
       "tags": [ "PowerTag", "BuildingTag" ],
       "immediate": "PROD[Energy]",
       "cost": 4,
-      "projectKind": "AUTOMATED",
+      "projectKind": "AUTOMATED"
     },
 
     // Mohole AreaDefinition
@@ -1596,7 +1596,7 @@
       "immediate": "PROD[4 Heat], Tile142<WaterArea>",
       "components": [ "CLASS Tile142 : SpecialTile" ],
       "cost": 20,
-      "projectKind": "AUTOMATED",
+      "projectKind": "AUTOMATED"
     },
 
     // Large Convoy
@@ -1608,7 +1608,7 @@
       "immediate": "OceanTile, 2 ProjectCard, 5 Plant OR 4 Animal",
       "effects": [ "End: 2 VictoryPoint" ],
       "cost": 36,
-      "projectKind": "EVENT",
+      "projectKind": "EVENT"
     },
 
     // Tectonic Stress Power
@@ -1621,7 +1621,7 @@
       "effects": [ "End: VictoryPoint" ],
       "requirement": "2 ScienceTag",
       "cost": 18,
-      "projectKind": "AUTOMATED",
+      "projectKind": "AUTOMATED"
     },
 
     // Nitrophilic Moss
@@ -1633,7 +1633,7 @@
       "immediate": "PROD[2 Plant], -2 Plant",
       "requirement": "3 OceanTile",
       "cost": 8,
-      "projectKind": "AUTOMATED",
+      "projectKind": "AUTOMATED"
     },
 
     // Herbivores
@@ -1645,12 +1645,12 @@
       "immediate": "PROD[-Plant<Anyone>], Animal<This>",
       "effects": [
         "GreeneryTile: Animal<This>",
-        "End: VictoryPoint / 2 Animal<This>",
+        "End: VictoryPoint / 2 Animal<This>"
       ],
       "resourceType": "Animal",
       "requirement": "8 OxygenStep",
       "cost": 12,
-      "projectKind": "ACTIVE",
+      "projectKind": "ACTIVE"
     },
 
     // Insects
@@ -1662,7 +1662,7 @@
       "immediate": "PROD[Plant / PlantTag]",
       "requirement": "6 OxygenStep",
       "cost": 9,
-      "projectKind": "AUTOMATED",
+      "projectKind": "AUTOMATED"
     },
 
     // Designed Microorganisms
@@ -1674,7 +1674,7 @@
       "immediate": "PROD[2 Plant]",
       "requirement": "MAX 8 TemperatureStep",
       "cost": 16,
-      "projectKind": "AUTOMATED",
+      "projectKind": "AUTOMATED"
     },
 
     // Nitrite Reducing Bacteria
@@ -1686,11 +1686,11 @@
       "immediate": "3 Microbe<This>",
       "actions": [
         "-> Microbe<This>",
-        "3 Microbe<This> -> TerraformRating",
+        "3 Microbe<This> -> TerraformRating"
       ],
       "resourceType": "Microbe",
       "cost": 11,
-      "projectKind": "ACTIVE",
+      "projectKind": "ACTIVE"
     },
 
     // Industrial Microbes
@@ -1701,7 +1701,7 @@
       "tags": [ "MicrobeTag", "BuildingTag" ],
       "immediate": "PROD[Energy, Steel]",
       "cost": 12,
-      "projectKind": "AUTOMATED",
+      "projectKind": "AUTOMATED"
     },
 
     // Lichen
@@ -1713,7 +1713,7 @@
       "immediate": "PROD[Plant]",
       "requirement": "3 TemperatureStep",
       "cost": 7,
-      "projectKind": "AUTOMATED",
+      "projectKind": "AUTOMATED"
     },
 
     // Convoy From Europa
@@ -1724,7 +1724,7 @@
       "tags": [ "SpaceTag" ],
       "immediate": "OceanTile, ProjectCard",
       "cost": 15,
-      "projectKind": "EVENT",
+      "projectKind": "EVENT"
     },
 
     // Imported GHG
@@ -1735,7 +1735,7 @@
       "tags": [ "EarthTag", "SpaceTag" ],
       "immediate": "PROD[Heat], 3 Heat",
       "cost": 7,
-      "projectKind": "EVENT",
+      "projectKind": "EVENT"
     },
 
     // Imported Nitrogen
@@ -1746,7 +1746,7 @@
       "tags": [ "EarthTag", "SpaceTag" ],
       "immediate": "TerraformRating, 4 Plant, 3 Microbe, 2 Animal",
       "cost": 23,
-      "projectKind": "EVENT",
+      "projectKind": "EVENT"
     },
 
     // Micro-Mills
@@ -1756,7 +1756,7 @@
       "deck": "PROJECT",
       "immediate": "PROD[Heat]",
       "cost": 3,
-      "projectKind": "AUTOMATED",
+      "projectKind": "AUTOMATED"
     },
 
     // Magnetic Field Generators (original)
@@ -1767,7 +1767,7 @@
       "tags": [ "BuildingTag" ],
       "immediate": "PROD[-4 Energy, 2 Plant], 3 TerraformRating",
       "cost": 20,
-      "projectKind": "AUTOMATED",
+      "projectKind": "AUTOMATED"
     },
 
     // Shuttles
@@ -1779,11 +1779,11 @@
       "immediate": "PROD[-Energy, 2]",
       "effects": [
         "PlayTag<SpaceTag.CLASS>:: -2 Owed.",
-        "End: VictoryPoint",
+        "End: VictoryPoint"
       ],
       "requirement": "5 OxygenStep",
       "cost": 10,
-      "projectKind": "ACTIVE",
+      "projectKind": "ACTIVE"
     },
 
     // Import Of Advanced GHG
@@ -1794,7 +1794,7 @@
       "tags": [ "EarthTag", "SpaceTag" ],
       "immediate": "PROD[2 Heat]",
       "cost": 9,
-      "projectKind": "EVENT",
+      "projectKind": "EVENT"
     },
 
     // Windmills
@@ -1807,7 +1807,7 @@
       "effects": [ "End: VictoryPoint" ],
       "requirement": "7 OxygenStep",
       "cost": 6,
-      "projectKind": "AUTOMATED",
+      "projectKind": "AUTOMATED"
     },
 
     // Tundra Farming
@@ -1820,7 +1820,7 @@
       "effects": [ "End: 2 VictoryPoint" ],
       "requirement": "12 TemperatureStep",
       "cost": 16,
-      "projectKind": "AUTOMATED",
+      "projectKind": "AUTOMATED"
     },
 
     // Aerobraked Ammonia Asteroid
@@ -1831,7 +1831,7 @@
       "tags": [ "SpaceTag" ],
       "immediate": "PROD[3 Heat, Plant], 2 Microbe",
       "cost": 26,
-      "projectKind": "EVENT",
+      "projectKind": "EVENT"
     },
 
     // Magnetic Field Dome
@@ -1842,7 +1842,7 @@
       "tags": [ "BuildingTag" ],
       "immediate": "PROD[-2 Energy, Plant], TerraformRating",
       "cost": 5,
-      "projectKind": "AUTOMATED",
+      "projectKind": "AUTOMATED"
     },
 
     // Pets
@@ -1855,11 +1855,11 @@
       "effects": [
         "CityTile<Anyone>: Animal<This>",
         "-Animal<This>:: Die",
-        "End: VictoryPoint / 2 Animal<This>",
+        "End: VictoryPoint / 2 Animal<This>"
       ],
       "resourceType": "Animal",
       "cost": 10,
-      "projectKind": "ACTIVE",
+      "projectKind": "ACTIVE"
     },
 
     // Protected Valley
@@ -1870,7 +1870,7 @@
       "tags": [ "PlantTag", "BuildingTag" ],
       "immediate": "PROD[2], GreeneryTile<WaterArea>",
       "cost": 23,
-      "projectKind": "AUTOMATED",
+      "projectKind": "AUTOMATED"
     },
 
     // Noctis Farming
@@ -1883,7 +1883,7 @@
       "effects": [ "End: VictoryPoint" ],
       "requirement": "5 TemperatureStep",
       "cost": 10,
-      "projectKind": "AUTOMATED",
+      "projectKind": "AUTOMATED"
     },
 
     // Water Splitting Plant
@@ -1895,7 +1895,7 @@
       "actions": [ "3 Energy -> OxygenStep" ],
       "requirement": "2 OceanTile",
       "cost": 12,
-      "projectKind": "ACTIVE",
+      "projectKind": "ACTIVE"
     },
 
     // Heat Trappers
@@ -1907,7 +1907,7 @@
       "immediate": "PROD[-2 Heat<Anyone>, Energy]",
       "effects": [ "End: -VictoryPoint" ],
       "cost": 6,
-      "projectKind": "AUTOMATED",
+      "projectKind": "AUTOMATED"
     },
 
     // Soil Factory
@@ -1919,7 +1919,7 @@
       "immediate": "PROD[-Energy, Plant]",
       "effects": [ "End: VictoryPoint" ],
       "cost": 9,
-      "projectKind": "AUTOMATED",
+      "projectKind": "AUTOMATED"
     },
 
     // Ice Cap Melting
@@ -1930,7 +1930,7 @@
       "immediate": "OceanTile",
       "requirement": "16 TemperatureStep",
       "cost": 5,
-      "projectKind": "EVENT",
+      "projectKind": "EVENT"
     },
 
     // Biomass Combustors
@@ -1943,7 +1943,7 @@
       "effects": [ "End: -VictoryPoint" ],
       "requirement": "6 OxygenStep",
       "cost": 4,
-      "projectKind": "AUTOMATED",
+      "projectKind": "AUTOMATED"
     },
 
     // Livestock
@@ -1958,7 +1958,7 @@
       "resourceType": "Animal",
       "requirement": "9 OxygenStep",
       "cost": 13,
-      "projectKind": "ACTIVE",
+      "projectKind": "ACTIVE"
     },
 
     // Aquifer Pumping
@@ -1970,7 +1970,7 @@
       "actions": [ "8 -> OceanTile" ],
       "effects": [ "UseAction1<This>:: Accept<Steel.CLASS>" ],
       "cost": 18,
-      "projectKind": "ACTIVE",
+      "projectKind": "ACTIVE"
     },
 
     // Energy Saving
@@ -1981,7 +1981,7 @@
       "tags": [ "PowerTag" ],
       "immediate": "PROD[Energy / CityTile<Anyone>]",
       "cost": 15,
-      "projectKind": "AUTOMATED",
+      "projectKind": "AUTOMATED"
     },
 
     // Local Heat Trapping
@@ -1991,7 +1991,7 @@
       "deck": "PROJECT",
       "immediate": "-5 Heat, 4 Plant OR 2 Animal",
       "cost": 1,
-      "projectKind": "EVENT",
+      "projectKind": "EVENT"
     },
 
     // Permafrost Extraction
@@ -2002,7 +2002,7 @@
       "immediate": "OceanTile",
       "requirement": "11 TemperatureStep",
       "cost": 8,
-      "projectKind": "EVENT",
+      "projectKind": "EVENT"
     },
 
     // Plantation
@@ -2014,7 +2014,7 @@
       "immediate": "GreeneryTile",
       "requirement": "2 ScienceTag",
       "cost": 15,
-      "projectKind": "AUTOMATED",
+      "projectKind": "AUTOMATED"
     },
 
     // Immigration Shuttles
@@ -2026,7 +2026,7 @@
       "immediate": "PROD[5]",
       "effects": [ "End: VictoryPoint / 3 CityTile<Anyone>" ],
       "cost": 31,
-      "projectKind": "AUTOMATED",
+      "projectKind": "AUTOMATED"
     },
 
     // Immigrant City
@@ -2038,7 +2038,7 @@
       "immediate": "PROD[-Energy, -2], CityTile",
       "effects": [ "CityTile<Anyone>: PROD[1]" ],
       "cost": 13,
-      "projectKind": "ACTIVE",
+      "projectKind": "ACTIVE"
     },
 
     // Underground Detonations
@@ -2049,7 +2049,7 @@
       "tags": [ "BuildingTag" ],
       "actions": [ "10 -> PROD[2 Heat]" ],
       "cost": 6,
-      "projectKind": "ACTIVE",
+      "projectKind": "ACTIVE"
     },
 
     // Soletta
@@ -2060,7 +2060,7 @@
       "tags": [ "SpaceTag" ],
       "immediate": "PROD[7 Heat]",
       "cost": 35,
-      "projectKind": "AUTOMATED",
+      "projectKind": "AUTOMATED"
     },
 
     // Rad-Chem Factory
@@ -2071,7 +2071,7 @@
       "tags": [ "BuildingTag" ],
       "immediate": "PROD[-Energy], 2 TerraformRating",
       "cost": 8,
-      "projectKind": "AUTOMATED",
+      "projectKind": "AUTOMATED"
     },
 
     // Asteroid Mining Consortium
@@ -2084,7 +2084,7 @@
       "effects": [ "End: VictoryPoint" ],
       "requirement": "PROD[Titanium]",
       "cost": 13,
-      "projectKind": "AUTOMATED",
+      "projectKind": "AUTOMATED"
     },
 
     // Inventors' Guild[F]
@@ -2095,10 +2095,10 @@
       "tags": [ "ScienceTag" ],
       "actions": [
         "3 -> ProjectCard",
-        "-> Ok",
+        "-> Ok"
       ],
       "cost": 9,
-      "projectKind": "ACTIVE",
+      "projectKind": "ACTIVE"
     },
 
     // Space Elevator
@@ -2111,7 +2111,7 @@
       "actions": [ "Steel -> 5" ],
       "effects": [ "End: 2 VictoryPoint" ],
       "cost": 27,
-      "projectKind": "ACTIVE",
+      "projectKind": "ACTIVE"
     },
 
     // Development Center
@@ -2122,7 +2122,7 @@
       "tags": [ "ScienceTag", "BuildingTag" ],
       "actions": [ "Energy -> ProjectCard" ],
       "cost": 11,
-      "projectKind": "ACTIVE",
+      "projectKind": "ACTIVE"
     },
 
     // Space Station
@@ -2133,10 +2133,10 @@
       "tags": [ "SpaceTag" ],
       "effects": [
         "PlayTag<SpaceTag.CLASS>:: -2 Owed.",
-        "End: VictoryPoint",
+        "End: VictoryPoint"
       ],
       "cost": 10,
-      "projectKind": "ACTIVE",
+      "projectKind": "ACTIVE"
     },
 
     // Interstellar Colony Ship
@@ -2148,7 +2148,7 @@
       "effects": [ "End: 4 VictoryPoint" ],
       "requirement": "5 ScienceTag",
       "cost": 24,
-      "projectKind": "EVENT",
+      "projectKind": "EVENT"
     },
 
     // Security Fleet
@@ -2162,7 +2162,7 @@
       "resourceType": "Fighter",
       "components": [ "CLASS Fighter : CardResource" ],
       "cost": 12,
-      "projectKind": "ACTIVE",
+      "projectKind": "ACTIVE"
     },
 
     // Lightning Harvest
@@ -2175,7 +2175,7 @@
       "effects": [ "End: VictoryPoint" ],
       "requirement": "3 ScienceTag",
       "cost": 8,
-      "projectKind": "AUTOMATED",
+      "projectKind": "AUTOMATED"
     },
 
     // Tardigrades
@@ -2188,7 +2188,7 @@
       "effects": [ "End: VictoryPoint / 4 Microbe<This>" ],
       "resourceType": "Microbe",
       "cost": 4,
-      "projectKind": "ACTIVE",
+      "projectKind": "ACTIVE"
     },
 
     // Virus
@@ -2199,7 +2199,7 @@
       "tags": [ "MicrobeTag" ],
       "immediate": "-2 Animal<Anyone>? OR -5 Plant<Anyone>?",
       "cost": 1,
-      "projectKind": "EVENT",
+      "projectKind": "EVENT"
     },
 
     // Miranda Resort
@@ -2211,7 +2211,7 @@
       "immediate": "PROD[1 / EarthTag]",
       "effects": [ "End: VictoryPoint" ],
       "cost": 12,
-      "projectKind": "AUTOMATED",
+      "projectKind": "AUTOMATED"
     },
 
     // Mine
@@ -2222,7 +2222,7 @@
       "tags": [ "BuildingTag" ],
       "immediate": "PROD[Steel]",
       "cost": 4,
-      "projectKind": "AUTOMATED",
+      "projectKind": "AUTOMATED"
     },
 
     // Vesta Shipyard
@@ -2234,7 +2234,7 @@
       "immediate": "PROD[Titanium]",
       "effects": [ "End: VictoryPoint" ],
       "cost": 15,
-      "projectKind": "AUTOMATED",
+      "projectKind": "AUTOMATED"
     },
 
     // Great Escarpment Consortium
@@ -2245,7 +2245,7 @@
       "immediate": "PROD[-Steel<Anyone>, Steel]",
       "requirement": "PROD[Steel]",
       "cost": 6,
-      "projectKind": "AUTOMATED",
+      "projectKind": "AUTOMATED"
     },
 
     // Mineral Deposit
@@ -2255,7 +2255,7 @@
       "deck": "PROJECT",
       "immediate": "5 Steel",
       "cost": 5,
-      "projectKind": "EVENT",
+      "projectKind": "EVENT"
     },
 
     // Building Industries
@@ -2266,7 +2266,7 @@
       "tags": [ "BuildingTag" ],
       "immediate": "PROD[-Energy, 2 Steel]",
       "cost": 6,
-      "projectKind": "AUTOMATED",
+      "projectKind": "AUTOMATED"
     },
 
     // Sponsors
@@ -2277,7 +2277,7 @@
       "tags": [ "EarthTag" ],
       "immediate": "PROD[2]",
       "cost": 6,
-      "projectKind": "AUTOMATED",
+      "projectKind": "AUTOMATED"
     },
 
     // Electro Catapult
@@ -2291,7 +2291,7 @@
       "effects": [ "End: VictoryPoint" ],
       "requirement": "MAX 8 OxygenStep",
       "cost": 17,
-      "projectKind": "ACTIVE",
+      "projectKind": "ACTIVE"
     },
 
     // Earth Catapult
@@ -2302,10 +2302,10 @@
       "tags": [ "EarthTag" ],
       "effects": [
         "PlayCard: -2 Owed.",
-        "End: 2 VictoryPoint",
+        "End: 2 VictoryPoint"
       ],
       "cost": 23,
-      "projectKind": "ACTIVE",
+      "projectKind": "ACTIVE"
     },
 
     // Advanced Alloys
@@ -2316,10 +2316,10 @@
       "tags": [ "ScienceTag" ],
       "effects": [
         "Pay<Steel.CLASS>:: Pay<Megacredit.CLASS>",
-        "Pay<Titanium.CLASS>:: Pay<Megacredit.CLASS>",
+        "Pay<Titanium.CLASS>:: Pay<Megacredit.CLASS>"
       ],
       "cost": 9,
-      "projectKind": "ACTIVE",
+      "projectKind": "ACTIVE"
     },
 
     // Mars University[F]
@@ -2330,10 +2330,10 @@
       "tags": [ "ScienceTag", "BuildingTag" ],
       "effects": [
         "ScienceTag: Ok", // pointless in Follow Mode
-        "End: VictoryPoint",
+        "End: VictoryPoint"
       ],
       "cost": 8,
-      "projectKind": "ACTIVE",
+      "projectKind": "ACTIVE"
     },
 
     // Quantum Extractor
@@ -2346,7 +2346,7 @@
       "effects": [ "PlayTag<SpaceTag.CLASS>:: -2 Owed." ],
       "requirement": "4 ScienceTag",
       "cost": 13,
-      "projectKind": "ACTIVE",
+      "projectKind": "ACTIVE"
     },
 
     // Callisto Penal Mines
@@ -2358,7 +2358,7 @@
       "immediate": "PROD[3]",
       "effects": [ "End: 2 VictoryPoint" ],
       "cost": 24,
-      "projectKind": "AUTOMATED",
+      "projectKind": "AUTOMATED"
     },
 
     // Trans-Neptune Probe
@@ -2369,7 +2369,7 @@
       "tags": [ "ScienceTag", "SpaceTag" ],
       "effects": [ "End: VictoryPoint" ],
       "cost": 6,
-      "projectKind": "AUTOMATED",
+      "projectKind": "AUTOMATED"
     },
 
     // Commercial District
@@ -2382,7 +2382,7 @@
       "effects": [ "End: VictoryPoint / Adjacency<Tile085, CityTile<Anyone>>" ],
       "components": [ "CLASS Tile085 : SpecialTile" ],
       "cost": 16,
-      "projectKind": "AUTOMATED",
+      "projectKind": "AUTOMATED"
     },
 
     // Research
@@ -2394,7 +2394,7 @@
       "immediate": "2 ProjectCard",
       "effects": [ "End: VictoryPoint" ],
       "cost": 11,
-      "projectKind": "AUTOMATED",
+      "projectKind": "AUTOMATED"
     },
 
     // Gene Repair
@@ -2407,7 +2407,7 @@
       "effects": [ "End: 2 VictoryPoint" ],
       "requirement": "3 ScienceTag",
       "cost": 12,
-      "projectKind": "AUTOMATED",
+      "projectKind": "AUTOMATED"
     },
 
     // Io Mining Industries
@@ -2419,7 +2419,7 @@
       "immediate": "PROD[2 Titanium, 2]",
       "effects": [ "End: VictoryPoint / JovianTag" ],
       "cost": 41,
-      "projectKind": "AUTOMATED",
+      "projectKind": "AUTOMATED"
     },
 
     // Mass Converter
@@ -2432,7 +2432,7 @@
       "effects": [ "PlayTag<SpaceTag.CLASS>:: -2 Owed." ],
       "requirement": "5 ScienceTag",
       "cost": 8,
-      "projectKind": "ACTIVE",
+      "projectKind": "ACTIVE"
     },
 
     // Physics Complex
@@ -2445,7 +2445,7 @@
       "effects": [ "End: 2 VictoryPoint / Science<This>" ],
       "resourceType": "Science",
       "cost": 12,
-      "projectKind": "ACTIVE",
+      "projectKind": "ACTIVE"
     },
 
     // Tropical Resort
@@ -2457,7 +2457,7 @@
       "immediate": "PROD[-2 Heat, 3]",
       "effects": [ "End: 2 VictoryPoint" ],
       "cost": 13,
-      "projectKind": "AUTOMATED",
+      "projectKind": "AUTOMATED"
     },
 
     // Earth Office
@@ -2468,7 +2468,7 @@
       "tags": [ "EarthTag" ],
       "effects": [ "PlayTag<EarthTag.CLASS>:: -3 Owed." ],
       "cost": 1,
-      "projectKind": "ACTIVE",
+      "projectKind": "ACTIVE"
     },
 
     // Acquired Company
@@ -2479,7 +2479,7 @@
       "tags": [ "EarthTag" ],
       "immediate": "PROD[3]",
       "cost": 10,
-      "projectKind": "AUTOMATED",
+      "projectKind": "AUTOMATED"
     },
 
     // Media Archives
@@ -2490,7 +2490,7 @@
       "tags": [ "EarthTag" ],
       "immediate": "1 / PlayedEvent<Anyone>",
       "cost": 8,
-      "projectKind": "AUTOMATED",
+      "projectKind": "AUTOMATED"
     },
 
     // Media Group
@@ -2501,7 +2501,7 @@
       "tags": [ "EarthTag" ],
       "effects": [ "EventCard: 3" ],
       "cost": 6,
-      "projectKind": "ACTIVE",
+      "projectKind": "ACTIVE"
     },
 
     // Business Network[F]
@@ -2513,10 +2513,10 @@
       "immediate": "PROD[-1]",
       "actions": [
         "3 -> ProjectCard",
-        "-> Ok",
+        "-> Ok"
       ],
       "cost": 4,
-      "projectKind": "ACTIVE",
+      "projectKind": "ACTIVE"
     },
 
     // Business Contacts[F]
@@ -2527,7 +2527,7 @@
       "tags": [ "EarthTag" ],
       "immediate": "2 ProjectCard",
       "cost": 7,
-      "projectKind": "EVENT",
+      "projectKind": "EVENT"
     },
 
     // Bribed Committee
@@ -2539,7 +2539,7 @@
       "immediate": "2 TerraformRating",
       "effects": [ "End: -2 VictoryPoint" ],
       "cost": 7,
-      "projectKind": "EVENT",
+      "projectKind": "EVENT"
     },
 
     // Sabotage
@@ -2549,7 +2549,7 @@
       "deck": "PROJECT",
       "immediate": "-3 Titanium<Anyone>? OR -4 Steel<Anyone>? OR -7 Megacredit<Anyone>?",
       "cost": 1,
-      "projectKind": "EVENT",
+      "projectKind": "EVENT"
     },
 
     // Industrial Center
@@ -2562,7 +2562,7 @@
       "actions": [ "7 -> PROD[Steel]" ],
       "components": [ "CLASS Tile123 : SpecialTile" ],
       "cost": 4,
-      "projectKind": "ACTIVE",
+      "projectKind": "ACTIVE"
     },
 
     // Hired Raiders
@@ -2570,9 +2570,9 @@
       "id": "124",
       "bundle": "R",
       "deck": "PROJECT",
-      "immediate": "2 Steel<Player FROM Anyone>? OR 3 Megacredit<Player FROM Anyone>?",
+      "immediate": "2 Steel<Me FROM Anyone>? OR 3 Megacredit<Me FROM Anyone>?",
       "cost": 1,
-      "projectKind": "EVENT",
+      "projectKind": "EVENT"
     },
 
     // Hackers
@@ -2581,9 +2581,11 @@
       "bundle": "R",
       "deck": "PROJECT",
       "immediate": "PROD[-Energy, -2 Megacredit<Anyone>, 2]",
-      "effects": [ "End: -VictoryPoint" ],
+      "effects": [
+        "End: -VictoryPoint"
+      ],
       "cost": 3,
-      "projectKind": "AUTOMATED",
+      "projectKind": "AUTOMATED"
     },
 
     // Cartel
@@ -2594,7 +2596,7 @@
       "tags": [ "EarthTag" ],
       "immediate": "PROD[1 / EarthTag]",
       "cost": 8,
-      "projectKind": "AUTOMATED",
+      "projectKind": "AUTOMATED"
     },
 
     // Titanium Mine
@@ -2605,7 +2607,7 @@
       "tags": [ "BuildingTag" ],
       "immediate": "PROD[Titanium]",
       "cost": 7,
-      "projectKind": "AUTOMATED",
+      "projectKind": "AUTOMATED"
     },
 
     // CEO's Favorite Project
@@ -2615,7 +2617,7 @@
       "deck": "PROJECT",
       "immediate": "CardResource<CardFront(HAS CardResource)>",
       "cost": 1,
-      "projectKind": "EVENT",
+      "projectKind": "EVENT"
     },
 
     // Anti-Gravity Technology
@@ -2626,11 +2628,11 @@
       "tags": [ "ScienceTag" ],
       "effects": [
         "PlayCard: -2 Owed.",
-        "End: 3 VictoryPoint",
+        "End: 3 VictoryPoint"
       ],
       "requirement": "7 ScienceTag",
       "cost": 14,
-      "projectKind": "ACTIVE",
+      "projectKind": "ACTIVE"
     },
 
     // Investment Loan
@@ -2641,7 +2643,7 @@
       "tags": [ "EarthTag" ],
       "immediate": "PROD[-1], 10",
       "cost": 3,
-      "projectKind": "EVENT",
+      "projectKind": "EVENT"
     },
 
     // Caretaker Contract
@@ -2652,7 +2654,7 @@
       "actions": [ "8 Heat -> TerraformRating" ],
       "requirement": "15 TemperatureStep",
       "cost": 3,
-      "projectKind": "ACTIVE",
+      "projectKind": "ACTIVE"
     },
 
     // Standard Technology
@@ -2663,7 +2665,7 @@
       "tags": [ "ScienceTag" ],
       "effects": [ "UseAction<StandardProject>: 3" ],
       "cost": 6,
-      "projectKind": "ACTIVE",
+      "projectKind": "ACTIVE"
     },
 
     // Power Supply Consortium
@@ -2675,7 +2677,7 @@
       "immediate": "PROD[-Energy<Anyone>, Energy]",
       "requirement": "2 PowerTag",
       "cost": 5,
-      "projectKind": "AUTOMATED",
+      "projectKind": "AUTOMATED"
     },
 
     // Satellites
@@ -2686,7 +2688,7 @@
       "tags": [ "SpaceTag" ],
       "immediate": "PROD[1 / SpaceTag]",
       "cost": 10,
-      "projectKind": "AUTOMATED",
+      "projectKind": "AUTOMATED"
     },
 
     // Fuel Factory
@@ -2697,7 +2699,7 @@
       "tags": [ "BuildingTag" ],
       "immediate": "PROD[-Energy, Titanium, 1]",
       "cost": 6,
-      "projectKind": "AUTOMATED",
+      "projectKind": "AUTOMATED"
     },
 
     // Corporate Stronghold
@@ -2709,7 +2711,7 @@
       "immediate": "PROD[-Energy, 3], CityTile",
       "effects": [ "End: -2 VictoryPoint" ],
       "cost": 11,
-      "projectKind": "AUTOMATED",
+      "projectKind": "AUTOMATED"
     },
 
     // Olympus Conference
@@ -2720,11 +2722,11 @@
       "tags": [ "ScienceTag", "EarthTag", "BuildingTag" ],
       "effects": [
         "ScienceTag: Science<This> OR (ProjectCard FROM Science<This>)",
-        "End: VictoryPoint",
+        "End: VictoryPoint"
       ],
       "resourceType": "Science",
       "cost": 10,
-      "projectKind": "ACTIVE",
+      "projectKind": "ACTIVE"
     },
 
     // Rad-Suits
@@ -2736,7 +2738,7 @@
       "effects": [ "End: VictoryPoint" ],
       "requirement": "2 CityTile<Anyone>",
       "cost": 6,
-      "projectKind": "AUTOMATED",
+      "projectKind": "AUTOMATED"
     },
 
     // Invention Contest[F]
@@ -2747,7 +2749,7 @@
       "tags": [ "ScienceTag" ],
       "immediate": "ProjectCard",
       "cost": 2,
-      "projectKind": "EVENT",
+      "projectKind": "EVENT"
     },
 
     // Lagrange Observatory
@@ -2759,7 +2761,7 @@
       "immediate": "ProjectCard",
       "effects": [ "End: VictoryPoint" ],
       "cost": 9,
-      "projectKind": "AUTOMATED",
+      "projectKind": "AUTOMATED"
     },
 
     // Terraforming Ganymede
@@ -2771,7 +2773,7 @@
       "immediate": "TerraformRating / JovianTag",
       "effects": [ "End: 2 VictoryPoint" ],
       "cost": 33,
-      "projectKind": "AUTOMATED",
+      "projectKind": "AUTOMATED"
     },
 
     // Restricted AreaDefinition
@@ -2784,7 +2786,7 @@
       "actions": [ "2 -> ProjectCard" ],
       "components": [ "CLASS Tile199 : SpecialTile" ],
       "cost": 11,
-      "projectKind": "ACTIVE",
+      "projectKind": "ACTIVE"
     },
 
     // Energy Tapping
@@ -2796,7 +2798,7 @@
       "immediate": "PROD[-Energy<Anyone>, Energy]",
       "effects": [ "End: -VictoryPoint" ],
       "cost": 3,
-      "projectKind": "AUTOMATED",
+      "projectKind": "AUTOMATED"
     },
 
     // Technology Demonstration
@@ -2807,7 +2809,7 @@
       "tags": [ "ScienceTag", "SpaceTag" ],
       "immediate": "2 ProjectCard",
       "cost": 5,
-      "projectKind": "EVENT",
+      "projectKind": "EVENT"
     },
 
     // Medical Lab
@@ -2819,7 +2821,7 @@
       "immediate": "PROD[1 / 2 BuildingTag]",
       "effects": [ "End: VictoryPoint" ],
       "cost": 13,
-      "projectKind": "AUTOMATED",
+      "projectKind": "AUTOMATED"
     },
 
     // AI Central
@@ -2833,7 +2835,7 @@
       "effects": [ "End: VictoryPoint" ],
       "requirement": "3 ScienceTag",
       "cost": 21,
-      "projectKind": "ACTIVE",
+      "projectKind": "ACTIVE"
     },
 
     // House Printing
@@ -2845,7 +2847,7 @@
       "immediate": "PROD[Steel]",
       "effects": [ "End: VictoryPoint" ],
       "cost": 10,
-      "projectKind": "AUTOMATED",
+      "projectKind": "AUTOMATED"
     },
 
     // Lava Tube Settlement
@@ -2856,7 +2858,7 @@
       "tags": [ "CityTag", "BuildingTag" ],
       "immediate": "PROD[-Energy, 2], CityTile<VolcanicArea> OR (MAX 0 VolcanicArea: CityTile)",
       "cost": 15,
-      "projectKind": "AUTOMATED",
+      "projectKind": "AUTOMATED"
     },
 
     // Martian Survey
@@ -2869,7 +2871,7 @@
       "effects": [ "End: VictoryPoint" ],
       "requirement": "MAX 4 OxygenStep",
       "cost": 9,
-      "projectKind": "EVENT",
+      "projectKind": "EVENT"
     },
 
     // Psychrophiles
@@ -2881,12 +2883,12 @@
       "actions": [ "-> Microbe" ],
       "effects": [
         "PlayTag<PlantTag.CLASS>:: Accept<Psychrophile.CLASS>",
-        "Pay<Psychrophile.CLASS>:: 2 Pay<Megacredit.CLASS>",
+        "Pay<Psychrophile.CLASS>:: 2 Pay<Megacredit.CLASS>"
       ],
       "components": [ "CLASS Psychrophile : Microbe" ], // <CardP39> ??
       "resourceType": "Psychrophile",
       "cost": 2,
-      "projectKind": "ACTIVE",
+      "projectKind": "ACTIVE"
     },
 
     // SF Memorial
@@ -2898,7 +2900,7 @@
       "immediate": "ProjectCard",
       "effects": [ "End: VictoryPoint" ],
       "cost": 7,
-      "projectKind": "AUTOMATED",
+      "projectKind": "AUTOMATED"
     },
 
     // Space Hotels
@@ -2910,7 +2912,7 @@
       "immediate": "PROD[4]",
       "requirement": "2 EarthTag",
       "cost": 12,
-      "projectKind": "AUTOMATED",
+      "projectKind": "AUTOMATED"
     },
 
     // Aerial Mappers
@@ -2921,12 +2923,12 @@
       "tags": [ "VenusTag" ],
       "actions": [
         "-> Floater",
-        "Floater<This> -> ProjectCard",
+        "Floater<This> -> ProjectCard"
       ],
       "effects": [ "End: VictoryPoint" ],
       "resourceType": "Floater",
       "cost": 11,
-      "projectKind": "ACTIVE",
+      "projectKind": "ACTIVE"
     },
 
     // Aerosport Tournament
@@ -2938,7 +2940,7 @@
       "effects": [ "End: VictoryPoint" ],
       "requirement": "5 Floater",
       "cost": 7,
-      "projectKind": "EVENT",
+      "projectKind": "EVENT"
     },
 
     // Air-Scrapping Expedition
@@ -2949,7 +2951,7 @@
       "tags": [ "VenusTag" ],
       "immediate": "VenusStep, 3 Floater<CardFront(HAS VenusTag)>",
       "cost": 13,
-      "projectKind": "EVENT",
+      "projectKind": "EVENT"
     },
 
     // Atalanta Planitia Lab
@@ -2962,7 +2964,7 @@
       "effects": [ "End: 2 VictoryPoint" ],
       "requirement": "3 ScienceTag",
       "cost": 10,
-      "projectKind": "AUTOMATED",
+      "projectKind": "AUTOMATED"
     },
 
     // Atmoscoop
@@ -2975,7 +2977,7 @@
       "effects": [ "End: VictoryPoint" ],
       "requirement": "3 ScienceTag",
       "cost": 22,
-      "projectKind": "AUTOMATED",
+      "projectKind": "AUTOMATED"
     },
 
     // Comet For Venus
@@ -2986,7 +2988,7 @@
       "tags": [ "SpaceTag" ],
       "immediate": "VenusStep, -4 Megacredit<Anyone(HAS VenusTag)>?",
       "cost": 11,
-      "projectKind": "EVENT",
+      "projectKind": "EVENT"
     },
 
     // Corroder Suits
@@ -2997,7 +2999,7 @@
       "tags": [ "VenusTag" ],
       "immediate": "PROD[2], CardResource<CardFront(HAS VenusTag)>",
       "cost": 8,
-      "projectKind": "AUTOMATED",
+      "projectKind": "AUTOMATED"
     },
 
     // Dawn City
@@ -3010,7 +3012,7 @@
       "components": [ "CLASS Area220 : RemoteArea" ],
       "requirement": "4 ScienceTag",
       "cost": 15,
-      "projectKind": "AUTOMATED",
+      "projectKind": "AUTOMATED"
     },
 
     // Deuterium Export
@@ -3021,11 +3023,11 @@
       "tags": [ "VenusTag", "PowerTag", "SpaceTag" ],
       "actions": [
         "-> Floater<This>",
-        "Floater<This> -> PROD[Energy]",
+        "Floater<This> -> PROD[Energy]"
       ],
       "resourceType": "Floater",
       "cost": 11,
-      "projectKind": "ACTIVE",
+      "projectKind": "ACTIVE"
     },
 
     // Dirigibles
@@ -3037,12 +3039,12 @@
       "actions": [ "-> Floater" ],
       "effects": [
         "PlayTag<VenusTag.CLASS>: Accept<Dirigible.CLASS>",
-        "Pay<Dirigible.CLASS>: -3 Owed.",
+        "Pay<Dirigible.CLASS>: -3 Owed."
       ],
       "components": [ "CLASS Dirigible : Floater" ],
       "resourceType": "Dirigible",
       "cost": 11,
-      "projectKind": "ACTIVE",
+      "projectKind": "ACTIVE"
     },
 
     // Extractor Balloons
@@ -3054,11 +3056,11 @@
       "immediate": "3 Floater<This>",
       "actions": [
         "-> Floater<This>",
-        "2 Floater<This> -> VenusStep",
+        "2 Floater<This> -> VenusStep"
       ],
       "resourceType": "Floater",
       "cost": 21,
-      "projectKind": "ACTIVE",
+      "projectKind": "ACTIVE"
     },
 
     // Extremophiles
@@ -3072,7 +3074,7 @@
       "resourceType": "Microbe",
       "requirement": "2 ScienceTag",
       "cost": 3,
-      "projectKind": "ACTIVE",
+      "projectKind": "ACTIVE"
     },
 
     // Floating Habs
@@ -3086,7 +3088,7 @@
       "resourceType": "Floater",
       "requirement": "2 ScienceTag",
       "cost": 5,
-      "projectKind": "ACTIVE",
+      "projectKind": "ACTIVE"
     },
 
     // Forced Precipitation
@@ -3097,11 +3099,11 @@
       "tags": [ "VenusTag" ],
       "actions": [
         "2 -> Floater<This>",
-        "2 Floater<This> -> VenusStep",
+        "2 Floater<This> -> VenusStep"
       ],
       "resourceType": "Floater",
       "cost": 8,
-      "projectKind": "ACTIVE",
+      "projectKind": "ACTIVE"
     },
 
     // Freyja Biodomes
@@ -3114,7 +3116,7 @@
       "effects": [ "End: VictoryPoint" ],
       "requirement": "5 VenusStep",
       "cost": 14,
-      "projectKind": "AUTOMATED",
+      "projectKind": "AUTOMATED"
     },
 
     // GHG Import From Venus
@@ -3125,7 +3127,7 @@
       "tags": [ "VenusTag", "SpaceTag" ],
       "immediate": "VenusStep, PROD[3 Heat]",
       "cost": 23,
-      "projectKind": "EVENT",
+      "projectKind": "EVENT"
     },
 
     // Giant Solar Shade
@@ -3136,7 +3138,7 @@
       "tags": [ "VenusTag", "SpaceTag" ],
       "immediate": "3 VenusStep",
       "cost": 27,
-      "projectKind": "AUTOMATED",
+      "projectKind": "AUTOMATED"
     },
 
     // Gyropolis
@@ -3147,7 +3149,7 @@
       "tags": [ "CityTag", "BuildingTag" ],
       "immediate": "CityTile, PROD[-2 Energy, 1 / VenusTag, 1 / EarthTag]",
       "cost": 20,
-      "projectKind": "AUTOMATED",
+      "projectKind": "AUTOMATED"
     },
 
     // Hydrogen To Venus
@@ -3158,7 +3160,7 @@
       "tags": [ "SpaceTag" ],
       "immediate": "VenusStep, Floater<CardFront(HAS VenusTag)> / JovianTag",
       "cost": 11,
-      "projectKind": "EVENT",
+      "projectKind": "EVENT"
     },
 
     // Io Sulphur Research
@@ -3170,7 +3172,7 @@
       "immediate": "ProjectCard OR (3 VenusTag: 3 ProjectCard)",
       "effects": [ "End: 2 VictoryPoint" ],
       "cost": 17,
-      "projectKind": "AUTOMATED",
+      "projectKind": "AUTOMATED"
     },
 
     // Ishtar Mining
@@ -3182,7 +3184,7 @@
       "immediate": "PROD[Titanium]",
       "requirement": "4 VenusStep",
       "cost": 5,
-      "projectKind": "AUTOMATED",
+      "projectKind": "AUTOMATED"
     },
 
     // Jet Stream Microscrappers
@@ -3193,11 +3195,11 @@
       "tags": [ "VenusTag" ],
       "actions": [
         "Titanium -> 2 Floater<This>",
-        "2 Floater<This> -> VenusStep",
+        "2 Floater<This> -> VenusStep"
       ],
       "resourceType": "Floater",
       "cost": 12,
-      "projectKind": "ACTIVE",
+      "projectKind": "ACTIVE"
     },
 
     // Local Shading
@@ -3208,11 +3210,11 @@
       "tags": [ "VenusTag" ],
       "actions": [
         "-> Floater<This>",
-        "Floater<This> -> PROD[1]",
+        "Floater<This> -> PROD[1]"
       ],
       "resourceType": "Floater",
       "cost": 4,
-      "projectKind": "ACTIVE",
+      "projectKind": "ACTIVE"
     },
 
     // Luna Metropolis
@@ -3225,7 +3227,7 @@
       "components": [ "CLASS Area236 : RemoteArea" ],
       "effects": [ "End: 2 VictoryPoint" ],
       "cost": 21,
-      "projectKind": "AUTOMATED",
+      "projectKind": "AUTOMATED"
     },
 
     // Luxury Foods
@@ -3236,7 +3238,7 @@
       "effects": [ "End: 2 VictoryPoint" ],
       "requirement": "VenusTag, EarthTag, JovianTag",
       "cost": 8,
-      "projectKind": "AUTOMATED",
+      "projectKind": "AUTOMATED"
     },
 
     // Maxwell Base
@@ -3251,7 +3253,7 @@
       "effects": [ "End: 3 VictoryPoint" ],
       "requirement": "6 VenusStep",
       "cost": 18,
-      "projectKind": "ACTIVE",
+      "projectKind": "ACTIVE"
     },
 
     // Mining Quota
@@ -3263,7 +3265,7 @@
       "immediate": "PROD[2 Steel]",
       "requirement": "VenusTag, EarthTag, JovianTag",
       "cost": 5,
-      "projectKind": "AUTOMATED",
+      "projectKind": "AUTOMATED"
     },
 
     // Neutralizer Factory
@@ -3275,7 +3277,7 @@
       "immediate": "VenusStep",
       "requirement": "5 VenusStep",
       "cost": 7,
-      "projectKind": "AUTOMATED",
+      "projectKind": "AUTOMATED"
     },
 
     // Omnicourt
@@ -3287,7 +3289,7 @@
       "immediate": "2 TerraformRating",
       "requirement": "VenusTag, EarthTag, JovianTag",
       "cost": 11,
-      "projectKind": "AUTOMATED",
+      "projectKind": "AUTOMATED"
     },
 
     // Orbital Reflectors
@@ -3298,7 +3300,7 @@
       "tags": [ "VenusTag", "SpaceTag" ],
       "immediate": "2 VenusStep, PROD[2 Heat]",
       "cost": 26,
-      "projectKind": "AUTOMATED",
+      "projectKind": "AUTOMATED"
     },
 
     // Rotator Impacts
@@ -3309,13 +3311,13 @@
       "tags": [ "SpaceTag" ],
       "actions": [
         "6 -> Asteroid<This>",
-        "Asteroid<This> -> VenusStep",
+        "Asteroid<This> -> VenusStep"
       ],
       "effects": [ "UseAction1<This>:: Accept<Titanium.CLASS>" ],
       "resourceType": "Asteroid",
       "requirement": "MAX 7 VenusStep",
       "cost": 6,
-      "projectKind": "ACTIVE",
+      "projectKind": "ACTIVE"
     },
 
     // Sister Planet Support
@@ -3327,7 +3329,7 @@
       "immediate": "PROD[3]",
       "requirement": "VenusTag, EarthTag",
       "cost": 7,
-      "projectKind": "AUTOMATED",
+      "projectKind": "AUTOMATED"
     },
 
     // Solarnet
@@ -3339,7 +3341,7 @@
       "effects": [ "End: VictoryPoint" ],
       "requirement": "VenusTag, EarthTag, JovianTag",
       "cost": 7,
-      "projectKind": "AUTOMATED",
+      "projectKind": "AUTOMATED"
     },
 
     // Spin-Inducing Asteroid
@@ -3351,7 +3353,7 @@
       "immediate": "2 VenusStep",
       "requirement": "MAX 5 VenusStep",
       "cost": 16,
-      "projectKind": "EVENT",
+      "projectKind": "EVENT"
     },
 
     // Stratopolis
@@ -3367,7 +3369,7 @@
       "resourceType": "Floater",
       "requirement": "2 ScienceTag",
       "cost": 22,
-      "projectKind": "ACTIVE",
+      "projectKind": "ACTIVE"
     },
 
     // Stratospheric Birds
@@ -3382,7 +3384,7 @@
       "resourceType": "Animal",
       "requirement": "6 VenusStep",
       "cost": 12,
-      "projectKind": "ACTIVE",
+      "projectKind": "ACTIVE"
     },
 
     // Sulphur Exports
@@ -3393,7 +3395,7 @@
       "tags": [ "VenusTag", "SpaceTag" ],
       "immediate": "VenusStep, PROD[1 / VenusTag]",
       "cost": 21,
-      "projectKind": "AUTOMATED",
+      "projectKind": "AUTOMATED"
     },
 
     // Terraforming Contract
@@ -3405,7 +3407,7 @@
       "immediate": "PROD[4]",
       "requirement": "25 TerraformRating",
       "cost": 8,
-      "projectKind": "AUTOMATED",
+      "projectKind": "AUTOMATED"
     },
 
     // Thermophiles
@@ -3416,12 +3418,12 @@
       "tags": [ "VenusTag", "MicrobeTag" ],
       "actions": [
         "-> Microbe<CardFront(HAS VenusTag)>",
-        "2 Microbe<This> -> VenusTag",
+        "2 Microbe<This> -> VenusTag"
       ],
       "resourceType": "Microbe",
       "requirement": "3 VenusStep",
       "cost": 9,
-      "projectKind": "ACTIVE",
+      "projectKind": "ACTIVE"
     },
 
     // Water To Venus
@@ -3432,7 +3434,7 @@
       "tags": [ "SpaceTag" ],
       "immediate": "VenusStep",
       "cost": 9,
-      "projectKind": "EVENT",
+      "projectKind": "EVENT"
     },
 
     // Venus Governor
@@ -3444,7 +3446,7 @@
       "immediate": "PROD[2]",
       "requirement": "2 VenusTag",
       "cost": 4,
-      "projectKind": "AUTOMATED",
+      "projectKind": "AUTOMATED"
     },
 
     // Venus Magnetizer
@@ -3456,7 +3458,7 @@
       "actions": [ "PROD[Energy] -> VenusStep" ],
       "requirement": "5 VenusStep",
       "cost": 7,
-      "projectKind": "ACTIVE",
+      "projectKind": "ACTIVE"
     },
 
     // Venus Soils
@@ -3467,7 +3469,7 @@
       "tags": [ "VenusTag", "PlantTag" ],
       "immediate": "VenusStep, PROD[Plant], 2 Microbe",
       "cost": 20,
-      "projectKind": "AUTOMATED",
+      "projectKind": "AUTOMATED"
     },
 
     // Venus Waystation
@@ -3478,10 +3480,10 @@
       "tags": [ "VenusTag", "SpaceTag" ],
       "effects": [
         "PlayTag<VenusTag.CLASS>:: -2 Owed.",
-        "End: VictoryPoint",
+        "End: VictoryPoint"
       ],
       "cost": 9,
-      "projectKind": "ACTIVE",
+      "projectKind": "ACTIVE"
     },
 
     // Venusian Animals
@@ -3492,12 +3494,12 @@
       "tags": [ "VenusTag", "ScienceTag", "AnimalTag" ],
       "effects": [
         "ScienceTag: Animal<This>",
-        "End: VictoryPoint / Animal<This>",
+        "End: VictoryPoint / Animal<This>"
       ],
       "resourceType": "Animal",
       "requirement": "9 VenusStep",
       "cost": 15,
-      "projectKind": "ACTIVE",
+      "projectKind": "ACTIVE"
     },
 
     // Venusian Insects
@@ -3511,7 +3513,7 @@
       "resourceType": "Microbe",
       "requirement": "6 VenusStep",
       "cost": 5,
-      "projectKind": "ACTIVE",
+      "projectKind": "ACTIVE"
     },
 
     // Venusian Plants
@@ -3524,7 +3526,7 @@
       "effects": [ "End: VictoryPoint" ],
       "requirement": "8 VenusStep",
       "cost": 13,
-      "projectKind": "AUTOMATED",
+      "projectKind": "AUTOMATED"
     },
 
     // Airliners
@@ -3536,7 +3538,7 @@
       "effects": [ "End: VictoryPoint" ],
       "requirement": "3 Floater",
       "cost": 11,
-      "projectKind": "AUTOMATED",
+      "projectKind": "AUTOMATED"
     },
 
     // Air Raid
@@ -3544,9 +3546,9 @@
       "id": "C02",
       "bundle": "C",
       "deck": "PROJECT",
-      "immediate": "-Floater, 5 Megacredit<Player FROM Anyone>?",
+      "immediate": "-Floater, 5 Megacredit<Me FROM Anyone>?",
       "cost": 0,
-      "projectKind": "EVENT",
+      "projectKind": "EVENT"
     },
 
     // Atmo Collectors
@@ -3561,9 +3563,8 @@
       ],
       "resourceType": "Floater",
       "cost": 15,
-      "projectKind": "ACTIVE",
+      "projectKind": "ACTIVE"
     },
-
     // Community Services
     {
       "id": "C04",
@@ -3572,7 +3573,7 @@
       "immediate": "PROD[1 / CardFront(HAS MAX 0 Tag)]",
       "effects": [ "End: VictoryPoint" ],
       "cost": 13,
-      "projectKind": "AUTOMATED",
+      "projectKind": "AUTOMATED"
     },
 
     // Corona Extractor
@@ -3584,7 +3585,7 @@
       "immediate": "PROD[4 Energy]",
       "requirement": "4 ScienceTag",
       "cost": 10,
-      "projectKind": "AUTOMATED",
+      "projectKind": "AUTOMATED"
     },
 
     // Earth Elevator
@@ -3596,7 +3597,7 @@
       "immediate": "PROD[3 Titanium]",
       "effects": [ "End: 4 VictoryPoint" ],
       "cost": 43,
-      "projectKind": "AUTOMATED",
+      "projectKind": "AUTOMATED"
     },
 
     // Floater Leasing
@@ -3606,7 +3607,7 @@
       "deck": "PROJECT",
       "immediate": "PROD[1 / 3 Floater]",
       "cost": 3,
-      "projectKind": "AUTOMATED",
+      "projectKind": "AUTOMATED"
     },
 
     // Floater Prototypes
@@ -3617,7 +3618,7 @@
       "tags": [ "ScienceTag" ],
       "immediate": "2 Floater",
       "cost": 2,
-      "projectKind": "EVENT",
+      "projectKind": "EVENT"
     },
 
     // Floater Technology
@@ -3628,7 +3629,7 @@
       "tags": [ "ScienceTag" ],
       "actions": [ "-> Floater" ],
       "cost": 7,
-      "projectKind": "ACTIVE",
+      "projectKind": "ACTIVE"
     },
 
     // Galilean Waystation
@@ -3640,7 +3641,7 @@
       "immediate": "PROD[1 / JovianTag<Anyone>]",
       "effects": [ "End: VictoryPoint" ],
       "cost": 15,
-      "projectKind": "AUTOMATED",
+      "projectKind": "AUTOMATED"
     },
 
     // Heavy Taxation
@@ -3653,7 +3654,7 @@
       "effects": [ "End: -VictoryPoint" ],
       "requirement": "2 EarthTag",
       "cost": 3,
-      "projectKind": "AUTOMATED",
+      "projectKind": "AUTOMATED"
     },
 
     // Impactor Swarm
@@ -3665,7 +3666,7 @@
       "immediate": "12 Heat, -2 Plant<Anyone>?",
       "requirement": "2 JovianTag",
       "cost": 11,
-      "projectKind": "EVENT",
+      "projectKind": "EVENT"
     },
 
     // Jovian Lanterns
@@ -3680,7 +3681,7 @@
       "resourceType": "Floater",
       "requirement": "JovianTag",
       "cost": 20,
-      "projectKind": "ACTIVE",
+      "projectKind": "ACTIVE"
     },
 
     // Luna Governor
@@ -3692,7 +3693,7 @@
       "immediate": "PROD[2]",
       "requirement": "2 EarthTag",
       "cost": 4,
-      "projectKind": "AUTOMATED",
+      "projectKind": "AUTOMATED"
     },
 
     // Lunar Exports
@@ -3703,7 +3704,7 @@
       "tags": [ "SpaceTag", "EarthTag" ],
       "immediate": "PROD[2 Plant OR 5]",
       "cost": 19,
-      "projectKind": "AUTOMATED",
+      "projectKind": "AUTOMATED"
     },
 
     // Lunar Mining
@@ -3714,7 +3715,7 @@
       "tags": [ "EarthTag" ],
       "immediate": "PROD[Titanium / 2 EarthTag]",
       "cost": 11,
-      "projectKind": "AUTOMATED",
+      "projectKind": "AUTOMATED"
     },
 
     // Martian Zoo
@@ -3726,12 +3727,12 @@
       "actions": [ "-> 1 / Animal<This>" ],
       "effects": [
         "EarthTag: Animal<This>",
-        "End: VictoryPoint",
+        "End: VictoryPoint"
       ],
       "resourceType": "Animal",
       "requirement": "2 CityTile<Anyone>",
       "cost": 12,
-      "projectKind": "ACTIVE",
+      "projectKind": "ACTIVE"
     },
 
     // Nitrogen From Titan
@@ -3743,7 +3744,7 @@
       "immediate": "2 TerraformRating, 2 Floater<CardFront(HAS JovianTag)>",
       "effects": [ "End: VictoryPoint" ],
       "cost": 25,
-      "projectKind": "AUTOMATED",
+      "projectKind": "AUTOMATED"
     },
 
     // Red Spot Observatory
@@ -3761,7 +3762,7 @@
       "resourceType": "Floater",
       "requirement": "3 ScienceTag",
       "cost": 17,
-      "projectKind": "ACTIVE",
+      "projectKind": "ACTIVE"
     },
 
     // Refugee Camps
@@ -3775,7 +3776,7 @@
       "components": [ "CLASS Camp : CardResource" ],
       "resourceType": "Camp",
       "cost": 10,
-      "projectKind": "ACTIVE",
+      "projectKind": "ACTIVE"
     },
 
     // Solar Reflectors
@@ -3786,7 +3787,7 @@
       "tags": [ "SpaceTag" ],
       "immediate": "PROD[5 Heat]",
       "cost": 23,
-      "projectKind": "AUTOMATED",
+      "projectKind": "AUTOMATED"
     },
 
     // Sub-Zero Salt Fish
@@ -3801,7 +3802,7 @@
       "resourceType": "Animal",
       "requirement": "12 TemperatureStep",
       "cost": 5,
-      "projectKind": "ACTIVE",
+      "projectKind": "ACTIVE"
     },
 
     // Titan Air-Scrapping
@@ -3817,7 +3818,7 @@
       "effects": [ "End: 2 VictoryPoint" ],
       "resourceType": "Floater",
       "cost": 21,
-      "projectKind": "ACTIVE",
+      "projectKind": "ACTIVE"
     },
 
     // Warp Drive
@@ -3828,11 +3829,11 @@
       "tags": [ "ScienceTag" ],
       "effects": [
         "PlayTag<SpaceTag.CLASS>:: -4 Owed.",
-        "End: 2 VictoryPoint",
+        "End: 2 VictoryPoint"
       ],
       "requirement": "5 ScienceTag",
       "cost": 14,
-      "projectKind": "ACTIVE",
+      "projectKind": "ACTIVE"
     },
 
     // Small Asteroid
@@ -3843,7 +3844,7 @@
       "tags": [ "SpaceTag" ],
       "immediate": "TemperatureStep, -2 Plant<Anyone>?",
       "cost": 10,
-      "projectKind": "EVENT",
+      "projectKind": "EVENT"
     },
 
     // Snow Algae
@@ -3855,7 +3856,7 @@
       "immediate": "PROD[Plant, Heat]",
       "requirement": "2 OceanTile",
       "cost": 12,
-      "projectKind": "AUTOMATED",
+      "projectKind": "AUTOMATED"
     },
 
     // Penguins
@@ -3869,7 +3870,7 @@
       "resourceType": "Animal",
       "requirement": "8 OceanTile",
       "cost": 7,
-      "projectKind": "ACTIVE",
+      "projectKind": "ACTIVE"
     },
 
     // Dusk Laser Mining
@@ -3881,7 +3882,7 @@
       "immediate": "PROD[-Energy, Titanium], 4 Titanium",
       "requirement": "2 ScienceTag",
       "cost": 8,
-      "projectKind": "AUTOMATED",
+      "projectKind": "AUTOMATED"
     },
 
     // Project Inspection
@@ -3891,7 +3892,7 @@
       "deck": "PROJECT",
       "immediate": "UseAction<ActionCard(HAS ActionUsedMarker)>",
       "cost": 0,
-      "projectKind": "EVENT",
+      "projectKind": "EVENT"
     },
 
     // Mercurian Alloys
@@ -3902,7 +3903,7 @@
       "tags": [ "SpaceTag" ],
       "effects": [ "Pay<Titanium.CLASS>:: Pay<Megacredit.CLASS>" ],
       "cost": 3,
-      "projectKind": "ACTIVE",
+      "projectKind": "ACTIVE"
     },
 
     // Orbital Cleanup
@@ -3915,7 +3916,7 @@
       "actions": [ "-> 1 / ScienceTag" ],
       "effects": [ "End: 2 VictoryPoint" ],
       "cost": 14,
-      "projectKind": "ACTIVE",
+      "projectKind": "ACTIVE"
     },
 
     // Rego Plastics
@@ -3926,10 +3927,10 @@
       "tags": [ "BuildingTag" ],
       "effects": [
         "Pay<Steel.CLASS>:: Pay<Megacredit.CLASS>",
-        "End: VictoryPoint",
+        "End: VictoryPoint"
       ],
       "cost": 10,
-      "projectKind": "ACTIVE",
+      "projectKind": "ACTIVE"
     },
 
     // Stanford Torus
@@ -3942,7 +3943,7 @@
       "effects": [ "End: 2 VictoryPoint" ],
       "components": [ "CLASS FloatingInSpace : RemoteArea" ],
       "cost": 12,
-      "projectKind": "AUTOMATED",
+      "projectKind": "AUTOMATED"
     },
 
     // Asteroid Hollowing
@@ -3955,7 +3956,7 @@
       "effects": [ "End: VictoryPoint / 2 Asteroid<This>" ],
       "resourceType": "Asteroid",
       "cost": 16,
-      "projectKind": "ACTIVE",
+      "projectKind": "ACTIVE"
     },
 
     // Comet Aiming
@@ -3966,11 +3967,11 @@
       "tags": [ "SpaceTag" ],
       "actions": [
         "Titanium -> Asteroid",
-        "Asteroid<This> -> OceanTile",
+        "Asteroid<This> -> OceanTile"
       ],
       "resourceType": "Asteroid",
       "cost": 17,
-      "projectKind": "ACTIVE",
+      "projectKind": "ACTIVE"
     },
 
     // Directed Impactors
@@ -3981,12 +3982,12 @@
       "tags": [ "SpaceTag" ],
       "actions": [
         "6 -> Asteroid",
-        "Asteroid<This> -> TemperatureStep",
+        "Asteroid<This> -> TemperatureStep"
       ],
       "effects": [ "UseAction1<This>:: Accept<Titanium.CLASS>" ],
       "resourceType": "Asteroid",
       "cost": 8,
-      "projectKind": "ACTIVE",
+      "projectKind": "ACTIVE"
     },
 
     // Field-Capped City
@@ -3997,7 +3998,7 @@
       "tags": [ "PowerTag", "CityTag", "BuildingTag" ],
       "immediate": "PROD[2, Energy], CityTile, 3 Plant",
       "cost": 29,
-      "projectKind": "AUTOMATED",
+      "projectKind": "AUTOMATED"
     },
 
     // Imported Nutrients
@@ -4008,7 +4009,7 @@
       "tags": [ "EarthTag", "SpaceTag" ],
       "immediate": "4 Plant, 4 Microbe",
       "cost": 14,
-      "projectKind": "EVENT",
+      "projectKind": "EVENT"
     },
 
     // Jovian Embassy
@@ -4020,7 +4021,7 @@
       "immediate": "TerraformRating",
       "effects": [ "End: VictoryPoint" ],
       "cost": 14,
-      "projectKind": "AUTOMATED",
+      "projectKind": "AUTOMATED"
     },
 
     // Magnetic Shield
@@ -4032,7 +4033,7 @@
       "immediate": "4 TerraformRating",
       "requirement": "3 PowerTag",
       "cost": 24,
-      "projectKind": "AUTOMATED",
+      "projectKind": "AUTOMATED"
     },
 
     // Meat Industry
@@ -4043,7 +4044,7 @@
       "tags": [ "BuildingTag" ],
       "effects": [ "Animal: 2" ],
       "cost": 5,
-      "projectKind": "ACTIVE",
+      "projectKind": "ACTIVE"
     },
 
     // Meltworks
@@ -4054,7 +4055,7 @@
       "tags": [ "BuildingTag" ],
       "actions": [ "5 Heat -> 3 Steel" ],
       "cost": 4,
-      "projectKind": "ACTIVE",
+      "projectKind": "ACTIVE"
     },
 
     // Mohole Lake
@@ -4066,7 +4067,7 @@
       "immediate": "3 Plant, TemperatureStep, OceanTile",
       "actions": [ "-> Microbe OR Animal" ],
       "cost": 31,
-      "projectKind": "ACTIVE",
+      "projectKind": "ACTIVE"
     },
 
     // Potatoes
@@ -4077,7 +4078,7 @@
       "tags": [ "PlantTag" ],
       "immediate": "-2 Plant, PROD[2]",
       "cost": 2,
-      "projectKind": "AUTOMATED",
+      "projectKind": "AUTOMATED"
     },
 
     // Sub-Crust Measurements
@@ -4090,7 +4091,7 @@
       "effects": [ "End: 2 VictoryPoint" ],
       "requirement": "2 ScienceTag",
       "cost": 20,
-      "projectKind": "ACTIVE",
+      "projectKind": "ACTIVE"
     },
 
     // Topsoil Contract
@@ -4102,7 +4103,7 @@
       "immediate": "3 Plant",
       "effects": [ "Microbe: 1" ],
       "cost": 8,
-      "projectKind": "ACTIVE",
+      "projectKind": "ACTIVE"
     },
 
     // Deimos Down (promo)
@@ -4115,7 +4116,7 @@
       "immediate": "3 TemperatureStep, 4 Steel, -6 Plant<Anyone>?, TileX31<LandArea(HAS MAX 0 Neighbor<CityTile<Anyone>>)>",
       "components": [ "CLASS TileX31 : SpecialTile" ],
       "cost": 31,
-      "projectKind": "EVENT",
+      "projectKind": "EVENT"
     },
 
     // Great Dam (promo)
@@ -4130,7 +4131,7 @@
       "components": [ "CLASS TileX32 : SpecialTile" ],
       "requirement": "4 OceanTile",
       "cost": 15,
-      "projectKind": "AUTOMATED",
+      "projectKind": "AUTOMATED"
     },
 
     // Magnetic Field Generators (promo)
@@ -4143,7 +4144,7 @@
       "immediate": "PROD[-4 Energy, 2 Plant], 3 TerraformRating, TileX33",
       "components": [ "CLASS TileX33 : SpecialTile" ],
       "cost": 22,
-      "projectKind": "AUTOMATED",
+      "projectKind": "AUTOMATED"
     },
 
     // Asteroid Rights
@@ -4155,11 +4156,11 @@
       "immediate": "2 Asteroid<This>",
       "actions": [
         "1 -> Asteroid",
-        "Asteroid<This> -> 2 Titanium OR PROD[1]",
+        "Asteroid<This> -> 2 Titanium OR PROD[1]"
       ],
       "resourceType": "Asteroid",
       "cost": 10,
-      "projectKind": "ACTIVE",
+      "projectKind": "ACTIVE"
     },
 
     // Bactoviral Research
@@ -4170,7 +4171,7 @@
       "tags": [ "MicrobeTag", "ScienceTag" ],
       "immediate": "ProjectCard, Microbe / ScienceTag",
       "cost": 10,
-      "projectKind": "AUTOMATED",
+      "projectKind": "AUTOMATED"
     },
 
     // Bio Printing Facility
@@ -4181,7 +4182,7 @@
       "tags": [ "BuildingTag" ],
       "actions": [ "2 Energy -> 2 Plant OR Animal" ],
       "cost": 7,
-      "projectKind": "ACTIVE",
+      "projectKind": "ACTIVE"
     },
 
     // Harvest
@@ -4193,7 +4194,7 @@
       "immediate": "12",
       "requirement": "3 GreeneryTile",
       "cost": 4,
-      "projectKind": "EVENT",
+      "projectKind": "EVENT"
     },
 
     // Outdoor Sports
@@ -4204,7 +4205,7 @@
       "immediate": "PROD[2]",
       "requirement": "Adjacency<CityTile<Anyone>, OceanTile>",
       "cost": 8,
-      "projectKind": "AUTOMATED",
-    },
+      "projectKind": "AUTOMATED"
+    }
   ],
 }

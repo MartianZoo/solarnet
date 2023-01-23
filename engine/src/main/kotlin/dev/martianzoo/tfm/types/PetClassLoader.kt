@@ -2,6 +2,7 @@ package dev.martianzoo.tfm.types
 
 import dev.martianzoo.tfm.api.Authority
 import dev.martianzoo.tfm.data.ClassDeclaration
+import dev.martianzoo.tfm.pets.SpecialClassNames.ANYONE
 import dev.martianzoo.tfm.pets.SpecialClassNames.ME
 import dev.martianzoo.tfm.pets.SpecialClassNames.STANDARD_RESOURCE
 import dev.martianzoo.tfm.pets.SpecialClassNames.THIS
@@ -84,7 +85,7 @@ class PetClassLoader(private val authority: Authority) : PetClassTable {
         loadSingle(next, decl)
         // shoot, this merges ids and names
         val needed: List<ClassName> = decl.allNodes.flatMap { it.childNodesOfType() }
-        val addToQueue = needed.toSet() - table.keys - THIS - ME
+        val addToQueue = needed.toSet() - table.keys - THIS - ME - ANYONE // TODO
         queue.addAll(addToQueue)
       }
     }

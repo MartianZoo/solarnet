@@ -10,7 +10,7 @@
 ABSTRACT CLASS GlobalParameter {                            // TODO instances must be added 1-by-1 - how to ensure?
     DEFAULT +This.                                          // by default, gains are "if possible"
 
-    This: TerraformRating                                   // becomes `This BY Player: TR<This>` TODO
+    This: TerraformRating                                   // becomes `This BY Me: TR<Me>` TODO
 
     CLASS TemperatureStep {                                 // In PETS, nested classes automatically have their
         HAS MAX 19 This                                     // enclosing class as a superclass.

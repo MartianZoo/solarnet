@@ -6,8 +6,8 @@ import dev.martianzoo.tfm.api.GameSetup
 import dev.martianzoo.tfm.engine.Engine
 import dev.martianzoo.tfm.engine.Game
 import dev.martianzoo.tfm.pets.PetNodeVisitor
-import dev.martianzoo.tfm.pets.SpecialClassNames.ANYONE
 import dev.martianzoo.tfm.pets.SpecialClassNames.OWNED
+import dev.martianzoo.tfm.pets.SpecialClassNames.PLAYER
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.pets.ast.Instruction
@@ -73,13 +73,13 @@ class InteractiveSession {
     }
     val g = game!!
     val owned = g.resolve(OWNED.type)
-    val anyone = g.resolve(ANYONE.type)
+    val player = g.resolve(PLAYER.type)
 
     class Fixer : PetNodeVisitor() {
       override fun <P : PetNode?> transform(node: P): P {
         if (node is GenericTypeExpression) {
           if (g.resolve(node).isSubtypeOf(owned)) {
-            val hasPlayer = node.args.any { g.resolve(it).isSubtypeOf(anyone) }
+            val hasPlayer = node.args.any { g.resolve(it).isSubtypeOf(player) }
             if (!hasPlayer) {
               return node.addArgs(listOf(defaultPlayer!!.type)) as P
             }

@@ -23,7 +23,6 @@ public object Engine {
     }
 
     // Hacks TODO
-    loader.load(ME)
     loader.load(PRODUCTION)
     loader.freeze()
 

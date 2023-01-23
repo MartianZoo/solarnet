@@ -2,33 +2,28 @@
 
 // PLAYERS -------------------------------------------------
 
-ABSTRACT CLASS Anyone {
+ABSTRACT CLASS Player {
     HAS =1 This
 
-    ABSTRACT CLASS Player : Anyone {
-        This:: 20 TerraformRating                           // no solo mode yet
-
-        // Hack!                                            // We're forced to use some ugly hack; at least this one
-        This:: PROD[5]                                      // confines the damage to Specialist/Generalist/Robinson and
-        ProductionPhase: -5                                 // presentation issues. All the alternatives look worse.
+    This:: 20 TerraformRating                               // no solo mode yet
+                                                            // We're forced to use some ugly hack; at least this one
+    This:: PROD[5]                                          // confines the damage to Specialist/Generalist/Robinson and
+    ProductionPhase: -5                                     // presentation issues. All the alternatives look worse.
                                                             // This makes `/ PROD[1]` extremely dodgy, almost worth
                                                             // banning... except it does still work fine for Banker.
-        PlayTag<BuildingTag.CLASS>:: Accept<Steel.CLASS>
-        PlayTag<SpaceTag.CLASS>:: Accept<Titanium.CLASS>    // TODO where do these really belong??
+    PlayTag<BuildingTag.CLASS>:: Accept<Steel.CLASS>
+    PlayTag<SpaceTag.CLASS>:: Accept<Titanium.CLASS>        // TODO where do these really belong??
 
-        Pay<Steel.CLASS>:: 2 Pay<Megacredit.CLASS>
-        Pay<Titanium.CLASS>:: 3 Pay<Megacredit.CLASS>       // I think this will be innocuous for TradeAction
+    Pay<Steel.CLASS>:: 2 Pay<Megacredit.CLASS>
+    Pay<Titanium.CLASS>:: 3 Pay<Megacredit.CLASS>           // I think this will be innocuous for TradeAction
 
-        CLASS Player1, Player2, Player3, Player4, Player5   // in PETS, nesting = subtyping
-
-        ABSTRACT CLASS Me                                   // TODO not sure about this
-    }
+    CLASS Player1, Player2, Player3, Player4, Player5       // TODO not sure we want these here?
 }
 
 
 // PLAYER PROPERTY / GENERAL -------------------------------
 
-ABSTRACT CLASS Owned<Anyone> {
+ABSTRACT CLASS Owned<Player> {
     DEFAULT This<Me>                                        // affects ALL references to owned cpts that don't specify
                                                             // an owner -- the only DEFAULT of this kind we need
     CLASS VictoryPoint
@@ -114,8 +109,8 @@ ABSTRACT CLASS Owned<Anyone> {
 
     CLASS PlayedEvent
 
-    ABSTRACT CLASS Cardbound<CardFront<Anyone>> :\          // TODO require the two `Anyone`s to match, but only
-            Owned<Anyone> {                                 // because both were stated explicitly (not for Neighbor)
+    ABSTRACT CLASS Cardbound<CardFront<Player>> :\          // TODO require the two `Player`s to match... but only
+            Owned<Player> {                                 // because both were stated explicitly (not for Neighbor)
 
         ABSTRACT CLASS Tag {
             CLASS BuildingTag, SpaceTag
