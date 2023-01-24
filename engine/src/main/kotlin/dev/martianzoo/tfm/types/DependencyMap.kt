@@ -62,7 +62,7 @@ public data class DependencyMap(private val map: Map<Dependency.Key, Dependency>
           }
     }
     require(unhandled.isEmpty()) { "This: $this\nSpecs: $specs\nUnhandled : $unhandled" }
-    return DependencyMap(newMap) // .d { "findMatchups of $this with $specs: $it" } too noisy
+    return DependencyMap(newMap)
   }
 
   public fun specialize(specs: List<PetType>) = intersect(findMatchups(specs))

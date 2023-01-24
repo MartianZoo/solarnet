@@ -64,19 +64,20 @@ ABSTRACT CLASS Area(HAS MAX 1 Tile) {
 
 ABSTRACT CLASS Tile<Area>
                                                             // TODO figure out how to not need this
-CLASS Border<MarsArea^1, MarsArea^2> {                      // early on will create 3-6 of these for each MarsArea
+CLASS Border<MarsArea, Area> {                              // early on will create 3-6 of these for each MarsArea
     HAS MAX 1 This                                          // listing that one first. So each border will actually
                                                             // be here twice, once in each direction
-    Tile<MarsArea^1>: Neighbor<Tile<MarsArea^1>, MarsArea^2>
+    Tile<MarsArea>: Neighbor<Tile<MarsArea>, Area>
 }
 
-CLASS Neighbor<Tile^1, MarsArea^2> {
+CLASS Neighbor<Tile<MarsArea>, Area> {
     HAS MAX 1 This
-    Tile<MarsArea^2>:: ForwardAdjacency<Tile^1, Tile<MarsArea^2>>
-    Tile<MarsArea^2>:: BackwardAdjacency<Tile<MarsArea^2>, Tile^1>
+
+    Tile<Area>:: ForwardAdjacency<Tile, Tile<Area>>, \
+                 BackwardAdjacency<Tile<Area>, Tile>
 }
 
-ABSTRACT CLASS Adjacency<Tile^1, Tile^2> {
+ABSTRACT CLASS Adjacency<Tile, Tile> {
     HAS MAX 1 This
     CLASS ForwardAdjacency, BackwardAdjacency
 }

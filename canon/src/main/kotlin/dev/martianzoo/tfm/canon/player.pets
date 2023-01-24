@@ -79,8 +79,8 @@ ABSTRACT CLASS Owned<Anyone> {
         }
     }
 
-    CLASS Production<StandardResource^1.CLASS> {
-        ProductionPhase: StandardResource^1
+    CLASS Production<StandardResource.CLASS> {
+        ProductionPhase: StandardResource
     }
 
     ABSTRACT CLASS ResourcefulCard<CardResource.CLASS> : CardFront
@@ -94,7 +94,7 @@ ABSTRACT CLASS Owned<Anyone> {
         CLASS ProjectCard                                   // well that used to be true until "Double Down" in Dec 2022
     }
 
-    ABSTRACT CLASS CardFront {                               // specific CardFronts are loaded from `cards.json5`
+    ABSTRACT CLASS CardFront {                              // specific CardFronts are loaded from `cards.json5`
         This:: @createAll(Cost, This)
 
         ABSTRACT CLASS EventCard {
@@ -108,7 +108,7 @@ ABSTRACT CLASS Owned<Anyone> {
 
     CLASS PlayedEvent
 
-    ABSTRACT CLASS Cardbound<CardFront<Anyone^1>> : Owned<Anyone^1> {
+    ABSTRACT CLASS Cardbound<CardFront<Anyone>> : Owned<Anyone> {
 
         ABSTRACT CLASS Tag {
             CLASS BuildingTag, SpaceTag
@@ -145,8 +145,8 @@ ABSTRACT CLASS Owned<Anyone> {
             This: (MAX 0 This: Ok)                          // adds a task that can only be handled if 0 barriers left
         }
 
-        CLASS Owed<Resource^1.CLASS> : Barrier {            // created when payment due, removed by discount cards/
-            This:: Accept<Resource^1.CLASS>
+        CLASS Owed<Resource.CLASS> : Barrier {              // created when payment due, removed by discount cards/
+            This:: Accept<Resource.CLASS>
         }
 
         CLASS Accept<Resource.CLASS> {                      // Created in response to PlayTag or the actions on 4
@@ -154,8 +154,8 @@ ABSTRACT CLASS Owned<Anyone> {
             DEFAULT +This.
         }
 
-        CLASS Pay<Resource^1.CLASS> : Signal {              // player uses it like `8 Pay<Heat.CLASS> FROM Heat`
-            This:: -Owed<Resource^1.CLASS>.                 // But also cards can pay in response to signals
+        CLASS Pay<Resource.CLASS> : Signal {                // player uses it like `8 Pay<Heat.CLASS> FROM Heat`
+            This:: -Owed<Resource.CLASS>.                   // But also cards can pay in response to signals
         }
 
         CLASS PlayTag<Tag.CLASS> : Signal                   // triggers Accept<Steel/Dirig/etc.CLASS> and tag-based discounts

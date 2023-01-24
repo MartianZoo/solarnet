@@ -9,19 +9,19 @@ private class PetTypeTest {
   fun testCycle() {
     val table: PetClassLoader =
         loadTypes(
-            "ABSTRACT CLASS Player",
-            "CLASS Player1 : Player",
-            "CLASS Player2 : Player",
-            "ABSTRACT CLASS Owned<Player>",
-            "ABSTRACT CLASS CardFront : Owned",
-            "ABSTRACT CLASS Cardbound<CardFront> : Owned",
-            "ABSTRACT CLASS ResourcefulCard<CardResource.CLASS> : CardFront",
-            "ABSTRACT CLASS CardResource : " +
-                "Owned<Player>, Cardbound<Player, ResourcefulCard>", // TODO <This.CLASS> ?
-            "CLASS Animal : CardResource",
-            "CLASS Microbe : CardResource<ResourcefulCard<Microbe.CLASS>>",
-            "CLASS Fish : ResourcefulCard<Animal.CLASS>",
-            "CLASS Ants : ResourcefulCard<Microbe.CLASS>",
+                "ABSTRACT CLASS Anyone",
+                "CLASS Player1 : Anyone",
+                "CLASS Player2 : Anyone",
+                "ABSTRACT CLASS Owned<Anyone>",
+                "ABSTRACT CLASS CardFront : Owned",
+                "ABSTRACT CLASS Cardbound<CardFront> : Owned",
+                "ABSTRACT CLASS ResourcefulCard<CardResource.CLASS> : CardFront",
+                "ABSTRACT CLASS CardResource : " +
+                        "Owned<Anyone>, Cardbound<Anyone, ResourcefulCard>", // TODO <This.CLASS> ?
+                "CLASS Animal : CardResource<ResourcefulCard<Animal.CLASS>>",
+                "CLASS Microbe : CardResource<ResourcefulCard<Microbe.CLASS>>",
+                "CLASS Fish : ResourcefulCard<Animal.CLASS>",
+                "CLASS Ants : ResourcefulCard<Microbe.CLASS>",
         )
             as PetClassLoader
     assertThat(table.resolve("Animal<Fish>").abstract).isTrue()
@@ -29,12 +29,12 @@ private class PetTypeTest {
     val fish = table.resolve("Animal<Player1, Fish<Player1>>")
     assertThat(fish.abstract).isFalse()
 
-    assertThat(table["Fish"].baseType.toString()).isEqualTo("Fish<Player, Animal.CLASS>")
+    assertThat(table["Fish"].baseType.toString()).isEqualTo("Fish<Anyone, Animal.CLASS>")
 
     // TODO get these working
     // assertThrows<RuntimeException> { table.resolve("Animal<Ants>") }
     // assertThat(table["Animal"].baseType.toString())
-    //    .isEqualTo("Animal<Player, ResourcefulCard<Player, Animal.CLASS>>")
+    //    .isEqualTo("Animal<Anyone, ResourcefulCard<Anyone, Animal.CLASS>>")
     // assertThrows<RuntimeException> {
     //  table.resolve("Microbe<Player1, Ants<Player2>>")
     // }
