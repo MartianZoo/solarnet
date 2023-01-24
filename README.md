@@ -1,33 +1,23 @@
-# PETS
+# PETS and SolarNet
 
-PETS is a simple specification language for representing game component behaviors in _Terraforming Mars_. It lets components with heterogeneous behaviors (cards, milestones, maps, etc.) be expressed as pure data. The idea is that we could generate both the *iconographic* and *natural-language* instructions on a card from the same single source. Nifty huh?
+There are two separate projects in this repo, just for convenience while they are in rapid flux.
 
-Here's Freyja Biodomes. Okay, it looks like a block of JSON data, yeah, but the parts inside the immediate/effects/requirement sections are each written in PETS:
+PETS is a specification language for representing game component behaviors in _Terraforming Mars_. It lets components
+with heterogeneous behaviors (cards, milestones, maps, etc.) be expressed as pure data. This data can, in theory, be
+used to render the card instructions as text, render them in iconographic form, or be used by an actual running game
+engine.
 
-```json
-{
-    "id": "227",
-    "bundle": "V",
-    "deck": "PROJECT",
-    "tags": [ "VenusTag", "PlantTag" ],
-    "immediate": [
-        "2 Microbe<CardFront(HAS VenusTag)> OR 2 Animal<CardFront(HAS VenusTag)>",
-        "PROD[-Energy, 2]"
-    ],
-    "effects": [ "End: VictoryPoint" ],
-    "requirement": "5 VenusStep",
-    "cost": 14,
-    "projectKind": "AUTOMATED"
-}
-```
+SolarNet is a game engine that runs off of PETS specifications alone... kind of. More on this below.
 
-I've got the parser parsing [350 cards](https://github.com/MartianZoo/pets/blob/main/pets/src/main/kotlin/dev/martianzoo/tfm/canon/cards.json5) so far.
+## Important disclaimers!
 
-## So where do you convert that to text or images then
-
-Okay so I haven't done that part. Because what happened was:
-
-I instead became obsessed with the idea that it should be possible to write a **game engine** that knows how to **actually play the cards** correctly based on this data alone. That would be cool for a bunch of reasons, but in particular, without that, I can't really prove that the PETS language is expressive enough. Who's to say whether Freyja Biodomes up there is even written correctly or not? But with an engine, I can write tests!
+* Think of the *potential* of what you see here and not so much the state it's already in.
+* The REPL ("REgo PLastics") is a really, really, really bad user interface by design. Basically it's not trying to be a
+  UI at all.
+* Error handling is absolutely awful. No effort has gone into reporting errors in more useful ways. So if you are trying
+  to learn the PETS language and do stuff with it, you may have a frustrating experience because the error messages
+  aren't gonna help much.
+* Solarnet disclaimers:
 
 ## Solarnet
 
@@ -46,50 +36,51 @@ They don't exist because these things just aren't important right now. We can al
 
 ## Making it harder
 
-Of course, the nerd alpha move is to make an engine that *doesn't even know anything about Terraforming Mars*. Obviously *all* the game components should be written in PETS, not just the cards!
+The nerd alpha move is to make an engine that *doesn't even know anything about Terraforming Mars*. Obviously *all* the
+game components should be written in PETS, not just the cards!
 
 Here's `CityTile` in PETS
 
 ```
-class CityTile {
-    default CityTile<LandArea(HAS MAX 0 Neighbor<CityTile<Anyone>>)>
-    End: VictoryPoint / Adjacency(HAS This, GreeneryTile<Anyone>)
+CLASS CityTile : OwnedTile {
+    DEFAULT +CityTile<LandArea(HAS MAX 0 Neighbor<CityTile<Anyone>>)>
+    End: VictoryPoint / Adjacency<This, GreeneryTile<Anyone>>
 }
 ```
 
 Here's your turn actions
 
 ```
-abstract class StandardAction(HAS =1 This) {
-    class PlayCardFromHand   { -> PlayCard<ProjectCard, CardFront> }
-    class UseStandardProject { -> UseAction<StandardProject> }
-    class UseCardAction      { -> UseAction<ActionCard> THEN ActionUsedMarker<ActionCard> }
-    class ConvertPlants      { 8 Plant -> GreeneryTile }
-    class ConvertHeat        { 8 Heat -> TemperatureStep }
-    class SellPatents        { X ProjectCard -> X }
-    class ClaimMilestone     { 8 -> Milestone }
-    class FundAward          { 8, 6 / Award -> Award }
-    class TradeAction        { 3 Energy OR 3 Titanium OR 9 -> Trade }
+ABSTRACT CLASS StandardAction(HAS =1 This) {
+    CLASS PlayCardFromHand   { -> PlayCard<ProjectCard, CardFront> }
+    CLASS UseStandardProject { -> UseAction<StandardProject> }
+    CLASS UseCardAction      { -> UseAction<ActionCard> THEN ActionUsedMarker<ActionCard> }
+    CLASS ConvertPlants      { 8 Plant -> GreeneryTile }
+    CLASS ConvertHeat        { 8 Heat -> TemperatureStep }
+    CLASS SellPatents        { X ProjectCard -> X }
+    CLASS ClaimMilestone     { 8 -> Milestone }
+    CLASS FundAward          { 8, 6 / Award -> Award }
+    CLASS TradeAction        { 3 Energy OR 3 Titanium OR 9 -> Trade }
 }
 ```
 
-I don't know why but the simplicity of `TerraformRating` brings a special joy
+`TerraformRating` is pretty easy to understand:
 
 ```
-class TerraformRating : Owned<Player> {
+CLASS TerraformRating : Owned {
     ProductionPhase: 1
     End: VictoryPoint
 }
 ```
 
-Note that *why* these formulations work will take more explaining. I believe PETS is relatively simple, but it definitely takes a minute to twist your brain into its way of thinking. I'll work on explaining everything as time permits...
+Each `TerraformRating` instance you own will respond to the `ProductionPhase` signal by generating 1 megacredit for you,
+and will also respond to the `End` phase by handing you a `VictoryPoint`. Simple as that! (Or, I could have made `TR` a
+subclass of `VictoryPoint`; that would have worked too, but I decided to be a stickler about VPs not existing until the
+end of the game.)
 
-## Why do all this?
+## Why are you doing this?
 
-* Because it's interesting
-* Because it's really hard
-* Because I think it will be cool
-* Because for some reason I just love this game that much
+Purely for fun and learning. I don't have any specific ambitions for it. It's a toy.
 
 ## Why the name PETS
 
