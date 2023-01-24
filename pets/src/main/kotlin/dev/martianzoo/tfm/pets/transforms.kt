@@ -23,7 +23,7 @@ import dev.martianzoo.tfm.pets.ast.TypeExpr.GenericTypeExpr
 internal fun actionToEffect(action: Action, index1Ref: Int): Effect {
   require(index1Ref >= 1) { index1Ref }
   val instruction = instructionFromAction(action.cost?.toInstruction(), action.instruction)
-  val trigger = OnGain(cn("$USE_ACTION$index1Ref").addArgs(THIS.ptype))
+  val trigger = OnGain(cn("$USE_ACTION$index1Ref").addArgs(THIS.type))
   return Effect(trigger, instruction, automatic = false)
 }
 
@@ -50,12 +50,12 @@ internal fun actionsToEffects(actions: List<Action>): List<Effect> =
     }
 
 internal fun immediateToEffect(instruction: Instruction): Effect {
-  return Effect(OnGain(THIS.ptype), instruction, automatic = false)
+  return Effect(OnGain(THIS.type), instruction, automatic = false)
 }
 
 fun <P : PetNode> replaceThis(node: P, resolveTo: GenericTypeExpr) =
     node
-        .replaceTypes(THIS.ptype, resolveTo)
+        .replaceTypes(THIS.type, resolveTo)
         .replaceTypes(ClassLiteral(THIS), ClassLiteral(resolveTo.root))
 
 fun <P : PetNode> P.replaceTypes(from: TypeExpr, to: TypeExpr): P {
@@ -91,7 +91,7 @@ fun <P : PetNode> deprodify(node: P, producible: Set<ClassName>): P {
                 }
 
                 inProd && node is GenericTypeExpr && node.root in producible ->
-                  PRODUCTION.ptype.copy(args = node.args + ClassLiteral(node.root))
+                  PRODUCTION.type.copy(args = node.args + ClassLiteral(node.root))
 
                 else -> super.transform(node)
               }

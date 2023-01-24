@@ -6,6 +6,7 @@ import dev.martianzoo.tfm.api.lookUpProductionLevels
 import dev.martianzoo.tfm.api.standardResourceNames
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.pets.ast.ClassName
+import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.pets.ast.Instruction.Companion.instruction
 import dev.martianzoo.util.toStrings
 import org.junit.jupiter.api.Test
@@ -15,28 +16,28 @@ class ApiHelpersTest {
   fun testLookUpProdLevelsUsingCanon() {
     val game = Engine.newGame(GameSetup(Canon, "BM", 3))
     val prods: Map<ClassName, Int> =
-        lookUpProductionLevels(game.asGameState, ClassName.cn("Player1").ptype)
+        lookUpProductionLevels(game.asGameState, cn("Player1").type)
     assertThat(prods.map { it.key to it.value })
         .containsExactly(
-            ClassName.cn("Megacredit") to -5,
-            ClassName.cn("Steel") to 0,
-            ClassName.cn("Titanium") to 0,
-            ClassName.cn("Plant") to 0,
-            ClassName.cn("Energy") to 0,
-            ClassName.cn("Heat") to 0,
+            cn("Megacredit") to -5,
+            cn("Steel") to 0,
+            cn("Titanium") to 0,
+            cn("Plant") to 0,
+            cn("Energy") to 0,
+            cn("Heat") to 0,
         )
 
     game.execute(instruction("2 Production<Player1, Plant.CLASS>"))
     val prods2: Map<ClassName, Int> =
-        lookUpProductionLevels(game.asGameState, ClassName.cn("Player1").ptype)
+        lookUpProductionLevels(game.asGameState, cn("Player1").type)
     assertThat(prods2.map { it.key to it.value })
         .containsExactly(
-            ClassName.cn("Megacredit") to -5,
-            ClassName.cn("Steel") to 0,
-            ClassName.cn("Titanium") to 0,
-            ClassName.cn("Plant") to 2,
-            ClassName.cn("Energy") to 0,
-            ClassName.cn("Heat") to 0,
+            cn("Megacredit") to -5,
+            cn("Steel") to 0,
+            cn("Titanium") to 0,
+            cn("Plant") to 2,
+            cn("Energy") to 0,
+            cn("Heat") to 0,
         )
   }
 

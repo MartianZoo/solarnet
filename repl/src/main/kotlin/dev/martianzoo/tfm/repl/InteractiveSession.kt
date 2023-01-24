@@ -72,16 +72,17 @@ class InteractiveSession {
       return node
     }
     val g = game!!
-    val owned = g.resolve(OWNED.ptype)
-    val player = g.resolve(ANYONE.ptype)
+    val owned = g.resolve(OWNED.type)
+    val player = g.resolve(ANYONE.type)
 
+    // TODO do this elsewhere
     class Fixer : PetNodeVisitor() {
       override fun <P : PetNode?> transform(node: P): P {
         if (node is GenericTypeExpr) {
           if (g.resolve(node).isSubtypeOf(owned)) {
             val hasPlayer = node.args.any { g.resolve(it).isSubtypeOf(player) }
             if (!hasPlayer) {
-              return node.addArgs(listOf(defaultPlayer!!.ptype)) as P
+              return node.addArgs(listOf(defaultPlayer!!.type)) as P
             }
           }
           return node

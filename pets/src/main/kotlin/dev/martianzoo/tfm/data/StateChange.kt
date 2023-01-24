@@ -4,6 +4,7 @@ import dev.martianzoo.tfm.pets.ast.TypeExpr
 import dev.martianzoo.tfm.pets.ast.TypeExpr.GenericTypeExpr
 import dev.martianzoo.util.pre
 
+// TODO consider if this belongs in pets.ast
 data class StateChange(
     /**
      * How many of the component were gained/removed/transmuted. A positive integer. Often 1, since

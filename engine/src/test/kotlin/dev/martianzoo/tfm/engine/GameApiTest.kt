@@ -4,9 +4,9 @@ import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.tfm.api.GameSetup
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.data.StateChange
-import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.pets.ast.Instruction.Companion.instruction
 import dev.martianzoo.tfm.pets.ast.Requirement.Companion.requirement
+import dev.martianzoo.tfm.pets.ast.TypeExpr.Companion.genericTypeExpr
 import dev.martianzoo.tfm.pets.ast.TypeExpr.Companion.typeExpr
 import dev.martianzoo.util.toStrings
 import org.junit.jupiter.api.Test
@@ -46,17 +46,17 @@ private class GameApiTest {
 
     assertThat(game.changeLog())
         .containsExactly(
-            StateChange(5, gaining = cn("Heat").addArgs(cn("Player2").ptype)),
-            StateChange(10, gaining = cn("Heat").addArgs(cn("Player3").ptype)),
-            StateChange(4, removing = cn("Heat").addArgs(cn("Player2").ptype)),
+            StateChange(5, gaining = genericTypeExpr("Heat<Player2>")),
+            StateChange(10, gaining = genericTypeExpr("Heat<Player3>")),
+            StateChange(4, removing = genericTypeExpr("Heat<Player2>")),
             StateChange(
                 3,
-                gaining = cn("Steel").addArgs(cn("Player3").ptype),
-                removing = cn("Heat").addArgs(cn("Player3").ptype)),
+                removing = genericTypeExpr("Heat<Player3>"),
+                gaining = genericTypeExpr("Steel<Player3>")),
             StateChange(
                 2,
-                gaining = cn("Heat").addArgs(cn("Player2").ptype),
-                removing = cn("Heat").addArgs(cn("Player3").ptype)),
+                removing = genericTypeExpr("Heat<Player3>"),
+                gaining = genericTypeExpr("Heat<Player2>")),
         )
         .inOrder()
 

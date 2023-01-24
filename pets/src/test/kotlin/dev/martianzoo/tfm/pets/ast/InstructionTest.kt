@@ -92,7 +92,7 @@ private class InstructionTest {
     testRoundTrip("1 Foo FROM Bar.")
 
     assertThat(instruction("1 Foo FROM Bar."))
-        .isEqualTo(Transmute(SimpleFrom(cn("Foo").ptype, cn("Bar").ptype), 1, AMAP))
+        .isEqualTo(Transmute(SimpleFrom(cn("Foo").type, cn("Bar").type), 1, AMAP))
     testRoundTrip("Foo<Bar FROM Qux>")
     testRoundTrip("Foo<Bar FROM Qux>.")
 
@@ -103,7 +103,7 @@ private class InstructionTest {
                 listOf(
                     ComplexFrom(
                         cn("Bar"),
-                        listOf(SimpleFrom(cn("Qux").ptype, cn("Abc").addArgs(cn("Eep").ptype))))),
+                        listOf(SimpleFrom(cn("Qux").type, cn("Abc").addArgs(cn("Eep").type))))),
             ),
             null,
             null)

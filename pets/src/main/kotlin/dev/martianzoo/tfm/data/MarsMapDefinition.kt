@@ -4,6 +4,7 @@ import dev.martianzoo.tfm.data.SpecialClassNames.MARS_MAP
 import dev.martianzoo.tfm.data.SpecialClassNames.TILE
 import dev.martianzoo.tfm.pets.SpecialClassNames.THIS
 import dev.martianzoo.tfm.pets.ast.ClassName
+import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.pets.ast.Effect
 import dev.martianzoo.tfm.pets.ast.Effect.Trigger.OnGain
 import dev.martianzoo.tfm.pets.ast.Instruction
@@ -21,7 +22,7 @@ data class MarsMapDefinition(
           name = name,
           id = id,
           abstract = false,
-          supertypes = setOf(MARS_MAP.ptype),
+          supertypes = setOf(MARS_MAP.type),
       )
 
   data class AreaDefinition(
@@ -64,16 +65,20 @@ data class MarsMapDefinition(
           name = name,
           id = id,
           abstract = false,
-          supertypes = setOf(kind.ptype),
-          effectsRaw =
-              bonus?.let { setOf(Effect(OnGain(TILE.addArgs(THIS.ptype)), it, automatic = false)) }
-                  ?: setOf(),
+          supertypes = setOf(kind.type),
+          effectsRaw = bonus?.let { setOf(Effect(trigger, it, false)) } ?: setOf(),
       )
     }
 
     override val id =
-        ClassName.cn(
-            if (row > 9 || column > 9) "${bundle}_${row}_$column" else "$bundle$row$column")
-    override val name = ClassName.cn("${mapName}_${row}_$column")
+        if (row > 9 || column > 9) {
+          cn("${bundle}_${row}_$column")
+        } else {
+          cn("$bundle$row$column")
+        }
+
+    override val name = cn("${mapName}_${row}_$column")
   }
 }
+
+private val trigger = OnGain(TILE.addArgs(THIS.type))

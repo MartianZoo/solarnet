@@ -13,12 +13,12 @@ private class TypeExprTest {
   @Test
   fun simpleSourceToApi() {
     val foo = typeExpr("Foo")
-    assertThat(foo).isEqualTo(cn("Foo").ptype)
+    assertThat(foo).isEqualTo(cn("Foo").type)
   }
 
   @Test
   fun simpleApiToSource() {
-    assertThat(cn("Foo").ptype.toString()).isEqualTo("Foo")
+    assertThat(cn("Foo").type.toString()).isEqualTo("Foo")
   }
 
   @Test
@@ -43,7 +43,7 @@ private class TypeExprTest {
     assertThat(parsed)
         .isEqualTo(
             cn("Red")
-                .addArgs(cn("Blue").addArgs(cn("This").ptype, cn("Teal").ptype), cn("Gold").ptype))
+                .addArgs(cn("Blue").addArgs(cn("This").type, cn("Teal").type), cn("Gold").type))
   }
 
   @Test
@@ -51,10 +51,10 @@ private class TypeExprTest {
     val expr =
         cn("Aa")
             .addArgs(
-                cn("Bb").ptype,
-                cn("Cc").addArgs(cn("Dd").ptype),
-                cn("Ee").addArgs(cn("Ff").addArgs(cn("Gg").ptype, cn("Hh").ptype), cn("Me").ptype),
-                cn("Jj").ptype)
+                cn("Bb").type,
+                cn("Cc").addArgs(cn("Dd").type),
+                cn("Ee").addArgs(cn("Ff").addArgs(cn("Gg").type, cn("Hh").type), cn("Me").type),
+                cn("Jj").type)
     assertThat(expr.toString()).isEqualTo("Aa<Bb, Cc<Dd>, Ee<Ff<Gg, Hh>, Me>, Jj>")
   }
 }

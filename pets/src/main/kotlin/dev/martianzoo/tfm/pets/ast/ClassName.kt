@@ -17,14 +17,14 @@ data class ClassName(private val asString: String) : PetNode(), Comparable<Class
     require(asString.matches(classNameRegex)) { "Bad class name: $asString" }
   }
 
-  val ptype = GenericTypeExpr(this)
+  val type = GenericTypeExpr(this) // technically should be typeExpr
   val literal = ClassLiteral(this)
 
-  fun addArgs(specs: List<TypeExpr>) = ptype.addArgs(specs)
+  fun addArgs(specs: List<TypeExpr>) = type.addArgs(specs)
   fun addArgs(vararg specs: TypeExpr) = addArgs(specs.toList())
 
   @JvmName("addArgsFromClassNames")
-  fun addArgs(specs: List<ClassName>) = addArgs(specs.map { it.ptype })
+  fun addArgs(specs: List<ClassName>) = addArgs(specs.map { it.type })
   fun addArgs(vararg specs: ClassName) = addArgs(specs.toList())
 
   fun matches(regex: Regex) = asString.matches(regex)

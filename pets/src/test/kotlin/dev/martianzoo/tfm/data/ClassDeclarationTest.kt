@@ -12,6 +12,7 @@ import dev.martianzoo.tfm.pets.ast.Instruction.Intensity
 import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.pets.ast.ScalarAndType.Companion.sat
 import dev.martianzoo.tfm.pets.ast.TypeExpr.Companion.genericTypeExpr
+import dev.martianzoo.tfm.pets.ast.TypeExpr.Companion.typeExpr
 import dev.martianzoo.tfm.testlib.assertFails
 import org.junit.jupiter.api.Test
 
@@ -19,13 +20,13 @@ private class ClassDeclarationTest {
   @Test
   fun testValidate() {
     assertFails {
-      ClassDeclaration(COMPONENT, supertypes = setOf(cn("Foo").addArgs(cn("Bar")))).validate()
+      ClassDeclaration(COMPONENT, supertypes = setOf(genericTypeExpr("Foo<Bar>"))).validate()
     }
     assertFails { ClassDeclaration(cn("NotComponent")).validate() }
     assertFails {
       val cd = ClassDeclaration(
           cn("NotComponent"),
-          supertypes = setOf(COMPONENT.ptype, genericTypeExpr("Baz<Qux>")))
+          supertypes = setOf(COMPONENT.type, genericTypeExpr("Baz<Qux>")))
       cd.validate()
     }
   }
@@ -47,14 +48,14 @@ private class ClassDeclarationTest {
     val decl: ClassDeclaration = Parsing.parseClassDeclarations(declText).single()
 
     val foo = cn("Foo")
-    val dep = cn("Bar").ptype
-    val sup = cn("Baz").addArgs(cn("Qux"))
-    val topInv = Requirement.Max(sat(3, cn("Blorp").ptype))
-    val otherInv = Requirement.Exact(sat(1, THIS.ptype))
+    val dep = cn("Bar").type
+    val sup = typeExpr("Baz<Qux>")
+    val topInv = Requirement.Max(sat(3, cn("Blorp").type))
+    val otherInv = Requirement.Exact(sat(1, THIS.type))
     val eff = effect("This: DoStuff")
     val act = actionToEffect(action("Steel -> 5"), 1)
-    val gain = cn("Abc").ptype
-    val univ = cn("Xyz").ptype
+    val gain = cn("Abc").type
+    val univ = cn("Xyz").type
 
     assertThat(decl.id).isEqualTo(foo)
     assertThat(decl.name).isEqualTo(foo)

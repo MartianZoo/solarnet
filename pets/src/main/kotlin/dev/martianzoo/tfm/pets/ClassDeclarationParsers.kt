@@ -244,7 +244,7 @@ public object ClassDeclarationParsers : PetParser() {
 
     fun finishAtTopLevel(): ClassDeclaration { // TODO
       if (decl.name != COMPONENT && decl.supertypes.isEmpty()) {
-        return decl.copy(supertypes = setOf(COMPONENT.ptype)).also { it.validate() }
+        return decl.copy(supertypes = setOf(COMPONENT.type)).also { it.validate() }
       }
       return decl.also { it.validate() }
     }
@@ -268,7 +268,7 @@ public object ClassDeclarationParsers : PetParser() {
       }
 
       private fun prependSuperclass(superclassName: ClassName): ClassDeclaration {
-        val allSupertypes = superclassName.ptype plus decl.supertypes
+        val allSupertypes = superclassName.type plus decl.supertypes
         return decl.copy(supertypes = allSupertypes.toSetStrict())
       }
     }

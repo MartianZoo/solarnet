@@ -50,7 +50,7 @@ internal class PetGenerator(scaling: (Int) -> Double) :
       register {
         choose(5 to recurse<GenericTypeExpr>(), 0 to recurse<ClassLiteral>()) // TODO
       }
-      register { sat(choose(0, 1, 1, 1, 5, 11), choose(1 to MEGACREDIT.ptype, 3 to recurse())) }
+      register { sat(choose(0, 1, 1, 1, 5, 11), choose(1 to MEGACREDIT.type, 3 to recurse())) }
 
       val requirementTypes =
           multiset(

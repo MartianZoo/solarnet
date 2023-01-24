@@ -17,7 +17,7 @@ sealed class Requirement : PetNode() {
   data class Min(val sat: ScalarAndType) : Requirement() {
     override fun toString() = "$sat"
 
-    override fun requiresThis() = this.sat == ScalarAndType.sat(1, THIS.ptype)
+    override fun requiresThis() = this.sat == ScalarAndType.sat(1, THIS.type)
   }
 
   data class Max(val sat: ScalarAndType) : Requirement() {
@@ -29,7 +29,7 @@ sealed class Requirement : PetNode() {
     // could remove this but make it parseable
     override fun toString() = "=${sat.toString(true, true)}" // no "=5" or "=Heat"
 
-    override fun requiresThis() = this.sat == ScalarAndType.sat(1, THIS.ptype)
+    override fun requiresThis() = this.sat == ScalarAndType.sat(1, THIS.type)
   }
 
   data class Or(val requirements: Set<Requirement>) : Requirement() {

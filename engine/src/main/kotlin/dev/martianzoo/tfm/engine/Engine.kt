@@ -41,7 +41,7 @@ public object Engine {
       loader
           .loadedClasses()
           .filter { it.isSingleton() && !it.baseType.abstract } // TODO that's not right
-          .map { Component(loader.resolve(it.name.ptype)) }
+          .map { Component(loader.resolve(it.name.type)) }
 
   private fun borders(map: MarsMapDefinition, loader: PClassLoader): List<Component> {
     val border = cn("Border")
@@ -49,8 +49,8 @@ public object Engine {
         .let { it.rows() + it.columns() + it.diagonals() }
         .flatMap { it.windowed(2).filterNoNulls() }
         .flatMap { (one, two) ->
-          val type1 = one.name.ptype
-          val type2 = two.name.ptype
+          val type1 = one.name.type
+          val type2 = two.name.type
           listOf(
               border.addArgs(type1, type2),
               border.addArgs(type2, type1),

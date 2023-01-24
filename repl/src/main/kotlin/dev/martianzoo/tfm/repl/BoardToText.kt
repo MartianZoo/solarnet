@@ -4,7 +4,7 @@ import dev.martianzoo.tfm.api.GameState
 import dev.martianzoo.tfm.api.ReadOnlyGameState
 import dev.martianzoo.tfm.api.lookUpProductionLevels
 import dev.martianzoo.tfm.api.standardResourceNames
-import dev.martianzoo.tfm.pets.ast.ClassName
+import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.pets.ast.TypeExpr
 
 class BoardToText(val game: GameState) {
@@ -14,8 +14,8 @@ class BoardToText(val game: GameState) {
     val resMap = lookUpResourceLevels(game, player)
 
     fun prodAndRes(s: String) =
-        prodMap[ClassName.cn(s)].toString().padStart(2) to
-            resMap[ClassName.cn(s)].toString().padStart(3)
+        prodMap[cn(s)].toString().padStart(2) to
+            resMap[cn(s)].toString().padStart(3)
 
     val (m, mr) = prodAndRes("Megacredit")
     val (s, sr) = prodAndRes("Steel")

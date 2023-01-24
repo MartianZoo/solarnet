@@ -7,6 +7,7 @@ import dev.martianzoo.tfm.data.MarsMapDefinition
 import dev.martianzoo.tfm.data.MilestoneDefinition
 import dev.martianzoo.tfm.data.StandardActionDefinition
 import dev.martianzoo.tfm.pets.ast.ClassName
+import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.util.Grid
 import dev.martianzoo.util.associateByStrict
 
@@ -127,7 +128,7 @@ abstract class Authority {
   open class Minimal : Empty() {
     override val allBundles = setOf("B", "M")
     override val marsMapDefinitions =
-        listOf(MarsMapDefinition(ClassName.cn("FakeTharsis"), "M", Grid.empty()))
+        listOf(MarsMapDefinition(cn("FakeTharsis"), "M", Grid.empty()))
   }
 
   abstract class Forwarding(val delegate: Authority) : Authority() {

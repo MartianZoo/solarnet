@@ -32,7 +32,7 @@ data class ClassDeclaration(
       require(supertypes.isNotEmpty())
     }
     if (supertypes.size > 1) {
-      require(COMPONENT.ptype !in supertypes)
+      require(COMPONENT.type !in supertypes)
     }
   }
 

@@ -71,7 +71,7 @@ class ReplSession(val authority: Authority) {
           },
           "board" to {
             val player = if (it == null) session.defaultPlayer!! else cn(it.trim())
-            BoardToText(session.game!!.asGameState).board(player.ptype)
+            BoardToText(session.game!!.asGameState).board(player.type)
           },
           "history" to { args ->
             args?.let { listOf("Arguments unexpected: $it") }

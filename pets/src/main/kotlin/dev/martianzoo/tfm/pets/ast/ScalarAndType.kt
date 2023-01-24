@@ -13,7 +13,7 @@ import dev.martianzoo.tfm.pets.ast.TypeExpr.TypeParsers.typeExpr
 
 data class ScalarAndType(
     val scalar: Int = 1,
-    val typeExpr: TypeExpr = MEGACREDIT.ptype,
+    val typeExpr: TypeExpr = MEGACREDIT.type,
 ) : PetNode() {
   init {
     require(scalar >= 0)
@@ -25,14 +25,14 @@ data class ScalarAndType(
 
   fun toString(forceScalar: Boolean = false, forceType: Boolean = false) =
       when {
-        !forceType && typeExpr == MEGACREDIT.ptype -> "$scalar"
+        !forceType && typeExpr == MEGACREDIT.type -> "$scalar"
         !forceScalar && scalar == 1 -> "$typeExpr"
         else -> "$scalar $typeExpr"
       }
 
   companion object : PetParser() {
     fun sat(scalar: Int? = null, typeExpr: TypeExpr? = null) =
-        ScalarAndType(scalar ?: 1, typeExpr ?: MEGACREDIT.ptype)
+        ScalarAndType(scalar ?: 1, typeExpr ?: MEGACREDIT.type)
 
     fun sat(text: String) = Parsing.parse(parser(), text)
 

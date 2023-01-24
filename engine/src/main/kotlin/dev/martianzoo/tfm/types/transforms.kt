@@ -32,7 +32,7 @@ private class Defaulter(val table: PClassTable) : PetNodeVisitor() {
                 node.intensity ?: defaults.gainIntensity)
           }
 
-          null, THIS.ptype, ME.ptype -> node
+          null, THIS.type, ME.type -> node
 
           is GenericTypeExpr -> {
             val pclass = table.get(node.root)
