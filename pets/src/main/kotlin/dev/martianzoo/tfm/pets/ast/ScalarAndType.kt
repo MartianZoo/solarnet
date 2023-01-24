@@ -31,35 +31,18 @@ data class ScalarAndType(
       }
 
   companion object : PetParser() {
-    fun sat(scalar: Int = 1, type: TypeExpression = MEGACREDIT.type) = ScalarAndType(scalar, type)
+    fun sat(scalar: Int? = null, type: TypeExpression? = null) = ScalarAndType(scalar ?: 1, type ?: MEGACREDIT.type)
 
     fun sat(text: String) = Parsing.parse(parser(), text)
 
     fun parser(): Parser<ScalarAndType> {
       return parser {
-        val scalarAndOptionalType =
-            scalar and
-                optional(typeExpression) map
-                { (scalar, expr: TypeExpression?) ->
-                  if (expr == null) {
-                    sat(scalar = scalar)
-                  } else {
-                    sat(scalar, expr)
-                  }
-                }
+        val scalarAndOptionalType = scalar and optional(typeExpression)
+        val optionalScalarAndType = optional(scalar) and typeExpression
 
-        val optionalScalarAndType =
-            optional(scalar) and
-                typeExpression map
-                { (scalar, expr) ->
-                  if (scalar == null) {
-                    sat(type = expr)
-                  } else {
-                    sat(scalar, expr)
-                  }
-                }
-
-        scalarAndOptionalType or optionalScalarAndType
+        scalarAndOptionalType or optionalScalarAndType map { (scalar, expr) ->
+          sat(scalar, expr)
+        }
       }
     }
   }

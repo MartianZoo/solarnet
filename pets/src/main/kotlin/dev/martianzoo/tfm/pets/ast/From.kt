@@ -27,17 +27,16 @@ sealed class From : PetNode() {
   }
 
   data class SimpleFrom(
-          override val toType: TypeExpression,
-          override val fromType: TypeExpression,
+      override val toType: TypeExpression,
+      override val fromType: TypeExpression
   ) : From() {
-
     override fun toString() = "$toType FROM $fromType"
   }
 
   data class ComplexFrom(
-          val className: ClassName,
-          val arguments: List<From> = listOf(),
-          val refinement: Requirement? = null, // TODO get rid of?
+      val className: ClassName,
+      val arguments: List<From> = listOf(),
+      val refinement: Requirement? = null, // TODO get rid of?
   ) : From() {
     init {
       if (arguments.count { it is SimpleFrom || it is ComplexFrom } != 1) {
@@ -49,7 +48,7 @@ sealed class From : PetNode() {
     override val fromType = className.addArgs(arguments.map { it.fromType }).refine(refinement)
 
     override fun toString() =
-            "$className${arguments.joinOrEmpty(wrap = "<>")}${refinement.wrap("(HAS ", ")")}"
+        "$className${arguments.joinOrEmpty(wrap = "<>")}${refinement.wrap("(HAS ", ")")}"
   }
 
   companion object : PetParser() {
@@ -60,25 +59,22 @@ sealed class From : PetNode() {
         val typeAsFrom = typeExpression map ::TypeAsFrom
 
         val arguments =
-                zeroOrMore(typeAsFrom and skipChar(',')) and
-                        parser() and
-                        zeroOrMore(skipChar(',') and typeAsFrom) map
-                        { (before, from, after) ->
-                          before + from + after
-                        }
+            zeroOrMore(typeAsFrom and skipChar(',')) and
+            parser() and
+            zeroOrMore(skipChar(',') and typeAsFrom) map { (before, from, after) ->
+              before + from + after
+            }
 
-        val simpleFrom =
-                genericType and skip(_from) and genericType map { (to, from) -> SimpleFrom(to, from) }
+        val simpleFrom = genericType and skip(_from) and genericType map { (to, from) -> SimpleFrom(to, from) }
 
         val complexFrom =
-                className and
-                        skipChar('<') and
-                        arguments and
-                        skipChar('>') and
-                optional(TypeParsers.refinement) map
-                { (name, args, refins) ->
-                  ComplexFrom(name, args, refins)
-                }
+            className and
+            skipChar('<') and
+            arguments and
+            skipChar('>') and
+            optional(TypeParsers.refinement) map { (name, args, refins) ->
+              ComplexFrom(name, args, refins)
+            }
 
         simpleFrom or complexFrom
       }

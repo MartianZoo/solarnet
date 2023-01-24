@@ -100,17 +100,14 @@ data class Action(val cost: Cost?, val instruction: Instruction) : PetNode() {
 
           val perCost =
               maybeTransform and
-                  optional(skipChar('/') and sat) map
-                  { (cost, sat) ->
-                    if (sat == null) cost else Per(cost, sat)
-                  }
+              optional(skipChar('/') and sat) map { (cost, sat) ->
+                if (sat == null) cost else Per(cost, sat)
+              }
 
-          val orCost =
-              separatedTerms(perCost or group(cost), _or) map
-                  {
-                    val set = it.toSet()
-                    if (set.size == 1) set.first() else Or(set)
-                  }
+          val orCost = separatedTerms(perCost or group(cost), _or) map {
+            val set = it.toSet()
+            if (set.size == 1) set.first() else Or(set)
+          }
 
           commaSeparated(orCost or group(cost)) map { if (it.size == 1) it.first() else Multi(it) }
         }
@@ -123,10 +120,9 @@ data class Action(val cost: Cost?, val instruction: Instruction) : PetNode() {
 
     internal fun parser(): Parser<Action> =
         optional(Cost.parser()) and
-            skip(_arrow) and
-            Instruction.parser() map
-            { (c, i) ->
-              Action(c, i)
-            }
+        skip(_arrow) and
+        Instruction.parser() map { (c, i) ->
+          Action(c, i)
+        }
   }
 }

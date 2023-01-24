@@ -63,8 +63,7 @@ sealed class TypeExpression : PetNode() {
     }
   }
 
-  data class ClassLiteral(val className: ClassName, override val link: Int? = null) :
-      TypeExpression() {
+  data class ClassLiteral(val className: ClassName, override val link: Int? = null) : TypeExpression() {
     override fun toString() = "$className${link.pre("^")}.CLASS"
     override fun asGeneric() =
         error("Bzzt, this is not a generic type expression, it's a class literal")
@@ -80,26 +79,23 @@ sealed class TypeExpression : PetNode() {
 
     private val classLiteral =
         className and
-            optional(link) and
-            skipChar('.') and
-            skip(_class) map
-            { (name, link) ->
-              ClassLiteral(name, link)
-            }
+        optional(link) and
+        skipChar('.') and
+        skip(_class) map { (name, link) ->
+          ClassLiteral(name, link)
+        }
 
-    private val typeArgs =
-        skipChar('<') and commaSeparated(parser { typeExpression }) and skipChar('>')
+    private val typeArgs = skipChar('<') and commaSeparated(parser { typeExpression }) and skipChar('>')
 
     val refinement = group(skip(_has) and parser { Requirement.parser() })
 
     val genericType: Parser<GenericTypeExpression> =
         className and
-            optionalList(typeArgs) and
-            optional(refinement) and
-            optional(link) map
-            { (type, args, ref, link) ->
-              GenericTypeExpression(type, args, ref, link)
-            }
+        optionalList(typeArgs) and
+        optional(refinement) and
+        optional(link) map { (type, args, ref, link) ->
+          GenericTypeExpression(type, args, ref, link)
+        }
 
     val typeExpression = classLiteral or genericType
   }

@@ -175,21 +175,19 @@ sealed class Instruction : PetNode() {
         val remove = skipChar('-') and gain map { Remove(it.sat, it.intensity) }
 
         val transmute =
-                optional(scalar) and
-                        From.parser() and
-                        optional(intensity) map
-                { (scal, fro, intens) ->
-                  Transmute(fro, scal, intens)
-                }
+            optional(scalar) and
+            From.parser() and
+            optional(intensity) map { (scal, fro, intens) ->
+              Transmute(fro, scal, intens)
+            }
 
         val perable = transmute or group(transmute) or gain or remove
 
         val maybePer =
             perable and
-                optional(skipChar('/') and sat) map
-                { (instr, sat) ->
-                  if (sat == null) instr else Per(instr, sat)
-                }
+            optional(skipChar('/') and sat) map { (instr, sat) ->
+              if (sat == null) instr else Per(instr, sat)
+            }
 
         val maybeTransform =
             maybePer or (transform(parser()) map { (node, type) -> Transform(node, type) })
@@ -197,25 +195,24 @@ sealed class Instruction : PetNode() {
         val arguments = separatedTerms(typeExpression, char(','), acceptZero = true)
         val custom =
             skipChar('@') and
-                _lowerCamelRE and
-                group(arguments) map
-                { (name, args) ->
-                  Custom(name.text, args)
-                }
+            _lowerCamelRE and
+            group(arguments) map { (name, args) ->
+              Custom(name.text, args)
+            }
         val atom = group(parser()) or maybeTransform or custom
 
         val gated =
             optional(Requirement.atomParser() and skipChar(':')) and
-                atom map
-                { (one, two) ->
-                  if (one == null) two else Gated(one, two)
-                }
+            atom map { (one, two) ->
+              if (one == null) two else Gated(one, two)
+            }
+
         val orInstr =
-            separatedTerms(gated, _or) map
-                {
-                  val set = it.toSet()
-                  if (set.size == 1) set.first() else Or(set)
-                }
+            separatedTerms(gated, _or) map {
+              val set = it.toSet()
+              if (set.size == 1) set.first() else Or(set)
+            }
+
         val then = separatedTerms(orInstr, _then) map { if (it.size == 1) it.first() else Then(it) }
         commaSeparated(then) map { if (it.size == 1) it.first() else Multi(it) }
       }

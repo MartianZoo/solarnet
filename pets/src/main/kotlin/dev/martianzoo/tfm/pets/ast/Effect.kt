@@ -60,7 +60,7 @@ data class Effect(
         val onRemove = skipChar('-') and genericType map Trigger::OnRemove
         val atom = onGain or onRemove
 
-        val transform = transform(atom) map { (node, type) -> Trigger.Transform(node, type) }
+        val transform = transform(atom) map { (node, type) -> Transform(node, type) }
 
         return transform or atom
       }
@@ -75,8 +75,7 @@ data class Effect(
 
       return Trigger.parser() and
           colons and
-          maybeGroup(Instruction.parser()) map
-          { (trig, immed, instr) ->
+          maybeGroup(Instruction.parser()) map { (trig, immed, instr) ->
             Effect(trigger = trig, automatic = immed, instruction = instr)
           }
     }
