@@ -54,7 +54,7 @@ sealed class Requirement : PetNode() {
 
   data class Transform(val requirement: Requirement, override val transform: String) :
       Requirement(), GenericTransform<Requirement> {
-    override fun toString() = "$transform[${requirement}]"
+    override fun toString() = "$transform[$requirement]"
     override fun extract() = requirement
   }
 

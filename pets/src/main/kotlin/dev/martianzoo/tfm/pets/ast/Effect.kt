@@ -36,7 +36,7 @@ data class Effect(
     }
 
     data class OnRemove(val expression: TypeExpression) : Trigger() {
-      override fun toString() = "-${expression}"
+      override fun toString() = "-$expression"
     }
 
     data class Transform(val trigger: Trigger, override val transform: String) :
@@ -47,7 +47,7 @@ data class Effect(
         }
       }
 
-      override fun toString() = "$transform[${trigger}]"
+      override fun toString() = "$transform[$trigger]"
 
       override fun extract() = trigger
     }

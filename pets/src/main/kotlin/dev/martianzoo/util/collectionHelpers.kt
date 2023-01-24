@@ -76,30 +76,7 @@ fun <T> Iterable<T>.joinOrEmpty(
 
 // Ok the rest of these aren't really *collection* helpers
 
-fun <T : Any?> T.wrap(
-    prefix: CharSequence,
-    suffix: CharSequence,
-    transform: ((T) -> CharSequence) = { "$it" },
-) = this?.let { "$prefix${transform(this)}$suffix" } ?: ""
-
-fun <T : Any?> T.wrap(wrap: CharSequence, transform: ((T) -> CharSequence) = { "$it" }): String {
-  require(wrap.length == 2)
-  return wrap(wrap.substring(0, 1), wrap.substring(1), transform)
-}
-
 fun <T : Any> Collection<List<T?>>.filterNoNulls() = filter { null !in it } as List<List<T>>
-
-fun <T : Any> T?.wrap(
-    prefix: String = "",
-    suffix: String = "",
-    transform: (T) -> String = { "$it" },
-): String = if (this == null) "" else "$prefix${transform(this)}$suffix"
-
-fun <T : Any> T?.pre(prefix: String, transform: (T) -> String = { "$it" }) =
-    wrap(prefix, "", transform)
-
-fun <T : Any> T?.suf(suffix: String, transform: (T) -> String = { "$it" }) =
-    wrap("", suffix, transform)
 
 fun Any.iff(b: Boolean): String = if (b) toString() else ""
 

@@ -13,11 +13,12 @@ import dev.martianzoo.tfm.pets.PetException
 import dev.martianzoo.tfm.pets.PetParser
 import dev.martianzoo.tfm.pets.ast.Instruction.Intensity.MANDATORY
 import dev.martianzoo.tfm.pets.ast.Instruction.Remove
+import dev.martianzoo.util.suf
 
 data class Action(val cost: Cost?, val instruction: Instruction) : PetNode() {
   override val kind = "Action"
 
-  override fun toString() = (cost?.let { "$cost -> " } ?: "-> ") + instruction
+  override fun toString() = "${cost.suf(' ')}-> $instruction"
 
   sealed class Cost : PetNode() {
     override val kind = "Cost"
@@ -79,7 +80,7 @@ data class Action(val cost: Cost?, val instruction: Instruction) : PetNode() {
 
     data class Transform(val cost: Cost, override val transform: String) :
         Cost(), GenericTransform<Cost> {
-      override fun toString() = "$transform[${cost}]"
+      override fun toString() = "$transform[$cost]"
 
       override fun toInstruction() = Instruction.Transform(cost.toInstruction(), transform)
 

@@ -12,6 +12,7 @@ import dev.martianzoo.tfm.pets.PetException
 import dev.martianzoo.tfm.pets.PetParser
 import dev.martianzoo.tfm.pets.ast.From.SimpleFrom
 import dev.martianzoo.tfm.pets.ast.TypeExpression.TypeParsers.typeExpression
+import dev.martianzoo.util.suf
 
 sealed class Instruction : PetNode() {
 
@@ -48,9 +49,7 @@ sealed class Instruction : PetNode() {
     override val gaining = from.toType
 
     override fun toString(): String {
-      val intens = intensity?.symbol ?: ""
-      val scal = if (scalar != null) "$scalar " else ""
-      return "$scal$from$intens"
+      return "${scalar.suf(' ')}$from${intensity?.symbol ?: ""}"
     }
 
     override fun shouldGroupInside(container: PetNode) =
@@ -133,7 +132,7 @@ sealed class Instruction : PetNode() {
       require(instructions.size >= 2)
     }
 
-    override fun toString() = instructions.joinToString(transform = ::groupPartIfNeeded)
+    override fun toString() = instructions.joinToString { groupPartIfNeeded(it) }
 
     override fun precedence() = 0
   }
