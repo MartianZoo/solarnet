@@ -15,19 +15,9 @@ import dev.martianzoo.tfm.pets.ast.From.ComplexFrom
 import dev.martianzoo.tfm.pets.ast.From.SimpleFrom
 import dev.martianzoo.tfm.pets.ast.From.TypeAsFrom
 import dev.martianzoo.tfm.pets.ast.Instruction
-import dev.martianzoo.tfm.pets.ast.Instruction.Custom
-import dev.martianzoo.tfm.pets.ast.Instruction.Gain
-import dev.martianzoo.tfm.pets.ast.Instruction.Gated
 import dev.martianzoo.tfm.pets.ast.Instruction.Intensity
-import dev.martianzoo.tfm.pets.ast.Instruction.Per
-import dev.martianzoo.tfm.pets.ast.Instruction.Remove
-import dev.martianzoo.tfm.pets.ast.Instruction.Then
-import dev.martianzoo.tfm.pets.ast.Instruction.Transmute
 import dev.martianzoo.tfm.pets.ast.PetNode
 import dev.martianzoo.tfm.pets.ast.Requirement
-import dev.martianzoo.tfm.pets.ast.Requirement.Exact
-import dev.martianzoo.tfm.pets.ast.Requirement.Max
-import dev.martianzoo.tfm.pets.ast.Requirement.Min
 import dev.martianzoo.tfm.pets.ast.ScalarAndType
 import dev.martianzoo.tfm.pets.ast.ScalarAndType.Companion.sat
 import dev.martianzoo.tfm.pets.ast.TypeExpression
@@ -64,17 +54,17 @@ internal class PetGenerator(scaling: (Int) -> Double) :
 
       val requirementTypes =
           multiset(
-              9 to Min::class,
-              4 to Max::class,
-              2 to Exact::class,
+              9 to Requirement.Min::class,
+              4 to Requirement.Max::class,
+              2 to Requirement.Exact::class,
               5 to Requirement.Or::class,
               3 to Requirement.And::class,
               1 to Requirement.Transform::class,
           )
       register<Requirement> { recurse(choose(requirementTypes)) }
-      register { Min(sat = recurse()) }
-      register { Max(sat = recurse()) }
-      register { Exact(sat = recurse()) }
+      register { Requirement.Min(sat = recurse()) }
+      register { Requirement.Max(sat = recurse()) }
+      register { Requirement.Exact(sat = recurse()) }
       register { Requirement.Or(setOfSize(choose(2, 2, 2, 2, 2, 3, 4))) }
       register { Requirement.And(listOfSize(choose(2, 2, 2, 2, 3))) }
       register { Requirement.Transform(recurse(), "PROD") }
@@ -83,25 +73,25 @@ internal class PetGenerator(scaling: (Int) -> Double) :
 
       val instructionTypes =
           multiset(
-              9 to Gain::class,
-              4 to Remove::class,
-              3 to Per::class,
-              2 to Gated::class,
-              2 to Transmute::class,
-              1 to Custom::class,
-              1 to Then::class,
+              9 to Instruction.Gain::class,
+              4 to Instruction.Remove::class,
+              3 to Instruction.Per::class,
+              2 to Instruction.Gated::class,
+              2 to Instruction.Transmute::class,
+              1 to Instruction.Custom::class,
+              1 to Instruction.Then::class,
               3 to Instruction.Or::class,
               5 to Instruction.Multi::class,
               1 to Instruction.Transform::class,
           )
       register<Instruction> { recurse(choose(instructionTypes)) }
-      register { Gain(recurse(), intensity()) }
-      register { Remove(recurse(), intensity()) }
-      register { Per(recurse(), recurse()) }
-      register { Gated(recurse(), recurse()) }
-      register { Transmute(recurse(), recurse<ScalarAndType>().scalar, intensity()) }
-      register { Custom("name", listOfSize(choose(1, 1, 1, 2))) }
-      register { Then(listOfSize(choose(2, 2, 2, 3))) }
+      register { Instruction.Gain(recurse(), intensity()) }
+      register { Instruction.Remove(recurse(), intensity()) }
+      register { Instruction.Per(recurse(), recurse()) }
+      register { Instruction.Gated(recurse(), recurse()) }
+      register { Instruction.Transmute(recurse(), recurse<ScalarAndType>().scalar, intensity()) }
+      register { Instruction.Custom("name", listOfSize(choose(1, 1, 1, 2))) }
+      register { Instruction.Then(listOfSize(choose(2, 2, 2, 3))) }
       register { Instruction.Or(setOfSize(choose(2, 2, 2, 2, 3))) }
       register { Instruction.Multi(listOfSize(choose(2, 2, 2, 2, 2, 3, 4))) }
       register { Instruction.Transform(recurse(), "PROD") }

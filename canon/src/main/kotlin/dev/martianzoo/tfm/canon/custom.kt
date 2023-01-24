@@ -7,7 +7,6 @@ import dev.martianzoo.tfm.pets.PetException
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.Instruction
 import dev.martianzoo.tfm.pets.ast.Instruction.Companion.instruction
-import dev.martianzoo.tfm.pets.ast.Instruction.Transform
 import dev.martianzoo.tfm.pets.ast.TypeExpression
 
 internal val allCustomInstructions =
@@ -35,8 +34,9 @@ private object CopyProductionBox : CustomInstruction("copyProductionBox") {
     val chosenCardName = arguments.single().asGeneric().root
     val def = game.authority.card(chosenCardName)
     val matches =
-        def.immediateRaw?.childNodesOfType<Transform>()?.filter { it.transform == "PROD" }
-            ?: listOf()
+        def.immediateRaw?.childNodesOfType<Instruction.Transform>()?.filter {
+          it.transform == "PROD"
+        } ?: listOf()
     when (matches.size) {
       1 -> return matches.first()
       0 -> throw PetException("There is no immediate PROD box on $chosenCardName")

@@ -12,7 +12,6 @@ import dev.martianzoo.tfm.pets.ast.Effect.Trigger
 import dev.martianzoo.tfm.pets.ast.Instruction
 import dev.martianzoo.tfm.pets.ast.Instruction.Companion.instruction
 import dev.martianzoo.tfm.pets.ast.Instruction.Gain
-import dev.martianzoo.tfm.pets.ast.Instruction.Per
 import dev.martianzoo.tfm.pets.ast.PetNode
 import dev.martianzoo.tfm.pets.ast.ScalarAndType.Companion.sat
 import dev.martianzoo.tfm.pets.ast.TypeExpression.GenericTypeExpression
@@ -153,7 +152,9 @@ private class TransformsTest {
                 Instruction.Multi(
                     Gain(sat(1, cn("Heat").type)),
                     Instruction.Transform(
-                        Per(Gain(sat(1, cn("Steel").type)), sat(5, cn("PowerTag").type)), "HAHA")),
+                        Instruction.Per(
+                            Gain(sat(1, cn("Steel").type)), sat(5, cn("PowerTag").type)),
+                        "HAHA")),
                 false))
   }
 }

@@ -6,9 +6,6 @@ import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.Effect
 import dev.martianzoo.tfm.pets.ast.Effect.Trigger
 import dev.martianzoo.tfm.pets.ast.From
-import dev.martianzoo.tfm.pets.ast.From.ComplexFrom
-import dev.martianzoo.tfm.pets.ast.From.SimpleFrom
-import dev.martianzoo.tfm.pets.ast.From.TypeAsFrom
 import dev.martianzoo.tfm.pets.ast.Instruction
 import dev.martianzoo.tfm.pets.ast.PetNode
 import dev.martianzoo.tfm.pets.ast.Requirement
@@ -60,9 +57,9 @@ open class PetNodeVisitor {
                 }
             is From ->
                 when (this) {
-                  is SimpleFrom -> SimpleFrom(x(toType), x(fromType))
-                  is ComplexFrom -> ComplexFrom(x(className), x(arguments), x(refinement))
-                  is TypeAsFrom -> TypeAsFrom(x(type))
+                  is From.SimpleFrom -> From.SimpleFrom(x(toType), x(fromType))
+                  is From.ComplexFrom -> From.ComplexFrom(x(className), x(arguments), x(refinement))
+                  is From.TypeAsFrom -> From.TypeAsFrom(x(type))
                 }
             is Effect -> Effect(x(trigger), x(instruction), automatic)
             is Trigger ->
