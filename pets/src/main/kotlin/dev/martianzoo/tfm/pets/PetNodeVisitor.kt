@@ -10,9 +10,9 @@ import dev.martianzoo.tfm.pets.ast.Instruction
 import dev.martianzoo.tfm.pets.ast.PetNode
 import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.pets.ast.ScalarAndType
-import dev.martianzoo.tfm.pets.ast.TypeExpression
-import dev.martianzoo.tfm.pets.ast.TypeExpression.ClassLiteral
-import dev.martianzoo.tfm.pets.ast.TypeExpression.GenericTypeExpression
+import dev.martianzoo.tfm.pets.ast.TypeExpr
+import dev.martianzoo.tfm.pets.ast.TypeExpr.ClassLiteral
+import dev.martianzoo.tfm.pets.ast.TypeExpr.GenericTypeExpr
 import dev.martianzoo.util.toSetStrict
 
 open class PetNodeVisitor {
@@ -26,13 +26,13 @@ open class PetNodeVisitor {
       val rewritten =
           when (this) {
             is ClassName -> this
-            is TypeExpression ->
-                when (this) {
-                  is ClassLiteral -> ClassLiteral(x(className), link)
-                  is GenericTypeExpression ->
-                      GenericTypeExpression(x(root), x(args), x(refinement), link)
-                }
-            is ScalarAndType -> ScalarAndType(scalar, x(type))
+            is TypeExpr ->
+              when (this) {
+                is ClassLiteral -> ClassLiteral(x(className), link)
+                is GenericTypeExpr -> GenericTypeExpr(x(root), x(args), x(refinement), link)
+              }
+
+            is ScalarAndType -> ScalarAndType(scalar, x(typeExpr))
             is Requirement ->
                 when (this) {
                   is Requirement.Min -> Requirement.Min(x(sat))
@@ -59,15 +59,15 @@ open class PetNodeVisitor {
                 when (this) {
                   is From.SimpleFrom -> From.SimpleFrom(x(toType), x(fromType))
                   is From.ComplexFrom -> From.ComplexFrom(x(className), x(arguments), x(refinement))
-                  is From.TypeAsFrom -> From.TypeAsFrom(x(type))
+                  is From.TypeAsFrom -> From.TypeAsFrom(x(typeExpr))
                 }
             is Effect -> Effect(x(trigger), x(instruction), automatic)
             is Trigger ->
-                when (this) {
-                  is Trigger.OnGain -> Trigger.OnGain(x(expression))
-                  is Trigger.OnRemove -> Trigger.OnRemove(x(expression))
-                  is Trigger.Transform -> Trigger.Transform(x(trigger), transform)
-                }
+              when (this) {
+                is Trigger.OnGain -> Trigger.OnGain(x(typeExpr))
+                is Trigger.OnRemove -> Trigger.OnRemove(x(typeExpr))
+                is Trigger.Transform -> Trigger.Transform(x(trigger), transform)
+              }
             is Action -> Action(x(cost), x(instruction))
             is Cost ->
                 when (this) {

@@ -11,29 +11,29 @@ import dev.martianzoo.tfm.pets.Parsing
 import dev.martianzoo.tfm.pets.PetException
 import dev.martianzoo.tfm.pets.PetParser
 import dev.martianzoo.tfm.pets.ast.From.SimpleFrom
-import dev.martianzoo.tfm.pets.ast.TypeExpression.TypeParsers.typeExpression
+import dev.martianzoo.tfm.pets.ast.TypeExpr.TypeParsers.typeExpr
 import dev.martianzoo.util.suf
 
 sealed class Instruction : PetNode() {
 
   sealed class Change : Instruction() {
     abstract val count: Int
-    abstract val removing: TypeExpression?
-    abstract val gaining: TypeExpression?
+    abstract val removing: TypeExpr?
+    abstract val gaining: TypeExpr?
     abstract val intensity: Intensity?
   }
 
   data class Gain(val sat: ScalarAndType, override val intensity: Intensity? = null) : Change() {
     override val count = sat.scalar
     override val removing = null
-    override val gaining = sat.type
+    override val gaining = sat.typeExpr
 
     override fun toString() = "$sat${intensity?.symbol ?: ""}"
   }
 
   data class Remove(val sat: ScalarAndType, override val intensity: Intensity? = null) : Change() {
     override val count = sat.scalar
-    override val removing = sat.type
+    override val removing = sat.typeExpr
     override val gaining = null
 
     override fun toString() = "-$sat${intensity?.symbol ?: ""}"
@@ -94,7 +94,7 @@ sealed class Instruction : PetNode() {
     override fun precedence() = 6
   }
 
-  data class Custom(val functionName: String, val arguments: List<TypeExpression>) : Instruction() {
+  data class Custom(val functionName: String, val arguments: List<TypeExpr>) : Instruction() {
     override fun toString() = "@$functionName(${arguments.joinToString()})"
   }
 
@@ -175,42 +175,50 @@ sealed class Instruction : PetNode() {
 
         val transmute =
             optional(scalar) and
-            From.parser() and
-            optional(intensity) map { (scal, fro, intens) ->
-              Transmute(fro, scal, intens)
-            }
+                From.parser() and
+                optional(intensity) map
+                { (scal, fro, intens) ->
+                  Transmute(fro, scal, intens)
+                }
 
         val perable = transmute or group(transmute) or gain or remove
 
         val maybePer =
             perable and
-            optional(skipChar('/') and sat) map { (instr, sat) ->
-              if (sat == null) instr else Per(instr, sat)
-            }
+                optional(skipChar('/') and sat) map
+                { (instr, sat) ->
+                  if (sat == null) instr else Per(instr, sat)
+                }
 
         val maybeTransform =
-            maybePer or (transform(parser()) map { (node, type) -> Transform(node, type) })
+            maybePer or
+            (transform(parser()) map { (node, transformName) ->
+              Transform(node, transformName)
+            })
 
-        val arguments = separatedTerms(typeExpression, char(','), acceptZero = true)
+        val arguments = separatedTerms(typeExpr, char(','), acceptZero = true)
         val custom =
             skipChar('@') and
-            _lowerCamelRE and
-            group(arguments) map { (name, args) ->
-              Custom(name.text, args)
-            }
+                _lowerCamelRE and
+                group(arguments) map
+                { (name, args) ->
+                  Custom(name.text, args)
+                }
         val atom = group(parser()) or maybeTransform or custom
 
         val gated =
             optional(Requirement.atomParser() and skipChar(':')) and
-            atom map { (one, two) ->
-              if (one == null) two else Gated(one, two)
-            }
+                atom map
+                { (one, two) ->
+                  if (one == null) two else Gated(one, two)
+                }
 
         val orInstr =
-            separatedTerms(gated, _or) map {
-              val set = it.toSet()
-              if (set.size == 1) set.first() else Or(set)
-            }
+            separatedTerms(gated, _or) map
+                {
+                  val set = it.toSet()
+                  if (set.size == 1) set.first() else Or(set)
+                }
 
         val then = separatedTerms(orInstr, _then) map { if (it.size == 1) it.first() else Then(it) }
         commaSeparated(then) map { if (it.size == 1) it.first() else Multi(it) }

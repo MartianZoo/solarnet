@@ -9,7 +9,7 @@ const val FACTOR = 10
 private class AutomatedTest {
 
   @Test
-  fun expressions() {
+  fun scalarAndTypes() {
     val gen = PetGenerator()
     gen.goNuts<ScalarAndType>(200 * FACTOR)
   }

@@ -20,9 +20,9 @@ import dev.martianzoo.tfm.pets.ast.PetNode
 import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.pets.ast.ScalarAndType
 import dev.martianzoo.tfm.pets.ast.ScalarAndType.Companion.sat
-import dev.martianzoo.tfm.pets.ast.TypeExpression
-import dev.martianzoo.tfm.pets.ast.TypeExpression.ClassLiteral
-import dev.martianzoo.tfm.pets.ast.TypeExpression.GenericTypeExpression
+import dev.martianzoo.tfm.pets.ast.TypeExpr
+import dev.martianzoo.tfm.pets.ast.TypeExpr.ClassLiteral
+import dev.martianzoo.tfm.pets.ast.TypeExpr.GenericTypeExpr
 import dev.martianzoo.tfm.testlib.PetToKotlin.p2k
 import kotlin.math.pow
 import kotlin.math.roundToInt
@@ -41,16 +41,16 @@ internal class PetGenerator(scaling: (Int) -> Double) :
       register { cn(randomName()) }
       register { ClassLiteral(recurse(), choose(10 to null, 2 to 1, 1 to 2)) }
       register {
-        GenericTypeExpression(
+        GenericTypeExpr(
             recurse(),
             listOfSize(choose(specSizes)),
             refinement(),
             choose(10 to null, 2 to 1, 1 to 2))
       }
       register {
-        choose(5 to recurse<GenericTypeExpression>(), 0 to recurse<ClassLiteral>()) // TODO
+        choose(5 to recurse<GenericTypeExpr>(), 0 to recurse<ClassLiteral>()) // TODO
       }
-      register { sat(choose(0, 1, 1, 1, 5, 11), choose(1 to MEGACREDIT.type, 3 to recurse())) }
+      register { sat(choose(0, 1, 1, 1, 5, 11), choose(1 to MEGACREDIT.ptype, 3 to recurse())) }
 
       val requirementTypes =
           multiset(
@@ -97,18 +97,18 @@ internal class PetGenerator(scaling: (Int) -> Double) :
       register { Instruction.Transform(recurse(), "PROD") }
 
       register<From> {
-        val one: GenericTypeExpression = recurse()
-        val two: GenericTypeExpression = recurse()
+        val one: GenericTypeExpr = recurse()
+        val two: GenericTypeExpr = recurse()
 
-        fun getTypes(type: GenericTypeExpression): List<GenericTypeExpression> =
-            type.args.flatMap { getTypes(it.asGeneric()) } + type
+        fun getTypes(typeExpr: GenericTypeExpr): List<GenericTypeExpr> =
+            typeExpr.args.flatMap { getTypes(it.asGeneric()) } + typeExpr
 
         val oneTypes = getTypes(one)
         val twoTypes = getTypes(two)
 
-        val inject: TypeExpression
-        val into: TypeExpression
-        val target: TypeExpression
+        val inject: TypeExpr
+        val into: TypeExpr
+        val target: TypeExpr
 
         if (oneTypes.size <= twoTypes.size) {
           inject = one
@@ -122,15 +122,15 @@ internal class PetGenerator(scaling: (Int) -> Double) :
 
         val b = Random.Default.nextBoolean()
 
-        fun convert(type: GenericTypeExpression): From {
-          if (type == target) {
+        fun convert(typeExpr: GenericTypeExpr): From {
+          if (typeExpr == target) {
             return SimpleFrom(if (b) inject else target, if (b) target else inject)
           }
-          val args = type.args.map { convert(it.asGeneric()) }
+          val args = typeExpr.args.map { convert(it.asGeneric()) }
           return if (args.all { it is TypeAsFrom }) {
-            TypeAsFrom(type)
+            TypeAsFrom(typeExpr)
           } else {
-            ComplexFrom(type.root, args, type.refinement)
+            ComplexFrom(typeExpr.root, args, typeExpr.refinement)
           }
         }
         convert(into)

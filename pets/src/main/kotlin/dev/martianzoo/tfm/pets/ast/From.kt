@@ -12,28 +12,28 @@ import dev.martianzoo.tfm.pets.Parsing
 import dev.martianzoo.tfm.pets.PetException
 import dev.martianzoo.tfm.pets.PetParser
 import dev.martianzoo.tfm.pets.ast.ClassName.Parsing.className
-import dev.martianzoo.tfm.pets.ast.TypeExpression.TypeParsers
-import dev.martianzoo.tfm.pets.ast.TypeExpression.TypeParsers.genericType
-import dev.martianzoo.tfm.pets.ast.TypeExpression.TypeParsers.typeExpression
+import dev.martianzoo.tfm.pets.ast.TypeExpr.TypeParsers
+import dev.martianzoo.tfm.pets.ast.TypeExpr.TypeParsers.genericTypeExpr
+import dev.martianzoo.tfm.pets.ast.TypeExpr.TypeParsers.typeExpr
 import dev.martianzoo.util.joinOrEmpty
 import dev.martianzoo.util.wrap
 
 sealed class From : PetNode() {
   override val kind = "From"
 
-  abstract val toType: TypeExpression
-  abstract val fromType: TypeExpression
+  abstract val toType: TypeExpr
+  abstract val fromType: TypeExpr
 
-  data class TypeAsFrom(val type: TypeExpression) : From() {
-    override val toType by ::type
-    override val fromType by ::type
+  data class TypeAsFrom(val typeExpr: TypeExpr) : From() {
+    override val toType by this::typeExpr
+    override val fromType by this::typeExpr
 
-    override fun toString() = "$type"
+    override fun toString() = "$typeExpr"
   }
 
   data class SimpleFrom(
-      override val toType: TypeExpression,
-      override val fromType: TypeExpression
+      override val toType: TypeExpr,
+      override val fromType: TypeExpr,
   ) : From() {
     override fun toString() = "$toType FROM $fromType"
   }
@@ -61,7 +61,7 @@ sealed class From : PetNode() {
 
     internal fun parser(): Parser<From> {
       return parser {
-        val typeAsFrom = typeExpression map ::TypeAsFrom
+        val typeAsFrom = typeExpr map ::TypeAsFrom
 
         val arguments =
             zeroOrMore(typeAsFrom and skipChar(',')) and
@@ -71,7 +71,10 @@ sealed class From : PetNode() {
             }
 
         val simpleFrom =
-            genericType and skip(_from) and genericType map { (to, from) -> SimpleFrom(to, from) }
+            genericTypeExpr and skip(_from) and genericTypeExpr map { (to, from) ->
+              SimpleFrom(to,
+                  from)
+            }
 
         val complexFrom =
             className and

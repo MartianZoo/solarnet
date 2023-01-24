@@ -5,7 +5,7 @@ import dev.martianzoo.tfm.api.GameSetup
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.pets.ast.Instruction.Companion.instruction
 import dev.martianzoo.tfm.pets.ast.Requirement.Companion.requirement
-import dev.martianzoo.tfm.pets.ast.TypeExpression.Companion.typeExpression
+import dev.martianzoo.tfm.pets.ast.TypeExpr.Companion.typeExpr
 import org.junit.jupiter.api.Test
 
 class InteractiveSessionTest {
@@ -34,6 +34,6 @@ class InteractiveSessionTest {
     session.execute(instruction("3 Heat!"))
     session.execute(instruction("4 Heat."))
     session.execute(instruction("-9 Heat."))
-    assertThat(session.count(typeExpression("Heat"))).isEqualTo(0)
+    assertThat(session.count(typeExpr("Heat"))).isEqualTo(0)
   }
 }

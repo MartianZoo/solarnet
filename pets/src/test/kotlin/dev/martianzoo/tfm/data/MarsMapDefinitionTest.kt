@@ -38,13 +38,13 @@ class MarsMapDefinitionTest {
   fun testTharsis() {
     val thar: Grid<AreaDefinition> = Canon.marsMap(cn("Tharsis")).areas
 
-    assertThat(thar[5, 3]!!.type).isEqualTo(cn("NoctisArea"))
+    assertThat(thar[5, 3]!!.kind).isEqualTo(cn("NoctisArea"))
     assertThat(thar[5, 3]!!.bonusText).isEqualTo("2 Plant")
 
-    assertThat(thar[3, 2]!!.type).isEqualTo(cn("LandArea"))
+    assertThat(thar[3, 2]!!.kind).isEqualTo(cn("LandArea"))
     assertThat(thar[3, 2]!!.bonusText).isNull()
 
-    assertThat(thar[1, 4]!!.type).isEqualTo(cn("WaterArea"))
+    assertThat(thar[1, 4]!!.kind).isEqualTo(cn("WaterArea"))
     assertThat(thar[1, 4]!!.bonusText).isEqualTo("ProjectCard")
   }
 
@@ -52,10 +52,10 @@ class MarsMapDefinitionTest {
   fun testHellas() {
     val hell: Grid<AreaDefinition> = Canon.marsMap(cn("Hellas")).areas
 
-    assertThat(hell[5, 7]!!.type).isEqualTo(cn("WaterArea"))
+    assertThat(hell[5, 7]!!.kind).isEqualTo(cn("WaterArea"))
     assertThat(hell[5, 7]!!.bonusText).isEqualTo("3 Heat")
 
-    assertThat(hell[9, 7]!!.type).isEqualTo(cn("LandArea"))
+    assertThat(hell[9, 7]!!.kind).isEqualTo(cn("LandArea"))
     assertThat(hell[9, 7]!!.bonusText).isEqualTo("OceanTile, -6")
   }
 
@@ -63,13 +63,13 @@ class MarsMapDefinitionTest {
   fun testElysium() {
     val elys: Grid<AreaDefinition> = Canon.marsMap(cn("Elysium")).areas
 
-    assertThat(elys[1, 1]!!.type).isEqualTo(cn("WaterArea"))
+    assertThat(elys[1, 1]!!.kind).isEqualTo(cn("WaterArea"))
     assertThat(elys[1, 1]!!.bonusText).isNull()
 
-    assertThat(elys[3, 7]!!.type).isEqualTo(cn("VolcanicArea"))
+    assertThat(elys[3, 7]!!.kind).isEqualTo(cn("VolcanicArea"))
     assertThat(elys[3, 7]!!.bonusText).isEqualTo("3 ProjectCard")
 
-    assertThat(elys[5, 9]!!.type).isEqualTo(cn("VolcanicArea"))
+    assertThat(elys[5, 9]!!.kind).isEqualTo(cn("VolcanicArea"))
     assertThat(elys[5, 9]!!.bonusText).isEqualTo("Plant, Titanium")
   }
 }

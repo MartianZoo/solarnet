@@ -78,6 +78,7 @@ data class Action(val cost: Cost?, val instruction: Instruction) : PetNode() {
       override fun toInstruction() = Instruction.Multi(costs.map { it.toInstruction() })
     }
 
+    // TODO rename transformName all
     data class Transform(val cost: Cost, override val transform: String) :
         Cost(), GenericTransform<Cost> {
       override fun toString() = "$transform[$cost]"
@@ -97,7 +98,10 @@ data class Action(val cost: Cost?, val instruction: Instruction) : PetNode() {
           val spend = sat map Cost::Spend
 
           val maybeTransform =
-              spend or (transform(cost) map { (node, type) -> Transform(node, type) })
+              spend or
+              (transform(cost) map { (node, transformName) ->
+                Transform(node, transformName)
+              })
 
           val perCost =
               maybeTransform and

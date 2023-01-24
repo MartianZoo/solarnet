@@ -5,11 +5,11 @@ import dev.martianzoo.tfm.api.ReadOnlyGameState
 import dev.martianzoo.tfm.api.lookUpProductionLevels
 import dev.martianzoo.tfm.api.standardResourceNames
 import dev.martianzoo.tfm.pets.ast.ClassName
-import dev.martianzoo.tfm.pets.ast.TypeExpression
+import dev.martianzoo.tfm.pets.ast.TypeExpr
 
 class BoardToText(val game: GameState) {
 
-  internal fun board(player: TypeExpression): List<String> {
+  internal fun board(player: TypeExpr): List<String> {
     val prodMap = lookUpProductionLevels(game, player)
     val resMap = lookUpResourceLevels(game, player)
 
@@ -37,6 +37,6 @@ class BoardToText(val game: GameState) {
             .trimIndent())
   }
 
-  fun lookUpResourceLevels(game: ReadOnlyGameState, player: TypeExpression) =
+  fun lookUpResourceLevels(game: ReadOnlyGameState, player: TypeExpr) =
       standardResourceNames(game).associateBy({ it }) { game.count(it.addArgs(player)) }
 }

@@ -18,8 +18,8 @@ import dev.martianzoo.tfm.pets.ast.Instruction.Transmute
 import dev.martianzoo.tfm.pets.ast.PetNode
 import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.pets.ast.ScalarAndType
-import dev.martianzoo.tfm.pets.ast.TypeExpression.ClassLiteral
-import dev.martianzoo.tfm.pets.ast.TypeExpression.GenericTypeExpression
+import dev.martianzoo.tfm.pets.ast.TypeExpr.ClassLiteral
+import dev.martianzoo.tfm.pets.ast.TypeExpr.GenericTypeExpr
 import dev.martianzoo.util.pre
 
 internal object PetToKotlin {
@@ -35,7 +35,7 @@ internal object PetToKotlin {
         null -> "null"
         is ClassName -> "cn($this)"
         is ClassLiteral -> "${p2k(className)}.literal"
-        is GenericTypeExpression -> {
+        is GenericTypeExpr -> {
           var s = p2k(root)
           if (args.any()) {
             s += ".addArgs(${args.join()})"
@@ -45,7 +45,8 @@ internal object PetToKotlin {
           }
           s
         }
-        is ScalarAndType -> "sat($scalar, ${p2k(type)})"
+
+        is ScalarAndType -> "sat($scalar, ${p2k(typeExpr)})"
         is Requirement.Min -> "Min(${p2k(sat)})"
         is Requirement.Max -> "Max(${p2k(sat)})"
         is Requirement.Exact -> "Exact(${p2k(sat)})"
@@ -61,18 +62,20 @@ internal object PetToKotlin {
             "ComplexFrom(c(\"$className\"), " +
                 "listOf(${arguments.join()})${
                     refinement.pre(", ")
-                  }"
+                }"
+
         is SimpleFrom -> "SimpleFrom(${p2k(toType)}, ${p2k(fromType)})"
-        is TypeAsFrom -> "TypeAsFrom(${p2k(type)})"
+        is TypeAsFrom -> "TypeAsFrom(${p2k(typeExpr)})"
         is Custom ->
-            "Instruction.Custom(\"$functionName\"" +
-                "${arguments.joinToString("") { ", ${p2k(it)}" }})"
+          "Instruction.Custom(\"$functionName\"" +
+              "${arguments.joinToString("") { ", ${p2k(it)}" }})"
+
         is Then -> "Then(${instructions.join()})"
         is Instruction.Or -> "Instruction.Or(${instructions.join()})"
         is Instruction.Multi -> "Instruction.Multi(${instructions.join()})"
         is Instruction.Transform -> "Instruction.Transform(${p2k(instruction)}, \"$transform\")"
-        is Trigger.OnGain -> "OnGain(${p2k(expression)})"
-        is Trigger.OnRemove -> "OnRemove(${p2k(expression)})"
+        is Trigger.OnGain -> "OnGain(${p2k(typeExpr)})"
+        is Trigger.OnRemove -> "OnRemove(${p2k(typeExpr)})"
         is Trigger.Transform -> "Trigger.Transform(${p2k(trigger)}, \"$transform\")"
         is Effect -> "Effect(${p2k(trigger)}, ${p2k(instruction)}, $automatic)"
         is Cost.Spend -> "Spend(${p2k(sat)})"

@@ -74,8 +74,8 @@ private class CanonTest {
     assertThat(grid.diagonals().subList(5, 14).all(::hasAtLeast5)).isTrue()
     assertThat(grid.diagonals().subList(14, 19).flatten().toSet()).containsExactly(null)
 
-    assertThat(grid.count { "${it.type}" == "WaterArea" }).isEqualTo(12)
-    assertThat(grid.count { "${it.type}" == "VolcanicArea" }).isAnyOf(0, 4)
+    assertThat(grid.count { "${it.kind}" == "WaterArea" }).isEqualTo(12)
+    assertThat(grid.count { "${it.kind}" == "VolcanicArea" }).isAnyOf(0, 4)
   }
 
   @Test
@@ -126,15 +126,15 @@ private class CanonTest {
     val game = Engine.newGame(GameSetup(Canon, "BRMPX", 3))
     val all: Multiset<Component> = game.components.getAll(game.classTable.resolve("Component"))
 
-    val isArea: (Component) -> Boolean = { it.asTypeExpression.toString().startsWith("Tharsis_") }
+    val isArea: (Component) -> Boolean = { it.asTypeExpr.toString().startsWith("Tharsis_") }
     val isBorder: (Component) -> Boolean = {
-      it.asTypeExpression.asGeneric().root.toString() == "Border"
+      it.asTypeExpr.asGeneric().root.toString() == "Border"
     }
 
     assertThat(all.elementSet().count(isArea)).isEqualTo(61)
     assertThat(all.elementSet().count(isBorder)).isEqualTo(312)
 
-    assertThat(all.filterNot { isArea(it) || isBorder(it) }.map { it.asTypeExpression.toString() })
+    assertThat(all.filterNot { isArea(it) || isBorder(it) }.map { it.asTypeExpr.toString() })
         .containsExactly(
             "Player1", "Player2", "Player3",
             "Generation",

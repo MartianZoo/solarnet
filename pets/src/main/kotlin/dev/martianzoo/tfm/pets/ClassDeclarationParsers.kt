@@ -31,10 +31,10 @@ import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.ClassName.Parsing.classFullName
 import dev.martianzoo.tfm.pets.ast.Effect
 import dev.martianzoo.tfm.pets.ast.Requirement
-import dev.martianzoo.tfm.pets.ast.TypeExpression.GenericTypeExpression
-import dev.martianzoo.tfm.pets.ast.TypeExpression.TypeParsers.genericType
-import dev.martianzoo.tfm.pets.ast.TypeExpression.TypeParsers.refinement
-import dev.martianzoo.tfm.pets.ast.TypeExpression.TypeParsers.typeExpression
+import dev.martianzoo.tfm.pets.ast.TypeExpr.GenericTypeExpr
+import dev.martianzoo.tfm.pets.ast.TypeExpr.TypeParsers.genericTypeExpr
+import dev.martianzoo.tfm.pets.ast.TypeExpr.TypeParsers.refinement
+import dev.martianzoo.tfm.pets.ast.TypeExpr.TypeParsers.typeExpr
 import dev.martianzoo.util.KClassMultimap
 import dev.martianzoo.util.plus
 import dev.martianzoo.util.toSetStrict
@@ -62,11 +62,11 @@ public object ClassDeclarationParsers : PetParser() {
     private val dependencies: Parser<List<DependencyDeclaration>> =
         optionalList(
             skipChar('<') and
-            commaSeparated(typeExpression map ::DependencyDeclaration) and
+            commaSeparated(typeExpr map ::DependencyDeclaration) and
             skipChar('>'))
 
-    private val supertypeList: Parser<List<GenericTypeExpression>> =
-        optionalList(skipChar(':') and commaSeparated(genericType))
+    private val supertypeList: Parser<List<GenericTypeExpr>> =
+        optionalList(skipChar(':') and commaSeparated(genericTypeExpr))
 
     /*
      * TODO I want to support letting classes declare a shortName as well, like
@@ -92,15 +92,15 @@ public object ClassDeclarationParsers : PetParser() {
 
     private val gainOnlyDefaults: Parser<DefaultsDeclaration> =
         skipChar('+') and
-        genericType and
-        intensity map { (type, int) ->
-          require(type.root == THIS)
-          require(type.refinement == null)
-          DefaultsDeclaration(gainOnlySpecs = type.args, gainIntensity = int)
+        genericTypeExpr and
+        intensity map { (typeExpr, int) ->
+          require(typeExpr.root == THIS)
+          require(typeExpr.refinement == null)
+          DefaultsDeclaration(gainOnlySpecs = typeExpr.args, gainIntensity = int)
         }
 
     private val allCasesDefault: Parser<DefaultsDeclaration> =
-        parser { genericType } map {
+        parser { genericTypeExpr } map {
           require(it.root == THIS)
           require(it.refinement == null)
           DefaultsDeclaration(universalSpecs = it.args)
@@ -167,7 +167,7 @@ public object ClassDeclarationParsers : PetParser() {
         className: ClassName,
         dependencies: List<DependencyDeclaration>,
         topInvariant: Requirement?,
-        supertypes: List<GenericTypeExpression>,
+        supertypes: List<GenericTypeExpr>,
     ) : this(
         ClassDeclaration(
             name = className,
@@ -244,7 +244,7 @@ public object ClassDeclarationParsers : PetParser() {
 
     fun finishAtTopLevel(): ClassDeclaration { // TODO
       if (decl.name != COMPONENT && decl.supertypes.isEmpty()) {
-        return decl.copy(supertypes = setOf(COMPONENT.type)).also { it.validate() }
+        return decl.copy(supertypes = setOf(COMPONENT.ptype)).also { it.validate() }
       }
       return decl.also { it.validate() }
     }
@@ -268,7 +268,7 @@ public object ClassDeclarationParsers : PetParser() {
       }
 
       private fun prependSuperclass(superclassName: ClassName): ClassDeclaration {
-        val allSupertypes = superclassName.type plus decl.supertypes
+        val allSupertypes = superclassName.ptype plus decl.supertypes
         return decl.copy(supertypes = allSupertypes.toSetStrict())
       }
     }

@@ -19,25 +19,25 @@ import dev.martianzoo.util.wrap
  * a *refined* type (`Foo<Bar(HAS 3 Qux)>(HAS Wau)`). A refined type is the combination of a real
  * type with various predicates.
  */
-sealed class TypeExpression : PetNode() {
+sealed class TypeExpr : PetNode() {
   abstract val link: Int?
 
   companion object {
-    fun typeExpression(text: String): TypeExpression =
-        Parsing.parse(TypeParsers.typeExpression, text)
+    fun typeExpr(text: String): TypeExpr =
+        Parsing.parse(TypeParsers.typeExpr, text)
 
-    fun genericTypeExpression(text: String): GenericTypeExpression =
-        Parsing.parse(TypeParsers.genericType, text)
+    fun genericTypeExpr(text: String): GenericTypeExpr =
+        Parsing.parse(TypeParsers.genericTypeExpr, text)
   }
 
-  abstract fun asGeneric(): GenericTypeExpression
+  abstract fun asGeneric(): GenericTypeExpr
 
-  data class GenericTypeExpression(
+  data class GenericTypeExpr(
       val root: ClassName,
-      val args: List<TypeExpression> = listOf(),
+      val args: List<TypeExpr> = listOf(),
       val refinement: Requirement? = null,
       override val link: Int? = null,
-  ) : TypeExpression() {
+  ) : TypeExpr() {
     override fun toString() =
         "$root${args.joinOrEmpty(wrap = "<>")}${refinement.wrap("(HAS ", ")")}${link.pre("^")}"
 
@@ -45,15 +45,15 @@ sealed class TypeExpression : PetNode() {
 
     val isTypeOnly = args.isEmpty() && refinement == null
 
-    fun addArgs(moreArgs: List<TypeExpression>): GenericTypeExpression {
+    fun addArgs(moreArgs: List<TypeExpr>): GenericTypeExpr {
       return copy(args = args + moreArgs)
     }
 
-    fun replaceArgs(args: List<TypeExpression>): GenericTypeExpression {
+    fun replaceArgs(args: List<TypeExpr>): GenericTypeExpr {
       return copy(args = args)
     }
 
-    fun refine(ref: Requirement?): GenericTypeExpression {
+    fun refine(ref: Requirement?): GenericTypeExpr {
       return if (ref == null) {
         this
       } else {
@@ -64,13 +64,13 @@ sealed class TypeExpression : PetNode() {
   }
 
   data class ClassLiteral(val className: ClassName, override val link: Int? = null) :
-      TypeExpression() {
+      TypeExpr() {
     override fun toString() = "$className${link.pre("^")}.CLASS"
     override fun asGeneric() =
         error("Bzzt, this is not a generic type expression, it's a class literal")
   }
 
-  override val kind = "TypeExpression"
+  override val kind = "TypeExpr"
 
   // This is handled differently from the others because so many of the individual parsers end up
   // being needed by the others. So we put them all in properties and pass the whole TypeParsers
@@ -87,18 +87,18 @@ sealed class TypeExpression : PetNode() {
         }
 
     private val typeArgs =
-        skipChar('<') and commaSeparated(parser { typeExpression }) and skipChar('>')
+        skipChar('<') and commaSeparated(parser { typeExpr }) and skipChar('>')
 
     val refinement = group(skip(_has) and parser { Requirement.parser() })
 
-    val genericType: Parser<GenericTypeExpression> =
+    val genericTypeExpr: Parser<GenericTypeExpr> =
         className and
         optionalList(typeArgs) and
         optional(refinement) and
-        optional(link) map { (type, args, ref, link) ->
-          GenericTypeExpression(type, args, ref, link)
+        optional(link) map { (clazz, args, ref, link) ->
+          GenericTypeExpr(clazz, args, ref, link)
         }
 
-    val typeExpression = classLiteral or genericType
+    val typeExpr = classLiteral or genericTypeExpr
   }
 }

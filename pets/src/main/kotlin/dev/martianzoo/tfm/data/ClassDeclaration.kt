@@ -6,8 +6,8 @@ import dev.martianzoo.tfm.pets.ast.Effect
 import dev.martianzoo.tfm.pets.ast.Instruction.Intensity
 import dev.martianzoo.tfm.pets.ast.PetNode
 import dev.martianzoo.tfm.pets.ast.Requirement
-import dev.martianzoo.tfm.pets.ast.TypeExpression
-import dev.martianzoo.tfm.pets.ast.TypeExpression.GenericTypeExpression
+import dev.martianzoo.tfm.pets.ast.TypeExpr
+import dev.martianzoo.tfm.pets.ast.TypeExpr.GenericTypeExpr
 
 /**
  * The declaration of a component class, such as GreeneryTile. Models the declaration textually as
@@ -18,7 +18,7 @@ data class ClassDeclaration(
     val id: ClassName = name,
     val abstract: Boolean = true,
     val dependencies: List<DependencyDeclaration> = listOf(),
-    val supertypes: Set<GenericTypeExpression> = setOf(),
+    val supertypes: Set<GenericTypeExpr> = setOf(),
     val topInvariant: Requirement? = null,
     val otherInvariants: Set<Requirement> = setOf(),
     val effectsRaw: Set<Effect> = setOf(),
@@ -32,7 +32,7 @@ data class ClassDeclaration(
       require(supertypes.isNotEmpty())
     }
     if (supertypes.size > 1) {
-      require(COMPONENT.type !in supertypes)
+      require(COMPONENT.ptype !in supertypes)
     }
   }
 
@@ -43,7 +43,7 @@ data class ClassDeclaration(
         name +
         id +
         supertypes +
-        dependencies.map { it.type } +
+        dependencies.map { it.typeExpr } +
         setOfNotNull(topInvariant) +
         otherInvariants +
         effectsRaw +
@@ -52,11 +52,11 @@ data class ClassDeclaration(
         extraNodes
   }
 
-  data class DependencyDeclaration(val type: TypeExpression)
+  data class DependencyDeclaration(val typeExpr: TypeExpr)
 
   data class DefaultsDeclaration(
-      val universalSpecs: List<TypeExpression> = listOf(),
-      val gainOnlySpecs: List<TypeExpression> = listOf(),
+      val universalSpecs: List<TypeExpr> = listOf(),
+      val gainOnlySpecs: List<TypeExpr> = listOf(),
       val gainIntensity: Intensity? = null,
   ) {
     companion object {

@@ -52,11 +52,11 @@ public data class DependencyMap(private val map: Map<Dependency.Key, Dependency>
 
     for ((key, dependency) in map) {
       if (unhandled.isEmpty()) break
-      val intersect: PType? = dependency.type.intersect(unhandled.first())
+      val intersect: PType? = dependency.ptype.intersect(unhandled.first())
       newMap[key] =
           if (intersect != null) {
             unhandled.removeFirst()
-            dependency.copy(type = intersect)
+            dependency.copy(ptype = intersect)
           } else {
             dependency
           }

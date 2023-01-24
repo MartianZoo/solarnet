@@ -8,9 +8,9 @@ import dev.martianzoo.tfm.pets.SpecialClassNames.STANDARD_RESOURCE
 import dev.martianzoo.tfm.pets.SpecialClassNames.THIS
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.tfm.pets.ast.TypeExpression
-import dev.martianzoo.tfm.pets.ast.TypeExpression.ClassLiteral
-import dev.martianzoo.tfm.pets.ast.TypeExpression.GenericTypeExpression
+import dev.martianzoo.tfm.pets.ast.TypeExpr
+import dev.martianzoo.tfm.pets.ast.TypeExpr.ClassLiteral
+import dev.martianzoo.tfm.pets.ast.TypeExpr.GenericTypeExpr
 import dev.martianzoo.tfm.types.PType.ClassPType
 import dev.martianzoo.tfm.types.PType.GenericPType
 import dev.martianzoo.util.toSetStrict
@@ -24,16 +24,16 @@ class PClassLoader(private val authority: Authority) : PClassTable {
   override fun get(nameOrId: ClassName): PClass =
       table[nameOrId] ?: error("no class loaded with id or name $nameOrId")
 
-  override fun resolve(typeExpr: TypeExpression): PType =
+  override fun resolve(typeExpr: TypeExpr): PType =
       when (typeExpr) {
         is ClassLiteral -> ClassPType(load(typeExpr.className))
-        is GenericTypeExpression -> resolve(typeExpr)
+        is GenericTypeExpr -> resolve(typeExpr)
       }
 
-  override fun resolve(typeExpr: GenericTypeExpression): GenericPType =
+  override fun resolve(typeExpr: GenericTypeExpr): GenericPType =
       load(typeExpr.root).baseType.specialize(typeExpr.args.map { resolve(it) })
 
-  fun resolveAll(exprs: Set<GenericTypeExpression>): Set<GenericPType> =
+  fun resolveAll(exprs: Set<GenericTypeExpr>): Set<GenericPType> =
       exprs.map { resolve(it) }.toSetStrict()
 
   override fun loadedClassNames() = loadedClasses().map { it.name }.toSetStrict()

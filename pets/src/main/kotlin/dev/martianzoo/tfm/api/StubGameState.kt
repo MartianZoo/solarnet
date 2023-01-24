@@ -3,28 +3,28 @@ package dev.martianzoo.tfm.api
 import com.google.common.collect.Multiset
 import dev.martianzoo.tfm.data.StateChange.Cause
 import dev.martianzoo.tfm.pets.ast.Requirement
-import dev.martianzoo.tfm.pets.ast.TypeExpression
-import dev.martianzoo.tfm.pets.ast.TypeExpression.ClassLiteral
-import dev.martianzoo.tfm.pets.ast.TypeExpression.GenericTypeExpression
+import dev.martianzoo.tfm.pets.ast.TypeExpr
+import dev.martianzoo.tfm.pets.ast.TypeExpr.ClassLiteral
+import dev.martianzoo.tfm.pets.ast.TypeExpr.GenericTypeExpr
 
 open class StubGameState(val auth: Authority = Authority.Minimal()) : GameState {
   override fun applyChange(
       count: Int,
-      removing: GenericTypeExpression?,
-      gaining: GenericTypeExpression?,
+      removing: GenericTypeExpr?,
+      gaining: GenericTypeExpr?,
       cause: Cause?,
       amap: Boolean,
   ): Unit = throe()
 
   override val setup = GameSetup(auth, "BM", 2)
 
-  override fun resolve(type: TypeExpression): TypeInfo = throe()
+  override fun resolve(typeExpr: TypeExpr): TypeInfo = throe()
 
-  override fun count(type: TypeExpression): Int = throe()
+  override fun count(typeExpr: TypeExpr): Int = throe()
 
-  override fun getAll(type: TypeExpression): Multiset<TypeExpression> = throe()
-  override fun getAll(type: GenericTypeExpression): Multiset<GenericTypeExpression> = throe()
-  override fun getAll(type: ClassLiteral): Set<ClassLiteral> = throe()
+  override fun getAll(typeExpr: TypeExpr): Multiset<TypeExpr> = throe()
+  override fun getAll(typeExpr: GenericTypeExpr): Multiset<GenericTypeExpr> = throe()
+  override fun getAll(typeExpr: ClassLiteral): Set<ClassLiteral> = throe()
 
   override fun isMet(requirement: Requirement): Boolean = throe()
 

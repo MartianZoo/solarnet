@@ -23,8 +23,8 @@ import dev.martianzoo.tfm.pets.ast.Instruction
 import dev.martianzoo.tfm.pets.ast.PetNode
 import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.pets.ast.ScalarAndType
-import dev.martianzoo.tfm.pets.ast.TypeExpression
-import dev.martianzoo.tfm.pets.ast.TypeExpression.TypeParsers
+import dev.martianzoo.tfm.pets.ast.TypeExpr
+import dev.martianzoo.tfm.pets.ast.TypeExpr.TypeParsers
 import dev.martianzoo.util.Debug
 import dev.martianzoo.util.ParserGroup
 import kotlin.reflect.KClass
@@ -34,8 +34,8 @@ object Parsing {
 
   private val parserGroup by lazy {
     val pgb = ParserGroup.Builder<PetNode>()
-    pgb.publish(TypeParsers.genericType)
-    pgb.publish(TypeParsers.typeExpression)
+    pgb.publish(TypeParsers.genericTypeExpr)
+    pgb.publish(TypeParsers.typeExpr)
     pgb.publish(ScalarAndType.parser())
     pgb.publish(Requirement.parser())
     pgb.publish(Instruction.parser())
@@ -49,7 +49,7 @@ object Parsing {
   /**
    * Parses the PETS element in [elementSource], expecting a construct of type [P], and returning
    * the parsed [P]. [P] can only be one of the major elemental types like [Effect], [Action],
-   * [Instruction], [TypeExpression], etc.
+   * [Instruction], [TypeExpr], etc.
    */
   inline fun <reified P : PetNode> parsePets(elementSource: String): P =
       parsePets(P::class, elementSource)

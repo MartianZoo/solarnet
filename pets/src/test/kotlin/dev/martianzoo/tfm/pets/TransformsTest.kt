@@ -14,7 +14,7 @@ import dev.martianzoo.tfm.pets.ast.Instruction.Companion.instruction
 import dev.martianzoo.tfm.pets.ast.Instruction.Gain
 import dev.martianzoo.tfm.pets.ast.PetNode
 import dev.martianzoo.tfm.pets.ast.ScalarAndType.Companion.sat
-import dev.martianzoo.tfm.pets.ast.TypeExpression.GenericTypeExpression
+import dev.martianzoo.tfm.pets.ast.TypeExpr.GenericTypeExpr
 import dev.martianzoo.util.toStrings
 import kotlin.reflect.KClass
 import org.junit.jupiter.api.Test
@@ -68,8 +68,8 @@ private class TransformsTest {
 
   @Test
   fun testResolveSpecialThisType() {
-    checkResolveThis<Instruction>("Foo<This>", cn("Bar").type, "Foo<Bar>")
-    checkResolveThis<Instruction>("Foo<This>", cn("Bar").type, "Foo<Bar>")
+    checkResolveThis<Instruction>("Foo<This>", cn("Bar").ptype, "Foo<Bar>")
+    checkResolveThis<Instruction>("Foo<This>", cn("Bar").ptype, "Foo<Bar>")
 
     // looks like a plain textual replacement but we know what's really happening
     val petsIn =
@@ -78,15 +78,15 @@ private class TransformsTest {
     val petsOut =
         "-Ooh<Foo<Xyz, It<Worked>, Qux>>: " +
             "5 Qux<Ooh, Xyz, Bar> OR 5 It<Worked>?, =0 It<Worked>: -Bar, 5: Foo<It<Worked>>"
-    checkResolveThis<Effect>(petsIn, cn("It").addArgs(cn("Worked").type), petsOut)
+    checkResolveThis<Effect>(petsIn, cn("It").addArgs(cn("Worked").ptype), petsOut)
 
     // allows nonsense
-    checkResolveThis<Instruction>("This<Foo>", cn("Bar").type, "This<Foo>")
+    checkResolveThis<Instruction>("This<Foo>", cn("Bar").ptype, "This<Foo>")
   }
 
   private inline fun <reified P : PetNode> checkResolveThis(
       original: String,
-      thiss: GenericTypeExpression,
+      thiss: GenericTypeExpr,
       expected: String,
   ) {
     checkResolveThis(P::class, original, thiss, expected)
@@ -95,7 +95,7 @@ private class TransformsTest {
   private fun <P : PetNode> checkResolveThis(
       type: KClass<P>,
       original: String,
-      thiss: GenericTypeExpression,
+      thiss: GenericTypeExpr,
       expected: String,
   ) {
     val parsedOriginal = parsePets(type, original)
@@ -148,12 +148,12 @@ private class TransformsTest {
     assertThat(x)
         .isEqualTo(
             Effect(
-                Trigger.Transform(Trigger.OnGain(cn("Plant").type), "HAHA"),
+                Trigger.Transform(Trigger.OnGain(cn("Plant").ptype), "HAHA"),
                 Instruction.Multi(
-                    Gain(sat(1, cn("Heat").type)),
+                    Gain(sat(1, cn("Heat").ptype)),
                     Instruction.Transform(
                         Instruction.Per(
-                            Gain(sat(1, cn("Steel").type)), sat(5, cn("PowerTag").type)),
+                            Gain(sat(1, cn("Steel").ptype)), sat(5, cn("PowerTag").ptype)),
                         "HAHA")),
                 false))
   }

@@ -13,8 +13,8 @@ import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.pets.ast.Instruction
 import dev.martianzoo.tfm.pets.ast.PetNode
 import dev.martianzoo.tfm.pets.ast.Requirement
-import dev.martianzoo.tfm.pets.ast.TypeExpression
-import dev.martianzoo.tfm.pets.ast.TypeExpression.GenericTypeExpression
+import dev.martianzoo.tfm.pets.ast.TypeExpr
+import dev.martianzoo.tfm.pets.ast.TypeExpr.GenericTypeExpr
 import dev.martianzoo.tfm.pets.deprodify
 import dev.martianzoo.tfm.types.PClassLoader
 import dev.martianzoo.tfm.types.PType.GenericPType
@@ -35,11 +35,11 @@ class InteractiveSession {
     defaultPlayer = null
   }
 
-  fun count(type: TypeExpression) = game!!.count(fixTypes(type))
+  fun count(typeExpr: TypeExpr) = game!!.count(fixTypes(typeExpr))
 
-  fun list(type: TypeExpression): Multiset<TypeExpression> {
+  fun list(typeExpr: TypeExpr): Multiset<TypeExpr> {
     // "list Heat" means my own unless I say "list Heat<Anyone>"
-    val typeToList = game!!.resolve(fixTypes(type))
+    val typeToList = game!!.resolve(fixTypes(typeExpr))
     val theStuff = game!!.getAll(typeToList)
 
     // figure out how to break it down
@@ -72,16 +72,16 @@ class InteractiveSession {
       return node
     }
     val g = game!!
-    val owned = g.resolve(OWNED.type)
-    val player = g.resolve(ANYONE.type)
+    val owned = g.resolve(OWNED.ptype)
+    val player = g.resolve(ANYONE.ptype)
 
     class Fixer : PetNodeVisitor() {
       override fun <P : PetNode?> transform(node: P): P {
-        if (node is GenericTypeExpression) {
+        if (node is GenericTypeExpr) {
           if (g.resolve(node).isSubtypeOf(owned)) {
             val hasPlayer = node.args.any { g.resolve(it).isSubtypeOf(player) }
             if (!hasPlayer) {
-              return node.addArgs(listOf(defaultPlayer!!.type)) as P
+              return node.addArgs(listOf(defaultPlayer!!.ptype)) as P
             }
           }
           return node

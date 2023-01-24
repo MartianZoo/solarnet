@@ -2,9 +2,9 @@ package dev.martianzoo.tfm.types
 
 import dev.martianzoo.tfm.api.TypeInfo
 import dev.martianzoo.tfm.pets.ast.Requirement
-import dev.martianzoo.tfm.pets.ast.TypeExpression
-import dev.martianzoo.tfm.pets.ast.TypeExpression.ClassLiteral
-import dev.martianzoo.tfm.pets.ast.TypeExpression.GenericTypeExpression
+import dev.martianzoo.tfm.pets.ast.TypeExpr
+import dev.martianzoo.tfm.pets.ast.TypeExpr.ClassLiteral
+import dev.martianzoo.tfm.pets.ast.TypeExpr.GenericTypeExpr
 
 interface PType : TypeInfo {
   val pclass: PClass // TODO should this really be shared?
@@ -15,7 +15,7 @@ interface PType : TypeInfo {
 
   infix fun intersect(that: PType): PType?
 
-  override fun toTypeExpression(): TypeExpression
+  override fun toTypeExprFull(): TypeExpr
 
   data class ClassPType(override val pclass: PClass) : PType {
     override val dependencies = DependencyMap()
@@ -32,8 +32,8 @@ interface PType : TypeInfo {
       return ClassPType(inter)
     }
 
-    override fun toTypeExpression() = ClassLiteral(pclass.name)
-    override fun toString() = toTypeExpression().toString()
+    override fun toTypeExprFull() = ClassLiteral(pclass.name)
+    override fun toString() = toTypeExprFull().toString()
   }
 
   data class GenericPType(
@@ -72,10 +72,11 @@ interface PType : TypeInfo {
       return copy(dependencies = dependencies.specialize(specs))
     }
 
-    override fun toTypeExpression(): GenericTypeExpression {
-      val specs = dependencies.types.map { it.toTypeExpressionFull() }
+    override fun toTypeExprFull(): GenericTypeExpr {
+      val specs = dependencies.types.map { it.toTypeExprFull() }
       return pclass.name.addArgs(specs).refine(refinement)
     }
-    override fun toString() = toTypeExpression().toString()
+
+    override fun toString() = toTypeExprFull().toString()
   }
 }

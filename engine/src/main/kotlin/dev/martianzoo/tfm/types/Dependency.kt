@@ -1,20 +1,20 @@
 package dev.martianzoo.tfm.types
 
-public data class Dependency(val key: Key, val type: PType) {
-  public val abstract by type::abstract
+public data class Dependency(val key: Key, val ptype: PType) {
+  public val abstract by ptype::abstract
 
   private fun checkKeys(that: Dependency): Dependency = that.also { require(this.key == that.key) }
 
-  public fun specializes(that: Dependency) = type.isSubtypeOf(checkKeys(that).type)
+  public fun specializes(that: Dependency) = ptype.isSubtypeOf(checkKeys(that).ptype)
 
-  public fun intersect(that: Dependency): Dependency? = this intersect checkKeys(that).type
+  public fun intersect(that: Dependency): Dependency? = this intersect checkKeys(that).ptype
 
   public infix fun intersect(otherType: PType): Dependency? =
-      (this.type intersect otherType)?.let { copy(type = it) }
+      (this.ptype intersect otherType)?.let { copy(ptype = it) }
 
-  public fun toTypeExpressionFull() = type.toTypeExpression()
+  public fun toTypeExprFull() = ptype.toTypeExprFull()
 
-  override fun toString() = "$key=${toTypeExpressionFull()}"
+  override fun toString() = "$key=${toTypeExprFull()}"
 
   public data class Key(val declaringClass: PClass, val index: Int) {
     init {

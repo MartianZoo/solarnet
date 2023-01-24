@@ -10,9 +10,9 @@ import dev.martianzoo.tfm.data.StateChange.Cause
 import dev.martianzoo.tfm.engine.ComponentGraph.Component
 import dev.martianzoo.tfm.pets.ast.Instruction
 import dev.martianzoo.tfm.pets.ast.Requirement
-import dev.martianzoo.tfm.pets.ast.TypeExpression
-import dev.martianzoo.tfm.pets.ast.TypeExpression.ClassLiteral
-import dev.martianzoo.tfm.pets.ast.TypeExpression.GenericTypeExpression
+import dev.martianzoo.tfm.pets.ast.TypeExpr
+import dev.martianzoo.tfm.pets.ast.TypeExpr.ClassLiteral
+import dev.martianzoo.tfm.pets.ast.TypeExpr.GenericTypeExpr
 import dev.martianzoo.tfm.types.PClassTable
 import dev.martianzoo.tfm.types.PType
 import dev.martianzoo.util.toSetStrict
@@ -29,33 +29,33 @@ public class Game(
   // TODO maybe have `beginChangeLogging` instead of passing in a prebuilt multiset
   fun changeLog(): List<StateChange> = components.changeLog()
 
-  fun resolve(type: TypeExpression): PType = classTable.resolve(type)
+  fun resolve(typeExprText: TypeExpr): PType = classTable.resolve(typeExprText)
 
   fun isMet(requirement: Requirement) = LiveNodes.from(requirement, this).isMet(this)
 
-  fun count(type: PType) = components.count(type)
+  fun count(ptype: PType) = components.count(ptype)
 
-  fun count(type: TypeExpression) = count(resolve(type))
+  fun count(typeExpr: TypeExpr) = count(resolve(typeExpr))
 
-  fun getAll(type: PType): Multiset<Component> = components.getAll(type)
+  fun getAll(ptype: PType): Multiset<Component> = components.getAll(ptype)
 
-  fun getAll(type: TypeExpression): Multiset<TypeExpression> {
-    val all: Multiset<Component> = getAll(resolve(type))
-    val result: Multiset<TypeExpression> = HashMultiset.create()
-    all.forEachEntry { component, count -> result.add(component.asTypeExpression, count) }
+  fun getAll(typeExpr: TypeExpr): Multiset<TypeExpr> {
+    val all: Multiset<Component> = getAll(resolve(typeExpr))
+    val result: Multiset<TypeExpr> = HashMultiset.create()
+    all.forEachEntry { component, count -> result.add(component.asTypeExpr, count) }
     return ImmutableMultiset.copyOf(result)
   }
 
-  fun getAll(type: GenericTypeExpression): Multiset<GenericTypeExpression> {
-    val result = HashMultiset.create<GenericTypeExpression>()
-    getAll(resolve(type)).entrySet().forEach {
-      result.add(it.element.asTypeExpression.asGeneric(), it.count)
+  fun getAll(typeExpr: GenericTypeExpr): Multiset<GenericTypeExpr> {
+    val result = HashMultiset.create<GenericTypeExpr>()
+    getAll(resolve(typeExpr)).entrySet().forEach {
+      result.add(it.element.asTypeExpr.asGeneric(), it.count)
     }
     return result
   }
 
-  fun getAll(type: ClassLiteral): Set<ClassLiteral> {
-    return getAll(resolve(type)).map { it.asTypeExpression as ClassLiteral }.toSetStrict()
+  fun getAll(typeExpr: ClassLiteral): Set<ClassLiteral> {
+    return getAll(resolve(typeExpr)).map { it.asTypeExpr as ClassLiteral }.toSetStrict()
   }
 
   fun execute(instr: Instruction) = LiveNodes.from(instr, this).execute(this)
@@ -75,8 +75,8 @@ public class Game(
     object : GameState {
       override fun applyChange(
           count: Int,
-          removing: GenericTypeExpression?,
-          gaining: GenericTypeExpression?,
+          removing: GenericTypeExpr?,
+          gaining: GenericTypeExpr?,
           cause: Cause?,
           amap: Boolean,
       ) {
@@ -93,15 +93,15 @@ public class Game(
       override val authority = this@Game.authority
       override val map = this@Game.setup.map
 
-      override fun resolve(type: TypeExpression) = this@Game.resolve(type)
+      override fun resolve(typeExpr: TypeExpr) = this@Game.resolve(typeExpr)
 
       override fun isMet(requirement: Requirement) = this@Game.isMet(requirement)
 
-      override fun count(type: TypeExpression) = this@Game.count(type)
+      override fun count(typeExpr: TypeExpr) = this@Game.count(typeExpr)
 
-      override fun getAll(type: TypeExpression) = this@Game.getAll(type)
-      override fun getAll(type: GenericTypeExpression) = this@Game.getAll(type)
-      override fun getAll(type: ClassLiteral) = this@Game.getAll(type)
+      override fun getAll(typeExpr: TypeExpr) = this@Game.getAll(typeExpr)
+      override fun getAll(typeExpr: GenericTypeExpr) = this@Game.getAll(typeExpr)
+      override fun getAll(typeExpr: ClassLiteral) = this@Game.getAll(typeExpr)
     }
   }
 }

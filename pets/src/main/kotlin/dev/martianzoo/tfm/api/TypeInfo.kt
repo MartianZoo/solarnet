@@ -1,8 +1,8 @@
 package dev.martianzoo.tfm.api
 
-import dev.martianzoo.tfm.pets.ast.TypeExpression
+import dev.martianzoo.tfm.pets.ast.TypeExpr
 
 interface TypeInfo {
   val abstract: Boolean
-  fun toTypeExpression(): TypeExpression
+  fun toTypeExprFull(): TypeExpr
 }

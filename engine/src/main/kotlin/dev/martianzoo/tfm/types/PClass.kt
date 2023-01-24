@@ -81,8 +81,8 @@ public data class PClass(
   public val baseType: GenericPType by lazy {
     val newDeps =
         directDependencyKeys.associateWith {
-          val type = declaration.dependencies[it.index].type
-          Dependency(it, loader.resolve(type))
+          val depTypeExpr = declaration.dependencies[it.index].typeExpr
+          Dependency(it, loader.resolve(depTypeExpr))
         }
     val deps = DependencyMap.intersect(directSupertypes.map { it.dependencies })
     val allDeps = deps.intersect(DependencyMap(newDeps))

@@ -33,7 +33,7 @@ object LiveNodes {
               gaining = ins.gaining?.let { game.resolve(it) },
           )
       is Instruction.Per ->
-          Per(game.resolve(ins.sat.type), ins.sat.scalar, from(ins.instruction, game))
+          Per(game.resolve(ins.sat.typeExpr), ins.sat.scalar, from(ins.instruction, game))
       is Instruction.Gated -> Gated(from(ins.gate, game), from(ins.instruction, game))
       is Instruction.Custom ->
           Custom(
@@ -77,12 +77,12 @@ object LiveNodes {
     }
   }
 
-  class Per(val type: PType, val unit: Int = 1, val instruction: LiveInstruction) :
+  class Per(val ptype: PType, val unit: Int = 1, val instruction: LiveInstruction) :
       LiveInstruction() {
 
-    override fun times(factor: Int) = Per(type, unit, instruction * factor)
+    override fun times(factor: Int) = Per(ptype, unit, instruction * factor)
 
-    override fun execute(game: Game) = (instruction * (game.count(type) / unit)).execute(game)
+    override fun execute(game: Game) = (instruction * (game.count(ptype) / unit)).execute(game)
   }
 
   class Gated(val gate: LiveRequirement, val instruction: LiveInstruction) : LiveInstruction() {
@@ -99,7 +99,7 @@ object LiveNodes {
     override fun execute(game: Game) {
       try {
         var translated: Instruction =
-            custom.translate(game.asGameState, arguments.map { it.toTypeExpression() })
+            custom.translate(game.asGameState, arguments.map { it.toTypeExprFull() })
         if (translated.childNodesOfType<PetNode>().any {
           // TODO deprodify could do this??
           it is GenericTransform<*> && it.transform == "PROD"
@@ -108,7 +108,7 @@ object LiveNodes {
         }
         from(translated, game).execute(game)
       } catch (e: ExecuteInsteadException) {
-        custom.execute(game.asGameState, arguments.map { it.toTypeExpression() })
+        custom.execute(game.asGameState, arguments.map { it.toTypeExprFull() })
       }
     }
   }
@@ -125,9 +125,9 @@ object LiveNodes {
 
   fun from(req: Requirement, game: Game): LiveRequirement {
     return when (req) {
-      is Min -> LiveRequirement { game.count(req.sat.type) >= req.sat.scalar }
-      is Max -> LiveRequirement { game.count(req.sat.type) <= req.sat.scalar }
-      is Exact -> LiveRequirement { game.count(req.sat.type) == req.sat.scalar }
+      is Min -> LiveRequirement { game.count(req.sat.typeExpr) >= req.sat.scalar }
+      is Max -> LiveRequirement { game.count(req.sat.typeExpr) <= req.sat.scalar }
+      is Exact -> LiveRequirement { game.count(req.sat.typeExpr) == req.sat.scalar }
       is Requirement.Or -> {
         val reqs = req.requirements.toList().map { from(it, game) }
         LiveRequirement { reqs.any { it.isMet(game) } }
@@ -146,8 +146,8 @@ object LiveNodes {
 
   fun from(trig: Trigger, game: Game): LiveTrigger {
     return when (trig) {
-      is Trigger.OnGain -> OnGain(game.resolve(trig.expression))
-      is Trigger.OnRemove -> OnRemove(game.resolve(trig.expression))
+      is Trigger.OnGain -> OnGain(game.resolve(trig.typeExpr))
+      is Trigger.OnRemove -> OnRemove(game.resolve(trig.typeExpr))
       is Trigger.Transform -> error("")
     }
   }
@@ -156,17 +156,17 @@ object LiveNodes {
     abstract fun hits(change: StateChange, game: Game): Int
   }
 
-  class OnGain(val type: PType) : LiveTrigger() {
+  class OnGain(val ptype: PType) : LiveTrigger() {
     override fun hits(change: StateChange, game: Game): Int {
       val g = change.gaining
-      return if (g != null && game.resolve(g).isSubtypeOf(type)) change.count else 0
+      return if (g != null && game.resolve(g).isSubtypeOf(ptype)) change.count else 0
     }
   }
 
-  class OnRemove(val type: PType) : LiveTrigger() {
+  class OnRemove(val ptype: PType) : LiveTrigger() {
     override fun hits(change: StateChange, game: Game): Int {
       val r = change.removing
-      return if (r != null && game.resolve(r).isSubtypeOf(type)) change.count else 0
+      return if (r != null && game.resolve(r).isSubtypeOf(ptype)) change.count else 0
     }
   }
 

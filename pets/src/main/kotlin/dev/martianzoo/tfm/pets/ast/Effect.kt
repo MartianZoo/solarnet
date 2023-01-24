@@ -8,7 +8,7 @@ import dev.martianzoo.tfm.pets.Parsing
 import dev.martianzoo.tfm.pets.PetException
 import dev.martianzoo.tfm.pets.PetParser
 import dev.martianzoo.tfm.pets.ast.Instruction.Gated
-import dev.martianzoo.tfm.pets.ast.TypeExpression.TypeParsers.genericType
+import dev.martianzoo.tfm.pets.ast.TypeExpr.TypeParsers.genericTypeExpr
 import dev.martianzoo.util.iff
 
 data class Effect(
@@ -31,12 +31,12 @@ data class Effect(
   sealed class Trigger : PetNode() {
     override val kind = "Trigger"
 
-    data class OnGain(val expression: TypeExpression) : Trigger() {
-      override fun toString() = "$expression"
+    data class OnGain(val typeExpr: TypeExpr) : Trigger() {
+      override fun toString() = "$typeExpr"
     }
 
-    data class OnRemove(val expression: TypeExpression) : Trigger() {
-      override fun toString() = "-$expression"
+    data class OnRemove(val typeExpr: TypeExpr) : Trigger() {
+      override fun toString() = "-$typeExpr"
     }
 
     data class Transform(val trigger: Trigger, override val transform: String) :
@@ -56,12 +56,11 @@ data class Effect(
       fun trigger(text: String): Trigger = Parsing.parse(parser(), text)
 
       fun parser(): Parser<Trigger> {
-        val onGain = genericType map Trigger::OnGain
-        val onRemove = skipChar('-') and genericType map Trigger::OnRemove
+        val onGain = genericTypeExpr map Trigger::OnGain
+        val onRemove = skipChar('-') and genericTypeExpr map Trigger::OnRemove
         val atom = onGain or onRemove
-
-        val transform = transform(atom) map { (node, type) -> Transform(node, type) }
-
+        val transform =
+            transform(atom) map { (node, transformName) -> Transform(node, transformName) }
         return transform or atom
       }
     }
@@ -75,7 +74,8 @@ data class Effect(
 
       return Trigger.parser() and
           colons and
-          maybeGroup(Instruction.parser()) map { (trig, immed, instr) ->
+          maybeGroup(Instruction.parser()) map
+          { (trig, immed, instr) ->
             Effect(trigger = trig, automatic = immed, instruction = instr)
           }
     }

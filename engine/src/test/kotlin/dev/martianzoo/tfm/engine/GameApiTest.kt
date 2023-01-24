@@ -7,13 +7,13 @@ import dev.martianzoo.tfm.data.StateChange
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.pets.ast.Instruction.Companion.instruction
 import dev.martianzoo.tfm.pets.ast.Requirement.Companion.requirement
-import dev.martianzoo.tfm.pets.ast.TypeExpression.Companion.typeExpression
+import dev.martianzoo.tfm.pets.ast.TypeExpr.Companion.typeExpr
 import dev.martianzoo.util.toStrings
 import org.junit.jupiter.api.Test
 
 private class GameApiTest {
 
-  fun Game.count(s: String) = count(typeExpression(s))
+  fun Game.count(s: String) = count(typeExpr(s))
   fun Game.execute(s: String) = execute(instruction(s))
   fun Game.isMet(s: String) = isMet(requirement(s))
 
@@ -46,17 +46,17 @@ private class GameApiTest {
 
     assertThat(game.changeLog())
         .containsExactly(
-            StateChange(5, gaining = cn("Heat").addArgs(cn("Player2").type)),
-            StateChange(10, gaining = cn("Heat").addArgs(cn("Player3").type)),
-            StateChange(4, removing = cn("Heat").addArgs(cn("Player2").type)),
+            StateChange(5, gaining = cn("Heat").addArgs(cn("Player2").ptype)),
+            StateChange(10, gaining = cn("Heat").addArgs(cn("Player3").ptype)),
+            StateChange(4, removing = cn("Heat").addArgs(cn("Player2").ptype)),
             StateChange(
                 3,
-                gaining = cn("Steel").addArgs(cn("Player3").type),
-                removing = cn("Heat").addArgs(cn("Player3").type)),
+                gaining = cn("Steel").addArgs(cn("Player3").ptype),
+                removing = cn("Heat").addArgs(cn("Player3").ptype)),
             StateChange(
                 2,
-                gaining = cn("Heat").addArgs(cn("Player2").type),
-                removing = cn("Heat").addArgs(cn("Player3").type)),
+                gaining = cn("Heat").addArgs(cn("Player2").ptype),
+                removing = cn("Heat").addArgs(cn("Player3").ptype)),
         )
         .inOrder()
 

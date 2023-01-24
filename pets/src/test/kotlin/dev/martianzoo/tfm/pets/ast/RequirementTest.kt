@@ -86,23 +86,23 @@ private class RequirementTest {
 
   @Test
   fun simpleSourceToApi() {
-    assertThat(requirement("Foo")).isEqualTo(Min(sat(type = cn("Foo").type)))
-    assertThat(requirement("3 Foo")).isEqualTo(Min(sat(3, cn("Foo").type)))
-    assertThat(requirement("MAX 3 Foo")).isEqualTo(Max(sat(3, cn("Foo").type)))
+    assertThat(requirement("Foo")).isEqualTo(Min(sat(typeExpr = cn("Foo").ptype)))
+    assertThat(requirement("3 Foo")).isEqualTo(Min(sat(3, cn("Foo").ptype)))
+    assertThat(requirement("MAX 3 Foo")).isEqualTo(Max(sat(3, cn("Foo").ptype)))
   }
 
   @Test
   fun simpleApiToSource() {
-    assertThat(Min(sat(type = cn("Foo").type)).toString()).isEqualTo("Foo")
-    assertThat(Min(sat(1, cn("Foo").type)).toString()).isEqualTo("Foo")
-    assertThat(Min(sat(3, cn("Foo").type)).toString()).isEqualTo("3 Foo")
+    assertThat(Min(sat(typeExpr = cn("Foo").ptype)).toString()).isEqualTo("Foo")
+    assertThat(Min(sat(1, cn("Foo").ptype)).toString()).isEqualTo("Foo")
+    assertThat(Min(sat(3, cn("Foo").ptype)).toString()).isEqualTo("3 Foo")
     assertThat(Min(sat(scalar = 3)).toString()).isEqualTo("3")
-    assertThat(Min(sat(scalar = 3, cn("Megacredit").type)).toString()).isEqualTo("3")
-    assertThat(Min(sat(type = cn("Megacredit").type)).toString()).isEqualTo("1")
-    assertThat(Max(sat(0, cn("Foo").type)).toString()).isEqualTo("MAX 0 Foo")
-    assertThat(Max(sat(type = cn("Foo").type)).toString()).isEqualTo("MAX 1 Foo")
-    assertThat(Max(sat(1, cn("Foo").type)).toString()).isEqualTo("MAX 1 Foo")
-    assertThat(Max(sat(3, cn("Foo").type)).toString()).isEqualTo("MAX 3 Foo")
+    assertThat(Min(sat(scalar = 3, cn("Megacredit").ptype)).toString()).isEqualTo("3")
+    assertThat(Min(sat(typeExpr = cn("Megacredit").ptype)).toString()).isEqualTo("1")
+    assertThat(Max(sat(0, cn("Foo").ptype)).toString()).isEqualTo("MAX 0 Foo")
+    assertThat(Max(sat(typeExpr = cn("Foo").ptype)).toString()).isEqualTo("MAX 1 Foo")
+    assertThat(Max(sat(1, cn("Foo").ptype)).toString()).isEqualTo("MAX 1 Foo")
+    assertThat(Max(sat(3, cn("Foo").ptype)).toString()).isEqualTo("MAX 3 Foo")
     assertThat(Max(sat(scalar = 3)).toString()).isEqualTo("MAX 3 Megacredit")
   }
 
@@ -144,17 +144,17 @@ private class RequirementTest {
                 setOf(
                     Min(
                         sat(
-                            type =
+                            typeExpr =
                                 cn("Adjacency")
                                     .addArgs(
-                                        cn("CityTile").addArgs(cn("Anyone").type),
-                                        cn("OceanTile").type))),
+                                        cn("CityTile").addArgs(cn("Anyone").ptype),
+                                        cn("OceanTile").ptype))),
                     Min(
                         sat(
-                            type =
+                            typeExpr =
                                 cn("Adjacency")
                                     .addArgs(
-                                        cn("OceanTile").type,
-                                        cn("CityTile").addArgs(cn("Anyone").type)))))))
+                                        cn("OceanTile").ptype,
+                                        cn("CityTile").addArgs(cn("Anyone").ptype)))))))
   }
 }

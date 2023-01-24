@@ -2,23 +2,23 @@ package dev.martianzoo.tfm.pets.ast
 
 import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.tfm.pets.ast.TypeExpression.Companion.typeExpression
+import dev.martianzoo.tfm.pets.ast.TypeExpr.Companion.typeExpr
 import dev.martianzoo.tfm.pets.testRoundTrip
 import org.junit.jupiter.api.Test
 
 // Most testing is done by AutomatedTest
-private class TypeExpressionTest {
-  private fun testRoundTrip(petsText: String) = testRoundTrip<TypeExpression>(petsText)
+private class TypeExprTest {
+  private fun testRoundTrip(petsText: String) = testRoundTrip<TypeExpr>(petsText)
 
   @Test
   fun simpleSourceToApi() {
-    val foo = typeExpression("Foo")
-    assertThat(foo).isEqualTo(cn("Foo").type)
+    val foo = typeExpr("Foo")
+    assertThat(foo).isEqualTo(cn("Foo").ptype)
   }
 
   @Test
   fun simpleApiToSource() {
-    assertThat(cn("Foo").type.toString()).isEqualTo("Foo")
+    assertThat(cn("Foo").ptype.toString()).isEqualTo("Foo")
   }
 
   @Test
@@ -39,11 +39,11 @@ private class TypeExpressionTest {
 
   @Test
   fun complexSourceToApi() {
-    val parsed = typeExpression(" Red< Blue  < This,Teal> , Gold > ")
+    val parsed = typeExpr(" Red< Blue  < This,Teal> , Gold > ")
     assertThat(parsed)
         .isEqualTo(
             cn("Red")
-                .addArgs(cn("Blue").addArgs(cn("This").type, cn("Teal").type), cn("Gold").type))
+                .addArgs(cn("Blue").addArgs(cn("This").ptype, cn("Teal").ptype), cn("Gold").ptype))
   }
 
   @Test
@@ -51,10 +51,10 @@ private class TypeExpressionTest {
     val expr =
         cn("Aa")
             .addArgs(
-                cn("Bb").type,
-                cn("Cc").addArgs(cn("Dd").type),
-                cn("Ee").addArgs(cn("Ff").addArgs(cn("Gg").type, cn("Hh").type), cn("Me").type),
-                cn("Jj").type)
+                cn("Bb").ptype,
+                cn("Cc").addArgs(cn("Dd").ptype),
+                cn("Ee").addArgs(cn("Ff").addArgs(cn("Gg").ptype, cn("Hh").ptype), cn("Me").ptype),
+                cn("Jj").ptype)
     assertThat(expr.toString()).isEqualTo("Aa<Bb, Cc<Dd>, Ee<Ff<Gg, Hh>, Me>, Jj>")
   }
 }

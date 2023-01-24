@@ -46,26 +46,26 @@ public class ComponentGraph(startingWith: Collection<Component> = listOf()) {
     val change =
         StateChange(
             count = correctedCount,
-            gaining = gaining?.asTypeExpression?.asGeneric(),
-            removing = removing?.asTypeExpression?.asGeneric(),
+            gaining = gaining?.asTypeExpr?.asGeneric(),
+            removing = removing?.asTypeExpr?.asGeneric(),
             cause = cause,
         )
     changeLog.add(change)
   }
 
-  public fun count(type: PType) =
-      multiset.entrySet().filter { it.element.hasType(type) }.sumOf { it.count }
+  public fun count(ptype: PType) =
+      multiset.entrySet().filter { it.element.hasType(ptype) }.sumOf { it.count }
 
-  public fun getAll(type: PType): Multiset<Component> =
-      Multisets.filter(multiset) { it!!.hasType(type) }
+  public fun getAll(ptype: PType): Multiset<Component> =
+      Multisets.filter(multiset) { it!!.hasType(ptype) }
 
-  public data class Component(val type: PType) {
+  public data class Component(val ptype: PType) {
     init {
-      require(!type.abstract) { type }
+      require(!ptype.abstract) { ptype }
     }
 
-    public fun hasType(thatType: PType) = type.isSubtypeOf(thatType)
-    public val asTypeExpression = type.toTypeExpression()
-    override fun toString() = "[$type]"
+    public fun hasType(thatType: PType) = ptype.isSubtypeOf(thatType)
+    public val asTypeExpr = ptype.toTypeExprFull() // TODO minimal?
+    override fun toString() = "[$ptype]"
   }
 }

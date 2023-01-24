@@ -2,9 +2,9 @@ package dev.martianzoo.tfm.types
 
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.tfm.pets.ast.TypeExpression
-import dev.martianzoo.tfm.pets.ast.TypeExpression.Companion.typeExpression
-import dev.martianzoo.tfm.pets.ast.TypeExpression.GenericTypeExpression
+import dev.martianzoo.tfm.pets.ast.TypeExpr
+import dev.martianzoo.tfm.pets.ast.TypeExpr.Companion.typeExpr
+import dev.martianzoo.tfm.pets.ast.TypeExpr.GenericTypeExpr
 import dev.martianzoo.tfm.types.PType.GenericPType
 
 interface PClassTable {
@@ -15,9 +15,9 @@ interface PClassTable {
   fun loadedClasses(): Set<PClass>
 
   // TODO rename to resolveType?
-  fun resolve(typeExpr: String): PType = resolve(typeExpression(typeExpr))
+  fun resolve(typeExprText: String): PType = resolve(typeExpr(typeExprText))
 
-  fun resolve(typeExpr: TypeExpression): PType
+  fun resolve(typeExpr: TypeExpr): PType
 
-  fun resolve(typeExpr: GenericTypeExpression): GenericPType
+  fun resolve(typeExpr: GenericTypeExpr): GenericPType
 }

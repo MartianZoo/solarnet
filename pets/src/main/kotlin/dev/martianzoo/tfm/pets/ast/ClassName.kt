@@ -2,8 +2,8 @@ package dev.martianzoo.tfm.pets.ast
 
 import com.github.h0tk3y.betterParse.combinators.map
 import dev.martianzoo.tfm.pets.PetParser
-import dev.martianzoo.tfm.pets.ast.TypeExpression.ClassLiteral
-import dev.martianzoo.tfm.pets.ast.TypeExpression.GenericTypeExpression
+import dev.martianzoo.tfm.pets.ast.TypeExpr.ClassLiteral
+import dev.martianzoo.tfm.pets.ast.TypeExpr.GenericTypeExpr
 
 data class ClassName(private val asString: String) : PetNode(), Comparable<ClassName> {
   companion object {
@@ -17,14 +17,14 @@ data class ClassName(private val asString: String) : PetNode(), Comparable<Class
     require(asString.matches(classNameRegex)) { "Bad class name: $asString" }
   }
 
-  val type = GenericTypeExpression(this)
+  val ptype = GenericTypeExpr(this)
   val literal = ClassLiteral(this)
 
-  fun addArgs(specs: List<TypeExpression>) = type.addArgs(specs)
-  fun addArgs(vararg specs: TypeExpression) = addArgs(specs.toList())
+  fun addArgs(specs: List<TypeExpr>) = ptype.addArgs(specs)
+  fun addArgs(vararg specs: TypeExpr) = addArgs(specs.toList())
 
   @JvmName("addArgsFromClassNames")
-  fun addArgs(specs: List<ClassName>) = addArgs(specs.map { it.type })
+  fun addArgs(specs: List<ClassName>) = addArgs(specs.map { it.ptype })
   fun addArgs(vararg specs: ClassName) = addArgs(specs.toList())
 
   fun matches(regex: Regex) = asString.matches(regex)

@@ -6,7 +6,7 @@ import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.pets.ast.Instruction.Companion.instruction
 import dev.martianzoo.tfm.pets.ast.Requirement.Companion.requirement
-import dev.martianzoo.tfm.pets.ast.TypeExpression.Companion.typeExpression
+import dev.martianzoo.tfm.pets.ast.TypeExpr.Companion.typeExpr
 import dev.martianzoo.tfm.types.PClass
 import dev.martianzoo.util.toStrings
 import org.jline.reader.EndOfFileException
@@ -44,13 +44,13 @@ class ReplSession(val authority: Authority) {
           },
           "count" to {
             it?.let { args ->
-              val type = session.fixTypes(typeExpression(args))
-              val count = session.count(type)
-              listOf("$count $type")
-            } ?: listOf("Usage: count <TypeExpression>")
+              val typeExpr = session.fixTypes(typeExpr(args))
+              val count = session.count(typeExpr)
+              listOf("$count $typeExpr")
+            } ?: listOf("Usage: count <TypeExpr>")
           },
           "list" to { args ->
-            session.list(typeExpression(args!!))
+            session.list(typeExpr(args!!))
             listOf()
           },
           "has" to
@@ -71,7 +71,7 @@ class ReplSession(val authority: Authority) {
           },
           "board" to {
             val player = if (it == null) session.defaultPlayer!! else cn(it.trim())
-            BoardToText(session.game!!.asGameState).board(player.type)
+            BoardToText(session.game!!.asGameState).board(player.ptype)
           },
           "history" to { args ->
             args?.let { listOf("Arguments unexpected: $it") }

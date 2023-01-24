@@ -7,7 +7,7 @@ import dev.martianzoo.tfm.pets.PetException
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.Instruction
 import dev.martianzoo.tfm.pets.ast.Instruction.Companion.instruction
-import dev.martianzoo.tfm.pets.ast.TypeExpression
+import dev.martianzoo.tfm.pets.ast.TypeExpr
 
 internal val allCustomInstructions =
     listOf(
@@ -18,7 +18,7 @@ internal val allCustomInstructions =
 // For Robinson Industries
 private object GainLowestProduction : CustomInstruction("gainLowestProduction") {
 
-  override fun translate(game: ReadOnlyGameState, arguments: List<TypeExpression>): Instruction {
+  override fun translate(game: ReadOnlyGameState, arguments: List<TypeExpr>): Instruction {
     val player = arguments.single()
     val prods: Map<ClassName, Int> = lookUpProductionLevels(game, player)
     val lowest = prods.values.min()
@@ -30,7 +30,7 @@ private object GainLowestProduction : CustomInstruction("gainLowestProduction") 
 
 // For Robotic Workforce
 private object CopyProductionBox : CustomInstruction("copyProductionBox") {
-  override fun translate(game: ReadOnlyGameState, arguments: List<TypeExpression>): Instruction {
+  override fun translate(game: ReadOnlyGameState, arguments: List<TypeExpr>): Instruction {
     val chosenCardName = arguments.single().asGeneric().root
     val def = game.authority.card(chosenCardName)
     val matches =

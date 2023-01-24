@@ -1,7 +1,7 @@
 package dev.martianzoo.tfm.data
 
-import dev.martianzoo.tfm.pets.ast.TypeExpression
-import dev.martianzoo.tfm.pets.ast.TypeExpression.GenericTypeExpression
+import dev.martianzoo.tfm.pets.ast.TypeExpr
+import dev.martianzoo.tfm.pets.ast.TypeExpr.GenericTypeExpr
 import dev.martianzoo.util.pre
 
 data class StateChange(
@@ -12,13 +12,13 @@ data class StateChange(
     val count: Int = 1,
 
     /** The concrete component that was gained, or `null` if this was a remove. */
-    val gaining: GenericTypeExpression? = null,
+    val gaining: GenericTypeExpr? = null,
 
     /**
      * The concrete component that was removed, or `null` if this was a gain. Can't be the same as
      * `gained` (e.g. both can't be null).
      */
-    val removing: GenericTypeExpression? = null,
+    val removing: GenericTypeExpr? = null,
 
     /** Information about what caused this state change, if we have it. */
     val cause: Cause? = null,
@@ -37,7 +37,7 @@ data class StateChange(
 
   data class Cause(
       /** The concrete component that owns the instruction that caused this change. */
-      val actor: TypeExpression,
+      val actor: TypeExpr,
 
       /** The ordinal of the previous change which triggered that instruction. */
       val trigger: Int,

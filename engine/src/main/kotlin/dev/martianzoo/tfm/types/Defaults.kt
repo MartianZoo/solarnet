@@ -2,7 +2,7 @@ package dev.martianzoo.tfm.types
 
 import dev.martianzoo.tfm.data.ClassDeclaration.DefaultsDeclaration
 import dev.martianzoo.tfm.pets.ast.Instruction.Intensity
-import dev.martianzoo.tfm.pets.ast.TypeExpression
+import dev.martianzoo.tfm.pets.ast.TypeExpr
 
 internal class Defaults(
     val allCasesDependencies: DependencyMap = DependencyMap(),
@@ -18,7 +18,7 @@ internal class Defaults(
   companion object {
     val EMPTY = Defaults()
     fun from(d: DefaultsDeclaration, pclass: PClass, loader: PClassLoader): Defaults {
-      fun PClass.toDependencyMap(specs: List<TypeExpression>?) =
+      fun PClass.toDependencyMap(specs: List<TypeExpr>?) =
           specs?.let { loader.resolve(name.addArgs(it)).dependencies } ?: DependencyMap()
 
       return Defaults(

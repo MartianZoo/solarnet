@@ -11,7 +11,7 @@ import dev.martianzoo.tfm.pets.ast.Effect.Companion.effect
 import dev.martianzoo.tfm.pets.ast.Instruction.Intensity
 import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.pets.ast.ScalarAndType.Companion.sat
-import dev.martianzoo.tfm.pets.ast.TypeExpression.Companion.genericTypeExpression
+import dev.martianzoo.tfm.pets.ast.TypeExpr.Companion.genericTypeExpr
 import dev.martianzoo.tfm.testlib.assertFails
 import org.junit.jupiter.api.Test
 
@@ -25,7 +25,7 @@ private class ClassDeclarationTest {
     assertFails {
       val cd = ClassDeclaration(
           cn("NotComponent"),
-          supertypes = setOf(COMPONENT.type, genericTypeExpression("Baz<Qux>")))
+          supertypes = setOf(COMPONENT.ptype, genericTypeExpr("Baz<Qux>")))
       cd.validate()
     }
   }
@@ -47,19 +47,19 @@ private class ClassDeclarationTest {
     val decl: ClassDeclaration = Parsing.parseClassDeclarations(declText).single()
 
     val foo = cn("Foo")
-    val dep = cn("Bar").type
+    val dep = cn("Bar").ptype
     val sup = cn("Baz").addArgs(cn("Qux"))
-    val topInv = Requirement.Max(sat(3, cn("Blorp").type))
-    val otherInv = Requirement.Exact(sat(1, THIS.type))
+    val topInv = Requirement.Max(sat(3, cn("Blorp").ptype))
+    val otherInv = Requirement.Exact(sat(1, THIS.ptype))
     val eff = effect("This: DoStuff")
     val act = actionToEffect(action("Steel -> 5"), 1)
-    val gain = cn("Abc").type
-    val univ = cn("Xyz").type
+    val gain = cn("Abc").ptype
+    val univ = cn("Xyz").ptype
 
     assertThat(decl.id).isEqualTo(foo)
     assertThat(decl.name).isEqualTo(foo)
     assertThat(decl.abstract).isTrue()
-    assertThat(decl.dependencies.map { it.type }).containsExactly(dep)
+    assertThat(decl.dependencies.map { it.typeExpr }).containsExactly(dep)
     assertThat(decl.supertypes).containsExactly(sup)
     assertThat(decl.topInvariant).isEqualTo(topInv)
     assertThat(decl.otherInvariants).containsExactly(otherInv)

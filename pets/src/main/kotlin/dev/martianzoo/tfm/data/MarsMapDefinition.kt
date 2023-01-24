@@ -21,7 +21,7 @@ data class MarsMapDefinition(
           name = name,
           id = id,
           abstract = false,
-          supertypes = setOf(MARS_MAP.type),
+          supertypes = setOf(MARS_MAP.ptype),
       )
 
   data class AreaDefinition(
@@ -39,10 +39,10 @@ data class MarsMapDefinition(
       val column: Int,
 
       /**
-       * The type of this area; standard types include "LandArea", "WaterArea", "VolcanicArea", and
+       * The kind of area; standard kinds include "LandArea", "WaterArea", "VolcanicArea", and
        * "NoctisArea".
        */
-      val type: ClassName,
+      val kind: ClassName,
 
       /** The pets instruction for this map area's bonus. */
       val bonusText: String?,
@@ -64,9 +64,9 @@ data class MarsMapDefinition(
           name = name,
           id = id,
           abstract = false,
-          supertypes = setOf(type.type),
+          supertypes = setOf(kind.ptype),
           effectsRaw =
-              bonus?.let { setOf(Effect(OnGain(TILE.addArgs(THIS.type)), it, automatic = false)) }
+              bonus?.let { setOf(Effect(OnGain(TILE.addArgs(THIS.ptype)), it, automatic = false)) }
                   ?: setOf(),
       )
     }

@@ -35,12 +35,12 @@ data class MilestoneDefinition(
         name,
         id,
         abstract = false,
-        supertypes = setOf(MILESTONE.type),
+        supertypes = setOf(MILESTONE.ptype),
         effectsRaw =
             setOf(
                 Effect(
-                    OnGain(THIS.type),
-                    Gated(requirement, Gain(sat(1, OK.type))),
+                    OnGain(THIS.ptype),
+                    Gated(requirement, Gain(sat(1, OK.ptype))),
                     automatic = true,
                 )))
   }

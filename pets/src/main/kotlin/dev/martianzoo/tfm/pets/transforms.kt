@@ -16,14 +16,14 @@ import dev.martianzoo.tfm.pets.ast.Instruction.Then
 import dev.martianzoo.tfm.pets.ast.Instruction.Transmute
 import dev.martianzoo.tfm.pets.ast.PetNode
 import dev.martianzoo.tfm.pets.ast.PetNode.GenericTransform
-import dev.martianzoo.tfm.pets.ast.TypeExpression
-import dev.martianzoo.tfm.pets.ast.TypeExpression.ClassLiteral
-import dev.martianzoo.tfm.pets.ast.TypeExpression.GenericTypeExpression
+import dev.martianzoo.tfm.pets.ast.TypeExpr
+import dev.martianzoo.tfm.pets.ast.TypeExpr.ClassLiteral
+import dev.martianzoo.tfm.pets.ast.TypeExpr.GenericTypeExpr
 
 internal fun actionToEffect(action: Action, index1Ref: Int): Effect {
   require(index1Ref >= 1) { index1Ref }
   val instruction = instructionFromAction(action.cost?.toInstruction(), action.instruction)
-  val trigger = OnGain(cn("$USE_ACTION$index1Ref").addArgs(THIS.type))
+  val trigger = OnGain(cn("$USE_ACTION$index1Ref").addArgs(THIS.ptype))
   return Effect(trigger, instruction, automatic = false)
 }
 
@@ -32,7 +32,7 @@ private fun instructionFromAction(lhs: Instruction?, rhs: Instruction): Instruct
 
   // Handle the Ants case (TODO intensity?)
   if (lhs is Remove && rhs is Gain && lhs.sat.scalar == rhs.sat.scalar) {
-    return Transmute(SimpleFrom(rhs.sat.type, lhs.sat.type))
+    return Transmute(SimpleFrom(rhs.sat.typeExpr, lhs.sat.typeExpr))
   }
 
   // Nested THENs are just silly
@@ -50,22 +50,22 @@ internal fun actionsToEffects(actions: List<Action>): List<Effect> =
     }
 
 internal fun immediateToEffect(instruction: Instruction): Effect {
-  return Effect(OnGain(THIS.type), instruction, automatic = false)
+  return Effect(OnGain(THIS.ptype), instruction, automatic = false)
 }
 
-fun <P : PetNode> replaceThis(node: P, resolveTo: GenericTypeExpression) =
+fun <P : PetNode> replaceThis(node: P, resolveTo: GenericTypeExpr) =
     node
-        .replaceTypes(THIS.type, resolveTo)
+        .replaceTypes(THIS.ptype, resolveTo)
         .replaceTypes(ClassLiteral(THIS), ClassLiteral(resolveTo.root))
 
-fun <P : PetNode> P.replaceTypes(from: TypeExpression, to: TypeExpression): P {
+fun <P : PetNode> P.replaceTypes(from: TypeExpr, to: TypeExpr): P {
   return replaceTypesIn(this, from, to)
 }
 
-internal fun <P : PetNode> replaceTypesIn(node: P, from: TypeExpression, to: TypeExpression) =
+internal fun <P : PetNode> replaceTypesIn(node: P, from: TypeExpr, to: TypeExpr) =
     TypeReplacer(from, to).transform(node)
 
-private class TypeReplacer(val from: TypeExpression, val to: TypeExpression) : PetNodeVisitor() {
+private class TypeReplacer(val from: TypeExpr, val to: TypeExpr) : PetNodeVisitor() {
   override fun <P : PetNode?> transform(node: P) =
       if (node == from) {
         @Suppress("UNCHECKED_CAST")
@@ -89,8 +89,10 @@ fun <P : PetNode> deprodify(node: P, producible: Set<ClassName>): P {
                   inProd = true
                   transform(node.extract()).also { inProd = false }
                 }
-                inProd && node is GenericTypeExpression && node.root in producible ->
-                    PRODUCTION.type.copy(args = node.args + ClassLiteral(node.root))
+
+                inProd && node is GenericTypeExpr && node.root in producible ->
+                  PRODUCTION.ptype.copy(args = node.args + ClassLiteral(node.root))
+
                 else -> super.transform(node)
               }
           @Suppress("UNCHECKED_CAST") return rewritten as P

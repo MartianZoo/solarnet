@@ -24,7 +24,7 @@ import dev.martianzoo.tfm.pets.ast.Instruction.Companion.instruction
 import dev.martianzoo.tfm.pets.ast.PetNode
 import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.pets.ast.Requirement.Companion.requirement
-import dev.martianzoo.tfm.pets.ast.TypeExpression.GenericTypeExpression
+import dev.martianzoo.tfm.pets.ast.TypeExpr.GenericTypeExpr
 import dev.martianzoo.tfm.pets.immediateToEffect
 import dev.martianzoo.util.toSetStrict
 
@@ -94,7 +94,7 @@ data class CardDefinition(
      */
     @Json(name = "effects") val effectsText: Set<String> = setOf(),
 
-    /** Which resource type, if any, this card can hold, expressed as a PETS `TypeExpression`. */
+    /** Which resource type, if any, this card can hold, expressed as a PETS `TypeExpr`. */
     @Json(name = "resourceType") val resourceTypeText: String? = null,
 
     /**
@@ -175,12 +175,12 @@ data class CardDefinition(
   }
 
   override val asClassDeclaration by lazy {
-    val supertypes = mutableSetOf<GenericTypeExpression>()
+    val supertypes = mutableSetOf<GenericTypeExpr>()
 
-    projectKind?.let { supertypes += it.className.type }
-    if (actionsRaw.any()) supertypes += ACTION_CARD.type
+    projectKind?.let { supertypes += it.className.ptype }
+    if (actionsRaw.any()) supertypes += ACTION_CARD.ptype
     resourceType?.let { supertypes += RESOURCEFUL_CARD.addArgs(it.literal) }
-    if (supertypes.isEmpty()) supertypes += CARD_FRONT.type
+    if (supertypes.isEmpty()) supertypes += CARD_FRONT.ptype
 
     ClassDeclaration(
         name = name,

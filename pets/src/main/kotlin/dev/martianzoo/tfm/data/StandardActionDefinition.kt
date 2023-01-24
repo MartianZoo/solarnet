@@ -29,11 +29,11 @@ data class StandardActionDefinition(
         name = name,
         id = id,
         abstract = false,
-        supertypes = setOf(kind.type),
+        supertypes = setOf(kind.ptype),
         otherInvariants = setOf(invariant),
         effectsRaw = setOf(actionToEffect(action, 1)),
     )
   }
 }
 
-private val invariant = Exact(sat(1, THIS.type))
+private val invariant = Exact(sat(1, THIS.ptype))

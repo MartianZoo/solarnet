@@ -17,7 +17,7 @@ sealed class Requirement : PetNode() {
   data class Min(val sat: ScalarAndType) : Requirement() {
     override fun toString() = "$sat"
 
-    override fun requiresThis() = this.sat == ScalarAndType.sat(1, THIS.type)
+    override fun requiresThis() = this.sat == ScalarAndType.sat(1, THIS.ptype)
   }
 
   data class Max(val sat: ScalarAndType) : Requirement() {
@@ -29,7 +29,7 @@ sealed class Requirement : PetNode() {
     // could remove this but make it parseable
     override fun toString() = "=${sat.toString(true, true)}" // no "=5" or "=Heat"
 
-    override fun requiresThis() = this.sat == ScalarAndType.sat(1, THIS.type)
+    override fun requiresThis() = this.sat == ScalarAndType.sat(1, THIS.ptype)
   }
 
   data class Or(val requirements: Set<Requirement>) : Requirement() {
@@ -65,10 +65,12 @@ sealed class Requirement : PetNode() {
 
     internal fun parser(): Parser<Requirement> {
       return parser {
-        val orReq = separatedTerms(atomParser(), _or) map {
-          val set = it.toSet()
-          if (set.size == 1) set.first() else Or(set)
-        }
+        val orReq =
+            separatedTerms(atomParser(), _or) map
+                {
+                  val set = it.toSet()
+                  if (set.size == 1) set.first() else Or(set)
+                }
         commaSeparated(orReq) map { if (it.size == 1) it.first() else And(it) }
       }
     }
@@ -80,7 +82,8 @@ sealed class Requirement : PetNode() {
         val min = sat map ::Min
         val max = skip(_max) and sat map ::Max
         val exact = skipChar('=') and sat map ::Exact
-        val transform = transform(parser()) map { (node, type) -> Transform(node, type) }
+        val transform =
+            transform(parser()) map { (node, transformName) -> Transform(node, transformName) }
         min or max or exact or transform or group(parser())
       }
     }

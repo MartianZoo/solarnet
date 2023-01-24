@@ -190,7 +190,7 @@ private class PClassTest {
   }
 
   private fun checkAutoAdjust(`in`: String, out: String, table: PClassTable) {
-    assertThat(table.resolve(`in`).toTypeExpression().toString()).isEqualTo(out)
+    assertThat(table.resolve(`in`).toTypeExprFull().toString()).isEqualTo(out)
   }
 }
 

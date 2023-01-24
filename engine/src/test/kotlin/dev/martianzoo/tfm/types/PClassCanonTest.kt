@@ -93,8 +93,8 @@ private class PClassCanonTest {
           )
       for (thing in tryThese) {
         try {
-          val type = table.resolve(thing)
-          if (type.abstract) {
+          val ptype = table.resolve(thing)
+          if (ptype.abstract) {
             if (abstracts.size < 100) abstracts.add(thing)
           } else {
             if (concretes.size < 100) concretes.add(thing)
