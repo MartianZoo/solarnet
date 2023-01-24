@@ -7,7 +7,7 @@ import dev.martianzoo.tfm.pets.ast.TypeExpression.ClassLiteral
 import dev.martianzoo.tfm.pets.ast.TypeExpression.GenericTypeExpression
 
 interface PType : TypeInfo {
-  val pClass: PClass // TODO should this really be shared?
+  val pclass: PClass // TODO should this really be shared?
   val dependencies: DependencyMap
   val refinement: Requirement?
 
@@ -17,41 +17,41 @@ interface PType : TypeInfo {
 
   override fun toTypeExpression(): TypeExpression
 
-  data class ClassPType(override val pClass: PClass) : PType {
+  data class ClassPType(override val pclass: PClass) : PType {
     override val dependencies = DependencyMap()
     override val refinement = null
 
-    override val abstract by pClass::abstract
+    override val abstract by pclass::abstract
 
     override fun isSubtypeOf(that: PType) =
-        that is ClassPType && this.pClass.isSubclassOf(that.pClass)
+        that is ClassPType && this.pclass.isSubclassOf(that.pclass)
 
     override fun intersect(that: PType): PType? {
       if (that !is ClassPType) return null
-      val inter = (this.pClass intersect that.pClass) ?: return null
+      val inter = (this.pclass intersect that.pclass) ?: return null
       return ClassPType(inter)
     }
 
-    override fun toTypeExpression() = ClassLiteral(pClass.name)
+    override fun toTypeExpression() = ClassLiteral(pclass.name)
     override fun toString() = toTypeExpression().toString()
   }
 
   data class GenericPType(
-      override val pClass: PClass,
+      override val pclass: PClass,
       override val dependencies: DependencyMap,
       override val refinement: Requirement?,
   ) : PType {
     override val abstract: Boolean =
-        pClass.abstract || dependencies.abstract || refinement != null
+        pclass.abstract || dependencies.abstract || refinement != null
 
     override fun isSubtypeOf(that: PType) =
         that is GenericPType &&
-            pClass.isSubclassOf(that.pClass) &&
+            pclass.isSubclassOf(that.pclass) &&
             dependencies.specializes(that.dependencies) &&
             that.refinement in setOf(null, refinement)
 
     override fun intersect(that: PType): GenericPType? {
-      val intersect: PClass = pClass.intersect(that.pClass) ?: return null
+      val intersect: PClass = pclass.intersect(that.pclass) ?: return null
       return GenericPType(
           intersect,
           dependencies.intersect(that.dependencies),
@@ -74,7 +74,7 @@ interface PType : TypeInfo {
 
     override fun toTypeExpression(): GenericTypeExpression {
       val specs = dependencies.types.map { it.toTypeExpressionFull() }
-      return pClass.name.addArgs(specs).refine(refinement)
+      return pclass.name.addArgs(specs).refine(refinement)
     }
     override fun toString() = toTypeExpression().toString()
   }

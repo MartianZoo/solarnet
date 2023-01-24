@@ -85,13 +85,13 @@ class ReplSession(val authority: Authority) {
           },
           "desc" to {
             it?.let { args ->
-              val pClass: PClass = session.game!!.classTable[cn(args.trim())]
-              val subs = pClass.allSubclasses
+              val pclass: PClass = session.game!!.classTable[cn(args.trim())]
+              val subs = pclass.allSubclasses
               listOf(
-                  "Name: ${pClass.name}",
-                  "Abstract: ${pClass.abstract}",
-                  "Superclasses: ${pClass.allSuperclasses.joinToString()}",
-                  "Dependencies: ${pClass.baseType.dependencies.types}",
+                  "Name: ${pclass.name}",
+                  "Abstract: ${pclass.abstract}",
+                  "Superclasses: ${pclass.allSuperclasses.joinToString()}",
+                  "Dependencies: ${pclass.baseType.dependencies.types}",
                   "Subclasses: " +
                       if (subs.size <= 5) {
                         subs.joinToString()

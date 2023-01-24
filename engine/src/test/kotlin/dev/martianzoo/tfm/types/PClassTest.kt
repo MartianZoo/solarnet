@@ -207,7 +207,7 @@ private fun loader(petsText: String): PClassLoader {
 private fun assertFails(message: String, shouldFail: () -> Unit) =
     assertThrows<RuntimeException>(message, shouldFail)
 
-// TODO move to shared utils (already being used from PetTypeTest)
+// TODO move to shared utils (already being used from PTypeTest)
 internal fun loadTypes(vararg decl: String): PClassTable {
   return loader("ABSTRACT CLASS $COMPONENT\n" + decl.joinToString("") { "$it\n" })
 }

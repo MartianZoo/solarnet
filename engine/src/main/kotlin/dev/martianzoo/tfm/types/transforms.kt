@@ -35,13 +35,13 @@ private class Defaulter(val table: PClassTable) : PetNodeVisitor() {
           THIS.type,
           ME.type -> node
           is GenericTypeExpression -> {
-            val petClass = table.get(node.root)
-            val allCasesDependencies = petClass.defaults.allCasesDependencies
+            val pclass = table.get(node.root)
+            val allCasesDependencies = pclass.defaults.allCasesDependencies
             if (allCasesDependencies.isEmpty()) {
               node
             } else {
-              // TODO have to reengineer what resolve would do because the pettype has forgotten
-              val explicitDeps = petClass.baseType.dependencies
+              // TODO have to reengineer what resolve would do because the ptype has forgotten
+              val explicitDeps = pclass.baseType.dependencies
               val foo = explicitDeps.findMatchups(node.args.map { table.resolve(it) })
               val newArgs =
                   foo.overlayOn(allCasesDependencies).types.map {

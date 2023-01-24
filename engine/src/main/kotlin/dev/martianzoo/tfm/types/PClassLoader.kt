@@ -123,10 +123,10 @@ class PClassLoader(private val authority: Authority) : PClassTable {
     val superclasses: List<PClass> =
         decl.superclassNames.map { load(it) } // we do most other things lazily...
 
-    val pClass = PClass(decl, superclasses, this)
-    table[decl.name] = pClass
-    table[decl.id] = pClass
-    return pClass
+    val pclass = PClass(decl, superclasses, this)
+    table[decl.name] = pclass
+    table[decl.id] = pclass
+    return pclass
   }
 
   // FREEZING

@@ -43,9 +43,9 @@ class InteractiveSession {
     val theStuff = game!!.getAll(typeToList)
 
     // figure out how to break it down
-    val petClass = typeToList.pClass
-    var subs = petClass.directSubclasses.sortedBy { it.name }
-    if (subs.isEmpty()) subs = listOf(petClass)
+    val pclass = typeToList.pclass
+    var subs = pclass.directSubclasses.sortedBy { it.name }
+    if (subs.isEmpty()) subs = listOf(pclass)
 
     subs.mapNotNull { sub ->
       val thatType: GenericPType = sub.baseType

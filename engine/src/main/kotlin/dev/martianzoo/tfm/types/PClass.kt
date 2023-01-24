@@ -45,8 +45,8 @@ public data class PClass(
     } else {
       require(loader.frozen)
       val sharesAllMySuperclasses =
-          loader.loadedClasses().filter { petClass ->
-            directSuperclasses.all { petClass.isSubclassOf(it) }
+          loader.loadedClasses().filter { pclass ->
+            directSuperclasses.all { pclass.isSubclassOf(it) }
           }
       sharesAllMySuperclasses.all { it.isSubclassOf(this) }
     }
@@ -77,7 +77,7 @@ public data class PClass(
     (directSuperclasses.flatMap { it.allDependencyKeys } + directDependencyKeys).toSet()
   }
 
-  /** Least upper bound of all types with pClass==this */
+  /** Least upper bound of all types with pclass==this */
   public val baseType: GenericPType by lazy {
     val newDeps =
         directDependencyKeys.associateWith {
