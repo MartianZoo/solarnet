@@ -2,6 +2,7 @@ package dev.martianzoo.tfm.data
 
 import dev.martianzoo.tfm.pets.ast.TypeExpression
 import dev.martianzoo.tfm.pets.ast.TypeExpression.GenericTypeExpression
+import dev.martianzoo.util.pre
 
 data class StateChange(
     /**
@@ -28,30 +29,25 @@ data class StateChange(
     require(gaining != removing) { "both gaining and removing $gaining" }
   }
 
-  override fun toString(): String {
-    var desc = ""
-    when (gaining) {
-      null -> desc += "-$count $removing"
-      else -> {
-        desc += "$count $gaining"
-        if (removing != null) desc += " FROM $removing"
-      }
-    }
-
-    val a = cause?.agent ?: "Unknown"
-    val c = cause?.change ?: "Unknown"
-    return "$desc BY $a BECAUSE $c"
-  }
+  override fun toString() =
+      when (gaining) {
+        null -> "-$count $removing"
+        else -> "$count $gaining${removing.pre(" FROM ")}"
+      } + cause.pre(' ')
 
   data class Cause(
       /** The concrete component that owns the instruction that caused this change. */
-      val agent: TypeExpression,
+      val actor: TypeExpression,
 
       /** The ordinal of the previous change which triggered that instruction. */
-      val change: Int,
+      val trigger: Int,
   ) {
     init {
-      require(change > 0)
+      require(trigger >= 0)
+    }
+
+    override fun toString(): String {
+      return "BY $actor BECAUSE $trigger"
     }
   }
 }

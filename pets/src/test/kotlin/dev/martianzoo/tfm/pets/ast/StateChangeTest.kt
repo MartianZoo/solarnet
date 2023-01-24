@@ -17,6 +17,6 @@ private class StateChangeTest {
     assertFails {
       valid.copy(gaining = cn("Same").type, removing = cn("Same").type)
     }
-    assertFails { valid.cause!!.copy(change = 0) }
+    assertFails { valid.cause!!.copy(trigger = -1) }
   }
 }

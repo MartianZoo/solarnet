@@ -62,11 +62,11 @@ private class GameApiTest {
 
     assertThat(game.changeLog().toStrings())
         .containsExactly(
-            "5 Heat<Player2> BY Unknown BECAUSE Unknown",
-            "10 Heat<Player3> BY Unknown BECAUSE Unknown",
-            "-4 Heat<Player2> BY Unknown BECAUSE Unknown",
-            "3 Steel<Player3> FROM Heat<Player3> BY Unknown BECAUSE Unknown",
-            "2 Heat<Player2> FROM Heat<Player3> BY Unknown BECAUSE Unknown",
+            "5 Heat<Player2>",
+            "10 Heat<Player3>",
+            "-4 Heat<Player2>",
+            "3 Steel<Player3> FROM Heat<Player3>",
+            "2 Heat<Player2> FROM Heat<Player3>",
         )
         .inOrder()
   }
