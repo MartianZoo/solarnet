@@ -8,8 +8,11 @@
  */
 
 rootProject.name = "pets"
-include("pets")
-include("canon")
-include("engine")
-include("repl")
 
+include("pets")
+
+include("canon")
+
+include("engine")
+
+include("repl")

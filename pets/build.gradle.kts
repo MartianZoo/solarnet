@@ -1,12 +1,8 @@
-plugins {
-  id("org.jetbrains.kotlin.jvm") version "1.8.0"
-}
+plugins { id("org.jetbrains.kotlin.jvm") version "1.8.0" }
 
-kotlin {
-  jvmToolchain(18)
-}
+kotlin { jvmToolchain(18) }
 
-//kotlin {
+// kotlin {
 //  js {
 //    binaries.executable()
 //    browser {
@@ -14,7 +10,7 @@ kotlin {
 //      }
 //    }
 //  }
-//}
+// }
 
 dependencies {
   implementation(platform("org.jetbrains.kotlin:kotlin-bom:1.8.0"))

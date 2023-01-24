@@ -135,12 +135,10 @@ object LiveNodes {
         val reqs = req.requirements.toList().map { from(it, game) }
         LiveRequirement { reqs.any { it.isMet(game) } }
       }
-
       is Requirement.And -> {
         val reqs = req.requirements.map { from(it, game) }
         LiveRequirement { reqs.all { it.isMet(game) } }
       }
-
       is Requirement.Transform -> error("should have been transformed by now")
     }
   }

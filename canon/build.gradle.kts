@@ -1,10 +1,6 @@
-plugins {
-  id("org.jetbrains.kotlin.jvm") version "1.8.0"
-}
+plugins { id("org.jetbrains.kotlin.jvm") version "1.8.0" }
 
-kotlin {
-  jvmToolchain(18)
-}
+kotlin { jvmToolchain(18) }
 
 dependencies {
   implementation(project(":pets"))

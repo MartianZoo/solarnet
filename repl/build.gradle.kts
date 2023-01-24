@@ -6,9 +6,7 @@ plugins {
   `java-library`
 }
 
-kotlin {
-  jvmToolchain(18)
-}
+kotlin { jvmToolchain(18) }
 
 dependencies {
   implementation(platform("org.jetbrains.kotlin:kotlin-bom:1.8.0"))
@@ -34,8 +32,6 @@ dependencies {
 tasks {
   named<ShadowJar>("shadowJar") {
     mergeServiceFiles()
-    manifest {
-      attributes(mapOf("Main-Class" to "dev.martianzoo.tfm.repl.ReplSessionKt"))
-    }
+    manifest { attributes(mapOf("Main-Class" to "dev.martianzoo.tfm.repl.ReplSessionKt")) }
   }
 }

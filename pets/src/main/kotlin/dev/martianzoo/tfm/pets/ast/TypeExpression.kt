@@ -82,7 +82,9 @@ sealed class TypeExpression : PetNode() {
         className and
             optional(link) and
             skipChar('.') and
-            skip(_class) map { (name, link) -> ClassLiteral(name, link) }
+            skip(_class) map { (name, link) ->
+          ClassLiteral(name, link)
+        }
 
     private val typeArgs =
         skipChar('<') and commaSeparated(parser { typeExpression }) and skipChar('>')

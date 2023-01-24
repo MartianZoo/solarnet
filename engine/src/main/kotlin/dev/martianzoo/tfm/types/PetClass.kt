@@ -102,12 +102,12 @@ public data class PetClass(
   }
 
   private fun defaultsIgnoringRoot(): Defaults = // TODO hack
-      if (name == COMPONENT) {
-        Defaults()
-      } else {
-        Defaults.from(declaration.defaultsDeclaration, this, loader)
-            .overlayOn(directSuperclasses.map { it.defaultsIgnoringRoot() })
-      }
+  if (name == COMPONENT) {
+    Defaults()
+  } else {
+    Defaults.from(declaration.defaultsDeclaration, this, loader)
+        .overlayOn(directSuperclasses.map { it.defaultsIgnoringRoot() })
+  }
 
   // OTHER
 

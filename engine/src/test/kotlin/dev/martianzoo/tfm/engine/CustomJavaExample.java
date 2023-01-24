@@ -15,11 +15,13 @@ import java.util.List;
 public class CustomJavaExample {
 
   public static class GainLowestProduction extends CustomInstruction {
+
     public GainLowestProduction() {
       super("gainLowestProduction");
     }
 
-    @Override public Instruction translate( // TODO null annotations
+    @Override
+    public Instruction translate( // TODO null annotations
         ReadOnlyGameState game, List<? extends TypeExpression> arguments) {
       var player = getOnlyElement(arguments);
       var prods = lookUpProductionLevels(game, player);
