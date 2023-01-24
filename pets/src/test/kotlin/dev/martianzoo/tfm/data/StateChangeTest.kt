@@ -1,6 +1,5 @@
-package dev.martianzoo.tfm.pets.ast
+package dev.martianzoo.tfm.data
 
-import dev.martianzoo.tfm.data.StateChange
 import dev.martianzoo.tfm.data.StateChange.Cause
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.testlib.assertFails
