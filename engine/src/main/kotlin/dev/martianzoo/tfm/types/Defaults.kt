@@ -22,9 +22,9 @@ internal class Defaults(
           specs?.let { loader.resolve(name.addArgs(it)).dependencies } ?: DependencyMap()
 
       return Defaults(
-          petClass.toDependencyMap(d.universalSpecs),
-          petClass.toDependencyMap(d.gainOnlySpecs),
-          d.gainIntensity,
+          allCasesDependencies = petClass.toDependencyMap(d.universalSpecs),
+          gainOnlyDependencies = petClass.toDependencyMap(d.gainOnlySpecs),
+          gainIntensity = d.gainIntensity,
       )
     }
   }

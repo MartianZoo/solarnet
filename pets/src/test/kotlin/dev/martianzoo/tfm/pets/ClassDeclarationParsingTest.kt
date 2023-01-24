@@ -6,7 +6,7 @@ import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.pets.ast.TypeExpression
 import org.junit.jupiter.api.Test
 
-private class ClassDeclarationTest {
+private class ClassDeclarationParsingTest {
   @Test
   fun simpleOneLiners() {
     parseClassDeclarations("CLASS Foo") // minimal

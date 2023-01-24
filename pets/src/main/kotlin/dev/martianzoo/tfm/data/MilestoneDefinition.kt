@@ -32,8 +32,8 @@ data class MilestoneDefinition(
 
   override val asClassDeclaration: ClassDeclaration by lazy {
     ClassDeclaration(
-        id,
         name,
+        id,
         abstract = false,
         supertypes = setOf(MILESTONE.type),
         effectsRaw =

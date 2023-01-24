@@ -170,9 +170,8 @@ public object ClassDeclarationParsers : PetParser() {
         supertypes: List<GenericTypeExpression>,
     ) : this(
         ClassDeclaration(
-            id = shortName(className),
             name = className,
-            abstract = true,
+            id = shortName(className),
             dependencies = dependencies,
             supertypes = supertypes.toSetStrict(),
             topInvariant = topInvariant))

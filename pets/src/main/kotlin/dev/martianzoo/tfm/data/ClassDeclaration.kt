@@ -14,9 +14,9 @@ import dev.martianzoo.tfm.pets.ast.TypeExpression.GenericTypeExpression
  * it was provided. DIRECT INFO ONLY; stuff is inherited among *loaded* classes (PetClasses).
  */
 data class ClassDeclaration(
-    val id: ClassName,
     val name: ClassName,
-    val abstract: Boolean,
+    val id: ClassName = name,
+    val abstract: Boolean = true,
     val dependencies: List<DependencyDeclaration> = listOf(),
     val supertypes: Set<GenericTypeExpression> = setOf(),
     val topInvariant: Requirement? = null,
@@ -41,6 +41,7 @@ data class ClassDeclaration(
   val allNodes: Set<PetNode> by lazy {
     setOf<PetNode>() +
         name +
+        id +
         supertypes +
         dependencies.map { it.type } +
         setOfNotNull(topInvariant) +
@@ -59,12 +60,15 @@ data class ClassDeclaration(
       val gainIntensity: Intensity? = null,
   ) {
     companion object {
-      fun merge(defs: Collection<DefaultsDeclaration>) =
-          DefaultsDeclaration(
-              universalSpecs = defs.firstNotNullOfOrNull { it.universalSpecs } ?: listOf(),
-              gainOnlySpecs = defs.firstNotNullOfOrNull { it.gainOnlySpecs } ?: listOf(),
-              gainIntensity = defs.firstNotNullOfOrNull { it.gainIntensity },
-          )
+      fun merge(defs: Collection<DefaultsDeclaration>): DefaultsDeclaration {
+        val univ = defs.map { it.universalSpecs }.firstOrNull { it.any() } ?: listOf()
+        val gain = defs.map { it.gainOnlySpecs }.firstOrNull { it.any() } ?: listOf()
+        return DefaultsDeclaration(
+            universalSpecs = univ,
+            gainOnlySpecs = gain,
+            gainIntensity = defs.firstNotNullOfOrNull { it.gainIntensity },
+        )
+      }
     }
   }
 }

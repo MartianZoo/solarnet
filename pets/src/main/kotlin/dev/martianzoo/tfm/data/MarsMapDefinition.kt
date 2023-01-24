@@ -18,8 +18,8 @@ data class MarsMapDefinition(
   override val id by ::name
   override val asClassDeclaration =
       ClassDeclaration(
-          id = id,
           name = name,
+          id = id,
           abstract = false,
           supertypes = setOf(MARS_MAP.type),
       )
@@ -61,8 +61,8 @@ data class MarsMapDefinition(
 
     override val asClassDeclaration by lazy {
       ClassDeclaration(
-          id = id,
           name = name,
+          id = id,
           abstract = false,
           supertypes = setOf(type.type),
           effectsRaw =
