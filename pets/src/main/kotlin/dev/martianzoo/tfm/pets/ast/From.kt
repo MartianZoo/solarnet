@@ -1,6 +1,11 @@
 package dev.martianzoo.tfm.pets.ast
 
-import com.github.h0tk3y.betterParse.combinators.*
+import com.github.h0tk3y.betterParse.combinators.and
+import com.github.h0tk3y.betterParse.combinators.map
+import com.github.h0tk3y.betterParse.combinators.optional
+import com.github.h0tk3y.betterParse.combinators.or
+import com.github.h0tk3y.betterParse.combinators.skip
+import com.github.h0tk3y.betterParse.combinators.zeroOrMore
 import com.github.h0tk3y.betterParse.grammar.parser
 import com.github.h0tk3y.betterParse.parser.Parser
 import dev.martianzoo.tfm.pets.Parsing
@@ -65,7 +70,8 @@ sealed class From : PetNode() {
               before + from + after
             }
 
-        val simpleFrom = genericType and skip(_from) and genericType map { (to, from) -> SimpleFrom(to, from) }
+        val simpleFrom =
+            genericType and skip(_from) and genericType map { (to, from) -> SimpleFrom(to, from) }
 
         val complexFrom =
             className and

@@ -31,7 +31,8 @@ data class ScalarAndType(
       }
 
   companion object : PetParser() {
-    fun sat(scalar: Int? = null, type: TypeExpression? = null) = ScalarAndType(scalar ?: 1, type ?: MEGACREDIT.type)
+    fun sat(scalar: Int? = null, type: TypeExpression? = null) =
+        ScalarAndType(scalar ?: 1, type ?: MEGACREDIT.type)
 
     fun sat(text: String) = Parsing.parse(parser(), text)
 
@@ -40,9 +41,7 @@ data class ScalarAndType(
         val scalarAndOptionalType = scalar and optional(typeExpression)
         val optionalScalarAndType = optional(scalar) and typeExpression
 
-        scalarAndOptionalType or optionalScalarAndType map { (scalar, expr) ->
-          sat(scalar, expr)
-        }
+        scalarAndOptionalType or optionalScalarAndType map { (scalar, expr) -> sat(scalar, expr) }
       }
     }
   }

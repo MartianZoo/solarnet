@@ -111,7 +111,7 @@ internal class PetGenerator(scaling: (Int) -> Double) :
         val two: GenericTypeExpression = recurse()
 
         fun getTypes(type: GenericTypeExpression): List<GenericTypeExpression> =
-                type.args.flatMap { getTypes(it.asGeneric()) } + type
+            type.args.flatMap { getTypes(it.asGeneric()) } + type
 
         val oneTypes = getTypes(one)
         val twoTypes = getTypes(two)

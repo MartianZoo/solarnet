@@ -39,9 +39,9 @@ sealed class Instruction : PetNode() {
   }
 
   data class Transmute(
-          val from: From,
-          val scalar: Int? = null,
-          override val intensity: Intensity? = null,
+      val from: From,
+      val scalar: Int? = null,
+      override val intensity: Intensity? = null,
   ) : Change() {
     override val count = scalar ?: 1
     override val removing = from.fromType
@@ -54,7 +54,7 @@ sealed class Instruction : PetNode() {
     }
 
     override fun shouldGroupInside(container: PetNode) =
-            (from is SimpleFrom && container is Or) || super.shouldGroupInside(container)
+        (from is SimpleFrom && container is Or) || super.shouldGroupInside(container)
 
     override fun precedence() = if (from is SimpleFrom) 7 else 10
   }

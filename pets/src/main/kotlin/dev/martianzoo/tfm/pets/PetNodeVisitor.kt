@@ -48,25 +48,23 @@ open class PetNodeVisitor {
             is Instruction ->
                 when (this) {
                   is Instruction.Gain -> Instruction.Gain(x(sat), intensity)
-                    is Instruction.Remove -> Instruction.Remove(x(sat), intensity)
-                    is Instruction.Per -> Instruction.Per(x(instruction), x(sat))
-                    is Instruction.Gated -> Instruction.Gated(x(gate), x(instruction))
-                    is Instruction.Transmute -> Instruction.Transmute(x(from), scalar)
-                    is Instruction.Custom -> Instruction.Custom(functionName, x(arguments))
-                    is Instruction.Then -> Instruction.Then(x(instructions))
-                    is Instruction.Or -> Instruction.Or(x(instructions))
-                    is Instruction.Multi -> Instruction.Multi(x(instructions))
-                    is Instruction.Transform -> Instruction.Transform(x(instruction), transform)
+                  is Instruction.Remove -> Instruction.Remove(x(sat), intensity)
+                  is Instruction.Per -> Instruction.Per(x(instruction), x(sat))
+                  is Instruction.Gated -> Instruction.Gated(x(gate), x(instruction))
+                  is Instruction.Transmute -> Instruction.Transmute(x(from), scalar)
+                  is Instruction.Custom -> Instruction.Custom(functionName, x(arguments))
+                  is Instruction.Then -> Instruction.Then(x(instructions))
+                  is Instruction.Or -> Instruction.Or(x(instructions))
+                  is Instruction.Multi -> Instruction.Multi(x(instructions))
+                  is Instruction.Transform -> Instruction.Transform(x(instruction), transform)
                 }
-
-              is From ->
-                  when (this) {
-                      is SimpleFrom -> SimpleFrom(x(toType), x(fromType))
-                      is ComplexFrom -> ComplexFrom(x(className), x(arguments), x(refinement))
-                      is TypeAsFrom -> TypeAsFrom(x(type))
-                  }
-
-              is Effect -> Effect(x(trigger), x(instruction), automatic)
+            is From ->
+                when (this) {
+                  is SimpleFrom -> SimpleFrom(x(toType), x(fromType))
+                  is ComplexFrom -> ComplexFrom(x(className), x(arguments), x(refinement))
+                  is TypeAsFrom -> TypeAsFrom(x(type))
+                }
+            is Effect -> Effect(x(trigger), x(instruction), automatic)
             is Trigger ->
                 when (this) {
                   is Trigger.OnGain -> Trigger.OnGain(x(expression))

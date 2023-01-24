@@ -58,16 +58,15 @@ internal object PetToKotlin {
         is Gated -> "Gated(${p2k(gate)}, ${p2k(instruction)})"
         is Transmute -> "Transmute(${p2k(from)}${scalar.pre(", ")}${intensity.pre(", ")})"
         is ComplexFrom ->
-          "ComplexFrom(c(\"$className\"), " +
-                  "listOf(${arguments.join()})${
+            "ComplexFrom(c(\"$className\"), " +
+                "listOf(${arguments.join()})${
                     refinement.pre(", ")
                   }"
-
         is SimpleFrom -> "SimpleFrom(${p2k(toType)}, ${p2k(fromType)})"
         is TypeAsFrom -> "TypeAsFrom(${p2k(type)})"
         is Custom ->
-          "Instruction.Custom(\"$functionName\"" +
-                  "${arguments.joinToString("") { ", ${p2k(it)}" }})"
+            "Instruction.Custom(\"$functionName\"" +
+                "${arguments.joinToString("") { ", ${p2k(it)}" }})"
         is Then -> "Then(${instructions.join()})"
         is Instruction.Or -> "Instruction.Or(${instructions.join()})"
         is Instruction.Multi -> "Instruction.Multi(${instructions.join()})"
