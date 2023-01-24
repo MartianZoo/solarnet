@@ -82,9 +82,10 @@ sealed class TypeExpression : PetNode() {
         className and
             optional(link) and
             skipChar('.') and
-            skip(_class) map { (name, link) ->
-          ClassLiteral(name, link)
-        }
+            skip(_class) map
+            { (name, link) ->
+              ClassLiteral(name, link)
+            }
 
     private val typeArgs =
         skipChar('<') and commaSeparated(parser { typeExpression }) and skipChar('>')
@@ -95,9 +96,10 @@ sealed class TypeExpression : PetNode() {
         className and
             optionalList(typeArgs) and
             optional(refinement) and
-            optional(link) map { (type, args, ref, link) ->
-          GenericTypeExpression(type, args, ref, link)
-        }
+            optional(link) map
+            { (type, args, ref, link) ->
+              GenericTypeExpression(type, args, ref, link)
+            }
 
     val typeExpression = classLiteral or genericType
   }

@@ -75,8 +75,9 @@ data class Effect(
 
       return Trigger.parser() and
           colons and
-          maybeGroup(Instruction.parser()) map {
-            (trig, immed, instr) -> Effect(trigger = trig, automatic = immed, instruction = instr)
+          maybeGroup(Instruction.parser()) map
+          { (trig, immed, instr) ->
+            Effect(trigger = trig, automatic = immed, instruction = instr)
           }
     }
   }

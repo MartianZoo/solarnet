@@ -26,22 +26,19 @@ object LiveNodes {
   fun from(ins: Instruction, game: Game): LiveInstruction {
     return when (ins) {
       is Instruction.Change ->
-        Change(
-            ins.count,
-            ins.intensity ?: MANDATORY,
-            removing = ins.removing?.let { game.resolve(it) },
-            gaining = ins.gaining?.let { game.resolve(it) },
-        )
-
+          Change(
+              ins.count,
+              ins.intensity ?: MANDATORY,
+              removing = ins.removing?.let { game.resolve(it) },
+              gaining = ins.gaining?.let { game.resolve(it) },
+          )
       is Instruction.Per ->
-        Per(game.resolve(ins.sat.type), ins.sat.scalar, from(ins.instruction, game))
-
+          Per(game.resolve(ins.sat.type), ins.sat.scalar, from(ins.instruction, game))
       is Instruction.Gated -> Gated(from(ins.gate, game), from(ins.instruction, game))
       is Instruction.Custom ->
-        Custom(
-            game.authority.customInstruction(ins.functionName),
-            ins.arguments.map { game.resolve(it) })
-
+          Custom(
+              game.authority.customInstruction(ins.functionName),
+              ins.arguments.map { game.resolve(it) })
       is Instruction.Or -> OrIns(ins.instructions.toList().map { from(it, game) }) // TODO
       is Instruction.Then -> Then(ins.instructions.map { from(it, game) })
       is Instruction.Multi -> Then(ins.instructions.map { from(it, game) })
@@ -104,9 +101,9 @@ object LiveNodes {
         var translated: Instruction =
             custom.translate(game.asGameState, arguments.map { it.toTypeExpression() })
         if (translated.childNodesOfType<PetNode>().any {
-            // TODO deprodify could do this??
-            it is GenericTransform<*> && it.transform == "PROD"
-          }) {
+          // TODO deprodify could do this??
+          it is GenericTransform<*> && it.transform == "PROD"
+        }) {
           translated = deprodify(translated, standardResourceNames(game.asGameState))
         }
         from(translated, game).execute(game)
