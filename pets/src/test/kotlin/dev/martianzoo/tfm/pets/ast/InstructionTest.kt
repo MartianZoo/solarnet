@@ -2,8 +2,8 @@ package dev.martianzoo.tfm.pets.ast
 
 import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.tfm.pets.ast.FromExpression.ComplexFrom
-import dev.martianzoo.tfm.pets.ast.FromExpression.SimpleFrom
+import dev.martianzoo.tfm.pets.ast.From.ComplexFrom
+import dev.martianzoo.tfm.pets.ast.From.SimpleFrom
 import dev.martianzoo.tfm.pets.ast.Instruction.Companion.instruction
 import dev.martianzoo.tfm.pets.ast.Instruction.Intensity.AMAP
 import dev.martianzoo.tfm.pets.ast.Instruction.Transmute

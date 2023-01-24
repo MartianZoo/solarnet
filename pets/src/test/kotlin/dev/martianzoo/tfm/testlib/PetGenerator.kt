@@ -10,10 +10,10 @@ import dev.martianzoo.tfm.pets.ast.Action.Cost
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.pets.ast.Effect
 import dev.martianzoo.tfm.pets.ast.Effect.Trigger
-import dev.martianzoo.tfm.pets.ast.FromExpression
-import dev.martianzoo.tfm.pets.ast.FromExpression.ComplexFrom
-import dev.martianzoo.tfm.pets.ast.FromExpression.SimpleFrom
-import dev.martianzoo.tfm.pets.ast.FromExpression.TypeInFrom
+import dev.martianzoo.tfm.pets.ast.From
+import dev.martianzoo.tfm.pets.ast.From.ComplexFrom
+import dev.martianzoo.tfm.pets.ast.From.SimpleFrom
+import dev.martianzoo.tfm.pets.ast.From.TypeAsFrom
 import dev.martianzoo.tfm.pets.ast.Instruction
 import dev.martianzoo.tfm.pets.ast.Instruction.Custom
 import dev.martianzoo.tfm.pets.ast.Instruction.Gain
@@ -106,12 +106,12 @@ internal class PetGenerator(scaling: (Int) -> Double) :
       register { Instruction.Multi(listOfSize(choose(2, 2, 2, 2, 2, 3, 4))) }
       register { Instruction.Transform(recurse(), "PROD") }
 
-      register<FromExpression> {
+      register<From> {
         val one: GenericTypeExpression = recurse()
         val two: GenericTypeExpression = recurse()
 
         fun getTypes(type: GenericTypeExpression): List<GenericTypeExpression> =
-            type.args.flatMap { getTypes(it.asGeneric()) } + type
+                type.args.flatMap { getTypes(it.asGeneric()) } + type
 
         val oneTypes = getTypes(one)
         val twoTypes = getTypes(two)
@@ -132,13 +132,13 @@ internal class PetGenerator(scaling: (Int) -> Double) :
 
         val b = Random.Default.nextBoolean()
 
-        fun convert(type: GenericTypeExpression): FromExpression {
+        fun convert(type: GenericTypeExpression): From {
           if (type == target) {
             return SimpleFrom(if (b) inject else target, if (b) target else inject)
           }
           val args = type.args.map { convert(it.asGeneric()) }
-          return if (args.all { it is TypeInFrom }) {
-            TypeInFrom(type)
+          return if (args.all { it is TypeAsFrom }) {
+            TypeAsFrom(type)
           } else {
             ComplexFrom(type.root, args, type.refinement)
           }

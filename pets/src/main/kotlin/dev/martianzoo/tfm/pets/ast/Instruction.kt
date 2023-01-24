@@ -10,7 +10,7 @@ import com.github.h0tk3y.betterParse.parser.Parser
 import dev.martianzoo.tfm.pets.Parsing
 import dev.martianzoo.tfm.pets.PetException
 import dev.martianzoo.tfm.pets.PetParser
-import dev.martianzoo.tfm.pets.ast.FromExpression.SimpleFrom
+import dev.martianzoo.tfm.pets.ast.From.SimpleFrom
 import dev.martianzoo.tfm.pets.ast.TypeExpression.TypeParsers.typeExpression
 
 sealed class Instruction : PetNode() {
@@ -39,24 +39,24 @@ sealed class Instruction : PetNode() {
   }
 
   data class Transmute(
-      val fromExpression: FromExpression,
-      val scalar: Int? = null,
-      override val intensity: Intensity? = null,
+          val from: From,
+          val scalar: Int? = null,
+          override val intensity: Intensity? = null,
   ) : Change() {
     override val count = scalar ?: 1
-    override val removing = fromExpression.fromType
-    override val gaining = fromExpression.toType
+    override val removing = from.fromType
+    override val gaining = from.toType
 
     override fun toString(): String {
       val intens = intensity?.symbol ?: ""
       val scal = if (scalar != null) "$scalar " else ""
-      return "$scal$fromExpression$intens"
+      return "$scal$from$intens"
     }
 
     override fun shouldGroupInside(container: PetNode) =
-        (fromExpression is SimpleFrom && container is Or) || super.shouldGroupInside(container)
+            (from is SimpleFrom && container is Or) || super.shouldGroupInside(container)
 
-    override fun precedence() = if (fromExpression is SimpleFrom) 7 else 10
+    override fun precedence() = if (from is SimpleFrom) 7 else 10
   }
 
   data class Per(val instruction: Instruction, val sat: ScalarAndType) : Instruction() {
@@ -175,9 +175,9 @@ sealed class Instruction : PetNode() {
         val remove = skipChar('-') and gain map { Remove(it.sat, it.intensity) }
 
         val transmute =
-            optional(scalar) and
-                FromExpression.parser() and
-                optional(intensity) map
+                optional(scalar) and
+                        From.parser() and
+                        optional(intensity) map
                 { (scal, fro, intens) ->
                   Transmute(fro, scal, intens)
                 }

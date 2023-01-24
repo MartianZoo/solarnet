@@ -5,10 +5,10 @@ import dev.martianzoo.tfm.pets.ast.Action.Cost
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.Effect
 import dev.martianzoo.tfm.pets.ast.Effect.Trigger
-import dev.martianzoo.tfm.pets.ast.FromExpression
-import dev.martianzoo.tfm.pets.ast.FromExpression.ComplexFrom
-import dev.martianzoo.tfm.pets.ast.FromExpression.SimpleFrom
-import dev.martianzoo.tfm.pets.ast.FromExpression.TypeInFrom
+import dev.martianzoo.tfm.pets.ast.From
+import dev.martianzoo.tfm.pets.ast.From.ComplexFrom
+import dev.martianzoo.tfm.pets.ast.From.SimpleFrom
+import dev.martianzoo.tfm.pets.ast.From.TypeAsFrom
 import dev.martianzoo.tfm.pets.ast.Instruction
 import dev.martianzoo.tfm.pets.ast.PetNode
 import dev.martianzoo.tfm.pets.ast.Requirement
@@ -48,23 +48,25 @@ open class PetNodeVisitor {
             is Instruction ->
                 when (this) {
                   is Instruction.Gain -> Instruction.Gain(x(sat), intensity)
-                  is Instruction.Remove -> Instruction.Remove(x(sat), intensity)
-                  is Instruction.Per -> Instruction.Per(x(instruction), x(sat))
-                  is Instruction.Gated -> Instruction.Gated(x(gate), x(instruction))
-                  is Instruction.Transmute -> Instruction.Transmute(x(fromExpression), scalar)
-                  is Instruction.Custom -> Instruction.Custom(functionName, x(arguments))
-                  is Instruction.Then -> Instruction.Then(x(instructions))
-                  is Instruction.Or -> Instruction.Or(x(instructions))
-                  is Instruction.Multi -> Instruction.Multi(x(instructions))
-                  is Instruction.Transform -> Instruction.Transform(x(instruction), transform)
+                    is Instruction.Remove -> Instruction.Remove(x(sat), intensity)
+                    is Instruction.Per -> Instruction.Per(x(instruction), x(sat))
+                    is Instruction.Gated -> Instruction.Gated(x(gate), x(instruction))
+                    is Instruction.Transmute -> Instruction.Transmute(x(from), scalar)
+                    is Instruction.Custom -> Instruction.Custom(functionName, x(arguments))
+                    is Instruction.Then -> Instruction.Then(x(instructions))
+                    is Instruction.Or -> Instruction.Or(x(instructions))
+                    is Instruction.Multi -> Instruction.Multi(x(instructions))
+                    is Instruction.Transform -> Instruction.Transform(x(instruction), transform)
                 }
-            is FromExpression ->
-                when (this) {
-                  is SimpleFrom -> SimpleFrom(x(toType), x(fromType))
-                  is ComplexFrom -> ComplexFrom(x(className), x(args), x(refinement))
-                  is TypeInFrom -> TypeInFrom(x(type))
-                }
-            is Effect -> Effect(x(trigger), x(instruction), automatic)
+
+              is From ->
+                  when (this) {
+                      is SimpleFrom -> SimpleFrom(x(toType), x(fromType))
+                      is ComplexFrom -> ComplexFrom(x(className), x(arguments), x(refinement))
+                      is TypeAsFrom -> TypeAsFrom(x(type))
+                  }
+
+              is Effect -> Effect(x(trigger), x(instruction), automatic)
             is Trigger ->
                 when (this) {
                   is Trigger.OnGain -> Trigger.OnGain(x(expression))

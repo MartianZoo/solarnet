@@ -5,9 +5,9 @@ import dev.martianzoo.tfm.pets.ast.Action.Cost
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.Effect
 import dev.martianzoo.tfm.pets.ast.Effect.Trigger
-import dev.martianzoo.tfm.pets.ast.FromExpression.ComplexFrom
-import dev.martianzoo.tfm.pets.ast.FromExpression.SimpleFrom
-import dev.martianzoo.tfm.pets.ast.FromExpression.TypeInFrom
+import dev.martianzoo.tfm.pets.ast.From.ComplexFrom
+import dev.martianzoo.tfm.pets.ast.From.SimpleFrom
+import dev.martianzoo.tfm.pets.ast.From.TypeAsFrom
 import dev.martianzoo.tfm.pets.ast.Instruction
 import dev.martianzoo.tfm.pets.ast.Instruction.Custom
 import dev.martianzoo.tfm.pets.ast.Instruction.Gain
@@ -56,17 +56,18 @@ internal object PetToKotlin {
         is Remove -> "Remove(${p2k(sat)}, $intensity)"
         is Instruction.Per -> "Instruction.Per(${p2k(instruction)}, ${p2k(sat)})"
         is Gated -> "Gated(${p2k(gate)}, ${p2k(instruction)})"
-        is Transmute -> "Transmute(${p2k(fromExpression)}${scalar.pre(", ")}${intensity.pre(", ")})"
+        is Transmute -> "Transmute(${p2k(from)}${scalar.pre(", ")}${intensity.pre(", ")})"
         is ComplexFrom ->
-            "ComplexFrom(c(\"$className\"), " +
-                "listOf(${args.join()})${
-          refinement.pre(", ")
-        }"
+          "ComplexFrom(c(\"$className\"), " +
+                  "listOf(${arguments.join()})${
+                    refinement.pre(", ")
+                  }"
+
         is SimpleFrom -> "SimpleFrom(${p2k(toType)}, ${p2k(fromType)})"
-        is TypeInFrom -> "TypeInFrom(${p2k(type)})"
+        is TypeAsFrom -> "TypeAsFrom(${p2k(type)})"
         is Custom ->
-            "Instruction.Custom(\"$functionName\"" +
-                "${arguments.joinToString("") { ", ${p2k(it)}" }})"
+          "Instruction.Custom(\"$functionName\"" +
+                  "${arguments.joinToString("") { ", ${p2k(it)}" }})"
         is Then -> "Then(${instructions.join()})"
         is Instruction.Or -> "Instruction.Or(${instructions.join()})"
         is Instruction.Multi -> "Instruction.Multi(${instructions.join()})"
