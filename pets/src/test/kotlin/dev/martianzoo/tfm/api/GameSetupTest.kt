@@ -2,10 +2,10 @@ package dev.martianzoo.tfm.api
 
 import dev.martianzoo.tfm.data.MarsMapDefinition
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.tfm.testlib.assertFails
 import dev.martianzoo.util.Grid
 import dev.martianzoo.util.toStrings
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
 
 class GameSetupTest {
   val authority =
@@ -28,16 +28,16 @@ class GameSetupTest {
 
   @Test
   fun badPlayerCount() {
-    assertThrows<RuntimeException>("solo") { GameSetup(authority, "BM", 1) }
-    assertThrows<RuntimeException>("many") { GameSetup(authority, "BM", 6) }
+    assertFails("solo") { GameSetup(authority, "BM", 1) }
+    assertFails("many") { GameSetup(authority, "BM", 6) }
   }
 
   @Test
   fun badBundles() {
-    assertThrows<RuntimeException>("no base") { GameSetup(authority, "M", 4) }
-    assertThrows<RuntimeException>("repeated") { GameSetup(authority, "MBM", 4) }
-    assertThrows<RuntimeException>("no map") { GameSetup(authority, "B", 4) }
-    assertThrows<RuntimeException>("two maps") { GameSetup(authority, "BME", 4) }
-    assertThrows<RuntimeException>("wrong bundle") { GameSetup(authority, "BMZ", 4) }
+    assertFails("no base") { GameSetup(authority, "M", 4) }
+    assertFails("repeated") { GameSetup(authority, "MBM", 4) }
+    assertFails("no map") { GameSetup(authority, "B", 4) }
+    assertFails("two maps") { GameSetup(authority, "BME", 4) }
+    assertFails("wrong bundle") { GameSetup(authority, "BMZ", 4) }
   }
 }

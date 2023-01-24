@@ -2,4 +2,7 @@ package dev.martianzoo.tfm.testlib
 
 import org.junit.jupiter.api.assertThrows
 
-public fun assertFails(thing: () -> Unit) = assertThrows<RuntimeException>(thing)
+public fun assertFails(message: String, shouldFail: () -> Unit) =
+    assertThrows<RuntimeException>(message, shouldFail)
+
+public fun assertFails(shouldFail: () -> Unit) = assertThrows<RuntimeException>(shouldFail)

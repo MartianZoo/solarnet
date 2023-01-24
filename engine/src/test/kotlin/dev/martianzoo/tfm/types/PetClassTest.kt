@@ -185,8 +185,8 @@ private class PetClassTest {
     checkAutoAdjust("SubBar<SuperFoo>", "SubBar<SubFoo>", table)
     checkAutoAdjust("SubBar<Foo>", "SubBar<SubFoo>", table)
 
-    assertThrows<RuntimeException> { table.resolve("Foo<Qux>") }
-    assertThrows<RuntimeException> { table.resolve("Foo<Bar>") }
+    assertFails("outta bounds") { table.resolve("Foo<Qux>") }
+    assertFails("no deps") { table.resolve("Foo<Bar>") }
   }
 
   private fun checkAutoAdjust(`in`: String, out: String, table: PetClassTable) {
@@ -202,6 +202,10 @@ private fun loader(petsText: String): PetClassLoader {
       }
   return PetClassLoader(authority).also { it.loadEverything() }
 }
+
+// TODO share
+private fun assertFails(message: String, shouldFail: () -> Unit) =
+    assertThrows<RuntimeException>(message, shouldFail)
 
 // TODO move to shared utils (already being used from PetTypeTest)
 internal fun loadTypes(vararg decl: String): PetClassTable {

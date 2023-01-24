@@ -27,7 +27,7 @@ private class CanonCustomInstructionsTest {
     repl.command("become Player1")
     repl.command("PROD[5]") // The standard hack for every player - ignore it!
     repl.command("PROD[Steel, Titanium, Plant, Heat]")
-    assertThrows<RuntimeException> { repl.command("@gainLowestProduction(Player1)") }
+    assertFails("multiple lowest") { repl.command("@gainLowestProduction(Player1)") }
   }
 
   @Test
@@ -55,3 +55,7 @@ private class CanonCustomInstructionsTest {
   //
   // REQUIRE PROD[=0 Energy<Player1>, 4 Steel<Player1>]
 }
+
+// TODO share
+private fun assertFails(message: String, shouldFail: () -> Unit) =
+    assertThrows<RuntimeException>(message, shouldFail)

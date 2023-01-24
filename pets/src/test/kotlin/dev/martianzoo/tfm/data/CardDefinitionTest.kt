@@ -10,8 +10,8 @@ import dev.martianzoo.tfm.data.CardDefinition.ProjectKind.AUTOMATED
 import dev.martianzoo.tfm.data.CardDefinition.ProjectKind.EVENT
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.pets.ast.PetNode
+import dev.martianzoo.tfm.testlib.assertFails
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
 
 private class CardDefinitionTest {
   /** This is honestly an incredibly stupid test that data classes shouldn't need to have. */
@@ -101,51 +101,51 @@ private class CardDefinitionTest {
 
   @Test
   fun emptyStrings() {
-    assertThrows<RuntimeException> { CardDefinition("", bundle = "Z") }
-    assertThrows<RuntimeException> { card.copy(bundle = "") }
-    assertThrows<RuntimeException> { card.copy(replaces = "") }
-    assertThrows<RuntimeException> { card.copy(resourceTypeText = "") }
-    assertThrows<RuntimeException> { card.copy(requirementText = "") }
+    assertFails { CardDefinition("", bundle = "Z") }
+    assertFails { card.copy(bundle = "") }
+    assertFails { card.copy(replaces = "") }
+    assertFails { card.copy(resourceTypeText = "") }
+    assertFails { card.copy(requirementText = "") }
   }
 
   @Test
   fun badCost() {
-    assertThrows<RuntimeException> { card.copy(cost = -1) }
-    assertThrows<RuntimeException> { card.copy(deck = PRELUDE, cost = 1) }
-    assertThrows<RuntimeException> { card.copy(deck = CORPORATION, cost = 1) }
+    assertFails { card.copy(cost = -1) }
+    assertFails { card.copy(deck = PRELUDE, cost = 1) }
+    assertFails { card.copy(deck = CORPORATION, cost = 1) }
   }
 
   @Test
   fun badProjectKind() {
-    assertThrows<RuntimeException> { card.copy(deck = CORPORATION, projectKind = ACTIVE) }
-    assertThrows<RuntimeException> { card.copy(deck = PRELUDE, projectKind = AUTOMATED) }
-    assertThrows<RuntimeException> { card.copy(deck = PROJECT) }
+    assertFails { card.copy(deck = CORPORATION, projectKind = ACTIVE) }
+    assertFails { card.copy(deck = PRELUDE, projectKind = AUTOMATED) }
+    assertFails { card.copy(deck = PROJECT) }
   }
 
   @Test
   fun badRequirement() {
-    assertThrows<RuntimeException> { card.copy(deck = CORPORATION, projectKind = ACTIVE) }
-    assertThrows<RuntimeException> { card.copy(deck = PRELUDE, projectKind = AUTOMATED) }
+    assertFails { card.copy(deck = CORPORATION, projectKind = ACTIVE) }
+    assertFails { card.copy(deck = PRELUDE, projectKind = AUTOMATED) }
   }
 
   @Test
   fun badActiveCard() {
-    assertThrows<RuntimeException> {
+    assertFails {
       card.copy(projectKind = EVENT, effectsText = setOf("Foo: Bar"))
     }
-    assertThrows<RuntimeException> {
+    assertFails {
       card.copy(projectKind = AUTOMATED, effectsText = setOf("Bar: Qux"))
     }
-    assertThrows<RuntimeException> {
+    assertFails {
       card.copy(projectKind = EVENT, actionsText = listOf("Foo -> Bar"))
     }
-    assertThrows<RuntimeException> {
+    assertFails {
       card.copy(projectKind = AUTOMATED, actionsText = listOf("Bar -> Qux"))
     }
-    assertThrows<RuntimeException> {
+    assertFails {
       card.copy(projectKind = AUTOMATED, resourceTypeText = "Whatever")
     }
-    assertThrows<RuntimeException> { card.copy(projectKind = ACTIVE, immediateText = "Whatever") }
+    assertFails { card.copy(projectKind = ACTIVE, immediateText = "Whatever") }
   }
 
   @Test
