@@ -16,8 +16,8 @@ import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.pets.ast.TypeExpression
 import dev.martianzoo.tfm.pets.ast.TypeExpression.GenericTypeExpression
 import dev.martianzoo.tfm.pets.deprodify
-import dev.martianzoo.tfm.types.PetClassLoader
-import dev.martianzoo.tfm.types.PetType.PetGenericType
+import dev.martianzoo.tfm.types.PClassLoader
+import dev.martianzoo.tfm.types.PType.GenericPType
 
 class InteractiveSession {
   internal var game: Game? = null // TODO private?
@@ -43,12 +43,12 @@ class InteractiveSession {
     val theStuff = game!!.getAll(typeToList)
 
     // figure out how to break it down
-    val petClass = typeToList.petClass
+    val petClass = typeToList.pClass
     var subs = petClass.directSubclasses.sortedBy { it.name }
     if (subs.isEmpty()) subs = listOf(petClass)
 
     subs.mapNotNull { sub ->
-      val thatType: PetGenericType = sub.baseType
+      val thatType: GenericPType = sub.baseType
       val count = theStuff.entrySet().filter { it.element.hasType(thatType) }.sumOf { it.count }
       if (count > 0) {
         "$count".padEnd(4) + thatType
@@ -92,6 +92,6 @@ class InteractiveSession {
     val fixt = Fixer().transform(node)
 
     // TODO hmm
-    return deprodify(fixt, (game!!.classTable as PetClassLoader).resourceNames())
+    return deprodify(fixt, (game!!.classTable as PClassLoader).resourceNames())
   }
 }

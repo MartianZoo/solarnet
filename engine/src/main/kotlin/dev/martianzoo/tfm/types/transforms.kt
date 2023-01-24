@@ -8,11 +8,11 @@ import dev.martianzoo.tfm.pets.ast.PetNode
 import dev.martianzoo.tfm.pets.ast.ScalarAndType.Companion.sat
 import dev.martianzoo.tfm.pets.ast.TypeExpression.GenericTypeExpression
 
-public fun <P : PetNode> applyDefaultsIn(node: P, loader: PetClassLoader): P {
+public fun <P : PetNode> applyDefaultsIn(node: P, loader: PClassLoader): P {
   return Defaulter(loader).transform(node)
 }
 
-private class Defaulter(val table: PetClassTable) : PetNodeVisitor() {
+private class Defaulter(val table: PClassTable) : PetNodeVisitor() {
   override fun <P : PetNode?> transform(node: P): P {
     val transformed: PetNode? =
         when (node) {

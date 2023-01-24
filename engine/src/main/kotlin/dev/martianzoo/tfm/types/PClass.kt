@@ -3,13 +3,13 @@ package dev.martianzoo.tfm.types
 import dev.martianzoo.tfm.data.ClassDeclaration
 import dev.martianzoo.tfm.pets.SpecialClassNames.COMPONENT
 import dev.martianzoo.tfm.pets.ast.ClassName
-import dev.martianzoo.tfm.types.PetType.PetGenericType
+import dev.martianzoo.tfm.types.PType.GenericPType
 
-/** A class that has been loaded by a [PetClassLoader]. */
-public data class PetClass(
+/** A class that has been loaded by a [PClassLoader]. */
+public data class PClass(
     private val declaration: ClassDeclaration,
-    internal val directSuperclasses: List<PetClass>,
-    private val loader: PetClassLoader,
+    internal val directSuperclasses: List<PClass>,
+    private val loader: PClassLoader,
 ) {
 
   public val id: ClassName by declaration::id
@@ -18,24 +18,24 @@ public data class PetClass(
 
   // HIERARCHY
 
-  public val directSupertypes: Set<PetGenericType> by lazy {
+  public val directSupertypes: Set<GenericPType> by lazy {
     loader.resolveAll(declaration.supertypes)
   }
 
-  public fun isSubclassOf(that: PetClass): Boolean =
+  public fun isSubclassOf(that: PClass): Boolean =
       this == that || directSuperclasses.any { it.isSubclassOf(that) }
 
-  public val directSubclasses: Set<PetClass> by lazy {
+  public val directSubclasses: Set<PClass> by lazy {
     require(loader.frozen)
     loader.loadedClasses().filter { this in it.directSuperclasses }.toSet()
   }
 
-  public val allSubclasses: Set<PetClass> by lazy {
+  public val allSubclasses: Set<PClass> by lazy {
     require(loader.frozen)
     loader.loadedClasses().filter { this in it.allSuperclasses }.toSet()
   }
 
-  public val allSuperclasses: Set<PetClass> by lazy {
+  public val allSuperclasses: Set<PClass> by lazy {
     (directSuperclasses.flatMap { it.allSuperclasses } + this).toSet()
   }
 
@@ -52,7 +52,7 @@ public data class PetClass(
     }
   }
 
-  public infix fun intersect(that: PetClass): PetClass? =
+  public infix fun intersect(that: PClass): PClass? =
       when {
         this.isSubclassOf(that) -> this
         that.isSubclassOf(this) -> that
@@ -77,17 +77,17 @@ public data class PetClass(
     (directSuperclasses.flatMap { it.allDependencyKeys } + directDependencyKeys).toSet()
   }
 
-  /** Least upper bound of all types with petClass==this */
-  public val baseType: PetGenericType by lazy {
+  /** Least upper bound of all types with pClass==this */
+  public val baseType: GenericPType by lazy {
     val newDeps =
         directDependencyKeys.associateWith {
-          val typeExpression = declaration.dependencies[it.index].type
-          Dependency(it, loader.resolve(typeExpression))
+          val type = declaration.dependencies[it.index].type
+          Dependency(it, loader.resolve(type))
         }
     val deps = DependencyMap.intersect(directSupertypes.map { it.dependencies })
     val allDeps = deps.intersect(DependencyMap(newDeps))
     require(allDeps.keys == allDependencyKeys)
-    PetGenericType(this, allDeps, null)
+    GenericPType(this, allDeps, null)
   }
 
   // DEFAULTS

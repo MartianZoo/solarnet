@@ -45,14 +45,14 @@ public data class DependencyMap(private val map: Map<Dependency.Key, Dependency>
   // determines the map that could be merged with this one to specialize, by inferring which
   // keys the provided specs go with
   // TODO fix the strict-order problem!
-  public fun findMatchups(specs: List<PetType>): DependencyMap {
+  public fun findMatchups(specs: List<PType>): DependencyMap {
     if (specs.isEmpty()) return this
     val newMap = mutableMapOf<Dependency.Key, Dependency>()
     val unhandled = specs.toMutableList()
 
     for ((key, dependency) in map) {
       if (unhandled.isEmpty()) break
-      val intersect: PetType? = dependency.type.intersect(unhandled.first())
+      val intersect: PType? = dependency.type.intersect(unhandled.first())
       newMap[key] =
           if (intersect != null) {
             unhandled.removeFirst()
@@ -65,7 +65,7 @@ public data class DependencyMap(private val map: Map<Dependency.Key, Dependency>
     return DependencyMap(newMap)
   }
 
-  public fun specialize(specs: List<PetType>) = intersect(findMatchups(specs))
+  public fun specialize(specs: List<PType>) = intersect(findMatchups(specs))
 
   override fun toString() = "$types"
 }

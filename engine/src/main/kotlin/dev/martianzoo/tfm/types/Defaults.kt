@@ -17,13 +17,13 @@ internal class Defaults(
 
   companion object {
     val EMPTY = Defaults()
-    fun from(d: DefaultsDeclaration, petClass: PetClass, loader: PetClassLoader): Defaults {
-      fun PetClass.toDependencyMap(specs: List<TypeExpression>?) =
+    fun from(d: DefaultsDeclaration, pClass: PClass, loader: PClassLoader): Defaults {
+      fun PClass.toDependencyMap(specs: List<TypeExpression>?) =
           specs?.let { loader.resolve(name.addArgs(it)).dependencies } ?: DependencyMap()
 
       return Defaults(
-          allCasesDependencies = petClass.toDependencyMap(d.universalSpecs),
-          gainOnlyDependencies = petClass.toDependencyMap(d.gainOnlySpecs),
+          allCasesDependencies = pClass.toDependencyMap(d.universalSpecs),
+          gainOnlyDependencies = pClass.toDependencyMap(d.gainOnlySpecs),
           gainIntensity = d.gainIntensity,
       )
     }

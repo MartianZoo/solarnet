@@ -10,12 +10,12 @@ import dev.martianzoo.util.toStrings
 import java.util.TreeSet
 import org.junit.jupiter.api.Test
 
-/** Tests of [PetClass] that use the [Canon] dataset because it's convenient. */
-private class PetClassCanonTest {
+/** Tests of [PClass] that use the [Canon] dataset because it's convenient. */
+private class PClassCanonTest {
 
   @Test
   fun component() {
-    val table = PetClassLoader(Canon)
+    val table = PClassLoader(Canon)
 
     table.load(COMPONENT).apply {
       assertThat(name).isEqualTo(COMPONENT)
@@ -44,14 +44,14 @@ private class PetClassCanonTest {
 
   @Test
   fun canGetBaseTypes() {
-    val table = PetClassLoader(Canon).loadEverything()
+    val table = PClassLoader(Canon).loadEverything()
     val all = table.loadedClassNames().map { table[it] }
 
     all.forEach { it.baseType }
   }
 
   fun findValidTypes() {
-    val table = PetClassLoader(Canon).loadEverything()
+    val table = PClassLoader(Canon).loadEverything()
     val all = table.loadedClassNames().map { table[it] }
 
     val names: List<ClassName> =

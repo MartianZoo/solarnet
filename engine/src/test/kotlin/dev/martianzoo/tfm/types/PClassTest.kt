@@ -10,7 +10,7 @@ import dev.martianzoo.util.toStrings
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 
-private class PetClassTest {
+private class PClassTest {
   @Test
   fun nothingness() {
     val loader = loadTypes()
@@ -189,18 +189,18 @@ private class PetClassTest {
     assertFails("no deps") { table.resolve("Foo<Bar>") }
   }
 
-  private fun checkAutoAdjust(`in`: String, out: String, table: PetClassTable) {
+  private fun checkAutoAdjust(`in`: String, out: String, table: PClassTable) {
     assertThat(table.resolve(`in`).toTypeExpression().toString()).isEqualTo(out)
   }
 }
 
-private fun loader(petsText: String): PetClassLoader {
+private fun loader(petsText: String): PClassLoader {
   val classes = parseClassDeclarations(petsText)
   val authority =
       object : Authority.Empty() {
         override val explicitClassDeclarations = classes
       }
-  return PetClassLoader(authority).also { it.loadEverything() }
+  return PClassLoader(authority).also { it.loadEverything() }
 }
 
 // TODO share
@@ -208,6 +208,6 @@ private fun assertFails(message: String, shouldFail: () -> Unit) =
     assertThrows<RuntimeException>(message, shouldFail)
 
 // TODO move to shared utils (already being used from PetTypeTest)
-internal fun loadTypes(vararg decl: String): PetClassTable {
+internal fun loadTypes(vararg decl: String): PClassTable {
   return loader("ABSTRACT CLASS $COMPONENT\n" + decl.joinToString("") { "$it\n" })
 }

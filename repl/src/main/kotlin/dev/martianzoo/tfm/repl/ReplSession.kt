@@ -7,7 +7,7 @@ import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.pets.ast.Instruction.Companion.instruction
 import dev.martianzoo.tfm.pets.ast.Requirement.Companion.requirement
 import dev.martianzoo.tfm.pets.ast.TypeExpression.Companion.typeExpression
-import dev.martianzoo.tfm.types.PetClass
+import dev.martianzoo.tfm.types.PClass
 import dev.martianzoo.util.toStrings
 import org.jline.reader.EndOfFileException
 import org.jline.reader.LineReaderBuilder
@@ -85,13 +85,13 @@ class ReplSession(val authority: Authority) {
           },
           "desc" to {
             it?.let { args ->
-              val petClass: PetClass = session.game!!.classTable[cn(args.trim())]
-              val subs = petClass.allSubclasses
+              val pClass: PClass = session.game!!.classTable[cn(args.trim())]
+              val subs = pClass.allSubclasses
               listOf(
-                  "Name: ${petClass.name}",
-                  "Abstract: ${petClass.abstract}",
-                  "Superclasses: ${petClass.allSuperclasses.joinToString()}",
-                  "Dependencies: ${petClass.baseType.dependencies.types}",
+                  "Name: ${pClass.name}",
+                  "Abstract: ${pClass.abstract}",
+                  "Superclasses: ${pClass.allSuperclasses.joinToString()}",
+                  "Dependencies: ${pClass.baseType.dependencies.types}",
                   "Subclasses: " +
                       if (subs.size <= 5) {
                         subs.joinToString()

@@ -5,13 +5,13 @@ import dev.martianzoo.tfm.data.MarsMapDefinition
 import dev.martianzoo.tfm.engine.ComponentGraph.Component
 import dev.martianzoo.tfm.pets.SpecialClassNames.PRODUCTION
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.tfm.types.PetClassLoader
-import dev.martianzoo.tfm.types.PetType.PetClassLiteral
+import dev.martianzoo.tfm.types.PClassLoader
+import dev.martianzoo.tfm.types.PType.ClassPType
 import dev.martianzoo.util.filterNoNulls
 
 public object Engine {
   public fun newGame(setup: GameSetup): Game {
-    val loader = PetClassLoader(setup.authority)
+    val loader = PClassLoader(setup.authority)
     loader.autoLoadDependencies = true
 
     val defns = setup.allDefinitions.map { it.name }.sorted()
@@ -34,16 +34,16 @@ public object Engine {
 
   // TODO maybe the loader should report these
 
-  private fun classLiterals(loader: PetClassLoader) =
-      loader.loadedClasses().filterNot { it.abstract }.map { Component(PetClassLiteral(it)) }
+  private fun classLiterals(loader: PClassLoader) =
+      loader.loadedClasses().filterNot { it.abstract }.map { Component(ClassPType(it)) }
 
-  private fun singletons(loader: PetClassLoader) =
+  private fun singletons(loader: PClassLoader) =
       loader
           .loadedClasses()
           .filter { it.isSingleton() && !it.baseType.abstract } // TODO that's not right
           .map { Component(loader.resolve(it.name.type)) }
 
-  private fun borders(map: MarsMapDefinition, loader: PetClassLoader): List<Component> {
+  private fun borders(map: MarsMapDefinition, loader: PClassLoader): List<Component> {
     val border = cn("Border")
     return map.areas
         .let { it.rows() + it.columns() + it.diagonals() }

@@ -11,7 +11,7 @@ import dev.martianzoo.tfm.engine.ComponentGraph.Component
 import dev.martianzoo.tfm.engine.Engine
 import dev.martianzoo.tfm.pets.SpecialClassNames.OWNED
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.tfm.types.PetClassLoader
+import dev.martianzoo.tfm.types.PClassLoader
 import dev.martianzoo.util.Grid
 import dev.martianzoo.util.toStrings
 import org.junit.jupiter.api.Test
@@ -20,7 +20,7 @@ import org.junit.jupiter.api.Test
 private class CanonTest {
   @Test
   fun testOwnedTileIsAnIntersectionType() {
-    val table = PetClassLoader(Canon).loadEverything()
+    val table = PClassLoader(Canon).loadEverything()
     val ot = table["OwnedTile"]
 
     // Nothing can be both Owned and a Tile without being an OwnedTile!
@@ -30,7 +30,7 @@ private class CanonTest {
 
   @Test
   fun testActionCardIsAnIntersectionType() {
-    val table = PetClassLoader(Canon).loadEverything()
+    val table = PClassLoader(Canon).loadEverything()
     val ac = table["ActionCard"]
 
     // Nothing can be both a CardFront and a HasActions but an ActionCard!

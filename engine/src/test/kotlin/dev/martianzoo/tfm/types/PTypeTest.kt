@@ -3,11 +3,11 @@ package dev.martianzoo.tfm.types
 import com.google.common.truth.Truth.assertThat
 import org.junit.jupiter.api.Test
 
-private class PetTypeTest {
+private class PTypeTest {
 
   @Test
   fun testCycle() {
-    val table: PetClassLoader =
+    val table: PClassLoader =
         loadTypes(
             "ABSTRACT CLASS Anyone",
             "CLASS Player1 : Anyone",
@@ -23,7 +23,7 @@ private class PetTypeTest {
             "CLASS Fish : ResourcefulCard<Animal.CLASS>",
             "CLASS Ants : ResourcefulCard<Microbe.CLASS>",
         )
-            as PetClassLoader
+            as PClassLoader
     assertThat(table.resolve("Animal<Fish>").abstract).isTrue()
 
     val fish = table.resolve("Animal<Player1, Fish<Player1>>")

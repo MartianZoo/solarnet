@@ -6,53 +6,53 @@ import dev.martianzoo.tfm.pets.ast.TypeExpression
 import dev.martianzoo.tfm.pets.ast.TypeExpression.ClassLiteral
 import dev.martianzoo.tfm.pets.ast.TypeExpression.GenericTypeExpression
 
-interface PetType : TypeInfo {
-  val petClass: PetClass // TODO should this really be shared?
+interface PType : TypeInfo {
+  val pClass: PClass // TODO should this really be shared?
   val dependencies: DependencyMap
   val refinement: Requirement?
 
-  fun isSubtypeOf(that: PetType): Boolean
+  fun isSubtypeOf(that: PType): Boolean
 
-  infix fun intersect(that: PetType): PetType?
+  infix fun intersect(that: PType): PType?
 
   override fun toTypeExpression(): TypeExpression
 
-  data class PetClassLiteral(override val petClass: PetClass) : PetType {
+  data class ClassPType(override val pClass: PClass) : PType {
     override val dependencies = DependencyMap()
     override val refinement = null
 
-    override val abstract by petClass::abstract
+    override val abstract by pClass::abstract
 
-    override fun isSubtypeOf(that: PetType) =
-        that is PetClassLiteral && this.petClass.isSubclassOf(that.petClass)
+    override fun isSubtypeOf(that: PType) =
+        that is ClassPType && this.pClass.isSubclassOf(that.pClass)
 
-    override fun intersect(that: PetType): PetType? {
-      if (that !is PetClassLiteral) return null
-      val inter = (this.petClass intersect that.petClass) ?: return null
-      return PetClassLiteral(inter)
+    override fun intersect(that: PType): PType? {
+      if (that !is ClassPType) return null
+      val inter = (this.pClass intersect that.pClass) ?: return null
+      return ClassPType(inter)
     }
 
-    override fun toTypeExpression() = ClassLiteral(petClass.name)
+    override fun toTypeExpression() = ClassLiteral(pClass.name)
     override fun toString() = toTypeExpression().toString()
   }
 
-  data class PetGenericType(
-      override val petClass: PetClass,
+  data class GenericPType(
+      override val pClass: PClass,
       override val dependencies: DependencyMap,
       override val refinement: Requirement?,
-  ) : PetType {
+  ) : PType {
     override val abstract: Boolean =
-        petClass.abstract || dependencies.abstract || refinement != null
+        pClass.abstract || dependencies.abstract || refinement != null
 
-    override fun isSubtypeOf(that: PetType) =
-        that is PetGenericType &&
-            petClass.isSubclassOf(that.petClass) &&
+    override fun isSubtypeOf(that: PType) =
+        that is GenericPType &&
+            pClass.isSubclassOf(that.pClass) &&
             dependencies.specializes(that.dependencies) &&
             that.refinement in setOf(null, refinement)
 
-    override fun intersect(that: PetType): PetGenericType? {
-      val intersect: PetClass = petClass.intersect(that.petClass) ?: return null
-      return PetGenericType(
+    override fun intersect(that: PType): GenericPType? {
+      val intersect: PClass = pClass.intersect(that.pClass) ?: return null
+      return GenericPType(
           intersect,
           dependencies.intersect(that.dependencies),
           combine(this.refinement, that.refinement))
@@ -68,13 +68,13 @@ interface PetType : TypeInfo {
       }
     }
 
-    fun specialize(specs: List<PetType>): PetGenericType {
+    fun specialize(specs: List<PType>): GenericPType {
       return copy(dependencies = dependencies.specialize(specs))
     }
 
     override fun toTypeExpression(): GenericTypeExpression {
       val specs = dependencies.types.map { it.toTypeExpressionFull() }
-      return petClass.name.addArgs(specs).refine(refinement)
+      return pClass.name.addArgs(specs).refine(refinement)
     }
     override fun toString() = toTypeExpression().toString()
   }

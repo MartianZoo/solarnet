@@ -13,14 +13,14 @@ import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.pets.ast.TypeExpression
 import dev.martianzoo.tfm.pets.ast.TypeExpression.ClassLiteral
 import dev.martianzoo.tfm.pets.ast.TypeExpression.GenericTypeExpression
-import dev.martianzoo.tfm.types.PetClassTable
-import dev.martianzoo.tfm.types.PetType
+import dev.martianzoo.tfm.types.PClassTable
+import dev.martianzoo.tfm.types.PType
 import dev.martianzoo.util.toSetStrict
 
 public class Game(
     val setup: GameSetup,
     val components: ComponentGraph,
-    val classTable: PetClassTable,
+    val classTable: PClassTable,
 ) {
   // val tasks = mutableListOf<Task>()
 
@@ -29,15 +29,15 @@ public class Game(
   // TODO maybe have `beginChangeLogging` instead of passing in a prebuilt multiset
   fun changeLog(): List<StateChange> = components.changeLog()
 
-  fun resolve(type: TypeExpression): PetType = classTable.resolve(type)
+  fun resolve(type: TypeExpression): PType = classTable.resolve(type)
 
   fun isMet(requirement: Requirement) = LiveNodes.from(requirement, this).isMet(this)
 
-  fun count(type: PetType) = components.count(type)
+  fun count(type: PType) = components.count(type)
 
   fun count(type: TypeExpression) = count(resolve(type))
 
-  fun getAll(type: PetType): Multiset<Component> = components.getAll(type)
+  fun getAll(type: PType): Multiset<Component> = components.getAll(type)
 
   fun getAll(type: TypeExpression): Multiset<TypeExpression> {
     val all: Multiset<Component> = getAll(resolve(type))

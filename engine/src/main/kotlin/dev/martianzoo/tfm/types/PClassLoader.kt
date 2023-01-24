@@ -11,29 +11,29 @@ import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.pets.ast.TypeExpression
 import dev.martianzoo.tfm.pets.ast.TypeExpression.ClassLiteral
 import dev.martianzoo.tfm.pets.ast.TypeExpression.GenericTypeExpression
-import dev.martianzoo.tfm.types.PetType.PetClassLiteral
-import dev.martianzoo.tfm.types.PetType.PetGenericType
+import dev.martianzoo.tfm.types.PType.ClassPType
+import dev.martianzoo.tfm.types.PType.GenericPType
 import dev.martianzoo.util.toSetStrict
 
 // TODO restrict viz?
-class PetClassLoader(private val authority: Authority) : PetClassTable {
-  private val table = mutableMapOf<ClassName, PetClass?>()
+class PClassLoader(private val authority: Authority) : PClassTable {
+  private val table = mutableMapOf<ClassName, PClass?>()
 
   // MAIN QUERIES
 
-  override fun get(nameOrId: ClassName): PetClass =
+  override fun get(nameOrId: ClassName): PClass =
       table[nameOrId] ?: error("no class loaded with id or name $nameOrId")
 
-  override fun resolve(expression: TypeExpression): PetType =
-      when (expression) {
-        is ClassLiteral -> PetClassLiteral(load(expression.className))
-        is GenericTypeExpression -> resolve(expression)
+  override fun resolve(typeExpr: TypeExpression): PType =
+      when (typeExpr) {
+        is ClassLiteral -> ClassPType(load(typeExpr.className))
+        is GenericTypeExpression -> resolve(typeExpr)
       }
 
-  override fun resolve(expression: GenericTypeExpression): PetGenericType =
-      load(expression.root).baseType.specialize(expression.args.map { resolve(it) })
+  override fun resolve(typeExpr: GenericTypeExpression): GenericPType =
+      load(typeExpr.root).baseType.specialize(typeExpr.args.map { resolve(it) })
 
-  fun resolveAll(exprs: Set<GenericTypeExpression>): Set<PetGenericType> =
+  fun resolveAll(exprs: Set<GenericTypeExpression>): Set<GenericPType> =
       exprs.map { resolve(it) }.toSetStrict()
 
   override fun loadedClassNames() = loadedClasses().map { it.name }.toSetStrict()
@@ -45,7 +45,7 @@ class PetClassLoader(private val authority: Authority) : PetClassTable {
   var autoLoadDependencies: Boolean = false
 
   /** Returns the class with the name [idOrName], loading it first if necessary. */
-  fun load(idOrName: ClassName): PetClass {
+  fun load(idOrName: ClassName): PClass {
     if (frozen) {
       return get(idOrName)
     }
@@ -57,7 +57,7 @@ class PetClassLoader(private val authority: Authority) : PetClassTable {
     }
   }
 
-  fun load(idOrName: String): PetClass = load(cn(idOrName))
+  fun load(idOrName: String): PClass = load(cn(idOrName))
 
   @JvmName("loadAllFromStrings")
   fun loadAll(idsAndNames: Collection<String>) = loadAll(idsAndNames.map { cn(it) })
@@ -71,7 +71,7 @@ class PetClassLoader(private val authority: Authority) : PetClassTable {
   /** Vararg form of `loadAll(Collection)`. */
   fun loadAll(first: String, vararg rest: String) = loadAll(setOf(first) + rest)
 
-  fun loadEverything(): PetClassTable {
+  fun loadEverything(): PClassTable {
     authority.allClassNames.forEach(::loadSingle)
     return freeze()
   }
@@ -94,7 +94,7 @@ class PetClassLoader(private val authority: Authority) : PetClassTable {
   // OKAY BUT ACTUAL LOADING NOW
 
   // all loading goes through here
-  private fun loadSingle(idOrName: ClassName): PetClass {
+  private fun loadSingle(idOrName: ClassName): PClass {
     if (frozen) {
       return get(idOrName)
     } else {
@@ -103,7 +103,7 @@ class PetClassLoader(private val authority: Authority) : PetClassTable {
   }
 
   // all loading goes through here
-  private fun loadSingle(idOrName: ClassName, decl: ClassDeclaration): PetClass {
+  private fun loadSingle(idOrName: ClassName, decl: ClassDeclaration): PClass {
     if (frozen) {
       return get(idOrName)
     } else {
@@ -111,7 +111,7 @@ class PetClassLoader(private val authority: Authority) : PetClassTable {
     }
   }
 
-  private fun construct(decl: ClassDeclaration): PetClass {
+  private fun construct(decl: ClassDeclaration): PClass {
     require(!frozen) { "Too late, this table is frozen!" }
 
     require(decl.name !in table) { decl.name }
@@ -120,13 +120,13 @@ class PetClassLoader(private val authority: Authority) : PetClassTable {
     // signal with `null` that loading is in process so we can detect infinite recursion
     table[decl.name] = null
     table[decl.id] = null
-    val superclasses: List<PetClass> =
+    val superclasses: List<PClass> =
         decl.superclassNames.map { load(it) } // we do most other things lazily...
 
-    val petClass = PetClass(decl, superclasses, this)
-    table[decl.name] = petClass
-    table[decl.id] = petClass
-    return petClass
+    val pClass = PClass(decl, superclasses, this)
+    table[decl.name] = pClass
+    table[decl.id] = pClass
+    return pClass
   }
 
   // FREEZING
@@ -134,7 +134,7 @@ class PetClassLoader(private val authority: Authority) : PetClassTable {
   var frozen: Boolean = false
     private set
 
-  fun freeze(): PetClassTable {
+  fun freeze(): PClassTable {
     frozen = true
     table.values.forEach { it!! }
     return this

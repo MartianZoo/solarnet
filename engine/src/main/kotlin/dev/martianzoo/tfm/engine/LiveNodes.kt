@@ -20,7 +20,7 @@ import dev.martianzoo.tfm.pets.ast.Requirement.Exact
 import dev.martianzoo.tfm.pets.ast.Requirement.Max
 import dev.martianzoo.tfm.pets.ast.Requirement.Min
 import dev.martianzoo.tfm.pets.deprodify
-import dev.martianzoo.tfm.types.PetType
+import dev.martianzoo.tfm.types.PType
 
 object LiveNodes {
   fun from(ins: Instruction, game: Game): LiveInstruction {
@@ -54,8 +54,8 @@ object LiveNodes {
   class Change(
       val count: Int,
       val intensity: Intensity = MANDATORY,
-      val removing: PetType? = null,
-      val gaining: PetType? = null,
+      val removing: PType? = null,
+      val gaining: PType? = null,
   ) : LiveInstruction() {
     init {
       require(count > 0)
@@ -77,7 +77,7 @@ object LiveNodes {
     }
   }
 
-  class Per(val type: PetType, val unit: Int = 1, val instruction: LiveInstruction) :
+  class Per(val type: PType, val unit: Int = 1, val instruction: LiveInstruction) :
       LiveInstruction() {
 
     override fun times(factor: Int) = Per(type, unit, instruction * factor)
@@ -95,7 +95,7 @@ object LiveNodes {
         }
   }
 
-  class Custom(val custom: CustomInstruction, val arguments: List<PetType>) : LiveInstruction() {
+  class Custom(val custom: CustomInstruction, val arguments: List<PType>) : LiveInstruction() {
     override fun execute(game: Game) {
       try {
         var translated: Instruction =
@@ -156,14 +156,14 @@ object LiveNodes {
     abstract fun hits(change: StateChange, game: Game): Int
   }
 
-  class OnGain(val type: PetType) : LiveTrigger() {
+  class OnGain(val type: PType) : LiveTrigger() {
     override fun hits(change: StateChange, game: Game): Int {
       val g = change.gaining
       return if (g != null && game.resolve(g).isSubtypeOf(type)) change.count else 0
     }
   }
 
-  class OnRemove(val type: PetType) : LiveTrigger() {
+  class OnRemove(val type: PType) : LiveTrigger() {
     override fun hits(change: StateChange, game: Game): Int {
       val r = change.removing
       return if (r != null && game.resolve(r).isSubtypeOf(type)) change.count else 0

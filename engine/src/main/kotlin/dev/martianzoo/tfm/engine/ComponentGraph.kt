@@ -6,7 +6,7 @@ import com.google.common.collect.Multisets
 import dev.martianzoo.tfm.data.StateChange
 import dev.martianzoo.tfm.data.StateChange.Cause
 import dev.martianzoo.tfm.pets.PetException
-import dev.martianzoo.tfm.types.PetType
+import dev.martianzoo.tfm.types.PType
 import kotlin.math.min
 
 public class ComponentGraph(startingWith: Collection<Component> = listOf()) {
@@ -53,18 +53,18 @@ public class ComponentGraph(startingWith: Collection<Component> = listOf()) {
     changeLog.add(change)
   }
 
-  public fun count(type: PetType) =
+  public fun count(type: PType) =
       multiset.entrySet().filter { it.element.hasType(type) }.sumOf { it.count }
 
-  public fun getAll(type: PetType): Multiset<Component> =
+  public fun getAll(type: PType): Multiset<Component> =
       Multisets.filter(multiset) { it!!.hasType(type) }
 
-  public data class Component(val type: PetType) {
+  public data class Component(val type: PType) {
     init {
       require(!type.abstract) { type }
     }
 
-    public fun hasType(thatType: PetType) = type.isSubtypeOf(thatType)
+    public fun hasType(thatType: PType) = type.isSubtypeOf(thatType)
     public val asTypeExpression = type.toTypeExpression()
     override fun toString() = "[$type]"
   }
