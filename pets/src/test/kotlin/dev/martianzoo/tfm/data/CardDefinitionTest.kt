@@ -149,13 +149,13 @@ private class CardDefinitionTest {
   }
 
   @Test
-  fun birdsFromDataFile() {
+  fun birdsFromCanon() {
     val card = Canon.cardDefinitions.first { it.id == cn("C072") }
     assertThat(card).isEqualTo(birds)
   }
 
   @Test
-  fun slurp() {
+  fun testRoundTripForAllCanonCardData() {
     Canon.cardDefinitions.forEach { card ->
       card.requirementRaw?.let { assertThat("$it").isEqualTo(card.requirementText) }
       card.resourceType?.let { assertThat("$it").isEqualTo(card.resourceTypeText) }

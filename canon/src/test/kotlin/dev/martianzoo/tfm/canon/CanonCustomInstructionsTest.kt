@@ -1,13 +1,11 @@
-package dev.martianzoo.tfm.engine
+package dev.martianzoo.tfm.canon
 
 import com.google.common.truth.Truth.assertThat
-import dev.martianzoo.tfm.api.Authority
-import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.repl.ReplSession
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 
-private class CustomInstructionsTest {
+private class CanonCustomInstructionsTest {
 
   @Test
   fun robinson() {
@@ -30,25 +28,6 @@ private class CustomInstructionsTest {
     repl.command("PROD[5]") // The standard hack for every player - ignore it!
     repl.command("PROD[Steel, Titanium, Plant, Heat]")
     assertThrows<RuntimeException> { repl.command("@gainLowestProduction(Player1)") }
-  }
-
-  // TODO figure out how to make gradle compile the java code
-  // It seemed like adding plugins { `java-library` } should have been enough
-  fun java() {
-    val auth =
-        object : Authority.Forwarding(Canon) {
-          override val customInstructions = listOf(CustomJavaExample.GainLowestProduction())
-        }
-
-    val repl = ReplSession(auth)
-    repl.command("newgame BM 3")
-    repl.command("become Player1")
-    repl.command("PROD[5]") // The standard hack for every player - ignore it!
-    repl.command("PROD[Steel, Titanium, Plant, Energy, Heat]")
-    repl.command("@gainLowestProduction(Player1)")
-
-    // TODO fix ordering problem
-    assertThat(repl.command("count Production<Player1, Megacredit.CLASS>").first()).startsWith("6")
   }
 
   @Test

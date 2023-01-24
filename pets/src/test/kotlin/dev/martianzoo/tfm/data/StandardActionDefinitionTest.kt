@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Test
 
 class StandardActionDefinitionTest {
   @Test
-  fun test() {
+  fun testOneFromCanon() {
     val claim = Canon.action(cn("ClaimMilestone"))
     assertThat(claim.id).isEqualTo(cn("SAC"))
     assertThat(claim.bundle).isEqualTo("B")

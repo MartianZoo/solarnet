@@ -181,15 +181,16 @@ private class PetClassTest {
     assertThat(subSub.isSubtypeOf(barSub)).isTrue()
     assertThat(subSub.isSubtypeOf(subSub)).isTrue()
 
-    noWork("Bar<SuperFoo>", table)
-    noWork("SubBar<SuperFoo>", table)
-    noWork("SubBar<Foo>", table)
-    noWork("Foo<Bar>", table)
+    checkAutoAdjust("Bar<SuperFoo>", "Bar<Foo>", table)
+    checkAutoAdjust("SubBar<SuperFoo>", "SubBar<SubFoo>", table)
+    checkAutoAdjust("SubBar<Foo>", "SubBar<SubFoo>", table)
+
+    assertThrows<RuntimeException> { table.resolve("Foo<Qux>") }
+    assertThrows<RuntimeException> { table.resolve("Foo<Bar>") }
   }
 
-  private fun noWork(s: String, table: PetClassTable) {
-    // TODO fix this
-    // Assertions.assertThrows(RuntimeException::class.java, { table.resolve(s) }, s)
+  private fun checkAutoAdjust(`in`: String, out: String, table: PetClassTable) {
+    assertThat(table.resolve(`in`).toTypeExpression().toString()).isEqualTo(out)
   }
 }
 
@@ -202,7 +203,7 @@ private fun loader(petsText: String): PetClassLoader {
   return PetClassLoader(authority).also { it.loadEverything() }
 }
 
-// TODO move to shared utils
+// TODO move to shared utils (already being used from PetTypeTest)
 internal fun loadTypes(vararg decl: String): PetClassTable {
   return loader("ABSTRACT CLASS $COMPONENT\n" + decl.joinToString("") { "$it\n" })
 }

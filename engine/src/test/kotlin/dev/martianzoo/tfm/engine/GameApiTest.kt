@@ -11,7 +11,7 @@ import dev.martianzoo.tfm.pets.ast.TypeExpression.Companion.typeExpression
 import dev.martianzoo.util.toStrings
 import org.junit.jupiter.api.Test
 
-private class GameStateTest {
+private class GameApiTest {
 
   fun Game.count(s: String) = count(typeExpression(s))
   fun Game.execute(s: String) = execute(instruction(s))

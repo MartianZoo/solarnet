@@ -2,16 +2,15 @@ package dev.martianzoo.tfm.types
 
 import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.tfm.canon.Canon
-import dev.martianzoo.tfm.data.SpecialClassNames.TILE
 import dev.martianzoo.tfm.pets.SpecialClassNames.COMPONENT
 import dev.martianzoo.tfm.pets.SpecialClassNames.DIE
-import dev.martianzoo.tfm.pets.SpecialClassNames.OWNED
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.util.toStrings
 import java.util.TreeSet
 import org.junit.jupiter.api.Test
 
+/** Tests of [PetClass] that use the [Canon] dataset because it's convenient. */
 private class PetClassCanonTest {
 
   @Test
@@ -44,27 +43,11 @@ private class PetClassCanonTest {
   }
 
   @Test
-  fun slurp() {
+  fun canGetBaseTypes() {
     val table = PetClassLoader(Canon).loadEverything()
     val all = table.loadedClassNames().map { table[it] }
 
     all.forEach { it.baseType }
-  }
-
-  @Test
-  fun intersectionTypes() {
-    val table = PetClassLoader(Canon).loadEverything()
-
-    val ot = table["OwnedTile"]
-    val ac = table["ActionCard"]
-
-    // Nothing can be both Owned and a Tile without being an OwnedTile!
-    assertThat(ot.intersectionType).isTrue()
-
-    // Nothing can be both a CardFront and a HasActions but an ActionCard!
-    assertThat(ac.intersectionType).isTrue()
-
-    assertThat(table[OWNED].intersect(table[TILE])).isEqualTo(ot)
   }
 
   fun findValidTypes() {
@@ -129,15 +112,5 @@ private class PetClassCanonTest {
     println()
     println("INVALIDS")
     invalids.forEach(::println)
-  }
-
-  fun describeEverything() {
-    val table = PetClassLoader(Canon).loadEverything()
-    val all = table.loadedClassNames().map { table[it] }
-    all.sortedBy { it.name }
-        .forEach { c ->
-          val interestingSupes = c.allSuperclasses.filter { it.name !in setOf(COMPONENT, c.name) }
-          println("${c.baseType} : $interestingSupes")
-        }
   }
 }

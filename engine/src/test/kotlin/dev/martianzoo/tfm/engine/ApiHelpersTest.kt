@@ -12,7 +12,7 @@ import org.junit.jupiter.api.Test
 
 class ApiHelpersTest {
   @Test
-  fun lookupProds() {
+  fun testLookUpProdLevelsUsingCanon() {
     val game = Engine.newGame(GameSetup(Canon, "BM", 3))
     val prods: Map<ClassName, Int> =
         lookUpProductionLevels(game.asGameState, ClassName.cn("Player1").type)
@@ -41,7 +41,7 @@ class ApiHelpersTest {
   }
 
   @Test
-  fun stdResNames() {
+  fun stdResNamesInCanon() {
     val game = Engine.newGame(GameSetup(Canon, "BM", 3))
     assertThat(standardResourceNames(game.asGameState).toStrings())
         .containsExactly("Megacredit", "Steel", "Titanium", "Plant", "Energy", "Heat")
