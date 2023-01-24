@@ -4,7 +4,6 @@ import dev.martianzoo.tfm.data.ClassDeclaration
 import dev.martianzoo.tfm.pets.SpecialClassNames.COMPONENT
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.types.PetType.PetGenericType
-import dev.martianzoo.util.Debug.d
 
 /** A class that has been loaded by a [PetClassLoader]. */
 public data class PetClass(
@@ -78,47 +77,37 @@ public data class PetClass(
     (directSuperclasses.flatMap { it.allDependencyKeys } + directDependencyKeys).toSet()
   }
 
-  private var reentryCheck = false
-
-  /** Common supertype of all types with petClass==this */
+  /** Least upper bound of all types with petClass==this */
   public val baseType: PetGenericType by lazy {
-    require(!reentryCheck)
-    reentryCheck = true
-
-    val deps = DependencyMap.intersect(directSupertypes.map { it.dependencies })
-
     val newDeps =
         directDependencyKeys.associateWith {
           val typeExpression = declaration.dependencies[it.index].type
           Dependency(it, loader.resolve(typeExpression))
         }
+    val deps = DependencyMap.intersect(directSupertypes.map { it.dependencies })
     val allDeps = deps.intersect(DependencyMap(newDeps))
     require(allDeps.keys == allDependencyKeys)
-    PetGenericType(this, allDeps, null).d { "$this baseType: $it" }
+    PetGenericType(this, allDeps, null)
   }
 
   // DEFAULTS
 
   internal val defaults: Defaults by lazy {
-    val result =
-        if (name == COMPONENT) {
-          Defaults.from(declaration.defaultsDeclaration, this, loader)
-        } else {
-          val rootDefaults = loader[COMPONENT].defaults
-          defaultsIgnoringRoot.overlayOn(listOf(rootDefaults))
-        }
-    if (!result.isEmpty()) d("defaults: $result")
-    result
-  }
-
-  private val defaultsIgnoringRoot: Defaults by lazy { // TODO hack
     if (name == COMPONENT) {
-      Defaults()
-    } else {
       Defaults.from(declaration.defaultsDeclaration, this, loader)
-          .overlayOn(directSuperclasses.map { it.defaultsIgnoringRoot })
+    } else {
+      val rootDefaults = loader[COMPONENT].defaults
+      defaultsIgnoringRoot().overlayOn(listOf(rootDefaults))
     }
   }
+
+  private fun defaultsIgnoringRoot(): Defaults = // TODO hack
+      if (name == COMPONENT) {
+        Defaults()
+      } else {
+        Defaults.from(declaration.defaultsDeclaration, this, loader)
+            .overlayOn(directSuperclasses.map { it.defaultsIgnoringRoot() })
+      }
 
   // OTHER
 

@@ -11,6 +11,8 @@ import dev.martianzoo.tfm.pets.Parsing
 import dev.martianzoo.tfm.pets.PetParser
 import dev.martianzoo.tfm.pets.ast.ClassName.Parsing.className
 import dev.martianzoo.util.joinOrEmpty
+import dev.martianzoo.util.pre
+import dev.martianzoo.util.wrap
 
 /**
  * A noun expression. May be a simple type (`ClassName`), a parameterized type (`Foo<Bar, Qux>`) or
@@ -18,6 +20,8 @@ import dev.martianzoo.util.joinOrEmpty
  * type with various predicates.
  */
 sealed class TypeExpression : PetNode() {
+  abstract val link: Int?
+
   companion object {
     fun typeExpression(text: String): TypeExpression =
         Parsing.parse(TypeParsers.typeExpression, text)
@@ -32,9 +36,10 @@ sealed class TypeExpression : PetNode() {
       val root: ClassName,
       val args: List<TypeExpression> = listOf(),
       val refinement: Requirement? = null,
+      override val link: Int? = null,
   ) : TypeExpression() {
     override fun toString() =
-        "$root" + args.joinOrEmpty(wrap = "<>") + (refinement?.let { "(HAS $it)" } ?: "")
+        "$root${args.joinOrEmpty(wrap = "<>")}${refinement.wrap("(HAS ", ")")}${link.pre("^")}"
 
     override fun asGeneric() = this
 
@@ -58,8 +63,9 @@ sealed class TypeExpression : PetNode() {
     }
   }
 
-  data class ClassLiteral(val className: ClassName) : TypeExpression() {
-    override fun toString() = "$className.CLASS"
+  data class ClassLiteral(val className: ClassName, override val link: Int? = null) :
+      TypeExpression() {
+    override fun toString() = "$className${link.pre("^")}.CLASS"
     override fun asGeneric() =
         error("Bzzt, this is not a generic type expression, it's a class literal")
   }
@@ -70,8 +76,13 @@ sealed class TypeExpression : PetNode() {
   // being needed by the others. So we put them all in properties and pass the whole TypeParsers
   // object around.
   object TypeParsers : PetParser() {
+    private val link: Parser<Int> = skipChar('^') and scalar
+
     private val classLiteral =
-        className and skipChar('.') and skip(_class) map TypeExpression::ClassLiteral
+        className and
+            optional(link) and
+            skipChar('.') and
+            skip(_class) map { (name, link) -> ClassLiteral(name, link) }
 
     private val typeArgs =
         skipChar('<') and commaSeparated(parser { typeExpression }) and skipChar('>')
@@ -81,10 +92,10 @@ sealed class TypeExpression : PetNode() {
     val genericType: Parser<GenericTypeExpression> =
         className and
             optionalList(typeArgs) and
-            optional(refinement) map
-            { (type, args, ref) ->
-              GenericTypeExpression(type, args, ref)
-            }
+            optional(refinement) and
+            optional(link) map { (type, args, ref, link) ->
+          GenericTypeExpression(type, args, ref, link)
+        }
 
     val typeExpression = classLiteral or genericType
   }

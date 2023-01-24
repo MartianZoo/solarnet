@@ -21,7 +21,7 @@ ABSTRACT CLASS GlobalParameter {                            // TODO instances mu
 
     CLASS OxygenStep {
         HAS MAX 14 This
-        This: (=8 OxygenStep: TemperatureStep) OR Ok
+        This: (=8 This: TemperatureStep) OR Ok
     }
 
     CLASS VenusStep {
@@ -64,19 +64,19 @@ ABSTRACT CLASS Area(HAS MAX 1 Tile) {
 
 ABSTRACT CLASS Tile<Area>
                                                             // TODO figure out how to not need this
-CLASS Border<Area, MarsArea> {                              // early on will create 3-6 of these for each MarsArea
+CLASS Border<MarsArea^1, MarsArea^2> {                      // early on will create 3-6 of these for each MarsArea
     HAS MAX 1 This                                          // listing that one first. So each border will actually
                                                             // be here twice, once in each direction
-    Tile<Area>: Neighbor<Tile<Area>, MarsArea>              // TODO BRUTAL HACK BRUTAL HACK
+    Tile<MarsArea^1>: Neighbor<Tile<MarsArea^1>, MarsArea^2>
 }
 
-CLASS Neighbor<Tile, MarsArea> {
+CLASS Neighbor<Tile^1, MarsArea^2> {
     HAS MAX 1 This
-    Tile<MarsArea>:: ForwardAdjacency<Tile, Tile<MarsArea>>
-    Tile<MarsArea>:: BackwardAdjacency<Tile<MarsArea>, Tile>
+    Tile<MarsArea^2>:: ForwardAdjacency<Tile^1, Tile<MarsArea^2>>
+    Tile<MarsArea^2>:: BackwardAdjacency<Tile<MarsArea^2>, Tile^1>
 }
 
-ABSTRACT CLASS Adjacency<Tile, Tile> {
+ABSTRACT CLASS Adjacency<Tile^1, Tile^2> {
     HAS MAX 1 This
     CLASS ForwardAdjacency, BackwardAdjacency
 }

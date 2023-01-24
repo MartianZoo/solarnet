@@ -22,7 +22,7 @@ open class PetParser {
   internal val _doubleColon = literal("::", "doublecolon")
 
   // I simply don't want to name all of these and would rather look them up by the char itself
-  private val characters = "!@+,-./:;=?()[]{}<>\n".map { it to literal("$it") }.toMap()
+  private val characters = "!@^+,-./:;=?()[]{}<>\n".map { it to literal("$it") }.toMap()
 
   internal val _by = literal("BY")
   internal val _from = literal("FROM")

@@ -31,8 +31,9 @@ open class PetNodeVisitor {
             is ClassName -> this
             is TypeExpression ->
                 when (this) {
-                  is ClassLiteral -> ClassLiteral(x(className))
-                  is GenericTypeExpression -> GenericTypeExpression(x(root), x(args), x(refinement))
+                  is ClassLiteral -> ClassLiteral(x(className), link)
+                  is GenericTypeExpression ->
+                    GenericTypeExpression(x(root), x(args), x(refinement), link)
                 }
             is ScalarAndType -> ScalarAndType(scalar, x(type))
             is Requirement ->

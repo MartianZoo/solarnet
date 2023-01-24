@@ -49,8 +49,14 @@ internal class PetGenerator(scaling: (Int) -> Double) :
     init {
       val specSizes = multiset(8 to 0, 4 to 1, 2 to 2, 1 to 3) // weight to value
       register { cn(randomName()) }
-      register { ClassLiteral(recurse()) }
-      register { GenericTypeExpression(recurse(), listOfSize(choose(specSizes)), refinement()) }
+      register { ClassLiteral(recurse(), choose(10 to null, 2 to 1, 1 to 2)) }
+      register {
+        GenericTypeExpression(
+            recurse(),
+            listOfSize(choose(specSizes)),
+            refinement(),
+            choose(10 to null, 2 to 1, 1 to 2))
+      }
       register {
         choose(5 to recurse<GenericTypeExpression>(), 0 to recurse<ClassLiteral>()) // TODO
       }

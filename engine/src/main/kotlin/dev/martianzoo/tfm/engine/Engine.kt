@@ -3,7 +3,6 @@ package dev.martianzoo.tfm.engine
 import dev.martianzoo.tfm.api.GameSetup
 import dev.martianzoo.tfm.data.MarsMapDefinition
 import dev.martianzoo.tfm.engine.ComponentGraph.Component
-import dev.martianzoo.tfm.pets.SpecialClassNames.ME
 import dev.martianzoo.tfm.pets.SpecialClassNames.PRODUCTION
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.types.PetClassLoader

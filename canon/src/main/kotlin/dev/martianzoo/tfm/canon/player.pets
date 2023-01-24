@@ -2,7 +2,8 @@
 
 // PLAYERS -------------------------------------------------
 
-ABSTRACT CLASS Player {
+ABSTRACT CLASS Anyone {                                     // This would be called Player, it's just that when
+                                                            // reading, `CityTile<Anyone>` makes more sense
     HAS =1 This
 
     This:: 20 TerraformRating                               // no solo mode yet
@@ -23,7 +24,7 @@ ABSTRACT CLASS Player {
 
 // PLAYER PROPERTY / GENERAL -------------------------------
 
-ABSTRACT CLASS Owned<Player> {
+ABSTRACT CLASS Owned<Anyone> {
     DEFAULT This<Me>                                        // affects ALL references to owned cpts that don't specify
                                                             // an owner -- the only DEFAULT of this kind we need
     CLASS VictoryPoint
@@ -42,15 +43,14 @@ ABSTRACT CLASS Owned<Player> {
         CLASS GreeneryTile : Tile<MarsArea> {
             // TODO this needs to use `HAS?` or something
             DEFAULT +This<LandArea(HAS Neighbor<OwnedTile>)>
+
             This: OxygenStep
             End: VictoryPoint
         }
 
         CLASS CityTile {
-            DEFAULT +This<LandArea(\
-                HAS MAX 0 Neighbor<CityTile<Anyone>>)>
-            End: VictoryPoint / Adjacency(\
-                HAS This, GreeneryTile<Anyone>)
+            DEFAULT +This<LandArea(HAS MAX 0 Neighbor<CityTile<Anyone>>)>
+            End: VictoryPoint / Adjacency<This, GreeneryTile<Anyone>>
         }
 
         ABSTRACT CLASS SpecialTile : Tile<MarsArea> {
@@ -67,8 +67,7 @@ ABSTRACT CLASS Owned<Player> {
             CLASS Energy { ProductionPhase:: Heat FROM This }
         }
 
-        ABSTRACT CLASS CardResource : Cardbound\
-                <ResourcefulCard<CardResource.CLASS>> {     // force match?
+        ABSTRACT CLASS CardResource : Cardbound<ResourcefulCard<CardResource.CLASS>> { // TODO This .CLASS
             DEFAULT +This.
 
             // All others are card-specific; see cards.json5
@@ -80,8 +79,8 @@ ABSTRACT CLASS Owned<Player> {
         }
     }
 
-    CLASS Production<StandardResource.CLASS> {
-        ProductionPhase: StandardResource                   // TODO subtype specialization
+    CLASS Production<StandardResource^1.CLASS> {
+        ProductionPhase: StandardResource^1
     }
 
     ABSTRACT CLASS ResourcefulCard<CardResource.CLASS> : CardFront
@@ -109,8 +108,7 @@ ABSTRACT CLASS Owned<Player> {
 
     CLASS PlayedEvent
 
-    ABSTRACT CLASS Cardbound<CardFront<Player>> :\          // TODO require the two `Player`s to match... but only
-            Owned<Player> {                                 // because both were stated explicitly (not for Neighbor)
+    ABSTRACT CLASS Cardbound<CardFront<Anyone^1>> : Owned<Anyone^1> {
 
         ABSTRACT CLASS Tag {
             CLASS BuildingTag, SpaceTag
@@ -135,8 +133,7 @@ ABSTRACT CLASS Owned<Player> {
     }
 
     // TODO still consider inverting this?
-    CLASS ActionUsedMarker :\
-            Cardbound<ActionCard>, Generational {
+    CLASS ActionUsedMarker : Cardbound<ActionCard>, Generational {
         HAS MAX 1 This
     }
 
@@ -148,8 +145,8 @@ ABSTRACT CLASS Owned<Player> {
             This: (MAX 0 This: Ok)                          // adds a task that can only be handled if 0 barriers left
         }
 
-        CLASS Owed<Resource.CLASS> : Barrier {              // created when payment due, removed by discount cards/
-            This:: Accept<Resource.CLASS>
+        CLASS Owed<Resource^1.CLASS> : Barrier {            // created when payment due, removed by discount cards/
+            This:: Accept<Resource^1.CLASS>
         }
 
         CLASS Accept<Resource.CLASS> {                      // Created in response to PlayTag or the actions on 4
@@ -157,8 +154,8 @@ ABSTRACT CLASS Owned<Player> {
             DEFAULT +This.
         }
 
-        CLASS Pay<Resource.CLASS> : Signal {                // player uses it like `8 Pay<Heat.CLASS> FROM Heat`
-            This:: -Owed<Resource.CLASS>.                   // But also cards can pay in response to signals
+        CLASS Pay<Resource^1.CLASS> : Signal {              // player uses it like `8 Pay<Heat.CLASS> FROM Heat`
+            This:: -Owed<Resource^1.CLASS>.                 // But also cards can pay in response to signals
         }
 
         CLASS PlayTag<Tag.CLASS> : Signal                   // triggers Accept<Steel/Dirig/etc.CLASS> and tag-based discounts

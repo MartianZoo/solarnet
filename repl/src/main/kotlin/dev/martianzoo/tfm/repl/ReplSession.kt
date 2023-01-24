@@ -2,15 +2,10 @@ package dev.martianzoo.tfm.repl
 
 import dev.martianzoo.tfm.api.Authority
 import dev.martianzoo.tfm.api.GameSetup
-import dev.martianzoo.tfm.api.ReadOnlyGameState
-import dev.martianzoo.tfm.api.lookUpProductionLevels
-import dev.martianzoo.tfm.api.standardResourceNames
 import dev.martianzoo.tfm.canon.Canon
-import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.pets.ast.Instruction.Companion.instruction
 import dev.martianzoo.tfm.pets.ast.Requirement.Companion.requirement
-import dev.martianzoo.tfm.pets.ast.TypeExpression
 import dev.martianzoo.tfm.pets.ast.TypeExpression.Companion.typeExpression
 import dev.martianzoo.tfm.types.PetClass
 import dev.martianzoo.util.toStrings

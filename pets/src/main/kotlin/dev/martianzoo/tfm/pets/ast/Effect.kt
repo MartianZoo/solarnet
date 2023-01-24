@@ -25,7 +25,7 @@ data class Effect(
           is Gated -> "($instruction)"
           else -> "$instruction"
         }
-    return "$trigger:${iff(automatic, ":")} $instext"
+    return "$trigger:${":".iff(automatic)} $instext"
   }
 
   sealed class Trigger : PetNode() {

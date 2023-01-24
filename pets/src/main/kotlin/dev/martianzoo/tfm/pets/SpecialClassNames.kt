@@ -11,7 +11,6 @@ object SpecialClassNames {
   val MEGACREDIT = cn("Megacredit")
   val OK = cn("Ok")
   val OWNED = cn("Owned")
-  val PLAYER = cn("Player")
   val PRODUCTION = cn("Production")
   val STANDARD_RESOURCE = cn("StandardResource")
   val THIS = cn("This")
