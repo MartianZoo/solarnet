@@ -11,16 +11,9 @@ import kotlin.math.min
 
 public class ComponentGraph(startingWith: Collection<Component> = listOf()) {
   private val multiset: /*Mutable*/ Multiset<Component> = LinkedHashMultiset.create(startingWith)
-  internal val changeLog: MutableList<StateChange> = mutableListOf() // starts with ordinal 1
+  private val changeLog: MutableList<StateChange> = mutableListOf()
 
-  public fun gain(count: Int, gaining: Component, cause: Cause? = null) =
-      applyChange(count, gaining = gaining, cause = cause)
-
-  public fun remove(count: Int, removing: Component, cause: Cause? = null) =
-      applyChange(count, removing = removing, cause = cause)
-
-  public fun transmute(count: Int, gaining: Component, removing: Component, cause: Cause? = null) =
-      applyChange(count, gaining, removing, cause)
+  public fun changeLog() = changeLog.toList()
 
   public fun applyChange(
       count: Int,
@@ -52,7 +45,6 @@ public class ComponentGraph(startingWith: Collection<Component> = listOf()) {
     // Creating this first should catch various errors
     val change =
         StateChange(
-            ordinal = changeLog.size + 1,
             count = correctedCount,
             gaining = gaining?.asTypeExpression?.asGeneric(),
             removing = removing?.asTypeExpression?.asGeneric(),

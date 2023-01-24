@@ -4,9 +4,6 @@ import dev.martianzoo.tfm.pets.ast.TypeExpression
 import dev.martianzoo.tfm.pets.ast.TypeExpression.GenericTypeExpression
 
 data class StateChange(
-    /** Matches this object's position in the game history list, 1-referenced. */
-    val ordinal: Int,
-
     /**
      * How many of the component were gained/removed/transmuted. A positive integer. Often 1, since
      * many component types don't admit duplicates.
@@ -27,14 +24,12 @@ data class StateChange(
 ) {
 
   init {
-    require(ordinal >= 0) // 0 used only for undocked changes
     require(count > 0)
     require(gaining != removing) { "both gaining and removing $gaining" }
-    require((cause?.change ?: 0) < ordinal) { "${cause!!.change} >= $ordinal" }
   }
 
   override fun toString(): String {
-    var desc = "$ordinal: "
+    var desc = ""
     when (gaining) {
       null -> desc += "-$count $removing"
       else -> {

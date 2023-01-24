@@ -21,44 +21,38 @@ class ReplSession(val authority: Authority) {
   val commands =
       mapOf<String, (String?) -> List<String>>(
           "help" to { listOf(HELP.trimIndent()) },
-          "newgame" to
-              {
-                it?.let { args ->
-                  val (bundleString, players) = args.trim().split(Regex("\\s+"), 2)
-                  session.newGame(GameSetup(authority, bundleString, players.toInt()))
-                  listOf("New $players-player game created with bundles: $bundleString")
+          "newgame" to {
+            it?.let { args ->
+              val (bundleString, players) = args.trim().split(Regex("\\s+"), 2)
+              session.newGame(GameSetup(authority, bundleString, players.toInt()))
+              listOf("New $players-player game created with bundles: $bundleString")
+            } ?: listOf("Usage: newgame <bundles> <player count>")
+          },
+          "become" to { args ->
+            val message =
+                if (args == null) {
+                  session.becomeNoOne()
+                  "Okay you are no one"
+                } else {
+                  val trimmed = args.trim()
+                  require(trimmed.length == 7 && trimmed.startsWith("Player"))
+                  val p = trimmed.substring(6).toInt()
+                  session.becomePlayer(p)
+                  "Hi, $trimmed"
                 }
-                    ?: listOf("Usage: newgame <bundles> <player count>")
-              },
-          "become" to
-              { args ->
-                val message =
-                    if (args == null) {
-                      session.becomeNoOne()
-                      "Okay you are no one"
-                    } else {
-                      val trimmed = args.trim()
-                      require(trimmed.length == 7 && trimmed.startsWith("Player"))
-                      val p = trimmed.substring(6).toInt()
-                      session.becomePlayer(p)
-                      "Hi, $trimmed"
-                    }
-                listOf(message)
-              },
-          "count" to
-              {
-                it?.let { args ->
-                  val type = session.fixTypes(typeExpression(args))
-                  val count = session.count(type)
-                  listOf("$count $type")
-                }
-                    ?: listOf("Usage: count <TypeExpression>")
-              },
-          "list" to
-              { args ->
-                session.list(typeExpression(args!!))
-                listOf()
-              },
+            listOf(message)
+          },
+          "count" to {
+            it?.let { args ->
+              val type = session.fixTypes(typeExpression(args))
+              val count = session.count(type)
+              listOf("$count $type")
+            } ?: listOf("Usage: count <TypeExpression>")
+          },
+          "list" to { args ->
+            session.list(typeExpression(args!!))
+            listOf()
+          },
           "has" to
               {
                 it?.let { args ->
@@ -68,52 +62,46 @@ class ReplSession(val authority: Authority) {
                 }
                     ?: listOf("Usage: has <Requirement>")
               },
-          "map" to
-              {
-                if (it != null) {
-                  MapToText(session.game!!.asGameState).map()
-                } else {
-                  listOf("Arguments unexpected: $it")
-                }
-              },
-          "board" to
-              {
-                val player = if (it == null) session.defaultPlayer!! else cn(it.trim())
-                BoardToText(session.game!!.asGameState).board(player.type)
-              },
-          "history" to
-              { args ->
-                args?.let { listOf("Arguments unexpected: $it") }
-                    ?: session.game!!.changeLog.toStrings()
-              },
-          "exec" to
-              {
-                it?.let { args ->
-                  val instr = session.execute(instruction(args))
-                  listOf("Ok: $instr")
-                }
-                    ?: listOf("Usage: exec <Instruction>")
-              },
-          "desc" to
-              {
-                it?.let { args ->
-                  val petClass: PetClass = session.game!!.classTable[cn(args.trim())]
-                  val subs = petClass.allSubclasses
-                  listOf(
-                      "Name: ${petClass.name}",
-                      "Abstract: ${petClass.abstract}",
-                      "Superclasses: ${petClass.allSuperclasses.joinToString()}",
-                      "Dependencies: ${petClass.baseType.dependencies.types}",
-                      "Subclasses: " +
-                          if (subs.size <= 5) {
-                            subs.joinToString()
-                          } else {
-                            "(${subs.size})"
-                          },
-                  )
-                }
-                    ?: listOf("Usage: desc <ClassName>")
-              },
+          "map" to {
+            if (it != null) {
+              MapToText(session.game!!.asGameState).map()
+            } else {
+              listOf("Arguments unexpected: $it")
+            }
+          },
+          "board" to {
+            val player = if (it == null) session.defaultPlayer!! else cn(it.trim())
+            BoardToText(session.game!!.asGameState).board(player.type)
+          },
+          "history" to { args ->
+            args?.let { listOf("Arguments unexpected: $it") }
+                ?: session.game!!.changeLog().toStrings().mapIndexed { i, s -> "$i: $s" }
+          },
+          "exec" to {
+            it?.let { args ->
+              val instr = session.execute(instruction(args))
+              listOf("Ok: $instr")
+            } ?: listOf("Usage: exec <Instruction>")
+          },
+          "desc" to {
+            it?.let { args ->
+              val petClass: PetClass = session.game!!.classTable[cn(args.trim())]
+              val subs = petClass.allSubclasses
+              listOf(
+                  "Name: ${petClass.name}",
+                  "Abstract: ${petClass.abstract}",
+                  "Superclasses: ${petClass.allSuperclasses.joinToString()}",
+                  "Dependencies: ${petClass.baseType.dependencies.types}",
+                  "Subclasses: " +
+                      if (subs.size <= 5) {
+                        subs.joinToString()
+                      } else {
+                        "(${subs.size})"
+                      },
+                  // TODO effects
+              )
+            } ?: listOf("Usage: desc <ClassName>")
+          },
       )
 
   fun command(wholeCommand: String): List<String> {

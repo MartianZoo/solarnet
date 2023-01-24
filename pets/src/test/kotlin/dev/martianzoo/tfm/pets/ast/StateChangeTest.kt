@@ -10,17 +10,13 @@ private class StateChangeTest {
 
   @Test
   fun bad() {
-    val valid = StateChange(5, 42, cn("Foo").type, cn("Bar").type, Cause(cn("Qux").type, 3))
+    val valid = StateChange(42, cn("Foo").type, cn("Bar").type, Cause(cn("Qux").type, 3))
 
-    assertFails { valid.copy(ordinal = -1) }
-    assertFails { valid.copy(ordinal = 2) }
-    assertFails { valid.copy(ordinal = 3) }
     assertFails { valid.copy(count = 0) }
     assertFails { valid.copy(gaining = null, removing = null) }
     assertFails {
       valid.copy(gaining = cn("Same").type, removing = cn("Same").type)
     }
-    assertFails { valid.copy(cause = valid.cause!!.copy(change = 5)) }
     assertFails { valid.cause!!.copy(change = 0) }
   }
 }

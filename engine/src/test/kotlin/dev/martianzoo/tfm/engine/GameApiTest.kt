@@ -44,31 +44,29 @@ private class GameApiTest {
     assertThat(game.isMet("=3 Heat<Player2>")).isTrue()
     assertThat(game.isMet("=5 Heat<Player3>")).isTrue()
 
-    assertThat(game.changeLog)
+    assertThat(game.changeLog())
         .containsExactly(
-            StateChange(1, 5, gaining = cn("Heat").addArgs(cn("Player2").type)),
-            StateChange(2, 10, gaining = cn("Heat").addArgs(cn("Player3").type)),
-            StateChange(3, 4, removing = cn("Heat").addArgs(cn("Player2").type)),
+            StateChange(5, gaining = cn("Heat").addArgs(cn("Player2").type)),
+            StateChange(10, gaining = cn("Heat").addArgs(cn("Player3").type)),
+            StateChange(4, removing = cn("Heat").addArgs(cn("Player2").type)),
             StateChange(
-                4,
                 3,
                 gaining = cn("Steel").addArgs(cn("Player3").type),
                 removing = cn("Heat").addArgs(cn("Player3").type)),
             StateChange(
-                5,
                 2,
                 gaining = cn("Heat").addArgs(cn("Player2").type),
                 removing = cn("Heat").addArgs(cn("Player3").type)),
         )
         .inOrder()
 
-    assertThat(game.changeLog.toStrings())
+    assertThat(game.changeLog().toStrings())
         .containsExactly(
-            "1: 5 Heat<Player2> BY Unknown BECAUSE Unknown",
-            "2: 10 Heat<Player3> BY Unknown BECAUSE Unknown",
-            "3: -4 Heat<Player2> BY Unknown BECAUSE Unknown",
-            "4: 3 Steel<Player3> FROM Heat<Player3> BY Unknown BECAUSE Unknown",
-            "5: 2 Heat<Player2> FROM Heat<Player3> BY Unknown BECAUSE Unknown",
+            "5 Heat<Player2> BY Unknown BECAUSE Unknown",
+            "10 Heat<Player3> BY Unknown BECAUSE Unknown",
+            "-4 Heat<Player2> BY Unknown BECAUSE Unknown",
+            "3 Steel<Player3> FROM Heat<Player3> BY Unknown BECAUSE Unknown",
+            "2 Heat<Player2> FROM Heat<Player3> BY Unknown BECAUSE Unknown",
         )
         .inOrder()
   }

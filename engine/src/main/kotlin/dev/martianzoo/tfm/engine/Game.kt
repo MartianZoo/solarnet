@@ -5,6 +5,7 @@ import com.google.common.collect.ImmutableMultiset
 import com.google.common.collect.Multiset
 import dev.martianzoo.tfm.api.GameSetup
 import dev.martianzoo.tfm.api.GameState
+import dev.martianzoo.tfm.data.StateChange
 import dev.martianzoo.tfm.data.StateChange.Cause
 import dev.martianzoo.tfm.engine.ComponentGraph.Component
 import dev.martianzoo.tfm.pets.ast.Instruction
@@ -26,7 +27,7 @@ public class Game(
   val authority by setup::authority
 
   // TODO maybe have `beginChangeLogging` instead of passing in a prebuilt multiset
-  val changeLog by components::changeLog
+  fun changeLog(): List<StateChange> = components.changeLog()
 
   fun resolve(type: TypeExpression): PetType = classTable.resolve(type)
 
