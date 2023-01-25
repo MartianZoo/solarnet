@@ -143,6 +143,7 @@ private class CanonTest {
             "PlayCardFromHand", "UseActionFromCard", "UseStandardProject",
             "SellPatents",
             "PowerPlantSP", "AsteroidSP", "AquiferSP", "GreenerySP", "CitySP",
+            "MetalHandler"
         )
   }
 }

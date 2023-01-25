@@ -23,11 +23,14 @@ public object Engine {
 
     // Hacks TODO
     loader.load(PRODUCTION)
+    loader.load(cn("MegacreditProductionHack")) // TODO loopy singletons
+    loader.load(cn("MetalHandler")) // TODO uhhhh ?
     loader.freeze()
 
     val prebuilt =
         classLiterals(loader) + // TODO make them just singletons too!?
-        singletons(loader) + borders(setup.map, loader) // TODO
+        singletons(loader) +
+        borders(setup.map, loader) // TODO
 
     return Game(setup, ComponentGraph(prebuilt), loader)
   }

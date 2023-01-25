@@ -3,20 +3,9 @@
 // PLAYERS -------------------------------------------------
 
 ABSTRACT CLASS Anyone {                                     // This would be called Player, it's just that when
-                                                            // reading, `CityTile<Anyone>` makes more sense
-    HAS =1 This
+    HAS =1 This                                             // reading, `CityTile<Anyone>` makes more sense
 
     This:: 20 TerraformRating                               // no solo mode yet
-                                                            // We're forced to use some ugly hack; at least this one
-    This:: PROD[5]                                          // confines the damage to Specialist/Generalist/Robinson and
-    ProductionPhase: -5                                     // presentation issues. All the alternatives look worse.
-                                                            // This makes `/ PROD[1]` extremely dodgy, almost worth
-                                                            // banning... except it does still work fine for Banker.
-    PlayTag<BuildingTag.CLASS>:: Accept<Steel.CLASS>
-    PlayTag<SpaceTag.CLASS>:: Accept<Titanium.CLASS>        // TODO where do these really belong??
-
-    Pay<Steel.CLASS>:: 2 Pay<Megacredit.CLASS>
-    Pay<Titanium.CLASS>:: 3 Pay<Megacredit.CLASS>           // I think this will be innocuous for TradeAction
 
     CLASS Player1, Player2, Player3, Player4, Player5       // TODO not sure we want these here?
 }
@@ -41,8 +30,7 @@ ABSTRACT CLASS Owned<Anyone> {
 
     ABSTRACT CLASS OwnedTile : Tile, Owned {
         CLASS GreeneryTile : Tile<MarsArea> {
-            // TODO this needs to use `HAS?` or something
-            DEFAULT +This<LandArea(HAS Neighbor<OwnedTile>)>
+            DEFAULT +This<LandArea(HAS Neighbor<OwnedTile>)>// TODO this needs to use `HAS?` or something
 
             This: OxygenStep
             End: VictoryPoint
@@ -138,26 +126,32 @@ ABSTRACT CLASS Owned<Anyone> {
     }
 
 
+// DISGUSTING HACKS ----------------------------------------
+
+    CLASS MegacreditProductionHack {                        // We're forced to use some ugly hack; at least this one
+        HAS =1 This                                         // confines the damage to Specialist/Generalist/Robinson and
+                                                            // presentation issues. All the alternatives look worse.
+        This:: PROD[5]                                      // This makes `/ PROD[1]` extremely dodgy, almost worth
+        ProductionPhase: -5                                 // banning... except it does still work fine for Banker.
+    }
+
+
 // PAYMENT MECHANICS ---------------------------------------
 
     ABSTRACT CLASS PaymentMechanic : Temporary {
         ABSTRACT CLASS Barrier {                            // player must clean up themselves, by end of action
             This: (MAX 0 This: Ok)                          // adds a task that can only be handled if 0 barriers left
         }
-
         CLASS Owed<Resource.CLASS> : Barrier {              // created when payment due, removed by discount cards/
             This:: Accept<Resource.CLASS>
         }
-
         CLASS Accept<Resource.CLASS> {                      // Created in response to PlayTag or the actions on 4
             HAS MAX 1 This                                  // special cards. (extend Temporary?)
             DEFAULT +This.
         }
-
         CLASS Pay<Resource.CLASS> : Signal {                // player uses it like `8 Pay<Heat.CLASS> FROM Heat`
             This:: -Owed<Resource.CLASS>.                   // But also cards can pay in response to signals
         }
-
         CLASS PlayTag<Tag.CLASS> : Signal                   // triggers Accept<Steel/Dirig/etc.CLASS> and tag-based discounts
 
                                                             // used by PlayCardFromHand, ValTrust, EcoEx, ExSponsor,
@@ -167,4 +161,15 @@ ABSTRACT CLASS Owned<Anyone> {
   //        This: =0 Barrier: (CardFront FROM CardBack, -This) // adds task to queue that must eventually be completed
         }
     }
+}
+
+CLASS MetalHandler {
+    HAS =1 This
+
+    PlayTag<Anyone, BuildingTag.CLASS>:: Accept<Anyone, Steel.CLASS>
+    PlayTag<Anyone, SpaceTag.CLASS>:: Accept<Anyone, Titanium.CLASS>
+
+    Pay<Anyone, Steel.CLASS>:: 2 Pay<Anyone, Megacredit.CLASS>
+    Pay<Anyone, Titanium.CLASS>:: 3 Pay<Anyone, Megacredit.CLASS>
+    // I *think* that will be innocuous for TradeAction
 }
