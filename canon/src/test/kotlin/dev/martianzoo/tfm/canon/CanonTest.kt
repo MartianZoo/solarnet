@@ -10,6 +10,7 @@ import dev.martianzoo.tfm.engine.ComponentGraph.Component
 import dev.martianzoo.tfm.engine.Engine
 import dev.martianzoo.tfm.pets.SpecialClassNames.OWNED
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.tfm.pets.ast.TypeExpr.Companion.typeExpr
 import dev.martianzoo.tfm.types.PClassLoader
 import dev.martianzoo.util.Grid
 import dev.martianzoo.util.Multiset
@@ -112,9 +113,10 @@ private class CanonTest {
         Canon.cardDefinitions.filter { "VC".contains(it.bundle) }.map { it.name }.toSet()
 
     val milestoneNames = Canon.milestoneDefinitions.map { it.name }
-    val expected = (Canon.allClassNames - unusedCards)
-        .filterNot { it.matches(regex) }
-        .filterNot { it in milestoneNames && "HEV".contains(Canon.milestone(it).bundle) }
+    val expected =
+        (Canon.allClassNames - unusedCards)
+            .filterNot { it.matches(regex) }
+            .filterNot { it in milestoneNames && "HEV".contains(Canon.milestone(it).bundle) }
 
     assertThat(game.classTable.loadedClassNames()).containsExactlyElementsIn(expected)
   }
@@ -127,23 +129,58 @@ private class CanonTest {
     val all: Multiset<Component> = game.components.getAll(game.classTable.resolve("Component"))
 
     val isArea: (Component) -> Boolean = { it.asTypeExpr.toString().startsWith("Tharsis_") }
-    val isBorder: (Component) -> Boolean = {
-      it.asTypeExpr.asGeneric().root.toString() == "Border"
-    }
+    val isBorder: (Component) -> Boolean = { it.asTypeExpr.asGeneric().root.toString() == "Border" }
 
     assertThat(all.elements.count(isArea)).isEqualTo(61)
     assertThat(all.elements.count(isBorder)).isEqualTo(312)
 
     assertThat(all.filterNot { isArea(it) || isBorder(it) }.map { it.asTypeExpr.toString() })
         .containsExactly(
-            "Player1", "Player2", "Player3",
+            "Player1",
+            "Player2",
+            "Player3",
             "Generation",
             "Tharsis",
-            "ClaimMilestone", "ConvertHeat", "ConvertPlants",
-            "PlayCardFromHand", "UseActionFromCard", "UseStandardProject",
+            "ClaimMilestone",
+            "ConvertHeat",
+            "ConvertPlants",
+            "PlayCardFromHand",
+            "UseActionFromCard",
+            "UseStandardProject",
             "SellPatents",
-            "PowerPlantSP", "AsteroidSP", "AquiferSP", "GreenerySP", "CitySP",
-            "MetalHandler"
-        )
+            "PowerPlantSP",
+            "AsteroidSP",
+            "AquiferSP",
+            "GreenerySP",
+            "CitySP",
+            "MetalHandler")
   }
+
+  @Test
+  fun classCounts() {
+    val game = Engine.newGame(GameSetup(Canon, "MBR", 3))
+    assertThat(game.count(typeExpr("Class<Class>"))).isEqualTo(1)
+    assertThat(game.count(typeExpr("Class<CityTile>"))).isEqualTo(2) // don't forget capital!
+    assertThat(game.count(typeExpr("Class<GlobalParameter>"))).isEqualTo(3)
+    assertThat(game.count(typeExpr("Class<CardResource>"))).isEqualTo(4) // PlaMicAni & Fighters
+    assertThat(game.count(typeExpr("Class<Milestone>"))).isEqualTo(5)
+    assertThat(game.count(typeExpr("Class<StandardResource>"))).isEqualTo(6)
+    assertThat(game.count(typeExpr("Class<StandardAction>"))).isEqualTo(7)
+    assertThat(game.count(typeExpr("Class<SpecialTile>"))).isEqualTo(8) // oops missing some
+    assertThat(game.count(typeExpr("Class<Tag>"))).isEqualTo(10)
+    assertThat(game.count(typeExpr("Class<OwnedTile>"))).isEqualTo(11) // so here too
+    assertThat(game.count(typeExpr("Class<WaterArea>"))).isEqualTo(12)
+    assertThat(game.count(typeExpr("Class<Area>"))).isEqualTo(63)
+    assertThat(game.count(typeExpr("Class<CardFront>"))).isGreaterThan(200)
+    assertThat(game.count(typeExpr("Class"))).isGreaterThan(300)
+
+    game.classTable.loadedClassNames().forEach { println("$it " + game.count(it.literal)) }
+  }
+
+      // val game = Engine.newGame(GameSetup(Canon, config, 3))
+      // val tmm = MultimapBuilder.treeKeys(Comparator.reverseOrder<Int>())
+      //     .arrayListValues()
+      //     .build<Int, ClassName>()
+      // game.classTable.loadedClassNames().forEach { tmm.put(game.count(it.literal), it) }
+      // tmm.entries().take(30).forEach { println("${it.key} ${it.value}")}
 }

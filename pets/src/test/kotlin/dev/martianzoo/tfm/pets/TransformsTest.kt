@@ -14,7 +14,7 @@ import dev.martianzoo.tfm.pets.ast.Instruction.Companion.instruction
 import dev.martianzoo.tfm.pets.ast.Instruction.Gain
 import dev.martianzoo.tfm.pets.ast.PetNode
 import dev.martianzoo.tfm.pets.ast.ScalarAndType.Companion.sat
-import dev.martianzoo.tfm.pets.ast.TypeExpr.Companion.genericTypeExpr
+import dev.martianzoo.tfm.pets.ast.TypeExpr.Companion.typeExpr
 import dev.martianzoo.tfm.pets.ast.TypeExpr.GenericTypeExpr
 import dev.martianzoo.tfm.testlib.PetToKotlin
 import dev.martianzoo.util.toStrings
@@ -80,7 +80,7 @@ private class TransformsTest {
     val petsOut =
         "-Ooh<Foo<Xyz, It<Worked>, Qux>>: " +
             "5 Qux<Ooh, Xyz, Bar> OR 5 It<Worked>?, =0 It<Worked>: -Bar, 5: Foo<It<Worked>>"
-    checkResolveThis<Effect>(petsIn, genericTypeExpr("It<Worked>"), petsOut)
+    checkResolveThis<Effect>(petsIn, typeExpr("It<Worked>").asGeneric(), petsOut)
 
     // allows nonsense
     checkResolveThis<Instruction>("This<Foo>", cn("Bar").type, "This<Foo>")

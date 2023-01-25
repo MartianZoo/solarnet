@@ -4,6 +4,7 @@ import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 
 object SpecialClassNames {
   val ANYONE = cn("Anyone")
+  val CLASS = cn("Class")
   val COMPONENT = cn("Component")
   val DIE = cn("Die")
   val END = cn("End")

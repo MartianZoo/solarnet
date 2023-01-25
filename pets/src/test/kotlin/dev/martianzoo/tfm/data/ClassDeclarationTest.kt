@@ -11,7 +11,6 @@ import dev.martianzoo.tfm.pets.ast.Effect.Companion.effect
 import dev.martianzoo.tfm.pets.ast.Instruction.Intensity
 import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.pets.ast.ScalarAndType.Companion.sat
-import dev.martianzoo.tfm.pets.ast.TypeExpr.Companion.genericTypeExpr
 import dev.martianzoo.tfm.pets.ast.TypeExpr.Companion.typeExpr
 import dev.martianzoo.tfm.testlib.assertFails
 import org.junit.jupiter.api.Test
@@ -20,13 +19,13 @@ private class ClassDeclarationTest {
   @Test
   fun testValidate() {
     assertFails {
-      ClassDeclaration(COMPONENT, supertypes = setOf(genericTypeExpr("Foo<Bar>"))).validate()
+      ClassDeclaration(COMPONENT, supertypes = setOf(typeExpr("Foo<Bar>").asGeneric())).validate()
     }
     assertFails { ClassDeclaration(cn("NotComponent")).validate() }
     assertFails {
       val cd = ClassDeclaration(
           cn("NotComponent"),
-          supertypes = setOf(COMPONENT.type, genericTypeExpr("Baz<Qux>")))
+          supertypes = setOf(COMPONENT.type, typeExpr("Baz<Qux>").asGeneric()))
       cd.validate()
     }
   }

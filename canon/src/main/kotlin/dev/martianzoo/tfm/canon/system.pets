@@ -2,7 +2,7 @@ ABSTRACT CLASS Component {                                  // Component is the 
     DEFAULT +This!                                          // no need to write `: Component`; it's assumed
 }
 
-// TODO CLASS Class<Component>
+CLASS Class<Component>
 
 ABSTRACT CLASS Temporary {                                  // anything that can never survive across actions
 

@@ -3,12 +3,13 @@ package dev.martianzoo.tfm.pets.ast
 import com.github.h0tk3y.betterParse.combinators.and
 import com.github.h0tk3y.betterParse.combinators.map
 import com.github.h0tk3y.betterParse.combinators.optional
-import com.github.h0tk3y.betterParse.combinators.or
 import com.github.h0tk3y.betterParse.combinators.skip
 import com.github.h0tk3y.betterParse.grammar.parser
 import com.github.h0tk3y.betterParse.parser.Parser
 import dev.martianzoo.tfm.pets.Parsing
 import dev.martianzoo.tfm.pets.PetParser
+import dev.martianzoo.tfm.pets.SpecialClassNames.CLASS
+import dev.martianzoo.tfm.pets.SpecialClassNames.COMPONENT
 import dev.martianzoo.tfm.pets.ast.ClassName.Parsing.className
 import dev.martianzoo.util.joinOrEmpty
 import dev.martianzoo.util.pre
@@ -23,11 +24,7 @@ sealed class TypeExpr : PetNode() {
   abstract val link: Int?
 
   companion object {
-    fun typeExpr(text: String): TypeExpr =
-        Parsing.parse(TypeParsers.typeExpr, text)
-
-    fun genericTypeExpr(text: String): GenericTypeExpr =
-        Parsing.parse(TypeParsers.genericTypeExpr, text)
+    fun typeExpr(text: String): TypeExpr = Parsing.parse(TypeParsers.typeExpr, text)
   }
 
   abstract fun asGeneric(): GenericTypeExpr
@@ -38,6 +35,9 @@ sealed class TypeExpr : PetNode() {
       val refinement: Requirement? = null,
       override val link: Int? = null,
   ) : TypeExpr() {
+    init {
+      require(root != CLASS)
+    }
     override fun toString() =
         "$root${args.joinOrEmpty(wrap = "<>")}${refinement.wrap("(HAS ", ")")}${link.pre("^")}"
 
@@ -63,8 +63,7 @@ sealed class TypeExpr : PetNode() {
     }
   }
 
-  data class ClassLiteral(val className: ClassName, override val link: Int? = null) :
-      TypeExpr() {
+  data class ClassLiteral(val className: ClassName, override val link: Int? = null) : TypeExpr() {
     override fun toString() = "Class<$className${link.pre("^")}>"
     override fun asGeneric() =
         error("Bzzt, this is not a generic type expression, it's a class literal")
@@ -78,28 +77,37 @@ sealed class TypeExpr : PetNode() {
   object TypeParsers : PetParser() {
     private val link: Parser<Int> = skipChar('^') and scalar
 
-    private val classLiteral =
-        skip(_Class) and
-        skipChar('<') and
-        className and
-        optional(link) and
-        skipChar('>') map { (name, link) ->
-          ClassLiteral(name, link)
-        }
-
-    private val typeArgs =
-        skipChar('<') and commaSeparated(parser { typeExpr }) and skipChar('>')
+    private val typeArgs = skipChar('<') and commaSeparated(parser { typeExpr }) and skipChar('>')
 
     val refinement = group(skip(_has) and parser { Requirement.parser() })
 
-    val genericTypeExpr: Parser<GenericTypeExpr> =
+    val typeExpr: Parser<TypeExpr> =
         className and
         optionalList(typeArgs) and
         optional(refinement) and
         optional(link) map { (clazz, args, ref, link) ->
-          GenericTypeExpr(clazz, args, ref, link)
+          // TODO this NASSSTY
+          if (clazz == CLASS) {
+            require(link == null)
+            if (args.isEmpty()) {
+              require(ref == null)
+              COMPONENT.literal
+            } else {
+              val a = args.single()
+              if (a == COMPONENT.literal) {
+                require(ref == null)
+                CLASS.literal // `Class<Class>`: we misjudged the inner one
+              } else {
+                val c = a.asGeneric()
+                require(c.isTypeOnly)
+                ClassLiteral(c.root, c.link)
+              }
+            }
+          } else {
+            GenericTypeExpr(clazz, args, ref, link)
+          }
         }
 
-    val typeExpr = classLiteral or genericTypeExpr
+    val genericTypeExpr: Parser<GenericTypeExpr> = typeExpr map { it as GenericTypeExpr }
   }
 }

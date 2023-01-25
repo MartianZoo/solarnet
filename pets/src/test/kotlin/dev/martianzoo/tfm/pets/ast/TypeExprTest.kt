@@ -1,9 +1,13 @@
 package dev.martianzoo.tfm.pets.ast
 
 import com.google.common.truth.Truth.assertThat
+import dev.martianzoo.tfm.pets.SpecialClassNames.CLASS
+import dev.martianzoo.tfm.pets.SpecialClassNames.COMPONENT
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.tfm.pets.ast.TypeExpr.ClassLiteral
 import dev.martianzoo.tfm.pets.ast.TypeExpr.Companion.typeExpr
 import dev.martianzoo.tfm.pets.testRoundTrip
+import dev.martianzoo.tfm.testlib.assertFails
 import org.junit.jupiter.api.Test
 
 // Most testing is done by AutomatedTest
@@ -56,5 +60,39 @@ private class TypeExprTest {
                 cn("Ee").addArgs(cn("Ff").addArgs(cn("Gg").type, cn("Hh").type), cn("Me").type),
                 cn("Jj").type)
     assertThat(expr.toString()).isEqualTo("Aa<Bb, Cc<Dd>, Ee<Ff<Gg, Hh>, Me>, Jj>")
+  }
+
+  @Test
+  fun classLiteralStuff() {
+    typeExpr("Foo")
+    typeExpr("Foo<Bar>")
+
+    assertThat(typeExpr("Class<Foo>")).isEqualTo(cn("Foo").literal)
+    assertThat(typeExpr("Class<Component>")).isEqualTo(COMPONENT.literal)
+    assertThat(typeExpr("Class")).isEqualTo(COMPONENT.literal)
+    assertThat(typeExpr("Class<Class>")).isEqualTo(CLASS.literal)
+
+    val two = typeExpr("Two<Class<Bar>, Class<Qux>>").asGeneric()
+    assertThat(two.root).isEqualTo(cn("Two"))
+    assertThat(two.args).containsExactly(cn("Bar").literal, cn("Qux").literal)
+
+    assertFails { typeExpr("Class<Foo<Bar>>") }
+    assertFails { typeExpr("Class<Foo, Bar>") }
+    assertFails { typeExpr("Qux<Class<Foo<Bar>>>") }
+    assertFails { typeExpr("Qux<Class<Foo, Bar>>") }
+    assertFails { typeExpr("Class<Class<Foo>>") }
+  }
+
+  @Test
+  fun classLiteralStuffWithLinks() {
+    typeExpr("Foo^5")
+    typeExpr("Foo<Bar^5>")
+    typeExpr("Foo<Bar>^5")
+
+    assertThat(typeExpr("Class<Foo^5>")).isEqualTo(ClassLiteral(cn("Foo"), 5))
+    assertThat(typeExpr("Class<Component^5>")).isEqualTo(ClassLiteral(COMPONENT, 5))
+    assertFails { typeExpr("Class<Class^5>") }
+    assertFails { typeExpr("Class<Foo>^5") }
+    assertFails { typeExpr("Class^5") }
   }
 }

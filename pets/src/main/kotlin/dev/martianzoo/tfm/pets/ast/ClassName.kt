@@ -15,11 +15,14 @@ data class ClassName(private val asString: String) : PetNode(), Comparable<Class
 
   init {
     require(asString.matches(classNameRegex)) { "Bad class name: $asString" }
-    require(asString != "Class")
   }
 
-  val type = GenericTypeExpr(this) // technically should be typeExpr
-  val literal = ClassLiteral(this)
+  val type: GenericTypeExpr get() { // technically should be typeExpr
+    require(asString != "Class") // "Class<...>" is never a generic type
+    return GenericTypeExpr(this)
+  }
+
+  val literal: ClassLiteral get() = ClassLiteral(this)
 
   fun addArgs(specs: List<TypeExpr>) = type.addArgs(specs)
   fun addArgs(vararg specs: TypeExpr) = addArgs(specs.toList())

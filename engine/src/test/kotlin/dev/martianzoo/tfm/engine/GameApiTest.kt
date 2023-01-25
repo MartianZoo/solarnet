@@ -6,7 +6,6 @@ import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.data.StateChange
 import dev.martianzoo.tfm.pets.ast.Instruction.Companion.instruction
 import dev.martianzoo.tfm.pets.ast.Requirement.Companion.requirement
-import dev.martianzoo.tfm.pets.ast.TypeExpr.Companion.genericTypeExpr
 import dev.martianzoo.tfm.pets.ast.TypeExpr.Companion.typeExpr
 import dev.martianzoo.util.toStrings
 import org.junit.jupiter.api.Test
@@ -46,17 +45,17 @@ private class GameApiTest {
 
     assertThat(game.changeLog())
         .containsExactly(
-            StateChange(5, gaining = genericTypeExpr("Heat<Player2>")),
-            StateChange(10, gaining = genericTypeExpr("Heat<Player3>")),
-            StateChange(4, removing = genericTypeExpr("Heat<Player2>")),
+            StateChange(5, gaining = typeExpr("Heat<Player2>").asGeneric()),
+            StateChange(10, gaining = typeExpr("Heat<Player3>").asGeneric()),
+            StateChange(4, removing = typeExpr("Heat<Player2>").asGeneric()),
             StateChange(
                 3,
-                removing = genericTypeExpr("Heat<Player3>"),
-                gaining = genericTypeExpr("Steel<Player3>")),
+                removing = typeExpr("Heat<Player3>").asGeneric(),
+                gaining = typeExpr("Steel<Player3>").asGeneric()),
             StateChange(
                 2,
-                removing = genericTypeExpr("Heat<Player3>"),
-                gaining = genericTypeExpr("Heat<Player2>")),
+                removing = typeExpr("Heat<Player3>").asGeneric(),
+                gaining = typeExpr("Heat<Player2>").asGeneric()),
         )
         .inOrder()
 
