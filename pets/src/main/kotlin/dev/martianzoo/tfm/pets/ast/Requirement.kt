@@ -10,30 +10,32 @@ import com.github.h0tk3y.betterParse.parser.Parser
 import dev.martianzoo.tfm.pets.Parsing
 import dev.martianzoo.tfm.pets.PetException
 import dev.martianzoo.tfm.pets.PetParser
+import dev.martianzoo.tfm.pets.PetVisitor
 import dev.martianzoo.tfm.pets.SpecialClassNames.THIS
 
 sealed class Requirement : PetNode() {
   open fun requiresThis() = false
 
   data class Min(val sat: ScalarAndType) : Requirement() {
+    override fun visitChildren(v: PetVisitor) = v.visit(sat)
+    override fun toString() = "$sat"
+
     init {
       if (sat.scalar == 0) {
         throw PetException("Minimum of 0 would always be true")
       }
     }
 
-    override fun toString() = "$sat"
-
     override fun requiresThis() = this.sat == ScalarAndType.sat(1, THIS.type)
   }
 
   data class Max(val sat: ScalarAndType) : Requirement() {
-    // could remove this but make it parseable
+    override fun visitChildren(v: PetVisitor) = v.visit(sat)
     override fun toString() = "MAX ${sat.toString(true, true)}" // no "MAX 5" or "MAX Heat"
   }
 
   data class Exact(val sat: ScalarAndType) : Requirement() {
-    // could remove this but make it parseable
+    override fun visitChildren(v: PetVisitor) = v.visit(sat)
     override fun toString() = "=${sat.toString(true, true)}" // no "=5" or "=Heat"
 
     override fun requiresThis() = this.sat == ScalarAndType.sat(1, THIS.type)
@@ -47,6 +49,7 @@ sealed class Requirement : PetNode() {
       require(requirements.size >= 2)
     }
 
+    override fun visitChildren(v: PetVisitor) = v.visit(requirements)
     override fun toString() = requirements.joinToString(" OR ") { groupPartIfNeeded(it) }
     override fun precedence() = 3
   }
@@ -59,6 +62,7 @@ sealed class Requirement : PetNode() {
       require(requirements.size >= 2)
     }
 
+    override fun visitChildren(v: PetVisitor) = v.visit(requirements)
     override fun toString() = requirements.joinToString { groupPartIfNeeded(it) }
     override fun precedence() = 1
 
@@ -67,6 +71,7 @@ sealed class Requirement : PetNode() {
 
   data class Transform(val requirement: Requirement, override val transform: String) :
       Requirement(), GenericTransform<Requirement> {
+    override fun visitChildren(v: PetVisitor) = v.visit(requirement)
     override fun toString() = "$transform[$requirement]"
     override fun extract() = requirement
   }

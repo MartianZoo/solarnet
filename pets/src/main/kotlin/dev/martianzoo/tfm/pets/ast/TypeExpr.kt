@@ -8,6 +8,7 @@ import com.github.h0tk3y.betterParse.grammar.parser
 import com.github.h0tk3y.betterParse.parser.Parser
 import dev.martianzoo.tfm.pets.Parsing
 import dev.martianzoo.tfm.pets.PetParser
+import dev.martianzoo.tfm.pets.PetVisitor
 import dev.martianzoo.tfm.pets.SpecialClassNames.CLASS
 import dev.martianzoo.tfm.pets.SpecialClassNames.COMPONENT
 import dev.martianzoo.tfm.pets.ast.ClassName.Parsing.className
@@ -35,36 +36,38 @@ sealed class TypeExpr : PetNode() {
       val refinement: Requirement? = null,
       override val link: Int? = null,
   ) : TypeExpr() {
+    override fun visitChildren(v: PetVisitor) = v.visit(args + root + refinement)
+
+    override fun toString() =
+        "$root" +
+        args.joinOrEmpty(wrap = "<>") +
+        refinement.wrap("(HAS ", ")") +
+        link.pre("^")
+
     init {
       require(root != CLASS) // Class<...> can never be a generic type
     }
-    override fun toString() =
-        "$root${args.joinOrEmpty(wrap = "<>")}${refinement.wrap("(HAS ", ")")}${link.pre("^")}"
 
     override fun asGeneric() = this
 
     val isTypeOnly = args.isEmpty() && refinement == null
 
-    fun addArgs(moreArgs: List<TypeExpr>): GenericTypeExpr {
-      return copy(args = args + moreArgs)
-    }
+    fun addArgs(moreArgs: List<TypeExpr>) = copy(args = args + moreArgs)
+    fun replaceArgs(args: List<TypeExpr>) = copy(args = args)
 
-    fun replaceArgs(args: List<TypeExpr>): GenericTypeExpr {
-      return copy(args = args)
-    }
-
-    fun refine(ref: Requirement?): GenericTypeExpr {
-      return if (ref == null) {
-        this
-      } else {
-        require(this.refinement == null)
-        copy(refinement = ref)
-      }
-    }
+    fun refine(ref: Requirement?) =
+        if (ref == null) {
+          this
+        } else {
+          require(this.refinement == null)
+          copy(refinement = ref)
+        }
   }
 
   data class ClassLiteral(val className: ClassName, override val link: Int? = null) : TypeExpr() {
+    override fun visitChildren(v: PetVisitor) = v.visit(className)
     override fun toString() = "Class<$className${link.pre("^")}>"
+
     override fun asGeneric() =
         error("Bzzt, this is not a generic type expression, it's a class literal")
   }
@@ -94,7 +97,10 @@ sealed class TypeExpr : PetNode() {
 
     // TODO this NASSSTY
     private fun convert(
-        rootName: ClassName, arguments: List<TypeExpr>, refinement: Requirement?, link: Int?
+        rootName: ClassName,
+        arguments: List<TypeExpr>,
+        refinement: Requirement?,
+        link: Int?
     ): TypeExpr {
       if (rootName != CLASS) return GenericTypeExpr(rootName, arguments, refinement, link)
 

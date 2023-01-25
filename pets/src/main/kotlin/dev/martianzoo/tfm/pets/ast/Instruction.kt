@@ -10,6 +10,7 @@ import com.github.h0tk3y.betterParse.parser.Parser
 import dev.martianzoo.tfm.pets.Parsing
 import dev.martianzoo.tfm.pets.PetException
 import dev.martianzoo.tfm.pets.PetParser
+import dev.martianzoo.tfm.pets.PetVisitor
 import dev.martianzoo.tfm.pets.ast.From.SimpleFrom
 import dev.martianzoo.tfm.pets.ast.TypeExpr.TypeParsers.typeExpr
 import dev.martianzoo.util.suf
@@ -28,13 +29,14 @@ sealed class Instruction : PetNode() {
     override val removing = null
     override val gaining = sat.typeExpr
 
+    override fun visitChildren(v: PetVisitor) = v.visit(sat)
+    override fun toString() = "$sat${intensity?.symbol ?: ""}"
+
     init {
       if (count == 0) {
         throw PetException("Can't do zero")
       }
     }
-
-    override fun toString() = "$sat${intensity?.symbol ?: ""}"
   }
 
   data class Remove(val sat: ScalarAndType, override val intensity: Intensity? = null) : Change() {
@@ -42,13 +44,14 @@ sealed class Instruction : PetNode() {
     override val removing = sat.typeExpr
     override val gaining = null
 
+    override fun visitChildren(v: PetVisitor) = v.visit(sat)
+    override fun toString() = "-$sat${intensity?.symbol ?: ""}"
+
     init {
       if (count == 0) {
         throw PetException("Can't do zero")
       }
     }
-
-    override fun toString() = "-$sat${intensity?.symbol ?: ""}"
   }
 
   data class Transmute(
@@ -60,14 +63,15 @@ sealed class Instruction : PetNode() {
     override val removing = from.fromType
     override val gaining = from.toType
 
+    override fun visitChildren(v: PetVisitor) = v.visit(from)
+    override fun toString(): String {
+      return "${scalar.suf(' ')}$from${intensity?.symbol ?: ""}"
+    }
+
     init {
       if (count == 0) {
         throw PetException("Can't do zero")
       }
-    }
-
-    override fun toString(): String {
-      return "${scalar.suf(' ')}$from${intensity?.symbol ?: ""}"
     }
 
     override fun shouldGroupInside(container: PetNode) =
@@ -88,6 +92,7 @@ sealed class Instruction : PetNode() {
         else -> throw PetException("Per can only contain gain/remove/transmute") // TODO more
       }
     }
+    override fun visitChildren(v: PetVisitor) = v.visit(sat, instruction)
 
     override fun precedence() = 8
 
@@ -100,6 +105,8 @@ sealed class Instruction : PetNode() {
         throw PetException("You don't gate a gater") // TODO keep??
       }
     }
+
+    override fun visitChildren(v: PetVisitor) = v.visit(gate, instruction)
 
     override fun toString(): String {
       return "${groupPartIfNeeded(gate)}: ${groupPartIfNeeded(instruction)}"
@@ -118,6 +125,8 @@ sealed class Instruction : PetNode() {
         vararg arguments: TypeExpr
     ) : this(functionName, arguments.toList())
 
+    override fun visitChildren(v: PetVisitor) = v.visit(arguments)
+
     override fun toString() = "@$functionName(${arguments.joinToString()})"
   }
 
@@ -127,6 +136,8 @@ sealed class Instruction : PetNode() {
     init {
       require(instructions.size >= 2)
     }
+
+    override fun visitChildren(v: PetVisitor) = v.visit(instructions)
 
     override fun toString() = instructions.joinToString(" THEN ") { groupPartIfNeeded(it) }
 
@@ -141,6 +152,7 @@ sealed class Instruction : PetNode() {
     }
 
     override fun toString() = instructions.joinToString(" OR ") { groupPartIfNeeded(it) }
+    override fun visitChildren(v: PetVisitor) = v.visit(instructions)
 
     override fun shouldGroupInside(container: PetNode) =
         container is Then || super.shouldGroupInside(container)
@@ -154,6 +166,7 @@ sealed class Instruction : PetNode() {
     init {
       require(instructions.size >= 2)
     }
+    override fun visitChildren(v: PetVisitor) = v.visit(instructions)
 
     override fun toString() = instructions.joinToString { groupPartIfNeeded(it) }
 
@@ -162,6 +175,7 @@ sealed class Instruction : PetNode() {
 
   data class Transform(val instruction: Instruction, override val transform: String) :
       Instruction(), GenericTransform<Instruction> {
+    override fun visitChildren(v: PetVisitor) = v.visit(instruction)
     override fun toString() = "$transform[$instruction]"
 
     override fun extract() = instruction

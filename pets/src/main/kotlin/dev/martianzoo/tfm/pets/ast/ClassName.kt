@@ -2,6 +2,7 @@ package dev.martianzoo.tfm.pets.ast
 
 import com.github.h0tk3y.betterParse.combinators.map
 import dev.martianzoo.tfm.pets.PetParser
+import dev.martianzoo.tfm.pets.PetVisitor
 import dev.martianzoo.tfm.pets.ast.TypeExpr.ClassLiteral
 import dev.martianzoo.tfm.pets.ast.TypeExpr.GenericTypeExpr
 
@@ -37,6 +38,8 @@ data class ClassName(private val asString: String) : PetNode(), Comparable<Class
   override fun compareTo(other: ClassName) = asString.compareTo(other.asString)
 
   override val kind = "ClassName"
+
+  override fun visitChildren(v: PetVisitor) {}
 
   object Parsing : PetParser() {
     val classShortName = _allCapsWordRE map { cn(it.text) } // currently unused

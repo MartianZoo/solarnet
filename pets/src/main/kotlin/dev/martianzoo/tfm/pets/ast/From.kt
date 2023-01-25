@@ -11,6 +11,7 @@ import com.github.h0tk3y.betterParse.parser.Parser
 import dev.martianzoo.tfm.pets.Parsing
 import dev.martianzoo.tfm.pets.PetException
 import dev.martianzoo.tfm.pets.PetParser
+import dev.martianzoo.tfm.pets.PetVisitor
 import dev.martianzoo.tfm.pets.ast.ClassName.Parsing.className
 import dev.martianzoo.tfm.pets.ast.TypeExpr.TypeParsers
 import dev.martianzoo.tfm.pets.ast.TypeExpr.TypeParsers.typeExpr
@@ -27,6 +28,7 @@ sealed class From : PetNode() {
     override val toType by this::typeExpr
     override val fromType by this::typeExpr
 
+    override fun visitChildren(v: PetVisitor) = v.visit(typeExpr)
     override fun toString() = "$typeExpr"
   }
 
@@ -34,6 +36,7 @@ sealed class From : PetNode() {
       override val toType: TypeExpr,
       override val fromType: TypeExpr,
   ) : From() {
+    override fun visitChildren(v: PetVisitor) = v.visit(toType, fromType)
     override fun toString() = "$toType FROM $fromType"
   }
 
@@ -47,6 +50,8 @@ sealed class From : PetNode() {
         throw PetException("Can only have one FROM in an expression")
       }
     }
+
+    override fun visitChildren(v: PetVisitor) = v.visit(arguments + className + refinement)
 
     override val toType = className.addArgs(arguments.map { it.toType })
     override val fromType = className.addArgs(arguments.map { it.fromType }).refine(refinement)

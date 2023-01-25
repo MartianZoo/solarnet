@@ -11,6 +11,7 @@ import com.github.h0tk3y.betterParse.parser.Parser
 import dev.martianzoo.tfm.pets.Parsing
 import dev.martianzoo.tfm.pets.PetException
 import dev.martianzoo.tfm.pets.PetParser
+import dev.martianzoo.tfm.pets.PetVisitor
 import dev.martianzoo.tfm.pets.ast.Instruction.Intensity.MANDATORY
 import dev.martianzoo.tfm.pets.ast.Instruction.Remove
 import dev.martianzoo.util.suf
@@ -19,6 +20,7 @@ data class Action(val cost: Cost?, val instruction: Instruction) : PetNode() {
   override val kind = "Action"
 
   override fun toString() = "${cost.suf(' ')}-> $instruction"
+  override fun visitChildren(v: PetVisitor) = v.visit(cost, instruction)
 
   sealed class Cost : PetNode() {
     override val kind = "Cost"
@@ -26,13 +28,14 @@ data class Action(val cost: Cost?, val instruction: Instruction) : PetNode() {
     abstract fun toInstruction(): Instruction
 
     data class Spend(val sat: ScalarAndType) : Cost() {
+      override fun visitChildren(v: PetVisitor) = v.visit(sat)
+      override fun toString() = sat.toString()
+
       init {
         if (sat.scalar == 0) {
           throw PetException("Can't spend zero")
         }
       }
-
-      override fun toString() = sat.toString()
 
       // I believe Ants/Predators are the reasons for MANDATORY here
       override fun toInstruction() = Remove(sat, MANDATORY)
@@ -51,6 +54,7 @@ data class Action(val cost: Cost?, val instruction: Instruction) : PetNode() {
           else -> {}
         }
       }
+      override fun visitChildren(v: PetVisitor) = v.visit(cost, sat)
 
       override fun toString() = "$cost / ${sat.toString(forceType = true)}"
       override fun precedence() = 5
@@ -64,6 +68,7 @@ data class Action(val cost: Cost?, val instruction: Instruction) : PetNode() {
       init {
         require(costs.size >= 2)
       }
+      override fun visitChildren(v: PetVisitor) = v.visit(costs)
 
       override fun toString() = costs.joinToString(" OR ") { groupPartIfNeeded(it) }
       override fun precedence() = 3
@@ -78,6 +83,7 @@ data class Action(val cost: Cost?, val instruction: Instruction) : PetNode() {
         require(costs.size >= 2)
       }
 
+      override fun visitChildren(v: PetVisitor) = v.visit(costs)
       override fun toString() = costs.joinToString { groupPartIfNeeded(it) }
       override fun precedence() = 1
 
@@ -87,10 +93,10 @@ data class Action(val cost: Cost?, val instruction: Instruction) : PetNode() {
     // TODO rename transformName all
     data class Transform(val cost: Cost, override val transform: String) :
         Cost(), GenericTransform<Cost> {
+      override fun visitChildren(v: PetVisitor) = v.visit(cost)
       override fun toString() = "$transform[$cost]"
 
       override fun toInstruction() = Instruction.Transform(cost.toInstruction(), transform)
-
       override fun extract() = cost
     }
 

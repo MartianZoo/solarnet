@@ -8,6 +8,7 @@ import com.github.h0tk3y.betterParse.grammar.parser
 import com.github.h0tk3y.betterParse.parser.Parser
 import dev.martianzoo.tfm.pets.Parsing
 import dev.martianzoo.tfm.pets.PetParser
+import dev.martianzoo.tfm.pets.PetVisitor
 import dev.martianzoo.tfm.pets.SpecialClassNames.MEGACREDIT
 import dev.martianzoo.tfm.pets.ast.TypeExpr.TypeParsers.typeExpr
 
@@ -15,11 +16,7 @@ data class ScalarAndType(
     val scalar: Int = 1,
     val typeExpr: TypeExpr = MEGACREDIT.type,
 ) : PetNode() {
-  init {
-    require(scalar >= 0)
-  }
-
-  override val kind = ScalarAndType::class.simpleName!!
+  override fun visitChildren(v: PetVisitor) = v.visit(typeExpr)
 
   override fun toString() = toString(false, false)
 
@@ -29,6 +26,12 @@ data class ScalarAndType(
         !forceScalar && scalar == 1 -> "$typeExpr"
         else -> "$scalar $typeExpr"
       }
+
+  init {
+    require(scalar >= 0)
+  }
+
+  override val kind = ScalarAndType::class.simpleName!!
 
   companion object : PetParser() {
     fun sat(scalar: Int? = null, typeExpr: TypeExpr? = null) =
