@@ -25,16 +25,14 @@ class BoardToText(val game: GameState) {
     val (h, hr) = prodAndRes("Heat")
 
     return listOf(
-        """
-          +---------+---------+---------+
-          |  M: $mr |  S: $sr |  T: $tr |
-          | prod $m | prod $s | prod $t |
-          +---------+---------+---------+
-          |  P: $pr |  E: $er    H: $hr |
-          | prod $p | prod $e | prod $h |
-          +---------+---------+---------+
-          """
-            .trimIndent())
+          "+---------+---------+---------+",
+          "|  M: $mr |  S: $sr |  T: $tr |",
+          "| prod $m | prod $s | prod $t |",
+          "+---------+---------+---------+",
+          "|  P: $pr |  E: $er    H: $hr |",
+          "| prod $p | prod $e | prod $h |",
+          "+---------+---------+---------+",
+    )
   }
 
   fun lookUpResourceLevels(game: ReadOnlyGameState, player: TypeExpr) =

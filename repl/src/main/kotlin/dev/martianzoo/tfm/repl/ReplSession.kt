@@ -63,7 +63,7 @@ class ReplSession(val authority: Authority) {
                     ?: listOf("Usage: has <Requirement>")
               },
           "map" to {
-            if (it != null) {
+            if (it == null) {
               MapToText(session.game!!.asGameState).map()
             } else {
               listOf("Arguments unexpected: $it")
