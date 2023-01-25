@@ -36,7 +36,7 @@ sealed class TypeExpr : PetNode() {
       override val link: Int? = null,
   ) : TypeExpr() {
     init {
-      require(root != CLASS)
+      require(root != CLASS) // Class<...> can never be a generic type
     }
     override fun toString() =
         "$root${args.joinOrEmpty(wrap = "<>")}${refinement.wrap("(HAS ", ")")}${link.pre("^")}"
@@ -83,31 +83,30 @@ sealed class TypeExpr : PetNode() {
 
     val typeExpr: Parser<TypeExpr> =
         className and
-        optionalList(typeArgs) and
-        optional(refinement) and
-        optional(link) map { (clazz, args, ref, link) ->
-          // TODO this NASSSTY
-          if (clazz == CLASS) {
-            require(link == null)
-            if (args.isEmpty()) {
-              require(ref == null)
-              COMPONENT.literal
-            } else {
-              val a = args.single()
-              if (a == COMPONENT.literal) {
-                require(ref == null)
-                CLASS.literal // `Class<Class>`: we misjudged the inner one
-              } else {
-                val c = a.asGeneric()
-                require(c.isTypeOnly)
-                ClassLiteral(c.root, c.link)
-              }
+            optionalList(typeArgs) and
+            optional(refinement) and
+            optional(link) map
+            { (clazz, args, ref, link) ->
+              convert(clazz, args, ref, link)
             }
-          } else {
-            GenericTypeExpr(clazz, args, ref, link)
-          }
-        }
 
     val genericTypeExpr: Parser<GenericTypeExpr> = typeExpr map { it as GenericTypeExpr }
+
+    // TODO this NASSSTY
+    private fun convert(
+        rootName: ClassName, arguments: List<TypeExpr>, refinement: Requirement?, link: Int?
+    ): TypeExpr {
+      if (rootName != CLASS) return GenericTypeExpr(rootName, arguments, refinement, link)
+
+      require(refinement == null && link == null)
+      if (arguments.isEmpty()) return COMPONENT.literal // `Class`
+
+      val oneArg = arguments.single()
+      if (oneArg == COMPONENT.literal) return CLASS.literal // `Class<Class>`
+
+      val generic = oneArg.asGeneric() // `Class<SomethingElse>`
+      require(generic.isTypeOnly)
+      return ClassLiteral(generic.root, generic.link)
+    }
   }
 }

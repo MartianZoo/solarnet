@@ -76,11 +76,14 @@ private class TypeExprTest {
     assertThat(two.root).isEqualTo(cn("Two"))
     assertThat(two.args).containsExactly(cn("Bar").literal, cn("Qux").literal)
 
+    assertFails { typeExpr("Class<Class<Class>>") }
+    assertFails { typeExpr("Class<Class<Foo>>") }
     assertFails { typeExpr("Class<Foo<Bar>>") }
     assertFails { typeExpr("Class<Foo, Bar>") }
     assertFails { typeExpr("Qux<Class<Foo<Bar>>>") }
     assertFails { typeExpr("Qux<Class<Foo, Bar>>") }
-    assertFails { typeExpr("Class<Class<Foo>>") }
+
+    typeExpr("Class<Class<Component>>") // TODO this should fail
   }
 
   @Test

@@ -158,23 +158,28 @@ private class CanonTest {
 
   @Test
   fun classCounts() {
-    val game = Engine.newGame(GameSetup(Canon, "MBR", 3))
-    assertThat(game.count(typeExpr("Class<Class>"))).isEqualTo(1)
-    assertThat(game.count(typeExpr("Class<CityTile>"))).isEqualTo(2) // don't forget capital!
-    assertThat(game.count(typeExpr("Class<GlobalParameter>"))).isEqualTo(3)
-    assertThat(game.count(typeExpr("Class<CardResource>"))).isEqualTo(4) // PlaMicAni & Fighters
-    assertThat(game.count(typeExpr("Class<Milestone>"))).isEqualTo(5)
-    assertThat(game.count(typeExpr("Class<StandardResource>"))).isEqualTo(6)
-    assertThat(game.count(typeExpr("Class<StandardAction>"))).isEqualTo(7)
-    assertThat(game.count(typeExpr("Class<SpecialTile>"))).isEqualTo(8) // oops missing some
-    assertThat(game.count(typeExpr("Class<Tag>"))).isEqualTo(10)
-    assertThat(game.count(typeExpr("Class<OwnedTile>"))).isEqualTo(11) // so here too
-    assertThat(game.count(typeExpr("Class<WaterArea>"))).isEqualTo(12)
-    assertThat(game.count(typeExpr("Class<Area>"))).isEqualTo(63)
-    assertThat(game.count(typeExpr("Class<CardFront>"))).isGreaterThan(200)
-    assertThat(game.count(typeExpr("Class"))).isGreaterThan(300)
+    val game = Engine.newGame(GameSetup(Canon, "BRM", 3))
 
-    game.classTable.loadedClassNames().forEach { println("$it " + game.count(it.literal)) }
+    fun checkClassCountIs(name: String, count: Int) {
+      assertThat(game.count(typeExpr("Class<$name>"))).isEqualTo(count)
+    }
+
+    checkClassCountIs("Class", 1)
+    checkClassCountIs("CityTile", 2) // capital
+    checkClassCountIs("GlobalParameter", 3)
+    checkClassCountIs("CardResource", 4) // PlaMicAni & Fighters
+    checkClassCountIs("Milestone", 5)
+    checkClassCountIs("StandardResource", 6)
+    checkClassCountIs("StandardAction", 7)
+    checkClassCountIs("SpecialTile", 8) // oops missing some
+    checkClassCountIs("Tag", 10)
+    checkClassCountIs("OwnedTile", 11) // so here too
+    checkClassCountIs("WaterArea", 12)
+    checkClassCountIs("Area", 63)
+
+    assertThat(game.count(typeExpr("Class<CardFront>"))).isGreaterThan(200)
+    assertThat(game.count(typeExpr("Class<Component>"))).isGreaterThan(300)
+    assertThat(game.count(typeExpr("Class"))).isGreaterThan(300)
   }
 
       // val game = Engine.newGame(GameSetup(Canon, config, 3))
