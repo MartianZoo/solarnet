@@ -26,9 +26,9 @@ These expressions are a way of identifying a type, and types are explained in th
 
 ### Class literal
 
-For any class name `Foo`, you can write the class literal `Foo.CLASS`. An instace of `Foo.class` is created upon
+For any class name `Foo`, you can write the class literal `Class<Foo>`. An instace of `Foo.class` is created upon
 initialization of the type system if and only if `Foo` is a concrete class. So, for example, an instance
-for `StandardResource.CLASS` is not created; however if you `count StandardResource.class` you will get the answer `6`,
+for `Class<StandardResource>` is not created; however if you `count StandardResource.class` you will get the answer `6`,
 because it is counting all the subtypes. That is, class literals have the same subtype relationships as their
 corresponding classes do.
 
@@ -104,7 +104,7 @@ instruction would be unexecutable by a player with only 2 plant tags.
 
 As with other PETS elements, any part can be surrounded by a `PROD[...]` block. Inside that block, only types
 extending `StandardResource` are affected; for example, `Heat<Player2>` is transformed
-into `Production<Player2, Heat.CLASS>`. This transformation is done because it makes cards easier to write, easier to
+into `Production<Player2, Class<Heat>>`. This transformation is done because it makes cards easier to write, easier to
 render in the official one-prod-box-only style, and because one single card (Robotic Workforce) needs production blocks
 to be discretely identifiable.
 

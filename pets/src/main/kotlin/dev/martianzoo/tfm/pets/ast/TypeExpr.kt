@@ -65,7 +65,7 @@ sealed class TypeExpr : PetNode() {
 
   data class ClassLiteral(val className: ClassName, override val link: Int? = null) :
       TypeExpr() {
-    override fun toString() = "$className${link.pre("^")}.CLASS"
+    override fun toString() = "Class<$className${link.pre("^")}>"
     override fun asGeneric() =
         error("Bzzt, this is not a generic type expression, it's a class literal")
   }
@@ -79,10 +79,11 @@ sealed class TypeExpr : PetNode() {
     private val link: Parser<Int> = skipChar('^') and scalar
 
     private val classLiteral =
+        skip(_Class) and
+        skipChar('<') and
         className and
         optional(link) and
-        skipChar('.') and
-        skip(_class) map { (name, link) ->
+        skipChar('>') map { (name, link) ->
           ClassLiteral(name, link)
         }
 

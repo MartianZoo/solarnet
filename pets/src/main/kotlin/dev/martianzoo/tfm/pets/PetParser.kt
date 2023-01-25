@@ -37,10 +37,13 @@ open class PetParser {
   internal val _default = literal("DEFAULT")
 
   // regexes - could leave the `Regex()` out, but it loses IDEA syntax highlighting!
-  internal val _upperCamelRE = regex(Regex("""\b[A-Z][a-z][A-Za-z0-9_]*\b"""), "UpperCamel")
+  internal val _upperCamelRE =
+      regex(Regex("""\b(?!Class\b)[A-Z][a-z][A-Za-z0-9_]*\b"""), "UpperCamel")
   internal val _scalarRE = regex(Regex("""\b(0|[1-9][0-9]*)\b"""), "scalar")
   internal val _lowerCamelRE = regex(Regex("""\b[a-z][a-zA-Z0-9]*\b"""), "lowerCamel")
   internal val _allCapsWordRE = regex(Regex("""\b[A-Z]+\b"""), "ALLCAPS")
+
+  internal val _Class = literal("Class")
 
   val scalar: Parser<Int> = _scalarRE map { it.text.toInt() }
 

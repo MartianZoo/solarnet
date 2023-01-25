@@ -27,7 +27,7 @@ class ApiHelpersTest {
             cn("Heat") to 0,
         )
 
-    game.execute(instruction("2 Production<Player1, Plant.CLASS>"))
+    game.execute(instruction("2 Production<Player1, Class<Plant>>"))
     val prods2: Map<ClassName, Int> =
         lookUpProductionLevels(game.asGameState, cn("Player1").type)
     assertThat(prods2.map { it.key to it.value })

@@ -28,7 +28,4 @@ It is a simplified generic type system.
 
 * The types in the <> are not just type parameters; they are *dependencies*. For an instance of `Foo<Bar>` to exist, a particular *instance* of `Bar` must exist that it depends on.
 
-* There are also class literals like `Plant.CLASS`. I discussed these a bit in [syntax].
-
-
-
+* There are also class literals like `Class<Plant>`. I discussed these a bit in [syntax].

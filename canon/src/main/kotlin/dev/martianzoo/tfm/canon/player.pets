@@ -55,23 +55,23 @@ ABSTRACT CLASS Owned<Anyone> {
             CLASS Energy { ProductionPhase:: Heat FROM This }
         }
 
-        ABSTRACT CLASS CardResource : Cardbound<ResourcefulCard<CardResource.CLASS>> { // TODO This .CLASS
+        ABSTRACT CLASS CardResource : Cardbound<ResourcefulCard<Class<CardResource>>> { // TODO This .CLASS
             DEFAULT +This.
 
             // All others are card-specific; see cards.json5
-            CLASS Animal : CardResource<ResourcefulCard<Animal.CLASS>>
-            CLASS Microbe : CardResource<ResourcefulCard<Microbe.CLASS>>
-            CLASS Science : CardResource<ResourcefulCard<Science.CLASS>>
-            CLASS Floater : CardResource<ResourcefulCard<Floater.CLASS>>
-            CLASS Asteroid : CardResource<ResourcefulCard<Asteroid.CLASS>>
+            CLASS Animal : CardResource<ResourcefulCard<Class<Animal>>>
+            CLASS Microbe : CardResource<ResourcefulCard<Class<Microbe>>>
+            CLASS Science : CardResource<ResourcefulCard<Class<Science>>>
+            CLASS Floater : CardResource<ResourcefulCard<Class<Floater>>>
+            CLASS Asteroid : CardResource<ResourcefulCard<Class<Asteroid>>>
         }
     }
 
-    CLASS Production<StandardResource.CLASS> {
+    CLASS Production<Class<StandardResource>> {
         ProductionPhase: StandardResource
     }
 
-    ABSTRACT CLASS ResourcefulCard<CardResource.CLASS> : CardFront
+    ABSTRACT CLASS ResourcefulCard<Class<CardResource>> : CardFront
 
 
 // CARDS ---------------------------------------------------
@@ -142,22 +142,22 @@ ABSTRACT CLASS Owned<Anyone> {
         ABSTRACT CLASS Barrier {                            // player must clean up themselves, by end of action
             This: (MAX 0 This: Ok)                          // adds a task that can only be handled if 0 barriers left
         }
-        CLASS Owed<Resource.CLASS> : Barrier {              // created when payment due, removed by discount cards/
-            This:: Accept<Resource.CLASS>
+        CLASS Owed<Class<Resource>> : Barrier {              // created when payment due, removed by discount cards/
+            This:: Accept<Class<Resource>>
         }
-        CLASS Accept<Resource.CLASS> {                      // Created in response to PlayTag or the actions on 4
+        CLASS Accept<Class<Resource>> {                      // Created in response to PlayTag or the actions on 4
             HAS MAX 1 This                                  // special cards. (extend Temporary?)
             DEFAULT +This.
         }
-        CLASS Pay<Resource.CLASS> : Signal {                // player uses it like `8 Pay<Heat.CLASS> FROM Heat`
-            This:: -Owed<Resource.CLASS>.                   // But also cards can pay in response to signals
+        CLASS Pay<Class<Resource>> : Signal {                // player uses it like `8 Pay<Class<Heat>> FROM Heat`
+            This:: -Owed<Class<Resource>>.                   // But also cards can pay in response to signals
         }
-        CLASS PlayTag<Tag.CLASS> : Signal                   // triggers Accept<Steel/Dirig/etc.CLASS> and tag-based discounts
+        CLASS PlayTag<Class<Tag>> : Signal                   // triggers Accept<Steel/Dirig/etc.CLASS> and tag-based discounts
 
                                                             // used by PlayCardFromHand, ValTrust, EcoEx, ExSponsor,
-        CLASS PlayCard<CardBack.CLASS, CardFront.CLASS> {   // NewPartner, Merger; triggers EarthCat etc.
-  //        This:: (CardBack: @handleRequirement(CardFront.CLASS))
-  //        This: Owed<Megacredit.CLASS> / Cost<CardFront.CLASS>
+        CLASS PlayCard<Class<CardBack>, Class<CardFront>> {   // NewPartner, Merger; triggers EarthCat etc.
+  //        This:: (CardBack: @handleRequirement(Class<CardFront>))
+  //        This: Owed<Class<Megacredit>> / Cost<Class<CardFront>>
   //        This: =0 Barrier: (CardFront FROM CardBack, -This) // adds task to queue that must eventually be completed
         }
     }
@@ -166,10 +166,10 @@ ABSTRACT CLASS Owned<Anyone> {
 CLASS MetalHandler {
     HAS =1 This
 
-    PlayTag<Anyone, BuildingTag.CLASS>:: Accept<Anyone, Steel.CLASS>
-    PlayTag<Anyone, SpaceTag.CLASS>:: Accept<Anyone, Titanium.CLASS>
+    PlayTag<Anyone, Class<BuildingTag>>:: Accept<Anyone, Class<Steel>>
+    PlayTag<Anyone, Class<SpaceTag>>:: Accept<Anyone, Class<Titanium>>
 
-    Pay<Anyone, Steel.CLASS>:: 2 Pay<Anyone, Megacredit.CLASS>
-    Pay<Anyone, Titanium.CLASS>:: 3 Pay<Anyone, Megacredit.CLASS>
+    Pay<Anyone, Class<Steel>>:: 2 Pay<Anyone, Class<Megacredit>>
+    Pay<Anyone, Class<Titanium>>:: 3 Pay<Anyone, Class<Megacredit>>
     // I *think* that will be innocuous for TradeAction
 }

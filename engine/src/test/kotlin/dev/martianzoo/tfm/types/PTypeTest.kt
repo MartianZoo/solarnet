@@ -15,13 +15,13 @@ private class PTypeTest {
             "ABSTRACT CLASS Owned<Anyone>",
             "ABSTRACT CLASS CardFront : Owned",
             "ABSTRACT CLASS Cardbound<CardFront> : Owned",
-            "ABSTRACT CLASS ResourcefulCard<CardResource.CLASS> : CardFront",
+            "ABSTRACT CLASS ResourcefulCard<Class<CardResource>> : CardFront",
             "ABSTRACT CLASS CardResource : " +
-                "Owned<Anyone>, Cardbound<Anyone, ResourcefulCard>", // TODO <This.CLASS> ?
-            "CLASS Animal : CardResource<ResourcefulCard<Animal.CLASS>>",
-            "CLASS Microbe : CardResource<ResourcefulCard<Microbe.CLASS>>",
-            "CLASS Fish : ResourcefulCard<Animal.CLASS>",
-            "CLASS Ants : ResourcefulCard<Microbe.CLASS>",
+                "Owned<Anyone>, Cardbound<Anyone, ResourcefulCard>", // TODO <Class<This>> ?
+            "CLASS Animal : CardResource<ResourcefulCard<Class<Animal>>>",
+            "CLASS Microbe : CardResource<ResourcefulCard<Class<Microbe>>>",
+            "CLASS Fish : ResourcefulCard<Class<Animal>>",
+            "CLASS Ants : ResourcefulCard<Class<Microbe>>",
         )
             as PClassLoader
     assertThat(table.resolve("Animal<Fish>").abstract).isTrue()
@@ -29,12 +29,12 @@ private class PTypeTest {
     val fish = table.resolve("Animal<Player1, Fish<Player1>>")
     assertThat(fish.abstract).isFalse()
 
-    assertThat(table["Fish"].baseType.toString()).isEqualTo("Fish<Anyone, Animal.CLASS>")
+    assertThat(table["Fish"].baseType.toString()).isEqualTo("Fish<Anyone, Class<Animal>>")
 
     // TODO get these working
     // assertFails { table.resolve("Animal<Ants>") }
     // assertThat(table["Animal"].baseType.toString())
-    //    .isEqualTo("Animal<Anyone, ResourcefulCard<Anyone, Animal.CLASS>>")
+    //    .isEqualTo("Animal<Anyone, ResourcefulCard<Anyone, Class<Animal>>>")
     // assertFails {
     //  table.resolve("Microbe<Player1, Ants<Player2>>")
     // }

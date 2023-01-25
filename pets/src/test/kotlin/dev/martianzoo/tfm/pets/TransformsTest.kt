@@ -16,6 +16,7 @@ import dev.martianzoo.tfm.pets.ast.PetNode
 import dev.martianzoo.tfm.pets.ast.ScalarAndType.Companion.sat
 import dev.martianzoo.tfm.pets.ast.TypeExpr.Companion.genericTypeExpr
 import dev.martianzoo.tfm.pets.ast.TypeExpr.GenericTypeExpr
+import dev.martianzoo.tfm.testlib.PetToKotlin
 import dev.martianzoo.util.toStrings
 import kotlin.reflect.KClass
 import org.junit.jupiter.api.Test
@@ -125,7 +126,7 @@ private class TransformsTest {
   fun testDeprodify_simple() {
     val prodden: Effect = effect("This: PROD[Plant / PlantTag]")
     val deprodden: Effect = deprodify(prodden, resources)
-    assertThat(deprodden.toString()).isEqualTo("This: Production<Plant.CLASS> / PlantTag")
+    assertThat(deprodden.toString()).isEqualTo("This: Production<Class<Plant>> / PlantTag")
   }
 
   @Test
@@ -137,10 +138,19 @@ private class TransformsTest {
                 "Heat>, -Qux!, 5 Ahh<Qux> FROM StandardResource], Heat")
     val expected: Effect =
         effect(
-            "Production<Plant.CLASS>: (Ooh?, Production<Steel.CLASS>. / Ahh, Foo<Xyz FROM " +
-                "Production<Heat.CLASS>>, -Qux!, 5 Ahh<Qux> FROM Production<StandardResource.CLASS>), Heat")
+            "Production<Class<Plant>>: (Ooh?, Production<Class<Steel>>. / Ahh, Foo<Xyz FROM " +
+                "Production<Class<Heat>>>, -Qux!, 5 Ahh<Qux> FROM Production<Class<StandardResource>>), Heat")
     val deprodden: Effect = deprodify(prodden, resources)
+    println()
+    println()
+    println(PetToKotlin.p2k(deprodden))
+    println()
+    println()
+    println(PetToKotlin.p2k(expected))
+    println()
+    println()
     assertThat(deprodden).isEqualTo(expected)
+
   }
 
   @Test

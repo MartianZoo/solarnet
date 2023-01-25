@@ -8,7 +8,7 @@ import dev.martianzoo.tfm.pets.Parsing
 import dev.martianzoo.tfm.pets.PetException
 import dev.martianzoo.tfm.pets.PetParser
 import dev.martianzoo.tfm.pets.ast.Instruction.Gated
-import dev.martianzoo.tfm.pets.ast.TypeExpr.TypeParsers.genericTypeExpr
+import dev.martianzoo.tfm.pets.ast.TypeExpr.TypeParsers.typeExpr
 import dev.martianzoo.util.iff
 
 data class Effect(
@@ -56,8 +56,8 @@ data class Effect(
       fun trigger(text: String): Trigger = Parsing.parse(parser(), text)
 
       fun parser(): Parser<Trigger> {
-        val onGain = genericTypeExpr map Trigger::OnGain
-        val onRemove = skipChar('-') and genericTypeExpr map Trigger::OnRemove
+        val onGain = typeExpr map Trigger::OnGain
+        val onRemove = skipChar('-') and typeExpr map Trigger::OnRemove
         val atom = onGain or onRemove
         val transform =
             transform(atom) map { (node, transformName) -> Transform(node, transformName) }

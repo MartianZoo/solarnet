@@ -8,7 +8,7 @@
       "deck": "CORPORATION",
       "tags": [ "PlantTag" ],
       "immediate": "PROD[2 Plant], 36, 3 Plant",
-      "effects": [ "UseAction<ConvertPlants>: -Owed<Plant.CLASS>" ]
+      "effects": [ "UseAction<ConvertPlants>: -Owed<Class<Plant>>" ]
     },
 
     // Interplanetary Cinematics
@@ -28,7 +28,7 @@
       "deck": "CORPORATION",
       "tags": [ "SpaceTag" ],
       "immediate": "23, 10 Titanium",
-      "effects": [ "Pay<Titanium.CLASS>:: Pay<Megacredit.CLASS>" ]
+      "effects": [ "Pay<Class<Titanium>>:: Pay<Class<Megacredit>>" ]
     },
 
     // ThorGate
@@ -39,7 +39,7 @@
       "tags": [ "PowerTag" ],
       "immediate": "PROD[Energy], 48",
       "effects": [
-        "PlayTag<PowerTag.CLASS>:: -3 Owed.",
+        "PlayTag<Class<PowerTag>>:: -3 Owed.",
         "UseAction<PowerPlantSP>: -3 Owed"
       ]
     },
@@ -75,7 +75,7 @@
       "deck": "CORPORATION",
       "tags": [ "EarthTag" ],
       "immediate": "60",
-      "effects": [ "PlayTag<EarthTag.CLASS>:: -3 Owed." ]
+      "effects": [ "PlayTag<Class<EarthTag>>:: -3 Owed." ]
     },
 
     // Cheung Shing Mars
@@ -85,7 +85,7 @@
       "deck": "CORPORATION",
       "tags": [ "BuildingTag" ],
       "immediate": "PROD[3], 44",
-      "effects": [ "PlayTag<BuildingTag.CLASS>:: -2 Owed." ]
+      "effects": [ "PlayTag<Class<BuildingTag>>:: -2 Owed." ]
     },
 
     // Point Luna
@@ -597,7 +597,7 @@
       "tags": [ "JovianTag", "SpaceTag" ],
       "actions": [ "12 -> OceanTile" ],
       "effects": [
-          "UseAction1<This>:: Accept<Titanium.CLASS>",
+          "UseAction1<This>:: Accept<Class<Titanium>>",
           "End: VictoryPoint / JovianTag"
       ],
       "cost": 25,
@@ -1778,7 +1778,7 @@
       "tags": [ "SpaceTag" ],
       "immediate": "PROD[-Energy, 2]",
       "effects": [
-        "PlayTag<SpaceTag.CLASS>:: -2 Owed.",
+        "PlayTag<Class<SpaceTag>>:: -2 Owed.",
         "End: VictoryPoint"
       ],
       "requirement": "5 OxygenStep",
@@ -1968,7 +1968,7 @@
       "deck": "PROJECT",
       "tags": [ "BuildingTag" ],
       "actions": [ "8 -> OceanTile" ],
-      "effects": [ "UseAction1<This>:: Accept<Steel.CLASS>" ],
+      "effects": [ "UseAction1<This>:: Accept<Class<Steel>>" ],
       "cost": 18,
       "projectKind": "ACTIVE"
     },
@@ -2132,7 +2132,7 @@
       "deck": "PROJECT",
       "tags": [ "SpaceTag" ],
       "effects": [
-        "PlayTag<SpaceTag.CLASS>:: -2 Owed.",
+        "PlayTag<Class<SpaceTag>>:: -2 Owed.",
         "End: VictoryPoint"
       ],
       "cost": 10,
@@ -2315,8 +2315,8 @@
       "deck": "PROJECT",
       "tags": [ "ScienceTag" ],
       "effects": [
-        "Pay<Steel.CLASS>:: Pay<Megacredit.CLASS>",
-        "Pay<Titanium.CLASS>:: Pay<Megacredit.CLASS>"
+        "Pay<Class<Steel>>:: Pay<Class<Megacredit>>",
+        "Pay<Class<Titanium>>:: Pay<Class<Megacredit>>"
       ],
       "cost": 9,
       "projectKind": "ACTIVE"
@@ -2343,7 +2343,7 @@
       "deck": "PROJECT",
       "tags": [ "ScienceTag", "PowerTag" ],
       "immediate": "PROD[4 Energy]",
-      "effects": [ "PlayTag<SpaceTag.CLASS>:: -2 Owed." ],
+      "effects": [ "PlayTag<Class<SpaceTag>>:: -2 Owed." ],
       "requirement": "4 ScienceTag",
       "cost": 13,
       "projectKind": "ACTIVE"
@@ -2429,7 +2429,7 @@
       "deck": "PROJECT",
       "tags": [ "ScienceTag", "PowerTag" ],
       "immediate": "PROD[6 Energy]",
-      "effects": [ "PlayTag<SpaceTag.CLASS>:: -2 Owed." ],
+      "effects": [ "PlayTag<Class<SpaceTag>>:: -2 Owed." ],
       "requirement": "5 ScienceTag",
       "cost": 8,
       "projectKind": "ACTIVE"
@@ -2466,7 +2466,7 @@
       "bundle": "R",
       "deck": "PROJECT",
       "tags": [ "EarthTag" ],
-      "effects": [ "PlayTag<EarthTag.CLASS>:: -3 Owed." ],
+      "effects": [ "PlayTag<Class<EarthTag>>:: -3 Owed." ],
       "cost": 1,
       "projectKind": "ACTIVE"
     },
@@ -2882,8 +2882,8 @@
       "tags": [ "MicrobeTag" ],
       "actions": [ "-> Microbe" ],
       "effects": [
-        "PlayTag<PlantTag.CLASS>:: Accept<Psychrophile.CLASS>",
-        "Pay<Psychrophile.CLASS>:: 2 Pay<Megacredit.CLASS>"
+        "PlayTag<Class<PlantTag>>:: Accept<Class<Psychrophile>>",
+        "Pay<Class<Psychrophile>>:: 2 Pay<Class<Megacredit>>"
       ],
       "components": [ "CLASS Psychrophile : Microbe" ], // <CardP39> ??
       "resourceType": "Psychrophile",
@@ -3038,8 +3038,8 @@
       "tags": [ "VenusTag" ],
       "actions": [ "-> Floater" ],
       "effects": [
-        "PlayTag<VenusTag.CLASS>: Accept<Dirigible.CLASS>",
-        "Pay<Dirigible.CLASS>: -3 Owed."
+        "PlayTag<Class<VenusTag>>: Accept<Class<Dirigible>>",
+        "Pay<Class<Dirigible>>: -3 Owed."
       ],
       "components": [ "CLASS Dirigible : Floater" ],
       "resourceType": "Dirigible",
@@ -3313,7 +3313,7 @@
         "6 -> Asteroid<This>",
         "Asteroid<This> -> VenusStep"
       ],
-      "effects": [ "UseAction1<This>:: Accept<Titanium.CLASS>" ],
+      "effects": [ "UseAction1<This>:: Accept<Class<Titanium>>" ],
       "resourceType": "Asteroid",
       "requirement": "MAX 7 VenusStep",
       "cost": 6,
@@ -3479,7 +3479,7 @@
       "deck": "PROJECT",
       "tags": [ "VenusTag", "SpaceTag" ],
       "effects": [
-        "PlayTag<VenusTag.CLASS>:: -2 Owed.",
+        "PlayTag<Class<VenusTag>>:: -2 Owed.",
         "End: VictoryPoint"
       ],
       "cost": 9,
@@ -3828,7 +3828,7 @@
       "deck": "PROJECT",
       "tags": [ "ScienceTag" ],
       "effects": [
-        "PlayTag<SpaceTag.CLASS>:: -4 Owed.",
+        "PlayTag<Class<SpaceTag>>:: -4 Owed.",
         "End: 2 VictoryPoint"
       ],
       "requirement": "5 ScienceTag",
@@ -3901,7 +3901,7 @@
       "bundle": "X",
       "deck": "PROJECT",
       "tags": [ "SpaceTag" ],
-      "effects": [ "Pay<Titanium.CLASS>:: Pay<Megacredit.CLASS>" ],
+      "effects": [ "Pay<Class<Titanium>>:: Pay<Class<Megacredit>>" ],
       "cost": 3,
       "projectKind": "ACTIVE"
     },
@@ -3926,7 +3926,7 @@
       "deck": "PROJECT",
       "tags": [ "BuildingTag" ],
       "effects": [
-        "Pay<Steel.CLASS>:: Pay<Megacredit.CLASS>",
+        "Pay<Class<Steel>>:: Pay<Class<Megacredit>>",
         "End: VictoryPoint"
       ],
       "cost": 10,
@@ -3984,7 +3984,7 @@
         "6 -> Asteroid",
         "Asteroid<This> -> TemperatureStep"
       ],
-      "effects": [ "UseAction1<This>:: Accept<Titanium.CLASS>" ],
+      "effects": [ "UseAction1<This>:: Accept<Class<Titanium>>" ],
       "resourceType": "Asteroid",
       "cost": 8,
       "projectKind": "ACTIVE"

@@ -11,7 +11,7 @@ import dev.martianzoo.tfm.pets.ast.TypeExpr.Companion.typeExpr
 fun lookUpProductionLevels(game: ReadOnlyGameState, player: TypeExpr): Map<ClassName, Int> {
   return standardResourceNames(game)
       .map { resourceName ->
-        val rawCount = game.count(typeExpr("$PRODUCTION<$player, $resourceName.CLASS>"))
+        val rawCount = game.count(typeExpr("$PRODUCTION<$player, ${resourceName.literal}>"))
         val sadAdjustment = if (resourceName == MEGACREDIT) 5 else 0
         resourceName to rawCount - sadAdjustment
       }

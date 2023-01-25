@@ -15,6 +15,7 @@ data class ClassName(private val asString: String) : PetNode(), Comparable<Class
 
   init {
     require(asString.matches(classNameRegex)) { "Bad class name: $asString" }
+    require(asString != "Class")
   }
 
   val type = GenericTypeExpr(this) // technically should be typeExpr
