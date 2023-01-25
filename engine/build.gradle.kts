@@ -9,9 +9,6 @@ dependencies {
   implementation(platform("org.jetbrains.kotlin:kotlin-bom:1.8.0"))
   implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.0")
 
-  // TODO will eventually deguavafy
-  implementation("com.google.guava:guava:31.1-jre")
-
   testImplementation("org.junit.jupiter:junit-jupiter-api:5.9.0")
   testImplementation(project(mapOf("path" to ":repl")))
   testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.9.0")

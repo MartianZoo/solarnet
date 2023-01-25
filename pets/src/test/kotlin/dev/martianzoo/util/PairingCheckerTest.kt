@@ -1,8 +1,6 @@
 package dev.martianzoo.util
 
-import com.google.common.base.CharMatcher
 import com.google.common.collect.Lists.cartesianProduct
-import com.google.common.collect.Lists.charactersOf
 import com.google.common.truth.Truth.assertThat
 import java.util.Collections.nCopies
 import org.junit.jupiter.api.Test
@@ -35,13 +33,13 @@ private class PairingCheckerTest {
 
   fun weird(expectValid: Boolean, max: Int) {
     var length = 0
-    val allChars = charactersOf("[]<>X")
+    val allChars: List<Char> = "[]<>X".toList()
     while (length <= max) {
       length++
       for (chars in cartesianProduct(nCopies(length, allChars))) {
         val s = chars.joinToString("")
         if (s.contains("XX")) continue
-        val pos = CharMatcher.anyOf("<>[]").indexIn(s)
+        val pos = s.indexOfFirst { it in "<>[]" }
         if (pos < 0 || s[pos] == '<') continue
         if (!s.contains('\\') && s > s.reversed()) continue
         if (PairingChecker.isValid(s) == expectValid) {
