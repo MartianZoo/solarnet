@@ -1,17 +1,20 @@
 package dev.martianzoo.tfm.engine
 
-import com.google.common.collect.LinkedHashMultiset
-import com.google.common.collect.Multiset
-import com.google.common.collect.Multisets
 import dev.martianzoo.tfm.data.StateChange
 import dev.martianzoo.tfm.data.StateChange.Cause
-import dev.martianzoo.tfm.pets.PetException
 import dev.martianzoo.tfm.types.PType
-import kotlin.math.min
+import dev.martianzoo.util.HashMultiset
+import dev.martianzoo.util.Multiset
+import dev.martianzoo.util.MutableMultiset
+import dev.martianzoo.util.filter
 
 public class ComponentGraph(startingWith: Collection<Component> = listOf()) {
-  private val multiset: /*Mutable*/ Multiset<Component> = LinkedHashMultiset.create(startingWith)
+  private val multiset: MutableMultiset<Component> = HashMultiset()
   private val changeLog: MutableList<StateChange> = mutableListOf()
+
+  init {
+    multiset.addAll(startingWith)
+  }
 
   public fun changeLog() = changeLog.toList()
 
@@ -26,38 +29,27 @@ public class ComponentGraph(startingWith: Collection<Component> = listOf()) {
 
     // TODO deal with limits
 
-    val current = multiset.count(removing)
-    val correctedCount =
-        if (removing == null) {
-          count // for now, we can just trust this works
-        } else {
-          if (amap) {
-            min(count, current)
-          } else {
-            if (current < count) throw PetException("not enough")
-            count
-          }
-        }
-
-    removing?.let { multiset.remove(it, correctedCount) }
+    val correctedCount: Int = if (amap) {
+      removing?.let { multiset.tryRemove(it, count) } ?: count
+    } else {
+      removing?.let { multiset.mustRemove(it, count) }
+      count
+    }
     gaining?.let { multiset.add(it, correctedCount) }
 
-    // Creating this first should catch various errors
-    val change =
-        StateChange(
-            count = correctedCount,
-            gaining = gaining?.asTypeExpr?.asGeneric(),
-            removing = removing?.asTypeExpr?.asGeneric(),
-            cause = cause,
-        )
+    val change = StateChange(
+        count = correctedCount,
+        gaining = gaining?.asTypeExpr?.asGeneric(),
+        removing = removing?.asTypeExpr?.asGeneric(),
+        cause = cause,
+    )
     changeLog.add(change)
   }
 
-  public fun count(ptype: PType) =
-      multiset.entrySet().filter { it.element.hasType(ptype) }.sumOf { it.count }
+  public fun count(ptype: PType) = getAll(ptype).size
 
   public fun getAll(ptype: PType): Multiset<Component> =
-      Multisets.filter(multiset) { it!!.hasType(ptype) }
+      multiset.filter { it.hasType(ptype) }
 
   public data class Component(val ptype: PType) {
     init {

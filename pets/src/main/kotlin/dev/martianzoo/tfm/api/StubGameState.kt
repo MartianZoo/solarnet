@@ -1,11 +1,11 @@
 package dev.martianzoo.tfm.api
 
-import com.google.common.collect.Multiset
 import dev.martianzoo.tfm.data.StateChange.Cause
 import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.pets.ast.TypeExpr
 import dev.martianzoo.tfm.pets.ast.TypeExpr.ClassLiteral
 import dev.martianzoo.tfm.pets.ast.TypeExpr.GenericTypeExpr
+import dev.martianzoo.util.Multiset
 
 open class StubGameState(val auth: Authority = Authority.Minimal()) : GameState {
   override fun applyChange(

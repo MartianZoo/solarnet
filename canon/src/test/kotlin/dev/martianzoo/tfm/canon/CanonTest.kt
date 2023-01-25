@@ -1,6 +1,5 @@
 package dev.martianzoo.tfm.canon
 
-import com.google.common.collect.Multiset
 import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.tfm.api.GameSetup
 import dev.martianzoo.tfm.data.MarsMapDefinition
@@ -13,6 +12,7 @@ import dev.martianzoo.tfm.pets.SpecialClassNames.OWNED
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.types.PClassLoader
 import dev.martianzoo.util.Grid
+import dev.martianzoo.util.Multiset
 import dev.martianzoo.util.toStrings
 import org.junit.jupiter.api.Test
 
@@ -131,8 +131,8 @@ private class CanonTest {
       it.asTypeExpr.asGeneric().root.toString() == "Border"
     }
 
-    assertThat(all.elementSet().count(isArea)).isEqualTo(61)
-    assertThat(all.elementSet().count(isBorder)).isEqualTo(312)
+    assertThat(all.elements.count(isArea)).isEqualTo(61)
+    assertThat(all.elements.count(isBorder)).isEqualTo(312)
 
     assertThat(all.filterNot { isArea(it) || isBorder(it) }.map { it.asTypeExpr.toString() })
         .containsExactly(

@@ -1,12 +1,12 @@
 package dev.martianzoo.tfm.api
 
-import com.google.common.collect.Multiset
 import dev.martianzoo.tfm.data.MarsMapDefinition
 import dev.martianzoo.tfm.data.StateChange.Cause
 import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.pets.ast.TypeExpr
 import dev.martianzoo.tfm.pets.ast.TypeExpr.ClassLiteral
 import dev.martianzoo.tfm.pets.ast.TypeExpr.GenericTypeExpr
+import dev.martianzoo.util.Multiset
 
 /** This is a simple interface in the `pets` module that code outside the module can implement... */
 interface GameState : ReadOnlyGameState {

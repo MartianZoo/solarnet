@@ -1,8 +1,5 @@
 package dev.martianzoo.tfm.engine
 
-import com.google.common.collect.HashMultiset
-import com.google.common.collect.ImmutableMultiset
-import com.google.common.collect.Multiset
 import dev.martianzoo.tfm.api.GameSetup
 import dev.martianzoo.tfm.api.GameState
 import dev.martianzoo.tfm.data.StateChange
@@ -15,6 +12,8 @@ import dev.martianzoo.tfm.pets.ast.TypeExpr.ClassLiteral
 import dev.martianzoo.tfm.pets.ast.TypeExpr.GenericTypeExpr
 import dev.martianzoo.tfm.types.PClassTable
 import dev.martianzoo.tfm.types.PType
+import dev.martianzoo.util.Multiset
+import dev.martianzoo.util.map
 import dev.martianzoo.util.toSetStrict
 
 public class Game(
@@ -41,18 +40,11 @@ public class Game(
 
   fun getAll(typeExpr: TypeExpr): Multiset<TypeExpr> {
     val all: Multiset<Component> = getAll(resolve(typeExpr))
-    val result: Multiset<TypeExpr> = HashMultiset.create()
-    all.forEachEntry { component, count -> result.add(component.asTypeExpr, count) }
-    return ImmutableMultiset.copyOf(result)
+    return all.map { it.asTypeExpr }
   }
 
-  fun getAll(typeExpr: GenericTypeExpr): Multiset<GenericTypeExpr> {
-    val result = HashMultiset.create<GenericTypeExpr>()
-    getAll(resolve(typeExpr)).entrySet().forEach {
-      result.add(it.element.asTypeExpr.asGeneric(), it.count)
-    }
-    return result
-  }
+  fun getAll(typeExpr: GenericTypeExpr): Multiset<GenericTypeExpr> =
+      getAll(resolve(typeExpr)).map { it.asTypeExpr.asGeneric() }
 
   fun getAll(typeExpr: ClassLiteral): Set<ClassLiteral> {
     return getAll(resolve(typeExpr)).map { it.asTypeExpr as ClassLiteral }.toSetStrict()

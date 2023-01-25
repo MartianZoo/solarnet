@@ -1,6 +1,6 @@
 package dev.martianzoo.tfm.testlib
 
-import com.google.common.collect.Multiset
+import dev.martianzoo.util.Multiset
 import kotlin.math.PI
 import kotlin.math.min
 import kotlin.math.pow
@@ -88,10 +88,10 @@ internal abstract class RandomGenerator<B : Any>(
 
   private fun <T : Any?> getNth(choices: Multiset<T>, index: Int): T {
     var skip = index
-    for (wc in choices.entrySet()) {
-      skip -= wc.count
+    for (wc in choices.elements) {
+      skip -= choices.count(wc)
       if (skip < 0) {
-        return wc.element
+        return wc
       }
     }
     error("")

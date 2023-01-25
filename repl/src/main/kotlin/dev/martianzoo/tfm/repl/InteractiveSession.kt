@@ -1,7 +1,5 @@
 package dev.martianzoo.tfm.repl
 
-import com.google.common.collect.LinkedHashMultiset
-import com.google.common.collect.Multiset
 import dev.martianzoo.tfm.api.GameSetup
 import dev.martianzoo.tfm.engine.Engine
 import dev.martianzoo.tfm.engine.Game
@@ -18,6 +16,8 @@ import dev.martianzoo.tfm.pets.ast.TypeExpr.GenericTypeExpr
 import dev.martianzoo.tfm.pets.deprodify
 import dev.martianzoo.tfm.types.PClassLoader
 import dev.martianzoo.tfm.types.PType.GenericPType
+import dev.martianzoo.util.HashMultiset
+import dev.martianzoo.util.Multiset
 
 class InteractiveSession {
   internal var game: Game? = null // TODO private?
@@ -49,14 +49,14 @@ class InteractiveSession {
 
     subs.mapNotNull { sub ->
       val thatType: GenericPType = sub.baseType
-      val count = theStuff.entrySet().filter { it.element.hasType(thatType) }.sumOf { it.count }
+      val count = theStuff.filter { it.hasType(thatType) }.size
       if (count > 0) {
         "$count".padEnd(4) + thatType
       } else {
         null
       }
     }
-    return LinkedHashMultiset.create()
+    return HashMultiset() // TODO TODO
   }
 
   fun has(requirement: Requirement) = game!!.isMet(fixTypes(requirement))
