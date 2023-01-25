@@ -8,7 +8,7 @@ import dev.martianzoo.tfm.pets.ast.Requirement.Companion.requirement
 import dev.martianzoo.tfm.pets.ast.TypeExpr.Companion.typeExpr
 import org.junit.jupiter.api.Test
 
-class InteractiveSessionTest {
+private class InteractiveSessionTest {
   @Test
   fun test() {
     val session = InteractiveSession()

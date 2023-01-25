@@ -7,7 +7,7 @@ import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.util.Grid
 import org.junit.jupiter.api.Test
 
-class MarsMapDefinitionTest {
+private class MarsMapDefinitionTest {
 
   val demoMapJson = """{
     "legend": {

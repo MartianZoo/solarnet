@@ -7,7 +7,7 @@ import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import org.junit.jupiter.api.Test
 
 // Doesn't test much, but the class doesn't do that much
-class AuthorityTest {
+private class AuthorityTest {
   @Test
   fun test() {
     val authority =

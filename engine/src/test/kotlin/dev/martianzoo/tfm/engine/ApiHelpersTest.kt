@@ -11,7 +11,7 @@ import dev.martianzoo.tfm.pets.ast.Instruction.Companion.instruction
 import dev.martianzoo.util.toStrings
 import org.junit.jupiter.api.Test
 
-class ApiHelpersTest {
+private class ApiHelpersTest {
   @Test
   fun testLookUpProdLevelsUsingCanon() {
     val game = Engine.newGame(GameSetup(Canon, "BM", 3))

@@ -7,7 +7,7 @@ import dev.martianzoo.util.Grid
 import dev.martianzoo.util.toStrings
 import org.junit.jupiter.api.Test
 
-class GameSetupTest {
+private class GameSetupTest {
   val authority =
       object : Authority.Empty() {
         override val allBundles = "BRMEVPCX".asIterable().toStrings().toSet()

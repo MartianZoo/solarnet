@@ -3,7 +3,7 @@ package dev.martianzoo.util
 import com.google.common.truth.Truth.assertThat
 import org.junit.jupiter.api.Test
 
-class StringHelpersTest {
+private class StringHelpersTest {
   @Test
   fun testWrap() {
     class Ennie(val stringForm: String) {
