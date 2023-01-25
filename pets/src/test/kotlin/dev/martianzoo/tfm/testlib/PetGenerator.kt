@@ -46,7 +46,7 @@ internal class PetGenerator(scaling: (Int) -> Double) :
             recurse(),
             listOfSize(choose(specSizes)),
             refinement(),
-            choose(10 to null, 2 to 1, 1 to 2))
+            null) // TODO choose(10 to null, 2 to 1, 1 to 2))
       }
       register {
         choose(5 to recurse<GenericTypeExpr>(), 0 to recurse<ClassLiteral>()) // TODO
@@ -249,7 +249,7 @@ internal class PetGenerator(scaling: (Int) -> Double) :
   inline fun <reified T : PetNode> generateTestApiConstructions(count: Int = 10) {
     for (i in 1..count) {
       val node = makeRandomNode<T>()
-      println("assertThat(${p2k(node)}.toString()).isEqualTo($node)")
+      println("checkBothWays(\"$node\", ${p2k(node)})")
     }
   }
 

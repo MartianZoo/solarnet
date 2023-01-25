@@ -26,6 +26,12 @@ data class Action(val cost: Cost?, val instruction: Instruction) : PetNode() {
     abstract fun toInstruction(): Instruction
 
     data class Spend(val sat: ScalarAndType) : Cost() {
+      init {
+        if (sat.scalar == 0) {
+          throw PetException("Can't spend zero")
+        }
+      }
+
       override fun toString() = sat.toString()
 
       // I believe Ants/Predators are the reasons for MANDATORY here

@@ -28,6 +28,12 @@ sealed class Instruction : PetNode() {
     override val removing = null
     override val gaining = sat.typeExpr
 
+    init {
+      if (count == 0) {
+        throw PetException("Can't do zero")
+      }
+    }
+
     override fun toString() = "$sat${intensity?.symbol ?: ""}"
   }
 
@@ -35,6 +41,12 @@ sealed class Instruction : PetNode() {
     override val count = sat.scalar
     override val removing = sat.typeExpr
     override val gaining = null
+
+    init {
+      if (count == 0) {
+        throw PetException("Can't do zero")
+      }
+    }
 
     override fun toString() = "-$sat${intensity?.symbol ?: ""}"
   }
@@ -47,6 +59,12 @@ sealed class Instruction : PetNode() {
     override val count = scalar ?: 1
     override val removing = from.fromType
     override val gaining = from.toType
+
+    init {
+      if (count == 0) {
+        throw PetException("Can't do zero")
+      }
+    }
 
     override fun toString(): String {
       return "${scalar.suf(' ')}$from${intensity?.symbol ?: ""}"
@@ -95,6 +113,11 @@ sealed class Instruction : PetNode() {
   }
 
   data class Custom(val functionName: String, val arguments: List<TypeExpr>) : Instruction() {
+    constructor(
+        functionName: String,
+        vararg arguments: TypeExpr
+    ) : this(functionName, arguments.toList())
+
     override fun toString() = "@$functionName(${arguments.joinToString()})"
   }
 

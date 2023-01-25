@@ -14,7 +14,7 @@ import dev.martianzoo.util.iff
 data class Effect(
     val trigger: Trigger,
     val instruction: Instruction,
-    val automatic: Boolean,
+    val automatic: Boolean = false,
 ) : PetNode() {
 
   override val kind = "Effect"

@@ -47,7 +47,7 @@ private class Defaulter(val table: PClassTable) : PetNodeVisitor() {
                   foo.overlayOn(allCasesDependencies).types.map {
                     it.toTypeExprFull() // TODO not full?
                   }
-              node.replaceArgs(newArgs.map { transform(it) })
+              node.replaceArgs(newArgs.map { transform(it) }) // recurse on refinement TODO
             }
           }
           else -> super.transform(node)

@@ -8,6 +8,7 @@ import com.github.h0tk3y.betterParse.combinators.skip
 import com.github.h0tk3y.betterParse.grammar.parser
 import com.github.h0tk3y.betterParse.parser.Parser
 import dev.martianzoo.tfm.pets.Parsing
+import dev.martianzoo.tfm.pets.PetException
 import dev.martianzoo.tfm.pets.PetParser
 import dev.martianzoo.tfm.pets.SpecialClassNames.THIS
 
@@ -15,6 +16,12 @@ sealed class Requirement : PetNode() {
   open fun requiresThis() = false
 
   data class Min(val sat: ScalarAndType) : Requirement() {
+    init {
+      if (sat.scalar == 0) {
+        throw PetException("Minimum of 0 would always be true")
+      }
+    }
+
     override fun toString() = "$sat"
 
     override fun requiresThis() = this.sat == ScalarAndType.sat(1, THIS.type)
@@ -33,6 +40,9 @@ sealed class Requirement : PetNode() {
   }
 
   data class Or(val requirements: Set<Requirement>) : Requirement() {
+    constructor(req1: Requirement, req2: Requirement, vararg rest: Requirement) :
+        this(setOf(req1) + req2 + rest)
+
     init {
       require(requirements.size >= 2)
     }
@@ -42,6 +52,9 @@ sealed class Requirement : PetNode() {
   }
 
   data class And(val requirements: List<Requirement>) : Requirement() {
+    constructor(req1: Requirement, req2: Requirement, vararg rest: Requirement) :
+        this(listOf(req1) + req2 + rest)
+
     init {
       require(requirements.size >= 2)
     }

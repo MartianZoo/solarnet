@@ -34,6 +34,8 @@ data class ScalarAndType(
     fun sat(scalar: Int? = null, typeExpr: TypeExpr? = null) =
         ScalarAndType(scalar ?: 1, typeExpr ?: MEGACREDIT.type)
 
+    fun sat(typeExpr: TypeExpr) = ScalarAndType(1, typeExpr)
+
     fun sat(text: String) = Parsing.parse(parser(), text)
 
     fun parser(): Parser<ScalarAndType> {
