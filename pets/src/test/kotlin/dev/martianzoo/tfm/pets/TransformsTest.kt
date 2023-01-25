@@ -16,7 +16,7 @@ import dev.martianzoo.tfm.pets.ast.PetNode
 import dev.martianzoo.tfm.pets.ast.ScalarAndType.Companion.sat
 import dev.martianzoo.tfm.pets.ast.TypeExpr.Companion.typeExpr
 import dev.martianzoo.tfm.pets.ast.TypeExpr.GenericTypeExpr
-import dev.martianzoo.tfm.testlib.PetToKotlin
+import dev.martianzoo.tfm.pets.ast.childNodesOfType
 import dev.martianzoo.util.toStrings
 import kotlin.reflect.KClass
 import org.junit.jupiter.api.Test
@@ -65,7 +65,7 @@ private class TransformsTest {
   @Test
   fun testFindAllClassNames() {
     val instr = instruction("@foo(Bar, Qux<Dog>)")
-    assertThat(instr.childNodesOfType<ClassName>().toStrings()).containsExactly("Bar", "Qux", "Dog")
+    assertThat(childNodesOfType<ClassName>(instr).toStrings()).containsExactly("Bar", "Qux", "Dog")
   }
 
   @Test
@@ -141,16 +141,7 @@ private class TransformsTest {
             "Production<Class<Plant>>: (Ooh?, Production<Class<Steel>>. / Ahh, Foo<Xyz FROM " +
                 "Production<Class<Heat>>>, -Qux!, 5 Ahh<Qux> FROM Production<Class<StandardResource>>), Heat")
     val deprodden: Effect = deprodify(prodden, resources)
-    println()
-    println()
-    println(PetToKotlin.p2k(deprodden))
-    println()
-    println()
-    println(PetToKotlin.p2k(expected))
-    println()
-    println()
     assertThat(deprodden).isEqualTo(expected)
-
   }
 
   @Test

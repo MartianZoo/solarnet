@@ -7,7 +7,9 @@ import dev.martianzoo.tfm.pets.PetException
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.Instruction
 import dev.martianzoo.tfm.pets.ast.Instruction.Companion.instruction
+import dev.martianzoo.tfm.pets.ast.Instruction.Transform
 import dev.martianzoo.tfm.pets.ast.TypeExpr
+import dev.martianzoo.tfm.pets.ast.childNodesOfType
 
 internal val allCustomInstructions =
     listOf(
@@ -33,17 +35,17 @@ private object CopyProductionBox : CustomInstruction("copyProductionBox") {
   override fun translate(game: ReadOnlyGameState, arguments: List<TypeExpr>): Instruction {
     val chosenCardName = arguments.single().asGeneric().root
     val def = game.authority.card(chosenCardName)
-    val matches =
-        def.immediateRaw?.childNodesOfType<Instruction.Transform>()?.filter {
-          it.transform == "PROD"
-        } ?: listOf()
+
+    val nodes: Set<Transform> = def.immediateRaw?.let(::childNodesOfType) ?: setOf()
+    val matches = nodes.filter { it.transform == "PROD" }
+
     when (matches.size) {
       1 -> return matches.first()
       0 -> throw PetException("There is no immediate PROD box on $chosenCardName")
       else ->
-          throw PetException(
-              "The immediate instructions on $chosenCardName " +
-                  "have multiple PROD boxes, which should never happen")
+        throw PetException(
+            "The immediate instructions on $chosenCardName " +
+                "have multiple PROD boxes, which should never happen")
     }
   }
 }

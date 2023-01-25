@@ -95,7 +95,7 @@ private class EffectTest {
   fun nodeCount() {
     val eff = effect("Xyz<Xyz>: PROD[(1 Abc FROM Qux) OR 1]")
     // ef, og, te, cn, te, cn, pr, or, tr, fr, te, cn, te, cn, ga, sat, te, cn
-    assertThat(eff.nodeCount()).isEqualTo(18)
+    assertThat(countNodesInTree(eff)).isEqualTo(18)
   }
 
   fun genGrossApiCalls() {

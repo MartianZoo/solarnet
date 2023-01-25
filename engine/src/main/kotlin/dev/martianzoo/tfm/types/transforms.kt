@@ -1,6 +1,7 @@
 package dev.martianzoo.tfm.types
 
-import dev.martianzoo.tfm.pets.PetNodeVisitor
+import dev.martianzoo.tfm.pets.PetVisitor
+import dev.martianzoo.tfm.pets.PetVisitor.Companion.transform
 import dev.martianzoo.tfm.pets.SpecialClassNames.ME
 import dev.martianzoo.tfm.pets.SpecialClassNames.THIS
 import dev.martianzoo.tfm.pets.ast.Instruction.Gain
@@ -8,13 +9,12 @@ import dev.martianzoo.tfm.pets.ast.PetNode
 import dev.martianzoo.tfm.pets.ast.ScalarAndType.Companion.sat
 import dev.martianzoo.tfm.pets.ast.TypeExpr.GenericTypeExpr
 
-public fun <P : PetNode> applyDefaultsIn(node: P, loader: PClassLoader): P {
-  return Defaulter(loader).transform(node)
-}
+public fun <P : PetNode> applyDefaultsIn(node: P, loader: PClassLoader) =
+    node.transform(Defaulter(loader))
 
-private class Defaulter(val table: PClassTable) : PetNodeVisitor() {
-  override fun <P : PetNode?> transform(node: P): P {
-    val transformed: PetNode? =
+private class Defaulter(val table: PClassTable) : PetVisitor() {
+  override fun <P : PetNode> doTransform(node: P): P {
+    val transformed: PetNode =
         when (node) {
           is Gain -> {
             // this should be the real source form because we should run first
@@ -27,12 +27,10 @@ private class Defaulter(val table: PClassTable) : PetNodeVisitor() {
                 } else {
                   writtenType
                 }
-            Gain(
-                sat(node.sat.scalar, transform(fixedType)),
-                node.intensity ?: defaults.gainIntensity)
+            Gain(sat(node.sat.scalar, x(fixedType)), node.intensity ?: defaults.gainIntensity)
           }
 
-          null, THIS.type, ME.type -> node
+          THIS.type, ME.type -> node
 
           is GenericTypeExpr -> {
             val pclass = table.get(node.root)
@@ -47,11 +45,13 @@ private class Defaulter(val table: PClassTable) : PetNodeVisitor() {
                   foo.overlayOn(allCasesDependencies).types.map {
                     it.toTypeExprFull() // TODO not full?
                   }
-              node.replaceArgs(newArgs.map { transform(it) }) // recurse on refinement TODO
+              node.replaceArgs(newArgs.map(::x)) // recurse on refinement TODO
             }
           }
-          else -> super.transform(node)
+
+          else -> defaultTransform(node)
         }
-    @Suppress("UNCHECKED_CAST") return transformed as P
+    @Suppress("UNCHECKED_CAST")
+    return transformed as P
   }
 }

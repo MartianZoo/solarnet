@@ -1,5 +1,6 @@
 package dev.martianzoo.tfm.pets
 
+import dev.martianzoo.tfm.pets.PetVisitor.Companion.transform
 import dev.martianzoo.tfm.pets.SpecialClassNames.PRODUCTION
 import dev.martianzoo.tfm.pets.SpecialClassNames.THIS
 import dev.martianzoo.tfm.pets.SpecialClassNames.USE_ACTION
@@ -63,40 +64,39 @@ fun <P : PetNode> P.replaceTypes(from: TypeExpr, to: TypeExpr): P {
 }
 
 internal fun <P : PetNode> replaceTypesIn(node: P, from: TypeExpr, to: TypeExpr) =
-    TypeReplacer(from, to).transform(node)
-
-private class TypeReplacer(val from: TypeExpr, val to: TypeExpr) : PetNodeVisitor() {
-  override fun <P : PetNode?> transform(node: P) =
-      if (node == from) {
-        @Suppress("UNCHECKED_CAST")
-        to as P
-      } else {
-        super.transform(node)
-      }
-}
+    node.transform(object : PetVisitor() {
+      override fun <P : PetNode> doTransform(node: P): P =
+          if (node == from) {
+            @Suppress("UNCHECKED_CAST")
+            to as P
+          } else {
+            defaultTransform(node)
+          }
+    })
 
 fun <P : PetNode> deprodify(node: P, producible: Set<ClassName>): P {
   val deprodifier =
-      object : PetNodeVisitor() {
+      object : PetVisitor() {
         var inProd: Boolean = false
 
-        override fun <P : PetNode?> transform(node: P): P {
-          val rewritten =
+        override fun <P : PetNode> doTransform(node: P): P {
+          val rewritten: PetNode =
               when {
                 node is GenericTransform<*> &&
                     node.transform == "PROD" -> { // TODO: support multiple better
                   require(!inProd)
                   inProd = true
-                  transform(node.extract()).also { inProd = false }
+                  x(node.extract()).also { inProd = false }
                 }
 
                 inProd && node is GenericTypeExpr && node.root in producible ->
                   PRODUCTION.type.copy(args = node.args + ClassLiteral(node.root))
 
-                else -> super.transform(node)
+                else -> defaultTransform(node)
               }
-          @Suppress("UNCHECKED_CAST") return rewritten as P
+          @Suppress("UNCHECKED_CAST")
+          return rewritten as P
         }
       }
-  return deprodifier.transform(node)
+  return node.transform(deprodifier)
 }

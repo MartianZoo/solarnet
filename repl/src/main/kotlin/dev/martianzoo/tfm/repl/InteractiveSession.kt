@@ -3,7 +3,8 @@ package dev.martianzoo.tfm.repl
 import dev.martianzoo.tfm.api.GameSetup
 import dev.martianzoo.tfm.engine.Engine
 import dev.martianzoo.tfm.engine.Game
-import dev.martianzoo.tfm.pets.PetNodeVisitor
+import dev.martianzoo.tfm.pets.PetVisitor
+import dev.martianzoo.tfm.pets.PetVisitor.Companion.transform
 import dev.martianzoo.tfm.pets.SpecialClassNames.ANYONE
 import dev.martianzoo.tfm.pets.SpecialClassNames.OWNED
 import dev.martianzoo.tfm.pets.ast.ClassName
@@ -76,8 +77,8 @@ class InteractiveSession {
     val player = g.resolve(ANYONE.type)
 
     // TODO do this elsewhere
-    class Fixer : PetNodeVisitor() {
-      override fun <P : PetNode?> transform(node: P): P {
+    val fixer = object : PetVisitor() {
+      override fun <P : PetNode> doTransform(node: P): P {
         if (node is GenericTypeExpr) {
           if (g.resolve(node).isSubtypeOf(owned)) {
             val hasPlayer = node.args.any { g.resolve(it).isSubtypeOf(player) }
@@ -87,10 +88,10 @@ class InteractiveSession {
           }
           return node
         }
-        return super.transform(node) as P
+        return defaultTransform(node)
       }
     }
-    val fixt = Fixer().transform(node)
+    val fixt = node.transform(fixer)
 
     // TODO hmm
     return deprodify(fixt, (game!!.classTable as PClassLoader).resourceNames())

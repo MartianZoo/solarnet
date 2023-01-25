@@ -13,8 +13,6 @@ import dev.martianzoo.tfm.pets.ast.Instruction.Intensity
 import dev.martianzoo.tfm.pets.ast.Instruction.Intensity.AMAP
 import dev.martianzoo.tfm.pets.ast.Instruction.Intensity.MANDATORY
 import dev.martianzoo.tfm.pets.ast.Instruction.Intensity.OPTIONAL
-import dev.martianzoo.tfm.pets.ast.PetNode
-import dev.martianzoo.tfm.pets.ast.PetNode.GenericTransform
 import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.pets.ast.Requirement.Exact
 import dev.martianzoo.tfm.pets.ast.Requirement.Max
@@ -98,15 +96,10 @@ object LiveNodes {
   class Custom(val custom: CustomInstruction, val arguments: List<PType>) : LiveInstruction() {
     override fun execute(game: Game) {
       try {
-        var translated: Instruction =
+        val translated: Instruction =
             custom.translate(game.asGameState, arguments.map { it.toTypeExprFull() })
-        if (translated.childNodesOfType<PetNode>().any {
-          // TODO deprodify could do this??
-          it is GenericTransform<*> && it.transform == "PROD"
-        }) {
-          translated = deprodify(translated, standardResourceNames(game.asGameState))
-        }
-        from(translated, game).execute(game)
+        val deprodded = deprodify(translated, standardResourceNames(game.asGameState))
+        LiveNodes.from(deprodded, game).execute(game)
       } catch (e: ExecuteInsteadException) {
         custom.execute(game.asGameState, arguments.map { it.toTypeExprFull() })
       }

@@ -2,7 +2,6 @@ package dev.martianzoo.tfm.types
 
 import dev.martianzoo.tfm.api.Authority
 import dev.martianzoo.tfm.data.ClassDeclaration
-import dev.martianzoo.tfm.pets.SpecialClassNames.ANYONE
 import dev.martianzoo.tfm.pets.SpecialClassNames.ME
 import dev.martianzoo.tfm.pets.SpecialClassNames.STANDARD_RESOURCE
 import dev.martianzoo.tfm.pets.SpecialClassNames.THIS
@@ -11,6 +10,7 @@ import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.pets.ast.TypeExpr
 import dev.martianzoo.tfm.pets.ast.TypeExpr.ClassLiteral
 import dev.martianzoo.tfm.pets.ast.TypeExpr.GenericTypeExpr
+import dev.martianzoo.tfm.pets.ast.childNodesOfType
 import dev.martianzoo.tfm.types.PType.ClassPType
 import dev.martianzoo.tfm.types.PType.GenericPType
 import dev.martianzoo.util.toSetStrict
@@ -84,8 +84,8 @@ class PClassLoader(private val authority: Authority) : PClassTable {
         val decl = authority.classDeclaration(next)
         loadSingle(next, decl)
         // shoot, this merges ids and names
-        val needed: List<ClassName> = decl.allNodes.flatMap { it.childNodesOfType() }
-        val addToQueue = needed.toSet() - table.keys - THIS - ME - ANYONE // TODO
+        val needed: List<ClassName> = decl.allNodes.flatMap(::childNodesOfType)
+        val addToQueue = needed.toSet() - table.keys - THIS - ME // TODO
         queue.addAll(addToQueue)
       }
     }

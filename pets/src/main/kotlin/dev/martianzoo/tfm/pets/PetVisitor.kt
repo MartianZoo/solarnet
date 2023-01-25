@@ -15,13 +15,18 @@ import dev.martianzoo.tfm.pets.ast.TypeExpr.ClassLiteral
 import dev.martianzoo.tfm.pets.ast.TypeExpr.GenericTypeExpr
 import dev.martianzoo.util.toSetStrict
 
-open class PetNodeVisitor {
-  fun <P : PetNode> transform(nodes: List<P>) = nodes.map { transform(it) }
-  fun <P : PetNode> transform(nodes: Set<P>) = nodes.map { transform(it) }.toSetStrict()
+public abstract class PetVisitor {
 
-  open fun <P : PetNode?> transform(node: P): P {
-    @Suppress("UNCHECKED_CAST")
-    if (node == null) return null as P // TODO how'm I even getting away with this
+  companion object {
+    public fun <P : PetNode> P.transform(v: PetVisitor): P = v.doTransform(this)
+    public fun <P : PetNode> Iterable<P>.transform(v: PetVisitor): List<P> = map(v::doTransform)
+    public fun <P : PetNode> Set<P>.transform(v: PetVisitor): Set<P> =
+        (this as Iterable<P>).transform(v).toSetStrict()
+  }
+
+  protected abstract fun <P : PetNode> doTransform(node: P): P
+
+  protected fun <P : PetNode> defaultTransform(node: P): P {
     return (node as PetNode).run {
       val rewritten =
           when (this) {
@@ -83,7 +88,11 @@ open class PetNodeVisitor {
     }
   }
 
-  private fun <P : PetNode?> x(node: P) = transform(node)
-  private fun <P : PetNode> x(nodes: List<P>) = transform(nodes)
-  private fun <P : PetNode> x(nodes: Set<P>) = transform(nodes)
+  protected fun <P : PetNode?> x(node: P): P {
+    @Suppress("UNCHECKED_CAST")
+    return node?.let(::doTransform) as P
+  }
+
+  protected fun <P : PetNode> x(nodes: Iterable<P>): List<P> = nodes.map(::x)
+  protected fun <P : PetNode> x(nodes: Set<P>): Set<P> = x(nodes as Iterable<P>).toSetStrict()
 }
