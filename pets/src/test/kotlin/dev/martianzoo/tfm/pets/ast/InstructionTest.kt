@@ -74,12 +74,11 @@ private class InstructionTest {
     (-Foo, PROD[-Foo]), @name(Bar<Foo<Qux>>), (-5, @name(Qux))
     PROD[((1 OR MAX 1 Megacredit): 1) OR (1 OR -Bar) OR 1, Bar]
     (1: 1, -5 Bar), 11 Qux<Qux<Foo>, Bar>, PROD[1 / 5 Foo], Bar!
-  """
+  """.trimIndent()
 
   @Test
   fun testSampleStrings() {
-    val pass = testSampleStrings<Instruction>(inputs)
-    assertThat(pass).isTrue()
+    testSampleStrings<Instruction>(inputs)
   }
 
   @Test

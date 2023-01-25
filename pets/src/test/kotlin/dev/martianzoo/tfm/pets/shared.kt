@@ -28,10 +28,13 @@ internal fun <T : PetNode> testRoundTrip(type: KClass<T>, start: T, end: T = sta
 internal inline fun <reified T : PetNode> testSampleStrings(inputs: String) =
     testSampleStrings(T::class, inputs)
 
-internal fun <T : PetNode> testSampleStrings(type: KClass<T>, inputs: String): Boolean {
+internal fun <T : PetNode> testSampleStrings(type: KClass<T>, inputs: String) {
+  var errors = ""
   for (sample in inputs.split('\n')) {
     val regen = parsePets(type, sample).toString()
-    if (regen != sample) return false
+    if (regen != sample) errors += "$sample\n"
   }
-  return true
+  if (errors.isNotEmpty()) {
+    throw RuntimeException(errors)
+  }
 }

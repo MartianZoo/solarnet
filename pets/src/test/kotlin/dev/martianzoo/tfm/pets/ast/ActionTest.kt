@@ -43,7 +43,6 @@ private class ActionTest {
     -> @name(Qux, Xyz)
     PROD[1] -> Foo<Foo>
     PROD[1] -> Bar / Foo
-    PROD[Xyz] -> PROD[-1]
     11 Abc<Qux> -> 11 Bar?
     Qux -> Wau<Ahh>: 11 Abc
     5 Xyz<Foo> -> 5 Qux<Bar>
@@ -55,7 +54,6 @@ private class ActionTest {
     5 Abc<Abc<Xyz>, Qux, Qux> -> 1
     1 -> -11 Ooh<Foo>, (Foo, -1, 1)
     PROD[1], 11 Xyz, 5 Foo -> 5 Ahh.
-    PROD[1 / Abc] -> PROD[@name(Xyz)]
     Xyz<Foo> -> 11 Qux? THEN Ooh / Foo
     Foo<Foo> / Qux -> (1, Qux), -11 Foo
     Xyz<Abc<Qux>> -> PROD[@name(Qux), 1]
@@ -67,28 +65,19 @@ private class ActionTest {
     5 OR 1 -> Foo<Foo<Foo>>. OR -Foo<Foo, Qux>
     Foo<Ahh<Foo<Ahh>>> -> 5, ((-1, 1: -1), Qux)
     1 / 11 Bar -> PROD[Abc], (5 Bar, (-Foo, -1))
-    PROD[PROD[Foo<Foo>]] -> PROD[11 Abc, 11 OR 1]
     Xyz, Bar, Abc -> PROD[Xyz OR Abc / Megacredit]
-    PROD[PROD[1 OR 5]] -> PROD[1 Qux<Foo FROM Foo>]
     1 -> (1 OR PROD[1] OR (1 OR Foo OR 5 Bar)): -Qux
-    PROD[Foo] -> (Abc OR -Qux) OR (=1 Abc: PROD[Foo])
     Ooh<Qux> / Foo, 1 / Qux -> -Bar(HAS =1 Megacredit)
     Foo / Ooh OR 1, Xyz / 5 Abc, PROD[Foo, Foo] -> Foo!
     11 Foo / 11 Eep -> -Bar, 1, 1 Ahh FROM Ahh?, 1 / Bar
     1 / Megacredit OR PROD[11 / Megacredit] -> 1. OR -Xyz
     PROD[Eep] -> Ooh<Foo<Abc>>., Abc., 11 Bar<Qux, Bar>, 1
-    Bar, PROD[1] -> PROD[-1 / Bar, (1 Bar FROM Ooh) OR Xyz]
     Qux<Qux> -> 1 OR -1. OR (Foo<Qux>: ((1 OR -Foo) OR Foo))
-    PROD[Foo / Foo] / 5 Foo, 1 / Wau -> PROD[1. / Megacredit]
-    PROD[1 / Qux OR 1 / Ooh OR Abc] -> -Bar<Bar>, Xyz OR 5 Xyz
-    PROD[PROD[Foo / Bar, Qux]] -> 1 Eep<Ahh, Abc> FROM Ahh<Bar>
-    PROD[PROD[5], PROD[1 / Bar], 1] -> (1, 1: 1, 1) OR Foo<Abc>. 
-  """
+  """.trimIndent()
 
   @Test
   fun testSampleStrings() {
-    val pass = testSampleStrings<Action>(inputs)
-    Truth.assertThat(pass).isTrue()
+    testSampleStrings<Action>(inputs)
   }
 
   fun genGrossApiCalls() {
@@ -152,15 +141,6 @@ private class ActionTest {
                     cn("Ooh").type,
                     cn("Bar").addArgs(cn("Ooh").type)),
                 cn("Bar").addArgs(cn("Qux").type))))
-
-    checkBothWays("PROD[Qux] OR PROD[Foo] OR 5 Bar OR (1, 1 OR Foo, 5 Xyz<Qux>) -> Bar<Foo>?",
-        Action(Cost.Or(Cost.Transform(Spend(sat(cn("Qux").type)), "PROD"),
-            Cost.Transform(Spend(sat(cn("Foo").type)), "PROD"),
-            Spend(sat(5, cn("Bar").type)),
-            Cost.Multi(Spend(sat(cn("Megacredit").type)),
-                Cost.Or(Spend(sat(cn("Megacredit").type)), Spend(sat(cn("Foo").type))),
-                Spend(sat(5, cn("Xyz").addArgs(cn("Qux").type))))),
-            Gain(sat(cn("Bar").addArgs(cn("Foo").type)), OPTIONAL)))
 
     checkBothWays("PROD[1] -> -Ooh / Ooh<Abc, Ahh>",
         Action(Cost.Transform(Spend(sat(cn("Megacredit").type)), "PROD"),

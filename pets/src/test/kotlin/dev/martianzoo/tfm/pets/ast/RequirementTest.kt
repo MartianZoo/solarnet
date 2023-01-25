@@ -38,13 +38,13 @@ private class RequirementTest {
     PROD[=0 Megacredit, 1]
     PROD[Bar OR (Abc, Abc)]
     MAX 5 Xyz<Foo<Ooh<Foo>>>
-    PROD[PROD[1 OR (Bar, 1)]]
+    PROD[Foo<Xyz> OR (5, 11)]
     MAX 5 Megacredit OR 11 Qux
     PROD[=1 Qux<Qux, Bar, Abc>]
     PROD[MAX 11 Megacredit, Bar]
     Foo<Qux>, PROD[=0 Megacredit]
     ((1, Foo), 1 OR Foo), Wau<Foo>
-    PROD[PROD[Qux], MAX 5 Bar, Qux]
+    PROD[Qux<Foo>, MAX 11 Bar, Qux]
     MAX 0 Ahh<Foo>, MAX 1 Megacredit
     MAX 1 Megacredit, Xyz OR Xyz<Foo>
     PROD[11 Bar(HAS MAX 1 Megacredit)]
@@ -69,17 +69,15 @@ private class RequirementTest {
     1 OR Bar<Bar>, 1 OR ((Foo OR 1) OR =1 Megacredit), 11
     (Qux, MAX 1 Foo OR Foo, (1, 1)), =0 Xyz, =1 Megacredit
     ((Bar, MAX 0 Foo<Xyz>) OR =5 Qux OR Foo) OR PROD[5 Qux]
-    (Foo, =11 Abc, MAX 1 Megacredit), (Bar, (Xyz, 1) OR Foo)
-    PROD[PROD[Ooh OR (MAX 0 Megacredit OR MAX 1 Megacredit)]]
+    (Foo, =11 Abc, MAX 11 Megacredit), (Bar, (Xyz, 1) OR Foo)
     ((MAX 1 Qux OR MAX 1 Megacredit OR 1) OR Bar) OR MAX 1 Eep
     MAX 1 Foo<Qux, Ooh>, (1, MAX 1 Foo), PROD[MAX 1 Megacredit]
     PROD[MAX 0 Xyz OR MAX 1 Foo OR 5 Ahh OR Ooh, MAX 0 Ahh OR 1]
-  """
+  """.trimIndent()
 
   @Test
   fun testSampleStrings() {
-    val pass = testSampleStrings<Requirement>(inputs)
-    assertThat(pass).isTrue()
+    testSampleStrings<Requirement>(inputs)
   }
 
   @Test
