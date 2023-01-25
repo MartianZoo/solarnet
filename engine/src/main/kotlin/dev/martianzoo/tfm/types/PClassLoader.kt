@@ -10,7 +10,7 @@ import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.pets.ast.TypeExpr
 import dev.martianzoo.tfm.pets.ast.TypeExpr.ClassLiteral
 import dev.martianzoo.tfm.pets.ast.TypeExpr.GenericTypeExpr
-import dev.martianzoo.tfm.pets.ast.childNodesOfType
+import dev.martianzoo.tfm.pets.childNodesOfType
 import dev.martianzoo.tfm.types.PType.ClassPType
 import dev.martianzoo.tfm.types.PType.GenericPType
 import dev.martianzoo.util.toSetStrict

@@ -21,6 +21,7 @@ import dev.martianzoo.tfm.pets.ast.Requirement.Max
 import dev.martianzoo.tfm.pets.ast.Requirement.Min
 import dev.martianzoo.tfm.pets.ast.ScalarAndType.Companion.sat
 import dev.martianzoo.tfm.pets.checkBothWays
+import dev.martianzoo.tfm.pets.countNodesInTree
 import dev.martianzoo.tfm.pets.testSampleStrings
 import dev.martianzoo.tfm.testlib.PetGenerator
 import org.junit.jupiter.api.Test

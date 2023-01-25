@@ -1,6 +1,6 @@
 package dev.martianzoo.tfm.pets
 
-import dev.martianzoo.tfm.pets.PetVisitor.Companion.transform
+import dev.martianzoo.tfm.pets.PetTransformer.Companion.transform
 import dev.martianzoo.tfm.pets.SpecialClassNames.PRODUCTION
 import dev.martianzoo.tfm.pets.SpecialClassNames.THIS
 import dev.martianzoo.tfm.pets.SpecialClassNames.USE_ACTION
@@ -64,7 +64,7 @@ fun <P : PetNode> P.replaceTypes(from: TypeExpr, to: TypeExpr): P {
 }
 
 internal fun <P : PetNode> replaceTypesIn(node: P, from: TypeExpr, to: TypeExpr) =
-    node.transform(object : PetVisitor() {
+    node.transform(object : PetTransformer() {
       override fun <P : PetNode> doTransform(node: P): P =
           if (node == from) {
             @Suppress("UNCHECKED_CAST")
@@ -76,7 +76,7 @@ internal fun <P : PetNode> replaceTypesIn(node: P, from: TypeExpr, to: TypeExpr)
 
 fun <P : PetNode> deprodify(node: P, producible: Set<ClassName>): P {
   val deprodifier =
-      object : PetVisitor() {
+      object : PetTransformer() {
         var inProd: Boolean = false
 
         override fun <P : PetNode> doTransform(node: P): P {

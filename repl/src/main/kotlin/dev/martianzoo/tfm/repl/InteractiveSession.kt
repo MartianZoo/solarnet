@@ -3,8 +3,8 @@ package dev.martianzoo.tfm.repl
 import dev.martianzoo.tfm.api.GameSetup
 import dev.martianzoo.tfm.engine.Engine
 import dev.martianzoo.tfm.engine.Game
-import dev.martianzoo.tfm.pets.PetVisitor
-import dev.martianzoo.tfm.pets.PetVisitor.Companion.transform
+import dev.martianzoo.tfm.pets.PetTransformer
+import dev.martianzoo.tfm.pets.PetTransformer.Companion.transform
 import dev.martianzoo.tfm.pets.SpecialClassNames.ANYONE
 import dev.martianzoo.tfm.pets.SpecialClassNames.OWNED
 import dev.martianzoo.tfm.pets.ast.ClassName
@@ -77,7 +77,7 @@ class InteractiveSession {
     val player = g.resolve(ANYONE.type)
 
     // TODO do this elsewhere
-    val fixer = object : PetVisitor() {
+    val fixer = object : PetTransformer() {
       override fun <P : PetNode> doTransform(node: P): P {
         if (node is GenericTypeExpr) {
           if (g.resolve(node).isSubtypeOf(owned)) {

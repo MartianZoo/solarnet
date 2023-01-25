@@ -1,7 +1,7 @@
 package dev.martianzoo.tfm.types
 
-import dev.martianzoo.tfm.pets.PetVisitor
-import dev.martianzoo.tfm.pets.PetVisitor.Companion.transform
+import dev.martianzoo.tfm.pets.PetTransformer
+import dev.martianzoo.tfm.pets.PetTransformer.Companion.transform
 import dev.martianzoo.tfm.pets.SpecialClassNames.ME
 import dev.martianzoo.tfm.pets.SpecialClassNames.THIS
 import dev.martianzoo.tfm.pets.ast.Instruction.Gain
@@ -12,7 +12,7 @@ import dev.martianzoo.tfm.pets.ast.TypeExpr.GenericTypeExpr
 public fun <P : PetNode> applyDefaultsIn(node: P, loader: PClassLoader) =
     node.transform(Defaulter(loader))
 
-private class Defaulter(val table: PClassTable) : PetVisitor() {
+private class Defaulter(val table: PClassTable) : PetTransformer() {
   override fun <P : PetNode> doTransform(node: P): P {
     val transformed: PetNode =
         when (node) {

@@ -15,12 +15,12 @@ import dev.martianzoo.tfm.pets.ast.TypeExpr.ClassLiteral
 import dev.martianzoo.tfm.pets.ast.TypeExpr.GenericTypeExpr
 import dev.martianzoo.util.toSetStrict
 
-public abstract class PetVisitor {
+public abstract class PetTransformer {
 
   companion object {
-    public fun <P : PetNode> P.transform(v: PetVisitor): P = v.doTransform(this)
-    public fun <P : PetNode> Iterable<P>.transform(v: PetVisitor): List<P> = map(v::doTransform)
-    public fun <P : PetNode> Set<P>.transform(v: PetVisitor): Set<P> =
+    public fun <P : PetNode> P.transform(v: PetTransformer): P = v.doTransform(this)
+    public fun <P : PetNode> Iterable<P>.transform(v: PetTransformer): List<P> = map(v::doTransform)
+    public fun <P : PetNode> Set<P>.transform(v: PetTransformer): Set<P> =
         (this as Iterable<P>).transform(v).toSetStrict()
   }
 

@@ -9,7 +9,7 @@ import dev.martianzoo.tfm.pets.ast.Instruction
 import dev.martianzoo.tfm.pets.ast.Instruction.Companion.instruction
 import dev.martianzoo.tfm.pets.ast.Instruction.Transform
 import dev.martianzoo.tfm.pets.ast.TypeExpr
-import dev.martianzoo.tfm.pets.ast.childNodesOfType
+import dev.martianzoo.tfm.pets.childNodesOfType
 
 internal val allCustomInstructions =
     listOf(
