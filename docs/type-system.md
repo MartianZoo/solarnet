@@ -16,6 +16,8 @@ PETS classes have fields/properties/attributes per se, only dependencies and eff
 
 Two component instances are distinguishable if and only if their types are distinguishable. Type is everything, because why not?
 
+Classes can be abstract or not (concrete). Multiple inheritance is okay; effects are just added together.
+
 ## Generic
 
 PETS types are generic types. We have Energy<Player2> and CityTile<VolcanicArea> etc.
@@ -29,3 +31,6 @@ It is a simplified generic type system.
 * The types in the <> are not just type parameters; they are *dependencies*. For an instance of `Foo<Bar>` to exist, a particular *instance* of `Bar` must exist that it depends on.
 
 * There are also class literals like `Class<Plant>`. I discussed these a bit in [syntax].
+
+
+
