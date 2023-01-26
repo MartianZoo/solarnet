@@ -15,10 +15,22 @@ import org.jline.reader.impl.history.DefaultHistory
 import org.jline.terminal.TerminalBuilder
 import org.jline.utils.InfoCmp.Capability
 
-class ReplSession(val authority: Authority) {
+class ReplSession(private val authority: Authority) {
   private val session = InteractiveSession()
 
-  val commands =
+  fun command(wholeCommand: String): List<String> {
+    val (_, command, args) = INPUT_REGEX.matchEntire(wholeCommand)?.groupValues ?: return listOf()
+    return command(command, args.ifBlank { null })
+  }
+
+  fun command(command: String, args: String?): List<String> {
+    if (command !in setOf("help", "newgame") && session.game == null) {
+      return listOf("no game active")
+    }
+    return commands[command]?.invoke(args) ?: commands["exec"]!!(command + (args ?: ""))
+  }
+
+  private val commands =
       mapOf<String, (String?) -> List<String>>(
           "help" to { listOf(HELP.trimIndent()) },
           "newgame" to {
@@ -103,18 +115,6 @@ class ReplSession(val authority: Authority) {
             } ?: listOf("Usage: desc <ClassName>")
           },
       )
-
-  fun command(wholeCommand: String): List<String> {
-    val (_, command, args) = INPUT_REGEX.matchEntire(wholeCommand)?.groupValues ?: return listOf()
-    return command(command, args.ifBlank { null })
-  }
-
-  fun command(command: String, args: String?): List<String> {
-    if (command !in setOf("help", "newgame") && session.game == null) {
-      return listOf("no game active")
-    }
-    return commands[command]?.invoke(args) ?: commands["exec"]!!(command + (args ?: ""))
-  }
 }
 
 val INPUT_REGEX = Regex("""^\s*(\S+)(.*)$""")

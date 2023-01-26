@@ -30,7 +30,7 @@ Examples, in order of ascending weirdness:
    * Each Microbe sitting on your Psychrophiles card
    * Each unit of TerraformRating or plant production you have
    * Each step the temperature track has been raised (where we say "it's -20 degrees out", PETS says "five TemperatureStep components")
-   * Each map Area on the board (even though it never changes); there's even an Area called "FloatingInSpace" for use by Stanford Torus)
+   * Each map Area on the board (even though it never changes); there's even an Area called "FloatingInSpace" for use by Stanford Torus
    * Each Adjacency between two tiles on the board
    * Each VictoryPoint doled out in the endgame
    * A ColonyTile in play (playing the first animal card of the game *creates* the Miranda component)

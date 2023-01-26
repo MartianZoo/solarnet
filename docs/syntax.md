@@ -133,7 +133,7 @@ An actions have an optional cost followed by an "arrow" and then an instruction.
 assumed negative without need for a minus sign.
 
 The engine actually translates these into triggered effects (if the second action on `ElectroCatapult` is `Plant -> 7`,
-that gets translated to `UseAction2<ElectroCatapult>: -Plant THEN 7`.
+that gets translated to `UseAction2<ElectroCatapult>: -Plant THEN 7`).
 
 ### Effects
 

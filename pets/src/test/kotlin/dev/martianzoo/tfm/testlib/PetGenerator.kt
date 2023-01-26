@@ -63,7 +63,7 @@ internal class PetGenerator(scaling: (Int) -> Double) :
               3 to Requirement.And::class,
               1 to Requirement.Transform::class,
           )
-      register<Requirement> { recurse(choose(requirementTypes)) }
+      register(Requirement::class) { recurse(choose(requirementTypes)) }
       register { Requirement.Min(sat = recurse()) }
       register { Requirement.Max(sat = recurse()) }
       register { Requirement.Exact(sat = recurse()) }
@@ -86,7 +86,7 @@ internal class PetGenerator(scaling: (Int) -> Double) :
               5 to Instruction.Multi::class,
               1 to Instruction.Transform::class,
           )
-      register<Instruction> { recurse(choose(instructionTypes)) }
+      register(Instruction::class) { recurse(choose(instructionTypes)) }
       register { Instruction.Gain(recurse(), intensity()) }
       register { Instruction.Remove(recurse(), intensity()) }
       register { Instruction.Per(recurse(), recurse()) }
@@ -98,7 +98,7 @@ internal class PetGenerator(scaling: (Int) -> Double) :
       register { Instruction.Multi(listOfSize(choose(2, 2, 2, 2, 2, 3, 4))) }
       register { Instruction.Transform(recurse(), "PROD") }
 
-      register<From> {
+      register(From::class) {
         val one: GenericTypeExpr = recurse()
         val two: GenericTypeExpr = recurse()
 
@@ -144,7 +144,7 @@ internal class PetGenerator(scaling: (Int) -> Double) :
               5 to Trigger.OnRemove::class,
               1 to Trigger.Transform::class,
           )
-      register<Trigger> { recurse(choose(triggerTypes)) }
+      register(Trigger::class) { recurse(choose(triggerTypes)) }
       register { Trigger.OnGain(recurse()) }
       register { Trigger.OnRemove(recurse()) }
       register { Trigger.Transform(recurse(), "PROD") }
@@ -159,7 +159,7 @@ internal class PetGenerator(scaling: (Int) -> Double) :
               2 to Cost.Multi::class,
               2 to Cost.Transform::class,
           )
-      register<Cost> { recurse(choose(costTypes)) }
+      register(Cost::class) { recurse(choose(costTypes)) }
       register { Cost.Spend(sat = recurse()) }
       register { Cost.Per(recurse(), recurse()) }
       register { Cost.Or(setOfSize(choose(2, 2, 2, 2, 3, 4))) }

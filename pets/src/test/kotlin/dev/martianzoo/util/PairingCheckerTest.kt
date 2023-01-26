@@ -3,6 +3,7 @@ package dev.martianzoo.util
 import com.google.common.collect.Lists.cartesianProduct
 import com.google.common.truth.Truth.assertThat
 import java.util.Collections.nCopies
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 
 private class PairingCheckerTest {
@@ -22,11 +23,12 @@ private class PairingCheckerTest {
     assertThat(PairingChecker.isValid("a(b<c)d>e")).isFalse()
   }
 
+  @Disabled @Test
   fun listValid() {
     weird(true, max = 8)
   }
 
-  // @Test
+  @Disabled @Test
   fun listInvalid() {
     weird(false, max = 6)
   }

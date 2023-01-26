@@ -124,7 +124,7 @@ fun <T> parseRepeated(listParser: Parser<List<T>>, tokens: TokenMatchesSequence)
 }
 
 fun myThrow(result: ErrorResult) {
-  var message = StringBuilder()
+  val message = StringBuilder()
   var ctr = 0
   val locations = mutableMapOf<Pair<Int, Int>, Int>()
   var input: String? = null

@@ -58,7 +58,7 @@ object JsonReader {
     ) {
       internal fun toDefinition(legend: Legend): MarsMapDefinition {
         val areas =
-            rows.flatMapIndexed() { row0Index, cells ->
+            rows.flatMapIndexed { row0Index, cells ->
               cells.mapIndexedNotNull { col0Index, code ->
                 mapArea(row0Index, col0Index, code, legend)
               }
@@ -91,21 +91,20 @@ object JsonReader {
       fun getBonus(code: String): String? {
         val q = ArrayDeque(code.substring(1).toList())
         val result = generateSequence {
+          @Suppress("KotlinConstantConditions") // a bogus warning
           if (q.any()) {
-            val next = q.removeFirst()
-            when {
-              next in '2'..'9' -> "$next ${lookUp(q.removeFirst())}"
-              q.firstOrNull() == next -> "2 ${lookUp(q.removeFirst())}"
+            when (val next = q.removeFirst()) {
+              in '2'..'9' -> "$next ${lookUp(q.removeFirst())}"
+              q.firstOrNull() -> "2 ${lookUp(q.removeFirst())}"
               else -> lookUp(next)
             }
           } else {
             null
           }
         }
-        return emptyToNull(result.joinToString())
+        return result.joinToString().ifEmpty { null }
       }
 
-      private fun emptyToNull(s: String) = if (s.isEmpty()) null else s
       private fun lookUp(c: Char) = table[c] ?: "not found: $c"
     }
   }
@@ -125,5 +124,5 @@ object JsonReader {
     @FromJson fun fromJson(card: String) = cn(card)
   }
 
-  private val TRAILING_COMMA_REGEX = Regex(""",(?=\s*(//[^\n]*\n\s*)?[\]}])""", DOT_MATCHES_ALL)
+  private val TRAILING_COMMA_REGEX = Regex(""",(?=\s*(//[^\n]*\n\s*)?[]}])""", DOT_MATCHES_ALL)
 }

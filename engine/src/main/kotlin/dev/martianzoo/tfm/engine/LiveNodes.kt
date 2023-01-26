@@ -51,7 +51,7 @@ object LiveNodes {
 
   class Change(
       val count: Int,
-      val intensity: Intensity = MANDATORY,
+      private val intensity: Intensity = MANDATORY,
       val removing: PType? = null,
       val gaining: PType? = null,
   ) : LiveInstruction() {
@@ -75,7 +75,7 @@ object LiveNodes {
     }
   }
 
-  class Per(val ptype: PType, val unit: Int = 1, val instruction: LiveInstruction) :
+  class Per(val ptype: PType, private val unit: Int = 1, val instruction: LiveInstruction) :
       LiveInstruction() {
 
     override fun times(factor: Int) = Per(ptype, unit, instruction * factor)
@@ -83,7 +83,7 @@ object LiveNodes {
     override fun execute(game: Game) = (instruction * (game.count(ptype) / unit)).execute(game)
   }
 
-  class Gated(val gate: LiveRequirement, val instruction: LiveInstruction) : LiveInstruction() {
+  class Gated(private val gate: LiveRequirement, val instruction: LiveInstruction) : LiveInstruction() {
     override fun times(factor: Int) = Gated(gate, instruction * factor)
     override fun execute(game: Game) =
         if (gate.isMet(game)) {
@@ -93,25 +93,25 @@ object LiveNodes {
         }
   }
 
-  class Custom(val custom: CustomInstruction, val arguments: List<PType>) : LiveInstruction() {
+  class Custom(private val custom: CustomInstruction, private val arguments: List<PType>) : LiveInstruction() {
     override fun execute(game: Game) {
       try {
         val translated: Instruction =
             custom.translate(game.asGameState, arguments.map { it.toTypeExprFull() })
         val deprodded = deprodify(translated, standardResourceNames(game.asGameState))
-        LiveNodes.from(deprodded, game).execute(game)
+        from(deprodded, game).execute(game)
       } catch (e: ExecuteInsteadException) {
         custom.execute(game.asGameState, arguments.map { it.toTypeExprFull() })
       }
     }
   }
 
-  class OrIns(val instructions: List<LiveInstruction>) : LiveInstruction() {
+  class OrIns(private val instructions: List<LiveInstruction>) : LiveInstruction() {
     override fun times(factor: Int) = OrIns(instructions.map { it * factor })
     override fun execute(game: Game) = throw UserException("Can't execute an OR")
   }
 
-  class Then(val instructions: List<LiveInstruction>) : LiveInstruction() {
+  class Then(private val instructions: List<LiveInstruction>) : LiveInstruction() {
     override fun times(factor: Int) = Then(instructions.map { it * factor })
     override fun execute(game: Game) = instructions.forEach { it.execute(game) }
   }
@@ -133,7 +133,7 @@ object LiveNodes {
     }
   }
 
-  class LiveRequirement(val isMet: (Game) -> Boolean) {
+  class LiveRequirement(private val isMet: (Game) -> Boolean) {
     fun isMet(game: Game) = isMet.invoke(game)
   }
 

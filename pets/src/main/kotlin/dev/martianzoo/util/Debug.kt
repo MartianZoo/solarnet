@@ -2,7 +2,7 @@ package dev.martianzoo.util
 
 object Debug {
   fun d(message: String) {
-    if (DEBUG) println("$message")
+    if (DEBUG) println(message)
   }
 
   fun <T : Any> T.d(message: String): T {

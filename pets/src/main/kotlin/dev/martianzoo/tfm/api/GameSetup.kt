@@ -24,7 +24,7 @@ data class GameSetup(
     require(authority.allBundles.containsAll(bundles)) { bundles }
   }
 
-  val map = authority.marsMapDefinitions.filter { it.bundle in bundles }.single()
+  val map = authority.marsMapDefinitions.single { it.bundle in bundles }
 
   val allDefinitions by lazy { authority.allDefinitions.filter { it.bundle in bundles } }
 }

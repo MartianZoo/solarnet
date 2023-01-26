@@ -25,7 +25,7 @@ private object GainLowestProduction : CustomInstruction("gainLowestProduction") 
     val prods: Map<ClassName, Int> = lookUpProductionLevels(game, player)
     val lowest = prods.values.min()
     val lowestProds =
-        prods.filterValues { it == lowest }.keys.map { "$it<$player>" }.joinToString(" OR ")
+        prods.filterValues { it == lowest }.keys.joinToString(" OR ") { "$it<$player>" }
     return instruction("PROD[$lowestProds]")
   }
 }

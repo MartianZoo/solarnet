@@ -8,6 +8,7 @@ import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.util.toStrings
 import java.util.TreeSet
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 
 /** Tests of [PClass] that use the [Canon] dataset because it's convenient. */
@@ -50,6 +51,8 @@ private class PClassCanonTest {
     all.forEach { it.baseType }
   }
 
+  @Disabled
+  @Test
   fun findValidTypes() {
     val table = PClassLoader(Canon).loadEverything()
     val all = table.loadedClassNames().map { table[it] }

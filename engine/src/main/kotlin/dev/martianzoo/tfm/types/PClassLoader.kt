@@ -94,22 +94,20 @@ class PClassLoader(private val authority: Authority) : PClassTable {
   // OKAY BUT ACTUAL LOADING NOW
 
   // all loading goes through here
-  private fun loadSingle(idOrName: ClassName): PClass {
-    if (frozen) {
-      return get(idOrName)
-    } else {
-      return table[idOrName] ?: construct(authority.classDeclaration(idOrName))
-    }
-  }
+  private fun loadSingle(idOrName: ClassName): PClass =
+      if (frozen) {
+        get(idOrName)
+      } else {
+        table[idOrName] ?: construct(authority.classDeclaration(idOrName))
+      }
 
   // all loading goes through here
-  private fun loadSingle(idOrName: ClassName, decl: ClassDeclaration): PClass {
-    if (frozen) {
-      return get(idOrName)
-    } else {
-      return table[idOrName] ?: construct(decl)
-    }
-  }
+  private fun loadSingle(idOrName: ClassName, decl: ClassDeclaration): PClass =
+      if (frozen) {
+        get(idOrName)
+      } else {
+        table[idOrName] ?: construct(decl)
+      }
 
   private fun construct(decl: ClassDeclaration): PClass {
     require(!frozen) { "Too late, this table is frozen!" }

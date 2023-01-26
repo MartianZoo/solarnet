@@ -17,10 +17,6 @@ fun englishHack(id: ClassName) = englishHack(id.toString())
 
 private val noncards = Regex("SA.|SELL|SP\\d\\d|^[MHEV]M")
 
-private fun unhackedName(id: String): String {
-  return if (id.matches(noncards)) id else "Card$id"
-}
-
 val ENGLISH_HACK =
     mapOf(
         "SAA" to "PlayCardFromHand",

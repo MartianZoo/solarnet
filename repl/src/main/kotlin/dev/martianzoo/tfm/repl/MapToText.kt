@@ -8,7 +8,7 @@ import dev.martianzoo.tfm.pets.ast.TypeExpr.Companion.typeExpr
 import dev.martianzoo.util.Grid
 import dev.martianzoo.util.toStrings
 
-class MapToText(val game: GameState) {
+class MapToText(private val game: GameState) {
 
   internal fun map(): List<String> {
     val grid: Grid<AreaDefinition> = game.map.areas
@@ -25,7 +25,7 @@ class MapToText(val game: GameState) {
               if (rowNum == 0) {
                 ""
               } else {
-                val rowString = row.map { padCenter(describe(it), 6) }.joinToString("")
+                val rowString = row.joinToString("") { padCenter(describe(it), 6) }
                 val indent = "   ".repeat(grid.rowCount - rowNum)
                 "\n" + (indent + rowString).trimEnd() + "\n"
               }

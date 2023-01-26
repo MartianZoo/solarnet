@@ -82,7 +82,7 @@ sealed class TypeExpr : PetNode() {
 
     private val typeArgs = skipChar('<') and commaSeparated(parser { typeExpr }) and skipChar('>')
 
-    val refinement = group(skip(_has) and parser { Requirement.parser() })
+    val refinement = parser { group(skip(_has) and Requirement.parser()) }
 
     val typeExpr: Parser<TypeExpr> =
         className and

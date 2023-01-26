@@ -13,10 +13,7 @@ internal class Defaults(
   override fun toString() =
       "{ALL $allCasesDependencies GAIN $gainOnlyDependencies INTENS $gainIntensity}"
 
-  fun isEmpty() = this == EMPTY
-
   companion object {
-    val EMPTY = Defaults()
     fun from(d: DefaultsDeclaration, pclass: PClass, loader: PClassLoader): Defaults {
       fun PClass.toDependencyMap(specs: List<TypeExpr>?) =
           specs?.let { loader.resolve(name.addArgs(it)).dependencies } ?: DependencyMap()
@@ -58,7 +55,7 @@ internal class Defaults(
       extract: (Defaults) -> DependencyMap,
   ): DependencyMap {
     val defMap = mutableMapOf<Dependency.Key, Dependency>()
-    extract(this).keys.map { it to extract(this)[it]!! }.toMap(defMap)
+    extract(this).keys.associateWithTo(defMap) { extract(this)[it]!! }
     for (key in defaultses.flatMap { extract(it).keys }.toSet()) {
       if (key !in defMap) {
         // TODO some orders might work when others don't

@@ -111,7 +111,7 @@ data class CardDefinition(
      */
     @Json(name = "requirement") val requirementText: String? = null,
 
-    /** The card's nonnegative cost in megacredits. Is only nonzero for Project cards. */
+    /** The card's non-negative cost in megacredits. Is only nonzero for Project cards. */
     val cost: Int = 0,
 
     /**

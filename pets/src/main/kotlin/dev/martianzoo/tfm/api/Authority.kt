@@ -43,7 +43,7 @@ abstract class Authority {
   val allClassNames: Set<ClassName> by lazy { allClassDeclarations.keys }
 
   /**
-   * All class declarations that were provided directly in source form (i.e., `CLASS Foo...` as
+   * All class declarations that were provided directly in source form (i.e., `CLASS Foo...`) as
    * opposed to being converted from [Definition] objects.
    */
   abstract val explicitClassDeclarations: Collection<ClassDeclaration>
@@ -131,7 +131,7 @@ abstract class Authority {
         listOf(MarsMapDefinition(cn("FakeTharsis"), "M", Grid.empty()))
   }
 
-  abstract class Forwarding(val delegate: Authority) : Authority() {
+  abstract class Forwarding(protected val delegate: Authority) : Authority() {
     override val explicitClassDeclarations by delegate::explicitClassDeclarations
     override val standardActionDefinitions by delegate::standardActionDefinitions
     override val cardDefinitions by delegate::cardDefinitions

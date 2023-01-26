@@ -24,11 +24,12 @@ import dev.martianzoo.tfm.pets.ast.TypeExpr.ClassLiteral
 import dev.martianzoo.tfm.pets.ast.TypeExpr.GenericTypeExpr
 import dev.martianzoo.util.iff
 import dev.martianzoo.util.pre
+import dev.martianzoo.util.wrap
 
 internal object PetToKotlin {
-  fun <T : PetNode?> T.pre(prefix: String): String = pre(prefix, PetToKotlin::p2k)
+  private fun <T : PetNode?> T.pre(prefix: String): String = pre(prefix, PetToKotlin::p2k)
 
-  fun <T : PetNode?> Iterable<T>.join(separator: CharSequence = ", "): String {
+  private fun <T : PetNode?> Iterable<T>.join(separator: CharSequence = ", "): String {
     return joinToString(separator) { p2k(it) }
   }
 
@@ -41,16 +42,9 @@ internal object PetToKotlin {
             when (this) {
               is ClassLiteral -> "${p2k(className)}.literal"
               is GenericTypeExpr -> {
-                var s = p2k(root)
-                if (args.any()) {
-                  s += ".addArgs(${args.join()})"
-                } else {
-                  s += ".type"
-                }
-                if (refinement != null) {
-                  s += ".refine(${p2k(refinement)})"
-                }
-                s
+                p2k(root) +
+                    if (args.none()) ".type" else ".addArgs(${args.join()})" +
+                    refinement?.let(::p2k).wrap(".refine(", ")")
               }
             }
         is ScalarAndType -> {

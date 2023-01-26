@@ -1,3 +1,5 @@
+@file:Suppress("PropertyName")
+
 package dev.martianzoo.tfm.pets
 
 import com.github.h0tk3y.betterParse.combinators.and
@@ -38,9 +40,9 @@ open class PetParser {
 
   // regexes - could leave the `Regex()` out, but it loses IDEA syntax highlighting!
   internal val _upperCamelRE = regex(Regex("""\b[A-Z][a-z][A-Za-z0-9_]*\b"""), "UpperCamel")
-  internal val _scalarRE = regex(Regex("""\b(0|[1-9][0-9]*)\b"""), "scalar")
   internal val _lowerCamelRE = regex(Regex("""\b[a-z][a-zA-Z0-9]*\b"""), "lowerCamel")
   internal val _allCapsWordRE = regex(Regex("""\b[A-Z]+\b"""), "ALLCAPS")
+  private val _scalarRE = regex(Regex("""\b(0|[1-9][0-9]*)\b"""), "scalar")
 
   val scalar: Parser<Int> = _scalarRE map { it.text.toInt() }
 
@@ -88,6 +90,6 @@ open class PetParser {
     fun tokenize(input: String) = toke.tokenize(input)
   }
 
-  internal fun literal(text: String, name: String = text) = TokenCache.cacheLiteral(text, name)
-  internal fun regex(regex: Regex, name: String = "$regex") = TokenCache.cacheRegex(regex, name)
+  private fun literal(text: String, name: String = text) = TokenCache.cacheLiteral(text, name)
+  private fun regex(regex: Regex, name: String = "$regex") = TokenCache.cacheRegex(regex, name)
 }

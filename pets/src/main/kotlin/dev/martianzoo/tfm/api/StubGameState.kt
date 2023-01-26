@@ -7,7 +7,7 @@ import dev.martianzoo.tfm.pets.ast.TypeExpr.ClassLiteral
 import dev.martianzoo.tfm.pets.ast.TypeExpr.GenericTypeExpr
 import dev.martianzoo.util.Multiset
 
-open class StubGameState(val auth: Authority = Authority.Minimal()) : GameState {
+open class StubGameState(auth: Authority = Authority.Minimal()) : GameState {
   override fun applyChange(
       count: Int,
       removing: GenericTypeExpr?,

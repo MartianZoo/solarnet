@@ -88,10 +88,10 @@ object PairingChecker {
 }
 
 internal object Tokenizer {
-  val tokenList = mutableListOf<Token>()
+  private val tokens = mutableListOf<Token>()
 
-  val toke by lazy { DefaultTokenizer(tokenList) }
-  fun tokenize(input: String) = toke.tokenize(input)
+  private val toker by lazy { DefaultTokenizer(tokens) }
+  fun tokenize(input: String) = toker.tokenize(input)
 
   fun literal(text: String, name: String = text) = remember(literalToken(name, text))
 
@@ -99,7 +99,7 @@ internal object Tokenizer {
 
   private fun remember(t: Token): Token {
     require(t.name != null)
-    tokenList += t
+    tokens += t
     return t
   }
 }

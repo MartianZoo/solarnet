@@ -39,22 +39,27 @@ import dev.martianzoo.util.KClassMultimap
 import dev.martianzoo.util.plus
 import dev.martianzoo.util.toSetStrict
 
-/** Parses the Petaform language. */
+/** Parses the PETS language. */
 public object ClassDeclarationParsers : PetParser() {
 
   /** Parses a section of `components.pets` etc. */
-  public val topLevelDeclarationGroup = parser { Declarations.topLevelGroup }
+  public val topLevelDeclarationGroup by lazy { Declarations.topLevelGroup }
 
   /** Parses a one-line declaration such as found in `cards.json5` for cards like B10 (UNMI). */
-  public val oneLineDeclaration = parser { Declarations.oneLineDecl }
+  public val oneLineDeclaration by lazy { Declarations.oneLineDecl }
 
   // end public API
 
   internal val nls = zeroOrMore(char('\n'))
 
+  // hack
+  init {
+    ClassName.Parsing.className
+  }
+
   /*
-   * These objects like [Signatures] are purely for grouping and to limit visibility of the fine
-   * grained detailes never needed again.
+   * These objects like [Signatures] are purely for grouping and to limit visibility of the
+   * fine-grained details never needed again.
    */
 
   internal object Signatures {
@@ -74,15 +79,15 @@ public object ClassDeclarationParsers : PetParser() {
      * That's commented out below because it's blowing everything up
      */
     val signature: Parser<Signature> =
-        parser { classFullName } and // `parser` is just for breaking initialization cycles
+        classFullName and
         dependencies and
-        optional(parser { refinement }) and
+        optional(refinement) and
         // optional(skipChar('[') and parser { classShortName } and skipChar(']')) and
-        supertypeList map { (name, deps, refin, /*short,*/ supes) ->
-          Signature(name, deps, refin, /*short,*/ supes)
+        supertypeList map { (name, deps, ref, /*short,*/ supes) ->
+          Signature(name, deps, ref, /*short,*/ supes)
         }
 
-    // This should only be included in the bodyless case
+    // This should only be included in the bodiless case
     val moreSignatures: Parser<MoreSignatures> =
         zeroOrMore(skipChar(',') and signature) map ::MoreSignatures
   }
@@ -99,12 +104,13 @@ public object ClassDeclarationParsers : PetParser() {
           DefaultsDeclaration(gainOnlySpecs = typeExpr.args, gainIntensity = int)
         }
 
-    private val allCasesDefault: Parser<DefaultsDeclaration> =
-        parser { genericTypeExpr } map {
-          require(it.root == THIS)
-          require(it.refinement == null)
-          DefaultsDeclaration(universalSpecs = it.args)
-        }
+    private val allCasesDefault: Parser<DefaultsDeclaration> by lazy {
+      genericTypeExpr map {
+        require(it.root == THIS)
+        require(it.refinement == null)
+        DefaultsDeclaration(universalSpecs = it.args)
+      }
+    }
 
     private val default: Parser<DefaultsDeclaration> =
         skip(_default) and (gainOnlyDefaults or allCasesDefault)
@@ -120,7 +126,7 @@ public object ClassDeclarationParsers : PetParser() {
     private val isAbstract: Parser<Boolean> =
         optional(_abstract) and skip(_class) map { it != null }
 
-    val bodyElement = bodyElementExceptNestedClasses or parser { nestedGroup }
+    private val bodyElement = parser { bodyElementExceptNestedClasses or nestedGroup }
 
     private val multilineBodyInterior: Parser<Body> =
         separatedTerms(bodyElement, oneOrMore(char('\n')), acceptZero = true) map ::Body
@@ -137,7 +143,7 @@ public object ClassDeclarationParsers : PetParser() {
         }
 
     // a declaration group that can be nested, that in this case *IS* nested
-    val nestedGroup: Parser<NestedDeclGroup> = nestableGroup map ::NestedDeclGroup
+    private val nestedGroup: Parser<NestedDeclGroup> = nestableGroup map ::NestedDeclGroup
 
     // a declaration group that could've been nested but is *NOT*
     val topLevelGroup: Parser<List<ClassDeclaration>> = nestableGroup map { it.finishAll() }
@@ -181,13 +187,14 @@ public object ClassDeclarationParsers : PetParser() {
     abstract fun convert(abstract: Boolean, firstSignature: Signature): NestableDeclGroup
   }
 
-  internal class MoreSignatures(val moreSignatures: List<Signature>) : MoreSignaturesOrBody() {
+  internal class MoreSignatures(private val moreSignatures: List<Signature>) :
+      MoreSignaturesOrBody() {
     override fun convert(abstract: Boolean, firstSignature: Signature) =
         NestableDeclGroup(
             (firstSignature plus moreSignatures).map { IncompleteNestableDecl(abstract, it) })
   }
 
-  internal class Body(val elements: KClassMultimap<BodyElement>) : MoreSignaturesOrBody() {
+  internal class Body(private val elements: KClassMultimap<BodyElement>) : MoreSignaturesOrBody() {
     constructor(list: List<BodyElement> = listOf()) : this(KClassMultimap(list))
 
     override fun convert(abstract: Boolean, firstSignature: Signature) =
@@ -210,7 +217,7 @@ public object ClassDeclarationParsers : PetParser() {
     }
   }
 
-  internal class NestableDeclGroup(val declList: List<NestableDecl>) {
+  internal class NestableDeclGroup(private val declList: List<NestableDecl>) {
     constructor(
         abstract: Boolean,
         signature: Signature,
