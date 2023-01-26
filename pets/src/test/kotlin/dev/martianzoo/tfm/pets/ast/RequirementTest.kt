@@ -13,7 +13,8 @@ import org.junit.jupiter.api.Test
 // Most testing is done by AutomatedTest
 private class RequirementTest {
 
-  val inputs = """
+  val inputs =
+      """
     5
     11
     Qux
@@ -73,7 +74,8 @@ private class RequirementTest {
     ((MAX 1 Qux OR MAX 1 Megacredit OR 1) OR Bar) OR MAX 1 Eep
     MAX 1 Foo<Qux, Ooh>, (1, MAX 1 Foo), PROD[MAX 1 Megacredit]
     PROD[MAX 0 Xyz OR MAX 1 Foo OR 5 Ahh OR Ooh, MAX 0 Ahh OR 1]
-  """.trimIndent()
+  """
+          .trimIndent()
 
   @Test
   fun testSampleStrings() {

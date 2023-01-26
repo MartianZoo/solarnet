@@ -32,11 +32,10 @@ public abstract class PetTransformer {
           when (this) {
             is ClassName -> this
             is TypeExpr ->
-              when (this) {
-                is ClassLiteral -> ClassLiteral(x(className), link)
-                is GenericTypeExpr -> GenericTypeExpr(x(root), x(args), x(refinement), link)
-              }
-
+                when (this) {
+                  is ClassLiteral -> ClassLiteral(x(className), link)
+                  is GenericTypeExpr -> GenericTypeExpr(x(root), x(args), x(refinement), link)
+                }
             is ScalarAndType -> ScalarAndType(scalar, x(typeExpr))
             is Requirement ->
                 when (this) {
@@ -68,11 +67,11 @@ public abstract class PetTransformer {
                 }
             is Effect -> Effect(x(trigger), x(instruction), automatic)
             is Trigger ->
-              when (this) {
-                is Trigger.OnGain -> Trigger.OnGain(x(typeExpr))
-                is Trigger.OnRemove -> Trigger.OnRemove(x(typeExpr))
-                is Trigger.Transform -> Trigger.Transform(x(trigger), transform)
-              }
+                when (this) {
+                  is Trigger.OnGain -> Trigger.OnGain(x(typeExpr))
+                  is Trigger.OnRemove -> Trigger.OnRemove(x(typeExpr))
+                  is Trigger.Transform -> Trigger.Transform(x(trigger), transform)
+                }
             is Action -> Action(x(cost), x(instruction))
             is Cost ->
                 when (this) {
@@ -89,8 +88,7 @@ public abstract class PetTransformer {
   }
 
   protected fun <P : PetNode?> x(node: P): P {
-    @Suppress("UNCHECKED_CAST")
-    return node?.let(::doTransform) as P
+    @Suppress("UNCHECKED_CAST") return node?.let(::doTransform) as P
   }
 
   protected fun <P : PetNode> x(nodes: Iterable<P>): List<P> = nodes.map(::x)

@@ -77,20 +77,21 @@ class InteractiveSession {
     val player = g.resolve(ANYONE.type)
 
     // TODO do this elsewhere
-    val fixer = object : PetTransformer() {
-      override fun <P : PetNode> doTransform(node: P): P {
-        if (node is GenericTypeExpr) {
-          if (g.resolve(node).isSubtypeOf(owned)) {
-            val hasPlayer = node.args.any { g.resolve(it).isSubtypeOf(player) }
-            if (!hasPlayer) {
-              return node.addArgs(listOf(defaultPlayer!!.type)) as P
+    val fixer =
+        object : PetTransformer() {
+          override fun <P : PetNode> doTransform(node: P): P {
+            if (node is GenericTypeExpr) {
+              if (g.resolve(node).isSubtypeOf(owned)) {
+                val hasPlayer = node.args.any { g.resolve(it).isSubtypeOf(player) }
+                if (!hasPlayer) {
+                  return node.addArgs(listOf(defaultPlayer!!.type)) as P
+                }
+              }
+              return node
             }
+            return defaultTransform(node)
           }
-          return node
         }
-        return defaultTransform(node)
-      }
-    }
     val fixt = node.transform(fixer)
 
     // TODO hmm

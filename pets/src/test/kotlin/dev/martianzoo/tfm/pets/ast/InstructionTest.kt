@@ -13,7 +13,8 @@ import org.junit.jupiter.api.Test
 
 // Most testing is done by AutomatedTest
 private class InstructionTest {
-  val inputs = """
+  val inputs =
+      """
     5
     1!
     Xyz
@@ -74,7 +75,8 @@ private class InstructionTest {
     (-Foo, PROD[-Foo]), @name(Bar<Foo<Qux>>), (-5, @name(Qux))
     PROD[((1 OR MAX 1 Megacredit): 1) OR (1 OR -Bar) OR 1, Bar]
     (1: 1, -5 Bar), 11 Qux<Qux<Foo>, Bar>, PROD[1 / 5 Foo], Bar!
-  """.trimIndent()
+  """
+          .trimIndent()
 
   @Test
   fun testSampleStrings() {

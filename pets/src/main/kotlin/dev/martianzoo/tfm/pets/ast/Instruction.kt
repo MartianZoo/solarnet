@@ -204,58 +204,50 @@ sealed class Instruction : PetNode() {
 
     internal fun parser(): Parser<Instruction> {
       return parser {
-        val sat = ScalarAndType.parser()
+        val sat: Parser<ScalarAndType> = ScalarAndType.parser()
 
         val optlIntens = optional(intensity)
-        val gain = sat and optlIntens map { (sat, intens) -> Gain(sat, intens) }
-        val remove = skipChar('-') and gain map { Remove(it.sat, it.intensity) }
+        val gain: Parser<Gain> = sat and optlIntens map { (sat, intens) -> Gain(sat, intens) }
+        val remove: Parser<Remove> = skipChar('-') and gain map { Remove(it.sat, it.intensity) }
 
-        val transmute =
+        val transmute: Parser<Transmute> =
             optional(scalar) and
-                From.parser() and
-                optional(intensity) map
-                { (scal, fro, intens) ->
-                  Transmute(fro, scal, intens)
-                }
+            From.parser() and
+            optional(intensity) map { (scal, fro, intens) ->
+              Transmute(fro, scal, intens)
+            }
 
-        val perable = transmute or group(transmute) or gain or remove
+        val perable: Parser<Change> = transmute or group(transmute) or gain or remove
 
-        val maybePer =
+        val maybePer: Parser<Instruction> =
             perable and
-                optional(skipChar('/') and sat) map
-                { (instr, sat) ->
-                  if (sat == null) instr else Per(instr, sat)
-                }
+            optional(skipChar('/') and sat) map { (instr, sat) ->
+              if (sat == null) instr else Per(instr, sat)
+            }
 
-        val maybeTransform =
-            maybePer or
-            (transform(parser()) map { (node, transformName) ->
-              Transform(node, transformName)
-            })
+        val transform: Parser<Transform> = transform(parser()) map { (node, tname) -> Transform(node, tname) }
+        val maybeTransform: Parser<Instruction> = maybePer or transform
 
         val arguments = separatedTerms(typeExpr, char(','), acceptZero = true)
-        val custom =
+        val custom: Parser<Custom> =
             skipChar('@') and
-                _lowerCamelRE and
-                group(arguments) map
-                { (name, args) ->
-                  Custom(name.text, args)
-                }
-        val atom = group(parser()) or maybeTransform or custom
+            _lowerCamelRE and
+            group(arguments) map { (name, args) ->
+              Custom(name.text, args)
+            }
+        val atom: Parser<Instruction> = group(parser()) or maybeTransform or custom
 
-        val gated =
+        val gated: Parser<Instruction> =
             optional(Requirement.atomParser() and skipChar(':')) and
-                atom map
-                { (one, two) ->
-                  if (one == null) two else Gated(one, two)
-                }
+            atom map { (one, two) ->
+              if (one == null) two else Gated(one, two)
+            }
 
-        val orInstr =
-            separatedTerms(gated, _or) map
-                {
-                  val set = it.toSet()
-                  if (set.size == 1) set.first() else Or(set)
-                }
+        val orInstr: Parser<Instruction> =
+            separatedTerms(gated, _or) map {
+              val set = it.toSet()
+              if (set.size == 1) set.first() else Or(set)
+            }
 
         val then = separatedTerms(orInstr, _then) map { if (it.size == 1) it.first() else Then(it) }
         commaSeparated(then) map { if (it.size == 1) it.first() else Multi(it) }

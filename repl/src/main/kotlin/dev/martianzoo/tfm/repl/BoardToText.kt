@@ -14,8 +14,7 @@ internal class BoardToText(private val game: GameState) {
     val resMap = lookUpResourceLevels(game, player)
 
     fun prodAndRes(s: String) =
-        prodMap[cn(s)].toString().padStart(2) to
-            resMap[cn(s)].toString().padStart(3)
+        prodMap[cn(s)].toString().padStart(2) to resMap[cn(s)].toString().padStart(3)
 
     val (m, mr) = prodAndRes("Megacredit")
     val (s, sr) = prodAndRes("Steel")
@@ -25,13 +24,13 @@ internal class BoardToText(private val game: GameState) {
     val (h, hr) = prodAndRes("Heat")
 
     return listOf(
-          "+---------+---------+---------+",
-          "|  M: $mr |  S: $sr |  T: $tr |",
-          "| prod $m | prod $s | prod $t |",
-          "+---------+---------+---------+",
-          "|  P: $pr |  E: $er    H: $hr |",
-          "| prod $p | prod $e | prod $h |",
-          "+---------+---------+---------+",
+        "+---------+---------+---------+",
+        "|  M: $mr |  S: $sr |  T: $tr |",
+        "| prod $m | prod $s | prod $t |",
+        "+---------+---------+---------+",
+        "|  P: $pr |  E: $er    H: $hr |",
+        "| prod $p | prod $e | prod $h |",
+        "+---------+---------+---------+",
     )
   }
 

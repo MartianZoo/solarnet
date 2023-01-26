@@ -22,12 +22,11 @@ private class ClassDeclarationTest {
       ClassDeclaration(COMPONENT, supertypes = setOf(typeExpr("Foo<Bar>").asGeneric())).validate()
     }
     assertFails { ClassDeclaration(cn("NotComponent")).validate() }
-    assertFails {
-      val cd = ClassDeclaration(
-          cn("NotComponent"),
-          supertypes = setOf(COMPONENT.type, typeExpr("Baz<Qux>").asGeneric()))
-      cd.validate()
-    }
+
+    val cd = ClassDeclaration(
+        cn("NotComponent"),
+        supertypes = setOf(COMPONENT.type, typeExpr("Baz<Qux>").asGeneric()))
+    assertFails { cd.validate() }
   }
 
   @Test
@@ -42,7 +41,8 @@ private class ClassDeclarationTest {
             This: DoStuff
             Steel -> 5
           }
-        """.trimIndent()
+        """
+            .trimIndent()
 
     val decl: ClassDeclaration = Parsing.parseClassDeclarations(declText).single()
 

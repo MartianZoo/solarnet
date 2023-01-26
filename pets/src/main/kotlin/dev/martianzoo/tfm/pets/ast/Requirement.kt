@@ -42,8 +42,11 @@ sealed class Requirement : PetNode() {
   }
 
   data class Or(val requirements: Set<Requirement>) : Requirement() {
-    constructor(req1: Requirement, req2: Requirement, vararg rest: Requirement) :
-        this(setOf(req1) + req2 + rest)
+    constructor(
+        req1: Requirement,
+        req2: Requirement,
+        vararg rest: Requirement
+    ) : this(setOf(req1) + req2 + rest)
 
     init {
       require(requirements.size >= 2)
@@ -55,8 +58,11 @@ sealed class Requirement : PetNode() {
   }
 
   data class And(val requirements: List<Requirement>) : Requirement() {
-    constructor(req1: Requirement, req2: Requirement, vararg rest: Requirement) :
-        this(listOf(req1) + req2 + rest)
+    constructor(
+        req1: Requirement,
+        req2: Requirement,
+        vararg rest: Requirement
+    ) : this(listOf(req1) + req2 + rest)
 
     init {
       require(requirements.size >= 2)

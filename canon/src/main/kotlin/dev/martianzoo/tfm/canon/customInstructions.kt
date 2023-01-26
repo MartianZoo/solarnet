@@ -43,9 +43,9 @@ private object CopyProductionBox : CustomInstruction("copyProductionBox") {
       1 -> return matches.first()
       0 -> throw PetException("There is no immediate PROD box on $chosenCardName")
       else ->
-        throw PetException(
-            "The immediate instructions on $chosenCardName " +
-                "have multiple PROD boxes, which should never happen")
+          throw PetException(
+              "The immediate instructions on $chosenCardName " +
+                  "have multiple PROD boxes, which should never happen")
     }
   }
 }

@@ -41,8 +41,7 @@ interface PType : TypeInfo {
       override val dependencies: DependencyMap,
       override val refinement: Requirement?,
   ) : PType {
-    override val abstract: Boolean =
-        pclass.abstract || dependencies.abstract || refinement != null
+    override val abstract: Boolean = pclass.abstract || dependencies.abstract || refinement != null
 
     override fun isSubtypeOf(that: PType) =
         that is GenericPType &&

@@ -67,8 +67,8 @@ public object ClassDeclarationParsers : PetParser() {
     private val dependencies: Parser<List<DependencyDeclaration>> =
         optionalList(
             skipChar('<') and
-            commaSeparated(typeExpr map ::DependencyDeclaration) and
-            skipChar('>'))
+                commaSeparated(typeExpr map ::DependencyDeclaration) and
+                skipChar('>'))
 
     private val supertypeList: Parser<List<GenericTypeExpr>> =
         optionalList(skipChar(':') and commaSeparated(genericTypeExpr))
@@ -80,12 +80,13 @@ public object ClassDeclarationParsers : PetParser() {
      */
     val signature: Parser<Signature> =
         classFullName and
-        dependencies and
-        optional(refinement) and
-        // optional(skipChar('[') and parser { classShortName } and skipChar(']')) and
-        supertypeList map { (name, deps, ref, /*short,*/ supes) ->
-          Signature(name, deps, ref, /*short,*/ supes)
-        }
+            dependencies and
+            optional(refinement) and
+            // optional(skipChar('[') and parser { classShortName } and skipChar(']')) and
+            supertypeList map
+            { (name, deps, ref, /*short,*/ supes) ->
+              Signature(name, deps, ref, /*short,*/ supes)
+            }
 
     // This should only be included in the bodiless case
     val moreSignatures: Parser<MoreSignatures> =
@@ -97,19 +98,21 @@ public object ClassDeclarationParsers : PetParser() {
 
     private val gainOnlyDefaults: Parser<DefaultsDeclaration> =
         skipChar('+') and
-        genericTypeExpr and
-        intensity map { (typeExpr, int) ->
-          require(typeExpr.root == THIS)
-          require(typeExpr.refinement == null)
-          DefaultsDeclaration(gainOnlySpecs = typeExpr.args, gainIntensity = int)
-        }
+            genericTypeExpr and
+            intensity map
+            { (typeExpr, int) ->
+              require(typeExpr.root == THIS)
+              require(typeExpr.refinement == null)
+              DefaultsDeclaration(gainOnlySpecs = typeExpr.args, gainIntensity = int)
+            }
 
     private val allCasesDefault: Parser<DefaultsDeclaration> by lazy {
-      genericTypeExpr map {
-        require(it.root == THIS)
-        require(it.refinement == null)
-        DefaultsDeclaration(universalSpecs = it.args)
-      }
+      genericTypeExpr map
+          {
+            require(it.root == THIS)
+            require(it.refinement == null)
+            DefaultsDeclaration(universalSpecs = it.args)
+          }
     }
 
     private val default: Parser<DefaultsDeclaration> =
@@ -117,9 +120,9 @@ public object ClassDeclarationParsers : PetParser() {
 
     val bodyElementExceptNestedClasses: Parser<BodyElement> =
         (invariant map ::InvariantElement) or
-        (default map ::DefaultsElement) or
-        (Effect.parser() map ::EffectElement) or
-        (Action.parser() map ::ActionElement)
+            (default map ::DefaultsElement) or
+            (Effect.parser() map ::EffectElement) or
+            (Action.parser() map ::ActionElement)
   }
 
   internal object Declarations {
@@ -136,11 +139,12 @@ public object ClassDeclarationParsers : PetParser() {
 
     private val nestableGroup: Parser<NestableDeclGroup> =
         skip(nls) and
-        isAbstract and
-        signature and
-        (multilineBody or moreSignatures) map { (abs, sig, bodyOrSigs) ->
-          bodyOrSigs.convert(abs, sig)
-        }
+            isAbstract and
+            signature and
+            (multilineBody or moreSignatures) map
+            { (abs, sig, bodyOrSigs) ->
+              bodyOrSigs.convert(abs, sig)
+            }
 
     // a declaration group that can be nested, that in this case *IS* nested
     private val nestedGroup: Parser<NestedDeclGroup> = nestableGroup map ::NestedDeclGroup
@@ -152,16 +156,17 @@ public object ClassDeclarationParsers : PetParser() {
 
     private val oneLineBody: Parser<Body> =
         skipChar('{') and
-        separatedTerms(bodyElementExceptNestedClasses, char(';')) and
-        skipChar('}') map
-        ::Body
+            separatedTerms(bodyElementExceptNestedClasses, char(';')) and
+            skipChar('}') map
+            ::Body
 
     val oneLineDecl: Parser<ClassDeclaration> =
         isAbstract and
-        signature and
-        optional(oneLineBody) map { (abs, sig, body) ->
-          NestableDeclGroup(abs, sig, body ?: Body()).finishOnlyDecl()
-        }
+            signature and
+            optional(oneLineBody) map
+            { (abs, sig, body) ->
+              NestableDeclGroup(abs, sig, body ?: Body()).finishOnlyDecl()
+            }
   }
 
   /*
@@ -233,12 +238,13 @@ public object ClassDeclarationParsers : PetParser() {
 
     private companion object {
       private fun create(abstract: Boolean, signature: Signature, body: Body): List<NestableDecl> {
-        val newDecl = signature.asClassDecl.copy(
-            abstract = abstract,
-            otherInvariants = body.invariants.toSetStrict(),
-            effectsRaw = (body.effects + actionsToEffects(body.actions)).toSetStrict(),
-            defaultsDeclaration = DefaultsDeclaration.merge(body.defaultses),
-        )
+        val newDecl =
+            signature.asClassDecl.copy(
+                abstract = abstract,
+                otherInvariants = body.invariants.toSetStrict(),
+                effectsRaw = (body.effects + actionsToEffects(body.actions)).toSetStrict(),
+                defaultsDeclaration = DefaultsDeclaration.merge(body.defaultses),
+            )
         val unnested = body.nestedGroups.flatMap { it.unnestAllFrom(signature.asClassDecl.name) }
         return IncompleteNestableDecl(newDecl) plus unnested
       }

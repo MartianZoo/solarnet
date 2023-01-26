@@ -29,27 +29,28 @@ public class ComponentGraph(startingWith: Collection<Component> = listOf()) {
 
     // TODO deal with limits
 
-    val correctedCount: Int = if (amap) {
-      removing?.let { multiset.tryRemove(it, count) } ?: count
-    } else {
-      removing?.let { multiset.mustRemove(it, count) }
-      count
-    }
+    val correctedCount: Int =
+        if (amap) {
+          removing?.let { multiset.tryRemove(it, count) } ?: count
+        } else {
+          removing?.let { multiset.mustRemove(it, count) }
+          count
+        }
     gaining?.let { multiset.add(it, correctedCount) }
 
-    val change = StateChange(
-        count = correctedCount,
-        gaining = gaining?.asTypeExpr?.asGeneric(),
-        removing = removing?.asTypeExpr?.asGeneric(),
-        cause = cause,
-    )
+    val change =
+        StateChange(
+            count = correctedCount,
+            gaining = gaining?.asTypeExpr?.asGeneric(),
+            removing = removing?.asTypeExpr?.asGeneric(),
+            cause = cause,
+        )
     changeLog.add(change)
   }
 
   public fun count(ptype: PType) = getAll(ptype).size
 
-  public fun getAll(ptype: PType): Multiset<Component> =
-      multiset.filter { it.hasType(ptype) }
+  public fun getAll(ptype: PType): Multiset<Component> = multiset.filter { it.hasType(ptype) }
 
   public data class Component(val ptype: PType) {
     init {

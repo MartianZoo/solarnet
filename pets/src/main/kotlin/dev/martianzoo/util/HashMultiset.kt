@@ -6,7 +6,8 @@ import kotlin.math.min
 class HashMultiset<E> : MutableMultiset<E> {
   private val map = mutableMapOf<E, Int>()
 
-  override val size get() = map.values.sum()
+  override val size
+    get() = map.values.sum()
 
   override fun contains(element: E) = element in map
 
@@ -61,13 +62,13 @@ class HashMultiset<E> : MutableMultiset<E> {
 
   override fun remove(element: E) = tryRemove(element, 1) == 1
 
-  override fun mustRemove(element: E, occurrences: Int): Int/* new count */ {
+  override fun mustRemove(element: E, occurrences: Int): Int /* new count */ {
     val newCount = count(element) - occurrences
     setCount(element, newCount)
     return newCount
   }
 
-  override fun tryRemove(element: E, occurrences: Int): Int/* how many removed */ {
+  override fun tryRemove(element: E, occurrences: Int): Int /* how many removed */ {
     val count = count(element)
     val countToRemove = min(count, occurrences)
     mustRemove(element, countToRemove)

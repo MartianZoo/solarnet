@@ -64,15 +64,16 @@ fun <P : PetNode> P.replaceTypes(from: TypeExpr, to: TypeExpr): P {
 }
 
 internal fun <P : PetNode> replaceTypesIn(node: P, from: TypeExpr, to: TypeExpr) =
-    node.transform(object : PetTransformer() {
-      override fun <P : PetNode> doTransform(node: P): P =
-          if (node == from) {
-            @Suppress("UNCHECKED_CAST")
-            to as P
-          } else {
-            defaultTransform(node)
-          }
-    })
+    node.transform(
+        object : PetTransformer() {
+          override fun <P : PetNode> doTransform(node: P): P =
+              if (node == from) {
+                @Suppress("UNCHECKED_CAST")
+                to as P
+              } else {
+                defaultTransform(node)
+              }
+        })
 
 fun <P : PetNode> deprodify(node: P, producible: Set<ClassName>): P {
   val deprodifier =
@@ -88,14 +89,11 @@ fun <P : PetNode> deprodify(node: P, producible: Set<ClassName>): P {
                   inProd = true
                   x(node.extract()).also { inProd = false }
                 }
-
                 inProd && node is GenericTypeExpr && node.root in producible ->
-                  PRODUCTION.type.copy(args = node.args + ClassLiteral(node.root))
-
+                    PRODUCTION.type.copy(args = node.args + ClassLiteral(node.root))
                 else -> defaultTransform(node)
               }
-          @Suppress("UNCHECKED_CAST")
-          return rewritten as P
+          @Suppress("UNCHECKED_CAST") return rewritten as P
         }
       }
   return node.transform(deprodifier)

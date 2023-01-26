@@ -83,7 +83,8 @@ object LiveNodes {
     override fun execute(game: Game) = (instruction * (game.count(ptype) / unit)).execute(game)
   }
 
-  class Gated(private val gate: LiveRequirement, val instruction: LiveInstruction) : LiveInstruction() {
+  class Gated(private val gate: LiveRequirement, val instruction: LiveInstruction) :
+      LiveInstruction() {
     override fun times(factor: Int) = Gated(gate, instruction * factor)
     override fun execute(game: Game) =
         if (gate.isMet(game)) {
@@ -93,7 +94,8 @@ object LiveNodes {
         }
   }
 
-  class Custom(private val custom: CustomInstruction, private val arguments: List<PType>) : LiveInstruction() {
+  class Custom(private val custom: CustomInstruction, private val arguments: List<PType>) :
+      LiveInstruction() {
     override fun execute(game: Game) {
       try {
         val translated: Instruction =

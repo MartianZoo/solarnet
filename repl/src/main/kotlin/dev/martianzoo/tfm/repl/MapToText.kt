@@ -56,11 +56,12 @@ class MapToText(private val game: GameState) {
   private fun describe(tile: TypeExpr): String {
     val gentile = tile.asGeneric()
     val name = gentile.root.toString()
-    val kind = when { // TODO do this more by checking supertypes
-      name == "Tile008" -> "C"
-      name.startsWith("Tile") -> "S"
-      else -> name[0]
-    }
+    val kind =
+        when { // TODO do this more by checking supertypes
+          name == "Tile008" -> "C"
+          name.startsWith("Tile") -> "S"
+          else -> name[0]
+        }
     val player = gentile.args.toStrings().firstOrNull { it.startsWith("Player") }?.last() ?: ""
     return "[$kind$player]"
   }

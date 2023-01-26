@@ -182,10 +182,10 @@ private class CanonTest {
     assertThat(game.count(typeExpr("Class"))).isGreaterThan(300)
   }
 
-      // val game = Engine.newGame(GameSetup(Canon, config, 3))
-      // val tmm = MultimapBuilder.treeKeys(Comparator.reverseOrder<Int>())
-      //     .arrayListValues()
-      //     .build<Int, ClassName>()
-      // game.classTable.loadedClassNames().forEach { tmm.put(game.count(it.literal), it) }
-      // tmm.entries().take(30).forEach { println("${it.key} ${it.value}")}
+  // val game = Engine.newGame(GameSetup(Canon, config, 3))
+  // val tmm = MultimapBuilder.treeKeys(Comparator.reverseOrder<Int>())
+  //     .arrayListValues()
+  //     .build<Int, ClassName>()
+  // game.classTable.loadedClassNames().forEach { tmm.put(game.count(it.literal), it) }
+  // tmm.entries().take(30).forEach { println("${it.key} ${it.value}")}
 }

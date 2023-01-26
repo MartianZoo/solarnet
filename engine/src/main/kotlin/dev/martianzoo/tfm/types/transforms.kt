@@ -29,9 +29,8 @@ private class Defaulter(val table: PClassTable) : PetTransformer() {
                 }
             Gain(sat(node.sat.scalar, x(fixedType)), node.intensity ?: defaults.gainIntensity)
           }
-
-          THIS.type, ME.type -> node
-
+          THIS.type -> node
+          ME.type -> node
           is GenericTypeExpr -> {
             val pclass = table[node.root]
             val allCasesDependencies = pclass.defaults.allCasesDependencies
@@ -48,10 +47,8 @@ private class Defaulter(val table: PClassTable) : PetTransformer() {
               node.replaceArgs(newArgs.map(::x)) // recurse on refinement TODO
             }
           }
-
           else -> defaultTransform(node)
         }
-    @Suppress("UNCHECKED_CAST")
-    return transformed as P
+    @Suppress("UNCHECKED_CAST") return transformed as P
   }
 }

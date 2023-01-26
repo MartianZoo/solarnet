@@ -130,21 +130,11 @@ private class CardDefinitionTest {
 
   @Test
   fun badActiveCard() {
-    assertFails {
-      card.copy(projectKind = EVENT, effectsText = setOf("Foo: Bar"))
-    }
-    assertFails {
-      card.copy(projectKind = AUTOMATED, effectsText = setOf("Bar: Qux"))
-    }
-    assertFails {
-      card.copy(projectKind = EVENT, actionsText = listOf("Foo -> Bar"))
-    }
-    assertFails {
-      card.copy(projectKind = AUTOMATED, actionsText = listOf("Bar -> Qux"))
-    }
-    assertFails {
-      card.copy(projectKind = AUTOMATED, resourceTypeText = "Whatever")
-    }
+    assertFails { card.copy(projectKind = EVENT, effectsText = setOf("Foo: Bar")) }
+    assertFails { card.copy(projectKind = AUTOMATED, effectsText = setOf("Bar: Qux")) }
+    assertFails { card.copy(projectKind = EVENT, actionsText = listOf("Foo -> Bar")) }
+    assertFails { card.copy(projectKind = AUTOMATED, actionsText = listOf("Bar -> Qux")) }
+    assertFails { card.copy(projectKind = AUTOMATED, resourceTypeText = "Whatever") }
     assertFails { card.copy(projectKind = ACTIVE, immediateText = "Whatever") }
   }
 

@@ -106,27 +106,22 @@ data class Action(val cost: Cost?, val instruction: Instruction) : PetNode() {
       fun parser(): Parser<Cost> {
         return parser {
           val sat = ScalarAndType.parser()
-          val cost: Parser<Cost> = parser { parser() }
           val spend = sat map Cost::Spend
-
-          val maybeTransform =
-              spend or
-              (transform(cost) map { (node, transformName) ->
-                Transform(node, transformName)
-              })
+          val transform = transform(parser()) map { (node, tname) -> Transform(node, tname) }
+          val atomCost = spend or transform
 
           val perCost =
-              maybeTransform and
+              atomCost and
               optional(skipChar('/') and sat) map { (cost, sat) ->
                 if (sat == null) cost else Per(cost, sat)
               }
 
-          val orCost = separatedTerms(perCost or group(cost), _or) map {
+          val orCost = separatedTerms(perCost or group(parser()), _or) map {
             val set = it.toSet()
             if (set.size == 1) set.first() else Or(set)
           }
 
-          commaSeparated(orCost or group(cost)) map { if (it.size == 1) it.first() else Multi(it) }
+          commaSeparated(orCost or group(parser())) map { if (it.size == 1) it.first() else Multi(it) }
         }
       }
     }

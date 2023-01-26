@@ -43,8 +43,8 @@ internal object PetToKotlin {
               is ClassLiteral -> "${p2k(className)}.literal"
               is GenericTypeExpr -> {
                 p2k(root) +
-                    if (args.none()) ".type" else ".addArgs(${args.join()})" +
-                    refinement?.let(::p2k).wrap(".refine(", ")")
+                (if (args.none()) ".type" else ".addArgs(${args.join()})") +
+                refinement?.let(::p2k).wrap(".refine(", ")")
               }
             }
         is ScalarAndType -> {

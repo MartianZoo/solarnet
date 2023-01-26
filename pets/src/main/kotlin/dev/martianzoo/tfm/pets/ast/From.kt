@@ -66,24 +66,19 @@ sealed class From : PetNode() {
     internal fun parser(): Parser<From> {
       return parser {
         val typeAsFrom = typeExpr map ::TypeAsFrom
+        val simpleFrom =
+            typeExpr and skip(_from) and typeExpr map { (to, from) -> SimpleFrom(to, from) }
 
-        val arguments =
+        val argumentList =
             zeroOrMore(typeAsFrom and skipChar(',')) and
             parser() and
             zeroOrMore(skipChar(',') and typeAsFrom) map { (before, from, after) ->
               before + from + after
             }
-
-        val simpleFrom =
-            typeExpr and skip(_from) and typeExpr map { (to, from) ->
-              SimpleFrom(to, from)
-            }
-
+        val arguments = skipChar('<') and argumentList and skipChar('>')
         val complexFrom =
             className and
-            skipChar('<') and
             arguments and
-            skipChar('>') and
             optional(TypeParsers.refinement) map { (name, args, refins) ->
               ComplexFrom(name, args, refins)
             }
