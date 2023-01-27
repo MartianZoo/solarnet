@@ -1,7 +1,6 @@
 package dev.martianzoo.tfm.data
 
 import dev.martianzoo.tfm.pets.ast.TypeExpr
-import dev.martianzoo.tfm.pets.ast.TypeExpr.GenericTypeExpr
 import dev.martianzoo.util.pre
 
 // TODO consider if this belongs in pets.ast
@@ -13,13 +12,13 @@ data class StateChange(
     val count: Int = 1,
 
     /** The concrete component that was gained, or `null` if this was a remove. */
-    val gaining: GenericTypeExpr? = null,
+    val gaining: TypeExpr? = null,
 
     /**
      * The concrete component that was removed, or `null` if this was a gain. Can't be the same as
      * `gained` (e.g. both can't be null).
      */
-    val removing: GenericTypeExpr? = null,
+    val removing: TypeExpr? = null,
 
     /** Information about what caused this state change, if we have it. */
     val cause: Cause? = null,

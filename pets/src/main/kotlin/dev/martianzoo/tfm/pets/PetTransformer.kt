@@ -11,8 +11,6 @@ import dev.martianzoo.tfm.pets.ast.PetNode
 import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.pets.ast.ScalarAndType
 import dev.martianzoo.tfm.pets.ast.TypeExpr
-import dev.martianzoo.tfm.pets.ast.TypeExpr.ClassLiteral
-import dev.martianzoo.tfm.pets.ast.TypeExpr.GenericTypeExpr
 import dev.martianzoo.util.toSetStrict
 
 public abstract class PetTransformer {
@@ -31,11 +29,7 @@ public abstract class PetTransformer {
       val rewritten =
           when (this) {
             is ClassName -> this
-            is TypeExpr ->
-                when (this) {
-                  is ClassLiteral -> ClassLiteral(x(className), link)
-                  is GenericTypeExpr -> GenericTypeExpr(x(root), x(args), x(refinement), link)
-                }
+            is TypeExpr -> TypeExpr(x(root), x(args), x(refinement), link)
             is ScalarAndType -> ScalarAndType(scalar, x(typeExpr))
             is Requirement ->
                 when (this) {

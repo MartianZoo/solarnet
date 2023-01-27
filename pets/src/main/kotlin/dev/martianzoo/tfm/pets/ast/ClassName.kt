@@ -3,8 +3,7 @@ package dev.martianzoo.tfm.pets.ast
 import com.github.h0tk3y.betterParse.combinators.map
 import dev.martianzoo.tfm.pets.PetParser
 import dev.martianzoo.tfm.pets.PetVisitor
-import dev.martianzoo.tfm.pets.ast.TypeExpr.ClassLiteral
-import dev.martianzoo.tfm.pets.ast.TypeExpr.GenericTypeExpr
+import dev.martianzoo.tfm.pets.SpecialClassNames.CLASS
 
 data class ClassName(private val asString: String) : PetNode(), Comparable<ClassName> {
   companion object {
@@ -18,14 +17,8 @@ data class ClassName(private val asString: String) : PetNode(), Comparable<Class
     require(asString.matches(classNameRegex)) { "Bad class name: $asString" }
   }
 
-  val type: GenericTypeExpr // technically should be typeExpr
-    get() {
-      require(asString != "Class") // "Class<...>" is never a generic type
-      return GenericTypeExpr(this)
-    }
-
-  val literal: ClassLiteral
-    get() = ClassLiteral(this)
+  val type = TypeExpr(this)
+  val literal by lazy { TypeExpr(CLASS, listOf(type)) }
 
   fun addArgs(specs: List<TypeExpr>) = type.addArgs(specs)
   fun addArgs(vararg specs: TypeExpr) = addArgs(specs.toList())

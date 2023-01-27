@@ -18,14 +18,14 @@ private class PClassCanonTest {
   fun component() {
     val table = PClassLoader(Canon)
 
-    table.load(COMPONENT).apply {
+    table.get(COMPONENT).apply {
       assertThat(name).isEqualTo(COMPONENT)
       assertThat(abstract).isTrue()
       assertThat(directDependencyKeys).isEmpty()
       assertThat(allDependencyKeys).isEmpty()
       assertThat(directSuperclasses).isEmpty()
     }
-    assertThat(table.loadedClasses().size).isEqualTo(1)
+    assertThat(table.loadedClasses().size).isEqualTo(2)
 
     table.load(cn("OceanTile")).apply {
       assertThat(directDependencyKeys).isEmpty()
@@ -36,11 +36,11 @@ private class PClassCanonTest {
       assertThat(allSuperclasses.toStrings())
           .containsExactly("Component", "GlobalParameter", "Tile", "OceanTile")
           .inOrder()
-      assertThat(table.loadedClasses().size).isEqualTo(4)
+      assertThat(table.loadedClasses().size).isEqualTo(5)
 
       assertThat(baseType).isEqualTo(table.resolve("OceanTile<MarsArea>"))
     }
-    assertThat(table.loadedClasses().size).isEqualTo(6)
+    assertThat(table.loadedClasses().size).isEqualTo(7)
   }
 
   @Test

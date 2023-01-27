@@ -45,17 +45,17 @@ private class GameApiTest {
 
     assertThat(game.changeLog())
         .containsExactly(
-            StateChange(5, gaining = typeExpr("Heat<Player2>").asGeneric()),
-            StateChange(10, gaining = typeExpr("Heat<Player3>").asGeneric()),
-            StateChange(4, removing = typeExpr("Heat<Player2>").asGeneric()),
+            StateChange(5, gaining = typeExpr("Heat<Player2>")),
+            StateChange(10, gaining = typeExpr("Heat<Player3>")),
+            StateChange(4, removing = typeExpr("Heat<Player2>")),
             StateChange(
                 3,
-                removing = typeExpr("Heat<Player3>").asGeneric(),
-                gaining = typeExpr("Steel<Player3>").asGeneric()),
+                removing = typeExpr("Heat<Player3>"),
+                gaining = typeExpr("Steel<Player3>")),
             StateChange(
                 2,
-                removing = typeExpr("Heat<Player3>").asGeneric(),
-                gaining = typeExpr("Heat<Player2>").asGeneric()),
+                removing = typeExpr("Heat<Player3>"),
+                gaining = typeExpr("Heat<Player2>")),
         )
         .inOrder()
 

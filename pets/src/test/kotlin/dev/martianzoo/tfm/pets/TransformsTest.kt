@@ -14,8 +14,8 @@ import dev.martianzoo.tfm.pets.ast.Instruction.Companion.instruction
 import dev.martianzoo.tfm.pets.ast.Instruction.Gain
 import dev.martianzoo.tfm.pets.ast.PetNode
 import dev.martianzoo.tfm.pets.ast.ScalarAndType.Companion.sat
+import dev.martianzoo.tfm.pets.ast.TypeExpr
 import dev.martianzoo.tfm.pets.ast.TypeExpr.Companion.typeExpr
-import dev.martianzoo.tfm.pets.ast.TypeExpr.GenericTypeExpr
 import dev.martianzoo.util.toStrings
 import kotlin.reflect.KClass
 import org.junit.jupiter.api.Test
@@ -79,7 +79,7 @@ private class TransformsTest {
     val petsOut =
         "-Ooh<Foo<Xyz, It<Worked>, Qux>>: " +
             "5 Qux<Ooh, Xyz, Bar> OR 5 It<Worked>?, =0 It<Worked>: -Bar, 5: Foo<It<Worked>>"
-    checkResolveThis<Effect>(petsIn, typeExpr("It<Worked>").asGeneric(), petsOut)
+    checkResolveThis<Effect>(petsIn, typeExpr("It<Worked>"), petsOut)
 
     // allows nonsense
     checkResolveThis<Instruction>("This<Foo>", cn("Bar").type, "This<Foo>")
@@ -87,7 +87,7 @@ private class TransformsTest {
 
   private inline fun <reified P : PetNode> checkResolveThis(
       original: String,
-      thiss: GenericTypeExpr,
+      thiss: TypeExpr,
       expected: String,
   ) {
     checkResolveThis(P::class, original, thiss, expected)
@@ -96,7 +96,7 @@ private class TransformsTest {
   private fun <P : PetNode> checkResolveThis(
       type: KClass<P>,
       original: String,
-      thiss: GenericTypeExpr,
+      thiss: TypeExpr,
       expected: String,
   ) {
     val parsedOriginal = parsePets(type, original)

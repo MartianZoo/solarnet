@@ -3,6 +3,7 @@ package dev.martianzoo.tfm.types
 import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.tfm.api.Authority
 import dev.martianzoo.tfm.pets.Parsing.parseClassDeclarations
+import dev.martianzoo.tfm.pets.SpecialClassNames.CLASS
 import dev.martianzoo.tfm.pets.SpecialClassNames.COMPONENT
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.types.Dependency.Key
@@ -208,6 +209,6 @@ private fun assertFails(message: String, shouldFail: () -> Unit) =
     assertThrows<RuntimeException>(message, shouldFail)
 
 // TODO move to shared utils (already being used from PTypeTest)
-internal fun loadTypes(vararg decl: String): PClassTable {
-  return loader("ABSTRACT CLASS $COMPONENT\n" + decl.joinToString("") { "$it\n" })
-}
+internal fun loadTypes(vararg decl: String) =
+    loader("ABSTRACT CLASS $COMPONENT\nCLASS $CLASS<$COMPONENT>\n" +
+        decl.joinToString("") { "$it\n" })

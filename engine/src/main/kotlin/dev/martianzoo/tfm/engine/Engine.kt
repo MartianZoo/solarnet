@@ -5,8 +5,6 @@ import dev.martianzoo.tfm.data.MarsMapDefinition
 import dev.martianzoo.tfm.pets.SpecialClassNames.PRODUCTION
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.types.PClassLoader
-import dev.martianzoo.tfm.types.PType.ClassClass
-import dev.martianzoo.tfm.types.PType.ClassPType
 import dev.martianzoo.util.filterNoNulls
 
 public object Engine {
@@ -28,7 +26,7 @@ public object Engine {
     loader.freeze()
 
     val prebuilt =
-        classLiterals(loader) + // TODO make them just singletons too!?
+        classInstances(loader) + // TODO make them just singletons too!?
         singletons(loader) +
         borders(setup.map, loader) // TODO
 
@@ -37,9 +35,9 @@ public object Engine {
 
   // TODO maybe the loader should report these
 
-  private fun classLiterals(loader: PClassLoader): List<Component> {
-    val normalClassTypes = loader.loadedClasses().filter { !it.abstract }.map(::ClassPType)
-    return (normalClassTypes + ClassClass).map(::Component)
+  private fun classInstances(loader: PClassLoader): List<Component> {
+    val concretes = loader.loadedClasses().filter { !it.abstract }
+    return concretes.map { Component(loader.resolve(it.name.literal)) }
   }
 
   private fun singletons(loader: PClassLoader) =

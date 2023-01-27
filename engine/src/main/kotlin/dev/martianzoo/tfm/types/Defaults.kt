@@ -3,8 +3,10 @@ package dev.martianzoo.tfm.types
 import dev.martianzoo.tfm.data.ClassDeclaration.DefaultsDeclaration
 import dev.martianzoo.tfm.pets.ast.Instruction.Intensity
 import dev.martianzoo.tfm.pets.ast.TypeExpr
+import dev.martianzoo.tfm.types.Dependency.TypeDependency
 
 internal class Defaults(
+    // These DMs will always contain TypeDependencies
     val allCasesDependencies: DependencyMap = DependencyMap(),
     val gainOnlyDependencies: DependencyMap = DependencyMap(),
     val gainIntensity: Intensity? = null,
@@ -15,7 +17,7 @@ internal class Defaults(
 
   companion object {
     fun from(d: DefaultsDeclaration, pclass: PClass, loader: PClassLoader): Defaults {
-      fun PClass.toDependencyMap(specs: List<TypeExpr>?) =
+      fun PClass.toDependencyMap(specs: List<TypeExpr>?): DependencyMap =
           specs?.let { loader.resolve(name.addArgs(it)).dependencies } ?: DependencyMap()
 
       return Defaults(
@@ -54,13 +56,14 @@ internal class Defaults(
       defaultses: List<Defaults>,
       extract: (Defaults) -> DependencyMap,
   ): DependencyMap {
-    val defMap = mutableMapOf<Dependency.Key, Dependency>()
-    extract(this).keys.associateWithTo(defMap) { extract(this)[it]!! }
+    val defMap = mutableMapOf<Dependency.Key, TypeDependency>()
+    extract(this).keys.associateWithTo(defMap) { extract(this)[it]!! as TypeDependency }
     for (key in defaultses.flatMap { extract(it).keys }.toSet()) {
       if (key !in defMap) {
         // TODO some orders might work when others don't
         val depMapsWithThisKey = defaultses.map(extract).filter { key in it }
-        defMap[key] = depMapsWithThisKey.map { it[key]!! }.reduce { a, b -> a.intersect(b)!! }
+        defMap[key] = depMapsWithThisKey.map { it[key]!! as TypeDependency }
+            .reduce { a, b -> a.intersect(b)!! }
       }
     }
     return DependencyMap(defMap)

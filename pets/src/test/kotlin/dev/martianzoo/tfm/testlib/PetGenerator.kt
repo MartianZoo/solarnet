@@ -20,8 +20,6 @@ import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.pets.ast.ScalarAndType
 import dev.martianzoo.tfm.pets.ast.ScalarAndType.Companion.sat
 import dev.martianzoo.tfm.pets.ast.TypeExpr
-import dev.martianzoo.tfm.pets.ast.TypeExpr.ClassLiteral
-import dev.martianzoo.tfm.pets.ast.TypeExpr.GenericTypeExpr
 import dev.martianzoo.tfm.pets.countNodesInTree
 import dev.martianzoo.tfm.testlib.PetToKotlin.p2k
 import dev.martianzoo.util.HashMultiset
@@ -41,16 +39,12 @@ internal class PetGenerator(scaling: (Int) -> Double) :
     init {
       val specSizes = multiset(8 to 0, 4 to 1, 2 to 2, 1 to 3) // weight to value
       register { cn(randomName()) }
-      register { ClassLiteral(recurse(), choose(10 to null, 2 to 1, 1 to 2)) }
-      register {
-        GenericTypeExpr(
+      register<TypeExpr> {
+        TypeExpr(
             recurse(),
             listOfSize(choose(specSizes)),
             refinement(),
             null) // TODO choose(10 to null, 2 to 1, 1 to 2))
-      }
-      register {
-        choose(5 to recurse<GenericTypeExpr>(), 0 to recurse<ClassLiteral>()) // TODO
       }
       register { sat(choose(0, 1, 1, 1, 5, 11), choose(1 to MEGACREDIT.type, 3 to recurse())) }
 
@@ -99,11 +93,11 @@ internal class PetGenerator(scaling: (Int) -> Double) :
       register { Instruction.Transform(recurse(), "PROD") }
 
       register(From::class) {
-        val one: GenericTypeExpr = recurse()
-        val two: GenericTypeExpr = recurse()
+        val one: TypeExpr = recurse()
+        val two: TypeExpr = recurse()
 
-        fun getTypes(typeExpr: GenericTypeExpr): List<GenericTypeExpr> =
-            typeExpr.args.flatMap { getTypes(it.asGeneric()) } + typeExpr
+        fun getTypes(typeExpr: TypeExpr): List<TypeExpr> =
+            typeExpr.args.flatMap(::getTypes) + typeExpr
 
         val oneTypes = getTypes(one)
         val twoTypes = getTypes(two)
@@ -124,11 +118,11 @@ internal class PetGenerator(scaling: (Int) -> Double) :
 
         val b = Random.Default.nextBoolean()
 
-        fun convert(typeExpr: GenericTypeExpr): From {
+        fun convert(typeExpr: TypeExpr): From {
           if (typeExpr == target) {
             return SimpleFrom(if (b) inject else target, if (b) target else inject)
           }
-          val args = typeExpr.args.map { convert(it.asGeneric()) }
+          val args = typeExpr.args.map(::convert)
           return if (args.all { it is TypeAsFrom }) {
             TypeAsFrom(typeExpr)
           } else {

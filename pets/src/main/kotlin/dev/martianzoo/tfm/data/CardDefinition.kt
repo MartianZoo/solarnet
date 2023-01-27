@@ -24,7 +24,7 @@ import dev.martianzoo.tfm.pets.ast.Instruction.Companion.instruction
 import dev.martianzoo.tfm.pets.ast.PetNode
 import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.pets.ast.Requirement.Companion.requirement
-import dev.martianzoo.tfm.pets.ast.TypeExpr.GenericTypeExpr
+import dev.martianzoo.tfm.pets.ast.TypeExpr
 import dev.martianzoo.tfm.pets.immediateToEffect
 import dev.martianzoo.util.toSetStrict
 
@@ -175,7 +175,7 @@ data class CardDefinition(
   }
 
   override val asClassDeclaration by lazy {
-    val supertypes = mutableSetOf<GenericTypeExpr>()
+    val supertypes = mutableSetOf<TypeExpr>()
 
     projectKind?.let { supertypes += it.className.type }
     if (actionsRaw.any()) supertypes += ACTION_CARD.type

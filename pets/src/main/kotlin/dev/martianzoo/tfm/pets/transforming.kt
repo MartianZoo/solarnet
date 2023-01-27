@@ -18,8 +18,6 @@ import dev.martianzoo.tfm.pets.ast.Instruction.Transmute
 import dev.martianzoo.tfm.pets.ast.PetNode
 import dev.martianzoo.tfm.pets.ast.PetNode.GenericTransform
 import dev.martianzoo.tfm.pets.ast.TypeExpr
-import dev.martianzoo.tfm.pets.ast.TypeExpr.ClassLiteral
-import dev.martianzoo.tfm.pets.ast.TypeExpr.GenericTypeExpr
 
 internal fun actionToEffect(action: Action, index1Ref: Int): Effect {
   require(index1Ref >= 1) { index1Ref }
@@ -54,10 +52,8 @@ internal fun immediateToEffect(instruction: Instruction): Effect {
   return Effect(OnGain(THIS.type), instruction, automatic = false)
 }
 
-fun <P : PetNode> replaceThis(node: P, resolveTo: GenericTypeExpr) =
-    node
-        .replaceTypes(THIS.type, resolveTo)
-        .replaceTypes(ClassLiteral(THIS), ClassLiteral(resolveTo.root))
+fun <P : PetNode> replaceThis(node: P, resolveTo: TypeExpr) =
+    node.replaceTypes(THIS.type, resolveTo) // TODO liteals
 
 fun <P : PetNode> P.replaceTypes(from: TypeExpr, to: TypeExpr): P {
   return replaceTypesIn(this, from, to)
@@ -89,8 +85,8 @@ fun <P : PetNode> deprodify(node: P, producible: Set<ClassName>): P {
                   inProd = true
                   x(node.extract()).also { inProd = false }
                 }
-                inProd && node is GenericTypeExpr && node.root in producible ->
-                    PRODUCTION.type.copy(args = node.args + ClassLiteral(node.root))
+                inProd && node is TypeExpr && node.root in producible ->
+                    PRODUCTION.type.copy(args = node.args + node.root.literal)
                 else -> defaultTransform(node)
               }
           @Suppress("UNCHECKED_CAST") return rewritten as P

@@ -7,7 +7,6 @@ import dev.martianzoo.tfm.pets.ast.Instruction.Intensity
 import dev.martianzoo.tfm.pets.ast.PetNode
 import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.pets.ast.TypeExpr
-import dev.martianzoo.tfm.pets.ast.TypeExpr.GenericTypeExpr
 
 /**
  * The declaration of a component class, such as GreeneryTile. Models the declaration textually as
@@ -18,7 +17,7 @@ data class ClassDeclaration(
     val id: ClassName = name,
     val abstract: Boolean = true,
     val dependencies: List<DependencyDeclaration> = listOf(),
-    val supertypes: Set<GenericTypeExpr> = setOf(),
+    val supertypes: Set<TypeExpr> = setOf(),
     val topInvariant: Requirement? = null,
     val otherInvariants: Set<Requirement> = setOf(),
     val effectsRaw: Set<Effect> = setOf(),

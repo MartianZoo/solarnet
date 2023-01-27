@@ -31,8 +31,7 @@ import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.ClassName.Parsing.classFullName
 import dev.martianzoo.tfm.pets.ast.Effect
 import dev.martianzoo.tfm.pets.ast.Requirement
-import dev.martianzoo.tfm.pets.ast.TypeExpr.GenericTypeExpr
-import dev.martianzoo.tfm.pets.ast.TypeExpr.TypeParsers.genericTypeExpr
+import dev.martianzoo.tfm.pets.ast.TypeExpr
 import dev.martianzoo.tfm.pets.ast.TypeExpr.TypeParsers.refinement
 import dev.martianzoo.tfm.pets.ast.TypeExpr.TypeParsers.typeExpr
 import dev.martianzoo.util.KClassMultimap
@@ -70,8 +69,8 @@ public object ClassDeclarationParsers : PetParser() {
                 commaSeparated(typeExpr map ::DependencyDeclaration) and
                 skipChar('>'))
 
-    private val supertypeList: Parser<List<GenericTypeExpr>> =
-        optionalList(skipChar(':') and commaSeparated(genericTypeExpr))
+    private val supertypeList: Parser<List<TypeExpr>> =
+        optionalList(skipChar(':') and commaSeparated(typeExpr))
 
     /*
      * TODO I want to support letting classes declare a shortName as well, like
@@ -98,7 +97,7 @@ public object ClassDeclarationParsers : PetParser() {
 
     private val gainOnlyDefaults: Parser<DefaultsDeclaration> =
         skipChar('+') and
-            genericTypeExpr and
+            typeExpr and
             intensity map
             { (typeExpr, int) ->
               require(typeExpr.root == THIS)
@@ -107,7 +106,7 @@ public object ClassDeclarationParsers : PetParser() {
             }
 
     private val allCasesDefault: Parser<DefaultsDeclaration> by lazy {
-      genericTypeExpr map
+      typeExpr map
           {
             require(it.root == THIS)
             require(it.refinement == null)
@@ -178,7 +177,7 @@ public object ClassDeclarationParsers : PetParser() {
         className: ClassName,
         dependencies: List<DependencyDeclaration>,
         topInvariant: Requirement?,
-        supertypes: List<GenericTypeExpr>,
+        supertypes: List<TypeExpr>,
     ) : this(
         ClassDeclaration(
             name = className,

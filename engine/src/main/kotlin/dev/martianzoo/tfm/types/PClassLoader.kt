@@ -3,48 +3,57 @@ package dev.martianzoo.tfm.types
 import dev.martianzoo.tfm.api.Authority
 import dev.martianzoo.tfm.data.ClassDeclaration
 import dev.martianzoo.tfm.pets.SpecialClassNames.CLASS
+import dev.martianzoo.tfm.pets.SpecialClassNames.COMPONENT
 import dev.martianzoo.tfm.pets.SpecialClassNames.ME
 import dev.martianzoo.tfm.pets.SpecialClassNames.STANDARD_RESOURCE
 import dev.martianzoo.tfm.pets.SpecialClassNames.THIS
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.pets.ast.TypeExpr
-import dev.martianzoo.tfm.pets.ast.TypeExpr.ClassLiteral
-import dev.martianzoo.tfm.pets.ast.TypeExpr.GenericTypeExpr
 import dev.martianzoo.tfm.pets.childNodesOfType
-import dev.martianzoo.tfm.types.PType.ClassClass
-import dev.martianzoo.tfm.types.PType.ClassPType
-import dev.martianzoo.tfm.types.PType.GenericPType
+import dev.martianzoo.tfm.types.Dependency.ClassDependency
+import dev.martianzoo.tfm.types.Dependency.Key
 import dev.martianzoo.util.toSetStrict
 
 // TODO restrict viz?
 class PClassLoader(private val authority: Authority) : PClassTable {
   private val table = mutableMapOf<ClassName, PClass?>()
 
+  // TODO maybe special-case less
+  init {
+    val decl1 = authority.classDeclaration(COMPONENT)
+    val cpt = PClass(decl1, listOf(), this)
+    table[COMPONENT] = cpt
+    val decl = authority.classDeclaration(CLASS)
+    table[CLASS] = PClass(decl, listOf(cpt), this)
+  }
+
   // MAIN QUERIES
 
   override fun get(nameOrId: ClassName): PClass =
       table[nameOrId] ?: error("no class loaded with id or name $nameOrId")
 
-  override fun resolve(typeExpr: TypeExpr): PType =
-      when (typeExpr) {
-        is GenericTypeExpr -> resolve(typeExpr)
-        is ClassLiteral ->
-            if (typeExpr.className == CLASS) {
-              ClassClass
-            } else {
-              ClassPType(load(typeExpr.className))
-            }
+  override fun resolve(typeExpr: TypeExpr): PType {
+    val pclass = load(typeExpr.root)
+    if (pclass.name == CLASS) {
+      val className: ClassName = if (typeExpr.args.isEmpty()) {
+        COMPONENT
+      } else {
+        typeExpr.args.single().also { require(it.isTypeOnly) }.root
       }
 
-  override fun resolve(typeExpr: GenericTypeExpr): GenericPType =
-      load(typeExpr.root).baseType.specialize(typeExpr.args.map { resolve(it) })
+      val key = Key(pclass, 0)
+      val map: Map<Key, ClassDependency> = mapOf(key to ClassDependency(key, this[className]))
+      return PType(pclass, DependencyMap(map))
+    } else {
+      return pclass.specialize(typeExpr.args.map { resolve(it) })
+    }
+  }
 
-  fun resolveAll(exprs: Set<GenericTypeExpr>): Set<GenericPType> =
-      exprs.map { resolve(it) }.toSetStrict()
+  fun resolveAll(exprs: Set<TypeExpr>): Set<PType> = exprs.map { resolve(it) }.toSetStrict()
 
-  override fun loadedClassNames() = (loadedClasses().map { it.name } + CLASS).toSetStrict()
-  fun loadedClassIds() = (loadedClasses().map { it.id } + CLASS).toSetStrict()
+  override fun loadedClassNames() = loadedClasses().map { it.name }.toSetStrict()
+  fun loadedClassIds() = loadedClasses().map { it.id }.toSetStrict()
   override fun loadedClasses(): Set<PClass> = table.values.filterNotNull().toSet()
 
   // LOADING

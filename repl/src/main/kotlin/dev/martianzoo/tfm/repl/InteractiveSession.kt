@@ -14,7 +14,6 @@ import dev.martianzoo.tfm.pets.ast.Instruction
 import dev.martianzoo.tfm.pets.ast.PetNode
 import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.pets.ast.TypeExpr
-import dev.martianzoo.tfm.pets.ast.TypeExpr.GenericTypeExpr
 import dev.martianzoo.tfm.pets.deprodify
 import dev.martianzoo.tfm.types.PClassLoader
 import dev.martianzoo.tfm.types.PType
@@ -81,7 +80,7 @@ class InteractiveSession {
     val fixer =
         object : PetTransformer() {
           override fun <P : PetNode> doTransform(node: P): P {
-            if (node is GenericTypeExpr) {
+            if (node is TypeExpr) {
               if (g.resolve(node).isSubtypeOf(owned)) {
                 val hasPlayer = node.args.any { g.resolve(it).isSubtypeOf(player) }
                 if (!hasPlayer) {

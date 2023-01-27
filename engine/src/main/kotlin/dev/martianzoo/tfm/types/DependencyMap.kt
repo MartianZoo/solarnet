@@ -1,5 +1,6 @@
 package dev.martianzoo.tfm.types
 
+import dev.martianzoo.tfm.types.Dependency.TypeDependency
 import dev.martianzoo.util.mergeMaps
 import dev.martianzoo.util.overlayMaps
 
@@ -51,6 +52,7 @@ public data class DependencyMap(private val map: Map<Dependency.Key, Dependency>
     val unhandled = specs.toMutableList()
 
     for ((key, dependency) in map) {
+      dependency as TypeDependency
       if (unhandled.isEmpty()) break
       val intersect: PType? = dependency.ptype.intersect(unhandled.first())
       newMap[key] =

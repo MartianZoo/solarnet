@@ -4,7 +4,9 @@ import dev.martianzoo.tfm.data.ClassDeclaration
 import dev.martianzoo.tfm.pets.SpecialClassNames.CLASS
 import dev.martianzoo.tfm.pets.SpecialClassNames.COMPONENT
 import dev.martianzoo.tfm.pets.ast.ClassName
-import dev.martianzoo.tfm.types.PType.GenericPType
+import dev.martianzoo.tfm.types.Dependency.ClassDependency
+import dev.martianzoo.tfm.types.Dependency.Key
+import dev.martianzoo.tfm.types.Dependency.TypeDependency
 
 /** A class that has been loaded by a [PClassLoader]. */
 public data class PClass(
@@ -17,13 +19,9 @@ public data class PClass(
   public val name: ClassName by declaration::name
   public val abstract: Boolean by declaration::abstract
 
-  init {
-    require(name != CLASS)
-  }
-
   // HIERARCHY
 
-  public val directSupertypes: Set<GenericPType> by lazy {
+  public val directSupertypes: Set<PType> by lazy {
     loader.resolveAll(declaration.supertypes)
   }
 
@@ -83,16 +81,23 @@ public data class PClass(
   }
 
   /** Least upper bound of all types with pclass==this */
-  public val baseType: GenericPType by lazy {
+  public val baseType: PType by lazy {
+    if (name == CLASS) {
+      // This is the Class class. Its only dep is a ClassDependency to Component.
+      // TODO maybe special-case less
+      val key = directDependencyKeys.first()
+      val map: Map<Key, ClassDependency> = mapOf(key to ClassDependency(key, loader[COMPONENT]))
+      return@lazy PType(this, DependencyMap(map))
+    }
     val newDeps =
         directDependencyKeys.associateWith {
           val depTypeExpr = declaration.dependencies[it.index].typeExpr
-          Dependency(it, loader.resolve(depTypeExpr))
+          TypeDependency(it, loader.resolve(depTypeExpr))
         }
     val deps = DependencyMap.intersect(directSupertypes.map { it.dependencies })
     val allDeps = deps.intersect(DependencyMap(newDeps))
     require(allDeps.keys == allDependencyKeys)
-    GenericPType(this, allDeps, null)
+    PType(this, allDeps, null)
   }
 
   // DEFAULTS
@@ -122,4 +127,8 @@ public data class PClass(
           directSuperclasses.any { it.isSingleton() }
 
   override fun toString() = "$name"
+
+  fun specialize(map: List<PType>): PType {
+    return baseType.specialize(map)
+  }
 }

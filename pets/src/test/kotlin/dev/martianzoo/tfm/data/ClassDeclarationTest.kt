@@ -19,13 +19,13 @@ private class ClassDeclarationTest {
   @Test
   fun testValidate() {
     assertFails {
-      ClassDeclaration(COMPONENT, supertypes = setOf(typeExpr("Foo<Bar>").asGeneric())).validate()
+      ClassDeclaration(COMPONENT, supertypes = setOf(typeExpr("Foo<Bar>"))).validate()
     }
     assertFails { ClassDeclaration(cn("NotComponent")).validate() }
 
     val cd = ClassDeclaration(
         cn("NotComponent"),
-        supertypes = setOf(COMPONENT.type, typeExpr("Baz<Qux>").asGeneric()))
+        supertypes = setOf(COMPONENT.type, typeExpr("Baz<Qux>")))
     assertFails { cd.validate() }
   }
 

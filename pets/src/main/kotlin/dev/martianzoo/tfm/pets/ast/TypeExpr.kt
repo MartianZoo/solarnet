@@ -10,7 +10,6 @@ import dev.martianzoo.tfm.pets.Parsing
 import dev.martianzoo.tfm.pets.PetParser
 import dev.martianzoo.tfm.pets.PetVisitor
 import dev.martianzoo.tfm.pets.SpecialClassNames.CLASS
-import dev.martianzoo.tfm.pets.SpecialClassNames.COMPONENT
 import dev.martianzoo.tfm.pets.ast.ClassName.Parsing.className
 import dev.martianzoo.util.joinOrEmpty
 import dev.martianzoo.util.pre
@@ -21,56 +20,47 @@ import dev.martianzoo.util.wrap
  * a *refined* type (`Foo<Bar(HAS 3 Qux)>(HAS Wau)`). A refined type is the combination of a real
  * type with various predicates.
  */
-sealed class TypeExpr : PetNode() {
-  abstract val link: Int?
-
+data class TypeExpr(
+    val root: ClassName,
+    val args: List<TypeExpr> = listOf(),
+    val refinement: Requirement? = null,
+    val link: Int? = null,
+) : PetNode() {
   companion object {
     fun typeExpr(text: String): TypeExpr = Parsing.parse(TypeParsers.typeExpr, text)
   }
 
-  abstract fun asGeneric(): GenericTypeExpr
+  override fun visitChildren(v: PetVisitor) = v.visit(args + root + refinement)
 
-  data class GenericTypeExpr(
-      val root: ClassName,
-      val args: List<TypeExpr> = listOf(),
-      val refinement: Requirement? = null,
-      override val link: Int? = null,
-  ) : TypeExpr() {
-    override fun visitChildren(v: PetVisitor) = v.visit(args + root + refinement)
+  override fun toString() =
+      "$root" +
+      args.joinOrEmpty(wrap = "<>") +
+      refinement.wrap("(HAS ", ")") +
+      link.pre("^")
 
-    override fun toString() =
-        "$root" +
-        args.joinOrEmpty(wrap = "<>") +
-        refinement.wrap("(HAS ", ")") +
-        link.pre("^")
-
-    init {
-      require(root != CLASS) // Class<...> can never be a generic type
+  init {
+    if (root == CLASS) {
+      require(link == null)
+      when (args.size) {
+        0 -> {}
+        1 -> require(args.first().isTypeOnly)
+        else -> error("")
+      }
     }
-
-    override fun asGeneric() = this
-
-    val isTypeOnly = args.isEmpty() && refinement == null
-
-    fun addArgs(moreArgs: List<TypeExpr>) = copy(args = args + moreArgs)
-    fun replaceArgs(args: List<TypeExpr>) = copy(args = args)
-
-    fun refine(ref: Requirement?) =
-        if (ref == null) {
-          this
-        } else {
-          require(this.refinement == null)
-          copy(refinement = ref)
-        }
   }
 
-  data class ClassLiteral(val className: ClassName, override val link: Int? = null) : TypeExpr() {
-    override fun visitChildren(v: PetVisitor) = v.visit(className)
-    override fun toString() = "Class<$className${link.pre("^")}>"
+  val isTypeOnly = args.isEmpty() && refinement == null && link == null
 
-    override fun asGeneric() =
-        error("Bzzt, this is not a generic type expression, it's a class literal")
-  }
+  fun addArgs(moreArgs: List<TypeExpr>) = copy(args = args + moreArgs)
+  fun replaceArgs(args: List<TypeExpr>) = copy(args = args)
+
+  fun refine(ref: Requirement?) =
+      if (ref == null) {
+        this
+      } else {
+        require(this.refinement == null)
+        copy(refinement = ref)
+      }
 
   override val kind = "TypeExpr"
 
@@ -86,33 +76,10 @@ sealed class TypeExpr : PetNode() {
 
     val typeExpr: Parser<TypeExpr> =
         className and
-            optionalList(typeArgs) and
-            optional(refinement) and
-            optional(link) map
-            { (clazz, args, ref, link) ->
-              convert(clazz, args, ref, link)
-            }
-
-    val genericTypeExpr: Parser<GenericTypeExpr> = typeExpr map { it as GenericTypeExpr }
-
-    // TODO this NASSSTY
-    private fun convert(
-        rootName: ClassName,
-        arguments: List<TypeExpr>,
-        refinement: Requirement?,
-        link: Int?
-    ): TypeExpr {
-      if (rootName != CLASS) return GenericTypeExpr(rootName, arguments, refinement, link)
-
-      require(refinement == null && link == null)
-      if (arguments.isEmpty()) return COMPONENT.literal // `Class`
-
-      val oneArg = arguments.single()
-      if (oneArg == COMPONENT.literal) return CLASS.literal // `Class<Class>`
-
-      val generic = oneArg.asGeneric() // `Class<SomethingElse>`
-      require(generic.isTypeOnly)
-      return ClassLiteral(generic.root, generic.link)
-    }
+        optionalList(typeArgs) and
+        optional(refinement) and
+        optional(link) map { (clazz, args, ref, link) ->
+          TypeExpr(clazz, args, ref, link)
+        }
   }
 }

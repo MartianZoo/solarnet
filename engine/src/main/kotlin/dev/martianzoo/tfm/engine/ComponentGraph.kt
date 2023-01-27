@@ -41,8 +41,8 @@ public class ComponentGraph(startingWith: Collection<Component> = listOf()) {
     val change =
         StateChange(
             count = correctedCount,
-            gaining = gaining?.asTypeExpr?.asGeneric(),
-            removing = removing?.asTypeExpr?.asGeneric(),
+            gaining = gaining?.asTypeExpr,
+            removing = removing?.asTypeExpr,
             cause = cause,
         )
     changeLog.add(change)

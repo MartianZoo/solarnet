@@ -20,8 +20,6 @@ import dev.martianzoo.tfm.pets.ast.PetNode
 import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.pets.ast.ScalarAndType
 import dev.martianzoo.tfm.pets.ast.TypeExpr
-import dev.martianzoo.tfm.pets.ast.TypeExpr.ClassLiteral
-import dev.martianzoo.tfm.pets.ast.TypeExpr.GenericTypeExpr
 import dev.martianzoo.util.iff
 import dev.martianzoo.util.pre
 import dev.martianzoo.util.wrap
@@ -38,15 +36,12 @@ internal object PetToKotlin {
       return when (this) {
         null -> "null"
         is ClassName -> "cn(\"$this\")"
-        is TypeExpr ->
-            when (this) {
-              is ClassLiteral -> "${p2k(className)}.literal"
-              is GenericTypeExpr -> {
-                p2k(root) +
-                (if (args.none()) ".type" else ".addArgs(${args.join()})") +
-                refinement?.let(::p2k).wrap(".refine(", ")")
-              }
-            }
+        is TypeExpr -> {
+          p2k(root) +
+              (if (args.none()) ".type" else ".addArgs(${args.join()})") +
+              refinement?.let(::p2k).wrap(".refine(", ")")
+        }
+
         is ScalarAndType -> {
           if (scalar == 1) {
             "sat(${p2k(typeExpr)})"

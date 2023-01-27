@@ -4,8 +4,6 @@ import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.pets.ast.TypeExpr
 import dev.martianzoo.tfm.pets.ast.TypeExpr.Companion.typeExpr
-import dev.martianzoo.tfm.pets.ast.TypeExpr.GenericTypeExpr
-import dev.martianzoo.tfm.types.PType.GenericPType
 
 interface PClassTable {
   operator fun get(nameOrId: ClassName): PClass
@@ -18,6 +16,4 @@ interface PClassTable {
   fun resolve(typeExprText: String): PType = resolve(typeExpr(typeExprText))
 
   fun resolve(typeExpr: TypeExpr): PType
-
-  fun resolve(typeExpr: GenericTypeExpr): GenericPType
 }

@@ -34,7 +34,6 @@ object Parsing {
 
   private val parserGroup by lazy {
     val pgb = ParserGroup.Builder<PetNode>()
-    pgb.publish(TypeParsers.genericTypeExpr)
     pgb.publish(TypeParsers.typeExpr)
     pgb.publish(ScalarAndType.parser())
     pgb.publish(Requirement.parser())
