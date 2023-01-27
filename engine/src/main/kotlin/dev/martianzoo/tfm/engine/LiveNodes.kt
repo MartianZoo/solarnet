@@ -4,7 +4,6 @@ import dev.martianzoo.tfm.api.CustomInstruction
 import dev.martianzoo.tfm.api.CustomInstruction.ExecuteInsteadException
 import dev.martianzoo.tfm.api.standardResourceNames
 import dev.martianzoo.tfm.data.StateChange
-import dev.martianzoo.tfm.engine.ComponentGraph.Component
 import dev.martianzoo.tfm.pets.ast.Effect
 import dev.martianzoo.tfm.pets.ast.Effect.Trigger
 import dev.martianzoo.tfm.pets.ast.Instruction

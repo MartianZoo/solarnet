@@ -6,8 +6,9 @@ import dev.martianzoo.tfm.data.MarsMapDefinition
 import dev.martianzoo.tfm.data.MarsMapDefinition.AreaDefinition
 import dev.martianzoo.tfm.data.SpecialClassNames.CARD_FRONT
 import dev.martianzoo.tfm.data.SpecialClassNames.TILE
-import dev.martianzoo.tfm.engine.ComponentGraph.Component
+import dev.martianzoo.tfm.engine.Component
 import dev.martianzoo.tfm.engine.Engine
+import dev.martianzoo.tfm.pets.SpecialClassNames.COMPONENT
 import dev.martianzoo.tfm.pets.SpecialClassNames.OWNED
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.pets.ast.TypeExpr.Companion.typeExpr
@@ -124,68 +125,56 @@ private class CanonTest {
   val regex = Regex("(Hellas|Elysium|Player5|Camp|Row|Venus|Area2|Floater|Dirigible|AirScrap).*")
 
   @Test
-  fun createdSingletons() {
+  fun testThatSingletonComponentsWereCreated() {
     val game = Engine.newGame(GameSetup(Canon, "BRMPX", 3))
-    val all: Multiset<Component> = game.components.getAll(game.classTable.resolve("Component"))
+    val startingComponents: Multiset<Component> = game.getAll(game.resolve(COMPONENT.type))
+    assertThat(startingComponents.elements).hasSize(startingComponents.size)
 
     val isArea: (Component) -> Boolean = { it.asTypeExpr.toString().startsWith("Tharsis_") }
-    val isBorder: (Component) -> Boolean = { it.asTypeExpr.asGeneric().root.toString() == "Border" }
+    val isBorder: (Component) -> Boolean = { it.asTypeExpr.toString().startsWith("Border<") }
+    val isClass: (Component) -> Boolean = { it.asTypeExpr.toString().startsWith("Class<") }
 
-    assertThat(all.elements.count(isArea)).isEqualTo(61)
-    assertThat(all.elements.count(isBorder)).isEqualTo(312)
+    assertThat(startingComponents.count(isArea)).isEqualTo(61)
+    assertThat(startingComponents.count(isBorder)).isEqualTo(312)
+    assertThat(startingComponents.count(isClass)).isGreaterThan(400)
 
-    assertThat(all.filterNot { isArea(it) || isBorder(it) }.map { it.asTypeExpr.toString() })
+    assertThat(startingComponents.filterNot { isArea(it) || isBorder(it) || isClass(it) }
+        .toStrings())
         .containsExactly(
-            "Player1",
-            "Player2",
-            "Player3",
-            "Generation",
-            "Tharsis",
-            "ClaimMilestone",
-            "ConvertHeat",
-            "ConvertPlants",
-            "PlayCardFromHand",
-            "UseActionFromCard",
-            "UseStandardProject",
-            "SellPatents",
-            "PowerPlantSP",
-            "AsteroidSP",
-            "AquiferSP",
-            "GreenerySP",
-            "CitySP",
-            "MetalHandler")
+            "[Player1]", "[Player2]", "[Player3]", // players
+            "[Generation]", // gen #1
+            "[Tharsis]", // map
+            "[PlayCardFromHand]", "[UseStandardProject]", "[ClaimMilestone]", // std actions
+            "[UseActionFromCard]", "[ConvertHeat]", "[ConvertPlants]", // std actions
+            "[SellPatents]", // quasi
+            "[PowerPlantSP]", "[AsteroidSP]", "[AquiferSP]", "[GreenerySP]", "[CitySP]", // sps
+            "[MetalHandler]", // hacks
+        )
   }
 
   @Test
   fun classCounts() {
     val game = Engine.newGame(GameSetup(Canon, "BRM", 3))
 
-    fun checkClassCountIs(name: String, count: Int) {
-      assertThat(game.count(typeExpr("Class<$name>"))).isEqualTo(count)
+    fun checkCount(count: Int, type: String) {
+      assertThat(game.count(typeExpr(type))).isEqualTo(count)
     }
 
-    checkClassCountIs("Class", 1)
-    checkClassCountIs("CityTile", 2) // capital
-    checkClassCountIs("GlobalParameter", 3)
-    checkClassCountIs("CardResource", 4) // PlaMicAni & Fighters
-    checkClassCountIs("Milestone", 5)
-    checkClassCountIs("StandardResource", 6)
-    checkClassCountIs("StandardAction", 7)
-    checkClassCountIs("SpecialTile", 8) // oops missing some
-    checkClassCountIs("Tag", 10)
-    checkClassCountIs("OwnedTile", 11) // so here too
-    checkClassCountIs("WaterArea", 12)
-    checkClassCountIs("Area", 63)
+    checkCount(1, "Class<Class>")
+    checkCount(2, "Class<CityTile>") // Huh? aha, Capital
+    checkCount(3, "Class<GlobalParameter>")
+    checkCount(4, "Class<CardResource>") // Plants Microbes Animals.. and Fighters
+    checkCount(5, "Class<Milestone>")
+    checkCount(6, "Class<StandardResource>")
+    checkCount(7, "Class<StandardAction>")
+    checkCount(8, "Class<SpecialTile>") // oops missing some
+    checkCount(10, "Class<Tag>")
+    checkCount(11, "Class<OwnedTile>") // so here too
+    checkCount(12, "Class<WaterArea>")
+    checkCount(63, "Class<Area>")
 
     assertThat(game.count(typeExpr("Class<CardFront>"))).isGreaterThan(200)
     assertThat(game.count(typeExpr("Class<Component>"))).isGreaterThan(300)
     assertThat(game.count(typeExpr("Class"))).isGreaterThan(300)
   }
-
-  // val game = Engine.newGame(GameSetup(Canon, config, 3))
-  // val tmm = MultimapBuilder.treeKeys(Comparator.reverseOrder<Int>())
-  //     .arrayListValues()
-  //     .build<Int, ClassName>()
-  // game.classTable.loadedClassNames().forEach { tmm.put(game.count(it.literal), it) }
-  // tmm.entries().take(30).forEach { println("${it.key} ${it.value}")}
 }

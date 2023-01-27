@@ -46,9 +46,7 @@ private class PClassCanonTest {
   @Test
   fun canGetBaseTypes() {
     val table = PClassLoader(Canon).loadEverything()
-    val all = table.loadedClassNames().map { table[it] }
-
-    all.forEach { it.baseType }
+     table.loadedClasses().forEach { it.baseType }
   }
 
   @Disabled

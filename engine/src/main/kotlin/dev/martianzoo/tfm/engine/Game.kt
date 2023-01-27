@@ -4,7 +4,6 @@ import dev.martianzoo.tfm.api.GameSetup
 import dev.martianzoo.tfm.api.GameState
 import dev.martianzoo.tfm.data.StateChange
 import dev.martianzoo.tfm.data.StateChange.Cause
-import dev.martianzoo.tfm.engine.ComponentGraph.Component
 import dev.martianzoo.tfm.pets.ast.Instruction
 import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.pets.ast.TypeExpr

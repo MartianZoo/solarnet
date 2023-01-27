@@ -1,6 +1,7 @@
 package dev.martianzoo.tfm.types
 
 import dev.martianzoo.tfm.data.ClassDeclaration
+import dev.martianzoo.tfm.pets.SpecialClassNames.CLASS
 import dev.martianzoo.tfm.pets.SpecialClassNames.COMPONENT
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.types.PType.GenericPType
@@ -15,6 +16,10 @@ public data class PClass(
   public val id: ClassName by declaration::id
   public val name: ClassName by declaration::name
   public val abstract: Boolean by declaration::abstract
+
+  init {
+    require(name != CLASS)
+  }
 
   // HIERARCHY
 

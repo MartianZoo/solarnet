@@ -2,7 +2,8 @@ ABSTRACT CLASS Component {                                  // Component is the 
     DEFAULT +This!                                          // no need to write `: Component`; it's assumed
 }
 
-CLASS Class<Component>
+CLASS Class<Component> { HAS =1 This }                      // The Class class is predefined, or acts like it anyway.
+                                                            // Is IT a subclass of Component? Who knows.
 
 ABSTRACT CLASS Temporary {                                  // anything that can never survive across actions
 

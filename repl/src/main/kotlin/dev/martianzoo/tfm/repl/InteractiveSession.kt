@@ -1,6 +1,7 @@
 package dev.martianzoo.tfm.repl
 
 import dev.martianzoo.tfm.api.GameSetup
+import dev.martianzoo.tfm.engine.Component
 import dev.martianzoo.tfm.engine.Engine
 import dev.martianzoo.tfm.engine.Game
 import dev.martianzoo.tfm.pets.PetTransformer
@@ -16,7 +17,7 @@ import dev.martianzoo.tfm.pets.ast.TypeExpr
 import dev.martianzoo.tfm.pets.ast.TypeExpr.GenericTypeExpr
 import dev.martianzoo.tfm.pets.deprodify
 import dev.martianzoo.tfm.types.PClassLoader
-import dev.martianzoo.tfm.types.PType.GenericPType
+import dev.martianzoo.tfm.types.PType
 import dev.martianzoo.util.HashMultiset
 import dev.martianzoo.util.Multiset
 
@@ -40,23 +41,23 @@ class InteractiveSession {
 
   fun list(typeExpr: TypeExpr): Multiset<TypeExpr> {
     // "list Heat" means my own unless I say "list Heat<Anyone>"
-    val typeToList = game!!.resolve(fixTypes(typeExpr))
-    val theStuff = game!!.getAll(typeToList)
+    val typeToBeListed: PType = game!!.resolve(fixTypes(typeExpr))
+    val theStuff: Multiset<Component> = game!!.getAll(typeToBeListed)
 
     // figure out how to break it down
-    val pclass = typeToList.pclass
-    var subs = pclass.directSubclasses.sortedBy { it.name }
-    if (subs.isEmpty()) subs = listOf(pclass)
-
-    subs.mapNotNull { sub ->
-      val thatType: GenericPType = sub.baseType
-      val count = theStuff.filter { it.hasType(thatType) }.size
-      if (count > 0) {
-        "$count".padEnd(4) + thatType
-      } else {
-        null
-      }
-    }
+    // val pclass = typeToBeListed.pclass
+    // var subs = pclass.directSubclasses.sortedBy { it.name }
+    // if (subs.isEmpty()) subs = listOf(pclass)
+    //
+    // subs.mapNotNull { sub ->
+    //   val thatType: GenericPType = sub.baseType
+    //   val count = theStuff.filter { it.hasType(thatType) }.size
+    //   if (count > 0) {
+    //     "$count".padEnd(4) + thatType
+    //   } else {
+    //     null
+    //   }
+    // }
     return HashMultiset() // TODO TODO
   }
 

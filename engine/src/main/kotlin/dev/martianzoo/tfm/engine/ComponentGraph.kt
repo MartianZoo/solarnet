@@ -50,15 +50,7 @@ public class ComponentGraph(startingWith: Collection<Component> = listOf()) {
 
   public fun count(ptype: PType) = getAll(ptype).size
 
+  // Aww yeah full table scans rule. One day I'll do something more clever, but only after being
+  // able to review usage patterns so I'll actually know what helps most.
   public fun getAll(ptype: PType): Multiset<Component> = multiset.filter { it.hasType(ptype) }
-
-  public data class Component(val ptype: PType) {
-    init {
-      require(!ptype.abstract) { ptype }
-    }
-
-    public fun hasType(thatType: PType) = ptype.isSubtypeOf(thatType)
-    public val asTypeExpr = ptype.toTypeExprFull() // TODO minimal?
-    override fun toString() = "[$ptype]"
-  }
 }

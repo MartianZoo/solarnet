@@ -8,8 +8,8 @@ import dev.martianzoo.tfm.pets.ast.TypeExpr.GenericTypeExpr
 import dev.martianzoo.tfm.types.PType.GenericPType
 
 interface PClassTable {
-  operator fun get(name: ClassName): PClass
-  operator fun get(className: String): PClass = get(cn(className))
+  operator fun get(nameOrId: ClassName): PClass
+  operator fun get(nameOrId: String): PClass = get(cn(nameOrId))
 
   fun loadedClassNames(): Set<ClassName>
   fun loadedClasses(): Set<PClass>

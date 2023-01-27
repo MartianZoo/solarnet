@@ -2,6 +2,7 @@ package dev.martianzoo.tfm.types
 
 import dev.martianzoo.tfm.api.Authority
 import dev.martianzoo.tfm.data.ClassDeclaration
+import dev.martianzoo.tfm.pets.SpecialClassNames.CLASS
 import dev.martianzoo.tfm.pets.SpecialClassNames.ME
 import dev.martianzoo.tfm.pets.SpecialClassNames.STANDARD_RESOURCE
 import dev.martianzoo.tfm.pets.SpecialClassNames.THIS
@@ -11,6 +12,7 @@ import dev.martianzoo.tfm.pets.ast.TypeExpr
 import dev.martianzoo.tfm.pets.ast.TypeExpr.ClassLiteral
 import dev.martianzoo.tfm.pets.ast.TypeExpr.GenericTypeExpr
 import dev.martianzoo.tfm.pets.childNodesOfType
+import dev.martianzoo.tfm.types.PType.ClassClass
 import dev.martianzoo.tfm.types.PType.ClassPType
 import dev.martianzoo.tfm.types.PType.GenericPType
 import dev.martianzoo.util.toSetStrict
@@ -26,8 +28,13 @@ class PClassLoader(private val authority: Authority) : PClassTable {
 
   override fun resolve(typeExpr: TypeExpr): PType =
       when (typeExpr) {
-        is ClassLiteral -> ClassPType(load(typeExpr.className))
         is GenericTypeExpr -> resolve(typeExpr)
+        is ClassLiteral ->
+            if (typeExpr.className == CLASS) {
+              ClassClass
+            } else {
+              ClassPType(load(typeExpr.className))
+            }
       }
 
   override fun resolve(typeExpr: GenericTypeExpr): GenericPType =
@@ -36,9 +43,9 @@ class PClassLoader(private val authority: Authority) : PClassTable {
   fun resolveAll(exprs: Set<GenericTypeExpr>): Set<GenericPType> =
       exprs.map { resolve(it) }.toSetStrict()
 
-  override fun loadedClassNames() = loadedClasses().map { it.name }.toSetStrict()
-  fun loadedClassIds() = loadedClasses().map { it.id }.toSetStrict()
-  override fun loadedClasses() = table.values.filterNotNull().toSet()
+  override fun loadedClassNames() = (loadedClasses().map { it.name } + CLASS).toSetStrict()
+  fun loadedClassIds() = (loadedClasses().map { it.id } + CLASS).toSetStrict()
+  override fun loadedClasses(): Set<PClass> = table.values.filterNotNull().toSet()
 
   // LOADING
 
@@ -71,8 +78,8 @@ class PClassLoader(private val authority: Authority) : PClassTable {
   /** Vararg form of `loadAll(Collection)`. */
   fun loadAll(first: String, vararg rest: String) = loadAll(setOf(first) + rest)
 
-  fun loadEverything(): PClassTable {
-    authority.allClassNames.forEach(::loadSingle)
+  fun loadEverything(): PClassTable { // TODO hack
+    authority.allClassNames.filter { it != CLASS }.forEach(::loadSingle)
     return freeze()
   }
 

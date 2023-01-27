@@ -2,11 +2,10 @@ package dev.martianzoo.tfm.engine
 
 import dev.martianzoo.tfm.api.GameSetup
 import dev.martianzoo.tfm.data.MarsMapDefinition
-import dev.martianzoo.tfm.engine.ComponentGraph.Component
-import dev.martianzoo.tfm.pets.SpecialClassNames.CLASS
 import dev.martianzoo.tfm.pets.SpecialClassNames.PRODUCTION
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.types.PClassLoader
+import dev.martianzoo.tfm.types.PType.ClassClass
 import dev.martianzoo.tfm.types.PType.ClassPType
 import dev.martianzoo.util.filterNoNulls
 
@@ -23,7 +22,6 @@ public object Engine {
     }
 
     // Hacks TODO
-    loader.load(CLASS)
     loader.load(PRODUCTION)
     loader.load(cn("MegacreditProductionHack")) // TODO loopy singletons
     loader.load(cn("MetalHandler")) // TODO uhhhh ?
@@ -39,8 +37,10 @@ public object Engine {
 
   // TODO maybe the loader should report these
 
-  private fun classLiterals(loader: PClassLoader) =
-      loader.loadedClasses().filterNot { it.abstract }.map { Component(ClassPType(it)) }
+  private fun classLiterals(loader: PClassLoader): List<Component> {
+    val normalClassTypes = loader.loadedClasses().filter { !it.abstract }.map(::ClassPType)
+    return (normalClassTypes + ClassClass).map(::Component)
+  }
 
   private fun singletons(loader: PClassLoader) =
       loader
