@@ -125,8 +125,7 @@ private class EffectTest {
         Effect(
             Trigger.Transform(OnRemove(cn("Bar").type), "PROD"),
             Instruction.Transform(
-                Transmute(SimpleFrom(cn("Xyz").addArgs(cn("Bar")), cn("Foo").type), 1),
-                "PROD")))
+                Transmute(SimpleFrom(cn("Xyz").addArgs(cn("Bar")), cn("Foo").type), 1), "PROD")))
 
     checkBothWays(
         "Ahh: PROD[1 Bar FROM Bar.]",
@@ -137,8 +136,7 @@ private class EffectTest {
 
     checkBothWays(
         "Ooh: @name(Qux<Ahh>)",
-        Effect(
-            OnGain(cn("Ooh").type), Instruction.Custom("name", cn("Qux").addArgs(cn("Ahh")))))
+        Effect(OnGain(cn("Ooh").type), Instruction.Custom("name", cn("Qux").addArgs(cn("Ahh")))))
 
     checkBothWays(
         "Wau: PROD[Ooh / Qux]",

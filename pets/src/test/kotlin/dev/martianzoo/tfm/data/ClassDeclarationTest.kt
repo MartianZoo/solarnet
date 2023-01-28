@@ -18,14 +18,11 @@ import org.junit.jupiter.api.Test
 private class ClassDeclarationTest {
   @Test
   fun testValidate() {
-    assertFails {
-      ClassDeclaration(COMPONENT, supertypes = setOf(typeExpr("Foo<Bar>"))).validate()
-    }
+    assertFails { ClassDeclaration(COMPONENT, supertypes = setOf(typeExpr("Foo<Bar>"))).validate() }
     assertFails { ClassDeclaration(cn("NotComponent")).validate() }
 
     val cd = ClassDeclaration(
-        cn("NotComponent"),
-        supertypes = setOf(COMPONENT.type, typeExpr("Baz<Qux>")))
+        cn("NotComponent"), supertypes = setOf(COMPONENT.type, typeExpr("Baz<Qux>")))
     assertFails { cd.validate() }
   }
 

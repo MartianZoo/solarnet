@@ -48,7 +48,7 @@ private class PClassCanonTest {
   @Test
   fun canGetBaseTypes() {
     val table = PClassLoader(Canon).loadEverything()
-     table.allClasses.forEach { it.baseType }
+    table.allClasses.forEach { it.baseType }
   }
 
   @Disabled
@@ -57,7 +57,8 @@ private class PClassCanonTest {
     val table = PClassLoader(Canon).loadEverything()
 
     val names: List<ClassName> =
-        table.allClasses.map { it.name }
+        table.allClasses
+            .map { it.name }
             .filterNot { it.matches(Regex("^Card.{3,4}$")) && it.hashCode() % 12 != 0 }
             .filterNot { it.matches(Regex("^(Tharsis|Hellas|Elysium)")) && it.hashCode() % 8 != 0 }
             .filterNot { it in setOf(COMPONENT, DIE) }

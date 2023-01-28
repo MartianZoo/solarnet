@@ -142,14 +142,14 @@ private class CanonTest {
     assertThat(startingComponents.filterNot { isArea(it) || isBorder(it) || isClass(it) }
         .toStrings())
         .containsExactly(
-            "[Player1]", "[Player2]", "[Player3]", // players
-            "[Generation]", // gen #1
-            "[Tharsis]", // map
-            "[PlayCardFromHand]", "[UseStandardProject]", "[ClaimMilestone]", // std actions
-            "[UseActionFromCard]", "[ConvertHeat]", "[ConvertPlants]", // std actions
-            "[SellPatents]", // quasi
-            "[PowerPlantSP]", "[AsteroidSP]", "[AquiferSP]", "[GreenerySP]", "[CitySP]", // sps
-            "[MetalHandler]", // hacks
+            "[Player1]", "[Player2]", "[Player3]",
+            "[Generation]",
+            "[Tharsis]",
+            "[PlayCardFromHand]", "[UseStandardProject]", "[ClaimMilestone]",
+            "[UseActionFromCard]", "[ConvertHeat]", "[ConvertPlants]",
+            "[SellPatents]",
+            "[PowerPlantSP]", "[AsteroidSP]", "[AquiferSP]", "[GreenerySP]", "[CitySP]",
+            "[MetalHandler]",
         )
   }
 

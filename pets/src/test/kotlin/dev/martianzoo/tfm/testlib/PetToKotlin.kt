@@ -41,7 +41,6 @@ internal object PetToKotlin {
               (if (args.none()) ".type" else ".addArgs(${args.join()})") +
               refinement?.let(::p2k).wrap(".refine(", ")")
         }
-
         is ScalarAndType -> {
           if (scalar == 1) {
             "sat(${p2k(typeExpr)})"

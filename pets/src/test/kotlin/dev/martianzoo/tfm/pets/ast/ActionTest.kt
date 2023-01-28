@@ -177,8 +177,7 @@ private class ActionTest {
         Action(
             Cost.Transform(Spend(sat(cn("Megacredit").type)), "PROD"),
             Instruction.Per(
-                Remove(sat(cn("Ooh").type)),
-                sat(cn("Ooh").addArgs(cn("Abc"), cn("Ahh"))))))
+                Remove(sat(cn("Ooh").type)), sat(cn("Ooh").addArgs(cn("Abc"), cn("Ahh"))))))
 
     checkBothWays("Xyz -> 1", Action(Spend(sat(cn("Xyz").type)), Gain(sat(cn("Megacredit").type))))
 
@@ -263,8 +262,7 @@ private class ActionTest {
         Action(
             Cost.Multi(
                 Cost.Or(
-                    Spend(sat(cn("Foo").addArgs(cn("Foo")))),
-                    Spend(sat(cn("Megacredit").type))),
+                    Spend(sat(cn("Foo").addArgs(cn("Foo")))), Spend(sat(cn("Megacredit").type))),
                 Cost.Or(
                     Cost.Or(
                         Spend(sat(5, cn("Megacredit").type)), Spend(sat(cn("Megacredit").type))),

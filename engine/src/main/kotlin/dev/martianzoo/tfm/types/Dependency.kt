@@ -39,13 +39,13 @@ abstract class Dependency {
     override fun toTypeExprFull() = ptype.toTypeExprFull()
   }
 
-  /** Okay this is used ONLY by Class_0, and the value is just a class, like just Tile.
-   * */
+  /** Okay this is used ONLY by Class_0, and the value is just a class, like just Tile. */
   public data class ClassDependency(val pclass: PClass) : Dependency() {
     override val key: Key by ::KEY
     override val abstract by pclass::abstract
 
-    override fun specializes(that: Dependency) = pclass.isSubclassOf((that as ClassDependency).pclass)
+    override fun specializes(that: Dependency) =
+        pclass.isSubclassOf((that as ClassDependency).pclass)
 
     override fun intersect(that: Dependency): ClassDependency? =
         this intersect (that as ClassDependency).pclass

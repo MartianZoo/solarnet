@@ -210,6 +210,5 @@ private fun assertFails(message: String, shouldFail: () -> Unit) =
     assertThrows<RuntimeException>(message, shouldFail)
 
 // TODO move to shared utils (already being used from PTypeTest)
-internal fun loadTypes(vararg decl: String) =
-    loader("ABSTRACT CLASS $COMPONENT\nCLASS $CLASS<$COMPONENT>\n" +
-        decl.joinToString("") { "$it\n" })
+internal fun loadTypes(vararg decl: String) = loader(
+    "ABSTRACT CLASS $COMPONENT\nCLASS $CLASS<$COMPONENT>\n" + decl.joinToString("") { "$it\n" })

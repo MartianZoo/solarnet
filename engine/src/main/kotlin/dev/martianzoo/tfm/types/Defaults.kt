@@ -62,8 +62,10 @@ internal class Defaults(
       if (key !in defMap) {
         // TODO some orders might work when others don't
         val depMapsWithThisKey = defaultses.map(extract).filter { key in it }
-        defMap[key] = depMapsWithThisKey.map { it[key]!! as TypeDependency }
-            .reduce { a, b -> a.intersect(b)!! }
+        defMap[key] =
+            depMapsWithThisKey
+                .map { it[key]!! as TypeDependency }
+                .reduce { a, b -> a.intersect(b)!! }
       }
     }
     return DependencyMap(defMap)

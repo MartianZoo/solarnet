@@ -56,9 +56,7 @@ public data class PClass(
       false
     } else {
       val sharesAllMySuperclasses =
-          loader.allClasses.filter { pclass ->
-            directSuperclasses.all { pclass.isSubclassOf(it) }
-          }
+          loader.allClasses.filter { pclass -> directSuperclasses.all { pclass.isSubclassOf(it) } }
       sharesAllMySuperclasses.all { it.isSubclassOf(this) }
     }
   }
@@ -88,8 +86,7 @@ public data class PClass(
     (directSuperclasses.flatMap { it.allDependencyKeys } + directDependencyKeys).toSet()
   }
 
-  fun toClassType() =
-      PType(loader.classClass, DependencyMap(mapOf(KEY to ClassDependency(this))))
+  fun toClassType() = PType(loader.classClass, DependencyMap(mapOf(KEY to ClassDependency(this))))
 
   /** Least upper bound of all types with pclass==this */
   public val baseType: PType by lazy {

@@ -133,18 +133,16 @@ fun main() {
   repl.command("newgame BM 2").forEach(::println)
 
   while (true) {
-    val inputLine =
-        try {
-          reader.readLine("> ")
-        } catch (e: EndOfFileException) {
-          return
-        }
-    val results =
-        try {
-          repl.command(inputLine)
-        } catch (e: Exception) {
-          listOf("${e::class}: ${e.message}")
-        }
+    val inputLine = try {
+      reader.readLine("> ")
+    } catch (e: EndOfFileException) {
+      return
+    }
+    val results = try {
+      repl.command(inputLine)
+    } catch (e: Exception) {
+      listOf("${e::class}: ${e.message}")
+    }
     results.forEach(::println)
     println()
   }
@@ -162,6 +160,7 @@ const val HELP =
   exec PROD[3 Heat]     ->  gives the default player 3 heat production
   PROD[3 Heat]          ->  that too
   desc Microbe          ->  describes the Microbe class
+  board                 ->  displays an extremely bad looking player board
   map                   ->  displays an extremely bad looking map
   help                  ->  see this message
 """

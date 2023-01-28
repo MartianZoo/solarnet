@@ -254,12 +254,12 @@ public object ClassDeclarationParsers : PetParser() {
     abstract val decl: ClassDeclaration
     abstract fun unnestOneFrom(container: ClassName): NestableDecl
 
-    fun finishAtTopLevel(): ClassDeclaration { // TODO
-      if (decl.name != COMPONENT && decl.supertypes.isEmpty()) {
-        return decl.copy(supertypes = setOf(COMPONENT.type)).also { it.validate() }
-      }
-      return decl.also { it.validate() }
-    }
+    fun finishAtTopLevel(): ClassDeclaration =
+        if (decl.name == COMPONENT || decl.supertypes.any()) {
+          decl
+        } else {
+          decl.copy(supertypes = setOf(COMPONENT.type))
+        }.also { it.validate() }
 
     data class IncompleteNestableDecl(override val decl: ClassDeclaration) : NestableDecl() {
       constructor(

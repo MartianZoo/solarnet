@@ -49,13 +49,9 @@ private class GameApiTest {
             StateChange(10, gaining = typeExpr("Heat<Player3>")),
             StateChange(4, removing = typeExpr("Heat<Player2>")),
             StateChange(
-                3,
-                removing = typeExpr("Heat<Player3>"),
-                gaining = typeExpr("Steel<Player3>")),
+                3, removing = typeExpr("Heat<Player3>"), gaining = typeExpr("Steel<Player3>")),
             StateChange(
-                2,
-                removing = typeExpr("Heat<Player3>"),
-                gaining = typeExpr("Heat<Player2>")),
+                2, removing = typeExpr("Heat<Player3>"), gaining = typeExpr("Heat<Player2>")),
         )
         .inOrder()
 
