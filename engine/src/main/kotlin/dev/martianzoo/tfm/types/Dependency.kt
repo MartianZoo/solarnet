@@ -12,8 +12,6 @@ abstract class Dependency {
 
   abstract fun toTypeExprFull(): TypeExpr
 
-  override fun toString() = "$key=${toTypeExprFull()}"
-
   public data class Key(val declaringClass: ClassName, val index: Int) {
     init {
       require(index >= 0)
@@ -37,10 +35,15 @@ abstract class Dependency {
         (this.ptype intersect otherType)?.let { copy(ptype = it) }
 
     override fun toTypeExprFull() = ptype.toTypeExprFull()
+    override fun toString() = "$key=${toTypeExprFull()}"
   }
 
   /** Okay this is used ONLY by Class_0, and the value is just a class, like just Tile. */
   public data class ClassDependency(val pclass: PClass) : Dependency() {
+    companion object {
+      val KEY = Key(CLASS, 0)
+    }
+
     override val key: Key by ::KEY
     override val abstract by pclass::abstract
 
@@ -54,9 +57,6 @@ abstract class Dependency {
         (this.pclass intersect otherClass)?.let { copy(pclass = it) }
 
     override fun toTypeExprFull() = pclass.name.type
-
-    companion object {
-      val KEY = Key(CLASS, 0)
-    }
+    override fun toString() = "$key=${toTypeExprFull()}"
   }
 }
