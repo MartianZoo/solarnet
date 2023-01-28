@@ -19,7 +19,7 @@ private class Defaulter(val table: PClassLoader) : PetTransformer() {
           is Gain -> {
             // this should be the real source form because we should run first
             val writtenType = node.sat.typeExpr
-            val defaults = table[writtenType.root].defaults
+            val defaults = table.get(writtenType.root).defaults
             val fixedType =
                 if (writtenType.isTypeOnly) {
                   val deps: Collection<Dependency> = defaults.gainOnlyDependencies.types
@@ -32,7 +32,7 @@ private class Defaulter(val table: PClassLoader) : PetTransformer() {
           THIS.type -> node
           ME.type -> node
           is TypeExpr -> {
-            val pclass = table[node.root]
+            val pclass = table.get(node.root)
             val allCasesDependencies = pclass.defaults.allCasesDependencies
             if (allCasesDependencies.isEmpty()) {
               node

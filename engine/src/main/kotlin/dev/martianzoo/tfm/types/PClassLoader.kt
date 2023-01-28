@@ -16,27 +16,28 @@ import dev.martianzoo.util.toSetStrict
 // TODO restrict viz?
 class PClassLoader(private val authority: Authority) {
   private val table = mutableMapOf<ClassName, PClass?>()
+  val componentClass: PClass = PClass(authority.classDeclaration(COMPONENT), listOf(), this)
+  val classClass: PClass = PClass(authority.classDeclaration(CLASS), listOf(componentClass), this)
 
-  // TODO maybe special-case less
   init {
-    val cpt = PClass(authority.classDeclaration(COMPONENT), listOf(), this)
-    table[COMPONENT] = cpt
-    table[CLASS] = PClass(authority.classDeclaration(CLASS), listOf(cpt), this)
+    table[COMPONENT] = componentClass
+    table[CLASS] = classClass
   }
 
   // MAIN QUERIES
 
-  operator fun get(nameOrId: ClassName): PClass =
+  fun get(nameOrId: ClassName): PClass =
       table[nameOrId] ?: error("no class loaded with id or name $nameOrId")
 
   fun resolve(typeExpr: TypeExpr): PType {
-    val pclass = load(typeExpr.root)
+    val pclass = get(typeExpr.root)
     return if (pclass.name == CLASS) {
-      val className: ClassName = if (typeExpr.args.isEmpty()) {
-        COMPONENT
-      } else {
-        typeExpr.args.single().also { require(it.isTypeOnly) }.root
-      }
+      val className: ClassName =
+          if (typeExpr.args.isEmpty()) {
+            COMPONENT
+          } else {
+            typeExpr.args.single().also { require(it.isTypeOnly) }.root
+          }
       get(className).toClassType()
     } else {
       pclass.specialize(typeExpr.args.map { resolve(it) })
@@ -52,27 +53,20 @@ class PClassLoader(private val authority: Authority) {
     table.values.map { it!! }.toSet()
   }
 
-  val componentClass: PClass by lazy { get(COMPONENT) }
-  val classClass: PClass by lazy { get(CLASS) }
-
   // LOADING
 
   var autoLoadDependencies: Boolean = false
 
   /** Returns the class with the name [idOrName], loading it first if necessary. */
-  fun load(idOrName: ClassName): PClass {
-    if (frozen) {
-      return get(idOrName)
-    }
-    return if (autoLoadDependencies) {
-      loadTrees(listOf(idOrName))
-      get(idOrName)
-    } else {
-      loadSingle(idOrName)
-    }
-  }
-
-  fun load(idOrName: String): PClass = load(cn(idOrName))
+  fun load(idOrName: ClassName): PClass =
+      when {
+        frozen -> get(idOrName)
+        autoLoadDependencies -> {
+          loadTrees(listOf(idOrName))
+          get(idOrName)
+        }
+        else -> loadSingle(idOrName)
+      }
 
   @JvmName("loadAllFromStrings")
   fun loadAll(idsAndNames: Collection<String>) = loadAll(idsAndNames.map { cn(it) })
@@ -134,8 +128,7 @@ class PClassLoader(private val authority: Authority) {
     // signal with `null` that loading is in process so we can detect infinite recursion
     table[decl.name] = null
     table[decl.id] = null
-    val superclasses: List<PClass> =
-        decl.superclassNames.map { load(it) } // we do most other things lazily...
+    val superclasses: List<PClass> = decl.superclassNames.map(::load)
 
     val pclass = PClass(decl, superclasses, this)
     table[decl.name] = pclass

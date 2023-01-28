@@ -5,6 +5,7 @@ import dev.martianzoo.tfm.pets.SpecialClassNames.CLASS
 import dev.martianzoo.tfm.pets.SpecialClassNames.COMPONENT
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.types.Dependency.ClassDependency
+import dev.martianzoo.tfm.types.Dependency.ClassDependency.Companion.KEY
 import dev.martianzoo.tfm.types.Dependency.TypeDependency
 
 /**
@@ -80,20 +81,21 @@ public data class PClass(
   // DEPENDENCIES
 
   internal val directDependencyKeys: Set<Dependency.Key> by lazy {
-    declaration.dependencies.indices.map { Dependency.Key(this, it) }.toSet()
+    declaration.dependencies.indices.map { Dependency.Key(name, it) }.toSet()
   }
 
   internal val allDependencyKeys: Set<Dependency.Key> by lazy {
     (directSuperclasses.flatMap { it.allDependencyKeys } + directDependencyKeys).toSet()
   }
 
-  fun toClassType() = PType(loader[CLASS], ClassDependency(this).toMap())
+  fun toClassType() =
+      PType(loader.classClass, DependencyMap(mapOf(KEY to ClassDependency(this))))
 
   /** Least upper bound of all types with pclass==this */
   public val baseType: PType by lazy {
     if (name == CLASS) {
       // base type of Class is Class<Component>
-      loader[COMPONENT].toClassType()
+      loader.componentClass.toClassType()
     } else {
       val newDeps =
           directDependencyKeys.associateWith {
@@ -113,7 +115,7 @@ public data class PClass(
     if (name == COMPONENT) {
       Defaults.from(declaration.defaultsDeclaration, this, loader)
     } else {
-      val rootDefaults = loader[COMPONENT].defaults
+      val rootDefaults = loader.componentClass.defaults
       defaultsIgnoringRoot().overlayOn(listOf(rootDefaults))
     }
   }

@@ -16,7 +16,7 @@ public object Engine {
     loader.loadAll(defns)
 
     for (seat in 1..setup.players) {
-      loader.load("Player$seat")
+      loader.load(cn("Player$seat"))
     }
 
     // Hacks TODO
@@ -37,7 +37,7 @@ public object Engine {
 
   private fun classInstances(loader: PClassLoader): List<Component> {
     val concretes = loader.allClasses.filter { !it.abstract }
-    return concretes.map { Component(loader[it.name].toClassType()) }
+    return concretes.map { Component(it.toClassType()) }
   }
 
   private fun singletons(loader: PClassLoader) =

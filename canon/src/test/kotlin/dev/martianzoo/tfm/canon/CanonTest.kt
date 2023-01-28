@@ -4,6 +4,7 @@ import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.tfm.api.GameSetup
 import dev.martianzoo.tfm.data.MarsMapDefinition
 import dev.martianzoo.tfm.data.MarsMapDefinition.AreaDefinition
+import dev.martianzoo.tfm.data.SpecialClassNames.ACTION_CARD
 import dev.martianzoo.tfm.data.SpecialClassNames.CARD_FRONT
 import dev.martianzoo.tfm.data.SpecialClassNames.TILE
 import dev.martianzoo.tfm.engine.Component
@@ -23,21 +24,21 @@ private class CanonTest {
   @Test
   fun testOwnedTileIsAnIntersectionType() {
     val table = PClassLoader(Canon).loadEverything()
-    val ot = table[cn("OwnedTile")]
+    val ot = table.get(cn("OwnedTile"))
 
     // Nothing can be both Owned and a Tile without being an OwnedTile!
     assertThat(ot.intersectionType).isTrue()
-    assertThat(table[OWNED].intersect(table[TILE])).isEqualTo(ot)
+    assertThat(table.get(OWNED).intersect(table.get(TILE))).isEqualTo(ot)
   }
 
   @Test
   fun testActionCardIsAnIntersectionType() {
     val table = PClassLoader(Canon).loadEverything()
-    val ac = table[cn("ActionCard")]
+    val ac = table.get(ACTION_CARD)
 
     // Nothing can be both a CardFront and a HasActions but an ActionCard!
     assertThat(ac.intersectionType).isTrue()
-    assertThat(table[CARD_FRONT].intersect(table[cn("HasActions")])).isEqualTo(ac)
+    assertThat(table.get(CARD_FRONT).intersect(table.get(cn("HasActions")))).isEqualTo(ac)
   }
 
   @Test

@@ -15,11 +15,9 @@ abstract class Dependency {
   override fun toString() = "$key=${toTypeExprFull()}"
 
   public data class Key(val declaringClass: ClassName, val index: Int) {
-    constructor(declaringClass: PClass, index: Int) : this(declaringClass.name, index)
     init {
       require(index >= 0)
     }
-
     override fun toString() = "${declaringClass}_$index"
   }
 
@@ -56,9 +54,6 @@ abstract class Dependency {
         (this.pclass intersect otherClass)?.let { copy(pclass = it) }
 
     override fun toTypeExprFull() = pclass.name.type
-
-    // A class dependency is always in a DM of size 1 so we can just make it
-    fun toMap() = DependencyMap(mapOf<Key, Dependency>(KEY to this))
 
     companion object {
       val KEY = Key(CLASS, 0)

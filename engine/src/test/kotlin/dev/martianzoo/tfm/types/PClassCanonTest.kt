@@ -19,7 +19,7 @@ private class PClassCanonTest {
   fun component() {
     val table = PClassLoader(Canon)
 
-    table.get(COMPONENT).apply {
+    table.componentClass.apply {
       assertThat(name).isEqualTo(COMPONENT)
       assertThat(abstract).isTrue()
       assertThat(directDependencyKeys).isEmpty()
@@ -39,6 +39,7 @@ private class PClassCanonTest {
           .inOrder()
       assertThat(table.classesLoaded()).isEqualTo(5)
 
+      table.load(cn("MarsArea"))
       assertThat(baseType).isEqualTo(table.resolve(typeExpr("OceanTile<MarsArea>")))
     }
     assertThat(table.classesLoaded()).isEqualTo(7)
