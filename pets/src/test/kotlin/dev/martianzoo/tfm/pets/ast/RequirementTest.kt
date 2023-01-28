@@ -145,7 +145,7 @@ private class RequirementTest {
                             typeExpr =
                                 cn("Adjacency")
                                     .addArgs(
-                                        cn("CityTile").addArgs(cn("Anyone").type),
+                                        cn("CityTile").addArgs(cn("Anyone")),
                                         cn("OceanTile").type))),
                     Min(
                         sat(
@@ -153,6 +153,6 @@ private class RequirementTest {
                                 cn("Adjacency")
                                     .addArgs(
                                         cn("OceanTile").type,
-                                        cn("CityTile").addArgs(cn("Anyone").type)))))))
+                                        cn("CityTile").addArgs(cn("Anyone"))))))))
   }
 }

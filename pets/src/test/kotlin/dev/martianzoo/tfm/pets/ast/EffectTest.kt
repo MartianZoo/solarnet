@@ -125,7 +125,7 @@ private class EffectTest {
         Effect(
             Trigger.Transform(OnRemove(cn("Bar").type), "PROD"),
             Instruction.Transform(
-                Transmute(SimpleFrom(cn("Xyz").addArgs(cn("Bar").type), cn("Foo").type), 1),
+                Transmute(SimpleFrom(cn("Xyz").addArgs(cn("Bar")), cn("Foo").type), 1),
                 "PROD")))
 
     checkBothWays(
@@ -138,7 +138,7 @@ private class EffectTest {
     checkBothWays(
         "Ooh: @name(Qux<Ahh>)",
         Effect(
-            OnGain(cn("Ooh").type), Instruction.Custom("name", cn("Qux").addArgs(cn("Ahh").type))))
+            OnGain(cn("Ooh").type), Instruction.Custom("name", cn("Qux").addArgs(cn("Ahh")))))
 
     checkBothWays(
         "Wau: PROD[Ooh / Qux]",
@@ -150,15 +150,15 @@ private class EffectTest {
     checkBothWays(
         "-Bar<Bar>:: 1!",
         Effect(
-            OnRemove(cn("Bar").addArgs(cn("Bar").type)),
+            OnRemove(cn("Bar").addArgs(cn("Bar"))),
             Gain(sat(cn("Megacredit").type), MANDATORY),
             true))
 
     checkBothWays(
         "-Xyz<Xyz>(HAS Bar): 1 Foo<Foo> FROM Xyz?",
         Effect(
-            OnRemove(cn("Xyz").addArgs(cn("Xyz").type).refine(Min(sat(1, cn("Bar").type)))),
-            Transmute(SimpleFrom(cn("Foo").addArgs(cn("Foo").type), cn("Xyz").type), 1, OPTIONAL)))
+            OnRemove(cn("Xyz").addArgs(cn("Xyz")).refine(Min(sat(1, cn("Bar").type)))),
+            Transmute(SimpleFrom(cn("Foo").addArgs(cn("Foo")), cn("Xyz").type), 1, OPTIONAL)))
 
     checkBothWays(
         "PROD[-Qux]: 5 Foo<Bar<Xyz> FROM Qux> OR Bar<Foo, Foo<Foo>>, Qux, Xyz OR 1," +
@@ -170,7 +170,7 @@ private class EffectTest {
                     Transmute(
                         ComplexFrom(
                             cn("Foo"),
-                            listOf(SimpleFrom(cn("Bar").addArgs(cn("Xyz").type), cn("Qux").type))),
+                            listOf(SimpleFrom(cn("Bar").addArgs(cn("Xyz")), cn("Qux").type))),
                         5),
                     Gain(
                         sat(cn("Bar").addArgs(cn("Foo").type, cn("Foo").addArgs(cn("Foo").type))))),

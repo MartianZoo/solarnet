@@ -81,4 +81,4 @@ data class MarsMapDefinition(
   }
 }
 
-private val trigger = OnGain(TILE.addArgs(THIS.type))
+private val trigger = OnGain(TILE.addArgs(THIS))

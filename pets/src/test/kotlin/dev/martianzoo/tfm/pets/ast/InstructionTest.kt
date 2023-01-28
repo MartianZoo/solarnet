@@ -102,7 +102,7 @@ private class InstructionTest {
                 listOf(
                     ComplexFrom(
                         cn("Bar"),
-                        listOf(SimpleFrom(cn("Qux").type, cn("Abc").addArgs(cn("Eep").type))))),
+                        listOf(SimpleFrom(cn("Qux").type, cn("Abc").addArgs(cn("Eep")))))),
             ),
             null,
             null)

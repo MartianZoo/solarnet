@@ -5,37 +5,45 @@ import dev.martianzoo.tfm.pets.SpecialClassNames.CLASS
 import dev.martianzoo.tfm.pets.SpecialClassNames.COMPONENT
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.types.Dependency.ClassDependency
-import dev.martianzoo.tfm.types.Dependency.Key
 import dev.martianzoo.tfm.types.Dependency.TypeDependency
 
-/** A class that has been loaded by a [PClassLoader]. */
+/**
+ * A class that has been loaded by a [PClassLoader] based on a [ClassDeclaration]. Each loader has
+ * its own separate universe of [PClass]es, and each of these [PClass]es knows what loader it came
+ * from. This loaded class should be the source for any information you need to know about a class,
+ * but the declaration itself can always be looked up if necessary.
+ */
 public data class PClass(
     private val declaration: ClassDeclaration,
     internal val directSuperclasses: List<PClass>,
     private val loader: PClassLoader,
 ) {
 
+  /** A short name for this class, such as `"CT"` for `CityTile`; is often the same as [name]. */
   public val id: ClassName by declaration::id
+
+  /** The name of this class, in UpperCamelCase. */
   public val name: ClassName by declaration::name
+
+  /**
+   * If true, all types with this as their root are abstract, even when all dependencies are
+   * concrete.
+   */
   public val abstract: Boolean by declaration::abstract
 
   // HIERARCHY
 
-  public val directSupertypes: Set<PType> by lazy {
-    loader.resolveAll(declaration.supertypes)
-  }
+  public val directSupertypes: Set<PType> by lazy { loader.resolveAll(declaration.supertypes) }
 
   public fun isSubclassOf(that: PClass): Boolean =
       this == that || directSuperclasses.any { it.isSubclassOf(that) }
 
   public val directSubclasses: Set<PClass> by lazy {
-    require(loader.frozen)
-    loader.loadedClasses().filter { this in it.directSuperclasses }.toSet()
+    loader.allClasses.filter { this in it.directSuperclasses }.toSet()
   }
 
   public val allSubclasses: Set<PClass> by lazy {
-    require(loader.frozen)
-    loader.loadedClasses().filter { this in it.allSuperclasses }.toSet()
+    loader.allClasses.filter { this in it.allSuperclasses }.toSet()
   }
 
   public val allSuperclasses: Set<PClass> by lazy {
@@ -46,9 +54,8 @@ public data class PClass(
     if (directSuperclasses.size < 2) {
       false
     } else {
-      require(loader.frozen)
       val sharesAllMySuperclasses =
-          loader.loadedClasses().filter { pclass ->
+          loader.allClasses.filter { pclass ->
             directSuperclasses.all { pclass.isSubclassOf(it) }
           }
       sharesAllMySuperclasses.all { it.isSubclassOf(this) }
@@ -80,24 +87,24 @@ public data class PClass(
     (directSuperclasses.flatMap { it.allDependencyKeys } + directDependencyKeys).toSet()
   }
 
+  fun toClassType() = PType(loader[CLASS], ClassDependency(this).toMap())
+
   /** Least upper bound of all types with pclass==this */
   public val baseType: PType by lazy {
     if (name == CLASS) {
-      // This is the Class class. Its only dep is a ClassDependency to Component.
-      // TODO maybe special-case less
-      val key = directDependencyKeys.first()
-      val map: Map<Key, ClassDependency> = mapOf(key to ClassDependency(key, loader[COMPONENT]))
-      return@lazy PType(this, DependencyMap(map))
+      // base type of Class is Class<Component>
+      loader[COMPONENT].toClassType()
+    } else {
+      val newDeps =
+          directDependencyKeys.associateWith {
+            val depTypeExpr = declaration.dependencies[it.index].typeExpr
+            TypeDependency(it, loader.resolve(depTypeExpr))
+          }
+      val deps = DependencyMap.intersect(directSupertypes.map { it.dependencies })
+      val allDeps = deps.intersect(DependencyMap(newDeps))
+      require(allDeps.keys == allDependencyKeys)
+      PType(this, allDeps, null)
     }
-    val newDeps =
-        directDependencyKeys.associateWith {
-          val depTypeExpr = declaration.dependencies[it.index].typeExpr
-          TypeDependency(it, loader.resolve(depTypeExpr))
-        }
-    val deps = DependencyMap.intersect(directSupertypes.map { it.dependencies })
-    val allDeps = deps.intersect(DependencyMap(newDeps))
-    require(allDeps.keys == allDependencyKeys)
-    PType(this, allDeps, null)
   }
 
   // DEFAULTS

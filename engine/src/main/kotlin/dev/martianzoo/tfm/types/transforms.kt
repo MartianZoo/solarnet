@@ -8,12 +8,11 @@ import dev.martianzoo.tfm.pets.ast.Instruction.Gain
 import dev.martianzoo.tfm.pets.ast.PetNode
 import dev.martianzoo.tfm.pets.ast.ScalarAndType.Companion.sat
 import dev.martianzoo.tfm.pets.ast.TypeExpr
-import dev.martianzoo.tfm.types.Dependency.TypeDependency
 
 public fun <P : PetNode> applyDefaultsIn(node: P, loader: PClassLoader) =
     node.transform(Defaulter(loader))
 
-private class Defaulter(val table: PClassTable) : PetTransformer() {
+private class Defaulter(val table: PClassLoader) : PetTransformer() {
   override fun <P : PetNode> doTransform(node: P): P {
     val transformed: PetNode =
         when (node) {
@@ -24,7 +23,7 @@ private class Defaulter(val table: PClassTable) : PetTransformer() {
             val fixedType =
                 if (writtenType.isTypeOnly) {
                   val deps: Collection<Dependency> = defaults.gainOnlyDependencies.types
-                  writtenType.addArgs(deps.map { (it as TypeDependency).ptype.toTypeExprFull() })
+                  writtenType.addArgs(deps.map { it.toTypeExprFull() })
                 } else {
                   writtenType
                 }

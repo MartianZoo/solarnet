@@ -11,50 +11,49 @@ import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.pets.ast.TypeExpr
 import dev.martianzoo.tfm.pets.childNodesOfType
-import dev.martianzoo.tfm.types.Dependency.ClassDependency
-import dev.martianzoo.tfm.types.Dependency.Key
 import dev.martianzoo.util.toSetStrict
 
 // TODO restrict viz?
-class PClassLoader(private val authority: Authority) : PClassTable {
+class PClassLoader(private val authority: Authority) {
   private val table = mutableMapOf<ClassName, PClass?>()
 
   // TODO maybe special-case less
   init {
-    val decl1 = authority.classDeclaration(COMPONENT)
-    val cpt = PClass(decl1, listOf(), this)
+    val cpt = PClass(authority.classDeclaration(COMPONENT), listOf(), this)
     table[COMPONENT] = cpt
-    val decl = authority.classDeclaration(CLASS)
-    table[CLASS] = PClass(decl, listOf(cpt), this)
+    table[CLASS] = PClass(authority.classDeclaration(CLASS), listOf(cpt), this)
   }
 
   // MAIN QUERIES
 
-  override fun get(nameOrId: ClassName): PClass =
+  operator fun get(nameOrId: ClassName): PClass =
       table[nameOrId] ?: error("no class loaded with id or name $nameOrId")
 
-  override fun resolve(typeExpr: TypeExpr): PType {
+  fun resolve(typeExpr: TypeExpr): PType {
     val pclass = load(typeExpr.root)
-    if (pclass.name == CLASS) {
+    return if (pclass.name == CLASS) {
       val className: ClassName = if (typeExpr.args.isEmpty()) {
         COMPONENT
       } else {
         typeExpr.args.single().also { require(it.isTypeOnly) }.root
       }
-
-      val key = Key(pclass, 0)
-      val map: Map<Key, ClassDependency> = mapOf(key to ClassDependency(key, this[className]))
-      return PType(pclass, DependencyMap(map))
+      get(className).toClassType()
     } else {
-      return pclass.specialize(typeExpr.args.map { resolve(it) })
+      pclass.specialize(typeExpr.args.map { resolve(it) })
     }
   }
 
   fun resolveAll(exprs: Set<TypeExpr>): Set<PType> = exprs.map { resolve(it) }.toSetStrict()
 
-  override fun loadedClassNames() = loadedClasses().map { it.name }.toSetStrict()
-  fun loadedClassIds() = loadedClasses().map { it.id }.toSetStrict()
-  override fun loadedClasses(): Set<PClass> = table.values.filterNotNull().toSet()
+  fun classesLoaded(): Int = table.values.filterNotNull().toSet().size
+
+  val allClasses: Set<PClass> by lazy {
+    require(frozen)
+    table.values.map { it!! }.toSet()
+  }
+
+  val componentClass: PClass by lazy { get(COMPONENT) }
+  val classClass: PClass by lazy { get(CLASS) }
 
   // LOADING
 
@@ -87,9 +86,10 @@ class PClassLoader(private val authority: Authority) : PClassTable {
   /** Vararg form of `loadAll(Collection)`. */
   fun loadAll(first: String, vararg rest: String) = loadAll(setOf(first) + rest)
 
-  fun loadEverything(): PClassTable { // TODO hack
-    authority.allClassNames.filter { it != CLASS }.forEach(::loadSingle)
-    return freeze()
+  fun loadEverything(): PClassLoader { // TODO hack
+    authority.allClassNames.forEach(::loadSingle)
+    freeze()
+    return this
   }
 
   private fun loadTrees(idsAndNames: Collection<ClassName>) {
@@ -148,26 +148,15 @@ class PClassLoader(private val authority: Authority) : PClassTable {
   var frozen: Boolean = false
     private set
 
-  fun freeze(): PClassTable {
+  fun freeze() {
     frozen = true
     table.values.forEach { it!! }
-    return this
   }
 
   // WEIRD RESOURCE STUFF TODO
 
-  // It is probably enough to return just the resource names we know about so far?
-  fun resourceNames() = if (frozen) allResourceNames else findResourceNames()
-
-  private val allResourceNames: Set<ClassName> by lazy {
-    require(frozen)
-    findResourceNames()
-  }
-
-  private fun findResourceNames(): Set<ClassName> {
-    val stdRes = load(STANDARD_RESOURCE)
-    return table.values
-        .mapNotNull { if (it?.isSubclassOf(stdRes) == true) it.name else null }
-        .toSet()
+  val allResourceNames: Set<ClassName> by lazy {
+    val stdRes = get(STANDARD_RESOURCE)
+    allClasses.filter { it.isSubclassOf(stdRes) }.map { it.name }.toSet()
   }
 }

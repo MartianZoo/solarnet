@@ -1,6 +1,7 @@
 package dev.martianzoo.tfm.pets
 
 import dev.martianzoo.tfm.pets.PetTransformer.Companion.transform
+import dev.martianzoo.tfm.pets.SpecialClassNames.CLASS
 import dev.martianzoo.tfm.pets.SpecialClassNames.PRODUCTION
 import dev.martianzoo.tfm.pets.SpecialClassNames.THIS
 import dev.martianzoo.tfm.pets.SpecialClassNames.USE_ACTION
@@ -22,7 +23,7 @@ import dev.martianzoo.tfm.pets.ast.TypeExpr
 internal fun actionToEffect(action: Action, index1Ref: Int): Effect {
   require(index1Ref >= 1) { index1Ref }
   val instruction = instructionFromAction(action.cost?.toInstruction(), action.instruction)
-  val trigger = OnGain(cn("$USE_ACTION$index1Ref").addArgs(THIS.type))
+  val trigger = OnGain(cn("$USE_ACTION$index1Ref").addArgs(THIS))
   return Effect(trigger, instruction, automatic = false)
 }
 
@@ -86,7 +87,7 @@ fun <P : PetNode> deprodify(node: P, producible: Set<ClassName>): P {
                   x(node.extract()).also { inProd = false }
                 }
                 inProd && node is TypeExpr && node.root in producible ->
-                    PRODUCTION.type.copy(args = node.args + node.root.literal)
+                    PRODUCTION.addArgs(node.args + CLASS.addArgs(node.root))
                 else -> defaultTransform(node)
               }
           @Suppress("UNCHECKED_CAST") return rewritten as P

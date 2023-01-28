@@ -15,7 +15,6 @@ import dev.martianzoo.tfm.pets.ast.PetNode
 import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.pets.ast.TypeExpr
 import dev.martianzoo.tfm.pets.deprodify
-import dev.martianzoo.tfm.types.PClassLoader
 import dev.martianzoo.tfm.types.PType
 import dev.martianzoo.util.HashMultiset
 import dev.martianzoo.util.Multiset
@@ -84,7 +83,7 @@ class InteractiveSession {
               if (g.resolve(node).isSubtypeOf(owned)) {
                 val hasPlayer = node.args.any { g.resolve(it).isSubtypeOf(player) }
                 if (!hasPlayer) {
-                  return node.addArgs(listOf(defaultPlayer!!.type)) as P
+                  return node.addArgs(defaultPlayer!!) as P
                 }
               }
               return node
@@ -95,6 +94,6 @@ class InteractiveSession {
     val fixt = node.transform(fixer)
 
     // TODO hmm
-    return deprodify(fixt, (game!!.classTable as PClassLoader).resourceNames())
+    return deprodify(fixt, game!!.classTable.allResourceNames)
   }
 }

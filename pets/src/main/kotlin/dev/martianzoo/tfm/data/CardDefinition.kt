@@ -12,6 +12,7 @@ import dev.martianzoo.tfm.data.SpecialClassNames.PRELUDE_CARD
 import dev.martianzoo.tfm.data.SpecialClassNames.PROJECT_CARD
 import dev.martianzoo.tfm.data.SpecialClassNames.RESOURCEFUL_CARD
 import dev.martianzoo.tfm.pets.Parsing.parseOneLineClassDeclaration
+import dev.martianzoo.tfm.pets.SpecialClassNames.CLASS
 import dev.martianzoo.tfm.pets.SpecialClassNames.END
 import dev.martianzoo.tfm.pets.actionsToEffects
 import dev.martianzoo.tfm.pets.ast.Action.Companion.action
@@ -179,7 +180,7 @@ data class CardDefinition(
 
     projectKind?.let { supertypes += it.className.type }
     if (actionsRaw.any()) supertypes += ACTION_CARD.type
-    resourceType?.let { supertypes += RESOURCEFUL_CARD.addArgs(it.literal) }
+    resourceType?.let { supertypes += RESOURCEFUL_CARD.addArgs(CLASS.addArgs(it)) }
     if (supertypes.isEmpty()) supertypes += CARD_FRONT.type
 
     ClassDeclaration(

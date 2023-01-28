@@ -51,8 +51,15 @@ data class TypeExpr(
 
   val isTypeOnly = args.isEmpty() && refinement == null && link == null
 
-  fun addArgs(moreArgs: List<TypeExpr>) = copy(args = args + moreArgs)
-  fun replaceArgs(args: List<TypeExpr>) = copy(args = args)
+  @JvmName("addArgsFromClassNames")
+  fun addArgs(moreArgs: List<ClassName>): TypeExpr = addArgs(moreArgs.map { it.type })
+  fun addArgs(vararg moreArgs: ClassName): TypeExpr = addArgs(moreArgs.toList())
+
+  fun addArgs(moreArgs: List<TypeExpr>): TypeExpr = replaceArgs(args + moreArgs)
+  fun addArgs(vararg moreArgs: TypeExpr): TypeExpr = addArgs(moreArgs.toList())
+
+  fun replaceArgs(newArgs: List<TypeExpr>): TypeExpr = copy(args = newArgs)
+  fun replaceArgs(vararg newArgs: TypeExpr): TypeExpr = replaceArgs(newArgs.toList())
 
   fun refine(ref: Requirement?) =
       if (ref == null) {

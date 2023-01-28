@@ -6,6 +6,7 @@ import dev.martianzoo.tfm.pets.Parsing.parseClassDeclarations
 import dev.martianzoo.tfm.pets.SpecialClassNames.CLASS
 import dev.martianzoo.tfm.pets.SpecialClassNames.COMPONENT
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.tfm.pets.ast.TypeExpr.Companion.typeExpr
 import dev.martianzoo.tfm.types.Dependency.Key
 import dev.martianzoo.util.toStrings
 import org.junit.jupiter.api.Test
@@ -26,7 +27,7 @@ private class PClassTest {
   @Test
   fun onethingness() {
     val loader = loadTypes("CLASS Foo")
-    val foo = loader["Foo"]
+    val foo = loader[cn("Foo")]
     assertThat(foo.name).isEqualTo(cn("Foo"))
     assertThat(foo.abstract).isFalse()
     assertThat(foo.directSuperclasses.toStrings()).containsExactly("$COMPONENT")
@@ -37,7 +38,7 @@ private class PClassTest {
   @Test
   fun subclass() {
     val loader = loadTypes("CLASS Foo", "CLASS Bar : Foo")
-    val bar = loader["Bar"]
+    val bar = loader[cn("Bar")]
     assertThat(bar.directSuperclasses.toStrings()).containsExactly("Foo")
     assertThat(bar.allSuperclasses.toStrings()).containsExactly("$COMPONENT", "Foo", "Bar")
     assertThat(bar.directDependencyKeys).isEmpty()
@@ -46,7 +47,7 @@ private class PClassTest {
   @Test
   fun forwardReference() {
     val loader = loadTypes("CLASS Bar : Foo", "CLASS Foo")
-    val bar = loader["Bar"]
+    val bar = loader[cn("Bar")]
     assertThat(bar.directSuperclasses.toStrings()).containsExactly("Foo")
     assertThat(bar.allSuperclasses.toStrings()).containsExactly("$COMPONENT", "Foo", "Bar")
     assertThat(bar.directDependencyKeys).isEmpty()
@@ -74,7 +75,7 @@ private class PClassTest {
   @Test
   fun dependency() {
     val loader = loadTypes("CLASS Foo", "CLASS Bar<Foo>")
-    val bar = loader["Bar"]
+    val bar = loader[cn("Bar")]
     assertThat(bar.directSuperclasses.map { it.name }).containsExactly(COMPONENT)
     assertThat(bar.directDependencyKeys).containsExactly(Key(bar, 0))
   }
@@ -82,8 +83,8 @@ private class PClassTest {
   @Test
   fun inheritedDependency() {
     val loader = loadTypes("CLASS Foo", "CLASS Bar<Foo>", "CLASS Qux : Bar")
-    val bar = loader["Bar"]
-    val qux = loader["Qux"]
+    val bar = loader[cn("Bar")]
+    val qux = loader[cn("Qux")]
     assertThat(qux.directSuperclasses.toStrings()).containsExactly("Bar")
 
     val key = Key(bar, 0)
@@ -94,8 +95,8 @@ private class PClassTest {
   @Test
   fun restatedDependency() {
     val loader = loadTypes("CLASS Foo", "CLASS Bar<Foo>", "CLASS Qux : Bar<Foo>")
-    val bar = loader["Bar"]
-    val qux = loader["Qux"]
+    val bar = loader[cn("Bar")]
+    val qux = loader[cn("Qux")]
     assertThat(qux.directSuperclasses.toStrings()).containsExactly("Bar")
 
     val key = Key(bar, 0)
@@ -106,8 +107,8 @@ private class PClassTest {
   @Test
   fun addedDependency() {
     val loader = loadTypes("CLASS Foo", "CLASS Bar<Foo>", "CLASS Baz", "CLASS Qux<Baz> : Bar<Foo>")
-    val bar = loader["Bar"]
-    val qux = loader["Qux"]
+    val bar = loader[cn("Bar")]
+    val qux = loader[cn("Qux")]
 
     assertThat(bar.allDependencyKeys).containsExactly(Key(bar, 0))
     assertThat(qux.allDependencyKeys).containsExactly(Key(bar, 0), Key(qux, 0))
@@ -116,8 +117,8 @@ private class PClassTest {
   @Test
   fun refinedDependency() {
     val loader = loadTypes("CLASS Foo", "CLASS Bar<Foo>", "CLASS Baz : Foo", "CLASS Qux : Bar<Baz>")
-    val bar = loader["Bar"]
-    val qux = loader["Qux"]
+    val bar = loader[cn("Bar")]
+    val qux = loader[cn("Qux")]
     assertThat(qux.directSuperclasses.toStrings()).containsExactly("Bar")
 
     val key = Key(bar, 0)
@@ -143,12 +144,12 @@ private class PClassTest {
             "CLASS Qux")
 
     // abstract: SuperFoo, SuperBar, Foo
-    val supSup = table.resolve("SuperBar<SuperFoo>")
-    val supFoo = table.resolve("SuperBar<Foo>")
-    val supSub = table.resolve("SuperBar<SubFoo>")
-    val barFoo = table.resolve("Bar<Foo>")
-    val barSub = table.resolve("Bar<SubFoo>")
-    val subSub = table.resolve("SubBar<SubFoo>")
+    val supSup = table.resolve(typeExpr("SuperBar<SuperFoo>"))
+    val supFoo = table.resolve(typeExpr("SuperBar<Foo>"))
+    val supSub = table.resolve(typeExpr("SuperBar<SubFoo>"))
+    val barFoo = table.resolve(typeExpr("Bar<Foo>"))
+    val barSub = table.resolve(typeExpr("Bar<SubFoo>"))
+    val subSub = table.resolve(typeExpr("SubBar<SubFoo>"))
 
     assertThat(supSup.abstract).isTrue()
     assertThat(supSup.isSubtypeOf(supSup)).isTrue()
@@ -186,12 +187,12 @@ private class PClassTest {
     checkAutoAdjust("SubBar<SuperFoo>", "SubBar<SubFoo>", table)
     checkAutoAdjust("SubBar<Foo>", "SubBar<SubFoo>", table)
 
-    assertFails("outta bounds") { table.resolve("Foo<Qux>") }
-    assertFails("no deps") { table.resolve("Foo<Bar>") }
+    assertFails("outta bounds") { table.resolve(typeExpr("Foo<Qux>")) }
+    assertFails("no deps") { table.resolve(typeExpr("Foo<Bar>")) }
   }
 
-  private fun checkAutoAdjust(`in`: String, out: String, table: PClassTable) {
-    assertThat(table.resolve(`in`).toTypeExprFull().toString()).isEqualTo(out)
+  private fun checkAutoAdjust(`in`: String, out: String, table: PClassLoader) {
+    assertThat(table.resolve(typeExpr(`in`)).toTypeExprFull().toString()).isEqualTo(out)
   }
 }
 

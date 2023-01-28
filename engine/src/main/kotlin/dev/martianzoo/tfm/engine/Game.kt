@@ -7,7 +7,7 @@ import dev.martianzoo.tfm.data.StateChange.Cause
 import dev.martianzoo.tfm.pets.ast.Instruction
 import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.pets.ast.TypeExpr
-import dev.martianzoo.tfm.types.PClassTable
+import dev.martianzoo.tfm.types.PClassLoader
 import dev.martianzoo.tfm.types.PType
 import dev.martianzoo.util.Multiset
 import dev.martianzoo.util.map
@@ -15,7 +15,7 @@ import dev.martianzoo.util.map
 public class Game(
     val setup: GameSetup,
     val components: ComponentGraph,
-    val classTable: PClassTable,
+    val classTable: PClassLoader,
 ) {
   // val tasks = mutableListOf<Task>()
 

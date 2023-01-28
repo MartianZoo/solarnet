@@ -1,5 +1,7 @@
 package dev.martianzoo.tfm.types
 
+import dev.martianzoo.tfm.pets.SpecialClassNames.CLASS
+import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.TypeExpr
 
 abstract class Dependency {
@@ -12,12 +14,13 @@ abstract class Dependency {
 
   override fun toString() = "$key=${toTypeExprFull()}"
 
-  public data class Key(val declaringClass: PClass, val index: Int) {
+  public data class Key(val declaringClass: ClassName, val index: Int) {
+    constructor(declaringClass: PClass, index: Int) : this(declaringClass.name, index)
     init {
       require(index >= 0)
     }
 
-    override fun toString() = "${declaringClass.name}_$index"
+    override fun toString() = "${declaringClass}_$index"
   }
 
   public data class TypeDependency(override val key: Key, val ptype: PType) : Dependency() {
@@ -40,22 +43,25 @@ abstract class Dependency {
 
   /** Okay this is used ONLY by Class_0, and the value is just a class, like just Tile.
    * */
-  public data class ClassDependency(override val key: Key, val pclass: PClass) : Dependency() {
+  public data class ClassDependency(val pclass: PClass) : Dependency() {
+    override val key: Key by ::KEY
     override val abstract by pclass::abstract
 
-    override fun specializes(that: Dependency) = pclass.isSubclassOf(checkKeys(that).pclass)
+    override fun specializes(that: Dependency) = pclass.isSubclassOf((that as ClassDependency).pclass)
 
     override fun intersect(that: Dependency): ClassDependency? =
-        this intersect checkKeys(that).pclass
+        this intersect (that as ClassDependency).pclass
 
     infix fun intersect(otherClass: PClass): ClassDependency? =
         (this.pclass intersect otherClass)?.let { copy(pclass = it) }
 
     override fun toTypeExprFull() = pclass.name.type
 
-    private fun checkKeys(that: Dependency): ClassDependency {
-      require(this.key == that.key)
-      return that as ClassDependency
+    // A class dependency is always in a DM of size 1 so we can just make it
+    fun toMap() = DependencyMap(mapOf<Key, Dependency>(KEY to this))
+
+    companion object {
+      val KEY = Key(CLASS, 0)
     }
   }
 }

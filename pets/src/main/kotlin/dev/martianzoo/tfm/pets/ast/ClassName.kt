@@ -3,7 +3,6 @@ package dev.martianzoo.tfm.pets.ast
 import com.github.h0tk3y.betterParse.combinators.map
 import dev.martianzoo.tfm.pets.PetParser
 import dev.martianzoo.tfm.pets.PetVisitor
-import dev.martianzoo.tfm.pets.SpecialClassNames.CLASS
 
 data class ClassName(private val asString: String) : PetNode(), Comparable<ClassName> {
   companion object {
@@ -18,7 +17,6 @@ data class ClassName(private val asString: String) : PetNode(), Comparable<Class
   }
 
   val type = TypeExpr(this)
-  val literal by lazy { TypeExpr(CLASS, listOf(type)) }
 
   fun addArgs(specs: List<TypeExpr>) = type.addArgs(specs)
   fun addArgs(vararg specs: TypeExpr) = addArgs(specs.toList())

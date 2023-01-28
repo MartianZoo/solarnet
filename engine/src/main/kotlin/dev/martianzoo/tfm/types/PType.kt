@@ -1,7 +1,7 @@
 package dev.martianzoo.tfm.types
 
 import dev.martianzoo.tfm.api.TypeInfo
-import dev.martianzoo.tfm.pets.SpecialClassNames
+import dev.martianzoo.tfm.pets.SpecialClassNames.CLASS
 import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.pets.ast.Requirement.And
 import dev.martianzoo.tfm.pets.ast.TypeExpr
@@ -13,7 +13,7 @@ data class PType(
     val refinement: Requirement? = null,
 ) : TypeInfo {
   init {
-    if (pclass.name == SpecialClassNames.CLASS) {
+    if (pclass.name == CLASS) {
       require(dependencies.types.single() is ClassDependency)
     }
   }

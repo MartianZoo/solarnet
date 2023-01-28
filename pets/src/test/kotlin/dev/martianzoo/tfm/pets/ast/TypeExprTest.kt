@@ -66,13 +66,13 @@ private class TypeExprTest {
     typeExpr("Foo")
     typeExpr("Foo<Bar>")
 
-    assertThat(typeExpr("Class<Foo>")).isEqualTo(cn("Foo").literal)
-    assertThat(typeExpr("Class<Component>")).isEqualTo(COMPONENT.literal)
-    assertThat(typeExpr("Class<Class>")).isEqualTo(CLASS.literal)
+    assertThat(typeExpr("Class<Foo>")).isEqualTo(CLASS.addArgs(cn("Foo")))
+    assertThat(typeExpr("Class<Component>")).isEqualTo(CLASS.addArgs(COMPONENT))
+    assertThat(typeExpr("Class<Class>")).isEqualTo(CLASS.addArgs(CLASS))
 
     val two = typeExpr("Two<Class<Bar>, Class<Qux>>")
     assertThat(two.root).isEqualTo(cn("Two"))
-    assertThat(two.args).containsExactly(cn("Bar").literal, cn("Qux").literal)
+    assertThat(two.args).containsExactly(CLASS.addArgs(cn("Bar")), CLASS.addArgs(cn("Qux")))
 
     assertFails { typeExpr("Class<Class<Class>>") }
     assertFails { typeExpr("Class<Class<Foo>>") }

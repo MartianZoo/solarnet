@@ -6,6 +6,7 @@ import dev.martianzoo.tfm.pets.SpecialClassNames.COMPONENT
 import dev.martianzoo.tfm.pets.SpecialClassNames.DIE
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.tfm.pets.ast.TypeExpr.Companion.typeExpr
 import dev.martianzoo.util.toStrings
 import java.util.TreeSet
 import org.junit.jupiter.api.Disabled
@@ -25,38 +26,37 @@ private class PClassCanonTest {
       assertThat(allDependencyKeys).isEmpty()
       assertThat(directSuperclasses).isEmpty()
     }
-    assertThat(table.loadedClasses().size).isEqualTo(2)
+    assertThat(table.classesLoaded()).isEqualTo(2)
 
     table.load(cn("OceanTile")).apply {
       assertThat(directDependencyKeys).isEmpty()
-      assertThat(allDependencyKeys).containsExactly(Dependency.Key(table["Tile"], 0))
+      assertThat(allDependencyKeys).containsExactly(Dependency.Key(cn("Tile"), 0))
       assertThat(directSuperclasses.toStrings())
           .containsExactly("GlobalParameter", "Tile")
           .inOrder()
       assertThat(allSuperclasses.toStrings())
           .containsExactly("Component", "GlobalParameter", "Tile", "OceanTile")
           .inOrder()
-      assertThat(table.loadedClasses().size).isEqualTo(5)
+      assertThat(table.classesLoaded()).isEqualTo(5)
 
-      assertThat(baseType).isEqualTo(table.resolve("OceanTile<MarsArea>"))
+      assertThat(baseType).isEqualTo(table.resolve(typeExpr("OceanTile<MarsArea>")))
     }
-    assertThat(table.loadedClasses().size).isEqualTo(7)
+    assertThat(table.classesLoaded()).isEqualTo(7)
   }
 
   @Test
   fun canGetBaseTypes() {
     val table = PClassLoader(Canon).loadEverything()
-     table.loadedClasses().forEach { it.baseType }
+     table.allClasses.forEach { it.baseType }
   }
 
   @Disabled
   @Test
   fun findValidTypes() {
     val table = PClassLoader(Canon).loadEverything()
-    val all = table.loadedClassNames().map { table[it] }
 
     val names: List<ClassName> =
-        all.map { it.name }
+        table.allClasses.map { it.name }
             .filterNot { it.matches(Regex("^Card.{3,4}$")) && it.hashCode() % 12 != 0 }
             .filterNot { it.matches(Regex("^(Tharsis|Hellas|Elysium)")) && it.hashCode() % 8 != 0 }
             .filterNot { it in setOf(COMPONENT, DIE) }
@@ -94,7 +94,7 @@ private class PClassCanonTest {
           )
       for (thing in tryThese) {
         try {
-          val ptype = table.resolve(thing)
+          val ptype = table.resolve(typeExpr(thing))
           if (ptype.abstract) {
             if (abstracts.size < 100) abstracts.add(thing)
           } else {

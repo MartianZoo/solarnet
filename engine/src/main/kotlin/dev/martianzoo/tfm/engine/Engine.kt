@@ -36,15 +36,14 @@ public object Engine {
   // TODO maybe the loader should report these
 
   private fun classInstances(loader: PClassLoader): List<Component> {
-    val concretes = loader.loadedClasses().filter { !it.abstract }
-    return concretes.map { Component(loader.resolve(it.name.literal)) }
+    val concretes = loader.allClasses.filter { !it.abstract }
+    return concretes.map { Component(loader[it.name].toClassType()) }
   }
 
   private fun singletons(loader: PClassLoader) =
-      loader
-          .loadedClasses()
+      loader.allClasses
           .filter { it.isSingleton() && !it.baseType.abstract } // TODO that's not right
-          .map { Component(loader.resolve(it.name.type)) }
+          .map { Component(it.baseType) }
 
   private fun borders(map: MarsMapDefinition, loader: PClassLoader): List<Component> {
     val border = cn("Border")

@@ -23,7 +23,7 @@ private class CanonTest {
   @Test
   fun testOwnedTileIsAnIntersectionType() {
     val table = PClassLoader(Canon).loadEverything()
-    val ot = table["OwnedTile"]
+    val ot = table[cn("OwnedTile")]
 
     // Nothing can be both Owned and a Tile without being an OwnedTile!
     assertThat(ot.intersectionType).isTrue()
@@ -33,7 +33,7 @@ private class CanonTest {
   @Test
   fun testActionCardIsAnIntersectionType() {
     val table = PClassLoader(Canon).loadEverything()
-    val ac = table["ActionCard"]
+    val ac = table[cn("ActionCard")]
 
     // Nothing can be both a CardFront and a HasActions but an ActionCard!
     assertThat(ac.intersectionType).isTrue()
@@ -119,7 +119,7 @@ private class CanonTest {
             .filterNot { it.matches(regex) }
             .filterNot { it in milestoneNames && "HEV".contains(Canon.milestone(it).bundle) }
 
-    assertThat(game.classTable.loadedClassNames()).containsExactlyElementsIn(expected)
+    assertThat(game.classTable.allClasses.map { it.name }).containsExactlyElementsIn(expected)
   }
 
   val regex = Regex("(Hellas|Elysium|Player5|Camp|Row|Venus|Area2|Floater|Dirigible|AirScrap).*")
