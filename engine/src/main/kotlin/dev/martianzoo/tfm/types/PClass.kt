@@ -5,7 +5,6 @@ import dev.martianzoo.tfm.pets.SpecialClassNames.CLASS
 import dev.martianzoo.tfm.pets.SpecialClassNames.COMPONENT
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.Effect
-import dev.martianzoo.tfm.pets.replaceThis
 import dev.martianzoo.tfm.types.AstTransforms.applyDefaultsIn
 import dev.martianzoo.tfm.types.AstTransforms.deprodify
 import dev.martianzoo.tfm.types.Dependency.ClassDependency
@@ -180,7 +179,6 @@ internal constructor(
     declaration.effectsRaw.map {
       var fx = it
       fx = deprodify(fx, loader)
-      fx = replaceThis(fx, baseType.toTypeExprFull())
       fx = applyDefaultsIn(fx, loader)
       fx
     }
@@ -192,6 +190,8 @@ internal constructor(
   internal fun isSingleton(): Boolean =
       declaration.otherInvariants.any { it.requiresThis() } ||
           directSuperclasses.any { it.isSingleton() }
+
+  internal fun findMatchups(specs: List<PType>) = baseType.dependencies.findMatchups(specs)
 
   override fun toString() = "$name"
 
@@ -208,7 +208,8 @@ internal constructor(
         Subclasses: $substring
         Dependencies: ${baseType.dependencies.types}
         Effects:
+
     """
-        .trimIndent() + classEffects.joinToString { "  $it\n" }
+        .trimIndent() + classEffects.joinToString("") { "  $it\n" }
   }
 }

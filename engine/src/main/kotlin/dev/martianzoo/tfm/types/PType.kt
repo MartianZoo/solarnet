@@ -51,10 +51,7 @@ public data class PType internal constructor(
 
   fun refine(ref: Requirement): PType = copy(refinement = ref)
 
-  fun toTypeExprFull(): TypeExpr {
-    val specs = dependencies.types.map { it.toTypeExprFull() }
-    return pclass.name.addArgs(specs).refine(refinement)
-  }
+  fun toTypeExprFull() = pclass.name.addArgs(dependencies.argsAsTypeExprs()).refine(refinement)
 
   override fun toString() = toTypeExprFull().toString()
 }
