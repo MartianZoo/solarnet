@@ -1,13 +1,16 @@
 package dev.martianzoo.tfm.types
 
+import dev.martianzoo.tfm.types.Dependency.Key
 import dev.martianzoo.tfm.types.Dependency.TypeDependency
 import dev.martianzoo.util.mergeMaps
 import dev.martianzoo.util.overlayMaps
 
 // Takes care of everything inside the <> but knows nothing of what's outside it
-internal data class DependencyMap(private val map: Map<Dependency.Key, Dependency>) {
+internal data class DependencyMap(private val map: Map<Key, Dependency>) {
   // TODO make that private?
-  internal constructor() : this(mapOf<Dependency.Key, Dependency>())
+  internal constructor() : this(mapOf<Key, Dependency>())
+
+  constructor(vararg pairs: Pair<Key, Dependency>) : this(mapOf(*pairs))
 
   init {
     map.forEach { (key, dep) -> require(key == dep.key) { key } }
@@ -19,8 +22,8 @@ internal data class DependencyMap(private val map: Map<Dependency.Key, Dependenc
 
   val abstract = types.any { it.abstract }
 
-  operator fun contains(key: Dependency.Key) = key in map
-  operator fun get(key: Dependency.Key): Dependency? = map[key]
+  operator fun contains(key: Key) = key in map
+  operator fun get(key: Key): Dependency? = map[key]
 
   fun specializes(that: DependencyMap) =
       // For each of *its* keys, my type must be a subtype of its type
@@ -49,7 +52,7 @@ internal data class DependencyMap(private val map: Map<Dependency.Key, Dependenc
   fun findMatchups(specs: List<PType>): DependencyMap {
     if (specs.isEmpty()) return this
 
-    val newMap = mutableMapOf<Dependency.Key, Dependency>()
+    val newMap = mutableMapOf<Key, Dependency>()
     val unhandled = specs.toMutableList()
 
     for ((key, dependency) in map) {

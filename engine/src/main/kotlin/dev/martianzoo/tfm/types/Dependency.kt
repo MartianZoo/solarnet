@@ -12,6 +12,10 @@ internal sealed class Dependency {
 
   abstract fun toTypeExprFull(): TypeExpr
 
+  /**
+   * Once a class introduces a dependency, like `CLASS Tile<Area>`, all subclasses know that
+   * dependency (which they inherit) by the same key, whether they narrow the type or not.
+   */
   data class Key(val declaringClass: ClassName, val index: Int) {
     init {
       require(index >= 0)
@@ -19,7 +23,11 @@ internal sealed class Dependency {
     override fun toString() = "${declaringClass}_$index"
   }
 
+  /** Any [Dependency] except for the case covered by [ClassDependency] below. */
   data class TypeDependency(override val key: Key, val ptype: PType) : Dependency() {
+    init {
+      require(key != ClassDependency.KEY)
+    }
     override val abstract by ptype::abstract
 
     private fun checkKeys(that: Dependency): TypeDependency {
@@ -38,9 +46,15 @@ internal sealed class Dependency {
     override fun toString() = "$key=${toTypeExprFull()}"
   }
 
-  /** Okay this is used ONLY by Class_0, and the value is just a class, like just Tile. */
+  /**
+   * A dependency used *only* by types of the class `Class`; for example `Class<Foo>` (in which
+   * example `pclass.name` is `"Foo"`). No other class can use this; for example, one cannot
+   * declare that the dependency in `Production<Plant>` is a "class dependency" on `Plant`, so
+   * instead we use `Production<Class<Plant>>`.
+   */
   data class ClassDependency(val pclass: PClass) : Dependency() {
     companion object {
+      /** The only dependency key that may point to this kind of dependency. */
       val KEY = Key(CLASS, 0)
     }
 

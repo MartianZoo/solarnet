@@ -38,7 +38,7 @@ public object Engine {
 
   private fun classInstances(loader: PClassLoader): List<Component> {
     val concretes = loader.allClasses.filter { !it.abstract }
-    return concretes.map { Component(it.toClassType()) }
+    return concretes.map { Component(it.classType) }
   }
 
   private fun singletons(loader: PClassLoader) =

@@ -6,9 +6,13 @@ import dev.martianzoo.tfm.pets.ast.Requirement.And
 import dev.martianzoo.tfm.pets.ast.TypeExpr
 import dev.martianzoo.tfm.types.Dependency.ClassDependency
 
+/**
+ * The translation of a [TypeExpr] into a "live" type, referencing actual [PClass]es loaded by a
+ * [PClassLoader]. These are usually obtained by [PClassLoader.resolveType].
+ */
 public data class PType internal constructor(
     private val pclass: PClass,
-    internal val dependencies: DependencyMap,
+    internal val dependencies: DependencyMap = DependencyMap(),
     internal val refinement: Requirement? = null,
 ) {
   val isClassType = pclass.name == CLASS

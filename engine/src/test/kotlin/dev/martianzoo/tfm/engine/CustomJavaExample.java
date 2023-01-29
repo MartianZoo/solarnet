@@ -22,7 +22,7 @@ public class CustomJavaExample {
 
     @Override
     public Instruction translate( // TODO null annotations
-        ReadOnlyGameState game, List<? extends TypeExpr> arguments) {
+        ReadOnlyGameState game, List<TypeExpr> arguments) {
       var player = getOnlyElement(arguments);
       var prods = lookUpProductionLevels(game, player);
       int lowest = Collections.min(prods.values());

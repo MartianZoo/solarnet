@@ -11,18 +11,17 @@ import dev.martianzoo.tfm.pets.ast.TypeExpr
 import dev.martianzoo.tfm.pets.childNodesOfType
 
 /**
- * All [PClass] instances come from here.
+ * All [PClass] instances come from here. Uses an [Authority] to pull class declarations from as
+ * needed. Can be [frozen], which prevents additional classes from being loaded, and enables
+ * features such as [PClass.allSubclasses] to work.
+ *
+ * @param authority the source of class declarations to use as needed; [loadEverything] will load
+ *     every class found here
+ * @param autoLoadDependencies whether, when a class is loaded, to also load any classes that class
+ *     depends on in some way; by default only superclasses are auto-loaded
  */
 public class PClassLoader(
-    /**
-     * The source of class declarations to use. The loader won't necessarily load everything found
-     * there, unless [loadEverything] is called.
-     */
     private val authority: Authority,
-
-    /**
-     * Whether, upon loading a class, to also load any classes that class depends on in some way.
-     */
     private val autoLoadDependencies: Boolean = false,
 ) {
   /** The `Component` class, which is the root of the class hierarchy. */
@@ -31,20 +30,14 @@ public class PClassLoader(
   /** The `Class` class, the other class that is required to exist. */
   public val classClass: PClass = PClass(decl(CLASS), this, listOf(componentClass))
 
-  private val loadedClasses = mutableMapOf<ClassName, PClass?>(
-      COMPONENT to componentClass,
-      CLASS to classClass
-  )
+  private val loadedClasses =
+      mutableMapOf<ClassName, PClass?>(COMPONENT to componentClass, CLASS to classClass)
 
-  /**
-   * Returns the [PClass] whose name or id is [nameOrId], or throws an exception.
-   */
+  /** Returns the [PClass] whose name or id is [nameOrId], or throws an exception. */
   public fun getClass(nameOrId: ClassName): PClass =
       loadedClasses[nameOrId] ?: error("no class loaded with id or name $nameOrId")
 
-  /**
-   * Returns the [PType] represented by [typeExpr].
-   */
+  /** Returns the [PType] represented by [typeExpr]. */
   public fun resolveType(typeExpr: TypeExpr): PType {
     val pclass = getClass(typeExpr.className)
     return if (pclass.name == CLASS) {
@@ -56,15 +49,13 @@ public class PClassLoader(
             require(single.isTypeOnly)
             single.className
           }
-      getClass(className).toClassType()
+      getClass(className).classType
     } else {
       pclass.specialize(typeExpr.arguments.map(::resolveType))
     }
   }
 
-  /**
-   * All classes loaded by this class loader; can only be accessed after the loader is [frozen].
-   */
+  /** All classes loaded by this class loader; can only be accessed after the loader is [frozen]. */
   public val allClasses: Set<PClass> by lazy {
     require(frozen)
     loadedClasses.values.map { it!! }.toSet()
@@ -80,13 +71,11 @@ public class PClassLoader(
           loadTrees(listOf(idOrName))
           getClass(idOrName)
         }
-
         else -> loadSingle(idOrName)
       }
 
   /**
-   * Equivalent to (but possibly faster than) calling [load] on every class name in
-   * [idsAndNames].
+   * Equivalent to (but possibly faster than) calling [load] on every class name in [idsAndNames].
    */
   public fun loadAll(idsAndNames: Collection<ClassName>) =
       if (autoLoadDependencies) {
@@ -153,6 +142,6 @@ public class PClassLoader(
     }
 
   private fun decl(cn: ClassName) = authority.classDeclaration(cn)
-}
 
-val fakeClassNames = setOf(THIS, ME)
+  private val fakeClassNames = setOf(THIS, ME)
+}

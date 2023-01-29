@@ -6,6 +6,8 @@ import dev.martianzoo.tfm.pets.SpecialClassNames.COMPONENT
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.Effect
 import dev.martianzoo.tfm.pets.replaceThis
+import dev.martianzoo.tfm.types.AstTransforms.applyDefaultsIn
+import dev.martianzoo.tfm.types.AstTransforms.deprodify
 import dev.martianzoo.tfm.types.Dependency.ClassDependency
 import dev.martianzoo.tfm.types.Dependency.ClassDependency.Companion.KEY
 import dev.martianzoo.tfm.types.Dependency.TypeDependency
@@ -13,50 +15,80 @@ import dev.martianzoo.util.toSetStrict
 
 /**
  * A class that has been loaded by a [PClassLoader] based on a [ClassDeclaration]. Each loader has
- * its own separate universe of [PClass]es, and each of these [PClass]es knows what loader it came
- * from. This loaded class should be the source for any information you need to know about a class,
- * but the declaration itself can always be looked up if necessary.
+ * its own separate universe of [PClass]es. While a declaration is just inert data, this type has
+ * behavior that is useful to the engine. This loaded class should be the source for most
+ * information you need to know about a class at runtime, but the declaration itself can always be
+ * retrieved from it when necessary.
  */
-public data class PClass internal constructor(
-    private val declaration: ClassDeclaration,
+public data class PClass
+internal constructor(
+    /** The declaration this class was loaded from. */
+    public val declaration: ClassDeclaration,
+    /** The class loader that loaded this class. */
     private val loader: PClassLoader,
-    internal val directSuperclasses: List<PClass> = declaration.superclassNames.map(loader::load),
+    public val directSuperclasses: List<PClass> = declaration.superclassNames.map(loader::load),
 ) {
   /** The name of this class, in UpperCamelCase. */
   public val name: ClassName by declaration::name
 
-  /** A short name for this class, such as `"CT"` for `CityTile`; is often the same as [name]. */
+  /** A short name for this class, such as `"CT"` for `"CityTile"`; is often the same as [name]. */
   public val id: ClassName by declaration::id
 
   /**
    * If true, all types with this as their root are abstract, even when all dependencies are
-   * concrete.
+   * concrete. An example is `Tile`; one can never add a tile to the board without first deciding
+   * *which kind* of tile to add.
    */
   public val abstract: Boolean by declaration::abstract
 
   // HIERARCHY
 
+  /**
+   * Returns [true] if this class is a subclass of [that], whether direct, indirect, or the same
+   * class. Equivalent to `that.isSuperclassOf(this)`.
+   */
   public fun isSubclassOf(that: PClass): Boolean =
       this == that || directSuperclasses.any { it.isSubclassOf(that) }
 
+  /**
+   * Returns [true] if this class is a superclass of [that], whether direct, indirect, or the same
+   * class. Equivalent to `that.isSubclassOf(this)`.
+   */
   public fun isSuperclassOf(that: PClass) = that.isSubclassOf(this)
 
+  /** Every class `c` for which `c.isSuperclassOf(this)` is true, including this class itself. */
   public val allSuperclasses: Set<PClass> by lazy {
     (directSuperclasses.flatMap { it.allSuperclasses } + this).toSet()
   }
 
+  /** Every class `c` for which `this in c.directSuperclasses` */
   public val directSubclasses: Set<PClass> by lazy {
     loader.allClasses.filter { this in it.directSuperclasses }.toSet()
   }
 
+  /** Every class `c` for which `c.isSubclassOf(this)` is true, including this class itself. */
   public val allSubclasses: Set<PClass> by lazy {
     loader.allClasses.filter { this in it.allSuperclasses }.toSet()
   }
 
+  /**
+   * The types listed as this class's supertypes. There is one for each of this class's
+   * [directSuperclasses], but as full types rather than just classes; these types might or might
+   * not narrow the dependencies (such as `GreeneryTile`, whose supertype is `Tile<MarsArea>` rather
+   * than `Tile<Area>`).
+   */
   public val directSupertypes: Set<PType> by lazy {
     declaration.supertypes.map(loader::resolveType).toSetStrict()
   }
 
+  /**
+   * Whether this class serves as the intersection type of its full set of [directSuperclasses];
+   * that is, no other [PClass] loaded by this [PClassLoader] is a subclass of all of them unless it
+   * is also a subclass of [this]. An example is `OwnedTile`; since components like the `Landlord`
+   * award count `OwnedTile` components, it would be a bug if a component like
+   * `CommercialDistrictTile` (which is both an `Owned` and a `Tile`) forgot to also extend
+   * `OwnedTile`.
+   */
   public val intersectionType: Boolean by lazy {
     directSuperclasses.size >= 2 &&
         loader.allClasses
@@ -64,15 +96,20 @@ public data class PClass internal constructor(
             .all(::isSuperclassOf)
   }
 
+  /** Returns the greatest lower bound of [this] and [that], or null if there is no such class. */
+  // TODO explain better
   public infix fun intersect(that: PClass): PClass? =
       when {
         this.isSubclassOf(that) -> this
         that.isSubclassOf(this) -> that
-        else -> allSubclasses.filter {
-          it.intersectionType &&
-              this in it.directSuperclasses &&
-              that in it.directSuperclasses
-        }.singleOrNull()
+        else ->
+            allSubclasses
+                .filter {
+                  it.intersectionType &&
+                      this in it.directSuperclasses &&
+                      that in it.directSuperclasses
+                }
+                .singleOrNull()
       }
 
   // DEPENDENCIES
@@ -85,14 +122,19 @@ public data class PClass internal constructor(
     (directSuperclasses.flatMap { it.allDependencyKeys } + directDependencyKeys).toSet()
   }
 
-  public fun toClassType() =
-      PType(loader.classClass, DependencyMap(mapOf(KEY to ClassDependency(this))))
+  /**
+   * Returns the special *class type* for this class; for example, for the class `Resource` returns
+   * the type `Class<Resource>`.
+   */
+  public val classType by lazy {
+    PType(loader.classClass, DependencyMap(KEY to ClassDependency(this)))
+  }
 
   /** Least upper bound of all types with pclass==this */
   public val baseType: PType by lazy {
     if (name == CLASS) {
       // base type of Class is Class<Component>
-      loader.componentClass.toClassType()
+      loader.componentClass.classType
     } else {
       val newDeps =
           directDependencyKeys.associateWith {
@@ -108,7 +150,7 @@ public data class PClass internal constructor(
 
   fun specialize(map: List<PType>): PType = baseType.specialize(map)
 
-// DEFAULTS
+  // DEFAULTS
 
   internal val defaults: Defaults by lazy {
     if (name == COMPONENT) {
@@ -129,6 +171,11 @@ public data class PClass internal constructor(
 
   // EFFECTS
 
+  /**
+   * The effects belonging to this class; similar to those found on the [declaration], but processed
+   * as far as we are able to. These effects will belong to every [PType] built from this class,
+   * where they will be processed further.
+   */
   val classEffects: List<Effect> by lazy {
     declaration.effectsRaw.map {
       var fx = it
@@ -148,6 +195,7 @@ public data class PClass internal constructor(
 
   override fun toString() = "$name"
 
+  /** A detailed multi-line description of the class. */
   public fun describe(): String {
     val supers = allSuperclasses - this - loader.componentClass
     val subs = allSubclasses - this
@@ -160,6 +208,7 @@ public data class PClass internal constructor(
         Subclasses: $substring
         Dependencies: ${baseType.dependencies.types}
         Effects:
-    """.trimIndent() + classEffects.joinToString { "  $it\n" }
+    """
+        .trimIndent() + classEffects.joinToString { "  $it\n" }
   }
 }
