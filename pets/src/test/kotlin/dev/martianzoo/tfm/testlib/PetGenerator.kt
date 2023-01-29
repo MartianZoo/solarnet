@@ -97,7 +97,7 @@ internal class PetGenerator(scaling: (Int) -> Double) :
         val two: TypeExpr = recurse()
 
         fun getTypes(typeExpr: TypeExpr): List<TypeExpr> =
-            typeExpr.args.flatMap(::getTypes) + typeExpr
+            typeExpr.arguments.flatMap(::getTypes) + typeExpr
 
         val oneTypes = getTypes(one)
         val twoTypes = getTypes(two)
@@ -122,11 +122,11 @@ internal class PetGenerator(scaling: (Int) -> Double) :
           if (typeExpr == target) {
             return SimpleFrom(if (b) inject else target, if (b) target else inject)
           }
-          val args = typeExpr.args.map(::convert)
+          val args = typeExpr.arguments.map(::convert)
           return if (args.all { it is TypeAsFrom }) {
             TypeAsFrom(typeExpr)
           } else {
-            ComplexFrom(typeExpr.root, args, typeExpr.refinement)
+            ComplexFrom(typeExpr.className, args, typeExpr.refinement)
           }
         }
         convert(into)

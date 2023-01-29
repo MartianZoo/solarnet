@@ -24,21 +24,21 @@ private class CanonTest {
   @Test
   fun testOwnedTileIsAnIntersectionType() {
     val table = PClassLoader(Canon).loadEverything()
-    val ot = table.get(cn("OwnedTile"))
+    val ot = table.getClass(cn("OwnedTile"))
 
     // Nothing can be both Owned and a Tile without being an OwnedTile!
     assertThat(ot.intersectionType).isTrue()
-    assertThat(table.get(OWNED).intersect(table.get(TILE))).isEqualTo(ot)
+    assertThat(table.getClass(OWNED).intersect(table.getClass(TILE))).isEqualTo(ot)
   }
 
   @Test
   fun testActionCardIsAnIntersectionType() {
     val table = PClassLoader(Canon).loadEverything()
-    val ac = table.get(ACTION_CARD)
+    val ac = table.getClass(ACTION_CARD)
 
     // Nothing can be both a CardFront and a HasActions but an ActionCard!
     assertThat(ac.intersectionType).isTrue()
-    assertThat(table.get(CARD_FRONT).intersect(table.get(cn("HasActions")))).isEqualTo(ac)
+    assertThat(table.getClass(CARD_FRONT).intersect(table.getClass(cn("HasActions")))).isEqualTo(ac)
   }
 
   @Test

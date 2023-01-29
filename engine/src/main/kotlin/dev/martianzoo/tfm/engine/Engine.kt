@@ -60,6 +60,6 @@ public object Engine {
               border.addArgs(type2, type1),
           )
         }
-        .map { Component(loader.resolve(it)) }
+        .map { Component(loader.resolveType(it)) }
   }
 }

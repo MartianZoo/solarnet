@@ -10,6 +10,7 @@ import dev.martianzoo.tfm.pets.replaceThis
 import dev.martianzoo.tfm.types.Dependency.ClassDependency
 import dev.martianzoo.tfm.types.Dependency.ClassDependency.Companion.KEY
 import dev.martianzoo.tfm.types.Dependency.TypeDependency
+import dev.martianzoo.util.toSetStrict
 
 /**
  * A class that has been loaded by a [PClassLoader] based on a [ClassDeclaration]. Each loader has
@@ -37,7 +38,9 @@ public data class PClass(
 
   // HIERARCHY
 
-  public val directSupertypes: Set<PType> by lazy { loader.resolveAll(declaration.supertypes) }
+  public val directSupertypes: Set<PType> by lazy {
+    declaration.supertypes.map(loader::resolveType).toSetStrict()
+  }
 
   public fun isSubclassOf(that: PClass): Boolean =
       this == that || directSuperclasses.any { it.isSubclassOf(that) }
@@ -100,7 +103,7 @@ public data class PClass(
       val newDeps =
           directDependencyKeys.associateWith {
             val depTypeExpr = declaration.dependencies[it.index].typeExpr
-            TypeDependency(it, loader.resolve(depTypeExpr))
+            TypeDependency(it, loader.resolveType(depTypeExpr))
           }
       val deps = DependencyMap.intersect(directSupertypes.map { it.dependencies })
       val allDeps = deps.intersect(DependencyMap(newDeps))

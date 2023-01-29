@@ -86,8 +86,8 @@ fun <P : PetNode> deprodify(node: P, producible: Set<ClassName>): P {
                   inProd = true
                   x(node.extract()).also { inProd = false }
                 }
-                inProd && node is TypeExpr && node.root in producible ->
-                    PRODUCTION.addArgs(node.args + CLASS.addArgs(node.root))
+                inProd && node is TypeExpr && node.className in producible ->
+                    PRODUCTION.addArgs(node.arguments + CLASS.addArgs(node.className))
                 else -> defaultTransform(node)
               }
           @Suppress("UNCHECKED_CAST") return rewritten as P

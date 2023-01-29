@@ -8,10 +8,8 @@ import dev.martianzoo.tfm.pets.SpecialClassNames.ME
 import dev.martianzoo.tfm.pets.SpecialClassNames.STANDARD_RESOURCE
 import dev.martianzoo.tfm.pets.SpecialClassNames.THIS
 import dev.martianzoo.tfm.pets.ast.ClassName
-import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.pets.ast.TypeExpr
 import dev.martianzoo.tfm.pets.childNodesOfType
-import dev.martianzoo.util.toSetStrict
 
 // TODO restrict viz?
 class PClassLoader(private val authority: Authority) {
@@ -27,28 +25,23 @@ class PClassLoader(private val authority: Authority) {
   // MAIN QUERIES
 
   // TODO rename getClass
-  fun get(nameOrId: ClassName): PClass =
+  fun getClass(nameOrId: ClassName): PClass =
       table[nameOrId] ?: error("no class loaded with id or name $nameOrId")
 
-  // TODO rename resolveType
-  fun resolve(typeExpr: TypeExpr): PType {
-    val pclass = get(typeExpr.root)
+  fun resolveType(typeExpr: TypeExpr): PType {
+    val pclass = getClass(typeExpr.className)
     return if (pclass.name == CLASS) {
       val className: ClassName =
-          if (typeExpr.args.isEmpty()) {
+          if (typeExpr.arguments.isEmpty()) {
             COMPONENT
           } else {
-            typeExpr.args.single().also { require(it.isTypeOnly) }.root
+            typeExpr.arguments.single().also { require(it.isTypeOnly) }.className
           }
-      get(className).toClassType()
+      getClass(className).toClassType()
     } else {
-      pclass.specialize(typeExpr.args.map { resolve(it) })
+      pclass.specialize(typeExpr.arguments.map { resolveType(it) })
     }
   }
-
-  fun resolveAll(exprs: Set<TypeExpr>): Set<PType> = exprs.map { resolve(it) }.toSetStrict()
-
-  fun classesLoaded(): Int = table.values.filterNotNull().toSet().size
 
   val allClasses: Set<PClass> by lazy {
     require(frozen)
@@ -60,29 +53,24 @@ class PClassLoader(private val authority: Authority) {
   var autoLoadDependencies: Boolean = false
 
   /** Returns the class with the name [idOrName], loading it first if necessary. */
-  fun load(idOrName: ClassName): PClass =
+  public fun load(idOrName: ClassName): PClass =
       when {
-        frozen -> get(idOrName)
+        frozen -> getClass(idOrName)
         autoLoadDependencies -> {
           loadTrees(listOf(idOrName))
-          get(idOrName)
+          getClass(idOrName)
         }
         else -> loadSingle(idOrName)
       }
 
-  @JvmName("loadAllFromStrings")
-  fun loadAll(idsAndNames: Collection<String>) = loadAll(idsAndNames.map { cn(it) })
-  fun loadAll(idsAndNames: Collection<ClassName>) =
+  public fun loadAll(idsAndNames: Collection<ClassName>) =
       if (autoLoadDependencies) {
         loadTrees(idsAndNames)
       } else {
         idsAndNames.forEach(::loadSingle)
       }
 
-  /** Vararg form of `loadAll(Collection)`. */
-  fun loadAll(first: String, vararg rest: String) = loadAll(setOf(first) + rest)
-
-  fun loadEverything(): PClassLoader { // TODO hack
+  public fun loadEverything(): PClassLoader { // TODO hack
     authority.allClassNames.forEach(::loadSingle)
     freeze()
     return this
@@ -108,7 +96,7 @@ class PClassLoader(private val authority: Authority) {
   // all loading goes through here
   private fun loadSingle(idOrName: ClassName): PClass =
       if (frozen) {
-        get(idOrName)
+        getClass(idOrName)
       } else {
         table[idOrName] ?: construct(authority.classDeclaration(idOrName))
       }
@@ -116,7 +104,7 @@ class PClassLoader(private val authority: Authority) {
   // all loading goes through here
   private fun loadSingle(idOrName: ClassName, decl: ClassDeclaration): PClass =
       if (frozen) {
-        get(idOrName)
+        getClass(idOrName)
       } else {
         table[idOrName] ?: construct(decl)
       }
@@ -140,18 +128,18 @@ class PClassLoader(private val authority: Authority) {
 
   // FREEZING
 
-  var frozen: Boolean = false
+  public var frozen: Boolean = false
     private set
 
-  fun freeze() {
+  public fun freeze() {
     frozen = true
     table.values.forEach { it!! }
   }
 
   // WEIRD RESOURCE STUFF TODO
 
-  val allResourceNames: Set<ClassName> by lazy {
-    val stdRes = get(STANDARD_RESOURCE)
+  public val allResourceNames: Set<ClassName> by lazy {
+    val stdRes = getClass(STANDARD_RESOURCE)
     allClasses.filter { it.isSubclassOf(stdRes) }.map { it.name }.toSet()
   }
 }

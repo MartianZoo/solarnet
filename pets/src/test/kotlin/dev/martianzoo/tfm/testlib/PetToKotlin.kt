@@ -37,8 +37,8 @@ internal object PetToKotlin {
         null -> "null"
         is ClassName -> "cn(\"$this\")"
         is TypeExpr -> {
-          p2k(root) +
-              (if (args.none()) ".type" else ".addArgs(${args.join()})") +
+          p2k(className) +
+              (if (arguments.none()) ".type" else ".addArgs(${arguments.join()})") +
               refinement?.let(::p2k).wrap(".refine(", ")")
         }
         is ScalarAndType -> {

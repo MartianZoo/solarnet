@@ -97,7 +97,7 @@ class ReplSession(private val authority: Authority) {
           },
           "desc" to {
             it?.let { args ->
-              val pclass: PClass = session.game!!.classTable.get(cn(args.trim()))
+              val pclass: PClass = session.game!!.classTable.getClass(cn(args.trim()))
               val subs = pclass.allSubclasses
               listOf(
                   "Name: ${pclass.name}",

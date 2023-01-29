@@ -81,7 +81,7 @@ class InteractiveSession {
           override fun <P : PetNode> doTransform(node: P): P {
             if (node is TypeExpr) {
               if (g.resolve(node).isSubtypeOf(owned)) {
-                val hasPlayer = node.args.any { g.resolve(it).isSubtypeOf(player) }
+                val hasPlayer = node.arguments.any { g.resolve(it).isSubtypeOf(player) }
                 if (!hasPlayer) {
                   return node.addArgs(defaultPlayer!!) as P
                 }

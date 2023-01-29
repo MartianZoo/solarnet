@@ -71,8 +71,8 @@ private class TypeExprTest {
     assertThat(typeExpr("Class<Class>")).isEqualTo(CLASS.addArgs(CLASS))
 
     val two = typeExpr("Two<Class<Bar>, Class<Qux>>")
-    assertThat(two.root).isEqualTo(cn("Two"))
-    assertThat(two.args).containsExactly(CLASS.addArgs(cn("Bar")), CLASS.addArgs(cn("Qux")))
+    assertThat(two.className).isEqualTo(cn("Two"))
+    assertThat(two.arguments).containsExactly(CLASS.addArgs(cn("Bar")), CLASS.addArgs(cn("Qux")))
 
     assertFails { typeExpr("Class<Class<Class>>") }
     assertFails { typeExpr("Class<Class<Foo>>") }

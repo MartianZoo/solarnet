@@ -26,7 +26,6 @@ private class PClassCanonTest {
       assertThat(allDependencyKeys).isEmpty()
       assertThat(directSuperclasses).isEmpty()
     }
-    assertThat(table.classesLoaded()).isEqualTo(2)
 
     table.load(cn("OceanTile")).apply {
       assertThat(directDependencyKeys).isEmpty()
@@ -37,12 +36,10 @@ private class PClassCanonTest {
       assertThat(allSuperclasses.toStrings())
           .containsExactly("Component", "GlobalParameter", "Tile", "OceanTile")
           .inOrder()
-      assertThat(table.classesLoaded()).isEqualTo(5)
 
       table.load(cn("MarsArea"))
-      assertThat(baseType).isEqualTo(table.resolve(typeExpr("OceanTile<MarsArea>")))
+      assertThat(baseType).isEqualTo(table.resolveType(typeExpr("OceanTile<MarsArea>")))
     }
-    assertThat(table.classesLoaded()).isEqualTo(7)
   }
 
   @Test
@@ -102,7 +99,7 @@ private class PClassCanonTest {
           )
       for (thing in tryThese) {
         try {
-          val ptype = table.resolve(typeExpr(thing))
+          val ptype = table.resolveType(typeExpr(thing))
           if (ptype.abstract) {
             if (abstracts.size < 100) abstracts.add(thing)
           } else {

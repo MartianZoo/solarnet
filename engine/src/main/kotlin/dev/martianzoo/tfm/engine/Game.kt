@@ -24,7 +24,7 @@ public class Game(
   // TODO maybe have `beginChangeLogging` instead of passing in a prebuilt multiset
   fun changeLog(): List<StateChange> = components.changeLog()
 
-  fun resolve(typeExpr: TypeExpr): PType = classTable.resolve(typeExpr)
+  fun resolve(typeExpr: TypeExpr): PType = classTable.resolveType(typeExpr)
 
   fun isMet(requirement: Requirement) = LiveNodes.from(requirement, this).isMet(this)
 

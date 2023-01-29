@@ -29,7 +29,7 @@ public abstract class PetTransformer {
       val rewritten =
           when (this) {
             is ClassName -> this
-            is TypeExpr -> TypeExpr(x(root), x(args), x(refinement), link)
+            is TypeExpr -> TypeExpr(x(className), x(arguments), x(refinement), link)
             is ScalarAndType -> ScalarAndType(scalar, x(typeExpr))
             is Requirement ->
                 when (this) {

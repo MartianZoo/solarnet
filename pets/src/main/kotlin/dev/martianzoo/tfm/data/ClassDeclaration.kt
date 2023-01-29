@@ -35,7 +35,7 @@ data class ClassDeclaration(
     }
   }
 
-  val superclassNames: List<ClassName> = supertypes.map { it.root }
+  val superclassNames: List<ClassName> = supertypes.map { it.className }
 
   val allNodes: Set<PetNode> by lazy {
     setOf<PetNode>() +

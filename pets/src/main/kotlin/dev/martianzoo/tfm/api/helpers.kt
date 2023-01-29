@@ -19,4 +19,4 @@ fun lookUpProductionLevels(game: ReadOnlyGameState, player: TypeExpr): Map<Class
     }
 
 fun standardResourceNames(game: ReadOnlyGameState): Set<ClassName> =
-    game.getAll(CLASS.addArgs(STANDARD_RESOURCE)).map { it.args.single().root }.toSet()
+    game.getAll(CLASS.addArgs(STANDARD_RESOURCE)).map { it.arguments.single().className }.toSet()

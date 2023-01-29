@@ -21,8 +21,8 @@ import dev.martianzoo.util.wrap
  * type with various predicates.
  */
 data class TypeExpr(
-    val root: ClassName, // TODO renames?
-    val args: List<TypeExpr> = listOf(),
+    val className: ClassName, // TODO renames?
+    val arguments: List<TypeExpr> = listOf(),
     val refinement: Requirement? = null,
     val link: Int? = null,
 ) : PetNode() {
@@ -30,35 +30,35 @@ data class TypeExpr(
     fun typeExpr(text: String): TypeExpr = Parsing.parse(TypeParsers.typeExpr, text)
   }
 
-  override fun visitChildren(v: PetVisitor) = v.visit(args + root + refinement)
+  override fun visitChildren(v: PetVisitor) = v.visit(listOf(className) + arguments + refinement)
 
   override fun toString() =
-      "$root" +
-      args.joinOrEmpty(wrap = "<>") +
+      "$className" +
+      arguments.joinOrEmpty(wrap = "<>") +
       refinement.wrap("(HAS ", ")") +
       link.pre("^")
 
   init {
-    if (root == CLASS) {
+    if (className == CLASS) {
       require(link == null)
-      when (args.size) {
+      when (arguments.size) {
         0 -> {}
-        1 -> require(args.first().isTypeOnly)
+        1 -> require(arguments.first().isTypeOnly)
         else -> error("")
       }
     }
   }
 
-  val isTypeOnly = args.isEmpty() && refinement == null && link == null
+  val isTypeOnly = arguments.isEmpty() && refinement == null && link == null
 
   @JvmName("addArgsFromClassNames")
   fun addArgs(moreArgs: List<ClassName>): TypeExpr = addArgs(moreArgs.map { it.type })
   fun addArgs(vararg moreArgs: ClassName): TypeExpr = addArgs(moreArgs.toList())
 
-  fun addArgs(moreArgs: List<TypeExpr>): TypeExpr = replaceArgs(args + moreArgs)
+  fun addArgs(moreArgs: List<TypeExpr>): TypeExpr = replaceArgs(arguments + moreArgs)
   fun addArgs(vararg moreArgs: TypeExpr): TypeExpr = addArgs(moreArgs.toList())
 
-  fun replaceArgs(newArgs: List<TypeExpr>): TypeExpr = copy(args = newArgs)
+  fun replaceArgs(newArgs: List<TypeExpr>): TypeExpr = copy(arguments = newArgs)
   fun replaceArgs(vararg newArgs: TypeExpr): TypeExpr = replaceArgs(newArgs.toList())
 
   fun refine(ref: Requirement?) =
@@ -71,6 +71,7 @@ data class TypeExpr(
 
   override val kind = "TypeExpr"
 
+  // TODO no
   // This is handled differently from the others because so many of the individual parsers end up
   // being needed by the others. So we put them all in properties and pass the whole TypeParsers
   // object around.

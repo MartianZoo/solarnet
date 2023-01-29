@@ -19,7 +19,7 @@ private class Defaulter(val loader: PClassLoader) : PetTransformer() {
           is Gain -> {
             // this should be the real source form because we should run first
             val writtenType = node.sat.typeExpr
-            val defaults = loader.get(writtenType.root).defaults
+            val defaults = loader.getClass(writtenType.className).defaults
             val fixedType =
                 if (writtenType.isTypeOnly) {
                   val deps: Collection<Dependency> = defaults.gainOnlyDependencies.types
@@ -32,14 +32,14 @@ private class Defaulter(val loader: PClassLoader) : PetTransformer() {
           THIS.type -> node
           ME.type -> node
           is TypeExpr -> {
-            val pclass = loader.get(node.root)
+            val pclass = loader.getClass(node.className)
             val allCasesDependencies = pclass.defaults.allCasesDependencies
             if (allCasesDependencies.isEmpty() || pclass == loader.classClass) {
               node
             } else {
               // TODO have to reengineer what resolve would do because the ptype has forgotten
               val explicitDeps = pclass.baseType.dependencies
-              val foo = explicitDeps.findMatchups(node.args.map { loader.resolve(it) })
+              val foo = explicitDeps.findMatchups(node.arguments.map { loader.resolveType(it) })
               val newArgs =
                   foo.overlayOn(allCasesDependencies).types.map {
                     it.toTypeExprFull() // TODO not full?

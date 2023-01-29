@@ -33,7 +33,7 @@ private object GainLowestProduction : CustomInstruction("gainLowestProduction") 
 // For Robotic Workforce
 private object CopyProductionBox : CustomInstruction("copyProductionBox") {
   override fun translate(game: ReadOnlyGameState, arguments: List<TypeExpr>): Instruction {
-    val chosenCardName = arguments.single().root
+    val chosenCardName = arguments.single().className
     val def = game.authority.card(chosenCardName)
 
     val nodes: Set<Transform> = def.immediateRaw?.let(::childNodesOfType) ?: setOf()

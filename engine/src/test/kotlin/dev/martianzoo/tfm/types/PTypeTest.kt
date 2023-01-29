@@ -25,12 +25,12 @@ private class PTypeTest {
             "CLASS Fish : ResourcefulCard<Class<Animal>>",
             "CLASS Ants : ResourcefulCard<Class<Microbe>>",
         )
-    assertThat(table.resolve(typeExpr("Animal<Fish>")).abstract).isTrue()
+    assertThat(table.resolveType(typeExpr("Animal<Fish>")).abstract).isTrue()
 
-    val fish = table.resolve(typeExpr("Animal<Player1, Fish<Player1>>"))
+    val fish = table.resolveType(typeExpr("Animal<Player1, Fish<Player1>>"))
     assertThat(fish.abstract).isFalse()
 
-    assertThat(table.get(cn1("Fish")).baseType.toString()).isEqualTo("Fish<Anyone, Class<Animal>>")
+    assertThat(table.getClass(cn1("Fish")).baseType.toString()).isEqualTo("Fish<Anyone, Class<Animal>>")
 
     // TODO get these working
     // assertFails { table.resolve("Animal<Ants>") }

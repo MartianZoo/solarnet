@@ -98,16 +98,16 @@ public object ClassDeclarationParsers : PetParser() {
         skipChar('+') and
         typeExpr and
         intensity map { (typeExpr, int) ->
-          require(typeExpr.root == THIS)
+          require(typeExpr.className == THIS)
           require(typeExpr.refinement == null)
-          DefaultsDeclaration(gainOnlySpecs = typeExpr.args, gainIntensity = int)
+          DefaultsDeclaration(gainOnlySpecs = typeExpr.arguments, gainIntensity = int)
         }
 
     private val allCasesDefault: Parser<DefaultsDeclaration> by lazy {
       typeExpr map {
-        require(it.root == THIS)
+        require(it.className == THIS)
         require(it.refinement == null)
-        DefaultsDeclaration(universalSpecs = it.args)
+        DefaultsDeclaration(universalSpecs = it.arguments)
       }
     }
 
@@ -266,7 +266,7 @@ public object ClassDeclarationParsers : PetParser() {
       override fun unnestOneFrom(container: ClassName): NestableDecl {
         return when {
           // the class name we'd insert is already there (TODO be even smarter)
-          decl.supertypes.any { it.root == container } -> CompleteNestableDecl(decl)
+          decl.supertypes.any { it.className == container } -> CompleteNestableDecl(decl)
 
           // jam the superclass in and mark it complete
           else -> CompleteNestableDecl(prependSuperclass(container))
