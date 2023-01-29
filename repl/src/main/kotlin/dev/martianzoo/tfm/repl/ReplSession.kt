@@ -9,6 +9,7 @@ import dev.martianzoo.tfm.pets.ast.Requirement.Companion.requirement
 import dev.martianzoo.tfm.pets.ast.TypeExpr.Companion.typeExpr
 import dev.martianzoo.tfm.types.PClass
 import dev.martianzoo.util.toStrings
+import kotlin.io.path.Path
 import org.jline.reader.EndOfFileException
 import org.jline.reader.LineReaderBuilder
 import org.jline.reader.impl.history.DefaultHistory
@@ -85,7 +86,7 @@ class ReplSession(private val authority: Authority) {
             val player = if (it == null) session.defaultPlayer!! else cn(it.trim())
             BoardToText(session.game!!.asGameState).board(player.type)
           },
-          "history" to { args ->
+          "changes" to { args ->
             args?.let { listOf("Arguments unexpected: $it") }
                 ?: session.game!!.changeLog().toStrings().mapIndexed { i, s -> "$i: $s" }
           },
@@ -114,7 +115,12 @@ fun main() {
   terminal.puts(Capability.enter_ca_mode)
   terminal.puts(Capability.keypad_xmit)
 
-  val reader = LineReaderBuilder.builder().terminal(terminal).history(DefaultHistory()).build()
+  val historyFile = Path(".rego_history")
+  val history = DefaultHistory()
+
+  val reader = LineReaderBuilder.builder().terminal(terminal).history(history).build()
+  history.attach(reader)
+  history.read(historyFile, /* checkDuplicates= */ false)
   reader.readLine("Welcome to REgo PLastics! Press enter.")
 
   val repl = ReplSession(Canon)
@@ -124,6 +130,7 @@ fun main() {
     val inputLine = try {
       reader.readLine("> ")
     } catch (e: EndOfFileException) {
+      history.append(historyFile, /* incremental= */ true)
       return
     }
     val results = try {
@@ -138,19 +145,19 @@ fun main() {
   }
 }
 
-const val HELP =
-    """
-  newgame BVE 3         ->  begins a new 3p game with Base, Venus, Elysium
-  become Player1        ->  make Player1 the default player for future commands
-  become                ->  have no default Player anymore
-  count Plant           ->  counts how many Plants the default player has
-  count Plant<Anyone>   ->  counts how many Plants anyone has
-  list Tile             ->  lists all Tiles you have
-  has MAX 3 OceanTile   ->  evaluates a requirement against the current game state
-  exec PROD[3 Heat]     ->  gives the default player 3 heat production
-  PROD[3 Heat]          ->  that too
-  desc Microbe          ->  describes the Microbe class
-  board                 ->  displays an extremely bad looking player board
-  map                   ->  displays an extremely bad looking map
-  help                  ->  see this message
+private const val HELP = """
+  newgame BMP 3        ->  ERASE CURRENT GAME and start a new 3p game with Base/Tharsis/Prelude
+  become Player1       ->  make Player1 the default player for future commands
+  count Plant          ->  counts how many Plants the default player has
+  count Plant<Anyone>  ->  counts how many Plants anyone has
+  list Tile            ->  lists all Tiles you have
+  has MAX 3 OceanTile  ->  evaluates a requirement in the current game state
+  exec PROD[3 Heat]    ->  gives the default player 3 heat production
+  PROD[3 Heat]         ->  that too
+  changes              ->  see the changelog for the current game
+  history              ->  see your *command* history
+  board                ->  displays an extremely bad looking player board
+  map                  ->  displays an extremely bad looking map
+  desc Microbe         ->  describes the Microbe class in detail (given this game setup)
+  help                 ->  see this message
 """
