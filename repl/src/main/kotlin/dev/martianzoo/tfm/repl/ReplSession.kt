@@ -97,22 +97,9 @@ class ReplSession(private val authority: Authority) {
           },
           "desc" to {
             it?.let { args ->
-              val pclass: PClass = session.game!!.loader.getClass(cn(args.trim()))
-              val subs = pclass.allSubclasses
-              listOf(
-                  "Name: ${pclass.name}",
-                  "Id: ${pclass.id}",
-                  "Abstract: ${pclass.abstract}",
-                  "Superclasses: ${pclass.allSuperclasses.joinToString()}",
-                  "Dependencies: ${pclass.baseType.dependencies.types}",
-                  "Subclasses: " +
-                      if (subs.size <= 11) {
-                        subs.joinToString()
-                      } else {
-                        "(${subs.size})"
-                      },
-                  "Effects:\n"
-              ) + pclass.classEffects.toStrings()
+              val className = cn(args.trim())
+              val pclass: PClass = session.game!!.loader.getClass(className)
+              listOf(pclass.describe())
             } ?: listOf("Usage: desc <ClassName>")
           },
       )

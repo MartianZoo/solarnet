@@ -6,10 +6,10 @@ import dev.martianzoo.tfm.pets.ast.Requirement.And
 import dev.martianzoo.tfm.pets.ast.TypeExpr
 import dev.martianzoo.tfm.types.Dependency.ClassDependency
 
-data class PType(
+public data class PType internal constructor(
     private val pclass: PClass,
-    val dependencies: DependencyMap,
-    val refinement: Requirement? = null,
+    internal val dependencies: DependencyMap,
+    internal val refinement: Requirement? = null,
 ) {
   val isClassType = pclass.name == CLASS
 

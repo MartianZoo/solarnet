@@ -4,7 +4,7 @@ import dev.martianzoo.tfm.pets.SpecialClassNames.CLASS
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.TypeExpr
 
-sealed class Dependency {
+internal sealed class Dependency {
   abstract val key: Key
   abstract val abstract: Boolean
   abstract fun specializes(that: Dependency): Boolean
@@ -12,14 +12,14 @@ sealed class Dependency {
 
   abstract fun toTypeExprFull(): TypeExpr
 
-  public data class Key(val declaringClass: ClassName, val index: Int) {
+  data class Key(val declaringClass: ClassName, val index: Int) {
     init {
       require(index >= 0)
     }
     override fun toString() = "${declaringClass}_$index"
   }
 
-  public data class TypeDependency(override val key: Key, val ptype: PType) : Dependency() {
+  data class TypeDependency(override val key: Key, val ptype: PType) : Dependency() {
     override val abstract by ptype::abstract
 
     private fun checkKeys(that: Dependency): TypeDependency {
@@ -39,7 +39,7 @@ sealed class Dependency {
   }
 
   /** Okay this is used ONLY by Class_0, and the value is just a class, like just Tile. */
-  public data class ClassDependency(val pclass: PClass) : Dependency() {
+  data class ClassDependency(val pclass: PClass) : Dependency() {
     companion object {
       val KEY = Key(CLASS, 0)
     }

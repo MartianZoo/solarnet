@@ -147,4 +147,19 @@ public data class PClass internal constructor(
           directSuperclasses.any { it.isSingleton() }
 
   override fun toString() = "$name"
+
+  public fun describe(): String {
+    val supers = allSuperclasses - this - loader.componentClass
+    val subs = allSubclasses - this
+    val substring = if (subs.size < 11) subs.joinToString() else "(${subs.size})"
+    return """
+        Name: $name
+        Id: $id
+        Abstract: $abstract
+        Superclasses: $supers
+        Subclasses: $substring
+        Dependencies: ${baseType.dependencies.types}
+        Effects:
+    """.trimIndent() + classEffects.joinToString { "  $it\n" }
+  }
 }
