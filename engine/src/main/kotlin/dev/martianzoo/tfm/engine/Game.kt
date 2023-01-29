@@ -24,18 +24,18 @@ public class Game(
   // TODO maybe have `beginChangeLogging` instead of passing in a prebuilt multiset
   fun changeLog(): List<StateChange> = components.changeLog()
 
-  fun resolve(typeExpr: TypeExpr): PType = loader.resolveType(typeExpr)
+  fun resolveType(typeExpr: TypeExpr): PType = loader.resolveType(typeExpr)
 
   fun isMet(requirement: Requirement) = LiveNodes.from(requirement, this).isMet(this)
 
-  fun count(ptype: PType) = components.count(ptype)
+  fun countComponents(ptype: PType) = components.count(ptype)
 
-  fun count(typeExpr: TypeExpr) = count(resolve(typeExpr))
+  fun countComponents(typeExpr: TypeExpr) = countComponents(resolveType(typeExpr))
 
-  fun getAll(ptype: PType): Multiset<Component> = components.getAll(ptype)
+  fun getComponents(ptype: PType): Multiset<Component> = components.getAll(ptype)
 
-  fun getAll(typeExpr: TypeExpr): Multiset<TypeExpr> {
-    val all: Multiset<Component> = getAll(resolve(typeExpr))
+  fun getComponents(typeExpr: TypeExpr): Multiset<TypeExpr> {
+    val all: Multiset<Component> = getComponents(resolveType(typeExpr))
     return all.map { it.asTypeExpr }
   }
 
@@ -52,8 +52,10 @@ public class Game(
         count = count, removing = removing, gaining = gaining, amap = amap, cause = cause)
   }
 
+  // TODO why don't we still implement this directly??
   val asGameState: GameState by lazy {
     object : GameState {
+      val g = this@Game
       override fun applyChange(
           count: Int,
           removing: TypeExpr?,
@@ -62,25 +64,25 @@ public class Game(
           amap: Boolean,
       ) {
         // TODO order
-        return this@Game.applyChange(
+        return g.applyChange(
             count = count,
-            removing = removing?.let { Component(resolve(it)) },
-            gaining = gaining?.let { Component(resolve(it)) },
+            removing = removing?.let { Component(resolveType(it)) },
+            gaining = gaining?.let { Component(resolveType(it)) },
             amap = amap,
             cause = cause)
       }
 
-      override val setup = this@Game.setup
-      override val authority = this@Game.authority
-      override val map = this@Game.setup.map
+      override val setup by g::setup
+      override val authority by g::authority
+      override val map by setup::map
 
-      override fun resolve(typeExpr: TypeExpr) = this@Game.resolve(typeExpr)
+      fun resolveType(typeExpr: TypeExpr) = g.resolveType(typeExpr)
 
-      override fun isMet(requirement: Requirement) = this@Game.isMet(requirement)
+      override fun isMet(requirement: Requirement) = g.isMet(requirement)
 
-      override fun count(typeExpr: TypeExpr) = this@Game.count(typeExpr)
+      override fun countComponents(typeExpr: TypeExpr) = g.countComponents(typeExpr)
 
-      override fun getAll(typeExpr: TypeExpr) = this@Game.getAll(typeExpr)
+      override fun getComponents(typeExpr: TypeExpr) = g.getComponents(typeExpr)
     }
   }
 }

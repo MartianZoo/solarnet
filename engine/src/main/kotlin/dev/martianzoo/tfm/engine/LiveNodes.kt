@@ -26,16 +26,16 @@ object LiveNodes {
           Change(
               ins.count,
               ins.intensity ?: MANDATORY,
-              removing = ins.removing?.let { game.resolve(it) },
-              gaining = ins.gaining?.let { game.resolve(it) },
+              removing = ins.removing?.let { game.resolveType(it) },
+              gaining = ins.gaining?.let { game.resolveType(it) },
           )
       is Instruction.Per ->
-          Per(game.resolve(ins.sat.typeExpr), ins.sat.scalar, from(ins.instruction, game))
+          Per(game.resolveType(ins.sat.typeExpr), ins.sat.scalar, from(ins.instruction, game))
       is Instruction.Gated -> Gated(from(ins.gate, game), from(ins.instruction, game))
       is Instruction.Custom ->
           Custom(
               game.authority.customInstruction(ins.functionName),
-              ins.arguments.map { game.resolve(it) })
+              ins.arguments.map { game.resolveType(it) })
       is Instruction.Or -> OrIns(ins.instructions.toList().map { from(it, game) }) // TODO
       is Instruction.Then -> Then(ins.instructions.map { from(it, game) })
       is Instruction.Multi -> Then(ins.instructions.map { from(it, game) })
@@ -79,7 +79,7 @@ object LiveNodes {
 
     override fun times(factor: Int) = Per(ptype, unit, instruction * factor)
 
-    override fun execute(game: Game) = (instruction * (game.count(ptype) / unit)).execute(game)
+    override fun execute(game: Game) = (instruction * (game.countComponents(ptype) / unit)).execute(game)
   }
 
   class Gated(private val gate: LiveRequirement, val instruction: LiveInstruction) :
@@ -119,9 +119,9 @@ object LiveNodes {
 
   fun from(req: Requirement, game: Game): LiveRequirement {
     return when (req) {
-      is Min -> LiveRequirement { game.count(req.sat.typeExpr) >= req.sat.scalar }
-      is Max -> LiveRequirement { game.count(req.sat.typeExpr) <= req.sat.scalar }
-      is Exact -> LiveRequirement { game.count(req.sat.typeExpr) == req.sat.scalar }
+      is Min -> LiveRequirement { game.countComponents(req.sat.typeExpr) >= req.sat.scalar }
+      is Max -> LiveRequirement { game.countComponents(req.sat.typeExpr) <= req.sat.scalar }
+      is Exact -> LiveRequirement { game.countComponents(req.sat.typeExpr) == req.sat.scalar }
       is Requirement.Or -> {
         val reqs = req.requirements.toList().map { from(it, game) }
         LiveRequirement { reqs.any { it.isMet(game) } }
@@ -140,8 +140,8 @@ object LiveNodes {
 
   fun from(trig: Trigger, game: Game): LiveTrigger {
     return when (trig) {
-      is Trigger.OnGain -> OnGain(game.resolve(trig.typeExpr))
-      is Trigger.OnRemove -> OnRemove(game.resolve(trig.typeExpr))
+      is Trigger.OnGain -> OnGain(game.resolveType(trig.typeExpr))
+      is Trigger.OnRemove -> OnRemove(game.resolveType(trig.typeExpr))
       is Trigger.Transform -> error("")
     }
   }
@@ -153,14 +153,14 @@ object LiveNodes {
   class OnGain(val ptype: PType) : LiveTrigger() {
     override fun hits(change: StateChange, game: Game): Int {
       val g = change.gaining
-      return if (g != null && game.resolve(g).isSubtypeOf(ptype)) change.count else 0
+      return if (g != null && game.resolveType(g).isSubtypeOf(ptype)) change.count else 0
     }
   }
 
   class OnRemove(val ptype: PType) : LiveTrigger() {
     override fun hits(change: StateChange, game: Game): Int {
       val r = change.removing
-      return if (r != null && game.resolve(r).isSubtypeOf(ptype)) change.count else 0
+      return if (r != null && game.resolveType(r).isSubtypeOf(ptype)) change.count else 0
     }
   }
 

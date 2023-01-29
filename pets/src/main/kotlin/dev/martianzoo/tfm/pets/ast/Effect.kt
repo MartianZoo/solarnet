@@ -20,7 +20,7 @@ data class Effect(
 
   override val kind = "Effect"
 
-  override fun visitChildren(v: PetVisitor) = v.visit(trigger, instruction)
+  override fun visitChildren(visitor: PetVisitor) = visitor.visit(trigger, instruction)
 
   override fun toString(): String {
     val instext =
@@ -35,18 +35,18 @@ data class Effect(
     override val kind = "Trigger"
 
     data class OnGain(val typeExpr: TypeExpr) : Trigger() {
-      override fun visitChildren(v: PetVisitor) = v.visit(typeExpr)
+      override fun visitChildren(visitor: PetVisitor) = visitor.visit(typeExpr)
       override fun toString() = "$typeExpr"
     }
 
     data class OnRemove(val typeExpr: TypeExpr) : Trigger() {
-      override fun visitChildren(v: PetVisitor) = v.visit(typeExpr)
+      override fun visitChildren(visitor: PetVisitor) = visitor.visit(typeExpr)
       override fun toString() = "-$typeExpr"
     }
 
     data class Transform(val trigger: Trigger, override val transform: String) :
         Trigger(), GenericTransform<Trigger> {
-      override fun visitChildren(v: PetVisitor) = v.visit(trigger)
+      override fun visitChildren(visitor: PetVisitor) = visitor.visit(trigger)
       override fun toString() = "$transform[$trigger]"
 
       init {

@@ -12,7 +12,7 @@ import org.junit.jupiter.api.Test
 
 private class GameApiTest {
 
-  fun Game.count(s: String) = count(typeExpr(s))
+  fun Game.count(s: String) = countComponents(typeExpr(s))
   fun Game.execute(s: String) = execute(instruction(s))
   fun Game.isMet(s: String) = isMet(requirement(s))
 

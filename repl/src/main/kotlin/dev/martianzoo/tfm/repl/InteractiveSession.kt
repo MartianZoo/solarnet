@@ -35,12 +35,12 @@ class InteractiveSession {
     defaultPlayer = null
   }
 
-  fun count(typeExpr: TypeExpr) = game!!.count(fixTypes(typeExpr))
+  fun count(typeExpr: TypeExpr) = game!!.countComponents(fixTypes(typeExpr))
 
   fun list(typeExpr: TypeExpr): Multiset<TypeExpr> {
     // "list Heat" means my own unless I say "list Heat<Anyone>"
-    val typeToBeListed: PType = game!!.resolve(fixTypes(typeExpr))
-    val theStuff: Multiset<Component> = game!!.getAll(typeToBeListed)
+    val typeToBeListed: PType = game!!.resolveType(fixTypes(typeExpr))
+    val theStuff: Multiset<Component> = game!!.getComponents(typeToBeListed)
 
     // figure out how to break it down
     // val pclass = typeToBeListed.pclass
@@ -72,16 +72,16 @@ class InteractiveSession {
       return node
     }
     val g = game!!
-    val owned = g.resolve(OWNED.type)
-    val player = g.resolve(ANYONE.type)
+    val owned = g.resolveType(OWNED.type)
+    val player = g.resolveType(ANYONE.type)
 
     // TODO do this elsewhere
     val fixer =
         object : PetTransformer() {
           override fun <P : PetNode> doTransform(node: P): P {
             if (node is TypeExpr) {
-              if (g.resolve(node).isSubtypeOf(owned)) {
-                val hasPlayer = node.arguments.any { g.resolve(it).isSubtypeOf(player) }
+              if (g.resolveType(node).isSubtypeOf(owned)) {
+                val hasPlayer = node.arguments.any { g.resolveType(it).isSubtypeOf(player) }
                 if (!hasPlayer) {
                   return node.addArgs(defaultPlayer!!) as P
                 }

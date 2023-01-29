@@ -12,7 +12,7 @@ public object Engine {
   public fun newGame(setup: GameSetup): Game {
     val loader = PClassLoader(setup.authority, autoLoadDependencies = true)
 
-    val defns = setup.allDefinitions.map { it.name }.sorted()
+    val defns = setup.allDefinitions().map { it.name }.sorted()
     loader.loadAll(defns)
 
     for (seat in 1..setup.players) {

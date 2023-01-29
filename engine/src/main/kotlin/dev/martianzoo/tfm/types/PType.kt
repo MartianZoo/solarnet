@@ -1,6 +1,5 @@
 package dev.martianzoo.tfm.types
 
-import dev.martianzoo.tfm.api.TypeInfo
 import dev.martianzoo.tfm.pets.SpecialClassNames.CLASS
 import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.pets.ast.Requirement.And
@@ -11,7 +10,7 @@ data class PType(
     private val pclass: PClass,
     val dependencies: DependencyMap,
     val refinement: Requirement? = null,
-) : TypeInfo {
+) {
   val isClassType = pclass.name == CLASS
 
   init {
@@ -19,7 +18,7 @@ data class PType(
       require(dependencies.types.single() is ClassDependency)
     }
   }
-  override val abstract = pclass.abstract || dependencies.abstract || refinement != null
+  val abstract = pclass.abstract || dependencies.abstract || refinement != null
 
   fun isSubtypeOf(that: PType) =
       pclass.isSubclassOf(that.pclass) &&
@@ -48,7 +47,7 @@ data class PType(
 
   fun refine(ref: Requirement): PType = copy(refinement = ref)
 
-  override fun toTypeExprFull(): TypeExpr {
+  fun toTypeExprFull(): TypeExpr {
     val specs = dependencies.types.map { it.toTypeExprFull() }
     return pclass.name.addArgs(specs).refine(refinement)
   }

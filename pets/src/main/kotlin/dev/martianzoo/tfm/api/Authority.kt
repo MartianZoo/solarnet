@@ -15,14 +15,14 @@ import dev.martianzoo.util.associateByStrict
  * A source of data about Terraforming Mars components. This project provides one, called `Canon`,
  * containing only officially published materials.
  */
-abstract class Authority {
+public abstract class Authority {
 
-  open val allBundles: Set<String> by lazy { allDefinitions.map { it.bundle }.toSet() }
+  public open val allBundles: Set<String> by lazy { allDefinitions.map { it.bundle }.toSet() }
 
   // CLASS DECLARATIONS
 
   /** Returns the class declaration having the full name [name]. */
-  fun classDeclaration(name: ClassName): ClassDeclaration {
+  public fun classDeclaration(name: ClassName): ClassDeclaration {
     val decl: ClassDeclaration? = allClassDeclarations[name]
     require(decl != null) { "no class declaration by name $name" }
     return decl
@@ -32,7 +32,7 @@ abstract class Authority {
    * Every class declarations this authority knows about, including explicit ones and those
    * converted from [Definition]s.
    */
-  val allClassDeclarations: Map<ClassName, ClassDeclaration> by lazy {
+  public val allClassDeclarations: Map<ClassName, ClassDeclaration> by lazy {
     val extraFromCards = cardDefinitions.flatMap { it.extraClasses }
 
     val list =
@@ -40,16 +40,16 @@ abstract class Authority {
     list.associateByStrict { it.name }
   }
 
-  val allClassNames: Set<ClassName> by lazy { allClassDeclarations.keys }
+  public val allClassNames: Set<ClassName> by lazy { allClassDeclarations.keys }
 
   /**
    * All class declarations that were provided directly in source form (i.e., `CLASS Foo...`) as
    * opposed to being converted from [Definition] objects.
    */
-  abstract val explicitClassDeclarations: Collection<ClassDeclaration>
+  public abstract val explicitClassDeclarations: Collection<ClassDeclaration>
 
   /** Everything implementing [Definition] this authority knows about. */
-  val allDefinitions: List<Definition> by lazy {
+  public val allDefinitions: List<Definition> by lazy {
     listOf<Definition>() +
         cardDefinitions +
         milestoneDefinitions +
@@ -64,36 +64,36 @@ abstract class Authority {
    * Returns the card definition having the full name [name]. If there are multiple, one must be
    * marked as `replaces` the other. (TODO)
    */
-  fun card(name: ClassName): CardDefinition = cardsByClassName[name]!!
+  public fun card(name: ClassName): CardDefinition = cardsByClassName[name]!!
 
   /** Every card definition this authority knows about. */
-  abstract val cardDefinitions: Collection<CardDefinition>
+  public abstract val cardDefinitions: Collection<CardDefinition>
 
   /** A map from [ClassName] to [CardDefinition], containing all cards known to this authority. */
-  val cardsByClassName: Map<ClassName, CardDefinition> by lazy {
+  public val cardsByClassName: Map<ClassName, CardDefinition> by lazy {
     associateByClassName(cardDefinitions)
   }
 
   // STANDARD ACTIONS
 
-  fun action(name: ClassName): StandardActionDefinition =
+  public fun action(name: ClassName): StandardActionDefinition =
       standardActionDefinitions.first { it.name == name }
 
-  abstract val standardActionDefinitions: Collection<StandardActionDefinition>
+  public abstract val standardActionDefinitions: Collection<StandardActionDefinition>
 
   // MARS MAPS
 
-  fun marsMap(name: ClassName): MarsMapDefinition = marsMapDefinitions.first { it.name == name }
+  public fun marsMap(name: ClassName): MarsMapDefinition = marsMapDefinitions.first { it.name == name }
 
-  abstract val marsMapDefinitions: Collection<MarsMapDefinition>
+  public abstract val marsMapDefinitions: Collection<MarsMapDefinition>
 
   // MILESTONES
 
-  fun milestone(name: ClassName): MilestoneDefinition = milestonesByClassName[name]!!
+  public fun milestone(name: ClassName): MilestoneDefinition = milestonesByClassName[name]!!
 
-  abstract val milestoneDefinitions: Collection<MilestoneDefinition>
+  public abstract val milestoneDefinitions: Collection<MilestoneDefinition>
 
-  val milestonesByClassName: Map<ClassName, MilestoneDefinition> by lazy {
+  public val milestonesByClassName: Map<ClassName, MilestoneDefinition> by lazy {
     associateByClassName(milestoneDefinitions)
   }
 
@@ -103,20 +103,24 @@ abstract class Authority {
 
   // CUSTOM INSTRUCTIONS
 
-  fun customInstruction(functionName: String): CustomInstruction {
+  public fun customInstruction(functionName: String): CustomInstruction {
     return customInstructions
         .firstOrNull { it.functionName == functionName }
         .also { require(it != null) { "no instruction named $$functionName" } }!!
   }
 
-  abstract val customInstructions: Collection<CustomInstruction>
+  public abstract val customInstructions: Collection<CustomInstruction>
 
   // HELPERS
 
   private fun <D : Definition> associateByClassName(defs: Collection<D>) =
       defs.associateByStrict { it.name }
 
-  open class Empty : Authority() {
+  /**
+   * An authority providing nothing; intended for tests. Subclass it to supply any needed
+   * declarations and definitions.
+   */
+  public open class Empty : Authority() {
     override val explicitClassDeclarations = listOf<ClassDeclaration>()
     override val cardDefinitions = listOf<CardDefinition>()
     override val marsMapDefinitions = listOf<MarsMapDefinition>()
@@ -125,18 +129,13 @@ abstract class Authority {
     override val customInstructions = listOf<CustomInstruction>()
   }
 
-  open class Minimal : Empty() {
+  /**
+   * An authority providing almost nothing, just a single (empty) Mars map, which is in some code
+   * paths required.
+   */
+  public open class Minimal : Empty() {
     override val allBundles = setOf("B", "M")
     override val marsMapDefinitions =
         listOf(MarsMapDefinition(cn("FakeTharsis"), "M", Grid.empty()))
-  }
-
-  abstract class Forwarding(protected val delegate: Authority) : Authority() {
-    override val explicitClassDeclarations by delegate::explicitClassDeclarations
-    override val standardActionDefinitions by delegate::standardActionDefinitions
-    override val cardDefinitions by delegate::cardDefinitions
-    override val marsMapDefinitions by delegate::marsMapDefinitions
-    override val milestoneDefinitions by delegate::milestoneDefinitions
-    override val customInstructions by delegate::customInstructions
   }
 }

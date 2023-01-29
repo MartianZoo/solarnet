@@ -16,7 +16,7 @@ data class ScalarAndType(
     val scalar: Int = 1,
     val typeExpr: TypeExpr = MEGACREDIT.type,
 ) : PetNode() {
-  override fun visitChildren(v: PetVisitor) = v.visit(typeExpr)
+  override fun visitChildren(visitor: PetVisitor) = visitor.visit(typeExpr)
 
   override fun toString() = toString(false, false)
 

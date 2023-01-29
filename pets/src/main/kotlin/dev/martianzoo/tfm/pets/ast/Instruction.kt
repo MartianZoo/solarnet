@@ -29,7 +29,7 @@ sealed class Instruction : PetNode() {
     override val removing = null
     override val gaining = sat.typeExpr
 
-    override fun visitChildren(v: PetVisitor) = v.visit(sat)
+    override fun visitChildren(visitor: PetVisitor) = visitor.visit(sat)
     override fun toString() = "$sat${intensity?.symbol ?: ""}"
 
     init {
@@ -44,7 +44,7 @@ sealed class Instruction : PetNode() {
     override val removing = sat.typeExpr
     override val gaining = null
 
-    override fun visitChildren(v: PetVisitor) = v.visit(sat)
+    override fun visitChildren(visitor: PetVisitor) = visitor.visit(sat)
     override fun toString() = "-$sat${intensity?.symbol ?: ""}"
 
     init {
@@ -63,7 +63,7 @@ sealed class Instruction : PetNode() {
     override val removing = from.fromType
     override val gaining = from.toType
 
-    override fun visitChildren(v: PetVisitor) = v.visit(from)
+    override fun visitChildren(visitor: PetVisitor) = visitor.visit(from)
     override fun toString(): String {
       return "${scalar.suf(' ')}$from${intensity?.symbol ?: ""}"
     }
@@ -92,7 +92,7 @@ sealed class Instruction : PetNode() {
         else -> throw PetException("Per can only contain gain/remove/transmute") // TODO more
       }
     }
-    override fun visitChildren(v: PetVisitor) = v.visit(sat, instruction)
+    override fun visitChildren(visitor: PetVisitor) = visitor.visit(sat, instruction)
 
     override fun precedence() = 8
 
@@ -106,7 +106,7 @@ sealed class Instruction : PetNode() {
       }
     }
 
-    override fun visitChildren(v: PetVisitor) = v.visit(gate, instruction)
+    override fun visitChildren(visitor: PetVisitor) = visitor.visit(gate, instruction)
 
     override fun toString(): String {
       return "${groupPartIfNeeded(gate)}: ${groupPartIfNeeded(instruction)}"
@@ -125,7 +125,7 @@ sealed class Instruction : PetNode() {
         vararg arguments: TypeExpr
     ) : this(functionName, arguments.toList())
 
-    override fun visitChildren(v: PetVisitor) = v.visit(arguments)
+    override fun visitChildren(visitor: PetVisitor) = visitor.visit(arguments)
 
     override fun toString() = "@$functionName(${arguments.joinToString()})"
   }
@@ -137,7 +137,7 @@ sealed class Instruction : PetNode() {
       require(instructions.size >= 2)
     }
 
-    override fun visitChildren(v: PetVisitor) = v.visit(instructions)
+    override fun visitChildren(visitor: PetVisitor) = visitor.visit(instructions)
 
     override fun toString() = instructions.joinToString(" THEN ") { groupPartIfNeeded(it) }
 
@@ -152,7 +152,7 @@ sealed class Instruction : PetNode() {
     }
 
     override fun toString() = instructions.joinToString(" OR ") { groupPartIfNeeded(it) }
-    override fun visitChildren(v: PetVisitor) = v.visit(instructions)
+    override fun visitChildren(visitor: PetVisitor) = visitor.visit(instructions)
 
     override fun shouldGroupInside(container: PetNode) =
         container is Then || super.shouldGroupInside(container)
@@ -166,7 +166,7 @@ sealed class Instruction : PetNode() {
     init {
       require(instructions.size >= 2)
     }
-    override fun visitChildren(v: PetVisitor) = v.visit(instructions)
+    override fun visitChildren(visitor: PetVisitor) = visitor.visit(instructions)
 
     override fun toString() = instructions.joinToString { groupPartIfNeeded(it) }
 
@@ -175,7 +175,7 @@ sealed class Instruction : PetNode() {
 
   data class Transform(val instruction: Instruction, override val transform: String) :
       Instruction(), GenericTransform<Instruction> {
-    override fun visitChildren(v: PetVisitor) = v.visit(instruction)
+    override fun visitChildren(visitor: PetVisitor) = visitor.visit(instruction)
     override fun toString() = "$transform[$instruction]"
 
     override fun extract() = instruction

@@ -28,7 +28,7 @@ sealed class From : PetNode() {
     override val toType by this::typeExpr
     override val fromType by this::typeExpr
 
-    override fun visitChildren(v: PetVisitor) = v.visit(typeExpr)
+    override fun visitChildren(visitor: PetVisitor) = visitor.visit(typeExpr)
     override fun toString() = "$typeExpr"
   }
 
@@ -36,7 +36,7 @@ sealed class From : PetNode() {
       override val toType: TypeExpr,
       override val fromType: TypeExpr,
   ) : From() {
-    override fun visitChildren(v: PetVisitor) = v.visit(toType, fromType)
+    override fun visitChildren(visitor: PetVisitor) = visitor.visit(toType, fromType)
     override fun toString() = "$toType FROM $fromType"
   }
 
@@ -51,7 +51,7 @@ sealed class From : PetNode() {
       }
     }
 
-    override fun visitChildren(v: PetVisitor) = v.visit(arguments + className + refinement)
+    override fun visitChildren(visitor: PetVisitor) = visitor.visit(arguments + className + refinement)
 
     override val toType = className.addArgs(arguments.map { it.toType })
     override val fromType = className.addArgs(arguments.map { it.fromType }).refine(refinement)

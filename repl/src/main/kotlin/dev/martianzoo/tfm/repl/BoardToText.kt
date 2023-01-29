@@ -7,7 +7,7 @@ import dev.martianzoo.tfm.api.standardResourceNames
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.pets.ast.TypeExpr
 
-internal class BoardToText(private val game: GameState) {
+internal class BoardToText(private val game: GameState) { // TODO why not Game??
 
   internal fun board(player: TypeExpr): List<String> {
     val prodMap = lookUpProductionLevels(game, player)
@@ -35,5 +35,5 @@ internal class BoardToText(private val game: GameState) {
   }
 
   private fun lookUpResourceLevels(game: ReadOnlyGameState, player: TypeExpr) =
-      standardResourceNames(game).associateBy({ it }) { game.count(it.addArgs(player)) }
+      standardResourceNames(game).associateBy({ it }) { game.countComponents(it.addArgs(player)) }
 }

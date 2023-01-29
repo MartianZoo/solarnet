@@ -17,7 +17,7 @@ sealed class Requirement : PetNode() {
   open fun requiresThis() = false
 
   data class Min(val sat: ScalarAndType) : Requirement() {
-    override fun visitChildren(v: PetVisitor) = v.visit(sat)
+    override fun visitChildren(visitor: PetVisitor) = visitor.visit(sat)
     override fun toString() = "$sat"
 
     init {
@@ -30,12 +30,12 @@ sealed class Requirement : PetNode() {
   }
 
   data class Max(val sat: ScalarAndType) : Requirement() {
-    override fun visitChildren(v: PetVisitor) = v.visit(sat)
+    override fun visitChildren(visitor: PetVisitor) = visitor.visit(sat)
     override fun toString() = "MAX ${sat.toString(true, true)}" // no "MAX 5" or "MAX Heat"
   }
 
   data class Exact(val sat: ScalarAndType) : Requirement() {
-    override fun visitChildren(v: PetVisitor) = v.visit(sat)
+    override fun visitChildren(visitor: PetVisitor) = visitor.visit(sat)
     override fun toString() = "=${sat.toString(true, true)}" // no "=5" or "=Heat"
 
     override fun requiresThis() = this.sat == ScalarAndType.sat(1, THIS.type)
@@ -52,7 +52,7 @@ sealed class Requirement : PetNode() {
       require(requirements.size >= 2)
     }
 
-    override fun visitChildren(v: PetVisitor) = v.visit(requirements)
+    override fun visitChildren(visitor: PetVisitor) = visitor.visit(requirements)
     override fun toString() = requirements.joinToString(" OR ") { groupPartIfNeeded(it) }
     override fun precedence() = 3
   }
@@ -68,7 +68,7 @@ sealed class Requirement : PetNode() {
       require(requirements.size >= 2)
     }
 
-    override fun visitChildren(v: PetVisitor) = v.visit(requirements)
+    override fun visitChildren(visitor: PetVisitor) = visitor.visit(requirements)
     override fun toString() = requirements.joinToString { groupPartIfNeeded(it) }
     override fun precedence() = 1
 
@@ -77,7 +77,7 @@ sealed class Requirement : PetNode() {
 
   data class Transform(val requirement: Requirement, override val transform: String) :
       Requirement(), GenericTransform<Requirement> {
-    override fun visitChildren(v: PetVisitor) = v.visit(requirement)
+    override fun visitChildren(visitor: PetVisitor) = visitor.visit(requirement)
     override fun toString() = "$transform[$requirement]"
     override fun extract() = requirement
   }

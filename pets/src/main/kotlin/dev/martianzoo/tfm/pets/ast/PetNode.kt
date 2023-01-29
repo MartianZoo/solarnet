@@ -12,7 +12,8 @@ sealed class PetNode {
 
   open fun precedence(): Int = Int.MAX_VALUE
 
-  abstract fun visitChildren(v: PetVisitor)
+  /** Invokes [visitor.visit] for each direct child node of this [PetNode]. */
+  abstract fun visitChildren(visitor: PetVisitor)
 
   interface GenericTransform<P : PetNode> {
     val transform: String

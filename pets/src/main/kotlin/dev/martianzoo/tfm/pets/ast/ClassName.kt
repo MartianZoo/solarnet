@@ -32,7 +32,7 @@ data class ClassName(private val asString: String) : PetNode(), Comparable<Class
 
   override val kind = "ClassName"
 
-  override fun visitChildren(v: PetVisitor) {}
+  override fun visitChildren(visitor: PetVisitor) {}
 
   object Parsing : PetParser() {
     val classShortName = _allCapsWordRE map { cn(it.text) } // currently unused

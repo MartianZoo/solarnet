@@ -42,19 +42,13 @@ private class CanonTest {
   }
 
   @Test
-  fun testTharsis() {
-    checkMap(Canon.marsMap(cn("Tharsis")))
-  }
+  fun testTharsis() = checkMap(Canon.marsMap(cn("Tharsis")))
 
   @Test
-  fun testHellas() {
-    checkMap(Canon.marsMap(cn("Hellas")))
-  }
+  fun testHellas() = checkMap(Canon.marsMap(cn("Hellas")))
 
   @Test
-  fun testElysium() {
-    checkMap(Canon.marsMap(cn("Elysium")))
-  }
+  fun testElysium() = checkMap(Canon.marsMap(cn("Elysium")))
 
   private fun checkMap(map: MarsMapDefinition) {
     fun hasAtLeast5(it: Iterable<*>) = it.count { it != null } >= 5
@@ -128,7 +122,7 @@ private class CanonTest {
   @Test
   fun testThatSingletonComponentsWereCreated() {
     val game = Engine.newGame(GameSetup(Canon, "BRMPX", 3))
-    val startingComponents: Multiset<Component> = game.getAll(game.resolve(COMPONENT.type))
+    val startingComponents: Multiset<Component> = game.getComponents(game.resolveType(COMPONENT.type))
     assertThat(startingComponents.elements).hasSize(startingComponents.size)
 
     val isArea: (Component) -> Boolean = { it.asTypeExpr.toString().startsWith("Tharsis_") }
@@ -158,7 +152,7 @@ private class CanonTest {
     val game = Engine.newGame(GameSetup(Canon, "BRM", 3))
 
     fun checkCount(count: Int, type: String) {
-      assertThat(game.count(typeExpr(type))).isEqualTo(count)
+      assertThat(game.countComponents(typeExpr(type))).isEqualTo(count)
     }
 
     checkCount(1, "Class<Class>")
@@ -174,8 +168,8 @@ private class CanonTest {
     checkCount(12, "Class<WaterArea>")
     checkCount(63, "Class<Area>")
 
-    assertThat(game.count(typeExpr("Class<CardFront>"))).isGreaterThan(200)
-    assertThat(game.count(typeExpr("Class<Component>"))).isGreaterThan(300)
-    assertThat(game.count(typeExpr("Class"))).isGreaterThan(300)
+    assertThat(game.countComponents(typeExpr("Class<CardFront>"))).isGreaterThan(200)
+    assertThat(game.countComponents(typeExpr("Class<Component>"))).isGreaterThan(300)
+    assertThat(game.countComponents(typeExpr("Class"))).isGreaterThan(300)
   }
 }

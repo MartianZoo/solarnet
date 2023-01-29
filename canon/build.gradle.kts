@@ -1,4 +1,7 @@
-plugins { id("org.jetbrains.kotlin.jvm") version "1.8.0" }
+plugins {
+  id("org.jetbrains.kotlin.jvm") version "1.8.0"
+  id("org.jetbrains.dokka") version "1.6.0"
+}
 
 kotlin { jvmToolchain(18) }
 

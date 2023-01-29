@@ -18,19 +18,24 @@ public fun countNodesInTree(root: PetNode): Int {
   return count
 }
 
+/** Returns every child node of [root] (including [root] itself) that is of type [P]. */
 public inline fun <reified P : PetNode> childNodesOfType(root: PetNode): Set<P> =
     childNodesOfType(P::class, root)
 
+/** Returns every child node of [root] (including [root] itself) that is of type [P]. */
 public fun <P : PetNode> childNodesOfType(type: KClass<P>, root: PetNode): Set<P> {
   val found = mutableSetOf<P>()
   visitAll(root) { if (type.isInstance(it)) found += type.cast(it) }
   return found
 }
 
-public class PetVisitor(val shouldContiue: (PetNode) -> Boolean) {
+/**
+ * See [PetNode.visitChildren].
+ */
+public class PetVisitor(val shouldContinue: (PetNode) -> Boolean) {
   fun visit(node: PetNode?) {
     if (node != null) {
-      if (shouldContiue(node)) {
+      if (shouldContinue(node)) {
         node.visitChildren(this)
       }
     }
