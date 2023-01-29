@@ -4,7 +4,7 @@ import dev.martianzoo.tfm.pets.SpecialClassNames.CLASS
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.TypeExpr
 
-abstract class Dependency {
+sealed class Dependency {
   abstract val key: Key
   abstract val abstract: Boolean
   abstract fun specializes(that: Dependency): Boolean

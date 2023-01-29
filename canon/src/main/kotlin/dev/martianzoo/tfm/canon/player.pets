@@ -8,6 +8,8 @@ ABSTRACT CLASS Anyone {                                     // This would be cal
     This:: 20 TerraformRating                               // no solo mode yet
 
     CLASS Player1, Player2, Player3, Player4, Player5       // TODO not sure we want these here?
+
+    ABSTRACT CLASS Me // not sure about this
 }
 
 

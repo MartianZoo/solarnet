@@ -3,7 +3,6 @@ package dev.martianzoo.tfm.types
 import dev.martianzoo.tfm.data.ClassDeclaration.DefaultsDeclaration
 import dev.martianzoo.tfm.pets.ast.Instruction.Intensity
 import dev.martianzoo.tfm.pets.ast.TypeExpr
-import dev.martianzoo.tfm.types.Dependency.TypeDependency
 
 internal class Defaults(
     // These DMs will always contain TypeDependencies
@@ -32,8 +31,8 @@ internal class Defaults(
   // but otherwise attempt to find agreement among all of `defaultses`.
   fun overlayOn(defaultses: List<Defaults>): Defaults {
     return Defaults(
-        overlayDMs(defaultses) { it.allCasesDependencies },
-        overlayDMs(defaultses) { it.gainOnlyDependencies },
+        overlayDMs(allCasesDependencies, defaultses.map { it.allCasesDependencies }),
+        overlayDMs(gainOnlyDependencies, defaultses.map { it.gainOnlyDependencies }),
         overlayIntensities(defaultses) { it.gainIntensity })
   }
 
@@ -53,18 +52,17 @@ internal class Defaults(
   }
 
   private fun overlayDMs(
-      defaultses: List<Defaults>,
-      extract: (Defaults) -> DependencyMap,
+      thisUn: DependencyMap,
+      otherUns: List<DependencyMap>,
   ): DependencyMap {
-    val defMap = mutableMapOf<Dependency.Key, TypeDependency>()
-    extract(this).keys.associateWithTo(defMap) { extract(this)[it]!! as TypeDependency }
-    for (key in defaultses.flatMap { extract(it).keys }.toSet()) {
+    val defMap = thisUn.keys.associateWith { thisUn[it]!! }.toMutableMap()
+    for (key in otherUns.flatMap { it.keys }.toSet()) {
       if (key !in defMap) {
         // TODO some orders might work when others don't
-        val depMapsWithThisKey = defaultses.map(extract).filter { key in it }
+        val depMapsWithThisKey = otherUns.filter { key in it }
         defMap[key] =
             depMapsWithThisKey
-                .map { it[key]!! as TypeDependency }
+                .map { it[key]!! }
                 .reduce { a, b -> a.intersect(b)!! }
       }
     }

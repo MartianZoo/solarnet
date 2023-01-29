@@ -48,6 +48,7 @@ public data class DependencyMap(private val map: Map<Dependency.Key, Dependency>
   // TODO fix the strict-order problem!
   public fun findMatchups(specs: List<PType>): DependencyMap {
     if (specs.isEmpty()) return this
+
     val newMap = mutableMapOf<Dependency.Key, Dependency>()
     val unhandled = specs.toMutableList()
 

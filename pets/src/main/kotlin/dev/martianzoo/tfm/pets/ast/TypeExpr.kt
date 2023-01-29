@@ -21,7 +21,7 @@ import dev.martianzoo.util.wrap
  * type with various predicates.
  */
 data class TypeExpr(
-    val root: ClassName,
+    val root: ClassName, // TODO renames?
     val args: List<TypeExpr> = listOf(),
     val refinement: Requirement? = null,
     val link: Int? = null,

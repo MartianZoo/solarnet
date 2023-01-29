@@ -51,6 +51,12 @@ private class PClassCanonTest {
     table.allClasses.forEach { it.baseType }
   }
 
+  @Test
+  fun getGetClassEffects() {
+    val table = PClassLoader(Canon).loadEverything()
+    table.allClasses.forEach { it.classEffects }
+  }
+
   @Disabled
   @Test
   fun findValidTypes() {

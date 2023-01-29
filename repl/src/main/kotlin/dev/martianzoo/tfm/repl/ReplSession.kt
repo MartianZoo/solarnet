@@ -111,8 +111,8 @@ class ReplSession(private val authority: Authority) {
                       } else {
                         "(${subs.size})"
                       },
-                  // TODO effects
-              )
+                  "Effects:\n"
+              ) + pclass.classEffects.toStrings()
             } ?: listOf("Usage: desc <ClassName>")
           },
       )
@@ -142,7 +142,9 @@ fun main() {
     val results = try {
       repl.command(inputLine)
     } catch (e: Exception) {
-      listOf("${e::class}: ${e.message}")
+      // listOf("${e::class}: ${e.message}")
+      e.printStackTrace()
+      listOf()
     }
     results.forEach(::println)
     println()

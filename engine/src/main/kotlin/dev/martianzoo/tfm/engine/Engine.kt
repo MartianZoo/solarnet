@@ -2,6 +2,7 @@ package dev.martianzoo.tfm.engine
 
 import dev.martianzoo.tfm.api.GameSetup
 import dev.martianzoo.tfm.data.MarsMapDefinition
+import dev.martianzoo.tfm.pets.SpecialClassNames.ME
 import dev.martianzoo.tfm.pets.SpecialClassNames.PRODUCTION
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.types.PClassLoader
@@ -21,6 +22,7 @@ public object Engine {
 
     // Hacks TODO
     loader.load(PRODUCTION)
+    loader.load(ME)
     loader.load(cn("MegacreditProductionHack")) // TODO loopy singletons
     loader.load(cn("MetalHandler")) // TODO uhhhh ?
     loader.freeze()

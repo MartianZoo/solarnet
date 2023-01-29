@@ -12,14 +12,14 @@ import dev.martianzoo.tfm.pets.ast.TypeExpr
 public fun <P : PetNode> applyDefaultsIn(node: P, loader: PClassLoader) =
     node.transform(Defaulter(loader))
 
-private class Defaulter(val table: PClassLoader) : PetTransformer() {
+private class Defaulter(val loader: PClassLoader) : PetTransformer() {
   override fun <P : PetNode> doTransform(node: P): P {
     val transformed: PetNode =
         when (node) {
           is Gain -> {
             // this should be the real source form because we should run first
             val writtenType = node.sat.typeExpr
-            val defaults = table.get(writtenType.root).defaults
+            val defaults = loader.get(writtenType.root).defaults
             val fixedType =
                 if (writtenType.isTypeOnly) {
                   val deps: Collection<Dependency> = defaults.gainOnlyDependencies.types
@@ -32,14 +32,14 @@ private class Defaulter(val table: PClassLoader) : PetTransformer() {
           THIS.type -> node
           ME.type -> node
           is TypeExpr -> {
-            val pclass = table.get(node.root)
+            val pclass = loader.get(node.root)
             val allCasesDependencies = pclass.defaults.allCasesDependencies
-            if (allCasesDependencies.isEmpty()) {
+            if (allCasesDependencies.isEmpty() || pclass == loader.classClass) {
               node
             } else {
               // TODO have to reengineer what resolve would do because the ptype has forgotten
               val explicitDeps = pclass.baseType.dependencies
-              val foo = explicitDeps.findMatchups(node.args.map { table.resolve(it) })
+              val foo = explicitDeps.findMatchups(node.args.map { loader.resolve(it) })
               val newArgs =
                   foo.overlayOn(allCasesDependencies).types.map {
                     it.toTypeExprFull() // TODO not full?

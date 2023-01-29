@@ -26,9 +26,11 @@ class PClassLoader(private val authority: Authority) {
 
   // MAIN QUERIES
 
+  // TODO rename getClass
   fun get(nameOrId: ClassName): PClass =
       table[nameOrId] ?: error("no class loaded with id or name $nameOrId")
 
+  // TODO rename resolveType
   fun resolve(typeExpr: TypeExpr): PType {
     val pclass = get(typeExpr.root)
     return if (pclass.name == CLASS) {

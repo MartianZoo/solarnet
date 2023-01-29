@@ -12,8 +12,10 @@ data class PType(
     val dependencies: DependencyMap,
     val refinement: Requirement? = null,
 ) : TypeInfo {
+  val isClassType = pclass.name == CLASS
+
   init {
-    if (pclass.name == CLASS) {
+    if (isClassType) {
       require(dependencies.types.single() is ClassDependency)
     }
   }

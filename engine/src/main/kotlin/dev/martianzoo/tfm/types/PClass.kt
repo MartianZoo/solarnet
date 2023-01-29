@@ -4,6 +4,9 @@ import dev.martianzoo.tfm.data.ClassDeclaration
 import dev.martianzoo.tfm.pets.SpecialClassNames.CLASS
 import dev.martianzoo.tfm.pets.SpecialClassNames.COMPONENT
 import dev.martianzoo.tfm.pets.ast.ClassName
+import dev.martianzoo.tfm.pets.ast.Effect
+import dev.martianzoo.tfm.pets.deprodify
+import dev.martianzoo.tfm.pets.replaceThis
 import dev.martianzoo.tfm.types.Dependency.ClassDependency
 import dev.martianzoo.tfm.types.Dependency.ClassDependency.Companion.KEY
 import dev.martianzoo.tfm.types.Dependency.TypeDependency
@@ -124,6 +127,18 @@ public data class PClass(
         Defaults.from(declaration.defaultsDeclaration, this, loader)
             .overlayOn(directSuperclasses.map { it.defaultsIgnoringRoot() })
       }
+
+  // EFFECTS
+
+  val classEffects: List<Effect> by lazy {
+    declaration.effectsRaw.map {
+      var fx = it
+      fx = deprodify(fx, loader.allResourceNames)
+      fx = replaceThis(fx, baseType.toTypeExprFull())
+      fx = applyDefaultsIn(fx, loader)
+      fx
+    }
+  }
 
   // OTHER
 
