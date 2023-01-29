@@ -7,6 +7,7 @@ import dev.martianzoo.tfm.pets.SpecialClassNames.DIE
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.pets.ast.TypeExpr.Companion.typeExpr
+import dev.martianzoo.util.random
 import dev.martianzoo.util.toStrings
 import java.util.TreeSet
 import org.junit.jupiter.api.Disabled
@@ -52,6 +53,18 @@ private class PClassCanonTest {
   fun getGetClassEffects() {
     val table = PClassLoader(Canon).loadEverything()
     table.allClasses.forEach { it.classEffects }
+  }
+
+  // @Disabled
+  @Test
+  fun describeManyClasses() {
+    val table = PClassLoader(Canon).loadEverything()
+    val all: Set<PClass> = table.allClasses
+    val random = random(all, 80)
+    random.forEach {
+      println(it.describe())
+      println()
+    }
   }
 
   @Disabled

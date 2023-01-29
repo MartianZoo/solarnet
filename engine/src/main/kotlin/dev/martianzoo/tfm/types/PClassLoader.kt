@@ -4,9 +4,11 @@ import dev.martianzoo.tfm.api.Authority
 import dev.martianzoo.tfm.data.ClassDeclaration
 import dev.martianzoo.tfm.pets.SpecialClassNames.CLASS
 import dev.martianzoo.tfm.pets.SpecialClassNames.COMPONENT
-import dev.martianzoo.tfm.pets.SpecialClassNames.ME
+import dev.martianzoo.tfm.pets.SpecialClassNames.OWNER
+import dev.martianzoo.tfm.pets.SpecialClassNames.PRODUCTION
 import dev.martianzoo.tfm.pets.SpecialClassNames.THIS
 import dev.martianzoo.tfm.pets.ast.ClassName
+import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.pets.ast.TypeExpr
 import dev.martianzoo.tfm.pets.childNodesOfType
 
@@ -32,6 +34,15 @@ public class PClassLoader(
 
   private val loadedClasses =
       mutableMapOf<ClassName, PClass?>(COMPONENT to componentClass, CLASS to classClass)
+
+  // UGLY HACKS!
+  init {
+    for (c in setOf(PRODUCTION, OWNER, cn("MegacreditProductionHack"), cn("MetalHandler"))) {
+      if (c in authority.allClassNames) {
+        load(c)
+      }
+    }
+  }
 
   /** Returns the [PClass] whose name or id is [nameOrId], or throws an exception. */
   public fun getClass(nameOrId: ClassName): PClass =
@@ -99,7 +110,7 @@ public class PClassLoader(
         val declaration = decl(next)
         loadSingle(next, declaration)
         val needed = declaration.allNodes.flatMap { childNodesOfType<ClassName>(it) }
-        queue.addAll(needed.toSet() - loadedClasses.keys - fakeClassNames)
+        queue.addAll(needed.toSet() - loadedClasses.keys - THIS)
       }
     }
   }
@@ -142,6 +153,4 @@ public class PClassLoader(
     }
 
   private fun decl(cn: ClassName) = authority.classDeclaration(cn)
-
-  private val fakeClassNames = setOf(THIS, ME)
 }

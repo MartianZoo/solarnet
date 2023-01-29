@@ -2570,7 +2570,7 @@
       "id": "124",
       "bundle": "R",
       "deck": "PROJECT",
-      "immediate": "2 Steel<Me FROM Anyone>? OR 3 Megacredit<Me FROM Anyone>?",
+      "immediate": "2 Steel<Owner FROM Anyone>? OR 3 Megacredit<Owner FROM Anyone>?",
       "cost": 1,
       "projectKind": "EVENT"
     },
@@ -3546,7 +3546,7 @@
       "id": "C02",
       "bundle": "C",
       "deck": "PROJECT",
-      "immediate": "-Floater, 5 Megacredit<Me FROM Anyone>?",
+      "immediate": "-Floater, 5 Megacredit<Owner FROM Anyone>?",
       "cost": 0,
       "projectKind": "EVENT"
     },

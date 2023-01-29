@@ -3,8 +3,12 @@ package dev.martianzoo.tfm.types
 import dev.martianzoo.tfm.data.ClassDeclaration
 import dev.martianzoo.tfm.pets.SpecialClassNames.CLASS
 import dev.martianzoo.tfm.pets.SpecialClassNames.COMPONENT
+import dev.martianzoo.tfm.pets.SpecialClassNames.END
+import dev.martianzoo.tfm.pets.SpecialClassNames.THIS
+import dev.martianzoo.tfm.pets.SpecialClassNames.USE_ACTION
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.Effect
+import dev.martianzoo.tfm.pets.ast.Effect.Trigger.OnGain
 import dev.martianzoo.tfm.types.AstTransforms.applyDefaultsIn
 import dev.martianzoo.tfm.types.AstTransforms.deprodify
 import dev.martianzoo.tfm.types.Dependency.ClassDependency
@@ -181,8 +185,21 @@ internal constructor(
       fx = deprodify(fx, loader)
       fx = applyDefaultsIn(fx, loader)
       fx
-    }
+    }.sortedWith(effectComparator)
   }
+
+  private val effectComparator: Comparator<Effect> =
+      compareBy(
+          {
+            val t = it.trigger
+            when {
+              t == OnGain(THIS.type) -> 1
+              t is OnGain && t.typeExpr.className.toString().startsWith(USE_ACTION.toString()) -> 3
+              t == OnGain(END.type) -> 4
+              else -> 2
+            }
+          },
+          { it.trigger.toString() })
 
   // OTHER
 
@@ -196,20 +213,31 @@ internal constructor(
   override fun toString() = "$name"
 
   /** A detailed multi-line description of the class. */
+  // TODO this is a lot of presentation logic...
   public fun describe(): String {
-    val supers = allSuperclasses - this - loader.componentClass
-    val subs = allSubclasses - this
-    val substring = if (subs.size < 11) subs.joinToString() else "(${subs.size})"
-    return """
-        Name: $name
-        Id: $id
-        Abstract: $abstract
-        Superclasses: $supers
-        Subclasses: $substring
-        Dependencies: ${baseType.dependencies.types}
-        Effects:
+    fun descendingBySubclassCount(classes: Iterable<PClass>) =
+        classes.sortedWith(compareBy({ -it.allSubclasses.size }, { it.name }))
 
+    val supers = descendingBySubclassCount(allSuperclasses - this - loader.componentClass)
+    val superstring = if (supers.isEmpty()) "(none)" else supers.joinToString()
+
+    val subs = descendingBySubclassCount(allSubclasses - this)
+    val substring =
+        when (subs.size) {
+          0 -> "(none)"
+          in 1..11 -> subs.joinToString()
+          else -> subs.take(10).joinToString() + " (${subs.size - 10} others)"
+        }
+    val fx = classEffects.joinToString("\n                ")
+    return """
+      Name:     $name
+      Id:       $id
+      Abstract: $abstract
+      Supers:   $superstring
+      Subs:     $substring
+      Deps:     ${baseType.dependencies.types.joinToString()}
+      Effects:  $fx
     """
-        .trimIndent() + classEffects.joinToString("") { "  $it\n" }
+        .trimIndent()
   }
 }

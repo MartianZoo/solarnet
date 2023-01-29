@@ -9,14 +9,14 @@ ABSTRACT CLASS Anyone {                                     // This would be cal
 
     CLASS Player1, Player2, Player3, Player4, Player5       // TODO not sure we want these here?
 
-    ABSTRACT CLASS Me // not sure about this
+    ABSTRACT CLASS Owner // not sure about this
 }
 
 
 // PLAYER PROPERTY / GENERAL -------------------------------
 
 ABSTRACT CLASS Owned<Anyone> {
-    DEFAULT This<Me>                                        // affects ALL references to owned cpts that don't specify
+    DEFAULT This<Owner>                                     // affects ALL references to owned cpts that don't specify
                                                             // an owner -- the only DEFAULT of this kind we need
     CLASS VictoryPoint
 
@@ -145,6 +145,7 @@ ABSTRACT CLASS Owned<Anyone> {
             This: (MAX 0 This: Ok)                          // adds a task that can only be handled if 0 barriers left
         }
         CLASS Owed<Class<Resource>> : Barrier {              // created when payment due, removed by discount cards/
+            DEFAULT +This<Class<Megacredit>>
             This:: Accept<Class<Resource>>
         }
         CLASS Accept<Class<Resource>> {                      // Created in response to PlayTag or the actions on 4
@@ -152,6 +153,7 @@ ABSTRACT CLASS Owned<Anyone> {
             DEFAULT +This.
         }
         CLASS Pay<Class<Resource>> : Signal {                // player uses it like `8 Pay<Class<Heat>> FROM Heat`
+            DEFAULT +This<Class<Megacredit>>
             This:: -Owed<Class<Resource>>.                   // But also cards can pay in response to signals
         }
         CLASS PlayTag<Class<Tag>> : Signal                   // triggers Accept<Steel/Dirig/etc.CLASS> and tag-based discounts

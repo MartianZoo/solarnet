@@ -4,7 +4,6 @@ import dev.martianzoo.tfm.pets.PetTransformer
 import dev.martianzoo.tfm.pets.PetTransformer.Companion.transform
 import dev.martianzoo.tfm.pets.SpecialClassNames
 import dev.martianzoo.tfm.pets.SpecialClassNames.CLASS
-import dev.martianzoo.tfm.pets.SpecialClassNames.ME
 import dev.martianzoo.tfm.pets.SpecialClassNames.THIS
 import dev.martianzoo.tfm.pets.ast.Instruction.Gain
 import dev.martianzoo.tfm.pets.ast.PetNode
@@ -28,8 +27,8 @@ public object AstTransforms {
   /**
    * Translates a Pets node in source form to one where defaults have been applied; for example, an
    * instruction to gain a `GreeneryTile` with no type arguments listed would be converted to
-   * `GreeneryTile<Me, LandArea(HAS? Neighbor<OwnedTile<Me>>)>`. (Search `DEFAULT` in any `*.pets`
-   * files for other examples.)
+   * `GreeneryTile<Owner, LandArea(HAS? Neighbor<OwnedTile<Me>>)>`. (Search `DEFAULT` in any
+   * `*.pets` files for other examples.)
    */
   public fun <P : PetNode> applyDefaultsIn(node: P, loader: PClassLoader) =
       node.transform(Defaulter(loader))
@@ -52,7 +51,6 @@ public object AstTransforms {
               Gain(sat(node.sat.scalar, x(fixedType)), node.intensity ?: defaults.gainIntensity)
             }
             THIS.type -> node
-            ME.type -> node
             is TypeExpr -> addDefaultArgs(node).refine(x(node.refinement))
             else -> defaultTransform(node)
           }
@@ -65,7 +63,7 @@ public object AstTransforms {
       if (writtenClassName == CLASS) return writtenTypeExpr
 
       val writtenClass = loader.getClass(writtenClassName)
-      val allCasesDeps = writtenClass.defaults.allCasesDependencies // Owned_0=Me
+      val allCasesDeps = writtenClass.defaults.allCasesDependencies // Owned_0=Owner
       if (allCasesDeps.isEmpty()) return writtenTypeExpr
 
       /*
@@ -77,11 +75,12 @@ public object AstTransforms {
       val writtenArgTypes: List<PType> = writtenArgs.map(loader::resolveType) // [VA]
       val writtenDeps = writtenClass.findMatchups(writtenArgTypes) // Tile_0=VA
 
-      val writtenPlusDefaults = writtenDeps.overlayOn(allCasesDeps) // {Tile_0 to VA, Owned_0 to Me}
-      val newArgs = writtenPlusDefaults.argsAsTypeExprs() // [VA, Me]
+      // {Tile_0 to VA, Owned_0 to Owner}
+      val writtenPlusDefaults = writtenDeps.overlayOn(allCasesDeps)
+      val newArgs = writtenPlusDefaults.argsAsTypeExprs() // [VA, Owner]
 
-      val transformedNewArgs = newArgs.map { x(it) } // [VA, Me]
-      return writtenClassName.addArgs(transformedNewArgs) // CityTile<VolcanicArea, Me>
+      val transformedNewArgs = newArgs.map { x(it) } // [VA, Owner]
+      return writtenClassName.addArgs(transformedNewArgs) // CityTile<VolcanicArea, Owner>
     }
   }
 }
