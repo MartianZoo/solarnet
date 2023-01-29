@@ -5,7 +5,6 @@ import dev.martianzoo.tfm.pets.SpecialClassNames.CLASS
 import dev.martianzoo.tfm.pets.SpecialClassNames.COMPONENT
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.Effect
-import dev.martianzoo.tfm.pets.deprodify
 import dev.martianzoo.tfm.pets.replaceThis
 import dev.martianzoo.tfm.types.Dependency.ClassDependency
 import dev.martianzoo.tfm.types.Dependency.ClassDependency.Companion.KEY
@@ -18,17 +17,16 @@ import dev.martianzoo.util.toSetStrict
  * from. This loaded class should be the source for any information you need to know about a class,
  * but the declaration itself can always be looked up if necessary.
  */
-public data class PClass(
+public data class PClass internal constructor(
     private val declaration: ClassDeclaration,
-    internal val directSuperclasses: List<PClass>,
     private val loader: PClassLoader,
+    internal val directSuperclasses: List<PClass> = declaration.superclassNames.map(loader::load),
 ) {
+  /** The name of this class, in UpperCamelCase. */
+  public val name: ClassName by declaration::name
 
   /** A short name for this class, such as `"CT"` for `CityTile`; is often the same as [name]. */
   public val id: ClassName by declaration::id
-
-  /** The name of this class, in UpperCamelCase. */
-  public val name: ClassName by declaration::name
 
   /**
    * If true, all types with this as their root are abstract, even when all dependencies are
@@ -38,12 +36,14 @@ public data class PClass(
 
   // HIERARCHY
 
-  public val directSupertypes: Set<PType> by lazy {
-    declaration.supertypes.map(loader::resolveType).toSetStrict()
-  }
-
   public fun isSubclassOf(that: PClass): Boolean =
       this == that || directSuperclasses.any { it.isSubclassOf(that) }
+
+  public fun isSuperclassOf(that: PClass) = that.isSubclassOf(this)
+
+  public val allSuperclasses: Set<PClass> by lazy {
+    (directSuperclasses.flatMap { it.allSuperclasses } + this).toSet()
+  }
 
   public val directSubclasses: Set<PClass> by lazy {
     loader.allClasses.filter { this in it.directSuperclasses }.toSet()
@@ -53,33 +53,26 @@ public data class PClass(
     loader.allClasses.filter { this in it.allSuperclasses }.toSet()
   }
 
-  public val allSuperclasses: Set<PClass> by lazy {
-    (directSuperclasses.flatMap { it.allSuperclasses } + this).toSet()
+  public val directSupertypes: Set<PType> by lazy {
+    declaration.supertypes.map(loader::resolveType).toSetStrict()
   }
 
   public val intersectionType: Boolean by lazy {
-    if (directSuperclasses.size < 2) {
-      false
-    } else {
-      val sharesAllMySuperclasses =
-          loader.allClasses.filter { pclass -> directSuperclasses.all { pclass.isSubclassOf(it) } }
-      sharesAllMySuperclasses.all { it.isSubclassOf(this) }
-    }
+    directSuperclasses.size >= 2 &&
+        loader.allClasses
+            .filter { pclass -> directSuperclasses.all(pclass::isSubclassOf) }
+            .all(::isSuperclassOf)
   }
 
   public infix fun intersect(that: PClass): PClass? =
       when {
         this.isSubclassOf(that) -> this
         that.isSubclassOf(this) -> that
-        else -> {
-          val inters =
-              allSubclasses.filter {
-                it.intersectionType &&
-                    this in it.directSuperclasses &&
-                    that in it.directSuperclasses
-              }
-          if (inters.size == 1) inters.first() else null
-        }
+        else -> allSubclasses.filter {
+          it.intersectionType &&
+              this in it.directSuperclasses &&
+              that in it.directSuperclasses
+        }.singleOrNull()
       }
 
   // DEPENDENCIES
@@ -92,7 +85,8 @@ public data class PClass(
     (directSuperclasses.flatMap { it.allDependencyKeys } + directDependencyKeys).toSet()
   }
 
-  fun toClassType() = PType(loader.classClass, DependencyMap(mapOf(KEY to ClassDependency(this))))
+  public fun toClassType() =
+      PType(loader.classClass, DependencyMap(mapOf(KEY to ClassDependency(this))))
 
   /** Least upper bound of all types with pclass==this */
   public val baseType: PType by lazy {
@@ -112,7 +106,9 @@ public data class PClass(
     }
   }
 
-  // DEFAULTS
+  fun specialize(map: List<PType>): PType = baseType.specialize(map)
+
+// DEFAULTS
 
   internal val defaults: Defaults by lazy {
     if (name == COMPONENT) {
@@ -136,7 +132,7 @@ public data class PClass(
   val classEffects: List<Effect> by lazy {
     declaration.effectsRaw.map {
       var fx = it
-      fx = deprodify(fx, loader.allResourceNames)
+      fx = deprodify(fx, loader)
       fx = replaceThis(fx, baseType.toTypeExprFull())
       fx = applyDefaultsIn(fx, loader)
       fx
@@ -151,8 +147,4 @@ public data class PClass(
           directSuperclasses.any { it.isSingleton() }
 
   override fun toString() = "$name"
-
-  fun specialize(map: List<PType>): PType {
-    return baseType.specialize(map)
-  }
 }

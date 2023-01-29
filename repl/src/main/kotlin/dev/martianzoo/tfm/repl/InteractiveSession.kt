@@ -14,8 +14,8 @@ import dev.martianzoo.tfm.pets.ast.Instruction
 import dev.martianzoo.tfm.pets.ast.PetNode
 import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.pets.ast.TypeExpr
-import dev.martianzoo.tfm.pets.deprodify
 import dev.martianzoo.tfm.types.PType
+import dev.martianzoo.tfm.types.deprodify
 import dev.martianzoo.util.HashMultiset
 import dev.martianzoo.util.Multiset
 
@@ -94,6 +94,6 @@ class InteractiveSession {
     val fixt = node.transform(fixer)
 
     // TODO hmm
-    return deprodify(fixt, game!!.classTable.allResourceNames)
+    return deprodify(fixt, game!!.loader)
   }
 }

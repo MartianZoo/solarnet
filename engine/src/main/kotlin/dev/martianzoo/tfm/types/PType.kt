@@ -44,9 +44,9 @@ data class PType(
     }
   }
 
-  fun specialize(specs: List<PType>): PType {
-    return copy(dependencies = dependencies.specialize(specs))
-  }
+  fun specialize(specs: List<PType>): PType = copy(dependencies = dependencies.specialize(specs))
+
+  fun refine(ref: Requirement): PType = copy(refinement = ref)
 
   override fun toTypeExprFull(): TypeExpr {
     val specs = dependencies.types.map { it.toTypeExprFull() }

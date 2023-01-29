@@ -120,7 +120,7 @@ private class CanonTest {
             .filterNot { it.matches(regex) }
             .filterNot { it in milestoneNames && "HEV".contains(Canon.milestone(it).bundle) }
 
-    assertThat(game.classTable.allClasses.map { it.name }).containsExactlyElementsIn(expected)
+    assertThat(game.loader.allClasses.map { it.name }).containsExactlyElementsIn(expected)
   }
 
   val regex = Regex("(Hellas|Elysium|Player5|Camp|Row|Venus|Area2|Floater|Dirigible|AirScrap).*")

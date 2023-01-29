@@ -10,8 +10,7 @@ import dev.martianzoo.util.filterNoNulls
 
 public object Engine {
   public fun newGame(setup: GameSetup): Game {
-    val loader = PClassLoader(setup.authority)
-    loader.autoLoadDependencies = true
+    val loader = PClassLoader(setup.authority, autoLoadDependencies = true)
 
     val defns = setup.allDefinitions.map { it.name }.sorted()
     loader.loadAll(defns)
@@ -25,7 +24,7 @@ public object Engine {
     loader.load(ME)
     loader.load(cn("MegacreditProductionHack")) // TODO loopy singletons
     loader.load(cn("MetalHandler")) // TODO uhhhh ?
-    loader.freeze()
+    loader.frozen = true
 
     val prebuilt =
         classInstances(loader) + // TODO make them just singletons too!?

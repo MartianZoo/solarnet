@@ -5,52 +5,72 @@ import dev.martianzoo.tfm.data.ClassDeclaration
 import dev.martianzoo.tfm.pets.SpecialClassNames.CLASS
 import dev.martianzoo.tfm.pets.SpecialClassNames.COMPONENT
 import dev.martianzoo.tfm.pets.SpecialClassNames.ME
-import dev.martianzoo.tfm.pets.SpecialClassNames.STANDARD_RESOURCE
 import dev.martianzoo.tfm.pets.SpecialClassNames.THIS
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.TypeExpr
 import dev.martianzoo.tfm.pets.childNodesOfType
 
-// TODO restrict viz?
-class PClassLoader(private val authority: Authority) {
-  private val table = mutableMapOf<ClassName, PClass?>()
-  val componentClass: PClass = PClass(authority.classDeclaration(COMPONENT), listOf(), this)
-  val classClass: PClass = PClass(authority.classDeclaration(CLASS), listOf(componentClass), this)
+/**
+ * All [PClass] instances come from here.
+ */
+public class PClassLoader(
+    /**
+     * The source of class declarations to use. The loader won't necessarily load everything found
+     * there, unless [loadEverything] is called.
+     */
+    private val authority: Authority,
 
-  init {
-    table[COMPONENT] = componentClass
-    table[CLASS] = classClass
-  }
+    /**
+     * Whether, upon loading a class, to also load any classes that class depends on in some way.
+     */
+    private val autoLoadDependencies: Boolean = false,
+) {
+  /** The `Component` class, which is the root of the class hierarchy. */
+  public val componentClass: PClass = PClass(decl(COMPONENT), this, listOf())
 
-  // MAIN QUERIES
+  /** The `Class` class, the other class that is required to exist. */
+  public val classClass: PClass = PClass(decl(CLASS), this, listOf(componentClass))
 
-  // TODO rename getClass
-  fun getClass(nameOrId: ClassName): PClass =
-      table[nameOrId] ?: error("no class loaded with id or name $nameOrId")
+  private val loadedClasses = mutableMapOf<ClassName, PClass?>(
+      COMPONENT to componentClass,
+      CLASS to classClass
+  )
 
-  fun resolveType(typeExpr: TypeExpr): PType {
+  /**
+   * Returns the [PClass] whose name or id is [nameOrId], or throws an exception.
+   */
+  public fun getClass(nameOrId: ClassName): PClass =
+      loadedClasses[nameOrId] ?: error("no class loaded with id or name $nameOrId")
+
+  /**
+   * Returns the [PType] represented by [typeExpr].
+   */
+  public fun resolveType(typeExpr: TypeExpr): PType {
     val pclass = getClass(typeExpr.className)
     return if (pclass.name == CLASS) {
       val className: ClassName =
           if (typeExpr.arguments.isEmpty()) {
             COMPONENT
           } else {
-            typeExpr.arguments.single().also { require(it.isTypeOnly) }.className
+            val single: TypeExpr = typeExpr.arguments.single()
+            require(single.isTypeOnly)
+            single.className
           }
       getClass(className).toClassType()
     } else {
-      pclass.specialize(typeExpr.arguments.map { resolveType(it) })
+      pclass.specialize(typeExpr.arguments.map(::resolveType))
     }
   }
 
-  val allClasses: Set<PClass> by lazy {
+  /**
+   * All classes loaded by this class loader; can only be accessed after the loader is [frozen].
+   */
+  public val allClasses: Set<PClass> by lazy {
     require(frozen)
-    table.values.map { it!! }.toSet()
+    loadedClasses.values.map { it!! }.toSet()
   }
 
   // LOADING
-
-  var autoLoadDependencies: Boolean = false
 
   /** Returns the class with the name [idOrName], loading it first if necessary. */
   public fun load(idOrName: ClassName): PClass =
@@ -60,9 +80,14 @@ class PClassLoader(private val authority: Authority) {
           loadTrees(listOf(idOrName))
           getClass(idOrName)
         }
+
         else -> loadSingle(idOrName)
       }
 
+  /**
+   * Equivalent to (but possibly faster than) calling [load] on every class name in
+   * [idsAndNames].
+   */
   public fun loadAll(idsAndNames: Collection<ClassName>) =
       if (autoLoadDependencies) {
         loadTrees(idsAndNames)
@@ -70,76 +95,64 @@ class PClassLoader(private val authority: Authority) {
         idsAndNames.forEach(::loadSingle)
       }
 
-  public fun loadEverything(): PClassLoader { // TODO hack
+  /** Loads every class known to this class loader's backing [Authority], and freezes. */
+  public fun loadEverything(): PClassLoader {
     authority.allClassNames.forEach(::loadSingle)
-    freeze()
+    frozen = true
     return this
   }
 
   private fun loadTrees(idsAndNames: Collection<ClassName>) {
     val queue = ArrayDeque(idsAndNames.toSet())
-    while (queue.isNotEmpty()) {
+    while (queue.any()) {
       val next = queue.removeFirst()
-      if (next !in table) {
-        val decl = authority.classDeclaration(next)
-        loadSingle(next, decl)
-        // shoot, this merges ids and names
-        val needed: List<ClassName> = decl.allNodes.flatMap(::childNodesOfType)
-        val addToQueue = needed.toSet() - table.keys - THIS - ME // TODO
-        queue.addAll(addToQueue)
+      if (next !in loadedClasses) {
+        val declaration = decl(next)
+        loadSingle(next, declaration)
+        val needed = declaration.allNodes.flatMap { childNodesOfType<ClassName>(it) }
+        queue.addAll(needed.toSet() - loadedClasses.keys - fakeClassNames)
       }
     }
   }
 
-  // OKAY BUT ACTUAL LOADING NOW
-
-  // all loading goes through here
   private fun loadSingle(idOrName: ClassName): PClass =
       if (frozen) {
         getClass(idOrName)
       } else {
-        table[idOrName] ?: construct(authority.classDeclaration(idOrName))
+        loadedClasses[idOrName] ?: construct(decl(idOrName))
       }
 
-  // all loading goes through here
   private fun loadSingle(idOrName: ClassName, decl: ClassDeclaration): PClass =
       if (frozen) {
         getClass(idOrName)
       } else {
-        table[idOrName] ?: construct(decl)
+        loadedClasses[idOrName] ?: construct(decl)
       }
 
+  // all PClasses are created here (aside from Component and Class, at top)
   private fun construct(decl: ClassDeclaration): PClass {
     require(!frozen) { "Too late, this table is frozen!" }
 
-    require(decl.name !in table) { decl.name }
-    require(decl.id !in table) { decl.id }
+    require(decl.name !in loadedClasses) { decl.name }
+    require(decl.id !in loadedClasses) { decl.id }
 
     // signal with `null` that loading is in process so we can detect infinite recursion
-    table[decl.name] = null
-    table[decl.id] = null
-    val superclasses: List<PClass> = decl.superclassNames.map(::load)
+    loadedClasses[decl.name] = null
+    loadedClasses[decl.id] = null
 
-    val pclass = PClass(decl, superclasses, this)
-    table[decl.name] = pclass
-    table[decl.id] = pclass
+    val pclass = PClass(decl, this)
+    loadedClasses[decl.name] = pclass
+    loadedClasses[decl.id] = pclass
     return pclass
   }
 
-  // FREEZING
-
   public var frozen: Boolean = false
-    private set
+    internal set(f) {
+      require(f) { "can't melt" }
+      field = f
+    }
 
-  public fun freeze() {
-    frozen = true
-    table.values.forEach { it!! }
-  }
-
-  // WEIRD RESOURCE STUFF TODO
-
-  public val allResourceNames: Set<ClassName> by lazy {
-    val stdRes = getClass(STANDARD_RESOURCE)
-    allClasses.filter { it.isSubclassOf(stdRes) }.map { it.name }.toSet()
-  }
+  private fun decl(cn: ClassName) = authority.classDeclaration(cn)
 }
+
+val fakeClassNames = setOf(THIS, ME)

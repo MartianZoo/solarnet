@@ -15,7 +15,7 @@ import dev.martianzoo.util.map
 public class Game(
     val setup: GameSetup,
     val components: ComponentGraph,
-    val classTable: PClassLoader,
+    val loader: PClassLoader,
 ) {
   // val tasks = mutableListOf<Task>()
 
@@ -24,7 +24,7 @@ public class Game(
   // TODO maybe have `beginChangeLogging` instead of passing in a prebuilt multiset
   fun changeLog(): List<StateChange> = components.changeLog()
 
-  fun resolve(typeExpr: TypeExpr): PType = classTable.resolveType(typeExpr)
+  fun resolve(typeExpr: TypeExpr): PType = loader.resolveType(typeExpr)
 
   fun isMet(requirement: Requirement) = LiveNodes.from(requirement, this).isMet(this)
 

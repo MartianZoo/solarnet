@@ -2,12 +2,20 @@ package dev.martianzoo.tfm.types
 
 import dev.martianzoo.tfm.pets.PetTransformer
 import dev.martianzoo.tfm.pets.PetTransformer.Companion.transform
+import dev.martianzoo.tfm.pets.SpecialClassNames
 import dev.martianzoo.tfm.pets.SpecialClassNames.ME
 import dev.martianzoo.tfm.pets.SpecialClassNames.THIS
 import dev.martianzoo.tfm.pets.ast.Instruction.Gain
 import dev.martianzoo.tfm.pets.ast.PetNode
 import dev.martianzoo.tfm.pets.ast.ScalarAndType.Companion.sat
 import dev.martianzoo.tfm.pets.ast.TypeExpr
+import dev.martianzoo.tfm.pets.deprodify
+
+public fun <P : PetNode> deprodify(node: P, loader: PClassLoader): P {
+  val stdRes = loader.getClass(SpecialClassNames.STANDARD_RESOURCE)
+  val producible = loader.allClasses.filter(stdRes::isSuperclassOf).map(PClass::name).toSet()
+  return deprodify(node, producible)
+}
 
 public fun <P : PetNode> applyDefaultsIn(node: P, loader: PClassLoader) =
     node.transform(Defaulter(loader))
