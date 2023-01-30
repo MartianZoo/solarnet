@@ -203,6 +203,14 @@ internal constructor(
 
   // OTHER
 
+  // internal fun doForEachConcreteType(thing: (PType) -> Unit): Unit {
+  //   if (abstract) {
+  //     directSubclasses.forEach { it.doForEachConcreteType(thing) }
+  //   } else {
+  //     baseType.doForEachConcreteTypeThisClass(thing)
+  //   }
+  // }
+
   // includes abstract
   internal fun isSingleton(): Boolean =
       declaration.otherInvariants.any { it.requiresThis() } ||

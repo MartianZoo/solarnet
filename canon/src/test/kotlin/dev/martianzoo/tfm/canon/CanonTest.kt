@@ -143,7 +143,6 @@ private class CanonTest {
             "[UseActionFromCard]", "[ConvertHeat]", "[ConvertPlants]",
             "[SellPatents]",
             "[PowerPlantSP]", "[AsteroidSP]", "[AquiferSP]", "[GreenerySP]", "[CitySP]",
-            "[MetalHandler]",
         )
   }
 

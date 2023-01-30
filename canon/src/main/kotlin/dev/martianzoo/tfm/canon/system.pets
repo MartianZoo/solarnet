@@ -4,19 +4,21 @@ ABSTRACT CLASS Component {                                  // Component is the 
 
 CLASS Class<Component> { HAS =1 This }
 
+ABSTRACT CLASS System
+
 ABSTRACT CLASS Temporary {                                  // anything that can never survive across actions
 
-    CLASS Ok {                                              // magic rule: won't trigger anything else (TODO)
+    CLASS Ok : System {                                     // magic rule: won't trigger anything else (TODO)
         HAS MAX 0 This
         This:: -This
     }
 
-    ABSTRACT CLASS Signal {                                 // removes itself immediately - you'll never observe it existing,
+    ABSTRACT CLASS Signal : System {                        // removes itself immediately - you'll never observe it existing,
         HAS MAX 0 This                                      // but things can still be triggered by it
         This:: -This                                        // TODO a magic rule that at least 1 effect must be triggered??
     }
 
-    CLASS Die {                                             // since this has max 0 like Signal, but doesn't erase itself
+    CLASS Die : System {                                    // since this has max 0 like Signal, but doesn't erase itself
         HAS MAX 0 This                                      // like Signal does, it is impossible to create one
     }
 }

@@ -546,7 +546,6 @@ val SHORT_NAMES =
         "Plant" to "P",
         "PlantTag" to "PLT",
         "PlayedEvent" to "EVT",
-        "Player" to "PLAY",
         "Player1" to "P1",
         "Player2" to "P2",
         "Player3" to "P3",

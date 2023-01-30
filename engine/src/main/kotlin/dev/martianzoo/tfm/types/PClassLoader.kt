@@ -37,7 +37,7 @@ public class PClassLoader(
 
   // UGLY HACKS!
   init {
-    for (c in setOf(PRODUCTION, OWNER, cn("MegacreditProductionHack"), cn("MetalHandler"))) {
+    for (c in setOf(PRODUCTION, OWNER, cn("GrossHack"), cn("MetalHandler"))) {
       if (c in authority.allClassNames) {
         load(c)
       }

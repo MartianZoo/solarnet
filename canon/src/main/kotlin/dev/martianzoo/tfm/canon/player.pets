@@ -5,11 +5,11 @@
 ABSTRACT CLASS Anyone {                                     // This would be called Player, it's just that when
     HAS =1 This                                             // reading, `CityTile<Anyone>` makes more sense
 
-    This:: 20 TerraformRating                               // no solo mode yet
+    ABSTRACT CLASS Owner { // not sure about this
+        This:: 20 TerraformRating                               // no solo mode yet
 
-    CLASS Player1, Player2, Player3, Player4, Player5       // TODO not sure we want these here?
-
-    ABSTRACT CLASS Owner // not sure about this
+        CLASS Player1, Player2, Player3, Player4, Player5
+    }
 }
 
 
@@ -130,7 +130,7 @@ ABSTRACT CLASS Owned<Anyone> {
 
 // DISGUSTING HACKS ----------------------------------------
 
-    CLASS MegacreditProductionHack {                        // We're forced to use some ugly hack; at least this one
+    CLASS GrossHack : System {                              // We're forced to use some ugly hack; at least this one
         HAS =1 This                                         // confines the damage to Specialist/Generalist/Robinson and
                                                             // presentation issues. All the alternatives look worse.
         This:: PROD[5]                                      // This makes `/ PROD[1]` extremely dodgy, almost worth
@@ -140,7 +140,7 @@ ABSTRACT CLASS Owned<Anyone> {
 
 // PAYMENT MECHANICS ---------------------------------------
 
-    ABSTRACT CLASS PaymentMechanic : Temporary {
+    ABSTRACT CLASS PaymentMechanic : Temporary, System {
         ABSTRACT CLASS Barrier {                            // player must clean up themselves, by end of action
             This: (MAX 0 This: Ok)                          // adds a task that can only be handled if 0 barriers left
         }
@@ -165,15 +165,15 @@ ABSTRACT CLASS Owned<Anyone> {
   //        This: =0 Barrier: (CardFront FROM CardBack, -This) // adds task to queue that must eventually be completed
         }
     }
-}
 
-CLASS MetalHandler {
-    HAS =1 This
+    CLASS MetalHandler : System {
+        HAS =1 This
 
-    PlayTag<Anyone, Class<BuildingTag>>:: Accept<Anyone, Class<Steel>>
-    PlayTag<Anyone, Class<SpaceTag>>:: Accept<Anyone, Class<Titanium>>
+        PlayTag<Class<BuildingTag>>:: Accept<Class<Steel>>
+        PlayTag<Class<SpaceTag>>:: Accept<Class<Titanium>>
 
-    Pay<Anyone, Class<Steel>>:: 2 Pay<Anyone, Class<Megacredit>>
-    Pay<Anyone, Class<Titanium>>:: 3 Pay<Anyone, Class<Megacredit>>
-    // I *think* that will be innocuous for TradeAction
+        Pay<Class<Steel>>:: 2 Pay<Class<Megacredit>>
+        Pay<Class<Titanium>>:: 3 Pay<Class<Megacredit>>
+        // I *think* that will be innocuous for TradeAction
+    }
 }
