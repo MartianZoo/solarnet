@@ -34,38 +34,44 @@ class ReplSession(private val authority: Authority) {
   private val commands =
       mapOf<String, (String?) -> List<String>>(
           "help" to { listOf(HELP.trimIndent()) },
-          "newgame" to {
-            it?.let { args ->
-              val (bundleString, players) = args.trim().split(Regex("\\s+"), 2)
-              session.newGame(GameSetup(authority, bundleString, players.toInt()))
-              listOf("New $players-player game created with bundles: $bundleString")
-            } ?: listOf("Usage: newgame <bundles> <player count>")
-          },
-          "become" to { args ->
-            val message =
-                if (args == null) {
-                  session.becomeNoOne()
-                  "Okay you are no one"
-                } else {
-                  val trimmed = args.trim()
-                  require(trimmed.length == 7 && trimmed.startsWith("Player"))
-                  val p = trimmed.substring(6).toInt()
-                  session.becomePlayer(p)
-                  "Hi, $trimmed"
+          "newgame" to
+              {
+                it?.let { args ->
+                  val (bundleString, players) = args.trim().split(Regex("\\s+"), 2)
+                  session.newGame(GameSetup(authority, bundleString, players.toInt()))
+                  listOf("New $players-player game created with bundles: $bundleString")
                 }
-            listOf(message)
-          },
-          "count" to {
-            it?.let { args ->
-              val typeExpr = session.fixTypes(typeExpr(args))
-              val count = session.count(typeExpr)
-              listOf("$count $typeExpr")
-            } ?: listOf("Usage: count <TypeExpr>")
-          },
-          "list" to { args ->
-            session.list(typeExpr(args!!))
-            listOf()
-          },
+                    ?: listOf("Usage: newgame <bundles> <player count>")
+              },
+          "become" to
+              { args ->
+                val message =
+                    if (args == null) {
+                      session.becomeNoOne()
+                      "Okay you are no one"
+                    } else {
+                      val trimmed = args.trim()
+                      require(trimmed.length == 7 && trimmed.startsWith("Player"))
+                      val p = trimmed.substring(6).toInt()
+                      session.becomePlayer(p)
+                      "Hi, $trimmed"
+                    }
+                listOf(message)
+              },
+          "count" to
+              {
+                it?.let { args ->
+                  val typeExpr = session.fixTypes(typeExpr(args))
+                  val count = session.count(typeExpr)
+                  listOf("$count $typeExpr")
+                }
+                    ?: listOf("Usage: count <TypeExpr>")
+              },
+          "list" to
+              { args ->
+                session.list(typeExpr(args!!))
+                listOf()
+              },
           "has" to
               {
                 it?.let { args ->
@@ -75,34 +81,41 @@ class ReplSession(private val authority: Authority) {
                 }
                     ?: listOf("Usage: has <Requirement>")
               },
-          "map" to {
-            if (it == null) {
-              MapToText(session.game!!.asGameState).map()
-            } else {
-              listOf("Arguments unexpected: $it")
-            }
-          },
-          "board" to {
-            val player = if (it == null) session.defaultPlayer!! else cn(it.trim())
-            BoardToText(session.game!!.asGameState).board(player.type)
-          },
-          "changes" to { args ->
-            args?.let { listOf("Arguments unexpected: $it") }
-                ?: session.game!!.changeLog().toStrings().mapIndexed { i, s -> "$i: $s" }
-          },
-          "exec" to {
-            it?.let { args ->
-              val instr = session.execute(instruction(args))
-              listOf("Ok: $instr")
-            } ?: listOf("Usage: exec <Instruction>")
-          },
-          "desc" to {
-            it?.let { args ->
-              val className = cn(args.trim())
-              val pclass: PClass = session.game!!.loader.getClass(className)
-              listOf(pclass.describe())
-            } ?: listOf("Usage: desc <ClassName>")
-          },
+          "map" to
+              {
+                if (it == null) {
+                  MapToText(session.game!!.asGameState).map()
+                } else {
+                  listOf("Arguments unexpected: $it")
+                }
+              },
+          "board" to
+              {
+                val player = if (it == null) session.defaultPlayer!! else cn(it.trim())
+                BoardToText(session.game!!.asGameState).board(player.type)
+              },
+          "changes" to
+              { args ->
+                args?.let { listOf("Arguments unexpected: $it") }
+                    ?: session.game!!.changeLog().toStrings().mapIndexed { i, s -> "$i: $s" }
+              },
+          "exec" to
+              {
+                it?.let { args ->
+                  val instr = session.execute(instruction(args))
+                  listOf("Ok: $instr")
+                }
+                    ?: listOf("Usage: exec <Instruction>")
+              },
+          "desc" to
+              {
+                it?.let { args ->
+                  val className = cn(args.trim())
+                  val pclass: PClass = session.game!!.loader.getClass(className)
+                  listOf(pclass.describe())
+                }
+                    ?: listOf("Usage: desc <ClassName>")
+              },
       )
 }
 
@@ -127,25 +140,31 @@ fun main() {
   repl.command("newgame BM 2").forEach(::println)
 
   while (true) {
-    val inputLine = try {
-      reader.readLine("> ")
-    } catch (e: EndOfFileException) {
-      history.append(historyFile, /* incremental= */ true)
-      return
+    val inputLine =
+        try {
+          reader.readLine("> ")
+        } catch (e: EndOfFileException) {
+          history.append(historyFile, /* incremental= */ true)
+          return
+        }
+    if (inputLine.trim() == "history") {
+      println(history.joinToString("\n") { "${it.index() + 1}: ${it.line()}" })
+      continue
     }
-    val results = try {
-      repl.command(inputLine)
-    } catch (e: Exception) {
-      // listOf("${e::class}: ${e.message}")
-      e.printStackTrace()
-      listOf()
-    }
+    val results =
+        try {
+          repl.command(inputLine)
+        } catch (e: Exception) {
+          // listOf("${e::class}: ${e.message}")
+          e.printStackTrace()
+          listOf()
+        }
     results.forEach(::println)
-    println()
   }
 }
 
-private const val HELP = """
+private const val HELP =
+    """
   newgame BMP 3        ->  ERASE CURRENT GAME and start a new 3p game with Base/Tharsis/Prelude
   become Player1       ->  make Player1 the default player for future commands
   count Plant          ->  counts how many Plants the default player has
