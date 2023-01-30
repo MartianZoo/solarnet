@@ -39,7 +39,7 @@ internal class PetGenerator(scaling: (Int) -> Double) :
     init {
       val specSizes = multiset(8 to 0, 4 to 1, 2 to 2, 1 to 3) // weight to value
       register { cn(randomName()) }
-      register<TypeExpr> {
+      register(TypeExpr::class) {
         TypeExpr(
             recurse(),
             listOfSize(choose(specSizes)),

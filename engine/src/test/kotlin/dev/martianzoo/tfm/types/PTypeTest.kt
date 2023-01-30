@@ -30,7 +30,8 @@ private class PTypeTest {
     val fish = table.resolveType(typeExpr("Animal<Player1, Fish<Player1>>"))
     assertThat(fish.abstract).isFalse()
 
-    assertThat(table.getClass(cn1("Fish")).baseType.toString()).isEqualTo("Fish<Anyone, Class<Animal>>")
+    assertThat(table.getClass(cn1("Fish")).toTypeExprFull().toString())
+        .isEqualTo("Fish<Anyone, Class<Animal>>")
 
     // TODO get these working
     // assertFails { table.resolve("Animal<Ants>") }

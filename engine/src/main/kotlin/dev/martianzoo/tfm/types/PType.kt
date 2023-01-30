@@ -12,28 +12,28 @@ import dev.martianzoo.tfm.types.Dependency.ClassDependency
  */
 public data class PType internal constructor(
     private val pclass: PClass,
-    internal val dependencies: DependencyMap = DependencyMap(),
+    internal val allDependencies: DependencyMap = DependencyMap(),
     internal val refinement: Requirement? = null,
 ) {
   val isClassType = pclass.name == CLASS
 
   init {
     if (isClassType) {
-      require(dependencies.types.single() is ClassDependency)
+      require(allDependencies.types.single() is ClassDependency)
     }
   }
-  val abstract = pclass.abstract || dependencies.abstract || refinement != null
+  val abstract = pclass.abstract || allDependencies.abstract || refinement != null
 
   fun isSubtypeOf(that: PType) =
       pclass.isSubclassOf(that.pclass) &&
-      dependencies.specializes(that.dependencies) &&
+      allDependencies.specializes(that.allDependencies) &&
       that.refinement in setOf(null, refinement)
 
   infix fun intersect(that: PType): PType? {
     val intersect: PClass = pclass.intersect(that.pclass) ?: return null
     return PType(
         intersect,
-        dependencies.intersect(that.dependencies),
+        allDependencies.intersect(that.allDependencies),
         combine(this.refinement, that.refinement))
   }
 
@@ -47,11 +47,18 @@ public data class PType internal constructor(
     }
   }
 
-  fun specialize(specs: List<PType>): PType = copy(dependencies = dependencies.specialize(specs))
+  fun specialize(specs: List<PType>): PType = copy(allDependencies = allDependencies.specialize(specs))
 
   fun refine(ref: Requirement): PType = copy(refinement = ref)
 
-  fun toTypeExprFull() = pclass.name.addArgs(dependencies.argsAsTypeExprs()).refine(refinement)
+  fun toTypeExprFull(): TypeExpr {
+    return pclass.name.addArgs(allDependencies.argsAsTypeExprs()).refine(refinement)
+  }
 
-  override fun toString() = toTypeExprFull().toString()
+  fun toTypeExprMinimal(): TypeExpr {
+    val narrowed = allDependencies.minus(pclass.baseType.allDependencies)
+    return pclass.name.addArgs(narrowed.types.map { it.toTypeExprMinimal() }).refine(refinement)
+  }
+
+  override fun toString() = toTypeExprMinimal().toString()
 }

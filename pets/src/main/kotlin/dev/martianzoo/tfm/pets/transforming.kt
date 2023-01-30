@@ -54,7 +54,7 @@ internal fun immediateToEffect(instruction: Instruction): Effect {
 }
 
 fun <P : PetNode> replaceThis(node: P, resolveTo: TypeExpr) =
-    node.replaceTypes(THIS.type, resolveTo) // TODO liteals
+    node.replaceTypes(THIS.type, resolveTo) // TODO class types?
 
 fun <P : PetNode> P.replaceTypes(from: TypeExpr, to: TypeExpr): P {
   return replaceTypesIn(this, from, to)

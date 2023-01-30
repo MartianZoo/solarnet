@@ -10,6 +10,7 @@ import dev.martianzoo.tfm.pets.ast.PetNode
 import dev.martianzoo.tfm.pets.ast.ScalarAndType.Companion.sat
 import dev.martianzoo.tfm.pets.ast.TypeExpr
 import dev.martianzoo.tfm.pets.deprodify
+import dev.martianzoo.tfm.pets.replaceThis
 
 public object AstTransforms {
   /**
@@ -30,10 +31,10 @@ public object AstTransforms {
    * `GreeneryTile<Owner, LandArea(HAS? Neighbor<OwnedTile<Me>>)>`. (Search `DEFAULT` in any
    * `*.pets` files for other examples.)
    */
-  public fun <P : PetNode> applyDefaultsIn(node: P, loader: PClassLoader) =
-      node.transform(Defaulter(loader))
+  public fun <P : PetNode> applyDefaultsIn(node: P, loader: PClassLoader, owning: PClass) =
+      node.transform(Defaulter(loader, owning))
 
-  private class Defaulter(val loader: PClassLoader) : PetTransformer() {
+  private class Defaulter(val loader: PClassLoader, val owning: PClass) : PetTransformer() {
     override fun <P : PetNode> doTransform(node: P): P {
       val transformed: PetNode =
           when (node) {
@@ -44,21 +45,26 @@ public object AstTransforms {
               val fixedType =
                   if (writtenType.isTypeOnly) {
                     val deps: Collection<Dependency> = defaults.gainOnlyDependencies.types
-                    writtenType.addArgs(deps.map { it.toTypeExprFull() })
+                    writtenType
+                        .addArgs(deps.map { it.toTypeExprFull() })
+                        .refine(writtenType.refinement)
                   } else {
                     writtenType
                   }
               Gain(sat(node.sat.scalar, x(fixedType)), node.intensity ?: defaults.gainIntensity)
             }
             THIS.type -> node
-            is TypeExpr -> addDefaultArgs(node).refine(x(node.refinement))
+            is TypeExpr -> addDefaultArgs(node, owning).refine(x(node.refinement))
             else -> defaultTransform(node)
           }
       @Suppress("UNCHECKED_CAST") return transformed as P
     }
 
     // This is one of the gnarliest functions in the whole codebase right now...
-    private fun addDefaultArgs(writtenTypeExpr: TypeExpr): TypeExpr { // e.g. CityTile<VolcanicArea>
+    private fun addDefaultArgs(
+        writtenTypeExpr: TypeExpr,
+        owning: PClass,
+    ): TypeExpr { // e.g. CityTile<VolcanicArea>
       val writtenClassName = writtenTypeExpr.className // CityTile
       if (writtenClassName == CLASS) return writtenTypeExpr
 
@@ -66,14 +72,10 @@ public object AstTransforms {
       val allCasesDeps = writtenClass.defaults.allCasesDependencies // Owned_0=Owner
       if (allCasesDeps.isEmpty()) return writtenTypeExpr
 
-      /*
-       * As we have it now, we don't know what kind of class or type these nodes
-       * ultimately belong to, so we have to just remove THIS & ignore it
-       */
-      val writtenArgs: List<TypeExpr> = writtenTypeExpr.arguments - THIS.type // [VA]
-
-      val writtenArgTypes: List<PType> = writtenArgs.map(loader::resolveType) // [VA]
-      val writtenDeps = writtenClass.findMatchups(writtenArgTypes) // Tile_0=VA
+      val writtenArgTypes: List<PType> = writtenTypeExpr.arguments.map {
+        loader.resolveType(replaceThis(it, owning.baseType.toTypeExprMinimal()))
+      }
+      val writtenDeps: DependencyMap = writtenClass.findMatchups(writtenArgTypes) // Tile_0=VA
 
       // {Tile_0 to VA, Owned_0 to Owner}
       val writtenPlusDefaults = writtenDeps.overlayOn(allCasesDeps)
@@ -83,4 +85,17 @@ public object AstTransforms {
       return writtenClassName.addArgs(transformedNewArgs) // CityTile<VolcanicArea, Owner>
     }
   }
+
+  internal fun <P : PetNode> unreplaceThis(node: P, owning: PClass) =
+      node.transform(
+          object : PetTransformer() {
+            override fun <P : PetNode> doTransform(node: P): P =
+                if (node is TypeExpr && owning.isBaseType(node)) {
+                  @Suppress("UNCHECKED_CAST")
+                  THIS.type as P
+                } else {
+                  defaultTransform(node)
+                }
+          })
+
 }

@@ -9,6 +9,6 @@ public data class Component(private val ptype: PType) {
   }
 
   public fun hasType(thatType: PType) = ptype.isSubtypeOf(thatType)
-  public val asTypeExpr = ptype.toTypeExprFull() // TODO minimal?
+  public val asTypeExpr = ptype.toTypeExprMinimal()
   override fun toString() = "[$ptype]"
 }

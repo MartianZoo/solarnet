@@ -9,6 +9,8 @@ import dev.martianzoo.tfm.pets.SpecialClassNames.USE_ACTION
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.Effect
 import dev.martianzoo.tfm.pets.ast.Effect.Trigger.OnGain
+import dev.martianzoo.tfm.pets.ast.TypeExpr
+import dev.martianzoo.tfm.pets.replaceThis
 import dev.martianzoo.tfm.types.AstTransforms.applyDefaultsIn
 import dev.martianzoo.tfm.types.AstTransforms.deprodify
 import dev.martianzoo.tfm.types.Dependency.ClassDependency
@@ -144,12 +146,14 @@ internal constructor(
             val depTypeExpr = declaration.dependencies[it.index].typeExpr
             TypeDependency(it, loader.resolveType(depTypeExpr))
           }
-      val deps = DependencyMap.intersect(directSupertypes.map { it.dependencies })
+      val deps = DependencyMap.intersect(directSupertypes.map { it.allDependencies })
       val allDeps = deps.intersect(DependencyMap(newDeps))
       require(allDeps.keys == allDependencyKeys)
       PType(this, allDeps, null)
     }
   }
+
+  fun toTypeExprFull() = baseType.toTypeExprFull()
 
   fun specialize(map: List<PType>): PType = baseType.specialize(map)
 
@@ -183,7 +187,8 @@ internal constructor(
     declaration.effectsRaw.map {
       var fx = it
       fx = deprodify(fx, loader)
-      fx = applyDefaultsIn(fx, loader)
+      fx = replaceThis(fx, name.type)
+      fx = applyDefaultsIn(fx, loader, this)
       fx
     }.sortedWith(effectComparator)
   }
@@ -216,7 +221,7 @@ internal constructor(
       declaration.otherInvariants.any { it.requiresThis() } ||
           directSuperclasses.any { it.isSingleton() }
 
-  internal fun findMatchups(specs: List<PType>) = baseType.dependencies.findMatchups(specs)
+  internal fun findMatchups(specs: List<PType>) = baseType.allDependencies.findMatchups(specs)
 
   override fun toString() = "$name"
 
@@ -243,9 +248,11 @@ internal constructor(
       Abstract: $abstract
       Supers:   $superstring
       Subs:     $substring
-      Deps:     ${baseType.dependencies.types.joinToString()}
+      Deps:     ${baseType.allDependencies.types.joinToString()}
       Effects:  $fx
     """
         .trimIndent()
   }
+
+  fun isBaseType(typeExpr: TypeExpr) = loader.resolveType(typeExpr) == baseType
 }

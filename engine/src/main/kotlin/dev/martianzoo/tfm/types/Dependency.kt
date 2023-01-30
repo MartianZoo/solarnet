@@ -11,6 +11,7 @@ internal sealed class Dependency {
   abstract fun intersect(that: Dependency): Dependency?
 
   abstract fun toTypeExprFull(): TypeExpr
+  abstract fun toTypeExprMinimal(): TypeExpr
 
   /**
    * Once a class introduces a dependency, like `CLASS Tile<Area>`, all subclasses know that
@@ -43,7 +44,8 @@ internal sealed class Dependency {
         (this.ptype intersect otherType)?.let { copy(ptype = it) }
 
     override fun toTypeExprFull() = ptype.toTypeExprFull()
-    override fun toString() = "$key=${toTypeExprFull()}"
+    override fun toTypeExprMinimal() = ptype.toTypeExprMinimal()
+    override fun toString() = "$key=${toTypeExprMinimal()}"
   }
 
   /**
@@ -71,6 +73,7 @@ internal sealed class Dependency {
         (this.pclass intersect otherClass)?.let { copy(pclass = it) }
 
     override fun toTypeExprFull() = pclass.name.type
-    override fun toString() = "$key=${toTypeExprFull()}"
+    override fun toTypeExprMinimal() = pclass.name.type
+    override fun toString() = "$key=${toTypeExprMinimal()}"
   }
 }

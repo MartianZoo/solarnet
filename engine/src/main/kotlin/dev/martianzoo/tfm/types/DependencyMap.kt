@@ -37,6 +37,9 @@ internal data class DependencyMap(private val map: Map<Key, Dependency>) {
 
   fun overlayOn(that: DependencyMap) = DependencyMap(overlayMaps(this.map, that.map))
 
+  fun minus(that: DependencyMap) =
+      DependencyMap((map.entries - that.map.entries).associate { it.key to it.value })
+
   companion object {
     fun intersect(maps: Collection<DependencyMap>): DependencyMap {
       // TODO improve, watch out for order
