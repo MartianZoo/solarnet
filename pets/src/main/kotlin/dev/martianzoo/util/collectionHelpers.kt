@@ -78,6 +78,4 @@ fun <T> Iterable<T>.joinOrEmpty(
 
 fun <T : Any> Collection<List<T?>>.filterNoNulls() = filter { null !in it } as List<List<T>>
 
-fun Any.iff(b: Boolean): String = if (b) toString() else ""
-
 infix fun <T> T.plus(more: Collection<T>): List<T> = listOf(this) + more
