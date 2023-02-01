@@ -3,14 +3,16 @@ package dev.martianzoo.tfm.types
 import dev.martianzoo.tfm.pets.PetTransformer
 import dev.martianzoo.tfm.pets.PetTransformer.Companion.transform
 import dev.martianzoo.tfm.pets.SpecialClassNames
+import dev.martianzoo.tfm.pets.SpecialClassNames.ANYONE
 import dev.martianzoo.tfm.pets.SpecialClassNames.CLASS
+import dev.martianzoo.tfm.pets.SpecialClassNames.OWNER
 import dev.martianzoo.tfm.pets.SpecialClassNames.THIS
+import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.Instruction.Gain
 import dev.martianzoo.tfm.pets.ast.PetNode
 import dev.martianzoo.tfm.pets.ast.ScalarAndType.Companion.sat
 import dev.martianzoo.tfm.pets.ast.TypeExpr
 import dev.martianzoo.tfm.pets.deprodify
-import dev.martianzoo.tfm.pets.replaceThis
 
 public object AstTransforms {
   /**
@@ -25,16 +27,35 @@ public object AstTransforms {
     return deprodify(node, producible)
   }
 
+  public fun <P : PetNode> addOwnerToOwned(node: P, ownedClassNames: Set<ClassName>): P {
+    val ok = setOf(OWNER.type, ANYONE.type)
+    val pwner =
+        object : PetTransformer() {
+          override fun <Q : PetNode> doTransform(node: Q): Q {
+            return if (node !is TypeExpr) {
+              defaultTransform(node)
+            } else if (node.className == CLASS) {
+              node // don't descend; it's perfect how it is
+            } else if (node.className in ownedClassNames && node.arguments.intersect(ok).none()) {
+              defaultTransform(node).addArgs(OWNER.type) as Q
+            } else {
+              defaultTransform(node)
+            }
+          }
+        }
+    return node.transform(pwner)
+  }
+
   /**
    * Translates a Pets node in source form to one where defaults have been applied; for example, an
    * instruction to gain a `GreeneryTile` with no type arguments listed would be converted to
    * `GreeneryTile<Owner, LandArea(HAS? Neighbor<OwnedTile<Me>>)>`. (Search `DEFAULT` in any
    * `*.pets` files for other examples.)
    */
-  public fun <P : PetNode> applyDefaultsIn(node: P, loader: PClassLoader, owning: PClass) =
-      node.transform(Defaulter(loader, owning))
+  public fun <P : PetNode> applyGainDefaultsIn(node: P, loader: PClassLoader) =
+      node.transform(Defaulter(loader))
 
-  private class Defaulter(val loader: PClassLoader, val owning: PClass) : PetTransformer() {
+  private class Defaulter(val loader: PClassLoader) : PetTransformer() {
     override fun <P : PetNode> doTransform(node: P): P {
       val transformed: PetNode =
           when (node) {
@@ -53,36 +74,9 @@ public object AstTransforms {
                   }
               Gain(sat(node.sat.scalar, x(fixedType)), node.intensity ?: defaults.gainIntensity)
             }
-            THIS.type -> node
-            is TypeExpr -> addDefaultArgs(node, owning).refine(x(node.refinement))
             else -> defaultTransform(node)
           }
       @Suppress("UNCHECKED_CAST") return transformed as P
-    }
-
-    // This is one of the gnarliest functions in the whole codebase right now...
-    private fun addDefaultArgs(
-        writtenTypeExpr: TypeExpr,
-        owning: PClass,
-    ): TypeExpr { // e.g. CityTile<VolcanicArea>
-      val writtenClassName = writtenTypeExpr.className // CityTile
-      if (writtenClassName == CLASS) return writtenTypeExpr
-
-      val writtenClass = loader.getClass(writtenClassName)
-      val allCasesDeps = writtenClass.defaults.allCasesDependencies // Owned_0=Owner
-      if (allCasesDeps.isEmpty()) return writtenTypeExpr
-
-      val writtenArgTypes: List<PType> = writtenTypeExpr.arguments.map {
-        loader.resolveType(replaceThis(it, owning.baseType.toTypeExprMinimal()))
-      }
-      val writtenDeps: DependencyMap = writtenClass.findMatchups(writtenArgTypes) // Tile_0=VA
-
-      // {Tile_0 to VA, Owned_0 to Owner}
-      val writtenPlusDefaults = writtenDeps.overlayOn(allCasesDeps)
-      val newArgs = writtenPlusDefaults.argsAsTypeExprs() // [VA, Owner]
-
-      val transformedNewArgs = newArgs.map { x(it) } // [VA, Owner]
-      return writtenClassName.addArgs(transformedNewArgs) // CityTile<VolcanicArea, Owner>
     }
   }
 
@@ -97,5 +91,4 @@ public object AstTransforms {
                   defaultTransform(node)
                 }
           })
-
 }

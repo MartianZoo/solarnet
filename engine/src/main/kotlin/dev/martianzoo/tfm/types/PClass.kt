@@ -11,8 +11,8 @@ import dev.martianzoo.tfm.pets.ast.Effect.Trigger.OnGainOf
 import dev.martianzoo.tfm.pets.ast.Effect.Trigger.WhenGain
 import dev.martianzoo.tfm.pets.ast.Effect.Trigger.WhenRemove
 import dev.martianzoo.tfm.pets.ast.TypeExpr
-import dev.martianzoo.tfm.pets.replaceThis
-import dev.martianzoo.tfm.types.AstTransforms.applyDefaultsIn
+import dev.martianzoo.tfm.types.AstTransforms.addOwnerToOwned
+import dev.martianzoo.tfm.types.AstTransforms.applyGainDefaultsIn
 import dev.martianzoo.tfm.types.AstTransforms.deprodify
 import dev.martianzoo.tfm.types.Dependency.ClassDependency
 import dev.martianzoo.tfm.types.Dependency.ClassDependency.Companion.KEY
@@ -188,8 +188,8 @@ internal constructor(
     declaration.effectsRaw.map {
       var fx = it
       fx = deprodify(fx, loader)
-      fx = replaceThis(fx, name.type)
-      fx = applyDefaultsIn(fx, loader, this)
+      fx = applyGainDefaultsIn(fx, loader)
+      fx = addOwnerToOwned(fx, loader.ownedClassNames)
       fx
     }.sortedWith(effectComparator)
   }

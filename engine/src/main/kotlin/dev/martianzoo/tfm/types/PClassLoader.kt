@@ -4,6 +4,7 @@ import dev.martianzoo.tfm.api.Authority
 import dev.martianzoo.tfm.data.ClassDeclaration
 import dev.martianzoo.tfm.pets.SpecialClassNames.CLASS
 import dev.martianzoo.tfm.pets.SpecialClassNames.COMPONENT
+import dev.martianzoo.tfm.pets.SpecialClassNames.OWNED
 import dev.martianzoo.tfm.pets.SpecialClassNames.OWNER
 import dev.martianzoo.tfm.pets.SpecialClassNames.PRODUCTION
 import dev.martianzoo.tfm.pets.SpecialClassNames.THIS
@@ -11,6 +12,7 @@ import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.pets.ast.TypeExpr
 import dev.martianzoo.tfm.pets.childNodesOfType
+import dev.martianzoo.util.toSetStrict
 
 /**
  * All [PClass] instances come from here. Uses an [Authority] to pull class declarations from as
@@ -18,9 +20,9 @@ import dev.martianzoo.tfm.pets.childNodesOfType
  * features such as [PClass.allSubclasses] to work.
  *
  * @param authority the source of class declarations to use as needed; [loadEverything] will load
- *     every class found here
+ *   every class found here
  * @param autoLoadDependencies whether, when a class is loaded, to also load any classes that class
- *     depends on in some way; by default only superclasses are auto-loaded
+ *   depends on in some way; by default only superclasses are auto-loaded
  */
 public class PClassLoader(
     private val authority: Authority,
@@ -153,4 +155,8 @@ public class PClassLoader(
     }
 
   private fun decl(cn: ClassName) = authority.classDeclaration(cn)
+
+  internal val ownedClassNames: Set<ClassName> by lazy {
+    getClass(OWNED).allSubclasses.map { it.name }.toSetStrict()
+  }
 }

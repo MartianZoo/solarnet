@@ -22,6 +22,26 @@ private class CanonEffectsTest {
     )
   }
 
+  @Test
+  fun energy() {
+    assertThat(load("Energy").classEffects).containsExactly(
+        effect("ProductionPhase:: Heat<Owner> FROM This"),
+    )
+  }
+
+  @Test
+  fun terraformer() {
+    assertThat(load("Terraformer").classEffects).containsExactly(
+        effect("This:: (35 TerraformRating<Owner>: Ok!)"),
+    )
+  }
+
+  @Test
+  fun polarExplorer() {
+    assertThat(load("PolarExplorer").classEffects)
+        .containsExactly(effect("This:: (3 OwnedTile<MarsArea(HAS 8 Row), Owner>: Ok!)"))
+  }
+
   @Disabled
   @Test
   fun gyropolis() {
@@ -40,13 +60,6 @@ private class CanonEffectsTest {
   fun e98() {
     assertThat(load("Elysium_9_8").classEffects)
         .containsExactly(effect("Tile<This> BY Player: ProjectCard<Player>!"))
-  }
-
-  @Disabled
-  @Test
-  fun polarExplorer() {
-    assertThat(load("PolarExplorer").classEffects)
-        .containsExactly(effect("This:: (3 OwnedTile<MarsArea, Owner>(HAS 8 Row): Ok!)"))
   }
 
   @Disabled
@@ -113,22 +126,6 @@ private class CanonEffectsTest {
         effect("-Animal<This>:: Die!"),
         effect("CityTile<Anyone>: Animal<This>."),
         effect("End: VictoryPoint<Owner>! / 2 Animal<This>"),
-    )
-  }
-
-  @Disabled
-  @Test
-  fun terraformer() {
-    assertThat(load("Terraformer").classEffects).containsExactly(
-        effect("This:: (35 TerraformRating<Owner>: Ok!)"),
-    )
-  }
-
-  @Disabled
-  @Test
-  fun energy() {
-    assertThat(load("Energy").classEffects).containsExactly(
-        effect("ProductionPhase:: Heat<Owner> FROM This"),
     )
   }
 

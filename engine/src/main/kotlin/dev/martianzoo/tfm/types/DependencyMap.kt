@@ -86,5 +86,5 @@ internal data class DependencyMap(private val map: Map<Key, Dependency>) {
 
   override fun toString() = "$types"
 
-  fun argsAsTypeExprs() = types.map { it.toTypeExprFull() } // TODO not full?
+  fun argsAsTypeExprs() = types.map { it.toTypeExprMinimal() } // TODO not full?
 }
