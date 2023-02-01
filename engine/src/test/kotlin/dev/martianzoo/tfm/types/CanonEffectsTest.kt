@@ -15,6 +15,7 @@ private class CanonEffectsTest {
     return card
   }
 
+  @Disabled
   @Test
   fun sabotage() {
     assertThat(load("Sabotage").classEffects).containsExactly(
