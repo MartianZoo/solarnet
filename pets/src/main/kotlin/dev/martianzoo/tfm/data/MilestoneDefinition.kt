@@ -3,10 +3,9 @@ package dev.martianzoo.tfm.data
 import com.squareup.moshi.Json
 import dev.martianzoo.tfm.data.SpecialClassNames.MILESTONE
 import dev.martianzoo.tfm.pets.SpecialClassNames.OK
-import dev.martianzoo.tfm.pets.SpecialClassNames.THIS
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.Effect
-import dev.martianzoo.tfm.pets.ast.Effect.Trigger.OnGain
+import dev.martianzoo.tfm.pets.ast.Effect.Trigger.WhenGain
 import dev.martianzoo.tfm.pets.ast.Instruction.Gain
 import dev.martianzoo.tfm.pets.ast.Instruction.Gated
 import dev.martianzoo.tfm.pets.ast.Requirement
@@ -39,7 +38,7 @@ data class MilestoneDefinition(
         effectsRaw =
             setOf(
                 Effect(
-                    OnGain(THIS.type),
+                    WhenGain,
                     Gated(requirement, Gain(sat(1, OK.type))),
                     automatic = true,
                 )))

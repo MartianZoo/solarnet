@@ -134,13 +134,17 @@ internal class PetGenerator(scaling: (Int) -> Double) :
 
       val triggerTypes =
           multiset(
-              9 to Trigger.OnGain::class,
-              5 to Trigger.OnRemove::class,
+              9 to Trigger.WhenGain::class,
+              2 to Trigger.WhenRemove::class,
+              9 to Trigger.OnGainOf::class,
+              5 to Trigger.OnRemoveOf::class,
               1 to Trigger.Transform::class,
           )
       register(Trigger::class) { recurse(choose(triggerTypes)) }
-      register { Trigger.OnGain(recurse()) }
-      register { Trigger.OnRemove(recurse()) }
+      register { Trigger.WhenGain }
+      register { Trigger.WhenRemove }
+      register { Trigger.OnGainOf.create(recurse()) }
+      register { Trigger.OnRemoveOf.create(recurse()) }
       register { Trigger.Transform(recurse(), "PROD") }
 
       register { Effect(recurse(), recurse(), choose(true, false)) }

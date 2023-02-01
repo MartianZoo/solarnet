@@ -149,7 +149,7 @@ private class TransformsTest {
     assertThat(x)
         .isEqualTo(
             Effect(
-                Trigger.Transform(Trigger.OnGain(cn("Plant").type), "HAHA"),
+                Trigger.Transform(Trigger.OnGainOf.create(cn("Plant").type), "HAHA"),
                 Instruction.Multi(
                     Gain(sat(1, cn("Heat").type)),
                     Instruction.Transform(

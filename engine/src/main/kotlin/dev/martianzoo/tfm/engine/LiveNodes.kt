@@ -140,27 +140,16 @@ object LiveNodes {
 
   fun from(trig: Trigger, game: Game): LiveTrigger {
     return when (trig) {
-      is Trigger.OnGain -> OnGain(game.resolveType(trig.typeExpr))
-      is Trigger.OnRemove -> OnRemove(game.resolveType(trig.typeExpr))
-      is Trigger.Transform -> error("")
+      is Trigger.OnGainOf -> LiveTrigger(game.resolveType(trig.typeExpr), isGain = true)
+      is Trigger.OnRemoveOf -> LiveTrigger(game.resolveType(trig.typeExpr), isGain = false)
+      else -> error("this shouldn't still be here")
     }
   }
 
-  abstract class LiveTrigger {
-    abstract fun hits(change: StateChange, game: Game): Int
-  }
-
-  class OnGain(val ptype: PType) : LiveTrigger() {
-    override fun hits(change: StateChange, game: Game): Int {
-      val g = change.gaining
+  class LiveTrigger(val ptype: PType, val isGain: Boolean) {
+    fun hits(change: StateChange, game: Game): Int {
+      val g = if (isGain) change.gaining else change.removing
       return if (g != null && game.resolveType(g).isSubtypeOf(ptype)) change.count else 0
-    }
-  }
-
-  class OnRemove(val ptype: PType) : LiveTrigger() {
-    override fun hits(change: StateChange, game: Game): Int {
-      val r = change.removing
-      return if (r != null && game.resolveType(r).isSubtypeOf(ptype)) change.count else 0
     }
   }
 

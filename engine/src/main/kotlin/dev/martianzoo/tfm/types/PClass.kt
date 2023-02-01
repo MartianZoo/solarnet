@@ -4,11 +4,12 @@ import dev.martianzoo.tfm.data.ClassDeclaration
 import dev.martianzoo.tfm.pets.SpecialClassNames.CLASS
 import dev.martianzoo.tfm.pets.SpecialClassNames.COMPONENT
 import dev.martianzoo.tfm.pets.SpecialClassNames.END
-import dev.martianzoo.tfm.pets.SpecialClassNames.THIS
 import dev.martianzoo.tfm.pets.SpecialClassNames.USE_ACTION
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.Effect
-import dev.martianzoo.tfm.pets.ast.Effect.Trigger.OnGain
+import dev.martianzoo.tfm.pets.ast.Effect.Trigger.OnGainOf
+import dev.martianzoo.tfm.pets.ast.Effect.Trigger.WhenGain
+import dev.martianzoo.tfm.pets.ast.Effect.Trigger.WhenRemove
 import dev.martianzoo.tfm.pets.ast.TypeExpr
 import dev.martianzoo.tfm.pets.replaceThis
 import dev.martianzoo.tfm.types.AstTransforms.applyDefaultsIn
@@ -198,10 +199,11 @@ internal constructor(
           {
             val t = it.trigger
             when {
-              t == OnGain(THIS.type) -> 1
-              t is OnGain && t.typeExpr.className.toString().startsWith(USE_ACTION.toString()) -> 3
-              t == OnGain(END.type) -> 4
-              else -> 2
+              t == WhenGain -> if (it.automatic) -1 else 0
+              t == WhenRemove -> if (it.automatic) 1 else 2
+              t is OnGainOf && t.typeExpr.className.toString().startsWith(USE_ACTION.toString()) -> 4
+              t == OnGainOf.create(END.type) -> 5
+              else -> 3
             }
           },
           { it.trigger.toString() })

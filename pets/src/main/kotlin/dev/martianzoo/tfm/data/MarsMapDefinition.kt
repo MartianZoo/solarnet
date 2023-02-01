@@ -6,7 +6,7 @@ import dev.martianzoo.tfm.pets.SpecialClassNames.THIS
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.pets.ast.Effect
-import dev.martianzoo.tfm.pets.ast.Effect.Trigger.OnGain
+import dev.martianzoo.tfm.pets.ast.Effect.Trigger.OnGainOf
 import dev.martianzoo.tfm.pets.ast.Instruction
 import dev.martianzoo.tfm.pets.ast.Instruction.Companion.instruction
 import dev.martianzoo.util.Grid
@@ -81,4 +81,4 @@ data class MarsMapDefinition(
   }
 }
 
-private val trigger = OnGain(TILE.addArgs(THIS))
+private val trigger = OnGainOf.create(TILE.addArgs(THIS))

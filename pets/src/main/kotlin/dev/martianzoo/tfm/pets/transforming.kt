@@ -9,7 +9,8 @@ import dev.martianzoo.tfm.pets.ast.Action
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.pets.ast.Effect
-import dev.martianzoo.tfm.pets.ast.Effect.Trigger.OnGain
+import dev.martianzoo.tfm.pets.ast.Effect.Trigger.OnGainOf
+import dev.martianzoo.tfm.pets.ast.Effect.Trigger.WhenGain
 import dev.martianzoo.tfm.pets.ast.From.SimpleFrom
 import dev.martianzoo.tfm.pets.ast.Instruction
 import dev.martianzoo.tfm.pets.ast.Instruction.Gain
@@ -23,7 +24,7 @@ import dev.martianzoo.tfm.pets.ast.TypeExpr
 internal fun actionToEffect(action: Action, index1Ref: Int): Effect {
   require(index1Ref >= 1) { index1Ref }
   val instruction = instructionFromAction(action.cost?.toInstruction(), action.instruction)
-  val trigger = OnGain(cn("$USE_ACTION$index1Ref").addArgs(THIS))
+  val trigger = OnGainOf.create(cn("$USE_ACTION$index1Ref").addArgs(THIS))
   return Effect(trigger, instruction, automatic = false)
 }
 
@@ -50,7 +51,7 @@ internal fun actionsToEffects(actions: List<Action>): List<Effect> =
     }
 
 internal fun immediateToEffect(instruction: Instruction): Effect {
-  return Effect(OnGain(THIS.type), instruction, automatic = false)
+  return Effect(WhenGain, instruction, automatic = false)
 }
 
 fun <P : PetNode> replaceThis(node: P, resolveTo: TypeExpr) =
