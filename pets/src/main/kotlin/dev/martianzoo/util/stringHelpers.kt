@@ -15,3 +15,5 @@ fun <T : Any> T?.pre(prefix: Any, transform: (T) -> Any = { it }) = wrap(prefix,
 
 /** Same as `wrap("", suffix, transform)`. */
 fun <T : Any> T?.suf(suffix: Any, transform: (T) -> Any = { it }) = wrap("", suffix, transform)
+
+fun Any.iff(b: Boolean): String = if (b) toString() else ""
