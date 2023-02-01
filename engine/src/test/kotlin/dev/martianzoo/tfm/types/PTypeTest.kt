@@ -41,4 +41,112 @@ private class PTypeTest {
     //  table.resolve("Microbe<Player1, Ants<Player2>>")
     // }
   }
+
+  val table = loadTypes(
+      "CLASS Foo1",
+      "CLASS Foo2 : Foo1",
+      "CLASS Foo3 : Foo2",
+      "CLASS Bar1",
+      "CLASS Bar2 : Bar1",
+      "CLASS Bar3 : Bar2",
+      "CLASS Qux1",
+      "CLASS Qux2 : Qux1",
+      "CLASS Qux3 : Qux2",
+      "CLASS Complex1<Foo1, Bar1, Qux1>",
+      "CLASS Complex2: Complex1<Foo2, Bar2, Qux2>",
+      "CLASS Complex3: Complex2<Foo3, Bar3, Qux3>",
+      "CLASS TwoSame<Foo2, Foo2>"
+  )
+  init {
+    table.frozen = true
+  }
+
+  fun type(s: String) = table.resolveType(typeExpr(s))
+
+  @Test
+  fun partial() {
+    val base = type("Complex1")
+    assertThat(base.toTypeExprFull().toString()).isEqualTo("Complex1<Foo1, Bar1, Qux1>")
+    assertThat(base.toTypeExprMinimal().toString()).isEqualTo("Complex1")
+
+    assertThat(type("Complex1")).isEqualTo(base)
+    assertThat(type("Complex1<Foo1>")).isEqualTo(base)
+    assertThat(type("Complex1<Bar1>")).isEqualTo(base)
+    assertThat(type("Complex1<Qux1>")).isEqualTo(base)
+    assertThat(type("Complex1<Foo1, Bar1>")).isEqualTo(base)
+    assertThat(type("Complex1<Foo1, Qux1>")).isEqualTo(base)
+    assertThat(type("Complex1<Bar1, Qux1>")).isEqualTo(base)
+    assertThat(type("Complex1<Foo1, Bar1, Qux1>")).isEqualTo(base)
+
+    val ofFoo2 = type("Complex1<Foo2>")
+    assertThat(ofFoo2.toTypeExprFull().toString()).isEqualTo("Complex1<Foo2, Bar1, Qux1>")
+    assertThat(ofFoo2.toTypeExprMinimal().toString()).isEqualTo("Complex1<Foo2>")
+
+    assertThat(type("Complex1<Foo2>")).isEqualTo(ofFoo2)
+    assertThat(type("Complex1<Foo2, Bar1>")).isEqualTo(ofFoo2)
+    assertThat(type("Complex1<Foo2, Qux1>")).isEqualTo(ofFoo2)
+    assertThat(type("Complex1<Foo2, Bar1, Qux1>")).isEqualTo(ofFoo2)
+  }
+
+  @Test
+  fun outOfOrder() {
+    val base = type("Complex1")
+    assertThat(type("Complex1<Bar1, Foo1>")).isEqualTo(base)
+    assertThat(type("Complex1<Qux1, Foo1>")).isEqualTo(base)
+    assertThat(type("Complex1<Qux1, Bar1>")).isEqualTo(base)
+    assertThat(type("Complex1<Foo1, Qux1, Bar1>")).isEqualTo(base)
+    assertThat(type("Complex1<Bar1, Qux1, Foo1>")).isEqualTo(base)
+    assertThat(type("Complex1<Bar1, Foo1, Qux1>")).isEqualTo(base)
+    assertThat(type("Complex1<Qux1, Foo1, Bar1>")).isEqualTo(base)
+    assertThat(type("Complex1<Qux1, Bar1, Foo1>")).isEqualTo(base)
+
+    val ofFoo2 = type("Complex1<Foo2>")
+    assertThat(type("Complex1<Bar1, Foo2>")).isEqualTo(ofFoo2)
+    assertThat(type("Complex1<Qux1, Foo2>")).isEqualTo(ofFoo2)
+    assertThat(type("Complex1<Foo2, Qux1, Bar1>")).isEqualTo(ofFoo2)
+    assertThat(type("Complex1<Bar1, Qux1, Foo2>")).isEqualTo(ofFoo2)
+    assertThat(type("Complex1<Bar1, Foo2, Qux1>")).isEqualTo(ofFoo2)
+    assertThat(type("Complex1<Qux1, Foo2, Bar1>")).isEqualTo(ofFoo2)
+    assertThat(type("Complex1<Qux1, Bar1, Foo2>")).isEqualTo(ofFoo2)
+  }
+
+  @Test
+  fun twoSame() {
+    assertThat(type("TwoSame")).isEqualTo(type("TwoSame<Foo2, Foo2>"))
+    assertThat(type("TwoSame<Foo1>")).isEqualTo(type("TwoSame<Foo2, Foo2>"))
+    assertThat(type("TwoSame<Foo2>")).isEqualTo(type("TwoSame<Foo2, Foo2>"))
+    assertThat(type("TwoSame<Foo3>")).isEqualTo(type("TwoSame<Foo3, Foo2>"))
+    assertThat(type("TwoSame<Foo1, Foo1>")).isEqualTo(type("TwoSame<Foo2, Foo2>"))
+    assertThat(type("TwoSame<Foo1, Foo2>")).isEqualTo(type("TwoSame<Foo2, Foo2>"))
+    assertThat(type("TwoSame<Foo1, Foo3>")).isEqualTo(type("TwoSame<Foo2, Foo3>"))
+    assertThat(type("TwoSame<Foo2, Foo1>")).isEqualTo(type("TwoSame<Foo2, Foo2>"))
+    assertThat(type("TwoSame<Foo2, Foo2>")).isEqualTo(type("TwoSame<Foo2, Foo2>"))
+    assertThat(type("TwoSame<Foo2, Foo3>")).isEqualTo(type("TwoSame<Foo2, Foo3>"))
+    assertThat(type("TwoSame<Foo3, Foo1>")).isEqualTo(type("TwoSame<Foo3, Foo2>"))
+    assertThat(type("TwoSame<Foo3, Foo2>")).isEqualTo(type("TwoSame<Foo3, Foo2>"))
+    assertThat(type("TwoSame<Foo3, Foo3>")).isEqualTo(type("TwoSame<Foo3, Foo3>"))
+  }
+
+  @Test
+  fun roundTrip() {
+    fun checkMinimal(typeIn: String, typeOut: String = typeIn) {
+      assertThat(type(typeIn).toTypeExprMinimal()).isEqualTo(typeExpr(typeOut))
+    }
+
+    checkMinimal("TwoSame")
+    checkMinimal("TwoSame<Foo1>", "TwoSame")
+    checkMinimal("TwoSame<Foo2>", "TwoSame")
+    checkMinimal("TwoSame<Foo3>")
+    checkMinimal("TwoSame<Foo1, Foo1>", "TwoSame")
+    checkMinimal("TwoSame<Foo1, Foo2>", "TwoSame")
+    checkMinimal("TwoSame<Foo2, Foo1>", "TwoSame")
+    checkMinimal("TwoSame<Foo2, Foo2>", "TwoSame")
+    checkMinimal("TwoSame<Foo3, Foo1>", "TwoSame<Foo3>")
+    checkMinimal("TwoSame<Foo3, Foo2>", "TwoSame<Foo3>")
+    checkMinimal("TwoSame<Foo3, Foo3>")
+
+    // TODO get these working too!
+    // checkMinimal("TwoSame<Foo1, Foo3>", "TwoSame<Foo2, Foo3>")
+    // checkMinimal("TwoSame<Foo2, Foo3>")
+  }
 }

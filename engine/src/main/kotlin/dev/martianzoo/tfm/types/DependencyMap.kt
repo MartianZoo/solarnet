@@ -53,25 +53,33 @@ internal data class DependencyMap(private val map: Map<Key, Dependency>) {
   // keys the provided specs go with
   // TODO fix the strict-order problem!
   fun findMatchups(specs: List<PType>): DependencyMap {
-    if (specs.isEmpty()) return this
-
-    val newMap = mutableMapOf<Key, Dependency>()
+    val matchups = mutableMapOf<Key, TypeDependency>()
     val unhandled = specs.toMutableList()
 
-    for ((key, dependency) in map) {
-      dependency as TypeDependency
-      if (unhandled.isEmpty()) break
-      val intersect: PType? = dependency.ptype.intersect(unhandled.first())
-      newMap[key] =
-          if (intersect != null) {
-            unhandled.removeFirst()
-            dependency.copy(ptype = intersect)
-          } else {
-            dependency
-          }
+    // a) every spec should have exactly one dep it could go with
+    // b) every dep should have 0 or 1 specs it should go with, and check that we handled all
+    for ((key, dep) in map) {
+      if (unhandled.none()) break
+      dep as TypeDependency
+      val iter: MutableIterator<PType> = unhandled.iterator()
+      while (iter.hasNext()) {
+        val ptype = iter.next() intersect dep.ptype
+        if (ptype != null) {
+          matchups[key] = TypeDependency(key, ptype)
+          iter.remove()
+          break
+        }
+      }
     }
-    require(unhandled.isEmpty()) { "This: $this\nSpecs: $specs\nUnhandled : $unhandled" }
-    return DependencyMap(newMap)
+    require(matchups.size == specs.size && unhandled.isEmpty()) {
+      """
+      This: $this
+      Specs: $specs
+      Matchups: ${matchups.values}
+      Unhandled : $unhandled
+      """
+    }
+    return DependencyMap(matchups)
   }
 
   fun specialize(specs: List<PType>) = intersect(findMatchups(specs))
