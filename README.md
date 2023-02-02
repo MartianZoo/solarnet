@@ -12,12 +12,6 @@ I'm making Solarnet from scratch with a different approach. All the cards, miles
 
 I'm doing it for fun and to learn. I don't know what it will be useful for.
 
-## Interested in playing around with it?
-
-Just clone and run `./repo` and type `help`. You can do a few things. It doesn't do very much yet. For example, you can add a Greenery tile to the board, but it won't yet trigger effects like raising oxygen. I'm getting there.
-
-You can also look for the `*.pets` and `*.json5` files to see how the stuff is configured in the Pets language. You can change it around or add your own custom cards. But be warned: I have spent NO time on error handling, so the error messages you're gonna get will be incredibly unhelpful and frustrating. Sorry!
-
 ## Goals
 
 My goals for Solarnet, in order:
@@ -31,6 +25,21 @@ But notice **what is not on this list**.
 
 1. Performance -- basically, it will be slow as hell and I don't care. I can imagine profiling it every now and then when it gets too annoying. But in general, I am preferring clear and obviously-correct code over fast code every time. If I or someone builds a faster engine in the future (I would call it Aerobrake), we will have this engine to parity-test that one against, so I don't want to take any chances with its correctness.
 2. Usability -- there is a command line "REPL" (read-evaluate-print loop) called REgo PLastics. It is a very, very, very bad user interface, and I plan for it to always stay that way. You cannot actually play a whole game using it.
+
+## Learning more
+
+I have started jotting some stuff down, but it leaves much to be desired.
+
+* Overview of [component types](docs/component-types.md)
+* Pets language [syntax reference](docs/syntax.md)
+* The Pets [type system](docs/type-system.md)
+* API documentation is not hosted yet; you'd have to clone and type `./gradlew dokkaHtmlMultiModule` then look at `docs/api/index.html`.
+
+## Interested in playing around with it?
+
+Just clone and run `./repo` and type `help`. You can do a few things. It doesn't do very much yet. For example, you can add a Greenery tile to the board, but it won't yet trigger effects like raising oxygen. I'm getting there.
+
+You can also look for the `*.pets` and `*.json5` files to see how the stuff is configured in the Pets language. You can change it around or add your own custom cards. But be warned: I have spent NO time on error handling, so the error messages you're gonna get will be incredibly unhelpful and frustrating. Sorry!
 
 ## Contact me?
 
