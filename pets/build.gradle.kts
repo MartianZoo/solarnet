@@ -1,6 +1,8 @@
+import java.net.URL
+
 plugins {
   id("org.jetbrains.kotlin.jvm") version "1.8.0"
-  id("org.jetbrains.dokka") version "1.6.0"
+  id("org.jetbrains.dokka") version "1.7.0"
 }
 
 kotlin { jvmToolchain(18) }
@@ -30,4 +32,25 @@ dependencies {
   testImplementation("com.google.truth:truth:1.1.3")
 
   testImplementation(project(":canon")) // easier to test the engine this way
+}
+
+tasks.dokkaHtml.configure {
+  // suppressInheritedMembers.set(true)
+
+  dokkaSourceSets {
+    configureEach {
+      displayName.set("SolarNet / Pets")
+      // documentedVisibilities.set(setOf(Visibility.PUBLIC, Visibility.PROTECTED))
+      includes.from("src/main/kotlin/dev/martianzoo/tfm/packages.md")
+      jdkVersion.set(17)
+      samples.from("samples.kt")
+      skipDeprecated.set(true)
+      skipEmptyPackages.set(true)
+      sourceLink {
+        localDirectory.set(file("src/main/kotlin"))
+        remoteUrl.set(URL("https://github.com/MartianZoo/solarnet/tree/main/pets/src/main/kotlin"))
+        remoteLineSuffix.set("#L")
+      }
+    }
+  }
 }

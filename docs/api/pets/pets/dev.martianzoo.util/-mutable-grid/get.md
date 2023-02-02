@@ -1,0 +1,6 @@
+//[pets](../../../index.md)/[dev.martianzoo.util](../index.md)/[MutableGrid](index.md)/[get](get.md)
+
+# get
+
+[jvm]\
+open operator override fun [get](get.md)(rowIndex: [Int](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html), columnIndex: [Int](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html)): [E](index.md)?
