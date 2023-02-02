@@ -1,11 +1,14 @@
 # Terraforming Mars component classes
 
-This is a quick overview of the predefined component classes.
+This is a quick overview of the predefined component classes. **Refer to the source code as you read**:
+
+* [components.pets](https://github.com/MartianZoo/solarnet/blob/main/canon/src/main/kotlin/dev/martianzoo/tfm/canon/components.pets)
+* [player.pets](https://github.com/MartianZoo/solarnet/blob/main/canon/src/main/kotlin/dev/martianzoo/tfm/canon/player.pets)
+
+## Communal / non-player-owned
 
 First, `Component` is the root of the class hierarchy; *every* instance of anything in a game state is always
 a `Component`.
-
-## Communal / non-player-owned
 
 ### Global parameters
 
@@ -106,6 +109,8 @@ CLASS TerraformRating {
     End: VictoryPoint
 }
 ```
+
+When the `ProductionPhase` signal goes out, each occurence of `TerraformRating` generates 1 megacredit for its owner. Likewise when the `End` signal gets posted, each occurrence of `TR` generates a victory point. And that's all there is to terraform rating.
 
 ### OwnedTile
 
