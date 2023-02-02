@@ -35,7 +35,7 @@ tasks.dokkaHtml.configure {
     configureEach {
       sourceLink {
         localDirectory.set(file("src"))
-        remoteUrl.set(URL("https://github.com/MartianZoo/pets/tree/main/canon/src"))
+        remoteUrl.set(URL("https://github.com/MartianZoo/solarnet/tree/main/canon/src"))
         remoteLineSuffix.set("#L")
       }
       samples.from("src/main/kotlin/dev/martianzoo/tfm/canon/samples.kt")

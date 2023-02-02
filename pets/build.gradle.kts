@@ -1,5 +1,4 @@
 import java.net.URL
-import org.jetbrains.dokka.DokkaConfiguration.Visibility
 
 plugins {
   id("org.jetbrains.kotlin.jvm") version "1.8.0"
@@ -40,7 +39,7 @@ tasks.dokkaHtml.configure {
     configureEach {
       sourceLink {
         localDirectory.set(file("src"))
-        remoteUrl.set(URL("https://github.com/MartianZoo/pets/tree/main/pets/src"))
+        remoteUrl.set(URL("https://github.com/MartianZoo/solarnet/tree/main/pets/src"))
         remoteLineSuffix.set("#L")
       }
       samples.from("src/main/kotlin/dev/martianzoo/tfm/pets/samples.kt")

@@ -16,7 +16,7 @@ subprojects {
 
   tasks.withType<DokkaTaskPartial>().configureEach {
     dokkaSourceSets.configureEach {
-      displayName.set("SolarNet")
+      displayName.set("Solarnet/Pets")
       documentedVisibilities.set(setOf(Visibility.PUBLIC, Visibility.PROTECTED))
       jdkVersion.set(17)
       skipEmptyPackages.set(true)
