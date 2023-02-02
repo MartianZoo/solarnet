@@ -1,87 +1,37 @@
-# PETS and SolarNet
+# Solarnet
 
-There are two separate projects in this repo, just for convenience while they are in rapid flux.
+Solarnet is an open-source game engine for the board game *Terraforming Mars*.
 
-PETS is a specification language for representing game component behaviors in _Terraforming Mars_. It lets components
-with heterogeneous behaviors (cards, milestones, maps, etc.) be expressed as pure data. This data can, in theory, be
-used to render the card instructions as text, render them in iconographic form, or be used by an actual running game
-engine.
+It is not a way to *play* the game. For that, see the [online open-source app](http://terraforming-mars.herokuapp.com) (and please make sure to buy a physical copy of the game so the creators get paid!).
 
-SolarNet is a game engine that runs off of PETS specifications alone... kind of. More on this below.
+This project is unrelated to that app or any other codebase.
 
-## Important disclaimers!
+## Why another game engine?
 
-* Think of the *potential* of what you see here and not so much the state it's already in.
-* The REPL ("REgo PLastics") is a really, really, really bad user interface by design. Basically it's not trying to be a
-  UI at all.
-* Error handling is absolutely awful. No effort has gone into reporting errors in more useful ways. So if you are trying
-  to learn the PETS language and do stuff with it, you may have a frustrating experience because the error messages
-  aren't gonna help much.
-* Solarnet disclaimers:
+I'm making Solarnet from scratch with a different approach. All the cards, milestones, etc. are *just data* and don't require custom programming. They express their behaviors using a custom language called Pets, which I've created just for this purpose.
 
-## Solarnet
+I'm doing it for fun and to learn. I don't know what it will be useful for.
 
-Solarnet is a game engine. It's slightly more accurate to say it will be a game engine when it exists. My goals for it are, in order:
+## Interested in playing around with it?
 
-1. It'll handle any card/milestone/etc. you can write in valid PETS form
-2. It'll implement the official game rules with absolute unswerving fidelity
-3. It'll be implemented as simply and understandably as I can possibly make it (so it is hard for bugs to hide)
+Just clone and run `./repo` and type `help`. You can do a few things. It doesn't do very much yet. For example, you can add a Greenery tile to the board, but it won't yet trigger effects like raising oxygen. I'm getting there.
 
-Now you might be wondering where the following goals went
+You can also look for the `*.pets` and `*.json5` files to see how the stuff is configured in the Pets language. You can change it around or add your own custom cards. But be warned: I have spent NO time on error handling, so the error messages you're gonna get will be incredibly unhelpful and frustrating. Sorry!
 
-4. It won't be slow as fuck
-5. It won't be a gobsmacking pain in the ass to use
+## Goals
 
-They don't exist because these things just aren't important right now. We can always make them better later. And the goal is NOT to make something that could be used in an actual running game. The most exciting thing to me would be if one of the existing apps would use it to parity-test against.
+My goals for Solarnet, in order:
 
-## Making it harder
+1. Correctness -- I want to *eventually* implement the game rules with absolute unswerving fidelity. I might never get there (e.g. EcoExperts->Decomposers; that interaction is just plain weird.)
+2. Completeness -- over time I want to support every single published card, milestone, award, map, component, and officially sanctioned variant. This will take a long time and is not a priority at the moment.
+3. Simplicity -- my challenge is to implement it in as simple and understandable way as I can possibly imagine. I want not just for it to *work*, but for it to be clear *why* it works.
+4. Composability -- I'm writing this as series of libraries that other Mars-related projects can use for other purposes; not just a single monolithic application. Currently the modules are "pets" (the core language and datatypes), "engine" (what executes the cards to update a game state), "repl" (the command-line interface), and "canon" (a data set to eventually contain all the published cards and other components).
 
-The nerd alpha move is to make an engine that *doesn't even know anything about Terraforming Mars*. Obviously *all* the
-game components should be written in PETS, not just the cards!
+But notice **what is not on this list**.
 
-Here's `CityTile` in PETS
+1. Performance -- basically, it will be slow as hell and I don't care. I can imagine profiling it every now and then when it gets too annoying. But in general, I am preferring clear and obviously-correct code over fast code every time. If I or someone builds a faster engine in the future (I would call it Aerobrake), we will have this engine to parity-test that one against, so I don't want to take any chances with its correctness.
+2. Usability -- there is a command line "REPL" (read-evaluate-print loop) called REgo PLastics. It is a very, very, very bad user interface, and I plan for it to always stay that way. You cannot actually play a whole game using it.
 
-```
-CLASS CityTile : OwnedTile {
-    DEFAULT +CityTile<LandArea(HAS MAX 0 Neighbor<CityTile<Anyone>>)>
-    End: VictoryPoint / Adjacency<This, GreeneryTile<Anyone>>
-}
-```
+## Contact me?
 
-Here's your turn actions
-
-```
-ABSTRACT CLASS StandardAction(HAS =1 This) {
-    CLASS PlayCardFromHand   { -> PlayCard<ProjectCard, CardFront> }
-    CLASS UseStandardProject { -> UseAction<StandardProject> }
-    CLASS UseCardAction      { -> UseAction<ActionCard> THEN ActionUsedMarker<ActionCard> }
-    CLASS ConvertPlants      { 8 Plant -> GreeneryTile }
-    CLASS ConvertHeat        { 8 Heat -> TemperatureStep }
-    CLASS SellPatents        { X ProjectCard -> X }
-    CLASS ClaimMilestone     { 8 -> Milestone }
-    CLASS FundAward          { 8, 6 / Award -> Award }
-    CLASS TradeAction        { 3 Energy OR 3 Titanium OR 9 -> Trade }
-}
-```
-
-`TerraformRating` is pretty easy to understand:
-
-```
-CLASS TerraformRating : Owned {
-    ProductionPhase: 1
-    End: VictoryPoint
-}
-```
-
-Each `TerraformRating` instance you own will respond to the `ProductionPhase` signal by generating 1 megacredit for you,
-and will also respond to the `End` phase by handing you a `VictoryPoint`. Simple as that! (Or, I could have made `TR` a
-subclass of `VictoryPoint`; that would have worked too, but I decided to be a stickler about VPs not existing until the
-end of the game.)
-
-## Why are you doing this?
-
-Purely for fun and learning. I don't have any specific ambitions for it. It's a toy.
-
-## Why the name PETS
-
-Who doesn't love pets?
+Please feel more than welcome to send an email to kevinb9n@gmail.com if you find this interesting and want to talk about what we could do with it. 
