@@ -1,0 +1,307 @@
+<!doctype html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1" charset="UTF-8">
+    <title>ClassDeclaration</title>
+<link href="../../../images/logo-icon.svg" rel="icon" type="image/svg"><script>var pathToRoot = "../../../";</script>    <script>const storage = localStorage.getItem("dokka-dark-mode")
+const savedDarkMode = storage ? JSON.parse(storage) : false
+if(savedDarkMode === true){
+    document.getElementsByTagName("html")[0].classList.add("theme-dark")
+}</script>
+<script type="text/javascript" src="../../../scripts/sourceset_dependencies.js" async></script>
+<link href="../../../styles/style.css" rel="Stylesheet">
+<link href="../../../styles/jetbrains-mono.css" rel="Stylesheet">
+<link href="../../../styles/main.css" rel="Stylesheet">
+<link href="../../../styles/prism.css" rel="Stylesheet">
+<link href="../../../styles/logo-styles.css" rel="Stylesheet">
+<script type="text/javascript" src="../../../scripts/clipboard.js" async></script>
+<script type="text/javascript" src="../../../scripts/navigation-loader.js" async></script>
+<script type="text/javascript" src="../../../scripts/platform-content-handler.js" async></script>
+<script type="text/javascript" src="../../../scripts/main.js" defer></script>
+<script type="text/javascript" src="../../../scripts/prism.js" async></script></head>
+<body>
+<div class="navigation-wrapper" id="navigation-wrapper">
+    <div id="leftToggler"><span class="icon-toggler"></span></div>
+    <div class="library-name">
+<a href="../../../index.html">
+<span>Solarnet/Pets</span>            </a>    </div>
+    <div>
+    </div>
+    <div class="pull-right d-flex">
+        <button id="theme-toggle-button"><span id="theme-toggle"></span></button>
+        <div id="searchBar"></div>
+    </div>
+</div>
+<div id="container">
+    <div id="leftColumn">
+        <div id="sideMenu"></div>
+    </div>
+    <div id="main">
+<div class="main-content" id="content" pageids="pets::dev.martianzoo.tfm.data/ClassDeclaration///PointingToDeclaration//1022032203">
+  <div class="breadcrumbs"><a href="../../index.html">pets</a><span class="delimiter">/</span><a href="../index.html">dev.martianzoo.tfm.data</a><span class="delimiter">/</span><a href="index.html">ClassDeclaration</a></div>
+  <div class="cover ">
+    <h1 class="cover"><span>Class</span><wbr><span><span>Declaration</span></span></h1>
+    <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":pets:dokkaHtmlPartial/main"><div class="symbol monospace"><span class="token keyword">data </span><span class="token keyword">class </span><a href="index.html">ClassDeclaration</a><span class="token punctuation">(</span><span class="parameters wrapped"><span class="parameter indented">&nbsp;&nbsp;&nbsp;&nbsp;<span class="token keyword">val </span>name<span class="token operator">: </span><a href="../../dev.martianzoo.tfm.pets.ast/-class-name/index.html">ClassName</a><span class="token punctuation">, </span></span><span class="parameter indented">&nbsp;&nbsp;&nbsp;&nbsp;<span class="token keyword">val </span>id<span class="token operator">: </span><a href="../../dev.martianzoo.tfm.pets.ast/-class-name/index.html">ClassName</a><span class="token operator"> = </span>name<span class="token punctuation">, </span></span><span class="parameter indented">&nbsp;&nbsp;&nbsp;&nbsp;<span class="token keyword">val </span>abstract<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html">Boolean</a><span class="token operator"> = </span><span class="token boolean">true</span><span class="token punctuation">, </span></span><span class="parameter indented">&nbsp;&nbsp;&nbsp;&nbsp;<span class="token keyword">val </span>dependencies<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-list/index.html">List</a><span class="token operator">&lt;</span><span class="token keyword"></span><a href="-dependency-declaration/index.html">ClassDeclaration.DependencyDeclaration</a><span class="token operator">&gt;</span><span class="token operator"> = </span>listOf()<span class="token punctuation">, </span></span><span class="parameter indented">&nbsp;&nbsp;&nbsp;&nbsp;<span class="token keyword">val </span>supertypes<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-set/index.html">Set</a><span class="token operator">&lt;</span><span class="token keyword"></span><a href="../../dev.martianzoo.tfm.pets.ast/-type-expr/index.html">TypeExpr</a><span class="token operator">&gt;</span><span class="token operator"> = </span>setOf()<span class="token punctuation">, </span></span><span class="parameter indented">&nbsp;&nbsp;&nbsp;&nbsp;<span class="token keyword">val </span>topInvariant<span class="token operator">: </span><a href="../../dev.martianzoo.tfm.pets.ast/-requirement/index.html">Requirement</a><span class="token operator">?</span><span class="token operator"> = </span>null<span class="token punctuation">, </span></span><span class="parameter indented">&nbsp;&nbsp;&nbsp;&nbsp;<span class="token keyword">val </span>otherInvariants<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-set/index.html">Set</a><span class="token operator">&lt;</span><span class="token keyword"></span><a href="../../dev.martianzoo.tfm.pets.ast/-requirement/index.html">Requirement</a><span class="token operator">&gt;</span><span class="token operator"> = </span>setOf()<span class="token punctuation">, </span></span><span class="parameter indented">&nbsp;&nbsp;&nbsp;&nbsp;<span class="token keyword">val </span>effectsRaw<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-set/index.html">Set</a><span class="token operator">&lt;</span><span class="token keyword"></span><a href="../../dev.martianzoo.tfm.pets.ast/-effect/index.html">Effect</a><span class="token operator">&gt;</span><span class="token operator"> = </span>setOf()<span class="token punctuation">, </span></span><span class="parameter indented">&nbsp;&nbsp;&nbsp;&nbsp;<span class="token keyword">val </span>defaultsDeclaration<span class="token operator">: </span><a href="-defaults-declaration/index.html">ClassDeclaration.DefaultsDeclaration</a><span class="token operator"> = </span>DefaultsDeclaration()<span class="token punctuation">, </span></span><span class="parameter indented">&nbsp;&nbsp;&nbsp;&nbsp;<span class="token keyword">val </span>extraNodes<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-set/index.html">Set</a><span class="token operator">&lt;</span><span class="token keyword"></span><a href="../../dev.martianzoo.tfm.pets.ast/-pet-node/index.html">PetNode</a><span class="token operator">&gt;</span><span class="token operator"> = </span>setOf()</span></span><span class="token punctuation">)</span><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div><p class="paragraph">The declaration of a component class, such as GreeneryTile. Models the declaration textually as it was provided. DIRECT INFO ONLY; stuff is inherited among <i>loaded</i> classes (PetClasses).</p></div></div>
+  </div>
+  <div class="tabbedcontent">
+    <div class="tabs-section" tabs-section="tabs-section"><button class="section-tab" data-active="" data-togglable="Types">Types</button><button class="section-tab" data-togglable="Constructors">Constructors</button><button class="section-tab" data-togglable="Functions">Functions</button><button class="section-tab" data-togglable="Properties">Properties</button></div>
+    <div class="tabs-section-body">
+      <h2 class="tabbedcontent">Constructors</h2>
+      <div class="table" data-togglable="Constructors"><a data-name="-1116129704%2FConstructors%2F1022032203" anchor-label="ClassDeclaration" id="-1116129704%2FConstructors%2F1022032203" data-filterable-set=":pets:dokkaHtmlPartial/main"></a>
+        <div class="table-row" data-filterable-current=":pets:dokkaHtmlPartial/main" data-filterable-set=":pets:dokkaHtmlPartial/main">
+          <div class="main-subrow keyValue TabbedContent">
+            <div class=""><span class="inline-flex">
+                <div><a href="-class-declaration.html"><span>Class</span><wbr><span><span>Declaration</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1116129704%2FConstructors%2F1022032203"></span>
+                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                </span></span></div>
+            <div>
+              <div class="title">
+                <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":pets:dokkaHtmlPartial/main"><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">fun </span><a href="-class-declaration.html"><span class="token function">ClassDeclaration</span></a><span class="token punctuation">(</span><span class="parameters wrapped"><span class="parameter indented">&nbsp;&nbsp;&nbsp;&nbsp;name<span class="token operator">: </span><a href="../../dev.martianzoo.tfm.pets.ast/-class-name/index.html">ClassName</a><span class="token punctuation">, </span></span><span class="parameter indented">&nbsp;&nbsp;&nbsp;&nbsp;id<span class="token operator">: </span><a href="../../dev.martianzoo.tfm.pets.ast/-class-name/index.html">ClassName</a><span class="token operator"> = </span>name<span class="token punctuation">, </span></span><span class="parameter indented">&nbsp;&nbsp;&nbsp;&nbsp;abstract<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html">Boolean</a><span class="token operator"> = </span><span class="token boolean">true</span><span class="token punctuation">, </span></span><span class="parameter indented">&nbsp;&nbsp;&nbsp;&nbsp;dependencies<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-list/index.html">List</a><span class="token operator">&lt;</span><span class="token keyword"></span><a href="-dependency-declaration/index.html">ClassDeclaration.DependencyDeclaration</a><span class="token operator">&gt;</span><span class="token operator"> = </span>listOf()<span class="token punctuation">, </span></span><span class="parameter indented">&nbsp;&nbsp;&nbsp;&nbsp;supertypes<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-set/index.html">Set</a><span class="token operator">&lt;</span><span class="token keyword"></span><a href="../../dev.martianzoo.tfm.pets.ast/-type-expr/index.html">TypeExpr</a><span class="token operator">&gt;</span><span class="token operator"> = </span>setOf()<span class="token punctuation">, </span></span><span class="parameter indented">&nbsp;&nbsp;&nbsp;&nbsp;topInvariant<span class="token operator">: </span><a href="../../dev.martianzoo.tfm.pets.ast/-requirement/index.html">Requirement</a><span class="token operator">?</span><span class="token operator"> = </span>null<span class="token punctuation">, </span></span><span class="parameter indented">&nbsp;&nbsp;&nbsp;&nbsp;otherInvariants<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-set/index.html">Set</a><span class="token operator">&lt;</span><span class="token keyword"></span><a href="../../dev.martianzoo.tfm.pets.ast/-requirement/index.html">Requirement</a><span class="token operator">&gt;</span><span class="token operator"> = </span>setOf()<span class="token punctuation">, </span></span><span class="parameter indented">&nbsp;&nbsp;&nbsp;&nbsp;effectsRaw<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-set/index.html">Set</a><span class="token operator">&lt;</span><span class="token keyword"></span><a href="../../dev.martianzoo.tfm.pets.ast/-effect/index.html">Effect</a><span class="token operator">&gt;</span><span class="token operator"> = </span>setOf()<span class="token punctuation">, </span></span><span class="parameter indented">&nbsp;&nbsp;&nbsp;&nbsp;defaultsDeclaration<span class="token operator">: </span><a href="-defaults-declaration/index.html">ClassDeclaration.DefaultsDeclaration</a><span class="token operator"> = </span>DefaultsDeclaration()<span class="token punctuation">, </span></span><span class="parameter indented">&nbsp;&nbsp;&nbsp;&nbsp;extraNodes<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-set/index.html">Set</a><span class="token operator">&lt;</span><span class="token keyword"></span><a href="../../dev.martianzoo.tfm.pets.ast/-pet-node/index.html">PetNode</a><span class="token operator">&gt;</span><span class="token operator"> = </span>setOf()</span></span><span class="token punctuation">)</span><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <h2 class="">Types</h2>
+      <div class="table" data-togglable="Types"><a data-name="1396846238%2FClasslikes%2F1022032203" anchor-label="DefaultsDeclaration" id="1396846238%2FClasslikes%2F1022032203" data-filterable-set=":pets:dokkaHtmlPartial/main"></a>
+        <div class="table-row" data-filterable-current=":pets:dokkaHtmlPartial/main" data-filterable-set=":pets:dokkaHtmlPartial/main">
+          <div class="main-subrow keyValue ">
+            <div class=""><span class="inline-flex">
+                <div><a href="-defaults-declaration/index.html"><span>Defaults</span><wbr><span><span>Declaration</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1396846238%2FClasslikes%2F1022032203"></span>
+                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                </span></span></div>
+            <div>
+              <div class="title">
+                <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":pets:dokkaHtmlPartial/main"><div class="symbol monospace"><span class="token keyword">data </span><span class="token keyword">class </span><a href="-defaults-declaration/index.html">DefaultsDeclaration</a><span class="token punctuation">(</span><span class="parameters wrapped"><span class="parameter indented">&nbsp;&nbsp;&nbsp;&nbsp;<span class="token keyword">val </span>universalSpecs<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-list/index.html">List</a><span class="token operator">&lt;</span><span class="token keyword"></span><a href="../../dev.martianzoo.tfm.pets.ast/-type-expr/index.html">TypeExpr</a><span class="token operator">&gt;</span><span class="token operator"> = </span>listOf()<span class="token punctuation">, </span></span><span class="parameter indented">&nbsp;&nbsp;&nbsp;&nbsp;<span class="token keyword">val </span>gainOnlySpecs<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-list/index.html">List</a><span class="token operator">&lt;</span><span class="token keyword"></span><a href="../../dev.martianzoo.tfm.pets.ast/-type-expr/index.html">TypeExpr</a><span class="token operator">&gt;</span><span class="token operator"> = </span>listOf()<span class="token punctuation">, </span></span><span class="parameter indented">&nbsp;&nbsp;&nbsp;&nbsp;<span class="token keyword">val </span>gainIntensity<span class="token operator">: </span><a href="../../dev.martianzoo.tfm.pets.ast/-instruction/-intensity/index.html">Instruction.Intensity</a><span class="token operator">?</span><span class="token operator"> = </span>null</span></span><span class="token punctuation">)</span><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+<a data-name="1961414103%2FClasslikes%2F1022032203" anchor-label="DependencyDeclaration" id="1961414103%2FClasslikes%2F1022032203" data-filterable-set=":pets:dokkaHtmlPartial/main"></a>
+        <div class="table-row" data-filterable-current=":pets:dokkaHtmlPartial/main" data-filterable-set=":pets:dokkaHtmlPartial/main">
+          <div class="main-subrow keyValue ">
+            <div class=""><span class="inline-flex">
+                <div><a href="-dependency-declaration/index.html"><span>Dependency</span><wbr><span><span>Declaration</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1961414103%2FClasslikes%2F1022032203"></span>
+                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                </span></span></div>
+            <div>
+              <div class="title">
+                <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":pets:dokkaHtmlPartial/main"><div class="symbol monospace"><span class="token keyword">data </span><span class="token keyword">class </span><a href="-dependency-declaration/index.html">DependencyDeclaration</a><span class="token punctuation">(</span><span class="parameters "><span class="parameter "><span class="token keyword">val </span>typeExpr<span class="token operator">: </span><a href="../../dev.martianzoo.tfm.pets.ast/-type-expr/index.html">TypeExpr</a></span></span><span class="token punctuation">)</span><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <h2 class="">Functions</h2>
+      <div class="table" data-togglable="Functions"><a data-name="630495121%2FFunctions%2F1022032203" anchor-label="validate" id="630495121%2FFunctions%2F1022032203" data-filterable-set=":pets:dokkaHtmlPartial/main"></a>
+        <div class="table-row" data-filterable-current=":pets:dokkaHtmlPartial/main" data-filterable-set=":pets:dokkaHtmlPartial/main">
+          <div class="main-subrow keyValue ">
+            <div class=""><span class="inline-flex">
+                <div><a href="validate.html"><span><span>validate</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="630495121%2FFunctions%2F1022032203"></span>
+                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                </span></span></div>
+            <div>
+              <div class="title">
+                <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":pets:dokkaHtmlPartial/main"><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">fun </span><a href="validate.html"><span class="token function">validate</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <h2 class="">Properties</h2>
+      <div class="table" data-togglable="Properties"><a data-name="-2070706683%2FProperties%2F1022032203" anchor-label="abstract" id="-2070706683%2FProperties%2F1022032203" data-filterable-set=":pets:dokkaHtmlPartial/main"></a>
+        <div class="table-row" data-filterable-current=":pets:dokkaHtmlPartial/main" data-filterable-set=":pets:dokkaHtmlPartial/main">
+          <div class="main-subrow keyValue ">
+            <div class=""><span class="inline-flex">
+                <div><a href="abstract.html"><span><span>abstract</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-2070706683%2FProperties%2F1022032203"></span>
+                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                </span></span></div>
+            <div>
+              <div class="title">
+                <div class="platform-hinted " data-platform-hinted="data-platform-hinted" data-togglable="Properties"><div class="content sourceset-depenent-content" data-active="" data-togglable=":pets:dokkaHtmlPartial/main"><a data-name="-2070706683%2FProperties%2F1022032203" anchor-label="abstract" id="-2070706683%2FProperties%2F1022032203" data-filterable-set=":pets:dokkaHtmlPartial/main"></a><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">val </span><a href="abstract.html">abstract</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html">Boolean</a><span class="token operator"> = </span><span class="token boolean">true</span><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+<a data-name="-238860201%2FProperties%2F1022032203" anchor-label="allNodes" id="-238860201%2FProperties%2F1022032203" data-filterable-set=":pets:dokkaHtmlPartial/main"></a>
+        <div class="table-row" data-filterable-current=":pets:dokkaHtmlPartial/main" data-filterable-set=":pets:dokkaHtmlPartial/main">
+          <div class="main-subrow keyValue ">
+            <div class=""><span class="inline-flex">
+                <div><a href="all-nodes.html"><span>all</span><wbr><span><span>Nodes</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-238860201%2FProperties%2F1022032203"></span>
+                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                </span></span></div>
+            <div>
+              <div class="title">
+                <div class="platform-hinted " data-platform-hinted="data-platform-hinted" data-togglable="Properties"><div class="content sourceset-depenent-content" data-active="" data-togglable=":pets:dokkaHtmlPartial/main"><a data-name="-238860201%2FProperties%2F1022032203" anchor-label="allNodes" id="-238860201%2FProperties%2F1022032203" data-filterable-set=":pets:dokkaHtmlPartial/main"></a><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">val </span><a href="all-nodes.html">allNodes</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-set/index.html">Set</a><span class="token operator">&lt;</span><span class="token keyword"></span><a href="../../dev.martianzoo.tfm.pets.ast/-pet-node/index.html">PetNode</a><span class="token operator">&gt;</span><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+<a data-name="2069719691%2FProperties%2F1022032203" anchor-label="defaultsDeclaration" id="2069719691%2FProperties%2F1022032203" data-filterable-set=":pets:dokkaHtmlPartial/main"></a>
+        <div class="table-row" data-filterable-current=":pets:dokkaHtmlPartial/main" data-filterable-set=":pets:dokkaHtmlPartial/main">
+          <div class="main-subrow keyValue ">
+            <div class=""><span class="inline-flex">
+                <div><a href="defaults-declaration.html"><span>defaults</span><wbr><span><span>Declaration</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="2069719691%2FProperties%2F1022032203"></span>
+                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                </span></span></div>
+            <div>
+              <div class="title">
+                <div class="platform-hinted " data-platform-hinted="data-platform-hinted" data-togglable="Properties"><div class="content sourceset-depenent-content" data-active="" data-togglable=":pets:dokkaHtmlPartial/main"><a data-name="2069719691%2FProperties%2F1022032203" anchor-label="defaultsDeclaration" id="2069719691%2FProperties%2F1022032203" data-filterable-set=":pets:dokkaHtmlPartial/main"></a><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">val </span><a href="defaults-declaration.html">defaultsDeclaration</a><span class="token operator">: </span><a href="-defaults-declaration/index.html">ClassDeclaration.DefaultsDeclaration</a><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+<a data-name="-364103202%2FProperties%2F1022032203" anchor-label="dependencies" id="-364103202%2FProperties%2F1022032203" data-filterable-set=":pets:dokkaHtmlPartial/main"></a>
+        <div class="table-row" data-filterable-current=":pets:dokkaHtmlPartial/main" data-filterable-set=":pets:dokkaHtmlPartial/main">
+          <div class="main-subrow keyValue ">
+            <div class=""><span class="inline-flex">
+                <div><a href="dependencies.html"><span><span>dependencies</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-364103202%2FProperties%2F1022032203"></span>
+                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                </span></span></div>
+            <div>
+              <div class="title">
+                <div class="platform-hinted " data-platform-hinted="data-platform-hinted" data-togglable="Properties"><div class="content sourceset-depenent-content" data-active="" data-togglable=":pets:dokkaHtmlPartial/main"><a data-name="-364103202%2FProperties%2F1022032203" anchor-label="dependencies" id="-364103202%2FProperties%2F1022032203" data-filterable-set=":pets:dokkaHtmlPartial/main"></a><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">val </span><a href="dependencies.html">dependencies</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-list/index.html">List</a><span class="token operator">&lt;</span><span class="token keyword"></span><a href="-dependency-declaration/index.html">ClassDeclaration.DependencyDeclaration</a><span class="token operator">&gt;</span><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+<a data-name="-161274783%2FProperties%2F1022032203" anchor-label="effectsRaw" id="-161274783%2FProperties%2F1022032203" data-filterable-set=":pets:dokkaHtmlPartial/main"></a>
+        <div class="table-row" data-filterable-current=":pets:dokkaHtmlPartial/main" data-filterable-set=":pets:dokkaHtmlPartial/main">
+          <div class="main-subrow keyValue ">
+            <div class=""><span class="inline-flex">
+                <div><a href="effects-raw.html"><span>effects</span><wbr><span><span>Raw</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-161274783%2FProperties%2F1022032203"></span>
+                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                </span></span></div>
+            <div>
+              <div class="title">
+                <div class="platform-hinted " data-platform-hinted="data-platform-hinted" data-togglable="Properties"><div class="content sourceset-depenent-content" data-active="" data-togglable=":pets:dokkaHtmlPartial/main"><a data-name="-161274783%2FProperties%2F1022032203" anchor-label="effectsRaw" id="-161274783%2FProperties%2F1022032203" data-filterable-set=":pets:dokkaHtmlPartial/main"></a><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">val </span><a href="effects-raw.html">effectsRaw</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-set/index.html">Set</a><span class="token operator">&lt;</span><span class="token keyword"></span><a href="../../dev.martianzoo.tfm.pets.ast/-effect/index.html">Effect</a><span class="token operator">&gt;</span><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+<a data-name="-222473210%2FProperties%2F1022032203" anchor-label="extraNodes" id="-222473210%2FProperties%2F1022032203" data-filterable-set=":pets:dokkaHtmlPartial/main"></a>
+        <div class="table-row" data-filterable-current=":pets:dokkaHtmlPartial/main" data-filterable-set=":pets:dokkaHtmlPartial/main">
+          <div class="main-subrow keyValue ">
+            <div class=""><span class="inline-flex">
+                <div><a href="extra-nodes.html"><span>extra</span><wbr><span><span>Nodes</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-222473210%2FProperties%2F1022032203"></span>
+                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                </span></span></div>
+            <div>
+              <div class="title">
+                <div class="platform-hinted " data-platform-hinted="data-platform-hinted" data-togglable="Properties"><div class="content sourceset-depenent-content" data-active="" data-togglable=":pets:dokkaHtmlPartial/main"><a data-name="-222473210%2FProperties%2F1022032203" anchor-label="extraNodes" id="-222473210%2FProperties%2F1022032203" data-filterable-set=":pets:dokkaHtmlPartial/main"></a><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">val </span><a href="extra-nodes.html">extraNodes</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-set/index.html">Set</a><span class="token operator">&lt;</span><span class="token keyword"></span><a href="../../dev.martianzoo.tfm.pets.ast/-pet-node/index.html">PetNode</a><span class="token operator">&gt;</span><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+<a data-name="322087596%2FProperties%2F1022032203" anchor-label="id" id="322087596%2FProperties%2F1022032203" data-filterable-set=":pets:dokkaHtmlPartial/main"></a>
+        <div class="table-row" data-filterable-current=":pets:dokkaHtmlPartial/main" data-filterable-set=":pets:dokkaHtmlPartial/main">
+          <div class="main-subrow keyValue ">
+            <div class=""><span class="inline-flex">
+                <div><a href="id.html"><span><span>id</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="322087596%2FProperties%2F1022032203"></span>
+                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                </span></span></div>
+            <div>
+              <div class="title">
+                <div class="platform-hinted " data-platform-hinted="data-platform-hinted" data-togglable="Properties"><div class="content sourceset-depenent-content" data-active="" data-togglable=":pets:dokkaHtmlPartial/main"><a data-name="322087596%2FProperties%2F1022032203" anchor-label="id" id="322087596%2FProperties%2F1022032203" data-filterable-set=":pets:dokkaHtmlPartial/main"></a><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">val </span><a href="id.html">id</a><span class="token operator">: </span><a href="../../dev.martianzoo.tfm.pets.ast/-class-name/index.html">ClassName</a><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+<a data-name="1189804220%2FProperties%2F1022032203" anchor-label="name" id="1189804220%2FProperties%2F1022032203" data-filterable-set=":pets:dokkaHtmlPartial/main"></a>
+        <div class="table-row" data-filterable-current=":pets:dokkaHtmlPartial/main" data-filterable-set=":pets:dokkaHtmlPartial/main">
+          <div class="main-subrow keyValue ">
+            <div class=""><span class="inline-flex">
+                <div><a href="name.html"><span><span>name</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1189804220%2FProperties%2F1022032203"></span>
+                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                </span></span></div>
+            <div>
+              <div class="title">
+                <div class="platform-hinted " data-platform-hinted="data-platform-hinted" data-togglable="Properties"><div class="content sourceset-depenent-content" data-active="" data-togglable=":pets:dokkaHtmlPartial/main"><a data-name="1189804220%2FProperties%2F1022032203" anchor-label="name" id="1189804220%2FProperties%2F1022032203" data-filterable-set=":pets:dokkaHtmlPartial/main"></a><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">val </span><a href="name.html">name</a><span class="token operator">: </span><a href="../../dev.martianzoo.tfm.pets.ast/-class-name/index.html">ClassName</a><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+<a data-name="1861348816%2FProperties%2F1022032203" anchor-label="otherInvariants" id="1861348816%2FProperties%2F1022032203" data-filterable-set=":pets:dokkaHtmlPartial/main"></a>
+        <div class="table-row" data-filterable-current=":pets:dokkaHtmlPartial/main" data-filterable-set=":pets:dokkaHtmlPartial/main">
+          <div class="main-subrow keyValue ">
+            <div class=""><span class="inline-flex">
+                <div><a href="other-invariants.html"><span>other</span><wbr><span><span>Invariants</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1861348816%2FProperties%2F1022032203"></span>
+                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                </span></span></div>
+            <div>
+              <div class="title">
+                <div class="platform-hinted " data-platform-hinted="data-platform-hinted" data-togglable="Properties"><div class="content sourceset-depenent-content" data-active="" data-togglable=":pets:dokkaHtmlPartial/main"><a data-name="1861348816%2FProperties%2F1022032203" anchor-label="otherInvariants" id="1861348816%2FProperties%2F1022032203" data-filterable-set=":pets:dokkaHtmlPartial/main"></a><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">val </span><a href="other-invariants.html">otherInvariants</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-set/index.html">Set</a><span class="token operator">&lt;</span><span class="token keyword"></span><a href="../../dev.martianzoo.tfm.pets.ast/-requirement/index.html">Requirement</a><span class="token operator">&gt;</span><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+<a data-name="-1919468472%2FProperties%2F1022032203" anchor-label="superclassNames" id="-1919468472%2FProperties%2F1022032203" data-filterable-set=":pets:dokkaHtmlPartial/main"></a>
+        <div class="table-row" data-filterable-current=":pets:dokkaHtmlPartial/main" data-filterable-set=":pets:dokkaHtmlPartial/main">
+          <div class="main-subrow keyValue ">
+            <div class=""><span class="inline-flex">
+                <div><a href="superclass-names.html"><span>superclass</span><wbr><span><span>Names</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1919468472%2FProperties%2F1022032203"></span>
+                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                </span></span></div>
+            <div>
+              <div class="title">
+                <div class="platform-hinted " data-platform-hinted="data-platform-hinted" data-togglable="Properties"><div class="content sourceset-depenent-content" data-active="" data-togglable=":pets:dokkaHtmlPartial/main"><a data-name="-1919468472%2FProperties%2F1022032203" anchor-label="superclassNames" id="-1919468472%2FProperties%2F1022032203" data-filterable-set=":pets:dokkaHtmlPartial/main"></a><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">val </span><a href="superclass-names.html">superclassNames</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-list/index.html">List</a><span class="token operator">&lt;</span><span class="token keyword"></span><a href="../../dev.martianzoo.tfm.pets.ast/-class-name/index.html">ClassName</a><span class="token operator">&gt;</span><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+<a data-name="1567121737%2FProperties%2F1022032203" anchor-label="supertypes" id="1567121737%2FProperties%2F1022032203" data-filterable-set=":pets:dokkaHtmlPartial/main"></a>
+        <div class="table-row" data-filterable-current=":pets:dokkaHtmlPartial/main" data-filterable-set=":pets:dokkaHtmlPartial/main">
+          <div class="main-subrow keyValue ">
+            <div class=""><span class="inline-flex">
+                <div><a href="supertypes.html"><span><span>supertypes</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1567121737%2FProperties%2F1022032203"></span>
+                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                </span></span></div>
+            <div>
+              <div class="title">
+                <div class="platform-hinted " data-platform-hinted="data-platform-hinted" data-togglable="Properties"><div class="content sourceset-depenent-content" data-active="" data-togglable=":pets:dokkaHtmlPartial/main"><a data-name="1567121737%2FProperties%2F1022032203" anchor-label="supertypes" id="1567121737%2FProperties%2F1022032203" data-filterable-set=":pets:dokkaHtmlPartial/main"></a><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">val </span><a href="supertypes.html">supertypes</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-set/index.html">Set</a><span class="token operator">&lt;</span><span class="token keyword"></span><a href="../../dev.martianzoo.tfm.pets.ast/-type-expr/index.html">TypeExpr</a><span class="token operator">&gt;</span><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+<a data-name="-1186576548%2FProperties%2F1022032203" anchor-label="topInvariant" id="-1186576548%2FProperties%2F1022032203" data-filterable-set=":pets:dokkaHtmlPartial/main"></a>
+        <div class="table-row" data-filterable-current=":pets:dokkaHtmlPartial/main" data-filterable-set=":pets:dokkaHtmlPartial/main">
+          <div class="main-subrow keyValue ">
+            <div class=""><span class="inline-flex">
+                <div><a href="top-invariant.html"><span>top</span><wbr><span><span>Invariant</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1186576548%2FProperties%2F1022032203"></span>
+                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                </span></span></div>
+            <div>
+              <div class="title">
+                <div class="platform-hinted " data-platform-hinted="data-platform-hinted" data-togglable="Properties"><div class="content sourceset-depenent-content" data-active="" data-togglable=":pets:dokkaHtmlPartial/main"><a data-name="-1186576548%2FProperties%2F1022032203" anchor-label="topInvariant" id="-1186576548%2FProperties%2F1022032203" data-filterable-set=":pets:dokkaHtmlPartial/main"></a><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">val </span><a href="top-invariant.html">topInvariant</a><span class="token operator">: </span><a href="../../dev.martianzoo.tfm.pets.ast/-requirement/index.html">Requirement</a><span class="token operator">?</span><span class="token operator"> = </span>null<span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      <div class="footer">
+        <span class="go-to-top-icon"><a href="#content" id="go-to-top-link"></a></span><span>© 2023 Copyright</span><span class="pull-right"><span>Generated by </span><a href="https://github.com/Kotlin/dokka"><span>dokka</span><span class="padded-icon"></span></a></span>
+      </div>
+    </div>
+</div>
+
+</body></html>
+

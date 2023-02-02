@@ -1,3 +1,5 @@
+import java.net.URL
+
 plugins {
   id("org.jetbrains.kotlin.jvm") version "1.8.0"
   id("org.jetbrains.dokka") version "1.7.10"
@@ -19,4 +21,17 @@ dependencies {
 
   testImplementation(project(":canon")) // easiest to test the engine this way
   testImplementation(project(":pets")) // eep
+}
+
+tasks.dokkaHtml.configure {
+  dokkaSourceSets {
+    configureEach {
+      sourceLink {
+        localDirectory.set(file("src"))
+        remoteUrl.set(URL("https://github.com/MartianZoo/pets/tree/main/engine/src"))
+        remoteLineSuffix.set("#L")
+      }
+      samples.from("src/main/kotlin/dev/martianzoo/tfm/engine/samples.kt")
+    }
+  }
 }

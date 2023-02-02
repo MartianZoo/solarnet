@@ -1,4 +1,5 @@
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+import java.net.URL
 
 plugins {
   id("org.jetbrains.kotlin.jvm") version "1.8.0"
@@ -25,6 +26,19 @@ dependencies {
 
   testImplementation(project(":canon"))
   testImplementation(project(":pets"))
+}
+
+tasks.dokkaHtml.configure {
+  dokkaSourceSets {
+    configureEach {
+      sourceLink {
+        localDirectory.set(file("src"))
+        remoteUrl.set(URL("https://github.com/MartianZoo/pets/tree/main/repl/src"))
+        remoteLineSuffix.set("#L")
+      }
+      samples.from("src/main/kotlin/dev/martianzoo/tfm/repl/samples.kt")
+    }
+  }
 }
 
 tasks {

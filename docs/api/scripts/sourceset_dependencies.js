@@ -1,0 +1,1 @@
+sourceset_dependencies = '{":pets:dokkaHtmlPartial/main":[],":engine:dokkaHtmlPartial/main":[],":repl:dokkaHtmlPartial/main":[],":canon:dokkaHtmlPartial/main":[]}'

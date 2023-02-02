@@ -1,3 +1,5 @@
+import java.net.URL
+
 plugins {
   id("org.jetbrains.kotlin.jvm") version "1.8.0"
   id("org.jetbrains.dokka") version "1.7.10"
@@ -24,6 +26,19 @@ sourceSets {
     resources {
       srcDir("src/main/kotlin")
       exclude("**/*.kt")
+    }
+  }
+}
+
+tasks.dokkaHtml.configure {
+  dokkaSourceSets {
+    configureEach {
+      sourceLink {
+        localDirectory.set(file("src"))
+        remoteUrl.set(URL("https://github.com/MartianZoo/pets/tree/main/canon/src"))
+        remoteLineSuffix.set("#L")
+      }
+      samples.from("src/main/kotlin/dev/martianzoo/tfm/canon/samples.kt")
     }
   }
 }

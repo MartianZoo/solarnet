@@ -1,0 +1,219 @@
+<!doctype html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1" charset="UTF-8">
+    <title>PClassLoader</title>
+<link href="../../../images/logo-icon.svg" rel="icon" type="image/svg"><script>var pathToRoot = "../../../";</script>    <script>const storage = localStorage.getItem("dokka-dark-mode")
+const savedDarkMode = storage ? JSON.parse(storage) : false
+if(savedDarkMode === true){
+    document.getElementsByTagName("html")[0].classList.add("theme-dark")
+}</script>
+<script type="text/javascript" src="../../../scripts/sourceset_dependencies.js" async></script>
+<link href="../../../styles/style.css" rel="Stylesheet">
+<link href="../../../styles/jetbrains-mono.css" rel="Stylesheet">
+<link href="../../../styles/main.css" rel="Stylesheet">
+<link href="../../../styles/prism.css" rel="Stylesheet">
+<link href="../../../styles/logo-styles.css" rel="Stylesheet">
+<script type="text/javascript" src="../../../scripts/clipboard.js" async></script>
+<script type="text/javascript" src="../../../scripts/navigation-loader.js" async></script>
+<script type="text/javascript" src="../../../scripts/platform-content-handler.js" async></script>
+<script type="text/javascript" src="../../../scripts/main.js" defer></script>
+<script type="text/javascript" src="../../../scripts/prism.js" async></script></head>
+<body>
+<div class="navigation-wrapper" id="navigation-wrapper">
+    <div id="leftToggler"><span class="icon-toggler"></span></div>
+    <div class="library-name">
+<a href="../../../index.html">
+<span>Solarnet/Pets</span>            </a>    </div>
+    <div>
+    </div>
+    <div class="pull-right d-flex">
+        <button id="theme-toggle-button"><span id="theme-toggle"></span></button>
+        <div id="searchBar"></div>
+    </div>
+</div>
+<div id="container">
+    <div id="leftColumn">
+        <div id="sideMenu"></div>
+    </div>
+    <div id="main">
+<div class="main-content" id="content" pageids="engine::dev.martianzoo.tfm.types/PClassLoader///PointingToDeclaration//2006882201">
+  <div class="breadcrumbs"><a href="../../index.html">engine</a><span class="delimiter">/</span><a href="../index.html">dev.martianzoo.tfm.types</a><span class="delimiter">/</span><a href="index.html">PClassLoader</a></div>
+  <div class="cover ">
+    <h1 class="cover"><span>PClass</span><wbr><span><span>Loader</span></span></h1>
+    <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":engine:dokkaHtmlPartial/main"><div class="symbol monospace"><span class="token keyword">class </span><a href="index.html">PClassLoader</a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">authority<span class="token operator">: </span><a href="../../../pets/dev.martianzoo.tfm.api/-authority/index.html">Authority</a><span class="token punctuation">, </span></span><span class="parameter ">autoLoadDependencies<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html">Boolean</a><span class="token operator"> = </span><span class="token boolean">false</span></span></span><span class="token punctuation">)</span><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div><p class="paragraph">All <a href="../-p-class/index.html">PClass</a> instances come from here. Uses an <a href="../../../pets/dev.martianzoo.tfm.api/-authority/index.html">Authority</a> to pull class declarations from as needed. Can be <a href="frozen.html">frozen</a>, which prevents additional classes from being loaded, and enables features such as <a href="../-p-class/all-subclasses.html">PClass.allSubclasses</a> to work.</p></div></div>
+  </div>
+  <div class="tabbedcontent">
+    <div class="tabs-section" tabs-section="tabs-section"><button class="section-tab" data-active="" data-togglable="Constructors">Constructors</button><button class="section-tab" data-togglable="Functions">Functions</button><button class="section-tab" data-togglable="Properties">Properties</button><button class="section-tab" data-togglable="Parameters">Parameters</button></div>
+    <div class="tabs-section-body">
+      <h2 class="">Parameters</h2>
+      <div data-togglable="Parameters">
+        <div class="platform-hinted WithExtraAttributes" data-platform-hinted="data-platform-hinted" data-togglable="Parameters"><div class="content sourceset-depenent-content" data-active="" data-togglable=":engine:dokkaHtmlPartial/main"><div data-togglable="Parameters"><div class="table" data-togglable="Parameters"><div class="table-row" data-filterable-current=":engine:dokkaHtmlPartial/main" data-filterable-set=":engine:dokkaHtmlPartial/main"><div class="main-subrow keyValue WithExtraAttributes"><div class=""><span class="inline-flex"><div><span><span>authority</span></span></div></span></div><div><div class="title"><div data-togglable="Parameters"><p class="paragraph">the source of class declarations to use as needed; <a href="load-everything.html">loadEverything</a> will load every class found here</p></div></div></div></div></div><div class="table-row" data-filterable-current=":engine:dokkaHtmlPartial/main" data-filterable-set=":engine:dokkaHtmlPartial/main"><div class="main-subrow keyValue WithExtraAttributes"><div class=""><span class="inline-flex"><div><span>auto</span><wbr><span>Load</span><wbr><span><span>Dependencies</span></span></div></span></div><div><div class="title"><div data-togglable="Parameters"><p class="paragraph">whether, when a class is loaded, to also load any classes that class depends on in some way; by default only superclasses are auto-loaded</p></div></div></div></div></div></div></div></div></div>
+      </div>
+      <h2 class="tabbedcontent">Constructors</h2>
+      <div class="table" data-togglable="Constructors"><a data-name="-1664642669%2FConstructors%2F2006882201" anchor-label="PClassLoader" id="-1664642669%2FConstructors%2F2006882201" data-filterable-set=":engine:dokkaHtmlPartial/main"></a>
+        <div class="table-row" data-filterable-current=":engine:dokkaHtmlPartial/main" data-filterable-set=":engine:dokkaHtmlPartial/main">
+          <div class="main-subrow keyValue TabbedContent">
+            <div class=""><span class="inline-flex">
+                <div><a href="-p-class-loader.html"><span>PClass</span><wbr><span><span>Loader</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1664642669%2FConstructors%2F2006882201"></span>
+                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                </span></span></div>
+            <div>
+              <div class="title">
+                <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":engine:dokkaHtmlPartial/main"><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">fun </span><a href="-p-class-loader.html"><span class="token function">PClassLoader</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">authority<span class="token operator">: </span><a href="../../../pets/dev.martianzoo.tfm.api/-authority/index.html">Authority</a><span class="token punctuation">, </span></span><span class="parameter ">autoLoadDependencies<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html">Boolean</a><span class="token operator"> = </span><span class="token boolean">false</span></span></span><span class="token punctuation">)</span><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <h2 class="">Functions</h2>
+      <div class="table" data-togglable="Functions"><a data-name="-1703806004%2FFunctions%2F2006882201" anchor-label="getClass" id="-1703806004%2FFunctions%2F2006882201" data-filterable-set=":engine:dokkaHtmlPartial/main"></a>
+        <div class="table-row" data-filterable-current=":engine:dokkaHtmlPartial/main" data-filterable-set=":engine:dokkaHtmlPartial/main">
+          <div class="main-subrow keyValue ">
+            <div class=""><span class="inline-flex">
+                <div><a href="get-class.html"><span>get</span><wbr><span><span>Class</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1703806004%2FFunctions%2F2006882201"></span>
+                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                </span></span></div>
+            <div>
+              <div class="title">
+                <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":engine:dokkaHtmlPartial/main"><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">fun </span><a href="get-class.html"><span class="token function">getClass</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">nameOrId<span class="token operator">: </span><a href="../../../pets/dev.martianzoo.tfm.pets.ast/-class-name/index.html">ClassName</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="../-p-class/index.html">PClass</a><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div><div class="brief "><p class="paragraph">Returns the <a href="../-p-class/index.html">PClass</a> whose name or id is <a href="get-class.html">nameOrId</a>, or throws an exception.</p></div></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+<a data-name="698917360%2FFunctions%2F2006882201" anchor-label="load" id="698917360%2FFunctions%2F2006882201" data-filterable-set=":engine:dokkaHtmlPartial/main"></a>
+        <div class="table-row" data-filterable-current=":engine:dokkaHtmlPartial/main" data-filterable-set=":engine:dokkaHtmlPartial/main">
+          <div class="main-subrow keyValue ">
+            <div class=""><span class="inline-flex">
+                <div><a href="load.html"><span><span>load</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="698917360%2FFunctions%2F2006882201"></span>
+                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                </span></span></div>
+            <div>
+              <div class="title">
+                <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":engine:dokkaHtmlPartial/main"><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">fun </span><a href="load.html"><span class="token function">load</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">idOrName<span class="token operator">: </span><a href="../../../pets/dev.martianzoo.tfm.pets.ast/-class-name/index.html">ClassName</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="../-p-class/index.html">PClass</a><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div><div class="brief "><p class="paragraph">Returns the class with the name <a href="load.html">idOrName</a>, loading it first if necessary.</p></div></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+<a data-name="-1894001431%2FFunctions%2F2006882201" anchor-label="loadAll" id="-1894001431%2FFunctions%2F2006882201" data-filterable-set=":engine:dokkaHtmlPartial/main"></a>
+        <div class="table-row" data-filterable-current=":engine:dokkaHtmlPartial/main" data-filterable-set=":engine:dokkaHtmlPartial/main">
+          <div class="main-subrow keyValue ">
+            <div class=""><span class="inline-flex">
+                <div><a href="load-all.html"><span>load</span><wbr><span><span>All</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1894001431%2FFunctions%2F2006882201"></span>
+                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                </span></span></div>
+            <div>
+              <div class="title">
+                <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":engine:dokkaHtmlPartial/main"><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">fun </span><a href="load-all.html"><span class="token function">loadAll</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">idsAndNames<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-collection/index.html">Collection</a><span class="token operator">&lt;</span><span class="token keyword"></span><a href="../../../pets/dev.martianzoo.tfm.pets.ast/-class-name/index.html">ClassName</a><span class="token operator">&gt;</span></span></span><span class="token punctuation">)</span><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div><div class="brief "><p class="paragraph">Equivalent to (but possibly faster than) calling <a href="load.html">load</a> on every class name in <a href="load-all.html">idsAndNames</a>.</p></div></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+<a data-name="-784715788%2FFunctions%2F2006882201" anchor-label="loadEverything" id="-784715788%2FFunctions%2F2006882201" data-filterable-set=":engine:dokkaHtmlPartial/main"></a>
+        <div class="table-row" data-filterable-current=":engine:dokkaHtmlPartial/main" data-filterable-set=":engine:dokkaHtmlPartial/main">
+          <div class="main-subrow keyValue ">
+            <div class=""><span class="inline-flex">
+                <div><a href="load-everything.html"><span>load</span><wbr><span><span>Everything</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-784715788%2FFunctions%2F2006882201"></span>
+                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                </span></span></div>
+            <div>
+              <div class="title">
+                <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":engine:dokkaHtmlPartial/main"><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">fun </span><a href="load-everything.html"><span class="token function">loadEverything</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">: </span><a href="index.html">PClassLoader</a><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div><div class="brief "><p class="paragraph">Loads every class known to this class loader's backing <a href="../../../pets/dev.martianzoo.tfm.api/-authority/index.html">Authority</a>, and freezes.</p></div></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+<a data-name="534638656%2FFunctions%2F2006882201" anchor-label="resolveType" id="534638656%2FFunctions%2F2006882201" data-filterable-set=":engine:dokkaHtmlPartial/main"></a>
+        <div class="table-row" data-filterable-current=":engine:dokkaHtmlPartial/main" data-filterable-set=":engine:dokkaHtmlPartial/main">
+          <div class="main-subrow keyValue ">
+            <div class=""><span class="inline-flex">
+                <div><a href="resolve-type.html"><span>resolve</span><wbr><span><span>Type</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="534638656%2FFunctions%2F2006882201"></span>
+                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                </span></span></div>
+            <div>
+              <div class="title">
+                <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-depenent-content" data-active="" data-togglable=":engine:dokkaHtmlPartial/main"><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">fun </span><a href="resolve-type.html"><span class="token function">resolveType</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">typeExpr<span class="token operator">: </span><a href="../../../pets/dev.martianzoo.tfm.pets.ast/-type-expr/index.html">TypeExpr</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="../-p-type/index.html">PType</a><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div><div class="brief "><p class="paragraph">Returns the <a href="../-p-type/index.html">PType</a> represented by <a href="resolve-type.html">typeExpr</a>.</p></div></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <h2 class="">Properties</h2>
+      <div class="table" data-togglable="Properties"><a data-name="-1456950680%2FProperties%2F2006882201" anchor-label="allClasses" id="-1456950680%2FProperties%2F2006882201" data-filterable-set=":engine:dokkaHtmlPartial/main"></a>
+        <div class="table-row" data-filterable-current=":engine:dokkaHtmlPartial/main" data-filterable-set=":engine:dokkaHtmlPartial/main">
+          <div class="main-subrow keyValue ">
+            <div class=""><span class="inline-flex">
+                <div><a href="all-classes.html"><span>all</span><wbr><span><span>Classes</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1456950680%2FProperties%2F2006882201"></span>
+                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                </span></span></div>
+            <div>
+              <div class="title">
+                <div class="platform-hinted " data-platform-hinted="data-platform-hinted" data-togglable="Properties"><div class="content sourceset-depenent-content" data-active="" data-togglable=":engine:dokkaHtmlPartial/main"><a data-name="-1456950680%2FProperties%2F2006882201" anchor-label="allClasses" id="-1456950680%2FProperties%2F2006882201" data-filterable-set=":engine:dokkaHtmlPartial/main"></a><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">val </span><a href="all-classes.html">allClasses</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-set/index.html">Set</a><span class="token operator">&lt;</span><span class="token keyword"></span><a href="../-p-class/index.html">PClass</a><span class="token operator">&gt;</span><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div><div class="brief "><a data-name="-1456950680%2FProperties%2F2006882201" anchor-label="allClasses" id="-1456950680%2FProperties%2F2006882201" data-filterable-set=":engine:dokkaHtmlPartial/main"></a><p class="paragraph">All classes loaded by this class loader; can only be accessed after the loader is <a href="frozen.html">frozen</a>.</p></div></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+<a data-name="676305709%2FProperties%2F2006882201" anchor-label="classClass" id="676305709%2FProperties%2F2006882201" data-filterable-set=":engine:dokkaHtmlPartial/main"></a>
+        <div class="table-row" data-filterable-current=":engine:dokkaHtmlPartial/main" data-filterable-set=":engine:dokkaHtmlPartial/main">
+          <div class="main-subrow keyValue ">
+            <div class=""><span class="inline-flex">
+                <div><a href="class-class.html"><span>class</span><wbr><span><span>Class</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="676305709%2FProperties%2F2006882201"></span>
+                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                </span></span></div>
+            <div>
+              <div class="title">
+                <div class="platform-hinted " data-platform-hinted="data-platform-hinted" data-togglable="Properties"><div class="content sourceset-depenent-content" data-active="" data-togglable=":engine:dokkaHtmlPartial/main"><a data-name="676305709%2FProperties%2F2006882201" anchor-label="classClass" id="676305709%2FProperties%2F2006882201" data-filterable-set=":engine:dokkaHtmlPartial/main"></a><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">val </span><a href="class-class.html">classClass</a><span class="token operator">: </span><a href="../-p-class/index.html">PClass</a><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div><div class="brief "><a data-name="676305709%2FProperties%2F2006882201" anchor-label="classClass" id="676305709%2FProperties%2F2006882201" data-filterable-set=":engine:dokkaHtmlPartial/main"></a><p class="paragraph">The <code class="lang-kotlin">Class</code> class, the other class that is required to exist.</p></div></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+<a data-name="-1095094286%2FProperties%2F2006882201" anchor-label="componentClass" id="-1095094286%2FProperties%2F2006882201" data-filterable-set=":engine:dokkaHtmlPartial/main"></a>
+        <div class="table-row" data-filterable-current=":engine:dokkaHtmlPartial/main" data-filterable-set=":engine:dokkaHtmlPartial/main">
+          <div class="main-subrow keyValue ">
+            <div class=""><span class="inline-flex">
+                <div><a href="component-class.html"><span>component</span><wbr><span><span>Class</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1095094286%2FProperties%2F2006882201"></span>
+                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                </span></span></div>
+            <div>
+              <div class="title">
+                <div class="platform-hinted " data-platform-hinted="data-platform-hinted" data-togglable="Properties"><div class="content sourceset-depenent-content" data-active="" data-togglable=":engine:dokkaHtmlPartial/main"><a data-name="-1095094286%2FProperties%2F2006882201" anchor-label="componentClass" id="-1095094286%2FProperties%2F2006882201" data-filterable-set=":engine:dokkaHtmlPartial/main"></a><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">val </span><a href="component-class.html">componentClass</a><span class="token operator">: </span><a href="../-p-class/index.html">PClass</a><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div><div class="brief "><a data-name="-1095094286%2FProperties%2F2006882201" anchor-label="componentClass" id="-1095094286%2FProperties%2F2006882201" data-filterable-set=":engine:dokkaHtmlPartial/main"></a><p class="paragraph">The <code class="lang-kotlin">Component</code> class, which is the root of the class hierarchy.</p></div></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+<a data-name="1458611053%2FProperties%2F2006882201" anchor-label="frozen" id="1458611053%2FProperties%2F2006882201" data-filterable-set=":engine:dokkaHtmlPartial/main"></a>
+        <div class="table-row" data-filterable-current=":engine:dokkaHtmlPartial/main" data-filterable-set=":engine:dokkaHtmlPartial/main">
+          <div class="main-subrow keyValue ">
+            <div class=""><span class="inline-flex">
+                <div><a href="frozen.html"><span><span>frozen</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1458611053%2FProperties%2F2006882201"></span>
+                  <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                </span></span></div>
+            <div>
+              <div class="title">
+                <div class="platform-hinted " data-platform-hinted="data-platform-hinted" data-togglable="Properties"><div class="content sourceset-depenent-content" data-active="" data-togglable=":engine:dokkaHtmlPartial/main"><a data-name="1458611053%2FProperties%2F2006882201" anchor-label="frozen" id="1458611053%2FProperties%2F2006882201" data-filterable-set=":engine:dokkaHtmlPartial/main"></a><div class="symbol monospace"><span class="token keyword"></span><span class="token keyword">var </span><a href="frozen.html">frozen</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html">Boolean</a><span class="token operator"> = </span><span class="token boolean">false</span><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      <div class="footer">
+        <span class="go-to-top-icon"><a href="#content" id="go-to-top-link"></a></span><span>© 2023 Copyright</span><span class="pull-right"><span>Generated by </span><a href="https://github.com/Kotlin/dokka"><span>dokka</span><span class="padded-icon"></span></a></span>
+      </div>
+    </div>
+</div>
+
+</body></html>
+
