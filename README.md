@@ -8,7 +8,7 @@ This project is unrelated to that app or any other codebase.
 
 ## Why another game engine?
 
-I'm making Solarnet from scratch with a different approach. All the cards, milestones, etc. are *just data* and don't require custom programming. They express their behaviors using a custom language called Pets, which I've created just for this purpose.
+I'm making Solarnet from scratch with a different approach. All the cards, milestones, etc. are *just data* and don't require custom programming (except for the ones that do). They express their behaviors using a custom language called Pets, which I've created just for this purpose.
 
 I'm doing it for fun and to learn. I don't know what it will be useful for.
 
