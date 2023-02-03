@@ -1,6 +1,6 @@
 # Solarnet
 
-Solarnet is an open-source game engine for the superlative 2016 board game *[Terraforming Mars](https://www.amazon.com/Indie-Boards-Cards-Terraforming-Board/dp/B01GSYA4K2)*.
+Solarnet is an open-source game engine for the superlative 2016 board game *[Terraforming Mars](https://www.amazon.com/Indie-Boards-Cards-Terraforming-Board/dp/B01GSYA4K2)*, published by [FryxGames](http://fryxgames.se).
 
 It is not a way to *play* the game. For that, see the [online open-source app](http://terraforming-mars.herokuapp.com) -- and please make sure to [buy a physical copy](https://www.amazon.com/Indie-Boards-Cards-Terraforming-Board/dp/B01GSYA4K2) of the game so the creators get paid! (The *official app* for the game, sadly, cannot be recommended.)
 
@@ -12,7 +12,7 @@ The game engine is the part of a game whose job is to *know the rules* of the ga
 
 Inside the open-source app mentioned above is *already* an *extremely* accurate game engine. And inside the official app mentioned above is already a game engine. So why do we need a third?
 
-It would be enough for me to just say "because I found it a fun challenge". But I am trying to build this with a unique approach. All the cards, milestones, etc. are *just data* and don't require custom programming (except for the ones that do). They express their behaviors using a specification language called Pets, created just for this purpose. Expressions of card behaviors written in Pets are also suitable for conversion into natural-language instructions or even the iconographic language used by the printed cards. In theory, we can eventually get to a situation where every card *must* do exactly what it says it does (in words and in icons), because it couldn't do otherwise.
+It would be enough for me to just say "because I found it a fun challenge". But I am trying to build this with a unique approach. All the cards, milestones, etc. are *[just data](https://github.com/MartianZoo/solarnet/blob/main/canon/src/main/java/dev/martianzoo/tfm/canon/cards.json5)* and don't require custom programming (except for the ones that do). They express their behaviors using a specification language called Pets, created just for this purpose. Expressions of card behaviors written in Pets are also suitable for conversion into natural-language instructions or even the iconographic language used by the printed cards. In theory, we can eventually get to a situation where every card *must* do exactly what it says it does (in words and in icons), because it couldn't do otherwise.
 
 But when it comes down to it, I don't know what this project will be useful for.
 
@@ -37,13 +37,18 @@ I have started jotting some stuff down, but the written docs leave much to be de
 * Overview of [component types](docs/component-types.md)
 * Pets language [syntax reference](docs/syntax.md)
 * The Pets [type system](docs/type-system.md)
-* API documentation is not hosted yet; you'd have to clone and type `./gradlew dokkaHtmlMultiModule` then look at `docs/api/index.html` on your local filesystem. If you want to understand the code this is a worthwhile way to start, though.
 
 ## Interested in playing around with it?
 
-Just clone and run `./rego` and type `help`. You can do a few things. It doesn't do very much yet. For example, you can add a Greenery tile to the board, but it won't yet trigger effects like raising oxygen. I'm getting there.
+Just clone and run `./rego` and type `help`. You can do a few things. Not much. For example, you can add a GreeneryTile to the board, but it won't yet trigger effects like adding an `OxygenStep`. If you `desc GreeneryTile` you can see that it knows it's supposed to. It just doesn't. I'm getting there.
 
 You can also look for the `*.pets` and `*.json5` files to see how game components get defined in the Pets language. You can change it around or attempt to add your own custom cards. But be warned: I have spent NO time on error handling, so the error messages you're gonna get will be **incredibly unhelpful and frustrating**. Sorry! I plan to improve this at some point.
+
+## Want to poke around in the implementation code?
+
+First get an overview from the API documentation. It's not hosted yet, but you can `./gradlew dokkaHtmlMultiModule` and then look at `docs/api/index.html`.
+
+It's written in [Kotlin](https://kotlinlang.org). It's the first Kotlin I've written and I'm very happy with the language. If you are already comfortable in Java, it's not too hard to learn the basics (and I don't really use the most advanced features).
 
 ## Contact me?
 
