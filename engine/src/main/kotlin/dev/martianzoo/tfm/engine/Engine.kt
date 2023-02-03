@@ -6,6 +6,7 @@ import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.types.PClassLoader
 import dev.martianzoo.util.filterNoNulls
 
+/** Has functions for setting up new games and stuff. */
 public object Engine {
   public fun newGame(setup: GameSetup): Game {
     val loader = PClassLoader(setup.authority, autoLoadDependencies = true)

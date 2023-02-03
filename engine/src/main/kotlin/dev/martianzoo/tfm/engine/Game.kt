@@ -12,6 +12,7 @@ import dev.martianzoo.tfm.types.PType
 import dev.martianzoo.util.Multiset
 import dev.martianzoo.util.map
 
+/** A game in progress. */
 public class Game(
     val setup: GameSetup,
     val components: ComponentGraph,

@@ -14,6 +14,10 @@ import dev.martianzoo.tfm.pets.ast.ScalarAndType.Companion.sat
 import dev.martianzoo.tfm.pets.ast.TypeExpr
 import dev.martianzoo.tfm.pets.deprodify
 
+/**
+ * Various functions for transforming [PetNode] subtrees that require some `engine`-module type or
+ * other (otherwise they should be moved to the `pets` module).
+ */
 public object AstTransforms {
   /**
    * Resolves `PROD[...]` regions by replacing, for example, `Steel<Player2>` with
@@ -27,6 +31,14 @@ public object AstTransforms {
     return deprodify(node, producible)
   }
 
+  /**
+   * For any type expression whose root type is in [ownedClassNames] but does not already have
+   * either `Owner` or `Anyone` as a type argument, adds `Owner` as a type argument. This is
+   * implementing what the code `class Owned { DEFAULT This<Owner> ... }` is already trying to
+   * express, but I haven't gotten that working in a general way yet.
+   *
+   * TODO move this to `pets` module
+   */
   public fun <P : PetNode> addOwnerToOwned(node: P, ownedClassNames: Set<ClassName>): P {
     val ok = setOf(OWNER.type, ANYONE.type)
     val pwner =

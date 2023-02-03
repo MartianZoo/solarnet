@@ -8,6 +8,7 @@ import dev.martianzoo.util.Multiset
 import dev.martianzoo.util.MutableMultiset
 import dev.martianzoo.util.filter
 
+/** All the components making up the state of a single [Game]. */
 public class ComponentGraph(startingWith: Collection<Component> = listOf()) {
   private val multiset: MutableMultiset<Component> = HashMultiset()
   private val changeLog: MutableList<StateChange> = mutableListOf()

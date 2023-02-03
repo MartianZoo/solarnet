@@ -19,7 +19,7 @@ import dev.martianzoo.tfm.pets.ast.Requirement.Min
 import dev.martianzoo.tfm.pets.deprodify
 import dev.martianzoo.tfm.types.PType
 
-object LiveNodes {
+internal object LiveNodes {
   fun from(ins: Instruction, game: Game): LiveInstruction {
     return when (ins) {
       is Instruction.Change ->
