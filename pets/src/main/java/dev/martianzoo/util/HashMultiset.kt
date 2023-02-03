@@ -1,6 +1,5 @@
 package dev.martianzoo.util
 
-import java.util.Collections.nCopies
 import kotlin.math.min
 
 class HashMultiset<E> : MutableMultiset<E> {
@@ -16,7 +15,7 @@ class HashMultiset<E> : MutableMultiset<E> {
   override fun isEmpty() = map.isEmpty()
 
   override fun iterator(): MutableIterator<E> {
-    val iter = map.flatMap { (e, ct) -> nCopies(ct, e) }.iterator()
+    val iter = map.asSequence().flatMap { (e, ct) -> List(ct) { e } }.iterator()
     return object : MutableIterator<E>, Iterator<E> by iter {
       override fun remove() = throw UnsupportedOperationException("sorry")
     }

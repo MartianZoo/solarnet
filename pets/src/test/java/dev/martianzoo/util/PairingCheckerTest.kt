@@ -2,7 +2,6 @@ package dev.martianzoo.util
 
 import com.google.common.collect.Lists.cartesianProduct
 import com.google.common.truth.Truth.assertThat
-import java.util.Collections.nCopies
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 
@@ -40,7 +39,7 @@ private class PairingCheckerTest {
     val allChars: List<Char> = "[]<>X".toList()
     while (length <= max) {
       length++
-      for (chars in cartesianProduct(nCopies(length, allChars))) {
+      for (chars in cartesianProduct(List(length) { allChars })) {
         val s = chars.joinToString("")
         if (s.contains("XX")) continue
         val pos = s.indexOfFirst { it in "<>[]" }
