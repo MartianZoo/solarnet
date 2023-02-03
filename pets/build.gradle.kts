@@ -42,7 +42,7 @@ tasks.dokkaHtml.configure {
         remoteUrl.set(URL("https://github.com/MartianZoo/solarnet/tree/main/pets/src"))
         remoteLineSuffix.set("#L")
       }
-      samples.from("src/main/kotlin/dev/martianzoo/tfm/pets/samples.kt")
+      samples.from("src/main/java/dev/martianzoo/tfm/pets/samples.kt")
     }
   }
 }

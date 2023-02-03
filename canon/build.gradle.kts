@@ -24,7 +24,7 @@ dependencies {
 sourceSets {
   val main by getting {
     resources {
-      srcDir("src/main/kotlin")
+      srcDir("src/main/java")
       exclude("**/*.kt")
     }
   }
@@ -38,7 +38,7 @@ tasks.dokkaHtml.configure {
         remoteUrl.set(URL("https://github.com/MartianZoo/solarnet/tree/main/canon/src"))
         remoteLineSuffix.set("#L")
       }
-      samples.from("src/main/kotlin/dev/martianzoo/tfm/canon/samples.kt")
+      samples.from("src/main/java/dev/martianzoo/tfm/canon/samples.kt")
     }
   }
 }
