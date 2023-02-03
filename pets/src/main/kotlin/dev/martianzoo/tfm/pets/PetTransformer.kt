@@ -13,15 +13,26 @@ import dev.martianzoo.tfm.pets.ast.ScalarAndType
 import dev.martianzoo.tfm.pets.ast.TypeExpr
 import dev.martianzoo.util.toSetStrict
 
+/** Extend this to implement transformations over trees of [PetNode]s. */
 public abstract class PetTransformer {
 
-  companion object {
+  public companion object {
     public fun <P : PetNode> P.transform(v: PetTransformer): P = v.doTransform(this)
     public fun <P : PetNode> Iterable<P>.transform(v: PetTransformer): List<P> = map(v::doTransform)
     public fun <P : PetNode> Set<P>.transform(v: PetTransformer): Set<P> =
         (this as Iterable<P>).transform(v).toSetStrict()
   }
 
+  /**
+   * As the tree is traversed each node will be passed here.
+   *
+   * * If you simply return [node] or some hardcoded subtree, that prevents child subtrees from
+   *   being traversed.
+   * * Call [defaultTransform] from here to transform the subtree by transforming each of its child
+   *   subtrees. You can of course either preprocess or postprocess the subtree.
+   * * To transform a single child subtree you can pass it to [x]. It will accept iterables of
+   *   nodes or a nullable node. TODO fix this.
+   */
   protected abstract fun <P : PetNode> doTransform(node: P): P
 
   protected fun <P : PetNode> defaultTransform(node: P): P {

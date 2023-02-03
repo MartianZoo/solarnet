@@ -3,7 +3,6 @@ package dev.martianzoo.tfm.canon
 import dev.martianzoo.tfm.api.CustomInstruction
 import dev.martianzoo.tfm.api.ReadOnlyGameState
 import dev.martianzoo.tfm.api.lookUpProductionLevels
-import dev.martianzoo.tfm.pets.PetException
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.Instruction
 import dev.martianzoo.tfm.pets.ast.Instruction.Companion.instruction
@@ -41,9 +40,9 @@ private object CopyProductionBox : CustomInstruction("copyProductionBox") {
 
     when (matches.size) {
       1 -> return matches.first()
-      0 -> throw PetException("There is no immediate PROD box on $chosenCardName")
+      0 -> throw RuntimeException("There is no immediate PROD box on $chosenCardName")
       else ->
-          throw PetException(
+          throw RuntimeException(
               "The immediate instructions on $chosenCardName " +
                   "have multiple PROD boxes, which should never happen")
     }

@@ -1,7 +1,7 @@
 package dev.martianzoo.tfm.testlib
 
 import com.google.common.truth.Truth.assertWithMessage
-import dev.martianzoo.tfm.pets.Parsing.parsePets
+import dev.martianzoo.tfm.pets.Parsing.parseElement
 import dev.martianzoo.tfm.pets.PetException
 import dev.martianzoo.tfm.pets.SpecialClassNames.MEGACREDIT
 import dev.martianzoo.tfm.pets.ast.Action
@@ -194,7 +194,7 @@ internal class PetGenerator(scaling: (Int) -> Double) :
 
       val reparsedNode =
           try {
-            parsePets(type, originalStringOut)
+            parseElement(type, originalStringOut)
           } catch (e: Exception) {
             fail("node was ${p2k(randomNode)}", e)
           }

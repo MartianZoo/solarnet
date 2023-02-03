@@ -16,8 +16,8 @@ import com.github.h0tk3y.betterParse.parser.Parser
 import com.github.h0tk3y.betterParse.utils.Tuple2
 import dev.martianzoo.tfm.pets.ast.Instruction.Intensity
 
-/** Parses the Petaform language. */
-open class PetParser {
+/** A base class for Parser objects; TODO make non-public */
+public open class PetParser {
   internal fun tokenize(input: String) = TokenCache.tokenize(input)
 
   internal val _arrow = literal("->", "arrow")

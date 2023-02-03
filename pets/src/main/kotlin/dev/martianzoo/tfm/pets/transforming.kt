@@ -54,10 +54,14 @@ internal fun immediateToEffect(instruction: Instruction): Effect {
   return Effect(WhenGain, instruction, automatic = false)
 }
 
-fun <P : PetNode> replaceThis(node: P, resolveTo: TypeExpr) =
+/**
+ * Transforms any occurrences of the type `This` to [resolveTo]. Note that `This:` effect triggers
+ * are not affected, as they are treated as a special syntax and not an occurrence of the type
+ */
+public fun <P : PetNode> replaceThis(node: P, resolveTo: TypeExpr) =
     node.replaceTypes(THIS.type, resolveTo) // TODO class types?
 
-fun <P : PetNode> P.replaceTypes(from: TypeExpr, to: TypeExpr): P {
+internal fun <P : PetNode> P.replaceTypes(from: TypeExpr, to: TypeExpr): P {
   return replaceTypesIn(this, from, to)
 }
 
@@ -73,7 +77,8 @@ internal fun <P : PetNode> replaceTypesIn(node: P, from: TypeExpr, to: TypeExpr)
               }
         })
 
-fun <P : PetNode> deprodify(node: P, producible: Set<ClassName>): P {
+/** Transform any `PROD[...]` sections in a subtree to the equivalent subtree. */
+public fun <P : PetNode> deprodify(node: P, producible: Set<ClassName>): P {
   val deprodifier =
       object : PetTransformer() {
         var inProd: Boolean = false

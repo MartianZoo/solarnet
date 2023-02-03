@@ -39,13 +39,13 @@ import dev.martianzoo.util.plus
 import dev.martianzoo.util.toSetStrict
 
 /** Parses the PETS language. */
-public object ClassDeclarationParsers : PetParser() {
+internal object ClassDeclarationParsers : PetParser() {
 
   /** Parses a section of `components.pets` etc. */
-  public val topLevelDeclarationGroup by lazy { Declarations.topLevelGroup }
+  val topLevelDeclarationGroup by lazy { Declarations.topLevelGroup }
 
   /** Parses a one-line declaration such as found in `cards.json5` for cards like B10 (UNMI). */
-  public val oneLineDeclaration by lazy { Declarations.oneLineDecl }
+  val oneLineDeclaration by lazy { Declarations.oneLineDecl }
 
   // end public API
 

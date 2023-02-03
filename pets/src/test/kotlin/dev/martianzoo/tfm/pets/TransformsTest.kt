@@ -1,7 +1,7 @@
 package dev.martianzoo.tfm.pets
 
 import com.google.common.truth.Truth.assertThat
-import dev.martianzoo.tfm.pets.Parsing.parsePets
+import dev.martianzoo.tfm.pets.Parsing.parseElement
 import dev.martianzoo.tfm.pets.ast.Action
 import dev.martianzoo.tfm.pets.ast.Action.Companion.action
 import dev.martianzoo.tfm.pets.ast.ClassName
@@ -99,8 +99,8 @@ private class TransformsTest {
       thiss: TypeExpr,
       expected: String,
   ) {
-    val parsedOriginal = parsePets(type, original)
-    val parsedExpected = parsePets(type, expected)
+    val parsedOriginal = parseElement(type, original)
+    val parsedExpected = parseElement(type, expected)
     val tx = replaceThis(parsedOriginal, thiss)
     assertThat(tx).isEqualTo(parsedExpected)
 

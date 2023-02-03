@@ -4,14 +4,20 @@ import dev.martianzoo.tfm.pets.ast.PetNode
 import kotlin.reflect.KClass
 import kotlin.reflect.cast
 
+/**
+ * Passes every node of a subtree to [visitor], which returns `true` or `false` to indicate
+ * whether its child subtrees should also be traversed.
+ */
 public fun visit(node: PetNode, visitor: (PetNode) -> Boolean) = PetVisitor(visitor).visit(node)
 
+/** Passes every node of a subtree to [visitor], always traversing child subtrees. */
 public fun visitAll(node: PetNode, visitor: (PetNode) -> Unit) =
     visit(node) {
       visitor(it)
       true
     }
 
+/** Returns the total number of [PetNode]s in the given subtree. */
 public fun countNodesInTree(root: PetNode): Int {
   var count = 0
   visitAll(root) { count++ }
@@ -29,9 +35,7 @@ public fun <P : PetNode> childNodesOfType(type: KClass<P>, root: PetNode): Set<P
   return found
 }
 
-/**
- * See [PetNode.visitChildren].
- */
+/** See [PetNode.visitChildren]. */
 public class PetVisitor(val shouldContinue: (PetNode) -> Boolean) {
   fun visit(node: PetNode?) {
     if (node != null) {

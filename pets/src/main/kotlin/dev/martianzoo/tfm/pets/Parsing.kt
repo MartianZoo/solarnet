@@ -30,7 +30,102 @@ import dev.martianzoo.util.ParserGroup
 import kotlin.reflect.KClass
 import kotlin.reflect.cast
 
-object Parsing {
+/** Functions for parsing PETS elements or class declarations from source code. */
+public object Parsing {
+  /**
+   * Parses the PETS element in [elementSource], expecting a construct of type [P], and returning
+   * the parsed [P]. [P] can only be one of the major element types like [Effect], [Action],
+   * [Instruction], [TypeExpr], etc.
+   *
+   * These can also be parsed using, for example, [Instruction.instruction] (but this function is
+   * generic/reified, which is sometimes essential).
+   */
+  public inline fun <reified P : PetNode> parseElement(elementSource: String): P =
+      parseElement(P::class, elementSource)
+
+  /**
+   * Parses the PETS element in [elementSource], expecting a construct of type [P], and returning
+   * the parsed [P]. [P] can only be one of the major elemental types like [Effect], [Action],
+   * [Instruction], [TypeExpr], etc.
+   */
+  public fun <P : PetNode> parseElement(expectedType: KClass<P>, source: String): P {
+    val pet =
+        try {
+          parserGroup.parse(expectedType, tokenize(source))
+        } catch (e: ParseException) {
+          throw IllegalArgumentException(
+              """
+                Expecting ${expectedType.simpleName} ...
+                Input was:
+                $source
+              """
+                  .trimIndent(),
+              e)
+        }
+    return expectedType.cast(pet)
+  }
+
+  /** Version of [parseElement] for use from Java. */
+  public fun <P : PetNode> parseElement(expectedType: Class<P>, source: String) =
+      parseElement(expectedType.kotlin, source)
+
+  /**
+   * Parses a **single-line** class declaration; if it has a body, the elements within the body are
+   * semicolon-separated.
+   */
+  public fun parseOneLineClassDeclaration(declarationSource: String): ClassDeclaration {
+    return parse(oneLineDeclaration, declarationSource)
+  }
+
+  /**
+   * Parses a series of Pets class declarations. The syntax is currently not documented (sorry), but
+   * examples can be reviewed in `components.pets` and `player.pets`.
+   */
+  public fun parseClassDeclarations(declarationsSource: String): List<ClassDeclaration> {
+    val tokens = tokenize(stripLineComments(declarationsSource))
+    return parseRepeated(topLevelDeclarationGroup, tokens)
+  }
+
+  /** A minor convenience function for parsing using a particular [Parser] instance. */
+  public fun <T> parse(parser: Parser<T>, source: String): T {
+    val tokens = tokenize(source)
+    Debug.d(
+        tokens
+            .filterNot { it.type.ignored }
+            .joinToString(" ") { it.type.name?.replace("\n", "\\n") ?: "NULL" })
+    return parser.parseToEnd(tokens)
+  }
+
+  private val lineCommentRegex = Regex(""" *(//[^\n]*)*\n""")
+
+  private fun stripLineComments(text: String) = lineCommentRegex.replace(text, "\n")
+
+  internal fun <T> parseRepeated(
+      listParser: Parser<List<T>>,
+      tokens: TokenMatchesSequence
+  ): List<T> {
+    Debug.d(
+        tokens
+            .filterNot { it.type.ignored }
+            .joinToString(" ") { it.type.name?.replace("\n", "\\n") ?: "NULL" })
+    var index = 0
+    val parsed = mutableListOf<T>()
+    while (true) {
+      val result = listParser.tryParse(tokens, index)
+      when {
+        result is Parsed -> {
+          parsed += result.value
+          require(result.nextPosition != index) { index }
+          index = result.nextPosition
+        }
+        result is UnexpectedEof -> break
+        result is AlternativesFailure && result.errors.any(::isEOF) -> break
+        result is ErrorResult -> myThrow(result)
+        else -> error("huh?")
+      }
+    }
+    return parsed
+  }
 
   private val parserGroup by lazy {
     val pgb = ParserGroup.Builder<PetNode>()
@@ -45,129 +140,53 @@ object Parsing {
     pgb.finish()
   }
 
-  /**
-   * Parses the PETS element in [elementSource], expecting a construct of type [P], and returning
-   * the parsed [P]. [P] can only be one of the major elemental types like [Effect], [Action],
-   * [Instruction], [TypeExpr], etc.
-   */
-  inline fun <reified P : PetNode> parsePets(elementSource: String): P =
-      parsePets(P::class, elementSource)
-
-  /** Non-reified version of `parse(source)`. */
-  fun <P : PetNode> parsePets(expectedType: KClass<P>, source: String): P {
-    val pet =
-        try {
-          parserGroup.parse(expectedType, tokenize(source))
-        } catch (e: ParseException) {
-          throw IllegalArgumentException(
-              """
-          Expecting ${expectedType.simpleName} ...
-          Input was:
-          $source
-      """
-                  .trimIndent(),
-              e)
+  internal fun myThrow(result: ErrorResult) {
+    val message = StringBuilder()
+    var ctr = 0
+    val locations = mutableMapOf<Pair<Int, Int>, Int>()
+    var input: String? = null
+    fun visit(result: ErrorResult) {
+      when (result) {
+        is AlternativesFailure -> result.errors.forEach(::visit)
+        is MismatchedToken -> {
+          val match: TokenMatch = result.found
+          val loc = match.row to match.column
+          val thisLoc =
+              if (loc in locations) {
+                locations[loc]
+              } else {
+                locations[loc] = ctr
+                ctr++
+              }
+          input = match.input.toString()
+          val found = match.text.replace("\n", "\\n")
+          val expec = result.expected.name?.replace("\n", "\\n")
+          message.append(
+              "$thisLoc: at ${match.row}:${match.column}, looking for $expec, but found $found\n")
         }
-    return expectedType.cast(pet)
-  }
-
-  // For java
-  fun <P : PetNode> parsePets(expectedType: Class<P>, source: String) =
-      parsePets(expectedType.kotlin, source)
-
-  fun parseOneLineClassDeclaration(declarationSource: String): ClassDeclaration {
-    return parse(oneLineDeclaration, declarationSource)
-  }
-  /** Parses an entire PETS class declarations source file. */
-  fun parseClassDeclarations(declarationsSource: String): List<ClassDeclaration> {
-    val tokens = tokenize(stripLineComments(declarationsSource))
-    return parseRepeated(topLevelDeclarationGroup, tokens)
-  }
-
-  fun <T> parse(parser: Parser<T>, source: String): T {
-    val tokens = tokenize(source)
-    Debug.d(
-        tokens
-            .filterNot { it.type.ignored }
-            .joinToString(" ") { it.type.name?.replace("\n", "\\n") ?: "NULL" })
-    return parser.parseToEnd(tokens)
-  }
-
-  private val lineCommentRegex = Regex(""" *(//[^\n]*)*\n""")
-
-  private fun stripLineComments(text: String) = lineCommentRegex.replace(text, "\n")
-}
-
-fun <T> parseRepeated(listParser: Parser<List<T>>, tokens: TokenMatchesSequence): List<T> {
-  Debug.d(
-      tokens
-          .filterNot { it.type.ignored }
-          .joinToString(" ") { it.type.name?.replace("\n", "\\n") ?: "NULL" })
-  var index = 0
-  val parsed = mutableListOf<T>()
-  while (true) {
-    val result = listParser.tryParse(tokens, index)
-    when {
-      result is Parsed -> {
-        parsed += result.value
-        require(result.nextPosition != index) { index }
-        index = result.nextPosition
+        else -> message.append(result.toString())
       }
-      result is UnexpectedEof -> break
-      result is AlternativesFailure && result.errors.any(::isEOF) -> break
-      result is ErrorResult -> myThrow(result)
-      else -> error("huh?")
     }
-  }
-  return parsed
-}
 
-fun myThrow(result: ErrorResult) {
-  val message = StringBuilder()
-  var ctr = 0
-  val locations = mutableMapOf<Pair<Int, Int>, Int>()
-  var input: String? = null
-  fun visit(result: ErrorResult) {
-    when (result) {
-      is AlternativesFailure -> result.errors.forEach(::visit)
-      is MismatchedToken -> {
-        val match: TokenMatch = result.found
-        val loc = match.row to match.column
-        val thisLoc =
-            if (loc in locations) {
-              locations[loc]
-            } else {
-              locations[loc] = ctr
-              ctr++
-            }
-        input = match.input.toString()
-        val found = match.text.replace("\n", "\\n")
-        val expec = result.expected.name?.replace("\n", "\\n")
-        message.append(
-            "$thisLoc: at ${match.row}:${match.column}, looking for $expec, but found $found\n")
+    visit(result)
+
+    message.append("\nNow, here is the input:\n")
+    input!!.split("\n").forEachIndexed { lineNum, line ->
+      message.append("$line\n")
+      (1..100).forEach { columnNum ->
+        val loc = (lineNum + 1) to columnNum
+        message.append(if (loc in locations) "${locations[loc]}" else " ")
       }
-      else -> message.append(result.toString())
+      message.append("\n")
     }
+
+    throw RuntimeException(message.toString())
   }
 
-  visit(result)
-
-  message.append("\nNow, here is the input:\n")
-  input!!.split("\n").forEachIndexed { lineNum, line ->
-    message.append("$line\n")
-    (1..100).forEach { columnNum ->
-      val loc = (lineNum + 1) to columnNum
-      message.append(if (loc in locations) "${locations[loc]}" else " ")
-    }
-    message.append("\n")
-  }
-
-  throw RuntimeException(message.toString())
+  private fun isEOF(result: ParseResult<*>?): Boolean =
+      when (result) {
+        is UnexpectedEof -> true
+        is AlternativesFailure -> result.errors.any(::isEOF)
+        else -> false
+      }
 }
-
-private fun isEOF(result: ParseResult<*>?): Boolean =
-    when (result) {
-      is UnexpectedEof -> true
-      is AlternativesFailure -> result.errors.any(::isEOF)
-      else -> false
-    }
