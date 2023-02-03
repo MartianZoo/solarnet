@@ -9,7 +9,6 @@ import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.pets.ast.TypeExpr.Companion.typeExpr
 import dev.martianzoo.util.random
 import dev.martianzoo.util.toStrings
-import java.util.TreeSet
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 
@@ -79,9 +78,9 @@ private class PClassCanonTest {
             .filterNot { it.matches(Regex("^(Tharsis|Hellas|Elysium)")) && it.hashCode() % 8 != 0 }
             .filterNot { it in setOf(COMPONENT, DIE) }
 
-    val abstracts = TreeSet<String>()
-    val concretes = TreeSet<String>()
-    val invalids = TreeSet<String>()
+    val abstracts = sortedSetOf<String>()
+    val concretes = sortedSetOf<String>()
+    val invalids = sortedSetOf<String>()
 
     while (abstracts.size < 100 || concretes.size < 100 || invalids.size < 100) {
       val name1 = names.random()
