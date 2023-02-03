@@ -50,6 +50,14 @@ First get an overview from the API documentation. It's not hosted yet, but you c
 
 It's written in [Kotlin](https://kotlinlang.org). It's the first Kotlin I've written and I'm very happy with the language. If you are already comfortable in Java, it's not too hard to learn the basics (and I don't really use the most advanced features).
 
+## Why
+
+Why is the language called Pets? First, who doesn't love Pets? But also, it originated from me thinking I might have played the game 1000 times by now... 1000 "teraforms" would be one "petaform" and it went from there.
+
+Why is the command line UI called REgo PLastics? Because REPL is a term and Rego Plastics is a card...
+
+Why is the engine called Solarnet? Who knows, it sounded cool.
+
 ## Contact me?
 
 If you find this project interesting and want to talk about it, please send mail to kevinb9n@gmail.com. I'd be more than happy to get it.
