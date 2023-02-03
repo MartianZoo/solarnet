@@ -16,6 +16,7 @@ import org.jline.reader.impl.history.DefaultHistory
 import org.jline.terminal.TerminalBuilder
 import org.jline.utils.InfoCmp.Capability
 
+/** A programmatic entry point to a REPL session that is more textual than [ReplSession]. */
 class ReplSession(private val authority: Authority) {
   private val session = InteractiveSession()
 
@@ -119,9 +120,9 @@ class ReplSession(private val authority: Authority) {
       )
 }
 
-val INPUT_REGEX = Regex("""^\s*(\S+)(.*)$""")
+internal val INPUT_REGEX = Regex("""^\s*(\S+)(.*)$""")
 
-fun main() {
+internal fun main() {
   val terminal = TerminalBuilder.builder().color(true).build()
 
   terminal.enterRawMode()

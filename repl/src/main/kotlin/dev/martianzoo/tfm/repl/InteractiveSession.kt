@@ -19,6 +19,7 @@ import dev.martianzoo.tfm.types.PType
 import dev.martianzoo.util.HashMultiset
 import dev.martianzoo.util.Multiset
 
+/** A programmatic entry point to a REPL session that is less textual than [ReplSession]. */
 class InteractiveSession {
   internal var game: Game? = null // TODO private?
   internal var defaultPlayer: ClassName? = null

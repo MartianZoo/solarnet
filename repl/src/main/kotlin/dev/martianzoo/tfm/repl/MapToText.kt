@@ -7,7 +7,7 @@ import dev.martianzoo.tfm.pets.ast.TypeExpr.Companion.typeExpr
 import dev.martianzoo.util.Grid
 import dev.martianzoo.util.toStrings
 
-class MapToText(private val game: GameState) {
+internal class MapToText(private val game: GameState) {
 
   internal fun map(): List<String> {
     val grid: Grid<AreaDefinition> = game.map.areas
