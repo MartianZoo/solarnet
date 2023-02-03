@@ -129,7 +129,8 @@ internal fun main() {
   terminal.puts(Capability.enter_ca_mode)
   terminal.puts(Capability.keypad_xmit)
 
-  val historyFile = Path(".rego_history")
+  val dir = System.getProperty("user.home")
+  val historyFile = Path("$dir/.rego_history")
   val history = DefaultHistory()
 
   val reader = LineReaderBuilder.builder().terminal(terminal).history(history).build()

@@ -2,7 +2,6 @@
 **/build/*
 .gradle
 .idea
-.rego_history
 build
 docs/api/**
 **/*.swp
