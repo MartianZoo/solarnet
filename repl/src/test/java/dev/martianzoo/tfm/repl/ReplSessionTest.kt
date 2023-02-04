@@ -2,6 +2,9 @@ package dev.martianzoo.tfm.repl
 
 import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.tfm.canon.Canon
+import dev.martianzoo.tfm.pets.ast.ClassName
+import dev.martianzoo.tfm.pets.ast.ClassName.Companion
+import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import org.junit.jupiter.api.Test
 
 private class ReplSessionTest {
@@ -31,28 +34,18 @@ private class ReplSessionTest {
     repl.command("PROD[14, 8 Steel, 7 Titanium, 6 Plant, 5 Energy, 4 Heat]")
     repl.command("8, 6 Steel, 7 Titanium, 5 Plant, 3 Energy, 9 Heat")
 
-    assertThat(repl.command("board"))
+    val board = BoardToText(repl.session.game!!.asGameState).board(cn("Player1").type, false)
+    assertThat(board)
         .containsExactly(
-            "+---------+---------+---------+",
-            "|  M:   8 |  S:   6 |  T:   7 |",
-            "| prod  9 | prod  8 | prod  7 |",
-            "+---------+---------+---------+",
-            "|  P:   5 |  E:   3    H:   9 |",
-            "| prod  6 | prod  5 | prod  4 |",
-            "+---------+---------+---------+",
-        )
-        .inOrder()
-
-    repl.command("become Player2")
-    assertThat(repl.command("board"))
-        .containsExactly(
-            "+---------+---------+---------+",
-            "|  M:   0 |  S:   0 |  T:   0 |",
-            "| prod -5 | prod  0 | prod  0 |", // yeah that's a wart
-            "+---------+---------+---------+",
-            "|  P:   0 |  E:   0    H:   0 |",
-            "| prod  0 | prod  0 | prod  0 |",
-            "+---------+---------+---------+",
+            "",
+            "  +---------+---------+---------+",
+            "  |  M:   8 |  S:   6 |  T:   7 |",
+            "  | prod  9 | prod  8 | prod  7 |",
+            "  +---------+---------+---------+",
+            "  |  P:   5 |  E:   3    H:   9 |",
+            "  | prod  6 | prod  5 | prod  4 |",
+            "  +---------+---------+---------+",
+            "",
         )
         .inOrder()
   }

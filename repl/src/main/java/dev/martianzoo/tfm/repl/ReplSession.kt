@@ -3,24 +3,35 @@ package dev.martianzoo.tfm.repl
 import dev.martianzoo.tfm.api.Authority
 import dev.martianzoo.tfm.api.GameSetup
 import dev.martianzoo.tfm.canon.Canon
+import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.pets.ast.Instruction.Companion.instruction
 import dev.martianzoo.tfm.pets.ast.Requirement.Companion.requirement
 import dev.martianzoo.tfm.pets.ast.TypeExpr.Companion.typeExpr
 import dev.martianzoo.tfm.types.PClass
 import dev.martianzoo.util.toStrings
+import org.jline.utils.AttributedStyle
 
 internal fun main() {
-  val session = ReplSession(Canon)
-  session.command("newgame BM 2").forEach(::println)
-
-  val repl = JlineRepl()
-  repl.loop(session::command)
+  val repl = ReplSession(Canon)
+  val session = repl.session
+  val jline = JlineRepl()
+  fun prompt(): Pair<String, Int> {
+    val player: ClassName? = session.defaultPlayer
+    val gameNo = session.gameNumber
+    return when {
+      session.game == null -> "Table" to AttributedStyle.RED
+      player == null -> "Game$gameNo" to AttributedStyle.GREEN
+      else -> "Game$gameNo as $player" to AttributedStyle.CYAN
+    }
+  }
+  jline.loop(::prompt, repl::command)
+  println("Bye!")
 }
 
 /** A programmatic entry point to a REPL session that is more textual than [ReplSession]. */
 public class ReplSession(private val authority: Authority) {
-  private val session = InteractiveSession()
+  internal val session = InteractiveSession()
 
   public fun command(wholeCommand: String): List<String> {
     val (_, command, args) = INPUT_REGEX.matchEntire(wholeCommand)?.groupValues ?: return listOf()
@@ -43,7 +54,8 @@ public class ReplSession(private val authority: Authority) {
                   val (bundleString, players) = args.trim().split(Regex("\\s+"), 2)
                   session.newGame(GameSetup(authority, bundleString, players.toInt()))
                   listOf("New $players-player game created with bundles: $bundleString")
-                } ?: listOf("Usage: newgame <bundles> <player count>")
+                }
+                    ?: listOf("Usage: newgame <bundles> <player count>")
               },
           "become" to
               { args ->
@@ -66,7 +78,8 @@ public class ReplSession(private val authority: Authority) {
                   val typeExpr = session.fixTypes(typeExpr(args))
                   val count = session.count(typeExpr)
                   listOf("$count $typeExpr")
-                } ?: listOf("Usage: count <TypeExpr>")
+                }
+                    ?: listOf("Usage: count <TypeExpr>")
               },
           "has" to
               {
@@ -74,7 +87,8 @@ public class ReplSession(private val authority: Authority) {
                   val fixed = session.fixTypes(requirement(args))
                   val result = session.has(fixed)
                   listOf("$result: $fixed")
-                } ?: listOf("Usage: has <Requirement>")
+                }
+                    ?: listOf("Usage: has <Requirement>")
               },
           "map" to
               {
@@ -132,4 +146,5 @@ private val HELP =
       map                  ->  displays an extremely bad looking map
       desc Microbe         ->  describes the Microbe class in detail (given this game setup)
       help                 ->  see this message
-    """.trimIndent()
+    """
+        .trimIndent()

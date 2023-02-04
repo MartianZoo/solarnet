@@ -22,16 +22,21 @@ import dev.martianzoo.util.Multiset
 /** A programmatic entry point to a REPL session that is less textual than [ReplSession]. */
 class InteractiveSession {
   internal var game: Game? = null // TODO private?
+  internal var gameNumber: Int = 0
   internal var defaultPlayer: ClassName? = null
 
   fun newGame(setup: GameSetup) {
     game = Engine.newGame(setup)
+    gameNumber++
     defaultPlayer = null
   }
 
   fun becomePlayer(player: Int) {
-    defaultPlayer = cn("Player$player")
+    val p = cn("Player$player")
+    game!!.loader.getClass(p)
+    defaultPlayer = p
   }
+
   fun becomeNoOne() {
     defaultPlayer = null
   }
