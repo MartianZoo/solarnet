@@ -30,7 +30,8 @@ data class TypeExpr(
     fun typeExpr(text: String): TypeExpr = Parsing.parse(TypeParsers.typeExpr, text)
   }
 
-  override fun visitChildren(visitor: PetVisitor) = visitor.visit(listOf(className) + arguments + refinement)
+  override fun visitChildren(visitor: PetVisitor) =
+      visitor.visit(listOf(className) + arguments + refinement)
 
   override fun toString() =
       "$className" +

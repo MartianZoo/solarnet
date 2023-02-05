@@ -14,9 +14,9 @@ data class GameSetup(
 
     /**
      * Which bundles of cards/milestones/maps/etc. to include. For example the officially published
-     * bundles are `"B"` for base `"R"` for corporate era, `"V"` for venus next, etc. This list
-     * must include `B` and exactly one map (the canon maps are `"M"` for the base map, `"H"` for
-     * Hellas, and `"E"` for Elysium).
+     * bundles are `"B"` for base `"R"` for corporate era, `"V"` for venus next, etc. This list must
+     * include `B` and exactly one map (the canon maps are `"M"` for the base map, `"H"` for Hellas,
+     * and `"E"` for Elysium).
      */
     val bundles: Collection<String>,
 
@@ -48,8 +48,7 @@ data class GameSetup(
   val map = authority.marsMapDefinitions.single { it.bundle in bundles }
 
   /** All [Definition] objects to use in this game. */
-  fun allDefinitions(): List<Definition> =
-      authority.allDefinitions.filter { it.bundle in bundles }
+  fun allDefinitions(): List<Definition> = authority.allDefinitions.filter { it.bundle in bundles }
 }
 
 private fun splitLetters(bundles: String) = bundles.asIterable().toStrings().toSetStrict()

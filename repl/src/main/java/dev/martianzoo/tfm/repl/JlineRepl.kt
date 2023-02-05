@@ -35,7 +35,7 @@ internal class JlineRepl {
   fun loop(prompt: () -> Pair<String, Int>, handler: (String) -> List<String>) {
     while (true) {
       val (text, color) = prompt()
-      val pr: String = AttributedStringBuilder()
+      val pr = AttributedStringBuilder()
           .style(DEFAULT.foreground(color))
           .append(text)
           .append("> ")

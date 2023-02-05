@@ -5,8 +5,8 @@ import kotlin.reflect.KClass
 import kotlin.reflect.cast
 
 /**
- * Passes every node of a subtree to [visitor], which returns `true` or `false` to indicate
- * whether its child subtrees should also be traversed.
+ * Passes every node of a subtree to [visitor], which returns `true` or `false` to indicate whether
+ * its child subtrees should also be traversed.
  */
 public fun visit(node: PetNode, visitor: (PetNode) -> Boolean) = PetVisitor(visitor).visit(node)
 

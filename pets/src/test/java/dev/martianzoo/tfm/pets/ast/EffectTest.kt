@@ -136,7 +136,9 @@ private class EffectTest {
 
     checkBothWays(
         "Ooh: @name(Qux<Ahh>)",
-        Effect(OnGainOf.create(cn("Ooh").type), Instruction.Custom("name", cn("Qux").addArgs(cn("Ahh")))))
+        Effect(
+            OnGainOf.create(cn("Ooh").type),
+            Instruction.Custom("name", cn("Qux").addArgs(cn("Ahh")))))
 
     checkBothWays(
         "Wau: PROD[Ooh / Qux]",

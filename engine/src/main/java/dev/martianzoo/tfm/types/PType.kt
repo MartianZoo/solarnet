@@ -10,7 +10,8 @@ import dev.martianzoo.tfm.types.Dependency.ClassDependency
  * The translation of a [TypeExpr] into a "live" type, referencing actual [PClass]es loaded by a
  * [PClassLoader]. These are usually obtained by [PClassLoader.resolveType].
  */
-public data class PType internal constructor(
+public data class PType
+internal constructor(
     private val pclass: PClass,
     internal val allDependencies: DependencyMap = DependencyMap(),
     internal val refinement: Requirement? = null,
@@ -47,7 +48,8 @@ public data class PType internal constructor(
     }
   }
 
-  fun specialize(specs: List<PType>): PType = copy(allDependencies = allDependencies.specialize(specs))
+  fun specialize(specs: List<PType>): PType =
+      copy(allDependencies = allDependencies.specialize(specs))
 
   fun refine(ref: Requirement): PType = copy(refinement = ref)
 

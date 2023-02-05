@@ -121,7 +121,9 @@ data class Action(val cost: Cost?, val instruction: Instruction) : PetNode() {
             if (set.size == 1) set.first() else Or(set)
           }
 
-          commaSeparated(orCost or group(parser())) map { if (it.size == 1) it.first() else Multi(it) }
+          commaSeparated(orCost or group(parser())) map {
+            if (it.size == 1) it.first() else Multi(it)
+          }
         }
       }
     }

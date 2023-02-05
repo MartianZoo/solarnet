@@ -42,21 +42,21 @@ private class PTypeTest {
     // }
   }
 
-  val table = loadTypes(
-      "CLASS Foo1",
-      "CLASS Foo2 : Foo1",
-      "CLASS Foo3 : Foo2",
-      "CLASS Bar1",
-      "CLASS Bar2 : Bar1",
-      "CLASS Bar3 : Bar2",
-      "CLASS Qux1",
-      "CLASS Qux2 : Qux1",
-      "CLASS Qux3 : Qux2",
-      "CLASS Complex1<Foo1, Bar1, Qux1>",
-      "CLASS Complex2: Complex1<Foo2, Bar2, Qux2>",
-      "CLASS Complex3: Complex2<Foo3, Bar3, Qux3>",
-      "CLASS TwoSame<Foo2, Foo2>"
-  )
+  val table =
+      loadTypes(
+          "CLASS Foo1",
+          "CLASS Foo2 : Foo1",
+          "CLASS Foo3 : Foo2",
+          "CLASS Bar1",
+          "CLASS Bar2 : Bar1",
+          "CLASS Bar3 : Bar2",
+          "CLASS Qux1",
+          "CLASS Qux2 : Qux1",
+          "CLASS Qux3 : Qux2",
+          "CLASS Complex1<Foo1, Bar1, Qux1>",
+          "CLASS Complex2: Complex1<Foo2, Bar2, Qux2>",
+          "CLASS Complex3: Complex2<Foo3, Bar3, Qux3>",
+          "CLASS TwoSame<Foo2, Foo2>")
   init {
     table.frozen = true
   }

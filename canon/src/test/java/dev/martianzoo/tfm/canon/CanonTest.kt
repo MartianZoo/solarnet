@@ -41,14 +41,11 @@ private class CanonTest {
     assertThat(table.getClass(CARD_FRONT).intersect(table.getClass(cn("HasActions")))).isEqualTo(ac)
   }
 
-  @Test
-  fun testTharsis() = checkMap(Canon.marsMap(cn("Tharsis")))
+  @Test fun testTharsis() = checkMap(Canon.marsMap(cn("Tharsis")))
 
-  @Test
-  fun testHellas() = checkMap(Canon.marsMap(cn("Hellas")))
+  @Test fun testHellas() = checkMap(Canon.marsMap(cn("Hellas")))
 
-  @Test
-  fun testElysium() = checkMap(Canon.marsMap(cn("Elysium")))
+  @Test fun testElysium() = checkMap(Canon.marsMap(cn("Elysium")))
 
   private fun checkMap(map: MarsMapDefinition) {
     fun hasAtLeast5(it: Iterable<*>) = it.count { it != null } >= 5
@@ -122,7 +119,8 @@ private class CanonTest {
   @Test
   fun testThatSingletonComponentsWereCreated() {
     val game = Engine.newGame(GameSetup(Canon, "BRMPX", 3))
-    val startingComponents: Multiset<Component> = game.getComponents(game.resolveType(COMPONENT.type))
+    val startingComponents: Multiset<Component> =
+        game.getComponents(game.resolveType(COMPONENT.type))
     assertThat(startingComponents.elements).hasSize(startingComponents.size)
 
     val isArea: (Component) -> Boolean = { it.asTypeExpr.toString().startsWith("Tharsis_") }
@@ -133,8 +131,8 @@ private class CanonTest {
     assertThat(startingComponents.count(isBorder)).isEqualTo(312)
     assertThat(startingComponents.count(isClass)).isGreaterThan(400)
 
-    assertThat(startingComponents.filterNot { isArea(it) || isBorder(it) || isClass(it) }
-        .toStrings())
+    assertThat(
+            startingComponents.filterNot { isArea(it) || isBorder(it) || isClass(it) }.toStrings())
         .containsExactly(
             "[Player1]", "[Player2]", "[Player3]",
             "[Generation]",

@@ -12,8 +12,8 @@ import dev.martianzoo.tfm.pets.Parsing.parseClassDeclarations
 import dev.martianzoo.util.Debug
 
 /**
- * Authoritative data source for officially published materials; should eventually be complete
- * but that will take a while.
+ * Authoritative data source for officially published materials; should eventually be complete but
+ * that will take a while.
  */
 public object Canon : Authority() {
 

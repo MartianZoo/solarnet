@@ -154,8 +154,8 @@ data class CardDefinition(
   val tags: List<ClassName> = tagsText.map(::cn)
 
   /**
-   * The type of `CardResource` this card can hold, if any. If this is non-null, the class this
-   * card is converted into will have a supertype of `ResourcefulCard<ThatResourceType>`.
+   * The type of `CardResource` this card can hold, if any. If this is non-null, the class this card
+   * is converted into will have a supertype of `ResourcefulCard<ThatResourceType>`.
    */
   val resourceType: ClassName? = resourceTypeText?.let(::cn)
 
@@ -169,9 +169,9 @@ data class CardDefinition(
   val requirement by ::requirementRaw
 
   val allEffects: Set<Effect> by lazy {
-    (listOfNotNull(immediateRaw).map { immediateToEffect(it) } +
-        effectsRaw +
-        actionsToEffects(actionsRaw))
+    (listOfNotNull(immediateRaw).map(::immediateToEffect) +
+            effectsRaw +
+            actionsToEffects(actionsRaw))
         .toSetStrict()
   }
 

@@ -225,7 +225,8 @@ sealed class Instruction : PetNode() {
               if (sat == null) instr else Per(instr, sat)
             }
 
-        val transform: Parser<Transform> = transform(parser()) map { (node, tname) -> Transform(node, tname) }
+        val transform: Parser<Transform> =
+            transform(parser()) map { (node, tname) -> Transform(node, tname) }
         val maybeTransform: Parser<Instruction> = maybePer or transform
 
         val arguments = separatedTerms(typeExpr, char(','), acceptZero = true)

@@ -249,12 +249,15 @@ internal object ClassDeclarationParsers : PetParser() {
     abstract val decl: ClassDeclaration
     abstract fun unnestOneFrom(container: ClassName): NestableDecl
 
-    fun finishAtTopLevel(): ClassDeclaration =
-        if (decl.name == COMPONENT || decl.supertypes.any()) {
-          decl
-        } else {
-          decl.copy(supertypes = setOf(COMPONENT.type))
-        }.also { it.validate() }
+    fun finishAtTopLevel(): ClassDeclaration {
+      val result = if (decl.name == COMPONENT || decl.supertypes.any()) {
+        decl
+      } else {
+        decl.copy(supertypes = setOf(COMPONENT.type))
+      }
+      result.validate()
+      return result
+    }
 
     data class IncompleteNestableDecl(override val decl: ClassDeclaration) : NestableDecl() {
       constructor(

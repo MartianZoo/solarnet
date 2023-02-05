@@ -79,7 +79,8 @@ internal object LiveNodes {
 
     override fun times(factor: Int) = Per(ptype, unit, instruction * factor)
 
-    override fun execute(game: Game) = (instruction * (game.countComponents(ptype) / unit)).execute(game)
+    override fun execute(game: Game) =
+        (instruction * (game.countComponents(ptype) / unit)).execute(game)
   }
 
   class Gated(private val gate: LiveRequirement, val instruction: LiveInstruction) :

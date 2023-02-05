@@ -183,13 +183,15 @@ internal constructor(
    */
   val classEffects: List<Effect> by lazy {
     val xer = loader.transformer
-    declaration.effectsRaw.map { effect ->
-      var fx = effect
-      fx = xer.deprodify(fx)
-      fx = xer.applyGainDefaultsIn(fx)
-      fx = xer.addOwner(fx)
-      fx
-    }.sortedWith(effectComparator)
+    declaration.effectsRaw
+        .map { effect ->
+          var fx = effect
+          fx = xer.deprodify(fx)
+          fx = xer.applyGainDefaultsIn(fx)
+          fx = xer.addOwner(fx)
+          fx
+        }
+        .sortedWith(effectComparator)
   }
 
   private val effectComparator: Comparator<Effect> =
@@ -199,7 +201,7 @@ internal constructor(
             when {
               t == WhenGain -> if (it.automatic) -1 else 0
               t == WhenRemove -> if (it.automatic) 1 else 2
-              t is OnGainOf && t.typeExpr.className.toString().startsWith(USE_ACTION.toString()) -> 4
+              t is OnGainOf && "${t.typeExpr.className}".startsWith("$USE_ACTION") -> 4
               t == OnGainOf.create(END.type) -> 5
               else -> 3
             }

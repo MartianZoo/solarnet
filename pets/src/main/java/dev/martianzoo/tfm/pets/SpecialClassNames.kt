@@ -4,9 +4,9 @@ import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 
 /**
  * [ClassName] instances for all component types of special significance to the implementation code.
- * Of course, a particular class name does not *have* to be in this list to be usable from the
- * code, but this habit makes it easier to "find usages" etc. to see how the component types are
- * being used. Or rename, etc.
+ * Of course, a particular class name does not *have* to be in this list to be usable from the code,
+ * but this habit makes it easier to "find usages" etc. to see how the component types are being
+ * used. Or rename, etc.
  */
 object SpecialClassNames {
   val ANYONE = cn("Anyone")

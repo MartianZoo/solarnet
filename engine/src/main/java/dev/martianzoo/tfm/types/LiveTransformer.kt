@@ -13,9 +13,7 @@ import dev.martianzoo.tfm.pets.ast.ScalarAndType.Companion.sat
 import dev.martianzoo.tfm.pets.ast.TypeExpr
 import dev.martianzoo.util.toSetStrict
 
-/**
- * Offers various functions for transforming [PetNode] subtrees that depend on a [PClassLoader].
- */
+/** Offers various functions for transforming [PetNode] subtrees that depend on a [PClassLoader]. */
 public class LiveTransformer internal constructor(val loader: PClassLoader) {
   /**
    * Resolves `PROD[...]` regions by replacing, for example, `Steel<Player2>` with

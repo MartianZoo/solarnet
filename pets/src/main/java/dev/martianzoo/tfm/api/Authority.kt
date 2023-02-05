@@ -83,7 +83,8 @@ public abstract class Authority {
 
   // MARS MAPS
 
-  public fun marsMap(name: ClassName): MarsMapDefinition = marsMapDefinitions.first { it.name == name }
+  public fun marsMap(name: ClassName): MarsMapDefinition =
+      marsMapDefinitions.first { it.name == name }
 
   public abstract val marsMapDefinitions: Collection<MarsMapDefinition>
 

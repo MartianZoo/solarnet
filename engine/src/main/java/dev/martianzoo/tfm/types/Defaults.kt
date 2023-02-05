@@ -31,7 +31,8 @@ internal class Defaults(
   // but otherwise attempt to find agreement among all of `defaultses`.
   fun overlayOn(defaultses: List<Defaults>): Defaults {
     return Defaults(
-        allCasesDependencies, // overlayDMs(allCasesDependencies, defaultses.map { it.allCasesDependencies }),
+        allCasesDependencies, // overlayDMs(allCasesDependencies, defaultses.map {
+                              // it.allCasesDependencies }),
         overlayDMs(gainOnlyDependencies, defaultses.map { it.gainOnlyDependencies }),
         overlayIntensities(defaultses) { it.gainIntensity })
   }
@@ -60,10 +61,7 @@ internal class Defaults(
       if (key !in defMap) {
         // TODO some orders might work when others don't
         val depMapsWithThisKey = otherUns.filter { key in it }
-        defMap[key] =
-            depMapsWithThisKey
-                .map { it[key]!! }
-                .reduce { a, b -> a.intersect(b)!! }
+        defMap[key] = depMapsWithThisKey.map { it[key]!! }.reduce { a, b -> a.intersect(b)!! }
       }
     }
     return DependencyMap(defMap)

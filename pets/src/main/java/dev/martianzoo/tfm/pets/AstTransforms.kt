@@ -55,39 +55,41 @@ public object AstTransforms {
   }
 
   public fun <P : PetNode> replaceTypes(node: P, from: TypeExpr, to: TypeExpr): P {
-    val xer = object : PetTransformer() {
-      override fun <P : PetNode> transform(node: P): P =
-          if (node == from) {
-            @Suppress("UNCHECKED_CAST")
-            to as P
-          } else {
-            defaultTransform(node)
-          }
-    }
+    val xer =
+        object : PetTransformer() {
+          override fun <P : PetNode> transform(node: P): P =
+              if (node == from) {
+                @Suppress("UNCHECKED_CAST")
+                to as P
+              } else {
+                defaultTransform(node)
+              }
+        }
     return xer.transform(node)
   }
 
   /** Transform any `PROD[...]` sections in a subtree to the equivalent subtree. */
   public fun <P : PetNode> deprodify(node: P, producible: Set<ClassName>): P {
-    val xer = object : PetTransformer() {
-      var inProd: Boolean = false
+    val xer =
+        object : PetTransformer() {
+          var inProd: Boolean = false
 
-      override fun <P : PetNode> transform(node: P): P {
-        val rewritten: PetNode =
-            when {
-              node is GenericTransform<*> &&
-                  node.transform == "PROD" -> { // TODO: support multiple better
-                require(!inProd)
-                inProd = true
-                x(node.extract()).also { inProd = false }
-              }
-              inProd && node is TypeExpr && node.className in producible ->
-                  PRODUCTION.addArgs(node.arguments + CLASS.addArgs(node.className))
-              else -> defaultTransform(node)
-            }
-        @Suppress("UNCHECKED_CAST") return rewritten as P
-      }
-    }
+          override fun <P : PetNode> transform(node: P): P {
+            val rewritten: PetNode =
+                when {
+                  node is GenericTransform<*> &&
+                      node.transform == "PROD" -> { // TODO: support multiple better
+                    require(!inProd)
+                    inProd = true
+                    x(node.extract()).also { inProd = false }
+                  }
+                  inProd && node is TypeExpr && node.className in producible ->
+                      PRODUCTION.addArgs(node.arguments + CLASS.addArgs(node.className))
+                  else -> defaultTransform(node)
+                }
+            @Suppress("UNCHECKED_CAST") return rewritten as P
+          }
+        }
     return xer.transform(node)
   }
 

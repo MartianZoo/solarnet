@@ -50,9 +50,9 @@ internal sealed class Dependency {
 
   /**
    * A dependency used *only* by types of the class `Class`; for example `Class<Foo>` (in which
-   * example `pclass.name` is `"Foo"`). No other class can use this; for example, one cannot
-   * declare that the dependency in `Production<Plant>` is a "class dependency" on `Plant`, so
-   * instead we use `Production<Class<Plant>>`.
+   * example `pclass.name` is `"Foo"`). No other class can use this; for example, one cannot declare
+   * that the dependency in `Production<Plant>` is a "class dependency" on `Plant`, so instead we
+   * use `Production<Class<Plant>>`.
    */
   data class ClassDependency(val pclass: PClass) : Dependency() {
     companion object {
