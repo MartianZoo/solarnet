@@ -156,4 +156,8 @@ public class PClassLoader(
   private fun decl(cn: ClassName) = authority.classDeclaration(cn)
 
   public val transformer: LiveTransformer by lazy { LiveTransformer(this) }
+
+  public val allInvariants by lazy {
+
+  }
 }

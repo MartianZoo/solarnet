@@ -1,15 +1,20 @@
 package dev.martianzoo.tfm.types
 
 import dev.martianzoo.tfm.data.ClassDeclaration
+import dev.martianzoo.tfm.pets.AstTransforms
+import dev.martianzoo.tfm.pets.PetTransformer
 import dev.martianzoo.tfm.pets.SpecialClassNames.CLASS
 import dev.martianzoo.tfm.pets.SpecialClassNames.COMPONENT
 import dev.martianzoo.tfm.pets.SpecialClassNames.END
+import dev.martianzoo.tfm.pets.SpecialClassNames.THIS
 import dev.martianzoo.tfm.pets.SpecialClassNames.USE_ACTION
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.Effect
 import dev.martianzoo.tfm.pets.ast.Effect.Trigger.OnGainOf
 import dev.martianzoo.tfm.pets.ast.Effect.Trigger.WhenGain
 import dev.martianzoo.tfm.pets.ast.Effect.Trigger.WhenRemove
+import dev.martianzoo.tfm.pets.ast.PetNode
+import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.pets.ast.TypeExpr
 import dev.martianzoo.tfm.types.Dependency.ClassDependency
 import dev.martianzoo.tfm.types.Dependency.ClassDependency.Companion.KEY
@@ -224,6 +229,25 @@ internal constructor(
           directSuperclasses.any { it.isSingleton() }
 
   internal fun findMatchups(specs: List<PType>) = baseType.allDependencies.findMatchups(specs)
+
+  /**
+   * Returns a set of absolute invariants that must always be true; note that these can contain
+   * references to the type `This`, which are to be substituted with the concrete type.
+   */
+  public val invariants: Set<Requirement> by lazy {
+    val xer = object : PetTransformer() {
+      override fun <P : PetNode> transform(node: P): P {
+        // for now, add <This> indiscriminately to this type but don't recurse *its* refinement
+        return if (node is TypeExpr) {
+          node.addArgs(THIS) as P
+        } else {
+          defaultTransform(node)
+        }
+      }
+    }
+    val topInvariants = listOfNotNull(declaration.topInvariant).map { xer.transform(it) }
+    declaration.otherInvariants + topInvariants
+  }
 
   override fun toString() = "$name"
 

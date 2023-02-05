@@ -6,6 +6,7 @@ import dev.martianzoo.tfm.pets.SpecialClassNames.COMPONENT
 import dev.martianzoo.tfm.pets.SpecialClassNames.DIE
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.tfm.pets.ast.Requirement.Companion.requirement
 import dev.martianzoo.tfm.pets.ast.TypeExpr.Companion.typeExpr
 import dev.martianzoo.util.random
 import dev.martianzoo.util.toStrings
@@ -54,7 +55,24 @@ private class PClassCanonTest {
     table.allClasses.forEach { it.classEffects }
   }
 
-  // @Disabled
+  @Test fun classInvariants() {
+    val table = PClassLoader(Canon).loadEverything()
+    val temp = table.getClass(cn("TemperatureStep"))
+    assertThat(temp.invariants).containsExactly(
+        requirement("MAX 19 This")
+    )
+    val ocean = table.getClass(cn("OceanTile"))
+    assertThat(ocean.invariants).containsExactly(
+        requirement("MAX 9 OceanTile")
+    )
+    val area = table.getClass(cn("Area"))
+    assertThat(area.invariants).containsExactly(
+        requirement("MAX 1 This"),
+        requirement("MAX 1 Tile<This>"),
+    )
+  }
+
+  @Disabled
   @Test
   fun describeManyClasses() {
     val table = PClassLoader(Canon).loadEverything()
