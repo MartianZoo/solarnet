@@ -2,8 +2,8 @@ package dev.martianzoo.tfm.engine
 
 import dev.martianzoo.tfm.api.GameSetup
 import dev.martianzoo.tfm.api.GameState
-import dev.martianzoo.tfm.data.StateChange
-import dev.martianzoo.tfm.data.StateChange.Cause
+import dev.martianzoo.tfm.data.ChangeLogEntry
+import dev.martianzoo.tfm.data.ChangeLogEntry.Cause
 import dev.martianzoo.tfm.pets.ast.Instruction
 import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.pets.ast.TypeExpr
@@ -22,8 +22,9 @@ public class Game(
 
   val authority by setup::authority
 
-  // TODO maybe have `beginChangeLogging` instead of passing in a prebuilt multiset
-  fun changeLog(): List<StateChange> = components.changeLog()
+  fun changeLog(): List<ChangeLogEntry> = changeLogFull().filterNot { it.hidden }
+
+  fun changeLogFull(): List<ChangeLogEntry> = components.changeLog()
 
   fun resolveType(typeExpr: TypeExpr): PType = loader.resolveType(typeExpr)
 
@@ -42,15 +43,22 @@ public class Game(
 
   fun execute(instr: Instruction) = LiveNodes.from(instr, this).execute(this)
 
+  // Doesn't belong exactly here? TODO
   fun applyChange(
-      count: Int,
+      count: Int = 1,
       removing: Component? = null,
       gaining: Component? = null,
       amap: Boolean = false,
       cause: Cause? = null,
+      hidden: Boolean = false,
   ) {
     components.applyChange(
-        count = count, removing = removing, gaining = gaining, amap = amap, cause = cause)
+        count = count,
+        removing = removing,
+        gaining = gaining,
+        amap = amap,
+        cause = cause,
+        hidden = hidden)
   }
 
   // TODO why don't we still implement this directly??

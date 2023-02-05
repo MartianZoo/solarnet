@@ -106,7 +106,12 @@ public class ReplSession(private val authority: Authority) {
           "changes" to
               { args ->
                 args?.let { listOf("Arguments unexpected: $it") }
-                    ?: session.game!!.changeLog().toStrings().mapIndexed { i, s -> "$i: $s" }
+                    ?: session.game!!.changeLog().toStrings()
+              },
+          "changesfull" to
+              { args ->
+                args?.let { listOf("Arguments unexpected: $it") }
+                    ?: session.game!!.changeLogFull().toStrings()
               },
           "exec" to
               {

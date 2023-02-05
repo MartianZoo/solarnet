@@ -91,7 +91,7 @@ ABSTRACT CLASS HasActions {                                 // the specific acti
     ABSTRACT CLASS StandardAction, StandardProject
 }
 
-CLASS Generation { HAS 1 This }                             // we're always in at least gen 1
+CLASS Generation
 
 ABSTRACT CLASS Generational {                               // things that disappear between gens
     Generation:: -This                                      // <-- and look, there they go

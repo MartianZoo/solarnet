@@ -14,6 +14,7 @@ object SpecialClassNames {
   val COMPONENT = cn("Component")
   val DIE = cn("Die")
   val END = cn("End")
+  val GAME = cn("Game")
   val MEGACREDIT = cn("Megacredit")
   val OK = cn("Ok")
   val OWNED = cn("Owned")

@@ -3,7 +3,7 @@ package dev.martianzoo.tfm.engine
 import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.tfm.api.GameSetup
 import dev.martianzoo.tfm.canon.Canon
-import dev.martianzoo.tfm.data.StateChange
+import dev.martianzoo.tfm.data.ChangeLogEntry.StateChange
 import dev.martianzoo.tfm.pets.ast.Instruction.Companion.instruction
 import dev.martianzoo.tfm.pets.ast.Requirement.Companion.requirement
 import dev.martianzoo.tfm.pets.ast.TypeExpr.Companion.typeExpr
@@ -43,7 +43,7 @@ private class GameApiTest {
     assertThat(game.isMet("=3 Heat<Player2>")).isTrue()
     assertThat(game.isMet("=5 Heat<Player3>")).isTrue()
 
-    assertThat(game.changeLog())
+    assertThat(game.changeLog().map { it.change })
         .containsExactly(
             StateChange(5, gaining = typeExpr("Heat<Player2>")),
             StateChange(10, gaining = typeExpr("Heat<Player3>")),
@@ -55,13 +55,13 @@ private class GameApiTest {
         )
         .inOrder()
 
-    assertThat(game.changeLog().toStrings())
+    assertThat(game.changeLog().toStrings().map { it.replace(Regex("^\\d+"), "")})
         .containsExactly(
-            "5 Heat<Player2>",
-            "10 Heat<Player3>",
-            "-4 Heat<Player2>",
-            "3 Steel<Player3> FROM Heat<Player3>",
-            "2 Heat<Player2> FROM Heat<Player3>",
+            ": 5 Heat<Player2>",
+            ": 10 Heat<Player3>",
+            ": -4 Heat<Player2>",
+            ": 3 Steel<Player3> FROM Heat<Player3>",
+            ": 2 Heat<Player2> FROM Heat<Player3>",
         )
         .inOrder()
   }

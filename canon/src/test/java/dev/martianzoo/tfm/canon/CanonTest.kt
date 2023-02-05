@@ -134,9 +134,9 @@ private class CanonTest {
     assertThat(
             startingComponents.filterNot { isArea(it) || isBorder(it) || isClass(it) }.toStrings())
         .containsExactly(
-            "[Player1]", "[Player2]", "[Player3]",
-            "[Generation]",
+            "[Game]",
             "[Tharsis]",
+            "[Player1]", "[Player2]", "[Player3]",
             "[PlayCardFromHand]", "[UseStandardProject]", "[ClaimMilestone]",
             "[UseActionFromCard]", "[ConvertHeat]", "[ConvertPlants]",
             "[SellPatents]",

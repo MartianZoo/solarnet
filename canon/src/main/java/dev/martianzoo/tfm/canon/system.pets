@@ -2,9 +2,16 @@ ABSTRACT CLASS Component {                                  // Component is the 
     DEFAULT +This!                                          // no need to write `: Component`; it's assumed
 }
 
-CLASS Class<Component> { HAS =1 This }
-
 ABSTRACT CLASS System
+
+CLASS Class<Component> : System {                           // I think this declaration is actually ignored TODO
+    HAS =1 This
+}
+
+CLASS Game : System {
+    HAS =1 This                                             // @createSingletons explicitly ignores this one
+    This:: @createSingletons()                              // TODO actually process this
+}
 
 ABSTRACT CLASS Temporary {                                  // anything that can never survive across actions
 

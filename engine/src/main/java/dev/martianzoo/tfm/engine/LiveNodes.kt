@@ -3,7 +3,7 @@ package dev.martianzoo.tfm.engine
 import dev.martianzoo.tfm.api.CustomInstruction
 import dev.martianzoo.tfm.api.CustomInstruction.ExecuteInsteadException
 import dev.martianzoo.tfm.api.standardResourceNames
-import dev.martianzoo.tfm.data.StateChange
+import dev.martianzoo.tfm.data.ChangeLogEntry.StateChange
 import dev.martianzoo.tfm.pets.AstTransforms.deprodify
 import dev.martianzoo.tfm.pets.ast.Effect
 import dev.martianzoo.tfm.pets.ast.Effect.Trigger

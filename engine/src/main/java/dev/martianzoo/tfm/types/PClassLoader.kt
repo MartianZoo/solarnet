@@ -4,6 +4,7 @@ import dev.martianzoo.tfm.api.Authority
 import dev.martianzoo.tfm.data.ClassDeclaration
 import dev.martianzoo.tfm.pets.SpecialClassNames.CLASS
 import dev.martianzoo.tfm.pets.SpecialClassNames.COMPONENT
+import dev.martianzoo.tfm.pets.SpecialClassNames.GAME
 import dev.martianzoo.tfm.pets.SpecialClassNames.OWNER
 import dev.martianzoo.tfm.pets.SpecialClassNames.PRODUCTION
 import dev.martianzoo.tfm.pets.SpecialClassNames.THIS
@@ -37,7 +38,7 @@ public class PClassLoader(
 
   // UGLY HACKS!
   init {
-    for (c in setOf(PRODUCTION, OWNER, cn("GrossHack"), cn("MetalHandler"))) {
+    for (c in setOf(GAME, PRODUCTION, cn("GrossHack"), cn("MetalHandler"))) {
       if (c in authority.allClassNames) {
         load(c)
       }
