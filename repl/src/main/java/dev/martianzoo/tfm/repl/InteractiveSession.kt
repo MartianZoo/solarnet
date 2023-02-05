@@ -4,6 +4,7 @@ import dev.martianzoo.tfm.api.GameSetup
 import dev.martianzoo.tfm.engine.Component
 import dev.martianzoo.tfm.engine.Engine
 import dev.martianzoo.tfm.engine.Game
+import dev.martianzoo.tfm.pets.AstTransforms.replaceTypes
 import dev.martianzoo.tfm.pets.SpecialClassNames.OWNER
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
@@ -11,7 +12,6 @@ import dev.martianzoo.tfm.pets.ast.Instruction
 import dev.martianzoo.tfm.pets.ast.PetNode
 import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.pets.ast.TypeExpr
-import dev.martianzoo.tfm.pets.AstTransforms.replaceTypes
 import dev.martianzoo.tfm.types.PType
 import dev.martianzoo.util.HashMultiset
 import dev.martianzoo.util.Multiset
@@ -76,7 +76,7 @@ class InteractiveSession {
     result = xer.deprodify(result)
     result = xer.addOwner(result)
     if (defaultPlayer != null) {
-      result = result.replaceTypes(OWNER.type, defaultPlayer!!.type) // TODO
+      result = replaceTypes(result, OWNER.type, defaultPlayer!!.type) // TODO
     }
     return result
   }

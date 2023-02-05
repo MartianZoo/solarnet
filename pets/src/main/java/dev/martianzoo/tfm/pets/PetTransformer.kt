@@ -15,16 +15,10 @@ import dev.martianzoo.util.toSetStrict
 
 /** Extend this to implement transformations over trees of [PetNode]s. */
 public abstract class PetTransformer {
-
-  public companion object {
-    public fun <P : PetNode> P.transform(v: PetTransformer): P = v.doTransform(this)
-    public fun <P : PetNode> Iterable<P>.transform(v: PetTransformer): List<P> = map(v::doTransform)
-    public fun <P : PetNode> Set<P>.transform(v: PetTransformer): Set<P> =
-        (this as Iterable<P>).transform(v).toSetStrict()
-  }
-
   /**
-   * As the tree is traversed each node will be passed here.
+   * Returns an altered form of the [node] tree.
+   *
+   * Implementation notes:
    *
    * * If you simply return [node] or some hardcoded subtree, that prevents child subtrees from
    *   being traversed.
@@ -33,7 +27,7 @@ public abstract class PetTransformer {
    * * To transform a single child subtree you can pass it to [x]. It will accept iterables of
    *   nodes or a nullable node. TODO fix this.
    */
-  protected abstract fun <P : PetNode> doTransform(node: P): P
+  public abstract fun <P : PetNode> transform(node: P): P
 
   protected fun <P : PetNode> defaultTransform(node: P): P {
     return (node as PetNode).run {
@@ -93,10 +87,8 @@ public abstract class PetTransformer {
     }
   }
 
-  protected fun <P : PetNode?> x(node: P): P {
-    @Suppress("UNCHECKED_CAST") return node?.let(::doTransform) as P
-  }
-
+  @Suppress("UNCHECKED_CAST")
+  protected fun <P : PetNode?> x(node: P): P = node?.let(::transform) as P
   protected fun <P : PetNode> x(nodes: Iterable<P>): List<P> = nodes.map(::x)
   protected fun <P : PetNode> x(nodes: Set<P>): Set<P> = x(nodes as Iterable<P>).toSetStrict()
 }

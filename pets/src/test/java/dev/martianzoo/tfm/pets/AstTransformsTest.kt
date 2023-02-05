@@ -5,8 +5,9 @@ import dev.martianzoo.tfm.pets.AstTransforms.actionToEffect
 import dev.martianzoo.tfm.pets.AstTransforms.actionsToEffects
 import dev.martianzoo.tfm.pets.AstTransforms.deprodify
 import dev.martianzoo.tfm.pets.AstTransforms.immediateToEffect
-import dev.martianzoo.tfm.pets.AstTransforms.replaceThis
+import dev.martianzoo.tfm.pets.AstTransforms.replaceTypes
 import dev.martianzoo.tfm.pets.Parsing.parseElement
+import dev.martianzoo.tfm.pets.SpecialClassNames.THIS
 import dev.martianzoo.tfm.pets.ast.Action
 import dev.martianzoo.tfm.pets.ast.Action.Companion.action
 import dev.martianzoo.tfm.pets.ast.ClassName
@@ -106,7 +107,7 @@ private class AstTransformsTest {
   ) {
     val parsedOriginal = parseElement(type, original)
     val parsedExpected = parseElement(type, expected)
-    val tx = replaceThis(parsedOriginal, thiss)
+    val tx = replaceTypes(parsedOriginal, THIS.type, thiss)
     assertThat(tx).isEqualTo(parsedExpected)
 
     // more round-trip checking doesn't hurt

@@ -1,6 +1,5 @@
 package dev.martianzoo.tfm.pets
 
-import dev.martianzoo.tfm.pets.PetTransformer.Companion.transform
 import dev.martianzoo.tfm.pets.SpecialClassNames.CLASS
 import dev.martianzoo.tfm.pets.SpecialClassNames.PRODUCTION
 import dev.martianzoo.tfm.pets.SpecialClassNames.THIS
@@ -55,52 +54,41 @@ public object AstTransforms {
     return Effect(WhenGain, instruction, automatic = false)
   }
 
-  /**
-   * Transforms any occurrences of the type `This` to [resolveTo]. Note that `This:` effect triggers
-   * are not affected, as they are treated as a special syntax and not an occurrence of the type
-   */
-  public fun <P : PetNode> replaceThis(node: P, resolveTo: TypeExpr) =
-      node.replaceTypes(THIS.type, resolveTo) // TODO class types?
-
-  public fun <P : PetNode> P.replaceTypes(from: TypeExpr, to: TypeExpr): P {
-    return replaceTypesIn(this, from, to)
+  public fun <P : PetNode> replaceTypes(node: P, from: TypeExpr, to: TypeExpr): P {
+    val xer = object : PetTransformer() {
+      override fun <P : PetNode> transform(node: P): P =
+          if (node == from) {
+            @Suppress("UNCHECKED_CAST")
+            to as P
+          } else {
+            defaultTransform(node)
+          }
+    }
+    return xer.transform(node)
   }
-
-  internal fun <P : PetNode> replaceTypesIn(node: P, from: TypeExpr, to: TypeExpr) =
-      node.transform(
-          object : PetTransformer() {
-            override fun <P : PetNode> doTransform(node: P): P =
-                if (node == from) {
-                  @Suppress("UNCHECKED_CAST")
-                  to as P
-                } else {
-                  defaultTransform(node)
-                }
-          })
 
   /** Transform any `PROD[...]` sections in a subtree to the equivalent subtree. */
   public fun <P : PetNode> deprodify(node: P, producible: Set<ClassName>): P {
-    val deprodifier =
-        object : PetTransformer() {
-          var inProd: Boolean = false
+    val xer = object : PetTransformer() {
+      var inProd: Boolean = false
 
-          override fun <P : PetNode> doTransform(node: P): P {
-            val rewritten: PetNode =
-                when {
-                  node is GenericTransform<*> &&
-                      node.transform == "PROD" -> { // TODO: support multiple better
-                    require(!inProd)
-                    inProd = true
-                    x(node.extract()).also { inProd = false }
-                  }
-                  inProd && node is TypeExpr && node.className in producible ->
-                      PRODUCTION.addArgs(node.arguments + CLASS.addArgs(node.className))
-                  else -> defaultTransform(node)
-                }
-            @Suppress("UNCHECKED_CAST") return rewritten as P
-          }
-        }
-    return node.transform(deprodifier)
+      override fun <P : PetNode> transform(node: P): P {
+        val rewritten: PetNode =
+            when {
+              node is GenericTransform<*> &&
+                  node.transform == "PROD" -> { // TODO: support multiple better
+                require(!inProd)
+                inProd = true
+                x(node.extract()).also { inProd = false }
+              }
+              inProd && node is TypeExpr && node.className in producible ->
+                  PRODUCTION.addArgs(node.arguments + CLASS.addArgs(node.className))
+              else -> defaultTransform(node)
+            }
+        @Suppress("UNCHECKED_CAST") return rewritten as P
+      }
+    }
+    return xer.transform(node)
   }
 
   /**
@@ -108,18 +96,12 @@ public object AstTransforms {
    * either `Owner` or `Anyone` as a type argument, adds `Owner` as a type argument. This is
    * implementing what the code `class Owned { DEFAULT This<Owner> ... }` is already trying to
    * express, but I haven't gotten that working in a general way yet.
-   *
-   * TODO move this to `pets` module
    */
-  public fun <P : PetNode> addOwner( // move it? TODO
-      node: P,
-      owners: Set<ClassName>,
-      owneds: Set<ClassName>
-  ): P {
+  public fun <P : PetNode> addOwner(node: P, owners: Set<ClassName>, owneds: Set<ClassName>): P {
     fun hasOwner(typeExprs: List<TypeExpr>) = typeExprs.intersect(owners.map { it.type }).none()
-    val pwner =
+    val xer =
         object : PetTransformer() {
-          override fun <Q : PetNode> doTransform(node: Q): Q {
+          override fun <Q : PetNode> transform(node: Q): Q {
             return if (node !is TypeExpr) {
               defaultTransform(node)
             } else if (node.className == CLASS) {
@@ -131,6 +113,6 @@ public object AstTransforms {
             }
           }
         }
-    return node.transform(pwner)
+    return xer.transform(node)
   }
 }

@@ -2,11 +2,8 @@ package dev.martianzoo.tfm.types
 
 import dev.martianzoo.tfm.pets.AstTransforms
 import dev.martianzoo.tfm.pets.PetTransformer
-import dev.martianzoo.tfm.pets.PetTransformer.Companion.transform
 import dev.martianzoo.tfm.pets.SpecialClassNames.ANYONE
-import dev.martianzoo.tfm.pets.SpecialClassNames.CLASS
 import dev.martianzoo.tfm.pets.SpecialClassNames.OWNED
-import dev.martianzoo.tfm.pets.SpecialClassNames.OWNER
 import dev.martianzoo.tfm.pets.SpecialClassNames.STANDARD_RESOURCE
 import dev.martianzoo.tfm.pets.SpecialClassNames.THIS
 import dev.martianzoo.tfm.pets.ast.ClassName
@@ -41,11 +38,10 @@ public class LiveTransformer internal constructor(val loader: PClassLoader) {
    * `GreeneryTile<Owner, LandArea(HAS? Neighbor<OwnedTile<Me>>)>`. (Search `DEFAULT` in any
    * `*.pets` files for other examples.)
    */
-  public fun <P : PetNode> applyGainDefaultsIn(node: P) =
-      node.transform(Defaulter(loader))
+  public fun <P : PetNode> applyGainDefaultsIn(node: P) = Defaulter(loader).transform(node)
 
   private class Defaulter(val loader: PClassLoader) : PetTransformer() {
-    override fun <P : PetNode> doTransform(node: P): P {
+    override fun <P : PetNode> transform(node: P): P {
       if (node !is Gain) return defaultTransform(node)
       val writtenType = node.sat.typeExpr
       val defaults = loader.getClass(writtenType.className).defaults
@@ -63,14 +59,13 @@ public class LiveTransformer internal constructor(val loader: PClassLoader) {
   }
 
   internal fun <P : PetNode> unreplaceThis(node: P, context: PClass) =
-      node.transform(
-          object : PetTransformer() {
-            override fun <P : PetNode> doTransform(node: P): P =
-                if (node is TypeExpr && context.isBaseType(node)) {
-                  @Suppress("UNCHECKED_CAST")
-                  THIS.type as P
-                } else {
-                  defaultTransform(node)
-                }
-          })
+      object : PetTransformer() {
+        override fun <P : PetNode> transform(node: P): P =
+            if (node is TypeExpr && context.isBaseType(node)) {
+              @Suppress("UNCHECKED_CAST")
+              THIS.type as P
+            } else {
+              defaultTransform(node)
+            }
+      }.transform(node)
 }
