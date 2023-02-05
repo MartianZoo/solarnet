@@ -69,25 +69,18 @@ public object AstTransforms {
 
   private class Defaulter(val loader: PClassLoader) : PetTransformer() {
     override fun <P : PetNode> doTransform(node: P): P {
-      val transformed: PetNode =
-          when (node) {
-            is Gain -> {
-              // this should be the real source form because we should run first
-              val writtenType = node.sat.typeExpr
-              val defaults = loader.getClass(writtenType.className).defaults
-              val fixedType =
-                  if (writtenType.isTypeOnly) {
-                    val deps: Collection<Dependency> = defaults.gainOnlyDependencies.types
-                    writtenType
-                        .addArgs(deps.map { it.toTypeExprFull() })
-                        .refine(writtenType.refinement)
-                  } else {
-                    writtenType
-                  }
-              Gain(sat(node.sat.scalar, x(fixedType)), node.intensity ?: defaults.gainIntensity)
-            }
-            else -> defaultTransform(node)
+      if (node !is Gain) return defaultTransform(node)
+      val writtenType = node.sat.typeExpr
+      val defaults = loader.getClass(writtenType.className).defaults
+      val fixedType =
+          if (writtenType.isTypeOnly) {
+            val deps: Collection<Dependency> = defaults.gainOnlyDependencies.types
+            writtenType.addArgs(deps.map { it.toTypeExprMinimal() }).refine(writtenType.refinement)
+          } else {
+            writtenType
           }
+      val transformed =
+          Gain(sat(node.sat.scalar, x(fixedType)), node.intensity ?: defaults.gainIntensity)
       @Suppress("UNCHECKED_CAST") return transformed as P
     }
   }

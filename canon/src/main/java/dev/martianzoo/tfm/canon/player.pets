@@ -6,7 +6,7 @@ ABSTRACT CLASS Anyone {                                     // This would be cal
     HAS =1 This                                             // reading, `CityTile<Anyone>` makes more sense
 
     ABSTRACT CLASS Owner { // not sure about this
-        This:: 20 TerraformRating                               // no solo mode yet
+        This:: 20 TerraformRating                           // no solo mode yet
 
         CLASS Player1, Player2, Player3, Player4, Player5
     }
@@ -32,7 +32,7 @@ ABSTRACT CLASS Owned<Anyone> {
 
     ABSTRACT CLASS OwnedTile : Tile, Owned {
         CLASS GreeneryTile : Tile<MarsArea> {
-            DEFAULT +This<LandArea(HAS Neighbor<OwnedTile>)>// TODO this needs to use `HAS?` or something
+            DEFAULT +This<LandArea(HAS Neighbor<OwnedTile>)>// This needs to use `HAS?` or something TODO
 
             This: OxygenStep
             End: VictoryPoint
@@ -57,7 +57,7 @@ ABSTRACT CLASS Owned<Anyone> {
             CLASS Energy { ProductionPhase:: Heat FROM This }
         }
 
-        ABSTRACT CLASS CardResource : Cardbound<ResourcefulCard<Class<CardResource>>> { // TODO This .CLASS
+        ABSTRACT CLASS CardResource : Cardbound<ResourcefulCard<Class<CardResource>>> {
             DEFAULT +This.
 
             // All others are card-specific; see cards.json5
@@ -118,8 +118,8 @@ ABSTRACT CLASS Owned<Anyone> {
 
 // ACTIONS -------------------------------------------------
 
-    ABSTRACT CLASS UseAction<HasActions> : Signal {         // TODO How to make owner same, when HasActions has both
-        CLASS UseAction1, UseAction2                        // owned and unowned subclasses?
+    ABSTRACT CLASS UseAction<HasActions> : Signal {         // How to make owner same, when HasActions has both
+        CLASS UseAction1, UseAction2                        // owned and unowned subclasses? TODO
     }
 
     // TODO still consider inverting this?

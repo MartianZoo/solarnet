@@ -31,7 +31,7 @@ internal class Defaults(
   // but otherwise attempt to find agreement among all of `defaultses`.
   fun overlayOn(defaultses: List<Defaults>): Defaults {
     return Defaults(
-        overlayDMs(allCasesDependencies, defaultses.map { it.allCasesDependencies }),
+        allCasesDependencies, // overlayDMs(allCasesDependencies, defaultses.map { it.allCasesDependencies }),
         overlayDMs(gainOnlyDependencies, defaultses.map { it.gainOnlyDependencies }),
         overlayIntensities(defaultses) { it.gainIntensity })
   }
