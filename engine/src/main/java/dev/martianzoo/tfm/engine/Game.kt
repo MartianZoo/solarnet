@@ -22,9 +22,9 @@ public class Game(
 
   val authority by setup::authority
 
-  fun changeLog(): List<ChangeLogEntry> = changeLogFull().filterNot { it.hidden }
+  fun changeLog(): List<ChangeLogEntry> = components.changeLog()
 
-  fun changeLogFull(): List<ChangeLogEntry> = components.changeLog()
+  fun changeLogFull(): List<ChangeLogEntry> = components.changeLogFull()
 
   fun resolveType(typeExpr: TypeExpr): PType = loader.resolveType(typeExpr)
 

@@ -11,15 +11,12 @@ import dev.martianzoo.util.MutableMultiset
 import dev.martianzoo.util.filter
 
 /** All the components making up the state of a single [Game]. */
-public class ComponentGraph(startingWith: Collection<Component> = listOf()) {
+public class ComponentGraph {
   private val multiset: MutableMultiset<Component> = HashMultiset()
   private val changeLog: MutableList<ChangeLogEntry> = mutableListOf()
 
-  init {
-    multiset.addAll(startingWith)
-  }
-
-  public fun changeLog() = changeLog.toList()
+  public fun changeLogFull() = changeLog.toList()
+  public fun changeLog() = changeLog.filterNot { it.hidden }.toList()
 
   public fun applyChange(
       count: Int = 1,
