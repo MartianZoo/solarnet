@@ -1,3 +1,4 @@
+
 package dev.martianzoo.tfm.engine
 
 import dev.martianzoo.tfm.data.ChangeLogEntry
@@ -26,6 +27,20 @@ public class ComponentGraph {
       amap: Boolean = false,
       hidden: Boolean = false
   ) {
+    // verify dependencies
+    gaining?.let { g ->
+      require(multiset.containsAll(g.dependencies())) {
+        "New component $g is missing dependencies: " + (g.dependencies() - multiset)
+      }
+    }
+    removing?.let { r ->
+      multiset.elements.forEach {
+        require(r !in it.dependencies()) {
+          "Existing component $it requires dependency $r"
+        }
+      }
+    }
+
     val correctedCount = updateMultiset(count, gaining, removing, amap)
     changeLog.add(
         ChangeLogEntry(

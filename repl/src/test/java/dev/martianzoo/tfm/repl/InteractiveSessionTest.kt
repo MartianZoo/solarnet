@@ -7,6 +7,7 @@ import dev.martianzoo.tfm.pets.ast.Instruction.Companion.instruction
 import dev.martianzoo.tfm.pets.ast.Requirement.Companion.requirement
 import dev.martianzoo.tfm.pets.ast.TypeExpr.Companion.typeExpr
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 
 private class InteractiveSessionTest {
   @Test
@@ -54,5 +55,17 @@ private class InteractiveSessionTest {
 
     session.rollBackToBefore(count - 2)
     assertThat(session.count(typeExpr("Heat"))).isEqualTo(3)
+  }
+
+  @Test
+  fun dependencies() {
+    val session = InteractiveSession()
+    session.newGame(GameSetup(Canon, "MB", 2))
+    session.becomePlayer(2)
+
+    assertThrows<Exception> { session.execute(instruction("3 Microbe<Ants>")) }
+    session.execute(instruction("Ants"))
+    session.execute(instruction("3 Microbe<Ants>"))
+    assertThrows<Exception> { session.execute(instruction("-Ants")) }
   }
 }

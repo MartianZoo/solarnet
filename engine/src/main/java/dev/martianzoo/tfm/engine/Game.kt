@@ -15,7 +15,7 @@ import dev.martianzoo.util.map
 /** A game in progress. */
 public class Game(
     val setup: GameSetup,
-    val components: ComponentGraph,
+    private val components: ComponentGraph,
     val loader: PClassLoader,
 ) {
   // val tasks = mutableListOf<Task>()
