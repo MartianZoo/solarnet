@@ -61,6 +61,8 @@ public class Game(
         hidden = hidden)
   }
 
+  fun rollBackToBefore(ordinal: Int) = components.rollBackToBefore(ordinal, loader)
+
   // TODO why don't we still implement this directly??
   val asGameState: GameState by lazy {
     object : GameState {

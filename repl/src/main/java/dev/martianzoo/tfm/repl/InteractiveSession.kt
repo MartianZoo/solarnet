@@ -70,6 +70,8 @@ class InteractiveSession {
     return instr
   }
 
+  fun rollBackToBefore(ordinal: Int) = game!!.rollBackToBefore(ordinal)
+
   fun <P : PetNode> fixTypes(node: P): P {
     val xer = game!!.loader.transformer
     var result = node

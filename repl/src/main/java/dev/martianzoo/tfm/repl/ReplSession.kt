@@ -54,8 +54,7 @@ public class ReplSession(private val authority: Authority) {
                   val (bundleString, players) = args.trim().split(Regex("\\s+"), 2)
                   session.newGame(GameSetup(authority, bundleString, players.toInt()))
                   listOf("New $players-player game created with bundles: $bundleString")
-                }
-                    ?: listOf("Usage: newgame <bundles> <player count>")
+                } ?: listOf("Usage: newgame <bundles> <player count>")
               },
           "become" to
               { args ->
@@ -78,8 +77,7 @@ public class ReplSession(private val authority: Authority) {
                   val typeExpr = session.fixTypes(typeExpr(args))
                   val count = session.count(typeExpr)
                   listOf("$count $typeExpr")
-                }
-                    ?: listOf("Usage: count <TypeExpr>")
+                } ?: listOf("Usage: count <TypeExpr>")
               },
           "has" to
               {
@@ -87,8 +85,7 @@ public class ReplSession(private val authority: Authority) {
                   val fixed = session.fixTypes(requirement(args))
                   val result = session.has(fixed)
                   listOf("$result: $fixed")
-                }
-                    ?: listOf("Usage: has <Requirement>")
+                } ?: listOf("Usage: has <Requirement>")
               },
           "map" to
               {
@@ -108,7 +105,7 @@ public class ReplSession(private val authority: Authority) {
                 args?.let { listOf("Arguments unexpected: $it") }
                     ?: session.game!!.changeLog().toStrings()
               },
-          "changesfull" to
+          "allchanges" to
               { args ->
                 args?.let { listOf("Arguments unexpected: $it") }
                     ?: session.game!!.changeLogFull().toStrings()
@@ -118,8 +115,15 @@ public class ReplSession(private val authority: Authority) {
                 it?.let { args ->
                   val instr = session.execute(instruction(args))
                   listOf("Ok: $instr")
-                }
-                    ?: listOf("Usage: exec <Instruction>")
+                } ?: listOf("Usage: exec <Instruction>")
+              },
+          "rollback" to
+              {
+                it?.let { args ->
+                  val ord = args.trim().toInt()
+                  session.rollBackToBefore(ord)
+                  listOf("Done")
+                } ?: listOf("Usage: rollback <ordinal>")
               },
           "desc" to
               {
@@ -145,7 +149,9 @@ private val HELP =
       has MAX 3 OceanTile  ->  evaluates a requirement in the current game state
       exec PROD[3 Heat]    ->  gives the default player 3 heat production
       PROD[3 Heat]         ->  that too
+      rollback 987         ->  undo recent changes up to and including change 987
       changes              ->  see the changelog for the current game
+      allchanges           ->  see the entire disgusting changelog
       history              ->  see your *command* history
       board                ->  displays an extremely bad looking player board
       map                  ->  displays an extremely bad looking map

@@ -34,11 +34,12 @@ data class ChangeLogEntry(
        */
       val removing: TypeExpr? = null,
   ) {
-
     init {
       require(count > 0)
       require(gaining != removing) { "both gaining and removing $gaining" }
     }
+
+    fun inverse() = copy(gaining = removing, removing = gaining)
 
     override fun toString() =
         when (gaining) {

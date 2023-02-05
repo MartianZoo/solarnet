@@ -36,4 +36,23 @@ private class InteractiveSessionTest {
     session.execute(instruction("-9 Heat."))
     assertThat(session.count(typeExpr("Heat"))).isEqualTo(0)
   }
+
+  @Test
+  fun rollback() {
+    val session = InteractiveSession()
+    session.newGame(GameSetup(Canon, "MB", 2))
+    session.becomePlayer(1)
+
+    session.execute(instruction("3 Heat"))
+    session.execute(instruction("4 Heat"))
+    session.execute(instruction("-6 Heat"))
+    assertThat(session.count(typeExpr("Heat"))).isEqualTo(1)
+
+    val count = session.game!!.changeLogFull().size
+    session.rollBackToBefore(count)
+    assertThat(session.count(typeExpr("Heat"))).isEqualTo(1)
+
+    session.rollBackToBefore(count - 2)
+    assertThat(session.count(typeExpr("Heat"))).isEqualTo(3)
+  }
 }
