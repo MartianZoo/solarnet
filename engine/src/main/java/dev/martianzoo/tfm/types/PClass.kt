@@ -11,9 +11,6 @@ import dev.martianzoo.tfm.pets.ast.Effect.Trigger.OnGainOf
 import dev.martianzoo.tfm.pets.ast.Effect.Trigger.WhenGain
 import dev.martianzoo.tfm.pets.ast.Effect.Trigger.WhenRemove
 import dev.martianzoo.tfm.pets.ast.TypeExpr
-import dev.martianzoo.tfm.types.AstTransforms.addOwnerToOwned
-import dev.martianzoo.tfm.types.AstTransforms.applyGainDefaultsIn
-import dev.martianzoo.tfm.types.AstTransforms.deprodify
 import dev.martianzoo.tfm.types.Dependency.ClassDependency
 import dev.martianzoo.tfm.types.Dependency.ClassDependency.Companion.KEY
 import dev.martianzoo.tfm.types.Dependency.TypeDependency
@@ -185,11 +182,12 @@ internal constructor(
    * where they will be processed further.
    */
   val classEffects: List<Effect> by lazy {
-    declaration.effectsRaw.map {
-      var fx = it
-      fx = deprodify(fx, loader)
-      fx = applyGainDefaultsIn(fx, loader)
-      fx = addOwnerToOwned(fx, loader.ownedClassNames)
+    val xer = loader.transformer
+    declaration.effectsRaw.map { effect ->
+      var fx = effect
+      fx = xer.deprodify(fx)
+      fx = xer.applyGainDefaultsIn(fx)
+      fx = xer.addOwner(fx)
       fx
     }.sortedWith(effectComparator)
   }

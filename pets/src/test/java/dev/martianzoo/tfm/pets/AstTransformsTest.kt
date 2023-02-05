@@ -1,6 +1,11 @@
 package dev.martianzoo.tfm.pets
 
 import com.google.common.truth.Truth.assertThat
+import dev.martianzoo.tfm.pets.AstTransforms.actionToEffect
+import dev.martianzoo.tfm.pets.AstTransforms.actionsToEffects
+import dev.martianzoo.tfm.pets.AstTransforms.deprodify
+import dev.martianzoo.tfm.pets.AstTransforms.immediateToEffect
+import dev.martianzoo.tfm.pets.AstTransforms.replaceThis
 import dev.martianzoo.tfm.pets.Parsing.parseElement
 import dev.martianzoo.tfm.pets.ast.Action
 import dev.martianzoo.tfm.pets.ast.Action.Companion.action
@@ -20,7 +25,7 @@ import dev.martianzoo.util.toStrings
 import kotlin.reflect.KClass
 import org.junit.jupiter.api.Test
 
-private class TransformsTest {
+private class AstTransformsTest {
   @Test
   fun testActionToEffect() {
     checkActionToEffect("-> Ok", 5, "UseAction5<This>: Ok")

@@ -16,7 +16,7 @@ import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.pets.ast.Requirement.Exact
 import dev.martianzoo.tfm.pets.ast.Requirement.Max
 import dev.martianzoo.tfm.pets.ast.Requirement.Min
-import dev.martianzoo.tfm.pets.deprodify
+import dev.martianzoo.tfm.pets.AstTransforms.deprodify
 import dev.martianzoo.tfm.types.PType
 
 internal object LiveNodes {

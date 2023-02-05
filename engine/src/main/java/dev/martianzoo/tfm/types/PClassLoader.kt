@@ -156,7 +156,5 @@ public class PClassLoader(
 
   private fun decl(cn: ClassName) = authority.classDeclaration(cn)
 
-  internal val ownedClassNames: Set<ClassName> by lazy {
-    getClass(OWNED).allSubclasses.map { it.name }.toSetStrict()
-  }
+  public val transformer: LiveTransformer by lazy { LiveTransformer(this) }
 }

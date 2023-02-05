@@ -14,6 +14,7 @@ import dev.martianzoo.tfm.data.ClassDeclaration
 import dev.martianzoo.tfm.data.ClassDeclaration.DefaultsDeclaration
 import dev.martianzoo.tfm.data.ClassDeclaration.DependencyDeclaration
 import dev.martianzoo.tfm.data.shortName
+import dev.martianzoo.tfm.pets.AstTransforms.actionsToEffects
 import dev.martianzoo.tfm.pets.ClassDeclarationParsers.Body.BodyElement
 import dev.martianzoo.tfm.pets.ClassDeclarationParsers.Body.BodyElement.ActionElement
 import dev.martianzoo.tfm.pets.ClassDeclarationParsers.Body.BodyElement.DefaultsElement

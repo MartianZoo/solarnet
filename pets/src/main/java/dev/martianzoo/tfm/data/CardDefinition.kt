@@ -11,10 +11,11 @@ import dev.martianzoo.tfm.data.SpecialClassNames.EVENT_CARD
 import dev.martianzoo.tfm.data.SpecialClassNames.PRELUDE_CARD
 import dev.martianzoo.tfm.data.SpecialClassNames.PROJECT_CARD
 import dev.martianzoo.tfm.data.SpecialClassNames.RESOURCEFUL_CARD
+import dev.martianzoo.tfm.pets.AstTransforms.actionsToEffects
+import dev.martianzoo.tfm.pets.AstTransforms.immediateToEffect
 import dev.martianzoo.tfm.pets.Parsing.parseOneLineClassDeclaration
 import dev.martianzoo.tfm.pets.SpecialClassNames.CLASS
 import dev.martianzoo.tfm.pets.SpecialClassNames.END
-import dev.martianzoo.tfm.pets.actionsToEffects
 import dev.martianzoo.tfm.pets.ast.Action.Companion.action
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
@@ -26,7 +27,6 @@ import dev.martianzoo.tfm.pets.ast.PetNode
 import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.pets.ast.Requirement.Companion.requirement
 import dev.martianzoo.tfm.pets.ast.TypeExpr
-import dev.martianzoo.tfm.pets.immediateToEffect
 import dev.martianzoo.util.toSetStrict
 
 /**

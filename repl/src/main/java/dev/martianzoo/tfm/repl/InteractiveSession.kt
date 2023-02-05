@@ -4,17 +4,14 @@ import dev.martianzoo.tfm.api.GameSetup
 import dev.martianzoo.tfm.engine.Component
 import dev.martianzoo.tfm.engine.Engine
 import dev.martianzoo.tfm.engine.Game
-import dev.martianzoo.tfm.pets.PetTransformer
-import dev.martianzoo.tfm.pets.PetTransformer.Companion.transform
-import dev.martianzoo.tfm.pets.SpecialClassNames.ANYONE
-import dev.martianzoo.tfm.pets.SpecialClassNames.OWNED
+import dev.martianzoo.tfm.pets.SpecialClassNames.OWNER
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.pets.ast.Instruction
 import dev.martianzoo.tfm.pets.ast.PetNode
 import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.pets.ast.TypeExpr
-import dev.martianzoo.tfm.types.AstTransforms
+import dev.martianzoo.tfm.pets.AstTransforms.replaceTypes
 import dev.martianzoo.tfm.types.PType
 import dev.martianzoo.util.HashMultiset
 import dev.martianzoo.util.Multiset
@@ -74,32 +71,13 @@ class InteractiveSession {
   }
 
   fun <P : PetNode> fixTypes(node: P): P {
-    if (defaultPlayer == null) {
-      return node
+    val xer = game!!.loader.transformer
+    var result = node
+    result = xer.deprodify(result)
+    result = xer.addOwner(result)
+    if (defaultPlayer != null) {
+      result = result.replaceTypes(OWNER.type, defaultPlayer!!.type) // TODO
     }
-    val g = game!!
-    val owned = g.resolveType(OWNED.type)
-    val player = g.resolveType(ANYONE.type)
-
-    // TODO do this elsewhere
-    val fixer =
-        object : PetTransformer() {
-          override fun <P : PetNode> doTransform(node: P): P {
-            if (node is TypeExpr) {
-              if (g.resolveType(node).isSubtypeOf(owned)) {
-                val hasPlayer = node.arguments.any { g.resolveType(it).isSubtypeOf(player) }
-                if (!hasPlayer) {
-                  return node.addArgs(defaultPlayer!!) as P
-                }
-              }
-              return node
-            }
-            return defaultTransform(node)
-          }
-        }
-    val fixt = node.transform(fixer)
-
-    // TODO hmm
-    return AstTransforms.deprodify(fixt, game!!.loader)
+    return result
   }
 }
