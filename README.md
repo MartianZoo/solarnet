@@ -30,6 +30,19 @@ Please notice **what is not on this list**!
 1. Performance -- basically, it will be slow as hell and *I don't care*. I'm preferring the clearer, simpler, more bug-proof code over fast code every time. If I or someone builds a faster engine in the future (I would call it Aerobrake), we will have Solarnet to parity-test it against. Therefore the best way to get to a fast engine is to take *no chances* with the correctness of this one.
 2. Usability -- there is a command line "REPL" (read-evaluate-print loop) called REgo PLastics. It is a **very, very, very bad user interface**, and I plan for it to always stay that way. You cannot actually play a whole game using it. But you'll be able to set up scenarios and find out what happens.
 
+## The Pets language
+
+There are several basic elements to the language.
+
+* Instructions (`-2 Plant` means "lose two plants")
+* Requirements (`MAX 4 OxygenStep` means "is oxygen is at most 4%?")
+* Metrics (`SpaceTag<!Me>` means "number of opponents' space tags", as in `PROD[1 / SpaceTag<!Me>]`)
+* Effects (`EventCard: 3` means "when you play an event card, gain 3 MC")
+* Actions (`Steel -> 5` means "spend 1 steel to gain 5 MC")
+* Complex component type expressions (`CityTile<LandArea(HAS 2 Neighbor<CityTile<Anyone>>)>` means "a city tile on an area with 2 neighboring city tiles", no matter which of the above constructs it's used in)
+* Production boxes (`PROD[2 Plant], Plant` means "increase plant production 2 steps and gain a plant")
+* Change records (`13: OceanTile<Tharsis5_5> BY Aquifer; 14: 2 Plant<Player3> BY Card023<Player3> BECAUSE 13`)
+
 ## Learning more
 
 I have started jotting some stuff down, but the written docs leave much to be desired.
@@ -58,6 +71,8 @@ Why is the command line UI called REgo PLastics? Because REPL is a term and Rego
 
 Why is the engine called Solarnet? Who knows, it sounded cool.
 
-## Contact me?
+## Who are you
+
+http://kevinb9n.github.io
 
 If you find this project interesting and want to talk about it, please send mail to kevinb9n@gmail.com. I'd be more than happy to get it.
