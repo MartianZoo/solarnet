@@ -1,5 +1,8 @@
 package dev.martianzoo.tfm.engine
 
+import dev.martianzoo.tfm.engine.LiveNodes.LiveEffect
+import dev.martianzoo.tfm.pets.AstTransforms
+import dev.martianzoo.tfm.pets.SpecialClassNames.THIS
 import dev.martianzoo.tfm.types.Dependency.TypeDependency
 import dev.martianzoo.tfm.types.PType
 import dev.martianzoo.util.toSetStrict
@@ -22,5 +25,20 @@ public data class Component(private val ptype: PType) {
     }
   }
 
+  internal fun effects(game: Game): Set<LiveEffect> {
+    val classFx = ptype.pclass.classEffects
+    return classFx.map {
+      var fx = it
+      fx = AstTransforms.replaceTypes(fx, THIS.type, ptype.toTypeExprMinimal())
+      // specialize for deps... owner...
+      LiveNodes.from(fx, game)
+    }.toSetStrict()
+  }
   override fun toString() = "[$ptype]"
+
+  fun describe(): String {
+    return """
+      TODO
+    """.trimIndent()
+  }
 }

@@ -3,12 +3,12 @@ package dev.martianzoo.tfm.repl
 import dev.martianzoo.tfm.api.Authority
 import dev.martianzoo.tfm.api.GameSetup
 import dev.martianzoo.tfm.canon.Canon
+import dev.martianzoo.tfm.engine.Component
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.pets.ast.Instruction.Companion.instruction
 import dev.martianzoo.tfm.pets.ast.Requirement.Companion.requirement
 import dev.martianzoo.tfm.pets.ast.TypeExpr.Companion.typeExpr
-import dev.martianzoo.tfm.types.PClass
 import dev.martianzoo.util.toStrings
 import org.jline.utils.AttributedStyle
 
@@ -54,7 +54,8 @@ public class ReplSession(private val authority: Authority) {
                   val (bundleString, players) = args.trim().split(Regex("\\s+"), 2)
                   session.newGame(GameSetup(authority, bundleString, players.toInt()))
                   listOf("New $players-player game created with bundles: $bundleString")
-                } ?: listOf("Usage: newgame <bundles> <player count>")
+                }
+                    ?: listOf("Usage: newgame <bundles> <player count>")
               },
           "become" to
               { args ->
@@ -77,7 +78,8 @@ public class ReplSession(private val authority: Authority) {
                   val typeExpr = session.fixTypes(typeExpr(args))
                   val count = session.count(typeExpr)
                   listOf("$count $typeExpr")
-                } ?: listOf("Usage: count <TypeExpr>")
+                }
+                    ?: listOf("Usage: count <TypeExpr>")
               },
           "has" to
               {
@@ -85,7 +87,8 @@ public class ReplSession(private val authority: Authority) {
                   val fixed = session.fixTypes(requirement(args))
                   val result = session.has(fixed)
                   listOf("$result: $fixed")
-                } ?: listOf("Usage: has <Requirement>")
+                }
+                    ?: listOf("Usage: has <Requirement>")
               },
           "map" to
               {
@@ -115,7 +118,8 @@ public class ReplSession(private val authority: Authority) {
                 it?.let { args ->
                   val instr = session.execute(instruction(args))
                   listOf("Ok: $instr")
-                } ?: listOf("Usage: exec <Instruction>")
+                }
+                    ?: listOf("Usage: exec <Instruction>")
               },
           "rollback" to
               {
@@ -123,14 +127,19 @@ public class ReplSession(private val authority: Authority) {
                   val ord = args.trim().toInt()
                   session.rollBackToBefore(ord)
                   listOf("Done")
-                } ?: listOf("Usage: rollback <ordinal>")
+                }
+                    ?: listOf("Usage: rollback <ordinal>")
               },
           "desc" to
               {
                 it?.let { args ->
-                  val className = cn(args.trim())
-                  val pclass: PClass = session.game!!.loader.getClass(className)
-                  listOf(pclass.describe())
+                  val typeExpr = typeExpr(args.trim())
+                  val ptype = session.game!!.loader.resolveType(typeExpr)
+                  if (typeExpr.isTypeOnly) {
+                    listOf(ptype.pclass.describe())
+                  } else {
+                    listOf(Component(ptype).describe())
+                  }
                 }
                     ?: listOf("Usage: desc <ClassName>")
               },

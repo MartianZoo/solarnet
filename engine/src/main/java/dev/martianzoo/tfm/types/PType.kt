@@ -12,7 +12,7 @@ import dev.martianzoo.tfm.types.Dependency.ClassDependency
  */
 public data class PType
 internal constructor(
-    private val pclass: PClass,
+    public val pclass: PClass,
     internal val allDependencies: DependencyMap = DependencyMap(),
     internal val refinement: Requirement? = null,
 ) {
