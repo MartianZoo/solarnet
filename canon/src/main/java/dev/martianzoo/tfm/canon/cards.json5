@@ -51,10 +51,10 @@
       "deck": "CORPORATION",
       "tags": [ "EarthTag" ],
       "immediate": "40",
-      "actions": [ "3 -> HasRaisedTR: TerraformRating" ],
+      "actions": [ "3 -> HasRaisedTr: TerraformRating" ],
       "components": [
-        "CLASS HasRaisedTR : Owned, Generational { HAS MAX 1 This }",
-        "CLASS TrWatcher : Owned { HAS =1 This; TerraformRating: HasRaisedTR. }"
+        "CLASS HasRaisedTr : Owned, Generational { HAS MAX 1 This }",
+        "CLASS TrWatcher : Owned { HAS =1 This; TerraformRating: HasRaisedTr. }"
       ]
     },
 
