@@ -55,15 +55,4 @@ public class LiveTransformer internal constructor(val loader: PClassLoader) {
       @Suppress("UNCHECKED_CAST") return transformed as P
     }
   }
-
-  internal fun <P : PetNode> unreplaceThis(node: P, context: PClass) =
-      object : PetTransformer() {
-        override fun <P : PetNode> transform(node: P): P =
-            if (node is TypeExpr && context.isBaseType(node)) {
-              @Suppress("UNCHECKED_CAST")
-              THIS.type as P
-            } else {
-              defaultTransform(node)
-            }
-      }.transform(node)
 }

@@ -6,6 +6,7 @@ import dev.martianzoo.tfm.pets.PetTransformer
 import dev.martianzoo.tfm.pets.SpecialClassNames.CLASS
 import dev.martianzoo.tfm.pets.SpecialClassNames.COMPONENT
 import dev.martianzoo.tfm.pets.SpecialClassNames.END
+import dev.martianzoo.tfm.pets.SpecialClassNames.OWNED
 import dev.martianzoo.tfm.pets.SpecialClassNames.THIS
 import dev.martianzoo.tfm.pets.SpecialClassNames.USE_ACTION
 import dev.martianzoo.tfm.pets.ast.ClassName
@@ -193,7 +194,9 @@ internal constructor(
           var fx = effect
           fx = xer.deprodify(fx)
           fx = xer.applyGainDefaultsIn(fx)
-          fx = xer.addOwner(fx)
+          if (allSuperclasses.any { it.name == OWNED }) {
+            fx = xer.addOwner(fx)
+          }
           fx
         }
         .sortedWith(effectComparator)

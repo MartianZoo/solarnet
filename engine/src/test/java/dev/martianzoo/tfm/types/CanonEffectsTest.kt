@@ -70,8 +70,8 @@ private class CanonEffectsTest {
   fun venusian() {
     assertThat(load("VenusianAnimals").classEffects)
         .containsExactly(
-            effect("ScienceTag<Owner>: Animal<This>."),
-            effect("End: VictoryPoint<Owner>! / Animal<This>"),
+            effect("ScienceTag<Owner>: Animal<This, Owner>."),
+            effect("End: VictoryPoint<Owner>! / Animal<This, Owner>"),
         )
   }
 
@@ -90,7 +90,7 @@ private class CanonEffectsTest {
     assertThat(load("Teractor").classEffects)
         .containsExactly(
             effect("This: 60 Megacredit<Owner>!"),
-            effect("PlayTag<Owner, Class<EarthTag>>:: -3 Owed<Owner, Class<Megacredit>>."),
+            effect("PlayTag<Class<EarthTag>, Owner>:: -3 Owed<Owner>."),
         )
   }
 
@@ -111,8 +111,8 @@ private class CanonEffectsTest {
   fun titanAirScrapping() {
     assertThat(load("TitanAirScrapping").classEffects)
         .containsExactly(
-            effect("UseAction1<Owner, This>: -Titanium<Owner>! THEN 2 Floater<This>."),
-            effect("UseAction2<Owner, This>: -2 Floater<This>! THEN TerraformRating<Owner>!"),
+            effect("UseAction1<This, Owner>: -Titanium<Owner>! THEN 2 Floater<This, Owner>."),
+            effect("UseAction2<This, Owner>: -2 Floater<This, Owner>! THEN TerraformRating<Owner>!"),
             effect("End: 2 VictoryPoint<Owner>!"),
         )
   }
@@ -123,7 +123,7 @@ private class CanonEffectsTest {
     assertThat(load("AsteroidMiningConsortium").classEffects)
         .containsExactly(
             effect(
-                "This: -Production<Anyone, Class<Titanium>>!, Production<Owner, Class<Titanium>>!"),
+                "This: -Production<Anyone, Class<Titanium>>!, Production<Class<Titanium>, Owner>!"),
             effect("End: VictoryPoint<Owner>!"),
         )
   }
@@ -133,21 +133,19 @@ private class CanonEffectsTest {
   fun pets() {
     assertThat(load("Pets").classEffects)
         .containsExactly(
-            effect("This: Animal<This>."),
-            effect("-Animal<This>:: Die!"),
-            effect("CityTile<Anyone>: Animal<This>."),
-            effect("End: VictoryPoint<Owner>! / 2 Animal<This>"),
+            effect("This: Animal<This, Owner>."),
+            effect("-Animal<This, Owner>:: Die!"),
+            effect("CityTile<Anyone>: Animal<This, Owner>."),
+            effect("End: VictoryPoint<Owner>! / 2 Animal<This, Owner>"),
         )
   }
 
-  @Disabled
   @Test
   fun aquiferPumping() {
     assertThat(load("AquiferPumping").classEffects)
         .containsExactly(
-            effect(
-                "UseAction1<Owner, HasActions>: Accept<Owner, Class<Steel>>., " +
-                    "-8 Megacredit<Owner>! THEN OceanTile<WaterArea>."),
+            effect("UseAction1<This, Owner>:: Accept<Class<Steel>, Owner>."),
+            effect("UseAction1<This, Owner>: -8 Megacredit<Owner>! THEN OceanTile<WaterArea>."),
         )
   }
 
@@ -156,7 +154,7 @@ private class CanonEffectsTest {
   fun floaterPrototypes() {
     assertThat(load("FloaterPrototypes").classEffects)
         .containsExactly(
-            effect("This: 2 Floater<Owner, ResourcefulCard<Owner, Class<Floater>>>."),
+            effect("This: 2 Floater<Owner, ResourcefulCard<Class<Floater>>, Owner>."),
         )
   }
 

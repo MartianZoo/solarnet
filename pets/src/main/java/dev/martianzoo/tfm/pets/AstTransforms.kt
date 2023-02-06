@@ -77,11 +77,15 @@ public object AstTransforms {
           override fun <P : PetNode> transform(node: P): P {
             val rewritten: PetNode =
                 when {
-                  node is GenericTransform<*> &&
-                      node.transform == "PROD" -> { // TODO: support multiple better
+                  node is GenericTransform<*> && node.transform == "PROD" -> {
                     require(!inProd)
                     inProd = true
-                    x(node.extract()).also { inProd = false }
+                    val inner = x(node.extract())
+                    inProd = false
+                    if (inner == node.extract()) {
+                      throw RuntimeException("No standard resources found in PROD box: $inner")
+                    }
+                    inner
                   }
                   inProd && node is TypeExpr && node.className in producible ->
                       PRODUCTION.addArgs(node.arguments + CLASS.addArgs(node.className))
@@ -100,7 +104,7 @@ public object AstTransforms {
    * express, but I haven't gotten that working in a general way yet.
    */
   public fun <P : PetNode> addOwner(node: P, owners: Set<ClassName>, owneds: Set<ClassName>): P {
-    fun hasOwner(typeExprs: List<TypeExpr>) = typeExprs.intersect(owners.map { it.type }).none()
+    fun hasOwner(typeExprs: List<TypeExpr>) = typeExprs.intersect(owners.map { it.type }).any()
     val xer =
         object : PetTransformer() {
           override fun <Q : PetNode> transform(node: Q): Q {
@@ -108,7 +112,7 @@ public object AstTransforms {
               defaultTransform(node)
             } else if (node.className == CLASS) {
               node // don't descend; it's perfect how it is
-            } else if (node.className in owneds && hasOwner(node.arguments)) {
+            } else if (node.className in owneds && !hasOwner(node.arguments)) {
               defaultTransform(node).addArgs(SpecialClassNames.OWNER.type) as Q
             } else {
               defaultTransform(node)
