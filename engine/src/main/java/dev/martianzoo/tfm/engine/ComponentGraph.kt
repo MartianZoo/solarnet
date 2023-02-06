@@ -29,14 +29,14 @@ public class ComponentGraph {
   ) {
     // verify dependencies
     gaining?.let { g ->
-      require(multiset.containsAll(g.dependencies())) {
-        "New component $g is missing dependencies: " + (g.dependencies() - multiset)
+      require(multiset.containsAll(g.dependencies)) {
+        "New component $g is missing dependencies: " + (g.dependencies - multiset.elements)
       }
     }
     removing?.let { r ->
       multiset.elements.forEach {
-        require(r !in it.dependencies()) {
-          "Existing component $it requires dependency $r"
+        require(r !in it.dependencies) {
+          "Can't remove dependency $r of existing component $it"
         }
       }
     }
