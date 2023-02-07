@@ -27,11 +27,11 @@ data class MilestoneDefinition(
 
   val requirement: Requirement by lazy { requirement(requirementText) }
 
-  override val name = englishHack(id)
+  override val className = englishHack(id)
 
   override val asClassDeclaration: ClassDeclaration by lazy {
     ClassDeclaration(
-        name,
+        className,
         id,
         abstract = false,
         supertypes = setOf(MILESTONE.type),

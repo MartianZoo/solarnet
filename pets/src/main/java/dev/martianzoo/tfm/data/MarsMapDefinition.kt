@@ -12,14 +12,14 @@ import dev.martianzoo.tfm.pets.ast.Instruction.Companion.instruction
 import dev.martianzoo.util.Grid
 
 data class MarsMapDefinition(
-    override val name: ClassName,
+    override val className: ClassName,
     override val bundle: String,
     val areas: Grid<AreaDefinition>
 ) : Definition {
-  override val id by ::name
+  override val id by ::className
   override val asClassDeclaration =
       ClassDeclaration(
-          name = name,
+          name = className,
           id = id,
           abstract = false,
           supertypes = setOf(MARS_MAP.type),
@@ -62,7 +62,7 @@ data class MarsMapDefinition(
 
     override val asClassDeclaration by lazy {
       ClassDeclaration(
-          name = name,
+          name = className,
           id = id,
           abstract = false,
           supertypes = setOf(kind.type),
@@ -77,7 +77,7 @@ data class MarsMapDefinition(
           cn("$bundle$row$column")
         }
 
-    override val name = cn("${mapName}_${row}_$column")
+    override val className = cn("${mapName}_${row}_$column")
   }
 }
 

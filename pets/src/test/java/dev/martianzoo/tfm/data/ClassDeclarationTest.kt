@@ -12,6 +12,7 @@ import dev.martianzoo.tfm.pets.ast.Instruction.Intensity
 import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.pets.ast.ScalarAndType.Companion.sat
 import dev.martianzoo.tfm.pets.ast.TypeExpr.Companion.typeExpr
+import dev.martianzoo.tfm.pets.ast.classNames
 import dev.martianzoo.tfm.testlib.assertFails
 import org.junit.jupiter.api.Test
 
@@ -66,7 +67,7 @@ private class ClassDeclarationTest {
     assertThat(decl.defaultsDeclaration.gainIntensity).isEqualTo(Intensity.OPTIONAL)
     assertThat(decl.extraNodes).isEmpty()
 
-    assertThat(decl.superclassNames).containsExactly(cn("Baz"))
+    assertThat(decl.supertypes.classNames()).containsExactly(cn("Baz"))
 
     assertThat(decl.allNodes).containsExactly(foo, dep, sup, topInv, otherInv, eff, act, gain, univ)
   }

@@ -8,6 +8,7 @@ import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.pets.ast.Requirement.Companion.requirement
 import dev.martianzoo.tfm.pets.ast.TypeExpr.Companion.typeExpr
+import dev.martianzoo.tfm.pets.ast.classNames
 import dev.martianzoo.util.random
 import dev.martianzoo.util.toStrings
 import org.junit.jupiter.api.Disabled
@@ -21,7 +22,7 @@ private class PClassCanonTest {
     val table = PClassLoader(Canon)
 
     table.componentClass.apply {
-      assertThat(name).isEqualTo(COMPONENT)
+      assertThat(className).isEqualTo(COMPONENT)
       assertThat(abstract).isTrue()
       assertThat(directDependencyKeys).isEmpty()
       assertThat(allDependencyKeys).isEmpty()
@@ -90,8 +91,7 @@ private class PClassCanonTest {
     val table = PClassLoader(Canon).loadEverything()
 
     val names: List<ClassName> =
-        table.allClasses
-            .map { it.name }
+        table.allClasses.classNames()
             .filterNot { it.matches(Regex("^Card.{3,4}$")) && it.hashCode() % 12 != 0 }
             .filterNot { it.matches(Regex("^(Tharsis|Hellas|Elysium)")) && it.hashCode() % 8 != 0 }
             .filterNot { it in setOf(COMPONENT, DIE) }

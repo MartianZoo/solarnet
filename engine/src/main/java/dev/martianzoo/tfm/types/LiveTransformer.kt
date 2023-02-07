@@ -5,12 +5,11 @@ import dev.martianzoo.tfm.pets.PetTransformer
 import dev.martianzoo.tfm.pets.SpecialClassNames.ANYONE
 import dev.martianzoo.tfm.pets.SpecialClassNames.OWNED
 import dev.martianzoo.tfm.pets.SpecialClassNames.STANDARD_RESOURCE
-import dev.martianzoo.tfm.pets.SpecialClassNames.THIS
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.Instruction.Gain
 import dev.martianzoo.tfm.pets.ast.PetNode
 import dev.martianzoo.tfm.pets.ast.ScalarAndType.Companion.sat
-import dev.martianzoo.tfm.pets.ast.TypeExpr
+import dev.martianzoo.tfm.pets.ast.classNames
 import dev.martianzoo.util.toSetStrict
 
 /** Offers various functions for transforming [PetNode] subtrees that depend on a [PClassLoader]. */
@@ -27,8 +26,8 @@ public class LiveTransformer internal constructor(val loader: PClassLoader) {
   public fun <P : PetNode> addOwner(node: P): P =
       AstTransforms.addOwner(node, subclassNames(ANYONE), subclassNames(OWNED))
 
-  private fun subclassNames(parent: ClassName) =
-      loader.getClass(parent).allSubclasses.map { it.name }.toSetStrict()
+  private fun subclassNames(parent: ClassName): Set<ClassName> =
+      loader.getClass(parent).allSubclasses.classNames()
 
   /**
    * Translates a Pets node in source form to one where defaults have been applied; for example, an
@@ -46,7 +45,7 @@ public class LiveTransformer internal constructor(val loader: PClassLoader) {
       val fixedType =
           if (writtenType.isTypeOnly) {
             val deps: Collection<Dependency> = defaults.gainOnlyDependencies.types
-            writtenType.addArgs(deps.map { it.toTypeExprMinimal() }).refine(writtenType.refinement)
+            writtenType.addArgs(deps.map { it.typeExpr }).refine(writtenType.refinement)
           } else {
             writtenType
           }

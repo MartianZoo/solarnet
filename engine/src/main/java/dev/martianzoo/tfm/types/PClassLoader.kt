@@ -5,7 +5,6 @@ import dev.martianzoo.tfm.data.ClassDeclaration
 import dev.martianzoo.tfm.pets.SpecialClassNames.CLASS
 import dev.martianzoo.tfm.pets.SpecialClassNames.COMPONENT
 import dev.martianzoo.tfm.pets.SpecialClassNames.GAME
-import dev.martianzoo.tfm.pets.SpecialClassNames.OWNER
 import dev.martianzoo.tfm.pets.SpecialClassNames.PRODUCTION
 import dev.martianzoo.tfm.pets.SpecialClassNames.THIS
 import dev.martianzoo.tfm.pets.ast.ClassName
@@ -52,7 +51,7 @@ public class PClassLoader(
   /** Returns the [PType] represented by [typeExpr]. */
   public fun resolveType(typeExpr: TypeExpr): PType {
     val pclass = getClass(typeExpr.className)
-    return if (pclass.name == CLASS) {
+    return if (pclass.className == CLASS) {
       val className: ClassName =
           if (typeExpr.arguments.isEmpty()) {
             COMPONENT

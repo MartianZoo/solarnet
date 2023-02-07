@@ -47,8 +47,8 @@ public class ComponentGraph {
             ordinal = changeLog.size,
             change = StateChange(
                 count = correctedCount,
-                gaining = gaining?.asTypeExpr,
-                removing = removing?.asTypeExpr,
+                gaining = gaining?.typeExpr,
+                removing = removing?.typeExpr,
             ),
             cause = cause,
             hidden = hidden,

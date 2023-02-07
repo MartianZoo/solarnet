@@ -149,7 +149,7 @@ data class CardDefinition(
   }
 
   override val id = cn("C$idRaw")
-  override val name: ClassName = englishHack(idRaw)
+  override val className: ClassName = englishHack(idRaw)
 
   val tags: List<ClassName> = tagsText.map(::cn)
 
@@ -189,7 +189,7 @@ data class CardDefinition(
     if (supertypes.isEmpty()) supertypes += CARD_FRONT.type
 
     ClassDeclaration(
-        name = name,
+        name = className,
         id = id,
         abstract = false,
         supertypes = supertypes,

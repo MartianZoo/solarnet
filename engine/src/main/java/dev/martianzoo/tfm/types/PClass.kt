@@ -1,7 +1,6 @@
 package dev.martianzoo.tfm.types
 
 import dev.martianzoo.tfm.data.ClassDeclaration
-import dev.martianzoo.tfm.pets.AstTransforms
 import dev.martianzoo.tfm.pets.PetTransformer
 import dev.martianzoo.tfm.pets.SpecialClassNames.CLASS
 import dev.martianzoo.tfm.pets.SpecialClassNames.COMPONENT
@@ -14,9 +13,11 @@ import dev.martianzoo.tfm.pets.ast.Effect
 import dev.martianzoo.tfm.pets.ast.Effect.Trigger.OnGainOf
 import dev.martianzoo.tfm.pets.ast.Effect.Trigger.WhenGain
 import dev.martianzoo.tfm.pets.ast.Effect.Trigger.WhenRemove
+import dev.martianzoo.tfm.pets.ast.HasClassName
 import dev.martianzoo.tfm.pets.ast.PetNode
 import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.pets.ast.TypeExpr
+import dev.martianzoo.tfm.pets.ast.classNames
 import dev.martianzoo.tfm.types.Dependency.ClassDependency
 import dev.martianzoo.tfm.types.Dependency.ClassDependency.Companion.KEY
 import dev.martianzoo.tfm.types.Dependency.TypeDependency
@@ -35,12 +36,13 @@ internal constructor(
     public val declaration: ClassDeclaration,
     /** The class loader that loaded this class. */
     private val loader: PClassLoader,
-    public val directSuperclasses: List<PClass> = declaration.superclassNames.map(loader::load),
-) {
-  /** The name of this class, in UpperCamelCase. */
-  public val name: ClassName by declaration::name
 
-  /** A short name for this class, such as `"CT"` for `"CityTile"`; is often the same as [name]. */
+    public val directSuperclasses: List<PClass> = superclasses(declaration, loader)
+): HasClassName {
+  /** The name of this class, in UpperCamelCase. */
+  public override val className: ClassName by declaration::name
+
+  /** A short name for this class, such as `"CT"` for `"CityTile"`; is often the same as [className]. */
   public val id: ClassName by declaration::id
 
   /**
@@ -124,7 +126,7 @@ internal constructor(
   // DEPENDENCIES
 
   internal val directDependencyKeys: Set<Dependency.Key> by lazy {
-    declaration.dependencies.indices.map { Dependency.Key(name, it) }.toSet()
+    declaration.dependencies.indices.map { Dependency.Key(className, it) }.toSet()
   }
 
   internal val allDependencyKeys: Set<Dependency.Key> by lazy {
@@ -141,7 +143,7 @@ internal constructor(
 
   /** Least upper bound of all types with pclass==this */
   public val baseType: PType by lazy {
-    if (name == CLASS) {
+    if (className == CLASS) {
       // base type of Class is Class<Component>
       loader.componentClass.classType
     } else {
@@ -152,19 +154,18 @@ internal constructor(
           }
       val deps = DependencyMap.intersect(directSupertypes.map { it.allDependencies })
       val allDeps = deps.intersect(DependencyMap(newDeps))
-      require(allDeps.keys == allDependencyKeys)
       PType(this, allDeps, null)
     }
   }
 
-  fun toTypeExprFull() = baseType.toTypeExprFull()
+  fun typeExprFull() = baseType.typeExprFull
 
   fun specialize(map: List<PType>): PType = baseType.specialize(map)
 
   // DEFAULTS
 
   internal val defaults: Defaults by lazy {
-    if (name == COMPONENT) {
+    if (className == COMPONENT) {
       Defaults.from(declaration.defaultsDeclaration, this, loader)
     } else {
       val rootDefaults = loader.componentClass.defaults
@@ -173,7 +174,7 @@ internal constructor(
   }
 
   private fun defaultsIgnoringRoot(): Defaults = // TODO hack
-  if (name == COMPONENT) {
+  if (className == COMPONENT) {
         Defaults()
       } else {
         Defaults.from(declaration.defaultsDeclaration, this, loader)
@@ -194,7 +195,7 @@ internal constructor(
           var fx = effect
           fx = xer.deprodify(fx)
           fx = xer.applyGainDefaultsIn(fx)
-          if (allSuperclasses.any { it.name == OWNED }) {
+          if (allSuperclasses.any { it.className == OWNED }) {
             fx = xer.addOwner(fx)
           }
           fx
@@ -252,13 +253,13 @@ internal constructor(
     declaration.otherInvariants + topInvariants
   }
 
-  override fun toString() = "$name"
+  override fun toString() = "$className"
 
   /** A detailed multi-line description of the class. */
   // TODO this is a lot of presentation logic...
   public fun describe(): String {
     fun descendingBySubclassCount(classes: Iterable<PClass>) =
-        classes.sortedWith(compareBy({ -it.allSubclasses.size }, { it.name }))
+        classes.sortedWith(compareBy({ -it.allSubclasses.size }, { it.className }))
 
     val supers = descendingBySubclassCount(allSuperclasses - this - loader.componentClass)
     val superstring = if (supers.isEmpty()) "(none)" else supers.joinToString()
@@ -272,7 +273,7 @@ internal constructor(
         }
     val fx = classEffects.joinToString("\n                ")
     return """
-      Name:     $name
+      Name:     $className
       Id:       $id
       Abstract: $abstract
       Supers:   $superstring
@@ -285,3 +286,6 @@ internal constructor(
 
   fun isBaseType(typeExpr: TypeExpr) = loader.resolveType(typeExpr) == baseType
 }
+
+fun superclasses(declaration: ClassDeclaration, loader: PClassLoader) =
+    declaration.supertypes.classNames().map(loader::load)

@@ -7,6 +7,7 @@ import dev.martianzoo.tfm.pets.SpecialClassNames.CLASS
 import dev.martianzoo.tfm.pets.SpecialClassNames.COMPONENT
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.pets.ast.TypeExpr.Companion.typeExpr
+import dev.martianzoo.tfm.pets.ast.classNames
 import dev.martianzoo.tfm.types.Dependency.Key
 import dev.martianzoo.util.toStrings
 import org.junit.jupiter.api.Test
@@ -17,7 +18,7 @@ private class PClassTest {
   fun nothingness() {
     val loader = loadTypes()
     val cpt = loader.componentClass
-    assertThat(cpt.name).isEqualTo(COMPONENT)
+    assertThat(cpt.className).isEqualTo(COMPONENT)
     assertThat(cpt.abstract).isTrue()
     assertThat(cpt.directSuperclasses).isEmpty()
     assertThat(cpt.allSuperclasses.toStrings()).containsExactly("$COMPONENT")
@@ -28,7 +29,7 @@ private class PClassTest {
   fun onethingness() {
     val loader = loadTypes("CLASS Foo")
     val foo = loader.getClass(cn("Foo"))
-    assertThat(foo.name).isEqualTo(cn("Foo"))
+    assertThat(foo.className).isEqualTo(cn("Foo"))
     assertThat(foo.abstract).isFalse()
     assertThat(foo.directSuperclasses.toStrings()).containsExactly("$COMPONENT")
     assertThat(foo.allSuperclasses.toStrings()).containsExactly("$COMPONENT", "Foo")
@@ -76,7 +77,7 @@ private class PClassTest {
   fun dependency() {
     val loader = loadTypes("CLASS Foo", "CLASS Bar<Foo>")
     val bar = loader.getClass(cn("Bar"))
-    assertThat(bar.directSuperclasses.map { it.name }).containsExactly(COMPONENT)
+    assertThat(bar.directSuperclasses.classNames()).containsExactly(COMPONENT)
     assertThat(bar.directDependencyKeys).containsExactly(Key(cn("Bar"), 0))
   }
 
@@ -192,7 +193,7 @@ private class PClassTest {
   }
 
   private fun checkAutoAdjust(`in`: String, out: String, table: PClassLoader) {
-    assertThat(table.resolveType(typeExpr(`in`)).toTypeExprFull().toString()).isEqualTo(out)
+    assertThat(table.resolveType(typeExpr(`in`)).typeExprFull.toString()).isEqualTo(out)
   }
 }
 

@@ -85,6 +85,4 @@ internal data class DependencyMap(private val map: Map<Key, Dependency>) {
   fun specialize(specs: List<PType>) = intersect(findMatchups(specs))
 
   override fun toString() = "$types"
-
-  fun argsAsTypeExprs() = types.map { it.toTypeExprMinimal() } // TODO not full?
 }

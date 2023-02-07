@@ -77,14 +77,14 @@ public abstract class Authority {
   // STANDARD ACTIONS
 
   public fun action(name: ClassName): StandardActionDefinition =
-      standardActionDefinitions.first { it.name == name }
+      standardActionDefinitions.first { it.className == name }
 
   public abstract val standardActionDefinitions: Collection<StandardActionDefinition>
 
   // MARS MAPS
 
   public fun marsMap(name: ClassName): MarsMapDefinition =
-      marsMapDefinitions.first { it.name == name }
+      marsMapDefinitions.first { it.className == name }
 
   public abstract val marsMapDefinitions: Collection<MarsMapDefinition>
 
@@ -115,7 +115,7 @@ public abstract class Authority {
   // HELPERS
 
   private fun <D : Definition> associateByClassName(defs: Collection<D>) =
-      defs.associateByStrict { it.name }
+      defs.associateByStrict { it.className }
 
   /**
    * An authority providing nothing; intended for tests. Subclass it to supply any needed

@@ -38,7 +38,7 @@ public class Game(
 
   fun getComponents(typeExpr: TypeExpr): Multiset<TypeExpr> {
     val all: Multiset<Component> = getComponents(resolveType(typeExpr))
-    return all.map { it.asTypeExpr }
+    return all.map { it.typeExpr }
   }
 
   fun execute(instr: Instruction) = LiveNodes.from(instr, this).execute(this)

@@ -5,6 +5,7 @@ import dev.martianzoo.tfm.data.ChangeLogEntry.Cause
 import dev.martianzoo.tfm.data.MarsMapDefinition
 import dev.martianzoo.tfm.pets.SpecialClassNames.GAME
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.tfm.pets.ast.classNames
 import dev.martianzoo.tfm.types.PClassLoader
 import dev.martianzoo.tfm.types.PType
 import dev.martianzoo.util.filterNoNulls
@@ -13,7 +14,7 @@ import dev.martianzoo.util.filterNoNulls
 public object Engine {
   public fun newGame(setup: GameSetup): Game {
     val loader = PClassLoader(setup.authority, autoLoadDependencies = true)
-    loader.loadAll(setup.allDefinitions().map { it.name })
+    loader.loadAll(setup.allDefinitions().classNames())
 
     for (seat in 1..setup.players) {
       loader.load(cn("Player$seat"))
@@ -48,7 +49,7 @@ public object Engine {
   private fun singletons(loader: PClassLoader) =
       // GAME *is* a singleton, but we already added it
       loader.allClasses
-          .filter { it.isSingleton() && !it.baseType.abstract && it.name != GAME }
+          .filter { it.isSingleton() && !it.baseType.abstract && it.className != GAME }
           .map { it.baseType }
 
   private fun borders(map: MarsMapDefinition, loader: PClassLoader): List<PType> {
@@ -57,8 +58,8 @@ public object Engine {
         .let { it.rows() + it.columns() + it.diagonals() }
         .flatMap { it.windowed(2).filterNoNulls() }
         .flatMap { (one, two) ->
-          val type1 = one.name.type
-          val type2 = two.name.type
+          val type1 = one.className.type
+          val type2 = two.className.type
           listOf(
               border.addArgs(type1, type2),
               border.addArgs(type2, type1),

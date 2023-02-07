@@ -3,6 +3,7 @@ package dev.martianzoo.tfm.pets.ast
 import com.github.h0tk3y.betterParse.combinators.map
 import dev.martianzoo.tfm.pets.PetParser
 import dev.martianzoo.tfm.pets.PetVisitor
+import dev.martianzoo.util.toSetStrict
 
 data class ClassName(private val asString: String) : PetNode(), Comparable<ClassName> {
   companion object {
@@ -40,3 +41,10 @@ data class ClassName(private val asString: String) : PetNode(), Comparable<Class
     val className = classFullName // or classShortName -- why does that break everything?
   }
 }
+
+interface HasClassName {
+  val className: ClassName
+}
+
+fun Iterable<HasClassName>.classNames(): List<ClassName> = map { it.className }
+fun Set<HasClassName>.classNames(): Set<ClassName> = map { it.className }.toSetStrict()

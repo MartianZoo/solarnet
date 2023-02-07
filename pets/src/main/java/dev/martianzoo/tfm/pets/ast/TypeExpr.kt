@@ -16,16 +16,21 @@ import dev.martianzoo.util.pre
 import dev.martianzoo.util.wrap
 
 /**
- * A noun expression. May be a simple type (`ClassName`), a parameterized type (`Foo<Bar, Qux>`) or
- * a *refined* type (`Foo<Bar(HAS 3 Qux)>(HAS Wau)`). A refined type is the combination of a real
- * type with various predicates.
+ * A particular representation of a type in the Pets language. Could be a simple type (`ClassName`),
+ * a parameterized type (`Foo<Bar, Qux>`) or a refined type (`Foo<Bar(HAS 3 Qux)>(HAS Wau)`) (the
+ * combination of a real type with one or more predicates).
+ *
+ * Caution is required when using this type, because in many cases different type expressions will
+ * represent the same "actual" type; for example `Microbe<This, Player1>` and `Microbe<Player1,
+ * This`, or `Tile` and `Tile<Area>`. This type has no idea about that; they are different
+ * *representations* so they are considered unequal.
  */
 data class TypeExpr(
-    val className: ClassName, // TODO renames?
+    override val className: ClassName, // TODO renames?
     val arguments: List<TypeExpr> = listOf(),
     val refinement: Requirement? = null,
     val link: Int? = null,
-) : PetNode() {
+) : PetNode(), HasClassName {
   companion object {
     fun typeExpr(text: String): TypeExpr = Parsing.parse(TypeParsers.typeExpr, text)
   }
@@ -35,9 +40,9 @@ data class TypeExpr(
 
   override fun toString() =
       "$className" +
-      arguments.joinOrEmpty(wrap = "<>") +
-      refinement.wrap("(HAS ", ")") +
-      link.pre("^")
+          arguments.joinOrEmpty(wrap = "<>") +
+          refinement.wrap("(HAS ", ")") +
+          link.pre("^")
 
   init {
     if (className == CLASS) {

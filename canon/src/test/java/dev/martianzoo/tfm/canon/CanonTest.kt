@@ -13,9 +13,11 @@ import dev.martianzoo.tfm.pets.SpecialClassNames.COMPONENT
 import dev.martianzoo.tfm.pets.SpecialClassNames.OWNED
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.pets.ast.TypeExpr.Companion.typeExpr
+import dev.martianzoo.tfm.pets.ast.classNames
 import dev.martianzoo.tfm.types.PClassLoader
 import dev.martianzoo.util.Grid
 import dev.martianzoo.util.Multiset
+import dev.martianzoo.util.toSetStrict
 import dev.martianzoo.util.toStrings
 import org.junit.jupiter.api.Test
 
@@ -103,15 +105,15 @@ private class CanonTest {
   fun loadsExpectedClasses() {
     val game = Engine.newGame(GameSetup(Canon, "BRMPX", 4))
     val unusedCards =
-        Canon.cardDefinitions.filter { "VC".contains(it.bundle) }.map { it.name }.toSet()
+        Canon.cardDefinitions.filter { "VC".contains(it.bundle) }.classNames().toSetStrict()
 
-    val milestoneNames = Canon.milestoneDefinitions.map { it.name }
+    val milestoneNames = Canon.milestoneDefinitions.classNames().toSetStrict()
     val expected =
         (Canon.allClassNames - unusedCards)
             .filterNot { it.matches(regex) }
             .filterNot { it in milestoneNames && "HEV".contains(Canon.milestone(it).bundle) }
 
-    assertThat(game.loader.allClasses.map { it.name }).containsExactlyElementsIn(expected)
+    assertThat(game.loader.allClasses.classNames()).containsExactlyElementsIn(expected)
   }
 
   val regex = Regex("(Hellas|Elysium|Player5|Camp|Row|Venus|Area2|Floater|Dirigible|AirScrap).*")
@@ -123,9 +125,9 @@ private class CanonTest {
         game.getComponents(game.resolveType(COMPONENT.type))
     assertThat(startingComponents.elements).hasSize(startingComponents.size)
 
-    val isArea: (Component) -> Boolean = { it.asTypeExpr.toString().startsWith("Tharsis_") }
-    val isBorder: (Component) -> Boolean = { it.asTypeExpr.toString().startsWith("Border<") }
-    val isClass: (Component) -> Boolean = { it.asTypeExpr.toString().startsWith("Class<") }
+    val isArea: (Component) -> Boolean = { it.typeExpr.toString().startsWith("Tharsis_") }
+    val isBorder: (Component) -> Boolean = { it.typeExpr.toString().startsWith("Border<") }
+    val isClass: (Component) -> Boolean = { it.typeExpr.toString().startsWith("Class<") }
 
     assertThat(startingComponents.count(isArea)).isEqualTo(61)
     assertThat(startingComponents.count(isBorder)).isEqualTo(312)

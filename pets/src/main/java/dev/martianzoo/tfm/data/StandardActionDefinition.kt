@@ -19,14 +19,14 @@ data class StandardActionDefinition(
     require(bundle.isNotEmpty())
   }
 
-  override val name = englishHack(id)
+  override val className = englishHack(id)
 
   val action by lazy { action(actionText) }
 
   override val asClassDeclaration by lazy {
     val kind = if (project) STANDARD_PROJECT else STANDARD_ACTION
     ClassDeclaration(
-        name = name,
+        name = className,
         id = id,
         abstract = false,
         supertypes = setOf(kind.type),
