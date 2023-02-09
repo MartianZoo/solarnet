@@ -58,7 +58,9 @@ internal class BoardToText(private val game: GameState) { // TODO why not Game??
   }
 
   private fun lookUpResourceLevels(game: ReadOnlyGameState, player: TypeExpr) =
-      standardResourceNames(game).associateBy({ it }) { game.countComponents(it.addArgs(player)) }
+      standardResourceNames(game).associateBy({ it }) {
+        game.countComponents(game.resolveType(it.addArgs(player)))
+      }
 }
 
 internal val mColor = "f4d400"

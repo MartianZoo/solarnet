@@ -2,6 +2,7 @@ package dev.martianzoo.tfm.engine
 
 import dev.martianzoo.tfm.api.GameSetup
 import dev.martianzoo.tfm.api.GameState
+import dev.martianzoo.tfm.api.Type
 import dev.martianzoo.tfm.data.ChangeLogEntry
 import dev.martianzoo.tfm.data.ChangeLogEntry.Cause
 import dev.martianzoo.tfm.pets.ast.Instruction
@@ -10,7 +11,6 @@ import dev.martianzoo.tfm.pets.ast.TypeExpr
 import dev.martianzoo.tfm.types.PClassLoader
 import dev.martianzoo.tfm.types.PType
 import dev.martianzoo.util.Multiset
-import dev.martianzoo.util.map
 
 /** A game in progress. */
 public class Game(
@@ -28,18 +28,15 @@ public class Game(
 
   fun resolveType(typeExpr: TypeExpr): PType = loader.resolveType(typeExpr)
 
+  fun resolveType(type: Type): PType = loader.resolveType(type)
+
   fun isMet(requirement: Requirement) = LiveNodes.from(requirement, this).isMet(this)
 
-  fun countComponents(ptype: PType) = components.count(ptype)
+  fun countComponents(type: Type): Int = components.count(resolveType(type))
 
-  fun countComponents(typeExpr: TypeExpr) = countComponents(resolveType(typeExpr))
+  fun countComponents(typeExpr: TypeExpr): Int = countComponents(resolveType(typeExpr))
 
-  fun getComponents(ptype: PType): Multiset<Component> = components.getAll(ptype)
-
-  fun getComponents(typeExpr: TypeExpr): Multiset<TypeExpr> {
-    val all: Multiset<Component> = getComponents(resolveType(typeExpr))
-    return all.map { it.typeExpr }
-  }
+  fun getComponents(type: Type): Multiset<Component> = components.getAll(resolveType(type))
 
   fun execute(instr: Instruction) = LiveNodes.from(instr, this).execute(this)
 
@@ -69,8 +66,8 @@ public class Game(
       val g = this@Game
       override fun applyChange(
           count: Int,
-          removing: TypeExpr?,
-          gaining: TypeExpr?,
+          removing: Type?,
+          gaining: Type?,
           cause: Cause?,
           amap: Boolean,
       ) {
@@ -87,13 +84,15 @@ public class Game(
       override val authority by g::authority
       override val map by setup::map
 
-      fun resolveType(typeExpr: TypeExpr) = g.resolveType(typeExpr)
+      override fun resolveType(typeExpr: TypeExpr): PType = g.resolveType(typeExpr)
+
+      fun resolveType(type: Type): PType = g.resolveType(type)
 
       override fun isMet(requirement: Requirement) = g.isMet(requirement)
 
-      override fun countComponents(typeExpr: TypeExpr) = g.countComponents(typeExpr)
+      override fun countComponents(type: Type): Int = g.countComponents(type)
 
-      override fun getComponents(typeExpr: TypeExpr) = g.getComponents(typeExpr)
+      override fun getComponents(type: Type): Multiset<out Type> = g.getComponents(type)
     }
   }
 }

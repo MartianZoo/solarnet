@@ -54,6 +54,7 @@ public object AstTransforms {
     return Effect(WhenGain, instruction, automatic = false)
   }
 
+  // TODO check if this really what callers want to do
   public fun <P : PetNode> replaceTypes(node: P, from: TypeExpr, to: TypeExpr): P {
     val xer =
         object : PetTransformer() {
@@ -70,6 +71,7 @@ public object AstTransforms {
 
   /** Transform any `PROD[...]` sections in a subtree to the equivalent subtree. */
   public fun <P : PetNode> deprodify(node: P, producible: Set<ClassName>): P {
+    // TODO is there some way this could act on Types instead of TypeExprs?
     val xer =
         object : PetTransformer() {
           var inProd: Boolean = false
@@ -103,6 +105,7 @@ public object AstTransforms {
    * implementing what the code `class Owned { DEFAULT This<Owner> ... }` is already trying to
    * express, but I haven't gotten that working in a general way yet.
    */
+  // TODO redo this in terms of Type not TypeExpr
   public fun <P : PetNode> addOwner(node: P, owners: Set<ClassName>, owneds: Set<ClassName>): P {
     fun hasOwner(typeExprs: List<TypeExpr>) = typeExprs.intersect(owners.map { it.type }).any()
     val xer =

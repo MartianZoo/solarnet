@@ -14,7 +14,8 @@ import dev.martianzoo.tfm.pets.ast.TypeExpr
  */
 fun lookUpProductionLevels(game: ReadOnlyGameState, player: TypeExpr): Map<ClassName, Int> =
     standardResourceNames(game).associateWith {
-      val rawCount = game.countComponents(PRODUCTION.addArgs(player, CLASS.addArgs(it)))
+      val type = game.resolveType(PRODUCTION.addArgs(player, CLASS.addArgs(it)))
+      val rawCount = game.countComponents(type)
       if (it == MEGACREDIT) {
         rawCount - 5
       } else {
@@ -24,6 +25,6 @@ fun lookUpProductionLevels(game: ReadOnlyGameState, player: TypeExpr): Map<Class
 
 /** Returns the name of every concrete class of type `StandardResource`. */
 fun standardResourceNames(game: ReadOnlyGameState): Set<ClassName> =
-    game.getComponents(CLASS.addArgs(STANDARD_RESOURCE))
-        .map { it.arguments.single().className }
+    game.getComponents(game.resolveType(CLASS.addArgs(STANDARD_RESOURCE)))
+        .map { it.typeExpr.arguments.single().className }
         .toSet()

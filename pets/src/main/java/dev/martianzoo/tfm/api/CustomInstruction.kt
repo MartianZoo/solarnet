@@ -1,7 +1,6 @@
 package dev.martianzoo.tfm.api
 
 import dev.martianzoo.tfm.pets.ast.Instruction
-import dev.martianzoo.tfm.pets.ast.TypeExpr
 
 /**
  * For instructions that can't be expressed in Pets, write `@functionName(Arg1, Arg2...)` and
@@ -23,11 +22,11 @@ public abstract class CustomInstruction(
    * When possible override this method, and compute an [Instruction] that can be executed in place
    * of this one. When this isn't possible, override [execute] instead.
    */
-  public open fun translate(game: ReadOnlyGameState, arguments: List<TypeExpr>): Instruction {
+  public open fun translate(game: ReadOnlyGameState, arguments: List<Type>): Instruction {
     throw ExecuteInsteadException()
   }
 
-  public open fun execute(game: GameState, arguments: List<TypeExpr>) {
+  public open fun execute(game: GameState, arguments: List<Type>) {
     throw NotImplementedError()
   }
 

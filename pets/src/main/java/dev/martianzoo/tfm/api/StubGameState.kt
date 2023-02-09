@@ -9,19 +9,21 @@ import dev.martianzoo.util.Multiset
 open class StubGameState(auth: Authority = Authority.Minimal()) : GameState {
   override fun applyChange(
       count: Int,
-      removing: TypeExpr?,
-      gaining: TypeExpr?,
+      removing: Type?,
+      gaining: Type?,
       cause: Cause?,
       amap: Boolean,
   ): Unit = throe()
 
   override val setup = GameSetup(auth, "BM", 2)
 
-  override fun countComponents(typeExpr: TypeExpr): Int = throe()
+  override fun countComponents(type: Type): Int = throe()
 
-  override fun getComponents(typeExpr: TypeExpr): Multiset<TypeExpr> = throe()
+  override fun getComponents(type: Type): Multiset<out Type> = throe()
 
   override fun isMet(requirement: Requirement): Boolean = throe()
+
+  override fun resolveType(typeExpr: TypeExpr): Type = throe()
 
   private fun throe(): Nothing = throw RuntimeException("this is just a stub")
 }

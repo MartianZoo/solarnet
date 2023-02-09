@@ -1,6 +1,7 @@
 package dev.martianzoo.tfm.types
 
 import dev.martianzoo.tfm.api.Authority
+import dev.martianzoo.tfm.api.Type
 import dev.martianzoo.tfm.data.ClassDeclaration
 import dev.martianzoo.tfm.pets.SpecialClassNames.CLASS
 import dev.martianzoo.tfm.pets.SpecialClassNames.COMPONENT
@@ -47,6 +48,9 @@ public class PClassLoader(
   /** Returns the [PClass] whose name or id is [nameOrId], or throws an exception. */
   public fun getClass(nameOrId: ClassName): PClass =
       loadedClasses[nameOrId] ?: error("no class loaded with id or name $nameOrId")
+
+  /** Returns the corresponding [PType] to [type] (possibly [type] itself). */
+  public fun resolveType(type: Type): PType = type as? PType ?: resolveType(type.typeExprFull)
 
   /** Returns the [PType] represented by [typeExpr]. */
   public fun resolveType(typeExpr: TypeExpr): PType {

@@ -10,8 +10,8 @@ import dev.martianzoo.util.Multiset
 interface GameState : ReadOnlyGameState {
   fun applyChange(
       count: Int = 1,
-      removing: TypeExpr? = null,
-      gaining: TypeExpr? = null,
+      removing: Type? = null,
+      gaining: Type? = null,
       cause: Cause? = null,
       amap: Boolean = false,
   )
@@ -27,9 +27,11 @@ interface ReadOnlyGameState {
   val map: MarsMapDefinition
     get() = setup.map
 
-  fun countComponents(typeExpr: TypeExpr): Int
+  fun countComponents(type: Type): Int
 
-  fun getComponents(typeExpr: TypeExpr): Multiset<TypeExpr>
+  fun getComponents(type: Type): Multiset<out Type>
 
   fun isMet(requirement: Requirement): Boolean
+
+  fun resolveType(typeExpr: TypeExpr): Type
 }

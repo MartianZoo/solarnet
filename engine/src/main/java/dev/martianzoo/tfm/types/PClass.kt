@@ -242,6 +242,7 @@ internal constructor(
     val xer = object : PetTransformer() {
       override fun <P : PetNode> transform(node: P): P {
         // for now, add <This> indiscriminately to this type but don't recurse *its* refinement
+        // TODO should we be doing this here?
         return if (node is TypeExpr) {
           node.addArgs(THIS) as P
         } else {
@@ -283,8 +284,6 @@ internal constructor(
     """
         .trimIndent()
   }
-
-  fun isBaseType(typeExpr: TypeExpr) = loader.resolveType(typeExpr) == baseType
 }
 
 fun superclasses(declaration: ClassDeclaration, loader: PClassLoader) =

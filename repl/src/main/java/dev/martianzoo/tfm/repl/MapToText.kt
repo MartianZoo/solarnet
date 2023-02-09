@@ -1,8 +1,8 @@
 package dev.martianzoo.tfm.repl
 
 import dev.martianzoo.tfm.api.GameState
+import dev.martianzoo.tfm.api.Type
 import dev.martianzoo.tfm.data.MarsMapDefinition.AreaDefinition
-import dev.martianzoo.tfm.pets.ast.TypeExpr
 import dev.martianzoo.tfm.pets.ast.TypeExpr.Companion.typeExpr
 import dev.martianzoo.util.Grid
 import dev.martianzoo.util.toStrings
@@ -43,7 +43,8 @@ internal class MapToText(private val game: GameState) {
 
   private fun describe(area: AreaDefinition?): String { // TODO rewrite using Grid<String>
     if (area == null) return ""
-    val tiles = game.getComponents(typeExpr("Tile<${area.asClassDeclaration.name}>"))
+    val typeExpr = typeExpr("Tile<${area.asClassDeclaration.name}>")
+    val tiles = game.getComponents(game.resolveType(typeExpr))
     return when (tiles.size) {
       0 -> area.code
       1 -> describe(tiles.iterator().next())
@@ -51,7 +52,7 @@ internal class MapToText(private val game: GameState) {
     }
   }
 
-  private fun describe(tile: TypeExpr): String {
+  private fun describe(tile: Type): String {
     val name = tile.className.toString()
     val kind =
         when { // TODO do this more by checking supertypes
@@ -59,7 +60,8 @@ internal class MapToText(private val game: GameState) {
           name.startsWith("Tile") -> "S"
           else -> name[0]
         }
-    val player = tile.arguments.toStrings().firstOrNull { it.startsWith("Player") }?.last() ?: ""
+    val argStrings = tile.typeExprFull.arguments.toStrings()
+    val player = argStrings.firstOrNull { it.startsWith("Player") }?.last() ?: ""
     return "[$kind$player]"
   }
 
