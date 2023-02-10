@@ -1,7 +1,6 @@
 package dev.martianzoo.tfm.repl
 
 import dev.martianzoo.tfm.api.ReadOnlyGameState
-import dev.martianzoo.tfm.api.ReadOnlyGameState.GameState
 import dev.martianzoo.tfm.api.lookUpProductionLevels
 import dev.martianzoo.tfm.api.standardResourceNames
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
@@ -9,7 +8,7 @@ import dev.martianzoo.tfm.pets.ast.TypeExpr
 import org.jline.utils.AttributedStringBuilder
 import org.jline.utils.AttributedStyle.DEFAULT
 
-internal class BoardToText(private val game: GameState) { // TODO why not Game??
+internal class BoardToText(private val game: ReadOnlyGameState) {
 
   internal fun board(player: TypeExpr, colors: Boolean = true): List<String> {
     val prodMap = lookUpProductionLevels(game, player)

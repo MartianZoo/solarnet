@@ -149,7 +149,7 @@ data class CardDefinition(
   }
 
   override val id = cn("C$idRaw")
-  override val className: ClassName = englishHack(idRaw)
+  override val className: ClassName = englishHack(id)
 
   val tags: List<ClassName> = tagsText.map(::cn)
 

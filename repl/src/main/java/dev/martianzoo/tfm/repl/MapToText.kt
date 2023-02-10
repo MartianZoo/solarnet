@@ -1,13 +1,13 @@
 package dev.martianzoo.tfm.repl
 
-import dev.martianzoo.tfm.api.ReadOnlyGameState.GameState
+import dev.martianzoo.tfm.api.ReadOnlyGameState
 import dev.martianzoo.tfm.api.Type
 import dev.martianzoo.tfm.data.MarsMapDefinition.AreaDefinition
 import dev.martianzoo.tfm.pets.ast.TypeExpr.Companion.typeExpr
 import dev.martianzoo.util.Grid
 import dev.martianzoo.util.toStrings
 
-internal class MapToText(private val game: GameState) {
+internal class MapToText(private val game: ReadOnlyGameState) {
 
   internal fun map(): List<String> {
     val grid: Grid<AreaDefinition> = game.map.areas
