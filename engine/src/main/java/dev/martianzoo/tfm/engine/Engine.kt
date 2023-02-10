@@ -43,12 +43,10 @@ public object Engine {
 
   // TODO maybe the loader should report these
 
-  private fun classInstances(loader: PClassLoader): List<PType> {
-    val concretes = loader.allClasses.filter { !it.abstract }
-    return concretes.map { it.classType }
-  }
+  private fun classInstances(loader: PClassLoader): List<PType> =
+      loader.allClasses.filter { !it.abstract }.map { it.classType }
 
-  private fun singletons(loader: PClassLoader) =
+  private fun singletons(loader: PClassLoader): List<PType> =
       // GAME *is* a singleton, but we already added it
       loader.allClasses
           .filter { it.isSingleton() && !it.baseType.abstract && it.className != GAME }

@@ -30,7 +30,7 @@ class InteractiveSession {
 
   fun becomePlayer(player: Int) {
     val p = cn("Player$player")
-    game!!.loader.getClass(p)
+    game!!.resolveType(p.type)
     defaultPlayer = p
   }
 

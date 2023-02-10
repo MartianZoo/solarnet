@@ -16,7 +16,7 @@ import dev.martianzoo.util.Multiset
 public class Game(
     override val setup: GameSetup,
     internal val components: ComponentGraph,
-    val loader: PClassLoader,
+    public val loader: PClassLoader, // TODO unpublic it
 ) : GameState {
   // val tasks = mutableListOf<Task>()
 
@@ -49,12 +49,14 @@ public class Game(
   ) {
     components.applyChange(
         count,
-        removing = removing?.let { Component(loader.resolveType(it)) },
-        gaining = gaining?.let { Component(loader.resolveType(it)) },
+        removing = component(removing),
+        gaining = component(gaining),
         amap = amap,
         cause = cause,
         hidden = false)
   }
+
+  private fun component(type: Type?): Component? = type?.let { Component(loader.resolveType(it)) }
 
   fun rollBackToBefore(ordinal: Int) = components.rollBackToBefore(ordinal, loader)
 }

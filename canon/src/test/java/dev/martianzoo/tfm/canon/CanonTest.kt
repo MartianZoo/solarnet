@@ -125,9 +125,9 @@ private class CanonTest {
         game.getComponents(game.resolveType(COMPONENT.type))
     assertThat(startingComponents.elements).hasSize(startingComponents.size)
 
-    val isArea: (Component) -> Boolean = { it.typeExpr.toString().startsWith("Tharsis_") }
-    val isBorder: (Component) -> Boolean = { it.typeExpr.toString().startsWith("Border<") }
-    val isClass: (Component) -> Boolean = { it.typeExpr.toString().startsWith("Class<") }
+    val isArea: (Component) -> Boolean = { it.toString().startsWith("[Tharsis_") }
+    val isBorder: (Component) -> Boolean = { it.toString().startsWith("[Border<") }
+    val isClass: (Component) -> Boolean = { it.toString().startsWith("[Class<") }
 
     assertThat(startingComponents.count(isArea)).isEqualTo(61)
     assertThat(startingComponents.count(isBorder)).isEqualTo(312)

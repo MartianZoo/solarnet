@@ -51,7 +51,6 @@ internal data class DependencyMap(private val map: Map<Key, Dependency>) {
 
   // determines the map that could be merged with this one to specialize, by inferring which
   // keys the provided specs go with
-  // TODO fix the strict-order problem!
   fun findMatchups(specs: List<PType>): DependencyMap {
     val matchups = mutableMapOf<Key, TypeDependency>()
     val unhandled = specs.toMutableList()

@@ -134,7 +134,7 @@ public class ReplSession(private val authority: Authority) {
               {
                 it?.let { args ->
                   val typeExpr = typeExpr(args.trim())
-                  val ptype = session.game!!.loader.resolveType(typeExpr)
+                  val ptype = session.game!!.resolveType(typeExpr)
                   if (typeExpr.isTypeOnly) {
                     listOf(ptype.pclass.describe())
                   } else {
