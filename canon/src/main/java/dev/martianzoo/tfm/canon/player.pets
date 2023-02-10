@@ -30,7 +30,7 @@ ABSTRACT CLASS Owned<Anyone> {
 
 // TILES ---------------------------------------------------
 
-    ABSTRACT CLASS OwnedTile : Tile, Owned {
+    ABSTRACT CLASS OwnedTile : Owned, Tile {
         CLASS GreeneryTile : Tile<MarsArea> {
             DEFAULT +This<LandArea(HAS Neighbor<OwnedTile>)>// This needs to use `HAS?` or something TODO
 

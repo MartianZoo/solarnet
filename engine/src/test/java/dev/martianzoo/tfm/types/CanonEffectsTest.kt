@@ -42,7 +42,7 @@ private class CanonEffectsTest {
   @Test
   fun polarExplorer() {
     assertThat(load("PolarExplorer").classEffects)
-        .containsExactly(effect("This:: (3 OwnedTile<MarsArea(HAS 8 Row), Owner>: Ok!)"))
+        .containsExactly(effect("This:: (3 OwnedTile<Owner, MarsArea(HAS 8 Row)>: Ok!)"))
   }
 
   @Disabled
@@ -145,8 +145,8 @@ private class CanonEffectsTest {
   fun aquiferPumping() {
     assertThat(load("AquiferPumping").classEffects)
         .containsExactly(
-            effect("UseAction1<This, Owner>:: Accept<Class<Steel>, Owner>."),
-            effect("UseAction1<This, Owner>: -8 Megacredit<Owner>! THEN OceanTile<WaterArea>."),
+            effect("UseAction1<Owner, This>:: Accept<Owner, Class<Steel>>."),
+            effect("UseAction1<Owner, This>: -8 Megacredit<Owner>! THEN OceanTile<WaterArea>."),
         )
   }
 

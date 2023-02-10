@@ -5,6 +5,7 @@ import dev.martianzoo.tfm.pets.SpecialClassNames.CLASS
 import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.pets.ast.Requirement.And
 import dev.martianzoo.tfm.pets.ast.TypeExpr
+import dev.martianzoo.tfm.pets.ast.TypeExpr.Companion.typeExpr
 import dev.martianzoo.tfm.types.Dependency.ClassDependency
 import dev.martianzoo.tfm.types.Dependency.TypeDependency
 

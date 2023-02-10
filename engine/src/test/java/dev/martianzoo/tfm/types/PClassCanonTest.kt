@@ -9,6 +9,7 @@ import dev.martianzoo.tfm.pets.ast.ClassName.Companion.classNames
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.pets.ast.Requirement.Companion.requirement
 import dev.martianzoo.tfm.pets.ast.TypeExpr.Companion.typeExpr
+import dev.martianzoo.tfm.types.Dependency.Key
 import dev.martianzoo.util.random
 import dev.martianzoo.util.toStrings
 import org.junit.jupiter.api.Disabled
@@ -41,6 +42,23 @@ private class PClassCanonTest {
 
       table.load(cn("MarsArea"))
       assertThat(baseType).isEqualTo(table.resolveType(typeExpr("OceanTile<MarsArea>")))
+    }
+  }
+
+  @Disabled
+  @Test
+  fun twoDeps() {
+    val table = PClassLoader(Canon).loadEverything()
+    val map = mutableMapOf<List<Key>, MutableList<ClassName>>()
+    table.allClasses.forEach {
+      if (it.allDependencyKeys.size >= 2) {
+        val key = it.allDependencyKeys.toList()
+        map.putIfAbsent(key, mutableListOf())
+        map[key]!! += it.className
+      }
+    }
+    map.forEach { k, v ->
+      println("$k : $v")
     }
   }
 

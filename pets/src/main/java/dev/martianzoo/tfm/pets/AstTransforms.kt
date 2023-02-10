@@ -1,6 +1,7 @@
 package dev.martianzoo.tfm.pets
 
 import dev.martianzoo.tfm.pets.SpecialClassNames.CLASS
+import dev.martianzoo.tfm.pets.SpecialClassNames.OWNER
 import dev.martianzoo.tfm.pets.SpecialClassNames.PRODUCTION
 import dev.martianzoo.tfm.pets.SpecialClassNames.THIS
 import dev.martianzoo.tfm.pets.SpecialClassNames.USE_ACTION
@@ -116,7 +117,10 @@ public object AstTransforms {
             } else if (node.className == CLASS) {
               node // don't descend; it's perfect how it is
             } else if (node.className in owneds && !hasOwner(node.arguments)) {
-              defaultTransform(node).addArgs(SpecialClassNames.OWNER.type) as Q
+              val xd = defaultTransform(node)
+              val withOwnerPrepended = xd.replaceArgs(listOf(OWNER.type) + xd.arguments)
+              @Suppress("UNCHECKED_CAST")
+              withOwnerPrepended as Q
             } else {
               defaultTransform(node)
             }
