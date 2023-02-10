@@ -10,21 +10,23 @@ import org.junit.jupiter.api.Test
 
 private class MarsMapDefinitionTest {
 
-  val demoMapJson = """{
-    "legend": {
-      "L": "LandArea", "W": "WaterArea", "V": "VolcanicArea",
-      "P": "Plant", "S": "Steel", "C": "ProjectCard",
-    },
-    "maps": [{
-      "name": "Demo",
-      "bundle": "D",
-      "rows": [
-        [ "VS", "L" ],
-        [ "V2P", "WPP", "WPC" ],
-        [ "", "LSS", "LC" ],
-      ]
-    }]
-  }"""
+  val demoMapJson =
+      """
+        {
+          "legend": {
+            "L": "LandArea", "W": "WaterArea", "V": "VolcanicArea",
+            "P": "Plant", "S": "Steel", "C": "ProjectCard",
+          },
+          "maps": [{
+            "name": "Demo",
+            "bundle": "D",
+            "rows": [
+              [ "VS", "L" ],
+              [ "V2P", "WPP", "WPC" ],
+              [ "", "LSS", "LC" ],
+            ]
+          }]
+        }"""
 
   @Test
   fun testDemoMapFromJson() {

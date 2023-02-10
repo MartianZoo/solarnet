@@ -101,8 +101,7 @@ internal object LiveNodes {
       LiveInstruction() {
     override fun execute(game: GameState) {
       try {
-        val translated: Instruction =
-            custom.translate(game, arguments)
+        val translated: Instruction = custom.translate(game, arguments)
         val deprodded = deprodify(translated, standardResourceNames(game))
         from(deprodded, game).execute(game)
       } catch (e: ExecuteInsteadException) {

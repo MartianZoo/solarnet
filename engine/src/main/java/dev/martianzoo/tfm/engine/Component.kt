@@ -30,13 +30,14 @@ public data class Component(private val ptype: PType) : Type by ptype {
   }
 
   internal fun effects(game: Game): Set<LiveEffect> {
-    val classFx = ptype.pclass.classEffects
-    return classFx.map {
-      var fx = it
-      fx = AstTransforms.replaceTypes(fx, THIS.type, ptype.typeExpr)
-      // specialize for deps... owner...
-      LiveNodes.from(fx, game)
-    }.toSetStrict()
+    return ptype.pclass.classEffects
+        .map {
+          var fx = it
+          fx = AstTransforms.replaceTypes(fx, THIS.type, ptype.typeExpr)
+          // specialize for deps... owner...
+          LiveNodes.from(fx, game)
+        }
+        .toSetStrict()
   }
 
   override fun toString() = "[$ptype]"

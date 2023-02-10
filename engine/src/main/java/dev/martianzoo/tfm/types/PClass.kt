@@ -36,13 +36,14 @@ internal constructor(
     public val declaration: ClassDeclaration,
     /** The class loader that loaded this class. */
     private val loader: PClassLoader,
-
-    public val directSuperclasses: List<PClass> = superclasses(declaration, loader)
-): HasClassName {
+    public val directSuperclasses: List<PClass> = superclasses(declaration, loader),
+) : HasClassName {
   /** The name of this class, in UpperCamelCase. */
   public override val className: ClassName by declaration::name
 
-  /** A short name for this class, such as `"CT"` for `"CityTile"`; is often the same as [className]. */
+  /**
+   * A short name for this class, such as `"CT"` for `"CityTile"`; is often the same as [className].
+   */
   public val id: ClassName by declaration::id
 
   /**
@@ -171,7 +172,8 @@ internal constructor(
     }
   }
 
-  private fun defaultsIgnoringRoot(): Defaults = // TODO hack
+  // TODO hack
+  private fun defaultsIgnoringRoot(): Defaults =
       if (className == COMPONENT) {
         Defaults()
       } else {
@@ -237,17 +239,18 @@ internal constructor(
    * references to the type `This`, which are to be substituted with the concrete type.
    */
   public val invariants: Set<Requirement> by lazy {
-    val xer = object : PetTransformer() {
-      override fun <P : PetNode> transform(node: P): P {
-        // for now, add <This> indiscriminately to this type but don't recurse *its* refinement
-        // TODO should we be doing this here?
-        return if (node is TypeExpr) {
-          node.addArgs(THIS) as P
-        } else {
-          defaultTransform(node)
+    val xer =
+        object : PetTransformer() {
+          override fun <P : PetNode> transform(node: P): P {
+            // for now, add <This> indiscriminately to this type but don't recurse *its* refinement
+            // TODO should we be doing this here?
+            return if (node is TypeExpr) {
+              node.addArgs(THIS) as P
+            } else {
+              defaultTransform(node)
+            }
+          }
         }
-      }
-    }
     val topInvariants = listOfNotNull(declaration.topInvariant).map { xer.transform(it) }
     declaration.otherInvariants + topInvariants
   }

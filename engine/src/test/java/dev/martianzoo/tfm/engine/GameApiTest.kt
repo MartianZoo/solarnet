@@ -48,14 +48,12 @@ private class GameApiTest {
             StateChange(5, gaining = te("Heat<Player2>")),
             StateChange(10, gaining = te("Heat<Player3>")),
             StateChange(4, removing = te("Heat<Player2>")),
-            StateChange(
-                3, removing = te("Heat<Player3>"), gaining = te("Steel<Player3>")),
-            StateChange(
-                2, removing = te("Heat<Player3>"), gaining = te("Heat<Player2>")),
+            StateChange(3, removing = te("Heat<Player3>"), gaining = te("Steel<Player3>")),
+            StateChange(2, removing = te("Heat<Player3>"), gaining = te("Heat<Player2>")),
         )
         .inOrder()
 
-    assertThat(game.changeLog().toStrings().map { it.replace(Regex("^\\d+"), "")})
+    assertThat(game.changeLog().toStrings().map { it.replace(Regex("^\\d+"), "") })
         .containsExactly(
             ": 5 Heat<Player2>",
             ": 10 Heat<Player3>",

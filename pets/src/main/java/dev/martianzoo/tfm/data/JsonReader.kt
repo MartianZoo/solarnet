@@ -66,11 +66,12 @@ object JsonReader {
               code)
         }
 
-        val areas = rows.flatMapIndexed { row0Index, cells ->
-          cells.mapIndexedNotNull { col0Index, code ->
-            mapArea(row0Index, col0Index, code, legend)
-          }
-        }
+        val areas =
+            rows.flatMapIndexed { row0Index, cells ->
+              cells.mapIndexedNotNull { col0Index, code ->
+                mapArea(row0Index, col0Index, code, legend)
+              }
+            }
         val grid = Grid.grid(areas, { it.row }, { it.column })
         return MarsMapDefinition(name, bundle, grid)
       }

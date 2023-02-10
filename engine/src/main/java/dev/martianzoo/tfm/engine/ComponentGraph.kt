@@ -1,10 +1,8 @@
-
 package dev.martianzoo.tfm.engine
 
 import dev.martianzoo.tfm.data.ChangeRecord
 import dev.martianzoo.tfm.data.ChangeRecord.Cause
 import dev.martianzoo.tfm.data.ChangeRecord.StateChange
-import dev.martianzoo.tfm.types.PClassLoader
 import dev.martianzoo.tfm.types.PType
 import dev.martianzoo.util.HashMultiset
 import dev.martianzoo.util.Multiset
@@ -35,9 +33,7 @@ public class ComponentGraph {
     }
     removing?.let { r ->
       multiset.elements.forEach {
-        require(r !in it.dependencies) {
-          "Can't remove dependency $r of existing component $it"
-        }
+        require(r !in it.dependencies) { "Can't remove dependency $r of existing component $it" }
       }
     }
 
@@ -45,15 +41,15 @@ public class ComponentGraph {
     changeLog.add(
         ChangeRecord(
             ordinal = changeLog.size,
-            change = StateChange(
-                count = correctedCount,
-                gaining = gaining?.typeExpr,
-                removing = removing?.typeExpr,
-            ),
+            change =
+                StateChange(
+                    count = correctedCount,
+                    gaining = gaining?.typeExpr,
+                    removing = removing?.typeExpr,
+                ),
             cause = cause,
             hidden = hidden,
-        )
-    )
+        ))
   }
 
   internal fun updateMultiset(

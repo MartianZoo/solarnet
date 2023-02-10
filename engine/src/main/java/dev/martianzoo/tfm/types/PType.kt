@@ -11,10 +11,11 @@ import dev.martianzoo.tfm.types.Dependency.TypeDependency
 /**
  * The translation of a [TypeExpr] into a "live" type, referencing actual [PClass]es loaded by a
  * [PClassLoader]. These are usually obtained by [PClassLoader.resolveType]. These can be abstract.
- * Usages of this type should be fairly unrelated to questions of whether instances exist in a
- * game state.
+ * Usages of this type should be fairly unrelated to questions of whether instances exist in a game
+ * state.
  */
-public data class PType internal constructor(
+public data class PType
+internal constructor(
     public val pclass: PClass,
     internal val allDependencies: DependencyMap = DependencyMap(),
     override val refinement: Requirement? = null,

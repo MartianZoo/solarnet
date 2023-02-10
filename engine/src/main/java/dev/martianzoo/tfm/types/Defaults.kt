@@ -18,7 +18,8 @@ internal class Defaults(
     fun from(d: DefaultsDeclaration, pclass: PClass, loader: PClassLoader): Defaults {
       // TypeExpr/Type? TODO
       fun PClass.toDependencyMap(specs: List<TypeExpr>?): DependencyMap =
-          specs?.let { loader.resolveType(className.addArgs(it)).allDependencies } ?: DependencyMap()
+          specs?.let { loader.resolveType(className.addArgs(it)).allDependencies }
+              ?: DependencyMap()
 
       return Defaults(
           allCasesDependencies = pclass.toDependencyMap(d.universalSpecs),
@@ -32,8 +33,7 @@ internal class Defaults(
   // but otherwise attempt to find agreement among all of `defaultses`.
   fun overlayOn(defaultses: List<Defaults>): Defaults {
     return Defaults(
-        allCasesDependencies, // overlayDMs(allCasesDependencies, defaultses.map {
-                              // it.allCasesDependencies }),
+        allCasesDependencies,
         overlayDMs(gainOnlyDependencies, defaultses.map { it.gainOnlyDependencies }),
         overlayIntensities(defaultses) { it.gainIntensity })
   }

@@ -22,8 +22,8 @@ private class ClassDeclarationTest {
     assertFails { ClassDeclaration(COMPONENT, supertypes = setOf(te("Foo<Bar>"))).validate() }
     assertFails { ClassDeclaration(cn("NotComponent")).validate() }
 
-    val cd = ClassDeclaration(
-        cn("NotComponent"), supertypes = setOf(COMPONENT.type, te("Baz<Qux>")))
+    val cd =
+        ClassDeclaration(cn("NotComponent"), supertypes = setOf(COMPONENT.type, te("Baz<Qux>")))
     assertFails { cd.validate() }
   }
 

@@ -4,7 +4,7 @@ import dev.martianzoo.tfm.api.Type
 import dev.martianzoo.tfm.pets.SpecialClassNames.CLASS
 import dev.martianzoo.tfm.pets.ast.ClassName
 
-internal sealed class Dependency: Type {
+internal sealed class Dependency : Type {
   abstract val key: Key
   override val refinement = null
   abstract fun intersect(that: Dependency): Dependency?

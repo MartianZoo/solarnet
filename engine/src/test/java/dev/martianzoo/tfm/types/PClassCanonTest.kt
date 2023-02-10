@@ -56,21 +56,19 @@ private class PClassCanonTest {
     table.allClasses.forEach { it.classEffects }
   }
 
-  @Test fun classInvariants() {
+  @Test
+  fun classInvariants() {
     val table = PClassLoader(Canon).loadEverything()
     val temp = table.getClass(cn("TemperatureStep"))
-    assertThat(temp.invariants).containsExactly(
-        requirement("MAX 19 This")
-    )
+    assertThat(temp.invariants).containsExactly(requirement("MAX 19 This"))
     val ocean = table.getClass(cn("OceanTile"))
-    assertThat(ocean.invariants).containsExactly(
-        requirement("MAX 9 OceanTile")
-    )
+    assertThat(ocean.invariants).containsExactly(requirement("MAX 9 OceanTile"))
     val area = table.getClass(cn("Area"))
-    assertThat(area.invariants).containsExactly(
-        requirement("MAX 1 This"),
-        requirement("MAX 1 Tile<This>"),
-    )
+    assertThat(area.invariants)
+        .containsExactly(
+            requirement("MAX 1 This"),
+            requirement("MAX 1 Tile<This>"),
+        )
   }
 
   @Disabled
@@ -91,7 +89,8 @@ private class PClassCanonTest {
     val table = PClassLoader(Canon).loadEverything()
 
     val names: List<ClassName> =
-        table.allClasses.classNames()
+        table.allClasses
+            .classNames()
             .filterNot { it.matches(Regex("^Card.{3,4}$")) && it.hashCode() % 12 != 0 }
             .filterNot { it.matches(Regex("^(Tharsis|Hellas|Elysium)")) && it.hashCode() % 8 != 0 }
             .filterNot { it in setOf(COMPONENT, DIE) }

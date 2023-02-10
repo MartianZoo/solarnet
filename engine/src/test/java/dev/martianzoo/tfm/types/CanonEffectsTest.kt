@@ -112,7 +112,8 @@ private class CanonEffectsTest {
     assertThat(load("TitanAirScrapping").classEffects)
         .containsExactly(
             effect("UseAction1<This, Owner>: -Titanium<Owner>! THEN 2 Floater<This, Owner>."),
-            effect("UseAction2<This, Owner>: -2 Floater<This, Owner>! THEN TerraformRating<Owner>!"),
+            effect(
+                "UseAction2<This, Owner>: -2 Floater<This, Owner>! THEN TerraformRating<Owner>!"),
             effect("End: 2 VictoryPoint<Owner>!"),
         )
   }

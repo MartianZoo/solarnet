@@ -161,7 +161,5 @@ public class PClassLoader(
 
   public val transformer: LiveTransformer by lazy { LiveTransformer(this) }
 
-  public val allInvariants by lazy {
-
-  }
+  public val allInvariants by lazy {}
 }

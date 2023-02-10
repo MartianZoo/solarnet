@@ -109,7 +109,6 @@ public object Parsing {
             .filterNot { it.type.ignored }
             .joinToString(" ") { it.type.name?.replace("\n", "\\n") ?: "NULL" })
 
-
     fun isEOF(result: ParseResult<*>?): Boolean =
         if (result is AlternativesFailure) {
           result.errors.any(::isEOF)
