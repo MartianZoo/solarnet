@@ -25,9 +25,9 @@ private class PTypeTest {
             "CLASS Fish : ResourcefulCard<Class<Animal>>",
             "CLASS Ants : ResourcefulCard<Class<Microbe>>",
         )
-    assertThat(table.resolveType(typeExpr("Animal<Fish>")).abstract).isTrue()
+    assertThat(table.resolveType(te("Animal<Fish>")).abstract).isTrue()
 
-    val fish = table.resolveType(typeExpr("Animal<Player1, Fish<Player1>>"))
+    val fish = table.resolveType(te("Animal<Player1, Fish<Player1>>"))
     assertThat(fish.abstract).isFalse()
 
     assertThat(table.getClass(cn1("Fish")).typeExprFull().toString())
@@ -61,7 +61,7 @@ private class PTypeTest {
     table.frozen = true
   }
 
-  fun type(s: String) = table.resolveType(typeExpr(s))
+  fun type(s: String) = table.resolveType(te(s))
 
   @Test
   fun partial() {
@@ -130,7 +130,7 @@ private class PTypeTest {
   @Test
   fun roundTrip() {
     fun checkMinimal(typeIn: String, typeOut: String = typeIn) {
-      assertThat(type(typeIn).typeExpr).isEqualTo(typeExpr(typeOut))
+      assertThat(type(typeIn).typeExpr).isEqualTo(te(typeOut))
     }
 
     checkMinimal("TwoSame")
@@ -149,4 +149,6 @@ private class PTypeTest {
     // checkMinimal("TwoSame<Foo1, Foo3>", "TwoSame<Foo2, Foo3>")
     // checkMinimal("TwoSame<Foo2, Foo3>")
   }
+
+  private fun te(s: String) = typeExpr(s)
 }

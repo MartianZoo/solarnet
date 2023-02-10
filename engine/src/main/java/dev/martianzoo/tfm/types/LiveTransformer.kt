@@ -6,11 +6,10 @@ import dev.martianzoo.tfm.pets.SpecialClassNames.ANYONE
 import dev.martianzoo.tfm.pets.SpecialClassNames.OWNED
 import dev.martianzoo.tfm.pets.SpecialClassNames.STANDARD_RESOURCE
 import dev.martianzoo.tfm.pets.ast.ClassName
+import dev.martianzoo.tfm.pets.ast.ClassName.Companion.classNames
 import dev.martianzoo.tfm.pets.ast.Instruction.Gain
 import dev.martianzoo.tfm.pets.ast.PetNode
 import dev.martianzoo.tfm.pets.ast.ScalarAndType.Companion.sat
-import dev.martianzoo.tfm.pets.ast.ClassName.Companion.classNames
-import dev.martianzoo.util.toSetStrict
 
 /** Offers various functions for transforming [PetNode] subtrees that depend on a [PClassLoader]. */
 public class LiveTransformer internal constructor(val loader: PClassLoader) {

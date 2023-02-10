@@ -5,9 +5,9 @@ import dev.martianzoo.tfm.api.Authority
 import dev.martianzoo.tfm.pets.Parsing.parseClassDeclarations
 import dev.martianzoo.tfm.pets.SpecialClassNames.CLASS
 import dev.martianzoo.tfm.pets.SpecialClassNames.COMPONENT
+import dev.martianzoo.tfm.pets.ast.ClassName.Companion.classNames
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.pets.ast.TypeExpr.Companion.typeExpr
-import dev.martianzoo.tfm.pets.ast.ClassName.Companion.classNames
 import dev.martianzoo.tfm.types.Dependency.Key
 import dev.martianzoo.util.toStrings
 import org.junit.jupiter.api.Test
@@ -145,12 +145,12 @@ private class PClassTest {
             "CLASS Qux")
 
     // abstract: SuperFoo, SuperBar, Foo
-    val supSup = table.resolveType(typeExpr("SuperBar<SuperFoo>"))
-    val supFoo = table.resolveType(typeExpr("SuperBar<Foo>"))
-    val supSub = table.resolveType(typeExpr("SuperBar<SubFoo>"))
-    val barFoo = table.resolveType(typeExpr("Bar<Foo>"))
-    val barSub = table.resolveType(typeExpr("Bar<SubFoo>"))
-    val subSub = table.resolveType(typeExpr("SubBar<SubFoo>"))
+    val supSup = table.resolveType(te("SuperBar<SuperFoo>"))
+    val supFoo = table.resolveType(te("SuperBar<Foo>"))
+    val supSub = table.resolveType(te("SuperBar<SubFoo>"))
+    val barFoo = table.resolveType(te("Bar<Foo>"))
+    val barSub = table.resolveType(te("Bar<SubFoo>"))
+    val subSub = table.resolveType(te("SubBar<SubFoo>"))
 
     assertThat(supSup.abstract).isTrue()
     assertThat(supSup.isSubtypeOf(supSup)).isTrue()
@@ -188,14 +188,16 @@ private class PClassTest {
     checkAutoAdjust("SubBar<SuperFoo>", "SubBar<SubFoo>", table)
     checkAutoAdjust("SubBar<Foo>", "SubBar<SubFoo>", table)
 
-    assertFails("outta bounds") { table.resolveType(typeExpr("Foo<Qux>")) }
-    assertFails("no deps") { table.resolveType(typeExpr("Foo<Bar>")) }
+    assertFails("outta bounds") { table.resolveType(te("Foo<Qux>")) }
+    assertFails("no deps") { table.resolveType(te("Foo<Bar>")) }
   }
 
   private fun checkAutoAdjust(`in`: String, out: String, table: PClassLoader) {
-    assertThat(table.resolveType(typeExpr(`in`)).typeExprFull.toString()).isEqualTo(out)
+    assertThat(table.resolveType(te(`in`)).typeExprFull.toString()).isEqualTo(out)
   }
 }
+
+private fun te(s: String) = typeExpr(s)
 
 private fun loader(petsText: String): PClassLoader {
   val classes = parseClassDeclarations(petsText)

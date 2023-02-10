@@ -12,7 +12,7 @@ import org.junit.jupiter.api.Test
 
 private class GameApiTest {
 
-  fun Game.count(s: String) = countComponents(typeExpr(s))
+  fun Game.count(s: String) = countComponents(te(s))
   fun Game.execute(s: String) = execute(instruction(s))
   fun Game.isMet(s: String) = isMet(requirement(s))
 
@@ -45,13 +45,13 @@ private class GameApiTest {
 
     assertThat(game.changeLog().map { it.change })
         .containsExactly(
-            StateChange(5, gaining = typeExpr("Heat<Player2>")),
-            StateChange(10, gaining = typeExpr("Heat<Player3>")),
-            StateChange(4, removing = typeExpr("Heat<Player2>")),
+            StateChange(5, gaining = te("Heat<Player2>")),
+            StateChange(10, gaining = te("Heat<Player3>")),
+            StateChange(4, removing = te("Heat<Player2>")),
             StateChange(
-                3, removing = typeExpr("Heat<Player3>"), gaining = typeExpr("Steel<Player3>")),
+                3, removing = te("Heat<Player3>"), gaining = te("Steel<Player3>")),
             StateChange(
-                2, removing = typeExpr("Heat<Player3>"), gaining = typeExpr("Heat<Player2>")),
+                2, removing = te("Heat<Player3>"), gaining = te("Heat<Player2>")),
         )
         .inOrder()
 
@@ -65,4 +65,6 @@ private class GameApiTest {
         )
         .inOrder()
   }
+
+  private fun te(s: String) = typeExpr(s)
 }

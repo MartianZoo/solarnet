@@ -11,9 +11,9 @@ import dev.martianzoo.tfm.engine.Component
 import dev.martianzoo.tfm.engine.Engine
 import dev.martianzoo.tfm.pets.SpecialClassNames.COMPONENT
 import dev.martianzoo.tfm.pets.SpecialClassNames.OWNED
+import dev.martianzoo.tfm.pets.ast.ClassName.Companion.classNames
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.pets.ast.TypeExpr.Companion.typeExpr
-import dev.martianzoo.tfm.pets.ast.ClassName.Companion.classNames
 import dev.martianzoo.tfm.types.PClassLoader
 import dev.martianzoo.util.Grid
 import dev.martianzoo.util.Multiset
@@ -151,7 +151,7 @@ private class CanonTest {
     val game = Engine.newGame(GameSetup(Canon, "BRM", 3))
 
     fun checkCount(count: Int, type: String) {
-      assertThat(game.countComponents(typeExpr(type))).isEqualTo(count)
+      assertThat(game.countComponents(te(type))).isEqualTo(count)
     }
 
     checkCount(1, "Class<Class>")
@@ -167,8 +167,10 @@ private class CanonTest {
     checkCount(12, "Class<WaterArea>")
     checkCount(63, "Class<Area>")
 
-    assertThat(game.countComponents(typeExpr("Class<CardFront>"))).isGreaterThan(200)
-    assertThat(game.countComponents(typeExpr("Class<Component>"))).isGreaterThan(300)
-    assertThat(game.countComponents(typeExpr("Class"))).isGreaterThan(300)
+    assertThat(game.countComponents(te("Class<CardFront>"))).isGreaterThan(200)
+    assertThat(game.countComponents(te("Class<Component>"))).isGreaterThan(300)
+    assertThat(game.countComponents(te("Class"))).isGreaterThan(300)
   }
+
+  private fun te(s: String) = typeExpr(s)
 }

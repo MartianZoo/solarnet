@@ -6,24 +6,24 @@ import dev.martianzoo.tfm.pets.Parsing
 import dev.martianzoo.tfm.pets.SpecialClassNames.COMPONENT
 import dev.martianzoo.tfm.pets.SpecialClassNames.THIS
 import dev.martianzoo.tfm.pets.ast.Action.Companion.action
+import dev.martianzoo.tfm.pets.ast.ClassName.Companion.classNames
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.pets.ast.Effect.Companion.effect
 import dev.martianzoo.tfm.pets.ast.Instruction.Intensity
 import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.pets.ast.ScalarAndType.Companion.sat
-import dev.martianzoo.tfm.pets.ast.TypeExpr.Companion.typeExpr
-import dev.martianzoo.tfm.pets.ast.ClassName.Companion.classNames
 import dev.martianzoo.tfm.testlib.assertFails
+import dev.martianzoo.tfm.testlib.te
 import org.junit.jupiter.api.Test
 
 private class ClassDeclarationTest {
   @Test
   fun testValidate() {
-    assertFails { ClassDeclaration(COMPONENT, supertypes = setOf(typeExpr("Foo<Bar>"))).validate() }
+    assertFails { ClassDeclaration(COMPONENT, supertypes = setOf(te("Foo<Bar>"))).validate() }
     assertFails { ClassDeclaration(cn("NotComponent")).validate() }
 
     val cd = ClassDeclaration(
-        cn("NotComponent"), supertypes = setOf(COMPONENT.type, typeExpr("Baz<Qux>")))
+        cn("NotComponent"), supertypes = setOf(COMPONENT.type, te("Baz<Qux>")))
     assertFails { cd.validate() }
   }
 
@@ -46,7 +46,7 @@ private class ClassDeclarationTest {
 
     val foo = cn("Foo")
     val dep = cn("Bar").type
-    val sup = typeExpr("Baz<Qux>")
+    val sup = te("Baz<Qux>")
     val topInv = Requirement.Max(sat(3, cn("Blorp").type))
     val otherInv = Requirement.Exact(sat(1, THIS.type))
     val eff = effect("This: DoStuff")

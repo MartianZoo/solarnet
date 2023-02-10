@@ -21,7 +21,7 @@ import dev.martianzoo.tfm.pets.ast.Instruction.Gain
 import dev.martianzoo.tfm.pets.ast.PetNode
 import dev.martianzoo.tfm.pets.ast.ScalarAndType.Companion.sat
 import dev.martianzoo.tfm.pets.ast.TypeExpr
-import dev.martianzoo.tfm.pets.ast.TypeExpr.Companion.typeExpr
+import dev.martianzoo.tfm.testlib.te
 import dev.martianzoo.util.toStrings
 import kotlin.reflect.KClass
 import org.junit.jupiter.api.Test
@@ -85,7 +85,7 @@ private class AstTransformsTest {
     val petsOut =
         "-Ooh<Foo<Xyz, It<Worked>, Qux>>: " +
             "5 Qux<Ooh, Xyz, Bar> OR 5 It<Worked>?, =0 It<Worked>: -Bar, 5: Foo<It<Worked>>"
-    checkResolveThis<Effect>(petsIn, typeExpr("It<Worked>"), petsOut)
+    checkResolveThis<Effect>(petsIn, te("It<Worked>"), petsOut)
 
     // allows nonsense
     checkResolveThis<Instruction>("This<Foo>", cn("Bar").type, "This<Foo>")
