@@ -29,6 +29,9 @@ import org.junit.jupiter.api.Test
 private class AstTransformsTest {
   @Test
   fun testActionToEffect() {
+    fun checkActionToEffect(action: String, index: Int, effect: String) =
+        assertThat(actionToEffect(action(action), index)).isEqualTo(effect(effect))
+
     checkActionToEffect("-> Ok", 5, "UseAction5<This>: Ok")
     checkActionToEffect("5 -> Ok", 1, "UseAction1<This>: -5! THEN Ok")
     checkActionToEffect("Foo -> Bar, Qux", 3, "UseAction3<This>: -Foo! THEN (Bar, Qux)")
@@ -56,16 +59,13 @@ private class AstTransformsTest {
 
   @Test
   fun testImmediateToEffect() {
+    fun checkImmediateToEffect(immediate: String, effect: String) =
+        assertThat(immediateToEffect(instruction(immediate))).isEqualTo(effect(effect))
+
     checkImmediateToEffect("Foo, Bar", "This: Foo, Bar")
     checkImmediateToEffect("Foo, Bar: Qux", "This: Foo, Bar: Qux")
     checkImmediateToEffect("Foo: Bar", "This: (Foo: Bar)")
   }
-
-  private fun checkActionToEffect(action: String, index: Int, effect: String) =
-      assertThat(actionToEffect(action(action), index)).isEqualTo(effect(effect))
-
-  private fun checkImmediateToEffect(immediate: String, effect: String) =
-      assertThat(immediateToEffect(instruction(immediate))).isEqualTo(effect(effect))
 
   @Test
   fun testFindAllClassNames() {

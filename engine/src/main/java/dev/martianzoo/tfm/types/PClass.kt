@@ -174,7 +174,7 @@ internal constructor(
   }
 
   private fun defaultsIgnoringRoot(): Defaults = // TODO hack
-  if (className == COMPONENT) {
+      if (className == COMPONENT) {
         Defaults()
       } else {
         Defaults.from(declaration.defaultsDeclaration, this, loader)

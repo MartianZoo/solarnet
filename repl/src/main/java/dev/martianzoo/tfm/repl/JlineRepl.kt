@@ -28,10 +28,6 @@ internal class JlineRepl {
         history.read(historyFile, /* checkDuplicates= */ false)
       }
 
-  private fun end() {
-    history.append(historyFile, true)
-  }
-
   fun loop(prompt: () -> Pair<String, Int>, handler: (String) -> List<String>) {
     while (true) {
       val (text, color) = prompt()
@@ -41,6 +37,9 @@ internal class JlineRepl {
           .append("> ")
           .style(DEFAULT)
           .toAnsi()
+
+      fun end() = history.append(historyFile, true)
+
       val inputLine =
           try {
             reader.readLine(pr)

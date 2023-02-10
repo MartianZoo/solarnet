@@ -56,7 +56,25 @@ public class Game(
         hidden = false)
   }
 
-  private fun component(type: Type?): Component? = type?.let { Component(loader.resolveType(it)) }
+  public fun component(type: Type?): Component? = type?.let { Component(loader.resolveType(it)) }
+  public fun component(type: TypeExpr?): Component? = type?.let { Component(loader.resolveType(it)) }
 
-  fun rollBackToBefore(ordinal: Int) = components.rollBackToBefore(ordinal, loader)
+  public fun rollBackToBefore(ordinal: Int) {
+    val log = changeLogFull()
+    val ct = log.size
+    require(ordinal <= ct)
+    if (ordinal == ct) return
+    require(!log[ordinal].hidden)
+
+    val subList = components.changeLog.subList(ordinal, ct)
+    for (entry in subList.asReversed()) {
+      val change = entry.change.inverse()
+      components.updateMultiset(
+          change.count,
+          gaining = component(change.gaining),
+          removing = component(change.removing),
+      )
+    }
+    subList.clear()
+  }
 }

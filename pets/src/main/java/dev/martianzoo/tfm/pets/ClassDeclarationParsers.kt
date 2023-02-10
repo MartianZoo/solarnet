@@ -231,7 +231,7 @@ internal object ClassDeclarationParsers : PetParser() {
     fun finishAll() = declList.map { it.finishAtTopLevel() }
 
     private companion object {
-      private fun create(abstract: Boolean, signature: Signature, body: Body): List<NestableDecl> {
+      fun create(abstract: Boolean, signature: Signature, body: Body): List<NestableDecl> {
         val newDecl =
             signature.asClassDecl.copy(
                 abstract = abstract,
@@ -273,13 +273,11 @@ internal object ClassDeclarationParsers : PetParser() {
           decl.supertypes.any { it.className == container } -> CompleteNestableDecl(decl)
 
           // jam the superclass in and mark it complete
-          else -> CompleteNestableDecl(prependSuperclass(container))
+          else -> {
+            val supertypes = (container.type plus decl.supertypes).toSetStrict()
+            CompleteNestableDecl(decl.copy(supertypes = supertypes))
+          }
         }
-      }
-
-      private fun prependSuperclass(superclassName: ClassName): ClassDeclaration {
-        val allSupertypes = superclassName.type plus decl.supertypes
-        return decl.copy(supertypes = allSupertypes.toSetStrict())
       }
     }
 

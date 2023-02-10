@@ -14,7 +14,7 @@ import dev.martianzoo.util.filter
 /** All the components making up the state of a single [Game]. */
 public class ComponentGraph {
   private val multiset: MutableMultiset<Component> = HashMultiset()
-  private val changeLog: MutableList<ChangeRecord> = mutableListOf()
+  internal val changeLog: MutableList<ChangeRecord> = mutableListOf()
 
   public fun changeLogFull() = changeLog.toList()
   public fun changeLog() = changeLog.filterNot { it.hidden }.toList()
@@ -83,27 +83,4 @@ public class ComponentGraph {
   // Aww yeah full table scans rule. One day I'll do something more clever, but only after being
   // able to review usage patterns so I'll actually know what helps most.
   public fun getAll(ptype: PType): Multiset<Component> = multiset.filter { it.hasType(ptype) }
-
-  internal fun rollBackToBefore(ordinal: Int, loader: PClassLoader) {
-    val ct = changeLog.size
-    require(ordinal <= ct)
-    if (ordinal == ct) return
-    require(!changeLog[ordinal].hidden)
-
-    val subList = changeLog.subList(ordinal, ct)
-    for (entry in subList.asReversed()) {
-      val change = entry.change.inverse()
-      updateMultiset(change, loader)
-    }
-    subList.clear()
-  }
-
-  // TODO backward
-  private fun updateMultiset(change: StateChange, loader: PClassLoader) {
-    // annoying that we have to create Components here... TODO
-    updateMultiset(
-        change.count,
-        gaining = change.gaining?.let { Component(loader.resolveType(it)) },
-        removing = change.removing?.let { Component(loader.resolveType(it)) })
-  }
 }

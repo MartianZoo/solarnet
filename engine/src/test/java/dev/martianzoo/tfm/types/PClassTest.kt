@@ -184,16 +184,15 @@ private class PClassTest {
     assertThat(subSub.isSubtypeOf(barSub)).isTrue()
     assertThat(subSub.isSubtypeOf(subSub)).isTrue()
 
+    fun checkAutoAdjust(`in`: String, out: String, table: PClassLoader) =
+        assertThat(table.resolveType(te(`in`)).typeExprFull.toString()).isEqualTo(out)
+
     checkAutoAdjust("Bar<SuperFoo>", "Bar<Foo>", table)
     checkAutoAdjust("SubBar<SuperFoo>", "SubBar<SubFoo>", table)
     checkAutoAdjust("SubBar<Foo>", "SubBar<SubFoo>", table)
 
     assertFails("outta bounds") { table.resolveType(te("Foo<Qux>")) }
     assertFails("no deps") { table.resolveType(te("Foo<Bar>")) }
-  }
-
-  private fun checkAutoAdjust(`in`: String, out: String, table: PClassLoader) {
-    assertThat(table.resolveType(te(`in`)).typeExprFull.toString()).isEqualTo(out)
   }
 }
 

@@ -130,6 +130,12 @@ data class CardDefinition(
     require(resourceTypeText?.isNotEmpty() ?: true)
     require(requirementText?.isNotEmpty() ?: true)
 
+    // do this low-tech to avoid unlazifying TODO
+    fun inactive() =
+        actionsText.isEmpty() &&
+        effectsText.all { it.startsWith("$END:") } &&
+        resourceTypeText == null
+
     when (deck) {
       Deck.PROJECT -> {
         require(cost >= 0)
@@ -195,13 +201,6 @@ data class CardDefinition(
         supertypes = supertypes,
         effectsRaw = allEffects,
         extraNodes = extraNodes)
-  }
-
-  private fun inactive(): Boolean {
-    // do this low-tech to avoid unlazifying TODO
-    return actionsText.isEmpty() &&
-        effectsText.all { it.startsWith("$END:") } &&
-        resourceTypeText == null
   }
 
   val extraNodes: Set<PetNode> by lazy {

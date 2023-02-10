@@ -71,7 +71,7 @@ public abstract class Authority {
 
   /** A map from [ClassName] to [CardDefinition], containing all cards known to this authority. */
   public val cardsByClassName: Map<ClassName, CardDefinition> by lazy {
-    associateByClassName(cardDefinitions)
+    cardDefinitions.associateByStrict { it.className }
   }
 
   // STANDARD ACTIONS
@@ -95,7 +95,7 @@ public abstract class Authority {
   public abstract val milestoneDefinitions: Collection<MilestoneDefinition>
 
   public val milestonesByClassName: Map<ClassName, MilestoneDefinition> by lazy {
-    associateByClassName(milestoneDefinitions)
+    milestoneDefinitions.associateByStrict { it.className }
   }
 
   // AWARDS
@@ -113,9 +113,6 @@ public abstract class Authority {
   public abstract val customInstructions: Collection<CustomInstruction>
 
   // HELPERS
-
-  private fun <D : Definition> associateByClassName(defs: Collection<D>) =
-      defs.associateByStrict { it.className }
 
   /**
    * An authority providing nothing; intended for tests. Subclass it to supply any needed

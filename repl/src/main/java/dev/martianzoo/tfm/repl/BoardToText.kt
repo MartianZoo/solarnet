@@ -12,7 +12,9 @@ internal class BoardToText(private val game: ReadOnlyGameState) {
 
   internal fun board(player: TypeExpr, colors: Boolean = true): List<String> {
     val prodMap = lookUpProductionLevels(game, player)
-    val resMap = lookUpResourceLevels(game, player)
+    val resMap = standardResourceNames(game).associateBy({ it }) {
+      game.countComponents(game.resolveType(it.addArgs(player)))
+    }
 
     fun prodAndRes(s: String) =
         prodMap[cn(s)].toString().padStart(2) to resMap[cn(s)].toString().padStart(3)
@@ -55,11 +57,6 @@ internal class BoardToText(private val game: ReadOnlyGameState) {
         "",
     )
   }
-
-  private fun lookUpResourceLevels(game: ReadOnlyGameState, player: TypeExpr) =
-      standardResourceNames(game).associateBy({ it }) {
-        game.countComponents(game.resolveType(it.addArgs(player)))
-      }
 
   internal val mColor = "f4d400"
   internal val sColor = "c8621e"

@@ -57,31 +57,22 @@ object JsonReader {
         val rows: List<List<String>>,
     ) {
       internal fun toDefinition(legend: Legend): MarsMapDefinition {
-        val areas =
-            rows.flatMapIndexed { row0Index, cells ->
-              cells.mapIndexedNotNull { col0Index, code ->
-                mapArea(row0Index, col0Index, code, legend)
-              }
-            }
+        fun mapArea(row0Index: Int, col0Index: Int, code: String, legend: Legend): AreaDefinition? {
+          if (code.isEmpty()) return null
+          return AreaDefinition(
+              name, bundle,
+              row0Index + 1, col0Index + 1,
+              legend.getType(code), legend.getBonus(code),
+              code)
+        }
+
+        val areas = rows.flatMapIndexed { row0Index, cells ->
+          cells.mapIndexedNotNull { col0Index, code ->
+            mapArea(row0Index, col0Index, code, legend)
+          }
+        }
         val grid = Grid.grid(areas, { it.row }, { it.column })
         return MarsMapDefinition(name, bundle, grid)
-      }
-
-      private fun mapArea(
-          row0Index: Int,
-          col0Index: Int,
-          code: String,
-          legend: Legend
-      ): AreaDefinition? {
-        if (code.isEmpty()) return null
-        return AreaDefinition(
-            name,
-            bundle,
-            row0Index + 1,
-            col0Index + 1,
-            legend.getType(code),
-            legend.getBonus(code),
-            code)
       }
     }
 

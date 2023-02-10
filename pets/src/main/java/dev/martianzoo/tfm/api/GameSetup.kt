@@ -49,6 +49,8 @@ data class GameSetup(
 
   /** All [Definition] objects to use in this game. */
   fun allDefinitions(): List<Definition> = authority.allDefinitions.filter { it.bundle in bundles }
-}
 
-private fun splitLetters(bundles: String) = bundles.asIterable().toStrings().toSetStrict()
+  private companion object {
+    fun splitLetters(bundles: String) = bundles.asIterable().toStrings().toSetStrict()
+  }
+}

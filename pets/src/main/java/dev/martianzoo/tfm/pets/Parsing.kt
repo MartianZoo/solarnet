@@ -108,6 +108,15 @@ public object Parsing {
         tokens
             .filterNot { it.type.ignored }
             .joinToString(" ") { it.type.name?.replace("\n", "\\n") ?: "NULL" })
+
+
+    fun isEOF(result: ParseResult<*>?): Boolean =
+        if (result is AlternativesFailure) {
+          result.errors.any(::isEOF)
+        } else {
+          result is UnexpectedEof
+        }
+
     var index = 0
     val parsed = mutableListOf<T>()
     while (true) {
@@ -182,11 +191,4 @@ public object Parsing {
 
     throw RuntimeException(message.toString())
   }
-
-  private fun isEOF(result: ParseResult<*>?): Boolean =
-      when (result) {
-        is UnexpectedEof -> true
-        is AlternativesFailure -> result.errors.any(::isEOF)
-        else -> false
-      }
 }
