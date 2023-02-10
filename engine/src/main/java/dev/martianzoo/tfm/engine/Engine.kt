@@ -23,18 +23,20 @@ public object Engine {
     loader.frozen = true
     val game = Game(setup, ComponentGraph(), loader)
 
-    // make classes singletons also TODO
+    // make class types also be singletons TODO
     val singletons = classInstances(loader) + singletons(loader)
 
     // have MarsMap take care of this via custom instruction TODO
     val borders = borders(setup.map, loader)
 
-    game.applyChange(gaining = Component(loader.resolveType(GAME.type)), hidden = true)
+    val gameComponent = Component(loader.getClass(GAME).baseType)
+    game.components.applyChange(gaining = gameComponent, hidden = true)
     require(game.changeLogFull().size == 1)
 
-    val cause = Cause(GAME.type, 0) // fake it til you make it
+    // TODO make creating Game do this automatically??
+    val cause = Cause(GAME.type, 0)
     for (it in singletons + borders) {
-      game.applyChange(gaining = Component(it), cause = cause, hidden = true)
+      game.components.applyChange(gaining = Component(it), cause = cause, hidden = true)
     }
     return game
   }

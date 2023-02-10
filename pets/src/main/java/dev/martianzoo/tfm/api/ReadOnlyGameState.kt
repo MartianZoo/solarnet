@@ -31,8 +31,8 @@ interface ReadOnlyGameState {
         count: Int = 1,
         removing: Type? = null,
         gaining: Type? = null,
-        cause: Cause? = null,
         amap: Boolean = false,
+        cause: Cause? = null,
     )
   }
 }

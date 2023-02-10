@@ -93,7 +93,7 @@ public class ReplSession(private val authority: Authority) {
           "map" to
               {
                 if (it == null) {
-                  MapToText(session.game!!.asGameState).map()
+                  MapToText(session.game!!).map()
                 } else {
                   listOf("Arguments unexpected: $it")
                 }
@@ -101,7 +101,7 @@ public class ReplSession(private val authority: Authority) {
           "board" to
               {
                 val player = if (it == null) session.defaultPlayer!! else cn(it.trim())
-                BoardToText(session.game!!.asGameState).board(player.type)
+                BoardToText(session.game!!).board(player.type)
               },
           "changes" to
               { args ->

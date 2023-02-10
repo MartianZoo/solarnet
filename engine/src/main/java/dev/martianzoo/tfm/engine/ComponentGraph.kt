@@ -98,6 +98,7 @@ public class ComponentGraph {
     subList.clear()
   }
 
+  // TODO backward
   private fun updateMultiset(change: StateChange, loader: PClassLoader) {
     // annoying that we have to create Components here... TODO
     updateMultiset(

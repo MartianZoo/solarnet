@@ -12,8 +12,8 @@ open class StubGameState(auth: Authority = Authority.Minimal()) : GameState {
       count: Int,
       removing: Type?,
       gaining: Type?,
-      cause: Cause?,
       amap: Boolean,
+      cause: Cause?,
   ): Unit = throe()
 
   override val setup = GameSetup(auth, "BM", 2)

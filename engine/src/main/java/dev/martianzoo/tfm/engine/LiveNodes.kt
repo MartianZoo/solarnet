@@ -99,11 +99,11 @@ internal object LiveNodes {
     override fun execute(game: Game) {
       try {
         val translated: Instruction =
-            custom.translate(game.asGameState, arguments)
-        val deprodded = deprodify(translated, standardResourceNames(game.asGameState))
+            custom.translate(game, arguments)
+        val deprodded = deprodify(translated, standardResourceNames(game))
         from(deprodded, game).execute(game)
       } catch (e: ExecuteInsteadException) {
-        custom.execute(game.asGameState, arguments)
+        custom.execute(game, arguments)
       }
     }
   }

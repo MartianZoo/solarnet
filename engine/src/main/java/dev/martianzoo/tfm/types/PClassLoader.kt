@@ -53,6 +53,7 @@ public class PClassLoader(
   public fun resolveType(type: Type): PType = type as? PType ?: resolveType(type.typeExprFull)
 
   /** Returns the [PType] represented by [typeExpr]. */
+  // TODO we need transformations sometimes?
   public fun resolveType(typeExpr: TypeExpr): PType {
     val pclass = getClass(typeExpr.className)
     return if (pclass.className == CLASS) {

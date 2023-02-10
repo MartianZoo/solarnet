@@ -3,26 +3,30 @@ package dev.martianzoo.tfm.engine
 import dev.martianzoo.tfm.api.Type
 import dev.martianzoo.tfm.engine.LiveNodes.LiveEffect
 import dev.martianzoo.tfm.pets.AstTransforms
-import dev.martianzoo.tfm.pets.SpecialClassNames.CLASS
 import dev.martianzoo.tfm.pets.SpecialClassNames.THIS
 import dev.martianzoo.tfm.types.Dependency.TypeDependency
 import dev.martianzoo.tfm.types.PType
 import dev.martianzoo.util.toSetStrict
 
-/** An instance of a concrete PType; a game state is made up of a multiset of these. */
-public data class Component(private val ptype: PType): Type by ptype {
+/**
+ * An *instance* of some concrete [PType]; a [ComponentGraph] is a multiset of these. Any usage that
+ * is not related to what instances actually exist in a game state should be using [PType] instead.
+ */
+public data class Component(private val ptype: PType) : Type by ptype {
   init {
     require(!ptype.abstract) { "Component can't be of an abstract type: ${ptype.typeExprFull}" }
   }
 
-  public fun hasType(thatType: PType) = ptype.isSubtypeOf(thatType)
+  public fun hasType(thatType: PType) = isSubtypeOf(thatType)
 
-  public val dependencies: Set<Component> by lazy {
-    if (ptype.pclass.className == CLASS) {
-      setOf()
-    } else {
-      ptype.allDependencies.types.map { Component((it as TypeDependency).ptype) }.toSetStrict()
-    }
+  /**
+   * The full list of dependency instances of this component; *this* component cannot exist in a
+   * [ComponentGraph] unless *all* of the returned components do. An empty list is returned for a
+   * class component like `Class<Tile>`.
+   */
+  public val dependencies: List<Component> by lazy {
+    val depTypes = ptype.allDependencies.types.filterIsInstance<TypeDependency>()
+    depTypes.map { Component(it.ptype) }
   }
 
   internal fun effects(game: Game): Set<LiveEffect> {
@@ -34,6 +38,7 @@ public data class Component(private val ptype: PType): Type by ptype {
       LiveNodes.from(fx, game)
     }.toSetStrict()
   }
+
   override fun toString() = "[$ptype]"
 
   fun describe(): String {

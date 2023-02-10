@@ -29,8 +29,7 @@ public data class PType internal constructor(
   override val abstract = pclass.abstract || allDependencies.abstract || refinement != null
 
   override fun isSubtypeOf(that: Type) =
-      that is PType &&
-      pclass.isSubclassOf(that.pclass) &&
+      pclass.isSubclassOf((that as PType).pclass) &&
       allDependencies.specializes(that.allDependencies) &&
       that.refinement in setOf(null, refinement)
 

@@ -15,7 +15,7 @@ private class ApiHelpersTest {
   @Test
   fun testLookUpProdLevelsUsingCanon() {
     val game = Engine.newGame(GameSetup(Canon, "BM", 3))
-    val prods: Map<ClassName, Int> = lookUpProductionLevels(game.asGameState, cn("Player1").type)
+    val prods: Map<ClassName, Int> = lookUpProductionLevels(game, cn("Player1").type)
     assertThat(prods.map { it.key to it.value })
         .containsExactly(
             cn("Megacredit") to -5,
@@ -27,7 +27,7 @@ private class ApiHelpersTest {
         )
 
     game.execute(instruction("2 Production<Player1, Class<Plant>>"))
-    val prods2: Map<ClassName, Int> = lookUpProductionLevels(game.asGameState, cn("Player1").type)
+    val prods2: Map<ClassName, Int> = lookUpProductionLevels(game, cn("Player1").type)
     assertThat(prods2.map { it.key to it.value })
         .containsExactly(
             cn("Megacredit") to -5,
@@ -42,7 +42,7 @@ private class ApiHelpersTest {
   @Test
   fun stdResNamesInCanon() {
     val game = Engine.newGame(GameSetup(Canon, "BM", 3))
-    assertThat(standardResourceNames(game.asGameState).toStrings())
+    assertThat(standardResourceNames(game).toStrings())
         .containsExactly("Megacredit", "Steel", "Titanium", "Plant", "Energy", "Heat")
   }
 }
