@@ -109,7 +109,7 @@ internal constructor(
 
   /** Returns the greatest lower bound of [this] and [that], or null if there is no such class. */
   // TODO explain better
-  public infix fun intersect(that: PClass): PClass? =
+  public fun intersect(that: PClass): PClass? =
       when {
         this.isSubclassOf(that) -> this
         that.isSubclassOf(this) -> that
@@ -137,7 +137,7 @@ internal constructor(
    * Returns the special *class type* for this class; for example, for the class `Resource` returns
    * the type `Class<Resource>`.
    */
-  public val classType by lazy {
+  public val classType: PType by lazy {
     PType(loader.classClass, DependencyMap(KEY to ClassDependency(this)))
   }
 
@@ -157,8 +157,6 @@ internal constructor(
       PType(this, allDeps, null)
     }
   }
-
-  fun typeExprFull() = baseType.typeExprFull
 
   fun specialize(map: List<PType>): PType = baseType.specialize(map)
 

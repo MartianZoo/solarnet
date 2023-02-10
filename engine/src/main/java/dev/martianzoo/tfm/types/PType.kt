@@ -35,7 +35,7 @@ public data class PType internal constructor(
       allDependencies.specializes(that.allDependencies) &&
       that.refinement in setOf(null, refinement)
 
-  infix fun intersect(that: PType): PType? {
+  fun intersect(that: PType): PType? {
     val intersect: PClass = pclass.intersect(that.pclass) ?: return null
     return PType(
         intersect,

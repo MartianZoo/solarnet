@@ -1,6 +1,5 @@
 package dev.martianzoo.tfm.types
 
-import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn as cn1
 import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.tfm.pets.ast.TypeExpr.Companion.typeExpr
 import org.junit.jupiter.api.Test
@@ -30,7 +29,7 @@ private class PTypeTest {
     val fish = table.resolveType(te("Animal<Player1, Fish<Player1>>"))
     assertThat(fish.abstract).isFalse()
 
-    assertThat(table.getClass(cn1("Fish")).typeExprFull().toString())
+    assertThat(table.resolveType(te("Fish")).typeExprFull.toString())
         .isEqualTo("Fish<Anyone, Class<Animal>>")
 
     // TODO get these working

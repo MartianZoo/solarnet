@@ -20,8 +20,6 @@ public class Game(
 ) : GameState {
   // val tasks = mutableListOf<Task>()
 
-  override val authority by setup::authority
-
   fun changeLog(): List<ChangeRecord> = components.changeLog()
 
   fun changeLogFull(): List<ChangeRecord> = components.changeLogFull()

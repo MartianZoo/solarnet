@@ -36,10 +36,10 @@ internal sealed class Dependency: Type {
     override fun isSubtypeOf(that: Type) =
         that is Dependency && ptype.isSubtypeOf(checkKeys(that).ptype)
 
-    override fun intersect(that: Dependency): TypeDependency? = this intersect checkKeys(that).ptype
+    override fun intersect(that: Dependency): TypeDependency? = intersect(checkKeys(that).ptype)
 
-    infix fun intersect(otherType: PType): TypeDependency? =
-        (this.ptype intersect otherType)?.let { copy(ptype = it) }
+    fun intersect(otherType: PType): TypeDependency? =
+        (this.ptype.intersect(otherType))?.let { copy(ptype = it) }
 
     override val typeExprFull by ptype::typeExprFull
     override val typeExpr by ptype::typeExpr
@@ -66,10 +66,10 @@ internal sealed class Dependency: Type {
         that is ClassDependency && pclass.isSubclassOf(that.pclass)
 
     override fun intersect(that: Dependency): ClassDependency? =
-        this intersect (that as ClassDependency).pclass
+        intersect((that as ClassDependency).pclass)
 
-    infix fun intersect(otherClass: PClass): ClassDependency? =
-        (this.pclass intersect otherClass)?.let { copy(pclass = it) }
+    fun intersect(otherClass: PClass): ClassDependency? =
+        pclass.intersect(otherClass)?.let { copy(pclass = it) }
 
     override val typeExprFull by pclass.className::type
     override val typeExpr by pclass.className::type

@@ -74,8 +74,17 @@ fun <T> Iterable<T>.joinOrEmpty(
       transform = transform)
 }
 
-// Ok the rest of these aren't really *collection* helpers
+fun <T : Any> Iterable<List<T?>>.filterWithoutNulls(): List<List<T>> {
+  val noNulls = filter { null !in it }
+  @Suppress("UNCHECKED_CAST")
+  return noNulls as List<List<T>>
+}
 
-fun <T : Any> Collection<List<T?>>.filterNoNulls() = filter { null !in it } as List<List<T>>
+fun <T> List<T?>.checkNoNulls(): List<T> {
+  require(null !in this)
+  @Suppress("UNCHECKED_CAST")
+  return this as List<T>
+}
 
 infix fun <T> T.plus(more: Collection<T>): List<T> = listOf(this) + more
+infix fun <T> T.plus(another: T): List<T> = listOf(this, another)

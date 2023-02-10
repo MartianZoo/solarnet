@@ -56,8 +56,7 @@ public class ComponentGraph {
     )
   }
 
-  // not public TODO
-  public fun updateMultiset(
+  internal fun updateMultiset(
       count: Int,
       gaining: Component? = null,
       removing: Component? = null,

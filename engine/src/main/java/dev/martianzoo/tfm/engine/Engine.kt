@@ -8,7 +8,7 @@ import dev.martianzoo.tfm.pets.ast.ClassName.Companion.classNames
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.types.PClassLoader
 import dev.martianzoo.tfm.types.PType
-import dev.martianzoo.util.filterNoNulls
+import dev.martianzoo.util.filterWithoutNulls
 
 /** Has functions for setting up new games and stuff. */
 public object Engine {
@@ -56,7 +56,7 @@ public object Engine {
     val border = cn("Border")
     return map.areas
         .let { it.rows() + it.columns() + it.diagonals() }
-        .flatMap { it.windowed(2).filterNoNulls() }
+        .flatMap { it.windowed(2).filterWithoutNulls() }
         .flatMap { (one, two) ->
           val type1 = one.className.type
           val type2 = two.className.type

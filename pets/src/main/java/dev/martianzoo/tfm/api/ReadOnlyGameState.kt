@@ -11,9 +11,6 @@ import dev.martianzoo.util.Multiset
 interface ReadOnlyGameState {
   val setup: GameSetup
 
-  val authority: Authority
-    get() = setup.authority
-
   val map: MarsMapDefinition
     get() = setup.map
 

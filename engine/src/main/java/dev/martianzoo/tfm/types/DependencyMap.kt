@@ -62,7 +62,7 @@ internal data class DependencyMap(private val map: Map<Key, Dependency>) {
       dep as TypeDependency
       val iter: MutableIterator<PType> = unhandled.iterator()
       while (iter.hasNext()) {
-        val ptype = iter.next() intersect dep.ptype
+        val ptype = iter.next().intersect(dep.ptype)
         if (ptype != null) {
           matchups[key] = TypeDependency(key, ptype)
           iter.remove()

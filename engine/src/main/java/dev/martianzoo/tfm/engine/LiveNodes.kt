@@ -37,7 +37,7 @@ internal object LiveNodes {
       is Instruction.Gated -> Gated(from(ins.gate, game), from(ins.instruction, game))
       is Instruction.Custom ->
           Custom(
-              game.authority.customInstruction(ins.functionName),
+              game.setup.authority.customInstruction(ins.functionName),
               ins.arguments.map { game.resolveType(it) })
       is Instruction.Or -> OrIns(ins.instructions.toList().map { from(it, game) }) // TODO
       is Instruction.Then -> Then(ins.instructions.map { from(it, game) })
