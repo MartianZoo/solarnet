@@ -1,6 +1,6 @@
 package dev.martianzoo.tfm.repl
 
-import dev.martianzoo.tfm.api.GameState
+import dev.martianzoo.tfm.api.ReadOnlyGameState.GameState
 import dev.martianzoo.tfm.api.Type
 import dev.martianzoo.tfm.data.MarsMapDefinition.AreaDefinition
 import dev.martianzoo.tfm.pets.ast.TypeExpr.Companion.typeExpr

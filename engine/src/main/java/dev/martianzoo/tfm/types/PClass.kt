@@ -9,6 +9,7 @@ import dev.martianzoo.tfm.pets.SpecialClassNames.OWNED
 import dev.martianzoo.tfm.pets.SpecialClassNames.THIS
 import dev.martianzoo.tfm.pets.SpecialClassNames.USE_ACTION
 import dev.martianzoo.tfm.pets.ast.ClassName
+import dev.martianzoo.tfm.pets.ast.ClassName.Companion.classNames
 import dev.martianzoo.tfm.pets.ast.Effect
 import dev.martianzoo.tfm.pets.ast.Effect.Trigger.OnGainOf
 import dev.martianzoo.tfm.pets.ast.Effect.Trigger.WhenGain
@@ -17,7 +18,6 @@ import dev.martianzoo.tfm.pets.ast.HasClassName
 import dev.martianzoo.tfm.pets.ast.PetNode
 import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.pets.ast.TypeExpr
-import dev.martianzoo.tfm.pets.ast.classNames
 import dev.martianzoo.tfm.types.Dependency.ClassDependency
 import dev.martianzoo.tfm.types.Dependency.ClassDependency.Companion.KEY
 import dev.martianzoo.tfm.types.Dependency.TypeDependency
@@ -284,7 +284,9 @@ internal constructor(
     """
         .trimIndent()
   }
-}
 
-fun superclasses(declaration: ClassDeclaration, loader: PClassLoader) =
-    declaration.supertypes.classNames().map(loader::load)
+  companion object {
+    fun superclasses(declaration: ClassDeclaration, loader: PClassLoader) =
+        declaration.supertypes.classNames().map(loader::load)
+  }
+}

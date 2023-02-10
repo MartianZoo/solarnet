@@ -1,9 +1,9 @@
 
 package dev.martianzoo.tfm.engine
 
-import dev.martianzoo.tfm.data.ChangeLogEntry
-import dev.martianzoo.tfm.data.ChangeLogEntry.Cause
-import dev.martianzoo.tfm.data.ChangeLogEntry.StateChange
+import dev.martianzoo.tfm.data.ChangeRecord
+import dev.martianzoo.tfm.data.ChangeRecord.Cause
+import dev.martianzoo.tfm.data.ChangeRecord.StateChange
 import dev.martianzoo.tfm.types.PClassLoader
 import dev.martianzoo.tfm.types.PType
 import dev.martianzoo.util.HashMultiset
@@ -14,7 +14,7 @@ import dev.martianzoo.util.filter
 /** All the components making up the state of a single [Game]. */
 public class ComponentGraph {
   private val multiset: MutableMultiset<Component> = HashMultiset()
-  private val changeLog: MutableList<ChangeLogEntry> = mutableListOf()
+  private val changeLog: MutableList<ChangeRecord> = mutableListOf()
 
   public fun changeLogFull() = changeLog.toList()
   public fun changeLog() = changeLog.filterNot { it.hidden }.toList()
@@ -43,7 +43,7 @@ public class ComponentGraph {
 
     val correctedCount = updateMultiset(count, gaining, removing, amap)
     changeLog.add(
-        ChangeLogEntry(
+        ChangeRecord(
             ordinal = changeLog.size,
             change = StateChange(
                 count = correctedCount,

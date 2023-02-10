@@ -13,9 +13,7 @@ fun englishHack(id: String): ClassName {
       })
 }
 
-fun englishHack(id: ClassName) = englishHack(id.toString())
-
-private val noncards = Regex("SA.|SELL|SP\\d\\d|^[MHEV]M")
+fun englishHack(id: ClassName): ClassName = englishHack(id.toString())
 
 val ENGLISH_HACK =
     mapOf(
@@ -27,8 +25,7 @@ val ENGLISH_HACK =
         "SAF" to "ConvertPlants",
         "SAG" to "ConvertHeat",
         "SELL" to "SellPatents",
-        "SP11" to
-            "PowerPlantSP", // use SP because of 2 name conflicts & the last 2 would be confusing
+        "SP11" to "PowerPlantSP",
         "SP14" to "AsteroidSP",
         "SP15" to "AirScrappingSP",
         "SP18" to "AquiferSP",

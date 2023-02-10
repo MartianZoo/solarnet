@@ -3,7 +3,8 @@ package dev.martianzoo.tfm.data
 import dev.martianzoo.tfm.pets.ast.TypeExpr
 import dev.martianzoo.util.pre
 
-data class ChangeLogEntry(
+/** All interesting information about an event in a game history. */
+data class ChangeRecord(
     val ordinal: Int,
     val change: StateChange,
     val cause: Cause? = null,
@@ -18,6 +19,7 @@ data class ChangeLogEntry(
 
   override fun toString() = "$ordinal: $change${cause.pre(' ')}"
 
+  /** The part that describes only what actually changed. */
   data class StateChange(
       /**
        * How many of the component were gained/removed/transmuted. A positive integer. Often 1,
@@ -48,6 +50,7 @@ data class ChangeLogEntry(
         }
   }
 
+  /** The part that describes why it changed. */
   data class Cause(
       /** The concrete component that owns the instruction that caused this change. */
       val actor: TypeExpr,

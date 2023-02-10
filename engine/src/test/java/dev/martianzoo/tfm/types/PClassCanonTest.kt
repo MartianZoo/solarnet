@@ -8,7 +8,7 @@ import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.pets.ast.Requirement.Companion.requirement
 import dev.martianzoo.tfm.pets.ast.TypeExpr.Companion.typeExpr
-import dev.martianzoo.tfm.pets.ast.classNames
+import dev.martianzoo.tfm.pets.ast.ClassName.Companion.classNames
 import dev.martianzoo.util.random
 import dev.martianzoo.util.toStrings
 import org.junit.jupiter.api.Disabled

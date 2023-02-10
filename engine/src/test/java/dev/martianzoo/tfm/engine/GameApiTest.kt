@@ -3,7 +3,7 @@ package dev.martianzoo.tfm.engine
 import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.tfm.api.GameSetup
 import dev.martianzoo.tfm.canon.Canon
-import dev.martianzoo.tfm.data.ChangeLogEntry.StateChange
+import dev.martianzoo.tfm.data.ChangeRecord.StateChange
 import dev.martianzoo.tfm.pets.ast.Instruction.Companion.instruction
 import dev.martianzoo.tfm.pets.ast.Requirement.Companion.requirement
 import dev.martianzoo.tfm.pets.ast.TypeExpr.Companion.typeExpr

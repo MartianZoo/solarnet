@@ -1,6 +1,7 @@
 package dev.martianzoo.tfm.api
 
-import dev.martianzoo.tfm.data.ChangeLogEntry.Cause
+import dev.martianzoo.tfm.api.ReadOnlyGameState.GameState
+import dev.martianzoo.tfm.data.ChangeRecord.Cause
 import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.pets.ast.TypeExpr
 import dev.martianzoo.util.Multiset

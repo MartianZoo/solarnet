@@ -1,10 +1,10 @@
 package dev.martianzoo.tfm.engine
 
 import dev.martianzoo.tfm.api.GameSetup
-import dev.martianzoo.tfm.api.GameState
+import dev.martianzoo.tfm.api.ReadOnlyGameState.GameState
 import dev.martianzoo.tfm.api.Type
-import dev.martianzoo.tfm.data.ChangeLogEntry
-import dev.martianzoo.tfm.data.ChangeLogEntry.Cause
+import dev.martianzoo.tfm.data.ChangeRecord
+import dev.martianzoo.tfm.data.ChangeRecord.Cause
 import dev.martianzoo.tfm.pets.ast.Instruction
 import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.pets.ast.TypeExpr
@@ -22,9 +22,9 @@ public class Game(
 
   val authority by setup::authority
 
-  fun changeLog(): List<ChangeLogEntry> = components.changeLog()
+  fun changeLog(): List<ChangeRecord> = components.changeLog()
 
-  fun changeLogFull(): List<ChangeLogEntry> = components.changeLogFull()
+  fun changeLogFull(): List<ChangeRecord> = components.changeLogFull()
 
   fun resolveType(typeExpr: TypeExpr): PType = loader.resolveType(typeExpr)
 

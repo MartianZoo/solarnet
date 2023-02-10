@@ -12,7 +12,7 @@ import dev.martianzoo.tfm.pets.ast.Instruction.Intensity
 import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.pets.ast.ScalarAndType.Companion.sat
 import dev.martianzoo.tfm.pets.ast.TypeExpr.Companion.typeExpr
-import dev.martianzoo.tfm.pets.ast.classNames
+import dev.martianzoo.tfm.pets.ast.ClassName.Companion.classNames
 import dev.martianzoo.tfm.testlib.assertFails
 import org.junit.jupiter.api.Test
 

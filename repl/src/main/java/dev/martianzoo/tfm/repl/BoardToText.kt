@@ -1,7 +1,7 @@
 package dev.martianzoo.tfm.repl
 
-import dev.martianzoo.tfm.api.GameState
 import dev.martianzoo.tfm.api.ReadOnlyGameState
+import dev.martianzoo.tfm.api.ReadOnlyGameState.GameState
 import dev.martianzoo.tfm.api.lookUpProductionLevels
 import dev.martianzoo.tfm.api.standardResourceNames
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
@@ -61,11 +61,11 @@ internal class BoardToText(private val game: GameState) { // TODO why not Game??
       standardResourceNames(game).associateBy({ it }) {
         game.countComponents(game.resolveType(it.addArgs(player)))
       }
-}
 
-internal val mColor = "f4d400"
-internal val sColor = "c8621e"
-internal val tColor = "777777"
-internal val pColor = "6dd248"
-internal val eColor = "b23bcb"
-internal val hColor = "ef4320"
+  internal val mColor = "f4d400"
+  internal val sColor = "c8621e"
+  internal val tColor = "777777"
+  internal val pColor = "6dd248"
+  internal val eColor = "b23bcb"
+  internal val hColor = "ef4320"
+}
