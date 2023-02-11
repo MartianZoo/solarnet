@@ -257,35 +257,6 @@ internal constructor(
 
   override fun toString() = "$className"
 
-  /** A detailed multi-line description of the class. */
-  // TODO this is a lot of presentation logic...
-  public fun describe(): String {
-    fun descendingBySubclassCount(classes: Iterable<PClass>) =
-        classes.sortedWith(compareBy({ -it.allSubclasses.size }, { it.className }))
-
-    val supers = descendingBySubclassCount(allSuperclasses - this - loader.componentClass)
-    val superstring = if (supers.isEmpty()) "(none)" else supers.joinToString()
-
-    val subs = descendingBySubclassCount(allSubclasses - this)
-    val substring =
-        when (subs.size) {
-          0 -> "(none)"
-          in 1..11 -> subs.joinToString()
-          else -> subs.take(10).joinToString() + " (${subs.size - 10} others)"
-        }
-    val fx = classEffects.joinToString("\n                ")
-    return """
-      Name:     $className
-      Id:       $id
-      Abstract: $abstract
-      Supers:   $superstring
-      Subs:     $substring
-      Deps:     ${baseType.allDependencies.types.joinToString()}
-      Effects:  $fx
-    """
-        .trimIndent()
-  }
-
   companion object {
     fun superclasses(declaration: ClassDeclaration, loader: PClassLoader) =
         declaration.supertypes.classNames().map(loader::load)
