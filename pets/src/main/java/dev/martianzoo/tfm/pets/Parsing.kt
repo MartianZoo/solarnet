@@ -47,16 +47,16 @@ public object Parsing {
    * the parsed [P]. [P] can only be one of the major elemental types like [Effect], [Action],
    * [Instruction], [TypeExpr], etc.
    */
-  public fun <P : PetNode> parseElement(expectedType: KClass<P>, source: String): P {
+  public fun <P : PetNode> parseElement(expectedType: KClass<P>, elementSource: String): P {
     val pet =
         try {
-          parserGroup.parse(expectedType, tokenize(source))
+          parserGroup.parse(expectedType, tokenize(elementSource))
         } catch (e: ParseException) {
           throw IllegalArgumentException(
               """
                 Expecting ${expectedType.simpleName} ...
                 Input was:
-                $source
+                $elementSource
               """
                   .trimIndent(),
               e)
@@ -167,9 +167,9 @@ public object Parsing {
               }
           input = match.input.toString()
           val found = match.text.replace("\n", "\\n")
-          val expec = result.expected.name?.replace("\n", "\\n")
+          val expected = result.expected.name?.replace("\n", "\\n")
           message.append(
-              "$thisLoc: at ${match.row}:${match.column}, looking for $expec, but found $found\n")
+              "$thisLoc: at ${match.row}:${match.column}, looking for $expected, but found $found\n")
         }
         else -> message.append(result.toString())
       }

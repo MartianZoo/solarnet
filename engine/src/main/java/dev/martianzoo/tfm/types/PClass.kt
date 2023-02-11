@@ -56,14 +56,14 @@ internal constructor(
   // HIERARCHY
 
   /**
-   * Returns [true] if this class is a subclass of [that], whether direct, indirect, or the same
+   * Returns `true` if this class is a subclass of [that], whether direct, indirect, or the same
    * class. Equivalent to `that.isSuperclassOf(this)`.
    */
   public fun isSubclassOf(that: PClass): Boolean =
       this == that || directSuperclasses.any { it.isSubclassOf(that) }
 
   /**
-   * Returns [true] if this class is a superclass of [that], whether direct, indirect, or the same
+   * Returns `true` if this class is a superclass of [that], whether direct, indirect, or the same
    * class. Equivalent to `that.isSubclassOf(this)`.
    */
   public fun isSuperclassOf(that: PClass) = that.isSubclassOf(this)
@@ -96,7 +96,7 @@ internal constructor(
   /**
    * Whether this class serves as the intersection type of its full set of [directSuperclasses];
    * that is, no other [PClass] loaded by this [PClassLoader] is a subclass of all of them unless it
-   * is also a subclass of [this]. An example is `OwnedTile`; since components like the `Landlord`
+   * is also a subclass of `this`. An example is `OwnedTile`; since components like the `Landlord`
    * award count `OwnedTile` components, it would be a bug if a component like
    * `CommercialDistrictTile` (which is both an `Owned` and a `Tile`) forgot to also extend
    * `OwnedTile`.
@@ -108,20 +108,18 @@ internal constructor(
             .all(::isSuperclassOf)
   }
 
-  /** Returns the greatest lower bound of [this] and [that], or null if there is no such class. */
+  /** Returns the greatest lower bound of `this` and [that], or null if there is no such class. */
   // TODO explain better
   public fun intersect(that: PClass): PClass? =
       when {
         this.isSubclassOf(that) -> this
         that.isSubclassOf(this) -> that
         else ->
-            allSubclasses
-                .filter {
-                  it.intersectionType &&
-                      this in it.directSuperclasses &&
-                      that in it.directSuperclasses
-                }
-                .singleOrNull()
+          allSubclasses.singleOrNull {
+            it.intersectionType &&
+            this in it.directSuperclasses &&
+            that in it.directSuperclasses
+          }
       }
 
   // DEPENDENCIES
@@ -245,6 +243,7 @@ internal constructor(
             // for now, add <This> indiscriminately to this type but don't recurse *its* refinement
             // TODO should we be doing this here?
             return if (node is TypeExpr) {
+              @Suppress("UNCHECKED_CAST")
               node.addArgs(THIS) as P
             } else {
               defaultTransform(node)

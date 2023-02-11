@@ -141,7 +141,7 @@ public class PClassLoader(
     require(decl.name !in loadedClasses) { decl.name }
     require(decl.id !in loadedClasses) { decl.id }
 
-    // signal with `null` that loading is in process so we can detect infinite recursion
+    // signal with `null` that loading is in process, so we can detect infinite recursion
     loadedClasses[decl.name] = null
     loadedClasses[decl.id] = null
 

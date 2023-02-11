@@ -12,7 +12,7 @@ internal class Defaults(
 ) {
 
   override fun toString() =
-      "{ALL $allCasesDependencies GAIN $gainOnlyDependencies INTENS $gainIntensity}"
+      "{ALL $allCasesDependencies GAIN $gainOnlyDependencies INTENSITY $gainIntensity}"
 
   companion object {
     fun from(d: DefaultsDeclaration, pclass: PClass, loader: PClassLoader): Defaults {

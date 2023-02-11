@@ -3,7 +3,7 @@ package dev.martianzoo.tfm.pets.ast
 import dev.martianzoo.tfm.pets.PetVisitor
 
 /** An API object that can be represented as PETS source code. */
-sealed class PetNode {
+sealed class PetNode { // TODO rename PetElement??
   abstract val kind: String
 
   fun groupPartIfNeeded(part: PetNode) = if (part.shouldGroupInside(this)) "($part)" else "$part"
