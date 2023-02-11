@@ -90,13 +90,12 @@ data class Action(val cost: Cost?, val instruction: Instruction) : PetNode() {
       override fun toInstruction() = Instruction.Multi(costs.map { it.toInstruction() })
     }
 
-    // TODO rename transformName all
-    data class Transform(val cost: Cost, override val transform: String) :
+    data class Transform(val cost: Cost, override val transformKind: String) :
         Cost(), GenericTransform<Cost> {
       override fun visitChildren(visitor: PetVisitor) = visitor.visit(cost)
-      override fun toString() = "$transform[$cost]"
+      override fun toString() = "$transformKind[$cost]"
 
-      override fun toInstruction() = Instruction.Transform(cost.toInstruction(), transform)
+      override fun toInstruction() = Instruction.Transform(cost.toInstruction(), transformKind)
       override fun extract() = cost
     }
 

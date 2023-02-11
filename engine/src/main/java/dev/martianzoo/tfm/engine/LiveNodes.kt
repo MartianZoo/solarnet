@@ -42,7 +42,7 @@ internal object LiveNodes {
       is Instruction.Or -> OrIns(ins.instructions.toList().map { from(it, game) }) // TODO
       is Instruction.Then -> Then(ins.instructions.map { from(it, game) })
       is Instruction.Multi -> Then(ins.instructions.map { from(it, game) })
-      else -> TODO()
+      is Instruction.Transform -> error("should have been transformed already")
     }
   }
 
@@ -70,7 +70,6 @@ internal object LiveNodes {
       }
       game.applyChange(
           count = count,
-          // TODO fix
           removing = removing?.let { Component(it as PType) }, // TODO hack
           gaining = gaining?.let { Component(it as PType) }, // TODO hack
           amap = intensity == AMAP)

@@ -96,7 +96,7 @@ private class PClassCanonTest {
     val all: Set<PClass> = table.allClasses
     val random = random(all, 80)
     random.forEach {
-      println(it.describe())
+      // println(it.describe())
       println()
     }
   }

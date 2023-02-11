@@ -7,7 +7,6 @@ import dev.martianzoo.util.overlayMaps
 
 // Takes care of everything inside the <> but knows nothing of what's outside it
 internal data class DependencyMap(private val map: Map<Key, Dependency>) {
-  // TODO make that private?
   internal constructor() : this(mapOf<Key, Dependency>())
 
   constructor(vararg pairs: Pair<Key, Dependency>) : this(mapOf(*pairs))
@@ -42,7 +41,6 @@ internal data class DependencyMap(private val map: Map<Key, Dependency>) {
 
   companion object {
     fun intersect(maps: Collection<DependencyMap>): DependencyMap {
-      // TODO improve, watch out for order
       var map = DependencyMap()
       maps.forEach { map = map.intersect(it) }
       return map

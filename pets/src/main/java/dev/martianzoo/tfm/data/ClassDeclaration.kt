@@ -27,7 +27,6 @@ data class ClassDeclaration(
 ) {
   init {
     require(name != THIS)
-    // require(name != ME) TODO ?
   }
   fun validate() {
     if (name == COMPONENT) {

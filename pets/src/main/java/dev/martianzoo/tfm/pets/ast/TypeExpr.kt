@@ -26,13 +26,29 @@ import dev.martianzoo.util.wrap
  * *representations* so they are considered unequal.
  */
 data class TypeExpr(
-    override val className: ClassName, // TODO renames?
+    override val className: ClassName,
     val arguments: List<TypeExpr> = listOf(),
     val refinement: Requirement? = null,
     val link: Int? = null,
 ) : PetNode(), HasClassName {
-  companion object {
-    fun typeExpr(text: String): TypeExpr = Parsing.parse(TypeParsers.typeExpr, text)
+  companion object : PetParser() {
+    fun typeExpr(text: String): TypeExpr = Parsing.parse(parser(), text)
+
+    fun refinement() = group(skip(_has) and Requirement.parser())
+
+    fun parser(): Parser<TypeExpr> {
+      return parser {
+        val link: Parser<Int> = skipChar('^') and scalar
+        val typeArgs = skipChar('<') and commaSeparated(parser()) and skipChar('>')
+
+        className and
+            optionalList(typeArgs) and
+            optional(refinement()) and
+            optional(link) map { (clazz, args, ref, link) ->
+          TypeExpr(clazz, args, ref, link)
+        }
+      }
+    }
   }
 
   override fun visitChildren(visitor: PetVisitor) =
@@ -76,24 +92,4 @@ data class TypeExpr(
       }
 
   override val kind = "TypeExpr"
-
-  // TODO no
-  // This is handled differently from the others because so many of the individual parsers end up
-  // being needed by the others. So we put them all in properties and pass the whole TypeParsers
-  // object around.
-  object TypeParsers : PetParser() {
-    private val link: Parser<Int> = skipChar('^') and scalar
-
-    private val typeArgs = skipChar('<') and commaSeparated(parser { typeExpr }) and skipChar('>')
-
-    val refinement = parser { group(skip(_has) and Requirement.parser()) }
-
-    val typeExpr: Parser<TypeExpr> =
-        className and
-        optionalList(typeArgs) and
-        optional(refinement) and
-        optional(link) map { (clazz, args, ref, link) ->
-          TypeExpr(clazz, args, ref, link)
-        }
-  }
 }

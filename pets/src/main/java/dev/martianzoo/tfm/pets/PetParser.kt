@@ -16,7 +16,7 @@ import com.github.h0tk3y.betterParse.parser.Parser
 import com.github.h0tk3y.betterParse.utils.Tuple2
 import dev.martianzoo.tfm.pets.ast.Instruction.Intensity
 
-/** A base class for Parser objects; TODO make non-public */
+/** A base class for parsing objects. */
 public open class PetParser {
   internal fun tokenize(input: String) = TokenCache.tokenize(input)
 
@@ -44,7 +44,7 @@ public open class PetParser {
   internal val _allCapsWordRE = regex(Regex("""\b[A-Z]+\b"""), "ALLCAPS")
   private val _scalarRE = regex(Regex("""\b(0|[1-9][0-9]*)\b"""), "scalar")
 
-  val scalar: Parser<Int> = _scalarRE map { it.text.toInt() }
+  internal val scalar: Parser<Int> = _scalarRE map { it.text.toInt() }
 
   internal val intensity =
       optional(char('!') or char('.') or char('?') map { it.text } map Intensity::from)

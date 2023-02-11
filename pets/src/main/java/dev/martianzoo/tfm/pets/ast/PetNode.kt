@@ -16,7 +16,7 @@ sealed class PetNode {
   abstract fun visitChildren(visitor: PetVisitor)
 
   interface GenericTransform<P : PetNode> {
-    val transform: String
+    val transformKind: String
     fun extract(): P
   }
 }

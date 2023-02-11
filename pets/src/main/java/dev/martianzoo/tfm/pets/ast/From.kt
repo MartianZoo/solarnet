@@ -13,8 +13,6 @@ import dev.martianzoo.tfm.pets.PetException
 import dev.martianzoo.tfm.pets.PetParser
 import dev.martianzoo.tfm.pets.PetVisitor
 import dev.martianzoo.tfm.pets.ast.ClassName.Parsing.className
-import dev.martianzoo.tfm.pets.ast.TypeExpr.TypeParsers
-import dev.martianzoo.tfm.pets.ast.TypeExpr.TypeParsers.typeExpr
 import dev.martianzoo.util.joinOrEmpty
 import dev.martianzoo.util.wrap
 
@@ -66,9 +64,13 @@ sealed class From : PetNode() {
 
     internal fun parser(): Parser<From> {
       return parser {
-        val typeAsFrom = typeExpr map ::TypeAsFrom
+        val typeAsFrom = TypeExpr.parser() map ::TypeAsFrom
         val simpleFrom =
-            typeExpr and skip(_from) and typeExpr map { (to, from) -> SimpleFrom(to, from) }
+            TypeExpr.parser() and
+            skip(_from) and
+            TypeExpr.parser() map {
+              (to, from) -> SimpleFrom(to, from)
+            }
 
         val argumentList =
             zeroOrMore(typeAsFrom and skipChar(',')) and
@@ -80,7 +82,7 @@ sealed class From : PetNode() {
         val complexFrom =
             className and
             arguments and
-            optional(TypeParsers.refinement) map { (name, args, refins) ->
+            optional(TypeExpr.refinement()) map { (name, args, refins) ->
               ComplexFrom(name, args, refins)
             }
 

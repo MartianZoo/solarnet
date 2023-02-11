@@ -42,7 +42,7 @@ public abstract class PetTransformer {
                   is Requirement.Exact -> Requirement.Exact(x(sat))
                   is Requirement.Or -> Requirement.Or(x(requirements))
                   is Requirement.And -> Requirement.And(x(requirements))
-                  is Requirement.Transform -> Requirement.Transform(x(requirement), transform)
+                  is Requirement.Transform -> Requirement.Transform(x(requirement), transformKind)
                 }
             is Instruction ->
                 when (this) {
@@ -55,7 +55,7 @@ public abstract class PetTransformer {
                   is Instruction.Then -> Instruction.Then(x(instructions))
                   is Instruction.Or -> Instruction.Or(x(instructions))
                   is Instruction.Multi -> Instruction.Multi(x(instructions))
-                  is Instruction.Transform -> Instruction.Transform(x(instruction), transform)
+                  is Instruction.Transform -> Instruction.Transform(x(instruction), transformKind)
                 }
             is From ->
                 when (this) {
@@ -68,7 +68,7 @@ public abstract class PetTransformer {
                 when (this) {
                   is Trigger.OnGainOf -> Trigger.OnGainOf.create(x(typeExpr))
                   is Trigger.OnRemoveOf -> Trigger.OnRemoveOf.create(x(typeExpr))
-                  is Trigger.Transform -> Trigger.Transform(x(trigger), transform)
+                  is Trigger.Transform -> Trigger.Transform(x(trigger), transformKind)
                   else -> this
                 }
             is Action -> Action(x(cost), x(instruction))
@@ -78,7 +78,7 @@ public abstract class PetTransformer {
                   is Cost.Per -> Cost.Per(x(cost), x(sat))
                   is Cost.Or -> Cost.Or(x(costs))
                   is Cost.Multi -> Cost.Multi(x(costs))
-                  is Cost.Transform -> Cost.Transform(x(cost), transform)
+                  is Cost.Transform -> Cost.Transform(x(cost), transformKind)
                 }
           }
       @Suppress("UNCHECKED_CAST")

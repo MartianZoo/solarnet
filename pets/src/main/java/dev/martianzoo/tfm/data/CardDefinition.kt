@@ -1,6 +1,7 @@
 package dev.martianzoo.tfm.data
 
 import com.squareup.moshi.Json
+import dev.martianzoo.tfm.data.CardDefinition.Deck.PROJECT
 import dev.martianzoo.tfm.data.CardDefinition.ProjectKind.ACTIVE
 import dev.martianzoo.tfm.data.SpecialClassNames.ACTION_CARD
 import dev.martianzoo.tfm.data.SpecialClassNames.ACTIVE_CARD
@@ -21,6 +22,7 @@ import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.pets.ast.Effect
 import dev.martianzoo.tfm.pets.ast.Effect.Companion.effect
+import dev.martianzoo.tfm.pets.ast.Effect.Trigger.OnGainOf
 import dev.martianzoo.tfm.pets.ast.Instruction
 import dev.martianzoo.tfm.pets.ast.Instruction.Companion.instruction
 import dev.martianzoo.tfm.pets.ast.PetNode
@@ -130,20 +132,12 @@ data class CardDefinition(
     require(resourceTypeText?.isNotEmpty() ?: true)
     require(requirementText?.isNotEmpty() ?: true)
 
-    // do this low-tech to avoid unlazifying TODO
-    fun inactive() =
-        actionsText.isEmpty() &&
-        effectsText.all { it.startsWith("$END:") } &&
-        resourceTypeText == null
-
     when (deck) {
       Deck.PROJECT -> {
         require(cost >= 0)
         // a project should be ACTIVE iff it has persistent effects
-        when (projectKind) {
-          null -> error("Missing project kind: $idRaw")
-          ACTIVE -> require(!inactive()) { "No persistent effects: $idRaw" }
-          else -> require(inactive()) { "Persistent effects: $idRaw" }
+        if (projectKind == null) {
+          error("Missing project kind: $idRaw")
         }
       }
       else -> {
@@ -174,7 +168,19 @@ data class CardDefinition(
   // TODO rethink
   val requirement by ::requirementRaw
 
+  // we don't do this earlier just to avoid parsing all the things?? TODO...
+  fun validate() {
+    if (deck == PROJECT) {
+      val active =
+          actionsRaw.any() ||
+          effectsRaw.any { it.trigger != OnGainOf.create(END.type) } ||
+          resourceType != null
+      require(active == (projectKind == ACTIVE))
+    }
+  }
+
   val allEffects: Set<Effect> by lazy {
+    validate()
     (listOfNotNull(immediateRaw).map(::immediateToEffect) +
             effectsRaw +
             actionsToEffects(actionsRaw))

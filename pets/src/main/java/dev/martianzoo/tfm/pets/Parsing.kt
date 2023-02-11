@@ -24,7 +24,6 @@ import dev.martianzoo.tfm.pets.ast.PetNode
 import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.pets.ast.ScalarAndType
 import dev.martianzoo.tfm.pets.ast.TypeExpr
-import dev.martianzoo.tfm.pets.ast.TypeExpr.TypeParsers
 import dev.martianzoo.util.Debug
 import dev.martianzoo.util.ParserGroup
 import kotlin.reflect.KClass
@@ -137,7 +136,7 @@ public object Parsing {
 
   private val parserGroup by lazy {
     val pgb = ParserGroup.Builder<PetNode>()
-    pgb.publish(TypeParsers.typeExpr)
+    pgb.publish(TypeExpr.parser())
     pgb.publish(ScalarAndType.parser())
     pgb.publish(Requirement.parser())
     pgb.publish(Instruction.parser())

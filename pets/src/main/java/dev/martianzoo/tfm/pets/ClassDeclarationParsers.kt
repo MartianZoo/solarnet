@@ -33,8 +33,6 @@ import dev.martianzoo.tfm.pets.ast.ClassName.Parsing.classFullName
 import dev.martianzoo.tfm.pets.ast.Effect
 import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.pets.ast.TypeExpr
-import dev.martianzoo.tfm.pets.ast.TypeExpr.TypeParsers.refinement
-import dev.martianzoo.tfm.pets.ast.TypeExpr.TypeParsers.typeExpr
 import dev.martianzoo.util.KClassMultimap
 import dev.martianzoo.util.plus
 import dev.martianzoo.util.toSetStrict
@@ -67,11 +65,11 @@ internal object ClassDeclarationParsers : PetParser() {
     private val dependencies: Parser<List<DependencyDeclaration>> =
         optionalList(
             skipChar('<') and
-            commaSeparated(typeExpr map ::DependencyDeclaration) and
+            commaSeparated(TypeExpr.parser() map ::DependencyDeclaration) and
             skipChar('>'))
 
     private val supertypeList: Parser<List<TypeExpr>> =
-        optionalList(skipChar(':') and commaSeparated(typeExpr))
+        optionalList(skipChar(':') and commaSeparated(TypeExpr.parser()))
 
     /*
      * TODO I want to support letting classes declare a shortName as well, like
@@ -81,7 +79,7 @@ internal object ClassDeclarationParsers : PetParser() {
     val signature: Parser<Signature> =
         classFullName and
         dependencies and
-        optional(refinement) and
+        optional(TypeExpr.refinement()) and
         // optional(skipChar('[') and parser { classShortName } and skipChar(']')) and
         supertypeList map { (name, deps, ref, /*short,*/ supes) ->
           Signature(name, deps, ref, /*short,*/ supes)
@@ -97,7 +95,7 @@ internal object ClassDeclarationParsers : PetParser() {
 
     private val gainOnlyDefaults: Parser<DefaultsDeclaration> =
         skipChar('+') and
-        typeExpr and
+        TypeExpr.parser() and
         intensity map { (typeExpr, int) ->
           require(typeExpr.className == THIS)
           require(typeExpr.refinement == null)
@@ -105,7 +103,7 @@ internal object ClassDeclarationParsers : PetParser() {
         }
 
     private val allCasesDefault: Parser<DefaultsDeclaration> by lazy {
-      typeExpr map {
+      TypeExpr.parser() map {
         require(it.className == THIS)
         require(it.refinement == null)
         DefaultsDeclaration(universalSpecs = it.arguments)

@@ -12,7 +12,6 @@ import dev.martianzoo.tfm.pets.PetException
 import dev.martianzoo.tfm.pets.PetParser
 import dev.martianzoo.tfm.pets.PetVisitor
 import dev.martianzoo.tfm.pets.ast.From.SimpleFrom
-import dev.martianzoo.tfm.pets.ast.TypeExpr.TypeParsers.typeExpr
 import dev.martianzoo.util.suf
 
 sealed class Instruction : PetNode() {
@@ -173,10 +172,10 @@ sealed class Instruction : PetNode() {
     override fun precedence() = 0
   }
 
-  data class Transform(val instruction: Instruction, override val transform: String) :
+  data class Transform(val instruction: Instruction, override val transformKind: String) :
       Instruction(), GenericTransform<Instruction> {
     override fun visitChildren(visitor: PetVisitor) = visitor.visit(instruction)
-    override fun toString() = "$transform[$instruction]"
+    override fun toString() = "$transformKind[$instruction]"
 
     override fun extract() = instruction
   }
@@ -229,7 +228,7 @@ sealed class Instruction : PetNode() {
             transform(parser()) map { (node, tname) -> Transform(node, tname) }
         val maybeTransform: Parser<Instruction> = maybePer or transform
 
-        val arguments = separatedTerms(typeExpr, char(','), acceptZero = true)
+        val arguments = separatedTerms(TypeExpr.parser(), char(','), acceptZero = true)
         val custom: Parser<Custom> =
             skipChar('@') and
             _lowerCamelRE and

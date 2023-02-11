@@ -57,7 +57,7 @@ internal object PetToKotlin {
             is Requirement.Exact -> "Exact(${p2k(sat)})"
             is Requirement.Or -> "Requirement.Or(${requirements.join()})"
             is Requirement.And -> "Requirement.And(${requirements.join()})"
-            is Requirement.Transform -> "Requirement.Transform(${p2k(requirement)}, \"$transform\")"
+            is Requirement.Transform -> "Requirement.Transform(${p2k(requirement)}, \"$transformKind\")"
           }
         }
         is Instruction -> {
@@ -73,7 +73,7 @@ internal object PetToKotlin {
             is Then -> "Then(${instructions.join()})"
             is Instruction.Or -> "Instruction.Or(${instructions.join()})"
             is Instruction.Multi -> "Instruction.Multi(${instructions.join()})"
-            is Instruction.Transform -> "Instruction.Transform(${p2k(instruction)}, \"$transform\")"
+            is Instruction.Transform -> "Instruction.Transform(${p2k(instruction)}, \"$transformKind\")"
           }
         }
         is From -> {
@@ -90,7 +90,7 @@ internal object PetToKotlin {
             is WhenRemove -> "WhenRemove"
             is Trigger.OnGainOf -> "OnGainOf(${p2k(typeExpr)})"
             is Trigger.OnRemoveOf -> "OnRemoveOf(${p2k(typeExpr)})"
-            is Trigger.Transform -> "Trigger.Transform(${p2k(trigger)}, \"$transform\")"
+            is Trigger.Transform -> "Trigger.Transform(${p2k(trigger)}, \"$transformKind\")"
           }
         }
         is Effect -> "Effect(${p2k(trigger)}, ${p2k(instruction)}${", true".iff(automatic)})"
@@ -100,7 +100,7 @@ internal object PetToKotlin {
             is Cost.Per -> "Cost.Per(${p2k(cost)}, ${p2k(sat)})"
             is Cost.Or -> "Cost.Or(${costs.join()})"
             is Cost.Multi -> "Cost.Multi(${costs.join()})"
-            is Cost.Transform -> "Cost.Transform(${p2k(cost)}, \"$transform\")"
+            is Cost.Transform -> "Cost.Transform(${p2k(cost)}, \"$transformKind\")"
           }
         }
         is Action -> "Action(${p2k(cost)}, ${p2k(instruction)})"

@@ -36,7 +36,7 @@ private object CopyProductionBox : CustomInstruction("copyProductionBox") {
     val def = game.setup.authority.card(chosenCardName)
 
     val nodes: Set<Transform> = def.immediateRaw?.let(::childNodesOfType) ?: setOf()
-    val matches = nodes.filter { it.transform == "PROD" }
+    val matches = nodes.filter { it.transformKind == "PROD" }
 
     when (matches.size) {
       1 -> return matches.first()

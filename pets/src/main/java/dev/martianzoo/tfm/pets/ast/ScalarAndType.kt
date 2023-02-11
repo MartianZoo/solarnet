@@ -10,7 +10,6 @@ import dev.martianzoo.tfm.pets.Parsing
 import dev.martianzoo.tfm.pets.PetParser
 import dev.martianzoo.tfm.pets.PetVisitor
 import dev.martianzoo.tfm.pets.SpecialClassNames.MEGACREDIT
-import dev.martianzoo.tfm.pets.ast.TypeExpr.TypeParsers.typeExpr
 
 data class ScalarAndType(
     val scalar: Int = 1,
@@ -43,8 +42,8 @@ data class ScalarAndType(
 
     fun parser(): Parser<ScalarAndType> {
       return parser {
-        val scalarAndOptionalType = scalar and optional(typeExpr)
-        val optionalScalarAndType = optional(scalar) and typeExpr
+        val scalarAndOptionalType = scalar and optional(TypeExpr.parser())
+        val optionalScalarAndType = optional(scalar) and TypeExpr.parser()
 
         scalarAndOptionalType or optionalScalarAndType map { (scalar, expr) -> sat(scalar, expr) }
       }

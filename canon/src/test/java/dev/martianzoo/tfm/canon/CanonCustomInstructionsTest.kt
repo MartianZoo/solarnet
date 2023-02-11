@@ -15,9 +15,8 @@ private class CanonCustomInstructionsTest {
     repl.command("PROD[5]") // The standard hack for every player - ignore it!
     repl.command("PROD[Steel, Titanium, Plant, Energy, Heat]")
     repl.command("@gainLowestProduction(Player1)")
-
-    // TODO fix ordering problem
     assertThat(repl.command("count Production<Player1, Class<Megacredit>>").first()).startsWith("6")
+    assertThat(repl.command("count Production<Class<Megacredit>, Player1>").first()).startsWith("6")
   }
 
   @Test

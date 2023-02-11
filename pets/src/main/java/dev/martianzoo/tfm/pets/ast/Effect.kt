@@ -10,7 +10,6 @@ import dev.martianzoo.tfm.pets.PetParser
 import dev.martianzoo.tfm.pets.PetVisitor
 import dev.martianzoo.tfm.pets.SpecialClassNames.THIS
 import dev.martianzoo.tfm.pets.ast.Instruction.Gated
-import dev.martianzoo.tfm.pets.ast.TypeExpr.TypeParsers.typeExpr
 import dev.martianzoo.util.iff
 
 data class Effect(
@@ -37,12 +36,12 @@ data class Effect(
 
     object WhenGain : Trigger() {
       override fun visitChildren(visitor: PetVisitor) {}
-      override fun toString() = "This" // TODO is really best?
+      override fun toString() = "This"
     }
 
     object WhenRemove : Trigger() {
       override fun visitChildren(visitor: PetVisitor) {}
-      override fun toString() = "-This" // TODO is really best?
+      override fun toString() = "-This"
     }
 
     data class OnGainOf private constructor(val typeExpr: TypeExpr) : Trigger() {
@@ -71,10 +70,10 @@ data class Effect(
       override fun toString() = "-$typeExpr"
     }
 
-    data class Transform(val trigger: Trigger, override val transform: String) :
+    data class Transform(val trigger: Trigger, override val transformKind: String) :
         Trigger(), GenericTransform<Trigger> {
       override fun visitChildren(visitor: PetVisitor) = visitor.visit(trigger)
-      override fun toString() = "$transform[$trigger]"
+      override fun toString() = "$transformKind[$trigger]"
 
       init {
         if (trigger !is OnGainOf && trigger !is OnRemoveOf) {
@@ -89,8 +88,8 @@ data class Effect(
       fun trigger(text: String): Trigger = Parsing.parse(parser(), text)
 
       fun parser(): Parser<Trigger> {
-        val onGainOf = typeExpr map OnGainOf::create
-        val onRemoveOf = skipChar('-') and typeExpr map OnRemoveOf::create
+        val onGainOf = TypeExpr.parser() map OnGainOf::create
+        val onRemoveOf = skipChar('-') and TypeExpr.parser() map OnRemoveOf::create
         val atom = onGainOf or onRemoveOf
         val transform =
             transform(atom) map { (node, transformName) -> Transform(node, transformName) }

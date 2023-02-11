@@ -80,7 +80,7 @@ public object AstTransforms {
           override fun <P : PetNode> transform(node: P): P {
             val rewritten: PetNode =
                 when {
-                  node is GenericTransform<*> && node.transform == "PROD" -> {
+                  node is GenericTransform<*> && node.transformKind == "PROD" -> {
                     require(!inProd)
                     inProd = true
                     val inner = x(node.extract())

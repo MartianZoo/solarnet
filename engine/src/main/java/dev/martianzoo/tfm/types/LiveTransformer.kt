@@ -15,9 +15,8 @@ import dev.martianzoo.tfm.pets.ast.ScalarAndType.Companion.sat
 public class LiveTransformer internal constructor(val loader: PClassLoader) {
   /**
    * Resolves `PROD[...]` regions by replacing, for example, `Steel<Player2>` with
-   * `Production<Class<Steel>, Player2>`. This form of the function uses [loader] to look up the
-   * names of the standard resource classes; one could also use (TODO) directly if these class names
-   * are already known.
+   * `Production<Player2, Class<Steel>>`. This form of the function uses [loader] to look up the
+   * names of the standard resource classes; one could also use [AstTransforms.deprodify].
    */
   public fun <P : PetNode> deprodify(node: P): P =
       AstTransforms.deprodify(node, subclassNames(STANDARD_RESOURCE))

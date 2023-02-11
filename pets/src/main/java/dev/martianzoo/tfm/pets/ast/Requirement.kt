@@ -75,10 +75,10 @@ sealed class Requirement : PetNode() {
     override fun requiresThis() = requirements.any { it.requiresThis() }
   }
 
-  data class Transform(val requirement: Requirement, override val transform: String) :
+  data class Transform(val requirement: Requirement, override val transformKind: String) :
       Requirement(), GenericTransform<Requirement> {
     override fun visitChildren(visitor: PetVisitor) = visitor.visit(requirement)
-    override fun toString() = "$transform[$requirement]"
+    override fun toString() = "$transformKind[$requirement]"
     override fun extract() = requirement
   }
 
