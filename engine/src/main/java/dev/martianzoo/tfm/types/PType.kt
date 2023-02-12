@@ -53,11 +53,6 @@ internal constructor(
     }
   }
 
-  fun specialize(specs: List<PType>): PType =
-      copy(allDependencies = allDependencies.specialize(specs))
-
-  fun refine(ref: Requirement): PType = copy(refinement = combine(ref, refinement))
-
   override val typeExpr: TypeExpr by lazy {
     val narrowed = allDependencies.minus(pclass.baseType.allDependencies)
     pclass.className.addArgs(narrowed.types.map { it.typeExpr }).refine(refinement)

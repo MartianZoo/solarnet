@@ -117,8 +117,8 @@ internal constructor(
         else ->
           allSubclasses.singleOrNull {
             it.intersectionType &&
-            this in it.directSuperclasses &&
-            that in it.directSuperclasses
+                this in it.directSuperclasses &&
+                that in it.directSuperclasses
           }
       }
 
@@ -157,7 +157,8 @@ internal constructor(
     }
   }
 
-  fun specialize(map: List<PType>): PType = baseType.specialize(map)
+  fun specialize(map: List<PType>): PType =
+      baseType.copy(allDependencies = baseType.allDependencies.specialize(map))
 
   // DEFAULTS
 

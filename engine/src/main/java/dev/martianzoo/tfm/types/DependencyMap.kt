@@ -26,7 +26,7 @@ internal data class DependencyMap(private val map: Map<Key, Dependency>) {
 
   fun specializes(that: DependencyMap) =
       // For each of *its* keys, my type must be a subtype of its type
-      that.map.all { (thatKey, thatType) -> map[thatKey]!!.isSubtypeOf(thatType) }
+      that.map.all { (thatKey, thatType: Dependency) -> map[thatKey]!!.isSubtypeOf(thatType) }
 
   // Combines all entries, using the glb when both maps have the same key
   fun intersect(that: DependencyMap): DependencyMap {

@@ -1,13 +1,16 @@
 package dev.martianzoo.tfm.types
 
-import dev.martianzoo.tfm.api.Type
 import dev.martianzoo.tfm.pets.SpecialClassNames.CLASS
 import dev.martianzoo.tfm.pets.ast.ClassName
+import dev.martianzoo.tfm.pets.ast.TypeExpr
 
-internal sealed class Dependency : Type {
+internal sealed class Dependency {
   abstract val key: Key
-  override val refinement = null
   abstract fun intersect(that: Dependency): Dependency?
+  abstract val abstract: Boolean
+  abstract fun isSubtypeOf(that: Dependency): Boolean
+  abstract val typeExpr: TypeExpr
+  abstract val typeExprFull: TypeExpr
 
   /**
    * Once a class introduces a dependency, like `CLASS Tile<Area>`, all subclasses know that
@@ -32,8 +35,7 @@ internal sealed class Dependency : Type {
       return that as TypeDependency
     }
 
-    override fun isSubtypeOf(that: Type) =
-        that is Dependency && ptype.isSubtypeOf(checkKeys(that).ptype)
+    override fun isSubtypeOf(that: Dependency) = ptype.isSubtypeOf(checkKeys(that).ptype)
 
     override fun intersect(that: Dependency): TypeDependency? = intersect(checkKeys(that).ptype)
 
@@ -60,7 +62,7 @@ internal sealed class Dependency : Type {
     override val key: Key by ::KEY
     override val abstract by pclass::abstract
 
-    override fun isSubtypeOf(that: Type) =
+    override fun isSubtypeOf(that: Dependency) =
         that is ClassDependency && pclass.isSubclassOf(that.pclass)
 
     override fun intersect(that: Dependency): ClassDependency? =
@@ -70,7 +72,7 @@ internal sealed class Dependency : Type {
         pclass.intersect(otherClass)?.let { copy(pclass = it) }
 
     override val typeExprFull by pclass.className::type
-    override val typeExpr by pclass.className::type
+    override val typeExpr by ::typeExprFull
     override fun toString() = "$key=${typeExpr}"
   }
 }
