@@ -1,12 +1,9 @@
 package dev.martianzoo.tfm.api
 
-import dev.martianzoo.tfm.pets.ast.ClassName
-import dev.martianzoo.tfm.pets.ast.HasClassName
 import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.pets.ast.TypeExpr
 
-interface Type : HasClassName {
-  override val className: ClassName
+interface Type {
   val abstract: Boolean
   fun isSubtypeOf(that: Type): Boolean
   val typeExpr: TypeExpr

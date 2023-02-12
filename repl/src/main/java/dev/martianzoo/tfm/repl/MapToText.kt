@@ -53,7 +53,7 @@ internal class MapToText(private val game: ReadOnlyGameState) {
   }
 
   private fun describe(tile: Type): String {
-    val name = tile.className.toString()
+    val name = tile.typeExpr.className.toString()
     val kind =
         when { // TODO do this more by checking supertypes
           name == "Tile008" -> "C"

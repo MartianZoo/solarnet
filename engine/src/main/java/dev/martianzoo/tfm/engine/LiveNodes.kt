@@ -20,7 +20,6 @@ import dev.martianzoo.tfm.pets.ast.Requirement.Exact
 import dev.martianzoo.tfm.pets.ast.Requirement.Max
 import dev.martianzoo.tfm.pets.ast.Requirement.Min
 import dev.martianzoo.tfm.pets.ast.ScalarAndType
-import dev.martianzoo.tfm.types.PType
 
 internal object LiveNodes {
   fun from(ins: Instruction, game: GameState): LiveInstruction {
@@ -70,8 +69,8 @@ internal object LiveNodes {
       }
       game.applyChange(
           count = count,
-          removing = removing?.let { Component(it as PType) }, // TODO hack
-          gaining = gaining?.let { Component(it as PType) }, // TODO hack
+          removing = removing,
+          gaining = gaining,
           amap = intensity == AMAP)
     }
   }

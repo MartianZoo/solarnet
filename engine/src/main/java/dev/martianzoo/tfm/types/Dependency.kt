@@ -25,7 +25,6 @@ internal sealed class Dependency : Type {
     init {
       require(key != ClassDependency.KEY)
     }
-    override val className by ptype::className
     override val abstract by ptype::abstract
 
     private fun checkKeys(that: Dependency): TypeDependency {
@@ -59,7 +58,6 @@ internal sealed class Dependency : Type {
     }
 
     override val key: Key by ::KEY
-    override val className by pclass::className
     override val abstract by pclass::abstract
 
     override fun isSubtypeOf(that: Type) =

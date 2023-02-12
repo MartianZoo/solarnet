@@ -28,7 +28,6 @@ internal constructor(
       require(allDependencies.types.all { it is TypeDependency })
     }
   }
-  override val className by pclass::className
   override val abstract = pclass.abstract || allDependencies.abstract || refinement != null
 
   override fun isSubtypeOf(that: Type) =

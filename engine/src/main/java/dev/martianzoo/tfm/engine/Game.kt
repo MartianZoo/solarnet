@@ -11,6 +11,7 @@ import dev.martianzoo.tfm.pets.ast.TypeExpr
 import dev.martianzoo.tfm.types.PClassLoader
 import dev.martianzoo.tfm.types.PType
 import dev.martianzoo.util.Multiset
+import dev.martianzoo.util.map
 
 /** A game in progress. */
 public class Game(
@@ -34,7 +35,10 @@ public class Game(
 
   fun countComponents(typeExpr: TypeExpr): Int = countComponents(resolveType(typeExpr))
 
-  override fun getComponents(type: Type): Multiset<Component> = components.getAll(resolveType(type))
+  override fun getComponents(type: Type): Multiset<Type> =
+      components.getAll(resolveType(type)).map { it.ptype }
+
+  fun getComponents(type: PType): Multiset<Component> = components.getAll(type)
 
   fun execute(instr: Instruction) = LiveNodes.from(instr, this).execute(this)
 
