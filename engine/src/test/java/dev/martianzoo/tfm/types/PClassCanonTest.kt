@@ -32,7 +32,7 @@ private class PClassCanonTest {
 
     table.load(cn("OceanTile")).apply {
       assertThat(directDependencyKeys).isEmpty()
-      assertThat(allDependencyKeys).containsExactly(Dependency.Key(cn("Tile"), 0))
+      assertThat(allDependencyKeys).containsExactly(Key(cn("Tile"), 0))
       assertThat(directSuperclasses.toStrings())
           .containsExactly("GlobalParameter", "Tile")
           .inOrder()
@@ -57,9 +57,7 @@ private class PClassCanonTest {
         map[key]!! += it.className
       }
     }
-    map.forEach { k, v ->
-      println("$k : $v")
-    }
+    map.forEach { (k, v) -> println("$k : $v") }
   }
 
   @Test

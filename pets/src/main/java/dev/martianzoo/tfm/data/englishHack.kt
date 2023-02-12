@@ -14,7 +14,7 @@ fun englishHack(id: ClassName): ClassName {
 }
 
 private fun classNameMap(vararg pairs: Pair<String, String>) =
-    pairs.map { (a, b) -> cn(a) to cn(b) }.toMap()
+    pairs.associate { (a, b) -> cn(a) to cn(b) }
 
 val ENGLISH_HACK =
     classNameMap(

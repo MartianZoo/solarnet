@@ -1,5 +1,6 @@
 package dev.martianzoo.tfm.pets
 
+import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 
 /**

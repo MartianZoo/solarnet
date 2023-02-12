@@ -101,10 +101,10 @@ public object AstTransforms {
   }
 
   /**
-   * For any type expression whose root type is in [ownedClassNames] but does not already have
-   * either `Owner` or `Anyone` as a type argument, adds `Owner` as a type argument. This is
-   * implementing what the code `class Owned { DEFAULT This<Owner> ... }` is already trying to
-   * express, but I haven't gotten that working in a general way yet.
+   * For any type expression whose root type is in [owneds] but does not already have anything in
+   * [owners] as a type argument, adds `Owner` as a type argument. This is implementing what the
+   * code `class Owned { DEFAULT This<Owner> ... }` is already trying to express, but I haven't
+   * gotten that working in a general way yet.
    */
   // TODO redo this in terms of Type not TypeExpr
   public fun <P : PetNode> addOwner(node: P, owners: Set<ClassName>, owneds: Set<ClassName>): P {

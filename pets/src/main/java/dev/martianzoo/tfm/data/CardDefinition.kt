@@ -133,7 +133,7 @@ data class CardDefinition(
     require(requirementText?.isNotEmpty() ?: true)
 
     when (deck) {
-      Deck.PROJECT -> {
+      PROJECT -> {
         require(cost >= 0)
         // a project should be ACTIVE iff it has persistent effects
         if (projectKind == null) {

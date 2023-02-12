@@ -79,7 +79,7 @@ class HashMultiset<E> : MutableMultiset<E> {
           if (elements is MutableMultiset<E>) {
             elements.elements
           } else {
-            elements
+            elements.toSet()
           })
 
   override fun retainAll(elements: Collection<E>) =
@@ -87,6 +87,6 @@ class HashMultiset<E> : MutableMultiset<E> {
           if (elements is MutableMultiset<E>) {
             elements.elements
           } else {
-            elements
+            elements.toSet()
           })
 }
