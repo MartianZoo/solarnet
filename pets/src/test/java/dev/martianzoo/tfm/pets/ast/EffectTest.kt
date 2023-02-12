@@ -19,7 +19,7 @@ import dev.martianzoo.tfm.pets.ast.Instruction.Transmute
 import dev.martianzoo.tfm.pets.ast.Requirement.Exact
 import dev.martianzoo.tfm.pets.ast.Requirement.Max
 import dev.martianzoo.tfm.pets.ast.Requirement.Min
-import dev.martianzoo.tfm.pets.ast.ScalarAndType.Companion.sat
+import dev.martianzoo.tfm.pets.ast.ScaledTypeExpr.Companion.scaledType
 import dev.martianzoo.tfm.pets.checkBothWays
 import dev.martianzoo.tfm.pets.countNodesInTree
 import dev.martianzoo.tfm.pets.testSampleStrings
@@ -98,7 +98,7 @@ private class EffectTest {
   @Test
   fun nodeCount() {
     val eff = effect("Xyz<Xyz>: PROD[(1 Abc FROM Qux) OR 1]")
-    // ef, og, te, cn, te, cn, pr, or, tr, fr, te, cn, te, cn, ga, sat, te, cn
+    // ef, og, te, cn, te, cn, pr, or, tr, fr, te, cn, te, cn, ga, ste, te, cn
     assertThat(countNodesInTree(eff)).isEqualTo(18)
   }
 
@@ -117,7 +117,7 @@ private class EffectTest {
             Instruction.Per(
                 Transmute(
                     ComplexFrom(cn("Foo"), listOf(SimpleFrom(cn("Bar").type, cn("Bar").type))), 1),
-                sat(cn("Abc").type)),
+                scaledType(cn("Abc").type)),
             true))
 
     checkBothWays(
@@ -145,19 +145,19 @@ private class EffectTest {
         Effect(
             OnGainOf.create(cn("Wau").type),
             Instruction.Transform(
-                Instruction.Per(Gain(sat(cn("Ooh").type)), sat(cn("Qux").type)), "PROD")))
+                Instruction.Per(Gain(scaledType(cn("Ooh").type)), scaledType(cn("Qux").type)), "PROD")))
 
     checkBothWays(
         "-Bar<Bar>:: 1!",
         Effect(
             OnRemoveOf.create(cn("Bar").addArgs(cn("Bar"))),
-            Gain(sat(cn("Megacredit").type), MANDATORY),
+            Gain(scaledType(cn("Megacredit").type), MANDATORY),
             true))
 
     checkBothWays(
         "-Xyz<Xyz>(HAS Bar): 1 Foo<Foo> FROM Xyz?",
         Effect(
-            OnRemoveOf.create(cn("Xyz").addArgs(cn("Xyz")).refine(Min(sat(1, cn("Bar").type)))),
+            OnRemoveOf.create(cn("Xyz").addArgs(cn("Xyz")).refine(Min(scaledType(1, cn("Bar").type)))),
             Transmute(SimpleFrom(cn("Foo").addArgs(cn("Foo")), cn("Xyz").type), 1, OPTIONAL)))
 
     checkBothWays(
@@ -173,9 +173,9 @@ private class EffectTest {
                             listOf(SimpleFrom(cn("Bar").addArgs(cn("Xyz")), cn("Qux").type))),
                         5),
                     Gain(
-                        sat(cn("Bar").addArgs(cn("Foo").type, cn("Foo").addArgs(cn("Foo").type))))),
-                Gain(sat(cn("Qux").type)),
-                Instruction.Or(Gain(sat(cn("Xyz").type)), Gain(sat(cn("Megacredit").type))),
+                        scaledType(cn("Bar").addArgs(cn("Foo").type, cn("Foo").addArgs(cn("Foo").type))))),
+                Gain(scaledType(cn("Qux").type)),
+                Instruction.Or(Gain(scaledType(cn("Xyz").type)), Gain(scaledType(cn("Megacredit").type))),
                 Transmute(
                     SimpleFrom(
                         cn("Bar").addArgs(cn("Bar").addArgs(cn("Ahh").type)), cn("Ooh").type),
@@ -187,21 +187,21 @@ private class EffectTest {
             OnRemoveOf.create(cn("Bar").type),
             Instruction.Multi(
                 Instruction.Multi(
-                    Instruction.Per(Gain(sat(cn("Bar").type)), sat(cn("Qux").type)),
+                    Instruction.Per(Gain(scaledType(cn("Bar").type)), scaledType(cn("Qux").type)),
                     Instruction.Per(
-                        Gain(sat(1, cn("Megacredit").type)), sat(cn("Megacredit").type))),
-                Instruction.Per(Gain(sat(1, cn("Megacredit").type)), sat(cn("Megacredit").type)))))
+                        Gain(scaledType(1, cn("Megacredit").type)), scaledType(cn("Megacredit").type))),
+                Instruction.Per(Gain(scaledType(1, cn("Megacredit").type)), scaledType(cn("Megacredit").type)))))
 
     checkBothWays(
         "-Bar<Bar, Foo<Foo>>: 1 THEN (1! OR Abc / 11 Megacredit) THEN =1 Megacredit: -Abc",
         Effect(
             OnRemoveOf.create(cn("Bar").addArgs(cn("Bar").type, cn("Foo").addArgs(cn("Foo").type))),
             Then(
-                Gain(sat(cn("Megacredit").type)),
+                Gain(scaledType(cn("Megacredit").type)),
                 Instruction.Or(
-                    Gain(sat(1, cn("Megacredit").type), MANDATORY),
-                    Instruction.Per(Gain(sat(cn("Abc").type)), sat(11, cn("Megacredit").type))),
-                Gated(Exact(sat(cn("Megacredit").type)), Remove(sat(1, cn("Abc").type))))))
+                    Gain(scaledType(1, cn("Megacredit").type), MANDATORY),
+                    Instruction.Per(Gain(scaledType(cn("Abc").type)), scaledType(11, cn("Megacredit").type))),
+                Gated(Exact(scaledType(cn("Megacredit").type)), Remove(scaledType(1, cn("Abc").type))))))
 
     checkBothWays(
         "Bar: PROD[-5, (Abc / Megacredit, 1 Foo FROM Foo), (Foo OR 1): " +
@@ -210,20 +210,20 @@ private class EffectTest {
             OnGainOf.create(cn("Bar").type),
             Instruction.Transform(
                 Instruction.Multi(
-                    Remove(sat(5, cn("Megacredit").type)),
+                    Remove(scaledType(5, cn("Megacredit").type)),
                     Instruction.Multi(
-                        Instruction.Per(Gain(sat(cn("Abc").type)), sat(cn("Megacredit").type)),
+                        Instruction.Per(Gain(scaledType(cn("Abc").type)), scaledType(cn("Megacredit").type)),
                         Transmute(SimpleFrom(cn("Foo").type, cn("Foo").type), 1)),
                     Gated(
                         Requirement.Or(
-                            Min(sat(1, cn("Foo").type)), Min(sat(cn("Megacredit").type))),
+                            Min(scaledType(1, cn("Foo").type)), Min(scaledType(cn("Megacredit").type))),
                         Transmute(
                             ComplexFrom(
                                 cn("Foo"), listOf(SimpleFrom(cn("Qux").type, cn("Foo").type))),
                             5)),
                     Instruction.Multi(
                         Transmute(SimpleFrom(cn("Foo").type, cn("Qux").addArgs(cn("Qux").type)), 1),
-                        Instruction.Per(Gain(sat(1, cn("Bar").type)), sat(cn("Megacredit").type)))),
+                        Instruction.Per(Gain(scaledType(1, cn("Bar").type)), scaledType(cn("Megacredit").type)))),
                 "PROD")))
 
     checkBothWays(
@@ -233,7 +233,7 @@ private class EffectTest {
             Instruction.Multi(
                 Instruction.Multi(
                     Transmute(SimpleFrom(cn("Bar").type, cn("Foo").type), 1),
-                    Gain(sat(1, cn("Bar").type))),
+                    Gain(scaledType(1, cn("Bar").type))),
                 Instruction.Transform(
                     Transmute(SimpleFrom(cn("Qux").type, cn("Qux").type), 1), "PROD"))))
 
@@ -241,23 +241,23 @@ private class EffectTest {
         "PROD[-Xyz]: PROD[1]",
         Effect(
             Trigger.Transform(OnRemoveOf.create(cn("Xyz").type), "PROD"),
-            Instruction.Transform(Gain(sat(cn("Megacredit").type)), "PROD")))
+            Instruction.Transform(Gain(scaledType(cn("Megacredit").type)), "PROD")))
 
     checkBothWays(
         "-Bar: Qux, (Bar OR Foo OR 1, 1): -Foo, MAX 5 Qux<Qux>: Bar",
         Effect(
             OnRemoveOf.create(cn("Bar").type),
             Instruction.Multi(
-                Gain(sat(cn("Qux").type)),
+                Gain(scaledType(cn("Qux").type)),
                 Gated(
                     Requirement.And(
                         Requirement.Or(
-                            Min(sat(cn("Bar").type)),
-                            Min(sat(cn("Foo").type)),
-                            Min(sat(cn("Megacredit").type))),
-                        Min(sat(cn("Megacredit").type))),
-                    Remove(sat(cn("Foo").type))),
-                Gated(Max(sat(5, cn("Qux").addArgs(cn("Qux").type))), Gain(sat(cn("Bar").type))))))
+                            Min(scaledType(cn("Bar").type)),
+                            Min(scaledType(cn("Foo").type)),
+                            Min(scaledType(cn("Megacredit").type))),
+                        Min(scaledType(cn("Megacredit").type))),
+                    Remove(scaledType(cn("Foo").type))),
+                Gated(Max(scaledType(5, cn("Qux").addArgs(cn("Qux").type))), Gain(scaledType(cn("Bar").type))))))
 
     checkBothWays(
         "PROD[Foo]: Xyz OR Bar, 1 Abc FROM Ahh, MAX 1 Ooh: ((Foo, 1) OR " +
@@ -265,25 +265,25 @@ private class EffectTest {
         Effect(
             Trigger.Transform(OnGainOf.create(cn("Foo").type), "PROD"),
             Instruction.Multi(
-                Instruction.Or(Gain(sat(1, cn("Xyz").type)), Gain(sat(1, cn("Bar").type))),
+                Instruction.Or(Gain(scaledType(1, cn("Xyz").type)), Gain(scaledType(1, cn("Bar").type))),
                 Transmute(SimpleFrom(cn("Abc").type, cn("Ahh").type), 1),
                 Gated(
-                    Max(sat(cn("Ooh").type)),
+                    Max(scaledType(cn("Ooh").type)),
                     Instruction.Or(
                         Instruction.Multi(
-                            Gain(sat(1, cn("Foo").type)), Gain(sat(cn("Megacredit").type))),
+                            Gain(scaledType(1, cn("Foo").type)), Gain(scaledType(cn("Megacredit").type))),
                         Instruction.Or(
                             Instruction.Or(
-                                Gain(sat(1, cn("Megacredit").type)),
-                                Remove(sat(1, cn("Megacredit").type))),
+                                Gain(scaledType(1, cn("Megacredit").type)),
+                                Remove(scaledType(1, cn("Megacredit").type))),
                             Instruction.Multi(
-                                Gain(sat(cn("Megacredit").type)),
-                                Gain(sat(1, cn("Megacredit").type)))),
-                        Gain(sat(cn("Megacredit").type)))),
+                                Gain(scaledType(cn("Megacredit").type)),
+                                Gain(scaledType(1, cn("Megacredit").type)))),
+                        Gain(scaledType(cn("Megacredit").type)))),
                 Instruction.Or(
                     Instruction.Multi(
-                        Remove(sat(cn("Megacredit").type), MANDATORY), Gain(sat(cn("Bar").type))),
-                    Remove(sat(5, cn("Foo").type), MANDATORY)))))
+                        Remove(scaledType(cn("Megacredit").type), MANDATORY), Gain(scaledType(cn("Bar").type))),
+                    Remove(scaledType(5, cn("Foo").type), MANDATORY)))))
 
     checkBothWays(
         "Bar<Ahh<Abc, Foo>>: 1 Bar FROM Bar! THEN (-1, 1 THEN 1), Ahh<Foo>, Bar, Ahh?",
@@ -293,11 +293,11 @@ private class EffectTest {
                 Then(
                     Transmute(SimpleFrom(cn("Bar").type, cn("Bar").type), 1, MANDATORY),
                     Instruction.Multi(
-                        Remove(sat(1, cn("Megacredit").type)),
-                        Then(Gain(sat(cn("Megacredit").type)), Gain(sat(cn("Megacredit").type))))),
-                Gain(sat(cn("Ahh").addArgs(cn("Foo").type))),
-                Gain(sat(1, cn("Bar").type)),
-                Gain(sat(cn("Ahh").type), OPTIONAL))))
+                        Remove(scaledType(1, cn("Megacredit").type)),
+                        Then(Gain(scaledType(cn("Megacredit").type)), Gain(scaledType(cn("Megacredit").type))))),
+                Gain(scaledType(cn("Ahh").addArgs(cn("Foo").type))),
+                Gain(scaledType(1, cn("Bar").type)),
+                Gain(scaledType(cn("Ahh").type), OPTIONAL))))
 
     checkBothWays(
         "-Wau<Abc<Abc>>: (1 Abc FROM Ahh<Qux>) OR -Bar",
@@ -305,32 +305,32 @@ private class EffectTest {
             OnRemoveOf.create(cn("Wau").addArgs(cn("Abc").addArgs(cn("Abc").type))),
             Instruction.Or(
                 Transmute(SimpleFrom(cn("Abc").type, cn("Ahh").addArgs(cn("Qux").type)), 1),
-                Remove(sat(1, cn("Bar").type)))))
+                Remove(scaledType(1, cn("Bar").type)))))
 
     checkBothWays(
         "PROD[Bar]: Xyz / 5 Qux, 1 OR (@name(Abc), 1, -Bar / Foo)",
         Effect(
             Trigger.Transform(OnGainOf.create(cn("Bar").type), "PROD"),
             Instruction.Multi(
-                Instruction.Per(Gain(sat(1, cn("Xyz").type)), sat(5, cn("Qux").type)),
+                Instruction.Per(Gain(scaledType(1, cn("Xyz").type)), scaledType(5, cn("Qux").type)),
                 Instruction.Or(
-                    Gain(sat(cn("Megacredit").type)),
+                    Gain(scaledType(cn("Megacredit").type)),
                     Instruction.Multi(
                         Instruction.Custom("name", cn("Abc").type),
-                        Gain(sat(1, cn("Megacredit").type)),
-                        Instruction.Per(Remove(sat(cn("Bar").type)), sat(cn("Foo").type)))))))
+                        Gain(scaledType(1, cn("Megacredit").type)),
+                        Instruction.Per(Remove(scaledType(cn("Bar").type)), scaledType(cn("Foo").type)))))))
 
     checkBothWays(
         "PROD[Foo]: Abc<Foo<Abc, Bar>>",
         Effect(
             Trigger.Transform(OnGainOf.create(cn("Foo").type), "PROD"),
-            Gain(sat(cn("Abc").addArgs(cn("Foo").addArgs(cn("Abc").type, cn("Bar").type))))))
+            Gain(scaledType(cn("Abc").addArgs(cn("Foo").addArgs(cn("Abc").type, cn("Bar").type))))))
 
     checkBothWays(
         "Bar<Ahh<Qux>, Xyz>:: -Abc?",
         Effect(
             OnGainOf.create(cn("Bar").addArgs(cn("Ahh").addArgs(cn("Qux").type), cn("Xyz").type)),
-            Remove(sat(1, cn("Abc").type), OPTIONAL),
+            Remove(scaledType(1, cn("Abc").type), OPTIONAL),
             true))
   }
 }

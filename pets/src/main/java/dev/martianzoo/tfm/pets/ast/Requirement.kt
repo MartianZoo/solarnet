@@ -16,36 +16,36 @@ import dev.martianzoo.tfm.pets.SpecialClassNames.THIS
 sealed class Requirement : PetNode() {
   open fun requiresThis() = false
 
-  data class Min(val sat: ScalarAndType) : Requirement() {
-    override fun visitChildren(visitor: PetVisitor) = visitor.visit(sat)
-    override fun toString() = "$sat"
+  data class Min(val scaledType: ScaledTypeExpr) : Requirement() {
+    override fun visitChildren(visitor: PetVisitor) = visitor.visit(scaledType)
+    override fun toString() = "$scaledType"
 
     init {
-      if (sat.scalar == 0) {
+      if (scaledType.scalar == 0) {
         throw PetException("Minimum of 0 would always be true")
       }
     }
 
-    override fun requiresThis() = this.sat == ScalarAndType.sat(1, THIS.type)
+    override fun requiresThis() = this.scaledType == ScaledTypeExpr.scaledType(1, THIS.type)
   }
 
-  data class Max(val sat: ScalarAndType) : Requirement() {
-    override fun visitChildren(visitor: PetVisitor) = visitor.visit(sat)
-    override fun toString() = "MAX ${sat.toString(true, true)}" // no "MAX 5" or "MAX Heat"
+  data class Max(val scaledType: ScaledTypeExpr) : Requirement() {
+    override fun visitChildren(visitor: PetVisitor) = visitor.visit(scaledType)
+    override fun toString() = "MAX ${scaledType.toString(true, true)}" // no "MAX 5" or "MAX Heat"
   }
 
-  data class Exact(val sat: ScalarAndType) : Requirement() {
-    override fun visitChildren(visitor: PetVisitor) = visitor.visit(sat)
-    override fun toString() = "=${sat.toString(true, true)}" // no "=5" or "=Heat"
+  data class Exact(val scaledType: ScaledTypeExpr) : Requirement() {
+    override fun visitChildren(visitor: PetVisitor) = visitor.visit(scaledType)
+    override fun toString() = "=${scaledType.toString(true, true)}" // no "=5" or "=Heat"
 
-    override fun requiresThis() = this.sat == ScalarAndType.sat(1, THIS.type)
+    override fun requiresThis() = this.scaledType == ScaledTypeExpr.scaledType(1, THIS.type)
   }
 
   data class Or(val requirements: Set<Requirement>) : Requirement() {
     constructor(
         req1: Requirement,
         req2: Requirement,
-        vararg rest: Requirement
+        vararg rest: Requirement,
     ) : this(setOf(req1) + req2 + rest)
 
     init {
@@ -102,10 +102,10 @@ sealed class Requirement : PetNode() {
     /** A requirement suitable for being nested directly in something else. */
     internal fun atomParser(): Parser<Requirement> {
       return parser {
-        val sat = ScalarAndType.parser()
-        val min = sat map ::Min
-        val max = skip(_max) and sat map ::Max
-        val exact = skipChar('=') and sat map ::Exact
+        val scaledType = ScaledTypeExpr.parser()
+        val min = scaledType map ::Min
+        val max = skip(_max) and scaledType map ::Max
+        val exact = skipChar('=') and scaledType map ::Exact
         val transform =
             transform(parser()) map { (node, transformName) -> Transform(node, transformName) }
         min or max or exact or transform or group(parser())

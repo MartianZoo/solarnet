@@ -33,8 +33,8 @@ public object AstTransforms {
     if (lhs == null) return rhs
 
     // Handle the Ants case (TODO intensity?)
-    if (lhs is Remove && rhs is Gain && lhs.sat.scalar == rhs.sat.scalar) {
-      return Transmute(SimpleFrom(rhs.sat.typeExpr, lhs.sat.typeExpr))
+    if (lhs is Remove && rhs is Gain && lhs.scaledType.scalar == rhs.scaledType.scalar) {
+      return Transmute(SimpleFrom(rhs.scaledType.typeExpr, lhs.scaledType.typeExpr))
     }
 
     // Nested THENs are just silly

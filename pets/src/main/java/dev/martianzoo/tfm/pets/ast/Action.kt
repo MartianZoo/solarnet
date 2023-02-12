@@ -27,39 +27,39 @@ data class Action(val cost: Cost?, val instruction: Instruction) : PetNode() {
 
     abstract fun toInstruction(): Instruction
 
-    data class Spend(val sat: ScalarAndType) : Cost() {
-      override fun visitChildren(visitor: PetVisitor) = visitor.visit(sat)
-      override fun toString() = sat.toString()
+    data class Spend(val scaledType: ScaledTypeExpr) : Cost() {
+      override fun visitChildren(visitor: PetVisitor) = visitor.visit(scaledType)
+      override fun toString() = scaledType.toString()
 
       init {
-        if (sat.scalar == 0) {
+        if (scaledType.scalar == 0) {
           throw PetException("Can't spend zero")
         }
       }
 
       // I believe Ants/Predators are the reasons for MANDATORY here
-      override fun toInstruction() = Remove(sat, MANDATORY)
+      override fun toInstruction() = Remove(scaledType, MANDATORY)
     }
 
     // can't do non-prod per prod yet
-    data class Per(val cost: Cost, val sat: ScalarAndType) : Cost() {
+    data class Per(val cost: Cost, val scaledType: ScaledTypeExpr) : Cost() {
       init {
-        if (sat.scalar == 0) {
+        if (scaledType.scalar == 0) {
           throw PetException("Can't do something 'per' a non-positive amount")
         }
         when (cost) {
-          is Or,
-          is Multi -> throw PetException("Break into separate Per instructions")
+          is Or, is Multi -> throw PetException("Break into separate Per instructions")
           is Per -> throw PetException("Might support in future?")
           else -> {}
         }
       }
-      override fun visitChildren(visitor: PetVisitor) = visitor.visit(cost, sat)
 
-      override fun toString() = "$cost / ${sat.toString(forceType = true)}"
+      override fun visitChildren(visitor: PetVisitor) = visitor.visit(cost, scaledType)
+
+      override fun toString() = "$cost / ${scaledType.toString(forceType = true)}"
       override fun precedence() = 5
 
-      override fun toInstruction() = Instruction.Per(cost.toInstruction(), sat)
+      override fun toInstruction() = Instruction.Per(cost.toInstruction(), scaledType)
     }
 
     data class Or(var costs: Set<Cost>) : Cost() {
@@ -104,14 +104,14 @@ data class Action(val cost: Cost?, val instruction: Instruction) : PetNode() {
 
       fun parser(): Parser<Cost> {
         return parser {
-          val sat = ScalarAndType.parser()
-          val spend = sat map Cost::Spend
+          val scaledType = ScaledTypeExpr.parser()
+          val spend = scaledType map Cost::Spend
           val transform = transform(parser()) map { (node, tname) -> Transform(node, tname) }
           val atomCost = spend or transform
 
           val perCost =
               atomCost and
-              optional(skipChar('/') and sat) map { (cost, sat) ->
+              optional(skipChar('/') and scaledType) map { (cost, sat) ->
                 if (sat == null) cost else Per(cost, sat)
               }
 

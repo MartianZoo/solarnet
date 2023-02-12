@@ -11,7 +11,7 @@ import dev.martianzoo.tfm.pets.PetParser
 import dev.martianzoo.tfm.pets.PetVisitor
 import dev.martianzoo.tfm.pets.SpecialClassNames.MEGACREDIT
 
-data class ScalarAndType(
+data class ScaledTypeExpr(
     val scalar: Int = 1,
     val typeExpr: TypeExpr = MEGACREDIT.type,
 ) : PetNode() {
@@ -30,22 +30,22 @@ data class ScalarAndType(
     require(scalar >= 0)
   }
 
-  override val kind = ScalarAndType::class.simpleName!!
+  override val kind = ScaledTypeExpr::class.simpleName!!
 
   companion object : PetParser() {
-    fun sat(scalar: Int? = null, typeExpr: TypeExpr? = null) =
-        ScalarAndType(scalar ?: 1, typeExpr ?: MEGACREDIT.type)
+    fun scaledType(scalar: Int? = null, typeExpr: TypeExpr? = null) =
+        ScaledTypeExpr(scalar ?: 1, typeExpr ?: MEGACREDIT.type)
 
-    fun sat(typeExpr: TypeExpr) = ScalarAndType(1, typeExpr)
+    fun scaledType(typeExpr: TypeExpr) = ScaledTypeExpr(1, typeExpr)
 
-    fun sat(text: String) = Parsing.parse(parser(), text)
+    fun scaledType(text: String) = Parsing.parse(parser(), text)
 
-    fun parser(): Parser<ScalarAndType> {
+    fun parser(): Parser<ScaledTypeExpr> {
       return parser {
         val scalarAndOptionalType = scalar and optional(TypeExpr.parser())
         val optionalScalarAndType = optional(scalar) and TypeExpr.parser()
 
-        scalarAndOptionalType or optionalScalarAndType map { (scalar, expr) -> sat(scalar, expr) }
+        scalarAndOptionalType or optionalScalarAndType map { (scalar, expr) -> scaledType(scalar, expr) }
       }
     }
   }

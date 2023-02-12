@@ -10,7 +10,7 @@ import dev.martianzoo.tfm.pets.ast.Instruction.Gain
 import dev.martianzoo.tfm.pets.ast.Instruction.Gated
 import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.pets.ast.Requirement.Companion.requirement
-import dev.martianzoo.tfm.pets.ast.ScalarAndType.Companion.sat
+import dev.martianzoo.tfm.pets.ast.ScaledTypeExpr.Companion.scaledType
 
 data class MilestoneDefinition(
     override val id: ClassName,
@@ -39,7 +39,7 @@ data class MilestoneDefinition(
             setOf(
                 Effect(
                     WhenGain,
-                    Gated(requirement, Gain(sat(1, OK.type))),
+                    Gated(requirement, Gain(scaledType(1, OK.type))),
                     automatic = true,
                 )))
   }

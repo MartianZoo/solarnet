@@ -17,8 +17,8 @@ import dev.martianzoo.tfm.pets.ast.Instruction
 import dev.martianzoo.tfm.pets.ast.Instruction.Intensity
 import dev.martianzoo.tfm.pets.ast.PetNode
 import dev.martianzoo.tfm.pets.ast.Requirement
-import dev.martianzoo.tfm.pets.ast.ScalarAndType
-import dev.martianzoo.tfm.pets.ast.ScalarAndType.Companion.sat
+import dev.martianzoo.tfm.pets.ast.ScaledTypeExpr
+import dev.martianzoo.tfm.pets.ast.ScaledTypeExpr.Companion.scaledType
 import dev.martianzoo.tfm.pets.ast.TypeExpr
 import dev.martianzoo.tfm.pets.countNodesInTree
 import dev.martianzoo.tfm.testlib.PetToKotlin.p2k
@@ -46,7 +46,7 @@ internal class PetGenerator(scaling: (Int) -> Double) :
             refinement(),
             null) // TODO choose(10 to null, 2 to 1, 1 to 2))
       }
-      register { sat(choose(0, 1, 1, 1, 5, 11), choose(1 to MEGACREDIT.type, 3 to recurse())) }
+      register { scaledType(choose(0, 1, 1, 1, 5, 11), choose(1 to MEGACREDIT.type, 3 to recurse())) }
 
       val requirementTypes =
           multiset(
@@ -58,9 +58,9 @@ internal class PetGenerator(scaling: (Int) -> Double) :
               1 to Requirement.Transform::class,
           )
       register(Requirement::class) { recurse(choose(requirementTypes)) }
-      register { Requirement.Min(sat = recurse()) }
-      register { Requirement.Max(sat = recurse()) }
-      register { Requirement.Exact(sat = recurse()) }
+      register { Requirement.Min(scaledType = recurse()) }
+      register { Requirement.Max(scaledType = recurse()) }
+      register { Requirement.Exact(scaledType = recurse()) }
       register { Requirement.Or(setOfSize(choose(2, 2, 2, 2, 2, 3, 4))) }
       register { Requirement.And(listOfSize(choose(2, 2, 2, 2, 3))) }
       register { Requirement.Transform(recurse(), "PROD") }
@@ -85,7 +85,7 @@ internal class PetGenerator(scaling: (Int) -> Double) :
       register { Instruction.Remove(recurse(), intensity()) }
       register { Instruction.Per(recurse(), recurse()) }
       register { Instruction.Gated(recurse(), recurse()) }
-      register { Instruction.Transmute(recurse(), recurse<ScalarAndType>().scalar, intensity()) }
+      register { Instruction.Transmute(recurse(), recurse<ScaledTypeExpr>().scalar, intensity()) }
       register { Instruction.Custom("name", listOfSize(choose(1, 1, 1, 2))) }
       register { Instruction.Then(listOfSize(choose(2, 2, 2, 3))) }
       register { Instruction.Or(setOfSize(choose(2, 2, 2, 2, 3))) }
@@ -158,7 +158,7 @@ internal class PetGenerator(scaling: (Int) -> Double) :
               2 to Cost.Transform::class,
           )
       register(Cost::class) { recurse(choose(costTypes)) }
-      register { Cost.Spend(sat = recurse()) }
+      register { Cost.Spend(scaledType = recurse()) }
       register { Cost.Per(recurse(), recurse()) }
       register { Cost.Or(setOfSize(choose(2, 2, 2, 2, 3, 4))) }
       register { Cost.Multi(listOfSize(choose(2, 2, 2, 3))) }

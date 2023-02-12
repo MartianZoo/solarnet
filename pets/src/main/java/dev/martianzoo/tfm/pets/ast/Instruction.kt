@@ -23,13 +23,14 @@ sealed class Instruction : PetNode() {
     abstract val intensity: Intensity?
   }
 
-  data class Gain(val sat: ScalarAndType, override val intensity: Intensity? = null) : Change() {
-    override val count = sat.scalar
+  data class Gain(val scaledType: ScaledTypeExpr, override val intensity: Intensity? = null) :
+      Change() {
+    override val count = scaledType.scalar
     override val removing = null
-    override val gaining = sat.typeExpr
+    override val gaining = scaledType.typeExpr
 
-    override fun visitChildren(visitor: PetVisitor) = visitor.visit(sat)
-    override fun toString() = "$sat${intensity?.symbol ?: ""}"
+    override fun visitChildren(visitor: PetVisitor) = visitor.visit(scaledType)
+    override fun toString() = "$scaledType${intensity?.symbol ?: ""}"
 
     init {
       if (count == 0) {
@@ -38,13 +39,14 @@ sealed class Instruction : PetNode() {
     }
   }
 
-  data class Remove(val sat: ScalarAndType, override val intensity: Intensity? = null) : Change() {
-    override val count = sat.scalar
-    override val removing = sat.typeExpr
+  data class Remove(val scaledType: ScaledTypeExpr, override val intensity: Intensity? = null) :
+      Change() {
+    override val count = scaledType.scalar
+    override val removing = scaledType.typeExpr
     override val gaining = null
 
-    override fun visitChildren(visitor: PetVisitor) = visitor.visit(sat)
-    override fun toString() = "-$sat${intensity?.symbol ?: ""}"
+    override fun visitChildren(visitor: PetVisitor) = visitor.visit(scaledType)
+    override fun toString() = "-$scaledType${intensity?.symbol ?: ""}"
 
     init {
       if (count == 0) {
@@ -79,23 +81,22 @@ sealed class Instruction : PetNode() {
     override fun precedence() = if (from is SimpleFrom) 7 else 10
   }
 
-  data class Per(val instruction: Instruction, val sat: ScalarAndType) : Instruction() {
+  data class Per(val instruction: Instruction, val scaledType: ScaledTypeExpr) : Instruction() {
     init {
-      if (sat.scalar == 0) {
+      if (scaledType.scalar == 0) {
         throw PetException("Can't do something 'per' zero")
       }
       when (instruction) {
-        is Gain,
-        is Remove,
-        is Transmute -> {}
+        is Gain, is Remove, is Transmute -> {}
         else -> throw PetException("Per can only contain gain/remove/transmute") // TODO more
       }
     }
-    override fun visitChildren(visitor: PetVisitor) = visitor.visit(sat, instruction)
+
+    override fun visitChildren(visitor: PetVisitor) = visitor.visit(scaledType, instruction)
 
     override fun precedence() = 8
 
-    override fun toString() = "$instruction / ${sat.toString(forceType = true)}"
+    override fun toString() = "$instruction / ${scaledType.toString(forceType = true)}"
   }
 
   data class Gated(val gate: Requirement, val instruction: Instruction) : Instruction() {
@@ -203,11 +204,13 @@ sealed class Instruction : PetNode() {
 
     internal fun parser(): Parser<Instruction> {
       return parser {
-        val sat: Parser<ScalarAndType> = ScalarAndType.parser()
+        val scaledType: Parser<ScaledTypeExpr> = ScaledTypeExpr.parser()
 
         val optlIntens = optional(intensity)
-        val gain: Parser<Gain> = sat and optlIntens map { (sat, intens) -> Gain(sat, intens) }
-        val remove: Parser<Remove> = skipChar('-') and gain map { Remove(it.sat, it.intensity) }
+        val gain: Parser<Gain> =
+            scaledType and optlIntens map { (ste, intens) -> Gain(ste, intens) }
+        val remove: Parser<Remove> =
+            skipChar('-') and gain map { Remove(it.scaledType, it.intensity) }
 
         val transmute: Parser<Transmute> =
             optional(scalar) and
@@ -220,7 +223,7 @@ sealed class Instruction : PetNode() {
 
         val maybePer: Parser<Instruction> =
             perable and
-            optional(skipChar('/') and sat) map { (instr, sat) ->
+            optional(skipChar('/') and scaledType) map { (instr, sat) ->
               if (sat == null) instr else Per(instr, sat)
             }
 

@@ -19,7 +19,7 @@ import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.pets.ast.Requirement.Exact
 import dev.martianzoo.tfm.pets.ast.Requirement.Max
 import dev.martianzoo.tfm.pets.ast.Requirement.Min
-import dev.martianzoo.tfm.pets.ast.ScalarAndType
+import dev.martianzoo.tfm.pets.ast.ScaledTypeExpr
 
 internal object LiveNodes {
   fun from(ins: Instruction, game: GameState): LiveInstruction {
@@ -32,7 +32,9 @@ internal object LiveNodes {
               gaining = ins.gaining?.let { game.resolveType(it) },
           )
       is Instruction.Per ->
-          Per(game.resolveType(ins.sat.typeExpr), ins.sat.scalar, from(ins.instruction, game))
+        Per(game.resolveType(ins.scaledType.typeExpr),
+            ins.scaledType.scalar,
+            from(ins.instruction, game))
       is Instruction.Gated -> Gated(from(ins.gate, game), from(ins.instruction, game))
       is Instruction.Custom ->
           Custom(
@@ -119,20 +121,23 @@ internal object LiveNodes {
   }
 
   fun from(req: Requirement, game: GameState): LiveRequirement {
-    fun count(sat: ScalarAndType) = game.countComponents(game.resolveType(sat.typeExpr))
+    fun count(scaledType: ScaledTypeExpr) =
+        game.countComponents(game.resolveType(scaledType.typeExpr))
 
     return when (req) {
-      is Min -> LiveRequirement { count(req.sat) >= req.sat.scalar }
-      is Max -> LiveRequirement { count(req.sat) <= req.sat.scalar }
-      is Exact -> LiveRequirement { count(req.sat) == req.sat.scalar }
+      is Min -> LiveRequirement { count(req.scaledType) >= req.scaledType.scalar }
+      is Max -> LiveRequirement { count(req.scaledType) <= req.scaledType.scalar }
+      is Exact -> LiveRequirement { count(req.scaledType) == req.scaledType.scalar }
       is Requirement.Or -> {
         val reqs = req.requirements.toList().map { from(it, game) }
         LiveRequirement { reqs.any { it.isMet(game) } }
       }
+
       is Requirement.And -> {
         val reqs = req.requirements.map { from(it, game) }
         LiveRequirement { reqs.all { it.isMet(game) } }
       }
+
       is Requirement.Transform -> error("should have been transformed by now")
     }
   }

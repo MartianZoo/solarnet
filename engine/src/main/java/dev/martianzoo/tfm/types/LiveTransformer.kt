@@ -9,7 +9,7 @@ import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.classNames
 import dev.martianzoo.tfm.pets.ast.Instruction.Gain
 import dev.martianzoo.tfm.pets.ast.PetNode
-import dev.martianzoo.tfm.pets.ast.ScalarAndType.Companion.sat
+import dev.martianzoo.tfm.pets.ast.ScaledTypeExpr.Companion.scaledType
 
 /** Offers various functions for transforming [PetNode] subtrees that depend on a [PClassLoader]. */
 public class LiveTransformer internal constructor(val loader: PClassLoader) {
@@ -38,7 +38,7 @@ public class LiveTransformer internal constructor(val loader: PClassLoader) {
   private class Defaulter(val loader: PClassLoader) : PetTransformer() {
     override fun <P : PetNode> transform(node: P): P {
       if (node !is Gain) return defaultTransform(node)
-      val writtenType = node.sat.typeExpr
+      val writtenType = node.scaledType.typeExpr
       val defaults = loader.getClass(writtenType.className).defaults
       val fixedType =
           if (writtenType.isTypeOnly) {
@@ -48,7 +48,7 @@ public class LiveTransformer internal constructor(val loader: PClassLoader) {
             writtenType
           }
       val transformed =
-          Gain(sat(node.sat.scalar, x(fixedType)), node.intensity ?: defaults.gainIntensity)
+          Gain(scaledType(node.scaledType.scalar, x(fixedType)), node.intensity ?: defaults.gainIntensity)
       @Suppress("UNCHECKED_CAST") return transformed as P
     }
   }

@@ -5,7 +5,7 @@ import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.pets.ast.Requirement.Companion.requirement
 import dev.martianzoo.tfm.pets.ast.Requirement.Max
 import dev.martianzoo.tfm.pets.ast.Requirement.Min
-import dev.martianzoo.tfm.pets.ast.ScalarAndType.Companion.sat
+import dev.martianzoo.tfm.pets.ast.ScaledTypeExpr.Companion.scaledType
 import dev.martianzoo.tfm.pets.testRoundTrip
 import dev.martianzoo.tfm.pets.testSampleStrings
 import org.junit.jupiter.api.Test
@@ -84,24 +84,24 @@ private class RequirementTest {
 
   @Test
   fun simpleSourceToApi() {
-    assertThat(requirement("Foo")).isEqualTo(Min(sat(typeExpr = cn("Foo").type)))
-    assertThat(requirement("3 Foo")).isEqualTo(Min(sat(3, cn("Foo").type)))
-    assertThat(requirement("MAX 3 Foo")).isEqualTo(Max(sat(3, cn("Foo").type)))
+    assertThat(requirement("Foo")).isEqualTo(Min(scaledType(typeExpr = cn("Foo").type)))
+    assertThat(requirement("3 Foo")).isEqualTo(Min(scaledType(3, cn("Foo").type)))
+    assertThat(requirement("MAX 3 Foo")).isEqualTo(Max(scaledType(3, cn("Foo").type)))
   }
 
   @Test
   fun simpleApiToSource() {
-    assertThat(Min(sat(typeExpr = cn("Foo").type)).toString()).isEqualTo("Foo")
-    assertThat(Min(sat(1, cn("Foo").type)).toString()).isEqualTo("Foo")
-    assertThat(Min(sat(3, cn("Foo").type)).toString()).isEqualTo("3 Foo")
-    assertThat(Min(sat(scalar = 3)).toString()).isEqualTo("3")
-    assertThat(Min(sat(scalar = 3, cn("Megacredit").type)).toString()).isEqualTo("3")
-    assertThat(Min(sat(typeExpr = cn("Megacredit").type)).toString()).isEqualTo("1")
-    assertThat(Max(sat(0, cn("Foo").type)).toString()).isEqualTo("MAX 0 Foo")
-    assertThat(Max(sat(typeExpr = cn("Foo").type)).toString()).isEqualTo("MAX 1 Foo")
-    assertThat(Max(sat(1, cn("Foo").type)).toString()).isEqualTo("MAX 1 Foo")
-    assertThat(Max(sat(3, cn("Foo").type)).toString()).isEqualTo("MAX 3 Foo")
-    assertThat(Max(sat(scalar = 3)).toString()).isEqualTo("MAX 3 Megacredit")
+    assertThat(Min(scaledType(typeExpr = cn("Foo").type)).toString()).isEqualTo("Foo")
+    assertThat(Min(scaledType(1, cn("Foo").type)).toString()).isEqualTo("Foo")
+    assertThat(Min(scaledType(3, cn("Foo").type)).toString()).isEqualTo("3 Foo")
+    assertThat(Min(scaledType(scalar = 3)).toString()).isEqualTo("3")
+    assertThat(Min(scaledType(scalar = 3, cn("Megacredit").type)).toString()).isEqualTo("3")
+    assertThat(Min(scaledType(typeExpr = cn("Megacredit").type)).toString()).isEqualTo("1")
+    assertThat(Max(scaledType(0, cn("Foo").type)).toString()).isEqualTo("MAX 0 Foo")
+    assertThat(Max(scaledType(typeExpr = cn("Foo").type)).toString()).isEqualTo("MAX 1 Foo")
+    assertThat(Max(scaledType(1, cn("Foo").type)).toString()).isEqualTo("MAX 1 Foo")
+    assertThat(Max(scaledType(3, cn("Foo").type)).toString()).isEqualTo("MAX 3 Foo")
+    assertThat(Max(scaledType(scalar = 3)).toString()).isEqualTo("MAX 3 Megacredit")
   }
 
   private fun testRoundTrip(start: String, end: String = start) =
@@ -141,18 +141,18 @@ private class RequirementTest {
             Requirement.Or(
                 setOf(
                     Min(
-                        sat(
+                        scaledType(
                             typeExpr =
-                                cn("Adjacency")
-                                    .addArgs(
-                                        cn("CityTile").addArgs(cn("Anyone")),
-                                        cn("OceanTile").type))),
+                            cn("Adjacency")
+                                .addArgs(
+                                    cn("CityTile").addArgs(cn("Anyone")),
+                                    cn("OceanTile").type))),
                     Min(
-                        sat(
+                        scaledType(
                             typeExpr =
-                                cn("Adjacency")
-                                    .addArgs(
-                                        cn("OceanTile").type,
-                                        cn("CityTile").addArgs(cn("Anyone"))))))))
+                            cn("Adjacency")
+                                .addArgs(
+                                    cn("OceanTile").type,
+                                    cn("CityTile").addArgs(cn("Anyone"))))))))
   }
 }

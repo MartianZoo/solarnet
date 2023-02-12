@@ -13,7 +13,7 @@ import dev.martianzoo.tfm.pets.ast.Instruction.Remove
 import dev.martianzoo.tfm.pets.ast.Instruction.Transmute
 import dev.martianzoo.tfm.pets.ast.Requirement.Max
 import dev.martianzoo.tfm.pets.ast.Requirement.Min
-import dev.martianzoo.tfm.pets.ast.ScalarAndType.Companion.sat
+import dev.martianzoo.tfm.pets.ast.ScaledTypeExpr.Companion.scaledType
 import dev.martianzoo.tfm.pets.checkBothWays
 import dev.martianzoo.tfm.pets.testRoundTrip
 import dev.martianzoo.tfm.pets.testSampleStrings
@@ -96,72 +96,72 @@ private class ActionTest {
             Cost.Or(
                 Cost.Or(
                     Cost.Multi(
-                        Spend(sat(cn("Megacredit").type)),
-                        Spend(sat(cn("Abc").addArgs(cn("Bar"))))),
-                    Spend(sat(cn("Megacredit").type))),
-                Cost.Transform(Spend(sat(cn("Megacredit").type)), "PROD")),
-            Gain(sat(cn("Megacredit").type), OPTIONAL)))
+                        Spend(scaledType(cn("Megacredit").type)),
+                        Spend(scaledType(cn("Abc").addArgs(cn("Bar"))))),
+                    Spend(scaledType(cn("Megacredit").type))),
+                Cost.Transform(Spend(scaledType(cn("Megacredit").type)), "PROD")),
+            Gain(scaledType(cn("Megacredit").type), OPTIONAL)))
 
     checkBothWays(
         "5, 1 OR (1 OR Bar) OR 1 / Megacredit, 1 OR (1 OR Foo OR Qux) -> 5 / Ooh, " +
             "-Xyz<Qux<Foo<Qux<Foo>>>(HAS 5 Bar)>.",
         Action(
             Cost.Multi(
-                Spend(sat(5, cn("Megacredit").type)),
+                Spend(scaledType(5, cn("Megacredit").type)),
                 Cost.Or(
-                    Spend(sat(cn("Megacredit").type)),
-                    Cost.Or(Spend(sat(cn("Megacredit").type)), Spend(sat(cn("Bar").type))),
-                    Cost.Per(Spend(sat(cn("Megacredit").type)), sat(cn("Megacredit").type))),
+                    Spend(scaledType(cn("Megacredit").type)),
+                    Cost.Or(Spend(scaledType(cn("Megacredit").type)), Spend(scaledType(cn("Bar").type))),
+                    Cost.Per(Spend(scaledType(cn("Megacredit").type)), scaledType(cn("Megacredit").type))),
                 Cost.Or(
-                    Spend(sat(cn("Megacredit").type)),
+                    Spend(scaledType(cn("Megacredit").type)),
                     Cost.Or(
-                        Spend(sat(cn("Megacredit").type)),
-                        Spend(sat(cn("Foo").type)),
-                        Spend(sat(cn("Qux").type))))),
+                        Spend(scaledType(cn("Megacredit").type)),
+                        Spend(scaledType(cn("Foo").type)),
+                        Spend(scaledType(cn("Qux").type))))),
             Instruction.Multi(
-                Instruction.Per(Gain(sat(5, cn("Megacredit").type)), sat(cn("Ooh").type)),
+                Instruction.Per(Gain(scaledType(5, cn("Megacredit").type)), scaledType(cn("Ooh").type)),
                 Remove(
-                    sat(
+                    scaledType(
                         cn("Xyz")
                             .addArgs(
                                 cn("Qux")
                                     .addArgs(cn("Foo").addArgs(cn("Qux").addArgs(cn("Foo"))))
-                                    .refine(Min(sat(5, cn("Bar").type))))),
+                                    .refine(Min(scaledType(5, cn("Bar").type))))),
                     AMAP))))
 
     checkBothWays(
         "PROD[Bar], 5 Foo<Abc<Bar>>, Abc OR Xyz -> MAX 1 Bar: -Xyz",
         Action(
             Cost.Multi(
-                Cost.Transform(Spend(sat(cn("Bar").type)), "PROD"),
-                Spend(sat(5, cn("Foo").addArgs(cn("Abc").addArgs(cn("Bar"))))),
-                Cost.Or(Spend(sat(cn("Abc").type)), Spend(sat(cn("Xyz").type)))),
-            Gated(Max(sat(cn("Bar").type)), Remove(sat(cn("Xyz").type)))))
+                Cost.Transform(Spend(scaledType(cn("Bar").type)), "PROD"),
+                Spend(scaledType(5, cn("Foo").addArgs(cn("Abc").addArgs(cn("Bar"))))),
+                Cost.Or(Spend(scaledType(cn("Abc").type)), Spend(scaledType(cn("Xyz").type)))),
+            Gated(Max(scaledType(cn("Bar").type)), Remove(scaledType(cn("Xyz").type)))))
 
     checkBothWays(
         "-> Foo<Abc>. / Wau",
         Action(
             null,
-            Instruction.Per(Gain(sat(cn("Foo").addArgs(cn("Abc"))), AMAP), sat(cn("Wau").type))))
+            Instruction.Per(Gain(scaledType(cn("Foo").addArgs(cn("Abc"))), AMAP), scaledType(cn("Wau").type))))
 
     checkBothWays(
-        "Qux -> Bar?", Action(Spend(sat(cn("Qux").type)), Gain(sat(cn("Bar").type), OPTIONAL)))
+        "Qux -> Bar?", Action(Spend(scaledType(cn("Qux").type)), Gain(scaledType(cn("Bar").type), OPTIONAL)))
 
     checkBothWays(
-        "Ahh -> 11 Foo", Action(Spend(sat(cn("Ahh").type)), Gain(sat(11, cn("Foo").type))))
+        "Ahh -> 11 Foo", Action(Spend(scaledType(cn("Ahh").type)), Gain(scaledType(11, cn("Foo").type))))
 
     checkBothWays(
         "PROD[Foo / 11 Abc] -> -Foo, (MAX 1 Megacredit OR Foo): 1",
         Action(
-            Cost.Transform(Cost.Per(Spend(sat(cn("Foo").type)), sat(11, cn("Abc").type)), "PROD"),
+            Cost.Transform(Cost.Per(Spend(scaledType(cn("Foo").type)), scaledType(11, cn("Abc").type)), "PROD"),
             Instruction.Multi(
-                Remove(sat(cn("Foo").type)),
+                Remove(scaledType(cn("Foo").type)),
                 Gated(
-                    Requirement.Or(Max(sat(cn("Megacredit").type)), Min(sat(cn("Foo").type))),
-                    Gain(sat(cn("Megacredit").type))))))
+                    Requirement.Or(Max(scaledType(cn("Megacredit").type)), Min(scaledType(cn("Foo").type))),
+                    Gain(scaledType(cn("Megacredit").type))))))
 
     checkBothWays(
-        "-> PROD[1]", Action(null, Instruction.Transform(Gain(sat(cn("Megacredit").type)), "PROD")))
+        "-> PROD[1]", Action(null, Instruction.Transform(Gain(scaledType(cn("Megacredit").type)), "PROD")))
 
     checkBothWays(
         "-> @name(Foo<Foo, Ooh, Bar<Ooh>>, Bar<Qux>)",
@@ -175,68 +175,68 @@ private class ActionTest {
     checkBothWays(
         "PROD[1] -> -Ooh / Ooh<Abc, Ahh>",
         Action(
-            Cost.Transform(Spend(sat(cn("Megacredit").type)), "PROD"),
+            Cost.Transform(Spend(scaledType(cn("Megacredit").type)), "PROD"),
             Instruction.Per(
-                Remove(sat(cn("Ooh").type)), sat(cn("Ooh").addArgs(cn("Abc"), cn("Ahh"))))))
+                Remove(scaledType(cn("Ooh").type)), scaledType(cn("Ooh").addArgs(cn("Abc"), cn("Ahh"))))))
 
-    checkBothWays("Xyz -> 1", Action(Spend(sat(cn("Xyz").type)), Gain(sat(cn("Megacredit").type))))
+    checkBothWays("Xyz -> 1", Action(Spend(scaledType(cn("Xyz").type)), Gain(scaledType(cn("Megacredit").type))))
 
     checkBothWays(
         "Ooh -> 5 / Abc, 11! / Megacredit, -1?, (1!, (1 Bar FROM Foo, 1: 11 Foo))",
         Action(
-            Spend(sat(cn("Ooh").type)),
+            Spend(scaledType(cn("Ooh").type)),
             Instruction.Multi(
-                Instruction.Per(Gain(sat(5, cn("Megacredit").type)), sat(cn("Abc").type)),
+                Instruction.Per(Gain(scaledType(5, cn("Megacredit").type)), scaledType(cn("Abc").type)),
                 Instruction.Per(
-                    Gain(sat(11, cn("Megacredit").type), MANDATORY), sat(cn("Megacredit").type)),
-                Remove(sat(cn("Megacredit").type), OPTIONAL),
+                    Gain(scaledType(11, cn("Megacredit").type), MANDATORY), scaledType(cn("Megacredit").type)),
+                Remove(scaledType(cn("Megacredit").type), OPTIONAL),
                 Instruction.Multi(
-                    Gain(sat(cn("Megacredit").type), MANDATORY),
+                    Gain(scaledType(cn("Megacredit").type), MANDATORY),
                     Instruction.Multi(
                         Transmute(SimpleFrom(cn("Bar").type, cn("Foo").type), 1),
-                        Gated(Min(sat(cn("Megacredit").type)), Gain(sat(11, cn("Foo").type))))))))
+                        Gated(Min(scaledType(cn("Megacredit").type)), Gain(scaledType(11, cn("Foo").type))))))))
 
     checkBothWays(
         "Abc -> PROD[-1]",
         Action(
-            Spend(sat(cn("Abc").type)),
-            Instruction.Transform(Remove(sat(cn("Megacredit").type)), "PROD")))
+            Spend(scaledType(cn("Abc").type)),
+            Instruction.Transform(Remove(scaledType(cn("Megacredit").type)), "PROD")))
 
     checkBothWays(
         "1 / 11 Qux<Bar<Foo, Qux, Foo>> -> PROD[Qux: -1]",
         Action(
             Cost.Per(
-                Spend(sat(cn("Megacredit").type)),
-                sat(
+                Spend(scaledType(cn("Megacredit").type)),
+                scaledType(
                     11,
                     cn("Qux")
                         .addArgs(
                             cn("Bar").addArgs(cn("Foo").type, cn("Qux").type, cn("Foo").type)))),
             Instruction.Transform(
-                Gated(Min(sat(cn("Qux").type)), Remove(sat(cn("Megacredit").type))), "PROD")))
+                Gated(Min(scaledType(cn("Qux").type)), Remove(scaledType(cn("Megacredit").type))), "PROD")))
 
     checkBothWays(
         "PROD[Foo / 11 Megacredit] / Ooh<Bar, Xyz> -> PROD[-Foo!, @name(Xyz<Bar>)]",
         Action(
             Cost.Per(
                 Cost.Transform(
-                    Cost.Per(Spend(sat(cn("Foo").type)), sat(11, cn("Megacredit").type)), "PROD"),
-                sat(cn("Ooh").addArgs(cn("Bar"), cn("Xyz")))),
+                    Cost.Per(Spend(scaledType(cn("Foo").type)), scaledType(11, cn("Megacredit").type)), "PROD"),
+                scaledType(cn("Ooh").addArgs(cn("Bar"), cn("Xyz")))),
             Instruction.Transform(
                 Instruction.Multi(
-                    Remove(sat(cn("Foo").type), MANDATORY),
+                    Remove(scaledType(cn("Foo").type), MANDATORY),
                     Instruction.Custom("name", cn("Xyz").addArgs(cn("Bar")))),
                 "PROD")))
 
     checkBothWays(
         "11 Abc -> -11 Foo<Qux>",
-        Action(Spend(sat(11, cn("Abc").type)), Remove(sat(11, cn("Foo").addArgs(cn("Qux"))))))
+        Action(Spend(scaledType(11, cn("Abc").type)), Remove(scaledType(11, cn("Foo").addArgs(cn("Qux"))))))
 
     checkBothWays(
         "PROD[5] -> Xyz, Bar",
         Action(
-            Cost.Transform(Spend(sat(5, cn("Megacredit").type)), "PROD"),
-            Instruction.Multi(Gain(sat(cn("Xyz").type)), Gain(sat(cn("Bar").type)))))
+            Cost.Transform(Spend(scaledType(5, cn("Megacredit").type)), "PROD"),
+            Instruction.Multi(Gain(scaledType(cn("Xyz").type)), Gain(scaledType(cn("Bar").type)))))
 
     checkBothWays(
         "(1 / Megacredit, 11 Bar) OR ((1 / Megacredit OR (1 OR Bar) OR Ooh OR (1, 1))" +
@@ -244,17 +244,17 @@ private class ActionTest {
         Action(
             Cost.Or(
                 Cost.Multi(
-                    Cost.Per(Spend(sat(cn("Megacredit").type)), sat(cn("Megacredit").type)),
-                    Spend(sat(11, cn("Bar").type))),
+                    Cost.Per(Spend(scaledType(cn("Megacredit").type)), scaledType(cn("Megacredit").type)),
+                    Spend(scaledType(11, cn("Bar").type))),
                 Cost.Or(
                     Cost.Or(
-                        Cost.Per(Spend(sat(cn("Megacredit").type)), sat(cn("Megacredit").type)),
-                        Cost.Or(Spend(sat(cn("Megacredit").type)), Spend(sat(cn("Bar").type))),
-                        Spend(sat(cn("Ooh").type)),
+                        Cost.Per(Spend(scaledType(cn("Megacredit").type)), scaledType(cn("Megacredit").type)),
+                        Cost.Or(Spend(scaledType(cn("Megacredit").type)), Spend(scaledType(cn("Bar").type))),
+                        Spend(scaledType(cn("Ooh").type)),
                         Cost.Multi(
-                            Spend(sat(cn("Megacredit").type)), Spend(sat(cn("Megacredit").type)))),
-                    Cost.Transform(Spend(sat(cn("Megacredit").type)), "PROD"))),
-            Instruction.Transform(Remove(sat(5, cn("Foo").type)), "PROD")))
+                            Spend(scaledType(cn("Megacredit").type)), Spend(scaledType(cn("Megacredit").type)))),
+                    Cost.Transform(Spend(scaledType(cn("Megacredit").type)), "PROD"))),
+            Instruction.Transform(Remove(scaledType(5, cn("Foo").type)), "PROD")))
 
     checkBothWays(
         "Foo<Foo> OR 1, (5 OR 1) OR (5 OR Foo / 5 Foo OR 1 OR 1 / Megacredit) OR 1 " +
@@ -262,22 +262,22 @@ private class ActionTest {
         Action(
             Cost.Multi(
                 Cost.Or(
-                    Spend(sat(cn("Foo").addArgs(cn("Foo")))), Spend(sat(cn("Megacredit").type))),
+                    Spend(scaledType(cn("Foo").addArgs(cn("Foo")))), Spend(scaledType(cn("Megacredit").type))),
                 Cost.Or(
                     Cost.Or(
-                        Spend(sat(5, cn("Megacredit").type)), Spend(sat(cn("Megacredit").type))),
+                        Spend(scaledType(5, cn("Megacredit").type)), Spend(scaledType(cn("Megacredit").type))),
                     Cost.Or(
-                        Spend(sat(5, cn("Megacredit").type)),
-                        Cost.Per(Spend(sat(cn("Foo").type)), sat(5, cn("Foo").type)),
-                        Spend(sat(cn("Megacredit").type)),
-                        Cost.Per(Spend(sat(cn("Megacredit").type)), sat(cn("Megacredit").type))),
-                    Spend(sat(cn("Megacredit").type)),
-                    Cost.Or(Spend(sat(cn("Abc").type)), Spend(sat(cn("Bar").type)))),
-                Spend(sat(11, cn("Qux").type))),
+                        Spend(scaledType(5, cn("Megacredit").type)),
+                        Cost.Per(Spend(scaledType(cn("Foo").type)), scaledType(5, cn("Foo").type)),
+                        Spend(scaledType(cn("Megacredit").type)),
+                        Cost.Per(Spend(scaledType(cn("Megacredit").type)), scaledType(cn("Megacredit").type))),
+                    Spend(scaledType(cn("Megacredit").type)),
+                    Cost.Or(Spend(scaledType(cn("Abc").type)), Spend(scaledType(cn("Bar").type)))),
+                Spend(scaledType(11, cn("Qux").type))),
             Instruction.Multi(
                 Instruction.Custom("name", cn("Qux").type, cn("Foo").type),
                 Instruction.Per(
-                    Gain(sat(cn("Qux").addArgs(cn("Qux").addArgs(cn("Bar")))), AMAP),
-                    sat(cn("Foo").type)))))
+                    Gain(scaledType(cn("Qux").addArgs(cn("Qux").addArgs(cn("Bar")))), AMAP),
+                    scaledType(cn("Foo").type)))))
   }
 }

@@ -7,7 +7,7 @@ import dev.martianzoo.tfm.pets.SpecialClassNames.THIS
 import dev.martianzoo.tfm.pets.ast.Action.Companion.action
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.Requirement.Exact
-import dev.martianzoo.tfm.pets.ast.ScalarAndType.Companion.sat
+import dev.martianzoo.tfm.pets.ast.ScaledTypeExpr.Companion.scaledType
 
 data class StandardActionDefinition(
     override val id: ClassName,
@@ -36,4 +36,4 @@ data class StandardActionDefinition(
   }
 }
 
-private val invariant = Exact(sat(1, THIS.type))
+private val invariant = Exact(scaledType(1, THIS.type))

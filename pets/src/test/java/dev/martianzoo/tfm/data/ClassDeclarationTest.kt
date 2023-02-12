@@ -11,7 +11,7 @@ import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.pets.ast.Effect.Companion.effect
 import dev.martianzoo.tfm.pets.ast.Instruction.Intensity
 import dev.martianzoo.tfm.pets.ast.Requirement
-import dev.martianzoo.tfm.pets.ast.ScalarAndType.Companion.sat
+import dev.martianzoo.tfm.pets.ast.ScaledTypeExpr.Companion.scaledType
 import dev.martianzoo.tfm.testlib.assertFails
 import dev.martianzoo.tfm.testlib.te
 import org.junit.jupiter.api.Test
@@ -47,8 +47,8 @@ private class ClassDeclarationTest {
     val foo = cn("Foo")
     val dep = cn("Bar").type
     val sup = te("Baz<Qux>")
-    val topInv = Requirement.Max(sat(3, cn("Blorp").type))
-    val otherInv = Requirement.Exact(sat(1, THIS.type))
+    val topInv = Requirement.Max(scaledType(3, cn("Blorp").type))
+    val otherInv = Requirement.Exact(scaledType(1, THIS.type))
     val eff = effect("This: DoStuff")
     val act = actionToEffect(action("Steel -> 5"), 1)
     val gain = cn("Abc").type

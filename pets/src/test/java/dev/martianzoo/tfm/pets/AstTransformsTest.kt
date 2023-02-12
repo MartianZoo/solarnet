@@ -19,7 +19,7 @@ import dev.martianzoo.tfm.pets.ast.Instruction
 import dev.martianzoo.tfm.pets.ast.Instruction.Companion.instruction
 import dev.martianzoo.tfm.pets.ast.Instruction.Gain
 import dev.martianzoo.tfm.pets.ast.PetNode
-import dev.martianzoo.tfm.pets.ast.ScalarAndType.Companion.sat
+import dev.martianzoo.tfm.pets.ast.ScaledTypeExpr.Companion.scaledType
 import dev.martianzoo.tfm.pets.ast.TypeExpr
 import dev.martianzoo.tfm.testlib.te
 import dev.martianzoo.util.toStrings
@@ -157,10 +157,10 @@ private class AstTransformsTest {
             Effect(
                 Trigger.Transform(Trigger.OnGainOf.create(cn("Plant").type), "HAHA"),
                 Instruction.Multi(
-                    Gain(sat(1, cn("Heat").type)),
+                    Gain(scaledType(1, cn("Heat").type)),
                     Instruction.Transform(
                         Instruction.Per(
-                            Gain(sat(1, cn("Steel").type)), sat(5, cn("PowerTag").type)),
+                            Gain(scaledType(1, cn("Steel").type)), scaledType(5, cn("PowerTag").type)),
                         "HAHA")),
                 false))
   }

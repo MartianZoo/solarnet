@@ -20,7 +20,7 @@ import dev.martianzoo.tfm.pets.ast.Instruction.Then
 import dev.martianzoo.tfm.pets.ast.Instruction.Transmute
 import dev.martianzoo.tfm.pets.ast.PetNode
 import dev.martianzoo.tfm.pets.ast.Requirement
-import dev.martianzoo.tfm.pets.ast.ScalarAndType
+import dev.martianzoo.tfm.pets.ast.ScaledTypeExpr
 import dev.martianzoo.tfm.pets.ast.TypeExpr
 import dev.martianzoo.util.iff
 import dev.martianzoo.util.pre
@@ -43,18 +43,20 @@ internal object PetToKotlin {
               (if (arguments.none()) ".type" else ".addArgs(${arguments.join()})") +
               refinement?.let(::p2k).wrap(".refine(", ")")
         }
-        is ScalarAndType -> {
+
+        is ScaledTypeExpr -> {
           if (scalar == 1) {
-            "sat(${p2k(typeExpr)})"
+            "scaledType(${p2k(typeExpr)})"
           } else {
-            "sat($scalar${p2k(typeExpr).pre(", ")})"
+            "scaledType($scalar${p2k(typeExpr).pre(", ")})"
           }
         }
+
         is Requirement -> {
           when (this) {
-            is Requirement.Min -> "Min(${p2k(sat)})"
-            is Requirement.Max -> "Max(${p2k(sat)})"
-            is Requirement.Exact -> "Exact(${p2k(sat)})"
+            is Requirement.Min -> "Min(${p2k(scaledType)})"
+            is Requirement.Max -> "Max(${p2k(scaledType)})"
+            is Requirement.Exact -> "Exact(${p2k(scaledType)})"
             is Requirement.Or -> "Requirement.Or(${requirements.join()})"
             is Requirement.And -> "Requirement.And(${requirements.join()})"
             is Requirement.Transform -> "Requirement.Transform(${p2k(requirement)}, \"$transformKind\")"
@@ -62,14 +64,15 @@ internal object PetToKotlin {
         }
         is Instruction -> {
           when (this) {
-            is Gain -> "Gain(${p2k(sat)}${intensity.pre(", ")})"
-            is Remove -> "Remove(${p2k(sat)}${intensity.pre(", ")})"
-            is Instruction.Per -> "Instruction.Per(${p2k(instruction)}, ${p2k(sat)})"
+            is Gain -> "Gain(${p2k(scaledType)}${intensity.pre(", ")})"
+            is Remove -> "Remove(${p2k(scaledType)}${intensity.pre(", ")})"
+            is Instruction.Per -> "Instruction.Per(${p2k(instruction)}, ${p2k(scaledType)})"
             is Gated -> "Gated(${p2k(gate)}, ${p2k(instruction)})"
             is Transmute -> "Transmute(${p2k(from)}, $count${intensity.pre(", ")})"
             is Custom ->
-                "Instruction.Custom(\"$functionName\"" +
-                    "${arguments.joinToString("") { ", ${p2k(it)}" }})"
+              "Instruction.Custom(\"$functionName\"" +
+                  "${arguments.joinToString("") { ", ${p2k(it)}" }})"
+
             is Then -> "Then(${instructions.join()})"
             is Instruction.Or -> "Instruction.Or(${instructions.join()})"
             is Instruction.Multi -> "Instruction.Multi(${instructions.join()})"
@@ -96,8 +99,8 @@ internal object PetToKotlin {
         is Effect -> "Effect(${p2k(trigger)}, ${p2k(instruction)}${", true".iff(automatic)})"
         is Cost -> {
           when (this) {
-            is Cost.Spend -> "Spend(${p2k(sat)})"
-            is Cost.Per -> "Cost.Per(${p2k(cost)}, ${p2k(sat)})"
+            is Cost.Spend -> "Spend(${p2k(scaledType)})"
+            is Cost.Per -> "Cost.Per(${p2k(cost)}, ${p2k(scaledType)})"
             is Cost.Or -> "Cost.Or(${costs.join()})"
             is Cost.Multi -> "Cost.Multi(${costs.join()})"
             is Cost.Transform -> "Cost.Transform(${p2k(cost)}, \"$transformKind\")"
