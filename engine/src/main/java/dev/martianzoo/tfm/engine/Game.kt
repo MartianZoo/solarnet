@@ -60,10 +60,11 @@ public class Game(
 
   public fun component(type: Type?): Component? =
       type?.let { Component(loader.resolveType(it)) }
+
   public fun component(type: TypeExpr?): Component? =
       type?.let { Component(loader.resolveType(it)) }
 
-  public fun rollBackToBefore(ordinal: Int) {
+  public fun rollBack(ordinal: Int) {
     val log = changeLogFull()
     val ct = log.size
     require(ordinal <= ct)

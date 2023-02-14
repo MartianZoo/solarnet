@@ -70,7 +70,7 @@ class InteractiveSession {
     return instr
   }
 
-  fun rollBackToBefore(ordinal: Int) = game!!.rollBackToBefore(ordinal)
+  fun rollBackToBefore(ordinal: Int) = game!!.rollBack(ordinal)
 
   // TODO somehow do this with Type not TypeExpr
   fun <P : PetNode> fixTypes(node: P): P {

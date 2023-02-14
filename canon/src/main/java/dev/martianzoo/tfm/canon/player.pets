@@ -15,8 +15,8 @@ ABSTRACT CLASS Anyone {                                     // This would be cal
 
 // PLAYER PROPERTY / GENERAL -------------------------------
 
-ABSTRACT CLASS Owned<Anyone> {
-    DEFAULT This<Owner>                                     // affects ALL references to owned cpts that don't specify
+ABSTRACT CLASS Owned<Owner> {
+//  DEFAULT This<Owner>                                     // affects ALL references to owned cpts that don't specify
                                                             // an owner -- the only DEFAULT of this kind we need
     CLASS VictoryPoint
 
