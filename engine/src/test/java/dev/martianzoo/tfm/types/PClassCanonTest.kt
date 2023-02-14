@@ -67,7 +67,7 @@ private class PClassCanonTest {
   }
 
   @Test
-  fun getGetClassEffects() {
+  fun getClassEffects() {
     val table = PClassLoader(Canon).loadEverything()
     table.allClasses.forEach { it.classEffects }
   }

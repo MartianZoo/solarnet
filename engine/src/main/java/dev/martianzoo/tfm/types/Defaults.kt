@@ -9,11 +9,9 @@ internal class Defaults(
     val allCasesDependencies: DependencyMap = DependencyMap(),
     val gainOnlyDependencies: DependencyMap = DependencyMap(),
     val gainIntensity: Intensity? = null,
+    val removeOnlyDependencies: DependencyMap = DependencyMap(),
+    val removeIntensity: Intensity? = null,
 ) {
-
-  override fun toString() =
-      "{ALL $allCasesDependencies GAIN $gainOnlyDependencies INTENSITY $gainIntensity}"
-
   companion object {
     fun from(d: DefaultsDeclaration, pclass: PClass, loader: PClassLoader): Defaults {
       // TypeExpr/Type? TODO
@@ -25,6 +23,8 @@ internal class Defaults(
           allCasesDependencies = pclass.toDependencyMap(d.universalSpecs),
           gainOnlyDependencies = pclass.toDependencyMap(d.gainOnlySpecs),
           gainIntensity = d.gainIntensity,
+          removeOnlyDependencies = pclass.toDependencyMap(d.removeOnlySpecs),
+          removeIntensity = d.removeIntensity,
       )
     }
   }
@@ -35,7 +35,10 @@ internal class Defaults(
     return Defaults(
         allCasesDependencies,
         overlayDMs(gainOnlyDependencies, defaultses.map { it.gainOnlyDependencies }),
-        overlayIntensities(defaultses) { it.gainIntensity })
+        overlayIntensities(defaultses) { it.gainIntensity },
+        overlayDMs(removeOnlyDependencies, defaultses.map { it.removeOnlyDependencies }),
+        overlayIntensities(defaultses) { it.removeIntensity },
+    )
   }
 
   private fun overlayIntensities(

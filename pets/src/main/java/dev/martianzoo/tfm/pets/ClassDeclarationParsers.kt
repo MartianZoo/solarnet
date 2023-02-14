@@ -102,6 +102,15 @@ internal object ClassDeclarationParsers : PetParser() {
           DefaultsDeclaration(gainOnlySpecs = typeExpr.arguments, gainIntensity = int)
         }
 
+    private val removeOnlyDefaults: Parser<DefaultsDeclaration> =
+        skipChar('-') and
+        TypeExpr.parser() and
+        intensity map { (typeExpr, int) ->
+          require(typeExpr.className == THIS)
+          require(typeExpr.refinement == null)
+          DefaultsDeclaration(removeOnlySpecs = typeExpr.arguments, removeIntensity = int)
+        }
+
     private val allCasesDefault: Parser<DefaultsDeclaration> by lazy {
       TypeExpr.parser() map {
         require(it.className == THIS)
@@ -111,7 +120,7 @@ internal object ClassDeclarationParsers : PetParser() {
     }
 
     private val default: Parser<DefaultsDeclaration> =
-        skip(_default) and (gainOnlyDefaults or allCasesDefault)
+        skip(_default) and (gainOnlyDefaults or removeOnlyDefaults or allCasesDefault)
 
     val bodyElementExceptNestedClasses: Parser<BodyElement> =
         (invariant map ::InvariantElement) or

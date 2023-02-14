@@ -5,11 +5,14 @@ import dev.martianzoo.tfm.pets.PetTransformer
 import dev.martianzoo.tfm.pets.SpecialClassNames.ANYONE
 import dev.martianzoo.tfm.pets.SpecialClassNames.OWNED
 import dev.martianzoo.tfm.pets.SpecialClassNames.STANDARD_RESOURCE
+import dev.martianzoo.tfm.pets.SpecialClassNames.THIS
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.classNames
 import dev.martianzoo.tfm.pets.ast.Instruction.Gain
+import dev.martianzoo.tfm.pets.ast.Instruction.Remove
 import dev.martianzoo.tfm.pets.ast.PetNode
 import dev.martianzoo.tfm.pets.ast.ScaledTypeExpr.Companion.scaledType
+import dev.martianzoo.tfm.pets.ast.TypeExpr
 
 /** Offers various functions for transforming [PetNode] subtrees that depend on a [PClassLoader]. */
 public class LiveTransformer internal constructor(val loader: PClassLoader) {
@@ -33,23 +36,45 @@ public class LiveTransformer internal constructor(val loader: PClassLoader) {
    * `GreeneryTile<Owner, LandArea(HAS? Neighbor<OwnedTile<Me>>)>`. (Search `DEFAULT` in any
    * `*.pets` files for other examples.)
    */
-  public fun <P : PetNode> applyGainDefaultsIn(node: P) = Defaulter(loader).transform(node)
+  public fun <P : PetNode> applyDefaultsIn(node: P) = Defaulter(loader).transform(node)
 
   private class Defaulter(val loader: PClassLoader) : PetTransformer() {
     override fun <P : PetNode> transform(node: P): P {
-      if (node !is Gain) return defaultTransform(node)
-      val writtenType = node.scaledType.typeExpr
-      val defaults = loader.getClass(writtenType.className).defaults
+      val xfd =
+          when (node) {
+            is Gain -> {
+              val defaults = loader.getClass(node.gaining.className).defaults
+              val fixedType = fixType(node.gaining, defaults.gainOnlyDependencies)
+              Gain(scaledType(node.count, fixedType), node.intensity ?: defaults.gainIntensity)
+            }
+
+            is Remove -> {
+              val rcn = node.removing.className
+              if (rcn == THIS) {
+                Remove(scaledType(node.count, node.removing),
+                    node.intensity ?: loader.componentClass.defaults.removeIntensity)
+              } else {
+                val defaults = loader.getClass(rcn).defaults
+                val fixedType = fixType(node.removing, defaults.removeOnlyDependencies)
+                Remove(
+                    scaledType(node.count, fixedType), node.intensity ?: defaults.removeIntensity)
+              }
+            }
+
+            else -> defaultTransform(node)
+          }
+      @Suppress("UNCHECKED_CAST") return xfd as P
+    }
+
+    private fun fixType(writtenType: TypeExpr, defaultSpecs: DependencyMap): TypeExpr {
       val fixedType =
           if (writtenType.isTypeOnly) {
-            val deps: Collection<Dependency> = defaults.gainOnlyDependencies.types
+            val deps: Collection<Dependency> = defaultSpecs.types
             writtenType.addArgs(deps.map { it.typeExpr }).refine(writtenType.refinement)
           } else {
             writtenType
           }
-      val transformed =
-          Gain(scaledType(node.scaledType.scalar, x(fixedType)), node.intensity ?: defaults.gainIntensity)
-      @Suppress("UNCHECKED_CAST") return transformed as P
+      return x(fixedType)
     }
   }
 }

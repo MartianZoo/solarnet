@@ -88,7 +88,8 @@ private class CanonEffectsTest {
     assertThat(load("Teractor").classEffects)
         .containsExactly(
             effect("This: 60 Megacredit<Owner>!"),
-            effect("PlayTag<Owner, Class<EarthTag>>:: -3 Owed<Owner>."),
+            // TODO simplify
+            effect("PlayTag<Owner, Class<EarthTag>>:: -3 Owed<Owner, Class<Resource>>."),
         )
   }
 
@@ -117,11 +118,10 @@ private class CanonEffectsTest {
 
   @Test
   fun amc() {
-    // TODO remove default !
     assertThat(load("AsteroidMiningConsortium").classEffects)
         .containsExactly(
             effect(
-                "This: -Production<Anyone, Class<Titanium>>, Production<Owner, Class<Titanium>>!"),
+                "This: -Production<Anyone, Class<Titanium>>!, Production<Owner, Class<Titanium>>!"),
             effect("End: VictoryPoint<Owner>!"),
         )
   }

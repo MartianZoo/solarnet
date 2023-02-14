@@ -50,6 +50,7 @@ data class ClassDeclaration(
         effectsRaw +
         defaultsDeclaration.universalSpecs +
         defaultsDeclaration.gainOnlySpecs +
+        defaultsDeclaration.removeOnlySpecs +
         extraNodes
   }
 
@@ -58,16 +59,21 @@ data class ClassDeclaration(
   data class DefaultsDeclaration(
       val universalSpecs: List<TypeExpr> = listOf(),
       val gainOnlySpecs: List<TypeExpr> = listOf(),
+      val removeOnlySpecs: List<TypeExpr> = listOf(),
       val gainIntensity: Intensity? = null,
+      val removeIntensity: Intensity? = null,
   ) {
     companion object {
       fun merge(defs: Collection<DefaultsDeclaration>): DefaultsDeclaration {
         val univ = defs.map { it.universalSpecs }.firstOrNull { it.any() } ?: listOf()
         val gain = defs.map { it.gainOnlySpecs }.firstOrNull { it.any() } ?: listOf()
+        val remov = defs.map { it.removeOnlySpecs }.firstOrNull { it.any() } ?: listOf()
         return DefaultsDeclaration(
             universalSpecs = univ,
             gainOnlySpecs = gain,
+            removeOnlySpecs = remov,
             gainIntensity = defs.firstNotNullOfOrNull { it.gainIntensity },
+            removeIntensity = defs.firstNotNullOfOrNull { it.removeIntensity },
         )
       }
     }

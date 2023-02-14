@@ -193,7 +193,7 @@ internal constructor(
         .map { effect ->
           var fx = effect
           fx = xer.deprodify(fx)
-          fx = xer.applyGainDefaultsIn(fx)
+          fx = xer.applyDefaultsIn(fx)
           if (allSuperclasses.any { it.className == OWNED }) {
             fx = xer.addOwner(fx)
           }
