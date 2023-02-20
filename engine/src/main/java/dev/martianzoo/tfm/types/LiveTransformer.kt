@@ -1,6 +1,7 @@
 package dev.martianzoo.tfm.types
 
 import dev.martianzoo.tfm.pets.AstTransforms
+import dev.martianzoo.tfm.pets.AstTransforms.replaceTypes
 import dev.martianzoo.tfm.pets.PetTransformer
 import dev.martianzoo.tfm.pets.SpecialClassNames.ANYONE
 import dev.martianzoo.tfm.pets.SpecialClassNames.OWNED
@@ -29,6 +30,24 @@ public class LiveTransformer internal constructor(val loader: PClassLoader) {
 
   private fun subclassNames(parent: ClassName): Set<ClassName> =
       loader.getClass(parent).allSubclasses.classNames()
+
+  public fun <P : PetNode> simplifyTypes(element: P, thiss: PType): P {
+    var tx = element
+    tx = replaceTypes(element, THIS.type, thiss.typeExpr)
+
+    val simplifier = object : PetTransformer() {
+      override fun <P : PetNode> transform(node: P): P {
+        return if (node is TypeExpr) {
+          loader.resolveType(node).typeExpr as P
+        } else {
+          defaultTransform(node)
+        }
+      }
+    }
+    tx = simplifier.transform(tx)
+    tx = replaceTypes(tx, thiss.typeExpr, THIS.type)
+    return tx
+  }
 
   /**
    * Translates a Pets node in source form to one where defaults have been applied; for example, an

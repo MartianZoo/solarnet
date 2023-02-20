@@ -82,4 +82,13 @@ internal data class DependencyMap(private val map: Map<Key, Dependency>) {
   fun specialize(specs: List<PType>) = intersect(findMatchups(specs))
 
   override fun toString() = "$types"
+
+  fun reorderBy(keysInOrder: Iterable<Key>): DependencyMap {
+    val map = mutableMapOf<Key, Dependency>()
+    keysInOrder.forEach {
+      map[it] = this.map[it]!!
+    }
+    require(map.size == this.map.size)
+    return DependencyMap(map)
+  }
 }

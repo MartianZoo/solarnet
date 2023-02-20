@@ -15,11 +15,18 @@ import dev.martianzoo.tfm.types.Dependency.TypeDependency
  * state.
  */
 public data class PType
-internal constructor(
+private constructor(
     public val pclass: PClass,
     internal val allDependencies: DependencyMap = DependencyMap(),
     override val refinement: Requirement? = null,
 ) : Type {
+  internal companion object {
+    fun create(
+        pclass: PClass,
+        allDependenciesUnordered: DependencyMap = DependencyMap(),
+        refinement: Requirement? = null,
+    ) = PType(pclass, allDependenciesUnordered.reorderBy(pclass.allDependencyKeys), refinement)
+  }
   init {
     require(allDependencies.keys.toList() == pclass.allDependencyKeys.toList())
     if (pclass.className == CLASS) {
@@ -37,7 +44,7 @@ internal constructor(
 
   fun intersect(that: PType): PType? {
     val intersect: PClass = pclass.intersect(that.pclass) ?: return null
-    return PType(
+    return create(
         intersect,
         allDependencies.intersect(that.allDependencies),
         combine(this.refinement, that.refinement))

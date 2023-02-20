@@ -137,7 +137,7 @@ internal constructor(
    * the type `Class<Resource>`.
    */
   public val classType: PType by lazy {
-    PType(loader.classClass, DependencyMap(KEY to ClassDependency(this)))
+    PType.create(loader.classClass, DependencyMap(KEY to ClassDependency(this)))
   }
 
   /** Least upper bound of all types with pclass==this */
@@ -153,7 +153,7 @@ internal constructor(
           }
       val deps = DependencyMap.intersect(directSupertypes.map { it.allDependencies })
       val allDeps = deps.intersect(DependencyMap(newDeps))
-      PType(this, allDeps, null)
+      PType.create(this, allDeps, null)
     }
   }
 
@@ -197,6 +197,7 @@ internal constructor(
           if (allSuperclasses.any { it.className == OWNED }) {
             fx = xer.addOwner(fx)
           }
+          // fx = xer.simplifyTypes(fx, baseType)
           fx
         }
         .sortedWith(effectComparator)
