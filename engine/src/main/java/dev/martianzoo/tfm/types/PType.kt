@@ -61,12 +61,19 @@ private constructor(
   }
 
   override val typeExpr: TypeExpr by lazy {
-    val narrowed = allDependencies.minus(pclass.baseType.allDependencies)
-    pclass.className.addArgs(narrowed.types.map { it.typeExpr }).refine(refinement)
+    val deps = allDependencies.minus(pclass.baseType.allDependencies)
+    toTypeExprUsingSpecs(deps.types.map { it.typeExpr })
   }
 
   override val typeExprFull: TypeExpr by lazy {
-    pclass.className.addArgs(allDependencies.types.map { it.typeExprFull }).refine(refinement)
+    toTypeExprUsingSpecs(allDependencies.types.map { it.typeExprFull })
+  }
+
+  private fun toTypeExprUsingSpecs(specs: List<TypeExpr>): TypeExpr {
+    val typeExpr = pclass.className.addArgs(specs).refine(refinement)
+    val roundTrip = pclass.loader.resolveType(typeExpr)
+    require(roundTrip == this) { "$this -> $typeExpr -> $roundTrip" }
+    return typeExpr
   }
 
   override fun toString() = typeExprFull.toString()

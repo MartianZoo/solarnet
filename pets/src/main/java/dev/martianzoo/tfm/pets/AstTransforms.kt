@@ -101,31 +101,35 @@ public object AstTransforms {
   }
 
   /**
-   * For any type expression whose root type is in [owneds] but does not already have anything in
-   * [owners] as a type argument, adds `Owner` as a type argument. This is implementing what the
+   * For any type expression whose root type is in [ownedClasses] but does not already have anything in
+   * [ownerClasses] as a type argument, adds `Owner` as a type argument. This is implementing what the
    * code `class Owned { DEFAULT This<Owner> ... }` is already trying to express, but I haven't
    * gotten that working in a general way yet.
    */
   // TODO redo this in terms of Type not TypeExpr
-  public fun <P : PetNode> addOwner(node: P, owners: Set<ClassName>, owneds: Set<ClassName>): P {
-    fun hasOwner(typeExprs: List<TypeExpr>) = typeExprs.intersect(owners.map { it.type }).any()
-    val xer =
-        object : PetTransformer() {
-          override fun <Q : PetNode> transform(node: Q): Q {
-            return if (node !is TypeExpr) {
-              defaultTransform(node)
-            } else if (node.className == CLASS) {
-              node // don't descend; it's perfect how it is
-            } else if (node.className in owneds && !hasOwner(node.arguments)) {
-              val xd = defaultTransform(node)
-              val withOwnerPrepended = xd.replaceArgs(listOf(OWNER.type) + xd.arguments)
-              @Suppress("UNCHECKED_CAST")
-              withOwnerPrepended as Q
-            } else {
-              defaultTransform(node)
-            }
-          }
+  public fun <P : PetNode> addOwner(
+      node: P,
+      ownerClasses: Set<ClassName>,
+      ownedClasses: Set<ClassName>,
+  ): P {
+    fun hasOwner(typeExprs: List<TypeExpr>) =
+        typeExprs.map { it.className }.intersect(ownerClasses).any()
+
+    return object : PetTransformer() {
+      override fun <Q : PetNode> transform(node: Q): Q {
+        return if (node !is TypeExpr) {
+          defaultTransform(node)
+        } else if (node.className == CLASS) {
+          node // don't descend; it's perfect how it is
+        } else if (node.className in ownedClasses && !hasOwner(node.arguments)) {
+          val xd = defaultTransform(node)
+          val withOwnerPrepended = xd.replaceArgs(listOf(OWNER.type) + xd.arguments)
+          @Suppress("UNCHECKED_CAST")
+          withOwnerPrepended as Q
+        } else {
+          defaultTransform(node)
         }
-    return xer.transform(node)
+      }
+    }.transform(node)
   }
 }

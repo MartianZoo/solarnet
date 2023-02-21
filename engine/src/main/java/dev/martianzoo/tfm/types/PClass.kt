@@ -35,7 +35,7 @@ internal constructor(
     /** The declaration this class was loaded from. */
     public val declaration: ClassDeclaration,
     /** The class loader that loaded this class. */
-    private val loader: PClassLoader,
+    internal val loader: PClassLoader,
     public val directSuperclasses: List<PClass> = superclasses(declaration, loader),
 ) : HasClassName {
   /** The name of this class, in UpperCamelCase. */

@@ -2,13 +2,18 @@ package dev.martianzoo.tfm.types
 
 import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.tfm.canon.Canon
+import dev.martianzoo.tfm.pets.AstTransforms.replaceTypes
 import dev.martianzoo.tfm.pets.SpecialClassNames.COMPONENT
 import dev.martianzoo.tfm.pets.SpecialClassNames.DIE
+import dev.martianzoo.tfm.pets.SpecialClassNames.THIS
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.classNames
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.pets.ast.Requirement.Companion.requirement
+import dev.martianzoo.tfm.pets.ast.TypeExpr
 import dev.martianzoo.tfm.pets.ast.TypeExpr.Companion.typeExpr
+import dev.martianzoo.tfm.pets.childNodesOfType
+import dev.martianzoo.tfm.pets.visit
 import dev.martianzoo.tfm.types.Dependency.Key
 import dev.martianzoo.util.random
 import dev.martianzoo.util.toStrings
@@ -96,6 +101,30 @@ private class PClassCanonTest {
     random.forEach {
       // println(it.describe())
       println()
+    }
+  }
+
+  @Test
+  fun checkTypes() {
+    val table = PClassLoader(Canon).loadEverything()
+
+    table.allClasses.forEach { pclass ->
+      pclass.classEffects.forEach { root ->
+        val fixt = replaceTypes(root, THIS.type, pclass.baseType.typeExpr)
+        visit(fixt) {
+          if (it is TypeExpr) {
+            if (THIS !in childNodesOfType<ClassName>(it)) {
+              val type = table.resolveType(it)
+              if (type.typeExpr != type.typeExprFull) {
+                println("${type.typeExprFull} -> ${type.typeExpr}")
+              }
+            }
+            false // TODO should recurse the refinement...
+          } else {
+            true
+          }
+        }
+      }
     }
   }
 
