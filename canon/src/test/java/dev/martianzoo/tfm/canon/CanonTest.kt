@@ -11,6 +11,7 @@ import dev.martianzoo.tfm.engine.Component
 import dev.martianzoo.tfm.engine.Engine
 import dev.martianzoo.tfm.pets.SpecialClassNames.COMPONENT
 import dev.martianzoo.tfm.pets.SpecialClassNames.OWNED
+import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.classNames
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.pets.ast.TypeExpr.Companion.typeExpr
@@ -172,5 +173,16 @@ private class CanonTest {
     assertThat(game.countComponents(te("Class"))).isGreaterThan(300)
   }
 
+  @Test
+  fun concreteExtendingConcrete() {
+    val loader = PClassLoader(Canon).loadEverything()
+    val map = mutableListOf<Pair<ClassName, ClassName>>()
+    loader.allClasses.filter { !it.abstract }.forEach { sup ->
+      (sup.allSubclasses - setOf(sup)).forEach {
+        map += sup.className to it.className
+      }
+    }
+    assertThat(map).containsExactly(cn("CityTile") to cn("Tile008"))
+  }
   private fun te(s: String) = typeExpr(s)
 }
