@@ -10,8 +10,10 @@ import dev.martianzoo.tfm.pets.SpecialClassNames.PRODUCTION
 import dev.martianzoo.tfm.pets.SpecialClassNames.THIS
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.tfm.pets.ast.PetNode
 import dev.martianzoo.tfm.pets.ast.TypeExpr
 import dev.martianzoo.tfm.pets.childNodesOfType
+import dev.martianzoo.tfm.pets.visitAll
 
 /**
  * All [PClass] instances come from here. Uses an [Authority] to pull class declarations from as
@@ -56,19 +58,21 @@ public class PClassLoader(
   // TODO we need transformations sometimes?
   public fun resolveType(typeExpr: TypeExpr): PType {
     val pclass = getClass(typeExpr.className)
-    return if (pclass.className == CLASS) {
-      val className: ClassName =
-          if (typeExpr.arguments.isEmpty()) {
-            COMPONENT
-          } else {
-            val single: TypeExpr = typeExpr.arguments.single()
-            require(single.isTypeOnly)
-            single.className
-          }
-      getClass(className).classType
-    } else {
-      pclass.specialize(typeExpr.arguments.map(::resolveType))
-    }
+    val result =
+        if (pclass.className == CLASS) {
+          val className: ClassName =
+              if (typeExpr.arguments.isEmpty()) {
+                COMPONENT
+              } else {
+                val single: TypeExpr = typeExpr.arguments.single()
+                require(single.isTypeOnly)
+                single.className
+              }
+          getClass(className).classType
+        } else {
+          pclass.specialize(typeExpr.arguments.map(::resolveType))
+        }
+    return result.refine(typeExpr.refinement)
   }
 
   /** All classes loaded by this class loader; can only be accessed after the loader is [frozen]. */
@@ -162,4 +166,11 @@ public class PClassLoader(
   public val transformer: LiveTransformer by lazy { LiveTransformer(this) }
 
   public val allInvariants by lazy {}
+
+  public fun checkAllTypes(node: PetNode) =
+      visitAll(node) {
+        if (it is TypeExpr) {
+          resolveType(it).typeExpr
+        }
+      }
 }

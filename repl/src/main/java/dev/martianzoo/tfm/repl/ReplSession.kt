@@ -3,7 +3,6 @@ package dev.martianzoo.tfm.repl
 import dev.martianzoo.tfm.api.Authority
 import dev.martianzoo.tfm.api.GameSetup
 import dev.martianzoo.tfm.canon.Canon
-import dev.martianzoo.tfm.engine.Component
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.pets.ast.Instruction.Companion.instruction
@@ -135,13 +134,8 @@ public class ReplSession(private val authority: Authority) {
                 it?.let { args ->
                   val typeExpr = typeExpr(args.trim())
                   val ptype = session.game!!.resolveType(typeExpr)
-                  if (typeExpr.isTypeOnly) {
-                    listOf(PClassToText.describe(ptype.pclass))
-                  } else {
-                    listOf(Component(ptype).describe())
-                  }
-                }
-                    ?: listOf("Usage: desc <ClassName>")
+                  listOf(PTypeToText.describe(ptype, typeExpr))
+                } ?: listOf("Usage: desc <ClassName>")
               },
       )
 }

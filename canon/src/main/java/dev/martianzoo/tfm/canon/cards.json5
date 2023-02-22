@@ -550,7 +550,7 @@
         // The points attach to the card, not the tile
         "End: VictoryPoint / Adjacency<Tile008, OceanTile>"
       ],
-      "components": [ "CLASS Tile008 : CityTile" ],
+      "components": [ "CLASS Tile008 : CityTile<LandArea>" ],
       "requirement": "4 OceanTile",
       "cost": 26,
       "projectKind": "AUTOMATED"

@@ -43,10 +43,4 @@ public data class Component(internal val ptype: PType) {
   val typeExprFull by ptype::typeExprFull
 
   override fun toString() = "[$ptype]"
-
-  fun describe(): String {
-    return """
-      TODO
-    """.trimIndent()
-  }
 }

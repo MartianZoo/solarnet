@@ -21,18 +21,20 @@ private constructor(
     override val refinement: Requirement? = null,
 ) : Type {
   internal companion object {
-    fun create(
-        pclass: PClass,
-        allDependenciesUnordered: DependencyMap = DependencyMap(),
-        refinement: Requirement? = null,
-    ) = PType(pclass, allDependenciesUnordered.reorderBy(pclass.allDependencyKeys), refinement)
+    fun create(pclass: PClass, allDependenciesUnordered: DependencyMap = DependencyMap()) =
+        PType(pclass, allDependenciesUnordered.extract(pclass.allDependencyKeys))
   }
   init {
-    require(allDependencies.keys.toList() == pclass.allDependencyKeys.toList())
+    require(allDependencies.keys.toList() == pclass.allDependencyKeys.toList()) {
+      "expected keys ${pclass.allDependencyKeys}, got $allDependencies"
+    }
     if (pclass.className == CLASS) {
       require(allDependencies.types.single() is ClassDependency)
     } else {
       require(allDependencies.types.all { it is TypeDependency })
+    }
+    if (refinement != null) {
+      pclass.loader.checkAllTypes(refinement)
     }
   }
   override val abstract = pclass.abstract || allDependencies.abstract || refinement != null
@@ -44,10 +46,8 @@ private constructor(
 
   fun intersect(that: PType): PType? {
     val intersect: PClass = pclass.intersect(that.pclass) ?: return null
-    return create(
-        intersect,
-        allDependencies.intersect(that.allDependencies),
-        combine(this.refinement, that.refinement))
+    return create(intersect, allDependencies.intersect(that.allDependencies))
+        .refine(that.refinement)
   }
 
   private fun combine(one: Requirement?, two: Requirement?): Requirement? {
@@ -59,6 +59,8 @@ private constructor(
       else -> error("imposserous")
     }
   }
+
+  fun refine(newRef: Requirement?): PType = copy(refinement = combine(refinement, newRef))
 
   override val typeExpr: TypeExpr by lazy {
     val deps = allDependencies.minus(pclass.baseType.allDependencies)
@@ -74,6 +76,11 @@ private constructor(
     val roundTrip = pclass.loader.resolveType(typeExpr)
     require(roundTrip == this) { "$this -> $typeExpr -> $roundTrip" }
     return typeExpr
+  }
+
+  fun supertypes(): List<PType> {
+    val supers = pclass.allSuperclasses - pclass.loader.componentClass - pclass
+    return supers.map { PType(it, allDependencies.extract(it.allDependencyKeys)) }
   }
 
   override fun toString() = typeExprFull.toString()

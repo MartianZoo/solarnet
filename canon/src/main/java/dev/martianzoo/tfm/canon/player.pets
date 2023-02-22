@@ -144,19 +144,19 @@ ABSTRACT CLASS Owned<Owner> {
         ABSTRACT CLASS Barrier {                            // player must clean up themselves, by end of action
             This: (MAX 0 This: Ok)                          // adds a task that can only be handled if 0 barriers left
         }
-        CLASS Owed<Class<Resource>> : Barrier {              // created when payment due, removed by discount cards/
-            DEFAULT +This<Class<Megacredit>>
-            This:: Accept<Class<Resource>>
+        CLASS Owed<Class<Resource>> : Barrier {             // created when payment due, removed by discount cards/
+            DEFAULT +This<Class<Megacredit>>                // problem: an Owed<Dirigible> is also an Owed<Floater>
+            This:: Accept<Class<Resource>>                  // which would suggest any floater could pay it off TODO
         }
-        CLASS Accept<Class<Resource>> {                      // Created in response to PlayTag or the actions on 4
+        CLASS Accept<Class<Resource>> {                     // Created in response to PlayTag or the actions on 4
             HAS MAX 1 This                                  // special cards. (extend Temporary?)
             DEFAULT +This.
         }
-        CLASS Pay<Class<Resource>> : Signal {                // player uses it like `8 Pay<Class<Heat>> FROM Heat`
+        CLASS Pay<Class<Resource>> : Signal {               // player uses it like `8 Pay<Class<Heat>> FROM Heat`
             DEFAULT +This<Class<Megacredit>>
-            This:: -Owed<Class<Resource>>.                   // But also cards can pay in response to signals
+            This:: -Owed<Class<Resource>>.                  // But also cards can pay in response to signals
         }
-        CLASS PlayTag<Class<Tag>> : Signal                   // triggers Accept<Steel/Dirig/etc.CLASS> and tag-based discounts
+        CLASS PlayTag<Class<Tag>> : Signal                  // triggers Accept<Steel/Dirig/etc.CLASS> and tag-based discounts
 
                                                             // used by PlayCardFromHand, ValTrust, EcoEx, ExSponsor,
         CLASS PlayCard<Class<CardBack>, Class<CardFront>> {   // NewPartner, Merger; triggers EarthCat etc.

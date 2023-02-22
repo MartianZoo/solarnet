@@ -153,7 +153,7 @@ internal constructor(
           }
       val deps = DependencyMap.intersect(directSupertypes.map { it.allDependencies })
       val allDeps = deps.intersect(DependencyMap(newDeps))
-      PType.create(this, allDeps, null)
+      PType.create(this, allDeps)
     }
   }
 
