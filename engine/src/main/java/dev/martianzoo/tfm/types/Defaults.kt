@@ -15,9 +15,8 @@ internal class Defaults(
   companion object {
     fun from(d: DefaultsDeclaration, pclass: PClass, loader: PClassLoader): Defaults {
       // TypeExpr/Type? TODO
-      fun PClass.toDependencyMap(specs: List<TypeExpr>?): DependencyMap =
-          specs?.let { loader.resolveType(className.addArgs(it)).allDependencies }
-              ?: DependencyMap()
+      fun PClass.toDependencyMap(specs: List<TypeExpr>): DependencyMap =
+          loader.resolveType(className.addArgs(specs)).narrowedDependencies
 
       return Defaults(
           allCasesDependencies = pclass.toDependencyMap(d.universalSpecs),

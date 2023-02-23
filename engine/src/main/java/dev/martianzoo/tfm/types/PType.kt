@@ -33,9 +33,7 @@ private constructor(
     } else {
       require(allDependencies.types.all { it is TypeDependency })
     }
-    if (refinement != null) {
-      pclass.loader.checkAllTypes(refinement)
-    }
+    // if (refinement != null) pclass.loader.checkAllTypes(refinement) // TODO SOE
   }
   override val abstract = pclass.abstract || allDependencies.abstract || refinement != null
 
@@ -47,7 +45,7 @@ private constructor(
   fun intersect(that: PType): PType? {
     val intersect: PClass = pclass.intersect(that.pclass) ?: return null
     return create(intersect, allDependencies.intersect(that.allDependencies))
-        .refine(that.refinement)
+        .refine(combine(this.refinement, that.refinement))
   }
 
   private fun combine(one: Requirement?, two: Requirement?): Requirement? {
@@ -63,12 +61,15 @@ private constructor(
   fun refine(newRef: Requirement?): PType = copy(refinement = combine(refinement, newRef))
 
   override val typeExpr: TypeExpr by lazy {
-    val deps = allDependencies.minus(pclass.baseType.allDependencies)
-    toTypeExprUsingSpecs(deps.types.map { it.typeExpr })
+    toTypeExprUsingSpecs(narrowedDependencies.types.map { it.typeExpr })
   }
 
   override val typeExprFull: TypeExpr by lazy {
     toTypeExprUsingSpecs(allDependencies.types.map { it.typeExprFull })
+  }
+
+  internal val narrowedDependencies: DependencyMap by lazy {
+    allDependencies - pclass.baseType.allDependencies
   }
 
   private fun toTypeExprUsingSpecs(specs: List<TypeExpr>): TypeExpr {

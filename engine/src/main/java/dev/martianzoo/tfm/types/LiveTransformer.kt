@@ -1,6 +1,7 @@
 package dev.martianzoo.tfm.types
 
 import dev.martianzoo.tfm.pets.AstTransforms
+import dev.martianzoo.tfm.pets.AstTransforms.insertDefaultPlayer
 import dev.martianzoo.tfm.pets.AstTransforms.replaceTypes
 import dev.martianzoo.tfm.pets.PetTransformer
 import dev.martianzoo.tfm.pets.SpecialClassNames.ANYONE
@@ -25,8 +26,8 @@ public class LiveTransformer internal constructor(val loader: PClassLoader) {
   public fun <P : PetNode> deprodify(node: P): P =
       AstTransforms.deprodify(node, subclassNames(STANDARD_RESOURCE))
 
-  public fun <P : PetNode> addOwner(node: P): P =
-      AstTransforms.addOwner(node, subclassNames(ANYONE), subclassNames(OWNED))
+  public fun <P : PetNode> insertDefaultPlayer(node: P): P =
+      insertDefaultPlayer(node, subclassNames(ANYONE), subclassNames(OWNED))
 
   private fun subclassNames(parent: ClassName): Set<ClassName> =
       loader.getClass(parent).allSubclasses.classNames()

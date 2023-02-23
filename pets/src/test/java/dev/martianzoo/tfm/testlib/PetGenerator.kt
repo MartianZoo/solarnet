@@ -4,6 +4,7 @@ import com.google.common.truth.Truth.assertWithMessage
 import dev.martianzoo.tfm.pets.Parsing.parseElement
 import dev.martianzoo.tfm.pets.PetException
 import dev.martianzoo.tfm.pets.SpecialClassNames.MEGACREDIT
+import dev.martianzoo.tfm.pets.SpecialClassNames.OWNER
 import dev.martianzoo.tfm.pets.ast.Action
 import dev.martianzoo.tfm.pets.ast.Action.Cost
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
@@ -138,13 +139,15 @@ internal class PetGenerator(scaling: (Int) -> Double) :
               2 to Trigger.WhenRemove::class,
               9 to Trigger.OnGainOf::class,
               5 to Trigger.OnRemoveOf::class,
+              5 to Trigger.ByTrigger::class,
               1 to Trigger.Transform::class,
           )
       register(Trigger::class) { recurse(choose(triggerTypes)) }
       register { Trigger.WhenGain }
       register { Trigger.WhenRemove }
-      register { Trigger.OnGainOf.create(recurse()) }
-      register { Trigger.OnRemoveOf.create(recurse()) }
+      register { Trigger.OnGainOf.create(recurse()) as Trigger.OnGainOf }
+      register { Trigger.OnRemoveOf.create(recurse()) as Trigger.OnRemoveOf }
+      register { Trigger.ByTrigger(recurse(), choose(1 to OWNER, 1 to cn("Player2"))) }
       register { Trigger.Transform(recurse(), "PROD") }
 
       register { Effect(recurse(), recurse(), choose(true, false)) }

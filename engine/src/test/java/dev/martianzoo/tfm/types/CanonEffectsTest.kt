@@ -4,7 +4,7 @@ import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.pets.ast.Effect.Companion.effect
-import org.junit.jupiter.api.Disabled
+import dev.martianzoo.util.toStrings
 import org.junit.jupiter.api.Test
 
 private class CanonEffectsTest {
@@ -45,24 +45,23 @@ private class CanonEffectsTest {
         .containsExactly(effect("This:: (3 OwnedTile<Owner, MarsArea(HAS 8 Row)>: Ok!)"))
   }
 
-  @Disabled
   @Test
   fun gyropolis() {
     val card = load("Gyropolis")
     assertThat(card.classEffects)
         .containsExactly(
             effect(
-                "This: CityTile<Owner, LandArea(HAS MAX 0 CityTile<Anyone>)>!, " +
-                    "-2 Production<Owner, Class<Energy>>, " +
+                // TODO parens
+                "This: CityTile<Owner, LandArea(HAS MAX 0 Neighbor<CityTile<Anyone>>)>!, " +
+                    "(-2 Production<Owner, Class<Energy>>!, " +
                     "Production<Owner, Class<Megacredit>>! / VenusTag<Owner>, " +
-                    "Production<Owner, Class<Megacredit>>! / EarthTag<Owner>"))
+                    "Production<Owner, Class<Megacredit>>! / EarthTag<Owner>)"))
   }
 
-  @Disabled
   @Test
   fun e98() {
     assertThat(load("Elysium_9_8").classEffects)
-        .containsExactly(effect("Tile<This> BY Player: ProjectCard<Player>!"))
+        .containsExactly(effect("Tile<This> BY Owner: ProjectCard<Owner>!"))
   }
 
   @Test
@@ -74,12 +73,11 @@ private class CanonEffectsTest {
         )
   }
 
-  @Disabled
   @Test
   fun convertHeat() {
     assertThat(load("ConvertHeat").classEffects)
         .containsExactly(
-            effect("UseAction1<Player, This>: -8 Heat<Player>! THEN TemperatureStep."),
+            effect("UseAction1<Owner, This>: -8 Heat<Owner>! THEN TemperatureStep."),
         )
   }
 
@@ -89,19 +87,17 @@ private class CanonEffectsTest {
         .containsExactly(
             effect("This: 60 Megacredit<Owner>!"),
             // TODO simplify
-            effect("PlayTag<Owner, Class<EarthTag>>:: -3 Owed<Owner, Class<Resource>>."),
+            effect("PlayTag<Owner, Class<EarthTag>>:: -3 Owed<Owner>."),
         )
   }
 
-  @Disabled
   @Test
   fun immigrantCity() {
-    assertThat(load("ImmigrantCity").classEffects)
+    assertThat(load("ImmigrantCity").classEffects.toStrings())
         .containsExactly(
-            effect(
-                "This: -Production<Owner, Class<Energy>>!, -2 Production<Owner, " +
-                    "Class<Megacredit>>!, CityTile<Owner, LandArea(HAS MAX 0 CityTile<Anyone>)>!"),
-            effect("CityTile<Anyone>: Production<Owner, Class<Megacredit>>!"),
+            "This: (-Production<Owner, Class<Energy>>!, -2 Production<Owner, Class<Megacredit>>!)" +
+                ", CityTile<Owner, LandArea(HAS MAX 0 Neighbor<CityTile<Anyone>>)>!",
+            "CityTile<Anyone>: Production<Owner, Class<Megacredit>>!"
         )
   }
 
@@ -151,18 +147,7 @@ private class CanonEffectsTest {
     // TODO gross
     assertThat(load("FloaterPrototypes").classEffects)
         .containsExactly(
-            effect("This: 2 Floater<Owner, ResourcefulCard<Owner, Class<Floater>>>."),
-        )
-  }
-
-  @Disabled
-  @Test
-  fun merger() {
-    assertThat(load("Merger").classEffects)
-        .containsExactly(
-            effect(
-                "This: CorporationCard<Owner>, PlayCard<Owner, Class<CorporationCard>, " +
-                    "Class<CardFront>>!, -42 Megacredit<Owner>"),
+            effect("This: 2 Floater<Owner>."),
         )
   }
 }

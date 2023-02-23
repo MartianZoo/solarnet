@@ -5,8 +5,6 @@ import dev.martianzoo.tfm.pets.ast.Action.Cost
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.Effect
 import dev.martianzoo.tfm.pets.ast.Effect.Trigger
-import dev.martianzoo.tfm.pets.ast.Effect.Trigger.WhenGain
-import dev.martianzoo.tfm.pets.ast.Effect.Trigger.WhenRemove
 import dev.martianzoo.tfm.pets.ast.From
 import dev.martianzoo.tfm.pets.ast.From.ComplexFrom
 import dev.martianzoo.tfm.pets.ast.From.SimpleFrom
@@ -89,10 +87,11 @@ internal object PetToKotlin {
         }
         is Trigger -> {
           when (this) {
-            is WhenGain -> "WhenGain"
-            is WhenRemove -> "WhenRemove"
+            is Trigger.WhenGain -> "WhenGain"
+            is Trigger.WhenRemove -> "WhenRemove"
             is Trigger.OnGainOf -> "OnGainOf(${p2k(typeExpr)})"
             is Trigger.OnRemoveOf -> "OnRemoveOf(${p2k(typeExpr)})"
+            is Trigger.ByTrigger -> "ByTrigger(${p2k(inner)}, ${p2k(by)})"
             is Trigger.Transform -> "Trigger.Transform(${p2k(trigger)}, \"$transformKind\")"
           }
         }

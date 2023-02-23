@@ -2,7 +2,9 @@ package dev.martianzoo.tfm.pets.ast
 
 import com.github.h0tk3y.betterParse.combinators.and
 import com.github.h0tk3y.betterParse.combinators.map
+import com.github.h0tk3y.betterParse.combinators.optional
 import com.github.h0tk3y.betterParse.combinators.or
+import com.github.h0tk3y.betterParse.combinators.skip
 import com.github.h0tk3y.betterParse.parser.Parser
 import dev.martianzoo.tfm.pets.Parsing
 import dev.martianzoo.tfm.pets.PetException
@@ -34,13 +36,23 @@ data class Effect(
   sealed class Trigger : PetNode() {
     override val kind = "Trigger"
 
+    data class ByTrigger(val inner: Trigger, val by: ClassName) : Trigger() {
+      init {
+        if (inner is ByTrigger) {
+          throw PetException("by the by")
+        }
+      }
+      override fun visitChildren(visitor: PetVisitor) = visitor.visit(inner, by)
+      override fun toString() = "$inner BY $by"
+    }
+
     object WhenGain : Trigger() {
-      override fun visitChildren(visitor: PetVisitor) {}
+      override fun visitChildren(visitor: PetVisitor) = Unit
       override fun toString() = "This"
     }
 
     object WhenRemove : Trigger() {
-      override fun visitChildren(visitor: PetVisitor) {}
+      override fun visitChildren(visitor: PetVisitor) = Unit
       override fun toString() = "-This"
     }
 
@@ -93,7 +105,9 @@ data class Effect(
         val atom = onGainOf or onRemoveOf
         val transform =
             transform(atom) map { (node, transformName) -> Transform(node, transformName) }
-        return transform or atom
+        return (transform or atom) and optional(skip(_by) and ClassName.Parsing.className) map {
+          (trig, by) -> if (by == null) trig else ByTrigger(trig, by)
+        }
       }
     }
   }

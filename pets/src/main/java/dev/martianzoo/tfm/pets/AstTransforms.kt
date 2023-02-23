@@ -107,7 +107,7 @@ public object AstTransforms {
    * gotten that working in a general way yet.
    */
   // TODO redo this in terms of Type not TypeExpr
-  public fun <P : PetNode> addOwner(
+  public fun <P : PetNode> insertDefaultPlayer(
       node: P,
       ownerClasses: Set<ClassName>,
       ownedClasses: Set<ClassName>,

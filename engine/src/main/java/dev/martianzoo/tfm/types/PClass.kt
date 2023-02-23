@@ -1,16 +1,19 @@
 package dev.martianzoo.tfm.types
 
 import dev.martianzoo.tfm.data.ClassDeclaration
+import dev.martianzoo.tfm.pets.AstTransforms
 import dev.martianzoo.tfm.pets.PetTransformer
 import dev.martianzoo.tfm.pets.SpecialClassNames.CLASS
 import dev.martianzoo.tfm.pets.SpecialClassNames.COMPONENT
 import dev.martianzoo.tfm.pets.SpecialClassNames.END
 import dev.martianzoo.tfm.pets.SpecialClassNames.OWNED
+import dev.martianzoo.tfm.pets.SpecialClassNames.OWNER
 import dev.martianzoo.tfm.pets.SpecialClassNames.THIS
 import dev.martianzoo.tfm.pets.SpecialClassNames.USE_ACTION
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.classNames
 import dev.martianzoo.tfm.pets.ast.Effect
+import dev.martianzoo.tfm.pets.ast.Effect.Trigger.ByTrigger
 import dev.martianzoo.tfm.pets.ast.Effect.Trigger.OnGainOf
 import dev.martianzoo.tfm.pets.ast.Effect.Trigger.WhenGain
 import dev.martianzoo.tfm.pets.ast.Effect.Trigger.WhenRemove
@@ -18,6 +21,7 @@ import dev.martianzoo.tfm.pets.ast.HasClassName
 import dev.martianzoo.tfm.pets.ast.PetNode
 import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.pets.ast.TypeExpr
+import dev.martianzoo.tfm.pets.childNodesOfType
 import dev.martianzoo.tfm.types.Dependency.ClassDependency
 import dev.martianzoo.tfm.types.Dependency.ClassDependency.Companion.KEY
 import dev.martianzoo.tfm.types.Dependency.TypeDependency
@@ -115,11 +119,9 @@ internal constructor(
         this.isSubclassOf(that) -> this
         that.isSubclassOf(this) -> that
         else ->
-          allSubclasses.singleOrNull {
-            it.intersectionType &&
-                this in it.directSuperclasses &&
-                that in it.directSuperclasses
-          }
+            allSubclasses.singleOrNull {
+              it.intersectionType && this in it.directSuperclasses && that in it.directSuperclasses
+            }
       }
 
   // DEPENDENCIES
@@ -158,7 +160,11 @@ internal constructor(
   }
 
   fun specialize(map: List<PType>): PType =
-      baseType.copy(allDependencies = baseType.allDependencies.specialize(map))
+      try {
+        baseType.copy(allDependencies = baseType.allDependencies.specialize(map))
+      } catch (e: Exception) {
+        throw IllegalArgumentException("baseType is $baseType; map is $map", e)
+      }
 
   // DEFAULTS
 
@@ -194,10 +200,20 @@ internal constructor(
           var fx = effect
           fx = xer.deprodify(fx)
           fx = xer.applyDefaultsIn(fx)
-          if (allSuperclasses.any { it.className == OWNED }) {
-            fx = xer.addOwner(fx)
+          fx = AstTransforms.replaceTypes(fx, THIS.type, baseType.typeExprFull)
+          if (OWNED in allSuperclasses.classNames()) {
+            fx = xer.insertDefaultPlayer(fx)
+          } else {
+            var trig = xer.insertDefaultPlayer(fx.trigger)
+            val ins = xer.insertDefaultPlayer(fx.instruction)
+            if (OWNER !in childNodesOfType<ClassName>(trig) &&
+                OWNER in childNodesOfType<ClassName>(ins)) {
+              trig = ByTrigger(trig, OWNER)
+            }
+            fx = fx.copy(trigger = trig, instruction = ins)
           }
           // fx = xer.simplifyTypes(fx, baseType)
+          fx = AstTransforms.replaceTypes(fx, baseType.typeExprFull, THIS.type)
           fx
         }
         .sortedWith(effectComparator)

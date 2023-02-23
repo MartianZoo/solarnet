@@ -7,6 +7,7 @@ import dev.martianzoo.tfm.api.Type
 import dev.martianzoo.tfm.api.standardResourceNames
 import dev.martianzoo.tfm.data.ChangeRecord.StateChange
 import dev.martianzoo.tfm.pets.AstTransforms.deprodify
+import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.Effect
 import dev.martianzoo.tfm.pets.ast.Effect.Trigger
 import dev.martianzoo.tfm.pets.ast.Instruction
@@ -150,11 +151,12 @@ internal object LiveNodes {
     return when (trig) {
       is Trigger.OnGainOf -> LiveTrigger(game.resolveType(trig.typeExpr), isGain = true)
       is Trigger.OnRemoveOf -> LiveTrigger(game.resolveType(trig.typeExpr), isGain = false)
+      is Trigger.ByTrigger -> from(trig.inner, game).copy(by = trig.by)
       else -> error("this shouldn't still be here")
     }
   }
 
-  class LiveTrigger(val ptype: Type, val isGain: Boolean) {
+  data class LiveTrigger(val ptype: Type, val isGain: Boolean, val by: ClassName? = null) {
     fun hits(change: StateChange, game: GameState): Int {
       val g = if (isGain) change.gaining else change.removing
       return if (g != null && game.resolveType(g).isSubtypeOf(ptype)) change.count else 0

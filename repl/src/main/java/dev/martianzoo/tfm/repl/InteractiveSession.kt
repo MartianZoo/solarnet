@@ -77,7 +77,7 @@ class InteractiveSession {
     val xer = game!!.loader.transformer
     var result = node
     result = xer.deprodify(result)
-    result = xer.addOwner(result)
+    result = xer.insertDefaultPlayer(result)
     if (defaultPlayer != null) {
       result = replaceTypes(result, OWNER.type, defaultPlayer!!.type) // TODO
     }

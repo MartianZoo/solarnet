@@ -31,7 +31,7 @@ object PTypeToText {
         supers:    $superstring
         subs:      $substring
         base type: ${pclass.baseType.typeExprFull}
-        effects:   $fx
+        class fx:  $fx
 
       Type ${expr}:
         canonical: ${ptype.typeExpr}

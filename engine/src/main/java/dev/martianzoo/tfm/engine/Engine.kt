@@ -19,6 +19,7 @@ public object Engine {
     for (seat in 1..setup.players) {
       loader.load(cn("Player$seat"))
     }
+    loader.load(cn("Border")) // HACK
 
     loader.frozen = true
     val game = Game(setup, ComponentGraph(), loader)

@@ -68,6 +68,7 @@ public abstract class PetTransformer {
                 when (this) {
                   is Trigger.OnGainOf -> Trigger.OnGainOf.create(x(typeExpr))
                   is Trigger.OnRemoveOf -> Trigger.OnRemoveOf.create(x(typeExpr))
+                  is Trigger.ByTrigger -> Trigger.ByTrigger(x(inner), x(by))
                   is Trigger.Transform -> Trigger.Transform(x(trigger), transformKind)
                   else -> this
                 }

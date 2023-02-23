@@ -6,7 +6,7 @@ ABSTRACT CLASS Anyone {                                     // This would be cal
     HAS =1 This                                             // reading, `CityTile<Anyone>` makes more sense
 
     ABSTRACT CLASS Owner { // not sure about this
-        This:: 20 TerraformRating                           // no solo mode yet
+        This:: 20 TerraformRating<This>                     // no solo mode yet
 
         CLASS Player1, Player2, Player3, Player4, Player5
     }

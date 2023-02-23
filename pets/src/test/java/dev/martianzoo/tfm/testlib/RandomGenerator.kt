@@ -19,6 +19,7 @@ internal abstract class RandomGenerator<B : Any>(
         register(P::class, creator)
 
     fun <P : B> register(type: KClass<P>, creator: RandomGenerator<B>.() -> P) {
+      require(type !in map)
       map[type] = creator
     }
 
