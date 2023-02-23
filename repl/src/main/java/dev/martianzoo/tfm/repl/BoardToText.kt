@@ -46,15 +46,13 @@ internal class BoardToText(private val game: ReadOnlyGameState) {
     val heeat = colorIt(hColor, "H: $hr")
 
     return listOf(
-        "",
-        "  +---------+---------+---------+",
-        "  |  $megac |  $steel |  $titan |",
-        "  | prod $m | prod $s | prod $t |",
-        "  +---------+---------+---------+",
-        "  |  $plant |  $energ    $heeat |",
-        "  | prod $p | prod $e | prod $h |",
-        "  +---------+---------+---------+",
-        "",
+        "+---------+---------+---------+",
+        "|  $megac |  $steel |  $titan |",
+        "| prod $m | prod $s | prod $t |",
+        "+---------+---------+---------+",
+        "|  $plant |  $energ    $heeat |",
+        "| prod $p | prod $e | prod $h |",
+        "+---------+---------+---------+",
     )
   }
 

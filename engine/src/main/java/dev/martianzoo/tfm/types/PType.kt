@@ -84,5 +84,5 @@ private constructor(
     return supers.map { PType(it, allDependencies.extract(it.allDependencyKeys)) }
   }
 
-  override fun toString() = typeExprFull.toString()
+  override fun toString() = typeExpr.toString()
 }

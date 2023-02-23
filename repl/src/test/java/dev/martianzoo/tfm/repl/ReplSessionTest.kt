@@ -12,9 +12,9 @@ private class ReplSessionTest {
     repl.command("newgame MB 2")
     repl.command("become Player2")
 
-    assertThat(repl.command("PROD[5, 4 Energy]").first()).startsWith("Ok")
+    assertThat(repl.command("PROD[5, 4 Energy]").first()).startsWith("Executed")
     repl.command("StripMine") // , BuildingTag<Player2, StripMine> ?
-    assertThat(repl.command("PROD[-2 Energy, 2 Steel, Titanium]").first()).startsWith("Ok")
+    assertThat(repl.command("PROD[-2 Energy, 2 Steel, Titanium]").first()).startsWith("Executed")
 
     val check1 = "has PROD[=2 Energy, =2 Steel]"
     assertThat(repl.command(check1).first()).startsWith("true")
@@ -35,15 +35,13 @@ private class ReplSessionTest {
     val board = BoardToText(repl.session.game!!).board(cn("Player1").type, false)
     assertThat(board)
         .containsExactly(
-            "",
-            "  +---------+---------+---------+",
-            "  |  M:   8 |  S:   6 |  T:   7 |",
-            "  | prod  9 | prod  8 | prod  7 |",
-            "  +---------+---------+---------+",
-            "  |  P:   5 |  E:   3    H:   9 |",
-            "  | prod  6 | prod  5 | prod  4 |",
-            "  +---------+---------+---------+",
-            "",
+            "+---------+---------+---------+",
+            "|  M:   8 |  S:   6 |  T:   7 |",
+            "| prod  9 | prod  8 | prod  7 |",
+            "+---------+---------+---------+",
+            "|  P:   5 |  E:   3    H:   9 |",
+            "| prod  6 | prod  5 | prod  4 |",
+            "+---------+---------+---------+",
         )
         .inOrder()
   }

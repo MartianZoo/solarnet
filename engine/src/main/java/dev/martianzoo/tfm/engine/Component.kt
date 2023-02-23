@@ -1,11 +1,8 @@
 package dev.martianzoo.tfm.engine
 
-import dev.martianzoo.tfm.engine.LiveNodes.LiveEffect
-import dev.martianzoo.tfm.pets.AstTransforms
-import dev.martianzoo.tfm.pets.SpecialClassNames.THIS
+import dev.martianzoo.tfm.pets.ast.Effect
 import dev.martianzoo.tfm.types.Dependency.TypeDependency
 import dev.martianzoo.tfm.types.PType
-import dev.martianzoo.util.toSetStrict
 
 /**
  * An *instance* of some concrete [PType]; a [ComponentGraph] is a multiset of these. Any usage that
@@ -16,7 +13,7 @@ public data class Component(internal val ptype: PType) {
     require(!ptype.abstract) { "Component can't be of an abstract type: ${ptype.typeExprFull}" }
   }
 
-  public fun hasType(thatType: PType) = ptype.isSubtypeOf(thatType)
+  public fun alwaysHasType(thatType: PType) = ptype.isSubtypeOf(thatType)
 
   /**
    * The full list of dependency instances of this component; *this* component cannot exist in a
@@ -28,19 +25,9 @@ public data class Component(internal val ptype: PType) {
     depTypes.map { Component(it.ptype) }
   }
 
-  internal fun effects(game: Game): Set<LiveEffect> {
-    return ptype.pclass.classEffects
-        .map {
-          var fx = it
-          fx = AstTransforms.replaceTypes(fx, THIS.type, ptype.typeExpr)
-          // specialize for deps... owner...
-          LiveNodes.from(fx, game)
-        }
-        .toSetStrict()
+  public fun effects(): List<Effect> {
+    return listOf() // TODO
   }
-
-  val typeExpr by ptype::typeExpr
-  val typeExprFull by ptype::typeExprFull
 
   override fun toString() = "[$ptype]"
 }

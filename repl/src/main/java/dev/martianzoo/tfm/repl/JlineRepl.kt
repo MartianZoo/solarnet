@@ -57,6 +57,7 @@ internal class JlineRepl {
               e.printStackTrace()
             }
       }
+      println()
     }
   }
 }

@@ -1,20 +1,22 @@
 package dev.martianzoo.tfm.repl
 
-import dev.martianzoo.tfm.pets.SpecialClassNames.COMPONENT
+import dev.martianzoo.tfm.engine.Component
+import dev.martianzoo.tfm.pets.ast.Instruction.Gain
+import dev.martianzoo.tfm.pets.ast.Instruction.Remove
+import dev.martianzoo.tfm.pets.ast.ScaledTypeExpr
 import dev.martianzoo.tfm.pets.ast.TypeExpr
 import dev.martianzoo.tfm.types.PClass
-import dev.martianzoo.tfm.types.PType
+import dev.martianzoo.tfm.types.PClassLoader
+import dev.martianzoo.util.iff
 
 object PTypeToText {
   /** A detailed multi-line description of the class. */
-  public fun describe(ptype: PType, expr: TypeExpr): String {
+  public fun describe(expr: TypeExpr, loader: PClassLoader): String {
     fun descendingBySubclassCount(classes: Iterable<PClass>) =
         classes.sortedWith(compareBy({ -it.allSubclasses.size }, { it.className }))
 
+    val ptype = loader.resolveType(expr)
     val pclass = ptype.pclass
-    val supersButComponent = pclass.allSuperclasses.filter { it.className != COMPONENT }
-    val supers = descendingBySubclassCount(supersButComponent - pclass)
-    val superstring = if (supers.isEmpty()) "(none)" else supers.joinToString()
 
     val subs = descendingBySubclassCount(pclass.allSubclasses - pclass)
     val substring =
@@ -23,21 +25,43 @@ object PTypeToText {
           in 1..7 -> subs.joinToString()
           else -> subs.take(6).joinToString() + " (${subs.size - 6} others)"
         }
-    val fx = pclass.classEffects.joinToString("\n                   ")
-    return """
-      Class ${pclass.className}:
-        id:        ${pclass.id}
-        abstract:  ${pclass.abstract}
-        supers:    $superstring
-        subs:      $substring
-        base type: ${pclass.baseType.typeExprFull}
-        class fx:  $fx
 
-      Type ${expr}:
-        canonical: ${ptype.typeExpr}
-        full:      ${ptype.typeExprFull}
-        abstract:  ${ptype.abstract}
-        supers:    ${ptype.supertypes().joinToString { "${it.typeExpr}" }}
+    val gain = loader.transformer.applyDefaultsIn(Gain(ScaledTypeExpr(1, expr)))
+    val remove = loader.transformer.applyDefaultsIn(Remove(ScaledTypeExpr(1, expr)))
+
+    val nameId = "${pclass.className}" + "[${pclass.id}]".iff(pclass.id != pclass.className)
+
+    val classStuff = """
+      Class $nameId:
+          subclasses: $substring
+          invariants: ${pclass.invariants.joinToString("""
+                      """)}
+          linkages:   TODO
+          base type:  ${pclass.baseType.typeExprFull}
+          class fx:   ${pclass.classEffects.joinToString("""
+                      """)}
+
+
+    """.trimIndent().iff(expr.isTypeOnly)
+
+    val typeStuff = """
+      Type $expr:
+          std form:   ${ptype}
+          long form:  ${ptype.typeExprFull}
+          supertypes: ${ptype.supertypes().joinToString()}
+          defaults:   $gain / $remove
     """.trimIndent()
+
+    return classStuff + typeStuff + try {
+      """
+
+
+        Component [$ptype]:
+            effects:    ${Component(ptype).effects().joinToString("""
+                        """)}
+      """.trimIndent()
+    } catch (e: Exception) {
+      ""
+    }
   }
 }

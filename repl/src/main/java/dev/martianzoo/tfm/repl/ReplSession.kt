@@ -116,7 +116,7 @@ public class ReplSession(private val authority: Authority) {
               {
                 it?.let { args ->
                   val instr = session.execute(instruction(args))
-                  listOf("Ok: $instr")
+                  listOf("Executed: $instr")
                 }
                     ?: listOf("Usage: exec <Instruction>")
               },
@@ -133,8 +133,7 @@ public class ReplSession(private val authority: Authority) {
               {
                 it?.let { args ->
                   val typeExpr = typeExpr(args.trim())
-                  val ptype = session.game!!.resolveType(typeExpr)
-                  listOf(PTypeToText.describe(ptype, typeExpr))
+                  listOf(PTypeToText.describe(typeExpr, session.game!!.loader))
                 } ?: listOf("Usage: desc <ClassName>")
               },
       )

@@ -44,8 +44,8 @@ public class ComponentGraph {
             change =
                 StateChange(
                     count = correctedCount,
-                    gaining = gaining?.typeExpr,
-                    removing = removing?.typeExpr,
+                    gaining = gaining?.ptype?.typeExpr,
+                    removing = removing?.ptype?.typeExpr,
                 ),
             cause = cause,
             hidden = hidden,
@@ -77,5 +77,10 @@ public class ComponentGraph {
 
   // Aww yeah full table scans rule. One day I'll do something more clever, but only after being
   // able to review usage patterns so I'll actually know what helps most.
-  public fun getAll(ptype: PType): Multiset<Component> = multiset.filter { it.hasType(ptype) }
+  public fun getAll(ptype: PType): Multiset<Component> = multiset.filter { hasType(it, ptype) }
+
+  fun hasType(cpt: Component, type: PType): Boolean {
+    return cpt.alwaysHasType(type)
+    // TODO check refinements too
+  }
 }
