@@ -152,12 +152,13 @@ private val HELP =
       exec PROD[3 Heat]    ->  gives the default player 3 heat production
       PROD[3 Heat]         ->  that too
       rollback 987         ->  undo recent changes up to and including change 987
-      changes              ->  see the changelog for the current game
+      changes              ->  see the changelog (useful bits) for the current game
       allchanges           ->  see the entire disgusting changelog
       history              ->  see your *command* history
       board                ->  displays an extremely bad looking player board
       map                  ->  displays an extremely bad looking map
       desc Microbe         ->  describes the Microbe class in detail (given this game setup)
       help                 ->  see this message
+      exit                 ->  waste time differently
     """
         .trimIndent()
