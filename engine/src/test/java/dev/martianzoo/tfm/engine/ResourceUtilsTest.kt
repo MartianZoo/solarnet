@@ -2,8 +2,8 @@ package dev.martianzoo.tfm.engine
 
 import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.tfm.api.GameSetup
-import dev.martianzoo.tfm.api.lookUpProductionLevels
-import dev.martianzoo.tfm.api.standardResourceNames
+import dev.martianzoo.tfm.api.ResourceUtils.lookUpProductionLevels
+import dev.martianzoo.tfm.api.ResourceUtils.standardResourceNames
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
@@ -11,7 +11,7 @@ import dev.martianzoo.tfm.pets.ast.Instruction.Companion.instruction
 import dev.martianzoo.util.toStrings
 import org.junit.jupiter.api.Test
 
-private class ApiHelpersTest {
+private class ResourceUtilsTest {
   @Test
   fun testLookUpProdLevelsUsingCanon() {
     val game = Engine.newGame(GameSetup(Canon, "BM", 3))

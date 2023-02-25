@@ -3,8 +3,8 @@ package dev.martianzoo.tfm.engine
 import dev.martianzoo.tfm.api.CustomInstruction
 import dev.martianzoo.tfm.api.CustomInstruction.ExecuteInsteadException
 import dev.martianzoo.tfm.api.ReadOnlyGameState.GameState
+import dev.martianzoo.tfm.api.ResourceUtils.standardResourceNames
 import dev.martianzoo.tfm.api.Type
-import dev.martianzoo.tfm.api.standardResourceNames
 import dev.martianzoo.tfm.data.ChangeRecord.StateChange
 import dev.martianzoo.tfm.pets.AstTransforms.deprodify
 import dev.martianzoo.tfm.pets.ast.ClassName

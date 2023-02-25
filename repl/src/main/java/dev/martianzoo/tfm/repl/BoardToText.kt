@@ -1,8 +1,8 @@
 package dev.martianzoo.tfm.repl
 
 import dev.martianzoo.tfm.api.ReadOnlyGameState
-import dev.martianzoo.tfm.api.lookUpProductionLevels
-import dev.martianzoo.tfm.api.standardResourceNames
+import dev.martianzoo.tfm.api.ResourceUtils.lookUpProductionLevels
+import dev.martianzoo.tfm.api.ResourceUtils.standardResourceNames
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.pets.ast.TypeExpr
 import org.jline.utils.AttributedStringBuilder
