@@ -41,7 +41,6 @@ internal object PetToKotlin {
               (if (arguments.none()) ".type" else ".addArgs(${arguments.join()})") +
               refinement?.let(::p2k).wrap(".refine(", ")")
         }
-
         is ScaledTypeExpr -> {
           if (scalar == 1) {
             "scaledType(${p2k(typeExpr)})"
@@ -49,7 +48,6 @@ internal object PetToKotlin {
             "scaledType($scalar${p2k(typeExpr).pre(", ")})"
           }
         }
-
         is Requirement -> {
           when (this) {
             is Requirement.Min -> "Min(${p2k(scaledType)})"
@@ -57,7 +55,8 @@ internal object PetToKotlin {
             is Requirement.Exact -> "Exact(${p2k(scaledType)})"
             is Requirement.Or -> "Requirement.Or(${requirements.join()})"
             is Requirement.And -> "Requirement.And(${requirements.join()})"
-            is Requirement.Transform -> "Requirement.Transform(${p2k(requirement)}, \"$transformKind\")"
+            is Requirement.Transform ->
+                "Requirement.Transform(${p2k(requirement)}, \"$transformKind\")"
           }
         }
         is Instruction -> {
@@ -68,13 +67,13 @@ internal object PetToKotlin {
             is Gated -> "Gated(${p2k(gate)}, ${p2k(instruction)})"
             is Transmute -> "Transmute(${p2k(from)}, $count${intensity.pre(", ")})"
             is Custom ->
-              "Instruction.Custom(\"$functionName\"" +
-                  "${arguments.joinToString("") { ", ${p2k(it)}" }})"
-
+                "Instruction.Custom(\"$functionName\"" +
+                    "${arguments.joinToString("") { ", ${p2k(it)}" }})"
             is Then -> "Then(${instructions.join()})"
             is Instruction.Or -> "Instruction.Or(${instructions.join()})"
             is Instruction.Multi -> "Instruction.Multi(${instructions.join()})"
-            is Instruction.Transform -> "Instruction.Transform(${p2k(instruction)}, \"$transformKind\")"
+            is Instruction.Transform ->
+                "Instruction.Transform(${p2k(instruction)}, \"$transformKind\")"
           }
         }
         is From -> {

@@ -33,9 +33,10 @@ internal object LiveNodes {
               gaining = ins.gaining?.let { game.resolveType(it) },
           )
       is Instruction.Per ->
-        Per(game.resolveType(ins.scaledType.typeExpr),
-            ins.scaledType.scalar,
-            from(ins.instruction, game))
+          Per(
+              game.resolveType(ins.scaledType.typeExpr),
+              ins.scaledType.scalar,
+              from(ins.instruction, game))
       is Instruction.Gated -> Gated(from(ins.gate, game), from(ins.instruction, game))
       is Instruction.Custom ->
           Custom(
@@ -71,10 +72,7 @@ internal object LiveNodes {
         throw AbstractInstructionException("optional")
       }
       game.applyChange(
-          count = count,
-          removing = removing,
-          gaining = gaining,
-          amap = intensity == AMAP)
+          count = count, removing = removing, gaining = gaining, amap = intensity == AMAP)
     }
   }
 
@@ -133,12 +131,10 @@ internal object LiveNodes {
         val reqs = req.requirements.toList().map { from(it, game) }
         LiveRequirement { reqs.any { it.isMet(game) } }
       }
-
       is Requirement.And -> {
         val reqs = req.requirements.map { from(it, game) }
         LiveRequirement { reqs.all { it.isMet(game) } }
       }
-
       is Requirement.Transform -> error("should have been transformed by now")
     }
   }

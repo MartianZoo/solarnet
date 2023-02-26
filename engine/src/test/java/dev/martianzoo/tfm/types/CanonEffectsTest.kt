@@ -97,8 +97,7 @@ private class CanonEffectsTest {
         .containsExactly(
             "This: (-Production<Owner, Class<Energy>>!, -2 Production<Owner, Class<Megacredit>>!)" +
                 ", CityTile<Owner, LandArea(HAS MAX 0 Neighbor<CityTile<Anyone>>)>!",
-            "CityTile<Anyone>: Production<Owner, Class<Megacredit>>!"
-        )
+            "CityTile<Anyone>: Production<Owner, Class<Megacredit>>!")
   }
 
   @Test

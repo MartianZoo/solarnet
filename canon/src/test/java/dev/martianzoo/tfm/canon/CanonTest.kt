@@ -139,11 +139,21 @@ private class CanonTest {
         .containsExactly(
             "[Game]",
             "[Tharsis]",
-            "[Player1]", "[Player2]", "[Player3]",
-            "[PlayCardFromHand]", "[UseStandardProject]", "[ClaimMilestone]",
-            "[UseActionFromCard]", "[ConvertHeat]", "[ConvertPlants]",
+            "[Player1]",
+            "[Player2]",
+            "[Player3]",
+            "[PlayCardFromHand]",
+            "[UseStandardProject]",
+            "[ClaimMilestone]",
+            "[UseActionFromCard]",
+            "[ConvertHeat]",
+            "[ConvertPlants]",
             "[SellPatents]",
-            "[PowerPlantSP]", "[AsteroidSP]", "[AquiferSP]", "[GreenerySP]", "[CitySP]",
+            "[PowerPlantSP]",
+            "[AsteroidSP]",
+            "[AquiferSP]",
+            "[GreenerySP]",
+            "[CitySP]",
         )
   }
 
@@ -177,11 +187,11 @@ private class CanonTest {
   fun concreteExtendingConcrete() {
     val loader = PClassLoader(Canon).loadEverything()
     val map = mutableListOf<Pair<ClassName, ClassName>>()
-    loader.allClasses.filter { !it.abstract }.forEach { sup ->
-      (sup.allSubclasses - setOf(sup)).forEach {
-        map += sup.className to it.className
-      }
-    }
+    loader.allClasses
+        .filterNot { it.abstract }
+        .forEach { sup ->
+          (sup.allSubclasses - setOf(sup)).forEach { map += sup.className to it.className }
+        }
     assertThat(map).containsExactly(cn("CityTile") to cn("Tile008"))
   }
   private fun te(s: String) = typeExpr(s)

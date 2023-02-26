@@ -68,9 +68,7 @@ sealed class From : PetNode() {
         val simpleFrom =
             TypeExpr.parser() and
             skip(_from) and
-            TypeExpr.parser() map {
-              (to, from) -> SimpleFrom(to, from)
-            }
+            TypeExpr.parser() map { (to, from) -> SimpleFrom(to, from) }
 
         val argumentList =
             zeroOrMore(typeAsFrom and skipChar(',')) and

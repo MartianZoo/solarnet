@@ -110,8 +110,12 @@ private class ActionTest {
                 Spend(scaledType(5, cn("Megacredit").type)),
                 Cost.Or(
                     Spend(scaledType(cn("Megacredit").type)),
-                    Cost.Or(Spend(scaledType(cn("Megacredit").type)), Spend(scaledType(cn("Bar").type))),
-                    Cost.Per(Spend(scaledType(cn("Megacredit").type)), scaledType(cn("Megacredit").type))),
+                    Cost.Or(
+                        Spend(scaledType(cn("Megacredit").type)),
+                        Spend(scaledType(cn("Bar").type))),
+                    Cost.Per(
+                        Spend(scaledType(cn("Megacredit").type)),
+                        scaledType(cn("Megacredit").type))),
                 Cost.Or(
                     Spend(scaledType(cn("Megacredit").type)),
                     Cost.Or(
@@ -119,7 +123,8 @@ private class ActionTest {
                         Spend(scaledType(cn("Foo").type)),
                         Spend(scaledType(cn("Qux").type))))),
             Instruction.Multi(
-                Instruction.Per(Gain(scaledType(5, cn("Megacredit").type)), scaledType(cn("Ooh").type)),
+                Instruction.Per(
+                    Gain(scaledType(5, cn("Megacredit").type)), scaledType(cn("Ooh").type)),
                 Remove(
                     scaledType(
                         cn("Xyz")
@@ -142,26 +147,33 @@ private class ActionTest {
         "-> Foo<Abc>. / Wau",
         Action(
             null,
-            Instruction.Per(Gain(scaledType(cn("Foo").addArgs(cn("Abc"))), AMAP), scaledType(cn("Wau").type))))
+            Instruction.Per(
+                Gain(scaledType(cn("Foo").addArgs(cn("Abc"))), AMAP), scaledType(cn("Wau").type))))
 
     checkBothWays(
-        "Qux -> Bar?", Action(Spend(scaledType(cn("Qux").type)), Gain(scaledType(cn("Bar").type), OPTIONAL)))
+        "Qux -> Bar?",
+        Action(Spend(scaledType(cn("Qux").type)), Gain(scaledType(cn("Bar").type), OPTIONAL)))
 
     checkBothWays(
-        "Ahh -> 11 Foo", Action(Spend(scaledType(cn("Ahh").type)), Gain(scaledType(11, cn("Foo").type))))
+        "Ahh -> 11 Foo",
+        Action(Spend(scaledType(cn("Ahh").type)), Gain(scaledType(11, cn("Foo").type))))
 
     checkBothWays(
         "PROD[Foo / 11 Abc] -> -Foo, (MAX 1 Megacredit OR Foo): 1",
         Action(
-            Cost.Transform(Cost.Per(Spend(scaledType(cn("Foo").type)), scaledType(11, cn("Abc").type)), "PROD"),
+            Cost.Transform(
+                Cost.Per(Spend(scaledType(cn("Foo").type)), scaledType(11, cn("Abc").type)),
+                "PROD"),
             Instruction.Multi(
                 Remove(scaledType(cn("Foo").type)),
                 Gated(
-                    Requirement.Or(Max(scaledType(cn("Megacredit").type)), Min(scaledType(cn("Foo").type))),
+                    Requirement.Or(
+                        Max(scaledType(cn("Megacredit").type)), Min(scaledType(cn("Foo").type))),
                     Gain(scaledType(cn("Megacredit").type))))))
 
     checkBothWays(
-        "-> PROD[1]", Action(null, Instruction.Transform(Gain(scaledType(cn("Megacredit").type)), "PROD")))
+        "-> PROD[1]",
+        Action(null, Instruction.Transform(Gain(scaledType(cn("Megacredit").type)), "PROD")))
 
     checkBothWays(
         "-> @name(Foo<Foo, Ooh, Bar<Ooh>>, Bar<Qux>)",
@@ -177,24 +189,31 @@ private class ActionTest {
         Action(
             Cost.Transform(Spend(scaledType(cn("Megacredit").type)), "PROD"),
             Instruction.Per(
-                Remove(scaledType(cn("Ooh").type)), scaledType(cn("Ooh").addArgs(cn("Abc"), cn("Ahh"))))))
+                Remove(scaledType(cn("Ooh").type)),
+                scaledType(cn("Ooh").addArgs(cn("Abc"), cn("Ahh"))))))
 
-    checkBothWays("Xyz -> 1", Action(Spend(scaledType(cn("Xyz").type)), Gain(scaledType(cn("Megacredit").type))))
+    checkBothWays(
+        "Xyz -> 1",
+        Action(Spend(scaledType(cn("Xyz").type)), Gain(scaledType(cn("Megacredit").type))))
 
     checkBothWays(
         "Ooh -> 5 / Abc, 11! / Megacredit, -1?, (1!, (1 Bar FROM Foo, 1: 11 Foo))",
         Action(
             Spend(scaledType(cn("Ooh").type)),
             Instruction.Multi(
-                Instruction.Per(Gain(scaledType(5, cn("Megacredit").type)), scaledType(cn("Abc").type)),
                 Instruction.Per(
-                    Gain(scaledType(11, cn("Megacredit").type), MANDATORY), scaledType(cn("Megacredit").type)),
+                    Gain(scaledType(5, cn("Megacredit").type)), scaledType(cn("Abc").type)),
+                Instruction.Per(
+                    Gain(scaledType(11, cn("Megacredit").type), MANDATORY),
+                    scaledType(cn("Megacredit").type)),
                 Remove(scaledType(cn("Megacredit").type), OPTIONAL),
                 Instruction.Multi(
                     Gain(scaledType(cn("Megacredit").type), MANDATORY),
                     Instruction.Multi(
                         Transmute(SimpleFrom(cn("Bar").type, cn("Foo").type), 1),
-                        Gated(Min(scaledType(cn("Megacredit").type)), Gain(scaledType(11, cn("Foo").type))))))))
+                        Gated(
+                            Min(scaledType(cn("Megacredit").type)),
+                            Gain(scaledType(11, cn("Foo").type))))))))
 
     checkBothWays(
         "Abc -> PROD[-1]",
@@ -213,14 +232,17 @@ private class ActionTest {
                         .addArgs(
                             cn("Bar").addArgs(cn("Foo").type, cn("Qux").type, cn("Foo").type)))),
             Instruction.Transform(
-                Gated(Min(scaledType(cn("Qux").type)), Remove(scaledType(cn("Megacredit").type))), "PROD")))
+                Gated(Min(scaledType(cn("Qux").type)), Remove(scaledType(cn("Megacredit").type))),
+                "PROD")))
 
     checkBothWays(
         "PROD[Foo / 11 Megacredit] / Ooh<Bar, Xyz> -> PROD[-Foo!, @name(Xyz<Bar>)]",
         Action(
             Cost.Per(
                 Cost.Transform(
-                    Cost.Per(Spend(scaledType(cn("Foo").type)), scaledType(11, cn("Megacredit").type)), "PROD"),
+                    Cost.Per(
+                        Spend(scaledType(cn("Foo").type)), scaledType(11, cn("Megacredit").type)),
+                    "PROD"),
                 scaledType(cn("Ooh").addArgs(cn("Bar"), cn("Xyz")))),
             Instruction.Transform(
                 Instruction.Multi(
@@ -230,7 +252,9 @@ private class ActionTest {
 
     checkBothWays(
         "11 Abc -> -11 Foo<Qux>",
-        Action(Spend(scaledType(11, cn("Abc").type)), Remove(scaledType(11, cn("Foo").addArgs(cn("Qux"))))))
+        Action(
+            Spend(scaledType(11, cn("Abc").type)),
+            Remove(scaledType(11, cn("Foo").addArgs(cn("Qux"))))))
 
     checkBothWays(
         "PROD[5] -> Xyz, Bar",
@@ -244,15 +268,22 @@ private class ActionTest {
         Action(
             Cost.Or(
                 Cost.Multi(
-                    Cost.Per(Spend(scaledType(cn("Megacredit").type)), scaledType(cn("Megacredit").type)),
+                    Cost.Per(
+                        Spend(scaledType(cn("Megacredit").type)),
+                        scaledType(cn("Megacredit").type)),
                     Spend(scaledType(11, cn("Bar").type))),
                 Cost.Or(
                     Cost.Or(
-                        Cost.Per(Spend(scaledType(cn("Megacredit").type)), scaledType(cn("Megacredit").type)),
-                        Cost.Or(Spend(scaledType(cn("Megacredit").type)), Spend(scaledType(cn("Bar").type))),
+                        Cost.Per(
+                            Spend(scaledType(cn("Megacredit").type)),
+                            scaledType(cn("Megacredit").type)),
+                        Cost.Or(
+                            Spend(scaledType(cn("Megacredit").type)),
+                            Spend(scaledType(cn("Bar").type))),
                         Spend(scaledType(cn("Ooh").type)),
                         Cost.Multi(
-                            Spend(scaledType(cn("Megacredit").type)), Spend(scaledType(cn("Megacredit").type)))),
+                            Spend(scaledType(cn("Megacredit").type)),
+                            Spend(scaledType(cn("Megacredit").type)))),
                     Cost.Transform(Spend(scaledType(cn("Megacredit").type)), "PROD"))),
             Instruction.Transform(Remove(scaledType(5, cn("Foo").type)), "PROD")))
 
@@ -262,15 +293,19 @@ private class ActionTest {
         Action(
             Cost.Multi(
                 Cost.Or(
-                    Spend(scaledType(cn("Foo").addArgs(cn("Foo")))), Spend(scaledType(cn("Megacredit").type))),
+                    Spend(scaledType(cn("Foo").addArgs(cn("Foo")))),
+                    Spend(scaledType(cn("Megacredit").type))),
                 Cost.Or(
                     Cost.Or(
-                        Spend(scaledType(5, cn("Megacredit").type)), Spend(scaledType(cn("Megacredit").type))),
+                        Spend(scaledType(5, cn("Megacredit").type)),
+                        Spend(scaledType(cn("Megacredit").type))),
                     Cost.Or(
                         Spend(scaledType(5, cn("Megacredit").type)),
                         Cost.Per(Spend(scaledType(cn("Foo").type)), scaledType(5, cn("Foo").type)),
                         Spend(scaledType(cn("Megacredit").type)),
-                        Cost.Per(Spend(scaledType(cn("Megacredit").type)), scaledType(cn("Megacredit").type))),
+                        Cost.Per(
+                            Spend(scaledType(cn("Megacredit").type)),
+                            scaledType(cn("Megacredit").type))),
                     Spend(scaledType(cn("Megacredit").type)),
                     Cost.Or(Spend(scaledType(cn("Abc").type)), Spend(scaledType(cn("Bar").type)))),
                 Spend(scaledType(11, cn("Qux").type))),

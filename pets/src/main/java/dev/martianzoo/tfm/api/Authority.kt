@@ -13,8 +13,8 @@ import dev.martianzoo.util.associateByStrict
 
 /**
  * A source of data about Terraforming Mars components. One implementation (`Canon`) is provided by
- * the `canon` module, containing only officially published materials. Others might provide
- * fanmade content or test content.
+ * the `canon` module, containing only officially published materials. Others might provide fanmade
+ * content or test content.
  */
 public abstract class Authority {
 
@@ -40,8 +40,8 @@ public abstract class Authority {
   }
 
   /**
-   * Every class declaration this authority knows about, including explicit ones and those
-   * converted from [Definition]s.
+   * Every class declaration this authority knows about, including explicit ones and those converted
+   * from [Definition]s.
    */
   public val allClassNames: Set<ClassName> by lazy { allClassDeclarations.keys }
 
@@ -144,7 +144,6 @@ public abstract class Authority {
    */
   public open class Minimal : Empty() {
     override val allBundles = setOf("B", "M")
-    override val marsMapDefinitions =
-        setOf(MarsMapDefinition(cn("FakeTharsis"), "M", Grid.empty()))
+    override val marsMapDefinitions = setOf(MarsMapDefinition(cn("FakeTharsis"), "M", Grid.empty()))
   }
 }

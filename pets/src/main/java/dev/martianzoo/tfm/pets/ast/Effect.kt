@@ -105,9 +105,10 @@ data class Effect(
         val atom = onGainOf or onRemoveOf
         val transform =
             transform(atom) map { (node, transformName) -> Transform(node, transformName) }
-        return (transform or atom) and optional(skip(_by) and ClassName.Parsing.className) map {
-          (trig, by) -> if (by == null) trig else ByTrigger(trig, by)
-        }
+        return (transform or atom) and
+            optional(skip(_by) and ClassName.Parsing.className) map { (trig, by) ->
+              if (by == null) trig else ByTrigger(trig, by)
+            }
       }
     }
   }

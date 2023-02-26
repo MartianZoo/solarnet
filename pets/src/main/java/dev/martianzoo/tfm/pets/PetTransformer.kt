@@ -36,27 +36,27 @@ public abstract class PetTransformer {
             is TypeExpr -> TypeExpr(x(className), x(arguments), x(refinement), link)
             is ScaledTypeExpr -> ScaledTypeExpr(scalar, x(typeExpr))
             is Requirement ->
-              when (this) {
-                is Requirement.Min -> Requirement.Min(x(scaledType))
-                is Requirement.Max -> Requirement.Max(x(scaledType))
-                is Requirement.Exact -> Requirement.Exact(x(scaledType))
-                is Requirement.Or -> Requirement.Or(x(requirements))
-                is Requirement.And -> Requirement.And(x(requirements))
-                is Requirement.Transform -> Requirement.Transform(x(requirement), transformKind)
-              }
+                when (this) {
+                  is Requirement.Min -> Requirement.Min(x(scaledType))
+                  is Requirement.Max -> Requirement.Max(x(scaledType))
+                  is Requirement.Exact -> Requirement.Exact(x(scaledType))
+                  is Requirement.Or -> Requirement.Or(x(requirements))
+                  is Requirement.And -> Requirement.And(x(requirements))
+                  is Requirement.Transform -> Requirement.Transform(x(requirement), transformKind)
+                }
             is Instruction ->
-              when (this) {
-                is Instruction.Gain -> Instruction.Gain(x(scaledType), intensity)
-                is Instruction.Remove -> Instruction.Remove(x(scaledType), intensity)
-                is Instruction.Per -> Instruction.Per(x(instruction), x(scaledType))
-                is Instruction.Gated -> Instruction.Gated(x(gate), x(instruction))
-                is Instruction.Transmute -> Instruction.Transmute(x(from), scalar)
-                is Instruction.Custom -> Instruction.Custom(functionName, x(arguments))
-                is Instruction.Then -> Instruction.Then(x(instructions))
-                is Instruction.Or -> Instruction.Or(x(instructions))
-                is Instruction.Multi -> Instruction.Multi(x(instructions))
-                is Instruction.Transform -> Instruction.Transform(x(instruction), transformKind)
-              }
+                when (this) {
+                  is Instruction.Gain -> Instruction.Gain(x(scaledType), intensity)
+                  is Instruction.Remove -> Instruction.Remove(x(scaledType), intensity)
+                  is Instruction.Per -> Instruction.Per(x(instruction), x(scaledType))
+                  is Instruction.Gated -> Instruction.Gated(x(gate), x(instruction))
+                  is Instruction.Transmute -> Instruction.Transmute(x(from), scalar)
+                  is Instruction.Custom -> Instruction.Custom(functionName, x(arguments))
+                  is Instruction.Then -> Instruction.Then(x(instructions))
+                  is Instruction.Or -> Instruction.Or(x(instructions))
+                  is Instruction.Multi -> Instruction.Multi(x(instructions))
+                  is Instruction.Transform -> Instruction.Transform(x(instruction), transformKind)
+                }
             is From ->
                 when (this) {
                   is From.SimpleFrom -> From.SimpleFrom(x(toType), x(fromType))
@@ -74,13 +74,13 @@ public abstract class PetTransformer {
                 }
             is Action -> Action(x(cost), x(instruction))
             is Cost ->
-              when (this) {
-                is Cost.Spend -> Cost.Spend(x(scaledType))
-                is Cost.Per -> Cost.Per(x(cost), x(scaledType))
-                is Cost.Or -> Cost.Or(x(costs))
-                is Cost.Multi -> Cost.Multi(x(costs))
-                is Cost.Transform -> Cost.Transform(x(cost), transformKind)
-              }
+                when (this) {
+                  is Cost.Spend -> Cost.Spend(x(scaledType))
+                  is Cost.Per -> Cost.Per(x(cost), x(scaledType))
+                  is Cost.Or -> Cost.Or(x(costs))
+                  is Cost.Multi -> Cost.Multi(x(costs))
+                  is Cost.Transform -> Cost.Transform(x(cost), transformKind)
+                }
           }
       @Suppress("UNCHECKED_CAST")
       rewritten as P

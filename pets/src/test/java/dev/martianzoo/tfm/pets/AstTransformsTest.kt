@@ -160,7 +160,8 @@ private class AstTransformsTest {
                     Gain(scaledType(1, cn("Heat").type)),
                     Instruction.Transform(
                         Instruction.Per(
-                            Gain(scaledType(1, cn("Steel").type)), scaledType(5, cn("PowerTag").type)),
+                            Gain(scaledType(1, cn("Steel").type)),
+                            scaledType(5, cn("PowerTag").type)),
                         "HAHA")),
                 false))
   }

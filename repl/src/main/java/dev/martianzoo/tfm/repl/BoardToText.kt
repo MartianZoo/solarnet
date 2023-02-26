@@ -12,19 +12,20 @@ internal class BoardToText(private val game: ReadOnlyGameState) {
 
   internal fun board(player: TypeExpr, colors: Boolean = true): List<String> {
     val prodMap = lookUpProductionLevels(game, player)
-    val resMap = standardResourceNames(game).associateBy({ it }) {
-      game.countComponents(game.resolveType(it.addArgs(player)))
-    }
+    val resourceMap =
+        standardResourceNames(game).associateBy({ it }) {
+          game.countComponents(game.resolveType(it.addArgs(player)))
+        }
 
-    fun prodAndRes(s: String) =
-        prodMap[cn(s)].toString().padStart(2) to resMap[cn(s)].toString().padStart(3)
+    fun prodAndResource(s: String) =
+        prodMap[cn(s)].toString().padStart(2) to resourceMap[cn(s)].toString().padStart(3)
 
-    val (m, mr) = prodAndRes("Megacredit")
-    val (s, sr) = prodAndRes("Steel")
-    val (t, tr) = prodAndRes("Titanium")
-    val (p, pr) = prodAndRes("Plant")
-    val (e, er) = prodAndRes("Energy")
-    val (h, hr) = prodAndRes("Heat")
+    val (m, mr) = prodAndResource("Megacredit")
+    val (s, sr) = prodAndResource("Steel")
+    val (t, tr) = prodAndResource("Titanium")
+    val (p, pr) = prodAndResource("Plant")
+    val (e, er) = prodAndResource("Energy")
+    val (h, hr) = prodAndResource("Heat")
 
     fun colorIt(color: String, string: String): String? {
       if (!colors) return string

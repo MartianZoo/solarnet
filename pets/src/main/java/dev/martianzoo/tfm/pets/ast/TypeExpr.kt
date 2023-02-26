@@ -45,8 +45,8 @@ data class TypeExpr(
             optionalList(typeArgs) and
             optional(refinement()) and
             optional(link) map { (clazz, args, ref, link) ->
-          TypeExpr(clazz, args, ref, link)
-        }
+              TypeExpr(clazz, args, ref, link)
+            }
       }
     }
   }

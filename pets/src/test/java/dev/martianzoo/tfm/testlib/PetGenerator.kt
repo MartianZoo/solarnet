@@ -47,7 +47,9 @@ internal class PetGenerator(scaling: (Int) -> Double) :
             refinement(),
             null) // TODO choose(10 to null, 2 to 1, 1 to 2))
       }
-      register { scaledType(choose(0, 1, 1, 1, 5, 11), choose(1 to MEGACREDIT.type, 3 to recurse())) }
+      register {
+        scaledType(choose(0, 1, 1, 1, 5, 11), choose(1 to MEGACREDIT.type, 3 to recurse()))
+      }
 
       val requirementTypes =
           multiset(

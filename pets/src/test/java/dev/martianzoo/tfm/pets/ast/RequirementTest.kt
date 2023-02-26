@@ -143,16 +143,16 @@ private class RequirementTest {
                     Min(
                         scaledType(
                             typeExpr =
-                            cn("Adjacency")
-                                .addArgs(
-                                    cn("CityTile").addArgs(cn("Anyone")),
-                                    cn("OceanTile").type))),
+                                cn("Adjacency")
+                                    .addArgs(
+                                        cn("CityTile").addArgs(cn("Anyone")),
+                                        cn("OceanTile").type))),
                     Min(
                         scaledType(
                             typeExpr =
-                            cn("Adjacency")
-                                .addArgs(
-                                    cn("OceanTile").type,
-                                    cn("CityTile").addArgs(cn("Anyone"))))))))
+                                cn("Adjacency")
+                                    .addArgs(
+                                        cn("OceanTile").type,
+                                        cn("CityTile").addArgs(cn("Anyone"))))))))
   }
 }

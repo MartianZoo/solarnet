@@ -36,15 +36,16 @@ public class LiveTransformer internal constructor(val loader: PClassLoader) {
     var tx = element
     tx = replaceTypes(element, THIS.type, thiss.typeExpr)
 
-    val simplifier = object : PetTransformer() {
-      override fun <P : PetNode> transform(node: P): P {
-        return if (node is TypeExpr) {
-          loader.resolveType(node).typeExpr as P
-        } else {
-          defaultTransform(node)
+    val simplifier =
+        object : PetTransformer() {
+          override fun <P : PetNode> transform(node: P): P {
+            return if (node is TypeExpr) {
+              loader.resolveType(node).typeExpr as P
+            } else {
+              defaultTransform(node)
+            }
+          }
         }
-      }
-    }
     tx = simplifier.transform(tx)
     tx = replaceTypes(tx, thiss.typeExpr, THIS.type)
     return tx
@@ -67,11 +68,11 @@ public class LiveTransformer internal constructor(val loader: PClassLoader) {
               val fixedType = fixType(node.gaining, defaults.gainOnlyDependencies)
               Gain(scaledType(node.count, fixedType), node.intensity ?: defaults.gainIntensity)
             }
-
             is Remove -> {
               val rcn = node.removing.className
               if (rcn == THIS) {
-                Remove(scaledType(node.count, node.removing),
+                Remove(
+                    scaledType(node.count, node.removing),
                     node.intensity ?: loader.componentClass.defaults.removeIntensity)
               } else {
                 val defaults = loader.getClass(rcn).defaults
@@ -80,7 +81,6 @@ public class LiveTransformer internal constructor(val loader: PClassLoader) {
                     scaledType(node.count, fixedType), node.intensity ?: defaults.removeIntensity)
               }
             }
-
             else -> defaultTransform(node)
           }
       @Suppress("UNCHECKED_CAST") return xfd as P

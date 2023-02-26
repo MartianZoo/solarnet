@@ -66,7 +66,8 @@ internal object ClassDeclarationParsers : PetParser() {
         optionalList(
             skipChar('<') and
             commaSeparated(TypeExpr.parser() map ::DependencyDeclaration) and
-            skipChar('>'))
+            skipChar('>')
+        )
 
     private val supertypeList: Parser<List<TypeExpr>> =
         optionalList(skipChar(':') and commaSeparated(TypeExpr.parser()))
@@ -257,11 +258,12 @@ internal object ClassDeclarationParsers : PetParser() {
     abstract fun unnestOneFrom(container: ClassName): NestableDecl
 
     fun finishAtTopLevel(): ClassDeclaration {
-      val result = if (decl.name == COMPONENT || decl.supertypes.any()) {
-        decl
-      } else {
-        decl.copy(supertypes = setOf(COMPONENT.type))
-      }
+      val result =
+          if (decl.name == COMPONENT || decl.supertypes.any()) {
+            decl
+          } else {
+            decl.copy(supertypes = setOf(COMPONENT.type))
+          }
       result.validate()
       return result
     }

@@ -58,8 +58,7 @@ public class Game(
         hidden = false)
   }
 
-  public fun component(type: Type?): Component? =
-      type?.let { Component(loader.resolveType(it)) }
+  public fun component(type: Type?): Component? = type?.let { Component(loader.resolveType(it)) }
 
   public fun component(type: TypeExpr?): Component? =
       type?.let { Component(loader.resolveType(it)) }

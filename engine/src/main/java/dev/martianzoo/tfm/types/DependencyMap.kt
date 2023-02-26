@@ -85,9 +85,7 @@ internal data class DependencyMap(private val map: Map<Key, Dependency>) {
 
   fun extract(keysInOrder: Iterable<Key>): DependencyMap {
     val map = mutableMapOf<Key, Dependency>()
-    keysInOrder.forEach {
-      map[it] = this.map[it]!!
-    }
+    keysInOrder.forEach { map[it] = this.map[it]!! }
     return DependencyMap(map)
   }
 }
