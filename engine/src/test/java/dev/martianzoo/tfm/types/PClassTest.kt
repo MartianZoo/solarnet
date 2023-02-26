@@ -9,6 +9,7 @@ import dev.martianzoo.tfm.pets.ast.ClassName.Companion.classNames
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.pets.ast.TypeExpr.Companion.typeExpr
 import dev.martianzoo.tfm.types.Dependency.Key
+import dev.martianzoo.util.toSetStrict
 import dev.martianzoo.util.toStrings
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -199,7 +200,7 @@ private class PClassTest {
 private fun te(s: String) = typeExpr(s)
 
 private fun loader(petsText: String): PClassLoader {
-  val classes = parseClassDeclarations(petsText)
+  val classes = parseClassDeclarations(petsText).toSetStrict()
   val authority =
       object : Authority.Empty() {
         override val explicitClassDeclarations = classes

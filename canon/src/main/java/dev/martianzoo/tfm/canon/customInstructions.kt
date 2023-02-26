@@ -11,7 +11,7 @@ import dev.martianzoo.tfm.pets.ast.Instruction.Transform
 import dev.martianzoo.tfm.pets.childNodesOfType
 
 internal val allCustomInstructions =
-    listOf(
+    setOf(
         GainLowestProduction,
         CopyProductionBox,
     )

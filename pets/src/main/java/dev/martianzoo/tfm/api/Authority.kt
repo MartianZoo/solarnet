@@ -12,11 +12,13 @@ import dev.martianzoo.util.Grid
 import dev.martianzoo.util.associateByStrict
 
 /**
- * A source of data about Terraforming Mars components. This project provides one, called `Canon`,
- * containing only officially published materials.
+ * A source of data about Terraforming Mars components. One implementation (`Canon`) is provided by
+ * the `canon` module, containing only officially published materials. Others might provide
+ * fanmade content or test content.
  */
 public abstract class Authority {
 
+  /** Returns every bundle code (e.g. `"B"`) this authority has any information on. */
   public open val allBundles: Set<String> by lazy { allDefinitions.map { it.bundle }.toSet() }
 
   // CLASS DECLARATIONS
@@ -28,29 +30,30 @@ public abstract class Authority {
     return decl
   }
 
-  /**
-   * Every class declarations this authority knows about, including explicit ones and those
-   * converted from [Definition]s.
-   */
-  public val allClassDeclarations: Map<ClassName, ClassDeclaration> by lazy {
-    val extraFromCards = cardDefinitions.flatMap { it.extraClasses }
-
+  private val allClassDeclarations: Map<ClassName, ClassDeclaration> by lazy {
+    val fromCards = cardDefinitions.flatMap { it.extraClasses }
     val list =
-        explicitClassDeclarations + allDefinitions.map { it.asClassDeclaration } + extraFromCards
+        explicitClassDeclarations +
+        allDefinitions.map { it.asClassDeclaration } +
+        fromCards
     list.associateByStrict { it.name }
   }
 
+  /**
+   * Every class declaration this authority knows about, including explicit ones and those
+   * converted from [Definition]s.
+   */
   public val allClassNames: Set<ClassName> by lazy { allClassDeclarations.keys }
 
   /**
-   * All class declarations that were provided directly in source form (i.e., `CLASS Foo...`) as
+   * All class declarations that were provided "directly" in source form (i.e., `CLASS Foo...`) as
    * opposed to being converted from [Definition] objects.
    */
-  public abstract val explicitClassDeclarations: Collection<ClassDeclaration>
+  protected abstract val explicitClassDeclarations: Set<ClassDeclaration>
 
   /** Everything implementing [Definition] this authority knows about. */
-  public val allDefinitions: List<Definition> by lazy {
-    listOf<Definition>() +
+  public val allDefinitions: Set<Definition> by lazy {
+    setOf<Definition>() +
         cardDefinitions +
         milestoneDefinitions +
         standardActionDefinitions +
@@ -66,35 +69,41 @@ public abstract class Authority {
    */
   public fun card(name: ClassName): CardDefinition = cardsByClassName[name]!!
 
-  /** Every card definition this authority knows about. */
-  public abstract val cardDefinitions: Collection<CardDefinition>
+  /** Every card this authority knows about. */
+  public abstract val cardDefinitions: Set<CardDefinition>
 
   /** A map from [ClassName] to [CardDefinition], containing all cards known to this authority. */
-  public val cardsByClassName: Map<ClassName, CardDefinition> by lazy {
+  internal val cardsByClassName: Map<ClassName, CardDefinition> by lazy {
     cardDefinitions.associateByStrict { it.className }
   }
 
   // STANDARD ACTIONS
 
+  /** Returns the standard action/project by the given [name]. */
   public fun action(name: ClassName): StandardActionDefinition =
       standardActionDefinitions.first { it.className == name }
 
-  public abstract val standardActionDefinitions: Collection<StandardActionDefinition>
+  /** Every standard action (including standard projects) this authority knows about. */
+  public abstract val standardActionDefinitions: Set<StandardActionDefinition>
 
   // MARS MAPS
 
+  /** Returns the map by the given name, e.g. `Tharsis`. */
   public fun marsMap(name: ClassName): MarsMapDefinition =
       marsMapDefinitions.first { it.className == name }
 
-  public abstract val marsMapDefinitions: Collection<MarsMapDefinition>
+  /** Every map this authority knows about. */
+  public abstract val marsMapDefinitions: Set<MarsMapDefinition>
 
   // MILESTONES
 
+  /** Returns the milestone by the given [name]. */
   public fun milestone(name: ClassName): MilestoneDefinition = milestonesByClassName[name]!!
 
-  public abstract val milestoneDefinitions: Collection<MilestoneDefinition>
+  /** Every milestone this authority knows about. */
+  public abstract val milestoneDefinitions: Set<MilestoneDefinition>
 
-  public val milestonesByClassName: Map<ClassName, MilestoneDefinition> by lazy {
+  private val milestonesByClassName: Map<ClassName, MilestoneDefinition> by lazy {
     milestoneDefinitions.associateByStrict { it.className }
   }
 
@@ -104,13 +113,15 @@ public abstract class Authority {
 
   // CUSTOM INSTRUCTIONS
 
+  /** Returns the custom instruction implementation having the name [functionName]. */
   public fun customInstruction(functionName: String): CustomInstruction {
     return customInstructions
         .firstOrNull { it.functionName == functionName }
         .also { require(it != null) { "no instruction named $$functionName" } }!!
   }
 
-  public abstract val customInstructions: Collection<CustomInstruction>
+  /** Every custom instruction this authority knows about. */
+  public abstract val customInstructions: Set<CustomInstruction>
 
   // HELPERS
 
@@ -119,12 +130,12 @@ public abstract class Authority {
    * declarations and definitions.
    */
   public open class Empty : Authority() {
-    override val explicitClassDeclarations = listOf<ClassDeclaration>()
-    override val cardDefinitions = listOf<CardDefinition>()
-    override val marsMapDefinitions = listOf<MarsMapDefinition>()
-    override val milestoneDefinitions = listOf<MilestoneDefinition>()
-    override val standardActionDefinitions = listOf<StandardActionDefinition>()
-    override val customInstructions = listOf<CustomInstruction>()
+    override val explicitClassDeclarations = setOf<ClassDeclaration>()
+    override val cardDefinitions = setOf<CardDefinition>()
+    override val marsMapDefinitions = setOf<MarsMapDefinition>()
+    override val milestoneDefinitions = setOf<MilestoneDefinition>()
+    override val standardActionDefinitions = setOf<StandardActionDefinition>()
+    override val customInstructions = setOf<CustomInstruction>()
   }
 
   /**
@@ -134,6 +145,6 @@ public abstract class Authority {
   public open class Minimal : Empty() {
     override val allBundles = setOf("B", "M")
     override val marsMapDefinitions =
-        listOf(MarsMapDefinition(cn("FakeTharsis"), "M", Grid.empty()))
+        setOf(MarsMapDefinition(cn("FakeTharsis"), "M", Grid.empty()))
   }
 }

@@ -12,7 +12,7 @@ private class GameSetupTest {
       object : Authority.Empty() {
         override val allBundles = "BRMEVPCX".asIterable().toStrings().toSet()
         override val marsMapDefinitions =
-            listOf(
+            setOf(
                 MarsMapDefinition(cn("Tharsis"), "M", Grid.empty()),
                 MarsMapDefinition(cn("Elysium"), "E", Grid.empty()),
             )

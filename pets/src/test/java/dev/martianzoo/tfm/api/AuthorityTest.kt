@@ -13,7 +13,7 @@ private class AuthorityTest {
     val authority =
         object : Authority.Empty() {
           override val cardDefinitions =
-              listOf(
+              setOf(
                   CardDefinition(
                       idRaw = "123",
                       deck = Deck.PRELUDE,
@@ -21,7 +21,7 @@ private class AuthorityTest {
                       bundle = "Z",
                       extraClassesText = setOf("CLASS Foo<Boo> : Loo { HAS =1 Bar; Abc: Xyz }")))
         }
-    assertThat(authority.allClassDeclarations).hasSize(2)
+    assertThat(authority.allClassNames).hasSize(2)
     assertThat(authority.classDeclaration(cn("IndustrialCenter")).abstract).isFalse()
     assertThat(authority.classDeclaration(cn("Foo")).dependencies).hasSize(1)
   }

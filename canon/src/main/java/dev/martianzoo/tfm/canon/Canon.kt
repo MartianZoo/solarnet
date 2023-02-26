@@ -10,6 +10,7 @@ import dev.martianzoo.tfm.data.MilestoneDefinition
 import dev.martianzoo.tfm.data.StandardActionDefinition
 import dev.martianzoo.tfm.pets.Parsing.parseClassDeclarations
 import dev.martianzoo.util.Debug
+import dev.martianzoo.util.toSetStrict
 
 /**
  * Authoritative data source for officially published materials; should eventually be complete but
@@ -19,30 +20,30 @@ public object Canon : Authority() {
 
   private val PETS_FILENAMES = setOf("system.pets", "components.pets", "player.pets")
 
-  override val explicitClassDeclarations: Collection<ClassDeclaration> by lazy {
+  override val explicitClassDeclarations: Set<ClassDeclaration> by lazy {
     PETS_FILENAMES.flatMap {
       Debug.d("Reading $it")
       parseClassDeclarations(readResource(it))
-    }
+    }.toSetStrict()
   }
 
-  override val cardDefinitions: Collection<CardDefinition> by lazy {
-    JsonReader.readCards(readResource("cards.json5"))
+  override val cardDefinitions: Set<CardDefinition> by lazy {
+    JsonReader.readCards(readResource("cards.json5")).toSetStrict()
   }
 
-  override val standardActionDefinitions: Collection<StandardActionDefinition> by lazy {
-    JsonReader.readActions(readResource("actions.json5"))
+  override val standardActionDefinitions: Set<StandardActionDefinition> by lazy {
+    JsonReader.readActions(readResource("actions.json5")).toSetStrict()
   }
 
-  override val marsMapDefinitions: Collection<MarsMapDefinition> by lazy {
-    JsonReader.readMaps(readResource("maps.json5"))
+  override val marsMapDefinitions: Set<MarsMapDefinition> by lazy {
+    JsonReader.readMaps(readResource("maps.json5")).toSetStrict()
   }
 
-  override val milestoneDefinitions: Collection<MilestoneDefinition> by lazy {
-    JsonReader.readMilestones(readResource("milestones.json5"))
+  override val milestoneDefinitions: Set<MilestoneDefinition> by lazy {
+    JsonReader.readMilestones(readResource("milestones.json5")).toSetStrict()
   }
 
-  override val customInstructions: List<CustomInstruction> by ::allCustomInstructions
+  override val customInstructions: Set<CustomInstruction> by ::allCustomInstructions
 
   private fun readResource(filename: String): String {
     val dir = javaClass.packageName.replace('.', '/')
