@@ -1,9 +1,9 @@
 package dev.martianzoo.tfm.engine
 
 import dev.martianzoo.tfm.api.GameSetup
+import dev.martianzoo.tfm.api.SpecialClassNames.GAME
 import dev.martianzoo.tfm.data.ChangeRecord.Cause
 import dev.martianzoo.tfm.data.MarsMapDefinition
-import dev.martianzoo.tfm.pets.SpecialClassNames.GAME
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.classNames
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.types.PClassLoader

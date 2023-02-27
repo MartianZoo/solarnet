@@ -1,9 +1,10 @@
 package dev.martianzoo.tfm.data
 
+import dev.martianzoo.tfm.api.SpecialClassNames.THIS
+import dev.martianzoo.tfm.data.EnglishHack.englishHack
 import dev.martianzoo.tfm.data.SpecialClassNames.STANDARD_ACTION
 import dev.martianzoo.tfm.data.SpecialClassNames.STANDARD_PROJECT
 import dev.martianzoo.tfm.pets.AstTransforms.actionToEffect
-import dev.martianzoo.tfm.pets.SpecialClassNames.THIS
 import dev.martianzoo.tfm.pets.ast.Action.Companion.action
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.Requirement.Exact

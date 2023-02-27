@@ -1,7 +1,7 @@
 package dev.martianzoo.tfm.data
 
-import dev.martianzoo.tfm.pets.SpecialClassNames.COMPONENT
-import dev.martianzoo.tfm.pets.SpecialClassNames.THIS
+import dev.martianzoo.tfm.api.SpecialClassNames.COMPONENT
+import dev.martianzoo.tfm.api.SpecialClassNames.THIS
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.Effect
 import dev.martianzoo.tfm.pets.ast.Instruction.Intensity

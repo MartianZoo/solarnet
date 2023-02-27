@@ -1,7 +1,7 @@
 package dev.martianzoo.tfm.engine
 
 import dev.martianzoo.tfm.api.GameSetup
-import dev.martianzoo.tfm.api.ReadOnlyGameState.GameState
+import dev.martianzoo.tfm.api.GameState
 import dev.martianzoo.tfm.api.Type
 import dev.martianzoo.tfm.data.ChangeRecord
 import dev.martianzoo.tfm.data.ChangeRecord.Cause
@@ -29,7 +29,7 @@ public class Game(
 
   fun resolveType(type: Type): PType = loader.resolveType(type)
 
-  override fun isMet(requirement: Requirement) = LiveNodes.from(requirement, this).isMet(this)
+  override fun evaluate(requirement: Requirement) = LiveNodes.from(requirement, this).evaluate(this)
 
   override fun countComponents(type: Type): Int = components.count(resolveType(type))
 

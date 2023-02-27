@@ -10,7 +10,7 @@ import dev.martianzoo.util.toStrings
 internal class MapToText(private val game: ReadOnlyGameState) {
 
   internal fun map(): List<String> {
-    val grid: Grid<AreaDefinition> = game.map.areas
+    val grid: Grid<AreaDefinition> = game.setup.map.areas
     var lines = ""
 
     val ind = "   ".repeat(grid.rowCount + 5) // TODO why 5?

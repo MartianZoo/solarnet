@@ -2,15 +2,11 @@ package dev.martianzoo.tfm.canon
 
 import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.tfm.api.GameSetup
+import dev.martianzoo.tfm.api.SpecialClassNames.COMPONENT
 import dev.martianzoo.tfm.data.MarsMapDefinition
 import dev.martianzoo.tfm.data.MarsMapDefinition.AreaDefinition
-import dev.martianzoo.tfm.data.SpecialClassNames.ACTION_CARD
-import dev.martianzoo.tfm.data.SpecialClassNames.CARD_FRONT
-import dev.martianzoo.tfm.data.SpecialClassNames.TILE
 import dev.martianzoo.tfm.engine.Component
 import dev.martianzoo.tfm.engine.Engine
-import dev.martianzoo.tfm.pets.SpecialClassNames.COMPONENT
-import dev.martianzoo.tfm.pets.SpecialClassNames.OWNED
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.classNames
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
@@ -27,21 +23,27 @@ private class CanonTest {
   @Test
   fun testOwnedTileIsAnIntersectionType() {
     val table = PClassLoader(Canon).loadEverything()
-    val ot = table.getClass(cn("OwnedTile"))
+
+    val owned = table.getClass(cn("Owned"))
+    val tile = table.getClass(cn("Tile"))
+    val ownedTile = table.getClass(cn("OwnedTile"))
 
     // Nothing can be both Owned and a Tile without being an OwnedTile!
-    assertThat(ot.intersectionType).isTrue()
-    assertThat(table.getClass(OWNED).intersect(table.getClass(TILE))).isEqualTo(ot)
+    assertThat(owned.intersect(tile)).isEqualTo(ownedTile)
+    assertThat(ownedTile.intersectionType).isTrue()
   }
 
   @Test
   fun testActionCardIsAnIntersectionType() {
     val table = PClassLoader(Canon).loadEverything()
-    val ac = table.getClass(ACTION_CARD)
+
+    val cardFront = table.getClass(cn("CardFront"))
+    val hasActions = table.getClass(cn("HasActions"))
+    val actionCard = table.getClass(cn("ActionCard"))
 
     // Nothing can be both a CardFront and a HasActions but an ActionCard!
-    assertThat(ac.intersectionType).isTrue()
-    assertThat(table.getClass(CARD_FRONT).intersect(table.getClass(cn("HasActions")))).isEqualTo(ac)
+    assertThat(cardFront.intersect(hasActions)).isEqualTo(actionCard)
+    assertThat(actionCard.intersectionType).isTrue()
   }
 
   @Test fun testTharsis() = checkMap(Canon.marsMap(cn("Tharsis")))

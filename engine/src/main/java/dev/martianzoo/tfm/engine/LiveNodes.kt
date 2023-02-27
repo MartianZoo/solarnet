@@ -2,7 +2,7 @@ package dev.martianzoo.tfm.engine
 
 import dev.martianzoo.tfm.api.CustomInstruction
 import dev.martianzoo.tfm.api.CustomInstruction.ExecuteInsteadException
-import dev.martianzoo.tfm.api.ReadOnlyGameState.GameState
+import dev.martianzoo.tfm.api.GameState
 import dev.martianzoo.tfm.api.ResourceUtils.standardResourceNames
 import dev.martianzoo.tfm.api.Type
 import dev.martianzoo.tfm.data.ChangeRecord.StateChange
@@ -89,7 +89,7 @@ internal object LiveNodes {
       LiveInstruction() {
     override fun times(factor: Int) = Gated(gate, instruction * factor)
     override fun execute(game: GameState) =
-        if (gate.isMet(game)) {
+        if (gate.evaluate(game)) {
           instruction.execute(game)
         } else {
           throw UserException("Requirement not met: $gate")
@@ -129,18 +129,18 @@ internal object LiveNodes {
       is Exact -> LiveRequirement { count(req.scaledType) == req.scaledType.scalar }
       is Requirement.Or -> {
         val reqs = req.requirements.toList().map { from(it, game) }
-        LiveRequirement { reqs.any { it.isMet(game) } }
+        LiveRequirement { reqs.any { it.evaluate(game) } }
       }
       is Requirement.And -> {
         val reqs = req.requirements.map { from(it, game) }
-        LiveRequirement { reqs.all { it.isMet(game) } }
+        LiveRequirement { reqs.all { it.evaluate(game) } }
       }
       is Requirement.Transform -> error("should have been transformed by now")
     }
   }
 
-  class LiveRequirement(private val isMet: (GameState) -> Boolean) {
-    fun isMet(game: GameState) = isMet.invoke(game)
+  class LiveRequirement(private val evaluator: (GameState) -> Boolean) {
+    fun evaluate(game: GameState) = evaluator(game)
   }
 
   fun from(trig: Trigger, game: GameState): LiveTrigger {

@@ -1,6 +1,5 @@
 package dev.martianzoo.tfm.api
 
-import dev.martianzoo.tfm.api.ReadOnlyGameState.GameState
 import dev.martianzoo.tfm.pets.ast.Instruction
 
 /**

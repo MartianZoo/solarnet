@@ -1,10 +1,10 @@
 package dev.martianzoo.tfm.pets
 
-import dev.martianzoo.tfm.pets.SpecialClassNames.CLASS
-import dev.martianzoo.tfm.pets.SpecialClassNames.OWNER
-import dev.martianzoo.tfm.pets.SpecialClassNames.PRODUCTION
-import dev.martianzoo.tfm.pets.SpecialClassNames.THIS
-import dev.martianzoo.tfm.pets.SpecialClassNames.USE_ACTION
+import dev.martianzoo.tfm.api.SpecialClassNames.CLASS
+import dev.martianzoo.tfm.api.SpecialClassNames.OWNER
+import dev.martianzoo.tfm.api.SpecialClassNames.PRODUCTION
+import dev.martianzoo.tfm.api.SpecialClassNames.THIS
+import dev.martianzoo.tfm.api.SpecialClassNames.USE_ACTION
 import dev.martianzoo.tfm.pets.ast.Action
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn

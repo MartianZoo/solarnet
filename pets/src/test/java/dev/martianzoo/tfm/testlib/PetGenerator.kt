@@ -1,10 +1,10 @@
 package dev.martianzoo.tfm.testlib
 
 import com.google.common.truth.Truth.assertWithMessage
+import dev.martianzoo.tfm.api.SpecialClassNames.MEGACREDIT
+import dev.martianzoo.tfm.api.SpecialClassNames.OWNER
 import dev.martianzoo.tfm.pets.Parsing.parseElement
 import dev.martianzoo.tfm.pets.PetException
-import dev.martianzoo.tfm.pets.SpecialClassNames.MEGACREDIT
-import dev.martianzoo.tfm.pets.SpecialClassNames.OWNER
 import dev.martianzoo.tfm.pets.ast.Action
 import dev.martianzoo.tfm.pets.ast.Action.Cost
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn

@@ -14,7 +14,7 @@ private class GameApiTest {
 
   fun Game.count(s: String) = countComponents(te(s))
   fun Game.execute(s: String) = execute(instruction(s))
-  fun Game.isMet(s: String) = isMet(requirement(s))
+  fun Game.evaluate(s: String) = evaluate(requirement(s))
 
   @Test
   fun basicByApi() {
@@ -28,10 +28,10 @@ private class GameApiTest {
     assertThat(game.count("Heat")).isEqualTo(15)
 
     game.execute("-4 Heat<Player2>")
-    assertThat(game.isMet("Heat<Player2>")).isTrue()
-    assertThat(game.isMet("=1 Heat<Player2>")).isTrue()
-    assertThat(game.isMet("MAX 1 Heat<Player2>")).isTrue()
-    assertThat(game.isMet("2 Heat<Player2>")).isFalse()
+    assertThat(game.evaluate("Heat<Player2>")).isTrue()
+    assertThat(game.evaluate("=1 Heat<Player2>")).isTrue()
+    assertThat(game.evaluate("MAX 1 Heat<Player2>")).isTrue()
+    assertThat(game.evaluate("2 Heat<Player2>")).isFalse()
 
     assertThat(game.count("StandardResource")).isEqualTo(11)
     assertThat(game.count("StandardResource<Player3>")).isEqualTo(10)
@@ -40,8 +40,8 @@ private class GameApiTest {
     assertThat(game.count("Steel")).isEqualTo(3)
 
     game.execute("2 Heat<Player2 FROM Player3>")
-    assertThat(game.isMet("=3 Heat<Player2>")).isTrue()
-    assertThat(game.isMet("=5 Heat<Player3>")).isTrue()
+    assertThat(game.evaluate("=3 Heat<Player2>")).isTrue()
+    assertThat(game.evaluate("=5 Heat<Player3>")).isTrue()
 
     assertThat(game.changeLog().map { it.change })
         .containsExactly(

@@ -1,11 +1,11 @@
 package dev.martianzoo.tfm.repl
 
 import dev.martianzoo.tfm.api.GameSetup
+import dev.martianzoo.tfm.api.SpecialClassNames.OWNER
 import dev.martianzoo.tfm.engine.Component
 import dev.martianzoo.tfm.engine.Engine
 import dev.martianzoo.tfm.engine.Game
 import dev.martianzoo.tfm.pets.AstTransforms.replaceTypes
-import dev.martianzoo.tfm.pets.SpecialClassNames.OWNER
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.pets.ast.Instruction
@@ -62,7 +62,7 @@ class InteractiveSession {
     return HashMultiset() // TODO TODO
   }
 
-  fun has(requirement: Requirement) = game!!.isMet(fixTypes(requirement))
+  fun has(requirement: Requirement) = game!!.evaluate(fixTypes(requirement))
 
   fun execute(instruction: Instruction): Instruction {
     val instr = fixTypes(instruction)

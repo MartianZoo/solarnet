@@ -1,8 +1,11 @@
 package dev.martianzoo.tfm.data
 
 import com.squareup.moshi.Json
+import dev.martianzoo.tfm.api.SpecialClassNames.CLASS
+import dev.martianzoo.tfm.api.SpecialClassNames.END
 import dev.martianzoo.tfm.data.CardDefinition.Deck.PROJECT
 import dev.martianzoo.tfm.data.CardDefinition.ProjectKind.ACTIVE
+import dev.martianzoo.tfm.data.EnglishHack.englishHack
 import dev.martianzoo.tfm.data.SpecialClassNames.ACTION_CARD
 import dev.martianzoo.tfm.data.SpecialClassNames.ACTIVE_CARD
 import dev.martianzoo.tfm.data.SpecialClassNames.AUTOMATED_CARD
@@ -15,8 +18,6 @@ import dev.martianzoo.tfm.data.SpecialClassNames.RESOURCEFUL_CARD
 import dev.martianzoo.tfm.pets.AstTransforms.actionsToEffects
 import dev.martianzoo.tfm.pets.AstTransforms.immediateToEffect
 import dev.martianzoo.tfm.pets.Parsing.parseOneLineClassDeclaration
-import dev.martianzoo.tfm.pets.SpecialClassNames.CLASS
-import dev.martianzoo.tfm.pets.SpecialClassNames.END
 import dev.martianzoo.tfm.pets.ast.Action.Companion.action
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn

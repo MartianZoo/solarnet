@@ -1,15 +1,15 @@
 package dev.martianzoo.tfm.types
 
+import dev.martianzoo.tfm.api.SpecialClassNames.CLASS
+import dev.martianzoo.tfm.api.SpecialClassNames.COMPONENT
+import dev.martianzoo.tfm.api.SpecialClassNames.END
+import dev.martianzoo.tfm.api.SpecialClassNames.OWNED
+import dev.martianzoo.tfm.api.SpecialClassNames.OWNER
+import dev.martianzoo.tfm.api.SpecialClassNames.THIS
+import dev.martianzoo.tfm.api.SpecialClassNames.USE_ACTION
 import dev.martianzoo.tfm.data.ClassDeclaration
 import dev.martianzoo.tfm.pets.AstTransforms
 import dev.martianzoo.tfm.pets.PetTransformer
-import dev.martianzoo.tfm.pets.SpecialClassNames.CLASS
-import dev.martianzoo.tfm.pets.SpecialClassNames.COMPONENT
-import dev.martianzoo.tfm.pets.SpecialClassNames.END
-import dev.martianzoo.tfm.pets.SpecialClassNames.OWNED
-import dev.martianzoo.tfm.pets.SpecialClassNames.OWNER
-import dev.martianzoo.tfm.pets.SpecialClassNames.THIS
-import dev.martianzoo.tfm.pets.SpecialClassNames.USE_ACTION
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.classNames
 import dev.martianzoo.tfm.pets.ast.Effect

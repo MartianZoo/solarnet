@@ -1,9 +1,9 @@
 package dev.martianzoo.tfm.api
 
-import dev.martianzoo.tfm.pets.SpecialClassNames.CLASS
-import dev.martianzoo.tfm.pets.SpecialClassNames.MEGACREDIT
-import dev.martianzoo.tfm.pets.SpecialClassNames.PRODUCTION
-import dev.martianzoo.tfm.pets.SpecialClassNames.STANDARD_RESOURCE
+import dev.martianzoo.tfm.api.SpecialClassNames.CLASS
+import dev.martianzoo.tfm.api.SpecialClassNames.MEGACREDIT
+import dev.martianzoo.tfm.api.SpecialClassNames.PRODUCTION
+import dev.martianzoo.tfm.api.SpecialClassNames.STANDARD_RESOURCE
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.TypeExpr
 

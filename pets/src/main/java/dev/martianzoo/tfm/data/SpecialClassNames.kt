@@ -2,7 +2,7 @@ package dev.martianzoo.tfm.data
 
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 
-object SpecialClassNames {
+internal object SpecialClassNames {
   val CARD_FRONT = cn("CardFront")
   val MARS_MAP = cn("MarsMap")
   val MILESTONE = cn("Milestone")
