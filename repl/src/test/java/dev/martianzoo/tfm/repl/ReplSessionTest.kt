@@ -11,20 +11,20 @@ private class ReplSessionTest {
     val repl = ReplSession(Canon)
     repl.command("newgame MB 2")
     repl.command("become Player2")
-    var i = repl.session.game!!.changeLogFull().size
+    var n = repl.session.game!!.changeLogFull().size - 1
 
     assertThat(repl.command("exec PROD[5, 4 Energy]")).containsExactly(
-        "${i++}: 5 Production<Player2, Class<Megacredit>>",
-        "${i++}: 4 Production<Player2, Class<Energy>>",
+        "${++n}: 5 Production<Player2, Class<Megacredit>>",
+        "${++n}: 4 Production<Player2, Class<Energy>>",
     )
     assertThat(repl.command("exec StripMine, BuildingTag<StripMine>")).containsExactly(
-        "${i++}: 1 StripMine<Player2>",
-        "${i++}: 1 BuildingTag<Player2, StripMine<Player2>>",
+        "${++n}: 1 StripMine<Player2>",
+        "${++n}: 1 BuildingTag<Player2, StripMine<Player2>>",
     )
     assertThat(repl.command("exec PROD[-2 Energy, 2 Steel, Titanium]")).containsExactly(
-        "${i++}: -2 Production<Player2, Class<Energy>>",
-        "${i++}: 2 Production<Player2, Class<Steel>>",
-        "${i++}: 1 Production<Player2, Class<Titanium>>",
+        "${++n}: -2 Production<Player2, Class<Energy>>",
+        "${++n}: 2 Production<Player2, Class<Steel>>",
+        "${++n}: 1 Production<Player2, Class<Titanium>>",
     )
 
     val check1 = "has PROD[=2 Energy, =2 Steel]"
