@@ -21,6 +21,7 @@ import dev.martianzoo.tfm.pets.ast.PetNode
 import dev.martianzoo.tfm.pets.ast.PetNode.GenericTransform
 import dev.martianzoo.tfm.pets.ast.TypeExpr
 
+/** Various functions for transforming Pets syntax trees. */
 public object AstTransforms {
   internal fun actionToEffect(action: Action, index1Ref: Int): Effect {
     require(index1Ref >= 1) { index1Ref }

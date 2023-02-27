@@ -81,7 +81,7 @@ sealed class Requirement : PetNode() {
     override fun extract() = requirement
   }
 
-  override val kind = "Requirement"
+  override val kind = Requirement::class.simpleName!!
 
   companion object : PetParser() {
     fun requirement(text: String) = Parsing.parse(parser(), text)

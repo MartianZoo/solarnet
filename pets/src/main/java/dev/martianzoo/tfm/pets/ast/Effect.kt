@@ -13,13 +13,13 @@ import dev.martianzoo.tfm.pets.SpecialClassNames.THIS
 import dev.martianzoo.tfm.pets.ast.Instruction.Gated
 import dev.martianzoo.util.iff
 
-data class Effect(
+public data class Effect(
     val trigger: Trigger,
     val instruction: Instruction,
     val automatic: Boolean = false,
 ) : PetNode() {
 
-  override val kind = "Effect"
+  override val kind = Effect::class.simpleName!!
 
   override fun visitChildren(visitor: Visitor) = visitor.visit(trigger, instruction)
 
@@ -33,7 +33,7 @@ data class Effect(
   }
 
   sealed class Trigger : PetNode() {
-    override val kind = "Trigger"
+    override val kind = Trigger::class.simpleName!!
 
     data class ByTrigger(val inner: Trigger, val by: ClassName) : Trigger() {
       init {

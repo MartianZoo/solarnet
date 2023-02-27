@@ -90,5 +90,5 @@ data class TypeExpr(
         copy(refinement = ref)
       }
 
-  override val kind = "TypeExpr"
+  override val kind = TypeExpr::class.simpleName!!
 }

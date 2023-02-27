@@ -15,14 +15,14 @@ import dev.martianzoo.tfm.pets.ast.Instruction.Intensity.MANDATORY
 import dev.martianzoo.tfm.pets.ast.Instruction.Remove
 import dev.martianzoo.util.suf
 
-data class Action(val cost: Cost?, val instruction: Instruction) : PetNode() {
-  override val kind = "Action"
+public data class Action(val cost: Cost?, val instruction: Instruction) : PetNode() {
+  override val kind = Action::class.simpleName!!
 
   override fun toString() = "${cost.suf(' ')}-> $instruction"
   override fun visitChildren(visitor: Visitor) = visitor.visit(cost, instruction)
 
   sealed class Cost : PetNode() {
-    override val kind = "Cost"
+    override val kind = Cost::class.simpleName!!
 
     abstract fun toInstruction(): Instruction
 

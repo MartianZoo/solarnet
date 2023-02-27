@@ -4,14 +4,15 @@ import kotlin.reflect.KClass
 import kotlin.reflect.safeCast
 
 /** An API object that can be represented as PETS source code. */
-sealed class PetNode { // TODO rename PetElement??
-  abstract val kind: String
+public sealed class PetNode {
+  internal abstract val kind: String
 
-  fun groupPartIfNeeded(part: PetNode) = if (part.shouldGroupInside(this)) "($part)" else "$part"
+  protected fun groupPartIfNeeded(part: PetNode) =
+      if (part.shouldGroupInside(this)) "($part)" else "$part"
 
-  open fun shouldGroupInside(container: PetNode) = precedence() <= container.precedence()
+  protected open fun shouldGroupInside(container: PetNode) = precedence() <= container.precedence()
 
-  open fun precedence(): Int = Int.MAX_VALUE
+  protected open fun precedence(): Int = Int.MAX_VALUE
 
   /** Invokes [Visitor.visit] for each direct child node of this [PetNode]. */
   protected abstract fun visitChildren(visitor: Visitor)

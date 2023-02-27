@@ -33,7 +33,7 @@ public data class ClassName(private val asString: String) : PetNode(), Comparabl
   override fun toString() = asString
   override fun compareTo(other: ClassName) = asString.compareTo(other.asString)
 
-  override val kind = "ClassName"
+  override val kind = ClassName::class.simpleName!!
 
   override fun visitChildren(visitor: Visitor) {
   }

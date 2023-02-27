@@ -15,8 +15,8 @@ import dev.martianzoo.tfm.pets.ast.ClassName.Parsing.className
 import dev.martianzoo.util.joinOrEmpty
 import dev.martianzoo.util.wrap
 
-sealed class From : PetNode() {
-  override val kind = "From"
+public sealed class From : PetNode() {
+  override val kind = From::class.simpleName!!
 
   abstract val toType: TypeExpr
   abstract val fromType: TypeExpr

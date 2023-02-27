@@ -9,19 +9,19 @@ import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
  * but this habit makes it easier to "find usages" etc. to see how the component types are being
  * used. Or rename, etc.
  */
-object SpecialClassNames {
-  val ANYONE = cn("Anyone")
-  val CLASS = cn("Class")
-  val COMPONENT = cn("Component")
-  val DIE = cn("Die")
-  val END = cn("End")
-  val GAME = cn("Game")
-  val MEGACREDIT = cn("Megacredit")
-  val OK = cn("Ok")
-  val OWNED = cn("Owned")
-  val OWNER = cn("Owner")
-  val PRODUCTION = cn("Production")
-  val STANDARD_RESOURCE = cn("StandardResource")
-  val THIS = cn("This")
-  val USE_ACTION = cn("UseAction")
+public object SpecialClassNames {
+  public val ANYONE = cn("Anyone")
+  public val CLASS = cn("Class")
+  public val COMPONENT = cn("Component")
+  public val DIE = cn("Die")
+  public val END = cn("End")
+  public val GAME = cn("Game")
+  public val MEGACREDIT = cn("Megacredit")
+  public val OK = cn("Ok")
+  public val OWNED = cn("Owned")
+  public val OWNER = cn("Owner")
+  public val PRODUCTION = cn("Production")
+  public val STANDARD_RESOURCE = cn("StandardResource")
+  public val THIS = cn("This")
+  public val USE_ACTION = cn("UseAction")
 }

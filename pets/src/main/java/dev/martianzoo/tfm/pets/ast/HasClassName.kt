@@ -1,5 +1,5 @@
 package dev.martianzoo.tfm.pets.ast
 
-interface HasClassName {
+public interface HasClassName {
   val className: ClassName
 }

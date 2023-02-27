@@ -13,17 +13,19 @@ import dev.martianzoo.tfm.pets.PetParser
 import dev.martianzoo.tfm.pets.ast.From.SimpleFrom
 import dev.martianzoo.util.suf
 
-sealed class Instruction : PetNode() {
+public sealed class Instruction : PetNode() {
 
-  sealed class Change : Instruction() {
+  public sealed class Change : Instruction() {
     abstract val count: Int
     abstract val removing: TypeExpr?
     abstract val gaining: TypeExpr?
     abstract val intensity: Intensity?
   }
 
-  data class Gain(val scaledType: ScaledTypeExpr, override val intensity: Intensity? = null) :
-      Change() {
+  public data class Gain(
+      val scaledType: ScaledTypeExpr,
+      override val intensity: Intensity? = null,
+  ) : Change() {
     override val count = scaledType.scalar
     override val removing = null
     override val gaining = scaledType.typeExpr
@@ -181,7 +183,7 @@ sealed class Instruction : PetNode() {
     override fun extract() = instruction
   }
 
-  override val kind = "Instruction"
+  override val kind = Instruction::class.simpleName!!
 
   enum class Intensity(val symbol: String) {
     /** The full amount must be gained/removed/transmuted. */
