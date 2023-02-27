@@ -11,10 +11,21 @@ private class ReplSessionTest {
     val repl = ReplSession(Canon)
     repl.command("newgame MB 2")
     repl.command("become Player2")
+    var i = repl.session.game!!.changeLogFull().size
 
-    assertThat(repl.command("PROD[5, 4 Energy]").first()).startsWith("Executed")
-    repl.command("StripMine") // , BuildingTag<Player2, StripMine> ?
-    assertThat(repl.command("PROD[-2 Energy, 2 Steel, Titanium]").first()).startsWith("Executed")
+    assertThat(repl.command("exec PROD[5, 4 Energy]")).containsExactly(
+        "${i++}: 5 Production<Player2, Class<Megacredit>>",
+        "${i++}: 4 Production<Player2, Class<Energy>>",
+    )
+    assertThat(repl.command("exec StripMine, BuildingTag<StripMine>")).containsExactly(
+        "${i++}: 1 StripMine<Player2>",
+        "${i++}: 1 BuildingTag<Player2, StripMine<Player2>>",
+    )
+    assertThat(repl.command("exec PROD[-2 Energy, 2 Steel, Titanium]")).containsExactly(
+        "${i++}: -2 Production<Player2, Class<Energy>>",
+        "${i++}: 2 Production<Player2, Class<Steel>>",
+        "${i++}: 1 Production<Player2, Class<Titanium>>",
+    )
 
     val check1 = "has PROD[=2 Energy, =2 Steel]"
     assertThat(repl.command(check1).first()).startsWith("true")
@@ -29,8 +40,8 @@ private class ReplSessionTest {
     val repl = ReplSession(Canon)
     repl.command("newgame MB 2")
     repl.command("become Player1")
-    repl.command("PROD[14, 8 Steel, 7 Titanium, 6 Plant, 5 Energy, 4 Heat]")
-    repl.command("8, 6 Steel, 7 Titanium, 5 Plant, 3 Energy, 9 Heat")
+    repl.command("exec PROD[14, 8 Steel, 7 Titanium, 6 Plant, 5 Energy, 4 Heat]")
+    repl.command("exec 8, 6 Steel, 7 Titanium, 5 Plant, 3 Energy, 9 Heat")
 
     val board = BoardToText(repl.session.game!!).board(cn("Player1").type, false)
     assertThat(board)
@@ -51,13 +62,13 @@ private class ReplSessionTest {
     val repl = ReplSession(Canon)
     repl.command("newgame MB 3")
     repl.command("become Player1")
-    repl.command("OceanTile<Tharsis_2_6>, OceanTile<Tharsis_5_5>, OceanTile<Tharsis_5_6>")
-    repl.command("CityTile<Tharsis_4_6>, GreeneryTile<Tharsis_5_7>")
-    repl.command("GreeneryTile<Tharsis_4_5, Player3>")
+    repl.command("exec OceanTile<Tharsis_2_6>, OceanTile<Tharsis_5_5>, OceanTile<Tharsis_5_6>")
+    repl.command("exec CityTile<Tharsis_4_6>, GreeneryTile<Tharsis_5_7>")
+    repl.command("exec GreeneryTile<Tharsis_4_5, Player3>")
 
     repl.command("become Player2")
-    repl.command("Tile008<Tharsis_6_6>")
-    repl.command("Tile142<Tharsis_9_9>")
+    repl.command("exec Tile008<Tharsis_6_6>")
+    repl.command("exec Tile142<Tharsis_9_9>")
 
     assertThat(repl.command("map"))
         .containsExactly(

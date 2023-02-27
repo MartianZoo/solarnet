@@ -37,11 +37,12 @@ public class ReplSession(private val authority: Authority) {
     return command(command, args.ifBlank { null })
   }
 
-  internal fun command(command: String, args: String?): List<String> {
-    if (command !in setOf("help", "newgame") && session.game == null) {
+  internal fun command(commandName: String, args: String?): List<String> {
+    if (commandName !in setOf("help", "newgame") && session.game == null) {
       return listOf("no game active")
     }
-    return commands[command]?.invoke(args) ?: commands["exec"]!!(command + (args ?: ""))
+    val command = commands[commandName]!!
+    return command(args)
   }
 
   private val commands =
@@ -115,10 +116,10 @@ public class ReplSession(private val authority: Authority) {
           "exec" to
               {
                 it?.let { args ->
+                  val logsize = session.game!!.changeLogFull().size
                   val instr = session.execute(instruction(args))
-                  listOf("Executed: $instr")
-                }
-                    ?: listOf("Usage: exec <Instruction>")
+                  session.game!!.changeLogFull().drop(logsize).toStrings()
+                } ?: listOf("Usage: exec <Instruction>")
               },
           "rollback" to
               {
@@ -149,8 +150,7 @@ private val HELP =
       count Plant<Anyone>  ->  counts how many Plants anyone has
       list Tile            ->  lists all Tiles you have
       has MAX 3 OceanTile  ->  evaluates a requirement in the current game state
-      exec PROD[3 Heat]    ->  gives the default player 3 heat production
-      PROD[3 Heat]         ->  that too
+      exec PROD[3 Heat]    ->  gives the default player 3 heat prod, NOT triggering effects
       rollback 987         ->  undo recent changes up to and including change 987
       changes              ->  see the changelog (useful bits) for the current game
       allchanges           ->  see the entire disgusting changelog
