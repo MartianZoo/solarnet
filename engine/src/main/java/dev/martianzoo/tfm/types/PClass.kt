@@ -21,7 +21,6 @@ import dev.martianzoo.tfm.pets.ast.HasClassName
 import dev.martianzoo.tfm.pets.ast.PetNode
 import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.pets.ast.TypeExpr
-import dev.martianzoo.tfm.pets.childNodesOfType
 import dev.martianzoo.tfm.types.Dependency.ClassDependency
 import dev.martianzoo.tfm.types.Dependency.ClassDependency.Companion.KEY
 import dev.martianzoo.tfm.types.Dependency.TypeDependency
@@ -36,12 +35,18 @@ import dev.martianzoo.util.toSetStrict
  */
 public data class PClass
 internal constructor(
-    /** The declaration this class was loaded from. */
+    /** The class declaration this class was loaded from. */
     public val declaration: ClassDeclaration,
+
     /** The class loader that loaded this class. */
     internal val loader: PClassLoader,
+
+    /**
+     * This class's superclasses that are exactly one step away; empty only if this is `Component`.
+     */
     public val directSuperclasses: List<PClass> = superclasses(declaration, loader),
 ) : HasClassName {
+
   /** The name of this class, in UpperCamelCase. */
   public override val className: ClassName by declaration::name
 
@@ -206,8 +211,8 @@ internal constructor(
           } else {
             var trig = xer.insertDefaultPlayer(fx.trigger)
             val ins = xer.insertDefaultPlayer(fx.instruction)
-            if (OWNER !in childNodesOfType<ClassName>(trig) &&
-                OWNER in childNodesOfType<ClassName>(ins)) {
+            if (OWNER !in trig.descendantsOfType<ClassName>() &&
+                OWNER in ins.descendantsOfType<ClassName>()) {
               trig = ByTrigger(trig, OWNER)
             }
             fx = fx.copy(trigger = trig, instruction = ins)

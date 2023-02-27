@@ -44,8 +44,8 @@ public class ComponentGraph {
             change =
                 StateChange(
                     count = correctedCount,
-                    gaining = gaining?.ptype?.typeExpr,
-                    removing = removing?.ptype?.typeExpr,
+                    gaining = gaining?.type?.typeExpr,
+                    removing = removing?.type?.typeExpr,
                 ),
             cause = cause,
             hidden = hidden,

@@ -9,7 +9,6 @@ import com.github.h0tk3y.betterParse.parser.Parser
 import dev.martianzoo.tfm.pets.Parsing
 import dev.martianzoo.tfm.pets.PetException
 import dev.martianzoo.tfm.pets.PetParser
-import dev.martianzoo.tfm.pets.PetVisitor
 import dev.martianzoo.tfm.pets.SpecialClassNames.THIS
 import dev.martianzoo.tfm.pets.ast.Instruction.Gated
 import dev.martianzoo.util.iff
@@ -22,7 +21,7 @@ data class Effect(
 
   override val kind = "Effect"
 
-  override fun visitChildren(visitor: PetVisitor) = visitor.visit(trigger, instruction)
+  override fun visitChildren(visitor: Visitor) = visitor.visit(trigger, instruction)
 
   override fun toString(): String {
     val instext =
@@ -42,17 +41,18 @@ data class Effect(
           throw PetException("by the by")
         }
       }
-      override fun visitChildren(visitor: PetVisitor) = visitor.visit(inner, by)
+
+      override fun visitChildren(visitor: Visitor) = visitor.visit(inner, by)
       override fun toString() = "$inner BY $by"
     }
 
     object WhenGain : Trigger() {
-      override fun visitChildren(visitor: PetVisitor) = Unit
+      override fun visitChildren(visitor: Visitor) = Unit
       override fun toString() = "This"
     }
 
     object WhenRemove : Trigger() {
-      override fun visitChildren(visitor: PetVisitor) = Unit
+      override fun visitChildren(visitor: Visitor) = Unit
       override fun toString() = "-This"
     }
 
@@ -65,7 +65,8 @@ data class Effect(
       init {
         require(typeExpr != THIS.type)
       }
-      override fun visitChildren(visitor: PetVisitor) = visitor.visit(typeExpr)
+
+      override fun visitChildren(visitor: Visitor) = visitor.visit(typeExpr)
       override fun toString() = "$typeExpr"
     }
 
@@ -78,13 +79,14 @@ data class Effect(
       init {
         require(typeExpr != THIS.type)
       }
-      override fun visitChildren(visitor: PetVisitor) = visitor.visit(typeExpr)
+
+      override fun visitChildren(visitor: Visitor) = visitor.visit(typeExpr)
       override fun toString() = "-$typeExpr"
     }
 
     data class Transform(val trigger: Trigger, override val transformKind: String) :
         Trigger(), GenericTransform<Trigger> {
-      override fun visitChildren(visitor: PetVisitor) = visitor.visit(trigger)
+      override fun visitChildren(visitor: Visitor) = visitor.visit(trigger)
       override fun toString() = "$transformKind[$trigger]"
 
       init {

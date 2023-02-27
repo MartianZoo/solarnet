@@ -21,7 +21,6 @@ import dev.martianzoo.tfm.pets.ast.Requirement.Max
 import dev.martianzoo.tfm.pets.ast.Requirement.Min
 import dev.martianzoo.tfm.pets.ast.ScaledTypeExpr.Companion.scaledType
 import dev.martianzoo.tfm.pets.checkBothWays
-import dev.martianzoo.tfm.pets.countNodesInTree
 import dev.martianzoo.tfm.pets.testSampleStrings
 import dev.martianzoo.tfm.testlib.PetGenerator
 import org.junit.jupiter.api.Disabled
@@ -99,7 +98,7 @@ private class EffectTest {
   fun nodeCount() {
     val eff = effect("Xyz<Xyz>: PROD[(1 Abc FROM Qux) OR 1]")
     // ef, og, te, cn, te, cn, pr, or, tr, fr, te, cn, te, cn, ga, ste, te, cn
-    assertThat(countNodesInTree(eff)).isEqualTo(18)
+    assertThat(eff.descendantCount()).isEqualTo(18)
   }
 
   @Disabled

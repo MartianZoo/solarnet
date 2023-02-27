@@ -21,7 +21,6 @@ import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.pets.ast.ScaledTypeExpr
 import dev.martianzoo.tfm.pets.ast.ScaledTypeExpr.Companion.scaledType
 import dev.martianzoo.tfm.pets.ast.TypeExpr
-import dev.martianzoo.tfm.pets.countNodesInTree
 import dev.martianzoo.tfm.testlib.PetToKotlin.p2k
 import dev.martianzoo.util.HashMultiset
 import dev.martianzoo.util.Multiset
@@ -266,7 +265,7 @@ internal class PetGenerator(scaling: (Int) -> Double) :
     var drySpell = 0
     while (set.size < count && drySpell < stopAtDrySpell) {
       val node = makeRandomNode<T>()
-      if (countNodesInTree(node) <= depthLimit && set.add(node)) {
+      if (node.descendantCount() <= depthLimit && set.add(node)) {
         drySpell = 0
       } else {
         drySpell++

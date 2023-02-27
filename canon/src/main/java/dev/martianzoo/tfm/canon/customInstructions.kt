@@ -8,7 +8,6 @@ import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.Instruction
 import dev.martianzoo.tfm.pets.ast.Instruction.Companion.instruction
 import dev.martianzoo.tfm.pets.ast.Instruction.Transform
-import dev.martianzoo.tfm.pets.childNodesOfType
 
 internal val allCustomInstructions =
     setOf(
@@ -35,7 +34,7 @@ private object CopyProductionBox : CustomInstruction("copyProductionBox") {
     val chosenCardName = arguments.single().typeExpr.className
     val def = game.setup.authority.card(chosenCardName)
 
-    val nodes: Set<Transform> = def.immediateRaw?.let(::childNodesOfType) ?: setOf()
+    val nodes: Set<Transform> = def.immediateRaw?.descendantsOfType() ?: setOf()
     val matches = nodes.filter { it.transformKind == "PROD" }
 
     when (matches.size) {

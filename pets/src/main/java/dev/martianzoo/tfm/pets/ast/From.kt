@@ -11,7 +11,6 @@ import com.github.h0tk3y.betterParse.parser.Parser
 import dev.martianzoo.tfm.pets.Parsing
 import dev.martianzoo.tfm.pets.PetException
 import dev.martianzoo.tfm.pets.PetParser
-import dev.martianzoo.tfm.pets.PetVisitor
 import dev.martianzoo.tfm.pets.ast.ClassName.Parsing.className
 import dev.martianzoo.util.joinOrEmpty
 import dev.martianzoo.util.wrap
@@ -26,7 +25,7 @@ sealed class From : PetNode() {
     override val toType by this::typeExpr
     override val fromType by this::typeExpr
 
-    override fun visitChildren(visitor: PetVisitor) = visitor.visit(typeExpr)
+    override fun visitChildren(visitor: Visitor) = visitor.visit(typeExpr)
     override fun toString() = "$typeExpr"
   }
 
@@ -34,7 +33,7 @@ sealed class From : PetNode() {
       override val toType: TypeExpr,
       override val fromType: TypeExpr,
   ) : From() {
-    override fun visitChildren(visitor: PetVisitor) = visitor.visit(toType, fromType)
+    override fun visitChildren(visitor: Visitor) = visitor.visit(toType, fromType)
     override fun toString() = "$toType FROM $fromType"
   }
 
@@ -49,7 +48,7 @@ sealed class From : PetNode() {
       }
     }
 
-    override fun visitChildren(visitor: PetVisitor) =
+    override fun visitChildren(visitor: Visitor) =
         visitor.visit(arguments + className + refinement)
 
     override val toType = className.addArgs(arguments.map { it.toType })

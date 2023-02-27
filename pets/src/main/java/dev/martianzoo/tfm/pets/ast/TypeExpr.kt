@@ -8,7 +8,6 @@ import com.github.h0tk3y.betterParse.grammar.parser
 import com.github.h0tk3y.betterParse.parser.Parser
 import dev.martianzoo.tfm.pets.Parsing
 import dev.martianzoo.tfm.pets.PetParser
-import dev.martianzoo.tfm.pets.PetVisitor
 import dev.martianzoo.tfm.pets.SpecialClassNames.CLASS
 import dev.martianzoo.tfm.pets.ast.ClassName.Parsing.className
 import dev.martianzoo.util.joinOrEmpty
@@ -51,7 +50,7 @@ data class TypeExpr(
     }
   }
 
-  override fun visitChildren(visitor: PetVisitor) =
+  override fun visitChildren(visitor: Visitor) =
       visitor.visit(listOf(className) + arguments + refinement)
 
   override fun toString() =

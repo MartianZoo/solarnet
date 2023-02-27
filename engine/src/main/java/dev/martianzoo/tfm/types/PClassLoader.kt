@@ -12,21 +12,23 @@ import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.pets.ast.PetNode
 import dev.martianzoo.tfm.pets.ast.TypeExpr
-import dev.martianzoo.tfm.pets.childNodesOfType
-import dev.martianzoo.tfm.pets.visitAll
 
 /**
  * All [PClass] instances come from here. Uses an [Authority] to pull class declarations from as
  * needed. Can be [frozen], which prevents additional classes from being loaded, and enables
  * features such as [PClass.allSubclasses] to work.
- *
- * @param authority the source of class declarations to use as needed; [loadEverything] will load
- *   every class found here
- * @param autoLoadDependencies whether, when a class is loaded, to also load any classes that class
- *   depends on in some way; by default only superclasses are auto-loaded
  */
 public class PClassLoader(
+    /**
+     * The source of class declarations to use as needed; [loadEverything] will load every class
+     * found here.
+     */
     private val authority: Authority,
+
+    /**
+     * Whether, when a class is loaded, to also load any classes that class depends on in some way.
+     * By default, only superclasses are auto-loaded.
+     */
     private val autoLoadDependencies: Boolean = false,
 ) {
   /** The `Component` class, which is the root of the class hierarchy. */
@@ -118,7 +120,7 @@ public class PClassLoader(
       if (next !in loadedClasses) {
         val declaration = decl(next)
         loadSingle(next, declaration)
-        val needed = declaration.allNodes.flatMap { childNodesOfType<ClassName>(it) }
+        val needed = declaration.allNodes.flatMap { it.descendantsOfType<ClassName>() }
         queue.addAll(needed.toSet() - loadedClasses.keys - THIS)
       }
     }
@@ -168,9 +170,12 @@ public class PClassLoader(
   public val allInvariants by lazy {}
 
   public fun checkAllTypes(node: PetNode) =
-      visitAll(node) {
+      node.visitDescendants {
         if (it is TypeExpr) {
           resolveType(it).typeExpr
+          false
+        } else {
+          true
         }
       }
 }

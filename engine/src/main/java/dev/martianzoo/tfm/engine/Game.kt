@@ -36,7 +36,7 @@ public class Game(
   fun countComponents(typeExpr: TypeExpr): Int = countComponents(resolveType(typeExpr))
 
   override fun getComponents(type: Type): Multiset<Type> =
-      components.getAll(resolveType(type)).map { it.ptype }
+      components.getAll(resolveType(type)).map { it.type }
 
   fun getComponents(type: PType): Multiset<Component> = components.getAll(type)
 

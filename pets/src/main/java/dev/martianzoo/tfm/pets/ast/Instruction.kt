@@ -10,7 +10,6 @@ import com.github.h0tk3y.betterParse.parser.Parser
 import dev.martianzoo.tfm.pets.Parsing
 import dev.martianzoo.tfm.pets.PetException
 import dev.martianzoo.tfm.pets.PetParser
-import dev.martianzoo.tfm.pets.PetVisitor
 import dev.martianzoo.tfm.pets.ast.From.SimpleFrom
 import dev.martianzoo.util.suf
 
@@ -29,7 +28,7 @@ sealed class Instruction : PetNode() {
     override val removing = null
     override val gaining = scaledType.typeExpr
 
-    override fun visitChildren(visitor: PetVisitor) = visitor.visit(scaledType)
+    override fun visitChildren(visitor: Visitor) = visitor.visit(scaledType)
     override fun toString() = "$scaledType${intensity?.symbol ?: ""}"
 
     init {
@@ -45,7 +44,7 @@ sealed class Instruction : PetNode() {
     override val removing = scaledType.typeExpr
     override val gaining = null
 
-    override fun visitChildren(visitor: PetVisitor) = visitor.visit(scaledType)
+    override fun visitChildren(visitor: Visitor) = visitor.visit(scaledType)
     override fun toString() = "-$scaledType${intensity?.symbol ?: ""}"
 
     init {
@@ -64,7 +63,7 @@ sealed class Instruction : PetNode() {
     override val removing = from.fromType
     override val gaining = from.toType
 
-    override fun visitChildren(visitor: PetVisitor) = visitor.visit(from)
+    override fun visitChildren(visitor: Visitor) = visitor.visit(from)
     override fun toString(): String {
       return "${scalar.suf(' ')}$from${intensity?.symbol ?: ""}"
     }
@@ -92,7 +91,7 @@ sealed class Instruction : PetNode() {
       }
     }
 
-    override fun visitChildren(visitor: PetVisitor) = visitor.visit(scaledType, instruction)
+    override fun visitChildren(visitor: Visitor) = visitor.visit(scaledType, instruction)
 
     override fun precedence() = 8
 
@@ -106,7 +105,7 @@ sealed class Instruction : PetNode() {
       }
     }
 
-    override fun visitChildren(visitor: PetVisitor) = visitor.visit(gate, instruction)
+    override fun visitChildren(visitor: Visitor) = visitor.visit(gate, instruction)
 
     override fun toString(): String {
       return "${groupPartIfNeeded(gate)}: ${groupPartIfNeeded(instruction)}"
@@ -125,7 +124,7 @@ sealed class Instruction : PetNode() {
         vararg arguments: TypeExpr
     ) : this(functionName, arguments.toList())
 
-    override fun visitChildren(visitor: PetVisitor) = visitor.visit(arguments)
+    override fun visitChildren(visitor: Visitor) = visitor.visit(arguments)
 
     override fun toString() = "@$functionName(${arguments.joinToString()})"
   }
@@ -137,7 +136,7 @@ sealed class Instruction : PetNode() {
       require(instructions.size >= 2)
     }
 
-    override fun visitChildren(visitor: PetVisitor) = visitor.visit(instructions)
+    override fun visitChildren(visitor: Visitor) = visitor.visit(instructions)
 
     override fun toString() = instructions.joinToString(" THEN ") { groupPartIfNeeded(it) }
 
@@ -152,7 +151,7 @@ sealed class Instruction : PetNode() {
     }
 
     override fun toString() = instructions.joinToString(" OR ") { groupPartIfNeeded(it) }
-    override fun visitChildren(visitor: PetVisitor) = visitor.visit(instructions)
+    override fun visitChildren(visitor: Visitor) = visitor.visit(instructions)
 
     override fun shouldGroupInside(container: PetNode) =
         container is Then || super.shouldGroupInside(container)
@@ -166,7 +165,8 @@ sealed class Instruction : PetNode() {
     init {
       require(instructions.size >= 2)
     }
-    override fun visitChildren(visitor: PetVisitor) = visitor.visit(instructions)
+
+    override fun visitChildren(visitor: Visitor) = visitor.visit(instructions)
 
     override fun toString() = instructions.joinToString { groupPartIfNeeded(it) }
 
@@ -175,7 +175,7 @@ sealed class Instruction : PetNode() {
 
   data class Transform(val instruction: Instruction, override val transformKind: String) :
       Instruction(), GenericTransform<Instruction> {
-    override fun visitChildren(visitor: PetVisitor) = visitor.visit(instruction)
+    override fun visitChildren(visitor: Visitor) = visitor.visit(instruction)
     override fun toString() = "$transformKind[$instruction]"
 
     override fun extract() = instruction

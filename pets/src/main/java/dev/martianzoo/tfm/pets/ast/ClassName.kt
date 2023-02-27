@@ -2,7 +2,6 @@ package dev.martianzoo.tfm.pets.ast
 
 import com.github.h0tk3y.betterParse.combinators.map
 import dev.martianzoo.tfm.pets.PetParser
-import dev.martianzoo.tfm.pets.PetVisitor
 import dev.martianzoo.util.toSetStrict
 
 public data class ClassName(private val asString: String) : PetNode(), Comparable<ClassName> {
@@ -36,7 +35,8 @@ public data class ClassName(private val asString: String) : PetNode(), Comparabl
 
   override val kind = "ClassName"
 
-  override fun visitChildren(visitor: PetVisitor) {}
+  override fun visitChildren(visitor: Visitor) {
+  }
 
   public object Parsing : PetParser() {
     val classShortName = _allCapsWordRE map { cn(it.text) } // currently unused

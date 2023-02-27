@@ -16,10 +16,20 @@ internal sealed class Dependency {
    * Once a class introduces a dependency, like `CLASS Tile<Area>`, all subclasses know that
    * dependency (which they inherit) by the same key, whether they narrow the type or not.
    */
-  data class Key(val declaringClass: ClassName, val index: Int) {
+  data class Key(
+      /**
+       * The name of the class originally declaring this dependency (not just narrowing it from a
+       * supertype).
+       */
+      val declaringClass: ClassName,
+
+      /** The ordinal of this dependency within that list, 0-referenced. */
+      val index: Int,
+  ) {
     init {
       require(index >= 0)
     }
+
     override fun toString() = "${declaringClass}_$index"
   }
 
