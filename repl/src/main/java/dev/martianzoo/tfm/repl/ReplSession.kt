@@ -144,21 +144,20 @@ internal val INPUT_REGEX = Regex("""^\s*(\S+)(.*)$""")
 
 private val HELP =
     """
-      newgame BMP 3        ->  ERASE CURRENT GAME and start a new 3p game with Base/Tharsis/Prelude
-      become Player1       ->  make Player1 the default player for future commands
+      newgame BMV 3        ->  ERASES CURRENT GAME, starts a new 3p game with Base/Tharsis/Venus
+      become Player1       ->  makes Player1 the default player for future commands
       count Plant          ->  counts how many Plants the default player has
       count Plant<Anyone>  ->  counts how many Plants anyone has
-      list Tile            ->  lists all Tiles you have
-      has MAX 3 OceanTile  ->  evaluates a requirement in the current game state
-      exec PROD[3 Heat]    ->  gives the default player 3 heat prod, NOT triggering effects
-      rollback 987         ->  undo recent changes up to and including change 987
-      changes              ->  see the changelog (useful bits) for the current game
-      allchanges           ->  see the entire disgusting changelog
-      history              ->  see your *command* history
+      list Tile            ->  list all Tiles you have
+      has MAX 3 OceanTile  ->  evaluates a requirement (true/false) in the current game state
+      exec PROD[3 Heat]    ->  gives the default player 3 heat production, NOT triggering effects
+      rollback 987         ->  undoes recent changes up to and including change 987
+      changes              ->  shows the changelog (the useful bits) for the current game
+      allchanges           ->  shows the entire disgusting changelog
+      history              ->  shows your *command* history
       board                ->  displays an extremely bad looking player board
       map                  ->  displays an extremely bad looking map
       desc Microbe         ->  describes the Microbe class in detail (given this game setup)
-      help                 ->  see this message
-      exit                 ->  waste time differently
-    """
-        .trimIndent()
+      help                 ->  shows this message
+      exit                 ->  go waste time differently
+    """.trimIndent()
