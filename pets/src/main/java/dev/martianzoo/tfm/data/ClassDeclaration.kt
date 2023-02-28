@@ -48,9 +48,7 @@ data class ClassDeclaration(
         setOfNotNull(topInvariant) +
         otherInvariants +
         effectsRaw +
-        defaultsDeclaration.universalSpecs +
-        defaultsDeclaration.gainOnlySpecs +
-        defaultsDeclaration.removeOnlySpecs +
+        defaultsDeclaration.allNodes +
         extraNodes
   }
 
@@ -77,5 +75,7 @@ data class ClassDeclaration(
         )
       }
     }
+
+    internal val allNodes: Set<PetNode> = (universalSpecs + gainOnlySpecs + removeOnlySpecs).toSet()
   }
 }

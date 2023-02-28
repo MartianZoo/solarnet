@@ -47,7 +47,7 @@ public object AstTransforms {
     return Then(allInstructions)
   }
 
-  internal fun actionsToEffects(actions: List<Action>): List<Effect> =
+  internal fun actionListToEffects(actions: Collection<Action>): List<Effect> =
       actions.withIndex().map { (index0Ref, action) ->
         actionToEffect(action, index1Ref = index0Ref + 1)
       }

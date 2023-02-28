@@ -16,7 +16,7 @@ import dev.martianzoo.tfm.data.ClassDeclaration
 import dev.martianzoo.tfm.data.ClassDeclaration.DefaultsDeclaration
 import dev.martianzoo.tfm.data.ClassDeclaration.DependencyDeclaration
 import dev.martianzoo.tfm.data.EnglishHack.shortName
-import dev.martianzoo.tfm.pets.AstTransforms.actionsToEffects
+import dev.martianzoo.tfm.pets.AstTransforms.actionListToEffects
 import dev.martianzoo.tfm.pets.ClassDeclarationParsers.Body.BodyElement
 import dev.martianzoo.tfm.pets.ClassDeclarationParsers.Body.BodyElement.ActionElement
 import dev.martianzoo.tfm.pets.ClassDeclarationParsers.Body.BodyElement.DefaultsElement
@@ -244,7 +244,7 @@ internal object ClassDeclarationParsers : PetParser() {
             signature.asClassDecl.copy(
                 abstract = abstract,
                 otherInvariants = body.invariants.toSetStrict(),
-                effectsRaw = (body.effects + actionsToEffects(body.actions)).toSetStrict(),
+                effectsRaw = (body.effects + actionListToEffects(body.actions)).toSetStrict(),
                 defaultsDeclaration = DefaultsDeclaration.merge(body.defaultses),
             )
         val unnested = body.nestedGroups.flatMap { it.unnestAllFrom(signature.asClassDecl.name) }

@@ -3,6 +3,7 @@ package dev.martianzoo.tfm.data
 import com.squareup.moshi.FromJson
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
+import dev.martianzoo.tfm.data.CardDefinition.CardData
 import dev.martianzoo.tfm.data.MarsMapDefinition.AreaDefinition
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
@@ -13,9 +14,9 @@ object JsonReader {
 
   // CARDS
 
-  fun readCards(json5: String) = fromJson5<CardList>(json5).cards
+  fun readCards(json5: String): List<CardData> = fromJson5<CardList>(json5).cards
 
-  private class CardList(val cards: List<CardDefinition>)
+  private class CardList(val cards: List<CardData>)
 
   // MILESTONES
 

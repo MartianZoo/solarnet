@@ -90,7 +90,7 @@ public class PClassLoader(
       when {
         frozen -> getClass(idOrName)
         autoLoadDependencies -> {
-          loadTrees(listOf(idOrName))
+          autoLoad(listOf(idOrName))
           getClass(idOrName)
         }
         else -> loadSingle(idOrName)
@@ -101,7 +101,7 @@ public class PClassLoader(
    */
   public fun loadAll(idsAndNames: Collection<ClassName>) =
       if (autoLoadDependencies) {
-        loadTrees(idsAndNames)
+        autoLoad(idsAndNames)
       } else {
         idsAndNames.forEach(::loadSingle)
       }
@@ -113,7 +113,8 @@ public class PClassLoader(
     return this
   }
 
-  private fun loadTrees(idsAndNames: Collection<ClassName>) {
+  private fun autoLoad(idsAndNames: Collection<ClassName>) {
+    require(autoLoadDependencies)
     val queue = ArrayDeque(idsAndNames.toSet())
     while (queue.any()) {
       val next = queue.removeFirst()

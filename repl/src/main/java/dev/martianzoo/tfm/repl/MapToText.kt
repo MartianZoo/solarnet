@@ -43,7 +43,7 @@ internal class MapToText(private val game: ReadOnlyGameState) {
 
   private fun describe(area: AreaDefinition?): String { // TODO rewrite using Grid<String>
     if (area == null) return ""
-    val typeExpr = typeExpr("Tile<${area.asClassDeclaration.name}>")
+    val typeExpr = typeExpr("Tile<${area.className}>")
     val tiles = game.getComponents(game.resolveType(typeExpr))
     return when (tiles.size) {
       0 -> area.code

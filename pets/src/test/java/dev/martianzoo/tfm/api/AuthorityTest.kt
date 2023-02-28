@@ -2,7 +2,7 @@ package dev.martianzoo.tfm.api
 
 import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.tfm.data.CardDefinition
-import dev.martianzoo.tfm.data.CardDefinition.Deck
+import dev.martianzoo.tfm.data.CardDefinition.CardData
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import org.junit.jupiter.api.Test
 
@@ -15,11 +15,12 @@ private class AuthorityTest {
           override val cardDefinitions =
               setOf(
                   CardDefinition(
-                      idRaw = "123",
-                      deck = Deck.PRELUDE,
-                      effectsText = setOf("This: Plant"),
-                      bundle = "Z",
-                      extraClassesText = setOf("CLASS Foo<Boo> : Loo { HAS =1 Bar; Abc: Xyz }")))
+                      CardData(
+                          id = "123",
+                          deck = "PRELUDE",
+                          effects = setOf("This: Plant"),
+                          bundle = "Z",
+                          components = setOf("CLASS Foo<Boo> : Loo { HAS =1 Bar; Abc: Xyz }"))))
         }
     assertThat(authority.allClassNames).hasSize(2)
     assertThat(authority.classDeclaration(cn("IndustrialCenter")).abstract).isFalse()

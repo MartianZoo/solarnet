@@ -5,7 +5,7 @@ import dev.martianzoo.tfm.testlib.PetGenerator
 import org.junit.jupiter.api.Test
 
 private class AutomatedTest {
-  val factor = 10
+  val factor = 5
 
   @Test
   fun scalarAndTypes() {

@@ -2,8 +2,8 @@ package dev.martianzoo.tfm.pets
 
 import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.tfm.api.SpecialClassNames.THIS
+import dev.martianzoo.tfm.pets.AstTransforms.actionListToEffects
 import dev.martianzoo.tfm.pets.AstTransforms.actionToEffect
-import dev.martianzoo.tfm.pets.AstTransforms.actionsToEffects
 import dev.martianzoo.tfm.pets.AstTransforms.deprodify
 import dev.martianzoo.tfm.pets.AstTransforms.immediateToEffect
 import dev.martianzoo.tfm.pets.AstTransforms.replaceTypes
@@ -49,7 +49,7 @@ private class AstTransformsTest {
   @Test
   fun testActionsToEffects() {
     val actions: List<Action> = listOf("-> Foo", "Foo -> 5 Bar").map(::action)
-    assertThat(actionsToEffects(actions))
+    assertThat(actionListToEffects(actions))
         .containsExactly(
             effect("UseAction1<This>: Foo"),
             effect("UseAction2<This>: -Foo! THEN 5 Bar"),
