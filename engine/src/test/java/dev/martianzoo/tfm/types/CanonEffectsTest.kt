@@ -51,7 +51,7 @@ private class CanonEffectsTest {
     assertThat(card.classEffects)
         .containsExactly(
             effect(
-                // TODO parens
+                // TODO remove parens
                 "This: CityTile<Owner, LandArea(HAS MAX 0 Neighbor<CityTile<Anyone>>)>!, " +
                     "(-2 Production<Owner, Class<Energy>>!, " +
                     "Production<Owner, Class<Megacredit>>! / VenusTag<Owner>, " +
@@ -86,7 +86,6 @@ private class CanonEffectsTest {
     assertThat(load("Teractor").classEffects)
         .containsExactly(
             effect("This: 60 Megacredit<Owner>!"),
-            // TODO simplify
             effect("PlayTag<Owner, Class<EarthTag>>:: -3 Owed<Owner>."),
         )
   }
@@ -143,7 +142,6 @@ private class CanonEffectsTest {
 
   @Test
   fun floaterPrototypes() {
-    // TODO gross
     assertThat(load("FloaterPrototypes").classEffects)
         .containsExactly(
             effect("This: 2 Floater<Owner>."),

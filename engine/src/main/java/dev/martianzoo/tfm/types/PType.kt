@@ -33,7 +33,7 @@ private constructor(
     } else {
       require(allDependencies.types.all { it is TypeDependency })
     }
-    // if (refinement != null) pclass.loader.checkAllTypes(refinement) // TODO SOE
+    if (refinement != null) pclass.loader.checkAllTypes(refinement)
   }
   override val abstract = pclass.abstract || allDependencies.abstract || refinement != null
 

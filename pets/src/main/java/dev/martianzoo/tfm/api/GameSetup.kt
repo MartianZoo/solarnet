@@ -22,10 +22,6 @@ data class GameSetup(
 
     /** Number of players. Only 2-5 are supported for now. Solo mode will take quite some work. */
     val players: Int,
-
-    // TODO extraCards: Set<CardDefinition>,
-    // TODO removeCards: Set<CardDefinition>,
-    // TODO milestones: Set<MilestoneDefinition>,
 ) {
   constructor(
       authority: Authority,
@@ -38,7 +34,6 @@ data class GameSetup(
   ) : this(authority, splitLetters(bundles), players)
 
   init {
-    // TODO solo mode much later
     require(players in 2..5) { "player count not supported: $players" }
     require("B" in bundles) { "missing base: $bundles" }
     require(authority.allBundles.containsAll(bundles)) { bundles }

@@ -60,8 +60,6 @@ public class CardDefinition(data: CardData) : Definition {
    */
   val resourceType: ClassName? = data.resourceType?.let(::cn)
 
-  // TODO unlazify
-
   /** Immediate effects on the card, if any. */
   val immediate: Instruction? = data.immediate?.let(::instruction)
 
@@ -139,6 +137,7 @@ public class CardDefinition(data: CardData) : Definition {
         extraNodes = extraNodes)
   }
 
+  // TODO why public, why lazy, etc
   val extraNodes: Set<PetNode> by lazy {
     setOfNotNull(resourceType, requirement, projectKind?.className, deck?.className) +
         tags +
@@ -153,7 +152,7 @@ public class CardDefinition(data: CardData) : Definition {
   }
 
   /** A kind (color) of project; see [CardDefinition.projectKind]. */
-  enum class ProjectKind(val className: ClassName) { // TODO json adapter?
+  enum class ProjectKind(val className: ClassName) {
     EVENT(EVENT_CARD),
     AUTOMATED(AUTOMATED_CARD),
     ACTIVE(ACTIVE_CARD)

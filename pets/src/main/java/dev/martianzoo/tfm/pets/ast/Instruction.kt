@@ -103,7 +103,7 @@ public sealed class Instruction : PetNode() {
   data class Gated(val gate: Requirement, val instruction: Instruction) : Instruction() {
     init {
       if (instruction is Gated) {
-        throw PetException("You don't gate a gater") // TODO keep??
+        throw PetException("You don't gate a gater") // TODO enable
       }
     }
 

@@ -10,7 +10,7 @@
     // Claim milestone
     { "id": "SAC", "bundle": "B", "action": "8 -> Milestone" },
 
-    // Fund award TODO
+    // Fund award
     // { "id": "SAD", "bundle": "B", "action": "6, 8 / Award -> Award" },
 
     // Use card action
@@ -23,10 +23,10 @@
     // Convert heat
     { "id": "SAG", "bundle": "B", "action": "8 Heat -> TemperatureStep" },
 
-    // TODO SAH = Trade, SAI = Send delegate
+    // SAH = Trade, SAI = Send delegate
 
     // Sell patents - yes, it's technically a project, but that makes things annoying
-    { "id": "SELL", "bundle": "B", "action": "1 ProjectCard -> 1" }, // TODO "X"
+    { "id": "SELL", "bundle": "B", "action": "1 ProjectCard -> 1" }, // needs "X"
   ],
 
   "projects": [
@@ -40,8 +40,8 @@
     // Air-Scrapping
     { "id": "SP15", "bundle": "V", "action": "15 -> VenusStep" },
 
-    // TODO Buffer gas, but we're a long way from supporting solo
-    // TODO Build colony, but we're a medium way from colonies
+    // Buffer Gas
+    // Build Colony
 
     // Aquifer
     { "id": "SP18", "bundle": "B", "action": "18 -> OceanTile" },

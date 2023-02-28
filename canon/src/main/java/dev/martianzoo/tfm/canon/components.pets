@@ -7,11 +7,11 @@
 
 // GLOBAL PARAMETERS ---------------------------------------
 
-ABSTRACT CLASS GlobalParameter {                            // TODO instances must be added 1-by-1 - how to ensure?
+ABSTRACT CLASS GlobalParameter {                            // Instances must be added 1-by-1 - how to ensure?
                                                             // ... in theory, a trigger like `2 GP: Die`
     DEFAULT +This.                                          // by default, gains are "if possible"
 
-    This: TerraformRating                                   // becomes `This BY Player: TR<Player>` TODO
+    This: TerraformRating                                   // becomes `This BY Owner: TR<Owner>`
 
     CLASS TemperatureStep {                                 // In PETS, nested classes automatically have their
         HAS MAX 19 This                                     // enclosing class as a superclass.
@@ -47,7 +47,7 @@ ABSTRACT CLASS MarsMap {                                    // Tharsis etc. are 
     // This:: @createBorders(This)
 }
 
-ABSTRACT CLASS Area(HAS MAX 1 Tile) {                       // TODO move invar to Tile somehow
+ABSTRACT CLASS Area(HAS MAX 1 Tile) {                       // TODO move invar to Tile somehow?
     HAS MAX 1 This
 
     ABSTRACT CLASS MarsArea {                               // the individual areas are loaded from `maps.json5`

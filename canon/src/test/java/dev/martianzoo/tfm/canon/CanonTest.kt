@@ -67,7 +67,7 @@ private class CanonTest {
     assertThat(grid.columns().first().toSet()).containsExactly(null)
     assertThat(grid.columns().drop(1).all(::hasAtLeast5)).isTrue()
 
-    // So, the way Grid handles diagonals is a little weird ... TODO
+    // The way Grid handles diagonals is a little weird, to be sure
     assertThat(grid.diagonals().size).isEqualTo(19)
     assertThat(grid.diagonals().subList(0, 5).flatten().toSet()).containsExactly(null)
     assertThat(grid.diagonals().subList(5, 14).all(::hasAtLeast5)).isTrue()

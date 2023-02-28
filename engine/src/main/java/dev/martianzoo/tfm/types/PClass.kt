@@ -117,8 +117,10 @@ internal constructor(
             .all(::isSuperclassOf)
   }
 
-  /** Returns the greatest lower bound of `this` and [that], or null if there is no such class. */
-  // TODO explain better
+  /**
+   * Returns the greatest lower bound class of `this` and [that], if it exists. The returned class
+   * is guaranteed to be a superclass of any class that has both `this` and [that] as superclasses.
+   */
   public fun intersect(that: PClass): PClass? =
       when {
         this.isSubclassOf(that) -> this
@@ -182,7 +184,7 @@ internal constructor(
     }
   }
 
-  // TODO hack
+  // TODO figure out a more principled way to do this
   private fun defaultsIgnoringRoot(): Defaults =
       if (className == COMPONENT) {
         Defaults()

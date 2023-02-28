@@ -9,7 +9,7 @@ import dev.martianzoo.tfm.types.PClass
 import dev.martianzoo.tfm.types.PClassLoader
 import dev.martianzoo.util.iff
 
-object PTypeToText {
+object PTypeToText { // TODO refactor to ClassInfo / TypeInfo type dealies
   /** A detailed multi-line description of the class. */
   public fun describe(expr: TypeExpr, loader: PClassLoader): String {
     fun descendingBySubclassCount(classes: Iterable<PClass>) =
@@ -31,12 +31,12 @@ object PTypeToText {
 
     val nameId = "${pclass.className}" + "[${pclass.id}]".iff(pclass.id != pclass.className)
 
+    // TODO linkages?
     val classStuff = """
       Class $nameId:
           subclasses: $substring
           invariants: ${pclass.invariants.joinToString("""
                       """)}
-          linkages:   TODO
           base type:  ${pclass.baseType.typeExprFull}
           class fx:   ${pclass.classEffects.joinToString("""
                       """)}
@@ -44,6 +44,7 @@ object PTypeToText {
 
     """.trimIndent().iff(expr.isTypeOnly)
 
+    // TODO linkages?
     val typeStuff = """
       Type $expr:
           std form:   ${ptype}

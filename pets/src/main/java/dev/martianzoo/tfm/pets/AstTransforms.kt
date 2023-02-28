@@ -74,6 +74,7 @@ public object AstTransforms {
   /** Transform any `PROD[...]` sections in a subtree to the equivalent subtree. */
   public fun <P : PetNode> deprodify(node: P, producible: Set<ClassName>): P {
     // TODO is there some way this could act on Types instead of TypeExprs?
+    // TODO eliminate unnecessary grouping
     val xer =
         object : PetTransformer() {
           var inProd: Boolean = false

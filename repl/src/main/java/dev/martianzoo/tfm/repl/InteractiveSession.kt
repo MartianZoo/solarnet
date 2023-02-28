@@ -72,7 +72,8 @@ class InteractiveSession {
 
   fun rollBackToBefore(ordinal: Int) = game!!.rollBack(ordinal)
 
-  // TODO somehow do this with Type not TypeExpr
+  // TODO somehow do this with Type not TypeExpr?
+  // TODO Let game take care of this itself?
   fun <P : PetNode> fixTypes(node: P): P {
     val xer = game!!.loader.transformer
     var result = node

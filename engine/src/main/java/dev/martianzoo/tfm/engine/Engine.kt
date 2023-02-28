@@ -42,8 +42,6 @@ public object Engine {
     return game
   }
 
-  // TODO maybe the loader should report these
-
   private fun classInstances(loader: PClassLoader): List<PType> =
       loader.allClasses.filter { !it.abstract }.map { it.classType }
 

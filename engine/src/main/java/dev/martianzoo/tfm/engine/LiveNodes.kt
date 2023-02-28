@@ -42,7 +42,7 @@ internal object LiveNodes {
           Custom(
               game.setup.authority.customInstruction(ins.functionName),
               ins.arguments.map { game.resolveType(it) })
-      is Instruction.Or -> OrIns(ins.instructions.toList().map { from(it, game) }) // TODO
+      is Instruction.Or -> OrIns(ins.instructions.map { from(it, game) })
       is Instruction.Then -> Then(ins.instructions.map { from(it, game) })
       is Instruction.Multi -> Then(ins.instructions.map { from(it, game) })
       is Instruction.Transform -> error("should have been transformed already")
@@ -67,7 +67,7 @@ internal object LiveNodes {
     override fun times(factor: Int) = Change(count * factor, intensity, removing, gaining)
 
     override fun execute(game: GameState) {
-      // treat null as MANDATORY (TODO)
+      // treat null as MANDATORY (TODO change that?)
       if (intensity == OPTIONAL) {
         throw AbstractInstructionException("optional")
       }

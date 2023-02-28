@@ -137,7 +137,6 @@ private class AstTransformsTest {
 
   @Test
   fun testDeprodify_lessSimple() {
-    // TODO adds unnecessary grouping, do we care?
     val prodden: Effect =
         effect(
             "PROD[Plant]: PROD[Ooh?, Steel. / Ahh, Foo<Xyz FROM " +
