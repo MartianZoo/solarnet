@@ -19,6 +19,7 @@ object EnglishHack {
   private fun classNameMap(vararg pairs: Pair<String, String>) =
       pairs.associate { (a, b) -> cn(a) to cn(b) }
 
+  @Suppress("SpellCheckingInspection")
   val ENGLISH_HACK =
       classNameMap(
           "SAA" to "PlayCardFromHand",

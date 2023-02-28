@@ -47,7 +47,7 @@ object PTypeToText { // TODO refactor to ClassInfo / TypeInfo type dealies
     // TODO linkages?
     val typeStuff = """
       Type $expr:
-          std form:   ${ptype}
+          std form:   $ptype
           long form:  ${ptype.typeExprFull}
           supertypes: ${ptype.supertypes().joinToString()}
           defaults:   $gain / $remove

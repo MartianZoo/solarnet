@@ -3,7 +3,6 @@ package dev.martianzoo.tfm.types
 import dev.martianzoo.tfm.types.Dependency.Key
 import dev.martianzoo.tfm.types.Dependency.TypeDependency
 import dev.martianzoo.util.mergeMaps
-import dev.martianzoo.util.overlayMaps
 
 // Takes care of everything inside the <> but knows nothing of what's outside it
 internal data class DependencyMap(private val map: Map<Key, Dependency>) {
@@ -17,7 +16,6 @@ internal data class DependencyMap(private val map: Map<Key, Dependency>) {
 
   val keys by map::keys
   val types by map::values
-  fun isEmpty() = map.isEmpty()
 
   val abstract = types.any { it.abstract }
 
@@ -33,8 +31,6 @@ internal data class DependencyMap(private val map: Map<Key, Dependency>) {
     val merged = mergeMaps(this.map, that.map) { a, b -> a.intersect(b)!! }
     return DependencyMap(merged)
   }
-
-  fun overlayOn(that: DependencyMap) = DependencyMap(overlayMaps(this.map, that.map))
 
   operator fun minus(that: DependencyMap) =
       DependencyMap((map.entries - that.map.entries).associate { it.key to it.value })

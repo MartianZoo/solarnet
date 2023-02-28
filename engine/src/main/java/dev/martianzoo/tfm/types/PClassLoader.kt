@@ -168,8 +168,6 @@ public class PClassLoader(
 
   public val transformer: LiveTransformer by lazy { LiveTransformer(this) }
 
-  public val allInvariants by lazy {}
-
   public fun checkAllTypes(node: PetNode) =
       node.visitDescendants {
         if (it is TypeExpr) {

@@ -82,11 +82,6 @@ internal constructor(
     (directSuperclasses.flatMap { it.allSuperclasses } + this).toSet()
   }
 
-  /** Every class `c` for which `this in c.directSuperclasses` */
-  public val directSubclasses: Set<PClass> by lazy {
-    loader.allClasses.filter { this in it.directSuperclasses }.toSet()
-  }
-
   /** Every class `c` for which `c.isSubclassOf(this)` is true, including this class itself. */
   public val allSubclasses: Set<PClass> by lazy {
     loader.allClasses.filter { this in it.allSuperclasses }.toSet()
@@ -255,8 +250,6 @@ internal constructor(
       declaration.otherInvariants.any { it.requiresThis() } ||
           directSuperclasses.any { it.isSingleton() }
 
-  internal fun findMatchups(specs: List<PType>) = baseType.allDependencies.findMatchups(specs)
-
   /**
    * Returns a set of absolute invariants that must always be true; note that these can contain
    * references to the type `This`, which are to be substituted with the concrete type.
@@ -283,6 +276,6 @@ internal constructor(
 
   companion object {
     fun superclasses(declaration: ClassDeclaration, loader: PClassLoader) =
-        declaration.supertypes.classNames().map(loader::load)
+        declaration.supertypes.classNames().map { loader.load(it) }
   }
 }

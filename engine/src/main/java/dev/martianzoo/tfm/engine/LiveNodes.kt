@@ -119,22 +119,24 @@ internal object LiveNodes {
     override fun execute(game: GameState) = instructions.forEach { it.execute(game) }
   }
 
-  fun from(req: Requirement, game: GameState): LiveRequirement {
+  fun from(reqt: Requirement, game: GameState): LiveRequirement {
     fun count(scaledType: ScaledTypeExpr) =
         game.countComponents(game.resolveType(scaledType.typeExpr))
 
-    return when (req) {
-      is Min -> LiveRequirement { count(req.scaledType) >= req.scaledType.scalar }
-      is Max -> LiveRequirement { count(req.scaledType) <= req.scaledType.scalar }
-      is Exact -> LiveRequirement { count(req.scaledType) == req.scaledType.scalar }
+    return when (reqt) {
+      is Min -> LiveRequirement { count(reqt.scaledType) >= reqt.scaledType.scalar }
+      is Max -> LiveRequirement { count(reqt.scaledType) <= reqt.scaledType.scalar }
+      is Exact -> LiveRequirement { count(reqt.scaledType) == reqt.scaledType.scalar }
       is Requirement.Or -> {
-        val reqs = req.requirements.toList().map { from(it, game) }
-        LiveRequirement { reqs.any { it.evaluate(game) } }
+        val reqts = reqt.requirements.toList().map { from(it, game) }
+        LiveRequirement { reqts.any { it.evaluate(game) } }
       }
+
       is Requirement.And -> {
-        val reqs = req.requirements.map { from(it, game) }
-        LiveRequirement { reqs.all { it.evaluate(game) } }
+        val reqts = reqt.requirements.map { from(it, game) }
+        LiveRequirement { reqts.all { it.evaluate(game) } }
       }
+
       is Requirement.Transform -> error("should have been transformed by now")
     }
   }

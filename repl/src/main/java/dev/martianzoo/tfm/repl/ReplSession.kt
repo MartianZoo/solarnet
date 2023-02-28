@@ -33,9 +33,11 @@ public class ReplSession(private val authority: Authority) {
   internal val session = InteractiveSession()
 
   public fun command(wholeCommand: String): List<String> {
-    val (_, command, args) = INPUT_REGEX.matchEntire(wholeCommand)?.groupValues ?: return listOf()
+    val (_, command, args) = inputRegex.matchEntire(wholeCommand)?.groupValues ?: return listOf()
     return command(command, args.ifBlank { null })
   }
+
+  internal val inputRegex = Regex("""^\s*(\S+)(.*)$""")
 
   internal fun command(commandName: String, args: String?): List<String> {
     if (commandName !in setOf("help", "newgame") && session.game == null) {
@@ -47,7 +49,7 @@ public class ReplSession(private val authority: Authority) {
 
   private val commands =
       mapOf<String, (String?) -> List<String>>(
-          "help" to { listOf(HELP) },
+          "help" to { listOf(helpText) },
           "newgame" to
               {
                 it?.let { args ->
@@ -116,9 +118,10 @@ public class ReplSession(private val authority: Authority) {
           "exec" to
               {
                 it?.let { args ->
-                  val logsize = session.game!!.changeLogFull().size
+                  val logSize = session.game!!.changeLogFull().size
                   val instr = session.execute(instruction(args))
-                  session.game!!.changeLogFull().drop(logsize).toStrings()
+                  val results = session.game!!.changeLogFull().drop(logSize)
+                  listOf("Executing `$instr` ...") + results.toStrings()
                 } ?: listOf("Usage: exec <Instruction>")
               },
           "rollback" to
@@ -138,12 +141,8 @@ public class ReplSession(private val authority: Authority) {
                 } ?: listOf("Usage: desc <ClassName>")
               },
       )
-}
 
-internal val INPUT_REGEX = Regex("""^\s*(\S+)(.*)$""")
-
-private val HELP =
-    """
+  private val helpText: String = """
       newgame BMV 3        ->  ERASES CURRENT GAME, starts a new 3p game with Base/Tharsis/Venus
       become Player1       ->  makes Player1 the default player for future commands
       count Plant          ->  counts how many Plants the default player has
@@ -160,4 +159,5 @@ private val HELP =
       desc Microbe         ->  describes the Microbe class in detail (given this game setup)
       help                 ->  shows this message
       exit                 ->  go waste time differently
-    """.trimIndent()
+  """.trimIndent()
+}

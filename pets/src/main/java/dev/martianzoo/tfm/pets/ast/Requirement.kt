@@ -13,7 +13,7 @@ import dev.martianzoo.tfm.pets.PetException
 import dev.martianzoo.tfm.pets.PetParser
 
 sealed class Requirement : PetNode() {
-  open fun requiresThis() = false
+  open fun requiresThis() = false // TODO kick this out
 
   data class Min(val scaledType: ScaledTypeExpr) : Requirement() {
     override fun visitChildren(visitor: Visitor) = visitor.visit(scaledType)
@@ -30,12 +30,12 @@ sealed class Requirement : PetNode() {
 
   data class Max(val scaledType: ScaledTypeExpr) : Requirement() {
     override fun visitChildren(visitor: Visitor) = visitor.visit(scaledType)
-    override fun toString() = "MAX ${scaledType.toString(true, true)}" // no "MAX 5" or "MAX Heat"
+    override fun toString() = "MAX ${scaledType.toFullString()}" // no "MAX 5" or "MAX Heat"
   }
 
   data class Exact(val scaledType: ScaledTypeExpr) : Requirement() {
     override fun visitChildren(visitor: Visitor) = visitor.visit(scaledType)
-    override fun toString() = "=${scaledType.toString(true, true)}" // no "=5" or "=Heat"
+    override fun toString() = "=${scaledType.toFullString()}" // no "=5" or "=Heat"
 
     override fun requiresThis() = this.scaledType == ScaledTypeExpr.scaledType(1, THIS.type)
   }

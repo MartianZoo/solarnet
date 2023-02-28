@@ -17,7 +17,7 @@ import dev.martianzoo.util.map
 public class Game(
     override val setup: GameSetup,
     internal val components: ComponentGraph,
-    public val loader: PClassLoader, // TODO unpublic it
+    public val loader: PClassLoader, // TODO not public
 ) : GameState {
   // val tasks = mutableListOf<Task>()
 

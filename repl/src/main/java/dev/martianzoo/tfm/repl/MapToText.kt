@@ -65,6 +65,7 @@ internal class MapToText(private val game: ReadOnlyGameState) {
     return "[$kind$player]"
   }
 
+  // TODO share
   private fun padCenter(s: String, length: Int): String {
     val before = (length - s.length + 1) / 2
     val after = (length - s.length) / 2

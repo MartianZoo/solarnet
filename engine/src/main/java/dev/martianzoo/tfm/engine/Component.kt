@@ -23,7 +23,7 @@ public data class Component(
 
   /**
    * Whether this type is categorically a subtype of [thatType] for any possible game state. (In the
-   * absence of refinements, this is an ordinary subtype check.
+   * absence of refinements, this is an ordinary subtype check.)
    */
   public fun alwaysHasType(thatType: PType) = ptype.isSubtypeOf(thatType)
 

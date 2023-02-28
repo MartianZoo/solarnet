@@ -63,13 +63,13 @@ data class ClassDeclaration(
   ) {
     companion object {
       fun merge(defs: Collection<DefaultsDeclaration>): DefaultsDeclaration {
-        val univ = defs.map { it.universalSpecs }.firstOrNull { it.any() } ?: listOf()
+        val universal = defs.map { it.universalSpecs }.firstOrNull { it.any() } ?: listOf()
         val gain = defs.map { it.gainOnlySpecs }.firstOrNull { it.any() } ?: listOf()
-        val remov = defs.map { it.removeOnlySpecs }.firstOrNull { it.any() } ?: listOf()
+        val remove = defs.map { it.removeOnlySpecs }.firstOrNull { it.any() } ?: listOf()
         return DefaultsDeclaration(
-            universalSpecs = univ,
+            universalSpecs = universal,
             gainOnlySpecs = gain,
-            removeOnlySpecs = remov,
+            removeOnlySpecs = remove,
             gainIntensity = defs.firstNotNullOfOrNull { it.gainIntensity },
             removeIntensity = defs.firstNotNullOfOrNull { it.removeIntensity },
         )

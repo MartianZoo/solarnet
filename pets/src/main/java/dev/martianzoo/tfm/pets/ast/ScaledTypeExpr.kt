@@ -16,7 +16,8 @@ data class ScaledTypeExpr(
 ) : PetNode() {
   override fun visitChildren(visitor: Visitor) = visitor.visit(typeExpr)
 
-  override fun toString() = toString(false, false)
+  override fun toString() = toString(forceScalar = false, forceType = false)
+  fun toFullString() = toString(forceScalar = true, forceType = true)
 
   fun toString(forceScalar: Boolean = false, forceType: Boolean = false) =
       when {

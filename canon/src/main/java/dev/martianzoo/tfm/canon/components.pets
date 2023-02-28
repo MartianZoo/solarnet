@@ -34,7 +34,7 @@ ABSTRACT CLASS GlobalParameter {                            // Instances must be
     CLASS OceanTile : Tile<MarsArea> {
         HAS MAX 9 OceanTile
         DEFAULT +This<WaterArea>
-        ForwardAdjacency<This, Tile>: 2                     // We could almost count all Adjacencys, except that the
+        ForwardAdjacency<This, Tile>: 2                     // We could almost count all adjacencies, except that the
     }                                                       // placement of this tile itself would trigger it
 }
 

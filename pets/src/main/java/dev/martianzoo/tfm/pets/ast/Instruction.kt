@@ -76,8 +76,8 @@ public sealed class Instruction : PetNode() {
       }
     }
 
-    override fun shouldGroupInside(container: PetNode) =
-        (from is SimpleFrom && container is Or) || super.shouldGroupInside(container)
+    override fun safeToNestIn(container: PetNode) =
+        super.safeToNestIn(container) && (from !is SimpleFrom || container !is Or)
 
     override fun precedence() = if (from is SimpleFrom) 7 else 10
   }
@@ -114,8 +114,8 @@ public sealed class Instruction : PetNode() {
     }
 
     // let's over-group for clarity
-    override fun shouldGroupInside(container: PetNode) =
-        container is Or || super.shouldGroupInside(container)
+    override fun safeToNestIn(container: PetNode) =
+        super.safeToNestIn(container) && container !is Or
 
     override fun precedence() = 6
   }
@@ -155,8 +155,8 @@ public sealed class Instruction : PetNode() {
     override fun toString() = instructions.joinToString(" OR ") { groupPartIfNeeded(it) }
     override fun visitChildren(visitor: Visitor) = visitor.visit(instructions)
 
-    override fun shouldGroupInside(container: PetNode) =
-        container is Then || super.shouldGroupInside(container)
+    override fun safeToNestIn(container: PetNode) =
+        super.safeToNestIn(container) && container !is Then
 
     override fun precedence() = 4
   }
@@ -208,18 +208,15 @@ public sealed class Instruction : PetNode() {
       return parser {
         val scaledType: Parser<ScaledTypeExpr> = ScaledTypeExpr.parser()
 
-        val optlIntens = optional(intensity)
         val gain: Parser<Gain> =
-            scaledType and optlIntens map { (ste, intens) -> Gain(ste, intens) }
+            scaledType and optional(intensity) map { (ste, int) -> Gain(ste, int) }
         val remove: Parser<Remove> =
             skipChar('-') and gain map { Remove(it.scaledType, it.intensity) }
 
         val transmute: Parser<Transmute> =
             optional(scalar) and
             From.parser() and
-            optional(intensity) map { (scal, fro, intens) ->
-              Transmute(fro, scal, intens)
-            }
+            optional(intensity) map { (scalar, fro, int) -> Transmute(fro, scalar, int) }
 
         val perable: Parser<Change> = transmute or group(transmute) or gain or remove
 

@@ -16,7 +16,7 @@ interface Type {
 
   /**
    * Returns whether this type is a subtype of [that]; note that refinements cannot be evaluated
-   * here, so this sometimes returns [false] even when the types should logically be subtypes in the
+   * here, so this sometimes returns `false` even when the types should logically be subtypes in the
    * current game state.
    */
   fun isSubtypeOf(that: Type): Boolean

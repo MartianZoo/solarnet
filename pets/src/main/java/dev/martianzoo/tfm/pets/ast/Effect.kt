@@ -23,14 +23,9 @@ public data class Effect(
 
   override fun visitChildren(visitor: Visitor) = visitor.visit(trigger, instruction)
 
-  override fun toString(): String {
-    val instext =
-        when (instruction) {
-          is Gated -> "($instruction)"
-          else -> "$instruction"
-        }
-    return "$trigger:${":".iff(automatic)} $instext"
-  }
+  override fun toString() =
+      "$trigger:${":".iff(automatic)} " +
+          if (instruction is Gated) "($instruction)" else "$instruction"
 
   sealed class Trigger : PetNode() {
     override val kind = Trigger::class.simpleName!!
@@ -59,7 +54,11 @@ public data class Effect(
     data class OnGainOf private constructor(val typeExpr: TypeExpr) : Trigger() {
       companion object {
         fun create(typeExpr: TypeExpr): Trigger {
-          return if (typeExpr == THIS.type) WhenGain else OnGainOf(typeExpr)
+          return if (typeExpr == THIS.type) {
+            WhenGain
+          } else {
+            OnGainOf(typeExpr)
+          }
         }
       }
       init {
@@ -73,7 +72,11 @@ public data class Effect(
     data class OnRemoveOf private constructor(val typeExpr: TypeExpr) : Trigger() {
       companion object {
         fun create(typeExpr: TypeExpr): Trigger {
-          return if (typeExpr == THIS.type) WhenRemove else OnRemoveOf(typeExpr)
+          return if (typeExpr == THIS.type) {
+            WhenRemove
+          } else {
+            OnRemoveOf(typeExpr)
+          }
         }
       }
       init {

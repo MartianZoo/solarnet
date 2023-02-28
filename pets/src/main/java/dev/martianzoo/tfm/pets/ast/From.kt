@@ -78,8 +78,8 @@ public sealed class From : PetNode() {
         val complexFrom =
             className and
             arguments and
-            optional(TypeExpr.refinement()) map { (name, args, refins) ->
-              ComplexFrom(name, args, refins)
+            optional(TypeExpr.refinement()) map { (name, args, refs) ->
+              ComplexFrom(name, args, refs)
             }
 
         simpleFrom or complexFrom

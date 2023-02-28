@@ -13,7 +13,7 @@ import dev.martianzoo.util.associateByStrict
 
 /**
  * A source of data about Terraforming Mars components. One implementation (`Canon`) is provided by
- * the `canon` module, containing only officially published materials. Others might provide fanmade
+ * the `canon` module, containing only officially published materials. Others might provide fan-made
  * content or test content.
  */
 public abstract class Authority {

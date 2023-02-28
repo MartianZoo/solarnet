@@ -8,9 +8,10 @@ public sealed class PetNode {
   internal abstract val kind: String
 
   protected fun groupPartIfNeeded(part: PetNode) =
-      if (part.shouldGroupInside(this)) "($part)" else "$part"
+      if (part.safeToNestIn(this)) "$part" else "($part)"
 
-  protected open fun shouldGroupInside(container: PetNode) = precedence() <= container.precedence()
+  // TODO invert?
+  protected open fun safeToNestIn(container: PetNode) = precedence() > container.precedence()
 
   protected open fun precedence(): Int = Int.MAX_VALUE
 

@@ -16,7 +16,7 @@ interface Definition : HasClassName {
 
   /**
    * A textual identifier for the bundle this definition belongs to, which can be used to easily
-   * include or exclude sets of definitions. See [Canon] for reserved ids.
+   * include or exclude sets of definitions. See `Canon` for reserved ids.
    */
   val bundle: String
 
