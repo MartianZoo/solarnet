@@ -22,8 +22,8 @@ public data class Component(
   public val type: Type by ::ptype
 
   /**
-   * Whether this type is categorically a subtype of [thatType] for any possible game state. (In
-   * the absence of refinements, this is an ordinary subtype check.
+   * Whether this type is categorically a subtype of [thatType] for any possible game state. (In the
+   * absence of refinements, this is an ordinary subtype check.
    */
   public fun alwaysHasType(thatType: PType) = ptype.isSubtypeOf(thatType)
 
@@ -39,8 +39,8 @@ public data class Component(
   }
 
   /**
-   * This component's effects, which are active in a game state if and only if this component
-   * exists in that game state.
+   * This component's effects, which are active in a game state if and only if this component exists
+   * in that game state.
    */
   public fun effects(): List<Effect> {
     return listOf() // TODO

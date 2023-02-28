@@ -37,5 +37,4 @@ interface GameState : ReadOnlyGameState {
 
     private fun throe(): Nothing = throw RuntimeException("this is just a stub")
   }
-
 }

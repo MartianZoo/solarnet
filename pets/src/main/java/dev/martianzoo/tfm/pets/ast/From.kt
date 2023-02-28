@@ -48,8 +48,7 @@ public sealed class From : PetNode() {
       }
     }
 
-    override fun visitChildren(visitor: Visitor) =
-        visitor.visit(arguments + className + refinement)
+    override fun visitChildren(visitor: Visitor) = visitor.visit(arguments + className + refinement)
 
     override val toType = className.addArgs(arguments.map { it.toType })
     override val fromType = className.addArgs(arguments.map { it.fromType }).refine(refinement)

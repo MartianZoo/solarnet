@@ -44,7 +44,9 @@ data class ScaledTypeExpr(
         val scalarAndOptionalType = scalar and optional(TypeExpr.parser())
         val optionalScalarAndType = optional(scalar) and TypeExpr.parser()
 
-        scalarAndOptionalType or optionalScalarAndType map { (scalar, expr) -> scaledType(scalar, expr) }
+        scalarAndOptionalType or optionalScalarAndType map {
+          (scalar, expr) -> scaledType(scalar, expr)
+        }
       }
     }
   }

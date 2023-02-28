@@ -144,8 +144,9 @@ private class AstTransformsTest {
                 "Heat>, -Qux!, 5 Ahh<Qux> FROM StandardResource], Heat")
     val expected: Effect =
         effect(
-            "Production<Class<Plant>>: (Ooh?, Production<Class<Steel>>. / Ahh, Foo<Xyz FROM " +
-                "Production<Class<Heat>>>, -Qux!, 5 Ahh<Qux> FROM Production<Class<StandardResource>>), Heat")
+            "Production<Class<Plant>>:" +
+                " (Ooh?, Production<Class<Steel>>. / Ahh, Foo<Xyz FROM Production<Class<Heat>>>," +
+                " -Qux!, 5 Ahh<Qux> FROM Production<Class<StandardResource>>), Heat")
     val deprodden: Effect = deprodify(prodden, resources)
     assertThat(deprodden).isEqualTo(expected)
   }

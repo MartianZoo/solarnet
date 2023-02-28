@@ -169,7 +169,8 @@ public object Parsing {
           val found = match.text.replace("\n", "\\n")
           val expected = result.expected.name?.replace("\n", "\\n")
           message.append(
-              "$thisLoc: at ${match.row}:${match.column}, looking for $expected, but found $found\n")
+              "$thisLoc: at ${match.row}:${match.column}," +
+                  " looking for $expected, but found $found\n")
         }
         else -> message.append(result.toString())
       }

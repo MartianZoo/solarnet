@@ -44,8 +44,7 @@ public sealed class PetNode {
       true
     }
     found -= null
-    @Suppress("UNCHECKED_CAST")
-    return found as Set<P>
+    @Suppress("UNCHECKED_CAST") return found as Set<P>
   }
 
   /** See [PetNode.visitChildren]. */

@@ -35,8 +35,7 @@ public data class ClassName(private val asString: String) : PetNode(), Comparabl
 
   override val kind = ClassName::class.simpleName!!
 
-  override fun visitChildren(visitor: Visitor) {
-  }
+  override fun visitChildren(visitor: Visitor) = Unit
 
   public object Parsing : PetParser() {
     val classShortName = _allCapsWordRE map { cn(it.text) } // currently unused
