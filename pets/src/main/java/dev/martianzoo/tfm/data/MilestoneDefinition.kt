@@ -1,17 +1,12 @@
 package dev.martianzoo.tfm.data
 
 import com.squareup.moshi.Json
-import dev.martianzoo.tfm.api.SpecialClassNames.OK
 import dev.martianzoo.tfm.data.EnglishHack.englishHack
 import dev.martianzoo.tfm.data.SpecialClassNames.MILESTONE
 import dev.martianzoo.tfm.pets.ast.ClassName
-import dev.martianzoo.tfm.pets.ast.Effect
-import dev.martianzoo.tfm.pets.ast.Effect.Trigger.WhenGain
-import dev.martianzoo.tfm.pets.ast.Instruction.Gain
-import dev.martianzoo.tfm.pets.ast.Instruction.Gated
+import dev.martianzoo.tfm.pets.ast.Effect.Companion.effect
 import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.pets.ast.Requirement.Companion.requirement
-import dev.martianzoo.tfm.pets.ast.ScaledTypeExpr.Companion.scaledType
 
 data class MilestoneDefinition(
     override val id: ClassName,
@@ -26,7 +21,7 @@ data class MilestoneDefinition(
     require(replaces?.isEmpty() != true)
   }
 
-  val requirement: Requirement by lazy { requirement(requirementText) }
+  val requirement: Requirement = requirement(requirementText)
 
   override val className = englishHack(id)
 
@@ -36,12 +31,7 @@ data class MilestoneDefinition(
         id,
         abstract = false,
         supertypes = setOf(MILESTONE.type),
-        effectsRaw =
-            setOf(
-                Effect(
-                    WhenGain,
-                    Gated(requirement, Gain(scaledType(1, OK.type))),
-                    automatic = true,
-                )))
+        effectsRaw = setOf(effect("This:: ($requirement: Ok)"))
+    )
   }
 }

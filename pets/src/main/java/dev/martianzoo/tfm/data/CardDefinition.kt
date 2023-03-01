@@ -27,7 +27,6 @@ import dev.martianzoo.tfm.pets.ast.Instruction.Companion.instruction
 import dev.martianzoo.tfm.pets.ast.PetNode
 import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.pets.ast.Requirement.Companion.requirement
-import dev.martianzoo.tfm.pets.ast.TypeExpr
 import dev.martianzoo.util.toSetStrict
 
 /**
@@ -47,69 +46,75 @@ public class CardDefinition(data: CardData) : Definition {
   override val bundle: String = data.bundle
 
   /**
+   * Which deck this card belongs to, if any (i.e., Beginner Corporation does not). Note that this
+   * property is public information even when the rest of the card data is hidden, then becomes
+   * irrelevant as soon as the card has been played.
+   */
+  public val deck: Deck? = data.deck?.let(Deck::valueOf)
+
+  /**
+   * The id of the card this card replaces, if any. For example, the `"X31"` Deimos Down replaces
+   * the `"039"` Deimos Down.
+   */
+  public val replaces: String? = data.replaces // TODO needs to exist?
+
+  public val projectInfo: ProjectInfo? = if (deck == PROJECT) ProjectInfo(data) else null
+
+  /**
    * The tags on the card. The list can contain duplicates (for example, Venus Governor has two
    * Venus tags). Order is irrelevant for gameplay purposes (canon data should preserve tag order
    * from printed cards just because).
    */
-  val tags: List<ClassName> = data.tags.map(::cn)
+  public val tags: List<ClassName> = data.tags.map(::cn)
+
+  /** Immediate effects on the card, if any. */
+  public val immediate: Instruction? = data.immediate?.let(::instruction)
+
+  /**
+   * Actions on the card, if any, each expressed as a PETS `Action`. `AUTOMATED` and `EVENT` cards
+   * may not have these.
+   */
+  public val actions = data.actions.map(::action).toSetStrict()
+
+  /**
+   * Effects on the card, if any, each expressed as a PETS `Effect`. `AUTOMATED` and `EVENT` cards
+   * may not have these.
+   */
+  public val effects = data.effects.map(::effect).toSetStrict()
 
   /**
    * The type of `CardResource` this card can hold, if any. If this is non-null, then the class this
    * card is converted into will have a supertype of `ResourcefulCard<ThatResourceType>`. Of course,
    * that will fail if the class named here does not extend `CardResource`.
    */
-  val resourceType: ClassName? = data.resourceType?.let(::cn)
+  public val resourceType: ClassName? = data.resourceType?.let(::cn)
 
-  /** Immediate effects on the card, if any. */
-  val immediate: Instruction? = data.immediate?.let(::instruction)
+  /** Extra information that only project cards have. */
+  public class ProjectInfo(data: CardData) {
+    val kind: ProjectKind = ProjectKind.valueOf(data.projectKind!!)
+    /** The card's requirement, if any. */
+    val requirement: Requirement? = data.requirement?.let(::requirement)
+    /** The card's non-negative cost in megacredits. */
+    val cost: Int = data.cost
 
-  /**
-   * Actions on the card, if any, each expressed as a PETS `Action`. `AUTOMATED` and `EVENT` cards
-   * may not have these.
-   */
-  val actions = data.actions.map(::action).toSetStrict()
+    init {
+      require(cost >= 0)
+    }
+  }
 
-  /**
-   * Effects on the card, if any, each expressed as a PETS `Effect`. `AUTOMATED` and `EVENT` cards
-   * may not have these.
-   */
-  val effects = data.effects.map(::effect).toSetStrict()
+  /** The card's requirement, if any. */
+  public val requirement: Requirement? = projectInfo?.requirement
 
-  // TODO ProjectInfo
-
-  /** The card's requirement, if it has one. Only cards in the `PROJECT` deck may have this. */
-  val requirement: Requirement? = data.requirement?.let(::requirement)
-
-  /** The card's non-negative cost in megacredits. Is only nonzero for Project cards. */
-  val cost: Int = data.cost
-
-  /**
-   * What kind of project this is, or `null` if it is not a project. Even though Prelude and
-   * Corporation cards act exactly like `AUTOMATED` and `ACTIVE` cards, respectively, they
-   * officially don't count as such.
-   */
-  val projectKind: ProjectKind? = data.projectKind?.let(ProjectKind::valueOf)
-
-  /**
-   * Which deck this card belongs to, if any (i.e., Beginner Corporation does not). Note that this
-   * property is public information even when the rest of the card data is hidden, then becomes
-   * irrelevant as soon as the card has been played.
-   */
-  val deck: Deck? = data.deck?.let(Deck::valueOf)
-
-  /**
-   * The id of the card this card replaces, if any. For example, the `"X31"` Deimos Down replaces
-   * the `"039"` Deimos Down.
-   */
-  val replaces: String? = data.replaces
+  /** The card's non-negative cost in megacredits. */
+  public val cost: Int = projectInfo?.cost ?: 0
 
   init {
     if (deck == PROJECT) {
-      val active =
+      val shouldBeActive =
           actions.any() ||
-          effects.any { it.trigger != OnGainOf.create(END.type) } ||
-          resourceType != null
-      require(active == (projectKind == ACTIVE))
+              effects.any { it.trigger != OnGainOf.create(END.type) } ||
+              resourceType != null
+      require(shouldBeActive == (projectInfo?.kind == ACTIVE))
     }
   }
 
@@ -118,12 +123,12 @@ public class CardDefinition(data: CardData) : Definition {
       data.components.map { parseOneLineClassDeclaration(it) }
 
   override val asClassDeclaration by lazy {
-    val supertypes = mutableSetOf<TypeExpr>()
-
-    projectKind?.let { supertypes += it.className.type }
-    if (actions.any()) supertypes += ACTION_CARD.type
-    resourceType?.let { supertypes += RESOURCEFUL_CARD.addArgs(CLASS.addArgs(it)) }
-    if (supertypes.isEmpty()) supertypes += CARD_FRONT.type
+    val supertypes =
+        setOfNotNull(
+            projectInfo?.kind?.className?.type,
+            resourceType?.let { RESOURCEFUL_CARD.addArgs(CLASS.addArgs(it)) },
+            if (actions.any()) ACTION_CARD.type else null,
+        ).ifEmpty { setOf(CARD_FRONT.type) }
 
     val allEffects =
         listOfNotNull(immediate).map(::immediateToEffect) + effects + actionListToEffects(actions)
@@ -139,7 +144,7 @@ public class CardDefinition(data: CardData) : Definition {
 
   // TODO why public, why lazy, etc
   val extraNodes: Set<PetNode> by lazy {
-    setOfNotNull(resourceType, requirement, projectKind?.className, deck?.className) +
+    setOfNotNull(resourceType, requirement, projectInfo?.kind?.className, deck?.className) +
         tags +
         extraClasses.flatMap { it.allNodes }
   }

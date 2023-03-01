@@ -55,10 +55,9 @@ data class MarsMapDefinition(
     init {
       require(row >= 1) { "bad row: $row" }
       require(column >= 1) { "bad column: $column" }
-      require(bonusText?.isEmpty() != true) // nonempty if present
     }
 
-    val bonus: Instruction? by lazy { bonusText?.let(::instruction) }
+    val bonus: Instruction? = bonusText?.let(::instruction)
 
     override val asClassDeclaration by lazy {
       ClassDeclaration(

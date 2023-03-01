@@ -47,10 +47,10 @@ public object AstTransforms {
     return Then(allInstructions)
   }
 
-  internal fun actionListToEffects(actions: Collection<Action>): List<Effect> =
+  internal fun actionListToEffects(actions: Collection<Action>): Set<Effect> =
       actions.withIndex().map { (index0Ref, action) ->
         actionToEffect(action, index1Ref = index0Ref + 1)
-      }
+      }.toSet()
 
   internal fun immediateToEffect(instruction: Instruction): Effect {
     return Effect(WhenGain, instruction, automatic = false)

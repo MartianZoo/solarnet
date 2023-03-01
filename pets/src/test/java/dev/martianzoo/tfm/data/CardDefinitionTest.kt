@@ -75,7 +75,7 @@ private class CardDefinitionTest {
     assertThat(birds.resourceType).isEqualTo(cn("Animal"))
     assertThat(birds.requirement?.toString()).isEqualTo("13 OxygenStep")
     assertThat(birds.cost).isEqualTo(10)
-    assertThat(birds.projectKind).isEqualTo(ACTIVE)
+    assertThat(birds.projectInfo?.kind).isEqualTo(ACTIVE)
   }
 
   @Test
