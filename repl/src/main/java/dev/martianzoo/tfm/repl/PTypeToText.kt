@@ -50,7 +50,7 @@ object PTypeToText { // TODO refactor to ClassInfo / TypeInfo type dealies
           std form:   $ptype
           long form:  ${ptype.typeExprFull}
           supertypes: ${ptype.supertypes().joinToString()}
-          defaults:   $gain / $remove
+          defaults:   +$gain / $remove
     """.trimIndent()
 
     return classStuff + typeStuff + try {

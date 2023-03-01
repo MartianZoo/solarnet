@@ -1,5 +1,6 @@
 package dev.martianzoo.tfm.data
 
+import dev.martianzoo.tfm.api.SpecialClassNames.CLASS
 import dev.martianzoo.tfm.api.SpecialClassNames.COMPONENT
 import dev.martianzoo.tfm.api.SpecialClassNames.THIS
 import dev.martianzoo.tfm.pets.ast.ClassName
@@ -18,7 +19,7 @@ data class ClassDeclaration(
     val id: ClassName = name,
     val abstract: Boolean = true,
     val dependencies: List<DependencyDeclaration> = listOf(),
-    val supertypes: Set<TypeExpr> = setOf(),
+    val supertypes: Set<TypeExpr> = setOf(), // TODO do fancy Component stuff elsewhere?
     val topInvariant: Requirement? = null,
     val otherInvariants: Set<Requirement> = setOf(),
     val effectsRaw: Set<Effect> = setOf(),
@@ -29,13 +30,24 @@ data class ClassDeclaration(
     require(name != THIS)
   }
   fun validate() {
-    if (name == COMPONENT) {
-      require(supertypes.isEmpty())
-    } else {
-      require(supertypes.isNotEmpty())
+    when (name) {
+      COMPONENT -> {
+        require(abstract) { name }
+        require(dependencies.none()) { name }
+        require(supertypes.isEmpty()) { name }
+      }
+
+      CLASS -> {
+        require(!abstract) { name }
+        require(dependencies.single().typeExpr == COMPONENT.type) { name }
+      }
+
+      else -> {
+        require(supertypes.isNotEmpty()) { name }
+      }
     }
-    if (supertypes.size > 1) {
-      require(COMPONENT.type !in supertypes)
+    if (supertypes.size > 1) { // TODO check other redundancies
+      require(COMPONENT.type !in supertypes) { name }
     }
   }
 

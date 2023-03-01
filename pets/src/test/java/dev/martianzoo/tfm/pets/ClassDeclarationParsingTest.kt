@@ -65,25 +65,22 @@ private class ClassDeclarationParsingTest {
   @Test
   fun body() {
     assertThat(
-            parseClassDeclarations(
-                """
-          CLASS Bar : Qux { DEFAULT +This?
-            Foo -> Bar
+        parseClassDeclarations("""
+              CLASS Bar : Qux { DEFAULT +This?
+                Foo -> Bar
 
 
-            Foo: Bar
-            CLASS Foo
+                Foo: Bar
+                CLASS Foo
 
-          }
-        """))
+              }
+            """))
         .hasSize(2)
   }
 
   @Test
   fun series() {
-    assertThat(
-        parseClassDeclarations(
-            """
+    parseClassDeclarations("""
         CLASS Die {
         }
         CLASS DieHard {
@@ -94,15 +91,13 @@ private class ClassDeclarationParsingTest {
 
         CLASS Generation
 
-        """))
+    """)
   }
 
   @Test
   fun nesting() {
-    val cs =
-        parseClassDeclarations(
-            """
-      CLASS Component
+    val cs = parseClassDeclarations("""
+      ABSTRACT CLASS Component
 
       CLASS One
       CLASS Two: One

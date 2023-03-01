@@ -1,7 +1,6 @@
 package dev.martianzoo.tfm.types
 
 import dev.martianzoo.tfm.api.SpecialClassNames.CLASS
-import dev.martianzoo.tfm.api.SpecialClassNames.COMPONENT
 import dev.martianzoo.tfm.api.SpecialClassNames.END
 import dev.martianzoo.tfm.api.SpecialClassNames.OWNED
 import dev.martianzoo.tfm.api.SpecialClassNames.OWNER
@@ -171,22 +170,8 @@ internal constructor(
   // DEFAULTS
 
   internal val defaults: Defaults by lazy {
-    if (className == COMPONENT) {
-      Defaults.from(declaration.defaultsDeclaration, this, loader)
-    } else {
-      val rootDefaults = loader.componentClass.defaults
-      defaultsIgnoringRoot().overlayOn(listOf(rootDefaults))
-    }
+    Defaults.forClass(this)
   }
-
-  // TODO figure out a more principled way to do this
-  private fun defaultsIgnoringRoot(): Defaults =
-      if (className == COMPONENT) {
-        Defaults()
-      } else {
-        Defaults.from(declaration.defaultsDeclaration, this, loader)
-            .overlayOn(directSuperclasses.map { it.defaultsIgnoringRoot() })
-      }
 
   // EFFECTS
 

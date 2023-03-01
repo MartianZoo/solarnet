@@ -199,7 +199,7 @@ private class PClassTest {
 
 private fun te(s: String) = typeExpr(s)
 
-private fun loader(petsText: String): PClassLoader {
+internal fun loader(petsText: String): PClassLoader {
   val classes = parseClassDeclarations(petsText).toSetStrict()
   val authority =
       object : Authority.Empty() {
