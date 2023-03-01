@@ -174,7 +174,7 @@ private class CanonTest {
     checkCount(5, "Class<Milestone>")
     checkCount(6, "Class<StandardResource>")
     checkCount(7, "Class<StandardAction>")
-    checkCount(8, "Class<SpecialTile>") // oops missing some
+    checkCount(9, "Class<SpecialTile>") // oops missing some
     checkCount(10, "Class<Tag>")
     checkCount(11, "Class<OwnedTile>") // so here too
     checkCount(12, "Class<WaterArea>")
