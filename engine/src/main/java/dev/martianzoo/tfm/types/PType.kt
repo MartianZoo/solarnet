@@ -81,7 +81,8 @@ internal constructor(
 
   fun supertypes(): List<PType> {
     val supers = pclass.allSuperclasses - pclass.loader.componentClass - pclass
-    return supers.map { PType(it, allDependencies.subMap(it.allDependencyKeys)) }
+    // the argument to wAD is allowed to be a superset
+    return supers.map { it.withAllDependencies(allDependencies) }
   }
 
   override fun toString() = typeExpr.toString()

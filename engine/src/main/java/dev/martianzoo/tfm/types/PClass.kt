@@ -159,7 +159,7 @@ internal constructor(
   }
 
   internal fun withAllDependencies(deps: DependencyMap) =
-      PType(this, deps.subMap(this.allDependencyKeys))
+      PType(this, deps.subMap(allDependencyKeys))
 
   internal fun match(specs: List<TypeExpr>): List<TypeDependency> =
       baseType.allDependencies.match(specs, loader)
