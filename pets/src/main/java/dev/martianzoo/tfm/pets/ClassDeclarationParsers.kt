@@ -15,7 +15,6 @@ import dev.martianzoo.tfm.api.SpecialClassNames.THIS
 import dev.martianzoo.tfm.data.ClassDeclaration
 import dev.martianzoo.tfm.data.ClassDeclaration.DefaultsDeclaration
 import dev.martianzoo.tfm.data.ClassDeclaration.DependencyDeclaration
-import dev.martianzoo.tfm.data.EnglishHack.shortName
 import dev.martianzoo.tfm.pets.AstTransforms.actionListToEffects
 import dev.martianzoo.tfm.pets.ClassDeclarationParsers.Body.BodyElement
 import dev.martianzoo.tfm.pets.ClassDeclarationParsers.Body.BodyElement.ActionElement
@@ -30,6 +29,7 @@ import dev.martianzoo.tfm.pets.ClassDeclarationParsers.Signatures.signature
 import dev.martianzoo.tfm.pets.ast.Action
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.ClassName.Parsing.classFullName
+import dev.martianzoo.tfm.pets.ast.ClassName.Parsing.classShortName
 import dev.martianzoo.tfm.pets.ast.Effect
 import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.pets.ast.TypeExpr
@@ -81,9 +81,9 @@ internal object ClassDeclarationParsers : PetParser() {
         classFullName and
         dependencies and
         optional(TypeExpr.refinement()) and
-        // optional(skipChar('[') and parser { classShortName } and skipChar(']')) and
-        supertypeList map { (name, deps, ref, /*short,*/ supes) ->
-          Signature(name, deps, ref, /*short,*/ supes)
+        optional(skipChar('[') and parser { classShortName } and skipChar(']')) and
+        supertypeList map { (name, deps, ref, short, supes) ->
+          Signature(name, short, deps, ref, supes)
         }
 
     // This should only be included in the bodiless case
@@ -178,13 +178,14 @@ internal object ClassDeclarationParsers : PetParser() {
   internal data class Signature(val asClassDecl: ClassDeclaration) {
     constructor(
         className: ClassName,
+        shortName: ClassName?,
         dependencies: List<DependencyDeclaration>,
         topInvariant: Requirement?,
         supertypes: List<TypeExpr>,
     ) : this(
         ClassDeclaration(
             name = className,
-            id = shortName(className),
+            id = shortName ?: className,
             dependencies = dependencies,
             supertypes = supertypes.toSetStrict(),
             topInvariant = topInvariant))

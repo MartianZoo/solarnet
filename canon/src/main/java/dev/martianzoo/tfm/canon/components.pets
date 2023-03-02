@@ -21,18 +21,18 @@ ABSTRACT CLASS GlobalParameter {                            // Instances must be
         This: (=15 This: OceanTile) OR Ok                   // like usual, so without `OR Ok` we'd be at a dead end
     }
 
-    CLASS OxygenStep {
+    CLASS OxygenStep[O2] {
         HAS MAX 14 This
         This: (=8 This: TemperatureStep) OR Ok
     }
 
-    CLASS VenusStep {
+    CLASS VenusStep[VEN] {
         HAS MAX 15 This
         This: (=4 This: ProjectCard) OR Ok
         This: (=8 This: TerraformRating) OR Ok
     }
 
-    CLASS OceanTile : Tile<MarsArea> {
+    CLASS OceanTile[OT] : Tile<MarsArea> {
         HAS MAX 9 OceanTile
         DEFAULT +This<WaterArea>
         ForwardAdjacency<This, Tile>: 2                     // We could almost count all adjacencies, except that the
@@ -51,17 +51,17 @@ ABSTRACT CLASS MarsMap {                                    // Tharsis etc. are 
 ABSTRACT CLASS Area(HAS MAX 1 Tile) {                       // TODO move invar to Tile somehow?
     HAS MAX 1 This
 
-    ABSTRACT CLASS MarsArea {                               // the individual areas are loaded from `maps.json5`
+    ABSTRACT CLASS MarsArea[MA] {                               // the individual areas are loaded from `maps.json5`
         HAS =1 This                                         // could have a dep on MarsMap but not clear why
 
-        ABSTRACT CLASS LandArea {
-            ABSTRACT CLASS VolcanicArea
+        ABSTRACT CLASS LandArea[LA] {
+            ABSTRACT CLASS VolcanicArea[VA]
         }
-        ABSTRACT CLASS WaterArea
-        ABSTRACT CLASS NoctisArea
+        ABSTRACT CLASS WaterArea[WA]
+        ABSTRACT CLASS NoctisArea[NA]
     }
 
-    ABSTRACT CLASS RemoteArea
+    ABSTRACT CLASS RemoteArea[RA]
 }
 
 ABSTRACT CLASS Tile<Area>
@@ -72,14 +72,14 @@ CLASS Border<MarsArea, Area> : System {                     // early on will cre
     Tile<MarsArea>: Neighbor<Tile<MarsArea>, Area>
 }
 
-CLASS Neighbor<Tile<MarsArea>, Area> {
+CLASS Neighbor<Tile<MarsArea>, Area> [NBR] {
     HAS MAX 1 This
 
     Tile<Area>:: ForwardAdjacency<Tile, Tile<Area>>, \
                  BackwardAdjacency<Tile<Area>, Tile>
 }
 
-ABSTRACT CLASS Adjacency<Tile, Tile> {
+ABSTRACT CLASS Adjacency<Tile, Tile> [ADJ] {
     HAS MAX 1 This
     CLASS ForwardAdjacency, BackwardAdjacency
 }
@@ -93,7 +93,7 @@ ABSTRACT CLASS HasActions {                                 // the specific acti
     ABSTRACT CLASS StandardAction, StandardProject
 }
 
-CLASS Generation
+CLASS Generation[GEN]
 
 ABSTRACT CLASS Generational {                               // things that disappear between gens
     Generation:: -This                                      // <-- and look, there they go

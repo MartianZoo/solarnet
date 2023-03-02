@@ -13,7 +13,7 @@ private class ClassDeclarationParsingTest {
     parseClassDeclarations("ABSTRACT CLASS Foo") // abstract
     parseClassDeclarations("CLASS Foo<Bar>") // with spec
     parseClassDeclarations("CLASS Foo(HAS Bar)") // with ref
-    // parseClassDeclarations("CLASS Foo[FOO]") // with shortname
+    parseClassDeclarations("CLASS Foo[FOO]") // with shortname
     parseClassDeclarations("CLASS Foo : Bar") // with supertype
     parseClassDeclarations("CLASS Foo { HAS 1 }") // with same-line body
     parseClassDeclarations(" CLASS Foo") // with space first

@@ -2,13 +2,13 @@
 
 // PLAYERS -------------------------------------------------
 
-ABSTRACT CLASS Anyone {                                     // This would be called Player, it's just that when
+ABSTRACT CLASS Anyone[ANY] {                                // This would be called Player, it's just that when
     HAS =1 This                                             // reading, `CityTile<Anyone>` makes more sense
 
     ABSTRACT CLASS Owner { // not sure about this
         This:: 20 TerraformRating<This>                     // no solo mode yet
 
-        CLASS Player1, Player2, Player3, Player4, Player5
+        CLASS Player1[P1], Player2[P2], Player3[P3], Player4[P4], Player5[P5]
     }
 }
 
@@ -18,32 +18,32 @@ ABSTRACT CLASS Anyone {                                     // This would be cal
 ABSTRACT CLASS Owned<Anyone> {
     DEFAULT This<Owner>                                     // affects ALL references to owned cpts that don't specify
                                                             // an owner -- the only DEFAULT of this kind we need
-    CLASS VictoryPoint
+    CLASS VictoryPoint[VP]
 
-    CLASS TerraformRating {
+    CLASS TerraformRating[TR] {
         ProductionPhase: 1
         End: VictoryPoint
     }
 
-    ABSTRACT CLASS Milestone                                // specific milestones are loaded from `milestones.json5`
+    ABSTRACT CLASS Milestone[MIL]                                // specific milestones are loaded from `milestones.json5`
 
 
 // TILES ---------------------------------------------------
 
     ABSTRACT CLASS OwnedTile : Owned, Tile {
-        CLASS GreeneryTile : Tile<MarsArea> {
+        CLASS GreeneryTile[GT] : Tile<MarsArea> {
             DEFAULT +This<LandArea(HAS Neighbor<OwnedTile>)>// This needs to use `HAS?` or something TODO
 
             This: OxygenStep
             End: VictoryPoint
         }
 
-        CLASS CityTile {
+        CLASS CityTile[CT] {
             DEFAULT +This<LandArea(HAS MAX 0 Neighbor<CityTile<Anyone>>)>
             End: VictoryPoint / Adjacency<This, GreeneryTile<Anyone>>
         }
 
-        ABSTRACT CLASS SpecialTile : Tile<MarsArea> {
+        ABSTRACT CLASS SpecialTile[ST] : Tile<MarsArea> {
             DEFAULT +This<LandArea>
         }
     }
@@ -51,22 +51,22 @@ ABSTRACT CLASS Owned<Anyone> {
 
 // RESOURCES -----------------------------------------------
 
-    ABSTRACT CLASS Resource {
+    ABSTRACT CLASS Resource[RES] {
         // TODO DEFAULT -This<Owner>!, -This<Anyone>?  ...  that's hard to express
-        ABSTRACT CLASS StandardResource {
-            CLASS Megacredit, Steel, Titanium, Plant, Heat
-            CLASS Energy { ProductionPhase:: Heat FROM This }
+        ABSTRACT CLASS StandardResource[SR] {
+            CLASS Megacredit[M], Steel[S], Titanium[T], Plant[P], Heat[H]
+            CLASS Energy[E] { ProductionPhase:: Heat FROM This }
         }
 
-        ABSTRACT CLASS CardResource : Cardbound<ResourcefulCard<Class<CardResource>>> {
+        ABSTRACT CLASS CardResource[CR] : Cardbound<ResourcefulCard<Class<CardResource>>> {
             DEFAULT +This.
 
             // All others are card-specific; see cards.json5
-            CLASS Animal : CardResource<ResourcefulCard<Class<Animal>>>
-            CLASS Microbe : CardResource<ResourcefulCard<Class<Microbe>>>
-            CLASS Science : CardResource<ResourcefulCard<Class<Science>>>
-            CLASS Floater : CardResource<ResourcefulCard<Class<Floater>>>
-            CLASS Asteroid : CardResource<ResourcefulCard<Class<Asteroid>>>
+            CLASS Animal[ANI] : CardResource<ResourcefulCard<Class<Animal>>>
+            CLASS Microbe[MIC] : CardResource<ResourcefulCard<Class<Microbe>>>
+            CLASS Science[SCI] : CardResource<ResourcefulCard<Class<Science>>>
+            CLASS Floater[FLO] : CardResource<ResourcefulCard<Class<Floater>>>
+            CLASS Asteroid[AST] : CardResource<ResourcefulCard<Class<Asteroid>>>
         }
     }
 
@@ -82,10 +82,10 @@ ABSTRACT CLASS Owned<Anyone> {
     ABSTRACT CLASS CardBack {
         CLASS CorporationCard                               // once a card is played and becomes a CardFront, nothing in
         CLASS PreludeCard                                   // the game ever cares what kind of CardBack it used to be..
-        CLASS ProjectCard                                   // well that used to be true until "Double Down" in Dec 2022
+        CLASS ProjectCard[PC]                               // well that used to be true until "Double Down" in Dec 2022
     }
 
-    ABSTRACT CLASS CardFront {                              // specific CardFronts are loaded from `cards.json5`
+    ABSTRACT CLASS CardFront[CARD] {                        // specific CardFronts are loaded from `cards.json5`
         This:: @createAll(Cost, This)
 
         ABSTRACT CLASS EventCard {
@@ -97,19 +97,19 @@ ABSTRACT CLASS Owned<Anyone> {
         ABSTRACT CLASS ActionCard : HasActions
     }
 
-    CLASS PlayedEvent
+    CLASS PlayedEvent[EVT]
 
     ABSTRACT CLASS Cardbound<CardFront<Anyone>> : Owned<Anyone> {
 
         ABSTRACT CLASS Tag {
-            CLASS BuildingTag, SpaceTag
-            CLASS CityTag, PowerTag, ScienceTag
+            CLASS BuildingTag[BUT], SpaceTag[SPT]
+            CLASS CityTag[CIT], PowerTag[POT], ScienceTag[SCT]
 
             ABSTRACT CLASS BioTag {                         // not really a game defined thing, but convenient
-                CLASS PlantTag, MicrobeTag, AnimalTag
+                CLASS PlantTag[PLT], MicrobeTag[MIT], AnimalTag[ANT]
             }
             ABSTRACT CLASS PlanetTag {
-                CLASS EarthTag, JovianTag, VenusTag
+                CLASS EarthTag[EAT], JovianTag[JOT], VenusTag[VET]
             }
         }
 
