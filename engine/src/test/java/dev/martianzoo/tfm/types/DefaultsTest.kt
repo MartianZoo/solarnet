@@ -15,22 +15,22 @@ class DefaultsTest {
         """
           CLASS Class<Component>
           ABSTRACT CLASS Component {
-            DEFAULT +This!
-            DEFAULT -This!
+            DEFAULT +Component!
+            DEFAULT -Component!
           }
           CLASS Foo1 {
-            DEFAULT +This.
+            DEFAULT +Foo1.
           }
           CLASS Bar1 {
-            DEFAULT -This?
+            DEFAULT -Bar1?
           }
           CLASS FooBar1 : Foo1, Bar1
           CLASS Qux1 {
-            DEFAULT +This!
+            DEFAULT +Qux1!
           }
           CLASS UhOh: Foo1, Qux1
           CLASS Fixed: Qux1 {
-            DEFAULT +This.
+            DEFAULT +Fixed.
           }
         """
     )

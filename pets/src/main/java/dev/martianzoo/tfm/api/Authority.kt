@@ -33,7 +33,7 @@ public abstract class Authority {
   private val allClassDeclarations: Map<ClassName, ClassDeclaration> by lazy {
     val fromCards = cardDefinitions.flatMap { it.extraClasses }
     val list = explicitClassDeclarations + allDefinitions.map { it.asClassDeclaration } + fromCards
-    list.associateByStrict { it.name }
+    list.associateByStrict { it.className }
   }
 
   /**

@@ -25,7 +25,7 @@ data class StandardActionDefinition(
   override val asClassDeclaration by lazy {
     val kind = if (project) STANDARD_PROJECT else STANDARD_ACTION
     ClassDeclaration(
-        name = className,
+        className = className,
         id = id,
         abstract = false,
         supertypes = setOf(kind.type),

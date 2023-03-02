@@ -16,7 +16,7 @@ ABSTRACT CLASS Anyone[ANY] {                                // This would be cal
 // PLAYER PROPERTY / GENERAL -------------------------------
 
 ABSTRACT CLASS Owned<Anyone> {
-    DEFAULT This<Owner>                                     // affects ALL references to owned cpts that don't specify
+    DEFAULT Owned<Owner>                                    // affects ALL references to owned cpts that don't specify
                                                             // an owner -- the only DEFAULT of this kind we need
     CLASS VictoryPoint[VP]
 
@@ -32,19 +32,20 @@ ABSTRACT CLASS Owned<Anyone> {
 
     ABSTRACT CLASS OwnedTile : Owned, Tile {
         CLASS GreeneryTile[GT] : Tile<MarsArea> {
-            DEFAULT +This<LandArea(HAS Neighbor<OwnedTile>)>// This needs to use `HAS?` or something TODO
+            // This needs to use `HAS?` or something TODO
+            DEFAULT +GreeneryTile<LandArea(HAS Neighbor<OwnedTile>)>
 
             This: OxygenStep
             End: VictoryPoint
         }
 
         CLASS CityTile[CT] {
-            DEFAULT +This<LandArea(HAS MAX 0 Neighbor<CityTile<Anyone>>)>
+            DEFAULT +CityTile<LandArea(HAS MAX 0 Neighbor<CityTile<Anyone>>)>
             End: VictoryPoint / Adjacency<This, GreeneryTile<Anyone>>
         }
 
         ABSTRACT CLASS SpecialTile[ST] : Tile<MarsArea> {
-            DEFAULT +This<LandArea>
+            DEFAULT +SpecialTile<LandArea>
         }
     }
 
@@ -52,14 +53,14 @@ ABSTRACT CLASS Owned<Anyone> {
 // RESOURCES -----------------------------------------------
 
     ABSTRACT CLASS Resource[RES] {
-        // TODO DEFAULT -This<Owner>!, -This<Anyone>?  ...  that's hard to express
+        // want to express defaults like -Resource<Owner>!, -Resource<Anyone>? but that means something else
         ABSTRACT CLASS StandardResource[SR] {
             CLASS Megacredit[M], Steel[S], Titanium[T], Plant[P], Heat[H]
             CLASS Energy[E] { ProductionPhase:: Heat FROM This }
         }
 
         ABSTRACT CLASS CardResource[CR] : Cardbound<ResourcefulCard<Class<CardResource>>> {
-            DEFAULT +This.
+            DEFAULT +CardResource.
 
             // All others are card-specific; see cards.json5
             CLASS Animal[ANI] : CardResource<ResourcefulCard<Class<Animal>>>
@@ -146,15 +147,15 @@ ABSTRACT CLASS Owned<Anyone> {
             This: (MAX 0 This: Ok)                          // adds a task that can only be handled if 0 barriers left
         }
         CLASS Owed<Class<Resource>> : Barrier {             // created when payment due, removed by discount cards/
-            DEFAULT +This<Class<Megacredit>>                // problem: an Owed<Dirigible> is also an Owed<Floater>
-            This:: Accept<Class<Resource>>                  // which would suggest any floater could pay it off TODO
+            DEFAULT +Owed<Class<Megacredit>>
+            This:: Accept<Class<Resource>>
         }
         CLASS Accept<Class<Resource>> {                     // Created in response to PlayTag or the actions on 4
             HAS MAX 1 This                                  // special cards. (extend Temporary?)
-            DEFAULT +This.
+            DEFAULT +Accept.
         }
         CLASS Pay<Class<Resource>> : Signal {               // player uses it like `8 Pay<Class<Heat>> FROM Heat`
-            DEFAULT +This<Class<Megacredit>>
+            DEFAULT +Pay<Class<Megacredit>>
             This:: -Owed<Class<Resource>>.                  // But also cards can pay in response to signals
         }
         CLASS PlayTag<Class<Tag>> : Signal                  // triggers Accept<Steel/Dirig/etc.CLASS> and tag-based discounts

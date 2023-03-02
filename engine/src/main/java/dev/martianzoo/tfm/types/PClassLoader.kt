@@ -145,15 +145,15 @@ public class PClassLoader(
   private fun construct(decl: ClassDeclaration): PClass {
     require(!frozen) { "Too late, this table is frozen!" }
 
-    require(decl.name !in loadedClasses) { decl.name }
+    require(decl.className !in loadedClasses) { decl.className }
     require(decl.id !in loadedClasses) { decl.id }
 
     // signal with `null` that loading is in process, so we can detect infinite recursion
-    loadedClasses[decl.name] = null
+    loadedClasses[decl.className] = null
     loadedClasses[decl.id] = null
 
     val pclass = PClass(decl, this)
-    loadedClasses[decl.name] = pclass
+    loadedClasses[decl.className] = pclass
     loadedClasses[decl.id] = pclass
     return pclass
   }

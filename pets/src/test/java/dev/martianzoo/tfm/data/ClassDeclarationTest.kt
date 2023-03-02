@@ -33,8 +33,8 @@ private class ClassDeclarationTest {
         """
           ABSTRACT CLASS Foo<Bar>(HAS MAX 3 Blorp) : Baz<Qux> {
             HAS =1 This
-            DEFAULT +This<Abc>?
-            DEFAULT This<Xyz>
+            DEFAULT +Foo<Abc>?
+            DEFAULT Foo<Xyz>
             
             This: DoStuff
             Steel -> 5
@@ -55,7 +55,7 @@ private class ClassDeclarationTest {
     val univ = cn("Xyz").type
 
     assertThat(decl.id).isEqualTo(foo)
-    assertThat(decl.name).isEqualTo(foo)
+    assertThat(decl.className).isEqualTo(foo)
     assertThat(decl.abstract).isTrue()
     assertThat(decl.dependencies.map { it.typeExpr }).containsExactly(dep)
     assertThat(decl.supertypes).containsExactly(sup)

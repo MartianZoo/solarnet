@@ -42,7 +42,7 @@ public class LiveTransformer internal constructor(val loader: PClassLoader) {
   /**
    * Translates a Pets node in source form to one where defaults have been applied; for example, an
    * instruction to gain a `GreeneryTile` with no type arguments listed would be converted to
-   * `GreeneryTile<Owner, LandArea(HAS? Neighbor<OwnedTile<Me>>)>`. (Search `DEFAULT` in any
+   * `GreeneryTile<Owner, LandArea(HAS? Neighbor<OwnedTile<Owner>>)>`. (Search `DEFAULT` in any
    * `*.pets` files for other examples.)
    */
   public fun <P : PetNode> applyGainRemoveDefaults(

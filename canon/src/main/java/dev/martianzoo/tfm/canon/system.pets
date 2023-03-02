@@ -1,6 +1,6 @@
 ABSTRACT CLASS Component {                                  // Component is the single root of the hierarchy
-    DEFAULT +This!                                          // no need to write `: Component`; it's assumed
-    DEFAULT -This!
+    DEFAULT +Component!
+    DEFAULT -Component!
 }
 
 ABSTRACT CLASS System

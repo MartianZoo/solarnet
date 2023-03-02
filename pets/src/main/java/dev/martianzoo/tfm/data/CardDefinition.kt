@@ -134,7 +134,7 @@ public class CardDefinition(data: CardData) : Definition {
         listOfNotNull(immediate).map(::immediateToEffect) + effects + actionListToEffects(actions)
 
     ClassDeclaration(
-        name = className,
+        className = className,
         id = id,
         abstract = false,
         supertypes = supertypes,

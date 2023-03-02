@@ -5,6 +5,7 @@ import dev.martianzoo.tfm.api.SpecialClassNames.COMPONENT
 import dev.martianzoo.tfm.api.SpecialClassNames.THIS
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.Effect
+import dev.martianzoo.tfm.pets.ast.HasClassName
 import dev.martianzoo.tfm.pets.ast.Instruction.Intensity
 import dev.martianzoo.tfm.pets.ast.PetNode
 import dev.martianzoo.tfm.pets.ast.Requirement
@@ -15,8 +16,8 @@ import dev.martianzoo.tfm.pets.ast.TypeExpr
  * it was provided. DIRECT INFO ONLY; stuff is inherited among *loaded* classes (PetClasses).
  */
 data class ClassDeclaration(
-    val name: ClassName,
-    val id: ClassName = name,
+    override val className: ClassName,
+    val id: ClassName = className,
     val abstract: Boolean = true,
     val dependencies: List<DependencyDeclaration> = listOf(),
     val supertypes: Set<TypeExpr> = setOf(), // TODO do fancy Component stuff elsewhere?
@@ -25,35 +26,35 @@ data class ClassDeclaration(
     val effectsRaw: Set<Effect> = setOf(),
     val defaultsDeclaration: DefaultsDeclaration = DefaultsDeclaration(),
     val extraNodes: Set<PetNode> = setOf(),
-) {
+): HasClassName {
   init {
-    require(name != THIS)
+    require(className != THIS)
   }
   fun validate() {
-    when (name) {
+    when (className) {
       COMPONENT -> {
-        require(abstract) { name }
-        require(dependencies.none()) { name }
-        require(supertypes.isEmpty()) { name }
+        require(abstract) { className }
+        require(dependencies.none()) { className }
+        require(supertypes.isEmpty()) { className }
       }
 
       CLASS -> {
-        require(!abstract) { name }
-        require(dependencies.single().typeExpr == COMPONENT.type) { name }
+        require(!abstract) { className }
+        require(dependencies.single().typeExpr == COMPONENT.type) { className }
       }
 
       else -> {
-        require(supertypes.isNotEmpty()) { name }
+        require(supertypes.isNotEmpty()) { className }
       }
     }
     if (supertypes.size > 1) { // TODO check other redundancies
-      require(COMPONENT.type !in supertypes) { name }
+      require(COMPONENT.type !in supertypes) { className }
     }
   }
 
   val allNodes: Set<PetNode> by lazy {
     setOf<PetNode>() +
-        name +
+        className +
         id +
         supertypes +
         dependencies.map { it.typeExpr } +
@@ -72,9 +73,11 @@ data class ClassDeclaration(
       val removeOnlySpecs: List<TypeExpr> = listOf(),
       val gainIntensity: Intensity? = null,
       val removeIntensity: Intensity? = null,
+      val forClass: ClassName? = null,
   ) {
     companion object {
       fun merge(defs: Collection<DefaultsDeclaration>): DefaultsDeclaration {
+        val forClass: ClassName? = defs.map { it.forClass }.singleOrNull()
         val universal = defs.map { it.universalSpecs }.firstOrNull { it.any() } ?: listOf()
         val gain = defs.map { it.gainOnlySpecs }.firstOrNull { it.any() } ?: listOf()
         val remove = defs.map { it.removeOnlySpecs }.firstOrNull { it.any() } ?: listOf()
@@ -84,6 +87,7 @@ data class ClassDeclaration(
             removeOnlySpecs = remove,
             gainIntensity = defs.firstNotNullOfOrNull { it.gainIntensity },
             removeIntensity = defs.firstNotNullOfOrNull { it.removeIntensity },
+            forClass = forClass,
         )
       }
     }

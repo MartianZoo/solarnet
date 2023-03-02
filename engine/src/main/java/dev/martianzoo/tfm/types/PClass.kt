@@ -45,7 +45,7 @@ internal constructor(
 ) : HasClassName {
 
   /** The name of this class, in UpperCamelCase. */
-  public override val className: ClassName by declaration::name
+  public override val className: ClassName by declaration::className
 
   /**
    * A short name for this class, such as `"CT"` for `"CityTile"`; is often the same as [className].

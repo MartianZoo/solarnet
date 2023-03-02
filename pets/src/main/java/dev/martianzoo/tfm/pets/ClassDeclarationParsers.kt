@@ -11,7 +11,6 @@ import com.github.h0tk3y.betterParse.combinators.zeroOrMore
 import com.github.h0tk3y.betterParse.grammar.parser
 import com.github.h0tk3y.betterParse.parser.Parser
 import dev.martianzoo.tfm.api.SpecialClassNames.COMPONENT
-import dev.martianzoo.tfm.api.SpecialClassNames.THIS
 import dev.martianzoo.tfm.data.ClassDeclaration
 import dev.martianzoo.tfm.data.ClassDeclaration.DefaultsDeclaration
 import dev.martianzoo.tfm.data.ClassDeclaration.DependencyDeclaration
@@ -31,6 +30,7 @@ import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.ClassName.Parsing.classFullName
 import dev.martianzoo.tfm.pets.ast.ClassName.Parsing.classShortName
 import dev.martianzoo.tfm.pets.ast.Effect
+import dev.martianzoo.tfm.pets.ast.HasClassName
 import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.pets.ast.TypeExpr
 import dev.martianzoo.util.KClassMultimap
@@ -98,25 +98,30 @@ internal object ClassDeclarationParsers : PetParser() {
         skipChar('+') and
         TypeExpr.parser() and
         intensity map { (typeExpr, int) ->
-          require(typeExpr.className == THIS)
           require(typeExpr.refinement == null)
-          DefaultsDeclaration(gainOnlySpecs = typeExpr.arguments, gainIntensity = int)
+          DefaultsDeclaration(
+              gainOnlySpecs = typeExpr.arguments,
+              gainIntensity = int,
+              forClass = typeExpr.className,
+          )
         }
 
     private val removeOnlyDefaults: Parser<DefaultsDeclaration> =
         skipChar('-') and
         TypeExpr.parser() and
         intensity map { (typeExpr, int) ->
-          require(typeExpr.className == THIS)
           require(typeExpr.refinement == null)
-          DefaultsDeclaration(removeOnlySpecs = typeExpr.arguments, removeIntensity = int)
+          DefaultsDeclaration(
+              removeOnlySpecs = typeExpr.arguments,
+              removeIntensity = int,
+              forClass = typeExpr.className,
+          )
         }
 
     private val allCasesDefault: Parser<DefaultsDeclaration> by lazy {
       TypeExpr.parser() map {
-        require(it.className == THIS)
         require(it.refinement == null)
-        DefaultsDeclaration(universalSpecs = it.arguments)
+        DefaultsDeclaration(universalSpecs = it.arguments, forClass = it.className)
       }
     }
 
@@ -175,7 +180,9 @@ internal object ClassDeclarationParsers : PetParser() {
    * The rest of the file is temporary types used only during parsing
    */
 
-  internal data class Signature(val asClassDecl: ClassDeclaration) {
+  internal data class Signature(val asDeclaration: ClassDeclaration): HasClassName {
+    override val className: ClassName by asDeclaration::className
+
     constructor(
         className: ClassName,
         shortName: ClassName?,
@@ -184,7 +191,7 @@ internal object ClassDeclarationParsers : PetParser() {
         supertypes: List<TypeExpr>,
     ) : this(
         ClassDeclaration(
-            name = className,
+            className = className,
             id = shortName ?: className,
             dependencies = dependencies,
             supertypes = supertypes.toSetStrict(),
@@ -241,14 +248,16 @@ internal object ClassDeclarationParsers : PetParser() {
 
     private companion object {
       fun create(abstract: Boolean, signature: Signature, body: Body): List<NestableDecl> {
+        val mergedDefaults = DefaultsDeclaration.merge(body.defaultses)
+        require(mergedDefaults.forClass in setOf(null, signature.className)) // TODO
         val newDecl =
-            signature.asClassDecl.copy(
+            signature.asDeclaration.copy(
                 abstract = abstract,
                 otherInvariants = body.invariants.toSetStrict(),
                 effectsRaw = (body.effects + actionListToEffects(body.actions)).toSetStrict(),
-                defaultsDeclaration = DefaultsDeclaration.merge(body.defaultses),
+                defaultsDeclaration = mergedDefaults,
             )
-        val unnested = body.nestedGroups.flatMap { it.unnestAllFrom(signature.asClassDecl.name) }
+        val unnested = body.nestedGroups.flatMap { it.unnestAllFrom(signature.className) }
         return IncompleteNestableDecl(newDecl) plus unnested
       }
     }
@@ -260,7 +269,7 @@ internal object ClassDeclarationParsers : PetParser() {
 
     fun finishAtTopLevel(): ClassDeclaration {
       val result =
-          if (decl.name == COMPONENT || decl.supertypes.any()) {
+          if (decl.className == COMPONENT || decl.supertypes.any()) {
             decl
           } else {
             decl.copy(supertypes = setOf(COMPONENT.type))
@@ -273,7 +282,7 @@ internal object ClassDeclarationParsers : PetParser() {
       constructor(
           abstract: Boolean,
           signature: Signature
-      ) : this(signature.asClassDecl.copy(abstract = abstract))
+      ) : this(signature.asDeclaration.copy(abstract = abstract))
 
       // This returns a new NestableDecl that looks like it could be a sibling to containingClass
       // instead of nested inside it

@@ -9,8 +9,8 @@
 
 ABSTRACT CLASS GlobalParameter {                            // Instances must be added 1-by-1 - how to ensure?
                                                             // ... in theory, a trigger like `2 GP: Die`
-    DEFAULT +This.                                          // by default, gains & removes are "if possible"
-    DEFAULT -This.
+    DEFAULT +GlobalParameter.                               // by default, gains & removes are "if possible"
+    DEFAULT -GlobalParameter.
 
     This: TerraformRating                                   // becomes `This BY Owner: TR<Owner>`
 
@@ -34,7 +34,7 @@ ABSTRACT CLASS GlobalParameter {                            // Instances must be
 
     CLASS OceanTile[OT] : Tile<MarsArea> {
         HAS MAX 9 OceanTile
-        DEFAULT +This<WaterArea>
+        DEFAULT +OceanTile<WaterArea>
         ForwardAdjacency<This, Tile>: 2                     // We could almost count all adjacencies, except that the
     }                                                       // placement of this tile itself would trigger it
 }

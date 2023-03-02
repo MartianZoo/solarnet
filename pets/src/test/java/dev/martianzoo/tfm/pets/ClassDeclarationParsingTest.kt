@@ -41,22 +41,22 @@ private class ClassDeclarationParsingTest {
     """) // invariant
     parseClassDeclarations("""
       CLASS Foo {
-        DEFAULT +This!
+        DEFAULT +Foo!
       }
     """) // default
     parseClassDeclarations(
         """
       CLASS Foo {
-        DEFAULT +This!
+        DEFAULT +Foo!
       }
       CLASS Bar {
-        DEFAULT +This!
+        DEFAULT +Bar!
       }
     """) // two blocks
     parseClassDeclarations(
         """
       CLASS Foo {
-        DEFAULT +This!
+        DEFAULT +Foo!
       }
       CLASS Bar, Qux
     """)
@@ -66,7 +66,7 @@ private class ClassDeclarationParsingTest {
   fun body() {
     assertThat(
         parseClassDeclarations("""
-              CLASS Bar : Qux { DEFAULT +This?
+              CLASS Bar : Qux { DEFAULT +Bar?
                 Foo -> Bar
 
 
@@ -141,8 +141,8 @@ private class ClassDeclarationParsingTest {
     parseClassDeclarations(
         """
         ABSTRACT CLASS Component {
-           DEFAULT +This!
-           DEFAULT This<Foo>
+           DEFAULT +Component!
+           DEFAULT Component<Foo>
 
            CLASS What   // comment
 
