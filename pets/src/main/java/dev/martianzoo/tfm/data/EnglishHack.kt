@@ -501,6 +501,8 @@ object EnglishHack {
           "CX41" to "Merger",
           "CX42" to "NewPartner",
           "CX43" to "HeadStart",
+          "CX44" to "SixteenPsyche",
+          "CX45" to "RobotPollinators",
           "CXC1" to "ArcadianCommunities",
           "CXC2" to "Recyclon",
           "CXC3" to "SpliceTacticalGenomics",

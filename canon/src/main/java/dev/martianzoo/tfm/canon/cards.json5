@@ -4173,6 +4173,29 @@
       "requirement": "Adjacency<CityTile<Anyone>, OceanTile>",
       "cost": 8,
       "projectKind": "AUTOMATED"
-    }
+    },
+
+    // Sixteen Psyche
+    {
+      "id": "X44",
+      "bundle": "X",
+      "deck": "PROJECT",
+      "tags": [ "SpaceTag" ],
+      "immediate": "PROD[2 Titanium], 3 Titanium",
+      "effects": [ "End: 2 VictoryPoint" ],
+      "cost": 31,
+      "projectKind": "AUTOMATED"
+    },
+
+    // Robot Pollinators
+    {
+      "id": "X45",
+      "bundle": "X",
+      "deck": "PROJECT",
+      "immediate": "PROD[Plant], Plant / PlantTag",
+      "requirement": "4 OxygenStep",
+      "cost": 9,
+      "projectKind": "AUTOMATED"
+    },
   ],
 }
