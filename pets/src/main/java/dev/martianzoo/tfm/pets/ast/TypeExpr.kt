@@ -28,7 +28,7 @@ data class TypeExpr(
     override val className: ClassName,
     val arguments: List<TypeExpr> = listOf(),
     val refinement: Requirement? = null,
-    val link: Int? = null,
+    val link: Int? = null, // TODO use it or lose it
 ) : PetNode(), HasClassName {
   companion object : PetParser() {
     fun typeExpr(text: String): TypeExpr = Parsing.parse(parser(), text)
@@ -64,7 +64,7 @@ data class TypeExpr(
       require(link == null)
       when (arguments.size) {
         0 -> {}
-        1 -> require(arguments.first().isTypeOnly)
+        1 -> require(arguments.first().isTypeOnly) { "$this" }
         else -> error("")
       }
     }

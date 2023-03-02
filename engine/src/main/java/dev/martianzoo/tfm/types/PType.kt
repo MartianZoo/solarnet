@@ -15,23 +15,19 @@ import dev.martianzoo.tfm.types.Dependency.TypeDependency
  * state.
  */
 public data class PType
-private constructor(
+internal constructor(
     public val pclass: PClass,
     internal val allDependencies: DependencyMap = DependencyMap(),
     override val refinement: Requirement? = null,
 ) : Type {
-  internal companion object {
-    fun create(pclass: PClass, allDependenciesUnordered: DependencyMap = DependencyMap()) =
-        PType(pclass, allDependenciesUnordered.extract(pclass.allDependencyKeys))
-  }
   init {
     require(allDependencies.keys.toList() == pclass.allDependencyKeys.toList()) {
       "expected keys ${pclass.allDependencyKeys}, got $allDependencies"
     }
     if (pclass.className == CLASS) {
-      require(allDependencies.types.single() is ClassDependency)
+      require(allDependencies.dependencies.single() is ClassDependency)
     } else {
-      require(allDependencies.types.all { it is TypeDependency })
+      require(allDependencies.dependencies.all { it is TypeDependency })
     }
     if (refinement != null) pclass.loader.checkAllTypes(refinement)
   }
@@ -42,10 +38,14 @@ private constructor(
       allDependencies.specializes(that.allDependencies) &&
       that.refinement in setOf(null, refinement)
 
-  fun intersect(that: PType): PType? {
-    val intersect: PClass = pclass.intersect(that.pclass) ?: return null
-    return create(intersect, allDependencies.intersect(that.allDependencies))
-        .refine(combine(this.refinement, that.refinement))
+  fun intersect(that: PType): PType? =
+      pclass.intersect(that.pclass)
+          ?.withAllDependencies(allDependencies.intersect(that.allDependencies))
+          ?.refine(combine(this.refinement, that.refinement))
+
+  fun specialize(specs: List<TypeExpr>): PType {
+    val deps = allDependencies.specialize(specs, pclass.loader)
+    return copy(allDependencies = deps.subMap(allDependencies.keys))
   }
 
   private fun combine(one: Requirement?, two: Requirement?): Requirement? {
@@ -61,11 +61,11 @@ private constructor(
   fun refine(newRef: Requirement?): PType = copy(refinement = combine(refinement, newRef))
 
   override val typeExpr: TypeExpr by lazy {
-    toTypeExprUsingSpecs(narrowedDependencies.types.map { it.typeExpr })
+    toTypeExprUsingSpecs(narrowedDependencies.dependencies.map { it.typeExpr })
   }
 
   override val typeExprFull: TypeExpr by lazy {
-    toTypeExprUsingSpecs(allDependencies.types.map { it.typeExprFull })
+    toTypeExprUsingSpecs(allDependencies.dependencies.map { it.typeExprFull })
   }
 
   internal val narrowedDependencies: DependencyMap by lazy {
@@ -81,7 +81,7 @@ private constructor(
 
   fun supertypes(): List<PType> {
     val supers = pclass.allSuperclasses - pclass.loader.componentClass - pclass
-    return supers.map { PType(it, allDependencies.extract(it.allDependencyKeys)) }
+    return supers.map { PType(it, allDependencies.subMap(it.allDependencyKeys)) }
   }
 
   override fun toString() = typeExpr.toString()

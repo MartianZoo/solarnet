@@ -5,7 +5,7 @@ import dev.martianzoo.tfm.api.SpecialClassNames.OWNER
 import dev.martianzoo.tfm.engine.Component
 import dev.martianzoo.tfm.engine.Engine
 import dev.martianzoo.tfm.engine.Game
-import dev.martianzoo.tfm.pets.AstTransforms.replaceTypes
+import dev.martianzoo.tfm.pets.AstTransforms.replaceAll
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.pets.ast.Instruction
@@ -77,11 +77,12 @@ class InteractiveSession {
   fun <P : PetNode> fixTypes(node: P): P {
     val xer = game!!.loader.transformer
     var result = node
-    result = xer.deprodify(result)
-    result = xer.insertDefaultPlayer(result)
+    result = xer.applyGainRemoveDefaults(result)
+    result = xer.applyAllCasesDefaults(result)
     if (defaultPlayer != null) {
-      result = replaceTypes(result, OWNER.type, defaultPlayer!!.type) // TODO
+      result = result.replaceAll(OWNER.type, defaultPlayer!!.type) // TODO
     }
+    result = xer.deprodify(result)
     return result
   }
 }

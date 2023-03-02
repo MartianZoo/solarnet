@@ -15,21 +15,21 @@ private class ReplSessionTest {
 
     assertThat(repl.command("exec PROD[5, 4 Energy]"))
         .containsExactly(
-            "Executing `5 Production<Player2, Class<Megacredit>>," +
-                " 4 Production<Player2, Class<Energy>>` ...",
+            "Executing `5 Production<Player2, Class<Megacredit>>!," +
+                " 4 Production<Player2, Class<Energy>>!` ...",
             "${++n}: 5 Production<Player2, Class<Megacredit>>",
             "${++n}: 4 Production<Player2, Class<Energy>>",
         )
     assertThat(repl.command("exec StripMine, BuildingTag<StripMine>"))
         .containsExactly(
-            "Executing `StripMine<Player2>, BuildingTag<Player2, StripMine<Player2>>` ...",
+            "Executing `StripMine<Player2>!, BuildingTag<Player2, StripMine<Player2>>!` ...",
             "${++n}: 1 StripMine<Player2>",
             "${++n}: 1 BuildingTag<Player2, StripMine<Player2>>",
         )
     assertThat(repl.command("exec PROD[-2 Energy, 2 Steel, Titanium]"))
         .containsExactly(
-            "Executing `-2 Production<Player2, Class<Energy>>," +
-                " 2 Production<Player2, Class<Steel>>, Production<Player2, Class<Titanium>>` ...",
+            "Executing `-2 Production<Player2, Class<Energy>>!," +
+                " 2 Production<Player2, Class<Steel>>!, Production<Player2, Class<Titanium>>!` ...",
             "${++n}: -2 Production<Player2, Class<Energy>>",
             "${++n}: 2 Production<Player2, Class<Steel>>",
             "${++n}: 1 Production<Player2, Class<Titanium>>",

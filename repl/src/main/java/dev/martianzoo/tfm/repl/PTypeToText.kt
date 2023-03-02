@@ -26,8 +26,9 @@ object PTypeToText { // TODO refactor to ClassInfo / TypeInfo type dealies
           else -> subs.take(6).joinToString() + " (${subs.size - 6} others)"
         }
 
-    val gain = loader.transformer.applyDefaultsIn(Gain(ScaledTypeExpr(1, expr)))
-    val remove = loader.transformer.applyDefaultsIn(Remove(ScaledTypeExpr(1, expr)))
+    val allCases = loader.transformer.applyGainRemoveDefaults(expr)
+    val gain = loader.transformer.applyGainRemoveDefaults(Gain(ScaledTypeExpr(1, expr)))
+    val remove = loader.transformer.applyGainRemoveDefaults(Remove(ScaledTypeExpr(1, expr)))
 
     val nameId = "${pclass.className}" + "[${pclass.id}]".iff(pclass.id != pclass.className)
 
@@ -50,7 +51,7 @@ object PTypeToText { // TODO refactor to ClassInfo / TypeInfo type dealies
           std form:   $ptype
           long form:  ${ptype.typeExprFull}
           supertypes: ${ptype.supertypes().joinToString()}
-          defaults:   +$gain / $remove
+          defaults:   $allCases / +$gain / $remove
     """.trimIndent()
 
     return classStuff + typeStuff + try {

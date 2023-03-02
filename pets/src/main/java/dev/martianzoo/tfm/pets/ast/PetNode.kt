@@ -22,7 +22,7 @@ public sealed class PetNode {
    * Passes every node of a subtree to [visitor], which returns `true` or `false` to indicate
    * whether its child subtrees should also be traversed.
    */
-  public fun visitDescendants(visitor: (PetNode) -> Boolean) = Visitor(visitor).visit(this)
+  public fun visitDescendants(visitor: (PetNode) -> Boolean): Unit = Visitor(visitor).visit(this)
 
   /** Returns the total number of [PetNode]s in this subtree. */
   public fun descendantCount(): Int {
@@ -46,6 +46,16 @@ public sealed class PetNode {
     }
     found -= null
     @Suppress("UNCHECKED_CAST") return found as Set<P>
+  }
+
+  public operator fun contains(node: PetNode): Boolean {
+    // TODO why can't I return from inside the lambda?
+    var found = false
+    visitDescendants {
+      if (it == node) found = true
+      true
+    }
+    return found
   }
 
   /** See [PetNode.visitChildren]. */

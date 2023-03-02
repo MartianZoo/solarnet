@@ -9,7 +9,8 @@
 
 ABSTRACT CLASS GlobalParameter {                            // Instances must be added 1-by-1 - how to ensure?
                                                             // ... in theory, a trigger like `2 GP: Die`
-    DEFAULT +This.                                          // by default, gains are "if possible"
+    DEFAULT +This.                                          // by default, gains & removes are "if possible"
+    DEFAULT -This.
 
     This: TerraformRating                                   // becomes `This BY Owner: TR<Owner>`
 

@@ -34,7 +34,7 @@ public data class Component(
    * to [PClass.allDependencyKeys].
    */
   public val dependencies: List<Component> by lazy {
-    val depTypes = ptype.allDependencies.types.filterIsInstance<TypeDependency>()
+    val depTypes = ptype.allDependencies.dependencies.filterIsInstance<TypeDependency>()
     depTypes.map { Component(it.ptype) }
   }
 

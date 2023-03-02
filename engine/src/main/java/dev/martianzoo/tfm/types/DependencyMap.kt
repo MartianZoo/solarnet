@@ -1,36 +1,39 @@
 package dev.martianzoo.tfm.types
 
+import dev.martianzoo.tfm.pets.ast.TypeExpr
 import dev.martianzoo.tfm.types.Dependency.Key
 import dev.martianzoo.tfm.types.Dependency.TypeDependency
 import dev.martianzoo.util.mergeMaps
 
 // Takes care of everything inside the <> but knows nothing of what's outside it
-internal data class DependencyMap(private val map: Map<Key, Dependency>) {
-  internal constructor() : this(mapOf<Key, Dependency>())
-
-  constructor(vararg pairs: Pair<Key, Dependency>) : this(mapOf(*pairs))
+internal data class DependencyMap(internal val map: Map<Key, Dependency>) {
+  constructor() : this(mapOf<Key, Dependency>())
+  constructor(deps: Collection<Dependency>) : this(deps.associateBy { it.key })
 
   init {
     map.forEach { (key, dep) -> require(key == dep.key) { key } }
   }
 
-  val keys by map::keys
-  val types by map::values
+  val keys: Set<Key> by map::keys
+  val dependencies: List<Dependency> = map.values.toList()
 
-  val abstract = types.any { it.abstract }
+  val abstract = dependencies.any { it.abstract }
 
   operator fun contains(key: Key) = key in map
   operator fun get(key: Key): Dependency? = map[key]
 
+  // used by PType.isSubtypeOf()
   fun specializes(that: DependencyMap) =
       // For each of *its* keys, my type must be a subtype of its type
       that.map.all { (thatKey, thatType: Dependency) -> map[thatKey]!!.isSubtypeOf(thatType) }
 
+  fun merge(that: DependencyMap, merger: (Dependency, Dependency) -> Dependency) =
+      DependencyMap(mergeMaps(map, that.map, merger))
+
   // Combines all entries, using the glb when both maps have the same key
-  fun intersect(that: DependencyMap): DependencyMap {
-    val merged = mergeMaps(this.map, that.map) { a, b -> a.intersect(b)!! }
-    return DependencyMap(merged)
-  }
+  fun intersect(that: DependencyMap) = merge(that) { a, b -> a.intersect(b)!! }
+
+  fun overlayOn(that: DependencyMap) = merge(that) { ours, _ -> ours }
 
   operator fun minus(that: DependencyMap) =
       DependencyMap((map.entries - that.map.entries).associate { it.key to it.value })
@@ -43,45 +46,39 @@ internal data class DependencyMap(private val map: Map<Key, Dependency>) {
     }
   }
 
-  // determines the map that could be merged with this one to specialize, by inferring which
-  // keys the provided specs go with
-  fun findMatchups(specs: List<PType>): DependencyMap {
-    val matchups = mutableMapOf<Key, TypeDependency>()
-    val unhandled = specs.toMutableList()
+  /**
+   * Assigns each type expression to a key from among this map's keys, such that it is compatible
+   * with that key's upper bound.
+   */
+  fun match(specs: List<TypeExpr>, loader: PClassLoader): List<TypeDependency> {
+    val usedDeps = mutableSetOf<TypeDependency>()
 
-    // a) every spec should have exactly one dep it could go with
-    // b) every dep should have 0 or 1 specs it should go with, and check that we handled all
-    for ((key, dep) in map) {
-      if (unhandled.none()) break
-      dep as TypeDependency
-      val iter: MutableIterator<PType> = unhandled.iterator()
-      while (iter.hasNext()) {
-        val ptype = iter.next().intersect(dep.ptype)
-        if (ptype != null) {
-          matchups[key] = TypeDependency(key, ptype)
-          iter.remove()
-          break
-        }
+    return specs.map { specTypeExpr ->
+      val specType: PType = loader.resolveType(specTypeExpr)
+      for (candidateDep in dependencies - usedDeps) {
+        candidateDep as TypeDependency
+        val intersectionType = specType.intersect(candidateDep.ptype) ?: continue
+        usedDeps += candidateDep
+        return@map TypeDependency(candidateDep.key, intersectionType)
       }
+      error("couldn't match up $specTypeExpr to $this")
     }
-    require(matchups.size == specs.size && unhandled.isEmpty()) {
-      """
-      This: $this
-      Specs: $specs
-      Matchups: ${matchups.values}
-      Unhandled : $unhandled
-      """
-    }
-    return DependencyMap(matchups)
   }
 
-  fun specialize(specs: List<PType>) = intersect(findMatchups(specs))
+  fun specialize(specs: List<TypeExpr>, loader: PClassLoader): DependencyMap {
+    return DependencyMap(match(specs, loader)).overlayOn(this)
+  }
 
-  override fun toString() = "$types"
+  override fun toString() = "$dependencies"
 
-  fun extract(keysInOrder: Iterable<Key>): DependencyMap {
+  /** Returns a submap of this map where every key is one of [keysInOrder]. */
+  fun subMap(keysInOrder: Iterable<Key>): DependencyMap {
     val map = mutableMapOf<Key, Dependency>()
-    keysInOrder.forEach { map[it] = this.map[it]!! }
+    keysInOrder.forEach {
+      if (it in this.map) {
+        map[it] = this.map[it]!!
+      }
+    }
     return DependencyMap(map)
   }
 }

@@ -28,13 +28,14 @@ public data class ClassName(private val asString: String) : PetNode(), Comparabl
   public fun addArgs(specs: List<ClassName>) = addArgs(specs.map { it.type })
   public fun addArgs(vararg specs: ClassName) = addArgs(specs.toList())
 
-  public fun matches(regex: Regex) = asString.matches(regex)
+  fun refine(requirement: Requirement?) = type.refine(requirement)
 
+  public fun matches(regex: Regex) = asString.matches(regex)
   override fun toString() = asString
+
   override fun compareTo(other: ClassName) = asString.compareTo(other.asString)
 
   override val kind = ClassName::class.simpleName!!
-
   override fun visitChildren(visitor: Visitor) = Unit
 
   public object Parsing : PetParser() {

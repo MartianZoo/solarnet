@@ -1,27 +1,25 @@
 package dev.martianzoo.tfm.types
 
 import dev.martianzoo.tfm.api.SpecialClassNames.CLASS
+import dev.martianzoo.tfm.api.SpecialClassNames.COMPONENT
 import dev.martianzoo.tfm.api.SpecialClassNames.END
 import dev.martianzoo.tfm.api.SpecialClassNames.OWNED
-import dev.martianzoo.tfm.api.SpecialClassNames.OWNER
 import dev.martianzoo.tfm.api.SpecialClassNames.THIS
 import dev.martianzoo.tfm.api.SpecialClassNames.USE_ACTION
 import dev.martianzoo.tfm.data.ClassDeclaration
-import dev.martianzoo.tfm.pets.AstTransforms
 import dev.martianzoo.tfm.pets.PetTransformer
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.classNames
 import dev.martianzoo.tfm.pets.ast.Effect
-import dev.martianzoo.tfm.pets.ast.Effect.Trigger.ByTrigger
 import dev.martianzoo.tfm.pets.ast.Effect.Trigger.OnGainOf
 import dev.martianzoo.tfm.pets.ast.Effect.Trigger.WhenGain
 import dev.martianzoo.tfm.pets.ast.Effect.Trigger.WhenRemove
 import dev.martianzoo.tfm.pets.ast.HasClassName
 import dev.martianzoo.tfm.pets.ast.PetNode
 import dev.martianzoo.tfm.pets.ast.Requirement
+import dev.martianzoo.tfm.pets.ast.Requirement.Companion.requirement
 import dev.martianzoo.tfm.pets.ast.TypeExpr
 import dev.martianzoo.tfm.types.Dependency.ClassDependency
-import dev.martianzoo.tfm.types.Dependency.ClassDependency.Companion.KEY
 import dev.martianzoo.tfm.types.Dependency.TypeDependency
 import dev.martianzoo.util.toSetStrict
 
@@ -140,38 +138,37 @@ internal constructor(
    * the type `Class<Resource>`.
    */
   public val classType: PType by lazy {
-    PType.create(loader.classClass, DependencyMap(KEY to ClassDependency(this)))
+    loader.classClass.withAllDependencies(DependencyMap(listOf(ClassDependency(this))))
   }
 
   /** Least upper bound of all types with pclass==this */
   public val baseType: PType by lazy {
     if (className == CLASS) {
       // base type of Class is Class<Component>
+      require(declaration.dependencies.single().typeExpr == COMPONENT.type)
       loader.componentClass.classType
     } else {
-      val newDeps =
-          directDependencyKeys.associateWith {
+      val newDeps: List<Dependency> =
+          directDependencyKeys.map {
             val depTypeExpr = declaration.dependencies[it.index].typeExpr
             TypeDependency(it, loader.resolveType(depTypeExpr))
           }
       val deps = DependencyMap.intersect(directSupertypes.map { it.allDependencies })
-      val allDeps = deps.intersect(DependencyMap(newDeps))
-      PType.create(this, allDeps)
+      withAllDependencies(deps.merge(DependencyMap(newDeps)) { _, _ -> error("") })
     }
   }
 
-  fun specialize(map: List<PType>): PType =
-      try {
-        baseType.copy(allDependencies = baseType.allDependencies.specialize(map))
-      } catch (e: Exception) {
-        throw IllegalArgumentException("baseType is $baseType; map is $map", e)
-      }
+  internal fun withAllDependencies(deps: DependencyMap) =
+      PType(this, deps.subMap(this.allDependencyKeys))
+
+  internal fun match(specs: List<TypeExpr>): List<TypeDependency> =
+      baseType.allDependencies.match(specs, loader)
+
+  fun specialize(specs: List<TypeExpr>): PType = baseType.specialize(specs)
 
   // DEFAULTS
 
-  internal val defaults: Defaults by lazy {
-    Defaults.forClass(this)
-  }
+  internal val defaults: Defaults by lazy { Defaults.forClass(this) }
 
   // EFFECTS
 
@@ -182,28 +179,18 @@ internal constructor(
    */
   val classEffects: List<Effect> by lazy {
     val xer = loader.transformer
+    val thiss = className.refine(requirement("Ok"))
     declaration.effectsRaw
         .map { effect ->
           var fx = effect
-          fx = xer.deprodify(fx)
-          fx = xer.applyDefaultsIn(fx)
-          fx = AstTransforms.replaceTypes(fx, THIS.type, baseType.typeExprFull)
-          if (OWNED in allSuperclasses.classNames()) {
-            fx = xer.insertDefaultPlayer(fx)
-          } else {
-            var trig = xer.insertDefaultPlayer(fx.trigger)
-            val ins = xer.insertDefaultPlayer(fx.instruction)
-            if (OWNER !in trig.descendantsOfType<ClassName>() &&
-                OWNER in ins.descendantsOfType<ClassName>()) {
-              trig = ByTrigger(trig, OWNER)
-            }
-            fx = fx.copy(trigger = trig, instruction = ins)
+          fx = xer.applyGainRemoveDefaults(fx, thiss)
+          fx = xer.applyAllCasesDefaults(fx, thiss)
+          if (OWNED !in allSuperclasses.classNames()) {
+            fx = xer.fixEffectForUnownedContext(fx)
           }
-          // fx = xer.simplifyTypes(fx, baseType)
-          fx = AstTransforms.replaceTypes(fx, baseType.typeExprFull, THIS.type)
+          fx = xer.deprodify(fx)
           fx
-        }
-        .sortedWith(effectComparator)
+        }.sortedWith(effectComparator)
   }
 
   private val effectComparator: Comparator<Effect> =
@@ -218,7 +205,8 @@ internal constructor(
               else -> 3
             }
           },
-          { it.trigger.toString() })
+          { it.trigger.toString() },
+      )
 
   // OTHER
 
@@ -249,7 +237,7 @@ internal constructor(
               @Suppress("UNCHECKED_CAST")
               node.addArgs(THIS) as P
             } else {
-              defaultTransform(node)
+              transformChildren(node)
             }
           }
         }

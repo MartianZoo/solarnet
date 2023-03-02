@@ -5,7 +5,7 @@ import dev.martianzoo.tfm.api.SpecialClassNames.COMPONENT
 import dev.martianzoo.tfm.api.SpecialClassNames.DIE
 import dev.martianzoo.tfm.api.SpecialClassNames.THIS
 import dev.martianzoo.tfm.canon.Canon
-import dev.martianzoo.tfm.pets.AstTransforms.replaceTypes
+import dev.martianzoo.tfm.pets.AstTransforms.replaceAll
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.classNames
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
@@ -107,8 +107,7 @@ private class PClassCanonTest {
 
     table.allClasses.forEach { pclass ->
       pclass.classEffects.forEach {
-        val fixt = replaceTypes(it, THIS.type, pclass.className.type)
-        table.checkAllTypes(fixt)
+        table.checkAllTypes(it.replaceAll(THIS.type, pclass.className.type))
       }
     }
   }

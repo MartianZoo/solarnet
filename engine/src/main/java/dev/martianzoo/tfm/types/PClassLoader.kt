@@ -54,7 +54,7 @@ public class PClassLoader(
       loadedClasses[nameOrId] ?: error("no class loaded with id or name $nameOrId")
 
   /** Returns the corresponding [PType] to [type] (possibly [type] itself). */
-  public fun resolveType(type: Type): PType = type as? PType ?: resolveType(type.typeExprFull)
+  public fun resolveType(type: Type): PType = type as? PType ?: resolveType(type.typeExpr)
 
   /** Returns the [PType] represented by [typeExpr]. */
   // TODO we need transformations sometimes?
@@ -72,7 +72,7 @@ public class PClassLoader(
               }
           getClass(className).classType
         } else {
-          pclass.specialize(typeExpr.arguments.map(::resolveType))
+          pclass.specialize(typeExpr.arguments)
         }
     return result.refine(typeExpr.refinement)
   }

@@ -1,7 +1,6 @@
 package dev.martianzoo.tfm.pets
 
 import dev.martianzoo.tfm.api.SpecialClassNames.CLASS
-import dev.martianzoo.tfm.api.SpecialClassNames.OWNER
 import dev.martianzoo.tfm.api.SpecialClassNames.PRODUCTION
 import dev.martianzoo.tfm.api.SpecialClassNames.THIS
 import dev.martianzoo.tfm.api.SpecialClassNames.USE_ACTION
@@ -57,18 +56,17 @@ public object AstTransforms {
   }
 
   // TODO check if this really what callers want to do
-  public fun <P : PetNode> replaceTypes(node: P, from: TypeExpr, to: TypeExpr): P {
-    val xer =
-        object : PetTransformer() {
-          override fun <P : PetNode> transform(node: P): P =
-              if (node == from) {
-                @Suppress("UNCHECKED_CAST")
-                to as P
-              } else {
-                defaultTransform(node)
-              }
-        }
-    return xer.transform(node)
+  public fun <P : PetNode> P.replaceAll(from: PetNode, to: PetNode): P {
+    if (from == to) return this
+    return object : PetTransformer() {
+      override fun <Q : PetNode> transform(node: Q): Q =
+          if (node == from) {
+            @Suppress("UNCHECKED_CAST")
+            to as Q
+          } else {
+            transformChildren(node)
+          }
+    }.transform(this)
   }
 
   /** Transform any `PROD[...]` sections in a subtree to the equivalent subtree. */
@@ -94,44 +92,11 @@ public object AstTransforms {
                   }
                   inProd && node is TypeExpr && node.className in producible ->
                       PRODUCTION.addArgs(node.arguments + CLASS.addArgs(node.className))
-                  else -> defaultTransform(node)
+                  else -> transformChildren(node)
                 }
             @Suppress("UNCHECKED_CAST") return rewritten as P
           }
         }
     return xer.transform(node)
-  }
-
-  /**
-   * For any type expression whose root type is in [ownedClasses] but does not already have anything
-   * in [ownerClasses] as a type argument, adds `Owner` as a type argument. This is implementing
-   * what the code `class Owned { DEFAULT This<Owner> ... }` is already trying to express, but I
-   * haven't gotten that working in a general way yet.
-   */
-  // TODO redo this in terms of Type not TypeExpr
-  public fun <P : PetNode> insertDefaultPlayer(
-      node: P,
-      ownerClasses: Set<ClassName>,
-      ownedClasses: Set<ClassName>,
-  ): P {
-    fun hasOwner(typeExprs: List<TypeExpr>) =
-        typeExprs.map { it.className }.intersect(ownerClasses).any()
-
-    return object : PetTransformer() {
-      override fun <Q : PetNode> transform(node: Q): Q {
-        return if (node !is TypeExpr) {
-          defaultTransform(node)
-        } else if (node.className == CLASS) {
-          node // don't descend; it's perfect how it is
-        } else if (node.className in ownedClasses && !hasOwner(node.arguments)) {
-          val xd = defaultTransform(node)
-          val withOwnerPrepended = xd.replaceArgs(listOf(OWNER.type) + xd.arguments)
-          @Suppress("UNCHECKED_CAST")
-          withOwnerPrepended as Q
-        } else {
-          defaultTransform(node)
-        }
-      }
-    }.transform(node)
   }
 }
