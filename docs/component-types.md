@@ -96,12 +96,12 @@ The most interesting thing about these component types is that they use *default
 
 ```
 CLASS CityTile {
-    DEFAULT +This<LandArea(HAS MAX 0 Neighbor<CityTile<Anyone>>)>
+    DEFAULT +CityTile<LandArea(HAS MAX 0 Neighbor<CityTile<Anyone>>)>
     ...
 }
 ```
 
-Any card, class declaration, etc. that writes the simple type expression `CityTile` all by itself (no type arguments, no refinement) will get this default type instead, `CityTile<LandArea(HAS MAX 0 Neighbor<CityTile<Anyone>>)>`. But simply write, say, `CityTile<VolcanicArea>` or ` CityTile<LandArea(HAS 2 Neighbor<CityTile<Anyone>>)>` (as `UrbanizedArea` does), and the default is ignored.
+Any card, class declaration, etc. that writes the simple type expression `CityTile` without specifying a kind of `Area` will get this default type instead. But simply write, say, `CityTile<VolcanicArea>` or ` CityTile<LandArea(HAS 2 Neighbor<CityTile<Anyone>>)>` (as `UrbanizedArea` does), and the default is ignored.
 
 ### Resources
 
