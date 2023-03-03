@@ -69,11 +69,7 @@ class InteractiveSession {
 
   fun has(requirement: Requirement) = game!!.evaluate(fixTypes(requirement))
 
-  fun execute(instruction: Instruction): Instruction {
-    val instr = fixTypes(instruction)
-    game!!.execute(instr)
-    return instr
-  }
+  fun execute(instruction: Instruction): Unit = game!!.execute(fixTypes(instruction))
 
   fun rollBackToBefore(ordinal: Int) = game!!.rollBack(ordinal)
 

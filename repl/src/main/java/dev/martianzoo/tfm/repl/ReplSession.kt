@@ -125,9 +125,9 @@ public class ReplSession(private val authority: Authority) {
               {
                 it?.let { args ->
                   val logSize = session.game!!.changeLogFull().size
-                  val instr = session.execute(instruction(args))
+                  session.execute(instruction(args))
                   val results = session.game!!.changeLogFull().drop(logSize)
-                  listOf("Executing `$instr` ...") + results.toStrings()
+                  results.toStrings()
                 } ?: listOf("Usage: exec <Instruction>")
               },
           "rollback" to
