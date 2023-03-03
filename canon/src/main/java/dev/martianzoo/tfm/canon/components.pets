@@ -9,7 +9,7 @@ CLASS Game : System {
     HAS MAX 1 This                                          // Created manually to kick everything off
     This:: @createSingletons()                              // TODO actually process this
 
-    This:: @forceLoad(Border, Production, MetalHandler, GrossHack) // TODO pare down
+    This:: @forceLoad(Production, MetalHandler, GrossHack)  // TODO pare down
 }
 
 // GLOBAL PARAMETERS ---------------------------------------
@@ -52,7 +52,7 @@ ABSTRACT CLASS GlobalParameter {                            // Instances must be
 ABSTRACT CLASS MarsMap {                                    // Tharsis etc. are loaded from `maps.json5`
     HAS =1 This
 
-    // This:: @createBorders(This)
+    This:: @create(Border, This)
 }
 
 ABSTRACT CLASS Area(HAS MAX 1 Tile) {                       // TODO move invar to Tile somehow?
