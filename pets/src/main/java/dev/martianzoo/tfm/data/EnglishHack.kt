@@ -511,5 +511,25 @@ object EnglishHack {
           "CXC6" to "Philares",
           "CXC7" to "Astrodrill",
           "CXC8" to "PharmacyUnion",
+
+          "Area021" to "PhobosSpaceHavenArea",
+          "Area081" to "GanymedeColonyArea",
+          "Area220" to "DawnCityArea",
+          "Area236" to "LunaMetropolisArea",
+          "Area238" to "MaxwellBaseArea",
+          "Area248" to "StratopolisArea",
+
+          "Tile008" to "CapitalTile",
+          "Tile044" to "NaturalPreserveTile",
+          "Tile085" to "CommercialDistrictTile",
+          "Tile097" to "NuclearZoneTile",
+          "Tile123" to "IndustrialCenterTile",
+          "Tile128" to "EcologicalZoneTile",
+          "Tile140" to "LavaFlowsTile",
+          "Tile142" to "MoholeAreaTile",
+          "Tile199" to "RestrictedAreaTile",
+          "TileX31" to "DeimosDownTile",
+          "TileX32" to "GreatDamTile",
+          "TileX33" to "MagneticFieldGeneratorsTile",
       )
 }
