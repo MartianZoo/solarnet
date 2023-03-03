@@ -138,7 +138,7 @@ public class CardDefinition(data: CardData) : Definition {
         id = id,
         abstract = false,
         supertypes = supertypes,
-        effectsRaw = allEffects.toSetStrict(),
+        effects = allEffects.toSetStrict(),
         extraNodes = extraNodes)
   }
 

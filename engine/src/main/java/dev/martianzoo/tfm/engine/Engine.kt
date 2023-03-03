@@ -4,8 +4,8 @@ import dev.martianzoo.tfm.api.GameSetup
 import dev.martianzoo.tfm.api.SpecialClassNames.GAME
 import dev.martianzoo.tfm.data.ChangeRecord.Cause
 import dev.martianzoo.tfm.data.MarsMapDefinition
-import dev.martianzoo.tfm.pets.ast.ClassName.Companion.classNames
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.tfm.pets.ast.classNames
 import dev.martianzoo.tfm.types.PClassLoader
 import dev.martianzoo.tfm.types.PType
 import dev.martianzoo.util.filterWithoutNulls

@@ -30,7 +30,7 @@ data class StandardActionDefinition(
         abstract = false,
         supertypes = setOf(kind.type),
         otherInvariants = setOf(invariant),
-        effectsRaw = actionListToEffects(listOf(action)),
+        effects = actionListToEffects(listOf(action)),
     )
   }
 }

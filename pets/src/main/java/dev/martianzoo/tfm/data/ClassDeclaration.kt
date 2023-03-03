@@ -10,6 +10,7 @@ import dev.martianzoo.tfm.pets.ast.Instruction.Intensity
 import dev.martianzoo.tfm.pets.ast.PetNode
 import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.pets.ast.TypeExpr
+import dev.martianzoo.tfm.pets.ast.classNames
 
 /**
  * The declaration of a component class, such as GreeneryTile. Models the declaration textually as
@@ -23,10 +24,10 @@ public data class ClassDeclaration(
     val supertypes: Set<TypeExpr> = setOf(), // TODO do fancy Component stuff elsewhere?
     val topInvariant: Requirement? = null,
     val otherInvariants: Set<Requirement> = setOf(),
-    val effectsRaw: Set<Effect> = setOf(),
+    val effects: Set<Effect> = setOf(),
     val defaultsDeclaration: DefaultsDeclaration = DefaultsDeclaration(),
     val extraNodes: Set<PetNode> = setOf(),
-): HasClassName {
+) : HasClassName {
   init {
     require(className != THIS)
   }
@@ -37,12 +38,10 @@ public data class ClassDeclaration(
         require(dependencies.none()) { className }
         require(supertypes.isEmpty()) { className }
       }
-
       CLASS -> {
         require(!abstract) { className }
         require(dependencies.single().typeExpr == COMPONENT.type) { className }
       }
-
       else -> {
         require(supertypes.isNotEmpty()) { className }
       }
@@ -60,22 +59,40 @@ public data class ClassDeclaration(
         dependencies.map { it.typeExpr } +
         setOfNotNull(topInvariant) +
         otherInvariants +
-        effectsRaw +
+        effects +
         defaultsDeclaration.allNodes +
         extraNodes
   }
 
-  public val signatureLinkages: Set<ClassName> by lazy {
-    // Cardbound<CardFront<Anyone>> : Owned<Anyone>
-    (dependencies.map { it.typeExpr } + supertypes).asSequence()
-        .flatMap { it.arguments }
-        .flatMap { it.descendantsOfType<TypeExpr>() }
-        .filter { it.isTypeOnly }
-        .map { it.className }
+  private fun bareNamesInDependenciesList(): Sequence<ClassName> =
+      (dependencies.map { it.typeExpr } + supertypes.flatMap { it.arguments })
+          .asSequence()
+          .flatMap { it.descendantsOfType<TypeExpr>() }
+          .filter { it.isClassOnly }
+          .classNames()
+
+  public val bareNamesInDependencies: Set<ClassName> by lazy {
+    bareNamesInDependenciesList().sorted().toSet()
+  }
+
+  public val depToDepLinkages: Set<ClassName> by lazy {
+    bareNamesInDependenciesList()
         .sorted()
         .windowed(2)
         .mapNotNull { it.toSet().singleOrNull() }
         .toSet()
+  }
+
+  public val bareNamesInEffects: Map<Effect, Set<ClassName>> by lazy {
+    effects.associateWith { fx ->
+      fx.descendantsOfType<TypeExpr>().filter { it.isClassOnly }.classNames().toSet()
+    }
+  }
+
+  public val depToEffectLinkages: Map<Effect, Set<ClassName>> by lazy {
+    bareNamesInEffects
+        .mapValues { (_, names) -> names.intersect(bareNamesInDependencies) }
+        .filterValues { it.any() }
   }
 
   // TODO why do we even have this lever

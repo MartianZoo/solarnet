@@ -9,9 +9,9 @@ import dev.martianzoo.tfm.data.MarsMapDefinition.AreaDefinition
 import dev.martianzoo.tfm.engine.Component
 import dev.martianzoo.tfm.engine.Engine
 import dev.martianzoo.tfm.pets.ast.ClassName
-import dev.martianzoo.tfm.pets.ast.ClassName.Companion.classNames
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.pets.ast.TypeExpr.Companion.typeExpr
+import dev.martianzoo.tfm.pets.ast.classNames
 import dev.martianzoo.tfm.types.PClassLoader
 import dev.martianzoo.util.Grid
 import dev.martianzoo.util.Multiset
@@ -199,11 +199,40 @@ private class CanonTest {
   }
 
   @Test
-  fun onlyCardboundHasSignatureLinkages() {
+  fun onlyCardboundHasDepToDepLinkages() {
     val declarations = Canon.allClassDeclarations.values
-    val haveLinkages = declarations.filter { it.signatureLinkages.any() }
-    assertThat(haveLinkages.map { it.className }).containsExactly(cn("Cardbound"))
-    assertThat(haveLinkages.single().signatureLinkages).containsExactly(ANYONE)
+    val haveLinkages = declarations.filter { it.depToDepLinkages.any() }
+    assertThat(haveLinkages.classNames()).containsExactly(
+        cn("Cardbound"),
+        cn("Adjacency") // TODO fix this!!
+    )
+    assertThat(Canon.classDeclaration(cn("Cardbound")).depToDepLinkages).containsExactly(ANYONE)
+  }
+
+  @Test
+  fun depToEffectLinkages() {
+    val declarations = Canon.allClassDeclarations.values
+    val haveLinkages = declarations.filter { it.depToEffectLinkages.any() }
+    assertThat(haveLinkages.classNames().toStrings()).containsExactly(
+        "Border",
+        "Neighbor",
+        "Production",
+        "Owed",
+        "Pay",
+
+        // TODO these should be harmless, but they're wrong; how to get them out?
+        // OPEN CLASS might help
+        "Astrodrill",
+        "PharmacyUnion",
+        "AerialMappers",
+        "Extremophiles",
+        "FloatingHabs",
+        "AtmoCollectors",
+        "JovianLanterns",
+        "CometAiming",
+        "DirectedImpactors",
+        "AsteroidRights",
+    )
   }
 
   private fun te(s: String) = typeExpr(s)

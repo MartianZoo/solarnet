@@ -8,7 +8,6 @@ import dev.martianzoo.tfm.pets.AstTransforms
 import dev.martianzoo.tfm.pets.AstTransforms.replaceAll
 import dev.martianzoo.tfm.pets.PetTransformer
 import dev.martianzoo.tfm.pets.ast.ClassName
-import dev.martianzoo.tfm.pets.ast.ClassName.Companion.classNames
 import dev.martianzoo.tfm.pets.ast.Effect
 import dev.martianzoo.tfm.pets.ast.Effect.Trigger.ByTrigger
 import dev.martianzoo.tfm.pets.ast.Instruction.Gain
@@ -16,6 +15,7 @@ import dev.martianzoo.tfm.pets.ast.Instruction.Remove
 import dev.martianzoo.tfm.pets.ast.PetNode
 import dev.martianzoo.tfm.pets.ast.ScaledTypeExpr
 import dev.martianzoo.tfm.pets.ast.TypeExpr
+import dev.martianzoo.tfm.pets.ast.classNames
 import dev.martianzoo.tfm.types.Dependency.Key
 import dev.martianzoo.util.overlayMaps
 

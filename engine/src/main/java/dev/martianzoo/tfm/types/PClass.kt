@@ -9,7 +9,6 @@ import dev.martianzoo.tfm.api.SpecialClassNames.USE_ACTION
 import dev.martianzoo.tfm.data.ClassDeclaration
 import dev.martianzoo.tfm.pets.PetTransformer
 import dev.martianzoo.tfm.pets.ast.ClassName
-import dev.martianzoo.tfm.pets.ast.ClassName.Companion.classNames
 import dev.martianzoo.tfm.pets.ast.Effect
 import dev.martianzoo.tfm.pets.ast.Effect.Trigger.OnGainOf
 import dev.martianzoo.tfm.pets.ast.Effect.Trigger.WhenGain
@@ -19,6 +18,7 @@ import dev.martianzoo.tfm.pets.ast.PetNode
 import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.pets.ast.Requirement.Companion.requirement
 import dev.martianzoo.tfm.pets.ast.TypeExpr
+import dev.martianzoo.tfm.pets.ast.classNames
 import dev.martianzoo.tfm.types.Dependency.ClassDependency
 import dev.martianzoo.tfm.types.Dependency.TypeDependency
 import dev.martianzoo.util.toSetStrict
@@ -180,7 +180,7 @@ internal constructor(
   val classEffects: List<Effect> by lazy {
     val xer = loader.transformer
     val thiss = className.refine(requirement("Ok"))
-    declaration.effectsRaw
+    declaration.effects
         .map { effect ->
           var fx = effect
           fx = xer.applyGainRemoveDefaults(fx, thiss)

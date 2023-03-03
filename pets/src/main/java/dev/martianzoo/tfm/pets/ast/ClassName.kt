@@ -2,7 +2,6 @@ package dev.martianzoo.tfm.pets.ast
 
 import com.github.h0tk3y.betterParse.combinators.map
 import dev.martianzoo.tfm.pets.PetParser
-import dev.martianzoo.util.toSetStrict
 
 public data class ClassName(private val asString: String) : PetNode(), Comparable<ClassName> {
   public companion object {
@@ -10,9 +9,6 @@ public data class ClassName(private val asString: String) : PetNode(), Comparabl
 
     private const val CLASS_NAME_PATTERN = "\\b[A-Z]([a-z][A-Za-z0-9_]*|[A-Z0-9]{0,4})\\b"
     private val classNameRegex = Regex(CLASS_NAME_PATTERN)
-
-    public fun Iterable<HasClassName>.classNames(): List<ClassName> = map { it.className }
-    public fun Set<HasClassName>.classNames(): Set<ClassName> = map { it.className }.toSetStrict()
   }
 
   init {

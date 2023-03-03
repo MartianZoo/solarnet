@@ -65,7 +65,7 @@ data class MarsMapDefinition(
           id = id,
           abstract = false,
           supertypes = setOf(kind.type),
-          effectsRaw = bonus?.let { setOf(Effect(trigger, it, false)) } ?: setOf(),
+          effects = bonus?.let { setOf(Effect(trigger, it, false)) } ?: setOf(),
       )
     }
 

@@ -6,12 +6,12 @@ import dev.martianzoo.tfm.api.SpecialClassNames.THIS
 import dev.martianzoo.tfm.pets.AstTransforms.actionToEffect
 import dev.martianzoo.tfm.pets.Parsing
 import dev.martianzoo.tfm.pets.ast.Action.Companion.action
-import dev.martianzoo.tfm.pets.ast.ClassName.Companion.classNames
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.pets.ast.Effect.Companion.effect
 import dev.martianzoo.tfm.pets.ast.Instruction.Intensity
 import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.pets.ast.ScaledTypeExpr.Companion.scaledType
+import dev.martianzoo.tfm.pets.ast.classNames
 import dev.martianzoo.tfm.testlib.assertFails
 import dev.martianzoo.tfm.testlib.te
 import org.junit.jupiter.api.Test
@@ -61,7 +61,7 @@ private class ClassDeclarationTest {
     assertThat(decl.supertypes).containsExactly(sup)
     assertThat(decl.topInvariant).isEqualTo(topInv)
     assertThat(decl.otherInvariants).containsExactly(otherInv)
-    assertThat(decl.effectsRaw).containsExactly(eff, act)
+    assertThat(decl.effects).containsExactly(eff, act)
     assertThat(decl.defaultsDeclaration.gainOnlySpecs).containsExactly(gain)
     assertThat(decl.defaultsDeclaration.universalSpecs).containsExactly(univ)
     assertThat(decl.defaultsDeclaration.gainIntensity).isEqualTo(Intensity.OPTIONAL)

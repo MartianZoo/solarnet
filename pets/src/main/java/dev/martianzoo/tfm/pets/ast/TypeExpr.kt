@@ -64,13 +64,13 @@ data class TypeExpr(
       require(link == null)
       when (arguments.size) {
         0 -> {}
-        1 -> require(arguments.first().isTypeOnly) { "$this" }
+        1 -> require(arguments.first().isClassOnly) { "$this" }
         else -> error("")
       }
     }
   }
 
-  val isTypeOnly = arguments.isEmpty() && refinement == null && link == null
+  val isClassOnly = arguments.isEmpty() && refinement == null && link == null
 
   @JvmName("addArgsFromClassNames")
   fun addArgs(moreArgs: List<ClassName>): TypeExpr = addArgs(moreArgs.map { it.type })

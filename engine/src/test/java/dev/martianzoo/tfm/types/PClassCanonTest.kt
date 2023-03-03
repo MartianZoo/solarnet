@@ -7,10 +7,10 @@ import dev.martianzoo.tfm.api.SpecialClassNames.THIS
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.pets.AstTransforms.replaceAll
 import dev.martianzoo.tfm.pets.ast.ClassName
-import dev.martianzoo.tfm.pets.ast.ClassName.Companion.classNames
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.pets.ast.Requirement.Companion.requirement
 import dev.martianzoo.tfm.pets.ast.TypeExpr.Companion.typeExpr
+import dev.martianzoo.tfm.pets.ast.classNames
 import dev.martianzoo.tfm.types.Dependency.Key
 import dev.martianzoo.util.random
 import dev.martianzoo.util.toStrings
