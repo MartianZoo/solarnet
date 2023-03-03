@@ -1,9 +1,11 @@
 package dev.martianzoo.tfm.types
 
 import com.google.common.truth.Truth.assertThat
+import dev.martianzoo.tfm.api.GameSetup
 import dev.martianzoo.tfm.api.SpecialClassNames.COMPONENT
 import dev.martianzoo.tfm.api.SpecialClassNames.THIS
 import dev.martianzoo.tfm.canon.Canon
+import dev.martianzoo.tfm.engine.Engine
 import dev.martianzoo.tfm.pets.AstTransforms.replaceAll
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.pets.ast.Requirement.Companion.requirement
@@ -78,5 +80,35 @@ private class PClassCanonTest {
         table.checkAllTypes(it.replaceAll(THIS.type, pclass.className.type))
       }
     }
+  }
+
+  @Test
+  fun testAllConcreteSubtypes() {
+    val table = Engine.newGame(GameSetup(Canon, "BRM", 2)).loader
+
+    fun checkConcreteSubtypeCount(type: String, size: Int) {
+      val ptype = table.resolveType(typeExpr(type))
+      assertThat(ptype.allConcreteSubtypes().toList()).hasSize(size)
+    }
+
+    checkConcreteSubtypeCount("Plant<Player1>", 1)
+    checkConcreteSubtypeCount("Plant", 2)
+    checkConcreteSubtypeCount("StandardResource<Player1>", 6)
+    checkConcreteSubtypeCount("StandardResource", 12)
+    checkConcreteSubtypeCount("Class<StandardResource>", 6)
+
+    checkConcreteSubtypeCount("Class<MarsArea>", 61)
+    checkConcreteSubtypeCount("Class<RemoteArea>", 2)
+    checkConcreteSubtypeCount("Class<Tile>", 12)
+    checkConcreteSubtypeCount("Class<SpecialTile>", 9)
+
+    checkConcreteSubtypeCount("CityTile", (63 + 61) * 2)
+    checkConcreteSubtypeCount("OceanTile", 61)
+    checkConcreteSubtypeCount("GreeneryTile", 61 * 2)
+    checkConcreteSubtypeCount("SpecialTile", (9 * 61) * 2)
+
+    // Do this one the long way because the error message is horrific
+    val type = table.resolveType(typeExpr("Tile"))
+    assertThat(type.allConcreteSubtypes().count()).isEqualTo(1407)
   }
 }

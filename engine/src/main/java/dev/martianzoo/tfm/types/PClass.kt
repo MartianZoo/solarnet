@@ -151,7 +151,7 @@ internal constructor(
    * the type `Class<Resource>`.
    */
   public val classType: PType by lazy {
-    loader.classClass.withAllDependencies(DependencyMap(listOf(ClassDependency(this))))
+    loader.classClass.withExactDependencies(DependencyMap(listOf(ClassDependency(this))))
   }
 
   /** Least upper bound of all types with pclass==this */
@@ -166,16 +166,19 @@ internal constructor(
             val depTypeExpr = declaration.dependencies[it.index].typeExpr
             TypeDependency(it, loader.resolveType(depTypeExpr))
           }
-      val deps = DependencyMap.intersect(directSupertypes.map { it.allDependencies })
-      withAllDependencies(deps.merge(DependencyMap(newDeps)) { _, _ -> error("") })
+      val deps = DependencyMap.intersect(directSupertypes.map { it.dependencies })
+      withExactDependencies(deps.merge(DependencyMap(newDeps)) { _, _ -> error("") })
     }
   }
 
-  internal fun withAllDependencies(deps: DependencyMap) =
+  internal fun withExactDependencies(deps: DependencyMap) =
       PType(this, deps.subMap(allDependencyKeys))
 
+  internal fun intersectDependencies(deps: DependencyMap) =
+      withExactDependencies(deps.intersect(baseType.dependencies))
+
   internal fun match(specs: List<TypeExpr>): List<TypeDependency> =
-      baseType.allDependencies.match(specs, loader)
+      baseType.dependencies.match(specs, loader)
 
   fun specialize(specs: List<TypeExpr>): PType = baseType.specialize(specs)
 
@@ -256,6 +259,9 @@ internal constructor(
   }
 
   override fun toString() = "$className"
+
+  fun allConcreteTypes(): Sequence<PType> =
+      if (abstract) emptySequence() else baseType.concreteSubtypesSameClass()
 
   companion object {
     fun superclasses(declaration: ClassDeclaration, loader: PClassLoader) =

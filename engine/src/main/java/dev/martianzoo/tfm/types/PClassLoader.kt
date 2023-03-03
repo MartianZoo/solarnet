@@ -40,7 +40,7 @@ public class PClassLoader(
   private val loadedClasses =
       mutableMapOf<ClassName, PClass?>(COMPONENT to componentClass, CLASS to classClass)
 
-  // UGLY HACKS!
+  // TODO
   init {
     for (c in setOf(GAME, PRODUCTION, cn("GrossHack"), cn("MetalHandler"))) {
       if (c in authority.allClassNames) {
@@ -49,6 +49,7 @@ public class PClassLoader(
     }
   }
 
+  // TODO maybe go back to the operator
   /** Returns the [PClass] whose name or id is [nameOrId], or throws an exception. */
   public fun getClass(nameOrId: ClassName): PClass =
       loadedClasses[nameOrId] ?: error("no class loaded with id or name $nameOrId")

@@ -14,42 +14,37 @@ import dev.martianzoo.util.filterWithoutNulls
 public object Engine {
   public fun newGame(setup: GameSetup): Game {
     val loader = PClassLoader(setup.authority, autoLoadDependencies = true)
-    loader.loadAll(setup.allDefinitions().classNames())
 
     for (seat in 1..setup.players) {
       loader.load(cn("Player$seat"))
     }
-    loader.load(cn("Border")) // HACK
+    loader.load(cn("Border")) // TODO
 
-    loader.frozen = true
-    val game = Game(setup, ComponentGraph(), loader)
+    val gameComponent = Component(loader.load(GAME))
+    loader.loadAll(setup.allDefinitions().classNames())
 
-    // make class types also be singletons TODO
-    val singletons = classInstances(loader) + singletons(loader)
+    val game = Game(setup, loader)
+    game.components.applyChange(gaining = gameComponent, hidden = true)
 
     // have MarsMap take care of this via custom instruction TODO
     val borders = borders(setup.map, loader)
 
-    val gameComponent = Component(loader.getClass(GAME).baseType)
-    game.components.applyChange(gaining = gameComponent, hidden = true)
-    require(game.changeLogFull().size == 1)
-
-    // TODO make creating Game do this automatically??
+    // TODO make creating Game do this automatically
     val cause = Cause(GAME.type, 0)
-    for (it in singletons + borders) {
-      game.components.applyChange(gaining = Component(it), cause = cause, hidden = true)
+    for (it in singletons(loader) + borders) {
+      val gaining = Component(it)
+      for (cpt in gaining.dependencies + gaining) { // TODO not ironclad
+        if (game.countComponents(cpt.type) == 0) {
+          println(cpt)
+          game.components.applyChange(gaining = cpt, cause = cause, hidden = true)
+        }
+      }
     }
     return game
   }
 
-  private fun classInstances(loader: PClassLoader): List<PType> =
-      loader.allClasses.filter { !it.abstract }.map { it.classType }
-
   private fun singletons(loader: PClassLoader): List<PType> =
-      // GAME *is* a singleton, but we already added it
-      loader.allClasses
-          .filter { it.isSingleton() && !it.baseType.abstract && it.className != GAME }
-          .map { it.baseType }
+      loader.allClasses.filter { it.isSingleton() }.flatMap { it.allConcreteTypes() }
 
   private fun borders(map: MarsMapDefinition, loader: PClassLoader): List<PType> {
     val border = cn("Border")

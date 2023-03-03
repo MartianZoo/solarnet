@@ -14,6 +14,8 @@ public data class Component(
     /** The concrete type of this component. */
     private val ptype: PType,
 ) {
+  constructor(pclass: PClass) : this(pclass.baseType)
+
   init {
     require(!ptype.abstract) { "Component can't be of an abstract type: ${ptype.typeExprFull}" }
   }
@@ -34,7 +36,7 @@ public data class Component(
    * to [PClass.allDependencyKeys].
    */
   public val dependencies: List<Component> by lazy {
-    val depTypes = ptype.allDependencies.dependencies.filterIsInstance<TypeDependency>()
+    val depTypes = ptype.dependencies.dependencies.filterIsInstance<TypeDependency>()
     depTypes.map { Component(it.ptype) }
   }
 

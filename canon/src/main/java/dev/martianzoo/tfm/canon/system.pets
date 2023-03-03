@@ -10,7 +10,7 @@ CLASS Class<Component> : System {                           // I think this decl
 }
 
 CLASS Game : System {
-    HAS =1 This                                             // @createSingletons explicitly ignores this one
+    HAS MAX 1 This                                          // Created manually to kick everything off
     This:: @createSingletons()                              // TODO actually process this
 }
 

@@ -147,6 +147,9 @@ private class CanonTest {
             "[UseActionFromCard]", "[ConvertHeat]", "[ConvertPlants]",
             "[SellPatents]",
             "[PowerPlantSP]", "[AsteroidSP]", "[AquiferSP]", "[GreenerySP]", "[CitySP]",
+            "[GrossHack<Player1>]", "[GrossHack<Player2>]", "[GrossHack<Player3>]",
+            "[MetalHandler<Player1>]", "[MetalHandler<Player2>]", "[MetalHandler<Player3>]",
+            "[TrWatcher<Player1>]", "[TrWatcher<Player2>]", "[TrWatcher<Player3>]",
         )
   }
 

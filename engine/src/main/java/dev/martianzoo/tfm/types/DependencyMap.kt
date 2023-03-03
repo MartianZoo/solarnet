@@ -6,6 +6,7 @@ import dev.martianzoo.tfm.types.Dependency.TypeDependency
 import dev.martianzoo.util.mergeMaps
 
 // Takes care of everything inside the <> but knows nothing of what's outside it
+// TODO make this a list
 internal data class DependencyMap(internal val map: Map<Key, Dependency>) {
   constructor() : this(mapOf<Key, Dependency>())
   constructor(deps: Collection<Dependency>) : this(deps.associateBy { it.key })

@@ -15,10 +15,14 @@ import dev.martianzoo.util.Multiset
 /** A game in progress. */
 public class Game(
     override val setup: GameSetup,
-    internal val components: ComponentGraph,
     public val loader: PClassLoader, // TODO not public
 ) : GameState {
+  val components = ComponentGraph()
   // val tasks = mutableListOf<Task>()
+
+  init {
+    loader.frozen = true
+  }
 
   fun changeLog(): List<ChangeRecord> = components.changeLog()
 

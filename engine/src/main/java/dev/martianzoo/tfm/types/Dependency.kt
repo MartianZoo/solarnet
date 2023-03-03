@@ -35,6 +35,7 @@ internal sealed class Dependency {
   }
 
   /** Any [Dependency] except for the case covered by [ClassDependency] below. */
+  // TODO rename bound?
   data class TypeDependency(override val key: Key, val ptype: PType) : Dependency() {
     init {
       require(key != ClassDependency.KEY)
@@ -56,6 +57,9 @@ internal sealed class Dependency {
     override fun lub(that: Dependency?) = that?.let { lub(checkKeys(it).ptype) }
 
     fun lub(otherType: PType) = copy(ptype = ptype.lub(otherType))
+
+    fun allConcreteSpecializations(): Sequence<TypeDependency> =
+        ptype.allConcreteSubtypes().map { TypeDependency(key, it) }
 
     override val typeExprFull by ptype::typeExprFull
     override val typeExpr by ptype::typeExpr
