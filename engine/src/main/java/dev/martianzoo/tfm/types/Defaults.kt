@@ -3,6 +3,7 @@ package dev.martianzoo.tfm.types
 import dev.martianzoo.tfm.data.ClassDeclaration.DefaultsDeclaration
 import dev.martianzoo.tfm.pets.ast.Instruction.Intensity
 import dev.martianzoo.tfm.pets.ast.TypeExpr
+import dev.martianzoo.tfm.types.Dependency.Companion.intersect
 import dev.martianzoo.util.associateByStrict
 
 internal data class Defaults(
@@ -14,7 +15,10 @@ internal data class Defaults(
 ) {
   companion object {
     fun forClass(pclass: PClass): Defaults {
-      fun <T> inheritDefault(extractor: (DefaultsDeclaration) -> T?): T? {
+      fun <T> inheritDefault(
+          extractor: (DefaultsDeclaration) -> T?,
+          merger: (List<T>) -> T = { it.single() },
+      ): T? {
         fun extractFromClass(c: PClass): T? = extractor(c.declaration.defaultsDeclaration)
 
         val haveDefault: List<PClass> =
@@ -24,7 +28,7 @@ internal data class Defaults(
         val inheritFrom = haveDefault - haveDefault.flatMap { it.properSuperclasses }.toSet()
 
         val candidates: List<T> = inheritFrom.map { extractFromClass(it)!! }.distinct()
-        return if (candidates.any()) candidates.single() else null
+        return if (candidates.any()) merger(candidates) else null
       }
 
       fun gatherDefaultDeps(extractor: (DefaultsDeclaration) -> List<TypeExpr>): DependencyMap {
@@ -34,7 +38,9 @@ internal data class Defaults(
 
         val depList: List<Dependency> =
             pclass.allDependencyKeys.mapNotNull { key ->
-              inheritDefault { toDependencyMap(extractor(it))[key] }
+              inheritDefault(
+                  { toDependencyMap(extractor(it))[key] },
+                  { a: List<Dependency> -> intersect(a)!! })
             }
         return DependencyMap(depList.associateByStrict { it.key })
       }
@@ -43,8 +49,9 @@ internal data class Defaults(
           allCasesDependencies = gatherDefaultDeps { it.universalSpecs },
           gainOnlyDependencies = gatherDefaultDeps { it.gainOnlySpecs },
           removeOnlyDependencies = gatherDefaultDeps { it.removeOnlySpecs },
-          gainIntensity = inheritDefault { it.gainIntensity }!!,
-          removeIntensity = inheritDefault { it.removeIntensity }!!)
+          gainIntensity = inheritDefault({ it.gainIntensity })!!,
+          removeIntensity = inheritDefault({ it.removeIntensity })!!,
+      )
     }
   }
 }

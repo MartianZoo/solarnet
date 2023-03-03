@@ -93,4 +93,14 @@ internal sealed class Dependency {
     override val typeExpr by ::typeExprFull
     override fun toString() = "$key=${typeExpr}"
   }
+
+  companion object {
+    fun intersect(a: List<Dependency>): Dependency? {
+      var result: Dependency = a.firstOrNull() ?: return null
+      for (next: Dependency in a.drop(1)) {
+        result = result.intersect(next)!!
+      }
+      return result
+    }
+  }
 }

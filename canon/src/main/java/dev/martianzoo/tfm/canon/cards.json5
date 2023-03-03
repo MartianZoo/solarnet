@@ -550,8 +550,7 @@
         // The points attach to the card, not the tile
         "End: VictoryPoint / Adjacency<Tile008, OceanTile>"
       ],
-      // sad we have to repeat the whole city default here; how to fix? TODO
-      "components": [ "CLASS Tile008 : CityTile, SpecialTile { DEFAULT +Tile008<LandArea(HAS MAX 0 Neighbor<CityTile<Anyone>>)> }" ],
+      "components": [ "CLASS Tile008 : CityTile, SpecialTile" ],
       "requirement": "4 OceanTile",
       "cost": 26,
       "projectKind": "AUTOMATED"
