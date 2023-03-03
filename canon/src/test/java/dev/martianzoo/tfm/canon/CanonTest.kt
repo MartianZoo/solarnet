@@ -192,11 +192,12 @@ private class CanonTest {
   fun onlyCardboundHasDepToDepLinkages() {
     val declarations = Canon.allClassDeclarations.values
     val haveLinkages = declarations.filter { it.depToDepLinkages.any() }
-    assertThat(haveLinkages.classNames()).containsExactly(
-        cn("Cardbound"),
-        cn("Adjacency"), // TODO fix this!!
-        cn("Border"), // and this!!
-    )
+    assertThat(haveLinkages.classNames())
+        .containsExactly(
+            cn("Cardbound"),
+            cn("Adjacency"), // TODO fix this!!
+            cn("Border"), // and this!!
+        )
     assertThat(Canon.classDeclaration(cn("Cardbound")).depToDepLinkages).containsExactly(ANYONE)
   }
 
@@ -204,26 +205,27 @@ private class CanonTest {
   fun depToEffectLinkages() {
     val declarations = Canon.allClassDeclarations.values
     val haveLinkages = declarations.filter { it.depToEffectLinkages.any() }
-    assertThat(haveLinkages.classNames().toStrings()).containsExactly(
-        "Border",
-        "Neighbor",
-        "Production",
-        "Owed",
-        "Pay",
+    assertThat(haveLinkages.classNames().toStrings())
+        .containsExactly(
+            "Border",
+            "Neighbor",
+            "Production",
+            "Owed",
+            "Pay",
 
-        // TODO these should be harmless, but they're wrong; how to get them out?
-        // OPEN CLASS might help
-        "Astrodrill",
-        "PharmacyUnion",
-        "AerialMappers",
-        "Extremophiles",
-        "FloatingHabs",
-        "AtmoCollectors",
-        "JovianLanterns",
-        "CometAiming",
-        "DirectedImpactors",
-        "AsteroidRights",
-    )
+            // TODO these should be harmless, but they're wrong; how to get them out?
+            // OPEN CLASS might help
+            "Astrodrill",
+            "PharmacyUnion",
+            "AerialMappers",
+            "Extremophiles",
+            "FloatingHabs",
+            "AtmoCollectors",
+            "JovianLanterns",
+            "CometAiming",
+            "DirectedImpactors",
+            "AsteroidRights",
+        )
   }
 
   private fun te(s: String) = typeExpr(s)

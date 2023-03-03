@@ -31,12 +31,13 @@ internal class JlineRepl {
   fun loop(prompt: () -> Pair<String, Int>, handler: (String) -> List<String>) {
     while (true) {
       val (text, color) = prompt()
-      val pr = AttributedStringBuilder()
-          .style(DEFAULT.foreground(color))
-          .append(text)
-          .append("> ")
-          .style(DEFAULT)
-          .toAnsi()
+      val pr =
+          AttributedStringBuilder()
+              .style(DEFAULT.foreground(color))
+              .append(text)
+              .append("> ")
+              .style(DEFAULT)
+              .toAnsi()
 
       fun end() = history.append(historyFile, true)
 

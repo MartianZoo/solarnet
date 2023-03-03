@@ -78,8 +78,9 @@ internal object PetToKotlin {
         }
         is From -> {
           when (this) {
-            is ComplexFrom -> "ComplexFrom(cn(\"$className\")," +
-                " listOf(${arguments.join()})${refinement.pre(", ")})"
+            is ComplexFrom ->
+                "ComplexFrom(cn(\"$className\")," +
+                    " listOf(${arguments.join()})${refinement.pre(", ")})"
             is SimpleFrom -> "SimpleFrom(${p2k(toType)}, ${p2k(fromType)})"
             is TypeAsFrom -> "TypeAsFrom(${p2k(typeExpr)})"
           }

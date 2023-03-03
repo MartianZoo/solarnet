@@ -7,5 +7,7 @@ public interface HasClassName {
 }
 
 fun Iterable<HasClassName>.classNames(): List<ClassName> = map { it.className }
+
 fun Sequence<HasClassName>.classNames(): Sequence<ClassName> = map { it.className }
+
 fun Set<HasClassName>.classNames(): Set<ClassName> = map { it.className }.toSetStrict()

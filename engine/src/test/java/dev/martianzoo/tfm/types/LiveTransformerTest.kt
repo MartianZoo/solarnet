@@ -34,13 +34,16 @@ class LiveTransformerTest {
     checkApplyDefaults("OwnedTile", "OwnedTile<Owner>!")
     checkApplyDefaults("Neighbor<OwnedTile>", "Neighbor<OwnedTile<Owner>>!")
     checkApplyDefaults(
-        "LandArea(HAS Neighbor<OwnedTile>)",
-        "LandArea(HAS Neighbor<OwnedTile<Owner>>)!")
+        "LandArea(HAS Neighbor<OwnedTile>)", "LandArea(HAS Neighbor<OwnedTile<Owner>>)!")
     checkApplyDefaults(
         "GreeneryTile", "GreeneryTile<Owner, LandArea(HAS Neighbor<OwnedTile<Owner>>)>!")
   }
 
-  private fun checkApplyDefaults(original: String, expected: String, context: TypeExpr = THIS.type) {
+  private fun checkApplyDefaults(
+      original: String,
+      expected: String,
+      context: TypeExpr = THIS.type
+  ) {
     val step1 = xer.applyGainRemoveDefaults(instruction(original), context)
     val step2 = xer.applyAllCasesDefaults(step1, context)
     assertThat(step2.toString()).isEqualTo(expected)

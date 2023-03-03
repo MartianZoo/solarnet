@@ -124,9 +124,10 @@ public class LiveTransformer internal constructor(val loader: PClassLoader) {
     val overlaid: Map<Key, TypeExpr> = overlayMaps(preferred, fallbacks)
 
     // reorder them
-    val newArgs: List<TypeExpr> = pclass.allDependencyKeys.mapNotNull { overlaid[it] }.also {
-      require(it.size == overlaid.size)
-    }
+    val newArgs: List<TypeExpr> =
+        pclass.allDependencyKeys
+            .mapNotNull { overlaid[it] }
+            .also { require(it.size == overlaid.size) }
 
     return original.copy(arguments = newArgs).also {
       require(it.className == original.className)

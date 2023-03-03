@@ -47,7 +47,8 @@ public data class Action(val cost: Cost?, val instruction: Instruction) : PetNod
           throw PetException("Can't do something 'per' a non-positive amount")
         }
         when (cost) {
-          is Or, is Multi -> throw PetException("Break into separate Per instructions")
+          is Or,
+          is Multi -> throw PetException("Break into separate Per instructions")
           is Per -> throw PetException("Might support in future?")
           else -> {}
         }

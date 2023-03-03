@@ -79,9 +79,7 @@ internal constructor(
     (directSuperclasses.flatMap { it.allSuperclasses } + this).toSet()
   }
 
-  public val properSuperclasses: Set<PClass> by lazy {
-    allSuperclasses - this
-  }
+  public val properSuperclasses: Set<PClass> by lazy { allSuperclasses - this }
 
   /** Every class `c` for which `c.isSubclassOf(this)` is true, including this class itself. */
   public val allSubclasses: Set<PClass> by lazy {
@@ -205,7 +203,8 @@ internal constructor(
           }
           fx = xer.deprodify(fx)
           fx
-        }.sortedWith(effectComparator)
+        }
+        .sortedWith(effectComparator)
   }
 
   private val effectComparator: Comparator<Effect> =

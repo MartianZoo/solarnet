@@ -35,8 +35,8 @@ internal constructor(
 
   override fun isSubtypeOf(that: Type) =
       pclass.isSubclassOf((that as PType).pclass) &&
-      allDependencies.specializes(that.allDependencies) &&
-      that.refinement in setOf(null, refinement)
+          allDependencies.specializes(that.allDependencies) &&
+          that.refinement in setOf(null, refinement)
 
   // Nearest common subtype
   fun intersect(that: PType): PType? =
@@ -50,9 +50,7 @@ internal constructor(
     val lubClass = this.pclass.lub(that.pclass)
     val deps = this.allDependencies.lub(that.allDependencies)
     val ref = setOf(this.refinement, that.refinement).singleOrNull()
-    return lubClass
-        .withAllDependencies(deps)
-        .refine(ref)
+    return lubClass.withAllDependencies(deps).refine(ref)
   }
 
   fun specialize(specs: List<TypeExpr>): PType {

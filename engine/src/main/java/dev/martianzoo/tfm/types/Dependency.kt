@@ -86,7 +86,7 @@ internal sealed class Dependency {
     fun intersect(otherClass: PClass): ClassDependency? =
         pclass.intersect(otherClass)?.let { ClassDependency(it) }
 
-    override fun lub(that: Dependency?) : ClassDependency =
+    override fun lub(that: Dependency?): ClassDependency =
         ClassDependency(pclass.lub((that as ClassDependency).pclass))
 
     override val typeExprFull by pclass.className::type
