@@ -1,6 +1,7 @@
 package dev.martianzoo.tfm.types
 
 import com.google.common.truth.Truth.assertThat
+import dev.martianzoo.tfm.api.SpecialClassNames.GAME
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.pets.ast.Effect.Companion.effect
@@ -10,6 +11,7 @@ import org.junit.jupiter.api.Test
 private class CanonEffectsTest {
   fun load(name: String): PClass {
     val loader = PClassLoader(Canon, true)
+    loader.load(GAME)
     val card = loader.load(cn(name))
     loader.frozen = true
     return card

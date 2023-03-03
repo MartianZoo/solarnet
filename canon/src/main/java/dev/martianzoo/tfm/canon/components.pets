@@ -5,6 +5,13 @@
 
 // This file has game stuff that isn't player-specific
 
+CLASS Game : System {
+    HAS MAX 1 This                                          // Created manually to kick everything off
+    This:: @createSingletons()                              // TODO actually process this
+
+    This:: @forceLoad(Production, MetalHandler, GrossHack)
+}
+
 // GLOBAL PARAMETERS ---------------------------------------
 
 ABSTRACT CLASS GlobalParameter {                            // Instances must be added 1-by-1 - how to ensure?

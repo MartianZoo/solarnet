@@ -3,13 +3,10 @@ package dev.martianzoo.tfm.types
 import dev.martianzoo.tfm.api.Authority
 import dev.martianzoo.tfm.api.SpecialClassNames.CLASS
 import dev.martianzoo.tfm.api.SpecialClassNames.COMPONENT
-import dev.martianzoo.tfm.api.SpecialClassNames.GAME
-import dev.martianzoo.tfm.api.SpecialClassNames.PRODUCTION
 import dev.martianzoo.tfm.api.SpecialClassNames.THIS
 import dev.martianzoo.tfm.api.Type
 import dev.martianzoo.tfm.data.ClassDeclaration
 import dev.martianzoo.tfm.pets.ast.ClassName
-import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.pets.ast.PetNode
 import dev.martianzoo.tfm.pets.ast.TypeExpr
 
@@ -39,15 +36,6 @@ public class PClassLoader(
 
   private val loadedClasses =
       mutableMapOf<ClassName, PClass?>(COMPONENT to componentClass, CLASS to classClass)
-
-  // TODO
-  init {
-    for (c in setOf(GAME, PRODUCTION, cn("GrossHack"), cn("MetalHandler"))) {
-      if (c in authority.allClassNames) {
-        load(c)
-      }
-    }
-  }
 
   // TODO maybe go back to the operator
   /** Returns the [PClass] whose name or id is [nameOrId], or throws an exception. */

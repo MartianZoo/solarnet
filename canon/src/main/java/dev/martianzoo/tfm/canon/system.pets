@@ -9,11 +9,6 @@ CLASS Class<Component> : System {                           // I think this decl
     HAS =1 This
 }
 
-CLASS Game : System {
-    HAS MAX 1 This                                          // Created manually to kick everything off
-    This:: @createSingletons()                              // TODO actually process this
-}
-
 ABSTRACT CLASS Temporary {                                  // anything that can never survive across actions
 
     CLASS Ok : System {                                     // magic rule: won't trigger anything else (TODO)
