@@ -115,7 +115,7 @@ public abstract class Authority {
   public fun customInstruction(functionName: String): CustomInstruction {
     return customInstructions
         .firstOrNull { it.functionName == functionName }
-        .also { require(it != null) { "no instruction named $$functionName" } }!!
+        .also { require(it != null) { "no instruction named @$functionName" } }!!
   }
 
   /** Every custom instruction this authority knows about. */

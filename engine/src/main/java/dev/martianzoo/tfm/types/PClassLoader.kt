@@ -7,6 +7,7 @@ import dev.martianzoo.tfm.api.SpecialClassNames.THIS
 import dev.martianzoo.tfm.api.Type
 import dev.martianzoo.tfm.data.ClassDeclaration
 import dev.martianzoo.tfm.pets.ast.ClassName
+import dev.martianzoo.tfm.pets.ast.Instruction
 import dev.martianzoo.tfm.pets.ast.PetNode
 import dev.martianzoo.tfm.pets.ast.TypeExpr
 
@@ -149,7 +150,14 @@ public class PClassLoader(
     internal set(f) {
       require(f) { "can't melt" }
       field = f
+      validate()
     }
+
+  private fun validate() {
+    allClasses.flatMap { it.classEffects }
+        .flatMap { it.descendantsOfType<Instruction.Custom>() }
+        .forEach { authority.customInstruction(it.functionName) }
+  }
 
   private fun decl(cn: ClassName) = authority.classDeclaration(cn)
 

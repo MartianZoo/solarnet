@@ -52,7 +52,7 @@ ABSTRACT CLASS GlobalParameter {                            // Instances must be
 ABSTRACT CLASS MarsMap {                                    // Tharsis etc. are loaded from `maps.json5`
     HAS =1 This
 
-    This:: @create(Border, This)
+    This:: @createAll(Border)
 }
 
 ABSTRACT CLASS Area(HAS MAX 1 Tile) {                       // TODO move invar to Tile somehow?

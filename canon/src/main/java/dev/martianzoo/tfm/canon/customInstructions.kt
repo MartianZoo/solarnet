@@ -1,6 +1,7 @@
 package dev.martianzoo.tfm.canon
 
 import dev.martianzoo.tfm.api.CustomInstruction
+import dev.martianzoo.tfm.api.GameState
 import dev.martianzoo.tfm.api.ReadOnlyGameState
 import dev.martianzoo.tfm.api.ResourceUtils.lookUpProductionLevels
 import dev.martianzoo.tfm.api.Type
@@ -11,9 +12,30 @@ import dev.martianzoo.tfm.pets.ast.Instruction.Transform
 
 internal val allCustomInstructions =
     setOf(
+        ForceLoad,
+        CreateSingletons,
+        CreateAll,
         GainLowestProduction,
         CopyProductionBox,
     )
+
+private object ForceLoad : CustomInstruction("forceLoad") { // TODO include @ ?
+  override fun execute(game: GameState, arguments: List<Type>) {
+    // This one legitimately doesn't have to do anything!
+  }
+}
+
+private object CreateSingletons : CustomInstruction("createSingletons") {
+  override fun execute(game: GameState, arguments: List<Type>) {
+    TODO()
+  }
+}
+
+private object CreateAll : CustomInstruction("createAll") {
+  override fun execute(game: GameState, arguments: List<Type>) {
+    TODO()
+  }
+}
 
 // For Robinson Industries
 private object GainLowestProduction : CustomInstruction("gainLowestProduction") {
