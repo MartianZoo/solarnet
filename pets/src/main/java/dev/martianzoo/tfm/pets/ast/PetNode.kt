@@ -10,7 +10,6 @@ public sealed class PetNode {
   protected fun groupPartIfNeeded(part: PetNode) =
       if (part.safeToNestIn(this)) "$part" else "($part)"
 
-  // TODO invert?
   protected open fun safeToNestIn(container: PetNode) = precedence() > container.precedence()
 
   protected open fun precedence(): Int = Int.MAX_VALUE
