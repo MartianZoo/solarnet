@@ -1375,7 +1375,7 @@
       "projectKind": "AUTOMATED"
     },
 
-    // Urbanized AreaDefinition
+    // Urbanized Area
     {
       "id": "120",
       "bundle": "B",
@@ -1587,7 +1587,7 @@
       "projectKind": "AUTOMATED"
     },
 
-    // Mohole AreaDefinition
+    // Mohole Area
     {
       "id": "142",
       "bundle": "B",
@@ -2776,7 +2776,7 @@
       "projectKind": "AUTOMATED"
     },
 
-    // Restricted AreaDefinition
+    // Restricted Area
     {
       "id": "199",
       "bundle": "R",
