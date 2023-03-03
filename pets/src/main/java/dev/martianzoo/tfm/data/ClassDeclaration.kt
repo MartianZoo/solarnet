@@ -91,7 +91,7 @@ public data class ClassDeclaration(
   ) {
     companion object {
       fun merge(defs: Collection<DefaultsDeclaration>): DefaultsDeclaration {
-        val forClass: ClassName? = defs.map { it.forClass }.singleOrNull()
+        val forClass: ClassName? = defs.mapNotNull { it.forClass }.singleOrNull()
         val universal = defs.map { it.universalSpecs }.firstOrNull { it.any() } ?: listOf()
         val gain = defs.map { it.gainOnlySpecs }.firstOrNull { it.any() } ?: listOf()
         val remove = defs.map { it.removeOnlySpecs }.firstOrNull { it.any() } ?: listOf()

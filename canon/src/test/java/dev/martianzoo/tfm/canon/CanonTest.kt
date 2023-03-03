@@ -2,8 +2,8 @@ package dev.martianzoo.tfm.canon
 
 import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.tfm.api.GameSetup
+import dev.martianzoo.tfm.api.SpecialClassNames.ANYONE
 import dev.martianzoo.tfm.api.SpecialClassNames.COMPONENT
-import dev.martianzoo.tfm.api.SpecialClassNames.OWNER
 import dev.martianzoo.tfm.data.MarsMapDefinition
 import dev.martianzoo.tfm.data.MarsMapDefinition.AreaDefinition
 import dev.martianzoo.tfm.engine.Component
@@ -203,7 +203,7 @@ private class CanonTest {
     val declarations = Canon.allClassDeclarations.values
     val haveLinkages = declarations.filter { it.signatureLinkages.any() }
     assertThat(haveLinkages.map { it.className }).containsExactly(cn("Cardbound"))
-    assertThat(haveLinkages.single().signatureLinkages).containsExactly(OWNER)
+    assertThat(haveLinkages.single().signatureLinkages).containsExactly(ANYONE)
   }
 
   private fun te(s: String) = typeExpr(s)
