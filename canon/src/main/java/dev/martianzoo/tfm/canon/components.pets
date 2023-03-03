@@ -9,7 +9,7 @@ CLASS Game : System {
     HAS MAX 1 This                                          // Created manually to kick everything off
     This:: @createSingletons()                              // TODO actually process this
 
-    This:: @forceLoad(Production, MetalHandler, GrossHack)
+    This:: @forceLoad(Border, Production, MetalHandler, GrossHack) // TODO pare down
 }
 
 // GLOBAL PARAMETERS ---------------------------------------
