@@ -49,16 +49,16 @@ public class LiveTransformer internal constructor(val loader: PClassLoader) {
       node: P,
       contextComponent: TypeExpr = THIS.type,
   ): P {
-    return GainRemoveDefaultApplier(loader, contextComponent).transform(node)
+    return GainRemoveDefaultApplier(contextComponent).transform(node)
   }
   public fun <P : PetNode> applyAllCasesDefaults(
       node: P,
       contextComponent: TypeExpr = THIS.type,
   ): P {
-    return AllCasesDefaultApplier(loader, contextComponent).transform(node)
+    return AllCasesDefaultApplier(contextComponent).transform(node)
   }
 
-  private inner class GainRemoveDefaultApplier(val loader: PClassLoader, val context: TypeExpr) :
+  private inner class GainRemoveDefaultApplier(val context: TypeExpr) :
       PetTransformer() {
     override fun <P : PetNode> transform(node: P): P {
       val result: PetNode =
@@ -68,7 +68,7 @@ public class LiveTransformer internal constructor(val loader: PClassLoader) {
               if (leaveItAlone(original)) {
                 return node // don't descend
               } else {
-                val defaults: Defaults = loader.getClass(original.className).defaults
+                val defaults: Defaults = loader.allDefaults[original.className]!!
                 val fixed = insertDefaults(original, defaults.gainOnlyDependencies, context)
                 val scaledType = ScaledTypeExpr(node.count, fixed)
                 Gain(scaledType, node.intensity ?: defaults.gainIntensity)
@@ -79,7 +79,7 @@ public class LiveTransformer internal constructor(val loader: PClassLoader) {
               if (leaveItAlone(original)) {
                 return node // don't descend
               } else {
-                val defaults: Defaults = loader.getClass(original.className).defaults
+                val defaults: Defaults = loader.allDefaults[original.className]!!
                 val fixed = insertDefaults(original, defaults.removeOnlyDependencies, context)
                 val scaledType = ScaledTypeExpr(node.count, fixed)
                 Remove(scaledType, node.intensity ?: defaults.removeIntensity)
@@ -93,13 +93,12 @@ public class LiveTransformer internal constructor(val loader: PClassLoader) {
     private fun leaveItAlone(unfixed: TypeExpr) = unfixed.className in setOf(THIS, CLASS)
   }
 
-  private inner class AllCasesDefaultApplier(val loader: PClassLoader, val context: TypeExpr) :
-      PetTransformer() {
+  private inner class AllCasesDefaultApplier(val context: TypeExpr) : PetTransformer() {
     override fun <P : PetNode> transform(node: P): P {
       if (node !is TypeExpr) return transformChildren(node)
       if (leaveItAlone(node)) return node
 
-      val defaults: Defaults = loader.getClass(node.className).defaults
+      val defaults: Defaults = loader.allDefaults[node.className]!!
       val result = insertDefaults(transformChildren(node), defaults.allCasesDependencies, context)
 
       @Suppress("UNCHECKED_CAST") return result as P

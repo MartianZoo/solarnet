@@ -85,7 +85,7 @@ public class PClassLoader(
 
   // LOADING
 
-  /** Returns the class with the name [idOrName], loading it first if necessary. */
+  /** Returns the class whose id or name is [idOrName], loading it first if necessary. */
   public fun load(idOrName: ClassName): PClass =
       when {
         frozen -> getClass(idOrName)
@@ -96,9 +96,7 @@ public class PClassLoader(
         else -> loadSingle(idOrName)
       }
 
-  /**
-   * Equivalent to (but possibly faster than) calling [load] on every class name in [idsAndNames].
-   */
+  /** Equivalent to calling [load] on every class name in [idsAndNames]. */
   public fun loadAll(idsAndNames: Collection<ClassName>) =
       if (autoLoadDependencies) {
         autoLoad(idsAndNames)
@@ -177,4 +175,8 @@ public class PClassLoader(
           true
         }
       }
+
+  internal val allDefaults: Map<ClassName, Defaults> by lazy {
+    allClasses.associate { it.className to Defaults.forClass(it) }
+  }
 }

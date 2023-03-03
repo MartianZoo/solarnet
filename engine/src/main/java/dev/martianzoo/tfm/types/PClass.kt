@@ -179,10 +179,6 @@ internal constructor(
 
   fun specialize(specs: List<TypeExpr>): PType = baseType.specialize(specs)
 
-  // DEFAULTS
-
-  internal val defaults: Defaults by lazy { Defaults.forClass(this) }
-
   // EFFECTS
 
   /**

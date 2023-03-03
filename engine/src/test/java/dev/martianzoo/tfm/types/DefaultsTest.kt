@@ -6,7 +6,6 @@ import dev.martianzoo.tfm.pets.ast.Instruction.Intensity.AMAP
 import dev.martianzoo.tfm.pets.ast.Instruction.Intensity.MANDATORY
 import dev.martianzoo.tfm.pets.ast.Instruction.Intensity.OPTIONAL
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
 
 class DefaultsTest {
   @Test
@@ -28,25 +27,21 @@ class DefaultsTest {
           CLASS Qux1 {
             DEFAULT +Qux1!
           }
-          CLASS UhOh: Foo1, Qux1
           CLASS Fixed: Qux1 {
             DEFAULT +Fixed.
           }
         """
     )
 
-    val d = loader.getClass(cn("Foo1")).defaults
+    val d = loader.allDefaults[cn("Foo1")]!!
     assertThat(d.gainIntensity).isEqualTo(AMAP)
     assertThat(d.removeIntensity).isEqualTo(MANDATORY)
 
-    val d2 = loader.getClass(cn("FooBar1")).defaults
+    val d2 = loader.allDefaults[cn("FooBar1")]!!
     assertThat(d2.gainIntensity).isEqualTo(AMAP)
     assertThat(d2.removeIntensity).isEqualTo(OPTIONAL)
 
-    val c = loader.getClass(cn("UhOh"))
-    assertThrows<RuntimeException> { c.defaults }
-
-    val d3 = loader.getClass(cn("Fixed")).defaults
+    val d3 = loader.allDefaults[cn("Fixed")]!!
     assertThat(d3.gainIntensity).isEqualTo(AMAP)
     assertThat(d3.removeIntensity).isEqualTo(MANDATORY)
   }
