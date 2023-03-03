@@ -100,7 +100,7 @@ ABSTRACT CLASS Owned<Anyone> {
 
     CLASS PlayedEvent[EVT]
 
-    ABSTRACT CLASS Cardbound<CardFront<Anyone>> : Owned<Anyone> {
+    ABSTRACT CLASS Cardbound<CardFront<Owner>> : Owned<Owner> {
 
         ABSTRACT CLASS Tag {
             CLASS BuildingTag[BUT], SpaceTag[SPT]

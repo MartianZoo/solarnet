@@ -15,7 +15,7 @@ import dev.martianzoo.tfm.pets.ast.TypeExpr
  * The declaration of a component class, such as GreeneryTile. Models the declaration textually as
  * it was provided. DIRECT INFO ONLY; stuff is inherited among *loaded* classes (PetClasses).
  */
-data class ClassDeclaration(
+public data class ClassDeclaration(
     override val className: ClassName,
     val id: ClassName = className,
     val abstract: Boolean = true,
@@ -65,6 +65,20 @@ data class ClassDeclaration(
         extraNodes
   }
 
+  public val signatureLinkages: Set<ClassName> by lazy {
+    // Cardbound<CardFront<Anyone>> : Owned<Anyone>
+    (dependencies.map { it.typeExpr } + supertypes).asSequence()
+        .flatMap { it.arguments }
+        .flatMap { it.descendantsOfType<TypeExpr>() }
+        .filter { it.isTypeOnly }
+        .map { it.className }
+        .sorted()
+        .windowed(2)
+        .mapNotNull { it.toSet().singleOrNull() }
+        .toSet()
+  }
+
+  // TODO why do we even have this lever
   data class DependencyDeclaration(val typeExpr: TypeExpr)
 
   data class DefaultsDeclaration(
