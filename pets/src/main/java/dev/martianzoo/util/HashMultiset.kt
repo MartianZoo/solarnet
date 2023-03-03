@@ -42,7 +42,7 @@ class HashMultiset<E> : MutableMultiset<E> {
   }
 
   override fun add(element: E, occurrences: Int): Int /*new count*/ {
-    require(occurrences >= 1)
+    require(occurrences >= 0)
     val newCount = count(element) + occurrences
     setCount(element, newCount)
     return newCount
@@ -62,6 +62,7 @@ class HashMultiset<E> : MutableMultiset<E> {
   override fun remove(element: E) = tryRemove(element, 1) == 1
 
   override fun mustRemove(element: E, occurrences: Int): Int /* new count */ {
+    require(occurrences >= 0)
     val newCount = count(element) - occurrences
     setCount(element, newCount)
     return newCount

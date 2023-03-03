@@ -1,20 +1,18 @@
 package dev.martianzoo.util
 
-interface Multiset<E> : Collection<E> {
-  val elements: MutableSet<E>
-  fun count(element: E): Int
-}
+public interface Multiset<E> : Collection<E> {
+  public val elements: Set<E>
+  public fun count(element: E): Int
 
-// This is actually kinda hopeless
+  public fun filter(predicate: (E) -> Boolean): Multiset<E> {
+    val result = HashMultiset<E>()
+    elements.filter(predicate).forEach { result.add(it, count(it)) }
+    return result
+  }
 
-public fun <E : Any, T : Any> Multiset<E>.map(thing: (E) -> T): Multiset<T> {
-  val result = HashMultiset<T>()
-  elements.forEach { result.add(thing(it), count(it)) }
-  return result
-}
-
-public fun <E : Any> Multiset<E>.filter(thing: (E) -> Boolean): Multiset<E> {
-  val result = HashMultiset<E>()
-  elements.filter(thing).forEach { result.add(it, count(it)) }
-  return result
+  public fun <T : Any> map(function: (E) -> T): Multiset<T> {
+    val result = HashMultiset<T>()
+    elements.forEach { result.add(function(it), count(it)) }
+    return result
+  }
 }

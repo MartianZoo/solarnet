@@ -137,26 +137,16 @@ private class CanonTest {
     assertThat(startingComponents.count(isBorder)).isEqualTo(312)
     assertThat(startingComponents.count(isClass)).isGreaterThan(400)
 
-    assertThat(
-            startingComponents.filterNot { isArea(it) || isBorder(it) || isClass(it) }.toStrings())
+    assertThat(startingComponents.filterNot { isArea(it) || isBorder(it) || isClass(it) }.toStrings())
         .containsExactly(
             "[Game]",
             "[Tharsis]",
-            "[Player1]",
-            "[Player2]",
-            "[Player3]",
-            "[PlayCardFromHand]",
-            "[UseStandardProject]",
-            "[ClaimMilestone]",
-            "[UseActionFromCard]",
-            "[ConvertHeat]",
-            "[ConvertPlants]",
+            "[Area021]", "[Area081]", "[FloatingInSpace]",
+            "[Player1]", "[Player2]", "[Player3]",
+            "[PlayCardFromHand]", "[UseStandardProject]", "[ClaimMilestone]",
+            "[UseActionFromCard]", "[ConvertHeat]", "[ConvertPlants]",
             "[SellPatents]",
-            "[PowerPlantSP]",
-            "[AsteroidSP]",
-            "[AquiferSP]",
-            "[GreenerySP]",
-            "[CitySP]",
+            "[PowerPlantSP]", "[AsteroidSP]", "[AquiferSP]", "[GreenerySP]", "[CitySP]",
         )
   }
 
@@ -204,7 +194,8 @@ private class CanonTest {
     val haveLinkages = declarations.filter { it.depToDepLinkages.any() }
     assertThat(haveLinkages.classNames()).containsExactly(
         cn("Cardbound"),
-        cn("Adjacency") // TODO fix this!!
+        cn("Adjacency"), // TODO fix this!!
+        cn("Border"), // and this!!
     )
     assertThat(Canon.classDeclaration(cn("Cardbound")).depToDepLinkages).containsExactly(ANYONE)
   }

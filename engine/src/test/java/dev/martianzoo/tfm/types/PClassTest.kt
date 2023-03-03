@@ -195,6 +195,49 @@ private class PClassTest {
     assertFails("outta bounds") { table.resolveType(te("Foo<Qux>")) }
     assertFails("no deps") { table.resolveType(te("Foo<Bar>")) }
   }
+
+  @Test
+  fun testLubOne() {
+    val (cpt, foo) = loadAndGetClasses("Foo")
+    assertThat(cpt.lub(cpt)).isEqualTo(cpt)
+    assertThat(cpt.lub(foo)).isEqualTo(cpt)
+    assertThat(foo.lub(cpt)).isEqualTo(cpt)
+    assertThat(foo.lub(foo)).isEqualTo(foo)
+  }
+
+  @Test
+  fun testLubSibling() {
+    val (cpt, foo, bar) = loadAndGetClasses("Foo", "Bar")
+    assertThat(foo.lub(bar)).isEqualTo(cpt)
+  }
+
+  @Test
+  fun testLubParent() {
+    val (cpt, foo, bar) = loadAndGetClasses("Foo", "Bar : Foo")
+    assertThat(cpt.lub(cpt)).isEqualTo(cpt)
+    assertThat(cpt.lub(foo)).isEqualTo(cpt)
+    assertThat(cpt.lub(bar)).isEqualTo(cpt)
+    assertThat(foo.lub(cpt)).isEqualTo(cpt)
+    assertThat(foo.lub(foo)).isEqualTo(foo)
+    assertThat(foo.lub(bar)).isEqualTo(foo)
+    assertThat(bar.lub(cpt)).isEqualTo(cpt)
+    assertThat(bar.lub(foo)).isEqualTo(foo)
+    assertThat(bar.lub(bar)).isEqualTo(bar)
+  }
+
+  @Test
+  fun testLubNibling() {
+    val (cpt, foo, bar, qux) = loadAndGetClasses("Foo", "Bar", "Qux : Bar")
+    assertThat(qux.lub(qux)).isEqualTo(qux)
+
+    assertThat(cpt.lub(qux)).isEqualTo(cpt)
+    assertThat(foo.lub(qux)).isEqualTo(cpt)
+    assertThat(bar.lub(qux)).isEqualTo(bar)
+
+    assertThat(qux.lub(cpt)).isEqualTo(cpt)
+    assertThat(qux.lub(foo)).isEqualTo(cpt)
+    assertThat(qux.lub(bar)).isEqualTo(bar)
+  }
 }
 
 private fun te(s: String) = typeExpr(s)
@@ -212,6 +255,19 @@ internal fun loader(petsText: String): PClassLoader {
 private fun assertFails(message: String, shouldFail: () -> Unit) =
     assertThrows<RuntimeException>(message, shouldFail)
 
+val regex = Regex("^(\\w+).*")
+
+internal fun loadAndGetClasses(vararg decl: String): List<PClass> {
+  val all = """
+    ABSTRACT CLASS $COMPONENT
+    CLASS $CLASS<$COMPONENT>
+    ${decl.joinToString("") { "CLASS $it\n" }}
+  """
+  val loader = loader(all)
+  val strings = listOf("Component") + decl.map { regex.matchEntire(it)!!.groupValues[1] }
+  return strings.map { loader.getClass(cn(it)) }
+}
+
 // TODO move to shared utils (already being used from PTypeTest)
 internal fun loadTypes(vararg decl: String) =
     loader(
@@ -219,4 +275,5 @@ internal fun loadTypes(vararg decl: String) =
         ABSTRACT CLASS $COMPONENT
         CLASS $CLASS<$COMPONENT>
         ${decl.joinToString("") { "$it\n" }}
-        """.trimIndent())
+        """
+            .trimIndent())

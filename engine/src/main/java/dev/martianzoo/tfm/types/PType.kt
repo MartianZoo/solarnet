@@ -38,10 +38,22 @@ internal constructor(
       allDependencies.specializes(that.allDependencies) &&
       that.refinement in setOf(null, refinement)
 
+  // Nearest common subtype
   fun intersect(that: PType): PType? =
       pclass.intersect(that.pclass)
           ?.withAllDependencies(allDependencies.intersect(that.allDependencies))
           ?.refine(combine(this.refinement, that.refinement))
+
+  // Nearest common supertype
+  // Unlike glb, two types always have a least upper bound (if nothing else, Component)
+  fun lub(that: PType): PType {
+    val lubClass = this.pclass.lub(that.pclass)
+    val deps = this.allDependencies.lub(that.allDependencies)
+    val ref = setOf(this.refinement, that.refinement).singleOrNull()
+    return lubClass
+        .withAllDependencies(deps)
+        .refine(ref)
+  }
 
   fun specialize(specs: List<TypeExpr>): PType {
     val deps = allDependencies.specialize(specs, pclass.loader)
@@ -75,7 +87,7 @@ internal constructor(
   private fun toTypeExprUsingSpecs(specs: List<TypeExpr>): TypeExpr {
     val typeExpr = pclass.className.addArgs(specs).refine(refinement)
     val roundTrip = pclass.loader.resolveType(typeExpr)
-    require(roundTrip == this) { "$this -> $typeExpr -> $roundTrip" }
+    require(roundTrip == this) { "$typeExprFull -> ${roundTrip.typeExprFull}" }
     return typeExpr
   }
 

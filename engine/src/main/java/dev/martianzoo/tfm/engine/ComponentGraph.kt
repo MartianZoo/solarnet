@@ -7,7 +7,6 @@ import dev.martianzoo.tfm.types.PType
 import dev.martianzoo.util.HashMultiset
 import dev.martianzoo.util.Multiset
 import dev.martianzoo.util.MutableMultiset
-import dev.martianzoo.util.filter
 
 /** All the components making up the state of a single [Game]. */
 public class ComponentGraph {

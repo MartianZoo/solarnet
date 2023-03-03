@@ -39,6 +39,13 @@ private class InteractiveSessionTest {
   }
 
   @Test
+  fun krash() {
+    val session = InteractiveSession()
+    session.newGame(GameSetup(Canon, "BRHVPX", 3))
+    session.list(typeExpr("System"))
+  }
+
+  @Test
   fun rollback() {
     val session = InteractiveSession()
     session.newGame(GameSetup(Canon, "MB", 2))

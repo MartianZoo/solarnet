@@ -12,6 +12,7 @@ import dev.martianzoo.tfm.pets.ast.Instruction
 import dev.martianzoo.tfm.pets.ast.PetNode
 import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.pets.ast.TypeExpr
+import dev.martianzoo.tfm.types.PClass
 import dev.martianzoo.tfm.types.PType
 import dev.martianzoo.util.HashMultiset
 import dev.martianzoo.util.Multiset
@@ -41,25 +42,29 @@ class InteractiveSession {
   fun count(typeExpr: TypeExpr) = game!!.countComponents(fixTypes(typeExpr))
 
   fun list(typeExpr: TypeExpr): Multiset<TypeExpr> {
-    // "list Heat" means my own unless I say "list Heat<Anyone>"
-    val typeToBeListed: PType = game!!.resolveType(fixTypes(typeExpr))
-    val theStuff: Multiset<Component> = game!!.getComponents(typeToBeListed)
+    val typeToList: PType = game!!.resolveType(fixTypes(typeExpr))
+    val allComponents: Multiset<Component> = game!!.getComponents(typeToList)
 
-    // figure out how to break it down
-    // val pclass = typeToBeListed.pclass
-    // var subs = pclass.directSubclasses.sortedBy { it.name }
-    // if (subs.isEmpty()) subs = listOf(pclass)
-    //
-    // subs.mapNotNull { sub ->
-    //   val thatType: GenericPType = sub.baseType
-    //   val count = theStuff.filter { it.hasType(thatType) }.size
-    //   if (count > 0) {
-    //     "$count".padEnd(4) + thatType
-    //   } else {
-    //     null
-    //   }
-    // }
-    return HashMultiset() // TODO TODO
+    // TODO decide more intelligently how to break it down
+    val pclass = typeToList.pclass
+
+    // ugh capital tile TODO
+    val subs: Set<PClass> = pclass.directSubclasses.ifEmpty { setOf(pclass) }
+
+    val result = HashMultiset<TypeExpr>()
+    subs.forEach { sub ->
+      val matches = allComponents.filter { it.alwaysHasType(sub.baseType) }
+      if (matches.any()) {
+        val elements: Set<Component> = matches.elements
+        var lub: PType? = null
+        for (element in elements) {
+          val ptype = element.type as PType
+          lub = lub?.lub(ptype) ?: ptype
+        }
+        lub?.let { result.add(it.typeExpr, matches.size) }
+      }
+    }
+    return result
   }
 
   fun has(requirement: Requirement) = game!!.evaluate(fixTypes(requirement))
@@ -77,6 +82,7 @@ class InteractiveSession {
   fun <P : PetNode> fixTypes(node: P): P {
     val xer = game!!.loader.transformer
     var result = node
+    // TODO consolidate
     result = xer.applyGainRemoveDefaults(result)
     result = xer.applyAllCasesDefaults(result)
     if (defaultPlayer != null) {

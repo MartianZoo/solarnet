@@ -43,7 +43,7 @@ public class ReplSession(private val authority: Authority) {
     if (commandName !in setOf("help", "newgame") && session.game == null) {
       return listOf("no game active")
     }
-    val command = commands[commandName]!!
+    val command = commands[commandName] ?: error("No command named $commandName")
     return command(args)
   }
 
@@ -56,8 +56,7 @@ public class ReplSession(private val authority: Authority) {
                   val (bundleString, players) = args.trim().split(Regex("\\s+"), 2)
                   session.newGame(GameSetup(authority, bundleString, players.toInt()))
                   listOf("New $players-player game created with bundles: $bundleString")
-                }
-                    ?: listOf("Usage: newgame <bundles> <player count>")
+                } ?: listOf("Usage: newgame <bundles> <player count>")
               },
           "become" to
               { args ->
@@ -74,23 +73,30 @@ public class ReplSession(private val authority: Authority) {
                     }
                 listOf(message)
               },
-          "count" to
-              {
-                it?.let { args ->
-                  val typeExpr = session.fixTypes(typeExpr(args))
-                  val count = session.count(typeExpr)
-                  listOf("$count $typeExpr")
-                }
-                    ?: listOf("Usage: count <TypeExpr>")
-              },
           "has" to
               {
                 it?.let { args ->
                   val fixed = session.fixTypes(requirement(args))
                   val result = session.has(fixed)
                   listOf("$result: $fixed")
-                }
-                    ?: listOf("Usage: has <Requirement>")
+                } ?: listOf("Usage: has <Requirement>")
+              },
+          "count" to
+              {
+                it?.let { args ->
+                  val typeExpr = session.fixTypes(typeExpr(args))
+                  val count = session.count(typeExpr)
+                  listOf("$count $typeExpr")
+                } ?: listOf("Usage: count <TypeExpr>")
+              },
+          "list" to
+              {
+                it?.let { args ->
+                  val counts = session.list(typeExpr(args))
+                  counts.elements
+                      .sortedByDescending { counts.count(it) }
+                      .map { "${counts.count(it)} $it" }
+                } ?: listOf("Usage: list <TypeExpr>")
               },
           "map" to
               {
@@ -130,8 +136,7 @@ public class ReplSession(private val authority: Authority) {
                   val ord = args.trim().toInt()
                   session.rollBackToBefore(ord)
                   listOf("Done")
-                }
-                    ?: listOf("Usage: rollback <ordinal>")
+                } ?: listOf("Usage: rollback <ordinal>")
               },
           "desc" to
               {

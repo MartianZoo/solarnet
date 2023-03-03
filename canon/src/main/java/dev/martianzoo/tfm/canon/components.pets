@@ -49,12 +49,10 @@ ABSTRACT CLASS MarsMap {                                    // Tharsis etc. are 
 }
 
 ABSTRACT CLASS Area(HAS MAX 1 Tile) {                       // TODO move invar to Tile somehow?
-    HAS MAX 1 This
+    HAS =1 This
 
-    ABSTRACT CLASS MarsArea[MA] {                               // the individual areas are loaded from `maps.json5`
-        HAS =1 This                                         // could have a dep on MarsMap but not clear why
-
-        ABSTRACT CLASS LandArea[LA] {
+    ABSTRACT CLASS MarsArea[MA] {                           // the individual areas are loaded from `maps.json5`
+        ABSTRACT CLASS LandArea[LA] {                       // could have a dep on MarsMap but not clear why
             ABSTRACT CLASS VolcanicArea[VA]
         }
         ABSTRACT CLASS WaterArea[WA]
@@ -65,11 +63,11 @@ ABSTRACT CLASS Area(HAS MAX 1 Tile) {                       // TODO move invar t
 }
 
 ABSTRACT CLASS Tile<Area>
-
-CLASS Border<MarsArea, Area> : System {                     // early on will create 3-6 of these for each MarsArea
+                                                            // For some reason <MA, A> triggers a bug,
+CLASS Border<MarsArea, MarsArea> : System {                 // Early on we create 3-6 of these for each MarsArea
     HAS MAX 1 This                                          // listing that one first. So each border will actually
                                                             // be here twice, once in each direction
-    Tile<MarsArea>: Neighbor<Tile<MarsArea>, Area>
+    Tile<MarsArea>: Neighbor<Tile<MarsArea>, Area>          // TODO this won't work
 }
 
 CLASS Neighbor<Tile<MarsArea>, Area> [NBR] {

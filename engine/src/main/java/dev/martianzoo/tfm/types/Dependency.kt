@@ -7,6 +7,7 @@ import dev.martianzoo.tfm.pets.ast.TypeExpr
 internal sealed class Dependency {
   abstract val key: Key
   abstract fun intersect(that: Dependency): Dependency?
+  abstract fun lub(that: Dependency?): Dependency?
   abstract val abstract: Boolean
   abstract fun isSubtypeOf(that: Dependency): Boolean
   abstract val typeExpr: TypeExpr
@@ -47,10 +48,14 @@ internal sealed class Dependency {
 
     override fun isSubtypeOf(that: Dependency) = ptype.isSubtypeOf(checkKeys(that).ptype)
 
-    override fun intersect(that: Dependency): TypeDependency? = intersect(checkKeys(that).ptype)
+    override fun intersect(that: Dependency) = intersect(checkKeys(that).ptype)
 
     fun intersect(otherType: PType): TypeDependency? =
         (this.ptype.intersect(otherType))?.let { copy(ptype = it) }
+
+    override fun lub(that: Dependency?) = that?.let { lub(checkKeys(it).ptype) }
+
+    fun lub(otherType: PType) = copy(ptype = ptype.lub(otherType))
 
     override val typeExprFull by ptype::typeExprFull
     override val typeExpr by ptype::typeExpr
@@ -79,7 +84,10 @@ internal sealed class Dependency {
         intersect((that as ClassDependency).pclass)
 
     fun intersect(otherClass: PClass): ClassDependency? =
-        pclass.intersect(otherClass)?.let { copy(pclass = it) }
+        pclass.intersect(otherClass)?.let { ClassDependency(it) }
+
+    override fun lub(that: Dependency?) : ClassDependency =
+        ClassDependency(pclass.lub((that as ClassDependency).pclass))
 
     override val typeExprFull by pclass.className::type
     override val typeExpr by ::typeExprFull

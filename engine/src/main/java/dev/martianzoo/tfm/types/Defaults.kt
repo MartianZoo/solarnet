@@ -21,7 +21,7 @@ internal data class Defaults(
             pclass.allSuperclasses.filter { extractFromClass(it) != null }
 
         // Anything that was overridden by *any* of our superclasses must be discarded
-        val inheritFrom = haveDefault - haveDefault.flatMap { it.allSuperclasses - it }.toSet()
+        val inheritFrom = haveDefault - haveDefault.flatMap { it.properSuperclasses }.toSet()
 
         val candidates: List<T> = inheritFrom.map { extractFromClass(it)!! }.distinct()
         return if (candidates.any()) candidates.single() else null

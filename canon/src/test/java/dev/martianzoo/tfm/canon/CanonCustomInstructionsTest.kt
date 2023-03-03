@@ -26,7 +26,7 @@ private class CanonCustomInstructionsTest {
     repl.command("become Player1")
     repl.command("exec PROD[5]") // The standard hack for every player - ignore it!
     repl.command("exec PROD[Steel, Titanium, Plant, Heat]")
-    assertFails("multiple lowest") { repl.command("@gainLowestProduction(Player1)") }
+    assertFails("multiple lowest") { repl.command("exec @gainLowestProduction(Player1)") }
   }
 
   @Test

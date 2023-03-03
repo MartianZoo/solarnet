@@ -83,6 +83,7 @@ public sealed class Instruction : PetNode() {
   }
 
   data class Per(val instruction: Instruction, val scaledType: ScaledTypeExpr) : Instruction() {
+    // TODO Metric
     init {
       if (scaledType.scalar == 0) {
         throw PetException("Can't do something 'per' zero")

@@ -11,7 +11,6 @@ import dev.martianzoo.tfm.pets.ast.TypeExpr
 import dev.martianzoo.tfm.types.PClassLoader
 import dev.martianzoo.tfm.types.PType
 import dev.martianzoo.util.Multiset
-import dev.martianzoo.util.map
 
 /** A game in progress. */
 public class Game(

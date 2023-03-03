@@ -79,9 +79,17 @@ internal constructor(
     (directSuperclasses.flatMap { it.allSuperclasses } + this).toSet()
   }
 
+  public val properSuperclasses: Set<PClass> by lazy {
+    allSuperclasses - this
+  }
+
   /** Every class `c` for which `c.isSubclassOf(this)` is true, including this class itself. */
   public val allSubclasses: Set<PClass> by lazy {
     loader.allClasses.filter { this in it.allSuperclasses }.toSet()
+  }
+
+  public val directSubclasses: Set<PClass> by lazy {
+    loader.allClasses.filter { this in it.directSuperclasses }.toSet()
   }
 
   /**
@@ -122,6 +130,13 @@ internal constructor(
               it.intersectionType && this in it.directSuperclasses && that in it.directSuperclasses
             }
       }
+
+  public fun lub(that: PClass): PClass { // TODO more deps is better??
+    val commonSupers: Set<PClass> = this.allSuperclasses.intersect(that.allSuperclasses)
+    val supersOfSupers: Set<PClass> = commonSupers.flatMap { it.properSuperclasses }.toSet()
+    val candidates: Set<PClass> = commonSupers - supersOfSupers
+    return candidates.maxBy { it.allSuperclasses.size } // most supers tends to be near us
+  }
 
   // DEPENDENCIES
 

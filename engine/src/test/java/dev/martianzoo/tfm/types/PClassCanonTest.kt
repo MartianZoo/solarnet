@@ -12,7 +12,6 @@ import dev.martianzoo.tfm.pets.ast.Requirement.Companion.requirement
 import dev.martianzoo.tfm.pets.ast.TypeExpr.Companion.typeExpr
 import dev.martianzoo.tfm.pets.ast.classNames
 import dev.martianzoo.tfm.types.Dependency.Key
-import dev.martianzoo.util.random
 import dev.martianzoo.util.toStrings
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
@@ -84,21 +83,9 @@ private class PClassCanonTest {
     val area = table.getClass(cn("Area"))
     assertThat(area.invariants)
         .containsExactly(
-            requirement("MAX 1 This"),
+            requirement("=1 This"),
             requirement("MAX 1 Tile<This>"),
         )
-  }
-
-  @Disabled
-  @Test
-  fun describeManyClasses() {
-    val table = PClassLoader(Canon).loadEverything()
-    val all: Set<PClass> = table.allClasses
-    val random = random(all, 80)
-    random.forEach {
-      // println(it.describe())
-      println()
-    }
   }
 
   @Test
