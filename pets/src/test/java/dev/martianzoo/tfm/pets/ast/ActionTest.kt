@@ -18,7 +18,6 @@ import dev.martianzoo.tfm.pets.checkBothWays
 import dev.martianzoo.tfm.pets.testRoundTrip
 import dev.martianzoo.tfm.pets.testSampleStrings
 import dev.martianzoo.tfm.testlib.PetGenerator
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 
 // Most testing is done by AutomatedTest
@@ -82,8 +81,7 @@ private class ActionTest {
     testSampleStrings<Action>(inputs)
   }
 
-  @Disabled
-  @Test
+  // @Test
   fun genGrossApiCalls() {
     PetGenerator(0.9).generateTestApiConstructions<Action>(20)
   }
