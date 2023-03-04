@@ -8,9 +8,9 @@ import com.github.h0tk3y.betterParse.combinators.separatedTerms
 import com.github.h0tk3y.betterParse.combinators.skip
 import com.github.h0tk3y.betterParse.grammar.parser
 import com.github.h0tk3y.betterParse.parser.Parser
+import dev.martianzoo.tfm.pets.BaseTokenizer
 import dev.martianzoo.tfm.pets.Parsing
 import dev.martianzoo.tfm.pets.PetException
-import dev.martianzoo.tfm.pets.PetParser
 import dev.martianzoo.tfm.pets.ast.Instruction.Intensity.MANDATORY
 import dev.martianzoo.tfm.pets.ast.Instruction.Remove
 import dev.martianzoo.util.suf
@@ -98,7 +98,7 @@ public data class Action(val cost: Cost?, val instruction: Instruction) : PetNod
       override fun extract() = cost
     }
 
-    companion object : PetParser() {
+    companion object : BaseTokenizer() {
       fun cost(text: String): Cost = Parsing.parse(parser(), text)
 
       fun parser(): Parser<Cost> {
@@ -128,7 +128,7 @@ public data class Action(val cost: Cost?, val instruction: Instruction) : PetNod
     }
   }
 
-  companion object : PetParser() {
+  companion object : BaseTokenizer() {
     fun action(text: String): Action = Parsing.parse(parser(), text)
 
     internal fun parser(): Parser<Action> =

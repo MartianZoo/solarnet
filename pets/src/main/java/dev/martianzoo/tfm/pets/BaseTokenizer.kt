@@ -18,7 +18,7 @@ import dev.martianzoo.tfm.pets.ast.Instruction.Intensity
 
 /** A base class for parsing objects. */
 // TODO rename?
-public open class PetParser {
+public open class BaseTokenizer {
   internal fun tokenize(input: String) = TokenCache.tokenize(input)
 
   internal val _arrow = literal("->", "arrow")

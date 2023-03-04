@@ -8,9 +8,9 @@ import com.github.h0tk3y.betterParse.combinators.skip
 import com.github.h0tk3y.betterParse.parser.Parser
 import dev.martianzoo.tfm.api.SpecialClassNames
 import dev.martianzoo.tfm.api.SpecialClassNames.THIS
+import dev.martianzoo.tfm.pets.BaseTokenizer
 import dev.martianzoo.tfm.pets.Parsing
 import dev.martianzoo.tfm.pets.PetException
-import dev.martianzoo.tfm.pets.PetParser
 import dev.martianzoo.tfm.pets.ast.Effect.Trigger.OnGainOf
 import dev.martianzoo.tfm.pets.ast.Effect.Trigger.WhenGain
 import dev.martianzoo.tfm.pets.ast.Effect.Trigger.WhenRemove
@@ -107,7 +107,7 @@ public data class Effect(
       override fun extract() = trigger
     }
 
-    companion object : PetParser() {
+    companion object : BaseTokenizer() {
       fun trigger(text: String): Trigger = Parsing.parse(parser(), text)
 
       fun parser(): Parser<Trigger> {
@@ -124,7 +124,7 @@ public data class Effect(
     }
   }
 
-  companion object : PetParser() {
+  companion object : BaseTokenizer() {
     fun effect(text: String): Effect = Parsing.parse(parser(), text)
 
     fun parser(): Parser<Effect> {

@@ -7,8 +7,8 @@ import com.github.h0tk3y.betterParse.combinators.or
 import com.github.h0tk3y.betterParse.grammar.parser
 import com.github.h0tk3y.betterParse.parser.Parser
 import dev.martianzoo.tfm.api.SpecialClassNames.MEGACREDIT
+import dev.martianzoo.tfm.pets.BaseTokenizer
 import dev.martianzoo.tfm.pets.Parsing
-import dev.martianzoo.tfm.pets.PetParser
 
 data class ScaledExpression(
     val scalar: Int = 1,
@@ -32,7 +32,7 @@ data class ScaledExpression(
 
   override val kind = ScaledExpression::class.simpleName!!
 
-  companion object : PetParser() {
+  companion object : BaseTokenizer() {
     fun scaledEx(scalar: Int? = null, expression: Expression? = null) =
         ScaledExpression(scalar ?: 1, expression ?: MEGACREDIT.expr)
 

@@ -8,9 +8,9 @@ import com.github.h0tk3y.betterParse.combinators.skip
 import com.github.h0tk3y.betterParse.grammar.parser
 import com.github.h0tk3y.betterParse.parser.Parser
 import dev.martianzoo.tfm.api.SpecialClassNames.THIS
+import dev.martianzoo.tfm.pets.BaseTokenizer
 import dev.martianzoo.tfm.pets.Parsing
 import dev.martianzoo.tfm.pets.PetException
-import dev.martianzoo.tfm.pets.PetParser
 
 sealed class Requirement : PetNode() {
   open fun requiresThis() = false // TODO kick this out
@@ -83,7 +83,7 @@ sealed class Requirement : PetNode() {
 
   override val kind = Requirement::class.simpleName!!
 
-  companion object : PetParser() {
+  companion object : BaseTokenizer() {
     fun requirement(text: String) = Parsing.parse(parser(), text)
 
     internal fun parser(): Parser<Requirement> {

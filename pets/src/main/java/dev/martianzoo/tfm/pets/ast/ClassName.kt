@@ -1,7 +1,7 @@
 package dev.martianzoo.tfm.pets.ast
 
 import com.github.h0tk3y.betterParse.combinators.map
-import dev.martianzoo.tfm.pets.PetParser
+import dev.martianzoo.tfm.pets.BaseTokenizer
 
 public data class ClassName(private val asString: String) : PetNode(), Comparable<ClassName> {
   public companion object {
@@ -34,7 +34,7 @@ public data class ClassName(private val asString: String) : PetNode(), Comparabl
   override val kind = ClassName::class.simpleName!!
   override fun visitChildren(visitor: Visitor) = Unit
 
-  public object Parsing : PetParser() {
+  public object Parsing : BaseTokenizer() {
     val classShortName = _allCapsWordRE map { cn(it.text) } // currently unused
     val classFullName = _upperCamelRE map { cn(it.text) }
     val className = classFullName // or classShortName -- why does that break everything?

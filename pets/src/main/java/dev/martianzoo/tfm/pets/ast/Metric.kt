@@ -6,9 +6,9 @@ import com.github.h0tk3y.betterParse.combinators.or
 import com.github.h0tk3y.betterParse.combinators.skip
 import com.github.h0tk3y.betterParse.grammar.parser
 import com.github.h0tk3y.betterParse.parser.Parser
+import dev.martianzoo.tfm.pets.BaseTokenizer
 import dev.martianzoo.tfm.pets.Parsing
 import dev.martianzoo.tfm.pets.PetException
-import dev.martianzoo.tfm.pets.PetParser
 
 sealed class Metric : PetNode() {
   override val kind = Metric::class.simpleName!!
@@ -35,7 +35,7 @@ sealed class Metric : PetNode() {
     override fun toString() = "$metric MAX $maximum"
   }
 
-  companion object : PetParser() {
+  companion object : BaseTokenizer() {
     fun metric(text: String): Metric = Parsing.parse(parser(), text)
 
     fun parser(): Parser<Metric> {

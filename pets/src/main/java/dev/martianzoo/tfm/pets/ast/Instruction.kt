@@ -7,9 +7,9 @@ import com.github.h0tk3y.betterParse.combinators.or
 import com.github.h0tk3y.betterParse.combinators.separatedTerms
 import com.github.h0tk3y.betterParse.grammar.parser
 import com.github.h0tk3y.betterParse.parser.Parser
+import dev.martianzoo.tfm.pets.BaseTokenizer
 import dev.martianzoo.tfm.pets.Parsing
 import dev.martianzoo.tfm.pets.PetException
-import dev.martianzoo.tfm.pets.PetParser
 import dev.martianzoo.tfm.pets.ast.From.SimpleFrom
 import dev.martianzoo.util.suf
 
@@ -201,7 +201,7 @@ public sealed class Instruction : PetNode() {
 
   class AbstractInstructionException(message: String) : RuntimeException(message)
 
-  companion object : PetParser() {
+  companion object : BaseTokenizer() {
     fun instruction(text: String): Instruction = Parsing.parse(parser(), text)
 
     internal fun parser(): Parser<Instruction> {
