@@ -3,47 +3,42 @@ package dev.martianzoo.tfm.types
 import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.types.Dependency.Key
 import dev.martianzoo.tfm.types.Dependency.TypeDependency
+import dev.martianzoo.util.associateByStrict
 import dev.martianzoo.util.mergeMaps
+import dev.martianzoo.util.toSetStrict
 
 // Takes care of everything inside the <> but knows nothing of what's outside it
 // TODO make this a list
-internal data class DependencyMap(internal val map: Map<Key, Dependency>) {
-  constructor() : this(mapOf<Key, Dependency>())
-  constructor(deps: Collection<Dependency>) : this(deps.associateBy { it.key })
+internal data class DependencyMap(val list: List<Dependency>) {
+  constructor() : this(listOf<Dependency>())
 
-  init {
-    map.forEach { (key, dep) -> require(key == dep.key) { key } }
-  }
+  val keys: List<Key> = list.map { it.key }.toSetStrict().toList() // TODO
 
-  val keys: Set<Key> by map::keys
-  val dependencies: List<Dependency> = map.values.toList()
+  val abstract = list.any { it.abstract }
 
-  val abstract = dependencies.any { it.abstract }
-
-  operator fun contains(key: Key) = key in map
   fun get(key: Key): Dependency = getIfPresent(key) ?: error("$key")
-  fun getIfPresent(key: Key): Dependency? = map[key]
+  fun getIfPresent(key: Key): Dependency? = list.firstOrNull { it.key == key }
 
   // used by PType.isSubtypeOf()
   fun specializes(that: DependencyMap) =
-      // For each of *its* keys, my type must be a subtype of its type
-      that.map.all { (thatKey, thatType: Dependency) -> map[thatKey]!!.isSubtypeOf(thatType) }
+      that.list.all { thatDep: Dependency -> this.get(thatDep.key).isSubtypeOf(thatDep) }
+
+  private fun asMap() = list.associateByStrict { it.key } // TODO get rid
 
   fun merge(that: DependencyMap, merger: (Dependency, Dependency) -> Dependency) =
-      DependencyMap(mergeMaps(map, that.map, merger))
+      copy(mergeMaps(asMap(), that.asMap(), merger).values.toList()) // TODO fix
 
   // Combines all entries, using the glb when both maps have the same key
   fun intersect(that: DependencyMap) = merge(that) { a, b -> a.intersect(b)!! }
 
   fun lub(that: DependencyMap): DependencyMap {
-    val keys = map.keys.intersect(that.map.keys)
-    return DependencyMap(keys.map { get(it).lub(that.get(it))!! })
+    val keys = keys.intersect(that.keys)
+    return copy(keys.map { get(it).lub(that.get(it))!! })
   }
 
   fun overlayOn(that: DependencyMap) = merge(that) { ours, _ -> ours }
 
-  operator fun minus(that: DependencyMap) =
-      DependencyMap((map.entries - that.map.entries).associate { it.key to it.value })
+  fun minus(that: DependencyMap) = copy(this.list - that.list)
 
   companion object {
     fun intersect(maps: Collection<DependencyMap>): DependencyMap {
@@ -62,7 +57,7 @@ internal data class DependencyMap(internal val map: Map<Key, Dependency>) {
 
     return specs.map { specExpression ->
       val specType: PType = loader.resolve(specExpression)
-      for (candidateDep in dependencies - usedDeps) {
+      for (candidateDep in list - usedDeps) {
         candidateDep as TypeDependency
         val intersectionType = specType.intersect(candidateDep.bound) ?: continue
         usedDeps += candidateDep
@@ -73,19 +68,11 @@ internal data class DependencyMap(internal val map: Map<Key, Dependency>) {
   }
 
   fun specialize(specs: List<Expression>, loader: PClassLoader): DependencyMap {
-    return DependencyMap(match(specs, loader)).overlayOn(this)
+    return copy(match(specs, loader)).overlayOn(this)
   }
 
-  override fun toString() = "$dependencies"
+  override fun toString() = "$list"
 
   /** Returns a submap of this map where every key is one of [keysInOrder]. */
-  fun subMap(keysInOrder: Iterable<Key>): DependencyMap {
-    val map = mutableMapOf<Key, Dependency>()
-    keysInOrder.forEach {
-      if (it in this.map) {
-        map[it] = this.map[it]!!
-      }
-    }
-    return DependencyMap(map)
-  }
+  fun subMap(keysInOrder: Iterable<Key>) = copy(keysInOrder.mapNotNull(::getIfPresent))
 }

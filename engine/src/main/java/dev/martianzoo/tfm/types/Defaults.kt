@@ -4,7 +4,6 @@ import dev.martianzoo.tfm.data.ClassDeclaration.DefaultsDeclaration
 import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.pets.ast.Instruction.Intensity
 import dev.martianzoo.tfm.types.Dependency.Companion.intersect
-import dev.martianzoo.util.associateByStrict
 
 internal data class Defaults(
     val allCasesDependencies: DependencyMap = DependencyMap(),
@@ -42,7 +41,7 @@ internal data class Defaults(
                   { toDependencyMap(extractor(it)).getIfPresent(key) },
                   { a: List<Dependency> -> intersect(a)!! })
             }
-        return DependencyMap(depList.associateByStrict { it.key })
+        return DependencyMap(depList)
       }
 
       return Defaults(

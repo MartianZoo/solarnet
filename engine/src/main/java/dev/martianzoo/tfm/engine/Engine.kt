@@ -42,7 +42,7 @@ public object Engine {
 
     for (ptype in singletons(loader.allClasses) + borders) {
       val depInstances =
-          ptype.dependencies.dependencies.filterIsInstance<TypeDependency>().map { it.bound }
+          ptype.dependencies.list.filterIsInstance<TypeDependency>().map { it.bound } // TODO
       for (cpt in depInstances + ptype) { // TODO not ironclad
         if (game.count(cpt) == 0) {
           game.applyChangeAndPublish(gaining = game.resolve(cpt), cause = cause, hidden = true)

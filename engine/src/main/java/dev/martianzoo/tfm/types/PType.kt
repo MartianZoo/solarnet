@@ -26,9 +26,9 @@ internal constructor(
       "expected keys ${pclass.allDependencyKeys}, got $dependencies"
     }
     if (pclass.className == CLASS) {
-      require(dependencies.dependencies.single() is ClassDependency)
+      require(dependencies.list.single() is ClassDependency) // TODO just ask deps?
     } else {
-      require(dependencies.dependencies.all { it is TypeDependency })
+      require(dependencies.list.all { it is TypeDependency })
     }
     if (refinement != null) pclass.loader.checkAllTypes(refinement)
   }
@@ -74,15 +74,15 @@ internal constructor(
   fun refine(newRef: Requirement?): PType = copy(refinement = combine(refinement, newRef))
 
   override val expression: Expression by lazy {
-    toExpressionUsingSpecs(narrowedDependencies.dependencies.map { it.expression })
+    toExpressionUsingSpecs(narrowedDependencies.list.map { it.expression })
   }
 
   override val expressionFull: Expression by lazy {
-    toExpressionUsingSpecs(dependencies.dependencies.map { it.expressionFull })
+    toExpressionUsingSpecs(dependencies.list.map { it.expressionFull }) // TODO simplify?
   }
 
   internal val narrowedDependencies: DependencyMap by lazy {
-    dependencies - pclass.baseType.dependencies
+    dependencies.minus(pclass.baseType.dependencies)
   }
 
   private fun toExpressionUsingSpecs(specs: List<Expression>): Expression {
@@ -113,12 +113,12 @@ internal constructor(
   fun concreteSubtypesSameClass(): Sequence<PType> {
     if (refinement != null) return emptySequence()
     if (pclass.className == CLASS) {
-      val classDep = dependencies.dependencies.single() as ClassDependency
+      val classDep = dependencies.list.single() as ClassDependency
       return concreteSubclasses(classDep.bound).map { it.classType }
     }
 
     val axes: List<List<Dependency>> =
-        dependencies.dependencies.map { dep ->
+        dependencies.list.map { dep ->
           (dep as TypeDependency).allConcreteSpecializations().toList()
         }
     val product: List<List<Dependency>> = Lists.cartesianProduct(axes)

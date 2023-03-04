@@ -157,7 +157,7 @@ internal constructor(
 
   internal val baseDependencies: DependencyMap by lazy {
     if (className == CLASS) {
-      DependencyMap(listOf(ClassDependency(loader.componentClass)))
+      DependencyMap(listOf(ClassDependency(loader.componentClass))) // TODO ugly
     } else {
       val newDeps: List<Dependency> =
           directDependencyKeys.map {

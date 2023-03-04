@@ -10,7 +10,7 @@ internal sealed class Dependency {
   abstract fun lub(that: Dependency?): Dependency?
   abstract val abstract: Boolean
   abstract fun isSubtypeOf(that: Dependency): Boolean
-  abstract val expression: Expression
+  abstract val expression: Expression // TODO bound?? or common intfc?
   abstract val expressionFull: Expression
 
   /**
