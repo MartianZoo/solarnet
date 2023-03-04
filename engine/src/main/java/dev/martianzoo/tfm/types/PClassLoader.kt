@@ -10,6 +10,7 @@ import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.pets.ast.Instruction
 import dev.martianzoo.tfm.pets.ast.PetNode
+import dev.martianzoo.tfm.types.Dependency.TypeDependency
 
 /**
  * All [PClass] instances come from here. Uses an [Authority] to pull class declarations from as
@@ -58,22 +59,9 @@ public class PClassLoader(
 
   /** Returns the [PType] represented by [expression]. */
   public fun resolve(expression: Expression): PType {
-    val pclass = getClass(expression.className)
-    val result =
-        if (pclass.className == CLASS) {
-          val className: ClassName =
-              if (expression.arguments.isEmpty()) {
-                COMPONENT
-              } else {
-                val single: Expression = expression.arguments.single()
-                require(single.simple)
-                single.className
-              }
-          getClass(className).classType
-        } else {
-          pclass.specialize(expression.arguments)
-        }
-    return result.refine(expression.refinement)
+    return getClass(expression.className)
+        .specialize(expression.arguments)
+        .refine(expression.refinement)
   }
 
   /** All classes loaded by this class loader; can only be accessed after the loader is [frozen]. */
@@ -188,5 +176,24 @@ public class PClassLoader(
 
   internal val allDefaults: Map<ClassName, Defaults> by lazy {
     allClasses.associate { it.className to Defaults.forClass(it) }
+  }
+
+  /**
+   * Assigns each expression to a key from among this map's keys, such that it is compatible
+   * with that key's upper bound.
+   */
+  internal fun match(specs: List<Expression>, deps: DependencyMap): DependencyMap {
+    val usedDeps = mutableSetOf<TypeDependency>()
+
+    val list = specs.map { specExpression ->
+      val specType: PType = resolve(specExpression)
+      for (candidateDep in deps.realDependencies - usedDeps) {
+        val intersectionType = specType.intersect(candidateDep.bound) ?: continue
+        usedDeps += candidateDep
+        return@map TypeDependency(candidateDep.key, intersectionType)
+      }
+      error("couldn't match up $specExpression to $this")
+    }
+    return DependencyMap(list)
   }
 }

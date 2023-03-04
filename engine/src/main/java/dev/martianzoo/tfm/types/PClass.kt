@@ -13,7 +13,7 @@ import dev.martianzoo.tfm.pets.ast.PetNode
 import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.pets.ast.Requirement.Companion.requirement
 import dev.martianzoo.tfm.pets.ast.classNames
-import dev.martianzoo.tfm.types.Dependency.ClassDependency
+import dev.martianzoo.tfm.types.Dependency.Companion.depsForClassType
 import dev.martianzoo.tfm.types.Dependency.TypeDependency
 import dev.martianzoo.util.toSetStrict
 
@@ -125,9 +125,9 @@ internal constructor(
         this.isSubclassOf(that) -> this
         that.isSubclassOf(this) -> that
         else ->
-            allSubclasses.singleOrNull {
-              it.intersectionType && this in it.directSuperclasses && that in it.directSuperclasses
-            }
+          allSubclasses.singleOrNull {
+            it.intersectionType && this in it.directSuperclasses && that in it.directSuperclasses
+          }
       }
 
   public fun lub(that: PClass): PClass { // TODO more deps is better??
@@ -152,12 +152,12 @@ internal constructor(
    * the type `Class<Resource>`.
    */
   public val classType: PType by lazy {
-    loader.classClass.withExactDependencies(DependencyMap(listOf(ClassDependency(this))))
+    loader.classClass.withExactDependencies(depsForClassType(this))
   }
 
   internal val baseDependencies: DependencyMap by lazy {
     if (className == CLASS) {
-      DependencyMap(listOf(ClassDependency(loader.componentClass))) // TODO ugly
+      depsForClassType(loader.componentClass)
     } else {
       val newDeps: List<Dependency> =
           directDependencyKeys.map {
@@ -178,8 +178,8 @@ internal constructor(
   internal fun intersectDependencies(deps: DependencyMap) =
       withExactDependencies(deps.intersect(baseType.dependencies))
 
-  internal fun match(specs: List<Expression>): List<TypeDependency> =
-      baseType.dependencies.match(specs, loader)
+  internal fun match(specs: List<Expression>): DependencyMap =
+      loader.match(specs, baseType.dependencies)
 
   fun specialize(specs: List<Expression>): PType = baseType.specialize(specs)
 

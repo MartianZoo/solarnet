@@ -6,7 +6,6 @@ import com.github.h0tk3y.betterParse.combinators.optional
 import com.github.h0tk3y.betterParse.combinators.skip
 import com.github.h0tk3y.betterParse.grammar.parser
 import com.github.h0tk3y.betterParse.parser.Parser
-import dev.martianzoo.tfm.api.SpecialClassNames.CLASS
 import dev.martianzoo.tfm.pets.BaseTokenizer
 import dev.martianzoo.tfm.pets.Parsing
 import dev.martianzoo.tfm.pets.ast.ClassName.Parsing.className
@@ -58,17 +57,6 @@ data class Expression(
           arguments.joinOrEmpty(wrap = "<>") +
           refinement.wrap("(HAS ", ")") +
           link.pre("^")
-
-  init {
-    if (className == CLASS) {
-      require(link == null)
-      when (arguments.size) {
-        0 -> {}
-        1 -> require(arguments.first().simple) { "$this" }
-        else -> error("")
-      }
-    }
-  }
 
   val simple = arguments.isEmpty() && refinement == null && link == null
 

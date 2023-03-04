@@ -238,6 +238,19 @@ private class PClassTest {
     assertThat(qux.lub(foo)).isEqualTo(cpt)
     assertThat(qux.lub(bar)).isEqualTo(bar)
   }
+
+  @Test
+  fun classTypes() {
+    val loader = loadTypes("CLASS Foo", "CLASS Bar", "CLASS Qux")
+
+    assertFails { loader.resolve(te("Class<Class<Class>>")) }
+    assertFails { loader.resolve(te("Class<Class<Foo>>")) }
+    assertFails { loader.resolve(te("Class<Foo<Bar>>")) }
+    assertFails { loader.resolve(te("Class<Foo, Bar>")) }
+    assertFails { loader.resolve(te("Qux<Class<Foo<Bar>>>")) }
+    assertFails { loader.resolve(te("Qux<Class<Foo, Bar>>")) }
+    assertFails { loader.resolve(te("Class<Class<Component>>")) }
+  }
 }
 
 private fun te(s: String) = expression(s)
@@ -252,7 +265,7 @@ internal fun loader(petsText: String): PClassLoader {
 }
 
 // TODO share
-private fun assertFails(message: String, shouldFail: () -> Unit) =
+private fun assertFails(message: String = "(no message)", shouldFail: () -> Unit) =
     assertThrows<RuntimeException>(message, shouldFail)
 
 val regex = Regex("^(\\w+).*")

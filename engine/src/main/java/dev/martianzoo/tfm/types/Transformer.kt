@@ -115,7 +115,7 @@ public class Transformer internal constructor(val loader: PClassLoader) {
 
     val pclass: PClass = loader.getClass(original.className) // SpecialTile
     val dethissed: Expression = original.replaceAll(THIS.expr, contextCpt)
-    val preferred = pclass.match(dethissed.arguments).map { it.key }.zip(original.arguments).toMap()
+    val preferred = pclass.match(dethissed.arguments).keys.zip(original.arguments).toMap()
     val overlaid: Map<Key, Expression> = overlayMaps(preferred, defaultDeps.keyToExpression())
 
     // reorder them

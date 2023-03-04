@@ -34,12 +34,13 @@ internal sealed class Dependency {
     override fun toString() = "${declaringClass}_$index"
   }
 
-  /** Any [Dependency] except for the case covered by [ClassDependency] below. */
-  // TODO rename Dependency
+  /** Any [Dependency] except for the case covered by [FakeDependency] below. */
+  // TODO rename Dependency?
   data class TypeDependency(override val key: Key, val bound: PType) : Dependency() {
     init {
-      require(key != ClassDependency.KEY)
+      require(key != FakeDependency.KEY)
     }
+
     override val abstract by bound::abstract
 
     private fun checkKeys(that: Dependency): TypeDependency {
@@ -72,7 +73,7 @@ internal sealed class Dependency {
    * that the dependency in `Production<Plant>` is a "class dependency" on `Plant`, so instead we
    * use `Production<Class<Plant>>`.
    */
-  data class ClassDependency(val bound: PClass) : Dependency() {
+  private data class FakeDependency(val bound: PClass) : Dependency() {
     companion object {
       /** The only dependency key that may point to this kind of dependency. */
       val KEY = Key(CLASS, 0)
@@ -82,16 +83,16 @@ internal sealed class Dependency {
     override val abstract by bound::abstract
 
     override fun isSubtypeOf(that: Dependency) =
-        that is ClassDependency && bound.isSubclassOf(that.bound)
+        that is FakeDependency && bound.isSubclassOf(that.bound)
 
-    override fun intersect(that: Dependency): ClassDependency? =
-        intersect((that as ClassDependency).bound)
+    override fun intersect(that: Dependency): FakeDependency? =
+        intersect((that as FakeDependency).bound)
 
-    fun intersect(otherClass: PClass): ClassDependency? =
-        bound.intersect(otherClass)?.let { ClassDependency(it) }
+    fun intersect(otherClass: PClass): FakeDependency? =
+        bound.intersect(otherClass)?.let { FakeDependency(it) }
 
-    override fun lub(that: Dependency?): ClassDependency =
-        ClassDependency(bound.lub((that as ClassDependency).bound))
+    override fun lub(that: Dependency?): FakeDependency =
+        FakeDependency(bound.lub((that as FakeDependency).bound))
 
     override val expressionFull by bound.className::expr
     override val expression by ::expressionFull
@@ -106,5 +107,16 @@ internal sealed class Dependency {
       }
       return result
     }
+
+    // TODO these don't really belong here; they're just here so that FakeDependency can be private
+
+    internal fun validate(list: List<Dependency>) {
+      require(list.all { it is TypeDependency } || list.single() is FakeDependency)
+    }
+
+    internal fun getClassForClassType(list: List<Dependency>): PClass =
+        (list.single() as FakeDependency).bound
+
+    internal fun depsForClassType(pclass: PClass) = DependencyMap(listOf(FakeDependency(pclass)))
   }
 }

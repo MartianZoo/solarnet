@@ -19,11 +19,13 @@ internal constructor(
     internal val dependencies: DependencyMap = DependencyMap(),
     override val refinement: Requirement? = null,
 ) : Type {
+  private val loader by pclass::loader
+
   init {
     require(dependencies.keys.toList() == pclass.allDependencyKeys.toList()) {
       "expected keys ${pclass.allDependencyKeys}, got $dependencies"
     }
-    if (refinement != null) pclass.loader.checkAllTypes(refinement)
+    if (refinement != null) loader.checkAllTypes(refinement)
   }
 
   override val abstract = pclass.abstract || dependencies.abstract || refinement != null
@@ -50,8 +52,17 @@ internal constructor(
   }
 
   fun specialize(specs: List<Expression>): PType {
-    val deps = dependencies.specialize(specs, pclass.loader)
-    return copy(dependencies = deps.subMap(dependencies.keys))
+    return if (isClassType) {
+      if (specs.isEmpty()) {
+        loader.componentClass.classType
+      } else {
+        val spec = specs.single().also { require(it.simple) }
+        loader.getClass(spec.className).classType
+      }
+    } else {
+      val deps = loader.match(specs, dependencies).overlayOn(dependencies)
+      copy(dependencies = deps.subMap(dependencies.keys))
+    }
   }
 
   private fun combine(one: Requirement?, two: Requirement?): Requirement? {
@@ -80,13 +91,13 @@ internal constructor(
 
   private fun toExpressionUsingSpecs(specs: List<Expression>): Expression {
     val expression = pclass.className.addArgs(specs).refine(refinement)
-    val roundTrip = pclass.loader.resolve(expression)
+    val roundTrip = loader.resolve(expression)
     require(roundTrip == this) { "$expressionFull -> ${roundTrip.expressionFull}" }
     return expression
   }
 
   fun supertypes(): List<PType> {
-    val supers = pclass.allSuperclasses - pclass.loader.componentClass - pclass
+    val supers = pclass.allSuperclasses - loader.componentClass - pclass
     // the argument to wAD is allowed to be a superset
     return supers.map { it.withExactDependencies(dependencies) }
   }
@@ -102,16 +113,16 @@ internal constructor(
     }
   }
 
-  val classType: Boolean = pclass.className == CLASS
+  val isClassType: Boolean = pclass.className == CLASS
 
-  /** If [classType], return the class it's a class type of. */
+  /** If [isClassType], return the class it's a class type of. */
   fun getClassForClassType(): PClass = dependencies.getClassForClassType()
 
   /** Returns the subset of [allConcreteSubtypes] having the exact same [pclass] as ours. */
   fun concreteSubtypesSameClass(): Sequence<PType> {
     return if (refinement != null) { // expression.hasAnyRefinements()) { TODO
       emptySequence()
-    } else if (classType) { // TODO maybe it should be impossible for a class type to have refins
+    } else if (isClassType) { // TODO maybe it should be impossible for a class type to have refins
       concreteSubclasses(getClassForClassType()).map { it.classType }
     } else {
       val axes: List<List<Dependency>> =

@@ -1,7 +1,6 @@
 package dev.martianzoo.tfm.types
 
 import dev.martianzoo.tfm.pets.ast.Expression
-import dev.martianzoo.tfm.types.Dependency.ClassDependency
 import dev.martianzoo.tfm.types.Dependency.Key
 import dev.martianzoo.tfm.types.Dependency.TypeDependency
 import dev.martianzoo.util.associateByStrict
@@ -14,8 +13,9 @@ internal data class DependencyMap(private val list: List<Dependency>) {
   constructor() : this(listOf<Dependency>())
 
   init {
-    require(list.all { it is TypeDependency } || list.single() is ClassDependency)
+    Dependency.validate(list)
   }
+
   val realDependencies: List<TypeDependency> = list.filterIsInstance<TypeDependency>()
 
   val keys: List<Key> = list.map { it.key }.toSetStrict().toList()
@@ -58,35 +58,10 @@ internal data class DependencyMap(private val list: List<Dependency>) {
     }
   }
 
-  /**
-   * Assigns each expression to a key from among this map's keys, such that it is compatible
-   * with that key's upper bound.
-   */
-  fun match(specs: List<Expression>, loader: PClassLoader): List<TypeDependency> {
-    val usedDeps = mutableSetOf<TypeDependency>()
-
-    return specs.map { specExpression ->
-      val specType: PType = loader.resolve(specExpression)
-      for (candidateDep in list - usedDeps) {
-        candidateDep as TypeDependency
-        val intersectionType = specType.intersect(candidateDep.bound) ?: continue
-        usedDeps += candidateDep
-        return@map TypeDependency(candidateDep.key, intersectionType)
-      }
-      error("couldn't match up $specExpression to $this")
-    }
-  }
-
-  fun specialize(specs: List<Expression>, loader: PClassLoader): DependencyMap {
-    return copy(match(specs, loader)).overlayOn(this)
-  }
-
   override fun toString() = "$list"
 
   /** Returns a submap of this map where every key is one of [keysInOrder]. */
   fun subMap(keysInOrder: Iterable<Key>) = copy(keysInOrder.mapNotNull(::getIfPresent))
 
-  fun getClassForClassType(): PClass {
-    return (list.single() as ClassDependency).bound
-  }
+  fun getClassForClassType() = Dependency.getClassForClassType(list)
 }
