@@ -2,11 +2,11 @@
 
 // PLAYERS -------------------------------------------------
 
-ABSTRACT CLASS Anyone[ANY] {                                // This would be called Player, it's just that when
-    HAS =1 This                                             // reading, `CityTile<Anyone>` makes more sense
+ABSTRACT CLASS Anyone[ANY] {                                // aka Player
+    ABSTRACT CLASS Owner {
+        HAS =1 This
 
-    ABSTRACT CLASS Owner { // not sure about this
-        This:: 20 TerraformRating<This>                     // no solo mode yet
+        Start:: 20 TerraformRating<This>
 
         CLASS Player1[P1], Player2[P2], Player3[P3], Player4[P4], Player5[P5]
     }

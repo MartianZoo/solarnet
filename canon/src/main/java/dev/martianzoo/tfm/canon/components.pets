@@ -106,8 +106,9 @@ ABSTRACT CLASS Generational {                               // things that disap
 }
 
 ABSTRACT CLASS Phase {
-    HAS MAX 1 Phase
+    HAS MAX 1 Phase                                         // switch phase like `ProductionPhase FROM Phase`
 
+    CLASS Start
     CLASS ProductionPhase
     CLASS End
 }

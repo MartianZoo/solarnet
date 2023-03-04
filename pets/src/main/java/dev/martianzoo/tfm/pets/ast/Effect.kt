@@ -6,10 +6,14 @@ import com.github.h0tk3y.betterParse.combinators.optional
 import com.github.h0tk3y.betterParse.combinators.or
 import com.github.h0tk3y.betterParse.combinators.skip
 import com.github.h0tk3y.betterParse.parser.Parser
+import dev.martianzoo.tfm.api.SpecialClassNames
 import dev.martianzoo.tfm.api.SpecialClassNames.THIS
 import dev.martianzoo.tfm.pets.Parsing
 import dev.martianzoo.tfm.pets.PetException
 import dev.martianzoo.tfm.pets.PetParser
+import dev.martianzoo.tfm.pets.ast.Effect.Trigger.OnGainOf
+import dev.martianzoo.tfm.pets.ast.Effect.Trigger.WhenGain
+import dev.martianzoo.tfm.pets.ast.Effect.Trigger.WhenRemove
 import dev.martianzoo.tfm.pets.ast.Instruction.Gated
 import dev.martianzoo.util.iff
 
@@ -17,7 +21,7 @@ public data class Effect(
     val trigger: Trigger,
     val instruction: Instruction,
     val automatic: Boolean = false,
-) : PetNode() {
+) : PetNode(), Comparable<Effect> {
 
   override val kind = Effect::class.simpleName!!
 
@@ -26,6 +30,8 @@ public data class Effect(
   override fun toString() =
       "$trigger:${":".iff(automatic)} " +
           if (instruction is Gated) "($instruction)" else "$instruction"
+
+  override fun compareTo(other: Effect): Int = effectComparator.compare(this, other)
 
   sealed class Trigger : PetNode() {
     override val kind = Trigger::class.simpleName!!
@@ -131,5 +137,21 @@ public data class Effect(
             Effect(trigger = trig, automatic = immed, instruction = instr)
           }
     }
+
+    // TODO really a trigger comparator
+    private val effectComparator: Comparator<Effect> =
+        compareBy(
+            {
+              val t = it.trigger
+              when {
+                t == WhenGain -> if (it.automatic) -1 else 0
+                t == WhenRemove -> if (it.automatic) 1 else 2
+                t is OnGainOf && "${t.typeExpr.className}".startsWith("${SpecialClassNames.USE_ACTION}") -> 4
+                t == OnGainOf.create(SpecialClassNames.END.type) -> 5
+                else -> 3
+              }
+            },
+            { it.trigger.toString() },
+        )
   }
 }

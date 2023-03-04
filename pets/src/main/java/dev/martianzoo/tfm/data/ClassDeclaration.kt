@@ -25,7 +25,7 @@ public data class ClassDeclaration(
     val supertypes: Set<TypeExpr> = setOf(), // TODO do fancy Component stuff elsewhere?
     val topInvariant: Requirement? = null,
     val otherInvariants: Set<Requirement> = setOf(),
-    val effects: Set<Effect> = setOf(),
+    private val effectsIn: Set<Effect> = setOf(),
     val defaultsDeclaration: DefaultsDeclaration = DefaultsDeclaration(),
     val extraNodes: Set<PetNode> = setOf(),
 ) : HasClassName {
@@ -60,7 +60,7 @@ public data class ClassDeclaration(
         dependencies.map { it.typeExpr } +
         setOfNotNull(topInvariant) +
         otherInvariants +
-        effects +
+        effectsIn +
         defaultsDeclaration.allNodes +
         extraNodes
   }
@@ -92,15 +92,17 @@ public data class ClassDeclaration(
   }
 
   public val bareNamesInEffects: Map<Effect, Set<ClassName>> by lazy {
-    effects.associateWith { fx ->
+    effectsIn.associateWith { fx ->
       fx.descendantsOfType<TypeExpr>().filter { it.simple }.classNames().toSet()
     }
   }
 
-  public val depToEffectLinkages: Map<Effect, Set<ClassName>> by lazy {
-    bareNamesInEffects
-        .mapValues { (_, names) -> names.intersect(bareNamesInDependencies) }
-        .filterValues { it.any() }
+  data class EffectDeclaration(val effect: Effect, val linkages: Set<ClassName>)
+
+  public val effects: List<EffectDeclaration> by lazy {
+    effectsIn.map {
+      EffectDeclaration(it, bareNamesInEffects[it]!!.intersect(bareNamesInDependencies))
+    }
   }
 
   // TODO why do we even have this lever

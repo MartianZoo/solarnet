@@ -254,7 +254,7 @@ internal object ClassDeclarationParsers : PetParser() {
             signature.asDeclaration.copy(
                 abstract = abstract,
                 otherInvariants = body.invariants.toSetStrict(),
-                effects = (body.effects + actionListToEffects(body.actions)).toSetStrict(),
+                effectsIn = (body.effects + actionListToEffects(body.actions)).toSetStrict(),
                 defaultsDeclaration = mergedDefaults,
             )
         val unnested = body.nestedGroups.flatMap { it.unnestAllFrom(signature.className) }

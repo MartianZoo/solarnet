@@ -2,6 +2,7 @@ package dev.martianzoo.tfm.canon
 
 import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.tfm.api.SpecialClassNames.ANYONE
+import dev.martianzoo.tfm.data.ClassDeclaration
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.pets.ast.classNames
 import dev.martianzoo.util.toStrings
@@ -25,7 +26,9 @@ private class CanonLinkagesTest {
   @Test
   fun depToEffectLinkages() {
     val declarations = Canon.allClassDeclarations.values
-    val haveLinkages = declarations.filter { it.depToEffectLinkages.any() }
+    val haveLinkages: List<ClassDeclaration> =
+        declarations.filter { decl -> decl.effects.any { it.linkages.any() } }
+
     assertThat(haveLinkages.classNames().toStrings())
         .containsExactly(
             "Border",

@@ -2,17 +2,12 @@ package dev.martianzoo.tfm.types
 
 import dev.martianzoo.tfm.api.SpecialClassNames.CLASS
 import dev.martianzoo.tfm.api.SpecialClassNames.COMPONENT
-import dev.martianzoo.tfm.api.SpecialClassNames.END
 import dev.martianzoo.tfm.api.SpecialClassNames.OWNED
 import dev.martianzoo.tfm.api.SpecialClassNames.THIS
-import dev.martianzoo.tfm.api.SpecialClassNames.USE_ACTION
 import dev.martianzoo.tfm.data.ClassDeclaration
 import dev.martianzoo.tfm.pets.PetTransformer
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.Effect
-import dev.martianzoo.tfm.pets.ast.Effect.Trigger.OnGainOf
-import dev.martianzoo.tfm.pets.ast.Effect.Trigger.WhenGain
-import dev.martianzoo.tfm.pets.ast.Effect.Trigger.WhenRemove
 import dev.martianzoo.tfm.pets.ast.HasClassName
 import dev.martianzoo.tfm.pets.ast.PetNode
 import dev.martianzoo.tfm.pets.ast.Requirement
@@ -194,7 +189,8 @@ internal constructor(
     val thiss = className.refine(requirement("Ok"))
     declaration.effects
         .map { effect ->
-          var fx = effect
+          val links = effect.linkages
+          var fx = effect.effect
           fx = xer.applyGainRemoveDefaults(fx, thiss)
           fx = xer.applyAllCasesDefaults(fx, thiss)
           if (OWNED !in allSuperclasses.classNames()) {
@@ -203,23 +199,8 @@ internal constructor(
           fx = xer.deprodify(fx)
           fx
         }
-        .sortedWith(effectComparator)
+        .sorted()
   }
-
-  private val effectComparator: Comparator<Effect> =
-      compareBy(
-          {
-            val t = it.trigger
-            when {
-              t == WhenGain -> if (it.automatic) -1 else 0
-              t == WhenRemove -> if (it.automatic) 1 else 2
-              t is OnGainOf && "${t.typeExpr.className}".startsWith("$USE_ACTION") -> 4
-              t == OnGainOf.create(END.type) -> 5
-              else -> 3
-            }
-          },
-          { it.trigger.toString() },
-      )
 
   // OTHER
 

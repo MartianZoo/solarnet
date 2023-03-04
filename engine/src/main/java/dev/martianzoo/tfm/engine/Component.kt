@@ -45,7 +45,10 @@ public data class Component(
    * in that game state.
    */
   public fun effects(): List<Effect> {
-    return listOf() // TODO
+    TODO()
+  //   return ptype.pclass.effects.map { effDecl ->
+  //     val links = effDecl.
+  //   }
   }
 
   override fun toString() = "[$ptype]"
