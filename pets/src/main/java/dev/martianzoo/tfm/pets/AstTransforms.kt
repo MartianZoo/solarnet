@@ -1,6 +1,5 @@
 package dev.martianzoo.tfm.pets
 
-import dev.martianzoo.tfm.api.SpecialClassNames.CLASS
 import dev.martianzoo.tfm.api.SpecialClassNames.PRODUCTION
 import dev.martianzoo.tfm.api.SpecialClassNames.THIS
 import dev.martianzoo.tfm.api.SpecialClassNames.USE_ACTION
@@ -93,7 +92,7 @@ public object AstTransforms {
                     inner
                   }
                   inProd && node is Expression && node.className in producible ->
-                      PRODUCTION.addArgs(node.arguments + CLASS.addArgs(node.className))
+                      PRODUCTION.addArgs(node.arguments + node.className.classExpression())
                   else -> transformChildren(node)
                 }
             @Suppress("UNCHECKED_CAST") return rewritten as P

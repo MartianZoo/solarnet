@@ -1,6 +1,5 @@
 package dev.martianzoo.tfm.data
 
-import dev.martianzoo.tfm.api.SpecialClassNames.CLASS
 import dev.martianzoo.tfm.api.SpecialClassNames.END
 import dev.martianzoo.tfm.data.CardDefinition.Deck.PROJECT
 import dev.martianzoo.tfm.data.CardDefinition.ProjectKind.ACTIVE
@@ -127,10 +126,10 @@ public class CardDefinition(data: CardData) : Definition {
   override val asClassDeclaration by lazy {
     val supertypes =
         setOfNotNull(
-                projectInfo?.kind?.className?.expr,
-                resourceType?.let { RESOURCEFUL_CARD.addArgs(CLASS.addArgs(it)) },
-                if (actions.any()) ACTION_CARD.expr else null,
-            )
+            projectInfo?.kind?.className?.expr,
+            resourceType?.let { RESOURCEFUL_CARD.addArgs(it.classExpression()) },
+            if (actions.any()) ACTION_CARD.expr else null,
+        )
             .ifEmpty { setOf(CARD_FRONT.expr) }
 
     val allEffects =

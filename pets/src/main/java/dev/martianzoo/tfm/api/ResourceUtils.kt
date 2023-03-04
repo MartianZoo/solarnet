@@ -1,6 +1,5 @@
 package dev.martianzoo.tfm.api
 
-import dev.martianzoo.tfm.api.SpecialClassNames.CLASS
 import dev.martianzoo.tfm.api.SpecialClassNames.MEGACREDIT
 import dev.martianzoo.tfm.api.SpecialClassNames.PRODUCTION
 import dev.martianzoo.tfm.api.SpecialClassNames.STANDARD_RESOURCE
@@ -19,7 +18,7 @@ object ResourceUtils {
    */
   fun lookUpProductionLevels(game: ReadOnlyGameState, player: Expression): Map<ClassName, Int> =
       standardResourceNames(game).associateWith {
-        val type = game.resolve(PRODUCTION.addArgs(player, CLASS.addArgs(it)))
+        val type = game.resolve(PRODUCTION.addArgs(player, it.classExpression()))
         val rawCount = game.count(type)
         if (it == MEGACREDIT) {
           rawCount - 5
@@ -30,7 +29,7 @@ object ResourceUtils {
 
   /** Returns the name of every concrete class of type `StandardResource`. */
   fun standardResourceNames(game: ReadOnlyGameState): Set<ClassName> =
-      game.getComponents(game.resolve(CLASS.addArgs(STANDARD_RESOURCE)))
+      game.getComponents(game.resolve(STANDARD_RESOURCE.classExpression()))
           .map { it.expression.arguments.single().className }
           .toSet()
 }

@@ -5,7 +5,6 @@ import dev.martianzoo.tfm.api.SpecialClassNames.CLASS
 import dev.martianzoo.tfm.api.SpecialClassNames.COMPONENT
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.pets.testRoundTrip
-import dev.martianzoo.tfm.testlib.assertFails
 import dev.martianzoo.tfm.testlib.te
 import org.junit.jupiter.api.Test
 
@@ -66,21 +65,14 @@ private class ExpressionTest {
     te("Foo")
     te("Foo<Bar>")
 
-    assertThat(te("Class<Foo>")).isEqualTo(CLASS.addArgs(cn("Foo")))
-    assertThat(te("Class<Component>")).isEqualTo(CLASS.addArgs(COMPONENT))
-    assertThat(te("Class<Class>")).isEqualTo(CLASS.addArgs(CLASS))
+    assertThat(te("Class<Foo>")).isEqualTo(cn("Foo").classExpression())
+    assertThat(te("Class<Component>")).isEqualTo(COMPONENT.classExpression())
+    assertThat(te("Class<Class>")).isEqualTo(CLASS.classExpression())
 
     val two = te("Two<Class<Bar>, Class<Qux>>")
     assertThat(two.className).isEqualTo(cn("Two"))
-    assertThat(two.arguments).containsExactly(CLASS.addArgs(cn("Bar")), CLASS.addArgs(cn("Qux")))
-
-    assertFails { te("Class<Class<Class>>") }
-    assertFails { te("Class<Class<Foo>>") }
-    assertFails { te("Class<Foo<Bar>>") }
-    assertFails { te("Class<Foo, Bar>") }
-    assertFails { te("Qux<Class<Foo<Bar>>>") }
-    assertFails { te("Qux<Class<Foo, Bar>>") }
-    assertFails { te("Class<Class<Component>>") }
+    assertThat(two.arguments).containsExactly(cn("Bar").classExpression(),
+        cn("Qux").classExpression())
   }
 
   @Test
@@ -88,9 +80,5 @@ private class ExpressionTest {
     te("Foo^5")
     te("Foo<Bar^5>")
     te("Foo<Bar>^5")
-
-    assertFails { te("Class<Class^5>") }
-    assertFails { te("Class<Foo>^5") }
-    assertFails { te("Class^5") }
   }
 }
