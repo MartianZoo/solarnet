@@ -6,8 +6,6 @@ import dev.martianzoo.tfm.api.Type
 import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.pets.ast.Requirement.And
-import dev.martianzoo.tfm.types.Dependency.ClassDependency
-import dev.martianzoo.tfm.types.Dependency.TypeDependency
 
 /**
  * The translation of a [Expression] into a "live" type, referencing actual [PClass]es loaded by a
@@ -24,11 +22,6 @@ internal constructor(
   init {
     require(dependencies.keys.toList() == pclass.allDependencyKeys.toList()) {
       "expected keys ${pclass.allDependencyKeys}, got $dependencies"
-    }
-    if (pclass.className == CLASS) {
-      require(dependencies.list.single() is ClassDependency) // TODO just ask deps?
-    } else {
-      require(dependencies.list.all { it is TypeDependency })
     }
     if (refinement != null) pclass.loader.checkAllTypes(refinement)
   }
@@ -74,11 +67,11 @@ internal constructor(
   fun refine(newRef: Requirement?): PType = copy(refinement = combine(refinement, newRef))
 
   override val expression: Expression by lazy {
-    toExpressionUsingSpecs(narrowedDependencies.list.map { it.expression })
+    toExpressionUsingSpecs(narrowedDependencies.expressions)
   }
 
   override val expressionFull: Expression by lazy {
-    toExpressionUsingSpecs(dependencies.list.map { it.expressionFull }) // TODO simplify?
+    toExpressionUsingSpecs(dependencies.expressionsFull)
   }
 
   internal val narrowedDependencies: DependencyMap by lazy {
@@ -109,20 +102,23 @@ internal constructor(
     }
   }
 
+  val classType: Boolean = pclass.className == CLASS
+
+  /** If [classType], return the class it's a class type of. */
+  fun getClassForClassType(): PClass = dependencies.getClassForClassType()
+
   /** Returns the subset of [allConcreteSubtypes] having the exact same [pclass] as ours. */
   fun concreteSubtypesSameClass(): Sequence<PType> {
-    if (refinement != null) return emptySequence()
-    if (pclass.className == CLASS) {
-      val classDep = dependencies.list.single() as ClassDependency
-      return concreteSubclasses(classDep.bound).map { it.classType }
+    return if (refinement != null) { // expression.hasAnyRefinements()) { TODO
+      emptySequence()
+    } else if (classType) { // TODO maybe it should be impossible for a class type to have refins
+      concreteSubclasses(getClassForClassType()).map { it.classType }
+    } else {
+      val axes: List<List<Dependency>> =
+          dependencies.realDependencies.map { it.allConcreteSpecializations().toList() }
+      val product: List<List<Dependency>> = Lists.cartesianProduct(axes)
+      product.asSequence().map { pclass.withExactDependencies(DependencyMap(it)) }
     }
-
-    val axes: List<List<Dependency>> =
-        dependencies.list.map { dep ->
-          (dep as TypeDependency).allConcreteSpecializations().toList()
-        }
-    val product: List<List<Dependency>> = Lists.cartesianProduct(axes)
-    return product.asSequence().map { pclass.withExactDependencies(DependencyMap(it)) }
   }
 
   private fun concreteSubclasses(pclass: PClass): Sequence<PClass> =

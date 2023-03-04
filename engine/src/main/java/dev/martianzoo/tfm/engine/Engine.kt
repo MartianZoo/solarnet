@@ -7,7 +7,6 @@ import dev.martianzoo.tfm.data.MarsMapDefinition
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.pets.ast.Effect.Trigger.WhenGain
 import dev.martianzoo.tfm.pets.ast.classNames
-import dev.martianzoo.tfm.types.Dependency.TypeDependency
 import dev.martianzoo.tfm.types.PClass
 import dev.martianzoo.tfm.types.PClassLoader
 import dev.martianzoo.tfm.types.PType
@@ -42,7 +41,7 @@ public object Engine {
 
     for (ptype in singletons(loader.allClasses) + borders) {
       val depInstances =
-          ptype.dependencies.list.filterIsInstance<TypeDependency>().map { it.bound } // TODO
+          ptype.dependencies.realDependencies.map { it.bound } // TODO
       for (cpt in depInstances + ptype) { // TODO not ironclad
         if (game.count(cpt) == 0) {
           game.applyChangeAndPublish(gaining = game.resolve(cpt), cause = cause, hidden = true)

@@ -40,7 +40,6 @@ public class PClassLoader(
   public val classClass: PClass =
       PClass(decl(CLASS), this, listOf(componentClass)).also {
         require(!it.abstract)
-        require(it.baseDependencies.list.single().expression == COMPONENT.expr)
       }
 
   private val loadedClasses =

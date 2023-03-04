@@ -2,7 +2,6 @@ package dev.martianzoo.tfm.engine
 
 import dev.martianzoo.tfm.api.Type
 import dev.martianzoo.tfm.pets.ast.Effect
-import dev.martianzoo.tfm.types.Dependency.TypeDependency
 import dev.martianzoo.tfm.types.PClass
 import dev.martianzoo.tfm.types.PType
 
@@ -36,8 +35,7 @@ public data class Component(
    * to [PClass.allDependencyKeys].
    */
   public val dependencies: List<Component> by lazy {
-    val depTypes = ptype.dependencies.list.filterIsInstance<TypeDependency>()
-    depTypes.map { Component(it.bound) }
+    ptype.dependencies.realDependencies.map { Component(it.bound) }
   }
 
   /**

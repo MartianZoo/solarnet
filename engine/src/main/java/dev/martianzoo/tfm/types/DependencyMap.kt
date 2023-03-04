@@ -1,6 +1,7 @@
 package dev.martianzoo.tfm.types
 
 import dev.martianzoo.tfm.pets.ast.Expression
+import dev.martianzoo.tfm.types.Dependency.ClassDependency
 import dev.martianzoo.tfm.types.Dependency.Key
 import dev.martianzoo.tfm.types.Dependency.TypeDependency
 import dev.martianzoo.util.associateByStrict
@@ -9,10 +10,17 @@ import dev.martianzoo.util.toSetStrict
 
 // Takes care of everything inside the <> but knows nothing of what's outside it
 // TODO make this a list
-internal data class DependencyMap(val list: List<Dependency>) {
+internal data class DependencyMap(private val list: List<Dependency>) {
   constructor() : this(listOf<Dependency>())
 
-  val keys: List<Key> = list.map { it.key }.toSetStrict().toList() // TODO
+  init {
+    require(list.all { it is TypeDependency } || list.single() is ClassDependency)
+  }
+  val realDependencies: List<TypeDependency> = list.filterIsInstance<TypeDependency>()
+
+  val keys: List<Key> = list.map { it.key }.toSetStrict().toList()
+  val expressions: List<Expression> = list.map { it.expression }
+  val expressionsFull: List<Expression> = list.map { it.expressionFull }
 
   val abstract = list.any { it.abstract }
 
@@ -39,6 +47,8 @@ internal data class DependencyMap(val list: List<Dependency>) {
   fun overlayOn(that: DependencyMap) = merge(that) { ours, _ -> ours }
 
   fun minus(that: DependencyMap) = copy(this.list - that.list)
+
+  fun keyToExpression() = list.associate { it.key to it.expression }
 
   companion object {
     fun intersect(maps: Collection<DependencyMap>): DependencyMap {
@@ -75,4 +85,8 @@ internal data class DependencyMap(val list: List<Dependency>) {
 
   /** Returns a submap of this map where every key is one of [keysInOrder]. */
   fun subMap(keysInOrder: Iterable<Key>) = copy(keysInOrder.mapNotNull(::getIfPresent))
+
+  fun getClassForClassType(): PClass {
+    return (list.single() as ClassDependency).bound
+  }
 }
