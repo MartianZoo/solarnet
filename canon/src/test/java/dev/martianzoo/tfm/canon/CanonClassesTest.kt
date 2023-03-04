@@ -21,19 +21,21 @@ private class CanonClassesTest {
 
   @Test
   fun redundantSuperclasses() {
-    val redundancies = loader.allClasses.flatMap { pclass ->
-      val direct: List<PClass> = pclass.directSuperclasses
-      val indirect = direct.flatMap { it.properSuperclasses }.toSet()
-      val redundant = direct.intersect(indirect)
-      redundant.map { pclass.className to it.className }
-    }
-    assertThat(redundancies).containsExactly(
-        cn("GreeneryTile") to cn("Tile"),
-        cn("SpecialTile") to cn("Tile"),
-        cn("ResourcefulCard") to cn("Owned"),
-        cn("ActionUsedMarker") to cn("Owned"),
-        cn("Owed") to cn("PaymentMechanic"),
-    )
+    val redundancies =
+        loader.allClasses.flatMap { pclass ->
+          val direct: List<PClass> = pclass.directSuperclasses
+          val indirect = direct.flatMap { it.properSuperclasses }.toSet()
+          val redundant = direct.intersect(indirect)
+          redundant.map { pclass.className to it.className }
+        }
+    assertThat(redundancies)
+        .containsExactly(
+            cn("GreeneryTile") to cn("Tile"),
+            cn("SpecialTile") to cn("Tile"),
+            cn("ResourcefulCard") to cn("Owned"),
+            cn("ActionUsedMarker") to cn("Owned"),
+            cn("Owed") to cn("PaymentMechanic"),
+        )
   }
 
   @Test
@@ -46,11 +48,7 @@ private class CanonClassesTest {
   fun abstractClassWithOnlyChild() {
     // In some cases we might like the parent and child to be treated as the same class
     val anomalies = loader.allClasses.filter { it.abstract && it.directSubclasses.size == 1 }
-    assertThat(anomalies.classNames()).containsExactly(
-        ANYONE,
-        cn("NoctisArea"),
-        cn("Barrier") // that will probably change with RequirementGap
-    )
+    assertThat(anomalies.classNames()).containsExactly(ANYONE, cn("NoctisArea"), cn("Barrier"))
   }
 
   @Test

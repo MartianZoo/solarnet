@@ -89,7 +89,9 @@ public sealed class Instruction : PetNode() {
         throw PetException("Can't do something 'per' zero")
       }
       when (instruction) {
-        is Gain, is Remove, is Transmute -> {}
+        is Gain,
+        is Remove,
+        is Transmute -> {}
         else -> throw PetException("Per can only contain gain/remove/transmute") // TODO more
       }
     }

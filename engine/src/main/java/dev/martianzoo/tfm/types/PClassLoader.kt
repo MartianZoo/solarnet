@@ -154,7 +154,8 @@ public class PClassLoader(
     }
 
   private fun validate() {
-    allClasses.flatMap { it.classEffects }
+    allClasses
+        .flatMap { it.classEffects }
         .flatMap { it.descendantsOfType<Instruction.Custom>() }
         .forEach { authority.customInstruction(it.functionName) }
   }

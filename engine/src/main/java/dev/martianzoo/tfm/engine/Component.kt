@@ -46,9 +46,9 @@ public data class Component(
    */
   public fun effects(): List<Effect> {
     TODO()
-  //   return ptype.pclass.effects.map { effDecl ->
-  //     val links = effDecl.
-  //   }
+    //   return ptype.pclass.effects.map { effDecl ->
+    //     val links = effDecl.
+    //   }
   }
 
   override fun toString() = "[$ptype]"

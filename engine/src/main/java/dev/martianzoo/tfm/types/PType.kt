@@ -99,8 +99,8 @@ internal constructor(
   }
 
   /**
-   * Returns every possible [PType] `t` such that `!t.abstract && t.isSubtypeOf(this)`.
-   * Note that this sequence can potentially be very large.
+   * Returns every possible [PType] `t` such that `!t.abstract && t.isSubtypeOf(this)`. Note that
+   * this sequence can potentially be very large.
    */
   fun allConcreteSubtypes(): Sequence<PType> {
     if (refinement != null) return emptySequence()
@@ -109,9 +109,7 @@ internal constructor(
     }
   }
 
-  /**
-   * Returns the subset of [allConcreteSubtypes] having the exact same [pclass] as ours.
-   */
+  /** Returns the subset of [allConcreteSubtypes] having the exact same [pclass] as ours. */
   fun concreteSubtypesSameClass(): Sequence<PType> {
     if (refinement != null) return emptySequence()
     if (pclass.className == CLASS) {

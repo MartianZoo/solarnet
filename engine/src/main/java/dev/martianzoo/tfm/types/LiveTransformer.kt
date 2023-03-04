@@ -58,8 +58,7 @@ public class LiveTransformer internal constructor(val loader: PClassLoader) {
     return AllCasesDefaultApplier(contextComponent).transform(node)
   }
 
-  private inner class GainRemoveDefaultApplier(val context: TypeExpr) :
-      PetTransformer() {
+  private inner class GainRemoveDefaultApplier(val context: TypeExpr) : PetTransformer() {
     override fun <P : PetNode> transform(node: P): P {
       val result: PetNode =
           when (node) {

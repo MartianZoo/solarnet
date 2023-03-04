@@ -125,10 +125,11 @@ public class CardDefinition(data: CardData) : Definition {
   override val asClassDeclaration by lazy {
     val supertypes =
         setOfNotNull(
-            projectInfo?.kind?.className?.type,
-            resourceType?.let { RESOURCEFUL_CARD.addArgs(CLASS.addArgs(it)) },
-            if (actions.any()) ACTION_CARD.type else null,
-        ).ifEmpty { setOf(CARD_FRONT.type) }
+                projectInfo?.kind?.className?.type,
+                resourceType?.let { RESOURCEFUL_CARD.addArgs(CLASS.addArgs(it)) },
+                if (actions.any()) ACTION_CARD.type else null,
+            )
+            .ifEmpty { setOf(CARD_FRONT.type) }
 
     val allEffects =
         listOfNotNull(immediate).map(::immediateToEffect) + effects + actionListToEffects(actions)

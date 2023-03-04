@@ -58,12 +58,13 @@ public class Game(
       cause: Cause?,
       hidden: Boolean,
   ) {
-    val change: StateChange = components.applyChange(
-        count,
-        removing = component(removing),
-        gaining = component(gaining),
-        amap = amap,
-    )
+    val change: StateChange =
+        components.applyChange(
+            count,
+            removing = component(removing),
+            gaining = component(gaining),
+            amap = amap,
+        )
     logChange(change, cause, hidden)
     // publish change
   }

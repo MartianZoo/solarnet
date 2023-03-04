@@ -146,7 +146,8 @@ public data class Effect(
               when {
                 t == WhenGain -> if (it.automatic) -1 else 0
                 t == WhenRemove -> if (it.automatic) 1 else 2
-                t is OnGainOf && "${t.typeExpr.className}".startsWith("${SpecialClassNames.USE_ACTION}") -> 4
+                t is OnGainOf &&
+                    "${t.typeExpr.className}".startsWith("${SpecialClassNames.USE_ACTION}") -> 4
                 t == OnGainOf.create(SpecialClassNames.END.type) -> 5
                 else -> 3
               }
