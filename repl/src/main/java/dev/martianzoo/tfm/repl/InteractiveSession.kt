@@ -32,7 +32,7 @@ class InteractiveSession {
 
   fun becomePlayer(player: Int) {
     val p = cn("Player$player")
-    game!!.resolveType(p.expr)
+    game!!.resolve(p.expr)
     defaultPlayer = p
   }
 
@@ -43,7 +43,7 @@ class InteractiveSession {
   fun count(metric: Metric) = game!!.count(fixTypes(metric))
 
   fun list(expression: Expression): Multiset<Expression> {
-    val typeToList: PType = game!!.resolveType(fixTypes(expression))
+    val typeToList: PType = game!!.resolve(fixTypes(expression))
     val allComponents: Multiset<Component> = game!!.getComponents(typeToList)
 
     // BIGTODO decide more intelligently how to break it down

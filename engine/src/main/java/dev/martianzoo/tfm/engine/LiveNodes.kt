@@ -31,7 +31,7 @@ internal object LiveNodes {
 
   fun from(met: Metric, game: GameState): LiveMetric =
       when (met) {
-        is Count -> LiveMetric(game.resolveType(met.scaledEx.expression), met.scaledEx.scalar)
+        is Count -> LiveMetric(game.resolve(met.scaledEx.expression), met.scaledEx.scalar)
         is Metric.Max -> from(met.metric, game).copy(max = met.maximum)
       }
 
@@ -41,8 +41,8 @@ internal object LiveNodes {
         Change(
             ins.count,
             ins.intensity ?: MANDATORY,
-            removing = ins.removing?.let { game.resolveType(it) },
-            gaining = ins.gaining?.let { game.resolveType(it) },
+            removing = ins.removing?.let { game.resolve(it) },
+            gaining = ins.gaining?.let { game.resolve(it) },
         )
 
       is Instruction.Per -> Per(from(ins.metric, game), from(ins.instruction, game))
@@ -50,7 +50,7 @@ internal object LiveNodes {
       is Instruction.Custom ->
           Custom(
               game.authority.customInstruction(ins.functionName),
-              ins.arguments.map { game.resolveType(it) })
+              ins.arguments.map { game.resolve(it) })
       is Instruction.Or -> OrIns(ins.instructions.map { from(it, game) })
       is Instruction.Then -> Then(ins.instructions.map { from(it, game) })
       is Instruction.Multi -> Then(ins.instructions.map { from(it, game) })
@@ -127,7 +127,7 @@ internal object LiveNodes {
 
   fun from(reqt: Requirement, game: GameState): LiveRequirement {
     fun count(scaledEx: ScaledExpression) =
-        game.count(game.resolveType(scaledEx.expression))
+        game.count(game.resolve(scaledEx.expression))
 
     return when (reqt) {
       is Min -> LiveRequirement { count(reqt.scaledEx) >= reqt.scaledEx.scalar }
@@ -151,8 +151,8 @@ internal object LiveNodes {
 
   fun from(trig: Trigger, game: GameState): LiveTrigger {
     return when (trig) {
-      is Trigger.OnGainOf -> LiveTrigger(game.resolveType(trig.expression), gain = true)
-      is Trigger.OnRemoveOf -> LiveTrigger(game.resolveType(trig.expression), gain = false)
+      is Trigger.OnGainOf -> LiveTrigger(game.resolve(trig.expression), gain = true)
+      is Trigger.OnRemoveOf -> LiveTrigger(game.resolve(trig.expression), gain = false)
       is Trigger.ByTrigger -> from(trig.inner, game).copy(by = trig.by)
       else -> error("this shouldn't still be here")
     }
@@ -161,7 +161,7 @@ internal object LiveNodes {
   data class LiveTrigger(val ptype: Type, val gain: Boolean, val by: ClassName? = null) {
     fun hits(change: StateChange, game: GameState): Int {
       val g = if (gain) change.gaining else change.removing
-      return if (g != null && game.resolveType(g).isSubtypeOf(ptype)) change.count else 0
+      return if (g != null && game.resolve(g).isSubtypeOf(ptype)) change.count else 0
     }
   }
 

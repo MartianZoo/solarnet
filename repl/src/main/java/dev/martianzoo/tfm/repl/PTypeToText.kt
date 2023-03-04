@@ -15,7 +15,7 @@ object PTypeToText { // TODO refactor to ClassInfo / TypeInfo type dealies
     fun descendingBySubclassCount(classes: Iterable<PClass>) =
         classes.sortedWith(compareBy({ -it.allSubclasses.size }, { it.className }))
 
-    val ptype = loader.resolveType(expression)
+    val ptype = loader.resolve(expression)
     val pclass = ptype.pclass
 
     val subs = descendingBySubclassCount(pclass.allSubclasses - pclass)

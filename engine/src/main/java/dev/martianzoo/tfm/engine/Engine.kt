@@ -45,7 +45,7 @@ public object Engine {
           ptype.dependencies.dependencies.filterIsInstance<TypeDependency>().map { it.bound }
       for (cpt in depInstances + ptype) { // TODO not ironclad
         if (game.count(cpt) == 0) {
-          game.applyChangeAndPublish(gaining = game.resolveType(cpt), cause = cause, hidden = true)
+          game.applyChangeAndPublish(gaining = game.resolve(cpt), cause = cause, hidden = true)
           cpt.pclass.allSuperclasses
               .flatMap { it.classEffects }
               .filter { it.trigger == WhenGain }
@@ -71,6 +71,6 @@ public object Engine {
               border.addArgs(area2, area1),
           )
         }
-        .map { loader.resolveType(it) }
+        .map { loader.resolve(it) }
   }
 }

@@ -11,7 +11,7 @@ import dev.martianzoo.tfm.types.Dependency.TypeDependency
 
 /**
  * The translation of a [Expression] into a "live" type, referencing actual [PClass]es loaded by a
- * [PClassLoader]. These are usually obtained by [PClassLoader.resolveType]. These can be abstract.
+ * [PClassLoader]. These are usually obtained by [PClassLoader.resolve]. These can be abstract.
  * Usages of this type should be fairly unrelated to questions of whether instances exist in a game
  * state.
  */
@@ -87,7 +87,7 @@ internal constructor(
 
   private fun toExpressionUsingSpecs(specs: List<Expression>): Expression {
     val expression = pclass.className.addArgs(specs).refine(refinement)
-    val roundTrip = pclass.loader.resolveType(expression)
+    val roundTrip = pclass.loader.resolve(expression)
     require(roundTrip == this) { "$expressionFull -> ${roundTrip.expressionFull}" }
     return expression
   }

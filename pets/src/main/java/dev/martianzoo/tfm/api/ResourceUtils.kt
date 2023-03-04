@@ -19,7 +19,7 @@ object ResourceUtils {
    */
   fun lookUpProductionLevels(game: ReadOnlyGameState, player: Expression): Map<ClassName, Int> =
       standardResourceNames(game).associateWith {
-        val type = game.resolveType(PRODUCTION.addArgs(player, CLASS.addArgs(it)))
+        val type = game.resolve(PRODUCTION.addArgs(player, CLASS.addArgs(it)))
         val rawCount = game.count(type)
         if (it == MEGACREDIT) {
           rawCount - 5
@@ -30,7 +30,7 @@ object ResourceUtils {
 
   /** Returns the name of every concrete class of type `StandardResource`. */
   fun standardResourceNames(game: ReadOnlyGameState): Set<ClassName> =
-      game.getComponents(game.resolveType(CLASS.addArgs(STANDARD_RESOURCE)))
+      game.getComponents(game.resolve(CLASS.addArgs(STANDARD_RESOURCE)))
           .map { it.expression.arguments.single().className }
           .toSet()
 }

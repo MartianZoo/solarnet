@@ -96,7 +96,7 @@ internal constructor(
     } else {
       declaration.supertypes
           .ifEmpty { setOf(COMPONENT.expr) }
-          .map(loader::resolveType)
+          .map(loader::resolve)
           .toSetStrict()
     }
   }
@@ -162,7 +162,7 @@ internal constructor(
       val newDeps: List<Dependency> =
           directDependencyKeys.map {
             val depExpression = declaration.dependencies[it.index].expression
-            TypeDependency(it, loader.resolveType(depExpression))
+            TypeDependency(it, loader.resolve(depExpression))
           }
       val deps = DependencyMap.intersect(directSupertypes.map { it.dependencies })
       deps.merge(DependencyMap(newDeps)) { _, _ -> error("") }

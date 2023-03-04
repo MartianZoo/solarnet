@@ -18,5 +18,5 @@ interface ReadOnlyGameState {
 
   fun evaluate(requirement: Requirement): Boolean
 
-  fun resolveType(expression: Expression): Type
+  fun resolve(expression: Expression): Type
 }

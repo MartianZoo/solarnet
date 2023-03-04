@@ -35,18 +35,18 @@ public class Game(
 
   public fun changeLog(): List<ChangeRecord> = fullChangeLog.filterNot { it.hidden }
 
-  override fun resolveType(expression: Expression): PType = loader.resolveType(expression)
+  override fun resolve(expression: Expression): PType = loader.resolve(expression)
 
-  fun resolveType(type: Type): PType = loader.resolveType(type)
+  fun resolve(type: Type): PType = loader.resolve(type)
 
   override fun evaluate(requirement: Requirement) = LiveNodes.from(requirement, this).evaluate(this)
 
-  override fun count(type: Type): Int = components.count(resolveType(type))
+  override fun count(type: Type): Int = components.count(resolve(type))
 
   override fun count(metric: Metric): Int = LiveNodes.from(metric, this).count(this)
 
   override fun getComponents(type: Type): Multiset<Type> =
-      components.getAll(resolveType(type)).map { it.type }
+      components.getAll(resolve(type)).map { it.type }
 
   fun getComponents(type: PType): Multiset<Component> = components.getAll(type)
 
@@ -76,10 +76,10 @@ public class Game(
     fullChangeLog.add(ChangeRecord(nextOrdinal, change, cause, hidden))
   }
 
-  public fun component(type: Type?): Component? = type?.let { Component(loader.resolveType(it)) }
+  public fun component(type: Type?): Component? = type?.let { Component(loader.resolve(it)) }
 
   public fun component(type: Expression?): Component? =
-      type?.let { Component(loader.resolveType(it)) }
+      type?.let { Component(loader.resolve(it)) }
 
   public fun rollBack(ordinal: Int) {
     require(ordinal <= nextOrdinal)

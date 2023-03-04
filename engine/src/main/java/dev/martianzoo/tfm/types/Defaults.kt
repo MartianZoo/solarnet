@@ -34,7 +34,7 @@ internal data class Defaults(
       fun gatherDefaultDeps(extractor: (DefaultsDeclaration) -> List<Expression>): DependencyMap {
         // excludes ones that don't specialize, is that okay? TODO
         fun toDependencyMap(specs: List<Expression>): DependencyMap =
-            pclass.loader.resolveType(pclass.className.addArgs(specs)).narrowedDependencies
+            pclass.loader.resolve(pclass.className.addArgs(specs)).narrowedDependencies
 
         val depList: List<Dependency> =
             pclass.allDependencyKeys.mapNotNull { key ->

@@ -49,12 +49,11 @@ public class PClassLoader(
   public fun getClass(nameOrId: ClassName): PClass =
       loadedClasses[nameOrId] ?: error("no class loaded with id or name $nameOrId")
 
-  // TODO rename these to resolve
   /** Returns the corresponding [PType] to [type] (possibly [type] itself). */
-  public fun resolveType(type: Type): PType = type as? PType ?: resolveType(type.expression)
+  public fun resolve(type: Type): PType = type as? PType ?: resolve(type.expression)
 
   /** Returns the [PType] represented by [expression]. */
-  public fun resolveType(expression: Expression): PType {
+  public fun resolve(expression: Expression): PType {
     val pclass = getClass(expression.className)
     val result =
         if (pclass.className == CLASS) {
@@ -173,7 +172,7 @@ public class PClassLoader(
   public fun checkAllTypes(node: PetNode) =
       node.visitDescendants {
         if (it is Expression) {
-          resolveType(it).expression
+          resolve(it).expression
           false
         } else {
           true

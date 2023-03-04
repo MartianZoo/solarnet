@@ -44,7 +44,7 @@ internal class MapToText(private val game: ReadOnlyGameState) {
   private fun describe(area: AreaDefinition?): String { // TODO rewrite using Grid<String>
     if (area == null) return ""
     val expression = expression("Tile<${area.className}>")
-    val tiles = game.getComponents(game.resolveType(expression))
+    val tiles = game.getComponents(game.resolve(expression))
     return when (tiles.size) {
       0 -> area.code
       1 -> describe(tiles.iterator().next())

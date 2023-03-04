@@ -24,12 +24,12 @@ private class PTypeTest {
             "CLASS Fish : ResourcefulCard<Class<Animal>>",
             "CLASS Ants : ResourcefulCard<Class<Microbe>>",
         )
-    assertThat(table.resolveType(te("Animal<Fish>")).abstract).isTrue()
+    assertThat(table.resolve(te("Animal<Fish>")).abstract).isTrue()
 
-    val fish = table.resolveType(te("Animal<Player1, Fish<Player1>>"))
+    val fish = table.resolve(te("Animal<Player1, Fish<Player1>>"))
     assertThat(fish.abstract).isFalse()
 
-    assertThat(table.resolveType(te("Fish")).expressionFull.toString())
+    assertThat(table.resolve(te("Fish")).expressionFull.toString())
         .isEqualTo("Fish<Anyone, Class<Animal>>")
 
     // TODO get these working
@@ -60,7 +60,7 @@ private class PTypeTest {
     table.frozen = true
   }
 
-  fun type(s: String) = table.resolveType(te(s))
+  fun type(s: String) = table.resolve(te(s))
 
   @Test
   fun partial() {

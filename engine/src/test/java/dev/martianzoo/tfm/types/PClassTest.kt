@@ -146,12 +146,12 @@ private class PClassTest {
             "CLASS Qux")
 
     // abstract: SuperFoo, SuperBar, Foo
-    val supSup = table.resolveType(te("SuperBar<SuperFoo>"))
-    val supFoo = table.resolveType(te("SuperBar<Foo>"))
-    val supSub = table.resolveType(te("SuperBar<SubFoo>"))
-    val barFoo = table.resolveType(te("Bar<Foo>"))
-    val barSub = table.resolveType(te("Bar<SubFoo>"))
-    val subSub = table.resolveType(te("SubBar<SubFoo>"))
+    val supSup = table.resolve(te("SuperBar<SuperFoo>"))
+    val supFoo = table.resolve(te("SuperBar<Foo>"))
+    val supSub = table.resolve(te("SuperBar<SubFoo>"))
+    val barFoo = table.resolve(te("Bar<Foo>"))
+    val barSub = table.resolve(te("Bar<SubFoo>"))
+    val subSub = table.resolve(te("SubBar<SubFoo>"))
 
     assertThat(supSup.abstract).isTrue()
     assertThat(supSup.isSubtypeOf(supSup)).isTrue()
@@ -186,14 +186,14 @@ private class PClassTest {
     assertThat(subSub.isSubtypeOf(subSub)).isTrue()
 
     fun checkAutoAdjust(`in`: String, out: String, table: PClassLoader) =
-        assertThat(table.resolveType(te(`in`)).expressionFull.toString()).isEqualTo(out)
+        assertThat(table.resolve(te(`in`)).expressionFull.toString()).isEqualTo(out)
 
     checkAutoAdjust("Bar<SuperFoo>", "Bar<Foo>", table)
     checkAutoAdjust("SubBar<SuperFoo>", "SubBar<SubFoo>", table)
     checkAutoAdjust("SubBar<Foo>", "SubBar<SubFoo>", table)
 
-    assertFails("outta bounds") { table.resolveType(te("Foo<Qux>")) }
-    assertFails("no deps") { table.resolveType(te("Foo<Bar>")) }
+    assertFails("outta bounds") { table.resolve(te("Foo<Qux>")) }
+    assertFails("no deps") { table.resolve(te("Foo<Bar>")) }
   }
 
   @Test

@@ -113,7 +113,7 @@ private class CanonClassesTest {
           .inOrder()
 
       table.load(cn("MarsArea"))
-      assertThat(baseType).isEqualTo(table.resolveType(expression("OceanTile<MarsArea>")))
+      assertThat(baseType).isEqualTo(table.resolve(expression("OceanTile<MarsArea>")))
     }
   }
 
@@ -122,7 +122,7 @@ private class CanonClassesTest {
     val loader = Engine.loadClasses(GameSetup(Canon, "BRM", 2))
 
     fun checkConcreteSubtypeCount(expr: String, size: Int) {
-      val ptype = loader.resolveType(expression(expr))
+      val ptype = loader.resolve(expression(expr))
       assertThat(ptype.allConcreteSubtypes().toList()).hasSize(size)
     }
 
@@ -143,7 +143,7 @@ private class CanonClassesTest {
     checkConcreteSubtypeCount("SpecialTile", (9 * 61) * 2)
 
     // Do this one the long way because the error message is horrific
-    val type = loader.resolveType(expression("Tile"))
+    val type = loader.resolve(expression("Tile"))
     assertThat(type.allConcreteSubtypes().count()).isEqualTo(1407)
   }
 

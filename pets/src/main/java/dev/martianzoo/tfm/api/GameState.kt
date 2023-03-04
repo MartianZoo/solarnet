@@ -38,7 +38,7 @@ interface GameState : ReadOnlyGameState {
 
     override fun evaluate(requirement: Requirement): Boolean = throe()
 
-    override fun resolveType(expression: Expression): Type = throe()
+    override fun resolve(expression: Expression): Type = throe()
 
     private fun throe(): Nothing = throw RuntimeException("this is just a stub")
   }

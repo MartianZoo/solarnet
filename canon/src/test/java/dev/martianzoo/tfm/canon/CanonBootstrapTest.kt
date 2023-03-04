@@ -61,7 +61,7 @@ private class CanonBootstrapTest {
   fun createsExpectedSingletons() {
     val game = Engine.newGame(GameSetup(Canon, "BRMPX", 3))
     val startingComponents: Multiset<Component> =
-        game.getComponents(game.resolveType(COMPONENT.expr))
+        game.getComponents(game.resolve(COMPONENT.expr))
     assertThat(startingComponents.elements).hasSize(startingComponents.size)
 
     val isArea: (Component) -> Boolean = { it.toString().startsWith("[Tharsis_") }
