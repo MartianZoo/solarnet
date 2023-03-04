@@ -14,7 +14,7 @@ internal class BoardToText(private val game: ReadOnlyGameState) {
     val prodMap = lookUpProductionLevels(game, player)
     val resourceMap =
         standardResourceNames(game).associateBy({ it }) {
-          game.countComponents(game.resolveType(it.addArgs(player)))
+          game.count(game.resolveType(it.addArgs(player)))
         }
 
     fun prodAndResource(s: String) =

@@ -7,6 +7,7 @@ import dev.martianzoo.tfm.pets.ast.Effect
 import dev.martianzoo.tfm.pets.ast.Effect.Trigger
 import dev.martianzoo.tfm.pets.ast.From
 import dev.martianzoo.tfm.pets.ast.Instruction
+import dev.martianzoo.tfm.pets.ast.Metric
 import dev.martianzoo.tfm.pets.ast.PetNode
 import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.pets.ast.ScaledTypeExpr
@@ -35,20 +36,27 @@ public abstract class PetTransformer {
             is ClassName -> this
             is TypeExpr -> TypeExpr(x(className), x(arguments), x(refinement), link)
             is ScaledTypeExpr -> ScaledTypeExpr(scalar, x(typeExpr))
+            is Metric ->
+              when (this) {
+                is Metric.Count -> Metric.Count(x(scaledType))
+                is Metric.Max -> Metric.Max(x(metric), maximum)
+              }
+
             is Requirement ->
-                when (this) {
-                  is Requirement.Min -> Requirement.Min(x(scaledType))
-                  is Requirement.Max -> Requirement.Max(x(scaledType))
-                  is Requirement.Exact -> Requirement.Exact(x(scaledType))
-                  is Requirement.Or -> Requirement.Or(x(requirements))
-                  is Requirement.And -> Requirement.And(x(requirements))
-                  is Requirement.Transform -> Requirement.Transform(x(requirement), transformKind)
-                }
+              when (this) {
+                is Requirement.Min -> Requirement.Min(x(scaledType))
+                is Requirement.Max -> Requirement.Max(x(scaledType))
+                is Requirement.Exact -> Requirement.Exact(x(scaledType))
+                is Requirement.Or -> Requirement.Or(x(requirements))
+                is Requirement.And -> Requirement.And(x(requirements))
+                is Requirement.Transform -> Requirement.Transform(x(requirement), transformKind)
+              }
+
             is Instruction ->
                 when (this) {
                   is Instruction.Gain -> Instruction.Gain(x(scaledType), intensity)
                   is Instruction.Remove -> Instruction.Remove(x(scaledType), intensity)
-                  is Instruction.Per -> Instruction.Per(x(instruction), x(scaledType))
+                  is Instruction.Per -> Instruction.Per(x(instruction), x(metric))
                   is Instruction.Gated -> Instruction.Gated(x(gate), x(instruction))
                   is Instruction.Transmute -> Instruction.Transmute(x(from), scalar)
                   is Instruction.Custom -> Instruction.Custom(functionName, x(arguments))
@@ -76,7 +84,7 @@ public abstract class PetTransformer {
             is Cost ->
                 when (this) {
                   is Cost.Spend -> Cost.Spend(x(scaledType))
-                  is Cost.Per -> Cost.Per(x(cost), x(scaledType))
+                  is Cost.Per -> Cost.Per(x(cost), x(metric))
                   is Cost.Or -> Cost.Or(x(costs))
                   is Cost.Multi -> Cost.Multi(x(costs))
                   is Cost.Transform -> Cost.Transform(x(cost), transformKind)

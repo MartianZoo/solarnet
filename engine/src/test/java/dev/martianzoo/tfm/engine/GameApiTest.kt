@@ -5,6 +5,7 @@ import dev.martianzoo.tfm.api.GameSetup
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.data.ChangeRecord.StateChange
 import dev.martianzoo.tfm.pets.ast.Instruction.Companion.instruction
+import dev.martianzoo.tfm.pets.ast.Metric.Companion.metric
 import dev.martianzoo.tfm.pets.ast.Requirement.Companion.requirement
 import dev.martianzoo.tfm.pets.ast.TypeExpr.Companion.typeExpr
 import dev.martianzoo.util.toStrings
@@ -12,7 +13,8 @@ import org.junit.jupiter.api.Test
 
 private class GameApiTest {
 
-  fun Game.count(s: String) = countComponents(te(s))
+  // TODO these are convenient...
+  fun Game.count(s: String) = count(metric(s))
   fun Game.execute(s: String) = execute(instruction(s))
   fun Game.evaluate(s: String) = evaluate(requirement(s))
 

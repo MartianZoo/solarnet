@@ -9,6 +9,7 @@ import dev.martianzoo.tfm.pets.AstTransforms.replaceAll
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.pets.ast.Instruction
+import dev.martianzoo.tfm.pets.ast.Metric
 import dev.martianzoo.tfm.pets.ast.PetNode
 import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.pets.ast.TypeExpr
@@ -39,7 +40,7 @@ class InteractiveSession {
     defaultPlayer = null
   }
 
-  fun count(typeExpr: TypeExpr) = game!!.countComponents(fixTypes(typeExpr))
+  fun count(metric: Metric) = game!!.count(fixTypes(metric))
 
   fun list(typeExpr: TypeExpr): Multiset<TypeExpr> {
     val typeToList: PType = game!!.resolveType(fixTypes(typeExpr))

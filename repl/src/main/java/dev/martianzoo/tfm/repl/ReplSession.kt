@@ -6,6 +6,7 @@ import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.pets.ast.Instruction.Companion.instruction
+import dev.martianzoo.tfm.pets.ast.Metric.Companion.metric
 import dev.martianzoo.tfm.pets.ast.Requirement.Companion.requirement
 import dev.martianzoo.tfm.pets.ast.TypeExpr.Companion.typeExpr
 import dev.martianzoo.util.toStrings
@@ -84,9 +85,9 @@ public class ReplSession(private val authority: Authority) {
           "count" to
               {
                 it?.let { args ->
-                  val typeExpr = session.fixTypes(typeExpr(args))
-                  val count = session.count(typeExpr)
-                  listOf("$count $typeExpr")
+                  val metric = session.fixTypes(metric(args))
+                  val count = session.count(metric)
+                  listOf("$count $metric")
                 } ?: listOf("Usage: count <TypeExpr>")
               },
           "list" to

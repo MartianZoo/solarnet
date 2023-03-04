@@ -1,6 +1,7 @@
 package dev.martianzoo.tfm.api
 
 import dev.martianzoo.tfm.data.ChangeRecord.Cause
+import dev.martianzoo.tfm.pets.ast.Metric
 import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.pets.ast.TypeExpr
 import dev.martianzoo.util.Multiset
@@ -29,7 +30,9 @@ interface GameState : ReadOnlyGameState {
 
     override val setup = GameSetup(authority, "BM", 2)
 
-    override fun countComponents(type: Type): Int = throe()
+    override fun count(type: Type): Int = throe()
+
+    override fun count(metric: Metric): Int = throe()
 
     override fun getComponents(type: Type): Multiset<out Type> = throe()
 

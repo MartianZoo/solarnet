@@ -41,25 +41,23 @@ public data class Action(val cost: Cost?, val instruction: Instruction) : PetNod
     }
 
     // can't do non-prod per prod yet
-    data class Per(val cost: Cost, val scaledType: ScaledTypeExpr) : Cost() {
+    data class Per(val cost: Cost, val metric: Metric) : Cost() {
       init {
-        if (scaledType.scalar == 0) {
-          throw PetException("Can't do something 'per' a non-positive amount")
-        }
         when (cost) {
           is Or,
           is Multi -> throw PetException("Break into separate Per instructions")
+
           is Per -> throw PetException("Might support in future?")
           else -> {}
         }
       }
 
-      override fun visitChildren(visitor: Visitor) = visitor.visit(cost, scaledType)
+      override fun visitChildren(visitor: Visitor) = visitor.visit(cost, metric)
 
-      override fun toString() = "$cost / ${scaledType.toString(forceType = true)}"
+      override fun toString() = "$cost / $metric"
       override fun precedence() = 5
 
-      override fun toInstruction() = Instruction.Per(cost.toInstruction(), scaledType)
+      override fun toInstruction() = Instruction.Per(cost.toInstruction(), metric)
     }
 
     data class Or(var costs: Set<Cost>) : Cost() {
@@ -112,8 +110,9 @@ public data class Action(val cost: Cost?, val instruction: Instruction) : PetNod
 
           val perCost =
               atomCost and
-              optional(skipChar('/') and scaledType) map { (cost, sat) ->
-                if (sat == null) cost else Per(cost, sat)
+              optional(skipChar('/') and
+              Metric.parser()) map { (cost, met) ->
+                if (met == null) cost else Per(cost, met)
               }
 
           val orCost =

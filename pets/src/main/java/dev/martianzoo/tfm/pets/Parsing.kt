@@ -20,6 +20,7 @@ import dev.martianzoo.tfm.pets.ast.Action.Cost
 import dev.martianzoo.tfm.pets.ast.Effect
 import dev.martianzoo.tfm.pets.ast.Effect.Trigger
 import dev.martianzoo.tfm.pets.ast.Instruction
+import dev.martianzoo.tfm.pets.ast.Metric
 import dev.martianzoo.tfm.pets.ast.PetNode
 import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.pets.ast.ScaledTypeExpr
@@ -136,14 +137,16 @@ public object Parsing {
 
   private val parserGroup by lazy {
     val pgb = ParserGroup.Builder<PetNode>()
-    pgb.publish(TypeExpr.parser())
-    pgb.publish(ScaledTypeExpr.parser())
-    pgb.publish(Requirement.parser())
-    pgb.publish(Instruction.parser())
-    pgb.publish(Cost.parser())
     pgb.publish(Action.parser())
-    pgb.publish(Trigger.parser())
+    pgb.publish(Cost.parser())
     pgb.publish(Effect.parser())
+    pgb.publish(Instruction.parser())
+    pgb.publish(Metric.parser())
+    pgb.publish(Requirement.parser())
+    pgb.publish(ScaledTypeExpr.parser())
+    pgb.publish(Trigger.parser())
+    pgb.publish(TypeExpr.parser())
+
     pgb.finish()
   }
 

@@ -4,6 +4,7 @@ import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.tfm.api.GameSetup
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.pets.ast.Instruction.Companion.instruction
+import dev.martianzoo.tfm.pets.ast.Metric.Companion.metric
 import dev.martianzoo.tfm.pets.ast.Requirement.Companion.requirement
 import dev.martianzoo.tfm.pets.ast.TypeExpr.Companion.typeExpr
 import org.junit.jupiter.api.Test
@@ -35,7 +36,7 @@ private class InteractiveSessionTest {
     session.execute(instruction("3 Heat!"))
     session.execute(instruction("4 Heat."))
     session.execute(instruction("-9 Heat."))
-    assertThat(session.count(typeExpr("Heat"))).isEqualTo(0)
+    assertThat(session.count(metric("Heat"))).isEqualTo(0)
   }
 
   @Test
@@ -54,14 +55,14 @@ private class InteractiveSessionTest {
     session.execute(instruction("3 Heat"))
     session.execute(instruction("4 Heat"))
     session.execute(instruction("-6 Heat"))
-    assertThat(session.count(typeExpr("Heat"))).isEqualTo(1)
+    assertThat(session.count(metric("Heat"))).isEqualTo(1)
 
     val count = session.game!!.changeLogFull().size
     session.rollBackToBefore(count)
-    assertThat(session.count(typeExpr("Heat"))).isEqualTo(1)
+    assertThat(session.count(metric("Heat"))).isEqualTo(1)
 
     session.rollBackToBefore(count - 2)
-    assertThat(session.count(typeExpr("Heat"))).isEqualTo(3)
+    assertThat(session.count(metric("Heat"))).isEqualTo(3)
   }
 
   @Test
@@ -74,5 +75,24 @@ private class InteractiveSessionTest {
     session.execute(instruction("Ants"))
     session.execute(instruction("3 Microbe<Ants>"))
     assertThrows<Exception> { session.execute(instruction("-Ants")) }
+  }
+
+  @Test
+  fun counting() {
+    val session = InteractiveSession()
+    session.newGame(GameSetup(Canon, "MB", 2))
+    session.becomePlayer(2)
+    session.execute(instruction("42 Heat"))
+    assertThat(session.count(metric("Heat"))).isEqualTo(42)
+    assertThat(session.count(metric("4 Heat"))).isEqualTo(10)
+    assertThat(session.count(metric("42 Heat"))).isEqualTo(1)
+    assertThat(session.count(metric("43 Heat"))).isEqualTo(0)
+    assertThat(session.count(metric("Heat MAX 50"))).isEqualTo(42)
+    assertThat(session.count(metric("Heat MAX 42"))).isEqualTo(42)
+    assertThat(session.count(metric("Heat MAX 41"))).isEqualTo(41)
+    assertThat(session.count(metric("Heat MAX 1"))).isEqualTo(1)
+    assertThat(session.count(metric("Heat MAX 0"))).isEqualTo(0)
+    assertThat(session.count(metric("4 Heat MAX 10"))).isEqualTo(10)
+    assertThat(session.count(metric("4 Heat MAX 9"))).isEqualTo(9)
   }
 }

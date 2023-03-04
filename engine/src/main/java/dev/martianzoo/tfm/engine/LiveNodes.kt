@@ -16,27 +16,36 @@ import dev.martianzoo.tfm.pets.ast.Instruction.Intensity
 import dev.martianzoo.tfm.pets.ast.Instruction.Intensity.AMAP
 import dev.martianzoo.tfm.pets.ast.Instruction.Intensity.MANDATORY
 import dev.martianzoo.tfm.pets.ast.Instruction.Intensity.OPTIONAL
+import dev.martianzoo.tfm.pets.ast.Metric
+import dev.martianzoo.tfm.pets.ast.Metric.Count
 import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.pets.ast.Requirement.Exact
-import dev.martianzoo.tfm.pets.ast.Requirement.Max
 import dev.martianzoo.tfm.pets.ast.Requirement.Min
 import dev.martianzoo.tfm.pets.ast.ScaledTypeExpr
+import kotlin.math.min
 
 internal object LiveNodes {
+  data class LiveMetric(val type: Type, val divisor: Int = 1, val max: Int = Int.MAX_VALUE) {
+    fun count(game: GameState) = min(game.count(type) / divisor, max)
+  }
+
+  fun from(met: Metric, game: GameState): LiveMetric =
+      when (met) {
+        is Count -> LiveMetric(game.resolveType(met.scaledType.typeExpr), met.scaledType.scalar)
+        is Metric.Max -> from(met.metric, game).copy(max = met.maximum)
+      }
+
   fun from(ins: Instruction, game: GameState): LiveInstruction {
     return when (ins) {
       is Instruction.Change ->
-          Change(
-              ins.count,
-              ins.intensity ?: MANDATORY,
-              removing = ins.removing?.let { game.resolveType(it) },
-              gaining = ins.gaining?.let { game.resolveType(it) },
-          )
-      is Instruction.Per ->
-          Per(
-              game.resolveType(ins.scaledType.typeExpr),
-              ins.scaledType.scalar,
-              from(ins.instruction, game))
+        Change(
+            ins.count,
+            ins.intensity ?: MANDATORY,
+            removing = ins.removing?.let { game.resolveType(it) },
+            gaining = ins.gaining?.let { game.resolveType(it) },
+        )
+
+      is Instruction.Per -> Per(from(ins.metric, game), from(ins.instruction, game))
       is Instruction.Gated -> Gated(from(ins.gate, game), from(ins.instruction, game))
       is Instruction.Custom ->
           Custom(
@@ -76,13 +85,10 @@ internal object LiveNodes {
     }
   }
 
-  class Per(val ptype: Type, private val unit: Int = 1, val instruction: LiveInstruction) :
-      LiveInstruction() {
+  class Per(val metric: LiveMetric, val instruction: LiveInstruction) : LiveInstruction() {
 
-    override fun times(factor: Int) = Per(ptype, unit, instruction * factor)
-
-    override fun execute(game: GameState) =
-        (instruction * (game.countComponents(ptype) / unit)).execute(game)
+    override fun times(factor: Int) = Per(metric, instruction * factor)
+    override fun execute(game: GameState) = (instruction * metric.count(game)).execute(game)
   }
 
   class Gated(private val gate: LiveRequirement, val instruction: LiveInstruction) :
@@ -121,11 +127,11 @@ internal object LiveNodes {
 
   fun from(reqt: Requirement, game: GameState): LiveRequirement {
     fun count(scaledType: ScaledTypeExpr) =
-        game.countComponents(game.resolveType(scaledType.typeExpr))
+        game.count(game.resolveType(scaledType.typeExpr))
 
     return when (reqt) {
       is Min -> LiveRequirement { count(reqt.scaledType) >= reqt.scaledType.scalar }
-      is Max -> LiveRequirement { count(reqt.scaledType) <= reqt.scaledType.scalar }
+      is Requirement.Max -> LiveRequirement { count(reqt.scaledType) <= reqt.scaledType.scalar }
       is Exact -> LiveRequirement { count(reqt.scaledType) == reqt.scaledType.scalar }
       is Requirement.Or -> {
         val reqts = reqt.requirements.toList().map { from(it, game) }

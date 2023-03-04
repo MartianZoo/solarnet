@@ -16,6 +16,7 @@ import dev.martianzoo.tfm.pets.ast.From.SimpleFrom
 import dev.martianzoo.tfm.pets.ast.From.TypeAsFrom
 import dev.martianzoo.tfm.pets.ast.Instruction
 import dev.martianzoo.tfm.pets.ast.Instruction.Intensity
+import dev.martianzoo.tfm.pets.ast.Metric
 import dev.martianzoo.tfm.pets.ast.PetNode
 import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.pets.ast.ScaledTypeExpr
@@ -49,6 +50,15 @@ internal class PetGenerator(scaling: (Int) -> Double) :
       register {
         scaledType(choose(0, 1, 1, 1, 5, 11), choose(1 to MEGACREDIT.type, 3 to recurse()))
       }
+
+      val metricTypes =
+          multiset(
+              4 to Metric.Count::class,
+              1 to Metric.Max::class,
+          )
+      register(Metric::class) { recurse(choose(metricTypes)) }
+      register { Metric.Count(scaledType = recurse()) }
+      register { Metric.Max(metric = recurse(), maximum = choose(5, 11)) }
 
       val requirementTypes =
           multiset(

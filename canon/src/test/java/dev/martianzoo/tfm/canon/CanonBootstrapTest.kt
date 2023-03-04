@@ -5,7 +5,7 @@ import dev.martianzoo.tfm.api.GameSetup
 import dev.martianzoo.tfm.api.SpecialClassNames.COMPONENT
 import dev.martianzoo.tfm.engine.Component
 import dev.martianzoo.tfm.engine.Engine
-import dev.martianzoo.tfm.pets.ast.TypeExpr.Companion.typeExpr
+import dev.martianzoo.tfm.pets.ast.Metric.Companion.metric
 import dev.martianzoo.tfm.pets.ast.classNames
 import dev.martianzoo.util.Multiset
 import dev.martianzoo.util.toSetStrict
@@ -29,15 +29,14 @@ private class CanonBootstrapTest {
     assertThat(loader.allClasses.classNames()).containsExactlyElementsIn(expected)
   }
 
-  val regex =
-      Regex("(Hellas|Elysium|Player5|Camp|Row|Venus|Area2|Floater|Dirigible|AirScrap|Card247).*")
+  val regex = Regex("(Hellas|Elysium|Player5|Camp|Row|Venus|Area2|AirScrap|Card247).*")
 
   @Test
   fun classCounts() {
     val game = Engine.newGame(GameSetup(Canon, "BRM", 3))
 
     fun checkCount(count: Int, type: String) {
-      assertThat(game.countComponents(typeExpr(type))).isEqualTo(count)
+      assertThat(game.count(metric(type))).isEqualTo(count)
     }
 
     checkCount(1, "Class<Class>")
@@ -53,9 +52,9 @@ private class CanonBootstrapTest {
     checkCount(12, "Class<WaterArea>")
     checkCount(63, "Class<Area>")
 
-    assertThat(game.countComponents(typeExpr("Class<CardFront>"))).isGreaterThan(200)
-    assertThat(game.countComponents(typeExpr("Class<Component>"))).isGreaterThan(300)
-    assertThat(game.countComponents(typeExpr("Class"))).isGreaterThan(300)
+    assertThat(game.count(metric("Class<CardFront>"))).isGreaterThan(200)
+    assertThat(game.count(metric("Class<Component>"))).isGreaterThan(300)
+    assertThat(game.count(metric("Class"))).isGreaterThan(300)
   }
 
   @Test

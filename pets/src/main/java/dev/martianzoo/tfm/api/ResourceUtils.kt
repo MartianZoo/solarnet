@@ -20,7 +20,7 @@ object ResourceUtils {
   fun lookUpProductionLevels(game: ReadOnlyGameState, player: TypeExpr): Map<ClassName, Int> =
       standardResourceNames(game).associateWith {
         val type = game.resolveType(PRODUCTION.addArgs(player, CLASS.addArgs(it)))
-        val rawCount = game.countComponents(type)
+        val rawCount = game.count(type)
         if (it == MEGACREDIT) {
           rawCount - 5
         } else {

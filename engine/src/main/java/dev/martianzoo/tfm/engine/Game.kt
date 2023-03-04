@@ -7,6 +7,7 @@ import dev.martianzoo.tfm.data.ChangeRecord
 import dev.martianzoo.tfm.data.ChangeRecord.Cause
 import dev.martianzoo.tfm.data.ChangeRecord.StateChange
 import dev.martianzoo.tfm.pets.ast.Instruction
+import dev.martianzoo.tfm.pets.ast.Metric
 import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.pets.ast.TypeExpr
 import dev.martianzoo.tfm.types.PClassLoader
@@ -40,9 +41,9 @@ public class Game(
 
   override fun evaluate(requirement: Requirement) = LiveNodes.from(requirement, this).evaluate(this)
 
-  override fun countComponents(type: Type): Int = components.count(resolveType(type))
+  override fun count(type: Type): Int = components.count(resolveType(type))
 
-  fun countComponents(typeExpr: TypeExpr): Int = countComponents(resolveType(typeExpr))
+  override fun count(metric: Metric): Int = LiveNodes.from(metric, this).count(this)
 
   override fun getComponents(type: Type): Multiset<Type> =
       components.getAll(resolveType(type)).map { it.type }

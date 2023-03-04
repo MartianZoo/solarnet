@@ -1,5 +1,6 @@
 package dev.martianzoo.tfm.api
 
+import dev.martianzoo.tfm.pets.ast.Metric
 import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.pets.ast.TypeExpr
 import dev.martianzoo.util.Multiset
@@ -9,7 +10,9 @@ interface ReadOnlyGameState {
   val setup: GameSetup
   val authority: Authority
 
-  fun countComponents(type: Type): Int
+  fun count(metric: Metric): Int
+
+  fun count(type: Type): Int
 
   fun getComponents(type: Type): Multiset<out Type>
 

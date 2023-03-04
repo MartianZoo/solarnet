@@ -82,25 +82,22 @@ public sealed class Instruction : PetNode() {
     override fun precedence() = if (from is SimpleFrom) 7 else 10
   }
 
-  data class Per(val instruction: Instruction, val scaledType: ScaledTypeExpr) : Instruction() {
-    // TODO Metric
+  data class Per(val instruction: Instruction, val metric: Metric) : Instruction() {
     init {
-      if (scaledType.scalar == 0) {
-        throw PetException("Can't do something 'per' zero")
-      }
       when (instruction) {
         is Gain,
         is Remove,
         is Transmute -> {}
+
         else -> throw PetException("Per can only contain gain/remove/transmute") // TODO more
       }
     }
 
-    override fun visitChildren(visitor: Visitor) = visitor.visit(scaledType, instruction)
+    override fun visitChildren(visitor: Visitor) = visitor.visit(metric, instruction)
 
     override fun precedence() = 8
 
-    override fun toString() = "$instruction / ${scaledType.toString(forceType = true)}"
+    override fun toString() = "$instruction / $metric"
   }
 
   data class Gated(val gate: Requirement, val instruction: Instruction) : Instruction() {
@@ -225,8 +222,8 @@ public sealed class Instruction : PetNode() {
 
         val maybePer: Parser<Instruction> =
             perable and
-            optional(skipChar('/') and scaledType) map { (instr, sat) ->
-              if (sat == null) instr else Per(instr, sat)
+            optional(skipChar('/') and Metric.parser()) map { (instr, metric) ->
+              if (metric == null) instr else Per(instr, metric)
             }
 
         val transform: Parser<Transform> =

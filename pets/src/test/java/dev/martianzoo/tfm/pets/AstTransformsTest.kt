@@ -18,6 +18,7 @@ import dev.martianzoo.tfm.pets.ast.Effect.Trigger
 import dev.martianzoo.tfm.pets.ast.Instruction
 import dev.martianzoo.tfm.pets.ast.Instruction.Companion.instruction
 import dev.martianzoo.tfm.pets.ast.Instruction.Gain
+import dev.martianzoo.tfm.pets.ast.Metric.Count
 import dev.martianzoo.tfm.pets.ast.PetNode
 import dev.martianzoo.tfm.pets.ast.ScaledTypeExpr.Companion.scaledType
 import dev.martianzoo.tfm.pets.ast.TypeExpr
@@ -162,7 +163,7 @@ private class AstTransformsTest {
                     Instruction.Transform(
                         Instruction.Per(
                             Gain(scaledType(1, cn("Steel").type)),
-                            scaledType(5, cn("PowerTag").type)),
+                            Count(scaledType(5, cn("PowerTag").type))),
                         "HAHA")),
                 false))
   }

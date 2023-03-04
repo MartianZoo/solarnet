@@ -3966,6 +3966,20 @@
       "projectKind": "ACTIVE"
     },
 
+    // Saturn Surfing
+    {
+      "id": "X11",
+      "bundle": "X",
+      "deck": "PROJECT",
+      "tags": [ "JovianTag", "EarthTag" ],
+      "immediate": "Floater<This> / EarthTag",
+      "actions": [ "Floater<This> -> 1 / Floater<This> MAX 4, 1" ],
+      "effects": [ "End: VictoryPoint" ],
+      "resourceType": "Floater",
+      "cost": 13,
+      "projectKind": "ACTIVE"
+    },
+
     // Stanford Torus
     {
       "id": "X12",
