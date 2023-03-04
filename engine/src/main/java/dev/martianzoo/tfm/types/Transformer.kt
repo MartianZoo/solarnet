@@ -1,6 +1,7 @@
 package dev.martianzoo.tfm.types
 
 import dev.martianzoo.tfm.api.SpecialClassNames.CLASS
+import dev.martianzoo.tfm.api.SpecialClassNames.OWNED
 import dev.martianzoo.tfm.api.SpecialClassNames.OWNER
 import dev.martianzoo.tfm.api.SpecialClassNames.STANDARD_RESOURCE
 import dev.martianzoo.tfm.api.SpecialClassNames.THIS
@@ -19,8 +20,10 @@ import dev.martianzoo.tfm.pets.ast.classNames
 import dev.martianzoo.tfm.types.Dependency.Key
 import dev.martianzoo.util.overlayMaps
 
-/** Offers various functions for transforming [PetNode] subtrees that depend on a [PClassLoader]. */
-public class LiveTransformer internal constructor(val loader: PClassLoader) {
+/**
+ * Offers various functions, for transforming [PetNode] subtrees, that depend on a [PClassLoader].
+ */
+public class Transformer internal constructor(val loader: PClassLoader) {
   /**
    * Resolves `PROD[...]` regions by replacing, for example, `Steel<Player2>` with
    * `Production<Player2, Class<Steel>>`. This form of the function uses [loader] to look up the
@@ -29,11 +32,14 @@ public class LiveTransformer internal constructor(val loader: PClassLoader) {
   public fun <P : PetNode> deprodify(node: P): P =
       AstTransforms.deprodify(node, subclassNames(STANDARD_RESOURCE))
 
-  public fun fixEffectForUnownedContext(fx: Effect) =
-      if (OWNER in fx.instruction && OWNER !in fx.trigger) {
-        fx.copy(trigger = ByTrigger(fx.trigger, OWNER))
-      } else {
+  /** Sanitizes [fx] so that it can be attached to a context object that is not Owned. */
+  public fun fixEffectForUnownedContext(fx: Effect, pc: PClass): Effect =
+      if (OWNED in pc.allSuperclasses.classNames() ||
+          OWNER !in fx.instruction ||
+          OWNER in fx.trigger) {
         fx
+      } else {
+        fx.copy(trigger = ByTrigger(fx.trigger, OWNER))
       }
 
   private fun subclassNames(parent: ClassName): Set<ClassName> =
@@ -45,17 +51,9 @@ public class LiveTransformer internal constructor(val loader: PClassLoader) {
    * `GreeneryTile<Owner, LandArea(HAS? Neighbor<OwnedTile<Owner>>)>`. (Search `DEFAULT` in any
    * `*.pets` files for other examples.)
    */
-  public fun <P : PetNode> applyGainRemoveDefaults(
-      node: P,
-      contextComponent: TypeExpr = THIS.type,
-  ): P {
-    return GainRemoveDefaultApplier(contextComponent).transform(node)
-  }
-  public fun <P : PetNode> applyAllCasesDefaults(
-      node: P,
-      contextComponent: TypeExpr = THIS.type,
-  ): P {
-    return AllCasesDefaultApplier(contextComponent).transform(node)
+  public fun <P : PetNode> insertDefaults(node: P, contextComponent: TypeExpr = THIS.type): P {
+    val step = GainRemoveDefaultApplier(contextComponent).transform(node)
+    return AllCasesDefaultApplier(contextComponent).transform(step)
   }
 
   private inner class GainRemoveDefaultApplier(val context: TypeExpr) : PetTransformer() {
@@ -68,7 +66,7 @@ public class LiveTransformer internal constructor(val loader: PClassLoader) {
                 return node // don't descend
               } else {
                 val defaults: Defaults = loader.allDefaults[original.className]!!
-                val fixed = insertDefaults(original, defaults.gainOnlyDependencies, context)
+                val fixed = insertDefaultsIntoType(original, defaults.gainOnlyDependencies, context)
                 val scaledType = ScaledTypeExpr(node.count, fixed)
                 Gain(scaledType, node.intensity ?: defaults.gainIntensity)
               }
@@ -79,7 +77,8 @@ public class LiveTransformer internal constructor(val loader: PClassLoader) {
                 return node // don't descend
               } else {
                 val defaults: Defaults = loader.allDefaults[original.className]!!
-                val fixed = insertDefaults(original, defaults.removeOnlyDependencies, context)
+                val fixed =
+                    insertDefaultsIntoType(original, defaults.removeOnlyDependencies, context)
                 val scaledType = ScaledTypeExpr(node.count, fixed)
                 Remove(scaledType, node.intensity ?: defaults.removeIntensity)
               }
@@ -98,7 +97,8 @@ public class LiveTransformer internal constructor(val loader: PClassLoader) {
       if (leaveItAlone(node)) return node
 
       val defaults: Defaults = loader.allDefaults[node.className]!!
-      val result = insertDefaults(transformChildren(node), defaults.allCasesDependencies, context)
+      val result =
+          insertDefaultsIntoType(transformChildren(node), defaults.allCasesDependencies, context)
 
       @Suppress("UNCHECKED_CAST") return result as P
     }
@@ -107,7 +107,7 @@ public class LiveTransformer internal constructor(val loader: PClassLoader) {
   }
 
   // only has to modify the args/specs
-  internal fun insertDefaults(
+  internal fun insertDefaultsIntoType(
       original: TypeExpr, // SpecialTile<Player2>
       defaultDeps: DependencyMap, // Tile_0=LandArea
       contextCpt: TypeExpr = THIS.type,

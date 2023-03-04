@@ -2,7 +2,6 @@ package dev.martianzoo.tfm.types
 
 import dev.martianzoo.tfm.api.SpecialClassNames.CLASS
 import dev.martianzoo.tfm.api.SpecialClassNames.COMPONENT
-import dev.martianzoo.tfm.api.SpecialClassNames.OWNED
 import dev.martianzoo.tfm.api.SpecialClassNames.THIS
 import dev.martianzoo.tfm.data.ClassDeclaration
 import dev.martianzoo.tfm.pets.PetTransformer
@@ -198,11 +197,8 @@ internal constructor(
         .map { effect ->
           val links = effect.linkages
           var fx = effect.effect
-          fx = xer.applyGainRemoveDefaults(fx, thiss)
-          fx = xer.applyAllCasesDefaults(fx, thiss)
-          if (OWNED !in allSuperclasses.classNames()) {
-            fx = xer.fixEffectForUnownedContext(fx)
-          }
+          fx = xer.insertDefaults(fx, thiss)
+          fx = xer.fixEffectForUnownedContext(fx, this)
           fx = xer.deprodify(fx)
           fx
         }

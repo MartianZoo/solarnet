@@ -79,8 +79,7 @@ class InteractiveSession {
     val xer = game!!.loader.transformer
     var result = node
     // TODO consolidate
-    result = xer.applyGainRemoveDefaults(result)
-    result = xer.applyAllCasesDefaults(result)
+    result = xer.insertDefaults(result)
     if (defaultPlayer != null) {
       result = result.replaceAll(OWNER.type, defaultPlayer!!.type) // TODO
     }

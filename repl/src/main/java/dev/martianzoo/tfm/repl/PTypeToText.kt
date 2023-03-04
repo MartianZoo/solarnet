@@ -56,9 +56,9 @@ object PTypeToText { // TODO refactor to ClassInfo / TypeInfo type dealies
 
     val concSubs = sequenceCount(ptype.allConcreteSubtypes(), 100)
 
-    val allCases = loader.transformer.applyGainRemoveDefaults(expr)
-    val gain = loader.transformer.applyGainRemoveDefaults(Gain(ScaledTypeExpr(1, expr)))
-    val remove = loader.transformer.applyGainRemoveDefaults(Remove(ScaledTypeExpr(1, expr)))
+    val allCases = loader.transformer.insertDefaults(expr)
+    val gain = loader.transformer.insertDefaults(Gain(ScaledTypeExpr(1, expr)))
+    val remove = loader.transformer.insertDefaults(Remove(ScaledTypeExpr(1, expr)))
 
     // TODO linkages?
     val typeStuff = """

@@ -8,7 +8,7 @@ import dev.martianzoo.tfm.pets.ast.Instruction.Companion.instruction
 import dev.martianzoo.tfm.pets.ast.TypeExpr
 import org.junit.jupiter.api.Test
 
-class LiveTransformerTest {
+class TransformerTest {
   val xer = PClassLoader(Canon).loadEverything().transformer
 
   @Test
@@ -44,8 +44,7 @@ class LiveTransformerTest {
       expected: String,
       context: TypeExpr = THIS.type
   ) {
-    val step1 = xer.applyGainRemoveDefaults(instruction(original), context)
-    val step2 = xer.applyAllCasesDefaults(step1, context)
-    assertThat(step2.toString()).isEqualTo(expected)
+    val xfd = xer.insertDefaults(instruction(original), context)
+    assertThat(xfd.toString()).isEqualTo(expected)
   }
 }

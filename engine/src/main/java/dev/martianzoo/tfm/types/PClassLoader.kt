@@ -168,7 +168,7 @@ public class PClassLoader(
 
   private fun decl(cn: ClassName) = authority.classDeclaration(cn)
 
-  public val transformer: LiveTransformer by lazy { LiveTransformer(this) }
+  public val transformer: Transformer by lazy { Transformer(this) }
 
   public fun checkAllTypes(node: PetNode) =
       node.visitDescendants {
