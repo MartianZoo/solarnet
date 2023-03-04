@@ -36,10 +36,12 @@ import dev.martianzoo.util.toSetStrict
  */
 public class CardDefinition(data: CardData) : Definition {
   /**
-   * This card's unique id string, prefixed with `C` (for "card"). A number of id ranges, such as
-   * `"C000"`-`"C999"`, are reserved for canon (officially published) cards. (TODO)
+   * This card's unique id string. A number of id ranges, such as `"000"`-`"999"`, are reserved for
+   * canon (officially published) cards. (TODO)
    */
-  override val id: ClassName = cn("C${data.id}")
+  val id: String by data::id
+
+  override val shortName: ClassName = cn("C$id")
 
   override val className: ClassName = englishHack(id)
 
@@ -56,7 +58,7 @@ public class CardDefinition(data: CardData) : Definition {
    * The id of the card this card replaces, if any. For example, the `"X31"` Deimos Down replaces
    * the `"039"` Deimos Down.
    */
-  public val replaces: String? = data.replaces // TODO needs to exist?
+  public val replaces: String? by data::replaces // TODO needs to exist?
 
   public val projectInfo: ProjectInfo? = if (deck == PROJECT) ProjectInfo(data) else null
 
@@ -136,7 +138,7 @@ public class CardDefinition(data: CardData) : Definition {
 
     ClassDeclaration(
         className = className,
-        id = id,
+        shortName = shortName,
         abstract = false,
         supertypes = supertypes,
         effectsIn = allEffects.toSetStrict(),

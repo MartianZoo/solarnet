@@ -64,7 +64,7 @@ private class CardDefinitionTest {
   @Test
   fun realCardDefinitionFromApi() {
     val birds = CardDefinition(birds)
-    assertThat(birds.id).isEqualTo(cn("C072"))
+    assertThat(birds.shortName).isEqualTo(cn("C072"))
     assertThat(birds.bundle).isEqualTo("B")
     assertThat(birds.deck).isEqualTo(PROJECT)
     assertThat(birds.tags.toStrings()).containsExactly("AnimalTag")
@@ -162,7 +162,7 @@ private class CardDefinitionTest {
   fun testRoundTripForAllCanonCardData() {
     val cardRawData: Map<String, CardData> = Canon.cardRawData.associateBy { "C${it.id}" }
     Canon.cardDefinitions.forEach { card ->
-      val data = cardRawData["${card.id}"]!!
+      val data = cardRawData["${card.shortName}"]!!
       checkRoundTrip(data.tags, card.tags)
       checkRoundTrip(listOfNotNull(data.immediate), listOfNotNull(card.immediate))
       checkRoundTrip(data.actions, card.actions)

@@ -184,7 +184,7 @@ internal object ClassDeclarationParsers : PetParser() {
     ) : this(
         ClassDeclaration(
             className = className,
-            id = shortName ?: className,
+            shortName = shortName ?: className,
             dependencies = dependencies,
             supertypes = supertypes.toSetStrict(),
             topInvariant = topInvariant))

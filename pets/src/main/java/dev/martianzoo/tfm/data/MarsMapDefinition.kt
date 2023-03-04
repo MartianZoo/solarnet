@@ -16,11 +16,11 @@ data class MarsMapDefinition(
     override val bundle: String,
     val areas: Grid<AreaDefinition>
 ) : Definition {
-  override val id by ::className
+  override val shortName by ::className
   override val asClassDeclaration =
       ClassDeclaration(
           className = className,
-          id = id,
+          shortName = shortName,
           abstract = false,
           supertypes = setOf(MARS_MAP.expr),
       )
@@ -62,14 +62,14 @@ data class MarsMapDefinition(
     override val asClassDeclaration by lazy {
       ClassDeclaration(
           className = className,
-          id = id,
+          shortName = shortName,
           abstract = false,
           supertypes = setOf(kind.expr),
           effectsIn = bonus?.let { setOf(Effect(trigger, it, false)) } ?: setOf(),
       )
     }
 
-    override val id =
+    override val shortName =
         if (row > 9 || column > 9) {
           cn("${bundle}_${row}_$column")
         } else {

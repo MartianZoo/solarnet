@@ -44,7 +44,7 @@ internal constructor(
   /**
    * A short name for this class, such as `"CT"` for `"CityTile"`; is often the same as [className].
    */
-  public val id: ClassName by declaration::id
+  public val shortName: ClassName by declaration::shortName
 
   /**
    * If true, all types with this as their root are abstract, even when all dependencies are

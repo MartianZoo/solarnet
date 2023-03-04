@@ -35,7 +35,6 @@ internal sealed class Dependency {
   }
 
   /** Any [Dependency] except for the case covered by [ClassDependency] below. */
-  // TODO rename bound?
   data class TypeDependency(override val key: Key, val bound: PType) : Dependency() {
     init {
       require(key != ClassDependency.KEY)

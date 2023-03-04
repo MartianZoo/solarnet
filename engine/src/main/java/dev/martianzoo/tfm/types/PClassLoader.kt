@@ -30,24 +30,29 @@ public class PClassLoader(
     private val autoLoadDependencies: Boolean = false,
 ) {
   /** The `Component` class, which is the root of the class hierarchy. */
-  public val componentClass: PClass = PClass(decl(COMPONENT), this, listOf()).also {
-    require(it.abstract)
-    require(it.allDependencyKeys.none())
-  }
+  public val componentClass: PClass =
+      PClass(decl(COMPONENT), this, listOf()).also {
+        require(it.abstract)
+        require(it.allDependencyKeys.none())
+      }
 
   /** The `Class` class, the other class that is required to exist. */
-  public val classClass: PClass = PClass(decl(CLASS), this, listOf(componentClass)).also {
-    require(!it.abstract)
-    require(it.baseDependencies.dependencies.single().expression == COMPONENT.expr)
-  }
+  public val classClass: PClass =
+      PClass(decl(CLASS), this, listOf(componentClass)).also {
+        require(!it.abstract)
+        require(it.baseDependencies.dependencies.single().expression == COMPONENT.expr)
+      }
 
   private val loadedClasses =
       mutableMapOf<ClassName, PClass?>(COMPONENT to componentClass, CLASS to classClass)
 
   // TODO maybe go back to the operator
-  /** Returns the [PClass] whose name or id is [nameOrId], or throws an exception. */
-  public fun getClass(nameOrId: ClassName): PClass =
-      loadedClasses[nameOrId] ?: error("no class loaded with id or name $nameOrId")
+  /**
+   * Returns the [PClass] whose [PClass.className] or [PClass.shortName] is [name], or throws an
+   * exception.
+   */
+  public fun getClass(name: ClassName): PClass =
+      loadedClasses[name] ?: error("no class loaded with className or shortName $name")
 
   /** Returns the corresponding [PType] to [type] (possibly [type] itself). */
   public fun resolve(type: Type): PType = type as? PType ?: resolve(type.expression)
@@ -80,15 +85,18 @@ public class PClassLoader(
 
   // LOADING
 
-  /** Returns the class whose id or name is [idOrName], loading it first if necessary. */
-  public fun load(idOrName: ClassName): PClass =
+  /**
+   * Returns the class whose [PClass.className] or [PClass.shortName] is [name], loading it first if
+   * necessary.
+   */
+  public fun load(name: ClassName): PClass =
       when {
-        frozen -> getClass(idOrName)
+        frozen -> getClass(name)
         autoLoadDependencies -> {
-          autoLoad(listOf(idOrName))
-          getClass(idOrName)
+          autoLoad(listOf(name))
+          getClass(name)
         }
-        else -> loadSingle(idOrName)
+        else -> loadSingle(name)
       }
 
   /** Equivalent to calling [load] on every class name in [idsAndNames]. */
@@ -139,15 +147,15 @@ public class PClassLoader(
     require(!frozen) { "Too late, this table is frozen!" }
 
     require(decl.className !in loadedClasses) { decl.className }
-    require(decl.id !in loadedClasses) { decl.id }
+    require(decl.shortName !in loadedClasses) { decl.shortName }
 
     // signal with `null` that loading is in process, so we can detect infinite recursion
     loadedClasses[decl.className] = null
-    loadedClasses[decl.id] = null
+    loadedClasses[decl.shortName] = null
 
     val pclass = PClass(decl, this)
     loadedClasses[decl.className] = pclass
-    loadedClasses[decl.id] = pclass
+    loadedClasses[decl.shortName] = pclass
     return pclass
   }
 

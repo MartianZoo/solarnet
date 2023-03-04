@@ -26,7 +26,7 @@ object PTypeToText { // TODO refactor to ClassInfo / TypeInfo type dealies
           else -> subs.take(6).joinToString() + " (${subs.size - 6} others)"
         }
 
-    val nameId = "${pclass.className}" + "[${pclass.id}]".iff(pclass.id != pclass.className)
+    val names = "${pclass.className}" + "[${pclass.shortName}]".iff(pclass.shortName != pclass.className)
 
     fun sequenceCount(seq: Sequence<Any>, limit: Int): String {
       val partial = seq.take(limit + 1).count()
@@ -38,7 +38,7 @@ object PTypeToText { // TODO refactor to ClassInfo / TypeInfo type dealies
     // BIGTODO invariants seemingly not working?
     // TODO show linkages we already have
     val classStuff = """
-      Class $nameId:
+      Class $names:
           subclasses:  $substring
           invariants:  ${
       pclass.invariants.joinToString("""

@@ -42,7 +42,7 @@ private class ClassDeclarationTest {
     val gain = cn("Abc").expr
     val univ = cn("Xyz").expr
 
-    assertThat(decl.id).isEqualTo(foo)
+    assertThat(decl.shortName).isEqualTo(foo)
     assertThat(decl.className).isEqualTo(foo)
     assertThat(decl.abstract).isTrue()
     assertThat(decl.dependencies.map { it.expression }).containsExactly(dep)

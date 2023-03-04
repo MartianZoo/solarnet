@@ -8,7 +8,7 @@ import dev.martianzoo.tfm.pets.ast.Action
 import dev.martianzoo.tfm.pets.ast.ClassName
 
 data class StandardActionDefinition(
-    override val id: ClassName,
+    override val shortName: ClassName,
     override val bundle: String,
     val project: Boolean,
     val action: Action,
@@ -17,13 +17,13 @@ data class StandardActionDefinition(
     require(bundle.isNotEmpty())
   }
 
-  override val className = englishHack(id)
+  override val className = englishHack(shortName.toString())
 
   override val asClassDeclaration by lazy {
     val kind = if (project) STANDARD_PROJECT else STANDARD_ACTION
     ClassDeclaration(
         className = className,
-        id = id,
+        shortName = shortName,
         abstract = false,
         supertypes = setOf(kind.expr),
         effectsIn = actionListToEffects(listOf(action)),

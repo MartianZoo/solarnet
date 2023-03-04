@@ -6,13 +6,12 @@ import dev.martianzoo.tfm.pets.ast.HasClassName
 /** All information about a particular game component (card, map area, milestone, etc.). */
 interface Definition : HasClassName {
   /**
-   * The class name this definition will be known as, in its class form. Definitions whose id or
-   * classname matches that of any other id or classname (not just respectively) cannot be used in
-   * the same game.
+   * The class name this definition will be known as, in its class form. Definitions sharing any
+   * name in common cannot be used in the same game.
    */
   override val className: ClassName
 
-  val id: ClassName // TODO rename shortName
+  val shortName: ClassName
 
   /**
    * A textual identifier for the bundle this definition belongs to, which can be used to easily

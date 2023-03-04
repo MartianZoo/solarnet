@@ -9,7 +9,7 @@ private class StandardActionDefinitionTest {
   @Test
   fun testOneFromCanon() {
     val claim = Canon.action(cn("ClaimMilestone"))
-    assertThat(claim.id).isEqualTo(cn("SAC"))
+    assertThat(claim.shortName).isEqualTo(cn("SAC"))
     assertThat(claim.bundle).isEqualTo("B")
     assertThat(claim.project).isFalse()
     assertThat(claim.action.toString()).isEqualTo("8 -> Milestone")

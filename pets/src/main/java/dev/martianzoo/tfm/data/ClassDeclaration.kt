@@ -16,7 +16,7 @@ import dev.martianzoo.util.extras
  */
 public data class ClassDeclaration(
     override val className: ClassName,
-    val id: ClassName = className,
+    val shortName: ClassName = className,
     val abstract: Boolean = true,
     val dependencies: List<DependencyDeclaration> = listOf(),
     val supertypes: Set<Expression> = setOf(), // TODO do fancy Component stuff elsewhere?
@@ -111,7 +111,7 @@ public data class ClassDeclaration(
   val allNodes: Set<PetNode> by lazy {
     setOf<PetNode>() +
         className +
-        id +
+        shortName +
         supertypes +
         dependencies.map { it.expression } +
         setOfNotNull(topInvariant) +

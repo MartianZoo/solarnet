@@ -9,6 +9,12 @@ fun <T, K> Collection<T>.associateByStrict(x: (T) -> K): Map<K, T> {
   return map
 }
 
+fun <T, K, V> Collection<T>.associateStrict(x: (T) -> Pair<K, V>): Map<K, V> {
+  val map: Map<K, V> = associate(x)
+  require(map.size == size) { groupBy(x).filterValues { it.size > 1 }.keys }
+  return map
+}
+
 fun <C : Iterable<Any?>> C.toStrings(): List<String> = map { it?.toString() ?: "null" }
 
 fun <C : Sequence<Any?>> C.toStrings(): Sequence<String> = map { it?.toString() ?: "null" }
