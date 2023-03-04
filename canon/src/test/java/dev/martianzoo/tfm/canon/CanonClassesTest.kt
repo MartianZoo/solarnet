@@ -121,10 +121,10 @@ private class CanonClassesTest {
 
   @Test
   fun testAllConcreteSubtypes() {
-    val table = Engine.newGame(GameSetup(Canon, "BRM", 2)).loader
+    val loader = Engine.loadClasses(GameSetup(Canon, "BRM", 2))
 
     fun checkConcreteSubtypeCount(type: String, size: Int) {
-      val ptype = table.resolveType(typeExpr(type))
+      val ptype = loader.resolveType(typeExpr(type))
       assertThat(ptype.allConcreteSubtypes().toList()).hasSize(size)
     }
 
@@ -145,7 +145,7 @@ private class CanonClassesTest {
     checkConcreteSubtypeCount("SpecialTile", (9 * 61) * 2)
 
     // Do this one the long way because the error message is horrific
-    val type = table.resolveType(typeExpr("Tile"))
+    val type = loader.resolveType(typeExpr("Tile"))
     assertThat(type.allConcreteSubtypes().count()).isEqualTo(1407)
   }
 

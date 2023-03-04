@@ -15,18 +15,24 @@ import dev.martianzoo.util.filterWithoutNulls
 
 /** Has functions for setting up new games and stuff. */
 public object Engine {
-  public fun newGame(setup: GameSetup): Game {
+  public fun loadClasses(setup: GameSetup): PClassLoader {
     val loader = PClassLoader(setup.authority, autoLoadDependencies = true)
+
+    loader.load(GAME)
+    loader.loadAll(setup.allDefinitions().classNames()) // all cards etc.
 
     for (seat in 1..setup.players) {
       loader.load(cn("Player$seat"))
     }
 
-    loader.loadAll(setup.allDefinitions().classNames())
-    val gameClass = loader.load(GAME)
+    loader.frozen = true
+    return loader
+  }
 
+  public fun newGame(setup: GameSetup): Game {
+    val loader = loadClasses(setup)
     val game = Game(setup, loader)
-    game.applyChangeAndPublish(gaining = gameClass.baseType, hidden = true)
+    game.applyChangeAndPublish(gaining = loader.getClass(GAME).baseType, hidden = true)
 
     // TODO custom instruction @createAll
     val borders = borders(setup.map, loader)
