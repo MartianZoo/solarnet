@@ -18,7 +18,7 @@ private class AuthorityTest {
                       CardData(
                           id = "123",
                           deck = "PRELUDE",
-                          effects = setOf("This: Plant"),
+                          immediate = "Plant",
                           bundle = "Z",
                           components = setOf("CLASS Foo<Boo> : Loo { HAS =1 Bar; Abc: Xyz }"))))
         }

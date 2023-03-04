@@ -7,6 +7,7 @@ import dev.martianzoo.util.Multiset
 /** The read-only portions of [GameState]. */
 interface ReadOnlyGameState {
   val setup: GameSetup
+  val authority: Authority
 
   fun countComponents(type: Type): Int
 

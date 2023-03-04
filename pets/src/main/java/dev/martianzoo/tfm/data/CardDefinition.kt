@@ -191,6 +191,7 @@ public class CardDefinition(data: CardData) : Definition {
       if (deck == "PROJECT") {
         require(projectKind != null)
       } else {
+        if (deck == "PRELUDE") immediate!!
         require(projectKind == null) { "not a project: $id" }
         require(requirement == null) { "can't have requirement: $id" }
         require(cost == 0) { "can't have nonzero cost: $id" }

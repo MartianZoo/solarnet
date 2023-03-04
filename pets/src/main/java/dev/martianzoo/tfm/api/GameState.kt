@@ -17,7 +17,7 @@ interface GameState : ReadOnlyGameState {
   )
 
   /** A game state that does basically nothing; for tests. */
-  open class Stub(auth: Authority = Authority.Minimal()) : GameState {
+  open class Stub(final override val authority: Authority = Authority.Minimal()) : GameState {
     override fun applyChangeAndPublish(
         count: Int,
         removing: Type?,
@@ -27,7 +27,7 @@ interface GameState : ReadOnlyGameState {
         hidden: Boolean,
     ): Unit = throe()
 
-    override val setup = GameSetup(auth, "BM", 2)
+    override val setup = GameSetup(authority, "BM", 2)
 
     override fun countComponents(type: Type): Int = throe()
 

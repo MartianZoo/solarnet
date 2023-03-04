@@ -15,14 +15,14 @@ private class CardDefinitionTest {
   /** This is honestly an incredibly stupid test that data classes shouldn't need to have. */
   @Test
   fun minimal() {
-    val dumbCard = CardData("123", deck = "PRELUDE", effects = setOf("This: Plant"), bundle = "Z")
+    val dumbCard = CardData("123", deck = "PRELUDE", immediate = "Plant", bundle = "Z")
 
     assertThat(dumbCard.id).isEqualTo("123")
     assertThat(dumbCard.bundle).isEqualTo("Z")
     assertThat(dumbCard.deck).isEqualTo("PRELUDE")
     assertThat(dumbCard.replaces).isNull()
     assertThat(dumbCard.tags).isEmpty()
-    assertThat(dumbCard.effects).containsExactly("This: Plant")
+    assertThat(dumbCard.immediate).isEqualTo("Plant")
     assertThat(dumbCard.resourceType).isNull()
     assertThat(dumbCard.requirement).isNull()
     assertThat(dumbCard.cost).isEqualTo(0)

@@ -18,13 +18,15 @@ public class Game(
     override val setup: GameSetup,
     public val loader: PClassLoader, // TODO not public
 ) : GameState {
+  init {
+    loader.frozen = true
+  }
+
   val components = ComponentGraph()
   internal val fullChangeLog: MutableList<ChangeRecord> = mutableListOf()
   // val tasks = mutableListOf<Task>()
 
-  init {
-    loader.frozen = true
-  }
+  override val authority by setup::authority
 
   private val nextOrdinal: Int by fullChangeLog::size
 
