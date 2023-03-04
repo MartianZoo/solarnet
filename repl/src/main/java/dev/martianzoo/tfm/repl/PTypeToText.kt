@@ -43,7 +43,7 @@ object PTypeToText { // TODO refactor to ClassInfo / TypeInfo type dealies
                       """)}
 
 
-    """.trimIndent().iff(expr.isClassOnly)
+    """.trimIndent().iff(expr.simple)
 
     // TODO linkages?
     val typeStuff = """

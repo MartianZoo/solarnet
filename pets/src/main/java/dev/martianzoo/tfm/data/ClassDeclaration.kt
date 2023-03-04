@@ -11,6 +11,7 @@ import dev.martianzoo.tfm.pets.ast.PetNode
 import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.pets.ast.TypeExpr
 import dev.martianzoo.tfm.pets.ast.classNames
+import dev.martianzoo.util.extras
 
 /**
  * The declaration of a component class, such as GreeneryTile. Models the declaration textually as
@@ -68,24 +69,31 @@ public data class ClassDeclaration(
       (dependencies.map { it.typeExpr } + supertypes.flatMap { it.arguments })
           .asSequence()
           .flatMap { it.descendantsOfType<TypeExpr>() }
-          .filter { it.isClassOnly }
+          .filter { it.simple }
           .classNames()
 
   public val bareNamesInDependencies: Set<ClassName> by lazy {
     bareNamesInDependenciesList().sorted().toSet()
   }
 
+  // The class names that participate in some linkage among dependencies
   public val depToDepLinkages: Set<ClassName> by lazy {
-    bareNamesInDependenciesList()
-        .sorted()
-        .windowed(2)
-        .mapNotNull { it.toSet().singleOrNull() }
-        .toSet()
+    // In this example the class names eligible for linkages are precisely the occurrences of Yes:
+    // CLASS Bar<Yes, Qux<Yes>>: Abc<Yes>, Def<Ghi<Yes>>, Xyz
+
+    // In that example, this list will be `Yes`, `Qux<Yes>`, `Yes`, `Ghi<Yes>`
+    // val exprsWhoseArgumentsAreEligible =
+    //     dependencies.map { it.typeExpr } + supertypes.flatMap { it.arguments }
+
+    // TODO we don't want the No's in `Foo<No, No>` to be linked because they are parallel
+    // val extras = exprsWhoseArgumentsAreEligible
+    //     .flatMap { expr -> expr.arguments.filter { it.simple }.classNames().extras() }
+    bareNamesInDependenciesList().extras().toSet()
   }
 
   public val bareNamesInEffects: Map<Effect, Set<ClassName>> by lazy {
     effects.associateWith { fx ->
-      fx.descendantsOfType<TypeExpr>().filter { it.isClassOnly }.classNames().toSet()
+      fx.descendantsOfType<TypeExpr>().filter { it.simple }.classNames().toSet()
     }
   }
 

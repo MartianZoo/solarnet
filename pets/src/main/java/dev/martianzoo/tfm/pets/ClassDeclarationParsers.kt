@@ -50,7 +50,7 @@ internal object ClassDeclarationParsers : PetParser() {
 
   internal val nls = zeroOrMore(char('\n'))
 
-  // hack
+  // TODO hack
   init {
     ClassName.Parsing.className
   }

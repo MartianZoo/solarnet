@@ -75,3 +75,9 @@ fun <T> List<T?>.checkNoNulls(): List<T> {
 infix fun <T> T.plus(more: Collection<T>): List<T> = listOf(this) + more
 
 infix fun <T> T.plus(another: T): List<T> = listOf(this, another)
+
+fun <T : Comparable<T>> Iterable<T>.extras() =
+    sorted().windowed(2).mapNotNull { it.distinct().singleOrNull() }
+
+fun <T : Comparable<T>> Sequence<T>.extras() =
+    sorted().windowed(2).mapNotNull { it.distinct().singleOrNull() }

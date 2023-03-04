@@ -57,7 +57,7 @@ public class PClassLoader(
                 COMPONENT
               } else {
                 val single: TypeExpr = typeExpr.arguments.single()
-                require(single.isClassOnly)
+                require(single.simple)
                 single.className
               }
           getClass(className).classType
