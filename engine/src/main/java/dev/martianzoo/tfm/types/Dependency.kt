@@ -36,33 +36,33 @@ internal sealed class Dependency {
 
   /** Any [Dependency] except for the case covered by [ClassDependency] below. */
   // TODO rename bound?
-  data class TypeDependency(override val key: Key, val ptype: PType) : Dependency() {
+  data class TypeDependency(override val key: Key, val bound: PType) : Dependency() {
     init {
       require(key != ClassDependency.KEY)
     }
-    override val abstract by ptype::abstract
+    override val abstract by bound::abstract
 
     private fun checkKeys(that: Dependency): TypeDependency {
       require(this.key == that.key)
       return that as TypeDependency
     }
 
-    override fun isSubtypeOf(that: Dependency) = ptype.isSubtypeOf(checkKeys(that).ptype)
+    override fun isSubtypeOf(that: Dependency) = bound.isSubtypeOf(checkKeys(that).bound)
 
-    override fun intersect(that: Dependency) = intersect(checkKeys(that).ptype)
+    override fun intersect(that: Dependency) = intersect(checkKeys(that).bound)
 
     fun intersect(otherType: PType): TypeDependency? =
-        (this.ptype.intersect(otherType))?.let { copy(ptype = it) }
+        (this.bound.intersect(otherType))?.let { copy(bound = it) }
 
-    override fun lub(that: Dependency?) = that?.let { lub(checkKeys(it).ptype) }
+    override fun lub(that: Dependency?) = that?.let { lub(checkKeys(it).bound) }
 
-    fun lub(otherType: PType) = copy(ptype = ptype.lub(otherType))
+    fun lub(otherType: PType) = copy(bound = bound.lub(otherType))
 
     fun allConcreteSpecializations(): Sequence<TypeDependency> =
-        ptype.allConcreteSubtypes().map { TypeDependency(key, it) }
+        bound.allConcreteSubtypes().map { TypeDependency(key, it) }
 
-    override val expressionFull by ptype::expressionFull
-    override val expression by ptype::expression
+    override val expressionFull by bound::expressionFull
+    override val expression by bound::expression
     override fun toString() = "$key=${expression}"
   }
 
@@ -72,28 +72,28 @@ internal sealed class Dependency {
    * that the dependency in `Production<Plant>` is a "class dependency" on `Plant`, so instead we
    * use `Production<Class<Plant>>`.
    */
-  data class ClassDependency(val pclass: PClass) : Dependency() {
+  data class ClassDependency(val bound: PClass) : Dependency() {
     companion object {
       /** The only dependency key that may point to this kind of dependency. */
       val KEY = Key(CLASS, 0)
     }
 
     override val key: Key by ::KEY
-    override val abstract by pclass::abstract
+    override val abstract by bound::abstract
 
     override fun isSubtypeOf(that: Dependency) =
-        that is ClassDependency && pclass.isSubclassOf(that.pclass)
+        that is ClassDependency && bound.isSubclassOf(that.bound)
 
     override fun intersect(that: Dependency): ClassDependency? =
-        intersect((that as ClassDependency).pclass)
+        intersect((that as ClassDependency).bound)
 
     fun intersect(otherClass: PClass): ClassDependency? =
-        pclass.intersect(otherClass)?.let { ClassDependency(it) }
+        bound.intersect(otherClass)?.let { ClassDependency(it) }
 
     override fun lub(that: Dependency?): ClassDependency =
-        ClassDependency(pclass.lub((that as ClassDependency).pclass))
+        ClassDependency(bound.lub((that as ClassDependency).bound))
 
-    override val expressionFull by pclass.className::expr
+    override val expressionFull by bound.className::expr
     override val expression by ::expressionFull
     override fun toString() = "$key=${expression}"
   }

@@ -114,7 +114,7 @@ internal constructor(
     if (refinement != null) return emptySequence()
     if (pclass.className == CLASS) {
       val classDep = dependencies.dependencies.single() as ClassDependency
-      return concreteSubclasses(classDep.pclass).map { it.classType }
+      return concreteSubclasses(classDep.bound).map { it.classType }
     }
 
     val axes: List<List<Dependency>> =

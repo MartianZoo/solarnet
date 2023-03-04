@@ -63,7 +63,7 @@ internal data class DependencyMap(internal val map: Map<Key, Dependency>) {
       val specType: PType = loader.resolveType(specExpression)
       for (candidateDep in dependencies - usedDeps) {
         candidateDep as TypeDependency
-        val intersectionType = specType.intersect(candidateDep.ptype) ?: continue
+        val intersectionType = specType.intersect(candidateDep.bound) ?: continue
         usedDeps += candidateDep
         return@map TypeDependency(candidateDep.key, intersectionType)
       }
