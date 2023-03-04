@@ -45,7 +45,7 @@ public data class Component(
    * in that game state.
    */
   public fun effects(): List<Effect> {
-    TODO()
+    return listOf() // BIGTODO
     //   return ptype.pclass.effects.map { effDecl ->
     //     val links = effDecl.
     //   }

@@ -71,11 +71,6 @@ internal object ClassDeclarationParsers : PetParser() {
     private val supertypeList: Parser<List<Expression>> =
         optionalList(skipChar(':') and commaSeparated(Expression.parser()))
 
-    /*
-     * TODO I want to support letting classes declare a shortName as well, like
-     *   CLASS OxygenStep[O2] ...
-     * That's commented out below because it's blowing everything up
-     */
     val signature: Parser<Signature> =
         classFullName and
         dependencies and
@@ -246,7 +241,7 @@ internal object ClassDeclarationParsers : PetParser() {
     private companion object {
       fun create(abstract: Boolean, signature: Signature, body: Body): List<NestableDecl> {
         val mergedDefaults = DefaultsDeclaration.merge(body.defaultses)
-        require(mergedDefaults.forClass in setOf(null, signature.className)) // TODO
+        require(mergedDefaults.forClass in setOf(null, signature.className))
         val newDecl =
             signature.asDeclaration.copy(
                 abstract = abstract,

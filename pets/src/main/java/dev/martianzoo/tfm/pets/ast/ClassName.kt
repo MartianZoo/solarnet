@@ -15,7 +15,7 @@ public data class ClassName(private val asString: String) : PetNode(), Comparabl
     require(asString.matches(classNameRegex)) { "Bad class name: $asString" }
   }
 
-  public val expr = Expression(this) // TODO expression?
+  public val expr = Expression(this)
 
   public fun addArgs(specs: List<Expression>) = expr.addArgs(specs)
   public fun addArgs(vararg specs: Expression) = addArgs(specs.toList())

@@ -43,8 +43,7 @@ public object Engine {
     for (ptype in singletons(loader.allClasses) + borders) {
       val depInstances =
           ptype.dependencies.dependencies.filterIsInstance<TypeDependency>().map { it.ptype }
-      for (cpt in depInstances + ptype) { // TODO
-        // not ironclad
+      for (cpt in depInstances + ptype) { // TODO not ironclad
         if (game.count(cpt) == 0) {
           game.applyChangeAndPublish(gaining = game.resolveType(cpt), cause = cause, hidden = true)
           cpt.pclass.allSuperclasses

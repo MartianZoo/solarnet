@@ -66,6 +66,6 @@ public class ComponentGraph {
 
   fun hasType(cpt: Component, type: PType): Boolean {
     return cpt.alwaysHasType(type)
-    // TODO check refinements too
+    // BIGTODO check refinements too
   }
 }

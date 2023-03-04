@@ -121,7 +121,7 @@ ABSTRACT CLASS Owned<Anyone> {
 // ACTIONS -------------------------------------------------
 
     ABSTRACT CLASS UseAction<HasActions> : Signal {         // How to make owner same, when HasActions has both
-        CLASS UseAction1, UseAction2                        // owned and unowned subclasses? TODO
+        CLASS UseAction1, UseAction2                        // owned and unowned subclasses? BIGTODO
     }
 
     // TODO still consider inverting this?

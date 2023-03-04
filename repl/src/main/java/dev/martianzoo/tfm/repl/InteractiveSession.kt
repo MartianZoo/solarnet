@@ -46,7 +46,7 @@ class InteractiveSession {
     val typeToList: PType = game!!.resolveType(fixTypes(expression))
     val allComponents: Multiset<Component> = game!!.getComponents(typeToList)
 
-    // TODO decide more intelligently how to break it down
+    // BIGTODO decide more intelligently how to break it down
     val pclass = typeToList.pclass
 
     // ugh capital tile TODO
@@ -79,7 +79,6 @@ class InteractiveSession {
   fun <P : PetNode> fixTypes(node: P): P {
     val xer = game!!.loader.transformer
     var result = node
-    // TODO consolidate
     result = xer.insertDefaults(result)
     if (defaultPlayer != null) {
       result = result.replaceAll(OWNER.expr, defaultPlayer!!.expr) // TODO

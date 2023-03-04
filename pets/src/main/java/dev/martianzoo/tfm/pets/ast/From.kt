@@ -40,7 +40,7 @@ public sealed class From : PetNode() {
   data class ComplexFrom(
       val className: ClassName,
       val arguments: List<From> = listOf(),
-      val refinement: Requirement? = null, // TODO get rid of?
+      val refinement: Requirement? = null,
   ) : From() {
     init {
       if (arguments.count { it is SimpleFrom || it is ComplexFrom } != 1) {

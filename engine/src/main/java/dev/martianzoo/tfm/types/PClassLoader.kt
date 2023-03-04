@@ -49,11 +49,11 @@ public class PClassLoader(
   public fun getClass(nameOrId: ClassName): PClass =
       loadedClasses[nameOrId] ?: error("no class loaded with id or name $nameOrId")
 
+  // TODO rename these to resolve
   /** Returns the corresponding [PType] to [type] (possibly [type] itself). */
   public fun resolveType(type: Type): PType = type as? PType ?: resolveType(type.expression)
 
   /** Returns the [PType] represented by [expression]. */
-  // TODO we need transformations sometimes?
   public fun resolveType(expression: Expression): PType {
     val pclass = getClass(expression.className)
     val result =

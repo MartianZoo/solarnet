@@ -35,8 +35,8 @@ object PTypeToText { // TODO refactor to ClassInfo / TypeInfo type dealies
 
     val concTypes = sequenceCount(pclass.concreteTypesThisClass(), 100)
 
-    // TODO invariants seemingly not working?
-    // TODO linkages?
+    // BIGTODO invariants seemingly not working?
+    // TODO show linkages we already have
     val classStuff = """
       Class $nameId:
           subclasses:  $substring
@@ -60,7 +60,6 @@ object PTypeToText { // TODO refactor to ClassInfo / TypeInfo type dealies
     val gain = loader.transformer.insertDefaults(Gain(ScaledExpression(1, expression)))
     val remove = loader.transformer.insertDefaults(Remove(ScaledExpression(1, expression)))
 
-    // TODO linkages?
     val typeStuff = """
       Expression $expression:
           std. form:   $ptype

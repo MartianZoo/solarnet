@@ -5,7 +5,7 @@ ABSTRACT CLASS Component {                                  // Component is the 
 
 ABSTRACT CLASS System
 
-CLASS Class<Component> : System {                           // I think this declaration is actually ignored TODO
+CLASS Class<Component> : System {
     HAS =1 This
 }
 

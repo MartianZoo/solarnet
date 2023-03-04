@@ -146,8 +146,8 @@ onGain      := genericTypeExpr
 onRemove    := '-' genericTypeExpr
 ```
 
-(TODO: BY triggers)
-
 An effect consists of a trigger, either one or two colons, then an instruction. The trigger is essentially just a type
 optionally preceded by a minus sign. For each instance of that type that is gained (or, with minus sign, removed), the
 instruction will be carried out.
+
+TODO: refresh this whole page

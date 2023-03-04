@@ -52,7 +52,7 @@ public class Game(
 
   fun execute(instr: Instruction) = LiveNodes.from(instr, this).execute(this)
 
-  // TODO trigger triggers
+  // BIGTODO trigger triggers
   override fun applyChangeAndPublish(
       count: Int,
       removing: Type?,

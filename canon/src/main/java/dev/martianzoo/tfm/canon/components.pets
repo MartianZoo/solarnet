@@ -74,7 +74,7 @@ ABSTRACT CLASS Tile<Area>
 CLASS Border<MarsArea, MarsArea> : System {                 // Early on we create 3-6 of these for each MarsArea
     HAS MAX 1 This                                          // listing that one first. So each border will actually
                                                             // be here twice, once in each direction
-    Tile<MarsArea>: Neighbor<Tile<MarsArea>, Area>          // TODO this won't work
+    Tile<MarsArea>: Neighbor<Tile<MarsArea>, Area>          // BIGTODO this won't work
 }
 
 CLASS Neighbor<Tile<MarsArea>, Area> [NBR] {
