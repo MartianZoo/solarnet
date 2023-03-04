@@ -15,29 +15,29 @@ import dev.martianzoo.tfm.pets.PetParser
 sealed class Requirement : PetNode() {
   open fun requiresThis() = false // TODO kick this out
 
-  data class Min(val scaledType: ScaledTypeExpr) : Requirement() {
-    override fun visitChildren(visitor: Visitor) = visitor.visit(scaledType)
-    override fun toString() = "$scaledType"
+  data class Min(val scaledEx: ScaledExpression) : Requirement() {
+    override fun visitChildren(visitor: Visitor) = visitor.visit(scaledEx)
+    override fun toString() = "$scaledEx"
 
     init {
-      if (scaledType.scalar == 0) {
+      if (scaledEx.scalar == 0) {
         throw PetException("Minimum of 0 would always be true")
       }
     }
 
-    override fun requiresThis() = this.scaledType == ScaledTypeExpr.scaledType(1, THIS.type)
+    override fun requiresThis() = this.scaledEx == ScaledExpression.scaledEx(1, THIS.expr)
   }
 
-  data class Max(val scaledType: ScaledTypeExpr) : Requirement() {
-    override fun visitChildren(visitor: Visitor) = visitor.visit(scaledType)
-    override fun toString() = "MAX ${scaledType.toFullString()}" // no "MAX 5" or "MAX Heat"
+  data class Max(val scaledEx: ScaledExpression) : Requirement() {
+    override fun visitChildren(visitor: Visitor) = visitor.visit(scaledEx)
+    override fun toString() = "MAX ${scaledEx.toFullString()}" // no "MAX 5" or "MAX Heat"
   }
 
-  data class Exact(val scaledType: ScaledTypeExpr) : Requirement() {
-    override fun visitChildren(visitor: Visitor) = visitor.visit(scaledType)
-    override fun toString() = "=${scaledType.toFullString()}" // no "=5" or "=Heat"
+  data class Exact(val scaledEx: ScaledExpression) : Requirement() {
+    override fun visitChildren(visitor: Visitor) = visitor.visit(scaledEx)
+    override fun toString() = "=${scaledEx.toFullString()}" // no "=5" or "=Heat"
 
-    override fun requiresThis() = this.scaledType == ScaledTypeExpr.scaledType(1, THIS.type)
+    override fun requiresThis() = this.scaledEx == ScaledExpression.scaledEx(1, THIS.expr)
   }
 
   data class Or(val requirements: Set<Requirement>) : Requirement() {
@@ -101,10 +101,10 @@ sealed class Requirement : PetNode() {
     /** A requirement suitable for being nested directly in something else. */
     internal fun atomParser(): Parser<Requirement> {
       return parser {
-        val scaledType = ScaledTypeExpr.parser()
-        val min = scaledType map ::Min
-        val max = skip(_max) and scaledType map ::Max
-        val exact = skipChar('=') and scaledType map ::Exact
+        val scaledEx = ScaledExpression.parser()
+        val min = scaledEx map ::Min
+        val max = skip(_max) and scaledEx map ::Max
+        val exact = skipChar('=') and scaledEx map ::Exact
         val transform =
             transform(parser()) map { (node, transformName) -> Transform(node, transformName) }
         min or max or exact or transform or group(parser())

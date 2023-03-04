@@ -17,7 +17,7 @@ public data class Component(
   constructor(pclass: PClass) : this(pclass.baseType)
 
   init {
-    require(!ptype.abstract) { "Component can't be of an abstract type: ${ptype.typeExprFull}" }
+    require(!ptype.abstract) { "Component can't be of an abstract type: ${ptype.expressionFull}" }
   }
 
   /** The concrete type of this component. */

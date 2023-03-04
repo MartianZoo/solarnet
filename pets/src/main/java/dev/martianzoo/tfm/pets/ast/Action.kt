@@ -26,18 +26,18 @@ public data class Action(val cost: Cost?, val instruction: Instruction) : PetNod
 
     abstract fun toInstruction(): Instruction
 
-    data class Spend(val scaledType: ScaledTypeExpr) : Cost() {
-      override fun visitChildren(visitor: Visitor) = visitor.visit(scaledType)
-      override fun toString() = scaledType.toString()
+    data class Spend(val scaledEx: ScaledExpression) : Cost() {
+      override fun visitChildren(visitor: Visitor) = visitor.visit(scaledEx)
+      override fun toString() = scaledEx.toString()
 
       init {
-        if (scaledType.scalar == 0) {
+        if (scaledEx.scalar == 0) {
           throw PetException("Can't spend zero")
         }
       }
 
       // I believe Ants/Predators are the reasons for MANDATORY here
-      override fun toInstruction() = Remove(scaledType, MANDATORY)
+      override fun toInstruction() = Remove(scaledEx, MANDATORY)
     }
 
     // can't do non-prod per prod yet
@@ -103,15 +103,14 @@ public data class Action(val cost: Cost?, val instruction: Instruction) : PetNod
 
       fun parser(): Parser<Cost> {
         return parser {
-          val scaledType = ScaledTypeExpr.parser()
-          val spend = scaledType map Cost::Spend
+          val spend = ScaledExpression.parser() map Cost::Spend
           val transform = transform(parser()) map { (node, tname) -> Transform(node, tname) }
           val atomCost = spend or transform
 
           val perCost =
               atomCost and
-              optional(skipChar('/') and
-              Metric.parser()) map { (cost, met) ->
+                  optional(skipChar('/') and
+                      Metric.parser()) map { (cost, met) ->
                 if (met == null) cost else Per(cost, met)
               }
 

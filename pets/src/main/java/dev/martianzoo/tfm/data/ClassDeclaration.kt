@@ -2,11 +2,11 @@ package dev.martianzoo.tfm.data
 
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.Effect
+import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.pets.ast.HasClassName
 import dev.martianzoo.tfm.pets.ast.Instruction.Intensity
 import dev.martianzoo.tfm.pets.ast.PetNode
 import dev.martianzoo.tfm.pets.ast.Requirement
-import dev.martianzoo.tfm.pets.ast.TypeExpr
 import dev.martianzoo.tfm.pets.ast.classNames
 import dev.martianzoo.util.extras
 
@@ -19,23 +19,25 @@ public data class ClassDeclaration(
     val id: ClassName = className,
     val abstract: Boolean = true,
     val dependencies: List<DependencyDeclaration> = listOf(),
-    val supertypes: Set<TypeExpr> = setOf(), // TODO do fancy Component stuff elsewhere?
+    val supertypes: Set<Expression> = setOf(), // TODO do fancy Component stuff elsewhere?
     val topInvariant: Requirement? = null,
     val otherInvariants: Set<Requirement> = setOf(),
     private val effectsIn: Set<Effect> = setOf(),
     val defaultsDeclaration: DefaultsDeclaration = DefaultsDeclaration(),
     val extraNodes: Set<PetNode> = setOf(),
 ) : HasClassName {
-
+  init {
+    // require(supertypes.none { it.hasAnyRefinements() }) TODO
+  }
   // DEPENDENCIES
 
   // TODO why do we even have this lever
-  data class DependencyDeclaration(val typeExpr: TypeExpr)
+  data class DependencyDeclaration(val expression: Expression)
 
   private fun bareNamesInDependenciesList(): Sequence<ClassName> =
-      (dependencies.map { it.typeExpr } + supertypes.flatMap { it.arguments })
+      (dependencies.map { it.expression } + supertypes.flatMap { it.arguments })
           .asSequence()
-          .flatMap { it.descendantsOfType<TypeExpr>() }
+          .flatMap { it.descendantsOfType<Expression>() }
           .filter { it.simple }
           .classNames()
 
@@ -50,7 +52,7 @@ public data class ClassDeclaration(
 
     // In that example, this list will be `Yes`, `Qux<Yes>`, `Yes`, `Ghi<Yes>`
     // val exprsWhoseArgumentsAreEligible =
-    //     dependencies.map { it.typeExpr } + supertypes.flatMap { it.arguments }
+    //     dependencies.map { it.expression } + supertypes.flatMap { it.arguments }
 
     // TODO we don't want the No's in `Foo<No, No>` to be linked because they are parallel
     // val extras = exprsWhoseArgumentsAreEligible
@@ -70,16 +72,16 @@ public data class ClassDeclaration(
 
   public val bareNamesInEffects: Map<Effect, Set<ClassName>> by lazy {
     effectsIn.associateWith { fx ->
-      fx.descendantsOfType<TypeExpr>().filter { it.simple }.classNames().toSet()
+      fx.descendantsOfType<Expression>().filter { it.simple }.classNames().toSet()
     }
   }
 
   // DEFAULTS
 
   data class DefaultsDeclaration(
-      val universalSpecs: List<TypeExpr> = listOf(),
-      val gainOnlySpecs: List<TypeExpr> = listOf(),
-      val removeOnlySpecs: List<TypeExpr> = listOf(),
+      val universalSpecs: List<Expression> = listOf(),
+      val gainOnlySpecs: List<Expression> = listOf(),
+      val removeOnlySpecs: List<Expression> = listOf(),
       val gainIntensity: Intensity? = null,
       val removeIntensity: Intensity? = null,
       val forClass: ClassName? = null,
@@ -111,7 +113,7 @@ public data class ClassDeclaration(
         className +
         id +
         supertypes +
-        dependencies.map { it.typeExpr } +
+        dependencies.map { it.expression } +
         setOfNotNull(topInvariant) +
         otherInvariants +
         effectsIn +

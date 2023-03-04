@@ -38,7 +38,7 @@ public object Engine {
     val borders = borders(setup.map, loader)
 
     // TODO custom instruction @createSingletons
-    val cause = Cause(GAME.type, 0)
+    val cause = Cause(GAME.expr, 0)
 
     for (ptype in singletons(loader.allClasses) + borders) {
       val depInstances =
@@ -65,12 +65,11 @@ public object Engine {
     return map.areas
         .let { it.rows() + it.columns() + it.diagonals() }
         .flatMap { it.windowed(2).filterWithoutNulls() }
-        .flatMap { (one, two) ->
-          val type1 = one.className.type
-          val type2 = two.className.type
+        .map { pair -> pair.map { it.className.expr }}
+        .flatMap { (area1, area2) ->
           listOf(
-              border.addArgs(type1, type2),
-              border.addArgs(type2, type1),
+              border.addArgs(area1, area2),
+              border.addArgs(area2, area1),
           )
         }
         .map { loader.resolveType(it) }

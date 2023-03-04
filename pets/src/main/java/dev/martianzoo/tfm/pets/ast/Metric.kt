@@ -17,13 +17,13 @@ sealed class Metric : PetNode() {
     TODO("Not yet implemented")
   }
 
-  data class Count(val scaledType: ScaledTypeExpr) : Metric() {
+  data class Count(val scaledEx: ScaledExpression) : Metric() {
     init {
-      if (scaledType.scalar < 1) throw PetException()
+      if (scaledEx.scalar < 1) throw PetException()
     }
 
-    override fun visitChildren(visitor: Visitor) = visitor.visit(scaledType)
-    override fun toString() = scaledType.toString(forceScalar = false, forceType = true)
+    override fun visitChildren(visitor: Visitor) = visitor.visit(scaledEx)
+    override fun toString() = scaledEx.toString(forceScalar = false, forceExpression = true)
   }
 
   data class Max(val metric: Metric, val maximum: Int) : Metric() {
@@ -40,7 +40,7 @@ sealed class Metric : PetNode() {
 
     fun parser(): Parser<Metric> {
       return parser {
-        val count: Parser<Count> = ScaledTypeExpr.parser() map ::Count
+        val count: Parser<Count> = ScaledExpression.parser() map ::Count
 
         val max: Parser<Max> =
             count and skip(_max) and scalar map { (met, limit) -> Max(met, limit) }

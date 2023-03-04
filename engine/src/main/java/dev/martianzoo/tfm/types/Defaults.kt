@@ -1,8 +1,8 @@
 package dev.martianzoo.tfm.types
 
 import dev.martianzoo.tfm.data.ClassDeclaration.DefaultsDeclaration
+import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.pets.ast.Instruction.Intensity
-import dev.martianzoo.tfm.pets.ast.TypeExpr
 import dev.martianzoo.tfm.types.Dependency.Companion.intersect
 import dev.martianzoo.util.associateByStrict
 
@@ -31,9 +31,9 @@ internal data class Defaults(
         return if (candidates.any()) merger(candidates) else null
       }
 
-      fun gatherDefaultDeps(extractor: (DefaultsDeclaration) -> List<TypeExpr>): DependencyMap {
+      fun gatherDefaultDeps(extractor: (DefaultsDeclaration) -> List<Expression>): DependencyMap {
         // excludes ones that don't specialize, is that okay? TODO
-        fun toDependencyMap(specs: List<TypeExpr>): DependencyMap =
+        fun toDependencyMap(specs: List<Expression>): DependencyMap =
             pclass.loader.resolveType(pclass.className.addArgs(specs)).narrowedDependencies
 
         val depList: List<Dependency> =

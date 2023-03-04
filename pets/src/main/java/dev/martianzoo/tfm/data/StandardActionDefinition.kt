@@ -25,7 +25,7 @@ data class StandardActionDefinition(
         className = className,
         id = id,
         abstract = false,
-        supertypes = setOf(kind.type),
+        supertypes = setOf(kind.expr),
         effectsIn = actionListToEffects(listOf(action)),
     )
   }

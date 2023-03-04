@@ -5,13 +5,13 @@ import dev.martianzoo.tfm.pets.ast.Action.Cost
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.Effect
 import dev.martianzoo.tfm.pets.ast.Effect.Trigger
+import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.pets.ast.From
 import dev.martianzoo.tfm.pets.ast.Instruction
 import dev.martianzoo.tfm.pets.ast.Metric
 import dev.martianzoo.tfm.pets.ast.PetNode
 import dev.martianzoo.tfm.pets.ast.Requirement
-import dev.martianzoo.tfm.pets.ast.ScaledTypeExpr
-import dev.martianzoo.tfm.pets.ast.TypeExpr
+import dev.martianzoo.tfm.pets.ast.ScaledExpression
 import dev.martianzoo.util.toSetStrict
 
 /** Extend this to implement transformations over trees of [PetNode]s. */
@@ -34,19 +34,19 @@ public abstract class PetTransformer {
       val rewritten =
           when (this) {
             is ClassName -> this
-            is TypeExpr -> TypeExpr(x(className), x(arguments), x(refinement), link)
-            is ScaledTypeExpr -> ScaledTypeExpr(scalar, x(typeExpr))
+            is Expression -> Expression(x(className), x(arguments), x(refinement), link)
+            is ScaledExpression -> ScaledExpression(scalar, x(expression))
             is Metric ->
               when (this) {
-                is Metric.Count -> Metric.Count(x(scaledType))
+                is Metric.Count -> Metric.Count(x(scaledEx))
                 is Metric.Max -> Metric.Max(x(metric), maximum)
               }
 
             is Requirement ->
               when (this) {
-                is Requirement.Min -> Requirement.Min(x(scaledType))
-                is Requirement.Max -> Requirement.Max(x(scaledType))
-                is Requirement.Exact -> Requirement.Exact(x(scaledType))
+                is Requirement.Min -> Requirement.Min(x(scaledEx))
+                is Requirement.Max -> Requirement.Max(x(scaledEx))
+                is Requirement.Exact -> Requirement.Exact(x(scaledEx))
                 is Requirement.Or -> Requirement.Or(x(requirements))
                 is Requirement.And -> Requirement.And(x(requirements))
                 is Requirement.Transform -> Requirement.Transform(x(requirement), transformKind)
@@ -54,8 +54,8 @@ public abstract class PetTransformer {
 
             is Instruction ->
                 when (this) {
-                  is Instruction.Gain -> Instruction.Gain(x(scaledType), intensity)
-                  is Instruction.Remove -> Instruction.Remove(x(scaledType), intensity)
+                  is Instruction.Gain -> Instruction.Gain(x(scaledEx), intensity)
+                  is Instruction.Remove -> Instruction.Remove(x(scaledEx), intensity)
                   is Instruction.Per -> Instruction.Per(x(instruction), x(metric))
                   is Instruction.Gated -> Instruction.Gated(x(gate), x(instruction))
                   is Instruction.Transmute -> Instruction.Transmute(x(from), scalar)
@@ -67,15 +67,15 @@ public abstract class PetTransformer {
                 }
             is From ->
                 when (this) {
-                  is From.SimpleFrom -> From.SimpleFrom(x(toType), x(fromType))
+                  is From.SimpleFrom -> From.SimpleFrom(x(toExpression), x(fromExpression))
                   is From.ComplexFrom -> From.ComplexFrom(x(className), x(arguments), x(refinement))
-                  is From.TypeAsFrom -> From.TypeAsFrom(x(typeExpr))
+                  is From.ExpressionAsFrom -> From.ExpressionAsFrom(x(expression))
                 }
             is Effect -> Effect(x(trigger), x(instruction), automatic)
             is Trigger ->
                 when (this) {
-                  is Trigger.OnGainOf -> Trigger.OnGainOf.create(x(typeExpr))
-                  is Trigger.OnRemoveOf -> Trigger.OnRemoveOf.create(x(typeExpr))
+                  is Trigger.OnGainOf -> Trigger.OnGainOf.create(x(expression))
+                  is Trigger.OnRemoveOf -> Trigger.OnRemoveOf.create(x(expression))
                   is Trigger.ByTrigger -> Trigger.ByTrigger(x(inner), x(by))
                   is Trigger.Transform -> Trigger.Transform(x(trigger), transformKind)
                   else -> this
@@ -83,7 +83,7 @@ public abstract class PetTransformer {
             is Action -> Action(x(cost), x(instruction))
             is Cost ->
                 when (this) {
-                  is Cost.Spend -> Cost.Spend(x(scaledType))
+                  is Cost.Spend -> Cost.Spend(x(scaledEx))
                   is Cost.Per -> Cost.Per(x(cost), x(metric))
                   is Cost.Or -> Cost.Or(x(costs))
                   is Cost.Multi -> Cost.Multi(x(costs))

@@ -3,14 +3,14 @@ package dev.martianzoo.tfm.types
 import com.google.common.collect.Lists
 import dev.martianzoo.tfm.api.SpecialClassNames.CLASS
 import dev.martianzoo.tfm.api.Type
+import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.pets.ast.Requirement.And
-import dev.martianzoo.tfm.pets.ast.TypeExpr
 import dev.martianzoo.tfm.types.Dependency.ClassDependency
 import dev.martianzoo.tfm.types.Dependency.TypeDependency
 
 /**
- * The translation of a [TypeExpr] into a "live" type, referencing actual [PClass]es loaded by a
+ * The translation of a [Expression] into a "live" type, referencing actual [PClass]es loaded by a
  * [PClassLoader]. These are usually obtained by [PClassLoader.resolveType]. These can be abstract.
  * Usages of this type should be fairly unrelated to questions of whether instances exist in a game
  * state.
@@ -56,7 +56,7 @@ internal constructor(
     return lubClass.withExactDependencies(deps).refine(ref)
   }
 
-  fun specialize(specs: List<TypeExpr>): PType {
+  fun specialize(specs: List<Expression>): PType {
     val deps = dependencies.specialize(specs, pclass.loader)
     return copy(dependencies = deps.subMap(dependencies.keys))
   }
@@ -73,23 +73,23 @@ internal constructor(
 
   fun refine(newRef: Requirement?): PType = copy(refinement = combine(refinement, newRef))
 
-  override val typeExpr: TypeExpr by lazy {
-    toTypeExprUsingSpecs(narrowedDependencies.dependencies.map { it.typeExpr })
+  override val expression: Expression by lazy {
+    toExpressionUsingSpecs(narrowedDependencies.dependencies.map { it.expression })
   }
 
-  override val typeExprFull: TypeExpr by lazy {
-    toTypeExprUsingSpecs(dependencies.dependencies.map { it.typeExprFull })
+  override val expressionFull: Expression by lazy {
+    toExpressionUsingSpecs(dependencies.dependencies.map { it.expressionFull })
   }
 
   internal val narrowedDependencies: DependencyMap by lazy {
     dependencies - pclass.baseType.dependencies
   }
 
-  private fun toTypeExprUsingSpecs(specs: List<TypeExpr>): TypeExpr {
-    val typeExpr = pclass.className.addArgs(specs).refine(refinement)
-    val roundTrip = pclass.loader.resolveType(typeExpr)
-    require(roundTrip == this) { "$typeExprFull -> ${roundTrip.typeExprFull}" }
-    return typeExpr
+  private fun toExpressionUsingSpecs(specs: List<Expression>): Expression {
+    val expression = pclass.className.addArgs(specs).refine(refinement)
+    val roundTrip = pclass.loader.resolveType(expression)
+    require(roundTrip == this) { "$expressionFull -> ${roundTrip.expressionFull}" }
+    return expression
   }
 
   fun supertypes(): List<PType> {
@@ -128,5 +128,5 @@ internal constructor(
   private fun concreteSubclasses(pclass: PClass): Sequence<PClass> =
       pclass.allSubclasses.asSequence().filter { !it.abstract }
 
-  override fun toString() = typeExpr.toString()
+  override fun toString() = expression.toString()
 }

@@ -19,12 +19,12 @@ import dev.martianzoo.tfm.pets.ast.Action
 import dev.martianzoo.tfm.pets.ast.Action.Cost
 import dev.martianzoo.tfm.pets.ast.Effect
 import dev.martianzoo.tfm.pets.ast.Effect.Trigger
+import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.pets.ast.Instruction
 import dev.martianzoo.tfm.pets.ast.Metric
 import dev.martianzoo.tfm.pets.ast.PetNode
 import dev.martianzoo.tfm.pets.ast.Requirement
-import dev.martianzoo.tfm.pets.ast.ScaledTypeExpr
-import dev.martianzoo.tfm.pets.ast.TypeExpr
+import dev.martianzoo.tfm.pets.ast.ScaledExpression
 import dev.martianzoo.util.Debug
 import dev.martianzoo.util.ParserGroup
 import kotlin.reflect.KClass
@@ -35,7 +35,7 @@ public object Parsing {
   /**
    * Parses the PETS element in [elementSource], expecting a construct of type [P], and returning
    * the parsed [P]. [P] can only be one of the major element types like [Effect], [Action],
-   * [Instruction], [TypeExpr], etc.
+   * [Instruction], [Expression], etc.
    *
    * These can also be parsed using, for example, [Instruction.instruction] (but this function is
    * generic/reified, which is sometimes essential).
@@ -46,7 +46,7 @@ public object Parsing {
   /**
    * Parses the PETS element in [elementSource], expecting a construct of type [P], and returning
    * the parsed [P]. [P] can only be one of the major elemental types like [Effect], [Action],
-   * [Instruction], [TypeExpr], etc.
+   * [Instruction], [Expression], etc.
    */
   public fun <P : PetNode> parseElement(expectedType: KClass<P>, elementSource: String): P {
     val pet =
@@ -143,9 +143,9 @@ public object Parsing {
     pgb.publish(Instruction.parser())
     pgb.publish(Metric.parser())
     pgb.publish(Requirement.parser())
-    pgb.publish(ScaledTypeExpr.parser())
+    pgb.publish(ScaledExpression.parser())
     pgb.publish(Trigger.parser())
-    pgb.publish(TypeExpr.parser())
+    pgb.publish(Expression.parser())
 
     pgb.finish()
   }

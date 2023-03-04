@@ -1,11 +1,11 @@
 package dev.martianzoo.tfm.api
 
+import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.pets.ast.Requirement
-import dev.martianzoo.tfm.pets.ast.TypeExpr
 
 /**
- * A type, for which a [TypeExpr] is only a textual representation. There are many ways in which
- * distinct type expressions might resolve to the same [Type].
+ * A type, for which an [Expression] is only a textual representation. There are many ways in which
+ * distinct expressions might resolve to the same [Type].
  */
 interface Type {
   /**
@@ -21,11 +21,11 @@ interface Type {
    */
   fun isSubtypeOf(that: Type): Boolean
 
-  /** The minimal type expression that resolves to this type. */
-  val typeExpr: TypeExpr
+  /** The minimal expression that resolves to this type. */
+  val expression: Expression
 
-  /** The full type expression for this type, omitting nothing. */
-  val typeExprFull: TypeExpr
+  /** The full expression for this type, omitting nothing. */
+  val expressionFull: Expression
 
   /** The optional requirement attached to this type. */
   val refinement: Requirement?

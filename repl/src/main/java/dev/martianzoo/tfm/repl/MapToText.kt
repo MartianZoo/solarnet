@@ -3,7 +3,7 @@ package dev.martianzoo.tfm.repl
 import dev.martianzoo.tfm.api.ReadOnlyGameState
 import dev.martianzoo.tfm.api.Type
 import dev.martianzoo.tfm.data.MarsMapDefinition.AreaDefinition
-import dev.martianzoo.tfm.pets.ast.TypeExpr.Companion.typeExpr
+import dev.martianzoo.tfm.pets.ast.Expression.Companion.expression
 import dev.martianzoo.util.Grid
 import dev.martianzoo.util.toStrings
 
@@ -43,8 +43,8 @@ internal class MapToText(private val game: ReadOnlyGameState) {
 
   private fun describe(area: AreaDefinition?): String { // TODO rewrite using Grid<String>
     if (area == null) return ""
-    val typeExpr = typeExpr("Tile<${area.className}>")
-    val tiles = game.getComponents(game.resolveType(typeExpr))
+    val expression = expression("Tile<${area.className}>")
+    val tiles = game.getComponents(game.resolveType(expression))
     return when (tiles.size) {
       0 -> area.code
       1 -> describe(tiles.iterator().next())
@@ -53,14 +53,14 @@ internal class MapToText(private val game: ReadOnlyGameState) {
   }
 
   private fun describe(tile: Type): String {
-    val name = tile.typeExpr.className.toString()
+    val name = tile.expression.className.toString()
     val kind =
         when { // TODO do this more by checking supertypes
           name == "Tile008" -> "C"
           name.startsWith("Tile") -> "S"
           else -> name[0]
         }
-    val argStrings = tile.typeExprFull.arguments.toStrings()
+    val argStrings = tile.expressionFull.arguments.toStrings()
     val player = argStrings.firstOrNull { it.startsWith("Player") }?.last() ?: ""
     return "[$kind$player]"
   }

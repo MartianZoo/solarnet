@@ -6,10 +6,10 @@ import dev.martianzoo.tfm.api.Type
 import dev.martianzoo.tfm.data.ChangeRecord
 import dev.martianzoo.tfm.data.ChangeRecord.Cause
 import dev.martianzoo.tfm.data.ChangeRecord.StateChange
+import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.pets.ast.Instruction
 import dev.martianzoo.tfm.pets.ast.Metric
 import dev.martianzoo.tfm.pets.ast.Requirement
-import dev.martianzoo.tfm.pets.ast.TypeExpr
 import dev.martianzoo.tfm.types.PClassLoader
 import dev.martianzoo.tfm.types.PType
 import dev.martianzoo.util.Multiset
@@ -35,7 +35,7 @@ public class Game(
 
   public fun changeLog(): List<ChangeRecord> = fullChangeLog.filterNot { it.hidden }
 
-  override fun resolveType(typeExpr: TypeExpr): PType = loader.resolveType(typeExpr)
+  override fun resolveType(expression: Expression): PType = loader.resolveType(expression)
 
   fun resolveType(type: Type): PType = loader.resolveType(type)
 
@@ -78,7 +78,7 @@ public class Game(
 
   public fun component(type: Type?): Component? = type?.let { Component(loader.resolveType(it)) }
 
-  public fun component(type: TypeExpr?): Component? =
+  public fun component(type: Expression?): Component? =
       type?.let { Component(loader.resolveType(it)) }
 
   public fun rollBack(ordinal: Int) {

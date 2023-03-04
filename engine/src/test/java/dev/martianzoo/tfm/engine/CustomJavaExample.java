@@ -23,7 +23,7 @@ public class CustomJavaExample {
     @Override
     public Instruction translate( // TODO null annotations
         ReadOnlyGameState game, List<? extends Type> arguments) {
-      var player = getOnlyElement(arguments).getTypeExpr();
+      var player = getOnlyElement(arguments).getExpression();
       var prods = ResourceUtils.INSTANCE.lookUpProductionLevels(game, player);
       int lowest = Collections.min(prods.values());
       String lowestProds = prods.keySet().stream()

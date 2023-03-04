@@ -1,9 +1,9 @@
 package dev.martianzoo.tfm.api
 
 import dev.martianzoo.tfm.data.ChangeRecord.Cause
+import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.pets.ast.Metric
 import dev.martianzoo.tfm.pets.ast.Requirement
-import dev.martianzoo.tfm.pets.ast.TypeExpr
 import dev.martianzoo.util.Multiset
 
 /** A game engine implements this interface so that [CustomInstruction]s can speak to it. */
@@ -38,7 +38,7 @@ interface GameState : ReadOnlyGameState {
 
     override fun evaluate(requirement: Requirement): Boolean = throe()
 
-    override fun resolveType(typeExpr: TypeExpr): Type = throe()
+    override fun resolveType(expression: Expression): Type = throe()
 
     private fun throe(): Nothing = throw RuntimeException("this is just a stub")
   }

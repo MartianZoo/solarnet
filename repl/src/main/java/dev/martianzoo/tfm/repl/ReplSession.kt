@@ -5,10 +5,10 @@ import dev.martianzoo.tfm.api.GameSetup
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.tfm.pets.ast.Expression.Companion.expression
 import dev.martianzoo.tfm.pets.ast.Instruction.Companion.instruction
 import dev.martianzoo.tfm.pets.ast.Metric.Companion.metric
 import dev.martianzoo.tfm.pets.ast.Requirement.Companion.requirement
-import dev.martianzoo.tfm.pets.ast.TypeExpr.Companion.typeExpr
 import dev.martianzoo.util.toStrings
 import org.jline.utils.AttributedStyle
 
@@ -88,16 +88,16 @@ public class ReplSession(private val authority: Authority) {
                   val metric = session.fixTypes(metric(args))
                   val count = session.count(metric)
                   listOf("$count $metric")
-                } ?: listOf("Usage: count <TypeExpr>")
+                } ?: listOf("Usage: count <Expression>")
               },
           "list" to
               {
                 it?.let { args ->
-                  val counts = session.list(typeExpr(args))
+                  val counts = session.list(expression(args))
                   counts.elements
                       .sortedByDescending { counts.count(it) }
                       .map { "${counts.count(it)} $it" }
-                } ?: listOf("Usage: list <TypeExpr>")
+                } ?: listOf("Usage: list <Expression>")
               },
           "map" to
               {
@@ -110,7 +110,7 @@ public class ReplSession(private val authority: Authority) {
           "board" to
               {
                 val player = if (it == null) session.defaultPlayer!! else cn(it.trim())
-                BoardToText(session.game!!).board(player.type)
+                BoardToText(session.game!!).board(player.expr)
               },
           "changes" to
               { args ->
@@ -142,8 +142,8 @@ public class ReplSession(private val authority: Authority) {
           "desc" to
               {
                 it?.let { args ->
-                  val typeExpr = typeExpr(args.trim())
-                  listOf(PTypeToText.describe(typeExpr, session.game!!.loader))
+                  val expression = expression(args.trim())
+                  listOf(PTypeToText.describe(expression, session.game!!.loader))
                 } ?: listOf("Usage: desc <ClassName>")
               },
       )

@@ -1,7 +1,7 @@
 package dev.martianzoo.tfm.types
 
 import com.google.common.truth.Truth.assertThat
-import dev.martianzoo.tfm.pets.ast.TypeExpr.Companion.typeExpr
+import dev.martianzoo.tfm.pets.ast.Expression.Companion.expression
 import org.junit.jupiter.api.Test
 
 private class PTypeTest {
@@ -29,7 +29,7 @@ private class PTypeTest {
     val fish = table.resolveType(te("Animal<Player1, Fish<Player1>>"))
     assertThat(fish.abstract).isFalse()
 
-    assertThat(table.resolveType(te("Fish")).typeExprFull.toString())
+    assertThat(table.resolveType(te("Fish")).expressionFull.toString())
         .isEqualTo("Fish<Anyone, Class<Animal>>")
 
     // TODO get these working
@@ -65,8 +65,8 @@ private class PTypeTest {
   @Test
   fun partial() {
     val base = type("Complex1")
-    assertThat(base.typeExprFull.toString()).isEqualTo("Complex1<Foo1, Bar1, Qux1>")
-    assertThat(base.typeExpr.toString()).isEqualTo("Complex1")
+    assertThat(base.expressionFull.toString()).isEqualTo("Complex1<Foo1, Bar1, Qux1>")
+    assertThat(base.expression.toString()).isEqualTo("Complex1")
 
     assertThat(type("Complex1")).isEqualTo(base)
     assertThat(type("Complex1<Foo1>")).isEqualTo(base)
@@ -78,8 +78,8 @@ private class PTypeTest {
     assertThat(type("Complex1<Foo1, Bar1, Qux1>")).isEqualTo(base)
 
     val ofFoo2 = type("Complex1<Foo2>")
-    assertThat(ofFoo2.typeExprFull.toString()).isEqualTo("Complex1<Foo2, Bar1, Qux1>")
-    assertThat(ofFoo2.typeExpr.toString()).isEqualTo("Complex1<Foo2>")
+    assertThat(ofFoo2.expressionFull.toString()).isEqualTo("Complex1<Foo2, Bar1, Qux1>")
+    assertThat(ofFoo2.expression.toString()).isEqualTo("Complex1<Foo2>")
 
     assertThat(type("Complex1<Foo2>")).isEqualTo(ofFoo2)
     assertThat(type("Complex1<Foo2, Bar1>")).isEqualTo(ofFoo2)
@@ -129,7 +129,7 @@ private class PTypeTest {
   @Test
   fun roundTrip() {
     fun checkMinimal(typeIn: String, typeOut: String = typeIn) {
-      assertThat(type(typeIn).typeExpr).isEqualTo(te(typeOut))
+      assertThat(type(typeIn).expression).isEqualTo(te(typeOut))
     }
 
     checkMinimal("TwoSame")
@@ -149,5 +149,5 @@ private class PTypeTest {
     // checkMinimal("TwoSame<Foo2, Foo3>")
   }
 
-  private fun te(s: String) = typeExpr(s)
+  private fun te(s: String) = expression(s)
 }

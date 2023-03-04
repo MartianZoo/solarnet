@@ -29,9 +29,9 @@ import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.ClassName.Parsing.classFullName
 import dev.martianzoo.tfm.pets.ast.ClassName.Parsing.classShortName
 import dev.martianzoo.tfm.pets.ast.Effect
+import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.pets.ast.HasClassName
 import dev.martianzoo.tfm.pets.ast.Requirement
-import dev.martianzoo.tfm.pets.ast.TypeExpr
 import dev.martianzoo.util.KClassMultimap
 import dev.martianzoo.util.plus
 import dev.martianzoo.util.toSetStrict
@@ -64,12 +64,12 @@ internal object ClassDeclarationParsers : PetParser() {
     private val dependencies: Parser<List<DependencyDeclaration>> =
         optionalList(
             skipChar('<') and
-            commaSeparated(TypeExpr.parser() map ::DependencyDeclaration) and
+            commaSeparated(Expression.parser() map ::DependencyDeclaration) and
             skipChar('>')
         )
 
-    private val supertypeList: Parser<List<TypeExpr>> =
-        optionalList(skipChar(':') and commaSeparated(TypeExpr.parser()))
+    private val supertypeList: Parser<List<Expression>> =
+        optionalList(skipChar(':') and commaSeparated(Expression.parser()))
 
     /*
      * TODO I want to support letting classes declare a shortName as well, like
@@ -79,7 +79,7 @@ internal object ClassDeclarationParsers : PetParser() {
     val signature: Parser<Signature> =
         classFullName and
         dependencies and
-        optional(TypeExpr.refinement()) and
+        optional(Expression.refinement()) and
         optional(skipChar('[') and parser { classShortName } and skipChar(']')) and
         supertypeList map { (name, deps, ref, short, supes) ->
           Signature(name, short, deps, ref, supes)
@@ -95,30 +95,30 @@ internal object ClassDeclarationParsers : PetParser() {
 
     private val gainOnlyDefaults: Parser<DefaultsDeclaration> =
         skipChar('+') and
-        TypeExpr.parser() and
-        intensity map { (typeExpr, int) ->
-          require(typeExpr.refinement == null)
+        Expression.parser() and
+        intensity map { (expr, int) ->
+          require(expr.refinement == null)
           DefaultsDeclaration(
-              gainOnlySpecs = typeExpr.arguments,
+              gainOnlySpecs = expr.arguments,
               gainIntensity = int,
-              forClass = typeExpr.className,
+              forClass = expr.className,
           )
         }
 
     private val removeOnlyDefaults: Parser<DefaultsDeclaration> =
         skipChar('-') and
-        TypeExpr.parser() and
-        intensity map { (typeExpr, int) ->
-          require(typeExpr.refinement == null)
+        Expression.parser() and
+        intensity map { (expr, int) ->
+          require(expr.refinement == null)
           DefaultsDeclaration(
-              removeOnlySpecs = typeExpr.arguments,
+              removeOnlySpecs = expr.arguments,
               removeIntensity = int,
-              forClass = typeExpr.className,
+              forClass = expr.className,
           )
         }
 
     private val allCasesDefault: Parser<DefaultsDeclaration> by lazy {
-      TypeExpr.parser() map {
+      Expression.parser() map {
         require(it.refinement == null)
         DefaultsDeclaration(universalSpecs = it.arguments, forClass = it.className)
       }
@@ -175,9 +175,7 @@ internal object ClassDeclarationParsers : PetParser() {
         }
   }
 
-  /*
-   * The rest of the file is temporary types used only during parsing
-   */
+  // The rest of the file is temporary types used only during parsing.
 
   internal data class Signature(val asDeclaration: ClassDeclaration) : HasClassName {
     override val className: ClassName by asDeclaration::className
@@ -187,7 +185,7 @@ internal object ClassDeclarationParsers : PetParser() {
         shortName: ClassName?,
         dependencies: List<DependencyDeclaration>,
         topInvariant: Requirement?,
-        supertypes: List<TypeExpr>,
+        supertypes: List<Expression>,
     ) : this(
         ClassDeclaration(
             className = className,
@@ -281,7 +279,7 @@ internal object ClassDeclarationParsers : PetParser() {
         return if (decl.supertypes.any { it.className == container }) {
           CompleteNestableDecl(decl)
         } else {
-          val supertypes = (container.type plus decl.supertypes).toSetStrict()
+          val supertypes = (container.expr plus decl.supertypes).toSetStrict()
           CompleteNestableDecl(decl.copy(supertypes = supertypes))
         }
       }

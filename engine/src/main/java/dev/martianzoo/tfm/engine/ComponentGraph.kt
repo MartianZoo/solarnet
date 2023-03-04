@@ -32,8 +32,8 @@ public class ComponentGraph {
 
     return StateChange(
         count = correctedCount,
-        gaining = gaining?.type?.typeExpr,
-        removing = removing?.type?.typeExpr,
+        gaining = gaining?.type?.expression,
+        removing = removing?.type?.expression,
     )
   }
 

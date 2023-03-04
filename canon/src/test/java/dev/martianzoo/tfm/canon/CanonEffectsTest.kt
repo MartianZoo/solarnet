@@ -19,12 +19,12 @@ private class CanonEffectsTest {
   }
 
   @Test
-  fun checkTypesInEffects() {
+  fun checkEffectExpressions() {
     val table = PClassLoader(Canon).loadEverything()
 
     table.allClasses.forEach { pclass ->
       pclass.classEffects.forEach {
-        table.checkAllTypes(it.replaceAll(SpecialClassNames.THIS.type, pclass.className.type))
+        table.checkAllTypes(it.replaceAll(SpecialClassNames.THIS.expr, pclass.className.expr))
       }
     }
   }

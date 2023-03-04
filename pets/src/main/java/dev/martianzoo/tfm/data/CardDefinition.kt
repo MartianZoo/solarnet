@@ -112,7 +112,7 @@ public class CardDefinition(data: CardData) : Definition {
     if (deck == PROJECT) {
       val shouldBeActive =
           actions.any() ||
-              effects.any { it.trigger != OnGainOf.create(END.type) } ||
+              effects.any { it.trigger != OnGainOf.create(END.expr) } ||
               resourceType != null
       require(shouldBeActive == (projectInfo?.kind == ACTIVE))
     }
@@ -125,11 +125,11 @@ public class CardDefinition(data: CardData) : Definition {
   override val asClassDeclaration by lazy {
     val supertypes =
         setOfNotNull(
-                projectInfo?.kind?.className?.type,
+                projectInfo?.kind?.className?.expr,
                 resourceType?.let { RESOURCEFUL_CARD.addArgs(CLASS.addArgs(it)) },
-                if (actions.any()) ACTION_CARD.type else null,
+                if (actions.any()) ACTION_CARD.expr else null,
             )
-            .ifEmpty { setOf(CARD_FRONT.type) }
+            .ifEmpty { setOf(CARD_FRONT.expr) }
 
     val allEffects =
         listOfNotNull(immediate).map(::immediateToEffect) + effects + actionListToEffects(actions)

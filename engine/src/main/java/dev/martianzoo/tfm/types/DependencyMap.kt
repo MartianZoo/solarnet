@@ -1,6 +1,6 @@
 package dev.martianzoo.tfm.types
 
-import dev.martianzoo.tfm.pets.ast.TypeExpr
+import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.types.Dependency.Key
 import dev.martianzoo.tfm.types.Dependency.TypeDependency
 import dev.martianzoo.util.mergeMaps
@@ -53,25 +53,25 @@ internal data class DependencyMap(internal val map: Map<Key, Dependency>) {
   }
 
   /**
-   * Assigns each type expression to a key from among this map's keys, such that it is compatible
+   * Assigns each expression to a key from among this map's keys, such that it is compatible
    * with that key's upper bound.
    */
-  fun match(specs: List<TypeExpr>, loader: PClassLoader): List<TypeDependency> {
+  fun match(specs: List<Expression>, loader: PClassLoader): List<TypeDependency> {
     val usedDeps = mutableSetOf<TypeDependency>()
 
-    return specs.map { specTypeExpr ->
-      val specType: PType = loader.resolveType(specTypeExpr)
+    return specs.map { specExpression ->
+      val specType: PType = loader.resolveType(specExpression)
       for (candidateDep in dependencies - usedDeps) {
         candidateDep as TypeDependency
         val intersectionType = specType.intersect(candidateDep.ptype) ?: continue
         usedDeps += candidateDep
         return@map TypeDependency(candidateDep.key, intersectionType)
       }
-      error("couldn't match up $specTypeExpr to $this")
+      error("couldn't match up $specExpression to $this")
     }
   }
 
-  fun specialize(specs: List<TypeExpr>, loader: PClassLoader): DependencyMap {
+  fun specialize(specs: List<Expression>, loader: PClassLoader): DependencyMap {
     return DependencyMap(match(specs, loader)).overlayOn(this)
   }
 

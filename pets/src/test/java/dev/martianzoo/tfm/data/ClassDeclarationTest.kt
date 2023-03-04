@@ -9,7 +9,7 @@ import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.pets.ast.Effect.Companion.effect
 import dev.martianzoo.tfm.pets.ast.Instruction.Intensity
 import dev.martianzoo.tfm.pets.ast.Requirement
-import dev.martianzoo.tfm.pets.ast.ScaledTypeExpr.Companion.scaledType
+import dev.martianzoo.tfm.pets.ast.ScaledExpression.Companion.scaledEx
 import dev.martianzoo.tfm.pets.ast.classNames
 import dev.martianzoo.tfm.testlib.te
 import org.junit.jupiter.api.Test
@@ -33,19 +33,19 @@ private class ClassDeclarationTest {
     val decl: ClassDeclaration = Parsing.parseClassDeclarations(declText).single()
 
     val foo = cn("Foo")
-    val dep = cn("Bar").type
+    val dep = cn("Bar").expr
     val sup = te("Baz<Qux>")
-    val topInv = Requirement.Max(scaledType(3, cn("Blorp").type))
-    val otherInv = Requirement.Exact(scaledType(1, THIS.type))
+    val topInv = Requirement.Max(scaledEx(3, cn("Blorp").expr))
+    val otherInv = Requirement.Exact(scaledEx(1, THIS.expr))
     val eff = effect("This: DoStuff")
     val act = actionToEffect(action("Steel -> 5"), 1)
-    val gain = cn("Abc").type
-    val univ = cn("Xyz").type
+    val gain = cn("Abc").expr
+    val univ = cn("Xyz").expr
 
     assertThat(decl.id).isEqualTo(foo)
     assertThat(decl.className).isEqualTo(foo)
     assertThat(decl.abstract).isTrue()
-    assertThat(decl.dependencies.map { it.typeExpr }).containsExactly(dep)
+    assertThat(decl.dependencies.map { it.expression }).containsExactly(dep)
     assertThat(decl.supertypes).containsExactly(sup)
     assertThat(decl.topInvariant).isEqualTo(topInv)
     assertThat(decl.otherInvariants).containsExactly(otherInv)

@@ -19,32 +19,32 @@ import dev.martianzoo.util.wrap
  * a parameterized type (`Foo<Bar, Qux>`) or a refined type (`Foo<Bar(HAS 3 Qux)>(HAS Wau)`) (the
  * combination of a real type with one or more predicates).
  *
- * Caution is required when using this type, because in many cases different type expressions will
+ * Caution is required when using [Expression], because in many cases different expressions will
  * represent the same "actual" type; for example `Microbe<This, Player1>` and `Microbe<Player1,
- * This`, or `Tile` and `Tile<Area>`. This type has no idea about that; they are different
+ * This`, or `Tile` and `Tile<Area>`. This class has no idea about that; they are different
  * *representations* so they are considered unequal.
  */
-data class TypeExpr(
+data class Expression(
     override val className: ClassName,
-    val arguments: List<TypeExpr> = listOf(),
+    val arguments: List<Expression> = listOf(),
     val refinement: Requirement? = null,
     val link: Int? = null, // TODO use it or lose it
 ) : PetNode(), HasClassName {
   companion object : PetParser() {
-    fun typeExpr(text: String): TypeExpr = Parsing.parse(parser(), text)
+    fun expression(text: String): Expression = Parsing.parse(parser(), text)
 
     fun refinement() = group(skip(_has) and Requirement.parser())
 
-    fun parser(): Parser<TypeExpr> {
+    fun parser(): Parser<Expression> {
       return parser {
         val link: Parser<Int> = skipChar('^') and scalar
-        val typeArgs = skipChar('<') and commaSeparated(parser()) and skipChar('>')
+        val specs = skipChar('<') and commaSeparated(parser()) and skipChar('>')
 
         className and
-            optionalList(typeArgs) and
+            optionalList(specs) and
             optional(refinement()) and
             optional(link) map { (clazz, args, ref, link) ->
-              TypeExpr(clazz, args, ref, link)
+              Expression(clazz, args, ref, link)
             }
       }
     }
@@ -73,14 +73,14 @@ data class TypeExpr(
   val simple = arguments.isEmpty() && refinement == null && link == null
 
   @JvmName("addArgsFromClassNames")
-  fun addArgs(moreArgs: List<ClassName>): TypeExpr = addArgs(moreArgs.map { it.type })
-  fun addArgs(vararg moreArgs: ClassName): TypeExpr = addArgs(moreArgs.toList())
+  fun addArgs(moreArgs: List<ClassName>): Expression = addArgs(moreArgs.map { it.expr })
+  fun addArgs(vararg moreArgs: ClassName): Expression = addArgs(moreArgs.toList())
 
-  fun addArgs(moreArgs: List<TypeExpr>): TypeExpr = replaceArgs(arguments + moreArgs)
-  fun addArgs(vararg moreArgs: TypeExpr): TypeExpr = addArgs(moreArgs.toList())
+  fun addArgs(moreArgs: List<Expression>): Expression = replaceArgs(arguments + moreArgs)
+  fun addArgs(vararg moreArgs: Expression): Expression = addArgs(moreArgs.toList())
 
-  fun replaceArgs(newArgs: List<TypeExpr>): TypeExpr = copy(arguments = newArgs)
-  fun replaceArgs(vararg newArgs: TypeExpr): TypeExpr = replaceArgs(newArgs.toList())
+  fun replaceArgs(newArgs: List<Expression>): Expression = copy(arguments = newArgs)
+  fun replaceArgs(vararg newArgs: Expression): Expression = replaceArgs(newArgs.toList())
 
   fun refine(ref: Requirement?) =
       if (ref == null) {
@@ -90,5 +90,7 @@ data class TypeExpr(
         copy(refinement = ref)
       }
 
-  override val kind = TypeExpr::class.simpleName!!
+  fun hasAnyRefinements() = descendantsOfType<Requirement>().none()
+
+  override val kind = Expression::class.simpleName!!
 }

@@ -6,7 +6,7 @@ import dev.martianzoo.tfm.api.SpecialClassNames.CLASS
 import dev.martianzoo.tfm.api.SpecialClassNames.COMPONENT
 import dev.martianzoo.tfm.pets.Parsing.parseClassDeclarations
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.tfm.pets.ast.TypeExpr.Companion.typeExpr
+import dev.martianzoo.tfm.pets.ast.Expression.Companion.expression
 import dev.martianzoo.tfm.pets.ast.classNames
 import dev.martianzoo.tfm.types.Dependency.Key
 import dev.martianzoo.util.toSetStrict
@@ -186,7 +186,7 @@ private class PClassTest {
     assertThat(subSub.isSubtypeOf(subSub)).isTrue()
 
     fun checkAutoAdjust(`in`: String, out: String, table: PClassLoader) =
-        assertThat(table.resolveType(te(`in`)).typeExprFull.toString()).isEqualTo(out)
+        assertThat(table.resolveType(te(`in`)).expressionFull.toString()).isEqualTo(out)
 
     checkAutoAdjust("Bar<SuperFoo>", "Bar<Foo>", table)
     checkAutoAdjust("SubBar<SuperFoo>", "SubBar<SubFoo>", table)
@@ -240,7 +240,7 @@ private class PClassTest {
   }
 }
 
-private fun te(s: String) = typeExpr(s)
+private fun te(s: String) = expression(s)
 
 internal fun loader(petsText: String): PClassLoader {
   val classes = parseClassDeclarations(petsText).toSetStrict()

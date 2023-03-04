@@ -10,18 +10,18 @@ import dev.martianzoo.tfm.testlib.te
 import org.junit.jupiter.api.Test
 
 // Most testing is done by AutomatedTest
-private class TypeExprTest {
-  private fun testRoundTrip(petsText: String) = testRoundTrip<TypeExpr>(petsText)
+private class ExpressionTest {
+  private fun testRoundTrip(petsText: String) = testRoundTrip<Expression>(petsText)
 
   @Test
   fun simpleSourceToApi() {
     val foo = te("Foo")
-    assertThat(foo).isEqualTo(cn("Foo").type)
+    assertThat(foo).isEqualTo(cn("Foo").expr)
   }
 
   @Test
   fun simpleApiToSource() {
-    assertThat(cn("Foo").type.toString()).isEqualTo("Foo")
+    assertThat(cn("Foo").expr.toString()).isEqualTo("Foo")
   }
 
   @Test
@@ -46,7 +46,7 @@ private class TypeExprTest {
     assertThat(parsed)
         .isEqualTo(
             cn("Red")
-                .addArgs(cn("Blue").addArgs(cn("This").type, cn("Teal").type), cn("Gold").type))
+                .addArgs(cn("Blue").addArgs(cn("This").expr, cn("Teal").expr), cn("Gold").expr))
   }
 
   @Test
@@ -54,10 +54,10 @@ private class TypeExprTest {
     val expr =
         cn("Aa")
             .addArgs(
-                cn("Bb").type,
-                cn("Cc").addArgs(cn("Dd").type),
-                cn("Ee").addArgs(cn("Ff").addArgs(cn("Gg").type, cn("Hh").type), cn("Me").type),
-                cn("Jj").type)
+                cn("Bb").expr,
+                cn("Cc").addArgs(cn("Dd").expr),
+                cn("Ee").addArgs(cn("Ff").addArgs(cn("Gg").expr, cn("Hh").expr), cn("Me").expr),
+                cn("Jj").expr)
     assertThat(expr.toString()).isEqualTo("Aa<Bb, Cc<Dd>, Ee<Ff<Gg, Hh>, Me>, Jj>")
   }
 

@@ -57,40 +57,40 @@ public data class Effect(
       override fun toString() = "-This"
     }
 
-    data class OnGainOf private constructor(val typeExpr: TypeExpr) : Trigger() {
+    data class OnGainOf private constructor(val expression: Expression) : Trigger() {
       companion object {
-        fun create(typeExpr: TypeExpr): Trigger {
-          return if (typeExpr == THIS.type) {
+        fun create(expression: Expression): Trigger {
+          return if (expression == THIS.expr) {
             WhenGain
           } else {
-            OnGainOf(typeExpr)
+            OnGainOf(expression)
           }
         }
       }
       init {
-        require(typeExpr != THIS.type)
+        require(expression != THIS.expr)
       }
 
-      override fun visitChildren(visitor: Visitor) = visitor.visit(typeExpr)
-      override fun toString() = "$typeExpr"
+      override fun visitChildren(visitor: Visitor) = visitor.visit(expression)
+      override fun toString() = "$expression"
     }
 
-    data class OnRemoveOf private constructor(val typeExpr: TypeExpr) : Trigger() {
+    data class OnRemoveOf private constructor(val expression: Expression) : Trigger() {
       companion object {
-        fun create(typeExpr: TypeExpr): Trigger {
-          return if (typeExpr == THIS.type) {
+        fun create(expression: Expression): Trigger {
+          return if (expression == THIS.expr) {
             WhenRemove
           } else {
-            OnRemoveOf(typeExpr)
+            OnRemoveOf(expression)
           }
         }
       }
       init {
-        require(typeExpr != THIS.type)
+        require(expression != THIS.expr)
       }
 
-      override fun visitChildren(visitor: Visitor) = visitor.visit(typeExpr)
-      override fun toString() = "-$typeExpr"
+      override fun visitChildren(visitor: Visitor) = visitor.visit(expression)
+      override fun toString() = "-$expression"
     }
 
     data class Transform(val trigger: Trigger, override val transformKind: String) :
@@ -111,8 +111,8 @@ public data class Effect(
       fun trigger(text: String): Trigger = Parsing.parse(parser(), text)
 
       fun parser(): Parser<Trigger> {
-        val onGainOf = TypeExpr.parser() map OnGainOf::create
-        val onRemoveOf = skipChar('-') and TypeExpr.parser() map OnRemoveOf::create
+        val onGainOf = Expression.parser() map OnGainOf::create
+        val onRemoveOf = skipChar('-') and Expression.parser() map OnRemoveOf::create
         val atom = onGainOf or onRemoveOf
         val transform =
             transform(atom) map { (node, transformName) -> Transform(node, transformName) }
@@ -147,8 +147,8 @@ public data class Effect(
                 t == WhenGain -> if (it.automatic) -1 else 0
                 t == WhenRemove -> if (it.automatic) 1 else 2
                 t is OnGainOf &&
-                    "${t.typeExpr.className}".startsWith("${SpecialClassNames.USE_ACTION}") -> 4
-                t == OnGainOf.create(SpecialClassNames.END.type) -> 5
+                    "${t.expression.className}".startsWith("${SpecialClassNames.USE_ACTION}") -> 4
+                t == OnGainOf.create(SpecialClassNames.END.expr) -> 5
                 else -> 3
               }
             },

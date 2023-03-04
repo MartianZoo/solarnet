@@ -10,6 +10,7 @@ import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.pets.ast.Effect
 import dev.martianzoo.tfm.pets.ast.Effect.Trigger.OnGainOf
 import dev.martianzoo.tfm.pets.ast.Effect.Trigger.WhenGain
+import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.pets.ast.From.SimpleFrom
 import dev.martianzoo.tfm.pets.ast.Instruction
 import dev.martianzoo.tfm.pets.ast.Instruction.Gain
@@ -18,7 +19,6 @@ import dev.martianzoo.tfm.pets.ast.Instruction.Then
 import dev.martianzoo.tfm.pets.ast.Instruction.Transmute
 import dev.martianzoo.tfm.pets.ast.PetNode
 import dev.martianzoo.tfm.pets.ast.PetNode.GenericTransform
-import dev.martianzoo.tfm.pets.ast.TypeExpr
 
 /** Various functions for transforming Pets syntax trees. */
 public object AstTransforms {
@@ -33,8 +33,8 @@ public object AstTransforms {
     if (lhs == null) return rhs
 
     // Handle the Ants case (TODO intensity?)
-    if (lhs is Remove && rhs is Gain && lhs.scaledType.scalar == rhs.scaledType.scalar) {
-      return Transmute(SimpleFrom(rhs.scaledType.typeExpr, lhs.scaledType.typeExpr))
+    if (lhs is Remove && rhs is Gain && lhs.scaledEx.scalar == rhs.scaledEx.scalar) {
+      return Transmute(SimpleFrom(rhs.scaledEx.expression, lhs.scaledEx.expression))
     }
 
     // Nested THENs are just silly
@@ -73,7 +73,7 @@ public object AstTransforms {
 
   /** Transform any `PROD[...]` sections in a subtree to the equivalent subtree. */
   public fun <P : PetNode> deprodify(node: P, producible: Set<ClassName>): P {
-    // TODO is there some way this could act on Types instead of TypeExprs?
+    // TODO is there some way this could act on Types instead of Expressions?
     // TODO eliminate unnecessary grouping
     val xer =
         object : PetTransformer() {
@@ -92,7 +92,7 @@ public object AstTransforms {
                     }
                     inner
                   }
-                  inProd && node is TypeExpr && node.className in producible ->
+                  inProd && node is Expression && node.className in producible ->
                       PRODUCTION.addArgs(node.arguments + CLASS.addArgs(node.className))
                   else -> transformChildren(node)
                 }

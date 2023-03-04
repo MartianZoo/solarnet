@@ -5,7 +5,7 @@ import dev.martianzoo.tfm.api.SpecialClassNames.MEGACREDIT
 import dev.martianzoo.tfm.api.SpecialClassNames.PRODUCTION
 import dev.martianzoo.tfm.api.SpecialClassNames.STANDARD_RESOURCE
 import dev.martianzoo.tfm.pets.ast.ClassName
-import dev.martianzoo.tfm.pets.ast.TypeExpr
+import dev.martianzoo.tfm.pets.ast.Expression
 
 // Note: this was easier to test in .engine than anywhere near here (ApiHelpersTest)
 
@@ -17,7 +17,7 @@ object ResourceUtils {
    * Returns a map with six entries, giving [player]'s current production levels, adjusting
    * megacredit product to account for our horrible hack.
    */
-  fun lookUpProductionLevels(game: ReadOnlyGameState, player: TypeExpr): Map<ClassName, Int> =
+  fun lookUpProductionLevels(game: ReadOnlyGameState, player: Expression): Map<ClassName, Int> =
       standardResourceNames(game).associateWith {
         val type = game.resolveType(PRODUCTION.addArgs(player, CLASS.addArgs(it)))
         val rawCount = game.count(type)
@@ -31,6 +31,6 @@ object ResourceUtils {
   /** Returns the name of every concrete class of type `StandardResource`. */
   fun standardResourceNames(game: ReadOnlyGameState): Set<ClassName> =
       game.getComponents(game.resolveType(CLASS.addArgs(STANDARD_RESOURCE)))
-          .map { it.typeExpr.arguments.single().className }
+          .map { it.expression.arguments.single().className }
           .toSet()
 }

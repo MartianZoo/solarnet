@@ -1,6 +1,6 @@
 package dev.martianzoo.tfm.data
 
-import dev.martianzoo.tfm.pets.ast.TypeExpr
+import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.util.pre
 
 /** All interesting information about an event in a game history. */
@@ -28,13 +28,13 @@ data class ChangeRecord(
       val count: Int = 1,
 
       /** The concrete component that was gained, or `null` if this was a remove. */
-      val gaining: TypeExpr? = null,
+      val gaining: Expression? = null,
 
       /**
        * The concrete component that was removed, or `null` if this was a gain. Can't be the same as
        * `gained` (e.g. both can't be null).
        */
-      val removing: TypeExpr? = null,
+      val removing: Expression? = null,
   ) {
     init {
       require(count > 0)
@@ -53,7 +53,7 @@ data class ChangeRecord(
   /** The part that describes why it changed. */
   data class Cause(
       /** The concrete component that owns the instruction that caused this change. */
-      val actor: TypeExpr,
+      val actor: Expression,
 
       /** The ordinal of the previous change which triggered that instruction. */
       val trigger: Int,

@@ -2,7 +2,7 @@ package dev.martianzoo.tfm.types
 
 import dev.martianzoo.tfm.api.SpecialClassNames.CLASS
 import dev.martianzoo.tfm.pets.ast.ClassName
-import dev.martianzoo.tfm.pets.ast.TypeExpr
+import dev.martianzoo.tfm.pets.ast.Expression
 
 internal sealed class Dependency {
   abstract val key: Key
@@ -10,8 +10,8 @@ internal sealed class Dependency {
   abstract fun lub(that: Dependency?): Dependency?
   abstract val abstract: Boolean
   abstract fun isSubtypeOf(that: Dependency): Boolean
-  abstract val typeExpr: TypeExpr
-  abstract val typeExprFull: TypeExpr
+  abstract val expression: Expression
+  abstract val expressionFull: Expression
 
   /**
    * Once a class introduces a dependency, like `CLASS Tile<Area>`, all subclasses know that
@@ -61,9 +61,9 @@ internal sealed class Dependency {
     fun allConcreteSpecializations(): Sequence<TypeDependency> =
         ptype.allConcreteSubtypes().map { TypeDependency(key, it) }
 
-    override val typeExprFull by ptype::typeExprFull
-    override val typeExpr by ptype::typeExpr
-    override fun toString() = "$key=${typeExpr}"
+    override val expressionFull by ptype::expressionFull
+    override val expression by ptype::expression
+    override fun toString() = "$key=${expression}"
   }
 
   /**
@@ -93,9 +93,9 @@ internal sealed class Dependency {
     override fun lub(that: Dependency?): ClassDependency =
         ClassDependency(pclass.lub((that as ClassDependency).pclass))
 
-    override val typeExprFull by pclass.className::type
-    override val typeExpr by ::typeExprFull
-    override fun toString() = "$key=${typeExpr}"
+    override val expressionFull by pclass.className::expr
+    override val expression by ::expressionFull
+    override fun toString() = "$key=${expression}"
   }
 
   companion object {

@@ -8,9 +8,9 @@ private class AutomatedTest {
   val factor = 5
 
   @Test
-  fun scalarAndTypes() {
+  fun scaledExpressions() {
     val gen = PetGenerator()
-    gen.goNuts<ScaledTypeExpr>(200 * factor)
+    gen.goNuts<ScaledExpression>(200 * factor)
   }
 
   @Test

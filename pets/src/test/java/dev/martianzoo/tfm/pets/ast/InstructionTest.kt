@@ -91,7 +91,7 @@ private class InstructionTest {
     testRoundTrip("1 Foo FROM Bar.")
 
     assertThat(instruction("1 Foo FROM Bar."))
-        .isEqualTo(Transmute(SimpleFrom(cn("Foo").type, cn("Bar").type), 1, AMAP))
+        .isEqualTo(Transmute(SimpleFrom(cn("Foo").expr, cn("Bar").expr), 1, AMAP))
     testRoundTrip("Foo<Bar FROM Qux>")
     testRoundTrip("Foo<Bar FROM Qux>.")
 
@@ -102,7 +102,7 @@ private class InstructionTest {
                 listOf(
                     ComplexFrom(
                         cn("Bar"),
-                        listOf(SimpleFrom(cn("Qux").type, cn("Abc").addArgs(cn("Eep")))))),
+                        listOf(SimpleFrom(cn("Qux").expr, cn("Abc").addArgs(cn("Eep")))))),
             ),
             null,
             null)
@@ -116,15 +116,15 @@ private class InstructionTest {
     testRoundTrip<Instruction>("@name(Abc)")
     testRoundTrip<Instruction>("@name(Abc, Def)")
     testRoundTrip<Instruction>("@name(Abc<Xyz, Bar>)")
-    testRoundTrip<TypeExpr>("Abc")
-    testRoundTrip<TypeExpr>("Abc<Bar>")
-    testRoundTrip<TypeExpr>("Abc(HAS Bar)")
-    testRoundTrip<TypeExpr>("Abc(HAS 11 Bar)")
+    testRoundTrip<Expression>("Abc")
+    testRoundTrip<Expression>("Abc<Bar>")
+    testRoundTrip<Expression>("Abc(HAS Bar)")
+    testRoundTrip<Expression>("Abc(HAS 11 Bar)")
     testRoundTrip<Requirement>("Bar")
     testRoundTrip<Requirement>("11 Bar")
     testRoundTrip<Requirement>("MAX 11 Bar")
 
-    testRoundTrip<TypeExpr>("Abc(HAS MAX 11 Bar)")
+    testRoundTrip<Expression>("Abc(HAS MAX 11 Bar)")
 
     testRoundTrip<Instruction>("@name(Abc(HAS MAX 11 Bar))")
     testRoundTrip<Instruction>("@name(Abc(HAS MAX 11 Bar<Xyz, Bar>))")

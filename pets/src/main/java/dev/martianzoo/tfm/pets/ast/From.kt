@@ -18,23 +18,23 @@ import dev.martianzoo.util.wrap
 public sealed class From : PetNode() {
   override val kind = From::class.simpleName!!
 
-  abstract val toType: TypeExpr
-  abstract val fromType: TypeExpr
+  abstract val toExpression: Expression
+  abstract val fromExpression: Expression
 
-  data class TypeAsFrom(val typeExpr: TypeExpr) : From() {
-    override val toType by this::typeExpr
-    override val fromType by this::typeExpr
+  data class ExpressionAsFrom(val expression: Expression) : From() {
+    override val toExpression by this::expression
+    override val fromExpression by this::expression
 
-    override fun visitChildren(visitor: Visitor) = visitor.visit(typeExpr)
-    override fun toString() = "$typeExpr"
+    override fun visitChildren(visitor: Visitor) = visitor.visit(expression)
+    override fun toString() = "$expression"
   }
 
   data class SimpleFrom(
-      override val toType: TypeExpr,
-      override val fromType: TypeExpr,
+      override val toExpression: Expression,
+      override val fromExpression: Expression,
   ) : From() {
-    override fun visitChildren(visitor: Visitor) = visitor.visit(toType, fromType)
-    override fun toString() = "$toType FROM $fromType"
+    override fun visitChildren(visitor: Visitor) = visitor.visit(toExpression, fromExpression)
+    override fun toString() = "$toExpression FROM $fromExpression"
   }
 
   data class ComplexFrom(
@@ -50,8 +50,8 @@ public sealed class From : PetNode() {
 
     override fun visitChildren(visitor: Visitor) = visitor.visit(arguments + className + refinement)
 
-    override val toType = className.addArgs(arguments.map { it.toType })
-    override val fromType = className.addArgs(arguments.map { it.fromType }).refine(refinement)
+    override val toExpression = className.addArgs(arguments.map { it.toExpression })
+    override val fromExpression = className.addArgs(arguments.map { it.fromExpression }).refine(refinement)
 
     override fun toString() =
         "$className${arguments.joinOrEmpty(wrap = "<>")}${refinement.wrap("(HAS ", ")")}"
@@ -62,23 +62,23 @@ public sealed class From : PetNode() {
 
     internal fun parser(): Parser<From> {
       return parser {
-        val typeAsFrom = TypeExpr.parser() map ::TypeAsFrom
+        val expressionAsFrom = Expression.parser() map ::ExpressionAsFrom
         val simpleFrom =
-            TypeExpr.parser() and
+            Expression.parser() and
             skip(_from) and
-            TypeExpr.parser() map { (to, from) -> SimpleFrom(to, from) }
+            Expression.parser() map { (to, from) -> SimpleFrom(to, from) }
 
         val argumentList =
-            zeroOrMore(typeAsFrom and skipChar(',')) and
+            zeroOrMore(expressionAsFrom and skipChar(',')) and
             parser() and
-            zeroOrMore(skipChar(',') and typeAsFrom) map { (before, from, after) ->
+            zeroOrMore(skipChar(',') and expressionAsFrom) map { (before, from, after) ->
               before + from + after
             }
         val arguments = skipChar('<') and argumentList and skipChar('>')
         val complexFrom =
             className and
             arguments and
-            optional(TypeExpr.refinement()) map { (name, args, refs) ->
+            optional(Expression.refinement()) map { (name, args, refs) ->
               ComplexFrom(name, args, refs)
             }
 

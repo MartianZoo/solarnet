@@ -4,8 +4,8 @@ import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.tfm.api.SpecialClassNames.THIS
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.pets.ast.Instruction.Companion.instruction
-import dev.martianzoo.tfm.pets.ast.TypeExpr
 import org.junit.jupiter.api.Test
 
 class TransformerTest {
@@ -25,11 +25,11 @@ class TransformerTest {
     checkApplyDefaults("CityTile<Anyone, WaterArea>", "CityTile<Anyone, WaterArea>!")
     checkApplyDefaults("CityTile<Player3, WaterArea>", "CityTile<Player3, WaterArea>!")
 
-    checkApplyDefaults("CityTile<This>", "CityTile<Owner, This>!", cn("Area").type)
+    checkApplyDefaults("CityTile<This>", "CityTile<Owner, This>!", cn("Area").expr)
     checkApplyDefaults(
         "CityTile<This>",
         "CityTile<This, LandArea(HAS MAX 0 Neighbor<CityTile<Anyone>>)>!",
-        cn("Owner").type)
+        cn("Owner").expr)
 
     checkApplyDefaults("OwnedTile", "OwnedTile<Owner>!")
     checkApplyDefaults("Neighbor<OwnedTile>", "Neighbor<OwnedTile<Owner>>!")
@@ -42,7 +42,7 @@ class TransformerTest {
   private fun checkApplyDefaults(
       original: String,
       expected: String,
-      context: TypeExpr = THIS.type
+      context: Expression = THIS.expr
   ) {
     val xfd = xer.insertDefaults(instruction(original), context)
     assertThat(xfd.toString()).isEqualTo(expected)

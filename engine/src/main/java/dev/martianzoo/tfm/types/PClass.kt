@@ -7,11 +7,11 @@ import dev.martianzoo.tfm.data.ClassDeclaration
 import dev.martianzoo.tfm.pets.PetTransformer
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.Effect
+import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.pets.ast.HasClassName
 import dev.martianzoo.tfm.pets.ast.PetNode
 import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.pets.ast.Requirement.Companion.requirement
-import dev.martianzoo.tfm.pets.ast.TypeExpr
 import dev.martianzoo.tfm.pets.ast.classNames
 import dev.martianzoo.tfm.types.Dependency.ClassDependency
 import dev.martianzoo.tfm.types.Dependency.TypeDependency
@@ -95,7 +95,7 @@ internal constructor(
       setOf()
     } else {
       declaration.supertypes
-          .ifEmpty { setOf(COMPONENT.type) }
+          .ifEmpty { setOf(COMPONENT.expr) }
           .map(loader::resolveType)
           .toSetStrict()
     }
@@ -161,8 +161,8 @@ internal constructor(
     } else {
       val newDeps: List<Dependency> =
           directDependencyKeys.map {
-            val depTypeExpr = declaration.dependencies[it.index].typeExpr
-            TypeDependency(it, loader.resolveType(depTypeExpr))
+            val depExpression = declaration.dependencies[it.index].expression
+            TypeDependency(it, loader.resolveType(depExpression))
           }
       val deps = DependencyMap.intersect(directSupertypes.map { it.dependencies })
       deps.merge(DependencyMap(newDeps)) { _, _ -> error("") }
@@ -178,10 +178,10 @@ internal constructor(
   internal fun intersectDependencies(deps: DependencyMap) =
       withExactDependencies(deps.intersect(baseType.dependencies))
 
-  internal fun match(specs: List<TypeExpr>): List<TypeDependency> =
+  internal fun match(specs: List<Expression>): List<TypeDependency> =
       baseType.dependencies.match(specs, loader)
 
-  fun specialize(specs: List<TypeExpr>): PType = baseType.specialize(specs)
+  fun specialize(specs: List<Expression>): PType = baseType.specialize(specs)
 
   // EFFECTS
 
@@ -214,7 +214,7 @@ internal constructor(
 
   /**
    * Returns a set of absolute invariants that must always be true; note that these can contain
-   * references to the type `This`, which are to be substituted with the concrete type.
+   * `This` expressions, which are to be substituted with the concrete type.
    */
   public val invariants: Set<Requirement> by lazy {
     val xer =
@@ -222,7 +222,7 @@ internal constructor(
           override fun <P : PetNode> transform(node: P): P {
             // for now, add <This> indiscriminately to this type but don't recurse *its* refinement
             // TODO should we be doing this here?
-            return if (node is TypeExpr) {
+            return if (node is Expression) {
               @Suppress("UNCHECKED_CAST")
               node.addArgs(THIS) as P
             } else {

@@ -7,9 +7,9 @@ import dev.martianzoo.tfm.api.SpecialClassNames.THIS
 import dev.martianzoo.tfm.api.Type
 import dev.martianzoo.tfm.data.ClassDeclaration
 import dev.martianzoo.tfm.pets.ast.ClassName
+import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.pets.ast.Instruction
 import dev.martianzoo.tfm.pets.ast.PetNode
-import dev.martianzoo.tfm.pets.ast.TypeExpr
 
 /**
  * All [PClass] instances come from here. Uses an [Authority] to pull class declarations from as
@@ -38,7 +38,7 @@ public class PClassLoader(
   /** The `Class` class, the other class that is required to exist. */
   public val classClass: PClass = PClass(decl(CLASS), this, listOf(componentClass)).also {
     require(!it.abstract)
-    require(it.baseDependencies.dependencies.single().typeExpr == COMPONENT.type)
+    require(it.baseDependencies.dependencies.single().expression == COMPONENT.expr)
   }
 
   private val loadedClasses =
@@ -50,27 +50,27 @@ public class PClassLoader(
       loadedClasses[nameOrId] ?: error("no class loaded with id or name $nameOrId")
 
   /** Returns the corresponding [PType] to [type] (possibly [type] itself). */
-  public fun resolveType(type: Type): PType = type as? PType ?: resolveType(type.typeExpr)
+  public fun resolveType(type: Type): PType = type as? PType ?: resolveType(type.expression)
 
-  /** Returns the [PType] represented by [typeExpr]. */
+  /** Returns the [PType] represented by [expression]. */
   // TODO we need transformations sometimes?
-  public fun resolveType(typeExpr: TypeExpr): PType {
-    val pclass = getClass(typeExpr.className)
+  public fun resolveType(expression: Expression): PType {
+    val pclass = getClass(expression.className)
     val result =
         if (pclass.className == CLASS) {
           val className: ClassName =
-              if (typeExpr.arguments.isEmpty()) {
+              if (expression.arguments.isEmpty()) {
                 COMPONENT
               } else {
-                val single: TypeExpr = typeExpr.arguments.single()
+                val single: Expression = expression.arguments.single()
                 require(single.simple)
                 single.className
               }
           getClass(className).classType
         } else {
-          pclass.specialize(typeExpr.arguments)
+          pclass.specialize(expression.arguments)
         }
-    return result.refine(typeExpr.refinement)
+    return result.refine(expression.refinement)
   }
 
   /** All classes loaded by this class loader; can only be accessed after the loader is [frozen]. */
@@ -172,8 +172,8 @@ public class PClassLoader(
 
   public fun checkAllTypes(node: PetNode) =
       node.visitDescendants {
-        if (it is TypeExpr) {
-          resolveType(it).typeExpr
+        if (it is Expression) {
+          resolveType(it).expression
           false
         } else {
           true

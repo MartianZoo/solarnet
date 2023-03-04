@@ -3,7 +3,7 @@ package dev.martianzoo.tfm.pets
 import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.tfm.pets.Parsing.parseClassDeclarations
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.tfm.pets.ast.TypeExpr
+import dev.martianzoo.tfm.pets.ast.Expression
 import org.junit.jupiter.api.Test
 
 private class ClassDeclarationParsingTest {
@@ -113,15 +113,15 @@ private class ClassDeclarationParsingTest {
 
     assertThat(cs.map { it.supertypes })
         .containsExactly(
-            setOf<TypeExpr>(),
-            setOf<TypeExpr>(),
-            setOf(cn("One").type),
-            setOf<TypeExpr>(),
-            setOf(cn("Three").type),
-            setOf(cn("One").type, cn("Three").type),
-            setOf(cn("Three").type),
-            setOf(cn("Six").type),
-            setOf(cn("One").type, cn("Six").type),
+            setOf<Expression>(),
+            setOf<Expression>(),
+            setOf(cn("One").expr),
+            setOf<Expression>(),
+            setOf(cn("Three").expr),
+            setOf(cn("One").expr, cn("Three").expr),
+            setOf(cn("Three").expr),
+            setOf(cn("Six").expr),
+            setOf(cn("One").expr, cn("Six").expr),
         )
   }
 

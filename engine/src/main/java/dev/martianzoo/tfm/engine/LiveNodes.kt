@@ -21,7 +21,7 @@ import dev.martianzoo.tfm.pets.ast.Metric.Count
 import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.pets.ast.Requirement.Exact
 import dev.martianzoo.tfm.pets.ast.Requirement.Min
-import dev.martianzoo.tfm.pets.ast.ScaledTypeExpr
+import dev.martianzoo.tfm.pets.ast.ScaledExpression
 import kotlin.math.min
 
 internal object LiveNodes {
@@ -31,7 +31,7 @@ internal object LiveNodes {
 
   fun from(met: Metric, game: GameState): LiveMetric =
       when (met) {
-        is Count -> LiveMetric(game.resolveType(met.scaledType.typeExpr), met.scaledType.scalar)
+        is Count -> LiveMetric(game.resolveType(met.scaledEx.expression), met.scaledEx.scalar)
         is Metric.Max -> from(met.metric, game).copy(max = met.maximum)
       }
 
@@ -126,13 +126,13 @@ internal object LiveNodes {
   }
 
   fun from(reqt: Requirement, game: GameState): LiveRequirement {
-    fun count(scaledType: ScaledTypeExpr) =
-        game.count(game.resolveType(scaledType.typeExpr))
+    fun count(scaledEx: ScaledExpression) =
+        game.count(game.resolveType(scaledEx.expression))
 
     return when (reqt) {
-      is Min -> LiveRequirement { count(reqt.scaledType) >= reqt.scaledType.scalar }
-      is Requirement.Max -> LiveRequirement { count(reqt.scaledType) <= reqt.scaledType.scalar }
-      is Exact -> LiveRequirement { count(reqt.scaledType) == reqt.scaledType.scalar }
+      is Min -> LiveRequirement { count(reqt.scaledEx) >= reqt.scaledEx.scalar }
+      is Requirement.Max -> LiveRequirement { count(reqt.scaledEx) <= reqt.scaledEx.scalar }
+      is Exact -> LiveRequirement { count(reqt.scaledEx) == reqt.scaledEx.scalar }
       is Requirement.Or -> {
         val reqts = reqt.requirements.toList().map { from(it, game) }
         LiveRequirement { reqts.any { it.evaluate(game) } }
@@ -151,8 +151,8 @@ internal object LiveNodes {
 
   fun from(trig: Trigger, game: GameState): LiveTrigger {
     return when (trig) {
-      is Trigger.OnGainOf -> LiveTrigger(game.resolveType(trig.typeExpr), gain = true)
-      is Trigger.OnRemoveOf -> LiveTrigger(game.resolveType(trig.typeExpr), gain = false)
+      is Trigger.OnGainOf -> LiveTrigger(game.resolveType(trig.expression), gain = true)
+      is Trigger.OnRemoveOf -> LiveTrigger(game.resolveType(trig.expression), gain = false)
       is Trigger.ByTrigger -> from(trig.inner, game).copy(by = trig.by)
       else -> error("this shouldn't still be here")
     }

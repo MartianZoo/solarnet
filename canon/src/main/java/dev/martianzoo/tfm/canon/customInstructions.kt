@@ -43,7 +43,7 @@ private object GainLowestProduction : CustomInstruction("gainLowestProduction") 
 
   override fun translate(game: ReadOnlyGameState, arguments: List<Type>): Instruction {
     val player = arguments.single()
-    val prods: Map<ClassName, Int> = lookUpProductionLevels(game, player.typeExpr)
+    val prods: Map<ClassName, Int> = lookUpProductionLevels(game, player.expression)
     val lowest = prods.values.min()
     val lowestProds =
         prods.filterValues { it == lowest }.keys.joinToString(" OR ") { "$it<$player>" }
@@ -54,7 +54,7 @@ private object GainLowestProduction : CustomInstruction("gainLowestProduction") 
 // For Robotic Workforce
 private object CopyProductionBox : CustomInstruction("copyProductionBox") {
   override fun translate(game: ReadOnlyGameState, arguments: List<Type>): Instruction {
-    val chosenCardName = arguments.single().typeExpr.className
+    val chosenCardName = arguments.single().expression.className
     val def = game.authority.card(chosenCardName)
 
     val nodes: Set<Transform> = def.immediate?.descendantsOfType() ?: setOf()

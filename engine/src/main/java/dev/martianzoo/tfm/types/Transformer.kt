@@ -11,11 +11,11 @@ import dev.martianzoo.tfm.pets.PetTransformer
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.Effect
 import dev.martianzoo.tfm.pets.ast.Effect.Trigger.ByTrigger
+import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.pets.ast.Instruction.Gain
 import dev.martianzoo.tfm.pets.ast.Instruction.Remove
 import dev.martianzoo.tfm.pets.ast.PetNode
-import dev.martianzoo.tfm.pets.ast.ScaledTypeExpr
-import dev.martianzoo.tfm.pets.ast.TypeExpr
+import dev.martianzoo.tfm.pets.ast.ScaledExpression
 import dev.martianzoo.tfm.pets.ast.classNames
 import dev.martianzoo.tfm.types.Dependency.Key
 import dev.martianzoo.util.overlayMaps
@@ -51,36 +51,36 @@ public class Transformer internal constructor(val loader: PClassLoader) {
    * `GreeneryTile<Owner, LandArea(HAS? Neighbor<OwnedTile<Owner>>)>`. (Search `DEFAULT` in any
    * `*.pets` files for other examples.)
    */
-  public fun <P : PetNode> insertDefaults(node: P, contextComponent: TypeExpr = THIS.type): P {
+  public fun <P : PetNode> insertDefaults(node: P, contextComponent: Expression = THIS.expr): P {
     val step = GainRemoveDefaultApplier(contextComponent).transform(node)
     return AllCasesDefaultApplier(contextComponent).transform(step)
   }
 
-  private inner class GainRemoveDefaultApplier(val context: TypeExpr) : PetTransformer() {
+  private inner class GainRemoveDefaultApplier(val context: Expression) : PetTransformer() {
     override fun <P : PetNode> transform(node: P): P {
       val result: PetNode =
           when (node) {
             is Gain -> {
-              val original = node.scaledType.typeExpr
+              val original: Expression = node.scaledEx.expression
               if (leaveItAlone(original)) {
                 return node // don't descend
               } else {
                 val defaults: Defaults = loader.allDefaults[original.className]!!
-                val fixed = insertDefaultsIntoType(original, defaults.gainOnlyDependencies, context)
-                val scaledType = ScaledTypeExpr(node.count, fixed)
-                Gain(scaledType, node.intensity ?: defaults.gainIntensity)
+                val fixed = insertDefaultsIntoExpr(original, defaults.gainOnlyDependencies, context)
+                val scaledEx = ScaledExpression(node.count, fixed)
+                Gain(scaledEx, node.intensity ?: defaults.gainIntensity)
               }
             }
             is Remove -> { // TODO duplication
-              val original = node.scaledType.typeExpr
+              val original: Expression = node.scaledEx.expression
               if (leaveItAlone(original)) {
                 return node // don't descend
               } else {
                 val defaults: Defaults = loader.allDefaults[original.className]!!
                 val fixed =
-                    insertDefaultsIntoType(original, defaults.removeOnlyDependencies, context)
-                val scaledType = ScaledTypeExpr(node.count, fixed)
-                Remove(scaledType, node.intensity ?: defaults.removeIntensity)
+                    insertDefaultsIntoExpr(original, defaults.removeOnlyDependencies, context)
+                val scaledEx = ScaledExpression(node.count, fixed)
+                Remove(scaledEx, node.intensity ?: defaults.removeIntensity)
               }
             }
             else -> transformChildren(node)
@@ -88,41 +88,41 @@ public class Transformer internal constructor(val loader: PClassLoader) {
       @Suppress("UNCHECKED_CAST") return result as P
     }
 
-    private fun leaveItAlone(unfixed: TypeExpr) = unfixed.className in setOf(THIS, CLASS)
+    private fun leaveItAlone(unfixed: Expression) = unfixed.className in setOf(THIS, CLASS)
   }
 
-  private inner class AllCasesDefaultApplier(val context: TypeExpr) : PetTransformer() {
+  private inner class AllCasesDefaultApplier(val context: Expression) : PetTransformer() {
     override fun <P : PetNode> transform(node: P): P {
-      if (node !is TypeExpr) return transformChildren(node)
+      if (node !is Expression) return transformChildren(node)
       if (leaveItAlone(node)) return node
 
       val defaults: Defaults = loader.allDefaults[node.className]!!
       val result =
-          insertDefaultsIntoType(transformChildren(node), defaults.allCasesDependencies, context)
+          insertDefaultsIntoExpr(transformChildren(node), defaults.allCasesDependencies, context)
 
       @Suppress("UNCHECKED_CAST") return result as P
     }
 
-    private fun leaveItAlone(unfixed: TypeExpr) = unfixed.className in setOf(THIS, CLASS)
+    private fun leaveItAlone(unfixed: Expression) = unfixed.className in setOf(THIS, CLASS)
   }
 
   // only has to modify the args/specs
-  internal fun insertDefaultsIntoType(
-      original: TypeExpr, // SpecialTile<Player2>
+  internal fun insertDefaultsIntoExpr(
+      original: Expression, // SpecialTile<Player2>
       defaultDeps: DependencyMap, // Tile_0=LandArea
-      contextCpt: TypeExpr = THIS.type,
-  ): TypeExpr {
+      contextCpt: Expression = THIS.expr,
+  ): Expression {
 
     val pclass: PClass = loader.getClass(original.className) // SpecialTile
-    val dethissed: TypeExpr = original.replaceAll(THIS.type, contextCpt)
-    val preferred: Map<Key, TypeExpr> =
+    val dethissed: Expression = original.replaceAll(THIS.expr, contextCpt)
+    val preferred: Map<Key, Expression> =
         pclass.match(dethissed.arguments).map { it.key }.zip(original.arguments).toMap()
 
-    val fallbacks: Map<Key, TypeExpr> = defaultDeps.map.mapValues { (_, v) -> v.typeExpr }
-    val overlaid: Map<Key, TypeExpr> = overlayMaps(preferred, fallbacks)
+    val fallbacks: Map<Key, Expression> = defaultDeps.map.mapValues { (_, v) -> v.expression }
+    val overlaid: Map<Key, Expression> = overlayMaps(preferred, fallbacks)
 
     // reorder them
-    val newArgs: List<TypeExpr> =
+    val newArgs: List<Expression> =
         pclass.allDependencyKeys
             .mapNotNull { overlaid[it] }
             .also { require(it.size == overlaid.size) }

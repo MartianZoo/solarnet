@@ -17,21 +17,21 @@ public sealed class Instruction : PetNode() {
 
   public sealed class Change : Instruction() {
     abstract val count: Int
-    abstract val removing: TypeExpr?
-    abstract val gaining: TypeExpr?
+    abstract val removing: Expression?
+    abstract val gaining: Expression?
     abstract val intensity: Intensity?
   }
 
   public data class Gain(
-      val scaledType: ScaledTypeExpr,
+      val scaledEx: ScaledExpression,
       override val intensity: Intensity? = null,
   ) : Change() {
-    override val count = scaledType.scalar
+    override val count = scaledEx.scalar
     override val removing = null
-    override val gaining = scaledType.typeExpr
+    override val gaining = scaledEx.expression
 
-    override fun visitChildren(visitor: Visitor) = visitor.visit(scaledType)
-    override fun toString() = "$scaledType${intensity?.symbol ?: ""}"
+    override fun visitChildren(visitor: Visitor) = visitor.visit(scaledEx)
+    override fun toString() = "$scaledEx${intensity?.symbol ?: ""}"
 
     init {
       if (count == 0) {
@@ -40,14 +40,14 @@ public sealed class Instruction : PetNode() {
     }
   }
 
-  data class Remove(val scaledType: ScaledTypeExpr, override val intensity: Intensity? = null) :
+  data class Remove(val scaledEx: ScaledExpression, override val intensity: Intensity? = null) :
       Change() {
-    override val count = scaledType.scalar
-    override val removing = scaledType.typeExpr
+    override val count = scaledEx.scalar
+    override val removing = scaledEx.expression
     override val gaining = null
 
-    override fun visitChildren(visitor: Visitor) = visitor.visit(scaledType)
-    override fun toString() = "-$scaledType${intensity?.symbol ?: ""}"
+    override fun visitChildren(visitor: Visitor) = visitor.visit(scaledEx)
+    override fun toString() = "-$scaledEx${intensity?.symbol ?: ""}"
 
     init {
       if (count == 0) {
@@ -62,8 +62,8 @@ public sealed class Instruction : PetNode() {
       override val intensity: Intensity? = null,
   ) : Change() {
     override val count = scalar ?: 1
-    override val removing = from.fromType
-    override val gaining = from.toType
+    override val removing = from.fromExpression
+    override val gaining = from.toExpression
 
     override fun visitChildren(visitor: Visitor) = visitor.visit(from)
     override fun toString(): String {
@@ -120,10 +120,10 @@ public sealed class Instruction : PetNode() {
     override fun precedence() = 6
   }
 
-  data class Custom(val functionName: String, val arguments: List<TypeExpr>) : Instruction() {
+  data class Custom(val functionName: String, val arguments: List<Expression>) : Instruction() {
     constructor(
         functionName: String,
-        vararg arguments: TypeExpr
+        vararg arguments: Expression
     ) : this(functionName, arguments.toList())
 
     override fun visitChildren(visitor: Visitor) = visitor.visit(arguments)
@@ -206,12 +206,12 @@ public sealed class Instruction : PetNode() {
 
     internal fun parser(): Parser<Instruction> {
       return parser {
-        val scaledType: Parser<ScaledTypeExpr> = ScaledTypeExpr.parser()
+        val scaledEx: Parser<ScaledExpression> = ScaledExpression.parser()
 
         val gain: Parser<Gain> =
-            scaledType and optional(intensity) map { (ste, int) -> Gain(ste, int) }
+            scaledEx and optional(intensity) map { (ste, int) -> Gain(ste, int) }
         val remove: Parser<Remove> =
-            skipChar('-') and gain map { Remove(it.scaledType, it.intensity) }
+            skipChar('-') and gain map { Remove(it.scaledEx, it.intensity) }
 
         val transmute: Parser<Transmute> =
             optional(scalar) and
@@ -230,7 +230,7 @@ public sealed class Instruction : PetNode() {
             transform(parser()) map { (node, tname) -> Transform(node, tname) }
         val maybeTransform: Parser<Instruction> = maybePer or transform
 
-        val arguments = separatedTerms(TypeExpr.parser(), char(','), acceptZero = true)
+        val arguments = separatedTerms(Expression.parser(), char(','), acceptZero = true)
         val custom: Parser<Custom> =
             skipChar('@') and
             _lowerCamelRE and

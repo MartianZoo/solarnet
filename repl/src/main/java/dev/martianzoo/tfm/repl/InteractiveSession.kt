@@ -8,11 +8,11 @@ import dev.martianzoo.tfm.engine.Game
 import dev.martianzoo.tfm.pets.AstTransforms.replaceAll
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.pets.ast.Instruction
 import dev.martianzoo.tfm.pets.ast.Metric
 import dev.martianzoo.tfm.pets.ast.PetNode
 import dev.martianzoo.tfm.pets.ast.Requirement
-import dev.martianzoo.tfm.pets.ast.TypeExpr
 import dev.martianzoo.tfm.types.PClass
 import dev.martianzoo.tfm.types.PType
 import dev.martianzoo.util.HashMultiset
@@ -32,7 +32,7 @@ class InteractiveSession {
 
   fun becomePlayer(player: Int) {
     val p = cn("Player$player")
-    game!!.resolveType(p.type)
+    game!!.resolveType(p.expr)
     defaultPlayer = p
   }
 
@@ -42,8 +42,8 @@ class InteractiveSession {
 
   fun count(metric: Metric) = game!!.count(fixTypes(metric))
 
-  fun list(typeExpr: TypeExpr): Multiset<TypeExpr> {
-    val typeToList: PType = game!!.resolveType(fixTypes(typeExpr))
+  fun list(expression: Expression): Multiset<Expression> {
+    val typeToList: PType = game!!.resolveType(fixTypes(expression))
     val allComponents: Multiset<Component> = game!!.getComponents(typeToList)
 
     // TODO decide more intelligently how to break it down
@@ -52,7 +52,7 @@ class InteractiveSession {
     // ugh capital tile TODO
     val subs: Set<PClass> = pclass.directSubclasses.ifEmpty { setOf(pclass) }
 
-    val result = HashMultiset<TypeExpr>()
+    val result = HashMultiset<Expression>()
     subs.forEach { sub ->
       val matches = allComponents.filter { it.alwaysHasType(sub.baseType) }
       if (matches.any()) {
@@ -62,7 +62,7 @@ class InteractiveSession {
           val ptype = element.type as PType
           lub = lub?.lub(ptype) ?: ptype
         }
-        lub?.let { result.add(it.typeExpr, matches.size) }
+        lub?.let { result.add(it.expression, matches.size) }
       }
     }
     return result
@@ -74,7 +74,7 @@ class InteractiveSession {
 
   fun rollBackToBefore(ordinal: Int) = game!!.rollBack(ordinal)
 
-  // TODO somehow do this with Type not TypeExpr?
+  // TODO somehow do this with Type not Expression?
   // TODO Let game take care of this itself?
   fun <P : PetNode> fixTypes(node: P): P {
     val xer = game!!.loader.transformer
@@ -82,7 +82,7 @@ class InteractiveSession {
     // TODO consolidate
     result = xer.insertDefaults(result)
     if (defaultPlayer != null) {
-      result = result.replaceAll(OWNER.type, defaultPlayer!!.type) // TODO
+      result = result.replaceAll(OWNER.expr, defaultPlayer!!.expr) // TODO
     }
     result = xer.deprodify(result)
     return result

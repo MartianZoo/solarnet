@@ -30,7 +30,7 @@ data class MilestoneDefinition(
         className,
         id,
         abstract = false,
-        supertypes = setOf(MILESTONE.type),
+        supertypes = setOf(MILESTONE.expr),
         effectsIn = setOf(effect("This:: ($requirement: Ok)")))
   }
 }

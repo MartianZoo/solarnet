@@ -10,7 +10,7 @@ The Pets language. Parsers for elements and class declarations, the objects it p
 
 ### <a href="pets/dev.martianzoo.tfm.pets.ast/index.html">dev.martianzoo.tfm.pets.ast</a>
 
-Pets element types, like Requirement, Action, Instruction, TypeExpr, and so on. The abstract syntax tree the Pets language is parsed to.
+Pets element types, like Requirement, Action, Instruction, Expression, and so on. The abstract syntax tree the Pets language is parsed to.
 
 ### <a href="pets/dev.martianzoo.tfm.data/index.html">dev.martianzoo.tfm.data</a>
 

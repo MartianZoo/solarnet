@@ -5,10 +5,11 @@ import dev.martianzoo.tfm.pets.ast.Action.Cost
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.Effect
 import dev.martianzoo.tfm.pets.ast.Effect.Trigger
+import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.pets.ast.From
 import dev.martianzoo.tfm.pets.ast.From.ComplexFrom
+import dev.martianzoo.tfm.pets.ast.From.ExpressionAsFrom
 import dev.martianzoo.tfm.pets.ast.From.SimpleFrom
-import dev.martianzoo.tfm.pets.ast.From.TypeAsFrom
 import dev.martianzoo.tfm.pets.ast.Instruction
 import dev.martianzoo.tfm.pets.ast.Instruction.Custom
 import dev.martianzoo.tfm.pets.ast.Instruction.Gain
@@ -19,8 +20,7 @@ import dev.martianzoo.tfm.pets.ast.Instruction.Transmute
 import dev.martianzoo.tfm.pets.ast.Metric
 import dev.martianzoo.tfm.pets.ast.PetNode
 import dev.martianzoo.tfm.pets.ast.Requirement
-import dev.martianzoo.tfm.pets.ast.ScaledTypeExpr
-import dev.martianzoo.tfm.pets.ast.TypeExpr
+import dev.martianzoo.tfm.pets.ast.ScaledExpression
 import dev.martianzoo.util.iff
 import dev.martianzoo.util.pre
 import dev.martianzoo.util.wrap
@@ -37,32 +37,32 @@ internal object PetToKotlin {
       return when (this) {
         null -> "null"
         is ClassName -> "cn(\"$this\")"
-        is TypeExpr -> {
+        is Expression -> {
           p2k(className) +
               (if (arguments.none()) ".type" else ".addArgs(${arguments.join()})") +
               refinement?.let(::p2k).wrap(".refine(", ")")
         }
 
-        is ScaledTypeExpr -> {
+        is ScaledExpression -> {
           if (scalar == 1) {
-            "scaledType(${p2k(typeExpr)})"
+            "scaledEx(${p2k(expression)})"
           } else {
-            "scaledType($scalar${p2k(typeExpr).pre(", ")})"
+            "scaledEx($scalar${p2k(expression).pre(", ")})"
           }
         }
 
         is Metric -> {
           when (this) {
-            is Metric.Count -> "Count(${p2k(scaledType)})"
+            is Metric.Count -> "Count(${p2k(scaledEx)})"
             is Metric.Max -> "Metric.Max(${p2k(metric)}, $maximum)"
           }
         }
 
         is Requirement -> {
           when (this) {
-            is Requirement.Min -> "Min(${p2k(scaledType)})"
-            is Requirement.Max -> "Requirement.Max(${p2k(scaledType)})"
-            is Requirement.Exact -> "Exact(${p2k(scaledType)})"
+            is Requirement.Min -> "Min(${p2k(scaledEx)})"
+            is Requirement.Max -> "Requirement.Max(${p2k(scaledEx)})"
+            is Requirement.Exact -> "Exact(${p2k(scaledEx)})"
             is Requirement.Or -> "Requirement.Or(${requirements.join()})"
             is Requirement.And -> "Requirement.And(${requirements.join()})"
             is Requirement.Transform ->
@@ -71,8 +71,8 @@ internal object PetToKotlin {
         }
         is Instruction -> {
           when (this) {
-            is Gain -> "Gain(${p2k(scaledType)}${intensity.pre(", ")})"
-            is Remove -> "Remove(${p2k(scaledType)}${intensity.pre(", ")})"
+            is Gain -> "Gain(${p2k(scaledEx)}${intensity.pre(", ")})"
+            is Remove -> "Remove(${p2k(scaledEx)}${intensity.pre(", ")})"
             is Instruction.Per -> "Instruction.Per(${p2k(instruction)}, ${p2k(metric)})"
             is Gated -> "Gated(${p2k(gate)}, ${p2k(instruction)})"
             is Transmute -> "Transmute(${p2k(from)}, $count${intensity.pre(", ")})"
@@ -91,16 +91,16 @@ internal object PetToKotlin {
             is ComplexFrom ->
                 "ComplexFrom(cn(\"$className\")," +
                     " listOf(${arguments.join()})${refinement.pre(", ")})"
-            is SimpleFrom -> "SimpleFrom(${p2k(toType)}, ${p2k(fromType)})"
-            is TypeAsFrom -> "TypeAsFrom(${p2k(typeExpr)})"
+            is SimpleFrom -> "SimpleFrom(${p2k(toExpression)}, ${p2k(fromExpression)})"
+            is ExpressionAsFrom -> "ExpressionAsFrom(${p2k(expression)})"
           }
         }
         is Trigger -> {
           when (this) {
             is Trigger.WhenGain -> "WhenGain"
             is Trigger.WhenRemove -> "WhenRemove"
-            is Trigger.OnGainOf -> "OnGainOf(${p2k(typeExpr)})"
-            is Trigger.OnRemoveOf -> "OnRemoveOf(${p2k(typeExpr)})"
+            is Trigger.OnGainOf -> "OnGainOf(${p2k(expression)})"
+            is Trigger.OnRemoveOf -> "OnRemoveOf(${p2k(expression)})"
             is Trigger.ByTrigger -> "ByTrigger(${p2k(inner)}, ${p2k(by)})"
             is Trigger.Transform -> "Trigger.Transform(${p2k(trigger)}, \"$transformKind\")"
           }
@@ -108,7 +108,7 @@ internal object PetToKotlin {
         is Effect -> "Effect(${p2k(trigger)}, ${p2k(instruction)}${", true".iff(automatic)})"
         is Cost -> {
           when (this) {
-            is Cost.Spend -> "Spend(${p2k(scaledType)})"
+            is Cost.Spend -> "Spend(${p2k(scaledEx)})"
             is Cost.Per -> "Cost.Per(${p2k(cost)}, ${p2k(metric)})"
             is Cost.Or -> "Cost.Or(${costs.join()})"
             is Cost.Multi -> "Cost.Multi(${costs.join()})"

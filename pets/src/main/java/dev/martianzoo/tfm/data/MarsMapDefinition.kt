@@ -22,7 +22,7 @@ data class MarsMapDefinition(
           className = className,
           id = id,
           abstract = false,
-          supertypes = setOf(MARS_MAP.type),
+          supertypes = setOf(MARS_MAP.expr),
       )
 
   data class AreaDefinition(
@@ -64,7 +64,7 @@ data class MarsMapDefinition(
           className = className,
           id = id,
           abstract = false,
-          supertypes = setOf(kind.type),
+          supertypes = setOf(kind.expr),
           effectsIn = bonus?.let { setOf(Effect(trigger, it, false)) } ?: setOf(),
       )
     }

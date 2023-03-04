@@ -15,13 +15,13 @@ import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.pets.ast.Effect
 import dev.martianzoo.tfm.pets.ast.Effect.Companion.effect
 import dev.martianzoo.tfm.pets.ast.Effect.Trigger
+import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.pets.ast.Instruction
 import dev.martianzoo.tfm.pets.ast.Instruction.Companion.instruction
 import dev.martianzoo.tfm.pets.ast.Instruction.Gain
 import dev.martianzoo.tfm.pets.ast.Metric.Count
 import dev.martianzoo.tfm.pets.ast.PetNode
-import dev.martianzoo.tfm.pets.ast.ScaledTypeExpr.Companion.scaledType
-import dev.martianzoo.tfm.pets.ast.TypeExpr
+import dev.martianzoo.tfm.pets.ast.ScaledExpression.Companion.scaledEx
 import dev.martianzoo.tfm.testlib.te
 import dev.martianzoo.util.toStrings
 import kotlin.reflect.KClass
@@ -71,14 +71,15 @@ private class AstTransformsTest {
   @Test
   fun testFindAllClassNames() {
     val instr = instruction("@foo(Bar, Qux<Dog>)")
-    assertThat(instr.descendantsOfType<ClassName>().toStrings())
-        .containsExactly("Bar", "Qux", "Dog")
+    assertThat(instr.descendantsOfType<ClassName>().toStrings()).containsExactly("Bar",
+        "Qux",
+        "Dog")
   }
 
   @Test
   fun testResolveSpecialThisType() {
-    checkResolveThis<Instruction>("Foo<This>", cn("Bar").type, "Foo<Bar>")
-    checkResolveThis<Instruction>("Foo<This>", cn("Bar").type, "Foo<Bar>")
+    checkResolveThis<Instruction>("Foo<This>", cn("Bar").expr, "Foo<Bar>")
+    checkResolveThis<Instruction>("Foo<This>", cn("Bar").expr, "Foo<Bar>")
 
     // looks like a plain textual replacement but we know what's really happening
     val petsIn =
@@ -90,12 +91,12 @@ private class AstTransformsTest {
     checkResolveThis<Effect>(petsIn, te("It<Worked>"), petsOut)
 
     // allows nonsense
-    checkResolveThis<Instruction>("This<Foo>", cn("Bar").type, "This<Foo>")
+    checkResolveThis<Instruction>("This<Foo>", cn("Bar").expr, "This<Foo>")
   }
 
   private inline fun <reified P : PetNode> checkResolveThis(
       original: String,
-      thiss: TypeExpr,
+      thiss: Expression,
       expected: String,
   ) {
     checkResolveThis(P::class, original, thiss, expected)
@@ -104,12 +105,12 @@ private class AstTransformsTest {
   private fun <P : PetNode> checkResolveThis(
       type: KClass<P>,
       original: String,
-      thiss: TypeExpr,
+      thiss: Expression,
       expected: String,
   ) {
     val parsedOriginal = parseElement(type, original)
     val parsedExpected = parseElement(type, expected)
-    val tx = parsedOriginal.replaceAll(THIS.type, thiss)
+    val tx = parsedOriginal.replaceAll(THIS.expr, thiss)
     assertThat(tx).isEqualTo(parsedExpected)
 
     // more round-trip checking doesn't hurt
@@ -157,13 +158,13 @@ private class AstTransformsTest {
     assertThat(x)
         .isEqualTo(
             Effect(
-                Trigger.Transform(Trigger.OnGainOf.create(cn("Plant").type), "HAHA"),
+                Trigger.Transform(Trigger.OnGainOf.create(cn("Plant").expr), "HAHA"),
                 Instruction.Multi(
-                    Gain(scaledType(1, cn("Heat").type)),
+                    Gain(scaledEx(1, cn("Heat").expr)),
                     Instruction.Transform(
                         Instruction.Per(
-                            Gain(scaledType(1, cn("Steel").type)),
-                            Count(scaledType(5, cn("PowerTag").type))),
+                            Gain(scaledEx(1, cn("Steel").expr)),
+                            Count(scaledEx(5, cn("PowerTag").expr))),
                         "HAHA")),
                 false))
   }

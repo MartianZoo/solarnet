@@ -35,8 +35,8 @@ private class CanonBootstrapTest {
   fun classCounts() {
     val game = Engine.newGame(GameSetup(Canon, "BRM", 3))
 
-    fun checkCount(count: Int, type: String) {
-      assertThat(game.count(metric(type))).isEqualTo(count)
+    fun checkCount(count: Int, expr: String) {
+      assertThat(game.count(metric(expr))).isEqualTo(count)
     }
 
     checkCount(1, "Class<Class>")
@@ -61,7 +61,7 @@ private class CanonBootstrapTest {
   fun createsExpectedSingletons() {
     val game = Engine.newGame(GameSetup(Canon, "BRMPX", 3))
     val startingComponents: Multiset<Component> =
-        game.getComponents(game.resolveType(COMPONENT.type))
+        game.getComponents(game.resolveType(COMPONENT.expr))
     assertThat(startingComponents.elements).hasSize(startingComponents.size)
 
     val isArea: (Component) -> Boolean = { it.toString().startsWith("[Tharsis_") }

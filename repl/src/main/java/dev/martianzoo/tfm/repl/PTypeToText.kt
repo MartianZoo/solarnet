@@ -1,21 +1,21 @@
 package dev.martianzoo.tfm.repl
 
 import dev.martianzoo.tfm.engine.Component
+import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.pets.ast.Instruction.Gain
 import dev.martianzoo.tfm.pets.ast.Instruction.Remove
-import dev.martianzoo.tfm.pets.ast.ScaledTypeExpr
-import dev.martianzoo.tfm.pets.ast.TypeExpr
+import dev.martianzoo.tfm.pets.ast.ScaledExpression
 import dev.martianzoo.tfm.types.PClass
 import dev.martianzoo.tfm.types.PClassLoader
 import dev.martianzoo.util.iff
 
 object PTypeToText { // TODO refactor to ClassInfo / TypeInfo type dealies
   /** A detailed multi-line description of the class. */
-  public fun describe(expr: TypeExpr, loader: PClassLoader): String {
+  public fun describe(expression: Expression, loader: PClassLoader): String {
     fun descendingBySubclassCount(classes: Iterable<PClass>) =
         classes.sortedWith(compareBy({ -it.allSubclasses.size }, { it.className }))
 
-    val ptype = loader.resolveType(expr)
+    val ptype = loader.resolveType(expression)
     val pclass = ptype.pclass
 
     val subs = descendingBySubclassCount(pclass.allSubclasses - pclass)
@@ -44,7 +44,7 @@ object PTypeToText { // TODO refactor to ClassInfo / TypeInfo type dealies
       pclass.invariants.joinToString("""
                        """)
     }
-          base type:   ${pclass.baseType.typeExprFull}
+          base type:   ${pclass.baseType.expressionFull}
           c. types:    $concTypes
           class fx:    ${
       pclass.classEffects.joinToString("""
@@ -52,19 +52,19 @@ object PTypeToText { // TODO refactor to ClassInfo / TypeInfo type dealies
     }
 
 
-    """.trimIndent().iff(expr.simple)
+    """.trimIndent().iff(expression.simple)
 
     val concSubs = sequenceCount(ptype.allConcreteSubtypes(), 100)
 
-    val allCases = loader.transformer.insertDefaults(expr)
-    val gain = loader.transformer.insertDefaults(Gain(ScaledTypeExpr(1, expr)))
-    val remove = loader.transformer.insertDefaults(Remove(ScaledTypeExpr(1, expr)))
+    val allCases = loader.transformer.insertDefaults(expression)
+    val gain = loader.transformer.insertDefaults(Gain(ScaledExpression(1, expression)))
+    val remove = loader.transformer.insertDefaults(Remove(ScaledExpression(1, expression)))
 
     // TODO linkages?
     val typeStuff = """
-      Type expression $expr:
+      Expression $expression:
           std. form:   $ptype
-          long form:   ${ptype.typeExprFull}
+          long form:   ${ptype.expressionFull}
           supertypes:  ${ptype.supertypes().joinToString()}
           defaults:    $allCases / +$gain / $remove
           c. subtypes: $concSubs

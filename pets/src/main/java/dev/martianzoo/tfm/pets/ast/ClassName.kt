@@ -15,16 +15,16 @@ public data class ClassName(private val asString: String) : PetNode(), Comparabl
     require(asString.matches(classNameRegex)) { "Bad class name: $asString" }
   }
 
-  public val type = TypeExpr(this)
+  public val expr = Expression(this) // TODO expression?
 
-  public fun addArgs(specs: List<TypeExpr>) = type.addArgs(specs)
-  public fun addArgs(vararg specs: TypeExpr) = addArgs(specs.toList())
+  public fun addArgs(specs: List<Expression>) = expr.addArgs(specs)
+  public fun addArgs(vararg specs: Expression) = addArgs(specs.toList())
 
   @JvmName("addArgsFromClassNames")
-  public fun addArgs(specs: List<ClassName>) = addArgs(specs.map { it.type })
+  public fun addArgs(specs: List<ClassName>) = addArgs(specs.map { it.expr })
   public fun addArgs(vararg specs: ClassName) = addArgs(specs.toList())
 
-  fun refine(requirement: Requirement?) = type.refine(requirement)
+  fun refine(requirement: Requirement?) = expr.refine(requirement)
 
   public fun matches(regex: Regex) = asString.matches(regex)
   override fun toString() = asString

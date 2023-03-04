@@ -10,18 +10,18 @@ import dev.martianzoo.tfm.pets.ast.Action.Cost
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.pets.ast.Effect
 import dev.martianzoo.tfm.pets.ast.Effect.Trigger
+import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.pets.ast.From
 import dev.martianzoo.tfm.pets.ast.From.ComplexFrom
+import dev.martianzoo.tfm.pets.ast.From.ExpressionAsFrom
 import dev.martianzoo.tfm.pets.ast.From.SimpleFrom
-import dev.martianzoo.tfm.pets.ast.From.TypeAsFrom
 import dev.martianzoo.tfm.pets.ast.Instruction
 import dev.martianzoo.tfm.pets.ast.Instruction.Intensity
 import dev.martianzoo.tfm.pets.ast.Metric
 import dev.martianzoo.tfm.pets.ast.PetNode
 import dev.martianzoo.tfm.pets.ast.Requirement
-import dev.martianzoo.tfm.pets.ast.ScaledTypeExpr
-import dev.martianzoo.tfm.pets.ast.ScaledTypeExpr.Companion.scaledType
-import dev.martianzoo.tfm.pets.ast.TypeExpr
+import dev.martianzoo.tfm.pets.ast.ScaledExpression
+import dev.martianzoo.tfm.pets.ast.ScaledExpression.Companion.scaledEx
 import dev.martianzoo.tfm.testlib.PetToKotlin.p2k
 import dev.martianzoo.util.HashMultiset
 import dev.martianzoo.util.Multiset
@@ -40,15 +40,15 @@ internal class PetGenerator(scaling: (Int) -> Double) :
     init {
       val specSizes = multiset(8 to 0, 4 to 1, 2 to 2, 1 to 3) // weight to value
       register { cn(randomName()) }
-      register(TypeExpr::class) {
-        TypeExpr(
+      register(Expression::class) {
+        Expression(
             recurse(),
             listOfSize(choose(specSizes)),
             refinement(),
             null) // choose(10 to null, 2 to 1, 1 to 2))
       }
       register {
-        scaledType(choose(0, 1, 1, 1, 5, 11), choose(1 to MEGACREDIT.type, 3 to recurse()))
+        scaledEx(choose(0, 1, 1, 1, 5, 11), choose(1 to MEGACREDIT.expr, 3 to recurse()))
       }
 
       val metricTypes =
@@ -57,7 +57,7 @@ internal class PetGenerator(scaling: (Int) -> Double) :
               1 to Metric.Max::class,
           )
       register(Metric::class) { recurse(choose(metricTypes)) }
-      register { Metric.Count(scaledType = recurse()) }
+      register { Metric.Count(scaledEx = recurse()) }
       register { Metric.Max(metric = recurse(), maximum = choose(5, 11)) }
 
       val requirementTypes =
@@ -70,9 +70,9 @@ internal class PetGenerator(scaling: (Int) -> Double) :
               1 to Requirement.Transform::class,
           )
       register(Requirement::class) { recurse(choose(requirementTypes)) }
-      register { Requirement.Min(scaledType = recurse()) }
-      register { Requirement.Max(scaledType = recurse()) }
-      register { Requirement.Exact(scaledType = recurse()) }
+      register { Requirement.Min(scaledEx = recurse()) }
+      register { Requirement.Max(scaledEx = recurse()) }
+      register { Requirement.Exact(scaledEx = recurse()) }
       register { Requirement.Or(setOfSize(choose(2, 2, 2, 2, 2, 3, 4))) }
       register { Requirement.And(listOfSize(choose(2, 2, 2, 2, 3))) }
       register { Requirement.Transform(recurse(), "PROD") }
@@ -97,7 +97,7 @@ internal class PetGenerator(scaling: (Int) -> Double) :
       register { Instruction.Remove(recurse(), intensity()) }
       register { Instruction.Per(recurse(), recurse()) }
       register { Instruction.Gated(recurse(), recurse()) }
-      register { Instruction.Transmute(recurse(), recurse<ScaledTypeExpr>().scalar, intensity()) }
+      register { Instruction.Transmute(recurse(), recurse<ScaledExpression>().scalar, intensity()) }
       register { Instruction.Custom("name", listOfSize(choose(1, 1, 1, 2))) }
       register { Instruction.Then(listOfSize(choose(2, 2, 2, 3))) }
       register { Instruction.Or(setOfSize(choose(2, 2, 2, 2, 3))) }
@@ -105,18 +105,18 @@ internal class PetGenerator(scaling: (Int) -> Double) :
       register { Instruction.Transform(recurse(), "PROD") }
 
       register(From::class) {
-        val one: TypeExpr = recurse()
-        val two: TypeExpr = recurse()
+        val one: Expression = recurse()
+        val two: Expression = recurse()
 
-        fun getTypes(typeExpr: TypeExpr): List<TypeExpr> =
-            typeExpr.arguments.flatMap(::getTypes) + typeExpr
+        fun getTypes(expression: Expression): List<Expression> =
+            expression.arguments.flatMap(::getTypes) + expression
 
         val oneTypes = getTypes(one)
         val twoTypes = getTypes(two)
 
-        val inject: TypeExpr
-        val into: TypeExpr
-        val target: TypeExpr
+        val inject: Expression
+        val into: Expression
+        val target: Expression
 
         if (oneTypes.size <= twoTypes.size) {
           inject = one
@@ -130,15 +130,15 @@ internal class PetGenerator(scaling: (Int) -> Double) :
 
         val b = Random.Default.nextBoolean()
 
-        fun convert(typeExpr: TypeExpr): From {
-          if (typeExpr == target) {
+        fun convert(expression: Expression): From {
+          if (expression == target) {
             return SimpleFrom(if (b) inject else target, if (b) target else inject)
           }
-          val args = typeExpr.arguments.map(::convert)
-          return if (args.all { it is TypeAsFrom }) {
-            TypeAsFrom(typeExpr)
+          val args = expression.arguments.map(::convert)
+          return if (args.all { it is ExpressionAsFrom }) {
+            ExpressionAsFrom(expression)
           } else {
-            ComplexFrom(typeExpr.className, args, typeExpr.refinement)
+            ComplexFrom(expression.className, args, expression.refinement)
           }
         }
         convert(into)
@@ -172,7 +172,7 @@ internal class PetGenerator(scaling: (Int) -> Double) :
               2 to Cost.Transform::class,
           )
       register(Cost::class) { recurse(choose(costTypes)) }
-      register { Cost.Spend(scaledType = recurse()) }
+      register { Cost.Spend(scaledEx = recurse()) }
       register { Cost.Per(recurse(), recurse()) }
       register { Cost.Or(setOfSize(choose(2, 2, 2, 2, 3, 4))) }
       register { Cost.Multi(listOfSize(choose(2, 2, 2, 3))) }
