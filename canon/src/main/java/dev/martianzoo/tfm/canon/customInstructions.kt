@@ -17,6 +17,7 @@ internal val allCustomInstructions =
         CreateAll,
         GainLowestProduction,
         CopyProductionBox,
+        CopyPrelude,
     )
 
 private object ForceLoad : CustomInstruction("forceLoad") { // TODO include @ ?
@@ -67,5 +68,11 @@ private object CopyProductionBox : CustomInstruction("copyProductionBox") {
               "The immediate instructions on $chosenCardName " +
                   "have multiple PROD boxes, which should never happen")
     }
+  }
+}
+
+private object CopyPrelude : CustomInstruction("copyPrelude") {
+  override fun execute(game: GameState, arguments: List<Type>) {
+    TODO()
   }
 }

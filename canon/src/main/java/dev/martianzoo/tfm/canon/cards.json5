@@ -113,6 +113,16 @@
       "resourceType": "Animal"
     },
 
+    // Aphrodite
+    {
+      "id": "V01",
+      "bundle": "V",
+      "deck": "CORPORATION",
+      "tags": [ "VenusTag", "PlantTag" ],
+      "immediate": "PROD[Plant], 47",
+      "effects": [ "VenusStep BY Anyone: 2" ]
+    },
+
     // Viron
     {
       "id": "V05",
@@ -173,8 +183,8 @@
         // ideally: `TR FROM Disease ELSE (PlayedEvent FROM This, 3 TR)?`
         "ScienceTag: (TerraformRating FROM Disease) OR (MAX 0 Disease: ((PlayedEvent FROM This, 3 TerraformRating) OR Ok))"
       ],
-      "resourceType": "Disease",
-      "components": [ "CLASS Disease : CardResource" ]
+      "components": [ "CLASS Disease : CardResource" ],
+      "resourceType": "Disease"
     },
 
     // Allied Bank
@@ -464,6 +474,14 @@
       "immediate": "13, 2 ProjectCard"
     },
 
+    // Double Down
+    {
+      "id": "X40",
+      "bundle": "X",
+      "deck": "PRELUDE",
+      "immediate": "@copyPrelude(CardFront)",
+    },
+
     // Merger[F]
     {
       "id": "X41F",
@@ -682,8 +700,8 @@
       "deck": "PROJECT",
       "tags": [ "SpaceTag", "CityTag" ],
       "immediate": "PROD[Titanium], CityTile<Area021>",
-      "components": [ "CLASS Area021 : RemoteArea" ],
       "effects": [ "End: 3 VictoryPoint" ],
+      "components": [ "CLASS Area021 : RemoteArea" ],
       "cost": 25,
       "projectKind": "AUTOMATED"
     },
@@ -696,6 +714,19 @@
       "immediate": "PROD[-2, 3 Heat], OceanTile",
       "cost": 15,
       "projectKind": "AUTOMATED"
+    },
+
+    // Arctic Algae
+    {
+      "id": "023",
+      "bundle": "B",
+      "deck": "PROJECT",
+      "tags": [ "PlantTag" ],
+      "immediate": "Plant",
+      "effects": [ "OceanTile BY Anyone: 2 Plant" ],
+      "requirement": "MAX 9 TemperatureStep",
+      "cost": 12,
+      "projectKind": "ACTIVE",
     },
 
     // Predators
@@ -1136,8 +1167,8 @@
       "deck": "PROJECT",
       "tags": [ "JovianTag", "SpaceTag", "CityTag" ],
       "immediate": "CityTile<Area081>",
-      "components": [ "CLASS Area081 : RemoteArea" ],
       "effects": [ "End: VictoryPoint / JovianTag" ],
+      "components": [ "CLASS Area081 : RemoteArea" ],
       "cost": 20,
       "projectKind": "AUTOMATED"
     },
@@ -1431,8 +1462,8 @@
         "PlantTag: Animal<This>",
         "End: VictoryPoint / Animal<This>"
       ],
-      "resourceType": "Animal",
       "components": [ "CLASS Tile128 : SpecialTile" ],
+      "resourceType": "Animal",
       "requirement": "GreeneryTile",
       "cost": 12,
       "projectKind": "ACTIVE"
@@ -2159,8 +2190,8 @@
       "tags": [ "SpaceTag" ],
       "actions": [ "Titanium -> Fighter<This>" ],
       "effects": [ "End: VictoryPoint / Fighter<This>" ],
-      "resourceType": "Fighter",
       "components": [ "CLASS Fighter : CardResource" ],
+      "resourceType": "Fighter",
       "cost": 12,
       "projectKind": "ACTIVE"
     },
@@ -2458,6 +2489,17 @@
       "effects": [ "End: 2 VictoryPoint" ],
       "cost": 13,
       "projectKind": "AUTOMATED"
+    },
+
+    // Toll Station
+    {
+      "id": "099",
+      "bundle": "R",
+      "deck": "PROJECT",
+      "tags": [ "SpaceTag" ],
+      "immediate": "PROD[1 / SpaceTag<Anyone>, -1 / SpaceTag]",
+      "cost": 12,
+      "projectKind": "AUTOMATED",
     },
 
     // Earth Office
@@ -3190,8 +3232,8 @@
       "deck": "PROJECT",
       "tags": [ "SpaceTag", "EarthTag", "CityTag" ],
       "immediate": "PROD[1 / EarthTag], CityTile<Area236>",
-      "components": [ "CLASS Area236 : RemoteArea" ],
       "effects": [ "End: 2 VictoryPoint" ],
+      "components": [ "CLASS Area236 : RemoteArea" ],
       "cost": 21,
       "projectKind": "AUTOMATED"
     },
@@ -3214,9 +3256,9 @@
       "deck": "PROJECT",
       "tags": [ "VenusTag", "CityTag" ],
       "immediate": "PROD[-Energy], CityTile<Area238>",
-      "components": [ "CLASS Area238 : RemoteArea" ],
       "actions": [ "-> CardResource<CardFront(HAS VenusTag)>" ],
       "effects": [ "End: 3 VictoryPoint" ],
+      "components": [ "CLASS Area238 : RemoteArea" ],
       "requirement": "6 VenusStep",
       "cost": 18,
       "projectKind": "ACTIVE"
@@ -3322,6 +3364,19 @@
       "projectKind": "EVENT"
     },
 
+    // Sponsored Academies
+    {
+      "id": "247",
+      "bundle": "V",
+      "deck": "PROJECT",
+      "tags": [ "ScienceTag", "EarthTag" ],
+      "immediate": "-ProjectCard THEN 2 ProjectCard",
+      "effects": [ "End: VictoryPoint" ],
+      "components": [ "CLASS Card247Watcher : Owned { HAS =1 This; SponsoredAcademies<Anyone>: ProjectCard }" ],
+      "cost": 9,
+      "projectKind": "AUTOMATED",
+    },
+
     // Stratopolis
     {
       "id": "248",
@@ -3329,9 +3384,9 @@
       "deck": "PROJECT",
       "tags": [ "VenusTag", "CityTag" ],
       "immediate": "PROD[2], CityTile<Area248>",
-      "components": [ "CLASS Area248 : RemoteArea" ],
       "actions": [ "-> 2 Floater<CardFront(HAS VenusTag)>" ],
       "effects": [ "End: VictoryPoint / 3 Floater<This>" ],
+      "components": [ "CLASS Area248 : RemoteArea" ],
       "resourceType": "Floater",
       "requirement": "2 ScienceTag",
       "cost": 22,
@@ -3743,6 +3798,18 @@
       "resourceType": "Camp",
       "cost": 10,
       "projectKind": "ACTIVE"
+    },
+
+    // Solar Probe
+    {
+      "id": "C37",
+      "bundle": "C",
+      "deck": "PROJECT",
+      "tags": [ "ScienceTag", "SpaceTag" ],
+      "immediate": "ProjectCard / 3 ScienceTag", // should be in play at the time
+      "effects": [ "End: VictoryPoint" ],
+      "cost": 9,
+      "projectKind": "EVENT",
     },
 
     // Solar Reflectors
