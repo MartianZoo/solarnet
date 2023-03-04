@@ -288,7 +288,6 @@ internal object ClassDeclarationParsers : PetParser() {
       // instead of nested inside it
       override fun unnestOneFrom(container: ClassName): NestableDecl {
         return when {
-          // the class name we'd insert is already there (TODO be even smarter)
           decl.supertypes.any { it.className == container } -> CompleteNestableDecl(decl)
 
           // jam the superclass in and mark it complete

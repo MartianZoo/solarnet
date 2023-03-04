@@ -1,14 +1,34 @@
-package dev.martianzoo.tfm.types
+package dev.martianzoo.tfm.canon
 
 import com.google.common.truth.Truth.assertThat
+import dev.martianzoo.tfm.api.SpecialClassNames
 import dev.martianzoo.tfm.api.SpecialClassNames.GAME
-import dev.martianzoo.tfm.canon.Canon
+import dev.martianzoo.tfm.pets.AstTransforms.replaceAll
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.pets.ast.Effect.Companion.effect
+import dev.martianzoo.tfm.types.PClass
+import dev.martianzoo.tfm.types.PClassLoader
 import dev.martianzoo.util.toStrings
 import org.junit.jupiter.api.Test
 
 private class CanonEffectsTest {
+  @Test
+  fun getClassEffects() {
+    val table = PClassLoader(Canon).loadEverything()
+    table.allClasses.forEach { it.classEffects }
+  }
+
+  @Test
+  fun checkTypesInEffects() {
+    val table = PClassLoader(Canon).loadEverything()
+
+    table.allClasses.forEach { pclass ->
+      pclass.classEffects.forEach {
+        table.checkAllTypes(it.replaceAll(SpecialClassNames.THIS.type, pclass.className.type))
+      }
+    }
+  }
+
   fun load(name: String): PClass {
     val loader = PClassLoader(Canon, true)
     loader.load(GAME)

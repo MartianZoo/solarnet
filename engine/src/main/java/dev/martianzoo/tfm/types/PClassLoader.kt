@@ -147,7 +147,7 @@ public class PClassLoader(
   }
 
   public var frozen: Boolean = false
-    internal set(f) {
+    public set(f) {
       require(f) { "can't melt" }
       field = f
       validate()
