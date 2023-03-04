@@ -40,7 +40,7 @@ internal constructor(
 ) : HasClassName {
 
   /** The name of this class, in UpperCamelCase. */
-  public override val className: ClassName by declaration::className
+  public override val className: ClassName = declaration.className.also { require(it != THIS) }
 
   /**
    * A short name for this class, such as `"CT"` for `"CityTile"`; is often the same as [className].
@@ -92,7 +92,14 @@ internal constructor(
    * than `Tile<Area>`).
    */
   public val directSupertypes: Set<PType> by lazy {
-    declaration.supertypes.map(loader::resolveType).toSetStrict()
+    if (directSuperclasses.none()) {
+      setOf()
+    } else {
+      declaration.supertypes
+          .ifEmpty { setOf(COMPONENT.type) }
+          .map(loader::resolveType)
+          .toSetStrict()
+    }
   }
 
   /**
@@ -149,12 +156,9 @@ internal constructor(
     loader.classClass.withExactDependencies(DependencyMap(listOf(ClassDependency(this))))
   }
 
-  /** Least upper bound of all types with pclass==this */
-  public val baseType: PType by lazy {
+  internal val baseDependencies: DependencyMap by lazy {
     if (className == CLASS) {
-      // base type of Class is Class<Component>
-      require(declaration.dependencies.single().typeExpr == COMPONENT.type)
-      loader.componentClass.classType
+      DependencyMap(listOf(ClassDependency(loader.componentClass)))
     } else {
       val newDeps: List<Dependency> =
           directDependencyKeys.map {
@@ -162,9 +166,12 @@ internal constructor(
             TypeDependency(it, loader.resolveType(depTypeExpr))
           }
       val deps = DependencyMap.intersect(directSupertypes.map { it.dependencies })
-      withExactDependencies(deps.merge(DependencyMap(newDeps)) { _, _ -> error("") })
+      deps.merge(DependencyMap(newDeps)) { _, _ -> error("") }
     }
   }
+
+  /** Least upper bound of all types with pclass==this */
+  public val baseType: PType by lazy { withExactDependencies(baseDependencies) }
 
   internal fun withExactDependencies(deps: DependencyMap) =
       PType(this, deps.subMap(allDependencyKeys))
@@ -237,7 +244,12 @@ internal constructor(
       if (abstract) emptySequence() else baseType.concreteSubtypesSameClass()
 
   companion object {
-    fun superclasses(declaration: ClassDeclaration, loader: PClassLoader) =
-        declaration.supertypes.classNames().map { loader.load(it) }
+    fun superclasses(declaration: ClassDeclaration, loader: PClassLoader): List<PClass> {
+      return declaration.supertypes
+          .classNames()
+          .also { require(COMPONENT !in it) }
+          .map(loader::load)
+          .ifEmpty { listOf(loader.componentClass) }
+    }
   }
 }

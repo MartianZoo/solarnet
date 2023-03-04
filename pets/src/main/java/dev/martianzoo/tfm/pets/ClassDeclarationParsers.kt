@@ -10,7 +10,6 @@ import com.github.h0tk3y.betterParse.combinators.skip
 import com.github.h0tk3y.betterParse.combinators.zeroOrMore
 import com.github.h0tk3y.betterParse.grammar.parser
 import com.github.h0tk3y.betterParse.parser.Parser
-import dev.martianzoo.tfm.api.SpecialClassNames.COMPONENT
 import dev.martianzoo.tfm.data.ClassDeclaration
 import dev.martianzoo.tfm.data.ClassDeclaration.DefaultsDeclaration
 import dev.martianzoo.tfm.data.ClassDeclaration.DependencyDeclaration
@@ -242,9 +241,9 @@ internal object ClassDeclarationParsers : PetParser() {
     fun unnestAllFrom(container: ClassName): List<NestableDecl> =
         declList.map { it.unnestOneFrom(container) }
 
-    fun finishOnlyDecl() = declList.single().finishAtTopLevel()
+    fun finishOnlyDecl() = declList.single().decl
 
-    fun finishAll() = declList.map { it.finishAtTopLevel() }
+    fun finishAll() = declList.map { it.decl }
 
     private companion object {
       fun create(abstract: Boolean, signature: Signature, body: Body): List<NestableDecl> {
@@ -267,15 +266,8 @@ internal object ClassDeclarationParsers : PetParser() {
     abstract val decl: ClassDeclaration
     abstract fun unnestOneFrom(container: ClassName): NestableDecl
 
-    fun finishAtTopLevel(): ClassDeclaration {
-      val result =
-          if (decl.className == COMPONENT || decl.supertypes.any()) {
-            decl
-          } else {
-            decl.copy(supertypes = setOf(COMPONENT.type))
-          }
-      result.validate()
-      return result
+    data class CompleteNestableDecl(override val decl: ClassDeclaration) : NestableDecl() {
+      override fun unnestOneFrom(container: ClassName) = this
     }
 
     data class IncompleteNestableDecl(override val decl: ClassDeclaration) : NestableDecl() {
@@ -283,27 +275,16 @@ internal object ClassDeclarationParsers : PetParser() {
           abstract: Boolean,
           signature: Signature
       ) : this(signature.asDeclaration.copy(abstract = abstract))
-
       // This returns a new NestableDecl that looks like it could be a sibling to containingClass
       // instead of nested inside it
       override fun unnestOneFrom(container: ClassName): NestableDecl {
-        return when {
-          decl.supertypes.any { it.className == container } -> CompleteNestableDecl(decl)
-
-          // jam the superclass in and mark it complete
-          else -> {
-            val supertypes = (container.type plus decl.supertypes).toSetStrict()
-            CompleteNestableDecl(decl.copy(supertypes = supertypes))
-          }
+        return if (decl.supertypes.any { it.className == container }) {
+          CompleteNestableDecl(decl)
+        } else {
+          val supertypes = (container.type plus decl.supertypes).toSetStrict()
+          CompleteNestableDecl(decl.copy(supertypes = supertypes))
         }
       }
-    }
-
-    data class CompleteNestableDecl(override val decl: ClassDeclaration) : NestableDecl() {
-      init {
-        decl.validate()
-      }
-      override fun unnestOneFrom(container: ClassName) = this
     }
   }
 }

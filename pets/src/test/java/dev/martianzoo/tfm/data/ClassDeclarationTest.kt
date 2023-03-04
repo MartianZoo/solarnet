@@ -1,7 +1,6 @@
 package dev.martianzoo.tfm.data
 
 import com.google.common.truth.Truth.assertThat
-import dev.martianzoo.tfm.api.SpecialClassNames.COMPONENT
 import dev.martianzoo.tfm.api.SpecialClassNames.THIS
 import dev.martianzoo.tfm.pets.AstTransforms.actionToEffect
 import dev.martianzoo.tfm.pets.Parsing
@@ -12,21 +11,10 @@ import dev.martianzoo.tfm.pets.ast.Instruction.Intensity
 import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.pets.ast.ScaledTypeExpr.Companion.scaledType
 import dev.martianzoo.tfm.pets.ast.classNames
-import dev.martianzoo.tfm.testlib.assertFails
 import dev.martianzoo.tfm.testlib.te
 import org.junit.jupiter.api.Test
 
 private class ClassDeclarationTest {
-  @Test
-  fun testValidate() {
-    assertFails { ClassDeclaration(COMPONENT, supertypes = setOf(te("Foo<Bar>"))).validate() }
-    assertFails { ClassDeclaration(cn("NotComponent")).validate() }
-
-    val cd =
-        ClassDeclaration(cn("NotComponent"), supertypes = setOf(COMPONENT.type, te("Baz<Qux>")))
-    assertFails { cd.validate() }
-  }
-
   @Test
   fun testExample() {
     val declText =

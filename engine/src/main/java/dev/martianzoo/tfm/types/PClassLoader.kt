@@ -30,10 +30,16 @@ public class PClassLoader(
     private val autoLoadDependencies: Boolean = false,
 ) {
   /** The `Component` class, which is the root of the class hierarchy. */
-  public val componentClass: PClass = PClass(decl(COMPONENT), this, listOf())
+  public val componentClass: PClass = PClass(decl(COMPONENT), this, listOf()).also {
+    require(it.abstract)
+    require(it.allDependencyKeys.none())
+  }
 
   /** The `Class` class, the other class that is required to exist. */
-  public val classClass: PClass = PClass(decl(CLASS), this, listOf(componentClass))
+  public val classClass: PClass = PClass(decl(CLASS), this, listOf(componentClass)).also {
+    require(!it.abstract)
+    require(it.baseDependencies.dependencies.single().typeExpr == COMPONENT.type)
+  }
 
   private val loadedClasses =
       mutableMapOf<ClassName, PClass?>(COMPONENT to componentClass, CLASS to classClass)

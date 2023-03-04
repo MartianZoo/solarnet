@@ -114,9 +114,9 @@ private class ClassDeclarationParsingTest {
     assertThat(cs.map { it.supertypes })
         .containsExactly(
             setOf<TypeExpr>(),
-            setOf(cn("Component").type),
+            setOf<TypeExpr>(),
             setOf(cn("One").type),
-            setOf(cn("Component").type),
+            setOf<TypeExpr>(),
             setOf(cn("Three").type),
             setOf(cn("One").type, cn("Three").type),
             setOf(cn("Three").type),
