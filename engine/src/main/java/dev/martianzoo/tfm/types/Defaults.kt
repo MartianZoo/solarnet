@@ -39,7 +39,7 @@ internal data class Defaults(
         val depList: List<Dependency> =
             pclass.allDependencyKeys.mapNotNull { key ->
               inheritDefault(
-                  { toDependencyMap(extractor(it))[key] },
+                  { toDependencyMap(extractor(it)).getIfPresent(key) },
                   { a: List<Dependency> -> intersect(a)!! })
             }
         return DependencyMap(depList.associateByStrict { it.key })

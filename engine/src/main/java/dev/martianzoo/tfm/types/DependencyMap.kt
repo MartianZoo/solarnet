@@ -21,7 +21,8 @@ internal data class DependencyMap(internal val map: Map<Key, Dependency>) {
   val abstract = dependencies.any { it.abstract }
 
   operator fun contains(key: Key) = key in map
-  operator fun get(key: Key): Dependency? = map[key] // TODO throw if not?
+  fun get(key: Key): Dependency = getIfPresent(key) ?: error("$key")
+  fun getIfPresent(key: Key): Dependency? = map[key]
 
   // used by PType.isSubtypeOf()
   fun specializes(that: DependencyMap) =
@@ -36,7 +37,7 @@ internal data class DependencyMap(internal val map: Map<Key, Dependency>) {
 
   fun lub(that: DependencyMap): DependencyMap {
     val keys = map.keys.intersect(that.map.keys)
-    return DependencyMap(keys.map { this[it]?.lub(that[it])!! })
+    return DependencyMap(keys.map { get(it).lub(that.get(it))!! })
   }
 
   fun overlayOn(that: DependencyMap) = merge(that) { ours, _ -> ours }
