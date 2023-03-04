@@ -1,7 +1,5 @@
 package dev.martianzoo.tfm.engine
 
-import dev.martianzoo.tfm.data.ChangeRecord
-import dev.martianzoo.tfm.data.ChangeRecord.Cause
 import dev.martianzoo.tfm.data.ChangeRecord.StateChange
 import dev.martianzoo.tfm.types.PType
 import dev.martianzoo.util.HashMultiset
@@ -11,19 +9,13 @@ import dev.martianzoo.util.MutableMultiset
 /** All the components making up the state of a single [Game]. */
 public class ComponentGraph {
   private val multiset: MutableMultiset<Component> = HashMultiset()
-  internal val changeLog: MutableList<ChangeRecord> = mutableListOf()
-
-  public fun changeLogFull() = changeLog.toList()
-  public fun changeLog() = changeLog.filterNot { it.hidden }.toList()
 
   public fun applyChange(
       count: Int = 1,
       gaining: Component? = null,
       removing: Component? = null,
-      cause: Cause? = null,
       amap: Boolean = false,
-      hidden: Boolean = false
-  ) {
+  ): StateChange {
     // verify dependencies
     gaining?.let { g ->
       require(multiset.containsAll(g.dependencies)) {
@@ -37,18 +29,12 @@ public class ComponentGraph {
     }
 
     val correctedCount = updateMultiset(count, gaining, removing, amap)
-    changeLog.add(
-        ChangeRecord(
-            ordinal = changeLog.size,
-            change =
-                StateChange(
-                    count = correctedCount,
-                    gaining = gaining?.type?.typeExpr,
-                    removing = removing?.type?.typeExpr,
-                ),
-            cause = cause,
-            hidden = hidden,
-        ))
+
+    return StateChange(
+        count = correctedCount,
+        gaining = gaining?.type?.typeExpr,
+        removing = removing?.type?.typeExpr,
+    )
   }
 
   internal fun updateMultiset(

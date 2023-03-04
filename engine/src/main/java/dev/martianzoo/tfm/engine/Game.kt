@@ -5,6 +5,7 @@ import dev.martianzoo.tfm.api.GameState
 import dev.martianzoo.tfm.api.Type
 import dev.martianzoo.tfm.data.ChangeRecord
 import dev.martianzoo.tfm.data.ChangeRecord.Cause
+import dev.martianzoo.tfm.data.ChangeRecord.StateChange
 import dev.martianzoo.tfm.pets.ast.Instruction
 import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.pets.ast.TypeExpr
@@ -18,15 +19,18 @@ public class Game(
     public val loader: PClassLoader, // TODO not public
 ) : GameState {
   val components = ComponentGraph()
+  internal val fullChangeLog: MutableList<ChangeRecord> = mutableListOf()
   // val tasks = mutableListOf<Task>()
 
   init {
     loader.frozen = true
   }
 
-  fun changeLog(): List<ChangeRecord> = components.changeLog()
+  private val nextOrdinal: Int by fullChangeLog::size
 
-  fun changeLogFull(): List<ChangeRecord> = components.changeLogFull()
+  public fun changeLogFull() = fullChangeLog.toList()
+
+  public fun changeLog(): List<ChangeRecord> = fullChangeLog.filterNot { it.hidden }
 
   override fun resolveType(typeExpr: TypeExpr): PType = loader.resolveType(typeExpr)
 
@@ -45,20 +49,27 @@ public class Game(
 
   fun execute(instr: Instruction) = LiveNodes.from(instr, this).execute(this)
 
-  override fun applyChange(
+  // TODO trigger triggers
+  override fun applyChangeAndPublish(
       count: Int,
       removing: Type?,
       gaining: Type?,
       amap: Boolean,
       cause: Cause?,
+      hidden: Boolean,
   ) {
-    components.applyChange(
+    val change: StateChange = components.applyChange(
         count,
         removing = component(removing),
         gaining = component(gaining),
         amap = amap,
-        cause = cause,
-        hidden = false)
+    )
+    logChange(change, cause, hidden)
+    // publish change
+  }
+
+  private fun logChange(change: StateChange, cause: Cause?, hidden: Boolean) {
+    fullChangeLog.add(ChangeRecord(nextOrdinal, change, cause, hidden))
   }
 
   public fun component(type: Type?): Component? = type?.let { Component(loader.resolveType(it)) }
@@ -67,13 +78,11 @@ public class Game(
       type?.let { Component(loader.resolveType(it)) }
 
   public fun rollBack(ordinal: Int) {
-    val log = changeLogFull()
-    val ct = log.size
-    require(ordinal <= ct)
-    if (ordinal == ct) return
-    require(!log[ordinal].hidden)
+    require(ordinal <= nextOrdinal)
+    if (ordinal == nextOrdinal) return
+    require(!fullChangeLog[ordinal].hidden)
 
-    val subList = components.changeLog.subList(ordinal, ct)
+    val subList = fullChangeLog.subList(ordinal, nextOrdinal)
     for (entry in subList.asReversed()) {
       val change = entry.change.inverse()
       components.updateMultiset(

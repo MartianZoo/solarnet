@@ -26,32 +26,48 @@ object PTypeToText { // TODO refactor to ClassInfo / TypeInfo type dealies
           else -> subs.take(6).joinToString() + " (${subs.size - 6} others)"
         }
 
-    val allCases = loader.transformer.applyGainRemoveDefaults(expr)
-    val gain = loader.transformer.applyGainRemoveDefaults(Gain(ScaledTypeExpr(1, expr)))
-    val remove = loader.transformer.applyGainRemoveDefaults(Remove(ScaledTypeExpr(1, expr)))
-
     val nameId = "${pclass.className}" + "[${pclass.id}]".iff(pclass.id != pclass.className)
 
+    fun sequenceCount(seq: Sequence<Any>, limit: Int): String {
+      val partial = seq.take(limit + 1).count()
+      return if (partial == limit + 1) "$limit+" else "$partial"
+    }
+
+    val concTypes = sequenceCount(pclass.concreteTypesThisClass(), 100)
+
+    // TODO invariants seemingly not working?
     // TODO linkages?
     val classStuff = """
       Class $nameId:
-          subclasses: $substring
-          invariants: ${pclass.invariants.joinToString("""
-                      """)}
-          base type:  ${pclass.baseType.typeExprFull}
-          class fx:   ${pclass.classEffects.joinToString("""
-                      """)}
+          subclasses:  $substring
+          invariants:  ${
+      pclass.invariants.joinToString("""
+                       """)
+    }
+          base type:   ${pclass.baseType.typeExprFull}
+          c. types:    $concTypes
+          class fx:    ${
+      pclass.classEffects.joinToString("""
+                       """)
+    }
 
 
     """.trimIndent().iff(expr.simple)
 
+    val concSubs = sequenceCount(ptype.allConcreteSubtypes(), 100)
+
+    val allCases = loader.transformer.applyGainRemoveDefaults(expr)
+    val gain = loader.transformer.applyGainRemoveDefaults(Gain(ScaledTypeExpr(1, expr)))
+    val remove = loader.transformer.applyGainRemoveDefaults(Remove(ScaledTypeExpr(1, expr)))
+
     // TODO linkages?
     val typeStuff = """
-      Type $expr:
-          std form:   $ptype
-          long form:  ${ptype.typeExprFull}
-          supertypes: ${ptype.supertypes().joinToString()}
-          defaults:   $allCases / +$gain / $remove
+      Type expression $expr:
+          std. form:   $ptype
+          long form:   ${ptype.typeExprFull}
+          supertypes:  ${ptype.supertypes().joinToString()}
+          defaults:    $allCases / +$gain / $remove
+          c. subtypes: $concSubs
     """.trimIndent()
 
     return classStuff + typeStuff + try {
@@ -59,8 +75,10 @@ object PTypeToText { // TODO refactor to ClassInfo / TypeInfo type dealies
 
 
         Component [$ptype]:
-            effects:    ${Component(ptype).effects().joinToString("""
-                        """)}
+            effects:     ${
+        Component(ptype).effects().joinToString("""
+                         """)
+      }
       """.trimIndent()
     } catch (e: Exception) {
       ""

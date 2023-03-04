@@ -71,7 +71,7 @@ internal object LiveNodes {
       if (intensity == OPTIONAL) {
         throw AbstractInstructionException("optional")
       }
-      game.applyChange(
+      game.applyChangeAndPublish(
           count = count, removing = removing, gaining = gaining, amap = intensity == AMAP)
     }
   }
@@ -145,16 +145,16 @@ internal object LiveNodes {
 
   fun from(trig: Trigger, game: GameState): LiveTrigger {
     return when (trig) {
-      is Trigger.OnGainOf -> LiveTrigger(game.resolveType(trig.typeExpr), isGain = true)
-      is Trigger.OnRemoveOf -> LiveTrigger(game.resolveType(trig.typeExpr), isGain = false)
+      is Trigger.OnGainOf -> LiveTrigger(game.resolveType(trig.typeExpr), gain = true)
+      is Trigger.OnRemoveOf -> LiveTrigger(game.resolveType(trig.typeExpr), gain = false)
       is Trigger.ByTrigger -> from(trig.inner, game).copy(by = trig.by)
       else -> error("this shouldn't still be here")
     }
   }
 
-  data class LiveTrigger(val ptype: Type, val isGain: Boolean, val by: ClassName? = null) {
+  data class LiveTrigger(val ptype: Type, val gain: Boolean, val by: ClassName? = null) {
     fun hits(change: StateChange, game: GameState): Int {
-      val g = if (isGain) change.gaining else change.removing
+      val g = if (gain) change.gaining else change.removing
       return if (g != null && game.resolveType(g).isSubtypeOf(ptype)) change.count else 0
     }
   }

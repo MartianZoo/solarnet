@@ -95,7 +95,8 @@ CLASS Row<MarsArea>                                         // after creating He
 // WORKFLOW-ISH --------------------------------------------
 
 ABSTRACT CLASS HasActions {                                 // the specific actions are loaded from `actions.json5`
-    ABSTRACT CLASS StandardAction, StandardProject
+    ABSTRACT CLASS StandardAction { HAS =1 This }
+    ABSTRACT CLASS StandardProject { HAS =1 This }
 }
 
 CLASS Generation[GEN]

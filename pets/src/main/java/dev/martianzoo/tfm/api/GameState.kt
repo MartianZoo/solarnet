@@ -7,22 +7,24 @@ import dev.martianzoo.util.Multiset
 
 /** A game engine implements this interface so that [CustomInstruction]s can speak to it. */
 interface GameState : ReadOnlyGameState {
-  fun applyChange(
+  fun applyChangeAndPublish(
       count: Int = 1,
       removing: Type? = null,
       gaining: Type? = null,
       amap: Boolean = false,
       cause: Cause? = null,
+      hidden: Boolean = false,
   )
 
   /** A game state that does basically nothing; for tests. */
   open class Stub(auth: Authority = Authority.Minimal()) : GameState {
-    override fun applyChange(
+    override fun applyChangeAndPublish(
         count: Int,
         removing: Type?,
         gaining: Type?,
         amap: Boolean,
         cause: Cause?,
+        hidden: Boolean,
     ): Unit = throe()
 
     override val setup = GameSetup(auth, "BM", 2)

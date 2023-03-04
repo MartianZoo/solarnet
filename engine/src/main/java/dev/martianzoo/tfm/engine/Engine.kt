@@ -7,6 +7,7 @@ import dev.martianzoo.tfm.data.MarsMapDefinition
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.pets.ast.Effect.Trigger.WhenGain
 import dev.martianzoo.tfm.pets.ast.classNames
+import dev.martianzoo.tfm.types.Dependency.TypeDependency
 import dev.martianzoo.tfm.types.PClass
 import dev.martianzoo.tfm.types.PClassLoader
 import dev.martianzoo.tfm.types.PType
@@ -21,23 +22,26 @@ public object Engine {
       loader.load(cn("Player$seat"))
     }
 
-    val gameComponent = Component(loader.load(GAME))
     loader.loadAll(setup.allDefinitions().classNames())
+    val gameClass = loader.load(GAME)
 
     val game = Game(setup, loader)
-    game.components.applyChange(gaining = gameComponent, hidden = true)
+    game.applyChangeAndPublish(gaining = gameClass.baseType, hidden = true)
 
-    // have MarsMap take care of this via custom instruction TODO
+    // TODO custom instruction @createAll
     val borders = borders(setup.map, loader)
 
-    // TODO make creating Game do this automatically
+    // TODO custom instruction @createSingletons
     val cause = Cause(GAME.type, 0)
-    for (it in singletons(loader.allClasses) + borders) {
-      val gaining = Component(it)
-      for (cpt in gaining.dependencies + gaining) { // TODO not ironclad
-        if (game.countComponents(cpt.type) == 0) {
-          game.components.applyChange(gaining = cpt, cause = cause, hidden = true)
-          (cpt.type as PType).pclass.allSuperclasses
+
+    for (ptype in singletons(loader.allClasses) + borders) {
+      val depInstances =
+          ptype.dependencies.dependencies.filterIsInstance<TypeDependency>().map { it.ptype }
+      for (cpt in depInstances + ptype) { // TODO
+        // not ironclad
+        if (game.countComponents(cpt) == 0) {
+          game.applyChangeAndPublish(gaining = game.resolveType(cpt), cause = cause, hidden = true)
+          cpt.pclass.allSuperclasses
               .flatMap { it.classEffects }
               .filter { it.trigger == WhenGain }
               .forEach { println("Should do ${it.instruction} now...") }
@@ -48,7 +52,7 @@ public object Engine {
   }
 
   private fun singletons(all: Set<PClass>): List<PType> =
-      all.filter { it.isSingleton() }.flatMap { it.allConcreteTypes() }
+      all.filter { it.isSingleton() }.flatMap { it.concreteTypesThisClass() }
 
   private fun borders(map: MarsMapDefinition, loader: PClassLoader): List<PType> {
     val border = cn("Border")

@@ -252,7 +252,7 @@ internal constructor(
 
   override fun toString() = "$className"
 
-  fun allConcreteTypes(): Sequence<PType> =
+  fun concreteTypesThisClass(): Sequence<PType> =
       if (abstract) emptySequence() else baseType.concreteSubtypesSameClass()
 
   companion object {
