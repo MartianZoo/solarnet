@@ -123,7 +123,7 @@ internal constructor(
 
   /** Returns the subset of [allConcreteSubtypes] having the exact same [pclass] as ours. */
   fun concreteSubtypesSameClass(): Sequence<PType> {
-    return if (refinement != null) { // expression.hasAnyRefinements()) { TODO
+    return if (refinement != null) {
       emptySequence()
     } else if (isClassType) { // TODO maybe it should be impossible for a class type to have refins
       concreteSubclasses(getClassForClassType()).map { it.classType }

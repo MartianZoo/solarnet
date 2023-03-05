@@ -59,8 +59,8 @@ internal object LiveNodes {
   }
 
   abstract class LiveInstruction {
-    open operator fun times(factor: Int): LiveInstruction = error("Not supported")
-    open fun execute(game: GameState): Unit = error("Not Supported")
+    abstract operator fun times(factor: Int): LiveInstruction
+    abstract fun execute(game: GameState)
   }
 
   class Change(
@@ -104,12 +104,17 @@ internal object LiveNodes {
 
   class Custom(private val custom: CustomInstruction, private val arguments: List<Type>) :
       LiveInstruction() {
+
+    override fun times(factor: Int) = error("can't")
+
     override fun execute(game: GameState) {
       try {
         val translated: Instruction = custom.translate(game, arguments)
         val deprodded = deprodify(translated, standardResourceNames(game))
         from(deprodded, game).execute(game)
+
       } catch (e: ExecuteInsteadException) {
+        // `custom` chose to override execute() instead of translate()
         custom.execute(game, arguments)
       }
     }
