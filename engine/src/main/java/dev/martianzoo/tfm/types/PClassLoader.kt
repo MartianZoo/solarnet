@@ -188,7 +188,7 @@ public class PClassLoader(
     val list = specs.map { specExpression ->
       val specType: PType = resolve(specExpression)
       for (candidateDep in deps.realDependencies - usedDeps) {
-        val intersectionType = specType.intersect(candidateDep.bound) ?: continue
+        val intersectionType = specType.glb(candidateDep.bound) ?: continue
         usedDeps += candidateDep
         return@map TypeDependency(candidateDep.key, intersectionType)
       }

@@ -69,7 +69,7 @@ private class CanonClassesTest {
     val ownedTile = loader.getClass(cn("OwnedTile"))
 
     // Nothing can be both Owned and a Tile without being an OwnedTile!
-    assertThat(owned.intersect(tile)).isEqualTo(ownedTile)
+    assertThat(owned.glb(tile)).isEqualTo(ownedTile)
     assertThat(ownedTile.intersectionType).isTrue()
   }
 
@@ -80,7 +80,7 @@ private class CanonClassesTest {
     val actionCard = loader.getClass(cn("ActionCard"))
 
     // Nothing can be both a CardFront and a HasActions but an ActionCard!
-    assertThat(cardFront.intersect(hasActions)).isEqualTo(actionCard)
+    assertThat(cardFront.glb(hasActions)).isEqualTo(actionCard)
     assertThat(actionCard.intersectionType).isTrue()
   }
 

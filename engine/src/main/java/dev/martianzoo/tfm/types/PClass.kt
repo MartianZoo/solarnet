@@ -15,6 +15,7 @@ import dev.martianzoo.tfm.pets.ast.Requirement.Companion.requirement
 import dev.martianzoo.tfm.pets.ast.classNames
 import dev.martianzoo.tfm.types.Dependency.Companion.depsForClassType
 import dev.martianzoo.tfm.types.Dependency.TypeDependency
+import dev.martianzoo.util.Hierarchical
 import dev.martianzoo.util.toSetStrict
 
 /**
@@ -36,7 +37,7 @@ internal constructor(
      * This class's superclasses that are exactly one step away; empty only if this is `Component`.
      */
     public val directSuperclasses: List<PClass> = superclasses(declaration, loader),
-) : HasClassName {
+) : HasClassName, Hierarchical<PClass> {
 
   /** The name of this class, in UpperCamelCase. */
   public override val className: ClassName = declaration.className.also { require(it != THIS) }
@@ -46,42 +47,28 @@ internal constructor(
    */
   public val shortName: ClassName by declaration::shortName
 
-  /**
-   * If true, all types with this as their root are abstract, even when all dependencies are
-   * concrete. An example is `Tile`; one can never add a tile to the board without first deciding
-   * *which kind* of tile to add.
-   */
-  public val abstract: Boolean by declaration::abstract
-
   // HIERARCHY
 
-  /**
-   * Returns `true` if this class is a subclass of [that], whether direct, indirect, or the same
-   * class. Equivalent to `that.isSuperclassOf(this)`.
-   */
-  public fun isSubclassOf(that: PClass): Boolean =
-      this == that || directSuperclasses.any { it.isSubclassOf(that) }
+  override val abstract: Boolean by declaration::abstract
 
-  /**
-   * Returns `true` if this class is a superclass of [that], whether direct, indirect, or the same
-   * class. Equivalent to `that.isSubclassOf(this)`.
-   */
-  public fun isSuperclassOf(that: PClass) = that.isSubclassOf(this)
+  override fun isSubtypeOf(that: PClass): Boolean =
+      this == that || directSuperclasses.any { it.isSubtypeOf(that) }
 
-  /** Every class `c` for which `c.isSuperclassOf(this)` is true, including this class itself. */
-  public val allSuperclasses: Set<PClass> by lazy {
-    (directSuperclasses.flatMap { it.allSuperclasses } + this).toSet()
-  }
+  override fun glb(that: PClass): PClass? =
+      when {
+        this.isSubtypeOf(that) -> this
+        that.isSubtypeOf(this) -> that
+        else ->
+          allSubclasses.singleOrNull {
+            it.intersectionType && this in it.directSuperclasses && that in it.directSuperclasses
+          }
+      }
 
-  public val properSuperclasses: Set<PClass> by lazy { allSuperclasses - this }
-
-  /** Every class `c` for which `c.isSubclassOf(this)` is true, including this class itself. */
-  public val allSubclasses: Set<PClass> by lazy {
-    loader.allClasses.filter { this in it.allSuperclasses }.toSet()
-  }
-
-  public val directSubclasses: Set<PClass> by lazy {
-    loader.allClasses.filter { this in it.directSuperclasses }.toSet()
+  override fun lub(that: PClass): PClass { // TODO more deps is better??
+    val commonSupers: Set<PClass> = this.allSuperclasses.intersect(that.allSuperclasses)
+    val supersOfSupers: Set<PClass> = commonSupers.flatMap { it.properSuperclasses }.toSet()
+    val candidates: Set<PClass> = commonSupers - supersOfSupers
+    return candidates.maxBy { it.allSuperclasses.size } // most supers tends to be near us
   }
 
   /**
@@ -101,6 +88,22 @@ internal constructor(
     }
   }
 
+  /** Every class `c` for which `c.isSuperclassOf(this)` is true, including this class itself. */
+  public val allSuperclasses: Set<PClass> by lazy {
+    (directSuperclasses.flatMap { it.allSuperclasses } + this).toSet()
+  }
+
+  public val properSuperclasses: Set<PClass> by lazy { allSuperclasses - this }
+
+  /** Every class `c` for which `c.isSubclassOf(this)` is true, including this class itself. */
+  public val allSubclasses: Set<PClass> by lazy {
+    loader.allClasses.filter { this in it.allSuperclasses }.toSet()
+  }
+
+  public val directSubclasses: Set<PClass> by lazy {
+    loader.allClasses.filter { this in it.directSuperclasses }.toSet()
+  }
+
   /**
    * Whether this class serves as the intersection type of its full set of [directSuperclasses];
    * that is, no other [PClass] loaded by this [PClassLoader] is a subclass of all of them unless it
@@ -112,29 +115,8 @@ internal constructor(
   public val intersectionType: Boolean by lazy {
     directSuperclasses.size >= 2 &&
         loader.allClasses
-            .filter { pclass -> directSuperclasses.all(pclass::isSubclassOf) }
-            .all(::isSuperclassOf)
-  }
-
-  /**
-   * Returns the greatest lower bound class of `this` and [that], if it exists. The returned class
-   * is guaranteed to be a superclass of any class that has both `this` and [that] as superclasses.
-   */
-  public fun intersect(that: PClass): PClass? =
-      when {
-        this.isSubclassOf(that) -> this
-        that.isSubclassOf(this) -> that
-        else ->
-          allSubclasses.singleOrNull {
-            it.intersectionType && this in it.directSuperclasses && that in it.directSuperclasses
-          }
-      }
-
-  public fun lub(that: PClass): PClass { // TODO more deps is better??
-    val commonSupers: Set<PClass> = this.allSuperclasses.intersect(that.allSuperclasses)
-    val supersOfSupers: Set<PClass> = commonSupers.flatMap { it.properSuperclasses }.toSet()
-    val candidates: Set<PClass> = commonSupers - supersOfSupers
-    return candidates.maxBy { it.allSuperclasses.size } // most supers tends to be near us
+            .filter { pclass -> directSuperclasses.all(pclass::isSubtypeOf) }
+            .all(::isSupertypeOf)
   }
 
   // DEPENDENCIES

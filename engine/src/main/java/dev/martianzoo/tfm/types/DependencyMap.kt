@@ -37,7 +37,7 @@ internal data class DependencyMap(private val list: List<Dependency>) {
       copy(mergeMaps(asMap(), that.asMap(), merger).values.toList()) // TODO fix
 
   // Combines all entries, using the glb when both maps have the same key
-  fun intersect(that: DependencyMap) = merge(that) { a, b -> a.intersect(b)!! }
+  fun intersect(that: DependencyMap) = merge(that) { a, b -> a.glb(b)!! }
 
   fun lub(that: DependencyMap): DependencyMap {
     val keys = keys.intersect(that.keys)

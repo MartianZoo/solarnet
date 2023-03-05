@@ -3,13 +3,10 @@ package dev.martianzoo.tfm.types
 import dev.martianzoo.tfm.api.SpecialClassNames.CLASS
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.Expression
+import dev.martianzoo.util.Hierarchical
 
-internal sealed class Dependency {
+internal sealed class Dependency : Hierarchical<Dependency> {
   abstract val key: Key
-  abstract fun intersect(that: Dependency): Dependency?
-  abstract fun lub(that: Dependency?): Dependency?
-  abstract val abstract: Boolean
-  abstract fun isSubtypeOf(that: Dependency): Boolean
   abstract val expression: Expression // TODO bound?? or common intfc?
   abstract val expressionFull: Expression
 
@@ -37,34 +34,28 @@ internal sealed class Dependency {
   /** Any [Dependency] except for the case covered by [FakeDependency] below. */
   // TODO rename Dependency?
   data class TypeDependency(override val key: Key, val bound: PType) : Dependency() {
-    init {
-      require(key != FakeDependency.KEY)
-    }
-
-    override val abstract by bound::abstract
-
-    private fun checkKeys(that: Dependency): TypeDependency {
-      require(this.key == that.key)
-      return that as TypeDependency
-    }
-
-    override fun isSubtypeOf(that: Dependency) = bound.isSubtypeOf(checkKeys(that).bound)
-
-    override fun intersect(that: Dependency) = intersect(checkKeys(that).bound)
-
-    fun intersect(otherType: PType): TypeDependency? =
-        (this.bound.intersect(otherType))?.let { copy(bound = it) }
-
-    override fun lub(that: Dependency?) = that?.let { lub(checkKeys(it).bound) }
-
-    fun lub(otherType: PType) = copy(bound = bound.lub(otherType))
-
     fun allConcreteSpecializations(): Sequence<TypeDependency> =
         bound.allConcreteSubtypes().map { TypeDependency(key, it) }
 
     override val expressionFull by bound::expressionFull
+
     override val expression by bound::expression
+
     override fun toString() = "$key=${expression}"
+
+    // Hierarchy
+
+    override val abstract by bound::abstract
+
+    override fun isSubtypeOf(that: Dependency) = bound.isSubtypeOf(boundOf(that))
+
+    override fun glb(that: Dependency) = (bound glb boundOf(that))?.let { copy(bound = it) }
+
+    override fun lub(that: Dependency) = copy(bound = bound lub boundOf(that))
+
+    private fun boundOf(that: Dependency): PType =
+        (that as TypeDependency).bound.also { require(key == that.key) }
+
   }
 
   /**
@@ -74,36 +65,34 @@ internal sealed class Dependency {
    * use `Production<Class<Plant>>`.
    */
   private data class FakeDependency(val bound: PClass) : Dependency() {
-    companion object {
-      /** The only dependency key that may point to this kind of dependency. */
-      val KEY = Key(CLASS, 0)
-    }
-
-    override val key: Key by ::KEY
-    override val abstract by bound::abstract
-
-    override fun isSubtypeOf(that: Dependency) =
-        that is FakeDependency && bound.isSubclassOf(that.bound)
-
-    override fun intersect(that: Dependency): FakeDependency? =
-        intersect((that as FakeDependency).bound)
-
-    fun intersect(otherClass: PClass): FakeDependency? =
-        bound.intersect(otherClass)?.let { FakeDependency(it) }
-
-    override fun lub(that: Dependency?): FakeDependency =
-        FakeDependency(bound.lub((that as FakeDependency).bound))
+    override val key: Key = Key(CLASS, 0)
 
     override val expressionFull by bound.className::expr
+
     override val expression by ::expressionFull
+
     override fun toString() = "$key=${expression}"
+
+    // Hierarchy
+
+    override val abstract by bound::abstract
+
+    override fun isSubtypeOf(that: Dependency) = bound.isSubtypeOf(boundOf(that))
+
+    override fun glb(that: Dependency): FakeDependency? = (bound glb boundOf(that))?.let(::copy)
+
+    override fun lub(that: Dependency): FakeDependency = copy(bound lub boundOf(that))
+
+    private fun boundOf(that: Dependency): PClass =
+        (that as FakeDependency).bound.also { require(key == that.key) }
+
   }
 
   companion object {
-    fun intersect(a: List<Dependency>): Dependency? {
+    fun glb(a: List<Dependency>): Dependency? { // TODO share?
       var result: Dependency = a.firstOrNull() ?: return null
       for (next: Dependency in a.drop(1)) {
-        result = result.intersect(next)!!
+        result = result.glb(next)!!
       }
       return result
     }

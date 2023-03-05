@@ -3,7 +3,7 @@ package dev.martianzoo.tfm.types
 import dev.martianzoo.tfm.data.ClassDeclaration.DefaultsDeclaration
 import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.pets.ast.Instruction.Intensity
-import dev.martianzoo.tfm.types.Dependency.Companion.intersect
+import dev.martianzoo.tfm.types.Dependency.Companion.glb
 
 internal data class Defaults(
     val allCasesDependencies: DependencyMap = DependencyMap(),
@@ -39,7 +39,7 @@ internal data class Defaults(
             pclass.allDependencyKeys.mapNotNull { key ->
               inheritDefault(
                   { toDependencyMap(extractor(it)).getIfPresent(key) },
-                  { a: List<Dependency> -> intersect(a)!! })
+                  { a: List<Dependency> -> glb(a)!! })
             }
         return DependencyMap(depList)
       }

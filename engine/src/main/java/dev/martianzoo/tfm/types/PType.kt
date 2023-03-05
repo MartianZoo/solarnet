@@ -6,6 +6,7 @@ import dev.martianzoo.tfm.api.Type
 import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.pets.ast.Requirement.And
+import dev.martianzoo.util.Hierarchical
 
 /**
  * The translation of a [Expression] into a "live" type, referencing actual [PClass]es loaded by a
@@ -18,7 +19,7 @@ internal constructor(
     public val pclass: PClass, // TODO try renaming root?
     internal val dependencies: DependencyMap = DependencyMap(),
     override val refinement: Requirement? = null,
-) : Type {
+) : Type, Hierarchical<PType> {
   private val loader by pclass::loader
 
   init {
@@ -30,21 +31,23 @@ internal constructor(
 
   override val abstract = pclass.abstract || dependencies.abstract || refinement != null
 
-  override fun isSubtypeOf(that: Type) =
-      pclass.isSubclassOf((that as PType).pclass) &&
+  override fun isSubtypeOf(that: Type) = isSubtypeOf(that as PType)
+
+  override fun isSubtypeOf(that: PType) =
+      pclass.isSubtypeOf(that.pclass) &&
           dependencies.specializes(that.dependencies) &&
           that.refinement in setOf(null, refinement)
 
   // Nearest common subtype
-  fun intersect(that: PType): PType? =
+  override fun glb(that: PType): PType? =
       pclass
-          .intersect(that.pclass)
+          .glb(that.pclass)
           ?.withExactDependencies(dependencies.intersect(that.dependencies))
           ?.refine(combine(this.refinement, that.refinement))
 
   // Nearest common supertype
   // Unlike glb, two types always have a least upper bound (if nothing else, Component)
-  fun lub(that: PType): PType {
+  override fun lub(that: PType): PType {
     val lubClass = this.pclass.lub(that.pclass)
     val deps = this.dependencies.lub(that.dependencies)
     val ref = setOf(this.refinement, that.refinement).singleOrNull()
