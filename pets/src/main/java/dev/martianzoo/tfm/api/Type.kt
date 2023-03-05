@@ -1,13 +1,14 @@
 package dev.martianzoo.tfm.api
 
 import dev.martianzoo.tfm.pets.ast.Expression
+import dev.martianzoo.tfm.pets.ast.HasExpression
 import dev.martianzoo.tfm.pets.ast.Requirement
 
 /**
  * A type, for which an [Expression] is only a textual representation. There are many ways in which
  * distinct expressions might resolve to the same [Type].
  */
-interface Type { // TODO HasExpression
+interface Type : HasExpression { // TODO Hierarchical?
   /**
    * True if this type is abstract, in which case occurrences of the type can be counted in a game
    * state but neither gained nor removed.
@@ -20,12 +21,6 @@ interface Type { // TODO HasExpression
    * current game state.
    */
   fun isSubtypeOf(that: Type): Boolean
-
-  /** The minimal expression that resolves to this type. */
-  val expression: Expression
-
-  /** The full expression for this type, omitting nothing. */
-  val expressionFull: Expression
 
   /** The optional requirement attached to this type. */
   val refinement: Requirement?

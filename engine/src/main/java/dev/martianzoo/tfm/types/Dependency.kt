@@ -2,13 +2,11 @@ package dev.martianzoo.tfm.types
 
 import dev.martianzoo.tfm.api.SpecialClassNames.CLASS
 import dev.martianzoo.tfm.pets.ast.ClassName
-import dev.martianzoo.tfm.pets.ast.Expression
+import dev.martianzoo.tfm.pets.ast.HasExpression
 import dev.martianzoo.util.Hierarchical
 
-internal sealed class Dependency : Hierarchical<Dependency> { // TODO HasExpression
+internal sealed class Dependency : Hierarchical<Dependency>, HasExpression {
   abstract val key: Key
-  abstract val expression: Expression // TODO bound?? or common intfc?
-  abstract val expressionFull: Expression
 
   /**
    * Once a class introduces a dependency, like `CLASS Tile<Area>`, all subclasses know that
@@ -33,13 +31,11 @@ internal sealed class Dependency : Hierarchical<Dependency> { // TODO HasExpress
 
   /** Any [Dependency] except for the case covered by [FakeDependency] below. */
   // TODO rename Dependency?
-  data class TypeDependency(override val key: Key, val bound: PType) : Dependency() {
+  data class TypeDependency(override val key: Key, val bound: PType) :
+      Dependency(), HasExpression by bound {
+
     fun allConcreteSpecializations(): Sequence<TypeDependency> =
         bound.allConcreteSubtypes().map { TypeDependency(key, it) }
-
-    override val expressionFull by bound::expressionFull
-
-    override val expression by bound::expression
 
     override fun toString() = "$key=${expression}"
 
@@ -55,7 +51,6 @@ internal sealed class Dependency : Hierarchical<Dependency> { // TODO HasExpress
 
     private fun boundOf(that: Dependency): PType =
         (that as TypeDependency).bound.also { require(key == that.key) }
-
   }
 
   /**
@@ -85,7 +80,6 @@ internal sealed class Dependency : Hierarchical<Dependency> { // TODO HasExpress
 
     private fun boundOf(that: Dependency): PClass =
         (that as FakeDependency).bound.also { require(key == that.key) }
-
   }
 
   companion object {

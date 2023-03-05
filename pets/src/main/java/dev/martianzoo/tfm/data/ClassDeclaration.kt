@@ -49,7 +49,7 @@ public data class ClassDeclaration(
 
     // In that example, this list will be `Yes`, `Qux<Yes>`, `Yes`, `Ghi<Yes>`
     // val exprsWhoseArgumentsAreEligible =
-    //     dependencies.map { it.expression } + supertypes.flatMap { it.arguments }
+    //     dependencies + supertypes.flatMap { it.arguments }
 
     // TODO we don't want the No's in `Foo<No, No>` to be linked because they are parallel
     // val extras = exprsWhoseArgumentsAreEligible
