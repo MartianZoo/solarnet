@@ -6,7 +6,7 @@ import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.Effect
 import dev.martianzoo.tfm.pets.ast.Effect.Trigger
 import dev.martianzoo.tfm.pets.ast.Expression
-import dev.martianzoo.tfm.pets.ast.From
+import dev.martianzoo.tfm.pets.ast.FromExpression
 import dev.martianzoo.tfm.pets.ast.Instruction
 import dev.martianzoo.tfm.pets.ast.Metric
 import dev.martianzoo.tfm.pets.ast.PetNode
@@ -65,11 +65,11 @@ public abstract class PetTransformer {
                   is Instruction.Multi -> Instruction.Multi(x(instructions))
                   is Instruction.Transform -> Instruction.Transform(x(instruction), transformKind)
                 }
-            is From ->
+            is FromExpression ->
                 when (this) {
-                  is From.SimpleFrom -> From.SimpleFrom(x(toExpression), x(fromExpression))
-                  is From.ComplexFrom -> From.ComplexFrom(x(className), x(arguments), x(refinement))
-                  is From.ExpressionAsFrom -> From.ExpressionAsFrom(x(expression))
+                  is FromExpression.SimpleFrom -> FromExpression.SimpleFrom(x(toExpression), x(fromExpression))
+                  is FromExpression.ComplexFrom -> FromExpression.ComplexFrom(x(className), x(arguments), x(refinement))
+                  is FromExpression.ExpressionAsFrom -> FromExpression.ExpressionAsFrom(x(expression))
                 }
             is Effect -> Effect(x(trigger), x(instruction), automatic)
             is Trigger ->

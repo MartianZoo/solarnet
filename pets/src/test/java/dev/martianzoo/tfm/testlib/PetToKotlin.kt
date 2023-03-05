@@ -6,10 +6,10 @@ import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.Effect
 import dev.martianzoo.tfm.pets.ast.Effect.Trigger
 import dev.martianzoo.tfm.pets.ast.Expression
-import dev.martianzoo.tfm.pets.ast.From
-import dev.martianzoo.tfm.pets.ast.From.ComplexFrom
-import dev.martianzoo.tfm.pets.ast.From.ExpressionAsFrom
-import dev.martianzoo.tfm.pets.ast.From.SimpleFrom
+import dev.martianzoo.tfm.pets.ast.FromExpression
+import dev.martianzoo.tfm.pets.ast.FromExpression.ComplexFrom
+import dev.martianzoo.tfm.pets.ast.FromExpression.ExpressionAsFrom
+import dev.martianzoo.tfm.pets.ast.FromExpression.SimpleFrom
 import dev.martianzoo.tfm.pets.ast.Instruction
 import dev.martianzoo.tfm.pets.ast.Instruction.Custom
 import dev.martianzoo.tfm.pets.ast.Instruction.Gain
@@ -86,7 +86,7 @@ internal object PetToKotlin {
                 "Instruction.Transform(${p2k(instruction)}, \"$transformKind\")"
           }
         }
-        is From -> {
+        is FromExpression -> {
           when (this) {
             is ComplexFrom ->
                 "ComplexFrom(cn(\"$className\")," +

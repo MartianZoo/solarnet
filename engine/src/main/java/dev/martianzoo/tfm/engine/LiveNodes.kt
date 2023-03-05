@@ -165,6 +165,7 @@ internal object LiveNodes {
 
   data class LiveTrigger(val ptype: Type, val gain: Boolean, val by: ClassName? = null) {
     fun hits(change: StateChange, game: GameState): Int {
+      // TODO by
       val g = if (gain) change.gaining else change.removing
       return if (g != null && game.resolve(g).isSubtypeOf(ptype)) change.count else 0
     }

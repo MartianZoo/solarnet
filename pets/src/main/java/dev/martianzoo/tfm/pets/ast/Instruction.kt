@@ -10,7 +10,7 @@ import com.github.h0tk3y.betterParse.parser.Parser
 import dev.martianzoo.tfm.pets.BaseTokenizer
 import dev.martianzoo.tfm.pets.Parsing
 import dev.martianzoo.tfm.pets.PetException
-import dev.martianzoo.tfm.pets.ast.From.SimpleFrom
+import dev.martianzoo.tfm.pets.ast.FromExpression.SimpleFrom
 import dev.martianzoo.util.suf
 
 public sealed class Instruction : PetNode() {
@@ -57,7 +57,7 @@ public sealed class Instruction : PetNode() {
   }
 
   data class Transmute(
-      val from: From,
+      val from: FromExpression,
       val scalar: Int? = null,
       override val intensity: Intensity? = null,
   ) : Change() {
@@ -215,7 +215,7 @@ public sealed class Instruction : PetNode() {
 
         val transmute: Parser<Transmute> =
             optional(scalar) and
-            From.parser() and
+            FromExpression.parser() and
             optional(intensity) map { (scalar, fro, int) -> Transmute(fro, scalar, int) }
 
         val perable: Parser<Change> = transmute or group(transmute) or gain or remove

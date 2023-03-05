@@ -11,10 +11,10 @@ import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.pets.ast.Effect
 import dev.martianzoo.tfm.pets.ast.Effect.Trigger
 import dev.martianzoo.tfm.pets.ast.Expression
-import dev.martianzoo.tfm.pets.ast.From
-import dev.martianzoo.tfm.pets.ast.From.ComplexFrom
-import dev.martianzoo.tfm.pets.ast.From.ExpressionAsFrom
-import dev.martianzoo.tfm.pets.ast.From.SimpleFrom
+import dev.martianzoo.tfm.pets.ast.FromExpression
+import dev.martianzoo.tfm.pets.ast.FromExpression.ComplexFrom
+import dev.martianzoo.tfm.pets.ast.FromExpression.ExpressionAsFrom
+import dev.martianzoo.tfm.pets.ast.FromExpression.SimpleFrom
 import dev.martianzoo.tfm.pets.ast.Instruction
 import dev.martianzoo.tfm.pets.ast.Instruction.Intensity
 import dev.martianzoo.tfm.pets.ast.Metric
@@ -104,7 +104,7 @@ internal class PetGenerator(scaling: (Int) -> Double) :
       register { Instruction.Multi(listOfSize(choose(2, 2, 2, 2, 2, 3, 4))) }
       register { Instruction.Transform(recurse(), "PROD") }
 
-      register(From::class) {
+      register(FromExpression::class) {
         val one: Expression = recurse()
         val two: Expression = recurse()
 
@@ -130,7 +130,7 @@ internal class PetGenerator(scaling: (Int) -> Double) :
 
         val b = Random.Default.nextBoolean()
 
-        fun convert(expression: Expression): From {
+        fun convert(expression: Expression): FromExpression {
           if (expression == target) {
             return SimpleFrom(if (b) inject else target, if (b) target else inject)
           }

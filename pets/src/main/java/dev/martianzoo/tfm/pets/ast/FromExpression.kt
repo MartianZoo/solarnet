@@ -15,13 +15,13 @@ import dev.martianzoo.tfm.pets.ast.ClassName.Parsing.className
 import dev.martianzoo.util.joinOrEmpty
 import dev.martianzoo.util.wrap
 
-public sealed class From : PetNode() {
-  override val kind = From::class.simpleName!!
+public sealed class FromExpression : PetNode() {
+  override val kind = FromExpression::class.simpleName!!
 
   abstract val toExpression: Expression
   abstract val fromExpression: Expression
 
-  data class ExpressionAsFrom(val expression: Expression) : From() {
+  data class ExpressionAsFrom(val expression: Expression) : FromExpression() {
     override val toExpression by this::expression
     override val fromExpression by this::expression
 
@@ -32,16 +32,16 @@ public sealed class From : PetNode() {
   data class SimpleFrom(
       override val toExpression: Expression,
       override val fromExpression: Expression,
-  ) : From() {
+  ) : FromExpression() {
     override fun visitChildren(visitor: Visitor) = visitor.visit(toExpression, fromExpression)
     override fun toString() = "$toExpression FROM $fromExpression"
   }
 
   data class ComplexFrom(
       val className: ClassName,
-      val arguments: List<From> = listOf(),
+      val arguments: List<FromExpression> = listOf(),
       val refinement: Requirement? = null,
-  ) : From() {
+  ) : FromExpression() {
     init {
       if (arguments.count { it is SimpleFrom || it is ComplexFrom } != 1) {
         throw PetException("Can only have one FROM in an expression")
@@ -58,9 +58,9 @@ public sealed class From : PetNode() {
   }
 
   companion object : BaseTokenizer() {
-    fun from(text: String): From = Parsing.parse(parser(), text)
+    fun from(text: String): FromExpression = Parsing.parse(parser(), text)
 
-    internal fun parser(): Parser<From> {
+    internal fun parser(): Parser<FromExpression> {
       return parser {
         val expressionAsFrom = Expression.parser() map ::ExpressionAsFrom
         val simpleFrom =
