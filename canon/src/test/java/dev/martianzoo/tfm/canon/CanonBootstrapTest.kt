@@ -60,8 +60,7 @@ private class CanonBootstrapTest {
   @Test
   fun createsExpectedSingletons() {
     val game = Engine.newGame(GameSetup(Canon, "BRMPX", 3))
-    val startingComponents: Multiset<Component> =
-        game.getComponents(game.resolve(COMPONENT.expr))
+    val startingComponents: Multiset<Component> = game.getComponents(game.resolve(COMPONENT.expr))
     assertThat(startingComponents.elements).hasSize(startingComponents.size)
 
     val isArea: (Component) -> Boolean = { it.toString().startsWith("[Tharsis_") }
@@ -72,7 +71,8 @@ private class CanonBootstrapTest {
     assertThat(startingComponents.count(isBorder)).isEqualTo(312)
     assertThat(startingComponents.count(isClass)).isGreaterThan(400)
 
-    assertThat(startingComponents.filterNot { isArea(it) || isBorder(it) || isClass(it) }.toStrings())
+    val theRest = startingComponents.filterNot { isArea(it) || isBorder(it) || isClass(it) }
+    assertThat(theRest.toStrings())
         .containsExactly(
             "[Game]",
             "[Tharsis]",

@@ -137,10 +137,10 @@ public class Game(
     fullChangeLog.add(ChangeRecord(nextOrdinal, change, cause, hidden))
   }
 
-  public fun component(type: Type?): Component? = type?.let { Component(loader.resolve(it)) }
+  public fun component(type: Type?): Component? = type?.let { Component.ofType(loader.resolve(it)) }
 
   public fun component(type: Expression?): Component? =
-      type?.let { Component(loader.resolve(it)) }
+      type?.let { Component.ofType(loader.resolve(it)) }
 
   public fun rollBack(ordinal: Int) {
     require(ordinal <= nextOrdinal)

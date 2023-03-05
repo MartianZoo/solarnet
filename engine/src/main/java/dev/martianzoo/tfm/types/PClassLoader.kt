@@ -18,7 +18,7 @@ import dev.martianzoo.util.toSetStrict
  * needed. Can be [frozen], which prevents additional classes from being loaded, and enables
  * features such as [PClass.allSubclasses] to work.
  */
-public class PClassLoader(
+public class PClassLoader( // TODO separate into loader and table
     /**
      * The source of class declarations to use as needed; [loadEverything] will load every class
      * found here.
@@ -31,6 +31,8 @@ public class PClassLoader(
      */
     private val autoLoadDependencies: Boolean = false,
 ) {
+  private val id = nextId++
+
   /** The `Component` class, which is the root of the class hierarchy. */
   public val componentClass: PClass =
       PClass(decl(COMPONENT), this, listOf()).also {
@@ -45,7 +47,6 @@ public class PClassLoader(
   private val loadedClasses =
       mutableMapOf<ClassName, PClass?>(COMPONENT to componentClass, CLASS to classClass)
 
-  // TODO maybe go back to the operator
   /**
    * Returns the [PClass] whose [PClass.className] or [PClass.shortName] is [name], or throws an
    * exception.
@@ -53,15 +54,15 @@ public class PClassLoader(
   public fun getClass(name: ClassName): PClass =
       loadedClasses[name] ?: error("no class loaded with className or shortName $name")
 
-  /** Returns the corresponding [PType] to [type] (possibly [type] itself). */
-  public fun resolve(type: Type): PType = type as? PType ?: resolve(type.expression)
-
   /** Returns the [PType] represented by [expression]. */
   public fun resolve(expression: Expression): PType {
     return getClass(expression.className)
         .specialize(expression.arguments)
         .refine(expression.refinement)
   }
+
+  /** Returns the corresponding [PType] to [type] (possibly [type] itself). */
+  public fun resolve(type: Type): PType = type as? PType ?: resolve(type.expression)
 
   /** All classes loaded by this class loader; can only be accessed after the loader is [frozen]. */
   public val allClasses: Set<PClass> by lazy {
@@ -85,12 +86,12 @@ public class PClassLoader(
         else -> loadSingle(name)
       }
 
-  /** Equivalent to calling [load] on every class name in [idsAndNames]. */
-  public fun loadAll(idsAndNames: Collection<ClassName>) =
+  /** Equivalent to calling [load] on every class name (or shortName) in [names]. */
+  public fun loadAll(names: Collection<ClassName>) =
       if (autoLoadDependencies) {
-        autoLoad(idsAndNames)
+        autoLoad(names)
       } else {
-        idsAndNames.forEach(::loadSingle)
+        names.forEach(::loadSingle)
       }
 
   /** Loads every class known to this class loader's backing [Authority], and freezes. */
@@ -188,13 +189,19 @@ public class PClassLoader(
     val list =
         specs.map { specExpression ->
           val specType: PType = resolve(specExpression)
-          for (candidateDep in deps.dependencies - usedDeps) {
-            val intersectionType = specType.glb(candidateDep.bound) ?: continue
+          for (candidateDep in deps.asSet - usedDeps) {
+            val intersectionType = (specType glb candidateDep.bound) ?: continue
             usedDeps += candidateDep
             return@map TypeDependency(candidateDep.key, intersectionType)
           }
           error("couldn't match up $specExpression to $this")
         }
     return DependencySet(list.toSetStrict())
+  }
+
+  override fun toString() = "loader$id"
+
+  private companion object {
+    var nextId: Int = 0
   }
 }

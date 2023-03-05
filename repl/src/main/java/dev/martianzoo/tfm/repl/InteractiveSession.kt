@@ -16,6 +16,7 @@ import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.types.PClass
 import dev.martianzoo.tfm.types.PType
 import dev.martianzoo.util.HashMultiset
+import dev.martianzoo.util.Hierarchical.Companion.lub
 import dev.martianzoo.util.Multiset
 
 /** A programmatic entry point to a REPL session that is less textual than [ReplSession]. */
@@ -56,13 +57,8 @@ class InteractiveSession {
     subs.forEach { sub ->
       val matches = allComponents.filter { it.alwaysHasType(sub.baseType) }
       if (matches.any()) {
-        val elements: Set<Component> = matches.elements
-        var lub: PType? = null
-        for (element in elements) {
-          val ptype = element.type as PType
-          lub = lub?.lub(ptype) ?: ptype
-        }
-        lub?.let { result.add(it.expression, matches.size) }
+        val types = matches.elements.map { it.type as PType }
+        result.add(lub(types)!!.expression, matches.size)
       }
     }
     return result

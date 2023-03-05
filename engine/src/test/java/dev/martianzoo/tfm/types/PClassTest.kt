@@ -10,7 +10,6 @@ import dev.martianzoo.tfm.pets.ast.Expression.Companion.expression
 import dev.martianzoo.tfm.pets.ast.classNames
 import dev.martianzoo.tfm.types.Dependency.Key
 import dev.martianzoo.util.toSetStrict
-import dev.martianzoo.util.toStrings
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 
@@ -22,7 +21,7 @@ private class PClassTest {
     assertThat(cpt.className).isEqualTo(COMPONENT)
     assertThat(cpt.abstract).isTrue()
     assertThat(cpt.directSuperclasses).isEmpty()
-    assertThat(cpt.allSuperclasses.toStrings()).containsExactly("$COMPONENT")
+    assertThat(cpt.allSuperclasses.classNames()).containsExactly(COMPONENT)
     assertThat(cpt.directDependencyKeys).isEmpty()
   }
 
@@ -32,8 +31,8 @@ private class PClassTest {
     val foo = loader.getClass(cn("Foo"))
     assertThat(foo.className).isEqualTo(cn("Foo"))
     assertThat(foo.abstract).isFalse()
-    assertThat(foo.directSuperclasses.toStrings()).containsExactly("$COMPONENT")
-    assertThat(foo.allSuperclasses.toStrings()).containsExactly("$COMPONENT", "Foo")
+    assertThat(foo.directSuperclasses.classNames()).containsExactly(COMPONENT)
+    assertThat(foo.allSuperclasses.classNames()).containsExactly(COMPONENT, cn("Foo"))
     assertThat(foo.directDependencyKeys).isEmpty()
   }
 
@@ -41,8 +40,8 @@ private class PClassTest {
   fun subclass() {
     val loader = loadTypes("CLASS Foo", "CLASS Bar : Foo")
     val bar = loader.getClass(cn("Bar"))
-    assertThat(bar.directSuperclasses.toStrings()).containsExactly("Foo")
-    assertThat(bar.allSuperclasses.toStrings()).containsExactly("$COMPONENT", "Foo", "Bar")
+    assertThat(bar.directSuperclasses.classNames()).containsExactly(cn("Foo"))
+    assertThat(bar.allSuperclasses.classNames()).containsExactly(COMPONENT, cn("Foo"), cn("Bar"))
     assertThat(bar.directDependencyKeys).isEmpty()
   }
 
@@ -50,8 +49,8 @@ private class PClassTest {
   fun forwardReference() {
     val loader = loadTypes("CLASS Bar : Foo", "CLASS Foo")
     val bar = loader.getClass(cn("Bar"))
-    assertThat(bar.directSuperclasses.toStrings()).containsExactly("Foo")
-    assertThat(bar.allSuperclasses.toStrings()).containsExactly("$COMPONENT", "Foo", "Bar")
+    assertThat(bar.directSuperclasses.classNames()).containsExactly(cn("Foo"))
+    assertThat(bar.allSuperclasses.classNames()).containsExactly(COMPONENT, cn("Foo"), cn("Bar"))
     assertThat(bar.directDependencyKeys).isEmpty()
   }
 
@@ -87,7 +86,7 @@ private class PClassTest {
     val loader = loadTypes("CLASS Foo", "CLASS Bar<Foo>", "CLASS Qux : Bar")
     val bar = loader.getClass(cn("Bar"))
     val qux = loader.getClass(cn("Qux"))
-    assertThat(qux.directSuperclasses.toStrings()).containsExactly("Bar")
+    assertThat(qux.directSuperclasses.classNames()).containsExactly(cn("Bar"))
 
     val key = Key(cn("Bar"), 0)
     assertThat(bar.allDependencyKeys).containsExactly(key)
@@ -99,7 +98,7 @@ private class PClassTest {
     val loader = loadTypes("CLASS Foo", "CLASS Bar<Foo>", "CLASS Qux : Bar<Foo>")
     val bar = loader.getClass(cn("Bar"))
     val qux = loader.getClass(cn("Qux"))
-    assertThat(qux.directSuperclasses.toStrings()).containsExactly("Bar")
+    assertThat(qux.directSuperclasses.classNames()).containsExactly(cn("Bar"))
 
     val key = Key(cn("Bar"), 0)
     assertThat(bar.allDependencyKeys).containsExactly(key)
@@ -121,7 +120,7 @@ private class PClassTest {
     val loader = loadTypes("CLASS Foo", "CLASS Bar<Foo>", "CLASS Baz : Foo", "CLASS Qux : Bar<Baz>")
     val bar = loader.getClass(cn("Bar"))
     val qux = loader.getClass(cn("Qux"))
-    assertThat(qux.directSuperclasses.toStrings()).containsExactly("Bar")
+    assertThat(qux.directSuperclasses.classNames()).containsExactly(cn("Bar"))
 
     val key = Key(cn("Bar"), 0)
     assertThat(bar.allDependencyKeys).containsExactly(key)

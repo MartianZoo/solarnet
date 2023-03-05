@@ -172,9 +172,8 @@ internal object ClassDeclarationParsers : BaseTokenizer() {
 
   // The rest of the file is temporary types used only during parsing.
 
-  internal data class Signature(val asDeclaration: ClassDeclaration) : HasClassName {
-    override val className: ClassName by asDeclaration::className
-
+  internal data class Signature(val asDeclaration: ClassDeclaration) :
+      HasClassName by asDeclaration {
     constructor(
         className: ClassName,
         shortName: ClassName?,

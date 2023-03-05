@@ -108,15 +108,17 @@ public class Transformer internal constructor(val loader: PClassLoader) {
 
   // only has to modify the args/specs
   internal fun insertDefaultsIntoExpr(
-      original: Expression, // SpecialTile<Player2>
-      defaultDeps: DependencySet, // Tile_0=LandArea
+      original: Expression,
+      defaultDeps: DependencySet,
       contextCpt: Expression = THIS.expr,
   ): Expression {
 
-    val pclass: PClass = loader.getClass(original.className) // SpecialTile
+    val pclass: PClass = loader.getClass(original.className)
     val dethissed: Expression = original.replaceAll(THIS.expr, contextCpt)
-    val preferred = pclass.match(dethissed.arguments).keys.zip(original.arguments).toMap()
-    val overlaid: Map<Key, Expression> = overlayMaps(preferred, defaultDeps.keyToExpression())
+    val preferred = pclass.loader.match(dethissed.arguments,
+        pclass.baseType.dependencies).keys.zip(original.arguments).toMap()
+    val back = defaultDeps.asSet.associate { it.key to it.expression }
+    val overlaid: Map<Key, Expression> = overlayMaps(preferred, back)
 
     // reorder them
     val newArgs: List<Expression> =

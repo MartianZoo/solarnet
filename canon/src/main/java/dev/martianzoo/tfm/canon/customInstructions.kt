@@ -44,9 +44,9 @@ private object GainLowestProduction : CustomInstruction("gainLowestProduction") 
   override fun translate(game: ReadOnlyGameState, arguments: List<Type>): Instruction {
     val player = arguments.single()
     val prods: Map<ClassName, Int> = lookUpProductionLevels(game, player.expression)
-    val lowest = prods.values.min()
-    val lowestProds =
-        prods.filterValues { it == lowest }.keys.joinToString(" OR ") { "$it<$player>" }
+    val lowest: Int = prods.values.min()
+    val keys: Set<ClassName> = prods.filterValues { it == lowest }.keys
+    val lowestProds = keys.joinToString(" OR ") { "$it<${player.expression}>" }
     return instruction("PROD[$lowestProds]")
   }
 }

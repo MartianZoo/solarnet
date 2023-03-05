@@ -35,27 +35,24 @@ internal constructor(
 
   override fun isSubtypeOf(that: PType) =
       pclass.isSubtypeOf(that.pclass) &&
-          dependencies.specializes(that.dependencies) &&
+          dependencies.isSubtypeOf(that.dependencies) &&
           that.refinement in setOf(null, refinement)
 
   // Nearest common subtype
   override fun glb(that: PType): PType? =
-      pclass
-          .glb(that.pclass)
-          ?.withExactDependencies(dependencies.intersect(that.dependencies))
-          ?.refine(combine(this.refinement, that.refinement))
+      (pclass glb that.pclass)
+          ?.withExactDependencies(dependencies glb that.dependencies)
+          ?.refine(conjoin(this.refinement, that.refinement)) // BIGTODO glb/lub for Req
 
   // Nearest common supertype
   // Unlike glb, two types always have a least upper bound (if nothing else, Component)
-  override fun lub(that: PType): PType {
-    val lubClass = this.pclass.lub(that.pclass)
-    val deps = this.dependencies.lub(that.dependencies)
-    val ref = setOf(this.refinement, that.refinement).singleOrNull()
-    return lubClass.withExactDependencies(deps).refine(ref)
-  }
+  override fun lub(that: PType): PType =
+      (pclass lub that.pclass)
+          .withExactDependencies(dependencies lub that.dependencies)
+          .refine(setOf(refinement, that.refinement).singleOrNull())
 
-  fun specialize(specs: List<Expression>): PType {
-    return if (isClassType) {
+  internal fun specialize(specs: List<Expression>): PType {
+    return if (isClassType) { // TODO reduce special-casing
       if (specs.isEmpty()) {
         loader.componentClass.classType
       } else {
@@ -64,11 +61,11 @@ internal constructor(
       }
     } else {
       val deps = loader.match(specs, dependencies).overlayOn(dependencies)
-      copy(dependencies = deps.subMap(dependencies.keys))
+      copy(dependencies = deps.subMapInOrder(dependencies.keys))
     }
   }
 
-  private fun combine(one: Requirement?, two: Requirement?): Requirement? {
+  private fun conjoin(one: Requirement?, two: Requirement?): Requirement? {
     val x = setOfNotNull(one, two)
     return when (x.size) {
       0 -> null
@@ -78,7 +75,7 @@ internal constructor(
     }
   }
 
-  fun refine(newRef: Requirement?): PType = copy(refinement = combine(refinement, newRef))
+  public fun refine(newRef: Requirement?): PType = copy(refinement = conjoin(refinement, newRef))
 
   override val expression: Expression by lazy {
     toExpressionUsingSpecs(narrowedDependencies.expressions)
@@ -99,7 +96,7 @@ internal constructor(
     return expression
   }
 
-  fun supertypes(): List<PType> {
+  public fun supertypes(): List<PType> {
     val supers = pclass.allSuperclasses - loader.componentClass - pclass
     // the argument to wAD is allowed to be a superset
     return supers.map { it.withExactDependencies(dependencies) }
@@ -109,34 +106,35 @@ internal constructor(
    * Returns every possible [PType] `t` such that `!t.abstract && t.isSubtypeOf(this)`. Note that
    * this sequence can potentially be very large.
    */
-  fun allConcreteSubtypes(): Sequence<PType> {
+  public fun allConcreteSubtypes(): Sequence<PType> {
     if (refinement != null) return emptySequence()
     return concreteSubclasses(pclass).flatMap {
-      it.intersectDependencies(this.dependencies).concreteSubtypesSameClass()
+      val top = it.withExactDependencies(dependencies glb it.baseType.dependencies)
+      top.concreteSubtypesSameClass()
     }
   }
 
-  val isClassType: Boolean = pclass.className == CLASS
+  public val isClassType: Boolean = pclass.className == CLASS
 
   /** If [isClassType], return the class it's a class type of. */
-  fun getClassForClassType(): PClass = dependencies.getClassForClassType()
+  internal fun getClassForClassType(): PClass = dependencies.getClassForClassType()
 
   /** Returns the subset of [allConcreteSubtypes] having the exact same [pclass] as ours. */
-  fun concreteSubtypesSameClass(): Sequence<PType> {
+  public fun concreteSubtypesSameClass(): Sequence<PType> {
     return if (refinement != null) {
       emptySequence()
-    } else if (isClassType) {
+    } else if (isClassType) { // TODO reduce special-casing
       concreteSubclasses(getClassForClassType()).map { it.classType }
     } else {
       val axes: List<List<Dependency>> =
-          dependencies.dependencies.map { it.allConcreteSpecializations().toList() }
+          dependencies.asSet.map { it.allConcreteSpecializations().toList() }
       val product: List<List<Dependency>> = Lists.cartesianProduct(axes)
       product.asSequence().map { pclass.withExactDependencies(DependencySet(it.toSet())) }
     }
   }
 
-  private fun concreteSubclasses(pclass: PClass): Sequence<PClass> =
+  private fun concreteSubclasses(pclass: PClass) =
       pclass.allSubclasses.asSequence().filter { !it.abstract }
 
-  override fun toString() = expression.toString()
+  override fun toString() = "$expressionFull@${pclass.loader}"
 }

@@ -9,11 +9,14 @@ import dev.martianzoo.tfm.types.PType
  * An *instance* of some concrete [PType]; a [ComponentGraph] is a multiset of these. For any use
  * case unrelated to what instances actually exist in a game state, use [PType] instead.
  */
-public data class Component(
+public data class Component
+private constructor(
     /** The concrete type of this component. */
     private val ptype: PType,
 ) {
-  constructor(pclass: PClass) : this(pclass.baseType)
+  companion object {
+    public fun ofType(ptype: PType): Component = Component(ptype)
+  }
 
   init {
     require(!ptype.abstract) { "Component can't be of an abstract type: ${ptype.expressionFull}" }
@@ -34,13 +37,10 @@ public data class Component(
    * `Class<Tile>` has an empty dependency list, despite its appearance. The list order corresponds
    * to [PClass.allDependencyKeys].
    */
-  public val dependencies: List<Component> by lazy {
-    ptype.dependencies.dependencies.map { Component(it.bound) }
-  }
+  public val dependencies: List<Component> = ptype.dependencies.asSet.map { ofType(it.bound) }
 
   /**
-   * This component's effects; while the component exists in a game state, the effects are
-   * active.
+   * This component's effects; while the component exists in a game state, the effects are active.
    */
   public fun effects(): List<Effect> {
     return ptype.pclass.allSuperclasses.flatMap { superclass ->
@@ -53,5 +53,5 @@ public data class Component(
     }
   }
 
-  override fun toString() = "[$ptype]"
+  override fun toString() = "[${ptype.expressionFull}]"
 }

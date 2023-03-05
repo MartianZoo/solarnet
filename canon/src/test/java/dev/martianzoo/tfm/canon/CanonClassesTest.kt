@@ -12,7 +12,6 @@ import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.pets.ast.classNames
 import dev.martianzoo.tfm.types.PClass
 import dev.martianzoo.tfm.types.PClassLoader
-import dev.martianzoo.util.toStrings
 import org.junit.jupiter.api.Test
 
 /** Tests for the Canon data set. */
@@ -69,7 +68,7 @@ private class CanonClassesTest {
     val ownedTile = loader.getClass(cn("OwnedTile"))
 
     // Nothing can be both Owned and a Tile without being an OwnedTile!
-    assertThat(owned.glb(tile)).isEqualTo(ownedTile)
+    assertThat(owned glb tile).isEqualTo(ownedTile)
     assertThat(ownedTile.intersectionType).isTrue()
   }
 
@@ -80,7 +79,7 @@ private class CanonClassesTest {
     val actionCard = loader.getClass(cn("ActionCard"))
 
     // Nothing can be both a CardFront and a HasActions but an ActionCard!
-    assertThat(cardFront.glb(hasActions)).isEqualTo(actionCard)
+    assertThat(cardFront glb hasActions).isEqualTo(actionCard)
     assertThat(actionCard.intersectionType).isTrue()
   }
 
@@ -105,11 +104,11 @@ private class CanonClassesTest {
     table.load(cn("OceanTile")).apply {
       // assertThat(directDependencyKeys).isEmpty()
       // assertThat(allDependencyKeys).containsExactly(Key(cn("Tile"), 0))
-      assertThat(directSuperclasses.toStrings())
-          .containsExactly("GlobalParameter", "Tile")
+      assertThat(directSuperclasses.classNames())
+          .containsExactly(cn("GlobalParameter"), cn("Tile"))
           .inOrder()
-      assertThat(allSuperclasses.toStrings())
-          .containsExactly("Component", "GlobalParameter", "Tile", "OceanTile")
+      assertThat(allSuperclasses.classNames())
+          .containsExactly(cn("Component"), cn("GlobalParameter"), cn("Tile"), cn("OceanTile"))
           .inOrder()
 
       table.load(cn("MarsArea"))

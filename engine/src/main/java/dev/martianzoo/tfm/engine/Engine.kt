@@ -40,7 +40,7 @@ public object Engine {
     val cause = Cause(GAME.expr, 0)
 
     for (ptype in singletons(loader.allClasses) + borders) {
-      val depInstances = ptype.dependencies.dependencies.map { it.bound } // TODO
+      val depInstances = ptype.dependencies.asSet.map { it.bound } // TODO
       for (cpt in depInstances + ptype) { // TODO not ironclad
         if (game.count(cpt) == 0) {
           game.applyChangeAndPublish(gaining = game.resolve(cpt), cause = cause, hidden = true)
@@ -56,7 +56,7 @@ public object Engine {
   }
 
   private fun singletons(all: Set<PClass>): List<PType> =
-      all.filter { it.isSingleton() }.flatMap { it.concreteTypesThisClass() }
+      all.filter { it.hasSingletonTypes() }.flatMap { it.concreteTypesThisClass() }
 
   private fun borders(map: MarsMapDefinition, loader: PClassLoader): List<PType> {
     val border = cn("Border")

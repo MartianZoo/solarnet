@@ -75,7 +75,7 @@ object PTypeToText { // TODO refactor to ClassInfo / TypeInfo type dealies
 
         Component [$ptype]:
             effects:     ${
-        Component(ptype).effects().joinToString("""
+        Component.ofType(ptype).effects().joinToString("""
                          """)
       }
       """.trimIndent()

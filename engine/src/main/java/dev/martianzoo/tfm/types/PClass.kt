@@ -16,6 +16,7 @@ import dev.martianzoo.tfm.pets.ast.classNames
 import dev.martianzoo.tfm.types.Dependency.Companion.depsForClassType
 import dev.martianzoo.tfm.types.Dependency.TypeDependency
 import dev.martianzoo.util.Hierarchical
+import dev.martianzoo.util.Hierarchical.Companion.glb
 import dev.martianzoo.util.toSetStrict
 
 /**
@@ -28,13 +29,13 @@ import dev.martianzoo.util.toSetStrict
 public data class PClass
 internal constructor(
     /** The class declaration this class was loaded from. */
-    public val declaration: ClassDeclaration,
+    public val declaration: ClassDeclaration, // TODO unpublic after simplifying defaults
 
     /** The class loader that loaded this class. */
     internal val loader: PClassLoader,
 
     /**
-     * This class's superclasses that are exactly one step away; empty only if this is `Component`.
+     * This class's superclasses that are exactly one step away; empty only for `Component`.
      */
     public val directSuperclasses: List<PClass> = superclasses(declaration, loader),
 ) : HasClassName, Hierarchical<PClass> {
@@ -79,6 +80,7 @@ internal constructor(
    */
   public val directSupertypes: Set<PType> by lazy {
     if (directSuperclasses.none()) {
+      require(className == COMPONENT)
       setOf()
     } else {
       declaration.supertypes
@@ -129,41 +131,48 @@ internal constructor(
     (directSuperclasses.flatMap { it.allDependencyKeys } + directDependencyKeys).toSet()
   }
 
-  /**
-   * Returns the special *class type* for this class; for example, for the class `Resource` returns
-   * the type `Class<Resource>`.
-   */
-  public val classType: PType by lazy {
-    loader.classClass.withExactDependencies(depsForClassType(this))
-  }
-
   internal val baseDependencies: DependencySet by lazy {
-    if (className == CLASS) {
+    if (className == CLASS) { // TODO reduce special-casing
       depsForClassType(loader.componentClass)
     } else {
-      val newDeps: List<Dependency> =
-          directDependencyKeys.map {
-            val depExpression = declaration.dependencies[it.index].expression
-            TypeDependency(it, loader.resolve(depExpression))
-          }
-      val deps = DependencySet.intersect(directSupertypes.map { it.dependencies })
-      deps.merge(DependencySet(newDeps.toSetStrict())) { _, _ -> error("") }
+      inheritedDeps().merge(declaredDeps()) { _, _ -> error("") }
     }
   }
+
+  private fun declaredDeps(): DependencySet {
+    val list: List<Dependency> =
+        directDependencyKeys.map {
+          val depExpression = declaration.dependencies[it.index].expression
+          TypeDependency(it, loader.resolve(depExpression))
+        }
+    return DependencySet(list.toSetStrict())
+  }
+
+  private fun inheritedDeps(): DependencySet {
+    val list: List<DependencySet> = directSupertypes.map { it.dependencies }
+    return glb(list) ?: DependencySet(setOf())
+  }
+
+  // GETTING TYPES
+
+  internal fun withExactDependencies(deps: DependencySet) =
+      PType(this, deps.subMapInOrder(allDependencyKeys))
 
   /** Least upper bound of all types with pclass==this */
   public val baseType: PType by lazy { withExactDependencies(baseDependencies) }
 
-  internal fun withExactDependencies(deps: DependencySet) =
-      PType(this, deps.subMap(allDependencyKeys))
+  internal fun specialize(specs: List<Expression>): PType = baseType.specialize(specs)
 
-  internal fun intersectDependencies(deps: DependencySet) =
-      withExactDependencies(deps.intersect(baseType.dependencies))
+  /**
+   * Returns the special *class type* for this class; for example, for the class `Resource` returns
+   * the type `Class<Resource>`.
+   */
+  internal val classType: PType by lazy {
+    loader.classClass.withExactDependencies(depsForClassType(this))
+  }
 
-  internal fun match(specs: List<Expression>): DependencySet =
-      loader.match(specs, baseType.dependencies)
-
-  fun specialize(specs: List<Expression>): PType = baseType.specialize(specs)
+  fun concreteTypesThisClass(): Sequence<PType> =
+      if (abstract) emptySequence() else baseType.concreteSubtypesSameClass()
 
   // EFFECTS
 
@@ -172,7 +181,7 @@ internal constructor(
    * as far as we are able to. These effects will belong to every [PType] built from this class,
    * where they will be processed further.
    */
-  val classEffects: List<EffectDeclaration> by lazy {
+  public val classEffects: List<EffectDeclaration> by lazy {
     val xer = loader.transformer
     val thiss = className.refine(requirement("Ok"))
     declaration.effects
@@ -188,9 +197,9 @@ internal constructor(
   // OTHER
 
   // includes abstract
-  internal fun isSingleton(): Boolean =
+  internal fun hasSingletonTypes(): Boolean =
       declaration.otherInvariants.any { it.requiresThis() } ||
-          directSuperclasses.any { it.isSingleton() }
+          directSuperclasses.any { it.hasSingletonTypes() }
 
   /**
    * Returns a set of absolute invariants that must always be true; note that these can contain
@@ -214,12 +223,9 @@ internal constructor(
     declaration.otherInvariants + topInvariants
   }
 
-  override fun toString() = "$className"
+  override fun toString() = "$className@$loader"
 
-  fun concreteTypesThisClass(): Sequence<PType> =
-      if (abstract) emptySequence() else baseType.concreteSubtypesSameClass()
-
-  companion object {
+  private companion object {
     fun superclasses(declaration: ClassDeclaration, loader: PClassLoader): List<PClass> {
       return declaration.supertypes
           .classNames()

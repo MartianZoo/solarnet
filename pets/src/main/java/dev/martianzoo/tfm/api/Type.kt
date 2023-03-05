@@ -7,7 +7,7 @@ import dev.martianzoo.tfm.pets.ast.Requirement
  * A type, for which an [Expression] is only a textual representation. There are many ways in which
  * distinct expressions might resolve to the same [Type].
  */
-interface Type {
+interface Type { // TODO HasExpression
   /**
    * True if this type is abstract, in which case occurrences of the type can be counted in a game
    * state but neither gained nor removed.

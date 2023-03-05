@@ -5,7 +5,7 @@ import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.util.Hierarchical
 
-internal sealed class Dependency : Hierarchical<Dependency> {
+internal sealed class Dependency : Hierarchical<Dependency> { // TODO HasExpression
   abstract val key: Key
   abstract val expression: Expression // TODO bound?? or common intfc?
   abstract val expressionFull: Expression
@@ -89,14 +89,6 @@ internal sealed class Dependency : Hierarchical<Dependency> {
   }
 
   companion object {
-    fun glb(a: List<Dependency>): Dependency? { // TODO share?
-      var result: Dependency = a.firstOrNull() ?: return null
-      for (next: Dependency in a.drop(1)) {
-        result = result.glb(next)!!
-      }
-      return result
-    }
-
     // TODO these don't really belong here; they're just here so that FakeDependency can be private
 
     internal fun validate(deps: Set<Dependency>) {
