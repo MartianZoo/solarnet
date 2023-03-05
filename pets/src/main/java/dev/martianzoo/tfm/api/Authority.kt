@@ -8,6 +8,7 @@ import dev.martianzoo.tfm.data.MilestoneDefinition
 import dev.martianzoo.tfm.data.StandardActionDefinition
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.tfm.pets.ast.Instruction.Custom
 import dev.martianzoo.util.Grid
 import dev.martianzoo.util.associateByStrict
 
@@ -32,9 +33,21 @@ public abstract class Authority {
 
   /** TODO */
   public val allClassDeclarations: Map<ClassName, ClassDeclaration> by lazy {
-    val fromCards = cardDefinitions.flatMap { it.extraClasses }
-    val list = explicitClassDeclarations + allDefinitions.map { it.asClassDeclaration } + fromCards
-    list.associateByStrict { it.className }
+    val allDeclarations =
+        explicitClassDeclarations +
+        allDefinitions.map { it.asClassDeclaration } +
+        cardDefinitions.flatMap { it.extraClasses }
+
+    allDeclarations.associateByStrict {
+      validate(it)
+      it.className
+    }
+  }
+
+  private fun validate(decl: ClassDeclaration) {
+    decl.effects
+        .flatMap { it.effect.descendantsOfType<Custom>() }
+        .forEach { customInstruction(it.functionName) }
   }
 
   /**
@@ -115,7 +128,7 @@ public abstract class Authority {
   public fun customInstruction(functionName: String): CustomInstruction {
     return customInstructions
         .firstOrNull { it.functionName == functionName }
-        .also { require(it != null) { "no instruction named @$functionName" } }!!
+            ?: error("no instruction named @$functionName")
   }
 
   /** Every custom instruction this authority knows about. */

@@ -6,9 +6,9 @@ import dev.martianzoo.tfm.api.SpecialClassNames.COMPONENT
 import dev.martianzoo.tfm.api.SpecialClassNames.THIS
 import dev.martianzoo.tfm.api.Type
 import dev.martianzoo.tfm.data.ClassDeclaration
+import dev.martianzoo.tfm.pets.AstTransforms.replaceAll
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.Expression
-import dev.martianzoo.tfm.pets.ast.Instruction
 import dev.martianzoo.tfm.pets.ast.PetNode
 import dev.martianzoo.tfm.types.Dependency.TypeDependency
 
@@ -39,9 +39,7 @@ public class PClassLoader(
 
   /** The `Class` class, the other class that is required to exist. */
   public val classClass: PClass =
-      PClass(decl(CLASS), this, listOf(componentClass)).also {
-        require(!it.abstract)
-      }
+      PClass(decl(CLASS), this, listOf(componentClass)).also { require(!it.abstract) }
 
   private val loadedClasses =
       mutableMapOf<ClassName, PClass?>(COMPONENT to componentClass, CLASS to classClass)
@@ -154,10 +152,11 @@ public class PClassLoader(
     }
 
   private fun validate() {
-    allClasses
-        .flatMap { it.classEffects }
-        .flatMap { it.descendantsOfType<Instruction.Custom>() }
-        .forEach { authority.customInstruction(it.functionName) }
+    allClasses.forEach { pclass ->
+      pclass.classEffects.forEach {
+        checkAllTypes(it.effect.replaceAll(THIS.expr, pclass.className.expr))
+      }
+    }
   }
 
   private fun decl(cn: ClassName) = authority.classDeclaration(cn)
@@ -179,21 +178,22 @@ public class PClassLoader(
   }
 
   /**
-   * Assigns each expression to a key from among this map's keys, such that it is compatible
-   * with that key's upper bound.
+   * Assigns each expression to a key from among this map's keys, such that it is compatible with
+   * that key's upper bound.
    */
   internal fun match(specs: List<Expression>, deps: DependencyMap): DependencyMap {
     val usedDeps = mutableSetOf<TypeDependency>()
 
-    val list = specs.map { specExpression ->
-      val specType: PType = resolve(specExpression)
-      for (candidateDep in deps.realDependencies - usedDeps) {
-        val intersectionType = specType.glb(candidateDep.bound) ?: continue
-        usedDeps += candidateDep
-        return@map TypeDependency(candidateDep.key, intersectionType)
-      }
-      error("couldn't match up $specExpression to $this")
-    }
+    val list =
+        specs.map { specExpression ->
+          val specType: PType = resolve(specExpression)
+          for (candidateDep in deps.realDependencies - usedDeps) {
+            val intersectionType = specType.glb(candidateDep.bound) ?: continue
+            usedDeps += candidateDep
+            return@map TypeDependency(candidateDep.key, intersectionType)
+          }
+          error("couldn't match up $specExpression to $this")
+        }
     return DependencyMap(list)
   }
 }

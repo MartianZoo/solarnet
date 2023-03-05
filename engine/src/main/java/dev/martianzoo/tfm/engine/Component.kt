@@ -39,14 +39,18 @@ public data class Component(
   }
 
   /**
-   * This component's effects, which are active in a game state if and only if this component exists
-   * in that game state.
+   * This component's effects; while the component exists in a game state, the effects are
+   * active.
    */
   public fun effects(): List<Effect> {
-    return listOf() // BIGTODO
-    //   return ptype.pclass.effects.map { effDecl ->
-    //     val links = effDecl.
-    //   }
+    return ptype.pclass.allSuperclasses.flatMap { superclass ->
+      superclass.classEffects.map { decl ->
+        val linkages = decl.linkages
+        val effect = decl.effect
+        effect
+        // BIGTODO needs translating
+      }
+    }
   }
 
   override fun toString() = "[$ptype]"

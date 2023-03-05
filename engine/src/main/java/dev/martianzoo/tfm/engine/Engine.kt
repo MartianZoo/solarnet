@@ -47,6 +47,7 @@ public object Engine {
           game.applyChangeAndPublish(gaining = game.resolve(cpt), cause = cause, hidden = true)
           cpt.pclass.allSuperclasses
               .flatMap { it.classEffects }
+              .map { it.effect }
               .filter { it.trigger == WhenGain }
               .forEach { println("Should do ${it.instruction} now...") }
         }

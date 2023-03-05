@@ -4,9 +4,9 @@ import dev.martianzoo.tfm.api.SpecialClassNames.CLASS
 import dev.martianzoo.tfm.api.SpecialClassNames.COMPONENT
 import dev.martianzoo.tfm.api.SpecialClassNames.THIS
 import dev.martianzoo.tfm.data.ClassDeclaration
+import dev.martianzoo.tfm.data.ClassDeclaration.EffectDeclaration
 import dev.martianzoo.tfm.pets.PetTransformer
 import dev.martianzoo.tfm.pets.ast.ClassName
-import dev.martianzoo.tfm.pets.ast.Effect
 import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.pets.ast.HasClassName
 import dev.martianzoo.tfm.pets.ast.PetNode
@@ -172,19 +172,17 @@ internal constructor(
    * as far as we are able to. These effects will belong to every [PType] built from this class,
    * where they will be processed further.
    */
-  val classEffects: List<Effect> by lazy {
+  val classEffects: List<EffectDeclaration> by lazy {
     val xer = loader.transformer
     val thiss = className.refine(requirement("Ok"))
     declaration.effects
         .map { effect ->
-          val links = effect.linkages
           var fx = effect.effect
           fx = xer.insertDefaults(fx, thiss)
           fx = xer.fixEffectForUnownedContext(fx, this)
-          fx = xer.deprodify(fx)
-          fx
+          effect.copy(effect = fx)
         }
-        .sorted()
+        .sortedBy { it.effect }
   }
 
   // OTHER

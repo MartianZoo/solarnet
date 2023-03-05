@@ -1,172 +1,135 @@
 package dev.martianzoo.tfm.canon
 
 import com.google.common.truth.Truth.assertThat
-import dev.martianzoo.tfm.api.SpecialClassNames
 import dev.martianzoo.tfm.api.SpecialClassNames.GAME
-import dev.martianzoo.tfm.pets.AstTransforms.replaceAll
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.tfm.pets.ast.Effect.Companion.effect
-import dev.martianzoo.tfm.types.PClass
 import dev.martianzoo.tfm.types.PClassLoader
-import dev.martianzoo.util.toStrings
 import org.junit.jupiter.api.Test
 
 private class CanonEffectsTest {
-  @Test
-  fun getClassEffects() {
-    val table = PClassLoader(Canon).loadEverything()
-    table.allClasses.forEach { it.classEffects }
-  }
-
-  @Test
-  fun checkEffectExpressions() {
-    val table = PClassLoader(Canon).loadEverything()
-
-    table.allClasses.forEach { pclass ->
-      pclass.classEffects.forEach {
-        table.checkAllTypes(it.replaceAll(SpecialClassNames.THIS.expr, pclass.className.expr))
-      }
-    }
-  }
-
-  fun load(name: String): PClass {
+  fun effectsOf(name: String): List<String> {
     val loader = PClassLoader(Canon, true)
     loader.load(GAME)
     val card = loader.load(cn(name))
     loader.frozen = true
-    return card
+    return card.classEffects.map { "${it.effect}" }
   }
 
   @Test
   fun sabotage() {
-    assertThat(load("Sabotage").classEffects)
+    assertThat(effectsOf("Sabotage"))
         .containsExactly(
-            effect("This: -3 Titanium<Anyone>? OR -4 Steel<Anyone>? OR -7 Megacredit<Anyone>?"),
+            "This: -3 Titanium<Anyone>? OR -4 Steel<Anyone>? OR -7 Megacredit<Anyone>?"
         )
   }
 
   @Test
   fun energy() {
-    assertThat(load("Energy").classEffects)
-        .containsExactly(
-            effect("ProductionPhase:: Heat<Owner> FROM This"),
-        )
+    assertThat(effectsOf("Energy")).containsExactly("ProductionPhase:: Heat<Owner> FROM This")
   }
 
   @Test
   fun terraformer() {
-    assertThat(load("Terraformer").classEffects)
-        .containsExactly(
-            effect("This:: (35 TerraformRating<Owner>: Ok!)"),
-        )
+    assertThat(effectsOf("Terraformer")).containsExactly("This:: (35 TerraformRating<Owner>: Ok!)")
   }
 
   @Test
   fun polarExplorer() {
-    assertThat(load("PolarExplorer").classEffects)
-        .containsExactly(effect("This:: (3 OwnedTile<Owner, MarsArea(HAS 8 Row)>: Ok!)"))
+    assertThat(effectsOf("PolarExplorer"))
+        .containsExactly("This:: (3 OwnedTile<Owner, MarsArea(HAS 8 Row)>: Ok!)")
   }
 
   @Test
   fun gyropolis() {
-    val card = load("Gyropolis")
-    assertThat(card.classEffects)
+    val card = effectsOf("Gyropolis")
+    assertThat(card)
         .containsExactly(
-            effect(
-                // TODO remove parens
-                "This: CityTile<Owner, LandArea(HAS MAX 0 Neighbor<CityTile<Anyone>>)>!, " +
-                    "(-2 Production<Owner, Class<Energy>>!, " +
-                    "Production<Owner, Class<Megacredit>>! / VenusTag<Owner>, " +
-                    "Production<Owner, Class<Megacredit>>! / EarthTag<Owner>)"))
+            "This: CityTile<Owner, LandArea(HAS MAX 0 Neighbor<CityTile<Anyone>>)>!," +
+                " PROD[-2 Energy<Owner>!," +
+                " Megacredit<Owner>! / VenusTag<Owner>," +
+                " Megacredit<Owner>! / EarthTag<Owner>]")
   }
 
   @Test
   fun e98() {
-    assertThat(load("Elysium_9_8").classEffects)
-        .containsExactly(effect("Tile<This> BY Owner: ProjectCard<Owner>!"))
+    assertThat(effectsOf("Elysium_9_8")).containsExactly("Tile<This> BY Owner: ProjectCard<Owner>!")
   }
 
   @Test
   fun venusian() {
-    assertThat(load("VenusianAnimals").classEffects)
+    assertThat(effectsOf("VenusianAnimals"))
         .containsExactly(
-            effect("ScienceTag<Owner>: Animal<Owner, This>."),
-            effect("End: VictoryPoint<Owner>! / Animal<Owner, This>"),
+            "ScienceTag<Owner>: Animal<Owner, This>.",
+            "End: VictoryPoint<Owner>! / Animal<Owner, This>",
         )
   }
 
   @Test
   fun convertHeat() {
-    assertThat(load("ConvertHeat").classEffects)
-        .containsExactly(
-            effect("UseAction1<Owner, This>: -8 Heat<Owner>! THEN TemperatureStep."),
-        )
+    assertThat(effectsOf("ConvertHeat"))
+        .containsExactly("UseAction1<Owner, This>: -8 Heat<Owner>! THEN TemperatureStep.")
   }
 
   @Test
   fun teractor() {
-    assertThat(load("Teractor").classEffects)
+    assertThat(effectsOf("Teractor"))
         .containsExactly(
-            effect("This: 60 Megacredit<Owner>!"),
-            effect("PlayTag<Owner, Class<EarthTag>>:: -3 Owed<Owner>."),
+            "This: 60 Megacredit<Owner>!",
+            "PlayTag<Owner, Class<EarthTag>>:: -3 Owed<Owner>.",
         )
   }
 
   @Test
   fun immigrantCity() {
-    assertThat(load("ImmigrantCity").classEffects.toStrings())
+    assertThat(effectsOf("ImmigrantCity"))
         .containsExactly(
-            "This: (-Production<Owner, Class<Energy>>!, -2 Production<Owner, Class<Megacredit>>!)" +
-                ", CityTile<Owner, LandArea(HAS MAX 0 Neighbor<CityTile<Anyone>>)>!",
-            "CityTile<Anyone>: Production<Owner, Class<Megacredit>>!")
+            "This: PROD[-Energy<Owner>!, -2 Megacredit<Owner>!]," +
+                " CityTile<Owner, LandArea(HAS MAX 0 Neighbor<CityTile<Anyone>>)>!",
+            "CityTile<Anyone>: PROD[Megacredit<Owner>!]")
   }
 
   @Test
   fun titanAirScrapping() {
-    assertThat(load("TitanAirScrapping").classEffects)
+    assertThat(effectsOf("TitanAirScrapping"))
         .containsExactly(
-            effect("UseAction1<Owner, This>: -Titanium<Owner>! THEN 2 Floater<Owner, This>."),
-            effect(
-                "UseAction2<Owner, This>: -2 Floater<Owner, This>! THEN TerraformRating<Owner>!"),
-            effect("End: 2 VictoryPoint<Owner>!"),
+            "UseAction1<Owner, This>: -Titanium<Owner>! THEN 2 Floater<Owner, This>.",
+            "UseAction2<Owner, This>: -2 Floater<Owner, This>! THEN TerraformRating<Owner>!",
+            "End: 2 VictoryPoint<Owner>!",
         )
   }
 
   @Test
   fun amc() {
-    assertThat(load("AsteroidMiningConsortium").classEffects)
+    assertThat(effectsOf("AsteroidMiningConsortium"))
         .containsExactly(
-            effect(
-                "This: -Production<Anyone, Class<Titanium>>!, Production<Owner, Class<Titanium>>!"),
-            effect("End: VictoryPoint<Owner>!"),
+            "This: PROD[-Titanium<Anyone>!, Titanium<Owner>!]",
+            "End: VictoryPoint<Owner>!",
         )
   }
 
   @Test
   fun pets() {
-    assertThat(load("Pets").classEffects)
+    assertThat(effectsOf("Pets"))
         .containsExactly(
-            effect("This: Animal<Owner, This>."),
-            effect("-Animal<Owner, This>:: Die!"),
-            effect("CityTile<Anyone>: Animal<Owner, This>."),
-            effect("End: VictoryPoint<Owner>! / 2 Animal<Owner, This>"),
+            "This: Animal<Owner, This>.",
+            "-Animal<Owner, This>:: Die!",
+            "CityTile<Anyone>: Animal<Owner, This>.",
+            "End: VictoryPoint<Owner>! / 2 Animal<Owner, This>",
         )
   }
 
   @Test
   fun aquiferPumping() {
-    assertThat(load("AquiferPumping").classEffects)
+    assertThat(effectsOf("AquiferPumping"))
         .containsExactly(
-            effect("UseAction1<Owner, This>:: Accept<Owner, Class<Steel>>."),
-            effect("UseAction1<Owner, This>: -8 Megacredit<Owner>! THEN OceanTile<WaterArea>."),
+            "UseAction1<Owner, This>:: Accept<Owner, Class<Steel>>.",
+            "UseAction1<Owner, This>: -8 Megacredit<Owner>! THEN OceanTile<WaterArea>.",
         )
   }
 
   @Test
   fun floaterPrototypes() {
-    assertThat(load("FloaterPrototypes").classEffects)
-        .containsExactly(
-            effect("This: 2 Floater<Owner>."),
-        )
+    assertThat(effectsOf("FloaterPrototypes"))
+        .containsExactly("This: 2 Floater<Owner>.")
   }
 }
