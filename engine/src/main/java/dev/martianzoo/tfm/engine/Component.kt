@@ -35,7 +35,7 @@ public data class Component(
    * to [PClass.allDependencyKeys].
    */
   public val dependencies: List<Component> by lazy {
-    ptype.dependencies.realDependencies.map { Component(it.bound) }
+    ptype.dependencies.dependencies.map { Component(it.bound) }
   }
 
   /**

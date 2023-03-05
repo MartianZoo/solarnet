@@ -6,8 +6,9 @@ import com.github.h0tk3y.betterParse.combinators.optional
 import com.github.h0tk3y.betterParse.combinators.or
 import com.github.h0tk3y.betterParse.combinators.skip
 import com.github.h0tk3y.betterParse.parser.Parser
-import dev.martianzoo.tfm.api.SpecialClassNames
+import dev.martianzoo.tfm.api.SpecialClassNames.END
 import dev.martianzoo.tfm.api.SpecialClassNames.THIS
+import dev.martianzoo.tfm.api.SpecialClassNames.USE_ACTION
 import dev.martianzoo.tfm.pets.BaseTokenizer
 import dev.martianzoo.tfm.pets.Parsing
 import dev.martianzoo.tfm.pets.PetException
@@ -146,13 +147,12 @@ public data class Effect(
               when {
                 t == WhenGain -> if (it.automatic) -1 else 0
                 t == WhenRemove -> if (it.automatic) 1 else 2
-                t is OnGainOf &&
-                    "${t.expression.className}".startsWith("${SpecialClassNames.USE_ACTION}") -> 4
-                t == OnGainOf.create(SpecialClassNames.END.expr) -> 5
+                t is OnGainOf && "${t.expression.className}".startsWith("$USE_ACTION") -> 4
+                t == OnGainOf.create(END.expr) -> 5
                 else -> 3
               }
             },
-            { it.trigger.toString() },
+            { "${it.trigger}" },
         )
   }
 }

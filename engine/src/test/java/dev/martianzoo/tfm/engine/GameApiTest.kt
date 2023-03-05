@@ -24,12 +24,12 @@ private class GameApiTest {
 
     assertThat(game.count("Heat")).isEqualTo(0)
 
-    game.execute("5 Heat<Player2>")
-    game.execute("10 Heat<Player3>")
+    game.execute("5 Heat<Player2>!")
+    game.execute("10 Heat<Player3>!")
 
     assertThat(game.count("Heat")).isEqualTo(15)
 
-    game.execute("-4 Heat<Player2>")
+    game.execute("-4 Heat<Player2>!")
     assertThat(game.evaluate("Heat<Player2>")).isTrue()
     assertThat(game.evaluate("=1 Heat<Player2>")).isTrue()
     assertThat(game.evaluate("MAX 1 Heat<Player2>")).isTrue()
@@ -37,11 +37,11 @@ private class GameApiTest {
 
     assertThat(game.count("StandardResource")).isEqualTo(11)
     assertThat(game.count("StandardResource<Player3>")).isEqualTo(10)
-    game.execute("3 Steel<Player3> FROM Heat<Player3>")
+    game.execute("3 Steel<Player3> FROM Heat<Player3>!")
     assertThat(game.count("StandardResource<Player3>")).isEqualTo(10)
     assertThat(game.count("Steel")).isEqualTo(3)
 
-    game.execute("2 Heat<Player2 FROM Player3>")
+    game.execute("2 Heat<Player2 FROM Player3>!")
     assertThat(game.evaluate("=3 Heat<Player2>")).isTrue()
     assertThat(game.evaluate("=5 Heat<Player3>")).isTrue()
 

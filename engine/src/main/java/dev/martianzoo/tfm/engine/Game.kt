@@ -1,5 +1,6 @@
 package dev.martianzoo.tfm.engine
 
+import dev.martianzoo.tfm.api.CustomInstruction.ExecuteInsteadException
 import dev.martianzoo.tfm.api.GameSetup
 import dev.martianzoo.tfm.api.GameState
 import dev.martianzoo.tfm.api.Type
@@ -8,6 +9,9 @@ import dev.martianzoo.tfm.data.ChangeRecord.Cause
 import dev.martianzoo.tfm.data.ChangeRecord.StateChange
 import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.pets.ast.Instruction
+import dev.martianzoo.tfm.pets.ast.Instruction.Intensity.AMAP
+import dev.martianzoo.tfm.pets.ast.Instruction.Intensity.MANDATORY
+import dev.martianzoo.tfm.pets.ast.Instruction.Intensity.OPTIONAL
 import dev.martianzoo.tfm.pets.ast.Metric
 import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.types.PClassLoader
@@ -50,7 +54,64 @@ public class Game(
 
   fun getComponents(type: PType): Multiset<Component> = components.getAll(type)
 
-  fun execute(instr: Instruction) = LiveNodes.from(instr, this).execute(this)
+  fun execute(ins: Instruction, multiplier: Int = 1) {
+    require(multiplier >= 0)
+    if (multiplier == 0) return
+
+    when (ins) {
+      is Instruction.Change -> {
+        val amap: Boolean = when (ins.intensity) {
+          OPTIONAL, null -> throw UserException("abstract instruction")
+          MANDATORY -> false
+          AMAP -> true
+        }
+        applyChangeAndPublish(
+            count = ins.count * multiplier,
+            removing = ins.removing?.let { resolve(it) },
+            gaining = ins.gaining?.let { resolve(it) },
+            amap = amap)
+      }
+
+      is Instruction.Per -> {
+        val metric = LiveNodes.from(ins.metric, this)
+        execute(ins.instruction, metric.count(this) * multiplier)
+      }
+
+      is Instruction.Gated -> {
+        if (LiveNodes.from(ins.gate, this).evaluate(this)) {
+          execute(ins.instruction, multiplier)
+        } else {
+          throw UserException("Requirement not met: ${ins.gate}")
+        }
+      }
+
+      is Instruction.Custom -> {
+        require(multiplier == 1)
+        // TODO could inject this earlier
+        val custom = authority.customInstruction(ins.functionName)
+        val arguments = ins.arguments.map { resolve(it) }
+        try {
+          var translated: Instruction = custom.translate(this, arguments)
+          val xer = loader.transformer
+          translated = xer.insertDefaults(translated)
+          translated = xer.deprodify(translated)
+          execute(translated)
+
+        } catch (e: ExecuteInsteadException) {
+          // this custom fn chose to override execute() instead of translate()
+          custom.execute(this, arguments)
+        }
+      }
+
+      is Instruction.Or -> throw UserException("abstract instruction")
+
+      is Instruction.CompositeInstruction -> {
+        ins.instructions.forEach { execute(it, multiplier) }
+      }
+
+      is Instruction.Transform -> error("should have been transformed already")
+    }
+  }
 
   // BIGTODO trigger triggers
   override fun applyChangeAndPublish(

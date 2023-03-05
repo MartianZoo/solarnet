@@ -11,6 +11,7 @@ import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.pets.ast.PetNode
 import dev.martianzoo.tfm.types.Dependency.TypeDependency
+import dev.martianzoo.util.toSetStrict
 
 /**
  * All [PClass] instances come from here. Uses an [Authority] to pull class declarations from as
@@ -181,19 +182,19 @@ public class PClassLoader(
    * Assigns each expression to a key from among this map's keys, such that it is compatible with
    * that key's upper bound.
    */
-  internal fun match(specs: List<Expression>, deps: DependencyMap): DependencyMap {
+  internal fun match(specs: List<Expression>, deps: DependencySet): DependencySet {
     val usedDeps = mutableSetOf<TypeDependency>()
 
     val list =
         specs.map { specExpression ->
           val specType: PType = resolve(specExpression)
-          for (candidateDep in deps.realDependencies - usedDeps) {
+          for (candidateDep in deps.dependencies - usedDeps) {
             val intersectionType = specType.glb(candidateDep.bound) ?: continue
             usedDeps += candidateDep
             return@map TypeDependency(candidateDep.key, intersectionType)
           }
           error("couldn't match up $specExpression to $this")
         }
-    return DependencyMap(list)
+    return DependencySet(list.toSetStrict())
   }
 }

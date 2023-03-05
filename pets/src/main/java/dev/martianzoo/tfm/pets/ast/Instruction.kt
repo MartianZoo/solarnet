@@ -12,6 +12,7 @@ import dev.martianzoo.tfm.pets.Parsing
 import dev.martianzoo.tfm.pets.PetException
 import dev.martianzoo.tfm.pets.ast.FromExpression.SimpleFrom
 import dev.martianzoo.util.suf
+import dev.martianzoo.util.toSetStrict
 
 public sealed class Instruction : PetNode() {
 
@@ -131,48 +132,49 @@ public sealed class Instruction : PetNode() {
     override fun toString() = "@$functionName(${arguments.joinToString()})"
   }
 
-  data class Then(val instructions: List<Instruction>) : Instruction() {
+  sealed class CompositeInstruction : Instruction() {
+    abstract val instructions: List<Instruction>
+    override fun visitChildren(visitor: Visitor) = visitor.visit(instructions)
+    fun toString(connector: String) = instructions.joinToString(connector) { groupPartIfNeeded(it) }
+  }
+
+  data class Then(override val instructions: List<Instruction>) : CompositeInstruction() {
     constructor(vararg instructions: Instruction) : this(instructions.toList())
 
     init {
       require(instructions.size >= 2)
     }
 
-    override fun visitChildren(visitor: Visitor) = visitor.visit(instructions)
-
-    override fun toString() = instructions.joinToString(" THEN ") { groupPartIfNeeded(it) }
-
     override fun precedence() = 2
+    override fun toString() = toString(" THEN ")
   }
 
-  data class Or(val instructions: Set<Instruction>) : Instruction() {
-    constructor(vararg instructions: Instruction) : this(instructions.toSet())
+  data class Or(override val instructions: List<Instruction>) : CompositeInstruction() {
+    constructor(vararg instructions: Instruction) : this(instructions.toList())
 
     init {
       require(instructions.size >= 2)
+      if (instructions.distinct().size != instructions.size) {
+        throw PetException("duplicates")
+      }
     }
-
-    override fun toString() = instructions.joinToString(" OR ") { groupPartIfNeeded(it) }
-    override fun visitChildren(visitor: Visitor) = visitor.visit(instructions)
 
     override fun safeToNestIn(container: PetNode) =
         super.safeToNestIn(container) && container !is Then
 
     override fun precedence() = 4
+    override fun toString() = toString(" OR ")
   }
 
-  data class Multi(val instructions: List<Instruction>) : Instruction() {
+  data class Multi(override val instructions: List<Instruction>) : CompositeInstruction() {
     constructor(vararg instructions: Instruction) : this(instructions.toList())
 
     init {
       require(instructions.size >= 2)
     }
 
-    override fun visitChildren(visitor: Visitor) = visitor.visit(instructions)
-
-    override fun toString() = instructions.joinToString { groupPartIfNeeded(it) }
-
     override fun precedence() = 0
+    override fun toString() = toString(", ")
   }
 
   data class Transform(val instruction: Instruction, override val transformKind: String) :
@@ -247,7 +249,7 @@ public sealed class Instruction : PetNode() {
 
         val orInstr: Parser<Instruction> =
             separatedTerms(gated, _or) map {
-              val set = it.toSet()
+              val set = it.toSetStrict().toList()
               if (set.size == 1) set.first() else Or(set)
             }
 

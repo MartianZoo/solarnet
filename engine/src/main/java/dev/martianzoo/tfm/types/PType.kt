@@ -17,7 +17,7 @@ import dev.martianzoo.util.Hierarchical
 public data class PType
 internal constructor(
     public val pclass: PClass, // TODO try renaming root?
-    internal val dependencies: DependencyMap = DependencyMap(),
+    internal val dependencies: DependencySet = DependencySet(setOf()),
     override val refinement: Requirement? = null,
 ) : Type, Hierarchical<PType> {
   private val loader by pclass::loader
@@ -88,7 +88,7 @@ internal constructor(
     toExpressionUsingSpecs(dependencies.expressionsFull)
   }
 
-  internal val narrowedDependencies: DependencyMap by lazy {
+  internal val narrowedDependencies: DependencySet by lazy {
     dependencies.minus(pclass.baseType.dependencies)
   }
 
@@ -125,13 +125,13 @@ internal constructor(
   fun concreteSubtypesSameClass(): Sequence<PType> {
     return if (refinement != null) {
       emptySequence()
-    } else if (isClassType) { // TODO maybe it should be impossible for a class type to have refins
+    } else if (isClassType) {
       concreteSubclasses(getClassForClassType()).map { it.classType }
     } else {
       val axes: List<List<Dependency>> =
-          dependencies.realDependencies.map { it.allConcreteSpecializations().toList() }
+          dependencies.dependencies.map { it.allConcreteSpecializations().toList() }
       val product: List<List<Dependency>> = Lists.cartesianProduct(axes)
-      product.asSequence().map { pclass.withExactDependencies(DependencyMap(it)) }
+      product.asSequence().map { pclass.withExactDependencies(DependencySet(it.toSet())) }
     }
   }
 

@@ -109,7 +109,7 @@ public class Transformer internal constructor(val loader: PClassLoader) {
   // only has to modify the args/specs
   internal fun insertDefaultsIntoExpr(
       original: Expression, // SpecialTile<Player2>
-      defaultDeps: DependencyMap, // Tile_0=LandArea
+      defaultDeps: DependencySet, // Tile_0=LandArea
       contextCpt: Expression = THIS.expr,
   ): Expression {
 

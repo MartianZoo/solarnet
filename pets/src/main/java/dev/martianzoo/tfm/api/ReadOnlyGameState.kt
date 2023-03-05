@@ -14,7 +14,7 @@ interface ReadOnlyGameState {
 
   fun count(type: Type): Int // TODO need both?
 
-  fun getComponents(type: Type): Multiset<out Type> // TODO type, expr?
+  fun getComponents(type: Type): Multiset<out Type>
 
   fun evaluate(requirement: Requirement): Boolean
 

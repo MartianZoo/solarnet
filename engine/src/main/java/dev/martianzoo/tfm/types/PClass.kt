@@ -137,7 +137,7 @@ internal constructor(
     loader.classClass.withExactDependencies(depsForClassType(this))
   }
 
-  internal val baseDependencies: DependencyMap by lazy {
+  internal val baseDependencies: DependencySet by lazy {
     if (className == CLASS) {
       depsForClassType(loader.componentClass)
     } else {
@@ -146,21 +146,21 @@ internal constructor(
             val depExpression = declaration.dependencies[it.index].expression
             TypeDependency(it, loader.resolve(depExpression))
           }
-      val deps = DependencyMap.intersect(directSupertypes.map { it.dependencies })
-      deps.merge(DependencyMap(newDeps)) { _, _ -> error("") }
+      val deps = DependencySet.intersect(directSupertypes.map { it.dependencies })
+      deps.merge(DependencySet(newDeps.toSetStrict())) { _, _ -> error("") }
     }
   }
 
   /** Least upper bound of all types with pclass==this */
   public val baseType: PType by lazy { withExactDependencies(baseDependencies) }
 
-  internal fun withExactDependencies(deps: DependencyMap) =
+  internal fun withExactDependencies(deps: DependencySet) =
       PType(this, deps.subMap(allDependencyKeys))
 
-  internal fun intersectDependencies(deps: DependencyMap) =
+  internal fun intersectDependencies(deps: DependencySet) =
       withExactDependencies(deps.intersect(baseType.dependencies))
 
-  internal fun match(specs: List<Expression>): DependencyMap =
+  internal fun match(specs: List<Expression>): DependencySet =
       loader.match(specs, baseType.dependencies)
 
   fun specialize(specs: List<Expression>): PType = baseType.specialize(specs)

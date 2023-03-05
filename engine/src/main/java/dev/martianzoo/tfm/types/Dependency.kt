@@ -99,13 +99,13 @@ internal sealed class Dependency : Hierarchical<Dependency> {
 
     // TODO these don't really belong here; they're just here so that FakeDependency can be private
 
-    internal fun validate(list: List<Dependency>) {
-      require(list.all { it is TypeDependency } || list.single() is FakeDependency)
+    internal fun validate(deps: Set<Dependency>) {
+      require(deps.all { it is TypeDependency } || deps.single() is FakeDependency)
     }
 
-    internal fun getClassForClassType(list: List<Dependency>): PClass =
-        (list.single() as FakeDependency).bound
+    internal fun getClassForClassType(set: Set<Dependency>): PClass =
+        (set.single() as FakeDependency).bound
 
-    internal fun depsForClassType(pclass: PClass) = DependencyMap(listOf(FakeDependency(pclass)))
+    internal fun depsForClassType(pclass: PClass) = DependencySet(setOf(FakeDependency(pclass)))
   }
 }

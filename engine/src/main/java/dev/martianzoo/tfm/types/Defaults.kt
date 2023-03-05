@@ -6,10 +6,10 @@ import dev.martianzoo.tfm.pets.ast.Instruction.Intensity
 import dev.martianzoo.tfm.types.Dependency.Companion.glb
 
 internal data class Defaults(
-    val allCasesDependencies: DependencyMap = DependencyMap(),
-    val gainOnlyDependencies: DependencyMap = DependencyMap(),
+    val allCasesDependencies: DependencySet = DependencySet(setOf()),
+    val gainOnlyDependencies: DependencySet = DependencySet(setOf()),
     val gainIntensity: Intensity,
-    val removeOnlyDependencies: DependencyMap = DependencyMap(),
+    val removeOnlyDependencies: DependencySet = DependencySet(setOf()),
     val removeIntensity: Intensity,
 ) {
   companion object {
@@ -30,9 +30,9 @@ internal data class Defaults(
         return if (candidates.any()) merger(candidates) else null
       }
 
-      fun gatherDefaultDeps(extractor: (DefaultsDeclaration) -> List<Expression>): DependencyMap {
+      fun gatherDefaultDeps(extractor: (DefaultsDeclaration) -> List<Expression>): DependencySet {
         // excludes ones that don't specialize, is that okay? TODO
-        fun toDependencyMap(specs: List<Expression>): DependencyMap =
+        fun toDependencyMap(specs: List<Expression>): DependencySet =
             pclass.loader.resolve(pclass.className.addArgs(specs)).narrowedDependencies
 
         val depList: List<Dependency> =
@@ -41,7 +41,7 @@ internal data class Defaults(
                   { toDependencyMap(extractor(it)).getIfPresent(key) },
                   { a: List<Dependency> -> glb(a)!! })
             }
-        return DependencyMap(depList)
+        return DependencySet(depList.toSet())
       }
 
       return Defaults(
