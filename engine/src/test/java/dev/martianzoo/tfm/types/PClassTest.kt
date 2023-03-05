@@ -263,10 +263,6 @@ internal fun loader(petsText: String): PClassLoader {
   return PClassLoader(authority).also { it.loadEverything() }
 }
 
-// TODO share
-private fun assertFails(message: String = "(no message)", shouldFail: () -> Unit) =
-    assertThrows<RuntimeException>(message, shouldFail)
-
 val regex = Regex("^(\\w+).*")
 
 internal fun loadAndGetClasses(vararg decl: String): List<PClass> {
@@ -279,13 +275,3 @@ internal fun loadAndGetClasses(vararg decl: String): List<PClass> {
   val strings = listOf("Component") + decl.map { regex.matchEntire(it)!!.groupValues[1] }
   return strings.map { loader.getClass(cn(it)) }
 }
-
-// TODO move to shared utils (already being used from PTypeTest)
-internal fun loadTypes(vararg decl: String) =
-    loader(
-        """
-        ABSTRACT CLASS $COMPONENT
-        CLASS $CLASS<$COMPONENT>
-        ${decl.joinToString("") { "$it\n" }}
-        """
-            .trimIndent())
