@@ -1,6 +1,6 @@
 package dev.martianzoo.tfm.types
 
-import com.google.common.collect.Lists
+import com.google.common.collect.Lists.cartesianProduct
 import dev.martianzoo.tfm.api.SpecialClassNames.CLASS
 import dev.martianzoo.tfm.api.Type
 import dev.martianzoo.tfm.pets.ast.Expression
@@ -86,7 +86,7 @@ internal constructor(
   }
 
   internal val narrowedDependencies: DependencySet by lazy {
-    dependencies.minus(pclass.baseType.dependencies)
+    dependencies.minus(pclass.dependencies)
   }
 
   private fun toExpressionUsingSpecs(specs: List<Expression>): Expression {
@@ -114,22 +114,18 @@ internal constructor(
     }
   }
 
-  public val isClassType: Boolean = pclass.className == CLASS
-
-  /** If [isClassType], return the class it's a class type of. */
-  internal fun getClassForClassType(): PClass = dependencies.getClassForClassType()
+  public val isClassType: Boolean = pclass.className == CLASS // TODO reduce special-casing
 
   /** Returns the subset of [allConcreteSubtypes] having the exact same [pclass] as ours. */
   public fun concreteSubtypesSameClass(): Sequence<PType> {
-    return if (refinement != null) {
-      emptySequence()
-    } else if (isClassType) { // TODO reduce special-casing
-      concreteSubclasses(getClassForClassType()).map { it.classType }
-    } else {
-      val axes: List<List<Dependency>> =
-          dependencies.asSet.map { it.allConcreteSpecializations().toList() }
-      val product: List<List<Dependency>> = Lists.cartesianProduct(axes)
-      product.asSequence().map { pclass.withExactDependencies(DependencySet(it.toSet())) }
+    return when {
+      pclass.abstract || refinement != null -> emptySequence()
+      isClassType -> concreteSubclasses(dependencies.getClassForClassType()).map { it.classType }
+      else -> {
+        val axes = dependencies.asSet.map { it.allConcreteSpecializations().toList() }
+        val product: List<List<Dependency>> = cartesianProduct(axes)
+        product.asSequence().map { pclass.withExactDependencies(DependencySet(it.toSet())) }
+      }
     }
   }
 

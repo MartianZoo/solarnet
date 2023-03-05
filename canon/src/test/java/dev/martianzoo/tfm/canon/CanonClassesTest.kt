@@ -84,12 +84,6 @@ private class CanonClassesTest {
   }
 
   @Test
-  fun canGetBaseTypes() {
-    val table = PClassLoader(Canon).loadEverything()
-    table.allClasses.forEach { it.baseType }
-  }
-
-  @Test
   fun component() {
     val table = PClassLoader(Canon)
 

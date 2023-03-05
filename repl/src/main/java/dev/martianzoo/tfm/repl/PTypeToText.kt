@@ -33,7 +33,7 @@ object PTypeToText { // TODO refactor to ClassInfo / TypeInfo type dealies
       return if (partial == limit + 1) "$limit+" else "$partial"
     }
 
-    val concTypes = sequenceCount(pclass.concreteTypesThisClass(), 100)
+    val concTypes = sequenceCount(pclass.baseType.concreteSubtypesSameClass(), 100)
 
     // BIGTODO invariants seemingly not working?
     // TODO show linkages we already have

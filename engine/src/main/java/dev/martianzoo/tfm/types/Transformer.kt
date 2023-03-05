@@ -114,8 +114,7 @@ public class Transformer internal constructor(val loader: PClassLoader) {
 
     val pclass: PClass = loader.getClass(original.className)
     val dethissed: Expression = original.replaceAll(THIS.expr, contextCpt)
-    val match: DependencySet =
-        pclass.loader.match(dethissed.arguments, pclass.baseType.dependencies)
+    val match: DependencySet = pclass.loader.match(dethissed.arguments, pclass.dependencies)
 
     val preferred: Map<Key, Expression> = match.keys.zip(original.arguments).toMap()
     val fallbacks: Map<Key, Expression> = defaultDeps.asSet.associate { it.key to it.expression }

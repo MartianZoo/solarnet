@@ -158,9 +158,6 @@ internal constructor(
     loader.classClass.withExactDependencies(depsForClassType(this))
   }
 
-  fun concreteTypesThisClass(): Sequence<PType> =
-      if (abstract) emptySequence() else baseType.concreteSubtypesSameClass()
-
   // EFFECTS
 
   /**

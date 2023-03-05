@@ -56,7 +56,7 @@ public object Engine {
   }
 
   private fun singletons(all: Set<PClass>): List<PType> =
-      all.filter { it.hasSingletonTypes() }.flatMap { it.concreteTypesThisClass() }
+      all.filter { it.hasSingletonTypes() }.flatMap { it.baseType.concreteSubtypesSameClass() }
 
   private fun borders(map: MarsMapDefinition, loader: PClassLoader): List<PType> {
     val border = cn("Border")
