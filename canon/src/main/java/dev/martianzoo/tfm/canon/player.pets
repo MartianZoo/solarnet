@@ -130,16 +130,6 @@ ABSTRACT CLASS Owned<Anyone> {
     }
 
 
-// DISGUSTING HACKS ----------------------------------------
-
-    CLASS GrossHack : System {                              // We're forced to use some ugly hack; at least this one
-        HAS =1 This                                         // confines the damage to Specialist/Generalist/Robinson and
-                                                            // presentation issues. All the alternatives look worse.
-        This:: PROD[5]                                      // This makes `/ PROD[1]` extremely dodgy, almost worth
-        ProductionPhase: -5                                 // banning... except it does still work fine for Banker.
-    }
-
-
 // PAYMENT MECHANICS ---------------------------------------
 
     ABSTRACT CLASS PaymentMechanic : Temporary, System {
@@ -168,14 +158,13 @@ ABSTRACT CLASS Owned<Anyone> {
         }
     }
 
-    CLASS MetalHandler : System {
-        HAS =1 This
 
-        PlayTag<Class<BuildingTag>>:: Accept<Class<Steel>>
-        PlayTag<Class<SpaceTag>>:: Accept<Class<Titanium>>
+// DISGUSTING HACKS ----------------------------------------
 
-        Pay<Class<Steel>>:: 2 Pay<Class<Megacredit>>
-        Pay<Class<Titanium>>:: 3 Pay<Class<Megacredit>>
-        // I *think* that will be innocuous for TradeAction
+    CLASS GrossHack : System {                              // We're forced to use some ugly hack; at least this one
+        HAS =1 This                                         // confines the damage to Specialist/Generalist/Robinson and
+                                                            // presentation issues. All the alternatives look worse.
+        This:: PROD[5]                                      // This makes `/ PROD[1]` extremely dodgy, almost worth
+        ProductionPhase: -5                                 // banning... except it does still work fine for Banker.
     }
 }

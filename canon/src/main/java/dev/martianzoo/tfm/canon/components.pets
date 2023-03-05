@@ -7,9 +7,14 @@
 
 CLASS Game : System {
     HAS MAX 1 This                                          // Created manually to kick everything off
+    This:: @forceLoad(Production, GrossHack)                // TODO pare down
     This:: @createSingletons()                              // TODO actually process this
 
-    This:: @forceLoad(Production, MetalHandler, GrossHack)  // TODO pare down
+    PlayTag<Class<BuildingTag>>:: Accept<Class<Steel>>
+    PlayTag<Class<SpaceTag>>:: Accept<Class<Titanium>>
+
+    Pay<Class<Steel>>:: 2 Pay<Class<Megacredit>>
+    Pay<Class<Titanium>>:: 3 Pay<Class<Megacredit>>         // I *think* that will be innocuous for TradeAction
 }
 
 // GLOBAL PARAMETERS ---------------------------------------
