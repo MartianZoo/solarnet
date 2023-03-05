@@ -18,7 +18,7 @@ public data class ClassDeclaration(
     override val className: ClassName,
     val shortName: ClassName = className,
     val abstract: Boolean = true,
-    val dependencies: List<DependencyDeclaration> = listOf(),
+    val dependencies: List<Expression> = listOf(),
     val supertypes: Set<Expression> = setOf(), // TODO do fancy Component stuff elsewhere?
     val topInvariant: Requirement? = null,
     val otherInvariants: Set<Requirement> = setOf(),
@@ -27,15 +27,12 @@ public data class ClassDeclaration(
     val extraNodes: Set<PetNode> = setOf(),
 ) : HasClassName {
   init {
-    // require(supertypes.none { it.hasAnyRefinements() }) TODO
+    require(supertypes.none { it.hasAnyRefinements() }) { supertypes }
   }
   // DEPENDENCIES
 
-  // TODO why do we even have this lever
-  data class DependencyDeclaration(val expression: Expression)
-
   private fun bareNamesInDependenciesList(): Sequence<ClassName> =
-      (dependencies.map { it.expression } + supertypes.flatMap { it.arguments })
+      (dependencies + supertypes.flatMap { it.arguments })
           .asSequence()
           .flatMap { it.descendantsOfType<Expression>() }
           .filter { it.simple }
@@ -113,7 +110,7 @@ public data class ClassDeclaration(
         className +
         shortName +
         supertypes +
-        dependencies.map { it.expression } +
+        dependencies +
         setOfNotNull(topInvariant) +
         otherInvariants +
         effectsIn +

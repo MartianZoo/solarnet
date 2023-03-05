@@ -31,18 +31,12 @@ public class PClassLoader( // TODO separate into loader and table
      */
     private val autoLoadDependencies: Boolean = false,
 ) {
-  private val id = nextId++
-
   /** The `Component` class, which is the root of the class hierarchy. */
-  public val componentClass: PClass =
-      PClass(decl(COMPONENT), this, listOf()).also {
-        require(it.abstract)
-        require(it.allDependencyKeys.none())
-      }
+  public val componentClass: PClass = PClass(decl(COMPONENT), this, directSuperclasses = listOf())
 
   /** The `Class` class, the other class that is required to exist. */
   public val classClass: PClass =
-      PClass(decl(CLASS), this, listOf(componentClass)).also { require(!it.abstract) }
+      PClass(decl(CLASS), this, directSuperclasses = listOf(componentClass))
 
   private val loadedClasses =
       mutableMapOf<ClassName, PClass?>(COMPONENT to componentClass, CLASS to classClass)
@@ -198,6 +192,8 @@ public class PClassLoader( // TODO separate into loader and table
         }
     return DependencySet(list.toSetStrict())
   }
+
+  private val id = nextId++
 
   override fun toString() = "loader$id"
 

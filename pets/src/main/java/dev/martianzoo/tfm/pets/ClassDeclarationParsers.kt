@@ -12,7 +12,6 @@ import com.github.h0tk3y.betterParse.grammar.parser
 import com.github.h0tk3y.betterParse.parser.Parser
 import dev.martianzoo.tfm.data.ClassDeclaration
 import dev.martianzoo.tfm.data.ClassDeclaration.DefaultsDeclaration
-import dev.martianzoo.tfm.data.ClassDeclaration.DependencyDeclaration
 import dev.martianzoo.tfm.pets.AstTransforms.actionListToEffects
 import dev.martianzoo.tfm.pets.ClassDeclarationParsers.Body.BodyElement
 import dev.martianzoo.tfm.pets.ClassDeclarationParsers.Body.BodyElement.ActionElement
@@ -61,12 +60,8 @@ internal object ClassDeclarationParsers : BaseTokenizer() {
 
   internal object Signatures {
 
-    private val dependencies: Parser<List<DependencyDeclaration>> =
-        optionalList(
-            skipChar('<') and
-            commaSeparated(Expression.parser() map ::DependencyDeclaration) and
-            skipChar('>')
-        )
+    private val dependencies: Parser<List<Expression>> =
+        optionalList(skipChar('<') and commaSeparated(Expression.parser()) and skipChar('>'))
 
     private val supertypeList: Parser<List<Expression>> =
         optionalList(skipChar(':') and commaSeparated(Expression.parser()))
@@ -177,7 +172,7 @@ internal object ClassDeclarationParsers : BaseTokenizer() {
     constructor(
         className: ClassName,
         shortName: ClassName?,
-        dependencies: List<DependencyDeclaration>,
+        dependencies: List<Expression>,
         topInvariant: Requirement?,
         supertypes: List<Expression>,
     ) : this(

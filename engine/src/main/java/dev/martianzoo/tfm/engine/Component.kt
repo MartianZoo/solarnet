@@ -35,7 +35,7 @@ private constructor(
    * The full list of dependency instances of this component; *this* component cannot exist in a
    * [ComponentGraph] unless *all* of the returned components do. Note that a class type like
    * `Class<Tile>` has an empty dependency list, despite its appearance. The list order corresponds
-   * to [PClass.allDependencyKeys].
+   * to [PClass.dependencies].
    */
   public val dependencies: List<Component> = ptype.dependencies.asSet.map { ofType(it.bound) }
 

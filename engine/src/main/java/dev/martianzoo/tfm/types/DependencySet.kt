@@ -12,7 +12,7 @@ internal data class DependencySet(private val deps: Set<Dependency>) : Hierarchi
     Dependency.validate(deps)
   }
 
-  val asSet: Set<TypeDependency> = deps.filterIsInstance<TypeDependency>().toSet()
+  val asSet: Set<TypeDependency> = deps.filterIsInstance<TypeDependency>().toSet() // TODO
 
   val keys: Set<Key> = deps.map { it.key }.toSetStrict()
   val expressions: List<Expression> = deps.map { it.expression }

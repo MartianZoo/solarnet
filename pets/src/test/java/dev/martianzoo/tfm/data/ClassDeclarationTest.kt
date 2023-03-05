@@ -45,7 +45,7 @@ private class ClassDeclarationTest {
     assertThat(decl.shortName).isEqualTo(foo)
     assertThat(decl.className).isEqualTo(foo)
     assertThat(decl.abstract).isTrue()
-    assertThat(decl.dependencies.map { it.expression }).containsExactly(dep)
+    assertThat(decl.dependencies).containsExactly(dep)
     assertThat(decl.supertypes).containsExactly(sup)
     assertThat(decl.topInvariant).isEqualTo(topInv)
     assertThat(decl.otherInvariants).containsExactly(otherInv)

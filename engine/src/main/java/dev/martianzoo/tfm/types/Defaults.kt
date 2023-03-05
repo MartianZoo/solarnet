@@ -36,7 +36,7 @@ internal data class Defaults(
             pclass.loader.resolve(pclass.className.addArgs(specs)).narrowedDependencies
 
         val depList: List<Dependency> =
-            pclass.allDependencyKeys.mapNotNull { key ->
+            pclass.dependencies.keys.mapNotNull { key ->
               inheritDefault(
                   { toDependencyMap(extractor(it)).getIfPresent(key) },
                   { deps: List<Dependency> -> glb(deps)!! })

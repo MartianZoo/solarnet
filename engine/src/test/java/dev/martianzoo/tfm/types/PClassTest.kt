@@ -22,7 +22,7 @@ private class PClassTest {
     assertThat(cpt.abstract).isTrue()
     assertThat(cpt.directSuperclasses).isEmpty()
     assertThat(cpt.allSuperclasses.classNames()).containsExactly(COMPONENT)
-    assertThat(cpt.directDependencyKeys).isEmpty()
+    assertThat(cpt.declaredDeps.keys).isEmpty()
   }
 
   @Test
@@ -33,7 +33,7 @@ private class PClassTest {
     assertThat(foo.abstract).isFalse()
     assertThat(foo.directSuperclasses.classNames()).containsExactly(COMPONENT)
     assertThat(foo.allSuperclasses.classNames()).containsExactly(COMPONENT, cn("Foo"))
-    assertThat(foo.directDependencyKeys).isEmpty()
+    assertThat(foo.declaredDeps.keys).isEmpty()
   }
 
   @Test
@@ -42,7 +42,7 @@ private class PClassTest {
     val bar = loader.getClass(cn("Bar"))
     assertThat(bar.directSuperclasses.classNames()).containsExactly(cn("Foo"))
     assertThat(bar.allSuperclasses.classNames()).containsExactly(COMPONENT, cn("Foo"), cn("Bar"))
-    assertThat(bar.directDependencyKeys).isEmpty()
+    assertThat(bar.declaredDeps.keys).isEmpty()
   }
 
   @Test
@@ -51,7 +51,7 @@ private class PClassTest {
     val bar = loader.getClass(cn("Bar"))
     assertThat(bar.directSuperclasses.classNames()).containsExactly(cn("Foo"))
     assertThat(bar.allSuperclasses.classNames()).containsExactly(COMPONENT, cn("Foo"), cn("Bar"))
-    assertThat(bar.directDependencyKeys).isEmpty()
+    assertThat(bar.declaredDeps.keys).isEmpty()
   }
 
   @Test
@@ -78,7 +78,7 @@ private class PClassTest {
     val loader = loadTypes("CLASS Foo", "CLASS Bar<Foo>")
     val bar = loader.getClass(cn("Bar"))
     assertThat(bar.directSuperclasses.classNames()).containsExactly(COMPONENT)
-    assertThat(bar.directDependencyKeys).containsExactly(Key(cn("Bar"), 0))
+    assertThat(bar.declaredDeps.keys).containsExactly(Key(cn("Bar"), 0))
   }
 
   @Test
@@ -89,8 +89,8 @@ private class PClassTest {
     assertThat(qux.directSuperclasses.classNames()).containsExactly(cn("Bar"))
 
     val key = Key(cn("Bar"), 0)
-    assertThat(bar.allDependencyKeys).containsExactly(key)
-    assertThat(qux.allDependencyKeys).containsExactly(key)
+    assertThat(bar.dependencies.keys).containsExactly(key)
+    assertThat(qux.dependencies.keys).containsExactly(key)
   }
 
   @Test
@@ -101,8 +101,8 @@ private class PClassTest {
     assertThat(qux.directSuperclasses.classNames()).containsExactly(cn("Bar"))
 
     val key = Key(cn("Bar"), 0)
-    assertThat(bar.allDependencyKeys).containsExactly(key)
-    assertThat(qux.allDependencyKeys).containsExactly(key)
+    assertThat(bar.dependencies.keys).containsExactly(key)
+    assertThat(qux.dependencies.keys).containsExactly(key)
   }
 
   @Test
@@ -111,8 +111,8 @@ private class PClassTest {
     val bar = loader.getClass(cn("Bar"))
     val qux = loader.getClass(cn("Qux"))
 
-    assertThat(bar.allDependencyKeys).containsExactly(Key(cn("Bar"), 0))
-    assertThat(qux.allDependencyKeys).containsExactly(Key(cn("Bar"), 0), Key(cn("Qux"), 0))
+    assertThat(bar.dependencies.keys).containsExactly(Key(cn("Bar"), 0))
+    assertThat(qux.dependencies.keys).containsExactly(Key(cn("Bar"), 0), Key(cn("Qux"), 0))
   }
 
   @Test
@@ -123,8 +123,8 @@ private class PClassTest {
     assertThat(qux.directSuperclasses.classNames()).containsExactly(cn("Bar"))
 
     val key = Key(cn("Bar"), 0)
-    assertThat(bar.allDependencyKeys).containsExactly(key)
-    assertThat(qux.allDependencyKeys).containsExactly(key)
+    assertThat(bar.dependencies.keys).containsExactly(key)
+    assertThat(qux.dependencies.keys).containsExactly(key)
   }
 
   @Test

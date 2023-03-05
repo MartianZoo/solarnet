@@ -14,6 +14,7 @@ import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.pets.ast.Requirement.Companion.requirement
 import dev.martianzoo.tfm.pets.ast.classNames
 import dev.martianzoo.tfm.types.Dependency.Companion.depsForClassType
+import dev.martianzoo.tfm.types.Dependency.Key
 import dev.martianzoo.tfm.types.Dependency.TypeDependency
 import dev.martianzoo.util.Hierarchical
 import dev.martianzoo.util.Hierarchical.Companion.glb
@@ -34,9 +35,7 @@ internal constructor(
     /** The class loader that loaded this class. */
     internal val loader: PClassLoader,
 
-    /**
-     * This class's superclasses that are exactly one step away; empty only for `Component`.
-     */
+    /** This class's superclasses that are exactly one step away; empty only for `Component`. */
     public val directSuperclasses: List<PClass> = superclasses(declaration, loader),
 ) : HasClassName, Hierarchical<PClass> {
 
@@ -59,10 +58,11 @@ internal constructor(
       when {
         this.isSubtypeOf(that) -> this
         that.isSubtypeOf(this) -> that
-        else ->
+        else -> {
           allSubclasses.singleOrNull {
             it.intersectionType && this in it.directSuperclasses && that in it.directSuperclasses
           }
+        }
       }
 
   override fun lub(that: PClass): PClass { // TODO more deps is better??
@@ -79,14 +79,10 @@ internal constructor(
    * than `Tile<Area>`).
    */
   public val directSupertypes: Set<PType> by lazy {
-    if (directSuperclasses.none()) {
-      require(className == COMPONENT)
-      setOf()
-    } else {
-      declaration.supertypes
-          .ifEmpty { setOf(COMPONENT.expr) }
-          .map(loader::resolve)
-          .toSetStrict()
+    when {
+      className == COMPONENT -> setOf()
+      declaration.supertypes.none() -> setOf(loader.componentClass.baseType) // TODO hmm
+      else -> declaration.supertypes.map(loader::resolve).toSetStrict()
     }
   }
 
@@ -123,30 +119,21 @@ internal constructor(
 
   // DEPENDENCIES
 
-  internal val directDependencyKeys: Set<Dependency.Key> by lazy {
-    declaration.dependencies.indices.map { Dependency.Key(className, it) }.toSet()
-  }
-
-  internal val allDependencyKeys: Set<Dependency.Key> by lazy {
-    (directSuperclasses.flatMap { it.allDependencyKeys } + directDependencyKeys).toSet()
-  }
-
-  internal val baseDependencies: DependencySet by lazy {
+  internal val dependencies: DependencySet by lazy {
     if (className == CLASS) { // TODO reduce special-casing
       depsForClassType(loader.componentClass)
     } else {
-      inheritedDeps().merge(declaredDeps()) { _, _ -> error("") }
+      inheritedDeps().merge(declaredDeps) { _, _ -> error("") }
     }
   }
 
-  private fun declaredDeps(): DependencySet {
-    val list: List<Dependency> =
-        directDependencyKeys.map {
-          val depExpression = declaration.dependencies[it.index].expression
-          TypeDependency(it, loader.resolve(depExpression))
-        }
-    return DependencySet(list.toSetStrict())
+  internal val declaredDeps: DependencySet by lazy {
+    val list = declaration.dependencies.mapIndexed(::createDep)
+    DependencySet(list.toSetStrict())
   }
+
+  private fun createDep(i: Int, dep: Expression) =
+      TypeDependency(Key(className, i), loader.resolve(dep))
 
   private fun inheritedDeps(): DependencySet {
     val list: List<DependencySet> = directSupertypes.map { it.dependencies }
@@ -156,10 +143,10 @@ internal constructor(
   // GETTING TYPES
 
   internal fun withExactDependencies(deps: DependencySet) =
-      PType(this, deps.subMapInOrder(allDependencyKeys))
+      PType(this, deps.subMapInOrder(dependencies.keys))
 
   /** Least upper bound of all types with pclass==this */
-  public val baseType: PType by lazy { withExactDependencies(baseDependencies) }
+  public val baseType: PType by lazy { withExactDependencies(dependencies) } // TODO rename?
 
   internal fun specialize(specs: List<Expression>): PType = baseType.specialize(specs)
 

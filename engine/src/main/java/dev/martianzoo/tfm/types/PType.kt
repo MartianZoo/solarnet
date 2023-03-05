@@ -23,8 +23,8 @@ internal constructor(
   private val loader by pclass::loader
 
   init {
-    require(dependencies.keys.toList() == pclass.allDependencyKeys.toList()) {
-      "expected keys ${pclass.allDependencyKeys}, got $dependencies"
+    require(dependencies.keys.toList() == pclass.dependencies.keys.toList()) {
+      "expected keys ${pclass.dependencies.keys}, got $dependencies"
     }
     if (refinement != null) loader.checkAllTypes(refinement)
   }

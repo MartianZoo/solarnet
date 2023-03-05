@@ -18,7 +18,6 @@ import dev.martianzoo.tfm.pets.ast.PetNode
 import dev.martianzoo.tfm.pets.ast.ScaledExpression
 import dev.martianzoo.tfm.pets.ast.classNames
 import dev.martianzoo.tfm.types.Dependency.Key
-import dev.martianzoo.util.overlayMaps
 
 /**
  * Offers various functions, for transforming [PetNode] subtrees, that depend on a [PClassLoader].
@@ -115,16 +114,14 @@ public class Transformer internal constructor(val loader: PClassLoader) {
 
     val pclass: PClass = loader.getClass(original.className)
     val dethissed: Expression = original.replaceAll(THIS.expr, contextCpt)
-    val preferred = pclass.loader.match(dethissed.arguments,
-        pclass.baseType.dependencies).keys.zip(original.arguments).toMap()
-    val back = defaultDeps.asSet.associate { it.key to it.expression }
-    val overlaid: Map<Key, Expression> = overlayMaps(preferred, back)
+    val match: DependencySet =
+        pclass.loader.match(dethissed.arguments, pclass.baseType.dependencies)
 
-    // reorder them
+    val preferred: Map<Key, Expression> = match.keys.zip(original.arguments).toMap()
+    val fallbacks: Map<Key, Expression> = defaultDeps.asSet.associate { it.key to it.expression }
+
     val newArgs: List<Expression> =
-        pclass.allDependencyKeys
-            .mapNotNull { overlaid[it] }
-            .also { require(it.size == overlaid.size) }
+        pclass.dependencies.keys.mapNotNull { preferred[it] ?: fallbacks[it] }
 
     return original.copy(arguments = newArgs).also {
       require(it.className == original.className)

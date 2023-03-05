@@ -78,7 +78,7 @@ data class Expression(
         copy(refinement = ref)
       }
 
-  fun hasAnyRefinements() = descendantsOfType<Requirement>().none()
+  fun hasAnyRefinements() = descendantsOfType<Requirement>().any()
 
   override val kind = Expression::class.simpleName!!
 }

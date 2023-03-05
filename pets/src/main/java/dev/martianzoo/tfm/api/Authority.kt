@@ -1,5 +1,7 @@
 package dev.martianzoo.tfm.api
 
+import dev.martianzoo.tfm.api.SpecialClassNames.CLASS
+import dev.martianzoo.tfm.api.SpecialClassNames.COMPONENT
 import dev.martianzoo.tfm.data.CardDefinition
 import dev.martianzoo.tfm.data.ClassDeclaration
 import dev.martianzoo.tfm.data.Definition
@@ -45,6 +47,17 @@ public abstract class Authority {
   }
 
   private fun validate(decl: ClassDeclaration) {
+    when (decl.className) {
+      COMPONENT -> {
+        require(decl.abstract)
+        require(decl.supertypes.none())
+        require(decl.dependencies.none())
+      }
+      CLASS -> {
+        require(!decl.abstract)
+        require(decl.dependencies.single() == COMPONENT.expr)
+      }
+    }
     decl.effects
         .flatMap { it.effect.descendantsOfType<Custom>() }
         .forEach { customInstruction(it.functionName) }
@@ -126,9 +139,8 @@ public abstract class Authority {
 
   /** Returns the custom instruction implementation having the name [functionName]. */
   public fun customInstruction(functionName: String): CustomInstruction {
-    return customInstructions
-        .firstOrNull { it.functionName == functionName }
-            ?: error("no instruction named @$functionName")
+    return customInstructions.firstOrNull { it.functionName == functionName }
+        ?: error("no instruction named @$functionName")
   }
 
   /** Every custom instruction this authority knows about. */
