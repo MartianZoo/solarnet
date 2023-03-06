@@ -107,7 +107,7 @@ sealed class Requirement : PetNode() {
         val exact = skipChar('=') and scaledEx map ::Exact
         val transform =
             transform(parser()) map { (node, transformName) -> Transform(node, transformName) }
-        min or max or exact or transform or group(parser())
+        transform or min or max or exact or group(parser())
       }
     }
   }

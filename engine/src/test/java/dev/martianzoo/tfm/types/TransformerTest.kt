@@ -19,6 +19,7 @@ class TransformerTest {
     checkApplyDefaults("-OceanTile", "-OceanTile.")
     checkApplyDefaults(
         "CityTile", "CityTile<Owner, LandArea(HAS MAX 0 Neighbor<CityTile<Anyone>>)>!")
+        // "CT<Owner, LA(HAS MAX 0 NBR<CT<ANY>>)>!"
     checkApplyDefaults("-CityTile", "-CityTile<Owner>!")
     checkApplyDefaults("CityTile<WaterArea>", "CityTile<Owner, WaterArea>!")
     checkApplyDefaults("CityTile<Owner, WaterArea>", "CityTile<Owner, WaterArea>!")

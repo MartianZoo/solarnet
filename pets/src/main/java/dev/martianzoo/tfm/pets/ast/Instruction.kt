@@ -230,7 +230,7 @@ public sealed class Instruction : PetNode() {
 
         val transform: Parser<Transform> =
             transform(parser()) map { (node, tname) -> Transform(node, tname) }
-        val maybeTransform: Parser<Instruction> = maybePer or transform
+        val maybeTransform: Parser<Instruction> = transform or maybePer
 
         val arguments = separatedTerms(Expression.parser(), char(','), acceptZero = true)
         val custom: Parser<Custom> =

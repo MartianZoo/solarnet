@@ -18,6 +18,7 @@ import dev.martianzoo.tfm.pets.ast.PetNode
 import dev.martianzoo.tfm.pets.ast.ScaledExpression
 import dev.martianzoo.tfm.pets.ast.classNames
 import dev.martianzoo.tfm.types.Dependency.Key
+import dev.martianzoo.util.toSetStrict
 
 /**
  * Offers various functions, for transforming [PetNode] subtrees, that depend on a [PClassLoader].
@@ -41,8 +42,27 @@ public class Transformer internal constructor(val loader: PClassLoader) {
         fx.copy(trigger = ByTrigger(fx.trigger, OWNER))
       }
 
-  private fun subclassNames(parent: ClassName): Set<ClassName> =
-      loader.getClass(parent).allSubclasses.classNames()
+  private fun subclassNames(parent: ClassName): Set<ClassName> {
+    return loader
+        .getClass(parent)
+        .allSubclasses
+        .flatMap { setOf(it.className, it.shortName) }
+        .toSetStrict()
+  }
+
+  public fun <P : PetNode> spellOutClassNames(element: P): P {
+    return object : PetTransformer() {
+          override fun <P : PetNode> transform(node: P): P {
+            return if (node is ClassName) {
+              @Suppress("UNCHECKED_CAST")
+              loader.getClass(node).className as P
+            } else {
+              node
+            }
+          }
+        }
+        .transform(element)
+  }
 
   /**
    * Translates a Pets node in source form to one where defaults have been applied; for example, an

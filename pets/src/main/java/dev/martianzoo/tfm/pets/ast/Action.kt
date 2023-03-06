@@ -105,7 +105,7 @@ public data class Action(val cost: Cost?, val instruction: Instruction) : PetNod
         return parser {
           val spend = ScaledExpression.parser() map Cost::Spend
           val transform = transform(parser()) map { (node, tname) -> Transform(node, tname) }
-          val atomCost = spend or transform
+          val atomCost = transform or spend
 
           val perCost =
               atomCost and

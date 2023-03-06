@@ -93,6 +93,7 @@ public class Game(
         try {
           var translated: Instruction = custom.translate(this, arguments)
           val xer = loader.transformer
+          translated = xer.spellOutClassNames(translated)
           translated = xer.insertDefaults(translated)
           translated = xer.deprodify(translated)
           execute(translated)

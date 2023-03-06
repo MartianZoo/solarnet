@@ -12,6 +12,7 @@ import dev.martianzoo.tfm.api.SpecialClassNames.USE_ACTION
 import dev.martianzoo.tfm.pets.BaseTokenizer
 import dev.martianzoo.tfm.pets.Parsing
 import dev.martianzoo.tfm.pets.PetException
+import dev.martianzoo.tfm.pets.ast.ClassName.Parsing.className
 import dev.martianzoo.tfm.pets.ast.Effect.Trigger.OnGainOf
 import dev.martianzoo.tfm.pets.ast.Effect.Trigger.WhenGain
 import dev.martianzoo.tfm.pets.ast.Effect.Trigger.WhenRemove
@@ -118,7 +119,7 @@ public data class Effect(
         val transform =
             transform(atom) map { (node, transformName) -> Transform(node, transformName) }
         return (transform or atom) and
-            optional(skip(_by) and ClassName.Parsing.className) map { (trig, by) ->
+            optional(skip(_by) and className) map { (trig, by) ->
               if (by == null) trig else ByTrigger(trig, by)
             }
       }

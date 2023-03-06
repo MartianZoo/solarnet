@@ -66,11 +66,8 @@ public class ReplSession(private val authority: Authority) {
                       session.becomeNoOne()
                       "Okay you are no one"
                     } else {
-                      val trimmed = args.trim()
-                      require(trimmed.length == 7 && trimmed.startsWith("Player"))
-                      val p = trimmed.substring(6).toInt()
-                      session.becomePlayer(p)
-                      "Hi, $trimmed"
+                      session.becomePlayer(cn(args.trim()))
+                      "Hi, ${session.defaultPlayer}"
                     }
                 listOf(message)
               },

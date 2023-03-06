@@ -171,6 +171,7 @@ internal constructor(
     declaration.effects
         .map { effect ->
           var fx = effect.effect
+          fx = xer.spellOutClassNames(fx)
           fx = xer.insertDefaults(fx, thiss)
           fx = xer.fixEffectForUnownedContext(fx, this)
           effect.copy(effect = fx)

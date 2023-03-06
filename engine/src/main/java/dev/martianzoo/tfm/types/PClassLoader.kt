@@ -170,7 +170,8 @@ public class PClassLoader( // TODO separate into loader and table
       }
 
   internal val allDefaults: Map<ClassName, Defaults> by lazy {
-    allClasses.associate { it.className to Defaults.forClass(it) }
+    allClasses.associate { it.className to Defaults.forClass(it) } +
+        allClasses.associate { it.shortName to Defaults.forClass(it) }
   }
 
   /**

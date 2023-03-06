@@ -1,13 +1,13 @@
 package dev.martianzoo.tfm.repl
 
 import dev.martianzoo.tfm.api.GameSetup
+import dev.martianzoo.tfm.api.SpecialClassNames.ANYONE
 import dev.martianzoo.tfm.api.SpecialClassNames.OWNER
 import dev.martianzoo.tfm.engine.Component
 import dev.martianzoo.tfm.engine.Engine
 import dev.martianzoo.tfm.engine.Game
 import dev.martianzoo.tfm.pets.AstTransforms.replaceAll
 import dev.martianzoo.tfm.pets.ast.ClassName
-import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.pets.ast.Instruction
 import dev.martianzoo.tfm.pets.ast.Metric
@@ -28,13 +28,17 @@ class InteractiveSession {
   fun newGame(setup: GameSetup) {
     game = Engine.newGame(setup)
     gameNumber++
-    defaultPlayer = null
+    becomeNoOne()
   }
 
-  fun becomePlayer(player: Int) {
-    val p = cn("Player$player")
-    game!!.resolve(p.expr)
-    defaultPlayer = p
+  fun playerType(player: ClassName) = game!!.resolve(player.expr)
+
+  fun becomePlayer(player: ClassName) {
+    val p: PType = playerType(player)
+    require(!p.abstract)
+    val any: PType = game!!.resolve(ANYONE.expr)
+    require(p.isSubtypeOf(any))
+    defaultPlayer = p.pclass.className
   }
 
   fun becomeNoOne() {
@@ -75,6 +79,7 @@ class InteractiveSession {
   fun <P : PetNode> fixTypes(node: P): P {
     val xer = game!!.loader.transformer
     var result = node
+    result = xer.spellOutClassNames(result)
     result = xer.insertDefaults(result)
     if (defaultPlayer != null) {
       result = result.replaceAll(OWNER.expr, defaultPlayer!!.expr) // TODO

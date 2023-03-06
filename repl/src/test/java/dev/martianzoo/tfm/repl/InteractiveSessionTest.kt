@@ -28,6 +28,22 @@ private class InteractiveSessionTest {
   }
 
   @Test
+  fun shortNames() {
+    val session = InteractiveSession()
+    session.newGame(GameSetup(Canon, "MB", 2))
+    session.becomePlayer(2)
+
+    session.execute(instruction("PROD[5, 4 E]"))
+    session.execute(instruction("StripMine")) // , BuildingTag<Player2, StripMine> ?
+    session.execute(instruction("PROD[-2 E, 2 S, T]"))
+
+    assertThat(session.has(requirement("PROD[=2 E, =2 S]"))).isTrue()
+
+    session.becomePlayer(1)
+    assertThat(session.has(requirement("PROD[=0 E, =0 S]"))).isTrue()
+  }
+
+  @Test
   fun removeAmap() {
     val session = InteractiveSession()
     session.newGame(GameSetup(Canon, "MB", 2))
