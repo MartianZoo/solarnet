@@ -2,6 +2,7 @@ package dev.martianzoo.tfm.engine
 
 import dev.martianzoo.tfm.api.Type
 import dev.martianzoo.tfm.pets.ast.Effect
+import dev.martianzoo.tfm.pets.ast.HasExpression
 import dev.martianzoo.tfm.types.PClass
 import dev.martianzoo.tfm.types.PType
 
@@ -10,10 +11,8 @@ import dev.martianzoo.tfm.types.PType
  * case unrelated to what instances actually exist in a game state, use [PType] instead.
  */
 public data class Component
-private constructor(
-    /** The concrete type of this component. */
-    private val ptype: PType,
-) {
+private constructor(private val ptype: PType) : HasExpression by ptype {
+
   companion object {
     public fun ofType(ptype: PType): Component = Component(ptype)
   }

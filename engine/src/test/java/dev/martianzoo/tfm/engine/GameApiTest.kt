@@ -50,8 +50,8 @@ private class GameApiTest {
             StateChange(5, gaining = te("Heat<Player2>")),
             StateChange(10, gaining = te("Heat<Player3>")),
             StateChange(4, removing = te("Heat<Player2>")),
-            StateChange(3, removing = te("Heat<Player3>"), gaining = te("Steel<Player3>")),
-            StateChange(2, removing = te("Heat<Player3>"), gaining = te("Heat<Player2>")),
+            StateChange(3, gaining = te("Steel<Player3>"), removing = te("Heat<Player3>")),
+            StateChange(2, gaining = te("Heat<Player2>"), removing = te("Heat<Player3>")),
         )
         .inOrder()
 

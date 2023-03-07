@@ -22,11 +22,11 @@ public abstract class CustomInstruction(
    * When possible override this method, and compute an [Instruction] that can be executed in place
    * of this one. When this isn't possible, override [execute] instead.
    */
-  public open fun translate(game: ReadOnlyGameState, arguments: List<Type>): Instruction {
+  public open fun translate(game: GameStateReader, arguments: List<Type>): Instruction {
     throw ExecuteInsteadException()
   }
 
-  public open fun execute(game: GameState, arguments: List<Type>) {
+  public open fun execute(game: GameStateReader, writer: GameStateWriter, arguments: List<Type>) {
     throw NotImplementedError()
   }
 

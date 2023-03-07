@@ -1,6 +1,5 @@
 package dev.martianzoo.tfm.engine
 
-import dev.martianzoo.tfm.api.GameState
 import dev.martianzoo.tfm.api.Type
 import dev.martianzoo.tfm.data.ChangeRecord.StateChange
 import dev.martianzoo.tfm.pets.ast.ClassName
@@ -15,16 +14,16 @@ import kotlin.math.min
 
 internal object LiveNodes {
   data class LiveMetric(val type: Type, val divisor: Int = 1, val max: Int = Int.MAX_VALUE) {
-    fun count(game: GameState) = min(game.count(type) / divisor, max)
+    fun count(game: Game) = min(game.count(type) / divisor, max)
   }
 
-  fun from(met: Metric, game: GameState): LiveMetric =
+  fun from(met: Metric, game: Game): LiveMetric =
       when (met) {
         is Count -> LiveMetric(game.resolve(met.scaledEx.expression), met.scaledEx.scalar)
         is Metric.Max -> from(met.metric, game).copy(max = met.maximum)
       }
 
-  fun from(reqt: Requirement, game: GameState): LiveRequirement {
+  fun from(reqt: Requirement, game: Game): LiveRequirement {
     fun count(scaledEx: ScaledExpression) = game.count(game.resolve(scaledEx.expression))
 
     return when (reqt) {
@@ -43,11 +42,11 @@ internal object LiveNodes {
     }
   }
 
-  class LiveRequirement(private val evaluator: (GameState) -> Boolean) {
-    fun evaluate(game: GameState) = evaluator(game)
+  class LiveRequirement(private val evaluator: (Game) -> Boolean) {
+    fun evaluate(game: Game) = evaluator(game)
   }
 
-  fun from(trig: Trigger, game: GameState): LiveTrigger {
+  fun from(trig: Trigger, game: Game): LiveTrigger {
     return when (trig) {
       is Trigger.OnGainOf -> LiveTrigger(game.resolve(trig.expression), gain = true)
       is Trigger.OnRemoveOf -> LiveTrigger(game.resolve(trig.expression), gain = false)
@@ -57,7 +56,7 @@ internal object LiveNodes {
   }
 
   data class LiveTrigger(val ptype: Type, val gain: Boolean, val by: ClassName? = null) {
-    fun hits(change: StateChange, game: GameState): Int {
+    fun hits(change: StateChange, game: Game): Int {
       // TODO by
       val g = if (gain) change.gaining else change.removing
       return if (g != null && game.resolve(g).isSubtypeOf(ptype)) change.count else 0

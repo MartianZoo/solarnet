@@ -5,7 +5,6 @@ import dev.martianzoo.tfm.api.SpecialClassNames.GAME
 import dev.martianzoo.tfm.data.ChangeRecord.Cause
 import dev.martianzoo.tfm.data.MarsMapDefinition
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.tfm.pets.ast.Effect.Trigger.WhenGain
 import dev.martianzoo.tfm.pets.ast.classNames
 import dev.martianzoo.tfm.types.PClass
 import dev.martianzoo.tfm.types.PClassLoader
@@ -31,24 +30,22 @@ public object Engine {
   public fun newGame(setup: GameSetup): Game {
     val loader = loadClasses(setup)
     val game = Game(setup, loader)
-    game.applyChangeAndPublish(gaining = loader.getClass(GAME).baseType, hidden = true)
+
+    val gameCpt = game.toComponent(GAME.expr)!!
+    game.applyChangeAndPublish(gaining = gameCpt, hidden = true)
 
     // TODO custom instruction @createAll
     val borders = borders(setup.map, loader)
 
     // TODO custom instruction @createSingletons
-    val cause = Cause(GAME.expr, 0)
+    val cause = Cause.from(gameCpt, 0)
 
     for (ptype in singletons(loader.allClasses) + borders) {
-      val depInstances = ptype.dependencies.asSet.map { it.boundType } // TODO
-      for (cpt in depInstances + ptype) { // TODO not ironclad
-        if (game.count(cpt) == 0) {
-          game.applyChangeAndPublish(gaining = game.resolve(cpt), cause = cause, hidden = true)
-          cpt.pclass.allSuperclasses
-              .flatMap { it.classEffects }
-              .map { it.effect }
-              .filter { it.trigger == WhenGain }
-              .forEach { println("Should do ${it.instruction} now...") }
+      val component = Component.ofType(ptype)
+      for (cpt in component.dependencies + component) { // TODO not ironclad
+        if (game.count(cpt.type) == 0) {
+          game.applyChangeAndPublish(gaining = cpt, cause = cause, hidden = true)
+          // cpt.effects TODO
         }
       }
     }

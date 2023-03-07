@@ -1,6 +1,7 @@
 package dev.martianzoo.tfm.data
 
 import dev.martianzoo.tfm.pets.ast.Expression
+import dev.martianzoo.tfm.pets.ast.HasExpression
 import dev.martianzoo.util.pre
 
 /** All interesting information about an event in a game history. */
@@ -58,6 +59,9 @@ data class ChangeRecord(
       /** The ordinal of the previous change which triggered that instruction. */
       val trigger: Int,
   ) {
+    companion object {
+      fun from(hasEx: HasExpression, trigger: Int) = Cause(hasEx.expressionFull, trigger)
+    }
     init {
       require(trigger >= 0)
     }

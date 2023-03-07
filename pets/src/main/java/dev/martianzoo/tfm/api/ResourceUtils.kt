@@ -16,7 +16,7 @@ object ResourceUtils {
    * Returns a map with six entries, giving [player]'s current production levels, adjusting
    * megacredit product to account for our horrible hack.
    */
-  fun lookUpProductionLevels(game: ReadOnlyGameState, player: Expression): Map<ClassName, Int> =
+  fun lookUpProductionLevels(game: GameStateReader, player: Expression): Map<ClassName, Int> =
       standardResourceNames(game).associateWith {
         val type = game.resolve(PRODUCTION.addArgs(player, it.classExpression()))
         val rawCount = game.count(type)
@@ -28,7 +28,7 @@ object ResourceUtils {
       }
 
   /** Returns the name of every concrete class of type `StandardResource`. */
-  fun standardResourceNames(game: ReadOnlyGameState): Set<ClassName> =
+  fun standardResourceNames(game: GameStateReader): Set<ClassName> =
       game.getComponents(game.resolve(STANDARD_RESOURCE.classExpression()))
           .map { it.expression.arguments.single().className }
           .toSet()

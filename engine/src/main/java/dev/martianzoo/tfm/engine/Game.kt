@@ -2,7 +2,8 @@ package dev.martianzoo.tfm.engine
 
 import dev.martianzoo.tfm.api.CustomInstruction.ExecuteInsteadException
 import dev.martianzoo.tfm.api.GameSetup
-import dev.martianzoo.tfm.api.GameState
+import dev.martianzoo.tfm.api.GameStateReader
+import dev.martianzoo.tfm.api.GameStateWriter
 import dev.martianzoo.tfm.api.Type
 import dev.martianzoo.tfm.data.ChangeRecord
 import dev.martianzoo.tfm.data.ChangeRecord.Cause
@@ -22,7 +23,7 @@ import dev.martianzoo.util.Multiset
 public class Game(
     override val setup: GameSetup,
     public val loader: PClassLoader, // TODO not public
-) : GameState {
+): GameStateReader {
   init {
     loader.frozen = true
   }
@@ -67,8 +68,8 @@ public class Game(
         }
         applyChangeAndPublish(
             count = ins.count * multiplier,
-            removing = ins.removing?.let { resolve(it) },
-            gaining = ins.gaining?.let { resolve(it) },
+            gaining = toComponent(ins.gaining),
+            removing = toComponent(ins.removing),
             amap = amap)
       }
 
@@ -100,7 +101,7 @@ public class Game(
 
         } catch (e: ExecuteInsteadException) {
           // this custom fn chose to override execute() instead of translate()
-          custom.execute(this, arguments)
+          custom.execute(this, AsGameWriter(), arguments)
         }
       }
 
@@ -115,24 +116,46 @@ public class Game(
   }
 
   // BIGTODO trigger triggers
-  override fun applyChangeAndPublish(
-      count: Int,
-      removing: Type?,
-      gaining: Type?,
-      amap: Boolean,
-      cause: Cause?,
-      hidden: Boolean,
+  fun applyChangeAndPublish(
+      count: Int = 1,
+      gaining: Component? = null,
+      removing: Component? = null,
+      amap: Boolean = false,
+      cause: Cause? = null,
+      hidden: Boolean = false,
   ) {
     val change: StateChange =
         components.applyChange(
             count,
-            removing = component(removing),
-            gaining = component(gaining),
+            gaining = gaining,
+            removing = removing,
             amap = amap,
         )
     logChange(change, cause, hidden)
     // publish change
   }
+
+  inner class AsGameWriter : GameStateWriter {
+    override fun applyChange(
+        count: Int,
+        gaining: Type?,
+        removing: Type?,
+        amap: Boolean,
+        cause: Cause?,
+        hidden: Boolean,
+    ) {
+      this@Game.applyChangeAndPublish(
+          count,
+          toComponent(gaining),
+          toComponent(removing),
+          amap,
+          cause,
+          hidden)
+    }
+  }
+
+  internal fun toComponent(type: Type?) = type?.let { Component.ofType(resolve(it)) }
+  internal fun toComponent(expression: Expression?) = expression?.let { toComponent(resolve(it)) }
 
   private fun logChange(change: StateChange, cause: Cause?, hidden: Boolean) {
     fullChangeLog.add(ChangeRecord(nextOrdinal, change, cause, hidden))

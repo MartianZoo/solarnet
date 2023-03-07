@@ -18,8 +18,8 @@ public sealed class Instruction : PetNode() {
 
   public sealed class Change : Instruction() {
     abstract val count: Int
-    abstract val removing: Expression?
     abstract val gaining: Expression?
+    abstract val removing: Expression?
     abstract val intensity: Intensity?
   }
 
@@ -28,8 +28,8 @@ public sealed class Instruction : PetNode() {
       override val intensity: Intensity? = null,
   ) : Change() {
     override val count = scaledEx.scalar
-    override val removing = null
     override val gaining = scaledEx.expression
+    override val removing = null
 
     override fun visitChildren(visitor: Visitor) = visitor.visit(scaledEx)
     override fun toString() = "$scaledEx${intensity?.symbol ?: ""}"
@@ -44,8 +44,8 @@ public sealed class Instruction : PetNode() {
   data class Remove(val scaledEx: ScaledExpression, override val intensity: Intensity? = null) :
       Change() {
     override val count = scaledEx.scalar
-    override val removing = scaledEx.expression
     override val gaining = null
+    override val removing = scaledEx.expression
 
     override fun visitChildren(visitor: Visitor) = visitor.visit(scaledEx)
     override fun toString() = "-$scaledEx${intensity?.symbol ?: ""}"
@@ -63,8 +63,8 @@ public sealed class Instruction : PetNode() {
       override val intensity: Intensity? = null,
   ) : Change() {
     override val count = scalar ?: 1
-    override val removing = from.fromExpression
     override val gaining = from.toExpression
+    override val removing = from.fromExpression
 
     override fun visitChildren(visitor: Visitor) = visitor.visit(from)
     override fun toString(): String {
