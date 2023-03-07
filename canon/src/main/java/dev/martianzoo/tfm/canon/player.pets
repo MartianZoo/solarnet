@@ -100,8 +100,7 @@ ABSTRACT CLASS Owned<Anyone> {
 
     CLASS PlayedEvent[EVT]
 
-    ABSTRACT CLASS Cardbound<CardFront<Anyone>> : Owned<Anyone> { // TODO why does Anyone -> Owner break this
-
+    ABSTRACT CLASS Cardbound<CardFront> {
         ABSTRACT CLASS Tag {
             CLASS BuildingTag[BUT], SpaceTag[SPT]
             CLASS CityTag[CIT], PowerTag[POT], ScienceTag[SCT]
