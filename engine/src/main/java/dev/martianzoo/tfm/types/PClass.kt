@@ -63,11 +63,12 @@ internal constructor(
         }
       }
 
-  override fun lub(that: PClass): PClass { // TODO more deps is better??
+  override fun lub(that: PClass): PClass {
     val commonSupers: Set<PClass> = this.allSuperclasses.intersect(that.allSuperclasses)
     val supersOfSupers: Set<PClass> = commonSupers.flatMap { it.properSuperclasses }.toSet()
     val candidates: Set<PClass> = commonSupers - supersOfSupers
-    return candidates.maxBy { it.allSuperclasses.size } // most supers tends to be near us
+    // TODO Just using a dumb ass heuristic for now
+    return candidates.maxBy { it.dependencies.asSet.size * 100 + it.allSuperclasses.size }
   }
 
   /**
