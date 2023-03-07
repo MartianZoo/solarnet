@@ -59,15 +59,15 @@ ABSTRACT CLASS Owned<Anyone> {
             CLASS Energy[E] { ProductionPhase:: Heat FROM This }
         }
 
-        ABSTRACT CLASS CardResource[CR] : Cardbound<ResourcefulCard<Class<CardResource>>> {
+        ABSTRACT CLASS CardResource[CR] : Cardbound<ResourceCard<Class<CardResource>>> {
             DEFAULT +CardResource.
 
             // All others are card-specific; see cards.json5
-            CLASS Animal[ANI] : CardResource<ResourcefulCard<Class<Animal>>>
-            CLASS Microbe[MIC] : CardResource<ResourcefulCard<Class<Microbe>>>
-            CLASS Science[SCI] : CardResource<ResourcefulCard<Class<Science>>>
-            CLASS Floater[FLO] : CardResource<ResourcefulCard<Class<Floater>>>
-            CLASS Asteroid[AST] : CardResource<ResourcefulCard<Class<Asteroid>>>
+            CLASS Animal[ANI] : CardResource<ResourceCard<Class<Animal>>>
+            CLASS Microbe[MIC] : CardResource<ResourceCard<Class<Microbe>>>
+            CLASS Science[SCI] : CardResource<ResourceCard<Class<Science>>>
+            CLASS Floater[FLO] : CardResource<ResourceCard<Class<Floater>>>
+            CLASS Asteroid[AST] : CardResource<ResourceCard<Class<Asteroid>>>
         }
     }
 
@@ -75,7 +75,7 @@ ABSTRACT CLASS Owned<Anyone> {
         ProductionPhase: StandardResource
     }
 
-    ABSTRACT CLASS ResourcefulCard<Class<CardResource>> : CardFront
+    ABSTRACT CLASS ResourceCard<Class<CardResource>> : CardFront
 
 
 // CARDS ---------------------------------------------------

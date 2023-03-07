@@ -12,7 +12,7 @@ import dev.martianzoo.tfm.data.SpecialClassNames.CORPORATION_CARD
 import dev.martianzoo.tfm.data.SpecialClassNames.EVENT_CARD
 import dev.martianzoo.tfm.data.SpecialClassNames.PRELUDE_CARD
 import dev.martianzoo.tfm.data.SpecialClassNames.PROJECT_CARD
-import dev.martianzoo.tfm.data.SpecialClassNames.RESOURCEFUL_CARD
+import dev.martianzoo.tfm.data.SpecialClassNames.RESOURCE_CARD
 import dev.martianzoo.tfm.pets.AstTransforms.actionListToEffects
 import dev.martianzoo.tfm.pets.AstTransforms.immediateToEffect
 import dev.martianzoo.tfm.pets.Parsing.parseOneLineClassDeclaration
@@ -85,7 +85,7 @@ public class CardDefinition(data: CardData) : Definition {
 
   /**
    * The type of `CardResource` this card can hold, if any. If this is non-null, then the class this
-   * card is converted into will have a supertype of `ResourcefulCard<ThatResourceType>`. Of course,
+   * card is converted into will have a supertype of `ResourceCard<ThatResourceType>`. Of course,
    * that will fail if the class named here does not extend `CardResource`.
    */
   public val resourceType: ClassName? = data.resourceType?.let(::cn)
@@ -127,7 +127,7 @@ public class CardDefinition(data: CardData) : Definition {
     val supertypes =
         setOfNotNull(
             projectInfo?.kind?.className?.expr,
-            resourceType?.let { RESOURCEFUL_CARD.addArgs(it.classExpression()) },
+            resourceType?.let { RESOURCE_CARD.addArgs(it.classExpression()) },
             if (actions.any()) ACTION_CARD.expr else null,
         )
             .ifEmpty { setOf(CARD_FRONT.expr) }

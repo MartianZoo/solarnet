@@ -6,7 +6,7 @@ internal object SpecialClassNames {
   val CARD_FRONT = cn("CardFront")
   val MARS_MAP = cn("MarsMap")
   val MILESTONE = cn("Milestone")
-  val RESOURCEFUL_CARD = cn("ResourcefulCard")
+  val RESOURCE_CARD = cn("ResourceCard")
   val ACTION_CARD = cn("ActionCard")
   val STANDARD_ACTION = cn("StandardAction")
   val STANDARD_PROJECT = cn("StandardProject")

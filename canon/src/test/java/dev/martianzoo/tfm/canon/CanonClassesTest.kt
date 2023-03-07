@@ -31,7 +31,7 @@ private class CanonClassesTest {
         .containsExactly(
             cn("GreeneryTile") to cn("Tile"),
             cn("SpecialTile") to cn("Tile"),
-            cn("ResourcefulCard") to cn("Owned"),
+            cn("ResourceCard") to cn("Owned"),
             cn("ActionUsedMarker") to cn("Owned"),
             cn("Owed") to cn("PaymentMechanic"),
         )
