@@ -67,7 +67,7 @@ internal class DependencySet private constructor(val deps: Set<Dependency>) :
     return of(merged)
   }
 
-  fun overlayOn(that: DependencySet) = merge(that) { ours, _ -> ours }
+  fun overlayOn(that: DependencySet) = merge(that) { ours, _ -> ours } // TODO hmm
 
   fun minus(that: DependencySet) = of(this.deps - that.deps)
 

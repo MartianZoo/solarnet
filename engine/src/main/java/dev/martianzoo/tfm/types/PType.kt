@@ -61,8 +61,7 @@ internal constructor(
         loader.getClass(spec.className).classType
       }
     } else {
-      val deps = loader.match(specs, dependencies).overlayOn(dependencies)
-      copy(dependencies = deps.subMapInOrder(dependencies.keys))
+      copy(dependencies = loader.matchFull(specs, dependencies))
     }
   }
 

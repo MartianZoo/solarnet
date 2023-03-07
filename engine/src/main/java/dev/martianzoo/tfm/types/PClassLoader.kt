@@ -177,9 +177,8 @@ public class PClassLoader( // TODO separate into loader and table
    * Assigns each expression to a key from among this map's keys, such that it is compatible with
    * that key's upper bound.
    */
-  internal fun match(specs: List<Expression>, deps: DependencySet): DependencySet {
+  internal fun matchPartial(specs: List<Expression>, deps: DependencySet): DependencySet {
     val usedDeps = mutableSetOf<TypeDependency>()
-
     val list =
         specs.map { specExpression ->
           val specType: PType = resolve(specExpression)
@@ -192,6 +191,9 @@ public class PClassLoader( // TODO separate into loader and table
         }
     return DependencySet.of(list)
   }
+
+  internal fun matchFull(specs: List<Expression>, deps: DependencySet) =
+      matchPartial(specs, deps).overlayOn(deps).subMapInOrder(deps.keys) // TODO simplify??
 
   private val id = nextId++
 
