@@ -4,6 +4,7 @@ import com.google.common.collect.Lists.cartesianProduct
 import dev.martianzoo.tfm.api.SpecialClassNames.CLASS
 import dev.martianzoo.tfm.api.Type
 import dev.martianzoo.tfm.pets.ast.Expression
+import dev.martianzoo.tfm.pets.ast.HasClassName
 import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.pets.ast.Requirement.And
 import dev.martianzoo.util.Hierarchical
@@ -17,9 +18,9 @@ import dev.martianzoo.util.Hierarchical
 public data class PType
 internal constructor(
     public val pclass: PClass, // TODO try renaming root?
-    internal val dependencies: DependencySet = DependencySet(setOf()),
+    internal val dependencies: DependencySet,
     override val refinement: Requirement? = null,
-) : Type, Hierarchical<PType> {
+) : Type, Hierarchical<PType>, HasClassName by pclass {
   private val loader by pclass::loader
 
   init {
@@ -92,7 +93,7 @@ internal constructor(
   private fun toExpressionUsingSpecs(specs: List<Expression>): Expression {
     val expression = pclass.className.addArgs(specs).refine(refinement)
     val roundTrip = loader.resolve(expression)
-    require(roundTrip == this) { "$expressionFull -> ${roundTrip.expressionFull}" }
+    require(roundTrip == this) { "$expression" }
     return expression
   }
 
@@ -124,7 +125,7 @@ internal constructor(
       else -> {
         val axes = dependencies.asSet.map { it.allConcreteSpecializations().toList() }
         val product: List<List<Dependency>> = cartesianProduct(axes)
-        product.asSequence().map { pclass.withExactDependencies(DependencySet(it.toSet())) }
+        product.asSequence().map { pclass.withExactDependencies(DependencySet.of(it)) }
       }
     }
   }

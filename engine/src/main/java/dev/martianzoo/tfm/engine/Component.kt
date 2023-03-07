@@ -37,7 +37,7 @@ private constructor(
    * `Class<Tile>` has an empty dependency list, despite its appearance. The list order corresponds
    * to [PClass.dependencies].
    */
-  public val dependencies: List<Component> = ptype.dependencies.asSet.map { ofType(it.bound) }
+  public val dependencies: List<Component> = ptype.dependencies.asSet.map { ofType(it.boundType) }
 
   /**
    * This component's effects; while the component exists in a game state, the effects are active.

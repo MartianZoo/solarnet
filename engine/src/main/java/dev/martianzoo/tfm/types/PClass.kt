@@ -128,8 +128,7 @@ internal constructor(
   }
 
   internal val declaredDeps: DependencySet by lazy {
-    val list = declaration.dependencies.mapIndexed(::createDep)
-    DependencySet(list.toSetStrict())
+    DependencySet.of(declaration.dependencies.mapIndexed(::createDep))
   }
 
   private fun createDep(i: Int, dep: Expression) =
@@ -137,7 +136,7 @@ internal constructor(
 
   private fun inheritedDeps(): DependencySet {
     val list: List<DependencySet> = directSupertypes.map { it.dependencies }
-    return glb(list) ?: DependencySet(setOf())
+    return glb(list) ?: DependencySet.of() // TODO could that happen automatically?
   }
 
   // GETTING TYPES

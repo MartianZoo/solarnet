@@ -1,7 +1,7 @@
 package dev.martianzoo.util
 
-fun <T> Collection<T>.toSetStrict() =
-    toSet().also { set -> require(set.size == this.size) { "dupes: $this" } }
+fun <T> Iterable<T>.toSetStrict() =
+    toSet().also { set -> require(set.size == this.count()) { "dupes: $this" } }
 
 fun <T, K> Collection<T>.associateByStrict(x: (T) -> K): Map<K, T> {
   val map: Map<K, T> = associateBy(x)

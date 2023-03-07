@@ -11,7 +11,6 @@ import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.pets.ast.PetNode
 import dev.martianzoo.tfm.types.Dependency.TypeDependency
-import dev.martianzoo.util.toSetStrict
 
 /**
  * All [PClass] instances come from here. Uses an [Authority] to pull class declarations from as
@@ -185,13 +184,13 @@ public class PClassLoader( // TODO separate into loader and table
         specs.map { specExpression ->
           val specType: PType = resolve(specExpression)
           for (candidateDep in deps.asSet - usedDeps) {
-            val intersectionType = (specType glb candidateDep.bound) ?: continue
+            val intersectionType = (specType glb candidateDep.boundType) ?: continue
             usedDeps += candidateDep
             return@map TypeDependency(candidateDep.key, intersectionType)
           }
           error("couldn't match up $specExpression to $this")
         }
-    return DependencySet(list.toSetStrict())
+    return DependencySet.of(list)
   }
 
   private val id = nextId++

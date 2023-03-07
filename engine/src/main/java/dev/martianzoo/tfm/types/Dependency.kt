@@ -2,10 +2,11 @@ package dev.martianzoo.tfm.types
 
 import dev.martianzoo.tfm.api.SpecialClassNames.CLASS
 import dev.martianzoo.tfm.pets.ast.ClassName
+import dev.martianzoo.tfm.pets.ast.HasClassName
 import dev.martianzoo.tfm.pets.ast.HasExpression
 import dev.martianzoo.util.Hierarchical
 
-internal sealed class Dependency : Hierarchical<Dependency>, HasExpression {
+internal sealed class Dependency : Hierarchical<Dependency>, HasExpression, HasClassName {
   abstract val key: Key
 
   /**
@@ -29,28 +30,33 @@ internal sealed class Dependency : Hierarchical<Dependency>, HasExpression {
     override fun toString() = "${declaringClass}_$index"
   }
 
+  abstract val boundClass: PClass
+
   /** Any [Dependency] except for the case covered by [FakeDependency] below. */
   // TODO rename Dependency?
-  data class TypeDependency(override val key: Key, val bound: PType) :
-      Dependency(), HasExpression by bound {
+  data class TypeDependency(override val key: Key, val boundType: PType) :
+      Dependency(), HasExpression by boundType {
+
+    override val boundClass by boundType::pclass
+    override val className by boundClass::className
 
     fun allConcreteSpecializations(): Sequence<TypeDependency> =
-        bound.allConcreteSubtypes().map { TypeDependency(key, it) }
+        boundType.allConcreteSubtypes().map { TypeDependency(key, it) }
 
     override fun toString() = "$key=${expression}"
 
     // Hierarchy
 
-    override val abstract by bound::abstract
+    override val abstract by boundType::abstract
 
-    override fun isSubtypeOf(that: Dependency) = bound.isSubtypeOf(boundOf(that))
+    override fun isSubtypeOf(that: Dependency) = boundType.isSubtypeOf(boundOf(that))
 
-    override fun glb(that: Dependency) = (bound glb boundOf(that))?.let { copy(bound = it) }
+    override fun glb(that: Dependency) = (boundType glb boundOf(that))?.let { copy(boundType = it) }
 
-    override fun lub(that: Dependency) = copy(bound = bound lub boundOf(that))
+    override fun lub(that: Dependency) = copy(boundType = boundType lub boundOf(that))
 
     private fun boundOf(that: Dependency): PType =
-        (that as TypeDependency).bound.also { require(key == that.key) }
+        (that as TypeDependency).boundType.also { require(key == that.key) }
   }
 
   /**
@@ -59,27 +65,29 @@ internal sealed class Dependency : Hierarchical<Dependency>, HasExpression {
    * that the dependency in `Production<Plant>` is a "class dependency" on `Plant`, so instead we
    * use `Production<Class<Plant>>`.
    */
-  private data class FakeDependency(val bound: PClass) : Dependency() {
+  private data class FakeDependency(override val boundClass: PClass) : Dependency() {
     override val key: Key = Key(CLASS, 0)
 
-    override val expressionFull by bound.className::expr
+    override val className by boundClass::className
+
+    override val expressionFull by className::expr
 
     override val expression by ::expressionFull
 
-    override fun toString() = "$key=${expression}"
+    override fun toString() = "$key=$expression"
 
     // Hierarchy
 
-    override val abstract by bound::abstract
+    override val abstract by boundClass::abstract
 
-    override fun isSubtypeOf(that: Dependency) = bound.isSubtypeOf(boundOf(that))
+    override fun isSubtypeOf(that: Dependency) = boundClass.isSubtypeOf(boundOf(that))
 
-    override fun glb(that: Dependency): FakeDependency? = (bound glb boundOf(that))?.let(::copy)
+    override fun glb(that: Dependency): FakeDependency? = (boundClass glb boundOf(that))?.let(::copy)
 
-    override fun lub(that: Dependency): FakeDependency = copy(bound lub boundOf(that))
+    override fun lub(that: Dependency): FakeDependency = copy(boundClass lub boundOf(that))
 
     private fun boundOf(that: Dependency): PClass =
-        (that as FakeDependency).bound.also { require(key == that.key) }
+        (that as FakeDependency).boundClass.also { require(key == that.key) }
   }
 
   companion object {
@@ -90,8 +98,8 @@ internal sealed class Dependency : Hierarchical<Dependency>, HasExpression {
     }
 
     internal fun getClassForClassType(set: Set<Dependency>): PClass =
-        (set.single() as FakeDependency).bound
+        (set.single() as FakeDependency).boundClass
 
-    internal fun depsForClassType(pclass: PClass) = DependencySet(setOf(FakeDependency(pclass)))
+    internal fun depsForClassType(pclass: PClass) = DependencySet.of(setOf(FakeDependency(pclass)))
   }
 }

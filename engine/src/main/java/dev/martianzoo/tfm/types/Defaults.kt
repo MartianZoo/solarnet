@@ -6,10 +6,10 @@ import dev.martianzoo.tfm.pets.ast.Instruction.Intensity
 import dev.martianzoo.util.Hierarchical.Companion.glb
 
 internal data class Defaults(
-    val allCasesDependencies: DependencySet = DependencySet(setOf()),
-    val gainOnlyDependencies: DependencySet = DependencySet(setOf()),
+    val allCasesDependencies: DependencySet = DependencySet.of(),
+    val gainOnlyDependencies: DependencySet = DependencySet.of(),
     val gainIntensity: Intensity,
-    val removeOnlyDependencies: DependencySet = DependencySet(setOf()),
+    val removeOnlyDependencies: DependencySet = DependencySet.of(),
     val removeIntensity: Intensity,
 ) {
   companion object {
@@ -35,13 +35,13 @@ internal data class Defaults(
         fun toDependencyMap(specs: List<Expression>): DependencySet =
             pclass.loader.resolve(pclass.className.addArgs(specs)).narrowedDependencies
 
-        val depList: List<Dependency> =
+        val deps: List<Dependency> =
             pclass.dependencies.keys.mapNotNull { key ->
               inheritDefault(
                   { toDependencyMap(extractor(it)).getIfPresent(key) },
                   { deps: List<Dependency> -> glb(deps)!! })
             }
-        return DependencySet(depList.toSet())
+        return DependencySet.of(deps)
       }
 
       return Defaults(

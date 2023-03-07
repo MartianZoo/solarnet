@@ -7,16 +7,37 @@ import dev.martianzoo.util.Hierarchical
 import dev.martianzoo.util.toSetStrict
 
 // Takes care of everything inside the <> but knows nothing of what's outside it
-internal data class DependencySet(private val deps: Set<Dependency>) : Hierarchical<DependencySet> {
-  init {
-    Dependency.validate(deps)
+internal class DependencySet private constructor(val deps: Set<Dependency>) :
+    Hierarchical<DependencySet> {
+
+  companion object {
+    fun of(deps: Set<Dependency>): DependencySet {
+      Dependency.validate(deps)
+      return DependencySet(deps)
+    }
+
+    fun of() = of(setOf())
+    fun of(deps: Iterable<Dependency>) = of(deps.toSetStrict())
+  }
+
+  val flattened: Map<DependencyPath, PClass> by lazy {
+    deps.flatMap {
+      // Throwing away refinements & links...
+      val result = mutableListOf(DependencyPath(it.key) to it.boundClass)
+      if (it is TypeDependency) {
+        result += it.boundType.dependencies.flattened.map {
+          (depPath, boundClass) -> depPath.prepend(it.key) to boundClass
+        }
+      }
+      result
+    }.toMap()
   }
 
   val asSet: Set<TypeDependency> = deps.filterIsInstance<TypeDependency>().toSet() // TODO
 
   val keys: Set<Key> = deps.map { it.key }.toSetStrict()
-  val expressions: List<Expression> = deps.map { it.expression }
-  val expressionsFull: List<Expression> = deps.map { it.expressionFull }
+  val expressions: List<Expression> by lazy { deps.map { it.expression } }
+  val expressionsFull: List<Expression> by lazy { deps.map { it.expressionFull } }
 
   fun get(key: Key): Dependency = getIfPresent(key) ?: error("$key")
 
@@ -33,27 +54,44 @@ internal data class DependencySet(private val deps: Set<Dependency>) : Hierarchi
 
   override fun lub(that: DependencySet): DependencySet {
     val keys = keys.intersect(that.keys)
-    return copy(keys.map { this.get(it) lub that.get(it) }.toSetStrict())
+    return of(keys.map { this.get(it) lub that.get(it) })
   }
 
-  // OTHER OPERATIONS
+  // OTHER OPERATORS
 
   fun merge(that: DependencySet, merger: (Dependency, Dependency) -> Dependency): DependencySet {
-    val merged = (this.keys + that.keys).map {
-      setOfNotNull(this.getIfPresent(it), that.getIfPresent(it)).reduce(merger)
-    }
-    return copy(merged.toSetStrict())
+    val merged =
+        (this.keys + that.keys).map {
+          setOfNotNull(this.getIfPresent(it), that.getIfPresent(it)).reduce(merger)
+        }
+    return of(merged)
   }
 
   fun overlayOn(that: DependencySet) = merge(that) { ours, _ -> ours }
 
-  fun minus(that: DependencySet) = copy(this.deps - that.deps)
+  fun minus(that: DependencySet) = of(this.deps - that.deps)
+
+  // OTHER
 
   /** Returns a submap of this map where every key is one of [keysInOrder]. */
-  fun subMapInOrder(keysInOrder: Iterable<Key>) =
-      copy(keysInOrder.mapNotNull(::getIfPresent).toSetStrict())
+  fun subMapInOrder(keysInOrder: Iterable<Key>) = of(keysInOrder.mapNotNull(::getIfPresent))
 
   fun getClassForClassType() = Dependency.getClassForClassType(deps)
 
+  override fun equals(other: Any?) = other is DependencySet && deps == other.deps
+  override fun hashCode() = deps.hashCode()
+
   override fun toString() = "$deps"
+
+  data class DependencyPath(val keyList: List<Key>) {
+    constructor(key: Key) : this(listOf(key))
+
+    fun prepend(key: Key) = copy(listOf(key) + keyList)
+
+    fun isProperSuffixOf(other: DependencyPath): Boolean {
+      val otherSize = other.keyList.size
+      val smallerBy = keyList.size - otherSize
+      return smallerBy > 0 && other.keyList.subList(smallerBy, otherSize) == keyList
+    }
+  }
 }
