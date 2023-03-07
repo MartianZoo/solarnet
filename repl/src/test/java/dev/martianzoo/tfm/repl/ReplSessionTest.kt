@@ -64,37 +64,40 @@ private class ReplSessionTest {
   fun testMap() {
     val repl = ReplSession(Canon)
     repl.command("newgame MB 3")
-    repl.command("become Player1")
-    repl.command("exec OceanTile<Tharsis_2_6>, OceanTile<Tharsis_5_5>, OceanTile<Tharsis_5_6>")
-    repl.command("exec CityTile<Tharsis_4_6>, GreeneryTile<Tharsis_5_7>")
-    repl.command("exec GreeneryTile<Tharsis_4_5, Player3>")
-
-    repl.command("become Player2")
-    repl.command("exec Tile008<Tharsis_6_6>")
-    repl.command("exec Tile142<Tharsis_9_9>")
+    repl.command("become P1")
+    repl.command("exec OT<M26>, OT<M55>, OT<M56>, CT<M46>, GT<M57>, GT<M45, P3>")
+    repl.command("exec Tile008<P2, M66>, Tile142<P2, M99>")
 
     assertThat(repl.command("map"))
         .containsExactly(
-            "                       1     2     3     4     5     6     7     8     9",
-            "                      /     /     /     /     /     /     /     /     /",
+            "                              1       2       3       4       5       6       7       8       9",
+            "                             /       /       /       /       /       /       /       /       /",
             "",
-            "1 —                LSS   WSS    L    WC     W",
+            " 1 —                     LSS     WSS      L      WC       W",
             "",
-            "2 —              L    VS     L     L     L    [O]",
             "",
-            "3 —          VC     L     L     L     L     L     L",
+            " 2 —                  L      VS       L       L       L      [O]",
             "",
-            "4 —       VPT   LP    LP    LP   [G3]  [C1]   LP    WPP",
             "",
-            "5 —    VPP   LPP   NPP   WPP   [O]   [O]  [G1]   LPP   LPP",
+            " 3 —             VC       L       L       L       L       L       L",
             "",
-            "6 —       LP    LPP   LP    LP   [C2]   WP    WP    WP",
             "",
-            "7 —           L     L     L     L     L    LP     L",
+            " 4 —         VPT     LP      LP      LP     [G3]    [C1]     LP      WPP",
             "",
-            "8 —             LSS    L    LC    LC     L    LT",
             "",
-            "9 —                LSS   LSS    L     L   [S2]",
+            " 5 —     VPP     LPP     NPP     WPP     [O]     [O]    [G1]     LPP     LPP",
+            "",
+            "",
+            " 6 —         LP      LPP     LP      LP     [C2]     WP      WP      WP",
+            "",
+            "",
+            " 7 —              L       L       L       L       L      LP       L",
+            "",
+            "",
+            " 8 —                 LSS      L      LC      LC       L      LT",
+            "",
+            "",
+            " 9 —                     LSS     LSS      L       L     [S2]",
         )
         .inOrder()
   }

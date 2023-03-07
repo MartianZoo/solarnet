@@ -8,67 +8,55 @@ import dev.martianzoo.util.Grid
 import dev.martianzoo.util.toStrings
 
 internal class MapToText(private val game: ReadOnlyGameState) {
-
   internal fun map(): List<String> {
-    val grid: Grid<AreaDefinition> = game.setup.map.areas
-    var lines = ""
+    val cells = mutableListOf<SimpleCell>()
+    cells +=
+        (1..9).flatMap {
+          listOf(
+              fromRect("$it —", 3 * it, 0), // numerical row headings
+              fromRect("$it", 0, it * 2 + 5),  // numerical column headings
+              fromRect("/ ", 1, it * 2 + 5),     // slashes
+          )
+        }
+    cells += game.setup.map.areas.map { fromHex(describe(it), it.row, it.column) }
 
-    val ind = "   ".repeat(grid.rowCount + 5) // TODO why 5?
-    lines += "$ind 1     2     3     4     5     6     7     8     9\n"
-    lines += "$ind/     /     /     /     /     /     /     /     /\n"
-
-    lines +=
-        grid
-            .rows()
-            .mapIndexed { rowNum, row ->
-              if (rowNum == 0) {
-                ""
-              } else {
-                val rowString = row.joinToString("") { padCenter(describe(it), 6) }
-                val indent = "   ".repeat(grid.rowCount - rowNum)
-                "\n" + (indent + rowString).trimEnd() + "\n"
-              }
-            }
-            .joinToString("")
-
-    return lines.trimIndent().split("\n").mapIndexed { i, line ->
-      val label = (i - 1) / 2 // TODO wow ugly
-      if (i <= 2 || line.isEmpty()) {
-        line
-      } else {
-        "$label —    $line"
-      }
-    }
+    val grid = Grid.grid(cells, { it.row }, { it.column })
+    return grid.rows().map { row -> row.joinToString("") { padCenter(it?.s ?: "", 4) }.trimEnd() }
   }
 
-  private fun describe(area: AreaDefinition?): String { // TODO rewrite using Grid<String>
-    if (area == null) return ""
+  fun describe(area: AreaDefinition): String {
     val expression = expression("Tile<${area.className}>")
     val tiles = game.getComponents(game.resolve(expression))
-    return when (tiles.size) {
-      0 -> area.code
-      1 -> describe(tiles.iterator().next())
-      else -> error(tiles)
-    }
+    return tiles.singleOrNull()?.let { describe(it) } ?: area.code
   }
+
+  fun fromHex(s: String, r: Int, c: Int) = fromRect(s, r * 3, c * 2 + 5 - r)
+  fun fromRect(s: String, r: Int, c: Int) = SimpleCell(s, r, c)
+
+  data class SimpleCell(val s: String, val row: Int, val column: Int) // TODO color?
 
   private fun describe(tile: Type): String {
-    val name = tile.expression.className.toString()
-    val kind =
+    fun isIt(tile: Type, kind: String) = tile.isSubtypeOf(game.resolve(expression(kind)))
+
+    val kind: String =
         when { // TODO do this more by checking supertypes
-          name == "Tile008" -> "C"
-          name.startsWith("Tile") -> "S"
-          else -> name[0]
+          isIt(tile, "CityTile") -> "C" // keep this before S
+          isIt(tile, "OceanTile") -> "O"
+          isIt(tile, "GreeneryTile") -> "G"
+          isIt(tile, "SpecialTile") -> "S"
+          else -> error("")
         }
+
     val argStrings = tile.expressionFull.arguments.toStrings()
     val player = argStrings.firstOrNull { it.startsWith("Player") }?.last() ?: ""
+
     return "[$kind$player]"
   }
+}
 
-  // TODO share
-  private fun padCenter(s: String, length: Int): String {
-    val before = (length - s.length + 1) / 2
-    val after = (length - s.length) / 2
-    return " ".repeat(before) + s + " ".repeat(after)
-  }
+// TODO share
+fun padCenter(s: String, length: Int): String {
+  val before = (length - s.length + 1) / 2
+  val after = (length - s.length) / 2
+  return " ".repeat(before) + s + " ".repeat(after)
 }
