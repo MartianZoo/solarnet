@@ -115,7 +115,7 @@ public class Transformer internal constructor(val loader: PClassLoader) {
       if (node !is Expression) return transformChildren(node)
       if (leaveItAlone(node)) return node
 
-      val defaults: Defaults = loader.allDefaults[node.className]!!
+      val defaults: Defaults = loader.allDefaults[node.className] ?: error(node.className)
       val result =
           insertDefaultsIntoExpr(transformChildren(node), defaults.allCasesDependencies, context)
 

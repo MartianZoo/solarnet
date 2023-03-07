@@ -1,169 +1,181 @@
 // This file has player-specific game stuff
 
-// PLAYERS -------------------------------------------------
+// PLAYERS ---------------------------------------
 
-ABSTRACT CLASS Anyone[ANY] {                                // aka Player
-    ABSTRACT CLASS Owner {
-        HAS =1 This
+ABSTRACT CLASS Anyone[ANY] {                      // aka Player
+  ABSTRACT CLASS Owner {
+    HAS =1 This
 
-        Start:: 20 TerraformRating<This>
+    Start:: 20 TerraformRating<This>
 
-        CLASS Player1[P1], Player2[P2], Player3[P3], Player4[P4], Player5[P5]
-    }
+    CLASS Player1[P1]
+    CLASS Player2[P2]
+    CLASS Player3[P3]
+    CLASS Player4[P4]
+    CLASS Player5[P5]
+  }
 }
 
 
-// PLAYER PROPERTY / GENERAL -------------------------------
+// PLAYER PROPERTY / GENERAL ---------------------
 
 ABSTRACT CLASS Owned<Anyone> {
-    DEFAULT Owned<Owner>                                    // affects ALL references to owned cpts that don't specify
-                                                            // an owner -- the only DEFAULT of this kind we need
-    CLASS VictoryPoint[VP]
+  DEFAULT Owned<Owner>                            // affects ALL refs to subtypes that don't give
+                                                  // an owner... the only default of this kind
+  CLASS VictoryPoint[VP]
 
-    CLASS TerraformRating[TR] {
-        ProductionPhase: 1
-        End: VictoryPoint
+  CLASS TerraformRating[TR] {
+    ProductionPhase: 1
+    End: VictoryPoint
+  }
+
+  ABSTRACT CLASS Milestone[MIL]                   // specific ones loaded from `milestones.json5`
+
+
+// TILES -----------------------------------------
+
+  ABSTRACT CLASS OwnedTile : Owned, Tile {
+    CLASS GreeneryTile[GT] : Tile<MarsArea> {
+      // This needs to use `HAS?` or something TODO
+      DEFAULT +GreeneryTile<LandArea(HAS Neighbor<OwnedTile>)>
+
+      This: OxygenStep
+      End: VictoryPoint
     }
 
-    ABSTRACT CLASS Milestone[MIL]                                // specific milestones are loaded from `milestones.json5`
-
-
-// TILES ---------------------------------------------------
-
-    ABSTRACT CLASS OwnedTile : Owned, Tile {
-        CLASS GreeneryTile[GT] : Tile<MarsArea> {
-            // This needs to use `HAS?` or something TODO
-            DEFAULT +GreeneryTile<LandArea(HAS Neighbor<OwnedTile>)>
-
-            This: OxygenStep
-            End: VictoryPoint
-        }
-
-        CLASS CityTile[CT] {
-            DEFAULT +CityTile<LandArea(HAS MAX 0 Neighbor<CityTile<Anyone>>)>
-            End: VictoryPoint / Adjacency<This, GreeneryTile<Anyone>>
-        }
-
-        ABSTRACT CLASS SpecialTile[ST] : Tile<MarsArea> {
-            DEFAULT +SpecialTile<LandArea>
-        }
+    CLASS CityTile[CT] {
+      DEFAULT +CityTile<LandArea(HAS MAX 0 Neighbor<CityTile<Anyone>>)>
+      End: VictoryPoint / Adjacency<This, GreeneryTile<Anyone>>
     }
 
+    ABSTRACT CLASS SpecialTile[ST] : Tile<MarsArea> {
+      DEFAULT +SpecialTile<LandArea>
+    }
+  }
 
-// RESOURCES -----------------------------------------------
 
-    ABSTRACT CLASS Resource[RES] {
-        // want to express defaults like -Resource<Owner>!, -Resource<Anyone>? but that means something else
-        ABSTRACT CLASS StandardResource[SR] {
-            CLASS Megacredit[M], Steel[S], Titanium[T], Plant[P], Heat[H]
-            CLASS Energy[E] { ProductionPhase:: Heat FROM This }
-        }
+// RESOURCES -------------------------------------
 
-        ABSTRACT CLASS CardResource[CR] : Cardbound<ResourceCard<Class<CardResource>>> {
-            DEFAULT +CardResource.
-
-            // All others are card-specific; see cards.json5
-            CLASS Animal[ANI] : CardResource<ResourceCard<Class<Animal>>>
-            CLASS Microbe[MIC] : CardResource<ResourceCard<Class<Microbe>>>
-            CLASS Science[SCI] : CardResource<ResourceCard<Class<Science>>>
-            CLASS Floater[FLO] : CardResource<ResourceCard<Class<Floater>>>
-            CLASS Asteroid[AST] : CardResource<ResourceCard<Class<Asteroid>>>
-        }
+  ABSTRACT CLASS Resource[RES] {                  // want to express defaults like -Resource<Owner>!,
+    ABSTRACT CLASS StandardResource[SR] {         // -Resource<Anyone>? but that means something else
+      CLASS Megacredit[M]
+      CLASS Steel[S]
+      CLASS Titanium[T]
+      CLASS Plant[P]
+      CLASS Energy[E] { ProductionPhase:: Heat FROM This }
+      CLASS Heat[H]
     }
 
-    CLASS Production<Class<StandardResource>> {
-        ProductionPhase: StandardResource
+    ABSTRACT CLASS CardResource[CR] : Cardbound<ResourceCard<Class<CardResource>>> { // TODO This
+      DEFAULT +CardResource.
+
+      // All others are card-specific; see cards.json5
+      CLASS Animal[ANI] : CardResource<ResourceCard<Class<Animal>>>
+      CLASS Microbe[MIC] : CardResource<ResourceCard<Class<Microbe>>>
+      CLASS Science[SCI] : CardResource<ResourceCard<Class<Science>>>
+      CLASS Floater[FLO] : CardResource<ResourceCard<Class<Floater>>>
+      CLASS Asteroid[AST] : CardResource<ResourceCard<Class<Asteroid>>>
+    }
+  }
+
+  CLASS Production<Class<StandardResource>> {
+    ProductionPhase: StandardResource
+  }
+
+  ABSTRACT CLASS ResourceCard<Class<CardResource>> : CardFront
+
+
+// CARDS -----------------------------------------
+
+  ABSTRACT CLASS CardBack {
+    CLASS CorporationCard                         // once a card is played and becomes a CardFront,
+    CLASS PreludeCard                             // nothing in the game ever cares what kind of a
+    CLASS ProjectCard[PC]                         // CardBack it used to be... well, that USED to be
+  }                                               // true until "Double Down" in Dec 2022
+
+  ABSTRACT CLASS CardFront {                      // specific CardFronts are loaded from `cards.json5`
+    This:: @createAll(Cost, This)
+
+    ABSTRACT CLASS EventCard {
+      This: PlayedEvent FROM This                 // problem: how to still get the VPs??
+    }                                             // could we get this happen automatically at EOT?
+    ABSTRACT CLASS AutomatedCard
+    ABSTRACT CLASS ActiveCard
+
+    ABSTRACT CLASS ActionCard : HasActions
+  }
+
+  CLASS PlayedEvent[EVT]
+
+  ABSTRACT CLASS Cardbound<CardFront> {
+    ABSTRACT CLASS Tag {
+      CLASS BuildingTag[BUT], SpaceTag[SPT]
+      CLASS CityTag[CIT], PowerTag[POT], ScienceTag[SCT]
+
+      ABSTRACT CLASS BioTag {                     // not really a game defined thing, but convenient
+        CLASS PlantTag[PLT], MicrobeTag[MIT], AnimalTag[ANT]
+      }
+      ABSTRACT CLASS PlanetTag {
+        CLASS EarthTag[EAT], JovianTag[JOT], VenusTag[VET]
+      }
     }
 
-    ABSTRACT CLASS ResourceCard<Class<CardResource>> : CardFront
+    CLASS Cost
+  }
 
 
-// CARDS ---------------------------------------------------
+// ACTIONS ---------------------------------------
 
-    ABSTRACT CLASS CardBack {
-        CLASS CorporationCard                               // once a card is played and becomes a CardFront, nothing in
-        CLASS PreludeCard                                   // the game ever cares what kind of CardBack it used to be..
-        CLASS ProjectCard[PC]                               // well that used to be true until "Double Down" in Dec 2022
+  ABSTRACT CLASS UseAction<HasActions> : Signal {
+    CLASS UseAction1, UseAction2
+  }
+
+  // TODO still consider inverting this?
+  CLASS ActionUsedMarker : Cardbound<ActionCard>, Generational {
+    HAS MAX 1 This
+  }
+
+
+// PAYMENT MECHANICS -----------------------------
+
+  ABSTRACT CLASS PaymentMechanic : Temporary, System {
+    ABSTRACT CLASS Barrier {                      // player must clean up by end of action
+      This: (MAX 0 This: Ok)
     }
-
-    ABSTRACT CLASS CardFront[CARD] {                        // specific CardFronts are loaded from `cards.json5`
-        This:: @createAll(Cost, This)
-
-        ABSTRACT CLASS EventCard {
-            This: PlayedEvent FROM This                     // problem: how to still get the VPs??
-        }                                                   // could we get this happen automatically at EOT?
-        ABSTRACT CLASS AutomatedCard
-        ABSTRACT CLASS ActiveCard                           // these types can all be mixed; what prevents bogus combos?
-
-        ABSTRACT CLASS ActionCard : HasActions
+    CLASS Owed<Class<Resource>> : Barrier {       // created when pmt due, removed by discount cards
+      DEFAULT +Owed<Class<Megacredit>>
+      This:: Accept<Class<Resource>>
     }
-
-    CLASS PlayedEvent[EVT]
-
-    ABSTRACT CLASS Cardbound<CardFront> {
-        ABSTRACT CLASS Tag {
-            CLASS BuildingTag[BUT], SpaceTag[SPT]
-            CLASS CityTag[CIT], PowerTag[POT], ScienceTag[SCT]
-
-            ABSTRACT CLASS BioTag {                         // not really a game defined thing, but convenient
-                CLASS PlantTag[PLT], MicrobeTag[MIT], AnimalTag[ANT]
-            }
-            ABSTRACT CLASS PlanetTag {
-                CLASS EarthTag[EAT], JovianTag[JOT], VenusTag[VET]
-            }
-        }
-
-        CLASS Cost                                          // as part of creating Card001<P4>, make 8 Cost<Card001<P4>>
-    }                                                       // does this really need to be `Owned`?
-
-
-// ACTIONS -------------------------------------------------
-
-    ABSTRACT CLASS UseAction<HasActions> : Signal {         // How to make owner same, when HasActions has both
-        CLASS UseAction1, UseAction2                        // owned and unowned subclasses? BIGTODO
+    CLASS Accept<Class<Resource>> {               // created in response to PlayTag or the actions
+      HAS MAX 1 This                              //  on 4 special cards. (extend Temporary?)
+      DEFAULT +Accept.
     }
-
-    // TODO still consider inverting this?
-    CLASS ActionUsedMarker : Cardbound<ActionCard>, Generational {
-        HAS MAX 1 This
+    CLASS Pay<Class<Resource>> : Signal {         // used like `8 Pay<Class<Heat>> FROM Heat`, but
+      DEFAULT +Pay<Class<Megacredit>>             // also cards can pay in response to signals
+      This:: -Owed<Class<Resource>>.
     }
+    CLASS PlayTag<Class<Tag>> : Signal            // triggers Accept<Steel/Dirig/etc.CLASS> and
+                                                  // tag-based discounts
 
-
-// PAYMENT MECHANICS ---------------------------------------
-
-    ABSTRACT CLASS PaymentMechanic : Temporary, System {
-        ABSTRACT CLASS Barrier {                            // player must clean up themselves, by end of action
-            This: (MAX 0 This: Ok)                          // adds a task that can only be handled if this is gone
-        }
-        CLASS Owed<Class<Resource>> : Barrier {             // created when payment due, removed by discount cards/
-            DEFAULT +Owed<Class<Megacredit>>
-            This:: Accept<Class<Resource>>
-        }
-        CLASS Accept<Class<Resource>> {                     // Created in response to PlayTag or the actions on 4
-            HAS MAX 1 This                                  // special cards. (extend Temporary?)
-            DEFAULT +Accept.
-        }
-        CLASS Pay<Class<Resource>> : Signal {               // player uses it like `8 Pay<Class<Heat>> FROM Heat`
-            DEFAULT +Pay<Class<Megacredit>>
-            This:: -Owed<Class<Resource>>.                  // But also cards can pay in response to signals
-        }
-        CLASS PlayTag<Class<Tag>> : Signal                  // triggers Accept<Steel/Dirig/etc.CLASS> and tag-based discounts
-
-                                                            // used by PlayCardFromHand, ValTrust, EcoEx, ExSponsor,
-        CLASS PlayCard<Class<CardBack>, Class<CardFront>> {   // NewPartner, Merger; triggers EarthCat etc.
-  //        This:: (CardBack: @handleRequirement(Class<CardFront>))
-  //        This: Owed<Class<Megacredit>> / Cost<Class<CardFront>>
-  //        This: =0 Barrier: (CardFront FROM CardBack, -This) // adds task to queue that must eventually be completed
-        }
+    // Used by PlayCardFromHand, ValTrust, EcoEx, ExSponsor, NewPartner, Merger; triggers EarthCat
+    CLASS PlayCard<Class<CardBack>, Class<CardFront>> {
+//    This:: (CardBack: @handleRequirement(Class<CardFront>))
+//    This: Owed<Class<Megacredit>> / Cost<Class<CardFront>>
+//    This: =0 Barrier: (CardFront FROM CardBack, -This)
     }
+  }
 
 
-// DISGUSTING HACKS ----------------------------------------
+// DISGUSTING HACKS ------------------------------
 
-    CLASS GrossHack : System {                              // We're forced to use some ugly hack; at least this one
-        HAS =1 This                                         // confines the damage to Specialist/Generalist/Robinson and
-                                                            // presentation issues. All the alternatives look worse.
-        This:: PROD[5]                                      // This makes `/ PROD[1]` extremely dodgy, almost worth
-        ProductionPhase: -5                                 // banning... except it does still work fine for Banker.
-    }
+  // Because we can't have a "negative component" in the game, we have to choose between various
+  // extremely ugly hacks. This one is actually not that bad; it confines the damage to just
+  // Specialist, Generalist, and Robinson. But it is bug-prone. However, all the alternatives
+  // appear to be worse. This makes `PROD[1]` extremely dodgy -- almost worth taking steps to ban,
+  // except that it does actually work just fine for Banker anyway.
+  CLASS GrossHack : System {
+    HAS =1 This
+    This:: PROD[5]
+    ProductionPhase: -5
+  }
 }

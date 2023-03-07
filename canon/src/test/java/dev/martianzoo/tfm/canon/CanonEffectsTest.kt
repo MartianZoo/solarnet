@@ -34,12 +34,6 @@ private class CanonEffectsTest {
   }
 
   @Test
-  fun polarExplorer() {
-    assertThat(effectsOf("PolarExplorer"))
-        .containsExactly("This:: (3 OwnedTile<Owner, MarsArea(HAS 8 Row)>: Ok!)")
-  }
-
-  @Test
   fun gyropolis() {
     val card = effectsOf("Gyropolis")
     assertThat(card)

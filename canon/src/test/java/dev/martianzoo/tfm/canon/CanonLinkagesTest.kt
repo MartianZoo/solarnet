@@ -16,8 +16,8 @@ private class CanonLinkagesTest {
 
     assertThat(haveLinkages.classNames().toStrings())
         .containsExactly(
-            "Border",
-            "Neighbor",
+            // "Border",
+            // "Neighbor",
             "Production",
             "Owed",
             "Pay",

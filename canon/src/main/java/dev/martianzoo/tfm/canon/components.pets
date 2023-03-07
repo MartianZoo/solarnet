@@ -6,116 +6,115 @@
 // This file has game stuff that isn't player-specific
 
 CLASS Game : System {
-    HAS MAX 1 This                                          // Created manually to kick everything off
-    This:: @forceLoad(Production, GrossHack)                // TODO pare down
-    This:: @createSingletons()                              // TODO actually process this
+  HAS MAX 1 This                                       // Created manually to kick everything off
+  This:: @forceLoad(Production, GrossHack)             // TODO pare down
+  This:: @createSingletons()                           // TODO actually process this
 
-    PlayTag<Class<BuildingTag>>:: Accept<Class<Steel>>
-    PlayTag<Class<SpaceTag>>:: Accept<Class<Titanium>>
+  PlayTag<Class<BuildingTag>>:: Accept<Class<Steel>>
+  PlayTag<Class<SpaceTag>>:: Accept<Class<Titanium>>
 
-    Pay<Class<Steel>>:: 2 Pay<Class<Megacredit>>
-    Pay<Class<Titanium>>:: 3 Pay<Class<Megacredit>>         // I *think* that will be innocuous for TradeAction
+  Pay<Class<Steel>>:: 2 Pay<Class<Megacredit>>
+  Pay<Class<Titanium>>:: 3 Pay<Class<Megacredit>>      // should be innocuous for TradeAction?
 }
 
-// GLOBAL PARAMETERS ---------------------------------------
+// GLOBAL PARAMETERS ----------------------------------
 
-ABSTRACT CLASS GlobalParameter {                            // Instances must be added 1-by-1 - how to ensure?
-                                                            // ... in theory, a trigger like `2 GP: Die`
-    DEFAULT +GlobalParameter.                               // by default, gains & removes are "if possible"
-    DEFAULT -GlobalParameter.
+ABSTRACT CLASS GlobalParameter {                       // Instances must be added 1-by-1 (TODO)
+  DEFAULT +GlobalParameter.                            // by default gains/removes are "if possible"
+  DEFAULT -GlobalParameter.
 
-    This: TerraformRating                                   // becomes `This BY Owner: TR<Owner>`
+  This: TerraformRating                                // becomes `This BY Owner: TR<Owner>`
 
-    CLASS TemperatureStep {                                 // In PETS, nested classes automatically have their
-        HAS MAX 19 This                                     // enclosing class as a superclass.
-        This: (=3 This: PROD[Heat]) OR Ok
-        This: (=5 This: PROD[Heat]) OR Ok                   // These are gated instructions, which are still mandatory
-        This: (=15 This: OceanTile) OR Ok                   // like usual, so without `OR Ok` we'd be at a dead end
-    }
+  CLASS TemperatureStep {                              // nesting is implicit subtyping
+    HAS MAX 19 This                                    // why? because it's so convenient
+    This: (=3 This: PROD[Heat]) OR Ok
+    This: (=5 This: PROD[Heat]) OR Ok                  // These are gated instructions, which are
+    This: (=15 This: OceanTile) OR Ok                  // still mandatory like usual, so without
+  }                                                    // `OR Ok` we'd be at a dead end!
 
-    CLASS OxygenStep[O2] {
-        HAS MAX 14 This
-        This: (=8 This: TemperatureStep) OR Ok
-    }
+  CLASS OxygenStep[O2] {
+    HAS MAX 14 This
+    This: (=8 This: TemperatureStep) OR Ok
+  }
 
-    CLASS VenusStep[VEN] {
-        HAS MAX 15 This
-        This: (=4 This: ProjectCard) OR Ok
-        This: (=8 This: TerraformRating) OR Ok
-    }
+  CLASS VenusStep[VEN] {
+    HAS MAX 15 This
+    This: (=4 This: ProjectCard) OR Ok
+    This: (=8 This: TerraformRating) OR Ok
+  }
 
-    CLASS OceanTile[OT] : Tile<MarsArea> {
-        HAS MAX 9 OceanTile
-        DEFAULT +OceanTile<WaterArea>
-        ForwardAdjacency<This, Tile>: 2                     // We could almost count all adjacencies, except that the
-    }                                                       // placement of this tile itself would trigger it
+  CLASS OceanTile[OT] : Tile<MarsArea> {
+    HAS MAX 9 OceanTile                                // `HAS MAX 9 This` wouldn't work!
+    DEFAULT +OceanTile<WaterArea>
+                                                       // We could almost count all adjacencies,
+    ForwardAdjacency<This, Tile>: 2                    // except that the placement of this tile
+  }                                                    // itself would trigger it
 }
 
 
-// MAPS AND TILES ------------------------------------------
+// MAPS AND TILES -------------------------------------
 
-ABSTRACT CLASS MarsMap {                                    // Tharsis etc. are loaded from `maps.json5`
-    HAS =1 This
-    This:: @createAll(Border)
+ABSTRACT CLASS MarsMap {                               // Tharsis etc. are loaded from `maps.json5`
+  HAS =1 This
+  This:: @createAll(Border)
 }
 
 ABSTRACT CLASS Area {
-    HAS =1 This
-    HAS MAX 1 Tile<This>                                    // circular reference is un-ideal, but...
+  HAS =1 This
+  HAS MAX 1 Tile<This>                                 // circular reference is un-ideal, but...
 
-    ABSTRACT CLASS MarsArea[MA] {                           // the individual areas are loaded from `maps.json5`
-        ABSTRACT CLASS LandArea[LA] {                       // could have a dep on MarsMap but not clear why
-            ABSTRACT CLASS VolcanicArea[VA]
-        }
-        ABSTRACT CLASS WaterArea[WA]
-        ABSTRACT CLASS NoctisArea[NA]
+  ABSTRACT CLASS MarsArea[MA] {                        // specific areas loaded from `maps.json5`
+    ABSTRACT CLASS LandArea[LA] {
+      ABSTRACT CLASS VolcanicArea[VA]
     }
+    ABSTRACT CLASS WaterArea[WA]
+    ABSTRACT CLASS NoctisArea[NA]
+  }
 
-    ABSTRACT CLASS RemoteArea[RA]
+  ABSTRACT CLASS RemoteArea[RA]
 }
 
 ABSTRACT CLASS Tile<Area>
-                                                            // For some reason <MA, A> triggers a bug,
-CLASS Border<MarsArea, MarsArea> : System {                 // Early on we create 3-6 of these for each MarsArea
-    HAS MAX 1 This                                          // listing that one first. So each border will actually
-                                                            // be here twice, once in each direction
-    Tile<MarsArea>: Neighbor<Tile<MarsArea>, Area>          // BIGTODO this won't work
+
+CLASS Border<MarsArea, MarsArea> : System {            // at game start, for each MarsArea we create
+  HAS MAX 1 This                                       // (with that one first) 3-6 of these. So
+                                                       // each border will actually be here twice,
+  Tile<MarsArea^1>: Neighbor<Tile, MarsArea^2>         // once in each direction
 }
 
-CLASS Neighbor<Tile<MarsArea>, Area> [NBR] {
-    HAS MAX 1 This
+CLASS Neighbor<Tile<MarsArea^1>, MarsArea^2> [NBR] {
+  HAS MAX 1 This
 
-    Tile<Area>:: ForwardAdjacency<Tile, Tile<Area>>, \
-                 BackwardAdjacency<Tile<Area>, Tile>
+  // no clue how this will really work TODO
+  Tile<MarsArea^2>:: ForwardAdjacency<Tile<MarsArea^1>, Tile<MarsArea^2>>
+  Tile<MarsArea^2>:: BackwardAdjacency<Tile<MarsArea^2>, Tile<MarsArea^1>>
 }
 
 ABSTRACT CLASS Adjacency<Tile, Tile> [ADJ] {
-    HAS MAX 1 This
-    CLASS ForwardAdjacency, BackwardAdjacency
+  HAS MAX 1 This
+  CLASS ForwardAdjacency, BackwardAdjacency
 }
 
-CLASS Row<MarsArea>                                         // after creating Hellas_5_x then create 5 Row<Hellas_5_x>
 
+// WORKFLOW-ISH ---------------------------------------
 
-// WORKFLOW-ISH --------------------------------------------
-
-ABSTRACT CLASS HasActions {                                 // the specific actions are loaded from `actions.json5`
-    ABSTRACT CLASS StandardAction { HAS =1 This }
-    ABSTRACT CLASS StandardProject { HAS =1 This }
+ABSTRACT CLASS HasActions {                            // specific actions come from `actions.json5`
+  ABSTRACT CLASS StandardAction { HAS =1 This }
+  ABSTRACT CLASS StandardProject { HAS =1 This }
 }
 
 CLASS Generation[GEN]
 
-ABSTRACT CLASS Generational {                               // things that disappear between gens
-    Generation:: -This                                      // <-- and look, there they go
+ABSTRACT CLASS Generational {                          // things that disappear between gens
+  Generation:: -This                                   // <-- and look, there they go
 }
 
 ABSTRACT CLASS Phase {
-    HAS MAX 1 Phase                                         // switch phase like `ProductionPhase FROM Phase`
+  HAS MAX 1 Phase                                      // switch like `ProductionPhase FROM Phase`
 
-    CLASS Start
-    CLASS ProductionPhase
-    CLASS End
+  CLASS Start
+  CLASS ProductionPhase
+  CLASS End
 }
 
 // Player-specific components are in `player.pets`
