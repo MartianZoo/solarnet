@@ -19,7 +19,7 @@ private class ClassDeclarationTest {
   fun testExample() {
     val declText =
         """
-          ABSTRACT CLASS Foo<Bar>(HAS MAX 3 Blorp) : Baz<Qux> {
+          ABSTRACT CLASS Foo<Bar> : Baz<Qux> {
             HAS =1 This
             DEFAULT +Foo<Abc>?
             DEFAULT Foo<Xyz>
@@ -35,8 +35,7 @@ private class ClassDeclarationTest {
     val foo = cn("Foo")
     val dep = cn("Bar").expr
     val sup = te("Baz<Qux>")
-    val topInv = Requirement.Max(scaledEx(3, cn("Blorp").expr))
-    val otherInv = Requirement.Exact(scaledEx(1, THIS.expr))
+    val inv = Requirement.Exact(scaledEx(1, THIS.expr))
     val eff = effect("This: DoStuff")
     val act = actionToEffect(action("Steel -> 5"), 1)
     val gain = cn("Abc").expr
@@ -47,8 +46,7 @@ private class ClassDeclarationTest {
     assertThat(decl.abstract).isTrue()
     assertThat(decl.dependencies).containsExactly(dep)
     assertThat(decl.supertypes).containsExactly(sup)
-    assertThat(decl.topInvariant).isEqualTo(topInv)
-    assertThat(decl.otherInvariants).containsExactly(otherInv)
+    assertThat(decl.invariants).containsExactly(inv)
     assertThat(decl.effects.map { it.effect }).containsExactly(eff, act)
     assertThat(decl.defaultsDeclaration.gainOnlySpecs).containsExactly(gain)
     assertThat(decl.defaultsDeclaration.universalSpecs).containsExactly(univ)
@@ -57,6 +55,6 @@ private class ClassDeclarationTest {
 
     assertThat(decl.supertypes.classNames()).containsExactly(cn("Baz"))
 
-    assertThat(decl.allNodes).containsExactly(foo, dep, sup, topInv, otherInv, eff, act, gain, univ)
+    assertThat(decl.allNodes).containsExactly(foo, dep, sup, inv, eff, act, gain, univ)
   }
 }

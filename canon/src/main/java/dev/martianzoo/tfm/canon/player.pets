@@ -134,7 +134,7 @@ ABSTRACT CLASS Owned<Anyone> {
 
     ABSTRACT CLASS PaymentMechanic : Temporary, System {
         ABSTRACT CLASS Barrier {                            // player must clean up themselves, by end of action
-            This: (MAX 0 This: Ok)                          // adds a task that can only be handled if 0 barriers left
+            This: (MAX 0 This: Ok)                          // adds a task that can only be handled if this is gone
         }
         CLASS Owed<Class<Resource>> : Barrier {             // created when payment due, removed by discount cards/
             DEFAULT +Owed<Class<Megacredit>>

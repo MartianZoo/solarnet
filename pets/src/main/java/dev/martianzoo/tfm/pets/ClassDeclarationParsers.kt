@@ -69,10 +69,9 @@ internal object ClassDeclarationParsers : BaseTokenizer() {
     val signature: Parser<Signature> =
         classFullName and
         dependencies and
-        optional(Expression.refinement()) and
         optional(skipChar('[') and parser { classShortName } and skipChar(']')) and
-        supertypeList map { (name, deps, ref, short, supes) ->
-          Signature(name, short, deps, ref, supes)
+        supertypeList map { (name, deps, short, supes) ->
+          Signature(name, short, deps, supes)
         }
 
     // This should only be included in the bodiless case
@@ -173,15 +172,15 @@ internal object ClassDeclarationParsers : BaseTokenizer() {
         className: ClassName,
         shortName: ClassName?,
         dependencies: List<Expression>,
-        topInvariant: Requirement?,
         supertypes: List<Expression>,
     ) : this(
         ClassDeclaration(
             className = className,
             shortName = shortName ?: className,
             dependencies = dependencies,
-            supertypes = supertypes.toSetStrict(),
-            topInvariant = topInvariant))
+            supertypes = supertypes.toSetStrict()
+        )
+    )
   }
 
   internal sealed class MoreSignaturesOrBody {
@@ -239,7 +238,7 @@ internal object ClassDeclarationParsers : BaseTokenizer() {
         val newDecl =
             signature.asDeclaration.copy(
                 abstract = abstract,
-                otherInvariants = body.invariants.toSetStrict(),
+                invariants = body.invariants.toSetStrict(),
                 effectsIn = (body.effects + actionListToEffects(body.actions)).toSetStrict(),
                 defaultsDeclaration = mergedDefaults,
             )

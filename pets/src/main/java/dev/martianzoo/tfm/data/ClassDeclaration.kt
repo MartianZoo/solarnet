@@ -8,7 +8,6 @@ import dev.martianzoo.tfm.pets.ast.Instruction.Intensity
 import dev.martianzoo.tfm.pets.ast.PetNode
 import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.pets.ast.classNames
-import dev.martianzoo.util.extras
 
 /**
  * The declaration of a component class, such as GreeneryTile. Models the declaration textually as
@@ -20,8 +19,7 @@ public data class ClassDeclaration(
     val abstract: Boolean = true,
     val dependencies: List<Expression> = listOf(),
     val supertypes: Set<Expression> = setOf(), // TODO do fancy Component stuff elsewhere?
-    val topInvariant: Requirement? = null,
-    val otherInvariants: Set<Requirement> = setOf(),
+    val invariants: Set<Requirement> = setOf(),
     private val effectsIn: Set<Effect> = setOf(),
     val defaultsDeclaration: DefaultsDeclaration = DefaultsDeclaration(),
     val extraNodes: Set<PetNode> = setOf(),
@@ -40,21 +38,6 @@ public data class ClassDeclaration(
 
   public val bareNamesInDependencies: Set<ClassName> by lazy {
     bareNamesInDependenciesList().sorted().toSet()
-  }
-
-  // The class names that participate in some linkage among dependencies
-  public val depToDepLinkages: Set<ClassName> by lazy {
-    // In this example the class names eligible for linkages are precisely the occurrences of Yes:
-    // CLASS Bar<Yes, Qux<Yes>>: Abc<Yes>, Def<Ghi<Yes>>, Xyz
-
-    // In that example, this list will be `Yes`, `Qux<Yes>`, `Yes`, `Ghi<Yes>`
-    // val exprsWhoseArgumentsAreEligible =
-    //     dependencies + supertypes.flatMap { it.arguments }
-
-    // TODO we don't want the No's in `Foo<No, No>` to be linked because they are parallel
-    // val extras = exprsWhoseArgumentsAreEligible
-    //     .flatMap { expr -> expr.arguments.filter { it.simple }.classNames().extras() }
-    bareNamesInDependenciesList().extras().toSet()
   }
 
   // EFFECTS
@@ -111,8 +94,7 @@ public data class ClassDeclaration(
         shortName +
         supertypes +
         dependencies +
-        setOfNotNull(topInvariant) +
-        otherInvariants +
+        invariants +
         effectsIn +
         defaultsDeclaration.allNodes +
         extraNodes

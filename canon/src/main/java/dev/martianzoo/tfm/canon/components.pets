@@ -56,12 +56,12 @@ ABSTRACT CLASS GlobalParameter {                            // Instances must be
 
 ABSTRACT CLASS MarsMap {                                    // Tharsis etc. are loaded from `maps.json5`
     HAS =1 This
-
     This:: @createAll(Border)
 }
 
-ABSTRACT CLASS Area(HAS MAX 1 Tile) {                       // TODO move invar to Tile somehow?
+ABSTRACT CLASS Area {
     HAS =1 This
+    HAS MAX 1 Tile<This>                                    // circular reference is un-ideal, but...
 
     ABSTRACT CLASS MarsArea[MA] {                           // the individual areas are loaded from `maps.json5`
         ABSTRACT CLASS LandArea[LA] {                       // could have a dep on MarsMap but not clear why

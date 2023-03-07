@@ -50,7 +50,7 @@ internal class DependencySet private constructor(val deps: Set<Dependency>) :
   override fun isSubtypeOf(that: DependencySet) =
       that.deps.all { thatDep: Dependency -> this.get(thatDep.key).isSubtypeOf(thatDep) }
 
-  override fun glb(that: DependencySet) = merge(that) { a, b -> (a glb b)!! }
+  override fun glb(that: DependencySet) = merge(that) { a, b -> (a glb b) ?: error("$a $b") }
 
   override fun lub(that: DependencySet): DependencySet {
     val keys = keys.intersect(that.keys)

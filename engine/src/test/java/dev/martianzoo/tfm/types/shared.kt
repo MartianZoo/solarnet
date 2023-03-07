@@ -1,7 +1,8 @@
 package dev.martianzoo.tfm.types
 
 import com.google.common.truth.Truth.assertThat
-import dev.martianzoo.tfm.api.SpecialClassNames
+import dev.martianzoo.tfm.api.SpecialClassNames.CLASS
+import dev.martianzoo.tfm.api.SpecialClassNames.COMPONENT
 import dev.martianzoo.tfm.pets.Parsing.parseElement
 import dev.martianzoo.tfm.pets.ast.PetNode
 import kotlin.reflect.KClass
@@ -23,10 +24,8 @@ internal fun assertFails(message: String = "(no message)", shouldFail: () -> Uni
     assertThrows<RuntimeException>(message, shouldFail)
 
 internal fun loadTypes(vararg decl: String) =
-    loader(
-        """
-        ABSTRACT CLASS ${SpecialClassNames.COMPONENT}
-        CLASS ${SpecialClassNames.CLASS}<${SpecialClassNames.COMPONENT}>
-        ${decl.joinToString("") { "$it\n" }}
-        """
-            .trimIndent())
+    loader("""
+      ABSTRACT CLASS $COMPONENT
+      CLASS $CLASS<$COMPONENT> { HAS =1 This }
+      ${decl.joinToString("") { "$it\n" }}
+    """.trimIndent())

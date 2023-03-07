@@ -1,44 +1,51 @@
 package dev.martianzoo.tfm.types
 
 import com.google.common.truth.Truth.assertThat
+import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.pets.ast.Expression.Companion.expression
 import org.junit.jupiter.api.Test
 
 private class PTypeTest {
-
   @Test
-  fun testCycle() {
-    val table: PClassLoader =
-        loadTypes(
-            "ABSTRACT CLASS Anyone",
-            "CLASS Player1 : Anyone",
-            "CLASS Player2 : Anyone",
-            "ABSTRACT CLASS Owned<Anyone>",
-            "ABSTRACT CLASS CardFront : Owned",
-            "ABSTRACT CLASS Cardbound<CardFront> : Owned",
-            "ABSTRACT CLASS ResourcefulCard<Class<CardResource>> : CardFront",
-            "ABSTRACT CLASS CardResource : " +
-                "Owned<Anyone>, Cardbound<Anyone, ResourcefulCard>", // TODO <Class<This>> ?
-            "CLASS Animal : CardResource<ResourcefulCard<Class<Animal>>>",
-            "CLASS Microbe : CardResource<ResourcefulCard<Class<Microbe>>>",
-            "CLASS Fish : ResourcefulCard<Class<Animal>>",
-            "CLASS Ants : ResourcefulCard<Class<Microbe>>",
-        )
+  fun testCardboundWeirdness() {
+    val table: PClassLoader = loadTypes("""
+      ABSTRACT CLASS Anyone {
+        ABSTRACT CLASS Owner { CLASS Player1, Player2 }
+      }
+
+      ABSTRACT CLASS Owned<Owner> { 
+        ABSTRACT CLASS CardFront
+        ABSTRACT CLASS Cardbound<CardFront>
+      }
+
+      // Treated as an extension of Cardbound<ResourceCard<Class<Cardbound>>>, plus a rule
+      ABSTRACT CLASS CardResource : Cardbound<ResourceCard<Class<CardResource>>> // TODO This
+
+      // Should auto-narrow dep on ResourceCard<Class<Cardbound>> to ResourceCard<Class<Animal>>
+      CLASS Animal : CardResource<ResourceCard<Class<Animal>>> // TODO just CR, that's it!
+      CLASS Microbe : CardResource<ResourceCard<Class<Microbe>>> // TODO just CR, that's it!
+
+      ABSTRACT CLASS ResourceCard<Class<CardResource>> : CardFront
+
+      CLASS Fish : ResourceCard<Class<Animal>>
+      CLASS Ants : ResourceCard<Class<Microbe>>
+    """.trimIndent())
+
+    val cb: PClass = table.getClass(cn("Cardbound"))
     assertThat(table.resolve(te("Animal<Fish>")).abstract).isTrue()
 
     val fish = table.resolve(te("Animal<Player1, Fish<Player1>>"))
     assertThat(fish.abstract).isFalse()
 
     assertThat(table.resolve(te("Fish")).expressionFull.toString())
-        .isEqualTo("Fish<Anyone, Class<Animal>>")
+        .isEqualTo("Fish<Owner, Class<Animal>>")
 
-    // TODO get these working
-    // assertFails { table.resolve("Animal<Ants>") }
-    // assertThat(table["Animal"].baseType.toString())
-    //    .isEqualTo("Animal<Anyone, ResourcefulCard<Anyone, Class<Animal>>>")
-    // assertFails {
-    //  table.resolve("Microbe<Player1, Ants<Player2>>")
-    // }
+    assertFails { table.resolve(te("Animal<Ants>")) }
+    assertThat(table.resolve(te("Animal")).expressionFull.toString())
+       .isEqualTo("Animal<Owner, ResourceCard<Owner, Class<Animal>>>")
+
+    // TODO this should FAIL
+    // table.resolve(te("Microbe<Player1, Ants<Player2>>"))
   }
 
   val table =

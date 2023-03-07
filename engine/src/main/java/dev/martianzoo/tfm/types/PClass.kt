@@ -5,11 +5,9 @@ import dev.martianzoo.tfm.api.SpecialClassNames.COMPONENT
 import dev.martianzoo.tfm.api.SpecialClassNames.THIS
 import dev.martianzoo.tfm.data.ClassDeclaration
 import dev.martianzoo.tfm.data.ClassDeclaration.EffectDeclaration
-import dev.martianzoo.tfm.pets.PetTransformer
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.pets.ast.HasClassName
-import dev.martianzoo.tfm.pets.ast.PetNode
 import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.pets.ast.Requirement.Companion.requirement
 import dev.martianzoo.tfm.pets.ast.classNames
@@ -182,7 +180,7 @@ internal constructor(
 
   // includes abstract
   internal fun hasSingletonTypes(): Boolean =
-      declaration.otherInvariants.any { it.requiresThis() } ||
+      declaration.invariants.any { it.requiresThis() } ||
           directSuperclasses.any { it.hasSingletonTypes() }
 
   /**
@@ -190,21 +188,7 @@ internal constructor(
    * `This` expressions, which are to be substituted with the concrete type.
    */
   public val invariants: Set<Requirement> by lazy {
-    val xer =
-        object : PetTransformer() {
-          override fun <P : PetNode> transform(node: P): P {
-            // for now, add <This> indiscriminately to this type but don't recurse *its* refinement
-            // TODO should we be doing this here?
-            return if (node is Expression) {
-              @Suppress("UNCHECKED_CAST")
-              node.addArgs(THIS) as P
-            } else {
-              transformChildren(node)
-            }
-          }
-        }
-    val topInvariants = listOfNotNull(declaration.topInvariant).map { xer.transform(it) }
-    declaration.otherInvariants + topInvariants
+    allSuperclasses.flatMap { it.declaration.invariants }.toSet()
   }
 
   override fun toString() = "$className@$loader"
