@@ -5,6 +5,7 @@ import dev.martianzoo.tfm.api.GameSetup
 import dev.martianzoo.tfm.api.SpecialClassNames.COMPONENT
 import dev.martianzoo.tfm.engine.Component
 import dev.martianzoo.tfm.engine.Engine
+import dev.martianzoo.tfm.pets.ast.Expression.Companion.expression
 import dev.martianzoo.tfm.pets.ast.Metric.Companion.metric
 import dev.martianzoo.tfm.pets.ast.classNames
 import dev.martianzoo.util.Multiset
@@ -61,7 +62,7 @@ private class CanonBootstrapTest {
   fun createsExpectedSingletons() {
     val game = Engine.newGame(GameSetup(Canon, "BRMPX", 3))
     val startingComponents: Multiset<Component> = game.getComponents(game.resolve(COMPONENT.expr))
-    assertThat(startingComponents.elements).hasSize(startingComponents.size)
+    assertThat(startingComponents).hasSize(startingComponents.elements.size + 12)
 
     val isArea: (Component) -> Boolean = { it.toString().startsWith("[Tharsis_") }
     val isBorder: (Component) -> Boolean = { it.toString().startsWith("[Border<") }
@@ -71,7 +72,10 @@ private class CanonBootstrapTest {
     assertThat(startingComponents.count(isBorder)).isEqualTo(312)
     assertThat(startingComponents.count(isClass)).isGreaterThan(400)
 
-    val theRest = startingComponents.filterNot { isArea(it) || isBorder(it) || isClass(it) }
+    val theRest = startingComponents.filterNot {
+      isArea(it) || isBorder(it) || isClass(it) ||
+          it.hasType(game.resolve(expression("Production<Class<Megacredit>>")))
+    }
     assertThat(theRest.toStrings())
         .containsExactly(
             "[Game]",

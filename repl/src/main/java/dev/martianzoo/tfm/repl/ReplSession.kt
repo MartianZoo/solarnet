@@ -99,7 +99,7 @@ public class ReplSession(private val authority: Authority) {
           "map" to
               {
                 if (it == null) {
-                  MapToText(session.game!!).map()
+                  MapToText(session.game!!.reader).map()
                 } else {
                   listOf("Arguments unexpected: $it")
                 }
@@ -107,7 +107,7 @@ public class ReplSession(private val authority: Authority) {
           "board" to
               {
                 val player = if (it == null) session.defaultPlayer!! else cn(it.trim())
-                BoardToText(session.game!!).board(player.expr)
+                BoardToText(session.game!!.reader).board(player.expr)
               },
           "changes" to
               { args ->
@@ -122,10 +122,7 @@ public class ReplSession(private val authority: Authority) {
           "exec" to
               {
                 it?.let { args ->
-                  val logSize = session.game!!.changeLogFull().size
-                  session.execute(instruction(args))
-                  val results = session.game!!.changeLogFull().drop(logSize)
-                  results.toStrings()
+                  session.execute(instruction(args)).toStrings()
                 } ?: listOf("Usage: exec <Instruction>")
               },
           "rollback" to

@@ -8,7 +8,7 @@
 CLASS Game : System {
   HAS MAX 1 This                                       // Created manually to kick everything off
   This:: @forceLoad(Production, GrossHack)             // TODO pare down
-  This:: @createSingletons()                           // TODO actually process this
+  // This:: @createSingletons()                        // TODO
 
   PlayTag<Class<BuildingTag>>:: Accept<Class<Steel>>
   PlayTag<Class<SpaceTag>>:: Accept<Class<Titanium>>
@@ -56,7 +56,7 @@ ABSTRACT CLASS GlobalParameter {                       // Instances must be adde
 
 ABSTRACT CLASS MarsMap {                               // Tharsis etc. are loaded from `maps.json5`
   HAS =1 This
-  This:: @createAll(Border)
+  This:: @createAll(This, Border)
 }
 
 ABSTRACT CLASS Area {

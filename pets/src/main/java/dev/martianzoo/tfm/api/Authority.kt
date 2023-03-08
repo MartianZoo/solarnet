@@ -11,6 +11,7 @@ import dev.martianzoo.tfm.data.StandardActionDefinition
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.pets.ast.Instruction.Custom
+import dev.martianzoo.tfm.pets.ast.classNames
 import dev.martianzoo.util.Grid
 import dev.martianzoo.util.associateByStrict
 
@@ -114,7 +115,8 @@ public abstract class Authority {
 
   /** Returns the map by the given name, e.g. `Tharsis`. */
   public fun marsMap(name: ClassName): MarsMapDefinition =
-      marsMapDefinitions.first { it.className == name }
+      marsMapDefinitions.firstOrNull { it.className == name }
+          ?: error("$name ${marsMapDefinitions.classNames()}")
 
   /** Every map this authority knows about. */
   public abstract val marsMapDefinitions: Set<MarsMapDefinition>

@@ -1,8 +1,12 @@
 package dev.martianzoo.tfm.engine
 
-import dev.martianzoo.tfm.api.Type
+import dev.martianzoo.tfm.api.SpecialClassNames.OWNED
+import dev.martianzoo.tfm.api.SpecialClassNames.OWNER
+import dev.martianzoo.tfm.api.SpecialClassNames.THIS
+import dev.martianzoo.tfm.pets.AstTransforms.replaceAll
 import dev.martianzoo.tfm.pets.ast.Effect
 import dev.martianzoo.tfm.pets.ast.HasExpression
+import dev.martianzoo.tfm.types.Dependency
 import dev.martianzoo.tfm.types.PClass
 import dev.martianzoo.tfm.types.PType
 
@@ -11,7 +15,7 @@ import dev.martianzoo.tfm.types.PType
  * case unrelated to what instances actually exist in a game state, use [PType] instead.
  */
 public data class Component
-private constructor(private val ptype: PType) : HasExpression by ptype {
+private constructor(val ptype: PType) : HasExpression by ptype {
 
   companion object {
     public fun ofType(ptype: PType): Component = Component(ptype)
@@ -21,14 +25,11 @@ private constructor(private val ptype: PType) : HasExpression by ptype {
     require(!ptype.abstract) { "Component can't be of an abstract type: ${ptype.expressionFull}" }
   }
 
-  /** The concrete type of this component. */
-  public val type: Type by ::ptype
-
   /**
    * Whether this type is categorically a subtype of [thatType] for any possible game state. (In the
    * absence of refinements, this is an ordinary subtype check.)
    */
-  public fun alwaysHasType(thatType: PType) = ptype.isSubtypeOf(thatType)
+  public fun hasType(thatType: PType) = ptype.isSubtypeOf(thatType)
 
   /**
    * The full list of dependency instances of this component; *this* component cannot exist in a
@@ -36,7 +37,7 @@ private constructor(private val ptype: PType) : HasExpression by ptype {
    * `Class<Tile>` has an empty dependency list, despite its appearance. The list order corresponds
    * to [PClass.dependencies].
    */
-  public val dependencies: List<Component> = ptype.dependencies.asSet.map { ofType(it.boundType) }
+  public val dependencyComponents = ptype.dependencies.asSet.map { ofType(it.boundType) }
 
   /**
    * This component's effects; while the component exists in a game state, the effects are active.
@@ -44,10 +45,13 @@ private constructor(private val ptype: PType) : HasExpression by ptype {
   public fun effects(): List<Effect> {
     return ptype.pclass.allSuperclasses.flatMap { superclass ->
       superclass.classEffects.map { decl ->
-        val linkages = decl.linkages
-        val effect = decl.effect
-        effect
-        // BIGTODO needs translating
+        // val linkages = decl.linkages
+        var effect = ptype.pclass.loader.transformer.deprodify(decl.effect) // ridiculoso
+
+        // Transform for some "linkages" (TODO the rest, and do in more principled way)
+        effect = effect.replaceAll(THIS.expr, expressionFull)
+        val owner = ptype.dependencies.getIfPresent(Dependency.Key(OWNED, 0)) ?: return@map effect
+        effect.replaceAll(OWNER, owner.className)
       }
     }
   }

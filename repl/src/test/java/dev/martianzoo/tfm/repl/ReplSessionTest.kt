@@ -43,10 +43,10 @@ private class ReplSessionTest {
     val repl = ReplSession(Canon)
     repl.command("newgame MB 2")
     repl.command("become Player1")
-    repl.command("exec PROD[14, 8 Steel, 7 Titanium, 6 Plant, 5 Energy, 4 Heat]")
+    repl.command("exec PROD[9, 8 Steel, 7 Titanium, 6 Plant, 5 Energy, 4 Heat]")
     repl.command("exec 8, 6 Steel, 7 Titanium, 5 Plant, 3 Energy, 9 Heat")
 
-    val board = BoardToText(repl.session.game!!).board(cn("Player1").expr, false)
+    val board = BoardToText(repl.session.game!!.reader).board(cn("Player1").expr, false)
     assertThat(board)
         .containsExactly(
             "+---------+---------+---------+",

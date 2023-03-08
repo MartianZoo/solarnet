@@ -38,13 +38,13 @@ private class AstTransformsTest {
     checkActionToEffect("Foo -> Bar, Qux", 3, "UseAction3<This>: -Foo! THEN (Bar, Qux)")
     checkActionToEffect("Foo -> Bar THEN Qux", 42, "UseAction42<This>: -Foo! THEN Bar THEN Qux")
     checkActionToEffect(
-        "Microbe<Anyone> -> Microbe<This>",
+        "Microbe<Anyone> -> Microbe<This>!",
         1,
-        "UseAction1<This>: Microbe<This> FROM Microbe<Anyone>",
+        "UseAction1<This>: Microbe<This> FROM Microbe<Anyone>!", // TODO simplify
     )
 
     // t's not its job to recognize nonsense
-    checkActionToEffect("Plant -> Plant", 2, "UseAction2<This>: Plant FROM Plant")
+    checkActionToEffect("Plant -> Plant", 2, "UseAction2<This>: Plant FROM Plant!")
   }
 
   @Test

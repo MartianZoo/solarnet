@@ -6,14 +6,18 @@ import dev.martianzoo.tfm.api.GameStateWriter
 import dev.martianzoo.tfm.api.ResourceUtils.lookUpProductionLevels
 import dev.martianzoo.tfm.api.Type
 import dev.martianzoo.tfm.pets.ast.ClassName
+import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.pets.ast.Instruction
 import dev.martianzoo.tfm.pets.ast.Instruction.Companion.instruction
+import dev.martianzoo.tfm.pets.ast.Instruction.Gain
+import dev.martianzoo.tfm.pets.ast.Instruction.Multi
 import dev.martianzoo.tfm.pets.ast.Instruction.Transform
+import dev.martianzoo.tfm.pets.ast.ScaledExpression.Companion.scaledEx
+import dev.martianzoo.util.filterWithoutNulls
 
 internal val allCustomInstructions =
     setOf(
         ForceLoad,
-        CreateSingletons,
         CreateAll,
         GainLowestProduction,
         CopyProductionBox,
@@ -26,15 +30,29 @@ private object ForceLoad : CustomInstruction("forceLoad") { // TODO include @ ?
   }
 }
 
-private object CreateSingletons : CustomInstruction("createSingletons") {
-  override fun execute(game: GameStateReader, writer: GameStateWriter, arguments: List<Type>) {
-    TODO()
-  }
-}
-
+// Used like `@createAll(This, Border)` instead of `@createBorders(This)` just because
+// that forces the Border class to be loaded!
 private object CreateAll : CustomInstruction("createAll") {
-  override fun execute(game: GameStateReader, writer: GameStateWriter, arguments: List<Type>) {
-    TODO()
+  override fun translate(game: GameStateReader, arguments: List<Type>): Instruction {
+    val (mapClass, toCreate) = arguments
+    val map = game.authority.marsMap(mapClass.className)
+    val border = cn("Border")
+    return when (toCreate.className) {
+      border -> {
+        Multi(map.areas
+            .let { it.rows() + it.columns() + it.diagonals() }
+            .flatMap { it.windowed(2).filterWithoutNulls() }
+            .map { pair -> pair.map { it.className.expr } }
+            .flatMap { (area1, area2) ->
+              listOf(
+                  border.addArgs(area1, area2),
+                  border.addArgs(area2, area1)
+              )
+            }
+            .map { Gain(scaledEx(it)) })
+      }
+      else -> TODO()
+    }
   }
 }
 

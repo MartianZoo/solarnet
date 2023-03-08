@@ -15,10 +15,10 @@ private class ResourceUtilsTest {
   @Test
   fun testLookUpProdLevelsUsingCanon() {
     val game = Engine.newGame(GameSetup(Canon, "BM", 3))
-    val prods: Map<ClassName, Int> = lookUpProductionLevels(game, cn("Player1").expr)
+    val prods: Map<ClassName, Int> = lookUpProductionLevels(game.reader, cn("Player1").expr)
     assertThat(prods.map { it.key to it.value })
         .containsExactly(
-            cn("Megacredit") to -5,
+            cn("Megacredit") to 0,
             cn("Steel") to 0,
             cn("Titanium") to 0,
             cn("Plant") to 0,
@@ -26,11 +26,11 @@ private class ResourceUtilsTest {
             cn("Heat") to 0,
         )
 
-    game.execute(instruction("2 Production<Player1, Class<Plant>>!"))
-    val prods2: Map<ClassName, Int> = lookUpProductionLevels(game, cn("Player1").expr)
+    game.execute(instruction("PROD[2 Plant<Player1>!]"))
+    val prods2: Map<ClassName, Int> = lookUpProductionLevels(game.reader, cn("Player1").expr)
     assertThat(prods2.map { it.key to it.value })
         .containsExactly(
-            cn("Megacredit") to -5,
+            cn("Megacredit") to 0,
             cn("Steel") to 0,
             cn("Titanium") to 0,
             cn("Plant") to 2,
@@ -42,7 +42,7 @@ private class ResourceUtilsTest {
   @Test
   fun stdResNamesInCanon() {
     val game = Engine.newGame(GameSetup(Canon, "BM", 3))
-    assertThat(standardResourceNames(game).toStrings())
+    assertThat(standardResourceNames(game.reader).toStrings())
         .containsExactly("Megacredit", "Steel", "Titanium", "Plant", "Energy", "Heat")
   }
 }

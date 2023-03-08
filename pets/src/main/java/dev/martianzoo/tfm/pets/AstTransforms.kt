@@ -10,10 +10,7 @@ import dev.martianzoo.tfm.pets.ast.Effect
 import dev.martianzoo.tfm.pets.ast.Effect.Trigger.OnGainOf
 import dev.martianzoo.tfm.pets.ast.Effect.Trigger.WhenGain
 import dev.martianzoo.tfm.pets.ast.Expression
-import dev.martianzoo.tfm.pets.ast.FromExpression.SimpleFrom
 import dev.martianzoo.tfm.pets.ast.Instruction
-import dev.martianzoo.tfm.pets.ast.Instruction.Gain
-import dev.martianzoo.tfm.pets.ast.Instruction.Remove
 import dev.martianzoo.tfm.pets.ast.Instruction.Then
 import dev.martianzoo.tfm.pets.ast.Instruction.Transmute
 import dev.martianzoo.tfm.pets.ast.PetNode
@@ -23,18 +20,19 @@ import dev.martianzoo.tfm.pets.ast.PetNode.GenericTransform
 public object AstTransforms {
   internal fun actionToEffect(action: Action, index1Ref: Int): Effect {
     require(index1Ref >= 1) { index1Ref }
-    val instruction = instructionFromAction(action.cost?.toInstruction(), action.instruction)
+    val instruction = actionToInstruction(action)
     val trigger = OnGainOf.create(cn("$USE_ACTION$index1Ref").addArgs(THIS))
     return Effect(trigger, instruction, automatic = false)
   }
 
-  private fun instructionFromAction(lhs: Instruction?, rhs: Instruction): Instruction {
+  private fun actionToInstruction(action: Action): Instruction {
+    val lhs = action.cost?.toInstruction()
+    val rhs = action.instruction
+
     if (lhs == null) return rhs
 
-    // Handle the Ants case (TODO intensity?)
-    if (lhs is Remove && rhs is Gain && lhs.scaledEx.scalar == rhs.scaledEx.scalar) {
-      return Transmute(SimpleFrom(rhs.scaledEx.expression, lhs.scaledEx.expression))
-    }
+    // Handle the Ants case
+    Transmute.tryMerge(lhs, rhs)?.let { return it }
 
     // Nested THENs are just silly
     val allInstructions =

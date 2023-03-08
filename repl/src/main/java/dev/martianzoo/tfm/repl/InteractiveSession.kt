@@ -59,9 +59,9 @@ class InteractiveSession {
 
     val result = HashMultiset<Expression>()
     subs.forEach { sub ->
-      val matches = allComponents.filter { it.alwaysHasType(sub.baseType) }
+      val matches = allComponents.filter { it.hasType(sub.baseType) }
       if (matches.any()) {
-        val types = matches.elements.map { it.type as PType }
+        val types = matches.elements.map { it.ptype }
         result.add(lub(types)!!.expression, matches.size)
       }
     }
@@ -70,7 +70,8 @@ class InteractiveSession {
 
   fun has(requirement: Requirement) = game!!.evaluate(fixTypes(requirement))
 
-  fun execute(instruction: Instruction): Unit = game!!.execute(fixTypes(instruction))
+  fun execute(instruction: Instruction, withEffects: Boolean = false) =
+      game!!.execute(fixTypes(instruction), withEffects)
 
   fun rollBackToBefore(ordinal: Int) = game!!.rollBack(ordinal)
 

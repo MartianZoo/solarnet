@@ -94,8 +94,6 @@ ABSTRACT CLASS Owned<Anyone> {
   }                                               // true until "Double Down" in Dec 2022
 
   ABSTRACT CLASS CardFront {                      // specific CardFronts are loaded from `cards.json5`
-    This:: @createAll(Cost, This)
-
     ABSTRACT CLASS EventCard {
       This: PlayedEvent FROM This                 // problem: how to still get the VPs??
     }                                             // could we get this happen automatically at EOT?
@@ -119,8 +117,6 @@ ABSTRACT CLASS Owned<Anyone> {
         CLASS EarthTag[EAT], JovianTag[JOT], VenusTag[VET]
       }
     }
-
-    CLASS Cost
   }
 
 

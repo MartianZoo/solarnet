@@ -10,31 +10,44 @@ import dev.martianzoo.util.MutableMultiset
 public class ComponentGraph {
   private val multiset: MutableMultiset<Component> = HashMultiset()
 
+  class MissingDependenciesException(message: String) : RuntimeException(message)
+
   public fun applyChange(
       count: Int = 1,
       gaining: Component? = null,
       removing: Component? = null,
       amap: Boolean = false,
-  ): StateChange {
+  ): StateChange? {
+    require(count >= 1)
+
+    // TODO rethink how this whole method works
+
     // verify dependencies
     gaining?.let { g ->
-      require(multiset.containsAll(g.dependencies)) {
-        "New component $g is missing dependencies: " + (g.dependencies - multiset.elements)
+      if (!multiset.containsAll(g.dependencyComponents)) {
+        throw MissingDependenciesException(
+            "Can't create $g due to missing dependencies: " +
+                (g.dependencyComponents - multiset.elements))
       }
     }
     removing?.let { r ->
       multiset.elements.forEach {
-        require(r !in it.dependencies) { "Can't remove dependency $r of existing component $it" }
+        require(r !in it.dependencyComponents) {
+          "Can't remove dependency $r of existing component $it"
+        }
       }
     }
 
     val correctedCount = updateMultiset(count, gaining, removing, amap)
-
-    return StateChange(
-        count = correctedCount,
-        gaining = gaining?.type?.expression,
-        removing = removing?.type?.expression,
-    )
+    return if (correctedCount == 0) {
+      null
+    } else {
+      StateChange(
+          count = correctedCount,
+          gaining = gaining?.ptype?.expression,
+          removing = removing?.ptype?.expression,
+      )
+    }
   }
 
   internal fun updateMultiset(
@@ -64,8 +77,10 @@ public class ComponentGraph {
   // able to review usage patterns so I'll actually know what helps most.
   public fun getAll(ptype: PType): Multiset<Component> = multiset.filter { hasType(it, ptype) }
 
+  public operator fun contains(component: Component) = component in multiset.elements
+
   fun hasType(cpt: Component, type: PType): Boolean {
-    return cpt.alwaysHasType(type)
+    return cpt.hasType(type)
     // BIGTODO check refinements too
   }
 }

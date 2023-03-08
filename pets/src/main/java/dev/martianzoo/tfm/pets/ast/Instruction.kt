@@ -81,6 +81,27 @@ public sealed class Instruction : PetNode() {
         super.safeToNestIn(container) && (from !is SimpleFrom || container !is Or)
 
     override fun precedence() = if (from is SimpleFrom) 7 else 10
+
+    companion object {
+      fun tryMerge(left: Instruction, right: Instruction): Transmute? {
+        val gain: Gain = if (left is Gain) left else right as? Gain ?: return null
+        val remove: Remove =
+            if (left == gain) {
+              (right as? Remove)
+            } else {
+              (left as? Remove)
+            } ?: return null
+
+        val scalar = gain.scaledEx.scalar
+
+        if (remove.scaledEx.scalar != scalar) return null
+        val intensity =
+            setOfNotNull(gain.intensity, remove.intensity).singleOrNull() ?: return null
+        val scal: Int? = if (scalar == 1) null else scalar
+        return Transmute(
+            SimpleFrom(gain.scaledEx.expression, remove.scaledEx.expression), scal, intensity)
+      }
+    }
   }
 
   data class Per(val instruction: Instruction, val metric: Metric) : Instruction() {
@@ -89,7 +110,6 @@ public sealed class Instruction : PetNode() {
         is Gain,
         is Remove,
         is Transmute -> {}
-
         else -> throw PetException("Per can only contain gain/remove/transmute") // TODO more
       }
     }
@@ -217,16 +237,20 @@ public sealed class Instruction : PetNode() {
 
         val transmute: Parser<Transmute> =
             optional(scalar) and
-            FromExpression.parser() and
-            optional(intensity) map { (scalar, fro, int) -> Transmute(fro, scalar, int) }
+                FromExpression.parser() and
+                optional(intensity) map
+                { (scalar, fro, int) ->
+                  Transmute(fro, scalar, int)
+                }
 
         val perable: Parser<Change> = transmute or group(transmute) or gain or remove
 
         val maybePer: Parser<Instruction> =
             perable and
-            optional(skipChar('/') and Metric.parser()) map { (instr, metric) ->
-              if (metric == null) instr else Per(instr, metric)
-            }
+                optional(skipChar('/') and Metric.parser()) map
+                { (instr, metric) ->
+                  if (metric == null) instr else Per(instr, metric)
+                }
 
         val transform: Parser<Transform> =
             transform(parser()) map { (node, tname) -> Transform(node, tname) }
@@ -235,23 +259,26 @@ public sealed class Instruction : PetNode() {
         val arguments = separatedTerms(Expression.parser(), char(','), acceptZero = true)
         val custom: Parser<Custom> =
             skipChar('@') and
-            _lowerCamelRE and
-            group(arguments) map { (name, args) ->
-              Custom(name.text, args)
-            }
+                _lowerCamelRE and
+                group(arguments) map
+                { (name, args) ->
+                  Custom(name.text, args)
+                }
         val atom: Parser<Instruction> = group(parser()) or maybeTransform or custom
 
         val gated: Parser<Instruction> =
             optional(Requirement.atomParser() and skipChar(':')) and
-            atom map { (one, two) ->
-              if (one == null) two else Gated(one, two)
-            }
+                atom map
+                { (one, two) ->
+                  if (one == null) two else Gated(one, two)
+                }
 
         val orInstr: Parser<Instruction> =
-            separatedTerms(gated, _or) map {
-              val set = it.toSetStrict().toList()
-              if (set.size == 1) set.first() else Or(set)
-            }
+            separatedTerms(gated, _or) map
+                {
+                  val set = it.toSetStrict().toList()
+                  if (set.size == 1) set.first() else Or(set)
+                }
 
         val then = separatedTerms(orInstr, _then) map { if (it.size == 1) it.first() else Then(it) }
         commaSeparated(then) map { if (it.size == 1) it.first() else Multi(it) }
