@@ -2,7 +2,10 @@ package dev.martianzoo.tfm.repl
 
 import dev.martianzoo.tfm.api.GameSetup
 import dev.martianzoo.tfm.api.SpecialClassNames.ANYONE
+import dev.martianzoo.tfm.api.SpecialClassNames.GAME
 import dev.martianzoo.tfm.api.SpecialClassNames.OWNER
+import dev.martianzoo.tfm.data.ChangeRecord
+import dev.martianzoo.tfm.data.ChangeRecord.Cause
 import dev.martianzoo.tfm.engine.Component
 import dev.martianzoo.tfm.engine.Engine
 import dev.martianzoo.tfm.engine.Game
@@ -70,8 +73,13 @@ class InteractiveSession {
 
   fun has(requirement: Requirement) = game!!.evaluate(fixTypes(requirement))
 
-  fun execute(instruction: Instruction, withEffects: Boolean = false) =
-      game!!.execute(fixTypes(instruction), withEffects)
+  fun execute(instruction: Instruction, withEffects: Boolean = false): List<ChangeRecord> {
+    val context = defaultPlayer ?: GAME
+    return game!!.execute(
+        fixTypes(instruction),
+        withEffects = withEffects,
+        initialCause = Cause(null, context.expr, context))
+  }
 
   fun rollBackToBefore(ordinal: Int) = game!!.rollBack(ordinal)
 

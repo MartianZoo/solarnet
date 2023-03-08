@@ -15,4 +15,13 @@ public interface Multiset<E> : Collection<E> {
     elements.forEach { result.add(function(it), count(it)) }
     return result
   }
+
+  public fun <T : Any> flatMap(function: (E) -> Iterable<T>): Multiset<T> {
+    val result = HashMultiset<T>()
+    elements.forEach { e ->
+      val ct = count(e)
+      function(e).forEach { result.add(it, ct) }
+    }
+    return result
+  }
 }

@@ -16,6 +16,9 @@ import dev.martianzoo.util.toSetStrict
 
 public sealed class Instruction : PetNode() {
 
+  // better pass at least 1
+  abstract operator fun times(factor: Int): Instruction
+
   public sealed class Change : Instruction() {
     abstract val count: Int
     abstract val gaining: Expression?
@@ -32,6 +35,8 @@ public sealed class Instruction : PetNode() {
     override val removing = null
 
     override fun visitChildren(visitor: Visitor) = visitor.visit(scaledEx)
+    override fun times(factor: Int) = copy(scaledEx = scaledEx.copy(scalar = count * factor))
+
     override fun toString() = "$scaledEx${intensity?.symbol ?: ""}"
 
     init {
@@ -48,6 +53,8 @@ public sealed class Instruction : PetNode() {
     override val removing = scaledEx.expression
 
     override fun visitChildren(visitor: Visitor) = visitor.visit(scaledEx)
+    override fun times(factor: Int) = copy(scaledEx = scaledEx.copy(scalar = count * factor))
+
     override fun toString() = "-$scaledEx${intensity?.symbol ?: ""}"
 
     init {
@@ -67,6 +74,9 @@ public sealed class Instruction : PetNode() {
     override val removing = from.fromExpression
 
     override fun visitChildren(visitor: Visitor) = visitor.visit(from)
+    override fun times(factor: Int) =
+        if (factor == 1) this else copy(scalar = (scalar ?: 1) * factor)
+
     override fun toString(): String {
       return "${scalar.suf(' ')}$from${intensity?.symbol ?: ""}"
     }
@@ -115,6 +125,7 @@ public sealed class Instruction : PetNode() {
     }
 
     override fun visitChildren(visitor: Visitor) = visitor.visit(metric, instruction)
+    override fun times(factor: Int) = copy(instruction = instruction * factor)
 
     override fun precedence() = 8
 
@@ -129,6 +140,7 @@ public sealed class Instruction : PetNode() {
     }
 
     override fun visitChildren(visitor: Visitor) = visitor.visit(gate, instruction)
+    override fun times(factor: Int) = copy(instruction = instruction * factor)
 
     override fun toString(): String {
       return "${groupPartIfNeeded(gate)}: ${groupPartIfNeeded(instruction)}"
@@ -148,6 +160,7 @@ public sealed class Instruction : PetNode() {
     ) : this(functionName, arguments.toList())
 
     override fun visitChildren(visitor: Visitor) = visitor.visit(arguments)
+    override fun times(factor: Int) = Multi.create(List(factor) { this })!!
 
     override fun toString() = "@$functionName(${arguments.joinToString()})"
   }
@@ -166,6 +179,8 @@ public sealed class Instruction : PetNode() {
     }
 
     override fun precedence() = 2
+    override fun times(factor: Int) = copy(instructions.map { it * factor })
+
     override fun toString() = toString(" THEN ")
   }
 
@@ -183,6 +198,8 @@ public sealed class Instruction : PetNode() {
         super.safeToNestIn(container) && container !is Then
 
     override fun precedence() = 4
+    override fun times(factor: Int) = copy(instructions.map { it * factor })
+
     override fun toString() = toString(" OR ")
   }
 
@@ -194,6 +211,8 @@ public sealed class Instruction : PetNode() {
     }
 
     override fun precedence() = 0
+
+    override fun times(factor: Int) = copy(instructions.map { it * factor })
     override fun toString() = toString(", ")
 
     companion object {
@@ -210,6 +229,8 @@ public sealed class Instruction : PetNode() {
   data class Transform(val instruction: Instruction, override val transformKind: String) :
       Instruction(), GenericTransform<Instruction> {
     override fun visitChildren(visitor: Visitor) = visitor.visit(instruction)
+    override fun times(factor: Int) = copy(instruction = instruction * factor)
+
     override fun toString() = "$transformKind[$instruction]"
 
     override fun extract() = instruction
@@ -230,8 +251,6 @@ public sealed class Instruction : PetNode() {
       fun from(symbol: String) = values().first { it.symbol == symbol }
     }
   }
-
-  class AbstractInstructionException(message: String) : RuntimeException(message)
 
   companion object : BaseTokenizer() {
     fun instruction(text: String): Instruction = Parsing.parse(parser(), text)

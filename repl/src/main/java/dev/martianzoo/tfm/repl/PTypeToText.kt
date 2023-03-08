@@ -49,7 +49,7 @@ object PTypeToText { // TODO refactor to ClassInfo / TypeInfo type dealies
           c. types:    $concTypes
           class fx:    ${
       pclass.classEffects.joinToString("""
-                       """)
+                       """) { "${it.effect}" }
     }
 
 
@@ -63,25 +63,27 @@ object PTypeToText { // TODO refactor to ClassInfo / TypeInfo type dealies
 
     val typeStuff = """
       Expression $expression:
-          std. form:   $ptype
+          std. form:   ${ptype.expression}
           long form:   ${ptype.expressionFull}
-          supertypes:  ${ptype.supertypes().joinToString()}
+          supertypes:  ${ptype.supertypes().joinToString { "${it.className}" }}
           defaults:    $allCases / +$gain / $remove
           c. subtypes: $concSubs
     """.trimIndent()
 
-    return classStuff + typeStuff + try {
+    val componentStuff = if (ptype.abstract) {
+      ""
+    } else {
+      val c = Component.ofType(ptype)
       """
 
 
-        Component [$ptype]:
+        Component $c:
             effects:     ${
-        Component.ofType(ptype).effects().joinToString("""
+        c.effects().joinToString("""
                          """)
       }
       """.trimIndent()
-    } catch (e: Exception) {
-      ""
     }
+    return classStuff + typeStuff + componentStuff
   }
 }

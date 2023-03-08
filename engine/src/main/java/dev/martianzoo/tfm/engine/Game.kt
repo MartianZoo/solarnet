@@ -4,11 +4,12 @@ import dev.martianzoo.tfm.api.CustomInstruction.ExecuteInsteadException
 import dev.martianzoo.tfm.api.GameSetup
 import dev.martianzoo.tfm.api.GameStateReader
 import dev.martianzoo.tfm.api.GameStateWriter
+import dev.martianzoo.tfm.api.SpecialClassNames.GAME
 import dev.martianzoo.tfm.api.Type
 import dev.martianzoo.tfm.data.ChangeRecord
 import dev.martianzoo.tfm.data.ChangeRecord.Cause
 import dev.martianzoo.tfm.engine.ComponentGraph.MissingDependenciesException
-import dev.martianzoo.tfm.pets.ast.Effect.Trigger.WhenGain
+import dev.martianzoo.tfm.engine.LiveNodes.from
 import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.pets.ast.Instruction
 import dev.martianzoo.tfm.pets.ast.Instruction.Change
@@ -22,10 +23,13 @@ import dev.martianzoo.tfm.pets.ast.Instruction.Or
 import dev.martianzoo.tfm.pets.ast.Instruction.Per
 import dev.martianzoo.tfm.pets.ast.Instruction.Transform
 import dev.martianzoo.tfm.pets.ast.Metric
+import dev.martianzoo.tfm.pets.ast.Metric.Count
+import dev.martianzoo.tfm.pets.ast.Metric.Max
 import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.types.PClassLoader
 import dev.martianzoo.tfm.types.PType
 import dev.martianzoo.util.Multiset
+import kotlin.math.min
 
 /** A game in progress. */
 public class Game(val setup: GameSetup, public val loader: PClassLoader) {
@@ -53,7 +57,12 @@ public class Game(val setup: GameSetup, public val loader: PClassLoader) {
 
   fun count(type: Type): Int = components.count(resolve(type))
 
-  fun count(metric: Metric): Int = LiveNodes.from(metric, this).count(this)
+  fun count(metric: Metric): Int {
+    return when (metric) {
+      is Count -> count(resolve(metric.scaledEx.expression)) / metric.scaledEx.scalar
+      is Max -> min(count(metric.metric), metric.maximum)
+    }
+  }
 
   fun getComponents(type: Type): Multiset<Type> = components.getAll(resolve(type)).map { it.ptype }
 
@@ -69,11 +78,18 @@ public class Game(val setup: GameSetup, public val loader: PClassLoader) {
   fun executeAll(
       instruction: List<Instruction>,
       withEffects: Boolean = false,
-      cause: Cause? = null,
+      initialCause: Cause? = null,
       hidden: Boolean = false,
-  ): List<ChangeRecord> = ExecutionContext(withEffects, hidden).executeAll(instruction, cause)
+  ): List<ChangeRecord> =
+      ExecutionContext(withEffects, hidden).executeAll(instruction, initialCause)
 
-  data class Task(val ins: Instruction, val cause: Cause?, val attempts: Int = 0)
+  data class Task(
+      val instruction: Instruction,
+      val cause: Cause?,
+      val attempts: Int = 0,
+  )
+
+  val pendingAbstractTasks = mutableListOf<Task>()
 
   inner class ExecutionContext(val withEffects: Boolean = true, val hidden: Boolean = false) {
     val taskQueue = ArrayDeque<Task>()
@@ -88,17 +104,19 @@ public class Game(val setup: GameSetup, public val loader: PClassLoader) {
       while (taskQueue.any()) {
         val next = taskQueue.removeFirst()
         try {
-          doExecute(next.ins, next.cause, 1)
+          doExecute(next.instruction, next.cause, 1)
         } catch (e: MissingDependenciesException) {
           val tries = next.attempts
           if (tries > 3) throw e
           taskQueue += next.copy(attempts = tries + 1)
+        } catch (e: AbstractInstructionException) {
+          pendingAbstractTasks += next
         }
       }
       return fullChangeLog.subList(start, nextOrdinal).toList()
     }
 
-    fun applyChangeAndTriggerEffects(
+    fun applyChange(
         count: Int = 1,
         gaining: Component? = null,
         removing: Component? = null,
@@ -106,19 +124,28 @@ public class Game(val setup: GameSetup, public val loader: PClassLoader) {
         cause: Cause? = null,
     ) {
       val change = components.applyChange(count, gaining, removing, amap) ?: return
-      val record = ChangeRecord(nextOrdinal, change, cause, hidden)
-      fullChangeLog.add(record)
+      val triggeringRecord = ChangeRecord(nextOrdinal, change, cause, hidden)
+      fullChangeLog.add(triggeringRecord)
 
       if (withEffects) {
-        val gained: Expression = change.gaining ?: return
-        val newCause = Cause(gained, record.ordinal)
+        val gained: Expression = triggeringRecord.change.gaining ?: return
+        val gainedCpt: Component = toComponent(gained)
+        val newCause =
+            Cause(
+                triggeringChange = triggeringRecord.ordinal,
+                contextComponent = gained,
+                doer = gainedCpt.owner() ?: triggeringRecord.cause?.doer ?: GAME)
 
-        taskQueue +=
-            toComponent(gained)!!
-                .effects()
-                .filter { it.trigger == WhenGain } // TODO others
-                .flatMap { split(it.instruction) }
-                .map { Task(it, newCause) }
+        val selfEffects =
+            gainedCpt.activeEffects.mapNotNull { it.onSelfChange(triggeringRecord, this@Game) }
+
+        val activeFx = components.allActiveEffects()
+        val otherEffects =
+            activeFx.elements.mapNotNull {
+              it.getInstruction(triggeringRecord, this@Game)?.times(activeFx.count(it))
+            }
+
+        taskQueue += (selfEffects + otherEffects).flatMap { split(it) }.map { Task(it, newCause) }
       }
     }
 
@@ -133,23 +160,20 @@ public class Game(val setup: GameSetup, public val loader: PClassLoader) {
           val amap: Boolean =
               when (ins.intensity) {
                 OPTIONAL,
-                null, -> throw UserException("abstract instruction: $ins")
+                null -> throw AbstractInstructionException("$ins")
                 MANDATORY -> false
                 AMAP -> true
               }
-          applyChangeAndTriggerEffects(
+          applyChange(
               count = ins.count * multiplier,
               gaining = toComponent(ins.gaining),
               removing = toComponent(ins.removing),
               amap = amap,
               cause = cause)
         }
-        is Per -> {
-          val metric = LiveNodes.from(ins.metric, game)
-          doExecute(ins.instruction, cause, metric.count(game) * multiplier)
-        }
+        is Per -> doExecute(ins.instruction, cause, game.count(ins.metric) * multiplier)
         is Gated -> {
-          if (LiveNodes.from(ins.gate, game).evaluate(game)) {
+          if (from(ins.gate, game).evaluate(game)) {
             doExecute(ins.instruction, cause, multiplier)
           } else {
             throw UserException("Requirement not met: ${ins.gate}")
@@ -172,7 +196,7 @@ public class Game(val setup: GameSetup, public val loader: PClassLoader) {
             custom.execute(game.reader, writer, arguments)
           }
         }
-        is Or -> throw UserException("abstract instruction: $ins")
+        is Or -> throw AbstractInstructionException("$ins")
         is CompositeInstruction -> {
           ins.instructions.forEach { doExecute(it, cause, multiplier) }
         }
@@ -189,8 +213,7 @@ public class Game(val setup: GameSetup, public val loader: PClassLoader) {
               amap: Boolean,
               cause: Cause?,
           ) {
-            applyChangeAndTriggerEffects(
-                count, toComponent(gaining), toComponent(removing), amap, cause)
+            applyChange(count, toComponent(gaining), toComponent(removing), amap, cause)
           }
         }
   }
@@ -218,8 +241,16 @@ public class Game(val setup: GameSetup, public val loader: PClassLoader) {
         override fun getComponents(type: Type) = this@Game.getComponents(type)
       }
 
+  internal fun toComponent(type: Type) = Component.ofType(resolve(type))
+
+  internal fun toComponent(expression: Expression) = Component.ofType(resolve(expression))
+
+  @JvmName("toComponentNullable")
   internal fun toComponent(type: Type?) = type?.let { Component.ofType(resolve(it)) }
-  internal fun toComponent(expression: Expression?) = expression?.let { toComponent(resolve(it)) }
+
+  @JvmName("toComponentNullable")
+  internal fun toComponent(expression: Expression?) =
+      expression?.let { Component.ofType(resolve(it)) }
 
   public fun rollBack(ordinal: Int) { // TODO kick this out, rolling back starts a new game?
     require(ordinal <= nextOrdinal)
@@ -237,4 +268,6 @@ public class Game(val setup: GameSetup, public val loader: PClassLoader) {
     }
     subList.clear()
   }
+
+  internal class AbstractInstructionException(s: String) : UserException(s)
 }

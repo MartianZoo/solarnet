@@ -119,11 +119,26 @@ public class ReplSession(private val authority: Authority) {
                 args?.let { listOf("Arguments unexpected: $it") }
                     ?: session.game!!.changeLogFull().toStrings()
               },
-          "exec" to
+          "exec1" to
               {
                 it?.let { args ->
-                  session.execute(instruction(args)).toStrings()
-                } ?: listOf("Usage: exec <Instruction>")
+                  session.execute(instruction(args), withEffects = false).toStrings()
+                } ?: listOf("Usage: exec1 <Instruction>")
+              },
+          "exec2" to
+              {
+                it?.let { args ->
+                  val changes = session.execute(instruction(args), withEffects = true)
+                  val oops = session.game!!.pendingAbstractTasks.mapIndexed { i, it ->
+                    "$i: ${it.instruction} ${it.cause}"
+                  }
+                  changes.toStrings() + if (oops.any()) {
+                    listOf("", "There were abstract tasks left over:") + oops
+                  } else {
+                    listOf()
+                  }
+
+                } ?: listOf("Usage: exec2 <Instruction>")
               },
           "rollback" to
               {

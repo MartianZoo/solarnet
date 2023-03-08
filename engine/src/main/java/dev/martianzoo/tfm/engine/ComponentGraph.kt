@@ -1,6 +1,7 @@
 package dev.martianzoo.tfm.engine
 
 import dev.martianzoo.tfm.data.ChangeRecord.StateChange
+import dev.martianzoo.tfm.engine.Component.ActiveEffect
 import dev.martianzoo.tfm.types.PType
 import dev.martianzoo.util.HashMultiset
 import dev.martianzoo.util.Multiset
@@ -83,4 +84,6 @@ public class ComponentGraph {
     return cpt.hasType(type)
     // BIGTODO check refinements too
   }
+
+  internal fun allActiveEffects(): Multiset<ActiveEffect> = multiset.flatMap { it.activeEffects }
 }

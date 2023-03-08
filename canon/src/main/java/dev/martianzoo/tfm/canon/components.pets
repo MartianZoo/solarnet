@@ -7,7 +7,8 @@
 
 CLASS Game : System {
   HAS MAX 1 This                                       // Created manually to kick everything off
-  This:: @forceLoad(Production, GrossHack)             // TODO pare down
+  This:: @forceLoad(Class<Production>)
+  This:: @forceLoad(Class<GrossHack>)
   // This:: @createSingletons()                        // TODO
 
   PlayTag<Class<BuildingTag>>:: Accept<Class<Steel>>

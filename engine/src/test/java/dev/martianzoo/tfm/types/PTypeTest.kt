@@ -1,7 +1,6 @@
 package dev.martianzoo.tfm.types
 
 import com.google.common.truth.Truth.assertThat
-import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.pets.ast.Expression.Companion.expression
 import org.junit.jupiter.api.Test
 
@@ -31,7 +30,6 @@ private class PTypeTest {
       CLASS Ants : ResourceCard<Class<Microbe>>
     """.trimIndent())
 
-    val cb: PClass = table.getClass(cn("Cardbound"))
     assertThat(table.resolve(te("Animal<Fish>")).abstract).isTrue()
 
     val fish = table.resolve(te("Animal<Player1, Fish<Player1>>"))

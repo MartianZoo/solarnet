@@ -3,10 +3,16 @@ package dev.martianzoo.tfm.engine
 import dev.martianzoo.tfm.api.SpecialClassNames.OWNED
 import dev.martianzoo.tfm.api.SpecialClassNames.OWNER
 import dev.martianzoo.tfm.api.SpecialClassNames.THIS
+import dev.martianzoo.tfm.data.ChangeRecord
+import dev.martianzoo.tfm.engine.Game.AbstractInstructionException
 import dev.martianzoo.tfm.pets.AstTransforms.replaceAll
+import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.Effect
+import dev.martianzoo.tfm.pets.ast.Effect.Trigger
+import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.pets.ast.HasExpression
-import dev.martianzoo.tfm.types.Dependency
+import dev.martianzoo.tfm.pets.ast.Instruction
+import dev.martianzoo.tfm.types.Dependency.Key
 import dev.martianzoo.tfm.types.PClass
 import dev.martianzoo.tfm.types.PType
 
@@ -21,7 +27,9 @@ public data class Component private constructor(val ptype: PType) : HasExpressio
   }
 
   init {
-    require(!ptype.abstract) { "Component can't be of an abstract type: ${ptype.expressionFull}" }
+    if (ptype.abstract) {
+      throw AbstractInstructionException("Component of abstract type: ${ptype.expressionFull}")
+    }
   }
 
   /**
@@ -45,15 +53,113 @@ public data class Component private constructor(val ptype: PType) : HasExpressio
     return ptype.pclass.allSuperclasses.flatMap { superclass ->
       superclass.classEffects.map { decl ->
         // val linkages = decl.linkages
-        var effect = ptype.pclass.loader.transformer.deprodify(decl.effect) // ridiculoso
-
         // Transform for some "linkages" (TODO the rest, and do in more principled way)
-        effect = effect.replaceAll(THIS.expr, expressionFull)
-        val owner = ptype.dependencies.getIfPresent(Dependency.Key(OWNED, 0)) ?: return@map effect
-        effect.replaceAll(OWNER, owner.className)
+        val effect =
+            ptype.pclass.loader.transformer
+                .deprodify(decl.effect) // ridiculoso
+                .replaceAll(THIS.expr, expressionFull)
+        owner()?.let { effect.replaceAll(OWNER, it) } ?: effect
       }
     }
   }
+
+  val activeEffects: List<ActiveEffect> by lazy {
+    effects().map {
+      try {
+        ActiveEffect(ActiveTrigger.from(it.trigger), it.instruction)
+      } catch (e: Exception) {
+        println(it)
+        throw e
+      }
+    }
+  }
+
+  data class ActiveEffect(val trigger: ActiveTrigger, val instruction: Instruction) {
+    fun getInstruction(record: ChangeRecord, game: Game): Instruction? {
+      val hit = trigger.match(record, game) ?: return null
+      return hit.fixer(instruction) * hit.count
+    }
+    fun onSelfChange(record: ChangeRecord, game: Game): Instruction? {
+      val hit = trigger.matchSelf(record, game) ?: return null
+      return hit.fixer(instruction) * hit.count
+    }
+  }
+
+  sealed class ActiveTrigger {
+    companion object {
+      fun from(trigger: Trigger): ActiveTrigger {
+        return when (trigger) {
+          is Trigger.ByTrigger -> ByDoer(from(trigger.inner), trigger.by)
+          is Trigger.WhenGain -> Self(true)
+          is Trigger.WhenRemove -> Self(false)
+          is Trigger.OnGainOf -> OnChange(trigger.expression, gaining = true)
+          is Trigger.OnRemoveOf -> OnChange(trigger.expression, gaining = false)
+          is Trigger.Transform -> error("should have been transformed by now")
+        }
+      }
+    }
+
+    data class Hit(val count: Int, val fixer: (Instruction) -> Instruction = { it })
+
+    abstract fun match(record: ChangeRecord, game: Game): Hit?
+    abstract fun matchSelf(record: ChangeRecord, game: Game): Hit?
+
+    data class ByDoer(val inner: ActiveTrigger, val by: ClassName) : ActiveTrigger() {
+      override fun match(record: ChangeRecord, game: Game): Hit? {
+        val contextP: ClassName? = record.cause?.let { game.toComponent(it.contextComponent).owner() }
+        if (isPlayerSpecific() && contextP != by) return null
+
+        val hit = inner.match(record, game) ?: return null
+
+        return if (by == OWNER && contextP != null) {
+          hit.copy { hit.fixer(it).replaceAll(OWNER, contextP) }
+        } else {
+          hit
+        }
+      }
+
+      override fun matchSelf(record: ChangeRecord, game: Game): Hit? {
+        val contextP: ClassName? = record.cause?.let { game.toComponent(it.contextComponent).owner() }
+        if (isPlayerSpecific() && contextP != by) return null
+
+        val hit = inner.matchSelf(record, game) ?: return null
+
+        return if (by == OWNER && contextP != null) {
+          hit.copy { hit.fixer(it).replaceAll(OWNER, contextP) }
+        } else {
+          hit
+        }
+      }
+
+      fun isPlayerSpecific() = by.toString().startsWith("Player")
+    }
+
+    data class OnChange(val match: Expression, val gaining: Boolean) : ActiveTrigger() {
+      override fun match(record: ChangeRecord, game: Game): Hit? {
+        val expr: Expression? = if (gaining) record.change.gaining else record.change.removing
+        return expr?.let {
+          if (game.resolve(it).isSubtypeOf(game.resolve(match))) {
+            Hit(record.change.count)
+          } else null
+        }
+      }
+
+      // It should not need to match itself since it will already be included in the sweep
+      override fun matchSelf(record: ChangeRecord, game: Game) = null
+    }
+
+    data class Self(val gaining: Boolean) : ActiveTrigger() {
+      // This never matches, because an *existing* Foo would trigger on *another* Foo
+      override fun match(record: ChangeRecord, game: Game) = null
+
+      override fun matchSelf(record: ChangeRecord, game: Game): Hit? {
+        if ((record.change.gaining != null) != gaining) return null
+        return Hit(record.change.count) // important because Mons's special trigger will return 1
+      }
+    }
+  }
+
+  public fun owner(): ClassName? = ptype.dependencies.getIfPresent(Key(OWNED, 0))?.className
 
   override fun toString() = "[${ptype.expressionFull}]"
 }
