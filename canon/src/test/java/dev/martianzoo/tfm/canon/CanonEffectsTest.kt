@@ -37,6 +37,7 @@ private class CanonEffectsTest {
     val card = effectsOf("Gyropolis")
     assertThat(card)
         .containsExactly(
+            "This: CityTag<Owner>!, BuildingTag<Owner>!",
             "This: CityTile<Owner, LandArea(HAS MAX 0 Neighbor<CityTile<Anyone>>)>!," +
                 " PROD[-2 Energy<Owner>!," +
                 " Megacredit<Owner>! / VenusTag<Owner>," +
@@ -52,6 +53,7 @@ private class CanonEffectsTest {
   fun venusian() {
     assertThat(effectsOf("VenusianAnimals"))
         .containsExactly(
+            "This: VenusTag<Owner>!, ScienceTag<Owner>!, AnimalTag<Owner>!",
             "ScienceTag<Owner>: Animal<Owner, This>.",
             "End: VictoryPoint<Owner>! / Animal<Owner, This>",
         )
@@ -67,6 +69,7 @@ private class CanonEffectsTest {
   fun teractor() {
     assertThat(effectsOf("Teractor"))
         .containsExactly(
+            "This: EarthTag<Owner>!",
             "This: 60 Megacredit<Owner>!",
             "PlayTag<Owner, Class<EarthTag>>:: -3 Owed<Owner>.",
         )
@@ -76,6 +79,7 @@ private class CanonEffectsTest {
   fun immigrantCity() {
     assertThat(effectsOf("ImmigrantCity"))
         .containsExactly(
+            "This: CityTag<Owner>!, BuildingTag<Owner>!",
             "This: PROD[-Energy<Owner>!, -2 Megacredit<Owner>!]," +
                 " CityTile<Owner, LandArea(HAS MAX 0 Neighbor<CityTile<Anyone>>)>!",
             "CityTile<Anyone>: PROD[Megacredit<Owner>!]")
@@ -85,6 +89,7 @@ private class CanonEffectsTest {
   fun titanAirScrapping() {
     assertThat(effectsOf("TitanAirScrapping"))
         .containsExactly(
+            "This: JovianTag<Owner>!",
             "UseAction1<Owner, This>: -Titanium<Owner>! THEN 2 Floater<Owner, This>.",
             "UseAction2<Owner, This>: -2 Floater<Owner, This>! THEN TerraformRating<Owner>!",
             "End: 2 VictoryPoint<Owner>!",
@@ -95,6 +100,7 @@ private class CanonEffectsTest {
   fun amc() {
     assertThat(effectsOf("AsteroidMiningConsortium"))
         .containsExactly(
+            "This: JovianTag<Owner>!",
             "This: PROD[-Titanium<Anyone>!, Titanium<Owner>!]",
             "End: VictoryPoint<Owner>!",
         )
@@ -104,6 +110,7 @@ private class CanonEffectsTest {
   fun pets() {
     assertThat(effectsOf("Pets"))
         .containsExactly(
+            "This: EarthTag<Owner>!, AnimalTag<Owner>!",
             "This: Animal<Owner, This>.",
             "-Animal<Owner, This>:: Die!",
             "CityTile<Anyone>: Animal<Owner, This>.",
@@ -115,6 +122,7 @@ private class CanonEffectsTest {
   fun aquiferPumping() {
     assertThat(effectsOf("AquiferPumping"))
         .containsExactly(
+            "This: BuildingTag<Owner>!",
             "UseAction1<Owner, This>:: Accept<Owner, Class<Steel>>.",
             "UseAction1<Owner, This>: -8 Megacredit<Owner>! THEN OceanTile<WaterArea>.",
         )
@@ -122,6 +130,9 @@ private class CanonEffectsTest {
 
   @Test
   fun floaterPrototypes() {
-    assertThat(effectsOf("FloaterPrototypes")).containsExactly("This: 2 Floater<Owner>.")
+    assertThat(effectsOf("FloaterPrototypes")).containsExactly(
+        "This: ScienceTag<Owner>!",
+        "This: 2 Floater<Owner>."
+    )
   }
 }

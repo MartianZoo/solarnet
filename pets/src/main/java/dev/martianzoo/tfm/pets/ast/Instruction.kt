@@ -90,7 +90,8 @@ public sealed class Instruction : PetNode() {
               (right as? Remove)
             } else {
               (left as? Remove)
-            } ?: return null
+            }
+                ?: return null
 
         val scalar = gain.scaledEx.scalar
 
@@ -194,6 +195,16 @@ public sealed class Instruction : PetNode() {
 
     override fun precedence() = 0
     override fun toString() = toString(", ")
+
+    companion object {
+      fun create(instructions: List<Instruction>): Instruction? {
+        return when (instructions.size) {
+          0 -> null
+          1 -> instructions.single()
+          else -> Multi(instructions)
+        }
+      }
+    }
   }
 
   data class Transform(val instruction: Instruction, override val transformKind: String) :
@@ -280,7 +291,7 @@ public sealed class Instruction : PetNode() {
                 }
 
         val then = separatedTerms(orInstr, _then) map { if (it.size == 1) it.first() else Then(it) }
-        commaSeparated(then) map { if (it.size == 1) it.first() else Multi(it) }
+        commaSeparated(then) map { Multi.create(it)!! }
       }
     }
   }

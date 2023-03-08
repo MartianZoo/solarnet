@@ -23,9 +23,13 @@ import dev.martianzoo.tfm.pets.ast.Effect.Companion.effect
 import dev.martianzoo.tfm.pets.ast.Effect.Trigger.OnGainOf
 import dev.martianzoo.tfm.pets.ast.Instruction
 import dev.martianzoo.tfm.pets.ast.Instruction.Companion.instruction
+import dev.martianzoo.tfm.pets.ast.Instruction.Gain
+import dev.martianzoo.tfm.pets.ast.Instruction.Intensity.MANDATORY
+import dev.martianzoo.tfm.pets.ast.Instruction.Multi
 import dev.martianzoo.tfm.pets.ast.PetNode
 import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.pets.ast.Requirement.Companion.requirement
+import dev.martianzoo.tfm.pets.ast.ScaledExpression.Companion.scaledEx
 import dev.martianzoo.util.toSetStrict
 
 /**
@@ -132,8 +136,9 @@ public class CardDefinition(data: CardData) : Definition {
         )
             .ifEmpty { setOf(CARD_FRONT.expr) }
 
-    val allEffects =
-        listOfNotNull(immediate).map(::immediateToEffect) + effects + actionListToEffects(actions)
+    val gainTags: Instruction? = Multi.create(tags.map { Gain(scaledEx(it.expr), MANDATORY) })
+    val allImmediate = listOfNotNull(gainTags, immediate)
+    val allEffects = allImmediate.map(::immediateToEffect) + effects + actionListToEffects(actions)
 
     ClassDeclaration(
         className = className,
