@@ -9,7 +9,7 @@ import dev.martianzoo.tfm.pets.ast.Instruction.Companion.instruction
 import org.junit.jupiter.api.Test
 
 class TransformerTest {
-  val xer = PClassLoader(Canon).loadEverything().transformer
+  val xer = MClassLoader(Canon).loadEverything().transformer
 
   @Test
   fun test() {

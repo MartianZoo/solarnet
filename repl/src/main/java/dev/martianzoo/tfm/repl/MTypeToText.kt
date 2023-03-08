@@ -5,20 +5,20 @@ import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.pets.ast.Instruction.Gain
 import dev.martianzoo.tfm.pets.ast.Instruction.Remove
 import dev.martianzoo.tfm.pets.ast.ScaledExpression
-import dev.martianzoo.tfm.types.PClass
-import dev.martianzoo.tfm.types.PClassLoader
+import dev.martianzoo.tfm.types.MClass
+import dev.martianzoo.tfm.types.MClassLoader
 import dev.martianzoo.util.iff
 
-object PTypeToText { // TODO refactor to ClassInfo / TypeInfo type dealies
+object MTypeToText { // TODO refactor to ClassInfo / TypeInfo type dealies
   /** A detailed multi-line description of the class. */
-  public fun describe(expression: Expression, loader: PClassLoader): String {
-    fun descendingBySubclassCount(classes: Iterable<PClass>) =
+  public fun describe(expression: Expression, loader: MClassLoader): String {
+    fun descendingBySubclassCount(classes: Iterable<MClass>) =
         classes.sortedWith(compareBy({ -it.allSubclasses.size }, { it.className }))
 
-    val ptype = loader.resolve(expression)
-    val pclass = ptype.pclass
+    val mtype = loader.resolve(expression)
+    val mclass = mtype.mclass
 
-    val subs = descendingBySubclassCount(pclass.allSubclasses - pclass)
+    val subs = descendingBySubclassCount(mclass.allSubclasses - mclass)
     val substring =
         when (subs.size) {
           0 -> "(none)"
@@ -27,14 +27,14 @@ object PTypeToText { // TODO refactor to ClassInfo / TypeInfo type dealies
         }
 
     val names =
-        "${pclass.className}" + "[${pclass.shortName}]".iff(pclass.shortName != pclass.className)
+        "${mclass.className}" + "[${mclass.shortName}]".iff(mclass.shortName != mclass.className)
 
     fun sequenceCount(seq: Sequence<Any>, limit: Int): String {
       val partial = seq.take(limit + 1).count()
       return if (partial == limit + 1) "$limit+" else "$partial"
     }
 
-    val concTypes = sequenceCount(pclass.baseType.concreteSubtypesSameClass(), 100)
+    val concTypes = sequenceCount(mclass.baseType.concreteSubtypesSameClass(), 100)
 
     // BIGTODO invariants seemingly not working?
     // TODO show linkages we already have
@@ -42,20 +42,20 @@ object PTypeToText { // TODO refactor to ClassInfo / TypeInfo type dealies
       Class $names:
           subclasses:  $substring
           invariants:  ${
-      pclass.invariants.joinToString("""
+      mclass.invariants.joinToString("""
                        """)
     }
-          base type:   ${pclass.baseType.expressionFull}
+          base type:   ${mclass.baseType.expressionFull}
           c. types:    $concTypes
           class fx:    ${
-      pclass.classEffects.joinToString("""
+      mclass.classEffects.joinToString("""
                        """) { "${it.effect}" }
     }
 
 
     """.trimIndent().iff(expression.simple)
 
-    val concSubs = sequenceCount(ptype.allConcreteSubtypes(), 100)
+    val concSubs = sequenceCount(mtype.allConcreteSubtypes(), 100)
 
     val allCases = loader.transformer.insertDefaults(expression)
     val gain = loader.transformer.insertDefaults(Gain(ScaledExpression(1, expression)))
@@ -63,17 +63,17 @@ object PTypeToText { // TODO refactor to ClassInfo / TypeInfo type dealies
 
     val typeStuff = """
       Expression $expression:
-          std. form:   ${ptype.expression}
-          long form:   ${ptype.expressionFull}
-          supertypes:  ${ptype.supertypes().joinToString { "${it.className}" }}
+          std. form:   ${mtype.expression}
+          long form:   ${mtype.expressionFull}
+          supertypes:  ${mtype.supertypes().joinToString { "${it.className}" }}
           defaults:    $allCases / +$gain / $remove
           c. subtypes: $concSubs
     """.trimIndent()
 
-    val componentStuff = if (ptype.abstract) {
+    val componentStuff = if (mtype.abstract) {
       ""
     } else {
-      val c = Component.ofType(ptype)
+      val c = Component.ofType(mtype)
       """
 
 

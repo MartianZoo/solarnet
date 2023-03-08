@@ -26,13 +26,13 @@ import dev.martianzoo.tfm.pets.ast.Metric
 import dev.martianzoo.tfm.pets.ast.Metric.Count
 import dev.martianzoo.tfm.pets.ast.Metric.Max
 import dev.martianzoo.tfm.pets.ast.Requirement
-import dev.martianzoo.tfm.types.PClassLoader
-import dev.martianzoo.tfm.types.PType
+import dev.martianzoo.tfm.types.MClassLoader
+import dev.martianzoo.tfm.types.MType
 import dev.martianzoo.util.Multiset
 import kotlin.math.min
 
 /** A game in progress. */
-public class Game(val setup: GameSetup, public val loader: PClassLoader) {
+public class Game(val setup: GameSetup, public val loader: MClassLoader) {
   init {
     loader.frozen = true
   }
@@ -49,9 +49,9 @@ public class Game(val setup: GameSetup, public val loader: PClassLoader) {
 
   public fun changeLog(): List<ChangeRecord> = fullChangeLog.filterNot { it.hidden }
 
-  fun resolve(expression: Expression): PType = loader.resolve(expression)
+  fun resolve(expression: Expression): MType = loader.resolve(expression)
 
-  fun resolve(type: Type): PType = loader.resolve(type)
+  fun resolve(type: Type): MType = loader.resolve(type)
 
   fun evaluate(requirement: Requirement) = LiveNodes.from(requirement, this).evaluate(this)
 
@@ -64,9 +64,9 @@ public class Game(val setup: GameSetup, public val loader: PClassLoader) {
     }
   }
 
-  fun getComponents(type: Type): Multiset<Type> = components.getAll(resolve(type)).map { it.ptype }
+  fun getComponents(type: Type): Multiset<Type> = components.getAll(resolve(type)).map { it.mtype }
 
-  fun getComponents(type: PType): Multiset<Component> = components.getAll(type)
+  fun getComponents(type: MType): Multiset<Component> = components.getAll(type)
 
   fun execute(
       instruction: Instruction,

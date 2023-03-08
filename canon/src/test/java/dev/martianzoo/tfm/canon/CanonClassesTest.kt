@@ -10,22 +10,22 @@ import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.pets.ast.Expression.Companion.expression
 import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.pets.ast.classNames
-import dev.martianzoo.tfm.types.PClass
-import dev.martianzoo.tfm.types.PClassLoader
+import dev.martianzoo.tfm.types.MClass
+import dev.martianzoo.tfm.types.MClassLoader
 import org.junit.jupiter.api.Test
 
 /** Tests for the Canon data set. */
 private class CanonClassesTest {
-  val loader = PClassLoader(Canon).loadEverything()
+  val loader = MClassLoader(Canon).loadEverything()
 
   @Test
   fun redundantSuperclasses() {
     val redundancies =
-        loader.allClasses.flatMap { pclass ->
-          val direct: List<PClass> = pclass.directSuperclasses
+        loader.allClasses.flatMap { mclass ->
+          val direct: List<MClass> = mclass.directSuperclasses
           val indirect = direct.flatMap { it.properSuperclasses }.toSet()
           val redundant = direct.intersect(indirect)
-          redundant.map { pclass.className to it.className }
+          redundant.map { mclass.className to it.className }
         }
     assertThat(redundancies)
         .containsExactly(
@@ -85,7 +85,7 @@ private class CanonClassesTest {
 
   @Test
   fun component() {
-    val table = PClassLoader(Canon)
+    val table = MClassLoader(Canon)
 
     table.componentClass.apply {
       assertThat(className).isEqualTo(SpecialClassNames.COMPONENT)
@@ -115,8 +115,8 @@ private class CanonClassesTest {
     val loader = Engine.loadClasses(GameSetup(Canon, "BRM", 2))
 
     fun checkConcreteSubtypeCount(expr: String, size: Int) {
-      val ptype = loader.resolve(expression(expr))
-      assertThat(ptype.allConcreteSubtypes().toList()).hasSize(size)
+      val mtype = loader.resolve(expression(expr))
+      assertThat(mtype.allConcreteSubtypes().toList()).hasSize(size)
     }
 
     checkConcreteSubtypeCount("Plant<Player1>", 1)
@@ -142,7 +142,7 @@ private class CanonClassesTest {
 
   @Test
   fun classInvariants() {
-    val table = PClassLoader(Canon).loadEverything()
+    val table = MClassLoader(Canon).loadEverything()
     val temp = table.getClass(cn("TemperatureStep"))
     assertThat(temp.invariants).containsExactly(Requirement.requirement("MAX 19 This"))
     val ocean = table.getClass(cn("OceanTile"))

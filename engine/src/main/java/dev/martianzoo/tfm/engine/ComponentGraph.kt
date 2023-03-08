@@ -2,7 +2,7 @@ package dev.martianzoo.tfm.engine
 
 import dev.martianzoo.tfm.data.ChangeRecord.StateChange
 import dev.martianzoo.tfm.engine.Component.ActiveEffect
-import dev.martianzoo.tfm.types.PType
+import dev.martianzoo.tfm.types.MType
 import dev.martianzoo.util.HashMultiset
 import dev.martianzoo.util.Multiset
 import dev.martianzoo.util.MutableMultiset
@@ -45,8 +45,8 @@ public class ComponentGraph {
     } else {
       StateChange(
           count = correctedCount,
-          gaining = gaining?.ptype?.expression,
-          removing = removing?.ptype?.expression,
+          gaining = gaining?.mtype?.expression,
+          removing = removing?.mtype?.expression,
       )
     }
   }
@@ -72,15 +72,15 @@ public class ComponentGraph {
     return correctedCount
   }
 
-  public fun count(ptype: PType) = getAll(ptype).size
+  public fun count(mtype: MType) = getAll(mtype).size
 
   // Aww yeah full table scans rule. One day I'll do something more clever, but only after being
   // able to review usage patterns so I'll actually know what helps most.
-  public fun getAll(ptype: PType): Multiset<Component> = multiset.filter { hasType(it, ptype) }
+  public fun getAll(mtype: MType): Multiset<Component> = multiset.filter { hasType(it, mtype) }
 
   public operator fun contains(component: Component) = component in multiset.elements
 
-  fun hasType(cpt: Component, type: PType): Boolean {
+  fun hasType(cpt: Component, type: MType): Boolean {
     return cpt.hasType(type)
     // BIGTODO check refinements too
   }

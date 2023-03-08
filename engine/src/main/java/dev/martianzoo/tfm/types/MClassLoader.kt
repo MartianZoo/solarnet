@@ -13,11 +13,11 @@ import dev.martianzoo.tfm.pets.ast.PetNode
 import dev.martianzoo.tfm.types.Dependency.TypeDependency
 
 /**
- * All [PClass] instances come from here. Uses an [Authority] to pull class declarations from as
+ * All [MClass] instances come from here. Uses an [Authority] to pull class declarations from as
  * needed. Can be [frozen], which prevents additional classes from being loaded, and enables
- * features such as [PClass.allSubclasses] to work.
+ * features such as [MClass.allSubclasses] to work.
  */
-public class PClassLoader( // TODO separate into loader and table
+public class MClassLoader( // TODO separate into loader and table
     /**
      * The source of class declarations to use as needed; [loadEverything] will load every class
      * found here.
@@ -31,34 +31,34 @@ public class PClassLoader( // TODO separate into loader and table
     private val autoLoadDependencies: Boolean = false,
 ) {
   /** The `Component` class, which is the root of the class hierarchy. */
-  public val componentClass: PClass = PClass(decl(COMPONENT), this, directSuperclasses = listOf())
+  public val componentClass: MClass = MClass(decl(COMPONENT), this, directSuperclasses = listOf())
 
   /** The `Class` class, the other class that is required to exist. */
-  public val classClass: PClass =
-      PClass(decl(CLASS), this, directSuperclasses = listOf(componentClass))
+  public val classClass: MClass =
+      MClass(decl(CLASS), this, directSuperclasses = listOf(componentClass))
 
   private val loadedClasses =
-      mutableMapOf<ClassName, PClass?>(COMPONENT to componentClass, CLASS to classClass)
+      mutableMapOf<ClassName, MClass?>(COMPONENT to componentClass, CLASS to classClass)
 
   /**
-   * Returns the [PClass] whose [PClass.className] or [PClass.shortName] is [name], or throws an
+   * Returns the [MClass] whose [MClass.className] or [MClass.shortName] is [name], or throws an
    * exception.
    */
-  public fun getClass(name: ClassName): PClass =
+  public fun getClass(name: ClassName): MClass =
       loadedClasses[name] ?: error("no class loaded with className or shortName $name")
 
-  /** Returns the [PType] represented by [expression]. */
-  public fun resolve(expression: Expression): PType {
+  /** Returns the [MType] represented by [expression]. */
+  public fun resolve(expression: Expression): MType {
     return getClass(expression.className)
         .specialize(expression.arguments)
         .refine(expression.refinement)
   }
 
-  /** Returns the corresponding [PType] to [type] (possibly [type] itself). */
-  public fun resolve(type: Type): PType = type as? PType ?: resolve(type.expression)
+  /** Returns the corresponding [MType] to [type] (possibly [type] itself). */
+  public fun resolve(type: Type): MType = type as? MType ?: resolve(type.expression)
 
   /** All classes loaded by this class loader; can only be accessed after the loader is [frozen]. */
-  public val allClasses: Set<PClass> by lazy {
+  public val allClasses: Set<MClass> by lazy {
     require(frozen)
     loadedClasses.values.map { it!! }.toSet()
   }
@@ -66,10 +66,10 @@ public class PClassLoader( // TODO separate into loader and table
   // LOADING
 
   /**
-   * Returns the class whose [PClass.className] or [PClass.shortName] is [name], loading it first if
+   * Returns the class whose [MClass.className] or [MClass.shortName] is [name], loading it first if
    * necessary.
    */
-  public fun load(name: ClassName): PClass =
+  public fun load(name: ClassName): MClass =
       when {
         frozen -> getClass(name)
         autoLoadDependencies -> {
@@ -88,7 +88,7 @@ public class PClassLoader( // TODO separate into loader and table
       }
 
   /** Loads every class known to this class loader's backing [Authority], and freezes. */
-  public fun loadEverything(): PClassLoader {
+  public fun loadEverything(): MClassLoader {
     authority.allClassNames.forEach(::loadSingle)
     frozen = true
     return this
@@ -108,22 +108,22 @@ public class PClassLoader( // TODO separate into loader and table
     }
   }
 
-  private fun loadSingle(idOrName: ClassName): PClass =
+  private fun loadSingle(idOrName: ClassName): MClass =
       if (frozen) {
         getClass(idOrName)
       } else {
         loadedClasses[idOrName] ?: construct(decl(idOrName))
       }
 
-  private fun loadSingle(idOrName: ClassName, decl: ClassDeclaration): PClass =
+  private fun loadSingle(idOrName: ClassName, decl: ClassDeclaration): MClass =
       if (frozen) {
         getClass(idOrName)
       } else {
         loadedClasses[idOrName] ?: construct(decl)
       }
 
-  // all PClasses are created here (aside from Component and Class, at top)
-  private fun construct(decl: ClassDeclaration): PClass {
+  // all MClasses are created here (aside from Component and Class, at top)
+  private fun construct(decl: ClassDeclaration): MClass {
     require(!frozen) { "Too late, this table is frozen!" }
 
     require(decl.className !in loadedClasses) { decl.className }
@@ -133,10 +133,10 @@ public class PClassLoader( // TODO separate into loader and table
     loadedClasses[decl.className] = null
     loadedClasses[decl.shortName] = null
 
-    val pclass = PClass(decl, this)
-    loadedClasses[decl.className] = pclass
-    loadedClasses[decl.shortName] = pclass
-    return pclass
+    val mclass = MClass(decl, this)
+    loadedClasses[decl.className] = mclass
+    loadedClasses[decl.shortName] = mclass
+    return mclass
   }
 
   public var frozen: Boolean = false
@@ -147,9 +147,9 @@ public class PClassLoader( // TODO separate into loader and table
     }
 
   private fun validate() {
-    allClasses.forEach { pclass ->
-      pclass.classEffects.forEach {
-        checkAllTypes(it.effect.replaceAll(THIS.expr, pclass.className.expr))
+    allClasses.forEach { mclass ->
+      mclass.classEffects.forEach {
+        checkAllTypes(it.effect.replaceAll(THIS.expr, mclass.className.expr))
       }
     }
   }
@@ -181,7 +181,7 @@ public class PClassLoader( // TODO separate into loader and table
     val usedDeps = mutableSetOf<TypeDependency>()
     val list =
         specs.map { specExpression ->
-          val specType: PType = resolve(specExpression)
+          val specType: MType = resolve(specExpression)
           for (candidateDep in deps.asSet - usedDeps) {
             val intersectionType = (specType glb candidateDep.boundType) ?: continue
             usedDeps += candidateDep

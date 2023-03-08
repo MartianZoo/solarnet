@@ -21,9 +21,9 @@ import dev.martianzoo.tfm.types.Dependency.Key
 import dev.martianzoo.util.toSetStrict
 
 /**
- * Offers various functions, for transforming [PetNode] subtrees, that depend on a [PClassLoader].
+ * Offers various functions, for transforming [PetNode] subtrees, that depend on a [MClassLoader].
  */
-public class Transformer internal constructor(val loader: PClassLoader) {
+public class Transformer internal constructor(val loader: MClassLoader) {
   /**
    * Resolves `PROD[...]` regions by replacing, for example, `Steel<Player2>` with
    * `Production<Player2, Class<Steel>>`. This form of the function uses [loader] to look up the
@@ -33,7 +33,7 @@ public class Transformer internal constructor(val loader: PClassLoader) {
       AstTransforms.deprodify(node, subclassNames(STANDARD_RESOURCE))
 
   /** Sanitizes [fx] so that it can be attached to a context object that is not Owned. */
-  public fun fixEffectForUnownedContext(fx: Effect, pc: PClass): Effect =
+  public fun fixEffectForUnownedContext(fx: Effect, pc: MClass): Effect =
       if (OWNED in pc.allSuperclasses.classNames() ||
           OWNER !in fx.instruction ||
           OWNER in fx.trigger) {
@@ -132,15 +132,15 @@ public class Transformer internal constructor(val loader: PClassLoader) {
       contextCpt: Expression = THIS.expr,
   ): Expression {
 
-    val pclass: PClass = loader.getClass(original.className)
+    val mclass: MClass = loader.getClass(original.className)
     val dethissed: Expression = original.replaceAll(THIS.expr, contextCpt)
-    val match: DependencySet = loader.matchPartial(dethissed.arguments, pclass.dependencies)
+    val match: DependencySet = loader.matchPartial(dethissed.arguments, mclass.dependencies)
 
     val preferred: Map<Key, Expression> = match.keys.zip(original.arguments).toMap()
     val fallbacks: Map<Key, Expression> = defaultDeps.asSet.associate { it.key to it.expression }
 
     val newArgs: List<Expression> =
-        pclass.dependencies.keys.mapNotNull { preferred[it] ?: fallbacks[it] }
+        mclass.dependencies.keys.mapNotNull { preferred[it] ?: fallbacks[it] }
 
     return original.copy(arguments = newArgs).also {
       require(it.className == original.className)

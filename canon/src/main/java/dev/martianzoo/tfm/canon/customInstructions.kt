@@ -34,8 +34,8 @@ private object ForceLoad : CustomInstruction("forceLoad") { // TODO include @ ?
 // that forces the Border class to be loaded!
 private object CreateAll : CustomInstruction("createAll") {
   override fun translate(game: GameStateReader, arguments: List<Type>): Instruction {
-    val (mapClass, toCreate) = arguments
-    val map = game.authority.marsMap(mapClass.className)
+    val (mamclass, toCreate) = arguments
+    val map = game.authority.marsMap(mamclass.className)
     val border = cn("Border")
     return when (toCreate.className) {
       border -> {

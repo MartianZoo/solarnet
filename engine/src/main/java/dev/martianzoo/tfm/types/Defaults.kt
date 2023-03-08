@@ -13,15 +13,15 @@ internal data class Defaults(
     val removeIntensity: Intensity,
 ) {
   companion object {
-    fun forClass(pclass: PClass): Defaults {
+    fun forClass(mclass: MClass): Defaults {
       fun <T> inheritDefault(
           extractor: (DefaultsDeclaration) -> T?,
           merger: (List<T>) -> T = { it.single() },
       ): T? {
-        fun extractFromClass(c: PClass): T? = extractor(c.declaration.defaultsDeclaration)
+        fun extractFromClass(c: MClass): T? = extractor(c.declaration.defaultsDeclaration)
 
-        val haveDefault: List<PClass> =
-            pclass.allSuperclasses.filter { extractFromClass(it) != null }
+        val haveDefault: List<MClass> =
+            mclass.allSuperclasses.filter { extractFromClass(it) != null }
 
         // Anything that was overridden by *any* of our superclasses must be discarded
         val inheritFrom = haveDefault - haveDefault.flatMap { it.properSuperclasses }.toSet()
@@ -33,10 +33,10 @@ internal data class Defaults(
       fun gatherDefaultDeps(extractor: (DefaultsDeclaration) -> List<Expression>): DependencySet {
         // excludes ones that don't specialize, is that okay? TODO
         fun toDependencyMap(specs: List<Expression>): DependencySet =
-            pclass.loader.resolve(pclass.className.addArgs(specs)).narrowedDependencies
+            mclass.loader.resolve(mclass.className.addArgs(specs)).narrowedDependencies
 
         val deps: List<Dependency> =
-            pclass.dependencies.keys.mapNotNull { key ->
+            mclass.dependencies.keys.mapNotNull { key ->
               inheritDefault(
                   { toDependencyMap(extractor(it)).getIfPresent(key) },
                   { deps: List<Dependency> -> glb(deps)!! })

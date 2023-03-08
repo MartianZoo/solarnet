@@ -16,8 +16,8 @@ import dev.martianzoo.tfm.pets.ast.Instruction
 import dev.martianzoo.tfm.pets.ast.Metric
 import dev.martianzoo.tfm.pets.ast.PetNode
 import dev.martianzoo.tfm.pets.ast.Requirement
-import dev.martianzoo.tfm.types.PClass
-import dev.martianzoo.tfm.types.PType
+import dev.martianzoo.tfm.types.MClass
+import dev.martianzoo.tfm.types.MType
 import dev.martianzoo.util.HashMultiset
 import dev.martianzoo.util.Hierarchical.Companion.lub
 import dev.martianzoo.util.Multiset
@@ -37,11 +37,11 @@ class InteractiveSession {
   fun playerType(player: ClassName) = game!!.resolve(player.expr)
 
   fun becomePlayer(player: ClassName) {
-    val p: PType = playerType(player)
+    val p: MType = playerType(player)
     require(!p.abstract)
-    val any: PType = game!!.resolve(ANYONE.expr)
+    val any: MType = game!!.resolve(ANYONE.expr)
     require(p.isSubtypeOf(any))
-    defaultPlayer = p.pclass.className
+    defaultPlayer = p.mclass.className
   }
 
   fun becomeNoOne() {
@@ -51,20 +51,20 @@ class InteractiveSession {
   fun count(metric: Metric) = game!!.count(fixTypes(metric))
 
   fun list(expression: Expression): Multiset<Expression> {
-    val typeToList: PType = game!!.resolve(fixTypes(expression))
+    val typeToList: MType = game!!.resolve(fixTypes(expression))
     val allComponents: Multiset<Component> = game!!.getComponents(typeToList)
 
     // BIGTODO decide more intelligently how to break it down
-    val pclass = typeToList.pclass
+    val mclass = typeToList.mclass
 
     // ugh capital tile TODO
-    val subs: Set<PClass> = pclass.directSubclasses.ifEmpty { setOf(pclass) }
+    val subs: Set<MClass> = mclass.directSubclasses.ifEmpty { setOf(mclass) }
 
     val result = HashMultiset<Expression>()
     subs.forEach { sub ->
       val matches = allComponents.filter { it.hasType(sub.baseType) }
       if (matches.any()) {
-        val types = matches.elements.map { it.ptype }
+        val types = matches.elements.map { it.mtype }
         result.add(lub(types)!!.expression, matches.size)
       }
     }

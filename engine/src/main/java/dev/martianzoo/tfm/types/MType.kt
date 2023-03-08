@@ -10,49 +10,49 @@ import dev.martianzoo.tfm.pets.ast.Requirement.And
 import dev.martianzoo.util.Hierarchical
 
 /**
- * The translation of a [Expression] into a "live" type, referencing actual [PClass]es loaded by a
- * [PClassLoader]. These are usually obtained by [PClassLoader.resolve]. These can be abstract.
+ * The translation of a [Expression] into a "live" type, referencing actual [MClass]es loaded by a
+ * [MClassLoader]. These are usually obtained by [MClassLoader.resolve]. These can be abstract.
  * Usages of this type should be fairly unrelated to questions of whether instances exist in a game
  * state.
  */
-public data class PType
+public data class MType
 internal constructor(
-    public val pclass: PClass, // TODO try renaming root?
+    public val mclass: MClass, // TODO try renaming root?
     internal val dependencies: DependencySet,
     override val refinement: Requirement? = null,
-) : Type, Hierarchical<PType>, HasClassName by pclass {
-  private val loader by pclass::loader
+) : Type, Hierarchical<MType>, HasClassName by mclass {
+  private val loader by mclass::loader
 
   init {
-    require(dependencies.keys.toList() == pclass.dependencies.keys.toList()) {
-      "expected keys ${pclass.dependencies.keys}, got $dependencies"
+    require(dependencies.keys.toList() == mclass.dependencies.keys.toList()) {
+      "expected keys ${mclass.dependencies.keys}, got $dependencies"
     }
     if (refinement != null) loader.checkAllTypes(refinement)
   }
 
-  override val abstract = pclass.abstract || dependencies.abstract || refinement != null
+  override val abstract = mclass.abstract || dependencies.abstract || refinement != null
 
-  override fun isSubtypeOf(that: Type) = isSubtypeOf(that as PType)
+  override fun isSubtypeOf(that: Type) = isSubtypeOf(that as MType)
 
-  override fun isSubtypeOf(that: PType) =
-      pclass.isSubtypeOf(that.pclass) &&
+  override fun isSubtypeOf(that: MType) =
+      mclass.isSubtypeOf(that.mclass) &&
           dependencies.isSubtypeOf(that.dependencies) &&
           that.refinement in setOf(null, refinement)
 
   // Nearest common subtype
-  override fun glb(that: PType): PType? =
-      (pclass glb that.pclass)
+  override fun glb(that: MType): MType? =
+      (mclass glb that.mclass)
           ?.withExactDependencies(dependencies glb that.dependencies)
           ?.refine(conjoin(this.refinement, that.refinement)) // BIGTODO glb/lub for Req
 
   // Nearest common supertype
   // Unlike glb, two types always have a least upper bound (if nothing else, Component)
-  override fun lub(that: PType): PType =
-      (pclass lub that.pclass)
+  override fun lub(that: MType): MType =
+      (mclass lub that.mclass)
           .withExactDependencies(dependencies lub that.dependencies)
           .refine(setOf(refinement, that.refinement).singleOrNull())
 
-  internal fun specialize(specs: List<Expression>): PType {
+  internal fun specialize(specs: List<Expression>): MType {
     return if (isClassType) { // TODO reduce special-casing
       if (specs.isEmpty()) {
         loader.componentClass.classType
@@ -75,7 +75,7 @@ internal constructor(
     }
   }
 
-  public fun refine(newRef: Requirement?): PType = copy(refinement = conjoin(refinement, newRef))
+  public fun refine(newRef: Requirement?): MType = copy(refinement = conjoin(refinement, newRef))
 
   override val expression: Expression by lazy {
     toExpressionUsingSpecs(narrowedDependencies.expressions)
@@ -86,51 +86,51 @@ internal constructor(
   }
 
   internal val narrowedDependencies: DependencySet by lazy {
-    dependencies.minus(pclass.dependencies)
+    dependencies.minus(mclass.dependencies)
   }
 
   private fun toExpressionUsingSpecs(specs: List<Expression>): Expression {
-    val expression = pclass.className.addArgs(specs).refine(refinement)
+    val expression = mclass.className.addArgs(specs).refine(refinement)
     val roundTrip = loader.resolve(expression)
     require(roundTrip == this) { "$expression" }
     return expression
   }
 
-  public fun supertypes(): List<PType> {
-    val supers = pclass.allSuperclasses - loader.componentClass - pclass
+  public fun supertypes(): List<MType> {
+    val supers = mclass.allSuperclasses - loader.componentClass - mclass
     // the argument to wAD is allowed to be a superset
     return supers.map { it.withExactDependencies(dependencies) }
   }
 
   /**
-   * Returns every possible [PType] `t` such that `!t.abstract && t.isSubtypeOf(this)`. Note that
+   * Returns every possible [MType] `t` such that `!t.abstract && t.isSubtypeOf(this)`. Note that
    * this sequence can potentially be very large.
    */
-  public fun allConcreteSubtypes(): Sequence<PType> {
+  public fun allConcreteSubtypes(): Sequence<MType> {
     if (refinement != null) return emptySequence()
-    return concreteSubclasses(pclass).flatMap {
+    return concreteSubclasses(mclass).flatMap {
       val top = it.withExactDependencies(dependencies glb it.baseType.dependencies)
       top.concreteSubtypesSameClass()
     }
   }
 
-  public val isClassType: Boolean = pclass.className == CLASS // TODO reduce special-casing
+  public val isClassType: Boolean = mclass.className == CLASS // TODO reduce special-casing
 
-  /** Returns the subset of [allConcreteSubtypes] having the exact same [pclass] as ours. */
-  public fun concreteSubtypesSameClass(): Sequence<PType> {
+  /** Returns the subset of [allConcreteSubtypes] having the exact same [mclass] as ours. */
+  public fun concreteSubtypesSameClass(): Sequence<MType> {
     return when {
-      pclass.abstract || refinement != null -> emptySequence()
+      mclass.abstract || refinement != null -> emptySequence()
       isClassType -> concreteSubclasses(dependencies.getClassForClassType()).map { it.classType }
       else -> {
         val axes = dependencies.asSet.map { it.allConcreteSpecializations().toList() }
         val product: List<List<Dependency>> = cartesianProduct(axes)
-        product.asSequence().map { pclass.withExactDependencies(DependencySet.of(it)) }
+        product.asSequence().map { mclass.withExactDependencies(DependencySet.of(it)) }
       }
     }
   }
 
-  private fun concreteSubclasses(pclass: PClass) =
-      pclass.allSubclasses.asSequence().filter { !it.abstract }
+  private fun concreteSubclasses(mclass: MClass) =
+      mclass.allSubclasses.asSequence().filter { !it.abstract }
 
-  override fun toString() = "$expressionFull@${pclass.loader}"
+  override fun toString() = "$expressionFull@${mclass.loader}"
 }

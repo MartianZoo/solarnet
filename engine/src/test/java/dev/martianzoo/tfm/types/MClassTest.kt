@@ -13,7 +13,7 @@ import dev.martianzoo.util.toSetStrict
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 
-private class PClassTest {
+private class MClassTest {
   @Test
   fun nothingness() {
     val loader = loadTypes()
@@ -184,7 +184,7 @@ private class PClassTest {
     assertThat(subSub.isSubtypeOf(barSub)).isTrue()
     assertThat(subSub.isSubtypeOf(subSub)).isTrue()
 
-    fun checkAutoAdjust(`in`: String, out: String, table: PClassLoader) =
+    fun checkAutoAdjust(`in`: String, out: String, table: MClassLoader) =
         assertThat(table.resolve(te(`in`)).expressionFull.toString()).isEqualTo(out)
 
     checkAutoAdjust("Bar<SuperFoo>", "Bar<Foo>", table)
@@ -254,18 +254,18 @@ private class PClassTest {
 
 private fun te(s: String) = expression(s)
 
-internal fun loader(petsText: String): PClassLoader {
+internal fun loader(petsText: String): MClassLoader {
   val classes = parseClassDeclarations(petsText).toSetStrict()
   val authority =
       object : Authority.Empty() {
         override val explicitClassDeclarations = classes
       }
-  return PClassLoader(authority).also { it.loadEverything() }
+  return MClassLoader(authority).also { it.loadEverything() }
 }
 
 val regex = Regex("^(\\w+).*")
 
-internal fun loadAndGetClasses(vararg decl: String): List<PClass> {
+internal fun loadAndGetClasses(vararg decl: String): List<MClass> {
   val all = """
     ABSTRACT CLASS $COMPONENT
     CLASS $CLASS<$COMPONENT>

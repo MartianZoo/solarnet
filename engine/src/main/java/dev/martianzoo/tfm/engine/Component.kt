@@ -13,22 +13,22 @@ import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.pets.ast.HasExpression
 import dev.martianzoo.tfm.pets.ast.Instruction
 import dev.martianzoo.tfm.types.Dependency.Key
-import dev.martianzoo.tfm.types.PClass
-import dev.martianzoo.tfm.types.PType
+import dev.martianzoo.tfm.types.MClass
+import dev.martianzoo.tfm.types.MType
 
 /**
- * An *instance* of some concrete [PType]; a [ComponentGraph] is a multiset of these. For any use
- * case unrelated to what instances actually exist in a game state, use [PType] instead.
+ * An *instance* of some concrete [MType]; a [ComponentGraph] is a multiset of these. For any use
+ * case unrelated to what instances actually exist in a game state, use [MType] instead.
  */
-public data class Component private constructor(val ptype: PType) : HasExpression by ptype {
+public data class Component private constructor(val mtype: MType) : HasExpression by mtype {
 
   companion object {
-    public fun ofType(ptype: PType): Component = Component(ptype)
+    public fun ofType(mtype: MType): Component = Component(mtype)
   }
 
   init {
-    if (ptype.abstract) {
-      throw AbstractInstructionException("Component of abstract type: ${ptype.expressionFull}")
+    if (mtype.abstract) {
+      throw AbstractInstructionException("Component of abstract type: ${mtype.expressionFull}")
     }
   }
 
@@ -36,26 +36,26 @@ public data class Component private constructor(val ptype: PType) : HasExpressio
    * Whether this type is categorically a subtype of [thatType] for any possible game state. (In the
    * absence of refinements, this is an ordinary subtype check.)
    */
-  public fun hasType(thatType: PType) = ptype.isSubtypeOf(thatType)
+  public fun hasType(thatType: MType) = mtype.isSubtypeOf(thatType)
 
   /**
    * The full list of dependency instances of this component; *this* component cannot exist in a
    * [ComponentGraph] unless *all* of the returned components do. Note that a class type like
    * `Class<Tile>` has an empty dependency list, despite its appearance. The list order corresponds
-   * to [PClass.dependencies].
+   * to [MClass.dependencies].
    */
-  public val dependencyComponents = ptype.dependencies.asSet.map { ofType(it.boundType) }
+  public val dependencyComponents = mtype.dependencies.asSet.map { ofType(it.boundType) }
 
   /**
    * This component's effects; while the component exists in a game state, the effects are active.
    */
   public fun effects(): List<Effect> {
-    return ptype.pclass.allSuperclasses.flatMap { superclass ->
+    return mtype.mclass.allSuperclasses.flatMap { superclass ->
       superclass.classEffects.map { decl ->
         // val linkages = decl.linkages
         // Transform for some "linkages" (TODO the rest, and do in more principled way)
         val effect =
-            ptype.pclass.loader.transformer
+            mtype.mclass.loader.transformer
                 .deprodify(decl.effect) // ridiculoso
                 .replaceAll(THIS.expr, expressionFull)
         owner()?.let { effect.replaceAll(OWNER, it) } ?: effect
@@ -159,7 +159,7 @@ public data class Component private constructor(val ptype: PType) : HasExpressio
     }
   }
 
-  public fun owner(): ClassName? = ptype.dependencies.getIfPresent(Key(OWNED, 0))?.className
+  public fun owner(): ClassName? = mtype.dependencies.getIfPresent(Key(OWNED, 0))?.className
 
-  override fun toString() = "[${ptype.expressionFull}]"
+  override fun toString() = "[${mtype.expressionFull}]"
 }

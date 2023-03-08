@@ -30,14 +30,14 @@ internal sealed class Dependency : Hierarchical<Dependency>, HasExpression, HasC
     override fun toString() = "${declaringClass}_$index"
   }
 
-  abstract val boundClass: PClass
+  abstract val boundClass: MClass
 
   /** Any [Dependency] except for the case covered by [FakeDependency] below. */
   // TODO rename Dependency?
-  data class TypeDependency(override val key: Key, val boundType: PType) :
+  data class TypeDependency(override val key: Key, val boundType: MType) :
       Dependency(), HasExpression by boundType {
 
-    override val boundClass by boundType::pclass
+    override val boundClass by boundType::mclass
     override val className by boundClass::className
 
     fun allConcreteSpecializations(): Sequence<TypeDependency> =
@@ -55,17 +55,17 @@ internal sealed class Dependency : Hierarchical<Dependency>, HasExpression, HasC
 
     override fun lub(that: Dependency) = copy(boundType = boundType lub boundOf(that))
 
-    private fun boundOf(that: Dependency): PType =
+    private fun boundOf(that: Dependency): MType =
         (that as TypeDependency).boundType.also { require(key == that.key) }
   }
 
   /**
    * A dependency used *only* by types of the class `Class`; for example `Class<Foo>` (in which
-   * example `pclass.name` is `"Foo"`). No other class can use this; for example, one cannot declare
+   * example `mclass.name` is `"Foo"`). No other class can use this; for example, one cannot declare
    * that the dependency in `Production<Plant>` is a "class dependency" on `Plant`, so instead we
    * use `Production<Class<Plant>>`.
    */
-  private data class FakeDependency(override val boundClass: PClass) : Dependency() {
+  private data class FakeDependency(override val boundClass: MClass) : Dependency() {
     override val key: Key = Key(CLASS, 0)
 
     override val className by boundClass::className
@@ -87,7 +87,7 @@ internal sealed class Dependency : Hierarchical<Dependency>, HasExpression, HasC
 
     override fun lub(that: Dependency): FakeDependency = copy(boundClass lub boundOf(that))
 
-    private fun boundOf(that: Dependency): PClass =
+    private fun boundOf(that: Dependency): MClass =
         (that as FakeDependency).boundClass.also { require(key == that.key) }
   }
 
@@ -98,9 +98,9 @@ internal sealed class Dependency : Hierarchical<Dependency>, HasExpression, HasC
       require(deps.all { it is TypeDependency } || deps.single() is FakeDependency)
     }
 
-    internal fun getClassForClassType(set: Set<Dependency>): PClass =
+    internal fun getClassForClassType(set: Set<Dependency>): MClass =
         (set.single() as FakeDependency).boundClass
 
-    internal fun depsForClassType(pclass: PClass) = DependencySet.of(setOf(FakeDependency(pclass)))
+    internal fun depsForClassType(mclass: MClass) = DependencySet.of(setOf(FakeDependency(mclass)))
   }
 }

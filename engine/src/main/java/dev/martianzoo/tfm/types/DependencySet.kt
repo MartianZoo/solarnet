@@ -20,7 +20,7 @@ internal class DependencySet private constructor(val deps: Set<Dependency>) :
     fun of(deps: Iterable<Dependency>) = of(deps.toSetStrict())
   }
 
-  val flattened: Map<DependencyPath, PClass> by lazy {
+  val flattened: Map<DependencyPath, MClass> by lazy {
     deps.flatMap {
       // Throwing away refinements & links...
       val result = mutableListOf(DependencyPath(it.key) to it.boundClass)

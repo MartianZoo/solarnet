@@ -6,14 +6,14 @@ import dev.martianzoo.tfm.data.ChangeRecord.Cause
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.pets.ast.Instruction.Companion.instruction
 import dev.martianzoo.tfm.pets.ast.classNames
-import dev.martianzoo.tfm.types.PClass
-import dev.martianzoo.tfm.types.PClassLoader
-import dev.martianzoo.tfm.types.PType
+import dev.martianzoo.tfm.types.MClass
+import dev.martianzoo.tfm.types.MClassLoader
+import dev.martianzoo.tfm.types.MType
 
 /** Has functions for setting up new games and stuff. */
 public object Engine {
-  public fun loadClasses(setup: GameSetup): PClassLoader {
-    val loader = PClassLoader(setup.authority, autoLoadDependencies = true)
+  public fun loadClasses(setup: GameSetup): MClassLoader {
+    val loader = MClassLoader(setup.authority, autoLoadDependencies = true)
 
     val classNames =
         listOf(GAME) +
@@ -35,7 +35,7 @@ public object Engine {
         hidden = true).single()
     val fakeCause = Cause(0, contextComponent = GAME.expr, doer = GAME)
 
-    val singletons: List<PType> = singletons(loader.allClasses)
+    val singletons: List<MType> = singletons(loader.allClasses)
     game.executeAll(
         singletons.map { instruction("${it.expressionFull}!") },
         withEffects = true,
@@ -45,6 +45,6 @@ public object Engine {
     return game
   }
 
-  private fun singletons(all: Set<PClass>): List<PType> =
+  private fun singletons(all: Set<MClass>): List<MType> =
       all.filter { it.hasSingletonTypes() }.flatMap { it.baseType.concreteSubtypesSameClass() }
 }

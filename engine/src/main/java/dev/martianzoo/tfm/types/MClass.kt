@@ -19,23 +19,23 @@ import dev.martianzoo.util.Hierarchical.Companion.glb
 import dev.martianzoo.util.toSetStrict
 
 /**
- * A class that has been loaded by a [PClassLoader] based on a [ClassDeclaration]. Each loader has
- * its own separate universe of [PClass]es. While a declaration is just inert data, this type has
+ * A class that has been loaded by a [MClassLoader] based on a [ClassDeclaration]. Each loader has
+ * its own separate universe of [MClass]es. While a declaration is just inert data, this type has
  * behavior that is useful to the engine. This loaded class should be the source for most
  * information you need to know about a class at runtime, but the declaration itself can always be
  * retrieved from it when necessary.
  */
-public data class PClass
+public data class MClass
 internal constructor(
     /** The class declaration this class was loaded from. */
     public val declaration: ClassDeclaration, // TODO unpublic after simplifying defaults
 
     /** The class loader that loaded this class. */
-    internal val loader: PClassLoader,
+    internal val loader: MClassLoader,
 
     /** This class's superclasses that are exactly one step away; empty only for `Component`. */
-    public val directSuperclasses: List<PClass> = superclasses(declaration, loader),
-) : HasClassName, Hierarchical<PClass> {
+    public val directSuperclasses: List<MClass> = superclasses(declaration, loader),
+) : HasClassName, Hierarchical<MClass> {
 
   /** The name of this class, in UpperCamelCase. */
   public override val className: ClassName = declaration.className.also { require(it != THIS) }
@@ -49,10 +49,10 @@ internal constructor(
 
   override val abstract: Boolean by declaration::abstract
 
-  override fun isSubtypeOf(that: PClass): Boolean =
+  override fun isSubtypeOf(that: MClass): Boolean =
       this == that || directSuperclasses.any { it.isSubtypeOf(that) }
 
-  override fun glb(that: PClass): PClass? =
+  override fun glb(that: MClass): MClass? =
       when {
         this.isSubtypeOf(that) -> this
         that.isSubtypeOf(this) -> that
@@ -63,10 +63,10 @@ internal constructor(
         }
       }
 
-  override fun lub(that: PClass): PClass {
-    val commonSupers: Set<PClass> = this.allSuperclasses.intersect(that.allSuperclasses)
-    val supersOfSupers: Set<PClass> = commonSupers.flatMap { it.properSuperclasses }.toSet()
-    val candidates: Set<PClass> = commonSupers - supersOfSupers
+  override fun lub(that: MClass): MClass {
+    val commonSupers: Set<MClass> = this.allSuperclasses.intersect(that.allSuperclasses)
+    val supersOfSupers: Set<MClass> = commonSupers.flatMap { it.properSuperclasses }.toSet()
+    val candidates: Set<MClass> = commonSupers - supersOfSupers
     // TODO Just using a dumb ass heuristic for now
     return candidates.maxBy { it.dependencies.asSet.size * 100 + it.allSuperclasses.size }
   }
@@ -77,7 +77,7 @@ internal constructor(
    * not narrow the dependencies (such as `GreeneryTile`, whose supertype is `Tile<MarsArea>` rather
    * than `Tile<Area>`).
    */
-  public val directSupertypes: Set<PType> by lazy {
+  public val directSupertypes: Set<MType> by lazy {
     when {
       className == COMPONENT -> setOf()
       declaration.supertypes.none() -> setOf(loader.componentClass.baseType) // TODO hmm
@@ -86,24 +86,24 @@ internal constructor(
   }
 
   /** Every class `c` for which `c.isSuperclassOf(this)` is true, including this class itself. */
-  public val allSuperclasses: Set<PClass> by lazy {
+  public val allSuperclasses: Set<MClass> by lazy {
     (directSuperclasses.flatMap { it.allSuperclasses } + this).toSet()
   }
 
-  public val properSuperclasses: Set<PClass> by lazy { allSuperclasses - this }
+  public val properSuperclasses: Set<MClass> by lazy { allSuperclasses - this }
 
   /** Every class `c` for which `c.isSubclassOf(this)` is true, including this class itself. */
-  public val allSubclasses: Set<PClass> by lazy {
+  public val allSubclasses: Set<MClass> by lazy {
     loader.allClasses.filter { this in it.allSuperclasses }.toSet()
   }
 
-  public val directSubclasses: Set<PClass> by lazy {
+  public val directSubclasses: Set<MClass> by lazy {
     loader.allClasses.filter { this in it.directSuperclasses }.toSet()
   }
 
   /**
    * Whether this class serves as the intersection type of its full set of [directSuperclasses];
-   * that is, no other [PClass] loaded by this [PClassLoader] is a subclass of all of them unless it
+   * that is, no other [MClass] loaded by this [MClassLoader] is a subclass of all of them unless it
    * is also a subclass of `this`. An example is `OwnedTile`; since components like the `Landlord`
    * award count `OwnedTile` components, it would be a bug if a component like
    * `CommercialDistrictTile` (which is both an `Owned` and a `Tile`) forgot to also extend
@@ -112,7 +112,7 @@ internal constructor(
   public val intersectionType: Boolean by lazy {
     directSuperclasses.size >= 2 &&
         loader.allClasses
-            .filter { pclass -> directSuperclasses.all(pclass::isSubtypeOf) }
+            .filter { mclass -> directSuperclasses.all(mclass::isSubtypeOf) }
             .all(::isSupertypeOf)
   }
 
@@ -141,18 +141,18 @@ internal constructor(
   // GETTING TYPES
 
   internal fun withExactDependencies(deps: DependencySet) =
-      PType(this, deps.subMapInOrder(dependencies.keys))
+      MType(this, deps.subMapInOrder(dependencies.keys))
 
-  /** Least upper bound of all types with pclass==this */
-  public val baseType: PType by lazy { withExactDependencies(dependencies) } // TODO rename?
+  /** Least upper bound of all types with mclass==this */
+  public val baseType: MType by lazy { withExactDependencies(dependencies) } // TODO rename?
 
-  internal fun specialize(specs: List<Expression>): PType = baseType.specialize(specs)
+  internal fun specialize(specs: List<Expression>): MType = baseType.specialize(specs)
 
   /**
    * Returns the special *class type* for this class; for example, for the class `Resource` returns
    * the type `Class<Resource>`.
    */
-  internal val classType: PType by lazy {
+  internal val classType: MType by lazy {
     loader.classClass.withExactDependencies(depsForClassType(this))
   }
 
@@ -160,7 +160,7 @@ internal constructor(
 
   /**
    * The effects belonging to this class; similar to those found on the [declaration], but processed
-   * as far as we are able to. These effects will belong to every [PType] built from this class,
+   * as far as we are able to. These effects will belong to every [MType] built from this class,
    * where they will be processed further.
    */
   public val classEffects: List<EffectDeclaration> by lazy {
@@ -195,7 +195,7 @@ internal constructor(
   override fun toString() = "$className@$loader"
 
   private companion object {
-    fun superclasses(declaration: ClassDeclaration, loader: PClassLoader): List<PClass> {
+    fun superclasses(declaration: ClassDeclaration, loader: MClassLoader): List<MClass> {
       return declaration.supertypes
           .classNames()
           .also { require(COMPONENT !in it) }

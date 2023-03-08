@@ -4,10 +4,10 @@ import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.tfm.pets.ast.Expression.Companion.expression
 import org.junit.jupiter.api.Test
 
-private class PTypeTest {
+private class MTypeTest {
   @Test
   fun testCardboundWeirdness() {
-    val table: PClassLoader = loadTypes("""
+    val table: MClassLoader = loadTypes("""
       ABSTRACT CLASS Anyone {
         ABSTRACT CLASS Owner { CLASS Player1, Player2 }
       }

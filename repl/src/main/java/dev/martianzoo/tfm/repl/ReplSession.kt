@@ -152,7 +152,7 @@ public class ReplSession(private val authority: Authority) {
               {
                 it?.let { args ->
                   val expression = expression(args.trim())
-                  listOf(PTypeToText.describe(expression, session.game!!.loader))
+                  listOf(MTypeToText.describe(expression, session.game!!.loader))
                 } ?: listOf("Usage: desc <ClassName>")
               },
       )
