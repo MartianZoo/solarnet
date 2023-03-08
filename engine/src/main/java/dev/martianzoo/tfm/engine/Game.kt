@@ -11,6 +11,12 @@ import dev.martianzoo.tfm.pets.ast.Metric
 import dev.martianzoo.tfm.pets.ast.Metric.Count
 import dev.martianzoo.tfm.pets.ast.Metric.Max
 import dev.martianzoo.tfm.pets.ast.Requirement
+import dev.martianzoo.tfm.pets.ast.Requirement.And
+import dev.martianzoo.tfm.pets.ast.Requirement.Exact
+import dev.martianzoo.tfm.pets.ast.Requirement.Min
+import dev.martianzoo.tfm.pets.ast.Requirement.Or
+import dev.martianzoo.tfm.pets.ast.Requirement.Transform
+import dev.martianzoo.tfm.pets.ast.ScaledExpression.Companion.scaledEx
 import dev.martianzoo.tfm.types.MClassLoader
 import dev.martianzoo.tfm.types.MType
 import dev.martianzoo.util.Multiset
@@ -43,7 +49,17 @@ public class Game(val setup: GameSetup, public val loader: MClassLoader) {
 
   // QUERIES
 
-  public fun evaluate(requirement: Requirement) = LiveNodes.from(requirement, this).evaluate(this)
+  public fun evaluate(requirement: Requirement): Boolean {
+    fun count(expression: Expression) = count(Count(scaledEx(expression)))
+    return when (requirement) {
+      is Min -> count(requirement.scaledEx.expression) >= requirement.scaledEx.scalar
+      is Requirement.Max ->  { count(requirement.scaledEx.expression) <= requirement.scaledEx.scalar }
+      is Exact -> count(requirement.scaledEx.expression) == requirement.scaledEx.scalar
+      is Or -> requirement.requirements.any { evaluate(it) }
+      is And -> requirement.requirements.all { evaluate(it) }
+      is Transform -> error("should have been transformed by now")
+    }
+  }
 
   public fun count(metric: Metric): Int {
     return when (metric) {

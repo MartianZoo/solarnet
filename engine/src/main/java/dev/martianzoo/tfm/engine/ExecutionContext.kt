@@ -112,7 +112,7 @@ class ExecutionContext(
 
       is Per -> doExecute(ins.instruction, cause, game.count(ins.metric) * multiplier)
       is Gated -> {
-        if (LiveNodes.from(ins.gate, game).evaluate(game)) {
+        if (game.evaluate(ins.gate)) {
           doExecute(ins.instruction, cause, multiplier)
         } else {
           throw UserException("Requirement not met: ${ins.gate}")
