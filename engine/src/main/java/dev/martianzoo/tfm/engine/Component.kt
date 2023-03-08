@@ -119,7 +119,7 @@ public data class Component private constructor(val mtype: MType) : HasExpressio
       }
 
       override fun matchSelf(record: ChangeRecord, game: Game): Hit? {
-        val contextP: ClassName? = record.cause?.let { game.toComponent(it.contextComponent).owner() }
+        val contextP: ClassName? = record.cause?.doer
         if (isPlayerSpecific() && contextP != by) return null
 
         val hit = inner.matchSelf(record, game) ?: return null

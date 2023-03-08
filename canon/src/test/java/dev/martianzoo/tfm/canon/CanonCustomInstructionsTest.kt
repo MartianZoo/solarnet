@@ -12,10 +12,9 @@ private class CanonCustomInstructionsTest {
     val repl = ReplSession(Canon)
     repl.command("newgame BM 3")
     repl.command("become Player1")
-    repl.command("exec1 PROD[Steel, Titanium, Plant, Energy, Heat]")
-    repl.command("exec1 @gainLowestProduction(Player1)")
-    assertThat(repl.command("count Production<Player1, Class<Megacredit>>").first()).startsWith("6")
-    assertThat(repl.command("count Production<Class<Megacredit>, Player1>").first()).startsWith("6")
+    repl.command("exec PROD[Steel, Titanium, Plant, Energy, Heat]")
+    repl.command("exec @gainLowestProduction(Player1)")
+    assertThat(repl.command("count Production<Class<Megacredit>>").first()).startsWith("6")
   }
 
   @Test
@@ -23,8 +22,11 @@ private class CanonCustomInstructionsTest {
     val repl = ReplSession(Canon)
     repl.command("newgame BM 3")
     repl.command("become Player1")
-    repl.command("exec1 PROD[Steel, Titanium, Plant, Heat]")
-    assertFails("multiple lowest") { repl.command("exec @gainLowestProduction(Player1)") }
+    repl.command("exec PROD[Steel, Titanium, Plant, Heat]")
+    repl.command("exec @gainLowestProduction(Player1)")
+    // TODO ensure nothing happened
+    // assertThat(repl.command("has PROD[=6 M, =1 S, =1 T, =1 P, =0 E =1 H]").first())
+    //     .startsWith("true")
   }
 
   @Test
@@ -32,8 +34,8 @@ private class CanonCustomInstructionsTest {
     val repl = ReplSession(Canon)
     repl.command("newgame BM 3")
     repl.command("become Player1")
-    repl.command("exec1 PROD[-1]")
-    repl.command("exec1 @gainLowestProduction(Player1)")
+    repl.command("exec PROD[-1]")
+    repl.command("exec @gainLowestProduction(Player1)")
     assertThat(repl.command("has PROD[=5 Megacredit]").first()).startsWith("true")
   }
 

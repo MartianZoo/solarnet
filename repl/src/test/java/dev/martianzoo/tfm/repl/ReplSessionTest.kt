@@ -14,17 +14,17 @@ private class ReplSessionTest {
     var n = repl.session.game!!.changeLogFull().size - 1
 
     val suffix = "BY Player2 (fiat)"
-    assertThat(repl.command("exec1 PROD[5, 4 Energy]"))
+    assertThat(repl.command("exec PROD[5, 4 Energy]"))
         .containsExactly(
             "${++n}: 5 Production<Player2, Class<Megacredit>> $suffix",
             "${++n}: 4 Production<Player2, Class<Energy>> $suffix",
         )
-    assertThat(repl.command("exec1 StripMine, BuildingTag<StripMine>"))
+    assertThat(repl.command("exec StripMine, BuildingTag<StripMine>"))
         .containsExactly(
             "${++n}: 1 StripMine<Player2> $suffix",
             "${++n}: 1 BuildingTag<Player2, StripMine<Player2>> $suffix",
         )
-    assertThat(repl.command("exec1 PROD[-2 Energy, 2 Steel, Titanium]"))
+    assertThat(repl.command("exec PROD[-2 Energy, 2 Steel, Titanium]"))
         .containsExactly(
             "${++n}: -2 Production<Player2, Class<Energy>> $suffix",
             "${++n}: 2 Production<Player2, Class<Steel>> $suffix",
@@ -44,8 +44,8 @@ private class ReplSessionTest {
     val repl = ReplSession(Canon)
     repl.command("newgame MB 2")
     repl.command("become Player1")
-    repl.command("exec1 PROD[9, 8 Steel, 7 Titanium, 6 Plant, 5 Energy, 4 Heat]")
-    repl.command("exec1 8, 6 Steel, 7 Titanium, 5 Plant, 3 Energy, 9 Heat")
+    repl.command("exec PROD[9, 8 Steel, 7 Titanium, 6 Plant, 5 Energy, 4 Heat]")
+    repl.command("exec 8, 6 Steel, 7 Titanium, 5 Plant, 3 Energy, 9 Heat")
 
     val board = BoardToText(repl.session.game!!.reader).board(cn("Player1").expr, false)
     assertThat(board)
@@ -66,8 +66,8 @@ private class ReplSessionTest {
     val repl = ReplSession(Canon)
     repl.command("newgame MB 3")
     repl.command("become P1")
-    repl.command("exec1 OT<M26>, OT<M55>, OT<M56>, CT<M46>, GT<M57>, GT<M45, P3>")
-    repl.command("exec1 Tile008<P2, M66>, Tile142<P2, M99>")
+    repl.command("exec OT<M26>, OT<M55>, OT<M56>, CT<M46>, GT<M57>, GT<M45, P3>")
+    repl.command("exec Tile008<P2, M66>, Tile142<P2, M99>")
 
     assertThat(repl.command("map"))
         .containsExactly(

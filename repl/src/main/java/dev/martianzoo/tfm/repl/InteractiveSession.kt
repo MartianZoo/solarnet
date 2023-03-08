@@ -27,6 +27,7 @@ class InteractiveSession {
   internal var game: Game? = null // TODO private?
   internal var gameNumber: Int = 0
   internal var defaultPlayer: ClassName? = null
+  internal var effectsOn: Boolean = false
 
   fun newGame(setup: GameSetup) {
     game = Engine.newGame(setup)
@@ -73,11 +74,11 @@ class InteractiveSession {
 
   fun has(requirement: Requirement) = game!!.evaluate(fixTypes(requirement))
 
-  fun execute(instruction: Instruction, withEffects: Boolean = false): List<ChangeRecord> {
+  fun execute(instruction: Instruction): List<ChangeRecord> {
     val context = defaultPlayer ?: GAME
     return game!!.execute(
         fixTypes(instruction),
-        withEffects = withEffects,
+        withEffects = effectsOn,
         initialCause = Cause(null, context.expr, context))
   }
 

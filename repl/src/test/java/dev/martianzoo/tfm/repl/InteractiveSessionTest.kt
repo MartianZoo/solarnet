@@ -112,4 +112,14 @@ private class InteractiveSessionTest {
     assertThat(session.count(metric("4 Heat MAX 10"))).isEqualTo(10)
     assertThat(session.count(metric("4 Heat MAX 9"))).isEqualTo(9)
   }
+
+  @Test
+  fun tempTrigger() {
+    val session = InteractiveSession()
+    session.newGame(GameSetup(Canon, "MB", 2))
+    session.becomePlayer(cn("Player1"))
+    session.effectsOn = true
+    session.execute(instruction("TemperatureStep"))
+    assertThat(session.count(metric("TerraformRating"))).isEqualTo(1)
+  }
 }

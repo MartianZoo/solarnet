@@ -119,16 +119,32 @@ public class ReplSession(private val authority: Authority) {
                 args?.let { listOf("Arguments unexpected: $it") }
                     ?: session.game!!.changeLogFull().toStrings()
               },
-          "exec1" to
+          "effects" to
               {
-                it?.let { args ->
-                  session.execute(instruction(args), withEffects = false).toStrings()
-                } ?: listOf("Usage: exec1 <Instruction>")
+                when(it?.trim()) {
+                  "on" -> {
+                    if (!session.effectsOn) {
+                      session.effectsOn = true
+                      listOf("Effects are now on.")
+                    } else {
+                      listOf("Effects are already on.")
+                    }
+                  }
+                  "off" -> {
+                    if (session.effectsOn) {
+                      session.effectsOn = false
+                      listOf("Effects are now off.")
+                    } else {
+                      listOf("Effects are already off.")
+                    }
+                  }
+                  else -> listOf("Usage: effects (on|off)")
+                }
               },
-          "exec2" to
+          "exec" to
               {
                 it?.let { args ->
-                  val changes = session.execute(instruction(args), withEffects = true)
+                  val changes = session.execute(instruction(args))
                   val oops = session.game!!.pendingAbstractTasks.mapIndexed { i, it ->
                     "$i: ${it.instruction} ${it.cause}"
                   }
@@ -138,7 +154,7 @@ public class ReplSession(private val authority: Authority) {
                     listOf()
                   }
 
-                } ?: listOf("Usage: exec2 <Instruction>")
+                } ?: listOf("Usage: exec <Instruction>")
               },
           "rollback" to
               {
