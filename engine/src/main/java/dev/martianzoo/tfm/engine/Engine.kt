@@ -4,11 +4,11 @@ import dev.martianzoo.tfm.api.GameSetup
 import dev.martianzoo.tfm.api.SpecialClassNames.GAME
 import dev.martianzoo.tfm.data.ChangeRecord.Cause
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.tfm.pets.ast.Instruction
 import dev.martianzoo.tfm.pets.ast.Instruction.Companion.instruction
+import dev.martianzoo.tfm.pets.ast.Instruction.Multi
 import dev.martianzoo.tfm.pets.ast.classNames
-import dev.martianzoo.tfm.types.MClass
 import dev.martianzoo.tfm.types.MClassLoader
-import dev.martianzoo.tfm.types.MType
 
 /** Has functions for setting up new games and stuff. */
 public object Engine {
@@ -27,7 +27,12 @@ public object Engine {
 
   public fun newGame(setup: GameSetup): Game {
     val loader = loadClasses(setup)
+
+    // TODO bad hack
+    // setup.authority.customInstructions += customInstr(loader)
+
     val game = Game(setup, loader)
+    // game.execute(instruction("Game!"), withEffects = true, hidden = true)
 
     game.execute(
         instruction("Game!"),
@@ -35,9 +40,8 @@ public object Engine {
         hidden = true).single()
     val fakeCause = Cause(0, contextComponent = GAME.expr, doer = GAME)
 
-    val singletons: List<MType> = singletons(loader.allClasses)
     game.executeAll(
-        singletons.map { instruction("${it.expressionFull}!") },
+        Instruction.split(customInstr(loader)),
         withEffects = true,
         initialCause = fakeCause,
         hidden = true)
@@ -45,6 +49,14 @@ public object Engine {
     return game
   }
 
-  private fun singletons(all: Set<MClass>): List<MType> =
-      all.filter { it.hasSingletonTypes() }.flatMap { it.baseType.concreteSubtypesSameClass() }
+  fun customInstr(loader: MClassLoader): Instruction {
+      val singletonTypes = loader.allClasses
+          .filter { it.hasSingletonTypes() }
+          .flatMap { it.baseType.concreteSubtypesSameClass() }
+      return Multi.create(singletonTypes.map { instruction("${it.expressionFull}!") })!!
+      //
+      // return object : CustomInstruction("createSingletons") {
+      //   override fun translate(game: GameStateReader, arguments: List<Type>) = instr
+      // }
+  }
 }

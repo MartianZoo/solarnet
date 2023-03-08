@@ -13,6 +13,7 @@ import dev.martianzoo.tfm.engine.LiveNodes.from
 import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.pets.ast.Instruction
 import dev.martianzoo.tfm.pets.ast.Instruction.Change
+import dev.martianzoo.tfm.pets.ast.Instruction.Companion.split
 import dev.martianzoo.tfm.pets.ast.Instruction.CompositeInstruction
 import dev.martianzoo.tfm.pets.ast.Instruction.Custom
 import dev.martianzoo.tfm.pets.ast.Instruction.Gated
@@ -33,17 +34,16 @@ import kotlin.math.min
 
 /** A game in progress. */
 public class Game(val setup: GameSetup, public val loader: MClassLoader) {
-  init {
-    loader.frozen = true
-  }
+
+  val authority by setup::authority
 
   val components = ComponentGraph()
 
   internal val fullChangeLog: MutableList<ChangeRecord> = mutableListOf()
 
-  val authority by setup::authority
-
   private val nextOrdinal: Int by fullChangeLog::size
+
+  val pendingAbstractTasks = mutableListOf<Task>()
 
   public fun changeLogFull() = fullChangeLog.toList()
 
@@ -89,7 +89,6 @@ public class Game(val setup: GameSetup, public val loader: MClassLoader) {
       val attempts: Int = 0,
   )
 
-  val pendingAbstractTasks = mutableListOf<Task>()
 
   inner class ExecutionContext(val withEffects: Boolean = true, val hidden: Boolean = false) {
     val taskQueue = ArrayDeque<Task>()
@@ -107,7 +106,7 @@ public class Game(val setup: GameSetup, public val loader: MClassLoader) {
           doExecute(next.instruction, next.cause, 1)
         } catch (e: MissingDependenciesException) {
           val tries = next.attempts
-          if (tries > 3) throw e
+          if (tries > 5) throw e
           taskQueue += next.copy(attempts = tries + 1)
         } catch (e: AbstractInstructionException) {
           pendingAbstractTasks += next
@@ -153,7 +152,7 @@ public class Game(val setup: GameSetup, public val loader: MClassLoader) {
       if (multiplier == 0) return
       require(multiplier > 0)
 
-      val game = this@Game
+      val game: Game = this@Game
 
       when (ins) {
         is Change -> {
@@ -217,13 +216,6 @@ public class Game(val setup: GameSetup, public val loader: MClassLoader) {
           }
         }
   }
-
-  private fun split(ins: Instruction) =
-      when (ins) {
-        is Or -> listOf(ins)
-        is CompositeInstruction -> ins.instructions
-        else -> listOf(ins)
-      }
 
   val reader =
       object : GameStateReader {

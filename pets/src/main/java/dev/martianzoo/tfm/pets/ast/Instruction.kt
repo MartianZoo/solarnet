@@ -253,6 +253,13 @@ public sealed class Instruction : PetNode() {
   }
 
   companion object : BaseTokenizer() {
+    fun split(ins: Instruction) =
+        when (ins) {
+          is Or -> listOf(ins)
+          is CompositeInstruction -> ins.instructions
+          else -> listOf(ins)
+        }
+
     fun instruction(text: String): Instruction = Parsing.parse(parser(), text)
 
     internal fun parser(): Parser<Instruction> {

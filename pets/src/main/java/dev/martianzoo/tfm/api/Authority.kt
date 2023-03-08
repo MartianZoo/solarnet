@@ -74,7 +74,7 @@ public abstract class Authority {
    * All class declarations that were provided "directly" in source form (i.e., `CLASS Foo...`) as
    * opposed to being converted from [Definition] objects.
    */
-  protected abstract val explicitClassDeclarations: Set<ClassDeclaration>
+  public abstract val explicitClassDeclarations: Set<ClassDeclaration>
 
   /** Everything implementing [Definition] this authority knows about. */
   public val allDefinitions: Set<Definition> by lazy {
