@@ -83,7 +83,7 @@ data class ChangeRecord(
           if (triggeringChange != null) {
             "FOR $doer BECAUSE $triggeringChange"
           } else {
-            "(fiat)"
+            "(by fiat)"
           }
     }
   }

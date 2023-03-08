@@ -77,7 +77,7 @@ private class CanonBootstrapTest {
           isArea(it) ||
               isBorder(it) ||
               isClass(it) ||
-              it.hasType(game.resolve(expression("Production<Class<Megacredit>>")))
+              it.hasType(game.resolve(expression("Production<Class<Megacredit>>"))) // TODO PROD[M]
         }
     assertThat(theRest.toStrings())
         .containsExactly(

@@ -16,6 +16,7 @@ internal fun main() {
   val repl = ReplSession(Canon)
   val session = repl.session
   val jline = JlineRepl()
+
   fun prompt(): Pair<String, Int> {
     val player: ClassName? = session.defaultPlayer
     val gameNo = session.gameNumber
@@ -32,6 +33,15 @@ internal fun main() {
 /** A programmatic entry point to a REPL session that is more textual than [ReplSession]. */
 public class ReplSession(private val authority: Authority) {
   internal val session = InteractiveSession()
+  internal var mode: ReplMode = ReplMode.YELLOW
+
+  enum class ReplMode(val message: String) {
+    GRAY("No game active."),
+    RED("Allows arbitrary state changes, which don't trigger effects."),
+    YELLOW("Allows arbitrary state changes, auto-executing effects when possible."),
+    GREEN("Allows arbitrary state changes, enqueueing resulting tasks. TODO"),
+    BLUE("Allows only initiating `UseAction1<StandardAction>`, and handling enqueued tasks. TODO")
+  }
 
   public fun command(wholeCommand: String): List<String> {
     val (_, command, args) = inputRegex.matchEntire(wholeCommand)?.groupValues ?: return listOf()
@@ -41,7 +51,7 @@ public class ReplSession(private val authority: Authority) {
   internal val inputRegex = Regex("""^\s*(\S+)(.*)$""")
 
   internal fun command(commandName: String, args: String?): List<String> {
-    if (commandName !in setOf("help", "newgame") && session.game == null) {
+    if (commandName !in setOf("help", "new") && session.game == null) {
       return listOf("no game active")
     }
     val command = commands[commandName] ?: error("No command named $commandName")
@@ -51,23 +61,23 @@ public class ReplSession(private val authority: Authority) {
   private val commands =
       mapOf<String, (String?) -> List<String>>(
           "help" to { listOf(helpText) },
-          "newgame" to
+          "new" to
               {
                 it?.let { args ->
                   val (bundleString, players) = args.trim().split(Regex("\\s+"), 2)
                   session.newGame(GameSetup(authority, bundleString, players.toInt()))
                   listOf("New $players-player game created with bundles: $bundleString")
-                } ?: listOf("Usage: newgame <bundles> <player count>")
+                } ?: listOf("Usage: new <bundles> <player count>")
               },
           "become" to
               { args ->
                 val message =
                     if (args == null) {
                       session.becomeNoOne()
-                      "Okay you are no one"
+                      "Now issuing commands as `Game`"
                     } else {
                       session.becomePlayer(cn(args.trim()))
-                      "Hi, ${session.defaultPlayer}"
+                      "Hi, `${session.defaultPlayer}`"
                     }
                 listOf(message)
               },
@@ -96,50 +106,23 @@ public class ReplSession(private val authority: Authority) {
                       .map { "${counts.count(it)} $it" }
                 } ?: listOf("Usage: list <Expression>")
               },
-          "map" to
-              {
-                if (it == null) {
-                  MapToText(session.game!!.reader).map()
-                } else {
-                  listOf("Arguments unexpected: $it")
-                }
-              },
           "board" to
               {
                 val player = if (it == null) session.defaultPlayer!! else cn(it.trim())
                 BoardToText(session.game!!.reader).board(player.expr)
               },
-          "changes" to
-              { args ->
-                args?.let { listOf("Arguments unexpected: $it") }
-                    ?: session.game!!.changeLog().toStrings()
-              },
-          "allchanges" to
-              { args ->
-                args?.let { listOf("Arguments unexpected: $it") }
-                    ?: session.game!!.changeLogFull().toStrings()
-              },
-          "effects" to
+          "map" to
               {
-                when(it?.trim()) {
-                  "on" -> {
-                    if (!session.effectsOn) {
-                      session.effectsOn = true
-                      listOf("Effects are now on.")
-                    } else {
-                      listOf("Effects are already on.")
-                    }
-                  }
-                  "off" -> {
-                    if (session.effectsOn) {
-                      session.effectsOn = false
-                      listOf("Effects are now off.")
-                    } else {
-                      listOf("Effects are already off.")
-                    }
-                  }
-                  else -> listOf("Usage: effects (on|off)")
+                if (it == null) {
+                  MapToText(session.game!!.reader).map()
+                } else {
+                  listOf("Usage: map")
                 }
+              },
+          "mode" to
+              { arg ->
+                if (arg != null) mode = ReplMode.valueOf(arg.trim().uppercase())
+                listOf("Mode $mode: ${mode.message}")
               },
           "exec" to
               {
@@ -149,12 +132,22 @@ public class ReplSession(private val authority: Authority) {
                     "$i: ${it.instruction} ${it.cause}"
                   }
                   changes.toStrings() + if (oops.any()) {
-                    listOf("", "There were abstract tasks left over:") + oops
+                    listOf("", "Pending tasks:") + oops
                   } else {
                     listOf()
                   }
 
                 } ?: listOf("Usage: exec <Instruction>")
+              },
+          "changes" to
+              { args ->
+                args?.let { listOf("Usage: changes") }
+                    ?: session.game!!.changeLog().toStrings()
+              },
+          "changesfull" to
+              { args ->
+                args?.let { listOf("Usage: changesfull") }
+                    ?: session.game!!.changeLogFull().toStrings()
               },
           "rollback" to
               {
@@ -174,21 +167,28 @@ public class ReplSession(private val authority: Authority) {
       )
 
   private val helpText: String = """
-      newgame BMV 3        ->  ERASES CURRENT GAME, starts a new 3p game with Base/Tharsis/Venus
-      become Player1       ->  makes Player1 the default player for future commands
-      count Plant          ->  counts how many Plants the default player has
-      count Plant<Anyone>  ->  counts how many Plants anyone has
-      list Tile            ->  list all Tiles you have
-      has MAX 3 OceanTile  ->  evaluates a requirement (true/false) in the current game state
-      exec PROD[3 Heat]    ->  gives the default player 3 heat production, NOT triggering effects
-      rollback 987         ->  undoes recent changes up to and including change 987
-      changes              ->  shows the changelog (the useful bits) for the current game
-      allchanges           ->  shows the entire disgusting changelog
-      history              ->  shows your *command* history
-      board                ->  displays an extremely bad looking player board
-      map                  ->  displays an extremely bad looking map
-      desc Microbe         ->  describes the Microbe class in detail (given this game setup)
-      help                 ->  shows this message
-      exit                 ->  go waste time differently
+    CONTROL
+      help                -> shows this message
+      new BMV 3           -> erases current game and starts 3p game with Base, default Map, Venus
+      become Player1      -> makes Player1 the default player for queries & executions
+      exit                -> go waste time differently
+    QUERYING
+      has MAX 3 OceanTile -> evaluates a requirement (true/false) in the current game state
+      count Plant         -> counts how many Plants the default player has
+      count Plant<Anyone> -> counts how many Plants anyone has
+      list Tile           -> list all Tiles you have (categorized)
+      board               -> displays an extremely bad looking player board
+      map                 -> displays an extremely bad looking map
+    EXECUTION
+      exec PROD[3 Heat]   -> gives the default player 3 heat production, NOT triggering effects
+      mode green          -> changes to Green Mode (also try red, yellow, blue, purple)
+    HISTORY
+      changes             -> shows the changelog (the useful bits) for the current game
+      changesfull         -> shows the entire disgusting changelog
+      rollback 123        -> undoes recent changes up to and *including* change 123
+      history             -> shows your *command* history
+    METADATA
+      desc Microbe        -> describes the Microbe class in detail
+      desc Microbe<Ants>  -> describes the Microbe<Ants> type in detail
   """.trimIndent()
 }
