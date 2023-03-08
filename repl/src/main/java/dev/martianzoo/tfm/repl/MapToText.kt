@@ -14,8 +14,8 @@ internal class MapToText(private val game: GameStateReader) {
         (1..9).flatMap {
           listOf(
               fromRect("$it —", 3 * it, 0), // numerical row headings
-              fromRect("$it", 0, it * 2 + 5),  // numerical column headings
-              fromRect("/ ", 1, it * 2 + 5),     // slashes
+              fromRect("$it", 0, it * 2 + 5), // numerical column headings
+              fromRect("/ ", 1, it * 2 + 5), // slashes
           )
         }
     cells += game.setup.map.areas.map { fromHex(describe(it), it.row, it.column) }

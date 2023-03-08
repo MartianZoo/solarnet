@@ -29,7 +29,8 @@ object ResourceUtils {
 
   /** Returns the name of every concrete class of type `StandardResource`. */
   fun standardResourceNames(game: GameStateReader): Set<ClassName> =
-      game.getComponents(game.resolve(STANDARD_RESOURCE.classExpression()))
+      game
+          .getComponents(game.resolve(STANDARD_RESOURCE.classExpression()))
           .map { it.expression.arguments.single().className }
           .toSet()
 }

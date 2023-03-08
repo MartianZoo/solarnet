@@ -16,8 +16,7 @@ interface Hierarchical<H : Hierarchical<H>> {
 
   /** Returns `true` if `this` is a general form of `that` (or they are the same). */
   fun isSupertypeOf(that: H): Boolean {
-    @Suppress("UNCHECKED_CAST")
-    return that.isSubtypeOf(this as H)
+    @Suppress("UNCHECKED_CAST") return that.isSubtypeOf(this as H)
   }
 
   /** Returns the nearest common subtype of `this` and [that], if possible */

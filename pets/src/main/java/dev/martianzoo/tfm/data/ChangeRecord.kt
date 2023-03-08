@@ -14,7 +14,7 @@ data class ChangeRecord(
   init {
     require(ordinal >= 0)
     if (cause != null) {
-      require(cause.trigger < ordinal) { "${cause.trigger} should be < $ordinal"}
+      require(cause.trigger < ordinal) { "${cause.trigger} should be < $ordinal" }
     }
   }
 

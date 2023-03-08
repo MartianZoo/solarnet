@@ -30,8 +30,7 @@ class DefaultsTest {
           CLASS Fixed: Qux1 {
             DEFAULT +Fixed.
           }
-        """
-    )
+        """)
 
     val d = loader.allDefaults[cn("Foo1")]!!
     assertThat(d.gainIntensity).isEqualTo(AMAP)

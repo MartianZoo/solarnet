@@ -37,21 +37,19 @@ public abstract class PetTransformer {
             is Expression -> Expression(x(className), x(arguments), x(refinement), link)
             is ScaledExpression -> ScaledExpression(scalar, x(expression))
             is Metric ->
-              when (this) {
-                is Metric.Count -> Metric.Count(x(scaledEx))
-                is Metric.Max -> Metric.Max(x(metric), maximum)
-              }
-
+                when (this) {
+                  is Metric.Count -> Metric.Count(x(scaledEx))
+                  is Metric.Max -> Metric.Max(x(metric), maximum)
+                }
             is Requirement ->
-              when (this) {
-                is Requirement.Min -> Requirement.Min(x(scaledEx))
-                is Requirement.Max -> Requirement.Max(x(scaledEx))
-                is Requirement.Exact -> Requirement.Exact(x(scaledEx))
-                is Requirement.Or -> Requirement.Or(x(requirements))
-                is Requirement.And -> Requirement.And(x(requirements))
-                is Requirement.Transform -> Requirement.Transform(x(requirement), transformKind)
-              }
-
+                when (this) {
+                  is Requirement.Min -> Requirement.Min(x(scaledEx))
+                  is Requirement.Max -> Requirement.Max(x(scaledEx))
+                  is Requirement.Exact -> Requirement.Exact(x(scaledEx))
+                  is Requirement.Or -> Requirement.Or(x(requirements))
+                  is Requirement.And -> Requirement.And(x(requirements))
+                  is Requirement.Transform -> Requirement.Transform(x(requirement), transformKind)
+                }
             is Instruction ->
                 when (this) {
                   is Instruction.Gain -> Instruction.Gain(x(scaledEx), intensity)
@@ -67,9 +65,12 @@ public abstract class PetTransformer {
                 }
             is FromExpression ->
                 when (this) {
-                  is FromExpression.SimpleFrom -> FromExpression.SimpleFrom(x(toExpression), x(fromExpression))
-                  is FromExpression.ComplexFrom -> FromExpression.ComplexFrom(x(className), x(arguments), x(refinement))
-                  is FromExpression.ExpressionAsFrom -> FromExpression.ExpressionAsFrom(x(expression))
+                  is FromExpression.SimpleFrom ->
+                      FromExpression.SimpleFrom(x(toExpression), x(fromExpression))
+                  is FromExpression.ComplexFrom ->
+                      FromExpression.ComplexFrom(x(className), x(arguments), x(refinement))
+                  is FromExpression.ExpressionAsFrom ->
+                      FromExpression.ExpressionAsFrom(x(expression))
                 }
             is Effect -> Effect(x(trigger), x(instruction), automatic)
             is Trigger ->

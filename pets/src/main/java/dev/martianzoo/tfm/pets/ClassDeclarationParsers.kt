@@ -178,9 +178,7 @@ internal object ClassDeclarationParsers : BaseTokenizer() {
             className = className,
             shortName = shortName ?: className,
             dependencies = dependencies,
-            supertypes = supertypes.toSetStrict()
-        )
-    )
+            supertypes = supertypes.toSetStrict()))
   }
 
   internal sealed class MoreSignaturesOrBody {

@@ -26,7 +26,8 @@ object PTypeToText { // TODO refactor to ClassInfo / TypeInfo type dealies
           else -> subs.take(6).joinToString() + " (${subs.size - 6} others)"
         }
 
-    val names = "${pclass.className}" + "[${pclass.shortName}]".iff(pclass.shortName != pclass.className)
+    val names =
+        "${pclass.className}" + "[${pclass.shortName}]".iff(pclass.shortName != pclass.className)
 
     fun sequenceCount(seq: Sequence<Any>, limit: Int): String {
       val partial = seq.take(limit + 1).count()

@@ -143,8 +143,7 @@ private class EffectTest {
         Effect(
             OnGainOf.create(cn("Wau").expr),
             Instruction.Transform(
-                Instruction.Per(Gain(scaledEx(cn("Ooh").expr)),
-                    Count(scaledEx(cn("Qux").expr))),
+                Instruction.Per(Gain(scaledEx(cn("Ooh").expr)), Count(scaledEx(cn("Qux").expr))),
                 "PROD")))
 
     checkBothWays(
@@ -190,8 +189,8 @@ private class EffectTest {
             OnRemoveOf.create(cn("Bar").expr),
             Instruction.Multi(
                 Instruction.Multi(
-                    Instruction.Per(Gain(scaledEx(cn("Bar").expr)), Count(scaledEx(cn("Qux")
-                        .expr))),
+                    Instruction.Per(
+                        Gain(scaledEx(cn("Bar").expr)), Count(scaledEx(cn("Qux").expr))),
                     Instruction.Per(
                         Gain(scaledEx(1, cn("Megacredit").expr)),
                         Count(scaledEx(cn("Megacredit").expr)))),
@@ -211,8 +210,7 @@ private class EffectTest {
                         Gain(scaledEx(cn("Abc").expr)),
                         Count(scaledEx(11, cn("Megacredit").expr)))),
                 Gated(
-                    Exact(scaledEx(cn("Megacredit").expr)),
-                    Remove(scaledEx(1, cn("Abc").expr))))))
+                    Exact(scaledEx(cn("Megacredit").expr)), Remove(scaledEx(1, cn("Abc").expr))))))
 
     checkBothWays(
         "Bar: PROD[-5, (Abc / Megacredit, 1 Foo FROM Foo), (Foo OR 1): " +
@@ -224,13 +222,11 @@ private class EffectTest {
                     Remove(scaledEx(5, cn("Megacredit").expr)),
                     Instruction.Multi(
                         Instruction.Per(
-                            Gain(scaledEx(cn("Abc").expr)),
-                            Count(scaledEx(cn("Megacredit").expr))),
+                            Gain(scaledEx(cn("Abc").expr)), Count(scaledEx(cn("Megacredit").expr))),
                         Transmute(SimpleFrom(cn("Foo").expr, cn("Foo").expr), 1)),
                     Gated(
                         Requirement.Or(
-                            Min(scaledEx(1, cn("Foo").expr)),
-                            Min(scaledEx(cn("Megacredit").expr))),
+                            Min(scaledEx(1, cn("Foo").expr)), Min(scaledEx(cn("Megacredit").expr))),
                         Transmute(
                             ComplexFrom(
                                 cn("Foo"), listOf(SimpleFrom(cn("Qux").expr, cn("Foo").expr))),

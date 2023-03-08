@@ -46,7 +46,6 @@ public data class Action(val cost: Cost?, val instruction: Instruction) : PetNod
         when (cost) {
           is Or,
           is Multi -> throw PetException("Break into separate Per instructions")
-
           is Per -> throw PetException("Might support in future?")
           else -> {}
         }
@@ -109,8 +108,7 @@ public data class Action(val cost: Cost?, val instruction: Instruction) : PetNod
 
           val perCost =
               atomCost and
-                  optional(skipChar('/') and
-                      Metric.parser()) map { (cost, met) ->
+              optional(skipChar('/') and Metric.parser()) map { (cost, met) ->
                 if (met == null) cost else Per(cost, met)
               }
 

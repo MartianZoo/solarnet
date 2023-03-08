@@ -19,8 +19,7 @@ private class CanonEffectsTest {
   fun sabotage() {
     assertThat(effectsOf("Sabotage"))
         .containsExactly(
-            "This: -3 Titanium<Anyone>? OR -4 Steel<Anyone>? OR -7 Megacredit<Anyone>?"
-        )
+            "This: -3 Titanium<Anyone>? OR -4 Steel<Anyone>? OR -7 Megacredit<Anyone>?")
   }
 
   @Test
@@ -123,7 +122,6 @@ private class CanonEffectsTest {
 
   @Test
   fun floaterPrototypes() {
-    assertThat(effectsOf("FloaterPrototypes"))
-        .containsExactly("This: 2 Floater<Owner>.")
+    assertThat(effectsOf("FloaterPrototypes")).containsExactly("This: 2 Floater<Owner>.")
   }
 }

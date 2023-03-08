@@ -82,7 +82,8 @@ internal sealed class Dependency : Hierarchical<Dependency>, HasExpression, HasC
 
     override fun isSubtypeOf(that: Dependency) = boundClass.isSubtypeOf(boundOf(that))
 
-    override fun glb(that: Dependency): FakeDependency? = (boundClass glb boundOf(that))?.let(::copy)
+    override fun glb(that: Dependency): FakeDependency? =
+        (boundClass glb boundOf(that))?.let(::copy)
 
     override fun lub(that: Dependency): FakeDependency = copy(boundClass lub boundOf(that))
 

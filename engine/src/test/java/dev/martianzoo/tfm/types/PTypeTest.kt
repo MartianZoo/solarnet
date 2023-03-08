@@ -42,7 +42,7 @@ private class PTypeTest {
 
     assertFails { table.resolve(te("Animal<Ants>")) }
     assertThat(table.resolve(te("Animal")).expressionFull.toString())
-       .isEqualTo("Animal<Owner, ResourceCard<Owner, Class<Animal>>>")
+        .isEqualTo("Animal<Owner, ResourceCard<Owner, Class<Animal>>>")
 
     // TODO this should FAIL
     // table.resolve(te("Microbe<Player1, Ants<Player2>>"))

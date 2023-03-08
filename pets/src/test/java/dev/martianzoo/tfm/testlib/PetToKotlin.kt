@@ -42,7 +42,6 @@ internal object PetToKotlin {
               (if (arguments.none()) ".type" else ".addArgs(${arguments.join()})") +
               refinement?.let(::p2k).wrap(".refine(", ")")
         }
-
         is ScaledExpression -> {
           if (scalar == 1) {
             "scaledEx(${p2k(expression)})"
@@ -50,14 +49,12 @@ internal object PetToKotlin {
             "scaledEx($scalar${p2k(expression).pre(", ")})"
           }
         }
-
         is Metric -> {
           when (this) {
             is Metric.Count -> "Count(${p2k(scaledEx)})"
             is Metric.Max -> "Metric.Max(${p2k(metric)}, $maximum)"
           }
         }
-
         is Requirement -> {
           when (this) {
             is Requirement.Min -> "Min(${p2k(scaledEx)})"
@@ -66,7 +63,7 @@ internal object PetToKotlin {
             is Requirement.Or -> "Requirement.Or(${requirements.join()})"
             is Requirement.And -> "Requirement.And(${requirements.join()})"
             is Requirement.Transform ->
-              "Requirement.Transform(${p2k(requirement)}, \"$transformKind\")"
+                "Requirement.Transform(${p2k(requirement)}, \"$transformKind\")"
           }
         }
         is Instruction -> {

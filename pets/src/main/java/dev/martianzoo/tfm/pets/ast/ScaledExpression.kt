@@ -45,9 +45,7 @@ data class ScaledExpression(
         val scalarAndOptionalEx = scalar and optional(Expression.parser())
         val optionalScalarAndEx = optional(scalar) and Expression.parser()
 
-        scalarAndOptionalEx or optionalScalarAndEx map {
-          (scalar, expr) -> scaledEx(scalar, expr)
-        }
+        scalarAndOptionalEx or optionalScalarAndEx map { (scalar, expr) -> scaledEx(scalar, expr) }
       }
     }
   }

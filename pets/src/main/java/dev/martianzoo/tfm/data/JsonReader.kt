@@ -62,9 +62,12 @@ object JsonReader {
         fun mapArea(row0Index: Int, col0Index: Int, code: String, legend: Legend): AreaDefinition? {
           if (code.isEmpty()) return null
           return AreaDefinition(
-              name, bundle,
-              row0Index + 1, col0Index + 1,
-              legend.getType(code), legend.getBonus(code),
+              name,
+              bundle,
+              row0Index + 1,
+              col0Index + 1,
+              legend.getType(code),
+              legend.getBonus(code),
               code)
         }
 

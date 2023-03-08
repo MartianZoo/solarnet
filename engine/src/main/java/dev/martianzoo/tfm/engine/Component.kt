@@ -14,8 +14,7 @@ import dev.martianzoo.tfm.types.PType
  * An *instance* of some concrete [PType]; a [ComponentGraph] is a multiset of these. For any use
  * case unrelated to what instances actually exist in a game state, use [PType] instead.
  */
-public data class Component
-private constructor(val ptype: PType) : HasExpression by ptype {
+public data class Component private constructor(val ptype: PType) : HasExpression by ptype {
 
   companion object {
     public fun ofType(ptype: PType): Component = Component(ptype)

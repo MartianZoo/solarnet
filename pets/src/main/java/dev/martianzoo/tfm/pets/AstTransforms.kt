@@ -32,7 +32,9 @@ public object AstTransforms {
     if (lhs == null) return rhs
 
     // Handle the Ants case
-    Transmute.tryMerge(lhs, rhs)?.let { return it }
+    Transmute.tryMerge(lhs, rhs)?.let {
+      return it
+    }
 
     // Nested THENs are just silly
     val allInstructions =

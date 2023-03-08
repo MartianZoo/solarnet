@@ -95,8 +95,7 @@ public sealed class Instruction : PetNode() {
         val scalar = gain.scaledEx.scalar
 
         if (remove.scaledEx.scalar != scalar) return null
-        val intensity =
-            setOfNotNull(gain.intensity, remove.intensity).singleOrNull() ?: return null
+        val intensity = setOfNotNull(gain.intensity, remove.intensity).singleOrNull() ?: return null
         val scal: Int? = if (scalar == 1) null else scalar
         return Transmute(
             SimpleFrom(gain.scaledEx.expression, remove.scaledEx.expression), scal, intensity)

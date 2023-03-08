@@ -71,8 +71,8 @@ private class ExpressionTest {
 
     val two = te("Two<Class<Bar>, Class<Qux>>")
     assertThat(two.className).isEqualTo(cn("Two"))
-    assertThat(two.arguments).containsExactly(cn("Bar").classExpression(),
-        cn("Qux").classExpression())
+    assertThat(two.arguments)
+        .containsExactly(cn("Bar").classExpression(), cn("Qux").classExpression())
   }
 
   @Test

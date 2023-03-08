@@ -110,8 +110,7 @@ private class ActionTest {
                 Cost.Or(
                     Spend(scaledEx(cn("Megacredit").expr)),
                     Cost.Or(
-                        Spend(scaledEx(cn("Megacredit").expr)),
-                        Spend(scaledEx(cn("Bar").expr))),
+                        Spend(scaledEx(cn("Megacredit").expr)), Spend(scaledEx(cn("Bar").expr))),
                     Cost.Per(
                         Spend(scaledEx(cn("Megacredit").expr)),
                         Count(scaledEx(cn("Megacredit").expr)))),
@@ -193,8 +192,7 @@ private class ActionTest {
                 Count(scaledEx(cn("Ooh").addArgs(cn("Abc"), cn("Ahh")))))))
 
     checkBothWays(
-        "Xyz -> 1",
-        Action(Spend(scaledEx(cn("Xyz").expr)), Gain(scaledEx(cn("Megacredit").expr))))
+        "Xyz -> 1", Action(Spend(scaledEx(cn("Xyz").expr)), Gain(scaledEx(cn("Megacredit").expr))))
 
     checkBothWays(
         "Ooh -> 5 / Abc, 11! / Megacredit, -1?, (1!, (1 Bar FROM Foo, 1: 11 Foo))",

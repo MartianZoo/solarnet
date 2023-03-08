@@ -71,9 +71,8 @@ private class AstTransformsTest {
   @Test
   fun testFindAllClassNames() {
     val instr = instruction("@foo(Bar, Qux<Dog>)")
-    assertThat(instr.descendantsOfType<ClassName>().toStrings()).containsExactly("Bar",
-        "Qux",
-        "Dog")
+    assertThat(instr.descendantsOfType<ClassName>().toStrings())
+        .containsExactly("Bar", "Qux", "Dog")
   }
 
   @Test

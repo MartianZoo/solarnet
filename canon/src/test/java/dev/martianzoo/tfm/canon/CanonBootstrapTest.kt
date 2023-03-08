@@ -72,10 +72,13 @@ private class CanonBootstrapTest {
     assertThat(startingComponents.count(isBorder)).isEqualTo(312)
     assertThat(startingComponents.count(isClass)).isGreaterThan(400)
 
-    val theRest = startingComponents.filterNot {
-      isArea(it) || isBorder(it) || isClass(it) ||
-          it.hasType(game.resolve(expression("Production<Class<Megacredit>>")))
-    }
+    val theRest =
+        startingComponents.filterNot {
+          isArea(it) ||
+              isBorder(it) ||
+              isClass(it) ||
+              it.hasType(game.resolve(expression("Production<Class<Megacredit>>")))
+        }
     assertThat(theRest.toStrings())
         .containsExactly(
             "[Game]",
