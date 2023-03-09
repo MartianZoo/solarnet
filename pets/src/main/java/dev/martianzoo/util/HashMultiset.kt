@@ -31,7 +31,7 @@ class HashMultiset<E> : MutableMultiset<E> {
   override fun count(element: E) = map[element] ?: 0
 
   override fun setCount(element: E, newCount: Int): Int /*old count*/ {
-    require(newCount >= 0)
+    require(newCount >= 0) { "tried to set count of some component to $newCount" }
     val old = count(element)
     if (newCount == 0) {
       map.remove(element)

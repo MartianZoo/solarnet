@@ -35,6 +35,13 @@ internal fun main() {
 public class ReplSession(private val authority: Authority) {
   internal val session = InteractiveSession()
   internal var mode: ReplMode = YELLOW
+    set(f) {
+      session.effectsOn = (f == YELLOW)
+      field =f
+    }
+  init {
+    mode = YELLOW // setting it redundantly to make the `effectsOn` thing happen TODO
+  }
 
   enum class ReplMode(val message: String) {
     GRAY("No game active."),
@@ -124,7 +131,6 @@ public class ReplSession(private val authority: Authority) {
               { arg ->
                 if (arg != null) {
                   mode = ReplMode.valueOf(arg.trim().uppercase())
-                  session.effectsOn = (mode == YELLOW)
                 }
                 listOf("Mode $mode: ${mode.message}")
               },
