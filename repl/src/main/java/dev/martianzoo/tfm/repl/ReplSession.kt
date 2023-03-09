@@ -138,11 +138,14 @@ public class ReplSession(private val authority: Authority) {
               {
                 it?.let { args ->
                   val changes = session.execute(instruction(args))
-                  val oops = session.game!!.pendingAbstractTasks.mapIndexed { i, it ->
-                    "$i: ${it.instruction} ${it.cause}"
+                  val oops = session.game!!.failedTasks.flatMapIndexed { i, it ->
+                    listOf(
+                        "$i: ${it.task.instruction} ${it.task.cause}",
+                        "        ${it.why}"
+                    )
                   }
                   changes.toStrings() + if (oops.any()) {
-                    listOf("", "Pending tasks:") + oops
+                    listOf("", "Failed tasks:") + oops
                   } else {
                     listOf()
                   }

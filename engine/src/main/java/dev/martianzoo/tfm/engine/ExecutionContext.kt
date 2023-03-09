@@ -6,7 +6,6 @@ import dev.martianzoo.tfm.api.SpecialClassNames.GAME
 import dev.martianzoo.tfm.api.Type
 import dev.martianzoo.tfm.data.ChangeRecord
 import dev.martianzoo.tfm.data.ChangeRecord.Cause
-import dev.martianzoo.tfm.engine.ComponentGraph.MissingDependenciesException
 import dev.martianzoo.tfm.engine.Game.AbstractInstructionException
 import dev.martianzoo.tfm.engine.Game.Task
 import dev.martianzoo.tfm.pets.ast.Expression
@@ -28,86 +27,38 @@ class ExecutionContext(
     val withEffects: Boolean = true,
     val hidden: Boolean = false,
 ) {
-  val taskQueue = ArrayDeque<Task>()
+  val outerTaskQueue = ArrayDeque<Task>() // for initial task and : effects
+  val innerTaskQueue = ArrayDeque<Task>() // for :: effects, and move outer here 1-by-1
 
-  fun executeAll(
-      instructions: List<Instruction>,
-      initialCause: Cause? = null,
-  ): List<ChangeRecord> {
+  fun autoExecute(instruction: Instruction, initialCause: Cause? = null): List<ChangeRecord> {
+    val deprodded = game.loader.transformer.deprodify(instruction)
     val start = game.nextOrdinal
-    taskQueue += instructions.map { Task(game.loader.transformer.deprodify(it), initialCause) }
 
-    while (taskQueue.any()) {
-      val next = taskQueue.removeFirst()
+    outerTaskQueue += split(deprodded).map { Task(it, initialCause) }
+
+    while (outerTaskQueue.any()) {
+      require(innerTaskQueue.none())
+      val outerTask = outerTaskQueue.removeFirst()
+      val checkpoint = game.nextOrdinal
+
       try {
-        doExecute(next.instruction, next.cause, 1)
-      } catch (e: MissingDependenciesException) {
-        val tries = next.attempts
-        if (tries > 5) throw e
-        taskQueue += next.copy(attempts = tries + 1)
-      } catch (e: AbstractInstructionException) {
-        game.pendingAbstractTasks += next
+        innerTaskQueue += outerTask
+
+        while (innerTaskQueue.any()) {
+          val innerTask = innerTaskQueue.removeFirst()
+          doExecute(innerTask.instruction, innerTask.cause, 1)
+        }
+      } catch (e: Exception) {
+        game.failedTasks += FailedTask(outerTask, e.toString())
+        innerTaskQueue.clear()
+        game.rollBack(checkpoint) // have to worry about rolling back task changes??
+        // TODO could also consider an overlay ComponentGraph
       }
     }
     return game.fullChangeLog.subList(start, game.nextOrdinal).toList()
   }
 
-  fun applyChange(
-      count: Int = 1,
-      gaining: Component? = null,
-      removing: Component? = null,
-      amap: Boolean = false,
-      cause: Cause? = null,
-  ) {
-    val change = game.components.applyChange(count, gaining, removing, amap) ?: return
-    val triggeringRecord = ChangeRecord(game.nextOrdinal, change, cause, hidden)
-    game.fullChangeLog.add(triggeringRecord)
-
-    if (withEffects) {
-      val gained: Expression = triggeringRecord.change.gaining ?: return
-      val gainedCpt: Component = game.toComponent(gained)
-      val doer = gainedCpt.owner() ?: triggeringRecord.cause?.doer ?: GAME
-
-      // TODO fix bad code
-
-      data class FiredEffect(val ins: Instruction, val cause: Cause, val now: Boolean)
-
-      val selfEffects =
-          gainedCpt.activeEffects.mapNotNull { fx ->
-            val instr = fx.onSelfChange(triggeringRecord, game) ?: return@mapNotNull null
-            val newCause = Cause(
-                triggeringChange = triggeringRecord.ordinal,
-                contextComponent = fx.contextComponent.expressionFull,
-                doer = doer)
-            FiredEffect(instr, newCause, fx.automatic)
-          }
-
-
-      val activeFx = game.components.allActiveEffects()
-      val otherEffects =
-          activeFx.elements.mapNotNull { fx ->
-            val oneInstruction = fx.getInstruction(triggeringRecord, game) ?: return@mapNotNull null
-            val scaled = oneInstruction.times(activeFx.count(fx))
-            val newCause = Cause(
-                triggeringChange = triggeringRecord.ordinal,
-                contextComponent = fx.contextComponent.expressionFull,
-                doer = doer)
-            FiredEffect(scaled, newCause, fx.automatic)
-          }
-
-      val pairs = selfEffects + otherEffects
-      val now = pairs
-          .filter { it.now }
-          .flatMap { fired -> split(fired.ins).map { fired.copy(ins = it) } }
-          .map { Task(it.ins, it.cause) }
-      val later = pairs
-          .filterNot { it.now }
-          .flatMap { fired -> split(fired.ins).map { fired.copy(ins = it) } }
-          .map { Task(it.ins, it.cause) }
-      taskQueue.addAll(0, now)
-      taskQueue.addAll(later)
-    }
-  }
+  data class FailedTask(val task: Task, val why: String)
 
   fun doExecute(ins: Instruction, cause: Cause?, multiplier: Int) {
     if (multiplier == 0) return
@@ -117,11 +68,12 @@ class ExecutionContext(
       is Change -> {
         val amap: Boolean =
             when (ins.intensity) {
-              OPTIONAL, null -> throw AbstractInstructionException("$ins")
+              OPTIONAL,
+              null -> throw AbstractInstructionException("$ins")
               MANDATORY -> false
               AMAP -> true
             }
-        applyChange(
+        applyChangeAndFireTriggers(
             count = ins.count * multiplier,
             gaining = game.toComponent(ins.gaining),
             removing = game.toComponent(ins.removing),
@@ -161,6 +113,66 @@ class ExecutionContext(
     }
   }
 
+  fun applyChangeAndFireTriggers(
+      count: Int = 1,
+      gaining: Component? = null,
+      removing: Component? = null,
+      amap: Boolean = false,
+      cause: Cause? = null,
+  ) {
+    val change = game.components.applyChange(count, gaining, removing, amap) ?: return
+    val triggeringRecord = ChangeRecord(game.nextOrdinal, change, cause, hidden)
+    game.fullChangeLog.add(triggeringRecord)
+
+    if (withEffects) {
+      val gained: Expression = triggeringRecord.change.gaining ?: return
+      val gainedCpt: Component = game.toComponent(gained)
+      val doer = gainedCpt.owner() ?: triggeringRecord.cause?.doer ?: GAME
+
+      // TODO fix bad code
+
+      data class FiredEffect(val ins: Instruction, val cause: Cause, val now: Boolean)
+
+      val selfEffects =
+          gainedCpt.activeEffects.mapNotNull { fx ->
+            val instr = fx.onSelfChange(triggeringRecord, game) ?: return@mapNotNull null
+            val newCause =
+                Cause(
+                    triggeringChange = triggeringRecord.ordinal,
+                    contextComponent = fx.contextComponent.expressionFull,
+                    doer = doer)
+            FiredEffect(instr, newCause, fx.automatic)
+          }
+
+      val activeFx = game.components.allActiveEffects()
+      val otherEffects =
+          activeFx.elements.mapNotNull { fx ->
+            val oneInstruction = fx.getInstruction(triggeringRecord, game) ?: return@mapNotNull null
+            val scaled = oneInstruction.times(activeFx.count(fx))
+            val newCause =
+                Cause(
+                    triggeringChange = triggeringRecord.ordinal,
+                    contextComponent = fx.contextComponent.expressionFull,
+                    doer = doer)
+            FiredEffect(scaled, newCause, fx.automatic)
+          }
+
+      val pairs = selfEffects + otherEffects
+      val now =
+          pairs
+              .filter { it.now }
+              .flatMap { fired -> split(fired.ins).map { fired.copy(ins = it) } }
+              .map { Task(it.ins, it.cause) }
+      val later =
+          pairs
+              .filterNot { it.now }
+              .flatMap { fired -> split(fired.ins).map { fired.copy(ins = it) } }
+              .map { Task(it.ins, it.cause) }
+      innerTaskQueue += now
+      outerTaskQueue += later
+    }
+  }
+
   val writer =
       object : GameStateWriter {
         override fun write(
@@ -170,7 +182,7 @@ class ExecutionContext(
             amap: Boolean,
             cause: Cause?,
         ) {
-          applyChange(count, toComponent(gaining), toComponent(removing), amap, cause)
+          applyChangeAndFireTriggers(count, toComponent(gaining), toComponent(removing), amap, cause)
         }
       }
 

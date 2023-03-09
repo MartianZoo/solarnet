@@ -5,6 +5,7 @@ import dev.martianzoo.tfm.api.GameStateReader
 import dev.martianzoo.tfm.api.Type
 import dev.martianzoo.tfm.data.ChangeRecord
 import dev.martianzoo.tfm.data.ChangeRecord.Cause
+import dev.martianzoo.tfm.engine.ExecutionContext.FailedTask
 import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.pets.ast.Instruction
 import dev.martianzoo.tfm.pets.ast.Metric
@@ -33,7 +34,7 @@ public class Game(val setup: GameSetup, public val loader: MClassLoader) {
 
   internal val nextOrdinal: Int by fullChangeLog::size
 
-  val pendingAbstractTasks = mutableListOf<Task>()
+  val failedTasks = ArrayDeque<FailedTask>()
 
   data class Task(val instruction: Instruction, val cause: Cause?, val attempts: Int = 0)
 
@@ -94,15 +95,8 @@ public class Game(val setup: GameSetup, public val loader: MClassLoader) {
       withEffects: Boolean = false,
       initialCause: Cause? = null,
       hidden: Boolean = false,
-  ) = executeAll(listOf(instruction), withEffects, initialCause, hidden)
-
-  fun executeAll(
-      instruction: List<Instruction>,
-      withEffects: Boolean = false,
-      initialCause: Cause? = null,
-      hidden: Boolean = false,
   ): List<ChangeRecord> =
-      ExecutionContext(this, withEffects, hidden).executeAll(instruction, initialCause)
+      ExecutionContext(this, withEffects, hidden).autoExecute(instruction, initialCause)
 
   // CHANGE LOG
 
@@ -113,8 +107,6 @@ public class Game(val setup: GameSetup, public val loader: MClassLoader) {
   public fun rollBack(ordinal: Int) { // TODO kick this out, rolling back starts a new game?
     require(ordinal <= nextOrdinal)
     if (ordinal == nextOrdinal) return
-    require(!fullChangeLog[ordinal].hidden)
-
     val subList = fullChangeLog.subList(ordinal, nextOrdinal)
     for (entry in subList.asReversed()) {
       val change = entry.change.inverse()

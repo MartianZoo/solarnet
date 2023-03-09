@@ -34,18 +34,20 @@ public object Engine {
     val game = Game(setup, loader)
     // game.execute(instruction("Game!"), withEffects = true, hidden = true)
 
-    game.execute(
-        instruction("Game!"),
-        initialCause = Cause(null, contextComponent = GAME.expr, doer = GAME),
-        hidden = true).single()
+    val uncausedCause = Cause(null, contextComponent = GAME.expr, doer = GAME)
     val fakeCause = Cause(0, contextComponent = GAME.expr, doer = GAME)
 
-    game.executeAll(
-        Instruction.split(customInstr(loader)),
+    game.execute(
+        instruction("Game!"),
+        initialCause = uncausedCause,
+        hidden = true).single()
+
+    game.execute(
+        customInstr(loader),
         withEffects = true,
         initialCause = fakeCause,
         hidden = true)
-    require(game.pendingAbstractTasks.none())
+    require(game.failedTasks.none())
     return game
   }
 
