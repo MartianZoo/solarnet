@@ -45,19 +45,20 @@
     },
 
     // United Nations Mars Initiative
-    {
-      "id": "B10",
-      "bundle": "B",
-      "deck": "CORPORATION",
-      "tags": [ "EarthTag" ],
-      "immediate": "40",
-      "actions": [ "3 -> HasRaisedTr: TerraformRating" ],
-      "components": [
-        "CLASS HasRaisedTr : Owned, Generational { HAS MAX 1 This }",
-        // TODO: just use dot when limits work
-        "CLASS TrWatcher : Owned { HAS =1 This; TerraformRating: (=0 HasRaisedTr ?: HasRaisedTr) }"
-      ]
-    },
+    // TODO it's commented just because seeing HasRaisedTr all the time is annoying
+//    {
+//      "id": "B10",
+//      "bundle": "B",
+//      "deck": "CORPORATION",
+//      "tags": [ "EarthTag" ],H
+//      "immediate": "40",
+//      "actions": [ "3 -> HasRaisedTr: TerraformRating" ],
+//      "components": [
+//        "CLASS HasRaisedTr : Owned, Generational { HAS MAX 1 This }",
+//        // TODO: just use dot when limits work
+//        "CLASS TrWatcher : Owned { HAS =1 This; TerraformRating: (=0 HasRaisedTr ?: HasRaisedTr) }"
+//      ]
+//    },
 
     // Saturn Systems
     {

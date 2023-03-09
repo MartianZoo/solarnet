@@ -47,7 +47,8 @@ private class CanonClassesTest {
   fun abstractClassWithOnlyChild() {
     // In some cases we might like the parent and child to be treated as the same class
     val anomalies = loader.allClasses.filter { it.abstract && it.directSubclasses.size == 1 }
-    assertThat(anomalies.classNames()).containsExactly(ANYONE, cn("NoctisArea"), cn("Barrier"))
+    assertThat(anomalies.classNames())
+        .containsExactly(ANYONE, cn("NoctisArea"), cn("Barrier"), cn("Generational"))
   }
 
   @Test
