@@ -12,8 +12,6 @@ import dev.martianzoo.util.toStrings
 import org.junit.jupiter.api.Test
 
 private class GameApiTest {
-
-  // TODO these are convenient...
   fun Game.count(s: String) = count(metric(s))
   fun Game.execute(s: String) = execute(instruction(s))
   fun Game.evaluate(s: String) = evaluate(requirement(s))

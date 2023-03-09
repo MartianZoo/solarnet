@@ -51,9 +51,11 @@ private class CanonEffectsTest {
 
   @Test
   fun venusian() {
-    assertThat(effectsOf("VenusianAnimals").drop(1))
+    val blah = "Owner, VenusianAnimals<Owner>"
+    assertThat(effectsOf("VenusianAnimals"))
         .containsExactly(
-            // "This: VenusTag<Owner>!, ScienceTag<Owner>!, AnimalTag<Owner>!",
+            "This:: (9 VenusStep: Ok!)",
+            "This: VenusTag<$blah>!, ScienceTag<$blah>!, AnimalTag<$blah>!",
             "ScienceTag<Owner>: Animal<Owner, This>.",
             "End: VictoryPoint<Owner>! / Animal<Owner, This>",
         )
@@ -100,6 +102,7 @@ private class CanonEffectsTest {
   fun amc() {
     assertThat(effectsOf("AsteroidMiningConsortium"))
         .containsExactly(
+            "This:: (PROD[Titanium<Owner>]: Ok!)",
             "This: JovianTag<Owner, AsteroidMiningConsortium<Owner>>!",
             "This: PROD[-Titanium<Anyone>!, Titanium<Owner>!]",
             "End: VictoryPoint<Owner>!",

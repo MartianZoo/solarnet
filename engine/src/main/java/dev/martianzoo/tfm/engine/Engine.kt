@@ -28,7 +28,7 @@ public object Engine {
   public fun newGame(setup: GameSetup): Game {
     val loader = loadClasses(setup)
 
-    // TODO bad hack
+    // TODO get @createSingletons to work as a real CustomInstruction
     // setup.authority.customInstructions += customInstr(loader)
 
     val game = Game(setup, loader)

@@ -1,6 +1,7 @@
 package dev.martianzoo.tfm.data
 
 import dev.martianzoo.tfm.api.SpecialClassNames.END
+import dev.martianzoo.tfm.api.SpecialClassNames.OK
 import dev.martianzoo.tfm.data.CardDefinition.Deck.PROJECT
 import dev.martianzoo.tfm.data.CardDefinition.ProjectKind.ACTIVE
 import dev.martianzoo.tfm.data.EnglishHack.englishHack
@@ -24,6 +25,7 @@ import dev.martianzoo.tfm.pets.ast.Effect.Trigger.OnGainOf
 import dev.martianzoo.tfm.pets.ast.Instruction
 import dev.martianzoo.tfm.pets.ast.Instruction.Companion.instruction
 import dev.martianzoo.tfm.pets.ast.Instruction.Gain
+import dev.martianzoo.tfm.pets.ast.Instruction.Gated
 import dev.martianzoo.tfm.pets.ast.Instruction.Intensity.MANDATORY
 import dev.martianzoo.tfm.pets.ast.Instruction.Multi
 import dev.martianzoo.tfm.pets.ast.PetNode
@@ -130,15 +132,27 @@ public class CardDefinition(data: CardData) : Definition {
   override val asClassDeclaration by lazy {
     val supertypes =
         setOfNotNull(
-            projectInfo?.kind?.className?.expr,
-            resourceType?.let { RESOURCE_CARD.addArgs(it.classExpression()) },
-            if (actions.any()) ACTION_CARD.expr else null,
-        )
+                projectInfo?.kind?.className?.expr,
+                resourceType?.let { RESOURCE_CARD.addArgs(it.classExpression()) },
+                if (actions.any()) ACTION_CARD.expr else null,
+            )
             .ifEmpty { setOf(CARD_FRONT.expr) }
 
-    val tagGainInstrs = tags.map { Gain(scaledEx(it.expr.addArgs(className)), MANDATORY) }
-    val allImmediate = listOfNotNull(Multi.create(tagGainInstrs), immediate)
-    val allEffects = allImmediate.map(::immediateToEffect) + effects + actionListToEffects(actions)
+    // This simplistic way of handling requirements won't work for "global requirements"
+    // or Diversity Support and is basically just wrong, but oh well: TODO
+    val blocker =
+        if (requirement != null) {
+          listOf(Gated(requirement, mandatory = true, Gain(scaledEx(OK.expr))))
+        } else {
+          listOf()
+        }
+    val gainUsSomeTags = tags.map { Gain(scaledEx(it.expr.addArgs(className)), MANDATORY) }
+    val allImmediate = listOfNotNull(Multi.create(gainUsSomeTags), immediate)
+    val allEffects =
+        blocker.map { immediateToEffect(it, automatic = true) } +
+        allImmediate.map { immediateToEffect(it, automatic = false) } +
+        effects +
+        actionListToEffects(actions)
 
     ClassDeclaration(
         className = className,
@@ -151,7 +165,7 @@ public class CardDefinition(data: CardData) : Definition {
 
   // TODO why public, why lazy, etc
   val extraNodes: Set<PetNode> by lazy {
-    setOfNotNull(resourceType, requirement, projectInfo?.kind?.className, deck?.className) +
+    setOfNotNull(projectInfo?.kind?.className, deck?.className) +
         tags +
         extraClasses.flatMap { it.allNodes }
   }

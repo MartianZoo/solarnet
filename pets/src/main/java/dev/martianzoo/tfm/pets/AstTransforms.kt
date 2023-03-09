@@ -51,8 +51,8 @@ public object AstTransforms {
           .map { (index0Ref, action) -> actionToEffect(action, index1Ref = index0Ref + 1) }
           .toSet()
 
-  internal fun immediateToEffect(instruction: Instruction): Effect {
-    return Effect(WhenGain, instruction, automatic = false)
+  internal fun immediateToEffect(instruction: Instruction, automatic: Boolean = false): Effect {
+    return Effect(WhenGain, instruction, automatic = automatic)
   }
 
   // TODO check if this really what callers want to do
