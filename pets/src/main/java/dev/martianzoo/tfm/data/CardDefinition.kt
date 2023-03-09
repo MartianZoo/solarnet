@@ -136,8 +136,8 @@ public class CardDefinition(data: CardData) : Definition {
         )
             .ifEmpty { setOf(CARD_FRONT.expr) }
 
-    val gainTags: Instruction? = Multi.create(tags.map { Gain(scaledEx(it.expr), MANDATORY) })
-    val allImmediate = listOfNotNull(gainTags, immediate)
+    val tagGainInstrs = tags.map { Gain(scaledEx(it.expr.addArgs(className)), MANDATORY) }
+    val allImmediate = listOfNotNull(Multi.create(tagGainInstrs), immediate)
     val allEffects = allImmediate.map(::immediateToEffect) + effects + actionListToEffects(actions)
 
     ClassDeclaration(

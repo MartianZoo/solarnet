@@ -2,7 +2,7 @@ package dev.martianzoo.tfm.engine
 
 import dev.martianzoo.tfm.api.CustomInstruction.ExecuteInsteadException
 import dev.martianzoo.tfm.api.GameStateWriter
-import dev.martianzoo.tfm.api.SpecialClassNames
+import dev.martianzoo.tfm.api.SpecialClassNames.GAME
 import dev.martianzoo.tfm.api.Type
 import dev.martianzoo.tfm.data.ChangeRecord
 import dev.martianzoo.tfm.data.ChangeRecord.Cause
@@ -12,6 +12,7 @@ import dev.martianzoo.tfm.engine.Game.Task
 import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.pets.ast.Instruction
 import dev.martianzoo.tfm.pets.ast.Instruction.Change
+import dev.martianzoo.tfm.pets.ast.Instruction.Companion.split
 import dev.martianzoo.tfm.pets.ast.Instruction.CompositeInstruction
 import dev.martianzoo.tfm.pets.ast.Instruction.Custom
 import dev.martianzoo.tfm.pets.ast.Instruction.Gated
@@ -65,25 +66,46 @@ class ExecutionContext(
     if (withEffects) {
       val gained: Expression = triggeringRecord.change.gaining ?: return
       val gainedCpt: Component = game.toComponent(gained)
-      val newCause =
-          Cause(
-              triggeringChange = triggeringRecord.ordinal,
-              contextComponent = gained,
-              doer = gainedCpt.owner() ?: triggeringRecord.cause?.doer ?: SpecialClassNames.GAME)
+      val doer = gainedCpt.owner() ?: triggeringRecord.cause?.doer ?: GAME
+
+      // TODO fix bad code
+
+      data class FiredEffect(val ins: Instruction, val cause: Cause, val now: Boolean)
 
       val selfEffects =
-          gainedCpt.activeEffects.mapNotNull { it.onSelfChange(triggeringRecord, game) }
+          gainedCpt.activeEffects.mapNotNull { fx ->
+            val instr = fx.onSelfChange(triggeringRecord, game) ?: return@mapNotNull null
+            val newCause = Cause(
+                triggeringChange = triggeringRecord.ordinal,
+                contextComponent = fx.contextComponent.expressionFull,
+                doer = doer)
+            FiredEffect(instr, newCause, fx.automatic)
+          }
+
 
       val activeFx = game.components.allActiveEffects()
       val otherEffects =
-          activeFx.elements.mapNotNull {
-            it.getInstruction(triggeringRecord, game)?.times(activeFx.count(it))
+          activeFx.elements.mapNotNull { fx ->
+            val oneInstruction = fx.getInstruction(triggeringRecord, game) ?: return@mapNotNull null
+            val scaled = oneInstruction.times(activeFx.count(fx))
+            val newCause = Cause(
+                triggeringChange = triggeringRecord.ordinal,
+                contextComponent = fx.contextComponent.expressionFull,
+                doer = doer)
+            FiredEffect(scaled, newCause, fx.automatic)
           }
 
-      taskQueue += (selfEffects + otherEffects).flatMap { Instruction.split(it) }.map {
-        Task(it,
-            newCause)
-      }
+      val pairs = selfEffects + otherEffects
+      val now = pairs
+          .filter { it.now }
+          .flatMap { fired -> split(fired.ins).map { fired.copy(ins = it) } }
+          .map { Task(it.ins, it.cause) }
+      val later = pairs
+          .filterNot { it.now }
+          .flatMap { fired -> split(fired.ins).map { fired.copy(ins = it) } }
+          .map { Task(it.ins, it.cause) }
+      taskQueue.addAll(0, now)
+      taskQueue.addAll(later)
     }
   }
 
@@ -95,10 +117,7 @@ class ExecutionContext(
       is Change -> {
         val amap: Boolean =
             when (ins.intensity) {
-              OPTIONAL,
-              null,
-              -> throw AbstractInstructionException("$ins")
-
+              OPTIONAL, null -> throw AbstractInstructionException("$ins")
               MANDATORY -> false
               AMAP -> true
             }
@@ -109,16 +128,14 @@ class ExecutionContext(
             amap = amap,
             cause = cause)
       }
-
       is Per -> doExecute(ins.instruction, cause, game.count(ins.metric) * multiplier)
       is Gated -> {
         if (game.evaluate(ins.gate)) {
           doExecute(ins.instruction, cause, multiplier)
-        } else {
+        } else if (ins.mandatory) {
           throw UserException("Requirement not met: ${ins.gate}")
         }
       }
-
       is Custom -> {
         require(multiplier == 1)
         // TODO could inject this earlier
@@ -136,12 +153,10 @@ class ExecutionContext(
           custom.execute(game.reader, writer, arguments)
         }
       }
-
       is Or -> throw AbstractInstructionException("$ins")
       is CompositeInstruction -> {
         ins.instructions.forEach { doExecute(it, cause, multiplier) }
       }
-
       is Transform -> error("should have been transformed already")
     }
   }

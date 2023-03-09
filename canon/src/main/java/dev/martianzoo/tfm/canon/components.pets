@@ -28,20 +28,20 @@ ABSTRACT CLASS GlobalParameter {                       // Instances must be adde
 
   CLASS TemperatureStep {                              // nesting is implicit subtyping
     HAS MAX 19 This                                    // why? because it's so convenient
-    This: (=3 This: PROD[Heat]) OR Ok
-    This: (=5 This: PROD[Heat]) OR Ok                  // These are gated instructions, which are
-    This: (=15 This: OceanTile) OR Ok                  // still mandatory like usual, so without
-  }                                                    // `OR Ok` we'd be at a dead end!
+    This: (=3 This ?: PROD[Heat])
+    This: (=5 This ?: PROD[Heat])
+    This: (=15 This ?: OceanTile)
+  }
 
   CLASS OxygenStep[O2] {
     HAS MAX 14 This
-    This: (=8 This: TemperatureStep) OR Ok
+    This: (=8 This ?: TemperatureStep)
   }
 
   CLASS VenusStep[VEN] {
     HAS MAX 15 This
-    This: (=4 This: ProjectCard) OR Ok
-    This: (=8 This: TerraformRating) OR Ok
+    This: (=4 This ?: ProjectCard)
+    This: (=8 This ?: TerraformRating)
   }
 
   CLASS OceanTile[OT] : Tile<MarsArea> {
@@ -57,7 +57,7 @@ ABSTRACT CLASS GlobalParameter {                       // Instances must be adde
 
 ABSTRACT CLASS MarsMap {                               // Tharsis etc. are loaded from `maps.json5`
   HAS =1 This
-  This:: @createAll(This, Border)
+  // This:: @createAll(This, Border)                   // TODO
 }
 
 ABSTRACT CLASS Area {
@@ -75,20 +75,12 @@ ABSTRACT CLASS Area {
   ABSTRACT CLASS RemoteArea[RA]
 }
 
-ABSTRACT CLASS Tile<Area>
-
-CLASS Border<MarsArea, MarsArea> : System {            // at game start, for each MarsArea we create
-  HAS MAX 1 This                                       // (with that one first) 3-6 of these. So
-                                                       // each border will actually be here twice,
-  Tile<MarsArea^1>: Neighbor<Tile, MarsArea^2>         // once in each direction
+ABSTRACT CLASS Tile<Area> {
+  // This:: @createAdjacencies(This, Neighbor, ForwardAdjacency, BackwardAdjacency) // TODO
 }
 
-CLASS Neighbor<Tile<MarsArea^1>, MarsArea^2> [NBR] {
+CLASS Neighbor<Tile<MarsArea>, MarsArea> [NBR] {
   HAS MAX 1 This
-
-  // no clue how this will really work TODO
-  Tile<MarsArea^2>:: ForwardAdjacency<Tile<MarsArea^1>, Tile<MarsArea^2>>
-  Tile<MarsArea^2>:: BackwardAdjacency<Tile<MarsArea^2>, Tile<MarsArea^1>>
 }
 
 ABSTRACT CLASS Adjacency<Tile, Tile> [ADJ] {
@@ -107,13 +99,12 @@ ABSTRACT CLASS HasActions {                            // specific actions come 
 CLASS Generation[GEN]
 
 ABSTRACT CLASS Generational {                          // things that disappear between gens
-  Generation:: -This                                   // <-- and look, there they go
+  Generation:: -This.                                  // <-- and look, there they go
 }
 
 ABSTRACT CLASS Phase {
   HAS MAX 1 Phase                                      // switch like `ProductionPhase FROM Phase`
 
-  CLASS Start
   CLASS ProductionPhase
   CLASS End
 }

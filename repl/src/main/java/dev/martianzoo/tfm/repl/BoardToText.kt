@@ -5,6 +5,7 @@ import dev.martianzoo.tfm.api.ResourceUtils.lookUpProductionLevels
 import dev.martianzoo.tfm.api.ResourceUtils.standardResourceNames
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.pets.ast.Expression
+import dev.martianzoo.tfm.pets.ast.Expression.Companion.expression
 import org.jline.utils.AttributedStringBuilder
 import org.jline.utils.AttributedStyle.DEFAULT
 
@@ -20,12 +21,12 @@ internal class BoardToText(private val game: GameStateReader) {
     fun prodAndResource(s: String) =
         prodMap[cn(s)].toString().padStart(2) to resourceMap[cn(s)].toString().padStart(3)
 
-    val (m, mr) = prodAndResource("Megacredit")
-    val (s, sr) = prodAndResource("Steel")
-    val (t, tr) = prodAndResource("Titanium")
-    val (p, pr) = prodAndResource("Plant")
-    val (e, er) = prodAndResource("Energy")
-    val (h, hr) = prodAndResource("Heat")
+    val (m, mres) = prodAndResource("Megacredit")
+    val (s, sres) = prodAndResource("Steel")
+    val (t, tres) = prodAndResource("Titanium")
+    val (p, pres) = prodAndResource("Plant")
+    val (e, eres) = prodAndResource("Energy")
+    val (h, hres) = prodAndResource("Heat")
 
     fun colorIt(color: String, string: String): String? {
       if (!colors) return string
@@ -39,14 +40,17 @@ internal class BoardToText(private val game: GameStateReader) {
           .toAnsi()
     }
 
-    val megac = colorIt(mColor, "M: $mr")
-    val steel = colorIt(sColor, "S: $sr")
-    val titan = colorIt(tColor, "T: $tr")
-    val plant = colorIt(pColor, "P: $pr")
-    val energ = colorIt(eColor, "E: $er")
-    val heeat = colorIt(hColor, "H: $hr")
+    val megac = colorIt(mColor, "M: $mres")
+    val steel = colorIt(sColor, "S: $sres")
+    val titan = colorIt(tColor, "T: $tres")
+    val plant = colorIt(pColor, "P: $pres")
+    val energ = colorIt(eColor, "E: $eres")
+    val heeat = colorIt(hColor, "H: $hres")
 
+    val tr = game.count(game.resolve(expression("TerraformRating<$player>")))
+    val tiles = game.count(game.resolve(expression("OwnedTile<$player>")))
     return listOf(
+        "  $player   TR: $tr   Tiles: $tiles",
         "+---------+---------+---------+",
         "|  $megac |  $steel |  $titan |",
         "| prod $m | prod $s | prod $t |",

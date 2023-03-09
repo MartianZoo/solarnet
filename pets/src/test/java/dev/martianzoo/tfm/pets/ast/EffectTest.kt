@@ -210,7 +210,9 @@ private class EffectTest {
                         Gain(scaledEx(cn("Abc").expr)),
                         Count(scaledEx(11, cn("Megacredit").expr)))),
                 Gated(
-                    Exact(scaledEx(cn("Megacredit").expr)), Remove(scaledEx(1, cn("Abc").expr))))))
+                    Exact(scaledEx(cn("Megacredit").expr)),
+                    true,
+                    Remove(scaledEx(1, cn("Abc").expr))))))
 
     checkBothWays(
         "Bar: PROD[-5, (Abc / Megacredit, 1 Foo FROM Foo), (Foo OR 1): " +
@@ -227,6 +229,7 @@ private class EffectTest {
                     Gated(
                         Requirement.Or(
                             Min(scaledEx(1, cn("Foo").expr)), Min(scaledEx(cn("Megacredit").expr))),
+                        true,
                         Transmute(
                             ComplexFrom(
                                 cn("Foo"), listOf(SimpleFrom(cn("Qux").expr, cn("Foo").expr))),
@@ -256,7 +259,7 @@ private class EffectTest {
             Instruction.Transform(Gain(scaledEx(cn("Megacredit").expr)), "PROD")))
 
     checkBothWays(
-        "-Bar: Qux, (Bar OR Foo OR 1, 1): -Foo, MAX 5 Qux<Qux>: Bar",
+        "-Bar: Qux, (Bar OR Foo OR 1, 1): -Foo, MAX 5 Qux<Qux> ?: Bar",
         Effect(
             OnRemoveOf.create(cn("Bar").expr),
             Instruction.Multi(
@@ -268,9 +271,11 @@ private class EffectTest {
                             Min(scaledEx(cn("Foo").expr)),
                             Min(scaledEx(cn("Megacredit").expr))),
                         Min(scaledEx(cn("Megacredit").expr))),
+                    true,
                     Remove(scaledEx(cn("Foo").expr))),
                 Gated(
                     Max(scaledEx(5, cn("Qux").addArgs(cn("Qux").expr))),
+                    false,
                     Gain(scaledEx(cn("Bar").expr))))))
 
     checkBothWays(
@@ -284,6 +289,7 @@ private class EffectTest {
                 Transmute(SimpleFrom(cn("Abc").expr, cn("Ahh").expr), 1),
                 Gated(
                     Max(scaledEx(cn("Ooh").expr)),
+                    true,
                     Instruction.Or(
                         Instruction.Multi(
                             Gain(scaledEx(1, cn("Foo").expr)),

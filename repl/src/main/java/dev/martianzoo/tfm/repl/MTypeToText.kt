@@ -49,7 +49,7 @@ object MTypeToText { // TODO refactor to ClassInfo / TypeInfo type dealies
           c. types:    $concTypes
           class fx:    ${
       mclass.classEffects.joinToString("""
-                       """) { "${it.effect}" }
+                       """) { "${it.effect}" + if (it.linkages.any()) " ${it.linkages}" else ""}
     }
 
 

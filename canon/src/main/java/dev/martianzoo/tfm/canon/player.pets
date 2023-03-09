@@ -6,7 +6,7 @@ ABSTRACT CLASS Anyone[ANY] {                      // aka Player
   ABSTRACT CLASS Owner {
     HAS =1 This
 
-    Start:: 20 TerraformRating<This>
+    This:: 20 TerraformRating<This>               // Solo game support is in the far future...
 
     CLASS Player1[P1]
     CLASS Player2[P2]
@@ -97,7 +97,7 @@ ABSTRACT CLASS Owned<Anyone> {
 
   ABSTRACT CLASS CardFront {                      // specific CardFronts are loaded from `cards.json5`
     ABSTRACT CLASS EventCard {
-      This: PlayedEvent FROM This                 // problem: how to still get the VPs??
+      This: PlayedEvent<Class<This>> FROM This
     }                                             // could we get this happen automatically at EOT?
     ABSTRACT CLASS AutomatedCard
     ABSTRACT CLASS ActiveCard
@@ -105,7 +105,9 @@ ABSTRACT CLASS Owned<Anyone> {
     ABSTRACT CLASS ActionCard : HasActions
   }
 
-  CLASS PlayedEvent[EVT]
+  CLASS PlayedEvent<Class<EventCard>> [EVT] {
+    // End: @getVPsFrom(EventCard)
+  }
 
   ABSTRACT CLASS Cardbound<CardFront> {
     ABSTRACT CLASS Tag {

@@ -22,6 +22,7 @@ public open class BaseTokenizer {
 
   internal val _arrow = literal("->", "arrow")
   internal val _doubleColon = literal("::", "doubleColon")
+  internal val _questionColon = literal("?:", "questionColon")
 
   // I simply don't want to name all of these and would rather look them up by the char itself
   private val characters = "!@^+,-./:;=?()[]{}<>\n".map { it to literal("$it") }.toMap()

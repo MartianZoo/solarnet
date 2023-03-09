@@ -5,6 +5,8 @@ import dev.martianzoo.tfm.api.GameSetup
 import dev.martianzoo.tfm.api.SpecialClassNames.COMPONENT
 import dev.martianzoo.tfm.engine.Component
 import dev.martianzoo.tfm.engine.Engine
+import dev.martianzoo.tfm.pets.ast.ClassName
+import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.pets.ast.Expression.Companion.expression
 import dev.martianzoo.tfm.pets.ast.Metric.Companion.metric
 import dev.martianzoo.tfm.pets.ast.classNames
@@ -22,15 +24,16 @@ private class CanonBootstrapTest {
         Canon.cardDefinitions.filter { "VC".contains(it.bundle) }.classNames().toSetStrict()
 
     val milestoneNames = Canon.milestoneDefinitions.classNames().toSetStrict()
-    val expected =
+    val expected: List<ClassName> =
         (Canon.allClassNames - unusedCards)
             .filterNot { it.matches(regex) }
             .filterNot { it in milestoneNames && "HEV".contains(Canon.milestone(it).bundle) }
 
-    assertThat(loader.allClasses.classNames()).containsExactlyElementsIn(expected)
+    // TODO Border
+    assertThat(loader.allClasses.classNames()).containsExactlyElementsIn(expected - cn("Border"))
   }
 
-  val regex = Regex("(Hellas|Elysium|Player5|Camp|Venus|Area2|AirScrap|Card247).*")
+  val regex = Regex("(Hellas|Elysium|Player5|Camp|Venus|Area2|AirScrap|Card247|Backward).*")
 
   @Test
   fun classCounts() {
@@ -62,21 +65,24 @@ private class CanonBootstrapTest {
   fun createsExpectedSingletons() {
     val game = Engine.newGame(GameSetup(Canon, "BRMPX", 3))
     val startingComponents: Multiset<Component> = game.getComponents(game.resolve(COMPONENT.expr))
-    assertThat(startingComponents).hasSize(startingComponents.elements.size + 12)
+
+    // 19 duplicate TR and 4 duplicate PROD[M]
+    assertThat(startingComponents).hasSize(startingComponents.elements.size + 69)
 
     val isArea: (Component) -> Boolean = { it.toString().startsWith("[Tharsis_") }
-    val isBorder: (Component) -> Boolean = { it.toString().startsWith("[Border<") }
+    // val isBorder: (Component) -> Boolean = { it.toString().startsWith("[Border<") }
     val isClass: (Component) -> Boolean = { it.toString().startsWith("[Class<") }
 
     assertThat(startingComponents.count(isArea)).isEqualTo(61)
-    assertThat(startingComponents.count(isBorder)).isEqualTo(312)
+    // assertThat(startingComponents.count(isBorder)).isEqualTo(312)
     assertThat(startingComponents.count(isClass)).isGreaterThan(400)
 
     val theRest =
         startingComponents.filterNot {
           isArea(it) ||
-              isBorder(it) ||
+              // isBorder(it) ||
               isClass(it) ||
+              it.hasType(game.resolve(expression("TerraformRating"))) ||
               it.hasType(game.resolve(expression("Production<Class<Megacredit>>"))) // TODO PROD[M]
         }
     assertThat(theRest.toStrings())

@@ -1,6 +1,7 @@
 package dev.martianzoo.tfm.pets.ast
 
 import com.github.h0tk3y.betterParse.combinators.and
+import com.github.h0tk3y.betterParse.combinators.asJust
 import com.github.h0tk3y.betterParse.combinators.map
 import com.github.h0tk3y.betterParse.combinators.optional
 import com.github.h0tk3y.betterParse.combinators.or
@@ -132,7 +133,8 @@ public sealed class Instruction : PetNode() {
     override fun toString() = "$instruction / $metric"
   }
 
-  data class Gated(val gate: Requirement, val instruction: Instruction) : Instruction() {
+  data class Gated(val gate: Requirement, val mandatory: Boolean, val instruction: Instruction) :
+      Instruction() {
     init {
       if (instruction is Gated) {
         throw PetException("You don't gate a gater") // TODO enable
@@ -143,7 +145,8 @@ public sealed class Instruction : PetNode() {
     override fun times(factor: Int) = copy(instruction = instruction * factor)
 
     override fun toString(): String {
-      return "${groupPartIfNeeded(gate)}: ${groupPartIfNeeded(instruction)}"
+      val connector = if (mandatory) ": " else " ?: "
+      return "${groupPartIfNeeded(gate)}$connector${groupPartIfNeeded(instruction)}"
     }
 
     // let's over-group for clarity
@@ -302,12 +305,13 @@ public sealed class Instruction : PetNode() {
                 }
         val atom: Parser<Instruction> = group(parser()) or maybeTransform or custom
 
+        val isMandatory: Parser<Boolean> = (_questionColon asJust false) or (char(':') asJust true)
+
         val gated: Parser<Instruction> =
-            optional(Requirement.atomParser() and skipChar(':')) and
-                atom map
-                { (one, two) ->
-                  if (one == null) two else Gated(one, two)
-                }
+            optional(Requirement.atomParser() and isMandatory) and
+            atom map { (gate, ins) ->
+              if (gate == null) ins else Gated(gate.t1, gate.t2, ins)
+            }
 
         val orInstr: Parser<Instruction> =
             separatedTerms(gated, _or) map

@@ -4,6 +4,7 @@ import dev.martianzoo.tfm.api.SpecialClassNames.OWNED
 import dev.martianzoo.tfm.api.SpecialClassNames.OWNER
 import dev.martianzoo.tfm.api.SpecialClassNames.THIS
 import dev.martianzoo.tfm.data.ChangeRecord
+import dev.martianzoo.tfm.engine.Component.ActiveTrigger.Companion.from
 import dev.martianzoo.tfm.engine.Game.AbstractInstructionException
 import dev.martianzoo.tfm.pets.AstTransforms.replaceAll
 import dev.martianzoo.tfm.pets.ast.ClassName
@@ -50,23 +51,21 @@ public data class Component private constructor(val mtype: MType) : HasExpressio
    * This component's effects; while the component exists in a game state, the effects are active.
    */
   public fun effects(): List<Effect> {
-    return mtype.mclass.allSuperclasses.flatMap { superclass ->
-      superclass.classEffects.map { decl ->
-        // val linkages = decl.linkages
-        // Transform for some "linkages" (TODO the rest, and do in more principled way)
-        val effect =
-            mtype.mclass.loader.transformer
-                .deprodify(decl.effect) // ridiculoso
-                .replaceAll(THIS.expr, expressionFull)
-        owner()?.let { effect.replaceAll(OWNER, it) } ?: effect
-      }
+    return mtype.mclass.classEffects.map { decl ->
+      // val linkages = decl.linkages
+      // Transform for some "linkages" (TODO the rest, and do in more principled way)
+      val effect = mtype.mclass.loader.transformer
+          .deprodify(decl.effect) // ridiculoso
+          .replaceAll(THIS.classExpression(), expression.className.classExpression())
+          .replaceAll(THIS.expr, expressionFull)
+      owner()?.let { effect.replaceAll(OWNER, it) } ?: effect
     }
   }
 
   val activeEffects: List<ActiveEffect> by lazy {
     effects().map {
       try {
-        ActiveEffect(ActiveTrigger.from(it.trigger), it.instruction)
+        ActiveEffect(this, from(it.trigger), it.automatic, it.instruction)
       } catch (e: Exception) {
         println(it)
         throw e
@@ -74,7 +73,12 @@ public data class Component private constructor(val mtype: MType) : HasExpressio
     }
   }
 
-  data class ActiveEffect(val trigger: ActiveTrigger, val instruction: Instruction) {
+  data class ActiveEffect(
+      val contextComponent: Component,
+      val trigger: ActiveTrigger,
+      val automatic: Boolean,
+      val instruction: Instruction
+  ) {
     fun getInstruction(record: ChangeRecord, game: Game): Instruction? {
       val hit = trigger.match(record, game) ?: return null
       return hit.fixer(instruction) * hit.count
@@ -106,7 +110,8 @@ public data class Component private constructor(val mtype: MType) : HasExpressio
 
     data class ByDoer(val inner: ActiveTrigger, val by: ClassName) : ActiveTrigger() {
       override fun match(record: ChangeRecord, game: Game): Hit? {
-        val contextP: ClassName? = record.cause?.let { game.toComponent(it.contextComponent).owner() }
+        val contextP: ClassName? =
+            record.cause?.let { game.toComponent(it.contextComponent).owner() }
         if (isPlayerSpecific() && contextP != by) return null
 
         val hit = inner.match(record, game) ?: return null

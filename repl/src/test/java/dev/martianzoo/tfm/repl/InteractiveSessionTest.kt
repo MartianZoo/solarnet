@@ -17,9 +17,10 @@ private class InteractiveSessionTest {
     val session = InteractiveSession()
     session.newGame(GameSetup(Canon, "MB", 2))
     session.becomePlayer(cn("Player2"))
+    session.effectsOn = false
 
     session.execute(instruction("PROD[5, 4 Energy]"))
-    session.execute(instruction("StripMine")) // , BuildingTag<Player2, StripMine> ?
+    session.execute(instruction("StripMine"))
     session.execute(instruction("PROD[-2 Energy, 2 Steel, Titanium]"))
 
     assertThat(session.has(requirement("PROD[=2 Energy, =2 Steel]"))).isTrue()
@@ -32,15 +33,16 @@ private class InteractiveSessionTest {
   fun shortNames() {
     val session = InteractiveSession()
     session.newGame(GameSetup(Canon, "MB", 2))
-    session.becomePlayer(cn("Player2"))
+    session.becomePlayer(cn("P2"))
+    session.effectsOn = false
 
     session.execute(instruction("PROD[5, 4 E]"))
-    session.execute(instruction("StripMine")) // , BuildingTag<Player2, StripMine> ?
+    session.execute(instruction("C138"))
     session.execute(instruction("PROD[-2 E, 2 S, T]"))
 
     assertThat(session.has(requirement("PROD[=2 E, =2 S]"))).isTrue()
 
-    session.becomePlayer(cn("Player1"))
+    session.becomePlayer(cn("P1"))
     assertThat(session.has(requirement("PROD[=0 E, =0 S]"))).isTrue()
   }
 
@@ -117,9 +119,18 @@ private class InteractiveSessionTest {
   fun tempTrigger() {
     val session = InteractiveSession()
     session.newGame(GameSetup(Canon, "MB", 2))
-    session.becomePlayer(cn("Player1"))
     session.effectsOn = true
+
+    session.becomePlayer(cn("Player1"))
+    assertThat(session.count(metric("TerraformRating"))).isEqualTo(20)
+    session.execute(instruction("TemperatureStep, TemperatureStep"))
+    assertThat(session.count(metric("TerraformRating"))).isEqualTo(22)
+    assertThat(session.count(metric("Production<Class<Heat>>"))).isEqualTo(0)
+
     session.execute(instruction("TemperatureStep"))
-    assertThat(session.count(metric("TerraformRating"))).isEqualTo(1)
+    assertThat(session.count(metric("TerraformRating"))).isEqualTo(23)
+    assertThat(session.count(metric("Production<Class<Heat>>"))).isEqualTo(1)
+
+    // TODO bug if done in opposite order
   }
 }

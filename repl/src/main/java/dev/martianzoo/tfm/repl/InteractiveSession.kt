@@ -22,7 +22,10 @@ import dev.martianzoo.util.HashMultiset
 import dev.martianzoo.util.Hierarchical.Companion.lub
 import dev.martianzoo.util.Multiset
 
-/** A programmatic entry point to a REPL session that is less textual than [ReplSession]. */
+/**
+ * A convenient interface for functional tests; basically, [ReplSession] is just a more texty
+ * version of this.
+ */
 class InteractiveSession {
   internal var game: Game? = null // TODO private?
   internal var gameNumber: Int = 0
@@ -35,13 +38,10 @@ class InteractiveSession {
     becomeNoOne()
   }
 
-  fun playerType(player: ClassName) = game!!.resolve(player.expr)
-
   fun becomePlayer(player: ClassName) {
-    val p: MType = playerType(player)
+    val p = game!!.resolve(player.expr)
     require(!p.abstract)
-    val any: MType = game!!.resolve(ANYONE.expr)
-    require(p.isSubtypeOf(any))
+    require(p.isSubtypeOf(game!!.resolve(ANYONE.expr)))
     defaultPlayer = p.mclass.className
   }
 

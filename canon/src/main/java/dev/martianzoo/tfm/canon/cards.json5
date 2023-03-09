@@ -54,7 +54,8 @@
       "actions": [ "3 -> HasRaisedTr: TerraformRating" ],
       "components": [
         "CLASS HasRaisedTr : Owned, Generational { HAS MAX 1 This }",
-        "CLASS TrWatcher : Owned { HAS =1 This; TerraformRating: HasRaisedTr. }"
+        // TODO: just use dot when limits work
+        "CLASS TrWatcher : Owned { HAS =1 This; TerraformRating: (=0 HasRaisedTr ?: HasRaisedTr) }"
       ]
     },
 
@@ -181,7 +182,7 @@
       "effects": [
         "MicrobeTag<Anyone>: Disease<This>, -4.",
         // ideally: `TR FROM Disease ELSE (PlayedEvent FROM This, 3 TR)?`
-        "ScienceTag: (TerraformRating FROM Disease) OR (MAX 0 Disease: ((PlayedEvent FROM This, 3 TerraformRating) OR Ok))"
+        "ScienceTag: (TR FROM Disease) OR (MAX 0 Disease ?: (PlayedEvent FROM This, 3 TR))"
       ],
       "components": [ "CLASS Disease : CardResource" ],
       "resourceType": "Disease"
@@ -539,7 +540,7 @@
       "deck": "PROJECT",
       "tags": [ "ScienceTag" ],
       "actions": [ "1 -> Science<This>?" ], // honor system
-      "effects": [ "End: (Science<This>: 3 VictoryPoint)" ], // OR Ok? ELSE Ok? TODO
+      "effects": [ "End: (Science<This> ?: 3 VictoryPoint)" ],
       "resourceType": "Science",
       "requirement": "MAX 6 OxygenStep",
       "cost": 3,

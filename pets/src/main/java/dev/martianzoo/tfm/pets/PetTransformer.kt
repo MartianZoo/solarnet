@@ -55,7 +55,7 @@ public abstract class PetTransformer {
                   is Instruction.Gain -> Instruction.Gain(x(scaledEx), intensity)
                   is Instruction.Remove -> Instruction.Remove(x(scaledEx), intensity)
                   is Instruction.Per -> Instruction.Per(x(instruction), x(metric))
-                  is Instruction.Gated -> Instruction.Gated(x(gate), x(instruction))
+                  is Instruction.Gated -> Instruction.Gated(x(gate), mandatory, x(instruction))
                   is Instruction.Transmute -> Instruction.Transmute(x(from), scalar, intensity)
                   is Instruction.Custom -> Instruction.Custom(functionName, x(arguments))
                   is Instruction.Then -> Instruction.Then(x(instructions))

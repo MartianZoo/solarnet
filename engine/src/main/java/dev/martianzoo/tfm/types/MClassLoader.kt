@@ -149,7 +149,10 @@ public class MClassLoader( // TODO separate into loader and table
   private fun validate() {
     allClasses.forEach { mclass ->
       mclass.classEffects.forEach {
-        checkAllTypes(it.effect.replaceAll(THIS.expr, mclass.className.expr))
+        checkAllTypes(
+            it.effect
+                .replaceAll(THIS.classExpression(), mclass.className.classExpression())
+                .replaceAll(THIS.expr, mclass.className.expr))
       }
     }
   }
@@ -187,7 +190,7 @@ public class MClassLoader( // TODO separate into loader and table
             usedDeps += candidateDep
             return@map TypeDependency(candidateDep.key, intersectionType)
           }
-          error("couldn't match up $specExpression to $this")
+          error("couldn't match up $specExpression to $deps")
         }
     return DependencySet.of(list)
   }

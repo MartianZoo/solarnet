@@ -9,6 +9,7 @@ import dev.martianzoo.tfm.pets.ast.Expression.Companion.expression
 import dev.martianzoo.tfm.pets.ast.Instruction.Companion.instruction
 import dev.martianzoo.tfm.pets.ast.Metric.Companion.metric
 import dev.martianzoo.tfm.pets.ast.Requirement.Companion.requirement
+import dev.martianzoo.tfm.repl.ReplSession.ReplMode.YELLOW
 import dev.martianzoo.util.toStrings
 import org.jline.utils.AttributedStyle
 
@@ -33,7 +34,7 @@ internal fun main() {
 /** A programmatic entry point to a REPL session that is more textual than [ReplSession]. */
 public class ReplSession(private val authority: Authority) {
   internal val session = InteractiveSession()
-  internal var mode: ReplMode = ReplMode.YELLOW
+  internal var mode: ReplMode = YELLOW
 
   enum class ReplMode(val message: String) {
     GRAY("No game active."),
@@ -121,7 +122,10 @@ public class ReplSession(private val authority: Authority) {
               },
           "mode" to
               { arg ->
-                if (arg != null) mode = ReplMode.valueOf(arg.trim().uppercase())
+                if (arg != null) {
+                  mode = ReplMode.valueOf(arg.trim().uppercase())
+                  session.effectsOn = (mode == YELLOW)
+                }
                 listOf("Mode $mode: ${mode.message}")
               },
           "exec" to

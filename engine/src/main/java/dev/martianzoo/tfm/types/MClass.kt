@@ -164,6 +164,11 @@ internal constructor(
    * where they will be processed further.
    */
   public val classEffects: List<EffectDeclaration> by lazy {
+    // TODO might not be the right way to do this
+    allSuperclasses.flatMap { it.directClassEffects }.toSetStrict().toList()
+  }
+
+  public val directClassEffects: List<EffectDeclaration> by lazy {
     val xer = loader.transformer
     val thiss = className.refine(requirement("Ok"))
     declaration.effects

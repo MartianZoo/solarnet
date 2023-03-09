@@ -139,7 +139,7 @@ private class ActionTest {
                 Cost.Transform(Spend(scaledEx(cn("Bar").expr)), "PROD"),
                 Spend(scaledEx(5, cn("Foo").addArgs(cn("Abc").addArgs(cn("Bar"))))),
                 Cost.Or(Spend(scaledEx(cn("Abc").expr)), Spend(scaledEx(cn("Xyz").expr)))),
-            Gated(Max(scaledEx(cn("Bar").expr)), Remove(scaledEx(cn("Xyz").expr)))))
+            Gated(Max(scaledEx(cn("Bar").expr)), true, Remove(scaledEx(cn("Xyz").expr)))))
 
     checkBothWays(
         "-> Foo<Abc>. / Wau",
@@ -168,6 +168,7 @@ private class ActionTest {
                 Gated(
                     Requirement.Or(
                         Max(scaledEx(cn("Megacredit").expr)), Min(scaledEx(cn("Foo").expr))),
+                    true,
                     Gain(scaledEx(cn("Megacredit").expr))))))
 
     checkBothWays(
@@ -195,7 +196,7 @@ private class ActionTest {
         "Xyz -> 1", Action(Spend(scaledEx(cn("Xyz").expr)), Gain(scaledEx(cn("Megacredit").expr))))
 
     checkBothWays(
-        "Ooh -> 5 / Abc, 11! / Megacredit, -1?, (1!, (1 Bar FROM Foo, 1: 11 Foo))",
+        "Ooh -> 5 / Abc, 11! / Megacredit, -1?, (1!, (1 Bar FROM Foo, 1 ?: 11 Foo))",
         Action(
             Spend(scaledEx(cn("Ooh").expr)),
             Instruction.Multi(
@@ -211,6 +212,7 @@ private class ActionTest {
                         Transmute(SimpleFrom(cn("Bar").expr, cn("Foo").expr), 1),
                         Gated(
                             Min(scaledEx(cn("Megacredit").expr)),
+                            false,
                             Gain(scaledEx(11, cn("Foo").expr))))))))
 
     checkBothWays(

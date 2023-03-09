@@ -133,7 +133,9 @@ public class Transformer internal constructor(val loader: MClassLoader) {
   ): Expression {
 
     val mclass: MClass = loader.getClass(original.className)
-    val dethissed: Expression = original.replaceAll(THIS.expr, contextCpt)
+    val dethissed: Expression = original
+        .replaceAll(THIS.classExpression(), contextCpt.className.classExpression())
+        .replaceAll(THIS.expr, contextCpt)
     val match: DependencySet = loader.matchPartial(dethissed.arguments, mclass.dependencies)
 
     val preferred: Map<Key, Expression> = match.keys.zip(original.arguments).toMap()
