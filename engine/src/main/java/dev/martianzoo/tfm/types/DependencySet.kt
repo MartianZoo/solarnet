@@ -40,7 +40,7 @@ internal class DependencySet private constructor(val deps: Set<Dependency>) :
   val expressions: List<Expression> by lazy { deps.map { it.expression } }
   val expressionsFull: List<Expression> by lazy { deps.map { it.expressionFull } }
 
-  fun get(key: Key): Dependency = getIfPresent(key) ?: error("$key")
+  fun get(key: Key): Dependency = getIfPresent(key) ?: error("$key") // TODO protect in callers
 
   fun getIfPresent(key: Key): Dependency? = deps.firstOrNull { it.key == key }
 
@@ -51,6 +51,7 @@ internal class DependencySet private constructor(val deps: Set<Dependency>) :
   override fun isSubtypeOf(that: DependencySet) =
       that.deps.all { thatDep: Dependency -> this.get(thatDep.key).isSubtypeOf(thatDep) }
 
+  // TODO protect in callers?
   override fun glb(that: DependencySet) = merge(that) { a, b -> (a glb b) ?: error("$a $b") }
 
   override fun lub(that: DependencySet): DependencySet {

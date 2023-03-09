@@ -38,6 +38,7 @@ internal constructor(
 ) : HasClassName, Hierarchical<MClass> {
 
   /** The name of this class, in UpperCamelCase. */
+  // TODO check in decl itself?
   public override val className: ClassName = declaration.className.also { require(it != THIS) }
 
   /**
@@ -122,7 +123,7 @@ internal constructor(
     if (className == CLASS) { // TODO reduce special-casing
       depsForClassType(loader.componentClass)
     } else {
-      inheritedDeps().merge(declaredDeps) { _, _ -> error("") }
+      inheritedDeps().merge(declaredDeps) { _, _ -> error("impossible") }
     }
   }
 

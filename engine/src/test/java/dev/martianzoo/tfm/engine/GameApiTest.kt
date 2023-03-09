@@ -3,7 +3,7 @@ package dev.martianzoo.tfm.engine
 import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.tfm.api.GameSetup
 import dev.martianzoo.tfm.canon.Canon
-import dev.martianzoo.tfm.data.ChangeRecord.StateChange
+import dev.martianzoo.tfm.data.ChangeEvent.StateChange
 import dev.martianzoo.tfm.pets.ast.Expression.Companion.expression
 import dev.martianzoo.tfm.pets.ast.Instruction.Companion.instruction
 import dev.martianzoo.tfm.pets.ast.Metric.Companion.metric
@@ -13,7 +13,7 @@ import org.junit.jupiter.api.Test
 
 private class GameApiTest {
   fun Game.count(s: String) = count(metric(s))
-  fun Game.execute(s: String) = execute(instruction(s))
+  fun Game.execute(s: String) = autoExecute(instruction(s))
   fun Game.evaluate(s: String) = evaluate(requirement(s))
 
   @Test

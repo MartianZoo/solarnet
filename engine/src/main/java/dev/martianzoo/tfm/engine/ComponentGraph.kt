@@ -1,7 +1,7 @@
 package dev.martianzoo.tfm.engine
 
-import dev.martianzoo.tfm.data.ChangeRecord.StateChange
-import dev.martianzoo.tfm.engine.Component.ActiveEffect
+import dev.martianzoo.tfm.data.ChangeEvent.StateChange
+import dev.martianzoo.tfm.engine.Exceptions.DependencyException
 import dev.martianzoo.tfm.types.MType
 import dev.martianzoo.util.HashMultiset
 import dev.martianzoo.util.Multiset
@@ -11,33 +11,17 @@ import dev.martianzoo.util.MutableMultiset
 public class ComponentGraph {
   private val multiset: MutableMultiset<Component> = HashMultiset()
 
-  class MissingDependenciesException(message: String) : RuntimeException(message)
-
   public fun applyChange(
       count: Int = 1,
       gaining: Component? = null,
       removing: Component? = null,
       amap: Boolean = false,
   ): StateChange? {
-    require(count >= 1)
+    require(count >= 1) // TODO prevent this
 
     // TODO rethink how this whole method works
 
-    // verify dependencies
-    gaining?.let { g ->
-      if (!multiset.containsAll(g.dependencyComponents)) {
-        throw MissingDependenciesException(
-            "Can't create $g due to missing dependencies: " +
-                (g.dependencyComponents - multiset.elements))
-      }
-    }
-    removing?.let { r ->
-      multiset.elements.forEach {
-        require(r !in it.dependencyComponents) {
-          "Can't remove dependency $r of existing component $it"
-        }
-      }
-    }
+    checkDependencies(gaining, removing)
 
     val correctedCount = updateMultiset(count, gaining, removing, amap)
     return if (correctedCount == 0) {
@@ -48,6 +32,23 @@ public class ComponentGraph {
           gaining = gaining?.mtype?.expression,
           removing = removing?.mtype?.expression,
       )
+    }
+  }
+
+  private fun checkDependencies(gaining: Component?, removing: Component?) {
+    require(gaining != removing)
+
+    if (gaining != null) {
+      if (!multiset.containsAll(gaining.dependencyComponents)) {
+        throw DependencyException.gaining(gaining, gaining.dependencyComponents - multiset.elements)
+      }
+    }
+
+    if (removing != null) {
+      val dependents = multiset.elements.filter { removing in it.dependencyComponents }
+      if (dependents.any()) {
+        throw DependencyException.removing(removing, dependents)
+      }
     }
   }
 

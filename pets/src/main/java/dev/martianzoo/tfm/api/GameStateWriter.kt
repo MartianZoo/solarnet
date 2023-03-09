@@ -1,6 +1,6 @@
 package dev.martianzoo.tfm.api
 
-import dev.martianzoo.tfm.data.ChangeRecord.Cause
+import dev.martianzoo.tfm.data.ChangeEvent.Cause
 
 interface GameStateWriter {
   fun write(

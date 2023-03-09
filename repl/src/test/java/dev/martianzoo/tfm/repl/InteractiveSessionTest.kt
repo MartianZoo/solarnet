@@ -89,13 +89,13 @@ private class InteractiveSessionTest {
     session.newGame(GameSetup(Canon, "MB", 2))
     session.becomePlayer(cn("Player2"))
 
-    assertThat(session.game!!.failedTasks).hasSize(0)
+    assertThat(session.game!!.pendingTasks).hasSize(0)
     session.execute(instruction("3 Microbe<Ants>"))
-    assertThat(session.game!!.failedTasks).hasSize(1)
+    assertThat(session.game!!.pendingTasks).hasSize(1)
     session.execute(instruction("Ants"))
     session.execute(instruction("3 Microbe<Ants>"))
     session.execute(instruction("-Ants"))
-    assertThat(session.game!!.failedTasks).hasSize(2)
+    assertThat(session.game!!.pendingTasks).hasSize(2)
   }
 
   @Test

@@ -57,7 +57,7 @@ internal constructor(
       if (specs.isEmpty()) {
         loader.componentClass.classType
       } else {
-        val spec = specs.single().also { require(it.simple) }
+        val spec = specs.single().also { require(it.simple) } // TODO check if exposed
         loader.getClass(spec.className).classType
       }
     } else {
@@ -66,12 +66,12 @@ internal constructor(
   }
 
   private fun conjoin(one: Requirement?, two: Requirement?): Requirement? {
+    // TODO move to Requirement like we did for Instruction.Multi
     val x = setOfNotNull(one, two)
     return when (x.size) {
       0 -> null
       1 -> x.first()
-      2 -> And(x.toList())
-      else -> error("imposserous")
+      else -> And(x.toList())
     }
   }
 

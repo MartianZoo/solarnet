@@ -2,7 +2,8 @@ package dev.martianzoo.tfm.engine
 
 import dev.martianzoo.tfm.api.GameSetup
 import dev.martianzoo.tfm.api.SpecialClassNames.GAME
-import dev.martianzoo.tfm.data.ChangeRecord.Cause
+import dev.martianzoo.tfm.data.ChangeEvent
+import dev.martianzoo.tfm.data.ChangeEvent.Cause
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.pets.ast.Instruction
 import dev.martianzoo.tfm.pets.ast.Instruction.Companion.instruction
@@ -34,20 +35,21 @@ public object Engine {
     val game = Game(setup, loader)
     // game.execute(instruction("Game!"), withEffects = true, hidden = true)
 
-    val uncausedCause = Cause(null, contextComponent = GAME.expr, doer = GAME)
-    val fakeCause = Cause(0, contextComponent = GAME.expr, doer = GAME)
+    val uncausedCause = Cause(triggerEvent = null, contextComponent = GAME.expr, doer = GAME)
 
-    game.execute(
+    val firstEvent: ChangeEvent = game.autoExecute(
         instruction("Game!"),
         initialCause = uncausedCause,
         hidden = true).single()
+    val fakeCause = Cause(firstEvent.ordinal, GAME.expr, GAME)
 
-    game.execute(
+    game.autoExecute(
         customInstr(loader),
         withEffects = true,
         initialCause = fakeCause,
         hidden = true)
-    require(game.failedTasks.none())
+    game.pendingTasks.forEach(::println)
+    require(game.pendingTasks.none())
     return game
   }
 

@@ -3,9 +3,8 @@ package dev.martianzoo.tfm.engine
 import dev.martianzoo.tfm.api.GameSetup
 import dev.martianzoo.tfm.api.GameStateReader
 import dev.martianzoo.tfm.api.Type
-import dev.martianzoo.tfm.data.ChangeRecord
-import dev.martianzoo.tfm.data.ChangeRecord.Cause
-import dev.martianzoo.tfm.engine.ExecutionContext.FailedTask
+import dev.martianzoo.tfm.data.ChangeEvent
+import dev.martianzoo.tfm.data.ChangeEvent.Cause
 import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.pets.ast.Instruction
 import dev.martianzoo.tfm.pets.ast.Metric
@@ -30,13 +29,17 @@ public class Game(val setup: GameSetup, public val loader: MClassLoader) {
 
   internal val components = ComponentGraph()
 
-  internal val fullChangeLog: MutableList<ChangeRecord> = mutableListOf()
+  internal val fullChangeLog: MutableList<ChangeEvent> = mutableListOf()
 
   internal val nextOrdinal: Int by fullChangeLog::size
 
-  val failedTasks = ArrayDeque<FailedTask>()
+  val pendingTasks: ArrayDeque<Task> = ArrayDeque()
 
-  data class Task(val instruction: Instruction, val cause: Cause?, val attempts: Int = 0)
+  data class Task(
+      val instruction: Instruction,
+      val cause: Cause?,
+      val reasonPending: String? = null
+  )
 
   // TYPE & COMPONENT CONVERSION
 
@@ -54,7 +57,9 @@ public class Game(val setup: GameSetup, public val loader: MClassLoader) {
     fun count(expression: Expression) = count(Count(scaledEx(expression)))
     return when (requirement) {
       is Min -> count(requirement.scaledEx.expression) >= requirement.scaledEx.scalar
-      is Requirement.Max ->  { count(requirement.scaledEx.expression) <= requirement.scaledEx.scalar }
+      is Requirement.Max -> {
+        count(requirement.scaledEx.expression) <= requirement.scaledEx.scalar
+      }
       is Exact -> count(requirement.scaledEx.expression) == requirement.scaledEx.scalar
       is Or -> requirement.requirements.any { evaluate(it) }
       is And -> requirement.requirements.all { evaluate(it) }
@@ -90,22 +95,22 @@ public class Game(val setup: GameSetup, public val loader: MClassLoader) {
 
   // EXECUTION
 
-  fun execute(
+  fun autoExecute( // TODO create execute also, remove withEffects param
       instruction: Instruction,
       withEffects: Boolean = false,
       initialCause: Cause? = null,
       hidden: Boolean = false,
-  ): List<ChangeRecord> =
-      ExecutionContext(this, withEffects, hidden).autoExecute(instruction, initialCause)
+  ): List<ChangeEvent> =
+      SingleExecutionContext(this, withEffects, hidden).autoExecute(instruction, initialCause)
 
   // CHANGE LOG
 
   public fun changeLogFull() = fullChangeLog.toList()
 
-  public fun changeLog(): List<ChangeRecord> = fullChangeLog.filterNot { it.hidden }
+  public fun changeLog(): List<ChangeEvent> = fullChangeLog.filterNot { it.hidden }
 
   public fun rollBack(ordinal: Int) { // TODO kick this out, rolling back starts a new game?
-    require(ordinal <= nextOrdinal)
+    require(ordinal <= nextOrdinal) // TODO protect in callers
     if (ordinal == nextOrdinal) return
     val subList = fullChangeLog.subList(ordinal, nextOrdinal)
     for (entry in subList.asReversed()) {
@@ -118,6 +123,4 @@ public class Game(val setup: GameSetup, public val loader: MClassLoader) {
     }
     subList.clear()
   }
-
-  internal class AbstractInstructionException(s: String) : UserException(s)
 }

@@ -1,6 +1,6 @@
 package dev.martianzoo.tfm.data
 
-import dev.martianzoo.tfm.data.ChangeRecord.StateChange
+import dev.martianzoo.tfm.data.ChangeEvent.StateChange
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.testlib.assertFails
 import org.junit.jupiter.api.Test

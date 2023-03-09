@@ -6,7 +6,7 @@ import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.util.pre
 
 /** All interesting information about an event in a game history. */
-data class ChangeRecord(
+data class ChangeEvent(
     val ordinal: Int,
     val change: StateChange,
     val cause: Cause? = null,
@@ -15,7 +15,7 @@ data class ChangeRecord(
   init {
     require(ordinal >= 0)
     if (cause != null) {
-      require((cause.triggeringChange ?: -1) < ordinal)
+      require((cause.triggerEvent ?: -1) < ordinal)
     }
   }
 
@@ -53,13 +53,12 @@ data class ChangeRecord(
   }
 
   /** The part that describes why it changed. */
-  data class Cause
-  constructor(
+  data class Cause(
       /**
        * The ordinal of the previous change which triggered this to happen, or `null` if this was
        * done ex machina.
        */
-      val triggeringChange: Int?,
+      val triggerEvent: Int?,
 
       /**
        * The component that owns the effect activated by the triggering change. For an ex machina
@@ -69,19 +68,19 @@ data class ChangeRecord(
 
       /**
        * The player who owns (or *is*) the [contextComponent], or if none, the doer of the
-       * [triggeringChange]. Tasks initiated by the engine itself have `Game` as the doer.
+       * [triggerEvent]. Tasks initiated by the engine itself have `Game` as the doer.
        */
-      val doer: ClassName,
+      val doer: ClassName?,
   ) {
     init {
-      require((triggeringChange ?: 0) >= 0)
-      require(doer == GAME || doer.toString().startsWith("Player"))
+      require((triggerEvent ?: 0) >= 0)
+      require(doer == null || doer == GAME || doer.toString().startsWith("Player"))
     }
 
     override fun toString(): String {
       return "BY $contextComponent " +
-          if (triggeringChange != null) {
-            "FOR $doer BECAUSE $triggeringChange"
+          if (triggerEvent != null) {
+            "FOR $doer BECAUSE $triggerEvent"
           } else {
             "(by fiat)"
           }

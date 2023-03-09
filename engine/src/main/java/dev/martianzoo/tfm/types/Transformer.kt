@@ -5,6 +5,7 @@ import dev.martianzoo.tfm.api.SpecialClassNames.OWNED
 import dev.martianzoo.tfm.api.SpecialClassNames.OWNER
 import dev.martianzoo.tfm.api.SpecialClassNames.STANDARD_RESOURCE
 import dev.martianzoo.tfm.api.SpecialClassNames.THIS
+import dev.martianzoo.tfm.engine.Exceptions.InvalidExpressionException
 import dev.martianzoo.tfm.pets.AstTransforms
 import dev.martianzoo.tfm.pets.AstTransforms.replaceAll
 import dev.martianzoo.tfm.pets.PetTransformer
@@ -115,7 +116,9 @@ public class Transformer internal constructor(val loader: MClassLoader) {
       if (node !is Expression) return transformChildren(node)
       if (leaveItAlone(node)) return node
 
-      val defaults: Defaults = loader.allDefaults[node.className] ?: error(node.className)
+      val defaults: Defaults =
+          loader.allDefaults[node.className]
+              ?: throw InvalidExpressionException("${node.className}")
       val result =
           insertDefaultsIntoExpr(transformChildren(node), defaults.allCasesDependencies, context)
 
@@ -133,9 +136,10 @@ public class Transformer internal constructor(val loader: MClassLoader) {
   ): Expression {
 
     val mclass: MClass = loader.getClass(original.className)
-    val dethissed: Expression = original
-        .replaceAll(THIS.classExpression(), contextCpt.className.classExpression())
-        .replaceAll(THIS.expr, contextCpt)
+    val dethissed: Expression =
+        original
+            .replaceAll(THIS.classExpression(), contextCpt.className.classExpression())
+            .replaceAll(THIS.expr, contextCpt)
     val match: DependencySet = loader.matchPartial(dethissed.arguments, mclass.dependencies)
 
     val preferred: Map<Key, Expression> = match.keys.zip(original.arguments).toMap()

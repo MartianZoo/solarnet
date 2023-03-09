@@ -4,9 +4,11 @@ import dev.martianzoo.tfm.api.CustomInstruction.ExecuteInsteadException
 import dev.martianzoo.tfm.api.GameStateWriter
 import dev.martianzoo.tfm.api.SpecialClassNames.GAME
 import dev.martianzoo.tfm.api.Type
-import dev.martianzoo.tfm.data.ChangeRecord
-import dev.martianzoo.tfm.data.ChangeRecord.Cause
-import dev.martianzoo.tfm.engine.Game.AbstractInstructionException
+import dev.martianzoo.tfm.data.ChangeEvent
+import dev.martianzoo.tfm.data.ChangeEvent.Cause
+import dev.martianzoo.tfm.engine.ActiveEffect.FiredEffect
+import dev.martianzoo.tfm.engine.Exceptions.AbstractInstructionException
+import dev.martianzoo.tfm.engine.Exceptions.RequirementException
 import dev.martianzoo.tfm.engine.Game.Task
 import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.pets.ast.Instruction
@@ -22,7 +24,7 @@ import dev.martianzoo.tfm.pets.ast.Instruction.Or
 import dev.martianzoo.tfm.pets.ast.Instruction.Per
 import dev.martianzoo.tfm.pets.ast.Instruction.Transform
 
-class ExecutionContext(
+class SingleExecutionContext(
     val game: Game,
     val withEffects: Boolean = true,
     val hidden: Boolean = false,
@@ -30,7 +32,7 @@ class ExecutionContext(
   val outerTaskQueue = ArrayDeque<Task>() // for initial task and : effects
   val innerTaskQueue = ArrayDeque<Task>() // for :: effects, and move outer here 1-by-1
 
-  fun autoExecute(instruction: Instruction, initialCause: Cause? = null): List<ChangeRecord> {
+  fun autoExecute(instruction: Instruction, initialCause: Cause? = null): List<ChangeEvent> {
     val deprodded = game.loader.transformer.deprodify(instruction)
     val start = game.nextOrdinal
 
@@ -49,50 +51,51 @@ class ExecutionContext(
           doExecute(innerTask.instruction, innerTask.cause, 1)
         }
       } catch (e: Exception) {
-        game.failedTasks += FailedTask(outerTask, e.toString())
         innerTaskQueue.clear()
-        game.rollBack(checkpoint) // have to worry about rolling back task changes??
-        // TODO could also consider an overlay ComponentGraph
+        game.rollBack(checkpoint) // TODO rolling back task changes??
+
+        if (e is IllegalArgumentException || e is IllegalStateException) {
+          throw e
+        } else {
+          game.pendingTasks += outerTask.copy(reasonPending = e.toString())
+        }
       }
     }
     return game.fullChangeLog.subList(start, game.nextOrdinal).toList()
   }
 
-  data class FailedTask(val task: Task, val why: String)
-
-  fun doExecute(ins: Instruction, cause: Cause?, multiplier: Int) {
+  fun doExecute(instr: Instruction, cause: Cause?, multiplier: Int) {
     if (multiplier == 0) return
     require(multiplier > 0)
 
-    when (ins) {
+    when (instr) {
       is Change -> {
         val amap: Boolean =
-            when (ins.intensity) {
+            when (instr.intensity) {
               OPTIONAL,
-              null -> throw AbstractInstructionException("$ins")
+              null -> throw AbstractInstructionException(instr, instr.intensity)
               MANDATORY -> false
               AMAP -> true
             }
         applyChangeAndFireTriggers(
-            count = ins.count * multiplier,
-            gaining = game.toComponent(ins.gaining),
-            removing = game.toComponent(ins.removing),
+            count = instr.count * multiplier,
+            gaining = game.toComponent(instr.gaining),
+            removing = game.toComponent(instr.removing),
             amap = amap,
             cause = cause)
       }
-      is Per -> doExecute(ins.instruction, cause, game.count(ins.metric) * multiplier)
+      is Per -> doExecute(instr.instruction, cause, game.count(instr.metric) * multiplier)
       is Gated -> {
-        if (game.evaluate(ins.gate)) {
-          doExecute(ins.instruction, cause, multiplier)
-        } else if (ins.mandatory) {
-          throw UserException("Requirement not met: ${ins.gate}")
+        if (game.evaluate(instr.gate)) {
+          doExecute(instr.instruction, cause, multiplier)
+        } else if (instr.mandatory) {
+          throw RequirementException("Requirement not met: ${instr.gate}")
         }
       }
       is Custom -> {
-        require(multiplier == 1)
         // TODO could inject this earlier
-        val custom = game.setup.authority.customInstruction(ins.functionName)
-        val arguments = ins.arguments.map { game.resolve(it) }
+        val custom = game.setup.authority.customInstruction(instr.functionName)
+        val arguments = instr.arguments.map { game.resolve(it) }
         try {
           var translated: Instruction = custom.translate(game.reader, arguments)
           val xer = game.loader.transformer
@@ -105,9 +108,9 @@ class ExecutionContext(
           custom.execute(game.reader, writer, arguments)
         }
       }
-      is Or -> throw AbstractInstructionException("$ins")
+      is Or -> throw AbstractInstructionException(instr)
       is CompositeInstruction -> {
-        ins.instructions.forEach { doExecute(it, cause, multiplier) }
+        instr.instructions.forEach { doExecute(it, cause, multiplier) }
       }
       is Transform -> error("should have been transformed already")
     }
@@ -121,57 +124,34 @@ class ExecutionContext(
       cause: Cause? = null,
   ) {
     val change = game.components.applyChange(count, gaining, removing, amap) ?: return
-    val triggeringRecord = ChangeRecord(game.nextOrdinal, change, cause, hidden)
-    game.fullChangeLog.add(triggeringRecord)
 
-    if (withEffects) {
-      val gained: Expression = triggeringRecord.change.gaining ?: return
-      val gainedCpt: Component = game.toComponent(gained)
-      val doer = gainedCpt.owner() ?: triggeringRecord.cause?.doer ?: GAME
-
-      // TODO fix bad code
-
-      data class FiredEffect(val ins: Instruction, val cause: Cause, val now: Boolean)
-
-      val selfEffects =
-          gainedCpt.activeEffects.mapNotNull { fx ->
-            val instr = fx.onSelfChange(triggeringRecord, game) ?: return@mapNotNull null
-            val newCause =
-                Cause(
-                    triggeringChange = triggeringRecord.ordinal,
-                    contextComponent = fx.contextComponent.expressionFull,
-                    doer = doer)
-            FiredEffect(instr, newCause, fx.automatic)
-          }
-
-      val activeFx = game.components.allActiveEffects()
-      val otherEffects =
-          activeFx.elements.mapNotNull { fx ->
-            val oneInstruction = fx.getInstruction(triggeringRecord, game) ?: return@mapNotNull null
-            val scaled = oneInstruction.times(activeFx.count(fx))
-            val newCause =
-                Cause(
-                    triggeringChange = triggeringRecord.ordinal,
-                    contextComponent = fx.contextComponent.expressionFull,
-                    doer = doer)
-            FiredEffect(scaled, newCause, fx.automatic)
-          }
-
-      val pairs = selfEffects + otherEffects
-      val now =
-          pairs
-              .filter { it.now }
-              .flatMap { fired -> split(fired.ins).map { fired.copy(ins = it) } }
-              .map { Task(it.ins, it.cause) }
-      val later =
-          pairs
-              .filterNot { it.now }
-              .flatMap { fired -> split(fired.ins).map { fired.copy(ins = it) } }
-              .map { Task(it.ins, it.cause) }
-      innerTaskQueue += now
-      outerTaskQueue += later
-    }
+    val triggerEvent = ChangeEvent(game.nextOrdinal, change, cause, hidden)
+    game.fullChangeLog.add(triggerEvent)
+    if (withEffects) fireTriggers(triggerEvent)
   }
+
+  private fun fireTriggers(triggerEvent: ChangeEvent) {
+    // TODO ComponentGraph should do more of this itself?
+    val gained: Expression = triggerEvent.change.gaining ?: return
+    val gainedComponent: Component = game.toComponent(gained)
+
+    val allFiredEffects: List<FiredEffect> =
+        gainedComponent.activeEffects.mapNotNull { it.onChangeToSelf(triggerEvent, game) } +
+            game.components.allActiveEffects().elements.mapNotNull {
+              it.onChangeToOther(triggerEvent, game)
+            }
+
+    val doer = gainedComponent.owner() ?: triggerEvent.cause?.doer ?: GAME
+    val withDoer = allFiredEffects.map { it.withDoer(doer) }
+
+    innerTaskQueue += tasks(withDoer.filter { it.automatic })
+    outerTaskQueue += tasks(withDoer.filter { !it.automatic })
+  }
+
+  private fun tasks(firedFx: List<FiredEffect>) =
+      firedFx
+          .flatMap { fired -> split(fired.instruction).map { fired.copy(instruction = it) } }
+          .map { Task(it.instruction, it.cause) }
 
   val writer =
       object : GameStateWriter {
@@ -182,7 +162,8 @@ class ExecutionContext(
             amap: Boolean,
             cause: Cause?,
         ) {
-          applyChangeAndFireTriggers(count, toComponent(gaining), toComponent(removing), amap, cause)
+          applyChangeAndFireTriggers(
+              count, toComponent(gaining), toComponent(removing), amap, cause)
         }
       }
 

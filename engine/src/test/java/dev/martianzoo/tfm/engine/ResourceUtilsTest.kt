@@ -26,7 +26,7 @@ private class ResourceUtilsTest {
             cn("Heat") to 0,
         )
 
-    game.execute(instruction("PROD[2 Plant<Player1>!]"))
+    game.autoExecute(instruction("PROD[2 Plant<Player1>!]"))
     val prods2: Map<ClassName, Int> = lookUpProductionLevels(game.reader, cn("Player1").expr)
     assertThat(prods2.map { it.key to it.value })
         .containsExactly(

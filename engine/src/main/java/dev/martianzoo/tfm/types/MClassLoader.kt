@@ -6,6 +6,7 @@ import dev.martianzoo.tfm.api.SpecialClassNames.COMPONENT
 import dev.martianzoo.tfm.api.SpecialClassNames.THIS
 import dev.martianzoo.tfm.api.Type
 import dev.martianzoo.tfm.data.ClassDeclaration
+import dev.martianzoo.tfm.engine.Exceptions.InvalidExpressionException
 import dev.martianzoo.tfm.pets.AstTransforms.replaceAll
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.Expression
@@ -45,6 +46,7 @@ public class MClassLoader( // TODO separate into loader and table
    * exception.
    */
   public fun getClass(name: ClassName): MClass =
+      // TODO protect in callers
       loadedClasses[name] ?: error("no class loaded with className or shortName $name")
 
   /** Returns the [MType] represented by [expression]. */
@@ -190,7 +192,8 @@ public class MClassLoader( // TODO separate into loader and table
             usedDeps += candidateDep
             return@map TypeDependency(candidateDep.key, intersectionType)
           }
-          error("couldn't match up $specExpression to $deps")
+          // TODO
+          throw InvalidExpressionException("couldn't match up $specExpression to $deps")
         }
     return DependencySet.of(list)
   }
