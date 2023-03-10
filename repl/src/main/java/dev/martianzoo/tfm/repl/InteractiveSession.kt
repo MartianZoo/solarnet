@@ -54,7 +54,7 @@ class InteractiveSession {
 
   fun count(metric: Metric) = game!!.count(fixTypes(metric))
 
-  fun list(expression: Expression): Multiset<Expression> {
+  fun list(expression: Expression): Multiset<Expression> { // TODO y not (M)Type?
     val typeToList: MType = game!!.resolve(fixTypes(expression))
     val allComponents: Multiset<Component> = game!!.getComponents(typeToList)
 
@@ -79,10 +79,9 @@ class InteractiveSession {
 
   fun execute(instruction: Instruction): List<ChangeEvent> {
     val context = defaultPlayer ?: GAME
-    val ins = fixTypes(instruction)
     val cause = Cause(null, context.expr, context)
     return game!!.autoExecute(
-        ins,
+        fixTypes(instruction),
         withEffects = effectsOn,
         initialCause = cause)
   }

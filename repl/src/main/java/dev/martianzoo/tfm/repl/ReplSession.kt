@@ -5,11 +5,13 @@ import dev.martianzoo.tfm.api.GameSetup
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.pets.ast.Expression.Companion.expression
 import dev.martianzoo.tfm.pets.ast.Instruction.Companion.instruction
 import dev.martianzoo.tfm.pets.ast.Metric.Companion.metric
 import dev.martianzoo.tfm.pets.ast.Requirement.Companion.requirement
 import dev.martianzoo.tfm.repl.ReplSession.ReplMode.YELLOW
+import dev.martianzoo.util.Multiset
 import dev.martianzoo.util.toStrings
 import org.jline.utils.AttributedStyle
 
@@ -92,23 +94,25 @@ public class ReplSession(private val authority: Authority) {
           "has" to
               {
                 it?.let { args ->
-                  val fixed = session.fixTypes(requirement(args))
-                  val result = session.has(fixed)
-                  listOf("$result: $fixed")
+                  val reqt = requirement(args)
+                  val result = session.has(reqt)
+                  listOf("$result: ${session.fixTypes(reqt)}")
                 } ?: listOf("Usage: has <Requirement>")
               },
           "count" to
               {
                 it?.let { args ->
-                  val metric = session.fixTypes(metric(args))
+                  val metric = metric(args)
                   val count = session.count(metric)
-                  listOf("$count $metric")
+                  listOf("$count ${session.fixTypes(metric)}")
                 } ?: listOf("Usage: count <Expression>")
               },
           "list" to
               {
                 it?.let { args ->
-                  val counts = session.list(expression(args))
+                  val expr = expression(args)
+                  val counts: Multiset<Expression> = session.list(expr)
+                  listOf("Listing ${session.fixTypes(expr)}...")
                   counts.elements
                       .sortedByDescending { counts.count(it) }
                       .map { "${counts.count(it)} $it" }
@@ -154,13 +158,11 @@ public class ReplSession(private val authority: Authority) {
               },
           "changes" to
               { args ->
-                args?.let { listOf("Usage: changes") }
-                    ?: session.game!!.changeLog().toStrings()
-              },
-          "changesfull" to
-              { args ->
-                args?.let { listOf("Usage: changesfull") }
-                    ?: session.game!!.changeLogFull().toStrings()
+                when {
+                  args == null -> session.game!!.changeLog().toStrings()
+                  args.trim() == "full" -> session.game!!.changeLogFull().toStrings()
+                  else -> listOf("Usage: changes [full]")
+                }
               },
           "rollback" to
               {
@@ -197,7 +199,7 @@ public class ReplSession(private val authority: Authority) {
       mode green          -> changes to Green Mode (also try red, yellow, blue, purple)
     HISTORY
       changes             -> shows the changelog (the useful bits) for the current game
-      changesfull         -> shows the entire disgusting changelog
+      changes full        -> shows the entire disgusting changelog
       rollback 123        -> undoes recent changes up to and *including* change 123
       history             -> shows your *command* history
     METADATA
