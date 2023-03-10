@@ -7,6 +7,7 @@ import dev.martianzoo.tfm.pets.ast.Instruction.Remove
 import dev.martianzoo.tfm.pets.ast.ScaledExpression
 import dev.martianzoo.tfm.types.MClass
 import dev.martianzoo.tfm.types.MClassLoader
+import dev.martianzoo.tfm.types.Transformers.InsertDefaults
 import dev.martianzoo.util.iff
 
 object MTypeToText { // TODO refactor to ClassInfo / TypeInfo type dealies
@@ -49,7 +50,7 @@ object MTypeToText { // TODO refactor to ClassInfo / TypeInfo type dealies
           c. types:    $concTypes
           class fx:    ${
       mclass.classEffects.joinToString("""
-                       """) { "${it.effect}" + if (it.linkages.any()) " ${it.linkages}" else ""}
+                       """) { "${it.effect}" + if (it.linkages.any()) " ${it.linkages}" else "" }
     }
 
 
@@ -57,9 +58,11 @@ object MTypeToText { // TODO refactor to ClassInfo / TypeInfo type dealies
 
     val concSubs = sequenceCount(mtype.allConcreteSubtypes(), 100)
 
-    val allCases = loader.transformer.insertDefaults(expression)
-    val gain = loader.transformer.insertDefaults(Gain(ScaledExpression(1, expression)))
-    val remove = loader.transformer.insertDefaults(Remove(ScaledExpression(1, expression)))
+    val id = InsertDefaults(loader)
+
+    val allCases = id.transform(expression)
+    val gain = id.transform(Gain(ScaledExpression(1, expression)))
+    val remove = id.transform(Remove(ScaledExpression(1, expression)))
 
     val typeStuff = """
       Expression $expression:

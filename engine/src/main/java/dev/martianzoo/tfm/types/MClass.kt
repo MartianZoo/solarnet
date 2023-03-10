@@ -14,6 +14,10 @@ import dev.martianzoo.tfm.pets.ast.classNames
 import dev.martianzoo.tfm.types.Dependency.Companion.depsForClassType
 import dev.martianzoo.tfm.types.Dependency.Key
 import dev.martianzoo.tfm.types.Dependency.TypeDependency
+import dev.martianzoo.tfm.types.Transformers.CompositeTransformer
+import dev.martianzoo.tfm.types.Transformers.FixEffectForUnownedContext
+import dev.martianzoo.tfm.types.Transformers.InsertDefaults
+import dev.martianzoo.tfm.types.Transformers.ReplaceShortNames
 import dev.martianzoo.util.Hierarchical
 import dev.martianzoo.util.Hierarchical.Companion.glb
 import dev.martianzoo.util.toSetStrict
@@ -170,16 +174,16 @@ internal constructor(
   }
 
   public val directClassEffects: List<EffectDeclaration> by lazy {
-    val xer = loader.transformer
     val thiss = className.refine(requirement("Ok"))
+
+    val transformer = CompositeTransformer(
+        ReplaceShortNames(loader),
+        InsertDefaults(loader, thiss),
+        FixEffectForUnownedContext(this),
+        // Not needed: ReplaceThisWith, ReplaceOwnerWith, Deprodify,
+    )
     declaration.effects
-        .map { effect ->
-          var fx = effect.effect
-          fx = xer.spellOutClassNames(fx)
-          fx = xer.insertDefaults(fx, thiss)
-          fx = xer.fixEffectForUnownedContext(fx, this)
-          effect.copy(effect = fx)
-        }
+        .map { it.copy(effect = transformer.transform(it.effect)) }
         .sortedBy { it.effect }
   }
 

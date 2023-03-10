@@ -21,7 +21,7 @@ internal constructor(
     internal val dependencies: DependencySet,
     override val refinement: Requirement? = null,
 ) : Type, Hierarchical<MType>, HasClassName by mclass {
-  private val loader by mclass::loader
+  internal val loader by mclass::loader
 
   init {
     require(dependencies.keys.toList() == mclass.dependencies.keys.toList()) {

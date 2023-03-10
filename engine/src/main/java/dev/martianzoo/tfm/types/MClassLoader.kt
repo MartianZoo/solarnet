@@ -7,11 +7,11 @@ import dev.martianzoo.tfm.api.SpecialClassNames.THIS
 import dev.martianzoo.tfm.api.Type
 import dev.martianzoo.tfm.data.ClassDeclaration
 import dev.martianzoo.tfm.engine.Exceptions.InvalidExpressionException
-import dev.martianzoo.tfm.pets.AstTransforms.replaceAll
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.pets.ast.PetNode
 import dev.martianzoo.tfm.types.Dependency.TypeDependency
+import dev.martianzoo.tfm.types.Transformers.ReplaceThisWith
 
 /**
  * All [MClass] instances come from here. Uses an [Authority] to pull class declarations from as
@@ -151,17 +151,12 @@ public class MClassLoader( // TODO separate into loader and table
   private fun validate() {
     allClasses.forEach { mclass ->
       mclass.classEffects.forEach {
-        checkAllTypes(
-            it.effect
-                .replaceAll(THIS.classExpression(), mclass.className.classExpression())
-                .replaceAll(THIS.expr, mclass.className.expr))
+        checkAllTypes(ReplaceThisWith(mclass.className.expr).transform(it.effect))
       }
     }
   }
 
   private fun decl(cn: ClassName) = authority.classDeclaration(cn)
-
-  public val transformer: Transformer by lazy { Transformer(this) }
 
   public fun checkAllTypes(node: PetNode) =
       node.visitDescendants {

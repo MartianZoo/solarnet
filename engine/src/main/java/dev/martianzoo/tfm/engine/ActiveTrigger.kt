@@ -2,7 +2,6 @@ package dev.martianzoo.tfm.engine
 
 import dev.martianzoo.tfm.api.SpecialClassNames.OWNER
 import dev.martianzoo.tfm.data.ChangeEvent
-import dev.martianzoo.tfm.pets.AstTransforms.replaceAll
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.Effect.Trigger
 import dev.martianzoo.tfm.pets.ast.Effect.Trigger.ByTrigger
@@ -13,6 +12,7 @@ import dev.martianzoo.tfm.pets.ast.Effect.Trigger.WhenGain
 import dev.martianzoo.tfm.pets.ast.Effect.Trigger.WhenRemove
 import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.pets.ast.Instruction
+import dev.martianzoo.tfm.types.Transformers.ReplaceOwnerWith
 
 sealed class ActiveTrigger {
   companion object {
@@ -42,8 +42,8 @@ sealed class ActiveTrigger {
 
       val hit = inner.matchSelf(triggerEvent, game) ?: return null
 
-      return if (by == OWNER && contextP != null) {
-        hit.copy { hit.fixer(it).replaceAll(OWNER, contextP) }
+      return if (by == OWNER) {
+        hit.copy { ReplaceOwnerWith(contextP).transform(hit.fixer(it)) }
       } else {
         hit
       }
@@ -56,8 +56,8 @@ sealed class ActiveTrigger {
 
       val hit = inner.matchOther(triggerEvent, game) ?: return null
 
-      return if (by == OWNER && contextP != null) {
-        hit.copy { hit.fixer(it).replaceAll(OWNER, contextP) }
+      return if (by == OWNER) {
+        hit.copy { ReplaceOwnerWith(contextP).transform(hit.fixer(it)) }
       } else {
         hit
       }

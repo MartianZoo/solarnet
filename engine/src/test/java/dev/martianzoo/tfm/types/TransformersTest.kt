@@ -6,10 +6,11 @@ import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.pets.ast.Instruction.Companion.instruction
+import dev.martianzoo.tfm.types.Transformers.InsertDefaults
 import org.junit.jupiter.api.Test
 
-class TransformerTest {
-  val xer = MClassLoader(Canon).loadEverything().transformer
+class TransformersTest {
+  val loader = MClassLoader(Canon).loadEverything()
 
   @Test
   fun test() {
@@ -45,7 +46,7 @@ class TransformerTest {
       expected: String,
       context: Expression = THIS.expr
   ) {
-    val xfd = xer.insertDefaults(instruction(original), context)
+    val xfd = InsertDefaults(loader, context).transform(instruction(original))
     assertThat(xfd.toString()).isEqualTo(expected)
   }
 }

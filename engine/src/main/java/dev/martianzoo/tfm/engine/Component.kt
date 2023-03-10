@@ -1,16 +1,17 @@
 package dev.martianzoo.tfm.engine
 
 import dev.martianzoo.tfm.api.SpecialClassNames.OWNED
-import dev.martianzoo.tfm.api.SpecialClassNames.OWNER
-import dev.martianzoo.tfm.api.SpecialClassNames.THIS
 import dev.martianzoo.tfm.engine.Exceptions.AbstractInstructionException
-import dev.martianzoo.tfm.pets.AstTransforms.replaceAll
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.Effect
 import dev.martianzoo.tfm.pets.ast.HasExpression
 import dev.martianzoo.tfm.types.Dependency.Key
 import dev.martianzoo.tfm.types.MClass
 import dev.martianzoo.tfm.types.MType
+import dev.martianzoo.tfm.types.Transformers.CompositeTransformer
+import dev.martianzoo.tfm.types.Transformers.Deprodify
+import dev.martianzoo.tfm.types.Transformers.ReplaceOwnerWith
+import dev.martianzoo.tfm.types.Transformers.ReplaceThisWith
 
 /**
  * An *instance* of some concrete [MType]; a [ComponentGraph] is a multiset of these. For any use
@@ -44,15 +45,16 @@ public data class Component private constructor(val mtype: MType) : HasExpressio
    * This component's effects; while the component exists in a game state, the effects are active.
    */
   public val effects: List<Effect> by lazy {
+    // do the ones classEffects didn't
+    val transformer = CompositeTransformer(
+        Deprodify(mtype.loader),
+        ReplaceThisWith(mtype.expression),
+        ReplaceOwnerWith(owner()),
+    )
+
     mtype.mclass.classEffects.map { decl ->
-      // val linkages = decl.linkages
       // Transform for some "linkages" (TODO the rest, and do in more principled way)
-      val effect =
-          mtype.mclass.loader.transformer // ridiculoso
-              .deprodify(decl.effect)
-              .replaceAll(THIS.classExpression(), expression.className.classExpression())
-              .replaceAll(THIS.expr, expressionFull)
-      owner()?.let { effect.replaceAll(OWNER, it) } ?: effect
+      transformer.transform(decl.effect)
     }
   }
 

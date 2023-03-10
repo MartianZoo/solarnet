@@ -23,6 +23,10 @@ import dev.martianzoo.tfm.pets.ast.Instruction.Intensity.OPTIONAL
 import dev.martianzoo.tfm.pets.ast.Instruction.Or
 import dev.martianzoo.tfm.pets.ast.Instruction.Per
 import dev.martianzoo.tfm.pets.ast.Instruction.Transform
+import dev.martianzoo.tfm.types.Transformers.CompositeTransformer
+import dev.martianzoo.tfm.types.Transformers.Deprodify
+import dev.martianzoo.tfm.types.Transformers.InsertDefaults
+import dev.martianzoo.tfm.types.Transformers.ReplaceShortNames
 
 class SingleExecutionContext(
     val game: Game,
@@ -33,7 +37,7 @@ class SingleExecutionContext(
   val innerTaskQueue = ArrayDeque<Task>() // for :: effects, and move outer here 1-by-1
 
   fun autoExecute(instruction: Instruction, initialCause: Cause? = null): List<ChangeEvent> {
-    val deprodded = game.loader.transformer.deprodify(instruction)
+    val deprodded = Deprodify(game.loader).transform(instruction)
     val start = game.nextOrdinal
 
     outerTaskQueue += split(deprodded).map { Task(it, initialCause) }
@@ -97,12 +101,14 @@ class SingleExecutionContext(
         val custom = game.setup.authority.customInstruction(instr.functionName)
         val arguments = instr.arguments.map { game.resolve(it) }
         try {
-          var translated: Instruction = custom.translate(game.reader, arguments)
-          val xer = game.loader.transformer
-          translated = xer.spellOutClassNames(translated) // TODO package these up
-          translated = xer.insertDefaults(translated)
-          translated = xer.deprodify(translated)
-          doExecute(translated, cause, 1)
+          val translated: Instruction = custom.translate(game.reader, arguments)
+          val xer = CompositeTransformer(
+              ReplaceShortNames(game.loader),
+              InsertDefaults(game.loader), // TODO context component??
+              Deprodify(game.loader),
+              // Not needed: ReplaceThisWith, ReplaceOwnerWith, FixUnownedEffect
+          )
+          doExecute(xer.transform(translated), cause, 1)
         } catch (e: ExecuteInsteadException) {
           // this custom fn chose to override execute() instead of translate()
           custom.execute(game.reader, writer, arguments)
