@@ -2,6 +2,7 @@ package dev.martianzoo.tfm.repl
 
 import dev.martianzoo.tfm.api.Authority
 import dev.martianzoo.tfm.api.GameSetup
+import dev.martianzoo.tfm.api.SpecialClassNames.COMPONENT
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
@@ -13,12 +14,13 @@ import dev.martianzoo.tfm.pets.ast.Requirement.Companion.requirement
 import dev.martianzoo.tfm.repl.ReplSession.ReplMode.YELLOW
 import dev.martianzoo.util.Multiset
 import dev.martianzoo.util.toStrings
+import org.jline.reader.History
 import org.jline.utils.AttributedStyle
 
 internal fun main() {
-  val repl = ReplSession(Canon)
-  val session = repl.session
   val jline = JlineRepl()
+  val repl = ReplSession(Canon, jline)
+  val session = repl.session
 
   fun prompt(): Pair<String, Int> {
     val player: ClassName? = session.defaultPlayer
@@ -34,154 +36,221 @@ internal fun main() {
 }
 
 /** A programmatic entry point to a REPL session that is more textual than [ReplSession]. */
-public class ReplSession(private val authority: Authority) {
+public class ReplSession(private val authority: Authority, val jline: JlineRepl? = null) {
   internal val session = InteractiveSession()
   internal var mode: ReplMode = YELLOW
     set(f) {
       session.effectsOn = (f == YELLOW)
-      field =f
+      field = f
     }
   init {
     mode = YELLOW // setting it redundantly to make the `effectsOn` thing happen TODO
   }
 
-  enum class ReplMode(val message: String) {
-    GRAY("No game active."),
-    RED("Allows arbitrary state changes, which don't trigger effects."),
-    YELLOW("Allows arbitrary state changes, auto-executing effects when possible."),
-    GREEN("Allows arbitrary state changes, enqueueing resulting tasks. TODO"),
-    BLUE("Allows only initiating `UseAction1<StandardAction>`, and handling enqueued tasks. TODO")
+  public enum class ReplMode(val message: String) {
+    RED("Allows arbitrary state changes, which don't trigger effects"),
+    YELLOW("Allows arbitrary state changes, auto-executing effects when possible"),
+    GREEN("Allows arbitrary state changes, enqueueing resulting tasks TODO"),
+    BLUE("Allows only initiating `UseAction<StandardAction>` and handling enqueued tasks TODO"),
+    PURPLE("The game engine will fully orchestrate the game workflow TODO"),
   }
+
+  private val inputRegex = Regex("""^\s*(\S+)(.*)$""")
 
   public fun command(wholeCommand: String): List<String> {
     val (_, command, args) = inputRegex.matchEntire(wholeCommand)?.groupValues ?: return listOf()
-    return command(command, args.ifBlank { null })
+    return command(command, args.trim().ifEmpty { null })
   }
-
-  internal val inputRegex = Regex("""^\s*(\S+)(.*)$""")
 
   internal fun command(commandName: String, args: String?): List<String> {
-    if (commandName !in setOf("help", "new") && session.game == null) {
-      return listOf("no game active")
+    if (commandName !in setOf("help", "newgame") && session.game == null) {
+      return listOf("No game active")
     }
-    val command = commands[commandName] ?: error("No command named $commandName")
-    return command(args)
+    val command =
+        commands.firstOrNull { it.name == commandName }
+            ?: return listOf("¯\\_(ツ)_/¯ Type `help` for help")
+
+    return try {
+      if (args == null) command.noArgs() else command.withArgs(args.trim())
+    } catch (e: UsageException) {
+      listOfNotNull(e.message, "Usage: ${command.usage}")
+    }
   }
 
-  private val commands =
-      mapOf<String, (String?) -> List<String>>(
-          "help" to { listOf(helpText) },
-          "new" to
-              {
-                it?.let { args ->
-                  val (bundleString, players) = args.trim().split(Regex("\\s+"), 2)
-                  session.newGame(GameSetup(authority, bundleString, players.toInt()))
-                  listOf("New $players-player game created with bundles: $bundleString")
-                } ?: listOf("Usage: new <bundles> <player count>")
-              },
-          "become" to
-              { args ->
-                val message =
-                    if (args == null) {
-                      session.becomeNoOne()
-                      "Now issuing commands as `Game`"
-                    } else {
-                      session.becomePlayer(cn(args.trim()))
-                      "Hi, `${session.defaultPlayer}`"
-                    }
-                listOf(message)
-              },
-          "has" to
-              {
-                it?.let { args ->
-                  val reqt = requirement(args)
-                  val result = session.has(reqt)
-                  listOf("$result: ${session.fixTypes(reqt)}")
-                } ?: listOf("Usage: has <Requirement>")
-              },
-          "count" to
-              {
-                it?.let { args ->
-                  val metric = metric(args)
-                  val count = session.count(metric)
-                  listOf("$count ${session.fixTypes(metric)}")
-                } ?: listOf("Usage: count <Expression>")
-              },
-          "list" to
-              {
-                it?.let { args ->
-                  val expr = expression(args)
-                  val counts: Multiset<Expression> = session.list(expr)
-                  listOf("Listing ${session.fixTypes(expr)}...")
+  private class UsageException(message: String? = null) : RuntimeException(message)
+
+  private abstract class ReplCommand(val name: String) {
+    abstract val usage: String
+
+    open fun noArgs(): List<String> = throw UsageException()
+    open fun withArgs(args: String): List<String> = throw UsageException()
+  }
+
+  private val commands: List<ReplCommand> =
+      listOf(
+          object : ReplCommand("help") {
+            override val usage = "help [command]"
+            override fun noArgs() = listOf(helpText)
+            override fun withArgs(args: String) = listOf("Sorry, haven't implemented this yet")
+          },
+          object : ReplCommand("newgame") {
+            override val usage = "newgame <bundles> <player count>"
+
+            override fun withArgs(args: String): List<String> {
+              val (bundleString, players) = args.trim().split(Regex("\\s+"), 2)
+              try {
+                session.newGame(GameSetup(authority, bundleString, players.toInt()))
+              } catch (e: RuntimeException) {
+                throw UsageException(e.message)
+              }
+              return listOf("New $players-player game created with bundles: $bundleString")
+            }
+          },
+          object : ReplCommand("become") {
+            override val usage = "become [PlayerN]"
+
+            override fun noArgs(): List<String> {
+              session.becomeNoOne()
+              return listOf("Okay, you are no one")
+            }
+            override fun withArgs(args: String): List<String> {
+              session.becomePlayer(cn(args))
+              return listOf("Hi, ${session.defaultPlayer}")
+            }
+          },
+          object : ReplCommand("has") {
+            override val usage = "has <Requirement>"
+
+            override fun withArgs(args: String): List<String> {
+              val reqt = requirement(args)
+              val result = session.has(reqt)
+              return listOf("$result: ${session.fixTypes(reqt)}")
+            }
+          },
+          object : ReplCommand("count") {
+            override val usage = "count <Metric>"
+
+            override fun withArgs(args: String): List<String> {
+              val metric = metric(args)
+              val count = session.count(metric)
+              return listOf("$count ${session.fixTypes(metric)}")
+            }
+          },
+          object : ReplCommand("list") {
+            override val usage = "list <Expression>"
+            override fun noArgs() = withArgs(COMPONENT.toString())
+
+            override fun withArgs(args: String): List<String> {
+              val expr = expression(args)
+              val counts: Multiset<Expression> = session.list(expr)
+              return listOf("Listing ${session.fixTypes(expr)}...") +
                   counts.elements
                       .sortedByDescending { counts.count(it) }
                       .map { "${counts.count(it)} $it" }
-                } ?: listOf("Usage: list <Expression>")
-              },
-          "board" to
-              {
-                val player = if (it == null) session.defaultPlayer!! else cn(it.trim())
-                BoardToText(session.game!!.reader).board(player.expr)
-              },
-          "map" to
-              {
-                if (it == null) {
-                  MapToText(session.game!!.reader).map()
-                } else {
-                  listOf("Usage: map")
-                }
-              },
-          "mode" to
-              { arg ->
-                if (arg != null) {
-                  mode = ReplMode.valueOf(arg.trim().uppercase())
-                }
-                listOf("Mode $mode: ${mode.message}")
-              },
-          "exec" to
-              {
-                it?.let { args ->
-                  val changes = session.execute(instruction(args))
-                  val oops = session.game!!.pendingTasks.flatMapIndexed { i, it ->
-                    listOf(
-                        "$i: ${it.instruction} ${it.cause}",
-                        "        ${it.reasonPending}"
-                    )
+            }
+          },
+          object : ReplCommand("board") {
+            override val usage = "board [PlayerN]"
+
+            override fun noArgs(): List<String> {
+              val player: ClassName =
+                  session.defaultPlayer
+                      ?: throw UsageException(
+                          "Must specify a player (or `become` that player first)")
+              return withArgs(player.toString())
+            }
+            override fun withArgs(args: String) =
+                BoardToText(session.game!!.reader).board(cn(args).expr)
+          },
+          object : ReplCommand("map") {
+            override val usage = "map"
+            override fun noArgs() = MapToText(session.game!!.reader).map()
+          },
+          object : ReplCommand("mode") {
+            override val usage = "mode"
+            override fun noArgs() = listOf("Mode $mode: ${mode.message}")
+
+            override fun withArgs(args: String): List<String> {
+              try {
+                mode = ReplMode.valueOf(args.uppercase())
+              } catch (e: Exception) {
+                throw UsageException("Valid modes are: ${ReplMode.values().joinToString()}")
+              }
+              return noArgs()
+            }
+          },
+          object : ReplCommand("exec") {
+            override val usage = "exec <Instruction>"
+
+            override fun withArgs(args: String): List<String> {
+              val pend = session.game!!.pendingTasks
+              val already = pend.size
+
+              val changes = session.execute(instruction(args))
+              val oops =
+                  pend.subList(already, pend.size).flatMapIndexed { i, it ->
+                    listOf("${it.id}: ${it.instruction} ${it.cause} (${it.why})")
                   }
-                  changes.toStrings() + if (oops.any()) {
-                    listOf("", "Failed tasks:") + oops
+              return changes.toStrings() +
+                  if (oops.any()) {
+                    listOf("", "There are new pending tasks:") + oops
                   } else {
                     listOf()
                   }
+            }
+          },
+          object : ReplCommand("log") {
+            override val usage = "log [full]"
+            override fun noArgs() = session.game!!.changeLog().toStrings()
 
-                } ?: listOf("Usage: exec <Instruction>")
-              },
-          "changes" to
-              { args ->
-                when {
-                  args == null -> session.game!!.changeLog().toStrings()
-                  args.trim() == "full" -> session.game!!.changeLogFull().toStrings()
-                  else -> listOf("Usage: changes [full]")
-                }
-              },
-          "rollback" to
-              {
-                it?.let { args ->
-                  val ord = args.trim().toInt()
-                  session.rollBackToBefore(ord)
-                  listOf("Done")
-                } ?: listOf("Usage: rollback <ordinal>")
-              },
-          "desc" to
-              {
-                it?.let { args ->
-                  val expression = expression(args.trim())
-                  listOf(MTypeToText.describe(expression, session.game!!.loader))
-                } ?: listOf("Usage: desc <ClassName>")
-              },
-      )
+            override fun withArgs(args: String): List<String> {
+              if (args == "full") {
+                return session.game!!.changeLogFull().toStrings()
+              } else {
+                throw UsageException()
+              }
+            }
+          },
+          object : ReplCommand("rollback") {
+            override val usage = "rollback <logid>"
 
-  private val helpText: String = """
+            override fun withArgs(args: String): List<String> {
+              session.rollBackToBefore(args.toInt())
+              return listOf("Rollback done")
+            }
+          },
+          object : ReplCommand("history") {
+            override val usage = "history <count>"
+            val history = jline?.history
+
+            override fun noArgs() = fmt(history!!)
+
+            override fun withArgs(args: String): List<String> {
+              val max =
+                  try {
+                    args.toInt()
+                  } catch (e: RuntimeException) {
+                    throw UsageException()
+                  }
+              val drop = (history!!.size() - max).coerceIn(0, null)
+              return fmt(history.drop(drop))
+            }
+
+            private fun fmt(entries: Iterable<History.Entry>) =
+                entries.map { "${it.index() + 1}: ${it.line()}" }
+          },
+          object : ReplCommand("desc") {
+            override val usage = "desc <Expression>"
+
+            override fun withArgs(args: String): List<String> {
+              val expression = expression(args)
+              return listOf(MTypeToText.describe(expression, session.game!!.loader))
+            }
+          })
+}
+
+private val helpText: String =
+    """
     CONTROL
       help                -> shows this message
       new BMV 3           -> erases current game and starts 3p game with Base, default Map, Venus
@@ -205,5 +274,5 @@ public class ReplSession(private val authority: Authority) {
     METADATA
       desc Microbe        -> describes the Microbe class in detail
       desc Microbe<Ants>  -> describes the Microbe<Ants> type in detail
-  """.trimIndent()
-}
+  """
+        .trimIndent()

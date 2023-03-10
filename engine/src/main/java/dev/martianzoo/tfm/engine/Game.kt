@@ -36,10 +36,12 @@ public class Game(val setup: GameSetup, public val loader: MClassLoader) {
   val pendingTasks: ArrayDeque<Task> = ArrayDeque()
 
   data class Task(
+      val id: Int,
       val instruction: Instruction,
       val cause: Cause?,
-      val reasonPending: String? = null
+      val why: String? = null,
   )
+  var nextTaskId: Int = 0
 
   // TYPE & COMPONENT CONVERSION
 

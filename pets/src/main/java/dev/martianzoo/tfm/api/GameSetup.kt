@@ -36,7 +36,9 @@ data class GameSetup(
   init {
     require(players in 2..5) { "player count not supported: $players" }
     require("B" in bundles) { "missing base: $bundles" }
-    require(authority.allBundles.containsAll(bundles)) { bundles }
+    require(authority.allBundles.containsAll(bundles)) {
+      "supported bundles are: ${authority.allBundles}"
+    }
   }
 
   /** The map to use for this game. */

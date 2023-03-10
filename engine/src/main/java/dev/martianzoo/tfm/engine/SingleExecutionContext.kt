@@ -40,7 +40,7 @@ class SingleExecutionContext(
     val deprodded = Deprodify(game.loader).transform(instruction)
     val start = game.nextOrdinal
 
-    outerTaskQueue += split(deprodded).map { Task(it, initialCause) }
+    outerTaskQueue += split(deprodded).map { Task(game.nextTaskId++, it, initialCause) }
 
     while (outerTaskQueue.any()) {
       require(innerTaskQueue.none())
@@ -61,7 +61,7 @@ class SingleExecutionContext(
         if (e is IllegalArgumentException || e is IllegalStateException) {
           throw e
         } else {
-          game.pendingTasks += outerTask.copy(reasonPending = e.toString())
+          game.pendingTasks += outerTask.copy(why = e.toString())
         }
       }
     }
@@ -157,7 +157,7 @@ class SingleExecutionContext(
   private fun tasks(firedFx: List<FiredEffect>) =
       firedFx
           .flatMap { fired -> split(fired.instruction).map { fired.copy(instruction = it) } }
-          .map { Task(it.instruction, it.cause) }
+          .map { Task(game.nextTaskId++, it.instruction, it.cause) }
 
   val writer =
       object : GameStateWriter {

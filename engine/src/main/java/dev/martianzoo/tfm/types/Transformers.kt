@@ -108,7 +108,7 @@ public object Transformers {
               if (leaveItAlone(original)) {
                 return node // don't descend
               } else {
-                val defaults: Defaults = loader.allDefaults[original.className]!!
+                val defaults: Defaults = Defaults.forClass(loader.getClass(original.className))
                 val fixed =
                     insertDefaultsIntoExpr(original, defaults.gainOnlyDependencies, context, loader)
                 val scaledEx = ScaledExpression(node.count, fixed)

@@ -11,7 +11,7 @@ import org.jline.utils.AttributedStringBuilder
 import org.jline.utils.AttributedStyle.DEFAULT
 import org.jline.utils.InfoCmp.Capability
 
-internal class JlineRepl {
+public class JlineRepl {
   private val historyFile = Path(System.getProperty("user.home") + "/.rego_history")
   val terminal: Terminal =
       TerminalBuilder.builder().color(true).build().also {
@@ -50,7 +50,6 @@ internal class JlineRepl {
 
       when (inputLine.trim()) {
         "exit" -> return end()
-        "history" -> history.forEach { println("${it.index() + 1}: ${it.line()}") }
         else ->
             try {
               handler(inputLine).forEach(::println)

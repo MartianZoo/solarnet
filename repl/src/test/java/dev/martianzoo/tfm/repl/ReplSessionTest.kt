@@ -9,7 +9,7 @@ private class ReplSessionTest {
   @Test
   fun test() {
     val repl = ReplSession(Canon)
-    repl.command("new MB 2")
+    repl.command("newgame MB 2")
     repl.command("become Player2")
     repl.command("mode yellow")
     var n = repl.session.game!!.changeLogFull().size - 1
@@ -44,7 +44,7 @@ private class ReplSessionTest {
   @Test
   fun testBoard() {
     val repl = ReplSession(Canon)
-    repl.command("new MB 2")
+    repl.command("newgame MB 2")
     repl.command("become Player1")
     repl.command("exec PROD[9, 8 Steel, 7 Titanium, 6 Plant, 5 Energy, 4 Heat]")
     repl.command("exec 8, 6 Steel, 7 Titanium, 5 Plant, 3 Energy, 9 Heat")
@@ -67,7 +67,7 @@ private class ReplSessionTest {
   @Test
   fun testMap() {
     val repl = ReplSession(Canon)
-    repl.command("new MB 3")
+    repl.command("newgame MB 3")
     repl.command("become P1")
     repl.command("mode red")
     repl.command("exec OT<M26>, OT<M55>, OT<M56>, CT<M46>, GT<M57>, GT<M45, P3>")
