@@ -2,12 +2,12 @@ package dev.martianzoo.tfm.engine
 
 import dev.martianzoo.tfm.api.GameSetup
 import dev.martianzoo.tfm.api.SpecialClassNames.GAME
-import dev.martianzoo.tfm.data.ChangeEvent
-import dev.martianzoo.tfm.data.ChangeEvent.Cause
+import dev.martianzoo.tfm.data.Actor
+import dev.martianzoo.tfm.data.LogEntry.ChangeEvent.Cause
+import dev.martianzoo.tfm.engine.SingleExecution.ExecutionResult
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.pets.ast.Instruction
 import dev.martianzoo.tfm.pets.ast.Instruction.Companion.instruction
-import dev.martianzoo.tfm.pets.ast.Instruction.Multi
 import dev.martianzoo.tfm.pets.ast.classNames
 import dev.martianzoo.tfm.types.MClassLoader
 
@@ -33,34 +33,29 @@ public object Engine {
     // setup.authority.customInstructions += customInstr(loader)
 
     val game = Game(setup, loader)
-    // game.execute(instruction("Game!"), withEffects = true, hidden = true)
+    // TODO game -> engine
+    val result: ExecutionResult = game.initiate(instruction("Game!"), Actor.ENGINE)
+    require(result.fullSuccess) { result }
+    require(result.newTaskIdsAdded.none())
+    val firstEvent = result.changes.single()
+    val fakeCause = Cause(GAME.expr, firstEvent.ordinal, Actor.ENGINE)
 
-    val uncausedCause = Cause(triggerEvent = null, contextComponent = GAME.expr, doer = GAME)
-
-    val firstEvent: ChangeEvent = game.autoExecute(
-        instruction("Game!"),
-        initialCause = uncausedCause,
-        hidden = true).single()
-    val fakeCause = Cause(firstEvent.ordinal, GAME.expr, GAME)
-
-    game.autoExecute(
-        customInstr(loader),
-        withEffects = true,
-        initialCause = fakeCause,
-        hidden = true)
-    game.pendingTasks.forEach(::println)
-    require(game.pendingTasks.none())
+    customInstr(loader).forEach {
+      val result = game.initiate(it, Actor.ENGINE, fakeCause)
+      require(result.fullSuccess) { result }
+      require(game.taskQueue.isEmpty()) { "Something was left in the task queue" }
+    }
     return game
   }
 
-  fun customInstr(loader: MClassLoader): Instruction {
-      val singletonTypes = loader.allClasses
-          .filter { it.hasSingletonTypes() }
-          .flatMap { it.baseType.concreteSubtypesSameClass() }
-      return Multi.create(singletonTypes.map { instruction("${it.expressionFull}!") })!!
-      //
-      // return object : CustomInstruction("createSingletons") {
-      //   override fun translate(game: GameStateReader, arguments: List<Type>) = instr
-      // }
+  fun customInstr(loader: MClassLoader): List<Instruction> {
+    val singletonTypes = loader.allClasses
+        .filter { it.hasSingletonTypes() }
+        .flatMap { it.baseType.concreteSubtypesSameClass() }
+    return singletonTypes.map { instruction("${it.expressionFull}!") }
+    //
+    // return object : CustomInstruction("createSingletons") {
+    //   override fun translate(game: GameStateReader, arguments: List<Type>) = instr
+    // }
   }
 }

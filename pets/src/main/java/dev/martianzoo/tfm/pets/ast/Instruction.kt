@@ -256,11 +256,14 @@ public sealed class Instruction : PetNode() {
   }
 
   companion object : BaseTokenizer() {
-    fun split(ins: Instruction) =
-        when (ins) {
-          is Or -> listOf(ins)
-          is CompositeInstruction -> ins.instructions
-          else -> listOf(ins)
+    fun split(instruction: Iterable<Instruction>): List<Instruction> =
+        instruction.flatMap { split(it) }
+
+    fun split(instruction: Instruction): List<Instruction> =
+        if (instruction is Multi) {
+          split(instruction.instructions)
+        } else {
+          listOf(instruction)
         }
 
     fun instruction(text: String): Instruction = Parsing.parse(parser(), text)

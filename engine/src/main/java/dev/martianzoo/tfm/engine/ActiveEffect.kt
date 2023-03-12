@@ -1,16 +1,16 @@
 package dev.martianzoo.tfm.engine
 
-import dev.martianzoo.tfm.data.ChangeEvent
-import dev.martianzoo.tfm.data.ChangeEvent.Cause
-import dev.martianzoo.tfm.pets.ast.ClassName
+import dev.martianzoo.tfm.data.Actor
+import dev.martianzoo.tfm.data.LogEntry.ChangeEvent
+import dev.martianzoo.tfm.data.LogEntry.ChangeEvent.Cause
 import dev.martianzoo.tfm.pets.ast.Effect
 import dev.martianzoo.tfm.pets.ast.Instruction
 
 data class ActiveEffect(
-    val contextComponent: Component,
+    val context: Component,
     val trigger: ActiveTrigger,
     val automatic: Boolean,
-    val instruction: Instruction
+    val instruction: Instruction,
 ) {
   companion object {
     fun from(it: Effect, contextComponent: Component) =
@@ -19,19 +19,27 @@ data class ActiveEffect(
 
   fun onChangeToSelf(triggerEvent: ChangeEvent, game: Game): FiredEffect? {
     val hit = trigger.matchSelf(triggerEvent, game) ?: return null
-    val alteredInstr = hit.fixer(instruction)
-    val newCause = Cause(triggerEvent.ordinal, contextComponent.expressionFull, doer = null)
-    return FiredEffect(alteredInstr * hit.count, newCause, automatic)
+    return FiredEffect(hit.modify(instruction), hit.count, triggeredBy(triggerEvent), automatic)
   }
 
   fun onChangeToOther(triggerEvent: ChangeEvent, game: Game): FiredEffect? {
     val hit = trigger.matchOther(triggerEvent, game) ?: return null
-    val alteredInstr = hit.fixer(instruction)
-    val newCause = Cause(triggerEvent.ordinal, contextComponent.expressionFull, doer = null)
-    return FiredEffect(alteredInstr * hit.count, newCause, automatic)
+    return FiredEffect(hit.modify(instruction), hit.count, triggeredBy(triggerEvent), automatic)
   }
 
-  data class FiredEffect(val instruction: Instruction, val cause: Cause, val automatic: Boolean) {
-    fun withDoer(doer: ClassName) = copy(cause = cause.copy(doer = doer))
+  private fun triggeredBy(triggerEvent: ChangeEvent): Cause {
+    val actor = context.owner()?.let(::Actor) ?: triggerEvent.cause?.actor ?: Actor.ENGINE
+    return Cause(context, triggerEvent, actor)
+  }
+
+  data class FiredEffect(
+      val instruction: Instruction,
+      val multiplier: Int,
+      val cause: Cause,
+      val automatic: Boolean,
+  ) {
+    operator fun times(factor: Int) = copy(multiplier = multiplier * factor)
+
+    fun scaledInstruction() = instruction * multiplier
   }
 }

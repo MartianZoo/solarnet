@@ -1,7 +1,7 @@
 package dev.martianzoo.tfm.engine
 
 import dev.martianzoo.tfm.api.SpecialClassNames.OWNER
-import dev.martianzoo.tfm.data.ChangeEvent
+import dev.martianzoo.tfm.data.LogEntry.ChangeEvent
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.Effect.Trigger
 import dev.martianzoo.tfm.pets.ast.Effect.Trigger.ByTrigger
@@ -21,14 +21,17 @@ sealed class ActiveTrigger {
         is ByTrigger -> ByDoer(from(trigger.inner), trigger.by)
         is WhenGain -> Self(true)
         is WhenRemove -> Self(false)
-        is OnGainOf -> OnChange(trigger.expression, gaining = true)
-        is OnRemoveOf -> OnChange(trigger.expression, gaining = false)
+        is OnGainOf -> OnChange(trigger.expression, matchOnGain = true)
+        is OnRemoveOf -> OnChange(trigger.expression, matchOnGain = false)
         is Transform -> error("should have been transformed by now")
       }
     }
   }
 
-  data class Hit(val count: Int, val fixer: (Instruction) -> Instruction = { it })
+  interface Hit {
+    val count: Int
+    fun modify(instruction: Instruction): Instruction
+  }
 
   abstract fun matchSelf(triggerEvent: ChangeEvent, game: Game): Hit?
 
@@ -37,57 +40,84 @@ sealed class ActiveTrigger {
   data class ByDoer(val inner: ActiveTrigger, val by: ClassName) : ActiveTrigger() {
 
     override fun matchSelf(triggerEvent: ChangeEvent, game: Game): Hit? {
-      val contextP: ClassName? = triggerEvent.cause?.doer
+      val contextP: ClassName? = triggerEvent.cause?.actor?.className
       if (isPlayerSpecific() && contextP != by) return null
 
-      val hit = inner.matchSelf(triggerEvent, game) ?: return null
+      val originalHit = inner.matchSelf(triggerEvent, game) ?: return null
 
       return if (by == OWNER) {
-        hit.copy { ReplaceOwnerWith(contextP).transform(hit.fixer(it)) }
+        object : Hit {
+          override val count by originalHit::count
+          override fun modify(instruction: Instruction): Instruction {
+            // TODO which way
+            return ReplaceOwnerWith(contextP).transform(originalHit.modify(instruction))
+          }
+        }
       } else {
-        hit
+        originalHit
       }
     }
 
     override fun matchOther(triggerEvent: ChangeEvent, game: Game): Hit? {
-      val contextP: ClassName? =
-          triggerEvent.cause?.let { game.toComponent(it.contextComponent).owner() }
+      val contextP: ClassName? = triggerEvent.cause?.let { game.toComponent(it.context).owner() }
       if (isPlayerSpecific() && contextP != by) return null
 
-      val hit = inner.matchOther(triggerEvent, game) ?: return null
+      val originalHit = inner.matchOther(triggerEvent, game) ?: return null
 
       return if (by == OWNER) {
-        hit.copy { ReplaceOwnerWith(contextP).transform(hit.fixer(it)) }
+        object : Hit {
+          override val count by originalHit::count
+          override fun modify(instruction: Instruction): Instruction {
+            // TODO which way
+            return ReplaceOwnerWith(contextP).transform(originalHit.modify(instruction))
+          }
+        }
       } else {
-        hit
+        originalHit
       }
     }
     fun isPlayerSpecific() = by.toString().startsWith("Player")
   }
 
-  data class OnChange(val match: Expression, val gaining: Boolean) : ActiveTrigger() {
+  data class OnChange(val match: Expression, val matchOnGain: Boolean) : ActiveTrigger() {
 
     // It should not need to match itself since it will already be included in the sweep
     override fun matchSelf(triggerEvent: ChangeEvent, game: Game) = null
 
     override fun matchOther(triggerEvent: ChangeEvent, game: Game): Hit? {
-      val expr: Expression? = if (gaining) triggerEvent.change.gaining else triggerEvent.change.removing
-      return expr?.let {
-        if (game.resolve(it).isSubtypeOf(game.resolve(match))) {
-          Hit(triggerEvent.change.count)
-        } else null
+      val expr: Expression =
+          if (matchOnGain) {
+            triggerEvent.change.gaining
+          } else {
+            triggerEvent.change.removing
+          } ?: return null
+      return if (game.resolve(expr).isSubtypeOf(game.resolve(match))) {
+        genericHit(triggerEvent.change.count)
+      } else {
+        null
       }
     }
   }
 
-  data class Self(val isOnGain: Boolean) : ActiveTrigger() {
-
+  data class Self(val matchOnGain: Boolean) : ActiveTrigger() {
     override fun matchSelf(triggerEvent: ChangeEvent, game: Game): Hit? {
       val isThisAGain = (triggerEvent.change.gaining != null)
-      return if (isThisAGain == isOnGain) Hit(triggerEvent.change.count) else null
+      return if (isThisAGain == matchOnGain) {
+        genericHit(triggerEvent.change.count)
+      } else {
+        null
+      }
     }
 
-    // This never matches, because an *existing* Foo would trigger on *another* Foo
+    // This never matches, because then an *existing* Foo would trigger on *another* Foo
     override fun matchOther(triggerEvent: ChangeEvent, game: Game) = null
   }
+
+  fun genericHit(count: Int): Hit =
+      object : Hit {
+        override val count = count
+        override fun modify(instruction: Instruction): Instruction {
+          return instruction
+        }
+      }
 }

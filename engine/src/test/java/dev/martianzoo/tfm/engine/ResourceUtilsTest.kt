@@ -8,13 +8,16 @@ import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.pets.ast.Instruction.Companion.instruction
+import dev.martianzoo.tfm.repl.InteractiveSession
 import dev.martianzoo.util.toStrings
 import org.junit.jupiter.api.Test
 
 private class ResourceUtilsTest {
   @Test
   fun testLookUpProdLevelsUsingCanon() {
-    val game = Engine.newGame(GameSetup(Canon, "BM", 3))
+    val session = InteractiveSession()
+    session.newGame(GameSetup(Canon, "BM", 3))
+    val game = session.game!!
     val prods: Map<ClassName, Int> = lookUpProductionLevels(game.reader, cn("Player1").expr)
     assertThat(prods.map { it.key to it.value })
         .containsExactly(
@@ -26,7 +29,7 @@ private class ResourceUtilsTest {
             cn("Heat") to 0,
         )
 
-    game.autoExecute(instruction("PROD[2 Plant<Player1>!]"))
+    session.initiateAndQueue(instruction("PROD[2 Plant<Player1>!]"))
     val prods2: Map<ClassName, Int> = lookUpProductionLevels(game.reader, cn("Player1").expr)
     assertThat(prods2.map { it.key to it.value })
         .containsExactly(

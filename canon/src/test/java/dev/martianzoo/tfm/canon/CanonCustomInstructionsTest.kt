@@ -25,9 +25,16 @@ private class CanonCustomInstructionsTest {
     repl.command("become Player1")
     repl.command("exec PROD[Steel, Titanium, Plant, Heat]")
     repl.command("exec @gainLowestProduction(Player1)")
-    // TODO ensure nothing happened
-    // assertThat(repl.command("has PROD[=6 M, =1 S, =1 T, =1 P, =0 E =1 H]").first())
-    //     .startsWith("true")
+
+    assertThat(repl.command("has PROD[=5 M, =1 S, =1 T, =1 P, =0 E, =1 H]").first())
+        .startsWith("true")
+
+    // TODO make better
+    assertThat(repl.command("tasks")).containsExactly("A: [Player1]" +
+        " @gainLowestProduction(Player1)" +
+        " (OR instructions are abstract:" +
+        " Production<Player1, Class<Megacredit>>! OR" +
+        " Production<Player1, Class<Energy>>!)")
   }
 
   @Test

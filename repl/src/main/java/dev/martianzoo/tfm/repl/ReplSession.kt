@@ -4,6 +4,8 @@ import dev.martianzoo.tfm.api.Authority
 import dev.martianzoo.tfm.api.GameSetup
 import dev.martianzoo.tfm.api.SpecialClassNames.COMPONENT
 import dev.martianzoo.tfm.canon.Canon
+import dev.martianzoo.tfm.data.Task
+import dev.martianzoo.tfm.engine.SingleExecution.ExecutionResult
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.pets.ast.Expression
@@ -11,6 +13,8 @@ import dev.martianzoo.tfm.pets.ast.Expression.Companion.expression
 import dev.martianzoo.tfm.pets.ast.Instruction.Companion.instruction
 import dev.martianzoo.tfm.pets.ast.Metric.Companion.metric
 import dev.martianzoo.tfm.pets.ast.Requirement.Companion.requirement
+import dev.martianzoo.tfm.repl.ReplSession.ReplMode.GREEN
+import dev.martianzoo.tfm.repl.ReplSession.ReplMode.RED
 import dev.martianzoo.tfm.repl.ReplSession.ReplMode.YELLOW
 import dev.martianzoo.util.Multiset
 import dev.martianzoo.util.toStrings
@@ -32,20 +36,13 @@ internal fun main() {
     }
   }
   jline.loop(::prompt, repl::command)
-  println("Bye!")
+  println("Bye")
 }
 
 /** A programmatic entry point to a REPL session that is more textual than [ReplSession]. */
 public class ReplSession(private val authority: Authority, val jline: JlineRepl? = null) {
   internal val session = InteractiveSession()
   internal var mode: ReplMode = YELLOW
-    set(f) {
-      session.effectsOn = (f == YELLOW)
-      field = f
-    }
-  init {
-    mode = YELLOW // setting it redundantly to make the `effectsOn` thing happen TODO
-  }
 
   public enum class ReplMode(val message: String) {
     RED("Allows arbitrary state changes, which don't trigger effects"),
@@ -63,7 +60,7 @@ public class ReplSession(private val authority: Authority, val jline: JlineRepl?
   }
 
   internal fun command(commandName: String, args: String?): List<String> {
-    if (commandName !in setOf("help", "newgame") && session.game == null) {
+    if (commandName !in setOf("help", "history", "newgame") && session.game == null) {
       return listOf("No game active")
     }
     val command =
@@ -124,7 +121,7 @@ public class ReplSession(private val authority: Authority, val jline: JlineRepl?
             override fun withArgs(args: String): List<String> {
               val reqt = requirement(args)
               val result = session.has(reqt)
-              return listOf("$result: ${session.fixTypes(reqt)}")
+              return listOf("$result: ${session.prep(reqt)}")
             }
           },
           object : ReplCommand("count") {
@@ -133,7 +130,7 @@ public class ReplSession(private val authority: Authority, val jline: JlineRepl?
             override fun withArgs(args: String): List<String> {
               val metric = metric(args)
               val count = session.count(metric)
-              return listOf("$count ${session.fixTypes(metric)}")
+              return listOf("$count ${session.prep(metric)}")
             }
           },
           object : ReplCommand("list") {
@@ -143,7 +140,7 @@ public class ReplSession(private val authority: Authority, val jline: JlineRepl?
             override fun withArgs(args: String): List<String> {
               val expr = expression(args)
               val counts: Multiset<Expression> = session.list(expr)
-              return listOf("Listing ${session.fixTypes(expr)}...") +
+              return listOf("Listing ${session.prep(expr)}...") +
                   counts.elements
                       .sortedByDescending { counts.count(it) }
                       .map { "${counts.count(it)} $it" }
@@ -183,29 +180,61 @@ public class ReplSession(private val authority: Authority, val jline: JlineRepl?
             override val usage = "exec <Instruction>"
 
             override fun withArgs(args: String): List<String> {
-              val pend = session.game!!.pendingTasks
-              val already = pend.size
-
-              val changes = session.execute(instruction(args))
-              val oops =
-                  pend.subList(already, pend.size).flatMapIndexed { i, it ->
-                    listOf("${it.id}: ${it.instruction} ${it.cause} (${it.why})")
+              val instruction = instruction(args)
+              val changes: ExecutionResult =
+                  when (mode) {
+                    RED -> session.doIgnoringEffects(instruction)
+                    YELLOW -> session.initiateAndAutoExec(instruction, requireFullSuccess = false)
+                    GREEN -> session.initiateAndQueue(instruction)
+                    else -> TODO()
                   }
-              return changes.toStrings() +
+
+              val oops: List<Task> =
+                  changes.newTaskIdsAdded.map { session.game!!.taskQueue.get(it) }
+
+              val changeLines = changes.changes.toStrings().ifEmpty { listOf("No changes made") }
+              val taskLines =
                   if (oops.any()) {
-                    listOf("", "There are new pending tasks:") + oops
+                    listOf("", "There are new pending tasks:") + oops.toStrings()
                   } else {
                     listOf()
                   }
+              return changeLines + taskLines
             }
           },
+          object : ReplCommand("tasks") {
+            override val usage = "tasks"
+            override fun noArgs(): List<String> {
+              return session.game!!.taskQueue.toStrings()
+            }
+          },
+          // object : ReplCommand("task") {
+          //   override val usage = "task <id> [Instruction]"
+          //   override fun withArgs(args: String): List<String> {
+          //     val taskList = session.game!!.userTaskQueue
+          //
+          //     val split = Regex("\\s+").split(args, 2)
+          //     val idString = split.firstOrNull() ?: throw UsageException()
+          //     val id = idString[0]
+          //     val task = taskList[id] ?: throw UsageException("not a valid id: $idString")
+          //     val instruction =
+          //         if (split.size == 1 || split[1].isEmpty()) {
+          //           task.instruction
+          //         } else {
+          //           instruction(split[1])
+          //         }
+          //
+          //   }
+          // },
           object : ReplCommand("log") {
             override val usage = "log [full]"
-            override fun noArgs() = session.game!!.changeLog().toStrings()
+
+            // TODO filter it
+            override fun noArgs() = session.game!!.gameLog.changesSince(session.start).toStrings()
 
             override fun withArgs(args: String): List<String> {
               if (args == "full") {
-                return session.game!!.changeLogFull().toStrings()
+                return session.game!!.gameLog.logEntries.toStrings()
               } else {
                 throw UsageException()
               }
@@ -215,7 +244,7 @@ public class ReplSession(private val authority: Authority, val jline: JlineRepl?
             override val usage = "rollback <logid>"
 
             override fun withArgs(args: String): List<String> {
-              session.rollBackToBefore(args.toInt())
+              session.rollBack(args.toInt())
               return listOf("Rollback done")
             }
           },

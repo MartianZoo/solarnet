@@ -3,11 +3,14 @@ package dev.martianzoo.tfm.repl
 import dev.martianzoo.tfm.api.GameSetup
 import dev.martianzoo.tfm.api.SpecialClassNames.ANYONE
 import dev.martianzoo.tfm.api.SpecialClassNames.GAME
-import dev.martianzoo.tfm.data.ChangeEvent
-import dev.martianzoo.tfm.data.ChangeEvent.Cause
+import dev.martianzoo.tfm.data.Actor
+import dev.martianzoo.tfm.data.LogEntry.ChangeEvent.Cause
+import dev.martianzoo.tfm.data.Task.TaskId
 import dev.martianzoo.tfm.engine.Component
 import dev.martianzoo.tfm.engine.Engine
 import dev.martianzoo.tfm.engine.Game
+import dev.martianzoo.tfm.engine.GameLog.Checkpoint
+import dev.martianzoo.tfm.engine.SingleExecution.ExecutionResult
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.pets.ast.Instruction
@@ -30,13 +33,15 @@ import dev.martianzoo.util.Multiset
  * version of this.
  */
 class InteractiveSession {
-  internal var game: Game? = null // TODO private?
+  public var game: Game? = null // TODO private?
+    internal set
   internal var gameNumber: Int = 0
   internal var defaultPlayer: ClassName? = null
-  internal var effectsOn: Boolean = false
+  internal var start: Checkpoint = Checkpoint(0) // will be overwritten
 
   fun newGame(setup: GameSetup) {
     game = Engine.newGame(setup)
+    start = game!!.gameLog.checkpoint()
     gameNumber++
     becomeNoOne()
   }
@@ -52,10 +57,12 @@ class InteractiveSession {
     defaultPlayer = null
   }
 
-  fun count(metric: Metric) = game!!.count(fixTypes(metric))
+  // QUERIES
+
+  fun count(metric: Metric) = game!!.count(prep(metric))
 
   fun list(expression: Expression): Multiset<Expression> { // TODO y not (M)Type?
-    val typeToList: MType = game!!.resolve(fixTypes(expression))
+    val typeToList: MType = game!!.resolve(prep(expression))
     val allComponents: Multiset<Component> = game!!.getComponents(typeToList)
 
     // BIGTODO decide more intelligently how to break it down
@@ -75,22 +82,76 @@ class InteractiveSession {
     return result
   }
 
-  fun has(requirement: Requirement) = game!!.evaluate(fixTypes(requirement))
+  fun has(requirement: Requirement) = game!!.evaluate(prep(requirement))
 
-  fun execute(instruction: Instruction): List<ChangeEvent> {
+  // EXECUTION
+
+  fun doIgnoringEffects(instruction: Instruction): ExecutionResult {
     val context = defaultPlayer ?: GAME
-    val cause = Cause(null, context.expr, context)
-    return game!!.autoExecute(
-        fixTypes(instruction),
-        withEffects = effectsOn,
-        initialCause = cause)
+    val cause = Cause(context.expr, null, Actor(context)) // TODO
+    return game!!.initiate(prep(instruction), Actor(context), cause)
   }
 
-  fun rollBackToBefore(ordinal: Int) = game!!.rollBack(ordinal)
+  fun initiateAndQueue(instruction: Instruction): ExecutionResult {
+    val context = defaultPlayer ?: GAME
+    val cause = Cause(context.expr, null, Actor(context)) // TODO
+    return game!!.initiate(prep(instruction), Actor(context), cause)
+  }
+
+  fun initiateAndAutoExec(
+      instruction: Instruction,
+      requireFullSuccess: Boolean = true,
+  ): ExecutionResult {
+    val ins = prep(instruction)
+    val checkpoint = game!!.gameLog.checkpoint()
+    val context = defaultPlayer ?: GAME
+    val actor = Actor(context)
+    val cause = Cause(context.expr, null, actor) // TODO
+    val ids: List<TaskId> = game!!.taskQueue.addTasks(ins, actor, cause).map { it.task.id }
+    val succ =
+        ids.all { doTaskAndAutoExec(it, requireFullSuccess = requireFullSuccess).fullSuccess }
+    return game!!.gameLog.resultsSince(checkpoint, succ)
+  }
+
+  fun doTaskOnly(taskId: TaskId) = game!!.doOneExistingTask(taskId)
+
+  fun doTaskAndAutoExec(
+      initialTaskId: TaskId,
+      narrowedInstruction: Instruction? = null,
+      requireFullSuccess: Boolean = false,
+  ): ExecutionResult {
+    val taskIdsToAutoExec: ArrayDeque<TaskId> = ArrayDeque()
+    val checkpoint = game!!.gameLog.checkpoint()
+    var success = true
+
+    fun doTask(initialTaskId: TaskId, narrowedInstruction: Instruction? = null) =
+        if (requireFullSuccess) {
+          game!!.doOneExistingTask(initialTaskId, narrowedInstruction)
+        } else {
+          game!!.tryOneExistingTask(initialTaskId, narrowedInstruction).also {
+            success = success && it.fullSuccess
+          }
+        }
+
+    val firstResult: ExecutionResult = doTask(initialTaskId, narrowedInstruction)
+    taskIdsToAutoExec += firstResult.newTaskIdsAdded - initialTaskId
+
+    while (taskIdsToAutoExec.any()) {
+      val thisTaskId: TaskId = taskIdsToAutoExec.removeFirst()
+      val results: ExecutionResult = doTask(thisTaskId)
+      taskIdsToAutoExec += results.newTaskIdsAdded - thisTaskId // TODO better
+    }
+
+    return game!!.gameLog.resultsSince(checkpoint, success)
+  }
+
+  // OTHER
+
+  fun rollBack(ordinal: Int) = game!!.rollBack(Checkpoint(ordinal))
 
   // TODO somehow do this with Type not Expression?
   // TODO Let game take care of this itself?
-  fun <P : PetNode> fixTypes(node: P): P {
+  fun <P : PetNode> prep(node: P): P {
     val loader = game!!.loader
     return CompositeTransformer(
         ReplaceShortNames(loader),
@@ -98,6 +159,7 @@ class InteractiveSession {
         ReplaceOwnerWith(defaultPlayer),
         Deprodify(loader),
         // not needed: ReplaceThisWith, FixEffectForUnownedContext
-    ).transform(node)
+    )
+        .transform(node)
   }
 }

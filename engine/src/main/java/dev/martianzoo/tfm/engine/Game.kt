@@ -3,10 +3,18 @@ package dev.martianzoo.tfm.engine
 import dev.martianzoo.tfm.api.GameSetup
 import dev.martianzoo.tfm.api.GameStateReader
 import dev.martianzoo.tfm.api.Type
-import dev.martianzoo.tfm.data.ChangeEvent
-import dev.martianzoo.tfm.data.ChangeEvent.Cause
+import dev.martianzoo.tfm.data.Actor
+import dev.martianzoo.tfm.data.LogEntry.ChangeEvent
+import dev.martianzoo.tfm.data.LogEntry.ChangeEvent.Cause
+import dev.martianzoo.tfm.data.LogEntry.TaskAddedEvent
+import dev.martianzoo.tfm.data.LogEntry.TaskRemovedEvent
+import dev.martianzoo.tfm.data.LogEntry.TaskReplacedEvent
+import dev.martianzoo.tfm.data.Task.TaskId
+import dev.martianzoo.tfm.engine.GameLog.Checkpoint
+import dev.martianzoo.tfm.engine.SingleExecution.ExecutionResult
 import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.pets.ast.Instruction
+import dev.martianzoo.tfm.pets.ast.Instruction.Companion.split
 import dev.martianzoo.tfm.pets.ast.Metric
 import dev.martianzoo.tfm.pets.ast.Metric.Count
 import dev.martianzoo.tfm.pets.ast.Metric.Max
@@ -27,21 +35,11 @@ public class Game(val setup: GameSetup, public val loader: MClassLoader) {
 
   // PROPERTIES
 
-  internal val components = ComponentGraph()
+  public val gameLog = GameLog()
 
-  internal val fullChangeLog: MutableList<ChangeEvent> = mutableListOf()
+  public val components = ComponentGraph()
 
-  internal val nextOrdinal: Int by fullChangeLog::size
-
-  val pendingTasks: ArrayDeque<Task> = ArrayDeque()
-
-  data class Task(
-      val id: Int,
-      val instruction: Instruction,
-      val cause: Cause?,
-      val why: String? = null,
-  )
-  var nextTaskId: Int = 0
+  public val taskQueue = TaskQueue(this)
 
   // TYPE & COMPONENT CONVERSION
 
@@ -97,31 +95,99 @@ public class Game(val setup: GameSetup, public val loader: MClassLoader) {
 
   // EXECUTION
 
-  fun autoExecute( // TODO create execute also, remove withEffects param
+  // secret state change w/o triggers TODO
+
+  /**
+   * Attempts to carry out the entirety of [instruction] "by fiat" or "out of the blue", plus any
+   * automatic triggered effects that result. If any of that fails the game state will remain
+   * unchanged and an exception will be thrown. If it succeeds, any non-automatic triggered effects
+   * will be left in the task queue. No other changes to the task queue will happen (for example,
+   * existing tasks are left alone, and [instruction] itself is never left enqueued.
+   *
+   * @param [instruction] any instruction to be performed as-is (no transformations will be applied)
+   * @param [actor] the instruction will be executed as if by this player (or GAME); in particular,
+   *   if unowned components are created that have `This:` triggers, this is who will own those
+   *   resulting tasks.
+   * @param [fakeCause] optionally, the instruction can be performed as if caused in the way
+   *   described by this object
+   */
+  fun initiate(
       instruction: Instruction,
-      withEffects: Boolean = false,
-      initialCause: Cause? = null,
-      hidden: Boolean = false,
-  ): List<ChangeEvent> =
-      SingleExecutionContext(this, withEffects, hidden).autoExecute(instruction, initialCause)
+      actor: Actor,
+      fakeCause: Cause? = null,
+  ): ExecutionResult {
+    if (fakeCause != null) {
+      require(fakeCause.actor == actor)
+    }
+
+    val checkpoint = gameLog.checkpoint()
+
+    // first split the instruction and enqueue all the tasks (?)
+    val events = taskQueue.addTasks(instruction, actor, fakeCause)
+
+    val results =
+        events.map {
+          val result = SingleExecution(this).doOneTaskAtomic(it.task.id, false)
+          if (result.fullSuccess) {
+            taskQueue.removeTask(it.task.id)
+          }
+          result
+        }
+    return gameLog.resultsSince(checkpoint, results.all { it.fullSuccess })
+  }
+
+  fun doIgnoringEffects(
+      instruction: Instruction,
+      actor: Actor,
+      fakeCause: Cause? = null,
+  ): ExecutionResult {
+    if (fakeCause != null) require(fakeCause.actor == actor)
+    val checkpoint = gameLog.checkpoint()
+    split(instruction).forEach {
+      SingleExecution(this, doEffects = false).initiateAtomic(it, fakeCause)
+    }
+    return gameLog.resultsSince(checkpoint, fullSuccess = true).also {
+      require(it.newTaskIdsAdded.none())
+    }
+  }
+
+  fun doOneExistingTask(id: TaskId, narrowed: Instruction? = null): ExecutionResult {
+    val result = SingleExecution(this).doOneTaskAtomic(id, true, narrowed)
+    require(result.fullSuccess) // should be redundant
+    taskQueue.removeTask(id)
+    return result
+  }
+
+  fun tryOneExistingTask(id: TaskId, narrowed: Instruction? = null): ExecutionResult {
+    val result = SingleExecution(this).doOneTaskAtomic(id, false, narrowed)
+    if (result.fullSuccess) taskQueue.removeTask(id)
+    return result
+  }
 
   // CHANGE LOG
 
-  public fun changeLogFull() = fullChangeLog.toList()
-
-  public fun changeLog(): List<ChangeEvent> = fullChangeLog.filterNot { it.hidden }
-
-  public fun rollBack(ordinal: Int) { // TODO kick this out, rolling back starts a new game?
-    require(ordinal <= nextOrdinal) // TODO protect in callers
-    if (ordinal == nextOrdinal) return
-    val subList = fullChangeLog.subList(ordinal, nextOrdinal)
+  public fun rollBack(checkpoint: Checkpoint) {
+    // game?
+    val ordinal = checkpoint.ordinal
+    require(ordinal <= gameLog.size)
+    if (ordinal == gameLog.size) return
+    val subList = gameLog.logEntries.subList(ordinal, gameLog.size)
     for (entry in subList.asReversed()) {
-      val change = entry.change.inverse()
-      components.updateMultiset(
-          change.count,
-          gaining = toComponent(change.gaining),
-          removing = toComponent(change.removing),
-      )
+      when (entry) {
+        is TaskAddedEvent -> taskQueue.taskMap.remove(entry.task.id)
+        is TaskRemovedEvent -> taskQueue.taskMap[entry.task.id] = entry.task
+        is TaskReplacedEvent ->
+          require(taskQueue.taskMap.put(entry.id, entry.oldTask) == entry.newTask)
+
+        is ChangeEvent -> {
+          val change = entry.change
+          components.updateMultiset(
+              change.count,
+              gaining = toComponent(change.removing),
+              removing = toComponent(change.gaining),
+          )
+        }
+      }
     }
     subList.clear()
   }

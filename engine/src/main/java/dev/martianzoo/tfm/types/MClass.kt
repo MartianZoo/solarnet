@@ -2,6 +2,7 @@ package dev.martianzoo.tfm.types
 
 import dev.martianzoo.tfm.api.SpecialClassNames.CLASS
 import dev.martianzoo.tfm.api.SpecialClassNames.COMPONENT
+import dev.martianzoo.tfm.api.SpecialClassNames.OK
 import dev.martianzoo.tfm.api.SpecialClassNames.THIS
 import dev.martianzoo.tfm.data.ClassDeclaration
 import dev.martianzoo.tfm.data.ClassDeclaration.EffectDeclaration
@@ -174,7 +175,7 @@ internal constructor(
   }
 
   public val directClassEffects: List<EffectDeclaration> by lazy {
-    val thiss = className.refine(requirement("Ok"))
+    val thiss = className.refine(requirement(OK.toString()))
 
     val transformer = CompositeTransformer(
         ReplaceShortNames(loader),
