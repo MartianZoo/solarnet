@@ -38,7 +38,7 @@ sealed class GameEvent {
       require((cause?.triggerEvent ?: -1) < ordinal)
     }
 
-    override fun toString() = "$ordinal: $change FOR $actor ${cause ?: "(by fiat)"}"
+    override fun toString() = "$ordinal: $change FOR $actor ${cause ?: "(manual)"}"
 
     /** The part that describes why it changed -- if there WAS a reason! */
     data class Cause

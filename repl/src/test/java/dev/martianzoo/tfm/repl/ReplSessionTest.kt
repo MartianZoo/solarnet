@@ -16,13 +16,13 @@ private class ReplSessionTest {
     // TODO deprodify these for the screen
     assertThat(strip(repl.command("exec PROD[5, 4 Energy]")))
         .containsExactly(
-            "5 Production<Player2, Class<Megacredit>> FOR Player2 (by fiat)",
-            "4 Production<Player2, Class<Energy>> FOR Player2 (by fiat)",
+            "5 Production<Player2, Class<Megacredit>> FOR Player2 (manual)",
+            "4 Production<Player2, Class<Energy>> FOR Player2 (manual)",
         )
     val byCard = "FOR Player2 BY StripMine<Player2>"
     assertThat(strip(repl.command("exec StripMine")))
         .containsExactly(
-            "1 StripMine<Player2> FOR Player2 (by fiat)",
+            "1 StripMine<Player2> FOR Player2 (manual)",
             "1 BuildingTag<Player2, StripMine<Player2>> $byCard",
             "-2 Production<Player2, Class<Energy>> $byCard",
             "2 Production<Player2, Class<Steel>> $byCard",

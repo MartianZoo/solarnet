@@ -106,7 +106,7 @@ public class Game(val setup: GameSetup, public val loader: MClassLoader) {
   }
 
   /**
-   * Attempts to carry out the entirety of [instruction] "by fiat" or "out of the blue", plus any
+   * Attempts to carry out the entirety of [instruction] "manually" or "out of the blue", plus any
    * automatic triggered effects that result. If any of that fails the game state will remain
    * unchanged and an exception will be thrown. If it succeeds, any non-automatic triggered effects
    * will be left in the task queue. No other changes to the task queue will happen (for example,
