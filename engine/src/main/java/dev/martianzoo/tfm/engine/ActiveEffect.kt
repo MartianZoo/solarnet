@@ -20,13 +20,13 @@ data class ActiveEffect(
   fun onChangeToSelf(triggerEvent: ChangeEvent, game: Game): FiredEffect? {
     val actor = context.owner()?.let(::Actor) ?: triggerEvent.actor
     val hit = trigger.matchSelf(triggerEvent, actor, game) ?: return null
-    return FiredEffect(hit.modify(instruction), hit.count, actor, triggeredBy(triggerEvent), automatic)
+    return FiredEffect(hit.modify(instruction), actor, triggeredBy(triggerEvent), automatic)
   }
 
   fun onChangeToOther(triggerEvent: ChangeEvent, game: Game): FiredEffect? {
     val actor = context.owner()?.let(::Actor) ?: triggerEvent.actor
     val hit = trigger.matchOther(triggerEvent, actor, game) ?: return null
-    return FiredEffect(hit.modify(instruction), hit.count, actor, triggeredBy(triggerEvent), automatic)
+    return FiredEffect(hit.modify(instruction), actor, triggeredBy(triggerEvent), automatic)
   }
 
   private fun triggeredBy(triggerEvent: ChangeEvent): Cause { // TODO check
@@ -35,13 +35,10 @@ data class ActiveEffect(
 
   data class FiredEffect(
       val instruction: Instruction,
-      val multiplier: Int,
       val actor: Actor,
       val cause: Cause,
       val automatic: Boolean,
   ) {
-    operator fun times(factor: Int) = copy(multiplier = multiplier * factor)
-
-    fun scaledInstruction() = instruction * multiplier
+    operator fun times(factor: Int) = copy(instruction = instruction * factor)
   }
 }

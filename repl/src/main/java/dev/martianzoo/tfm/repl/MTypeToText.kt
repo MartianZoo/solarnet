@@ -67,6 +67,7 @@ object MTypeToText { // TODO refactor to ClassInfo / TypeInfo type dealies
     val typeStuff = """
       Expression $expression:
           std. form:   ${mtype.expression}
+          short form:  ${mtype.expressionShort}
           long form:   ${mtype.expressionFull}
           supertypes:  ${mtype.supertypes().joinToString { "${it.className}" }}
           defaults:    $allCases / +$gain / $remove

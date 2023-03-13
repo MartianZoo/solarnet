@@ -7,6 +7,7 @@ import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.pets.ast.HasClassName
 import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.pets.ast.Requirement.And
+import dev.martianzoo.tfm.types.Transformers.UseShortNames
 import dev.martianzoo.util.Hierarchical
 
 /**
@@ -83,6 +84,10 @@ internal constructor(
 
   override val expressionFull: Expression by lazy {
     toExpressionUsingSpecs(dependencies.expressionsFull)
+  }
+
+  val expressionShort: Expression by lazy {
+    UseShortNames(loader).transform(expression)
   }
 
   internal val narrowedDependencies: DependencySet by lazy {

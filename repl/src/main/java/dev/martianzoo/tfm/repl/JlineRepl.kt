@@ -51,7 +51,7 @@ public class JlineRepl {
 
       when (inputLine.trim()) {
         "exit" -> return end()
-        "restart" -> {
+        "rebuild" -> {
           end()
           exitProcess(5)
         }

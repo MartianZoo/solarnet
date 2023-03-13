@@ -65,4 +65,6 @@ public data class Component private constructor(val mtype: MType) : HasExpressio
   public fun owner(): ClassName? = mtype.dependencies.getIfPresent(Key(OWNED, 0))?.className
 
   override fun toString() = "[${mtype.expressionFull}]"
+
+  fun toShortString() = "[${mtype.expressionShort}]"
 }

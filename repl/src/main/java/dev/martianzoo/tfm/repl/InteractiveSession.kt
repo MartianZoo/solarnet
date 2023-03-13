@@ -22,7 +22,7 @@ import dev.martianzoo.tfm.types.Transformers.CompositeTransformer
 import dev.martianzoo.tfm.types.Transformers.Deprodify
 import dev.martianzoo.tfm.types.Transformers.InsertDefaults
 import dev.martianzoo.tfm.types.Transformers.ReplaceOwnerWith
-import dev.martianzoo.tfm.types.Transformers.ReplaceShortNames
+import dev.martianzoo.tfm.types.Transformers.UseFullNames
 import dev.martianzoo.util.HashMultiset
 import dev.martianzoo.util.Hierarchical.Companion.lub
 import dev.martianzoo.util.Multiset
@@ -150,7 +150,7 @@ class InteractiveSession {
   fun <P : PetNode> prep(node: P): P {
     val loader = game!!.loader
     return CompositeTransformer(
-            ReplaceShortNames(loader),
+            UseFullNames(loader),
             InsertDefaults(loader),
             ReplaceOwnerWith(defaultPlayer),
             Deprodify(loader),

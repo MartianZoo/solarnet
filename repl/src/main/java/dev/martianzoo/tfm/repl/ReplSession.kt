@@ -31,7 +31,7 @@ internal fun main() {
     val player: ClassName? = session.defaultPlayer
     val gameNo = session.gameNumber
     return when {
-      session.game == null -> "Table" to AttributedStyle.RED
+      session.game == null -> "Table" to AttributedStyle.WHITE
       player == null -> "Game$gameNo" to AttributedStyle.GREEN
       else -> "Game$gameNo as $player" to AttributedStyle.CYAN
     }

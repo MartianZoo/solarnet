@@ -30,7 +30,6 @@ sealed class ActiveTrigger {
   }
 
   interface Hit {
-    val count: Int
     fun modify(instruction: Instruction): Instruction
   }
 
@@ -41,13 +40,12 @@ sealed class ActiveTrigger {
   data class ByActor(val inner: ActiveTrigger, val by: ClassName) : ActiveTrigger() {
 
     override fun matchSelf(triggerEvent: ChangeEvent, actor: Actor, game: Game): Hit? {
-      if (isPlayerSpecific() && actor.className != by) return null
+      if (isPlayerSpecificTrigger() && actor.className != by) return null
 
       val originalHit = inner.matchSelf(triggerEvent, actor, game) ?: return null
 
       return if (by == OWNER) {
         object : Hit {
-          override val count by originalHit::count
           override fun modify(instruction: Instruction): Instruction {
             // TODO which way
             return ReplaceOwnerWith(actor.className).transform(originalHit.modify(instruction))
@@ -59,13 +57,12 @@ sealed class ActiveTrigger {
     }
 
     override fun matchOther(triggerEvent: ChangeEvent, actor: Actor, game: Game): Hit? {
-      if (isPlayerSpecific() && actor.className != by) return null
+      if (isPlayerSpecificTrigger() && actor.className != by) return null
 
       val originalHit = inner.matchOther(triggerEvent, actor, game) ?: return null
 
       return if (by == OWNER) {
         object : Hit {
-          override val count by originalHit::count
           override fun modify(instruction: Instruction): Instruction {
             // TODO which way
             return ReplaceOwnerWith(actor.className).transform(originalHit.modify(instruction))
@@ -75,7 +72,7 @@ sealed class ActiveTrigger {
         originalHit
       }
     }
-    fun isPlayerSpecific() = by.toString().startsWith("Player")
+    fun isPlayerSpecificTrigger() = by.toString().startsWith("Player")
   }
 
   data class OnChange(val match: Expression, val matchOnGain: Boolean) : ActiveTrigger() {
@@ -114,9 +111,8 @@ sealed class ActiveTrigger {
 
   fun genericHit(count: Int): Hit =
       object : Hit {
-        override val count = count
         override fun modify(instruction: Instruction): Instruction {
-          return instruction
+          return instruction * count
         }
       }
 }

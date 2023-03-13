@@ -6,8 +6,12 @@ import dev.martianzoo.tfm.api.ResourceUtils.standardResourceNames
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.pets.ast.Expression.Companion.expression
-import org.jline.utils.AttributedStringBuilder
-import org.jline.utils.AttributedStyle.DEFAULT
+import dev.martianzoo.tfm.repl.TfmColors.ENERGY
+import dev.martianzoo.tfm.repl.TfmColors.HEAT
+import dev.martianzoo.tfm.repl.TfmColors.MEGACREDIT
+import dev.martianzoo.tfm.repl.TfmColors.PLANT
+import dev.martianzoo.tfm.repl.TfmColors.STEEL
+import dev.martianzoo.tfm.repl.TfmColors.TITANIUM
 
 internal class BoardToText(private val game: GameStateReader) {
 
@@ -28,24 +32,14 @@ internal class BoardToText(private val game: GameStateReader) {
     val (e, eres) = prodAndResource("Energy")
     val (h, hres) = prodAndResource("Heat")
 
-    fun colorIt(color: String, string: String): String? {
-      if (!colors) return string
-      val r = color.substring(0, 2).toInt(16)
-      val g = color.substring(2, 4).toInt(16)
-      val b = color.substring(4, 6).toInt(16)
-      return AttributedStringBuilder()
-          .style(DEFAULT.foreground(r, g, b))
-          .append(string)
-          .style(DEFAULT)
-          .toAnsi()
-    }
+    fun maybeColor(c: TfmColors, s: String) = if (colors) c.color(s) else s
 
-    val megac = colorIt(mColor, "M: $mres")
-    val steel = colorIt(sColor, "S: $sres")
-    val titan = colorIt(tColor, "T: $tres")
-    val plant = colorIt(pColor, "P: $pres")
-    val energ = colorIt(eColor, "E: $eres")
-    val heeat = colorIt(hColor, "H: $hres")
+    val megac = maybeColor(MEGACREDIT, "M: $mres")
+    val steel = maybeColor(STEEL, "S: $sres")
+    val titan = maybeColor(TITANIUM, "T: $tres")
+    val plant = maybeColor(PLANT, "P: $pres")
+    val energ = maybeColor(ENERGY, "E: $eres")
+    val heeat = maybeColor(HEAT, "H: $hres")
 
     val tr = game.count(game.resolve(expression("TerraformRating<$player>")))
     val tiles = game.count(game.resolve(expression("OwnedTile<$player>")))
@@ -60,11 +54,4 @@ internal class BoardToText(private val game: GameStateReader) {
         "+---------+---------+---------+",
     )
   }
-
-  internal val mColor = "f4d400"
-  internal val sColor = "c8621e"
-  internal val tColor = "777777"
-  internal val pColor = "6dd248"
-  internal val eColor = "b23bcb"
-  internal val hColor = "ef4320"
 }

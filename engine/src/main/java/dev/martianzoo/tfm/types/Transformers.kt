@@ -36,11 +36,22 @@ public object Transformers {
     }
   }
 
-  public class ReplaceShortNames(val loader: MClassLoader) : PetTransformer() {
+  public class UseFullNames(val loader: MClassLoader) : PetTransformer() {
     override fun <P : PetNode> transform(node: P): P {
       return if (node is ClassName) {
         @Suppress("UNCHECKED_CAST")
         loader.getClass(node).className as P
+      } else {
+        node
+      }
+    }
+  }
+
+  public class UseShortNames(val loader: MClassLoader) : PetTransformer() {
+    override fun <P : PetNode> transform(node: P): P {
+      return if (node is ClassName) {
+        @Suppress("UNCHECKED_CAST")
+        loader.getClass(node).shortName as P
       } else {
         node
       }

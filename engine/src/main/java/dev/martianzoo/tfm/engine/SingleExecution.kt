@@ -30,7 +30,7 @@ import dev.martianzoo.tfm.pets.ast.Instruction.Transform
 import dev.martianzoo.tfm.types.Transformers.CompositeTransformer
 import dev.martianzoo.tfm.types.Transformers.Deprodify
 import dev.martianzoo.tfm.types.Transformers.InsertDefaults
-import dev.martianzoo.tfm.types.Transformers.ReplaceShortNames
+import dev.martianzoo.tfm.types.Transformers.UseFullNames
 import dev.martianzoo.util.Multiset
 import dev.martianzoo.util.toSetStrict
 
@@ -132,25 +132,15 @@ class SingleExecution(val game: Game, val actor: Actor, val doEffects: Boolean =
       amap: Boolean = false,
       cause: Cause? = null,
   ) {
-    if (handleSpecialTypes(gaining, removing, amap)) return
+    if (gaining?.expressionFull == OK.expr) { // TODO more principled
+      require(removing == null)
+      return
+    } else if (!amap && gaining?.expressionFull == DIE.expr) {
+      throw RuntimeException("fix this")
+    }
     val change = game.components.applySingleChange(count, gaining, removing, amap) ?: return
     val event = game.eventLog.addChangeEvent(change, actor, cause)
     if (doEffects) fireTriggers(event)
-  }
-
-  private fun handleSpecialTypes(
-      gaining: Component?,
-      removing: Component?,
-      amap: Boolean,
-  ): Boolean {
-    if (gaining?.expressionFull == OK.expr) { // TODO more principled
-      require(removing == null)
-      return true
-    }
-    if (!amap && gaining?.expressionFull == DIE.expr) {
-      throw RuntimeException("fix this")
-    }
-    return false
   }
 
   private fun fireTriggers(triggerEvent: ChangeEvent) {
@@ -170,10 +160,10 @@ class SingleExecution(val game: Game, val actor: Actor, val doEffects: Boolean =
     val (now, later) = (firedSelfEffects + firedOtherEffects).partition { it.automatic }
 
     // TODO always add to beginning of queue? why not just recurse?
-    automaticTasks.addAll(0, now.map { InternalTask(it.scaledInstruction(), it.cause) })
+    automaticTasks.addAll(0, now.map { InternalTask(it.instruction, it.cause) })
 
     later.forEach {
-      game.taskQueue.addTasks(it.scaledInstruction(), it.actor, it.cause) // TODO
+      game.taskQueue.addTasks(it.instruction, it.actor, it.cause) // TODO
     }
   }
 
@@ -238,7 +228,7 @@ class SingleExecution(val game: Game, val actor: Actor, val doEffects: Boolean =
       val translated: Instruction = custom.translate(game.reader, arguments)
       val xer =
           CompositeTransformer(
-              ReplaceShortNames(game.loader),
+              UseFullNames(game.loader),
               InsertDefaults(game.loader), // TODO context component??
               Deprodify(game.loader),
               // Not needed: ReplaceThisWith, ReplaceOwnerWith, FixUnownedEffect

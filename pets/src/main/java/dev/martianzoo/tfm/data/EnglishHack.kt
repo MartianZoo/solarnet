@@ -10,9 +10,8 @@ object EnglishHack {
     ENGLISH_HACK[id]?.let {
       return it
     }
-    val idStr = id.toString()
-    if (idStr.endsWith("F")) {
-      return englishHack(idStr.substring(0, idStr.length - 1))
+    if (id.endsWith("F")) {
+      return englishHack(id.substring(0, id.length - 1))
     }
     error(id)
   }

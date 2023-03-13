@@ -9,7 +9,7 @@ public class Exceptions {
 
   // These should all be rectifiable by narrowing the instruction
   public class AbstractInstructionException(message: String) : RuntimeException(message) {
-    constructor(type: MType) : this("Component type ${type.expression} is abstract")
+    constructor(type: MType) : this("Component type ${type.expressionShort} is abstract")
     constructor(intensity: Intensity?) : this("An instruction has intensity $intensity")
     constructor(unused: Or) : this("An OR instruction must be reified (i.e., pick one)")
   }

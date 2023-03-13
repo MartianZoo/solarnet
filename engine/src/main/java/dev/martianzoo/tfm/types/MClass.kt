@@ -18,7 +18,7 @@ import dev.martianzoo.tfm.types.Dependency.TypeDependency
 import dev.martianzoo.tfm.types.Transformers.CompositeTransformer
 import dev.martianzoo.tfm.types.Transformers.FixEffectForUnownedContext
 import dev.martianzoo.tfm.types.Transformers.InsertDefaults
-import dev.martianzoo.tfm.types.Transformers.ReplaceShortNames
+import dev.martianzoo.tfm.types.Transformers.UseFullNames
 import dev.martianzoo.util.Hierarchical
 import dev.martianzoo.util.Hierarchical.Companion.glb
 import dev.martianzoo.util.toSetStrict
@@ -178,7 +178,7 @@ internal constructor(
     val thiss = className.refine(requirement(OK.toString()))
 
     val transformer = CompositeTransformer(
-        ReplaceShortNames(loader),
+        UseFullNames(loader),
         InsertDefaults(loader, thiss),
         FixEffectForUnownedContext(this),
         // Not needed: ReplaceThisWith, ReplaceOwnerWith, Deprodify,
