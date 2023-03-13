@@ -227,8 +227,8 @@ public class ReplSession(private val authority: Authority, val jline: JlineRepl?
                   }
               val result: ExecutionResult =
                   when (mode) {
-                    YELLOW -> session.doTaskAndAutoExec(id, instruction, requireFullSuccess = false)
-                    GREEN -> session.doTaskOnly(id)
+                    YELLOW -> session.doTaskOnly(id)
+                    GREEN -> session.doTaskAndAutoExec(id, instruction, requireFullSuccess = false)
                     else -> TODO()
                   }
               return reportResults(result)
