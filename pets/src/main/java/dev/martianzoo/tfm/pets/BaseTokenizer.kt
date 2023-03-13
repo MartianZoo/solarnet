@@ -30,6 +30,7 @@ public open class BaseTokenizer {
   internal val _by = literal("BY")
   internal val _from = literal("FROM")
   internal val _has = literal("HAS")
+  internal val _if = literal("IF")
   internal val _max = literal("MAX")
   internal val _or = literal("OR")
   internal val _then = literal("THEN")

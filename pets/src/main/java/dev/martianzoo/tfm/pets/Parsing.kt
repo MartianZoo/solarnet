@@ -89,11 +89,15 @@ public object Parsing {
   /** A minor convenience function for parsing using a particular [Parser] instance. */
   public fun <T> parse(parser: Parser<T>, source: String): T {
     val tokens = tokenize(source)
-    Debug.d(
-        tokens
-            .filterNot { it.type.ignored }
-            .joinToString(" ") { it.type.name?.replace("\n", "\\n") ?: "NULL" })
-    return parser.parseToEnd(tokens)
+    return try {
+      parser.parseToEnd(tokens)
+    } catch (e: Exception) {
+      val tokenStream = tokens
+          .filterNot { it.type.ignored }
+          .joinToString(" ") { it.type.name?.replace("\n", "\\n") ?: "NULL" }
+
+      throw IllegalArgumentException("input was:\n$source\n\ntoken stream: $tokenStream")
+    }
   }
 
   private val lineCommentRegex = Regex(""" *(//[^\n]*)*\n""")

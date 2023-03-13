@@ -50,6 +50,8 @@ public class ComponentGraph {
   private fun checkDependencies(gaining: Component?, removing: Component?) {
     require(gaining != removing)
 
+    // TODO might need to check amounts later
+
     if (gaining != null) {
       if (!multiset.containsAll(gaining.dependencyComponents)) {
         throw DependencyException.gaining(gaining.dependencyComponents - multiset.elements)

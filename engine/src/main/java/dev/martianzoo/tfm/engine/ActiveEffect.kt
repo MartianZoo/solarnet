@@ -17,15 +17,9 @@ data class ActiveEffect(
         ActiveEffect(contextComponent, ActiveTrigger.from(it.trigger), it.automatic, it.instruction)
   }
 
-  fun onChangeToSelf(triggerEvent: ChangeEvent, game: Game): FiredEffect? {
+  fun onChange(triggerEvent: ChangeEvent, game: Game, isSelf: Boolean): FiredEffect? {
     val actor = context.owner()?.let(::Actor) ?: triggerEvent.actor
-    val hit = trigger.matchSelf(triggerEvent, actor, game) ?: return null
-    return FiredEffect(hit.modify(instruction), actor, triggeredBy(triggerEvent), automatic)
-  }
-
-  fun onChangeToOther(triggerEvent: ChangeEvent, game: Game): FiredEffect? {
-    val actor = context.owner()?.let(::Actor) ?: triggerEvent.actor
-    val hit = trigger.matchOther(triggerEvent, actor, game) ?: return null
+    val hit = trigger.match(triggerEvent, actor, game, isSelf) ?: return null
     return FiredEffect(hit.modify(instruction), actor, triggeredBy(triggerEvent), automatic)
   }
 

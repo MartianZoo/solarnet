@@ -155,11 +155,11 @@ class SingleExecution(val game: Game, val actor: Actor, val doEffects: Boolean =
     val activeEffects: Multiset<ActiveEffect> = game.components.allActiveEffects()
 
     val firedSelfEffects: List<FiredEffect> =
-        gainedComponent.activeEffects.mapNotNull { it.onChangeToSelf(triggerEvent, game) }
+        gainedComponent.activeEffects.mapNotNull { it.onChange(triggerEvent, game, isSelf = true) }
 
     val firedOtherEffects: List<FiredEffect> =
-        activeEffects.elements.mapNotNull { afx ->
-          afx.onChangeToOther(triggerEvent, game)?.let { it * activeEffects.count(afx) }
+        activeEffects.entries.mapNotNull { (afx, count) ->
+          afx.onChange(triggerEvent, game, isSelf = false)?.let { it * count }
         }
 
     val (now, later) = (firedSelfEffects + firedOtherEffects).partition { it.automatic }

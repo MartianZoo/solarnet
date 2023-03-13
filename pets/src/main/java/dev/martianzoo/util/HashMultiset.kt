@@ -1,5 +1,6 @@
 package dev.martianzoo.util
 
+import kotlin.collections.Map.Entry
 import kotlin.math.min
 
 class HashMultiset<E> : MutableMultiset<E> {
@@ -28,6 +29,8 @@ class HashMultiset<E> : MutableMultiset<E> {
 
   override val elements by map::keys
 
+  override val entries: Set<Entry<E, Int>> by map::entries
+
   override fun count(element: E) = map[element] ?: 0
 
   override fun setCount(element: E, newCount: Int): Int /*old count*/ {
@@ -50,7 +53,7 @@ class HashMultiset<E> : MutableMultiset<E> {
 
   override fun addAll(elements: Collection<E>): Boolean {
     if (elements is MutableMultiset<E>) {
-      elements.elements.forEach { add(it, elements.count(it)) }
+      elements.entries.forEach { (e, ct) -> add(e, ct) }
     } else {
       elements.forEach(::add)
     }

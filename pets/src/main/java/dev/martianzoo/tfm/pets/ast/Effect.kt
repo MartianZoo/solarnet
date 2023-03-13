@@ -5,6 +5,7 @@ import com.github.h0tk3y.betterParse.combinators.map
 import com.github.h0tk3y.betterParse.combinators.optional
 import com.github.h0tk3y.betterParse.combinators.or
 import com.github.h0tk3y.betterParse.combinators.skip
+import com.github.h0tk3y.betterParse.grammar.parser
 import com.github.h0tk3y.betterParse.parser.Parser
 import dev.martianzoo.tfm.api.SpecialClassNames.END
 import dev.martianzoo.tfm.api.SpecialClassNames.THIS
@@ -47,6 +48,16 @@ public data class Effect(
 
       override fun visitChildren(visitor: Visitor) = visitor.visit(inner, by)
       override fun toString() = "$inner BY $by"
+    }
+
+    data class IfTrigger(val inner: Trigger, val condition: Requirement) : Trigger() {
+      init {
+        if (inner is ByTrigger) throw PetException("if the by")
+        if (inner is IfTrigger) throw PetException("if the if")
+      }
+      override fun visitChildren(visitor: Visitor) = visitor.visit(inner, condition)
+
+      override fun toString() = "$inner IF ${groupPartIfNeeded(condition)}"
     }
 
     object WhenGain : Trigger() {
@@ -113,15 +124,25 @@ public data class Effect(
       fun trigger(text: String): Trigger = Parsing.parse(parser(), text)
 
       fun parser(): Parser<Trigger> {
-        val onGainOf = Expression.parser() map OnGainOf::create
-        val onRemoveOf = skipChar('-') and Expression.parser() map OnRemoveOf::create
-        val atom = onGainOf or onRemoveOf
-        val transform =
-            transform(atom) map { (node, transformName) -> Transform(node, transformName) }
-        return (transform or atom) and
-            optional(skip(_by) and className) map { (trig, by) ->
-              if (by == null) trig else ByTrigger(trig, by)
-            }
+        return parser {
+          val onGainOf = Expression.parser() map OnGainOf::create
+          val onRemoveOf = skipChar('-') and Expression.parser() map OnRemoveOf::create
+          val atom = onGainOf or onRemoveOf
+          val transform =
+              transform(atom) map { (node, transformName) -> Transform(node, transformName) }
+          val ifClause = skip(_if) and Requirement.atomParser()
+          val byClause = skip(_by) and className
+
+          (transform or atom) and
+              optional(ifClause) and
+              optional(byClause) map
+              { (inTrigger, `if`, by) ->
+                var trig = inTrigger
+                if (`if` != null) trig = IfTrigger(trig, `if`)
+                if (by != null) trig = ByTrigger(trig, by)
+                trig
+              }
+        }
       }
     }
   }

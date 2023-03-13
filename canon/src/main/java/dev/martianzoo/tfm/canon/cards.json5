@@ -183,7 +183,8 @@
       "effects": [
         "MicrobeTag<Anyone>: Disease<This>, -4.",
         // ideally: `TR FROM Disease ELSE (PlayedEvent FROM This, 3 TR)?`
-        "ScienceTag: (TR FROM Disease) OR (MAX 0 Disease ?: (PlayedEvent FROM This, 3 TR))"
+        "ScienceTag IF Disease: TR FROM Disease",
+        "ScienceTag IF MAX 0 Disease: (PlayedEvent FROM This, 3 TR) OR Ok"
       ],
       "components": [ "CLASS Disease : CardResource" ],
       "resourceType": "Disease"
@@ -541,7 +542,7 @@
       "deck": "PROJECT",
       "tags": [ "ScienceTag" ],
       "actions": [ "1 -> Science<This>?" ], // honor system
-      "effects": [ "End: (Science<This> ?: 3 VictoryPoint)" ],
+      "effects": [ "End IF Science<This>: 3 VictoryPoint" ],
       "resourceType": "Science",
       "requirement": "MAX 6 OxygenStep",
       "cost": 3,

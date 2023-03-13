@@ -89,11 +89,9 @@ internal abstract class RandomGenerator<B : Any>(
 
   private fun <T : Any?> getNth(choices: Multiset<T>, index: Int): T {
     var skip = index
-    for (wc in choices.elements) {
-      skip -= choices.count(wc)
-      if (skip < 0) {
-        return wc
-      }
+    for ((wc, ct) in choices.entries) {
+      skip -= ct
+      if (skip < 0) return wc
     }
     error("")
   }

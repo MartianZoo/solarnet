@@ -99,6 +99,7 @@ internal object PetToKotlin {
             is Trigger.OnGainOf -> "OnGainOf(${p2k(expression)})"
             is Trigger.OnRemoveOf -> "OnRemoveOf(${p2k(expression)})"
             is Trigger.ByTrigger -> "ByTrigger(${p2k(inner)}, ${p2k(by)})"
+            is Trigger.IfTrigger -> "IfTrigger(${p2k(inner)}, ${p2k(condition)})"
             is Trigger.Transform -> "Trigger.Transform(${p2k(trigger)}, \"$transformKind\")"
           }
         }

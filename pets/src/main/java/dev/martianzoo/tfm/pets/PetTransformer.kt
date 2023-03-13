@@ -78,8 +78,10 @@ public abstract class PetTransformer {
                   is Trigger.OnGainOf -> Trigger.OnGainOf.create(x(expression))
                   is Trigger.OnRemoveOf -> Trigger.OnRemoveOf.create(x(expression))
                   is Trigger.ByTrigger -> Trigger.ByTrigger(x(inner), x(by))
+                  is Trigger.IfTrigger -> Trigger.IfTrigger(x(inner), x(condition))
                   is Trigger.Transform -> Trigger.Transform(x(trigger), transformKind)
-                  else -> this
+                  is Trigger.WhenGain -> this
+                  is Trigger.WhenRemove -> this
                 }
             is Action -> Action(x(cost), x(instruction))
             is Cost ->

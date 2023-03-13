@@ -11,9 +11,12 @@ import dev.martianzoo.tfm.api.SpecialClassNames.THIS
 import dev.martianzoo.tfm.pets.BaseTokenizer
 import dev.martianzoo.tfm.pets.Parsing
 import dev.martianzoo.tfm.pets.PetException
+import dev.martianzoo.tfm.pets.ast.Effect.Trigger.IfTrigger
 
 sealed class Requirement : PetNode() {
   open fun requiresThis() = false // TODO kick this out
+  override fun safeToNestIn(container: PetNode) =
+      super.safeToNestIn(container) || container is IfTrigger
 
   data class Min(val scaledEx: ScaledExpression) : Requirement() {
     override fun visitChildren(visitor: Visitor) = visitor.visit(scaledEx)
@@ -54,6 +57,10 @@ sealed class Requirement : PetNode() {
     override fun visitChildren(visitor: Visitor) = visitor.visit(requirements)
     override fun toString() = requirements.joinToString(" OR ") { groupPartIfNeeded(it) }
     override fun precedence() = 3
+
+    override fun safeToNestIn(container: PetNode): Boolean {
+      return super.safeToNestIn(container) && container !is IfTrigger
+    }
   }
 
   data class And(val requirements: List<Requirement>) : Requirement() {
@@ -72,6 +79,10 @@ sealed class Requirement : PetNode() {
     override fun precedence() = 1
 
     override fun requiresThis() = requirements.any { it.requiresThis() }
+
+    override fun safeToNestIn(container: PetNode): Boolean {
+      return super.safeToNestIn(container) && container !is IfTrigger
+    }
   }
 
   data class Transform(val requirement: Requirement, override val transformKind: String) :

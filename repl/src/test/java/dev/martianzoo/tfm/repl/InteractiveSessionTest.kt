@@ -135,8 +135,10 @@ private class InteractiveSessionTest {
 
     session.initiateAndAutoExec(instruction("2 TemperatureStep"))
     assertThat(session.count(metric("TerraformRating"))).isEqualTo(24)
+    assertThat(session.count(metric("Production<Class<Heat>>"))).isEqualTo(1)
 
-    // TODO no, sposed to be 1
-    assertThat(session.count(metric("Production<Class<Heat>>"))).isEqualTo(0)
+    session.initiateAndAutoExec(instruction("8 OxygenStep"))
+    assertThat(session.count(metric("TerraformRating"))).isEqualTo(33)
+    assertThat(session.count(metric("Production<Class<Heat>>"))).isEqualTo(2)
   }
 }

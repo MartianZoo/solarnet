@@ -150,9 +150,9 @@ public class ReplSession(private val authority: Authority, val jline: JlineRepl?
               val expr = expression(args)
               val counts: Multiset<Expression> = session.list(expr)
               return listOf("Listing ${session.prep(expr)}...") +
-                  counts.elements
-                      .sortedByDescending { counts.count(it) }
-                      .map { "${counts.count(it)} $it" }
+                  counts.entries
+                      .sortedByDescending { (_, ct) -> ct }
+                      .map { (e, ct) -> "$ct $e" }
             }
           },
           object : ReplCommand("board") {

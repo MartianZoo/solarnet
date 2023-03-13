@@ -28,20 +28,20 @@ ABSTRACT CLASS GlobalParameter {                       // Instances must be adde
 
   CLASS TemperatureStep {                              // nesting is implicit subtyping
     HAS MAX 19 This                                    // why? because it's so convenient
-    This: (=3 This ?: PROD[Heat])
-    This: (=5 This ?: PROD[Heat])
-    This: (=15 This ?: OceanTile)
+    This IF =3 This: PROD[Heat]
+    This IF =5 This: PROD[Heat]
+    This IF =15 This: OceanTile
   }
 
   CLASS OxygenStep[O2] {
     HAS MAX 14 This
-    This: (=8 This ?: TemperatureStep)
+    This IF =8 This: TemperatureStep
   }
 
   CLASS VenusStep[VEN] {
     HAS MAX 15 This
-    This: (=4 This ?: ProjectCard)
-    This: (=8 This ?: TerraformRating)
+    This IF =4 This: ProjectCard
+    This IF =8 This: TerraformRating
   }
 
   CLASS OceanTile[OT] : Tile<MarsArea> {
