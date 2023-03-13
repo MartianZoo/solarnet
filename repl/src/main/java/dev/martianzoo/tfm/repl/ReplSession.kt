@@ -158,11 +158,11 @@ public class ReplSession(private val authority: Authority, val jline: JlineRepl?
               return withArgs(player.toString())
             }
             override fun withArgs(args: String) =
-                BoardToText(session.game!!.reader).board(cn(args).expr)
+                BoardToText(session.game!!.reader).board(cn(args).expr, jline != null)
           },
           object : ReplCommand("map") {
             override val usage = "map"
-            override fun noArgs() = MapToText(session.game!!.reader).map()
+            override fun noArgs() = MapToText(session.game!!.reader, jline != null).map()
           },
           object : ReplCommand("mode") {
             override val usage = "mode"

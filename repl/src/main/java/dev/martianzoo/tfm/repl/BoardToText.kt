@@ -6,16 +6,16 @@ import dev.martianzoo.tfm.api.ResourceUtils.standardResourceNames
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.pets.ast.Expression.Companion.expression
-import dev.martianzoo.tfm.repl.TfmColors.ENERGY
-import dev.martianzoo.tfm.repl.TfmColors.HEAT
-import dev.martianzoo.tfm.repl.TfmColors.MEGACREDIT
-import dev.martianzoo.tfm.repl.TfmColors.PLANT
-import dev.martianzoo.tfm.repl.TfmColors.STEEL
-import dev.martianzoo.tfm.repl.TfmColors.TITANIUM
+import dev.martianzoo.tfm.repl.TfmColor.ENERGY
+import dev.martianzoo.tfm.repl.TfmColor.HEAT
+import dev.martianzoo.tfm.repl.TfmColor.MEGACREDIT
+import dev.martianzoo.tfm.repl.TfmColor.PLANT
+import dev.martianzoo.tfm.repl.TfmColor.STEEL
+import dev.martianzoo.tfm.repl.TfmColor.TITANIUM
 
 internal class BoardToText(private val game: GameStateReader) {
 
-  internal fun board(player: Expression, colors: Boolean = true): List<String> {
+  internal fun board(player: Expression, useColors: Boolean = true): List<String> {
     val prodMap = lookUpProductionLevels(game, player)
     val resourceMap =
         standardResourceNames(game).associateBy({ it }) {
@@ -32,7 +32,7 @@ internal class BoardToText(private val game: GameStateReader) {
     val (e, eres) = prodAndResource("Energy")
     val (h, hres) = prodAndResource("Heat")
 
-    fun maybeColor(c: TfmColors, s: String) = if (colors) c.color(s) else s
+    fun maybeColor(c: TfmColor, s: String) = if (useColors) c.color(s) else s
 
     val megac = maybeColor(MEGACREDIT, "M: $mres")
     val steel = maybeColor(STEEL, "S: $sres")
