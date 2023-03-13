@@ -11,7 +11,7 @@ private class ReplSessionTest {
     val repl = ReplSession(Canon)
     repl.command("newgame MB 2")
     repl.command("become Player2")
-    repl.command("mode yellow")
+    repl.command("mode green")
 
     // TODO deprodify these for the screen
     assertThat(strip(repl.command("exec PROD[5, 4 Energy]")))

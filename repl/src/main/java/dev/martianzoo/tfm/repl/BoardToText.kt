@@ -50,6 +50,7 @@ internal class BoardToText(private val game: GameStateReader, val useColors: Boo
     val heeat = maybeColor(HEAT, "H: $hres")
 
     val tr = game.count(game.resolve(expression("TerraformRating<$player>")))
+    // val tr = maybeColor(TERRAFORM_RATING, "$tera")
     val tiles = game.count(game.resolve(expression("OwnedTile<$player>")))
     return listOf(
         "  $player   TR: $tr   Tiles: $tiles",
@@ -65,6 +66,6 @@ internal class BoardToText(private val game: GameStateReader, val useColors: Boo
 
   private fun prod(num: String): String {
     val prefix = " ".repeat(2 - num.length)
-    return prefix + if (useColors) PRODUCTION.background(num) else num
+    return prefix + if (false) PRODUCTION.background(num) else num
   }
 }

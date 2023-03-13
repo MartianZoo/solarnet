@@ -48,12 +48,12 @@ internal fun main() {
 /** A programmatic entry point to a REPL session that is more textual than [ReplSession]. */
 public class ReplSession(private val authority: Authority, val jline: JlineRepl? = null) {
   internal val session = InteractiveSession()
-  internal var mode: ReplMode = YELLOW
+  internal var mode: ReplMode = GREEN
 
   public enum class ReplMode(val message: String, val color: TfmColor) {
     RED("Arbitrary state changes that don't trigger effects", TfmColor.HEAT),
-    YELLOW("Arbitrary state changes, auto-executing effects", TfmColor.MEGACREDIT),
-    GREEN("Arbitrary state changes, enqueueing effects", TfmColor.PLANT),
+    YELLOW("Arbitrary state changes, enqueueing all effects", TfmColor.MEGACREDIT),
+    GREEN("Arbitrary state changes, auto-executing effects", TfmColor.PLANT),
     BLUE("Only allows performing tasks on your task list", TfmColor.OCEAN_TILE),
     PURPLE("The engine fully orchestrates everything", TfmColor.ENERGY),
     NO_GAME("There is no game active", TfmColor.NOCTIS_AREA)
@@ -196,8 +196,8 @@ public class ReplSession(private val authority: Authority, val jline: JlineRepl?
               val changes: ExecutionResult =
                   when (mode) {
                     RED -> session.doIgnoringEffects(instruction)
-                    YELLOW -> session.initiateAndAutoExec(instruction, requireFullSuccess = false)
-                    GREEN -> session.initiateAndQueue(instruction)
+                    YELLOW -> session.initiateAndQueue(instruction)
+                    GREEN -> session.initiateAndAutoExec(instruction, requireFullSuccess = false)
                     else -> TODO()
                   }
 

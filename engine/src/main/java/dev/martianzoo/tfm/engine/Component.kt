@@ -1,7 +1,7 @@
 package dev.martianzoo.tfm.engine
 
+import dev.martianzoo.tfm.api.AbstractInstructionException
 import dev.martianzoo.tfm.api.SpecialClassNames.OWNED
-import dev.martianzoo.tfm.engine.Exceptions.AbstractInstructionException
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.Effect
 import dev.martianzoo.tfm.pets.ast.HasExpression

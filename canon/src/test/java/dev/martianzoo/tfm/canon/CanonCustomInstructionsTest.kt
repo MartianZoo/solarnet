@@ -12,7 +12,7 @@ private class CanonCustomInstructionsTest {
     val repl = ReplSession(Canon)
     repl.command("newgame BM 3")
     repl.command("become Player1")
-    repl.command("mode yellow")
+    repl.command("mode green")
 
     repl.command("exec PROD[Steel, Titanium, Plant, Energy, Heat]")
     repl.command("exec @gainLowestProduction(Player1)")
@@ -47,19 +47,17 @@ private class CanonCustomInstructionsTest {
     assertThat(repl.command("has PROD[=5 Megacredit]").first()).startsWith("true")
   }
 
-  // Robo work test
-  // exec PROD[5 Megacredit<Player1>]
-  //
-  // exec PROD[4 Energy<Player1>]
-  //
-  // exec StripMine<Player1>
-  // // we don't have effects working yet so...
-  // exec PROD[-2 Energy<Player1>, 2 Steel<Player1>, Titanium<Player1>]
-  //
-  // REQUIRE PROD[=2 Energy<Player1>, 2 Steel<Player1>]
-  // exec @copyProductionBox(StripMine<Player1>)
-  //
-  // REQUIRE PROD[=0 Energy<Player1>, 4 Steel<Player1>]
+  @Test
+  fun roboticWorkforce() {
+    val repl = ReplSession(Canon)
+    repl.command("newgame BRM 3")
+    repl.command("become Player1")
+    repl.command("exec PROD[5 Energy]")
+    repl.command("exec StripMine")
+    assertThat(repl.command("count Production<Class<Energy>>").single()).startsWith("3 ")
+    repl.command("exec RoboticWorkforce")
+    // TODO now what
+  }
 }
 
 // TODO share

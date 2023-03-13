@@ -92,7 +92,8 @@ public abstract class Authority {
    * Returns the card definition having the full name [name]. If there are multiple, one must be
    * marked as `replaces` the other. (TODO)
    */
-  public fun card(name: ClassName): CardDefinition = cardsByClassName[name]!!
+  public fun card(name: ClassName): CardDefinition = cardsByClassName[name]
+      ?: error("No card named $name")
 
   /** Every card this authority knows about. */
   public abstract val cardDefinitions: Set<CardDefinition>

@@ -17,7 +17,6 @@ public abstract class CustomInstruction(
      */
     val functionName: String
 ) {
-
   /**
    * When possible override this method, and compute an [Instruction] that can be executed in place
    * of this one. When this isn't possible, override [execute] instead.

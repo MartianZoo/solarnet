@@ -2418,6 +2418,17 @@
       "projectKind": "AUTOMATED"
     },
 
+    // Robotic Workforce
+    {
+      "id": "086",
+      "bundle": "R",
+      "deck": "PROJECT",
+      "tags": [ "ScienceTag" ],
+      "immediate": "@copyProductionBox(CardFront(HAS BuildingTag))",
+      "cost": 9,
+      "projectKind": "AUTOMATED"
+    },
+
     // Research
     {
       "id": "090",

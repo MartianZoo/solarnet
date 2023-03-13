@@ -11,6 +11,7 @@ import dev.martianzoo.tfm.pets.ast.Effect.Trigger.OnGainOf
 import dev.martianzoo.tfm.pets.ast.Effect.Trigger.WhenGain
 import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.pets.ast.Instruction
+import dev.martianzoo.tfm.pets.ast.Instruction.Multi
 import dev.martianzoo.tfm.pets.ast.Instruction.Then
 import dev.martianzoo.tfm.pets.ast.Instruction.Transmute
 import dev.martianzoo.tfm.pets.ast.PetNode
@@ -81,6 +82,21 @@ public object AstTransforms {
           override fun <P : PetNode> transform(node: P): P {
             val rewritten: PetNode =
                 when {
+                  node is Multi -> {
+                    val badIndex = node.instructions.indexOfFirst {
+                      it is Instruction.Transform &&
+                          it.transformKind == "PROD" &&
+                          it.instruction is Multi
+                    }
+                    val xed = transformChildren(node)
+                    if (badIndex == -1) {
+                      xed
+                    } else {
+                      Multi.create(xed.instructions.subList(0, badIndex) +
+                          (xed.instructions[badIndex] as Multi).instructions +
+                          xed.instructions.subList(badIndex + 1, xed.instructions.size))!!
+                    }
+                  }
                   node is GenericTransform<*> && node.transformKind == "PROD" -> {
                     require(!inProd)
                     inProd = true

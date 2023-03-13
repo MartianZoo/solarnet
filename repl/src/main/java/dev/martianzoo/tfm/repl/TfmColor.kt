@@ -16,8 +16,8 @@ enum class TfmColor(val hexString: String) {
   GREENERY_TILE("6dd248"),
   CITY_TILE("999999"),
   SPECIAL_TILE("a87a58"),
-  TERRAFORM_RATING("eb8f56"),
-  NOCTIS_AREA("eeeeee"),
+  TERRAFORM_RATING("ea8845"),
+  NOCTIS_AREA("dddddd"),
   PRODUCTION("794b2c")
   ;
 

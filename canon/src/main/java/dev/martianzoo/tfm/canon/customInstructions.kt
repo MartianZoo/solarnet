@@ -1,5 +1,6 @@
 package dev.martianzoo.tfm.canon
 
+import dev.martianzoo.tfm.api.AbstractInstructionException
 import dev.martianzoo.tfm.api.CustomInstruction
 import dev.martianzoo.tfm.api.GameStateReader
 import dev.martianzoo.tfm.api.GameStateWriter
@@ -39,17 +40,15 @@ private object CreateAll : CustomInstruction("createAll") {
     val border = cn("Border")
     return when (toCreate.className) {
       border -> {
-        Multi(map.areas
-            .let { it.rows() + it.columns() + it.diagonals() }
-            .flatMap { it.windowed(2).filterWithoutNulls() }
-            .map { pair -> pair.map { it.className.expr } }
-            .flatMap { (area1, area2) ->
-              listOf(
-                  border.addArgs(area1, area2),
-                  border.addArgs(area2, area1)
-              )
-            }
-            .map { Gain(scaledEx(it)) })
+        Multi(
+            map.areas
+                .let { it.rows() + it.columns() + it.diagonals() }
+                .flatMap { it.windowed(2).filterWithoutNulls() }
+                .map { pair -> pair.map { it.className.expr } }
+                .flatMap { (area1, area2) ->
+                  listOf(border.addArgs(area1, area2), border.addArgs(area2, area1))
+                }
+                .map { Gain(scaledEx(it)) })
       }
       else -> TODO()
     }
@@ -72,18 +71,19 @@ private object GainLowestProduction : CustomInstruction("gainLowestProduction") 
 // For Robotic Workforce
 private object CopyProductionBox : CustomInstruction("copyProductionBox") {
   override fun translate(game: GameStateReader, arguments: List<Type>): Instruction {
-    val chosenCardName = arguments.single().expression.className
-    val def = game.authority.card(chosenCardName)
+    val chosenCardType: Type = game.resolve(arguments.single().expression)
+    if (chosenCardType.abstract) throw AbstractInstructionException(chosenCardType)
+    val def = game.authority.card(chosenCardType.className)
 
     val nodes: Set<Transform> = def.immediate?.descendantsOfType() ?: setOf()
     val matches = nodes.filter { it.transformKind == "PROD" }
 
     when (matches.size) {
       1 -> return matches.first()
-      0 -> throw RuntimeException("There is no immediate PROD box on $chosenCardName")
+      0 -> throw RuntimeException("There is no immediate PROD box on ${def.className}")
       else ->
           throw RuntimeException(
-              "The immediate instructions on $chosenCardName " +
+              "The immediate instructions on ${def.className} " +
                   "have multiple PROD boxes, which should never happen")
     }
   }

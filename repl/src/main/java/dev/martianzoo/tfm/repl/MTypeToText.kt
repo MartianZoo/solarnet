@@ -23,8 +23,8 @@ object MTypeToText { // TODO refactor to ClassInfo / TypeInfo type dealies
     val substring =
         when (subs.size) {
           0 -> "(none)"
-          in 1..7 -> subs.joinToString()
-          else -> subs.take(6).joinToString() + " (${subs.size - 6} others)"
+          in 1..7 -> subs.joinToString { "${it.className}" }
+          else -> subs.take(6).joinToString { "${it.className}" } + " (${subs.size - 6} others)"
         }
 
     val names =
@@ -42,16 +42,14 @@ object MTypeToText { // TODO refactor to ClassInfo / TypeInfo type dealies
     val classStuff = """
       Class $names:
           subclasses:  $substring
-          invariants:  ${
-      mclass.invariants.joinToString("""
-                       """)
-    }
+          invariants:  ${mclass.invariants.joinToString("""
+                       """)}
           base type:   ${mclass.baseType.expressionFull}
           c. types:    $concTypes
-          class fx:    ${
-      mclass.classEffects.joinToString("""
-                       """) { "${it.effect}" + if (it.linkages.any()) " ${it.linkages}" else "" }
-    }
+          raw fx:      ${mclass.declaration.effects.map { it.effect }.joinToString("""
+                       """)}
+          class fx:    ${mclass.classEffects.joinToString("""
+                       """) { "${it.effect}" + if (it.linkages.any()) " ${it.linkages}" else "" } }
 
 
     """.trimIndent().iff(expression.simple)

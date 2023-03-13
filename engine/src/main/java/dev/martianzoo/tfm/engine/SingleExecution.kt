@@ -1,5 +1,6 @@
 package dev.martianzoo.tfm.engine
 
+import dev.martianzoo.tfm.api.AbstractInstructionException
 import dev.martianzoo.tfm.api.CustomInstruction.ExecuteInsteadException
 import dev.martianzoo.tfm.api.GameStateWriter
 import dev.martianzoo.tfm.api.SpecialClassNames.DIE
@@ -11,7 +12,6 @@ import dev.martianzoo.tfm.data.GameEvent.ChangeEvent.Cause
 import dev.martianzoo.tfm.data.Task
 import dev.martianzoo.tfm.data.Task.TaskId
 import dev.martianzoo.tfm.engine.ActiveEffect.FiredEffect
-import dev.martianzoo.tfm.engine.Exceptions.AbstractInstructionException
 import dev.martianzoo.tfm.engine.Exceptions.RequirementException
 import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.pets.ast.Instruction
@@ -41,7 +41,11 @@ import dev.martianzoo.util.toSetStrict
  */
 class SingleExecution(val game: Game, val actor: Actor, val doEffects: Boolean = true) {
   // Our internal tasks don't have much relation with Task
-  data class InternalTask(val instruction: Instruction, val cause: Cause?)
+  data class InternalTask(val instruction: Instruction, val cause: Cause?) {
+    init {
+      require(instruction !is Multi) { "$instruction" }
+    }
+  }
 
   private val automaticTasks = ArrayDeque<InternalTask>()
 
@@ -76,7 +80,7 @@ class SingleExecution(val game: Game, val actor: Actor, val doEffects: Boolean =
 
     // check narrowing TODO
     val instruction = narrowedInstruction ?: requestedTask.instruction
-    automaticTasks += InternalTask(instruction, requestedTask.cause)
+    automaticTasks += split(instruction).map { InternalTask(it, requestedTask.cause) }
 
     return try {
       doAtomic {
@@ -160,7 +164,10 @@ class SingleExecution(val game: Game, val actor: Actor, val doEffects: Boolean =
     val (now, later) = (firedSelfEffects + firedOtherEffects).partition { it.automatic }
 
     // TODO always add to beginning of queue? why not just recurse?
-    automaticTasks.addAll(0, now.map { InternalTask(it.instruction, it.cause) })
+    val elements = now.flatMap { fx ->
+      split(fx.instruction).map { InternalTask(it, fx.cause) }
+    }
+    automaticTasks.addAll(0, elements)
 
     later.forEach {
       game.taskQueue.addTasks(it.instruction, it.actor, it.cause) // TODO
@@ -207,8 +214,8 @@ class SingleExecution(val game: Game, val actor: Actor, val doEffects: Boolean =
       is Custom -> handleCustomInstruction(instr, cause)
       is Then -> instr.instructions.forEach { doOneInstruction(it, cause, multiplier) }
       is Or -> throw AbstractInstructionException(instr)
-      is Multi -> error("should have been split")
-      is Transform -> error("should have been transformed already")
+      is Multi -> error("should have been split: $instr")
+      is Transform -> error("should have been transformed already: $instr")
     }
   }
 

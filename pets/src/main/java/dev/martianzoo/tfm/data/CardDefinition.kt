@@ -26,7 +26,6 @@ import dev.martianzoo.tfm.pets.ast.Instruction
 import dev.martianzoo.tfm.pets.ast.Instruction.Companion.instruction
 import dev.martianzoo.tfm.pets.ast.Instruction.Gain
 import dev.martianzoo.tfm.pets.ast.Instruction.Gated
-import dev.martianzoo.tfm.pets.ast.Instruction.Intensity.MANDATORY
 import dev.martianzoo.tfm.pets.ast.Instruction.Multi
 import dev.martianzoo.tfm.pets.ast.PetNode
 import dev.martianzoo.tfm.pets.ast.Requirement
@@ -146,11 +145,11 @@ public class CardDefinition(data: CardData) : Definition {
         } else {
           listOf()
         }
-    val gainUsSomeTags = tags.map { Gain(scaledEx(it.expr.addArgs(className)), MANDATORY) }
-    val allImmediate = listOfNotNull(Multi.create(gainUsSomeTags), immediate)
+    val gainUsSomeTags = Multi.create(tags.map { Gain(scaledEx(it.expr.addArgs(className))) })
     val allEffects =
         blocker.map { immediateToEffect(it, automatic = true) } +
-        allImmediate.map { immediateToEffect(it, automatic = false) } +
+        listOfNotNull(gainUsSomeTags).map { immediateToEffect(it, automatic = true) } +
+        listOfNotNull(immediate).map { immediateToEffect(it, automatic = false) } +
         effects +
         actionListToEffects(actions)
 
