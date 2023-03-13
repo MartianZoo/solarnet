@@ -30,11 +30,15 @@ internal fun main() {
   fun prompt(): Pair<String, Int> {
     val player: ClassName? = session.defaultPlayer
     val gameNo = session.gameNumber
-    return when {
-      session.game == null -> "Table" to AttributedStyle.WHITE
-      player == null -> "Game$gameNo" to AttributedStyle.GREEN
-      else -> "Game$gameNo as $player" to AttributedStyle.CYAN
+
+    val nogame = session.game == null
+    val text = when {
+      nogame -> "Table"
+      player == null -> "Game$gameNo"
+      else -> "Game$gameNo as $player"
     }
+    val kuller = if (nogame) AttributedStyle.WHITE else repl.mode.jlineColor
+    return text to kuller
   }
   jline.loop(::prompt, repl::command)
   println("Bye")
@@ -45,12 +49,12 @@ public class ReplSession(private val authority: Authority, val jline: JlineRepl?
   internal val session = InteractiveSession()
   internal var mode: ReplMode = YELLOW
 
-  public enum class ReplMode(val message: String) {
-    RED("Allows arbitrary state changes, which don't trigger effects"),
-    YELLOW("Allows arbitrary state changes, auto-executing effects when possible"),
-    GREEN("Allows arbitrary state changes, enqueueing resulting tasks TODO"),
-    BLUE("Allows only initiating `UseAction<StandardAction>` and handling enqueued tasks TODO"),
-    PURPLE("The game engine will fully orchestrate the game workflow TODO"),
+  public enum class ReplMode(val message: String, val jlineColor: Int) {
+    RED("Arbitrary state changes that don't trigger effects", AttributedStyle.RED),
+    YELLOW("Arbitrary state changes, auto-executing effects", AttributedStyle.YELLOW),
+    GREEN("Arbitrary state changes, enqueueing effects", AttributedStyle.GREEN),
+    BLUE("Only allows performing tasks on your task list", AttributedStyle.BLUE),
+    PURPLE("The engine fully orchestrates everything", AttributedStyle.MAGENTA), // TODO
   }
 
   private val inputRegex = Regex("""^\s*(\S+)(.*)$""")
