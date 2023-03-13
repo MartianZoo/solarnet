@@ -15,30 +15,31 @@ import dev.martianzoo.tfm.pets.ast.Instruction.Companion.instruction
 import dev.martianzoo.tfm.pets.ast.Metric.Companion.metric
 import dev.martianzoo.tfm.pets.ast.Requirement.Companion.requirement
 import dev.martianzoo.tfm.repl.ReplSession.ReplMode.GREEN
+import dev.martianzoo.tfm.repl.ReplSession.ReplMode.NO_GAME
 import dev.martianzoo.tfm.repl.ReplSession.ReplMode.RED
 import dev.martianzoo.tfm.repl.ReplSession.ReplMode.YELLOW
 import dev.martianzoo.util.Multiset
 import dev.martianzoo.util.toStrings
 import org.jline.reader.History
-import org.jline.utils.AttributedStyle
 
 internal fun main() {
   val jline = JlineRepl()
   val repl = ReplSession(Canon, jline)
   val session = repl.session
 
-  fun prompt(): Pair<String, Int> {
+  fun prompt(): String {
     val player: ClassName? = session.defaultPlayer
     val gameNo = session.gameNumber
 
     val nogame = session.game == null
-    val text = when {
-      nogame -> "Table"
-      player == null -> "Game$gameNo"
-      else -> "Game$gameNo as $player"
-    }
-    val kuller = if (nogame) AttributedStyle.WHITE else repl.mode.jlineColor
-    return text to kuller
+    val text =
+        when {
+          nogame -> "Table"
+          player == null -> "Game$gameNo"
+          else -> "Game$gameNo as $player"
+        }
+    val kuller = repl.effectiveMode().color
+    return kuller.foreground("$text> ")
   }
   jline.loop(::prompt, repl::command)
   println("Bye")
@@ -49,13 +50,16 @@ public class ReplSession(private val authority: Authority, val jline: JlineRepl?
   internal val session = InteractiveSession()
   internal var mode: ReplMode = YELLOW
 
-  public enum class ReplMode(val message: String, val jlineColor: Int) {
-    RED("Arbitrary state changes that don't trigger effects", AttributedStyle.RED),
-    YELLOW("Arbitrary state changes, auto-executing effects", AttributedStyle.YELLOW),
-    GREEN("Arbitrary state changes, enqueueing effects", AttributedStyle.GREEN),
-    BLUE("Only allows performing tasks on your task list", AttributedStyle.BLUE),
-    PURPLE("The engine fully orchestrates everything", AttributedStyle.MAGENTA), // TODO
+  public enum class ReplMode(val message: String, val color: TfmColor) {
+    RED("Arbitrary state changes that don't trigger effects", TfmColor.HEAT),
+    YELLOW("Arbitrary state changes, auto-executing effects", TfmColor.MEGACREDIT),
+    GREEN("Arbitrary state changes, enqueueing effects", TfmColor.PLANT),
+    BLUE("Only allows performing tasks on your task list", TfmColor.OCEAN_TILE),
+    PURPLE("The engine fully orchestrates everything", TfmColor.ENERGY),
+    NO_GAME("There is no game active", TfmColor.NOCTIS_AREA)
   }
+
+  internal fun effectiveMode() = if (session.game == null) NO_GAME else mode
 
   private val inputRegex = Regex("""^\s*(\S+)(.*)$""")
 
@@ -162,7 +166,7 @@ public class ReplSession(private val authority: Authority, val jline: JlineRepl?
               return withArgs(player.toString())
             }
             override fun withArgs(args: String) =
-                BoardToText(session.game!!.reader).board(cn(args).expr, jline != null)
+                BoardToText(session.game!!.reader, jline != null).board(cn(args).expr)
           },
           object : ReplCommand("map") {
             override val usage = "map"
@@ -170,13 +174,16 @@ public class ReplSession(private val authority: Authority, val jline: JlineRepl?
           },
           object : ReplCommand("mode") {
             override val usage = "mode"
-            override fun noArgs() = listOf("Mode $mode: ${mode.message}")
+            override fun noArgs() = listOf("Mode ${effectiveMode()}: ${effectiveMode().message}")
 
             override fun withArgs(args: String): List<String> {
               try {
-                mode = ReplMode.valueOf(args.uppercase())
+                val thing = ReplMode.valueOf(args.uppercase())
+                require(thing != NO_GAME)
+                mode = thing
               } catch (e: Exception) {
-                throw UsageException("Valid modes are: ${ReplMode.values().joinToString()}")
+                throw UsageException(
+                    "Valid modes are: ${(ReplMode.values().toSet() - NO_GAME).joinToString()}")
               }
               return noArgs()
             }
@@ -218,11 +225,12 @@ public class ReplSession(private val authority: Authority, val jline: JlineRepl?
                   } else {
                     null
                   }
-              val result: ExecutionResult = when (mode) {
-                YELLOW -> session.doTaskAndAutoExec(id, instruction, requireFullSuccess = false)
-                GREEN -> session.doTaskOnly(id)
-                else -> TODO()
-              }
+              val result: ExecutionResult =
+                  when (mode) {
+                    YELLOW -> session.doTaskAndAutoExec(id, instruction, requireFullSuccess = false)
+                    GREEN -> session.doTaskOnly(id)
+                    else -> TODO()
+                  }
               return reportResults(result)
             }
           },
@@ -272,19 +280,19 @@ public class ReplSession(private val authority: Authority, val jline: JlineRepl?
             override val usage = "desc <Expression>"
 
             override fun withArgs(args: String): List<String> {
-              val expression = if (args == "random") {
-                val randomClass = session.game!!.loader.allClasses.random()
-                randomClass.baseType.concreteSubtypesSameClass().toList().random().expression
-              } else {
-                expression(args)
-              }
+              val expression =
+                  if (args == "random") {
+                    val randomClass = session.game!!.loader.allClasses.random()
+                    randomClass.baseType.concreteSubtypesSameClass().toList().random().expression
+                  } else {
+                    expression(args)
+                  }
               return listOf(MTypeToText.describe(expression, session.game!!.loader))
             }
           })
 
   private fun reportResults(changes: ExecutionResult): List<String> {
-    val oops: List<Task> =
-        changes.newTaskIdsAdded.map { session.game!!.taskQueue[it] }
+    val oops: List<Task> = changes.newTaskIdsAdded.map { session.game!!.taskQueue[it] }
 
     val changeLines = changes.changes.toStrings().ifEmpty { listOf("No changes made") }
     val taskLines =

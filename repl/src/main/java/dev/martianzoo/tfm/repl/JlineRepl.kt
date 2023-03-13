@@ -8,8 +8,6 @@ import org.jline.reader.LineReaderBuilder
 import org.jline.reader.impl.history.DefaultHistory
 import org.jline.terminal.Terminal
 import org.jline.terminal.TerminalBuilder
-import org.jline.utils.AttributedStringBuilder
-import org.jline.utils.AttributedStyle.DEFAULT
 import org.jline.utils.InfoCmp.Capability
 
 public class JlineRepl {
@@ -29,22 +27,13 @@ public class JlineRepl {
         history.read(historyFile, /* checkDuplicates= */ false)
       }
 
-  fun loop(prompt: () -> Pair<String, Int>, handler: (String) -> List<String>) {
+  fun loop(prompt: () -> String, handler: (String) -> List<String>) {
     while (true) {
-      val (text, color) = prompt()
-      val pr =
-          AttributedStringBuilder()
-              .style(DEFAULT.foreground(color))
-              .append(text)
-              .append("> ")
-              .style(DEFAULT)
-              .toAnsi()
-
       fun end() = history.append(historyFile, true)
 
       val inputLine =
           try {
-            reader.readLine(pr)
+            reader.readLine(prompt())
           } catch (e: EndOfFileException) {
             return end()
           }

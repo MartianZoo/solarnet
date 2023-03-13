@@ -18,14 +18,25 @@ enum class TfmColor(val hexString: String) {
   SPECIAL_TILE("a87a58"),
   TERRAFORM_RATING("eb8f56"),
   NOCTIS_AREA("eeeeee"),
+  PRODUCTION("794b2c")
   ;
 
-  fun color(string: String): String {
+  fun foreground(string: String): String {
     val r = hexString.substring(0, 2).toInt(16)
     val g = hexString.substring(2, 4).toInt(16)
     val b = hexString.substring(4, 6).toInt(16)
     return AttributedStringBuilder()
         .style(AttributedStyle.DEFAULT.foreground(r, g, b))
+        .append(string)
+        .style(AttributedStyle.DEFAULT)
+        .toAnsi()
+  }
+  fun background(string: String): String {
+    val r = hexString.substring(0, 2).toInt(16)
+    val g = hexString.substring(2, 4).toInt(16)
+    val b = hexString.substring(4, 6).toInt(16)
+    return AttributedStringBuilder()
+        .style(AttributedStyle.DEFAULT.background(r, g, b))
         .append(string)
         .style(AttributedStyle.DEFAULT)
         .toAnsi()

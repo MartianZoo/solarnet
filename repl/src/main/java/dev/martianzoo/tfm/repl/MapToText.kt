@@ -50,7 +50,7 @@ internal class MapToText(private val game: GameStateReader, val useColors: Boole
     return maybeColor(color, padCenter(area.code, 4))
   }
 
-  fun maybeColor(c: TfmColor, s: String): String = if (useColors) c.color(s) else s
+  fun maybeColor(c: TfmColor, s: String): String = if (useColors) c.foreground(s) else s
 
   fun fromHex(s: String, r: Int, c: Int) = fromRect(s, r * 3, c * 2 + 5 - r)
   fun fromRect(s: String, r: Int, c: Int) = SimpleCell(s, r, c)
