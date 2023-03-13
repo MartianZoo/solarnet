@@ -27,8 +27,10 @@ private class ReplSessionTest {
             "-2 Production<Player2, Class<Energy>> $byCard",
             "2 Production<Player2, Class<Steel>> $byCard",
             "1 Production<Player2, Class<Titanium>> $byCard",
-            "2 OxygenStep $byCard",
-            "2 TerraformRating<Player2> FOR Player2 BY OxygenStep",
+            "1 OxygenStep $byCard",
+            "1 TerraformRating<Player2> FOR Player2 BY OxygenStep",
+            "1 OxygenStep $byCard",
+            "1 TerraformRating<Player2> FOR Player2 BY OxygenStep",
         )
 
     val check1 = "has PROD[=2 Energy, =2 Steel]"

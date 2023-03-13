@@ -18,6 +18,7 @@ import dev.martianzoo.tfm.pets.ast.PetNode
 import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.types.MClass
 import dev.martianzoo.tfm.types.MType
+import dev.martianzoo.tfm.types.Transformers.AtomizeGlobalParameterGains
 import dev.martianzoo.tfm.types.Transformers.CompositeTransformer
 import dev.martianzoo.tfm.types.Transformers.Deprodify
 import dev.martianzoo.tfm.types.Transformers.InsertDefaults
@@ -151,6 +152,7 @@ class InteractiveSession {
     val loader = game!!.loader
     return CompositeTransformer(
             UseFullNames(loader),
+            AtomizeGlobalParameterGains(loader),
             InsertDefaults(loader),
             ReplaceOwnerWith(defaultPlayer),
             Deprodify(loader),

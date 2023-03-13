@@ -27,6 +27,7 @@ import dev.martianzoo.tfm.pets.ast.Instruction.Or
 import dev.martianzoo.tfm.pets.ast.Instruction.Per
 import dev.martianzoo.tfm.pets.ast.Instruction.Then
 import dev.martianzoo.tfm.pets.ast.Instruction.Transform
+import dev.martianzoo.tfm.types.Transformers.AtomizeGlobalParameterGains
 import dev.martianzoo.tfm.types.Transformers.CompositeTransformer
 import dev.martianzoo.tfm.types.Transformers.Deprodify
 import dev.martianzoo.tfm.types.Transformers.InsertDefaults
@@ -236,6 +237,7 @@ class SingleExecution(val game: Game, val actor: Actor, val doEffects: Boolean =
       val xer =
           CompositeTransformer(
               UseFullNames(game.loader),
+              AtomizeGlobalParameterGains(game.loader),
               InsertDefaults(game.loader), // TODO context component??
               Deprodify(game.loader),
               // Not needed: ReplaceThisWith, ReplaceOwnerWith, FixUnownedEffect

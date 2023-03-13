@@ -15,6 +15,7 @@ import dev.martianzoo.tfm.pets.ast.classNames
 import dev.martianzoo.tfm.types.Dependency.Companion.depsForClassType
 import dev.martianzoo.tfm.types.Dependency.Key
 import dev.martianzoo.tfm.types.Dependency.TypeDependency
+import dev.martianzoo.tfm.types.Transformers.AtomizeGlobalParameterGains
 import dev.martianzoo.tfm.types.Transformers.CompositeTransformer
 import dev.martianzoo.tfm.types.Transformers.FixEffectForUnownedContext
 import dev.martianzoo.tfm.types.Transformers.InsertDefaults
@@ -179,6 +180,7 @@ internal constructor(
 
     val transformer = CompositeTransformer(
         UseFullNames(loader),
+        AtomizeGlobalParameterGains(loader),
         InsertDefaults(loader, thiss),
         FixEffectForUnownedContext(this),
         // Not needed: ReplaceThisWith, ReplaceOwnerWith, Deprodify,

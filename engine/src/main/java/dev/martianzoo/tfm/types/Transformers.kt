@@ -1,6 +1,7 @@
 package dev.martianzoo.tfm.types
 
 import dev.martianzoo.tfm.api.SpecialClassNames.CLASS
+import dev.martianzoo.tfm.api.SpecialClassNames.GLOBAL_PARAMETER
 import dev.martianzoo.tfm.api.SpecialClassNames.OWNED
 import dev.martianzoo.tfm.api.SpecialClassNames.OWNER
 import dev.martianzoo.tfm.api.SpecialClassNames.STANDARD_RESOURCE
@@ -14,6 +15,7 @@ import dev.martianzoo.tfm.pets.ast.Effect
 import dev.martianzoo.tfm.pets.ast.Effect.Trigger.ByTrigger
 import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.pets.ast.Instruction.Gain
+import dev.martianzoo.tfm.pets.ast.Instruction.Multi
 import dev.martianzoo.tfm.pets.ast.Instruction.Remove
 import dev.martianzoo.tfm.pets.ast.PetNode
 import dev.martianzoo.tfm.pets.ast.ScaledExpression
@@ -101,16 +103,36 @@ public object Transformers {
     }
   }
 
+  public class AtomizeGlobalParameterGains(val loader: MClassLoader) : PetTransformer() {
+    var ourMulti: Multi? = null
+    override fun <P : PetNode> transform(node: P): P {
+      if (node is Multi && ourMulti != null && (ourMulti as Multi) in node.instructions) {
+        val flattened = node.instructions.flatMap {
+          if (it == ourMulti) {
+            ourMulti!!.instructions
+          } else {
+            listOf(it)
+          }
+        }
+        return Multi(flattened) as P
+      }
+      if (node !is Gain) return transformChildren(node)
+      val scex = node.scaledEx
+      if (scex.scalar == 1 || THIS in scex.expression) return node
+      val type: MType = loader.resolve(scex.expression)
+      if (!type.isSubtypeOf(loader.resolve(GLOBAL_PARAMETER.expr))) return node
+      val one = node.copy(scaledEx = scex.copy(scalar = 1))
+      ourMulti = Multi((1..scex.scalar).map { one })
+      return ourMulti as P // TODO Uh oh
+    }
+  }
+
   public class InsertDefaults(loader: MClassLoader, context: Expression = THIS.expr) :
       CompositeTransformer(
-          InsertGainRemoveDefaults(context, loader),
-          InsertExpressionDefaults(context, loader)
-      )
+          InsertGainRemoveDefaults(context, loader), InsertExpressionDefaults(context, loader))
 
-  public class InsertGainRemoveDefaults(
-      val context: Expression,
-      val loader: MClassLoader
-  ) : PetTransformer() {
+  public class InsertGainRemoveDefaults(val context: Expression, val loader: MClassLoader) :
+      PetTransformer() {
     override fun <P : PetNode> transform(node: P): P {
       val result: PetNode =
           when (node) {
@@ -147,10 +169,8 @@ public object Transformers {
     private fun leaveItAlone(unfixed: Expression) = unfixed.className in setOf(THIS, CLASS)
   }
 
-  public class InsertExpressionDefaults(
-      val context: Expression,
-      val loader: MClassLoader
-  ) : PetTransformer() {
+  public class InsertExpressionDefaults(val context: Expression, val loader: MClassLoader) :
+      PetTransformer() {
     override fun <P : PetNode> transform(node: P): P {
       if (node !is Expression) return transformChildren(node)
       if (leaveItAlone(node)) return node

@@ -16,6 +16,7 @@ public object SpecialClassNames {
   public val DIE = cn("Die")
   public val END = cn("End")
   public val GAME = cn("Game")
+  public val GLOBAL_PARAMETER = cn("GlobalParameter")
   public val MEGACREDIT = cn("Megacredit")
   public val OK = cn("Ok")
   public val OWNED = cn("Owned")
