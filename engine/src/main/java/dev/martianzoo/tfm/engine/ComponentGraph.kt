@@ -52,14 +52,14 @@ public class ComponentGraph {
 
     if (gaining != null) {
       if (!multiset.containsAll(gaining.dependencyComponents)) {
-        throw DependencyException.gaining(gaining, gaining.dependencyComponents - multiset.elements)
+        throw DependencyException.gaining(gaining.dependencyComponents - multiset.elements)
       }
     }
 
     if (removing != null) {
       val dependents = multiset.elements.filter { removing in it.dependencyComponents }
       if (dependents.any()) {
-        throw DependencyException.removing(removing, dependents)
+        throw DependencyException.removing(dependents)
       }
     }
   }

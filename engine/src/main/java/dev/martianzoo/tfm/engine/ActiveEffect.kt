@@ -1,8 +1,8 @@
 package dev.martianzoo.tfm.engine
 
 import dev.martianzoo.tfm.data.Actor
-import dev.martianzoo.tfm.data.LogEntry.ChangeEvent
-import dev.martianzoo.tfm.data.LogEntry.ChangeEvent.Cause
+import dev.martianzoo.tfm.data.GameEvent.ChangeEvent
+import dev.martianzoo.tfm.data.GameEvent.ChangeEvent.Cause
 import dev.martianzoo.tfm.pets.ast.Effect
 import dev.martianzoo.tfm.pets.ast.Instruction
 
@@ -18,23 +18,25 @@ data class ActiveEffect(
   }
 
   fun onChangeToSelf(triggerEvent: ChangeEvent, game: Game): FiredEffect? {
-    val hit = trigger.matchSelf(triggerEvent, game) ?: return null
-    return FiredEffect(hit.modify(instruction), hit.count, triggeredBy(triggerEvent), automatic)
+    val actor = context.owner()?.let(::Actor) ?: triggerEvent.actor
+    val hit = trigger.matchSelf(triggerEvent, actor, game) ?: return null
+    return FiredEffect(hit.modify(instruction), hit.count, actor, triggeredBy(triggerEvent), automatic)
   }
 
   fun onChangeToOther(triggerEvent: ChangeEvent, game: Game): FiredEffect? {
-    val hit = trigger.matchOther(triggerEvent, game) ?: return null
-    return FiredEffect(hit.modify(instruction), hit.count, triggeredBy(triggerEvent), automatic)
+    val actor = context.owner()?.let(::Actor) ?: triggerEvent.actor
+    val hit = trigger.matchOther(triggerEvent, actor, game) ?: return null
+    return FiredEffect(hit.modify(instruction), hit.count, actor, triggeredBy(triggerEvent), automatic)
   }
 
-  private fun triggeredBy(triggerEvent: ChangeEvent): Cause {
-    val actor = context.owner()?.let(::Actor) ?: triggerEvent.cause?.actor ?: Actor.ENGINE
-    return Cause(context, triggerEvent, actor)
+  private fun triggeredBy(triggerEvent: ChangeEvent): Cause { // TODO check
+    return Cause(context, triggerEvent)
   }
 
   data class FiredEffect(
       val instruction: Instruction,
       val multiplier: Int,
+      val actor: Actor,
       val cause: Cause,
       val automatic: Boolean,
   ) {

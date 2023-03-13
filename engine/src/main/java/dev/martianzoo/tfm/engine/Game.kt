@@ -4,13 +4,13 @@ import dev.martianzoo.tfm.api.GameSetup
 import dev.martianzoo.tfm.api.GameStateReader
 import dev.martianzoo.tfm.api.Type
 import dev.martianzoo.tfm.data.Actor
-import dev.martianzoo.tfm.data.LogEntry.ChangeEvent
-import dev.martianzoo.tfm.data.LogEntry.ChangeEvent.Cause
-import dev.martianzoo.tfm.data.LogEntry.TaskAddedEvent
-import dev.martianzoo.tfm.data.LogEntry.TaskRemovedEvent
-import dev.martianzoo.tfm.data.LogEntry.TaskReplacedEvent
+import dev.martianzoo.tfm.data.GameEvent.ChangeEvent
+import dev.martianzoo.tfm.data.GameEvent.ChangeEvent.Cause
+import dev.martianzoo.tfm.data.GameEvent.TaskAddedEvent
+import dev.martianzoo.tfm.data.GameEvent.TaskRemovedEvent
+import dev.martianzoo.tfm.data.GameEvent.TaskReplacedEvent
 import dev.martianzoo.tfm.data.Task.TaskId
-import dev.martianzoo.tfm.engine.GameLog.Checkpoint
+import dev.martianzoo.tfm.engine.EventLog.Checkpoint
 import dev.martianzoo.tfm.engine.SingleExecution.ExecutionResult
 import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.pets.ast.Instruction
@@ -35,7 +35,7 @@ public class Game(val setup: GameSetup, public val loader: MClassLoader) {
 
   // PROPERTIES
 
-  public val gameLog = GameLog()
+  public val eventLog = EventLog()
 
   public val components = ComponentGraph()
 
@@ -95,7 +95,15 @@ public class Game(val setup: GameSetup, public val loader: MClassLoader) {
 
   // EXECUTION
 
-  // secret state change w/o triggers TODO
+  fun executeWithoutEffects(instruction: Instruction, actor: Actor): ExecutionResult {
+    val checkpoint = eventLog.checkpoint()
+    split(instruction).forEach {
+      SingleExecution(this, actor, doEffects = false).initiateAtomic(it, initialCause = null)
+    }
+    return eventLog.resultsSince(checkpoint, fullSuccess = true).also {
+      require(it.newTaskIdsAdded.none())
+    }
+  }
 
   /**
    * Attempts to carry out the entirety of [instruction] "by fiat" or "out of the blue", plus any
@@ -104,7 +112,7 @@ public class Game(val setup: GameSetup, public val loader: MClassLoader) {
    * will be left in the task queue. No other changes to the task queue will happen (for example,
    * existing tasks are left alone, and [instruction] itself is never left enqueued.
    *
-   * @param [instruction] any instruction to be performed as-is (no transformations will be applied)
+   * @param [instruction] an instruction to be performed as-is (no transformations will be applied)
    * @param [actor] the instruction will be executed as if by this player (or GAME); in particular,
    *   if unowned components are created that have `This:` triggers, this is who will own those
    *   resulting tasks.
@@ -114,52 +122,27 @@ public class Game(val setup: GameSetup, public val loader: MClassLoader) {
   fun initiate(
       instruction: Instruction,
       actor: Actor,
-      fakeCause: Cause? = null,
+      fakeCause: Cause?,
   ): ExecutionResult {
-    if (fakeCause != null) {
-      require(fakeCause.actor == actor)
-    }
+    val checkpoint = eventLog.checkpoint()
 
-    val checkpoint = gameLog.checkpoint()
-
-    // first split the instruction and enqueue all the tasks (?)
-    val events = taskQueue.addTasks(instruction, actor, fakeCause)
-
+    val instructions = split(instruction)
     val results =
-        events.map {
-          val result = SingleExecution(this).doOneTaskAtomic(it.task.id, false)
-          if (result.fullSuccess) {
-            taskQueue.removeTask(it.task.id)
-          }
-          result
+        instructions.map {
+          SingleExecution(this, actor).initiateAtomic(it, fakeCause)
         }
-    return gameLog.resultsSince(checkpoint, results.all { it.fullSuccess })
+    return eventLog.resultsSince(checkpoint, results.all { it.fullSuccess })
   }
 
-  fun doIgnoringEffects(
-      instruction: Instruction,
-      actor: Actor,
-      fakeCause: Cause? = null,
-  ): ExecutionResult {
-    if (fakeCause != null) require(fakeCause.actor == actor)
-    val checkpoint = gameLog.checkpoint()
-    split(instruction).forEach {
-      SingleExecution(this, doEffects = false).initiateAtomic(it, fakeCause)
-    }
-    return gameLog.resultsSince(checkpoint, fullSuccess = true).also {
-      require(it.newTaskIdsAdded.none())
-    }
-  }
-
-  fun doOneExistingTask(id: TaskId, narrowed: Instruction? = null): ExecutionResult {
-    val result = SingleExecution(this).doOneTaskAtomic(id, true, narrowed)
+  fun doOneExistingTask(id: TaskId, actor: Actor, narrowed: Instruction? = null): ExecutionResult {
+    val result = SingleExecution(this, actor).doOneTaskAtomic(id, true, narrowed)
     require(result.fullSuccess) // should be redundant
     taskQueue.removeTask(id)
     return result
   }
 
-  fun tryOneExistingTask(id: TaskId, narrowed: Instruction? = null): ExecutionResult {
-    val result = SingleExecution(this).doOneTaskAtomic(id, false, narrowed)
+  fun tryOneExistingTask(id: TaskId, actor: Actor, narrowed: Instruction? = null): ExecutionResult {
+    val result = SingleExecution(this, actor).doOneTaskAtomic(id, false, narrowed)
     if (result.fullSuccess) taskQueue.removeTask(id)
     return result
   }
@@ -169,15 +152,15 @@ public class Game(val setup: GameSetup, public val loader: MClassLoader) {
   public fun rollBack(checkpoint: Checkpoint) {
     // game?
     val ordinal = checkpoint.ordinal
-    require(ordinal <= gameLog.size)
-    if (ordinal == gameLog.size) return
-    val subList = gameLog.logEntries.subList(ordinal, gameLog.size)
+    require(ordinal <= eventLog.size)
+    if (ordinal == eventLog.size) return
+    val subList = eventLog.events.subList(ordinal, eventLog.size)
     for (entry in subList.asReversed()) {
       when (entry) {
         is TaskAddedEvent -> taskQueue.taskMap.remove(entry.task.id)
         is TaskRemovedEvent -> taskQueue.taskMap[entry.task.id] = entry.task
         is TaskReplacedEvent ->
-          require(taskQueue.taskMap.put(entry.id, entry.oldTask) == entry.newTask)
+          require(taskQueue.taskMap.put(entry.task.id, entry.oldTask) == entry.task)
 
         is ChangeEvent -> {
           val change = entry.change

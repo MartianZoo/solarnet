@@ -2,14 +2,13 @@ package dev.martianzoo.tfm.repl
 
 import dev.martianzoo.tfm.api.GameSetup
 import dev.martianzoo.tfm.api.SpecialClassNames.ANYONE
-import dev.martianzoo.tfm.api.SpecialClassNames.GAME
 import dev.martianzoo.tfm.data.Actor
-import dev.martianzoo.tfm.data.LogEntry.ChangeEvent.Cause
+import dev.martianzoo.tfm.data.Actor.Companion.ENGINE
 import dev.martianzoo.tfm.data.Task.TaskId
 import dev.martianzoo.tfm.engine.Component
 import dev.martianzoo.tfm.engine.Engine
+import dev.martianzoo.tfm.engine.EventLog.Checkpoint
 import dev.martianzoo.tfm.engine.Game
-import dev.martianzoo.tfm.engine.GameLog.Checkpoint
 import dev.martianzoo.tfm.engine.SingleExecution.ExecutionResult
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.Expression
@@ -37,11 +36,12 @@ class InteractiveSession {
     internal set
   internal var gameNumber: Int = 0
   internal var defaultPlayer: ClassName? = null
+  internal var actor: Actor = ENGINE
   internal var start: Checkpoint = Checkpoint(0) // will be overwritten
 
   fun newGame(setup: GameSetup) {
     game = Engine.newGame(setup)
-    start = game!!.gameLog.checkpoint()
+    start = game!!.eventLog.checkpoint()
     gameNumber++
     becomeNoOne()
   }
@@ -51,10 +51,12 @@ class InteractiveSession {
     require(!p.abstract)
     require(p.isSubtypeOf(game!!.resolve(ANYONE.expr)))
     defaultPlayer = p.mclass.className
+    actor = Actor(p.mclass.className)
   }
 
   fun becomeNoOne() {
     defaultPlayer = null
+    actor = ENGINE
   }
 
   // QUERIES
@@ -86,16 +88,11 @@ class InteractiveSession {
 
   // EXECUTION
 
-  fun doIgnoringEffects(instruction: Instruction): ExecutionResult {
-    val context = defaultPlayer ?: GAME
-    val cause = Cause(context.expr, null, Actor(context)) // TODO
-    return game!!.initiate(prep(instruction), Actor(context), cause)
-  }
+  fun doIgnoringEffects(instruction: Instruction) =
+      game!!.executeWithoutEffects(prep(instruction), actor)
 
   fun initiateAndQueue(instruction: Instruction): ExecutionResult {
-    val context = defaultPlayer ?: GAME
-    val cause = Cause(context.expr, null, Actor(context)) // TODO
-    return game!!.initiate(prep(instruction), Actor(context), cause)
+    return game!!.initiate(prep(instruction), actor, fakeCause = null)
   }
 
   fun initiateAndAutoExec(
@@ -103,17 +100,16 @@ class InteractiveSession {
       requireFullSuccess: Boolean = true,
   ): ExecutionResult {
     val ins = prep(instruction)
-    val checkpoint = game!!.gameLog.checkpoint()
-    val context = defaultPlayer ?: GAME
-    val actor = Actor(context)
-    val cause = Cause(context.expr, null, actor) // TODO
-    val ids: List<TaskId> = game!!.taskQueue.addTasks(ins, actor, cause).map { it.task.id }
-    val succ =
-        ids.all { doTaskAndAutoExec(it, requireFullSuccess = requireFullSuccess).fullSuccess }
-    return game!!.gameLog.resultsSince(checkpoint, succ)
+    val checkpoint = game!!.eventLog.checkpoint()
+    val result: ExecutionResult = game!!.initiate(ins, actor, fakeCause = null)
+    val success = // TODO easier??
+        result.newTaskIdsAdded.all {
+          doTaskAndAutoExec(it, requireFullSuccess = requireFullSuccess).fullSuccess
+        }
+    return game!!.eventLog.resultsSince(checkpoint, success)
   }
 
-  fun doTaskOnly(taskId: TaskId) = game!!.doOneExistingTask(taskId)
+  fun doTaskOnly(taskId: TaskId) = game!!.doOneExistingTask(taskId, actor)
 
   fun doTaskAndAutoExec(
       initialTaskId: TaskId,
@@ -121,14 +117,14 @@ class InteractiveSession {
       requireFullSuccess: Boolean = false,
   ): ExecutionResult {
     val taskIdsToAutoExec: ArrayDeque<TaskId> = ArrayDeque()
-    val checkpoint = game!!.gameLog.checkpoint()
+    val checkpoint = game!!.eventLog.checkpoint()
     var success = true
 
     fun doTask(initialTaskId: TaskId, narrowedInstruction: Instruction? = null) =
         if (requireFullSuccess) {
-          game!!.doOneExistingTask(initialTaskId, narrowedInstruction)
+          game!!.doOneExistingTask(initialTaskId, actor, narrowedInstruction)
         } else {
-          game!!.tryOneExistingTask(initialTaskId, narrowedInstruction).also {
+          game!!.tryOneExistingTask(initialTaskId, actor, narrowedInstruction).also {
             success = success && it.fullSuccess
           }
         }
@@ -142,7 +138,7 @@ class InteractiveSession {
       taskIdsToAutoExec += results.newTaskIdsAdded - thisTaskId // TODO better
     }
 
-    return game!!.gameLog.resultsSince(checkpoint, success)
+    return game!!.eventLog.resultsSince(checkpoint, success)
   }
 
   // OTHER
@@ -154,12 +150,12 @@ class InteractiveSession {
   fun <P : PetNode> prep(node: P): P {
     val loader = game!!.loader
     return CompositeTransformer(
-        ReplaceShortNames(loader),
-        InsertDefaults(loader),
-        ReplaceOwnerWith(defaultPlayer),
-        Deprodify(loader),
-        // not needed: ReplaceThisWith, FixEffectForUnownedContext
-    )
+            ReplaceShortNames(loader),
+            InsertDefaults(loader),
+            ReplaceOwnerWith(defaultPlayer),
+            Deprodify(loader),
+            // not needed: ReplaceThisWith, FixEffectForUnownedContext
+        )
         .transform(node)
   }
 }

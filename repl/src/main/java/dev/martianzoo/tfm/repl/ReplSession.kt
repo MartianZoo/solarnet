@@ -5,6 +5,7 @@ import dev.martianzoo.tfm.api.GameSetup
 import dev.martianzoo.tfm.api.SpecialClassNames.COMPONENT
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.data.Task
+import dev.martianzoo.tfm.data.Task.TaskId
 import dev.martianzoo.tfm.engine.SingleExecution.ExecutionResult
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
@@ -189,17 +190,7 @@ public class ReplSession(private val authority: Authority, val jline: JlineRepl?
                     else -> TODO()
                   }
 
-              val oops: List<Task> =
-                  changes.newTaskIdsAdded.map { session.game!!.taskQueue.get(it) }
-
-              val changeLines = changes.changes.toStrings().ifEmpty { listOf("No changes made") }
-              val taskLines =
-                  if (oops.any()) {
-                    listOf("", "There are new pending tasks:") + oops.toStrings()
-                  } else {
-                    listOf()
-                  }
-              return changeLines + taskLines
+              return reportResults(changes)
             }
           },
           object : ReplCommand("tasks") {
@@ -208,33 +199,38 @@ public class ReplSession(private val authority: Authority, val jline: JlineRepl?
               return session.game!!.taskQueue.toStrings()
             }
           },
-          // object : ReplCommand("task") {
-          //   override val usage = "task <id> [Instruction]"
-          //   override fun withArgs(args: String): List<String> {
-          //     val taskList = session.game!!.userTaskQueue
-          //
-          //     val split = Regex("\\s+").split(args, 2)
-          //     val idString = split.firstOrNull() ?: throw UsageException()
-          //     val id = idString[0]
-          //     val task = taskList[id] ?: throw UsageException("not a valid id: $idString")
-          //     val instruction =
-          //         if (split.size == 1 || split[1].isEmpty()) {
-          //           task.instruction
-          //         } else {
-          //           instruction(split[1])
-          //         }
-          //
-          //   }
-          // },
+          object : ReplCommand("task") {
+            override val usage = "task <id> [Instruction]"
+            override fun withArgs(args: String): List<String> {
+              val q = session.game!!.taskQueue
+
+              val split = Regex("\\s+").split(args, 2)
+              val idString = split.firstOrNull() ?: throw UsageException()
+              val id = TaskId(idString)
+              if (id !in q) throw UsageException("not a valid id: $idString")
+              val instruction =
+                  if (split.size > 1 && split[1].isNotEmpty()) {
+                    instruction(split[1])
+                  } else {
+                    null
+                  }
+              val result: ExecutionResult = when (mode) {
+                YELLOW -> session.doTaskAndAutoExec(id, instruction, requireFullSuccess = false)
+                GREEN -> session.doTaskOnly(id)
+                else -> TODO()
+              }
+              return reportResults(result)
+            }
+          },
           object : ReplCommand("log") {
             override val usage = "log [full]"
 
             // TODO filter it
-            override fun noArgs() = session.game!!.gameLog.changesSince(session.start).toStrings()
+            override fun noArgs() = session.game!!.eventLog.changesSince(session.start).toStrings()
 
             override fun withArgs(args: String): List<String> {
               if (args == "full") {
-                return session.game!!.gameLog.logEntries.toStrings()
+                return session.game!!.eventLog.events.toStrings()
               } else {
                 throw UsageException()
               }
@@ -272,10 +268,29 @@ public class ReplSession(private val authority: Authority, val jline: JlineRepl?
             override val usage = "desc <Expression>"
 
             override fun withArgs(args: String): List<String> {
-              val expression = expression(args)
+              val expression = if (args == "random") {
+                val randomClass = session.game!!.loader.allClasses.random()
+                randomClass.baseType.concreteSubtypesSameClass().toList().random().expression
+              } else {
+                expression(args)
+              }
               return listOf(MTypeToText.describe(expression, session.game!!.loader))
             }
           })
+
+  private fun reportResults(changes: ExecutionResult): List<String> {
+    val oops: List<Task> =
+        changes.newTaskIdsAdded.map { session.game!!.taskQueue[it] }
+
+    val changeLines = changes.changes.toStrings().ifEmpty { listOf("No changes made") }
+    val taskLines =
+        if (oops.any()) {
+          listOf("", "There are new pending tasks:") + oops.toStrings()
+        } else {
+          listOf()
+        }
+    return changeLines + taskLines
+  }
 }
 
 private val helpText: String =

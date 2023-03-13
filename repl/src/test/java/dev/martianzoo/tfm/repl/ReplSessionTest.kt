@@ -14,22 +14,21 @@ private class ReplSessionTest {
     repl.command("mode yellow")
 
     // TODO deprodify these for the screen
-    val byFiat = "BY Player2 FOR Player2" // TODO fix
     assertThat(strip(repl.command("exec PROD[5, 4 Energy]")))
         .containsExactly(
-            "5 Production<Player2, Class<Megacredit>> $byFiat",
-            "4 Production<Player2, Class<Energy>> $byFiat",
+            "5 Production<Player2, Class<Megacredit>> FOR Player2 (by fiat)",
+            "4 Production<Player2, Class<Energy>> FOR Player2 (by fiat)",
         )
-    val byCard = "BY StripMine<Player2> FOR Player2"
+    val byCard = "FOR Player2 BY StripMine<Player2>"
     assertThat(strip(repl.command("exec StripMine")))
         .containsExactly(
-            "1 StripMine<Player2> $byFiat",
+            "1 StripMine<Player2> FOR Player2 (by fiat)",
             "1 BuildingTag<Player2, StripMine<Player2>> $byCard",
             "-2 Production<Player2, Class<Energy>> $byCard",
             "2 Production<Player2, Class<Steel>> $byCard",
             "1 Production<Player2, Class<Titanium>> $byCard",
             "2 OxygenStep $byCard",
-            "2 TerraformRating<Player2> BY OxygenStep FOR Player2",
+            "2 TerraformRating<Player2> FOR Player2 BY OxygenStep",
         )
 
     val check1 = "has PROD[=2 Energy, =2 Steel]"

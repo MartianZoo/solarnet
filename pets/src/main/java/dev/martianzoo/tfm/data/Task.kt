@@ -1,22 +1,43 @@
 package dev.martianzoo.tfm.data
 
-import dev.martianzoo.tfm.data.LogEntry.ChangeEvent.Cause
+import dev.martianzoo.tfm.data.GameEvent.ChangeEvent.Cause
 import dev.martianzoo.tfm.pets.ast.Instruction
 import dev.martianzoo.tfm.pets.ast.Instruction.Multi
 import dev.martianzoo.util.wrap
 
-data class Task(
+data class Task constructor(
+    /**
+     * Identifies this task within a game at a particular point in time. These do get reused (for
+     * user convenience) but of course no two have the same id at the same time.
+     */
     val id: TaskId,
+
+    /**
+     * Might be abstract. If so, when actually performing the task a reification of
+     * the instruction must be specified.
+     */
     val instruction: Instruction,
-    val owner: Actor,
-    val cause: Cause? = null,
+
+    /** The player this task is waiting on -- think of there being N+1 separate queues. */
+    val actor: Actor,
+
+    /**
+     * Why was this task born? If there's no reason, this *probably* never needed to be a Task at
+     * all (but it can happen).
+     */
+    val cause: Cause?,
+
+    /**
+     * Why is the task still here? Often an error message. null probably means "because you
+     * weren't in autoexec mode" I guess.
+     */
     val whyPending: String? = null,
 ) {
   init {
     require(instruction !is Multi) { "should have been split up" }
   }
 
-  override fun toString() = "$id: [$owner] $instruction${whyPending.wrap(" (", ")")}"
+  override fun toString() = "$id: [$actor] $instruction${whyPending.wrap(" (", ")")}"
 
   data class TaskId(val s: String) : Comparable<TaskId> {
     init {

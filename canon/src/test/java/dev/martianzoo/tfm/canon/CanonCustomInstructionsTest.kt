@@ -12,6 +12,8 @@ private class CanonCustomInstructionsTest {
     val repl = ReplSession(Canon)
     repl.command("newgame BM 3")
     repl.command("become Player1")
+    repl.command("mode yellow")
+
     repl.command("exec PROD[Steel, Titanium, Plant, Energy, Heat]")
     repl.command("exec @gainLowestProduction(Player1)")
     // TODO PROD metrics
@@ -31,10 +33,8 @@ private class CanonCustomInstructionsTest {
 
     // TODO make better
     assertThat(repl.command("tasks")).containsExactly("A: [Player1]" +
-        " @gainLowestProduction(Player1)" +
-        " (OR instructions are abstract:" +
-        " Production<Player1, Class<Megacredit>>! OR" +
-        " Production<Player1, Class<Energy>>!)")
+        " Production<Player1, Class<Megacredit>>! OR Production<Player1, Class<Energy>>!" +
+        " (An OR instruction must be reified (i.e., pick one))")
   }
 
   @Test

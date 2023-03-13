@@ -176,6 +176,6 @@ ABSTRACT CLASS Owned<Anyone> {
   CLASS GrossHack : System {
     HAS =1 This
     This:: PROD[5]
-    ProductionPhase: -5
+    ProductionPhase: -5!
   }
 }

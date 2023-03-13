@@ -1,6 +1,7 @@
 package dev.martianzoo.tfm.repl
 
 import kotlin.io.path.Path
+import kotlin.system.exitProcess
 import org.jline.reader.EndOfFileException
 import org.jline.reader.LineReader
 import org.jline.reader.LineReaderBuilder
@@ -50,6 +51,10 @@ public class JlineRepl {
 
       when (inputLine.trim()) {
         "exit" -> return end()
+        "restart" -> {
+          end()
+          exitProcess(5)
+        }
         else ->
             try {
               handler(inputLine).forEach(::println)

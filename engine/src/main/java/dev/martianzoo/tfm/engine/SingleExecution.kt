@@ -5,8 +5,9 @@ import dev.martianzoo.tfm.api.GameStateWriter
 import dev.martianzoo.tfm.api.SpecialClassNames.DIE
 import dev.martianzoo.tfm.api.SpecialClassNames.OK
 import dev.martianzoo.tfm.api.Type
-import dev.martianzoo.tfm.data.LogEntry.ChangeEvent
-import dev.martianzoo.tfm.data.LogEntry.ChangeEvent.Cause
+import dev.martianzoo.tfm.data.Actor
+import dev.martianzoo.tfm.data.GameEvent.ChangeEvent
+import dev.martianzoo.tfm.data.GameEvent.ChangeEvent.Cause
 import dev.martianzoo.tfm.data.Task
 import dev.martianzoo.tfm.data.Task.TaskId
 import dev.martianzoo.tfm.engine.ActiveEffect.FiredEffect
@@ -15,6 +16,7 @@ import dev.martianzoo.tfm.engine.Exceptions.RequirementException
 import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.pets.ast.Instruction
 import dev.martianzoo.tfm.pets.ast.Instruction.Change
+import dev.martianzoo.tfm.pets.ast.Instruction.Companion.split
 import dev.martianzoo.tfm.pets.ast.Instruction.Custom
 import dev.martianzoo.tfm.pets.ast.Instruction.Gated
 import dev.martianzoo.tfm.pets.ast.Instruction.Intensity.AMAP
@@ -37,25 +39,25 @@ import dev.martianzoo.util.toSetStrict
  * atomicity. It writes both components and tasks directly into the game state, then verifies
  * invariants (TODO), and returns the log entries that were generated.
  */
-class SingleExecution(val game: Game, val doEffects: Boolean = true) {
+class SingleExecution(val game: Game, val actor: Actor, val doEffects: Boolean = true) {
   // Our internal tasks don't have much relation with Task
   data class InternalTask(val instruction: Instruction, val cause: Cause?)
 
-  private val internalTaskQueue = ArrayDeque<InternalTask>()
+  private val automaticTasks = ArrayDeque<InternalTask>()
 
   var spent = false
 
   fun initiateAtomic(
       instruction: Instruction,
-      cause: Cause?,
+      initialCause: Cause?,
   ): ExecutionResult {
     require(!spent)
     spent = true
 
-    internalTaskQueue += InternalTask(instruction, cause)
     return doAtomic {
-      while (internalTaskQueue.any()) {
-        val autoTask = internalTaskQueue.removeFirst()
+      doOneInstruction(instruction, cause = initialCause, 1)
+      while (automaticTasks.any()) {
+        val autoTask = automaticTasks.removeFirst()
         doOneInstruction(autoTask.instruction, autoTask.cause, 1)
       }
     }
@@ -70,36 +72,41 @@ class SingleExecution(val game: Game, val doEffects: Boolean = true) {
     spent = true
 
     val requestedTask: Task = game.taskQueue[taskId]
+    require(requestedTask.actor == actor)
 
     // check narrowing TODO
     val instruction = narrowedInstruction ?: requestedTask.instruction
-    internalTaskQueue += InternalTask(instruction, requestedTask.cause)
+    automaticTasks += InternalTask(instruction, requestedTask.cause)
 
     return try {
       doAtomic {
-        while (internalTaskQueue.any()) {
-          val autoTask = internalTaskQueue.removeFirst()
+        while (automaticTasks.any()) {
+          val autoTask = automaticTasks.removeFirst()
           doOneInstruction(autoTask.instruction, autoTask.cause, 1)
         }
       }
     } catch (e: Exception) {
-      if (requireSuccess || isProgrammerError(e)) throw e
-
-      val taskWithExplanation = requestedTask.copy(whyPending = e.message)
-      game.taskQueue.replaceTask(taskWithExplanation)
-      ExecutionResult(listOf(), setOf(taskWithExplanation.id), fullSuccess = false)
+      if (requireSuccess) throw e
+      handleFailure(e, requestedTask)
+      ExecutionResult(listOf(), setOf(requestedTask.id), fullSuccess = false)
     }
   }
 
+  private fun handleFailure(e: Exception, requestedTask: Task) {
+    if (isProgrammerError(e)) throw e
+    val taskWithExplanation = requestedTask.copy(whyPending = e.message)
+    game.taskQueue.replaceTask(taskWithExplanation)
+  }
+
   private fun doAtomic(block: () -> Unit): ExecutionResult {
-    val checkpoint = game.gameLog.checkpoint()
+    val checkpoint = game.eventLog.checkpoint()
     try {
       block()
     } catch (e: Exception) {
       game.rollBack(checkpoint)
       throw e
     }
-    return game.gameLog.resultsSince(checkpoint, fullSuccess = true)
+    return game.eventLog.resultsSince(checkpoint, fullSuccess = true)
   }
 
   data class ExecutionResult
@@ -127,7 +134,7 @@ class SingleExecution(val game: Game, val doEffects: Boolean = true) {
   ) {
     if (handleSpecialTypes(gaining, removing, amap)) return
     val change = game.components.applySingleChange(count, gaining, removing, amap) ?: return
-    val event = game.gameLog.addChangeEvent(change, cause)
+    val event = game.eventLog.addChangeEvent(change, actor, cause)
     if (doEffects) fireTriggers(event)
   }
 
@@ -163,10 +170,10 @@ class SingleExecution(val game: Game, val doEffects: Boolean = true) {
     val (now, later) = (firedSelfEffects + firedOtherEffects).partition { it.automatic }
 
     // TODO always add to beginning of queue? why not just recurse?
-    internalTaskQueue.addAll(0, now.map { InternalTask(it.scaledInstruction(), it.cause) })
+    automaticTasks.addAll(0, now.map { InternalTask(it.scaledInstruction(), it.cause) })
 
     later.forEach {
-      game.taskQueue.addTasks(it.scaledInstruction(), it.cause.actor!!, it.cause) // TODO
+      game.taskQueue.addTasks(it.scaledInstruction(), it.actor, it.cause) // TODO
     }
   }
 
@@ -186,7 +193,7 @@ class SingleExecution(val game: Game, val doEffects: Boolean = true) {
 
   private fun toComponent(type: Type?) = type?.let { Component.ofType(game.loader.resolve(it)) }
 
-  fun doOneInstruction(instr: Instruction, cause: Cause?, multiplier: Int) {
+  private fun doOneInstruction(instr: Instruction, cause: Cause?, multiplier: Int) {
     if (multiplier == 0) return
     require(multiplier > 0)
 
@@ -199,7 +206,6 @@ class SingleExecution(val game: Game, val doEffects: Boolean = true) {
             amap = isAmap(instr),
             cause = cause)
       }
-
       is Per -> doOneInstruction(instr.instruction, cause, game.count(instr.metric) * multiplier)
       is Gated -> {
         if (game.evaluate(instr.gate)) {
@@ -208,7 +214,6 @@ class SingleExecution(val game: Game, val doEffects: Boolean = true) {
           throw RequirementException("Requirement not met: ${instr.gate}")
         } // else just do nothing
       }
-
       is Custom -> handleCustomInstruction(instr, cause)
       is Then -> instr.instructions.forEach { doOneInstruction(it, cause, multiplier) }
       is Or -> throw AbstractInstructionException(instr)
@@ -220,9 +225,7 @@ class SingleExecution(val game: Game, val doEffects: Boolean = true) {
   private fun isAmap(instr: Change) =
       when (instr.intensity) {
         OPTIONAL,
-        null,
-        -> throw AbstractInstructionException(instr, instr.intensity)
-
+        null, -> throw AbstractInstructionException(instr.intensity)
         MANDATORY -> false
         AMAP -> true
       }
@@ -240,7 +243,15 @@ class SingleExecution(val game: Game, val doEffects: Boolean = true) {
               Deprodify(game.loader),
               // Not needed: ReplaceThisWith, ReplaceOwnerWith, FixUnownedEffect
           )
-      doOneInstruction(xer.transform(translated), cause, 1)
+      val split = split(xer.transform(translated))
+      split.forEach {
+        try {
+          doAtomic { doOneInstruction(it, cause, 1) }
+        } catch (e: Exception) {
+          if (isProgrammerError(e)) throw e
+          game.taskQueue.addTasks(it, actor, cause, e.message)
+        }
+      }
     } catch (e: ExecuteInsteadException) {
       // this custom fn chose to override execute() instead of translate()
       custom.execute(game.reader, writer, arguments)

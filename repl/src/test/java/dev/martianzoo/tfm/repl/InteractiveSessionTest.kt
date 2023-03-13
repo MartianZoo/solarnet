@@ -74,7 +74,7 @@ private class InteractiveSessionTest {
     session.initiateAndQueue(instruction("4 Heat"))
     assertThat(session.count(metric("Heat"))).isEqualTo(7)
 
-    val checkpoint = session.game!!.gameLog.checkpoint()
+    val checkpoint = session.game!!.eventLog.checkpoint()
     session.initiateAndQueue(instruction("-6 Heat"))
     assertThat(session.count(metric("Heat"))).isEqualTo(1)
 

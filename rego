@@ -1,4 +1,11 @@
 #!/bin/sh
 cd `dirname $0`
-./gradlew :repl:shadowJar && java -jar repl/build/libs/repl-all.jar
+
+thing=5
+while [ "$thing" == "5" ]
+do
+    ./gradlew :repl:shadowJar || exit
+    java -jar repl/build/libs/repl-all.jar
+    thing="$?"
+done
 

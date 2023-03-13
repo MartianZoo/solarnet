@@ -5,6 +5,7 @@ import dev.martianzoo.tfm.api.GameSetup
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.data.Actor
 import dev.martianzoo.tfm.data.StateChange
+import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.pets.ast.Expression.Companion.expression
 import dev.martianzoo.tfm.pets.ast.Instruction.Companion.instruction
 import dev.martianzoo.tfm.pets.ast.Metric.Companion.metric
@@ -14,14 +15,14 @@ import org.junit.jupiter.api.Test
 
 private class GameApiTest {
   fun Game.count(s: String) = count(metric(s))
-  fun Game.execute(s: String) = initiate(instruction(s), Actor.ENGINE)
+  fun Game.execute(s: String) = initiate(instruction(s), Actor(cn("Player2")), fakeCause = null)
   fun Game.evaluate(s: String) = evaluate(requirement(s))
 
   @Test
   fun basicByApi() {
     val game = Engine.newGame(GameSetup(Canon, "BM", 3))
 
-    val checkpoint = game.gameLog.checkpoint()
+    val checkpoint = game.eventLog.checkpoint()
     assertThat(game.count("Heat")).isEqualTo(0)
 
     game.execute("5 Heat<Player2>!")
@@ -45,7 +46,7 @@ private class GameApiTest {
     assertThat(game.evaluate("=3 Heat<Player2>")).isTrue()
     assertThat(game.evaluate("=5 Heat<Player3>")).isTrue()
 
-    val changes = game.gameLog.changesSince(checkpoint)
+    val changes = game.eventLog.changesSince(checkpoint)
     assertThat(changes.map { it.change })
         .containsExactly(
             StateChange(5, gaining = te("Heat<Player2>")),
@@ -58,11 +59,11 @@ private class GameApiTest {
 
     assertThat(strip(changes.toStrings().map { it.replace(Regex("^\\d+"), "") }))
         .containsExactly(
-            ": 5 Heat<Player2> (by fiat)",
-            ": 10 Heat<Player3> (by fiat)",
-            ": -4 Heat<Player2> (by fiat)",
-            ": 3 Steel<Player3> FROM Heat<Player3> (by fiat)",
-            ": 2 Heat<Player2> FROM Heat<Player3> (by fiat)",
+            ": 5 Heat<Player2> FOR Player2 (by fiat)",
+            ": 10 Heat<Player3> FOR Player2 (by fiat)",
+            ": -4 Heat<Player2> FOR Player2 (by fiat)",
+            ": 3 Steel<Player3> FROM Heat<Player3> FOR Player2 (by fiat)",
+            ": 2 Heat<Player2> FROM Heat<Player3> FOR Player2 (by fiat)",
         )
         .inOrder()
   }
