@@ -46,11 +46,12 @@ public data class Component private constructor(val mtype: MType) : HasExpressio
    */
   public val effects: List<Effect> by lazy {
     // do the ones classEffects didn't
-    val transformer = CompositeTransformer(
-        Deprodify(mtype.loader),
-        ReplaceThisWith(mtype.expression),
-        ReplaceOwnerWith(owner()),
-    )
+    val transformer =
+        CompositeTransformer(
+            Deprodify(mtype.loader),
+            ReplaceThisWith(mtype.expression),
+            ReplaceOwnerWith(owner()),
+        )
 
     mtype.mclass.classEffects.map { decl ->
       // Transform for some "linkages" (TODO the rest, and do in more principled way)
@@ -58,9 +59,7 @@ public data class Component private constructor(val mtype: MType) : HasExpressio
     }
   }
 
-  val activeEffects: List<ActiveEffect> by lazy {
-    effects.map { ActiveEffect.from(it, this) }
-  }
+  val activeEffects: List<ActiveEffect> by lazy { effects.map { ActiveEffect.from(it, this) } }
 
   public fun owner(): ClassName? = mtype.dependencies.getIfPresent(Key(OWNED, 0))?.className
 

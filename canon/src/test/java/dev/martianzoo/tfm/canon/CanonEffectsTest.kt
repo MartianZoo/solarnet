@@ -135,10 +135,10 @@ private class CanonEffectsTest {
 
   @Test
   fun floaterPrototypes() {
-    assertThat(effectsOf("FloaterPrototypes")).containsExactly(
-        "This:: ScienceTag<Owner, FloaterPrototypes<Owner>>!", // TODO double colon?
-        "This: PlayedEvent<Owner, Class<This>> FROM This", // TODO why this didn't get subst
-        "This: 2 Floater<Owner>."
-    )
+    assertThat(effectsOf("FloaterPrototypes"))
+        .containsExactly(
+            "This:: ScienceTag<Owner, FloaterPrototypes<Owner>>!", // TODO double colon?
+            "This: PlayedEvent<Owner, Class<This>> FROM This", // TODO why this didn't get subst
+            "This: 2 Floater<Owner>.")
   }
 }

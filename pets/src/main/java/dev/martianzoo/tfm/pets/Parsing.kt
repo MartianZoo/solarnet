@@ -92,9 +92,10 @@ public object Parsing {
     return try {
       parser.parseToEnd(tokens)
     } catch (e: Exception) {
-      val tokenStream = tokens
-          .filterNot { it.type.ignored }
-          .joinToString(" ") { it.type.name?.replace("\n", "\\n") ?: "NULL" }
+      val tokenStream =
+          tokens
+              .filterNot { it.type.ignored }
+              .joinToString(" ") { it.type.name?.replace("\n", "\\n") ?: "NULL" }
 
       throw IllegalArgumentException("input was:\n$source\n\ntoken stream: $tokenStream")
     }

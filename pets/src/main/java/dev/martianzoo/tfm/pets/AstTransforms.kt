@@ -83,18 +83,20 @@ public object AstTransforms {
             val rewritten: PetNode =
                 when {
                   node is Multi -> {
-                    val badIndex = node.instructions.indexOfFirst {
-                      it is Instruction.Transform &&
-                          it.transformKind == "PROD" &&
-                          it.instruction is Multi
-                    }
+                    val badIndex =
+                        node.instructions.indexOfFirst {
+                          it is Instruction.Transform &&
+                              it.transformKind == "PROD" &&
+                              it.instruction is Multi
+                        }
                     val xed = transformChildren(node)
                     if (badIndex == -1) {
                       xed
                     } else {
-                      Multi.create(xed.instructions.subList(0, badIndex) +
-                          (xed.instructions[badIndex] as Multi).instructions +
-                          xed.instructions.subList(badIndex + 1, xed.instructions.size))!!
+                      Multi.create(
+                          xed.instructions.subList(0, badIndex) +
+                              (xed.instructions[badIndex] as Multi).instructions +
+                              xed.instructions.subList(badIndex + 1, xed.instructions.size))!!
                     }
                   }
                   node is GenericTransform<*> && node.transformKind == "PROD" -> {

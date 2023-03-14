@@ -41,6 +41,4 @@ enum class TfmColor(val hexString: String) {
         .style(AttributedStyle.DEFAULT)
         .toAnsi()
   }
-
-
 }

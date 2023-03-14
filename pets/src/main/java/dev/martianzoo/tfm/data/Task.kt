@@ -5,7 +5,8 @@ import dev.martianzoo.tfm.pets.ast.Instruction
 import dev.martianzoo.tfm.pets.ast.Instruction.Multi
 import dev.martianzoo.util.wrap
 
-data class Task constructor(
+data class Task
+constructor(
     /**
      * Identifies this task within a game at a particular point in time. These do get reused (for
      * user convenience) but of course no two have the same id at the same time.
@@ -13,8 +14,8 @@ data class Task constructor(
     val id: TaskId,
 
     /**
-     * Might be abstract. If so, when actually performing the task a reification of
-     * the instruction must be specified.
+     * Might be abstract. If so, when actually performing the task a reification of the instruction
+     * must be specified.
      */
     val instruction: Instruction,
 
@@ -28,8 +29,8 @@ data class Task constructor(
     val cause: Cause?,
 
     /**
-     * Why is the task still here? Often an error message. null probably means "because you
-     * weren't in autoexec mode" I guess.
+     * Why is the task still here? Often an error message. null probably means "because you weren't
+     * in autoexec mode" I guess.
      */
     val whyPending: String? = null,
 ) {

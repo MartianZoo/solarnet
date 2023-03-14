@@ -178,13 +178,14 @@ internal constructor(
   public val directClassEffects: List<EffectDeclaration> by lazy {
     val thiss = className.refine(requirement(OK.toString()))
 
-    val transformer = CompositeTransformer(
-        UseFullNames(loader),
-        AtomizeGlobalParameterGains(loader),
-        InsertDefaults(loader, thiss),
-        FixEffectForUnownedContext(this),
-        // Not needed: ReplaceThisWith, ReplaceOwnerWith, Deprodify,
-    )
+    val transformer =
+        CompositeTransformer(
+            UseFullNames(loader),
+            AtomizeGlobalParameterGains(loader),
+            InsertDefaults(loader, thiss),
+            FixEffectForUnownedContext(this),
+            // Not needed: ReplaceThisWith, ReplaceOwnerWith, Deprodify,
+        )
     declaration.effects
         .map { it.copy(effect = transformer.transform(it.effect)) }
         .sortedBy { it.effect }

@@ -49,9 +49,10 @@ public object Engine {
   }
 
   fun singletonCreateInstructions(loader: MClassLoader): List<Instruction> {
-    val singletonTypes = loader.allClasses
-        .filter { it.hasSingletonTypes() }
-        .flatMap { it.baseType.concreteSubtypesSameClass() }
+    val singletonTypes =
+        loader.allClasses
+            .filter { it.hasSingletonTypes() }
+            .flatMap { it.baseType.concreteSubtypesSameClass() }
     return singletonTypes.map { instruction("${it.expressionFull}!") }
   }
 }

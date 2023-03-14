@@ -142,16 +142,18 @@ internal constructor(
 
     if (!this.abstract) throw InvalidReificationException("Already concrete, can't be reified")
 
-    if (!proposed.isSubtypeOf(this))
+    if (!proposed.isSubtypeOf(this)) {
       throw InvalidReificationException(
           "${proposed.expression} is not a subtype of ${expression}")
+    }
 
     val myPropConcSubs = allConcreteSubtypes().filterNot { it == proposed }
     // this gon be slowasfuck
     for (propConcSub in myPropConcSubs) {
       if (proposed.isSubtypeOf(propConcSub)) {
-        throw InvalidReificationException("A more general type such as ${propConcSub.expression}" +
-            " already reifies $expression; can't narrow even further")
+        throw InvalidReificationException(
+            "A more general type such as ${propConcSub.expression}" +
+                " already reifies $expression; can't narrow even further")
       }
     }
   }

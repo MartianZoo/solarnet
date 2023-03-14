@@ -154,13 +154,13 @@ class InteractiveSession {
     if (node == null) return node
     val loader = game!!.loader
     return CompositeTransformer(
-        UseFullNames(loader),
-        AtomizeGlobalParameterGains(loader),
-        InsertDefaults(loader),
-        ReplaceOwnerWith(defaultPlayer),
-        Deprodify(loader),
-        // not needed: ReplaceThisWith, FixEffectForUnownedContext
-    )
+            UseFullNames(loader),
+            AtomizeGlobalParameterGains(loader),
+            InsertDefaults(loader),
+            ReplaceOwnerWith(defaultPlayer),
+            Deprodify(loader),
+            // not needed: ReplaceThisWith, FixEffectForUnownedContext
+        )
         .transform(node)
   }
 }

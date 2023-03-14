@@ -127,10 +127,7 @@ public class Game(val setup: GameSetup, public val loader: MClassLoader) {
     val checkpoint = eventLog.checkpoint()
 
     val instructions = split(instruction)
-    val results =
-        instructions.map {
-          SingleExecution(this, actor).initiateAtomic(it, fakeCause)
-        }
+    val results = instructions.map { SingleExecution(this, actor).initiateAtomic(it, fakeCause) }
     return eventLog.resultsSince(checkpoint, results.all { it.fullSuccess })
   }
 
@@ -160,8 +157,7 @@ public class Game(val setup: GameSetup, public val loader: MClassLoader) {
         is TaskAddedEvent -> taskQueue.taskMap.remove(entry.task.id)
         is TaskRemovedEvent -> taskQueue.taskMap[entry.task.id] = entry.task
         is TaskReplacedEvent ->
-          require(taskQueue.taskMap.put(entry.task.id, entry.oldTask) == entry.task)
-
+            require(taskQueue.taskMap.put(entry.task.id, entry.oldTask) == entry.task)
         is ChangeEvent -> {
           val change = entry.change
           components.updateMultiset(

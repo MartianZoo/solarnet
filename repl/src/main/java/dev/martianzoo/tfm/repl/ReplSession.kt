@@ -153,9 +153,7 @@ public class ReplSession(private val authority: Authority, val jline: JlineRepl?
               val expr = expression(args)
               val counts: Multiset<Expression> = session.list(expr)
               return listOf("Listing ${session.prep(expr)}...") +
-                  counts.entries
-                      .sortedByDescending { (_, ct) -> ct }
-                      .map { (e, ct) -> "$ct $e" }
+                  counts.entries.sortedByDescending { (_, ct) -> ct }.map { (e, ct) -> "$ct $e" }
             }
           },
           object : ReplCommand("board") {
@@ -196,16 +194,17 @@ public class ReplSession(private val authority: Authority, val jline: JlineRepl?
 
             override fun withArgs(args: String): List<String> {
               val instruction = instruction(args)
-              val changes: ExecutionResult = try {
-                when (mode) {
-                  RED -> session.doIgnoringEffects(instruction)
-                  YELLOW -> session.initiateAndQueue(instruction)
-                  GREEN -> session.initiateAndAutoExec(instruction, requireFullSuccess = false)
-                  else -> TODO()
-                }
-              } catch (e: UserException) {
-                return listOf(e.toString())
-              }
+              val changes: ExecutionResult =
+                  try {
+                    when (mode) {
+                      RED -> session.doIgnoringEffects(instruction)
+                      YELLOW -> session.initiateAndQueue(instruction)
+                      GREEN -> session.initiateAndAutoExec(instruction, requireFullSuccess = false)
+                      else -> TODO()
+                    }
+                  } catch (e: UserException) {
+                    return listOf(e.toString())
+                  }
 
               return reportResults(changes)
             }
@@ -231,15 +230,17 @@ public class ReplSession(private val authority: Authority, val jline: JlineRepl?
                   } else {
                     null
                   }
-              val result: ExecutionResult = try {
-                when (mode) {
-                  YELLOW -> session.doTaskOnly(id, instruction)
-                  GREEN -> session.doTaskAndAutoExec(id, instruction, requireFullSuccess = false)
-                  else -> TODO()
-                }
-              } catch (e: UserException) {
-                return listOf(e.toString())
-              }
+              val result: ExecutionResult =
+                  try {
+                    when (mode) {
+                      YELLOW -> session.doTaskOnly(id, instruction)
+                      GREEN ->
+                          session.doTaskAndAutoExec(id, instruction, requireFullSuccess = false)
+                      else -> TODO()
+                    }
+                  } catch (e: UserException) {
+                    return listOf(e.toString())
+                  }
               return reportResults(result)
             }
           },

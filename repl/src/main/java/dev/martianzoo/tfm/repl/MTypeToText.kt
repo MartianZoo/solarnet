@@ -72,11 +72,12 @@ object MTypeToText { // TODO refactor to ClassInfo / TypeInfo type dealies
           c. subtypes: $concSubs
     """.trimIndent()
 
-    val componentStuff = if (mtype.abstract) {
-      ""
-    } else {
-      val c = Component.ofType(mtype)
-      """
+    val componentStuff =
+        if (mtype.abstract) {
+          ""
+        } else {
+          val c = Component.ofType(mtype)
+          """
 
 
         Component $c:

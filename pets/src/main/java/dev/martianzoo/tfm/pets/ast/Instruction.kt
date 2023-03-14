@@ -153,10 +153,7 @@ public sealed class Instruction : PetNode() {
       when (instruction) {
         is Gain,
         is Remove,
-        is Transmute,
-        -> {
-        }
-
+        is Transmute, -> {}
         else -> throw PetException("Per can only contain gain/remove/transmute") // TODO more
       }
     }
@@ -344,8 +341,7 @@ public sealed class Instruction : PetNode() {
 
     override fun isAbstract(game: GameStateReader) = error("")
 
-    override fun checkReificationDoNotCall(proposed: Instruction, game: GameStateReader) =
-        error("")
+    override fun checkReificationDoNotCall(proposed: Instruction, game: GameStateReader) = error("")
 
     override fun toString() = "$transformKind[$instruction]"
 

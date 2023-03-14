@@ -107,13 +107,14 @@ public object Transformers {
     var ourMulti: Multi? = null
     override fun <P : PetNode> transform(node: P): P {
       if (node is Multi && ourMulti != null && (ourMulti as Multi) in node.instructions) {
-        val flattened = node.instructions.flatMap {
-          if (it == ourMulti) {
-            ourMulti!!.instructions
-          } else {
-            listOf(it)
-          }
-        }
+        val flattened =
+            node.instructions.flatMap {
+              if (it == ourMulti) {
+                ourMulti!!.instructions
+              } else {
+                listOf(it)
+              }
+            }
         return Multi(flattened) as P
       }
       if (node !is Gain) return transformChildren(node)

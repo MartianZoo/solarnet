@@ -40,13 +40,14 @@ internal class MapToText(private val game: GameStateReader, val useColors: Boole
   }
 
   private fun describeEmpty(area: AreaDefinition): String {
-    val color = when (area.kind) {
-      cn("LandArea") -> TfmColor.LAND_AREA
-      cn("WaterArea") -> TfmColor.WATER_AREA
-      cn("VolcanicArea") -> TfmColor.LAND_AREA // TODO
-      cn("NoctisArea") -> TfmColor.NOCTIS_AREA
-      else -> error("")
-    }
+    val color =
+        when (area.kind) {
+          cn("LandArea") -> TfmColor.LAND_AREA
+          cn("WaterArea") -> TfmColor.WATER_AREA
+          cn("VolcanicArea") -> TfmColor.LAND_AREA // TODO
+          cn("NoctisArea") -> TfmColor.NOCTIS_AREA
+          else -> error("")
+        }
     return maybeColor(color, padCenter(area.code, 4))
   }
 

@@ -513,14 +513,12 @@ object EnglishHack {
           "XC6" to "Philares",
           "XC7" to "Astrodrill",
           "XC8" to "PharmacyUnion",
-
           "Area021" to "PhobosSpaceHavenArea",
           "Area081" to "GanymedeColonyArea",
           "Area220" to "DawnCityArea",
           "Area236" to "LunaMetropolisArea",
           "Area238" to "MaxwellBaseArea",
           "Area248" to "StratopolisArea",
-
           "Tile008" to "CapitalTile",
           "Tile044" to "NaturalPreserveTile",
           "Tile085" to "CommercialDistrictTile",

@@ -25,10 +25,9 @@ internal class DependencySet private constructor(val deps: Set<Dependency>) :
       // Throwing away refinements & links...
       val result = mutableListOf(DependencyPath(it.key) to it.boundClass)
       if (it is TypeDependency) {
-        result +=
-            it.boundType.dependencies.flattened.map { (depPath, boundClass) ->
-              depPath.prepend(it.key) to boundClass
-            }
+        result += it.boundType.dependencies.flattened.map { (depPath, boundClass) ->
+          depPath.prepend(it.key) to boundClass
+        }
       }
       result
     }.toMap()

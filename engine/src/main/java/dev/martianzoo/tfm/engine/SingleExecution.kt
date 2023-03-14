@@ -220,7 +220,8 @@ class SingleExecution(val game: Game, val actor: Actor, val doEffects: Boolean =
 
   private fun isAmap(instr: Change) =
       when (instr.intensity) {
-        OPTIONAL, null -> throw AbstractInstructionException(instr, instr.intensity)
+        OPTIONAL,
+        null -> throw AbstractInstructionException(instr, instr.intensity)
         MANDATORY -> false
         AMAP -> true
       }

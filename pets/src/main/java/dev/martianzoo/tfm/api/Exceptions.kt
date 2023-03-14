@@ -11,14 +11,18 @@ public class Exceptions {
   // These should all be rectifiable by narrowing the instruction
   public class AbstractInstructionException(val instruction: Instruction?, message: String) :
       UserException(message) {
-    constructor(type: Type) :
-        this(null, "Component type ${type.expression} is abstract in instruction")
+    constructor(
+        type: Type
+    ) : this(null, "Component type ${type.expression} is abstract in instruction")
 
-    constructor(instruction: Instruction, intensity: Intensity?) :
-        this(instruction, "An instruction has intensity $intensity: $instruction")
+    constructor(
+        instruction: Instruction,
+        intensity: Intensity?
+    ) : this(instruction, "An instruction has intensity $intensity: $instruction")
 
-    constructor(instruction: Or) :
-        this(instruction, "An OR instruction must be reified (i.e., pick one): $instruction")
+    constructor(
+        instruction: Or
+    ) : this(instruction, "An OR instruction must be reified (i.e., pick one): $instruction")
   }
 
   public class UnrecognizedClassException(className: ClassName) :
