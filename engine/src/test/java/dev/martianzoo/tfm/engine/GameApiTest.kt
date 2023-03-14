@@ -59,11 +59,11 @@ private class GameApiTest {
 
     assertThat(strip(changes.toStrings().map { it.replace(Regex("^\\d+"), "") }))
         .containsExactly(
-            ": 5 Heat<Player2> FOR Player2 (manual)",
-            ": 10 Heat<Player3> FOR Player2 (manual)",
+            ": +5 Heat<Player2> FOR Player2 (manual)",
+            ": +10 Heat<Player3> FOR Player2 (manual)",
             ": -4 Heat<Player2> FOR Player2 (manual)",
-            ": 3 Steel<Player3> FROM Heat<Player3> FOR Player2 (manual)",
-            ": 2 Heat<Player2> FROM Heat<Player3> FOR Player2 (manual)",
+            ": +3 Steel<Player3> FROM Heat<Player3> FOR Player2 (manual)",
+            ": +2 Heat<Player2> FROM Heat<Player3> FOR Player2 (manual)",
         )
         .inOrder()
   }

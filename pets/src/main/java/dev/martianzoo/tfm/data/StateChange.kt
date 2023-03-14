@@ -25,9 +25,11 @@ data class StateChange(
     require(gaining != removing) { "both gaining and removing $gaining" }
   }
 
-  override fun toString() =
-      when (gaining) {
-        null -> "-$count $removing"
-        else -> "$count $gaining${removing.pre(" FROM ")}"
-      }
+  override fun toString(): String {
+    val ct = if (count == 1) "" else "$count "
+    return when (gaining) {
+      null -> "-$ct$removing"
+      else -> "+$ct$gaining${removing.pre(" FROM ")}"
+    }
+  }
 }

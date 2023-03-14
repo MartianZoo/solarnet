@@ -2,6 +2,7 @@ package dev.martianzoo.tfm.data
 
 import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.pets.ast.HasExpression
+import dev.martianzoo.util.wrap
 
 sealed class GameEvent {
 
@@ -12,9 +13,15 @@ sealed class GameEvent {
     abstract val task: Task
     override val actor by task::actor
   }
-  data class TaskAddedEvent(override val ordinal: Int, override val task: Task) : TaskEvent()
+  data class TaskAddedEvent(override val ordinal: Int, override val task: Task) : TaskEvent() {
+    override fun toString() =
+        "$ordinal: +Task${task.id} { ${task.instruction} }" +
+            task.whyPending.wrap(" (", ")")
+  }
 
-  data class TaskRemovedEvent(override val ordinal: Int, override val task: Task) : TaskEvent()
+  data class TaskRemovedEvent(override val ordinal: Int, override val task: Task) : TaskEvent() {
+    override fun toString() = "$ordinal: -Task${task.id}"
+  }
 
   data class TaskReplacedEvent(
       override val ordinal: Int,
@@ -24,6 +31,9 @@ sealed class GameEvent {
     init {
       require(task.id == oldTask.id)
     }
+    override fun toString() =
+        "$ordinal: Task${task.id} { ${task.instruction }" +
+            " (${task.whyPending}) FROM Task${task.id}"
   }
 
   /** All interesting information about a state change that happened in a game. */
