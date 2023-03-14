@@ -1,6 +1,7 @@
 package dev.martianzoo.tfm.repl
 
 import dev.martianzoo.tfm.api.Authority
+import dev.martianzoo.tfm.api.Exceptions.UserException
 import dev.martianzoo.tfm.api.GameSetup
 import dev.martianzoo.tfm.api.SpecialClassNames.COMPONENT
 import dev.martianzoo.tfm.canon.Canon
@@ -79,11 +80,13 @@ public class ReplSession(private val authority: Authority, val jline: JlineRepl?
     return try {
       if (args == null) command.noArgs() else command.withArgs(args.trim())
     } catch (e: UsageException) {
-      listOfNotNull(e.message, "Usage: ${command.usage}")
+      val usage = "Usage: ${command.usage}"
+      if (e.message.isEmpty()) listOf(usage) else listOf(e.message, usage)
+      listOfNotNull(e.message, usage)
     }
   }
 
-  private class UsageException(message: String? = null) : RuntimeException(message)
+  private class UsageException(message: String? = null) : UserException(message ?: "")
 
   private abstract class ReplCommand(val name: String) {
     abstract val usage: String
@@ -193,13 +196,16 @@ public class ReplSession(private val authority: Authority, val jline: JlineRepl?
 
             override fun withArgs(args: String): List<String> {
               val instruction = instruction(args)
-              val changes: ExecutionResult =
-                  when (mode) {
-                    RED -> session.doIgnoringEffects(instruction)
-                    YELLOW -> session.initiateAndQueue(instruction)
-                    GREEN -> session.initiateAndAutoExec(instruction, requireFullSuccess = false)
-                    else -> TODO()
-                  }
+              val changes: ExecutionResult = try {
+                when (mode) {
+                  RED -> session.doIgnoringEffects(instruction)
+                  YELLOW -> session.initiateAndQueue(instruction)
+                  GREEN -> session.initiateAndAutoExec(instruction, requireFullSuccess = false)
+                  else -> TODO()
+                }
+              } catch (e: UserException) {
+                return listOf(e.toString())
+              }
 
               return reportResults(changes)
             }
@@ -225,12 +231,15 @@ public class ReplSession(private val authority: Authority, val jline: JlineRepl?
                   } else {
                     null
                   }
-              val result: ExecutionResult =
-                  when (mode) {
-                    YELLOW -> session.doTaskOnly(id)
-                    GREEN -> session.doTaskAndAutoExec(id, instruction, requireFullSuccess = false)
-                    else -> TODO()
-                  }
+              val result: ExecutionResult = try {
+                when (mode) {
+                  YELLOW -> session.doTaskOnly(id, instruction)
+                  GREEN -> session.doTaskAndAutoExec(id, instruction, requireFullSuccess = false)
+                  else -> TODO()
+                }
+              } catch (e: UserException) {
+                return listOf(e.toString())
+              }
               return reportResults(result)
             }
           },

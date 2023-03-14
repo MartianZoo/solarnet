@@ -23,6 +23,8 @@ interface Type : HasExpression, HasClassName { // TODO Hierarchical?
    */
   fun isSubtypeOf(that: Type): Boolean
 
+  fun checkReification(proposed: Type)
+
   /** The optional requirement attached to this type. */
   val refinement: Requirement?
 }

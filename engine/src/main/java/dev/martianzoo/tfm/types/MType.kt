@@ -1,6 +1,7 @@
 package dev.martianzoo.tfm.types
 
 import com.google.common.collect.Lists.cartesianProduct
+import dev.martianzoo.tfm.api.Exceptions.InvalidReificationException
 import dev.martianzoo.tfm.api.SpecialClassNames.CLASS
 import dev.martianzoo.tfm.api.Type
 import dev.martianzoo.tfm.pets.ast.Expression
@@ -86,9 +87,7 @@ internal constructor(
     toExpressionUsingSpecs(dependencies.expressionsFull)
   }
 
-  val expressionShort: Expression by lazy {
-    UseShortNames(loader).transform(expression)
-  }
+  val expressionShort: Expression by lazy { UseShortNames(loader).transform(expression) }
 
   internal val narrowedDependencies: DependencySet by lazy {
     dependencies.minus(mclass.dependencies)
@@ -136,6 +135,26 @@ internal constructor(
 
   private fun concreteSubclasses(mclass: MClass) =
       mclass.allSubclasses.asSequence().filter { !it.abstract }
+
+  override fun checkReification(proposed: Type) {
+    if (proposed.abstract) throw InvalidReificationException("Reification must be concrete")
+    if (proposed == this) return // else, anything concrete can reify to itself
+
+    if (!this.abstract) throw InvalidReificationException("Already concrete, can't be reified")
+
+    if (!proposed.isSubtypeOf(this))
+      throw InvalidReificationException(
+          "${proposed.expression} is not a subtype of ${expression}")
+
+    val myPropConcSubs = allConcreteSubtypes().filterNot { it == proposed }
+    // this gon be slowasfuck
+    for (propConcSub in myPropConcSubs) {
+      if (proposed.isSubtypeOf(propConcSub)) {
+        throw InvalidReificationException("A more general type such as ${propConcSub.expression}" +
+            " already reifies $expression; can't narrow even further")
+      }
+    }
+  }
 
   override fun toString() = "$expressionFull@${mclass.loader}"
 }

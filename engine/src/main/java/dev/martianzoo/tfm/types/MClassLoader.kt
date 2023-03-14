@@ -1,6 +1,7 @@
 package dev.martianzoo.tfm.types
 
 import dev.martianzoo.tfm.api.Authority
+import dev.martianzoo.tfm.api.Exceptions.UnrecognizedClassException
 import dev.martianzoo.tfm.api.SpecialClassNames.CLASS
 import dev.martianzoo.tfm.api.SpecialClassNames.COMPONENT
 import dev.martianzoo.tfm.api.SpecialClassNames.THIS
@@ -46,8 +47,7 @@ public class MClassLoader( // TODO separate into loader and table
    * exception.
    */
   public fun getClass(name: ClassName): MClass =
-      // TODO protect in callers
-      loadedClasses[name] ?: error("no class loaded with className or shortName $name")
+      loadedClasses[name] ?: throw UnrecognizedClassException(name)
 
   /** Returns the [MType] represented by [expression]. */
   public fun resolve(expression: Expression): MType {

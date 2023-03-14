@@ -29,7 +29,7 @@ public object Transformers {
       PetTransformer() {
     constructor(vararg transformers: PetTransformer) : this(transformers.toList())
 
-    override fun <P : PetNode> transform(node: P): P {
+    override fun <P : PetNode> transform(node: P): P { // TODO null passthru??
       var result = node
       for (xer in transformers) {
         result = xer.transform(result)

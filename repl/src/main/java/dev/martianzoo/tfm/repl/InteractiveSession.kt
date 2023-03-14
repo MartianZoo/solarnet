@@ -110,7 +110,8 @@ class InteractiveSession {
     return game!!.eventLog.resultsSince(checkpoint, success)
   }
 
-  fun doTaskOnly(taskId: TaskId) = game!!.doOneExistingTask(taskId, actor)
+  fun doTaskOnly(taskId: TaskId, narrowedInstruction: Instruction? = null) =
+      game!!.tryOneExistingTask(taskId, actor, prep(narrowedInstruction))
 
   fun doTaskAndAutoExec(
       initialTaskId: TaskId,
@@ -120,17 +121,18 @@ class InteractiveSession {
     val taskIdsToAutoExec: ArrayDeque<TaskId> = ArrayDeque()
     val checkpoint = game!!.eventLog.checkpoint()
     var success = true
+    val narrowed = prep(narrowedInstruction)
 
-    fun doTask(initialTaskId: TaskId, narrowedInstruction: Instruction? = null) =
+    fun doTask(initialTaskId: TaskId, instr: Instruction? = null) =
         if (requireFullSuccess) {
-          game!!.doOneExistingTask(initialTaskId, actor, narrowedInstruction)
+          game!!.doOneExistingTask(initialTaskId, actor, instr)
         } else {
-          game!!.tryOneExistingTask(initialTaskId, actor, narrowedInstruction).also {
+          game!!.tryOneExistingTask(initialTaskId, actor, instr).also {
             success = success && it.fullSuccess
           }
         }
 
-    val firstResult: ExecutionResult = doTask(initialTaskId, narrowedInstruction)
+    val firstResult: ExecutionResult = doTask(initialTaskId, narrowed)
     taskIdsToAutoExec += firstResult.newTaskIdsAdded - initialTaskId
 
     while (taskIdsToAutoExec.any()) {
@@ -148,16 +150,17 @@ class InteractiveSession {
 
   // TODO somehow do this with Type not Expression?
   // TODO Let game take care of this itself?
-  fun <P : PetNode> prep(node: P): P {
+  fun <P : PetNode?> prep(node: P): P {
+    if (node == null) return node
     val loader = game!!.loader
     return CompositeTransformer(
-            UseFullNames(loader),
-            AtomizeGlobalParameterGains(loader),
-            InsertDefaults(loader),
-            ReplaceOwnerWith(defaultPlayer),
-            Deprodify(loader),
-            // not needed: ReplaceThisWith, FixEffectForUnownedContext
-        )
+        UseFullNames(loader),
+        AtomizeGlobalParameterGains(loader),
+        InsertDefaults(loader),
+        ReplaceOwnerWith(defaultPlayer),
+        Deprodify(loader),
+        // not needed: ReplaceThisWith, FixEffectForUnownedContext
+    )
         .transform(node)
   }
 }

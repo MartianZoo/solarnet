@@ -1,7 +1,7 @@
 package dev.martianzoo.tfm.canon
 
-import dev.martianzoo.tfm.api.AbstractInstructionException
 import dev.martianzoo.tfm.api.CustomInstruction
+import dev.martianzoo.tfm.api.Exceptions.AbstractInstructionException
 import dev.martianzoo.tfm.api.GameStateReader
 import dev.martianzoo.tfm.api.GameStateWriter
 import dev.martianzoo.tfm.api.ResourceUtils.lookUpProductionLevels

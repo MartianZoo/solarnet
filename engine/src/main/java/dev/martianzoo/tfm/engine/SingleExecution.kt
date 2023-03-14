@@ -1,7 +1,7 @@
 package dev.martianzoo.tfm.engine
 
-import dev.martianzoo.tfm.api.AbstractInstructionException
 import dev.martianzoo.tfm.api.CustomInstruction.ExecuteInsteadException
+import dev.martianzoo.tfm.api.Exceptions.AbstractInstructionException
 import dev.martianzoo.tfm.api.GameStateWriter
 import dev.martianzoo.tfm.api.SpecialClassNames.DIE
 import dev.martianzoo.tfm.api.SpecialClassNames.OK
@@ -79,7 +79,7 @@ class SingleExecution(val game: Game, val actor: Actor, val doEffects: Boolean =
     val requestedTask: Task = game.taskQueue[taskId]
     require(requestedTask.actor == actor)
 
-    // check narrowing TODO
+    narrowedInstruction?.ensureReifies(requestedTask.instruction, game.reader)
     val instruction = narrowedInstruction ?: requestedTask.instruction
     automaticTasks += split(instruction).map { InternalTask(it, requestedTask.cause) }
 
@@ -165,9 +165,7 @@ class SingleExecution(val game: Game, val actor: Actor, val doEffects: Boolean =
     val (now, later) = (firedSelfEffects + firedOtherEffects).partition { it.automatic }
 
     // TODO always add to beginning of queue? why not just recurse?
-    val elements = now.flatMap { fx ->
-      split(fx.instruction).map { InternalTask(it, fx.cause) }
-    }
+    val elements = now.flatMap { fx -> split(fx.instruction).map { InternalTask(it, fx.cause) } }
     automaticTasks.addAll(0, elements)
 
     later.forEach {
@@ -222,8 +220,7 @@ class SingleExecution(val game: Game, val actor: Actor, val doEffects: Boolean =
 
   private fun isAmap(instr: Change) =
       when (instr.intensity) {
-        OPTIONAL,
-        null, -> throw AbstractInstructionException(instr.intensity)
+        OPTIONAL, null -> throw AbstractInstructionException(instr, instr.intensity)
         MANDATORY -> false
         AMAP -> true
       }

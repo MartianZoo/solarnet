@@ -18,7 +18,7 @@ ABSTRACT CLASS Temporary {                        // anything that can never sur
 
   ABSTRACT CLASS Signal : System {                // you'll never observe it existing, but things
     HAS MAX 0 This                                // can still be triggered by it. TODO a magic rule
-    This:: -This                                  // that at least 1 effect must be triggered??
+    This:: -This!       // TODO fix               // that at least 1 effect must be triggered??
   }
 
   CLASS Die : System {                            // since this has max 0 like Signal, but doesn't

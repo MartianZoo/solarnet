@@ -1,9 +1,11 @@
 package dev.martianzoo.tfm.engine
 
-public class Exceptions {
-  public class RequirementException(message: String) : RuntimeException(message)
+import dev.martianzoo.tfm.api.Exceptions.UserException
 
-  public class DependencyException(message: String) : RuntimeException(message) {
+public class Exceptions {
+  public class RequirementException(message: String) : UserException(message)
+
+  public class DependencyException(message: String) : UserException(message) {
     companion object {
       fun gaining(dependencies: Collection<Component>) =
           DependencyException("Missing dependencies: ${dependencies.joinToString()}")
@@ -13,5 +15,5 @@ public class Exceptions {
     }
   }
 
-  public class InvalidExpressionException(message: String) : RuntimeException(message)
+  public class InvalidExpressionException(message: String) : UserException(message)
 }

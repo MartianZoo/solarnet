@@ -3,9 +3,28 @@ package dev.martianzoo.tfm.repl
 import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.tfm.pets.ast.Metric.Companion.metric
 import org.junit.jupiter.api.Test
 
 private class ReplSessionTest {
+  @Test
+  fun testAstrodrill() {
+    val repl = ReplSession(Canon)
+    val commands = """
+      newgame BMX 2
+      become Player2
+      exec Astrodrill
+      exec UseAction1<UseActionFromCard>
+      task A UseAction1<Astrodrill> THEN ActionUsedMarker<Astrodrill>
+      task B Plant
+    """.trimIndent()
+    for (cmd in commands.split("\n")) {
+      repl.command(cmd)
+    }
+    assertThat(repl.session.count(metric("Plant"))).isEqualTo(1)
+    assertThat(repl.session.count(metric("ActionUsedMarker"))).isEqualTo(1)
+  }
+
   @Test
   fun test() {
     val repl = ReplSession(Canon)
