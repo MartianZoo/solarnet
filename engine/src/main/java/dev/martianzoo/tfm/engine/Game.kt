@@ -1,5 +1,6 @@
 package dev.martianzoo.tfm.engine
 
+import dev.martianzoo.tfm.api.ExpressionInfo
 import dev.martianzoo.tfm.api.GameSetup
 import dev.martianzoo.tfm.api.GameStateReader
 import dev.martianzoo.tfm.api.Type
@@ -76,6 +77,16 @@ public class Game(val setup: GameSetup, public val loader: MClassLoader) {
 
   public fun getComponents(type: MType): Multiset<Component> = components.getAll(type)
 
+  val einfo = object : ExpressionInfo {
+    override fun isAbstract(e: Expression) = resolve(e).abstract
+    override fun checkReifies(wide: Expression, narrow: Expression) {
+      resolve(wide).checkReifies(resolve(narrow))
+      // wide might be CityTile<P1, LA(HAS MAX 0 NBR<CT<ANY>>)>
+      // narrow might be CityTile<P1, M11>
+      // as pure types they check out
+      // but check whether `HAS MAX 0 NBR<CT<ANY>, M11>` is true
+    }
+  }
   val reader =
       object : GameStateReader {
         override val setup by this@Game::setup

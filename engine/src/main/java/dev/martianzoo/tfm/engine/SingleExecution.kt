@@ -79,7 +79,7 @@ class SingleExecution(val game: Game, val actor: Actor, val doEffects: Boolean =
     val requestedTask: Task = game.taskQueue[taskId]
     require(requestedTask.actor == actor)
 
-    narrowedInstruction?.ensureReifies(requestedTask.instruction, game.reader)
+    narrowedInstruction?.checkReifies(requestedTask.instruction, game.einfo)
     val instruction = narrowedInstruction ?: requestedTask.instruction
     automaticTasks += split(instruction).map { InternalTask(it, requestedTask.cause) }
 

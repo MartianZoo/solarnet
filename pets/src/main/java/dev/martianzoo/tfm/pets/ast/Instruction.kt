@@ -9,7 +9,7 @@ import com.github.h0tk3y.betterParse.combinators.separatedTerms
 import com.github.h0tk3y.betterParse.grammar.parser
 import com.github.h0tk3y.betterParse.parser.Parser
 import dev.martianzoo.tfm.api.Exceptions.InvalidReificationException
-import dev.martianzoo.tfm.api.GameStateReader
+import dev.martianzoo.tfm.api.ExpressionInfo
 import dev.martianzoo.tfm.pets.BaseTokenizer
 import dev.martianzoo.tfm.pets.Parsing
 import dev.martianzoo.tfm.pets.PetException
@@ -29,16 +29,16 @@ public sealed class Instruction : PetNode() {
     abstract val removing: Expression?
     abstract val intensity: Intensity?
 
-    override fun isAbstract(game: GameStateReader): Boolean {
+    override fun isAbstract(einfo: ExpressionInfo): Boolean {
       return intensity!! == OPTIONAL ||
-          (gaining?.let { game.resolve(it).abstract } == true) ||
-          (removing?.let { game.resolve(it).abstract } == true)
+          (gaining?.let { einfo.isAbstract(it) } == true) ||
+          (removing?.let { einfo.isAbstract(it) } == true)
     }
 
-    override fun checkReificationDoNotCall(proposed: Instruction, game: GameStateReader) {
+    override fun checkReificationDoNotCall(proposed: Instruction, einfo: ExpressionInfo) {
       proposed as Change
-      gaining?.let { game.resolve(it).checkReification(game.resolve(proposed.gaining!!)) }
-      removing?.let { game.resolve(it).checkReification(game.resolve(proposed.removing!!)) }
+      gaining?.let { einfo.checkReifies(it, proposed.gaining!!) }
+      removing?.let { einfo.checkReifies(it, proposed.removing!!) }
       if (proposed.count > count) {
         throw InvalidReificationException(
             "Can't increase amount from ${count} to ${proposed.count}")
@@ -163,14 +163,14 @@ public sealed class Instruction : PetNode() {
 
     override fun precedence() = 8
 
-    override fun isAbstract(game: GameStateReader) = instruction.isAbstract(game)
+    override fun isAbstract(einfo: ExpressionInfo) = instruction.isAbstract(einfo)
 
-    override fun checkReificationDoNotCall(proposed: Instruction, game: GameStateReader) {
-      if (proposed !is Per) throw InvalidReificationException("can't change instruction kind")
+    override fun checkReificationDoNotCall(proposed: Instruction, einfo: ExpressionInfo) {
+      proposed as Per
       if (proposed.metric != metric) {
         throw InvalidReificationException("can't change the metric")
       }
-      proposed.instruction.ensureReifies(instruction, game)
+      proposed.instruction.checkReifies(instruction, einfo)
     }
 
     override fun toString() = "$instruction / $metric"
@@ -187,16 +187,14 @@ public sealed class Instruction : PetNode() {
     override fun visitChildren(visitor: Visitor) = visitor.visit(gate, instruction)
     override fun times(factor: Int) = copy(instruction = instruction * factor)
 
-    override fun isAbstract(game: GameStateReader) = instruction.isAbstract(game)
+    override fun isAbstract(einfo: ExpressionInfo) = instruction.isAbstract(einfo)
 
-    override fun checkReificationDoNotCall(proposed: Instruction, game: GameStateReader) {
-      if (proposed !is Gated) {
-        throw InvalidReificationException("can't change instruction kind")
-      }
+    override fun checkReificationDoNotCall(proposed: Instruction, einfo: ExpressionInfo) {
+      proposed as Gated
       if (proposed.gate != gate) {
         throw InvalidReificationException("can't change the condition")
       }
-      proposed.instruction.ensureReifies(instruction, game)
+      proposed.instruction.checkReifies(instruction, einfo)
     }
 
     override fun toString(): String {
@@ -220,12 +218,12 @@ public sealed class Instruction : PetNode() {
     override fun visitChildren(visitor: Visitor) = visitor.visit(arguments)
     override fun times(factor: Int) = Multi.create(List(factor) { this })!!
 
-    override fun isAbstract(game: GameStateReader): Boolean {
+    override fun isAbstract(einfo: ExpressionInfo): Boolean {
       return false // TODO
     }
 
-    override fun checkReificationDoNotCall(proposed: Instruction, game: GameStateReader) {
-      if (proposed !is Custom) throw InvalidReificationException("can't change instruction kind")
+    override fun checkReificationDoNotCall(proposed: Instruction, einfo: ExpressionInfo) {
+      proposed as Custom
       if (proposed.functionName != functionName) {
         throw InvalidReificationException("can't change function name")
       }
@@ -233,7 +231,7 @@ public sealed class Instruction : PetNode() {
         throw InvalidReificationException("wrong argument count")
       }
       for ((yours, mine) in proposed.arguments.zip(arguments)) {
-        game.resolve(mine).checkReification(game.resolve(yours))
+        einfo.checkReifies(mine, yours)
       }
     }
 
@@ -256,14 +254,12 @@ public sealed class Instruction : PetNode() {
     override fun precedence() = 2
     override fun times(factor: Int) = copy(instructions.map { it * factor })
 
-    override fun isAbstract(game: GameStateReader) = instructions.any { it.isAbstract(game) }
+    override fun isAbstract(einfo: ExpressionInfo) = instructions.any { it.isAbstract(einfo) }
 
-    override fun checkReificationDoNotCall(proposed: Instruction, game: GameStateReader) {
-      if (proposed !is Then) {
-        throw InvalidReificationException("can't change instruction kind")
-      }
+    override fun checkReificationDoNotCall(proposed: Instruction, einfo: ExpressionInfo) {
+      proposed as Then
       for ((yours, mine) in proposed.instructions.zip(instructions)) {
-        yours.ensureReifies(mine, game)
+        yours.checkReifies(mine, einfo)
       }
     }
 
@@ -286,13 +282,13 @@ public sealed class Instruction : PetNode() {
     override fun precedence() = 4
     override fun times(factor: Int) = copy(instructions.map { it * factor })
 
-    override fun isAbstract(game: GameStateReader) = true
+    override fun isAbstract(einfo: ExpressionInfo) = true
 
-    override fun checkReificationDoNotCall(proposed: Instruction, game: GameStateReader) {
+    override fun checkReificationDoNotCall(proposed: Instruction, einfo: ExpressionInfo) {
       var messages = ""
-      for (ins in instructions) {
+      for (option in instructions) {
         try { // Just get any one to work
-          proposed.ensureReifies(ins, game)
+          proposed.checkReifies(option, einfo)
           return
         } catch (e: InvalidReificationException) {
           messages += "${e.message}\n"
@@ -316,9 +312,9 @@ public sealed class Instruction : PetNode() {
 
     override fun times(factor: Int) = copy(instructions.map { it * factor })
 
-    override fun isAbstract(game: GameStateReader) = error("should have been split by now")
+    override fun isAbstract(einfo: ExpressionInfo) = error("should have been split by now")
 
-    override fun checkReificationDoNotCall(proposed: Instruction, game: GameStateReader) =
+    override fun checkReificationDoNotCall(proposed: Instruction, einfo: ExpressionInfo) =
         error("should have been split by now")
 
     override fun toString() = toString(", ")
@@ -339,9 +335,9 @@ public sealed class Instruction : PetNode() {
     override fun visitChildren(visitor: Visitor) = visitor.visit(instruction)
     override fun times(factor: Int) = copy(instruction = instruction * factor)
 
-    override fun isAbstract(game: GameStateReader) = error("")
+    override fun isAbstract(einfo: ExpressionInfo) = error("")
 
-    override fun checkReificationDoNotCall(proposed: Instruction, game: GameStateReader) = error("")
+    override fun checkReificationDoNotCall(proposed: Instruction, einfo: ExpressionInfo) = error("")
 
     override fun toString() = "$transformKind[$instruction]"
 
@@ -350,23 +346,25 @@ public sealed class Instruction : PetNode() {
 
   override val kind = Instruction::class.simpleName!!
 
-  protected abstract fun isAbstract(game: GameStateReader): Boolean
+  protected abstract fun isAbstract(einfo: ExpressionInfo): Boolean
 
-  fun ensureReifies(abstractTarget: Instruction, game: GameStateReader) {
-    if (isAbstract(game)) {
+  fun checkReifies(abstractTarget: Instruction, einfo: ExpressionInfo) {
+    if (isAbstract(einfo)) {
       throw InvalidReificationException("A reification must be concrete")
     }
     if (this == abstractTarget) return
-    if (!abstractTarget.isAbstract(game)) {
+    if (!abstractTarget.isAbstract(einfo)) {
       throw InvalidReificationException("Already concrete: $abstractTarget")
     }
     if (abstractTarget !is Or && this::class != abstractTarget::class) {
-      throw InvalidReificationException("One kind of instruction can't reify another")
+      throw InvalidReificationException(
+          "A ${this::class.simpleName} instruction can't reify a" +
+              " ${abstractTarget::class.simpleName} instruction")
     }
-    abstractTarget.checkReificationDoNotCall(this, game)
+    abstractTarget.checkReificationDoNotCall(this, einfo) // well WE can call it
   }
 
-  protected abstract fun checkReificationDoNotCall(proposed: Instruction, game: GameStateReader)
+  protected abstract fun checkReificationDoNotCall(proposed: Instruction, einfo: ExpressionInfo)
 
   enum class Intensity(val symbol: String) {
     /** The full amount must be gained/removed/transmuted. */

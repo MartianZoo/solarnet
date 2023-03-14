@@ -136,7 +136,7 @@ internal constructor(
   private fun concreteSubclasses(mclass: MClass) =
       mclass.allSubclasses.asSequence().filter { !it.abstract }
 
-  override fun checkReification(proposed: Type) {
+  fun checkReifies(proposed: MType) {
     if (proposed.abstract) throw InvalidReificationException("Reification must be concrete")
     if (proposed == this) return // else, anything concrete can reify to itself
 
