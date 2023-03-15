@@ -15,7 +15,7 @@ sealed class GameEvent {
   }
   data class TaskAddedEvent(override val ordinal: Int, override val task: Task) : TaskEvent() {
     override fun toString() =
-        "$ordinal: +Task${task.id} { ${task.instruction} }" +
+        "$ordinal: +Task${task.id} { ${task.instruction} } ${task.cause}" +
             task.whyPending.wrap(" (", ")")
   }
 

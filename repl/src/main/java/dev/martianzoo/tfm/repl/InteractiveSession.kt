@@ -31,25 +31,29 @@ import dev.martianzoo.util.Multiset
  * A convenient interface for functional tests; basically, [ReplSession] is just a more texty
  * version of this.
  */
-class InteractiveSession {
-  public var game: Game? = null // TODO private?
+class InteractiveSession(initialGame: GameSetup) {
+  public lateinit var game: Game
     internal set
-  internal var gameNumber: Int = 0
+  internal var gameNumber: Int = -1 // TODO
   internal var defaultPlayer: ClassName? = null
   internal var actor: Actor = ENGINE
   internal var start: Checkpoint = Checkpoint(0) // will be overwritten
 
+  init {
+    newGame(initialGame)
+  }
+
   fun newGame(setup: GameSetup) {
     game = Engine.newGame(setup)
-    start = game!!.eventLog.checkpoint()
+    start = game.eventLog.checkpoint()
     gameNumber++
     becomeNoOne()
   }
 
   fun becomePlayer(player: ClassName) {
-    val p = game!!.resolve(player.expr)
+    val p = game.resolve(player.expr)
     require(!p.abstract)
-    require(p.isSubtypeOf(game!!.resolve(ANYONE.expr)))
+    require(p.isSubtypeOf(game.resolve(ANYONE.expr)))
     defaultPlayer = p.mclass.className
     actor = Actor(p.mclass.className)
   }
@@ -61,11 +65,11 @@ class InteractiveSession {
 
   // QUERIES
 
-  fun count(metric: Metric) = game!!.count(prep(metric))
+  fun count(metric: Metric) = game.count(prep(metric))
 
   fun list(expression: Expression): Multiset<Expression> { // TODO y not (M)Type?
-    val typeToList: MType = game!!.resolve(prep(expression))
-    val allComponents: Multiset<Component> = game!!.getComponents(typeToList)
+    val typeToList: MType = game.resolve(prep(expression))
+    val allComponents: Multiset<Component> = game.getComponents(typeToList)
 
     // BIGTODO decide more intelligently how to break it down
 
@@ -81,15 +85,15 @@ class InteractiveSession {
     return result
   }
 
-  fun has(requirement: Requirement) = game!!.evaluate(prep(requirement))
+  fun has(requirement: Requirement) = game.evaluate(prep(requirement))
 
   // EXECUTION
 
   fun doIgnoringEffects(instruction: Instruction) =
-      game!!.executeWithoutEffects(prep(instruction), actor)
+      game.executeWithoutEffects(prep(instruction), actor)
 
   fun initiateAndQueue(instruction: Instruction): ExecutionResult {
-    return game!!.initiate(prep(instruction), actor, fakeCause = null)
+    return game.initiate(prep(instruction), actor, fakeCause = null)
   }
 
   fun initiateAndAutoExec(
@@ -97,17 +101,17 @@ class InteractiveSession {
       requireFullSuccess: Boolean = true,
   ): ExecutionResult {
     val ins = prep(instruction)
-    val checkpoint = game!!.eventLog.checkpoint()
-    val result: ExecutionResult = game!!.initiate(ins, actor, fakeCause = null)
+    val checkpoint = game.eventLog.checkpoint()
+    val result: ExecutionResult = game.initiate(ins, actor, fakeCause = null)
     val success = // TODO easier??
         result.newTaskIdsAdded.all {
           doTaskAndAutoExec(it, requireFullSuccess = requireFullSuccess).fullSuccess
         }
-    return game!!.eventLog.resultsSince(checkpoint, success)
+    return game.eventLog.resultsSince(checkpoint, success)
   }
 
   fun doTaskOnly(taskId: TaskId, narrowedInstruction: Instruction? = null) =
-      game!!.tryOneExistingTask(taskId, actor, prep(narrowedInstruction))
+      game.tryOneExistingTask(taskId, actor, prep(narrowedInstruction))
 
   fun doTaskAndAutoExec(
       initialTaskId: TaskId,
@@ -115,15 +119,15 @@ class InteractiveSession {
       requireFullSuccess: Boolean = false,
   ): ExecutionResult {
     val taskIdsToAutoExec: ArrayDeque<TaskId> = ArrayDeque()
-    val checkpoint = game!!.eventLog.checkpoint()
+    val checkpoint = game.eventLog.checkpoint()
     var success = true
     val narrowed = prep(narrowedInstruction)
 
     fun doTask(initialTaskId: TaskId, instr: Instruction? = null) =
         if (requireFullSuccess) {
-          game!!.doOneExistingTask(initialTaskId, actor, instr)
+          game.doOneExistingTask(initialTaskId, actor, instr)
         } else {
-          game!!.tryOneExistingTask(initialTaskId, actor, instr).also {
+          game.tryOneExistingTask(initialTaskId, actor, instr).also {
             success = success && it.fullSuccess
           }
         }
@@ -137,18 +141,21 @@ class InteractiveSession {
       taskIdsToAutoExec += results.newTaskIdsAdded - thisTaskId // TODO better
     }
 
-    return game!!.eventLog.resultsSince(checkpoint, success)
+    return game.eventLog.resultsSince(checkpoint, success)
   }
+
+  fun enqueueTasks(instruction: Instruction, taskOwner: Actor? = null) =
+      game.enqueueTasks(prep(instruction), taskOwner ?: actor)
 
   // OTHER
 
-  fun rollBack(ordinal: Int) = game!!.rollBack(Checkpoint(ordinal))
+  fun rollBack(ordinal: Int) = game.rollBack(Checkpoint(ordinal))
 
   // TODO somehow do this with Type not Expression?
   // TODO Let game take care of this itself?
   fun <P : PetNode?> prep(node: P): P {
     if (node == null) return node
-    val loader = game!!.loader
+    val loader = game.loader
     return CompositeTransformer(
             UseFullNames(loader),
             AtomizeGlobalParameterGains(loader),

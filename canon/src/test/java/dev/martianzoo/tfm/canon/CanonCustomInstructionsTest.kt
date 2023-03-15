@@ -1,6 +1,7 @@
 package dev.martianzoo.tfm.canon
 
 import com.google.common.truth.Truth.assertThat
+import dev.martianzoo.tfm.api.GameSetup
 import dev.martianzoo.tfm.repl.ReplSession
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -9,8 +10,7 @@ private class CanonCustomInstructionsTest {
 
   @Test
   fun robinson() {
-    val repl = ReplSession(Canon)
-    repl.command("newgame BM 3")
+    val repl = ReplSession(Canon, GameSetup(Canon, "MB", 3)) // TODO
     repl.command("become Player1")
     repl.command("mode green")
 
@@ -22,8 +22,7 @@ private class CanonCustomInstructionsTest {
 
   @Test
   fun robinsonCant() {
-    val repl = ReplSession(Canon)
-    repl.command("newgame BM 3")
+    val repl = ReplSession(Canon, GameSetup(Canon, "MB", 3)) // TODO
     repl.command("become Player1")
     repl.command("exec PROD[Steel, Titanium, Plant, Heat]")
     repl.command("exec @gainLowestProduction(Player1)")
@@ -41,8 +40,7 @@ private class CanonCustomInstructionsTest {
 
   @Test
   fun robinson2() {
-    val repl = ReplSession(Canon)
-    repl.command("newgame BM 3")
+    val repl = ReplSession(Canon, GameSetup(Canon, "MB", 3)) // TODO
     repl.command("become Player1")
     repl.command("exec PROD[-1]")
     repl.command("exec @gainLowestProduction(Player1)")
@@ -51,8 +49,7 @@ private class CanonCustomInstructionsTest {
 
   @Test
   fun roboticWorkforce() {
-    val repl = ReplSession(Canon)
-    repl.command("newgame BRM 3")
+    val repl = ReplSession(Canon, GameSetup(Canon, "MB", 3)) // TODO
     repl.command("become Player1")
     repl.command("exec PROD[5 Energy]")
     repl.command("exec StripMine")

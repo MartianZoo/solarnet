@@ -15,10 +15,8 @@ import org.junit.jupiter.api.Test
 private class ResourceUtilsTest {
   @Test
   fun testLookUpProdLevelsUsingCanon() {
-    val session = InteractiveSession()
-    session.newGame(GameSetup(Canon, "BM", 3))
-    val game = session.game!!
-    val prods: Map<ClassName, Int> = lookUpProductionLevels(game.reader, cn("Player1").expr)
+    val session = InteractiveSession(GameSetup(Canon, "BM", 3))
+    val prods: Map<ClassName, Int> = lookUpProductionLevels(session.game.reader, cn("Player1").expr)
     assertThat(prods.map { it.key to it.value })
         .containsExactly(
             cn("Megacredit") to 0,
@@ -30,7 +28,8 @@ private class ResourceUtilsTest {
         )
 
     session.initiateAndQueue(instruction("PROD[2 Plant<Player1>!]"))
-    val prods2: Map<ClassName, Int> = lookUpProductionLevels(game.reader, cn("Player1").expr)
+    val prods2: Map<ClassName, Int> = lookUpProductionLevels(session.game.reader,
+        cn("Player1").expr)
     assertThat(prods2.map { it.key to it.value })
         .containsExactly(
             cn("Megacredit") to 0,

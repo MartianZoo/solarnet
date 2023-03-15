@@ -59,7 +59,7 @@ class SingleExecution(val game: Game, val actor: Actor, val doEffects: Boolean =
     require(!spent)
     spent = true
 
-    return doAtomic {
+    return game.doAtomic {
       doOneInstruction(instruction, cause = initialCause, 1)
       while (automaticTasks.any()) {
         val autoTask = automaticTasks.removeFirst()
@@ -84,7 +84,7 @@ class SingleExecution(val game: Game, val actor: Actor, val doEffects: Boolean =
     automaticTasks += split(instruction).map { InternalTask(it, requestedTask.cause) }
 
     return try {
-      doAtomic {
+      game.doAtomic {
         while (automaticTasks.any()) {
           val autoTask = automaticTasks.removeFirst()
           doOneInstruction(autoTask.instruction, autoTask.cause, 1)
@@ -101,17 +101,6 @@ class SingleExecution(val game: Game, val actor: Actor, val doEffects: Boolean =
     if (isProgrammerError(e)) throw e
     val taskWithExplanation = requestedTask.copy(whyPending = e.message)
     game.taskQueue.replaceTask(taskWithExplanation)
-  }
-
-  private fun doAtomic(block: () -> Unit): ExecutionResult {
-    val checkpoint = game.eventLog.checkpoint()
-    try {
-      block()
-    } catch (e: Exception) {
-      game.rollBack(checkpoint)
-      throw e
-    }
-    return game.eventLog.resultsSince(checkpoint, fullSuccess = true)
   }
 
   data class ExecutionResult
@@ -243,7 +232,7 @@ class SingleExecution(val game: Game, val actor: Actor, val doEffects: Boolean =
       val split = split(xer.transform(translated))
       split.forEach {
         try {
-          doAtomic { doOneInstruction(it, cause, 1) }
+          game.doAtomic { doOneInstruction(it, cause, 1) }
         } catch (e: Exception) {
           if (isProgrammerError(e)) throw e
           game.taskQueue.addTasks(it, actor, cause, e.message)

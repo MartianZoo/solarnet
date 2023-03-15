@@ -5,7 +5,6 @@ import dev.martianzoo.tfm.api.GameSetup
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.engine.Exceptions.DependencyException
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.tfm.pets.ast.Expression.Companion.expression
 import dev.martianzoo.tfm.pets.ast.Instruction.Companion.instruction
 import dev.martianzoo.tfm.pets.ast.Metric.Companion.metric
 import dev.martianzoo.tfm.pets.ast.Requirement.Companion.requirement
@@ -15,8 +14,7 @@ import org.junit.jupiter.api.assertThrows
 private class InteractiveSessionTest {
   @Test
   fun test() {
-    val session = InteractiveSession()
-    session.newGame(GameSetup(Canon, "MB", 2))
+    val session = InteractiveSession(GameSetup(Canon, "MB", 2))
     session.becomePlayer(cn("Player2"))
 
     session.initiateAndQueue(instruction("PROD[5, 4 Energy]"))
@@ -31,8 +29,7 @@ private class InteractiveSessionTest {
 
   @Test
   fun shortNames() {
-    val session = InteractiveSession()
-    session.newGame(GameSetup(Canon, "MB", 2))
+    val session = InteractiveSession(GameSetup(Canon, "MB", 2))
     session.becomePlayer(cn("P2"))
 
     session.initiateAndQueue(instruction("PROD[5, 4 E]"))
@@ -47,8 +44,7 @@ private class InteractiveSessionTest {
 
   @Test
   fun removeAmap() {
-    val session = InteractiveSession()
-    session.newGame(GameSetup(Canon, "MB", 2))
+    val session = InteractiveSession(GameSetup(Canon, "MB", 2))
     session.becomePlayer(cn("Player1"))
 
     session.initiateAndQueue(instruction("3 Heat!"))
@@ -58,23 +54,15 @@ private class InteractiveSessionTest {
   }
 
   @Test
-  fun krash() {
-    val session = InteractiveSession()
-    session.newGame(GameSetup(Canon, "BRHVPX", 3))
-    session.list(expression("System"))
-  }
-
-  @Test
   fun rollback() {
-    val session = InteractiveSession()
-    session.newGame(GameSetup(Canon, "MB", 2))
+    val session = InteractiveSession(GameSetup(Canon, "MB", 2))
     session.becomePlayer(cn("Player1"))
 
     session.initiateAndQueue(instruction("3 Heat"))
     session.initiateAndQueue(instruction("4 Heat"))
     assertThat(session.count(metric("Heat"))).isEqualTo(7)
 
-    val checkpoint = session.game!!.eventLog.checkpoint()
+    val checkpoint = session.game.eventLog.checkpoint()
     session.initiateAndQueue(instruction("-6 Heat"))
     assertThat(session.count(metric("Heat"))).isEqualTo(1)
 
@@ -84,17 +72,16 @@ private class InteractiveSessionTest {
 
   @Test
   fun dependencies() {
-    val session = InteractiveSession()
-    session.newGame(GameSetup(Canon, "MB", 2))
+    val session = InteractiveSession(GameSetup(Canon, "MB", 2))
     session.becomePlayer(cn("Player2"))
 
-    assertThat(session.game!!.taskQueue.taskMap).isEmpty()
+    assertThat(session.game.taskQueue.taskMap).isEmpty()
     assertThat(session.count(metric("Microbe"))).isEqualTo(0)
 
     session.initiateAndAutoExec(instruction("4 OxygenStep"))
     assertThat(session.count(metric("OxygenStep"))).isEqualTo(4)
     session.initiateAndAutoExec(instruction("Ants"))
-    assertThat(session.game!!.taskQueue.taskMap.values).isEmpty()
+    assertThat(session.game.taskQueue.taskMap.values).isEmpty()
     assertThat(session.count(metric("Ants"))).isEqualTo(1)
     session.initiateAndAutoExec(instruction("3 Microbe<Ants>"))
     assertThat(session.count(metric("Microbe"))).isEqualTo(3)
@@ -103,8 +90,7 @@ private class InteractiveSessionTest {
 
   @Test
   fun counting() {
-    val session = InteractiveSession()
-    session.newGame(GameSetup(Canon, "MB", 2))
+    val session = InteractiveSession(GameSetup(Canon, "MB", 2))
     session.becomePlayer(cn("Player2"))
     session.initiateAndQueue(instruction("42 Heat"))
     assertThat(session.count(metric("Heat"))).isEqualTo(42)
@@ -122,8 +108,7 @@ private class InteractiveSessionTest {
 
   @Test
   fun tempTrigger() {
-    val session = InteractiveSession()
-    session.newGame(GameSetup(Canon, "MB", 2))
+    val session = InteractiveSession(GameSetup(Canon, "MB", 2))
 
     session.becomePlayer(cn("Player1"))
     assertThat(session.count(metric("TerraformRating"))).isEqualTo(20)

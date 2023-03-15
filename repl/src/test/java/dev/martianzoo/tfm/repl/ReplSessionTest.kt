@@ -1,15 +1,17 @@
 package dev.martianzoo.tfm.repl
 
 import com.google.common.truth.Truth.assertThat
+import dev.martianzoo.tfm.api.GameSetup
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.pets.ast.Metric.Companion.metric
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.fail
 
 private class ReplSessionTest {
   @Test
   fun testAstrodrill() {
-    val repl = ReplSession(Canon)
+    val repl = ReplSession(Canon, GameSetup(Canon, "BMX", 2)) // TODO
     val commands = """
       newgame BMX 2
       become Player2
@@ -27,8 +29,7 @@ private class ReplSessionTest {
 
   @Test
   fun test() {
-    val repl = ReplSession(Canon)
-    repl.command("newgame MB 2")
+    val repl = ReplSession(Canon, GameSetup(Canon, "MB", 2)) // TODO
     repl.command("become Player2")
     repl.command("mode green")
 
@@ -62,13 +63,13 @@ private class ReplSessionTest {
 
   @Test
   fun testBoard() {
-    val repl = ReplSession(Canon)
-    repl.command("newgame MB 2")
+    val repl = ReplSession(Canon, GameSetup(Canon, "MB", 2)) // TODO
     repl.command("become Player1")
     repl.command("exec PROD[9, 8 Steel, 7 Titanium, 6 Plant, 5 Energy, 4 Heat]")
     repl.command("exec 8, 6 Steel, 7 Titanium, 5 Plant, 3 Energy, 9 Heat")
 
-    val board = BoardToText(repl.session.game!!.reader, false).board(cn("Player1").expr)
+    val game = repl.session.game ?: fail("huh?")
+    val board = BoardToText(game.reader, false).board(cn("Player1").expr)
     assertThat(board)
         .containsExactly(
             "  Player1   TR: 20   Tiles: 0",
@@ -85,8 +86,7 @@ private class ReplSessionTest {
 
   @Test
   fun testMap() {
-    val repl = ReplSession(Canon)
-    repl.command("newgame MB 3")
+    val repl = ReplSession(Canon, GameSetup(Canon, "MB", 3)) // TODO
     repl.command("become P1")
     repl.command("mode red")
     repl.command("exec OT<M26>, OT<M55>, OT<M56>, CT<M46>, GT<M57>, GT<M45, P3>")

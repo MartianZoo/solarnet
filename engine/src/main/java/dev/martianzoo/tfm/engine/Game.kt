@@ -77,16 +77,17 @@ public class Game(val setup: GameSetup, public val loader: MClassLoader) {
 
   public fun getComponents(type: MType): Multiset<Component> = components.getAll(type)
 
-  val einfo = object : ExpressionInfo {
-    override fun isAbstract(e: Expression) = resolve(e).abstract
-    override fun checkReifies(wide: Expression, narrow: Expression) {
-      resolve(wide).checkReifies(resolve(narrow))
-      // wide might be CityTile<P1, LA(HAS MAX 0 NBR<CT<ANY>>)>
-      // narrow might be CityTile<P1, M11>
-      // as pure types they check out
-      // but check whether `HAS MAX 0 NBR<CT<ANY>, M11>` is true
-    }
-  }
+  val einfo =
+      object : ExpressionInfo {
+        override fun isAbstract(e: Expression) = resolve(e).abstract
+        override fun checkReifies(wide: Expression, narrow: Expression) {
+          resolve(wide).checkReifies(resolve(narrow))
+          // wide might be CityTile<P1, LA(HAS MAX 0 NBR<CT<ANY>>)>
+          // narrow might be CityTile<P1, M11>
+          // as pure types they check out
+          // but check whether `HAS MAX 0 NBR<CT<ANY>, M11>` is true
+        }
+      }
   val reader =
       object : GameStateReader {
         override val setup by this@Game::setup
@@ -153,6 +154,20 @@ public class Game(val setup: GameSetup, public val loader: MClassLoader) {
     val result = SingleExecution(this, actor).doOneTaskAtomic(id, false, narrowed)
     if (result.fullSuccess) taskQueue.removeTask(id)
     return result
+  }
+
+  fun enqueueTasks(instruction: Instruction, actor: Actor) =
+      doAtomic { taskQueue.addTasks(instruction, actor, cause = null) }
+
+  internal fun doAtomic(block: () -> Unit): ExecutionResult {
+    val checkpoint = eventLog.checkpoint()
+    try {
+      block()
+    } catch (e: Exception) {
+      rollBack(checkpoint)
+      throw e
+    }
+    return eventLog.resultsSince(checkpoint, fullSuccess = true)
   }
 
   // CHANGE LOG
