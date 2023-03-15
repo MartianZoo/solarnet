@@ -2,7 +2,7 @@
 
 ### <a href="pets/dev.martianzoo.tfm.api/index.html">dev.martianzoo.tfm.api</a>
 
-Basic types (TODO explain better).
+Basic interfaces that everything else needs to share.
 
 ### <a href="pets/dev.martianzoo.tfm.pets/index.html">dev.martianzoo.tfm.pets</a>
 

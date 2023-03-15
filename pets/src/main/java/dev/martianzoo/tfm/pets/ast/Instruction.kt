@@ -327,6 +327,8 @@ public sealed class Instruction : PetNode() {
           else -> Multi(instructions)
         }
       }
+      fun create(first: Instruction, vararg rest: Instruction) =
+          if (rest.none()) first else Multi(listOf(first) + rest)
     }
   }
 

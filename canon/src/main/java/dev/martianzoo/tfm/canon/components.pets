@@ -7,9 +7,10 @@
 
 CLASS Game : System {
   HAS MAX 1 This                                       // Created manually to kick everything off
+
   This:: @forceLoad(Class<Production>)
   This:: @forceLoad(Class<GrossHack>)
-  // This:: @createSingletons()                        // TODO
+  This:: @forceLoad(Class<BackwardAdjacency>)
 
   PlayTag<Class<BuildingTag>>:: Accept<Class<Steel>>
   PlayTag<Class<SpaceTag>>:: Accept<Class<Titanium>>
@@ -60,11 +61,12 @@ ABSTRACT CLASS MarsMap {                               // Tharsis etc. are loade
   // This:: @createAll(This, Border)                   // TODO
 }
 
-ABSTRACT CLASS Area {
+ABSTRACT CLASS Area : System {
   HAS =1 This
   HAS MAX 1 Tile<This>                                 // circular reference is un-ideal, but...
 
   ABSTRACT CLASS MarsArea[MA] {                        // specific areas loaded from `maps.json5`
+    Tile<This>:: @createAdjacencies(This)              // TODO eventually we shouldn't need this
     ABSTRACT CLASS LandArea[LA] {
       ABSTRACT CLASS VolcanicArea[VA]
     }
@@ -75,16 +77,11 @@ ABSTRACT CLASS Area {
   ABSTRACT CLASS RemoteArea[RA]
 }
 
-ABSTRACT CLASS Tile<Area> {
-  // This:: @createAdjacencies(This, Neighbor, ForwardAdjacency, BackwardAdjacency) // TODO
-}
+ABSTRACT CLASS Tile<Area>
 
-CLASS Neighbor<Tile<MarsArea>, MarsArea> [NBR] {
-  HAS MAX 1 This
-}
+CLASS Neighbor<Tile<MarsArea>, MarsArea> [NBR] : System
 
-ABSTRACT CLASS Adjacency<Tile, Tile> [ADJ] {
-  HAS MAX 1 This
+ABSTRACT CLASS Adjacency<Tile, Tile> [ADJ] : System {
   CLASS ForwardAdjacency, BackwardAdjacency
 }
 
@@ -102,7 +99,7 @@ ABSTRACT CLASS Generational {                          // things that disappear 
   Generation:: -This.                                  // <-- and look, there they go
 }
 
-ABSTRACT CLASS Phase {
+ABSTRACT CLASS Phase : System {
   HAS MAX 1 Phase                                      // switch like `ProductionPhase FROM Phase`
 
   CLASS ProductionPhase

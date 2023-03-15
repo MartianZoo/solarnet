@@ -48,7 +48,10 @@ private class CanonEffectsTest {
 
   @Test
   fun e98() {
-    assertThat(effectsOf("Elysium_9_8")).containsExactly("Tile<This> BY Owner: ProjectCard<Owner>!")
+    assertThat(effectsOf("Elysium_9_8")).containsExactly(
+        "Tile<This>:: @createAdjacencies(This)",
+        "Tile<This> BY Owner: ProjectCard<Owner>!",
+    )
   }
 
   @Test
