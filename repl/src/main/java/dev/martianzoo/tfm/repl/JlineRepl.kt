@@ -14,7 +14,7 @@ public class JlineRepl {
   private val historyFile = Path(System.getProperty("user.home") + "/.rego_history")
   val terminal: Terminal =
       TerminalBuilder.builder().color(true).build().also {
-        it.enterRawMode()
+        // it.enterRawMode()
         it.puts(Capability.enter_ca_mode)
         it.puts(Capability.keypad_xmit)
       }
@@ -27,16 +27,18 @@ public class JlineRepl {
         history.read(historyFile, /* checkDuplicates= */ false)
       }
 
-  fun loop(prompt: () -> String, handler: (String) -> List<String>) {
+  fun loop(prompt: () -> String, handler: (String) -> List<String>, welcome: String) {
+    var first = true
     while (true) {
       fun end() = history.append(historyFile, true)
 
       val inputLine =
           try {
-            reader.readLine(prompt())
+            reader.readLine((if (first) "$welcome\n" else "") + prompt())
           } catch (e: EndOfFileException) {
             return end()
           }
+      first = false
 
       when (inputLine.trim()) {
         "exit" -> return end()

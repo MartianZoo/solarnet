@@ -12,6 +12,7 @@ import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.pets.ast.Expression.Companion.expression
+import dev.martianzoo.tfm.pets.ast.Instruction
 import dev.martianzoo.tfm.pets.ast.Instruction.Companion.instruction
 import dev.martianzoo.tfm.pets.ast.Metric.Companion.metric
 import dev.martianzoo.tfm.pets.ast.Requirement.Companion.requirement
@@ -42,7 +43,17 @@ internal fun main() {
     val kuller = repl.effectiveMode().color
     return kuller.foreground("$text> ")
   }
-  jline.loop(::prompt, repl::command)
+
+  val welcome = """
+    Welcome to REgo PLastics. Type `help` for help.
+    Warning: this is a bare-bones tool that is not trying to be easy to use... at all
+    
+    ${repl.command("newgame BM 2").joinToString("""
+    """)}
+
+  """.trimIndent()
+
+  jline.loop(::prompt, repl::command, welcome)
   println("Bye")
 }
 
@@ -152,8 +163,8 @@ public class ReplSession(private val authority: Authority, val jline: JlineRepl?
             override fun withArgs(args: String): List<String> {
               val expr = expression(args)
               val counts: Multiset<Expression> = session.list(expr)
-              return listOf("Listing ${session.prep(expr)}...") +
-                  counts.entries.sortedByDescending { (_, ct) -> ct }.map { (e, ct) -> "$ct $e" }
+              return listOf("${counts.size} ${session.prep(expr)}") +
+                  counts.entries.sortedByDescending { (_, ct) -> ct }.map { (e, ct) -> "  $ct $e" }
             }
           },
           object : ReplCommand("board") {
@@ -224,15 +235,21 @@ public class ReplSession(private val authority: Authority, val jline: JlineRepl?
               val idString = split.firstOrNull() ?: throw UsageException()
               val id = TaskId(idString)
               if (id !in q) throw UsageException("not a valid id: $idString")
-              val instruction =
+              val rest: String? =
                   if (split.size > 1 && split[1].isNotEmpty()) {
-                    instruction(split[1])
+                    split[1]
                   } else {
                     null
                   }
+              if (rest == "drop") {
+                session.game!!.taskQueue.removeTask(id)
+                return listOf("Task $id deleted")
+              }
+              val instruction: Instruction? = rest?.let { instruction(it) }
               val result: ExecutionResult =
                   try {
                     when (mode) {
+                      RED -> return listOf("Can't execute tasks in red mode")
                       YELLOW -> session.doTaskOnly(id, instruction)
                       GREEN ->
                           session.doTaskAndAutoExec(id, instruction, requireFullSuccess = false)

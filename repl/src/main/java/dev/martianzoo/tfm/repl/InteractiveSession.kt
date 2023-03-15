@@ -16,7 +16,6 @@ import dev.martianzoo.tfm.pets.ast.Instruction
 import dev.martianzoo.tfm.pets.ast.Metric
 import dev.martianzoo.tfm.pets.ast.PetNode
 import dev.martianzoo.tfm.pets.ast.Requirement
-import dev.martianzoo.tfm.types.MClass
 import dev.martianzoo.tfm.types.MType
 import dev.martianzoo.tfm.types.Transformers.AtomizeGlobalParameterGains
 import dev.martianzoo.tfm.types.Transformers.CompositeTransformer
@@ -69,13 +68,10 @@ class InteractiveSession {
     val allComponents: Multiset<Component> = game!!.getComponents(typeToList)
 
     // BIGTODO decide more intelligently how to break it down
-    val mclass = typeToList.mclass
 
     // ugh capital tile TODO
-    val subs: Set<MClass> = mclass.directSubclasses.ifEmpty { setOf(mclass) }
-
     val result = HashMultiset<Expression>()
-    subs.forEach { sub ->
+    typeToList.mclass.directSubclasses.forEach { sub ->
       val matches = allComponents.filter { it.hasType(sub.baseType) }
       if (matches.any()) {
         val types = matches.elements.map { it.mtype }
