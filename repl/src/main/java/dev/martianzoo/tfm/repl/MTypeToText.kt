@@ -82,7 +82,7 @@ object MTypeToText { // TODO refactor to ClassInfo / TypeInfo type dealies
 
         Component $c:
             effects:     ${
-        c.effects.joinToString("""
+        c.effects().joinToString("""
                          """)
       }
       """.trimIndent()

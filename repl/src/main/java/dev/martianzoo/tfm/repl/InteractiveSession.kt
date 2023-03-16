@@ -159,14 +159,14 @@ class InteractiveSession(initialGame: GameSetup) {
   fun <P : PetNode?> prep(node: P): P {
     if (node == null) return node
     val loader = game.loader
-    return CompositeTransformer(
-            UseFullNames(loader),
-            AtomizeGlobalParameterGains(loader),
-            InsertDefaults(loader),
-            ReplaceOwnerWith(defaultPlayer),
-            Deprodify(loader),
-            // not needed: ReplaceThisWith, FixEffectForUnownedContext
-        )
-        .transform(node)
+    val xers = listOfNotNull(
+        UseFullNames(loader),
+        AtomizeGlobalParameterGains(loader),
+        InsertDefaults(loader),
+        Deprodify(loader),
+        defaultPlayer?.let { ReplaceOwnerWith(it) },
+        // not needed: ReplaceThisWith, FixEffectForUnownedContext
+    )
+    return CompositeTransformer(xers).transform(node)
   }
 }

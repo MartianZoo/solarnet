@@ -1,6 +1,8 @@
 package dev.martianzoo.tfm.types
 
 import com.google.common.truth.Truth.assertThat
+import dev.martianzoo.tfm.canon.Canon
+import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.pets.ast.Expression.Companion.expression
 import org.junit.jupiter.api.Test
 
@@ -152,6 +154,14 @@ private class MTypeTest {
     // TODO get these working too!
     // checkMinimal("TwoSame<Foo1, Foo3>", "TwoSame<Foo2, Foo3>")
     // checkMinimal("TwoSame<Foo2, Foo3>")
+  }
+
+  @Test
+  fun subs() {
+    val loader = MClassLoader(Canon).loadEverything()
+    val pprod = loader.resolve(expression("Production<Player1, Class<Plant>>"))
+    assertThat(pprod.findSubstitutions(setOf(cn("StandardResource"))))
+        .containsExactly(cn("StandardResource"), cn("Plant").expr)
   }
 
   private fun te(s: String) = expression(s)

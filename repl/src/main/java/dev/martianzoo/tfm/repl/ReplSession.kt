@@ -136,7 +136,9 @@ public class ReplSession(
       } catch (e: RuntimeException) {
         throw UsageException(e.message)
       }
-      return listOf("New $players-player game created with bundles: $bundleString")
+      return listOf("New $players-player game created with bundles: $bundleString") +
+          if (players.toInt() == 1) listOf("NOTE: No solo mode rules are implemented.")
+          else listOf()
     }
   }
 

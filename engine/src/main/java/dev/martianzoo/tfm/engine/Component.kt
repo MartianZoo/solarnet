@@ -2,9 +2,13 @@ package dev.martianzoo.tfm.engine
 
 import dev.martianzoo.tfm.api.Exceptions.AbstractInstructionException
 import dev.martianzoo.tfm.api.SpecialClassNames.OWNED
+import dev.martianzoo.tfm.api.SpecialClassNames.OWNER
+import dev.martianzoo.tfm.pets.PetTransformer
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.Effect
+import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.pets.ast.HasExpression
+import dev.martianzoo.tfm.pets.ast.PetNode
 import dev.martianzoo.tfm.types.Dependency.Key
 import dev.martianzoo.tfm.types.MClass
 import dev.martianzoo.tfm.types.MType
@@ -44,22 +48,36 @@ public data class Component private constructor(val mtype: MType) : HasExpressio
   /**
    * This component's effects; while the component exists in a game state, the effects are active.
    */
-  public val effects: List<Effect> by lazy {
-    // do the ones classEffects didn't
-    val transformer =
-        CompositeTransformer(
-            Deprodify(mtype.loader),
-            ReplaceThisWith(mtype.expression),
-            ReplaceOwnerWith(owner()),
-        )
+  public fun effects(): List<Effect> {
+    return mtype.mclass.classEffects.map { decl ->
+      val linkages: Set<ClassName> = decl.linkages
+      val subs: Map<ClassName, Expression> = mtype.findSubstitutions(linkages)
 
-    mtype.mclass.classEffects.map { decl ->
-      // Transform for some "linkages" (TODO the rest, and do in more principled way)
-      transformer.transform(decl.effect)
+      val subber = // TODO move to where the rest are
+          object : PetTransformer() {
+            override fun <P : PetNode> transform(node: P): P {
+              return if (node is Expression && node.simple) {
+                (subs[node.className] ?: node) as P
+              // TODO DISGUSTING HACK
+              }  else if (node is Expression && node.arguments == listOf(OWNER.expr)) {
+                (subs[node.className]?.addArgs(OWNER) ?: node) as P
+              } else {
+                transformChildren(node)
+              }
+            }
+          }
+      CompositeTransformer(
+              listOfNotNull(
+                  subber,
+                  ReplaceThisWith(mtype.expression),
+                  Deprodify(mtype.loader),
+                  owner()?.let { ReplaceOwnerWith(it) },
+              ))
+          .transform(decl.effect)
     }
   }
 
-  val activeEffects: List<ActiveEffect> by lazy { effects.map { ActiveEffect.from(it, this) } }
+  val activeEffects: List<ActiveEffect> by lazy { effects().map { ActiveEffect.from(it, this) } }
 
   public fun owner(): ClassName? = mtype.dependencies.getIfPresent(Key(OWNED, 0))?.className
 

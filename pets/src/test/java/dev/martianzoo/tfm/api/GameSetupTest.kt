@@ -28,7 +28,6 @@ private class GameSetupTest {
 
   @Test
   fun badPlayerCount() {
-    assertFails("solo") { GameSetup(authority, "BM", 1) }
     assertFails("many") { GameSetup(authority, "BM", 6) }
   }
 

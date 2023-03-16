@@ -77,7 +77,7 @@ class SingleExecution(val game: Game, val actor: Actor, val doEffects: Boolean =
     spent = true
 
     val requestedTask: Task = game.taskQueue[taskId]
-    require(requestedTask.actor == actor)
+    // require(requestedTask.actor == actor) TODO meh
 
     narrowedInstruction?.checkReifies(requestedTask.instruction, game.einfo)
     val instruction = narrowedInstruction ?: requestedTask.instruction

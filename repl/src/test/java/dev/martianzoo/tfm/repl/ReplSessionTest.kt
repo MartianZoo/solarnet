@@ -10,6 +10,27 @@ import org.junit.jupiter.api.fail
 
 private class ReplSessionTest {
   @Test
+  fun testProductionPhase() {
+    val repl = ReplSession(Canon, GameSetup(Canon, "BMX", 2)) // TODO
+    val commands = """
+      become Player1
+      exec PROD[1, 2 S, 3 T, 4 P, 5 E, 6 H]
+      exec 8, 6 S, 7 T, 5 P, 3 E
+      exec 9 TR
+    """.trimIndent()
+    for (cmd in commands.split("\n")) {
+      repl.command(cmd)
+    }
+    repl.command("exec ProductionPhase")
+    assertThat(repl.session.count(metric("S"))).isEqualTo(8)
+    assertThat(repl.session.count(metric("T"))).isEqualTo(10)
+    assertThat(repl.session.count(metric("P"))).isEqualTo(9)
+    assertThat(repl.session.count(metric("E"))).isEqualTo(5)
+    assertThat(repl.session.count(metric("H"))).isEqualTo(9)
+    assertThat(repl.session.count(metric("M"))).isEqualTo(38) // 8 + 29 + 1
+  }
+
+  @Test
   fun testAstrodrill() {
     val repl = ReplSession(Canon, GameSetup(Canon, "BMX", 2)) // TODO
     val commands = """

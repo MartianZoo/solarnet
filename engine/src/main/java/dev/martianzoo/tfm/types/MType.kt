@@ -4,6 +4,7 @@ import com.google.common.collect.Lists.cartesianProduct
 import dev.martianzoo.tfm.api.Exceptions.InvalidReificationException
 import dev.martianzoo.tfm.api.SpecialClassNames.CLASS
 import dev.martianzoo.tfm.api.Type
+import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.pets.ast.HasClassName
 import dev.martianzoo.tfm.pets.ast.Requirement
@@ -159,4 +160,27 @@ internal constructor(
   }
 
   override fun toString() = "$expressionFull@${mclass.loader}"
+
+  fun findSubstitutions(linkages: Set<ClassName>): Map<ClassName, Expression> {
+    val general: Expression = mclass.baseType.expressionFull
+    val specific: Expression = expressionFull
+
+    val map = mutableMapOf<ClassName, Expression>()
+    doIt(linkages, map, general, specific)
+    return map
+  }
+
+  private fun doIt(
+      linkages: Set<ClassName>,
+      map: MutableMap<ClassName, Expression>,
+      general: Expression,
+      specific: Expression) {
+    for ((g, s) in general.arguments.zip(specific.arguments)) {
+      if (g.simple && g.className in linkages && s != g) {
+        map[g.className] = s
+      } else {
+        doIt(linkages, map, g, s)
+      }
+    }
+  }
 }

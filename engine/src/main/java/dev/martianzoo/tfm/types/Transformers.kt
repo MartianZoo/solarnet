@@ -79,13 +79,9 @@ public object Transformers {
     }
   }
 
-  public class ReplaceOwnerWith(val owner: ClassName?) : PetTransformer() {
+  public class ReplaceOwnerWith(val owner: ClassName) : PetTransformer() {
     override fun <P : PetNode> transform(node: P): P {
-      return if (owner != null) {
-        node.replaceAll(OWNER.expr, owner.expr)
-      } else {
-        node
-      }
+      return node.replaceAll(OWNER.expr, owner.expr)
     }
   }
 

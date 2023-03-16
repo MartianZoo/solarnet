@@ -34,7 +34,7 @@ data class GameSetup(
   ) : this(authority, splitLetters(bundles), players)
 
   init {
-    require(players in 2..5) { "player count not supported: $players" }
+    require(players in 1..5) { "player count not supported: $players" }
     require("B" in bundles) { "missing base: $bundles" }
     require(authority.allBundles.containsAll(bundles)) {
       "supported bundles are: ${authority.allBundles}"
