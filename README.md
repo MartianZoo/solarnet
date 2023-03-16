@@ -12,11 +12,11 @@ The game engine is the part of a game whose job is to *know the rules* of the ga
 
 Inside the open-source app mentioned above is *already* an extremely accurate (~99.9%) game engine. And inside the official app mentioned above is already a game engine. So why do we need a third?
 
-Well, first: because I wanted to.
+Answer: we don't. I just wanted to.
 
-Also, I'm trying to do it differently. All the cards, milestones, etc. are *[just data](https://github.com/MartianZoo/solarnet/blob/main/canon/src/main/java/dev/martianzoo/tfm/canon/cards.json5)* and don't require custom programming (except for the ones that do). These game components express their behaviors using a specification language called **Pets** created just for this purpose. Expressions of card behaviors written in Pets are also suitable for conversion into natural-language instructions, or even the iconographic language used by the printed cards. The hope is to eventually have a situation where every card *must* do exactly what it says it does (in words and in icons), because it couldn't do otherwise.
+I am taking a different approach, though. All the cards, milestones, etc. are *[just data](https://github.com/MartianZoo/solarnet/blob/main/canon/src/main/java/dev/martianzoo/tfm/canon/cards.json5)* and don't require custom programming (except for the ones that do). These game components express their behaviors using a specification language called **Pets** created just for this purpose. Expressions of card behaviors written in Pets would also be suitable for conversion into natural-language instructions, or even the iconographic language used by the printed cards. This would in theory create a situation where every card *must* do exactly what it says it does (in words and in icons), because it couldn't do otherwise.
 
-But when it comes down to it, I don't know what this project will be useful for yet, and maybe nothing.
+But when it comes down to it, I don't know what this project will be useful for yet. Maybe it would be good for training AI players against. But maybe nothing.
 
 ## Goals
 
