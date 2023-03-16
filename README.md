@@ -2,17 +2,19 @@
 
 Solarnet is a (work-in-progress) open-source game engine for the superlative 2016 board game *[Terraforming Mars](https://www.amazon.com/Indie-Boards-Cards-Terraforming-Board/dp/B01GSYA4K2)*, published by [FryxGames](http://fryxgames.se).
 
-It is not a way to *play* the game. For that, see the [online open-source app](http://terraforming-mars.herokuapp.com) -- and please make sure to [buy a physical copy](https://www.amazon.com/Indie-Boards-Cards-Terraforming-Board/dp/B01GSYA4K2) of the game so the creators get paid! There is also an official app for sale in the usual places.
+It is not a way to *play* the game. (Good lord, a person would go mad.) For that, see the [online open-source app](http://terraforming-mars.herokuapp.com) -- and please make sure to [buy a physical copy](https://www.amazon.com/Indie-Boards-Cards-Terraforming-Board/dp/B01GSYA4K2) of the game too! There is also an official app for sale in the usual places but I can't vouch for it.
 
-This project is unrelated to those apps, nor to any other existing codebase (it's "clean-room", I guess).
+This is a clean room project unrelated to those apps or to any other existing codebase.
 
 ## Why another game engine?
 
-The game engine is the part of a game whose job is to *know the rules* of the game perfectly. Given some game state, and some choice made by a player, the engine computes the game state that results (or else determines that the choice was illegal).
+The game engine is the part of a game whose job is to *know the rules* of the game perfectly. It is just a big overblown calculator. Given some game state, and some choice made by a player, the engine computes the game state that results (or else determines that the choice was illegal).
 
 Inside the open-source app mentioned above is *already* an extremely accurate (~99.9%) game engine. And inside the official app mentioned above is already a game engine. So why do we need a third?
 
-The main answer is just "because I wanted to", and that's enough. But also, I'm trying to build this with a unique approach. All the cards, milestones, etc. are *[just data](https://github.com/MartianZoo/solarnet/blob/main/canon/src/main/java/dev/martianzoo/tfm/canon/cards.json5)* and don't require custom programming (except for the ones that do). These game components express their behaviors using a specification language called Pets, created just for this purpose. Expressions of card behaviors written in Pets are also suitable for conversion into natural-language instructions, or even the iconographic language used by the printed cards. The hope is to arrive at a situation where every card *must* do exactly what it says it does (in words and in icons), because it couldn't do otherwise.
+Well, first: because I wanted to.
+
+Also, I'm trying to do it differently. All the cards, milestones, etc. are *[just data](https://github.com/MartianZoo/solarnet/blob/main/canon/src/main/java/dev/martianzoo/tfm/canon/cards.json5)* and don't require custom programming (except for the ones that do). These game components express their behaviors using a specification language called **Pets** created just for this purpose. Expressions of card behaviors written in Pets are also suitable for conversion into natural-language instructions, or even the iconographic language used by the printed cards. The hope is to eventually have a situation where every card *must* do exactly what it says it does (in words and in icons), because it couldn't do otherwise.
 
 But when it comes down to it, I don't know what this project will be useful for yet, and maybe nothing.
 
@@ -54,18 +56,24 @@ I have started jotting some stuff down, but the written docs leave much to be de
 
 ## Interested in playing around with it?
 
-Just clone and run `./rego` and type `help`. You can do a few things. Not much. For example, you can add a GreeneryTile to the board, but it won't yet trigger effects like adding an `OxygenStep`. If you `desc GreeneryTile` you can see that it knows it's supposed to. It just doesn't. I'm getting there.
+If you have git and Java stuff working already this should be all it takes to start messing around:
 
-You can also look for the `*.pets` and `*.json5` files to see how game components get defined in the Pets language. You can change it around or attempt to add your own custom cards. But be warned: I have spent ZERO time and effort on error handling, so the error messages you're gonna get will be **incredibly unhelpful and frustrating**. Sorry! I plan to improve this at some point.
+```
+git clone https://github.com/MartianZoo/solarnet.git
+cd solarnet
+./rego
+```
+
+You can also look for the `*.pets` and `*.json5` files to see how game components get defined in the Pets language. You can change it around or attempt to add your own custom cards. But be warned: I have spent very little time on error handling, so the error messages you're gonna get will be incredibly unhelpful and frustrating. Sorry!
 
 ## Want to poke around in the implementation code?
 
 First get an overview from the API documentation. It's not hosted yet, but you can `./gradlew dokkaHtmlMultiModule` and then look at `docs/api/index.html`.
 
-It's written in [Kotlin](https://kotlinlang.org). It's the first Kotlin I've written and I'm very happy with the language so far. If you are already comfortable in Java, it's not too hard to learn the basics (and I don't really use the most advanced features).
+It's all written in [Kotlin](https://kotlinlang.org). It's my first time using it and I'm extremely happy with that decision.
 
 ## Who are you
 
 http://kevinb9n.github.io
 
-If you find this project interesting and want to talk about it, please send mail to kevinb9n@gmail.com. I'd be more than happy to get it. At this point I haven't had too many people to talk to about it yet.
+I'd love to hear any thoughts on this project at kevinb9n@gmail.com.]
