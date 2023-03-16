@@ -62,7 +62,6 @@ private object CreateAll : CustomInstruction("createAll") {
 
 // For Robinson Industries
 private object GainLowestProduction : CustomInstruction("gainLowestProduction") {
-
   override fun translate(game: GameStateReader, arguments: List<Type>): Instruction {
     val player = arguments.single()
     val prods: Map<ClassName, Int> = lookUpProductionLevels(game, player.expression)

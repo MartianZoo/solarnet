@@ -19,15 +19,15 @@ private class CanonEffectsTest {
 
   @Test
   fun sabotage() {
-    assertThat(effectsOf("Sabotage"))
+    assertThat(effectsOf("Sabotage").drop(1))
         .containsExactly(
-            "This: PlayedEvent<Owner, Class<This>> FROM This",
+            "This: PlayedEvent<Owner, Class<This>> FROM This!",
             "This: -3 Titanium<Anyone>? OR -4 Steel<Anyone>? OR -7 Megacredit<Anyone>?")
   }
 
   @Test
   fun energy() {
-    assertThat(effectsOf("Energy")).containsExactly("ProductionPhase:: Heat<Owner> FROM This")
+    assertThat(effectsOf("Energy")).containsExactly("ProductionPhase:: Heat<Owner> FROM This!")
   }
 
   @Test
@@ -37,7 +37,7 @@ private class CanonEffectsTest {
 
   @Test
   fun gyropolis() {
-    assertThat(effectsOf("Gyropolis").drop(1))
+    assertThat(effectsOf("Gyropolis").drop(2))
         .containsExactly(
             // "This: CityTag<Owner>!, BuildingTag<Owner>!",
             "This: CityTile<Owner, LandArea(HAS MAX 0 Neighbor<CityTile<Anyone>>)>!," +
@@ -57,7 +57,7 @@ private class CanonEffectsTest {
   @Test
   fun venusian() {
     val blah = "Owner, VenusianAnimals<Owner>"
-    assertThat(effectsOf("VenusianAnimals"))
+    assertThat(effectsOf("VenusianAnimals").drop(1))
         .containsExactly(
             "This:: (9 VenusStep: Ok!)",
             "This:: VenusTag<$blah>!, ScienceTag<$blah>!, AnimalTag<$blah>!",
@@ -84,7 +84,7 @@ private class CanonEffectsTest {
 
   @Test
   fun immigrantCity() {
-    assertThat(effectsOf("ImmigrantCity").drop(1))
+    assertThat(effectsOf("ImmigrantCity").drop(2))
         .containsExactly(
             // "This: CityTag<Owner>!, BuildingTag<Owner>!",
             "This: PROD[-Energy<Owner>!, -2 Megacredit<Owner>!]," +
@@ -94,7 +94,7 @@ private class CanonEffectsTest {
 
   @Test
   fun titanAirScrapping() {
-    assertThat(effectsOf("TitanAirScrapping"))
+    assertThat(effectsOf("TitanAirScrapping").drop(1))
         .containsExactly(
             "This:: JovianTag<Owner, TitanAirScrapping<Owner>>!",
             "UseAction1<Owner, This>: -Titanium<Owner>! THEN 2 Floater<Owner, This>.",
@@ -105,7 +105,7 @@ private class CanonEffectsTest {
 
   @Test
   fun amc() {
-    assertThat(effectsOf("AsteroidMiningConsortium"))
+    assertThat(effectsOf("AsteroidMiningConsortium").drop(1))
         .containsExactly(
             "This:: (PROD[Titanium<Owner>]: Ok!)",
             "This:: JovianTag<Owner, AsteroidMiningConsortium<Owner>>!",
@@ -116,7 +116,7 @@ private class CanonEffectsTest {
 
   @Test
   fun pets() {
-    assertThat(effectsOf("Pets").drop(1))
+    assertThat(effectsOf("Pets").drop(2))
         .containsExactly(
             // "This: EarthTag<Owner>!, AnimalTag<Owner>!",
             "This: Animal<Owner, This>.",
@@ -128,7 +128,7 @@ private class CanonEffectsTest {
 
   @Test
   fun aquiferPumping() {
-    assertThat(effectsOf("AquiferPumping"))
+    assertThat(effectsOf("AquiferPumping").drop(1))
         .containsExactly(
             "This:: BuildingTag<Owner, AquiferPumping<Owner>>!",
             "UseAction1<Owner, This>:: Accept<Owner, Class<Steel>>.",
@@ -138,10 +138,10 @@ private class CanonEffectsTest {
 
   @Test
   fun floaterPrototypes() {
-    assertThat(effectsOf("FloaterPrototypes"))
+    assertThat(effectsOf("FloaterPrototypes").drop(1))
         .containsExactly(
-            "This:: ScienceTag<Owner, FloaterPrototypes<Owner>>!", // TODO double colon?
-            "This: PlayedEvent<Owner, Class<This>> FROM This", // TODO why this didn't get subst
+            "This:: ScienceTag<Owner, FloaterPrototypes<Owner>>!",
+            "This: PlayedEvent<Owner, Class<This>> FROM This!", // TODO why this didn't get subst
             "This: 2 Floater<Owner>.")
   }
 }

@@ -95,12 +95,17 @@ ABSTRACT CLASS Owned<Anyone> {
     CLASS ProjectCard[PC]                         // CardBack it used to be... well, that USED to be
   }                                               // true until "Double Down" in Dec 2022
 
-  ABSTRACT CLASS CardFront {                      // specific CardFronts are loaded from `cards.json5`
+  ABSTRACT CLASS CardFront {                      // specific CardFronts come from `cards.json5`
     ABSTRACT CLASS EventCard {
-      This: PlayedEvent<Class<This>> FROM This
+      This:: -ProjectCard!
+      This: PlayedEvent<Class<This>> FROM This    // TODO SolarProbe, at least
     }                                             // could we get this happen automatically at EOT?
-    ABSTRACT CLASS AutomatedCard
-    ABSTRACT CLASS ActiveCard
+    ABSTRACT CLASS AutomatedCard {
+      This:: -ProjectCard!                        // temp hack
+    }
+    ABSTRACT CLASS ActiveCard {
+      This:: -ProjectCard!
+    }
 
     ABSTRACT CLASS ActionCard : HasActions
   }

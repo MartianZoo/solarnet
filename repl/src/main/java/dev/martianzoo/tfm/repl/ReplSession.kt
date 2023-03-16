@@ -86,6 +86,7 @@ public class ReplSession(
 
   private val commands =
       listOf(
+              AsCommand(),
               BecomeCommand(),
               BoardCommand(),
               CountCommand(),
@@ -110,6 +111,19 @@ public class ReplSession(
     override val usage = "help [command]"
     override fun noArgs() = listOf(helpText)
     override fun withArgs(args: String) = listOf("Sorry, haven't implemented this yet")
+  }
+
+  internal inner class AsCommand : ReplCommand("as") {
+    override val usage = "as <PlayerN> <full command>"
+    override fun noArgs() = throw UsageException()
+    override fun withArgs(args: String): List<String> {
+      val current: ClassName? = session.defaultPlayer
+      val (player, rest) = args.trim().split(Regex("\\s+"), 2)
+      session.becomePlayer(cn(player))
+      val result = command(rest)
+      current?.let { session.becomePlayer(it) } ?: session.becomeNoOne()
+      return result
+    }
   }
 
   internal inner class NewGameCommand : ReplCommand("newgame") {
@@ -368,11 +382,7 @@ public class ReplSession(
   }
 
   internal fun command(commandName: String, args: String?): List<String> {
-    if (commandName !in setOf("help", "history", "newgame") && session.game == null) {
-      return listOf("No game active")
-    }
     val command = commands[commandName] ?: return listOf("¯\\_(ツ)_/¯ Type `help` for help")
-
     return try {
       if (args == null) command.noArgs() else command.withArgs(args.trim())
     } catch (e: UsageException) {

@@ -17,6 +17,7 @@ import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.pets.ast.Instruction.Gain
 import dev.martianzoo.tfm.pets.ast.Instruction.Multi
 import dev.martianzoo.tfm.pets.ast.Instruction.Remove
+import dev.martianzoo.tfm.pets.ast.Instruction.Transmute
 import dev.martianzoo.tfm.pets.ast.PetNode
 import dev.martianzoo.tfm.pets.ast.ScaledExpression
 import dev.martianzoo.tfm.pets.ast.classNames
@@ -137,8 +138,18 @@ public object Transformers {
     override fun <P : PetNode> transform(node: P): P {
       val result: PetNode =
           when (node) {
+            is Transmute -> {
+              val original: Expression = node.gaining
+              if (leaveItAlone(original)) {
+                return node // don't descend
+              } else {
+                val defaults: Defaults = Defaults.forClass(loader.getClass(original.className))
+                Transmute(node.from, node.scalar, node.intensity ?: defaults.gainIntensity)
+                // TODO also gainDeps??
+              }
+            }
             is Gain -> {
-              val original: Expression = node.scaledEx.expression
+              val original: Expression = node.gaining
               if (leaveItAlone(original)) {
                 return node // don't descend
               } else {
@@ -150,7 +161,7 @@ public object Transformers {
               }
             }
             is Remove -> { // TODO duplication
-              val original: Expression = node.scaledEx.expression
+              val original: Expression = node.removing
               if (leaveItAlone(original)) {
                 return node // don't descend
               } else {

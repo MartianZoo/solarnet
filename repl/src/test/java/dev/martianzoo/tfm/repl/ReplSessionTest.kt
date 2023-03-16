@@ -32,6 +32,7 @@ private class ReplSessionTest {
     val repl = ReplSession(Canon, GameSetup(Canon, "MB", 2)) // TODO
     repl.command("become Player2")
     repl.command("mode green")
+    repl.command("exec ProjectCard")
 
     // TODO deprodify these for the screen
     assertThat(strip(repl.command("exec PROD[5, 4 Energy]")))
@@ -43,6 +44,7 @@ private class ReplSessionTest {
     assertThat(strip(repl.command("exec StripMine")))
         .containsExactly(
             "+StripMine<Player2> FOR Player2 (manual)",
+            "-ProjectCard<Player2> FOR Player2 BY StripMine<Player2>",
             "+BuildingTag<Player2, StripMine<Player2>> $byCard",
             "-2 Production<Player2, Class<Energy>> $byCard",
             "+2 Production<Player2, Class<Steel>> $byCard",

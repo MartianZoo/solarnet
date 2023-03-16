@@ -100,21 +100,6 @@
       "effects": [ "EarthTag: ProjectCard" ]
     },
 
-    // Arklight
-    {
-      "id": "CC2",
-      "bundle": "C",
-      "deck": "CORPORATION",
-      "tags": [ "AnimalTag" ],
-      "immediate": "45, PROD[2]",
-      "effects" : [
-        "AnimalTag: Animal<This>",
-        "PlantTag: Animal<This>",
-        "End: VictoryPoint / 2 Animal<This>"
-      ],
-      "resourceType": "Animal"
-    },
-
     // Aphrodite
     {
       "id": "V01",
@@ -133,6 +118,34 @@
       "tags": [ "MicrobeTag" ],
       "immediate": "48",
       "actions": [ "-> UseAction<ActionCard(HAS ActionUsedMarker)>" ]
+    },
+
+    // Arklight
+    {
+      "id": "CC2",
+      "bundle": "C",
+      "deck": "CORPORATION",
+      "tags": [ "AnimalTag" ],
+      "immediate": "45, PROD[2]",
+      "effects" : [
+        "AnimalTag: Animal<This>",
+        "PlantTag: Animal<This>",
+        "End: VictoryPoint / 2 Animal<This>"
+      ],
+      "resourceType": "Animal"
+    },
+
+    // Lakefront Resorts
+    {
+      "id": "TC1",
+      "bundle": "T",
+      "deck": "CORPORATION",
+      "tags": [ "BuildingTag" ],
+      "immediate": "54",
+      "effects": [
+        "OceanTile BY Anyone: PROD[1]",
+        "ForwardAdjacency<OceanTile, Tile> BY Owner: 1" // TODO
+      ]
     },
 
     // Recyclon

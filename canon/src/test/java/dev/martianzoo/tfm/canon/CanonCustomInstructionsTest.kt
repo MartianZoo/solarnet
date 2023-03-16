@@ -51,6 +51,7 @@ private class CanonCustomInstructionsTest {
   fun roboticWorkforce() {
     val repl = ReplSession(Canon, GameSetup(Canon, "MB", 3)) // TODO
     repl.command("become Player1")
+    repl.command("exec 2 ProjectCard")
     repl.command("exec PROD[5 Energy]")
     repl.command("exec StripMine")
     assertThat(repl.command("count Production<Class<Energy>>").single()).startsWith("3 ")

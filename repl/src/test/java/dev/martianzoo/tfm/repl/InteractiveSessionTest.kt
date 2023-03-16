@@ -17,7 +17,7 @@ private class InteractiveSessionTest {
     val session = InteractiveSession(GameSetup(Canon, "MB", 2))
     session.becomePlayer(cn("Player2"))
 
-    session.initiateAndQueue(instruction("PROD[5, 4 Energy]"))
+    session.initiateAndQueue(instruction("PROD[5, 4 Energy], ProjectCard"))
     session.initiateAndQueue(instruction("StripMine"))
     session.initiateAndQueue(instruction("PROD[-2 Energy, 2 Steel, Titanium]"))
 
@@ -33,6 +33,7 @@ private class InteractiveSessionTest {
     session.becomePlayer(cn("P2"))
 
     session.initiateAndQueue(instruction("PROD[5, 4 E]"))
+    session.initiateAndQueue(instruction("ProjectCard"))
     session.initiateAndQueue(instruction("C138"))
     session.initiateAndQueue(instruction("PROD[-2 E, 2 S, T]"))
 
@@ -80,6 +81,7 @@ private class InteractiveSessionTest {
 
     session.initiateAndAutoExec(instruction("4 OxygenStep"))
     assertThat(session.count(metric("OxygenStep"))).isEqualTo(4)
+    session.initiateAndAutoExec(instruction("ProjectCard"))
     session.initiateAndAutoExec(instruction("Ants"))
     assertThat(session.game.taskQueue.taskMap.values).isEmpty()
     assertThat(session.count(metric("Ants"))).isEqualTo(1)

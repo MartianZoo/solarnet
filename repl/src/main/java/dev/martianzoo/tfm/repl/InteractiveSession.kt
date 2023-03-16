@@ -100,13 +100,16 @@ class InteractiveSession(initialGame: GameSetup) {
       instruction: Instruction,
       requireFullSuccess: Boolean = true,
   ): ExecutionResult {
-    val ins = prep(instruction)
     val checkpoint = game.eventLog.checkpoint()
-    val result: ExecutionResult = game.initiate(ins, actor, fakeCause = null)
-    val success = // TODO easier??
-        result.newTaskIdsAdded.all {
-          doTaskAndAutoExec(it, requireFullSuccess = requireFullSuccess).fullSuccess
-        }
+    val instrs = Instruction.split(prep(instruction))
+    var success = true
+    for (instr in instrs) {
+      val result: ExecutionResult = game.initiate(instr, actor, fakeCause = null)
+      success = success &&
+          result.newTaskIdsAdded.all {
+            doTaskAndAutoExec(it, requireFullSuccess = requireFullSuccess).fullSuccess
+          }
+    }
     return game.eventLog.resultsSince(checkpoint, success)
   }
 
