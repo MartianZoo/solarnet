@@ -96,6 +96,7 @@ private class CanonBootstrapTest {
             "[SellPatents]",
             "[PowerPlantSP]", "[AsteroidSP]", "[AquiferSP]", "[GreenerySP]", "[CitySP]",
             "[GrossHack<Player1>]", "[GrossHack<Player2>]", "[GrossHack<Player3>]",
+            "[Generation]",
         )
   }
 }

@@ -37,7 +37,7 @@ class EntireGameTest {
     repl.command("task B")
 
     repl.command("become")
-    repl.command("exec ProductionPhase") // TODO Generation
+    repl.command("exec ProductionPhase, Generation")
 
     repl.command("as P1 exec -12, 4 ProjectCard")
     repl.command("as P2 exec -3, ProjectCard")
@@ -71,7 +71,7 @@ class EntireGameTest {
     repl.command("exec -2 S, BuildingIndustries")
 
     repl.command("become")
-    repl.command("exec ProductionPhase")
+    repl.command("exec ProductionPhase, Generation")
 
     repl.command("as P1 exec -9, 3 ProjectCard")
     repl.command("as P2 exec -6, 2 ProjectCard")
@@ -96,7 +96,7 @@ class EntireGameTest {
     repl.command("task A")
 
     repl.command("become")
-    repl.command("exec ProductionPhase")
+    repl.command("exec ProductionPhase, Generation")
 
     repl.command("as P1 exec -9, 3 ProjectCard")
 
@@ -132,7 +132,11 @@ class EntireGameTest {
     repl.command("exec PROD[-P, E]") // CORRECTION TODO WHY
 
     repl.command("become")
-    repl.command("exec ProductionPhase")
+    repl.command("exec ProductionPhase, Generation")
+
+    // Stuff
+    assertThat(repl.counts("Generation")).containsExactly(5)
+    assertThat(repl.counts("OceanTile, OxygenStep, TemperatureStep")).containsExactly(0, 0, 0)
 
     // Player1
 

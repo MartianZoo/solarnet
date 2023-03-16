@@ -93,7 +93,7 @@ ABSTRACT CLASS HasActions {                            // specific actions come 
   ABSTRACT CLASS StandardProject { HAS =1 This }
 }
 
-CLASS Generation[GEN]
+CLASS Generation[GEN] { HAS 1 This }
 
 ABSTRACT CLASS Generational {                          // things that disappear between gens
   Generation:: -This.                                  // <-- and look, there they go
