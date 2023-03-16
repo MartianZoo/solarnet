@@ -131,8 +131,8 @@ ABSTRACT CLASS Owned<Anyone> {
 
 // ACTIONS ---------------------------------------
 
-  ABSTRACT CLASS UseAction<HasActions> : Signal {
-    CLASS UseAction1, UseAction2
+  ABSTRACT CLASS UseAction<HasActions> [UA] : Signal {
+    CLASS UseAction1[UA1], UseAction2[UA2]
   }
 
   // TODO still consider inverting this?
