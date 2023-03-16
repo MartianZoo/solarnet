@@ -24,6 +24,7 @@ import dev.martianzoo.tfm.repl.ReplSession.ReplMode.YELLOW
 import dev.martianzoo.util.Multiset
 import dev.martianzoo.util.pre
 import dev.martianzoo.util.toStrings
+import java.io.File
 import org.jline.reader.History
 
 internal fun main() {
@@ -102,6 +103,7 @@ public class ReplSession(
               ModeCommand(),
               NewGameCommand(),
               RollbackCommand(),
+              ScriptCommand(),
               TaskCommand(),
               TasksCommand(),
           )
@@ -376,6 +378,11 @@ public class ReplSession(
           }
       return listOf(MTypeToText.describe(expression, session.game.loader))
     }
+  }
+
+  internal inner class ScriptCommand : ReplCommand("script") {
+    override val usage = "script <filename>"
+    override fun withArgs(args: String) = File(args).readLines().flatMap(::command)
   }
 
   public fun command(wholeCommand: String): List<String> {
