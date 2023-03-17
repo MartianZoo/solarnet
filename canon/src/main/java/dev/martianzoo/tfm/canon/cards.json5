@@ -1160,7 +1160,7 @@
       "bundle": "B",
       "deck": "PROJECT",
       "tags": [ "SpaceTag" ],
-      "immediate": "OceanTile",
+      "immediate": "2 OceanTile",
       "cost": 23,
       "projectKind": "EVENT"
     },
