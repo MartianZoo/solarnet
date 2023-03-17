@@ -6,7 +6,7 @@ import dev.martianzoo.tfm.pets.ast.Instruction.Intensity
 import dev.martianzoo.tfm.pets.ast.Instruction.Or
 
 public class Exceptions {
-  abstract class UserException(override val message: String) : RuntimeException(message)
+  open class UserException(override val message: String) : RuntimeException(message)
 
   // These should all be rectifiable by narrowing the instruction
   public class AbstractInstructionException(val instruction: Instruction?, message: String) :

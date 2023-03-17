@@ -1,5 +1,6 @@
 package dev.martianzoo.tfm.repl
 
+import dev.martianzoo.tfm.api.Exceptions.UserException
 import dev.martianzoo.tfm.api.GameSetup
 import dev.martianzoo.tfm.api.SpecialClassNames.ANYONE
 import dev.martianzoo.tfm.data.Actor
@@ -9,10 +10,12 @@ import dev.martianzoo.tfm.engine.Component
 import dev.martianzoo.tfm.engine.Engine
 import dev.martianzoo.tfm.engine.EventLog.Checkpoint
 import dev.martianzoo.tfm.engine.Game
-import dev.martianzoo.tfm.engine.SingleExecution.ExecutionResult
+import dev.martianzoo.tfm.engine.OneAtomicExecution.ExecutionResult
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.pets.ast.Instruction
+import dev.martianzoo.tfm.pets.ast.Instruction.Change
+import dev.martianzoo.tfm.pets.ast.Instruction.Companion.split
 import dev.martianzoo.tfm.pets.ast.Metric
 import dev.martianzoo.tfm.pets.ast.PetNode
 import dev.martianzoo.tfm.pets.ast.Requirement
@@ -89,8 +92,19 @@ class InteractiveSession(initialGame: GameSetup) {
 
   // EXECUTION
 
-  fun doIgnoringEffects(instruction: Instruction) =
-      game.executeWithoutEffects(prep(instruction), actor)
+  fun sneakyChange(instruction: Instruction): ExecutionResult {
+    val changes = split(prep(instruction)).mapNotNull {
+      if (it !is Change) {
+        throw UserException("can only sneak simple changes")
+      }
+      game.quietChange(
+          it.count,
+          it.gaining?.let(game::toComponent),
+          it.removing?.let(game::toComponent),
+      )
+    }
+    return ExecutionResult(changes = changes, newTaskIdsAdded = setOf(), fullSuccess = true)
+  }
 
   fun initiateAndQueue(instruction: Instruction): ExecutionResult {
     return game.initiate(prep(instruction), actor, fakeCause = null)
@@ -101,14 +115,15 @@ class InteractiveSession(initialGame: GameSetup) {
       requireFullSuccess: Boolean = true,
   ): ExecutionResult {
     val checkpoint = game.eventLog.checkpoint()
-    val instrs = Instruction.split(prep(instruction))
+    val instrs = split(prep(instruction))
     var success = true
     for (instr in instrs) {
       val result: ExecutionResult = game.initiate(instr, actor, fakeCause = null)
-      success = success &&
-          result.newTaskIdsAdded.all {
-            doTaskAndAutoExec(it, requireFullSuccess = requireFullSuccess).fullSuccess
-          }
+      success =
+          success &&
+              result.newTaskIdsAdded.all {
+                doTaskAndAutoExec(it, requireFullSuccess = requireFullSuccess).fullSuccess
+              }
     }
     return game.eventLog.resultsSince(checkpoint, success)
   }
@@ -159,14 +174,15 @@ class InteractiveSession(initialGame: GameSetup) {
   fun <P : PetNode?> prep(node: P): P {
     if (node == null) return node
     val loader = game.loader
-    val xers = listOfNotNull(
-        UseFullNames(loader),
-        AtomizeGlobalParameterGains(loader),
-        InsertDefaults(loader),
-        Deprodify(loader),
-        defaultPlayer?.let { ReplaceOwnerWith(it) },
-        // not needed: ReplaceThisWith, FixEffectForUnownedContext
-    )
+    val xers =
+        listOfNotNull(
+            UseFullNames(loader),
+            AtomizeGlobalParameterGains(loader),
+            InsertDefaults(loader),
+            Deprodify(loader),
+            defaultPlayer?.let { ReplaceOwnerWith(it) },
+            // not needed: ReplaceThisWith, FixEffectForUnownedContext
+        )
     return CompositeTransformer(xers).transform(node)
   }
 }

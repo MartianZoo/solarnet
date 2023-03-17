@@ -29,6 +29,8 @@ public sealed class Instruction : PetNode() {
     abstract val removing: Expression?
     abstract val intensity: Intensity?
 
+    abstract override fun times(factor: Int): Change
+
     override fun isAbstract(einfo: ExpressionInfo): Boolean {
       return intensity!! == OPTIONAL ||
           (gaining?.let { einfo.isAbstract(it) } == true) ||

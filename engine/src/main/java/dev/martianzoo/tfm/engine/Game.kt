@@ -3,8 +3,10 @@ package dev.martianzoo.tfm.engine
 import dev.martianzoo.tfm.api.ExpressionInfo
 import dev.martianzoo.tfm.api.GameSetup
 import dev.martianzoo.tfm.api.GameStateReader
+import dev.martianzoo.tfm.api.SpecialClassNames
 import dev.martianzoo.tfm.api.Type
 import dev.martianzoo.tfm.data.Actor
+import dev.martianzoo.tfm.data.Actor.Companion.ENGINE
 import dev.martianzoo.tfm.data.GameEvent.ChangeEvent
 import dev.martianzoo.tfm.data.GameEvent.ChangeEvent.Cause
 import dev.martianzoo.tfm.data.GameEvent.TaskAddedEvent
@@ -12,7 +14,7 @@ import dev.martianzoo.tfm.data.GameEvent.TaskRemovedEvent
 import dev.martianzoo.tfm.data.GameEvent.TaskReplacedEvent
 import dev.martianzoo.tfm.data.Task.TaskId
 import dev.martianzoo.tfm.engine.EventLog.Checkpoint
-import dev.martianzoo.tfm.engine.SingleExecution.ExecutionResult
+import dev.martianzoo.tfm.engine.OneAtomicExecution.ExecutionResult
 import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.pets.ast.Instruction
 import dev.martianzoo.tfm.pets.ast.Instruction.Companion.split
@@ -45,12 +47,12 @@ public class Game(val setup: GameSetup, public val loader: MClassLoader) {
 
   // TYPE & COMPONENT CONVERSION
 
-  fun resolve(expression: Expression): MType = loader.resolve(expression)
+  public fun resolve(expression: Expression): MType = loader.resolve(expression)
 
-  internal fun toComponent(expression: Expression) = Component.ofType(resolve(expression))
+  public fun toComponent(expression: Expression) = Component.ofType(resolve(expression))
 
   @JvmName("toComponentNullable")
-  internal fun toComponent(expression: Expression?) =
+  public fun toComponent(expression: Expression?) =
       expression?.let { Component.ofType(resolve(it)) }
 
   // QUERIES
@@ -62,6 +64,7 @@ public class Game(val setup: GameSetup, public val loader: MClassLoader) {
       is Requirement.Max -> {
         count(requirement.scaledEx.expression) <= requirement.scaledEx.scalar
       }
+
       is Exact -> count(requirement.scaledEx.expression) == requirement.scaledEx.scalar
       is Or -> requirement.requirements.any { evaluate(it) }
       is And -> requirement.requirements.all { evaluate(it) }
@@ -102,7 +105,7 @@ public class Game(val setup: GameSetup, public val loader: MClassLoader) {
 
         override fun count(metric: Metric) = this@Game.count(metric)
 
-        override fun count(type: Type) = this@Game.components.count(this@Game.loader.resolve(type))
+        override fun count(type: Type) = components.count(loader.resolve(type))
 
         override fun getComponents(type: Type) =
             components.getAll(loader.resolve(type)).map { it.mtype }
@@ -110,14 +113,22 @@ public class Game(val setup: GameSetup, public val loader: MClassLoader) {
 
   // EXECUTION
 
-  fun executeWithoutEffects(instruction: Instruction, actor: Actor): ExecutionResult {
-    val checkpoint = eventLog.checkpoint()
-    split(instruction).forEach {
-      SingleExecution(this, actor, doEffects = false).initiateAtomic(it, initialCause = null)
+  public fun quietChange(
+      count: Int = 1,
+      gaining: Component? = null,
+      removing: Component? = null,
+      amap: Boolean = false,
+      actor: Actor = ENGINE,
+      cause: Cause? = null,
+  ): ChangeEvent? {
+    if (gaining?.expressionFull == SpecialClassNames.OK.expr) { // TODO more principled
+      require(removing == null)
+      return null
+    } else if (!amap && gaining?.expressionFull == SpecialClassNames.DIE.expr) {
+      throw RuntimeException("fix this")
     }
-    return eventLog.resultsSince(checkpoint, fullSuccess = true).also {
-      require(it.newTaskIdsAdded.none())
-    }
+    val change = components.update(count, gaining, removing, amap) ?: return null
+    return eventLog.addChangeEvent(change, actor, cause)
   }
 
   /**
@@ -142,19 +153,19 @@ public class Game(val setup: GameSetup, public val loader: MClassLoader) {
     val checkpoint = eventLog.checkpoint()
 
     val instructions = split(instruction)
-    val results = instructions.map { SingleExecution(this, actor).initiateAtomic(it, fakeCause) }
+    val results = instructions.map { OneAtomicExecution(this, actor).initiateAtomic(it, fakeCause) }
     return eventLog.resultsSince(checkpoint, results.all { it.fullSuccess })
   }
 
   fun doOneExistingTask(id: TaskId, actor: Actor, narrowed: Instruction? = null): ExecutionResult {
-    val result = SingleExecution(this, actor).doOneTaskAtomic(id, true, narrowed)
+    val result = OneAtomicExecution(this, actor).doOneTaskAtomic(id, true, narrowed)
     require(result.fullSuccess) // should be redundant
     taskQueue.removeTask(id)
     return result
   }
 
   fun tryOneExistingTask(id: TaskId, actor: Actor, narrowed: Instruction? = null): ExecutionResult {
-    val result = SingleExecution(this, actor).doOneTaskAtomic(id, false, narrowed)
+    val result = OneAtomicExecution(this, actor).doOneTaskAtomic(id, false, narrowed)
     if (result.fullSuccess) taskQueue.removeTask(id)
     return result
   }

@@ -8,7 +8,7 @@ import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.data.Actor
 import dev.martianzoo.tfm.data.Task
 import dev.martianzoo.tfm.data.Task.TaskId
-import dev.martianzoo.tfm.engine.SingleExecution.ExecutionResult
+import dev.martianzoo.tfm.engine.OneAtomicExecution.ExecutionResult
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.pets.ast.Expression
@@ -233,10 +233,10 @@ public class ReplSession(
       val changes: ExecutionResult =
           try {
             when (mode) {
-              RED -> session.doIgnoringEffects(instruction)
+              RED -> session.sneakyChange(instruction)
               YELLOW -> session.initiateAndQueue(instruction)
               GREEN -> session.initiateAndAutoExec(instruction, requireFullSuccess = false)
-              else -> return listOf("Eep, can't do that in ${mode.name.toString()} mode")
+              else -> return listOf("Eep, can't do that in ${mode.name.lowercase()} mode")
             }
           } catch (e: UserException) {
             return listOf(e.toString())

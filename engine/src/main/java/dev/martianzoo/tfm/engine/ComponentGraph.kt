@@ -23,7 +23,8 @@ public class ComponentGraph {
 
   internal fun allActiveEffects(): Multiset<ActiveEffect> = multiset.flatMap { it.activeEffects }
 
-  public fun applySingleChange(
+  // only called by Game.silentChange
+  public fun update(
       count: Int = 1,
       gaining: Component? = null,
       removing: Component? = null,
@@ -66,6 +67,7 @@ public class ComponentGraph {
     }
   }
 
+  // Only called above and by rollback()
   internal fun updateMultiset(
       count: Int,
       gaining: Component? = null,

@@ -3,8 +3,6 @@ package dev.martianzoo.tfm.engine
 import dev.martianzoo.tfm.api.CustomInstruction.ExecuteInsteadException
 import dev.martianzoo.tfm.api.Exceptions.AbstractInstructionException
 import dev.martianzoo.tfm.api.GameStateWriter
-import dev.martianzoo.tfm.api.SpecialClassNames.DIE
-import dev.martianzoo.tfm.api.SpecialClassNames.OK
 import dev.martianzoo.tfm.api.Type
 import dev.martianzoo.tfm.data.Actor
 import dev.martianzoo.tfm.data.GameEvent.ChangeEvent
@@ -40,7 +38,7 @@ import dev.martianzoo.util.toSetStrict
  * atomicity. It writes both components and tasks directly into the game state, then verifies
  * invariants (TODO), and returns the log entries that were generated.
  */
-class SingleExecution(val game: Game, val actor: Actor, val doEffects: Boolean = true) {
+class OneAtomicExecution(val game: Game, val actor: Actor) {
   // Our internal tasks don't have much relation with Task
   data class InternalTask(val instruction: Instruction, val cause: Cause?) {
     init {
@@ -119,24 +117,6 @@ class SingleExecution(val game: Game, val actor: Actor, val doEffects: Boolean =
     }
   }
 
-  fun applyChangeAndFireTriggers(
-      count: Int = 1,
-      gaining: Component? = null,
-      removing: Component? = null,
-      amap: Boolean = false,
-      cause: Cause? = null,
-  ) {
-    if (gaining?.expressionFull == OK.expr) { // TODO more principled
-      require(removing == null)
-      return
-    } else if (!amap && gaining?.expressionFull == DIE.expr) {
-      throw RuntimeException("fix this")
-    }
-    val change = game.components.applySingleChange(count, gaining, removing, amap) ?: return
-    val event = game.eventLog.addChangeEvent(change, actor, cause)
-    if (doEffects) fireTriggers(event)
-  }
-
   private fun fireTriggers(triggerEvent: ChangeEvent) {
     val gained: Expression = triggerEvent.change.gaining ?: return
     val gainedComponent: Component = game.toComponent(gained)
@@ -171,8 +151,9 @@ class SingleExecution(val game: Game, val actor: Actor, val doEffects: Boolean =
             amap: Boolean,
             cause: Cause?,
         ) {
-          applyChangeAndFireTriggers(
-              count, toComponent(gaining), toComponent(removing), amap, cause)
+          val event = game.quietChange(
+              count, toComponent(gaining), toComponent(removing), amap, actor, cause)
+          event?.let { fireTriggers(it) }
         }
       }
 
@@ -182,16 +163,23 @@ class SingleExecution(val game: Game, val actor: Actor, val doEffects: Boolean =
     if (multiplier == 0) return
     require(multiplier > 0)
 
+    fun isAmap(instr: Change) =
+        when (instr.intensity!!) {
+          MANDATORY -> false
+          AMAP -> true
+          OPTIONAL -> throw AbstractInstructionException(instr, instr.intensity)
+        }
+
     when (instr) {
       is Change -> {
-        applyChangeAndFireTriggers(
+        writer.write(
             count = instr.count * multiplier,
-            gaining = game.toComponent(instr.gaining),
-            removing = game.toComponent(instr.removing),
+            gaining = instr.gaining?.let(game::resolve),
+            removing = instr.removing?.let(game::resolve),
             amap = isAmap(instr),
             cause = cause)
       }
-      is Per -> doOneInstruction(instr.instruction, cause, game.count(instr.metric) * multiplier)
+
       is Gated -> {
         if (game.evaluate(instr.gate)) {
           doOneInstruction(instr.instruction, cause, multiplier)
@@ -199,6 +187,8 @@ class SingleExecution(val game: Game, val actor: Actor, val doEffects: Boolean =
           throw RequirementException("Requirement not met: ${instr.gate}")
         } // else just do nothing
       }
+
+      is Per -> doOneInstruction(instr.instruction, cause, game.count(instr.metric) * multiplier)
       is Custom -> handleCustomInstruction(instr, cause)
       is Then -> instr.instructions.forEach { doOneInstruction(it, cause, multiplier) }
       is Or -> throw AbstractInstructionException(instr)
@@ -206,14 +196,6 @@ class SingleExecution(val game: Game, val actor: Actor, val doEffects: Boolean =
       is Transform -> error("should have been transformed already: $instr")
     }
   }
-
-  private fun isAmap(instr: Change) =
-      when (instr.intensity) {
-        OPTIONAL,
-        null -> throw AbstractInstructionException(instr, instr.intensity)
-        MANDATORY -> false
-        AMAP -> true
-      }
 
   private fun handleCustomInstruction(instr: Custom, cause: Cause?) {
     // TODO could inject this earlier
