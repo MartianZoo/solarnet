@@ -98,10 +98,8 @@ class EntireGameTest {
     replit("task A -Steel THEN 7") // TODO just one
     replit("exec -Titanium, -7, SpaceHotels")
     replit("exec -6, MarsUniversity")
-    replit("exec -10, ArtificialPhotosynthesis", 2)
-    replit("task B", 1) // TODO huh?
-    replit("task A drop") // TODO wha hapnd?
-    replit("exec PROD[2 Energy]")
+    replit("exec -10, ArtificialPhotosynthesis", 1)
+    replit("task B PROD[2 Energy]")
     replit("exec -5, BribedCommittee", 3)
     replit("task B", 2)
     replit("task C", 1)

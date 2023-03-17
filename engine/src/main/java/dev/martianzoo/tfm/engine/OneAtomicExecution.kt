@@ -39,15 +39,6 @@ import dev.martianzoo.util.toSetStrict
  * invariants (TODO), and returns the log entries that were generated.
  */
 class OneAtomicExecution(val game: Game, val actor: Actor) {
-  // Our internal tasks don't have much relation with Task
-  data class InternalTask(val instruction: Instruction, val cause: Cause?) {
-    init {
-      require(instruction !is Multi) { "$instruction" }
-    }
-  }
-
-  private val automaticTasks = ArrayDeque<InternalTask>()
-
   var spent = false
 
   fun initiateAtomic(
@@ -57,13 +48,7 @@ class OneAtomicExecution(val game: Game, val actor: Actor) {
     require(!spent)
     spent = true
 
-    return game.doAtomic {
-      doOneInstruction(instruction, cause = initialCause, 1)
-      while (automaticTasks.any()) {
-        val autoTask = automaticTasks.removeFirst()
-        doOneInstruction(autoTask.instruction, autoTask.cause, 1)
-      }
-    }
+    return game.doAtomic { doOneInstruction(instruction, cause = initialCause) }
   }
 
   fun doOneTaskAtomic(
@@ -79,15 +64,9 @@ class OneAtomicExecution(val game: Game, val actor: Actor) {
 
     narrowedInstruction?.checkReifies(requestedTask.instruction, game.einfo)
     val instruction = narrowedInstruction ?: requestedTask.instruction
-    automaticTasks += split(instruction).map { InternalTask(it, requestedTask.cause) }
 
     return try {
-      game.doAtomic {
-        while (automaticTasks.any()) {
-          val autoTask = automaticTasks.removeFirst()
-          doOneInstruction(autoTask.instruction, autoTask.cause, 1)
-        }
-      }
+      game.doAtomic { doOneInstruction(instruction, requestedTask.cause) }
     } catch (e: Exception) {
       if (requireSuccess) throw e
       handleFailure(e, requestedTask)
@@ -132,14 +111,10 @@ class OneAtomicExecution(val game: Game, val actor: Actor) {
         }
 
     val (now, later) = (firedSelfEffects + firedOtherEffects).partition { it.automatic }
-
-    // TODO always add to beginning of queue? why not just recurse?
-    val elements = now.flatMap { fx -> split(fx.instruction).map { InternalTask(it, fx.cause) } }
-    automaticTasks.addAll(0, elements)
-
-    later.forEach {
-      game.taskQueue.addTasks(it.instruction, it.actor, it.cause) // TODO
+    for (fx in now) {
+      split(fx.instruction).forEach { doOneInstruction(it, fx.cause) }
     }
+    game.taskQueue.addTasks(later) // TODO
   }
 
   val writer =
@@ -151,15 +126,16 @@ class OneAtomicExecution(val game: Game, val actor: Actor) {
             amap: Boolean,
             cause: Cause?,
         ) {
-          val event = game.quietChange(
-              count, toComponent(gaining), toComponent(removing), amap, actor, cause)
+          val event =
+              game.quietChange(
+                  count, toComponent(gaining), toComponent(removing), amap, actor, cause)
           event?.let { fireTriggers(it) }
         }
       }
 
   private fun toComponent(type: Type?) = type?.let { Component.ofType(game.loader.resolve(it)) }
 
-  private fun doOneInstruction(instr: Instruction, cause: Cause?, multiplier: Int) {
+  private fun doOneInstruction(instr: Instruction, cause: Cause?, multiplier: Int = 1) {
     if (multiplier == 0) return
     require(multiplier > 0)
 
@@ -179,7 +155,6 @@ class OneAtomicExecution(val game: Game, val actor: Actor) {
             amap = isAmap(instr),
             cause = cause)
       }
-
       is Gated -> {
         if (game.evaluate(instr.gate)) {
           doOneInstruction(instr.instruction, cause, multiplier)
@@ -187,7 +162,6 @@ class OneAtomicExecution(val game: Game, val actor: Actor) {
           throw RequirementException("Requirement not met: ${instr.gate}")
         } // else just do nothing
       }
-
       is Per -> doOneInstruction(instr.instruction, cause, game.count(instr.metric) * multiplier)
       is Custom -> handleCustomInstruction(instr, cause)
       is Then -> instr.instructions.forEach { doOneInstruction(it, cause, multiplier) }
@@ -214,7 +188,7 @@ class OneAtomicExecution(val game: Game, val actor: Actor) {
       val split = split(xer.transform(translated))
       split.forEach {
         try {
-          game.doAtomic { doOneInstruction(it, cause, 1) }
+          game.doAtomic { doOneInstruction(it, cause) }
         } catch (e: Exception) {
           if (isProgrammerError(e)) throw e
           game.taskQueue.addTasks(it, actor, cause, e.message)

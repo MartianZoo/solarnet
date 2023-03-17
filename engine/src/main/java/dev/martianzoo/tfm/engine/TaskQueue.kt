@@ -7,6 +7,7 @@ import dev.martianzoo.tfm.data.GameEvent.TaskRemovedEvent
 import dev.martianzoo.tfm.data.GameEvent.TaskReplacedEvent
 import dev.martianzoo.tfm.data.Task
 import dev.martianzoo.tfm.data.Task.TaskId
+import dev.martianzoo.tfm.engine.ActiveEffect.FiredEffect
 import dev.martianzoo.tfm.pets.ast.Instruction
 import dev.martianzoo.tfm.pets.ast.Instruction.Companion.split
 import dev.martianzoo.util.toStrings
@@ -23,6 +24,9 @@ class TaskQueue(val game: Game) {
 
   val size by taskMap::size
   fun isEmpty() = taskMap.isEmpty()
+
+  fun addTasks(effect: FiredEffect) = addTasks(effect.instruction, effect.actor, effect.cause)
+  fun addTasks(effects: Iterable<FiredEffect>) = effects.forEach(::addTasks)
 
   fun addTasks(
       instruction: Instruction,
