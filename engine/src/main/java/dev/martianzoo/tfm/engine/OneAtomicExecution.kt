@@ -31,7 +31,6 @@ import dev.martianzoo.tfm.types.Transformers.Deprodify
 import dev.martianzoo.tfm.types.Transformers.InsertDefaults
 import dev.martianzoo.tfm.types.Transformers.UseFullNames
 import dev.martianzoo.util.Multiset
-import dev.martianzoo.util.toSetStrict
 
 /**
  * Carries out a single instruction, plus any "automatic" triggers that result, with failure
@@ -44,7 +43,7 @@ class OneAtomicExecution(val game: Game, val actor: Actor) {
   fun initiateAtomic(
       instruction: Instruction,
       initialCause: Cause?,
-  ): ExecutionResult {
+  ): Result {
     require(!spent)
     spent = true
 
@@ -55,7 +54,7 @@ class OneAtomicExecution(val game: Game, val actor: Actor) {
       taskId: TaskId,
       requireSuccess: Boolean,
       narrowedInstruction: Instruction? = null,
-  ): ExecutionResult {
+  ): Result {
     require(!spent)
     spent = true
 
@@ -69,30 +68,10 @@ class OneAtomicExecution(val game: Game, val actor: Actor) {
       game.doAtomic { doOneInstruction(instruction, requestedTask.cause) }
     } catch (e: Exception) {
       if (requireSuccess) throw e
-      handleFailure(e, requestedTask)
-      ExecutionResult(listOf(), setOf(requestedTask.id), fullSuccess = false)
-    }
-  }
-
-  private fun handleFailure(e: Exception, requestedTask: Task) {
-    if (isProgrammerError(e)) throw e
-    val taskWithExplanation = requestedTask.copy(whyPending = e.message)
-    game.taskQueue.replaceTask(taskWithExplanation)
-  }
-
-  data class ExecutionResult
-  constructor(
-      val changes: List<ChangeEvent>, // TODO Set
-      val newTaskIdsAdded: Set<TaskId>,
-      val fullSuccess: Boolean,
-  ) {
-    companion object {
-      fun concat(results: List<ExecutionResult>): ExecutionResult {
-        return ExecutionResult(
-            results.flatMap { it.changes },
-            results.flatMap { it.newTaskIdsAdded }.toSetStrict(),
-            results.all { it.fullSuccess })
-      }
+      if (isProgrammerError(e)) throw e
+      val taskWithExplanation = requestedTask.copy(whyPending = e.message)
+      game.taskQueue.replaceTask(taskWithExplanation)
+      Result(listOf(), setOf(requestedTask.id), fullSuccess = false)
     }
   }
 
@@ -126,6 +105,7 @@ class OneAtomicExecution(val game: Game, val actor: Actor) {
             amap: Boolean,
             cause: Cause?,
         ) {
+          fun toComponent(type: Type?) = type?.let { Component.ofType(game.loader.resolve(it)) }
           val event =
               game.quietChange(
                   count, toComponent(gaining), toComponent(removing), amap, actor, cause)
@@ -133,7 +113,6 @@ class OneAtomicExecution(val game: Game, val actor: Actor) {
         }
       }
 
-  private fun toComponent(type: Type?) = type?.let { Component.ofType(game.loader.resolve(it)) }
 
   private fun doOneInstruction(instr: Instruction, cause: Cause?, multiplier: Int = 1) {
     if (multiplier == 0) return

@@ -4,7 +4,6 @@ import dev.martianzoo.tfm.api.GameSetup
 import dev.martianzoo.tfm.api.SpecialClassNames.GAME
 import dev.martianzoo.tfm.data.Actor.Companion.ENGINE
 import dev.martianzoo.tfm.data.GameEvent.ChangeEvent.Cause
-import dev.martianzoo.tfm.engine.OneAtomicExecution.ExecutionResult
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.pets.ast.Instruction
 import dev.martianzoo.tfm.pets.ast.Instruction.Companion.instruction
@@ -34,7 +33,7 @@ public object Engine {
 
     val game = Game(setup, loader)
 
-    val result: ExecutionResult = game.initiate(instruction("Game!"), ENGINE, fakeCause = null)
+    val result: Result = game.initiate(instruction("Game!"), ENGINE)
     require(result.newTaskIdsAdded.none())
     require(game.taskQueue.isEmpty())
 

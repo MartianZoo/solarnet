@@ -10,7 +10,7 @@ import dev.martianzoo.tfm.engine.Component
 import dev.martianzoo.tfm.engine.Engine
 import dev.martianzoo.tfm.engine.EventLog.Checkpoint
 import dev.martianzoo.tfm.engine.Game
-import dev.martianzoo.tfm.engine.OneAtomicExecution.ExecutionResult
+import dev.martianzoo.tfm.engine.Result
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.pets.ast.Instruction
@@ -92,7 +92,7 @@ class InteractiveSession(initialGame: GameSetup) {
 
   // EXECUTION
 
-  fun sneakyChange(instruction: Instruction): ExecutionResult {
+  fun sneakyChange(instruction: Instruction): Result {
     val changes = split(prep(instruction)).mapNotNull {
       if (it !is Change) {
         throw UserException("can only sneak simple changes")
@@ -103,22 +103,21 @@ class InteractiveSession(initialGame: GameSetup) {
           it.removing?.let(game::toComponent),
       )
     }
-    return ExecutionResult(changes = changes, newTaskIdsAdded = setOf(), fullSuccess = true)
+    return Result(changes = changes, newTaskIdsAdded = setOf(), fullSuccess = true)
   }
 
-  fun initiateAndQueue(instruction: Instruction): ExecutionResult {
-    return game.initiate(prep(instruction), actor, fakeCause = null)
-  }
+  fun initiateAndQueue(instruction: Instruction) =
+      game.initiate(prep(instruction), actor)
 
   fun initiateAndAutoExec(
       instruction: Instruction,
       requireFullSuccess: Boolean = true,
-  ): ExecutionResult {
+  ): Result {
     val checkpoint = game.eventLog.checkpoint()
     val instrs = split(prep(instruction))
     var success = true
     for (instr in instrs) {
-      val result: ExecutionResult = game.initiate(instr, actor, fakeCause = null)
+      val result: Result = game.initiate(instr, actor)
       success =
           success &&
               result.newTaskIdsAdded.all {
@@ -135,7 +134,7 @@ class InteractiveSession(initialGame: GameSetup) {
       initialTaskId: TaskId,
       narrowedInstruction: Instruction? = null,
       requireFullSuccess: Boolean = false,
-  ): ExecutionResult {
+  ): Result {
     val taskIdsToAutoExec: ArrayDeque<TaskId> = ArrayDeque()
     val checkpoint = game.eventLog.checkpoint()
     var success = true
@@ -150,12 +149,12 @@ class InteractiveSession(initialGame: GameSetup) {
           }
         }
 
-    val firstResult: ExecutionResult = doTask(initialTaskId, narrowed)
+    val firstResult: Result = doTask(initialTaskId, narrowed)
     taskIdsToAutoExec += firstResult.newTaskIdsAdded - initialTaskId
 
     while (taskIdsToAutoExec.any()) {
       val thisTaskId: TaskId = taskIdsToAutoExec.removeFirst()
-      val results: ExecutionResult = doTask(thisTaskId)
+      val results: Result = doTask(thisTaskId)
       taskIdsToAutoExec += results.newTaskIdsAdded - thisTaskId // TODO better
     }
 

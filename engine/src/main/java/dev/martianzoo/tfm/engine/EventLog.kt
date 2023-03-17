@@ -10,7 +10,6 @@ import dev.martianzoo.tfm.data.GameEvent.TaskReplacedEvent
 import dev.martianzoo.tfm.data.StateChange
 import dev.martianzoo.tfm.data.Task
 import dev.martianzoo.tfm.data.Task.TaskId
-import dev.martianzoo.tfm.engine.OneAtomicExecution.ExecutionResult
 
 class EventLog(val events: MutableList<GameEvent> = mutableListOf()) {
   val size: Int by events::size
@@ -59,5 +58,5 @@ class EventLog(val events: MutableList<GameEvent> = mutableListOf()) {
       events.subList(checkpoint.ordinal, size).toList()
 
   fun resultsSince(checkpoint: Checkpoint, fullSuccess: Boolean) =
-      ExecutionResult(changesSince(checkpoint), newTasksSince(checkpoint), fullSuccess)
+      Result(changesSince(checkpoint), newTasksSince(checkpoint), fullSuccess)
 }

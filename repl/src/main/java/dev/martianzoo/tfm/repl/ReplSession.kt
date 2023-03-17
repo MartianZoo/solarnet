@@ -8,7 +8,7 @@ import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.data.Actor
 import dev.martianzoo.tfm.data.Task
 import dev.martianzoo.tfm.data.Task.TaskId
-import dev.martianzoo.tfm.engine.OneAtomicExecution.ExecutionResult
+import dev.martianzoo.tfm.engine.Result
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.pets.ast.Expression
@@ -230,7 +230,7 @@ public class ReplSession(
 
     override fun withArgs(args: String): List<String> {
       val instruction = instruction(args)
-      val changes: ExecutionResult =
+      val changes: Result =
           try {
             when (mode) {
               RED -> session.sneakyChange(instruction)
@@ -273,7 +273,7 @@ public class ReplSession(
         return listOf("Task $id deleted")
       }
       val instruction: Instruction? = rest?.let { instruction(it) }
-      val result: ExecutionResult =
+      val result: Result =
           try {
             when (mode) {
               RED -> return listOf("Can't execute tasks in red mode")
@@ -307,7 +307,7 @@ public class ReplSession(
     }
   }
 
-  private fun describeExecutionResults(changes: ExecutionResult): List<String> {
+  private fun describeExecutionResults(changes: Result): List<String> {
     val oops: List<Task> = changes.newTaskIdsAdded.map { session.game.taskQueue[it] }
 
     val changeLines = changes.changes.toStrings().ifEmpty { listOf("No state changes") }

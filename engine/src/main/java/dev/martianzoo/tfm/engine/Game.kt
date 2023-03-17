@@ -14,7 +14,6 @@ import dev.martianzoo.tfm.data.GameEvent.TaskRemovedEvent
 import dev.martianzoo.tfm.data.GameEvent.TaskReplacedEvent
 import dev.martianzoo.tfm.data.Task.TaskId
 import dev.martianzoo.tfm.engine.EventLog.Checkpoint
-import dev.martianzoo.tfm.engine.OneAtomicExecution.ExecutionResult
 import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.pets.ast.Instruction
 import dev.martianzoo.tfm.pets.ast.Instruction.Companion.split
@@ -148,8 +147,8 @@ public class Game(val setup: GameSetup, public val loader: MClassLoader) {
   fun initiate(
       instruction: Instruction,
       actor: Actor,
-      fakeCause: Cause?,
-  ): ExecutionResult {
+      fakeCause: Cause? = null,
+  ): Result {
     val checkpoint = eventLog.checkpoint()
 
     val instructions = split(instruction)
@@ -157,14 +156,14 @@ public class Game(val setup: GameSetup, public val loader: MClassLoader) {
     return eventLog.resultsSince(checkpoint, results.all { it.fullSuccess })
   }
 
-  fun doOneExistingTask(id: TaskId, actor: Actor, narrowed: Instruction? = null): ExecutionResult {
+  fun doOneExistingTask(id: TaskId, actor: Actor, narrowed: Instruction? = null): Result {
     val result = OneAtomicExecution(this, actor).doOneTaskAtomic(id, true, narrowed)
     require(result.fullSuccess) // should be redundant
     taskQueue.removeTask(id)
     return result
   }
 
-  fun tryOneExistingTask(id: TaskId, actor: Actor, narrowed: Instruction? = null): ExecutionResult {
+  fun tryOneExistingTask(id: TaskId, actor: Actor, narrowed: Instruction? = null): Result {
     val result = OneAtomicExecution(this, actor).doOneTaskAtomic(id, false, narrowed)
     if (result.fullSuccess) taskQueue.removeTask(id)
     return result
@@ -173,7 +172,7 @@ public class Game(val setup: GameSetup, public val loader: MClassLoader) {
   fun enqueueTasks(instruction: Instruction, actor: Actor) =
       doAtomic { taskQueue.addTasks(instruction, actor, cause = null) }
 
-  internal fun doAtomic(block: () -> Unit): ExecutionResult {
+  internal fun doAtomic(block: () -> Unit): Result {
     val checkpoint = eventLog.checkpoint()
     try {
       block()

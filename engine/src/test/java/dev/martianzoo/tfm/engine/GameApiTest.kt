@@ -15,7 +15,7 @@ import org.junit.jupiter.api.Test
 
 private class GameApiTest {
   fun Game.count(s: String) = count(metric(s))
-  fun Game.execute(s: String) = initiate(instruction(s), Actor(cn("Player2")), fakeCause = null)
+  fun Game.execute(s: String) = initiate(instruction(s), Actor(cn("Player2")))
   fun Game.evaluate(s: String) = evaluate(requirement(s))
 
   @Test
