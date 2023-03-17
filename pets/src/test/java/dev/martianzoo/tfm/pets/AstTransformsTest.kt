@@ -20,6 +20,7 @@ import dev.martianzoo.tfm.pets.ast.Instruction
 import dev.martianzoo.tfm.pets.ast.Instruction.Companion.instruction
 import dev.martianzoo.tfm.pets.ast.Instruction.Gain
 import dev.martianzoo.tfm.pets.ast.Metric.Count
+import dev.martianzoo.tfm.pets.ast.Metric.Scaled
 import dev.martianzoo.tfm.pets.ast.PetNode
 import dev.martianzoo.tfm.pets.ast.ScaledExpression.Companion.scaledEx
 import dev.martianzoo.tfm.testlib.te
@@ -163,7 +164,7 @@ private class AstTransformsTest {
                     Instruction.Transform(
                         Instruction.Per(
                             Gain(scaledEx(1, cn("Steel").expr)),
-                            Count(scaledEx(5, cn("PowerTag").expr))),
+                            Scaled(5, Count(cn("PowerTag").expr))),
                         "HAHA")),
                 false))
   }

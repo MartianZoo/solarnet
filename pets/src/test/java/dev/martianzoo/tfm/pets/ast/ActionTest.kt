@@ -12,6 +12,7 @@ import dev.martianzoo.tfm.pets.ast.Instruction.Intensity.OPTIONAL
 import dev.martianzoo.tfm.pets.ast.Instruction.Remove
 import dev.martianzoo.tfm.pets.ast.Instruction.Transmute
 import dev.martianzoo.tfm.pets.ast.Metric.Count
+import dev.martianzoo.tfm.pets.ast.Metric.Scaled
 import dev.martianzoo.tfm.pets.ast.Requirement.Max
 import dev.martianzoo.tfm.pets.ast.Requirement.Min
 import dev.martianzoo.tfm.pets.ast.ScaledExpression.Companion.scaledEx
@@ -113,7 +114,7 @@ private class ActionTest {
                         Spend(scaledEx(cn("Megacredit").expr)), Spend(scaledEx(cn("Bar").expr))),
                     Cost.Per(
                         Spend(scaledEx(cn("Megacredit").expr)),
-                        Count(scaledEx(cn("Megacredit").expr)))),
+                        Count(cn("Megacredit").expr))),
                 Cost.Or(
                     Spend(scaledEx(cn("Megacredit").expr)),
                     Cost.Or(
@@ -122,7 +123,7 @@ private class ActionTest {
                         Spend(scaledEx(cn("Qux").expr))))),
             Instruction.Multi(
                 Instruction.Per(
-                    Gain(scaledEx(5, cn("Megacredit").expr)), Count(scaledEx(cn("Ooh").expr))),
+                    Gain(scaledEx(5, cn("Megacredit").expr)), Count(cn("Ooh").expr)),
                 Remove(
                     scaledEx(
                         cn("Xyz")
@@ -147,7 +148,7 @@ private class ActionTest {
             null,
             Instruction.Per(
                 Gain(scaledEx(cn("Foo").addArgs(cn("Abc"))), AMAP),
-                Count(scaledEx(cn("Wau").expr)))))
+                Count((cn("Wau").expr)))))
 
     checkBothWays(
         "Qux -> Bar?",
@@ -161,7 +162,7 @@ private class ActionTest {
         "PROD[Foo / 11 Abc] -> -Foo, (MAX 1 Megacredit OR Foo): 1",
         Action(
             Cost.Transform(
-                Cost.Per(Spend(scaledEx(cn("Foo").expr)), Count(scaledEx(11, cn("Abc").expr))),
+                Cost.Per(Spend(scaledEx(cn("Foo").expr)), Scaled(11, Count(cn("Abc").expr))),
                 "PROD"),
             Instruction.Multi(
                 Remove(scaledEx(cn("Foo").expr)),
@@ -190,7 +191,7 @@ private class ActionTest {
             Cost.Transform(Spend(scaledEx(cn("Megacredit").expr)), "PROD"),
             Instruction.Per(
                 Remove(scaledEx(cn("Ooh").expr)),
-                Count(scaledEx(cn("Ooh").addArgs(cn("Abc"), cn("Ahh")))))))
+                Count(cn("Ooh").addArgs(cn("Abc"), cn("Ahh"))))))
 
     checkBothWays(
         "Xyz -> 1", Action(Spend(scaledEx(cn("Xyz").expr)), Gain(scaledEx(cn("Megacredit").expr))))
@@ -201,10 +202,10 @@ private class ActionTest {
             Spend(scaledEx(cn("Ooh").expr)),
             Instruction.Multi(
                 Instruction.Per(
-                    Gain(scaledEx(5, cn("Megacredit").expr)), Count(scaledEx(cn("Abc").expr))),
+                    Gain(scaledEx(5, cn("Megacredit").expr)), Count(cn("Abc").expr)),
                 Instruction.Per(
                     Gain(scaledEx(11, cn("Megacredit").expr), MANDATORY),
-                    Count(scaledEx(cn("Megacredit").expr))),
+                    Count(cn("Megacredit").expr)),
                 Remove(scaledEx(cn("Megacredit").expr), OPTIONAL),
                 Instruction.Multi(
                     Gain(scaledEx(cn("Megacredit").expr), MANDATORY),

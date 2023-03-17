@@ -51,12 +51,16 @@ internal class PetGenerator(scaling: (Int) -> Double) :
 
       val metricTypes =
           multiset(
-              4 to Metric.Count::class,
-              1 to Metric.Max::class,
+              7 to Metric.Count::class,
+              5 to Metric.Scaled::class,
+              3 to Metric.Max::class,
+              2 to Metric.Plus::class,
           )
       register(Metric::class) { recurse(choose(metricTypes)) }
-      register { Metric.Count(scaledEx = recurse()) }
+      register { Metric.Count(recurse()) }
+      register { Metric.Scaled(choose(2, 2, 3), recurse()) }
       register { Metric.Max(metric = recurse(), maximum = choose(5, 11)) }
+      register { Metric.Plus(listOfSize(choose(2, 2, 2, 3, 4))) }
 
       val requirementTypes =
           multiset(

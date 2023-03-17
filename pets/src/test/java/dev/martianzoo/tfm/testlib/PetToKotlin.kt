@@ -51,8 +51,10 @@ internal object PetToKotlin {
         }
         is Metric -> {
           when (this) {
-            is Metric.Count -> "Count(${p2k(scaledEx)})"
+            is Metric.Count -> "Count(${p2k(expression)})"
+            is Metric.Scaled -> "Scaled(unit, ${p2k(metric)})"
             is Metric.Max -> "Metric.Max(${p2k(metric)}, $maximum)"
+            is Metric.Plus -> "Plus(${metrics.join()})"
           }
         }
         is Requirement -> {

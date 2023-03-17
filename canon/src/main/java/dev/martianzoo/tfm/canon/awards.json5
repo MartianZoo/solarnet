@@ -2,8 +2,8 @@
   "awards": [
 //    // Celebrity
 //    { "id": "EA1", "metric": "CardFront(HAS 20 Cost)" },
-//    // Industrialist
-//    { "id": "EA2", "metric": "Steel OR Energy" },
+    // Industrialist
+    { "id": "EA2", "metric": "Steel + Energy" },
 //    // Desert Settler
 //    { "id": "EA3", "metric": "OwnedTile<MarsArea(HAS 5 Row)>" },
     // Estate Dealer
@@ -30,8 +30,8 @@
     { "id": "MA3", "metric": "ScienceTag" },
     // Thermalist
     { "id": "MA4", "metric": "Heat" },
-//    // Miner
-//    { "id": "MA5", "metric": "Steel OR Titanium" },
+    // Miner
+    { "id": "MA5", "metric": "Steel + Titanium" },
 
     // Venuphile
     { "id": "VA1", "metric": "VenusTag" },

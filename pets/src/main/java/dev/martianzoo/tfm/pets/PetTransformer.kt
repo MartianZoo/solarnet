@@ -38,8 +38,10 @@ public abstract class PetTransformer {
             is ScaledExpression -> ScaledExpression(scalar, x(expression))
             is Metric ->
                 when (this) {
-                  is Metric.Count -> Metric.Count(x(scaledEx))
+                  is Metric.Count -> Metric.Count(x(expression))
+                  is Metric.Scaled -> Metric.Scaled(unit, x(metric))
                   is Metric.Max -> Metric.Max(x(metric), maximum)
+                  is Metric.Plus -> Metric.Plus(x(metrics))
                 }
             is Requirement ->
                 when (this) {

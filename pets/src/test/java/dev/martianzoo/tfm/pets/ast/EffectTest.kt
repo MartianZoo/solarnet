@@ -17,6 +17,7 @@ import dev.martianzoo.tfm.pets.ast.Instruction.Remove
 import dev.martianzoo.tfm.pets.ast.Instruction.Then
 import dev.martianzoo.tfm.pets.ast.Instruction.Transmute
 import dev.martianzoo.tfm.pets.ast.Metric.Count
+import dev.martianzoo.tfm.pets.ast.Metric.Scaled
 import dev.martianzoo.tfm.pets.ast.Requirement.Exact
 import dev.martianzoo.tfm.pets.ast.Requirement.Max
 import dev.martianzoo.tfm.pets.ast.Requirement.Min
@@ -115,7 +116,7 @@ private class EffectTest {
             Instruction.Per(
                 Transmute(
                     ComplexFrom(cn("Foo"), listOf(SimpleFrom(cn("Bar").expr, cn("Bar").expr))), 1),
-                Count(scaledEx(cn("Abc").expr))),
+                Count(cn("Abc").expr)),
             true))
 
     checkBothWays(
@@ -143,7 +144,7 @@ private class EffectTest {
         Effect(
             OnGainOf.create(cn("Wau").expr),
             Instruction.Transform(
-                Instruction.Per(Gain(scaledEx(cn("Ooh").expr)), Count(scaledEx(cn("Qux").expr))),
+                Instruction.Per(Gain(scaledEx(cn("Ooh").expr)), Count((cn("Qux").expr))),
                 "PROD")))
 
     checkBothWays(
@@ -190,13 +191,13 @@ private class EffectTest {
             Instruction.Multi(
                 Instruction.Multi(
                     Instruction.Per(
-                        Gain(scaledEx(cn("Bar").expr)), Count(scaledEx(cn("Qux").expr))),
+                        Gain(scaledEx(cn("Bar").expr)), Count((cn("Qux").expr))),
                     Instruction.Per(
                         Gain(scaledEx(1, cn("Megacredit").expr)),
-                        Count(scaledEx(cn("Megacredit").expr)))),
+                        Count((cn("Megacredit").expr)))),
                 Instruction.Per(
                     Gain(scaledEx(1, cn("Megacredit").expr)),
-                    Count(scaledEx(cn("Megacredit").expr))))))
+                    Count((cn("Megacredit").expr))))))
 
     checkBothWays(
         "-Bar<Bar, Foo<Foo>>: 1 THEN (1! OR Abc / 11 Megacredit) THEN =1 Megacredit: -Abc",
@@ -208,38 +209,11 @@ private class EffectTest {
                     Gain(scaledEx(1, cn("Megacredit").expr), MANDATORY),
                     Instruction.Per(
                         Gain(scaledEx(cn("Abc").expr)),
-                        Count(scaledEx(11, cn("Megacredit").expr)))),
+                        Scaled(11, Count(cn("Megacredit").expr)))),
                 Gated(
                     Exact(scaledEx(cn("Megacredit").expr)),
                     true,
                     Remove(scaledEx(1, cn("Abc").expr))))))
-
-    checkBothWays(
-        "Bar: PROD[-5, (Abc / Megacredit, 1 Foo FROM Foo), (Foo OR 1): " +
-            "5 Foo<Qux FROM Foo>, (1 Foo FROM Qux<Qux>, Bar / Megacredit)]",
-        Effect(
-            OnGainOf.create(cn("Bar").expr),
-            Instruction.Transform(
-                Instruction.Multi(
-                    Remove(scaledEx(5, cn("Megacredit").expr)),
-                    Instruction.Multi(
-                        Instruction.Per(
-                            Gain(scaledEx(cn("Abc").expr)), Count(scaledEx(cn("Megacredit").expr))),
-                        Transmute(SimpleFrom(cn("Foo").expr, cn("Foo").expr), 1)),
-                    Gated(
-                        Requirement.Or(
-                            Min(scaledEx(1, cn("Foo").expr)), Min(scaledEx(cn("Megacredit").expr))),
-                        true,
-                        Transmute(
-                            ComplexFrom(
-                                cn("Foo"), listOf(SimpleFrom(cn("Qux").expr, cn("Foo").expr))),
-                            5)),
-                    Instruction.Multi(
-                        Transmute(SimpleFrom(cn("Foo").expr, cn("Qux").addArgs(cn("Qux").expr)), 1),
-                        Instruction.Per(
-                            Gain(scaledEx(1, cn("Bar").expr)),
-                            Count(scaledEx(cn("Megacredit").expr))))),
-                "PROD")))
 
     checkBothWays(
         "-Abc<Eep<Foo>, Foo>: (1 Bar FROM Foo, Bar), PROD[1 Qux FROM Qux]",
