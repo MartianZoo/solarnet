@@ -34,9 +34,9 @@ private class ReplSessionTest {
   fun testAstrodrill() {
     val repl = ReplSession(Canon, GameSetup(Canon, "BMX", 2)) // TODO
     val commands = """
-      newgame BMX 2
       become Player2
       exec Astrodrill
+      exec ActionPhase
       exec UseAction1<UseActionFromCard>
       task A UseAction1<Astrodrill> THEN ActionUsedMarker<Astrodrill>
       task B Plant

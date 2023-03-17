@@ -8,9 +8,11 @@
 CLASS Game : System {
   HAS MAX 1 This                                       // Created manually to kick everything off
 
-  This:: @forceLoad(Class<Production>)
+  This:: @forceLoad(Class<Production>)                 // TODO pare this down??
   This:: @forceLoad(Class<GrossHack>)
   This:: @forceLoad(Class<BackwardAdjacency>)
+  This:: @forceLoad(Class<GenerationPhase>)
+  This:: @forceLoad(Class<ActionPhase>)
 
   PlayTag<Class<BuildingTag>>:: Accept<Class<Steel>>
   PlayTag<Class<SpaceTag>>:: Accept<Class<Titanium>>
@@ -102,7 +104,11 @@ ABSTRACT CLASS Generational {                          // things that disappear 
 ABSTRACT CLASS Phase : System {
   HAS MAX 1 Phase                                      // switch like `ProductionPhase FROM Phase`
 
+  CLASS ResearchPhase
+  CLASS ActionPhase
   CLASS ProductionPhase
+  CLASS GenerationPhase { This:: Generation }
+  // CLASS ConvertPlantsPhase
   CLASS End
 }
 
