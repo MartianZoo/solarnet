@@ -63,7 +63,6 @@ public class Game(val setup: GameSetup, public val loader: MClassLoader) {
       is Requirement.Max -> {
         count(requirement.scaledEx.expression) <= requirement.scaledEx.scalar
       }
-
       is Exact -> count(requirement.scaledEx.expression) == requirement.scaledEx.scalar
       is Or -> requirement.requirements.any { evaluate(it) }
       is And -> requirement.requirements.all { evaluate(it) }
@@ -149,28 +148,28 @@ public class Game(val setup: GameSetup, public val loader: MClassLoader) {
       actor: Actor,
       fakeCause: Cause? = null,
   ): Result {
+    val instructions = split(instruction)
     val checkpoint = eventLog.checkpoint()
 
-    val instructions = split(instruction)
-    val results = instructions.map { OneAtomicExecution(this, actor).initiateAtomic(it, fakeCause) }
-    return eventLog.resultsSince(checkpoint, results.all { it.fullSuccess })
+    val results =
+        try {
+          instructions.map { OneAtomicExecution(this, actor).initiateAtomic(it, fakeCause) }
+        } catch (e: Exception) {
+          rollBack(checkpoint)
+          throw e
+        }
+    return eventLog.resultsSince(checkpoint)
   }
 
-  fun doOneExistingTask(id: TaskId, actor: Actor, narrowed: Instruction? = null): Result {
-    val result = OneAtomicExecution(this, actor).doOneTaskAtomic(id, true, narrowed)
-    require(result.fullSuccess) // should be redundant
-    taskQueue.removeTask(id)
-    return result
-  }
+  fun doOneExistingTask(
+      id: TaskId,
+      actor: Actor,
+      narrowed: Instruction? = null,
+  ) = OneAtomicExecution(this, actor).doOneTaskAtomic(id, narrowed)
 
-  fun tryOneExistingTask(id: TaskId, actor: Actor, narrowed: Instruction? = null): Result {
-    val result = OneAtomicExecution(this, actor).doOneTaskAtomic(id, false, narrowed)
-    if (result.fullSuccess) taskQueue.removeTask(id)
-    return result
+  fun enqueueTasks(instruction: Instruction, actor: Actor) = doAtomic {
+    taskQueue.addTasks(instruction, actor, cause = null)
   }
-
-  fun enqueueTasks(instruction: Instruction, actor: Actor) =
-      doAtomic { taskQueue.addTasks(instruction, actor, cause = null) }
 
   internal fun doAtomic(block: () -> Unit): Result {
     val checkpoint = eventLog.checkpoint()
@@ -180,7 +179,7 @@ public class Game(val setup: GameSetup, public val loader: MClassLoader) {
       rollBack(checkpoint)
       throw e
     }
-    return eventLog.resultsSince(checkpoint, fullSuccess = true)
+    return eventLog.resultsSince(checkpoint)
   }
 
   // CHANGE LOG

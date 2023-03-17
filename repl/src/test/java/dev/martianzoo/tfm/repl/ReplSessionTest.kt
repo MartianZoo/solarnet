@@ -52,7 +52,6 @@ private class ReplSessionTest {
   fun test() {
     val repl = ReplSession(Canon, GameSetup(Canon, "MB", 2)) // TODO
     repl.command("become Player2")
-    repl.command("mode green")
     repl.command("exec ProjectCard")
 
     // TODO deprodify these for the screen

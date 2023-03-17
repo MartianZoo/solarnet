@@ -27,7 +27,7 @@ private class ResourceUtilsTest {
             cn("Heat") to 0,
         )
 
-    session.initiateAndQueue(instruction("PROD[2 Plant<Player1>!]"))
+    session.initiateOnly(instruction("PROD[2 Plant<Player1>!]"))
     val prods2: Map<ClassName, Int> = lookUpProductionLevels(session.game.reader,
         cn("Player1").expr)
     assertThat(prods2.map { it.key to it.value })

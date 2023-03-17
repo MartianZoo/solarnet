@@ -38,26 +38,11 @@ import dev.martianzoo.util.Multiset
  * invariants (TODO), and returns the log entries that were generated.
  */
 class OneAtomicExecution(val game: Game, val actor: Actor) {
-  var spent = false
+  fun initiateAtomic(instruction: Instruction, initialCause: Cause?) =
+      game.doAtomic { doOneInstruction(instruction, cause = initialCause) }
 
-  fun initiateAtomic(
-      instruction: Instruction,
-      initialCause: Cause?,
-  ): Result {
-    require(!spent)
-    spent = true
-
-    return game.doAtomic { doOneInstruction(instruction, cause = initialCause) }
-  }
-
-  fun doOneTaskAtomic(
-      taskId: TaskId,
-      requireSuccess: Boolean,
-      narrowedInstruction: Instruction? = null,
-  ): Result {
-    require(!spent)
-    spent = true
-
+  fun doOneTaskAtomic(taskId: TaskId, narrowedInstruction: Instruction? = null): Result {
+    val cp = game.eventLog.checkpoint()
     val requestedTask: Task = game.taskQueue[taskId]
     // require(requestedTask.actor == actor) TODO meh
 
@@ -65,13 +50,15 @@ class OneAtomicExecution(val game: Game, val actor: Actor) {
     val instruction = narrowedInstruction ?: requestedTask.instruction
 
     return try {
-      game.doAtomic { doOneInstruction(instruction, requestedTask.cause) }
+      game.doAtomic {
+        doOneInstruction(instruction, requestedTask.cause)
+        game.taskQueue.removeTask(taskId)
+      }
     } catch (e: Exception) {
-      if (requireSuccess) throw e
       if (isProgrammerError(e)) throw e
       val taskWithExplanation = requestedTask.copy(whyPending = e.message)
       game.taskQueue.replaceTask(taskWithExplanation)
-      Result(listOf(), setOf(requestedTask.id), fullSuccess = false)
+      game.eventLog.resultsSince(cp)
     }
   }
 

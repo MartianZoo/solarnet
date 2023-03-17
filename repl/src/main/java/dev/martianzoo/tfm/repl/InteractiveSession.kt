@@ -103,62 +103,44 @@ class InteractiveSession(initialGame: GameSetup) {
           it.removing?.let(game::toComponent),
       )
     }
-    return Result(changes = changes, newTaskIdsAdded = setOf(), fullSuccess = true)
+    return Result(changes = changes, newTaskIdsAdded = setOf())
   }
 
-  fun initiateAndQueue(instruction: Instruction) =
-      game.initiate(prep(instruction), actor)
+  fun initiateOnly(instruction: Instruction) = game.initiate(prep(instruction), actor)
 
-  fun initiateAndAutoExec(
-      instruction: Instruction,
-      requireFullSuccess: Boolean = true,
-  ): Result {
+  fun initiateAndAutoExec(instruction: Instruction): Result {
     val checkpoint = game.eventLog.checkpoint()
-    val instrs = split(prep(instruction))
-    var success = true
-    for (instr in instrs) {
-      val result: Result = game.initiate(instr, actor)
-      success =
-          success &&
-              result.newTaskIdsAdded.all {
-                doTaskAndAutoExec(it, requireFullSuccess = requireFullSuccess).fullSuccess
-              }
+    for (instr in split(prep(instruction))) {
+      val tasks = ArrayDeque<TaskId>()
+      tasks += game.initiate(instr, actor).newTaskIdsAdded
+      while (tasks.any()) {
+        val task = tasks.removeFirst()
+        tasks += doTaskAndAutoExec(task).newTaskIdsAdded
+      }
     }
-    return game.eventLog.resultsSince(checkpoint, success)
+    return game.eventLog.resultsSince(checkpoint)
   }
 
   fun doTaskOnly(taskId: TaskId, narrowedInstruction: Instruction? = null) =
-      game.tryOneExistingTask(taskId, actor, prep(narrowedInstruction))
+      game.doOneExistingTask(taskId, actor, prep(narrowedInstruction))
 
   fun doTaskAndAutoExec(
       initialTaskId: TaskId,
       narrowedInstruction: Instruction? = null,
-      requireFullSuccess: Boolean = false,
   ): Result {
     val taskIdsToAutoExec: ArrayDeque<TaskId> = ArrayDeque()
     val checkpoint = game.eventLog.checkpoint()
-    var success = true
-    val narrowed = prep(narrowedInstruction)
 
-    fun doTask(initialTaskId: TaskId, instr: Instruction? = null) =
-        if (requireFullSuccess) {
-          game.doOneExistingTask(initialTaskId, actor, instr)
-        } else {
-          game.tryOneExistingTask(initialTaskId, actor, instr).also {
-            success = success && it.fullSuccess
-          }
-        }
-
-    val firstResult: Result = doTask(initialTaskId, narrowed)
+    val firstResult: Result = doTaskOnly(initialTaskId, narrowedInstruction)
     taskIdsToAutoExec += firstResult.newTaskIdsAdded - initialTaskId
 
     while (taskIdsToAutoExec.any()) {
       val thisTaskId: TaskId = taskIdsToAutoExec.removeFirst()
-      val results: Result = doTask(thisTaskId)
+      val results: Result = doTaskOnly(thisTaskId)
       taskIdsToAutoExec += results.newTaskIdsAdded - thisTaskId // TODO better
     }
 
-    return game.eventLog.resultsSince(checkpoint, success)
+    return game.eventLog.resultsSince(checkpoint)
   }
 
   fun enqueueTasks(instruction: Instruction, taskOwner: Actor? = null) =

@@ -17,9 +17,9 @@ private class InteractiveSessionTest {
     val session = InteractiveSession(GameSetup(Canon, "MB", 2))
     session.becomePlayer(cn("Player2"))
 
-    session.initiateAndQueue(instruction("PROD[5, 4 Energy], ProjectCard"))
-    session.initiateAndQueue(instruction("StripMine"))
-    session.initiateAndQueue(instruction("PROD[-2 Energy, 2 Steel, Titanium]"))
+    session.initiateOnly(instruction("PROD[5, 4 Energy], ProjectCard"))
+    session.initiateOnly(instruction("StripMine"))
+    session.initiateOnly(instruction("PROD[-2 Energy, 2 Steel, Titanium]"))
 
     assertThat(session.has(requirement("PROD[=2 Energy, =2 Steel]"))).isTrue()
 
@@ -32,10 +32,10 @@ private class InteractiveSessionTest {
     val session = InteractiveSession(GameSetup(Canon, "MB", 2))
     session.becomePlayer(cn("P2"))
 
-    session.initiateAndQueue(instruction("PROD[5, 4 E]"))
-    session.initiateAndQueue(instruction("ProjectCard"))
-    session.initiateAndQueue(instruction("C138"))
-    session.initiateAndQueue(instruction("PROD[-2 E, 2 S, T]"))
+    session.initiateOnly(instruction("PROD[5, 4 E]"))
+    session.initiateOnly(instruction("ProjectCard"))
+    session.initiateOnly(instruction("C138"))
+    session.initiateOnly(instruction("PROD[-2 E, 2 S, T]"))
 
     assertThat(session.has(requirement("PROD[=2 E, =2 S]"))).isTrue()
 
@@ -48,9 +48,9 @@ private class InteractiveSessionTest {
     val session = InteractiveSession(GameSetup(Canon, "MB", 2))
     session.becomePlayer(cn("Player1"))
 
-    session.initiateAndQueue(instruction("3 Heat!"))
-    session.initiateAndQueue(instruction("4 Heat."))
-    session.initiateAndQueue(instruction("-9 Heat."))
+    session.initiateOnly(instruction("3 Heat!"))
+    session.initiateOnly(instruction("4 Heat."))
+    session.initiateOnly(instruction("-9 Heat."))
     assertThat(session.count(metric("Heat"))).isEqualTo(0)
   }
 
@@ -59,12 +59,12 @@ private class InteractiveSessionTest {
     val session = InteractiveSession(GameSetup(Canon, "MB", 2))
     session.becomePlayer(cn("Player1"))
 
-    session.initiateAndQueue(instruction("3 Heat"))
-    session.initiateAndQueue(instruction("4 Heat"))
+    session.initiateOnly(instruction("3 Heat"))
+    session.initiateOnly(instruction("4 Heat"))
     assertThat(session.count(metric("Heat"))).isEqualTo(7)
 
     val checkpoint = session.game.eventLog.checkpoint()
-    session.initiateAndQueue(instruction("-6 Heat"))
+    session.initiateOnly(instruction("-6 Heat"))
     assertThat(session.count(metric("Heat"))).isEqualTo(1)
 
     session.rollBack(checkpoint.ordinal)
@@ -94,7 +94,7 @@ private class InteractiveSessionTest {
   fun counting() {
     val session = InteractiveSession(GameSetup(Canon, "MB", 2))
     session.becomePlayer(cn("Player2"))
-    session.initiateAndQueue(instruction("42 Heat"))
+    session.initiateOnly(instruction("42 Heat"))
     assertThat(session.count(metric("Heat"))).isEqualTo(42)
     assertThat(session.count(metric("4 Heat"))).isEqualTo(10)
     assertThat(session.count(metric("42 Heat"))).isEqualTo(1)

@@ -34,14 +34,11 @@ class EntireGameTest {
     replit("exec Tile044<E37>")
     replit("exec -13 Steel, -1, SpaceElevator")
     replit("exec UseAction1<SpaceElevator>")
-    replit("exec -2, InventionContest", 3)
-    replit("task B", 2) // TODO it should do these even if A messed up
-    replit("task C", 1)
+    replit("exec -2, InventionContest", 1)
     replit("exec -SCT<P2, InventionContest<P2>>", 1) // TODO how to remove tags?
     replit("task A")
-    replit("exec -6, GreatEscarpmentConsortium", 2)
-    replit("task A PROD[-Steel<P1>]", 1)
-    replit("task B")
+    replit("exec -6, GreatEscarpmentConsortium", 1)
+    replit("task A PROD[-Steel<P1>]", 0)
 
     replit("become")
     replit("exec ProductionPhase FROM ActionPhase")
@@ -66,17 +63,14 @@ class EntireGameTest {
 
     replit("become P2")
     replit("exec -5 Steel, IndustrialMicrobes")
-    replit("exec -Titanium, TechnologyDemonstration", 3)
-    replit("task B", 2) // TODO should have happened anyway
-    replit("task C", 1)
+    replit("exec -Titanium, TechnologyDemonstration", 1)
     replit("exec -SCT<TechnologyDemonstration>", 1) // TODO remove tags
     replit("exec -SPT<TechnologyDemonstration>", 1)
     replit("task A")
 
     replit("as P1 exec -6, Sponsors")
 
-    replit("exec -1, EnergyTapping", 2)
-    replit("task B", 1)
+    replit("exec -1, EnergyTapping", 1)
     replit("task A PROD[-Energy<P1>]")
     replit("exec -2 Steel, BuildingIndustries")
 
@@ -100,9 +94,7 @@ class EntireGameTest {
     replit("exec -6, MarsUniversity")
     replit("exec -10, ArtificialPhotosynthesis", 1)
     replit("task B PROD[2 Energy]")
-    replit("exec -5, BribedCommittee", 3)
-    replit("task B", 2)
-    replit("task C", 1)
+    replit("exec -5, BribedCommittee", 1)
     replit("exec -EarthTag<BribedCommittee>", 1)
     replit("task A", 0)
 
@@ -129,8 +121,7 @@ class EntireGameTest {
 
     replit("become P2")
     replit("exec -Titanium, -1, TransNeptuneProbe")
-    replit("exec -1, Hackers", 2)
-    replit("task C", 1)
+    replit("exec -1, Hackers", 1)
     replit("task B PROD[-2 Megacredit<P1>]", 0)
 
     replit("become P1")

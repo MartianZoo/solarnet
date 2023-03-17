@@ -234,8 +234,8 @@ public class ReplSession(
           try {
             when (mode) {
               RED -> session.sneakyChange(instruction)
-              YELLOW -> session.initiateAndQueue(instruction)
-              GREEN -> session.initiateAndAutoExec(instruction, requireFullSuccess = false)
+              YELLOW -> session.initiateOnly(instruction)
+              GREEN -> session.initiateAndAutoExec(instruction)
               else -> return listOf("Eep, can't do that in ${mode.name.lowercase()} mode")
             }
           } catch (e: UserException) {
@@ -279,7 +279,7 @@ public class ReplSession(
               RED -> return listOf("Can't execute tasks in red mode")
               YELLOW,
               BLUE -> session.doTaskOnly(id, instruction)
-              GREEN -> session.doTaskAndAutoExec(id, instruction, requireFullSuccess = false)
+              GREEN -> session.doTaskAndAutoExec(id, instruction)
               else -> TODO()
             }
           } catch (e: UserException) {

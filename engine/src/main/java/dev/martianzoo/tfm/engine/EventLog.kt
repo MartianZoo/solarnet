@@ -57,6 +57,6 @@ class EventLog(val events: MutableList<GameEvent> = mutableListOf()) {
   fun entriesSince(checkpoint: Checkpoint): List<GameEvent> =
       events.subList(checkpoint.ordinal, size).toList()
 
-  fun resultsSince(checkpoint: Checkpoint, fullSuccess: Boolean) =
-      Result(changesSince(checkpoint), newTasksSince(checkpoint), fullSuccess)
+  fun resultsSince(checkpoint: Checkpoint) =
+      Result(changesSince(checkpoint), newTasksSince(checkpoint))
 }
