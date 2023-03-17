@@ -39,6 +39,10 @@ public object Transformers {
     }
   }
 
+  public object NullTransform : PetTransformer() {
+    override fun <P : PetNode> transform(node: P) = node
+  }
+
   public class UseFullNames(val loader: MClassLoader) : PetTransformer() {
     override fun <P : PetNode> transform(node: P): P {
       return if (node is ClassName) {

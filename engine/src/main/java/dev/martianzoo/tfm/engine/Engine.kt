@@ -33,7 +33,7 @@ public object Engine {
 
     val game = Game(setup, loader)
 
-    val result: Result = game.initiate(instruction("Game!"), ENGINE)
+    val result: Result = game.forActor(ENGINE).initiate(instruction("Game!"))
     require(result.newTaskIdsAdded.none())
     require(game.taskQueue.isEmpty())
 
@@ -41,7 +41,7 @@ public object Engine {
     val fakeCause = Cause(GAME.expr, firstEvent.ordinal)
 
     singletonCreateInstructions(loader).forEach {
-      game.initiate(it, ENGINE, fakeCause)
+      game.forActor(ENGINE).initiate(it, fakeCause)
       require(game.taskQueue.isEmpty()) { "Unexpected tasks: ${game.taskQueue}" }
     }
     return game

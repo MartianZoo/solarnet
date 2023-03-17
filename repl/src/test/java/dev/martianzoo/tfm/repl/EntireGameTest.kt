@@ -57,9 +57,7 @@ class EntireGameTest {
     replit("exec -7, TitaniumMine")
     replit("exec -9, RoboticWorkforce", 1)
     replit("task A drop") // TODO reify?
-    replit("exec @copyProductionBox(MartianIndustries)", 2)
-    replit("task A PROD[Energy]", 1) // TODO why didn't autoexec?
-    replit("task B PROD[Steel]")
+    replit("exec @copyProductionBox(MartianIndustries)", 0)
 
     replit("become P2")
     replit("exec -5 Steel, IndustrialMicrobes")
@@ -125,8 +123,7 @@ class EntireGameTest {
     replit("task B PROD[-2 Megacredit<P1>]", 0)
 
     replit("become P1")
-    replit("exec UseAction1<SellPatents>", 1)
-    replit("task A Megacredit FROM ProjectCard")
+    replit("exec UseAction1<SellPatents>", 0)
 
     replit("become P2")
     replit("exec -4 Steel, -1, SolarPower")
@@ -194,6 +191,138 @@ class EntireGameTest {
         .inOrder()
   }
 
+  @Test fun ellieGame() {
+    val repl = ReplSession(Canon, GameSetup(Canon, "BRHXP", 2))
+    fun replit(s: String, tasksExpected: Int = 0) {
+      repl.command(s)
+      assertThat(repl.session.game.taskQueue.size).isEqualTo(tasksExpected)
+    }
+
+    replit("as P1 exec InterplanetaryCinematics, 7 BuyCard")
+    replit("as P2 exec PharmacyUnion, -8, 5 BuyCard") // TODO: should have done the -8
+
+    replit("as P1 exec UnmiContractor, CorporateArchives")
+    replit("as P2 exec BiosphereSupport, SocietySupport")
+
+    replit("exec ActionPhase")
+
+    replit("become P1")
+    replit("exec -6, MediaGroup")
+    replit("exec -1, Sabotage", 1)
+    replit("task B -7 Megacredit<Player2>")
+
+    replit("become P2")
+    replit("exec -11, Research", 2) // TODO: Pharma should have said Disease<Pharma>
+    replit("task A TR<Player2> FROM Disease<P2, PharmacyUnion<P2>>", 1)
+    // TODO: could have added 2 science tags at once
+    replit("task B TR<Player2> FROM Disease<P2, PharmacyUnion<P2>>")
+    replit("exec -9, MartianSurvey", 2)
+    replit("exec -ScienceTag<MartianSurvey>", 2)
+    replit("task B", 1)
+    replit("task A drop") // TODO: should have been able to choose Ok, it stacktraced
+
+    replit("exec -3, SearchForLife", 1) // TODO: why does she have 3 of these??
+    replit("task A drop")
+    replit("exec -2 MicrobeTag<PharmacyUnion>") // TODO: make automatic?
+    replit("exec PlayedEvent<Class<Harvest>> FROM PharmacyUnion, 3 TR")
+    // TODO: didn't let Pharma in eventpile
+
+    replit("exec UseAction1<UseActionFromCard>", 1)
+    replit("task A UseAction1<SearchForLife> THEN ActionUsedMarker<SearchForLife>", 1)
+    replit("task B drop")
+    replit("exec -1")
+
+    replit("become")
+    replit("exec ProductionPhase, GenerationPhase FROM ProductionPhase, " +
+        "ResearchPhase FROM GenerationPhase", 2)
+    replit("as P1 task A BuyCard", 1)
+    replit("as P2 task B 3 BuyCard")
+    replit("exec ActionPhase FROM ResearchPhase")
+
+    replit("become P2")
+    replit("exec UseAction1<SellPatents>")
+    replit("exec -15, VestaShipyard") // TODO: handle negative cpt count without stacktracing
+
+    replit("become P1") // TODO: Hi, null
+    replit("exec -23, EarthCatapult")
+    replit("exec -4 Steel, OlympusConference", 1) // TODO: recognize when one option is impossible
+    replit("task A Science<OlympusConference>")
+    replit("exec -4 Steel, -1, DevelopmentCenter", 1)
+    replit("task A ProjectCard FROM Science<OlympusConference>")
+    replit("exec -4 Steel, -1, GeothermalPower")
+    replit("exec -10, MirandaResort")
+    replit("exec -1, Hackers", 1)
+    replit("task B PROD[-2 M<P2>]")
+    replit("exec -1, MicroMills")
+
+    // TODO: didn't get VPs from played events
+    replit("become")
+    replit("exec ProductionPhase FROM ActionPhase, GenerationPhase FROM ProductionPhase, " +
+        "ResearchPhase FROM GenerationPhase", 2)
+    replit("as P1 task A 3 BuyCard", 1)
+    replit("as P2 task B BuyCard") // TODO: why does she appear to have 3 SearchForLifes?")
+    replit("exec ActionPhase FROM ResearchPhase")
+
+    replit("become P1")
+    replit("exec UseAction1<UseActionFromCard>", 1)
+    replit("task A UseAction1<DevelopmentCenter> THEN ActionUsedMarker<DevelopmentCenter>")
+    replit("exec -5 Steel, -1, ImmigrantCity", 1) // TODO bug with choosing city location
+    replit("task C drop")
+    // exec CityTile<Hellas_9_7> // TODO ouchbug
+
+    // Shared stuff
+
+    assertThat(repl.counts("Generation")).containsExactly(3)
+    assertThat(repl.counts("OceanTile, OxygenStep, TemperatureStep")).containsExactly(0, 0, 0)
+
+    // P1
+
+    repl.command("become P1")
+
+    repl.assertCount("TerraformRating", 23)
+
+    val prods = lookUpProductionLevels(repl.session.game.reader, cn("P1").expr)
+    assertThat(prods.values).containsExactly(4, 0, 0, 0, 0, 1).inOrder()
+
+    assertThat(repl.counts("M, Steel, Titanium, Plant, Energy, Heat"))
+        .containsExactly(22, 3, 0, 0, 0, 1).inOrder()
+
+    assertThat(repl.counts("ProjectCard, CardFront, ActiveCard, AutomatedCard, PlayedEvent"))
+        .containsExactly(6, 12, 5, 4, 1)
+
+    // tag abbreviations
+    assertThat(repl.counts("BUT, SPT, SCT, POT, EAT, JOT, PLT, MIT, ANT, CIT"))
+        .containsExactly(5, 1, 3, 1, 4, 1, 0, 0, 0, 1)
+        .inOrder()
+
+    assertThat(repl.counts("CityTile, GreeneryTile, SpecialTile"))
+        .containsExactly(0, 0, 0)
+        .inOrder()
+
+    // P2
+
+    repl.command("become P2")
+
+    repl.assertCount("TerraformRating", 25)
+
+    val prods2 = lookUpProductionLevels(repl.session.game.reader, cn("P2").expr)
+    assertThat(prods2.values).containsExactly(-4, 0, 1, 3, 1, 1).inOrder()
+
+    assertThat(repl.counts("M, Steel, Titanium, Plant, Energy, Heat"))
+        .containsExactly(18, 0, 1, 6, 1, 3).inOrder()
+
+    assertThat(repl.counts("ProjectCard, CardFront, ActiveCard, AutomatedCard, PlayedEvent"))
+        .containsExactly(9, 5, 1, 2, 2)
+
+    // tag abbreviations
+    assertThat(repl.counts("BUT, SPT, SCT, POT, EAT, JOT, PLT, MIT, ANT, CIT"))
+        .containsExactly(0, 1, 3, 0, 0, 1, 1, 0, 0, 0)
+        .inOrder()
+
+    assertThat(repl.counts("CityTile, GreeneryTile, SpecialTile"))
+        .containsExactly(0, 0, 0)
+        .inOrder()
+  }
   private fun ReplSession.assertCount(text: String, i: Int) {
     assertThat(session.count(metric(text))).isEqualTo(i)
   }

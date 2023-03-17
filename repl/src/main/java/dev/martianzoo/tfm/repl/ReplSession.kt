@@ -8,6 +8,7 @@ import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.data.Actor
 import dev.martianzoo.tfm.data.Task
 import dev.martianzoo.tfm.data.Task.TaskId
+import dev.martianzoo.tfm.engine.PlayerAgent
 import dev.martianzoo.tfm.engine.Result
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
@@ -22,7 +23,6 @@ import dev.martianzoo.tfm.repl.ReplSession.ReplMode.GREEN
 import dev.martianzoo.tfm.repl.ReplSession.ReplMode.RED
 import dev.martianzoo.tfm.repl.ReplSession.ReplMode.YELLOW
 import dev.martianzoo.util.Multiset
-import dev.martianzoo.util.pre
 import dev.martianzoo.util.toStrings
 import java.io.File
 import org.jline.reader.History
@@ -33,22 +33,21 @@ internal fun main() {
   val session = repl.session
 
   fun prompt(): String {
-    val player: ClassName? = session.defaultPlayer
+    val actor: Actor = repl.session.agent.actor
     val gameNo = session.gameNumber
 
-    val text = "Game$gameNo${player.pre(" as ")}"
-    val kuller = repl.mode.color
-    return kuller.foreground("$text> ")
+    val text = "Game$gameNo as $actor"
+    return repl.mode.color.foreground("$text> ")
   }
 
   // We don't actually have to start another game.....
   val welcome =
       """
-    Welcome to REgo PLastics. Type `help` for help.
-    Warning: this is a bare-bones tool that is not trying to be easy to use... at all
-    
-    ${repl.command("newgame BM 2").joinToString("""
-    """)}
+      Welcome to REgo PLastics. Type `help` for help.
+      Warning: this is a bare-bones tool that is not trying to be easy to use... at all
+      
+      ${repl.command("newgame BM 2").joinToString("""
+      """)}
 
   """
           .trimIndent()
@@ -119,12 +118,15 @@ public class ReplSession(
     override val usage = "as <PlayerN> <full command>"
     override fun noArgs() = throw UsageException()
     override fun withArgs(args: String): List<String> {
-      val current: ClassName? = session.defaultPlayer
+      val current: PlayerAgent = session.agent
       val (player, rest) = args.trim().split(Regex("\\s+"), 2)
-      session.becomePlayer(cn(player))
-      val result = command(rest)
-      current?.let { session.becomePlayer(it) } ?: session.becomeNoOne()
-      return result
+
+      try { // TODO
+        session.becomePlayer(cn(player))
+        return command(rest)
+      } finally {
+        session.agent = current
+      }
     }
   }
 
@@ -277,8 +279,7 @@ public class ReplSession(
           try {
             when (mode) {
               RED -> return listOf("Can't execute tasks in red mode")
-              YELLOW,
-              BLUE -> session.doTaskOnly(id, instruction)
+              YELLOW, BLUE -> session.agent.doTask(id, session.prep(instruction))
               GREEN -> session.doTaskAndAutoExec(id, instruction)
               else -> TODO()
             }
@@ -301,8 +302,8 @@ public class ReplSession(
     }
 
     override fun withArgs(args: String): List<String> {
-      val actor = Actor(cn(args))
-      val result = session.enqueueTasks(instruction("UseAction<StandardAction>"), actor)
+      val agent = session.agents[Actor(cn(args))]!!
+      val result = agent.enqueueTasks(session.prep(instruction("UseAction<StandardAction>")))
       return describeExecutionResults(result)
     }
   }
@@ -386,18 +387,23 @@ public class ReplSession(
   }
 
   public fun command(wholeCommand: String): List<String> {
-    val (_, command, args) = inputRegex.matchEntire(wholeCommand)?.groupValues ?: return listOf()
+    val stripped = wholeCommand.replace(Regex("//.*"), "")
+    val (_, command, args) = inputRegex.matchEntire(stripped)?.groupValues ?: return listOf()
     return command(command, args.trim().ifEmpty { null })
   }
 
-  internal fun command(commandName: String, args: String?): List<String> {
-    val command = commands[commandName] ?: return listOf("¯\\_(ツ)_/¯ Type `help` for help")
+  internal fun command(command: ReplCommand, args: String? = null): List<String> {
     return try {
       if (args == null) command.noArgs() else command.withArgs(args.trim())
     } catch (e: UsageException) {
       val usage = "Usage: ${command.usage}"
       listOf(e.message, usage).filter { it.isNotEmpty() }
     }
+  }
+
+  internal fun command(commandName: String, args: String?): List<String> {
+    val command = commands[commandName] ?: return listOf("¯\\_(ツ)_/¯ Type `help` for help")
+    return command(command, args)
   }
 }
 

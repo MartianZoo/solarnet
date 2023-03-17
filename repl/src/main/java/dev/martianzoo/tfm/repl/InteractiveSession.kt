@@ -10,8 +10,10 @@ import dev.martianzoo.tfm.engine.Component
 import dev.martianzoo.tfm.engine.Engine
 import dev.martianzoo.tfm.engine.EventLog.Checkpoint
 import dev.martianzoo.tfm.engine.Game
+import dev.martianzoo.tfm.engine.PlayerAgent
 import dev.martianzoo.tfm.engine.Result
 import dev.martianzoo.tfm.pets.ast.ClassName
+import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.pets.ast.Instruction
 import dev.martianzoo.tfm.pets.ast.Instruction.Change
@@ -24,7 +26,6 @@ import dev.martianzoo.tfm.types.Transformers.AtomizeGlobalParameterGains
 import dev.martianzoo.tfm.types.Transformers.CompositeTransformer
 import dev.martianzoo.tfm.types.Transformers.Deprodify
 import dev.martianzoo.tfm.types.Transformers.InsertDefaults
-import dev.martianzoo.tfm.types.Transformers.ReplaceOwnerWith
 import dev.martianzoo.tfm.types.Transformers.UseFullNames
 import dev.martianzoo.util.HashMultiset
 import dev.martianzoo.util.Hierarchical.Companion.lub
@@ -38,9 +39,12 @@ class InteractiveSession(initialGame: GameSetup) {
   public lateinit var game: Game
     internal set
   internal var gameNumber: Int = -1 // TODO
-  internal var defaultPlayer: ClassName? = null
-  internal var actor: Actor = ENGINE
   internal var start: Checkpoint = Checkpoint(0) // will be overwritten
+
+  internal var defaultPlayer: ClassName? = null
+  internal lateinit var agents: Map<Actor, PlayerAgent>
+  internal lateinit var agent: PlayerAgent
+
 
   init {
     newGame(initialGame)
@@ -50,6 +54,10 @@ class InteractiveSession(initialGame: GameSetup) {
     game = Engine.newGame(setup)
     start = game.eventLog.checkpoint()
     gameNumber++
+
+    val allActors = (1..setup.players).map { Actor(cn("Player$it")) } + ENGINE
+    agents = allActors.associateWith { game.forActor(it) }
+
     becomeNoOne()
   }
 
@@ -57,22 +65,20 @@ class InteractiveSession(initialGame: GameSetup) {
     val p = game.resolve(player.expr)
     require(!p.abstract)
     require(p.isSubtypeOf(game.resolve(ANYONE.expr)))
-    defaultPlayer = p.mclass.className
-    actor = Actor(p.mclass.className)
+    agent = agents[Actor(p.mclass.className)]!!
   }
 
   fun becomeNoOne() {
-    defaultPlayer = null
-    actor = ENGINE
+    agent = agents[ENGINE]!!
   }
 
   // QUERIES
 
-  fun count(metric: Metric) = game.count(prep(metric))
+  fun count(metric: Metric) = agent.count(prep(metric))
 
   fun list(expression: Expression): Multiset<Expression> { // TODO y not (M)Type?
     val typeToList: MType = game.resolve(prep(expression))
-    val allComponents: Multiset<Component> = game.getComponents(typeToList)
+    val allComponents: Multiset<Component> = agent.getComponents(prep(expression))
 
     // BIGTODO decide more intelligently how to break it down
 
@@ -88,31 +94,29 @@ class InteractiveSession(initialGame: GameSetup) {
     return result
   }
 
-  fun has(requirement: Requirement) = game.evaluate(prep(requirement))
+  fun has(requirement: Requirement) = agent.evaluate(prep(requirement))
 
   // EXECUTION
 
   fun sneakyChange(instruction: Instruction): Result {
     val changes = split(prep(instruction)).mapNotNull {
-      if (it !is Change) {
-        throw UserException("can only sneak simple changes")
-      }
-      game.quietChange(
+      if (it !is Change) throw UserException("can only sneak simple changes")
+      agent.quietChange(
           it.count,
-          it.gaining?.let(game::toComponent),
-          it.removing?.let(game::toComponent),
+          it.gaining,
+          it.removing,
       )
     }
     return Result(changes = changes, newTaskIdsAdded = setOf())
   }
 
-  fun initiateOnly(instruction: Instruction) = game.initiate(prep(instruction), actor)
+  fun initiateOnly(instruction: Instruction) = agent.initiate(prep(instruction))
 
   fun initiateAndAutoExec(instruction: Instruction): Result {
     val checkpoint = game.eventLog.checkpoint()
     for (instr in split(prep(instruction))) {
       val tasks = ArrayDeque<TaskId>()
-      tasks += game.initiate(instr, actor).newTaskIdsAdded
+      tasks += agent.initiate(instr).newTaskIdsAdded
       while (tasks.any()) {
         val task = tasks.removeFirst()
         tasks += doTaskAndAutoExec(task).newTaskIdsAdded
@@ -121,9 +125,6 @@ class InteractiveSession(initialGame: GameSetup) {
     return game.eventLog.resultsSince(checkpoint)
   }
 
-  fun doTaskOnly(taskId: TaskId, narrowedInstruction: Instruction? = null) =
-      game.doOneExistingTask(taskId, actor, prep(narrowedInstruction))
-
   fun doTaskAndAutoExec(
       initialTaskId: TaskId,
       narrowedInstruction: Instruction? = null,
@@ -131,20 +132,17 @@ class InteractiveSession(initialGame: GameSetup) {
     val taskIdsToAutoExec: ArrayDeque<TaskId> = ArrayDeque()
     val checkpoint = game.eventLog.checkpoint()
 
-    val firstResult: Result = doTaskOnly(initialTaskId, narrowedInstruction)
+    val firstResult: Result = agent.doTask(initialTaskId, prep(narrowedInstruction))
     taskIdsToAutoExec += firstResult.newTaskIdsAdded - initialTaskId
 
     while (taskIdsToAutoExec.any()) {
       val thisTaskId: TaskId = taskIdsToAutoExec.removeFirst()
-      val results: Result = doTaskOnly(thisTaskId)
+      val results: Result = agent.doTask(thisTaskId)
       taskIdsToAutoExec += results.newTaskIdsAdded - thisTaskId // TODO better
     }
 
     return game.eventLog.resultsSince(checkpoint)
   }
-
-  fun enqueueTasks(instruction: Instruction, taskOwner: Actor? = null) =
-      game.enqueueTasks(prep(instruction), taskOwner ?: actor)
 
   // OTHER
 
@@ -161,9 +159,10 @@ class InteractiveSession(initialGame: GameSetup) {
             AtomizeGlobalParameterGains(loader),
             InsertDefaults(loader),
             Deprodify(loader),
-            defaultPlayer?.let { ReplaceOwnerWith(it) },
-            // not needed: ReplaceThisWith, FixEffectForUnownedContext
+            // not needed: ReplaceThisWith, ReplaceOwnerWith, FixEffectForUnownedContext
         )
     return CompositeTransformer(xers).transform(node)
   }
+
+  fun enqueueTasks(instruction: Instruction) = agent.enqueueTasks(prep(instruction))
 }

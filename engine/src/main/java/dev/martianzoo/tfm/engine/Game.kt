@@ -3,20 +3,14 @@ package dev.martianzoo.tfm.engine
 import dev.martianzoo.tfm.api.ExpressionInfo
 import dev.martianzoo.tfm.api.GameSetup
 import dev.martianzoo.tfm.api.GameStateReader
-import dev.martianzoo.tfm.api.SpecialClassNames
 import dev.martianzoo.tfm.api.Type
 import dev.martianzoo.tfm.data.Actor
-import dev.martianzoo.tfm.data.Actor.Companion.ENGINE
 import dev.martianzoo.tfm.data.GameEvent.ChangeEvent
-import dev.martianzoo.tfm.data.GameEvent.ChangeEvent.Cause
 import dev.martianzoo.tfm.data.GameEvent.TaskAddedEvent
 import dev.martianzoo.tfm.data.GameEvent.TaskRemovedEvent
 import dev.martianzoo.tfm.data.GameEvent.TaskReplacedEvent
-import dev.martianzoo.tfm.data.Task.TaskId
 import dev.martianzoo.tfm.engine.EventLog.Checkpoint
 import dev.martianzoo.tfm.pets.ast.Expression
-import dev.martianzoo.tfm.pets.ast.Instruction
-import dev.martianzoo.tfm.pets.ast.Instruction.Companion.split
 import dev.martianzoo.tfm.pets.ast.Metric
 import dev.martianzoo.tfm.pets.ast.Metric.Count
 import dev.martianzoo.tfm.pets.ast.Metric.Max
@@ -55,6 +49,8 @@ public class Game(val setup: GameSetup, public val loader: MClassLoader) {
       expression?.let { Component.ofType(resolve(it)) }
 
   // QUERIES
+
+  public fun forActor(actor: Actor) = PlayerAgent(this, actor)
 
   public fun evaluate(requirement: Requirement): Boolean {
     fun count(expression: Expression) = count(Count(expression))
@@ -108,79 +104,6 @@ public class Game(val setup: GameSetup, public val loader: MClassLoader) {
         override fun getComponents(type: Type) =
             components.getAll(loader.resolve(type)).map { it.mtype }
       }
-
-  // EXECUTION
-
-  public fun quietChange(
-      count: Int = 1,
-      gaining: Component? = null,
-      removing: Component? = null,
-      amap: Boolean = false,
-      actor: Actor = ENGINE,
-      cause: Cause? = null,
-  ): ChangeEvent? {
-    if (gaining?.expressionFull == SpecialClassNames.OK.expr) { // TODO more principled
-      require(removing == null)
-      return null
-    } else if (!amap && gaining?.expressionFull == SpecialClassNames.DIE.expr) {
-      throw RuntimeException("fix this")
-    }
-    val change = components.update(count, gaining, removing, amap) ?: return null
-    return eventLog.addChangeEvent(change, actor, cause)
-  }
-
-  /**
-   * Attempts to carry out the entirety of [instruction] "manually" or "out of the blue", plus any
-   * automatic triggered effects that result. If any of that fails the game state will remain
-   * unchanged and an exception will be thrown. If it succeeds, any non-automatic triggered effects
-   * will be left in the task queue. No other changes to the task queue will happen (for example,
-   * existing tasks are left alone, and [instruction] itself is never left enqueued.
-   *
-   * @param [instruction] an instruction to be performed as-is (no transformations will be applied)
-   * @param [actor] the instruction will be executed as if by this player (or GAME); in particular,
-   *   if unowned components are created that have `This:` triggers, this is who will own those
-   *   resulting tasks.
-   * @param [fakeCause] optionally, the instruction can be performed as if caused in the way
-   *   described by this object
-   */
-  fun initiate(
-      instruction: Instruction,
-      actor: Actor,
-      fakeCause: Cause? = null,
-  ): Result {
-    val instructions = split(instruction)
-    val checkpoint = eventLog.checkpoint()
-
-    val results =
-        try {
-          instructions.map { OneAtomicExecution(this, actor).initiateAtomic(it, fakeCause) }
-        } catch (e: Exception) {
-          rollBack(checkpoint)
-          throw e
-        }
-    return eventLog.resultsSince(checkpoint)
-  }
-
-  fun doOneExistingTask(
-      id: TaskId,
-      actor: Actor,
-      narrowed: Instruction? = null,
-  ) = OneAtomicExecution(this, actor).doOneTaskAtomic(id, narrowed)
-
-  fun enqueueTasks(instruction: Instruction, actor: Actor) = doAtomic {
-    taskQueue.addTasks(instruction, actor, cause = null)
-  }
-
-  internal fun doAtomic(block: () -> Unit): Result {
-    val checkpoint = eventLog.checkpoint()
-    try {
-      block()
-    } catch (e: Exception) {
-      rollBack(checkpoint)
-      throw e
-    }
-    return eventLog.resultsSince(checkpoint)
-  }
 
   // CHANGE LOG
 
