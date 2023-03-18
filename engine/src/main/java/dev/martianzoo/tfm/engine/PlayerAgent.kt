@@ -79,7 +79,7 @@ public class PlayerAgent(val game: Game, val actor: Actor) {
     return change?.let { game.eventLog.addChangeEvent(it, actor, cause) }
   }
 
-  fun enqueueTasks(instruction: Instruction) = doAtomic {
+  fun enqueueTasks(instruction: Instruction): Result = doAtomic {
     game.taskQueue.addTasks(heyItsMe(instruction), actor, cause = null)
   }
 

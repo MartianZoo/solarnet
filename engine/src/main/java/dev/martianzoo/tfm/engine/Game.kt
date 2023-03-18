@@ -36,7 +36,7 @@ public class Game(val setup: GameSetup, public val loader: MClassLoader) {
 
   public val components = ComponentGraph()
 
-  public val taskQueue = TaskQueue(this)
+  public val taskQueue = TaskQueue(eventLog)
 
   // TYPE & COMPONENT CONVERSION
 

@@ -22,13 +22,13 @@ class EventLog(val events: MutableList<GameEvent> = mutableListOf()) {
   fun addChangeEvent(change: StateChange, actor: Actor, cause: Cause?) =
       ChangeEvent(size, actor, change, cause).also { addEntry(it) }
 
-  fun taskAdded(task: Task) = TaskAddedEvent(size, task).also { addEntry(it) }
+  fun taskAdded(task: Task) = addEntry(TaskAddedEvent(size, task))
 
-  fun taskRemoved(task: Task) = TaskRemovedEvent(size, task).also { addEntry(it) }
+  fun taskRemoved(task: Task) = addEntry(TaskRemovedEvent(size, task))
 
-  fun taskReplaced(oldTask: Task, newTask: Task): TaskReplacedEvent {
+  fun taskReplaced(oldTask: Task, newTask: Task) {
     require(oldTask.id == newTask.id)
-    return TaskReplacedEvent(size, oldTask = oldTask, task = newTask).also { addEntry(it) }
+    addEntry(TaskReplacedEvent(size, oldTask = oldTask, task = newTask))
   }
 
   data class Checkpoint(val ordinal: Int) {
