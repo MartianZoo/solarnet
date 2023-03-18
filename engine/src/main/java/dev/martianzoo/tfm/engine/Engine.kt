@@ -4,7 +4,6 @@ import dev.martianzoo.tfm.api.GameSetup
 import dev.martianzoo.tfm.api.SpecialClassNames.GAME
 import dev.martianzoo.tfm.data.Actor.Companion.ENGINE
 import dev.martianzoo.tfm.data.GameEvent.ChangeEvent.Cause
-import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.pets.ast.Instruction
 import dev.martianzoo.tfm.pets.ast.Instruction.Companion.instruction
 import dev.martianzoo.tfm.pets.ast.classNames
@@ -18,7 +17,7 @@ public object Engine {
     val classNames =
         listOf(GAME) +
             setup.allDefinitions().classNames() + // all cards etc.
-            (1..setup.players).map { cn("Player$it") }
+            setup.players().classNames()
 
     loader.loadAll(classNames)
     loader.frozen = true
@@ -33,7 +32,7 @@ public object Engine {
 
     val game = Game(setup, loader)
 
-    val result: Result = game.forActor(ENGINE).initiate(instruction("Game!"))
+    val result: Result = game.agent(ENGINE).initiate(instruction("$GAME!"))
     require(result.newTaskIdsAdded.none())
     require(game.taskQueue.isEmpty())
 
@@ -41,7 +40,7 @@ public object Engine {
     val fakeCause = Cause(GAME.expr, firstEvent.ordinal)
 
     singletonCreateInstructions(loader).forEach {
-      game.forActor(ENGINE).initiate(it, fakeCause)
+      game.agent(ENGINE).initiate(it, fakeCause)
       require(game.taskQueue.isEmpty()) { "Unexpected tasks: ${game.taskQueue}" }
     }
     return game

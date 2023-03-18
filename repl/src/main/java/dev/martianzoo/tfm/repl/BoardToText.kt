@@ -1,11 +1,12 @@
 package dev.martianzoo.tfm.repl
 
-import dev.martianzoo.tfm.api.GameStateReader
 import dev.martianzoo.tfm.api.ResourceUtils.lookUpProductionLevels
 import dev.martianzoo.tfm.api.ResourceUtils.standardResourceNames
+import dev.martianzoo.tfm.data.Actor
+import dev.martianzoo.tfm.engine.PlayerAgent
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.tfm.pets.ast.Expression
-import dev.martianzoo.tfm.pets.ast.Expression.Companion.expression
+import dev.martianzoo.tfm.pets.ast.Metric.Companion.metric
+import dev.martianzoo.tfm.pets.ast.Metric.Count
 import dev.martianzoo.tfm.repl.TfmColor.ENERGY
 import dev.martianzoo.tfm.repl.TfmColor.HEAT
 import dev.martianzoo.tfm.repl.TfmColor.MEGACREDIT
@@ -14,13 +15,14 @@ import dev.martianzoo.tfm.repl.TfmColor.PRODUCTION
 import dev.martianzoo.tfm.repl.TfmColor.STEEL
 import dev.martianzoo.tfm.repl.TfmColor.TITANIUM
 
-internal class BoardToText(private val game: GameStateReader, val useColors: Boolean = true) {
+internal class BoardToText(private val agent: PlayerAgent, val useColors: Boolean = true) {
 
-  internal fun board(player: Expression): List<String> {
-    val prodMap = lookUpProductionLevels(game, player)
+  internal fun board(): List<String> {
+    require (agent.actor != Actor.ENGINE)
+    val prodMap = lookUpProductionLevels(agent.game.reader, agent.actor.expression)
     val resourceMap =
-        standardResourceNames(game).associateBy({ it }) {
-          game.count(game.resolve(it.addArgs(player)))
+        standardResourceNames(agent.game.reader).associateBy({ it }) {
+          agent.count(Count(it.addArgs(agent.actor.className)))
         }
 
     fun prodAndResource(s: String) =
@@ -49,11 +51,11 @@ internal class BoardToText(private val game: GameStateReader, val useColors: Boo
     val energ = maybeColor(ENERGY, "E: $eres")
     val heeat = maybeColor(HEAT, "H: $hres")
 
-    val tr = game.count(game.resolve(expression("TerraformRating<$player>")))
+    val tr = agent.count(metric("TerraformRating<Owner>")) // why not just TR TODO
     // val tr = maybeColor(TERRAFORM_RATING, "$tera")
-    val tiles = game.count(game.resolve(expression("OwnedTile<$player>")))
+    val tiles = agent.count(metric("OwnedTile"))
     return listOf(
-        "  $player   TR: $tr   Tiles: $tiles",
+        "  ${agent.actor}   TR: $tr   Tiles: $tiles",
         "+---------+---------+---------+",
         "|  $megac |  $steel |  $titan |",
         "| prod $m | prod $s | prod $t |",

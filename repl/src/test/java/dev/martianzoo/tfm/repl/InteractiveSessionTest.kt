@@ -3,7 +3,7 @@ package dev.martianzoo.tfm.repl
 import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.tfm.api.GameSetup
 import dev.martianzoo.tfm.canon.Canon
-import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.tfm.data.Actor
 import dev.martianzoo.tfm.pets.ast.Instruction.Companion.instruction
 import dev.martianzoo.tfm.pets.ast.Metric.Companion.metric
 import dev.martianzoo.tfm.pets.ast.Requirement.Companion.requirement
@@ -13,7 +13,7 @@ private class InteractiveSessionTest {
   @Test
   fun test() {
     val session = InteractiveSession(GameSetup(Canon, "MB", 2))
-    session.becomePlayer(cn("Player2"))
+    session.become(Actor.PLAYER2)
 
     session.initiateOnly(instruction("PROD[5, 4 Energy], ProjectCard"))
     session.initiateOnly(instruction("StripMine"))
@@ -21,14 +21,14 @@ private class InteractiveSessionTest {
 
     assertThat(session.has(requirement("PROD[=2 Energy, =2 Steel]"))).isTrue()
 
-    session.becomePlayer(cn("Player1"))
+    session.become(Actor.PLAYER1)
     assertThat(session.has(requirement("PROD[=0 Energy, =0 Steel]"))).isTrue()
   }
 
   @Test
   fun shortNames() {
     val session = InteractiveSession(GameSetup(Canon, "MB", 2))
-    session.becomePlayer(cn("P2"))
+    session.become(Actor.PLAYER2)
 
     session.initiateOnly(instruction("PROD[5, 4 E]"))
     session.initiateOnly(instruction("ProjectCard"))
@@ -37,14 +37,14 @@ private class InteractiveSessionTest {
 
     assertThat(session.has(requirement("PROD[=2 E, =2 S]"))).isTrue()
 
-    session.becomePlayer(cn("P1"))
+    session.become(Actor.PLAYER1)
     assertThat(session.has(requirement("PROD[=0 E, =0 S]"))).isTrue()
   }
 
   @Test
   fun removeAmap() {
     val session = InteractiveSession(GameSetup(Canon, "MB", 2))
-    session.becomePlayer(cn("Player1"))
+    session.become(Actor.PLAYER1)
 
     session.initiateOnly(instruction("3 Heat!"))
     session.initiateOnly(instruction("4 Heat."))
@@ -55,7 +55,7 @@ private class InteractiveSessionTest {
   @Test
   fun rollback() {
     val session = InteractiveSession(GameSetup(Canon, "MB", 2))
-    session.becomePlayer(cn("Player1"))
+    session.become(Actor.PLAYER1)
 
     session.initiateOnly(instruction("3 Heat"))
     session.initiateOnly(instruction("4 Heat"))
@@ -72,7 +72,7 @@ private class InteractiveSessionTest {
   @Test
   fun dependencies() {
     val session = InteractiveSession(GameSetup(Canon, "MB", 2))
-    session.becomePlayer(cn("Player2"))
+    session.become(Actor.PLAYER2)
 
     assertThat(session.game.taskQueue.taskMap).isEmpty()
     assertThat(session.count(metric("Microbe"))).isEqualTo(0)
@@ -92,7 +92,7 @@ private class InteractiveSessionTest {
   @Test
   fun counting() {
     val session = InteractiveSession(GameSetup(Canon, "MB", 2))
-    session.becomePlayer(cn("Player2"))
+    session.become(Actor.PLAYER2)
     session.initiateOnly(instruction("42 Heat"))
     assertThat(session.count(metric("Heat"))).isEqualTo(42)
     assertThat(session.count(metric("4 Heat"))).isEqualTo(10)
@@ -111,7 +111,7 @@ private class InteractiveSessionTest {
   fun tempTrigger() {
     val session = InteractiveSession(GameSetup(Canon, "MB", 2))
 
-    session.becomePlayer(cn("Player1"))
+    session.become(Actor.PLAYER1)
     assertThat(session.count(metric("TerraformRating"))).isEqualTo(20)
 
     session.initiateAndAutoExec(instruction("2 TemperatureStep"))

@@ -1,5 +1,6 @@
 package dev.martianzoo.tfm.engine
 
+import dev.martianzoo.tfm.api.SpecialClassNames.ANYONE
 import dev.martianzoo.tfm.api.SpecialClassNames.OWNER
 import dev.martianzoo.tfm.data.Actor
 import dev.martianzoo.tfm.data.GameEvent.ChangeEvent
@@ -60,7 +61,11 @@ sealed class ActiveTrigger {
       }
     }
 
-    fun isPlayerSpecificTrigger() = by.toString().startsWith("Player")
+    fun isPlayerSpecificTrigger(): Boolean {
+      if (by.toString().matches(Regex("^Player[1-5]$"))) return true
+      require(by == ANYONE || by == OWNER) { by }
+      return false
+    }
   }
 
   data class MatchOnSelf(val matchOnGain: Boolean) : ActiveTrigger() {

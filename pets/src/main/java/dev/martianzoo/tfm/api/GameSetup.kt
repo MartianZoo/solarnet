@@ -1,6 +1,8 @@
 package dev.martianzoo.tfm.api
 
+import dev.martianzoo.tfm.data.Actor
 import dev.martianzoo.tfm.data.Definition
+import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.util.toSetStrict
 import dev.martianzoo.util.toStrings
 
@@ -46,6 +48,8 @@ data class GameSetup(
 
   /** All [Definition] objects to use in this game. */
   fun allDefinitions(): List<Definition> = authority.allDefinitions.filter { it.bundle in bundles }
+
+  fun players(): List<Actor> = (1..players).map { Actor(cn("Player$it")) }
 
   private companion object {
     fun splitLetters(bundles: String) = bundles.asIterable().toStrings().toSetStrict()

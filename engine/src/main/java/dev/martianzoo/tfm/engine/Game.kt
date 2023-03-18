@@ -50,7 +50,7 @@ public class Game(val setup: GameSetup, public val loader: MClassLoader) {
 
   // QUERIES
 
-  public fun forActor(actor: Actor) = PlayerAgent(this, actor)
+  public fun agent(actor: Actor) = PlayerAgent(this, actor)
 
   public fun evaluate(requirement: Requirement): Boolean {
     fun count(expression: Expression) = count(Count(expression))

@@ -2,6 +2,7 @@ package dev.martianzoo.tfm.repl
 
 import dev.martianzoo.tfm.api.GameStateReader
 import dev.martianzoo.tfm.api.Type
+import dev.martianzoo.tfm.data.Actor
 import dev.martianzoo.tfm.data.MarsMapDefinition.AreaDefinition
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.pets.ast.Expression.Companion.expression
@@ -71,7 +72,7 @@ internal class MapToText(private val game: GameStateReader, val useColors: Boole
         }
 
     val argStrings = tile.expressionFull.arguments.toStrings()
-    val player = argStrings.firstOrNull { it.startsWith("Player") }?.last() ?: ""
+    val player = argStrings.firstOrNull(Actor::isValid)?.last() ?: ""
 
     return maybeColor(kind.second, padCenter("[${kind.first}$player]", 4))
   }

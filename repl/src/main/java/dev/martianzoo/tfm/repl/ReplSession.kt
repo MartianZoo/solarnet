@@ -6,12 +6,12 @@ import dev.martianzoo.tfm.api.GameSetup
 import dev.martianzoo.tfm.api.SpecialClassNames.COMPONENT
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.data.Actor
+import dev.martianzoo.tfm.data.Actor.Companion.ENGINE
 import dev.martianzoo.tfm.data.Task
 import dev.martianzoo.tfm.data.Task.TaskId
 import dev.martianzoo.tfm.engine.PlayerAgent
 import dev.martianzoo.tfm.engine.Result
 import dev.martianzoo.tfm.pets.ast.ClassName
-import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.pets.ast.Expression.Companion.expression
 import dev.martianzoo.tfm.pets.ast.Instruction
@@ -118,14 +118,10 @@ public class ReplSession(
     override val usage = "as <PlayerN> <full command>"
     override fun noArgs() = throw UsageException()
     override fun withArgs(args: String): List<String> {
-      val current: PlayerAgent = session.agent
       val (player, rest) = args.trim().split(Regex("\\s+"), 2)
 
-      try { // TODO
-        session.becomePlayer(cn(player))
-        return command(rest)
-      } finally {
-        session.agent = current
+      return session.doAs(Actor(cn(player))) {
+        command(rest)
       }
     }
   }
@@ -150,13 +146,13 @@ public class ReplSession(
     override val usage = "become [PlayerN]"
 
     override fun noArgs(): List<String> {
-      session.becomeNoOne()
-      return listOf("Okay, you are no one")
+      session.become(ENGINE)
+      return listOf("Okay, you are the game engine now")
     }
 
     override fun withArgs(args: String): List<String> {
-      session.becomePlayer(cn(args))
-      return listOf("Hi, ${session.defaultPlayer}")
+      session.become(Actor(cn(args)))
+      return listOf("Hi, ${session.agent.actor}")
     }
   }
 
@@ -195,15 +191,10 @@ public class ReplSession(
   internal inner class BoardCommand : ReplCommand("board") {
     override val usage = "board [PlayerN]"
 
-    override fun noArgs(): List<String> {
-      val player: ClassName =
-          session.defaultPlayer
-              ?: throw UsageException("Must specify a player (or `become` that player first)")
-      return withArgs(player.toString())
-    }
+    override fun noArgs(): List<String> = BoardToText(session.agent, jline != null).board()
 
     override fun withArgs(args: String) =
-        BoardToText(session.game.reader, jline != null).board(cn(args).expr)
+        BoardToText(session.agent(args), jline != null).board()
   }
 
   internal inner class MapCommand : ReplCommand("map") {
@@ -294,16 +285,11 @@ public class ReplSession(
   internal inner class GiveTurnCommand : ReplCommand("giveturn") {
     override val usage = "giveturn [PlayerN]"
 
-    override fun noArgs(): List<String> {
-      if (session.defaultPlayer == null) {
-        throw UsageException("Must specify a player (or `become` that player first)")
-      }
-      val result = session.enqueueTasks(instruction("UseAction<StandardAction>"))
-      return describeExecutionResults(result)
-    }
+    override fun noArgs(): List<String> = requestTurn(session.agent)
 
-    override fun withArgs(args: String): List<String> {
-      val agent = session.agents[Actor(cn(args))]!!
+    override fun withArgs(args: String) = requestTurn(session.agent(args))
+
+    private fun requestTurn(agent: PlayerAgent): List<String> {
       val result = agent.enqueueTasks(session.prep(instruction("UseAction<StandardAction>")))
       return describeExecutionResults(result)
     }
@@ -326,7 +312,7 @@ public class ReplSession(
     override val usage = "log [full]"
 
     // TODO filter it
-    override fun noArgs() = session.game.eventLog.changesSince(session.start).toStrings()
+    override fun noArgs() = session.game.eventLog.changesSince(session.showLogSince).toStrings()
 
     override fun withArgs(args: String): List<String> {
       if (args == "full") {
@@ -410,6 +396,8 @@ public class ReplSession(
     val command = commands[commandName] ?: return listOf("¯\\_(ツ)_/¯ Type `help` for help")
     return command(command, args)
   }
+
+  private fun cn(s: String) = session.game.loader.getClass(ClassName.cn(s)).className
 }
 
 private val helpText: String =

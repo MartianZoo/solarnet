@@ -2,7 +2,6 @@ package dev.martianzoo.tfm.repl
 
 import dev.martianzoo.tfm.api.Exceptions.UserException
 import dev.martianzoo.tfm.api.GameSetup
-import dev.martianzoo.tfm.api.SpecialClassNames.ANYONE
 import dev.martianzoo.tfm.data.Actor
 import dev.martianzoo.tfm.data.Actor.Companion.ENGINE
 import dev.martianzoo.tfm.data.Task.TaskId
@@ -15,6 +14,7 @@ import dev.martianzoo.tfm.engine.Result
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.pets.ast.Expression
+import dev.martianzoo.tfm.pets.ast.HasClassName
 import dev.martianzoo.tfm.pets.ast.Instruction
 import dev.martianzoo.tfm.pets.ast.Instruction.Change
 import dev.martianzoo.tfm.pets.ast.Instruction.Companion.split
@@ -35,41 +35,25 @@ import dev.martianzoo.util.Multiset
  * A convenient interface for functional tests; basically, [ReplSession] is just a more texty
  * version of this.
  */
-class InteractiveSession(initialGame: GameSetup) {
-  public lateinit var game: Game
+class InteractiveSession(initialSetup: GameSetup) {
+  public var game: Game = Engine.newGame(initialSetup)
     internal set
-  internal var gameNumber: Int = -1 // TODO
-  internal var start: Checkpoint = Checkpoint(0) // will be overwritten
-
-  internal var defaultPlayer: ClassName? = null
-  internal lateinit var agents: Map<Actor, PlayerAgent>
-  internal lateinit var agent: PlayerAgent
-
-
-  init {
-    newGame(initialGame)
-  }
+  internal var gameNumber: Int = 0
+    private set
+  internal var showLogSince: Checkpoint = game.eventLog.checkpoint()
+    private set
+  internal var agent: PlayerAgent = agent(ENGINE)
+    private set
 
   fun newGame(setup: GameSetup) {
     game = Engine.newGame(setup)
-    start = game.eventLog.checkpoint()
+    showLogSince = game.eventLog.checkpoint()
     gameNumber++
-
-    val allActors = (1..setup.players).map { Actor(cn("Player$it")) } + ENGINE
-    agents = allActors.associateWith { game.forActor(it) }
-
-    becomeNoOne()
+    become(ENGINE)
   }
 
-  fun becomePlayer(player: ClassName) {
-    val p = game.resolve(player.expr)
-    require(!p.abstract)
-    require(p.isSubtypeOf(game.resolve(ANYONE.expr)))
-    agent = agents[Actor(p.mclass.className)]!!
-  }
-
-  fun becomeNoOne() {
-    agent = agents[ENGINE]!!
+  fun become(actor: Actor) {
+    agent = agent(actor)
   }
 
   // QUERIES
@@ -101,11 +85,7 @@ class InteractiveSession(initialGame: GameSetup) {
   fun sneakyChange(instruction: Instruction): Result {
     val changes = split(prep(instruction)).mapNotNull {
       if (it !is Change) throw UserException("can only sneak simple changes")
-      agent.quietChange(
-          it.count,
-          it.gaining,
-          it.removing,
-      )
+      agent.quietChange(it.count, it.gaining, it.removing)
     }
     return Result(changes = changes, newTaskIdsAdded = setOf())
   }
@@ -164,5 +144,14 @@ class InteractiveSession(initialGame: GameSetup) {
     return CompositeTransformer(xers).transform(node)
   }
 
-  fun enqueueTasks(instruction: Instruction) = agent.enqueueTasks(prep(instruction))
+  fun agent(player: String) = agent(cn(player))
+  fun agent(actor: ClassName) = agent(Actor(actor))
+  fun agent(actor: HasClassName) = agent(actor.className)
+  fun agent(actor: Actor) = game.agent(actor)
+
+  fun <T> doAs(actor: Actor, function: () -> T): T {
+    val current = agent
+    become(actor)
+    return function().also { agent = current }
+  }
 }

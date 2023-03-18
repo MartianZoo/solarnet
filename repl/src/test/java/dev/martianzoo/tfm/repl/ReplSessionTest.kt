@@ -3,10 +3,8 @@ package dev.martianzoo.tfm.repl
 import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.tfm.api.GameSetup
 import dev.martianzoo.tfm.canon.Canon
-import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.pets.ast.Metric.Companion.metric
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.fail
 
 private class ReplSessionTest {
   @Test
@@ -90,8 +88,7 @@ private class ReplSessionTest {
     repl.command("exec PROD[9, 8 Steel, 7 Titanium, 6 Plant, 5 Energy, 4 Heat]")
     repl.command("exec 8, 6 Steel, 7 Titanium, 5 Plant, 3 Energy, 9 Heat")
 
-    val game = repl.session.game ?: fail("huh?")
-    val board = BoardToText(game.reader, false).board(cn("Player1").expr)
+    val board = BoardToText(repl.session.agent, false).board()
     assertThat(board)
         .containsExactly(
             "  Player1   TR: 20   Tiles: 0",
