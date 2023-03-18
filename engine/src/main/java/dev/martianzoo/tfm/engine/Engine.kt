@@ -1,8 +1,8 @@
 package dev.martianzoo.tfm.engine
 
 import dev.martianzoo.tfm.api.GameSetup
-import dev.martianzoo.tfm.api.SpecialClassNames.GAME
-import dev.martianzoo.tfm.data.Actor.Companion.ENGINE
+import dev.martianzoo.tfm.api.SpecialClassNames.ENGINE
+import dev.martianzoo.tfm.data.Actor
 import dev.martianzoo.tfm.data.GameEvent.ChangeEvent.Cause
 import dev.martianzoo.tfm.pets.ast.Instruction
 import dev.martianzoo.tfm.pets.ast.Instruction.Companion.instruction
@@ -15,7 +15,7 @@ public object Engine {
     val loader = MClassLoader(setup.authority, autoLoadDependencies = true)
 
     val classNames =
-        listOf(GAME) +
+        listOf(ENGINE) +
             setup.allDefinitions().classNames() + // all cards etc.
             setup.players().classNames()
 
@@ -32,15 +32,14 @@ public object Engine {
 
     val game = Game(setup, loader)
 
-    val result: Result = game.agent(ENGINE).initiate(instruction("$GAME!"))
+    val result: Result = game.agent(Actor.ENGINE).initiate(instruction("$ENGINE!"))
     require(result.newTaskIdsAdded.none())
     require(game.taskQueue.isEmpty())
 
-    val firstEvent = result.changes.single()
-    val fakeCause = Cause(GAME.expr, firstEvent.ordinal)
+    val fakeCause = Cause(Actor.ENGINE, result.changes.single())
 
     singletonCreateInstructions(loader).forEach {
-      game.agent(ENGINE).initiate(it, fakeCause)
+      game.agent(Actor.ENGINE).initiate(it, fakeCause)
       require(game.taskQueue.isEmpty()) { "Unexpected tasks: ${game.taskQueue}" }
     }
     return game

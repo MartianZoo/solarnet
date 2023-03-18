@@ -6,7 +6,6 @@ import dev.martianzoo.tfm.api.GameSetup
 import dev.martianzoo.tfm.api.SpecialClassNames.COMPONENT
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.data.Actor
-import dev.martianzoo.tfm.data.Actor.Companion.ENGINE
 import dev.martianzoo.tfm.data.Task
 import dev.martianzoo.tfm.data.Task.TaskId
 import dev.martianzoo.tfm.engine.PlayerAgent
@@ -146,7 +145,7 @@ public class ReplSession(
     override val usage = "become [PlayerN]"
 
     override fun noArgs(): List<String> {
-      session.become(ENGINE)
+      session.become(Actor.ENGINE)
       return listOf("Okay, you are the game engine now")
     }
 

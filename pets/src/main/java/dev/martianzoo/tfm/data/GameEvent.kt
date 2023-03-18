@@ -55,7 +55,7 @@ sealed class GameEvent {
     constructor(
         /**
          * The type of the existing component that owns the effect activated in response to
-         * [triggerEvent]. For an "initiated" change this should be `Game` or the appropriate
+         * [triggerEvent]. For an "initiated" change this should be `Engine` or the appropriate
          * player.
          */
         val context: Expression,

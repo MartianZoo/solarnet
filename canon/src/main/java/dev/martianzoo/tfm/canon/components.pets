@@ -5,7 +5,7 @@
 
 // This file has game stuff that isn't player-specific
 
-CLASS Game : System {
+CLASS Engine : System {
   HAS MAX 1 This                                       // Created manually to kick everything off
 
   This:: @forceLoad(Class<Production>)                 // TODO pare this down??

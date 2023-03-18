@@ -3,7 +3,6 @@ package dev.martianzoo.tfm.repl
 import dev.martianzoo.tfm.api.Exceptions.UserException
 import dev.martianzoo.tfm.api.GameSetup
 import dev.martianzoo.tfm.data.Actor
-import dev.martianzoo.tfm.data.Actor.Companion.ENGINE
 import dev.martianzoo.tfm.data.Task.TaskId
 import dev.martianzoo.tfm.engine.Component
 import dev.martianzoo.tfm.engine.Engine
@@ -42,14 +41,14 @@ class InteractiveSession(initialSetup: GameSetup) {
     private set
   internal var showLogSince: Checkpoint = game.eventLog.checkpoint()
     private set
-  internal var agent: PlayerAgent = agent(ENGINE)
+  internal var agent: PlayerAgent = agent(Actor.ENGINE)
     private set
 
   fun newGame(setup: GameSetup) {
     game = Engine.newGame(setup)
     showLogSince = game.eventLog.checkpoint()
     gameNumber++
-    become(ENGINE)
+    become(Actor.ENGINE)
   }
 
   fun become(actor: Actor) {

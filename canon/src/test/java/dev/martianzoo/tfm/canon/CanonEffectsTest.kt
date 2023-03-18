@@ -1,7 +1,7 @@
 package dev.martianzoo.tfm.canon
 
 import com.google.common.truth.Truth.assertThat
-import dev.martianzoo.tfm.api.SpecialClassNames.GAME
+import dev.martianzoo.tfm.api.SpecialClassNames.ENGINE
 import dev.martianzoo.tfm.api.SpecialClassNames.GLOBAL_PARAMETER
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.types.MClassLoader
@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Test
 private class CanonEffectsTest {
   fun effectsOf(name: String): List<String> {
     val loader = MClassLoader(Canon, true)
-    loader.load(GAME)
+    loader.load(ENGINE)
     loader.load(GLOBAL_PARAMETER)
     val card = loader.load(cn(name))
     loader.frozen = true

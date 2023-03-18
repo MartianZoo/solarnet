@@ -1,6 +1,6 @@
 package dev.martianzoo.tfm.data
 
-import dev.martianzoo.tfm.api.SpecialClassNames.GAME
+import dev.martianzoo.tfm.api.SpecialClassNames
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.pets.ast.HasClassName
@@ -17,9 +17,9 @@ data class Actor(override val className: ClassName) : HasClassName, HasExpressio
   override fun toString() = className.toString()
 
   companion object {
-    val regex = Regex("^($GAME|Player[1-5])$")
+    val regex = Regex("^(${SpecialClassNames.ENGINE}|Player[1-5])$")
 
-    val ENGINE = Actor(GAME)
+    val ENGINE = Actor(SpecialClassNames.ENGINE)
     val PLAYER1 = Actor(cn("Player1"))
     val PLAYER2 = Actor(cn("Player2"))
     val PLAYER3 = Actor(cn("Player3"))

@@ -6,7 +6,6 @@ import dev.martianzoo.tfm.api.GameStateWriter
 import dev.martianzoo.tfm.api.SpecialClassNames
 import dev.martianzoo.tfm.api.Type
 import dev.martianzoo.tfm.data.Actor
-import dev.martianzoo.tfm.data.Actor.Companion.ENGINE
 import dev.martianzoo.tfm.data.GameEvent.ChangeEvent
 import dev.martianzoo.tfm.data.GameEvent.ChangeEvent.Cause
 import dev.martianzoo.tfm.data.Task
@@ -41,7 +40,7 @@ import dev.martianzoo.util.Multiset
 
 public class PlayerAgent(val game: Game, val actor: Actor) {
   private val setOwner: PetTransformer =
-      if (actor == ENGINE) {
+      if (actor == Actor.ENGINE) {
         Deprodify(game.loader)
       } else {
         CompositeTransformer(ReplaceOwnerWith(actor.className), Deprodify(game.loader))
