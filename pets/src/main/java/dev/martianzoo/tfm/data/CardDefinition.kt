@@ -31,6 +31,8 @@ import dev.martianzoo.tfm.pets.ast.PetNode
 import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.pets.ast.Requirement.Companion.requirement
 import dev.martianzoo.tfm.pets.ast.ScaledExpression.Companion.scaledEx
+import dev.martianzoo.util.HashMultiset
+import dev.martianzoo.util.Multiset
 import dev.martianzoo.util.toSetStrict
 
 /**
@@ -71,7 +73,7 @@ public class CardDefinition(data: CardData) : Definition {
    * Venus tags). Order is irrelevant for gameplay purposes (canon data should preserve tag order
    * from printed cards just because).
    */
-  public val tags: List<ClassName> = data.tags.map(::cn)
+  public val tags: Multiset<ClassName> = HashMultiset(data.tags.map(::cn))
 
   /** Immediate effects on the card, if any. */
   public val immediate: Instruction? = data.immediate?.let(::instruction)
@@ -145,7 +147,7 @@ public class CardDefinition(data: CardData) : Definition {
         } else {
           listOf()
         }
-    val gainUsSomeTags = Multi.create(tags.map { Gain(scaledEx(it.expr.addArgs(className))) })
+    val gainUsSomeTags = Multi.create(tags.toList().map { instruction("$it<$className>!") })
     val allEffects =
         blocker.map { immediateToEffect(it, automatic = true) } +
         listOfNotNull(gainUsSomeTags).map { immediateToEffect(it, automatic = true) } +

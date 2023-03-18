@@ -279,7 +279,8 @@ public class ReplSession(
           try {
             when (mode) {
               RED -> return listOf("Can't execute tasks in red mode")
-              YELLOW, BLUE -> session.agent.doTask(id, session.prep(instruction))
+              YELLOW,
+              BLUE -> session.agent.doTask(id, session.prep(instruction))
               GREEN -> session.doTaskAndAutoExec(id, instruction)
               else -> TODO()
             }
@@ -383,7 +384,11 @@ public class ReplSession(
 
   internal inner class ScriptCommand : ReplCommand("script") {
     override val usage = "script <filename>"
-    override fun withArgs(args: String) = File(args).readLines().flatMap(::command)
+    override fun withArgs(args: String) =
+        File(args).readLines()
+            .takeWhile { it.trim() != "stop" }
+            .filter { it.isNotEmpty() }
+            .flatMap { listOf(">>> $it") + command(it) + "" }
   }
 
   public fun command(wholeCommand: String): List<String> {
@@ -411,7 +416,7 @@ private val helpText: String =
     """
     CONTROL
       help                -> shows this message
-      new BMV 3           -> erases current game and starts 3p game with Base, default Map, Venus
+      newgame BMV 3       -> erases current game and starts 3p game with Base, default Map, Venus
       become Player1      -> makes Player1 the default player for queries & executions
       exit                -> go waste time differently
       rebuild             -> restart after code changes (game is forgotten)

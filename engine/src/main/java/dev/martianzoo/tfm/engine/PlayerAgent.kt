@@ -187,6 +187,13 @@ public class PlayerAgent(val game: Game, val actor: Actor) {
             amap: Boolean,
             cause: Cause?,
         ) {
+          if (removing != null) {
+            val c = game.toComponent(removing.expressionFull)
+            val dependents = game.components.dependentsOf(c)
+            dependents.entries.forEach {
+              (e, ct) -> write(ct, removing = e.mtype, amap = false, cause = cause)
+            }
+          }
           val event =
               quietChange(count, gaining?.expressionFull, removing?.expressionFull, amap, cause)
           event?.let { fireTriggers(it) }

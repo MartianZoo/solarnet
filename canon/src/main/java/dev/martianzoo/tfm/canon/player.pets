@@ -111,7 +111,7 @@ ABSTRACT CLASS Owned<Anyone> {
     ABSTRACT CLASS ActionCard : HasActions
   }
 
-  CLASS PlayedEvent<Class<EventCard>> [EVT] {
+  CLASS PlayedEvent<Class<CardFront>> [EVT] {     // All thanks to PharmU this can't be <EventCard>!
     // End: @getVPsFrom(EventCard)
   }
 

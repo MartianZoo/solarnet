@@ -10,11 +10,14 @@ import com.github.h0tk3y.betterParse.grammar.parser
 import com.github.h0tk3y.betterParse.parser.Parser
 import dev.martianzoo.tfm.api.Exceptions.InvalidReificationException
 import dev.martianzoo.tfm.api.ExpressionInfo
+import dev.martianzoo.tfm.api.SpecialClassNames.OK
 import dev.martianzoo.tfm.pets.BaseTokenizer
 import dev.martianzoo.tfm.pets.Parsing
 import dev.martianzoo.tfm.pets.PetException
 import dev.martianzoo.tfm.pets.ast.FromExpression.SimpleFrom
+import dev.martianzoo.tfm.pets.ast.Instruction.Intensity.MANDATORY
 import dev.martianzoo.tfm.pets.ast.Instruction.Intensity.OPTIONAL
+import dev.martianzoo.tfm.pets.ast.ScaledExpression.Companion.scaledEx
 import dev.martianzoo.util.suf
 import dev.martianzoo.util.toSetStrict
 
@@ -38,7 +41,9 @@ public sealed class Instruction : PetNode() {
     }
 
     override fun checkReificationDoNotCall(proposed: Instruction, einfo: ExpressionInfo) {
+      if (proposed == nullInstruction && intensity == OPTIONAL) return
       proposed as Change
+
       gaining?.let { einfo.checkReifies(it, proposed.gaining!!) }
       removing?.let { einfo.checkReifies(it, proposed.removing!!) }
       if (proposed.count > count) {
@@ -360,7 +365,7 @@ public sealed class Instruction : PetNode() {
     if (!abstractTarget.isAbstract(einfo)) {
       throw InvalidReificationException("Already concrete: $abstractTarget")
     }
-    if (abstractTarget !is Or && this::class != abstractTarget::class) {
+    if (abstractTarget !is Or && this != nullInstruction && this::class != abstractTarget::class) {
       throw InvalidReificationException(
           "A ${this::class.simpleName} instruction can't reify a" +
               " ${abstractTarget::class.simpleName} instruction")
@@ -459,5 +464,7 @@ public sealed class Instruction : PetNode() {
         commaSeparated(then) map { Multi.create(it)!! }
       }
     }
+
+    internal val nullInstruction = Gain(scaledEx(OK.expr), MANDATORY)
   }
 }

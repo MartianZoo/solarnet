@@ -60,7 +60,7 @@ public class ComponentGraph {
     }
 
     if (removing != null) {
-      val dependents = multiset.elements.filter { removing in it.dependencyComponents }
+      val dependents = dependentsOf(removing)
       if (dependents.any()) {
         throw DependencyException.removing(dependents)
       }
@@ -85,4 +85,6 @@ public class ComponentGraph {
     gaining?.let { multiset.add(it, correctedCount) }
     return correctedCount
   }
+
+  fun dependentsOf(dependency: Component) = multiset.filter { dependency in it.dependencyComponents }
 }

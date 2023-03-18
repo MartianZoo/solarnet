@@ -3,8 +3,12 @@ package dev.martianzoo.util
 import kotlin.collections.Map.Entry
 import kotlin.math.min
 
-class HashMultiset<E> : MutableMultiset<E> {
+class HashMultiset<E>(elements: Iterable<E>) : MutableMultiset<E> {
+  constructor() : this(listOf())
   private val map = mutableMapOf<E, Int>()
+  init {
+    addAll(elements)
+  }
 
   override val size
     get() = map.values.sum()
@@ -52,7 +56,7 @@ class HashMultiset<E> : MutableMultiset<E> {
   }
 
   override fun addAll(elements: Collection<E>): Boolean {
-    if (elements is MutableMultiset<E>) {
+    if (elements is Multiset<E>) {
       elements.entries.forEach { (e, ct) -> add(e, ct) }
     } else {
       elements.forEach(::add)

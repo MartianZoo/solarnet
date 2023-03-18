@@ -1,6 +1,7 @@
 package dev.martianzoo.tfm.repl
 
 import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.Truth.assertWithMessage
 import dev.martianzoo.tfm.api.GameSetup
 import dev.martianzoo.tfm.api.ResourceUtils.lookUpProductionLevels
 import dev.martianzoo.tfm.canon.Canon
@@ -34,9 +35,7 @@ class EntireGameTest {
     replit("exec Tile044<E37>")
     replit("exec -13 Steel, -1, SpaceElevator")
     replit("exec UseAction1<SpaceElevator>")
-    replit("exec -2, InventionContest", 1)
-    replit("exec -SCT<P2, InventionContest<P2>>", 1) // TODO how to remove tags?
-    replit("task A")
+    replit("exec -2, InventionContest")
     replit("exec -6, GreatEscarpmentConsortium", 1)
     replit("task A PROD[-Steel<P1>]", 0)
 
@@ -61,10 +60,7 @@ class EntireGameTest {
 
     replit("become P2")
     replit("exec -5 Steel, IndustrialMicrobes")
-    replit("exec -Titanium, TechnologyDemonstration", 1)
-    replit("exec -SCT<TechnologyDemonstration>", 1) // TODO remove tags
-    replit("exec -SPT<TechnologyDemonstration>", 1)
-    replit("task A")
+    replit("exec -Titanium, TechnologyDemonstration")
 
     replit("as P1 exec -6, Sponsors")
 
@@ -92,9 +88,7 @@ class EntireGameTest {
     replit("exec -6, MarsUniversity")
     replit("exec -10, ArtificialPhotosynthesis", 1)
     replit("task B PROD[2 Energy]")
-    replit("exec -5, BribedCommittee", 1)
-    replit("exec -EarthTag<BribedCommittee>", 1)
-    replit("task A", 0)
+    replit("exec -5, BribedCommittee")
 
     replit("become")
     replit("exec ProductionPhase FROM ActionPhase")
@@ -123,7 +117,8 @@ class EntireGameTest {
     replit("task B PROD[-2 Megacredit<P1>]", 0)
 
     replit("become P1")
-    replit("exec UseAction1<SellPatents>", 0)
+    replit("exec UseAction1<SellPatents>", 1)
+    replit("task A Megacredit FROM ProjectCard")
 
     replit("become P2")
     replit("exec -4 Steel, -1, SolarPower")
@@ -191,15 +186,18 @@ class EntireGameTest {
         .inOrder()
   }
 
-  @Test fun ellieGame() {
+  @Test
+  fun ellieGame() {
     val repl = ReplSession(Canon, GameSetup(Canon, "BRHXP", 2))
     fun replit(s: String, tasksExpected: Int = 0) {
       repl.command(s)
-      assertThat(repl.session.game.taskQueue.size).isEqualTo(tasksExpected)
+      assertWithMessage("${repl.session.game.taskQueue}")
+          .that(repl.session.game.taskQueue.size)
+          .isEqualTo(tasksExpected)
     }
 
     replit("as P1 exec InterplanetaryCinematics, 7 BuyCard")
-    replit("as P2 exec PharmacyUnion, -8, 5 BuyCard") // TODO: should have done the -8
+    replit("as P2 exec PharmacyUnion, 5 BuyCard")
 
     replit("as P1 exec UnmiContractor, CorporateArchives")
     replit("as P2 exec BiosphereSupport, SocietySupport")
@@ -209,38 +207,33 @@ class EntireGameTest {
     replit("become P1")
     replit("exec -6, MediaGroup")
     replit("exec -1, Sabotage", 1)
-    replit("task B -7 Megacredit<Player2>")
+    replit("task B -7 Megacredit<P2>")
 
     replit("become P2")
-    replit("exec -11, Research", 2) // TODO: Pharma should have said Disease<Pharma>
-    replit("task A TR<Player2> FROM Disease<P2, PharmacyUnion<P2>>", 1)
-    // TODO: could have added 2 science tags at once
-    replit("task B TR<Player2> FROM Disease<P2, PharmacyUnion<P2>>")
-    replit("exec -9, MartianSurvey", 2)
-    replit("exec -ScienceTag<MartianSurvey>", 2)
-    replit("task B", 1)
-    replit("task A drop") // TODO: should have been able to choose Ok, it stacktraced
+    replit("exec -11, Research")
+    replit("exec -9, MartianSurvey", 1)
+    replit("task A Ok")
 
     replit("exec -3, SearchForLife", 1) // TODO: why does she have 3 of these??
-    replit("task A drop")
-    replit("exec -2 MicrobeTag<PharmacyUnion>") // TODO: make automatic?
-    replit("exec PlayedEvent<Class<Harvest>> FROM PharmacyUnion, 3 TR")
-    // TODO: didn't let Pharma in eventpile
+    replit("task A PlayedEvent<Class<PharmacyUnion>> FROM PharmacyUnion THEN 3 TerraformRating")
+    // TODO spellout
 
     replit("exec UseAction1<UseActionFromCard>", 1)
     replit("task A UseAction1<SearchForLife> THEN ActionUsedMarker<SearchForLife>", 1)
-    replit("task B drop")
-    replit("exec -1")
+    replit("task B -1 THEN Ok")
 
     replit("become")
-    replit("exec ProductionPhase, GenerationPhase FROM ProductionPhase, " +
-        "ResearchPhase FROM GenerationPhase", 2)
+    replit(
+        "exec ProductionPhase FROM ActionPhase, GenerationPhase FROM ProductionPhase, " +
+            "ResearchPhase FROM GenerationPhase",
+        2)
     replit("as P1 task A BuyCard", 1)
     replit("as P2 task B 3 BuyCard")
     replit("exec ActionPhase FROM ResearchPhase")
 
     replit("become P2")
-    replit("exec UseAction1<SellPatents>")
+    replit("exec UseAction1<SellPatents>", 1)
+    replit("task A Megacredit FROM ProjectCard") // TODO wrong
     replit("exec -15, VestaShipyard") // TODO: handle negative cpt count without stacktracing
 
     replit("become P1") // TODO: Hi, null
@@ -257,8 +250,10 @@ class EntireGameTest {
 
     // TODO: didn't get VPs from played events
     replit("become")
-    replit("exec ProductionPhase FROM ActionPhase, GenerationPhase FROM ProductionPhase, " +
-        "ResearchPhase FROM GenerationPhase", 2)
+    replit(
+        "exec ProductionPhase FROM ActionPhase, GenerationPhase FROM ProductionPhase, " +
+            "ResearchPhase FROM GenerationPhase",
+        2)
     replit("as P1 task A 3 BuyCard", 1)
     replit("as P2 task B BuyCard") // TODO: why does she appear to have 3 SearchForLifes?")
     replit("exec ActionPhase FROM ResearchPhase")
@@ -285,7 +280,8 @@ class EntireGameTest {
     assertThat(prods.values).containsExactly(4, 0, 0, 0, 0, 1).inOrder()
 
     assertThat(repl.counts("M, Steel, Titanium, Plant, Energy, Heat"))
-        .containsExactly(22, 3, 0, 0, 0, 1).inOrder()
+        .containsExactly(22, 3, 0, 0, 0, 1)
+        .inOrder()
 
     assertThat(repl.counts("ProjectCard, CardFront, ActiveCard, AutomatedCard, PlayedEvent"))
         .containsExactly(6, 12, 5, 4, 1)
@@ -309,7 +305,8 @@ class EntireGameTest {
     assertThat(prods2.values).containsExactly(-4, 0, 1, 3, 1, 1).inOrder()
 
     assertThat(repl.counts("M, Steel, Titanium, Plant, Energy, Heat"))
-        .containsExactly(18, 0, 1, 6, 1, 3).inOrder()
+        .containsExactly(18, 0, 1, 6, 1, 3)
+        .inOrder()
 
     assertThat(repl.counts("ProjectCard, CardFront, ActiveCard, AutomatedCard, PlayedEvent"))
         .containsExactly(9, 5, 1, 2, 2)

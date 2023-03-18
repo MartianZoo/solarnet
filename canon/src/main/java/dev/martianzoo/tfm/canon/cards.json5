@@ -192,12 +192,13 @@
       "bundle": "X",
       "deck": "CORPORATION",
       "tags": [ "MicrobeTag", "MicrobeTag" ],
-      "immediate": "54, ProjectCard",
+      "immediate": "ProjectCard",
       "effects": [
-        "MicrobeTag<Anyone>: Disease<This>, -4.",
+        "This:: 54", // TODO hmmm
+        "MicrobeTag<Anyone>: Disease<This> THEN -4.",
         // ideally: `TR FROM Disease ELSE (PlayedEvent FROM This, 3 TR)?`
-        "ScienceTag IF Disease: TR FROM Disease",
-        "ScienceTag IF MAX 0 Disease: (PlayedEvent FROM This, 3 TR) OR Ok"
+        "ScienceTag IF Disease: TerraformRating FROM Disease<This>",
+        "ScienceTag IF MAX 0 Disease: (PlayedEvent<Class<This>> FROM This THEN 3 TerraformRating) OR Ok"
       ],
       "components": [ "CLASS Disease : CardResource" ],
       "resourceType": "Disease"

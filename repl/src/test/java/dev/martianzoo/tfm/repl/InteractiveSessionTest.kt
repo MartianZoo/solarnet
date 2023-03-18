@@ -3,13 +3,11 @@ package dev.martianzoo.tfm.repl
 import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.tfm.api.GameSetup
 import dev.martianzoo.tfm.canon.Canon
-import dev.martianzoo.tfm.engine.Exceptions.DependencyException
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.pets.ast.Instruction.Companion.instruction
 import dev.martianzoo.tfm.pets.ast.Metric.Companion.metric
 import dev.martianzoo.tfm.pets.ast.Requirement.Companion.requirement
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
 
 private class InteractiveSessionTest {
   @Test
@@ -87,7 +85,8 @@ private class InteractiveSessionTest {
     assertThat(session.count(metric("Ants"))).isEqualTo(1)
     session.initiateAndAutoExec(instruction("3 Microbe<Ants>"))
     assertThat(session.count(metric("Microbe"))).isEqualTo(3)
-    assertThrows<DependencyException> { session.initiateAndAutoExec(instruction("-Ants")) }
+    session.initiateAndAutoExec(instruction("-Ants"))
+    assertThat(session.count(metric("Microbe"))).isEqualTo(0)
   }
 
   @Test
