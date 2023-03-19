@@ -29,4 +29,3 @@ data class Actor(override val className: ClassName) : HasClassName, HasExpressio
     fun isValid(name: String) = name.matches(regex)
   }
 }
-

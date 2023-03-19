@@ -131,7 +131,8 @@ class EntireGameTest {
     assertThat(prods.values).containsExactly(2, 2, 7, 0, 1, 0).inOrder()
 
     assertThat(repl.counts("M, Steel, Titanium, Plant, Energy, Heat"))
-        .containsExactly(34, 2, 8, 3, 1, 3).inOrder()
+        .containsExactly(34, 2, 8, 3, 1, 3)
+        .inOrder()
 
     assertThat(repl.counts("ProjectCard, CardFront, ActiveCard, AutomatedCard, PlayedEvent"))
         .containsExactly(5, 10, 1, 6, 0)
@@ -155,7 +156,8 @@ class EntireGameTest {
     assertThat(prods2.values).containsExactly(8, 6, 1, 0, 2, 0).inOrder()
 
     assertThat(repl.counts("M, Steel, Titanium, Plant, Energy, Heat"))
-        .containsExactly(47, 6, 1, 1, 2, 3).inOrder()
+        .containsExactly(47, 6, 1, 1, 2, 3)
+        .inOrder()
 
     assertThat(repl.counts("ProjectCard, CardFront, ActiveCard, AutomatedCard, PlayedEvent"))
         .containsExactly(3, 17, 4, 10, 3)

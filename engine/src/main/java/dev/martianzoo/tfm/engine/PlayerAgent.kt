@@ -190,8 +190,8 @@ public class PlayerAgent(val game: Game, val actor: Actor) {
           if (removing != null) {
             val c = game.toComponent(removing.expressionFull)
             val dependents = game.components.dependentsOf(c)
-            dependents.entries.forEach {
-              (e, ct) -> write(ct, removing = e.mtype, amap = false, cause = cause)
+            dependents.entries.forEach { (e, ct) ->
+              write(ct, removing = e.mtype, amap = false, cause = cause)
             }
           }
           val event =
@@ -207,14 +207,16 @@ public class PlayerAgent(val game: Game, val actor: Actor) {
     val arguments = instr.arguments.map(game::resolve)
     try {
       val translated: Instruction = custom.translate(game.reader, arguments) * multiplier
-      val instruction = transformInSeries(
-          UseFullNames(game.loader),
-          AtomizeGlobalParameters(game.loader),
-          InsertDefaults(game.loader), // TODO context component??
-          Deprodify(game.loader),
-          ReplaceOwnerWith(actor.className)
-          // Not needed: ReplaceThisWith, FixUnownedEffect
-      ).transform(translated)
+      val instruction =
+          transformInSeries(
+                  UseFullNames(game.loader),
+                  AtomizeGlobalParameters(game.loader),
+                  InsertDefaults(game.loader), // TODO context component??
+                  Deprodify(game.loader),
+                  ReplaceOwnerWith(actor.className)
+                  // Not needed: ReplaceThisWith, FixUnownedEffect
+                  )
+              .transform(translated)
       split(instruction).forEach {
         try {
           doAtomic { doInstruction(it, cause) }

@@ -18,7 +18,7 @@ enum class TfmColor(val hexString: String) {
   SPECIAL_TILE("a87a58"),
   TERRAFORM_RATING("ea8845"),
   NOCTIS_AREA("dddddd"),
-  PRODUCTION("794b2c")
+  PRODUCTION("794b2c"),
   ;
 
   fun foreground(string: String): String {

@@ -82,10 +82,11 @@ class InteractiveSession(initialSetup: GameSetup) {
   // EXECUTION
 
   fun sneakyChange(instruction: Instruction): Result {
-    val changes = split(prep(instruction)).mapNotNull {
-      if (it !is Change) throw UserException("can only sneak simple changes")
-      agent.quietChange(it.count, it.gaining, it.removing)
-    }
+    val changes =
+        split(prep(instruction)).mapNotNull {
+          if (it !is Change) throw UserException("can only sneak simple changes")
+          agent.quietChange(it.count, it.gaining, it.removing)
+        }
     return Result(changes = changes, newTaskIdsAdded = setOf())
   }
 
@@ -133,12 +134,13 @@ class InteractiveSession(initialSetup: GameSetup) {
     if (node == null) return node
     val loader = game.loader
     return transformInSeries(
-        UseFullNames(loader),
-        AtomizeGlobalParameters(loader),
-        InsertDefaults(loader),
-        Deprodify(loader),
-        // not needed: ReplaceThisWith, ReplaceOwnerWith, FixEffectForUnownedContext
-    ).transform(node)
+            UseFullNames(loader),
+            AtomizeGlobalParameters(loader),
+            InsertDefaults(loader),
+            Deprodify(loader),
+            // not needed: ReplaceThisWith, ReplaceOwnerWith, FixEffectForUnownedContext
+        )
+        .transform(node)
   }
 
   fun agent(player: String) = agent(cn(player))

@@ -112,9 +112,7 @@ private class ActionTest {
                     Spend(scaledEx(cn("Megacredit").expr)),
                     Cost.Or(
                         Spend(scaledEx(cn("Megacredit").expr)), Spend(scaledEx(cn("Bar").expr))),
-                    Cost.Per(
-                        Spend(scaledEx(cn("Megacredit").expr)),
-                        Count(cn("Megacredit").expr))),
+                    Cost.Per(Spend(scaledEx(cn("Megacredit").expr)), Count(cn("Megacredit").expr))),
                 Cost.Or(
                     Spend(scaledEx(cn("Megacredit").expr)),
                     Cost.Or(
@@ -122,8 +120,7 @@ private class ActionTest {
                         Spend(scaledEx(cn("Foo").expr)),
                         Spend(scaledEx(cn("Qux").expr))))),
             Instruction.Multi(
-                Instruction.Per(
-                    Gain(scaledEx(5, cn("Megacredit").expr)), Count(cn("Ooh").expr)),
+                Instruction.Per(Gain(scaledEx(5, cn("Megacredit").expr)), Count(cn("Ooh").expr)),
                 Remove(
                     scaledEx(
                         cn("Xyz")
@@ -147,8 +144,7 @@ private class ActionTest {
         Action(
             null,
             Instruction.Per(
-                Gain(scaledEx(cn("Foo").addArgs(cn("Abc"))), AMAP),
-                Count((cn("Wau").expr)))))
+                Gain(scaledEx(cn("Foo").addArgs(cn("Abc"))), AMAP), Count((cn("Wau").expr)))))
 
     checkBothWays(
         "Qux -> Bar?",
@@ -190,8 +186,7 @@ private class ActionTest {
         Action(
             Cost.Transform(Spend(scaledEx(cn("Megacredit").expr)), "PROD"),
             Instruction.Per(
-                Remove(scaledEx(cn("Ooh").expr)),
-                Count(cn("Ooh").addArgs(cn("Abc"), cn("Ahh"))))))
+                Remove(scaledEx(cn("Ooh").expr)), Count(cn("Ooh").addArgs(cn("Abc"), cn("Ahh"))))))
 
     checkBothWays(
         "Xyz -> 1", Action(Spend(scaledEx(cn("Xyz").expr)), Gain(scaledEx(cn("Megacredit").expr))))
@@ -201,8 +196,7 @@ private class ActionTest {
         Action(
             Spend(scaledEx(cn("Ooh").expr)),
             Instruction.Multi(
-                Instruction.Per(
-                    Gain(scaledEx(5, cn("Megacredit").expr)), Count(cn("Abc").expr)),
+                Instruction.Per(Gain(scaledEx(5, cn("Megacredit").expr)), Count(cn("Abc").expr)),
                 Instruction.Per(
                     Gain(scaledEx(11, cn("Megacredit").expr), MANDATORY),
                     Count(cn("Megacredit").expr)),

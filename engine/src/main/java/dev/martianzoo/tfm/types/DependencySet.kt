@@ -21,16 +21,19 @@ internal class DependencySet private constructor(val deps: Set<Dependency>) :
   }
 
   val flattened: Map<DependencyPath, MClass> by lazy {
-    deps.flatMap {
-      // Throwing away refinements & links...
-      val result = mutableListOf(DependencyPath(it.key) to it.boundClass)
-      if (it is TypeDependency) {
-        result += it.boundType.dependencies.flattened.map { (depPath, boundClass) ->
-          depPath.prepend(it.key) to boundClass
+    deps
+        .flatMap {
+          // Throwing away refinements & links...
+          val result = mutableListOf(DependencyPath(it.key) to it.boundClass)
+          if (it is TypeDependency) {
+            result +=
+                it.boundType.dependencies.flattened.map { (depPath, boundClass) ->
+                  depPath.prepend(it.key) to boundClass
+                }
+          }
+          result
         }
-      }
-      result
-    }.toMap()
+        .toMap()
   }
 
   val asSet: Set<TypeDependency> = deps.filterIsInstance<TypeDependency>().toSet() // TODO

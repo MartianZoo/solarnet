@@ -51,12 +51,13 @@ constructor(
     override fun toString() = s
 
     fun next(): TaskId {
-      val news = when {
-        s == "Z" -> "AA"
-        s.length == 1 -> "${s[0] + 1}"
-        s[1] == 'Z' -> "${s[0] + 1}A"
-        else -> "${s[0]}${s[1] + 1}"
-      }
+      val news =
+          when {
+            s == "Z" -> "AA"
+            s.length == 1 -> "${s[0] + 1}"
+            s[1] == 'Z' -> "${s[0] + 1}A"
+            else -> "${s[0]}${s[1] + 1}"
+          }
       return TaskId(news)
     }
   }

@@ -86,5 +86,6 @@ public class ComponentGraph {
     return correctedCount
   }
 
-  fun dependentsOf(dependency: Component) = multiset.filter { dependency in it.dependencyComponents }
+  fun dependentsOf(dependency: Component) =
+      multiset.filter { dependency in it.dependencyComponents }
 }

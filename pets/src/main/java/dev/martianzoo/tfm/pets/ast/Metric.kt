@@ -57,9 +57,7 @@ sealed class Metric : PetNode() {
         return when (metrics.size) {
           0 -> null
           1 -> metrics.single()
-          else -> Plus(metrics.flatMap {
-            if (it is Plus) it.metrics else listOf(it)
-          })
+          else -> Plus(metrics.flatMap { if (it is Plus) it.metrics else listOf(it) })
         }
       }
       fun create(first: Metric, vararg rest: Metric) =
@@ -96,9 +94,10 @@ sealed class Metric : PetNode() {
                   if (limit == null) met else Max(met, limit)
                 }
 
-        max and zeroOrMore(skipChar('+') and parser()) map { (met, addon) ->
-          Plus.create(listOf(met) + addon)!!
-        }
+        max and
+            zeroOrMore(skipChar('+') and parser()) map { (met, addon) ->
+              Plus.create(listOf(met) + addon)!!
+            }
       }
     }
   }

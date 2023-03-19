@@ -10,7 +10,8 @@ import org.junit.jupiter.api.Test
 class DefaultsTest {
   @Test
   fun testIntensities() {
-    val loader = loader(
+    val loader =
+        loader(
         """
           CLASS Class<Component>
           ABSTRACT CLASS Component {

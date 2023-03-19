@@ -9,28 +9,31 @@ import org.junit.jupiter.api.Test
 private class MTypeTest {
   @Test
   fun testCardboundWeirdness() {
-    val table: MClassLoader = loadTypes("""
-      ABSTRACT CLASS Anyone {
-        ABSTRACT CLASS Owner { CLASS Player1, Player2 }
-      }
-
-      ABSTRACT CLASS Owned<Owner> { 
-        ABSTRACT CLASS CardFront
-        ABSTRACT CLASS Cardbound<CardFront>
-      }
-
-      // Treated as an extension of Cardbound<ResourceCard<Class<Cardbound>>>, plus a rule
-      ABSTRACT CLASS CardResource : Cardbound<ResourceCard<Class<CardResource>>> // TODO This
-
-      // Should auto-narrow dep on ResourceCard<Class<Cardbound>> to ResourceCard<Class<Animal>>
-      CLASS Animal : CardResource<ResourceCard<Class<Animal>>> // TODO just CR, that's it!
-      CLASS Microbe : CardResource<ResourceCard<Class<Microbe>>> // TODO just CR, that's it!
-
-      ABSTRACT CLASS ResourceCard<Class<CardResource>> : CardFront
-
-      CLASS Fish : ResourceCard<Class<Animal>>
-      CLASS Ants : ResourceCard<Class<Microbe>>
-    """.trimIndent())
+    val table: MClassLoader =
+        loadTypes(
+            """
+            ABSTRACT CLASS Anyone {
+              ABSTRACT CLASS Owner { CLASS Player1, Player2 }
+            }
+      
+            ABSTRACT CLASS Owned<Owner> { 
+              ABSTRACT CLASS CardFront
+              ABSTRACT CLASS Cardbound<CardFront>
+            }
+      
+            // Treated as an extension of Cardbound<ResourceCard<Class<Cardbound>>>, plus a rule
+            ABSTRACT CLASS CardResource : Cardbound<ResourceCard<Class<CardResource>>> // TODO This
+      
+            // Should auto-narrow ResourceCard<Class<Cardbound>> to ResourceCard<Class<Animal>>
+            CLASS Animal : CardResource<ResourceCard<Class<Animal>>> // TODO just CR, that's it!
+            CLASS Microbe : CardResource<ResourceCard<Class<Microbe>>> // TODO just CR, that's it!
+      
+            ABSTRACT CLASS ResourceCard<Class<CardResource>> : CardFront
+      
+            CLASS Fish : ResourceCard<Class<Animal>>
+            CLASS Ants : ResourceCard<Class<Microbe>>
+          """
+                      .trimIndent())
 
     assertThat(table.resolve(te("Animal<Fish>")).abstract).isTrue()
 

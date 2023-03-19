@@ -144,8 +144,7 @@ internal constructor(
     if (!this.abstract) throw InvalidReificationException("Already concrete, can't be reified")
 
     if (!proposed.isSubtypeOf(this)) {
-      throw InvalidReificationException(
-          "${proposed.expression} is not a subtype of ${expression}")
+      throw InvalidReificationException("${proposed.expression} is not a subtype of ${expression}")
     }
 
     val myPropConcSubs = allConcreteSubtypes().filterNot { it == proposed }
@@ -161,9 +160,7 @@ internal constructor(
 
   override fun toString() = "$expressionFull@${mclass.loader}"
 
-  /**
-   * Decides what substitutions should be made to class effects to yield component effects.
-   */
+  /** Decides what substitutions should be made to class effects to yield component effects. */
   fun findSubstitutions(linkages: Set<ClassName>): Map<ClassName, Expression> {
     val general: Expression = mclass.baseType.expressionFull
     val specific: Expression = expressionFull
@@ -177,7 +174,8 @@ internal constructor(
       linkages: Set<ClassName>,
       map: MutableMap<ClassName, Expression>,
       general: Expression,
-      specific: Expression) {
+      specific: Expression
+  ) {
     for ((g, s) in general.arguments.zip(specific.arguments)) {
       if (g.simple && g.className in linkages && s != g) {
         map[g.className] = s

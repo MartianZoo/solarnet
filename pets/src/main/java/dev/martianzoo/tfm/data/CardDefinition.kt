@@ -135,17 +135,16 @@ public class CardDefinition(data: CardData) : Definition {
             )
             .ifEmpty { setOf(CARD_FRONT.expr) }
 
-    val automatic: List<Effect> = listOfNotNull(
-        deck?.className?.let { instruction("-$it") },
-        Multi.create(tags.toList().map { instruction("$it<$className>!") })
-    ).map {
-      immediateToEffect(it, automatic = true)
-    }
+    val automatic: List<Effect> =
+        listOfNotNull(
+                deck?.className?.let { instruction("-$it") },
+                Multi.create(tags.toList().map { instruction("$it<$className>!") }))
+            .map { immediateToEffect(it, automatic = true) }
     val allEffects: List<Effect> =
         automatic +
-        listOfNotNull(immediate).map { immediateToEffect(it, automatic = false) } +
-        effects +
-        actionListToEffects(actions)
+            listOfNotNull(immediate).map { immediateToEffect(it, automatic = false) } +
+            effects +
+            actionListToEffects(actions)
 
     ClassDeclaration(
         className = className,
@@ -153,8 +152,7 @@ public class CardDefinition(data: CardData) : Definition {
         abstract = false,
         supertypes = supertypes,
         effectsIn = allEffects.toSetStrict(),
-        extraNodes = setOfNotNull(requirement) + extraClasses.flatMap { it.allNodes }
-    )
+        extraNodes = setOfNotNull(requirement) + extraClasses.flatMap { it.allNodes })
   }
 
   /** The deck this card belongs to; see [CardDefinition.deck]. */

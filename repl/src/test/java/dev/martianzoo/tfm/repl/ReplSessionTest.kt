@@ -10,12 +10,14 @@ private class ReplSessionTest {
   @Test
   fun testProductionPhase() {
     val repl = ReplSession(Canon, GameSetup(Canon, "BMX", 2)) // TODO
-    val commands = """
-      become Player1
-      exec PROD[1, 2 S, 3 T, 4 P, 5 E, 6 H]
-      exec 8, 6 S, 7 T, 5 P, 3 E
-      exec 9 TR
-    """.trimIndent()
+    val commands =
+        """
+          become Player1
+          exec PROD[1, 2 S, 3 T, 4 P, 5 E, 6 H]
+          exec 8, 6 S, 7 T, 5 P, 3 E
+          exec 9 TR
+        """
+            .trimIndent()
     for (cmd in commands.split("\n")) {
       repl.command(cmd)
     }
@@ -32,14 +34,16 @@ private class ReplSessionTest {
   @Test
   fun testAstrodrill() {
     val repl = ReplSession(Canon, GameSetup(Canon, "BMX", 2)) // TODO
-    val commands = """
-      become Player2
-      exec CorporationCard THEN Astrodrill
-      exec ActionPhase
-      exec UseAction1<UseActionFromCard>
-      task A UseAction1<Astrodrill> THEN ActionUsedMarker<Astrodrill>
-      task B Plant
-    """.trimIndent()
+    val commands =
+        """
+          become Player2
+          exec CorporationCard THEN Astrodrill
+          exec ActionPhase
+          exec UseAction1<UseActionFromCard>
+          task A UseAction1<Astrodrill> THEN ActionUsedMarker<Astrodrill>
+          task B Plant
+        """
+            .trimIndent()
     for (cmd in commands.split("\n")) {
       repl.command(cmd)
     }

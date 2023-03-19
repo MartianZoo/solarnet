@@ -21,9 +21,7 @@ public class Exceptions {
         intensity: Intensity?
     ) : this(instruction, "amount is optional")
 
-    constructor(
-        instruction: Or
-    ) : this(instruction, "OR requires a choice")
+    constructor(instruction: Or) : this(instruction, "OR requires a choice")
   }
 
   public class UnrecognizedClassException(className: ClassName) :

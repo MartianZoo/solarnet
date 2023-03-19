@@ -38,20 +38,22 @@ object MTypeToText { // TODO refactor to ClassInfo / TypeInfo type dealies
     val concTypes = sequenceCount(mclass.baseType.concreteSubtypesSameClass(), 100)
 
     // BIGTODO invariants seemingly not working?
-    val classStuff = """
-      Class $names:
-          subclasses:  $substring
-          invariants:  ${mclass.invariants.joinToString("""
-                       """)}
-          base type:   ${mclass.baseType.expressionFull}
-          c. types:    $concTypes
-          raw fx:      ${mclass.declaration.effects.map { it.effect }.joinToString("""
-                       """)}
-          class fx:    ${mclass.classEffects.joinToString("""
-                       """) { "${it.effect}" + if (it.linkages.any()) " ${it.linkages}" else "" } }
-
-
-    """.trimIndent()
+    val classStuff =
+        """
+          Class $names:
+              subclasses:  $substring
+              invariants:  ${mclass.invariants.joinToString("""
+                           """)}
+              base type:   ${mclass.baseType.expressionFull}
+              c. types:    $concTypes
+              raw fx:      ${mclass.declaration.effects.map { it.effect }.joinToString("""
+                           """)}
+              class fx:    ${mclass.classEffects.joinToString("""
+                           """) { "${it.effect}" + if (it.linkages.any()) " ${it.linkages}" else "" } }
+    
+    
+        """
+            .trimIndent()
 
     val concSubs = sequenceCount(mtype.allConcreteSubtypes(), 100)
 
@@ -61,15 +63,17 @@ object MTypeToText { // TODO refactor to ClassInfo / TypeInfo type dealies
     val gain = id.transform(Gain(ScaledExpression(1, expression)))
     val remove = id.transform(Remove(ScaledExpression(1, expression)))
 
-    val typeStuff = """
-      Expression $expression:
-          std. form:   ${mtype.expression}
-          short form:  ${mtype.expressionShort}
-          long form:   ${mtype.expressionFull}
-          supertypes:  ${mtype.supertypes().joinToString { "${it.className}" }}
-          defaults:    $allCases / +$gain / $remove
-          c. subtypes: $concSubs
-    """.trimIndent()
+    val typeStuff =
+        """
+          Expression $expression:
+              std. form:   ${mtype.expression}
+              short form:  ${mtype.expressionShort}
+              long form:   ${mtype.expressionFull}
+              supertypes:  ${mtype.supertypes().joinToString { "${it.className}" }}
+              defaults:    $allCases / +$gain / $remove
+              c. subtypes: $concSubs
+        """
+            .trimIndent()
 
     val componentStuff =
         if (mtype.abstract) {
@@ -84,8 +88,9 @@ object MTypeToText { // TODO refactor to ClassInfo / TypeInfo type dealies
         c.effects().joinToString("""
                          """)
       }
-      """.trimIndent()
-    }
+      """
+              .trimIndent()
+        }
     return classStuff + typeStuff + componentStuff
   }
 }

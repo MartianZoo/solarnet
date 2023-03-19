@@ -28,8 +28,8 @@ private class ResourceUtilsTest {
         )
 
     session.initiateOnly(instruction("PROD[2 Plant<Player1>!]"))
-    val prods2: Map<ClassName, Int> = lookUpProductionLevels(session.game.reader,
-        cn("Player1").expr)
+    val prods2: Map<ClassName, Int> =
+        lookUpProductionLevels(session.game.reader, cn("Player1").expr)
     assertThat(prods2.map { it.key to it.value })
         .containsExactly(
             cn("Megacredit") to 0,

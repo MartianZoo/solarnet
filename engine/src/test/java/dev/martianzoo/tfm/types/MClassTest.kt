@@ -266,11 +266,12 @@ internal fun loader(petsText: String): MClassLoader {
 val regex = Regex("^(\\w+).*")
 
 internal fun loadAndGetClasses(vararg decl: String): List<MClass> {
-  val all = """
-    ABSTRACT CLASS $COMPONENT
-    CLASS $CLASS<$COMPONENT>
-    ${decl.joinToString("") { "CLASS $it\n" }}
-  """
+  val all =
+      """
+        ABSTRACT CLASS $COMPONENT
+        CLASS $CLASS<$COMPONENT>
+        ${decl.joinToString("") { "CLASS $it\n" }}
+      """
   val loader = loader(all)
   val strings = listOf("Component") + decl.map { regex.matchEntire(it)!!.groupValues[1] }
   return strings.map { loader.getClass(cn(it)) }

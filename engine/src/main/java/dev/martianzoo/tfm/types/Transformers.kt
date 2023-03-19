@@ -28,7 +28,8 @@ public object Transformers {
 
   fun transformInSeries(xers: List<PetTransformer?>): PetTransformer =
       CompositeTransformer(xers.filterNotNull())
-  fun transformInSeries(vararg xers: PetTransformer?): PetTransformer = transformInSeries(xers.toList())
+  fun transformInSeries(vararg xers: PetTransformer?): PetTransformer =
+      transformInSeries(xers.toList())
 
   public open class CompositeTransformer(val transformers: List<PetTransformer>) :
       PetTransformer() {

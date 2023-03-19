@@ -64,51 +64,55 @@ private class ClassDeclarationParsingTest {
   @Test
   fun body() {
     assertThat(
-        parseClassDeclarations("""
-              CLASS Bar : Qux { DEFAULT +Bar?
-                Foo -> Bar
-
-
-                Foo: Bar
-                CLASS Foo
-
-              }
-            """))
+            parseClassDeclarations(
+                """
+                  CLASS Bar : Qux { DEFAULT +Bar?
+                    Foo -> Bar
+    
+    
+                    Foo: Bar
+                    CLASS Foo
+    
+                  }
+                """))
         .hasSize(2)
   }
 
   @Test
   fun series() {
-    parseClassDeclarations("""
-        CLASS Die {
-        }
-        CLASS DieHard {
-          // whatever
-        }
-
-        CLASS Atomized
-
-        CLASS Generation
-
-    """)
+    parseClassDeclarations(
+        """
+          CLASS Die {
+          }
+          CLASS DieHard {
+            // whatever
+          }
+  
+          CLASS Atomized
+  
+          CLASS Generation
+    
+        """)
   }
 
   @Test
   fun nesting() {
-    val cs = parseClassDeclarations("""
-      ABSTRACT CLASS Component
-
-      CLASS One
-      CLASS Two: One
-      CLASS Three {
-          CLASS Four
-          CLASS Five: One
-          CLASS Six {
-              CLASS Seven
-              CLASS Eight: One
-          }
-      }
-    """)
+    val cs =
+        parseClassDeclarations(
+            """
+              ABSTRACT CLASS Component
+        
+              CLASS One
+              CLASS Two: One
+              CLASS Three {
+                  CLASS Four
+                  CLASS Five: One
+                  CLASS Six {
+                      CLASS Seven
+                      CLASS Eight: One
+                  }
+              }
+            """)
 
     assertThat(cs.map { it.supertypes })
         .containsExactly(
