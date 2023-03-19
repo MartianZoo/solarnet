@@ -85,7 +85,7 @@ public class ReplSession(
     open fun withArgs(args: String): List<String> = throw UsageException()
   }
 
-  private val commands =
+  internal val commands =
       listOf(
               AsCommand(),
               AutoCommand(),
@@ -113,7 +113,7 @@ public class ReplSession(
     override val usage = "help [command]"
     override val isReadOnly = true
     override fun noArgs() = listOf(helpText)
-    override fun withArgs(args: String) = listOf("Sorry, haven't implemented this yet")
+    override fun withArgs(args: String) = TODO()
   }
 
   internal inner class AsCommand : ReplCommand("as") {
@@ -245,27 +245,23 @@ public class ReplSession(
     override fun withArgs(args: String): List<String> {
       val instruction = instruction(args)
       val changes: Result =
-          try {
-            when (mode) {
-              RED -> session.sneakyChange(instruction)
-              YELLOW -> session.sneakyChange(instruction)
-              GREEN -> initiate(instruction)
-              BLUE -> {
-                if (instruction is Gain && instruction.gaining.className == cn("Turn")) {
-                  initiate(instruction)
-                } else if (session.agent.actor != Actor.ENGINE) {
-                  throw UsageException("In blue mode you must be Engine to do this")
-                } else if (instruction is Gain &&
-                    instruction.gaining.className.toString().endsWith("Phase")) { // TODO hack
-                  initiate(instruction)
-                } else {
-                  return listOf("Eep, can't do that in ${mode.name.lowercase()} mode")
-                }
+          when (mode) {
+            RED -> session.sneakyChange(instruction)
+            YELLOW -> session.sneakyChange(instruction)
+            GREEN -> initiate(instruction)
+            BLUE -> {
+              if (instruction is Gain && instruction.gaining.className == cn("Turn")) {
+                initiate(instruction)
+              } else if (session.agent.actor != Actor.ENGINE) {
+                throw UsageException("In blue mode you must be Engine to do this")
+              } else if (instruction is Gain &&
+                  instruction.gaining.className.toString().endsWith("Phase")) { // TODO hack
+                initiate(instruction)
+              } else {
+                throw UsageException("Eep, can't do that in ${mode.name.lowercase()} mode")
               }
-              PURPLE -> TODO()
             }
-          } catch (e: UserException) {
-            return listOf(e.toString())
+            PURPLE -> TODO()
           }
 
       return describeExecutionResults(changes)
@@ -309,19 +305,17 @@ public class ReplSession(
       }
       val instruction: Instruction? = rest?.let { instruction(it) }
       val result: Result =
-          try {
-            when (mode) {
-              RED, YELLOW -> return listOf("Can't execute tasks in this mode")
-              GREEN, BLUE ->
-                  if (auto) {
-                    session.doTaskAndAutoExec(id, instruction)
-                  } else {
-                    session.agent.doTask(id, session.prep(instruction))
-                  }
-              else -> TODO()
-            }
-          } catch (e: UserException) {
-            return listOf(e.toString())
+          when (mode) {
+            RED,
+            YELLOW -> throw UsageException("Can't execute tasks in this mode")
+            GREEN,
+            BLUE ->
+                if (auto) {
+                  session.doTaskAndAutoExec(id, instruction)
+                } else {
+                  session.agent.doTask(id, session.prep(instruction))
+                }
+            else -> TODO()
           }
       return describeExecutionResults(result)
     }
@@ -381,12 +375,7 @@ public class ReplSession(
     override fun noArgs() = fmt(history!!)
 
     override fun withArgs(args: String): List<String> {
-      val max =
-          try {
-            args.toInt()
-          } catch (e: RuntimeException) {
-            throw UsageException()
-          }
+      val max = args.toIntOrNull() ?: throw UsageException()
       val drop = (history!!.size() - max).coerceIn(0, null)
       return fmt(history.drop(drop))
     }
@@ -423,15 +412,20 @@ public class ReplSession(
 
   public fun command(wholeCommand: String): List<String> {
     val stripped = wholeCommand.replace(Regex("//.*"), "")
-    val (_, command, args) = inputRegex.matchEntire(stripped)?.groupValues ?: return listOf()
-    return command(command, args.trim().ifEmpty { null })
+    val groups = inputRegex.matchEntire(stripped)?.groupValues
+    return if (groups == null) {
+      listOf()
+    } else {
+      val (_, command, args) = groups
+      command(command, args.trim().ifEmpty { null })
+    }
   }
 
   internal fun command(command: ReplCommand, args: String? = null): List<String> {
     return try {
       if (args == null) command.noArgs() else command.withArgs(args.trim())
-    } catch (e: UsageException) {
-      val usage = "Usage: ${command.usage}"
+    } catch (e: UserException) {
+      val usage = if (e is UsageException) "Usage: ${command.usage}" else ""
       listOf(e.message, usage).filter { it.isNotEmpty() }
     }
   }

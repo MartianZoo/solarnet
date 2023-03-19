@@ -13,113 +13,109 @@ class EntireGameTest {
   @Test
   fun fourWholeGenerations() {
     val repl = ReplSession(Canon, GameSetup(Canon, "BREPT", 2))
-    fun replit(s: String, tasksExpected: Int = 0) {
-      repl.command(s)
-      assertThat(repl.session.game.taskQueue.size).isEqualTo(tasksExpected)
-    }
 
-    replit("as P1 exec CorporationCard, LakefrontResorts, 3 BuyCard")
-    replit("as P2 exec CorporationCard, InterplanetaryCinematics, 8 BuyCard")
+    repl.test("as P1 exec CorporationCard, LakefrontResorts, 3 BuyCard")
+    repl.test("as P2 exec CorporationCard, InterplanetaryCinematics, 8 BuyCard")
 
-    replit("as P1 exec 2 PreludeCard, MartianIndustries, GalileanMining")
-    replit("as P2 exec 2 PreludeCard, MiningOperations, UnmiContractor")
+    repl.test("as P1 exec 2 PreludeCard, MartianIndustries, GalileanMining")
+    repl.test("as P2 exec 2 PreludeCard, MiningOperations, UnmiContractor")
 
-    replit("exec ActionPhase")
+    repl.test("exec ActionPhase")
 
-    replit("as P1 exec -30 THEN AsteroidMining")
+    repl.test("as P1 exec -30 THEN AsteroidMining")
 
-    replit("become P2")
-    replit("exec -4 Steel THEN -1 THEN NaturalPreserve", 1)
-    replit("task B drop") // TODO reifying refinements
-    replit("exec Tile044<E37>")
-    replit("exec -13 Steel THEN -1 THEN SpaceElevator")
-    replit("exec UseAction1<SpaceElevator>")
-    replit("exec -2 THEN InventionContest")
-    replit("exec -6 THEN GreatEscarpmentConsortium", 1)
-    replit("task A PROD[-Steel<P1>]", 0)
+    repl.test("become P2")
+    repl.test("exec -4 Steel THEN -1 THEN NaturalPreserve", 1)
+    repl.test("task B drop") // TODO reifying refinements
+    repl.test("exec Tile044<E37>")
+    repl.test("exec -13 Steel THEN -1 THEN SpaceElevator")
+    repl.test("exec UseAction1<SpaceElevator>")
+    repl.test("exec -2 THEN InventionContest")
+    repl.test("exec -6 THEN GreatEscarpmentConsortium", 1)
+    repl.test("task A PROD[-Steel<P1>]", 0)
 
-    replit("become")
-    replit("exec ProductionPhase", 2)
-    replit("as P1 task A 4 BuyCard", 1)
-    replit("as P2 task B 1 BuyCard")
-    replit("exec ActionPhase")
+    repl.test("become Engine")
+    repl.test("exec ProductionPhase", 2)
+    repl.test("as P1 task A 4 BuyCard", 1)
+    repl.test("as P2 task B 1 BuyCard")
+    repl.test("exec ActionPhase")
 
-    replit("become P2")
-    replit("exec UseAction1<SpaceElevator>")
-    replit("exec -23 THEN EarthCatapult")
+    repl.test("become P2")
+    repl.test("exec UseAction1<SpaceElevator>")
+    repl.test("exec -23 THEN EarthCatapult")
 
-    replit("become P1")
-    replit("exec -7 THEN TitaniumMine")
-    replit("exec -9 THEN RoboticWorkforce", 1)
-    replit("task A drop") // TODO reify?
-    replit("exec @copyProductionBox(MartianIndustries)", 0)
+    repl.test("become P1")
+    repl.test("exec -7 THEN TitaniumMine")
+    repl.test("exec -9 THEN RoboticWorkforce", 1)
+    repl.test("task A drop") // TODO reify?
+    repl.test("exec @copyProductionBox(MartianIndustries)", 0)
 
-    replit("become P2")
-    replit("exec -5 Steel THEN IndustrialMicrobes")
-    replit("exec -Titanium THEN TechnologyDemonstration")
+    repl.test("become P2")
+    repl.test("exec -5 Steel THEN IndustrialMicrobes")
+    repl.test("exec -Titanium THEN TechnologyDemonstration")
 
-    replit("as P1 exec -6 THEN Sponsors")
+    repl.test("as P1 exec -6 THEN Sponsors")
 
-    replit("exec -1 THEN EnergyTapping", 1)
-    replit("task A PROD[-Energy<P1>]")
-    replit("exec -2 Steel THEN BuildingIndustries")
+    repl.test("exec -1 THEN EnergyTapping", 1)
+    repl.test("task A PROD[-Energy<P1>]")
+    repl.test("exec -2 Steel THEN BuildingIndustries")
 
-    replit("become")
-    replit("exec ProductionPhase", 2)
-    replit("as P1 task A 3 BuyCard", 1)
-    replit("as P2 task B 2 BuyCard")
-    replit("exec ActionPhase")
+    repl.test("become Engine")
+    repl.test("exec ProductionPhase", 2)
+    repl.test("as P1 task A 3 BuyCard", 1)
+    repl.test("as P2 task B 2 BuyCard")
+    repl.test("exec ActionPhase")
 
-    replit("as P1 exec -2 THEN -1 Steel THEN Mine")
+    repl.test("as P1 exec -2 THEN -1 Steel THEN Mine")
 
-    replit("become P2")
-    replit("exec UseAction1<SpaceElevator>")
-    replit("exec -5 THEN -5 Steel THEN ElectroCatapult")
-    replit("exec UseAction1<ElectroCatapult>", 1)
-    replit("task A -Steel THEN 7") // TODO just one
-    replit("exec -Titanium THEN -7 THEN SpaceHotels")
-    replit("exec -6 THEN MarsUniversity")
-    replit("exec -10 THEN ArtificialPhotosynthesis", 1)
-    replit("task B PROD[2 Energy]")
-    replit("exec -5 THEN BribedCommittee")
+    repl.test("become P2")
+    repl.test("exec UseAction1<SpaceElevator>")
+    repl.test("exec -5 THEN -5 Steel THEN ElectroCatapult")
+    repl.test("exec UseAction1<ElectroCatapult>", 1)
+    repl.test("task A -Steel THEN 7") // TODO just one
+    repl.test("exec -Titanium THEN -7 THEN SpaceHotels")
+    repl.test("exec -6 THEN MarsUniversity")
+    repl.test("exec -10 THEN ArtificialPhotosynthesis", 1)
+    repl.test("task B PROD[2 Energy]")
+    repl.test("exec -5 THEN BribedCommittee")
 
-    replit("become")
-    replit("exec ProductionPhase", 2)
-    replit("as P1 task A 3 BuyCard", 1)
-    replit("as P2 task B 2 BuyCard")
-    replit("exec ActionPhase")
+    repl.test("become Engine")
+    repl.test("exec ProductionPhase", 2)
+    repl.test("as P1 task A 3 BuyCard", 1)
+    repl.test("as P2 task B 2 BuyCard")
+    repl.test("exec ActionPhase")
 
-    replit("become P2")
-    replit("exec UseAction1<ElectroCatapult>", 1)
-    replit("task A drop") // TODO just one
-    replit("exec -Steel THEN 7")
-    replit("exec UseAction1<SpaceElevator>")
+    repl.test("become P2")
+    repl.test("exec UseAction1<ElectroCatapult>", 1)
+    repl.test("task A drop") // TODO just one
+    repl.test("exec -Steel THEN 7")
+    repl.test("exec UseAction1<SpaceElevator>")
 
-    replit("become P1")
-    replit("exec -2 Steel THEN -14 THEN ResearchOutpost", 1)
-    replit("task A drop")
-    replit("exec CityTile<E56>") // TODO reif refi
-    replit("exec -13 Titanium THEN -1 THEN IoMiningIndustries")
+    repl.test("become P1")
+    repl.test("exec -2 Steel THEN -14 THEN ResearchOutpost", 1)
+    repl.test("task A drop")
+    repl.test("exec CityTile<E56>") // TODO reif refi
+    repl.test("exec -13 Titanium THEN -1 THEN IoMiningIndustries")
 
-    replit("become P2")
-    replit("exec -Titanium THEN -1 THEN TransNeptuneProbe")
-    replit("exec -1 THEN Hackers", 1)
-    replit("task B PROD[-2 Megacredit<P1>]")
+    repl.test("become P2")
+    repl.test("exec -Titanium THEN -1 THEN TransNeptuneProbe")
+    repl.test("exec -1 THEN Hackers", 1)
+    repl.test("task B PROD[-2 Megacredit<P1>]")
 
-    replit("become P1")
-    replit("exec UseAction1<SellPatents>", 1)
-    replit("task A Megacredit FROM ProjectCard")
+    repl.test("become P1")
+    repl.test("exec UseAction1<SellPatents>", 1)
+    repl.test("task A Megacredit FROM ProjectCard")
 
-    replit("become P2")
-    replit("exec -4 Steel THEN -1 THEN SolarPower")
-    replit("exec UseAction1<UseStandardProject>", 1)
-    replit("task A UseAction1<CitySP>", 1)
-    replit("task B drop") // split
-    replit("exec -25 THEN CityTile<E65> THEN PROD[1]")
-    replit("exec PROD[-Plant, Energy]") // CORRECTION TODO WHY
+    repl.test("become P2")
+    repl.test("exec -4 Steel THEN -1 THEN SolarPower")
+    repl.test("exec UseAction1<UseStandardProject>", 1)
+    repl.test("task A UseAction1<CitySP>", 1)
+    repl.test("task B drop") // split
+    repl.test("exec -25 THEN CityTile<E65> THEN PROD[1]")
+    repl.test("exec PROD[-Plant, Energy]") // CORRECTION TODO WHY
 
-    replit("become")
-    replit("exec ProductionPhase", 2)
+    repl.test("become Engine")
+    repl.test("exec ProductionPhase", 2)
 
     // Stuff
     assertThat(repl.counts("Generation")).containsExactly(5)
@@ -177,97 +173,81 @@ class EntireGameTest {
   @Test
   fun ellieGame() {
     val repl = ReplSession(Canon, GameSetup(Canon, "BRHXP", 2))
-    fun replit(s: String, tasksExpected: Int = 0) {
-      repl.command(s)
-      assertWithMessage("${repl.session.game.taskQueue}")
-          .that(repl.session.game.taskQueue.size)
-          .isEqualTo(tasksExpected)
-    }
 
-    replit("mode blue")
+    repl.test("mode blue")
 
-    replit("become P1")
-    replit("exec Turn", 2)
-    replit("task B InterplanetaryCinematics", 1)
-    replit("task C 7 BuyCard")
+    repl.test("become P1")
+    repl.test("exec Turn", "task B InterplanetaryCinematics", "task C 7 BuyCard")
 
-    replit("become P2")
-    replit("exec Turn", 2)
-    replit("task B PharmacyUnion", 1)
-    replit("task C 5 BuyCard")
+    repl.test("become P2")
+    repl.test("exec Turn", "task B PharmacyUnion", "task C 5 BuyCard")
 
-    replit("become")
-    replit("exec PreludePhase")
+    repl.test("become Engine")
+    repl.test("exec PreludePhase")
 
-    replit("become P1")
-    replit("exec Turn", 1)
-    replit("task B UnmiContractor")
-    replit("exec Turn", 1)
-    replit("task B CorporateArchives")
+    repl.test("become P1")
+    repl.test("exec Turn", "task B UnmiContractor")
+    repl.test("exec Turn", "task B CorporateArchives")
 
-    replit("become P2")
-    replit("exec Turn", 1)
-    replit("task B BiosphereSupport")
-    replit("exec Turn", 1)
-    replit("task B SocietySupport")
+    repl.test("become P2")
+    repl.test("exec Turn", "task B BiosphereSupport")
+    repl.test("exec Turn", "task B SocietySupport")
 
-    replit("become")
-    replit("exec ActionPhase")
+    repl.test("become Engine")
+    repl.test("exec ActionPhase")
 
-    replit("mode green")
+    repl.test("mode green")
 
-    replit("become P1")
-    replit("exec -6 THEN MediaGroup")
-    replit("exec -1 THEN Sabotage", 1)
-    replit("task B -7 Megacredit<P2>")
+    repl.test("become P1")
+    repl.test("exec -6 THEN MediaGroup")
+    repl.test("exec -1 THEN Sabotage", "task B -7 Megacredit<P2>")
 
-    replit("become P2")
-    replit("exec -11 THEN Research")
-    replit("exec -9 THEN MartianSurvey", 1)
-    replit("task A Ok")
+    repl.test("become P2")
+    repl.test("exec -11 THEN Research")
+    repl.test("exec -9 THEN MartianSurvey", "task A Ok")
 
-    replit("exec -3 THEN SearchForLife", 1) // TODO: why does she have 3 of these??
-    replit("task A PlayedEvent<Class<PharmacyUnion>> FROM PharmacyUnion THEN 3 TerraformRating")
+    // TODO: why does she have 3 of these??
+    repl.test(
+        "exec -3 THEN SearchForLife",
+        "task A PlayedEvent<Class<PharmacyUnion>> FROM PharmacyUnion THEN 3 TerraformRating",
+    )
 
-    replit("exec UseAction1<UseActionFromCard>", 1)
-    replit("task A UseAction1<SearchForLife> THEN ActionUsedMarker<SearchForLife>", 1)
-    replit("task B -1 THEN Ok")
+    repl.test("exec UseAction1<UseActionFromCard>", 1)
+    repl.test(
+        "task A UseAction1<SearchForLife> THEN ActionUsedMarker<SearchForLife>",
+        "task B -1 THEN Ok")
 
-    replit("become")
-    replit("exec ProductionPhase", 2)
-    replit("as P1 task A BuyCard", 1)
-    replit("as P2 task B 3 BuyCard")
-    replit("exec ActionPhase")
+    repl.test("become Engine")
+    repl.test("exec ProductionPhase", "as P1 task A BuyCard", "as P2 task B 3 BuyCard")
+    repl.test("exec ActionPhase")
 
-    replit("become P2")
-    replit("exec UseAction1<SellPatents>", 1)
-    replit("task A Megacredit FROM ProjectCard") // TODO wrong
-    replit("exec -15 THEN VestaShipyard") // TODO: handle negative cpt count without stacktracing
+    repl.test("become P2")
+    repl.test("exec UseAction1<SellPatents>", "task A Megacredit FROM ProjectCard") // TODO wrong
+    repl.test("exec -15 THEN VestaShipyard") // TODO: handle negative cpt count without stacktracing
 
-    replit("become P1") // TODO: Hi, null
-    replit("exec -23 THEN EarthCatapult")
-    replit("exec -4 Steel THEN OlympusConference", 1) // TODO: recognize when one option is impossible
-    replit("task A Science<OlympusConference>")
-    replit("exec -4 Steel THEN -1 THEN DevelopmentCenter", 1)
-    replit("task A ProjectCard FROM Science<OlympusConference>")
-    replit("exec -4 Steel THEN -1 THEN GeothermalPower")
-    replit("exec -10 THEN MirandaResort")
-    replit("exec -1 THEN Hackers", 1)
-    replit("task B PROD[-2 M<P2>]")
-    replit("exec -1 THEN MicroMills")
+    repl.test("become P1") // TODO: Hi, null
+    repl.test("exec -23 THEN EarthCatapult")
+    // TODO recognize one is impossible
+    repl.test("exec -4 Steel THEN OlympusConference", "task A Science<OlympusConference>")
+    repl.test(
+        "exec -4 Steel THEN -1 THEN DevelopmentCenter",
+        "task A ProjectCard FROM Science<OlympusConference>")
+    repl.test("exec -4 Steel THEN -1 THEN GeothermalPower")
+    repl.test("exec -10 THEN MirandaResort")
+    repl.test("exec -1 THEN Hackers", "task B PROD[-2 M<P2>]")
+    repl.test("exec -1 THEN MicroMills")
 
-    replit("become")
-    replit("exec ProductionPhase", 2)
-    replit("as P1 task A 3 BuyCard", 1)
-    replit("as P2 task B BuyCard") // TODO: why does she appear to have 3 SearchForLifes?")
-    replit("exec ActionPhase")
+    repl.test("become Engine")
+    repl.test("exec ProductionPhase", "as P1 task A 3 BuyCard", "as P2 task B BuyCard")
+    repl.test("exec ActionPhase")
 
-    replit("become P1")
-    replit("exec UseAction1<UseActionFromCard>", 1)
-    replit("task A UseAction1<DevelopmentCenter> THEN ActionUsedMarker<DevelopmentCenter>")
-    replit("exec -5 Steel THEN -1 THEN ImmigrantCity", 1) // TODO bug with choosing city location
-    replit("task C drop")
-    // exec CityTile<Hellas_9_7> // TODO ouchbug
+    repl.test("become P1")
+    repl.test(
+        "exec UseAction1<UseActionFromCard>",
+        "task A UseAction1<DevelopmentCenter> THEN ActionUsedMarker<DevelopmentCenter>",
+    )
+    repl.test("exec -5 Steel THEN -1 THEN ImmigrantCity", 1)
+    // repl.testExec("task C CityTile<Hellas_9_7>")
 
     // Shared stuff
 
@@ -324,6 +304,20 @@ class EntireGameTest {
         .containsExactly(0, 0, 0)
         .inOrder()
   }
+
+  fun ReplSession.test(s: String, tasksExpected: Int = 0) {
+    val (cmd, args) = s.split(" ", limit = 2)
+    commands[cmd]!!.withArgs(args)
+    assertWithMessage("${session.game.taskQueue}")
+        .that(session.game.taskQueue.size)
+        .isEqualTo(tasksExpected)
+  }
+
+  fun ReplSession.test(vararg s: String) {
+    var x = s.size
+    for (it in s) test(it, --x)
+  }
+
   private fun ReplSession.assertCount(text: String, i: Int) {
     assertThat(session.count(metric(text))).isEqualTo(i)
   }

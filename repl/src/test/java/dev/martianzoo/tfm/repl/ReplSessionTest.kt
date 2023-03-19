@@ -112,10 +112,11 @@ private class ReplSessionTest {
     repl.command("exec OT<M26>, OT<M55>, OT<M56>, CT<M46>, GT<M57>, GT<M45, P3>")
     repl.command("exec Tile008<P2, M66>, Tile142<P2, M99>")
 
+    val space = " ".repeat(22)
     assertThat(repl.command(repl.MapCommand()))
         .containsExactly(
-            "                              1       2       3       4       5       6       7       8       9",
-            "                             /       /       /       /       /       /       /       /       /",
+            "$space        1       2       3       4       5       6       7       8       9",
+            "$space       /       /       /       /       /       /       /       /       /",
             "",
             " 1 —                     LSS     WSS      L      WC       W",
             "",
