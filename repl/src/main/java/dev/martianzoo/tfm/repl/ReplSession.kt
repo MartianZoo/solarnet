@@ -330,7 +330,7 @@ public class ReplSession(
   private fun describeExecutionResults(changes: Result): List<String> {
     val oops: List<Task> = changes.newTaskIdsAdded.map { session.game.taskQueue[it] }
 
-    val interesting: List<ChangeEvent> = changes.changes.filterNot { isSystemOnly(it.change) }
+    val interesting: List<ChangeEvent> = changes.changes // .filterNot { isSystemOnly(it.change) }
     val changeLines = interesting.toStrings().ifEmpty { listOf("No state changes") }
     val taskLines =
         if (oops.any()) {

@@ -161,6 +161,9 @@ internal constructor(
 
   override fun toString() = "$expressionFull@${mclass.loader}"
 
+  /**
+   * Decides what substitutions should be made to class effects to yield component effects.
+   */
   fun findSubstitutions(linkages: Set<ClassName>): Map<ClassName, Expression> {
     val general: Expression = mclass.baseType.expressionFull
     val specific: Expression = expressionFull

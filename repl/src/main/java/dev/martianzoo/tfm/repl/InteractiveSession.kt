@@ -21,11 +21,11 @@ import dev.martianzoo.tfm.pets.ast.Metric
 import dev.martianzoo.tfm.pets.ast.PetNode
 import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.types.MType
-import dev.martianzoo.tfm.types.Transformers.AtomizeGlobalParameterGains
-import dev.martianzoo.tfm.types.Transformers.CompositeTransformer
+import dev.martianzoo.tfm.types.Transformers.AtomizeGlobalParameters
 import dev.martianzoo.tfm.types.Transformers.Deprodify
 import dev.martianzoo.tfm.types.Transformers.InsertDefaults
 import dev.martianzoo.tfm.types.Transformers.UseFullNames
+import dev.martianzoo.tfm.types.Transformers.transformInSeries
 import dev.martianzoo.util.HashMultiset
 import dev.martianzoo.util.Hierarchical.Companion.lub
 import dev.martianzoo.util.Multiset
@@ -132,15 +132,13 @@ class InteractiveSession(initialSetup: GameSetup) {
   fun <P : PetNode?> prep(node: P): P {
     if (node == null) return node
     val loader = game.loader
-    val xers =
-        listOfNotNull(
-            UseFullNames(loader),
-            AtomizeGlobalParameterGains(loader),
-            InsertDefaults(loader),
-            Deprodify(loader),
-            // not needed: ReplaceThisWith, ReplaceOwnerWith, FixEffectForUnownedContext
-        )
-    return CompositeTransformer(xers).transform(node)
+    return transformInSeries(
+        UseFullNames(loader),
+        AtomizeGlobalParameters(loader),
+        InsertDefaults(loader),
+        Deprodify(loader),
+        // not needed: ReplaceThisWith, ReplaceOwnerWith, FixEffectForUnownedContext
+    ).transform(node)
   }
 
   fun agent(player: String) = agent(cn(player))

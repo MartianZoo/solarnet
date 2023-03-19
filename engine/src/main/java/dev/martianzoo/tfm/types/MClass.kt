@@ -15,11 +15,11 @@ import dev.martianzoo.tfm.pets.ast.classNames
 import dev.martianzoo.tfm.types.Dependency.Companion.depsForClassType
 import dev.martianzoo.tfm.types.Dependency.Key
 import dev.martianzoo.tfm.types.Dependency.TypeDependency
-import dev.martianzoo.tfm.types.Transformers.AtomizeGlobalParameterGains
-import dev.martianzoo.tfm.types.Transformers.CompositeTransformer
+import dev.martianzoo.tfm.types.Transformers.AtomizeGlobalParameters
 import dev.martianzoo.tfm.types.Transformers.FixEffectForUnownedContext
 import dev.martianzoo.tfm.types.Transformers.InsertDefaults
 import dev.martianzoo.tfm.types.Transformers.UseFullNames
+import dev.martianzoo.tfm.types.Transformers.transformInSeries
 import dev.martianzoo.util.Hierarchical
 import dev.martianzoo.util.Hierarchical.Companion.glb
 import dev.martianzoo.util.toSetStrict
@@ -178,14 +178,13 @@ internal constructor(
   public val directClassEffects: List<EffectDeclaration> by lazy {
     val thiss = className.refine(requirement(OK.toString()))
 
-    val transformer =
-        CompositeTransformer(
-            UseFullNames(loader),
-            AtomizeGlobalParameterGains(loader),
-            InsertDefaults(loader, thiss),
-            FixEffectForUnownedContext(this),
-            // Not needed: ReplaceThisWith, ReplaceOwnerWith, Deprodify,
-        )
+    val transformer = transformInSeries(
+        UseFullNames(loader),
+        AtomizeGlobalParameters(loader),
+        InsertDefaults(loader, thiss),
+        FixEffectForUnownedContext(this),
+        // Not needed: ReplaceThisWith, ReplaceOwnerWith, Deprodify,
+    )
     declaration.effects
         .map { it.copy(effect = transformer.transform(it.effect)) }
         .sortedBy { it.effect }

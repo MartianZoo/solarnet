@@ -2,7 +2,6 @@ package dev.martianzoo.tfm.engine
 
 import dev.martianzoo.tfm.api.Exceptions.AbstractInstructionException
 import dev.martianzoo.tfm.api.SpecialClassNames.OWNED
-import dev.martianzoo.tfm.api.SpecialClassNames.OWNER
 import dev.martianzoo.tfm.pets.PetTransformer
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.Effect
@@ -12,10 +11,10 @@ import dev.martianzoo.tfm.pets.ast.PetNode
 import dev.martianzoo.tfm.types.Dependency.Key
 import dev.martianzoo.tfm.types.MClass
 import dev.martianzoo.tfm.types.MType
-import dev.martianzoo.tfm.types.Transformers.CompositeTransformer
 import dev.martianzoo.tfm.types.Transformers.Deprodify
 import dev.martianzoo.tfm.types.Transformers.ReplaceOwnerWith
 import dev.martianzoo.tfm.types.Transformers.ReplaceThisWith
+import dev.martianzoo.tfm.types.Transformers.transformInSeries
 
 /**
  * An *instance* of some concrete [MType]; a [ComponentGraph] is a multiset of these. For any use
@@ -51,29 +50,12 @@ public data class Component private constructor(val mtype: MType) : HasExpressio
   public fun effects(): List<Effect> {
     return mtype.mclass.classEffects.map { decl ->
       val linkages: Set<ClassName> = decl.linkages
-      val subs: Map<ClassName, Expression> = mtype.findSubstitutions(linkages)
-
-      val subber = // TODO move to where the rest are
-          object : PetTransformer() {
-            override fun <P : PetNode> transform(node: P): P {
-              return if (node is Expression && node.simple) {
-                (subs[node.className] ?: node) as P
-              // TODO DISGUSTING HACK
-              }  else if (node is Expression && node.arguments == listOf(OWNER.expr)) {
-                (subs[node.className]?.addArgs(OWNER) ?: node) as P
-              } else {
-                transformChildren(node)
-              }
-            }
-          }
-      CompositeTransformer(
-              listOfNotNull(
-                  subber,
-                  ReplaceThisWith(mtype.expression),
-                  Deprodify(mtype.loader),
-                  owner()?.let { ReplaceOwnerWith(it) },
-              ))
-          .transform(decl.effect)
+      transformInSeries(
+          Substituter(mtype.findSubstitutions(linkages)),
+          ReplaceThisWith(mtype.expression),
+          Deprodify(mtype.loader),
+          owner()?.let { ReplaceOwnerWith(it) },
+      ).transform(decl.effect)
     }
   }
 
@@ -84,4 +66,14 @@ public data class Component private constructor(val mtype: MType) : HasExpressio
   override fun toString() = "[${mtype.expressionFull}]"
 
   fun toShortString() = "[${mtype.expressionShort}]"
+}
+
+class Substituter(private val subs: Map<ClassName, Expression>) : PetTransformer() {
+  override fun <P : PetNode> transform(node: P): P {
+    if (node is Expression) {
+      val replacement: Expression? = subs[node.className]
+      if (replacement != null) return replacement.addArgs(node.arguments) as P
+    }
+    return transformChildren(node)
+  }
 }

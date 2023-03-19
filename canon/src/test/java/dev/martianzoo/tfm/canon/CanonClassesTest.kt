@@ -2,8 +2,8 @@ package dev.martianzoo.tfm.canon
 
 import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.tfm.api.GameSetup
-import dev.martianzoo.tfm.api.SpecialClassNames
 import dev.martianzoo.tfm.api.SpecialClassNames.ANYONE
+import dev.martianzoo.tfm.api.SpecialClassNames.COMPONENT
 import dev.martianzoo.tfm.engine.Engine
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
@@ -31,9 +31,7 @@ private class CanonClassesTest {
         .containsExactly(
             cn("GreeneryTile") to cn("Tile"),
             cn("SpecialTile") to cn("Tile"),
-            cn("ResourceCard") to cn("Owned"),
             cn("ActionUsedMarker") to cn("Owned"),
-            cn("Owed") to cn("PaymentMechanic"),
         )
   }
 
@@ -89,7 +87,7 @@ private class CanonClassesTest {
     val table = MClassLoader(Canon)
 
     table.componentClass.apply {
-      assertThat(className).isEqualTo(SpecialClassNames.COMPONENT)
+      assertThat(className).isEqualTo(COMPONENT)
       assertThat(abstract).isTrue()
       // assertThat(directDependencyKeys).isEmpty()
       // assertThat(allDependencyKeys).isEmpty()

@@ -85,8 +85,6 @@ ABSTRACT CLASS Owned<Anyone> {
     ProductionPhase: StandardResource
   }
 
-  ABSTRACT CLASS ResourceCard<Class<CardResource>> : CardFront
-
 
 // CARDS -----------------------------------------
 
@@ -97,17 +95,18 @@ ABSTRACT CLASS Owned<Anyone> {
   }                                               // true until "Double Down" in Dec 2022
 
   ABSTRACT CLASS CardFront {                      // specific CardFronts come from `cards.json5`
+    ABSTRACT CLASS ActiveCard
+    ABSTRACT CLASS AutomatedCard
     ABSTRACT CLASS EventCard {
       This: PlayedEvent<Class<This>> FROM This
     }                                             // could we get this happen automatically at EOT?
-    ABSTRACT CLASS AutomatedCard
-    ABSTRACT CLASS ActiveCard
 
     ABSTRACT CLASS ActionCard : HasActions
+    ABSTRACT CLASS ResourceCard<Class<CardResource>>
   }
 
   CLASS PlayedEvent<Class<CardFront>> [EVT] {     // All thanks to PharmU this can't be <EventCard>!
-    // End: @getVPsFrom(EventCard)
+    // End: @getVpsFrom(EventCard)
   }
 
   ABSTRACT CLASS Cardbound<CardFront> {
@@ -144,30 +143,30 @@ ABSTRACT CLASS Owned<Anyone> {
     This:: -3 THEN ProjectCard
   }
 
-  ABSTRACT CLASS PaymentMechanic : Temporary, System {
-    ABSTRACT CLASS Barrier {                      // player must clean up by end of action
-      This: (MAX 0 This: Ok)
-    }
-    CLASS Owed<Class<Resource>> : Barrier {       // created when pmt due, removed by discount cards
-      DEFAULT +Owed<Class<Megacredit>>
-      This:: Accept<Class<Resource>>
-    }
-    CLASS Accept<Class<Resource>> {               // created in response to PlayTag or the actions
-      HAS MAX 1 This                              //  on 4 special cards. (extend Temporary?)
-      DEFAULT +Accept.
-    }
-    CLASS Pay<Class<Resource>> : Signal {         // used like `8 Pay<Class<Heat>> FROM Heat`, but
-      DEFAULT +Pay<Class<Megacredit>>             // also cards can pay in response to signals
-      This:: -Owed<Class<Resource>>.
-    }
-    CLASS PlayTag<Class<Tag>> : Signal            // triggers Accept<Steel/Dirig/etc.CLASS> and
-                                                  // tag-based discounts
-
+  ABSTRACT CLASS PaymentMechanic : Temporary {
     // Used by PlayCardFromHand, ValTrust, EcoEx, ExSponsor, NewPartner, Merger; triggers EarthCat
-    CLASS PlayCard<Class<CardBack>, Class<CardFront>> {
-//    This:: (CardBack: @handleRequirement(Class<CardFront>))
-//    This: Owed<Class<Megacredit>> / Cost<Class<CardFront>>
-//    This: =0 Barrier: (CardFront FROM CardBack, -This)
+    CLASS PlayCard<Class<CardFront>> {
+      This:: @beginPlayCard(CardFront)
+      -Barrier IF =0 Barrier:: CardFront FROM This! // TODO shouldn't need !
+    }
+
+    CLASS PlayTag<Class<Tag>> : Signal            // triggers discounts and Accepts
+
+    ABSTRACT CLASS Barrier {
+      CLASS Owed<Class<Resource>> {
+        DEFAULT +Owed<Class<Megacredit>>
+        This:: Accept<Class<Resource>>
+      }
+    }
+
+    CLASS Accept<Class<Resource>> : Signal {      // created in response to PlayTag or the actions
+      HAS MAX 1 This                              // on 4 special cards.
+      DEFAULT +Accept.
+      This: 100 Pay<Class<Resource>> FROM Resource?
+    }
+
+    CLASS Pay<Class<Resource>> : Signal {         // used like `8 Pay<Class<Heat>> FROM Heat`, but
+      This:: -Owed<Class<Resource>>.              // also cards can pay in response to signals
     }
   }
 

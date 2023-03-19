@@ -38,7 +38,6 @@ object MTypeToText { // TODO refactor to ClassInfo / TypeInfo type dealies
     val concTypes = sequenceCount(mclass.baseType.concreteSubtypesSameClass(), 100)
 
     // BIGTODO invariants seemingly not working?
-    // TODO show linkages we already have
     val classStuff = """
       Class $names:
           subclasses:  $substring
@@ -52,7 +51,7 @@ object MTypeToText { // TODO refactor to ClassInfo / TypeInfo type dealies
                        """) { "${it.effect}" + if (it.linkages.any()) " ${it.linkages}" else "" } }
 
 
-    """.trimIndent().iff(expression.simple)
+    """.trimIndent()
 
     val concSubs = sequenceCount(mtype.allConcreteSubtypes(), 100)
 

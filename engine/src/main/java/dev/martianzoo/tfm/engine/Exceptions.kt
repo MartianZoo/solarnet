@@ -3,7 +3,6 @@ package dev.martianzoo.tfm.engine
 import dev.martianzoo.tfm.api.Exceptions.UserException
 
 public class Exceptions {
-  public class RequirementException(message: String) : UserException(message)
 
   public class DependencyException(message: String) : UserException(message) {
     companion object {

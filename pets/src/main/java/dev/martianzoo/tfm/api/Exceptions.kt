@@ -12,21 +12,24 @@ public class Exceptions {
   public class AbstractInstructionException(val instruction: Instruction?, message: String) :
       UserException(message) {
     constructor(
-        type: Type
-    ) : this(null, "Component type ${type.expression} is abstract in instruction")
+        type: Type,
+        instruction: Instruction? = null
+    ) : this(instruction, "abstract component: ${type.expression}")
 
     constructor(
         instruction: Instruction,
         intensity: Intensity?
-    ) : this(instruction, "An instruction has intensity $intensity: $instruction")
+    ) : this(instruction, "amount is optional")
 
     constructor(
         instruction: Or
-    ) : this(instruction, "An OR instruction must be reified (i.e., pick one): $instruction")
+    ) : this(instruction, "OR requires a choice")
   }
 
   public class UnrecognizedClassException(className: ClassName) :
       UserException("Class name `$className` is unrecognized (with current game parameters)")
 
   public class InvalidReificationException(message: String) : UserException(message)
+
+  public class RequirementException(message: String) : UserException(message)
 }

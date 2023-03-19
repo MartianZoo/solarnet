@@ -2,8 +2,10 @@ package dev.martianzoo.tfm.engine
 
 import dev.martianzoo.tfm.api.CustomInstruction.ExecuteInsteadException
 import dev.martianzoo.tfm.api.Exceptions.AbstractInstructionException
+import dev.martianzoo.tfm.api.Exceptions.RequirementException
 import dev.martianzoo.tfm.api.GameStateWriter
-import dev.martianzoo.tfm.api.SpecialClassNames
+import dev.martianzoo.tfm.api.SpecialClassNames.DIE
+import dev.martianzoo.tfm.api.SpecialClassNames.OK
 import dev.martianzoo.tfm.api.Type
 import dev.martianzoo.tfm.data.Actor
 import dev.martianzoo.tfm.data.GameEvent.ChangeEvent
@@ -11,7 +13,6 @@ import dev.martianzoo.tfm.data.GameEvent.ChangeEvent.Cause
 import dev.martianzoo.tfm.data.Task
 import dev.martianzoo.tfm.data.Task.TaskId
 import dev.martianzoo.tfm.engine.ActiveEffect.FiredEffect
-import dev.martianzoo.tfm.engine.Exceptions.RequirementException
 import dev.martianzoo.tfm.pets.PetTransformer
 import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.pets.ast.Instruction
@@ -30,12 +31,12 @@ import dev.martianzoo.tfm.pets.ast.Instruction.Transform
 import dev.martianzoo.tfm.pets.ast.Metric
 import dev.martianzoo.tfm.pets.ast.PetNode
 import dev.martianzoo.tfm.pets.ast.Requirement
-import dev.martianzoo.tfm.types.Transformers.AtomizeGlobalParameterGains
-import dev.martianzoo.tfm.types.Transformers.CompositeTransformer
+import dev.martianzoo.tfm.types.Transformers.AtomizeGlobalParameters
 import dev.martianzoo.tfm.types.Transformers.Deprodify
 import dev.martianzoo.tfm.types.Transformers.InsertDefaults
 import dev.martianzoo.tfm.types.Transformers.ReplaceOwnerWith
 import dev.martianzoo.tfm.types.Transformers.UseFullNames
+import dev.martianzoo.tfm.types.Transformers.transformInSeries
 import dev.martianzoo.util.Multiset
 
 public class PlayerAgent(val game: Game, val actor: Actor) {
@@ -43,7 +44,7 @@ public class PlayerAgent(val game: Game, val actor: Actor) {
       if (actor == Actor.ENGINE) {
         Deprodify(game.loader)
       } else {
-        CompositeTransformer(ReplaceOwnerWith(actor.className), Deprodify(game.loader))
+        transformInSeries(ReplaceOwnerWith(actor.className), Deprodify(game.loader))
       }
 
   @Suppress("UNCHECKED_CAST")
@@ -62,10 +63,10 @@ public class PlayerAgent(val game: Game, val actor: Actor) {
       amap: Boolean = false,
       cause: Cause? = null,
   ): ChangeEvent? {
-    if (gaining == SpecialClassNames.OK.expr) { // TODO more principled
+    if (gaining == OK.expr) { // TODO more principled
       require(removing == null)
       return null
-    } else if (!amap && gaining == SpecialClassNames.DIE.expr) {
+    } else if (!amap && gaining == DIE.expr) {
       throw RuntimeException("fix this")
     }
     val change =
@@ -123,7 +124,7 @@ public class PlayerAgent(val game: Game, val actor: Actor) {
     require(multiplier > 0)
 
     fun isAmap(instr: Change) =
-        when (instr.intensity!!) {
+        when (instr.intensity ?: error("$instr")) {
           MANDATORY -> false
           AMAP -> true
           OPTIONAL -> throw AbstractInstructionException(instr, instr.intensity)
@@ -206,15 +207,15 @@ public class PlayerAgent(val game: Game, val actor: Actor) {
     val arguments = instr.arguments.map(game::resolve)
     try {
       val translated: Instruction = custom.translate(game.reader, arguments) * multiplier
-      val xer =
-          CompositeTransformer(
-              UseFullNames(game.loader),
-              AtomizeGlobalParameterGains(game.loader),
-              InsertDefaults(game.loader), // TODO context component??
-              Deprodify(game.loader),
-              // Not needed: ReplaceThisWith, ReplaceOwnerWith, FixUnownedEffect
-          )
-      split(xer.transform(translated)).forEach {
+      val instruction = transformInSeries(
+          UseFullNames(game.loader),
+          AtomizeGlobalParameters(game.loader),
+          InsertDefaults(game.loader), // TODO context component??
+          Deprodify(game.loader),
+          ReplaceOwnerWith(actor.className)
+          // Not needed: ReplaceThisWith, FixUnownedEffect
+      ).transform(translated)
+      split(instruction).forEach {
         try {
           doAtomic { doInstruction(it, cause) }
         } catch (e: Exception) {

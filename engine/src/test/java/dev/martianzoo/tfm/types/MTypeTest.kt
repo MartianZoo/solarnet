@@ -163,6 +163,13 @@ private class MTypeTest {
     assertThat(pprod.findSubstitutions(setOf(cn("StandardResource"))))
         .containsExactly(cn("StandardResource"), cn("Plant").expr)
   }
+  @Test
+  fun subs2() {
+    val loader = MClassLoader(Canon).loadEverything()
+    val pprod = loader.resolve(expression("PlayCard<Player1, Class<MediaGroup>>"))
+    assertThat(pprod.findSubstitutions(setOf(cn("CardFront"))))
+        .containsExactly(cn("CardFront"), cn("MediaGroup").expr)
+  }
 
   private fun te(s: String) = expression(s)
 }

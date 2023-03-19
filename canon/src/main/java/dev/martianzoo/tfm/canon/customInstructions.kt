@@ -2,6 +2,7 @@ package dev.martianzoo.tfm.canon
 
 import dev.martianzoo.tfm.api.CustomInstruction
 import dev.martianzoo.tfm.api.Exceptions.AbstractInstructionException
+import dev.martianzoo.tfm.api.Exceptions.RequirementException
 import dev.martianzoo.tfm.api.GameStateReader
 import dev.martianzoo.tfm.api.GameStateWriter
 import dev.martianzoo.tfm.api.ResourceUtils.lookUpProductionLevels
@@ -13,6 +14,7 @@ import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.pets.ast.Expression.Companion.expression
 import dev.martianzoo.tfm.pets.ast.Instruction
 import dev.martianzoo.tfm.pets.ast.Instruction.Companion.instruction
+import dev.martianzoo.tfm.pets.ast.Instruction.Companion.nullInstruction
 import dev.martianzoo.tfm.pets.ast.Instruction.Gain
 import dev.martianzoo.tfm.pets.ast.Instruction.Multi
 import dev.martianzoo.tfm.pets.ast.Instruction.Transform
@@ -25,9 +27,10 @@ internal val allCustomInstructions =
         ForceLoad,
         CreateAll,
         CreateAdjacencies,
+        BeginPlayCard,
+        CopyPrelude,
         GainLowestProduction,
         CopyProductionBox,
-        CopyPrelude,
     )
 
 private object ForceLoad : CustomInstruction("forceLoad") { // TODO include @ ?
@@ -57,6 +60,70 @@ private object CreateAll : CustomInstruction("createAll") {
       }
       else -> TODO()
     }
+  }
+}
+
+// MarsArea has `Tile<This>:: @createAdjacencies(This)`
+private object CreateAdjacencies : CustomInstruction("createAdjacencies") {
+  override fun translate(game: GameStateReader, arguments: List<Type>): Instruction {
+    val areaName: ClassName = arguments.single().className
+    val grid: Grid<AreaDefinition> = game.setup.map.areas
+    val area: AreaDefinition = grid.first { it.className == areaName }
+    val neighborAreas: List<AreaDefinition> = neighborsInHexGrid(grid, area.row, area.column)
+
+    val newTile: Expression = tileOn(area, game)!! // creating it is what got us here
+
+    val nbrs = neighborAreas.map { "Neighbor<$newTile, ${it.className}>!" }
+    val adjs =
+        neighborAreas
+            .mapNotNull { tileOn(it, game) }
+            .flatMap {
+              listOf(
+                  "ForwardAdjacency<$it, $newTile>!",
+                  "BackwardAdjacency<$newTile, $it>!",
+              )
+            }
+    return instruction((nbrs + adjs).joinToString())
+  }
+  private fun tileOn(area: AreaDefinition, game: GameStateReader): Expression? {
+    val tileType: Type = game.resolve(expression("Tile<${area.className}>"))
+    return game.getComponents(tileType).singleOrNull()?.expressionFull // TODO
+  }
+
+  fun <E> neighborsInHexGrid(grid: Grid<E>, r: Int, c: Int): List<E> {
+    return listOfNotNull(
+        grid[r - 1, c - 1],
+        grid[r - 1, c + 0],
+        grid[r + 0, c - 1],
+        grid[r + 0, c + 1],
+        grid[r + 1, c + 0],
+        grid[r + 1, c + 1],
+    )
+  }
+}
+
+private object BeginPlayCard : CustomInstruction("beginPlayCard") {
+  override fun translate(game: GameStateReader, arguments: List<Type>): Instruction {
+    val cardName = arguments.single().expression.className
+    val card = game.authority.card(cardName)
+    if (card.requirement?.let(game::evaluate) == false) {
+      throw RequirementException("requirement not met: ${card.requirement}")
+    }
+
+    val playTagSignals = card.tags.entries.map { (e, ct) -> instruction("$ct PlayTag<Class<$e>>!") }
+    val instructions =
+        if (card.cost > 0) {
+          listOf(instruction("${card.cost} Owed")) + playTagSignals
+        } else {
+          playTagSignals
+        }
+    return Multi.create(instructions) ?: nullInstruction
+  }
+}
+// For Double Down
+private object CopyPrelude : CustomInstruction("copyPrelude") {
+  override fun execute(game: GameStateReader, writer: GameStateWriter, arguments: List<Type>) {
+    TODO()
   }
 }
 
@@ -90,51 +157,5 @@ private object CopyProductionBox : CustomInstruction("copyProductionBox") {
               "The immediate instructions on ${def.className} " +
                   "have multiple PROD boxes, which should never happen")
     }
-  }
-}
-
-private object CopyPrelude : CustomInstruction("copyPrelude") {
-  override fun execute(game: GameStateReader, writer: GameStateWriter, arguments: List<Type>) {
-    TODO()
-  }
-}
-
-// MarsArea has `Tile<This>:: @createAdjacencies(This)`
-private object CreateAdjacencies : CustomInstruction("createAdjacencies") {
-  override fun translate(game: GameStateReader, arguments: List<Type>): Instruction {
-    val areaName: ClassName = arguments.single().className
-    val grid: Grid<AreaDefinition> = game.setup.map.areas
-    val area: AreaDefinition = grid.first { it.className == areaName }
-    val neighborAreas: List<AreaDefinition> = neighborsInHexGrid(grid, area.row, area.column)
-
-    val newTile: Expression = tileOn(area, game)!! // creating it is what got us here
-
-    val nbrs = neighborAreas.map { "Neighbor<$newTile, ${it.className}>!" }
-    val adjs =
-        neighborAreas
-            .mapNotNull { tileOn(it, game) }
-            .flatMap {
-              listOf(
-                  "ForwardAdjacency<$it, $newTile>!",
-                  "BackwardAdjacency<$newTile, $it>!",
-              )
-            }
-    return instruction((nbrs + adjs).joinToString())
-  }
-
-  private fun tileOn(area: AreaDefinition, game: GameStateReader): Expression? {
-    val tileType: Type = game.resolve(expression("Tile<${area.className}>"))
-    return game.getComponents(tileType).singleOrNull()?.expressionFull // TODO
-  }
-
-  fun <E> neighborsInHexGrid(grid: Grid<E>, r: Int, c: Int): List<E> {
-    return listOfNotNull(
-        grid[r - 1, c - 1],
-        grid[r - 1, c + 0],
-        grid[r + 0, c - 1],
-        grid[r + 0, c + 1],
-        grid[r + 1, c + 0],
-        grid[r + 1, c + 1],
-    )
   }
 }

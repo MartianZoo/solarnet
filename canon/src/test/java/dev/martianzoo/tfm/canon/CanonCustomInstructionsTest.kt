@@ -34,8 +34,7 @@ private class CanonCustomInstructionsTest {
     assertThat(repl.command("tasks"))
         .containsExactly(
             "A: [Player1] Production<Player1, Class<Megacredit>>! OR Production<Player1, " +
-                "Class<Energy>>! (An OR instruction must be reified (i.e., pick one): " +
-                "Production<Player1, Class<Megacredit>>! OR Production<Player1, Class<Energy>>!)")
+                "Class<Energy>>! (OR requires a choice)")
   }
 
   @Test

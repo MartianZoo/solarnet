@@ -1,7 +1,6 @@
 package dev.martianzoo.tfm.data
 
 import dev.martianzoo.tfm.api.SpecialClassNames.END
-import dev.martianzoo.tfm.api.SpecialClassNames.OK
 import dev.martianzoo.tfm.data.CardDefinition.Deck.PROJECT
 import dev.martianzoo.tfm.data.CardDefinition.ProjectKind.ACTIVE
 import dev.martianzoo.tfm.data.EnglishHack.englishHack
@@ -25,12 +24,9 @@ import dev.martianzoo.tfm.pets.ast.Effect.Companion.effect
 import dev.martianzoo.tfm.pets.ast.Effect.Trigger.OnGainOf
 import dev.martianzoo.tfm.pets.ast.Instruction
 import dev.martianzoo.tfm.pets.ast.Instruction.Companion.instruction
-import dev.martianzoo.tfm.pets.ast.Instruction.Gain
-import dev.martianzoo.tfm.pets.ast.Instruction.Gated
 import dev.martianzoo.tfm.pets.ast.Instruction.Multi
 import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.pets.ast.Requirement.Companion.requirement
-import dev.martianzoo.tfm.pets.ast.ScaledExpression.Companion.scaledEx
 import dev.martianzoo.util.HashMultiset
 import dev.martianzoo.util.Multiset
 import dev.martianzoo.util.toSetStrict
@@ -139,13 +135,10 @@ public class CardDefinition(data: CardData) : Definition {
             )
             .ifEmpty { setOf(CARD_FRONT.expr) }
 
-    // This simplistic way of handling requirements won't work for "global requirements"
-    // or Diversity Support and is basically just wrong, but oh well: TODO
-    val blocker: Instruction? = requirement?.let { Gated(it, mandatory = true, Gain(scaledEx(OK.expr))) }
-    val removeCardBack: Instruction? = deck?.className?.let { instruction("-$it") }
-    val gainUsSomeTags: Instruction? = Multi.create(tags.toList().map { instruction("$it<$className>!") })
-
-    val automatic: List<Effect> = listOfNotNull(blocker, removeCardBack, gainUsSomeTags).map {
+    val automatic: List<Effect> = listOfNotNull(
+        deck?.className?.let { instruction("-$it") },
+        Multi.create(tags.toList().map { instruction("$it<$className>!") })
+    ).map {
       immediateToEffect(it, automatic = true)
     }
     val allEffects: List<Effect> =
@@ -160,7 +153,8 @@ public class CardDefinition(data: CardData) : Definition {
         abstract = false,
         supertypes = supertypes,
         effectsIn = allEffects.toSetStrict(),
-        extraNodes = extraClasses.flatMap { it.allNodes }.toSetStrict())
+        extraNodes = setOfNotNull(requirement) + extraClasses.flatMap { it.allNodes }
+    )
   }
 
   /** The deck this card belongs to; see [CardDefinition.deck]. */

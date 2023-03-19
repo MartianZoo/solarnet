@@ -3,6 +3,7 @@ package dev.martianzoo.tfm.canon
 import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.tfm.api.SpecialClassNames.ENGINE
 import dev.martianzoo.tfm.api.SpecialClassNames.GLOBAL_PARAMETER
+import dev.martianzoo.tfm.api.SpecialClassNames.OK
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.types.MClassLoader
 import org.junit.jupiter.api.Test
@@ -11,6 +12,7 @@ private class CanonEffectsTest {
   fun effectsOf(name: String): List<String> {
     val loader = MClassLoader(Canon, true)
     loader.load(ENGINE)
+    loader.load(OK) // TODO why?
     loader.load(GLOBAL_PARAMETER)
     val card = loader.load(cn(name))
     loader.frozen = true
@@ -61,7 +63,6 @@ private class CanonEffectsTest {
     assertThat(effectsOf("VenusianAnimals"))
         .containsExactly(
             "This:: -ProjectCard<Owner>!",
-            "This:: (9 VenusStep: Ok!)",
             "This:: VenusTag<$blah>!, ScienceTag<$blah>!, AnimalTag<$blah>!",
             "ScienceTag<Owner>: Animal<Owner, This>.",
             "End: VictoryPoint<Owner>! / Animal<Owner, This>",
@@ -111,7 +112,6 @@ private class CanonEffectsTest {
     assertThat(effectsOf("AsteroidMiningConsortium"))
         .containsExactly(
             "This:: -ProjectCard<Owner>!",
-            "This:: (PROD[Titanium<Owner>]: Ok!)",
             "This:: JovianTag<Owner, AsteroidMiningConsortium<Owner>>!",
             "This: PROD[-Titanium<Anyone>!, Titanium<Owner>!]",
             "End: VictoryPoint<Owner>!",

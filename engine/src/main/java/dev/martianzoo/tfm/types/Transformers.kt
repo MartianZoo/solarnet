@@ -26,6 +26,10 @@ import dev.martianzoo.tfm.types.Transformers.ReplaceThisWith
 
 public object Transformers {
 
+  fun transformInSeries(xers: List<PetTransformer?>): PetTransformer =
+      CompositeTransformer(xers.filterNotNull())
+  fun transformInSeries(vararg xers: PetTransformer?): PetTransformer = transformInSeries(xers.toList())
+
   public open class CompositeTransformer(val transformers: List<PetTransformer>) :
       PetTransformer() {
     constructor(vararg transformers: PetTransformer) : this(transformers.toList())
@@ -104,7 +108,7 @@ public object Transformers {
     }
   }
 
-  public class AtomizeGlobalParameterGains(val loader: MClassLoader) : PetTransformer() {
+  public class AtomizeGlobalParameters(val loader: MClassLoader) : PetTransformer() {
     var ourMulti: Multi? = null
     override fun <P : PetNode> transform(node: P): P {
       if (node is Multi && ourMulti != null && (ourMulti as Multi) in node.instructions) {

@@ -465,6 +465,6 @@ public sealed class Instruction : PetNode() {
       }
     }
 
-    internal val nullInstruction = Gain(scaledEx(OK.expr), MANDATORY)
+    public val nullInstruction = Gain(scaledEx(OK.expr), MANDATORY)
   }
 }

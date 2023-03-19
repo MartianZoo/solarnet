@@ -7,7 +7,11 @@ public class MutableGrid<E>(private val rows: List<List<E?>>) : Grid<E>, Abstrac
   override val columnCount by rows[0]::size
 
   override operator fun get(rowIndex: Int, columnIndex: Int): E? {
-    return row(rowIndex)[columnIndex]
+    return try {
+      row(rowIndex)[columnIndex]
+    } catch (e: Exception) {
+      null
+    }
   }
 
   fun set(rowIndex: Int, columnIndex: Int, value: E): E? {

@@ -5,19 +5,38 @@
 
 // This file has game stuff that isn't player-specific
 
-CLASS Engine : System {
-  HAS MAX 1 This                                       // Created manually to kick everything off
+ABSTRACT CLASS Component {                        // Component is the single root of the hierarchy
+  DEFAULT +Component!
+  DEFAULT -Component!
+}
 
-  This:: @forceLoad(Class<Production>)                 // TODO pare this down??
-  This:: @forceLoad(Class<GrossHack>)
-  This:: @forceLoad(Class<BackwardAdjacency>)
-  This:: CorporationPhase
+ABSTRACT CLASS System {
+  CLASS Class<Component> { HAS =1 This }          // magic rule: can have only <\w+>
 
-  PlayTag<Class<BuildingTag>>:: Accept<Class<Steel>>
-  PlayTag<Class<SpaceTag>>:: Accept<Class<Titanium>>
+  ABSTRACT CLASS Temporary {
+    ABSTRACT CLASS Signal {                       // you'll never observe it existing, but things
+      This:: -This!                               // can still be triggered by it.
 
-  Pay<Class<Steel>>:: 2 Pay<Class<Megacredit>>
-  Pay<Class<Titanium>>:: 3 Pay<Class<Megacredit>>      // should be innocuous for TradeAction?
+      CLASS Ok : Signal
+    }
+
+    CLASS Die { HAS MAX 0 This }                  // Impossible to create, which is the point
+  }
+
+  CLASS Engine {
+    HAS MAX 1 This                                     // Created manually to kick everything off
+
+    This:: @forceLoad(Class<Production>)               // TODO pare this down??
+    This:: @forceLoad(Class<GrossHack>)
+    This:: @forceLoad(Class<BackwardAdjacency>)
+    This:: CorporationPhase
+
+    PlayTag<Class<BuildingTag>>:: Accept<Class<Steel>>
+    PlayTag<Class<SpaceTag>>:: Accept<Class<Titanium>>
+
+    Pay<Class<Steel>>:: 2 Pay<Class<Megacredit>>
+    Pay<Class<Titanium>>:: 3 Pay<Class<Megacredit>>    // should be innocuous for TradeAction?
+  }
 }
 
 // GLOBAL PARAMETERS ----------------------------------
@@ -100,13 +119,13 @@ ABSTRACT CLASS Generational {                          // things that disappear 
   ResearchPhase:: -This.                               // <-- and look, there they go
 }
 
-CLASS Turn : Signal
+CLASS Turn : Signal                                    // TODO: should be owned
 
 ABSTRACT CLASS Phase {                                 // System? kinda
   HAS MAX 1 Phase
 
   CLASS CorporationPhase {
-    Turn: CorporationCard, CardFront, 10 BuyCard?
+    Turn: CorporationCard, CardFront, 10 BuyCard?      // TODO beginner corp
   }
 
   CLASS PreludePhase {
