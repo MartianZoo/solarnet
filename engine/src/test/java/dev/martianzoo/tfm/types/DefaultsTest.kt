@@ -12,26 +12,26 @@ class DefaultsTest {
   fun testIntensities() {
     val loader =
         loader(
-        """
-          CLASS Class<Component>
-          ABSTRACT CLASS Component {
-            DEFAULT +Component!
-            DEFAULT -Component!
-          }
-          CLASS Foo1 {
-            DEFAULT +Foo1.
-          }
-          CLASS Bar1 {
-            DEFAULT -Bar1?
-          }
-          CLASS FooBar1 : Foo1, Bar1
-          CLASS Qux1 {
-            DEFAULT +Qux1!
-          }
-          CLASS Fixed: Qux1 {
-            DEFAULT +Fixed.
-          }
-        """)
+            """
+              CLASS Class<Component>
+              ABSTRACT CLASS Component {
+                DEFAULT +Component!
+                DEFAULT -Component!
+              }
+              CLASS Foo1 {
+                DEFAULT +Foo1.
+              }
+              CLASS Bar1 {
+                DEFAULT -Bar1?
+              }
+              CLASS FooBar1 : Foo1, Bar1
+              CLASS Qux1 {
+                DEFAULT +Qux1!
+              }
+              CLASS Fixed: Qux1 {
+                DEFAULT +Fixed.
+              }
+            """)
 
     val d = loader.allDefaults[cn("Foo1")]!!
     assertThat(d.gainIntensity).isEqualTo(AMAP)

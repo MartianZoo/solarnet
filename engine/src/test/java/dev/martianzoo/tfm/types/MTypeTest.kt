@@ -33,7 +33,7 @@ private class MTypeTest {
             CLASS Fish : ResourceCard<Class<Animal>>
             CLASS Ants : ResourceCard<Class<Microbe>>
           """
-                      .trimIndent())
+                .trimIndent())
 
     assertThat(table.resolve(te("Animal<Fish>")).abstract).isTrue()
 
