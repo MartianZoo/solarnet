@@ -1,15 +1,17 @@
 package dev.martianzoo.util
 
+import dev.martianzoo.tfm.api.Exceptions.InvalidReificationException
+
 /**
  * An object with hierarchical structure (subtypes and supertypes). It is assumed that there is a
  * single root to this inheritance tree.
  */
-interface Hierarchical<H : Hierarchical<H>> {
+interface Hierarchical<H : Hierarchical<H>> : Reifiable<H> {
   /**
    * Returns `true` if this instance is not able to exist on its own (but presumably can have
    * subtypes that do).
    */
-  val abstract: Boolean
+  override val abstract: Boolean // TODO remove??
 
   /** Returns `true` if `this` is a specific form of `that` (or they are the same). */
   fun isSubtypeOf(that: H): Boolean
@@ -24,6 +26,11 @@ interface Hierarchical<H : Hierarchical<H>> {
 
   /** Returns the nearest common supertype of `this` and [that]. */
   infix fun lub(that: H): H
+
+  override fun ensureNarrows(that: H) {
+    if (!isSubtypeOf(that)) throw InvalidReificationException(
+        "not a subtype (could override this method to provide a more detailed message)")
+  }
 
   companion object {
     /**

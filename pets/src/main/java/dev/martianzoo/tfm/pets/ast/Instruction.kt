@@ -18,7 +18,10 @@ import dev.martianzoo.tfm.pets.ast.FromExpression.SimpleFrom
 import dev.martianzoo.tfm.pets.ast.Instruction.Intensity.MANDATORY
 import dev.martianzoo.tfm.pets.ast.Instruction.Intensity.OPTIONAL
 import dev.martianzoo.tfm.pets.ast.ScaledExpression.Companion.scaledEx
-import dev.martianzoo.util.suf
+import dev.martianzoo.tfm.pets.ast.ScaledExpression.Scalar
+import dev.martianzoo.tfm.pets.ast.ScaledExpression.Scalar.ActualScalar
+import dev.martianzoo.tfm.pets.ast.ScaledExpression.Scalar.Companion.checkNonzero
+import dev.martianzoo.util.Reifiable
 import dev.martianzoo.util.toSetStrict
 
 public sealed class Instruction : PetNode() {
@@ -27,7 +30,8 @@ public sealed class Instruction : PetNode() {
   abstract operator fun times(factor: Int): Instruction
 
   public sealed class Change : Instruction() {
-    abstract val count: Int
+    abstract val count: Scalar
+
     abstract val gaining: Expression?
     abstract val removing: Expression?
     abstract val intensity: Intensity?
@@ -35,35 +39,32 @@ public sealed class Instruction : PetNode() {
     abstract override fun times(factor: Int): Change
 
     override fun isAbstract(einfo: ExpressionInfo): Boolean {
-      return intensity!! == OPTIONAL ||
+      return intensity?.abstract != false ||
+          count.abstract ||
           (gaining?.let { einfo.isAbstract(it) } == true) ||
           (removing?.let { einfo.isAbstract(it) } == true)
     }
 
+    val amount: Amount by lazy { Amount(count, intensity) }
+
+    data class Amount(val scalar: Scalar, val intensity: Intensity?) : Reifiable<Amount> {
+      override val abstract: Boolean = scalar.abstract || intensity?.abstract != false
+
+      override fun ensureNarrows(that: Amount) {
+        intensity!!.ensureNarrows(that.intensity!!)
+        if (that.intensity == OPTIONAL && scalar is ActualScalar && that.scalar is ActualScalar) {
+          if (scalar.value > that.scalar.value) throw InvalidReificationException("")
+        } else {
+          scalar.ensureNarrows(that.scalar)
+        }
+      }
+    }
+
     override fun checkReificationDoNotCall(proposed: Instruction, einfo: ExpressionInfo) {
       if (proposed == nullInstruction && intensity == OPTIONAL) return
-      proposed as Change
-
-      gaining?.let { einfo.checkReifies(it, proposed.gaining!!) }
-      removing?.let { einfo.checkReifies(it, proposed.removing!!) }
-      if (proposed.count > count) {
-        throw InvalidReificationException(
-            "Can't increase amount from ${count} to ${proposed.count}")
-      }
-      if (proposed.intensity!! == OPTIONAL) {
-        throw InvalidReificationException("Can't execute an optional instruction")
-      }
-      // Optional to non-optional is otherwise always fine
-      if (intensity!! != OPTIONAL) {
-        if (proposed.count != count) {
-          throw InvalidReificationException(
-              "Can't decrease amount from ${count} to ${proposed.count}")
-        }
-        if (proposed.intensity!! != intensity) {
-          throw InvalidReificationException(
-              "Can't change the intensity of a non-optional instruction")
-        }
-      }
+      (proposed as Change).amount.ensureReifies(amount)
+      gaining?.let { einfo.ensureReifies(proposed.gaining!!, it) }
+      removing?.let { einfo.ensureReifies(proposed.removing!!, it) }
     }
   }
 
@@ -76,14 +77,12 @@ public sealed class Instruction : PetNode() {
     override val removing = null
 
     override fun visitChildren(visitor: Visitor) = visitor.visit(scaledEx)
-    override fun times(factor: Int) = copy(scaledEx = scaledEx.copy(scalar = count * factor))
+    override fun times(factor: Int) = copy(scaledEx = scaledEx * factor)
 
     override fun toString() = "$scaledEx${intensity?.symbol ?: ""}"
 
     init {
-      if (count == 0) {
-        throw PetException("Can't do zero")
-      }
+      checkNonzero(count)
     }
   }
 
@@ -94,44 +93,40 @@ public sealed class Instruction : PetNode() {
     override val removing = scaledEx.expression
 
     override fun visitChildren(visitor: Visitor) = visitor.visit(scaledEx)
-    override fun times(factor: Int) = copy(scaledEx = scaledEx.copy(scalar = count * factor))
+    override fun times(factor: Int) = copy(scaledEx = scaledEx * factor)
 
     override fun toString() = "-$scaledEx${intensity?.symbol ?: ""}"
 
     init {
-      if (count == 0) {
-        throw PetException("Can't do zero")
-      }
+      checkNonzero(count)
     }
   }
 
   data class Transmute(
-      val from: FromExpression,
-      val scalar: Int? = null,
+      val fromEx: FromExpression,
+      val scalar: Scalar,
       override val intensity: Intensity? = null,
   ) : Change() {
-    override val count = scalar ?: 1
-    override val gaining = from.toExpression
-    override val removing = from.fromExpression
+    override val count = scalar
+    override val gaining = fromEx.toExpression
+    override val removing = fromEx.fromExpression
 
-    override fun visitChildren(visitor: Visitor) = visitor.visit(from)
-    override fun times(factor: Int) =
-        if (factor == 1) this else copy(scalar = (scalar ?: 1) * factor)
+    override fun visitChildren(visitor: Visitor) = visitor.visit(fromEx)
+    override fun times(factor: Int) = copy(scalar = scalar * factor)
 
     override fun toString(): String {
-      return "${scalar.suf(' ')}$from${intensity?.symbol ?: ""}"
+      val scalText = if (scalar == ActualScalar(1)) "" else "$scalar "
+      return "$scalText$fromEx${intensity?.symbol ?: ""}"
     }
 
     init {
-      if (count == 0) {
-        throw PetException("Can't do zero")
-      }
+      checkNonzero(count)
     }
 
     override fun safeToNestIn(container: PetNode) =
-        super.safeToNestIn(container) && (from !is SimpleFrom || container !is Or)
+        super.safeToNestIn(container) && (fromEx !is SimpleFrom || container !is Or)
 
-    override fun precedence() = if (from is SimpleFrom) 7 else 10
+    override fun precedence() = if (fromEx is SimpleFrom) 7 else 10
 
     companion object {
       fun tryMerge(left: Instruction, right: Instruction): Transmute? {
@@ -148,9 +143,8 @@ public sealed class Instruction : PetNode() {
 
         if (remove.scaledEx.scalar != scalar) return null
         val intensity = setOfNotNull(gain.intensity, remove.intensity).singleOrNull() ?: return null
-        val scal: Int? = if (scalar == 1) null else scalar
         return Transmute(
-            SimpleFrom(gain.scaledEx.expression, remove.scaledEx.expression), scal, intensity)
+            SimpleFrom(gain.scaledEx.expression, remove.scaledEx.expression), scalar, intensity)
       }
     }
   }
@@ -177,7 +171,7 @@ public sealed class Instruction : PetNode() {
       if (proposed.metric != metric) {
         throw InvalidReificationException("can't change the metric")
       }
-      proposed.instruction.checkReifies(instruction, einfo)
+      proposed.instruction.ensureReifies(instruction, einfo)
     }
 
     override fun toString() = "$instruction / $metric"
@@ -201,7 +195,7 @@ public sealed class Instruction : PetNode() {
       if (proposed.gate != gate) {
         throw InvalidReificationException("can't change the condition")
       }
-      proposed.instruction.checkReifies(instruction, einfo)
+      proposed.instruction.ensureReifies(instruction, einfo)
     }
 
     override fun toString(): String {
@@ -238,7 +232,7 @@ public sealed class Instruction : PetNode() {
         throw InvalidReificationException("wrong argument count")
       }
       for ((yours, mine) in proposed.arguments.zip(arguments)) {
-        einfo.checkReifies(mine, yours)
+        einfo.ensureReifies(mine, yours)
       }
     }
 
@@ -266,7 +260,7 @@ public sealed class Instruction : PetNode() {
     override fun checkReificationDoNotCall(proposed: Instruction, einfo: ExpressionInfo) {
       proposed as Then
       for ((yours, mine) in proposed.instructions.zip(instructions)) {
-        yours.checkReifies(mine, einfo)
+        yours.ensureReifies(mine, einfo)
       }
     }
 
@@ -295,7 +289,7 @@ public sealed class Instruction : PetNode() {
       var messages = ""
       for (option in instructions) {
         try { // Just get any one to work
-          proposed.checkReifies(option, einfo)
+          proposed.ensureReifies(option, einfo)
           return
         } catch (e: InvalidReificationException) {
           messages += "${e.message}\n"
@@ -357,25 +351,34 @@ public sealed class Instruction : PetNode() {
 
   protected abstract fun isAbstract(einfo: ExpressionInfo): Boolean
 
-  fun checkReifies(abstractTarget: Instruction, einfo: ExpressionInfo) {
-    if (isAbstract(einfo)) {
-      throw InvalidReificationException("A reification must be concrete")
+  fun ensureReifies(abstractTarget: Instruction, einfo: ExpressionInfo) {
+    AsReifiable(this, einfo).ensureReifies(AsReifiable(abstractTarget, einfo))
+  }
+
+  data class AsReifiable(
+      val instruction: Instruction,
+      val einfo: ExpressionInfo,
+  ) : Reifiable<AsReifiable> {
+    override fun ensureNarrows(that: AsReifiable) {
+      val abstractTarget = that.instruction
+      if (abstractTarget !is Or &&
+        instruction != nullInstruction &&
+        instruction::class != abstractTarget::class
+      ) {
+        throw InvalidReificationException(
+            "A ${instruction::class.simpleName} instruction can't reify a" +
+                " ${abstractTarget::class.simpleName} instruction")
+      }
+      abstractTarget.checkReificationDoNotCall(instruction, einfo) // well WE can call it
     }
-    if (this == abstractTarget) return
-    if (!abstractTarget.isAbstract(einfo)) {
-      throw InvalidReificationException("Already concrete: $abstractTarget")
-    }
-    if (abstractTarget !is Or && this != nullInstruction && this::class != abstractTarget::class) {
-      throw InvalidReificationException(
-          "A ${this::class.simpleName} instruction can't reify a" +
-              " ${abstractTarget::class.simpleName} instruction")
-    }
-    abstractTarget.checkReificationDoNotCall(this, einfo) // well WE can call it
+
+    override val abstract = instruction.isAbstract(einfo)
   }
 
   protected abstract fun checkReificationDoNotCall(proposed: Instruction, einfo: ExpressionInfo)
 
-  enum class Intensity(val symbol: String) {
+  enum class Intensity(val symbol: String, override val abstract: Boolean = false) :
+      Reifiable<Intensity> {
     /** The full amount must be gained/removed/transmuted. */
     MANDATORY("!"),
 
@@ -383,8 +386,14 @@ public sealed class Instruction : PetNode() {
     AMAP("."),
 
     /** The player can choose how much of the amount to do, including none of it. */
-    OPTIONAL("?"),
+    OPTIONAL("?", true),
     ;
+
+    override fun ensureNarrows(that: Intensity) {
+      if (that != this && that != OPTIONAL) {
+        throw InvalidReificationException("")
+      }
+    }
 
     companion object {
       fun from(symbol: String) = values().first { it.symbol == symbol }
@@ -414,21 +423,19 @@ public sealed class Instruction : PetNode() {
             skipChar('-') and gain map { Remove(it.scaledEx, it.intensity) }
 
         val transmute: Parser<Transmute> =
-            optional(scalar) and
-                FromExpression.parser() and
-                optional(intensity) map
-                { (scalar, fro, int) ->
-                  Transmute(fro, scalar, int)
-                }
+            optional(ScaledExpression.scalar()) and
+            FromExpression.parser() and
+            optional(intensity) map { (scalar, fro, int) ->
+              Transmute(fro, scalar ?: ActualScalar(1), int)
+            }
 
         val perable: Parser<Change> = transmute or group(transmute) or gain or remove
 
         val maybePer: Parser<Instruction> =
             perable and
-                optional(skipChar('/') and Metric.parser()) map
-                { (instr, metric) ->
-                  if (metric == null) instr else Per(instr, metric)
-                }
+            optional(skipChar('/') and Metric.parser()) map { (instr, metric) ->
+              if (metric == null) instr else Per(instr, metric)
+            }
 
         val transform: Parser<Transform> =
             transform(parser()) map { (node, tname) -> Transform(node, tname) }
@@ -437,11 +444,10 @@ public sealed class Instruction : PetNode() {
         val arguments = separatedTerms(Expression.parser(), char(','), acceptZero = true)
         val custom: Parser<Custom> =
             skipChar('@') and
-                _lowerCamelRE and
-                group(arguments) map
-                { (name, args) ->
-                  Custom(name.text, args)
-                }
+            _lowerCamelRE and
+            group(arguments) map { (name, args) ->
+              Custom(name.text, args)
+            }
         val atom: Parser<Instruction> = group(parser()) or maybeTransform or custom
 
         val isMandatory: Parser<Boolean> = (_questionColon asJust false) or (char(':') asJust true)
@@ -454,17 +460,16 @@ public sealed class Instruction : PetNode() {
                 }
 
         val orInstr: Parser<Instruction> =
-            separatedTerms(gated, _or) map
-                {
-                  val set = it.toSetStrict().toList()
-                  if (set.size == 1) set.first() else Or(set)
-                }
+            separatedTerms(gated, _or) map {
+              val set = it.toSetStrict().toList()
+              if (set.size == 1) set.first() else Or(set)
+            }
 
         val then = separatedTerms(orInstr, _then) map { if (it.size == 1) it.first() else Then(it) }
         commaSeparated(then) map { Multi.create(it)!! }
       }
     }
 
-    public val nullInstruction = Gain(scaledEx(OK.expr), MANDATORY)
+    public val nullInstruction = Gain(scaledEx(1, OK.expr), MANDATORY)
   }
 }

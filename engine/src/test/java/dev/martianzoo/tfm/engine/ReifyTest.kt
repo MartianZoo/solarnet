@@ -32,5 +32,5 @@ class ReifyTest {
   }
 
   fun test(original: String, replacement: String) =
-      instruction(replacement).checkReifies(instruction(original), game.einfo)
+      instruction(replacement).ensureReifies(instruction(original), game.einfo)
 }

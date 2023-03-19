@@ -4,5 +4,5 @@ import dev.martianzoo.tfm.pets.ast.Expression
 
 interface ExpressionInfo {
   fun isAbstract(e: Expression): Boolean
-  fun checkReifies(wide: Expression, narrow: Expression)
+  fun ensureReifies(wide: Expression, narrow: Expression)
 }

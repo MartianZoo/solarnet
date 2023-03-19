@@ -19,7 +19,8 @@ import dev.martianzoo.tfm.pets.ast.Instruction.Multi
 import dev.martianzoo.tfm.pets.ast.Instruction.Remove
 import dev.martianzoo.tfm.pets.ast.Instruction.Transmute
 import dev.martianzoo.tfm.pets.ast.PetNode
-import dev.martianzoo.tfm.pets.ast.ScaledExpression
+import dev.martianzoo.tfm.pets.ast.ScaledExpression.Companion.scaledEx
+import dev.martianzoo.tfm.pets.ast.ScaledExpression.Scalar.ActualScalar
 import dev.martianzoo.tfm.pets.ast.classNames
 import dev.martianzoo.tfm.types.Dependency.Key
 import dev.martianzoo.tfm.types.Transformers.ReplaceThisWith
@@ -125,11 +126,14 @@ public object Transformers {
       }
       if (node !is Gain) return transformChildren(node)
       val scex = node.scaledEx
-      if (scex.scalar == 1 || THIS in scex.expression) return node
+      val sc = scex.scalar
+      if (sc !is ActualScalar) return node
+      val value = sc.value
+      if (value == 1 || THIS in scex.expression) return node
       val type: MType = loader.resolve(scex.expression)
       if (!type.isSubtypeOf(loader.resolve(GLOBAL_PARAMETER.expr))) return node
-      val one = node.copy(scaledEx = scex.copy(scalar = 1))
-      ourMulti = Multi((1..scex.scalar).map { one })
+      val one = node.copy(scaledEx = scex.copy(scalar = ActualScalar(1)))
+      ourMulti = Multi((1..value).map { one })
       return ourMulti as P // TODO Uh oh
     }
   }
@@ -149,7 +153,7 @@ public object Transformers {
                 return node // don't descend
               } else {
                 val defaults: Defaults = Defaults.forClass(loader.getClass(original.className))
-                Transmute(node.from, node.scalar, node.intensity ?: defaults.gainIntensity)
+                Transmute(node.fromEx, node.scalar, node.intensity ?: defaults.gainIntensity)
                 // TODO also gainDeps??
               }
             }
@@ -161,7 +165,7 @@ public object Transformers {
                 val defaults: Defaults = Defaults.forClass(loader.getClass(original.className))
                 val fixed =
                     insertDefaultsIntoExpr(original, defaults.gainOnlyDependencies, context, loader)
-                val scaledEx = ScaledExpression(node.count, fixed)
+                val scaledEx = scaledEx(node.count, fixed)
                 Gain(scaledEx, node.intensity ?: defaults.gainIntensity)
               }
             }
@@ -174,7 +178,7 @@ public object Transformers {
                 val fixed =
                     insertDefaultsIntoExpr(
                         original, defaults.removeOnlyDependencies, context, loader)
-                val scaledEx = ScaledExpression(node.count, fixed)
+                val scaledEx = scaledEx(node.count, fixed)
                 Remove(scaledEx, node.intensity ?: defaults.removeIntensity)
               }
             }

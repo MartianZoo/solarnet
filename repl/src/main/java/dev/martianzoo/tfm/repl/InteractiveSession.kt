@@ -20,6 +20,7 @@ import dev.martianzoo.tfm.pets.ast.Instruction.Companion.split
 import dev.martianzoo.tfm.pets.ast.Metric
 import dev.martianzoo.tfm.pets.ast.PetNode
 import dev.martianzoo.tfm.pets.ast.Requirement
+import dev.martianzoo.tfm.pets.ast.ScaledExpression.Scalar.ActualScalar
 import dev.martianzoo.tfm.types.MType
 import dev.martianzoo.tfm.types.Transformers.AtomizeGlobalParameters
 import dev.martianzoo.tfm.types.Transformers.Deprodify
@@ -85,7 +86,9 @@ class InteractiveSession(initialSetup: GameSetup) {
     val changes =
         split(prep(instruction)).mapNotNull {
           if (it !is Change) throw UserException("can only sneak simple changes")
-          agent.quietChange(it.count, it.gaining, it.removing)
+          val count = it.count
+          require(count is ActualScalar)
+          agent.quietChange(count.value, it.gaining, it.removing)
         }
     return Result(changes = changes, newTaskIdsAdded = setOf())
   }

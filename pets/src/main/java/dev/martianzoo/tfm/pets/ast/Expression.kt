@@ -36,7 +36,7 @@ data class Expression(
 
     fun parser(): Parser<Expression> {
       return parser {
-        val link: Parser<Int> = skipChar('^') and scalar
+        val link: Parser<Int> = skipChar('^') and rawScalar
         val specs = skipChar('<') and commaSeparated(parser()) and skipChar('>')
 
         className and

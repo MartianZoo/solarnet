@@ -12,6 +12,7 @@ import dev.martianzoo.tfm.pets.ast.Metric
 import dev.martianzoo.tfm.pets.ast.PetNode
 import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.pets.ast.ScaledExpression
+import dev.martianzoo.tfm.pets.ast.ScaledExpression.Scalar
 import dev.martianzoo.util.toSetStrict
 
 /** Extend this to implement transformations over trees of [PetNode]s. */
@@ -35,7 +36,8 @@ public abstract class PetTransformer {
           when (this) {
             is ClassName -> this
             is Expression -> Expression(x(className), x(arguments), x(refinement), link)
-            is ScaledExpression -> ScaledExpression(scalar, x(expression))
+            is ScaledExpression -> ScaledExpression(x(scalar), x(expression))
+            is Scalar -> this
             is Metric ->
                 when (this) {
                   is Metric.Count -> Metric.Count(x(expression))
@@ -58,7 +60,7 @@ public abstract class PetTransformer {
                   is Instruction.Remove -> Instruction.Remove(x(scaledEx), intensity)
                   is Instruction.Per -> Instruction.Per(x(instruction), x(metric))
                   is Instruction.Gated -> Instruction.Gated(x(gate), mandatory, x(instruction))
-                  is Instruction.Transmute -> Instruction.Transmute(x(from), scalar, intensity)
+                  is Instruction.Transmute -> Instruction.Transmute(x(fromEx), x(scalar), intensity)
                   is Instruction.Custom -> Instruction.Custom(functionName, x(arguments))
                   is Instruction.Then -> Instruction.Then(x(instructions))
                   is Instruction.Or -> Instruction.Or(x(instructions))

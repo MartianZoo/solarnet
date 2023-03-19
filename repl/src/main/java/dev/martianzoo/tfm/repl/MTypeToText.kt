@@ -4,7 +4,7 @@ import dev.martianzoo.tfm.engine.Component
 import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.pets.ast.Instruction.Gain
 import dev.martianzoo.tfm.pets.ast.Instruction.Remove
-import dev.martianzoo.tfm.pets.ast.ScaledExpression
+import dev.martianzoo.tfm.pets.ast.ScaledExpression.Companion.scaledEx
 import dev.martianzoo.tfm.types.MClass
 import dev.martianzoo.tfm.types.MClassLoader
 import dev.martianzoo.tfm.types.Transformers.InsertDefaults
@@ -60,8 +60,8 @@ object MTypeToText { // TODO refactor to ClassInfo / TypeInfo type dealies
     val id = InsertDefaults(loader)
 
     val allCases = id.transform(expression)
-    val gain = id.transform(Gain(ScaledExpression(1, expression)))
-    val remove = id.transform(Remove(ScaledExpression(1, expression)))
+    val gain = id.transform(Gain(scaledEx(1, expression)))
+    val remove = id.transform(Remove(scaledEx(1, expression)))
 
     val typeStuff =
         """

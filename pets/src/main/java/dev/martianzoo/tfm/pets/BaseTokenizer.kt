@@ -34,6 +34,7 @@ public open class BaseTokenizer {
   internal val _max = literal("MAX")
   internal val _or = literal("OR")
   internal val _then = literal("THEN")
+  internal val _x = regex(Regex("X\b"))
 
   // class declarations
   internal val _abstract = literal("ABSTRACT")
@@ -46,7 +47,7 @@ public open class BaseTokenizer {
   internal val _allCapsWordRE = regex(Regex("""\b[A-Z][A-Z0-9]{0,4}\b"""), "ALLCAPS")
   private val _scalarRE = regex(Regex("""\b(0|[1-9][0-9]*)\b"""), "scalar")
 
-  internal val scalar: Parser<Int> = _scalarRE map { it.text.toInt() }
+  internal val rawScalar: Parser<Int> = _scalarRE map { it.text.toInt() }
 
   internal val intensity =
       optional(char('!') or char('.') or char('?') map { it.text } map Intensity::from)

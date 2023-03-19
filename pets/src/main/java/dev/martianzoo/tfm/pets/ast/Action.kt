@@ -13,6 +13,7 @@ import dev.martianzoo.tfm.pets.Parsing
 import dev.martianzoo.tfm.pets.PetException
 import dev.martianzoo.tfm.pets.ast.Instruction.Intensity.MANDATORY
 import dev.martianzoo.tfm.pets.ast.Instruction.Remove
+import dev.martianzoo.tfm.pets.ast.ScaledExpression.Scalar.Companion.checkNonzero
 import dev.martianzoo.util.suf
 
 public data class Action(val cost: Cost?, val instruction: Instruction) : PetNode() {
@@ -31,9 +32,7 @@ public data class Action(val cost: Cost?, val instruction: Instruction) : PetNod
       override fun toString() = scaledEx.toString()
 
       init {
-        if (scaledEx.scalar == 0) {
-          throw PetException("Can't spend zero")
-        }
+        checkNonzero(scaledEx.scalar)
       }
 
       // I believe Ants/Predators are the reasons for MANDATORY here

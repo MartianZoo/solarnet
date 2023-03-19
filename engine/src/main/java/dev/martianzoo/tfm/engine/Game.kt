@@ -22,6 +22,7 @@ import dev.martianzoo.tfm.pets.ast.Requirement.Exact
 import dev.martianzoo.tfm.pets.ast.Requirement.Min
 import dev.martianzoo.tfm.pets.ast.Requirement.Or
 import dev.martianzoo.tfm.pets.ast.Requirement.Transform
+import dev.martianzoo.tfm.pets.ast.ScaledExpression.Scalar.ActualScalar
 import dev.martianzoo.tfm.types.MClassLoader
 import dev.martianzoo.tfm.types.MType
 import dev.martianzoo.util.Multiset
@@ -55,11 +56,18 @@ public class Game(val setup: GameSetup, public val loader: MClassLoader) {
   public fun evaluate(requirement: Requirement): Boolean {
     fun count(expression: Expression) = count(Count(expression))
     return when (requirement) {
-      is Min -> count(requirement.scaledEx.expression) >= requirement.scaledEx.scalar
-      is Requirement.Max -> {
-        count(requirement.scaledEx.expression) <= requirement.scaledEx.scalar
-      }
-      is Exact -> count(requirement.scaledEx.expression) == requirement.scaledEx.scalar
+      is Min ->
+        count(requirement.scaledEx.expression) >=
+            (requirement.scaledEx.scalar as ActualScalar).value
+
+      is Requirement.Max ->
+        count(requirement.scaledEx.expression) <=
+            (requirement.scaledEx.scalar as ActualScalar).value
+
+      is Exact ->
+        count(requirement.scaledEx.expression) ==
+            (requirement.scaledEx.scalar as ActualScalar).value
+
       is Or -> requirement.requirements.any { evaluate(it) }
       is And -> requirement.requirements.all { evaluate(it) }
       is Transform -> error("should have been transformed by now")
@@ -80,8 +88,8 @@ public class Game(val setup: GameSetup, public val loader: MClassLoader) {
   val einfo =
       object : ExpressionInfo {
         override fun isAbstract(e: Expression) = resolve(e).abstract
-        override fun checkReifies(wide: Expression, narrow: Expression) {
-          resolve(wide).checkReifies(resolve(narrow))
+        override fun ensureReifies(wide: Expression, narrow: Expression) {
+          resolve(wide).ensureReifies(resolve(narrow))
           // wide might be CityTile<P1, LA(HAS MAX 0 NBR<CT<ANY>>)>
           // narrow might be CityTile<P1, M11>
           // as pure types they check out

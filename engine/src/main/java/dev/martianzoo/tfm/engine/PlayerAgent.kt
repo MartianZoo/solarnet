@@ -31,6 +31,7 @@ import dev.martianzoo.tfm.pets.ast.Instruction.Transform
 import dev.martianzoo.tfm.pets.ast.Metric
 import dev.martianzoo.tfm.pets.ast.PetNode
 import dev.martianzoo.tfm.pets.ast.Requirement
+import dev.martianzoo.tfm.pets.ast.ScaledExpression.Scalar.ActualScalar
 import dev.martianzoo.tfm.types.Transformers.AtomizeGlobalParameters
 import dev.martianzoo.tfm.types.Transformers.Deprodify
 import dev.martianzoo.tfm.types.Transformers.InsertDefaults
@@ -103,7 +104,7 @@ public class PlayerAgent(val game: Game, val actor: Actor) {
     // require(requestedTask.actor == actor) TODO meh
 
     val prepped = heyItsMe(narrowed)
-    prepped?.checkReifies(requestedTask.instruction, game.einfo)
+    prepped?.ensureReifies(requestedTask.instruction, game.einfo)
     val instruction = prepped ?: requestedTask.instruction
 
     return try {
@@ -133,7 +134,7 @@ public class PlayerAgent(val game: Game, val actor: Actor) {
     when (instruction) {
       is Change -> {
         writer.write(
-            count = instruction.count * multiplier,
+            count = (instruction.count as ActualScalar).value * multiplier,
             gaining = instruction.gaining?.let(game::resolve),
             removing = instruction.removing?.let(game::resolve),
             amap = isAmap(instruction),

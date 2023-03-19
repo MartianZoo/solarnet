@@ -25,7 +25,7 @@ sealed class Metric : PetNode() {
     override fun precedence() = 12
   }
 
-  data class Scaled(val unit: Int, val metric: Metric) : Metric() {
+  data class Scaled(val unit: Int, val metric: Metric) : Metric() { // TODO Scalar??
     init {
       if (unit < 1) throw PetException()
     }
@@ -81,18 +81,15 @@ sealed class Metric : PetNode() {
         val atom: Parser<Metric> = count or group(parser())
 
         val scaled: Parser<Metric> =
-            optional(scalar) and
-                atom map
-                { (scal, met) ->
-                  if (scal == null) met else Scaled(scal, met)
-                }
+            optional(rawScalar) and atom map { (scal, met) ->
+              if (scal == null) met else Scaled(scal, met)
+            }
 
         val max: Parser<Metric> =
             scaled and
-                optional(skip(_max) and scalar) map
-                { (met, limit) ->
-                  if (limit == null) met else Max(met, limit)
-                }
+            optional(skip(_max) and rawScalar) map { (met, limit) ->
+              if (limit == null) met else Max(met, limit)
+            }
 
         max and
             zeroOrMore(skipChar('+') and parser()) map { (met, addon) ->

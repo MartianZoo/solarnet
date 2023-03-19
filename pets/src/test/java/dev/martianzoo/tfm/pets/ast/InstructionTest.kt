@@ -7,6 +7,7 @@ import dev.martianzoo.tfm.pets.ast.FromExpression.SimpleFrom
 import dev.martianzoo.tfm.pets.ast.Instruction.Companion.instruction
 import dev.martianzoo.tfm.pets.ast.Instruction.Intensity.AMAP
 import dev.martianzoo.tfm.pets.ast.Instruction.Transmute
+import dev.martianzoo.tfm.pets.ast.ScaledExpression.Scalar.ActualScalar
 import dev.martianzoo.tfm.pets.testRoundTrip
 import dev.martianzoo.tfm.pets.testSampleStrings
 import org.junit.jupiter.api.Test
@@ -34,43 +35,43 @@ private class InstructionTest {
     5 Qux, PROD[-Bar]
     1. / 11 Megacredit
     PROD[PROD[-11 Abc]]
-    PROD[1 Ooh FROM Wau]
+    PROD[Ooh FROM Wau]
     1 / Abc<Bar(HAS Bar)>
     11 Foo<Foo, Bar<Xyz>>.
     Foo<Ahh<Xyz>, Bar, Qux>
     Ahh<Abc<Xyz>, Bar<Xyz>>.
-    PROD[1 Abc<Foo FROM Xyz>]
-    PROD[1 Qux FROM Bar / Abc]
+    PROD[Abc<Foo FROM Xyz>]
+    PROD[Qux FROM Bar / Abc]
     PROD[Abc<Ooh> / Megacredit]
-    PROD[11 Xyz, 1 Bar FROM Foo]
-    PROD[-5 Foo, 1 Qux FROM Ahh.]
+    PROD[11 Xyz, Bar FROM Foo]
+    PROD[-5 Foo, Qux FROM Ahh.]
     PROD[-Bar OR -1! OR -Foo<Bar>]
     -1 / 11 Qux<Abc, Qux<Ahh>, Qux>
-    PROD[1], 1, 1 Abc<Qux FROM Foo>!
+    PROD[1], 1, Abc<Qux FROM Foo>!
     PROD[Xyz / 5 Foo], 1 THEN 5 / Abc
-    (1 Bar<Abc> FROM Bar) OR -Foo, Bar
+    (5 Bar<Abc> FROM Bar) OR -Foo, Bar
     @name(Abc, Ooh<Ahh<Xyz, Ooh, Abc>>)
-    PROD[1 Abc FROM Qux, 1 Foo FROM Abc]
+    PROD[Abc FROM Qux, 5 Foo FROM Abc]
     PROD[(1: Foo) OR -1, 11 Abc FROM Abc]
     ((MAX 1 Bar OR 1) OR Foo): (1 OR Ahh!)
-    5 / Megacredit OR (Foo, 1 Ooh FROM Foo)
-    1 / Abc THEN ((1 Foo FROM Xyz) OR 5 Bar)
-    (1 Bar<Foo> FROM Bar) OR (1 Foo FROM Abc)
+    5 / Megacredit OR (Foo, Ooh FROM Foo)
+    1 / Abc THEN ((Foo FROM Xyz) OR 5 Bar)
+    (11 Bar<Foo> FROM Bar) OR (Foo FROM Abc)
     5: (1 / Megacredit OR -1, -Ooh<Bar> / Qux)
-    1 Xyz<Bar FROM Abc>? / Abc, 5 Eep FROM Xyz?
+    Xyz<Bar FROM Abc>? / Abc, 5 Eep FROM Xyz?
     PROD[1, -1., PROD[1: -1], (1, (Bar, 5 Foo))]
     11 Ahh<Wau<Foo<Qux>, Eep<Xyz> FROM Foo, Qux>>
-    Qux<Abc> OR ((1 Ahh FROM Foo) OR (-1 OR -Bar))
+    Qux<Abc> OR ((Ahh FROM Foo) OR (-1 OR -Bar))
     5 / Xyz<Foo<Foo>, Ahh<Qux<Bar<Qux>>, Qux>, Xyz>
     5 Ooh<Foo> FROM Foo<Ooh>!, PROD[-Foo THEN 1: -1]
     PROD[1 OR PROD[5: Foo] OR (1 / Megacredit, -Abc)]
     @name(Qux<Foo<Foo>, Qux<Bar>, Qux<Bar<Foo>>>, Qux)
-    1 Foo FROM Ooh, PROD[1: (-1, 1)], 5 / 11 Megacredit
-    Ooh. OR 1 OR (1, 1 Foo FROM Eep, Bar / 5 Megacredit)
+    Foo FROM Ooh, PROD[1: (-1, 1)], 5 / 11 Megacredit
+    Ooh. OR 1 OR (1, Foo FROM Eep, Bar / 5 Megacredit)
     PROD[(Ooh / Megacredit, Foo, 1), Bar / Bar THEN 1, 1]
     =1 Foo: (11 Xyz OR Bar, @name(Qux) OR -1 / Megacredit)
     11 Bar, (Xyz, (Foo OR 1): 1) OR (Foo: (-1 OR 1 OR Qux))
-    1, Bar, -Foo OR PROD[1 Foo FROM Abc] OR (1 Foo FROM Xyz)
+    1, Bar, -Foo OR PROD[Foo FROM Abc] OR (Foo FROM Xyz)
     11 Qux<Qux<Ooh<Foo>(HAS 5) FROM Foo>, Ooh(HAS MAX 1 Bar)>
     (-Foo, PROD[-Foo]), @name(Bar<Foo<Qux>>), (-5, @name(Qux))
     PROD[((1 OR MAX 1 Megacredit): 1) OR (1 OR -Bar) OR 1, Bar]
@@ -88,10 +89,11 @@ private class InstructionTest {
     testRoundTrip("Foo FROM Bar")
     testRoundTrip("Foo FROM Bar?")
     testRoundTrip("3 Foo FROM Bar")
-    testRoundTrip("1 Foo FROM Bar.")
+    testRoundTrip("Foo FROM Bar.")
+    testRoundTrip("1 Foo FROM Bar.", "Foo FROM Bar.")
 
     assertThat(instruction("1 Foo FROM Bar."))
-        .isEqualTo(Transmute(SimpleFrom(cn("Foo").expr, cn("Bar").expr), 1, AMAP))
+        .isEqualTo(Transmute(SimpleFrom(cn("Foo").expr, cn("Bar").expr), ActualScalar(1), AMAP))
     testRoundTrip("Foo<Bar FROM Qux>")
     testRoundTrip("Foo<Bar FROM Qux>.")
 
@@ -104,7 +106,7 @@ private class InstructionTest {
                         cn("Bar"),
                         listOf(SimpleFrom(cn("Qux").expr, cn("Abc").addArgs(cn("Eep")))))),
             ),
-            null,
+            ActualScalar(1),
             null)
     assertThat(instr.toString()).isEqualTo("Foo<Bar<Qux FROM Abc<Eep>>>")
     assertThat(instruction("Foo<Bar<Qux FROM Abc<Eep>>>")).isEqualTo(instr)

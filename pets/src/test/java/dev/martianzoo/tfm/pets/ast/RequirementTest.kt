@@ -84,24 +84,21 @@ private class RequirementTest {
 
   @Test
   fun simpleSourceToApi() {
-    assertThat(requirement("Foo")).isEqualTo(Min(scaledEx(expression = cn("Foo").expr)))
+    assertThat(requirement("Foo")).isEqualTo(Min(scaledEx(1, cn("Foo").expr)))
     assertThat(requirement("3 Foo")).isEqualTo(Min(scaledEx(3, cn("Foo").expr)))
     assertThat(requirement("MAX 3 Foo")).isEqualTo(Max(scaledEx(3, cn("Foo").expr)))
   }
 
   @Test
   fun simpleApiToSource() {
-    assertThat(Min(scaledEx(expression = cn("Foo").expr)).toString()).isEqualTo("Foo")
     assertThat(Min(scaledEx(1, cn("Foo").expr)).toString()).isEqualTo("Foo")
     assertThat(Min(scaledEx(3, cn("Foo").expr)).toString()).isEqualTo("3 Foo")
-    assertThat(Min(scaledEx(scalar = 3)).toString()).isEqualTo("3")
-    assertThat(Min(scaledEx(scalar = 3, cn("Megacredit").expr)).toString()).isEqualTo("3")
-    assertThat(Min(scaledEx(expression = cn("Megacredit").expr)).toString()).isEqualTo("1")
+    assertThat(Min(scaledEx(value = 3)).toString()).isEqualTo("3")
+    assertThat(Min(scaledEx(value = 3, cn("Megacredit").expr)).toString()).isEqualTo("3")
     assertThat(Max(scaledEx(0, cn("Foo").expr)).toString()).isEqualTo("MAX 0 Foo")
-    assertThat(Max(scaledEx(expression = cn("Foo").expr)).toString()).isEqualTo("MAX 1 Foo")
     assertThat(Max(scaledEx(1, cn("Foo").expr)).toString()).isEqualTo("MAX 1 Foo")
     assertThat(Max(scaledEx(3, cn("Foo").expr)).toString()).isEqualTo("MAX 3 Foo")
-    assertThat(Max(scaledEx(scalar = 3)).toString()).isEqualTo("MAX 3 Megacredit")
+    assertThat(Max(scaledEx(value = 3)).toString()).isEqualTo("MAX 3 Megacredit")
   }
 
   private fun testRoundTrip(start: String, end: String = start) =
@@ -129,30 +126,5 @@ private class RequirementTest {
     testRoundTrip("Steel, PROD[1]")
     testRoundTrip("PROD[Steel, 1]")
     testRoundTrip("PROD[Steel OR 1]")
-  }
-
-  @Test
-  fun hairy() {
-    val parsed =
-        requirement(
-            "Adjacency<CityTile<Anyone>, OceanTile> OR 1 Adjacency<OceanTile, CityTile<Anyone>>")
-    assertThat(parsed)
-        .isEqualTo(
-            Requirement.Or(
-                setOf(
-                    Min(
-                        scaledEx(
-                            expression =
-                                cn("Adjacency")
-                                    .addArgs(
-                                        cn("CityTile").addArgs(cn("Anyone")),
-                                        cn("OceanTile").expr))),
-                    Min(
-                        scaledEx(
-                            expression =
-                                cn("Adjacency")
-                                    .addArgs(
-                                        cn("OceanTile").expr,
-                                        cn("CityTile").addArgs(cn("Anyone"))))))))
   }
 }

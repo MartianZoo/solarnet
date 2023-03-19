@@ -11,6 +11,7 @@ import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.pets.ast.Requirement.And
 import dev.martianzoo.tfm.types.Transformers.UseShortNames
 import dev.martianzoo.util.Hierarchical
+import dev.martianzoo.util.Reifiable
 
 /**
  * The translation of a [Expression] into a "live" type, referencing actual [MClass]es loaded by a
@@ -23,7 +24,7 @@ internal constructor(
     public val mclass: MClass, // TODO try renaming root?
     internal val dependencies: DependencySet,
     override val refinement: Requirement? = null,
-) : Type, Hierarchical<MType>, HasClassName by mclass {
+) : Type, Hierarchical<MType>, Reifiable<MType>, HasClassName by mclass {
   internal val loader by mclass::loader
 
   init {
@@ -137,22 +138,14 @@ internal constructor(
   private fun concreteSubclasses(mclass: MClass) =
       mclass.allSubclasses.asSequence().filter { !it.abstract }
 
-  fun checkReifies(proposed: MType) {
-    if (proposed.abstract) throw InvalidReificationException("Reification must be concrete")
-    if (proposed == this) return // else, anything concrete can reify to itself
+  override fun ensureReifies(abstractTarget: MType) {
+    super<Reifiable>.ensureReifies(abstractTarget)
 
-    if (!this.abstract) throw InvalidReificationException("Already concrete, can't be reified")
-
-    if (!proposed.isSubtypeOf(this)) {
-      throw InvalidReificationException("${proposed.expression} is not a subtype of ${expression}")
-    }
-
-    val myPropConcSubs = allConcreteSubtypes().filterNot { it == proposed }
     // this gon be slowasfuck
-    for (propConcSub in myPropConcSubs) {
-      if (proposed.isSubtypeOf(propConcSub)) {
+    for (concreteSubtype in abstractTarget.allConcreteSubtypes()) {
+      if (isSubtypeOf(concreteSubtype) && concreteSubtype != this) {
         throw InvalidReificationException(
-            "A more general type such as ${propConcSub.expression}" +
+            "A more general type such as ${concreteSubtype.expression}" +
                 " already reifies $expression; can't narrow even further")
       }
     }

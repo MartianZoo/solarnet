@@ -56,7 +56,7 @@ private object CreateAll : CustomInstruction("createAll") {
                 .flatMap { (area1, area2) ->
                   listOf(border.addArgs(area1, area2), border.addArgs(area2, area1))
                 }
-                .map { Gain(scaledEx(it)) })
+                .map { Gain(scaledEx(1, it)) })
       }
       else -> TODO()
     }

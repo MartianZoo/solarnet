@@ -166,7 +166,8 @@ ABSTRACT CLASS Owned<Anyone> {
     }
 
     CLASS Pay<Class<Resource>> : Signal {         // used like `8 Pay<Class<Heat>> FROM Heat`, but
-      This:: -Owed<Class<Resource>>.              // also cards can pay in response to signals
+      DEFAULT +Pay<Class<Megacredit>>             // also cards can pay in response to signals
+      This:: -Owed<Class<Resource>>.
     }
   }
 

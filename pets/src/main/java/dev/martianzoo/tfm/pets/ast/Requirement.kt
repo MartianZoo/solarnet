@@ -10,8 +10,8 @@ import com.github.h0tk3y.betterParse.parser.Parser
 import dev.martianzoo.tfm.api.SpecialClassNames.THIS
 import dev.martianzoo.tfm.pets.BaseTokenizer
 import dev.martianzoo.tfm.pets.Parsing
-import dev.martianzoo.tfm.pets.PetException
 import dev.martianzoo.tfm.pets.ast.Effect.Trigger.IfTrigger
+import dev.martianzoo.tfm.pets.ast.ScaledExpression.Scalar
 
 sealed class Requirement : PetNode() {
   open fun requiresThis() = false // TODO kick this out
@@ -23,9 +23,7 @@ sealed class Requirement : PetNode() {
     override fun toString() = "$scaledEx"
 
     init {
-      if (scaledEx.scalar == 0) {
-        throw PetException("Minimum of 0 would always be true")
-      }
+      Scalar.checkNonzero(scaledEx.scalar)
     }
 
     override fun requiresThis() = this.scaledEx == ScaledExpression.scaledEx(1, THIS.expr)
