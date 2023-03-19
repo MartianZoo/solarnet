@@ -15,7 +15,7 @@ import dev.martianzoo.tfm.repl.TfmColor.PRODUCTION
 import dev.martianzoo.tfm.repl.TfmColor.STEEL
 import dev.martianzoo.tfm.repl.TfmColor.TITANIUM
 
-internal class BoardToText(private val agent: PlayerAgent, val useColors: Boolean = true) {
+internal class PlayerBoardToText(private val agent: PlayerAgent, val useColors: Boolean = true) {
 
   internal fun board(): List<String> {
     require(agent.actor != Actor.ENGINE)

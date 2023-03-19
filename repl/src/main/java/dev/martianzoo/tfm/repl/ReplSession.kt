@@ -195,9 +195,9 @@ public class ReplSession(
     override val usage = "board [PlayerN]"
     override val isReadOnly = true
 
-    override fun noArgs(): List<String> = BoardToText(session.agent, jline != null).board()
+    override fun noArgs(): List<String> = PlayerBoardToText(session.agent, jline != null).board()
 
-    override fun withArgs(args: String) = BoardToText(session.agent(args), jline != null).board()
+    override fun withArgs(args: String) = PlayerBoardToText(session.agent(args), jline != null).board()
   }
 
   internal inner class MapCommand : ReplCommand("map") {
