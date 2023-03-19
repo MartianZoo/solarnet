@@ -18,86 +18,76 @@ class EntireGameTest {
       assertThat(repl.session.game.taskQueue.size).isEqualTo(tasksExpected)
     }
 
-    // Not bothering to give CorporationCard & 2 PreludeCard then take them away again
-    replit("as P1 exec LakefrontResorts, 3 BuyCard")
-    replit("as P2 exec InterplanetaryCinematics, 8 BuyCard")
+    replit("as P1 exec CorporationCard, LakefrontResorts, 3 BuyCard")
+    replit("as P2 exec CorporationCard, InterplanetaryCinematics, 8 BuyCard")
 
-    replit("as P1 exec MartianIndustries, GalileanMining")
-    replit("as P2 exec MiningOperations, UnmiContractor")
+    replit("as P1 exec 2 PreludeCard, MartianIndustries, GalileanMining")
+    replit("as P2 exec 2 PreludeCard, MiningOperations, UnmiContractor")
 
     replit("exec ActionPhase")
 
-    replit("as P1 exec -30, AsteroidMining")
+    replit("as P1 exec -30 THEN AsteroidMining")
 
     replit("become P2")
-    replit("exec -4 Steel, -1, NaturalPreserve", 1)
+    replit("exec -4 Steel THEN -1 THEN NaturalPreserve", 1)
     replit("task B drop") // TODO reifying refinements
     replit("exec Tile044<E37>")
-    replit("exec -13 Steel, -1, SpaceElevator")
+    replit("exec -13 Steel THEN -1 THEN SpaceElevator")
     replit("exec UseAction1<SpaceElevator>")
-    replit("exec -2, InventionContest")
-    replit("exec -6, GreatEscarpmentConsortium", 1)
+    replit("exec -2 THEN InventionContest")
+    replit("exec -6 THEN GreatEscarpmentConsortium", 1)
     replit("task A PROD[-Steel<P1>]", 0)
 
     replit("become")
-    replit("exec ProductionPhase FROM ActionPhase")
-    replit("exec GenerationPhase FROM ProductionPhase")
-    replit("exec ResearchPhase FROM GenerationPhase", 2)
-
+    replit("exec ProductionPhase", 2)
     replit("as P1 task A 4 BuyCard", 1)
     replit("as P2 task B 1 BuyCard")
-    replit("exec ActionPhase FROM ResearchPhase")
+    replit("exec ActionPhase")
 
     replit("become P2")
     replit("exec UseAction1<SpaceElevator>")
-    replit("exec -23, EarthCatapult")
+    replit("exec -23 THEN EarthCatapult")
 
     replit("become P1")
-    replit("exec -7, TitaniumMine")
-    replit("exec -9, RoboticWorkforce", 1)
+    replit("exec -7 THEN TitaniumMine")
+    replit("exec -9 THEN RoboticWorkforce", 1)
     replit("task A drop") // TODO reify?
     replit("exec @copyProductionBox(MartianIndustries)", 0)
 
     replit("become P2")
-    replit("exec -5 Steel, IndustrialMicrobes")
-    replit("exec -Titanium, TechnologyDemonstration")
+    replit("exec -5 Steel THEN IndustrialMicrobes")
+    replit("exec -Titanium THEN TechnologyDemonstration")
 
-    replit("as P1 exec -6, Sponsors")
+    replit("as P1 exec -6 THEN Sponsors")
 
-    replit("exec -1, EnergyTapping", 1)
+    replit("exec -1 THEN EnergyTapping", 1)
     replit("task A PROD[-Energy<P1>]")
-    replit("exec -2 Steel, BuildingIndustries")
+    replit("exec -2 Steel THEN BuildingIndustries")
 
     replit("become")
-    replit("exec ProductionPhase FROM ActionPhase")
-    replit("exec GenerationPhase FROM ProductionPhase")
-    replit("exec ResearchPhase FROM GenerationPhase", 2)
-
+    replit("exec ProductionPhase", 2)
     replit("as P1 task A 3 BuyCard", 1)
     replit("as P2 task B 2 BuyCard")
-    replit("exec ActionPhase FROM ResearchPhase")
+    replit("exec ActionPhase")
 
-    replit("as P1 exec -2, -1 Steel, Mine")
+    replit("as P1 exec -2 THEN -1 Steel THEN Mine")
 
     replit("become P2")
     replit("exec UseAction1<SpaceElevator>")
-    replit("exec -5, -5 Steel, ElectroCatapult")
+    replit("exec -5 THEN -5 Steel THEN ElectroCatapult")
     replit("exec UseAction1<ElectroCatapult>", 1)
     replit("task A -Steel THEN 7") // TODO just one
-    replit("exec -Titanium, -7, SpaceHotels")
-    replit("exec -6, MarsUniversity")
-    replit("exec -10, ArtificialPhotosynthesis", 1)
+    replit("exec -Titanium THEN -7 THEN SpaceHotels")
+    replit("exec -6 THEN MarsUniversity")
+    replit("exec -10 THEN ArtificialPhotosynthesis", 1)
     replit("task B PROD[2 Energy]")
-    replit("exec -5, BribedCommittee")
+    replit("exec -5 THEN BribedCommittee")
 
     replit("become")
-    replit("exec ProductionPhase FROM ActionPhase")
-    replit("exec GenerationPhase FROM ProductionPhase")
-    replit("exec ResearchPhase FROM GenerationPhase", 2)
-
+    replit("exec ProductionPhase", 2)
     replit("as P1 task A 3 BuyCard", 1)
     replit("as P2 task B 2 BuyCard")
-    replit("exec ActionPhase FROM ResearchPhase")
+    replit("exec ActionPhase")
 
     replit("become P2")
     replit("exec UseAction1<ElectroCatapult>", 1)
@@ -106,32 +96,30 @@ class EntireGameTest {
     replit("exec UseAction1<SpaceElevator>")
 
     replit("become P1")
-    replit("exec -2 Steel, -14, ResearchOutpost", 1)
+    replit("exec -2 Steel THEN -14 THEN ResearchOutpost", 1)
     replit("task A drop")
     replit("exec CityTile<E56>") // TODO reif refi
-    replit("exec -13 Titanium, -1, IoMiningIndustries")
+    replit("exec -13 Titanium THEN -1 THEN IoMiningIndustries")
 
     replit("become P2")
-    replit("exec -Titanium, -1, TransNeptuneProbe")
-    replit("exec -1, Hackers", 1)
-    replit("task B PROD[-2 Megacredit<P1>]", 0)
+    replit("exec -Titanium THEN -1 THEN TransNeptuneProbe")
+    replit("exec -1 THEN Hackers", 1)
+    replit("task B PROD[-2 Megacredit<P1>]")
 
     replit("become P1")
     replit("exec UseAction1<SellPatents>", 1)
     replit("task A Megacredit FROM ProjectCard")
 
     replit("become P2")
-    replit("exec -4 Steel, -1, SolarPower")
+    replit("exec -4 Steel THEN -1 THEN SolarPower")
     replit("exec UseAction1<UseStandardProject>", 1)
     replit("task A UseAction1<CitySP>", 1)
     replit("task B drop") // split
-    replit("exec -25, CityTile<E65>, PROD[1]")
+    replit("exec -25 THEN CityTile<E65> THEN PROD[1]")
     replit("exec PROD[-Plant, Energy]") // CORRECTION TODO WHY
 
     replit("become")
-    replit("exec ProductionPhase FROM ActionPhase")
-    replit("exec GenerationPhase FROM ProductionPhase")
-    replit("exec ResearchPhase FROM GenerationPhase", 2)
+    replit("exec ProductionPhase", 2)
 
     // Stuff
     assertThat(repl.counts("Generation")).containsExactly(5)
@@ -196,72 +184,88 @@ class EntireGameTest {
           .isEqualTo(tasksExpected)
     }
 
-    replit("as P1 exec InterplanetaryCinematics, 7 BuyCard")
-    replit("as P2 exec PharmacyUnion, 5 BuyCard")
-
-    replit("as P1 exec UnmiContractor, CorporateArchives")
-    replit("as P2 exec BiosphereSupport, SocietySupport")
-
-    replit("exec ActionPhase")
+    replit("mode blue")
 
     replit("become P1")
-    replit("exec -6, MediaGroup")
-    replit("exec -1, Sabotage", 1)
+    replit("exec Turn", 2)
+    replit("task B InterplanetaryCinematics", 1)
+    replit("task C 7 BuyCard")
+
+    replit("become P2")
+    replit("exec Turn", 2)
+    replit("task B PharmacyUnion", 1)
+    replit("task C 5 BuyCard")
+
+    replit("become")
+    replit("exec PreludePhase")
+
+    replit("become P1")
+    replit("exec Turn", 1)
+    replit("task B UnmiContractor")
+    replit("exec Turn", 1)
+    replit("task B CorporateArchives")
+
+    replit("become P2")
+    replit("exec Turn", 1)
+    replit("task B BiosphereSupport")
+    replit("exec Turn", 1)
+    replit("task B SocietySupport")
+
+    replit("become")
+    replit("exec ActionPhase")
+
+    replit("mode green")
+
+    replit("become P1")
+    replit("exec -6 THEN MediaGroup")
+    replit("exec -1 THEN Sabotage", 1)
     replit("task B -7 Megacredit<P2>")
 
     replit("become P2")
-    replit("exec -11, Research")
-    replit("exec -9, MartianSurvey", 1)
+    replit("exec -11 THEN Research")
+    replit("exec -9 THEN MartianSurvey", 1)
     replit("task A Ok")
 
-    replit("exec -3, SearchForLife", 1) // TODO: why does she have 3 of these??
+    replit("exec -3 THEN SearchForLife", 1) // TODO: why does she have 3 of these??
     replit("task A PlayedEvent<Class<PharmacyUnion>> FROM PharmacyUnion THEN 3 TerraformRating")
-    // TODO spellout
 
     replit("exec UseAction1<UseActionFromCard>", 1)
     replit("task A UseAction1<SearchForLife> THEN ActionUsedMarker<SearchForLife>", 1)
     replit("task B -1 THEN Ok")
 
     replit("become")
-    replit(
-        "exec ProductionPhase FROM ActionPhase, GenerationPhase FROM ProductionPhase, " +
-            "ResearchPhase FROM GenerationPhase",
-        2)
+    replit("exec ProductionPhase", 2)
     replit("as P1 task A BuyCard", 1)
     replit("as P2 task B 3 BuyCard")
-    replit("exec ActionPhase FROM ResearchPhase")
+    replit("exec ActionPhase")
 
     replit("become P2")
     replit("exec UseAction1<SellPatents>", 1)
     replit("task A Megacredit FROM ProjectCard") // TODO wrong
-    replit("exec -15, VestaShipyard") // TODO: handle negative cpt count without stacktracing
+    replit("exec -15 THEN VestaShipyard") // TODO: handle negative cpt count without stacktracing
 
     replit("become P1") // TODO: Hi, null
-    replit("exec -23, EarthCatapult")
-    replit("exec -4 Steel, OlympusConference", 1) // TODO: recognize when one option is impossible
+    replit("exec -23 THEN EarthCatapult")
+    replit("exec -4 Steel THEN OlympusConference", 1) // TODO: recognize when one option is impossible
     replit("task A Science<OlympusConference>")
-    replit("exec -4 Steel, -1, DevelopmentCenter", 1)
+    replit("exec -4 Steel THEN -1 THEN DevelopmentCenter", 1)
     replit("task A ProjectCard FROM Science<OlympusConference>")
-    replit("exec -4 Steel, -1, GeothermalPower")
-    replit("exec -10, MirandaResort")
-    replit("exec -1, Hackers", 1)
+    replit("exec -4 Steel THEN -1 THEN GeothermalPower")
+    replit("exec -10 THEN MirandaResort")
+    replit("exec -1 THEN Hackers", 1)
     replit("task B PROD[-2 M<P2>]")
-    replit("exec -1, MicroMills")
+    replit("exec -1 THEN MicroMills")
 
-    // TODO: didn't get VPs from played events
     replit("become")
-    replit(
-        "exec ProductionPhase FROM ActionPhase, GenerationPhase FROM ProductionPhase, " +
-            "ResearchPhase FROM GenerationPhase",
-        2)
+    replit("exec ProductionPhase", 2)
     replit("as P1 task A 3 BuyCard", 1)
     replit("as P2 task B BuyCard") // TODO: why does she appear to have 3 SearchForLifes?")
-    replit("exec ActionPhase FROM ResearchPhase")
+    replit("exec ActionPhase")
 
     replit("become P1")
     replit("exec UseAction1<UseActionFromCard>", 1)
     replit("task A UseAction1<DevelopmentCenter> THEN ActionUsedMarker<DevelopmentCenter>")
-    replit("exec -5 Steel, -1, ImmigrantCity", 1) // TODO bug with choosing city location
+    replit("exec -5 Steel THEN -1 THEN ImmigrantCity", 1) // TODO bug with choosing city location
     replit("task C drop")
     // exec CityTile<Hellas_9_7> // TODO ouchbug
 

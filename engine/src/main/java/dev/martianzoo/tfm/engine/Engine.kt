@@ -4,6 +4,7 @@ import dev.martianzoo.tfm.api.GameSetup
 import dev.martianzoo.tfm.api.SpecialClassNames.ENGINE
 import dev.martianzoo.tfm.data.Actor
 import dev.martianzoo.tfm.data.GameEvent.ChangeEvent.Cause
+import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.pets.ast.Instruction
 import dev.martianzoo.tfm.pets.ast.Instruction.Companion.instruction
 import dev.martianzoo.tfm.pets.ast.classNames
@@ -20,6 +21,8 @@ public object Engine {
             setup.players().classNames()
 
     loader.loadAll(classNames)
+    if ("P" in setup.bundles) loader.load(cn("PreludePhase"))
+
     loader.frozen = true
     return loader
   }
@@ -31,15 +34,16 @@ public object Engine {
     // setup.authority.customInstructions += customInstr(loader)
 
     val game = Game(setup, loader)
+    val agent = game.agent(Actor.ENGINE)
 
-    val result: Result = game.agent(Actor.ENGINE).initiate(instruction("$ENGINE!"))
+    val result: Result = agent.initiate(instruction("$ENGINE!"))
     require(result.newTaskIdsAdded.none())
     require(game.taskQueue.isEmpty())
 
-    val fakeCause = Cause(Actor.ENGINE, result.changes.single())
+    val fakeCause = Cause(Actor.ENGINE, result.changes.first())
 
     singletonCreateInstructions(loader).forEach {
-      game.agent(Actor.ENGINE).initiate(it, fakeCause)
+      agent.initiate(it, fakeCause)
       require(game.taskQueue.isEmpty()) { "Unexpected tasks: ${game.taskQueue}" }
     }
     return game

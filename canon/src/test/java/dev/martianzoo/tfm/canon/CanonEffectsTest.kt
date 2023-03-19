@@ -19,8 +19,9 @@ private class CanonEffectsTest {
 
   @Test
   fun sabotage() {
-    assertThat(effectsOf("Sabotage").drop(1))
+    assertThat(effectsOf("Sabotage"))
         .containsExactly(
+            "This:: -ProjectCard<Owner>!",
             "This: PlayedEvent<Owner, Class<This>> FROM This!",
             "This: -3 Titanium<Anyone>? OR -4 Steel<Anyone>? OR -7 Megacredit<Anyone>?")
   }
@@ -57,8 +58,9 @@ private class CanonEffectsTest {
   @Test
   fun venusian() {
     val blah = "Owner, VenusianAnimals<Owner>"
-    assertThat(effectsOf("VenusianAnimals").drop(1))
+    assertThat(effectsOf("VenusianAnimals"))
         .containsExactly(
+            "This:: -ProjectCard<Owner>!",
             "This:: (9 VenusStep: Ok!)",
             "This:: VenusTag<$blah>!, ScienceTag<$blah>!, AnimalTag<$blah>!",
             "ScienceTag<Owner>: Animal<Owner, This>.",
@@ -76,6 +78,7 @@ private class CanonEffectsTest {
   fun teractor() {
     assertThat(effectsOf("Teractor"))
         .containsExactly(
+            "This:: -CorporationCard<Owner>!",
             "This:: EarthTag<Owner, Teractor<Owner>>!",
             "This: 60 Megacredit<Owner>!",
             "PlayTag<Owner, Class<EarthTag>>:: -3 Owed<Owner>.",
@@ -105,8 +108,9 @@ private class CanonEffectsTest {
 
   @Test
   fun amc() {
-    assertThat(effectsOf("AsteroidMiningConsortium").drop(1))
+    assertThat(effectsOf("AsteroidMiningConsortium"))
         .containsExactly(
+            "This:: -ProjectCard<Owner>!",
             "This:: (PROD[Titanium<Owner>]: Ok!)",
             "This:: JovianTag<Owner, AsteroidMiningConsortium<Owner>>!",
             "This: PROD[-Titanium<Anyone>!, Titanium<Owner>!]",
@@ -138,8 +142,9 @@ private class CanonEffectsTest {
 
   @Test
   fun floaterPrototypes() {
-    assertThat(effectsOf("FloaterPrototypes").drop(1))
+    assertThat(effectsOf("FloaterPrototypes"))
         .containsExactly(
+            "This:: -ProjectCard<Owner>!",
             "This:: ScienceTag<Owner, FloaterPrototypes<Owner>>!",
             "This: PlayedEvent<Owner, Class<This>> FROM This!", // TODO why this didn't get subst
             "This: 2 Floater<Owner>.")

@@ -11,8 +11,7 @@ CLASS Engine : System {
   This:: @forceLoad(Class<Production>)                 // TODO pare this down??
   This:: @forceLoad(Class<GrossHack>)
   This:: @forceLoad(Class<BackwardAdjacency>)
-  This:: @forceLoad(Class<GenerationPhase>)
-  This:: @forceLoad(Class<ActionPhase>)
+  This:: CorporationPhase
 
   PlayTag<Class<BuildingTag>>:: Accept<Class<Steel>>
   PlayTag<Class<SpaceTag>>:: Accept<Class<Titanium>>
@@ -98,17 +97,31 @@ ABSTRACT CLASS HasActions {                            // specific actions come 
 CLASS Generation[GEN] { HAS 1 This }
 
 ABSTRACT CLASS Generational {                          // things that disappear between gens
-  Generation:: -This.                                  // <-- and look, there they go
+  ResearchPhase:: -This.                               // <-- and look, there they go
 }
 
-ABSTRACT CLASS Phase : System {
-  HAS MAX 1 Phase                                      // switch like `ProductionPhase FROM Phase`
+CLASS Turn : Signal
 
-  CLASS ResearchPhase
-  CLASS ActionPhase
-  CLASS ProductionPhase
-  CLASS GenerationPhase { This:: Generation }
-  // CLASS ConvertPlantsPhase
+ABSTRACT CLASS Phase {                                 // System? kinda
+  HAS MAX 1 Phase
+
+  CLASS CorporationPhase {
+    Turn: CorporationCard, CardFront, 10 BuyCard?
+  }
+
+  CLASS PreludePhase {
+    This:: -CorporationPhase.
+    Turn: PreludeCard, CardFront OR (-PreludeCard THEN 15)
+    ActionPhase:: -This! // TODO
+  }
+
+  CLASS ActionPhase {
+    This:: -ResearchPhase.
+    Turn: UseAction<StandardAction>?
+  }
+
+  CLASS ProductionPhase { This:: -ActionPhase, ResearchPhase FROM This }
+  CLASS ResearchPhase { This:: Generation }
   CLASS End
 }
 

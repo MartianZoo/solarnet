@@ -6,19 +6,22 @@ import dev.martianzoo.tfm.api.GameSetup
 import dev.martianzoo.tfm.api.SpecialClassNames.COMPONENT
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.data.Actor
+import dev.martianzoo.tfm.data.GameEvent.ChangeEvent
+import dev.martianzoo.tfm.data.StateChange
 import dev.martianzoo.tfm.data.Task
 import dev.martianzoo.tfm.data.Task.TaskId
-import dev.martianzoo.tfm.engine.PlayerAgent
 import dev.martianzoo.tfm.engine.Result
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.pets.ast.Expression.Companion.expression
 import dev.martianzoo.tfm.pets.ast.Instruction
 import dev.martianzoo.tfm.pets.ast.Instruction.Companion.instruction
+import dev.martianzoo.tfm.pets.ast.Instruction.Gain
 import dev.martianzoo.tfm.pets.ast.Metric.Companion.metric
 import dev.martianzoo.tfm.pets.ast.Requirement.Companion.requirement
 import dev.martianzoo.tfm.repl.ReplSession.ReplMode.BLUE
 import dev.martianzoo.tfm.repl.ReplSession.ReplMode.GREEN
+import dev.martianzoo.tfm.repl.ReplSession.ReplMode.PURPLE
 import dev.martianzoo.tfm.repl.ReplSession.ReplMode.RED
 import dev.martianzoo.tfm.repl.ReplSession.ReplMode.YELLOW
 import dev.martianzoo.util.Multiset
@@ -28,15 +31,16 @@ import org.jline.reader.History
 
 internal fun main() {
   val jline = JlineRepl()
-  val repl = ReplSession(Canon, GameSetup(Canon, "BM", 2), jline)
+  val repl = ReplSession(Canon, GameSetup(Canon, "BRM", 2), jline)
   val session = repl.session
 
   fun prompt(): String {
-    val actor: Actor = repl.session.agent.actor
-    val gameNo = session.gameNumber
-
-    val text = "Game$gameNo as $actor"
-    return repl.mode.color.foreground("$text> ")
+    val count = session.game.setup.players
+    val bundles = session.game.setup.bundles.joinToString("")
+    val phase = session.list(expression("Phase")).singleOrNull()
+    val logPosition = repl.session.game.eventLog.size
+    val actor = repl.session.agent.actor
+    return repl.mode.color.foreground("$bundles $phase $actor/$count @$logPosition> ")
   }
 
   // We don't actually have to start another game.....
@@ -44,9 +48,6 @@ internal fun main() {
       """
       Welcome to REgo PLastics. Type `help` for help.
       Warning: this is a bare-bones tool that is not trying to be easy to use... at all
-      
-      ${repl.command("newgame BM 2").joinToString("""
-      """)}
 
   """
           .trimIndent()
@@ -65,10 +66,10 @@ public class ReplSession(
   internal var mode: ReplMode = GREEN
 
   public enum class ReplMode(val message: String, val color: TfmColor) {
-    RED("Arbitrary state changes that don't trigger effects", TfmColor.HEAT),
-    YELLOW("Arbitrary state changes, enqueueing all effects", TfmColor.MEGACREDIT),
-    GREEN("Arbitrary state changes, auto-executing effects", TfmColor.PLANT),
-    BLUE("Only allows performing tasks on your task list", TfmColor.OCEAN_TILE),
+    RED("Arbitrary state changes with few restrictions", TfmColor.HEAT),
+    YELLOW("Arbitrary state changes, within limits", TfmColor.MEGACREDIT),
+    GREEN("Arbitrary state changes, triggering effects", TfmColor.PLANT),
+    BLUE("Can only perform valid game actions", TfmColor.OCEAN_TILE),
     PURPLE("The engine fully orchestrates everything", TfmColor.ENERGY),
   }
 
@@ -77,6 +78,7 @@ public class ReplSession(
   private class UsageException(message: String? = null) : UserException(message ?: "")
 
   internal abstract inner class ReplCommand(val name: String) {
+    open val isReadOnly: Boolean = false
     abstract val usage: String
     open fun noArgs(): List<String> = throw UsageException()
 
@@ -86,12 +88,12 @@ public class ReplSession(
   private val commands =
       listOf(
               AsCommand(),
+              AutoCommand(),
               BecomeCommand(),
               BoardCommand(),
               CountCommand(),
               DescCommand(),
               ExecCommand(),
-              GiveTurnCommand(),
               HasCommand(),
               HelpCommand(),
               HistoryCommand(),
@@ -109,6 +111,7 @@ public class ReplSession(
 
   internal inner class HelpCommand : ReplCommand("help") {
     override val usage = "help [command]"
+    override val isReadOnly = true
     override fun noArgs() = listOf(helpText)
     override fun withArgs(args: String) = listOf("Sorry, haven't implemented this yet")
   }
@@ -119,9 +122,7 @@ public class ReplSession(
     override fun withArgs(args: String): List<String> {
       val (player, rest) = args.trim().split(Regex("\\s+"), 2)
 
-      return session.doAs(Actor(cn(player))) {
-        command(rest)
-      }
+      return session.doAs(Actor(cn(player))) { command(rest) }
     }
   }
 
@@ -157,6 +158,7 @@ public class ReplSession(
 
   internal inner class HasCommand : ReplCommand("has") {
     override val usage = "has <Requirement>"
+    override val isReadOnly = true
 
     override fun withArgs(args: String): List<String> {
       val reqt = requirement(args)
@@ -167,6 +169,7 @@ public class ReplSession(
 
   internal inner class CountCommand : ReplCommand("count") {
     override val usage = "count <Metric>"
+    override val isReadOnly = true
 
     override fun withArgs(args: String): List<String> {
       val metric = metric(args)
@@ -177,6 +180,7 @@ public class ReplSession(
 
   internal inner class ListCommand : ReplCommand("list") {
     override val usage = "list <Expression>"
+    override val isReadOnly = true
     override fun noArgs() = withArgs(COMPONENT.toString())
 
     override fun withArgs(args: String): List<String> {
@@ -189,20 +193,21 @@ public class ReplSession(
 
   internal inner class BoardCommand : ReplCommand("board") {
     override val usage = "board [PlayerN]"
+    override val isReadOnly = true
 
     override fun noArgs(): List<String> = BoardToText(session.agent, jline != null).board()
 
-    override fun withArgs(args: String) =
-        BoardToText(session.agent(args), jline != null).board()
+    override fun withArgs(args: String) = BoardToText(session.agent(args), jline != null).board()
   }
 
   internal inner class MapCommand : ReplCommand("map") {
     override val usage = "map"
+    override val isReadOnly = true
     override fun noArgs() = MapToText(session.game.reader, jline != null).map()
   }
 
   internal inner class ModeCommand : ReplCommand("mode") {
-    override val usage = "mode"
+    override val usage = "mode <mode name>"
     override fun noArgs() = listOf("Mode $mode: ${mode.message}")
 
     override fun withArgs(args: String): List<String> {
@@ -217,6 +222,23 @@ public class ReplSession(
     }
   }
 
+  var auto: Boolean = true
+
+  internal inner class AutoCommand : ReplCommand("auto") {
+    override val usage = "auto [ on | off ]"
+    override fun noArgs() = listOf("Autoexecute is " + if (auto) "on" else "off")
+
+    override fun withArgs(args: String): List<String> {
+      auto =
+          when (args) {
+            "on" -> true
+            "off" -> false
+            else -> throw UsageException()
+          }
+      return noArgs()
+    }
+  }
+
   internal inner class ExecCommand : ReplCommand("exec") {
     override val usage = "exec <Instruction>"
 
@@ -226,9 +248,21 @@ public class ReplSession(
           try {
             when (mode) {
               RED -> session.sneakyChange(instruction)
-              YELLOW -> session.initiateOnly(instruction)
-              GREEN -> session.initiateAndAutoExec(instruction)
-              else -> return listOf("Eep, can't do that in ${mode.name.lowercase()} mode")
+              YELLOW -> session.sneakyChange(instruction)
+              GREEN -> initiate(instruction)
+              BLUE -> {
+                if (instruction is Gain && instruction.gaining.className == cn("Turn")) {
+                  initiate(instruction)
+                } else if (session.agent.actor != Actor.ENGINE) {
+                  throw UsageException("In blue mode you must be Engine to do this")
+                } else if (instruction is Gain &&
+                    instruction.gaining.className.toString().endsWith("Phase")) { // TODO hack
+                  initiate(instruction)
+                } else {
+                  return listOf("Eep, can't do that in ${mode.name.lowercase()} mode")
+                }
+              }
+              PURPLE -> TODO()
             }
           } catch (e: UserException) {
             return listOf(e.toString())
@@ -236,10 +270,19 @@ public class ReplSession(
 
       return describeExecutionResults(changes)
     }
+
+    private fun initiate(instruction: Instruction): Result {
+      return if (auto) {
+        session.initiateAndAutoExec(instruction)
+      } else {
+        session.initiateOnly(instruction)
+      }
+    }
   }
 
   internal inner class TasksCommand : ReplCommand("tasks") {
     override val usage = "tasks"
+    override val isReadOnly = true
     override fun noArgs(): List<String> {
       return session.game.taskQueue.toStrings()
     }
@@ -268,10 +311,13 @@ public class ReplSession(
       val result: Result =
           try {
             when (mode) {
-              RED -> return listOf("Can't execute tasks in red mode")
-              YELLOW,
-              BLUE -> session.agent.doTask(id, session.prep(instruction))
-              GREEN -> session.doTaskAndAutoExec(id, instruction)
+              RED, YELLOW -> return listOf("Can't execute tasks in this mode")
+              GREEN, BLUE ->
+                  if (auto) {
+                    session.doTaskAndAutoExec(id, instruction)
+                  } else {
+                    session.agent.doTask(id, session.prep(instruction))
+                  }
               else -> TODO()
             }
           } catch (e: UserException) {
@@ -281,23 +327,11 @@ public class ReplSession(
     }
   }
 
-  internal inner class GiveTurnCommand : ReplCommand("giveturn") {
-    override val usage = "giveturn [PlayerN]"
-
-    override fun noArgs(): List<String> = requestTurn(session.agent)
-
-    override fun withArgs(args: String) = requestTurn(session.agent(args))
-
-    private fun requestTurn(agent: PlayerAgent): List<String> {
-      val result = agent.enqueueTasks(session.prep(instruction("UseAction<StandardAction>")))
-      return describeExecutionResults(result)
-    }
-  }
-
   private fun describeExecutionResults(changes: Result): List<String> {
     val oops: List<Task> = changes.newTaskIdsAdded.map { session.game.taskQueue[it] }
 
-    val changeLines = changes.changes.toStrings().ifEmpty { listOf("No state changes") }
+    val interesting: List<ChangeEvent> = changes.changes.filterNot { isSystemOnly(it.change) }
+    val changeLines = interesting.toStrings().ifEmpty { listOf("No state changes") }
     val taskLines =
         if (oops.any()) {
           listOf("", "There are new pending tasks:") + oops.toStrings()
@@ -307,8 +341,16 @@ public class ReplSession(
     return changeLines + taskLines
   }
 
+  private fun isSystemOnly(change: StateChange): Boolean {
+    val system = session.game.resolve(expression("System"))
+    return listOfNotNull(change.gaining, change.removing).all {
+      session.game.resolve(it).isSubtypeOf(system)
+    }
+  }
+
   internal inner class LogCommand : ReplCommand("log") {
     override val usage = "log [full]"
+    override val isReadOnly = true
 
     // TODO filter it
     override fun noArgs() = session.game.eventLog.changesSince(session.showLogSince).toStrings()
@@ -333,6 +375,7 @@ public class ReplSession(
 
   internal inner class HistoryCommand : ReplCommand("history") {
     override val usage = "history <count>"
+    override val isReadOnly = true
     val history = jline?.history
 
     override fun noArgs() = fmt(history!!)
@@ -354,6 +397,7 @@ public class ReplSession(
 
   internal inner class DescCommand : ReplCommand("desc") {
     override val usage = "desc <Expression>"
+    override val isReadOnly = true
 
     override fun withArgs(args: String): List<String> {
       val expression =
@@ -370,7 +414,8 @@ public class ReplSession(
   internal inner class ScriptCommand : ReplCommand("script") {
     override val usage = "script <filename>"
     override fun withArgs(args: String) =
-        File(args).readLines()
+        File(args)
+            .readLines()
             .takeWhile { it.trim() != "stop" }
             .filter { it.isNotEmpty() }
             .flatMap { listOf(">>> $it") + command(it) + "" }

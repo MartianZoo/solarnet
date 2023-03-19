@@ -98,15 +98,10 @@ ABSTRACT CLASS Owned<Anyone> {
 
   ABSTRACT CLASS CardFront {                      // specific CardFronts come from `cards.json5`
     ABSTRACT CLASS EventCard {
-      This:: -ProjectCard!
-      This: PlayedEvent<Class<This>> FROM This    // TODO SolarProbe, at least
+      This: PlayedEvent<Class<This>> FROM This
     }                                             // could we get this happen automatically at EOT?
-    ABSTRACT CLASS AutomatedCard {
-      This:: -ProjectCard!                        // temp hack
-    }
-    ABSTRACT CLASS ActiveCard {
-      This:: -ProjectCard!
-    }
+    ABSTRACT CLASS AutomatedCard
+    ABSTRACT CLASS ActiveCard
 
     ABSTRACT CLASS ActionCard : HasActions
   }

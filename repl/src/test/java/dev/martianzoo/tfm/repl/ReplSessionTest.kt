@@ -19,6 +19,7 @@ private class ReplSessionTest {
     for (cmd in commands.split("\n")) {
       repl.command(cmd)
     }
+    repl.command("exec ActionPhase")
     repl.command("exec ProductionPhase")
     assertThat(repl.session.count(metric("S"))).isEqualTo(8)
     assertThat(repl.session.count(metric("T"))).isEqualTo(10)
@@ -33,7 +34,7 @@ private class ReplSessionTest {
     val repl = ReplSession(Canon, GameSetup(Canon, "BMX", 2)) // TODO
     val commands = """
       become Player2
-      exec Astrodrill
+      exec CorporationCard THEN Astrodrill
       exec ActionPhase
       exec UseAction1<UseActionFromCard>
       task A UseAction1<Astrodrill> THEN ActionUsedMarker<Astrodrill>
