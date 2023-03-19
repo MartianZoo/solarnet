@@ -32,7 +32,7 @@ public class JlineRepl {
     while (true) {
       fun end() = history.append(historyFile, true)
 
-      val inputLine =
+      val entireLine =
           try {
             reader.readLine((if (first) "$welcome\n" else "") + prompt())
           } catch (e: EndOfFileException) {
@@ -40,20 +40,23 @@ public class JlineRepl {
           }
       first = false
 
-      when (inputLine.trim()) {
-        "exit" -> return end()
-        "rebuild" -> {
-          end()
-          exitProcess(5)
-        }
-        else ->
+      for (chunk in entireLine.split(";").map { it.trim() }) {
+        when (chunk.trim()) {
+          "exit" -> return end()
+          "rebuild" -> {
+            end()
+            exitProcess(5)
+          }
+
+          else ->
             try {
-              handler(inputLine).forEach(::println)
+              handler(chunk).forEach(::println)
             } catch (e: Exception) {
               e.printStackTrace()
             }
+        }
+        println()
       }
-      println()
     }
   }
 }

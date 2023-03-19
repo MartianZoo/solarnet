@@ -14,33 +14,80 @@ import dev.martianzoo.util.Grid
 import dev.martianzoo.util.toStrings
 
 internal class MapToText(private val game: GameStateReader, val useColors: Boolean = true) {
+  // my terminal app tries to show characters with H:W of 11:5
+  // for a near-perfect hex grid you want 13:15
+  // divide and you get 33:13 and fortunately that's pretty close to 5:2 (8:3 would be yikes)
+  val horizStretch: Int = 5
+  val vertStretch: Int = 2
+
   internal fun map(): List<String> {
-    val cells = mutableListOf<SimpleCell>()
-    cells +=
-        (1..9).flatMap {
-          listOf(
-              fromRect(padCenter("$it —", 4), 3 * it, 0), // numerical row headings
-              fromRect(padCenter("$it", 4), 0, it * 2 + 5), // numerical column headings
-              fromRect(padCenter("/ ", 4), 1, it * 2 + 5), // slashes
-          )
+    val grid: Grid<AreaDefinition> = game.setup.map.areas
+
+    val s = buildString {
+      val clb = CenteringAppender(this)
+      var countdown = grid.rowCount + 2 // TODO I don't get it
+
+      clb.appendHalfSpaces(countdown * horizStretch)
+      repeat(grid.columnCount - 1) { clb.appendCentered(horizStretch, "  ${it + 1}") }
+      clb.nl()
+
+      clb.appendHalfSpaces(countdown-- * horizStretch)
+      repeat(grid.columnCount - 1) { clb.appendCentered(horizStretch, "/") }
+
+      countdown -= 2
+      grid.rows().drop(1).forEach { row ->
+        repeat(vertStretch) { clb.nl() }
+        clb.appendHalfSpaces(countdown-- * horizStretch)
+        for (area: AreaDefinition? in row) {
+          val (text, color) = describe(area)
+          clb.appendCentered(horizStretch, maybeColor(color, text), text.length)
         }
-    cells += game.setup.map.areas.map { fromHex(describe(it), it.row, it.column) }
-
-    val grid = Grid.grid(cells, { it.row }, { it.column })
-    return grid.rows().map { row -> row.joinToString("") { it?.s ?: "    " }.trimEnd() }
-  }
-
-  fun describe(area: AreaDefinition): String {
-    val expression = expression("Tile<${area.className}>")
-    val tile = game.getComponents(game.resolve(expression)).singleOrNull()
-    return if (tile != null) {
-      describe(tile)
-    } else {
-      describeEmpty(area)
+      }
+      clb.nl()
+    }
+    val lines = s.trimIndent().split("\n")
+    var display = 1
+    return lines.mapIndexed { i, line ->
+      val prefix = if ((i - vertStretch) % vertStretch == 1) { "${display++} -  " } else ""
+      (prefix.padStart(6) + line).trimEnd()
     }
   }
 
-  private fun describeEmpty(area: AreaDefinition): String {
+  class CenteringAppender(val sb: StringBuilder) {
+    var weird: Boolean = false
+    fun append(s: String) = sb.append(s)
+    fun appendHalfSpaces(n: Int) {
+      append(" ".repeat(n / 2))
+      if (n % 2 != 0) appendHalfSpace()
+    }
+
+    fun appendHalfSpace() {
+      if (weird) append(" ")
+      weird = !weird
+    }
+
+    fun appendCentered(width: Int, s: String, stringLength: Int = s.length) {
+      val pad = width - stringLength
+      require(pad >= 0)
+      appendHalfSpaces(pad)
+      append(s)
+      appendHalfSpaces(pad)
+    }
+
+    fun nl() {
+      append("\n")
+      weird = false
+    }
+  }
+
+  fun describe(area: AreaDefinition?): Pair<String, TfmColor> {
+    if (area == null) return "" to TfmColor.NONE
+    val expression = expression("Tile<${area.className}>")
+    val tile = game.getComponents(game.resolve(expression)).singleOrNull()
+    return tile?.let(::describe) ?: describeEmpty(area)
+  }
+
+  private fun describeEmpty(area: AreaDefinition): Pair<String, TfmColor> {
     val color =
         when (area.kind) {
           cn("LandArea") -> TfmColor.LAND_AREA
@@ -49,17 +96,12 @@ internal class MapToText(private val game: GameStateReader, val useColors: Boole
           cn("NoctisArea") -> TfmColor.NOCTIS_AREA
           else -> error("")
         }
-    return maybeColor(color, padCenter(area.code, 4))
+    return area.code to color
   }
 
   fun maybeColor(c: TfmColor, s: String): String = if (useColors) c.foreground(s) else s
 
-  fun fromHex(s: String, r: Int, c: Int) = fromRect(s, r * 3, c * 2 + 5 - r)
-  fun fromRect(s: String, r: Int, c: Int) = SimpleCell(s, r, c)
-
-  data class SimpleCell(val s: String, val row: Int, val column: Int) // TODO color?
-
-  private fun describe(tile: Type): String {
+  private fun describe(tile: Type): Pair<String, TfmColor> {
     fun isIt(tile: Type, kind: String) = tile.isSubtypeOf(game.resolve(expression(kind)))
 
     val kind: Pair<String, TfmColor> =
@@ -74,13 +116,6 @@ internal class MapToText(private val game: GameStateReader, val useColors: Boole
     val argStrings = tile.expressionFull.arguments.toStrings()
     val player = argStrings.firstOrNull(Actor::isValid)?.last() ?: ""
 
-    return maybeColor(kind.second, padCenter("[${kind.first}$player]", 4))
+    return "[${kind.first}$player]" to kind.second
   }
-}
-
-// TODO share
-fun padCenter(s: String, length: Int): String {
-  val before = (length - s.length + 1) / 2
-  val after = (length - s.length) / 2
-  return " ".repeat(before) + s + " ".repeat(after)
 }

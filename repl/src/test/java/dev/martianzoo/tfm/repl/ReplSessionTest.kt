@@ -116,37 +116,30 @@ private class ReplSessionTest {
     repl.command("exec OT<M26>, OT<M55>, OT<M56>, CT<M46>, GT<M57>, GT<M45, P3>")
     repl.command("exec Tile008<P2, M66>, Tile142<P2, M99>")
 
-    val space = " ".repeat(22)
     assertThat(repl.command(repl.MapCommand()))
-        .containsExactly(
-            "$space        1       2       3       4       5       6       7       8       9",
-            "$space       /       /       /       /       /       /       /       /       /",
-            "",
-            " 1 —                     LSS     WSS      L      WC       W",
-            "",
-            "",
-            " 2 —                  L      VS       L       L       L      [O]",
-            "",
-            "",
-            " 3 —             VC       L       L       L       L       L       L",
-            "",
-            "",
-            " 4 —         VPT     LP      LP      LP     [G3]    [C1]     LP      WPP",
-            "",
-            "",
-            " 5 —     VPP     LPP     NPP     WPP     [O]     [O]    [G1]     LPP     LPP",
-            "",
-            "",
-            " 6 —         LP      LPP     LP      LP     [C2]     WP      WP      WP",
-            "",
-            "",
-            " 7 —              L       L       L       L       L      LP       L",
-            "",
-            "",
-            " 8 —                 LSS      L      LC      LC       L      LT",
-            "",
-            "",
-            " 9 —                     LSS     LSS      L       L     [S2]",
+        .containsExactlyElementsIn(
+            """
+                                   1    2    3    4    5    6    7    8    9
+                                  /    /    /    /    /    /    /    /    /
+
+               1 -            LSS  WSS   L    WC   W
+
+               2 -           L   VS    L    L    L   [O]
+
+               3 -        VC   L    L    L    L    L    L
+
+               4 -     VPT  LP   LP   LP  [G3] [C1]  LP   WPP
+
+               5 -  VPP  LPP  NPP  WPP  [O]  [O]  [G1] LPP  LPP
+
+               6 -     LP   LPP  LP   LP  [C2]  WP   WP   WP
+
+               7 -        L    L    L    L    L    LP   L
+
+               8 -          LSS   L   LC   LC    L   LT
+
+               9 -            LSS  LSS   L    L   [S2]
+            """.replaceIndent(" ").split("\n").map { it.trimEnd() }
         )
         .inOrder()
   }
