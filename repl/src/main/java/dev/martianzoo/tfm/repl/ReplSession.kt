@@ -130,15 +130,18 @@ public class ReplSession(
     override val usage = "newgame <bundles> <player count>"
 
     override fun withArgs(args: String): List<String> {
-      val (bundleString, players) = args.trim().split(Regex("\\s+"), 2)
       try {
+        val (bundleString, players) = args.trim().split(Regex("\\s+"), 2)
         session.newGame(GameSetup(authority, bundleString, players.toInt()))
+        return listOf("New $players-player game created with bundles: $bundleString") +
+            if (players.toInt() == 1) {
+              listOf("NOTE: No solo mode rules are implemented.")
+            } else {
+              listOf()
+            }
       } catch (e: RuntimeException) {
         throw UsageException(e.message)
       }
-      return listOf("New $players-player game created with bundles: $bundleString") +
-          if (players.toInt() == 1) listOf("NOTE: No solo mode rules are implemented.")
-          else listOf()
     }
   }
 
@@ -197,7 +200,8 @@ public class ReplSession(
 
     override fun noArgs(): List<String> = PlayerBoardToText(session.agent, jline != null).board()
 
-    override fun withArgs(args: String) = PlayerBoardToText(session.agent(args), jline != null).board()
+    override fun withArgs(args: String) =
+        PlayerBoardToText(session.agent(args), jline != null).board()
   }
 
   internal inner class MapCommand : ReplCommand("map") {
