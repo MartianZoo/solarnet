@@ -2161,10 +2161,7 @@
       "bundle": "R",
       "deck": "PROJECT",
       "tags": [ "ScienceTag" ],
-      "actions": [
-        "3 -> ProjectCard",
-        "-> Ok"
-      ],
+      "actions": [ "-> BuyCard?" ],
       "cost": 9,
       "projectKind": "ACTIVE"
     },
@@ -2601,10 +2598,7 @@
       "deck": "PROJECT",
       "tags": [ "EarthTag" ],
       "immediate": "PROD[-1]",
-      "actions": [
-        "3 -> ProjectCard",
-        "-> Ok"
-      ],
+      "actions": [ "-> BuyCard?" ],
       "cost": 4,
       "projectKind": "ACTIVE"
     },

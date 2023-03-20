@@ -29,7 +29,7 @@ ABSTRACT CLASS System {
     This:: @forceLoad(Class<Production>)               // TODO pare this down??
     This:: @forceLoad(Class<GrossHack>)
     This:: @forceLoad(Class<BackwardAdjacency>)
-    This:: CorporationPhase
+    This:: CorporationPhase                            // TODO SetupPhase
 
     PlayTag<Class<BuildingTag>>:: Accept<Class<Steel>>
     PlayTag<Class<SpaceTag>>:: Accept<Class<Titanium>>
@@ -81,7 +81,7 @@ ABSTRACT CLASS MarsMap {                               // Tharsis etc. are loade
   // This:: @createAll(This, Border)                   // TODO
 }
 
-ABSTRACT CLASS Area : System {
+ABSTRACT CLASS Area {
   HAS =1 This
   HAS MAX 1 Tile<This>                                 // circular reference is un-ideal, but...
 
