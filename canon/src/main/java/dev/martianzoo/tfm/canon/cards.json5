@@ -2832,6 +2832,17 @@
       "projectKind": "EVENT"
     },
 
+    // Power Infrastructure
+    {
+      "id": "194",
+      "bundle": "R",
+      "deck": "PROJECT",
+      "tags": [ "PowerTag", "BuildingTag" ],
+      "actions": [ "X Energy -> X" ],
+      "cost": 4,
+      "projectKind": "ACTIVE"
+    },
+
     // Lagrange Observatory
     {
       "id": "196",
@@ -3457,6 +3468,22 @@
       "projectKind": "AUTOMATED"
     },
 
+    // Sulphur-Eating Bacteria
+    {
+      "id": "251",
+      "bundle": "V",
+      "deck": "PROJECT",
+      "tags": [ "VenusTag", "MicrobeTag" ],
+      "actions": [
+        "-> Microbe<This>",
+        "X Microbe<This> -> 3X"
+      ],
+      "resourceType": "Microbe",
+      "requirement": "3 VenusStep",
+      "cost": 6,
+      "projectKind": "ACTIVE"
+    },
+
     // Terraforming Contract
     {
       "id": "252",
@@ -3964,6 +3991,32 @@
       "immediate": "UseAction<ActionCard(HAS ActionUsedMarker)>",
       "cost": 0,
       "projectKind": "EVENT"
+    },
+
+    // Energy Market
+    {
+      "id": "X03",
+      "bundle": "X",
+      "deck": "PROJECT",
+      "tags": [ "PowerTag" ],
+      "actions": [
+        "2X -> X Energy",
+        "PROD[Energy] -> 8"
+      ],
+      "cost": 3,
+      "projectKind": "ACTIVE"
+    },
+
+    // Hi-Tech Lab[F]
+    {
+      "id": "X04F",
+      "bundle": "X",
+      "deck": "PROJECT",
+      "tags": [ "ScienceTag", "BuildingTag" ],
+      "actions": [ "X Energy -> ProjectCard" ],
+      "effects": [ "End: VictoryPoint" ],
+      "cost": 17,
+      "projectKind": "ACTIVE"
     },
 
     // Mercurian Alloys

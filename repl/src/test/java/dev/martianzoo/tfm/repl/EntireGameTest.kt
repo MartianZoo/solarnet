@@ -306,24 +306,24 @@ class EntireGameTest {
         .containsExactly(0, 0, 0)
         .inOrder()
   }
-
-  fun ReplSession.test(s: String, tasksExpected: Int = 0) {
-    val (cmd, args) = s.split(" ", limit = 2)
-    commands[cmd]!!.withArgs(args)
-    assertWithMessage("${session.game.taskQueue}")
-        .that(session.game.taskQueue.size)
-        .isEqualTo(tasksExpected)
-  }
-
-  fun ReplSession.test(vararg s: String) {
-    var x = s.size
-    for (it in s) test(it, --x)
-  }
-
-  private fun ReplSession.assertCount(text: String, i: Int) {
-    assertThat(session.count(metric(text))).isEqualTo(i)
-  }
-
-  private fun ReplSession.counts(text: String): List<Int> =
-      text.split(",").map { session.count(metric(it)) }
 }
+
+fun ReplSession.test(s: String, tasksExpected: Int = 0) {
+  val (cmd, args) = s.split(" ", limit = 2)
+  commands[cmd]!!.withArgs(args)
+  assertWithMessage("${session.game.taskQueue}")
+      .that(session.game.taskQueue.size)
+      .isEqualTo(tasksExpected)
+}
+
+fun ReplSession.test(vararg s: String) {
+  var x = s.size
+  for (it in s) test(it, --x)
+}
+
+fun ReplSession.assertCount(text: String, i: Int) {
+  assertThat(session.count(metric(text))).isEqualTo(i)
+}
+
+fun ReplSession.counts(text: String): List<Int> =
+    text.split(",").map { session.count(metric(it)) }
