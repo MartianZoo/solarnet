@@ -272,6 +272,9 @@ public class ReplSession(
     }
 
     private fun initiate(instruction: Instruction): Result {
+      if (mode == BLUE && !session.game.taskQueue.isEmpty()) {
+        throw UserException("Must clear your task queue first (blue mode)")
+      }
       return if (auto) {
         session.initiateAndAutoExec(instruction)
       } else {

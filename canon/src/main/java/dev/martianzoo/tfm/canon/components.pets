@@ -126,6 +126,7 @@ ABSTRACT CLASS Phase {                                 // System? kinda
 
   CLASS CorporationPhase {
     Turn: CorporationCard, CardFront, 10 BuyCard?      // TODO beginner corp
+    ActionPhase:: -This!
   }
 
   CLASS PreludePhase {

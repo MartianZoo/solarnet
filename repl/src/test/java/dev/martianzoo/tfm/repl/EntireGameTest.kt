@@ -173,6 +173,24 @@ class EntireGameTest {
   }
 
   @Test
+  fun startEllieGameWithoutPrelude() {
+    val repl = ReplSession(Canon, GameSetup(Canon, "BRHX", 2))
+    repl.test("mode blue")
+
+    repl.test("become P1")
+    repl.test("exec Turn", "task B InterplanetaryCinematics", "task C 7 BuyCard")
+
+    repl.test("become P2")
+    repl.test("exec Turn", "task B PharmacyUnion", "task C 5 BuyCard")
+
+    repl.test("become Engine")
+    repl.test("exec ActionPhase")
+
+    repl.test("become P1")
+    repl.playCard(6, "MediaGroup")
+  }
+
+  @Test
   fun ellieGame() {
     val repl = ReplSession(Canon, GameSetup(Canon, "BRHXP", 2))
 
@@ -208,7 +226,9 @@ class EntireGameTest {
     repl.playCard(11, "Research")
     repl.playCard(9, "MartianSurvey", "task D Ok")
 
-    repl.playCard(3, "SearchForLife",
+    repl.playCard(
+        3,
+        "SearchForLife",
         "task D PlayedEvent<Class<PharmacyUnion>> FROM PharmacyUnion THEN 3 TerraformRating")
 
     repl.useAction1("SearchForLife", "task C -1 THEN Ok")
