@@ -25,8 +25,8 @@
 
     // SAH = Trade, SAI = Send delegate
 
-    // Sell patents - yes, it's technically a project, but that makes things annoying
-    { "id": "SELL", "bundle": "B", "action": "1 ProjectCard -> 1" }, // needs "X"
+    // Sell patents[F] - yes, it's technically a project, but that makes things annoying
+    { "id": "SELL", "bundle": "B", "action": "X ProjectCard -> X" },
   ],
 
   "projects": [
