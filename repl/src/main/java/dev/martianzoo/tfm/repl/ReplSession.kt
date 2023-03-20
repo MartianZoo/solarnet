@@ -403,7 +403,7 @@ public class ReplSession(
           } else {
             expression(args)
           }
-      return listOf(MTypeToText.describe(expression, session.game.loader))
+      return listOf(MTypeToText.describe(expression, session.game))
     }
   }
 

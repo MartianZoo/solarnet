@@ -164,7 +164,7 @@ public class PlayerAgent(val game: Game, val actor: Actor) {
     val firedSelfEffects: List<FiredEffect> =
         listOfNotNull(triggerEvent.change.gaining, triggerEvent.change.removing)
             .map(game::toComponent)
-            .flatMap { it.activeEffects(game) }
+            .flatMap { it.effects(game) }
             .mapNotNull { it.onChangeToSelf(triggerEvent) }
 
     val firedOtherEffects: List<FiredEffect> =

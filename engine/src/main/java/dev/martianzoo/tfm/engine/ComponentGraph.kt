@@ -22,7 +22,7 @@ public class ComponentGraph {
   }
 
   internal fun allActiveEffects(game: Game): Multiset<ActiveEffect> =
-      multiset.flatMap { it.activeEffects(game) }
+      multiset.flatMap { it.effects(game) }
 
   // only called by Game.silentChange
   public fun update(

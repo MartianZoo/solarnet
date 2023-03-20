@@ -1,11 +1,27 @@
 package dev.martianzoo.tfm.repl
 
+import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.tfm.api.GameSetup
+import dev.martianzoo.tfm.api.ResourceUtils.lookUpProductionLevels
 import dev.martianzoo.tfm.canon.Canon
+import dev.martianzoo.tfm.pets.ast.ClassName
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 
 class SpecificCardsTest {
+  @Test
+  fun muthaFukinManutech() {
+    val repl = ReplSession(Canon, GameSetup(Canon, "BRMV", 2))
+    repl.test("become P1")
+    repl.test("exec CorporationCard, Manutech")
+    repl.assertCount("Production<Class<Steel>>", 1)
+    repl.assertCount("Steel", 1)
+    repl.test("exec PROD[8, 6T, 7P, 5E, 3H]")
+    val prods = lookUpProductionLevels(repl.session.game.reader, ClassName.cn("P1").expr)
+    assertThat(prods.values).containsExactly(8, 1, 6, 7, 5, 3).inOrder()
+    assertThat(repl.counts("M, S, T, P, E, H")).containsExactly(43, 1, 6, 7, 5, 3)
+  }
+
   @Test
   fun sulphurEating() {
     val repl = ReplSession(Canon, GameSetup(Canon, "BRMV", 2))

@@ -18,20 +18,27 @@ import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.pets.ast.Instruction
 import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.types.Transformers.ReplaceOwnerWith
+import dev.martianzoo.tfm.types.findSubstitutions
 
 typealias Hit = (Instruction) -> Instruction
 
 sealed class ActiveTrigger {
   companion object {
-    fun from(trigger: Trigger, context: Component, game: Game): ActiveTrigger {
+    fun from(
+        trigger: Trigger,
+        context: Component,
+        game: Game,
+        tlinks: Set<ClassName>,
+    ): ActiveTrigger {
       return when (trigger) {
-        is ByTrigger -> ByActor(from(trigger.inner, context, game), trigger.by)
-        is IfTrigger -> Conditional(from(trigger.inner, context, game), trigger.condition, game)
-        is XTrigger -> AnyAmount(from(trigger.inner, context, game))
+        is ByTrigger -> ByActor(from(trigger.inner, context, game, tlinks), trigger.by)
+        is IfTrigger ->
+            Conditional(from(trigger.inner, context, game, tlinks), trigger.condition, game)
+        is XTrigger -> AnyAmount(from(trigger.inner, context, game, tlinks))
         is WhenGain -> MatchOnSelf(context, matchOnGain = true, game)
         is WhenRemove -> MatchOnSelf(context, matchOnGain = false, game)
-        is OnGainOf -> MatchOnOthers(trigger.expression, matchOnGain = true, game)
-        is OnRemoveOf -> MatchOnOthers(trigger.expression, matchOnGain = false, game)
+        is OnGainOf -> MatchOnOthers(trigger.expression, matchOnGain = true, game, tlinks)
+        is OnRemoveOf -> MatchOnOthers(trigger.expression, matchOnGain = false, game, tlinks)
         is Transform -> error("should have been transformed by now")
       }
     }
@@ -94,14 +101,20 @@ sealed class ActiveTrigger {
     }
   }
 
-  data class MatchOnOthers(val match: Expression, val matchOnGain: Boolean, val game: Game) :
-      ActiveTrigger() {
+  data class MatchOnOthers(
+      val match: Expression,
+      val matchOnGain: Boolean,
+      val game: Game,
+      val tlinks: Set<ClassName>,
+  ) : ActiveTrigger() {
     override fun match(triggerEvent: ChangeEvent, actor: Actor, isSelf: Boolean): Hit? {
       if (isSelf) return null
       val change = triggerEvent.change
       val expr = (if (matchOnGain) change.gaining else change.removing) ?: return null
       return if (this.game.resolve(expr).isSubtypeOf(this.game.resolve(match))) {
-        { it * change.count }
+        val subber = Substituter(findSubstitutions(tlinks, match, expr))
+        val h: Hit = { subber.transform(it) * change.count }
+        h
       } else {
         null
       }

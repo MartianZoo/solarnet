@@ -4,7 +4,6 @@ import dev.martianzoo.tfm.api.Exceptions.AbstractInstructionException
 import dev.martianzoo.tfm.api.SpecialClassNames.OWNED
 import dev.martianzoo.tfm.pets.PetTransformer
 import dev.martianzoo.tfm.pets.ast.ClassName
-import dev.martianzoo.tfm.pets.ast.Effect
 import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.pets.ast.HasExpression
 import dev.martianzoo.tfm.pets.ast.PetNode
@@ -47,21 +46,17 @@ public data class Component private constructor(val mtype: MType) : HasExpressio
   /**
    * This component's effects; while the component exists in a game state, the effects are active.
    */
-  public fun effects(): List<Effect> {
+  public fun effects(game: Game): List<ActiveEffect> {
     return mtype.mclass.classEffects.map { decl ->
-      val linkages: Set<ClassName> = decl.linkages
-      transformInSeries(
-          Substituter(mtype.findSubstitutions(linkages)),
+      val depLinkages: Set<ClassName> = decl.depLinkages
+      val blah = transformInSeries(
+          Substituter(mtype.findSubstitutions(depLinkages)),
           ReplaceThisWith(mtype.expression),
           Deprodify(mtype.loader),
           owner()?.let { ReplaceOwnerWith(it) },
-      )
-          .transform(decl.effect)
+      ).transform(decl.effect)
+      ActiveEffect.from(blah, this, game, decl.triggerLinkages)
     }
-  }
-
-  fun activeEffects(game: Game): List<ActiveEffect> {
-    return effects().map { ActiveEffect.from(it, this, game) }
   }
 
   public fun owner(): ClassName? = mtype.dependencies.getIfPresent(Key(OWNED, 0))?.className

@@ -110,6 +110,16 @@
       "effects": [ "VenusStep BY Anyone: 2" ]
     },
 
+    // Manutech
+    {
+      "id": "V03",
+      "bundle": "V",
+      "deck": "CORPORATION",
+      "tags": [ "BuildingTag" ],
+      "immediate": "PROD[Steel], 35",
+      "effects": [ "PROD[StandardResource]: StandardResource" ]
+    },
+
     // Viron
     {
       "id": "V05",

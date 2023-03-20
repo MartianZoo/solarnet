@@ -153,21 +153,26 @@ internal constructor(
 
   override fun toString() = "$expressionFull@${mclass.loader}"
 
-  /** Decides what substitutions should be made to class effects to yield component effects. */
-  fun findSubstitutions(linkages: Set<ClassName>): Map<ClassName, Expression> {
-    val general: Expression = mclass.baseType.expressionFull
-    val specific: Expression = expressionFull
+  fun findSubstitutions(linkages: Set<ClassName>) =
+      findSubstitutions(linkages, mclass.baseType.expressionFull, expressionFull)
+}
 
-    val map = mutableMapOf<ClassName, Expression>()
-    doIt(linkages, map, general, specific)
-    return map
-  }
+/** Decides what substitutions should be made to class effects to yield component effects. */
+fun findSubstitutions(
+    linkages: Set<ClassName>,
+    general: Expression,
+    specific: Expression,
+): Map<ClassName, Expression> {
+  val map = mutableMapOf<ClassName, Expression>()
+  doIt(linkages, map, general, specific)
+  return map
+}
 
   private fun doIt(
       linkages: Set<ClassName>,
       map: MutableMap<ClassName, Expression>,
       general: Expression,
-      specific: Expression
+      specific: Expression,
   ) {
     for ((g, s) in general.arguments.zip(specific.arguments)) {
       if (g.simple && g.className in linkages && s != g) {
@@ -177,4 +182,4 @@ internal constructor(
       }
     }
   }
-}
+

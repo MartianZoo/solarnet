@@ -1,22 +1,22 @@
 package dev.martianzoo.tfm.repl
 
 import dev.martianzoo.tfm.engine.Component
+import dev.martianzoo.tfm.engine.Game
 import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.pets.ast.Instruction.Gain
 import dev.martianzoo.tfm.pets.ast.Instruction.Remove
 import dev.martianzoo.tfm.pets.ast.ScaledExpression.Companion.scaledEx
 import dev.martianzoo.tfm.types.MClass
-import dev.martianzoo.tfm.types.MClassLoader
 import dev.martianzoo.tfm.types.Transformers.InsertDefaults
 import dev.martianzoo.util.iff
 
 object MTypeToText { // TODO refactor to ClassInfo / TypeInfo type dealies
   /** A detailed multi-line description of the class. */
-  public fun describe(expression: Expression, loader: MClassLoader): String {
+  public fun describe(expression: Expression, game: Game): String {
     fun descendingBySubclassCount(classes: Iterable<MClass>) =
         classes.sortedWith(compareBy({ -it.allSubclasses.size }, { it.className }))
 
-    val mtype = loader.resolve(expression)
+    val mtype = game.resolve(expression)
     val mclass = mtype.mclass
 
     val subs = descendingBySubclassCount(mclass.allSubclasses - mclass)
@@ -38,6 +38,10 @@ object MTypeToText { // TODO refactor to ClassInfo / TypeInfo type dealies
     val concTypes = sequenceCount(mclass.baseType.concreteSubtypesSameClass(), 100)
 
     // BIGTODO invariants seemingly not working?
+    val effex = mclass.classEffects.joinToString("""
+                           """) {
+      "${it.effect}" + if (it.depLinkages.any()) " ${it.depLinkages}" else ""
+    }
     val classStuff =
         """
           Class $names:
@@ -48,16 +52,13 @@ object MTypeToText { // TODO refactor to ClassInfo / TypeInfo type dealies
               c. types:    $concTypes
               raw fx:      ${mclass.declaration.effects.map { it.effect }.joinToString("""
                            """)}
-              class fx:    ${mclass.classEffects.joinToString("""
-                           """) { "${it.effect}" + if (it.linkages.any()) " ${it.linkages}" else "" } }
-    
-    
+              class fx:    $effex
         """
             .trimIndent()
 
     val concSubs = sequenceCount(mtype.allConcreteSubtypes(), 100)
 
-    val id = InsertDefaults(loader)
+    val id = InsertDefaults(game.loader)
 
     val allCases = id.transform(expression)
     val gain = id.transform(Gain(scaledEx(1, expression)))
@@ -84,10 +85,8 @@ object MTypeToText { // TODO refactor to ClassInfo / TypeInfo type dealies
 
 
         Component $c:
-            effects:     ${
-        c.effects().joinToString("""
-                         """)
-      }
+            effects:     ${c.effects(game).map { it.original }.joinToString("""
+                         """)}
       """
               .trimIndent()
         }
