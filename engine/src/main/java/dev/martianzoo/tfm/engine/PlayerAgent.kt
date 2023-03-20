@@ -38,7 +38,6 @@ import dev.martianzoo.tfm.types.Transformers.InsertDefaults
 import dev.martianzoo.tfm.types.Transformers.ReplaceOwnerWith
 import dev.martianzoo.tfm.types.Transformers.UseFullNames
 import dev.martianzoo.tfm.types.Transformers.transformInSeries
-import dev.martianzoo.util.Multiset
 
 public class PlayerAgent(val game: Game, val actor: Actor) {
   private val setOwner: PetTransformer =
@@ -133,8 +132,9 @@ public class PlayerAgent(val game: Game, val actor: Actor) {
 
     when (instruction) {
       is Change -> {
-        val scal = instruction.count as? ActualScalar
-            ?: throw AbstractInstructionException(instruction, "Need a value for X")
+        val scal =
+            instruction.count as? ActualScalar
+                ?: throw AbstractInstructionException(instruction, "Need a value for X")
         writer.write(
             count = scal.value * multiplier,
             gaining = instruction.gaining?.let(game::resolve),
@@ -161,17 +161,15 @@ public class PlayerAgent(val game: Game, val actor: Actor) {
   }
 
   private fun fireTriggers(triggerEvent: ChangeEvent) {
-    val gained: Expression = triggerEvent.change.gaining ?: return
-    val gainedComponent: Component = game.toComponent(gained)
-
-    val activeEffects: Multiset<ActiveEffect> = game.components.allActiveEffects()
-
     val firedSelfEffects: List<FiredEffect> =
-        gainedComponent.activeEffects.mapNotNull { it.onChange(triggerEvent, game, isSelf = true) }
+        listOfNotNull(triggerEvent.change.gaining, triggerEvent.change.removing)
+            .map(game::toComponent)
+            .flatMap { it.activeEffects(game) }
+            .mapNotNull { it.onChangeToSelf(triggerEvent) }
 
     val firedOtherEffects: List<FiredEffect> =
-        activeEffects.entries.mapNotNull { (afx, count) ->
-          afx.onChange(triggerEvent, game, isSelf = false)?.let { it * count }
+        game.components.allActiveEffects(game).entries.mapNotNull { (afx, count) ->
+          afx.onChangeToOther(triggerEvent)?.let { it * count }
         }
 
     val (now, later) = (firedSelfEffects + firedOtherEffects).partition { it.automatic }

@@ -296,7 +296,7 @@ public class ReplSession(
       val split = Regex("\\s+").split(args, 2)
       val idString = split.firstOrNull() ?: throw UsageException()
       val id = TaskId(idString)
-      if (id !in q) throw UsageException("not a valid id: $idString")
+      if (id !in q) throw UsageException("valid ids are ${q.ids}")
       val rest: String? =
           if (split.size > 1 && split[1].isNotEmpty()) {
             split[1]

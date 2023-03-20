@@ -39,7 +39,7 @@
       "tags": [ "PowerTag" ],
       "immediate": "PROD[Energy], 48",
       "effects": [
-        "PlayTag<Class<PowerTag>>:: -3 Owed.",
+        "PlayTag<Class<PowerTag>>:: -3 Owed",
         "UseAction<PowerPlantSP>: -3 Owed"
       ]
     },
@@ -77,7 +77,7 @@
       "deck": "CORPORATION",
       "tags": [ "EarthTag" ],
       "immediate": "60",
-      "effects": [ "PlayTag<Class<EarthTag>>:: -3 Owed." ]
+      "effects": [ "PlayTag<Class<EarthTag>>:: -3 Owed" ]
     },
 
     // Cheung Shing Mars
@@ -87,7 +87,7 @@
       "deck": "CORPORATION",
       "tags": [ "BuildingTag" ],
       "immediate": "PROD[3], 44",
-      "effects": [ "PlayTag<Class<BuildingTag>>:: -2 Owed." ]
+      "effects": [ "PlayTag<Class<BuildingTag>>:: -2 Owed" ]
     },
 
     // Point Luna
@@ -705,7 +705,7 @@
       "deck": "PROJECT",
       "tags": [ "ScienceTag", "CityTag", "BuildingTag" ],
       "immediate": "CityTile<LandArea(HAS MAX 0 Neighbor)>",
-      "effects": [ "PlayCard: -Owed." ],
+      "effects": [ "PlayCard: -Owed" ],
       "cost": 18,
       "projectKind": "ACTIVE"
     },
@@ -1836,7 +1836,7 @@
       "tags": [ "SpaceTag" ],
       "immediate": "PROD[-Energy, 2]",
       "effects": [
-        "PlayTag<Class<SpaceTag>>:: -2 Owed.",
+        "PlayTag<Class<SpaceTag>>:: -2 Owed",
         "End: VictoryPoint"
       ],
       "requirement": "5 OxygenStep",
@@ -2190,7 +2190,7 @@
       "deck": "PROJECT",
       "tags": [ "SpaceTag" ],
       "effects": [
-        "PlayTag<Class<SpaceTag>>:: -2 Owed.",
+        "PlayTag<Class<SpaceTag>>:: -2 Owed",
         "End: VictoryPoint"
       ],
       "cost": 10,
@@ -2359,7 +2359,7 @@
       "deck": "PROJECT",
       "tags": [ "EarthTag" ],
       "effects": [
-        "PlayCard: -2 Owed.",
+        "PlayCard: -2 Owed",
         "End: 2 VictoryPoint"
       ],
       "cost": 23,
@@ -2401,7 +2401,7 @@
       "deck": "PROJECT",
       "tags": [ "ScienceTag", "PowerTag" ],
       "immediate": "PROD[4 Energy]",
-      "effects": [ "PlayTag<Class<SpaceTag>>:: -2 Owed." ],
+      "effects": [ "PlayTag<Class<SpaceTag>>:: -2 Owed" ],
       "requirement": "4 ScienceTag",
       "cost": 13,
       "projectKind": "ACTIVE"
@@ -2498,7 +2498,7 @@
       "deck": "PROJECT",
       "tags": [ "ScienceTag", "PowerTag" ],
       "immediate": "PROD[6 Energy]",
-      "effects": [ "PlayTag<Class<SpaceTag>>:: -2 Owed." ],
+      "effects": [ "PlayTag<Class<SpaceTag>>:: -2 Owed" ],
       "requirement": "5 ScienceTag",
       "cost": 8,
       "projectKind": "ACTIVE"
@@ -2546,7 +2546,7 @@
       "bundle": "R",
       "deck": "PROJECT",
       "tags": [ "EarthTag" ],
-      "effects": [ "PlayTag<Class<EarthTag>>:: -3 Owed." ],
+      "effects": [ "PlayTag<Class<EarthTag>>:: -3 Owed" ],
       "cost": 1,
       "projectKind": "ACTIVE"
     },
@@ -2707,7 +2707,7 @@
       "deck": "PROJECT",
       "tags": [ "ScienceTag" ],
       "effects": [
-        "PlayCard: -2 Owed.",
+        "PlayCard: -2 Owed",
         "End: 3 VictoryPoint"
       ],
       "requirement": "7 ScienceTag",
@@ -3565,7 +3565,7 @@
       "deck": "PROJECT",
       "tags": [ "VenusTag", "SpaceTag" ],
       "effects": [
-        "PlayTag<Class<VenusTag>>:: -2 Owed.",
+        "PlayTag<Class<VenusTag>>:: -2 Owed",
         "End: VictoryPoint"
       ],
       "cost": 9,
@@ -3926,7 +3926,7 @@
       "deck": "PROJECT",
       "tags": [ "ScienceTag" ],
       "effects": [
-        "PlayTag<Class<SpaceTag>>:: -4 Owed.",
+        "PlayTag<Class<SpaceTag>>:: -4 Owed",
         "End: 2 VictoryPoint"
       ],
       "requirement": "5 ScienceTag",

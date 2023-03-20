@@ -40,7 +40,7 @@ ABSTRACT CLASS Owned<Anyone> {
       // This needs to use `HAS?` or something TODO
       DEFAULT +GreeneryTile<LandArea(HAS Neighbor<OwnedTile>)>
 
-      This: OxygenStep
+      This: OxygenStep                            // for solo this will have to move
       End: VictoryPoint
     }
 
@@ -144,10 +144,9 @@ ABSTRACT CLASS Owned<Anyone> {
   }
 
   ABSTRACT CLASS PaymentMechanic : Temporary {
-    // Used by PlayCardFromHand, ValTrust, EcoEx, ExSponsor, NewPartner, Merger; triggers EarthCat
-    CLASS PlayCard<Class<CardFront>> {
+    CLASS PlayCard<Class<CardFront>> { // TODO add CardBack
       This:: @beginPlayCard(CardFront)
-      -Barrier IF =0 Barrier:: CardFront FROM This! // TODO shouldn't need !
+      -X Barrier IF =0 Barrier:: CardFront FROM This! // TODO shouldn't need !
     }
 
     CLASS PlayTag<Class<Tag>> : Signal            // triggers discounts and Accepts
@@ -155,14 +154,15 @@ ABSTRACT CLASS Owned<Anyone> {
     ABSTRACT CLASS Barrier {
       CLASS Owed<Class<Resource>> {
         DEFAULT +Owed<Class<Megacredit>>
-        This:: Accept<Class<Resource>>
+        DEFAULT -Owed<Class<Megacredit>>.
+        X This:: Accept<Class<Resource>>
       }
     }
 
     CLASS Accept<Class<Resource>> : Signal {      // created in response to PlayTag or the actions
       HAS MAX 1 This                              // on 4 special cards.
       DEFAULT +Accept.
-      This: 100 Pay<Class<Resource>> FROM Resource?
+      This: X Pay<Class<Resource>> FROM Resource?
     }
 
     CLASS Pay<Class<Resource>> : Signal {         // used like `8 Pay<Class<Heat>> FROM Heat`, but

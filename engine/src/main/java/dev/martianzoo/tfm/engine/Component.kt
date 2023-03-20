@@ -51,16 +51,18 @@ public data class Component private constructor(val mtype: MType) : HasExpressio
     return mtype.mclass.classEffects.map { decl ->
       val linkages: Set<ClassName> = decl.linkages
       transformInSeries(
-              Substituter(mtype.findSubstitutions(linkages)),
-              ReplaceThisWith(mtype.expression),
-              Deprodify(mtype.loader),
-              owner()?.let { ReplaceOwnerWith(it) },
-          )
+          Substituter(mtype.findSubstitutions(linkages)),
+          ReplaceThisWith(mtype.expression),
+          Deprodify(mtype.loader),
+          owner()?.let { ReplaceOwnerWith(it) },
+      )
           .transform(decl.effect)
     }
   }
 
-  val activeEffects: List<ActiveEffect> by lazy { effects().map { ActiveEffect.from(it, this) } }
+  fun activeEffects(game: Game): List<ActiveEffect> {
+    return effects().map { ActiveEffect.from(it, this, game) }
+  }
 
   public fun owner(): ClassName? = mtype.dependencies.getIfPresent(Key(OWNED, 0))?.className
 

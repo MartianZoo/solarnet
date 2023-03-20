@@ -98,6 +98,7 @@ public data class Effect(
           }
         }
       }
+
       init {
         require(expression != THIS.expr)
       }
@@ -106,13 +107,29 @@ public data class Effect(
       override fun toString() = "-$expression"
     }
 
+    data class XTrigger(val inner: Trigger) : Trigger() {
+      init {
+        if (!(inner is OnGainOf || inner is WhenGain || inner is OnRemoveOf || inner is WhenRemove))
+          throw PetException("Can't have an X trigger of ${inner::class.simpleName}")
+      }
+
+      override fun visitChildren(visitor: Visitor) = visitor.visit(inner)
+      override fun toString(): String {
+        return when (inner) {
+          is OnGainOf, is WhenGain -> "X $inner"
+          is OnRemoveOf, is WhenRemove -> "-X ${inner.toString().substring(1)}"
+          else -> error("")
+        }
+      }
+    }
+
     data class Transform(val trigger: Trigger, override val transformKind: String) :
         Trigger(), GenericTransform<Trigger> {
       override fun visitChildren(visitor: Visitor) = visitor.visit(trigger)
       override fun toString() = "$transformKind[$trigger]"
 
       init {
-        if (trigger !is OnGainOf && trigger !is OnRemoveOf) {
+        if (trigger !is OnGainOf && trigger !is OnRemoveOf && trigger !is XTrigger) {
           throw PetException("only gain/remove trigger can go in transform block")
         }
       }
@@ -125,13 +142,22 @@ public data class Effect(
 
       fun parser(): Parser<Trigger> {
         return parser {
-          val onGainOf = Expression.parser() map OnGainOf::create
-          val onRemoveOf = skipChar('-') and Expression.parser() map OnRemoveOf::create
-          val atom = onGainOf or onRemoveOf
-          val transform =
-              transform(atom) map { (node, transformName) -> Transform(node, transformName) }
-          val ifClause = skip(_if) and Requirement.atomParser()
-          val byClause = skip(_by) and className
+          val onGainOf: Parser<Trigger> = Expression.parser() map OnGainOf::create
+
+          val exxedGain: Parser<XTrigger> = skip(_x) and onGainOf map ::XTrigger
+
+          val onRemoveOf: Parser<Trigger> =
+              skipChar('-') and Expression.parser() map OnRemoveOf::create
+
+          val exxedRemove: Parser<XTrigger> =
+              skipChar('-') and
+                  skip(_x) and
+                  Expression.parser() map OnRemoveOf::create map ::XTrigger
+
+          val atom: Parser<Trigger> = exxedGain or exxedRemove or onGainOf or onRemoveOf
+          val transform = transform(atom) map { (node, name) -> Transform(node, name) }
+          val ifClause: Parser<Requirement> = skip(_if) and Requirement.atomParser()
+          val byClause: Parser<ClassName> = skip(_by) and className
 
           (transform or atom) and
               optional(ifClause) and

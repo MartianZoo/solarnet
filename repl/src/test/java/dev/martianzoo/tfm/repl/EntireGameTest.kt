@@ -198,39 +198,50 @@ class EntireGameTest {
     repl.test("become Engine")
     repl.test("exec ActionPhase")
 
-    repl.test("mode green")
-
     repl.test("become P1")
-    repl.test("exec -6 THEN MediaGroup")
-    repl.test("exec -1 THEN Sabotage", "task B -7 Megacredit<P2>")
+
+    repl.playCard(6, "MediaGroup")
+
+    repl.playCard(1, "Sabotage", "task E -7 Megacredit<P2>")
 
     repl.test("become P2")
-    repl.test("exec -11 THEN Research")
-    repl.test("exec -9 THEN MartianSurvey", "task A Ok")
+    repl.playCard(11, "Research")
+    repl.playCard(9, "MartianSurvey", "task D Ok")
 
-    // TODO: why does she have 3 of these??
-    repl.test(
-        "exec -3 THEN SearchForLife",
-        "task A PlayedEvent<Class<PharmacyUnion>> FROM PharmacyUnion THEN 3 TerraformRating",
-    )
+    repl.playCard(3, "SearchForLife",
+        "task D PlayedEvent<Class<PharmacyUnion>> FROM PharmacyUnion THEN 3 TerraformRating")
 
-    repl.test("exec UseAction1<UseActionFromCard>", 1)
-    repl.test(
-        "task A UseAction1<SearchForLife> THEN ActionUsedMarker<SearchForLife>",
-        "task B -1 THEN Ok")
+    repl.useAction1("SearchForLife", "task C -1 THEN Ok")
 
     repl.test("become Engine")
     repl.test("exec ProductionPhase", "as P1 task A BuyCard", "as P2 task B 3 BuyCard")
     repl.test("exec ActionPhase")
 
     repl.test("become P2")
-    repl.test("exec UseAction1<SellPatents>", "task A Megacredit FROM ProjectCard") // TODO wrong
-    repl.test("exec -15 THEN VestaShipyard") // TODO: handle negative cpt count without stacktracing
 
-    repl.test("become P1") // TODO: Hi, null
-    repl.test("exec -23 THEN EarthCatapult")
+    repl.test("exec Turn", 1)
+    repl.test("task A UseAction1<SellPatents>", 1)
+    repl.test("task B Megacredit FROM ProjectCard")
+
+    repl.test("exec Turn", 1)
+    repl.test("task A UseAction1<PlayCardFromHand>", 1)
+    repl.test("task B PlayCard<Class<VestaShipyard>>", 2)
+    repl.test("task C 15 Pay<Class<M>> FROM M", 1)
+    repl.test("task D Ok")
+
+    repl.test("become P1")
+    repl.playCard(23, "EarthCatapult")
     // TODO recognize one is impossible
-    repl.test("exec -4 Steel THEN OlympusConference", "task A Science<OlympusConference>")
+
+    repl.test("exec Turn", 1)
+    repl.test("task A UseAction1<PlayCardFromHand>", 1)
+    repl.test("task B PlayCard<Class<OlympusConference>>", 2)
+    repl.test("task C Ok", 1)
+    repl.test("task D 4 Pay<Class<S>> FROM S", 1)
+    repl.test("task E Science<OlympusConference>")
+
+    repl.test("mode green")
+
     repl.test(
         "exec -4 Steel THEN -1 THEN DevelopmentCenter",
         "task A ProjectCard FROM Science<OlympusConference>")
@@ -308,6 +319,27 @@ class EntireGameTest {
   }
 }
 
+fun ReplSession.playCard(mega: Int, cardName: String, vararg tasks: String) {
+  test("exec Turn", 1)
+  test("task A UseAction1<PlayCardFromHand>", 1)
+  test("task B PlayCard<Class<$cardName>>", 1)
+  if (mega > 0) {
+    test("task C $mega Pay<Class<M>> FROM M", tasks.size)
+  } else {
+    test("task C Ok", tasks.size)
+  }
+  var left = tasks.size
+  for (task in tasks) test(task, --left)
+}
+
+fun ReplSession.useAction1(cardName: String, vararg tasks: String) {
+  test("exec Turn", 1)
+  test("task A UseAction1<UseActionFromCard>", 1)
+  test("task B UseAction1<$cardName> THEN ActionUsedMarker<$cardName>", 1)
+  var left = tasks.size
+  for (task in tasks) test(task, --left)
+}
+
 fun ReplSession.test(s: String, tasksExpected: Int = 0) {
   val (cmd, args) = s.split(" ", limit = 2)
   commands[cmd]!!.withArgs(args)
@@ -325,5 +357,4 @@ fun ReplSession.assertCount(text: String, i: Int) {
   assertThat(session.count(metric(text))).isEqualTo(i)
 }
 
-fun ReplSession.counts(text: String): List<Int> =
-    text.split(",").map { session.count(metric(it)) }
+fun ReplSession.counts(text: String): List<Int> = text.split(",").map { session.count(metric(it)) }

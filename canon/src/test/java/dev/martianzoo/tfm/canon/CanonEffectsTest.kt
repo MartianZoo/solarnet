@@ -83,7 +83,7 @@ private class CanonEffectsTest {
             "This:: -CorporationCard<Owner>!",
             "This:: EarthTag<Owner, Teractor<Owner>>!",
             "This: 60 Megacredit<Owner>!",
-            "PlayTag<Owner, Class<EarthTag>>:: -3 Owed<Owner>.",
+            "PlayTag<Owner, Class<EarthTag>>:: -3 Owed<Owner, Class<Megacredit>>.",
         )
   }
 

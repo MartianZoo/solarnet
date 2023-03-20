@@ -13,13 +13,20 @@ data class ActiveEffect(
     val instruction: Instruction,
 ) {
   companion object {
-    fun from(it: Effect, context: Component) =
-        ActiveEffect(context, ActiveTrigger.from(it.trigger), it.automatic, it.instruction)
+    fun from(it: Effect, context: Component, game: Game) =
+        ActiveEffect(context,
+            ActiveTrigger.from(it.trigger, context, game),
+            it.automatic,
+            it.instruction)
   }
 
-  fun onChange(triggerEvent: ChangeEvent, game: Game, isSelf: Boolean): FiredEffect? {
+  fun onChangeToSelf(triggerEvent: ChangeEvent) = onChange(triggerEvent, isSelf = true)
+
+  fun onChangeToOther(triggerEvent: ChangeEvent) = onChange(triggerEvent, isSelf = false)
+
+  private fun onChange(triggerEvent: ChangeEvent, isSelf: Boolean): FiredEffect? {
     val actor = context.owner()?.let(::Actor) ?: triggerEvent.actor
-    val hit = trigger.match(triggerEvent, actor, game, isSelf) ?: return null
+    val hit = trigger.match(triggerEvent, actor, isSelf) ?: return null
     return FiredEffect(hit(instruction), actor, Cause(context, triggerEvent), automatic)
   }
 

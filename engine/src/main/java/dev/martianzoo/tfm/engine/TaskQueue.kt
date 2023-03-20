@@ -20,6 +20,7 @@ class TaskQueue(val eventLog: EventLog) {
   operator fun get(id: TaskId) = taskMap[id] ?: error("no task with id: $id")
 
   val size by taskMap::size
+  val ids by taskMap::keys
   fun isEmpty() = taskMap.isEmpty()
 
   fun addTasks(effect: FiredEffect) = addTasks(effect.instruction, effect.actor, effect.cause)

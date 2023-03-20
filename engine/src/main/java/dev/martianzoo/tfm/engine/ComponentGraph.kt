@@ -21,7 +21,8 @@ public class ComponentGraph {
     return cpt.hasType(type) // BIGTODO check refinements too
   }
 
-  internal fun allActiveEffects(): Multiset<ActiveEffect> = multiset.flatMap { it.activeEffects }
+  internal fun allActiveEffects(game: Game): Multiset<ActiveEffect> =
+      multiset.flatMap { it.activeEffects(game) }
 
   // only called by Game.silentChange
   public fun update(
