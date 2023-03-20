@@ -100,7 +100,7 @@ constructor(
     fun scalar(): Parser<Scalar> {
       val actual: Parser<ActualScalar> = rawScalar map ::ActualScalar
       val xScalar: Parser<XScalar> = optional(rawScalar) and skip(_x) map { XScalar(it ?: 1) }
-      return actual or xScalar
+      return xScalar or actual
     }
 
     fun parser(): Parser<ScaledExpression> {

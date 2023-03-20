@@ -34,6 +34,7 @@ public data class ClassDeclaration(
           .asSequence()
           .flatMap { it.descendantsOfType<Expression>() }
           .filter { it.simple }
+          .distinct()
           .classNames()
 
   public val bareNamesInDependencies: Set<ClassName> by lazy {

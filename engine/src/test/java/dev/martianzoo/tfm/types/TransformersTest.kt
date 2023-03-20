@@ -7,6 +7,7 @@ import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.pets.ast.Instruction.Companion.instruction
 import dev.martianzoo.tfm.types.Transformers.InsertDefaults
+import dev.martianzoo.tfm.types.Transformers.ResolveXs
 import org.junit.jupiter.api.Test
 
 class TransformersTest {
@@ -48,5 +49,19 @@ class TransformersTest {
   ) {
     val xfd = InsertDefaults(loader, context).transform(instruction(original))
     assertThat(xfd.toString()).isEqualTo(expected)
+  }
+
+  @Test
+  fun testXs() {
+    val insul = instruction("PROD[-X Heat THEN X Megacredit]")
+    val insul8 = ResolveXs(8).transform(insul)
+    assertThat(insul8).isEqualTo(instruction("PROD[-8 Heat THEN 8 Megacredit]"))
+  }
+
+  @Test
+  fun testXs2() {
+    val insul = instruction("PROD[-X Heat THEN X]")
+    val insul8 = ResolveXs(8).transform(insul)
+    assertThat(insul8).isEqualTo(instruction("PROD[-8 Heat THEN 8]"))
   }
 }

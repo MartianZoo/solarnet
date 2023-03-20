@@ -133,8 +133,10 @@ public class PlayerAgent(val game: Game, val actor: Actor) {
 
     when (instruction) {
       is Change -> {
+        val scal = instruction.count as? ActualScalar
+            ?: throw AbstractInstructionException(instruction, "Need a value for X")
         writer.write(
-            count = (instruction.count as ActualScalar).value * multiplier,
+            count = scal.value * multiplier,
             gaining = instruction.gaining?.let(game::resolve),
             removing = instruction.removing?.let(game::resolve),
             amap = isAmap(instruction),

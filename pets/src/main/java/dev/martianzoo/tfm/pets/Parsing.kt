@@ -97,7 +97,7 @@ public object Parsing {
               .filterNot { it.type.ignored }
               .joinToString(" ") { it.type.name?.replace("\n", "\\n") ?: "NULL" }
 
-      throw IllegalArgumentException("input was:\n$source\n\ntoken stream: $tokenStream")
+      throw IllegalArgumentException("input was:\n$source\n\ntoken stream: $tokenStream", e)
     }
   }
 

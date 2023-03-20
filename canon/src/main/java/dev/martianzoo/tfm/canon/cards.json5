@@ -1713,6 +1713,16 @@
       "projectKind": "AUTOMATED"
     },
 
+    // Insulation
+    {
+      "id": "152",
+      "bundle": "B",
+      "deck": "PROJECT",
+      "immediate": "PROD[-X Heat THEN X]",
+      "cost": 2,
+      "projectKind": "AUTOMATED"
+    },
+
     // Designed Microorganisms
     {
       "id": "155",

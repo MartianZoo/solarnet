@@ -21,6 +21,7 @@ import dev.martianzoo.tfm.pets.ast.ScaledExpression.Companion.scaledEx
 import dev.martianzoo.tfm.pets.ast.ScaledExpression.Scalar
 import dev.martianzoo.tfm.pets.ast.ScaledExpression.Scalar.ActualScalar
 import dev.martianzoo.tfm.pets.ast.ScaledExpression.Scalar.Companion.checkNonzero
+import dev.martianzoo.tfm.pets.ast.ScaledExpression.Scalar.XScalar
 import dev.martianzoo.util.Reifiable
 import dev.martianzoo.util.toSetStrict
 
@@ -262,6 +263,22 @@ public sealed class Instruction : PetNode() {
       for ((yours, mine) in proposed.instructions.zip(instructions)) {
         yours.ensureReifies(mine, einfo)
       }
+      val maybeXs = this.descendantsOfType<Scalar>()
+      if (maybeXs.any { it is XScalar }) {
+        val noXs = proposed.descendantsOfType<ActualScalar>()
+        require(maybeXs.size == noXs.size) { "$maybeXs / $noXs" }
+
+        val allXValues = mutableSetOf<Int>()
+        for ((maybeX, noX) in maybeXs.zip(noXs)) {
+          if (maybeX is XScalar) {
+            require(noX.value % maybeX.multiple == 0)
+            allXValues += noX.value / maybeX.multiple
+          }
+        }
+        if (allXValues.size > 1) {
+          throw InvalidReificationException("Can't set different values for X: $allXValues")
+        }
+      }
     }
 
     override fun toString() = toString(" THEN ")
@@ -362,9 +379,8 @@ public sealed class Instruction : PetNode() {
     override fun ensureNarrows(that: AsReifiable) {
       val abstractTarget = that.instruction
       if (abstractTarget !is Or &&
-        instruction != nullInstruction &&
-        instruction::class != abstractTarget::class
-      ) {
+          instruction != nullInstruction &&
+          instruction::class != abstractTarget::class) {
         throw InvalidReificationException(
             "A ${instruction::class.simpleName} instruction can't reify a" +
                 " ${abstractTarget::class.simpleName} instruction")
@@ -415,10 +431,8 @@ public sealed class Instruction : PetNode() {
 
     internal fun parser(): Parser<Instruction> {
       return parser {
-        val scaledEx: Parser<ScaledExpression> = ScaledExpression.parser()
-
         val gain: Parser<Gain> =
-            scaledEx and optional(intensity) map { (ste, int) -> Gain(ste, int) }
+            ScaledExpression.parser() and optional(intensity) map { (ste, int) -> Gain(ste, int) }
         val remove: Parser<Remove> =
             skipChar('-') and gain map { Remove(it.scaledEx, it.intensity) }
 

@@ -21,6 +21,7 @@ import dev.martianzoo.tfm.pets.ast.Instruction.Transmute
 import dev.martianzoo.tfm.pets.ast.PetNode
 import dev.martianzoo.tfm.pets.ast.ScaledExpression.Companion.scaledEx
 import dev.martianzoo.tfm.pets.ast.ScaledExpression.Scalar.ActualScalar
+import dev.martianzoo.tfm.pets.ast.ScaledExpression.Scalar.XScalar
 import dev.martianzoo.tfm.pets.ast.classNames
 import dev.martianzoo.tfm.types.Dependency.Key
 import dev.martianzoo.tfm.types.Transformers.ReplaceThisWith
@@ -135,6 +136,19 @@ public object Transformers {
       val one = node.copy(scaledEx = scex.copy(scalar = ActualScalar(1)))
       ourMulti = Multi((1..value).map { one })
       return ourMulti as P // TODO Uh oh
+    }
+  }
+
+  class ResolveXs(val value: Int) : PetTransformer() {
+    init {
+      require (value >= 1)
+    }
+    override fun <P : PetNode> transform(node: P): P {
+      return if (node is XScalar) {
+        ActualScalar(node.multiple * value) as P // cheating!
+      } else {
+        transformChildren(node)
+      }
     }
   }
 

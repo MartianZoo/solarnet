@@ -146,7 +146,7 @@ private object CopyProductionBox : CustomInstruction("copyProductionBox") {
     if (chosenCardType.abstract) throw AbstractInstructionException(chosenCardType)
     val def = game.authority.card(chosenCardType.className)
 
-    val nodes: Set<Transform> = def.immediate?.descendantsOfType() ?: setOf()
+    val nodes: List<Transform> = def.immediate?.descendantsOfType() ?: listOf()
     val matches = nodes.filter { it.transformKind == "PROD" }
 
     when (matches.size) {

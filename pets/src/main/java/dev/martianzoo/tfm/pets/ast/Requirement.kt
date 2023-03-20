@@ -2,6 +2,7 @@ package dev.martianzoo.tfm.pets.ast
 
 import com.github.h0tk3y.betterParse.combinators.and
 import com.github.h0tk3y.betterParse.combinators.map
+import com.github.h0tk3y.betterParse.combinators.optional
 import com.github.h0tk3y.betterParse.combinators.or
 import com.github.h0tk3y.betterParse.combinators.separatedTerms
 import com.github.h0tk3y.betterParse.combinators.skip
@@ -10,8 +11,12 @@ import com.github.h0tk3y.betterParse.parser.Parser
 import dev.martianzoo.tfm.api.SpecialClassNames.THIS
 import dev.martianzoo.tfm.pets.BaseTokenizer
 import dev.martianzoo.tfm.pets.Parsing
+import dev.martianzoo.tfm.pets.PetException
 import dev.martianzoo.tfm.pets.ast.Effect.Trigger.IfTrigger
+import dev.martianzoo.tfm.pets.ast.ScaledExpression.Companion.scaledEx
 import dev.martianzoo.tfm.pets.ast.ScaledExpression.Scalar
+import dev.martianzoo.tfm.pets.ast.ScaledExpression.Scalar.ActualScalar
+import dev.martianzoo.tfm.pets.ast.ScaledExpression.Scalar.XScalar
 
 sealed class Requirement : PetNode() {
   open fun requiresThis() = false // TODO kick this out
@@ -23,6 +28,9 @@ sealed class Requirement : PetNode() {
     override fun toString() = "$scaledEx"
 
     init {
+      if (scaledEx.scalar is XScalar) {
+        throw PetException("can't use X in requirements (yet?)")
+      }
       Scalar.checkNonzero(scaledEx.scalar)
     }
 
@@ -30,11 +38,21 @@ sealed class Requirement : PetNode() {
   }
 
   data class Max(val scaledEx: ScaledExpression) : Requirement() {
+    init {
+      if (scaledEx.scalar is XScalar) {
+        throw PetException("can't use X in requirements (yet?)")
+      }
+    }
     override fun visitChildren(visitor: Visitor) = visitor.visit(scaledEx)
     override fun toString() = "MAX ${scaledEx.toFullString()}" // no "MAX 5" or "MAX Heat"
   }
 
   data class Exact(val scaledEx: ScaledExpression) : Requirement() {
+    init {
+      if (scaledEx.scalar is XScalar) {
+        throw PetException("can't use X in requirements (yet?)")
+      }
+    }
     override fun visitChildren(visitor: Visitor) = visitor.visit(scaledEx)
     override fun toString() = "=${scaledEx.toFullString()}" // no "=5" or "=Heat"
 
@@ -110,7 +128,14 @@ sealed class Requirement : PetNode() {
     /** A requirement suitable for being nested directly in something else. */
     internal fun atomParser(): Parser<Requirement> {
       return parser {
-        val scaledEx = ScaledExpression.parser()
+        val scaledEx = parser {
+          val scalarAndOptionalEx = rawScalar and optional(Expression.parser())
+          val optionalScalarAndEx = optional(rawScalar) and Expression.parser()
+
+          scalarAndOptionalEx or optionalScalarAndEx map { (scalar, expr) ->
+            scaledEx(ActualScalar(scalar ?: 1), expr)
+          }
+        }
         val min = scaledEx map ::Min
         val max = skip(_max) and scaledEx map ::Max
         val exact = skipChar('=') and scaledEx map ::Exact

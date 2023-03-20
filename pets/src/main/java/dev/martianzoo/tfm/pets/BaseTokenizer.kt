@@ -34,7 +34,7 @@ public open class BaseTokenizer {
   internal val _max = literal("MAX")
   internal val _or = literal("OR")
   internal val _then = literal("THEN")
-  internal val _x = regex(Regex("X\b"))
+  internal val _x = regex(Regex("X\\b"), "X")
 
   // class declarations
   internal val _abstract = literal("ABSTRACT")
@@ -44,8 +44,9 @@ public open class BaseTokenizer {
   // regexes - could leave the `Regex()` out, but it loses IDEA syntax highlighting!
   internal val _upperCamelRE = regex(Regex("""\b[A-Z][a-z][A-Za-z0-9_]*\b"""), "UpperCamel")
   internal val _lowerCamelRE = regex(Regex("""\b[a-z][a-zA-Z0-9]*\b"""), "lowerCamel")
-  internal val _allCapsWordRE = regex(Regex("""\b[A-Z][A-Z0-9]{0,4}\b"""), "ALLCAPS")
-  private val _scalarRE = regex(Regex("""\b(0|[1-9][0-9]*)\b"""), "scalar")
+  // can't match just X!
+  internal val _allCapsWordRE = regex(Regex("""\b([A-WYZ]|[A-Z][A-Z0-9]{1,3})\b"""), "ALLCAPS")
+  private val _scalarRE = regex(Regex("""\b(0|[1-9][0-9]*)"""), "scalar")
 
   internal val rawScalar: Parser<Int> = _scalarRE map { it.text.toInt() }
 

@@ -34,17 +34,16 @@ public sealed class PetNode {
   }
 
   /** Returns every child node (including `this`) that is of type [P]. */
-  public inline fun <reified P : PetNode> descendantsOfType(): Set<P> = descendantsOfType(P::class)
+  public inline fun <reified P : PetNode> descendantsOfType(): List<P> = descendantsOfType(P::class)
 
   /** Returns every child node (including `this`) that is of type [P]. */
-  public fun <P : PetNode> descendantsOfType(type: KClass<P>): Set<P> {
-    val found = mutableSetOf<P?>()
+  public fun <P : PetNode> descendantsOfType(type: KClass<P>): List<P> {
+    val found = mutableListOf<P?>()
     visitDescendants {
       found += type.safeCast(it)
       true
     }
-    found -= null
-    @Suppress("UNCHECKED_CAST") return found as Set<P>
+    return found.filterNotNull()
   }
 
   public operator fun contains(node: PetNode): Boolean {
