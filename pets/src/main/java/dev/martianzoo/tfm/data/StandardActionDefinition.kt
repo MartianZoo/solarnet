@@ -3,7 +3,8 @@ package dev.martianzoo.tfm.data
 import dev.martianzoo.tfm.data.EnglishHack.englishHack
 import dev.martianzoo.tfm.data.SpecialClassNames.STANDARD_ACTION
 import dev.martianzoo.tfm.data.SpecialClassNames.STANDARD_PROJECT
-import dev.martianzoo.tfm.pets.PureTransformers.actionListToEffects
+import dev.martianzoo.tfm.pets.PureTransformers.rawActionListToEffects
+import dev.martianzoo.tfm.pets.Raw
 import dev.martianzoo.tfm.pets.ast.Action
 import dev.martianzoo.tfm.pets.ast.ClassName
 
@@ -11,7 +12,7 @@ data class StandardActionDefinition(
     override val shortName: ClassName,
     override val bundle: String,
     val project: Boolean,
-    val action: Action,
+    val action: Raw<Action>,
 ) : Definition {
   init {
     require(bundle.isNotEmpty())
@@ -26,7 +27,7 @@ data class StandardActionDefinition(
         shortName = shortName,
         abstract = false,
         supertypes = setOf(kind.expr),
-        effectsIn = actionListToEffects(listOf(action)),
+        effectsIn = rawActionListToEffects(listOf(action)),
     )
   }
 }

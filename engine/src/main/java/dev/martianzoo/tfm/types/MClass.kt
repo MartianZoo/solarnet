@@ -204,8 +204,8 @@ internal constructor(
             // Not needed: ReplaceThisWith, ReplaceOwnerWith, Deprodify,
         )
     declaration.effects
-        .map { it.copy(effect = transformer.transform(it.effect)) }
-        .sortedBy { it.effect }
+        .map { it.copy(effect = it.effect.map(transformer::transform)) }
+        .sortedBy { it.effect.element }
   }
 
   // OTHER

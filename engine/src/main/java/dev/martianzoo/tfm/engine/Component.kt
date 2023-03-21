@@ -54,7 +54,7 @@ public data class Component private constructor(val mtype: MType) : HasExpressio
           replaceThisWith(mtype.expression),
           xers.deprodify(),
           owner()?.let { replaceOwnerWith(it) },
-      ).transform(decl.effect)
+      ).transform(decl.effect.element) // TODO
       ActiveEffect.from(blah, this, game, decl.triggerLinkages)
     }
   }

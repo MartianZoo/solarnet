@@ -106,10 +106,10 @@ public class CardDefinition(data: CardData) : Definition {
   /** Extra information that only project cards have. */
   public class ProjectInfo(data: CardData) {
     val kind: ProjectKind = ProjectKind.valueOf(data.projectKind!!)
+
     /** The card's requirement, if any. */
-    val requirement: Raw<Requirement>? = data.requirement?.let {
-      parseRaw(it, DEFAULTS, PROD_BLOCKS, DEPENDENCY_SPEC)
-    }
+    val requirement: Raw<Requirement>? =
+        data.requirement?.let { parseRaw(it, DEFAULTS, PROD_BLOCKS, DEPENDENCY_SPEC) }
 
     /** The card's non-negative cost in megacredits. */
     val cost: Int = data.cost
@@ -142,19 +142,18 @@ public class CardDefinition(data: CardData) : Definition {
   override val asClassDeclaration by lazy {
     val supertypes =
         setOfNotNull(
-                projectInfo?.kind?.className?.expr,
-                resourceType?.let { RESOURCE_CARD.addArgs(it.classExpression()) },
-                if (actions.any()) ACTION_CARD.expr else null,
-            )
+            projectInfo?.kind?.className?.expr,
+            resourceType?.let { RESOURCE_CARD.addArgs(it.classExpression()) },
+            if (actions.any()) ACTION_CARD.expr else null,
+        )
             .ifEmpty { setOf(CARD_FRONT.expr) }
 
     val zapHandCard: Raw<Instruction>? = deck?.className?.let { parseRaw("-$it", DEFAULTS) }
     val createTags: List<Instruction> = tags.toList().map { parseElement("$it<$THIS>") }
-    val createTagsMerged: Raw<Instruction>? = Multi.create(createTags)?.let {
-      Raw(it, setOf(DEFAULTS, THIS_EXPRESSIONS))
-    }
+    val createTagsMerged: Raw<Instruction>? =
+        Multi.create(createTags)?.let { Raw(it, setOf(DEFAULTS, THIS_EXPRESSIONS)) }
     val automatic: List<Raw<Effect>> =
-        listOfNotNull(zapHandCard, createTagsMerged).map { immediateToEffect(it, automatic = true) }
+        listOfNotNull(zapHandCard, createTagsMerged).map { it.map { immediateToEffect(it, true) } }
 
     val allEffects: List<Raw<Effect>> =
         automatic +
@@ -167,7 +166,7 @@ public class CardDefinition(data: CardData) : Definition {
         shortName = shortName,
         abstract = false,
         supertypes = supertypes,
-        effectsIn = allEffects.map { it.element }.toSetStrict(), // TODO
+        effectsIn = allEffects.toSetStrict(), // TODO
         extraNodes = setOfNotNull(requirement?.element) + extraClasses.flatMap { it.allNodes })
   }
 

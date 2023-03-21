@@ -47,7 +47,7 @@ private class ClassDeclarationTest {
     assertThat(decl.dependencies).containsExactly(dep)
     assertThat(decl.supertypes).containsExactly(sup)
     assertThat(decl.invariants).containsExactly(inv)
-    assertThat(decl.effects.map { it.effect }).containsExactly(eff, act)
+    assertThat(decl.effects.map { it.effect.element }).containsExactly(eff, act)
     assertThat(decl.defaultsDeclaration.gainOnlySpecs).containsExactly(gain)
     assertThat(decl.defaultsDeclaration.universalSpecs).containsExactly(univ)
     assertThat(decl.defaultsDeclaration.gainIntensity).isEqualTo(Intensity.OPTIONAL)

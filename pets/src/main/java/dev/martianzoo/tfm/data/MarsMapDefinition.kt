@@ -3,6 +3,9 @@ package dev.martianzoo.tfm.data
 import dev.martianzoo.tfm.api.SpecialClassNames.THIS
 import dev.martianzoo.tfm.data.SpecialClassNames.MARS_MAP
 import dev.martianzoo.tfm.data.SpecialClassNames.TILE
+import dev.martianzoo.tfm.pets.PetFeature.Companion.STANDARD_FEATURES
+import dev.martianzoo.tfm.pets.PetFeature.THIS_EXPRESSIONS
+import dev.martianzoo.tfm.pets.Raw
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.pets.ast.Effect
@@ -65,7 +68,10 @@ data class MarsMapDefinition(
           shortName = shortName,
           abstract = false,
           supertypes = setOf(kind.expr),
-          effectsIn = bonus?.let { setOf(Effect(trigger, it, false)) } ?: setOf(),
+          effectsIn = setOfNotNull(
+              bonus?.let {
+                Raw(Effect(trigger, it, false), STANDARD_FEATURES + THIS_EXPRESSIONS)
+              })
       )
     }
 

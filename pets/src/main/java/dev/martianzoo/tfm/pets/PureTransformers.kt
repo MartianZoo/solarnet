@@ -37,7 +37,7 @@ public object PureTransformers {
   }
 
   internal fun actionToEffect(action: Raw<Action>, index1Ref: Int): Raw<Effect> =
-      Raw(actionToEffect(action.element, index1Ref), action.features)
+      action.map { actionToEffect(it, index1Ref) }
 
   internal fun actionToEffect(action: Action, index1Ref: Int): Effect {
     require(index1Ref >= 1) { index1Ref }
@@ -79,24 +79,21 @@ public object PureTransformers {
           .map { (index0Ref, action) -> actionToEffect(action, index1Ref = index0Ref + 1) }
           .toSetStrict()
 
-  internal fun immediateToEffect(instruction: Instruction, automatic: Boolean = false): Effect {
-    return Effect(WhenGain, instruction, automatic = automatic)
-  }
+  internal fun immediateToEffect(instruction: Instruction, automatic: Boolean = false) =
+      Effect(WhenGain, instruction, automatic = automatic)
 
-  internal fun immediateToEffect(instruction: Raw<Instruction>, automatic: Boolean = false):
-      Raw<Effect> {
-    return Raw(Effect(WhenGain, instruction.element, automatic = automatic), instruction.features)
-  }
+  internal fun immediateToEffect(instruction: Raw<Instruction>, automatic: Boolean = false) =
+      instruction.map { immediateToEffect(it, automatic) }
 
   // TODO check if this really what callers want to do
   public fun <P : PetNode> P.replaceAll(from: PetNode, to: PetNode): P {
     if (from == to) return this
     return object : PetTransformer() {
-          override fun <Q : PetNode> transform(node: Q): Q =
-              if (node == from) {
-                @Suppress("UNCHECKED_CAST")
-                to as Q
-              } else {
+      override fun <Q : PetNode> transform(node: Q): Q =
+          if (node == from) {
+            @Suppress("UNCHECKED_CAST")
+            to as Q
+          } else {
                 transformChildren(node)
               }
         }

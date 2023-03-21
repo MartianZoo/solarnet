@@ -17,7 +17,7 @@ private class CanonEffectsTest {
     loader.load(GLOBAL_PARAMETER)
     val card = loader.load(cn(name))
     loader.frozen = true
-    return card.classEffects.map { "${it.effect}" }
+    return card.classEffects.map { "${it.effect.element}" }
   }
 
   @Test

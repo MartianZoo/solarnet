@@ -4,6 +4,9 @@ import com.squareup.moshi.Json
 import dev.martianzoo.tfm.api.SpecialClassNames.OK
 import dev.martianzoo.tfm.data.EnglishHack.englishHack
 import dev.martianzoo.tfm.data.SpecialClassNames.MILESTONE
+import dev.martianzoo.tfm.pets.PetFeature.DEFAULTS
+import dev.martianzoo.tfm.pets.PetFeature.PROD_BLOCKS
+import dev.martianzoo.tfm.pets.Raw
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.pets.ast.Effect.Companion.effect
 import dev.martianzoo.tfm.pets.ast.Requirement
@@ -33,6 +36,6 @@ data class MilestoneDefinition(
         shortName,
         abstract = false,
         supertypes = setOf(MILESTONE.expr),
-        effectsIn = setOf(effect("This:: ($requirement: $OK)")))
+        effectsIn = setOf(Raw(effect("This:: ($requirement: $OK)"), setOf(DEFAULTS, PROD_BLOCKS))))
   }
 }

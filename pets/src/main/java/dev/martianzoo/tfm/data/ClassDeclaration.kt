@@ -1,5 +1,6 @@
 package dev.martianzoo.tfm.data
 
+import dev.martianzoo.tfm.pets.Raw
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.Effect
 import dev.martianzoo.tfm.pets.ast.Expression
@@ -20,7 +21,7 @@ public data class ClassDeclaration(
     val dependencies: List<Expression> = listOf(),
     val supertypes: Set<Expression> = setOf(), // TODO do fancy Component stuff elsewhere?
     val invariants: Set<Requirement> = setOf(),
-    private val effectsIn: Set<Effect> = setOf(),
+    private val effectsIn: Set<Raw<Effect>> = setOf(),
     val defaultsDeclaration: DefaultsDeclaration = DefaultsDeclaration(),
     val extraNodes: Set<PetNode> = setOf(),
 ) : HasClassName {
@@ -44,24 +45,24 @@ public data class ClassDeclaration(
   // EFFECTS
 
   data class EffectDeclaration(
-      val effect: Effect,
+      val effect: Raw<Effect>,
       val depLinkages: Set<ClassName>,
       val triggerLinkages: Set<ClassName> = setOf(),
   )
 
   public val effects: List<EffectDeclaration> by lazy {
     effectsIn.map {
-      val depLinkages = bareNamesInEffects[it]!!.intersect(bareNamesInDependencies)
-      EffectDeclaration(it, depLinkages, triggerLinkages[it]!!)
+      val depLinkages = bareNamesInEffects[it.element]!!.intersect(bareNamesInDependencies)
+      EffectDeclaration(it, depLinkages, triggerLinkages[it.element]!!)
     }
   }
 
   public val bareNamesInEffects: Map<Effect, Set<ClassName>> by lazy {
-    effectsIn.associateWith(::simpleClassNamesIn)
+    effectsIn.map { it.element }.associateWith(::simpleClassNamesIn)
   }
 
   public val triggerLinkages: Map<Effect, Set<ClassName>> by lazy {
-    effectsIn.associateWith {
+    effectsIn.map { it.element }.associateWith {
       simpleClassNamesIn(it.trigger).intersect(simpleClassNamesIn(it.instruction))
     }
   }
@@ -108,7 +109,7 @@ public data class ClassDeclaration(
         supertypes +
         dependencies +
         invariants +
-        effectsIn +
+        effectsIn.map { it.element } +
         defaultsDeclaration.allNodes +
         extraNodes
   }

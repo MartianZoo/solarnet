@@ -40,7 +40,7 @@ object MTypeToText { // TODO refactor to ClassInfo / TypeInfo type dealies
     // BIGTODO invariants seemingly not working?
     val effex = mclass.classEffects.joinToString("""
                            """) {
-      "${it.effect}" + if (it.depLinkages.any()) " ${it.depLinkages}" else ""
+      "${it.effect.element}" + if (it.depLinkages.any()) " ${it.depLinkages}" else ""
     }
     val classStuff =
         """

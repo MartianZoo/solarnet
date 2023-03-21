@@ -22,7 +22,9 @@ import dev.martianzoo.tfm.pets.ClassDeclarationParsers.BodyElements.bodyElementE
 import dev.martianzoo.tfm.pets.ClassDeclarationParsers.NestableDecl.IncompleteNestableDecl
 import dev.martianzoo.tfm.pets.ClassDeclarationParsers.Signatures.moreSignatures
 import dev.martianzoo.tfm.pets.ClassDeclarationParsers.Signatures.signature
-import dev.martianzoo.tfm.pets.PureTransformers.actionListToEffects
+import dev.martianzoo.tfm.pets.PetFeature.Companion.ALL_FEATURES
+import dev.martianzoo.tfm.pets.PetFeature.SHORT_NAMES
+import dev.martianzoo.tfm.pets.PureTransformers.rawActionListToEffects
 import dev.martianzoo.tfm.pets.ast.Action
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.ClassName.Parsing.classFullName
@@ -202,8 +204,8 @@ internal object ClassDeclarationParsers : BaseTokenizer() {
 
     val invariants = getAll<InvariantElement>().map { it.invariant }
     val defaultses = getAll<DefaultsElement>().map { it.defaults }
-    val effects = getAll<EffectElement>().map { it.effect }
-    val actions = getAll<ActionElement>().map { it.action }
+    val effects = getAll<EffectElement>().map { Raw(it.effect, ALL_FEATURES - SHORT_NAMES) }
+    val actions = getAll<ActionElement>().map { Raw(it.action, ALL_FEATURES - SHORT_NAMES) }
     val nestedGroups = getAll<NestedDeclGroup>().map { it.declGroup }
 
     sealed class BodyElement {
@@ -237,7 +239,7 @@ internal object ClassDeclarationParsers : BaseTokenizer() {
             signature.asDeclaration.copy(
                 abstract = abstract,
                 invariants = body.invariants.toSetStrict(),
-                effectsIn = (body.effects + actionListToEffects(body.actions)).toSetStrict(),
+                effectsIn = (body.effects + rawActionListToEffects(body.actions)).toSetStrict(),
                 defaultsDeclaration = mergedDefaults,
             )
         val unnested = body.nestedGroups.flatMap { it.unnestAllFrom(signature.className) }
