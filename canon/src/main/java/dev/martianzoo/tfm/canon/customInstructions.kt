@@ -106,7 +106,7 @@ private object BeginPlayCard : CustomInstruction("beginPlayCard") {
   override fun translate(game: GameStateReader, arguments: List<Type>): Instruction {
     val cardName = arguments.single().expression.className
     val card = game.authority.card(cardName)
-    if (card.requirement?.let(game::evaluate) == false) {
+    if (card.requirement?.element?.let(game::evaluate) == false) { // TODO
       throw RequirementException("requirement not met: ${card.requirement}")
     }
 
@@ -146,7 +146,7 @@ private object CopyProductionBox : CustomInstruction("copyProductionBox") {
     if (chosenCardType.abstract) throw AbstractInstructionException(chosenCardType)
     val def = game.authority.card(chosenCardType.className)
 
-    val nodes: List<Transform> = def.immediate?.descendantsOfType() ?: listOf()
+    val nodes: List<Transform> = def.immediate?.element?.descendantsOfType() ?: listOf() // TODO
     val matches = nodes.filter { it.transformKind == "PROD" }
 
     when (matches.size) {

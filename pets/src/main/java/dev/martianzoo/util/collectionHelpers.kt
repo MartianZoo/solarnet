@@ -1,5 +1,6 @@
 package dev.martianzoo.util
 
+fun <T> Array<T>.toSetStrict() = toList().toSetStrict()
 fun <T> Iterable<T>.toSetStrict() =
     toSet().also { set -> require(set.size == this.count()) { "dupes: $this" } }
 

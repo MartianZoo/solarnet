@@ -24,7 +24,7 @@ public data class Effect(
     val trigger: Trigger,
     val instruction: Instruction,
     val automatic: Boolean = false,
-) : PetNode(), Comparable<Effect> {
+) : PetElement(), Comparable<Effect> {
 
   override val kind = Effect::class.simpleName!!
 

@@ -68,12 +68,12 @@ private class CardDefinitionTest {
     assertThat(birds.bundle).isEqualTo("B")
     assertThat(birds.deck).isEqualTo(PROJECT)
     assertThat(birds.tags.toStrings()).containsExactly("AnimalTag")
-    assertThat(birds.immediate?.toString()).isEqualTo("PROD[-2 Plant<Anyone>]")
-    assertThat(birds.actions.toStrings()).containsExactly("-> Animal<This>")
-    assertThat(birds.effects.toStrings()).containsExactly("End: VictoryPoint / Animal<This>")
+    assertThat(birds.immediate?.element?.toString()).isEqualTo("PROD[-2 Plant<Anyone>]")
+    assertThat(birds.actions.map { "${it.element}" }).containsExactly("-> Animal<This>")
+    assertThat(birds.effects.map { "${it.element}" }).containsExactly("End: VictoryPoint / Animal<This>")
     assertThat(birds.replaces).isNull()
     assertThat(birds.resourceType).isEqualTo(cn("Animal"))
-    assertThat(birds.requirement?.toString()).isEqualTo("13 OxygenStep")
+    assertThat(birds.requirement?.element?.toString()).isEqualTo("13 OxygenStep")
     assertThat(birds.cost).isEqualTo(10)
     assertThat(birds.projectInfo?.kind).isEqualTo(ACTIVE)
   }
@@ -164,9 +164,9 @@ private class CardDefinitionTest {
     Canon.cardDefinitions.forEach { card ->
       val data = cardRawData["${card.shortName}"]!!
       checkRoundTrip(data.tags, card.tags)
-      checkRoundTrip(listOfNotNull(data.immediate), listOfNotNull(card.immediate))
-      checkRoundTrip(data.actions, card.actions)
-      checkRoundTrip(data.effects, card.effects)
+      checkRoundTrip(listOfNotNull(data.immediate), listOfNotNull(card.immediate?.element))
+      checkRoundTrip(data.actions, card.actions.map { it.element })
+      checkRoundTrip(data.effects, card.effects.map { it.element })
     }
   }
 

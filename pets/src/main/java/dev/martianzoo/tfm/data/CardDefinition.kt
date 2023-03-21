@@ -1,6 +1,7 @@
 package dev.martianzoo.tfm.data
 
 import dev.martianzoo.tfm.api.SpecialClassNames.END
+import dev.martianzoo.tfm.api.SpecialClassNames.THIS
 import dev.martianzoo.tfm.data.CardDefinition.Deck.PROJECT
 import dev.martianzoo.tfm.data.CardDefinition.ProjectKind.ACTIVE
 import dev.martianzoo.tfm.data.EnglishHack.englishHack
@@ -13,20 +14,26 @@ import dev.martianzoo.tfm.data.SpecialClassNames.EVENT_CARD
 import dev.martianzoo.tfm.data.SpecialClassNames.PRELUDE_CARD
 import dev.martianzoo.tfm.data.SpecialClassNames.PROJECT_CARD
 import dev.martianzoo.tfm.data.SpecialClassNames.RESOURCE_CARD
+import dev.martianzoo.tfm.pets.Parsing.parseElement
 import dev.martianzoo.tfm.pets.Parsing.parseOneLineClassDeclaration
-import dev.martianzoo.tfm.pets.PureTransformers.actionListToEffects
+import dev.martianzoo.tfm.pets.Parsing.parseRaw
+import dev.martianzoo.tfm.pets.PetFeature.Companion.ALL_FEATURES
+import dev.martianzoo.tfm.pets.PetFeature.Companion.STANDARD_FEATURES
+import dev.martianzoo.tfm.pets.PetFeature.DEFAULTS
+import dev.martianzoo.tfm.pets.PetFeature.DEPENDENCY_SPEC
+import dev.martianzoo.tfm.pets.PetFeature.PROD_BLOCKS
+import dev.martianzoo.tfm.pets.PetFeature.THIS_EXPRESSIONS
 import dev.martianzoo.tfm.pets.PureTransformers.immediateToEffect
-import dev.martianzoo.tfm.pets.ast.Action.Companion.action
+import dev.martianzoo.tfm.pets.PureTransformers.rawActionListToEffects
+import dev.martianzoo.tfm.pets.Raw
+import dev.martianzoo.tfm.pets.ast.Action
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.pets.ast.Effect
-import dev.martianzoo.tfm.pets.ast.Effect.Companion.effect
 import dev.martianzoo.tfm.pets.ast.Effect.Trigger.OnGainOf
 import dev.martianzoo.tfm.pets.ast.Instruction
-import dev.martianzoo.tfm.pets.ast.Instruction.Companion.instruction
 import dev.martianzoo.tfm.pets.ast.Instruction.Multi
 import dev.martianzoo.tfm.pets.ast.Requirement
-import dev.martianzoo.tfm.pets.ast.Requirement.Companion.requirement
 import dev.martianzoo.util.HashMultiset
 import dev.martianzoo.util.Multiset
 import dev.martianzoo.util.toSetStrict
@@ -72,19 +79,22 @@ public class CardDefinition(data: CardData) : Definition {
   public val tags: Multiset<ClassName> = HashMultiset(data.tags.map(::cn))
 
   /** Immediate effects on the card, if any. */
-  public val immediate: Instruction? = data.immediate?.let(::instruction)
+  public val immediate: Raw<Instruction>? =
+      data.immediate?.let { parseRaw(it, STANDARD_FEATURES + DEPENDENCY_SPEC + THIS_EXPRESSIONS) }
 
   /**
    * Actions on the card, if any, each expressed as a PETS `Action`. `AUTOMATED` and `EVENT` cards
    * may not have these.
    */
-  public val actions = data.actions.map(::action).toSetStrict()
+  public val actions: List<Raw<Action>> =
+      data.actions.map { parseRaw(it, STANDARD_FEATURES + DEPENDENCY_SPEC + THIS_EXPRESSIONS) }
 
   /**
    * Effects on the card, if any, each expressed as a PETS `Effect`. `AUTOMATED` and `EVENT` cards
    * may not have these.
    */
-  public val effects = data.effects.map(::effect).toSetStrict()
+  public val effects: Set<Raw<Effect>> =
+      data.effects.map { parseRaw<Effect>(it, ALL_FEATURES) }.toSetStrict()
 
   /**
    * The type of `CardResource` this card can hold, if any. If this is non-null, then the class this
@@ -97,7 +107,10 @@ public class CardDefinition(data: CardData) : Definition {
   public class ProjectInfo(data: CardData) {
     val kind: ProjectKind = ProjectKind.valueOf(data.projectKind!!)
     /** The card's requirement, if any. */
-    val requirement: Requirement? = data.requirement?.let(::requirement)
+    val requirement: Raw<Requirement>? = data.requirement?.let {
+      parseRaw(it, DEFAULTS, PROD_BLOCKS, DEPENDENCY_SPEC)
+    }
+
     /** The card's non-negative cost in megacredits. */
     val cost: Int = data.cost
 
@@ -107,7 +120,7 @@ public class CardDefinition(data: CardData) : Definition {
   }
 
   /** The card's requirement, if any. */
-  public val requirement: Requirement? = projectInfo?.requirement
+  public val requirement: Raw<Requirement>? = projectInfo?.requirement
 
   /** The card's non-negative cost in megacredits. */
   public val cost: Int = projectInfo?.cost ?: 0
@@ -116,8 +129,8 @@ public class CardDefinition(data: CardData) : Definition {
     if (deck == PROJECT) {
       val shouldBeActive =
           actions.any() ||
-              effects.any { it.trigger != OnGainOf.create(END.expr) } ||
-              resourceType != null
+          effects.any { it.element.trigger != OnGainOf.create(END.expr) } ||
+          resourceType != null
       require(shouldBeActive == (projectInfo?.kind == ACTIVE))
     }
   }
@@ -135,24 +148,27 @@ public class CardDefinition(data: CardData) : Definition {
             )
             .ifEmpty { setOf(CARD_FRONT.expr) }
 
-    val automatic: List<Effect> =
-        listOfNotNull(
-                deck?.className?.let { instruction("-$it") },
-                Multi.create(tags.toList().map { instruction("$it<$className>!") }))
-            .map { immediateToEffect(it, automatic = true) }
-    val allEffects: List<Effect> =
+    val zapHandCard: Raw<Instruction>? = deck?.className?.let { parseRaw("-$it", DEFAULTS) }
+    val createTags: List<Instruction> = tags.toList().map { parseElement("$it<$THIS>") }
+    val createTagsMerged: Raw<Instruction>? = Multi.create(createTags)?.let {
+      Raw(it, setOf(DEFAULTS, THIS_EXPRESSIONS))
+    }
+    val automatic: List<Raw<Effect>> =
+        listOfNotNull(zapHandCard, createTagsMerged).map { immediateToEffect(it, automatic = true) }
+
+    val allEffects: List<Raw<Effect>> =
         automatic +
-            listOfNotNull(immediate).map { immediateToEffect(it, automatic = false) } +
-            effects +
-            actionListToEffects(actions)
+        listOfNotNull(immediate).map { immediateToEffect(it, automatic = false) } +
+        effects +
+        rawActionListToEffects(actions)
 
     ClassDeclaration(
         className = className,
         shortName = shortName,
         abstract = false,
         supertypes = supertypes,
-        effectsIn = allEffects.toSetStrict(),
-        extraNodes = setOfNotNull(requirement) + extraClasses.flatMap { it.allNodes })
+        effectsIn = allEffects.map { it.element }.toSetStrict(), // TODO
+        extraNodes = setOfNotNull(requirement?.element) + extraClasses.flatMap { it.allNodes })
   }
 
   /** The deck this card belongs to; see [CardDefinition.deck]. */

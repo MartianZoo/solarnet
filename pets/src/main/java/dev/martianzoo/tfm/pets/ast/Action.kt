@@ -16,7 +16,7 @@ import dev.martianzoo.tfm.pets.ast.Instruction.Remove
 import dev.martianzoo.tfm.pets.ast.ScaledExpression.Scalar.Companion.checkNonzero
 import dev.martianzoo.util.suf
 
-public data class Action(val cost: Cost?, val instruction: Instruction) : PetNode() {
+public data class Action(val cost: Cost?, val instruction: Instruction) : PetElement() {
   override val kind = Action::class.simpleName!!
 
   override fun toString() = "${cost.suf(' ')}-> $instruction"

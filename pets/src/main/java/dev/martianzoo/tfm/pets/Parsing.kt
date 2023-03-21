@@ -22,11 +22,13 @@ import dev.martianzoo.tfm.pets.ast.Effect.Trigger
 import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.pets.ast.Instruction
 import dev.martianzoo.tfm.pets.ast.Metric
+import dev.martianzoo.tfm.pets.ast.PetElement
 import dev.martianzoo.tfm.pets.ast.PetNode
 import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.pets.ast.ScaledExpression
 import dev.martianzoo.util.Debug
 import dev.martianzoo.util.ParserGroup
+import dev.martianzoo.util.toSetStrict
 import kotlin.reflect.KClass
 import kotlin.reflect.cast
 
@@ -42,6 +44,16 @@ public object Parsing {
    */
   public inline fun <reified P : PetNode> parseElement(elementSource: String): P =
       parseElement(P::class, elementSource)
+
+  public inline fun <reified P : PetElement> parseRaw(
+      elementSource: String,
+      features: Set<PetFeature>
+  ): Raw<P> = Raw(parseElement(elementSource), features)
+
+  public inline fun <reified P : PetElement> parseRaw(
+      elementSource: String,
+      vararg features: PetFeature
+  ): Raw<P> = parseRaw(elementSource, features.toSetStrict())
 
   /**
    * Parses the PETS element in [elementSource], expecting a construct of type [P], and returning
@@ -85,6 +97,12 @@ public object Parsing {
     val tokens = tokenize(stripLineComments(declarationsSource))
     return parseRepeated(topLevelDeclarationGroup, tokens)
   }
+
+  public fun <P : PetElement> parse(
+      parser: Parser<P>,
+      source: String,
+      features: Set<PetFeature>
+  ): Raw<P> = Raw(parse(parser, source), features)
 
   /** A minor convenience function for parsing using a particular [Parser] instance. */
   public fun <T> parse(parser: Parser<T>, source: String): T {

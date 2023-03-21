@@ -25,7 +25,7 @@ import dev.martianzoo.tfm.pets.ast.ScaledExpression.Scalar.XScalar
 import dev.martianzoo.util.Reifiable
 import dev.martianzoo.util.toSetStrict
 
-public sealed class Instruction : PetNode() {
+public sealed class Instruction : PetElement() {
 
   // better pass at least 1
   abstract operator fun times(factor: Int): Instruction

@@ -18,7 +18,7 @@ import dev.martianzoo.tfm.pets.ast.ScaledExpression.Scalar
 import dev.martianzoo.tfm.pets.ast.ScaledExpression.Scalar.ActualScalar
 import dev.martianzoo.tfm.pets.ast.ScaledExpression.Scalar.XScalar
 
-sealed class Requirement : PetNode() {
+sealed class Requirement : PetElement() {
   open fun requiresThis() = false // TODO kick this out
   override fun safeToNestIn(container: PetNode) =
       super.safeToNestIn(container) || container is IfTrigger

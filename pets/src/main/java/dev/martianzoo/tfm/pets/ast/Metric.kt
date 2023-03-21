@@ -12,7 +12,7 @@ import dev.martianzoo.tfm.pets.BaseTokenizer
 import dev.martianzoo.tfm.pets.Parsing
 import dev.martianzoo.tfm.pets.PetException
 
-sealed class Metric : PetNode() {
+sealed class Metric : PetElement() {
   override val kind = Metric::class.simpleName!!
 
   override fun visitChildren(visitor: Visitor) {

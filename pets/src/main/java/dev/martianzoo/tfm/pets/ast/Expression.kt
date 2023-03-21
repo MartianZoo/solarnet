@@ -28,7 +28,7 @@ data class Expression(
     val arguments: List<Expression> = listOf(),
     val refinement: Requirement? = null,
     val link: Int? = null, // TODO use it or lose it
-) : PetNode(), HasClassName {
+) : PetElement(), HasClassName {
   companion object : BaseTokenizer() {
     fun expression(text: String): Expression = Parsing.parse(parser(), text)
 

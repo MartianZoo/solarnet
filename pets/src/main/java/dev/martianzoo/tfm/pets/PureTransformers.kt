@@ -14,6 +14,7 @@ import dev.martianzoo.tfm.pets.ast.Instruction
 import dev.martianzoo.tfm.pets.ast.Instruction.Then
 import dev.martianzoo.tfm.pets.ast.Instruction.Transmute
 import dev.martianzoo.tfm.pets.ast.PetNode
+import dev.martianzoo.util.toSetStrict
 
 /** Various functions for transforming Pets syntax trees. */
 public object PureTransformers {
@@ -34,6 +35,9 @@ public object PureTransformers {
       return result
     }
   }
+
+  internal fun actionToEffect(action: Raw<Action>, index1Ref: Int): Raw<Effect> =
+      Raw(actionToEffect(action.element, index1Ref), action.features)
 
   internal fun actionToEffect(action: Action, index1Ref: Int): Effect {
     require(index1Ref >= 1) { index1Ref }
@@ -62,14 +66,26 @@ public object PureTransformers {
     return Then(allInstructions)
   }
 
+  internal fun rawActionListToEffects(actions: Collection<Raw<Action>>): Set<Raw<Effect>> {
+    return actions
+        .withIndex()
+        .map { (index0Ref, action) -> actionToEffect(action, index1Ref = index0Ref + 1) }
+        .toSetStrict()
+  }
+
   internal fun actionListToEffects(actions: Collection<Action>): Set<Effect> =
       actions
           .withIndex()
           .map { (index0Ref, action) -> actionToEffect(action, index1Ref = index0Ref + 1) }
-          .toSet()
+          .toSetStrict()
 
   internal fun immediateToEffect(instruction: Instruction, automatic: Boolean = false): Effect {
     return Effect(WhenGain, instruction, automatic = automatic)
+  }
+
+  internal fun immediateToEffect(instruction: Raw<Instruction>, automatic: Boolean = false):
+      Raw<Effect> {
+    return Raw(Effect(WhenGain, instruction.element, automatic = automatic), instruction.features)
   }
 
   // TODO check if this really what callers want to do
