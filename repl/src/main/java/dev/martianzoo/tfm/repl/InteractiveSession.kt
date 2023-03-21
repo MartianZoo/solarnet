@@ -2,6 +2,7 @@ package dev.martianzoo.tfm.repl
 
 import dev.martianzoo.tfm.api.Exceptions.UserException
 import dev.martianzoo.tfm.api.GameSetup
+import dev.martianzoo.tfm.api.SpecialClassNames.THIS
 import dev.martianzoo.tfm.data.Actor
 import dev.martianzoo.tfm.data.Task.TaskId
 import dev.martianzoo.tfm.engine.Component
@@ -10,10 +11,10 @@ import dev.martianzoo.tfm.engine.EventLog.Checkpoint
 import dev.martianzoo.tfm.engine.Game
 import dev.martianzoo.tfm.engine.PlayerAgent
 import dev.martianzoo.tfm.engine.Result
+import dev.martianzoo.tfm.pets.PureTransformers.transformInSeries
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.pets.ast.Expression
-import dev.martianzoo.tfm.pets.ast.HasClassName
 import dev.martianzoo.tfm.pets.ast.Instruction
 import dev.martianzoo.tfm.pets.ast.Instruction.Change
 import dev.martianzoo.tfm.pets.ast.Instruction.Companion.split
@@ -22,11 +23,6 @@ import dev.martianzoo.tfm.pets.ast.PetNode
 import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.pets.ast.ScaledExpression.Scalar.ActualScalar
 import dev.martianzoo.tfm.types.MType
-import dev.martianzoo.tfm.types.Transformers.AtomizeGlobalParameters
-import dev.martianzoo.tfm.types.Transformers.Deprodify
-import dev.martianzoo.tfm.types.Transformers.InsertDefaults
-import dev.martianzoo.tfm.types.Transformers.UseFullNames
-import dev.martianzoo.tfm.types.Transformers.transformInSeries
 import dev.martianzoo.util.HashMultiset
 import dev.martianzoo.util.Hierarchical.Companion.lub
 import dev.martianzoo.util.Multiset
@@ -35,20 +31,17 @@ import dev.martianzoo.util.Multiset
  * A convenient interface for functional tests; basically, [ReplSession] is just a more texty
  * version of this.
  */
-class InteractiveSession(initialSetup: GameSetup) {
+public class InteractiveSession(initialSetup: GameSetup) {
   public var game: Game = Engine.newGame(initialSetup)
     internal set
-  internal var gameNumber: Int = 0
-    private set
-  internal var showLogSince: Checkpoint = game.eventLog.checkpoint()
+  internal var showLogSince: Checkpoint = game.checkpoint()
     private set
   internal var agent: PlayerAgent = agent(Actor.ENGINE)
     private set
 
   fun newGame(setup: GameSetup) {
     game = Engine.newGame(setup)
-    showLogSince = game.eventLog.checkpoint()
-    gameNumber++
+    showLogSince = game.checkpoint()
     become(Actor.ENGINE)
   }
 
@@ -96,7 +89,7 @@ class InteractiveSession(initialSetup: GameSetup) {
   fun initiateOnly(instruction: Instruction) = agent.initiate(prep(instruction))
 
   fun initiateAndAutoExec(instruction: Instruction): Result {
-    val checkpoint = game.eventLog.checkpoint()
+    val checkpoint = game.checkpoint()
     for (instr in split(prep(instruction))) {
       val tasks = ArrayDeque<TaskId>()
       tasks += agent.initiate(instr).newTaskIdsAdded
@@ -105,7 +98,7 @@ class InteractiveSession(initialSetup: GameSetup) {
         tasks += doTaskAndAutoExec(task).newTaskIdsAdded
       }
     }
-    return game.eventLog.resultsSince(checkpoint)
+    return game.eventLog.activitySince(checkpoint)
   }
 
   fun doTaskAndAutoExec(
@@ -113,7 +106,7 @@ class InteractiveSession(initialSetup: GameSetup) {
       narrowedInstruction: Instruction? = null,
   ): Result {
     val taskIdsToAutoExec: ArrayDeque<TaskId> = ArrayDeque()
-    val checkpoint = game.eventLog.checkpoint()
+    val checkpoint = game.checkpoint()
 
     val firstResult: Result = agent.doTask(initialTaskId, prep(narrowedInstruction))
     taskIdsToAutoExec += firstResult.newTaskIdsAdded - initialTaskId
@@ -124,23 +117,23 @@ class InteractiveSession(initialSetup: GameSetup) {
       taskIdsToAutoExec += results.newTaskIdsAdded - thisTaskId // TODO better
     }
 
-    return game.eventLog.resultsSince(checkpoint)
+    return game.eventLog.activitySince(checkpoint)
   }
 
   // OTHER
 
-  fun rollBack(ordinal: Int) = game.rollBack(Checkpoint(ordinal))
+  fun rollBack(ordinal: Int) = game.rollBack(ordinal)
 
   // TODO somehow do this with Type not Expression?
   // TODO Let game take care of this itself?
   fun <P : PetNode?> prep(node: P): P {
     if (node == null) return node
-    val loader = game.loader
+    val xers = game.loader.transformers
     return transformInSeries(
-            UseFullNames(loader),
-            AtomizeGlobalParameters(loader),
-            InsertDefaults(loader),
-            Deprodify(loader),
+            xers.useFullNames(),
+            xers.atomizeGlobalParameters(),
+            xers.insertDefaults(THIS.expr), // TODO: context??
+            xers.deprodify(),
             // not needed: ReplaceThisWith, ReplaceOwnerWith, FixEffectForUnownedContext
         )
         .transform(node)
@@ -148,11 +141,10 @@ class InteractiveSession(initialSetup: GameSetup) {
 
   fun agent(player: String) = agent(cn(player))
   fun agent(actor: ClassName) = agent(Actor(actor))
-  fun agent(actor: HasClassName) = agent(actor.className)
   fun agent(actor: Actor) = game.agent(actor)
 
   fun <T> doAs(actor: Actor, function: () -> T): T {
-    val current = agent
+    val current = agent // TODO better way
     become(actor)
     return function().also { agent = current }
   }

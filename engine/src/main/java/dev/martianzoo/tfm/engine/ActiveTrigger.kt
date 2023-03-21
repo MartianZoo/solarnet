@@ -4,6 +4,7 @@ import dev.martianzoo.tfm.api.SpecialClassNames.ANYONE
 import dev.martianzoo.tfm.api.SpecialClassNames.OWNER
 import dev.martianzoo.tfm.data.Actor
 import dev.martianzoo.tfm.data.GameEvent.ChangeEvent
+import dev.martianzoo.tfm.pets.PureTransformers.replaceOwnerWith
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.Effect.Trigger
 import dev.martianzoo.tfm.pets.ast.Effect.Trigger.ByTrigger
@@ -17,7 +18,6 @@ import dev.martianzoo.tfm.pets.ast.Effect.Trigger.XTrigger
 import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.pets.ast.Instruction
 import dev.martianzoo.tfm.pets.ast.Requirement
-import dev.martianzoo.tfm.types.Transformers.ReplaceOwnerWith
 import dev.martianzoo.tfm.types.findSubstitutions
 
 typealias Hit = (Instruction) -> Instruction
@@ -48,7 +48,7 @@ sealed class ActiveTrigger {
       ActiveTrigger() {
     override fun match(triggerEvent: ChangeEvent, actor: Actor, isSelf: Boolean): Hit? {
       // This sort of feels out of order, but I don't think that hurts anything
-      return if (this.game.evaluate(condition)) {
+      return if (game.reader.evaluate(condition)) {
         inner.match(triggerEvent, actor, isSelf)
       } else {
         null
@@ -73,7 +73,7 @@ sealed class ActiveTrigger {
       val originalHit = inner.match(triggerEvent, actor, isSelf) ?: return null
 
       return if (by == OWNER) {
-        { ReplaceOwnerWith(actor.className).transform(originalHit(it)) }
+        { replaceOwnerWith(actor.className).transform(originalHit(it)) }
       } else {
         originalHit
       }

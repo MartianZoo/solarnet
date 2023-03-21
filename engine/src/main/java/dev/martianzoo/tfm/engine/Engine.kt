@@ -49,7 +49,7 @@ public object Engine {
     return game
   }
 
-  fun singletonCreateInstructions(loader: MClassLoader): List<Instruction> {
+  private fun singletonCreateInstructions(loader: MClassLoader): List<Instruction> {
     val singletonTypes =
         loader.allClasses
             .filter { it.hasSingletonTypes() }

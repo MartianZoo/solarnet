@@ -19,9 +19,9 @@ internal class PlayerBoardToText(private val agent: PlayerAgent, val useColors: 
 
   internal fun board(): List<String> {
     require(agent.actor != Actor.ENGINE)
-    val prodMap = lookUpProductionLevels(agent.game.reader, agent.actor.expression)
+    val prodMap = lookUpProductionLevels(agent.reader, agent.actor.expression)
     val resourceMap =
-        standardResourceNames(agent.game.reader).associateBy({ it }) {
+        standardResourceNames(agent.reader).associateBy({ it }) {
           agent.count(Count(it.addArgs(agent.actor.className)))
         }
 

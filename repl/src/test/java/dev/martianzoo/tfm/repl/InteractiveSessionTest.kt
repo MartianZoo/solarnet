@@ -61,7 +61,7 @@ private class InteractiveSessionTest {
     session.initiateOnly(instruction("4 Heat"))
     assertThat(session.count(metric("Heat"))).isEqualTo(7)
 
-    val checkpoint = session.game.eventLog.checkpoint()
+    val checkpoint = session.game.checkpoint()
     session.initiateOnly(instruction("-6 Heat"))
     assertThat(session.count(metric("Heat"))).isEqualTo(1)
 
@@ -74,14 +74,14 @@ private class InteractiveSessionTest {
     val session = InteractiveSession(GameSetup(Canon, "MB", 2))
     session.become(Actor.PLAYER2)
 
-    assertThat(session.game.taskQueue.taskMap).isEmpty()
+    assertThat(session.game.taskQueue.isEmpty()).isTrue()
     assertThat(session.count(metric("Microbe"))).isEqualTo(0)
 
     session.initiateAndAutoExec(instruction("4 OxygenStep"))
     assertThat(session.count(metric("OxygenStep"))).isEqualTo(4)
     session.initiateAndAutoExec(instruction("ProjectCard"))
     session.initiateAndAutoExec(instruction("Ants"))
-    assertThat(session.game.taskQueue.taskMap.values).isEmpty()
+    assertThat(session.game.taskQueue.isEmpty())
     assertThat(session.count(metric("Ants"))).isEqualTo(1)
     session.initiateAndAutoExec(instruction("3 Microbe<Ants>"))
     assertThat(session.count(metric("Microbe"))).isEqualTo(3)

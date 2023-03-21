@@ -11,7 +11,6 @@ import dev.martianzoo.tfm.data.StateChange
 import dev.martianzoo.tfm.data.Task
 import dev.martianzoo.tfm.data.Task.TaskId
 import dev.martianzoo.tfm.engine.Result
-import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.pets.ast.Expression.Companion.expression
 import dev.martianzoo.tfm.pets.ast.Instruction
@@ -307,7 +306,7 @@ public class ReplSession(
             null
           }
       if (rest == "drop") {
-        session.game.taskQueue.removeTask(id)
+        session.game.removeTask(id)
         return listOf("Task $id deleted")
       }
       val instruction: Instruction? = rest?.let { instruction(it) }
@@ -442,7 +441,7 @@ public class ReplSession(
     return command(command, args)
   }
 
-  private fun cn(s: String) = session.game.loader.getClass(ClassName.cn(s)).className
+  private fun cn(s: String) = session.game.resolve(expression(s)).className
 }
 
 private val helpText: String =

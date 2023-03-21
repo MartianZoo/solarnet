@@ -2,12 +2,11 @@ package dev.martianzoo.tfm.pets
 
 import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.tfm.api.SpecialClassNames.THIS
-import dev.martianzoo.tfm.pets.AstTransforms.actionListToEffects
-import dev.martianzoo.tfm.pets.AstTransforms.actionToEffect
-import dev.martianzoo.tfm.pets.AstTransforms.deprodify
-import dev.martianzoo.tfm.pets.AstTransforms.immediateToEffect
-import dev.martianzoo.tfm.pets.AstTransforms.replaceAll
 import dev.martianzoo.tfm.pets.Parsing.parseElement
+import dev.martianzoo.tfm.pets.PureTransformers.actionListToEffects
+import dev.martianzoo.tfm.pets.PureTransformers.actionToEffect
+import dev.martianzoo.tfm.pets.PureTransformers.immediateToEffect
+import dev.martianzoo.tfm.pets.PureTransformers.replaceAll
 import dev.martianzoo.tfm.pets.ast.Action
 import dev.martianzoo.tfm.pets.ast.Action.Companion.action
 import dev.martianzoo.tfm.pets.ast.ClassName
@@ -28,7 +27,7 @@ import dev.martianzoo.util.toStrings
 import kotlin.reflect.KClass
 import org.junit.jupiter.api.Test
 
-private class AstTransformsTest {
+private class PureTransformersTest {
   @Test
   fun testActionToEffect() {
     fun checkActionToEffect(action: String, index: Int, effect: String) =
@@ -115,41 +114,6 @@ private class AstTransformsTest {
 
     // more round-trip checking doesn't hurt
     assertThat(tx.toString()).isEqualTo(expected)
-  }
-
-  val resources =
-      listOf("StandardResource", "Megacredit", "Steel", "Titanium", "Plant", "Energy", "Heat")
-          .map { cn(it) }
-          .toSet()
-
-  @Test
-  fun testDeprodify_noProd() {
-    val s = "Foo<Bar>: Bax OR Qux"
-    val e: Effect = effect(s)
-    val ep: Effect = deprodify(e, resources)
-    assertThat(ep.toString()).isEqualTo(s)
-  }
-
-  @Test
-  fun testDeprodify_simple() {
-    val prodden: Effect = effect("This: PROD[Plant / PlantTag]")
-    val deprodden: Effect = deprodify(prodden, resources)
-    assertThat(deprodden.toString()).isEqualTo("This: Production<Class<Plant>> / PlantTag")
-  }
-
-  @Test
-  fun testDeprodify_lessSimple() {
-    val prodden: Effect =
-        effect(
-            "PROD[Plant]: PROD[Ooh?, Steel. / Ahh, Foo<Xyz FROM " +
-                "Heat>, -Qux!, 5 Ahh<Qux> FROM StandardResource], Heat")
-    val expected: Effect =
-        effect(
-            "Production<Class<Plant>>:" +
-                " Ooh?, Production<Class<Steel>>. / Ahh, Foo<Xyz FROM Production<Class<Heat>>>," +
-                " -Qux!, 5 Ahh<Qux> FROM Production<Class<StandardResource>>, Heat")
-    val deprodden: Effect = deprodify(prodden, resources)
-    assertThat(deprodden).isEqualTo(expected)
   }
 
   @Test

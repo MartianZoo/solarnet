@@ -1,9 +1,10 @@
-package dev.martianzoo.tfm.canon
+package dev.martianzoo.tfm.engine
 
 import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.tfm.api.SpecialClassNames.ENGINE
 import dev.martianzoo.tfm.api.SpecialClassNames.GLOBAL_PARAMETER
 import dev.martianzoo.tfm.api.SpecialClassNames.OK
+import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.types.MClassLoader
 import org.junit.jupiter.api.Test

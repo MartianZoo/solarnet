@@ -12,7 +12,6 @@ import com.github.h0tk3y.betterParse.grammar.parser
 import com.github.h0tk3y.betterParse.parser.Parser
 import dev.martianzoo.tfm.data.ClassDeclaration
 import dev.martianzoo.tfm.data.ClassDeclaration.DefaultsDeclaration
-import dev.martianzoo.tfm.pets.AstTransforms.actionListToEffects
 import dev.martianzoo.tfm.pets.ClassDeclarationParsers.Body.BodyElement
 import dev.martianzoo.tfm.pets.ClassDeclarationParsers.Body.BodyElement.ActionElement
 import dev.martianzoo.tfm.pets.ClassDeclarationParsers.Body.BodyElement.DefaultsElement
@@ -23,6 +22,7 @@ import dev.martianzoo.tfm.pets.ClassDeclarationParsers.BodyElements.bodyElementE
 import dev.martianzoo.tfm.pets.ClassDeclarationParsers.NestableDecl.IncompleteNestableDecl
 import dev.martianzoo.tfm.pets.ClassDeclarationParsers.Signatures.moreSignatures
 import dev.martianzoo.tfm.pets.ClassDeclarationParsers.Signatures.signature
+import dev.martianzoo.tfm.pets.PureTransformers.actionListToEffects
 import dev.martianzoo.tfm.pets.ast.Action
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.ClassName.Parsing.classFullName

@@ -6,9 +6,8 @@ import dev.martianzoo.tfm.api.GameStateReader
 import dev.martianzoo.tfm.api.Type
 import dev.martianzoo.tfm.data.Actor
 import dev.martianzoo.tfm.data.GameEvent.ChangeEvent
-import dev.martianzoo.tfm.data.GameEvent.TaskAddedEvent
-import dev.martianzoo.tfm.data.GameEvent.TaskRemovedEvent
-import dev.martianzoo.tfm.data.GameEvent.TaskReplacedEvent
+import dev.martianzoo.tfm.data.GameEvent.TaskEvent
+import dev.martianzoo.tfm.data.Task.TaskId
 import dev.martianzoo.tfm.engine.EventLog.Checkpoint
 import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.pets.ast.Metric
@@ -18,6 +17,7 @@ import dev.martianzoo.tfm.pets.ast.Metric.Plus
 import dev.martianzoo.tfm.pets.ast.Metric.Scaled
 import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.pets.ast.Requirement.And
+import dev.martianzoo.tfm.pets.ast.Requirement.Counting
 import dev.martianzoo.tfm.pets.ast.Requirement.Exact
 import dev.martianzoo.tfm.pets.ast.Requirement.Min
 import dev.martianzoo.tfm.pets.ast.Requirement.Or
@@ -33,15 +33,25 @@ public class Game(val setup: GameSetup, public val loader: MClassLoader) {
 
   // PROPERTIES
 
+  /** A record of everything that's happened in the game. */
   public val eventLog = EventLog()
 
-  public val components = ComponentGraph()
+  /** The components that make up the game's state. */
+  internal val components = ComponentGraph()
 
+  /** The tasks the game is currently waiting on. */
   public val taskQueue = TaskQueue(eventLog)
+
+  // PLAYER AGENT
+
+  public fun agent(actor: Actor) = PlayerAgent(this, actor)
+
+  public fun removeTask(id: TaskId) = taskQueue.removeTask(id)
 
   // TYPE & COMPONENT CONVERSION
 
   public fun resolve(expression: Expression): MType = loader.resolve(expression)
+  private fun resolve(type: Type): MType = type as? MType ?: loader.resolve(type.expressionFull)
 
   public fun toComponent(expression: Expression) = Component.ofType(resolve(expression))
 
@@ -49,41 +59,7 @@ public class Game(val setup: GameSetup, public val loader: MClassLoader) {
   public fun toComponent(expression: Expression?) =
       expression?.let { Component.ofType(resolve(it)) }
 
-  // QUERIES
-
-  public fun agent(actor: Actor) = PlayerAgent(this, actor)
-
-  public fun evaluate(requirement: Requirement): Boolean {
-    fun count(expression: Expression) = count(Count(expression))
-    return when (requirement) {
-      is Min ->
-        count(requirement.scaledEx.expression) >=
-            (requirement.scaledEx.scalar as ActualScalar).value
-
-      is Requirement.Max ->
-        count(requirement.scaledEx.expression) <=
-            (requirement.scaledEx.scalar as ActualScalar).value
-
-      is Exact ->
-        count(requirement.scaledEx.expression) ==
-            (requirement.scaledEx.scalar as ActualScalar).value
-
-      is Or -> requirement.requirements.any { evaluate(it) }
-      is And -> requirement.requirements.all { evaluate(it) }
-      is Transform -> error("should have been transformed by now")
-    }
-  }
-
-  public fun count(metric: Metric): Int {
-    return when (metric) {
-      is Count -> components.count(resolve(metric.expression))
-      is Scaled -> count(metric.metric) / metric.unit
-      is Max -> min(count(metric.metric), metric.maximum)
-      is Plus -> metric.metrics.map { count(it) }.sum()
-    }
-  }
-
-  public fun getComponents(type: MType): Multiset<Component> = components.getAll(type)
+  public fun getComponents(type: Type): Multiset<Component> = components.getAll(resolve(type))
 
   val einfo =
       object : ExpressionInfo {
@@ -103,10 +79,29 @@ public class Game(val setup: GameSetup, public val loader: MClassLoader) {
 
         override fun resolve(expression: Expression) = this@Game.resolve(expression)
 
-        override fun evaluate(requirement: Requirement) = this@Game.evaluate(requirement)
+        override fun evaluate(requirement: Requirement): Boolean =
+            when (requirement) {
+              is Counting -> {
+                val actual = count(Count(requirement.scaledEx.expression))
+                val target = (requirement.scaledEx.scalar as ActualScalar).value
+                when (requirement) {
+                  is Min -> actual >= target
+                  is Requirement.Max -> actual <= target
+                  is Exact -> actual == target
+                }
+              }
+              is Or -> requirement.requirements.any { evaluate(it) }
+              is And -> requirement.requirements.all { evaluate(it) }
+              is Transform -> error("should have been transformed by now")
+            }
 
-        override fun count(metric: Metric) = this@Game.count(metric)
-
+        override fun count(metric: Metric): Int =
+            when (metric) {
+              is Count -> components.count(resolve(metric.expression))
+              is Scaled -> count(metric.metric) / metric.unit
+              is Max -> min(count(metric.metric), metric.maximum)
+              is Plus -> metric.metrics.map { count(it) }.sum()
+            }
         override fun count(type: Type) = components.count(loader.resolve(type))
 
         override fun getComponents(type: Type) =
@@ -115,18 +110,17 @@ public class Game(val setup: GameSetup, public val loader: MClassLoader) {
 
   // CHANGE LOG
 
-  public fun rollBack(checkpoint: Checkpoint) {
-    // game?
-    val ordinal = checkpoint.ordinal
+  public fun checkpoint() = eventLog.checkpoint()
+
+  public fun rollBack(checkpoint: Checkpoint) = rollBack(checkpoint.ordinal)
+
+  public fun rollBack(ordinal: Int) {
     require(ordinal <= eventLog.size)
     if (ordinal == eventLog.size) return
     val subList = eventLog.events.subList(ordinal, eventLog.size)
     for (entry in subList.asReversed()) {
       when (entry) {
-        is TaskAddedEvent -> taskQueue.taskMap.remove(entry.task.id)
-        is TaskRemovedEvent -> taskQueue.taskMap[entry.task.id] = entry.task
-        is TaskReplacedEvent ->
-            require(taskQueue.taskMap.put(entry.task.id, entry.oldTask) == entry.task)
+        is TaskEvent -> taskQueue.reverse(entry)
         is ChangeEvent -> {
           val change = entry.change
           components.updateMultiset(
@@ -139,4 +133,6 @@ public class Game(val setup: GameSetup, public val loader: MClassLoader) {
     }
     subList.clear()
   }
+
+  internal fun allActiveEffects(): Multiset<ActiveEffect> = components.allActiveEffects(this)
 }

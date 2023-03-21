@@ -8,11 +8,11 @@ import dev.martianzoo.tfm.api.SpecialClassNames.THIS
 import dev.martianzoo.tfm.api.Type
 import dev.martianzoo.tfm.data.ClassDeclaration
 import dev.martianzoo.tfm.engine.Exceptions.InvalidExpressionException
+import dev.martianzoo.tfm.pets.PureTransformers.replaceThisWith
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.pets.ast.PetNode
 import dev.martianzoo.tfm.types.Dependency.TypeDependency
-import dev.martianzoo.tfm.types.Transformers.ReplaceThisWith
 
 /**
  * All [MClass] instances come from here. Uses an [Authority] to pull class declarations from as
@@ -71,7 +71,7 @@ public class MClassLoader( // TODO separate into loader and table
    * Returns the class whose [MClass.className] or [MClass.shortName] is [name], loading it first if
    * necessary.
    */
-  public fun load(name: ClassName): MClass =
+  internal fun load(name: ClassName): MClass =
       when {
         frozen -> getClass(name)
         autoLoadDependencies -> {
@@ -82,7 +82,7 @@ public class MClassLoader( // TODO separate into loader and table
       }
 
   /** Equivalent to calling [load] on every class name (or shortName) in [names]. */
-  public fun loadAll(names: Collection<ClassName>) =
+  internal fun loadAll(names: Collection<ClassName>) =
       if (autoLoadDependencies) {
         autoLoad(names)
       } else {
@@ -141,8 +141,8 @@ public class MClassLoader( // TODO separate into loader and table
     return mclass
   }
 
-  public var frozen: Boolean = false
-    public set(f) {
+  internal var frozen: Boolean = false
+    internal set(f) {
       require(f) { "can't melt" }
       field = f
       validate()
@@ -151,14 +151,16 @@ public class MClassLoader( // TODO separate into loader and table
   private fun validate() {
     allClasses.forEach { mclass ->
       mclass.classEffects.forEach {
-        checkAllTypes(ReplaceThisWith(mclass.className.expr).transform(it.effect))
+        checkAllTypes(replaceThisWith(mclass.className.expr).transform(it.effect))
       }
     }
   }
 
   private fun decl(cn: ClassName) = authority.classDeclaration(cn)
 
-  public fun checkAllTypes(node: PetNode) =
+  public val transformers = Transformers(this)
+
+  internal fun checkAllTypes(node: PetNode) =
       node.visitDescendants {
         if (it is Expression) {
           resolve(it).expression

@@ -15,17 +15,13 @@ public class ComponentGraph {
 
   public fun count(mtype: MType) = getAll(mtype).size
 
-  public fun getAll(mtype: MType): Multiset<Component> = multiset.filter { hasType(it, mtype) }
-
-  fun hasType(cpt: Component, type: MType): Boolean {
-    return cpt.hasType(type) // BIGTODO check refinements too
-  }
+  public fun getAll(mtype: MType): Multiset<Component> = multiset.filter { it.hasType(mtype) }
 
   internal fun allActiveEffects(game: Game): Multiset<ActiveEffect> =
       multiset.flatMap { it.effects(game) }
 
   // only called by Game.silentChange
-  public fun update(
+  internal fun update(
       count: Int = 1,
       gaining: Component? = null,
       removing: Component? = null,
@@ -87,6 +83,6 @@ public class ComponentGraph {
     return correctedCount
   }
 
-  fun dependentsOf(dependency: Component) =
+  internal fun dependentsOf(dependency: Component) =
       multiset.filter { dependency in it.dependencyComponents }
 }

@@ -2,8 +2,8 @@ package dev.martianzoo.tfm.data
 
 import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.tfm.api.SpecialClassNames.THIS
-import dev.martianzoo.tfm.pets.AstTransforms.actionToEffect
 import dev.martianzoo.tfm.pets.Parsing
+import dev.martianzoo.tfm.pets.PureTransformers.actionToEffect
 import dev.martianzoo.tfm.pets.ast.Action.Companion.action
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.pets.ast.Effect.Companion.effect

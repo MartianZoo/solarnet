@@ -1,6 +1,6 @@
 package dev.martianzoo.tfm.pets
 
-import dev.martianzoo.tfm.api.SpecialClassNames.PRODUCTION
+import dev.martianzoo.tfm.api.SpecialClassNames
 import dev.martianzoo.tfm.api.SpecialClassNames.THIS
 import dev.martianzoo.tfm.api.SpecialClassNames.USE_ACTION
 import dev.martianzoo.tfm.pets.ast.Action
@@ -11,14 +11,30 @@ import dev.martianzoo.tfm.pets.ast.Effect.Trigger.OnGainOf
 import dev.martianzoo.tfm.pets.ast.Effect.Trigger.WhenGain
 import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.pets.ast.Instruction
-import dev.martianzoo.tfm.pets.ast.Instruction.Multi
 import dev.martianzoo.tfm.pets.ast.Instruction.Then
 import dev.martianzoo.tfm.pets.ast.Instruction.Transmute
 import dev.martianzoo.tfm.pets.ast.PetNode
-import dev.martianzoo.tfm.pets.ast.PetNode.GenericTransform
 
 /** Various functions for transforming Pets syntax trees. */
-public object AstTransforms {
+public object PureTransformers {
+  public fun transformInSeries(xers: List<PetTransformer?>): PetTransformer =
+      CompositeTransformer(xers.filterNotNull())
+  public fun transformInSeries(vararg xers: PetTransformer?): PetTransformer =
+      transformInSeries(xers.toList())
+
+  internal open class CompositeTransformer(val transformers: List<PetTransformer>) :
+      PetTransformer() {
+    constructor(vararg transformers: PetTransformer) : this(transformers.toList())
+
+    override fun <P : PetNode> transform(node: P): P { // TODO null passthru??
+      var result = node
+      for (xer in transformers) {
+        result = xer.transform(result)
+      }
+      return result
+    }
+  }
+
   internal fun actionToEffect(action: Action, index1Ref: Int): Effect {
     require(index1Ref >= 1) { index1Ref }
     val instruction = actionToInstruction(action)
@@ -71,51 +87,21 @@ public object AstTransforms {
         .transform(this)
   }
 
-  /** Transform any `PROD[...]` sections in a subtree to the equivalent subtree. */
-  public fun <P : PetNode> deprodify(node: P, producible: Collection<ClassName>): P {
-    // TODO is there some way this could act on Types instead of Expressions?
-    // TODO eliminate unnecessary grouping
-    val xer =
-        object : PetTransformer() {
-          var inProd: Boolean = false
+  public fun replaceThisWith(contextType: Expression): PetTransformer {
+    return object : PetTransformer() {
+      override fun <P : PetNode> transform(node: P): P {
+        return node
+            .replaceAll(THIS.classExpression(), contextType.className.classExpression())
+            .replaceAll(THIS.expr, contextType)
+      }
+    }
+  }
 
-          override fun <P : PetNode> transform(node: P): P {
-            val rewritten: PetNode =
-                when {
-                  node is Multi -> {
-                    val badIndex =
-                        node.instructions.indexOfFirst {
-                          it is Instruction.Transform &&
-                              it.transformKind == "PROD" &&
-                              it.instruction is Multi
-                        }
-                    val xed = transformChildren(node)
-                    if (badIndex == -1) {
-                      xed
-                    } else {
-                      Multi.create(
-                          xed.instructions.subList(0, badIndex) +
-                              (xed.instructions[badIndex] as Multi).instructions +
-                              xed.instructions.subList(badIndex + 1, xed.instructions.size))!!
-                    }
-                  }
-                  node is GenericTransform<*> && node.transformKind == "PROD" -> {
-                    require(!inProd)
-                    inProd = true
-                    val inner = x(node.extract())
-                    inProd = false
-                    if (inner == node.extract()) {
-                      throw RuntimeException("No standard resources found in PROD box: $inner")
-                    }
-                    inner
-                  }
-                  inProd && node is Expression && node.className in producible ->
-                      PRODUCTION.addArgs(node.arguments + node.className.classExpression())
-                  else -> transformChildren(node)
-                }
-            @Suppress("UNCHECKED_CAST") return rewritten as P
-          }
-        }
-    return xer.transform(node)
+  public fun replaceOwnerWith(owner: ClassName): PetTransformer {
+    return object : PetTransformer() {
+      override fun <P : PetNode> transform(node: P): P {
+        return node.replaceAll(SpecialClassNames.OWNER.expr, owner.expr)
+      }
+    }
   }
 }

@@ -3,6 +3,9 @@ package dev.martianzoo.tfm.engine
 import dev.martianzoo.tfm.api.Exceptions.AbstractInstructionException
 import dev.martianzoo.tfm.api.SpecialClassNames.OWNED
 import dev.martianzoo.tfm.pets.PetTransformer
+import dev.martianzoo.tfm.pets.PureTransformers.replaceOwnerWith
+import dev.martianzoo.tfm.pets.PureTransformers.replaceThisWith
+import dev.martianzoo.tfm.pets.PureTransformers.transformInSeries
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.pets.ast.HasExpression
@@ -10,10 +13,6 @@ import dev.martianzoo.tfm.pets.ast.PetNode
 import dev.martianzoo.tfm.types.Dependency.Key
 import dev.martianzoo.tfm.types.MClass
 import dev.martianzoo.tfm.types.MType
-import dev.martianzoo.tfm.types.Transformers.Deprodify
-import dev.martianzoo.tfm.types.Transformers.ReplaceOwnerWith
-import dev.martianzoo.tfm.types.Transformers.ReplaceThisWith
-import dev.martianzoo.tfm.types.Transformers.transformInSeries
 
 /**
  * An *instance* of some concrete [MType]; a [ComponentGraph] is a multiset of these. For any use
@@ -49,11 +48,12 @@ public data class Component private constructor(val mtype: MType) : HasExpressio
   public fun effects(game: Game): List<ActiveEffect> {
     return mtype.mclass.classEffects.map { decl ->
       val depLinkages: Set<ClassName> = decl.depLinkages
+      val xers = mtype.loader.transformers
       val blah = transformInSeries(
           Substituter(mtype.findSubstitutions(depLinkages)),
-          ReplaceThisWith(mtype.expression),
-          Deprodify(mtype.loader),
-          owner()?.let { ReplaceOwnerWith(it) },
+          replaceThisWith(mtype.expression),
+          xers.deprodify(),
+          owner()?.let { replaceOwnerWith(it) },
       ).transform(decl.effect)
       ActiveEffect.from(blah, this, game, decl.triggerLinkages)
     }

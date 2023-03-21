@@ -23,40 +23,38 @@ sealed class Requirement : PetNode() {
   override fun safeToNestIn(container: PetNode) =
       super.safeToNestIn(container) || container is IfTrigger
 
-  data class Min(val scaledEx: ScaledExpression) : Requirement() {
+  sealed class Counting(open val scaledEx: ScaledExpression) : Requirement() {
     override fun visitChildren(visitor: Visitor) = visitor.visit(scaledEx)
-    override fun toString() = "$scaledEx"
-
-    init {
-      if (scaledEx.scalar is XScalar) {
-        throw PetException("can't use X in requirements (yet?)")
-      }
-      Scalar.checkNonzero(scaledEx.scalar)
-    }
-
-    override fun requiresThis() = this.scaledEx == ScaledExpression.scaledEx(1, THIS.expr)
   }
 
-  data class Max(val scaledEx: ScaledExpression) : Requirement() {
+  data class Min(override val scaledEx: ScaledExpression) : Counting(scaledEx) {
+    init {
+      Scalar.checkNonzero(scaledEx.scalar)
+      if (scaledEx.scalar is XScalar) {
+        throw PetException("can't use X in requirements (yet?)")
+      }
+    }
+    override fun toString() = "$scaledEx"
+    override fun requiresThis() = this.scaledEx == scaledEx(1, THIS.expr)
+  }
+
+  data class Max(override val scaledEx: ScaledExpression) : Counting(scaledEx) {
     init {
       if (scaledEx.scalar is XScalar) {
         throw PetException("can't use X in requirements (yet?)")
       }
     }
-    override fun visitChildren(visitor: Visitor) = visitor.visit(scaledEx)
     override fun toString() = "MAX ${scaledEx.toFullString()}" // no "MAX 5" or "MAX Heat"
   }
 
-  data class Exact(val scaledEx: ScaledExpression) : Requirement() {
+  data class Exact(override val scaledEx: ScaledExpression) : Counting(scaledEx) {
     init {
       if (scaledEx.scalar is XScalar) {
         throw PetException("can't use X in requirements (yet?)")
       }
     }
-    override fun visitChildren(visitor: Visitor) = visitor.visit(scaledEx)
     override fun toString() = "=${scaledEx.toFullString()}" // no "=5" or "=Heat"
-
-    override fun requiresThis() = this.scaledEx == ScaledExpression.scaledEx(1, THIS.expr)
+    override fun requiresThis() = this.scaledEx == scaledEx(1, THIS.expr)
   }
 
   data class Or(val requirements: Set<Requirement>) : Requirement() {

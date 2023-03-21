@@ -14,15 +14,15 @@ import dev.martianzoo.util.toStrings
 import org.junit.jupiter.api.Test
 
 private class GameApiTest {
-  fun Game.count(s: String) = count(metric(s))
+  fun Game.count(s: String) = reader.count(metric(s))
   fun Game.execute(s: String) = agent(Actor(cn("Player2"))).initiate(instruction(s))
-  fun Game.evaluate(s: String) = evaluate(requirement(s))
+  fun Game.evaluate(s: String) = reader.evaluate(requirement(s))
 
   @Test
   fun basicByApi() {
     val game = Engine.newGame(GameSetup(Canon, "BM", 3))
 
-    val checkpoint = game.eventLog.checkpoint()
+    val checkpoint = game.checkpoint()
     assertThat(game.count("Heat")).isEqualTo(0)
 
     game.execute("5 Heat<Player2>!")

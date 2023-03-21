@@ -1,5 +1,6 @@
 package dev.martianzoo.tfm.repl
 
+import dev.martianzoo.tfm.api.SpecialClassNames.THIS
 import dev.martianzoo.tfm.engine.Component
 import dev.martianzoo.tfm.engine.Game
 import dev.martianzoo.tfm.pets.ast.Expression
@@ -7,7 +8,6 @@ import dev.martianzoo.tfm.pets.ast.Instruction.Gain
 import dev.martianzoo.tfm.pets.ast.Instruction.Remove
 import dev.martianzoo.tfm.pets.ast.ScaledExpression.Companion.scaledEx
 import dev.martianzoo.tfm.types.MClass
-import dev.martianzoo.tfm.types.Transformers.InsertDefaults
 import dev.martianzoo.util.iff
 
 object MTypeToText { // TODO refactor to ClassInfo / TypeInfo type dealies
@@ -58,7 +58,7 @@ object MTypeToText { // TODO refactor to ClassInfo / TypeInfo type dealies
 
     val concSubs = sequenceCount(mtype.allConcreteSubtypes(), 100)
 
-    val id = InsertDefaults(game.loader)
+    val id = game.loader.transformers.insertDefaults(THIS.expr) // TODO context??
 
     val allCases = id.transform(expression)
     val gain = id.transform(Gain(scaledEx(1, expression)))

@@ -37,7 +37,7 @@ private class CanonBootstrapTest {
 
   @Test
   fun classCounts() {
-    val game = Engine.newGame(GameSetup(Canon, "BRM", 3))
+    val game = Engine.newGame(GameSetup(Canon, "BRM", 3)).reader
 
     fun checkCount(count: Int, expr: String) {
       assertThat(game.count(metric(expr))).isEqualTo(count)

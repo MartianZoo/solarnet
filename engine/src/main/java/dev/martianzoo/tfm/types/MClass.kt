@@ -3,23 +3,25 @@ package dev.martianzoo.tfm.types
 import dev.martianzoo.tfm.api.SpecialClassNames.CLASS
 import dev.martianzoo.tfm.api.SpecialClassNames.COMPONENT
 import dev.martianzoo.tfm.api.SpecialClassNames.OK
+import dev.martianzoo.tfm.api.SpecialClassNames.OWNED
+import dev.martianzoo.tfm.api.SpecialClassNames.OWNER
 import dev.martianzoo.tfm.api.SpecialClassNames.THIS
 import dev.martianzoo.tfm.data.ClassDeclaration
 import dev.martianzoo.tfm.data.ClassDeclaration.EffectDeclaration
+import dev.martianzoo.tfm.pets.PetTransformer
+import dev.martianzoo.tfm.pets.PureTransformers.transformInSeries
 import dev.martianzoo.tfm.pets.ast.ClassName
+import dev.martianzoo.tfm.pets.ast.Effect
+import dev.martianzoo.tfm.pets.ast.Effect.Trigger.ByTrigger
 import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.pets.ast.HasClassName
+import dev.martianzoo.tfm.pets.ast.PetNode
 import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.pets.ast.Requirement.Companion.requirement
 import dev.martianzoo.tfm.pets.ast.classNames
 import dev.martianzoo.tfm.types.Dependency.Companion.depsForClassType
 import dev.martianzoo.tfm.types.Dependency.Key
 import dev.martianzoo.tfm.types.Dependency.TypeDependency
-import dev.martianzoo.tfm.types.Transformers.AtomizeGlobalParameters
-import dev.martianzoo.tfm.types.Transformers.FixEffectForUnownedContext
-import dev.martianzoo.tfm.types.Transformers.InsertDefaults
-import dev.martianzoo.tfm.types.Transformers.UseFullNames
-import dev.martianzoo.tfm.types.Transformers.transformInSeries
 import dev.martianzoo.util.Hierarchical
 import dev.martianzoo.util.Hierarchical.Companion.glb
 import dev.martianzoo.util.toSetStrict
@@ -176,14 +178,29 @@ internal constructor(
   }
 
   public val directClassEffects: List<EffectDeclaration> by lazy {
-    val thiss = className.refine(requirement(OK.toString()))
 
+    class FixEffectForUnownedContext : PetTransformer() {
+      override fun <P : PetNode> transform(node: P): P {
+        return if (node is Effect &&
+            OWNED !in allSuperclasses.classNames() &&
+            OWNER in node.instruction &&
+            OWNER !in node.trigger) {
+          val effect: Effect = node.copy(trigger = ByTrigger(node.trigger, OWNER))
+          @Suppress("UNCHECKED_CAST")
+          effect as P
+        } else {
+          node
+        }
+      }
+    }
+
+    val xers = loader.transformers
     val transformer =
         transformInSeries(
-            UseFullNames(loader),
-            AtomizeGlobalParameters(loader),
-            InsertDefaults(loader, thiss),
-            FixEffectForUnownedContext(this),
+            xers.useFullNames(),
+            xers.atomizeGlobalParameters(),
+            xers.insertDefaults(className.refine(requirement(OK.toString()))),
+            FixEffectForUnownedContext(),
             // Not needed: ReplaceThisWith, ReplaceOwnerWith, Deprodify,
         )
     declaration.effects

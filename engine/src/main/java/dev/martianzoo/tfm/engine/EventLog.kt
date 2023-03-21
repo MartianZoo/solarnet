@@ -11,38 +11,38 @@ import dev.martianzoo.tfm.data.StateChange
 import dev.martianzoo.tfm.data.Task
 import dev.martianzoo.tfm.data.Task.TaskId
 
-class EventLog(val events: MutableList<GameEvent> = mutableListOf()) {
-  val size: Int by events::size
+public class EventLog(val events: MutableList<GameEvent> = mutableListOf()) {
+  public val size: Int by events::size
 
-  fun addEntry(entry: GameEvent) {
+  internal fun addEntry(entry: GameEvent) {
     require(entry.ordinal == size)
     events += entry
   }
 
-  fun addChangeEvent(change: StateChange, actor: Actor, cause: Cause?) =
+  internal fun addChangeEvent(change: StateChange, actor: Actor, cause: Cause?) =
       ChangeEvent(size, actor, change, cause).also { addEntry(it) }
 
-  fun taskAdded(task: Task) = addEntry(TaskAddedEvent(size, task))
+  internal fun taskAdded(task: Task) = addEntry(TaskAddedEvent(size, task))
 
-  fun taskRemoved(task: Task) = addEntry(TaskRemovedEvent(size, task))
+  internal fun taskRemoved(task: Task) = addEntry(TaskRemovedEvent(size, task))
 
-  fun taskReplaced(oldTask: Task, newTask: Task) {
+  internal fun taskReplaced(oldTask: Task, newTask: Task) {
     require(oldTask.id == newTask.id)
     addEntry(TaskReplacedEvent(size, oldTask = oldTask, task = newTask))
   }
 
-  data class Checkpoint(val ordinal: Int) {
+  public data class Checkpoint internal constructor(val ordinal: Int) {
     init {
       require(ordinal >= 0)
     }
   }
 
-  fun checkpoint() = Checkpoint(size)
+  internal fun checkpoint() = Checkpoint(size)
 
-  fun changesSince(checkpoint: Checkpoint): List<ChangeEvent> =
+  public fun changesSince(checkpoint: Checkpoint): List<ChangeEvent> =
       entriesSince(checkpoint).filterIsInstance<ChangeEvent>()
 
-  fun newTasksSince(checkpoint: Checkpoint): Set<TaskId> {
+  public fun newTasksSince(checkpoint: Checkpoint): Set<TaskId> {
     val ids = mutableSetOf<TaskId>()
     entriesSince(checkpoint).forEach {
       when (it) {
@@ -54,9 +54,9 @@ class EventLog(val events: MutableList<GameEvent> = mutableListOf()) {
     return ids
   }
 
-  fun entriesSince(checkpoint: Checkpoint): List<GameEvent> =
+  public fun entriesSince(checkpoint: Checkpoint): List<GameEvent> =
       events.subList(checkpoint.ordinal, size).toList()
 
-  fun resultsSince(checkpoint: Checkpoint) =
+  public fun activitySince(checkpoint: Checkpoint) =
       Result(changesSince(checkpoint), newTasksSince(checkpoint))
 }

@@ -13,9 +13,9 @@ import dev.martianzoo.tfm.data.SpecialClassNames.EVENT_CARD
 import dev.martianzoo.tfm.data.SpecialClassNames.PRELUDE_CARD
 import dev.martianzoo.tfm.data.SpecialClassNames.PROJECT_CARD
 import dev.martianzoo.tfm.data.SpecialClassNames.RESOURCE_CARD
-import dev.martianzoo.tfm.pets.AstTransforms.actionListToEffects
-import dev.martianzoo.tfm.pets.AstTransforms.immediateToEffect
 import dev.martianzoo.tfm.pets.Parsing.parseOneLineClassDeclaration
+import dev.martianzoo.tfm.pets.PureTransformers.actionListToEffects
+import dev.martianzoo.tfm.pets.PureTransformers.immediateToEffect
 import dev.martianzoo.tfm.pets.ast.Action.Companion.action
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
