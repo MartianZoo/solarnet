@@ -39,9 +39,11 @@ ABSTRACT CLASS System {
   }
 }
 
+ABSTRACT CLASS Atomized                                // magic
+
 // GLOBAL PARAMETERS ----------------------------------
 
-ABSTRACT CLASS GlobalParameter {                       // Instances must be added 1-by-1 (TODO)
+ABSTRACT CLASS GlobalParameter : Atomized {            // Instances must be added 1-by-1 (TODO)
   DEFAULT +GlobalParameter.                            // by default gains/removes are "if possible"
   DEFAULT -GlobalParameter.
 

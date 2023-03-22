@@ -2,7 +2,6 @@ package dev.martianzoo.tfm.engine
 
 import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.tfm.api.SpecialClassNames.ENGINE
-import dev.martianzoo.tfm.api.SpecialClassNames.GLOBAL_PARAMETER
 import dev.martianzoo.tfm.api.SpecialClassNames.OK
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
@@ -14,7 +13,7 @@ private class CanonEffectsTest {
     val loader = MClassLoader(Canon, true)
     loader.load(ENGINE)
     loader.load(OK) // TODO why?
-    loader.load(GLOBAL_PARAMETER)
+    loader.load(cn("GlobalParameter"))
     val card = loader.load(cn(name))
     loader.frozen = true
     return card.classEffects.map { "${it.effect.unprocessed}" }

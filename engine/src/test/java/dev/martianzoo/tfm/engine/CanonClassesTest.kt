@@ -101,7 +101,7 @@ private class CanonClassesTest {
           .containsExactly(cn("GlobalParameter"), cn("Tile"))
           .inOrder()
       assertThat(allSuperclasses.classNames())
-          .containsExactly(cn("Component"), cn("GlobalParameter"), cn("Tile"), cn("OceanTile"))
+          .containsExactly(cn("Component"), cn("Atomized"), cn("GlobalParameter"), cn("Tile"), cn("OceanTile"))
           .inOrder()
 
       table.load(cn("MarsArea"))

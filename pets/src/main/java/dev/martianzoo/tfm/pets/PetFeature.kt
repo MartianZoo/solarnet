@@ -8,6 +8,12 @@ enum class PetFeature {
   THIS_EXPRESSIONS,
 
   /**
+   * The element might include instructions like `2 OxygenStep` that need to be split up.
+   * THIS_EXPRESSIONS should ideally be handled first.
+   */
+  ATOMIZE,
+
+  /**
    * The element might contain expressions and [Change] instructions that expect to have defaults
    * filled in, like `GreeneryTile` which should be translated to
    * `GreeneryTile<Owner, LandArea(HAS? Neighbor<OwnedTile<Owner>>)>!`
@@ -16,21 +22,14 @@ enum class PetFeature {
    */
   DEFAULTS,
 
-  /**
-   * The element might contain PROD blocks. Idempotent, invertible, and AFAICT orthogonal to
-   * everything else. Just makes stuff unreadable is all.
-   */
-  PROD_BLOCKS,
-
   /** The element should undergo dependency-specialization... or trigger-specialization? */
   SPECIALIZABLE,
 
   /**
-   * The element might include instructions like `2 OxygenStep` that need to be split up.
-   * THIS_EXPRESSIONS should ideally be handled first.
+   * The element might contain PROD blocks. Idempotent, invertible, and AFAICT orthogonal to
+   * everything else. Just makes stuff unreadable is all.
    */
-  ATOMIZE,
-  ;
+  PROD_BLOCKS;
 
   companion object {
     val STANDARD_FEATURES: Set<PetFeature> = setOf(ATOMIZE, DEFAULTS, PROD_BLOCKS)

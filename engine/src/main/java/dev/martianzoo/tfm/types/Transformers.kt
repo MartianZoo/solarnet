@@ -1,7 +1,7 @@
 package dev.martianzoo.tfm.types
 
+import dev.martianzoo.tfm.api.SpecialClassNames.ATOMIZED
 import dev.martianzoo.tfm.api.SpecialClassNames.CLASS
-import dev.martianzoo.tfm.api.SpecialClassNames.GLOBAL_PARAMETER
 import dev.martianzoo.tfm.api.SpecialClassNames.PRODUCTION
 import dev.martianzoo.tfm.api.SpecialClassNames.STANDARD_RESOURCE
 import dev.martianzoo.tfm.api.SpecialClassNames.THIS
@@ -38,7 +38,7 @@ public class Transformers(val loader: MClassLoader) {
       context: Expression?
   ): Raw<P> {
     require(SPECIALIZABLE !in featuresToHandle) // needs more data
-    val toHandle = featuresToHandle.intersect(rawNode.features)
+    val toHandle = featuresToHandle.intersect(rawNode.unhandled)
 
     var node = rawNode.unprocessed
     for (feature in toHandle.sorted()) {
@@ -52,12 +52,12 @@ public class Transformers(val loader: MClassLoader) {
             ATOMIZE -> atomizer()
           }.transform(node)
     }
-    return Raw(node, rawNode.features - featuresToHandle)
+    return Raw(node, rawNode.unhandled - featuresToHandle)
   }
 
   public fun <P : PetElement> processFully(rawNode: Raw<P>, context: Expression?): P {
-    require(SPECIALIZABLE !in rawNode.features) // needs more data
-    return process(rawNode, rawNode.features, context).unprocessed
+    require(SPECIALIZABLE !in rawNode.unhandled) // needs more data
+    return process(rawNode, rawNode.unhandled, context).unprocessed
   }
 
   public fun useFullNames() =
@@ -150,7 +150,7 @@ public class Transformers(val loader: MClassLoader) {
           val value = sc.value
           if (value == 1 || THIS in scex.expression) return node
           val type: MType = loader.resolve(scex.expression)
-          if (!type.isSubtypeOf(loader.resolve(GLOBAL_PARAMETER.expr))) return node
+          if (!type.isSubtypeOf(loader.resolve(ATOMIZED.expr))) return node
           val one = node.copy(scaledEx = scex.copy(scalar = ActualScalar(1)))
           ourMulti = Multi((1..value).map { one })
           @Suppress("UNCHECKED_CAST") return ourMulti as P // TODO Uh oh

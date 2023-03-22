@@ -11,12 +11,12 @@ import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
  */
 public object SpecialClassNames {
   public val ANYONE = cn("Anyone")
+  public val ATOMIZED = cn("Atomized")
   public val CLASS = cn("Class")
   public val COMPONENT = cn("Component")
   public val DIE = cn("Die")
   public val END = cn("End")
   public val ENGINE = cn("Engine")
-  public val GLOBAL_PARAMETER = cn("GlobalParameter")
   public val MEGACREDIT = cn("Megacredit")
   public val OK = cn("Ok")
   public val OWNED = cn("Owned")

@@ -1,5 +1,6 @@
 package dev.martianzoo.tfm.data
 
+import dev.martianzoo.tfm.api.SpecialClassNames.THIS
 import dev.martianzoo.tfm.pets.Raw
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.Effect
@@ -37,6 +38,7 @@ public data class ClassDeclaration(
           .filter { it.simple }
           .distinct()
           .classNames()
+          .filterNot { it == THIS }
 
   public val bareNamesInDependencies: Set<ClassName> by lazy {
     bareNamesInDependenciesList().sorted().toSet()
@@ -68,7 +70,7 @@ public data class ClassDeclaration(
   }
 
   private fun simpleClassNamesIn(node: PetNode): Set<ClassName> =
-      node.descendantsOfType<Expression>().filter { it.simple }.classNames().toSet()
+      node.descendantsOfType<Expression>().filter { it.simple }.classNames().toSet() - THIS
 
   // DEFAULTS
 

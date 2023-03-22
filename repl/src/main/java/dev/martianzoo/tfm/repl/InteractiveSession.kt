@@ -1,20 +1,16 @@
 package dev.martianzoo.tfm.repl
 
 import dev.martianzoo.tfm.api.Exceptions.UserException
-import dev.martianzoo.tfm.api.GameSetup
 import dev.martianzoo.tfm.api.SpecialClassNames.THIS
 import dev.martianzoo.tfm.data.Actor
 import dev.martianzoo.tfm.data.Task.TaskId
 import dev.martianzoo.tfm.engine.Component
-import dev.martianzoo.tfm.engine.Engine
-import dev.martianzoo.tfm.engine.EventLog.Checkpoint
 import dev.martianzoo.tfm.engine.Game
 import dev.martianzoo.tfm.engine.PlayerAgent
 import dev.martianzoo.tfm.engine.Result
 import dev.martianzoo.tfm.pets.PureTransformers.transformInSeries
 import dev.martianzoo.tfm.pets.Raw
 import dev.martianzoo.tfm.pets.ast.ClassName
-import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.pets.ast.Instruction
 import dev.martianzoo.tfm.pets.ast.Instruction.Change
@@ -32,23 +28,10 @@ import dev.martianzoo.util.Multiset
  * A convenient interface for functional tests; basically, [ReplSession] is just a more texty
  * version of this.
  */
-public class InteractiveSession(initialSetup: GameSetup) {
-  public var game: Game = Engine.newGame(initialSetup)
-    internal set
-  internal var showLogSince: Checkpoint = game.checkpoint()
-    private set
-  internal var agent: PlayerAgent = agent(Actor.ENGINE)
-    private set
+public class InteractiveSession(val game: Game, actor: Actor = Actor.ENGINE) {
+  internal val agent: PlayerAgent = agent(actor)
 
-  fun newGame(setup: GameSetup) {
-    game = Engine.newGame(setup)
-    showLogSince = game.checkpoint()
-    become(Actor.ENGINE)
-  }
-
-  fun become(actor: Actor) {
-    agent = agent(actor)
-  }
+  public fun asActor(actor: Actor) = InteractiveSession(game, actor)
 
   // QUERIES
 
@@ -139,13 +122,6 @@ public class InteractiveSession(initialSetup: GameSetup) {
         .transform(node.unprocessed) // TODO
   }
 
-  fun agent(player: String) = agent(cn(player))
   fun agent(actor: ClassName) = agent(Actor(actor))
   fun agent(actor: Actor) = game.agent(actor)
-
-  fun <T> doAs(actor: Actor, function: () -> T): T {
-    val current = agent // TODO better way
-    become(actor)
-    return function().also { agent = current }
-  }
 }

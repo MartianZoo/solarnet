@@ -40,7 +40,7 @@ import dev.martianzoo.tfm.pets.ast.ScaledExpression.Scalar.ActualScalar
 import dev.martianzoo.tfm.types.MType
 
 /** A view of a [Game] specific to a particular [Actor] (a player or the engine). */
-public class PlayerAgent(private val game: Game, public val actor: Actor) {
+public class PlayerAgent internal constructor(private val game: Game, public val actor: Actor) {
 
   public val reader = object : GameStateReader by game.reader {
     override fun resolve(expression: Expression): MType = game.resolve(heyItsMe(expression))

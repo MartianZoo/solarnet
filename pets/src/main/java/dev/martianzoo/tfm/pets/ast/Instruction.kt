@@ -352,7 +352,7 @@ public sealed class Instruction : PetElement() {
           if (rest.none()) first else Multi(listOf(first) + rest)
       fun create(raw: List<Raw<Instruction>>): Raw<Instruction>? {
         val features: Set<PetFeature> = raw.fold(setOf()) {
-          featuresSoFar, rawInstr -> featuresSoFar.union(rawInstr.features)
+          featuresSoFar, rawInstr -> featuresSoFar.union(rawInstr.unhandled)
         }
         return create(raw.map { it.unprocessed })?.let { Raw(it, features) }
       }

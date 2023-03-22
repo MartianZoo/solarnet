@@ -42,6 +42,9 @@ public class Game(val setup: GameSetup, public val loader: MClassLoader) {
   /** The tasks the game is currently waiting on. */
   public val taskQueue = TaskQueue(eventLog)
 
+  public lateinit var start: Checkpoint
+    private set
+
   // PLAYER AGENT
 
   public fun agent(actor: Actor) = PlayerAgent(this, actor)
@@ -135,4 +138,8 @@ public class Game(val setup: GameSetup, public val loader: MClassLoader) {
   }
 
   internal fun allActiveEffects(): Multiset<ActiveEffect> = components.allActiveEffects(this)
+
+  internal fun setupFinished() {
+    start = checkpoint()
+  }
 }

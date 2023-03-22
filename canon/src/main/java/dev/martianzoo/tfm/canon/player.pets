@@ -110,7 +110,7 @@ ABSTRACT CLASS Owned<Anyone> {
   }
 
   ABSTRACT CLASS Cardbound<CardFront> {
-    ABSTRACT CLASS Tag {
+    ABSTRACT CLASS Tag : Atomized {
       CLASS BuildingTag[BUT], SpaceTag[SPT]
       CLASS CityTag[CIT], PowerTag[POT], ScienceTag[SCT]
 

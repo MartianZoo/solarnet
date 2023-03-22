@@ -10,6 +10,7 @@ import dev.martianzoo.tfm.data.GameEvent.ChangeEvent
 import dev.martianzoo.tfm.data.StateChange
 import dev.martianzoo.tfm.data.Task
 import dev.martianzoo.tfm.data.Task.TaskId
+import dev.martianzoo.tfm.engine.Engine
 import dev.martianzoo.tfm.engine.Result
 import dev.martianzoo.tfm.pets.Parsing.parseAsIs
 import dev.martianzoo.tfm.pets.Parsing.parseInput
@@ -63,9 +64,9 @@ internal fun main() {
 public class ReplSession(
     private val authority: Authority,
     initialSetup: GameSetup,
-    val jline: JlineRepl? = null
+    private val jline: JlineRepl? = null
 ) {
-  internal val session = InteractiveSession(initialSetup)
+  internal var session = InteractiveSession(Engine.newGame(initialSetup))
   internal var mode: ReplMode = GREEN
 
   public enum class ReplMode(val message: String, val color: TfmColor) {
@@ -125,7 +126,14 @@ public class ReplSession(
     override fun withArgs(args: String): List<String> {
       val (player, rest) = args.trim().split(Regex("\\s+"), 2)
 
-      return session.doAs(Actor(cn(player))) { command(rest) }
+      // TODO this is not awesome
+      val saved = session
+      return try {
+        session = session.asActor(Actor(cn(player)))
+        command(rest)
+      } finally {
+        session = saved
+      }
     }
   }
 
@@ -135,7 +143,9 @@ public class ReplSession(
     override fun withArgs(args: String): List<String> {
       try {
         val (bundleString, players) = args.trim().split(Regex("\\s+"), 2)
-        session.newGame(GameSetup(authority, bundleString, players.toInt()))
+
+        val newGame = Engine.newGame(GameSetup(authority, bundleString, players.toInt()))
+        session = InteractiveSession(newGame)
         return listOf("New $players-player game created with bundles: $bundleString") +
             if (players.toInt() == 1) {
               listOf("NOTE: No solo mode rules are implemented.")
@@ -152,12 +162,12 @@ public class ReplSession(
     override val usage = "become [PlayerN]"
 
     override fun noArgs(): List<String> {
-      session.become(Actor.ENGINE)
+      session = session.asActor(Actor.ENGINE)
       return listOf("Okay, you are the game engine now")
     }
 
     override fun withArgs(args: String): List<String> {
-      session.become(Actor(cn(args)))
+      session = session.asActor(Actor(cn(args)))
       return listOf("Hi, ${session.agent.actor}")
     }
   }
@@ -204,7 +214,7 @@ public class ReplSession(
     override fun noArgs(): List<String> = PlayerBoardToText(session.agent, jline != null).board()
 
     override fun withArgs(args: String) =
-        PlayerBoardToText(session.agent(args), jline != null).board()
+        PlayerBoardToText(session.agent(cn(args)), jline != null).board()
   }
 
   internal inner class MapCommand : ReplCommand("map") {
@@ -358,7 +368,7 @@ public class ReplSession(
     override val isReadOnly = true
 
     // TODO filter it
-    override fun noArgs() = session.game.eventLog.changesSince(session.showLogSince).toStrings()
+    override fun noArgs() = session.game.eventLog.changesSince(session.game.start).toStrings()
 
     override fun withArgs(args: String): List<String> {
       if (args == "full") {

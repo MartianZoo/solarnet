@@ -49,6 +49,7 @@ public object Engine {
       agent.initiate(it, fakeCause)
       require(game.taskQueue.isEmpty()) { "Unexpected tasks: ${game.taskQueue}" }
     }
+    game.setupFinished()
     return game
   }
 
