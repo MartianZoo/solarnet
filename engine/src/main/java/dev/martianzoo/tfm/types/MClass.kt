@@ -2,12 +2,12 @@ package dev.martianzoo.tfm.types
 
 import dev.martianzoo.tfm.api.SpecialClassNames.CLASS
 import dev.martianzoo.tfm.api.SpecialClassNames.COMPONENT
-import dev.martianzoo.tfm.api.SpecialClassNames.OK
 import dev.martianzoo.tfm.api.SpecialClassNames.OWNED
 import dev.martianzoo.tfm.api.SpecialClassNames.OWNER
 import dev.martianzoo.tfm.api.SpecialClassNames.THIS
 import dev.martianzoo.tfm.data.ClassDeclaration
 import dev.martianzoo.tfm.data.ClassDeclaration.EffectDeclaration
+import dev.martianzoo.tfm.pets.Parsing.parseAsIs
 import dev.martianzoo.tfm.pets.PetTransformer
 import dev.martianzoo.tfm.pets.PureTransformers.transformInSeries
 import dev.martianzoo.tfm.pets.ast.ClassName
@@ -17,7 +17,6 @@ import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.pets.ast.HasClassName
 import dev.martianzoo.tfm.pets.ast.PetNode
 import dev.martianzoo.tfm.pets.ast.Requirement
-import dev.martianzoo.tfm.pets.ast.Requirement.Companion.requirement
 import dev.martianzoo.tfm.pets.ast.classNames
 import dev.martianzoo.tfm.types.Dependency.Companion.depsForClassType
 import dev.martianzoo.tfm.types.Dependency.Key
@@ -198,21 +197,21 @@ internal constructor(
     val transformer =
         transformInSeries(
             xers.useFullNames(),
-            xers.atomizeGlobalParameters(),
-            xers.insertDefaults(className.refine(requirement(OK.toString()))),
+            xers.atomizer(),
+            xers.insertDefaults(parseAsIs("$className(HAS Ok)")),
             FixEffectForUnownedContext(),
             // Not needed: ReplaceThisWith, ReplaceOwnerWith, Deprodify,
         )
     declaration.effects
         .map { it.copy(effect = it.effect.map(transformer::transform)) }
-        .sortedBy { it.effect.element }
+        .sortedBy { it.effect.unprocessed }
   }
 
   // OTHER
 
   // includes abstract
   internal fun hasSingletonTypes(): Boolean =
-      declaration.invariants.any { it.requiresThis() } ||
+      declaration.invariants.any { it.unprocessed.requiresOneThis() } ||
           directSuperclasses.any { it.hasSingletonTypes() }
 
   /**
@@ -220,7 +219,7 @@ internal constructor(
    * `This` expressions, which are to be substituted with the concrete type.
    */
   public val invariants: Set<Requirement> by lazy {
-    allSuperclasses.flatMap { it.declaration.invariants }.toSet()
+    allSuperclasses.flatMap { it.declaration.invariants }.map { it.unprocessed }.toSet() // TODO
   }
 
   override fun toString() = "$className@$loader"

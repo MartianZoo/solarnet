@@ -29,7 +29,7 @@ public class CustomJavaExample {
           .filter(key -> prods.get(key) == lowest)
           .map(key -> key + "<" + player + ">")
           .collect(joining(" OR "));
-      return Parsing.INSTANCE.parseElement(Instruction.class, lowestProds);
+      return Parsing.INSTANCE.parseAsIs(Instruction.class, lowestProds);
     }
   }
 }

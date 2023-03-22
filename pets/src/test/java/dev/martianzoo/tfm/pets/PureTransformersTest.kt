@@ -2,7 +2,7 @@ package dev.martianzoo.tfm.pets
 
 import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.tfm.api.SpecialClassNames.THIS
-import dev.martianzoo.tfm.pets.Parsing.parseElement
+import dev.martianzoo.tfm.pets.Parsing.parseAsIs
 import dev.martianzoo.tfm.pets.PureTransformers.actionListToEffects
 import dev.martianzoo.tfm.pets.PureTransformers.actionToEffect
 import dev.martianzoo.tfm.pets.PureTransformers.immediateToEffect
@@ -107,8 +107,8 @@ private class PureTransformersTest {
       thiss: Expression,
       expected: String,
   ) {
-    val parsedOriginal = parseElement(type, original)
-    val parsedExpected = parseElement(type, expected)
+    val parsedOriginal = parseAsIs(type, original)
+    val parsedExpected = parseAsIs(type, expected)
     val tx = parsedOriginal.replaceAll(THIS.expr, thiss)
     assertThat(tx).isEqualTo(parsedExpected)
 

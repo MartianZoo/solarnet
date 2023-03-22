@@ -5,8 +5,8 @@ import com.google.common.truth.Truth.assertWithMessage
 import dev.martianzoo.tfm.api.GameSetup
 import dev.martianzoo.tfm.api.ResourceUtils.lookUpProductionLevels
 import dev.martianzoo.tfm.canon.Canon
+import dev.martianzoo.tfm.pets.Parsing.parseInput
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.tfm.pets.ast.Metric.Companion.metric
 import org.junit.jupiter.api.Test
 
 class EntireGameTest {
@@ -374,7 +374,7 @@ fun ReplSession.test(vararg s: String) {
 }
 
 fun ReplSession.assertCount(text: String, i: Int) {
-  assertThat(session.count(metric(text))).isEqualTo(i)
+  assertThat(session.count(parseInput(text))).isEqualTo(i)
 }
 
-fun ReplSession.counts(text: String): List<Int> = text.split(",").map { session.count(metric(it)) }
+fun ReplSession.counts(text: String): List<Int> = text.split(",").map { session.count(parseInput(it)) }

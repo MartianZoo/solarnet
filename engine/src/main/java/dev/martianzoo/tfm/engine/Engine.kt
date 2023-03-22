@@ -5,8 +5,11 @@ import dev.martianzoo.tfm.api.SpecialClassNames.ENGINE
 import dev.martianzoo.tfm.data.Actor
 import dev.martianzoo.tfm.data.GameEvent.ChangeEvent.Cause
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.pets.ast.Instruction
-import dev.martianzoo.tfm.pets.ast.Instruction.Companion.instruction
+import dev.martianzoo.tfm.pets.ast.Instruction.Gain
+import dev.martianzoo.tfm.pets.ast.Instruction.Intensity.MANDATORY
+import dev.martianzoo.tfm.pets.ast.ScaledExpression.Companion.scaledEx
 import dev.martianzoo.tfm.pets.ast.classNames
 import dev.martianzoo.tfm.types.MClassLoader
 
@@ -36,7 +39,7 @@ public object Engine {
     val game = Game(setup, loader)
     val agent = game.agent(Actor.ENGINE)
 
-    val result: Result = agent.initiate(instruction("$ENGINE!"))
+    val result: Result = agent.initiate(gain(ENGINE.expr))
     require(result.newTaskIdsAdded.none())
     require(game.taskQueue.isEmpty())
 
@@ -49,11 +52,11 @@ public object Engine {
     return game
   }
 
-  private fun singletonCreateInstructions(loader: MClassLoader): List<Instruction> {
-    val singletonTypes =
-        loader.allClasses
-            .filter { it.hasSingletonTypes() }
-            .flatMap { it.baseType.concreteSubtypesSameClass() }
-    return singletonTypes.map { instruction("${it.expressionFull}!") }
-  }
+  private fun gain(expression: Expression) = Gain(scaledEx(1, expression), MANDATORY)
+
+  private fun singletonCreateInstructions(loader: MClassLoader): List<Instruction> =
+      loader.allClasses
+          .filter { it.hasSingletonTypes() }
+          .flatMap { it.baseType.concreteSubtypesSameClass() }
+          .map { gain(it.expressionFull) }
 }

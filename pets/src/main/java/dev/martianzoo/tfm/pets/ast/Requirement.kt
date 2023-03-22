@@ -19,7 +19,7 @@ import dev.martianzoo.tfm.pets.ast.ScaledExpression.Scalar.ActualScalar
 import dev.martianzoo.tfm.pets.ast.ScaledExpression.Scalar.XScalar
 
 sealed class Requirement : PetElement() {
-  open fun requiresThis() = false // TODO kick this out
+  open fun requiresOneThis() = false // TODO kick this out
   override fun safeToNestIn(container: PetNode) =
       super.safeToNestIn(container) || container is IfTrigger
 
@@ -35,7 +35,7 @@ sealed class Requirement : PetElement() {
       }
     }
     override fun toString() = "$scaledEx"
-    override fun requiresThis() = this.scaledEx == scaledEx(1, THIS.expr)
+    override fun requiresOneThis() = this.scaledEx == scaledEx(1, THIS.expr)
   }
 
   data class Max(override val scaledEx: ScaledExpression) : Counting(scaledEx) {
@@ -54,7 +54,7 @@ sealed class Requirement : PetElement() {
       }
     }
     override fun toString() = "=${scaledEx.toFullString()}" // no "=5" or "=Heat"
-    override fun requiresThis() = this.scaledEx == scaledEx(1, THIS.expr)
+    override fun requiresOneThis() = this.scaledEx == scaledEx(1, THIS.expr)
   }
 
   data class Or(val requirements: Set<Requirement>) : Requirement() {
@@ -92,7 +92,7 @@ sealed class Requirement : PetElement() {
     override fun toString() = requirements.joinToString { groupPartIfNeeded(it) }
     override fun precedence() = 1
 
-    override fun requiresThis() = requirements.any { it.requiresThis() }
+    override fun requiresOneThis() = requirements.any { it.requiresOneThis() }
 
     override fun safeToNestIn(container: PetNode): Boolean {
       return super.safeToNestIn(container) && container !is IfTrigger

@@ -3,6 +3,7 @@ package dev.martianzoo.tfm.repl
 import dev.martianzoo.tfm.api.SpecialClassNames.THIS
 import dev.martianzoo.tfm.engine.Component
 import dev.martianzoo.tfm.engine.Game
+import dev.martianzoo.tfm.pets.Raw
 import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.pets.ast.Instruction.Gain
 import dev.martianzoo.tfm.pets.ast.Instruction.Remove
@@ -12,11 +13,12 @@ import dev.martianzoo.util.iff
 
 object MTypeToText { // TODO refactor to ClassInfo / TypeInfo type dealies
   /** A detailed multi-line description of the class. */
-  public fun describe(expression: Expression, game: Game): String {
+  public fun describe(expr: Raw<Expression>, game: Game): String {
     fun descendingBySubclassCount(classes: Iterable<MClass>) =
         classes.sortedWith(compareBy({ -it.allSubclasses.size }, { it.className }))
 
-    val mtype = game.resolve(expression)
+    val expression = expr.unprocessed // TODO
+    val mtype = game.resolve(expression) // TODO
     val mclass = mtype.mclass
 
     val subs = descendingBySubclassCount(mclass.allSubclasses - mclass)
@@ -40,7 +42,7 @@ object MTypeToText { // TODO refactor to ClassInfo / TypeInfo type dealies
     // BIGTODO invariants seemingly not working?
     val effex = mclass.classEffects.joinToString("""
                            """) {
-      "${it.effect.element}" + if (it.depLinkages.any()) " ${it.depLinkages}" else ""
+      "${it.effect.unprocessed}" + if (it.depLinkages.any()) " ${it.depLinkages}" else ""
     }
     val classStuff =
         """

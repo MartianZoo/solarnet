@@ -1,7 +1,6 @@
 package dev.martianzoo.tfm.data
 
 import dev.martianzoo.tfm.api.SpecialClassNames.END
-import dev.martianzoo.tfm.api.SpecialClassNames.THIS
 import dev.martianzoo.tfm.data.CardDefinition.Deck.PROJECT
 import dev.martianzoo.tfm.data.CardDefinition.ProjectKind.ACTIVE
 import dev.martianzoo.tfm.data.EnglishHack.englishHack
@@ -14,14 +13,12 @@ import dev.martianzoo.tfm.data.SpecialClassNames.EVENT_CARD
 import dev.martianzoo.tfm.data.SpecialClassNames.PRELUDE_CARD
 import dev.martianzoo.tfm.data.SpecialClassNames.PROJECT_CARD
 import dev.martianzoo.tfm.data.SpecialClassNames.RESOURCE_CARD
-import dev.martianzoo.tfm.pets.Parsing.parseElement
+import dev.martianzoo.tfm.pets.Parsing.parseInput
 import dev.martianzoo.tfm.pets.Parsing.parseOneLineClassDeclaration
-import dev.martianzoo.tfm.pets.Parsing.parseRaw
 import dev.martianzoo.tfm.pets.PetFeature.Companion.ALL_FEATURES
 import dev.martianzoo.tfm.pets.PetFeature.Companion.STANDARD_FEATURES
 import dev.martianzoo.tfm.pets.PetFeature.DEFAULTS
-import dev.martianzoo.tfm.pets.PetFeature.DEPENDENCY_SPEC
-import dev.martianzoo.tfm.pets.PetFeature.PROD_BLOCKS
+import dev.martianzoo.tfm.pets.PetFeature.SPECIALIZABLE
 import dev.martianzoo.tfm.pets.PetFeature.THIS_EXPRESSIONS
 import dev.martianzoo.tfm.pets.PureTransformers.immediateToEffect
 import dev.martianzoo.tfm.pets.PureTransformers.rawActionListToEffects
@@ -80,21 +77,21 @@ public class CardDefinition(data: CardData) : Definition {
 
   /** Immediate effects on the card, if any. */
   public val immediate: Raw<Instruction>? =
-      data.immediate?.let { parseRaw(it, STANDARD_FEATURES + DEPENDENCY_SPEC + THIS_EXPRESSIONS) }
+      data.immediate?.let { parseInput(it, STANDARD_FEATURES + SPECIALIZABLE + THIS_EXPRESSIONS) }
 
   /**
    * Actions on the card, if any, each expressed as a PETS `Action`. `AUTOMATED` and `EVENT` cards
    * may not have these.
    */
   public val actions: List<Raw<Action>> =
-      data.actions.map { parseRaw(it, STANDARD_FEATURES + DEPENDENCY_SPEC + THIS_EXPRESSIONS) }
+      data.actions.map { parseInput(it, STANDARD_FEATURES + SPECIALIZABLE + THIS_EXPRESSIONS) }
 
   /**
    * Effects on the card, if any, each expressed as a PETS `Effect`. `AUTOMATED` and `EVENT` cards
    * may not have these.
    */
   public val effects: Set<Raw<Effect>> =
-      data.effects.map { parseRaw<Effect>(it, ALL_FEATURES) }.toSetStrict()
+      data.effects.map { parseInput<Effect>(it, ALL_FEATURES) }.toSetStrict()
 
   /**
    * The type of `CardResource` this card can hold, if any. If this is non-null, then the class this
@@ -109,7 +106,7 @@ public class CardDefinition(data: CardData) : Definition {
 
     /** The card's requirement, if any. */
     val requirement: Raw<Requirement>? =
-        data.requirement?.let { parseRaw(it, DEFAULTS, PROD_BLOCKS, DEPENDENCY_SPEC) }
+        data.requirement?.let { parseInput(it, STANDARD_FEATURES + SPECIALIZABLE) }
 
     /** The card's non-negative cost in megacredits. */
     val cost: Int = data.cost
@@ -129,7 +126,7 @@ public class CardDefinition(data: CardData) : Definition {
     if (deck == PROJECT) {
       val shouldBeActive =
           actions.any() ||
-          effects.any { it.element.trigger != OnGainOf.create(END.expr) } ||
+          effects.any { it.unprocessed.trigger != OnGainOf.create(END.expr) } ||
           resourceType != null
       require(shouldBeActive == (projectInfo?.kind == ACTIVE))
     }
@@ -142,24 +139,26 @@ public class CardDefinition(data: CardData) : Definition {
   override val asClassDeclaration by lazy {
     val supertypes =
         setOfNotNull(
-            projectInfo?.kind?.className?.expr,
-            resourceType?.let { RESOURCE_CARD.addArgs(it.classExpression()) },
-            if (actions.any()) ACTION_CARD.expr else null,
-        )
+                projectInfo?.kind?.className?.expr,
+                resourceType?.let { RESOURCE_CARD.addArgs(it.classExpression()) },
+                if (actions.any()) ACTION_CARD.expr else null,
+            )
             .ifEmpty { setOf(CARD_FRONT.expr) }
 
-    val zapHandCard: Raw<Instruction>? = deck?.className?.let { parseRaw("-$it", DEFAULTS) }
-    val createTags: List<Instruction> = tags.toList().map { parseElement("$it<$THIS>") }
-    val createTagsMerged: Raw<Instruction>? =
-        Multi.create(createTags)?.let { Raw(it, setOf(DEFAULTS, THIS_EXPRESSIONS)) }
+    val zapHandCard: Raw<Instruction>? = deck?.className?.let { parseInput("-$it", DEFAULTS) }
+    val createTags: List<Raw<Instruction>> =
+        tags.toList().map { parseInput("$it<This>", DEFAULTS, THIS_EXPRESSIONS) }
+    val createTagsMerged: Raw<Instruction>? = Multi.create(createTags)
     val automatic: List<Raw<Effect>> =
-        listOfNotNull(zapHandCard, createTagsMerged).map { it.map { immediateToEffect(it, true) } }
+        listOfNotNull(zapHandCard, createTagsMerged).map { instr ->
+          instr.map { immediateToEffect(it, true) }
+        }
 
     val allEffects: List<Raw<Effect>> =
         automatic +
-        listOfNotNull(immediate).map { immediateToEffect(it, automatic = false) } +
-        effects +
-        rawActionListToEffects(actions)
+            listOfNotNull(immediate).map { immediateToEffect(it, automatic = false) } +
+            effects +
+            rawActionListToEffects(actions)
 
     ClassDeclaration(
         className = className,
@@ -167,7 +166,7 @@ public class CardDefinition(data: CardData) : Definition {
         abstract = false,
         supertypes = supertypes,
         effectsIn = allEffects.toSetStrict(), // TODO
-        extraNodes = setOfNotNull(requirement?.element) + extraClasses.flatMap { it.allNodes })
+        extraNodes = setOfNotNull(requirement?.unprocessed) + extraClasses.flatMap { it.allNodes })
   }
 
   /** The deck this card belongs to; see [CardDefinition.deck]. */

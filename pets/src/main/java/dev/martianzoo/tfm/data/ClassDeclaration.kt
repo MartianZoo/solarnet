@@ -20,7 +20,7 @@ public data class ClassDeclaration(
     val abstract: Boolean = true,
     val dependencies: List<Expression> = listOf(),
     val supertypes: Set<Expression> = setOf(), // TODO do fancy Component stuff elsewhere?
-    val invariants: Set<Requirement> = setOf(),
+    val invariants: Set<Raw<Requirement>> = setOf(),
     private val effectsIn: Set<Raw<Effect>> = setOf(),
     val defaultsDeclaration: DefaultsDeclaration = DefaultsDeclaration(),
     val extraNodes: Set<PetNode> = setOf(),
@@ -52,17 +52,17 @@ public data class ClassDeclaration(
 
   public val effects: List<EffectDeclaration> by lazy {
     effectsIn.map {
-      val depLinkages = bareNamesInEffects[it.element]!!.intersect(bareNamesInDependencies)
-      EffectDeclaration(it, depLinkages, triggerLinkages[it.element]!!)
+      val depLinkages = bareNamesInEffects[it.unprocessed]!!.intersect(bareNamesInDependencies)
+      EffectDeclaration(it, depLinkages, triggerLinkages[it.unprocessed]!!)
     }
   }
 
   public val bareNamesInEffects: Map<Effect, Set<ClassName>> by lazy {
-    effectsIn.map { it.element }.associateWith(::simpleClassNamesIn)
+    effectsIn.map { it.unprocessed }.associateWith(::simpleClassNamesIn)
   }
 
   public val triggerLinkages: Map<Effect, Set<ClassName>> by lazy {
-    effectsIn.map { it.element }.associateWith {
+    effectsIn.map { it.unprocessed }.associateWith {
       simpleClassNamesIn(it.trigger).intersect(simpleClassNamesIn(it.instruction))
     }
   }
@@ -108,8 +108,8 @@ public data class ClassDeclaration(
         shortName +
         supertypes +
         dependencies +
-        invariants +
-        effectsIn.map { it.element } +
+        invariants.map { it.unprocessed } +
+        effectsIn.map { it.unprocessed } +
         defaultsDeclaration.allNodes +
         extraNodes
   }

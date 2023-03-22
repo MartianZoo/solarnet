@@ -5,9 +5,9 @@ import dev.martianzoo.tfm.api.GameSetup
 import dev.martianzoo.tfm.api.ResourceUtils.lookUpProductionLevels
 import dev.martianzoo.tfm.api.ResourceUtils.standardResourceNames
 import dev.martianzoo.tfm.canon.Canon
+import dev.martianzoo.tfm.pets.Parsing.parseInput
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.tfm.pets.ast.Instruction.Companion.instruction
 import dev.martianzoo.tfm.repl.InteractiveSession
 import dev.martianzoo.util.toStrings
 import org.junit.jupiter.api.Test
@@ -27,7 +27,7 @@ private class ResourceUtilsTest {
             cn("Heat") to 0,
         )
 
-    session.initiateOnly(instruction("PROD[2 Plant<Player1>!]"))
+    session.initiateOnly(parseInput("PROD[2 Plant<Player1>!]"))
     val prods2: Map<ClassName, Int> =
         lookUpProductionLevels(session.game.reader, cn("Player1").expr)
     assertThat(prods2.map { it.key to it.value })

@@ -3,7 +3,7 @@ package dev.martianzoo.tfm.testlib
 import com.google.common.truth.Truth.assertWithMessage
 import dev.martianzoo.tfm.api.SpecialClassNames.MEGACREDIT
 import dev.martianzoo.tfm.api.SpecialClassNames.OWNER
-import dev.martianzoo.tfm.pets.Parsing.parseElement
+import dev.martianzoo.tfm.pets.Parsing.parseAsIs
 import dev.martianzoo.tfm.pets.PetException
 import dev.martianzoo.tfm.pets.ast.Action
 import dev.martianzoo.tfm.pets.ast.Action.Cost
@@ -214,7 +214,7 @@ internal class PetGenerator(scaling: (Int) -> Double) :
 
       val reparsedNode =
           try {
-            parseElement(type, originalStringOut)
+            parseAsIs(type, originalStringOut)
           } catch (e: Exception) {
             fail("node was ${p2k(randomNode)}", e)
           }

@@ -14,6 +14,8 @@ import dev.martianzoo.tfm.api.SpecialClassNames.OK
 import dev.martianzoo.tfm.pets.BaseTokenizer
 import dev.martianzoo.tfm.pets.Parsing
 import dev.martianzoo.tfm.pets.PetException
+import dev.martianzoo.tfm.pets.PetFeature
+import dev.martianzoo.tfm.pets.Raw
 import dev.martianzoo.tfm.pets.ast.FromExpression.SimpleFrom
 import dev.martianzoo.tfm.pets.ast.Instruction.Intensity.MANDATORY
 import dev.martianzoo.tfm.pets.ast.Instruction.Intensity.OPTIONAL
@@ -324,6 +326,7 @@ public sealed class Instruction : PetElement() {
 
     init {
       require(instructions.size >= 2)
+      // TODO consider ensuring no 2 instructions both have XScalars
     }
 
     override fun precedence() = 0
@@ -347,6 +350,12 @@ public sealed class Instruction : PetElement() {
       }
       fun create(first: Instruction, vararg rest: Instruction) =
           if (rest.none()) first else Multi(listOf(first) + rest)
+      fun create(raw: List<Raw<Instruction>>): Raw<Instruction>? {
+        val features: Set<PetFeature> = raw.fold(setOf()) {
+          featuresSoFar, rawInstr -> featuresSoFar.union(rawInstr.features)
+        }
+        return create(raw.map { it.unprocessed })?.let { Raw(it, features) }
+      }
     }
   }
 

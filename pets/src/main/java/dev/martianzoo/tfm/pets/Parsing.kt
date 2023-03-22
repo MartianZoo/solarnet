@@ -34,6 +34,16 @@ import kotlin.reflect.cast
 
 /** Functions for parsing PETS elements or class declarations from source code. */
 public object Parsing {
+  public inline fun <reified P : PetElement> parseInput(
+      elementSource: String,
+      features: Set<PetFeature>
+  ): Raw<P> = Raw(parseAsIs(elementSource), features)
+
+  public inline fun <reified P : PetElement> parseInput(
+      elementSource: String,
+      vararg features: PetFeature
+  ): Raw<P> = parseInput(elementSource, features.toSetStrict())
+
   /**
    * Parses the PETS element in [elementSource], expecting a construct of type [P], and returning
    * the parsed [P]. [P] can only be one of the major element types like [Effect], [Action],
@@ -42,25 +52,15 @@ public object Parsing {
    * These can also be parsed using, for example, [Instruction.instruction] (but this function is
    * generic/reified, which is sometimes essential).
    */
-  public inline fun <reified P : PetNode> parseElement(elementSource: String): P =
-      parseElement(P::class, elementSource)
-
-  public inline fun <reified P : PetElement> parseRaw(
-      elementSource: String,
-      features: Set<PetFeature>
-  ): Raw<P> = Raw(parseElement(elementSource), features)
-
-  public inline fun <reified P : PetElement> parseRaw(
-      elementSource: String,
-      vararg features: PetFeature
-  ): Raw<P> = parseRaw(elementSource, features.toSetStrict())
+  public inline fun <reified P : PetNode> parseAsIs(elementSource: String): P =
+      parseAsIs(P::class, elementSource)
 
   /**
    * Parses the PETS element in [elementSource], expecting a construct of type [P], and returning
    * the parsed [P]. [P] can only be one of the major elemental types like [Effect], [Action],
    * [Instruction], [Expression], etc.
    */
-  public fun <P : PetNode> parseElement(expectedType: KClass<P>, elementSource: String): P {
+  public fun <P : PetNode> parseAsIs(expectedType: KClass<P>, elementSource: String): P {
     val pet =
         try {
           parserGroup.parse(expectedType, tokenize(elementSource))
@@ -77,9 +77,9 @@ public object Parsing {
     return expectedType.cast(pet)
   }
 
-  /** Version of [parseElement] for use from Java. */
-  public fun <P : PetNode> parseElement(expectedType: Class<P>, source: String) =
-      parseElement(expectedType.kotlin, source)
+  /** Version of [parseAsIs] for use from Java. */
+  public fun <P : PetNode> parseAsIs(expectedType: Class<P>, source: String) =
+      parseAsIs(expectedType.kotlin, source)
 
   /**
    * Parses a **single-line** class declaration; if it has a body, the elements within the body are

@@ -11,11 +11,11 @@ import dev.martianzoo.tfm.data.MarsMapDefinition.AreaDefinition
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.pets.ast.Expression
-import dev.martianzoo.tfm.pets.ast.Expression.Companion.expression
 import dev.martianzoo.tfm.pets.ast.Instruction
 import dev.martianzoo.tfm.pets.ast.Instruction.Companion.instruction
 import dev.martianzoo.tfm.pets.ast.Instruction.Companion.nullInstruction
 import dev.martianzoo.tfm.pets.ast.Instruction.Gain
+import dev.martianzoo.tfm.pets.ast.Instruction.Intensity.MANDATORY
 import dev.martianzoo.tfm.pets.ast.Instruction.Multi
 import dev.martianzoo.tfm.pets.ast.Instruction.Transform
 import dev.martianzoo.tfm.pets.ast.ScaledExpression.Companion.scaledEx
@@ -73,20 +73,21 @@ private object CreateAdjacencies : CustomInstruction("createAdjacencies") {
 
     val newTile: Expression = tileOn(area, game)!! // creating it is what got us here
 
-    val nbrs = neighborAreas.map { "Neighbor<$newTile, ${it.className}>!" }
+    val nbrs: List<Expression> =
+        neighborAreas.map { cn("Neighbor").addArgs(newTile, it.className.expr) }
     val adjs =
         neighborAreas
             .mapNotNull { tileOn(it, game) }
             .flatMap {
               listOf(
-                  "ForwardAdjacency<$it, $newTile>!",
-                  "BackwardAdjacency<$newTile, $it>!",
+                  cn("ForwardAdjacency").addArgs(it, newTile),
+                  cn("BackwardAdjacency").addArgs(newTile, it)
               )
             }
-    return instruction((nbrs + adjs).joinToString())
+    return Multi.create((nbrs + adjs).map { Gain(scaledEx(1, it), MANDATORY) }) ?: nullInstruction
   }
   private fun tileOn(area: AreaDefinition, game: GameStateReader): Expression? {
-    val tileType: Type = game.resolve(expression("Tile<${area.className}>"))
+    val tileType: Type = game.resolve(cn("Tile").addArgs(area.className)) // TODO
     return game.getComponents(tileType).singleOrNull()?.expressionFull // TODO
   }
 
@@ -106,7 +107,7 @@ private object BeginPlayCard : CustomInstruction("beginPlayCard") {
   override fun translate(game: GameStateReader, arguments: List<Type>): Instruction {
     val cardName = arguments.single().expression.className
     val card = game.authority.card(cardName)
-    if (card.requirement?.element?.let(game::evaluate) == false) { // TODO
+    if (card.requirement?.unprocessed?.let(game::evaluate) == false) { // TODO
       throw RequirementException("requirement not met: ${card.requirement}")
     }
 
@@ -146,7 +147,7 @@ private object CopyProductionBox : CustomInstruction("copyProductionBox") {
     if (chosenCardType.abstract) throw AbstractInstructionException(chosenCardType)
     val def = game.authority.card(chosenCardType.className)
 
-    val nodes: List<Transform> = def.immediate?.element?.descendantsOfType() ?: listOf() // TODO
+    val nodes: List<Transform> = def.immediate?.unprocessed?.descendantsOfType() ?: listOf() // TODO
     val matches = nodes.filter { it.transformKind == "PROD" }
 
     when (matches.size) {

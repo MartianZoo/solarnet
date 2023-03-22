@@ -3,7 +3,7 @@ package dev.martianzoo.tfm.repl
 import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.tfm.api.GameSetup
 import dev.martianzoo.tfm.canon.Canon
-import dev.martianzoo.tfm.pets.ast.Metric.Companion.metric
+import dev.martianzoo.tfm.pets.Parsing.parseInput
 import org.junit.jupiter.api.Test
 
 private class ReplSessionTest {
@@ -23,12 +23,12 @@ private class ReplSessionTest {
     }
     repl.command("exec ActionPhase")
     repl.command("exec ProductionPhase")
-    assertThat(repl.session.count(metric("S"))).isEqualTo(8)
-    assertThat(repl.session.count(metric("T"))).isEqualTo(10)
-    assertThat(repl.session.count(metric("P"))).isEqualTo(9)
-    assertThat(repl.session.count(metric("E"))).isEqualTo(5)
-    assertThat(repl.session.count(metric("H"))).isEqualTo(9)
-    assertThat(repl.session.count(metric("M"))).isEqualTo(38) // 8 + 29 + 1
+    assertThat(repl.session.count(parseInput("S"))).isEqualTo(8)
+    assertThat(repl.session.count(parseInput("T"))).isEqualTo(10)
+    assertThat(repl.session.count(parseInput("P"))).isEqualTo(9)
+    assertThat(repl.session.count(parseInput("E"))).isEqualTo(5)
+    assertThat(repl.session.count(parseInput("H"))).isEqualTo(9)
+    assertThat(repl.session.count(parseInput("M"))).isEqualTo(38) // 8 + 29 + 1
   }
 
   @Test
@@ -47,8 +47,8 @@ private class ReplSessionTest {
     for (cmd in commands.split("\n")) {
       repl.command(cmd)
     }
-    assertThat(repl.session.count(metric("Plant"))).isEqualTo(1)
-    assertThat(repl.session.count(metric("ActionUsedMarker"))).isEqualTo(1)
+    assertThat(repl.session.count(parseInput("Plant"))).isEqualTo(1)
+    assertThat(repl.session.count(parseInput("ActionUsedMarker"))).isEqualTo(1)
   }
 
   @Test

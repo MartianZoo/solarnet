@@ -215,7 +215,7 @@ public class PlayerAgent(private val game: Game, public val actor: Actor) {
       val instruction =
           transformInSeries(
                   xers.useFullNames(),
-                  xers.atomizeGlobalParameters(),
+                  xers.atomizer(),
                   xers.insertDefaults(THIS.expr), // TODO context component??
                   xers.deprodify(),
                   replaceOwnerWith(actor.className)

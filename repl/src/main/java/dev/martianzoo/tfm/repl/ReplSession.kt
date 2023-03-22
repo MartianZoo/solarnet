@@ -11,13 +11,17 @@ import dev.martianzoo.tfm.data.StateChange
 import dev.martianzoo.tfm.data.Task
 import dev.martianzoo.tfm.data.Task.TaskId
 import dev.martianzoo.tfm.engine.Result
+import dev.martianzoo.tfm.pets.Parsing.parseAsIs
+import dev.martianzoo.tfm.pets.Parsing.parseInput
+import dev.martianzoo.tfm.pets.PetFeature.Companion.STANDARD_FEATURES
+import dev.martianzoo.tfm.pets.PetFeature.DEFAULTS
+import dev.martianzoo.tfm.pets.PetFeature.SHORT_NAMES
+import dev.martianzoo.tfm.pets.Raw
 import dev.martianzoo.tfm.pets.ast.Expression
-import dev.martianzoo.tfm.pets.ast.Expression.Companion.expression
 import dev.martianzoo.tfm.pets.ast.Instruction
-import dev.martianzoo.tfm.pets.ast.Instruction.Companion.instruction
 import dev.martianzoo.tfm.pets.ast.Instruction.Gain
-import dev.martianzoo.tfm.pets.ast.Metric.Companion.metric
-import dev.martianzoo.tfm.pets.ast.Requirement.Companion.requirement
+import dev.martianzoo.tfm.pets.ast.Metric
+import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.repl.ReplSession.ReplMode.BLUE
 import dev.martianzoo.tfm.repl.ReplSession.ReplMode.GREEN
 import dev.martianzoo.tfm.repl.ReplSession.ReplMode.PURPLE
@@ -36,7 +40,7 @@ internal fun main() {
   fun prompt(): String {
     val count = session.game.setup.players
     val bundles = session.game.setup.bundles.joinToString("")
-    val phase = session.list(expression("Phase")).singleOrNull()
+    val phase = session.list(parseInput("Phase")).singleOrNull()
     val logPosition = repl.session.game.eventLog.size
     val actor = repl.session.agent.actor
     return repl.mode.color.foreground("$bundles $phase $actor/$count @$logPosition> ")
@@ -163,7 +167,7 @@ public class ReplSession(
     override val isReadOnly = true
 
     override fun withArgs(args: String): List<String> {
-      val reqt = requirement(args)
+      val reqt: Raw<Requirement> = parseInput(args)
       val result = session.has(reqt)
       return listOf("$result: ${session.prep(reqt)}")
     }
@@ -174,7 +178,7 @@ public class ReplSession(
     override val isReadOnly = true
 
     override fun withArgs(args: String): List<String> {
-      val metric = metric(args)
+      val metric: Raw<Metric> = parseInput(args) // TODO features (check all)
       val count = session.count(metric)
       return listOf("$count ${session.prep(metric)}")
     }
@@ -186,7 +190,7 @@ public class ReplSession(
     override fun noArgs() = withArgs(COMPONENT.toString())
 
     override fun withArgs(args: String): List<String> {
-      val expr = expression(args)
+      val expr: Raw<Expression> = parseInput(args)
       val counts: Multiset<Expression> = session.list(expr)
       return listOf("${counts.size} ${session.prep(expr)}") +
           counts.entries.sortedByDescending { (_, ct) -> ct }.map { (e, ct) -> "  $ct $e" }
@@ -246,19 +250,20 @@ public class ReplSession(
     override val usage = "exec <Instruction>"
 
     override fun withArgs(args: String): List<String> {
-      val instruction = instruction(args)
+      val instruction: Raw<Instruction> = parseInput(args, STANDARD_FEATURES + SHORT_NAMES)
       val changes: Result =
           when (mode) {
             RED -> session.sneakyChange(instruction)
             YELLOW -> session.sneakyChange(instruction)
             GREEN -> initiate(instruction)
             BLUE -> {
-              if (instruction is Gain && instruction.gaining.className == cn("Turn")) {
+              val instr = instruction.unprocessed
+              if (instr is Gain && instr.gaining.className == cn("Turn")) {
                 initiate(instruction)
               } else if (session.agent.actor != Actor.ENGINE) {
                 throw UsageException("In blue mode you must be Engine to do this")
-              } else if (instruction is Gain &&
-                  instruction.gaining.className.toString().endsWith("Phase")) { // TODO hack
+              } else if (instr is Gain &&
+                  instr.gaining.className.toString().endsWith("Phase")) { // TODO hack
                 initiate(instruction)
               } else {
                 throw UsageException("Eep, can't do that in ${mode.name.lowercase()} mode")
@@ -270,7 +275,7 @@ public class ReplSession(
       return describeExecutionResults(changes)
     }
 
-    private fun initiate(instruction: Instruction): Result {
+    private fun initiate(instruction: Raw<Instruction>): Result {
       if (mode == BLUE && !session.game.taskQueue.isEmpty()) {
         throw UserException("Must clear your task queue first (blue mode)")
       }
@@ -309,7 +314,7 @@ public class ReplSession(
         session.game.removeTask(id)
         return listOf("Task $id deleted")
       }
-      val instruction: Instruction? = rest?.let { instruction(it) }
+      val instruction: Raw<Instruction>? = rest?.let(::parseInput)
       val result: Result =
           when (mode) {
             RED,
@@ -319,7 +324,7 @@ public class ReplSession(
                 if (auto) {
                   session.doTaskAndAutoExec(id, instruction)
                 } else {
-                  session.agent.doTask(id, session.prep(instruction))
+                  session.agent.doTask(id, instruction?.let(session::prep))
                 }
             else -> TODO()
           }
@@ -342,7 +347,7 @@ public class ReplSession(
   }
 
   private fun isSystemOnly(change: StateChange): Boolean {
-    val system = session.game.resolve(expression("System"))
+    val system = session.game.resolve(cn("System").expr)
     return listOfNotNull(change.gaining, change.removing).all {
       session.game.resolve(it).isSubtypeOf(system)
     }
@@ -397,10 +402,11 @@ public class ReplSession(
     override fun withArgs(args: String): List<String> {
       val expression =
           if (args == "random") {
-            val randomClass = session.game.loader.allClasses.random()
-            randomClass.baseType.concreteSubtypesSameClass().toList().random().expression
+            val randomBaseType = session.game.loader.allClasses.random().baseType
+            val randomType = randomBaseType.concreteSubtypesSameClass().toList().random()
+            Raw(randomType.expression, setOf())
           } else {
-            expression(args)
+            parseInput(args, setOf(DEFAULTS, SHORT_NAMES))
           }
       return listOf(MTypeToText.describe(expression, session.game))
     }
@@ -441,7 +447,7 @@ public class ReplSession(
     return command(command, args)
   }
 
-  private fun cn(s: String) = session.game.resolve(expression(s)).className
+  private fun cn(s: String) = session.game.resolve(parseAsIs(s)).className // TODO fishy
 }
 
 private val helpText: String =

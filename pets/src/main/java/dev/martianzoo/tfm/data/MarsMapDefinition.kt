@@ -3,16 +3,18 @@ package dev.martianzoo.tfm.data
 import dev.martianzoo.tfm.api.SpecialClassNames.THIS
 import dev.martianzoo.tfm.data.SpecialClassNames.MARS_MAP
 import dev.martianzoo.tfm.data.SpecialClassNames.TILE
+import dev.martianzoo.tfm.pets.Parsing.parseInput
 import dev.martianzoo.tfm.pets.PetFeature.Companion.STANDARD_FEATURES
 import dev.martianzoo.tfm.pets.PetFeature.THIS_EXPRESSIONS
 import dev.martianzoo.tfm.pets.Raw
+import dev.martianzoo.tfm.pets.Raw.Companion.mapAll
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.pets.ast.Effect
 import dev.martianzoo.tfm.pets.ast.Effect.Trigger.OnGainOf
 import dev.martianzoo.tfm.pets.ast.Instruction
-import dev.martianzoo.tfm.pets.ast.Instruction.Companion.instruction
 import dev.martianzoo.util.Grid
+import dev.martianzoo.util.toSetStrict
 
 data class MarsMapDefinition(
     override val className: ClassName,
@@ -60,7 +62,7 @@ data class MarsMapDefinition(
       require(column >= 1) { "bad column: $column" }
     }
 
-    val bonus: Instruction? = bonusText?.let(::instruction)
+    val bonus: Raw<Instruction>? = bonusText?.let { parseInput(it, STANDARD_FEATURES + THIS_EXPRESSIONS) }
 
     override val asClassDeclaration by lazy {
       ClassDeclaration(
@@ -68,10 +70,7 @@ data class MarsMapDefinition(
           shortName = shortName,
           abstract = false,
           supertypes = setOf(kind.expr),
-          effectsIn = setOfNotNull(
-              bonus?.let {
-                Raw(Effect(trigger, it, false), STANDARD_FEATURES + THIS_EXPRESSIONS)
-              })
+          effectsIn = listOfNotNull(bonus).mapAll { Effect(trigger, it, false) }.toSetStrict()
       )
     }
 

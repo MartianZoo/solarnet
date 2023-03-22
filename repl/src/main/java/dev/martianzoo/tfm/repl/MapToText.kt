@@ -5,7 +5,6 @@ import dev.martianzoo.tfm.api.Type
 import dev.martianzoo.tfm.data.Actor
 import dev.martianzoo.tfm.data.MarsMapDefinition.AreaDefinition
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.tfm.pets.ast.Expression.Companion.expression
 import dev.martianzoo.tfm.repl.TfmColor.CITY_TILE
 import dev.martianzoo.tfm.repl.TfmColor.GREENERY_TILE
 import dev.martianzoo.tfm.repl.TfmColor.OCEAN_TILE
@@ -82,8 +81,8 @@ internal class MapToText(private val game: GameStateReader, val useColors: Boole
 
   fun describe(area: AreaDefinition?): Pair<String, TfmColor> {
     if (area == null) return "" to TfmColor.NONE
-    val expression = expression("Tile<${area.className}>")
-    val tile = game.getComponents(game.resolve(expression)).singleOrNull()
+    val expression = cn("Tile").addArgs(area.className)
+    val tile = game.getComponents(game.resolve(expression)).singleOrNull() // TODO
     return tile?.let(::describe) ?: describeEmpty(area)
   }
 
@@ -102,7 +101,7 @@ internal class MapToText(private val game: GameStateReader, val useColors: Boole
   fun maybeColor(c: TfmColor, s: String): String = if (useColors) c.foreground(s) else s
 
   private fun describe(tile: Type): Pair<String, TfmColor> {
-    fun isIt(tile: Type, kind: String) = tile.isSubtypeOf(game.resolve(expression(kind)))
+    fun isIt(tile: Type, kind: String) = tile.isSubtypeOf(game.resolve(cn(kind).expr))
 
     val kind: Pair<String, TfmColor> =
         when { // TODO do this more by checking supertypes

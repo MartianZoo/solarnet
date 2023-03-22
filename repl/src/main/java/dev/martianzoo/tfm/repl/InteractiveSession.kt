@@ -12,6 +12,7 @@ import dev.martianzoo.tfm.engine.Game
 import dev.martianzoo.tfm.engine.PlayerAgent
 import dev.martianzoo.tfm.engine.Result
 import dev.martianzoo.tfm.pets.PureTransformers.transformInSeries
+import dev.martianzoo.tfm.pets.Raw
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.pets.ast.Expression
@@ -19,7 +20,7 @@ import dev.martianzoo.tfm.pets.ast.Instruction
 import dev.martianzoo.tfm.pets.ast.Instruction.Change
 import dev.martianzoo.tfm.pets.ast.Instruction.Companion.split
 import dev.martianzoo.tfm.pets.ast.Metric
-import dev.martianzoo.tfm.pets.ast.PetNode
+import dev.martianzoo.tfm.pets.ast.PetElement
 import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.pets.ast.ScaledExpression.Scalar.ActualScalar
 import dev.martianzoo.tfm.types.MType
@@ -51,9 +52,9 @@ public class InteractiveSession(initialSetup: GameSetup) {
 
   // QUERIES
 
-  fun count(metric: Metric) = agent.count(prep(metric))
+  fun count(metric: Raw<Metric>) = agent.count(prep(metric))
 
-  fun list(expression: Expression): Multiset<Expression> { // TODO y not (M)Type?
+  fun list(expression: Raw<Expression>): Multiset<Expression> { // TODO y not (M)Type?
     val typeToList: MType = game.resolve(prep(expression))
     val allComponents: Multiset<Component> = agent.getComponents(prep(expression))
 
@@ -71,13 +72,13 @@ public class InteractiveSession(initialSetup: GameSetup) {
     return result
   }
 
-  fun has(requirement: Requirement) = agent.evaluate(prep(requirement))
+  fun has(requirement: Raw<Requirement>) = agent.evaluate(prep(requirement))
 
   // EXECUTION
 
-  fun sneakyChange(instruction: Instruction): Result {
+  fun sneakyChange(raw: Raw<Instruction>): Result {
     val changes =
-        split(prep(instruction)).mapNotNull {
+        split(prep(raw)).mapNotNull {
           if (it !is Change) throw UserException("can only sneak simple changes")
           val count = it.count
           require(count is ActualScalar)
@@ -86,11 +87,11 @@ public class InteractiveSession(initialSetup: GameSetup) {
     return Result(changes = changes, newTaskIdsAdded = setOf())
   }
 
-  fun initiateOnly(instruction: Instruction) = agent.initiate(prep(instruction))
+  fun initiateOnly(instruction: Raw<Instruction>) = agent.initiate(prep(instruction))
 
-  fun initiateAndAutoExec(instruction: Instruction): Result {
+  fun initiateAndAutoExec(instruction: Raw<Instruction>): Result {
     val checkpoint = game.checkpoint()
-    for (instr in split(prep(instruction))) {
+    for (instr in split(prep(instruction))) { // TODO
       val tasks = ArrayDeque<TaskId>()
       tasks += agent.initiate(instr).newTaskIdsAdded
       while (tasks.any()) {
@@ -103,12 +104,12 @@ public class InteractiveSession(initialSetup: GameSetup) {
 
   fun doTaskAndAutoExec(
       initialTaskId: TaskId,
-      narrowedInstruction: Instruction? = null,
+      narrowedInstruction: Raw<Instruction>? = null,
   ): Result {
     val taskIdsToAutoExec: ArrayDeque<TaskId> = ArrayDeque()
     val checkpoint = game.checkpoint()
 
-    val firstResult: Result = agent.doTask(initialTaskId, prep(narrowedInstruction))
+    val firstResult: Result = agent.doTask(initialTaskId, narrowedInstruction?.let { prep(it) })
     taskIdsToAutoExec += firstResult.newTaskIdsAdded - initialTaskId
 
     while (taskIdsToAutoExec.any()) {
@@ -126,17 +127,16 @@ public class InteractiveSession(initialSetup: GameSetup) {
 
   // TODO somehow do this with Type not Expression?
   // TODO Let game take care of this itself?
-  fun <P : PetNode?> prep(node: P): P {
-    if (node == null) return node
+  fun <P : PetElement> prep(node: Raw<P>): P {
     val xers = game.loader.transformers
     return transformInSeries(
             xers.useFullNames(),
-            xers.atomizeGlobalParameters(),
+            xers.atomizer(),
             xers.insertDefaults(THIS.expr), // TODO: context??
             xers.deprodify(),
             // not needed: ReplaceThisWith, ReplaceOwnerWith, FixEffectForUnownedContext
         )
-        .transform(node)
+        .transform(node.unprocessed) // TODO
   }
 
   fun agent(player: String) = agent(cn(player))

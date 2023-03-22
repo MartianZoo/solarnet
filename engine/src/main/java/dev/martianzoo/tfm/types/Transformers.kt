@@ -6,9 +6,17 @@ import dev.martianzoo.tfm.api.SpecialClassNames.PRODUCTION
 import dev.martianzoo.tfm.api.SpecialClassNames.STANDARD_RESOURCE
 import dev.martianzoo.tfm.api.SpecialClassNames.THIS
 import dev.martianzoo.tfm.engine.Exceptions.InvalidExpressionException
+import dev.martianzoo.tfm.pets.PetFeature
+import dev.martianzoo.tfm.pets.PetFeature.ATOMIZE
+import dev.martianzoo.tfm.pets.PetFeature.DEFAULTS
+import dev.martianzoo.tfm.pets.PetFeature.PROD_BLOCKS
+import dev.martianzoo.tfm.pets.PetFeature.SHORT_NAMES
+import dev.martianzoo.tfm.pets.PetFeature.SPECIALIZABLE
+import dev.martianzoo.tfm.pets.PetFeature.THIS_EXPRESSIONS
 import dev.martianzoo.tfm.pets.PetTransformer
 import dev.martianzoo.tfm.pets.PureTransformers.replaceThisWith
 import dev.martianzoo.tfm.pets.PureTransformers.transformInSeries
+import dev.martianzoo.tfm.pets.Raw
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.pets.ast.Instruction.Gain
@@ -16,6 +24,7 @@ import dev.martianzoo.tfm.pets.ast.Instruction.Multi
 import dev.martianzoo.tfm.pets.ast.Instruction.Remove
 import dev.martianzoo.tfm.pets.ast.Instruction.Transform
 import dev.martianzoo.tfm.pets.ast.Instruction.Transmute
+import dev.martianzoo.tfm.pets.ast.PetElement
 import dev.martianzoo.tfm.pets.ast.PetNode
 import dev.martianzoo.tfm.pets.ast.PetNode.GenericTransform
 import dev.martianzoo.tfm.pets.ast.ScaledExpression.Companion.scaledEx
@@ -23,17 +32,36 @@ import dev.martianzoo.tfm.pets.ast.ScaledExpression.Scalar.ActualScalar
 import dev.martianzoo.tfm.types.Dependency.Key
 
 public class Transformers(val loader: MClassLoader) {
-  public fun useFullNames() = useFullNames(loader)
-  public fun useShortNames() = useShortNames(loader)
-  public fun deprodify() = deprodify(loader)
-  public fun atomizeGlobalParameters() = atomizeGlobalParameters(loader)
-  public fun insertDefaults(context: Expression) = insertDefaults(loader, context)
-  public fun insertGainRemoveDefaults(context: Expression) = insertGainRemoveDefaults(context, loader)
-  public fun insertExpressionDefaults(context: Expression) = insertExpressionDefaults(context, loader)
+  public fun <P : PetElement> process(
+      rawNode: Raw<P>,
+      featuresToHandle: Iterable<PetFeature>,
+      context: Expression?
+  ): Raw<P> {
+    require(SPECIALIZABLE !in featuresToHandle) // needs more data
+    val toHandle = featuresToHandle.intersect(rawNode.features)
 
-  companion object {
-    private fun useFullNames(loader: MClassLoader): PetTransformer {
-      return object : PetTransformer() {
+    var node = rawNode.unprocessed
+    for (feature in toHandle.sorted()) {
+      node =
+          when (feature) {
+            SHORT_NAMES -> useFullNames()
+            THIS_EXPRESSIONS -> replaceThisWith(context!!)
+            DEFAULTS -> insertDefaults(context!!)
+            PROD_BLOCKS -> deprodify()
+            SPECIALIZABLE -> TODO()
+            ATOMIZE -> atomizer()
+          }.transform(node)
+    }
+    return Raw(node, rawNode.features - featuresToHandle)
+  }
+
+  public fun <P : PetElement> processFully(rawNode: Raw<P>, context: Expression?): P {
+    require(SPECIALIZABLE !in rawNode.features) // needs more data
+    return process(rawNode, rawNode.features, context).unprocessed
+  }
+
+  public fun useFullNames() =
+      object : PetTransformer() {
         override fun <P : PetNode> transform(node: P): P {
           return if (node is ClassName) {
             @Suppress("UNCHECKED_CAST")
@@ -43,10 +71,9 @@ public class Transformers(val loader: MClassLoader) {
           }
         }
       }
-    }
 
-    private fun useShortNames(loader: MClassLoader): PetTransformer {
-      return object : PetTransformer() {
+  public fun useShortNames() =
+      object : PetTransformer() {
         override fun <P : PetNode> transform(node: P): P {
           return if (node is ClassName) {
             @Suppress("UNCHECKED_CAST")
@@ -56,14 +83,13 @@ public class Transformers(val loader: MClassLoader) {
           }
         }
       }
-    }
 
-    private fun deprodify(loader: MClassLoader): PetTransformer {
-      return object : PetTransformer() {
+  public fun deprodify() =
+      object : PetTransformer() {
         var inProd: Boolean = false
         val classNames =
             loader.getClass(STANDARD_RESOURCE).allSubclasses.flatMap {
-              setOf(it.className, it.shortName)
+              setOf(it.className, it.shortName) // TODO get rid of shortname
             }
 
         override fun <P : PetNode> transform(node: P): P {
@@ -101,10 +127,9 @@ public class Transformers(val loader: MClassLoader) {
           @Suppress("UNCHECKED_CAST") return rewritten as P
         }
       }
-    }
 
-    private fun atomizeGlobalParameters(loader: MClassLoader): PetTransformer {
-      return object : PetTransformer() {
+  public fun atomizer() =
+      object : PetTransformer() {
         var ourMulti: Multi? = null
         override fun <P : PetNode> transform(node: P): P {
           if (node is Multi && ourMulti != null && (ourMulti as Multi) in node.instructions) {
@@ -131,109 +156,100 @@ public class Transformers(val loader: MClassLoader) {
           @Suppress("UNCHECKED_CAST") return ourMulti as P // TODO Uh oh
         }
       }
-    }
 
-    private fun insertDefaults(
-        loader: MClassLoader,
-        context: Expression = THIS.expr
-    ): PetTransformer {
-      return transformInSeries(
-          insertGainRemoveDefaults(context, loader), insertExpressionDefaults(context, loader))
-    }
+  public fun insertDefaults(context: Expression) =
+      transformInSeries(insertGainRemoveDefaults(context), insertExpressionDefaults(context))
 
-    private fun insertGainRemoveDefaults(context: Expression, loader: MClassLoader): PetTransformer {
-      return object : PetTransformer() {
-        override fun <P : PetNode> transform(node: P): P {
-          val result: PetNode =
-              when (node) {
-                is Transmute -> {
-                  val original: Expression = node.gaining
-                  if (leaveItAlone(original)) {
-                    return node // don't descend
-                  } else {
-                    val defaults: Defaults = Defaults.forClass(loader.getClass(original.className))
-                    Transmute(node.fromEx, node.scalar, node.intensity ?: defaults.gainIntensity)
-                    // TODO also gainDeps??
-                  }
+  private fun insertGainRemoveDefaults(context: Expression): PetTransformer {
+    return object : PetTransformer() {
+      override fun <P : PetNode> transform(node: P): P {
+        val result: PetNode =
+            when (node) {
+              is Transmute -> {
+                val original: Expression = node.gaining
+                if (leaveItAlone(original)) {
+                  return node // don't descend
+                } else {
+                  val defaults: Defaults = Defaults.forClass(loader.getClass(original.className))
+                  Transmute(node.fromEx, node.scalar, node.intensity ?: defaults.gainIntensity)
+                  // TODO also gainDeps??
                 }
-                is Gain -> {
-                  val original: Expression = node.gaining
-                  if (leaveItAlone(original)) {
-                    return node // don't descend
-                  } else {
-                    val defaults: Defaults = Defaults.forClass(loader.getClass(original.className))
-                    val fixed =
-                        insertDefaultsIntoExpr(
-                            original, defaults.gainOnlyDependencies, context, loader)
-                    val scaledEx = scaledEx(node.count, fixed)
-                    Gain(scaledEx, node.intensity ?: defaults.gainIntensity)
-                  }
-                }
-                is Remove -> { // TODO duplication
-                  val original: Expression = node.removing
-                  if (leaveItAlone(original)) {
-                    return node // don't descend
-                  } else {
-                    val defaults: Defaults = loader.allDefaults[original.className]!!
-                    val fixed =
-                        insertDefaultsIntoExpr(
-                            original, defaults.removeOnlyDependencies, context, loader)
-                    val scaledEx = scaledEx(node.count, fixed)
-                    Remove(scaledEx, node.intensity ?: defaults.removeIntensity)
-                  }
-                }
-                else -> transformChildren(node)
               }
-          @Suppress("UNCHECKED_CAST") return result as P
-        }
-
-        private fun leaveItAlone(unfixed: Expression) = unfixed.className in setOf(THIS, CLASS)
+              is Gain -> {
+                val original: Expression = node.gaining
+                if (leaveItAlone(original)) {
+                  return node // don't descend
+                } else {
+                  val defaults: Defaults = Defaults.forClass(loader.getClass(original.className))
+                  val fixed =
+                      insertDefaultsIntoExpr(
+                          original, defaults.gainOnlyDependencies, context, loader)
+                  val scaledEx = scaledEx(node.count, fixed)
+                  Gain(scaledEx, node.intensity ?: defaults.gainIntensity)
+                }
+              }
+              is Remove -> { // TODO duplication
+                val original: Expression = node.removing
+                if (leaveItAlone(original)) {
+                  return node // don't descend
+                } else {
+                  val defaults: Defaults = loader.allDefaults[original.className]!!
+                  val fixed =
+                      insertDefaultsIntoExpr(
+                          original, defaults.removeOnlyDependencies, context, loader)
+                  val scaledEx = scaledEx(node.count, fixed)
+                  Remove(scaledEx, node.intensity ?: defaults.removeIntensity)
+                }
+              }
+              else -> transformChildren(node)
+            }
+        @Suppress("UNCHECKED_CAST") return result as P
       }
     }
+  }
 
-    private fun insertExpressionDefaults(context: Expression, loader: MClassLoader): PetTransformer {
-      return object : PetTransformer() {
-        override fun <P : PetNode> transform(node: P): P {
-          if (node !is Expression) return transformChildren(node)
-          if (leaveItAlone(node)) return node
+  private fun insertExpressionDefaults(context: Expression): PetTransformer {
+    return object : PetTransformer() {
+      override fun <P : PetNode> transform(node: P): P {
+        if (node !is Expression) return transformChildren(node)
+        if (leaveItAlone(node)) return node
 
-          val defaults: Defaults =
-              loader.allDefaults[node.className]
-                  ?: throw InvalidExpressionException("${node.className}")
-          val result =
-              insertDefaultsIntoExpr(
-                  transformChildren(node), defaults.allCasesDependencies, context, loader)
+        val defaults: Defaults =
+            loader.allDefaults[node.className]
+                ?: throw InvalidExpressionException("${node.className}")
+        val result =
+            insertDefaultsIntoExpr(
+                transformChildren(node), defaults.allCasesDependencies, context, loader)
 
-          @Suppress("UNCHECKED_CAST") return result as P
-        }
-
-        private fun leaveItAlone(unfixed: Expression) = unfixed.className in setOf(THIS, CLASS)
+        @Suppress("UNCHECKED_CAST") return result as P
       }
     }
+  }
 
-    // only has to modify the args/specs
-    internal fun insertDefaultsIntoExpr(
-        original: Expression,
-        defaultDeps: DependencySet,
-        contextCpt: Expression = THIS.expr,
-        loader: MClassLoader
-    ): Expression {
+  private fun leaveItAlone(unfixed: Expression) = unfixed.className in setOf(THIS, CLASS)
 
-      val mclass: MClass = loader.getClass(original.className)
-      val dethissed: Expression = replaceThisWith(contextCpt).transform(original)
-      val match: DependencySet = loader.matchPartial(dethissed.arguments, mclass.dependencies)
+  // only has to modify the args/specs
+  private fun insertDefaultsIntoExpr(
+      original: Expression,
+      defaultDeps: DependencySet,
+      contextCpt: Expression = THIS.expr,
+      loader: MClassLoader,
+  ): Expression {
 
-      val preferred: Map<Key, Expression> = match.keys.zip(original.arguments).toMap()
-      val fallbacks: Map<Key, Expression> = defaultDeps.asSet.associate { it.key to it.expression }
+    val mclass: MClass = loader.getClass(original.className)
+    val dethissed: Expression = replaceThisWith(contextCpt).transform(original)
+    val match: DependencySet = loader.matchPartial(dethissed.arguments, mclass.dependencies)
 
-      val newArgs: List<Expression> =
-          mclass.dependencies.keys.mapNotNull { preferred[it] ?: fallbacks[it] }
+    val preferred: Map<Key, Expression> = match.keys.zip(original.arguments).toMap()
+    val fallbacks: Map<Key, Expression> = defaultDeps.asSet.associate { it.key to it.expression }
 
-      return original.copy(arguments = newArgs).also {
-        require(it.className == original.className)
-        require(it.refinement == original.refinement)
-        require(it.arguments.containsAll(original.arguments))
-      }
+    val newArgs: List<Expression> =
+        mclass.dependencies.keys.mapNotNull { preferred[it] ?: fallbacks[it] }
+
+    return original.copy(arguments = newArgs).also {
+      require(it.className == original.className)
+      require(it.refinement == original.refinement)
+      require(it.arguments.containsAll(original.arguments))
     }
   }
 }
