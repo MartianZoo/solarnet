@@ -14,7 +14,7 @@ interface Reifiable<R : Reifiable<R>> {
    */
   fun ensureReifies(that: R) {
     if (abstract) throw InvalidReificationException("abstract")
-    if (!that.abstract && that != this) throw InvalidReificationException("already concrete")
+    if (!that.abstract && that != this) throw InvalidReificationException("already concrete: $that")
     this.ensureNarrows(that)
   }
 

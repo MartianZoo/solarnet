@@ -42,7 +42,7 @@ constructor(
 
   data class TaskId(val s: String) : Comparable<TaskId> {
     init {
-      require(s.length in 1..2)
+      require(s.length in 1..2) { s }
       require(s.all { it in 'A'..'Z' })
     }
 

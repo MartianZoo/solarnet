@@ -104,6 +104,11 @@ public class InteractiveSession(val game: Game, actor: Actor = Actor.ENGINE) {
     return game.eventLog.activitySince(checkpoint)
   }
 
+  fun doTaskOnly(
+      taskId: TaskId,
+      narrowedInstruction: Raw<Instruction>? = null,
+  ) = agent.doTask(taskId, narrowedInstruction?.let { prep(it) })
+
   // OTHER
 
   fun rollBack(ordinal: Int) = game.rollBack(ordinal)

@@ -5,6 +5,10 @@ import com.google.common.truth.Truth.assertWithMessage
 import dev.martianzoo.tfm.api.GameSetup
 import dev.martianzoo.tfm.api.ResourceUtils.lookUpProductionLevels
 import dev.martianzoo.tfm.canon.Canon
+import dev.martianzoo.tfm.data.Actor.Companion.PLAYER1
+import dev.martianzoo.tfm.data.Actor.Companion.PLAYER2
+import dev.martianzoo.tfm.data.Task.TaskId
+import dev.martianzoo.tfm.engine.Engine
 import dev.martianzoo.tfm.pets.Parsing.parseInput
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import org.junit.jupiter.api.Test
@@ -12,110 +16,126 @@ import org.junit.jupiter.api.Test
 class EntireGameTest {
   @Test
   fun fourWholeGenerations() {
-    val repl = ReplSession(Canon, GameSetup(Canon, "BREPT", 2))
+    val game = Engine.newGame(GameSetup(Canon, "BREPT", 2))
+    val p1 = InteractiveSession(game, PLAYER1)
+    val p2 = InteractiveSession(game, PLAYER2)
+    val engine = InteractiveSession(game)
 
-    repl.test("as P1 exec CorporationCard, LakefrontResorts, 3 BuyCard")
-    repl.test("as P2 exec CorporationCard, InterplanetaryCinematics, 8 BuyCard")
+    fun InteractiveSession.exec(s: String) = initiateAndAutoExec(parseInput(s))
+    fun InteractiveSession.task(id: String, s: String? = null) =
+        doTaskAndAutoExec(TaskId(id), s?.let { parseInput(it) })
 
-    repl.test("as P1 exec 2 PreludeCard, MartianIndustries, GalileanMining")
-    repl.test("as P2 exec 2 PreludeCard, MiningOperations, UnmiContractor")
+    fun InteractiveSession.dropTask(id: String) = agent.removeTask(TaskId(id))
 
-    repl.test("exec ActionPhase")
+    p1.exec("CorporationCard, LakefrontResorts, 3 BuyCard")
+    p2.exec("CorporationCard, InterplanetaryCinematics, 8 BuyCard")
 
-    repl.test("as P1 exec -30 THEN AsteroidMining")
+    p1.exec("2 PreludeCard, MartianIndustries, GalileanMining")
+    p2.exec("2 PreludeCard, MiningOperations, UnmiContractor")
 
-    repl.test("become P2")
-    repl.test("exec -4 Steel THEN -1 THEN NaturalPreserve", 1)
-    repl.test("task B drop") // TODO reifying refinements
-    repl.test("exec Tile044<E37>")
-    repl.test("exec -13 Steel THEN -1 THEN SpaceElevator")
-    repl.test("exec UseAction1<SpaceElevator>")
-    repl.test("exec -2 THEN InventionContest")
-    repl.test("exec -6 THEN GreatEscarpmentConsortium", 1)
-    repl.test("task A PROD[-Steel<P1>]", 0)
+    engine.exec("ActionPhase")
 
-    repl.test("become Engine")
-    repl.test("exec ProductionPhase", 2)
-    repl.test("as P1 task A 4 BuyCard", 1)
-    repl.test("as P2 task B 1 BuyCard")
-    repl.test("exec ActionPhase")
+    p1.exec("-30 THEN AsteroidMining")
 
-    repl.test("become P2")
-    repl.test("exec UseAction1<SpaceElevator>")
-    repl.test("exec -23 THEN EarthCatapult")
+    with(p2) {
+      exec("-4 Steel THEN -1 THEN NaturalPreserve")
+      dropTask("B")
+      exec("Tile044<E37>")
+      exec("-13 Steel THEN -1 THEN SpaceElevator")
+      exec("UseAction1<SpaceElevator>")
+      exec("-2 THEN InventionContest")
+      exec("-6 THEN GreatEscarpmentConsortium")
+      task("A", "PROD[-Steel<P1>]")
+    }
 
-    repl.test("become P1")
-    repl.test("exec -7 THEN TitaniumMine")
-    repl.test("exec -9 THEN RoboticWorkforce", 1)
-    repl.test("task A drop") // TODO reify?
-    repl.test("exec @copyProductionBox(MartianIndustries)", 0)
+    engine.exec("ProductionPhase")
+    p1.task("A", "4 BuyCard")
+    p2.task("B", "1 BuyCard")
+    engine.exec("ActionPhase")
 
-    repl.test("become P2")
-    repl.test("exec -5 Steel THEN IndustrialMicrobes")
-    repl.test("exec -Titanium THEN TechnologyDemonstration")
+    with(p2) {
+      exec("UseAction1<SpaceElevator>")
+      exec("-23 THEN EarthCatapult")
+    }
 
-    repl.test("as P1 exec -6 THEN Sponsors")
+    with(p1) {
+      exec("-7 THEN TitaniumMine")
+      exec("-9 THEN RoboticWorkforce")
+      dropTask("A") // TODO reify?
+      exec("@copyProductionBox(MartianIndustries)")
+      exec("-6 THEN Sponsors")
+    }
 
-    repl.test("exec -1 THEN EnergyTapping", 1)
-    repl.test("task A PROD[-Energy<P1>]")
-    repl.test("exec -2 Steel THEN BuildingIndustries")
+    with(p2) {
+      exec("-5 Steel THEN IndustrialMicrobes")
+      exec("-Titanium THEN TechnologyDemonstration")
+      exec("-1 THEN EnergyTapping")
+      task("A", "PROD[-Energy<P1>]")
+      exec("-2 Steel THEN BuildingIndustries")
+    }
 
-    repl.test("become Engine")
-    repl.test("exec ProductionPhase", 2)
-    repl.test("as P1 task A 3 BuyCard", 1)
-    repl.test("as P2 task B 2 BuyCard")
-    repl.test("exec ActionPhase")
+    engine.exec("ProductionPhase")
+    p1.task("A", "3 BuyCard")
+    p2.task("B", "2 BuyCard")
+    engine.exec("ActionPhase")
 
-    repl.test("as P1 exec -2 THEN -1 Steel THEN Mine")
+    p1.exec("-2 THEN -1 Steel THEN Mine")
 
-    repl.test("become P2")
-    repl.test("exec UseAction1<SpaceElevator>")
-    repl.test("exec -5 THEN -5 Steel THEN ElectroCatapult")
-    repl.test("exec UseAction1<ElectroCatapult>", 1)
-    repl.test("task A -Steel THEN 7") // TODO just one
-    repl.test("exec -Titanium THEN -7 THEN SpaceHotels")
-    repl.test("exec -6 THEN MarsUniversity")
-    repl.test("exec -10 THEN ArtificialPhotosynthesis", 1)
-    repl.test("task B PROD[2 Energy]")
-    repl.test("exec -5 THEN BribedCommittee")
+    with(p2) {
+      exec("UseAction1<SpaceElevator>")
+      exec("-5 THEN -5 Steel THEN ElectroCatapult")
+      exec("UseAction1<ElectroCatapult>")
+      task("A", "-Steel THEN 7") // TODO just one
+      exec("-Titanium THEN -7 THEN SpaceHotels")
+      exec("-6 THEN MarsUniversity")
+      exec("-10 THEN ArtificialPhotosynthesis")
+      task("B", "PROD[2 Energy]")
+      exec("-5 THEN BribedCommittee")
+    }
 
-    repl.test("become Engine")
-    repl.test("exec ProductionPhase", 2)
-    repl.test("as P1 task A 3 BuyCard", 1)
-    repl.test("as P2 task B 2 BuyCard")
-    repl.test("exec ActionPhase")
+    engine.exec("ProductionPhase")
+    p1.task("A", "3 BuyCard")
+    p2.task("B", "2 BuyCard")
+    engine.exec("ActionPhase")
 
-    repl.test("become P2")
-    repl.test("exec UseAction1<ElectroCatapult>", 1)
-    repl.test("task A drop") // TODO just one
-    repl.test("exec -Steel THEN 7")
-    repl.test("exec UseAction1<SpaceElevator>")
+    with(p2) {
+      exec("UseAction1<ElectroCatapult>")
+      dropTask("A")
+      exec("-Steel THEN 7")
+      exec("UseAction1<SpaceElevator>")
+    }
 
-    repl.test("become P1")
-    repl.test("exec -2 Steel THEN -14 THEN ResearchOutpost", 1)
-    repl.test("task A drop")
-    repl.test("exec CityTile<E56>") // TODO reif refi
-    repl.test("exec -13 Titanium THEN -1 THEN IoMiningIndustries")
+    with(p1) {
+      exec("-2 Steel THEN -14 THEN ResearchOutpost")
+      dropTask("A")
+      exec("CityTile<E56>") // TODO reif refi
+      exec("-13 Titanium THEN -1 THEN IoMiningIndustries")
+    }
 
-    repl.test("become P2")
-    repl.test("exec -Titanium THEN -1 THEN TransNeptuneProbe")
-    repl.test("exec -1 THEN Hackers", 1)
-    repl.test("task B PROD[-2 Megacredit<P1>]")
+    with(p2) {
+      exec("-Titanium THEN -1 THEN TransNeptuneProbe")
+      exec("-1 THEN Hackers")
+      task("B", "PROD[-2 Megacredit<P1>]")
+    }
 
-    repl.test("become P1")
-    repl.test("exec UseAction1<SellPatents>", 1)
-    repl.test("task A Megacredit FROM ProjectCard")
+    with(p1) {
+      exec("UseAction1<SellPatents>")
+      task("A", "Megacredit FROM ProjectCard")
+    }
 
-    repl.test("become P2")
-    repl.test("exec -4 Steel THEN -1 THEN SolarPower")
-    repl.test("exec UseAction1<UseStandardProject>", 1)
-    repl.test("task A UseAction1<CitySP>", 1)
-    repl.test("task B drop") // split
-    repl.test("exec -25 THEN CityTile<E65> THEN PROD[1]")
-    repl.test("exec PROD[-Plant, Energy]") // CORRECTION TODO WHY
+    with(p2) {
+      exec("-4 Steel THEN -1 THEN SolarPower")
+      exec("UseAction1<UseStandardProject>")
+      task("A", "UseAction1<CitySP>")
+      dropTask("B") // split
+      exec("-25 THEN CityTile<E65> THEN PROD[1]")
+      exec("PROD[-Plant, Energy]") // CORRECTION TODO WHY
+    }
 
-    repl.test("become Engine")
-    repl.test("exec ProductionPhase", 2)
+    engine.exec("ProductionPhase")
+
+    val repl = ReplSession(Canon, GameSetup(Canon, "BM", 2))
+    repl.session = InteractiveSession(game)
 
     // Stuff
     assertThat(repl.counts("Generation")).containsExactly(5)
@@ -377,4 +397,5 @@ fun ReplSession.assertCount(text: String, i: Int) {
   assertThat(session.count(parseInput(text))).isEqualTo(i)
 }
 
-fun ReplSession.counts(text: String): List<Int> = text.split(",").map { session.count(parseInput(it)) }
+fun ReplSession.counts(text: String): List<Int> =
+    text.split(",").map { session.count(parseInput(it)) }

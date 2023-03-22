@@ -120,6 +120,10 @@ public class PlayerAgent internal constructor(private val game: Game, public val
     }
   }
 
+  public fun removeTask(taskId: TaskId) {
+    game.removeTask(taskId)
+  }
+
   private fun doInstruction(instruction: Instruction, cause: Cause?, multiplier: Int = 1) {
     if (multiplier == 0) return
     require(multiplier > 0)
