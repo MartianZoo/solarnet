@@ -83,6 +83,7 @@ public class PlayerAgent internal constructor(private val game: Game, public val
         throw UserException("Attempt to gain the `Die` component by $cause")
       }
     }
+
     val change =
         game.components.update(
             count,

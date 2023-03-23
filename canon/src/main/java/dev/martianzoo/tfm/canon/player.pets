@@ -30,8 +30,6 @@ ABSTRACT CLASS Owned<Anyone> {
     End: VictoryPoint
   }
 
-  ABSTRACT CLASS Milestone[MIL]                   // specific ones loaded from `milestones.json5`
-
 
 // TILES -----------------------------------------
 
@@ -60,6 +58,7 @@ ABSTRACT CLASS Owned<Anyone> {
   ABSTRACT CLASS Resource[RES] {                  // TODO when -Resource<Owner> default -Resource!,
     ABSTRACT CLASS StandardResource[SR] {         // but when -Resource<Anyone> default -Resource?
       CLASS Megacredit[M]
+
       ABSTRACT CLASS Metal {
         CLASS Steel[S]
         CLASS Titanium[T]
@@ -67,17 +66,6 @@ ABSTRACT CLASS Owned<Anyone> {
       CLASS Plant[P]
       CLASS Energy[E] { ProductionPhase:: Heat FROM This }
       CLASS Heat[H]
-    }
-
-    ABSTRACT CLASS CardResource[CR] : Cardbound<ResourceCard<Class<CardResource>>> { // TODO This
-      DEFAULT +CardResource.
-
-      // All others are card-specific; see cards.json5
-      CLASS Animal[ANI] : CardResource<ResourceCard<Class<Animal>>> // TODO simplify
-      CLASS Microbe[MIC] : CardResource<ResourceCard<Class<Microbe>>>
-      CLASS Science[SCI] : CardResource<ResourceCard<Class<Science>>>
-      CLASS Floater[FLO] : CardResource<ResourceCard<Class<Floater>>>
-      CLASS Asteroid[AST] : CardResource<ResourceCard<Class<Asteroid>>>
     }
   }
 
@@ -88,28 +76,33 @@ ABSTRACT CLASS Owned<Anyone> {
 
 // CARDS -----------------------------------------
 
-  ABSTRACT CLASS CardBack {
-    CLASS CorporationCard                         // once a card is played and becomes a CardFront,
-    CLASS PreludeCard                             // nothing in the game ever cares what kind of a
-    CLASS ProjectCard[PC]                         // CardBack it used to be... well, that USED to be
-  }                                               // true until "Double Down" in Dec 2022
+  // ABSTRACT CLASS Card {
+    ABSTRACT CLASS CardBack[CB] {
+      CLASS CorporationCard                       // once a card is played and becomes a CardFront,
+      CLASS PreludeCard                           // nothing in the game ever cares what kind of a
+      CLASS ProjectCard                           // CardBack it used to be... well, that USED to be
+    }                                             // true until "Double Down" in Dec 2022
 
-  ABSTRACT CLASS CardFront {                      // specific CardFronts come from `cards.json5`
-    HAS MAX 1 This                                // some variants might want to try duplicate
+    ABSTRACT CLASS CardFront[CF] {                // specific CardFronts come from `cards.json5`
+      HAS MAX 1 This                              // some variants might want to try duplicate
                                                   // cards, but it would likely break things
-    ABSTRACT CLASS ActiveCard
-    ABSTRACT CLASS AutomatedCard
-    ABSTRACT CLASS EventCard {
-      This: PlayedEvent<Class<This>> FROM This
-    }                                             // could we get this happen automatically at EOT?
+      ABSTRACT CLASS ActiveCard
+      ABSTRACT CLASS AutomatedCard
+      ABSTRACT CLASS EventCard {
+        This: PlayedEvent<Class<This>> FROM This
+      }                                           // could we get this happen automatically at EOT?
 
-    ABSTRACT CLASS ActionCard : HasActions
-    ABSTRACT CLASS ResourceCard<Class<CardResource>>
-  }
+      ABSTRACT CLASS ActionCard : HasActions
+      ABSTRACT CLASS ResourceCard<Class<CardResource>>
+    }
 
-  CLASS PlayedEvent<Class<CardFront>> [EVT] {     // All thanks to PharmU this can't be <EventCard>!
-    // End: @getVpsFrom(EventCard)
-  }
+    CLASS PlayedEvent<Class<CardFront>> [EVT] {   // All thanks to PharmU this can't be <EventCard>
+      // End: @getVpsFrom(EventCard)
+    }
+  // }
+
+
+// THINGS ON CARDS -------------------------------
 
   ABSTRACT CLASS Cardbound<CardFront> {
     ABSTRACT CLASS Tag : Atomized {
@@ -125,19 +118,32 @@ ABSTRACT CLASS Owned<Anyone> {
         CLASS EarthTag[EAT], JovianTag[JOT], VenusTag[VET]
       }
     }
+
+    ABSTRACT CLASS CardResource[CR] : Resource, Cardbound<ResourceCard<Class<CardResource>>> {
+      DEFAULT +CardResource.
+
+      // All others are card-specific; see cards.json5
+      CLASS Animal[ANI] : CardResource<ResourceCard<Class<Animal>>> // TODO simplify
+      CLASS Microbe[MIC] : CardResource<ResourceCard<Class<Microbe>>>
+      CLASS Science[SCI] : CardResource<ResourceCard<Class<Science>>>
+      CLASS Floater[FLO] : CardResource<ResourceCard<Class<Floater>>>
+      CLASS Asteroid[AST] : CardResource<ResourceCard<Class<Asteroid>>>
+    }
+
+    // TODO still consider inverting this?
+    CLASS ActionUsedMarker : Cardbound<ActionCard>, Generational {
+      HAS MAX 1 This
+    }
   }
 
 
-// ACTIONS ---------------------------------------
+// MISC ------------------------------------------
+
+  ABSTRACT CLASS Milestone[MIL]                   // specific ones loaded from `milestones.json5`
 
   ABSTRACT CLASS UseAction<HasActions> [UA] : Signal {
     // This IF MAX 0 ActionPhase:: Die  <-- might make sense in a real game but annoying for repl
     CLASS UseAction1[UA1], UseAction2[UA2]
-  }
-
-  // TODO still consider inverting this?
-  CLASS ActionUsedMarker : Cardbound<ActionCard>, Generational {
-    HAS MAX 1 This
   }
 
 

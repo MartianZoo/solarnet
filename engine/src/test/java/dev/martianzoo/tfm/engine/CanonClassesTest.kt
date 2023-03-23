@@ -28,12 +28,8 @@ private class CanonClassesTest {
           val redundant = direct.intersect(indirect)
           redundant.map { mclass.className to it.className }
         }
-    assertThat(redundancies)
-        .containsExactly(
-            cn("GreeneryTile") to cn("Tile"),
-            cn("SpecialTile") to cn("Tile"),
-            cn("ActionUsedMarker") to cn("Owned"),
-        )
+    assertThat(redundancies).containsExactly(cn("GreeneryTile") to cn("Tile"),
+        cn("SpecialTile") to cn("Tile"))
   }
 
   @Test

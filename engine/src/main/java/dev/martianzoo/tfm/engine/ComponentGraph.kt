@@ -4,6 +4,7 @@ import dev.martianzoo.tfm.data.StateChange
 import dev.martianzoo.tfm.engine.Exceptions.DependencyException
 import dev.martianzoo.tfm.engine.Exceptions.ExistingDependentsException
 import dev.martianzoo.tfm.engine.Exceptions.LimitsException
+import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.types.MType
 import dev.martianzoo.util.HashMultiset
 import dev.martianzoo.util.Multiset
@@ -28,8 +29,26 @@ public class ComponentGraph {
       count: Int = 1,
       gaining: Component? = null,
       removing: Component? = null,
-      toTheExtentPossible: Boolean,
+      amap: Boolean,
   ): StateChange? {
+    val actual = checkLimits(count, gaining, removing, amap)
+    if (actual == 0) return null
+
+    updateMultiset(actual, gaining, removing)
+
+    return StateChange(
+        count = actual,
+        gaining = gaining?.mtype?.expression,
+        removing = removing?.mtype?.expression,
+    )
+  }
+
+  private fun checkLimits(
+      count: Int,
+      gaining: Component?,
+      removing: Component?,
+      toTheExtentPossible: Boolean,
+  ): Int {
     require(count >= 1)
     var actual = count
 
@@ -39,6 +58,12 @@ public class ComponentGraph {
 
       val gainable = gaining.allowedRange.last - countComponent(gaining)
       actual = min(actual, gainable)
+
+      // MAX 1 Phase, MAX 9 OceanTile
+      for (it: Requirement in gaining.mtype.loader.generalInvariants) {
+
+
+      }
     }
 
     if (removing != null) {
@@ -56,15 +81,7 @@ public class ComponentGraph {
     if (!toTheExtentPossible && actual != count) {
       throw LimitsException("can't gain/remove $count instances, only $actual")
     }
-
-    if (actual == 0) return null
-
-    updateMultiset(actual, gaining, removing)
-    return StateChange(
-        count = actual,
-        gaining = gaining?.mtype?.expression,
-        removing = removing?.mtype?.expression,
-    )
+    return actual
   }
 
   // Only called above and by rollback()

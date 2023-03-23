@@ -89,13 +89,13 @@ ABSTRACT CLASS Area {
 
   ABSTRACT CLASS MarsArea[MA] {                        // specific areas loaded from `maps.json5`
     Tile<This>:: @createAdjacencies(This)              // TODO eventually we shouldn't need this
+
     ABSTRACT CLASS LandArea[LA] {
       ABSTRACT CLASS VolcanicArea[VA]
     }
     ABSTRACT CLASS WaterArea[WA]
     ABSTRACT CLASS NoctisArea[NA]
   }
-
   ABSTRACT CLASS RemoteArea[RA]
 }
 
@@ -125,7 +125,13 @@ CLASS Turn : Signal                                    // TODO: should be owned
 
 ABSTRACT CLASS Phase {                                 // System? kinda
   HAS MAX 1 Phase
+  // This:: -Phase
 
+  // Phase:: Phase FROM This
+  // PRE Phase:: Phase FROM This
+  // This FROM Phase
+
+  // CLASS SetupPhase
   CLASS CorporationPhase {
     Turn: CorporationCard, CardFront, 10 BuyCard?      // TODO beginner corp
     ActionPhase:: -This!
