@@ -5,6 +5,7 @@ import dev.martianzoo.tfm.engine.Exceptions.DependencyException
 import dev.martianzoo.tfm.engine.Exceptions.ExistingDependentsException
 import dev.martianzoo.tfm.engine.Exceptions.LimitsException
 import dev.martianzoo.tfm.pets.ast.Requirement
+import dev.martianzoo.tfm.pets.ast.Requirement.Counting
 import dev.martianzoo.tfm.types.MType
 import dev.martianzoo.util.HashMultiset
 import dev.martianzoo.util.Multiset
@@ -51,6 +52,7 @@ public class ComponentGraph {
   ): Int {
     require(count >= 1)
     var actual = count
+    val loader = (gaining ?: removing)!!.mtype.loader
 
     if (gaining != null) {
       val missingDeps = gaining.dependencyComponents - multiset.elements
@@ -58,12 +60,6 @@ public class ComponentGraph {
 
       val gainable = gaining.allowedRange.last - countComponent(gaining)
       actual = min(actual, gainable)
-
-      // MAX 1 Phase, MAX 9 OceanTile
-      for (it: Requirement in gaining.mtype.loader.generalInvariants) {
-
-
-      }
     }
 
     if (removing != null) {
@@ -74,6 +70,27 @@ public class ComponentGraph {
         val dependents = dependentsOf(removing)
         if (dependents.any()) {
           throw ExistingDependentsException(dependents)
+        }
+      }
+    }
+
+    // MAX 1 Phase, MAX 9 OceanTile
+    for (it: Requirement in loader.generalInvariants) {
+      if (it is Counting) {
+        val supertypeWithLimit = loader.resolve(it.scaledEx.expression)
+        val gHasType = gaining?.hasType(supertypeWithLimit) ?: false
+        val rHasType = removing?.hasType(supertypeWithLimit) ?: false
+
+        if (gHasType != rHasType) {
+          val existing = count(supertypeWithLimit)
+          if (gHasType) {
+            val gainable = it.range.last - existing
+            actual = min(actual, gainable)
+          }
+          if (rHasType) {
+            val removable = existing - it.range.first
+            actual = min(actual, removable)
+          }
         }
       }
     }

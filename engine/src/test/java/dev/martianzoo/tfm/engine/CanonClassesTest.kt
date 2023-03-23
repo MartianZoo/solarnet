@@ -182,7 +182,7 @@ private class CanonClassesTest {
   fun generalInvariants() {
     val table = MClassLoader(Canon).loadEverything()
     assertThat(table.generalInvariants.toStrings()).containsExactly(
-        "MAX 1 Phase",
+        // "MAX 1 Phase",
         "MAX 9 OceanTile",
     )
   }

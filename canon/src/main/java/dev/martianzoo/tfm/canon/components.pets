@@ -124,7 +124,7 @@ ABSTRACT CLASS Generational {                          // things that disappear 
 CLASS Turn : Signal                                    // TODO: should be owned
 
 ABSTRACT CLASS Phase {                                 // System? kinda
-  HAS MAX 1 Phase
+  // HAS MAX 1 Phase // TODO
   // This:: -Phase
 
   // Phase:: Phase FROM This
