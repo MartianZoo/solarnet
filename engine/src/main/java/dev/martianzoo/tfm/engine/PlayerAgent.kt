@@ -241,7 +241,7 @@ public class PlayerAgent internal constructor(private val game: Game, public val
       }
     }
   }
-  internal fun doAtomic(block: () -> Unit): Result {
+  public fun doAtomic(block: () -> Unit): Result {
     val checkpoint = game.checkpoint()
     try {
       block()

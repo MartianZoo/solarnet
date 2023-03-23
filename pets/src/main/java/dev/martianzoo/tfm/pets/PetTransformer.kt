@@ -31,6 +31,11 @@ public abstract class PetTransformer {
   public abstract fun <P : PetNode> transform(node: P): P
 
   protected fun <P : PetNode> transformChildren(node: P): P {
+    @Suppress("UNCHECKED_CAST")
+    fun <P : PetNode?> x(node: P): P = node?.let(::transform) as P
+    fun <P : PetNode> x(nodes: Iterable<P>): List<P> = nodes.map(::x)
+    fun <P : PetNode> x(nodes: Set<P>): Set<P> = x(nodes as Iterable<P>).toSetStrict()
+
     return (node as PetNode).run {
       val rewritten =
           when (this) {
@@ -102,9 +107,4 @@ public abstract class PetTransformer {
       rewritten as P
     }
   }
-
-  @Suppress("UNCHECKED_CAST")
-  protected fun <P : PetNode?> x(node: P): P = node?.let(::transform) as P
-  protected fun <P : PetNode> x(nodes: Iterable<P>): List<P> = nodes.map(::x)
-  protected fun <P : PetNode> x(nodes: Set<P>): Set<P> = x(nodes as Iterable<P>).toSetStrict()
 }

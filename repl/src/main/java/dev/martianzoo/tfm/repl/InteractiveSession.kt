@@ -8,6 +8,11 @@ import dev.martianzoo.tfm.engine.Component
 import dev.martianzoo.tfm.engine.Game
 import dev.martianzoo.tfm.engine.PlayerAgent
 import dev.martianzoo.tfm.engine.Result
+import dev.martianzoo.tfm.pets.Parsing.parseInput
+import dev.martianzoo.tfm.pets.PetFeature.ATOMIZE
+import dev.martianzoo.tfm.pets.PetFeature.DEFAULTS
+import dev.martianzoo.tfm.pets.PetFeature.PROD_BLOCKS
+import dev.martianzoo.tfm.pets.PetFeature.SHORT_NAMES
 import dev.martianzoo.tfm.pets.PureTransformers.transformInSeries
 import dev.martianzoo.tfm.pets.Raw
 import dev.martianzoo.tfm.pets.ast.ClassName
@@ -28,14 +33,22 @@ import dev.martianzoo.util.Multiset
  * A convenient interface for functional tests; basically, [ReplSession] is just a more texty
  * version of this.
  */
-public class InteractiveSession(val game: Game, actor: Actor = Actor.ENGINE) {
+public class InteractiveSession(
+    val game: Game,
+    actor: Actor = Actor.ENGINE,
+    var defaultAutoExec: Boolean = true,
+) {
   internal val agent: PlayerAgent = agent(actor)
 
   public fun asActor(actor: Actor) = InteractiveSession(game, actor)
 
   // QUERIES
 
-  fun count(metric: Raw<Metric>) = agent.count(prep(metric))
+  internal val features = setOf(ATOMIZE, DEFAULTS, PROD_BLOCKS, SHORT_NAMES)
+
+  fun count(metric: Metric): Int = agent.count(metric)
+  fun count(metric: Raw<Metric>) = count(prep(metric))
+  fun count(metric: String) = count(parseInput(metric, features))
 
   fun list(expression: Raw<Expression>): Multiset<Expression> { // TODO y not (M)Type?
     val typeToList: MType = game.resolve(prep(expression))
@@ -55,13 +68,15 @@ public class InteractiveSession(val game: Game, actor: Actor = Actor.ENGINE) {
     return result
   }
 
-  fun has(requirement: Raw<Requirement>) = agent.evaluate(prep(requirement))
+  fun has(requirement: Requirement): Boolean = agent.evaluate(requirement)
+  fun has(requirement: Raw<Requirement>) = has(prep(requirement))
+  fun has(requirement: String) = has(parseInput(requirement, features))
 
   // EXECUTION
 
-  fun sneakyChange(raw: Raw<Instruction>): Result {
+  fun sneakyChange(instruction: Instruction): Result {
     val changes =
-        split(prep(raw)).mapNotNull {
+        split(instruction).mapNotNull {
           if (it !is Change) throw UserException("can only sneak simple changes")
           val count = it.count
           require(count is ActualScalar)
@@ -69,20 +84,40 @@ public class InteractiveSession(val game: Game, actor: Actor = Actor.ENGINE) {
         }
     return Result(changes = changes, newTaskIdsAdded = setOf())
   }
+  fun sneakyChange(raw: Raw<Instruction>) = sneakyChange(prep(raw))
+  fun sneakyChange(raw: String) = sneakyChange(parseInput(raw, features))
 
-  fun initiateOnly(instruction: Raw<Instruction>) = agent.initiate(prep(instruction))
+  fun execute(instruction: String, autoExec: Boolean = defaultAutoExec) =
+      execute(parseInput(instruction, features), autoExec)
 
-  fun initiateAndAutoExec(instruction: Raw<Instruction>): Result {
-    val checkpoint = game.checkpoint()
-    for (instr in split(prep(instruction))) { // TODO
-      val tasks = ArrayDeque<TaskId>()
-      tasks += agent.initiate(instr).newTaskIdsAdded
-      while (tasks.any()) {
-        val task = tasks.removeFirst()
-        tasks += doTaskAndAutoExec(task).newTaskIdsAdded
+  fun execute(instruction: Raw<Instruction>, autoExec: Boolean = defaultAutoExec) =
+      execute(prep(instruction), autoExec)
+
+  fun execute(instruction: Instruction, autoExec: Boolean = defaultAutoExec): Result {
+    val instrs = split(instruction)
+    return agent.doAtomic {
+      for (instr in instrs) { // TODO
+        val tasks = ArrayDeque<TaskId>()
+        val firstResult = agent.initiate(instr)
+        if (autoExec) {
+          tasks += firstResult.newTaskIdsAdded
+          while (tasks.any()) {
+            val task = tasks.removeFirst()
+            tasks += doTaskAndAutoExec(task).newTaskIdsAdded
+          }
+        }
       }
     }
-    return game.eventLog.activitySince(checkpoint)
+  }
+
+  fun doTask(id: String, s: String? = null): Result {
+    val initialTaskId = TaskId(id)
+    val narrowedInstruction = s?.let<String, Raw<Instruction>> { parseInput(it) }
+    return if (defaultAutoExec) {
+      doTaskAndAutoExec(initialTaskId, narrowedInstruction)
+    } else {
+      doTaskOnly(initialTaskId, narrowedInstruction)
+    }
   }
 
   fun doTaskAndAutoExec(
@@ -111,6 +146,8 @@ public class InteractiveSession(val game: Game, actor: Actor = Actor.ENGINE) {
 
   // OTHER
 
+  fun dropTask(id: String) = agent.removeTask(TaskId(id))
+
   fun rollBack(ordinal: Int) = game.rollBack(ordinal)
 
   // TODO somehow do this with Type not Expression?
@@ -118,8 +155,8 @@ public class InteractiveSession(val game: Game, actor: Actor = Actor.ENGINE) {
   fun <P : PetElement> prep(node: Raw<P>): P {
     val xers = game.loader.transformers
     return transformInSeries(
-            xers.useFullNames(),
-            xers.atomizer(),
+        xers.useFullNames(),
+        xers.atomizer(),
             xers.insertDefaults(THIS.expr), // TODO: context??
             xers.deprodify(),
             // not needed: ReplaceThisWith, ReplaceOwnerWith, FixEffectForUnownedContext

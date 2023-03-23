@@ -4,55 +4,99 @@ import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.tfm.api.GameSetup
 import dev.martianzoo.tfm.api.ResourceUtils.lookUpProductionLevels
 import dev.martianzoo.tfm.canon.Canon
-import dev.martianzoo.tfm.pets.ast.ClassName
+import dev.martianzoo.tfm.data.Actor
+import dev.martianzoo.tfm.engine.Engine
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 
 class SpecificCardsTest {
+
   @Test
-  fun muthaFukinManutech() {
-    val repl = ReplSession(Canon, GameSetup(Canon, "BRMV", 2))
-    repl.test("become P1")
-    repl.test("exec CorporationCard, Manutech")
-    repl.assertCount("Production<Class<Steel>>", 1)
-    repl.assertCount("Steel", 1)
-    repl.test("exec PROD[8, 6T, 7P, 5E, 3H]")
-    val prods = lookUpProductionLevels(repl.session.game.reader, ClassName.cn("P1").expr)
-    assertThat(prods.values).containsExactly(8, 1, 6, 7, 5, 3).inOrder()
-    assertThat(repl.counts("M, S, T, P, E, H")).containsExactly(43, 1, 6, 7, 5, 3)
+  fun localHeatTrapping() {
+    val game = Engine.newGame(GameSetup(Canon, "BRM", 2))
+    val p1 = InteractiveSession(game, Actor.PLAYER1)
+
+    p1.execute("4 Heat, 2 ProjectCard, Pets")
+    assertThat(p1.count("ProjectCard")).isEqualTo(1)
+    assertThat(p1.count("Animal")).isEqualTo(1)
+
+    assertThrows<Exception>("1") { p1.execute("LocalHeatTrapping") }
+    assertThat(p1.count("ProjectCard")).isEqualTo(1)
+
+    p1.execute("2 Heat")
+    p1.execute("LocalHeatTrapping")
+    assertThat(p1.count("ProjectCard")).isEqualTo(0)
+
+    assertThrows<Exception>("2") { p1.doTask("C", "2 Animal") }
+
+    // TODO it would be good if this fails instead of just doing nothing
+    // assertThrows<Exception>("3") { p1.doTask("C", "2 Animal<Fish>") }
+    p1.doTask("C", "2 Animal<Fish>")
+    assertThat(p1.count("Animal")).isEqualTo(1)
+
+    val cp = p1.game.checkpoint()
+    p1.doTask("C", "4 Plant")
+    assertThat(p1.count("Heat")).isEqualTo(1)
+    assertThat(p1.count("Plant")).isEqualTo(4)
+    p1.game.rollBack(cp)
+
+    p1.doTask("C", "2 Animal<Pets>")
+    assertThat(p1.counts("Heat, Plant, Animal")).containsExactly(1, 0, 3).inOrder()
+    p1.game.rollBack(cp)
   }
 
   @Test
-  fun sulphurEating() {
+  fun manutech() {
+    val game = Engine.newGame(GameSetup(Canon, "BRMV", 2))
+    val p1 = InteractiveSession(game, Actor.PLAYER1)
+
+    p1.execute("CorporationCard, Manutech")
+    assertThat(p1.count("Production<Class<S>>")).isEqualTo(1)
+    assertThat(p1.count("Steel")).isEqualTo(1)
+
+    p1.execute("PROD[8, 6T, 7P, 5E, 3H]")
+    val prods = lookUpProductionLevels(p1.game.reader, p1.agent.actor.expression)
+    assertThat(prods.values).containsExactly(8, 1, 6, 7, 5, 3).inOrder()
+    assertThat(p1.counts("M, S, T, P, E, H")).containsExactly(43, 1, 6, 7, 5, 3)
+  }
+
+  fun InteractiveSession.counts(s: String) = s.split(",").map(::count)
+
+  @Test
+  fun sulphurEatingBacteria() {
+    val game = Engine.newGame(GameSetup(Canon, "BRMV", 2))
+    val p1 = InteractiveSession(game, Actor.PLAYER1)
+
     val repl = ReplSession(Canon, GameSetup(Canon, "BRMV", 2))
-    repl.test("become P1")
-    repl.test("exec ProjectCard")
-    repl.test("exec SulphurEatingBacteria")
-    repl.test("exec UseAction1<SulphurEatingBacteria>")
-    repl.assertCount("Microbe", 1)
+    p1.execute("ProjectCard THEN SulphurEatingBacteria")
+    p1.execute("UseAction1<SulphurEatingBacteria>")
+    assertThat(p1.count("Microbe")).isEqualTo(1)
 
-    repl.test(
-        "exec UseAction2<SulphurEatingBacteria>",
-        "task A -Microbe<SulphurEatingBacteria> THEN 3")
-    repl.assertCount("Microbe", 0)
+    p1.execute("UseAction2<SulphurEatingBacteria>")
+    p1.doTask("A", "-Microbe<SulphurEatingBacteria> THEN 3")
+    assertThat(p1.count("Microbe")).isEqualTo(0)
 
-    repl.test("exec 4 UseAction1<SulphurEatingBacteria>")
-    repl.assertCount("Microbe", 4)
+    p1.execute("4 UseAction1<SulphurEatingBacteria>")
+    assertThat(p1.count("Microbe")).isEqualTo(4)
 
-    repl.test("exec UseAction2<SulphurEatingBacteria>", 1)
+    p1.execute("UseAction2<SulphurEatingBacteria>")
 
-    assertThrows<Exception>("greed") { repl.test("task A -Microbe<C251> THEN 4" ) }
-    assertThrows<Exception>("shortchanged") { repl.test("task A -Microbe<C251> THEN 2" ) }
-    assertThrows<Exception>("no get paid") { repl.test("task A -Microbe<C251>" ) }
-    assertThrows<Exception>("which microbe") { repl.test("task A -3 Microbe THEN 9" ) }
-    assertThrows<Exception>("more than have") { repl.test("task A -5 Microbe<C251> THEN 15" ) }
-    assertThrows<Exception>("x can't be zero") { repl.test("task A -0 Microbe<C251> THEN 0" ) }
-    assertThrows<Exception>("what kind") { repl.test("task A -3 Resource<C251> THEN 9" ) }
-    assertThrows<Exception>("out of order") { repl.test("task A 9 THEN -3 Microbe<C251>" ) }
-    assertThrows<Exception>("inverse") { repl.test("task A 2 Microbe<C251> THEN -6" ) }
-    repl.assertCount("Microbe", 4)
+    fun assertTaskFails(task: String, desc: String) =
+        assertThrows<Exception>(desc) { p1.doTask("A", task) }
 
-    repl.test("task A -3 Microbe<C251> THEN 9")
-    repl.assertCount("Microbe", 1)
+    assertTaskFails("-Microbe<C251> THEN 4", "greed")
+    assertTaskFails("-Microbe<C251> THEN 2", "shortchanged")
+    assertTaskFails("-Microbe<C251>", "no get paid")
+    assertTaskFails("-3 Microbe THEN 9", "which microbe")
+    assertTaskFails("-5 Microbe<C251> THEN 15", "more than have")
+    assertTaskFails("-0 Microbe<C251> THEN 0", "x can't be zero")
+    assertTaskFails("-3 Resource<C251> THEN 9", "what kind")
+    assertTaskFails("9 THEN -3 Microbe<C251>", "out of order")
+    assertTaskFails("2 Microbe<C251> THEN -6", "inverse")
+
+    assertThat(p1.count("Microbe")).isEqualTo(4)
+
+    p1.doTask("A", "-3 Microbe<C251> THEN 9")
+    assertThat(p1.count("Microbe")).isEqualTo(1)
   }
 }

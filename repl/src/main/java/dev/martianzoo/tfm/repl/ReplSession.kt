@@ -14,7 +14,6 @@ import dev.martianzoo.tfm.engine.Engine
 import dev.martianzoo.tfm.engine.Result
 import dev.martianzoo.tfm.pets.Parsing.parseAsIs
 import dev.martianzoo.tfm.pets.Parsing.parseInput
-import dev.martianzoo.tfm.pets.PetFeature.Companion.STANDARD_FEATURES
 import dev.martianzoo.tfm.pets.PetFeature.DEFAULTS
 import dev.martianzoo.tfm.pets.PetFeature.SHORT_NAMES
 import dev.martianzoo.tfm.pets.Raw
@@ -177,7 +176,7 @@ public class ReplSession(
     override val isReadOnly = true
 
     override fun withArgs(args: String): List<String> {
-      val reqt: Raw<Requirement> = parseInput(args)
+      val reqt: Raw<Requirement> = parseInput(args, session.features)
       val result = session.has(reqt)
       return listOf("$result: ${session.prep(reqt)}")
     }
@@ -188,7 +187,7 @@ public class ReplSession(
     override val isReadOnly = true
 
     override fun withArgs(args: String): List<String> {
-      val metric: Raw<Metric> = parseInput(args) // TODO features (check all)
+      val metric: Raw<Metric> = parseInput(args, session.features)
       val count = session.count(metric)
       return listOf("$count ${session.prep(metric)}")
     }
@@ -260,14 +259,14 @@ public class ReplSession(
     override val usage = "exec <Instruction>"
 
     override fun withArgs(args: String): List<String> {
-      val instruction: Raw<Instruction> = parseInput(args, STANDARD_FEATURES + SHORT_NAMES)
+      val instruction = args
       val changes: Result =
           when (mode) {
             RED -> session.sneakyChange(instruction)
             YELLOW -> session.sneakyChange(instruction)
             GREEN -> initiate(instruction)
             BLUE -> {
-              val instr = instruction.unprocessed
+              val instr: Instruction = parseAsIs(instruction)
               if (instr is Gain && instr.gaining.className == cn("Turn")) {
                 initiate(instruction)
               } else if (session.agent.actor != Actor.ENGINE) {
@@ -289,11 +288,13 @@ public class ReplSession(
       if (mode == BLUE && !session.game.taskQueue.isEmpty()) {
         throw UserException("Must clear your task queue first (blue mode)")
       }
-      return if (auto) {
-        session.initiateAndAutoExec(instruction)
-      } else {
-        session.initiateOnly(instruction)
+      return session.execute(instruction, auto)
+    }
+    private fun initiate(instruction: String): Result {
+      if (mode == BLUE && !session.game.taskQueue.isEmpty()) {
+        throw UserException("Must clear your task queue first (blue mode)")
       }
+      return session.execute(instruction, auto)
     }
   }
 

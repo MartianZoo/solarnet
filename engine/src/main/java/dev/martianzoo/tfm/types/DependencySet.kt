@@ -54,7 +54,8 @@ internal class DependencySet private constructor(val deps: Set<Dependency>) :
       that.deps.all { thatDep: Dependency -> this.get(thatDep.key).isSubtypeOf(thatDep) }
 
   // TODO protect in callers?
-  override fun glb(that: DependencySet) = merge(that) { a, b -> (a glb b) ?: error("$a $b") }
+  override fun glb(that: DependencySet): DependencySet? =
+      merge(that) { a, b -> (a glb b) ?: return@glb null }
 
   override fun lub(that: DependencySet): DependencySet {
     val keys = keys.intersect(that.keys)
@@ -63,7 +64,7 @@ internal class DependencySet private constructor(val deps: Set<Dependency>) :
 
   // OTHER OPERATORS
 
-  fun merge(that: DependencySet, merger: (Dependency, Dependency) -> Dependency): DependencySet {
+  inline fun merge(that: DependencySet, merger: (Dependency, Dependency) -> Dependency): DependencySet {
     val merged =
         (this.keys + that.keys).map {
           setOfNotNull(this.getIfPresent(it), that.getIfPresent(it)).reduce(merger)

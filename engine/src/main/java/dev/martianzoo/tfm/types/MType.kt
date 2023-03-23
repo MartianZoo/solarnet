@@ -43,10 +43,12 @@ internal constructor(
           that.refinement in setOf(null, refinement)
 
   // Nearest common subtype
-  override fun glb(that: MType): MType? =
-      (mclass glb that.mclass)
-          ?.withExactDependencies(dependencies glb that.dependencies)
-          ?.refine(conjoin(this.refinement, that.refinement)) // BIGTODO glb/lub for Req
+  override fun glb(that: MType): MType? {
+    val glbClass = (mclass glb that.mclass) ?: return null
+    val glbDeps = (dependencies glb that.dependencies) ?: return null
+    val glbRefin = conjoin(this.refinement, that.refinement)
+    return glbClass.withExactDependencies(glbDeps).refine(glbRefin)
+  }
 
   // Nearest common supertype
   // Unlike glb, two types always have a least upper bound (if nothing else, Component)
@@ -114,8 +116,12 @@ internal constructor(
   public fun allConcreteSubtypes(): Sequence<MType> {
     if (refinement != null) return emptySequence()
     return concreteSubclasses(mclass).flatMap {
-      val top = it.withExactDependencies(dependencies glb it.baseType.dependencies)
-      top.concreteSubtypesSameClass()
+      val deps: DependencySet? = dependencies glb it.baseType.dependencies
+      if (deps == null) {
+        emptySequence()
+      } else {
+        it.withExactDependencies(deps).concreteSubtypesSameClass()
+      }
     }
   }
 

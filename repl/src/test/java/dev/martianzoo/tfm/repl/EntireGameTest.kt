@@ -7,9 +7,7 @@ import dev.martianzoo.tfm.api.ResourceUtils.lookUpProductionLevels
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.data.Actor.Companion.PLAYER1
 import dev.martianzoo.tfm.data.Actor.Companion.PLAYER2
-import dev.martianzoo.tfm.data.Task.TaskId
 import dev.martianzoo.tfm.engine.Engine
-import dev.martianzoo.tfm.pets.Parsing.parseInput
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import org.junit.jupiter.api.Test
 
@@ -21,118 +19,112 @@ class EntireGameTest {
     val p2 = InteractiveSession(game, PLAYER2)
     val engine = InteractiveSession(game)
 
-    fun InteractiveSession.exec(s: String) = initiateAndAutoExec(parseInput(s))
-    fun InteractiveSession.task(id: String, s: String? = null) =
-        doTaskAndAutoExec(TaskId(id), s?.let { parseInput(it) })
+    p1.execute("CorporationCard, LakefrontResorts, 3 BuyCard")
+    p2.execute("CorporationCard, InterplanetaryCinematics, 8 BuyCard")
 
-    fun InteractiveSession.dropTask(id: String) = agent.removeTask(TaskId(id))
+    p1.execute("2 PreludeCard, MartianIndustries, GalileanMining")
+    p2.execute("2 PreludeCard, MiningOperations, UnmiContractor")
 
-    p1.exec("CorporationCard, LakefrontResorts, 3 BuyCard")
-    p2.exec("CorporationCard, InterplanetaryCinematics, 8 BuyCard")
+    engine.execute("ActionPhase")
 
-    p1.exec("2 PreludeCard, MartianIndustries, GalileanMining")
-    p2.exec("2 PreludeCard, MiningOperations, UnmiContractor")
-
-    engine.exec("ActionPhase")
-
-    p1.exec("-30 THEN AsteroidMining")
+    p1.execute("-30 THEN AsteroidMining")
 
     with(p2) {
-      exec("-4 Steel THEN -1 THEN NaturalPreserve")
+      execute("-4 Steel THEN -1 THEN NaturalPreserve")
       dropTask("B")
-      exec("Tile044<E37>")
-      exec("-13 Steel THEN -1 THEN SpaceElevator")
-      exec("UseAction1<SpaceElevator>")
-      exec("-2 THEN InventionContest")
-      exec("-6 THEN GreatEscarpmentConsortium")
-      task("A", "PROD[-Steel<P1>]")
+      execute("Tile044<E37>")
+      execute("-13 Steel THEN -1 THEN SpaceElevator")
+      execute("UseAction1<SpaceElevator>")
+      execute("-2 THEN InventionContest")
+      execute("-6 THEN GreatEscarpmentConsortium")
+      doTask("A", "PROD[-Steel<P1>]")
     }
 
-    engine.exec("ProductionPhase")
-    p1.task("A", "4 BuyCard")
-    p2.task("B", "1 BuyCard")
-    engine.exec("ActionPhase")
+    engine.execute("ProductionPhase")
+    p1.doTask("A", "4 BuyCard")
+    p2.doTask("B", "1 BuyCard")
+    engine.execute("ActionPhase")
 
     with(p2) {
-      exec("UseAction1<SpaceElevator>")
-      exec("-23 THEN EarthCatapult")
+      execute("UseAction1<SpaceElevator>")
+      execute("-23 THEN EarthCatapult")
     }
 
     with(p1) {
-      exec("-7 THEN TitaniumMine")
-      exec("-9 THEN RoboticWorkforce")
+      execute("-7 THEN TitaniumMine")
+      execute("-9 THEN RoboticWorkforce")
       dropTask("A") // TODO reify?
-      exec("@copyProductionBox(MartianIndustries)")
-      exec("-6 THEN Sponsors")
+      execute("@copyProductionBox(MartianIndustries)")
+      execute("-6 THEN Sponsors")
     }
 
     with(p2) {
-      exec("-5 Steel THEN IndustrialMicrobes")
-      exec("-Titanium THEN TechnologyDemonstration")
-      exec("-1 THEN EnergyTapping")
-      task("A", "PROD[-Energy<P1>]")
-      exec("-2 Steel THEN BuildingIndustries")
+      execute("-5 Steel THEN IndustrialMicrobes")
+      execute("-Titanium THEN TechnologyDemonstration")
+      execute("-1 THEN EnergyTapping")
+      doTask("A", "PROD[-Energy<P1>]")
+      execute("-2 Steel THEN BuildingIndustries")
     }
 
-    engine.exec("ProductionPhase")
-    p1.task("A", "3 BuyCard")
-    p2.task("B", "2 BuyCard")
-    engine.exec("ActionPhase")
+    engine.execute("ProductionPhase")
+    p1.doTask("A", "3 BuyCard")
+    p2.doTask("B", "2 BuyCard")
+    engine.execute("ActionPhase")
 
-    p1.exec("-2 THEN -1 Steel THEN Mine")
+    p1.execute("-2 THEN -1 Steel THEN Mine")
 
     with(p2) {
-      exec("UseAction1<SpaceElevator>")
-      exec("-5 THEN -5 Steel THEN ElectroCatapult")
-      exec("UseAction1<ElectroCatapult>")
-      task("A", "-Steel THEN 7") // TODO just one
-      exec("-Titanium THEN -7 THEN SpaceHotels")
-      exec("-6 THEN MarsUniversity")
-      exec("-10 THEN ArtificialPhotosynthesis")
-      task("B", "PROD[2 Energy]")
-      exec("-5 THEN BribedCommittee")
+      execute("UseAction1<SpaceElevator>")
+      execute("-5 THEN -5 Steel THEN ElectroCatapult")
+      execute("UseAction1<ElectroCatapult>")
+      doTask("A", "-Steel THEN 7") // TODO just one
+      execute("-Titanium THEN -7 THEN SpaceHotels")
+      execute("-6 THEN MarsUniversity")
+      execute("-10 THEN ArtificialPhotosynthesis")
+      doTask("B", "PROD[2 Energy]")
+      execute("-5 THEN BribedCommittee")
     }
 
-    engine.exec("ProductionPhase")
-    p1.task("A", "3 BuyCard")
-    p2.task("B", "2 BuyCard")
-    engine.exec("ActionPhase")
+    engine.execute("ProductionPhase")
+    p1.doTask("A", "3 BuyCard")
+    p2.doTask("B", "2 BuyCard")
+    engine.execute("ActionPhase")
 
     with(p2) {
-      exec("UseAction1<ElectroCatapult>")
+      execute("UseAction1<ElectroCatapult>")
       dropTask("A")
-      exec("-Steel THEN 7")
-      exec("UseAction1<SpaceElevator>")
+      execute("-Steel THEN 7")
+      execute("UseAction1<SpaceElevator>")
     }
 
     with(p1) {
-      exec("-2 Steel THEN -14 THEN ResearchOutpost")
+      execute("-2 Steel THEN -14 THEN ResearchOutpost")
       dropTask("A")
-      exec("CityTile<E56>") // TODO reif refi
-      exec("-13 Titanium THEN -1 THEN IoMiningIndustries")
+      execute("CityTile<E56>") // TODO reif refi
+      execute("-13 Titanium THEN -1 THEN IoMiningIndustries")
     }
 
     with(p2) {
-      exec("-Titanium THEN -1 THEN TransNeptuneProbe")
-      exec("-1 THEN Hackers")
-      task("B", "PROD[-2 Megacredit<P1>]")
+      execute("-Titanium THEN -1 THEN TransNeptuneProbe")
+      execute("-1 THEN Hackers")
+      doTask("B", "PROD[-2 Megacredit<P1>]")
     }
 
     with(p1) {
-      exec("UseAction1<SellPatents>")
-      task("A", "Megacredit FROM ProjectCard")
+      execute("UseAction1<SellPatents>")
+      doTask("A", "Megacredit FROM ProjectCard")
     }
 
     with(p2) {
-      exec("-4 Steel THEN -1 THEN SolarPower")
-      exec("UseAction1<UseStandardProject>")
-      task("A", "UseAction1<CitySP>")
+      execute("-4 Steel THEN -1 THEN SolarPower")
+      execute("UseAction1<UseStandardProject>")
+      doTask("A", "UseAction1<CitySP>")
       dropTask("B") // split
-      exec("-25 THEN CityTile<E65> THEN PROD[1]")
-      exec("PROD[-Plant, Energy]") // CORRECTION TODO WHY
+      execute("-25 THEN CityTile<E65> THEN PROD[1]")
+      execute("PROD[-Plant, Energy]") // CORRECTION TODO WHY
     }
 
-    engine.exec("ProductionPhase")
+    engine.execute("ProductionPhase")
 
     val repl = ReplSession(Canon, GameSetup(Canon, "BM", 2))
     repl.session = InteractiveSession(game)
@@ -394,8 +386,8 @@ fun ReplSession.test(vararg s: String) {
 }
 
 fun ReplSession.assertCount(text: String, i: Int) {
-  assertThat(session.count(parseInput(text))).isEqualTo(i)
+  assertThat(session.count(text)).isEqualTo(i)
 }
 
 fun ReplSession.counts(text: String): List<Int> =
-    text.split(",").map { session.count(parseInput(it)) }
+    text.split(",").map(session::count)

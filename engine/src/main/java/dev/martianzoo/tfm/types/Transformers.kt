@@ -113,7 +113,7 @@ public class Transformers(val loader: MClassLoader) {
                 node is GenericTransform<*> && node.transformKind == "PROD" -> {
                   require(!inProd)
                   inProd = true
-                  val inner = x(node.extract())
+                  val inner = transform(node.extract())
                   inProd = false
                   if (inner == node.extract()) {
                     throw RuntimeException("No standard resources found in PROD box: $inner")
