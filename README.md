@@ -6,15 +6,27 @@ It is not a way to *play* the game. (Good lord, a person would go mad.) For that
 
 This is a clean room project unrelated to those apps or to any other existing codebase.
 
+## Disclaimer
+
+This project is very much not ready for prime-time. If you're intrepid, you can certainly play around with it -- it does a fair amount of stuff already. But it is **not ready for prime-time** at all.
+
+Warnings:
+
+* It's buggy
+* Error messages are unhelpful
+* The code is a mess
+* The command-line UI is hard to figure out
+* Most of what you need to know to mess around with it isn't written down yet
+
 ## Why another game engine?
 
 The game engine is the part of a game whose job is to *know the rules* of the game perfectly. It is just a big overblown calculator. Given some game state, and some choice made by a player, the engine computes the game state that results (or else determines that the choice was illegal).
 
 Inside the open-source app mentioned above is *already* an extremely accurate (~99.9%) game engine. And inside the official app mentioned above is already a game engine. So why do we need a third?
 
-Answer: we don't. I just wanted to.
+Answer: we don't. I just wanted to, because I love the game and wanted a challenge.
 
-I am taking a different approach, though. All the cards, milestones, etc. are *[just data](https://github.com/MartianZoo/solarnet/blob/main/canon/src/main/java/dev/martianzoo/tfm/canon/cards.json5)* and don't require custom programming (except for the ones that do). These game components express their behaviors using a specification language called **Pets** created just for this purpose. Expressions of card behaviors written in Pets would also be suitable for conversion into natural-language instructions, or even the iconographic language used by the printed cards. This would in theory create a situation where every card *must* do exactly what it says it does (in words and in icons), because it couldn't do otherwise.
+I am taking a different approach, though. All the cards, milestones, etc. are *[just data](https://github.com/MartianZoo/solarnet/blob/main/canon/src/main/java/dev/martianzoo/tfm/canon/cards.json5)* and don't require custom programming (except for the ones that do). Instead these game components express their behaviors using a specification language called **Pets**. These expressions are readable by the game engine, but could also in theory be converted into natural-language instructions, or even into the iconographic language used by the printed cards. The eventual goal is that every card *must* do exactly what it says it does (in words and in icons), because it couldn't do otherwise.
 
 But when it comes down to it, I don't know what this project will be useful for yet. Maybe it would be good for training AI players against. But maybe nothing.
 
@@ -22,14 +34,14 @@ But when it comes down to it, I don't know what this project will be useful for 
 
 My goals for Solarnet, in descending order:
 
-1. Correctness -- I want it to *eventually* implement the game rules with absolute unswerving fidelity. I might never get there but I'll probably only abandon the attempt by inadvertently dying early.
-2. Completeness -- over time I want to support every single published card, milestone, award, map, component, and officially sanctioned variant. This will take a long time and is not the priority at the moment.
-3. Simplicity -- I try to write the code that is simpler and more understandable as much as possible. I want the engine to not just work but also be transparent about why it works.
-4. Composability -- I'm writing this as series of libraries that other TfM-related projects could theoretically use for other purposes -- not just a single monolithic application. Currently the modules are "pets" (the core language and datatypes), "engine" (what executes the cards to update a game state), "repl" (the command-line interface), and "canon" (a data set containing the officially published cards and other components).
+1. Correctness -- I want it to *eventually* implement the game rules with absolute unswerving fidelity. I might never get there but I'm working hard at it.
+2. Completeness -- over time I want to support every single published card, milestone, award, map, component, and officially sanctioned variant. This will take a long time and adding cards is not the priority at the moment (there are 366 of them already).
+3. Simplicity -- I'm trying to keep the Pets language as simple as I can.
+4. Composability -- I'm writing this as series of libraries that other TfM-related projects could theoretically use for other purposes. Currently the modules are "pets" (the core language and datatypes), "engine" (what executes the cards to update a game state), "repl" (the command-line interface), and "canon" (a data set containing the officially published cards and other components).
 
 Please notice **what is not on this list**!
 
-1. Performance -- basically, it will be slow as hell and *I don't care*. I'm preferring the clearer, simpler, more bug-proof code over fast code every time. If I or someone builds a faster engine in the future (I would call it Aerobrake), we will have Solarnet to parity-test it against. Therefore the best way to get to a fast engine is to take *no chances* with the correctness of this one.
+1. Performance -- basically, it will be slow as hell and *I don't care*. I'm preferring the simpler, more bug-proof code over fast code every time. If I or someone builds a faster engine in the future (I would call it Aerobrake), we will have Solarnet to parity-test it against. Therefore the best way to get to a fast engine is to be as careful as possible with the correctness of this one.
 2. Usability -- there is a command line "REPL" (read-evaluate-print loop) called REgo PLastics. It is a **very, very, very bad user interface**, and I plan for it to always stay that way. You cannot actually play a whole game using it. But you'll be able to set up scenarios and find out what happens. I have no intention of creating a GUI to go around this engine either.
 
 ## The Pets language
@@ -64,9 +76,11 @@ cd solarnet
 ./rego
 ```
 
-You can also look for the `*.pets` and `*.json5` files to see how game components get defined in the Pets language. You can change it around or attempt to add your own custom cards. But be warned: I have spent very little time on error handling, so the error messages you're gonna get will be incredibly unhelpful and frustrating. Sorry!
+You can also look for the `*.pets` and `*.json5` files to see how game components get defined in the Pets language. You can change it around or attempt to add your own custom cards. **See the warnings at top!**
 
 ## Want to poke around in the implementation code?
+
+The code isn't too pretty right now.
 
 First get an overview from the API documentation. It's not hosted yet, but you can `./gradlew dokkaHtmlMultiModule` and then look at `docs/api/index.html`.
 
