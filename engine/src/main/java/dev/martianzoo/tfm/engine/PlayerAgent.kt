@@ -16,6 +16,7 @@ import dev.martianzoo.tfm.data.GameEvent.ChangeEvent.Cause
 import dev.martianzoo.tfm.data.Task
 import dev.martianzoo.tfm.data.Task.TaskId
 import dev.martianzoo.tfm.engine.ActiveEffect.FiredEffect
+import dev.martianzoo.tfm.engine.Exceptions.ExistingDependentsException
 import dev.martianzoo.tfm.pets.PetTransformer
 import dev.martianzoo.tfm.pets.PureTransformers.replaceOwnerWith
 import dev.martianzoo.tfm.pets.PureTransformers.transformInSeries
@@ -38,6 +39,7 @@ import dev.martianzoo.tfm.pets.ast.PetNode
 import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.pets.ast.ScaledExpression.Scalar.ActualScalar
 import dev.martianzoo.tfm.types.MType
+import kotlin.Int.Companion.MAX_VALUE
 
 /** A view of a [Game] specific to a particular [Actor] (a player or the engine). */
 public class PlayerAgent internal constructor(private val game: Game, public val actor: Actor) {
@@ -46,6 +48,7 @@ public class PlayerAgent internal constructor(private val game: Game, public val
     override fun resolve(expression: Expression): MType = game.resolve(heyItsMe(expression))
     override fun evaluate(requirement: Requirement) = game.reader.evaluate(heyItsMe(requirement))
     override fun count(metric: Metric) = game.reader.count(heyItsMe(metric))
+    override fun countComponent(concreteType: Type) = game.reader.countComponent(concreteType)
   }
 
   private val insertOwner: PetTransformer =
@@ -69,11 +72,16 @@ public class PlayerAgent internal constructor(private val game: Game, public val
       amap: Boolean = false,
       cause: Cause? = null,
   ): ChangeEvent? {
-    if (gaining == OK.expr) { // TODO more principled
-      require(removing == null)
-      return null
-    } else if (!amap && gaining == DIE.expr) {
-      throw RuntimeException("fix this")
+    when (gaining) {
+      OK.expr -> {
+        require(removing == null)
+        return null
+      }
+
+      DIE.expr -> {
+        if (amap) return null
+        throw UserException("Attempt to gain the `Die` component by $cause")
+      }
     }
     val change =
         game.components.update(
@@ -114,6 +122,7 @@ public class PlayerAgent internal constructor(private val game: Game, public val
         game.removeTask(taskId)
       }
     } catch (e: UserException) {
+      if (requestedTask.whyPending != null) throw e
       val explainedTask = requestedTask.copy(whyPending = e.message)
       game.taskQueue.replaceTask(explainedTask)
       game.eventLog.activitySince(checkpoint)
@@ -195,15 +204,18 @@ public class PlayerAgent internal constructor(private val game: Game, public val
             amap: Boolean,
             cause: Cause?,
         ) {
-          if (removing != null) {
-            val c = game.toComponent(removing.expressionFull)
-            val dependents = game.components.dependentsOf(c)
-            dependents.entries.forEach { (e, ct) ->
-              write(ct, removing = e.mtype, amap = false, cause = cause)
+          val g = gaining?.expressionFull
+          val r = removing?.expressionFull
+
+          fun doIt() = quietChange(count, g, r, amap, cause)
+          val event = try {
+            doIt()
+          } catch (e: ExistingDependentsException) {
+            for (dept in e.dependents) {
+              write(MAX_VALUE, removing = dept.mtype, amap = true, cause = cause)
             }
+            doIt()
           }
-          val event =
-              quietChange(count, gaining?.expressionFull, removing?.expressionFull, amap, cause)
           event?.let { fireTriggers(it) }
         }
       }
@@ -227,12 +239,7 @@ public class PlayerAgent internal constructor(private val game: Game, public val
                   )
               .transform(translated)
       split(instruction).forEach {
-        try {
-          doAtomic { doInstruction(it, cause) }
-        } catch (e: Exception) {
-          if (isProgrammerError(e)) throw e
-          game.taskQueue.addTasks(it, actor, cause, e.message)
-        }
+        game.taskQueue.addTasks(it, actor, cause)
       }
     } catch (e: ExecuteInsteadException) {
       // this custom fn chose to override execute() instead of translate()
@@ -257,4 +264,8 @@ public class PlayerAgent internal constructor(private val game: Game, public val
           e is IllegalArgumentException ||
           e is IllegalStateException ||
           e is NoSuchElementException
+
+  fun tasks(): Map<TaskId, Task> {
+    return game.taskQueue.taskMap.toMap()
+  }
 }

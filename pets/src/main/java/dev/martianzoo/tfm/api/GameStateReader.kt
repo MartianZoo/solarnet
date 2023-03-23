@@ -25,6 +25,9 @@ interface GameStateReader {
   /** Returns the number of instances of [type] in the current game state. */
   fun count(type: Type): Int
 
+  /** Returns the number of instances of the concrete [type] in the current game state. */
+  fun countComponent(concreteType: Type): Int
+
   /** Returns the types of all concrete components in the current game state. */
   fun getComponents(type: Type): Multiset<out Type>
 }

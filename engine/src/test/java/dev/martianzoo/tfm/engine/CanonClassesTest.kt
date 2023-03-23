@@ -8,10 +8,11 @@ import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.pets.ast.Expression.Companion.expression
-import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.pets.ast.classNames
 import dev.martianzoo.tfm.types.MClass
 import dev.martianzoo.tfm.types.MClassLoader
+import dev.martianzoo.util.toStrings
+import kotlin.Int.Companion.MAX_VALUE
 import org.junit.jupiter.api.Test
 
 /** Tests for the Canon data set. */
@@ -142,17 +143,51 @@ private class CanonClassesTest {
   @Test
   fun classInvariants() {
     val table = MClassLoader(Canon).loadEverything()
+
     val temp = table.getClass(cn("TemperatureStep"))
-    assertThat(temp.invariants).containsExactly(Requirement.requirement("MAX 19 This"))
+    assertThat(temp.typeInvariants.toStrings()).containsExactly("MAX 19 This")
+
     val ocean = table.getClass(cn("OceanTile"))
-    assertThat(ocean.invariants).containsExactly(Requirement.requirement("MAX 9 OceanTile"))
+    assertThat(ocean.typeInvariants.toStrings()).containsExactly("MAX 1 This")
+
     val area = table.getClass(cn("Area"))
-    assertThat(area.invariants)
-        .containsExactly(
-            Requirement.requirement("=1 This"),
-            Requirement.requirement("MAX 1 Tile<This>"),
-        )
+    assertThat(area.typeInvariants.toStrings()).containsExactly("=1 This", "MAX 1 Tile<This>")
   }
 
-  private fun te(s: String) = expression(s)
+  @Test
+  fun typeLimits() {
+    val table = MClassLoader(Canon).loadEverything()
+
+    fun assertRange(name: String, intRange: IntRange) =
+        assertThat(table.getClass(cn(name)).componentCountRange).isEqualTo(intRange)
+
+    assertRange("TemperatureStep", 0..19)
+    assertRange("VenusStep", 0..15)
+    assertRange("OxygenStep", 0..14)
+
+    assertRange("Tile", 0..1)
+    assertRange("OceanTile", 0..1)
+    assertRange("CardFront", 0..1)
+    assertRange("Ants", 0..1)
+    assertRange("ActionUsedMarker", 0..1)
+    assertRange("Tag", 0..2)
+
+    assertRange("Die", 0..0)
+
+    assertRange("Production", 0..MAX_VALUE)
+    assertRange("Resource", 0..MAX_VALUE)
+    assertRange("Generation", 1..MAX_VALUE)
+
+    assertRange("Area", 1..1)
+    assertRange("Tharsis_5_5", 1..1)
+  }
+
+  @Test
+  fun generalInvariants() {
+    val table = MClassLoader(Canon).loadEverything()
+    assertThat(table.generalInvariants.toStrings()).containsExactly(
+        "MAX 1 Phase",
+        "MAX 9 OceanTile",
+    )
+  }
 }

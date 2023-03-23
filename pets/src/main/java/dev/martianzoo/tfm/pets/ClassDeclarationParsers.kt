@@ -24,7 +24,6 @@ import dev.martianzoo.tfm.pets.ClassDeclarationParsers.Signatures.moreSignatures
 import dev.martianzoo.tfm.pets.ClassDeclarationParsers.Signatures.signature
 import dev.martianzoo.tfm.pets.PetFeature.Companion.ALL_FEATURES
 import dev.martianzoo.tfm.pets.PetFeature.SHORT_NAMES
-import dev.martianzoo.tfm.pets.PetFeature.THIS_EXPRESSIONS
 import dev.martianzoo.tfm.pets.PureTransformers.rawActionListToEffects
 import dev.martianzoo.tfm.pets.ast.Action
 import dev.martianzoo.tfm.pets.ast.ClassName
@@ -83,9 +82,7 @@ internal object ClassDeclarationParsers : BaseTokenizer() {
   }
 
   internal object BodyElements {
-    private val invariant: Parser<Raw<Requirement>> = skip(_has) and Requirement.parser() map {
-      Raw(it, setOf(THIS_EXPRESSIONS))
-    }
+    private val invariant: Parser<Requirement> = skip(_has) and Requirement.parser()
 
     private val gainOnlyDefaults: Parser<DefaultsDeclaration> =
         skipChar('+') and
@@ -212,7 +209,7 @@ internal object ClassDeclarationParsers : BaseTokenizer() {
     val nestedGroups = getAll<NestedDeclGroup>().map { it.declGroup }
 
     sealed class BodyElement {
-      internal class InvariantElement(val invariant: Raw<Requirement>) : BodyElement()
+      internal class InvariantElement(val invariant: Requirement) : BodyElement()
       internal class DefaultsElement(val defaults: DefaultsDeclaration) : BodyElement()
       internal class EffectElement(val effect: Raw<Effect>) : BodyElement()
       internal class ActionElement(val action: Raw<Action>) : BodyElement()

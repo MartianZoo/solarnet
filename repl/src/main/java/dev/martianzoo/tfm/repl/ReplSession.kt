@@ -419,7 +419,7 @@ public class ReplSession(
           } else {
             parseInput(args, setOf(DEFAULTS, SHORT_NAMES))
           }
-      return listOf(MTypeToText.describe(expression, session.game))
+      return listOf(MTypeToText.describe(expression, session))
     }
   }
 

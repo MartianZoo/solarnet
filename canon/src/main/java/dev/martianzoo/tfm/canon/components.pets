@@ -99,7 +99,7 @@ ABSTRACT CLASS Area {
   ABSTRACT CLASS RemoteArea[RA]
 }
 
-ABSTRACT CLASS Tile<Area>
+ABSTRACT CLASS Tile<Area> { HAS MAX 1 This }
 
 CLASS Neighbor<Tile<MarsArea>, MarsArea> [NBR] : System
 

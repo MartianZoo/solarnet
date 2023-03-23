@@ -17,6 +17,8 @@ import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.pets.ast.HasClassName
 import dev.martianzoo.tfm.pets.ast.PetNode
 import dev.martianzoo.tfm.pets.ast.Requirement
+import dev.martianzoo.tfm.pets.ast.Requirement.Companion.split
+import dev.martianzoo.tfm.pets.ast.Requirement.Counting
 import dev.martianzoo.tfm.pets.ast.classNames
 import dev.martianzoo.tfm.types.Dependency.Companion.depsForClassType
 import dev.martianzoo.tfm.types.Dependency.Key
@@ -24,6 +26,9 @@ import dev.martianzoo.tfm.types.Dependency.TypeDependency
 import dev.martianzoo.util.Hierarchical
 import dev.martianzoo.util.Hierarchical.Companion.glb
 import dev.martianzoo.util.toSetStrict
+import kotlin.Int.Companion.MAX_VALUE
+import kotlin.math.max
+import kotlin.math.min
 
 /**
  * A class that has been loaded by a [MClassLoader] based on a [ClassDeclaration]. Each loader has
@@ -209,17 +214,30 @@ internal constructor(
 
   // OTHER
 
-  // includes abstract
-  internal fun hasSingletonTypes(): Boolean =
-      declaration.invariants.any { it.unprocessed.requiresOneThis() } ||
-          directSuperclasses.any { it.hasSingletonTypes() }
+  internal val generalInvars: Set<Requirement>
+
+  private val specificInvars: Set<Requirement>
+
+  init {
+    val (s, g) = split(declaration.invariants).partition { THIS in it }
+    specificInvars = s.toSetStrict()
+    generalInvars = g.toSetStrict()
+  }
 
   /**
-   * Returns a set of absolute invariants that must always be true; note that these can contain
+   * Returns a set of absolute invariants that must always be true; note that these contain
    * `This` expressions, which are to be substituted with the concrete type.
    */
-  public val invariants: Set<Requirement> by lazy {
-    allSuperclasses.flatMap { it.declaration.invariants }.map { it.unprocessed }.toSet() // TODO
+  public val typeInvariants: Set<Requirement> by lazy {
+    allSuperclasses.flatMap { it.specificInvars }.toSet() // TODO
+  }
+
+  public val componentCountRange: IntRange by lazy {
+    val ranges: List<IntRange> = typeInvariants.filterIsInstance<Counting>()
+        .filter { it.scaledEx.expression == THIS.expr }
+        .map { it.range }
+    (ranges + listOf(0..MAX_VALUE))
+        .reduce { a, b -> max(a.first, b.first)..min(a.last, b.last) }
   }
 
   override fun toString() = "$className@$loader"

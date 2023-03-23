@@ -25,6 +25,8 @@ sealed class Requirement : PetElement() {
 
   sealed class Counting(open val scaledEx: ScaledExpression) : Requirement() {
     override fun visitChildren(visitor: Visitor) = visitor.visit(scaledEx)
+
+    abstract val range: IntRange
   }
 
   data class Min(override val scaledEx: ScaledExpression) : Counting(scaledEx) {
@@ -34,8 +36,11 @@ sealed class Requirement : PetElement() {
         throw PetException("can't use X in requirements (yet?)")
       }
     }
+
     override fun toString() = "$scaledEx"
     override fun requiresOneThis() = this.scaledEx == scaledEx(1, THIS.expr)
+
+    override val range = (scaledEx.scalar as ActualScalar).value..Int.MAX_VALUE
   }
 
   data class Max(override val scaledEx: ScaledExpression) : Counting(scaledEx) {
@@ -44,7 +49,10 @@ sealed class Requirement : PetElement() {
         throw PetException("can't use X in requirements (yet?)")
       }
     }
+
     override fun toString() = "MAX ${scaledEx.toFullString()}" // no "MAX 5" or "MAX Heat"
+
+    override val range = Int.MIN_VALUE..(scaledEx.scalar as ActualScalar).value
   }
 
   data class Exact(override val scaledEx: ScaledExpression) : Counting(scaledEx) {
@@ -53,8 +61,11 @@ sealed class Requirement : PetElement() {
         throw PetException("can't use X in requirements (yet?)")
       }
     }
+
     override fun toString() = "=${scaledEx.toFullString()}" // no "=5" or "=Heat"
     override fun requiresOneThis() = this.scaledEx == scaledEx(1, THIS.expr)
+
+    override val range = (scaledEx.scalar as ActualScalar).value..scaledEx.scalar.value
   }
 
   data class Or(val requirements: Set<Requirement>) : Requirement() {
@@ -109,6 +120,16 @@ sealed class Requirement : PetElement() {
   override val kind = Requirement::class.simpleName!!
 
   companion object : BaseTokenizer() {
+
+    fun split(requirement: Iterable<Requirement>) = requirement.flatMap { split(it) }
+
+    fun split(requirement: Requirement): List<Requirement> =
+        if (requirement is And) {
+          split(requirement.requirements)
+        } else {
+          listOf(requirement)
+        }
+
     fun requirement(text: String) = Parsing.parse(parser(), text)
 
     internal fun parser(): Parser<Requirement> {

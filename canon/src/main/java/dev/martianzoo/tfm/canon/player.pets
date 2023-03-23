@@ -95,6 +95,8 @@ ABSTRACT CLASS Owned<Anyone> {
   }                                               // true until "Double Down" in Dec 2022
 
   ABSTRACT CLASS CardFront {                      // specific CardFronts come from `cards.json5`
+    HAS MAX 1 This                                // some variants might want to try duplicate
+                                                  // cards, but it would likely break things
     ABSTRACT CLASS ActiveCard
     ABSTRACT CLASS AutomatedCard
     ABSTRACT CLASS EventCard {
@@ -111,6 +113,8 @@ ABSTRACT CLASS Owned<Anyone> {
 
   ABSTRACT CLASS Cardbound<CardFront> {
     ABSTRACT CLASS Tag : Atomized {
+      HAS MAX 2 This                              // I mean this isn't strictly necessary but...
+
       CLASS BuildingTag[BUT], SpaceTag[SPT]
       CLASS CityTag[CIT], PowerTag[POT], ScienceTag[SCT]
 

@@ -16,33 +16,56 @@ class SpecificCardsTest {
     val game = Engine.newGame(GameSetup(Canon, "BRM", 2))
     val p1 = InteractiveSession(game, Actor.PLAYER1)
 
-    p1.execute("4 Heat, 2 ProjectCard, Pets")
-    assertThat(p1.count("ProjectCard")).isEqualTo(1)
-    assertThat(p1.count("Animal")).isEqualTo(1)
+    fun assertThreeCardsTotal() =
+        assertThat(p1.count("CardBack + CardFront + PlayedEvent")).isEqualTo(3)
 
-    assertThrows<Exception>("1") { p1.execute("LocalHeatTrapping") }
-    assertThat(p1.count("ProjectCard")).isEqualTo(1)
+    p1.execute("4 Heat, 3 ProjectCard, Pets")
+    assertThreeCardsTotal()
+    assertThat(p1.counts("Heat, CardBack, CardFront, Animal, PlayedEvent"))
+        .containsExactly(4, 2, 1, 1, 0).inOrder()
+
+    val cp1 = p1.game.checkpoint()
+    p1.execute("LocalHeatTrapping")
+    assertThreeCardsTotal()
+    assertThat(p1.counts("Heat, CardBack, CardFront, Animal, PlayedEvent"))
+        .containsExactly(4, 1, 1, 1, 1).inOrder()
+
+    val tasks = p1.agent.tasks()
+    assertThat(tasks.values.any { it.whyPending == "can't gain/remove 5 instances, only 4" })
+    p1.game.rollBack(cp1)
 
     p1.execute("2 Heat")
-    p1.execute("LocalHeatTrapping")
-    assertThat(p1.count("ProjectCard")).isEqualTo(0)
+    assertThreeCardsTotal()
+    assertThat(p1.counts("Heat, CardBack, CardFront, Animal, PlayedEvent"))
+        .containsExactly(6, 2, 1, 1, 0).inOrder()
 
-    assertThrows<Exception>("2") { p1.doTask("C", "2 Animal") }
+    val nextTask = p1.execute("LocalHeatTrapping").newTaskIdsAdded.single()
+    assertThreeCardsTotal()
+    assertThat(p1.counts("Heat, CardBack, CardFront, Animal, PlayedEvent"))
+        .containsExactly(1, 1, 1, 1, 1).inOrder()
 
-    // TODO it would be good if this fails instead of just doing nothing
-    // assertThrows<Exception>("3") { p1.doTask("C", "2 Animal<Fish>") }
-    p1.doTask("C", "2 Animal<Fish>")
+    val cp2 = p1.game.checkpoint()
+    assertThrows<Exception>("2") { p1.doTask(nextTask, "2 Animal") }
+    assertThat(p1.game.checkpoint()).isEqualTo(cp2)
+
+    assertThrows<Exception>("3") { p1.doTask(nextTask, "2 Animal<Fish>") }
+    assertThat(p1.game.checkpoint()).isEqualTo(cp2)
     assertThat(p1.count("Animal")).isEqualTo(1)
 
-    val cp = p1.game.checkpoint()
-    p1.doTask("C", "4 Plant")
+    println(p1.agent.tasks())
+    p1.doTask(nextTask, "4 Plant")
+    assertThreeCardsTotal()
+
     assertThat(p1.count("Heat")).isEqualTo(1)
     assertThat(p1.count("Plant")).isEqualTo(4)
-    p1.game.rollBack(cp)
+    p1.game.rollBack(cp2)
 
-    p1.doTask("C", "2 Animal<Pets>")
+    p1.doTask(nextTask, "2 Animal<Pets>")
     assertThat(p1.counts("Heat, Plant, Animal")).containsExactly(1, 0, 3).inOrder()
-    p1.game.rollBack(cp)
+    p1.game.rollBack(cp2)
+
+    // TODO: `Ok` can reify `2 Animal.` but only if we have no animal cards
+    // we also have a problem with `OceanTile<OccupiedArea>.`
   }
 
   @Test

@@ -232,16 +232,16 @@ class EntireGameTest {
 
     repl.playCard(6, "MediaGroup")
 
-    repl.playCard(1, "Sabotage", "task E -7 Megacredit<P2>")
+    repl.playCard(1, "Sabotage", "task F -7 Megacredit<P2>")
 
     repl.test("become P2")
     repl.playCard(11, "Research")
-    repl.playCard(9, "MartianSurvey", "task D Ok")
+    repl.playCard(9, "MartianSurvey", "task F Ok")
 
     repl.playCard(
         3,
         "SearchForLife",
-        "task D PlayedEvent<Class<PharmacyUnion>> FROM PharmacyUnion THEN 3 TerraformRating")
+        "task F PlayedEvent<Class<PharmacyUnion>> FROM PharmacyUnion THEN 3 TerraformRating")
 
     repl.useAction1("SearchForLife", "task C -1 THEN Ok")
 
@@ -258,8 +258,8 @@ class EntireGameTest {
     repl.test("exec Turn", 1)
     repl.test("task A UseAction1<PlayCardFromHand>", 1)
     repl.test("task B PlayCard<Class<VestaShipyard>>", 2)
-    repl.test("task C 15 Pay<Class<M>> FROM M", 1)
-    repl.test("task D Ok")
+    repl.test("task F 15 Pay<Class<M>> FROM M", 1)
+    repl.test("task G Ok")
 
     repl.test("become P1")
     repl.playCard(23, "EarthCatapult")
@@ -268,9 +268,9 @@ class EntireGameTest {
     repl.test("exec Turn", 1)
     repl.test("task A UseAction1<PlayCardFromHand>", 1)
     repl.test("task B PlayCard<Class<OlympusConference>>", 2)
-    repl.test("task C Ok", 1)
-    repl.test("task D 4 Pay<Class<S>> FROM S", 1)
-    repl.test("task E Science<OlympusConference>")
+    repl.test("task H Ok", 1)
+    repl.test("task I 4 Pay<Class<S>> FROM S", 1)
+    repl.test("task J Science<OlympusConference>")
 
     repl.test("mode green")
 
@@ -355,10 +355,11 @@ fun ReplSession.playCard(mega: Int, cardName: String, vararg tasks: String) {
   test("exec Turn", 1)
   test("task A UseAction1<PlayCardFromHand>", 1)
   test("task B PlayCard<Class<$cardName>>", 1)
+  val taskId = session.agent.tasks().keys.single()
   if (mega > 0) {
-    test("task C $mega Pay<Class<M>> FROM M", tasks.size)
+    test("task $taskId $mega Pay<Class<M>> FROM M", tasks.size)
   } else {
-    test("task C Ok", tasks.size)
+    test("task $taskId Ok", tasks.size)
   }
   var left = tasks.size
   for (task in tasks) test(task, --left)

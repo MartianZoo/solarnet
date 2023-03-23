@@ -12,6 +12,7 @@ import dev.martianzoo.tfm.pets.PureTransformers.replaceThisWith
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.pets.ast.PetNode
+import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.types.Dependency.TypeDependency
 
 /**
@@ -139,6 +140,10 @@ public class MClassLoader( // TODO separate into loader and table
     loadedClasses[decl.className] = mclass
     loadedClasses[decl.shortName] = mclass
     return mclass
+  }
+
+  internal val generalInvariants: Set<Requirement> by lazy {
+    allClasses.flatMap { it.generalInvars }.toSet()
   }
 
   internal var frozen: Boolean = false

@@ -38,7 +38,7 @@ public class InteractiveSession(
     actor: Actor = Actor.ENGINE,
     var defaultAutoExec: Boolean = true,
 ) {
-  internal val agent: PlayerAgent = agent(actor)
+  public val agent: PlayerAgent = agent(actor)
 
   public fun asActor(actor: Actor) = InteractiveSession(game, actor)
 
@@ -49,6 +49,7 @@ public class InteractiveSession(
   fun count(metric: Metric): Int = agent.count(metric)
   fun count(metric: Raw<Metric>) = count(prep(metric))
   fun count(metric: String) = count(parseInput(metric, features))
+  fun countComponent(component: Component) = game.reader.countComponent(component.mtype)
 
   fun list(expression: Raw<Expression>): Multiset<Expression> { // TODO y not (M)Type?
     val typeToList: MType = game.resolve(prep(expression))
@@ -110,13 +111,15 @@ public class InteractiveSession(
     }
   }
 
-  fun doTask(id: String, s: String? = null): Result {
-    val initialTaskId = TaskId(id)
-    val narrowedInstruction = s?.let<String, Raw<Instruction>> { parseInput(it) }
+  fun doTask(initialTaskId: String, narrowedInstruction: String? = null) =
+      doTask(TaskId(initialTaskId), narrowedInstruction)
+
+  fun doTask(initialTaskId: TaskId, narrowedInstruction: String? = null): Result {
+    val narrowed = narrowedInstruction?.let<String, Raw<Instruction>> { parseInput(it) }
     return if (defaultAutoExec) {
-      doTaskAndAutoExec(initialTaskId, narrowedInstruction)
+      doTaskAndAutoExec(initialTaskId, narrowed)
     } else {
-      doTaskOnly(initialTaskId, narrowedInstruction)
+      doTaskOnly(initialTaskId, narrowed)
     }
   }
 

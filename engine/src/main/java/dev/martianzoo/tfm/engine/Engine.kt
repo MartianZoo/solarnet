@@ -57,7 +57,7 @@ public object Engine {
 
   private fun singletonCreateInstructions(loader: MClassLoader): List<Instruction> =
       loader.allClasses
-          .filter { it.hasSingletonTypes() }
+          .filter { 0 !in it.componentCountRange }
           .flatMap { it.baseType.concreteSubtypesSameClass() }
           .map { gain(it.expressionFull) }
 }

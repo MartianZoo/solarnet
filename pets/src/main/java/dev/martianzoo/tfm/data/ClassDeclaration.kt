@@ -21,7 +21,7 @@ public data class ClassDeclaration(
     val abstract: Boolean = true,
     val dependencies: List<Expression> = listOf(),
     val supertypes: Set<Expression> = setOf(), // TODO do fancy Component stuff elsewhere?
-    val invariants: Set<Raw<Requirement>> = setOf(),
+    val invariants: Set<Requirement> = setOf(),
     private val effectsIn: Set<Raw<Effect>> = setOf(),
     val defaultsDeclaration: DefaultsDeclaration = DefaultsDeclaration(),
     val extraNodes: Set<PetNode> = setOf(),
@@ -110,7 +110,7 @@ public data class ClassDeclaration(
         shortName +
         supertypes +
         dependencies +
-        invariants.map { it.unprocessed } +
+        invariants +
         effectsIn.map { it.unprocessed } +
         defaultsDeclaration.allNodes +
         extraNodes

@@ -2,7 +2,11 @@ package dev.martianzoo.tfm.canon
 
 import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.tfm.api.GameSetup
+import dev.martianzoo.tfm.data.Actor.Companion.PLAYER1
+import dev.martianzoo.tfm.engine.Engine
+import dev.martianzoo.tfm.repl.InteractiveSession
 import dev.martianzoo.tfm.repl.ReplSession
+import dev.martianzoo.util.toStrings
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 
@@ -22,16 +26,15 @@ private class CanonCustomInstructionsTest {
 
   @Test
   fun robinsonCant() {
-    val repl = ReplSession(Canon, GameSetup(Canon, "MB", 3)) // TODO
-    repl.command("become Player1")
-    repl.command("exec PROD[Steel, Titanium, Plant, Heat]")
-    repl.command("exec @gainLowestProduction(Player1)")
+    val game = Engine.newGame(GameSetup(Canon, "MB", 3))
+    val p1 = InteractiveSession(game, PLAYER1)
+    p1.execute("PROD[Steel, Titanium, Plant, Heat]")
+    p1.execute("@gainLowestProduction(Player1)")
 
-    assertThat(repl.command("has PROD[=5 M, =1 S, =1 T, =1 P, =0 E, =1 H]").first())
-        .startsWith("true")
+    assertThat(p1.has("PROD[=5 M, =1 S, =1 T, =1 P, =0 E, =1 H]")).isTrue()
 
     // TODO make better
-    assertThat(repl.command("tasks"))
+    assertThat(p1.agent.tasks().values.toStrings())
         .containsExactly(
             "A: [Player1] Production<Player1, Class<Megacredit>>! OR Production<Player1, " +
                 "Class<Energy>>! (OR requires a choice)")

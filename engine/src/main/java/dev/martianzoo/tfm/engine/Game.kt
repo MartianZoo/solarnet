@@ -47,7 +47,7 @@ public class Game(val setup: GameSetup, public val loader: MClassLoader) {
 
   // PLAYER AGENT
 
-  public fun agent(actor: Actor) = PlayerAgent(this, actor)
+  public fun agent(actor: Actor) = PlayerAgent(this, actor) // asActor? TODO
 
   public fun removeTask(id: TaskId) = taskQueue.removeTask(id)
 
@@ -105,7 +105,10 @@ public class Game(val setup: GameSetup, public val loader: MClassLoader) {
               is Max -> min(count(metric.metric), metric.maximum)
               is Plus -> metric.metrics.map { count(it) }.sum()
             }
+
         override fun count(type: Type) = components.count(loader.resolve(type))
+        override fun countComponent(concreteType: Type) =
+            components.countComponent(Component.ofType(resolve(concreteType)))
 
         override fun getComponents(type: Type) =
             components.getAll(loader.resolve(type)).map { it.mtype }
