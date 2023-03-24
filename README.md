@@ -56,7 +56,7 @@ There are several basic elements to the language.
 * Actions (`Steel -> 5` means "spend 1 steel to gain 5 MC")
 * Complex component type expressions (`CityTile<LandArea(HAS 2 Neighbor<CityTile<Anyone>>)>` means "a city tile on an area with at least 2 neighboring city tiles", no matter which of the above constructs it's used in)
 * Production boxes (`PROD[2 Plant], Plant` means "increase plant production 2 steps and gain a plant")
-* Change records (`13: OceanTile<Tharsis5_5> FOR Player3 BY Aquifer; 14: 2 Plant<Player3> FOR Player 3 BY Card023<Player3> BECAUSE 13`)
+* Change records (`13: OceanTile<Tharsis5_5> FOR Player3 BY AquiferSP; 14: 2 Plant<Player3> FOR Player3 BY ArcticAlgae<Player3> BECAUSE 13`)
 
 ## Learning more
 
