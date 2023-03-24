@@ -15,25 +15,28 @@ private class MTypeTest {
             ABSTRACT CLASS Anyone {
               ABSTRACT CLASS Owner { CLASS Player1, Player2 }
             }
-      
+
             ABSTRACT CLASS Owned<Owner> { 
               ABSTRACT CLASS CardFront
               ABSTRACT CLASS Cardbound<CardFront>
             }
-      
-            // Treated as an extension of Cardbound<ResourceCard<Class<Cardbound>>>, plus a rule
-            ABSTRACT CLASS CardResource : Cardbound<ResourceCard<Class<CardResource>>> // TODO This
-      
-            // Should auto-narrow ResourceCard<Class<Cardbound>> to ResourceCard<Class<Animal>>
-            CLASS Animal : CardResource<ResourceCard<Class<Animal>>> // TODO just CR, that's it!
-            CLASS Microbe : CardResource<ResourceCard<Class<Microbe>>> // TODO just CR, that's it!
-      
+
+            // Treated as an extension of Cardbound<ResourceCard<Class<CardResource>>>, plus a rule
+            ABSTRACT CLASS CardResource : Cardbound<ResourceCard<Class<This>>> {
+              CLASS Animal, Microbe
+            }
+            // CLASS Animal : CardResource<ResourceCard<Class<This>>> // TODO just CR, that's it!
+            // CLASS Microbe : CardResource<ResourceCard<Class<This>>> // TODO just CR, that's it!
+
             ABSTRACT CLASS ResourceCard<Class<CardResource>> : CardFront
-      
+
             CLASS Fish : ResourceCard<Class<Animal>>
             CLASS Ants : ResourceCard<Class<Microbe>>
           """
                 .trimIndent())
+
+    assertThat(table.getClass(cn("Animal")).baseType.expressionFull.toString())
+        .isEqualTo("Animal<Owner, ResourceCard<Owner, Class<Animal>>>")
 
     assertThat(table.resolve(te("Animal<Fish>")).abstract).isTrue()
 
@@ -44,8 +47,6 @@ private class MTypeTest {
         .isEqualTo("Fish<Owner, Class<Animal>>")
 
     assertFails { table.resolve(te("Animal<Ants>")) }
-    assertThat(table.resolve(te("Animal")).expressionFull.toString())
-        .isEqualTo("Animal<Owner, ResourceCard<Owner, Class<Animal>>>")
 
     // TODO this should FAIL
     // table.resolve(te("Microbe<Player1, Ants<Player2>>"))

@@ -11,7 +11,7 @@ ABSTRACT CLASS Component {                        // Component is the single roo
 }
 
 ABSTRACT CLASS System {
-  CLASS Class<Component> { HAS =1 This }          // magic rule: can have only <\w+>
+  CLASS Class<Component> [C] { HAS =1 This }      // magic rule: can have only <\w+>
 
   ABSTRACT CLASS Temporary {
     ABSTRACT CLASS Signal {                       // you'll never observe it existing, but things

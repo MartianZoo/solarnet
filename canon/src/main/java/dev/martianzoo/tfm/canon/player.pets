@@ -76,7 +76,7 @@ ABSTRACT CLASS Owned<Anyone> {
 
 // CARDS -----------------------------------------
 
-  // ABSTRACT CLASS Card {
+  // ABSTRACT CLASS Card {                        // TODO why does this break things?
     ABSTRACT CLASS CardBack[CB] {
       CLASS CorporationCard                       // once a card is played and becomes a CardFront,
       CLASS PreludeCard                           // nothing in the game ever cares what kind of a
@@ -90,13 +90,13 @@ ABSTRACT CLASS Owned<Anyone> {
       ABSTRACT CLASS AutomatedCard
       ABSTRACT CLASS EventCard {
         This: PlayedEvent<Class<This>> FROM This
-      }                                           // could we get this happen automatically at EOT?
+      }                                           // ideally this wouldn't happen until EOT
 
       ABSTRACT CLASS ActionCard : HasActions
       ABSTRACT CLASS ResourceCard<Class<CardResource>>
     }
 
-    CLASS PlayedEvent<Class<CardFront>> [EVT] {   // All thanks to PharmU this can't be <EventCard>
+    CLASS PlayedEvent<Class<CardFront>> [EVT] {   // Can't be <EventCard>, all thanks to PharmU
       // End: @getVpsFrom(EventCard)
     }
   // }
@@ -119,15 +119,12 @@ ABSTRACT CLASS Owned<Anyone> {
       }
     }
 
-    ABSTRACT CLASS CardResource[CR] : Resource, Cardbound<ResourceCard<Class<CardResource>>> {
+    // This ugly signature says: An Animal must go onto a ResourceCard<Class<Animal>>, etc.
+    ABSTRACT CLASS CardResource[CR] : Resource, Cardbound<ResourceCard<Class<This>>> {
       DEFAULT +CardResource.
 
+      CLASS Animal[ANI], Microbe[MIC], Science[SCI], Floater[FLO], Asteroid[AST]
       // All others are card-specific; see cards.json5
-      CLASS Animal[ANI] : CardResource<ResourceCard<Class<Animal>>> // TODO simplify
-      CLASS Microbe[MIC] : CardResource<ResourceCard<Class<Microbe>>>
-      CLASS Science[SCI] : CardResource<ResourceCard<Class<Science>>>
-      CLASS Floater[FLO] : CardResource<ResourceCard<Class<Floater>>>
-      CLASS Asteroid[AST] : CardResource<ResourceCard<Class<Asteroid>>>
     }
 
     // TODO still consider inverting this?

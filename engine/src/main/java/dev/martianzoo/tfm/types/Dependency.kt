@@ -57,6 +57,10 @@ internal sealed class Dependency : Hierarchical<Dependency>, HasExpression, HasC
 
     private fun boundOf(that: Dependency): MType =
         (that as TypeDependency).boundType.also { require(key == that.key) }
+
+    internal fun map(function: (MType) -> MType): Dependency {
+      return copy(boundType = function(boundType))
+    }
   }
 
   /**

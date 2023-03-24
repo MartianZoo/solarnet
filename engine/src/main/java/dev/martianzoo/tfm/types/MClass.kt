@@ -9,6 +9,8 @@ import dev.martianzoo.tfm.data.ClassDeclaration
 import dev.martianzoo.tfm.data.ClassDeclaration.EffectDeclaration
 import dev.martianzoo.tfm.pets.Parsing.parseAsIs
 import dev.martianzoo.tfm.pets.PetTransformer
+import dev.martianzoo.tfm.pets.PureTransformers.replaceAll
+import dev.martianzoo.tfm.pets.PureTransformers.replaceThisWith
 import dev.martianzoo.tfm.pets.PureTransformers.transformInSeries
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.Effect
@@ -94,7 +96,13 @@ internal constructor(
     when {
       className == COMPONENT -> setOf()
       declaration.supertypes.none() -> setOf(loader.componentClass.baseType) // TODO hmm
-      else -> declaration.supertypes.map(loader::resolve).toSetStrict()
+      else ->
+          declaration.supertypes
+              .map {
+                val dethissed = replaceThisWith(className.expr).transform(it)
+                loader.resolve(dethissed)
+              }
+              .toSetStrict()
     }
   }
 
@@ -135,7 +143,7 @@ internal constructor(
     if (className == CLASS) { // TODO reduce special-casing
       depsForClassType(loader.componentClass)
     } else {
-      inheritedDeps().merge(declaredDeps) { _, _ -> error("impossible") }
+      inheritedDeps.merge(declaredDeps) { _, _ -> error("impossible") }
     }
   }
 
@@ -146,9 +154,16 @@ internal constructor(
   private fun createDep(i: Int, dep: Expression) =
       TypeDependency(Key(className, i), loader.resolve(dep))
 
-  private fun inheritedDeps(): DependencySet {
-    val list: List<DependencySet> = directSupertypes.map { it.dependencies }
-    return glb(list) ?: DependencySet.of() // TODO could that happen automatically?
+  private val inheritedDeps: DependencySet by lazy {
+    val list: List<DependencySet> =
+        directSupertypes.map { supertype ->
+          supertype.dependencies.map { mtype ->
+            val depExpr = mtype.expressionFull
+            val newArgs = depExpr.arguments.map { it.replaceAll(supertype.className, className) }
+            loader.resolve(depExpr.replaceArgs(newArgs))
+          }
+        }
+    glb(list) ?: DependencySet.of()
   }
 
   // GETTING TYPES
@@ -182,7 +197,6 @@ internal constructor(
   }
 
   public val directClassEffects: List<EffectDeclaration> by lazy {
-
     class FixEffectForUnownedContext : PetTransformer() {
       override fun <P : PetNode> transform(node: P): P {
         return if (node is Effect &&
@@ -225,19 +239,20 @@ internal constructor(
   }
 
   /**
-   * Returns a set of absolute invariants that must always be true; note that these contain
-   * `This` expressions, which are to be substituted with the concrete type.
+   * Returns a set of absolute invariants that must always be true; note that these contain `This`
+   * expressions, which are to be substituted with the concrete type.
    */
   public val typeInvariants: Set<Requirement> by lazy {
     allSuperclasses.flatMap { it.specificInvars }.toSet() // TODO
   }
 
   public val componentCountRange: IntRange by lazy {
-    val ranges: List<IntRange> = typeInvariants.filterIsInstance<Counting>()
-        .filter { it.scaledEx.expression == THIS.expr }
-        .map { it.range }
-    (ranges + listOf(0..MAX_VALUE))
-        .reduce { a, b -> max(a.first, b.first)..min(a.last, b.last) }
+    val ranges: List<IntRange> =
+        typeInvariants
+            .filterIsInstance<Counting>()
+            .filter { it.scaledEx.expression == THIS.expr }
+            .map { it.range }
+    (ranges + listOf(0..MAX_VALUE)).reduce { a, b -> max(a.first, b.first)..min(a.last, b.last) }
   }
 
   override fun toString() = "$className@$loader"

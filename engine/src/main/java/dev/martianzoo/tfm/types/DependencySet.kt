@@ -64,7 +64,10 @@ internal class DependencySet private constructor(val deps: Set<Dependency>) :
 
   // OTHER OPERATORS
 
-  inline fun merge(that: DependencySet, merger: (Dependency, Dependency) -> Dependency): DependencySet {
+  inline fun merge(
+      that: DependencySet,
+      merger: (Dependency, Dependency) -> Dependency
+  ): DependencySet {
     val merged =
         (this.keys + that.keys).map {
           setOfNotNull(this.getIfPresent(it), that.getIfPresent(it)).reduce(merger)
@@ -82,6 +85,10 @@ internal class DependencySet private constructor(val deps: Set<Dependency>) :
   fun subMapInOrder(keysInOrder: Iterable<Key>) = of(keysInOrder.mapNotNull(::getIfPresent))
 
   fun getClassForClassType() = Dependency.getClassForClassType(deps)
+
+  internal fun map(function: (MType) -> MType): DependencySet {
+    return DependencySet(deps.map { (it as TypeDependency).map(function) }.toSetStrict())
+  }
 
   override fun equals(other: Any?) = other is DependencySet && deps == other.deps
   override fun hashCode() = deps.hashCode()
