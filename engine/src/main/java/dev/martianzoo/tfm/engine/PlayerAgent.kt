@@ -223,9 +223,12 @@ public class PlayerAgent internal constructor(private val game: Game, public val
 
   private fun handleCustomInstruction(instr: Custom, cause: Cause?, multiplier: Int = 1) {
     require(multiplier > 0)
+    val arguments = instr.arguments.map(game::resolve)
+    if (arguments.any { it.abstract }) {
+      throw AbstractInstructionException(instr, "abstract arguments in: $arguments")
+    }
     // TODO could inject this earlier
     val custom = game.setup.authority.customInstruction(instr.functionName)
-    val arguments = instr.arguments.map(game::resolve)
     try {
       val translated: Instruction = custom.translate(game.reader, arguments) * multiplier
       val xers = game.loader.transformers

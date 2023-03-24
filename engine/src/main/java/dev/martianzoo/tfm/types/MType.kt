@@ -43,8 +43,8 @@ internal constructor(
 
   override fun isSubtypeOf(that: MType) =
       mclass.isSubtypeOf(that.mclass) &&
-          dependencies.isSubtypeOf(that.dependencies) &&
-          that.refinement in setOf(null, refinement)
+          dependencies.isSubtypeOf(that.dependencies)
+          // && that.refinement in setOf(null, refinement)
 
   // Nearest common subtype
   override fun glb(that: MType): MType? {
@@ -118,7 +118,6 @@ internal constructor(
    * this sequence can potentially be very large.
    */
   public fun allConcreteSubtypes(): Sequence<MType> {
-    if (refinement != null) return emptySequence()
     return concreteSubclasses(mclass).flatMap {
       val deps: DependencySet? = dependencies glb it.baseType.dependencies
       if (deps == null) {
@@ -134,7 +133,7 @@ internal constructor(
   /** Returns the subset of [allConcreteSubtypes] having the exact same [mclass] as ours. */
   public fun concreteSubtypesSameClass(): Sequence<MType> {
     return when {
-      mclass.abstract || refinement != null -> emptySequence()
+      mclass.abstract -> emptySequence()
       isClassType -> concreteSubclasses(dependencies.getClassForClassType()).map { it.classType }
       else -> {
         val axes = dependencies.asSet.map { it.allConcreteSpecializations().toList() }

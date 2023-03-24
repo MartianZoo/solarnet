@@ -25,7 +25,6 @@ import dev.martianzoo.util.filterWithoutNulls
 internal val allCustomInstructions =
     setOf(
         ForceLoad,
-        CreateAll,
         CreateAdjacencies,
         BeginPlayCard,
         CopyPrelude,

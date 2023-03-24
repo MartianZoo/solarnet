@@ -1,5 +1,6 @@
 package dev.martianzoo.tfm.engine
 
+import dev.martianzoo.tfm.api.Exceptions.InvalidReificationException
 import dev.martianzoo.tfm.api.ExpressionInfo
 import dev.martianzoo.tfm.api.GameSetup
 import dev.martianzoo.tfm.api.GameStateReader
@@ -9,12 +10,14 @@ import dev.martianzoo.tfm.data.GameEvent.ChangeEvent
 import dev.martianzoo.tfm.data.GameEvent.TaskEvent
 import dev.martianzoo.tfm.data.Task.TaskId
 import dev.martianzoo.tfm.engine.EventLog.Checkpoint
+import dev.martianzoo.tfm.pets.PetTransformer
 import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.pets.ast.Metric
 import dev.martianzoo.tfm.pets.ast.Metric.Count
 import dev.martianzoo.tfm.pets.ast.Metric.Max
 import dev.martianzoo.tfm.pets.ast.Metric.Plus
 import dev.martianzoo.tfm.pets.ast.Metric.Scaled
+import dev.martianzoo.tfm.pets.ast.PetNode
 import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.pets.ast.Requirement.And
 import dev.martianzoo.tfm.pets.ast.Requirement.Counting
@@ -68,11 +71,42 @@ public class Game(val setup: GameSetup, public val loader: MClassLoader) {
       object : ExpressionInfo {
         override fun isAbstract(e: Expression) = resolve(e).abstract
         override fun ensureReifies(wide: Expression, narrow: Expression) {
-          resolve(wide).ensureReifies(resolve(narrow))
+          val abstractTarget = resolve(wide)
+          val proposed = resolve(narrow)
+          proposed.ensureReifies(abstractTarget)
+          checkRefinements(abstractTarget, proposed)
+
           // wide might be CityTile<P1, LA(HAS MAX 0 NBR<CT<ANY>>)>
           // narrow might be CityTile<P1, M11>
           // as pure types they check out
           // but check whether `HAS MAX 0 NBR<CT<ANY>, M11>` is true
+        }
+        private fun checkRefinements(abstractTarget: MType, proposed: MType) {
+          val refin = abstractTarget.refinement
+          if (refin != null) {
+            // HAS 0 NBR<CT<ANY>> -> HAS 0 NBR<CT<ANY>, M11>
+            val requirement: Requirement = object : PetTransformer() {
+              override fun <P : PetNode> transform(node: P): P {
+                return if (node is Expression) {
+                  val modded = node.addArgs(proposed.expressionFull)
+                  try {
+                    resolve(modded)
+                    modded as P
+                  } catch (e: Exception) {
+                    node // don't go deeper
+                  }
+                } else {
+                  transformChildren(node)
+                }
+              }
+            }.transform(refin)
+            if (!reader.evaluate(requirement)) {
+              throw InvalidReificationException("requirement is not met: $requirement")
+            }
+            for ((a, b) in abstractTarget.dependencies.asSet.zip(proposed.dependencies.asSet)) {
+              checkRefinements(a.boundType, b.boundType)
+            }
+          }
         }
       }
   val reader =

@@ -53,8 +53,7 @@ class EntireGameTest {
     with(p1) {
       execute("-7 THEN TitaniumMine")
       execute("-9 THEN RoboticWorkforce")
-      dropTask("A") // TODO reify?
-      execute("@copyProductionBox(MartianIndustries)")
+      doTask("A", "@copyProductionBox(MartianIndustries)")
       execute("-6 THEN Sponsors")
     }
 

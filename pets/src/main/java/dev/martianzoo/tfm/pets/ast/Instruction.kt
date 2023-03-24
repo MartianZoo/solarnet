@@ -66,8 +66,8 @@ public sealed class Instruction : PetElement() {
     override fun checkReificationDoNotCall(proposed: Instruction, einfo: ExpressionInfo) {
       if (proposed == nullInstruction && intensity == OPTIONAL) return
       (proposed as Change).amount.ensureReifies(amount)
-      gaining?.let { einfo.ensureReifies(proposed.gaining!!, it) }
-      removing?.let { einfo.ensureReifies(proposed.removing!!, it) }
+      gaining?.let { einfo.ensureReifies(it, proposed.gaining!!) }
+      removing?.let { einfo.ensureReifies(it, proposed.removing!!) }
     }
   }
 
@@ -214,17 +214,10 @@ public sealed class Instruction : PetElement() {
   }
 
   data class Custom(val functionName: String, val arguments: List<Expression>) : Instruction() {
-    constructor(
-        functionName: String,
-        vararg arguments: Expression,
-    ) : this(functionName, arguments.toList())
-
     override fun visitChildren(visitor: Visitor) = visitor.visit(arguments)
     override fun times(factor: Int) = Multi.create(List(factor) { this })!!
 
-    override fun isAbstract(einfo: ExpressionInfo): Boolean {
-      return false // TODO
-    }
+    override fun isAbstract(einfo: ExpressionInfo) = arguments.any { einfo.isAbstract(it) }
 
     override fun checkReificationDoNotCall(proposed: Instruction, einfo: ExpressionInfo) {
       proposed as Custom
@@ -234,8 +227,8 @@ public sealed class Instruction : PetElement() {
       if (proposed.arguments.size != arguments.size) {
         throw InvalidReificationException("wrong argument count")
       }
-      for ((yours, mine) in proposed.arguments.zip(arguments)) {
-        einfo.ensureReifies(mine, yours)
+      for ((wide, narrow) in arguments.zip(proposed.arguments)) {
+        einfo.ensureReifies(wide, narrow)
       }
     }
 
@@ -262,8 +255,8 @@ public sealed class Instruction : PetElement() {
 
     override fun checkReificationDoNotCall(proposed: Instruction, einfo: ExpressionInfo) {
       proposed as Then
-      for ((yours, mine) in proposed.instructions.zip(instructions)) {
-        yours.ensureReifies(mine, einfo)
+      for ((wide, narrow) in instructions.zip(proposed.instructions)) {
+        narrow.ensureReifies(wide, einfo)
       }
       val maybeXs = this.descendantsOfType<Scalar>()
       if (maybeXs.any { it is XScalar }) {

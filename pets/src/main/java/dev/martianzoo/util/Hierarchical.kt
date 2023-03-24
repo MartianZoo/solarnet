@@ -29,7 +29,7 @@ interface Hierarchical<H : Hierarchical<H>> : Reifiable<H> {
 
   override fun ensureNarrows(that: H) {
     if (!isSubtypeOf(that)) throw InvalidReificationException(
-        "not a subtype (could override this method to provide a more detailed message)")
+        "$this is not a subtype of $that")
   }
 
   companion object {
