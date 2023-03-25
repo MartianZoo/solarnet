@@ -91,6 +91,7 @@ public class Game(val setup: GameSetup, public val loader: MClassLoader) {
                   val modded = node.addArgs(proposed.expressionFull)
                   try {
                     resolve(modded)
+                    @Suppress("UNCHECKED_CAST")
                     modded as P
                   } catch (e: Exception) {
                     node // don't go deeper

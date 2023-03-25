@@ -90,7 +90,6 @@ class SpecificCardsTest {
     val game = Engine.newGame(GameSetup(Canon, "BRMV", 2))
     val p1 = InteractiveSession(game, Actor.PLAYER1)
 
-    val repl = ReplSession(Canon, GameSetup(Canon, "BRMV", 2))
     p1.execute("ProjectCard THEN SulphurEatingBacteria")
     p1.execute("UseAction1<SulphurEatingBacteria>")
     assertThat(p1.count("Microbe")).isEqualTo(1)

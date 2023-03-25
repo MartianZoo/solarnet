@@ -68,7 +68,7 @@ public data class Component private constructor(val mtype: MType) : HasExpressio
 
   fun toShortString() = "[${mtype.expressionShort}]"
 
-  val allowedRange: IntRange by mtype.mclass::componentCountRange
+  val allowedRange: IntRange = mtype.mclass.componentCountRange
 }
 
 class Substituter(private val subs: Map<ClassName, Expression>) : PetTransformer() {
