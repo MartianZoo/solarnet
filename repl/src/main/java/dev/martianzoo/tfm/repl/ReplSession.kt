@@ -444,7 +444,7 @@ public class ReplSession(
   private fun describeExecutionResults(changes: Result): List<String> {
     val oops: List<Task> = changes.newTaskIdsAdded.map { session.game.taskQueue[it] }
 
-    val interesting: List<ChangeEvent> = changes.changes // .filterNot { isSystemOnly(it.change) }
+    val interesting: List<ChangeEvent> = changes.changes.filterNot { isSystemOnly(it.change) }
     val changeLines = interesting.toStrings().ifEmpty { listOf("No state changes") }
     val taskLines =
         if (oops.any()) {
@@ -473,7 +473,8 @@ public class ReplSession(
     override val isReadOnly = true
 
     // TODO filter it
-    override fun noArgs() = session.game.eventLog.changesSince(session.game.start).toStrings()
+    override fun noArgs() = session.game.eventLog.changesSince(session.game.start)
+        .filter { !isSystemOnly(it.change) }.toStrings()
 
     override fun withArgs(args: String): List<String> {
       if (args == "full") {
@@ -533,8 +534,8 @@ public class ReplSession(
     override val help =
         """
           Put any type expression after `desc` and it will tell you everything it knows about that
-          type. A page on github somewhere will explain what all the output means, but it doesn't exist
-          yet.
+          type. A page on github somewhere will explain what all the output means, but it doesn't
+          exist yet.
         """
     override val isReadOnly = true
 
@@ -556,8 +557,8 @@ public class ReplSession(
     override val help =
         """
           Reads from the given filename (expressed relative to the solarnet/ directory) and executes
-          every command in it, as if you had typed it directly at the prompt, until reaching the line
-          "stop" or the end of file. You probably don't want to put "exit" in that file.
+          every command in it, as if you had typed it directly at the prompt, until reaching the
+          line "stop" or the end of file. You probably don't want to put "exit" in that file.
         """
 
     override fun withArgs(args: String) =
