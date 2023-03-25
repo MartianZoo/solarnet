@@ -51,6 +51,7 @@ internal fun main() {
       """
       Welcome to REgo PLastics. Type `help` for help.
       Warning: this is a bare-bones tool that is not trying to be easy to use... at all
+      Everything is case-sensitive. Sorry
 
   """
           .trimIndent()
@@ -83,6 +84,7 @@ public class ReplSession(
   internal abstract inner class ReplCommand(val name: String) {
     open val isReadOnly: Boolean = false
     abstract val usage: String
+    abstract val help: String
     open fun noArgs(): List<String> = throw UsageException()
 
     open fun withArgs(args: String): List<String> = throw UsageException()
@@ -114,13 +116,36 @@ public class ReplSession(
 
   internal inner class HelpCommand : ReplCommand("help") {
     override val usage = "help [command]"
+    override val help =
+        """
+          Help will give you help, if you want help, but this help on help doesn't help, does it?
+        """
     override val isReadOnly = true
     override fun noArgs() = listOf(helpText)
-    override fun withArgs(args: String) = TODO()
+    override fun withArgs(args: String): List<String> {
+      return when (args.trim()) {
+        "exit" -> listOf("I mean it exits.")
+        "rebuild" -> listOf("Exits, recompiles the code, and restarts. Your game is lost.")
+        else -> {
+          val helpCommand = commands[args.trim()]
+          if (helpCommand == null) {
+            listOf("¯\\_(ツ)_/¯ Type `help` for help")
+          } else {
+            helpCommand.help.trimIndent().split("\n")
+          }
+        }
+      }
+    }
   }
 
   internal inner class AsCommand : ReplCommand("as") {
     override val usage = "as <PlayerN> <full command>"
+    override val help =
+        """
+          For any command you could type normally, put `as Player2` etc. or `as Engine` before it.
+          It's handled as if you had first `become` that player, then restored.  
+        """
+
     override fun noArgs() = throw UsageException()
     override fun withArgs(args: String): List<String> {
       val (player, rest) = args.trim().split(Regex("\\s+"), 2)
@@ -138,6 +163,15 @@ public class ReplSession(
 
   internal inner class NewGameCommand : ReplCommand("newgame") {
     override val usage = "newgame <bundles> <player count>"
+    override val help =
+        """
+          Erases your current game and starts a new one. You can't undo that (but you can get your
+          command history out of ~/.rego_session and reply it.) For <bundles>, jam some letters
+          together: B=Base, R=coRpoRate eRa, M=Tharsis, H=Hellas, E=Elysium, V=VenusNext, P=Prelude,
+          C=Colonies, T=Turmoil, X=Promos. The earlier ones just listed are mostly all there, but
+          almost none of the latter. The player count can be from 1 to 5, but if you choose 1, you
+          are NOT getting any solo game behavior at all.
+        """
 
     override fun withArgs(args: String): List<String> {
       try {
@@ -159,6 +193,12 @@ public class ReplSession(
 
   internal inner class BecomeCommand : ReplCommand("become") {
     override val usage = "become [PlayerN]"
+    override val help =
+        """
+          Type `become Player2` or whatever and your prompt will change accordingly; everything you
+          do now will be done as if it's player 2 doing it. You can also `become Engine` to do 
+          engine things.
+        """
 
     override fun noArgs(): List<String> {
       session = session.asActor(Actor.ENGINE)
@@ -173,6 +213,11 @@ public class ReplSession(
 
   internal inner class HasCommand : ReplCommand("has") {
     override val usage = "has <Requirement>"
+    override val help =
+        """
+          Evaluates the requirement and tells you true or false. Go see syntax.md on the github page
+          for syntax.
+        """
     override val isReadOnly = true
 
     override fun withArgs(args: String): List<String> {
@@ -184,6 +229,11 @@ public class ReplSession(
 
   internal inner class CountCommand : ReplCommand("count") {
     override val usage = "count <Metric>"
+    override val help =
+        """
+          Evaluates the metric and tells you the count. Usually just a type, but can include `MAX`,
+          `+`, etc.
+        """
     override val isReadOnly = true
 
     override fun withArgs(args: String): List<String> {
@@ -195,19 +245,27 @@ public class ReplSession(
 
   internal inner class ListCommand : ReplCommand("list") {
     override val usage = "list <Expression>"
+    override val help = """
+          This command is super broken right now.
+        """
     override val isReadOnly = true
     override fun noArgs() = withArgs(COMPONENT.toString())
 
     override fun withArgs(args: String): List<String> {
       val expr: Raw<Expression> = parseInput(args)
       val counts: Multiset<Expression> = session.list(expr)
-      return listOf("${counts.size} ${session.prep(expr)}") +
+      return listOf(
+          "SORRY: this command is super broken right now", "${counts.size} ${session.prep(expr)}") +
           counts.entries.sortedByDescending { (_, ct) -> ct }.map { (e, ct) -> "  $ct $e" }
     }
   }
 
   internal inner class BoardCommand : ReplCommand("board") {
     override val usage = "board [PlayerN]"
+    override val help =
+        """
+          Shows a crappy player board for the named player, or the current player by default.
+        """
     override val isReadOnly = true
 
     override fun noArgs(): List<String> = PlayerBoardToText(session.agent, jline != null).board()
@@ -218,12 +276,21 @@ public class ReplSession(
 
   internal inner class MapCommand : ReplCommand("map") {
     override val usage = "map"
+    override val help = """
+          I mean it shows a map.
+        """
     override val isReadOnly = true
     override fun noArgs() = MapToText(session.game.reader, jline != null).map()
   }
 
   internal inner class ModeCommand : ReplCommand("mode") {
     override val usage = "mode <mode name>"
+    override val help =
+        """
+          Changes modes. Names are red, yellow, green, blue, purple. Just enter a mode and it will
+          tell you what it means.
+        """
+
     override fun noArgs() = listOf("Mode $mode: ${mode.message}")
 
     override fun withArgs(args: String): List<String> {
@@ -232,7 +299,7 @@ public class ReplSession(
         mode = thing
       } catch (e: Exception) {
         throw UsageException(
-            "Valid modes are: ${ReplMode.values().joinToString { it.toString().lowercase() } }")
+            "Valid modes are: ${ReplMode.values().joinToString { it.toString().lowercase() }}")
       }
       return noArgs()
     }
@@ -242,6 +309,16 @@ public class ReplSession(
 
   internal inner class AutoCommand : ReplCommand("auto") {
     override val usage = "auto [ on | off ]"
+    override val help =
+        """
+          Turns auto-execute mode on or off, or just `auto` tells you what mode you're in. When you
+          initiate an instruction with `exec` or `task`, per the game rules you always get to decide
+          what order to do all the resulting tasks in. But that's a pain, so when `auto` is `on` (as
+          it is by default) the REPL tries to execute each task (in the order they appear on the 
+          cards), and leaves it on the queue only if it can't run correctly. This setting is sticky
+          until you `exit` or `rebuild`, even across games.
+        """
+
     override fun noArgs() = listOf("Autoexecute is " + if (auto) "on" else "off")
 
     override fun withArgs(args: String): List<String> {
@@ -257,6 +334,12 @@ public class ReplSession(
 
   internal inner class ExecCommand : ReplCommand("exec") {
     override val usage = "exec <Instruction>"
+    override val help =
+        """
+          Initiates the specified instruction; see syntax.md on github for details on syntax. If
+          `auto` mode is on, it will also try to execute any tasks that result from this. Otherwise
+           use `tasks` to see which tasks are waiting for you.
+        """
 
     override fun withArgs(args: String): List<String> {
       val instruction = args
@@ -300,6 +383,11 @@ public class ReplSession(
 
   internal inner class TasksCommand : ReplCommand("tasks") {
     override val usage = "tasks"
+    override val help =
+        """
+          List all currently pending tasks. You can then execute or drop them using `task`. The
+          tasks of all players plus the engine are currently mixed together (but labeled).
+        """
     override val isReadOnly = true
     override fun noArgs(): List<String> {
       return session.game.taskQueue.toStrings()
@@ -308,6 +396,16 @@ public class ReplSession(
 
   internal inner class TaskCommand : ReplCommand("task") {
     override val usage = "task <id> [<Instruction> | drop]"
+    override val help =
+        """
+          To carry out a task exactly as it is, just type `task A` where `A` is the id of that task
+          in your `tasks` list. But usually a task gets put on that list because its instruction
+          was not fully specified. So, after `task A` you can write a revised version of that 
+          instruction, as long as your revision is a more specific form of the instruction. For
+          example, if the queued task is `-3 StandardResource<Anyone>?` you can revise it to
+          `-2 Plant<Player1>`.
+        """
+
     override fun withArgs(args: String): List<String> {
       val q = session.game.taskQueue
 
@@ -366,6 +464,12 @@ public class ReplSession(
 
   internal inner class LogCommand : ReplCommand("log") {
     override val usage = "log [full]"
+    override val help =
+        """
+          Shows everything that has happened in the current game (`log full`) or just the more
+          interesting bits (i.e., filtering out Task changes, and filtering out changes to System
+          components -- just like the default output after `exec` or `task` does).
+        """
     override val isReadOnly = true
 
     // TODO filter it
@@ -382,6 +486,15 @@ public class ReplSession(
 
   internal inner class RollbackCommand : ReplCommand("rollback") {
     override val usage = "rollback <logid>"
+    override val help =
+        """
+          Undoes the event with the id given and every event after it. If you undo too far, 
+          you can't go forward again (you can only try to reconstruct the game from your
+          ~/.rego_history). If you want to undo your command `exec 5 Plant`, look for the number in
+          the command prompt on that line; that's the number to use here. Or check `log`. Be careful
+          though, as you it will let you undo to a position when the engine was in the middle of 
+          doing stuff, which would put you in an invalid game state.
+        """
 
     override fun withArgs(args: String): List<String> {
       session.rollBack(args.toInt())
@@ -391,6 +504,15 @@ public class ReplSession(
 
   internal inner class HistoryCommand : ReplCommand("history") {
     override val usage = "history <count>"
+    override val help =
+        """
+          This shows the history of the commands you've typed into the REPL. It should contain
+          history from your previous sessions too (hopefully). `history 20` would show you only
+          the last 20. These are numbered, and if one command is numbered 123 you can type `!123`
+          to repeat it. You can also write `!` plus the first few letters of the command and you'll
+          get the most recent match. There's other stuff you can do; look for info on the `jline`
+          library if curious.
+        """
     override val isReadOnly = true
     val history = jline?.history
 
@@ -408,6 +530,12 @@ public class ReplSession(
 
   internal inner class DescCommand : ReplCommand("desc") {
     override val usage = "desc <Expression>"
+    override val help =
+        """
+          Put any type expression after `desc` and it will tell you everything it knows about that
+          type. A page on github somewhere will explain what all the output means, but it doesn't exist
+          yet.
+        """
     override val isReadOnly = true
 
     override fun withArgs(args: String): List<String> {
@@ -425,6 +553,13 @@ public class ReplSession(
 
   internal inner class ScriptCommand : ReplCommand("script") {
     override val usage = "script <filename>"
+    override val help =
+        """
+          Reads from the given filename (expressed relative to the solarnet/ directory) and executes
+          every command in it, as if you had typed it directly at the prompt, until reaching the line
+          "stop" or the end of file. You probably don't want to put "exit" in that file.
+        """
+
     override fun withArgs(args: String) =
         File(args)
             .readLines()
@@ -463,33 +598,36 @@ public class ReplSession(
 
 private val helpText: String =
     """
+    Commands below can be separated with semicolons, or written in a file and run with `script`.
+    Type `help <command name>` to learn more.,
+
     CONTROL
       help                -> shows this message
-      newgame BMV 3       -> erases current game and starts 3p game with Base, default Map, Venus
-      become Player1      -> makes Player1 the default player for queries & executions
+      newgame BHV 3       -> erases current game and starts 3p game with Base/Hellas/Venus
       exit                -> go waste time differently
       rebuild             -> restart after code changes (game is forgotten)
+      become Player1      -> makes Player1 the default player for queries & executions
+      as Player1 <cmd>    -> does <cmd> as if you'd typed just that, but as Player1
+      script mygame       -> reads file `mygame` and performs REPL commands as if typed
     QUERYING
       has MAX 3 OceanTile -> evaluates a requirement (true/false) in the current game state
       count Plant         -> counts how many Plants the default player has
-      count Plant<Anyone> -> counts how many Plants anyone has
       list Tile           -> list all Tiles (categorized)
       board               -> displays an extremely bad looking player board
       map                 -> displays an extremely bad looking Mars board
     EXECUTION
-      exec PROD[3 Heat]   -> gives the default player 3 heat production, NOT triggering effects
+      exec PROD[3 Heat]   -> gives the default player 3 heat production
       tasks               -> shows your current to-do list
-      task F              -> do task F on your to-do list
+      task F              -> do task F on your to-do list, as-is
       task F Plant        -> do task F, substituting `Plant` for an abstract instruction
       task F drop         -> bye task F
+      auto off            -> turns off autoexec mode (you'll have to run tasks 1-by-1)
       mode yellow         -> switches to Yellow Mode (also try red, green, blue, purple)
     HISTORY
-      log                 -> shows the useful bits in the current game's event log
-      log full            -> shows the entire disgusting event log you were warned
-      rollback 123        -> undoes recent changes up to and *including* change 123
-      history             -> shows your *command* history
+      log                 -> shows events that have happened in the current game
+      rollback 123        -> undoes recent events up to and *including* event 123
+      history             -> shows your *command* history (as you typed it)
     METADATA
-      desc Microbe        -> describes the Microbe class in detail
       desc Microbe<Ants>  -> describes the Microbe<Ants> type in detail
   """
         .trimIndent()
