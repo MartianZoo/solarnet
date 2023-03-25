@@ -8,7 +8,7 @@ plugins {
   `java-library`
 }
 
-kotlin { jvmToolchain(18) }
+kotlin { jvmToolchain(11) }
 
 dependencies {
   implementation(platform("org.jetbrains.kotlin:kotlin-bom:1.8.0"))

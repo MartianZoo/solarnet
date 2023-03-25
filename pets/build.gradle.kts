@@ -5,7 +5,7 @@ plugins {
   id("org.jetbrains.dokka") version "1.7.10"
 }
 
-kotlin { jvmToolchain(18) }
+kotlin { jvmToolchain(11) }
 
 // kotlin {
 //  js {
