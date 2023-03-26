@@ -17,9 +17,8 @@ private class CanonLinkagesTest {
     val linkages: Map<String, List<String>> =
         declarations
             .associate { decl ->
-              decl.className.toString() to decl.effects.flatMap { it.depLinkages }
-                  .toSet()
-                  .toStrings()
+              decl.className.toString() to
+                  decl.effects.flatMap { it.depLinkages }.toSet().toStrings()
             }
             .filterValues { it.any() }
 

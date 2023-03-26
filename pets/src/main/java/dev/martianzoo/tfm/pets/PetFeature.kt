@@ -15,8 +15,8 @@ enum class PetFeature {
 
   /**
    * The element might contain expressions and [Change] instructions that expect to have defaults
-   * filled in, like `GreeneryTile` which should be translated to
-   * `GreeneryTile<Owner, LandArea(HAS? Neighbor<OwnedTile<Owner>>)>!`
+   * filled in, like `GreeneryTile` which should be translated to `GreeneryTile<Owner, LandArea(HAS?
+   * Neighbor<OwnedTile<Owner>>)>!`
    *
    * Requires THIS_EXPRESSIONS to be handled first.
    */

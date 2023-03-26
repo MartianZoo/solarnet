@@ -45,18 +45,15 @@ internal object PetToKotlin {
               (if (arguments.none()) ".type" else ".addArgs(${arguments.join()})") +
               refinement?.let(::p2k).wrap(".refine(", ")")
         }
-
         is Scalar -> {
           when (this) {
             is ActualScalar -> "ActualScalar($value)"
             is XScalar -> "XScalar($multiple)"
           }
         }
-
         is ScaledExpression -> {
           "scaledEx(${p2k(scalar)}${p2k(expression).pre(", ")})"
         }
-
         is Metric -> {
           when (this) {
             is Metric.Count -> "Count(${p2k(expression)})"
@@ -84,8 +81,8 @@ internal object PetToKotlin {
             is Gated -> "Gated(${p2k(gate)}, $mandatory, ${p2k(instruction)})"
             is Transmute -> "Transmute(${p2k(fromEx)}, ${p2k(count)}${intensity.pre(", ")})"
             is Custom ->
-              "Instruction.Custom(\"$functionName\"" +
-                  "${arguments.joinToString("") { ", ${p2k(it)}" }})"
+                "Instruction.Custom(\"$functionName\"" +
+                    "${arguments.joinToString("") { ", ${p2k(it)}" }})"
             is Then -> "Then(${instructions.join()})"
             is Instruction.Or -> "Instruction.Or(${instructions.join()})"
             is Instruction.Multi -> "Instruction.Multi(${instructions.join()})"

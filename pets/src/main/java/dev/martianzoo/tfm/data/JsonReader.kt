@@ -41,8 +41,9 @@ object JsonReader {
   ) {
 
     class IncompleteActionDef(val id: ClassName, val bundle: String, val action: String) {
-      fun complete(project: Boolean) = StandardActionDefinition(id, bundle, project,
-          parseInput(action, STANDARD_FEATURES + THIS_EXPRESSIONS))
+      fun complete(project: Boolean) =
+          StandardActionDefinition(
+              id, bundle, project, parseInput(action, STANDARD_FEATURES + THIS_EXPRESSIONS))
     }
   }
 

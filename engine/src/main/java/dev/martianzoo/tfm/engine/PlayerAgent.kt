@@ -44,12 +44,14 @@ import kotlin.Int.Companion.MAX_VALUE
 /** A view of a [Game] specific to a particular [Actor] (a player or the engine). */
 public class PlayerAgent internal constructor(private val game: Game, public val actor: Actor) {
 
-  public val reader = object : GameStateReader by game.reader {
-    override fun resolve(expression: Expression): MType = game.resolve(heyItsMe(expression))
-    override fun evaluate(requirement: Requirement) = game.reader.evaluate(heyItsMe(requirement))
-    override fun count(metric: Metric) = game.reader.count(heyItsMe(metric))
-    override fun countComponent(concreteType: Type) = game.reader.countComponent(concreteType)
-  }
+  public val reader =
+      object : GameStateReader by game.reader {
+        override fun resolve(expression: Expression): MType = game.resolve(heyItsMe(expression))
+        override fun evaluate(requirement: Requirement) =
+            game.reader.evaluate(heyItsMe(requirement))
+        override fun count(metric: Metric) = game.reader.count(heyItsMe(metric))
+        override fun countComponent(concreteType: Type) = game.reader.countComponent(concreteType)
+      }
 
   private val insertOwner: PetTransformer =
       if (actor == Actor.ENGINE) {
@@ -77,7 +79,6 @@ public class PlayerAgent internal constructor(private val game: Game, public val
         require(removing == null)
         return null
       }
-
       DIE.expr -> {
         if (amap) return null
         throw UserException("Attempt to gain the `Die` component by $cause")
@@ -165,9 +166,8 @@ public class PlayerAgent internal constructor(private val game: Game, public val
         } // else just do nothing
       }
       is Per ->
-          doInstruction(instruction.instruction,
-              cause,
-              game.reader.count(instruction.metric) * multiplier)
+          doInstruction(
+              instruction.instruction, cause, game.reader.count(instruction.metric) * multiplier)
       is Custom -> handleCustomInstruction(instruction, cause)
       // TODO this is a bit wrong
       is Then -> split(instruction.instructions).forEach { doInstruction(it, cause, multiplier) }
@@ -209,14 +209,15 @@ public class PlayerAgent internal constructor(private val game: Game, public val
           val r = removing?.expressionFull
 
           fun doIt() = quietChange(count, g, r, amap, cause)
-          val event = try {
-            doIt()
-          } catch (e: ExistingDependentsException) {
-            for (dept in e.dependents) {
-              write(MAX_VALUE, removing = dept.mtype, amap = true, cause = cause)
-            }
-            doIt()
-          }
+          val event =
+              try {
+                doIt()
+              } catch (e: ExistingDependentsException) {
+                for (dept in e.dependents) {
+                  write(MAX_VALUE, removing = dept.mtype, amap = true, cause = cause)
+                }
+                doIt()
+              }
           event?.let { fireTriggers(it) }
         }
       }
@@ -242,9 +243,7 @@ public class PlayerAgent internal constructor(private val game: Game, public val
                   // Not needed: ReplaceThisWith, FixUnownedEffect
                   )
               .transform(translated)
-      split(instruction).forEach {
-        game.taskQueue.addTasks(it, actor, cause)
-      }
+      split(instruction).forEach { game.taskQueue.addTasks(it, actor, cause) }
     } catch (e: ExecuteInsteadException) {
       // this custom fn chose to override execute() instead of translate()
       for (it in 1..multiplier) {

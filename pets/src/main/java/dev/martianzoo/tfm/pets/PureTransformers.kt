@@ -89,11 +89,11 @@ public object PureTransformers {
   public fun <P : PetNode> P.replaceAll(from: PetNode, to: PetNode): P {
     if (from == to) return this
     return object : PetTransformer() {
-      override fun <Q : PetNode> transform(node: Q): Q =
-          if (node == from) {
-            @Suppress("UNCHECKED_CAST")
-            to as Q
-          } else {
+          override fun <Q : PetNode> transform(node: Q): Q =
+              if (node == from) {
+                @Suppress("UNCHECKED_CAST")
+                to as Q
+              } else {
                 transformChildren(node)
               }
         }

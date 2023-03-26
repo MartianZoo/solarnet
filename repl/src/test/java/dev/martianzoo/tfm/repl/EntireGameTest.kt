@@ -389,5 +389,4 @@ fun ReplSession.assertCount(text: String, i: Int) {
   assertThat(session.count(text)).isEqualTo(i)
 }
 
-fun ReplSession.counts(text: String): List<Int> =
-    text.split(",").map(session::count)
+fun ReplSession.counts(text: String): List<Int> = text.split(",").map(session::count)

@@ -62,7 +62,8 @@ data class MarsMapDefinition(
       require(column >= 1) { "bad column: $column" }
     }
 
-    val bonus: Raw<Instruction>? = bonusText?.let { parseInput(it, STANDARD_FEATURES + THIS_EXPRESSIONS) }
+    val bonus: Raw<Instruction>? =
+        bonusText?.let { parseInput(it, STANDARD_FEATURES + THIS_EXPRESSIONS) }
 
     override val asClassDeclaration by lazy {
       ClassDeclaration(
@@ -70,8 +71,7 @@ data class MarsMapDefinition(
           shortName = shortName,
           abstract = false,
           supertypes = setOf(kind.expr),
-          effectsIn = listOfNotNull(bonus).mapAll { Effect(trigger, it, false) }.toSetStrict()
-      )
+          effectsIn = listOfNotNull(bonus).mapAll { Effect(trigger, it, false) }.toSetStrict())
     }
 
     override val shortName =

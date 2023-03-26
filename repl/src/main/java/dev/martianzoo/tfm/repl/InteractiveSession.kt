@@ -158,8 +158,8 @@ public class InteractiveSession(
   fun <P : PetElement> prep(node: Raw<P>): P {
     val xers = game.loader.transformers
     return transformInSeries(
-        xers.useFullNames(),
-        xers.atomizer(),
+            xers.useFullNames(),
+            xers.atomizer(),
             xers.insertDefaults(THIS.expr), // TODO: context??
             xers.deprodify(),
             // not needed: ReplaceThisWith, ReplaceOwnerWith, FixEffectForUnownedContext

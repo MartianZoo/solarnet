@@ -28,8 +28,8 @@ private class CanonClassesTest {
           val redundant = direct.intersect(indirect)
           redundant.map { mclass.className to it.className }
         }
-    assertThat(redundancies).containsExactly(cn("GreeneryTile") to cn("Tile"),
-        cn("SpecialTile") to cn("Tile"))
+    assertThat(redundancies)
+        .containsExactly(cn("GreeneryTile") to cn("Tile"), cn("SpecialTile") to cn("Tile"))
   }
 
   @Test
@@ -98,7 +98,8 @@ private class CanonClassesTest {
           .containsExactly(cn("GlobalParameter"), cn("Tile"))
           .inOrder()
       assertThat(allSuperclasses.classNames())
-          .containsExactly(cn("Component"), cn("Atomized"), cn("GlobalParameter"), cn("Tile"), cn("OceanTile"))
+          .containsExactly(
+              cn("Component"), cn("Atomized"), cn("GlobalParameter"), cn("Tile"), cn("OceanTile"))
           .inOrder()
 
       table.load(cn("MarsArea"))
@@ -181,9 +182,10 @@ private class CanonClassesTest {
   @Test
   fun generalInvariants() {
     val table = MClassLoader(Canon).loadEverything()
-    assertThat(table.generalInvariants.toStrings()).containsExactly(
-        // "MAX 1 Phase",
-        "MAX 9 OceanTile",
-    )
+    assertThat(table.generalInvariants.toStrings())
+        .containsExactly(
+            // "MAX 1 Phase",
+            "MAX 9 OceanTile",
+        )
   }
 }

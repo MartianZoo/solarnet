@@ -47,13 +47,12 @@ public class JlineRepl {
             end()
             exitProcess(5)
           }
-
           else ->
-            try {
-              handler(chunk).forEach(::println)
-            } catch (e: Exception) {
-              e.printStackTrace()
-            }
+              try {
+                handler(chunk).forEach(::println)
+              } catch (e: Exception) {
+                e.printStackTrace()
+              }
         }
         println()
       }

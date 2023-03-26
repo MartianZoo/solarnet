@@ -85,22 +85,24 @@ public class Game(val setup: GameSetup, public val loader: MClassLoader) {
           val refin = abstractTarget.refinement
           if (refin != null) {
             // HAS 0 NBR<CT<ANY>> -> HAS 0 NBR<CT<ANY>, M11>
-            val requirement: Requirement = object : PetTransformer() {
-              override fun <P : PetNode> transform(node: P): P {
-                return if (node is Expression) {
-                  val modded = node.addArgs(proposed.expressionFull)
-                  try {
-                    resolve(modded)
-                    @Suppress("UNCHECKED_CAST")
-                    modded as P
-                  } catch (e: Exception) {
-                    node // don't go deeper
-                  }
-                } else {
-                  transformChildren(node)
-                }
-              }
-            }.transform(refin)
+            val requirement: Requirement =
+                object : PetTransformer() {
+                      override fun <P : PetNode> transform(node: P): P {
+                        return if (node is Expression) {
+                          val modded = node.addArgs(proposed.expressionFull)
+                          try {
+                            resolve(modded)
+                            @Suppress("UNCHECKED_CAST")
+                            modded as P
+                          } catch (e: Exception) {
+                            node // don't go deeper
+                          }
+                        } else {
+                          transformChildren(node)
+                        }
+                      }
+                    }
+                    .transform(refin)
             if (!reader.evaluate(requirement)) {
               throw InvalidReificationException("requirement is not met: $requirement")
             }

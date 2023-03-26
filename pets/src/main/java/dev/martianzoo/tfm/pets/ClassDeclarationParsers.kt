@@ -41,7 +41,9 @@ import dev.martianzoo.util.toSetStrict
 internal object ClassDeclarationParsers : BaseTokenizer() {
 
   /** Parses a section of `components.pets` etc. */
-  val topLevelDeclarationGroup: Parser<List<ClassDeclaration>> by lazy { Declarations.topLevelGroup }
+  val topLevelDeclarationGroup: Parser<List<ClassDeclaration>> by lazy {
+    Declarations.topLevelGroup
+  }
 
   /** Parses a one-line declaration such as found in `cards.json5` for cards like B10 (UNMI). */
   val oneLineDeclaration: Parser<ClassDeclaration> by lazy { Declarations.oneLineDecl }

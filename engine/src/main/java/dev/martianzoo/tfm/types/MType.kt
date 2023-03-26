@@ -94,7 +94,9 @@ internal constructor(
     toExpressionUsingSpecs(dependencies.expressionsFull)
   }
 
-  val expressionShort: Expression by lazy { loader.transformers.useShortNames().transform(expression) }
+  val expressionShort: Expression by lazy {
+    loader.transformers.useShortNames().transform(expression)
+  }
 
   internal val narrowedDependencies: DependencySet by lazy {
     dependencies.minus(mclass.dependencies)
@@ -191,18 +193,17 @@ fun findSubstitutions(
   return map
 }
 
-  private fun doIt(
-      linkages: Set<ClassName>,
-      map: MutableMap<ClassName, Expression>,
-      general: Expression,
-      specific: Expression,
-  ) {
-    for ((g, s) in general.arguments.zip(specific.arguments)) {
-      if (g.simple && g.className in linkages && s != g) {
-        map[g.className] = s
-      } else {
-        doIt(linkages, map, g, s)
-      }
+private fun doIt(
+    linkages: Set<ClassName>,
+    map: MutableMap<ClassName, Expression>,
+    general: Expression,
+    specific: Expression,
+) {
+  for ((g, s) in general.arguments.zip(specific.arguments)) {
+    if (g.simple && g.className in linkages && s != g) {
+      map[g.className] = s
+    } else {
+      doIt(linkages, map, g, s)
     }
   }
-
+}

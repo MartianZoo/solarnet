@@ -49,12 +49,14 @@ public data class Component private constructor(val mtype: MType) : HasExpressio
     return mtype.mclass.classEffects.map { decl ->
       val depLinkages: Set<ClassName> = decl.depLinkages
       val xers = mtype.loader.transformers
-      val blah = transformInSeries(
-          Substituter(mtype.findSubstitutions(depLinkages)),
-          replaceThisWith(mtype.expression),
-          xers.deprodify(),
-          owner()?.let { replaceOwnerWith(it) },
-      ).transform(decl.effect.unprocessed) // TODO
+      val blah =
+          transformInSeries(
+                  Substituter(mtype.findSubstitutions(depLinkages)),
+                  replaceThisWith(mtype.expression),
+                  xers.deprodify(),
+                  owner()?.let { replaceOwnerWith(it) },
+              )
+              .transform(decl.effect.unprocessed) // TODO
       ActiveEffect.from(blah, this, game, decl.triggerLinkages)
     }
   }
@@ -77,8 +79,7 @@ class Substituter(private val subs: Map<ClassName, Expression>) : PetTransformer
       val replacement: Expression? = subs[node.className]
       if (replacement != null) {
         val expr: Expression = replacement.addArgs(node.arguments)
-        @Suppress("UNCHECKED_CAST")
-        return expr as P
+        @Suppress("UNCHECKED_CAST") return expr as P
       }
     }
     return transformChildren(node)

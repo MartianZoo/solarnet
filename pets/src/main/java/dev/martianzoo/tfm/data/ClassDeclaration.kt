@@ -64,9 +64,11 @@ public data class ClassDeclaration(
   }
 
   public val triggerLinkages: Map<Effect, Set<ClassName>> by lazy {
-    effectsIn.map { it.unprocessed }.associateWith {
-      simpleClassNamesIn(it.trigger).intersect(simpleClassNamesIn(it.instruction))
-    }
+    effectsIn
+        .map { it.unprocessed }
+        .associateWith {
+          simpleClassNamesIn(it.trigger).intersect(simpleClassNamesIn(it.instruction))
+        }
   }
 
   private fun simpleClassNamesIn(node: PetNode): Set<ClassName> =

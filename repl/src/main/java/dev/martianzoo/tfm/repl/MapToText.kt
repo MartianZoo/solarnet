@@ -47,7 +47,12 @@ internal class MapToText(private val game: GameStateReader, val useColors: Boole
     val lines = s.trimIndent().split("\n")
     var display = 1
     return lines.mapIndexed { i, line ->
-      val prefix = if ((i - vertStretch) % vertStretch == 1) { "${display++} -  " } else ""
+      val prefix =
+          if ((i - vertStretch) % vertStretch == 1) {
+            "${display++} -  "
+          } else {
+            ""
+          }
       (prefix.padStart(6) + line).trimEnd()
     }
   }

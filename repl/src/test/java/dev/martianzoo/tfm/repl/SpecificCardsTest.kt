@@ -22,13 +22,15 @@ class SpecificCardsTest {
     p1.execute("4 Heat, 3 ProjectCard, Pets")
     assertThreeCardsTotal()
     assertThat(p1.counts("Heat, CardBack, CardFront, Animal, PlayedEvent"))
-        .containsExactly(4, 2, 1, 1, 0).inOrder()
+        .containsExactly(4, 2, 1, 1, 0)
+        .inOrder()
 
     val cp1 = p1.game.checkpoint()
     p1.execute("LocalHeatTrapping")
     assertThreeCardsTotal()
     assertThat(p1.counts("Heat, CardBack, CardFront, Animal, PlayedEvent"))
-        .containsExactly(4, 1, 1, 1, 1).inOrder()
+        .containsExactly(4, 1, 1, 1, 1)
+        .inOrder()
 
     val tasks = p1.agent.tasks()
     assertThat(tasks.values.any { it.whyPending == "can't gain/remove 5 instances, only 4" })
@@ -37,12 +39,14 @@ class SpecificCardsTest {
     p1.execute("2 Heat")
     assertThreeCardsTotal()
     assertThat(p1.counts("Heat, CardBack, CardFront, Animal, PlayedEvent"))
-        .containsExactly(6, 2, 1, 1, 0).inOrder()
+        .containsExactly(6, 2, 1, 1, 0)
+        .inOrder()
 
     val nextTask = p1.execute("LocalHeatTrapping").newTaskIdsAdded.single()
     assertThreeCardsTotal()
     assertThat(p1.counts("Heat, CardBack, CardFront, Animal, PlayedEvent"))
-        .containsExactly(1, 1, 1, 1, 1).inOrder()
+        .containsExactly(1, 1, 1, 1, 1)
+        .inOrder()
 
     val cp2 = p1.game.checkpoint()
     assertThrows<Exception>("2") { p1.doTask(nextTask, "2 Animal") }

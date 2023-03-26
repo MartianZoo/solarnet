@@ -80,8 +80,7 @@ private object CreateAdjacencies : CustomInstruction("createAdjacencies") {
             .flatMap {
               listOf(
                   cn("ForwardAdjacency").addArgs(it, newTile),
-                  cn("BackwardAdjacency").addArgs(newTile, it)
-              )
+                  cn("BackwardAdjacency").addArgs(newTile, it))
             }
     return Multi.create((nbrs + adjs).map { Gain(scaledEx(1, it), MANDATORY) }) ?: nullInstruction
   }

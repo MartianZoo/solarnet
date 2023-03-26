@@ -473,8 +473,11 @@ public class ReplSession(
     override val isReadOnly = true
 
     // TODO filter it
-    override fun noArgs() = session.game.eventLog.changesSince(session.game.start)
-        .filter { !isSystemOnly(it.change) }.toStrings()
+    override fun noArgs() =
+        session.game.eventLog
+            .changesSince(session.game.start)
+            .filter { !isSystemOnly(it.change) }
+            .toStrings()
 
     override fun withArgs(args: String): List<String> {
       if (args == "full") {

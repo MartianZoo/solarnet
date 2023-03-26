@@ -10,7 +10,8 @@ interface Reifiable<R : Reifiable<R>> {
    * * `this` must not be abstract
    * * if [abstractTarget] is concrete then `this` must equal it
    * * `this` must be a narrowing of [abstractTarget]
-   * * considering all reifications of [abstractTarget], this must not be a proper narrowing of any of them
+   * * considering all reifications of [abstractTarget], this must not be a proper narrowing of any
+   *   of them
    */
   fun ensureReifies(abstractTarget: R) {
     if (abstract) throw InvalidReificationException("abstract")
@@ -20,9 +21,7 @@ interface Reifiable<R : Reifiable<R>> {
     this.ensureNarrows(abstractTarget)
   }
 
-  /**
-   * Completes normally if this is a narrowing of [that].
-   */
+  /** Completes normally if this is a narrowing of [that]. */
   fun ensureNarrows(that: R)
 
   val abstract: Boolean

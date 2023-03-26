@@ -18,8 +18,8 @@ public class Exceptions {
 
     constructor(
         instruction: Instruction,
-        intensity: Intensity?
-    ) : this(instruction, "amount is optional")
+        intensity: Intensity?,
+    ) : this(instruction, "amount is ${intensity.toString().lowercase()}")
 
     constructor(instruction: Or) : this(instruction, "OR requires a choice")
   }

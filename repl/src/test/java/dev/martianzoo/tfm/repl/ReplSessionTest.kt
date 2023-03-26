@@ -139,8 +139,10 @@ private class ReplSessionTest {
                8 -          LSS   L   LC   LC    L   LT
 
                9 -            LSS  LSS   L    L   [S2]
-            """.replaceIndent(" ").split("\n").map { it.trimEnd() }
-        )
+            """
+                .replaceIndent(" ")
+                .split("\n")
+                .map { it.trimEnd() })
         .inOrder()
   }
 }

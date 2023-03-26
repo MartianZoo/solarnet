@@ -33,7 +33,10 @@ abstract class ParserGroup<B : Any> {
       return parser(type).tryParseToEnd(input, 0) is Parsed
     }
 
-    override fun <T : B> parser(type: KClass<T>): Parser<T> = parser { parsers[type] as Parser<T> }
+    override fun <T : B> parser(type: KClass<T>): Parser<T> = parser {
+      @Suppress("UNCHECKED_CAST")
+      parsers[type] as Parser<T>
+    }
 
     fun finish(): ParserGroup<B> = this
   }

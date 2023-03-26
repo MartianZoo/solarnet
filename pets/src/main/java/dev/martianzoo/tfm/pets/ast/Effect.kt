@@ -60,17 +60,19 @@ public data class Effect(
       override fun toString() = "$inner IF ${groupPartIfNeeded(condition)}"
     }
 
-    object WhenGain : Trigger() {
+    sealed class BasicTrigger : Trigger()
+
+    object WhenGain : BasicTrigger() {
       override fun visitChildren(visitor: Visitor) = Unit
       override fun toString() = "This"
     }
 
-    object WhenRemove : Trigger() {
+    object WhenRemove : BasicTrigger() {
       override fun visitChildren(visitor: Visitor) = Unit
       override fun toString() = "-This"
     }
 
-    data class OnGainOf private constructor(val expression: Expression) : Trigger() {
+    data class OnGainOf private constructor(val expression: Expression) : BasicTrigger() {
       companion object {
         fun create(expression: Expression): Trigger {
           return if (expression == THIS.expr) {
@@ -88,7 +90,7 @@ public data class Effect(
       override fun toString() = "$expression"
     }
 
-    data class OnRemoveOf private constructor(val expression: Expression) : Trigger() {
+    data class OnRemoveOf private constructor(val expression: Expression) : BasicTrigger() {
       companion object {
         fun create(expression: Expression): Trigger {
           return if (expression == THIS.expr) {
@@ -109,16 +111,18 @@ public data class Effect(
 
     data class XTrigger(val inner: Trigger) : Trigger() {
       init {
-        if (!(inner is OnGainOf || inner is WhenGain || inner is OnRemoveOf || inner is WhenRemove))
+        if (inner !is BasicTrigger) { // TODO: change signature
           throw PetException("Can't have an X trigger of ${inner::class.simpleName}")
+        }
       }
 
       override fun visitChildren(visitor: Visitor) = visitor.visit(inner)
       override fun toString(): String {
-        return when (inner) {
-          is OnGainOf, is WhenGain -> "X $inner"
-          is OnRemoveOf, is WhenRemove -> "-X ${inner.toString().substring(1)}"
-          else -> error("")
+        return when (inner as BasicTrigger) {
+          is OnGainOf,
+          is WhenGain -> "X $inner"
+          is OnRemoveOf,
+          is WhenRemove -> "-X ${inner.toString().substring(1)}"
         }
       }
     }
@@ -152,7 +156,9 @@ public data class Effect(
           val exxedRemove: Parser<XTrigger> =
               skipChar('-') and
                   skip(_x) and
-                  Expression.parser() map OnRemoveOf::create map ::XTrigger
+                  Expression.parser() map
+                  OnRemoveOf::create map
+                  ::XTrigger
 
           val atom: Parser<Trigger> = exxedGain or exxedRemove or onGainOf or onRemoveOf
           val transform = transform(atom) map { (node, name) -> Transform(node, name) }

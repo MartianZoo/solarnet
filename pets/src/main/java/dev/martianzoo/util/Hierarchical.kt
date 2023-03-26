@@ -28,8 +28,7 @@ interface Hierarchical<H : Hierarchical<H>> : Reifiable<H> {
   infix fun lub(that: H): H
 
   override fun ensureNarrows(that: H) {
-    if (!isSubtypeOf(that)) throw InvalidReificationException(
-        "$this is not a subtype of $that")
+    if (!isSubtypeOf(that)) throw InvalidReificationException("$this is not a subtype of $that")
   }
 
   companion object {
