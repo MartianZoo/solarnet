@@ -1,12 +1,11 @@
 package dev.martianzoo.tfm.canon
 
 import dev.martianzoo.tfm.api.CustomInstruction
-import dev.martianzoo.tfm.api.Exceptions.AbstractInstructionException
-import dev.martianzoo.tfm.api.Exceptions.RequirementException
 import dev.martianzoo.tfm.api.GameStateReader
 import dev.martianzoo.tfm.api.GameStateWriter
 import dev.martianzoo.tfm.api.ResourceUtils.lookUpProductionLevels
 import dev.martianzoo.tfm.api.Type
+import dev.martianzoo.tfm.api.UserException
 import dev.martianzoo.tfm.data.MarsMapDefinition.AreaDefinition
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
@@ -105,9 +104,9 @@ private object BeginPlayCard : CustomInstruction("beginPlayCard") {
   override fun translate(game: GameStateReader, arguments: List<Type>): Instruction {
     val cardName = arguments.single().expression.className
     val card = game.authority.card(cardName)
-    if (card.requirement?.unprocessed?.let(game::evaluate) == false) { // TODO
-      throw RequirementException("requirement not met: ${card.requirement}")
-    }
+    val reqt = card.requirement?.unprocessed
+
+    if (reqt?.let(game::evaluate) == false) throw UserException.requirementNotMet(reqt)
 
     val playTagSignals = card.tags.entries.map { (e, ct) -> instruction("$ct PlayTag<Class<$e>>!") }
     val instructions =
@@ -142,7 +141,6 @@ private object GainLowestProduction : CustomInstruction("gainLowestProduction") 
 private object CopyProductionBox : CustomInstruction("copyProductionBox") {
   override fun translate(game: GameStateReader, arguments: List<Type>): Instruction {
     val chosenCardType: Type = game.resolve(arguments.single().expression)
-    if (chosenCardType.abstract) throw AbstractInstructionException(chosenCardType)
     val def = game.authority.card(chosenCardType.className)
 
     val nodes: List<Transform> = def.immediate?.unprocessed?.descendantsOfType() ?: listOf() // TODO

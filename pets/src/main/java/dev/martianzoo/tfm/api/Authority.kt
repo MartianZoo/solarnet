@@ -93,7 +93,7 @@ public abstract class Authority {
    * marked as `replaces` the other. (TODO)
    */
   public fun card(name: ClassName): CardDefinition =
-      cardsByClassName[name] ?: error("No card named $name")
+      cardsByClassName[name] ?: throw IllegalArgumentException("No card named $name")
 
   /** Every card this authority knows about. */
   public abstract val cardDefinitions: Set<CardDefinition>

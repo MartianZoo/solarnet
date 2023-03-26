@@ -5,7 +5,7 @@ import dev.martianzoo.tfm.api.SpecialClassNames.CLASS
 import dev.martianzoo.tfm.api.SpecialClassNames.PRODUCTION
 import dev.martianzoo.tfm.api.SpecialClassNames.STANDARD_RESOURCE
 import dev.martianzoo.tfm.api.SpecialClassNames.THIS
-import dev.martianzoo.tfm.engine.Exceptions.InvalidExpressionException
+import dev.martianzoo.tfm.api.UserException
 import dev.martianzoo.tfm.pets.PetFeature
 import dev.martianzoo.tfm.pets.PetFeature.ATOMIZE
 import dev.martianzoo.tfm.pets.PetFeature.DEFAULTS
@@ -216,7 +216,7 @@ public class Transformers(val loader: MClassLoader) {
 
         val defaults: Defaults =
             loader.allDefaults[node.className]
-                ?: throw InvalidExpressionException("${node.className}")
+                ?: throw UserException.classNotFound(node.className)
         val result =
             insertDefaultsIntoExpr(
                 transformChildren(node), defaults.allCasesDependencies, context, loader)

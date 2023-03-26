@@ -37,7 +37,8 @@ private class CanonCustomInstructionsTest {
     assertThat(p1.agent.tasks().values.toStrings())
         .containsExactly(
             "A: [Player1] Production<Player1, Class<Megacredit>>! OR Production<Player1, " +
-                "Class<Energy>>! (OR requires a choice)")
+                "Class<Energy>>! (choice required in: `Production<Player1, Class<Megacredit>>! " +
+                "OR Production<Player1, Class<Energy>>!`)")
   }
 
   @Test

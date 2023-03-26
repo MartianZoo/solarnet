@@ -1,15 +1,13 @@
 package dev.martianzoo.tfm.engine
 
 import dev.martianzoo.tfm.api.CustomInstruction.ExecuteInsteadException
-import dev.martianzoo.tfm.api.Exceptions.AbstractInstructionException
-import dev.martianzoo.tfm.api.Exceptions.RequirementException
-import dev.martianzoo.tfm.api.Exceptions.UserException
 import dev.martianzoo.tfm.api.GameStateReader
 import dev.martianzoo.tfm.api.GameStateWriter
 import dev.martianzoo.tfm.api.SpecialClassNames.DIE
 import dev.martianzoo.tfm.api.SpecialClassNames.OK
 import dev.martianzoo.tfm.api.SpecialClassNames.THIS
 import dev.martianzoo.tfm.api.Type
+import dev.martianzoo.tfm.api.UserException
 import dev.martianzoo.tfm.data.Actor
 import dev.martianzoo.tfm.data.GameEvent.ChangeEvent
 import dev.martianzoo.tfm.data.GameEvent.ChangeEvent.Cause
@@ -76,12 +74,15 @@ public class PlayerAgent internal constructor(private val game: Game, public val
   ): ChangeEvent? {
     when (gaining) {
       OK.expr -> {
-        require(removing == null)
+        require(removing == null) // TODO UserException
         return null
       }
       DIE.expr -> {
-        if (amap) return null
-        throw UserException("Attempt to gain the `Die` component by $cause")
+        return if (amap) {
+          null
+        } else {
+          throw UserException.die(cause)
+        }
       }
     }
 
@@ -143,14 +144,13 @@ public class PlayerAgent internal constructor(private val game: Game, public val
         when (instr.intensity ?: error("$instr")) {
           MANDATORY -> false
           AMAP -> true
-          OPTIONAL -> throw AbstractInstructionException(instr, instr.intensity)
+          OPTIONAL -> throw UserException.optionalAmount(instr)
         }
 
     when (instruction) {
       is Change -> {
         val scal =
-            instruction.count as? ActualScalar
-                ?: throw AbstractInstructionException(instruction, "Need a value for X")
+            instruction.count as? ActualScalar ?: throw UserException.unresolvedX(instruction)
         writer.write(
             count = scal.value * multiplier,
             gaining = instruction.gaining?.let(game::resolve),
@@ -162,7 +162,7 @@ public class PlayerAgent internal constructor(private val game: Game, public val
         if (game.reader.evaluate(instruction.gate)) {
           doInstruction(instruction.instruction, cause, multiplier)
         } else if (instruction.mandatory) {
-          throw RequirementException("Requirement not met: ${instruction.gate}")
+          throw UserException.requirementNotMet(instruction.gate)
         } // else just do nothing
       }
       is Per ->
@@ -171,7 +171,7 @@ public class PlayerAgent internal constructor(private val game: Game, public val
       is Custom -> handleCustomInstruction(instruction, cause)
       // TODO this is a bit wrong
       is Then -> split(instruction.instructions).forEach { doInstruction(it, cause, multiplier) }
-      is Or -> throw AbstractInstructionException(instruction)
+      is Or -> throw UserException.orWithoutChoice(instruction)
       is Multi -> error("should have been split: $instruction")
       is Transform -> error("should have been transformed already: $instruction")
     }
@@ -225,9 +225,11 @@ public class PlayerAgent internal constructor(private val game: Game, public val
   private fun handleCustomInstruction(instr: Custom, cause: Cause?, multiplier: Int = 1) {
     require(multiplier > 0)
     val arguments = instr.arguments.map(game::resolve)
-    if (arguments.any { it.abstract }) {
-      throw AbstractInstructionException(instr, "abstract arguments in: $arguments")
+    val abstractArgs = arguments.filter { it.abstract }
+    if (abstractArgs.any()) {
+      throw UserException.abstractArguments(abstractArgs, instr)
     }
+
     // TODO could inject this earlier
     val custom = game.setup.authority.customInstruction(instr.functionName)
     try {

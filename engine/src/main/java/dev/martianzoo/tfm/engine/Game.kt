@@ -1,10 +1,10 @@
 package dev.martianzoo.tfm.engine
 
-import dev.martianzoo.tfm.api.Exceptions.InvalidReificationException
 import dev.martianzoo.tfm.api.ExpressionInfo
 import dev.martianzoo.tfm.api.GameSetup
 import dev.martianzoo.tfm.api.GameStateReader
 import dev.martianzoo.tfm.api.Type
+import dev.martianzoo.tfm.api.UserException
 import dev.martianzoo.tfm.data.Actor
 import dev.martianzoo.tfm.data.GameEvent.ChangeEvent
 import dev.martianzoo.tfm.data.GameEvent.TaskEvent
@@ -101,11 +101,11 @@ public class Game(val setup: GameSetup, public val loader: MClassLoader) {
                           transformChildren(node)
                         }
                       }
-                    }
+                }
                     .transform(refin)
-            if (!reader.evaluate(requirement)) {
-              throw InvalidReificationException("requirement is not met: $requirement")
-            }
+
+            if (!reader.evaluate(requirement)) throw UserException.requirementNotMet(requirement)
+
             for ((a, b) in abstractTarget.dependencies.asSet.zip(proposed.dependencies.asSet)) {
               checkRefinements(a.boundType, b.boundType)
             }

@@ -1,9 +1,9 @@
 package dev.martianzoo.tfm.repl
 
 import dev.martianzoo.tfm.api.Authority
-import dev.martianzoo.tfm.api.Exceptions.UserException
 import dev.martianzoo.tfm.api.GameSetup
 import dev.martianzoo.tfm.api.SpecialClassNames.COMPONENT
+import dev.martianzoo.tfm.api.UserException
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.data.Actor
 import dev.martianzoo.tfm.data.GameEvent.ChangeEvent
@@ -79,7 +79,7 @@ public class ReplSession(
 
   private val inputRegex = Regex("""^\s*(\S+)(.*)$""")
 
-  private class UsageException(message: String? = null) : UserException(message ?: "")
+  private class UsageException(message: String? = null) : InteractiveException(message ?: "")
 
   internal abstract inner class ReplCommand(val name: String) {
     open val isReadOnly: Boolean = false
@@ -369,13 +369,13 @@ public class ReplSession(
 
     private fun initiate(instruction: Raw<Instruction>): Result {
       if (mode == BLUE && !session.game.taskQueue.isEmpty()) {
-        throw UserException("Must clear your task queue first (blue mode)")
+        throw InteractiveException.mustClearTasks()
       }
       return session.execute(instruction, auto)
     }
     private fun initiate(instruction: String): Result {
       if (mode == BLUE && !session.game.taskQueue.isEmpty()) {
-        throw UserException("Must clear your task queue first (blue mode)")
+        throw InteractiveException.mustClearTasks()
       }
       return session.execute(instruction, auto)
     }

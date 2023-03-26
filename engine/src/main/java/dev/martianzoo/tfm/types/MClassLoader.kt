@@ -1,13 +1,12 @@
 package dev.martianzoo.tfm.types
 
 import dev.martianzoo.tfm.api.Authority
-import dev.martianzoo.tfm.api.Exceptions.UnrecognizedClassException
 import dev.martianzoo.tfm.api.SpecialClassNames.CLASS
 import dev.martianzoo.tfm.api.SpecialClassNames.COMPONENT
 import dev.martianzoo.tfm.api.SpecialClassNames.THIS
 import dev.martianzoo.tfm.api.Type
+import dev.martianzoo.tfm.api.UserException
 import dev.martianzoo.tfm.data.ClassDeclaration
-import dev.martianzoo.tfm.engine.Exceptions.InvalidExpressionException
 import dev.martianzoo.tfm.pets.PureTransformers.replaceThisWith
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.Expression
@@ -48,7 +47,7 @@ public class MClassLoader( // TODO separate into loader and table
    * exception.
    */
   public fun getClass(name: ClassName): MClass =
-      loadedClasses[name] ?: throw UnrecognizedClassException(name)
+      loadedClasses[name] ?: throw UserException.classNotFound(name)
 
   /** Returns the [MType] represented by [expression]. */
   public fun resolve(expression: Expression): MType {
@@ -195,7 +194,7 @@ public class MClassLoader( // TODO separate into loader and table
             return@map TypeDependency(candidateDep.key, intersectionType)
           }
           // TODO
-          throw InvalidExpressionException("couldn't match up $specExpression to $deps")
+          throw UserException.badExpression(specExpression, deps.toString())
         }
     return DependencySet.of(list)
   }

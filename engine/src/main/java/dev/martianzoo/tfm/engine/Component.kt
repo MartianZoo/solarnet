@@ -1,7 +1,7 @@
 package dev.martianzoo.tfm.engine
 
-import dev.martianzoo.tfm.api.Exceptions.AbstractInstructionException
 import dev.martianzoo.tfm.api.SpecialClassNames.OWNED
+import dev.martianzoo.tfm.api.UserException
 import dev.martianzoo.tfm.pets.PetTransformer
 import dev.martianzoo.tfm.pets.PureTransformers.replaceOwnerWith
 import dev.martianzoo.tfm.pets.PureTransformers.replaceThisWith
@@ -25,7 +25,7 @@ public data class Component private constructor(val mtype: MType) : HasExpressio
   }
 
   init {
-    if (mtype.abstract) throw AbstractInstructionException(mtype)
+    if (mtype.abstract) throw UserException.abstractComponent(mtype)
   }
 
   /**

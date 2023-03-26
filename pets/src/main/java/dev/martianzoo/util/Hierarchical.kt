@@ -1,6 +1,6 @@
 package dev.martianzoo.util
 
-import dev.martianzoo.tfm.api.Exceptions.InvalidReificationException
+import dev.martianzoo.tfm.api.InvalidReificationException
 
 /**
  * An object with hierarchical structure (subtypes and supertypes). It is assumed that there is a

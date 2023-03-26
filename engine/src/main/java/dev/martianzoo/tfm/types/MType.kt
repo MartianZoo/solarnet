@@ -1,9 +1,10 @@
 package dev.martianzoo.tfm.types
 
 import com.google.common.collect.Lists.cartesianProduct
-import dev.martianzoo.tfm.api.Exceptions.InvalidReificationException
+import dev.martianzoo.tfm.api.InvalidReificationException
 import dev.martianzoo.tfm.api.SpecialClassNames.CLASS
 import dev.martianzoo.tfm.api.Type
+import dev.martianzoo.tfm.api.UserException
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.pets.ast.HasClassName
@@ -66,8 +67,10 @@ internal constructor(
       if (specs.isEmpty()) {
         loader.componentClass.classType
       } else {
-        val spec = specs.single().also { require(it.simple) } // TODO check if exposed
-        loader.getClass(spec.className).classType
+        if (specs.size > 1) throw UserException.badClassExpression(specs)
+        val classNameExpr = specs.single()
+        if (!classNameExpr.simple) throw UserException.badClassExpression(specs)
+        loader.getClass(classNameExpr.className).classType
       }
     } else {
       copy(dependencies = loader.matchFull(specs, dependencies))

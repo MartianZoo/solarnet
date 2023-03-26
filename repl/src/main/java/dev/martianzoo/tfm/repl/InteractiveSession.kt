@@ -1,6 +1,5 @@
 package dev.martianzoo.tfm.repl
 
-import dev.martianzoo.tfm.api.Exceptions.UserException
 import dev.martianzoo.tfm.api.SpecialClassNames.THIS
 import dev.martianzoo.tfm.data.Actor
 import dev.martianzoo.tfm.data.Task.TaskId
@@ -78,7 +77,7 @@ public class InteractiveSession(
   fun sneakyChange(instruction: Instruction): Result {
     val changes =
         split(instruction).mapNotNull {
-          if (it !is Change) throw UserException("can only sneak simple changes")
+          if (it !is Change) throw InteractiveException.badSneak(it)
           val count = it.count
           require(count is ActualScalar)
           agent.quietChange(count.value, it.gaining, it.removing)
