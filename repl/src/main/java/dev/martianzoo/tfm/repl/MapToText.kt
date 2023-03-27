@@ -98,7 +98,7 @@ internal class MapToText(private val game: GameStateReader, val useColors: Boole
           cn("WaterArea") -> TfmColor.WATER_AREA
           cn("VolcanicArea") -> TfmColor.LAND_AREA // TODO
           cn("NoctisArea") -> TfmColor.NOCTIS_AREA
-          else -> error("")
+          else -> error("unrecognized: ${area.kind}")
         }
     return area.code to color
   }
@@ -114,7 +114,7 @@ internal class MapToText(private val game: GameStateReader, val useColors: Boole
           isIt(tile, "OceanTile") -> "O" to OCEAN_TILE
           isIt(tile, "GreeneryTile") -> "G" to GREENERY_TILE
           isIt(tile, "SpecialTile") -> "S" to SPECIAL_TILE
-          else -> error("")
+          else -> error("unrecognized: $tile")
         }
 
     val argStrings = tile.expressionFull.arguments.toStrings()

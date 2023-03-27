@@ -141,7 +141,7 @@ public class PlayerAgent internal constructor(private val game: Game, public val
     require(multiplier > 0)
 
     fun isAmap(instr: Change) =
-        when (instr.intensity ?: error("$instr")) {
+        when (instr.intensity ?: error("should have had defaults inserted")) {
           MANDATORY -> false
           AMAP -> true
           OPTIONAL -> throw UserException.optionalAmount(instr)

@@ -356,9 +356,10 @@ public sealed class Instruction : PetElement() {
     override fun visitChildren(visitor: Visitor) = visitor.visit(instruction)
     override fun times(factor: Int) = copy(instruction = instruction * factor)
 
-    override fun isAbstract(einfo: ExpressionInfo) = error("")
+    override fun isAbstract(einfo: ExpressionInfo) = error("should have been transformed by now")
 
-    override fun checkReificationDoNotCall(proposed: Instruction, einfo: ExpressionInfo) = error("")
+    override fun checkReificationDoNotCall(proposed: Instruction, einfo: ExpressionInfo) =
+        error("should have been transformed by now")
 
     override fun toString() = "$transformKind[$instruction]"
 

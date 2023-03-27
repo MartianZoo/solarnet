@@ -21,7 +21,11 @@ public class TaskQueue(val eventLog: EventLog) {
   override fun toString() = taskMap.values.joinToString("\n")
 
   operator fun contains(id: TaskId) = id in taskMap
-  operator fun get(id: TaskId) = taskMap[id] ?: error("no task with id: $id")
+
+  operator fun get(id: TaskId): Task {
+    require(id in this) { id }
+    return taskMap[id]!!
+  } // TODO guard @call
 
   public val size by taskMap::size
   public val ids by taskMap::keys
@@ -56,13 +60,14 @@ public class TaskQueue(val eventLog: EventLog) {
   }
 
   internal fun removeTask(id: TaskId) {
-    val removed = taskMap.remove(id) ?: error("no task with id: $id")
+    require(id in this) { id }
+    val removed = taskMap.remove(id)!!
     eventLog.taskRemoved(removed)
   }
 
   internal fun replaceTask(newTask: Task) {
     val id = newTask.id
-    val oldTask = taskMap[id] ?: error("no task with id: $id")
+    val oldTask = this[id]
     taskMap[id] = newTask
     eventLog.taskReplaced(oldTask, newTask)
   }

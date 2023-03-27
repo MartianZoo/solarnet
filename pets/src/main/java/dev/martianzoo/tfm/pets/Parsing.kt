@@ -142,17 +142,20 @@ public object Parsing {
     var index = 0
     val parsed = mutableListOf<T>()
     while (true) {
-      val result = listParser.tryParse(tokens, index)
-      when {
-        result is Parsed -> {
+      val result: ParseResult<List<T>> = listParser.tryParse(tokens, index)
+      when (result) {
+        is Parsed -> {
           parsed += result.value
           require(result.nextPosition != index) { index }
           index = result.nextPosition
         }
-        result is UnexpectedEof -> break
-        result is AlternativesFailure && result.errors.any(::isEOF) -> break
-        result is ErrorResult -> myThrow(result)
-        else -> error("huh?")
+        is ErrorResult -> {
+          when {
+            result is UnexpectedEof -> break
+            result is AlternativesFailure && result.errors.any(::isEOF) -> break
+            else -> myThrow(result)
+          }
+        }
       }
     }
     return parsed

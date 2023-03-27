@@ -19,7 +19,6 @@ import dev.martianzoo.tfm.pets.ast.Instruction.Multi
 import dev.martianzoo.tfm.pets.ast.Instruction.Transform
 import dev.martianzoo.tfm.pets.ast.ScaledExpression.Companion.scaledEx
 import dev.martianzoo.util.Grid
-import dev.martianzoo.util.filterWithoutNulls
 
 internal val allCustomInstructions =
     setOf(
@@ -34,30 +33,6 @@ internal val allCustomInstructions =
 private object ForceLoad : CustomInstruction("forceLoad") { // TODO include @ ?
   override fun execute(game: GameStateReader, writer: GameStateWriter, arguments: List<Type>) {
     // This one legitimately doesn't have to do anything!
-  }
-}
-
-// Used like `@createAll(This, Border)` instead of `@createBorders(This)` just because
-// that forces the Border class to be loaded!
-private object CreateAll : CustomInstruction("createAll") {
-  override fun translate(game: GameStateReader, arguments: List<Type>): Instruction {
-    val (mamclass, toCreate) = arguments
-    val map = game.authority.marsMap(mamclass.className)
-    val border = cn("Border")
-    return when (toCreate.className) {
-      border -> {
-        Multi(
-            map.areas
-                .let { it.rows() + it.columns() + it.diagonals() }
-                .flatMap { it.windowed(2).filterWithoutNulls() }
-                .map { pair -> pair.map { it.className.expr } }
-                .flatMap { (area1, area2) ->
-                  listOf(border.addArgs(area1, area2), border.addArgs(area2, area1))
-                }
-                .map { Gain(scaledEx(1, it)) })
-      }
-      else -> TODO()
-    }
   }
 }
 

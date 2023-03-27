@@ -117,7 +117,7 @@ public abstract class Authority {
   /** Returns the map by the given name, e.g. `Tharsis`. */
   public fun marsMap(name: ClassName): MarsMapDefinition =
       marsMapDefinitions.firstOrNull { it.className == name }
-          ?: error("$name ${marsMapDefinitions.classNames()}")
+          ?: throw IllegalArgumentException("No `$name` in: ${marsMapDefinitions.classNames()}")
 
   /** Every map this authority knows about. */
   public abstract val marsMapDefinitions: Set<MarsMapDefinition>
@@ -143,7 +143,7 @@ public abstract class Authority {
   /** Returns the custom instruction implementation having the name [functionName]. */
   public fun customInstruction(functionName: String): CustomInstruction {
     return customInstructions.firstOrNull { it.functionName == functionName }
-        ?: error("no instruction named @$functionName")
+        ?: throw UserException.customInstructionNotFound(functionName)
   }
 
   /** Every custom instruction this authority knows about. */

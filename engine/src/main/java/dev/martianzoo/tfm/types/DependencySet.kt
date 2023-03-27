@@ -42,7 +42,7 @@ internal class DependencySet private constructor(val deps: Set<Dependency>) :
   val expressions: List<Expression> by lazy { deps.map { it.expression } }
   val expressionsFull: List<Expression> by lazy { deps.map { it.expressionFull } }
 
-  fun get(key: Key): Dependency = getIfPresent(key) ?: error("$key") // TODO protect in callers
+  fun get(key: Key): Dependency = getIfPresent(key) ?: error("$key")
 
   fun getIfPresent(key: Key): Dependency? = deps.firstOrNull { it.key == key }
 

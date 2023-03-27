@@ -42,6 +42,9 @@ public open class UserException(override val message: String) : RuntimeException
             "abstract components ${abstractArgs.joinToString("")} in: `$custom`")
 
     fun die(cause: Cause?) = DeadEndException("`Die` instruction was reached: $cause")
+
+    fun customInstructionNotFound(functionName: String) =
+        UserException("Custom instruction `@$functionName` not found")
   }
 
   /**

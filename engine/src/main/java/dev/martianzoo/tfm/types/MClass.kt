@@ -143,7 +143,7 @@ internal constructor(
     if (className == CLASS) { // TODO reduce special-casing
       depsForClassType(loader.componentClass)
     } else {
-      inheritedDeps.merge(declaredDeps) { _, _ -> error("impossible") }
+      inheritedDeps.merge(declaredDeps) { _, _ -> throw AssertionError() }
     }
   }
 
