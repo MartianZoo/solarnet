@@ -9,9 +9,9 @@ import com.github.h0tk3y.betterParse.combinators.skip
 import com.github.h0tk3y.betterParse.grammar.parser
 import com.github.h0tk3y.betterParse.parser.Parser
 import dev.martianzoo.tfm.api.SpecialClassNames.THIS
+import dev.martianzoo.tfm.api.UserException.PetsSyntaxException
 import dev.martianzoo.tfm.pets.BaseTokenizer
 import dev.martianzoo.tfm.pets.Parsing
-import dev.martianzoo.tfm.pets.PetException
 import dev.martianzoo.tfm.pets.ast.Effect.Trigger.IfTrigger
 import dev.martianzoo.tfm.pets.ast.ScaledExpression.Companion.scaledEx
 import dev.martianzoo.tfm.pets.ast.ScaledExpression.Scalar
@@ -33,7 +33,7 @@ sealed class Requirement : PetElement() {
     init {
       Scalar.checkNonzero(scaledEx.scalar)
       if (scaledEx.scalar is XScalar) {
-        throw PetException("can't use X in requirements (yet?)")
+        throw PetsSyntaxException("can't use X in requirements (yet?)")
       }
     }
 
@@ -46,7 +46,7 @@ sealed class Requirement : PetElement() {
   data class Max(override val scaledEx: ScaledExpression) : Counting(scaledEx) {
     init {
       if (scaledEx.scalar is XScalar) {
-        throw PetException("can't use X in requirements (yet?)")
+        throw PetsSyntaxException("can't use X in requirements (yet?)")
       }
     }
 
@@ -58,7 +58,7 @@ sealed class Requirement : PetElement() {
   data class Exact(override val scaledEx: ScaledExpression) : Counting(scaledEx) {
     init {
       if (scaledEx.scalar is XScalar) {
-        throw PetException("can't use X in requirements (yet?)")
+        throw PetsSyntaxException("can't use X in requirements (yet?)")
       }
     }
 

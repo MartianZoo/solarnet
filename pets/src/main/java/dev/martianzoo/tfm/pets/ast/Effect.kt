@@ -10,9 +10,9 @@ import com.github.h0tk3y.betterParse.parser.Parser
 import dev.martianzoo.tfm.api.SpecialClassNames.END
 import dev.martianzoo.tfm.api.SpecialClassNames.THIS
 import dev.martianzoo.tfm.api.SpecialClassNames.USE_ACTION
+import dev.martianzoo.tfm.api.UserException.PetsSyntaxException
 import dev.martianzoo.tfm.pets.BaseTokenizer
 import dev.martianzoo.tfm.pets.Parsing
-import dev.martianzoo.tfm.pets.PetException
 import dev.martianzoo.tfm.pets.ast.ClassName.Parsing.className
 import dev.martianzoo.tfm.pets.ast.Effect.Trigger.OnGainOf
 import dev.martianzoo.tfm.pets.ast.Effect.Trigger.WhenGain
@@ -42,7 +42,7 @@ public data class Effect(
     data class ByTrigger(val inner: Trigger, val by: ClassName) : Trigger() {
       init {
         if (inner is ByTrigger) {
-          throw PetException("by the by")
+          throw PetsSyntaxException("by the by")
         }
       }
 
@@ -52,8 +52,8 @@ public data class Effect(
 
     data class IfTrigger(val inner: Trigger, val condition: Requirement) : Trigger() {
       init {
-        if (inner is ByTrigger) throw PetException("if the by")
-        if (inner is IfTrigger) throw PetException("if the if")
+        if (inner is ByTrigger) throw PetsSyntaxException("if the by")
+        if (inner is IfTrigger) throw PetsSyntaxException("if the if")
       }
       override fun visitChildren(visitor: Visitor) = visitor.visit(inner, condition)
 
@@ -112,7 +112,7 @@ public data class Effect(
     data class XTrigger(val inner: Trigger) : Trigger() {
       init {
         if (inner !is BasicTrigger) { // TODO: change signature
-          throw PetException("Can't have an X trigger of ${inner::class.simpleName}")
+          throw PetsSyntaxException("Can't have an X trigger of ${inner::class.simpleName}")
         }
       }
 
@@ -134,7 +134,7 @@ public data class Effect(
 
       init {
         if (trigger !is OnGainOf && trigger !is OnRemoveOf && trigger !is XTrigger) {
-          throw PetException("only gain/remove trigger can go in transform block")
+          throw PetsSyntaxException("only gain/remove trigger can go in transform block")
         }
       }
 

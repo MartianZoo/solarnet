@@ -8,6 +8,10 @@ import dev.martianzoo.tfm.pets.ast.Instruction.Custom
 import dev.martianzoo.tfm.pets.ast.Instruction.Or
 import dev.martianzoo.tfm.pets.ast.Requirement
 
+/**
+ * Exception type for user-facing problems that, you know, probably need to be communicated well.
+ * The companion object has various factory functions for common sorts.
+ */
 public open class UserException(override val message: String) : RuntimeException(message) {
   companion object {
     fun classNotFound(className: ClassName) =
@@ -19,7 +23,8 @@ public open class UserException(override val message: String) : RuntimeException
     fun badExpression(specExpression: Expression, deps: String) =
         ExpressionException("can't match `$specExpression` to any of: `$deps`")
 
-    fun requirementNotMet(reqt: Requirement) = RequirementException("requirement not met: `$reqt`")
+    fun customInstructionNotFound(functionName: String) =
+        UserException("Custom instruction `@$functionName` not found")
 
     fun abstractComponent(type: Type, change: Change? = null) =
         AbstractInstructionException(
@@ -41,11 +46,13 @@ public open class UserException(override val message: String) : RuntimeException
         AbstractInstructionException(
             "abstract components ${abstractArgs.joinToString("")} in: `$custom`")
 
-    fun die(cause: Cause?) = DeadEndException("`Die` instruction was reached: $cause")
+    fun requirementNotMet(reqt: Requirement) = RequirementException("requirement not met: `$reqt`")
 
-    fun customInstructionNotFound(functionName: String) =
-        UserException("Custom instruction `@$functionName` not found")
+    fun die(cause: Cause?) = DeadEndException("`Die` instruction was reached: $cause")
   }
+
+  /** A problem with Pets syntax. */
+  public class PetsSyntaxException internal constructor(message: String) : UserException(message)
 
   /**
    * An attempt was made to execute an instruction that was not fully-specified. This should be
@@ -65,6 +72,8 @@ public open class UserException(override val message: String) : RuntimeException
 
   /** Something needed a requirement to be met and it was not. */
   public class RequirementException internal constructor(message: String) : UserException(message)
-}
 
-public class InvalidReificationException(message: String) : UserException(message)
+  // TODO: internal constructor
+  /** Something tried to pretend it reified something else and we're not having it. */
+  public class InvalidReificationException(message: String) : UserException(message)
+}

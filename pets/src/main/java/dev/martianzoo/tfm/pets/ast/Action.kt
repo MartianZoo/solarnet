@@ -8,9 +8,9 @@ import com.github.h0tk3y.betterParse.combinators.separatedTerms
 import com.github.h0tk3y.betterParse.combinators.skip
 import com.github.h0tk3y.betterParse.grammar.parser
 import com.github.h0tk3y.betterParse.parser.Parser
+import dev.martianzoo.tfm.api.UserException.PetsSyntaxException
 import dev.martianzoo.tfm.pets.BaseTokenizer
 import dev.martianzoo.tfm.pets.Parsing
-import dev.martianzoo.tfm.pets.PetException
 import dev.martianzoo.tfm.pets.ast.Instruction.Intensity.MANDATORY
 import dev.martianzoo.tfm.pets.ast.Instruction.Remove
 import dev.martianzoo.tfm.pets.ast.ScaledExpression.Scalar.Companion.checkNonzero
@@ -44,8 +44,8 @@ public data class Action(val cost: Cost?, val instruction: Instruction) : PetEle
       init {
         when (cost) {
           is Or,
-          is Multi -> throw PetException("Break into separate Per instructions")
-          is Per -> throw PetException("Might support in future?")
+          is Multi -> throw PetsSyntaxException("Break into separate Per instructions")
+          is Per -> throw PetsSyntaxException("Might support in future?")
           else -> {}
         }
       }

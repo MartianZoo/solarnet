@@ -1,10 +1,10 @@
 package dev.martianzoo.tfm.types
 
 import com.google.common.collect.Lists.cartesianProduct
-import dev.martianzoo.tfm.api.InvalidReificationException
 import dev.martianzoo.tfm.api.SpecialClassNames.CLASS
 import dev.martianzoo.tfm.api.Type
 import dev.martianzoo.tfm.api.UserException
+import dev.martianzoo.tfm.api.UserException.InvalidReificationException
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.pets.ast.HasClassName

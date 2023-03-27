@@ -7,11 +7,11 @@ import com.github.h0tk3y.betterParse.combinators.or
 import com.github.h0tk3y.betterParse.combinators.skip
 import com.github.h0tk3y.betterParse.grammar.parser
 import com.github.h0tk3y.betterParse.parser.Parser
-import dev.martianzoo.tfm.api.InvalidReificationException
 import dev.martianzoo.tfm.api.SpecialClassNames.MEGACREDIT
+import dev.martianzoo.tfm.api.UserException.InvalidReificationException
+import dev.martianzoo.tfm.api.UserException.PetsSyntaxException
 import dev.martianzoo.tfm.pets.BaseTokenizer
 import dev.martianzoo.tfm.pets.Parsing
-import dev.martianzoo.tfm.pets.PetException
 import dev.martianzoo.tfm.pets.ast.ScaledExpression.Scalar.ActualScalar
 import dev.martianzoo.tfm.pets.ast.ScaledExpression.Scalar.XScalar
 import dev.martianzoo.util.Reifiable
@@ -45,7 +45,7 @@ constructor(
 
     companion object {
       fun checkNonzero(s: Scalar) {
-        if (s == ActualScalar(0)) throw PetException("Can't do zero")
+        if (s == ActualScalar(0)) throw PetsSyntaxException("Can't do zero")
       }
     }
 

@@ -3,8 +3,8 @@ package dev.martianzoo.tfm.testlib
 import com.google.common.truth.Truth.assertWithMessage
 import dev.martianzoo.tfm.api.SpecialClassNames.MEGACREDIT
 import dev.martianzoo.tfm.api.SpecialClassNames.OWNER
+import dev.martianzoo.tfm.api.UserException.PetsSyntaxException
 import dev.martianzoo.tfm.pets.Parsing.parseAsIs
-import dev.martianzoo.tfm.pets.PetException
 import dev.martianzoo.tfm.pets.ast.Action
 import dev.martianzoo.tfm.pets.ast.Action.Cost
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
@@ -190,7 +190,7 @@ internal class PetGenerator(scaling: (Int) -> Double) :
     override fun <T : PetNode> invoke(type: KClass<T>, gen: RandomGenerator<PetNode>): T? {
       return try {
         super.invoke(type, gen)
-      } catch (e: PetException) {
+      } catch (e: PetsSyntaxException) {
         null // TODO this better
       }
     }

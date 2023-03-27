@@ -1,6 +1,6 @@
 package dev.martianzoo.util
 
-import dev.martianzoo.tfm.api.InvalidReificationException
+import dev.martianzoo.tfm.api.UserException.InvalidReificationException
 
 interface Reifiable<R : Reifiable<R>> {
 

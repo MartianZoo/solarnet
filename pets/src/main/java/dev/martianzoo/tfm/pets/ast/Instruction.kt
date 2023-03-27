@@ -9,11 +9,11 @@ import com.github.h0tk3y.betterParse.combinators.separatedTerms
 import com.github.h0tk3y.betterParse.grammar.parser
 import com.github.h0tk3y.betterParse.parser.Parser
 import dev.martianzoo.tfm.api.ExpressionInfo
-import dev.martianzoo.tfm.api.InvalidReificationException
 import dev.martianzoo.tfm.api.SpecialClassNames.OK
+import dev.martianzoo.tfm.api.UserException.InvalidReificationException
+import dev.martianzoo.tfm.api.UserException.PetsSyntaxException
 import dev.martianzoo.tfm.pets.BaseTokenizer
 import dev.martianzoo.tfm.pets.Parsing
-import dev.martianzoo.tfm.pets.PetException
 import dev.martianzoo.tfm.pets.PetFeature
 import dev.martianzoo.tfm.pets.Raw
 import dev.martianzoo.tfm.pets.ast.FromExpression.SimpleFrom
@@ -158,7 +158,7 @@ public sealed class Instruction : PetElement() {
         is Gain,
         is Remove,
         is Transmute, -> {}
-        else -> throw PetException("Per can only contain gain/remove/transmute") // TODO more
+        else -> throw PetsSyntaxException("Per can only contain gain/remove/transmute") // TODO more
       }
     }
 
@@ -184,7 +184,7 @@ public sealed class Instruction : PetElement() {
       Instruction() {
     init {
       if (instruction is Gated) {
-        throw PetException("You don't gate a gater") // TODO enable
+        throw PetsSyntaxException("You don't gate a gater") // TODO enable
       }
     }
 
@@ -285,7 +285,7 @@ public sealed class Instruction : PetElement() {
     init {
       require(instructions.size >= 2)
       if (instructions.distinct().size != instructions.size) {
-        throw PetException("duplicates")
+        throw PetsSyntaxException("duplicates")
       }
     }
 
