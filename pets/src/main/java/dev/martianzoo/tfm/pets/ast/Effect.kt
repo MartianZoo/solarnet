@@ -74,7 +74,7 @@ public data class Effect(
 
     data class OnGainOf private constructor(val expression: Expression) : BasicTrigger() {
       companion object {
-        fun create(expression: Expression): Trigger {
+        fun create(expression: Expression): BasicTrigger {
           return if (expression == THIS.expr) {
             WhenGain
           } else {
@@ -92,7 +92,7 @@ public data class Effect(
 
     data class OnRemoveOf private constructor(val expression: Expression) : BasicTrigger() {
       companion object {
-        fun create(expression: Expression): Trigger {
+        fun create(expression: Expression): BasicTrigger {
           return if (expression == THIS.expr) {
             WhenRemove
           } else {
@@ -109,16 +109,10 @@ public data class Effect(
       override fun toString() = "-$expression"
     }
 
-    data class XTrigger(val inner: Trigger) : Trigger() {
-      init {
-        if (inner !is BasicTrigger) { // TODO: change signature
-          throw PetsSyntaxException("Can't have an X trigger of ${inner::class.simpleName}")
-        }
-      }
-
+    data class XTrigger(val inner: BasicTrigger) : Trigger() {
       override fun visitChildren(visitor: Visitor) = visitor.visit(inner)
       override fun toString(): String {
-        return when (inner as BasicTrigger) {
+        return when (inner) {
           is OnGainOf,
           is WhenGain -> "X $inner"
           is OnRemoveOf,
@@ -146,11 +140,11 @@ public data class Effect(
 
       fun parser(): Parser<Trigger> {
         return parser {
-          val onGainOf: Parser<Trigger> = Expression.parser() map OnGainOf::create
+          val onGainOf: Parser<BasicTrigger> = Expression.parser() map OnGainOf::create
 
           val exxedGain: Parser<XTrigger> = skip(_x) and onGainOf map ::XTrigger
 
-          val onRemoveOf: Parser<Trigger> =
+          val onRemoveOf: Parser<BasicTrigger> =
               skipChar('-') and Expression.parser() map OnRemoveOf::create
 
           val exxedRemove: Parser<XTrigger> =
