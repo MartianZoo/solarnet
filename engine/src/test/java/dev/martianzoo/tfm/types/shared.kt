@@ -28,6 +28,7 @@ internal fun loadTypes(vararg decl: String) =
         """
           ABSTRACT CLASS $COMPONENT
           CLASS $CLASS<$COMPONENT> { HAS =1 This }
+          CLASS Ok
           ${decl.joinToString("") { "$it\n" }}
         """
             .trimIndent())

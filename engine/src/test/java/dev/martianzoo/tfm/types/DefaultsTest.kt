@@ -18,6 +18,7 @@ class DefaultsTest {
                 DEFAULT +Component!
                 DEFAULT -Component!
               }
+              CLASS Ok
               CLASS Foo1 {
                 DEFAULT +Foo1.
               }

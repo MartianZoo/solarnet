@@ -25,7 +25,12 @@ public abstract class CustomInstruction(
     throw ExecuteInsteadException()
   }
 
-  public open fun execute(game: GameReader, writer: GameWriter, arguments: List<Type>) {
+  public open fun execute(
+      game: GameReader,
+      writer: GameWriter,
+      arguments: List<Type>,
+      multiplier: Int,
+  ) {
     throw NotImplementedError()
   }
 

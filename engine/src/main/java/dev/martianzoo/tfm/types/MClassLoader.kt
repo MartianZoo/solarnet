@@ -3,6 +3,7 @@ package dev.martianzoo.tfm.types
 import dev.martianzoo.tfm.api.Authority
 import dev.martianzoo.tfm.api.SpecialClassNames.CLASS
 import dev.martianzoo.tfm.api.SpecialClassNames.COMPONENT
+import dev.martianzoo.tfm.api.SpecialClassNames.OK
 import dev.martianzoo.tfm.api.SpecialClassNames.THIS
 import dev.martianzoo.tfm.api.Type
 import dev.martianzoo.tfm.api.UserException
@@ -41,6 +42,10 @@ public class MClassLoader( // TODO separate into loader and table
 
   private val loadedClasses =
       mutableMapOf<ClassName, MClass?>(COMPONENT to componentClass, CLASS to classClass)
+
+  init {
+    load(OK)
+  }
 
   /**
    * Returns the [MClass] whose [MClass.className] or [MClass.shortName] is [name], or throws an

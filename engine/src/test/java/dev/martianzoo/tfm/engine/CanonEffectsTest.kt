@@ -35,7 +35,7 @@ private class CanonEffectsTest {
 
   @Test
   fun terraformer() {
-    assertThat(effectsOf("Terraformer")).containsExactly("This:: (35 TerraformRating<Owner>: Ok!)")
+    assertThat(effectsOf("Terraformer")).containsExactly("This:: (35 TerraformRating<Owner>: Ok)")
   }
 
   @Test

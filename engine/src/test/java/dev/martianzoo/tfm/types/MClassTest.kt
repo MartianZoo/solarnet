@@ -270,6 +270,7 @@ internal fun loadAndGetClasses(vararg decl: String): List<MClass> {
       """
         ABSTRACT CLASS $COMPONENT
         CLASS $CLASS<$COMPONENT>
+        CLASS Ok
         ${decl.joinToString("") { "CLASS $it\n" }}
       """
   val loader = loader(all)

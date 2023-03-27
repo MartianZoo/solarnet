@@ -14,6 +14,7 @@ import dev.martianzoo.tfm.pets.ast.Instruction
 import dev.martianzoo.tfm.pets.ast.Instruction.Custom
 import dev.martianzoo.tfm.pets.ast.Instruction.Gain
 import dev.martianzoo.tfm.pets.ast.Instruction.Gated
+import dev.martianzoo.tfm.pets.ast.Instruction.NoOp
 import dev.martianzoo.tfm.pets.ast.Instruction.Remove
 import dev.martianzoo.tfm.pets.ast.Instruction.Then
 import dev.martianzoo.tfm.pets.ast.Instruction.Transmute
@@ -75,6 +76,7 @@ internal object PetToKotlin {
         }
         is Instruction -> {
           when (this) {
+            is NoOp -> "Instruction.NoOp"
             is Gain -> "Gain(${p2k(scaledEx)}${intensity.pre(", ")})"
             is Remove -> "Remove(${p2k(scaledEx)}${intensity.pre(", ")})"
             is Instruction.Per -> "Instruction.Per(${p2k(instruction)}, ${p2k(metric)})"

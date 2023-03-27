@@ -1,6 +1,8 @@
 package dev.martianzoo.tfm.api
 
 import dev.martianzoo.tfm.data.GameEvent.ChangeEvent.Cause
+import dev.martianzoo.tfm.data.Player
+import dev.martianzoo.tfm.pets.ast.Instruction
 
 /**
  * All "normal" changes to game state should go through this interface.
@@ -23,4 +25,6 @@ interface GameWriter {
       amap: Boolean = false,
       cause: Cause? = null,
   )
+
+  fun addTasks(instruction: Instruction, taskOwner: Player, cause: Cause?)
 }

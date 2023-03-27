@@ -83,6 +83,7 @@ internal class PetGenerator(scaling: (Int) -> Double) :
 
       val instructionTypes =
           multiset(
+              2 to Instruction.NoOp::class,
               9 to Instruction.Gain::class,
               4 to Instruction.Remove::class,
               3 to Instruction.Per::class,
@@ -95,12 +96,13 @@ internal class PetGenerator(scaling: (Int) -> Double) :
               1 to Instruction.Transform::class,
           )
       register(Instruction::class) { recurse(choose(instructionTypes)) }
+      register { Instruction.NoOp }
       register { Instruction.Gain(recurse(), intensity()) }
       register { Instruction.Remove(recurse(), intensity()) }
       register { Instruction.Per(recurse(), recurse()) }
       register { Instruction.Gated(recurse(), choose(true, true, true, false), recurse()) }
       register { Instruction.Transmute(recurse(), recurse<ScaledExpression>().scalar, intensity()) }
-      register { Instruction.Custom("name", listOfSize(choose(1, 1, 1, 2))) }
+      register { Instruction.Custom("name", listOfSize(choose(1, 1, 1, 2)), 1) }
       register { Instruction.Then(listOfSize(choose(2, 2, 2, 3))) }
       register { Instruction.Or(listOfSize(choose(2, 2, 2, 2, 3))) }
       register { Instruction.Multi(listOfSize(choose(2, 2, 2, 2, 2, 3, 4))) }

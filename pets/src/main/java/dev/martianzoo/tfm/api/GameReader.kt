@@ -10,9 +10,6 @@ interface GameReader {
   /** The initial configuration for the game. */
   val setup: GameSetup
 
-  /** The data source used by this game. */
-  val authority: Authority
-
   /** Returns the type represented by the (fully-prepared) [expression]. */
   fun resolve(expression: Expression): Type
 

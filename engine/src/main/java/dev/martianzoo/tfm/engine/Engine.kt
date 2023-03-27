@@ -53,7 +53,7 @@ public object Engine {
     return game
   }
 
-  private fun gain(expression: Expression) = Gain(scaledEx(1, expression), MANDATORY)
+  private fun gain(expression: Expression) = Gain.gain(scaledEx(1, expression), MANDATORY)
 
   private fun singletonCreateInstructions(loader: MClassLoader): List<Instruction> =
       loader.allClasses

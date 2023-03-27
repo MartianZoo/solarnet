@@ -12,10 +12,10 @@ import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.pets.ast.Instruction
 import dev.martianzoo.tfm.pets.ast.Instruction.Companion.instruction
-import dev.martianzoo.tfm.pets.ast.Instruction.Companion.nullInstruction
 import dev.martianzoo.tfm.pets.ast.Instruction.Gain
 import dev.martianzoo.tfm.pets.ast.Instruction.Intensity.MANDATORY
 import dev.martianzoo.tfm.pets.ast.Instruction.Multi
+import dev.martianzoo.tfm.pets.ast.Instruction.NoOp
 import dev.martianzoo.tfm.pets.ast.Instruction.Transform
 import dev.martianzoo.tfm.pets.ast.ScaledExpression.Companion.scaledEx
 import dev.martianzoo.util.Grid
@@ -31,7 +31,12 @@ internal val allCustomInstructions =
     )
 
 private object ForceLoad : CustomInstruction("forceLoad") { // TODO include @ ?
-  override fun execute(game: GameReader, writer: GameWriter, arguments: List<Type>) {
+  override fun execute(
+      game: GameReader,
+      writer: GameWriter,
+      arguments: List<Type>,
+      multiplier: Int,
+  ) {
     // This one legitimately doesn't have to do anything!
   }
 }
@@ -56,7 +61,7 @@ private object CreateAdjacencies : CustomInstruction("createAdjacencies") {
                   cn("ForwardAdjacency").addArgs(it, newTile),
                   cn("BackwardAdjacency").addArgs(newTile, it))
             }
-    return Multi.create((nbrs + adjs).map { Gain(scaledEx(1, it), MANDATORY) }) ?: nullInstruction
+    return Multi.create((nbrs + adjs).map { Gain(scaledEx(1, it), MANDATORY) }) ?: NoOp
   }
   private fun tileOn(area: AreaDefinition, game: GameReader): Expression? {
     val tileType: Type = game.resolve(cn("Tile").addArgs(area.className)) // TODO
@@ -78,7 +83,7 @@ private object CreateAdjacencies : CustomInstruction("createAdjacencies") {
 private object BeginPlayCard : CustomInstruction("beginPlayCard") {
   override fun translate(game: GameReader, arguments: List<Type>): Instruction {
     val cardName = arguments.single().expression.className
-    val card = game.authority.card(cardName)
+    val card = game.setup.authority.card(cardName)
     val reqt = card.requirement?.unprocessed
 
     if (reqt?.let(game::evaluate) == false) throw UserException.requirementNotMet(reqt)
@@ -90,12 +95,17 @@ private object BeginPlayCard : CustomInstruction("beginPlayCard") {
         } else {
           playTagSignals
         }
-    return Multi.create(instructions) ?: nullInstruction
+    return Multi.create(instructions) ?: NoOp
   }
 }
 // For Double Down
 private object CopyPrelude : CustomInstruction("copyPrelude") {
-  override fun execute(game: GameReader, writer: GameWriter, arguments: List<Type>) {
+  override fun execute(
+      game: GameReader,
+      writer: GameWriter,
+      arguments: List<Type>,
+      multiplier: Int,
+  ) {
     TODO()
   }
 }
@@ -116,7 +126,7 @@ private object GainLowestProduction : CustomInstruction("gainLowestProduction") 
 private object CopyProductionBox : CustomInstruction("copyProductionBox") {
   override fun translate(game: GameReader, arguments: List<Type>): Instruction {
     val chosenCardType: Type = game.resolve(arguments.single().expression)
-    val def = game.authority.card(chosenCardType.className)
+    val def = game.setup.authority.card(chosenCardType.className)
 
     val nodes: List<Transform> = def.immediate?.unprocessed?.descendantsOfType() ?: listOf() // TODO
     val matches = nodes.filter { it.transformKind == "PROD" }

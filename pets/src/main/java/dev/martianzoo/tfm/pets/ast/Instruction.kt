@@ -17,9 +17,7 @@ import dev.martianzoo.tfm.pets.Parsing
 import dev.martianzoo.tfm.pets.PetFeature
 import dev.martianzoo.tfm.pets.Raw
 import dev.martianzoo.tfm.pets.ast.FromExpression.SimpleFrom
-import dev.martianzoo.tfm.pets.ast.Instruction.Intensity.MANDATORY
 import dev.martianzoo.tfm.pets.ast.Instruction.Intensity.OPTIONAL
-import dev.martianzoo.tfm.pets.ast.ScaledExpression.Companion.scaledEx
 import dev.martianzoo.tfm.pets.ast.ScaledExpression.Scalar
 import dev.martianzoo.tfm.pets.ast.ScaledExpression.Scalar.ActualScalar
 import dev.martianzoo.tfm.pets.ast.ScaledExpression.Scalar.Companion.checkNonzero
@@ -29,8 +27,26 @@ import dev.martianzoo.util.toSetStrict
 
 public sealed class Instruction : PetElement() {
 
-  // better pass at least 1
-  abstract operator fun times(factor: Int): Instruction
+  operator fun times(factor: Int): Instruction {
+    if (factor == 0) return NoOp
+    require(factor > 0)
+    return scale(factor)
+  }
+
+  protected abstract fun scale(factor: Int): Instruction
+
+  public object NoOp : Instruction() {
+    override fun scale(factor: Int) = this
+
+    override fun isAbstract(einfo: ExpressionInfo) = false
+
+    override fun checkReificationDoNotCall(proposed: Instruction, einfo: ExpressionInfo) {
+      if (proposed != NoOp) throw InvalidReificationException("not Ok")
+    }
+
+    override fun visitChildren(visitor: Visitor) {}
+    override fun toString() = "Ok"
+  }
 
   public sealed class Change : Instruction() {
     abstract val count: Scalar
@@ -38,8 +54,6 @@ public sealed class Instruction : PetElement() {
     abstract val gaining: Expression?
     abstract val removing: Expression?
     abstract val intensity: Intensity?
-
-    abstract override fun times(factor: Int): Change
 
     override fun isAbstract(einfo: ExpressionInfo): Boolean {
       return intensity?.abstract != false ||
@@ -64,7 +78,7 @@ public sealed class Instruction : PetElement() {
     }
 
     override fun checkReificationDoNotCall(proposed: Instruction, einfo: ExpressionInfo) {
-      if (proposed == nullInstruction && intensity == OPTIONAL) return
+      if (proposed == NoOp && intensity == OPTIONAL) return
       (proposed as Change).amount.ensureReifies(amount)
       gaining?.let { einfo.ensureReifies(it, proposed.gaining!!) }
       removing?.let { einfo.ensureReifies(it, proposed.removing!!) }
@@ -75,12 +89,17 @@ public sealed class Instruction : PetElement() {
       val scaledEx: ScaledExpression,
       override val intensity: Intensity? = null,
   ) : Change() {
+    companion object {
+      fun gain(scaledEx: ScaledExpression, intensity: Intensity? = null): Instruction =
+          if (scaledEx.expression == OK.expr) NoOp else Gain(scaledEx, intensity)
+    }
+
     override val count = scaledEx.scalar
     override val gaining = scaledEx.expression
     override val removing = null
 
     override fun visitChildren(visitor: Visitor) = visitor.visit(scaledEx)
-    override fun times(factor: Int) = copy(scaledEx = scaledEx * factor)
+    override fun scale(factor: Int) = copy(scaledEx = scaledEx * factor)
 
     override fun toString() = "$scaledEx${intensity?.symbol ?: ""}"
 
@@ -96,7 +115,7 @@ public sealed class Instruction : PetElement() {
     override val removing = scaledEx.expression
 
     override fun visitChildren(visitor: Visitor) = visitor.visit(scaledEx)
-    override fun times(factor: Int) = copy(scaledEx = scaledEx * factor)
+    override fun scale(factor: Int) = copy(scaledEx = scaledEx * factor)
 
     override fun toString() = "-$scaledEx${intensity?.symbol ?: ""}"
 
@@ -115,7 +134,7 @@ public sealed class Instruction : PetElement() {
     override val removing = fromEx.fromExpression
 
     override fun visitChildren(visitor: Visitor) = visitor.visit(fromEx)
-    override fun times(factor: Int) = copy(scalar = scalar * factor)
+    override fun scale(factor: Int) = copy(scalar = scalar * factor)
 
     override fun toString(): String {
       val scalText = if (scalar == ActualScalar(1)) "" else "$scalar "
@@ -163,7 +182,7 @@ public sealed class Instruction : PetElement() {
     }
 
     override fun visitChildren(visitor: Visitor) = visitor.visit(metric, instruction)
-    override fun times(factor: Int) = copy(instruction = instruction * factor)
+    override fun scale(factor: Int) = copy(instruction = instruction * factor)
 
     override fun precedence() = 8
 
@@ -189,7 +208,7 @@ public sealed class Instruction : PetElement() {
     }
 
     override fun visitChildren(visitor: Visitor) = visitor.visit(gate, instruction)
-    override fun times(factor: Int) = copy(instruction = instruction * factor)
+    override fun scale(factor: Int) = copy(instruction = instruction * factor)
 
     override fun isAbstract(einfo: ExpressionInfo) = instruction.isAbstract(einfo)
 
@@ -213,14 +232,21 @@ public sealed class Instruction : PetElement() {
     override fun precedence() = 6
   }
 
-  data class Custom(val functionName: String, val arguments: List<Expression>) : Instruction() {
+  data class Custom(
+      val functionName: String,
+      val arguments: List<Expression>,
+      val multiplier: Int, // TODO can't represent in toString...
+  ) : Instruction() {
     override fun visitChildren(visitor: Visitor) = visitor.visit(arguments)
-    override fun times(factor: Int) = Multi.create(List(factor) { this })!!
+    override fun scale(factor: Int) = copy(multiplier = multiplier * factor)
 
     override fun isAbstract(einfo: ExpressionInfo) = arguments.any { einfo.isAbstract(it) }
 
     override fun checkReificationDoNotCall(proposed: Instruction, einfo: ExpressionInfo) {
       proposed as Custom
+      if (proposed.multiplier != multiplier) {
+        throw InvalidReificationException("can't change multiplier")
+      }
       if (proposed.functionName != functionName) {
         throw InvalidReificationException("can't change function name")
       }
@@ -249,7 +275,7 @@ public sealed class Instruction : PetElement() {
     }
 
     override fun precedence() = 2
-    override fun times(factor: Int) = copy(instructions.map { it * factor })
+    override fun scale(factor: Int) = copy(instructions.map { it * factor })
 
     override fun isAbstract(einfo: ExpressionInfo) = instructions.any { it.isAbstract(einfo) }
 
@@ -293,7 +319,7 @@ public sealed class Instruction : PetElement() {
         super.safeToNestIn(container) && container !is Then
 
     override fun precedence() = 4
-    override fun times(factor: Int) = copy(instructions.map { it * factor })
+    override fun scale(factor: Int) = copy(instructions.map { it * factor })
 
     override fun isAbstract(einfo: ExpressionInfo) = true
 
@@ -324,7 +350,7 @@ public sealed class Instruction : PetElement() {
 
     override fun precedence() = 0
 
-    override fun times(factor: Int) = copy(instructions.map { it * factor })
+    override fun scale(factor: Int) = copy(instructions.map { it * factor })
 
     override fun isAbstract(einfo: ExpressionInfo) = error("should have been split by now")
 
@@ -354,7 +380,7 @@ public sealed class Instruction : PetElement() {
   data class Transform(val instruction: Instruction, override val transformKind: String) :
       Instruction(), GenericTransform<Instruction> {
     override fun visitChildren(visitor: Visitor) = visitor.visit(instruction)
-    override fun times(factor: Int) = copy(instruction = instruction * factor)
+    override fun scale(factor: Int) = copy(instruction = instruction * factor)
 
     override fun isAbstract(einfo: ExpressionInfo) = error("should have been transformed by now")
 
@@ -381,8 +407,9 @@ public sealed class Instruction : PetElement() {
     override fun ensureNarrows(that: AsReifiable) {
       val abstractTarget = that.instruction
       if (abstractTarget !is Or &&
-          instruction != nullInstruction &&
-          instruction::class != abstractTarget::class) {
+          instruction != NoOp &&
+          instruction::class != abstractTarget::class
+      ) {
         throw InvalidReificationException(
             "A ${instruction::class.simpleName} instruction can't reify a" +
                 " ${abstractTarget::class.simpleName} instruction")
@@ -433,10 +460,14 @@ public sealed class Instruction : PetElement() {
 
     internal fun parser(): Parser<Instruction> {
       return parser {
-        val gain: Parser<Gain> =
-            ScaledExpression.parser() and optional(intensity) map { (ste, int) -> Gain(ste, int) }
+        val gain: Parser<Instruction> =
+            ScaledExpression.parser() and
+            optional(intensity) map { (ste, int) -> Gain.gain(ste, int) }
+
         val remove: Parser<Remove> =
-            skipChar('-') and gain map { Remove(it.scaledEx, it.intensity) }
+            skipChar('-') and
+            ScaledExpression.parser() and
+            optional(intensity) map { (ste, int) -> Remove(ste, int) }
 
         val transmute: Parser<Transmute> =
             optional(ScaledExpression.scalar()) and
@@ -445,7 +476,7 @@ public sealed class Instruction : PetElement() {
               Transmute(fro, scalar ?: ActualScalar(1), int)
             }
 
-        val perable: Parser<Change> = transmute or group(transmute) or gain or remove
+        val perable: Parser<Instruction> = transmute or group(transmute) or gain or remove
 
         val maybePer: Parser<Instruction> =
             perable and
@@ -462,7 +493,7 @@ public sealed class Instruction : PetElement() {
             skipChar('@') and
             _lowerCamelRE and
             group(arguments) map { (name, args) ->
-              Custom(name.text, args)
+              Custom(name.text, args, 1)
             }
         val atom: Parser<Instruction> = group(parser()) or maybeTransform or custom
 
@@ -485,7 +516,5 @@ public sealed class Instruction : PetElement() {
         commaSeparated(then) map { Multi.create(it)!! }
       }
     }
-
-    public val nullInstruction = Gain(scaledEx(1, OK.expr), MANDATORY)
   }
 }

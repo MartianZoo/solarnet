@@ -1,11 +1,9 @@
 package dev.martianzoo.tfm.engine
 
-import dev.martianzoo.tfm.api.CustomInstruction.ExecuteInsteadException
 import dev.martianzoo.tfm.api.GameReader
 import dev.martianzoo.tfm.api.GameWriter
 import dev.martianzoo.tfm.api.SpecialClassNames.DIE
 import dev.martianzoo.tfm.api.SpecialClassNames.OK
-import dev.martianzoo.tfm.api.SpecialClassNames.THIS
 import dev.martianzoo.tfm.api.Type
 import dev.martianzoo.tfm.api.UserException
 import dev.martianzoo.tfm.data.GameEvent.ChangeEvent
@@ -21,22 +19,10 @@ import dev.martianzoo.tfm.pets.PureTransformers.replaceOwnerWith
 import dev.martianzoo.tfm.pets.PureTransformers.transformInSeries
 import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.pets.ast.Instruction
-import dev.martianzoo.tfm.pets.ast.Instruction.Change
 import dev.martianzoo.tfm.pets.ast.Instruction.Companion.split
-import dev.martianzoo.tfm.pets.ast.Instruction.Custom
-import dev.martianzoo.tfm.pets.ast.Instruction.Gated
-import dev.martianzoo.tfm.pets.ast.Instruction.Intensity.AMAP
-import dev.martianzoo.tfm.pets.ast.Instruction.Intensity.MANDATORY
-import dev.martianzoo.tfm.pets.ast.Instruction.Intensity.OPTIONAL
-import dev.martianzoo.tfm.pets.ast.Instruction.Multi
-import dev.martianzoo.tfm.pets.ast.Instruction.Or
-import dev.martianzoo.tfm.pets.ast.Instruction.Per
-import dev.martianzoo.tfm.pets.ast.Instruction.Then
-import dev.martianzoo.tfm.pets.ast.Instruction.Transform
 import dev.martianzoo.tfm.pets.ast.Metric
 import dev.martianzoo.tfm.pets.ast.PetNode
 import dev.martianzoo.tfm.pets.ast.Requirement
-import dev.martianzoo.tfm.pets.ast.ScaledExpression.Scalar.ActualScalar
 import dev.martianzoo.tfm.types.MType
 import kotlin.Int.Companion.MAX_VALUE
 
@@ -104,7 +90,12 @@ public class PlayerAgent internal constructor(private val game: Game, public val
    */
   fun initiate(instruction: Instruction, initialCause: Cause? = null): Result {
     val fixed = split(heyItsMe(instruction))
-    return doAtomic { fixed.forEach { doInstruction(it, cause = initialCause) } }
+    return doAtomic {
+      val sex = SingleExecution(reader, writer, game.loader, player, initialCause)
+      for (instr in fixed) {
+        sex.doInstruction(instr)
+      }
+    }
   }
 
   public fun doTask(taskId: TaskId, narrowed: Instruction? = null): Result {
@@ -118,7 +109,8 @@ public class PlayerAgent internal constructor(private val game: Game, public val
 
     return try {
       doAtomic {
-        doInstruction(instruction, requestedTask.cause)
+        val sex = SingleExecution(reader, writer, game.loader, player, requestedTask.cause)
+        sex.doInstruction(instruction)
         game.removeTask(taskId)
       }
     } catch (e: UserException) {
@@ -129,50 +121,7 @@ public class PlayerAgent internal constructor(private val game: Game, public val
     }
   }
 
-  public fun removeTask(taskId: TaskId) {
-    game.removeTask(taskId)
-  }
-
-  private fun doInstruction(instruction: Instruction, cause: Cause?, multiplier: Int = 1) {
-    if (multiplier == 0) return
-    require(multiplier > 0)
-
-    fun isAmap(instr: Change) =
-        when (instr.intensity ?: error("should have had defaults inserted")) {
-          MANDATORY -> false
-          AMAP -> true
-          OPTIONAL -> throw UserException.optionalAmount(instr)
-        }
-
-    when (instruction) {
-      is Change -> {
-        val scal =
-            instruction.count as? ActualScalar ?: throw UserException.unresolvedX(instruction)
-        writer.update(
-            count = scal.value * multiplier,
-            gaining = instruction.gaining?.let(game::resolve),
-            removing = instruction.removing?.let(game::resolve),
-            amap = isAmap(instruction),
-            cause = cause)
-      }
-      is Gated -> {
-        if (game.reader.evaluate(instruction.gate)) {
-          doInstruction(instruction.instruction, cause, multiplier)
-        } else if (instruction.mandatory) {
-          throw UserException.requirementNotMet(instruction.gate)
-        } // else just do nothing
-      }
-      is Per ->
-          doInstruction(
-              instruction.instruction, cause, game.reader.count(instruction.metric) * multiplier)
-      is Custom -> handleCustomInstruction(instruction, cause)
-      // TODO this is a bit wrong
-      is Then -> split(instruction.instructions).forEach { doInstruction(it, cause, multiplier) }
-      is Or -> throw UserException.orWithoutChoice(instruction)
-      is Multi -> error("should have been split: $instruction")
-      is Transform -> error("should have been transformed already: $instruction")
-    }
-  }
+  public fun removeTask(taskId: TaskId) = game.removeTask(taskId)
 
   private fun fireTriggers(triggerEvent: ChangeEvent) {
     val firedSelfEffects: List<FiredEffect> =
@@ -188,7 +137,10 @@ public class PlayerAgent internal constructor(private val game: Game, public val
 
     val (now, later) = (firedSelfEffects + firedOtherEffects).partition { it.automatic }
     for (fx in now) {
-      split(fx.instruction).forEach { doInstruction(it, fx.cause) }
+      val sex = SingleExecution(reader, writer, game.loader, player, fx.cause)
+      for (instr in split(fx.instruction)) {
+        sex.doInstruction(instr)
+      }
     }
     game.taskQueue.addTasks(later) // TODO
   }
@@ -217,39 +169,12 @@ public class PlayerAgent internal constructor(private val game: Game, public val
               }
           event?.let { fireTriggers(it) }
         }
+
+        override fun addTasks(instruction: Instruction, taskOwner: Player, cause: Cause?) {
+          game.taskQueue.addTasks(instruction, taskOwner, cause)
+        }
       }
 
-  private fun handleCustomInstruction(instr: Custom, cause: Cause?, multiplier: Int = 1) {
-    require(multiplier > 0)
-    val arguments = instr.arguments.map(game::resolve)
-    val abstractArgs = arguments.filter { it.abstract }
-    if (abstractArgs.any()) {
-      throw UserException.abstractArguments(abstractArgs, instr)
-    }
-
-    // TODO could inject this earlier
-    val custom = game.setup.authority.customInstruction(instr.functionName)
-    try {
-      val translated: Instruction = custom.translate(game.reader, arguments) * multiplier
-      val xers = game.loader.transformers
-      val instruction =
-          transformInSeries(
-                  xers.useFullNames(),
-                  xers.atomizer(),
-                  xers.insertDefaults(THIS.expr), // TODO context component??
-                  xers.deprodify(),
-                  replaceOwnerWith(player.className)
-                  // Not needed: ReplaceThisWith, FixUnownedEffect
-                  )
-              .transform(translated)
-      split(instruction).forEach { game.taskQueue.addTasks(it, player, cause) }
-    } catch (e: ExecuteInsteadException) {
-      // this custom fn chose to override execute() instead of translate()
-      for (it in 1..multiplier) {
-        custom.execute(game.reader, writer, arguments)
-      }
-    }
-  }
   public fun doAtomic(block: () -> Unit): Result {
     val checkpoint = game.checkpoint()
     try {
