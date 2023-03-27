@@ -11,6 +11,7 @@ import dev.martianzoo.tfm.pets.ast.Effect.Trigger.OnGainOf
 import dev.martianzoo.tfm.pets.ast.Effect.Trigger.WhenGain
 import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.pets.ast.Instruction
+import dev.martianzoo.tfm.pets.ast.Instruction.NoOp
 import dev.martianzoo.tfm.pets.ast.Instruction.Then
 import dev.martianzoo.tfm.pets.ast.Instruction.Transmute
 import dev.martianzoo.tfm.pets.ast.PetNode
@@ -37,7 +38,7 @@ public object PureTransformers {
   }
 
   internal fun actionToEffect(action: Raw<Action>, index1Ref: Int): Raw<Effect> =
-      action.map { actionToEffect(it, index1Ref) }
+      action.map { actionToEffect(it, index1Ref) }!!
 
   internal fun actionToEffect(action: Action, index1Ref: Int): Effect {
     require(index1Ref >= 1) { index1Ref }
@@ -79,11 +80,18 @@ public object PureTransformers {
           .map { (index0Ref, action) -> actionToEffect(action, index1Ref = index0Ref + 1) }
           .toSetStrict()
 
-  internal fun immediateToEffect(instruction: Instruction, automatic: Boolean = false) =
+  internal fun immediateToEffect(instruction: Instruction, automatic: Boolean = false): Effect? {
+    return if (instruction != NoOp) {
       Effect(WhenGain, instruction, automatic = automatic)
+    } else {
+      null
+    }
+  }
 
-  internal fun immediateToEffect(instruction: Raw<Instruction>, automatic: Boolean = false) =
-      instruction.map { immediateToEffect(it, automatic) }
+  internal fun immediateToEffect(
+      instruction: Raw<Instruction>,
+      automatic: Boolean = false,
+  ): Raw<Effect>? = instruction.map { immediateToEffect(it, automatic) }
 
   // TODO check if this really what callers want to do
   public fun <P : PetNode> P.replaceAll(from: PetNode, to: PetNode): P {

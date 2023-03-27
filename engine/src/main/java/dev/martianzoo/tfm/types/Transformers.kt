@@ -106,8 +106,8 @@ public class Transformers(val loader: MClassLoader) {
                   } else {
                     Multi.create(
                         xed.instructions.subList(0, badIndex) +
-                            (xed.instructions[badIndex] as Multi).instructions +
-                            xed.instructions.subList(badIndex + 1, xed.instructions.size))!!
+                        (xed.instructions[badIndex] as Multi).instructions +
+                        xed.instructions.subList(badIndex + 1, xed.instructions.size))
                   }
                 }
                 node is GenericTransform<*> && node.transformKind == "PROD" -> {

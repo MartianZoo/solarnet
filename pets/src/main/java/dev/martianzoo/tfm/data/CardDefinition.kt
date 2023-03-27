@@ -148,17 +148,17 @@ public class CardDefinition(data: CardData) : Definition {
     val zapHandCard: Raw<Instruction>? = deck?.className?.let { parseInput("-$it", DEFAULTS) }
     val createTags: List<Raw<Instruction>> =
         tags.toList().map { parseInput("$it<This>", DEFAULTS, THIS_EXPRESSIONS) }
-    val createTagsMerged: Raw<Instruction>? = Multi.create(createTags)
+    val createTagsMerged: Raw<Instruction> = Multi.create(createTags)
     val automatic: List<Raw<Effect>> =
-        listOfNotNull(zapHandCard, createTagsMerged).map { instr ->
+        listOfNotNull(zapHandCard, createTagsMerged).mapNotNull { instr ->
           instr.map { immediateToEffect(it, true) }
         }
 
     val allEffects: List<Raw<Effect>> =
         automatic +
-            listOfNotNull(immediate).map { immediateToEffect(it, automatic = false) } +
-            effects +
-            rawActionListToEffects(actions)
+        listOfNotNull(immediate).mapNotNull { immediateToEffect(it, automatic = false) } +
+        effects +
+        rawActionListToEffects(actions)
 
     ClassDeclaration(
         className = className,

@@ -15,7 +15,6 @@ import dev.martianzoo.tfm.pets.ast.Instruction.Companion.instruction
 import dev.martianzoo.tfm.pets.ast.Instruction.Gain
 import dev.martianzoo.tfm.pets.ast.Instruction.Intensity.MANDATORY
 import dev.martianzoo.tfm.pets.ast.Instruction.Multi
-import dev.martianzoo.tfm.pets.ast.Instruction.NoOp
 import dev.martianzoo.tfm.pets.ast.Instruction.Transform
 import dev.martianzoo.tfm.pets.ast.ScaledExpression.Companion.scaledEx
 import dev.martianzoo.util.Grid
@@ -61,7 +60,7 @@ private object CreateAdjacencies : CustomInstruction("createAdjacencies") {
                   cn("ForwardAdjacency").addArgs(it, newTile),
                   cn("BackwardAdjacency").addArgs(newTile, it))
             }
-    return Multi.create((nbrs + adjs).map { Gain(scaledEx(1, it), MANDATORY) }) ?: NoOp
+    return Multi.create((nbrs + adjs).map { Gain(scaledEx(1, it), MANDATORY) })
   }
   private fun tileOn(area: AreaDefinition, game: GameReader): Expression? {
     val tileType: Type = game.resolve(cn("Tile").addArgs(area.className)) // TODO
@@ -95,7 +94,7 @@ private object BeginPlayCard : CustomInstruction("beginPlayCard") {
         } else {
           playTagSignals
         }
-    return Multi.create(instructions) ?: NoOp
+    return Multi.create(instructions)
   }
 }
 // For Double Down

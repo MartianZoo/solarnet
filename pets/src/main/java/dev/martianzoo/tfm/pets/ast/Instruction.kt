@@ -360,19 +360,19 @@ public sealed class Instruction : PetElement() {
     override fun toString() = toString(", ")
 
     companion object {
-      fun create(instructions: List<Instruction>): Instruction? {
+      fun create(instructions: List<Instruction>): Instruction {
         return when (instructions.size) {
-          0 -> null
+          0 -> NoOp
           1 -> instructions.single()
           else -> Multi(instructions)
         }
       }
       fun create(first: Instruction, vararg rest: Instruction) =
           if (rest.none()) first else Multi(listOf(first) + rest)
-      fun create(raw: List<Raw<Instruction>>): Raw<Instruction>? {
+      fun create(raw: List<Raw<Instruction>>): Raw<Instruction> {
         val features: Set<PetFeature> =
             raw.fold(setOf()) { featuresSoFar, rawInstr -> featuresSoFar.union(rawInstr.unhandled) }
-        return create(raw.map { it.unprocessed })?.let { Raw(it, features) }
+        return Raw(create(raw.map { it.unprocessed }), features)
       }
     }
   }
@@ -513,7 +513,8 @@ public sealed class Instruction : PetElement() {
             }
 
         val then = separatedTerms(orInstr, _then) map { if (it.size == 1) it.first() else Then(it) }
-        commaSeparated(then) map { Multi.create(it)!! }
+
+        commaSeparated(then) map { Multi.create(it) }
       }
     }
   }

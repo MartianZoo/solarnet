@@ -222,7 +222,7 @@ internal constructor(
             // Not needed: ReplaceThisWith, ReplaceOwnerWith, Deprodify,
         )
     declaration.effects
-        .map { it.copy(effect = it.effect.map(transformer::transform)) }
+        .map { it.copy(effect = it.effect.map(transformer::transform)!!) }
         .sortedBy { it.effect.unprocessed }
   }
 
