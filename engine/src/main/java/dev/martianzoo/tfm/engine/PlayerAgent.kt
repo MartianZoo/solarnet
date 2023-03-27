@@ -32,10 +32,11 @@ public class PlayerAgent internal constructor(private val game: Game, public val
   public val reader =
       object : GameReader by game.reader {
         override fun resolve(expression: Expression): MType = game.resolve(heyItsMe(expression))
+
         override fun evaluate(requirement: Requirement) =
             game.reader.evaluate(heyItsMe(requirement))
+
         override fun count(metric: Metric) = game.reader.count(heyItsMe(metric))
-        override fun countComponent(concreteType: Type) = game.reader.countComponent(concreteType)
       }
 
   private val insertOwner: PetTransformer =
@@ -166,8 +167,9 @@ public class PlayerAgent internal constructor(private val game: Game, public val
                   update(MAX_VALUE, removing = dept.mtype, amap = true, cause = cause)
                 }
                 tryIt()
-              }
-          event?.let { fireTriggers(it) }
+              } ?: return
+
+          fireTriggers(event)
         }
 
         override fun addTasks(instruction: Instruction, taskOwner: Player, cause: Cause?) {
@@ -186,13 +188,5 @@ public class PlayerAgent internal constructor(private val game: Game, public val
     return game.eventLog.activitySince(checkpoint)
   }
 
-  fun isProgrammerError(e: Exception): Boolean =
-      e is NullPointerException ||
-          e is IllegalArgumentException ||
-          e is IllegalStateException ||
-          e is NoSuchElementException
-
-  fun tasks(): Map<TaskId, Task> {
-    return game.taskQueue.taskMap.toMap()
-  }
+  fun tasks(): Map<TaskId, Task> = game.taskQueue.taskMap.toMap()
 }

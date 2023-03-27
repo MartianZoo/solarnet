@@ -4,6 +4,7 @@ import dev.martianzoo.tfm.api.SpecialClassNames.THIS
 import dev.martianzoo.tfm.data.Player
 import dev.martianzoo.tfm.data.Task.TaskId
 import dev.martianzoo.tfm.engine.Component
+import dev.martianzoo.tfm.engine.EventLog.Checkpoint
 import dev.martianzoo.tfm.engine.Game
 import dev.martianzoo.tfm.engine.PlayerAgent
 import dev.martianzoo.tfm.engine.Result
@@ -152,6 +153,7 @@ public class InteractiveSession(
   fun dropTask(id: String) = agent.removeTask(TaskId(id))
 
   fun rollBack(ordinal: Int) = game.rollBack(ordinal)
+  fun rollBack(checkpoint: Checkpoint) = game.rollBack(checkpoint)
 
   // TODO somehow do this with Type not Expression?
   // TODO Let game take care of this itself?

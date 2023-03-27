@@ -11,7 +11,7 @@ import dev.martianzoo.tfm.data.StateChange
 import dev.martianzoo.tfm.data.Task
 import dev.martianzoo.tfm.data.Task.TaskId
 
-public class EventLog(val events: MutableList<GameEvent> = mutableListOf()) {
+public class EventLog(internal val events: MutableList<GameEvent> = mutableListOf()) {
   public val size: Int by events::size
 
   internal fun addEntry(entry: GameEvent) {
@@ -35,7 +35,7 @@ public class EventLog(val events: MutableList<GameEvent> = mutableListOf()) {
     addEntry(TaskReplacedEvent(size, oldTask = oldTask, task = newTask))
   }
 
-  public data class Checkpoint internal constructor(val ordinal: Int) {
+  public data class Checkpoint(internal val ordinal: Int) {
     init {
       require(ordinal >= 0)
     }

@@ -11,6 +11,7 @@ import dev.martianzoo.tfm.data.StateChange
 import dev.martianzoo.tfm.data.Task
 import dev.martianzoo.tfm.data.Task.TaskId
 import dev.martianzoo.tfm.engine.Engine
+import dev.martianzoo.tfm.engine.EventLog.Checkpoint
 import dev.martianzoo.tfm.engine.Result
 import dev.martianzoo.tfm.pets.Parsing.parseAsIs
 import dev.martianzoo.tfm.pets.Parsing.parseInput
@@ -481,7 +482,7 @@ public class ReplSession(
 
     override fun withArgs(args: String): List<String> {
       if (args == "full") {
-        return session.game.eventLog.events.toStrings()
+        return session.game.eventLog.entriesSince(Checkpoint(0)).toStrings()
       } else {
         throw UsageException()
       }

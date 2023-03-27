@@ -124,9 +124,7 @@ private object GainLowestProduction : CustomInstruction("gainLowestProduction") 
 // For Robotic Workforce
 private object CopyProductionBox : CustomInstruction("copyProductionBox") {
   override fun translate(game: GameReader, arguments: List<Type>): Instruction {
-    val chosenCardType: Type = game.resolve(arguments.single().expression)
-    val def = game.setup.authority.card(chosenCardType.className)
-
+    val def = game.setup.authority.card(arguments.single().className)
     val nodes: List<Transform> = def.immediate?.unprocessed?.descendantsOfType() ?: listOf() // TODO
     val matches = nodes.filter { it.transformKind == "PROD" }
 

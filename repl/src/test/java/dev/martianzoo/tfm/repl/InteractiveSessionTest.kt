@@ -47,7 +47,7 @@ private class InteractiveSessionTest {
     session.execute("-6 Heat")
     assertThat(session.count("Heat")).isEqualTo(1)
 
-    session.rollBack(checkpoint.ordinal)
+    session.rollBack(checkpoint)
     assertThat(session.count("Heat")).isEqualTo(7)
   }
 
