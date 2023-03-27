@@ -1,13 +1,13 @@
 package dev.martianzoo.tfm.engine
 
 import dev.martianzoo.tfm.api.ExpressionInfo
+import dev.martianzoo.tfm.api.GameReader
 import dev.martianzoo.tfm.api.GameSetup
-import dev.martianzoo.tfm.api.GameStateReader
 import dev.martianzoo.tfm.api.Type
 import dev.martianzoo.tfm.api.UserException
-import dev.martianzoo.tfm.data.Actor
 import dev.martianzoo.tfm.data.GameEvent.ChangeEvent
 import dev.martianzoo.tfm.data.GameEvent.TaskEvent
+import dev.martianzoo.tfm.data.Player
 import dev.martianzoo.tfm.data.Task.TaskId
 import dev.martianzoo.tfm.engine.EventLog.Checkpoint
 import dev.martianzoo.tfm.pets.PetTransformer
@@ -34,13 +34,13 @@ import kotlin.math.min
 /** A game in progress. */
 public class Game(val setup: GameSetup, public val loader: MClassLoader) {
 
-  // PROPERTIES
-
-  /** A record of everything that's happened in the game. */
-  public val eventLog = EventLog()
+  // Mutable game state consists of a component graph, event log, and task queue
 
   /** The components that make up the game's state. */
   internal val components = ComponentGraph()
+
+  /** A record of everything that's happened in the game. */
+  public val eventLog = EventLog()
 
   /** The tasks the game is currently waiting on. */
   public val taskQueue = TaskQueue(eventLog)
@@ -50,7 +50,7 @@ public class Game(val setup: GameSetup, public val loader: MClassLoader) {
 
   // PLAYER AGENT
 
-  public fun agent(actor: Actor) = PlayerAgent(this, actor) // asActor? TODO
+  public fun asPlayer(player: Player) = PlayerAgent(this, player)
 
   public fun removeTask(id: TaskId) = taskQueue.removeTask(id)
 
@@ -113,7 +113,7 @@ public class Game(val setup: GameSetup, public val loader: MClassLoader) {
         }
       }
   val reader =
-      object : GameStateReader {
+      object : GameReader {
         override val setup by this@Game::setup
         override val authority by setup::authority
 
@@ -166,10 +166,10 @@ public class Game(val setup: GameSetup, public val loader: MClassLoader) {
         is TaskEvent -> taskQueue.reverse(entry)
         is ChangeEvent -> {
           val change = entry.change
-          components.updateMultiset(
+          components.reverse(
               change.count,
-              gaining = toComponent(change.removing),
-              removing = toComponent(change.gaining),
+              removeGained = toComponent(change.gaining),
+              gainRemoved = toComponent(change.removing),
           )
         }
       }

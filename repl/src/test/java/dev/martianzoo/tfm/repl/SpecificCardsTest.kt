@@ -4,7 +4,7 @@ import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.tfm.api.GameSetup
 import dev.martianzoo.tfm.api.ResourceUtils.lookUpProductionLevels
 import dev.martianzoo.tfm.canon.Canon
-import dev.martianzoo.tfm.data.Actor
+import dev.martianzoo.tfm.data.Player
 import dev.martianzoo.tfm.engine.Engine
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -14,7 +14,7 @@ class SpecificCardsTest {
   @Test
   fun localHeatTrapping() {
     val game = Engine.newGame(GameSetup(Canon, "BRM", 2))
-    val p1 = InteractiveSession(game, Actor.PLAYER1)
+    val p1 = InteractiveSession(game, Player.PLAYER1)
 
     fun assertThreeCardsTotal() =
         assertThat(p1.count("CardBack + CardFront + PlayedEvent")).isEqualTo(3)
@@ -75,14 +75,14 @@ class SpecificCardsTest {
   @Test
   fun manutech() {
     val game = Engine.newGame(GameSetup(Canon, "BRMV", 2))
-    val p1 = InteractiveSession(game, Actor.PLAYER1)
+    val p1 = InteractiveSession(game, Player.PLAYER1)
 
     p1.execute("CorporationCard, Manutech")
     assertThat(p1.count("Production<Class<S>>")).isEqualTo(1)
     assertThat(p1.count("Steel")).isEqualTo(1)
 
     p1.execute("PROD[8, 6T, 7P, 5E, 3H]")
-    val prods = lookUpProductionLevels(p1.game.reader, p1.agent.actor.expression)
+    val prods = lookUpProductionLevels(p1.game.reader, p1.agent.player.expression)
     assertThat(prods.values).containsExactly(8, 1, 6, 7, 5, 3).inOrder()
     assertThat(p1.counts("M, S, T, P, E, H")).containsExactly(43, 1, 6, 7, 5, 3)
   }
@@ -92,7 +92,7 @@ class SpecificCardsTest {
   @Test
   fun sulphurEatingBacteria() {
     val game = Engine.newGame(GameSetup(Canon, "BRMV", 2))
-    val p1 = InteractiveSession(game, Actor.PLAYER1)
+    val p1 = InteractiveSession(game, Player.PLAYER1)
 
     p1.execute("ProjectCard THEN SulphurEatingBacteria")
     p1.execute("UseAction1<SulphurEatingBacteria>")

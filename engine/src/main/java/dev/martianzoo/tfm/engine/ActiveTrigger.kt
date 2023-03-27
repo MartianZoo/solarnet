@@ -2,8 +2,8 @@ package dev.martianzoo.tfm.engine
 
 import dev.martianzoo.tfm.api.SpecialClassNames.ANYONE
 import dev.martianzoo.tfm.api.SpecialClassNames.OWNER
-import dev.martianzoo.tfm.data.Actor
 import dev.martianzoo.tfm.data.GameEvent.ChangeEvent
+import dev.martianzoo.tfm.data.Player
 import dev.martianzoo.tfm.pets.PureTransformers.replaceOwnerWith
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.Effect.Trigger
@@ -31,7 +31,7 @@ sealed class ActiveTrigger {
         tlinks: Set<ClassName>,
     ): ActiveTrigger {
       return when (trigger) {
-        is ByTrigger -> ByActor(from(trigger.inner, context, game, tlinks), trigger.by)
+        is ByTrigger -> ByPlayer(from(trigger.inner, context, game, tlinks), trigger.by)
         is IfTrigger ->
             Conditional(from(trigger.inner, context, game, tlinks), trigger.condition, game)
         is XTrigger -> AnyAmount(from(trigger.inner, context, game, tlinks))
@@ -46,10 +46,10 @@ sealed class ActiveTrigger {
 
   class Conditional(val inner: ActiveTrigger, val condition: Requirement, val game: Game) :
       ActiveTrigger() {
-    override fun match(triggerEvent: ChangeEvent, actor: Actor, isSelf: Boolean): Hit? {
+    override fun match(triggerEvent: ChangeEvent, player: Player, isSelf: Boolean): Hit? {
       // This sort of feels out of order, but I don't think that hurts anything
       return if (game.reader.evaluate(condition)) {
-        inner.match(triggerEvent, actor, isSelf)
+        inner.match(triggerEvent, player, isSelf)
       } else {
         null
       }
@@ -57,23 +57,23 @@ sealed class ActiveTrigger {
   }
 
   class AnyAmount(val inner: ActiveTrigger) : ActiveTrigger() {
-    override fun match(triggerEvent: ChangeEvent, actor: Actor, isSelf: Boolean): Hit? {
+    override fun match(triggerEvent: ChangeEvent, player: Player, isSelf: Boolean): Hit? {
       // just fake it like only one happened
       return inner.match(
-          triggerEvent.copy(change = triggerEvent.change.copy(count = 1)), actor, isSelf)
+          triggerEvent.copy(change = triggerEvent.change.copy(count = 1)), player, isSelf)
     }
   }
 
-  abstract fun match(triggerEvent: ChangeEvent, actor: Actor, isSelf: Boolean): Hit?
+  abstract fun match(triggerEvent: ChangeEvent, player: Player, isSelf: Boolean): Hit?
 
-  data class ByActor(val inner: ActiveTrigger, val by: ClassName) : ActiveTrigger() {
-    override fun match(triggerEvent: ChangeEvent, actor: Actor, isSelf: Boolean): Hit? {
-      if (isPlayerSpecificTrigger() && actor.className != by) return null
+  data class ByPlayer(val inner: ActiveTrigger, val by: ClassName) : ActiveTrigger() {
+    override fun match(triggerEvent: ChangeEvent, player: Player, isSelf: Boolean): Hit? {
+      if (isPlayerSpecificTrigger() && player.className != by) return null
 
-      val originalHit = inner.match(triggerEvent, actor, isSelf) ?: return null
+      val originalHit = inner.match(triggerEvent, player, isSelf) ?: return null
 
       return if (by == OWNER) {
-        { replaceOwnerWith(actor.className).transform(originalHit(it)) }
+        { replaceOwnerWith(player.className).transform(originalHit(it)) }
       } else {
         originalHit
       }
@@ -88,7 +88,7 @@ sealed class ActiveTrigger {
 
   data class MatchOnSelf(val context: Component, val matchOnGain: Boolean, val game: Game) :
       ActiveTrigger() {
-    override fun match(triggerEvent: ChangeEvent, actor: Actor, isSelf: Boolean): Hit? {
+    override fun match(triggerEvent: ChangeEvent, player: Player, isSelf: Boolean): Hit? {
       if (!isSelf) return null
       val change = triggerEvent.change
       val expr = (if (matchOnGain) change.gaining else change.removing) ?: return null
@@ -107,7 +107,7 @@ sealed class ActiveTrigger {
       val game: Game,
       val tlinks: Set<ClassName>,
   ) : ActiveTrigger() {
-    override fun match(triggerEvent: ChangeEvent, actor: Actor, isSelf: Boolean): Hit? {
+    override fun match(triggerEvent: ChangeEvent, player: Player, isSelf: Boolean): Hit? {
       if (isSelf) return null
       val change = triggerEvent.change
       val expr = (if (matchOnGain) change.gaining else change.removing) ?: return null

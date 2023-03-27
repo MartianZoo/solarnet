@@ -1,8 +1,8 @@
 package dev.martianzoo.tfm.engine
 
-import dev.martianzoo.tfm.data.Actor
 import dev.martianzoo.tfm.data.GameEvent.ChangeEvent
 import dev.martianzoo.tfm.data.GameEvent.ChangeEvent.Cause
+import dev.martianzoo.tfm.data.Player
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.Effect
 import dev.martianzoo.tfm.pets.ast.Instruction
@@ -29,14 +29,14 @@ data class ActiveEffect(
   fun onChangeToOther(triggerEvent: ChangeEvent) = onChange(triggerEvent, isSelf = false)
 
   private fun onChange(triggerEvent: ChangeEvent, isSelf: Boolean): FiredEffect? {
-    val actor = context.owner()?.let(::Actor) ?: triggerEvent.actor
-    val hit = trigger.match(triggerEvent, actor, isSelf) ?: return null
-    return FiredEffect(hit(instruction), actor, Cause(context, triggerEvent), automatic)
+    val player = context.owner()?.let(::Player) ?: triggerEvent.player
+    val hit = trigger.match(triggerEvent, player, isSelf) ?: return null
+    return FiredEffect(hit(instruction), player, Cause(context, triggerEvent), automatic)
   }
 
   data class FiredEffect(
       val instruction: Instruction,
-      val actor: Actor,
+      val player: Player,
       val cause: Cause,
       val automatic: Boolean,
   ) {

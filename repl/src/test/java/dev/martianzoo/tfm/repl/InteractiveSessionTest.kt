@@ -3,8 +3,8 @@ package dev.martianzoo.tfm.repl
 import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.tfm.api.GameSetup
 import dev.martianzoo.tfm.canon.Canon
-import dev.martianzoo.tfm.data.Actor.Companion.PLAYER1
-import dev.martianzoo.tfm.data.Actor.Companion.PLAYER2
+import dev.martianzoo.tfm.data.Player.Companion.PLAYER1
+import dev.martianzoo.tfm.data.Player.Companion.PLAYER2
 import dev.martianzoo.tfm.engine.Engine
 import org.junit.jupiter.api.Test
 
@@ -22,7 +22,7 @@ private class InteractiveSessionTest {
     assertThat(session.count("Production<Class<S>>")).isEqualTo(4)
     assertThat(session.count("Production<Class<T>>")).isEqualTo(2)
 
-    assertThat(session.asActor(PLAYER1).has("PROD[=0 E, =0 S]")).isTrue()
+    assertThat(session.asPlayer(PLAYER1).has("PROD[=0 E, =0 S]")).isTrue()
   }
 
   @Test

@@ -1,9 +1,9 @@
 package dev.martianzoo.tfm.repl
 
-import dev.martianzoo.tfm.api.GameStateReader
+import dev.martianzoo.tfm.api.GameReader
 import dev.martianzoo.tfm.api.Type
-import dev.martianzoo.tfm.data.Actor
 import dev.martianzoo.tfm.data.MarsMapDefinition.AreaDefinition
+import dev.martianzoo.tfm.data.Player
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.repl.TfmColor.CITY_TILE
 import dev.martianzoo.tfm.repl.TfmColor.GREENERY_TILE
@@ -12,7 +12,7 @@ import dev.martianzoo.tfm.repl.TfmColor.SPECIAL_TILE
 import dev.martianzoo.util.Grid
 import dev.martianzoo.util.toStrings
 
-internal class MapToText(private val game: GameStateReader, val useColors: Boolean = true) {
+internal class MapToText(private val game: GameReader, val useColors: Boolean = true) {
   // my terminal app tries to show characters with H:W of 11:5
   // for a near-perfect hex grid you want 13:15
   // divide and you get 33:13 and fortunately that's pretty close to 5:2 (8:3 would be yikes)
@@ -118,7 +118,7 @@ internal class MapToText(private val game: GameStateReader, val useColors: Boole
         }
 
     val argStrings = tile.expressionFull.arguments.toStrings()
-    val player = argStrings.firstOrNull(Actor::isValid)?.last() ?: ""
+    val player = argStrings.firstOrNull(Player::isValid)?.last() ?: ""
 
     return "[${kind.first}$player]" to kind.second
   }

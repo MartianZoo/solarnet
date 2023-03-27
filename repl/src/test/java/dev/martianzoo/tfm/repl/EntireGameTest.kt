@@ -5,8 +5,8 @@ import com.google.common.truth.Truth.assertWithMessage
 import dev.martianzoo.tfm.api.GameSetup
 import dev.martianzoo.tfm.api.ResourceUtils.lookUpProductionLevels
 import dev.martianzoo.tfm.canon.Canon
-import dev.martianzoo.tfm.data.Actor.Companion.PLAYER1
-import dev.martianzoo.tfm.data.Actor.Companion.PLAYER2
+import dev.martianzoo.tfm.data.Player.Companion.PLAYER1
+import dev.martianzoo.tfm.data.Player.Companion.PLAYER2
 import dev.martianzoo.tfm.engine.Engine
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import org.junit.jupiter.api.Test

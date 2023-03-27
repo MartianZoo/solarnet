@@ -7,11 +7,11 @@ import dev.martianzoo.util.wrap
 sealed class GameEvent {
 
   abstract val ordinal: Int
-  abstract val actor: Actor
+  abstract val player: Player
 
   sealed class TaskEvent : GameEvent() {
     abstract val task: Task
-    override val actor by task::actor
+    override val player by task::player
   }
   data class TaskAddedEvent(override val ordinal: Int, override val task: Task) : TaskEvent() {
     override fun toString() =
@@ -39,7 +39,7 @@ sealed class GameEvent {
   /** All interesting information about a state change that happened in a game. */
   data class ChangeEvent(
       override val ordinal: Int,
-      override val actor: Actor,
+      override val player: Player,
       val change: StateChange,
       val cause: Cause?
   ) : GameEvent() {
@@ -48,7 +48,7 @@ sealed class GameEvent {
       require((cause?.triggerEvent ?: -1) < ordinal)
     }
 
-    override fun toString() = "$ordinal: $change FOR $actor ${cause ?: "(manual)"}"
+    override fun toString() = "$ordinal: $change FOR $player ${cause ?: "(manual)"}"
 
     /** The part that describes why it changed -- if there WAS a reason! */
     data class Cause

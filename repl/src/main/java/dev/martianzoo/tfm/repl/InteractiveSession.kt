@@ -1,7 +1,7 @@
 package dev.martianzoo.tfm.repl
 
 import dev.martianzoo.tfm.api.SpecialClassNames.THIS
-import dev.martianzoo.tfm.data.Actor
+import dev.martianzoo.tfm.data.Player
 import dev.martianzoo.tfm.data.Task.TaskId
 import dev.martianzoo.tfm.engine.Component
 import dev.martianzoo.tfm.engine.Game
@@ -34,12 +34,13 @@ import dev.martianzoo.util.Multiset
  */
 public class InteractiveSession(
     val game: Game,
-    actor: Actor = Actor.ENGINE,
+    player: Player = Player.ENGINE,
     var defaultAutoExec: Boolean = true,
 ) {
-  public val agent: PlayerAgent = agent(actor)
+  public val agent: PlayerAgent = agent(player)
 
-  public fun asActor(actor: Actor) = InteractiveSession(game, actor)
+  public fun asPlayer(player: Player) = InteractiveSession(game, player)
+  public fun asPlayer(player: ClassName) = asPlayer(Player(player))
 
   // QUERIES
 
@@ -80,7 +81,7 @@ public class InteractiveSession(
           if (it !is Change) throw InteractiveException.badSneak(it)
           val count = it.count
           require(count is ActualScalar)
-          agent.quietChange(count.value, it.gaining, it.removing)
+          agent.sneakyChange(count.value, it.gaining, it.removing)
         }
     return Result(changes = changes, newTaskIdsAdded = setOf())
   }
@@ -166,6 +167,6 @@ public class InteractiveSession(
         .transform(node.unprocessed) // TODO
   }
 
-  fun agent(actor: ClassName) = agent(Actor(actor))
-  fun agent(actor: Actor) = game.agent(actor)
+  fun agent(player: ClassName) = agent(Player(player)) // TODO needed??
+  fun agent(player: Player) = game.asPlayer(player)
 }

@@ -1,12 +1,12 @@
 package dev.martianzoo.tfm.engine
 
-import dev.martianzoo.tfm.data.Actor
 import dev.martianzoo.tfm.data.GameEvent
 import dev.martianzoo.tfm.data.GameEvent.ChangeEvent
 import dev.martianzoo.tfm.data.GameEvent.ChangeEvent.Cause
 import dev.martianzoo.tfm.data.GameEvent.TaskAddedEvent
 import dev.martianzoo.tfm.data.GameEvent.TaskRemovedEvent
 import dev.martianzoo.tfm.data.GameEvent.TaskReplacedEvent
+import dev.martianzoo.tfm.data.Player
 import dev.martianzoo.tfm.data.StateChange
 import dev.martianzoo.tfm.data.Task
 import dev.martianzoo.tfm.data.Task.TaskId
@@ -19,8 +19,12 @@ public class EventLog(val events: MutableList<GameEvent> = mutableListOf()) {
     events += entry
   }
 
-  internal fun addChangeEvent(change: StateChange, actor: Actor, cause: Cause?) =
-      ChangeEvent(size, actor, change, cause).also { addEntry(it) }
+  internal fun addChangeEvent(change: StateChange?, player: Player, cause: Cause?): ChangeEvent? {
+    if (change == null) return null
+    val event = ChangeEvent(size, player, change, cause)
+    addEntry(event)
+    return event
+  }
 
   internal fun taskAdded(task: Task) = addEntry(TaskAddedEvent(size, task))
 

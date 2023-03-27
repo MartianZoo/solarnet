@@ -1,11 +1,11 @@
 package dev.martianzoo.tfm.engine
 
-import dev.martianzoo.tfm.data.Actor
 import dev.martianzoo.tfm.data.GameEvent.ChangeEvent.Cause
 import dev.martianzoo.tfm.data.GameEvent.TaskAddedEvent
 import dev.martianzoo.tfm.data.GameEvent.TaskEvent
 import dev.martianzoo.tfm.data.GameEvent.TaskRemovedEvent
 import dev.martianzoo.tfm.data.GameEvent.TaskReplacedEvent
+import dev.martianzoo.tfm.data.Player
 import dev.martianzoo.tfm.data.Task
 import dev.martianzoo.tfm.data.Task.TaskId
 import dev.martianzoo.tfm.engine.ActiveEffect.FiredEffect
@@ -32,12 +32,12 @@ public class TaskQueue(val eventLog: EventLog) {
   public fun isEmpty() = taskMap.isEmpty()
 
   internal fun addTasks(effect: FiredEffect) =
-      addTasks(effect.instruction, effect.actor, effect.cause)
+      addTasks(effect.instruction, effect.player, effect.cause)
   internal fun addTasks(effects: Iterable<FiredEffect>) = effects.forEach(::addTasks)
 
   internal fun addTasks(
       instruction: Instruction,
-      taskOwner: Actor,
+      taskOwner: Player,
       cause: Cause?,
       whyPending: String? = null
   ) {
@@ -46,7 +46,7 @@ public class TaskQueue(val eventLog: EventLog) {
 
   internal fun addTasks(
       instructions: Iterable<Instruction>,
-      taskOwner: Actor,
+      taskOwner: Player,
       cause: Cause?,
       whyPending: String? = null,
   ) {

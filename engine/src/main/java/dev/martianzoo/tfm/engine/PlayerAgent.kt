@@ -1,16 +1,17 @@
 package dev.martianzoo.tfm.engine
 
 import dev.martianzoo.tfm.api.CustomInstruction.ExecuteInsteadException
-import dev.martianzoo.tfm.api.GameStateReader
-import dev.martianzoo.tfm.api.GameStateWriter
+import dev.martianzoo.tfm.api.GameReader
+import dev.martianzoo.tfm.api.GameWriter
 import dev.martianzoo.tfm.api.SpecialClassNames.DIE
 import dev.martianzoo.tfm.api.SpecialClassNames.OK
 import dev.martianzoo.tfm.api.SpecialClassNames.THIS
 import dev.martianzoo.tfm.api.Type
 import dev.martianzoo.tfm.api.UserException
-import dev.martianzoo.tfm.data.Actor
 import dev.martianzoo.tfm.data.GameEvent.ChangeEvent
 import dev.martianzoo.tfm.data.GameEvent.ChangeEvent.Cause
+import dev.martianzoo.tfm.data.Player
+import dev.martianzoo.tfm.data.StateChange
 import dev.martianzoo.tfm.data.Task
 import dev.martianzoo.tfm.data.Task.TaskId
 import dev.martianzoo.tfm.engine.ActiveEffect.FiredEffect
@@ -39,11 +40,11 @@ import dev.martianzoo.tfm.pets.ast.ScaledExpression.Scalar.ActualScalar
 import dev.martianzoo.tfm.types.MType
 import kotlin.Int.Companion.MAX_VALUE
 
-/** A view of a [Game] specific to a particular [Actor] (a player or the engine). */
-public class PlayerAgent internal constructor(private val game: Game, public val actor: Actor) {
+/** A view of a [Game] specific to a particular [Player] (a player or the engine). */
+public class PlayerAgent internal constructor(private val game: Game, public val player: Player) {
 
   public val reader =
-      object : GameStateReader by game.reader {
+      object : GameReader by game.reader {
         override fun resolve(expression: Expression): MType = game.resolve(heyItsMe(expression))
         override fun evaluate(requirement: Requirement) =
             game.reader.evaluate(heyItsMe(requirement))
@@ -52,10 +53,10 @@ public class PlayerAgent internal constructor(private val game: Game, public val
       }
 
   private val insertOwner: PetTransformer =
-      if (actor == Actor.ENGINE) {
+      if (player == Player.ENGINE) {
         game.loader.transformers.deprodify()
       } else {
-        transformInSeries(replaceOwnerWith(actor.className), game.loader.transformers.deprodify())
+        transformInSeries(replaceOwnerWith(player.className), game.loader.transformers.deprodify())
       }
 
   @Suppress("UNCHECKED_CAST")
@@ -65,7 +66,7 @@ public class PlayerAgent internal constructor(private val game: Game, public val
   public fun count(metric: Metric) = reader.count(metric)
   public fun getComponents(type: Expression) = game.getComponents(reader.resolve(type))
 
-  public fun quietChange(
+  public fun sneakyChange(
       count: Int = 1,
       gaining: Expression? = null,
       removing: Expression? = null,
@@ -86,14 +87,10 @@ public class PlayerAgent internal constructor(private val game: Game, public val
       }
     }
 
-    val change =
-        game.components.update(
-            count,
-            game.toComponent(heyItsMe(gaining)),
-            game.toComponent(heyItsMe(removing)),
-            amap,
-        )
-    return change?.let { game.eventLog.addChangeEvent(it, actor, cause) }
+    val toGain = game.toComponent(heyItsMe(gaining))
+    val toRemove = game.toComponent(heyItsMe(removing))
+    val change: StateChange? = game.components.update(count, toGain, toRemove, amap)
+    return game.eventLog.addChangeEvent(change, player, cause)
   }
 
   /**
@@ -113,7 +110,7 @@ public class PlayerAgent internal constructor(private val game: Game, public val
   public fun doTask(taskId: TaskId, narrowed: Instruction? = null): Result {
     val checkpoint = game.checkpoint()
     val requestedTask: Task = game.taskQueue[taskId]
-    // require(requestedTask.actor == actor)
+    // require(requestedTask.player == player)
 
     val prepped = heyItsMe(narrowed)
     prepped?.ensureReifies(requestedTask.instruction, game.einfo)
@@ -151,7 +148,7 @@ public class PlayerAgent internal constructor(private val game: Game, public val
       is Change -> {
         val scal =
             instruction.count as? ActualScalar ?: throw UserException.unresolvedX(instruction)
-        writer.write(
+        writer.update(
             count = scal.value * multiplier,
             gaining = instruction.gaining?.let(game::resolve),
             removing = instruction.removing?.let(game::resolve),
@@ -197,8 +194,8 @@ public class PlayerAgent internal constructor(private val game: Game, public val
   }
 
   internal val writer =
-      object : GameStateWriter {
-        override fun write(
+      object : GameWriter {
+        override fun update(
             count: Int,
             gaining: Type?,
             removing: Type?,
@@ -208,15 +205,15 @@ public class PlayerAgent internal constructor(private val game: Game, public val
           val g = gaining?.expressionFull
           val r = removing?.expressionFull
 
-          fun doIt() = quietChange(count, g, r, amap, cause)
+          fun tryIt(): ChangeEvent? = sneakyChange(count, g, r, amap, cause)
           val event =
               try {
-                doIt()
+                tryIt()
               } catch (e: ExistingDependentsException) {
                 for (dept in e.dependents) {
-                  write(MAX_VALUE, removing = dept.mtype, amap = true, cause = cause)
+                  update(MAX_VALUE, removing = dept.mtype, amap = true, cause = cause)
                 }
-                doIt()
+                tryIt()
               }
           event?.let { fireTriggers(it) }
         }
@@ -241,11 +238,11 @@ public class PlayerAgent internal constructor(private val game: Game, public val
                   xers.atomizer(),
                   xers.insertDefaults(THIS.expr), // TODO context component??
                   xers.deprodify(),
-                  replaceOwnerWith(actor.className)
+                  replaceOwnerWith(player.className)
                   // Not needed: ReplaceThisWith, FixUnownedEffect
                   )
               .transform(translated)
-      split(instruction).forEach { game.taskQueue.addTasks(it, actor, cause) }
+      split(instruction).forEach { game.taskQueue.addTasks(it, player, cause) }
     } catch (e: ExecuteInsteadException) {
       // this custom fn chose to override execute() instead of translate()
       for (it in 1..multiplier) {

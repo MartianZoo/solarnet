@@ -1,8 +1,8 @@
 package dev.martianzoo.tfm.canon
 
 import dev.martianzoo.tfm.api.CustomInstruction
-import dev.martianzoo.tfm.api.GameStateReader
-import dev.martianzoo.tfm.api.GameStateWriter
+import dev.martianzoo.tfm.api.GameReader
+import dev.martianzoo.tfm.api.GameWriter
 import dev.martianzoo.tfm.api.ResourceUtils.lookUpProductionLevels
 import dev.martianzoo.tfm.api.Type
 import dev.martianzoo.tfm.api.UserException
@@ -31,14 +31,14 @@ internal val allCustomInstructions =
     )
 
 private object ForceLoad : CustomInstruction("forceLoad") { // TODO include @ ?
-  override fun execute(game: GameStateReader, writer: GameStateWriter, arguments: List<Type>) {
+  override fun execute(game: GameReader, writer: GameWriter, arguments: List<Type>) {
     // This one legitimately doesn't have to do anything!
   }
 }
 
 // MarsArea has `Tile<This>:: @createAdjacencies(This)`
 private object CreateAdjacencies : CustomInstruction("createAdjacencies") {
-  override fun translate(game: GameStateReader, arguments: List<Type>): Instruction {
+  override fun translate(game: GameReader, arguments: List<Type>): Instruction {
     val areaName: ClassName = arguments.single().className
     val grid: Grid<AreaDefinition> = game.setup.map.areas
     val area: AreaDefinition = grid.first { it.className == areaName }
@@ -58,7 +58,7 @@ private object CreateAdjacencies : CustomInstruction("createAdjacencies") {
             }
     return Multi.create((nbrs + adjs).map { Gain(scaledEx(1, it), MANDATORY) }) ?: nullInstruction
   }
-  private fun tileOn(area: AreaDefinition, game: GameStateReader): Expression? {
+  private fun tileOn(area: AreaDefinition, game: GameReader): Expression? {
     val tileType: Type = game.resolve(cn("Tile").addArgs(area.className)) // TODO
     return game.getComponents(tileType).singleOrNull()?.expressionFull // TODO
   }
@@ -76,7 +76,7 @@ private object CreateAdjacencies : CustomInstruction("createAdjacencies") {
 }
 
 private object BeginPlayCard : CustomInstruction("beginPlayCard") {
-  override fun translate(game: GameStateReader, arguments: List<Type>): Instruction {
+  override fun translate(game: GameReader, arguments: List<Type>): Instruction {
     val cardName = arguments.single().expression.className
     val card = game.authority.card(cardName)
     val reqt = card.requirement?.unprocessed
@@ -95,14 +95,14 @@ private object BeginPlayCard : CustomInstruction("beginPlayCard") {
 }
 // For Double Down
 private object CopyPrelude : CustomInstruction("copyPrelude") {
-  override fun execute(game: GameStateReader, writer: GameStateWriter, arguments: List<Type>) {
+  override fun execute(game: GameReader, writer: GameWriter, arguments: List<Type>) {
     TODO()
   }
 }
 
 // For Robinson Industries
 private object GainLowestProduction : CustomInstruction("gainLowestProduction") {
-  override fun translate(game: GameStateReader, arguments: List<Type>): Instruction {
+  override fun translate(game: GameReader, arguments: List<Type>): Instruction {
     val player = arguments.single()
     val prods: Map<ClassName, Int> = lookUpProductionLevels(game, player.expression)
     val lowest: Int = prods.values.min()
@@ -114,7 +114,7 @@ private object GainLowestProduction : CustomInstruction("gainLowestProduction") 
 
 // For Robotic Workforce
 private object CopyProductionBox : CustomInstruction("copyProductionBox") {
-  override fun translate(game: GameStateReader, arguments: List<Type>): Instruction {
+  override fun translate(game: GameReader, arguments: List<Type>): Instruction {
     val chosenCardType: Type = game.resolve(arguments.single().expression)
     val def = game.authority.card(chosenCardType.className)
 

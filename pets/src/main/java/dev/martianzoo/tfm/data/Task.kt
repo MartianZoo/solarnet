@@ -20,7 +20,7 @@ constructor(
     val instruction: Instruction,
 
     /** The player this task is waiting on -- think of there being N+1 separate queues. */
-    val actor: Actor,
+    val player: Player,
 
     /**
      * Why was this task born? If there's no reason, this *probably* never needed to be a Task at
@@ -38,7 +38,7 @@ constructor(
     require(instruction !is Multi) { "should have been split up" }
   }
 
-  override fun toString() = "$id: [$actor] $instruction${whyPending.wrap(" (", ")")}"
+  override fun toString() = "$id: [$player] $instruction${whyPending.wrap(" (", ")")}"
 
   data class TaskId(val s: String) : Comparable<TaskId> {
     init {

@@ -2,7 +2,7 @@ package dev.martianzoo.tfm.repl
 
 import dev.martianzoo.tfm.api.ResourceUtils.lookUpProductionLevels
 import dev.martianzoo.tfm.api.ResourceUtils.standardResourceNames
-import dev.martianzoo.tfm.data.Actor
+import dev.martianzoo.tfm.data.Player
 import dev.martianzoo.tfm.engine.PlayerAgent
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.pets.ast.Metric.Companion.metric
@@ -18,11 +18,11 @@ import dev.martianzoo.tfm.repl.TfmColor.TITANIUM
 internal class PlayerBoardToText(private val agent: PlayerAgent, val useColors: Boolean = true) {
 
   internal fun board(): List<String> {
-    require(agent.actor != Actor.ENGINE)
-    val prodMap = lookUpProductionLevels(agent.reader, agent.actor.expression)
+    require(agent.player != Player.ENGINE)
+    val prodMap = lookUpProductionLevels(agent.reader, agent.player.expression)
     val resourceMap =
         standardResourceNames(agent.reader).associateBy({ it }) {
-          agent.count(Count(it.addArgs(agent.actor.className)))
+          agent.count(Count(it.addArgs(agent.player.className)))
         }
 
     fun prodAndResource(s: String) =
@@ -55,7 +55,7 @@ internal class PlayerBoardToText(private val agent: PlayerAgent, val useColors: 
     // val tr = maybeColor(TERRAFORM_RATING, "$tera")
     val tiles = agent.count(metric("OwnedTile"))
     return listOf(
-        "  ${agent.actor}   TR: $tr   Tiles: $tiles",
+        "  ${agent.player}   TR: $tr   Tiles: $tiles",
         "+---------+---------+---------+",
         "|  $megac |  $steel |  $titan |",
         "| prod $m | prod $s | prod $t |",

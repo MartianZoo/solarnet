@@ -32,19 +32,21 @@ public class ComponentGraph {
       removing: Component? = null,
       amap: Boolean,
   ): StateChange? {
-    val actual = checkLimits(count, gaining, removing, amap)
+    require(gaining != removing)
+    val actual = checkLimitsAndDeps(count, gaining, removing, amap)
     if (actual == 0) return null
 
-    updateMultiset(actual, gaining, removing)
+    removing?.let { multiset.mustRemove(it, actual) }
+    gaining?.let { multiset.add(it, actual) }
 
     return StateChange(
         count = actual,
-        gaining = gaining?.mtype?.expression,
-        removing = removing?.mtype?.expression,
+        gaining = gaining?.expressionFull,
+        removing = removing?.expressionFull,
     )
   }
 
-  private fun checkLimits(
+  private fun checkLimitsAndDeps(
       count: Int,
       gaining: Component?,
       removing: Component?,
@@ -101,17 +103,15 @@ public class ComponentGraph {
     return actual
   }
 
-  // Only called above and by rollback()
-  internal fun updateMultiset(
-      count: Int,
-      gaining: Component? = null,
-      removing: Component? = null,
-  ) {
-    require(gaining != removing)
-    removing?.let { multiset.mustRemove(it, count) }
-    gaining?.let { multiset.add(it, count) }
-  }
-
   internal fun dependentsOf(dependency: Component) =
       multiset.filter { dependency in it.dependencyComponents }
+
+  internal fun reverse(
+      count: Int,
+      removeGained: Component? = null,
+      gainRemoved: Component? = null,
+  ) {
+    removeGained?.let { multiset.mustRemove(it, count) }
+    gainRemoved?.let { multiset.add(it, count) }
+  }
 }

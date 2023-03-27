@@ -2,8 +2,8 @@ package dev.martianzoo.tfm.engine
 
 import dev.martianzoo.tfm.api.GameSetup
 import dev.martianzoo.tfm.api.SpecialClassNames.ENGINE
-import dev.martianzoo.tfm.data.Actor
 import dev.martianzoo.tfm.data.GameEvent.ChangeEvent.Cause
+import dev.martianzoo.tfm.data.Player
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.pets.ast.Instruction
@@ -37,13 +37,13 @@ public object Engine {
     // setup.authority.customInstructions += customInstr(loader)
 
     val game = Game(setup, loader)
-    val agent = game.agent(Actor.ENGINE)
+    val agent = game.asPlayer(Player.ENGINE)
 
     val result: Result = agent.initiate(gain(ENGINE.expr))
     require(result.newTaskIdsAdded.none())
     require(game.taskQueue.isEmpty())
 
-    val fakeCause = Cause(Actor.ENGINE, result.changes.first())
+    val fakeCause = Cause(Player.ENGINE, result.changes.first())
 
     singletonCreateInstructions(loader).forEach {
       agent.initiate(it, fakeCause)

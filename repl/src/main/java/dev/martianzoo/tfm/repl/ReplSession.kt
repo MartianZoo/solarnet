@@ -5,8 +5,8 @@ import dev.martianzoo.tfm.api.GameSetup
 import dev.martianzoo.tfm.api.SpecialClassNames.COMPONENT
 import dev.martianzoo.tfm.api.UserException
 import dev.martianzoo.tfm.canon.Canon
-import dev.martianzoo.tfm.data.Actor
 import dev.martianzoo.tfm.data.GameEvent.ChangeEvent
+import dev.martianzoo.tfm.data.Player
 import dev.martianzoo.tfm.data.StateChange
 import dev.martianzoo.tfm.data.Task
 import dev.martianzoo.tfm.data.Task.TaskId
@@ -38,22 +38,22 @@ internal fun main() {
   val session = repl.session
 
   fun prompt(): String {
-    val count = session.game.setup.players
-    val bundles = session.game.setup.bundles.joinToString("")
-    val phase = session.list(parseInput("Phase")).singleOrNull()
-    val logPosition = repl.session.game.eventLog.size
-    val actor = repl.session.agent.actor
-    return repl.mode.color.foreground("$bundles $phase $actor/$count @$logPosition> ")
+    val bundles: String = session.game.setup.bundles.joinToString("")
+    val phase: String = session.list(parseInput("Phase")).singleOrNull().toString() ?: "NoPhase"
+    val player: Player = repl.session.agent.player
+    val count: Int = session.game.setup.players
+    val logPosition: Int = repl.session.game.eventLog.size
+    return repl.mode.color.foreground("$bundles $phase $player/$count @$logPosition> ")
   }
 
   // We don't actually have to start another game.....
   val welcome =
       """
-      Welcome to REgo PLastics. Type `help` for help.
-      Warning: this is a bare-bones tool that is not trying to be easy to use... at all
-      Everything is case-sensitive. Sorry
+        Welcome to REgo PLastics. Type `help` for help.
+        Warning: this is a bare-bones tool that is not trying to be easy to use... at all
+        Everything is case-sensitive. Sorry
 
-  """
+      """
           .trimIndent()
 
   jline.loop(::prompt, repl::command, welcome)
@@ -153,7 +153,7 @@ public class ReplSession(
       // TODO this is not awesome
       val saved = session
       return try {
-        session = session.asActor(Actor(cn(player)))
+        session = session.asPlayer(cn(player))
         command(rest)
       } finally {
         session = saved
@@ -201,13 +201,13 @@ public class ReplSession(
         """
 
     override fun noArgs(): List<String> {
-      session = session.asActor(Actor.ENGINE)
+      session = session.asPlayer(Player.ENGINE)
       return listOf("Okay, you are the game engine now")
     }
 
     override fun withArgs(args: String): List<String> {
-      session = session.asActor(Actor(cn(args)))
-      return listOf("Hi, ${session.agent.actor}")
+      session = session.asPlayer(Player(cn(args)))
+      return listOf("Hi, ${session.agent.player}")
     }
   }
 
@@ -352,7 +352,7 @@ public class ReplSession(
               val instr: Instruction = parseAsIs(instruction)
               if (instr is Gain && instr.gaining.className == cn("Turn")) {
                 initiate(instruction)
-              } else if (session.agent.actor != Actor.ENGINE) {
+              } else if (session.agent.player != Player.ENGINE) {
                 throw UsageException("In blue mode you must be Engine to do this")
               } else if (instr is Gain &&
                   instr.gaining.className.toString().endsWith("Phase")) { // TODO hack
@@ -602,36 +602,36 @@ public class ReplSession(
 
 private val helpText: String =
     """
-    Commands below can be separated with semicolons, or written in a file and run with `script`.
-    Type `help <command name>` to learn more.,
-
-    CONTROL
-      help                -> shows this message
-      newgame BHV 3       -> erases current game and starts 3p game with Base/Hellas/Venus
-      exit                -> go waste time differently
-      rebuild             -> restart after code changes (game is forgotten)
-      become Player1      -> makes Player1 the default player for queries & executions
-      as Player1 <cmd>    -> does <cmd> as if you'd typed just that, but as Player1
-      script mygame       -> reads file `mygame` and performs REPL commands as if typed
-    QUERYING
-      has MAX 3 OceanTile -> evaluates a requirement (true/false) in the current game state
-      count Plant         -> counts how many Plants the default player has
-      list Tile           -> list all Tiles (categorized)
-      board               -> displays an extremely bad looking player board
-      map                 -> displays an extremely bad looking Mars board
-    EXECUTION
-      exec PROD[3 Heat]   -> gives the default player 3 heat production
-      tasks               -> shows your current to-do list
-      task F              -> do task F on your to-do list, as-is
-      task F Plant        -> do task F, substituting `Plant` for an abstract instruction
-      task F drop         -> bye task F
-      auto off            -> turns off autoexec mode (you'll have to run tasks 1-by-1)
-      mode yellow         -> switches to Yellow Mode (also try red, green, blue, purple)
-    HISTORY
-      log                 -> shows events that have happened in the current game
-      rollback 123        -> undoes recent events up to and *including* event 123
-      history             -> shows your *command* history (as you typed it)
-    METADATA
-      desc Microbe<Ants>  -> describes the Microbe<Ants> type in detail
-  """
+      Commands can be separated with semicolons, or saved in a file and run with `script`.
+      Type `help <command name>` to learn more.,
+  
+      CONTROL
+        help                -> shows this message
+        newgame BHV 3       -> erases current game and starts 3p game with Base/Hellas/Venus
+        exit                -> go waste time differently
+        rebuild             -> restart after code changes (game is forgotten)
+        become Player1      -> makes Player1 the default player for queries & executions
+        as Player1 <cmd>    -> does <cmd> as if you'd typed just that, but as Player1
+        script mygame       -> reads file `mygame` and performs REPL commands as if typed
+      QUERYING
+        has MAX 3 OceanTile -> evaluates a requirement (true/false) in the current game state
+        count Plant         -> counts how many Plants the default player has
+        list Tile           -> list all Tiles (categorized)
+        board               -> displays an extremely bad looking player board
+        map                 -> displays an extremely bad looking Mars board
+      EXECUTION
+        exec PROD[3 Heat]   -> gives the default player 3 heat production
+        tasks               -> shows your current to-do list
+        task F              -> do task F on your to-do list, as-is
+        task F Plant        -> do task F, substituting `Plant` for an abstract instruction
+        task F drop         -> bye task F
+        auto off            -> turns off autoexec mode (you'll have to run tasks 1-by-1)
+        mode yellow         -> switches to Yellow Mode (also try red, green, blue, purple)
+      HISTORY
+        log                 -> shows events that have happened in the current game
+        rollback 123        -> undoes recent events up to and *including* event 123
+        history             -> shows your *command* history (as you typed it)
+      METADATA
+        desc Microbe<Ants>  -> describes the Microbe<Ants> type in detail
+    """
         .trimIndent()
