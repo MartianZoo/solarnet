@@ -44,8 +44,7 @@ internal class PetGenerator(scaling: (Int) -> Double) :
         Expression(
             recurse(),
             listOfSize(choose(specSizes)),
-            refinement(),
-            null) // choose(10 to null, 2 to 1, 1 to 2))
+            refinement()) // choose(10 to null, 2 to 1, 1 to 2))
       }
       register { scaledEx(choose(0, 1, 1, 1, 5, 11), choose(1 to MEGACREDIT.expr, 3 to recurse())) }
 

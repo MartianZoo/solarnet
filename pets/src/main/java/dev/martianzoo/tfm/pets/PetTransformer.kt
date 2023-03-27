@@ -40,7 +40,7 @@ public abstract class PetTransformer {
       val rewritten =
           when (this) {
             is ClassName -> this
-            is Expression -> Expression(x(className), x(arguments), x(refinement), link)
+            is Expression -> Expression(x(className), x(arguments), x(refinement))
             is ScaledExpression -> ScaledExpression(x(scalar), x(expression))
             is Scalar -> this
             is Metric ->

@@ -10,7 +10,6 @@ import dev.martianzoo.tfm.pets.BaseTokenizer
 import dev.martianzoo.tfm.pets.Parsing
 import dev.martianzoo.tfm.pets.ast.ClassName.Parsing.className
 import dev.martianzoo.util.joinOrEmpty
-import dev.martianzoo.util.pre
 import dev.martianzoo.util.wrap
 
 /**
@@ -27,7 +26,6 @@ data class Expression(
     override val className: ClassName,
     val arguments: List<Expression> = listOf(),
     val refinement: Requirement? = null,
-    val link: Int? = null, // TODO use it or lose it
 ) : PetElement(), HasClassName {
   companion object : BaseTokenizer() {
     fun expression(text: String): Expression = Parsing.parse(parser(), text)
@@ -36,14 +34,12 @@ data class Expression(
 
     fun parser(): Parser<Expression> {
       return parser {
-        val link: Parser<Int> = skipChar('^') and rawScalar
         val specs = skipChar('<') and commaSeparated(parser()) and skipChar('>')
 
         className and
             optionalList(specs) and
-            optional(refinement()) and
-            optional(link) map { (clazz, args, ref, link) ->
-              Expression(clazz, args, ref, link)
+            optional(refinement()) map { (clazz, args, ref) ->
+              Expression(clazz, args, ref)
             }
       }
     }
@@ -55,10 +51,9 @@ data class Expression(
   override fun toString() =
       "$className" +
           arguments.joinOrEmpty(wrap = "<>") +
-          refinement.wrap("(HAS ", ")") +
-          link.pre("^")
+          refinement.wrap("(HAS ", ")")
 
-  val simple = arguments.isEmpty() && refinement == null && link == null
+  val simple = arguments.isEmpty() && refinement == null
 
   @JvmName("addArgsFromClassNames")
   fun addArgs(moreArgs: List<ClassName>): Expression = addArgs(moreArgs.map { it.expr })

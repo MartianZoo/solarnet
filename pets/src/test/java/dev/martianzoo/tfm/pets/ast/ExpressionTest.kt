@@ -74,11 +74,4 @@ private class ExpressionTest {
     assertThat(two.arguments)
         .containsExactly(cn("Bar").classExpression(), cn("Qux").classExpression())
   }
-
-  @Test
-  fun classLiteralStuffWithLinks() {
-    te("Foo^5")
-    te("Foo<Bar^5>")
-    te("Foo<Bar>^5")
-  }
 }
