@@ -13,7 +13,7 @@ private class CanonCustomInstructionsTest {
 
   @Test
   fun robinson() {
-    val repl = ReplSession(Canon, GameSetup(Canon, "MB", 3)) // TODO
+    val repl = ReplSession(Canon, GameSetup(Canon, "BM", 2)) // TODO
     repl.command("become Player1")
     repl.command("mode green")
 
@@ -25,7 +25,7 @@ private class CanonCustomInstructionsTest {
 
   @Test
   fun robinsonCant() {
-    val game = Engine.newGame(GameSetup(Canon, "MB", 3))
+    val game = Engine.newGame(GameSetup(Canon, "BM", 2))
     val p1 = InteractiveSession(game, PLAYER1)
     p1.execute("PROD[Steel, Titanium, Plant, Heat]")
     p1.execute("@gainLowestProduction(Player1)")
@@ -42,7 +42,7 @@ private class CanonCustomInstructionsTest {
 
   @Test
   fun robinson2() {
-    val repl = ReplSession(Canon, GameSetup(Canon, "MB", 3))
+    val repl = ReplSession(Canon, GameSetup(Canon, "BM", 2))
     repl.command("become Player1")
     repl.command("exec PROD[-1]")
     repl.command("exec @gainLowestProduction(Player1)")
@@ -51,7 +51,7 @@ private class CanonCustomInstructionsTest {
 
   @Test
   fun roboticWorkforce() {
-    val repl = ReplSession(Canon, GameSetup(Canon, "MB", 3)) // TODO
+    val repl = ReplSession(Canon, GameSetup(Canon, "BM", 2)) // TODO
     repl.command("become Player1")
     repl.command("exec 2 ProjectCard")
     repl.command("exec PROD[5 Energy]")

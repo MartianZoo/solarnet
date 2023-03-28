@@ -125,60 +125,56 @@ class EntireGameTest {
 
     engine.execute("ProductionPhase")
 
-    val repl = ReplSession(Canon, GameSetup(Canon, "BM", 2))
-    repl.session = InteractiveSession(game)
+    fun InteractiveSession.counts(arg: String) = arg.split(",").map { this.count(it) }
+    fun InteractiveSession.assertCount(text: String, i: Int) = assertThat(count(text)).isEqualTo(i)
 
     // Stuff
-    assertThat(repl.counts("Generation")).containsExactly(5)
-    assertThat(repl.counts("OceanTile, OxygenStep, TemperatureStep")).containsExactly(0, 0, 0)
+    assertThat(engine.counts("Generation")).containsExactly(5)
+    assertThat(engine.counts("OceanTile, OxygenStep, TemperatureStep")).containsExactly(0, 0, 0)
 
     // P1
 
-    repl.command("become P1")
+    p1.assertCount("TerraformRating", 20)
 
-    repl.assertCount("TerraformRating", 20)
-
-    val prods = lookUpProductionLevels(repl.session.game.reader, cn("P1").expr)
+    val prods = lookUpProductionLevels(p1.game.reader, p1.player.expression)
     assertThat(prods.values).containsExactly(2, 2, 7, 0, 1, 0).inOrder()
 
-    assertThat(repl.counts("M, Steel, Titanium, Plant, Energy, Heat"))
+    assertThat(p1.counts("M, Steel, Titanium, Plant, Energy, Heat"))
         .containsExactly(34, 2, 8, 3, 1, 3)
         .inOrder()
 
-    assertThat(repl.counts("ProjectCard, CardFront, ActiveCard, AutomatedCard, PlayedEvent"))
+    assertThat(p1.counts("ProjectCard, CardFront, ActiveCard, AutomatedCard, PlayedEvent"))
         .containsExactly(5, 10, 1, 6, 0)
 
     // tag abbreviations
-    assertThat(repl.counts("BUT, SPT, SCT, POT, EAT, JOT, PLT, MIT, ANT, CIT"))
+    assertThat(p1.counts("BUT, SPT, SCT, POT, EAT, JOT, PLT, MIT, ANT, CIT"))
         .containsExactly(5, 2, 2, 0, 1, 3, 0, 0, 0, 1)
         .inOrder()
 
-    assertThat(repl.counts("CityTile, GreeneryTile, SpecialTile"))
+    assertThat(p1.counts("CityTile, GreeneryTile, SpecialTile"))
         .containsExactly(1, 0, 0)
         .inOrder()
 
     // P2
 
-    repl.command("become P2")
+    p2.assertCount("TerraformRating", 25)
 
-    repl.assertCount("TerraformRating", 25)
-
-    val prods2 = lookUpProductionLevels(repl.session.game.reader, cn("P2").expr)
+    val prods2 = lookUpProductionLevels(p2.game.reader, p2.player.expression)
     assertThat(prods2.values).containsExactly(8, 6, 1, 0, 2, 0).inOrder()
 
-    assertThat(repl.counts("M, Steel, Titanium, Plant, Energy, Heat"))
+    assertThat(p2.counts("M, Steel, Titanium, Plant, Energy, Heat"))
         .containsExactly(47, 6, 1, 1, 2, 3)
         .inOrder()
 
-    assertThat(repl.counts("ProjectCard, CardFront, ActiveCard, AutomatedCard, PlayedEvent"))
+    assertThat(p2.counts("ProjectCard, CardFront, ActiveCard, AutomatedCard, PlayedEvent"))
         .containsExactly(3, 17, 4, 10, 3)
 
     // tag abbreviations
-    assertThat(repl.counts("BUT, SPT, SCT, POT, EAT, JOT, PLT, MIT, ANT, CIT"))
+    assertThat(p2.counts("BUT, SPT, SCT, POT, EAT, JOT, PLT, MIT, ANT, CIT"))
         .containsExactly(9, 3, 4, 2, 3, 0, 0, 1, 0, 0)
         .inOrder()
 
-    assertThat(repl.counts("CityTile, GreeneryTile, SpecialTile"))
+    assertThat(p2.counts("CityTile, GreeneryTile, SpecialTile"))
         .containsExactly(1, 0, 1)
         .inOrder()
   }

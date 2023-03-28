@@ -18,16 +18,16 @@ public class ComponentGraph {
 
   public operator fun contains(component: Component) = component in multiset.elements
 
-  public fun count(mtype: MType) = getAll(mtype).size
+  public fun count(parentType: MType) = getAll(parentType).size
   public fun countComponent(component: Component) = multiset.count(component)
 
-  // TODO: refinement-aware
-  public fun getAll(mtype: MType): Multiset<Component> = multiset.filter {
-    it.mtype.isSubtypeOf(mtype)
+  public fun getAll(parentType: MType): Multiset<Component> {
+    require(parentType.stripRefinements() == parentType) // TODO: refinement-aware
+    return multiset.filter { it.mtype.isSubtypeOf(parentType) }
   }
 
-  internal fun allActiveEffects(game: Game): Multiset<ActiveEffect> =
-      multiset.flatMap { it.effects(game) }
+  internal fun activeEffects(game: Game): List<ActiveEffect> =
+      multiset.flatMap { it.effects(game) }.entries.map { (effect, count) -> effect * count }
 
   internal fun update(
       count: Int = 1,

@@ -74,7 +74,10 @@ internal constructor(
         loader.getClass(classNameExpr.className).classType
       }
     } else {
-      copy(dependencies = loader.matchFull(specs, dependencies))
+      val deps = loader.matchPartial(specs, dependencies)
+          .overlayOn(dependencies)
+          .subMapInOrder(dependencies.keys)
+      copy(dependencies = deps)
     }
   }
 
@@ -142,7 +145,7 @@ internal constructor(
       mclass.abstract -> emptySequence()
       isClassType -> concreteSubclasses(dependencies.getClassForClassType()).map { it.classType }
       else -> {
-        val axes = dependencies.asSet.map { it.allConcreteSpecializations().toList() }
+        val axes = dependencies.typeDependencies.map { it.allConcreteSpecializations().toList() }
         val product: List<List<Dependency>> = cartesianProduct(axes)
         product.asSequence().map { mclass.withExactDependencies(DependencySet.of(it)) }
       }

@@ -52,6 +52,6 @@ data class GameSetup(
   fun players(): List<Player> = (1..players).map { Player(cn("Player$it")) }
 
   private companion object {
-    fun splitLetters(bundles: String) = bundles.asIterable().toStrings().toSetStrict()
+    fun splitLetters(bundles: String) = bundles.asIterable().toStrings().sorted().toSetStrict()
   }
 }

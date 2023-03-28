@@ -31,7 +31,6 @@ internal data class Defaults(
       }
 
       fun gatherDefaultDeps(extractor: (DefaultsDeclaration) -> List<Expression>): DependencySet {
-        // excludes ones that don't specialize, is that okay? TODO
         fun toDependencyMap(specs: List<Expression>): DependencySet =
             mclass.loader.resolve(mclass.className.addArgs(specs)).narrowedDependencies
 

@@ -13,7 +13,7 @@ class SpecificCardsTest {
 
   @Test
   fun localHeatTrapping() {
-    val game = Engine.newGame(GameSetup(Canon, "BRM", 2))
+    val game = Engine.newGame(GameSetup(Canon, "BM", 2))
     val p1 = InteractiveSession(game, Player.PLAYER1)
 
     p1.execute("4 Heat, 3 ProjectCard, Pets")
@@ -49,7 +49,6 @@ class SpecificCardsTest {
     assertThat(p1.game.checkpoint()).isEqualTo(cp2)
     assertThat(p1.count("Animal")).isEqualTo(1)
 
-    println(p1.agent.tasks())
     p1.doTask(nextTask, "4 Plant")
     assertThat(p1.counts("Card, Heat, Plant, Animal")).containsExactly(3, 1, 4, 1).inOrder()
     p1.game.rollBack(cp2)
@@ -64,7 +63,7 @@ class SpecificCardsTest {
 
   @Test
   fun manutech() {
-    val game = Engine.newGame(GameSetup(Canon, "BRMV", 2))
+    val game = Engine.newGame(GameSetup(Canon, "BMV", 2))
     val p1 = InteractiveSession(game, Player.PLAYER1)
 
     p1.execute("CorporationCard, Manutech")
@@ -83,7 +82,7 @@ class SpecificCardsTest {
 
   @Test
   fun sulphurEatingBacteria() {
-    val game = Engine.newGame(GameSetup(Canon, "BRMV", 2))
+    val game = Engine.newGame(GameSetup(Canon, "BMV", 2))
     val p1 = InteractiveSession(game, Player.PLAYER1)
 
     p1.execute("ProjectCard THEN SulphurEatingBacteria")

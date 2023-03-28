@@ -141,7 +141,6 @@ public class MClassLoader( // TODO separate into loader and table
   // all MClasses are created here (aside from Component and Class, at top)
   private fun construct(decl: ClassDeclaration): MClass {
     require(!frozen) { "Too late, this table is frozen!" }
-    // println("loading ${decl.className}")
 
     require(decl.className !in loadedClasses) { decl.className }
     require(decl.shortName !in loadedClasses) { decl.shortName }
@@ -158,7 +157,6 @@ public class MClassLoader( // TODO separate into loader and table
         }
     loadedClasses[decl.className] = mclass
     loadedClasses[decl.shortName] = mclass
-    // println("loaded ${decl.className}")
 
     return mclass
   }
@@ -202,27 +200,28 @@ public class MClassLoader( // TODO separate into loader and table
   }
 
   /**
-   * Assigns each expression to a key from among this map's keys, such that it is compatible with
-   * that key's upper bound.
+   * For an example expression like `Foo<Bar, Qux>`, pass in `[Bar, Qux]` and Foo's base dependency
+   * set. This method decides which dependencies in the dependency set each of these args should be
+   * matched with. The returned dependency set will have [TypeDependency]s in the corresponding
+   * order to the input expressions.
+   *
+   * DON'T call this for the <Foo> in Class<Foo>, it won't work.
    */
-  internal fun matchPartial(specs: List<Expression>, deps: DependencySet): DependencySet {
+  internal fun matchPartial(expressionArgs: List<Expression>, deps: DependencySet): DependencySet {
     val usedDeps = mutableSetOf<TypeDependency>()
     val list =
-        specs.map { specExpression ->
-          val specType: MType = resolve(specExpression)
-          for (candidateDep in deps.asSet - usedDeps) {
+        expressionArgs.map { arg ->
+          val specType: MType = resolve(arg)
+          for (candidateDep in deps.typeDependencies - usedDeps) {
             val intersectionType = (specType glb candidateDep.boundType) ?: continue
             usedDeps += candidateDep
             return@map TypeDependency(candidateDep.key, intersectionType)
           }
           // TODO
-          throw UserException.badExpression(specExpression, deps.toString())
+          throw UserException.badExpression(arg, deps.toString())
         }
     return DependencySet.of(list)
   }
-
-  internal fun matchFull(specs: List<Expression>, deps: DependencySet) =
-      matchPartial(specs, deps).overlayOn(deps).subMapInOrder(deps.keys) // TODO simplify??
 
   private val id = nextId++
 

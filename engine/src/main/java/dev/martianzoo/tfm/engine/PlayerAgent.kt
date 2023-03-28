@@ -132,9 +132,7 @@ public class PlayerAgent internal constructor(private val game: Game, public val
             .mapNotNull { it.onChangeToSelf(triggerEvent) }
 
     val firedOtherEffects: List<FiredEffect> =
-        game.allActiveEffects().entries.mapNotNull { (afx, count) ->
-          afx.onChangeToOther(triggerEvent)?.let { it * count }
-        }
+        game.activeEffects().mapNotNull { it.onChangeToOther(triggerEvent) }
 
     val (now, later) = (firedSelfEffects + firedOtherEffects).partition { it.automatic }
     for (fx in now) {

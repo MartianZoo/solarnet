@@ -24,6 +24,8 @@ data class ActiveEffect(
             it.instruction)
   }
 
+  operator fun times(multiplier: Int) = copy(instruction = instruction * multiplier)
+
   fun onChangeToSelf(triggerEvent: ChangeEvent) = onChange(triggerEvent, isSelf = true)
 
   fun onChangeToOther(triggerEvent: ChangeEvent) = onChange(triggerEvent, isSelf = false)

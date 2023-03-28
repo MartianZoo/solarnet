@@ -89,10 +89,8 @@ object MTypeToText { // TODO refactor to ClassInfo / TypeInfo type dealies
 
 
             Component $c:
-              effects:    ${
-            c.effects(session.game).map { it.original }.joinToString("""
-                          """)
-          }
+              effects:    ${c.effects(session.game).map { it.original }.joinToString("""
+                          """)}
               current ct: ${session.countComponent(c)}
           """
               .trimIndent()

@@ -241,7 +241,7 @@ public class Transformers(val loader: MClassLoader) {
     val match: DependencySet = loader.matchPartial(dethissed.arguments, mclass.dependencies)
 
     val preferred: Map<Key, Expression> = match.keys.zip(original.arguments).toMap()
-    val fallbacks: Map<Key, Expression> = defaultDeps.asSet.associate { it.key to it.expression }
+    val fallbacks: Map<Key, Expression> = defaultDeps.typeDependencies.associate { it.key to it.expression }
 
     val newArgs: List<Expression> =
         mclass.dependencies.keys.mapNotNull { preferred[it] ?: fallbacks[it] }

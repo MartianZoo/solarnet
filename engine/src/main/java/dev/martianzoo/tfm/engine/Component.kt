@@ -34,7 +34,7 @@ public data class Component private constructor(val mtype: MType) : HasExpressio
    * `Class<Tile>` has an empty dependency list, despite its appearance. The list order corresponds
    * to [MClass.dependencies].
    */
-  public val dependencyComponents = mtype.dependencies.asSet.map { ofType(it.boundType) }
+  public val dependencyComponents = mtype.dependencies.typeDependencies.map { ofType(it.boundType) }
 
   /**
    * This component's effects; while the component exists in a game state, the effects are active.

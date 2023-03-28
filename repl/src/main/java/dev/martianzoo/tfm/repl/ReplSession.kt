@@ -36,7 +36,7 @@ import org.jline.reader.History
 
 internal fun main() {
   val jline = JlineRepl()
-  val repl = ReplSession(Canon, GameSetup(Canon, "BRM", 2), jline)
+  val repl = ReplSession(Canon, GameSetup(Canon, "BM", 2), jline)
   val session = repl.session
 
   fun prompt(): String {
@@ -256,7 +256,7 @@ public class ReplSession(
       val expr: Raw<Expression> = parseInput(args)
       val counts: Multiset<Expression> = session.list(expr)
       return listOf(
-          "SORRY: this command is super broken right now", "${counts.size} ${session.prep(expr)}") +
+          "${counts.size} ${session.prep(expr)}") +
           counts.entries.sortedByDescending { (_, ct) -> ct }.map { (e, ct) -> "  $ct $e" }
     }
   }

@@ -15,7 +15,11 @@ import dev.martianzoo.tfm.types.MClassLoader
 
 /** Has functions for setting up new games and stuff. */
 public object Engine {
+  val loaderCache = mutableMapOf<GameSetup, MClassLoader>()
+
   public fun loadClasses(setup: GameSetup): MClassLoader {
+    if (setup in loaderCache) return loaderCache[setup]!!
+
     val loader = MClassLoader(setup.authority, autoLoadDependencies = true)
 
     val classNames =
@@ -27,6 +31,7 @@ public object Engine {
     if ("P" in setup.bundles) loader.load(cn("PreludePhase"))
 
     loader.frozen = true
+    loaderCache[setup] = loader
     return loader
   }
 

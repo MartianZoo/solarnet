@@ -7,7 +7,7 @@ import dev.martianzoo.util.Hierarchical
 import dev.martianzoo.util.toSetStrict
 
 // Takes care of everything inside the <> but knows nothing of what's outside it
-internal class DependencySet private constructor(val deps: Set<Dependency>) :
+internal class DependencySet private constructor(private val deps: Set<Dependency>) :
     Hierarchical<DependencySet> {
 
   companion object {
@@ -36,7 +36,7 @@ internal class DependencySet private constructor(val deps: Set<Dependency>) :
         .toMap()
   }
 
-  val asSet: Set<TypeDependency> = deps.filterIsInstance<TypeDependency>().toSet() // TODO
+  val typeDependencies: Set<TypeDependency> = deps.filterIsInstance<TypeDependency>().toSet()
 
   val keys: Set<Key> = deps.map { it.key }.toSetStrict()
   val expressions: List<Expression> by lazy { deps.map { it.expression } }

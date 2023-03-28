@@ -51,7 +51,8 @@ public class Game(val setup: GameSetup, public val loader: MClassLoader) {
   public fun toComponent(expression: Expression?) =
       expression?.let { Component.ofType(resolve(it)) }
 
-  public fun getComponents(type: Type): Multiset<Component> = components.getAll(resolve(type))
+  public fun getComponents(parentType: Type): Multiset<Component> =
+      components.getAll(resolve(parentType))
 
   val einfo =
       object : ExpressionInfo {
@@ -73,7 +74,7 @@ public class Game(val setup: GameSetup, public val loader: MClassLoader) {
             val requirement = RefinementMangler(proposed).transform(refin)
             if (!reader.evaluate(requirement)) throw UserException.requirementNotMet(requirement)
 
-            for ((a, b) in abstractTarget.dependencies.asSet.zip(proposed.dependencies.asSet)) {
+            for ((a, b) in abstractTarget.dependencies.typeDependencies.zip(proposed.dependencies.typeDependencies)) {
               checkRefinements(a.boundType, b.boundType)
             }
           }
@@ -91,7 +92,6 @@ public class Game(val setup: GameSetup, public val loader: MClassLoader) {
             val tipo = loader.resolve(node)
             try {
               val modded = tipo.specialize(listOf(proposed.expression))
-              println("ref $node - req $modded")
               @Suppress("UNCHECKED_CAST")
               modded.expressionFull as P
             } catch (e: Exception) {
@@ -132,7 +132,7 @@ public class Game(val setup: GameSetup, public val loader: MClassLoader) {
     subList.clear()
   }
 
-  internal fun allActiveEffects(): Multiset<ActiveEffect> = components.allActiveEffects(this)
+  internal fun activeEffects(): List<ActiveEffect> = components.activeEffects(this)
 
   internal fun setupFinished() {
     start = checkpoint()

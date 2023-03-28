@@ -84,7 +84,7 @@ internal constructor(
     val supersOfSupers: Set<MClass> = commonSupers.flatMap { it.properSuperclasses }.toSet()
     val candidates: Set<MClass> = commonSupers - supersOfSupers
     // TODO Just using a dumb ass heuristic for now
-    return candidates.maxBy { it.dependencies.asSet.size * 100 + it.allSuperclasses.size }
+    return candidates.maxBy { it.dependencies.typeDependencies.size * 100 + it.allSuperclasses.size }
   }
 
   /**

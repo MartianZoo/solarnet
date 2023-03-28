@@ -33,7 +33,6 @@ internal sealed class Dependency : Hierarchical<Dependency>, HasExpression, HasC
   abstract val boundClass: MClass
 
   /** Any [Dependency] except for the case covered by [FakeDependency] below. */
-  // TODO rename Dependency?
   data class TypeDependency(override val key: Key, val boundType: MType) :
       Dependency(), HasExpression by boundType {
 
@@ -96,7 +95,7 @@ internal sealed class Dependency : Hierarchical<Dependency>, HasExpression, HasC
   }
 
   companion object {
-    // TODO these don't really belong here; they're just here so that FakeDependency can be private
+    // Note these don't really belong here; they're just here so that FakeDependency can be private
 
     internal fun validate(deps: Set<Dependency>) {
       require(deps.all { it is TypeDependency } || deps.single() is FakeDependency)

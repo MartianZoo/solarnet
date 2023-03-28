@@ -89,8 +89,9 @@ public class InteractiveSession(
   fun sneakyChange(raw: Raw<Instruction>) = sneakyChange(prep(raw))
   fun sneakyChange(raw: String) = sneakyChange(parseInput(raw, features))
 
-  fun execute(instruction: String, autoExec: Boolean = defaultAutoExec) =
-      execute(parseInput(instruction, features), autoExec)
+  fun execute(instruction: String, autoExec: Boolean = defaultAutoExec): Result {
+    return execute(parseInput(instruction, features), autoExec)
+  }
 
   fun execute(instruction: Raw<Instruction>, autoExec: Boolean = defaultAutoExec) =
       execute(prep(instruction), autoExec)

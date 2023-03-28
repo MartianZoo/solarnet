@@ -6,7 +6,7 @@ import dev.martianzoo.tfm.pets.ast.Instruction.Companion.instruction
 import org.junit.jupiter.api.Test
 
 class ReifyTest {
-  val game = Engine.newGame(GameSetup(Canon, "BM", 4))
+  val game = Engine.newGame(GameSetup(Canon, "BM", 2))
 
   @Test
   fun testVarious() {

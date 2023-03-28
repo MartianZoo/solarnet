@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test
 class TilePlacingTest {
   @Test
   fun citiesRepel() {
-    val game = Engine.newGame(GameSetup(Canon, "BRM", 3))
+    val game = Engine.newGame(GameSetup(Canon, "BM", 2))
     val eng = InteractiveSession(game)
     val p2 = eng.asPlayer(PLAYER2)
 
