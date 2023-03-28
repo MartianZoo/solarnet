@@ -11,6 +11,7 @@ import com.github.h0tk3y.betterParse.parser.Parser
 import dev.martianzoo.tfm.api.UserException.PetsSyntaxException
 import dev.martianzoo.tfm.pets.BaseTokenizer
 import dev.martianzoo.tfm.pets.Parsing
+import dev.martianzoo.tfm.pets.ast.Requirement.Transform
 
 sealed class Metric : PetElement() {
   override val kind = Metric::class.simpleName!!
@@ -67,9 +68,23 @@ sealed class Metric : PetElement() {
     init {
       require(metrics.size > 1)
     }
+
     override fun visitChildren(visitor: Visitor) = visitor.visit(metrics)
     override fun toString() = metrics.joinToString(" + ")
     override fun precedence() = 9
+  }
+
+  data class Transform(val metric: Metric, override val transformKind: String) :
+      Metric(), GenericTransform<Metric> {
+    init {
+      if (metric is Transform) {
+        throw PetsSyntaxException("")
+      }
+    }
+
+    override fun visitChildren(visitor: Visitor) = visitor.visit(metric)
+    override fun toString() = "$transformKind[$metric]"
+    override fun extract() = metric
   }
 
   companion object : BaseTokenizer() {
@@ -78,23 +93,24 @@ sealed class Metric : PetElement() {
     fun parser(): Parser<Metric> {
       return parser {
         val count: Parser<Count> = Expression.parser() map ::Count
-        val atom: Parser<Metric> = count or group(parser())
 
-        val scaled: Parser<Metric> =
-            optional(rawScalar) and atom map { (scal, met) ->
-              if (scal == null) met else Scaled(scal, met)
-            }
+        val transform: Parser<Metric> =
+            transform(parser()) map { (node, transformName) -> Transform(node, transformName) }
+
+        val atom: Parser<Metric> = transform or count or group(parser())
+
+        val scaled: Parser<Metric> = optional(rawScalar) and atom map { (scal, met) ->
+          scal?.let { Scaled(it, met) } ?: met
+        }
 
         val max: Parser<Metric> =
-            scaled and
-            optional(skip(_max) and rawScalar) map { (met, limit) ->
-              if (limit == null) met else Max(met, limit)
+            scaled and optional(skip(_max) and rawScalar) map { (met, limit) ->
+              limit?.let { Max(met, it) } ?: met
             }
 
-        max and
-            zeroOrMore(skipChar('+') and parser()) map { (met, addon) ->
-              Plus.create(listOf(met) + addon)!!
-            }
+        max and zeroOrMore(skipChar('+') and max) map { (met, addon) ->
+          if (addon.any()) Plus(listOf(met) + addon) else met
+        }
       }
     }
   }

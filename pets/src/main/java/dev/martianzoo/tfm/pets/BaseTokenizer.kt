@@ -10,6 +10,7 @@ import com.github.h0tk3y.betterParse.combinators.separatedTerms
 import com.github.h0tk3y.betterParse.combinators.skip
 import com.github.h0tk3y.betterParse.lexer.DefaultTokenizer
 import com.github.h0tk3y.betterParse.lexer.Token
+import com.github.h0tk3y.betterParse.lexer.TokenMatchesSequence
 import com.github.h0tk3y.betterParse.lexer.literalToken
 import com.github.h0tk3y.betterParse.lexer.regexToken
 import com.github.h0tk3y.betterParse.parser.Parser
@@ -18,7 +19,7 @@ import dev.martianzoo.tfm.pets.ast.Instruction.Intensity
 
 /** A base class for parsing objects. */
 public open class BaseTokenizer {
-  internal fun tokenize(input: String) = TokenCache.tokenize(input)
+  internal fun tokenize(input: String): TokenMatchesSequence = TokenCache.tokenize(input)
 
   internal val _arrow = literal("->", "arrow")
   internal val _doubleColon = literal("::", "doubleColon")
@@ -91,7 +92,7 @@ public open class BaseTokenizer {
 
     val toke by lazy { DefaultTokenizer(ignoreList + map.values) }
 
-    fun tokenize(input: String) = toke.tokenize(input)
+    fun tokenize(input: String): TokenMatchesSequence = toke.tokenize(input)
   }
 
   private fun literal(text: String, name: String = text) = TokenCache.cacheLiteral(text, name)

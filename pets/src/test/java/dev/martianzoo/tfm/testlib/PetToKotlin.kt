@@ -61,6 +61,7 @@ internal object PetToKotlin {
             is Metric.Scaled -> "Scaled(unit, ${p2k(metric)})"
             is Metric.Max -> "Metric.Max(${p2k(metric)}, $maximum)"
             is Metric.Plus -> "Plus(${metrics.join()})"
+            is Metric.Transform -> "Metric.Transform(${p2k(metric)}, \"$transformKind\")"
           }
         }
         is Requirement -> {

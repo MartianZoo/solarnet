@@ -15,8 +15,8 @@ private class AutomatedTest {
 
   @Test
   fun metrics() {
-    val gen = PetGenerator(0.6)
-    gen.goNuts<Metric>(200 * factor)
+    val gen = PetGenerator(0.7)
+    gen.goNuts<Metric>(500 * factor)
   }
 
   @Test

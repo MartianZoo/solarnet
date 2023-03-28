@@ -8,7 +8,6 @@ import dev.martianzoo.tfm.repl.InteractiveSession
 import dev.martianzoo.tfm.repl.ReplSession
 import dev.martianzoo.util.toStrings
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
 
 private class CanonCustomInstructionsTest {
 
@@ -21,7 +20,7 @@ private class CanonCustomInstructionsTest {
     repl.command("exec PROD[Steel, Titanium, Plant, Energy, Heat]")
     repl.command("exec @gainLowestProduction(Player1)")
     // TODO PROD metrics
-    assertThat(repl.command("count Production<Class<Megacredit>>").first()).startsWith("6")
+    assertThat(repl.command("count PROD[Megacredit]").first()).startsWith("6 ")
   }
 
   @Test
@@ -43,7 +42,7 @@ private class CanonCustomInstructionsTest {
 
   @Test
   fun robinson2() {
-    val repl = ReplSession(Canon, GameSetup(Canon, "MB", 3)) // TODO
+    val repl = ReplSession(Canon, GameSetup(Canon, "MB", 3))
     repl.command("become Player1")
     repl.command("exec PROD[-1]")
     repl.command("exec @gainLowestProduction(Player1)")
@@ -57,12 +56,8 @@ private class CanonCustomInstructionsTest {
     repl.command("exec 2 ProjectCard")
     repl.command("exec PROD[5 Energy]")
     repl.command("exec StripMine")
-    assertThat(repl.command("count Production<Class<Energy>>").single()).startsWith("3 ")
+    assertThat(repl.command("count PROD[Energy]").single()).startsWith("3 ")
     repl.command("exec RoboticWorkforce")
     // TODO now what
   }
 }
-
-// TODO share
-private fun assertFails(message: String, shouldFail: () -> Unit) =
-    assertThrows<RuntimeException>(message, shouldFail)

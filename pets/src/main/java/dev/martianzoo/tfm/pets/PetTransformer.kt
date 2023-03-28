@@ -49,6 +49,7 @@ public abstract class PetTransformer {
                   is Metric.Scaled -> Metric.Scaled(unit, x(metric))
                   is Metric.Max -> Metric.Max(x(metric), maximum)
                   is Metric.Plus -> Metric.Plus(x(metrics))
+                  is Metric.Transform -> Metric.Transform(x(metric), transformKind)
                 }
             is Requirement ->
                 when (this) {

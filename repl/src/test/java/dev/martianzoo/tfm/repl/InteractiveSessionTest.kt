@@ -18,9 +18,9 @@ private class InteractiveSessionTest {
     session.execute("C138")
     session.execute("PROD[-2 E, 2 S, T]")
 
-    assertThat(session.count("Production<Class<E>>")).isEqualTo(0)
-    assertThat(session.count("Production<Class<S>>")).isEqualTo(4)
-    assertThat(session.count("Production<Class<T>>")).isEqualTo(2)
+    assertThat(session.count("PROD[E]")).isEqualTo(0)
+    assertThat(session.count("PROD[S]")).isEqualTo(4)
+    assertThat(session.count("PROD[T]")).isEqualTo(2)
 
     assertThat(session.asPlayer(PLAYER1).has("PROD[=0 E, =0 S]")).isTrue()
   }

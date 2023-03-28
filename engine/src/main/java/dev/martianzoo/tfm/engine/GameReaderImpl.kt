@@ -15,7 +15,6 @@ import dev.martianzoo.tfm.pets.ast.Requirement.Exact
 import dev.martianzoo.tfm.pets.ast.Requirement.Max
 import dev.martianzoo.tfm.pets.ast.Requirement.Min
 import dev.martianzoo.tfm.pets.ast.Requirement.Or
-import dev.martianzoo.tfm.pets.ast.Requirement.Transform
 import dev.martianzoo.tfm.pets.ast.ScaledExpression.Scalar.ActualScalar
 import dev.martianzoo.tfm.types.MClassLoader
 import kotlin.math.min
@@ -41,7 +40,7 @@ class GameReaderImpl(
 
         is Or -> requirement.requirements.any { evaluate(it) }
         is And -> requirement.requirements.all { evaluate(it) }
-        is Transform -> error("should have been transformed by now")
+        is Requirement.Transform -> error("should have been transformed by now")
       }
 
   override fun count(metric: Metric): Int =
@@ -50,6 +49,7 @@ class GameReaderImpl(
         is Scaled -> count(metric.metric) / metric.unit
         is Metric.Max -> min(count(metric.metric), metric.maximum)
         is Plus -> metric.metrics.sumOf(::count)
+        is Metric.Transform -> error("should have been transformed by now")
       }
 
   override fun count(type: Type) = components.count(loader.resolve(type))

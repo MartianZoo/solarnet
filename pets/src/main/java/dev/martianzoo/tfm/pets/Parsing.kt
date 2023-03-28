@@ -61,13 +61,19 @@ public object Parsing {
    * [Instruction], [Expression], etc.
    */
   public fun <P : PetNode> parseAsIs(expectedType: KClass<P>, elementSource: String): P {
+    val stream = tokenize(elementSource)
     val pet =
         try {
-          parserGroup.parse(expectedType, tokenize(elementSource))
+          parserGroup.parse(expectedType, stream)
         } catch (e: ParseException) {
+          val tokenDesc = stream
+              .filterNot { it.type.ignored }
+              .map { it.type.name }
+              .joinToString(" ")
           throw IllegalArgumentException(
               """
                 Expecting ${expectedType.simpleName} ...
+                Token stream: $tokenDesc
                 Input was:
                 $elementSource
               """
