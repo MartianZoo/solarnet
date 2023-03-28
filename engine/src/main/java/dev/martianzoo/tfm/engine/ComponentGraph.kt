@@ -21,7 +21,10 @@ public class ComponentGraph {
   public fun count(mtype: MType) = getAll(mtype).size
   public fun countComponent(component: Component) = multiset.count(component)
 
-  public fun getAll(mtype: MType): Multiset<Component> = multiset.filter { it.hasType(mtype) }
+  // TODO: refinement-aware
+  public fun getAll(mtype: MType): Multiset<Component> = multiset.filter {
+    it.mtype.isSubtypeOf(mtype)
+  }
 
   internal fun allActiveEffects(game: Game): Multiset<ActiveEffect> =
       multiset.flatMap { it.effects(game) }
@@ -78,10 +81,11 @@ public class ComponentGraph {
 
     // MAX 1 Phase, MAX 9 OceanTile
     for (it: Requirement in loader.generalInvariants) {
+      // TODO forbid refinements?
       if (it is Counting) {
         val supertypeWithLimit = loader.resolve(it.scaledEx.expression)
-        val gHasType = gaining?.hasType(supertypeWithLimit) ?: false
-        val rHasType = removing?.hasType(supertypeWithLimit) ?: false
+        val gHasType = gaining?.let { it.mtype.isSubtypeOf(supertypeWithLimit) } ?: false
+        val rHasType = removing?.let { it.mtype.isSubtypeOf(supertypeWithLimit) } ?: false
 
         if (gHasType != rHasType) {
           val existing = count(supertypeWithLimit)

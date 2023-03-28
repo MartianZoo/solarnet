@@ -18,6 +18,7 @@ import dev.martianzoo.tfm.pets.Parsing.parseInput
 import dev.martianzoo.tfm.pets.PetFeature.DEFAULTS
 import dev.martianzoo.tfm.pets.PetFeature.SHORT_NAMES
 import dev.martianzoo.tfm.pets.Raw
+import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.pets.ast.Instruction
 import dev.martianzoo.tfm.pets.ast.Instruction.Gain
@@ -25,9 +26,9 @@ import dev.martianzoo.tfm.pets.ast.Metric
 import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.repl.ReplSession.ReplMode.BLUE
 import dev.martianzoo.tfm.repl.ReplSession.ReplMode.GREEN
-import dev.martianzoo.tfm.repl.ReplSession.ReplMode.PURPLE
 import dev.martianzoo.tfm.repl.ReplSession.ReplMode.RED
 import dev.martianzoo.tfm.repl.ReplSession.ReplMode.YELLOW
+import dev.martianzoo.tfm.types.MType
 import dev.martianzoo.util.Multiset
 import dev.martianzoo.util.toStrings
 import java.io.File
@@ -40,7 +41,7 @@ internal fun main() {
 
   fun prompt(): String {
     val bundles: String = session.game.setup.bundles.joinToString("")
-    val phase: String = session.list(parseInput("Phase")).singleOrNull().toString() ?: "NoPhase"
+    val phase: Any = session.list(parseInput("Phase")).singleOrNull() ?: "NoPhase"
     val player: Player = repl.session.agent.player
     val count: Int = session.game.setup.players
     val logPosition: Int = repl.session.game.eventLog.size
@@ -75,7 +76,6 @@ public class ReplSession(
     YELLOW("Arbitrary state changes, within limits", TfmColor.MEGACREDIT),
     GREEN("Arbitrary state changes, triggering effects", TfmColor.PLANT),
     BLUE("Can only perform valid game actions", TfmColor.OCEAN_TILE),
-    PURPLE("The engine fully orchestrates everything", TfmColor.ENERGY),
   }
 
   private val inputRegex = Regex("""^\s*(\S+)(.*)$""")
@@ -269,10 +269,10 @@ public class ReplSession(
         """
     override val isReadOnly = true
 
-    override fun noArgs(): List<String> = PlayerBoardToText(session.agent, jline != null).board()
+    override fun noArgs(): List<String> = PlayerBoardToText(session, jline != null).board()
 
     override fun withArgs(args: String) =
-        PlayerBoardToText(session.agent(cn(args)), jline != null).board()
+        PlayerBoardToText(session.asPlayer(cn(args)), jline != null).board()
   }
 
   internal inner class MapCommand : ReplCommand("map") {
@@ -351,29 +351,27 @@ public class ReplSession(
             GREEN -> initiate(instruction)
             BLUE -> {
               val instr: Instruction = parseAsIs(instruction)
-              if (instr is Gain && instr.gaining.className == cn("Turn")) {
+              if (instr.isGainOf(cn("Turn"))) {
                 initiate(instruction)
               } else if (session.agent.player != Player.ENGINE) {
                 throw UsageException("In blue mode you must be Engine to do this")
-              } else if (instr is Gain &&
-                  instr.gaining.className.toString().endsWith("Phase")) { // TODO hack
+              } else if (instr.isGainOf(cn("Phase"))) {
                 initiate(instruction)
               } else {
                 throw UsageException("Eep, can't do that in ${mode.name.lowercase()} mode")
               }
             }
-            PURPLE -> TODO()
           }
 
       return describeExecutionResults(changes)
     }
 
-    private fun initiate(instruction: Raw<Instruction>): Result {
-      if (mode == BLUE && !session.game.taskQueue.isEmpty()) {
-        throw InteractiveException.mustClearTasks()
-      }
-      return session.execute(instruction, auto)
+    private fun Instruction.isGainOf(supertype: ClassName): Boolean {
+      if (this !is Gain) return false
+      val t: MType = session.game.resolve(gaining)
+      return t.isSubtypeOf(session.game.resolve(supertype.expr))
     }
+
     private fun initiate(instruction: String): Result {
       if (mode == BLUE && !session.game.taskQueue.isEmpty()) {
         throw InteractiveException.mustClearTasks()
@@ -436,14 +434,13 @@ public class ReplSession(
                 } else {
                   session.agent.doTask(id, instruction?.let(session::prep))
                 }
-            else -> TODO()
           }
       return describeExecutionResults(result)
     }
   }
 
   private fun describeExecutionResults(changes: Result): List<String> {
-    val oops: List<Task> = changes.newTaskIdsAdded.map { session.game.taskQueue[it] }
+    val oops: List<Task> = changes.newTaskIdsAdded.map { session.game.getTask(it) }
 
     val interesting: List<ChangeEvent> = changes.changes.filterNot { isSystemOnly(it.change) }
     val changeLines = interesting.toStrings().ifEmpty { listOf("No state changes") }
@@ -473,7 +470,6 @@ public class ReplSession(
         """
     override val isReadOnly = true
 
-    // TODO filter it
     override fun noArgs() =
         session.game.eventLog
             .changesSince(session.game.start)

@@ -27,6 +27,10 @@ import dev.martianzoo.util.toSetStrict
 
 public sealed class Instruction : PetElement() {
 
+  /**
+   * Returns an instruction that (in essence) does this instruction [factor] times. The fact must be
+   * nonnegative, and if zero, [NoOp] is returned.
+   */
   operator fun times(factor: Int): Instruction {
     if (factor == 0) return NoOp
     require(factor > 0)
@@ -261,21 +265,31 @@ public sealed class Instruction : PetElement() {
     override fun toString() = "@$functionName(${arguments.joinToString()})"
   }
 
-  sealed class CompositeInstruction : Instruction() {
-    abstract val instructions: List<Instruction>
-    override fun visitChildren(visitor: Visitor) = visitor.visit(instructions)
-    fun toString(connector: String) = instructions.joinToString(connector) { groupPartIfNeeded(it) }
-  }
-
-  data class Then(override val instructions: List<Instruction>) : CompositeInstruction() {
-    constructor(vararg instructions: Instruction) : this(instructions.toList())
-
+  sealed class CompositeInstruction(instrs: List<Instruction>) : Instruction() {
     init {
-      require(instructions.size >= 2)
+      require(instrs.size >= 2)
     }
 
+    abstract val instructions: List<Instruction>
+
+    abstract fun copy(instructions: Iterable<Instruction>): Instruction
+
+    final override fun scale(factor: Int) = copy(instructions.map { it * factor })
+
+    override fun visitChildren(visitor: Visitor) = visitor.visit(instructions)
+
+    abstract fun connector(): String
+
+    final override fun toString() =
+        instructions.joinToString(connector()) { groupPartIfNeeded(it) }
+  }
+
+  data class Then(override val instructions: List<Instruction>) :
+      CompositeInstruction(instructions) {
+    override fun copy(instructions: Iterable<Instruction>) =
+        copy(instructions = instructions.toList())
+
     override fun precedence() = 2
-    override fun scale(factor: Int) = copy(instructions.map { it * factor })
 
     override fun isAbstract(einfo: ExpressionInfo) = instructions.any { it.isAbstract(einfo) }
 
@@ -302,24 +316,24 @@ public sealed class Instruction : PetElement() {
       }
     }
 
-    override fun toString() = toString(" THEN ")
+    override fun connector() = " THEN "
   }
 
-  data class Or(override val instructions: List<Instruction>) : CompositeInstruction() {
-    constructor(vararg instructions: Instruction) : this(instructions.toList())
-
+  data class Or(override val instructions: List<Instruction>) :
+      CompositeInstruction(instructions) {
     init {
-      require(instructions.size >= 2)
       if (instructions.distinct().size != instructions.size) {
         throw PetsSyntaxException("duplicates")
       }
     }
 
+    override fun copy(instructions: Iterable<Instruction>) =
+        copy(instructions = instructions.toList())
+
     override fun safeToNestIn(container: PetNode) =
         super.safeToNestIn(container) && container !is Then
 
     override fun precedence() = 4
-    override fun scale(factor: Int) = copy(instructions.map { it * factor })
 
     override fun isAbstract(einfo: ExpressionInfo) = true
 
@@ -337,27 +351,24 @@ public sealed class Instruction : PetElement() {
           "Instruction `$proposed` doesn't reify any arm of the OR instruction:\n$messages")
     }
 
-    override fun toString() = toString(" OR ")
+    override fun connector() = " OR "
   }
 
-  data class Multi(override val instructions: List<Instruction>) : CompositeInstruction() {
-    constructor(vararg instructions: Instruction) : this(instructions.toList())
+  data class Multi(override val instructions: List<Instruction>) :
+      CompositeInstruction(instructions) {
+    // TODO consider ensuring no 2 instructions both have XScalars
 
-    init {
-      require(instructions.size >= 2)
-      // TODO consider ensuring no 2 instructions both have XScalars
-    }
-
-    override fun precedence() = 0
-
-    override fun scale(factor: Int) = copy(instructions.map { it * factor })
+    override fun copy(instructions: Iterable<Instruction>) =
+        copy(instructions = instructions.toList())
 
     override fun isAbstract(einfo: ExpressionInfo) = error("should have been split by now")
 
     override fun checkReificationDoNotCall(proposed: Instruction, einfo: ExpressionInfo) =
         error("should have been split by now")
 
-    override fun toString() = toString(", ")
+    override fun precedence() = 0
+
+    override fun connector() = ", "
 
     companion object {
       fun create(instructions: List<Instruction>): Instruction {
@@ -408,8 +419,7 @@ public sealed class Instruction : PetElement() {
       val abstractTarget = that.instruction
       if (abstractTarget !is Or &&
           instruction != NoOp &&
-          instruction::class != abstractTarget::class
-      ) {
+          instruction::class != abstractTarget::class) {
         throw InvalidReificationException(
             "A ${instruction::class.simpleName} instruction can't reify a" +
                 " ${abstractTarget::class.simpleName} instruction")
@@ -462,27 +472,35 @@ public sealed class Instruction : PetElement() {
       return parser {
         val gain: Parser<Instruction> =
             ScaledExpression.parser() and
-            optional(intensity) map { (ste, int) -> Gain.gain(ste, int) }
+                optional(intensity) map
+                { (ste, int) ->
+                  Gain.gain(ste, int)
+                }
 
         val remove: Parser<Remove> =
             skipChar('-') and
-            ScaledExpression.parser() and
-            optional(intensity) map { (ste, int) -> Remove(ste, int) }
+                ScaledExpression.parser() and
+                optional(intensity) map
+                { (ste, int) ->
+                  Remove(ste, int)
+                }
 
         val transmute: Parser<Transmute> =
             optional(ScaledExpression.scalar()) and
-            FromExpression.parser() and
-            optional(intensity) map { (scalar, fro, int) ->
-              Transmute(fro, scalar ?: ActualScalar(1), int)
-            }
+                FromExpression.parser() and
+                optional(intensity) map
+                { (scalar, fro, int) ->
+                  Transmute(fro, scalar ?: ActualScalar(1), int)
+                }
 
         val perable: Parser<Instruction> = transmute or group(transmute) or gain or remove
 
         val maybePer: Parser<Instruction> =
             perable and
-            optional(skipChar('/') and Metric.parser()) map { (instr, metric) ->
-              if (metric == null) instr else Per(instr, metric)
-            }
+                optional(skipChar('/') and Metric.parser()) map
+                { (instr, metric) ->
+                  if (metric == null) instr else Per(instr, metric)
+                }
 
         val transform: Parser<Transform> =
             transform(parser()) map { (node, tname) -> Transform(node, tname) }
@@ -491,10 +509,11 @@ public sealed class Instruction : PetElement() {
         val arguments = separatedTerms(Expression.parser(), char(','), acceptZero = true)
         val custom: Parser<Custom> =
             skipChar('@') and
-            _lowerCamelRE and
-            group(arguments) map { (name, args) ->
-              Custom(name.text, args, 1)
-            }
+                _lowerCamelRE and
+                group(arguments) map
+                { (name, args) ->
+                  Custom(name.text, args, 1)
+                }
         val atom: Parser<Instruction> = group(parser()) or maybeTransform or custom
 
         val isMandatory: Parser<Boolean> = (_questionColon asJust false) or (char(':') asJust true)
@@ -507,10 +526,11 @@ public sealed class Instruction : PetElement() {
                 }
 
         val orInstr: Parser<Instruction> =
-            separatedTerms(gated, _or) map {
-              val set = it.toSetStrict().toList()
-              if (set.size == 1) set.first() else Or(set)
-            }
+            separatedTerms(gated, _or) map
+                {
+                  val set = it.toSetStrict().toList()
+                  if (set.size == 1) set.first() else Or(set)
+                }
 
         val then = separatedTerms(orInstr, _then) map { if (it.size == 1) it.first() else Then(it) }
 

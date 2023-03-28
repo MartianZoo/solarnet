@@ -29,12 +29,6 @@ public data class Component private constructor(val mtype: MType) : HasExpressio
   }
 
   /**
-   * Whether this type is categorically a subtype of [thatType] for any possible game state. (In the
-   * absence of refinements, this is an ordinary subtype check.)
-   */
-  public fun hasType(thatType: MType) = mtype.isSubtypeOf(thatType)
-
-  /**
    * The full list of dependency instances of this component; *this* component cannot exist in a
    * [ComponentGraph] unless *all* of the returned components do. Note that a class type like
    * `Class<Tile>` has an empty dependency list, despite its appearance. The list order corresponds

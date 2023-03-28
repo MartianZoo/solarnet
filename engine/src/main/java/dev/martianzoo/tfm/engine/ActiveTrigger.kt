@@ -93,7 +93,7 @@ sealed class ActiveTrigger {
       val change = triggerEvent.change
       val expr = (if (matchOnGain) change.gaining else change.removing) ?: return null
 
-      return if (context.hasType(game.resolve(expr))) {
+      return if (context.mtype.isSubtypeOf(game.resolve(expr))) {
         { it * triggerEvent.change.count }
       } else {
         null
@@ -111,6 +111,7 @@ sealed class ActiveTrigger {
       if (isSelf) return null
       val change = triggerEvent.change
       val expr = (if (matchOnGain) change.gaining else change.removing) ?: return null
+      // TODO probably needs to be refinement-aware
       return if (this.game.resolve(expr).isSubtypeOf(this.game.resolve(match))) {
         val subber = Substituter(findSubstitutions(tlinks, match, expr))
         val h: Hit = { subber.transform(it) * change.count }

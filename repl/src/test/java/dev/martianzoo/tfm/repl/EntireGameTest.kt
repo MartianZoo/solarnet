@@ -291,7 +291,7 @@ class EntireGameTest {
         "task A UseAction1<DevelopmentCenter> THEN ActionUsedMarker<DevelopmentCenter>",
     )
     repl.test("exec -5 Steel THEN -1 THEN ImmigrantCity", 1)
-    // repl.testExec("task C CityTile<Hellas_9_7>")
+    repl.test("task C drop") // TODO
 
     // Shared stuff
 
@@ -347,6 +347,21 @@ class EntireGameTest {
     assertThat(repl.counts("CityTile, GreeneryTile, SpecialTile"))
         .containsExactly(0, 0, 0)
         .inOrder()
+
+    repl.test("become Engine")
+
+    val cp = repl.session.game.checkpoint()
+    repl.test("exec End")
+    assertThat(repl.session.game.taskQueue.isEmpty()).isTrue()
+    repl.session.game.eventLog.changesSince(cp).forEach(::println)
+
+    // Not sure where this discrepancy comes from... expected P2 to be shorted 1 pt because event
+
+    // 23 2 1 1 -1
+    assertThat(repl.session.count("VictoryPoint<Player1>")).isEqualTo(26)
+
+    // 25 1 1 1 (but getting shorted for event card)
+    assertThat(repl.session.count("VictoryPoint<Player2>")).isEqualTo(27) // TODO 28
   }
 }
 

@@ -43,6 +43,8 @@ public class MClassLoader( // TODO separate into loader and table
   private val loadedClasses =
       mutableMapOf<ClassName, MClass?>(COMPONENT to componentClass, CLASS to classClass)
 
+  private val queue = ArrayDeque<ClassName>()
+
   init {
     load(OK)
   }
@@ -51,8 +53,10 @@ public class MClassLoader( // TODO separate into loader and table
    * Returns the [MClass] whose [MClass.className] or [MClass.shortName] is [name], or throws an
    * exception.
    */
-  public fun getClass(name: ClassName): MClass =
-      loadedClasses[name] ?: throw UserException.classNotFound(name)
+  public fun getClass(name: ClassName): MClass {
+    if (name !in loadedClasses) throw UserException.classNotFound(name)
+    return loadedClasses[name] ?: error("reentrancy happened")
+  }
 
   /** Returns the [MType] represented by [expression]. */
   public fun resolve(expression: Expression): MType {
@@ -103,19 +107,24 @@ public class MClassLoader( // TODO separate into loader and table
 
   private fun autoLoad(idsAndNames: Collection<ClassName>) {
     require(autoLoadDependencies)
-    val queue = ArrayDeque(idsAndNames.toSet())
+    queue += idsAndNames
     while (queue.any()) {
-      val next = queue.removeFirst()
-      if (next !in loadedClasses) {
-        val declaration = decl(next)
-        loadSingle(next, declaration)
-        val needed = declaration.allNodes.flatMap { it.descendantsOfType<ClassName>() }
-        queue.addAll(needed.toSet() - loadedClasses.keys - THIS)
-      }
+      loadAndMaybeEnqueueRelated(queue.removeFirst())
     }
   }
 
-  private fun loadSingle(idOrName: ClassName): MClass =
+  internal fun loadAndMaybeEnqueueRelated(next: ClassName): MClass {
+    if (next in loadedClasses) return loadedClasses[next] ?: error("reentrant")
+    val declaration = decl(next)
+    val newClass = loadSingle(next, declaration)
+    if (autoLoadDependencies) {
+      val needed = declaration.allNodes.flatMap { it.descendantsOfType<ClassName>() }
+      queue.addAll(needed.toSet() - loadedClasses.keys - THIS)
+    }
+    return newClass
+  }
+
+  internal fun loadSingle(idOrName: ClassName): MClass =
       if (frozen) {
         getClass(idOrName)
       } else {
@@ -132,6 +141,7 @@ public class MClassLoader( // TODO separate into loader and table
   // all MClasses are created here (aside from Component and Class, at top)
   private fun construct(decl: ClassDeclaration): MClass {
     require(!frozen) { "Too late, this table is frozen!" }
+    // println("loading ${decl.className}")
 
     require(decl.className !in loadedClasses) { decl.className }
     require(decl.shortName !in loadedClasses) { decl.shortName }
@@ -140,9 +150,16 @@ public class MClassLoader( // TODO separate into loader and table
     loadedClasses[decl.className] = null
     loadedClasses[decl.shortName] = null
 
-    val mclass = MClass(decl, this)
+    val mclass =
+        try {
+          MClass(decl, this)
+        } catch (e: IllegalStateException) {
+          throw IllegalStateException("constructing ${decl.className}", e)
+        }
     loadedClasses[decl.className] = mclass
     loadedClasses[decl.shortName] = mclass
+    // println("loaded ${decl.className}")
+
     return mclass
   }
 

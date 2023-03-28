@@ -7,12 +7,12 @@ import dev.martianzoo.tfm.api.UserException
 import dev.martianzoo.tfm.data.GameEvent.ChangeEvent
 import dev.martianzoo.tfm.data.GameEvent.TaskEvent
 import dev.martianzoo.tfm.data.Player
+import dev.martianzoo.tfm.data.Task
 import dev.martianzoo.tfm.data.Task.TaskId
 import dev.martianzoo.tfm.engine.EventLog.Checkpoint
 import dev.martianzoo.tfm.pets.PetTransformer
 import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.pets.ast.PetNode
-import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.types.MClassLoader
 import dev.martianzoo.tfm.types.MType
 import dev.martianzoo.util.Multiset
@@ -70,26 +70,7 @@ public class Game(val setup: GameSetup, public val loader: MClassLoader) {
         private fun checkRefinements(abstractTarget: MType, proposed: MType) {
           val refin = abstractTarget.refinement
           if (refin != null) {
-            // HAS 0 NBR<CT<ANY>> -> HAS 0 NBR<CT<ANY>, M11>
-            val requirement: Requirement =
-                object : PetTransformer() {
-                      override fun <P : PetNode> transform(node: P): P {
-                        return if (node is Expression) {
-                          val modded = node.addArgs(proposed.expressionFull)
-                          try {
-                            resolve(modded)
-                            @Suppress("UNCHECKED_CAST")
-                            modded as P
-                          } catch (e: Exception) {
-                            node // don't go deeper
-                          }
-                        } else {
-                          transformChildren(node)
-                        }
-                      }
-                }
-                    .transform(refin)
-
+            val requirement = RefinementMangler(proposed).transform(refin)
             if (!reader.evaluate(requirement)) throw UserException.requirementNotMet(requirement)
 
             for ((a, b) in abstractTarget.dependencies.asSet.zip(proposed.dependencies.asSet)) {
@@ -98,6 +79,31 @@ public class Game(val setup: GameSetup, public val loader: MClassLoader) {
           }
         }
       }
+
+
+  // Check MartianIndustries against CardFront(HAS BuildingTag)
+  // by testing requirement `BuildingTag<MartianIndustries>`
+  // in that example, `proposed` will be `MartianIndustries`
+  // and the node being transformed is `BuildingTag`
+  inner class RefinementMangler(private val proposed: MType) : PetTransformer() {
+        override fun <P : PetNode> transform(node: P): P {
+          return if (node is Expression) {
+            val tipo = loader.resolve(node)
+            try {
+              val modded = tipo.specialize(listOf(proposed.expression))
+              println("ref $node - req $modded")
+              @Suppress("UNCHECKED_CAST")
+              modded.expressionFull as P
+            } catch (e: Exception) {
+              println(e.message)
+              node // don't go deeper
+            }
+          } else {
+            transformChildren(node)
+          }
+        }
+  }
+
   val reader = GameReaderImpl(setup, loader, components)
 
   // CHANGE LOG
@@ -130,5 +136,12 @@ public class Game(val setup: GameSetup, public val loader: MClassLoader) {
 
   internal fun setupFinished() {
     start = checkpoint()
+  }
+
+  fun getTask(taskId: String) = getTask(TaskId(taskId))
+
+  fun getTask(taskId: TaskId): Task {
+    require(taskId in taskQueue) { taskId }
+    return taskQueue[taskId]
   }
 }

@@ -123,13 +123,13 @@ private class PureTransformersTest {
         .isEqualTo(
             Effect(
                 Trigger.Transform(Trigger.OnGainOf.create(cn("Plant").expr), "HAHA"),
-                Instruction.Multi(
+                Instruction.Multi(listOf(
                     Gain(scaledEx(1, cn("Heat").expr)),
                     Instruction.Transform(
                         Instruction.Per(
                             Gain(scaledEx(1, cn("Steel").expr)),
                             Scaled(5, Count(cn("PowerTag").expr))),
-                        "HAHA")),
+                        "HAHA"))),
                 false))
   }
 }

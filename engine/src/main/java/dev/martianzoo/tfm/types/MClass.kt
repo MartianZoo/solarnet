@@ -41,8 +41,9 @@ import kotlin.math.min
  */
 public data class MClass
 internal constructor(
+
     /** The class declaration this class was loaded from. */
-    public val declaration: ClassDeclaration, // TODO unpublic after simplifying defaults
+    internal val declaration: ClassDeclaration,
 
     /** The class loader that loaded this class. */
     internal val loader: MClassLoader,
@@ -186,6 +187,8 @@ internal constructor(
 
   // EFFECTS
 
+  public fun rawEffects(): List<Effect> = declaration.effects.map { it.effect.unprocessed }
+
   /**
    * The effects belonging to this class; similar to those found on the [declaration], but processed
    * as far as we are able to. These effects will belong to every [MType] built from this class,
@@ -228,7 +231,7 @@ internal constructor(
 
   // OTHER
 
-  internal val generalInvars: Set<Requirement>
+  public val generalInvars: Set<Requirement>
 
   private val specificInvars: Set<Requirement>
 
@@ -262,8 +265,7 @@ internal constructor(
       return declaration.supertypes
           .classNames()
           .also { require(COMPONENT !in it) }
-          .map(loader::load)
-          .ifEmpty { listOf(loader.componentClass) }
+          .ifEmpty { listOf(COMPONENT) }.map(loader::loadAndMaybeEnqueueRelated)
     }
   }
 }

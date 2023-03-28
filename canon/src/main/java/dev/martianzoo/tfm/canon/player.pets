@@ -76,7 +76,7 @@ ABSTRACT CLASS Owned<Anyone> {
 
 // CARDS -----------------------------------------
 
-  // ABSTRACT CLASS Card {                        // TODO why does this break things?
+  ABSTRACT CLASS Card {                           // a quantity that stays fixed as cards are played
     ABSTRACT CLASS CardBack[CB] {
       CLASS CorporationCard                       // once a card is played and becomes a CardFront,
       CLASS PreludeCard                           // nothing in the game ever cares what kind of a
@@ -97,9 +97,9 @@ ABSTRACT CLASS Owned<Anyone> {
     }
 
     CLASS PlayedEvent<Class<CardFront>> [EVT] {   // Can't be <EventCard>, all thanks to PharmU
-      // End: @getVpsFrom(EventCard)
+      // End: @getVpsFrom(Class<CardFront>, Owner)
     }
-  // }
+  }
 
 
 // THINGS ON CARDS -------------------------------

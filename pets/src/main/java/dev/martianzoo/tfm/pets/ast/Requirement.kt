@@ -8,7 +8,6 @@ import com.github.h0tk3y.betterParse.combinators.separatedTerms
 import com.github.h0tk3y.betterParse.combinators.skip
 import com.github.h0tk3y.betterParse.grammar.parser
 import com.github.h0tk3y.betterParse.parser.Parser
-import dev.martianzoo.tfm.api.SpecialClassNames.THIS
 import dev.martianzoo.tfm.api.UserException.PetsSyntaxException
 import dev.martianzoo.tfm.pets.BaseTokenizer
 import dev.martianzoo.tfm.pets.Parsing
@@ -19,7 +18,6 @@ import dev.martianzoo.tfm.pets.ast.ScaledExpression.Scalar.ActualScalar
 import dev.martianzoo.tfm.pets.ast.ScaledExpression.Scalar.XScalar
 
 sealed class Requirement : PetElement() {
-  open fun requiresOneThis() = false // TODO kick this out
   override fun safeToNestIn(container: PetNode) =
       super.safeToNestIn(container) || container is IfTrigger
 
@@ -38,7 +36,6 @@ sealed class Requirement : PetElement() {
     }
 
     override fun toString() = "$scaledEx"
-    override fun requiresOneThis() = this.scaledEx == scaledEx(1, THIS.expr)
 
     override val range = (scaledEx.scalar as ActualScalar).value..Int.MAX_VALUE
   }
@@ -63,7 +60,6 @@ sealed class Requirement : PetElement() {
     }
 
     override fun toString() = "=${scaledEx.toFullString()}" // no "=5" or "=Heat"
-    override fun requiresOneThis() = this.scaledEx == scaledEx(1, THIS.expr)
 
     override val range = (scaledEx.scalar as ActualScalar).value..scaledEx.scalar.value
   }
@@ -102,8 +98,6 @@ sealed class Requirement : PetElement() {
     override fun visitChildren(visitor: Visitor) = visitor.visit(requirements)
     override fun toString() = requirements.joinToString { groupPartIfNeeded(it) }
     override fun precedence() = 1
-
-    override fun requiresOneThis() = requirements.any { it.requiresOneThis() }
 
     override fun safeToNestIn(container: PetNode): Boolean {
       return super.safeToNestIn(container) && container !is IfTrigger

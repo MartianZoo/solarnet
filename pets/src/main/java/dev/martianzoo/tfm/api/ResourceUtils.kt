@@ -5,6 +5,7 @@ import dev.martianzoo.tfm.api.SpecialClassNames.PRODUCTION
 import dev.martianzoo.tfm.api.SpecialClassNames.STANDARD_RESOURCE
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.Expression
+import dev.martianzoo.util.toSetStrict
 
 // Note: this was easier to test in .engine than anywhere near here (ApiHelpersTest)
 
@@ -28,9 +29,12 @@ object ResourceUtils {
       }
 
   /** Returns the name of every concrete class of type `StandardResource`. */
-  fun standardResourceNames(game: GameReader): Set<ClassName> =
-      game
-          .getComponents(game.resolve(STANDARD_RESOURCE.classExpression()))
-          .map { it.expression.arguments.single().className }
-          .toSet()
+  fun standardResourceNames(game: GameReader): Set<ClassName> {
+    val names = game
+        .getComponents(game.resolve(STANDARD_RESOURCE.classExpression()))
+        .map { it.expression.arguments.single().className }
+        .toSet()
+    // Put them in declaration order
+    return game.setup.authority.allClassNames.filter { it in names }.toSetStrict()
+  }
 }

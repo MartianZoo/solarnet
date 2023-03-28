@@ -16,20 +16,15 @@ class SpecificCardsTest {
     val game = Engine.newGame(GameSetup(Canon, "BRM", 2))
     val p1 = InteractiveSession(game, Player.PLAYER1)
 
-    fun assertThreeCardsTotal() =
-        assertThat(p1.count("CardBack + CardFront + PlayedEvent")).isEqualTo(3)
-
     p1.execute("4 Heat, 3 ProjectCard, Pets")
-    assertThreeCardsTotal()
-    assertThat(p1.counts("Heat, CardBack, CardFront, Animal, PlayedEvent"))
-        .containsExactly(4, 2, 1, 1, 0)
+    assertThat(p1.counts("Card, Heat, CardBack, CardFront, Animal, PlayedEvent"))
+        .containsExactly(3, 4, 2, 1, 1, 0)
         .inOrder()
 
     val cp1 = p1.game.checkpoint()
     p1.execute("LocalHeatTrapping")
-    assertThreeCardsTotal()
-    assertThat(p1.counts("Heat, CardBack, CardFront, Animal, PlayedEvent"))
-        .containsExactly(4, 1, 1, 1, 1)
+    assertThat(p1.counts("Card, Heat, CardBack, CardFront, Animal, PlayedEvent"))
+        .containsExactly(3, 4, 1, 1, 1, 1)
         .inOrder()
 
     val tasks = p1.agent.tasks()
@@ -37,15 +32,13 @@ class SpecificCardsTest {
     p1.game.rollBack(cp1)
 
     p1.execute("2 Heat")
-    assertThreeCardsTotal()
-    assertThat(p1.counts("Heat, CardBack, CardFront, Animal, PlayedEvent"))
-        .containsExactly(6, 2, 1, 1, 0)
+    assertThat(p1.counts("Card, Heat, CardBack, CardFront, Animal, PlayedEvent"))
+        .containsExactly(3, 6, 2, 1, 1, 0)
         .inOrder()
 
     val nextTask = p1.execute("LocalHeatTrapping").newTaskIdsAdded.single()
-    assertThreeCardsTotal()
-    assertThat(p1.counts("Heat, CardBack, CardFront, Animal, PlayedEvent"))
-        .containsExactly(1, 1, 1, 1, 1)
+    assertThat(p1.counts("Card, Heat, CardBack, CardFront, Animal, PlayedEvent"))
+        .containsExactly(3, 1, 1, 1, 1, 1)
         .inOrder()
 
     val cp2 = p1.game.checkpoint()
@@ -58,14 +51,11 @@ class SpecificCardsTest {
 
     println(p1.agent.tasks())
     p1.doTask(nextTask, "4 Plant")
-    assertThreeCardsTotal()
-
-    assertThat(p1.count("Heat")).isEqualTo(1)
-    assertThat(p1.count("Plant")).isEqualTo(4)
+    assertThat(p1.counts("Card, Heat, Plant, Animal")).containsExactly(3, 1, 4, 1).inOrder()
     p1.game.rollBack(cp2)
 
     p1.doTask(nextTask, "2 Animal<Pets>")
-    assertThat(p1.counts("Heat, Plant, Animal")).containsExactly(1, 0, 3).inOrder()
+    assertThat(p1.counts("Card, Heat, Plant, Animal")).containsExactly(3, 1, 0, 3).inOrder()
     p1.game.rollBack(cp2)
 
     // TODO: `Ok` can reify `2 Animal.` but only if we have no animal cards
@@ -83,6 +73,8 @@ class SpecificCardsTest {
 
     p1.execute("PROD[8, 6T, 7P, 5E, 3H]")
     val prods = lookUpProductionLevels(p1.game.reader, p1.agent.player.expression)
+
+    // Being very lazy and depending on declaration order!
     assertThat(prods.values).containsExactly(8, 1, 6, 7, 5, 3).inOrder()
     assertThat(p1.counts("M, S, T, P, E, H")).containsExactly(43, 1, 6, 7, 5, 3)
   }

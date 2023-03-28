@@ -89,7 +89,7 @@ public class Transformers(val loader: MClassLoader) {
         var inProd: Boolean = false
         val classNames =
             loader.getClass(STANDARD_RESOURCE).allSubclasses.flatMap {
-              setOf(it.className, it.shortName) // TODO get rid of shortname
+              setOf(it.className, it.shortName)
             }
 
         override fun <P : PetNode> transform(node: P): P {

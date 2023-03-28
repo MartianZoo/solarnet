@@ -49,10 +49,11 @@ class GameReaderImpl(
         is Count -> components.count(resolve(metric.expression))
         is Scaled -> count(metric.metric) / metric.unit
         is Metric.Max -> min(count(metric.metric), metric.maximum)
-        is Plus -> metric.metrics.map { count(it) }.sum()
+        is Plus -> metric.metrics.sumOf(::count)
       }
 
   override fun count(type: Type) = components.count(loader.resolve(type))
+
   override fun countComponent(concreteType: Type) =
       components.countComponent(Component.ofType(loader.resolve(concreteType)))
 

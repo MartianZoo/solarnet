@@ -3,7 +3,8 @@ package dev.martianzoo.tfm.repl
 import dev.martianzoo.tfm.api.ResourceUtils.lookUpProductionLevels
 import dev.martianzoo.tfm.api.ResourceUtils.standardResourceNames
 import dev.martianzoo.tfm.data.Player
-import dev.martianzoo.tfm.engine.PlayerAgent
+import dev.martianzoo.tfm.pets.PetFeature.Companion.STANDARD_FEATURES
+import dev.martianzoo.tfm.pets.Raw
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.pets.ast.Metric.Companion.metric
 import dev.martianzoo.tfm.pets.ast.Metric.Count
@@ -15,14 +16,17 @@ import dev.martianzoo.tfm.repl.TfmColor.PRODUCTION
 import dev.martianzoo.tfm.repl.TfmColor.STEEL
 import dev.martianzoo.tfm.repl.TfmColor.TITANIUM
 
-internal class PlayerBoardToText(private val agent: PlayerAgent, val useColors: Boolean = true) {
+internal class PlayerBoardToText(
+    private val session: InteractiveSession,
+    val useColors: Boolean = true
+) {
 
   internal fun board(): List<String> {
-    require(agent.player != Player.ENGINE)
-    val prodMap = lookUpProductionLevels(agent.reader, agent.player.expression)
+    require(session.player != Player.ENGINE)
+    val prodMap = lookUpProductionLevels(session.agent.reader, session.player.expression)
     val resourceMap =
-        standardResourceNames(agent.reader).associateBy({ it }) {
-          agent.count(Count(it.addArgs(agent.player.className)))
+        standardResourceNames(session.agent.reader).associateBy({ it }) {
+          session.count(Count(it.addArgs(session.player.className)))
         }
 
     fun prodAndResource(s: String) =
@@ -51,19 +55,21 @@ internal class PlayerBoardToText(private val agent: PlayerAgent, val useColors: 
     val energ = maybeColor(ENERGY, "E: $eres")
     val heeat = maybeColor(HEAT, "H: $hres")
 
-    val tr = agent.count(metric("TerraformRating<Owner>")) // why not just TR TODO
-    // val tr = maybeColor(TERRAFORM_RATING, "$tera")
-    val tiles = agent.count(metric("OwnedTile"))
-    return listOf(
-        "  ${agent.player}   TR: $tr   Tiles: $tiles",
-        "+---------+---------+---------+",
-        "|  $megac |  $steel |  $titan |",
-        "| prod $m | prod $s | prod $t |",
-        "+---------+---------+---------+",
-        "|  $plant |  $energ    $heeat |",
-        "| prod $p | prod $e | prod $h |",
-        "+---------+---------+---------+",
-    )
+    // TODO this Raw business is a mess
+    val r = session.count(Raw(metric("TerraformRating"), STANDARD_FEATURES))
+    val tiles = session.count(Raw(metric("OwnedTile"), STANDARD_FEATURES))
+    val player: String = "${session.player}"
+
+    return """
+          $player   TR: $r   Tiles: $tiles
+        +---------+---------+---------+
+        |  $megac |  $steel |  $titan |
+        | prod $m | prod $s | prod $t |
+        +---------+---------+---------+
+        |  $plant |  $energ    $heeat |
+        | prod $p | prod $e | prod $h |
+        +---------+---------+---------+
+    """.trimIndent().split("\n")
   }
 
   private fun prod(num: String): String {

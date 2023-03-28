@@ -35,7 +35,7 @@ import dev.martianzoo.util.Multiset
  */
 public class InteractiveSession(
     val game: Game,
-    player: Player = Player.ENGINE,
+    val player: Player = Player.ENGINE,
     var defaultAutoExec: Boolean = true,
 ) {
   public val agent: PlayerAgent = agent(player)
@@ -61,7 +61,7 @@ public class InteractiveSession(
     // ugh capital tile TODO
     val result = HashMultiset<Expression>()
     typeToList.mclass.directSubclasses.forEach { sub ->
-      val matches = allComponents.filter { it.hasType(sub.baseType) }
+      val matches = allComponents.filter { it.mtype.isSubtypeOf(sub.baseType) }
       if (matches.any()) {
         val types = matches.elements.map { it.mtype }
         result.add(lub(types)!!.expression, matches.size)

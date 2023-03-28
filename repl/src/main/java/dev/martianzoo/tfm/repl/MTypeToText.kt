@@ -28,7 +28,7 @@ object MTypeToText { // TODO refactor to ClassInfo / TypeInfo type dealies
           else -> subs.take(6).joinToString { "${it.className}" } + " (${subs.size - 6} others)"
         }
 
-    val invars = mclass.declaration.invariants
+    val invars = mclass.typeInvariants + mclass.generalInvars
     val invariantsDisplay = invars.joinToString().ifEmpty { "(none)" }
 
     val baseTypeDisplay = mclass.baseType.expressionFull
@@ -36,7 +36,7 @@ object MTypeToText { // TODO refactor to ClassInfo / TypeInfo type dealies
     val concTypes = mclass.baseType.concreteSubtypesSameClass()
     val cmptTypesDisplay = "${sequenceCount(concTypes, 100)} ${mclass.className}<>"
 
-    val rawFxDisplay = mclass.declaration.effects.map { it.effect.unprocessed }
+    val rawFxDisplay = mclass.rawEffects()
 
     val classFxDisplay =
         mclass.classEffects.map {
@@ -50,14 +50,10 @@ object MTypeToText { // TODO refactor to ClassInfo / TypeInfo type dealies
             invariants: $invariantsDisplay 
             base type:  $baseTypeDisplay
             cmpt types: $cmptTypesDisplay
-            raw fx:     ${
-          rawFxDisplay.joinToString("""
-                        """)
-        }
-            class fx:   ${
-          classFxDisplay.joinToString("""
-                        """)
-        }
+            raw fx:     ${rawFxDisplay.joinToString("""
+                        """)}
+            class fx:   ${classFxDisplay.joinToString("""
+                        """)}
 
 
         """

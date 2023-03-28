@@ -27,6 +27,7 @@ interface Hierarchical<H : Hierarchical<H>> : Reifiable<H> {
   /** Returns the nearest common supertype of `this` and [that]. */
   infix fun lub(that: H): H
 
+  // TODO this is wrong
   override fun ensureNarrows(that: H) {
     if (!isSubtypeOf(that)) throw InvalidReificationException("$this is not a subtype of $that")
   }

@@ -4,11 +4,13 @@ import dev.martianzoo.tfm.api.CustomInstruction
 import dev.martianzoo.tfm.api.GameReader
 import dev.martianzoo.tfm.api.GameWriter
 import dev.martianzoo.tfm.api.ResourceUtils.lookUpProductionLevels
+import dev.martianzoo.tfm.api.SpecialClassNames.CLASS
 import dev.martianzoo.tfm.api.Type
 import dev.martianzoo.tfm.api.UserException
 import dev.martianzoo.tfm.data.MarsMapDefinition.AreaDefinition
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.tfm.pets.ast.Effect.Trigger.OnGainOf
 import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.pets.ast.Instruction
 import dev.martianzoo.tfm.pets.ast.Instruction.Companion.instruction
@@ -24,6 +26,7 @@ internal val allCustomInstructions =
         ForceLoad,
         CreateAdjacencies,
         BeginPlayCard,
+        GetVpsFrom,
         CopyPrelude,
         GainLowestProduction,
         CopyProductionBox,
@@ -97,6 +100,23 @@ private object BeginPlayCard : CustomInstruction("beginPlayCard") {
     return Multi.create(instructions)
   }
 }
+
+// For scoring event cards
+private object GetVpsFrom : CustomInstruction("getVpsFrom") {
+  override fun translate(game: GameReader, arguments: List<Type>): Instruction {
+    require(arguments.size == 2)
+    val owner = arguments.last().expression
+    val classExpr = arguments.first().expression
+    require(classExpr.className == CLASS)
+    val cardName = classExpr.arguments.single().className
+    val card = game.setup.authority.card(cardName)
+    return Multi.create(card.effects
+        .map { it.unprocessed }
+        .filter { it.trigger == OnGainOf.create(cn("End").expr) }
+        .map { it.instruction })
+  }
+}
+
 // For Double Down
 private object CopyPrelude : CustomInstruction("copyPrelude") {
   override fun execute(

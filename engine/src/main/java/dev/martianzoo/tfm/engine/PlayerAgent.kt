@@ -101,7 +101,7 @@ public class PlayerAgent internal constructor(private val game: Game, public val
 
   public fun doTask(taskId: TaskId, narrowed: Instruction? = null): Result {
     val checkpoint = game.checkpoint()
-    val requestedTask: Task = game.taskQueue[taskId]
+    val requestedTask: Task = game.getTask(taskId)
     // require(requestedTask.player == player)
 
     val prepped = heyItsMe(narrowed)

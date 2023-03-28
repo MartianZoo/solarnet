@@ -43,9 +43,10 @@ internal constructor(
   override fun isSubtypeOf(that: Type) = isSubtypeOf(that as MType)
 
   override fun isSubtypeOf(that: MType) =
+      // Not smart enough to understand whether our refinement specializes that's
       mclass.isSubtypeOf(that.mclass) &&
-          dependencies.isSubtypeOf(that.dependencies)
-          // && that.refinement in setOf(null, refinement)
+          dependencies.isSubtypeOf(that.dependencies) &&
+          that.refinement in setOf(null, refinement)
 
   // Nearest common subtype
   override fun glb(that: MType): MType? {
@@ -164,6 +165,14 @@ internal constructor(
     }
   }
 
+  fun stripRefinements(): MType =
+      mclass.withExactDependencies(dependencies.map { it.stripRefinements() })
+
+  override fun ensureNarrows(that: MType) {
+    if (!isSubtypeOf(that.stripRefinements())) throw InvalidReificationException("x")
+  }
+
+  // TODO not being used... something is wrong
   val allowedRange: IntRange by lazy {
     var min = 0
     var max = MAX_VALUE
