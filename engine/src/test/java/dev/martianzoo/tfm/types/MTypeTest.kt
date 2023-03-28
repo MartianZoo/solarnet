@@ -71,6 +71,41 @@ private class MTypeTest {
     table.frozen = true
   }
 
+  @Test
+  fun subtypes() {
+    fun checkProperSubtypes(subb: String, supper: String) {
+      assertThat(type(subb).isSubtypeOf(type(supper))).isTrue()
+      assertThat(type(supper).isSubtypeOf(type(subb))).isFalse()
+    }
+
+    fun checkUnrelated(subb: String, supper: String) {
+      assertThat(type(subb).isSubtypeOf(type(supper))).isFalse()
+      assertThat(type(supper).isSubtypeOf(type(subb))).isFalse()
+    }
+
+    checkProperSubtypes("Complex1<Foo2, Bar1, Qux1>", "Complex1<Foo1, Bar1, Qux1>")
+    checkProperSubtypes("Complex1<Foo1, Bar2, Qux1>", "Complex1<Foo1, Bar1, Qux1>")
+    checkProperSubtypes("Complex1<Foo1, Bar1, Qux2>", "Complex1<Foo1, Bar1, Qux1>")
+    checkProperSubtypes("Complex2<Foo2, Bar2, Qux2>", "Complex1<Foo2, Bar2, Qux2>")
+    checkProperSubtypes("Complex2<Foo2, Bar2, Qux2>", "Complex1<Foo1, Bar2, Qux2>")
+    checkProperSubtypes("Complex2<Foo2, Bar2, Qux2>", "Complex1<Foo2, Bar1, Qux2>")
+    checkProperSubtypes("Complex2<Foo2, Bar2, Qux2>", "Complex1<Foo2, Bar2, Qux1>")
+    checkProperSubtypes("Complex2<Foo2, Bar2, Qux2>", "Complex1<Foo2, Bar2, Qux1>")
+    checkProperSubtypes("Complex2<Foo3, Bar2, Qux2>", "Complex1<Foo3, Bar2, Qux2>")
+    checkProperSubtypes("Complex1(HAS Foo1)", "Complex1")
+
+    checkUnrelated("Complex1(HAS Foo2)", "Complex1(HAS Foo1)")
+    checkUnrelated("Complex1(HAS Foo1)", "Complex1(HAS Foo2)")
+
+    checkProperSubtypes("Complex1<Bar2>(HAS Foo1)", "Complex1<Bar2>")
+    checkProperSubtypes("Complex2<Bar2>(HAS Foo1)", "Complex1<Bar2>")
+    checkProperSubtypes("Complex1<Bar2>(HAS Foo1)", "Complex1<Bar1>")
+    checkProperSubtypes("Complex1<Bar2>(HAS Foo1)", "Complex1<Bar1>(HAS Foo1)")
+    checkProperSubtypes("Complex2<Bar1>(HAS Foo1)", "Complex1<Bar1>(HAS Foo1)")
+    checkProperSubtypes("Complex2<Bar1(HAS Qux2)>(HAS Foo1)", "Complex1<Bar1>(HAS Foo1)")
+    checkProperSubtypes("Complex2<Bar1(HAS Qux2)>(HAS Foo1)", "Complex1<Bar1(HAS Qux2)>(HAS Foo1)")
+  }
+
   fun type(s: String) = table.resolve(te(s))
 
   @Test
