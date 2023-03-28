@@ -1,7 +1,7 @@
 package dev.martianzoo.tfm.types
 
 import com.google.common.truth.Truth.assertThat
-import dev.martianzoo.tfm.canon.Canon
+import dev.martianzoo.tfm.engine.CanonClassesTest
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.pets.ast.Expression.Companion.expression
 import org.junit.jupiter.api.Test
@@ -197,15 +197,13 @@ private class MTypeTest {
 
   @Test
   fun subs() {
-    val loader = MClassLoader(Canon).loadEverything()
-    val pprod = loader.resolve(expression("Production<Player1, Class<Plant>>"))
+    val pprod = CanonClassesTest.loader.resolve(expression("Production<Player1, Class<Plant>>"))
     assertThat(pprod.findSubstitutions(setOf(cn("StandardResource"))))
         .containsExactly(cn("StandardResource"), cn("Plant").expr)
   }
   @Test
   fun subs2() {
-    val loader = MClassLoader(Canon).loadEverything()
-    val pprod = loader.resolve(expression("PlayCard<Player1, Class<MediaGroup>>"))
+    val pprod = CanonClassesTest.loader.resolve(expression("PlayCard<Player1, Class<MediaGroup>>"))
     assertThat(pprod.findSubstitutions(setOf(cn("CardFront"))))
         .containsExactly(cn("CardFront"), cn("MediaGroup").expr)
   }

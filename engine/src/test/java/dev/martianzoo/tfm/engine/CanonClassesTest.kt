@@ -16,8 +16,10 @@ import kotlin.Int.Companion.MAX_VALUE
 import org.junit.jupiter.api.Test
 
 /** Tests for the Canon data set. */
-private class CanonClassesTest {
-  val loader = MClassLoader(Canon).loadEverything()
+internal class CanonClassesTest {
+  companion object {
+    val loader = MClassLoader(Canon).loadEverything()
+  }
 
   @Test
   fun redundantSuperclasses() {
@@ -139,24 +141,20 @@ private class CanonClassesTest {
 
   @Test
   fun classInvariants() {
-    val table = MClassLoader(Canon).loadEverything()
-
-    val temp = table.getClass(cn("TemperatureStep"))
+    val temp = loader.getClass(cn("TemperatureStep"))
     assertThat(temp.typeInvariants.toStrings()).containsExactly("MAX 19 This")
 
-    val ocean = table.getClass(cn("OceanTile"))
+    val ocean = loader.getClass(cn("OceanTile"))
     assertThat(ocean.typeInvariants.toStrings()).containsExactly("MAX 1 This")
 
-    val area = table.getClass(cn("Area"))
+    val area = loader.getClass(cn("Area"))
     assertThat(area.typeInvariants.toStrings()).containsExactly("=1 This", "MAX 1 Tile<This>")
   }
 
   @Test
   fun typeLimits() {
-    val table = MClassLoader(Canon).loadEverything()
-
     fun assertRange(name: String, intRange: IntRange) =
-        assertThat(table.getClass(cn(name)).componentCountRange).isEqualTo(intRange)
+        assertThat(loader.getClass(cn(name)).componentCountRange).isEqualTo(intRange)
 
     assertRange("TemperatureStep", 0..19)
     assertRange("VenusStep", 0..15)
@@ -181,8 +179,7 @@ private class CanonClassesTest {
 
   @Test
   fun generalInvariants() {
-    val table = MClassLoader(Canon).loadEverything()
-    assertThat(table.generalInvariants.toStrings())
+    assertThat(loader.generalInvariants.toStrings())
         .containsExactly(
             // "MAX 1 Phase",
             "MAX 9 OceanTile",

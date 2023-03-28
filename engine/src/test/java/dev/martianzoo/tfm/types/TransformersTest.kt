@@ -2,7 +2,7 @@ package dev.martianzoo.tfm.types
 
 import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.tfm.api.SpecialClassNames.THIS
-import dev.martianzoo.tfm.canon.Canon
+import dev.martianzoo.tfm.engine.CanonClassesTest
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.pets.ast.Effect
 import dev.martianzoo.tfm.pets.ast.Expression
@@ -10,8 +10,6 @@ import dev.martianzoo.tfm.pets.ast.Instruction.Companion.instruction
 import org.junit.jupiter.api.Test
 
 class TransformersTest {
-  val loader = MClassLoader(Canon).loadEverything()
-
   @Test
   fun test() {
     checkApplyDefaults("Heat", "Heat<Owner>!")
@@ -41,12 +39,16 @@ class TransformersTest {
         "GreeneryTile", "GreeneryTile<Owner, LandArea(HAS Neighbor<OwnedTile<Owner>>)>!")
   }
 
+  private companion object {
+    val transformers = CanonClassesTest.loader.transformers
+  }
+
   private fun checkApplyDefaults(
       original: String,
       expected: String,
       context: Expression = THIS.expr
   ) {
-    val xfd = loader.transformers.insertDefaults(context).transform(instruction(original))
+    val xfd = transformers.insertDefaults(context).transform(instruction(original))
     assertThat(xfd.toString()).isEqualTo(expected)
   }
 
@@ -54,14 +56,14 @@ class TransformersTest {
   fun testDeprodify_noProd() {
     val s = "Foo<Bar>: Bax OR Qux"
     val e: Effect = Effect.effect(s)
-    val ep: Effect = loader.transformers.deprodify().transform(e)
+    val ep: Effect = transformers.deprodify().transform(e)
     assertThat(ep.toString()).isEqualTo(s)
   }
 
   @Test
   fun testDeprodify_simple() {
     val prodden: Effect = Effect.effect("This: PROD[Plant / PlantTag]")
-    val deprodden: Effect = loader.transformers.deprodify().transform(prodden)
+    val deprodden: Effect = transformers.deprodify().transform(prodden)
     assertThat(deprodden.toString()).isEqualTo("This: Production<Class<Plant>> / PlantTag")
   }
 
@@ -76,7 +78,7 @@ class TransformersTest {
             "Production<Class<Plant>>:" +
                 " Ooh?, Production<Class<Steel>>. / Ahh, Foo<Xyz FROM Production<Class<Heat>>>," +
                 " -Qux!, 5 Ahh<Qux> FROM Production<Class<StandardResource>>, Heat")
-    val deprodden: Effect = loader.transformers.deprodify().transform(prodden)
+    val deprodden: Effect = transformers.deprodify().transform(prodden)
     assertThat(deprodden).isEqualTo(expected)
   }
 }
