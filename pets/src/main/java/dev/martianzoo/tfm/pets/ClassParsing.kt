@@ -12,16 +12,18 @@ import com.github.h0tk3y.betterParse.grammar.parser
 import com.github.h0tk3y.betterParse.parser.Parser
 import dev.martianzoo.tfm.data.ClassDeclaration
 import dev.martianzoo.tfm.data.ClassDeclaration.DefaultsDeclaration
-import dev.martianzoo.tfm.pets.ClassDeclarationParsers.Body.BodyElement
-import dev.martianzoo.tfm.pets.ClassDeclarationParsers.Body.BodyElement.ActionElement
-import dev.martianzoo.tfm.pets.ClassDeclarationParsers.Body.BodyElement.DefaultsElement
-import dev.martianzoo.tfm.pets.ClassDeclarationParsers.Body.BodyElement.EffectElement
-import dev.martianzoo.tfm.pets.ClassDeclarationParsers.Body.BodyElement.InvariantElement
-import dev.martianzoo.tfm.pets.ClassDeclarationParsers.Body.BodyElement.NestedDeclGroup
-import dev.martianzoo.tfm.pets.ClassDeclarationParsers.BodyElements.bodyElementExceptNestedClasses
-import dev.martianzoo.tfm.pets.ClassDeclarationParsers.NestableDecl.IncompleteNestableDecl
-import dev.martianzoo.tfm.pets.ClassDeclarationParsers.Signatures.moreSignatures
-import dev.martianzoo.tfm.pets.ClassDeclarationParsers.Signatures.signature
+import dev.martianzoo.tfm.pets.ClassParsing.Body.BodyElement
+import dev.martianzoo.tfm.pets.ClassParsing.Body.BodyElement.ActionElement
+import dev.martianzoo.tfm.pets.ClassParsing.Body.BodyElement.DefaultsElement
+import dev.martianzoo.tfm.pets.ClassParsing.Body.BodyElement.EffectElement
+import dev.martianzoo.tfm.pets.ClassParsing.Body.BodyElement.InvariantElement
+import dev.martianzoo.tfm.pets.ClassParsing.Body.BodyElement.NestedDeclGroup
+import dev.martianzoo.tfm.pets.ClassParsing.BodyElements.bodyElementExceptNestedClasses
+import dev.martianzoo.tfm.pets.ClassParsing.NestableDecl.IncompleteNestableDecl
+import dev.martianzoo.tfm.pets.ClassParsing.Signatures.moreSignatures
+import dev.martianzoo.tfm.pets.ClassParsing.Signatures.signature
+import dev.martianzoo.tfm.pets.Parsing.parse
+import dev.martianzoo.tfm.pets.Parsing.parseRepeated
 import dev.martianzoo.tfm.pets.PetFeature.NEEDS_CONTEXT
 import dev.martianzoo.tfm.pets.PureTransformers.rawActionListToEffects
 import dev.martianzoo.tfm.pets.ast.Action
@@ -37,15 +39,22 @@ import dev.martianzoo.util.plus
 import dev.martianzoo.util.toSetStrict
 
 /** Parses the PETS language. */
-internal object ClassDeclarationParsers : PetTokenizer() {
-
-  /** Parses a section of `components.pets` etc. */
-  val topLevelDeclarationGroup: Parser<List<ClassDeclaration>> by lazy {
-    Declarations.topLevelGroup
+public object ClassParsing : PetTokenizer() {
+  /**
+   * Parses a series of Pets class declarations. The syntax is currently not documented (sorry), but
+   * examples can be reviewed in `components.pets` and `player.pets`.
+   */
+  public fun parseClassDeclarations(declarationsSource: String): List<ClassDeclaration> {
+    val tokens = TokenCache.tokenize(stripLineComments(declarationsSource))
+    return parseRepeated(Declarations.topLevelGroup, tokens)
   }
 
-  /** Parses a one-line declaration such as found in `cards.json5` for cards like B10 (UNMI). */
-  val oneLineDeclaration: Parser<ClassDeclaration> by lazy { Declarations.oneLineDecl }
+  /**
+   * Parses a **single-line** class declaration; if it has a body, the elements within the body are
+   * semicolon-separated.
+   */
+  public fun parseOneLiner(declarationSource: String): ClassDeclaration =
+      parse(Declarations.oneLineDecl, declarationSource)
 
   // end public API
 
@@ -61,7 +70,7 @@ internal object ClassDeclarationParsers : PetTokenizer() {
    * fine-grained details never needed again.
    */
 
-  object Signatures {
+  internal object Signatures {
 
     private val dependencies: Parser<List<Expression>> =
         optionalList(skipChar('<') and commaSeparated(Expression.parser()) and skipChar('>'))
@@ -82,7 +91,7 @@ internal object ClassDeclarationParsers : PetTokenizer() {
         zeroOrMore(skipChar(',') and signature) map ::MoreSignatures
   }
 
-  object BodyElements {
+  internal object BodyElements {
     private val invariant: Parser<Requirement> = skip(_has) and Requirement.parser()
 
     private val gainOnlyDefaults: Parser<DefaultsDeclaration> =
@@ -126,7 +135,7 @@ internal object ClassDeclarationParsers : PetTokenizer() {
         (Action.parser() map { ActionElement(Raw(it, NEEDS_CONTEXT)) })
   }
 
-  object Declarations {
+  internal object Declarations {
     private val isAbstract: Parser<Boolean> =
         optional(_abstract) and skip(_class) map { it != null }
 
@@ -169,7 +178,7 @@ internal object ClassDeclarationParsers : PetTokenizer() {
 
   // The rest of the file is temporary types used only during parsing.
 
-  data class Signature(val asDeclaration: ClassDeclaration) :
+  internal data class Signature(val asDeclaration: ClassDeclaration) :
       HasClassName by asDeclaration {
     constructor(
         className: ClassName,
@@ -184,18 +193,18 @@ internal object ClassDeclarationParsers : PetTokenizer() {
             supertypes = supertypes.toSetStrict()))
   }
 
-  sealed class MoreSignaturesOrBody {
+  internal sealed class MoreSignaturesOrBody {
     abstract fun convert(abstract: Boolean, firstSignature: Signature): NestableDeclGroup
   }
 
-  class MoreSignatures(private val moreSignatures: List<Signature>) :
+  internal class MoreSignatures(private val moreSignatures: List<Signature>) :
       MoreSignaturesOrBody() {
     override fun convert(abstract: Boolean, firstSignature: Signature) =
         NestableDeclGroup(
             (firstSignature plus moreSignatures).map { IncompleteNestableDecl(abstract, it) })
   }
 
-  class Body(private val elements: KClassMultimap<BodyElement>) : MoreSignaturesOrBody() {
+  internal class Body(private val elements: KClassMultimap<BodyElement>) : MoreSignaturesOrBody() {
     constructor(list: List<BodyElement> = listOf()) : this(KClassMultimap(list))
 
     override fun convert(abstract: Boolean, firstSignature: Signature) =
@@ -218,7 +227,7 @@ internal object ClassDeclarationParsers : PetTokenizer() {
     }
   }
 
-  class NestableDeclGroup(private val declList: List<NestableDecl>) {
+  internal class NestableDeclGroup(private val declList: List<NestableDecl>) {
     constructor(
         abstract: Boolean,
         signature: Signature,
@@ -249,7 +258,7 @@ internal object ClassDeclarationParsers : PetTokenizer() {
     }
   }
 
-  sealed class NestableDecl {
+  internal sealed class NestableDecl {
     abstract val decl: ClassDeclaration
     abstract fun unnestOneFrom(container: ClassName): NestableDecl
 
@@ -274,4 +283,8 @@ internal object ClassDeclarationParsers : PetTokenizer() {
       }
     }
   }
+
+  private val lineCommentRegex = Regex(""" *(//[^\n]*)*\n""")
+
+  private fun stripLineComments(text: String) = lineCommentRegex.replace(text, "\n")
 }

@@ -11,9 +11,6 @@ import com.github.h0tk3y.betterParse.parser.Parsed
 import com.github.h0tk3y.betterParse.parser.Parser
 import com.github.h0tk3y.betterParse.parser.UnexpectedEof
 import com.github.h0tk3y.betterParse.parser.parseToEnd
-import dev.martianzoo.tfm.data.ClassDeclaration
-import dev.martianzoo.tfm.pets.ClassDeclarationParsers.oneLineDeclaration
-import dev.martianzoo.tfm.pets.ClassDeclarationParsers.topLevelDeclarationGroup
 import dev.martianzoo.tfm.pets.PetTokenizer.TokenCache
 import dev.martianzoo.tfm.pets.ast.Action
 import dev.martianzoo.tfm.pets.ast.Action.Cost
@@ -69,42 +66,37 @@ public object Parsing {
   public fun <P : PetNode> parseAsIs(expectedType: Class<P>, source: String) =
       parseAsIs(expectedType.kotlin, source)
 
-  /**
-   * Parses a **single-line** class declaration; if it has a body, the elements within the body are
-   * semicolon-separated.
-   */
-  public fun parseOneLineClassDeclaration(declarationSource: String): ClassDeclaration {
-    return parse(oneLineDeclaration, declarationSource)
-  }
-
-  /**
-   * Parses a series of Pets class declarations. The syntax is currently not documented (sorry), but
-   * examples can be reviewed in `components.pets` and `player.pets`.
-   */
-  public fun parseClassDeclarations(declarationsSource: String): List<ClassDeclaration> {
-    val tokens = TokenCache.tokenize(stripLineComments(declarationsSource))
-    return parseRepeated(topLevelDeclarationGroup, tokens)
-  }
-
   /** A minor convenience function for parsing using a particular [Parser] instance. */
-  public fun <T> parse(parser: Parser<T>, source: String): T {
-    val tokens = TokenCache.tokenize(source)
-    return try {
-      parser.parseToEnd(tokens)
+  public fun <T> parse(
+      parser: Parser<T>,
+      source: String,
+      matches: TokenMatchesSequence,
+      expectedTypeDesc: String? = null
+  ): T {
+    try {
+      return parser.parseToEnd(matches)
     } catch (e: ParseException) {
-      val tokenStream =
-          tokens
-              .filterNot { it.type.ignored }
-              .joinToString(" ") { it.type.name?.replace("\n", "\\n") ?: "NULL" }
+      val tokenDesc = matches
+          .filterNot { it.type.ignored }
+          .joinToString(" ") { it.type.name?.replace("\n", "\\n") ?: "NULL" }
 
-      throw IllegalArgumentException("input was:\n$source\n\ntoken stream: $tokenStream", e)
+      // TODO probably make this a PetSyntaxException
+      throw IllegalArgumentException(
+          """
+            Expecting: $expectedTypeDesc
+            Token stream: $tokenDesc
+            Input was:
+            ${source.replaceIndent("  ")}
+          """
+              .trimIndent(),
+          e)
     }
   }
 
-  private val lineCommentRegex = Regex(""" *(//[^\n]*)*\n""")
+  public fun <T> parse(parser: Parser<T>, source: String, expectedTypeDesc: String? = null): T =
+      parse(parser, source, TokenCache.tokenize(source), expectedTypeDesc)
 
-  private fun stripLineComments(text: String) = lineCommentRegex.replace(text, "\n")
-
+  // only used by ClassParsing.parseClassDeclarations
   internal fun <T> parseRepeated(
       listParser: Parser<List<T>>,
       tokens: TokenMatchesSequence
@@ -153,7 +145,8 @@ public object Parsing {
     pgb.finish()
   }
 
-  internal fun myThrow(result: ErrorResult) {
+  // TODO consolidate with other version of this
+  private fun myThrow(result: ErrorResult) {
     val message = StringBuilder()
     var ctr = 0
     val locations = mutableMapOf<Pair<Int, Int>, Int>()

@@ -9,7 +9,7 @@ import dev.martianzoo.tfm.data.JsonReader
 import dev.martianzoo.tfm.data.MarsMapDefinition
 import dev.martianzoo.tfm.data.MilestoneDefinition
 import dev.martianzoo.tfm.data.StandardActionDefinition
-import dev.martianzoo.tfm.pets.Parsing.parseClassDeclarations
+import dev.martianzoo.tfm.pets.ClassParsing.parseClassDeclarations
 import dev.martianzoo.util.toSetStrict
 
 /**

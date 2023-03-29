@@ -2,9 +2,8 @@ package dev.martianzoo.util
 
 import com.github.h0tk3y.betterParse.grammar.parser
 import com.github.h0tk3y.betterParse.lexer.TokenMatchesSequence
-import com.github.h0tk3y.betterParse.parser.ParseException
 import com.github.h0tk3y.betterParse.parser.Parser
-import com.github.h0tk3y.betterParse.parser.parseToEnd
+import dev.martianzoo.tfm.pets.Parsing
 import kotlin.reflect.KClass
 
 abstract class ParserGroup<B : Any> {
@@ -30,24 +29,7 @@ abstract class ParserGroup<B : Any> {
         matches: TokenMatchesSequence,
     ): T {
       val parser = parser(type)
-      try {
-        return parser.parseToEnd(matches)
-      } catch (e: ParseException) {
-        val tokenDesc = matches
-            .filterNot { it.type.ignored }
-            .joinToString(" ") { it.type.name?.replace("\n", "\\n") ?: "NULL" }
-
-        // TODO probably make this a PetSyntaxException
-        throw IllegalArgumentException(
-            """
-              Expecting: ${type.simpleName}
-              Token stream: $tokenDesc
-              Input was:
-              ${source.replaceIndent("  ")}
-            """
-                .trimIndent(),
-            e)
-      }
+      return Parsing.parse(parser, source, matches, type.simpleName)
     }
 
     override fun <T : B> parser(type: KClass<T>): Parser<T> = parser {

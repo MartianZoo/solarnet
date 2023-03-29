@@ -13,9 +13,9 @@ import dev.martianzoo.tfm.data.SpecialClassNames.EVENT_CARD
 import dev.martianzoo.tfm.data.SpecialClassNames.PRELUDE_CARD
 import dev.martianzoo.tfm.data.SpecialClassNames.PROJECT_CARD
 import dev.martianzoo.tfm.data.SpecialClassNames.RESOURCE_CARD
+import dev.martianzoo.tfm.pets.ClassParsing
 import dev.martianzoo.tfm.pets.Parsing.parseAsIs
 import dev.martianzoo.tfm.pets.Parsing.parseInput
-import dev.martianzoo.tfm.pets.Parsing.parseOneLineClassDeclaration
 import dev.martianzoo.tfm.pets.PetFeature.Companion.ALL_FEATURES
 import dev.martianzoo.tfm.pets.PetFeature.Companion.STANDARD_FEATURES
 import dev.martianzoo.tfm.pets.PetFeature.DEFAULTS
@@ -134,8 +134,7 @@ public class CardDefinition(data: CardData) : Definition {
   }
 
   /** Additional class declarations that come along with this card. */
-  val extraClasses: List<ClassDeclaration> =
-      data.components.map { parseOneLineClassDeclaration(it) }
+  val extraClasses: List<ClassDeclaration> = data.components.map(ClassParsing::parseOneLiner)
 
   override val asClassDeclaration by lazy {
     val supertypes =

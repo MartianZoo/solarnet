@@ -2,7 +2,7 @@ package dev.martianzoo.tfm.data
 
 import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.tfm.api.SpecialClassNames.THIS
-import dev.martianzoo.tfm.pets.Parsing
+import dev.martianzoo.tfm.pets.ClassParsing
 import dev.martianzoo.tfm.pets.Parsing.parseAsIs
 import dev.martianzoo.tfm.pets.PureTransformers.actionToEffect
 import dev.martianzoo.tfm.pets.ast.Action
@@ -31,7 +31,7 @@ private class ClassDeclarationTest {
         """
             .trimIndent()
 
-    val decl: ClassDeclaration = Parsing.parseClassDeclarations(declText).single()
+    val decl: ClassDeclaration = ClassParsing.parseClassDeclarations(declText).single()
 
     val foo = cn("Foo")
     val dep = cn("Bar").expr
