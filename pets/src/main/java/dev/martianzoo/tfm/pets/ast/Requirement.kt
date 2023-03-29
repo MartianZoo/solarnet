@@ -135,7 +135,10 @@ sealed class Requirement : PetElement() {
       }
     }
 
-    /** A requirement suitable for being nested directly in something else. */
+    /**
+     * A requirement suitable for being nested directly in something else. Used by gated
+     * instructions and conditional triggers.
+     */
     internal fun atomParser(): Parser<Requirement> {
       return parser {
         val scaledEx = parser {

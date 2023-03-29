@@ -7,7 +7,7 @@ import dev.martianzoo.tfm.data.Player
 import dev.martianzoo.tfm.data.StateChange
 import dev.martianzoo.tfm.pets.Parsing.parseAsIs
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.tfm.pets.ast.Expression.Companion.expression
+import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.pets.ast.Metric
 import dev.martianzoo.util.toStrings
 import org.junit.jupiter.api.Test
@@ -46,6 +46,9 @@ private class GameApiTest {
     assertThat(game.evaluate("=5 Heat<Player1>")).isTrue()
 
     val changes = game.eventLog.changesSince(checkpoint)
+
+    fun te(s: String): Expression = parseAsIs(s)
+
     assertThat(changes.map { it.change })
         .containsExactly(
             StateChange(5, gaining = te("Heat<Player2>")),
@@ -66,8 +69,6 @@ private class GameApiTest {
         )
         .inOrder()
   }
-
-  private fun te(s: String) = expression(s)
 
   // TODO duplication
 

@@ -85,7 +85,7 @@ sealed class Metric : PetElement() {
     override fun extract() = metric
   }
 
-  companion object : PetTokenizer() {
+  internal companion object : PetTokenizer() {
     fun parser(): Parser<Metric> {
       return parser {
         val count: Parser<Count> = Expression.parser() map ::Count

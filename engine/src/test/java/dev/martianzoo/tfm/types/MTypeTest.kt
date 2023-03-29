@@ -2,8 +2,9 @@ package dev.martianzoo.tfm.types
 
 import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.tfm.engine.CanonClassesTest
+import dev.martianzoo.tfm.pets.Parsing.parseAsIs
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.tfm.pets.ast.Expression.Companion.expression
+import dev.martianzoo.tfm.pets.ast.Expression
 import org.junit.jupiter.api.Test
 
 private class MTypeTest {
@@ -197,16 +198,16 @@ private class MTypeTest {
 
   @Test
   fun subs() {
-    val pprod = CanonClassesTest.loader.resolve(expression("Production<Player1, Class<Plant>>"))
+    val pprod = CanonClassesTest.loader.resolve(te("Production<Player1, Class<Plant>>"))
     assertThat(pprod.findSubstitutions(setOf(cn("StandardResource"))))
         .containsExactly(cn("StandardResource"), cn("Plant").expr)
   }
   @Test
   fun subs2() {
-    val pprod = CanonClassesTest.loader.resolve(expression("PlayCard<Player1, Class<MediaGroup>>"))
+    val pprod = CanonClassesTest.loader.resolve(te("PlayCard<Player1, Class<MediaGroup>>"))
     assertThat(pprod.findSubstitutions(setOf(cn("CardFront"))))
         .containsExactly(cn("CardFront"), cn("MediaGroup").expr)
   }
 
-  private fun te(s: String) = expression(s)
+  private fun te(s: String): Expression = parseAsIs(s)
 }

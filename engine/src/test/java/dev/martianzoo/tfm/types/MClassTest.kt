@@ -4,9 +4,10 @@ import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.tfm.api.Authority
 import dev.martianzoo.tfm.api.SpecialClassNames.CLASS
 import dev.martianzoo.tfm.api.SpecialClassNames.COMPONENT
+import dev.martianzoo.tfm.pets.Parsing.parseAsIs
 import dev.martianzoo.tfm.pets.Parsing.parseClassDeclarations
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.tfm.pets.ast.Expression.Companion.expression
+import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.pets.ast.classNames
 import dev.martianzoo.tfm.types.Dependency.Key
 import dev.martianzoo.util.toSetStrict
@@ -252,7 +253,7 @@ private class MClassTest {
   }
 }
 
-private fun te(s: String) = expression(s)
+private fun te(s: String): Expression = parseAsIs(s)
 
 internal fun loader(petsText: String): MClassLoader {
   val classes = parseClassDeclarations(petsText).toSetStrict()

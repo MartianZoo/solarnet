@@ -57,8 +57,8 @@ public sealed class FromExpression : PetNode() {
         "$className${arguments.joinOrEmpty(wrap = "<>")}${refinement.wrap("(HAS ", ")")}"
   }
 
-  companion object : PetTokenizer() {
-    internal fun parser(): Parser<FromExpression> {
+  internal companion object : PetTokenizer() {
+    fun parser(): Parser<FromExpression> {
       return parser {
         val expressionAsFrom = Expression.parser() map ::ExpressionAsFrom
         val simpleFrom =
@@ -76,7 +76,7 @@ public sealed class FromExpression : PetNode() {
         val complexFrom =
             className and
             arguments and
-            optional(Expression.refinement()) map { (name, args, refs) ->
+            optional(group(skip(_has) and Requirement.parser())) map { (name, args, refs) ->
               ComplexFrom(name, args, refs)
             }
 

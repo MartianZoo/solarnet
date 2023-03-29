@@ -6,7 +6,6 @@ import com.github.h0tk3y.betterParse.combinators.optional
 import com.github.h0tk3y.betterParse.combinators.skip
 import com.github.h0tk3y.betterParse.grammar.parser
 import com.github.h0tk3y.betterParse.parser.Parser
-import dev.martianzoo.tfm.pets.Parsing
 import dev.martianzoo.tfm.pets.PetTokenizer
 import dev.martianzoo.tfm.pets.ast.ClassName.Parsing.className
 import dev.martianzoo.util.joinOrEmpty
@@ -27,24 +26,6 @@ data class Expression(
     val arguments: List<Expression> = listOf(),
     val refinement: Requirement? = null,
 ) : PetElement(), HasClassName {
-  companion object : PetTokenizer() {
-    fun expression(text: String): Expression = Parsing.parse(parser(), text)
-
-    fun refinement() = group(skip(_has) and Requirement.parser())
-
-    fun parser(): Parser<Expression> {
-      return parser {
-        val specs = skipChar('<') and commaSeparated(parser()) and skipChar('>')
-
-        className and
-            optionalList(specs) and
-            optional(refinement()) map { (clazz, args, ref) ->
-              Expression(clazz, args, ref)
-            }
-      }
-    }
-  }
-
   override fun visitChildren(visitor: Visitor) =
       visitor.visit(listOf(className) + arguments + refinement)
 
@@ -76,4 +57,18 @@ data class Expression(
   fun hasAnyRefinements() = descendantsOfType<Requirement>().any()
 
   override val kind = Expression::class.simpleName!!
+
+  internal companion object : PetTokenizer() {
+    fun parser(): Parser<Expression> {
+      return parser {
+        val specs = skipChar('<') and commaSeparated(parser()) and skipChar('>')
+
+        className and
+            optionalList(specs) and
+            optional(group(skip(_has) and Requirement.parser())) map { (clazz, args, ref) ->
+          Expression(clazz, args, ref)
+        }
+      }
+    }
+  }
 }

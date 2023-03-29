@@ -95,7 +95,7 @@ public data class Action(val cost: Cost?, val instruction: Instruction) : PetEle
       override fun extract() = cost
     }
 
-    companion object : PetTokenizer() {
+    internal companion object : PetTokenizer() {
       fun parser(): Parser<Cost> {
         return parser {
           val spend = ScaledExpression.parser() map Cost::Spend
@@ -122,8 +122,8 @@ public data class Action(val cost: Cost?, val instruction: Instruction) : PetEle
     }
   }
 
-  companion object : PetTokenizer() {
-    internal fun parser(): Parser<Action> =
+  internal companion object : PetTokenizer() {
+    fun parser(): Parser<Action> =
         optional(Cost.parser()) and
         skip(_arrow) and
         Instruction.parser() map { (c, i) -> Action(c, i) }

@@ -12,7 +12,7 @@ import dev.martianzoo.tfm.api.SpecialClassNames.THIS
 import dev.martianzoo.tfm.api.SpecialClassNames.USE_ACTION
 import dev.martianzoo.tfm.api.UserException.PetsSyntaxException
 import dev.martianzoo.tfm.pets.PetTokenizer
-import dev.martianzoo.tfm.pets.ast.ClassName.Parsing.className
+import dev.martianzoo.tfm.pets.ast.ClassName.Parsing.classFullName
 import dev.martianzoo.tfm.pets.ast.Effect.Trigger.OnGainOf
 import dev.martianzoo.tfm.pets.ast.Effect.Trigger.WhenGain
 import dev.martianzoo.tfm.pets.ast.Effect.Trigger.WhenRemove
@@ -134,7 +134,7 @@ public data class Effect(
       override fun extract() = trigger
     }
 
-    companion object : PetTokenizer() {
+    internal companion object : PetTokenizer() {
       fun parser(): Parser<Trigger> {
         return parser {
           val onGainOf: Parser<BasicTrigger> = Expression.parser() map OnGainOf::create
@@ -154,7 +154,7 @@ public data class Effect(
           val atom: Parser<Trigger> = exxedGain or exxedRemove or onGainOf or onRemoveOf
           val transform = transform(atom) map { (node, name) -> Transform(node, name) }
           val ifClause: Parser<Requirement> = skip(_if) and Requirement.atomParser()
-          val byClause: Parser<ClassName> = skip(_by) and className
+          val byClause: Parser<ClassName> = skip(_by) and classFullName
 
           (transform or atom) and
               optional(ifClause) and
@@ -170,7 +170,7 @@ public data class Effect(
     }
   }
 
-  companion object : PetTokenizer() {
+  internal companion object : PetTokenizer() {
     fun parser(): Parser<Effect> {
       val colons = _doubleColon or char(':') map { it.text == "::" }
 

@@ -93,13 +93,13 @@ constructor(
     fun scaledEx(value: Int? = null, expression: Expression? = null) =
         scaledEx(ActualScalar(value ?: 1), expression)
 
-    fun scalar(): Parser<Scalar> {
+    internal fun scalar(): Parser<Scalar> {
       val actual: Parser<ActualScalar> = rawScalar map ::ActualScalar
       val xScalar: Parser<XScalar> = optional(rawScalar) and skip(_x) map { XScalar(it ?: 1) }
       return xScalar or actual
     }
 
-    fun parser(): Parser<ScaledExpression> {
+    internal fun parser(): Parser<ScaledExpression> {
       return parser {
         val scalarAndOptionalEx = scalar() and optional(Expression.parser())
         val optionalScalarAndEx = optional(scalar()) and Expression.parser()

@@ -8,7 +8,6 @@ import dev.martianzoo.tfm.engine.Engine
 import dev.martianzoo.tfm.pets.Parsing.parseAsIs
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.tfm.pets.ast.Expression.Companion.expression
 import dev.martianzoo.tfm.pets.ast.Metric
 import dev.martianzoo.tfm.pets.ast.classNames
 import dev.martianzoo.util.Multiset
@@ -83,8 +82,9 @@ private class CanonBootstrapTest {
           isArea(it) ||
               // isBorder(it) ||
               isClass(it) ||
-              it.mtype.isSubtypeOf(game.resolve(expression("TerraformRating"))) ||
-              it.mtype.isSubtypeOf(game.resolve(expression("Production<Class<Megacredit>>"))) // TODO PROD[M]
+              it.mtype.isSubtypeOf(game.resolve(parseAsIs("TerraformRating"))) ||
+              it.mtype.isSubtypeOf(game.resolve(parseAsIs("Production<Class<Megacredit>>")))
+              // TODO PROD[M]
         }
     assertThat(theRest.toStrings())
         .containsExactly(
