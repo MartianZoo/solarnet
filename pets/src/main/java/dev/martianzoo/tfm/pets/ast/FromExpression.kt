@@ -10,7 +10,6 @@ import com.github.h0tk3y.betterParse.grammar.parser
 import com.github.h0tk3y.betterParse.parser.Parser
 import dev.martianzoo.tfm.api.UserException.PetsSyntaxException
 import dev.martianzoo.tfm.pets.BaseTokenizer
-import dev.martianzoo.tfm.pets.Parsing
 import dev.martianzoo.tfm.pets.ast.ClassName.Parsing.className
 import dev.martianzoo.util.joinOrEmpty
 import dev.martianzoo.util.wrap
@@ -59,8 +58,6 @@ public sealed class FromExpression : PetNode() {
   }
 
   companion object : BaseTokenizer() {
-    fun from(text: String): FromExpression = Parsing.parse(parser(), text)
-
     internal fun parser(): Parser<FromExpression> {
       return parser {
         val expressionAsFrom = Expression.parser() map ::ExpressionAsFrom

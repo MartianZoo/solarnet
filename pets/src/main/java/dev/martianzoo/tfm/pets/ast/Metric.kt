@@ -10,7 +10,6 @@ import com.github.h0tk3y.betterParse.grammar.parser
 import com.github.h0tk3y.betterParse.parser.Parser
 import dev.martianzoo.tfm.api.UserException.PetsSyntaxException
 import dev.martianzoo.tfm.pets.BaseTokenizer
-import dev.martianzoo.tfm.pets.Parsing
 import dev.martianzoo.tfm.pets.ast.Requirement.Transform
 
 sealed class Metric : PetElement() {
@@ -88,8 +87,6 @@ sealed class Metric : PetElement() {
   }
 
   companion object : BaseTokenizer() {
-    fun metric(text: String): Metric = Parsing.parse(parser(), text)
-
     fun parser(): Parser<Metric> {
       return parser {
         val count: Parser<Count> = Expression.parser() map ::Count

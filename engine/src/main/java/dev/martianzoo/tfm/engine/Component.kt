@@ -62,8 +62,6 @@ public data class Component private constructor(val mtype: MType) : HasExpressio
 
   override fun toString() = "[${mtype.expressionFull}]"
 
-  fun toShortString() = "[${mtype.expressionShort}]"
-
   val allowedRange: IntRange = mtype.mclass.componentCountRange
 }
 

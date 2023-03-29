@@ -8,16 +8,16 @@ import dev.martianzoo.tfm.api.SpecialClassNames.THIS
 import dev.martianzoo.tfm.data.ClassDeclaration
 import dev.martianzoo.tfm.data.ClassDeclaration.EffectDeclaration
 import dev.martianzoo.tfm.pets.Parsing.parseAsIs
-import dev.martianzoo.tfm.pets.PetTransformer
+import dev.martianzoo.tfm.pets.PetFeature
 import dev.martianzoo.tfm.pets.PureTransformers.replaceAll
 import dev.martianzoo.tfm.pets.PureTransformers.replaceThisWith
 import dev.martianzoo.tfm.pets.PureTransformers.transformInSeries
+import dev.martianzoo.tfm.pets.Raw
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.Effect
 import dev.martianzoo.tfm.pets.ast.Effect.Trigger.ByTrigger
 import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.pets.ast.HasClassName
-import dev.martianzoo.tfm.pets.ast.PetNode
 import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.pets.ast.Requirement.Companion.split
 import dev.martianzoo.tfm.pets.ast.Requirement.Counting
@@ -84,7 +84,9 @@ internal constructor(
     val supersOfSupers: Set<MClass> = commonSupers.flatMap { it.properSuperclasses }.toSet()
     val candidates: Set<MClass> = commonSupers - supersOfSupers
     // TODO Just using a dumb ass heuristic for now
-    return candidates.maxBy { it.dependencies.typeDependencies.size * 100 + it.allSuperclasses.size }
+    return candidates.maxBy {
+      it.dependencies.typeDependencies.size * 100 + it.allSuperclasses.size
+    }
   }
 
   /**
@@ -199,35 +201,32 @@ internal constructor(
     allSuperclasses.flatMap { it.directClassEffects }.toSetStrict().toList()
   }
 
-  public val directClassEffects: List<EffectDeclaration> by lazy {
-    class FixEffectForUnownedContext : PetTransformer() {
-      override fun <P : PetNode> transform(node: P): P {
-        return if (node is Effect &&
-            OWNED !in allSuperclasses.classNames() &&
-            OWNER in node.instruction &&
-            OWNER !in node.trigger) {
-          val effect: Effect = node.copy(trigger = ByTrigger(node.trigger, OWNER))
-          @Suppress("UNCHECKED_CAST")
-          effect as P
-        } else {
-          node
-        }
-      }
+  fun fixEffectForUnownedContext(it: Effect): Effect {
+    return if (OWNER in it.instruction && OWNER !in it.trigger) {
+      it.copy(trigger = ByTrigger(it.trigger, OWNER))
+    } else {
+      it
     }
+  }
+
+  public val directClassEffects: List<EffectDeclaration> by lazy {
+    val effectFixer: (Effect) -> Effect =
+        if (OWNED !in allSuperclasses.classNames()) ::fixEffectForUnownedContext else { e -> e }
 
     val xers = loader.transformers
-    val transformer =
-        transformInSeries(
-            xers.useFullNames(),
-            xers.atomizer(),
-            xers.insertDefaults(parseAsIs("$className(HAS Ok)")),
-            FixEffectForUnownedContext(),
-            // Not needed: ReplaceThisWith, ReplaceOwnerWith, Deprodify,
-        )
+    val transformer = transformInSeries(
+        xers.insertDefaults(parseAsIs("$className(HAS Ok)")),
+        xers.atomizer()
+    )
+
     declaration.effects
-        .map { it.copy(effect = it.effect.map(transformer::transform)!!) }
+        .map {
+          val defaulted = effectFixer(transformer.transform(it.effect.unprocessed))
+          it.copy(effect = Raw(defaulted, it.effect.unhandled - PetFeature.DEFAULTS ))
+        }
         .sortedBy { it.effect.unprocessed }
   }
+
 
   // OTHER
 
@@ -236,7 +235,8 @@ internal constructor(
   private val specificInvars: Set<Requirement>
 
   init {
-    val (s, g) = split(declaration.invariants).partition { THIS in it }
+    val invars = split(declaration.invariants)
+    val (s, g) = invars.partition { THIS in it }
     specificInvars = s.toSetStrict()
     generalInvars = g.toSetStrict()
   }
@@ -265,7 +265,8 @@ internal constructor(
       return declaration.supertypes
           .classNames()
           .also { require(COMPONENT !in it) }
-          .ifEmpty { listOf(COMPONENT) }.map(loader::loadAndMaybeEnqueueRelated)
+          .ifEmpty { listOf(COMPONENT) }
+          .map(loader::loadAndMaybeEnqueueRelated)
     }
   }
 }

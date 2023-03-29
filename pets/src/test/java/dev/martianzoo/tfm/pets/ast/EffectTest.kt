@@ -1,7 +1,7 @@
 package dev.martianzoo.tfm.pets.ast
 
 import com.google.common.truth.Truth.assertThat
-import dev.martianzoo.tfm.pets.ast.Effect.Companion.effect
+import dev.martianzoo.tfm.pets.Parsing.parseAsIs
 import dev.martianzoo.tfm.pets.testSampleStrings
 import dev.martianzoo.tfm.testlib.PetGenerator
 import org.junit.jupiter.api.Test
@@ -76,7 +76,7 @@ private class EffectTest {
 
   @Test
   fun nodeCount() {
-    val eff = effect("Xyz<Xyz>: PROD[(1 Abc FROM Qux) OR 1]")
+    val eff: Effect = parseAsIs("Xyz<Xyz>: PROD[(1 Abc FROM Qux) OR 1]")
     // ef, og, te, cn, te, cn, pr, or, tr, sc, fr, te, cn, te, cn, ga, ste, te, cn
     assertThat(eff.descendantCount()).isEqualTo(19)
   }

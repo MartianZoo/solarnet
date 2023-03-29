@@ -11,7 +11,6 @@ import dev.martianzoo.tfm.api.SpecialClassNames.MEGACREDIT
 import dev.martianzoo.tfm.api.UserException.InvalidReificationException
 import dev.martianzoo.tfm.api.UserException.PetsSyntaxException
 import dev.martianzoo.tfm.pets.BaseTokenizer
-import dev.martianzoo.tfm.pets.Parsing
 import dev.martianzoo.tfm.pets.ast.ScaledExpression.Scalar.ActualScalar
 import dev.martianzoo.tfm.pets.ast.ScaledExpression.Scalar.XScalar
 import dev.martianzoo.util.Reifiable
@@ -93,8 +92,6 @@ constructor(
 
     fun scaledEx(value: Int? = null, expression: Expression? = null) =
         scaledEx(ActualScalar(value ?: 1), expression)
-
-    fun scaledEx(text: String) = Parsing.parse(parser(), text)
 
     fun scalar(): Parser<Scalar> {
       val actual: Parser<ActualScalar> = rawScalar map ::ActualScalar

@@ -8,12 +8,12 @@ import dev.martianzoo.tfm.api.SpecialClassNames.CLASS
 import dev.martianzoo.tfm.api.Type
 import dev.martianzoo.tfm.api.UserException
 import dev.martianzoo.tfm.data.MarsMapDefinition.AreaDefinition
+import dev.martianzoo.tfm.pets.Parsing.parseAsIs
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.pets.ast.Effect.Trigger.OnGainOf
 import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.pets.ast.Instruction
-import dev.martianzoo.tfm.pets.ast.Instruction.Companion.instruction
 import dev.martianzoo.tfm.pets.ast.Instruction.Gain
 import dev.martianzoo.tfm.pets.ast.Instruction.Intensity.MANDATORY
 import dev.martianzoo.tfm.pets.ast.Instruction.Multi
@@ -90,10 +90,13 @@ private object BeginPlayCard : CustomInstruction("beginPlayCard") {
 
     if (reqt?.let(game::evaluate) == false) throw UserException.requirementNotMet(reqt)
 
-    val playTagSignals = card.tags.entries.map { (e, ct) -> instruction("$ct PlayTag<Class<$e>>!") }
+    val playTagSignals = card.tags.entries.map {
+      (e, ct) -> parseAsIs<Instruction>("$ct PlayTag<Class<$e>>!")
+    }
     val instructions =
         if (card.cost > 0) {
-          listOf(instruction("${card.cost} Owed")) + playTagSignals
+          val instr: Instruction = parseAsIs("${card.cost} Owed")
+          listOf(instr) + playTagSignals
         } else {
           playTagSignals
         }
@@ -137,7 +140,7 @@ private object GainLowestProduction : CustomInstruction("gainLowestProduction") 
     val lowest: Int = prods.values.min()
     val keys: Set<ClassName> = prods.filterValues { it == lowest }.keys
     val lowestProds = keys.joinToString(" OR ") { "$it<${player.expression}>" }
-    return instruction("PROD[$lowestProds]")
+    return parseAsIs("PROD[$lowestProds]")
   }
 }
 

@@ -13,6 +13,7 @@ import dev.martianzoo.tfm.pets.PetFeature.ATOMIZE
 import dev.martianzoo.tfm.pets.PetFeature.DEFAULTS
 import dev.martianzoo.tfm.pets.PetFeature.PROD_BLOCKS
 import dev.martianzoo.tfm.pets.PetFeature.SHORT_NAMES
+import dev.martianzoo.tfm.pets.PetTransformer
 import dev.martianzoo.tfm.pets.PureTransformers.transformInSeries
 import dev.martianzoo.tfm.pets.Raw
 import dev.martianzoo.tfm.pets.ast.ClassName
@@ -22,6 +23,7 @@ import dev.martianzoo.tfm.pets.ast.Instruction.Change
 import dev.martianzoo.tfm.pets.ast.Instruction.Companion.split
 import dev.martianzoo.tfm.pets.ast.Metric
 import dev.martianzoo.tfm.pets.ast.PetElement
+import dev.martianzoo.tfm.pets.ast.PetNode
 import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.pets.ast.ScaledExpression.Scalar.ActualScalar
 import dev.martianzoo.tfm.types.MType
@@ -161,7 +163,7 @@ public class InteractiveSession(
   fun <P : PetElement> prep(node: Raw<P>): P {
     val xers = game.loader.transformers
     return transformInSeries(
-            xers.useFullNames(),
+            useFullNames(),
             xers.atomizer(),
             xers.insertDefaults(THIS.expr), // TODO: context??
             xers.deprodify(),
@@ -172,4 +174,17 @@ public class InteractiveSession(
 
   fun agent(player: ClassName) = agent(Player(player)) // TODO needed??
   fun agent(player: Player) = game.asPlayer(player)
+
+  public fun useFullNames() =
+      object : PetTransformer() {
+        override fun <P : PetNode> transform(node: P): P {
+          return if (node is ClassName) {
+            @Suppress("UNCHECKED_CAST")
+            game.loader.getClass(node).className as P
+          } else {
+            node
+          }
+        }
+      }
+
 }

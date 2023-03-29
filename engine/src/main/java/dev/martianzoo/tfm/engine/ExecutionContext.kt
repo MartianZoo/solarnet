@@ -26,7 +26,7 @@ import dev.martianzoo.tfm.pets.ast.Instruction.Transform
 import dev.martianzoo.tfm.pets.ast.ScaledExpression.Scalar.ActualScalar
 import dev.martianzoo.tfm.types.MClassLoader
 
-internal class SingleExecution(
+internal class ExecutionContext(
     val reader: GameReader,
     val writer: GameWriter,
     val loader: MClassLoader, // TODO needed?
@@ -58,7 +58,7 @@ internal class SingleExecution(
     val scal = instr.count as? ActualScalar ?: throw UserException.unresolvedX(instr)
 
     val amap = when (instr.intensity) {
-      null -> error("should have had defaults inserted")
+      null -> error("should have had defaults inserted: $instr")
       MANDATORY -> false
       AMAP -> true
       OPTIONAL -> throw UserException.optionalAmount(instr)
@@ -83,7 +83,6 @@ internal class SingleExecution(
       val xers = loader.transformers
       val instruction =
           PureTransformers.transformInSeries(
-              xers.useFullNames(),
               xers.atomizer(),
               xers.insertDefaults(THIS.expr), // TODO context component??
               xers.deprodify(),

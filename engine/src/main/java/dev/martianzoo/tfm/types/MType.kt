@@ -101,10 +101,6 @@ internal constructor(
     toExpressionUsingSpecs(dependencies.expressionsFull)
   }
 
-  val expressionShort: Expression by lazy {
-    loader.transformers.useShortNames().transform(expression)
-  }
-
   internal val narrowedDependencies: DependencySet by lazy {
     dependencies.minus(mclass.dependencies)
   }

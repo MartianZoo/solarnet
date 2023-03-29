@@ -5,10 +5,11 @@ import dev.martianzoo.tfm.api.GameSetup
 import dev.martianzoo.tfm.api.SpecialClassNames.COMPONENT
 import dev.martianzoo.tfm.engine.Component
 import dev.martianzoo.tfm.engine.Engine
+import dev.martianzoo.tfm.pets.Parsing.parseAsIs
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.pets.ast.Expression.Companion.expression
-import dev.martianzoo.tfm.pets.ast.Metric.Companion.metric
+import dev.martianzoo.tfm.pets.ast.Metric
 import dev.martianzoo.tfm.pets.ast.classNames
 import dev.martianzoo.util.Multiset
 import dev.martianzoo.util.toSetStrict
@@ -40,7 +41,7 @@ private class CanonBootstrapTest {
     val game = Engine.newGame(GameSetup(Canon, "BRM", 3)).reader
 
     fun checkCount(count: Int, expr: String) {
-      assertThat(game.count(metric(expr))).isEqualTo(count)
+      assertThat(game.count(parseAsIs<Metric>(expr))).isEqualTo(count)
     }
 
     checkCount(1, "Class<Class>")
@@ -56,9 +57,9 @@ private class CanonBootstrapTest {
     checkCount(12, "Class<WaterArea>")
     checkCount(63, "Class<Area>")
 
-    assertThat(game.count(metric("Class<CardFront>"))).isGreaterThan(200)
-    assertThat(game.count(metric("Class<Component>"))).isGreaterThan(300)
-    assertThat(game.count(metric("Class"))).isGreaterThan(300)
+    assertThat(game.count(parseAsIs<Metric>("Class<CardFront>"))).isGreaterThan(200)
+    assertThat(game.count(parseAsIs<Metric>("Class<Component>"))).isGreaterThan(300)
+    assertThat(game.count(parseAsIs<Metric>("Class"))).isGreaterThan(300)
   }
 
   @Test

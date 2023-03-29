@@ -5,18 +5,17 @@ import dev.martianzoo.tfm.api.GameSetup
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.data.Player
 import dev.martianzoo.tfm.data.StateChange
+import dev.martianzoo.tfm.pets.Parsing.parseAsIs
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.pets.ast.Expression.Companion.expression
-import dev.martianzoo.tfm.pets.ast.Instruction.Companion.instruction
-import dev.martianzoo.tfm.pets.ast.Metric.Companion.metric
-import dev.martianzoo.tfm.pets.ast.Requirement.Companion.requirement
+import dev.martianzoo.tfm.pets.ast.Metric
 import dev.martianzoo.util.toStrings
 import org.junit.jupiter.api.Test
 
 private class GameApiTest {
-  fun Game.count(s: String) = reader.count(metric(s))
-  fun Game.execute(s: String) = asPlayer(Player(cn("Player2"))).initiate(instruction(s))
-  fun Game.evaluate(s: String) = reader.evaluate(requirement(s))
+  fun Game.count(s: String) = reader.count(parseAsIs<Metric>(s))
+  fun Game.execute(s: String) = asPlayer(Player(cn("Player2"))).initiate(parseAsIs(s))
+  fun Game.evaluate(s: String) = reader.evaluate(parseAsIs(s))
 
   @Test
   fun basicByApi() {

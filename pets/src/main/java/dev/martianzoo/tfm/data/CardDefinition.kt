@@ -13,6 +13,7 @@ import dev.martianzoo.tfm.data.SpecialClassNames.EVENT_CARD
 import dev.martianzoo.tfm.data.SpecialClassNames.PRELUDE_CARD
 import dev.martianzoo.tfm.data.SpecialClassNames.PROJECT_CARD
 import dev.martianzoo.tfm.data.SpecialClassNames.RESOURCE_CARD
+import dev.martianzoo.tfm.pets.Parsing.parseAsIs
 import dev.martianzoo.tfm.pets.Parsing.parseInput
 import dev.martianzoo.tfm.pets.Parsing.parseOneLineClassDeclaration
 import dev.martianzoo.tfm.pets.PetFeature.Companion.ALL_FEATURES
@@ -126,8 +127,8 @@ public class CardDefinition(data: CardData) : Definition {
     if (deck == PROJECT) {
       val shouldBeActive =
           actions.any() ||
-          effects.any { it.unprocessed.trigger != OnGainOf.create(END.expr) } ||
-          resourceType != null
+              effects.any { it.unprocessed.trigger != OnGainOf.create(END.expr) } ||
+              resourceType != null
       require(shouldBeActive == (projectInfo?.kind == ACTIVE))
     }
   }
@@ -146,9 +147,9 @@ public class CardDefinition(data: CardData) : Definition {
             .ifEmpty { setOf(CARD_FRONT.expr) }
 
     val zapHandCard: Raw<Instruction>? = deck?.className?.let { parseInput("-$it", DEFAULTS) }
-    val createTags: List<Raw<Instruction>> =
-        tags.toList().map { parseInput("$it<This>", DEFAULTS, THIS_EXPRESSIONS) }
-    val createTagsMerged: Raw<Instruction> = Multi.create(createTags)
+    val createTags: List<Instruction> = tags.toList().map { parseAsIs("$it<This>") }
+    val createTagsMerged: Raw<Instruction> =
+        Raw(Multi.create(createTags), DEFAULTS, THIS_EXPRESSIONS)
     val automatic: List<Raw<Effect>> =
         listOfNotNull(zapHandCard, createTagsMerged).mapNotNull { instr ->
           instr.map { immediateToEffect(it, true) }
@@ -156,9 +157,9 @@ public class CardDefinition(data: CardData) : Definition {
 
     val allEffects: List<Raw<Effect>> =
         automatic +
-        listOfNotNull(immediate).mapNotNull { immediateToEffect(it, automatic = false) } +
-        effects +
-        rawActionListToEffects(actions)
+            listOfNotNull(immediate).mapNotNull { immediateToEffect(it, automatic = false) } +
+            effects +
+            rawActionListToEffects(actions)
 
     ClassDeclaration(
         className = className,
@@ -166,7 +167,8 @@ public class CardDefinition(data: CardData) : Definition {
         abstract = false,
         supertypes = supertypes,
         effectsIn = allEffects.toSetStrict(), // TODO
-        extraNodes = setOfNotNull(requirement?.unprocessed) + extraClasses.flatMap { it.allNodes })
+        extraNodes =
+            setOfNotNull(requirement?.unprocessed) + extraClasses.flatMap { it.allNodes })
   }
 
   /** The deck this card belongs to; see [CardDefinition.deck]. */

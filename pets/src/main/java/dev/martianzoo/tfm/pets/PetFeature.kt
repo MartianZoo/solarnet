@@ -1,6 +1,12 @@
 package dev.martianzoo.tfm.pets
 
 enum class PetFeature {
+  NEEDS_CONTEXT,
+
+  NEEDS_OWNER,
+
+  NEEDS_SPECIALIZATION,
+  
   /** This element might use short names for classes. Should be done early. */
   SHORT_NAMES,
 

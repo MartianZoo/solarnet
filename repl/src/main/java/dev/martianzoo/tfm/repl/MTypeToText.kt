@@ -2,7 +2,6 @@ package dev.martianzoo.tfm.repl
 
 import dev.martianzoo.tfm.api.SpecialClassNames.THIS
 import dev.martianzoo.tfm.engine.Component
-import dev.martianzoo.tfm.pets.Raw
 import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.pets.ast.Instruction.Gain
 import dev.martianzoo.tfm.pets.ast.Instruction.Remove
@@ -12,8 +11,7 @@ import dev.martianzoo.util.iff
 
 object MTypeToText { // TODO refactor to ClassInfo / TypeInfo type dealies
   /** A detailed multi-line description of the class. */
-  public fun describe(expr: Raw<Expression>, session: InteractiveSession): String {
-    val expression = expr.unprocessed // TODO
+  public fun describe(expression: Expression, session: InteractiveSession): String {
     val mtype = session.game.resolve(expression) // TODO
     val mclass = mtype.mclass
 
@@ -72,7 +70,6 @@ object MTypeToText { // TODO refactor to ClassInfo / TypeInfo type dealies
         """
           Expression `$expression`:
             std. form:  ${mtype.expression}
-            short form: ${mtype.expressionShort}
             long form:  ${mtype.expressionFull}
             supertypes: $supertypesDisplay
             defaults:   *$allCases / +$gain / $remove

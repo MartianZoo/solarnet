@@ -8,15 +8,12 @@ import dev.martianzoo.tfm.pets.PureTransformers.actionToEffect
 import dev.martianzoo.tfm.pets.PureTransformers.immediateToEffect
 import dev.martianzoo.tfm.pets.PureTransformers.replaceAll
 import dev.martianzoo.tfm.pets.ast.Action
-import dev.martianzoo.tfm.pets.ast.Action.Companion.action
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.pets.ast.Effect
-import dev.martianzoo.tfm.pets.ast.Effect.Companion.effect
 import dev.martianzoo.tfm.pets.ast.Effect.Trigger
 import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.pets.ast.Instruction
-import dev.martianzoo.tfm.pets.ast.Instruction.Companion.instruction
 import dev.martianzoo.tfm.pets.ast.Instruction.Gain
 import dev.martianzoo.tfm.pets.ast.Metric.Count
 import dev.martianzoo.tfm.pets.ast.Metric.Scaled
@@ -30,8 +27,11 @@ import org.junit.jupiter.api.Test
 private class PureTransformersTest {
   @Test
   fun testActionToEffect() {
-    fun checkActionToEffect(action: String, index: Int, effect: String) =
-        assertThat(actionToEffect(action(action), index)).isEqualTo(effect(effect))
+    fun checkActionToEffect(action: String, index: Int, effect: String) {
+      val parsedA: Action = parseAsIs(action)
+      val parsedE: Effect = parseAsIs(effect)
+      assertThat(actionToEffect(parsedA, index)).isEqualTo(parsedE)
+    }
 
     checkActionToEffect("-> Ok", 5, "UseAction5<This>: Ok")
     checkActionToEffect("5 -> Ok", 1, "UseAction1<This>: -5! THEN Ok")
@@ -49,19 +49,22 @@ private class PureTransformersTest {
 
   @Test
   fun testActionsToEffects() {
-    val actions: List<Action> = listOf("-> Foo", "Foo -> 5 Bar").map(::action)
+    val actions: List<Action> = listOf("-> Foo", "Foo -> 5 Bar").map(::parseAsIs)
     assertThat(actionListToEffects(actions))
         .containsExactly(
-            effect("UseAction1<This>: Foo"),
-            effect("UseAction2<This>: -Foo! THEN 5 Bar"),
+            parseAsIs<Effect>("UseAction1<This>: Foo"),
+            parseAsIs<Effect>("UseAction2<This>: -Foo! THEN 5 Bar"),
         )
         .inOrder()
   }
 
   @Test
   fun testImmediateToEffect() {
-    fun checkImmediateToEffect(immediate: String, effect: String) =
-        assertThat(immediateToEffect(instruction(immediate))).isEqualTo(effect(effect))
+    fun checkImmediateToEffect(immediate: String, effect: String) {
+      val immed: Instruction = parseAsIs(immediate)
+      val fx: Effect = parseAsIs(effect)
+      assertThat(immediateToEffect(immed)).isEqualTo(fx)
+    }
 
     checkImmediateToEffect("Foo, Bar", "This: Foo, Bar")
     checkImmediateToEffect("Foo, Bar: Qux", "This: Foo, Bar: Qux")
@@ -70,7 +73,7 @@ private class PureTransformersTest {
 
   @Test
   fun testFindAllClassNames() {
-    val instr = instruction("@foo(Bar, Qux<Dog>)")
+    val instr: Instruction = parseAsIs("@foo(Bar, Qux<Dog>)")
     assertThat(instr.descendantsOfType<ClassName>().toStrings())
         .containsExactly("Bar", "Qux", "Dog")
   }
@@ -118,18 +121,19 @@ private class PureTransformersTest {
 
   @Test
   fun testNonProd() {
-    val x = effect("HAHA[Plant]: Heat, HAHA[Steel / 5 PowerTag]")
+    val x: Effect = parseAsIs("HAHA[Plant]: Heat, HAHA[Steel / 5 PowerTag]")
     assertThat(x)
         .isEqualTo(
             Effect(
                 Trigger.Transform(Trigger.OnGainOf.create(cn("Plant").expr), "HAHA"),
-                Instruction.Multi(listOf(
-                    Gain(scaledEx(1, cn("Heat").expr)),
-                    Instruction.Transform(
-                        Instruction.Per(
-                            Gain(scaledEx(1, cn("Steel").expr)),
-                            Scaled(5, Count(cn("PowerTag").expr))),
-                        "HAHA"))),
+                Instruction.Multi(
+                    listOf(
+                        Gain(scaledEx(1, cn("Heat").expr)),
+                        Instruction.Transform(
+                            Instruction.Per(
+                                Gain(scaledEx(1, cn("Steel").expr)),
+                                Scaled(5, Count(cn("PowerTag").expr))),
+                            "HAHA"))),
                 false))
   }
 }

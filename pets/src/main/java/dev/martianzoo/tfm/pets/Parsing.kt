@@ -48,9 +48,6 @@ public object Parsing {
    * Parses the PETS element in [elementSource], expecting a construct of type [P], and returning
    * the parsed [P]. [P] can only be one of the major element types like [Effect], [Action],
    * [Instruction], [Expression], etc.
-   *
-   * These can also be parsed using, for example, [Instruction.instruction] (but this function is
-   * generic/reified, which is sometimes essential).
    */
   public inline fun <reified P : PetNode> parseAsIs(elementSource: String): P =
       parseAsIs(P::class, elementSource)
@@ -62,6 +59,7 @@ public object Parsing {
    */
   public fun <P : PetNode> parseAsIs(expectedType: KClass<P>, elementSource: String): P {
     val stream = tokenize(elementSource)
+    require(expectedType != PetNode::class) { "missing type info" }
     val pet =
         try {
           parserGroup.parse(expectedType, stream)
@@ -115,7 +113,7 @@ public object Parsing {
     val tokens = tokenize(source)
     return try {
       parser.parseToEnd(tokens)
-    } catch (e: Exception) {
+    } catch (e: ParseException) {
       val tokenStream =
           tokens
               .filterNot { it.type.ignored }

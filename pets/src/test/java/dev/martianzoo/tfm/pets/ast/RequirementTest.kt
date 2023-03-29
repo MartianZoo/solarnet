@@ -1,8 +1,8 @@
 package dev.martianzoo.tfm.pets.ast
 
 import com.google.common.truth.Truth.assertThat
+import dev.martianzoo.tfm.pets.Parsing.parseAsIs
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.tfm.pets.ast.Requirement.Companion.requirement
 import dev.martianzoo.tfm.pets.ast.Requirement.Max
 import dev.martianzoo.tfm.pets.ast.Requirement.Min
 import dev.martianzoo.tfm.pets.ast.ScaledExpression.Companion.scaledEx
@@ -84,9 +84,9 @@ private class RequirementTest {
 
   @Test
   fun simpleSourceToApi() {
-    assertThat(requirement("Foo")).isEqualTo(Min(scaledEx(1, cn("Foo").expr)))
-    assertThat(requirement("3 Foo")).isEqualTo(Min(scaledEx(3, cn("Foo").expr)))
-    assertThat(requirement("MAX 3 Foo")).isEqualTo(Max(scaledEx(3, cn("Foo").expr)))
+    assertThat(parseAsIs<Requirement>("Foo")).isEqualTo(Min(scaledEx(1, cn("Foo").expr)))
+    assertThat(parseAsIs<Requirement>("3 Foo")).isEqualTo(Min(scaledEx(3, cn("Foo").expr)))
+    assertThat(parseAsIs<Requirement>("MAX 3 Foo")).isEqualTo(Max(scaledEx(3, cn("Foo").expr)))
   }
 
   @Test

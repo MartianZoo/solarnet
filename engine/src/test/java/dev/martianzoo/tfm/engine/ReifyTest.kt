@@ -2,7 +2,8 @@ package dev.martianzoo.tfm.engine
 
 import dev.martianzoo.tfm.api.GameSetup
 import dev.martianzoo.tfm.canon.Canon
-import dev.martianzoo.tfm.pets.ast.Instruction.Companion.instruction
+import dev.martianzoo.tfm.pets.Parsing.parseAsIs
+import dev.martianzoo.tfm.pets.ast.Instruction
 import org.junit.jupiter.api.Test
 
 class ReifyTest {
@@ -31,6 +32,9 @@ class ReifyTest {
     test("5 OxygenStep? / Plant<Anyone>", "5 OxygenStep. / Plant<Anyone>")
   }
 
-  fun test(original: String, replacement: String) =
-      instruction(replacement).ensureReifies(instruction(original), game.einfo)
+  fun test(original: String, replacement: String) {
+    val narrower: Instruction = parseAsIs(replacement)
+    val wider: Instruction = parseAsIs(original)
+    narrower.ensureReifies(wider, game.einfo)
+  }
 }

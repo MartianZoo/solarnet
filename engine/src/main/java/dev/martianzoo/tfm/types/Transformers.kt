@@ -6,25 +6,15 @@ import dev.martianzoo.tfm.api.SpecialClassNames.PRODUCTION
 import dev.martianzoo.tfm.api.SpecialClassNames.STANDARD_RESOURCE
 import dev.martianzoo.tfm.api.SpecialClassNames.THIS
 import dev.martianzoo.tfm.api.UserException
-import dev.martianzoo.tfm.pets.PetFeature
-import dev.martianzoo.tfm.pets.PetFeature.ATOMIZE
-import dev.martianzoo.tfm.pets.PetFeature.DEFAULTS
-import dev.martianzoo.tfm.pets.PetFeature.PROD_BLOCKS
-import dev.martianzoo.tfm.pets.PetFeature.SHORT_NAMES
-import dev.martianzoo.tfm.pets.PetFeature.SPECIALIZABLE
-import dev.martianzoo.tfm.pets.PetFeature.THIS_EXPRESSIONS
 import dev.martianzoo.tfm.pets.PetTransformer
 import dev.martianzoo.tfm.pets.PureTransformers.replaceThisWith
 import dev.martianzoo.tfm.pets.PureTransformers.transformInSeries
-import dev.martianzoo.tfm.pets.Raw
-import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.pets.ast.Instruction.Gain
 import dev.martianzoo.tfm.pets.ast.Instruction.Multi
 import dev.martianzoo.tfm.pets.ast.Instruction.Remove
 import dev.martianzoo.tfm.pets.ast.Instruction.Transform
 import dev.martianzoo.tfm.pets.ast.Instruction.Transmute
-import dev.martianzoo.tfm.pets.ast.PetElement
 import dev.martianzoo.tfm.pets.ast.PetNode
 import dev.martianzoo.tfm.pets.ast.PetNode.GenericTransform
 import dev.martianzoo.tfm.pets.ast.ScaledExpression.Companion.scaledEx
@@ -32,57 +22,6 @@ import dev.martianzoo.tfm.pets.ast.ScaledExpression.Scalar.ActualScalar
 import dev.martianzoo.tfm.types.Dependency.Key
 
 public class Transformers(val loader: MClassLoader) {
-  public fun <P : PetElement> process(
-      rawNode: Raw<P>,
-      featuresToHandle: Iterable<PetFeature>,
-      context: Expression?
-  ): Raw<P> {
-    require(SPECIALIZABLE !in featuresToHandle) // needs more data
-    val toHandle = featuresToHandle.intersect(rawNode.unhandled)
-
-    var node = rawNode.unprocessed
-    for (feature in toHandle.sorted()) {
-      node =
-          when (feature) {
-            SHORT_NAMES -> useFullNames()
-            THIS_EXPRESSIONS -> replaceThisWith(context!!)
-            DEFAULTS -> insertDefaults(context!!)
-            PROD_BLOCKS -> deprodify()
-            SPECIALIZABLE -> TODO()
-            ATOMIZE -> atomizer()
-          }.transform(node)
-    }
-    return Raw(node, rawNode.unhandled - featuresToHandle)
-  }
-
-  public fun <P : PetElement> processFully(rawNode: Raw<P>, context: Expression?): P {
-    require(SPECIALIZABLE !in rawNode.unhandled) // needs more data
-    return process(rawNode, rawNode.unhandled, context).unprocessed
-  }
-
-  public fun useFullNames() =
-      object : PetTransformer() {
-        override fun <P : PetNode> transform(node: P): P {
-          return if (node is ClassName) {
-            @Suppress("UNCHECKED_CAST")
-            loader.getClass(node).className as P
-          } else {
-            node
-          }
-        }
-      }
-
-  public fun useShortNames() =
-      object : PetTransformer() {
-        override fun <P : PetNode> transform(node: P): P {
-          return if (node is ClassName) {
-            @Suppress("UNCHECKED_CAST")
-            loader.getClass(node).shortName as P
-          } else {
-            node
-          }
-        }
-      }
 
   public fun deprodify() =
       object : PetTransformer() {
@@ -215,8 +154,7 @@ public class Transformers(val loader: MClassLoader) {
         if (leaveItAlone(node)) return node
 
         val defaults: Defaults =
-            loader.allDefaults[node.className]
-                ?: throw UserException.classNotFound(node.className)
+            loader.allDefaults[node.className] ?: throw UserException.classNotFound(node.className)
         val result =
             insertDefaultsIntoExpr(
                 transformChildren(node), defaults.allCasesDependencies, context, loader)
@@ -241,7 +179,8 @@ public class Transformers(val loader: MClassLoader) {
     val match: DependencySet = loader.matchPartial(dethissed.arguments, mclass.dependencies)
 
     val preferred: Map<Key, Expression> = match.keys.zip(original.arguments).toMap()
-    val fallbacks: Map<Key, Expression> = defaultDeps.typeDependencies.associate { it.key to it.expression }
+    val fallbacks: Map<Key, Expression> =
+        defaultDeps.typeDependencies.associate { it.key to it.expression }
 
     val newArgs: List<Expression> =
         mclass.dependencies.keys.mapNotNull { preferred[it] ?: fallbacks[it] }

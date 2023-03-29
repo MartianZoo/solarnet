@@ -3,10 +3,7 @@ package dev.martianzoo.tfm.repl
 import dev.martianzoo.tfm.api.ResourceUtils.lookUpProductionLevels
 import dev.martianzoo.tfm.api.ResourceUtils.standardResourceNames
 import dev.martianzoo.tfm.data.Player
-import dev.martianzoo.tfm.pets.PetFeature.Companion.STANDARD_FEATURES
-import dev.martianzoo.tfm.pets.Raw
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.tfm.pets.ast.Metric.Companion.metric
 import dev.martianzoo.tfm.pets.ast.Metric.Count
 import dev.martianzoo.tfm.repl.TfmColor.ENERGY
 import dev.martianzoo.tfm.repl.TfmColor.HEAT
@@ -56,8 +53,8 @@ internal class PlayerBoardToText(
     val heeat = maybeColor(HEAT, "H: $hres")
 
     // TODO this Raw business is a mess
-    val r = session.count(Raw(metric("TerraformRating"), STANDARD_FEATURES))
-    val tiles = session.count(Raw(metric("OwnedTile"), STANDARD_FEATURES))
+    val r = session.count("TerraformRating")
+    val tiles = session.count("OwnedTile")
     val player: String = "${session.player}"
 
     return """

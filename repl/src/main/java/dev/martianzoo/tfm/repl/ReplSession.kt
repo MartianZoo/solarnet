@@ -15,8 +15,6 @@ import dev.martianzoo.tfm.engine.EventLog.Checkpoint
 import dev.martianzoo.tfm.engine.Result
 import dev.martianzoo.tfm.pets.Parsing.parseAsIs
 import dev.martianzoo.tfm.pets.Parsing.parseInput
-import dev.martianzoo.tfm.pets.PetFeature.DEFAULTS
-import dev.martianzoo.tfm.pets.PetFeature.SHORT_NAMES
 import dev.martianzoo.tfm.pets.Raw
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.Expression
@@ -544,9 +542,9 @@ public class ReplSession(
           if (args == "random") {
             val randomBaseType = session.game.loader.allClasses.random().baseType
             val randomType = randomBaseType.concreteSubtypesSameClass().toList().random()
-            Raw(randomType.expression, setOf())
+            randomType.expression
           } else {
-            parseInput(args, setOf(DEFAULTS, SHORT_NAMES))
+            parseAsIs(args)
           }
       return listOf(MTypeToText.describe(expression, session))
     }

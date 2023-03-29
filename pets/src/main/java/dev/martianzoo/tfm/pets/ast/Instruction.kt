@@ -13,9 +13,6 @@ import dev.martianzoo.tfm.api.SpecialClassNames.OK
 import dev.martianzoo.tfm.api.UserException.InvalidReificationException
 import dev.martianzoo.tfm.api.UserException.PetsSyntaxException
 import dev.martianzoo.tfm.pets.BaseTokenizer
-import dev.martianzoo.tfm.pets.Parsing
-import dev.martianzoo.tfm.pets.PetFeature
-import dev.martianzoo.tfm.pets.Raw
 import dev.martianzoo.tfm.pets.ast.FromExpression.SimpleFrom
 import dev.martianzoo.tfm.pets.ast.Instruction.Intensity.OPTIONAL
 import dev.martianzoo.tfm.pets.ast.ScaledExpression.Scalar
@@ -380,11 +377,6 @@ public sealed class Instruction : PetElement() {
       }
       fun create(first: Instruction, vararg rest: Instruction) =
           if (rest.none()) first else Multi(listOf(first) + rest)
-      fun create(raw: List<Raw<Instruction>>): Raw<Instruction> {
-        val features: Set<PetFeature> =
-            raw.fold(setOf()) { featuresSoFar, rawInstr -> featuresSoFar.union(rawInstr.unhandled) }
-        return Raw(create(raw.map { it.unprocessed }), features)
-      }
     }
   }
 
@@ -465,8 +457,6 @@ public sealed class Instruction : PetElement() {
         } else {
           listOf(instruction)
         }
-
-    fun instruction(text: String): Instruction = Parsing.parse(parser(), text)
 
     internal fun parser(): Parser<Instruction> {
       return parser {

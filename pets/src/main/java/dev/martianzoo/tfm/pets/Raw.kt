@@ -1,8 +1,12 @@
 package dev.martianzoo.tfm.pets
 
 import dev.martianzoo.tfm.pets.ast.PetElement
+import dev.martianzoo.util.toSetStrict
 
 data class Raw<P : PetElement>(val unprocessed: P, val unhandled: Set<PetFeature>) {
+  constructor(unprocessed: P, vararg unhandled: PetFeature) :
+      this(unprocessed, unhandled.toSetStrict())
+
   fun handle(handledFeatures: Set<PetFeature>) = copy(unprocessed, unhandled - handledFeatures)
 
   fun <Q : PetElement> map(fn: (P) -> Q?): Raw<Q>? = fn(unprocessed)?.let { Raw(it, unhandled) }

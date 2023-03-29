@@ -3,10 +3,11 @@ package dev.martianzoo.tfm.data
 import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.tfm.api.SpecialClassNames.THIS
 import dev.martianzoo.tfm.pets.Parsing
+import dev.martianzoo.tfm.pets.Parsing.parseAsIs
 import dev.martianzoo.tfm.pets.PureTransformers.actionToEffect
-import dev.martianzoo.tfm.pets.ast.Action.Companion.action
+import dev.martianzoo.tfm.pets.ast.Action
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.tfm.pets.ast.Effect.Companion.effect
+import dev.martianzoo.tfm.pets.ast.Effect
 import dev.martianzoo.tfm.pets.ast.Instruction.Intensity
 import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.pets.ast.ScaledExpression.Companion.scaledEx
@@ -36,8 +37,8 @@ private class ClassDeclarationTest {
     val dep = cn("Bar").expr
     val sup = te("Baz<Qux>")
     val inv = Requirement.Exact(scaledEx(1, THIS.expr))
-    val eff = effect("This: DoStuff")
-    val act = actionToEffect(action("Steel -> 5"), 1)
+    val eff: Effect = parseAsIs("This: DoStuff")
+    val act = actionToEffect(parseAsIs<Action>("Steel -> 5"), 1)
     val gain = cn("Abc").expr
     val univ = cn("Xyz").expr
 

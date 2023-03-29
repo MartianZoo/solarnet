@@ -22,8 +22,7 @@ import dev.martianzoo.tfm.pets.ClassDeclarationParsers.BodyElements.bodyElementE
 import dev.martianzoo.tfm.pets.ClassDeclarationParsers.NestableDecl.IncompleteNestableDecl
 import dev.martianzoo.tfm.pets.ClassDeclarationParsers.Signatures.moreSignatures
 import dev.martianzoo.tfm.pets.ClassDeclarationParsers.Signatures.signature
-import dev.martianzoo.tfm.pets.PetFeature.Companion.ALL_FEATURES
-import dev.martianzoo.tfm.pets.PetFeature.SHORT_NAMES
+import dev.martianzoo.tfm.pets.PetFeature.NEEDS_CONTEXT
 import dev.martianzoo.tfm.pets.PureTransformers.rawActionListToEffects
 import dev.martianzoo.tfm.pets.ast.Action
 import dev.martianzoo.tfm.pets.ast.ClassName
@@ -123,8 +122,8 @@ internal object ClassDeclarationParsers : BaseTokenizer() {
     val bodyElementExceptNestedClasses: Parser<BodyElement> =
         (invariant map ::InvariantElement) or
         (default map ::DefaultsElement) or
-        (Effect.parser() map { EffectElement(Raw(it, ALL_FEATURES - SHORT_NAMES)) }) or
-        (Action.parser() map { ActionElement(Raw(it, ALL_FEATURES - SHORT_NAMES)) })
+        (Effect.parser() map { EffectElement(Raw(it, NEEDS_CONTEXT)) }) or
+        (Action.parser() map { ActionElement(Raw(it, NEEDS_CONTEXT)) })
   }
 
   internal object Declarations {

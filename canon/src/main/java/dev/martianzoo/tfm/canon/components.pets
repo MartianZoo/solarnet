@@ -6,7 +6,7 @@
 // This file has game stuff that isn't player-specific
 
 ABSTRACT CLASS Component {                        // Component is the single root of the hierarchy
-  DEFAULT +Component!
+  DEFAULT +Component!                             // TODO Default *Component ?
   DEFAULT -Component!
 }
 
@@ -45,7 +45,7 @@ ABSTRACT CLASS Atomized                                // magic
 
 ABSTRACT CLASS GlobalParameter : Atomized {            // Instances must be added 1-by-1 (TODO)
   DEFAULT +GlobalParameter.                            // by default gains/removes are "if possible"
-  DEFAULT -GlobalParameter.
+  DEFAULT -GlobalParameter.                            // TODO - DEFAULT * ?
 
   This: TerraformRating                                // becomes `This BY Owner: TR<Owner>`
 
