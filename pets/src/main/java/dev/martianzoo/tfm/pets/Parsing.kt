@@ -13,8 +13,8 @@ import com.github.h0tk3y.betterParse.parser.UnexpectedEof
 import com.github.h0tk3y.betterParse.parser.parseToEnd
 import dev.martianzoo.tfm.data.ClassDeclaration
 import dev.martianzoo.tfm.pets.ClassDeclarationParsers.oneLineDeclaration
-import dev.martianzoo.tfm.pets.ClassDeclarationParsers.tokenize
 import dev.martianzoo.tfm.pets.ClassDeclarationParsers.topLevelDeclarationGroup
+import dev.martianzoo.tfm.pets.PetTokenizer.TokenCache
 import dev.martianzoo.tfm.pets.ast.Action
 import dev.martianzoo.tfm.pets.ast.Action.Cost
 import dev.martianzoo.tfm.pets.ast.Effect
@@ -26,7 +26,6 @@ import dev.martianzoo.tfm.pets.ast.PetElement
 import dev.martianzoo.tfm.pets.ast.PetNode
 import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.pets.ast.ScaledExpression
-import dev.martianzoo.util.Debug
 import dev.martianzoo.util.ParserGroup
 import dev.martianzoo.util.toSetStrict
 import kotlin.reflect.KClass
@@ -58,26 +57,11 @@ public object Parsing {
    * [Instruction], [Expression], etc.
    */
   public fun <P : PetNode> parseAsIs(expectedType: KClass<P>, elementSource: String): P {
-    val stream = tokenize(elementSource)
+    val matches: TokenMatchesSequence = TokenCache.tokenize(elementSource)
     require(expectedType != PetNode::class) { "missing type info" }
-    val pet =
-        try {
-          parserGroup.parse(expectedType, stream)
-        } catch (e: ParseException) {
-          val tokenDesc = stream
-              .filterNot { it.type.ignored }
-              .map { it.type.name }
-              .joinToString(" ")
-          throw IllegalArgumentException(
-              """
-                Expecting ${expectedType.simpleName} ...
-                Token stream: $tokenDesc
-                Input was:
-                $elementSource
-              """
-                  .trimIndent(),
-              e)
-        }
+
+    // TODO: merge this with myThrow somehow
+    val pet = parserGroup.parse(expectedType, elementSource, matches)
     return expectedType.cast(pet)
   }
 
@@ -98,19 +82,13 @@ public object Parsing {
    * examples can be reviewed in `components.pets` and `player.pets`.
    */
   public fun parseClassDeclarations(declarationsSource: String): List<ClassDeclaration> {
-    val tokens = tokenize(stripLineComments(declarationsSource))
+    val tokens = TokenCache.tokenize(stripLineComments(declarationsSource))
     return parseRepeated(topLevelDeclarationGroup, tokens)
   }
 
-  public fun <P : PetElement> parse(
-      parser: Parser<P>,
-      source: String,
-      features: Set<PetFeature>
-  ): Raw<P> = Raw(parse(parser, source), features)
-
   /** A minor convenience function for parsing using a particular [Parser] instance. */
   public fun <T> parse(parser: Parser<T>, source: String): T {
-    val tokens = tokenize(source)
+    val tokens = TokenCache.tokenize(source)
     return try {
       parser.parseToEnd(tokens)
     } catch (e: ParseException) {
@@ -131,11 +109,6 @@ public object Parsing {
       listParser: Parser<List<T>>,
       tokens: TokenMatchesSequence
   ): List<T> {
-    Debug.d(
-        tokens
-            .filterNot { it.type.ignored }
-            .joinToString(" ") { it.type.name?.replace("\n", "\\n") ?: "NULL" })
-
     fun isEOF(result: ParseResult<*>?): Boolean =
         if (result is AlternativesFailure) {
           result.errors.any(::isEOF)

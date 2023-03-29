@@ -49,7 +49,7 @@ internal object ClassDeclarationParsers : PetTokenizer() {
 
   // end public API
 
-  internal val nls = zeroOrMore(char('\n'))
+  private val nls = zeroOrMore(char('\n'))
 
   // TODO hack
   init {
@@ -61,7 +61,7 @@ internal object ClassDeclarationParsers : PetTokenizer() {
    * fine-grained details never needed again.
    */
 
-  internal object Signatures {
+  object Signatures {
 
     private val dependencies: Parser<List<Expression>> =
         optionalList(skipChar('<') and commaSeparated(Expression.parser()) and skipChar('>'))
@@ -82,7 +82,7 @@ internal object ClassDeclarationParsers : PetTokenizer() {
         zeroOrMore(skipChar(',') and signature) map ::MoreSignatures
   }
 
-  internal object BodyElements {
+  object BodyElements {
     private val invariant: Parser<Requirement> = skip(_has) and Requirement.parser()
 
     private val gainOnlyDefaults: Parser<DefaultsDeclaration> =
@@ -126,7 +126,7 @@ internal object ClassDeclarationParsers : PetTokenizer() {
         (Action.parser() map { ActionElement(Raw(it, NEEDS_CONTEXT)) })
   }
 
-  internal object Declarations {
+  object Declarations {
     private val isAbstract: Parser<Boolean> =
         optional(_abstract) and skip(_class) map { it != null }
 
@@ -169,7 +169,7 @@ internal object ClassDeclarationParsers : PetTokenizer() {
 
   // The rest of the file is temporary types used only during parsing.
 
-  internal data class Signature(val asDeclaration: ClassDeclaration) :
+  data class Signature(val asDeclaration: ClassDeclaration) :
       HasClassName by asDeclaration {
     constructor(
         className: ClassName,
@@ -184,18 +184,18 @@ internal object ClassDeclarationParsers : PetTokenizer() {
             supertypes = supertypes.toSetStrict()))
   }
 
-  internal sealed class MoreSignaturesOrBody {
+  sealed class MoreSignaturesOrBody {
     abstract fun convert(abstract: Boolean, firstSignature: Signature): NestableDeclGroup
   }
 
-  internal class MoreSignatures(private val moreSignatures: List<Signature>) :
+  class MoreSignatures(private val moreSignatures: List<Signature>) :
       MoreSignaturesOrBody() {
     override fun convert(abstract: Boolean, firstSignature: Signature) =
         NestableDeclGroup(
             (firstSignature plus moreSignatures).map { IncompleteNestableDecl(abstract, it) })
   }
 
-  internal class Body(private val elements: KClassMultimap<BodyElement>) : MoreSignaturesOrBody() {
+  class Body(private val elements: KClassMultimap<BodyElement>) : MoreSignaturesOrBody() {
     constructor(list: List<BodyElement> = listOf()) : this(KClassMultimap(list))
 
     override fun convert(abstract: Boolean, firstSignature: Signature) =
@@ -210,19 +210,19 @@ internal object ClassDeclarationParsers : PetTokenizer() {
     val nestedGroups = getAll<NestedDeclGroup>().map { it.declGroup }
 
     sealed class BodyElement {
-      internal class InvariantElement(val invariant: Requirement) : BodyElement()
-      internal class DefaultsElement(val defaults: DefaultsDeclaration) : BodyElement()
-      internal class EffectElement(val effect: Raw<Effect>) : BodyElement()
-      internal class ActionElement(val action: Raw<Action>) : BodyElement()
-      internal class NestedDeclGroup(val declGroup: NestableDeclGroup) : BodyElement()
+      class InvariantElement(val invariant: Requirement) : BodyElement()
+      class DefaultsElement(val defaults: DefaultsDeclaration) : BodyElement()
+      class EffectElement(val effect: Raw<Effect>) : BodyElement()
+      class ActionElement(val action: Raw<Action>) : BodyElement()
+      class NestedDeclGroup(val declGroup: NestableDeclGroup) : BodyElement()
     }
   }
 
-  internal class NestableDeclGroup(private val declList: List<NestableDecl>) {
+  class NestableDeclGroup(private val declList: List<NestableDecl>) {
     constructor(
         abstract: Boolean,
         signature: Signature,
-        body: Body
+        body: Body,
     ) : this(create(abstract, signature, body))
 
     fun unnestAllFrom(container: ClassName): List<NestableDecl> =
@@ -249,7 +249,7 @@ internal object ClassDeclarationParsers : PetTokenizer() {
     }
   }
 
-  internal sealed class NestableDecl {
+  sealed class NestableDecl {
     abstract val decl: ClassDeclaration
     abstract fun unnestOneFrom(container: ClassName): NestableDecl
 
@@ -260,7 +260,7 @@ internal object ClassDeclarationParsers : PetTokenizer() {
     data class IncompleteNestableDecl(override val decl: ClassDeclaration) : NestableDecl() {
       constructor(
           abstract: Boolean,
-          signature: Signature
+          signature: Signature,
       ) : this(signature.asDeclaration.copy(abstract = abstract))
       // This returns a new NestableDecl that looks like it could be a sibling to containingClass
       // instead of nested inside it

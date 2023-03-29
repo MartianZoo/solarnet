@@ -18,7 +18,7 @@ const val allowRedundant = false
 
 object PairingChecker {
   fun check(s: String) {
-    require(parsers.parse<String>(Tokenizer.tokenize(s)) != "ERR")
+    require(parsers.parse<String>(s, Tokenizer.tokenize(s)) != "ERR")
   }
 
   fun isValid(s: String) =

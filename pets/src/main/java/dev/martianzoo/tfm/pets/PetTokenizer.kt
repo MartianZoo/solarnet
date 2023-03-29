@@ -19,8 +19,6 @@ import dev.martianzoo.tfm.pets.ast.Instruction.Intensity
 
 /** A base class for parsing objects. */
 public open class PetTokenizer { // TODO make internal
-  internal fun tokenize(input: String): TokenMatchesSequence = TokenCache.tokenize(input)
-
   internal val _arrow = literal("->", "arrow")
   internal val _doubleColon = literal("::", "doubleColon")
   internal val _questionColon = literal("?:", "questionColon")
@@ -77,20 +75,21 @@ public open class PetTokenizer { // TODO make internal
 
   internal fun skipChar(c: Char) = skip(char(c))
 
-  private object TokenCache {
-    val ignoreList =
+  internal object TokenCache {
+    private val ignoreList =
         listOf<Token>(
             regexToken("backslash-newline", "\\\\\n", true), // ignore these
             regexToken("spaces", " +", true))
 
-    val map = mutableMapOf<Pair<String, Boolean>, Token>()
+    private val map = mutableMapOf<Pair<String, Boolean>, Token>()
 
     fun cacheLiteral(text: String, name: String) =
         map.computeIfAbsent(name to false) { literalToken(name, text) }
+
     fun cacheRegex(regex: Regex, name: String) =
         map.computeIfAbsent(name to true) { regexToken(name, regex) }
 
-    val toke by lazy { DefaultTokenizer(ignoreList + map.values) }
+    private val toke by lazy { DefaultTokenizer(ignoreList + map.values) }
 
     fun tokenize(input: String): TokenMatchesSequence = toke.tokenize(input)
   }
