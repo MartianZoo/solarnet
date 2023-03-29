@@ -11,7 +11,7 @@ import dev.martianzoo.tfm.api.SpecialClassNames.END
 import dev.martianzoo.tfm.api.SpecialClassNames.THIS
 import dev.martianzoo.tfm.api.SpecialClassNames.USE_ACTION
 import dev.martianzoo.tfm.api.UserException.PetsSyntaxException
-import dev.martianzoo.tfm.pets.BaseTokenizer
+import dev.martianzoo.tfm.pets.PetTokenizer
 import dev.martianzoo.tfm.pets.ast.ClassName.Parsing.className
 import dev.martianzoo.tfm.pets.ast.Effect.Trigger.OnGainOf
 import dev.martianzoo.tfm.pets.ast.Effect.Trigger.WhenGain
@@ -134,7 +134,7 @@ public data class Effect(
       override fun extract() = trigger
     }
 
-    companion object : BaseTokenizer() {
+    companion object : PetTokenizer() {
       fun parser(): Parser<Trigger> {
         return parser {
           val onGainOf: Parser<BasicTrigger> = Expression.parser() map OnGainOf::create
@@ -170,7 +170,7 @@ public data class Effect(
     }
   }
 
-  companion object : BaseTokenizer() {
+  companion object : PetTokenizer() {
     fun parser(): Parser<Effect> {
       val colons = _doubleColon or char(':') map { it.text == "::" }
 

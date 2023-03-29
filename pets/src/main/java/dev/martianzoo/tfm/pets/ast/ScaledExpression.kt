@@ -10,7 +10,7 @@ import com.github.h0tk3y.betterParse.parser.Parser
 import dev.martianzoo.tfm.api.SpecialClassNames.MEGACREDIT
 import dev.martianzoo.tfm.api.UserException.InvalidReificationException
 import dev.martianzoo.tfm.api.UserException.PetsSyntaxException
-import dev.martianzoo.tfm.pets.BaseTokenizer
+import dev.martianzoo.tfm.pets.PetTokenizer
 import dev.martianzoo.tfm.pets.ast.ScaledExpression.Scalar.ActualScalar
 import dev.martianzoo.tfm.pets.ast.ScaledExpression.Scalar.XScalar
 import dev.martianzoo.util.Reifiable
@@ -86,7 +86,7 @@ constructor(
     }
   }
 
-  companion object : BaseTokenizer() {
+  companion object : PetTokenizer() {
     fun scaledEx(scalar: Scalar, expression: Expression? = null) =
         ScaledExpression(scalar, expression ?: MEGACREDIT.expr)
 

@@ -37,7 +37,7 @@ import dev.martianzoo.util.plus
 import dev.martianzoo.util.toSetStrict
 
 /** Parses the PETS language. */
-internal object ClassDeclarationParsers : BaseTokenizer() {
+internal object ClassDeclarationParsers : PetTokenizer() {
 
   /** Parses a section of `components.pets` etc. */
   val topLevelDeclarationGroup: Parser<List<ClassDeclaration>> by lazy {

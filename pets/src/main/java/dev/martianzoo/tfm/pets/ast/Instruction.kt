@@ -12,7 +12,7 @@ import dev.martianzoo.tfm.api.ExpressionInfo
 import dev.martianzoo.tfm.api.SpecialClassNames.OK
 import dev.martianzoo.tfm.api.UserException.InvalidReificationException
 import dev.martianzoo.tfm.api.UserException.PetsSyntaxException
-import dev.martianzoo.tfm.pets.BaseTokenizer
+import dev.martianzoo.tfm.pets.PetTokenizer
 import dev.martianzoo.tfm.pets.ast.FromExpression.SimpleFrom
 import dev.martianzoo.tfm.pets.ast.Instruction.Intensity.OPTIONAL
 import dev.martianzoo.tfm.pets.ast.ScaledExpression.Scalar
@@ -447,7 +447,7 @@ public sealed class Instruction : PetElement() {
     }
   }
 
-  companion object : BaseTokenizer() {
+  companion object : PetTokenizer() {
     fun split(instruction: Iterable<Instruction>): List<Instruction> =
         instruction.flatMap { split(it) }
 

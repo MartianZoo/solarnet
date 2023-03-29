@@ -3,7 +3,7 @@ package dev.martianzoo.tfm.pets.ast
 import com.github.h0tk3y.betterParse.combinators.map
 import com.github.h0tk3y.betterParse.combinators.or
 import dev.martianzoo.tfm.api.SpecialClassNames.CLASS
-import dev.martianzoo.tfm.pets.BaseTokenizer
+import dev.martianzoo.tfm.pets.PetTokenizer
 
 public data class ClassName(private val asString: String) : PetNode(), Comparable<ClassName> {
   public companion object {
@@ -37,7 +37,7 @@ public data class ClassName(private val asString: String) : PetNode(), Comparabl
   override val kind = ClassName::class.simpleName!!
   override fun visitChildren(visitor: Visitor) = Unit
 
-  public object Parsing : BaseTokenizer() {
+  public object Parsing : PetTokenizer() {
     val classShortName = _allCapsWordRE map { cn(it.text) }
     val classFullName = _upperCamelRE map { cn(it.text) }
     val className = classFullName or classShortName

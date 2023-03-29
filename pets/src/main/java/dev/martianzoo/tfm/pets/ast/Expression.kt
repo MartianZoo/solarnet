@@ -6,8 +6,8 @@ import com.github.h0tk3y.betterParse.combinators.optional
 import com.github.h0tk3y.betterParse.combinators.skip
 import com.github.h0tk3y.betterParse.grammar.parser
 import com.github.h0tk3y.betterParse.parser.Parser
-import dev.martianzoo.tfm.pets.BaseTokenizer
 import dev.martianzoo.tfm.pets.Parsing
+import dev.martianzoo.tfm.pets.PetTokenizer
 import dev.martianzoo.tfm.pets.ast.ClassName.Parsing.className
 import dev.martianzoo.util.joinOrEmpty
 import dev.martianzoo.util.wrap
@@ -27,7 +27,7 @@ data class Expression(
     val arguments: List<Expression> = listOf(),
     val refinement: Requirement? = null,
 ) : PetElement(), HasClassName {
-  companion object : BaseTokenizer() {
+  companion object : PetTokenizer() {
     fun expression(text: String): Expression = Parsing.parse(parser(), text)
 
     fun refinement() = group(skip(_has) and Requirement.parser())

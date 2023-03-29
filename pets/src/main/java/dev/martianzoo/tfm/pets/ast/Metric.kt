@@ -9,8 +9,7 @@ import com.github.h0tk3y.betterParse.combinators.zeroOrMore
 import com.github.h0tk3y.betterParse.grammar.parser
 import com.github.h0tk3y.betterParse.parser.Parser
 import dev.martianzoo.tfm.api.UserException.PetsSyntaxException
-import dev.martianzoo.tfm.pets.BaseTokenizer
-import dev.martianzoo.tfm.pets.ast.Requirement.Transform
+import dev.martianzoo.tfm.pets.PetTokenizer
 
 sealed class Metric : PetElement() {
   override val kind = Metric::class.simpleName!!
@@ -86,7 +85,7 @@ sealed class Metric : PetElement() {
     override fun extract() = metric
   }
 
-  companion object : BaseTokenizer() {
+  companion object : PetTokenizer() {
     fun parser(): Parser<Metric> {
       return parser {
         val count: Parser<Count> = Expression.parser() map ::Count

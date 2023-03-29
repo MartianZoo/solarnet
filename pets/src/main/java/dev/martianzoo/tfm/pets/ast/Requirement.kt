@@ -9,7 +9,7 @@ import com.github.h0tk3y.betterParse.combinators.skip
 import com.github.h0tk3y.betterParse.grammar.parser
 import com.github.h0tk3y.betterParse.parser.Parser
 import dev.martianzoo.tfm.api.UserException.PetsSyntaxException
-import dev.martianzoo.tfm.pets.BaseTokenizer
+import dev.martianzoo.tfm.pets.PetTokenizer
 import dev.martianzoo.tfm.pets.ast.Effect.Trigger.IfTrigger
 import dev.martianzoo.tfm.pets.ast.ScaledExpression.Companion.scaledEx
 import dev.martianzoo.tfm.pets.ast.ScaledExpression.Scalar
@@ -112,7 +112,7 @@ sealed class Requirement : PetElement() {
 
   override val kind = Requirement::class.simpleName!!
 
-  companion object : BaseTokenizer() {
+  companion object : PetTokenizer() {
 
     fun split(requirement: Iterable<Requirement>) = requirement.flatMap { split(it) }
 

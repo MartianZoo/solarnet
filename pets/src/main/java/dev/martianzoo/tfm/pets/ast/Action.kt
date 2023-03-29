@@ -9,7 +9,7 @@ import com.github.h0tk3y.betterParse.combinators.skip
 import com.github.h0tk3y.betterParse.grammar.parser
 import com.github.h0tk3y.betterParse.parser.Parser
 import dev.martianzoo.tfm.api.UserException.PetsSyntaxException
-import dev.martianzoo.tfm.pets.BaseTokenizer
+import dev.martianzoo.tfm.pets.PetTokenizer
 import dev.martianzoo.tfm.pets.ast.Instruction.Intensity.MANDATORY
 import dev.martianzoo.tfm.pets.ast.Instruction.Remove
 import dev.martianzoo.tfm.pets.ast.ScaledExpression.Scalar.Companion.checkNonzero
@@ -95,7 +95,7 @@ public data class Action(val cost: Cost?, val instruction: Instruction) : PetEle
       override fun extract() = cost
     }
 
-    companion object : BaseTokenizer() {
+    companion object : PetTokenizer() {
       fun parser(): Parser<Cost> {
         return parser {
           val spend = ScaledExpression.parser() map Cost::Spend
@@ -122,7 +122,7 @@ public data class Action(val cost: Cost?, val instruction: Instruction) : PetEle
     }
   }
 
-  companion object : BaseTokenizer() {
+  companion object : PetTokenizer() {
     internal fun parser(): Parser<Action> =
         optional(Cost.parser()) and
         skip(_arrow) and
