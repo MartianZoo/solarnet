@@ -5,7 +5,6 @@ import dev.martianzoo.tfm.api.SpecialClassNames.OK
 import dev.martianzoo.tfm.data.EnglishHack.englishHack
 import dev.martianzoo.tfm.data.SpecialClassNames.MILESTONE
 import dev.martianzoo.tfm.pets.Parsing.parseInput
-import dev.martianzoo.tfm.pets.PetFeature.Companion.STANDARD_FEATURES
 import dev.martianzoo.tfm.pets.Raw
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.pets.ast.Requirement
@@ -24,7 +23,7 @@ data class MilestoneDefinition(
   }
   override val shortName = cn(id)
 
-  val requirement: Raw<Requirement> = parseInput(requirementText, STANDARD_FEATURES)
+  val requirement: Raw<Requirement> = parseInput(requirementText)
 
   override val className = englishHack(id)
 
@@ -34,6 +33,6 @@ data class MilestoneDefinition(
         shortName,
         abstract = false,
         supertypes = setOf(MILESTONE.expr),
-        effectsIn = setOf(parseInput("This:: ($requirementText: $OK)", STANDARD_FEATURES)))
+        effectsIn = setOf(parseInput("This:: ($requirementText: $OK)")))
   }
 }

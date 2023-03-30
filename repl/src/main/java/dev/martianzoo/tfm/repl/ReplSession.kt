@@ -220,7 +220,7 @@ public class ReplSession(
     override val isReadOnly = true
 
     override fun withArgs(args: String): List<String> {
-      val reqt: Raw<Requirement> = parseInput(args, session.features)
+      val reqt: Raw<Requirement> = parseInput(args)
       val result = session.has(reqt)
       return listOf("$result: ${session.prep(reqt)}")
     }
@@ -236,7 +236,7 @@ public class ReplSession(
     override val isReadOnly = true
 
     override fun withArgs(args: String): List<String> {
-      val metric: Raw<Metric> = parseInput(args, session.features)
+      val metric: Raw<Metric> = parseInput(args)
       val count = session.count(metric)
       return listOf("$count ${session.prep(metric)}")
     }

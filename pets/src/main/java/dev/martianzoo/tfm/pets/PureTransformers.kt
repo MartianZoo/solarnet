@@ -68,17 +68,13 @@ public object PureTransformers {
   }
 
   internal fun rawActionListToEffects(actions: Collection<Raw<Action>>): Set<Raw<Effect>> {
-    return actions
-        .withIndex()
-        .map { (index0Ref, action) -> actionToEffect(action, index1Ref = index0Ref + 1) }
-        .toSetStrict()
+    return actions.withIndex()
+        .toSetStrict { (index0Ref, action) -> actionToEffect(action, index1Ref = index0Ref + 1) }
   }
 
   internal fun actionListToEffects(actions: Collection<Action>): Set<Effect> =
-      actions
-          .withIndex()
-          .map { (index0Ref, action) -> actionToEffect(action, index1Ref = index0Ref + 1) }
-          .toSetStrict()
+      actions.withIndex()
+          .toSetStrict { (index0Ref, action) -> actionToEffect(action, index1Ref = index0Ref + 1) }
 
   internal fun immediateToEffect(instruction: Instruction, automatic: Boolean = false): Effect? {
     return if (instruction != NoOp) {

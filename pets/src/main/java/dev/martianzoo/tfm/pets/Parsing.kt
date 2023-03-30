@@ -24,21 +24,14 @@ import dev.martianzoo.tfm.pets.ast.PetNode
 import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.pets.ast.ScaledExpression
 import dev.martianzoo.util.ParserGroup
-import dev.martianzoo.util.toSetStrict
 import kotlin.reflect.KClass
 import kotlin.reflect.cast
 
 /** Functions for parsing PETS elements or class declarations from source code. */
 public object Parsing {
   public inline fun <reified P : PetElement> parseInput(
-      elementSource: String,
-      features: Set<PetFeature>
-  ): Raw<P> = Raw(parseAsIs(elementSource), features)
-
-  public inline fun <reified P : PetElement> parseInput(
-      elementSource: String,
-      vararg features: PetFeature
-  ): Raw<P> = parseInput(elementSource, features.toSetStrict())
+      elementSource: String
+  ): Raw<P> = Raw(parseAsIs(elementSource))
 
   /**
    * Parses the PETS element in [elementSource], expecting a construct of type [P], and returning

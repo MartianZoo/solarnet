@@ -8,7 +8,6 @@ import dev.martianzoo.tfm.api.SpecialClassNames.THIS
 import dev.martianzoo.tfm.data.ClassDeclaration
 import dev.martianzoo.tfm.data.ClassDeclaration.EffectDeclaration
 import dev.martianzoo.tfm.pets.Parsing.parseAsIs
-import dev.martianzoo.tfm.pets.PetFeature
 import dev.martianzoo.tfm.pets.PureTransformers.replaceAll
 import dev.martianzoo.tfm.pets.PureTransformers.replaceThisWith
 import dev.martianzoo.tfm.pets.PureTransformers.transformInSeries
@@ -100,12 +99,10 @@ internal constructor(
       className == COMPONENT -> setOf()
       declaration.supertypes.none() -> setOf(loader.componentClass.baseType) // TODO hmm
       else ->
-          declaration.supertypes
-              .map {
-                val dethissed = replaceThisWith(className.expr).transform(it)
-                loader.resolve(dethissed)
-              }
-              .toSetStrict()
+          declaration.supertypes.toSetStrict {
+            val dethissed = replaceThisWith(className.expr).transform(it)
+            loader.resolve(dethissed)
+          }
     }
   }
 
@@ -222,7 +219,7 @@ internal constructor(
     declaration.effects
         .map {
           val defaulted = effectFixer(transformer.transform(it.effect.unprocessed))
-          it.copy(effect = Raw(defaulted, it.effect.unhandled - PetFeature.DEFAULTS ))
+          it.copy(effect = Raw(defaulted))
         }
         .sortedBy { it.effect.unprocessed }
   }

@@ -24,7 +24,6 @@ import dev.martianzoo.tfm.pets.ClassParsing.Signatures.moreSignatures
 import dev.martianzoo.tfm.pets.ClassParsing.Signatures.signature
 import dev.martianzoo.tfm.pets.Parsing.parse
 import dev.martianzoo.tfm.pets.Parsing.parseRepeated
-import dev.martianzoo.tfm.pets.PetFeature.NEEDS_CONTEXT
 import dev.martianzoo.tfm.pets.PureTransformers.rawActionListToEffects
 import dev.martianzoo.tfm.pets.ast.Action
 import dev.martianzoo.tfm.pets.ast.ClassName
@@ -131,8 +130,8 @@ public object ClassParsing : PetTokenizer() {
     val bodyElementExceptNestedClasses: Parser<BodyElement> =
         (invariant map ::InvariantElement) or
         (default map ::DefaultsElement) or
-        (Effect.parser() map { EffectElement(Raw(it, NEEDS_CONTEXT)) }) or
-        (Action.parser() map { ActionElement(Raw(it, NEEDS_CONTEXT)) })
+        (Effect.parser() map { EffectElement(Raw(it)) }) or
+        (Action.parser() map { ActionElement(Raw(it)) })
   }
 
   internal object Declarations {

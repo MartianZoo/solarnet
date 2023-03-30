@@ -38,7 +38,7 @@ internal class DependencySet private constructor(private val deps: Set<Dependenc
 
   val typeDependencies: Set<TypeDependency> = deps.filterIsInstance<TypeDependency>().toSet()
 
-  val keys: Set<Key> = deps.map { it.key }.toSetStrict()
+  val keys: Set<Key> = deps.toSetStrict { it.key }
   val expressions: List<Expression> by lazy { deps.map { it.expression } }
   val expressionsFull: List<Expression> by lazy { deps.map { it.expressionFull } }
 
@@ -87,10 +87,10 @@ internal class DependencySet private constructor(private val deps: Set<Dependenc
   fun getClassForClassType() = Dependency.getClassForClassType(deps)
 
   internal fun map(function: (MType) -> MType): DependencySet {
-    return DependencySet(deps.map {
+    return DependencySet(deps.toSetStrict {
       // TODO hmmm?
       if (it is TypeDependency) it.map(function) else it
-    }.toSetStrict())
+    })
   }
 
   override fun equals(other: Any?) = other is DependencySet && deps == other.deps

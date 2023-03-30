@@ -9,10 +9,6 @@ import dev.martianzoo.tfm.engine.Game
 import dev.martianzoo.tfm.engine.PlayerAgent
 import dev.martianzoo.tfm.engine.Result
 import dev.martianzoo.tfm.pets.Parsing.parseInput
-import dev.martianzoo.tfm.pets.PetFeature.ATOMIZE
-import dev.martianzoo.tfm.pets.PetFeature.DEFAULTS
-import dev.martianzoo.tfm.pets.PetFeature.PROD_BLOCKS
-import dev.martianzoo.tfm.pets.PetFeature.SHORT_NAMES
 import dev.martianzoo.tfm.pets.PetTransformer
 import dev.martianzoo.tfm.pets.PureTransformers.transformInSeries
 import dev.martianzoo.tfm.pets.Raw
@@ -47,11 +43,9 @@ public class InteractiveSession(
 
   // QUERIES
 
-  internal val features = setOf(ATOMIZE, DEFAULTS, PROD_BLOCKS, SHORT_NAMES)
-
   fun count(metric: Metric): Int = agent.count(metric)
   fun count(metric: Raw<Metric>) = count(prep(metric))
-  fun count(metric: String) = count(parseInput(metric, features))
+  fun count(metric: String) = count(parseInput(metric))
   fun countComponent(component: Component) = game.reader.countComponent(component.mtype)
 
   fun list(expression: Raw<Expression>): Multiset<Expression> { // TODO y not (M)Type?
@@ -74,7 +68,7 @@ public class InteractiveSession(
 
   fun has(requirement: Requirement): Boolean = agent.evaluate(requirement)
   fun has(requirement: Raw<Requirement>) = has(prep(requirement))
-  fun has(requirement: String) = has(parseInput(requirement, features))
+  fun has(requirement: String) = has(parseInput(requirement))
 
   // EXECUTION
 
@@ -89,11 +83,10 @@ public class InteractiveSession(
     return Result(changes = changes, newTaskIdsAdded = setOf())
   }
   fun sneakyChange(raw: Raw<Instruction>) = sneakyChange(prep(raw))
-  fun sneakyChange(raw: String) = sneakyChange(parseInput(raw, features))
+  fun sneakyChange(raw: String) = sneakyChange(parseInput(raw))
 
-  fun execute(instruction: String, autoExec: Boolean = defaultAutoExec): Result {
-    return execute(parseInput(instruction, features), autoExec)
-  }
+  fun execute(instruction: String, autoExec: Boolean = defaultAutoExec) =
+      execute(parseInput(instruction), autoExec)
 
   fun execute(instruction: Raw<Instruction>, autoExec: Boolean = defaultAutoExec) =
       execute(prep(instruction), autoExec)

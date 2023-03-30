@@ -1,6 +1,7 @@
 package dev.martianzoo.tfm.data
 
 import dev.martianzoo.tfm.api.SpecialClassNames.END
+import dev.martianzoo.tfm.api.SpecialClassNames.THIS
 import dev.martianzoo.tfm.data.CardDefinition.Deck.PROJECT
 import dev.martianzoo.tfm.data.CardDefinition.ProjectKind.ACTIVE
 import dev.martianzoo.tfm.data.EnglishHack.englishHack
@@ -14,13 +15,7 @@ import dev.martianzoo.tfm.data.SpecialClassNames.PRELUDE_CARD
 import dev.martianzoo.tfm.data.SpecialClassNames.PROJECT_CARD
 import dev.martianzoo.tfm.data.SpecialClassNames.RESOURCE_CARD
 import dev.martianzoo.tfm.pets.ClassParsing
-import dev.martianzoo.tfm.pets.Parsing.parseAsIs
 import dev.martianzoo.tfm.pets.Parsing.parseInput
-import dev.martianzoo.tfm.pets.PetFeature.Companion.ALL_FEATURES
-import dev.martianzoo.tfm.pets.PetFeature.Companion.STANDARD_FEATURES
-import dev.martianzoo.tfm.pets.PetFeature.DEFAULTS
-import dev.martianzoo.tfm.pets.PetFeature.SPECIALIZABLE
-import dev.martianzoo.tfm.pets.PetFeature.THIS_EXPRESSIONS
 import dev.martianzoo.tfm.pets.PureTransformers.immediateToEffect
 import dev.martianzoo.tfm.pets.PureTransformers.rawActionListToEffects
 import dev.martianzoo.tfm.pets.Raw
@@ -30,8 +25,11 @@ import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.pets.ast.Effect
 import dev.martianzoo.tfm.pets.ast.Effect.Trigger.OnGainOf
 import dev.martianzoo.tfm.pets.ast.Instruction
+import dev.martianzoo.tfm.pets.ast.Instruction.Gain
+import dev.martianzoo.tfm.pets.ast.Instruction.Intensity.MANDATORY
 import dev.martianzoo.tfm.pets.ast.Instruction.Multi
 import dev.martianzoo.tfm.pets.ast.Requirement
+import dev.martianzoo.tfm.pets.ast.ScaledExpression.Companion.scaledEx
 import dev.martianzoo.util.HashMultiset
 import dev.martianzoo.util.Multiset
 import dev.martianzoo.util.toSetStrict
@@ -77,22 +75,19 @@ public class CardDefinition(data: CardData) : Definition {
   public val tags: Multiset<ClassName> = HashMultiset(data.tags.map(::cn))
 
   /** Immediate effects on the card, if any. */
-  public val immediate: Raw<Instruction>? =
-      data.immediate?.let { parseInput(it, STANDARD_FEATURES + SPECIALIZABLE + THIS_EXPRESSIONS) }
+  public val immediate: Raw<Instruction>? = data.immediate?.let(::parseInput)
 
   /**
    * Actions on the card, if any, each expressed as a PETS `Action`. `AUTOMATED` and `EVENT` cards
    * may not have these.
    */
-  public val actions: List<Raw<Action>> =
-      data.actions.map { parseInput(it, STANDARD_FEATURES + SPECIALIZABLE + THIS_EXPRESSIONS) }
+  public val actions: List<Raw<Action>> = data.actions.map(::parseInput)
 
   /**
    * Effects on the card, if any, each expressed as a PETS `Effect`. `AUTOMATED` and `EVENT` cards
    * may not have these.
    */
-  public val effects: Set<Raw<Effect>> =
-      data.effects.map { parseInput<Effect>(it, ALL_FEATURES) }.toSetStrict()
+  public val effects = data.effects.toSetStrict { parseInput<Effect>(it) }
 
   /**
    * The type of `CardResource` this card can hold, if any. If this is non-null, then the class this
@@ -107,7 +102,7 @@ public class CardDefinition(data: CardData) : Definition {
 
     /** The card's requirement, if any. */
     val requirement: Raw<Requirement>? =
-        data.requirement?.let { parseInput(it, STANDARD_FEATURES + SPECIALIZABLE) }
+        data.requirement?.let { parseInput(it) }
 
     /** The card's non-negative cost in megacredits. */
     val cost: Int = data.cost
@@ -145,10 +140,11 @@ public class CardDefinition(data: CardData) : Definition {
             )
             .ifEmpty { setOf(CARD_FRONT.expr) }
 
-    val zapHandCard: Raw<Instruction>? = deck?.className?.let { parseInput("-$it", DEFAULTS) }
-    val createTags: List<Instruction> = tags.toList().map { parseAsIs("$it<This>") }
-    val createTagsMerged: Raw<Instruction> =
-        Raw(Multi.create(createTags), DEFAULTS, THIS_EXPRESSIONS)
+    val zapHandCard: Raw<Instruction>? = deck?.className?.let { parseInput("-$it") }
+    val createTags: List<Instruction> = tags.toList().map {
+      Gain(scaledEx(1, it.addArgs(THIS)), MANDATORY)
+    }
+    val createTagsMerged: Raw<Instruction> = Raw(Multi.create(createTags))
     val automatic: List<Raw<Effect>> =
         listOfNotNull(zapHandCard, createTagsMerged).mapNotNull { instr ->
           instr.map { immediateToEffect(it, true) }

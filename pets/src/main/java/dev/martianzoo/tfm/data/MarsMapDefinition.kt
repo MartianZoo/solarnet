@@ -4,8 +4,6 @@ import dev.martianzoo.tfm.api.SpecialClassNames.THIS
 import dev.martianzoo.tfm.data.SpecialClassNames.MARS_MAP
 import dev.martianzoo.tfm.data.SpecialClassNames.TILE
 import dev.martianzoo.tfm.pets.Parsing.parseInput
-import dev.martianzoo.tfm.pets.PetFeature.Companion.STANDARD_FEATURES
-import dev.martianzoo.tfm.pets.PetFeature.THIS_EXPRESSIONS
 import dev.martianzoo.tfm.pets.Raw
 import dev.martianzoo.tfm.pets.Raw.Companion.mapAll
 import dev.martianzoo.tfm.pets.ast.ClassName
@@ -62,8 +60,7 @@ data class MarsMapDefinition(
       require(column >= 1) { "bad column: $column" }
     }
 
-    val bonus: Raw<Instruction>? =
-        bonusText?.let { parseInput(it, STANDARD_FEATURES + THIS_EXPRESSIONS) }
+    val bonus: Raw<Instruction>? = bonusText?.let { parseInput(it) }
 
     override val asClassDeclaration by lazy {
       ClassDeclaration(

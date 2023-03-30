@@ -25,7 +25,7 @@ public object Canon : Authority() {
   }
 
   override val cardDefinitions: Set<CardDefinition> by lazy {
-    cardRawData.map(::CardDefinition).toSetStrict()
+    cardRawData.toSetStrict(::CardDefinition)
   }
 
   public val cardRawData: Set<CardData> by lazy {

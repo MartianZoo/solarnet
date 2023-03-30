@@ -11,4 +11,4 @@ fun Iterable<HasExpression>.expressions(): List<Expression> = map { it.expressio
 
 fun Sequence<HasExpression>.expressions(): Sequence<Expression> = map { it.expression }
 
-fun Set<HasExpression>.expressions(): Set<Expression> = map { it.expression }.toSetStrict()
+fun Set<HasExpression>.expressions(): Set<Expression> = toSetStrict { it.expression }
