@@ -1,9 +1,11 @@
 package dev.martianzoo.tfm.canon
 
 import com.google.common.truth.Truth.assertThat
+import dev.martianzoo.tfm.api.SpecialClassNames.RAW
 import dev.martianzoo.tfm.data.MarsMapDefinition
 import dev.martianzoo.tfm.data.MarsMapDefinition.AreaDefinition
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.tfm.pets.ast.TransformNode
 import dev.martianzoo.util.Grid
 import dev.martianzoo.util.toStrings
 import org.junit.jupiter.api.Test
@@ -46,7 +48,8 @@ private class CanonMapsTest {
     val bonuses =
         Canon.marsMapDefinitions
             .flatMap { it.areas }
-            .mapNotNull { it.bonus?.unprocessed }
+            .mapNotNull { it.bonus }
+            .map { TransformNode.unwrap(it, RAW) }
             .distinct()
             .toStrings()
 

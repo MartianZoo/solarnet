@@ -5,10 +5,12 @@ import dev.martianzoo.tfm.api.GameReader
 import dev.martianzoo.tfm.api.GameWriter
 import dev.martianzoo.tfm.api.ResourceUtils.lookUpProductionLevels
 import dev.martianzoo.tfm.api.SpecialClassNames.CLASS
+import dev.martianzoo.tfm.api.SpecialClassNames.PROD
+import dev.martianzoo.tfm.api.SpecialClassNames.RAW
 import dev.martianzoo.tfm.api.Type
 import dev.martianzoo.tfm.api.UserException
+import dev.martianzoo.tfm.data.CardDefinition
 import dev.martianzoo.tfm.data.MarsMapDefinition.AreaDefinition
-import dev.martianzoo.tfm.pets.Parsing.parseAsIs
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.pets.ast.Effect.Trigger.OnGainOf
@@ -18,7 +20,9 @@ import dev.martianzoo.tfm.pets.ast.Instruction.Gain
 import dev.martianzoo.tfm.pets.ast.Instruction.Intensity.MANDATORY
 import dev.martianzoo.tfm.pets.ast.Instruction.Multi
 import dev.martianzoo.tfm.pets.ast.Instruction.Transform
+import dev.martianzoo.tfm.pets.ast.PetNode.Companion.raw
 import dev.martianzoo.tfm.pets.ast.ScaledExpression.Companion.scaledEx
+import dev.martianzoo.tfm.pets.ast.TransformNode
 import dev.martianzoo.util.Grid
 
 internal val allCustomInstructions =
@@ -84,18 +88,23 @@ private object CreateAdjacencies : CustomInstruction("createAdjacencies") {
 
 private object BeginPlayCard : CustomInstruction("beginPlayCard") {
   override fun translate(game: GameReader, arguments: List<Type>): Instruction {
-    val cardName = arguments.single().expression.className
-    val card = game.setup.authority.card(cardName)
-    val reqt = card.requirement?.unprocessed
+    val cardType: Type = arguments.single()
+    val cardName = cardType.expression.className
+    val card: CardDefinition = game.setup.authority.card(cardName)
+
+    // TODO this is super bogus
+    val reqt = card.requirement?.let { TransformNode.unwrap(it, RAW) }
 
     if (reqt?.let(game::evaluate) == false) throw UserException.requirementNotMet(reqt)
 
-    val playTagSignals = card.tags.entries.map {
-      (e, ct) -> parseAsIs<Instruction>("$ct PlayTag<Class<$e>>!")
-    }
+    val playTagSignals =
+        card.tags.entries.map { (tagName: ClassName, ct: Int) ->
+          Gain(scaledEx(ct, cn("PlayTag").addArgs(tagName.classExpression())), MANDATORY)
+        }
+
     val instructions =
         if (card.cost > 0) {
-          val instr: Instruction = parseAsIs("${card.cost} Owed")
+          val instr = Gain(scaledEx(card.cost, cn("Owed").expr), MANDATORY)
           listOf(instr) + playTagSignals
         } else {
           playTagSignals
@@ -108,15 +117,16 @@ private object BeginPlayCard : CustomInstruction("beginPlayCard") {
 private object GetVpsFrom : CustomInstruction("getVpsFrom") {
   override fun translate(game: GameReader, arguments: List<Type>): Instruction {
     require(arguments.size == 2)
-    val owner = arguments.last().expression
     val classExpr = arguments.first().expression
     require(classExpr.className == CLASS)
     val cardName = classExpr.arguments.single().className
     val card = game.setup.authority.card(cardName)
-    return Multi.create(card.effects
-        .map { it.unprocessed }
-        .filter { it.trigger == OnGainOf.create(cn("End").expr) }
-        .map { it.instruction })
+    return Multi.create(
+        card.effects
+            .map { TransformNode.unwrap(it, RAW) }
+            .filter { it.trigger == OnGainOf.create(cn("End").expr) }
+            .map { it.instruction })
+        .raw()
   }
 }
 
@@ -139,8 +149,8 @@ private object GainLowestProduction : CustomInstruction("gainLowestProduction") 
     val prods: Map<ClassName, Int> = lookUpProductionLevels(game, player.expression)
     val lowest: Int = prods.values.min()
     val keys: Set<ClassName> = prods.filterValues { it == lowest }.keys
-    val lowestProds = keys.joinToString(" OR ") { "$it<${player.expression}>" }
-    return parseAsIs("PROD[$lowestProds]")
+    val or = Instruction.Or.create(keys.map { Gain(scaledEx(1, it.expr), MANDATORY) })
+    return TransformNode.wrap(or, PROD).raw()
   }
 }
 
@@ -148,16 +158,16 @@ private object GainLowestProduction : CustomInstruction("gainLowestProduction") 
 private object CopyProductionBox : CustomInstruction("copyProductionBox") {
   override fun translate(game: GameReader, arguments: List<Type>): Instruction {
     val def = game.setup.authority.card(arguments.single().className)
-    val nodes: List<Transform> = def.immediate?.unprocessed?.descendantsOfType() ?: listOf() // TODO
-    val matches = nodes.filter { it.transformKind == "PROD" }
+    val nodes: List<Transform> = def.immediate?.descendantsOfType() ?: listOf() // TODO
+    val matches = nodes.filter { it.transformKind == PROD }
 
     when (matches.size) {
       1 -> return matches.first()
       0 -> throw RuntimeException("There is no immediate PROD box on ${def.className}")
       else ->
-          throw RuntimeException(
-              "The immediate instructions on ${def.className} " +
-                  "have multiple PROD boxes, which should never happen")
+        throw RuntimeException(
+            "The immediate instructions on ${def.className} " +
+                "have multiple PROD boxes, which should never happen")
     }
   }
 }

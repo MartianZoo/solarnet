@@ -1,8 +1,5 @@
 package dev.martianzoo.tfm.api
 
-import dev.martianzoo.tfm.api.SpecialClassNames.MEGACREDIT
-import dev.martianzoo.tfm.api.SpecialClassNames.PRODUCTION
-import dev.martianzoo.tfm.api.SpecialClassNames.STANDARD_RESOURCE
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.util.toSetStrict
@@ -12,7 +9,7 @@ import dev.martianzoo.util.toSetStrict
 /**
  * Simple helper functions relating to standard resources, mostly for use by custom instructions.
  */
-object ResourceUtils {
+object ResourceUtils { // TODO this doesn't belong here
   /**
    * Returns a map with six entries, giving [player]'s current production levels, adjusting
    * megacredit product to account for our horrible hack.
@@ -37,4 +34,8 @@ object ResourceUtils {
     // Put them in declaration order
     return game.setup.authority.allClassNames.filter { it in names }.toSetStrict()
   }
+
+  private val MEGACREDIT = ClassName.cn("Megacredit")
+  private val PRODUCTION = ClassName.cn("Production")
+  private val STANDARD_RESOURCE = ClassName.cn("StandardResource")
 }

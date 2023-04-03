@@ -4,13 +4,13 @@ import dev.martianzoo.tfm.api.SpecialClassNames.THIS
 import dev.martianzoo.tfm.data.SpecialClassNames.MARS_MAP
 import dev.martianzoo.tfm.data.SpecialClassNames.TILE
 import dev.martianzoo.tfm.pets.Parsing.parseInput
-import dev.martianzoo.tfm.pets.Raw
-import dev.martianzoo.tfm.pets.Raw.Companion.mapAll
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.pets.ast.Effect
 import dev.martianzoo.tfm.pets.ast.Effect.Trigger.OnGainOf
 import dev.martianzoo.tfm.pets.ast.Instruction
+import dev.martianzoo.tfm.pets.ast.Instruction.Transform
+import dev.martianzoo.tfm.pets.ast.PetNode.Companion.raw
 import dev.martianzoo.util.Grid
 import dev.martianzoo.util.toSetStrict
 
@@ -60,7 +60,7 @@ data class MarsMapDefinition(
       require(column >= 1) { "bad column: $column" }
     }
 
-    val bonus: Raw<Instruction>? = bonusText?.let { parseInput(it) }
+    val bonus: Instruction? = bonusText?.let(::parseInput)
 
     override val asClassDeclaration by lazy {
       ClassDeclaration(
@@ -68,7 +68,10 @@ data class MarsMapDefinition(
           shortName = shortName,
           abstract = false,
           supertypes = setOf(kind.expr),
-          effectsIn = listOfNotNull(bonus).mapAll { Effect(trigger, it, false) }.toSetStrict())
+          effectsIn = listOfNotNull(bonus).toSetStrict {
+            // this is clunky TODO
+            Effect(trigger, (it as Transform).instruction, false).raw()
+          })
     }
 
     override val shortName =

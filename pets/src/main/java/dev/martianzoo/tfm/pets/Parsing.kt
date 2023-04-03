@@ -21,6 +21,7 @@ import dev.martianzoo.tfm.pets.ast.Instruction
 import dev.martianzoo.tfm.pets.ast.Metric
 import dev.martianzoo.tfm.pets.ast.PetElement
 import dev.martianzoo.tfm.pets.ast.PetNode
+import dev.martianzoo.tfm.pets.ast.PetNode.Companion.raw
 import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.pets.ast.ScaledExpression
 import dev.martianzoo.util.ParserGroup
@@ -29,23 +30,23 @@ import kotlin.reflect.cast
 
 /** Functions for parsing PETS elements or class declarations from source code. */
 public object Parsing {
-  public inline fun <reified P : PetElement> parseInput(
-      elementSource: String
-  ): Raw<P> = Raw(parseAsIs(elementSource))
+  public inline fun <reified P : PetElement> parseInput(elementSource: String) =
+      parseInput(P::class, elementSource)
+
+  /** (non-reified form) */
+  public fun <P : PetElement> parseInput(type: KClass<P>, elementSource: String) =
+      parseAsIs(type, elementSource).raw()
 
   /**
    * Parses the PETS element in [elementSource], expecting a construct of type [P], and returning
    * the parsed [P]. [P] can only be one of the major element types like [Effect], [Action],
    * [Instruction], [Expression], etc.
    */
+  // TODO used only from tests?
   public inline fun <reified P : PetNode> parseAsIs(elementSource: String): P =
       parseAsIs(P::class, elementSource)
 
-  /**
-   * Parses the PETS element in [elementSource], expecting a construct of type [P], and returning
-   * the parsed [P]. [P] can only be one of the major elemental types like [Effect], [Action],
-   * [Instruction], [Expression], etc.
-   */
+  /** (non-reified form) */
   public fun <P : PetNode> parseAsIs(expectedType: KClass<P>, elementSource: String): P {
     val matches: TokenMatchesSequence = TokenCache.tokenize(elementSource)
     require(expectedType != PetNode::class) { "missing type info" }
@@ -59,7 +60,6 @@ public object Parsing {
   public fun <P : PetNode> parseAsIs(expectedType: Class<P>, source: String) =
       parseAsIs(expectedType.kotlin, source)
 
-  /** A minor convenience function for parsing using a particular [Parser] instance. */
   public fun <T> parse(
       parser: Parser<T>,
       source: String,
@@ -128,12 +128,12 @@ public object Parsing {
     pgb.publish(Action.parser())
     pgb.publish(Cost.parser())
     pgb.publish(Effect.parser())
+    pgb.publish(Expression.parser())
     pgb.publish(Instruction.parser())
     pgb.publish(Metric.parser())
     pgb.publish(Requirement.parser())
     pgb.publish(ScaledExpression.parser())
     pgb.publish(Trigger.parser())
-    pgb.publish(Expression.parser())
 
     pgb.finish()
   }

@@ -1,6 +1,7 @@
 package dev.martianzoo.tfm.pets
 
 import dev.martianzoo.tfm.api.SpecialClassNames
+import dev.martianzoo.tfm.api.SpecialClassNames.RAW
 import dev.martianzoo.tfm.api.SpecialClassNames.THIS
 import dev.martianzoo.tfm.api.SpecialClassNames.USE_ACTION
 import dev.martianzoo.tfm.pets.ast.Action
@@ -15,6 +16,8 @@ import dev.martianzoo.tfm.pets.ast.Instruction.NoOp
 import dev.martianzoo.tfm.pets.ast.Instruction.Then
 import dev.martianzoo.tfm.pets.ast.Instruction.Transmute
 import dev.martianzoo.tfm.pets.ast.PetNode
+import dev.martianzoo.tfm.pets.ast.PetNode.Companion.raw
+import dev.martianzoo.tfm.pets.ast.TransformNode.Companion.unwrap
 import dev.martianzoo.util.toSetStrict
 
 /** Various functions for transforming Pets syntax trees. */
@@ -37,14 +40,13 @@ public object PureTransformers {
     }
   }
 
-  internal fun actionToEffect(action: Raw<Action>, index1Ref: Int): Raw<Effect> =
-      action.map { actionToEffect(it, index1Ref) }!!
-
   internal fun actionToEffect(action: Action, index1Ref: Int): Effect {
+    val unrapt = unwrap(action, RAW)
     require(index1Ref >= 1) { index1Ref }
-    val instruction = actionToInstruction(action)
+    val instruction = actionToInstruction(unrapt)
     val trigger = OnGainOf.create(cn("$USE_ACTION$index1Ref").addArgs(THIS))
-    return Effect(trigger, instruction, automatic = false)
+    val effect = Effect(trigger, instruction, automatic = false)
+    return if (unrapt == action) effect else effect.raw() // TODO clunky
   }
 
   private fun actionToInstruction(action: Action): Instruction {
@@ -67,27 +69,17 @@ public object PureTransformers {
     return Then(allInstructions)
   }
 
-  internal fun rawActionListToEffects(actions: Collection<Raw<Action>>): Set<Raw<Effect>> {
-    return actions.withIndex()
-        .toSetStrict { (index0Ref, action) -> actionToEffect(action, index1Ref = index0Ref + 1) }
-  }
-
   internal fun actionListToEffects(actions: Collection<Action>): Set<Effect> =
       actions.withIndex()
           .toSetStrict { (index0Ref, action) -> actionToEffect(action, index1Ref = index0Ref + 1) }
 
   internal fun immediateToEffect(instruction: Instruction, automatic: Boolean = false): Effect? {
-    return if (instruction != NoOp) {
-      Effect(WhenGain, instruction, automatic = automatic)
-    } else {
+    return if (instruction == NoOp || instruction == NoOp.raw()) {
       null
+    } else {
+      Effect(WhenGain, instruction, automatic) // TODO ugh
     }
   }
-
-  internal fun immediateToEffect(
-      instruction: Raw<Instruction>,
-      automatic: Boolean = false,
-  ): Raw<Effect>? = instruction.map { immediateToEffect(it, automatic) }
 
   // TODO check if this really what callers want to do
   public fun <P : PetNode> P.replaceAll(from: PetNode, to: PetNode): P {
@@ -110,6 +102,16 @@ public object PureTransformers {
         return node
             .replaceAll(THIS.classExpression(), contextType.className.classExpression())
             .replaceAll(THIS.expr, contextType)
+      }
+    }
+  }
+
+  public fun unreplaceThisWith(contextType: Expression): PetTransformer {
+    return object : PetTransformer() {
+      override fun <P : PetNode> transform(node: P): P {
+        return node
+            .replaceAll(contextType, THIS.expr)
+            .replaceAll(contextType.className.classExpression(), THIS.classExpression())
       }
     }
   }

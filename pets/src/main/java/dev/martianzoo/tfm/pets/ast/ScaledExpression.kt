@@ -7,7 +7,6 @@ import com.github.h0tk3y.betterParse.combinators.or
 import com.github.h0tk3y.betterParse.combinators.skip
 import com.github.h0tk3y.betterParse.grammar.parser
 import com.github.h0tk3y.betterParse.parser.Parser
-import dev.martianzoo.tfm.api.SpecialClassNames.MEGACREDIT
 import dev.martianzoo.tfm.api.UserException.InvalidReificationException
 import dev.martianzoo.tfm.api.UserException.PetsSyntaxException
 import dev.martianzoo.tfm.pets.PetTokenizer
@@ -90,6 +89,7 @@ constructor(
     fun scaledEx(scalar: Scalar, expression: Expression? = null) =
         ScaledExpression(scalar, expression ?: MEGACREDIT.expr)
 
+    // TODO also accept HasExpression?
     fun scaledEx(value: Int? = null, expression: Expression? = null) =
         scaledEx(ActualScalar(value ?: 1), expression)
 
@@ -106,9 +106,11 @@ constructor(
 
         scalarAndOptionalEx or
             optionalScalarAndEx map { (scalar, expr) ->
-              scaledEx(scalar ?: ActualScalar(1), expr)
-            }
+          scaledEx(scalar ?: ActualScalar(1), expr)
+        }
       }
     }
+
+    internal val MEGACREDIT = ClassName.cn("Megacredit")
   }
 }

@@ -73,13 +73,7 @@ sealed class Metric : PetElement() {
   }
 
   data class Transform(val metric: Metric, override val transformKind: String) :
-      Metric(), GenericTransform<Metric> {
-    init {
-      if (metric is Transform) {
-        throw PetsSyntaxException("")
-      }
-    }
-
+      Metric(), TransformNode<Metric> {
     override fun visitChildren(visitor: Visitor) = visitor.visit(metric)
     override fun toString() = "$transformKind[$metric]"
     override fun extract() = metric

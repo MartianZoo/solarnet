@@ -104,7 +104,7 @@ sealed class Requirement : PetElement() {
   }
 
   data class Transform(val requirement: Requirement, override val transformKind: String) :
-      Requirement(), GenericTransform<Requirement> {
+      Requirement(), TransformNode<Requirement> {
     override fun visitChildren(visitor: Visitor) = visitor.visit(requirement)
     override fun toString() = "$transformKind[$requirement]"
     override fun extract() = requirement

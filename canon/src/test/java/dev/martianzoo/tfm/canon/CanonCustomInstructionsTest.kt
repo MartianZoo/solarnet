@@ -19,8 +19,7 @@ private class CanonCustomInstructionsTest {
 
     repl.command("exec PROD[Steel, Titanium, Plant, Energy, Heat]")
     repl.command("exec @gainLowestProduction(Player1)")
-    // TODO PROD metrics
-    assertThat(repl.command("count PROD[Megacredit]").first()).startsWith("6 ")
+    assertThat(repl.session.count("PROD[Megacredit]")).isEqualTo(6)
   }
 
   @Test
@@ -56,7 +55,7 @@ private class CanonCustomInstructionsTest {
     repl.command("exec 2 ProjectCard")
     repl.command("exec PROD[5 Energy]")
     repl.command("exec StripMine")
-    assertThat(repl.command("count PROD[Energy]").single()).startsWith("3 ")
+    assertThat(repl.session.count("PROD[Energy]")).isEqualTo(3)
     repl.command("exec RoboticWorkforce")
     // TODO now what
   }

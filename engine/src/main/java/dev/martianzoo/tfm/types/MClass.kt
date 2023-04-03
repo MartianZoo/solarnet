@@ -2,24 +2,26 @@ package dev.martianzoo.tfm.types
 
 import dev.martianzoo.tfm.api.SpecialClassNames.CLASS
 import dev.martianzoo.tfm.api.SpecialClassNames.COMPONENT
+import dev.martianzoo.tfm.api.SpecialClassNames.OK
 import dev.martianzoo.tfm.api.SpecialClassNames.OWNED
-import dev.martianzoo.tfm.api.SpecialClassNames.OWNER
+import dev.martianzoo.tfm.api.SpecialClassNames.RAW
 import dev.martianzoo.tfm.api.SpecialClassNames.THIS
 import dev.martianzoo.tfm.data.ClassDeclaration
 import dev.martianzoo.tfm.data.ClassDeclaration.EffectDeclaration
-import dev.martianzoo.tfm.pets.Parsing.parseAsIs
+import dev.martianzoo.tfm.pets.PetTransformer
 import dev.martianzoo.tfm.pets.PureTransformers.replaceAll
 import dev.martianzoo.tfm.pets.PureTransformers.replaceThisWith
 import dev.martianzoo.tfm.pets.PureTransformers.transformInSeries
-import dev.martianzoo.tfm.pets.Raw
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.Effect
-import dev.martianzoo.tfm.pets.ast.Effect.Trigger.ByTrigger
 import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.pets.ast.HasClassName
 import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.pets.ast.Requirement.Companion.split
 import dev.martianzoo.tfm.pets.ast.Requirement.Counting
+import dev.martianzoo.tfm.pets.ast.Requirement.Min
+import dev.martianzoo.tfm.pets.ast.ScaledExpression.Companion.scaledEx
+import dev.martianzoo.tfm.pets.ast.TransformNode
 import dev.martianzoo.tfm.pets.ast.classNames
 import dev.martianzoo.tfm.types.Dependency.Companion.depsForClassType
 import dev.martianzoo.tfm.types.Dependency.Key
@@ -186,7 +188,7 @@ internal constructor(
 
   // EFFECTS
 
-  public fun rawEffects(): List<Effect> = declaration.effects.map { it.effect.unprocessed }
+  public fun rawEffects(): List<Effect> = declaration.effects.map { it.effect }
 
   /**
    * The effects belonging to this class; similar to those found on the [declaration], but processed
@@ -195,47 +197,52 @@ internal constructor(
    */
   public val classEffects: List<EffectDeclaration> by lazy {
     // TODO might not be the right way to do this
-    allSuperclasses.flatMap { it.directClassEffects }.toSetStrict().toList()
+    allSuperclasses.flatMap { it.directClassEffects() }.toSetStrict().toList()
   }
 
-  fun fixEffectForUnownedContext(it: Effect): Effect {
-    return if (OWNER in it.instruction && OWNER !in it.trigger) {
-      it.copy(trigger = ByTrigger(it.trigger, OWNER))
-    } else {
-      it
-    }
-  }
-
-  public val directClassEffects: List<EffectDeclaration> by lazy {
-    val effectFixer: (Effect) -> Effect =
-        if (OWNED !in allSuperclasses.classNames()) ::fixEffectForUnownedContext else { e -> e }
-
-    val xers = loader.transformers
-    val transformer = transformInSeries(
-        xers.insertDefaults(parseAsIs("$className(HAS Ok)")),
-        xers.atomizer()
-    )
-
-    declaration.effects
-        .map {
-          val defaulted = effectFixer(transformer.transform(it.effect.unprocessed))
-          it.copy(effect = Raw(defaulted))
+  private fun directClassEffects(): List<EffectDeclaration> {
+    val transformer =
+        if (OWNED !in allSuperclasses.classNames()) {
+          transformInSeries(
+              attachToClassTransformer, loader.transformers.fixEffectForUnownedContext())
+        } else {
+          attachToClassTransformer
         }
-        .sortedBy { it.effect.unprocessed }
+
+    return declaration.effects
+        .sortedBy { it.effect }
+        .map { it.copy(effect = transformer.transform(it.effect)) }
+    // leaving it RAW though
   }
 
+  private val attachToClassTransformer: PetTransformer by lazy {
+    val weirdExpression = className.refine(Min(scaledEx(1, OK.expr)))
+    transformInSeries(
+        listOfNotNull(
+            loader.transformers.insertDefaults(weirdExpression),
+            loader.transformers.atomizer(),
+        ))
+  }
 
   // OTHER
 
-  public val generalInvars: Set<Requirement>
+  private val specificThenGeneralInvars: Pair<List<Requirement>, List<Requirement>> by lazy {
+    val requirements = declaration.invariants.map(attachToClassTransformer::transform)
+    val xer = transformInSeries(
+        loader.transformers.deprodify(),
+        TransformNode.unwrapper(RAW)
+    )
+    split(requirements)
+        .map { xer.transform(it) }
+        .partition { THIS in it }
+  }
 
-  private val specificInvars: Set<Requirement>
+  private val specificInvars: Set<Requirement> by lazy {
+    specificThenGeneralInvars.first.toSetStrict()
+  }
 
-  init {
-    val invars = split(declaration.invariants)
-    val (s, g) = invars.partition { THIS in it }
-    specificInvars = s.toSetStrict()
-    generalInvars = g.toSetStrict()
+  public val generalInvars: Set<Requirement> by lazy {
+    specificThenGeneralInvars.second.toSetStrict()
   }
 
   /**
@@ -249,6 +256,7 @@ internal constructor(
   public val componentCountRange: IntRange by lazy {
     val ranges: List<IntRange> =
         typeInvariants
+            .map { TransformNode.unwrap(it, RAW) }
             .filterIsInstance<Counting>()
             .filter { it.scaledEx.expression == THIS.expr }
             .map { it.range }

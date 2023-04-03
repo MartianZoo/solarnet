@@ -38,7 +38,7 @@ object MTypeToText { // TODO refactor to ClassInfo / TypeInfo type dealies
 
     val classFxDisplay =
         mclass.classEffects.map {
-          "${it.effect.unprocessed}" + if (it.depLinkages.any()) " ${it.depLinkages}" else ""
+          "${it.effect}" + if (it.depLinkages.any()) " ${it.depLinkages}" else ""
         }
 
     val classStuff =

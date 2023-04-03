@@ -3,7 +3,6 @@ package dev.martianzoo.tfm.repl
 import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.tfm.api.GameSetup
 import dev.martianzoo.tfm.canon.Canon
-import dev.martianzoo.tfm.pets.Parsing.parseInput
 import org.junit.jupiter.api.Test
 
 private class ReplSessionTest {
@@ -23,12 +22,13 @@ private class ReplSessionTest {
     }
     repl.command("exec ActionPhase")
     repl.command("exec ProductionPhase")
-    assertThat(repl.session.count(parseInput("S"))).isEqualTo(8)
-    assertThat(repl.session.count(parseInput("T"))).isEqualTo(10)
-    assertThat(repl.session.count(parseInput("P"))).isEqualTo(9)
-    assertThat(repl.session.count(parseInput("E"))).isEqualTo(5)
-    assertThat(repl.session.count(parseInput("H"))).isEqualTo(9)
-    assertThat(repl.session.count(parseInput("M"))).isEqualTo(38) // 8 + 29 + 1
+
+    assertThat(repl.session.count("M")).isEqualTo(38) // 8 + 29 + 1
+    assertThat(repl.session.count("S")).isEqualTo(8)
+    assertThat(repl.session.count("T")).isEqualTo(10)
+    assertThat(repl.session.count("P")).isEqualTo(9)
+    assertThat(repl.session.count("E")).isEqualTo(5)
+    assertThat(repl.session.count("H")).isEqualTo(9)
   }
 
   @Test
@@ -47,8 +47,8 @@ private class ReplSessionTest {
     for (cmd in commands.split("\n")) {
       repl.command(cmd)
     }
-    assertThat(repl.session.count(parseInput("Plant"))).isEqualTo(1)
-    assertThat(repl.session.count(parseInput("ActionUsedMarker"))).isEqualTo(1)
+    assertThat(repl.session.count("Plant")).isEqualTo(1)
+    assertThat(repl.session.count("ActionUsedMarker")).isEqualTo(1)
   }
 
   @Test
@@ -113,8 +113,10 @@ private class ReplSessionTest {
     val repl = ReplSession(Canon, GameSetup(Canon, "BM", 3)) // TODO
     repl.command("become P1")
     repl.command("mode red")
-    repl.command("exec OT<M26>, OT<M55>, OT<M56>, CT<M46>, GT<M57>, GT<M45, P3>")
+    repl.command("exec OT<M26>, OT<M55>, OT<M56>, CT<M46>, GT<M57>, GT<M45, P3>").forEach(::println)
     repl.command("exec Tile008<P2, M66>, Tile142<P2, M99>")
+    assertThat(repl.command("tasks")).isEmpty()
+    assertThat(repl.session.count("Tile")).isEqualTo(8)
 
     assertThat(repl.command(repl.MapCommand()))
         .containsExactlyElementsIn(

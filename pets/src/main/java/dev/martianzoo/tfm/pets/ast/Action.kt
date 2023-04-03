@@ -87,7 +87,7 @@ public data class Action(val cost: Cost?, val instruction: Instruction) : PetEle
     }
 
     data class Transform(val cost: Cost, override val transformKind: String) :
-        Cost(), GenericTransform<Cost> {
+        Cost(), TransformNode<Cost> {
       override fun visitChildren(visitor: Visitor) = visitor.visit(cost)
       override fun toString() = "$transformKind[$cost]"
 

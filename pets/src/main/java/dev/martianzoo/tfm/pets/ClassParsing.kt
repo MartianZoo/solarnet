@@ -24,7 +24,7 @@ import dev.martianzoo.tfm.pets.ClassParsing.Signatures.moreSignatures
 import dev.martianzoo.tfm.pets.ClassParsing.Signatures.signature
 import dev.martianzoo.tfm.pets.Parsing.parse
 import dev.martianzoo.tfm.pets.Parsing.parseRepeated
-import dev.martianzoo.tfm.pets.PureTransformers.rawActionListToEffects
+import dev.martianzoo.tfm.pets.PureTransformers.actionListToEffects
 import dev.martianzoo.tfm.pets.ast.Action
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.ClassName.Parsing.classFullName
@@ -32,6 +32,7 @@ import dev.martianzoo.tfm.pets.ast.ClassName.Parsing.classShortName
 import dev.martianzoo.tfm.pets.ast.Effect
 import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.pets.ast.HasClassName
+import dev.martianzoo.tfm.pets.ast.PetNode.Companion.raw
 import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.util.KClassMultimap
 import dev.martianzoo.util.plus
@@ -130,8 +131,8 @@ public object ClassParsing : PetTokenizer() {
     val bodyElementExceptNestedClasses: Parser<BodyElement> =
         (invariant map ::InvariantElement) or
         (default map ::DefaultsElement) or
-        (Effect.parser() map { EffectElement(Raw(it)) }) or
-        (Action.parser() map { ActionElement(Raw(it)) })
+        (Effect.parser() map { EffectElement(it) }) or
+        (Action.parser() map { ActionElement(it) })
   }
 
   internal object Declarations {
@@ -220,8 +221,8 @@ public object ClassParsing : PetTokenizer() {
     sealed class BodyElement {
       class InvariantElement(val invariant: Requirement) : BodyElement()
       class DefaultsElement(val defaults: DefaultsDeclaration) : BodyElement()
-      class EffectElement(val effect: Raw<Effect>) : BodyElement()
-      class ActionElement(val action: Raw<Action>) : BodyElement()
+      class EffectElement(val effect: Effect) : BodyElement()
+      class ActionElement(val action: Action) : BodyElement()
       class NestedDeclGroup(val declGroup: NestableDeclGroup) : BodyElement()
     }
   }
@@ -247,8 +248,9 @@ public object ClassParsing : PetTokenizer() {
         val newDecl =
             signature.asDeclaration.copy(
                 abstract = abstract,
-                invariants = body.invariants.toSetStrict(),
-                effectsIn = (body.effects + rawActionListToEffects(body.actions)).toSetStrict(),
+                invariants = body.invariants.toSetStrict { it.raw() },
+                effectsIn =
+                    (body.effects + actionListToEffects(body.actions)).toSetStrict { it.raw() },
                 defaultsDeclaration = mergedDefaults,
             )
         val unnested = body.nestedGroups.flatMap { it.unnestAllFrom(signature.className) }

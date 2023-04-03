@@ -8,6 +8,7 @@ import com.github.h0tk3y.betterParse.combinators.skip
 import com.github.h0tk3y.betterParse.grammar.parser
 import com.github.h0tk3y.betterParse.parser.Parser
 import dev.martianzoo.tfm.api.SpecialClassNames.END
+import dev.martianzoo.tfm.api.SpecialClassNames.PROD
 import dev.martianzoo.tfm.api.SpecialClassNames.THIS
 import dev.martianzoo.tfm.api.SpecialClassNames.USE_ACTION
 import dev.martianzoo.tfm.api.UserException.PetsSyntaxException
@@ -121,13 +122,16 @@ public data class Effect(
     }
 
     data class Transform(val trigger: Trigger, override val transformKind: String) :
-        Trigger(), GenericTransform<Trigger> {
+        Trigger(), TransformNode<Trigger> {
       override fun visitChildren(visitor: Visitor) = visitor.visit(trigger)
       override fun toString() = "$transformKind[$trigger]"
 
       init {
-        if (trigger !is OnGainOf && trigger !is OnRemoveOf && trigger !is XTrigger) {
-          throw PetsSyntaxException("only gain/remove trigger can go in transform block")
+        if (transformKind == PROD &&
+            trigger !is OnGainOf &&
+            trigger !is OnRemoveOf &&
+            trigger !is XTrigger) {
+          throw PetsSyntaxException("only gain/remove trigger can go in PROD block")
         }
       }
 

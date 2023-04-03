@@ -3,8 +3,10 @@ package dev.martianzoo.tfm.engine
 import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.tfm.api.SpecialClassNames.ENGINE
 import dev.martianzoo.tfm.api.SpecialClassNames.OK
+import dev.martianzoo.tfm.api.SpecialClassNames.RAW
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.tfm.pets.ast.TransformNode.Companion.unwrap
 import dev.martianzoo.tfm.types.MClassLoader
 import org.junit.jupiter.api.Test
 
@@ -16,7 +18,7 @@ private class CanonEffectsTest {
     loader.load(cn("GlobalParameter"))
     val card = loader.load(cn(name))
     loader.frozen = true
-    return card.classEffects.map { "${it.effect.unprocessed}" }
+    return card.classEffects.map { "${unwrap(it.effect, RAW)}" }
   }
 
   @Test
@@ -40,9 +42,10 @@ private class CanonEffectsTest {
 
   @Test
   fun gyropolis() {
-    assertThat(effectsOf("Gyropolis").drop(2))
+    assertThat(effectsOf("Gyropolis"))
         .containsExactly(
-            // "This: CityTag<Owner>!, BuildingTag<Owner>!",
+            "This:: -ProjectCard<Owner>!",
+            "This:: CityTag<Owner, This>!, BuildingTag<Owner, This>!",
             "This: CityTile<Owner, LandArea(HAS MAX 0 Neighbor<CityTile<Anyone>>)>!," +
                 " PROD[-2 Energy<Owner>!," +
                 " Megacredit<Owner>! / VenusTag<Owner>," +
@@ -88,9 +91,10 @@ private class CanonEffectsTest {
 
   @Test
   fun immigrantCity() {
-    assertThat(effectsOf("ImmigrantCity").drop(2))
+    assertThat(effectsOf("ImmigrantCity"))
         .containsExactly(
-            // "This: CityTag<Owner>!, BuildingTag<Owner>!",
+            "This:: -ProjectCard<Owner>!",
+            "This:: CityTag<Owner, This>!, BuildingTag<Owner, This>!",
             "This: PROD[-Energy<Owner>!, -2 Megacredit<Owner>!]," +
                 " CityTile<Owner, LandArea(HAS MAX 0 Neighbor<CityTile<Anyone>>)>!",
             "CityTile<Anyone>: PROD[Megacredit<Owner>!]")
@@ -98,8 +102,9 @@ private class CanonEffectsTest {
 
   @Test
   fun titanAirScrapping() {
-    assertThat(effectsOf("TitanAirScrapping").drop(1))
+    assertThat(effectsOf("TitanAirScrapping"))
         .containsExactly(
+            "This:: -ProjectCard<Owner>!",
             "This:: JovianTag<Owner, This>!",
             "UseAction1<Owner, This>: -Titanium<Owner>! THEN 2 Floater<Owner, This>.",
             "UseAction2<Owner, This>: -2 Floater<Owner, This>! THEN TerraformRating<Owner>!",
@@ -120,9 +125,10 @@ private class CanonEffectsTest {
 
   @Test
   fun pets() {
-    assertThat(effectsOf("Pets").drop(2))
+    assertThat(effectsOf("Pets"))
         .containsExactly(
-            // "This: EarthTag<Owner>!, AnimalTag<Owner>!",
+            "This:: -ProjectCard<Owner>!",
+            "This:: EarthTag<Owner, This>!, AnimalTag<Owner, This>!",
             "This: Animal<Owner, This>.",
             "-Animal<Owner, This>:: Die!",
             "CityTile<Anyone>: Animal<Owner, This>.",

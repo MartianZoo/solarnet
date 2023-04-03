@@ -5,7 +5,6 @@ import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import dev.martianzoo.tfm.data.CardDefinition.CardData
 import dev.martianzoo.tfm.data.MarsMapDefinition.AreaDefinition
-import dev.martianzoo.tfm.pets.Parsing.parseInput
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.util.Grid
@@ -39,9 +38,7 @@ object JsonReader {
   ) {
 
     class IncompleteActionDef(val id: ClassName, val bundle: String, val action: String) {
-      fun complete(project: Boolean) =
-          StandardActionDefinition(
-              id, bundle, project, parseInput(action))
+      fun complete(project: Boolean) = StandardActionDefinition(id, bundle, project, action)
     }
   }
 

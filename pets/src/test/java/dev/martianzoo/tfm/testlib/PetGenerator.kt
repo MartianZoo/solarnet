@@ -1,9 +1,10 @@
 package dev.martianzoo.tfm.testlib
 
 import com.google.common.truth.Truth.assertWithMessage
-import dev.martianzoo.tfm.api.SpecialClassNames.MEGACREDIT
 import dev.martianzoo.tfm.api.SpecialClassNames.OWNER
+import dev.martianzoo.tfm.api.SpecialClassNames.PROD
 import dev.martianzoo.tfm.api.UserException.PetsSyntaxException
+import dev.martianzoo.tfm.data.Player.Companion.PLAYER2
 import dev.martianzoo.tfm.pets.Parsing.parseAsIs
 import dev.martianzoo.tfm.pets.ast.Action
 import dev.martianzoo.tfm.pets.ast.Action.Cost
@@ -21,6 +22,7 @@ import dev.martianzoo.tfm.pets.ast.Metric
 import dev.martianzoo.tfm.pets.ast.PetNode
 import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.pets.ast.ScaledExpression
+import dev.martianzoo.tfm.pets.ast.ScaledExpression.Companion.MEGACREDIT
 import dev.martianzoo.tfm.pets.ast.ScaledExpression.Companion.scaledEx
 import dev.martianzoo.tfm.testlib.PetToKotlin.p2k
 import dev.martianzoo.util.HashMultiset
@@ -61,7 +63,7 @@ internal class PetGenerator(scaling: (Int) -> Double) :
       register { Metric.Scaled(choose(2, 2, 3), recurse()) }
       register { Metric.Max(metric = recurse(), maximum = choose(5, 11)) }
       register { Metric.Plus(listOfSize(choose(2, 2, 2, 3, 4))) }
-      register { Metric.Transform(recurse(), "PROD") }
+      register { Metric.Transform(recurse(), PROD) }
 
       val requirementTypes =
           multiset(
@@ -78,7 +80,7 @@ internal class PetGenerator(scaling: (Int) -> Double) :
       register { Requirement.Exact(scaledEx = recurse()) }
       register { Requirement.Or(setOfSize(choose(2, 2, 2, 2, 2, 3, 4))) }
       register { Requirement.And(listOfSize(choose(2, 2, 2, 2, 3))) }
-      register { Requirement.Transform(recurse(), "PROD") }
+      register { Requirement.Transform(recurse(), PROD) }
 
       fun RandomGenerator<*>.intensity() = choose(3 to null, 1 to randomEnum<Intensity>())
 
@@ -107,7 +109,7 @@ internal class PetGenerator(scaling: (Int) -> Double) :
       register { Instruction.Then(listOfSize(choose(2, 2, 2, 3))) }
       register { Instruction.Or(listOfSize(choose(2, 2, 2, 2, 3))) }
       register { Instruction.Multi(listOfSize(choose(2, 2, 2, 2, 2, 3, 4))) }
-      register { Instruction.Transform(recurse(), "PROD") }
+      register { Instruction.Transform(recurse(), PROD) }
 
       register(FromExpression::class) {
         val one: Expression = recurse()
@@ -170,10 +172,10 @@ internal class PetGenerator(scaling: (Int) -> Double) :
       register { Trigger.WhenRemove }
       register { Trigger.OnGainOf.create(recurse()) as Trigger.OnGainOf }
       register { Trigger.OnRemoveOf.create(recurse()) as Trigger.OnRemoveOf }
-      register { Trigger.ByTrigger(recurse(), choose(1 to OWNER, 1 to cn("Player2"))) }
+      register { Trigger.ByTrigger(recurse(), choose(1 to OWNER, 1 to PLAYER2.className)) }
       register { Trigger.IfTrigger(recurse(), recurse()) }
       register { Trigger.XTrigger(recurse()) }
-      register { Trigger.Transform(recurse(), "PROD") }
+      register { Trigger.Transform(recurse(), PROD) }
 
       register { Effect(recurse(), recurse(), choose(true, false)) }
 
@@ -190,7 +192,7 @@ internal class PetGenerator(scaling: (Int) -> Double) :
       register { Cost.Per(recurse(), recurse()) }
       register { Cost.Or(setOfSize(choose(2, 2, 2, 2, 3, 4))) }
       register { Cost.Multi(listOfSize(choose(2, 2, 2, 3))) }
-      register { Cost.Transform(recurse(), "PROD") }
+      register { Cost.Transform(recurse(), PROD) }
 
       register { Action(choose(1 to null, 3 to recurse()), recurse()) }
     }

@@ -161,10 +161,6 @@ public class MClassLoader( // TODO separate into loader and table
     return mclass
   }
 
-  internal val generalInvariants: Set<Requirement> by lazy {
-    allClasses.flatMap { it.generalInvars }.toSet()
-  }
-
   internal var frozen: Boolean = false
     internal set(f) {
       require(f) { "can't melt" }
@@ -175,14 +171,23 @@ public class MClassLoader( // TODO separate into loader and table
   private fun validate() {
     allClasses.forEach { mclass ->
       mclass.classEffects.forEach {
-        checkAllTypes(replaceThisWith(mclass.className.expr).transform(it.effect.unprocessed))
+        checkAllTypes(replaceThisWith(mclass.className.expr).transform(it.effect))
       }
     }
   }
 
-  private fun decl(cn: ClassName) = authority.classDeclaration(cn)
+  internal val allClassNamesAndIds: Set<ClassName> by lazy {
+    require(frozen)
+    loadedClasses.keys
+  }
 
   public val transformers = Transformers(this)
+
+  internal val generalInvariants: Set<Requirement> by lazy {
+    allClasses.flatMap { it.generalInvars }.toSet()
+  }
+
+  private fun decl(cn: ClassName) = authority.classDeclaration(cn)
 
   internal fun checkAllTypes(node: PetNode) =
       node.visitDescendants {

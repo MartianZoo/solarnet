@@ -1,6 +1,7 @@
 package dev.martianzoo.tfm.engine
 
 import dev.martianzoo.tfm.api.SpecialClassNames.OWNED
+import dev.martianzoo.tfm.api.SpecialClassNames.RAW
 import dev.martianzoo.tfm.api.UserException
 import dev.martianzoo.tfm.pets.PetTransformer
 import dev.martianzoo.tfm.pets.PureTransformers.replaceOwnerWith
@@ -10,6 +11,7 @@ import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.pets.ast.HasExpression
 import dev.martianzoo.tfm.pets.ast.PetNode
+import dev.martianzoo.tfm.pets.ast.TransformNode
 import dev.martianzoo.tfm.types.Dependency.Key
 import dev.martianzoo.tfm.types.MClass
 import dev.martianzoo.tfm.types.MType
@@ -40,18 +42,23 @@ public data class Component private constructor(val mtype: MType) : HasExpressio
    * This component's effects; while the component exists in a game state, the effects are active.
    */
   public fun effects(game: Game): List<ActiveEffect> {
-    return mtype.mclass.classEffects.map { decl ->
-      val depLinkages: Set<ClassName> = decl.depLinkages
-      val xers = mtype.loader.transformers
-      val blah =
-          transformInSeries(
-                  Substituter(mtype.findSubstitutions(depLinkages)),
-                  replaceThisWith(mtype.expression),
-                  xers.deprodify(),
-                  owner()?.let { replaceOwnerWith(it) },
-              )
-              .transform(decl.effect.unprocessed) // TODO
-      ActiveEffect.from(blah, this, game, decl.triggerLinkages)
+    return mtype.mclass.classEffects.map { fxDecl ->
+      val depLinkages: Set<ClassName> = fxDecl.depLinkages
+
+      val cookedFx = transformInSeries(
+          mtype.loader.transformers.deprodify(),
+          Substituter(mtype.findSubstitutions(depLinkages)),
+          owner()?.let { replaceOwnerWith(it) }, // TODO could Subst do this?
+          replaceThisWith(mtype.expression),
+          TransformNode.unwrapper(RAW),
+      ).transform(fxDecl.effect)
+
+      ActiveEffect.from(
+          cookedFx,
+          this,
+          game,
+          fxDecl.triggerLinkages,
+      )
     }
   }
 

@@ -1,12 +1,14 @@
 package dev.martianzoo.tfm.data
 
 import com.google.common.truth.Truth.assertThat
+import dev.martianzoo.tfm.api.SpecialClassNames.RAW
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.data.CardDefinition.CardData
 import dev.martianzoo.tfm.data.CardDefinition.Deck.PROJECT
 import dev.martianzoo.tfm.data.CardDefinition.ProjectKind.ACTIVE
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.pets.ast.PetNode
+import dev.martianzoo.tfm.pets.ast.TransformNode.Companion.unwrap
 import dev.martianzoo.tfm.testlib.assertFails
 import dev.martianzoo.util.toStrings
 import org.junit.jupiter.api.Test
@@ -68,13 +70,13 @@ private class CardDefinitionTest {
     assertThat(birds.bundle).isEqualTo("B")
     assertThat(birds.deck).isEqualTo(PROJECT)
     assertThat(birds.tags.toStrings()).containsExactly("AnimalTag")
-    assertThat(birds.immediate?.unprocessed?.toString()).isEqualTo("PROD[-2 Plant<Anyone>]")
-    assertThat(birds.actions.map { "${it.unprocessed}" }).containsExactly("-> Animal<This>")
-    assertThat(birds.effects.map { "${it.unprocessed}" })
+    assertThat(unwrap(birds.immediate!!, RAW).toString()).isEqualTo("PROD[-2 Plant<Anyone>]")
+    assertThat(birds.actions.map { unwrap(it, RAW) }.toStrings()).containsExactly("-> Animal<This>")
+    assertThat(birds.effects.map { unwrap(it, RAW) }.toStrings())
         .containsExactly("End: VictoryPoint / Animal<This>")
     assertThat(birds.replaces).isNull()
     assertThat(birds.resourceType).isEqualTo(cn("Animal"))
-    assertThat(birds.requirement?.unprocessed?.toString()).isEqualTo("13 OxygenStep")
+    assertThat(birds.requirement?.toString()).isEqualTo("RAW[13 OxygenStep]")
     assertThat(birds.cost).isEqualTo(10)
     assertThat(birds.projectInfo?.kind).isEqualTo(ACTIVE)
   }
@@ -165,14 +167,16 @@ private class CardDefinitionTest {
     Canon.cardDefinitions.forEach { card ->
       val data = cardRawData["${card.shortName}"]!!
       checkRoundTrip(data.tags, card.tags)
-      checkRoundTrip(listOfNotNull(data.immediate), listOfNotNull(card.immediate?.unprocessed))
-      checkRoundTrip(data.actions, card.actions.map { it.unprocessed })
-      checkRoundTrip(data.effects, card.effects.map { it.unprocessed })
+      checkRoundTrip(listOfNotNull(data.immediate), listOfNotNull(card.immediate))
+      checkRoundTrip(data.actions, card.actions)
+      checkRoundTrip(data.effects, card.effects)
     }
   }
 
   private fun checkRoundTrip(source: Collection<String>, cooked: Collection<PetNode>) {
     assertThat(source.size).isEqualTo(cooked.size)
-    source.zip(cooked).forEach { assertThat("${it.second}").isEqualTo(it.first) }
+    for (stringThenNode in source.zip(cooked)) {
+      assertThat("${unwrap(stringThenNode.second, RAW)}").isEqualTo(stringThenNode.first)
+    }
   }
 }

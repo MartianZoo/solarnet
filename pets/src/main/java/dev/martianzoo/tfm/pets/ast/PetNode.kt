@@ -1,5 +1,6 @@
 package dev.martianzoo.tfm.pets.ast
 
+import dev.martianzoo.tfm.api.SpecialClassNames.RAW
 import kotlin.reflect.KClass
 import kotlin.reflect.safeCast
 
@@ -70,8 +71,7 @@ public sealed class PetNode {
     fun visit(vararg nodes: PetNode?): Unit = visit(nodes.toList())
   }
 
-  interface GenericTransform<P : PetNode> {
-    val transformKind: String
-    fun extract(): P
+  companion object {
+    fun <P : PetNode> P.raw(): P = TransformNode.wrap(this, RAW)
   }
 }

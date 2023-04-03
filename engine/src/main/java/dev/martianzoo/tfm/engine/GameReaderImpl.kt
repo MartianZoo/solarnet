@@ -40,7 +40,7 @@ class GameReaderImpl(
 
         is Or -> requirement.requirements.any { evaluate(it) }
         is And -> requirement.requirements.all { evaluate(it) }
-        is Requirement.Transform -> error("should have been transformed by now")
+        is Requirement.Transform -> error("should have been transformed by now: $requirement")
       }
 
   override fun count(metric: Metric): Int =
@@ -49,7 +49,7 @@ class GameReaderImpl(
         is Scaled -> count(metric.metric) / metric.unit
         is Metric.Max -> min(count(metric.metric), metric.maximum)
         is Plus -> metric.metrics.sumOf(::count)
-        is Metric.Transform -> error("should have been transformed by now")
+        is Metric.Transform -> error("should have been transformed by now: $metric")
       }
 
   override fun count(type: Type) = components.count(loader.resolve(type))

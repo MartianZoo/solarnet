@@ -15,8 +15,8 @@ import dev.martianzoo.tfm.engine.EventLog.Checkpoint
 import dev.martianzoo.tfm.engine.Result
 import dev.martianzoo.tfm.pets.Parsing.parseAsIs
 import dev.martianzoo.tfm.pets.Parsing.parseInput
-import dev.martianzoo.tfm.pets.Raw
 import dev.martianzoo.tfm.pets.ast.ClassName
+import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.pets.ast.Instruction
 import dev.martianzoo.tfm.pets.ast.Instruction.Gain
@@ -39,7 +39,10 @@ internal fun main() {
 
   fun prompt(): String {
     val bundles: String = session.game.setup.bundles.joinToString("")
-    val phase: Any = session.list(parseInput("Phase")).singleOrNull() ?: "NoPhase"
+
+    val phases = session.list(cn("Phase").expr) // should only be one
+    val phase: String = phases.singleOrNull()?.toString() ?: "NoPhase"
+
     val player: Player = repl.session.agent.player
     val count: Int = session.game.setup.players
     val logPosition: Int = repl.session.game.eventLog.size
@@ -66,7 +69,8 @@ public class ReplSession(
     initialSetup: GameSetup,
     private val jline: JlineRepl? = null
 ) {
-  internal var session = InteractiveSession(Engine.newGame(initialSetup))
+  public var session = InteractiveSession(Engine.newGame(initialSetup))
+    internal set
   internal var mode: ReplMode = GREEN
 
   public enum class ReplMode(val message: String, val color: TfmColor) {
@@ -205,7 +209,7 @@ public class ReplSession(
     }
 
     override fun withArgs(args: String): List<String> {
-      session = session.asPlayer(Player(cn(args)))
+      session = session.asPlayer(cn(args))
       return listOf("Hi, ${session.agent.player}")
     }
   }
@@ -220,7 +224,7 @@ public class ReplSession(
     override val isReadOnly = true
 
     override fun withArgs(args: String): List<String> {
-      val reqt: Raw<Requirement> = parseInput(args)
+      val reqt: Requirement = parseInput(args)
       val result = session.has(reqt)
       return listOf("$result: ${session.prep(reqt)}")
     }
@@ -236,7 +240,7 @@ public class ReplSession(
     override val isReadOnly = true
 
     override fun withArgs(args: String): List<String> {
-      val metric: Raw<Metric> = parseInput(args)
+      val metric: Metric = parseInput(args)
       val count = session.count(metric)
       return listOf("$count ${session.prep(metric)}")
     }
@@ -251,7 +255,7 @@ public class ReplSession(
     override fun noArgs() = withArgs(COMPONENT.toString())
 
     override fun withArgs(args: String): List<String> {
-      val expr: Raw<Expression> = parseInput(args)
+      val expr: Expression = parseAsIs(args)
       val counts: Multiset<Expression> = session.list(expr)
       return listOf(
           "${counts.size} ${session.prep(expr)}") +
@@ -342,19 +346,18 @@ public class ReplSession(
 
     override fun withArgs(args: String): List<String> {
       val instruction = args
+      val instr: Instruction = parseInput(instruction)
       val changes: Result =
           when (mode) {
-            RED -> session.sneakyChange(instruction)
-            YELLOW -> session.sneakyChange(instruction)
-            GREEN -> initiate(instruction)
+            RED, YELLOW -> session.sneakyChange(instr)
+            GREEN -> initiate(instr)
             BLUE -> {
-              val instr: Instruction = parseAsIs(instruction)
               if (instr.isGainOf(cn("Turn"))) {
-                initiate(instruction)
+                initiate(instr)
               } else if (session.agent.player != Player.ENGINE) {
                 throw UsageException("In blue mode you must be Engine to do this")
               } else if (instr.isGainOf(cn("Phase"))) {
-                initiate(instruction)
+                initiate(instr)
               } else {
                 throw UsageException("Eep, can't do that in ${mode.name.lowercase()} mode")
               }
@@ -365,12 +368,16 @@ public class ReplSession(
     }
 
     private fun Instruction.isGainOf(supertype: ClassName): Boolean {
+      if (this is Instruction.Transform) {
+        // TODO this is broken wrt production, but that shouldn't matter here for now...
+        return instruction.isGainOf(supertype)
+      }
       if (this !is Gain) return false
       val t: MType = session.game.resolve(gaining)
       return t.isSubtypeOf(session.game.resolve(supertype.expr))
     }
 
-    private fun initiate(instruction: String): Result {
+    private fun initiate(instruction: Instruction): Result {
       if (mode == BLUE && !session.game.taskQueue.isEmpty()) {
         throw InteractiveException.mustClearTasks()
       }
@@ -420,18 +427,16 @@ public class ReplSession(
         session.game.removeTask(id)
         return listOf("Task $id deleted")
       }
-      val instruction: Raw<Instruction>? = rest?.let(::parseInput)
+      val instruction: Instruction? = rest?.let(::parseInput)
       val result: Result =
           when (mode) {
-            RED,
-            YELLOW -> throw UsageException("Can't execute tasks in this mode")
-            GREEN,
-            BLUE ->
-                if (auto) {
-                  session.doTaskAndAutoExec(id, instruction)
-                } else {
-                  session.agent.doTask(id, instruction?.let(session::prep))
-                }
+            RED, YELLOW -> throw UsageException("Can't execute tasks in this mode")
+            GREEN, BLUE ->
+              if (auto) {
+                session.doTaskAndAutoExec(id, instruction)
+              } else {
+                session.agent.doTask(id, instruction?.let(session::prep))
+              }
           }
       return describeExecutionResults(result)
     }
@@ -541,6 +546,7 @@ public class ReplSession(
       val expression =
           if (args == "random") {
             val randomBaseType = session.game.loader.allClasses.random().baseType
+            // TODO this could be stupidly slow
             val randomType = randomBaseType.concreteSubtypesSameClass().toList().random()
             randomType.expression
           } else {
@@ -591,8 +597,6 @@ public class ReplSession(
     val command = commands[commandName] ?: return listOf("¯\\_(ツ)_/¯ Type `help` for help")
     return command(command, args)
   }
-
-  private fun cn(s: String) = session.game.resolve(parseAsIs(s)).className // TODO fishy
 }
 
 private val helpText: String =

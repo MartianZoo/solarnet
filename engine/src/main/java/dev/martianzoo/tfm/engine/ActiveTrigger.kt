@@ -39,7 +39,7 @@ sealed class ActiveTrigger {
         is WhenRemove -> MatchOnSelf(context, matchOnGain = false, game)
         is OnGainOf -> MatchOnOthers(trigger.expression, matchOnGain = true, game, tlinks)
         is OnRemoveOf -> MatchOnOthers(trigger.expression, matchOnGain = false, game, tlinks)
-        is Transform -> error("should have been transformed by now")
+        is Transform -> error("should have been transformed by now: $trigger")
       }
     }
   }

@@ -3,12 +3,13 @@ package dev.martianzoo.tfm.engine
 import dev.martianzoo.tfm.api.CustomInstruction.ExecuteInsteadException
 import dev.martianzoo.tfm.api.GameReader
 import dev.martianzoo.tfm.api.GameWriter
+import dev.martianzoo.tfm.api.SpecialClassNames.RAW
 import dev.martianzoo.tfm.api.SpecialClassNames.THIS
 import dev.martianzoo.tfm.api.UserException
 import dev.martianzoo.tfm.data.GameEvent.ChangeEvent.Cause
 import dev.martianzoo.tfm.data.Player
-import dev.martianzoo.tfm.pets.PureTransformers
 import dev.martianzoo.tfm.pets.PureTransformers.replaceOwnerWith
+import dev.martianzoo.tfm.pets.PureTransformers.transformInSeries
 import dev.martianzoo.tfm.pets.ast.Instruction
 import dev.martianzoo.tfm.pets.ast.Instruction.Change
 import dev.martianzoo.tfm.pets.ast.Instruction.Companion.split
@@ -24,6 +25,7 @@ import dev.martianzoo.tfm.pets.ast.Instruction.Per
 import dev.martianzoo.tfm.pets.ast.Instruction.Then
 import dev.martianzoo.tfm.pets.ast.Instruction.Transform
 import dev.martianzoo.tfm.pets.ast.ScaledExpression.Scalar.ActualScalar
+import dev.martianzoo.tfm.pets.ast.TransformNode
 import dev.martianzoo.tfm.types.MClassLoader
 
 internal class ExecutionContext(
@@ -79,16 +81,22 @@ internal class ExecutionContext(
 
     val custom = reader.setup.authority.customInstruction(instr.functionName)
     try {
+      // Could call .raw() but would just unraw it again?
       val translated: Instruction = custom.translate(reader, arguments) * instr.multiplier
       val xers = loader.transformers
+
+      // I guess custom instructions can't return things using `This`
+      // and Owner means the context player... (TODO think)
       val instruction =
-          PureTransformers.transformInSeries(
+          transformInSeries(
               xers.atomizer(),
               xers.insertDefaults(THIS.expr), // TODO context component??
               xers.deprodify(),
-              replaceOwnerWith(player.className)
-          )
-              .transform(translated)
+              replaceOwnerWith(player.className),
+              TransformNode.unwrapper(RAW),
+      )
+          .transform(translated)
+
       split(instruction).forEach { writer.addTasks(it, player, cause) }
     } catch (e: ExecuteInsteadException) {
       // this custom fn chose to override execute() instead of translate()

@@ -16,9 +16,8 @@ import dev.martianzoo.tfm.data.SpecialClassNames.PROJECT_CARD
 import dev.martianzoo.tfm.data.SpecialClassNames.RESOURCE_CARD
 import dev.martianzoo.tfm.pets.ClassParsing
 import dev.martianzoo.tfm.pets.Parsing.parseInput
+import dev.martianzoo.tfm.pets.PureTransformers.actionListToEffects
 import dev.martianzoo.tfm.pets.PureTransformers.immediateToEffect
-import dev.martianzoo.tfm.pets.PureTransformers.rawActionListToEffects
-import dev.martianzoo.tfm.pets.Raw
 import dev.martianzoo.tfm.pets.ast.Action
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
@@ -28,6 +27,8 @@ import dev.martianzoo.tfm.pets.ast.Instruction
 import dev.martianzoo.tfm.pets.ast.Instruction.Gain
 import dev.martianzoo.tfm.pets.ast.Instruction.Intensity.MANDATORY
 import dev.martianzoo.tfm.pets.ast.Instruction.Multi
+import dev.martianzoo.tfm.pets.ast.Instruction.Remove
+import dev.martianzoo.tfm.pets.ast.PetNode.Companion.raw
 import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.pets.ast.ScaledExpression.Companion.scaledEx
 import dev.martianzoo.util.HashMultiset
@@ -75,19 +76,36 @@ public class CardDefinition(data: CardData) : Definition {
   public val tags: Multiset<ClassName> = HashMultiset(data.tags.map(::cn))
 
   /** Immediate effects on the card, if any. */
-  public val immediate: Raw<Instruction>? = data.immediate?.let(::parseInput)
+  public val immediate: Instruction? = data.immediate?.let(::parseInput)
 
   /**
    * Actions on the card, if any, each expressed as a PETS `Action`. `AUTOMATED` and `EVENT` cards
    * may not have these.
    */
-  public val actions: List<Raw<Action>> = data.actions.map(::parseInput)
+  public val actions: List<Action> = data.actions.map(::parseInput)
 
   /**
    * Effects on the card, if any, each expressed as a PETS `Effect`. `AUTOMATED` and `EVENT` cards
    * may not have these.
    */
-  public val effects = data.effects.toSetStrict { parseInput<Effect>(it) }
+  public val effects: Set<Effect> = data.effects.toSetStrict(::parseInput)
+
+  /** The card's requirement, if any. */
+  public val requirement: Requirement? = projectInfo?.requirement
+
+  /** The card's non-negative cost in megacredits. */
+  public val cost: Int = projectInfo?.cost ?: 0
+
+  /** Extra information that only project cards have. */
+  public class ProjectInfo(data: CardData) {
+    val kind: ProjectKind = ProjectKind.valueOf(data.projectKind!!)
+
+    /** The card's requirement, if any. */
+    val requirement: Requirement? = data.requirement?.let(::parseInput)
+
+    /** The card's non-negative cost in megacredits. */
+    val cost: Int by data::cost
+  }
 
   /**
    * The type of `CardResource` this card can hold, if any. If this is non-null, then the class this
@@ -96,35 +114,13 @@ public class CardDefinition(data: CardData) : Definition {
    */
   public val resourceType: ClassName? = data.resourceType?.let(::cn)
 
-  /** Extra information that only project cards have. */
-  public class ProjectInfo(data: CardData) {
-    val kind: ProjectKind = ProjectKind.valueOf(data.projectKind!!)
-
-    /** The card's requirement, if any. */
-    val requirement: Raw<Requirement>? =
-        data.requirement?.let { parseInput(it) }
-
-    /** The card's non-negative cost in megacredits. */
-    val cost: Int = data.cost
-
-    init {
-      require(cost >= 0)
-    }
-  }
-
-  /** The card's requirement, if any. */
-  public val requirement: Raw<Requirement>? = projectInfo?.requirement
-
-  /** The card's non-negative cost in megacredits. */
-  public val cost: Int = projectInfo?.cost ?: 0
-
   init {
     if (deck == PROJECT) {
       val shouldBeActive =
           actions.any() ||
-              effects.any { it.unprocessed.trigger != OnGainOf.create(END.expr) } ||
+              effects.any { it.trigger != OnGainOf.create(END.expr).raw() } ||
               resourceType != null
-      require(shouldBeActive == (projectInfo?.kind == ACTIVE))
+      require((projectInfo?.kind == ACTIVE) == shouldBeActive)
     }
   }
 
@@ -132,38 +128,35 @@ public class CardDefinition(data: CardData) : Definition {
   val extraClasses: List<ClassDeclaration> = data.components.map(ClassParsing::parseOneLiner)
 
   override val asClassDeclaration by lazy {
-    val supertypes =
-        setOfNotNull(
-                projectInfo?.kind?.className?.expr,
-                resourceType?.let { RESOURCE_CARD.addArgs(it.classExpression()) },
-                if (actions.any()) ACTION_CARD.expr else null,
-            )
-            .ifEmpty { setOf(CARD_FRONT.expr) }
-
-    val zapHandCard: Raw<Instruction>? = deck?.className?.let { parseInput("-$it") }
-    val createTags: List<Instruction> = tags.toList().map {
-      Gain(scaledEx(1, it.addArgs(THIS)), MANDATORY)
+    val zapHandCard: Instruction? = deck?.let {
+      Remove(scaledEx(1, it.className.expr), MANDATORY)
     }
-    val createTagsMerged: Raw<Instruction> = Raw(Multi.create(createTags))
-    val automatic: List<Raw<Effect>> =
-        listOfNotNull(zapHandCard, createTagsMerged).mapNotNull { instr ->
-          instr.map { immediateToEffect(it, true) }
-        }
 
-    val allEffects: List<Raw<Effect>> =
-        automatic +
-            listOfNotNull(immediate).mapNotNull { immediateToEffect(it, automatic = false) } +
-            effects +
-            rawActionListToEffects(actions)
+    val createTags = Multi.create(tags.entries.map { (tag, count) ->
+      Gain(scaledEx(count, tag.addArgs(THIS)), MANDATORY)
+    })
+
+    val automaticFx: List<Effect> =
+        listOfNotNull(zapHandCard, createTags).mapNotNull { immediateToEffect(it, true)?.raw() }
+
+    // TODO raw/cooked
+    val onPlayFx = listOfNotNull(immediate).mapNotNull { immediateToEffect(it, false) }
+
+    val allEffects: List<Effect> = automaticFx + onPlayFx + effects + actionListToEffects(actions)
+
+    val supertypes = setOfNotNull(
+        projectInfo?.kind?.className?.expr,
+        resourceType?.let { RESOURCE_CARD.addArgs(it.classExpression()) },
+        if (actions.any()) ACTION_CARD.expr else null,
+    ).ifEmpty { setOf(CARD_FRONT.expr) }
 
     ClassDeclaration(
         className = className,
         shortName = shortName,
         abstract = false,
         supertypes = supertypes,
-        effectsIn = allEffects.toSetStrict(), // TODO
-        extraNodes =
-            setOfNotNull(requirement?.unprocessed) + extraClasses.flatMap { it.allNodes })
+        effectsIn = allEffects.toSetStrict(),
+        extraNodes = setOfNotNull(requirement) + extraClasses.flatMap { it.allNodes })
   }
 
   /** The deck this card belongs to; see [CardDefinition.deck]. */

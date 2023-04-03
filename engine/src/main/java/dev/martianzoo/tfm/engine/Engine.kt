@@ -6,6 +6,7 @@ import dev.martianzoo.tfm.data.GameEvent.ChangeEvent.Cause
 import dev.martianzoo.tfm.data.Player
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.pets.ast.Expression
+import dev.martianzoo.tfm.pets.ast.HasClassName
 import dev.martianzoo.tfm.pets.ast.Instruction
 import dev.martianzoo.tfm.pets.ast.Instruction.Gain
 import dev.martianzoo.tfm.pets.ast.Instruction.Intensity.MANDATORY
@@ -21,13 +22,9 @@ public object Engine {
     if (setup in loaderCache) return loaderCache[setup]!!
 
     val loader = MClassLoader(setup.authority, autoLoadDependencies = true)
+    val toLoad: List<HasClassName> = setup.allDefinitions() + setup.players()
 
-    val classNames =
-        listOf(ENGINE) +
-            setup.allDefinitions().classNames() + // all cards etc.
-            setup.players().classNames()
-
-    loader.loadAll(classNames)
+    loader.loadAll(toLoad.classNames())
     if ("P" in setup.bundles) loader.load(cn("PreludePhase"))
 
     loader.frozen = true

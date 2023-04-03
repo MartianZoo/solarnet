@@ -349,6 +349,20 @@ public sealed class Instruction : PetElement() {
     }
 
     override fun connector() = " OR "
+
+    companion object {
+      fun create(instructions: List<Instruction>): Instruction {
+        require(instructions.any())
+        return if (instructions.size == 1) {
+          instructions.first()
+        } else {
+          Or(instructions)
+        }
+      }
+
+      fun create(first: Instruction, vararg rest: Instruction) =
+          if (rest.none()) first else Or(listOf(first) + rest)
+    }
   }
 
   data class Multi(override val instructions: List<Instruction>) :
@@ -358,10 +372,10 @@ public sealed class Instruction : PetElement() {
     override fun copy(instructions: Iterable<Instruction>) =
         copy(instructions = instructions.toList())
 
-    override fun isAbstract(einfo: ExpressionInfo) = error("should have been split by now")
+    override fun isAbstract(einfo: ExpressionInfo) = error("should have been split by now: $this")
 
     override fun checkReificationDoNotCall(proposed: Instruction, einfo: ExpressionInfo) =
-        error("should have been split by now")
+        error("should have been split by now: $this")
 
     override fun precedence() = 0
 
@@ -381,14 +395,15 @@ public sealed class Instruction : PetElement() {
   }
 
   data class Transform(val instruction: Instruction, override val transformKind: String) :
-      Instruction(), GenericTransform<Instruction> {
+      Instruction(), TransformNode<Instruction> {
     override fun visitChildren(visitor: Visitor) = visitor.visit(instruction)
     override fun scale(factor: Int) = copy(instruction = instruction * factor)
 
-    override fun isAbstract(einfo: ExpressionInfo) = error("should have been transformed by now")
+    override fun isAbstract(einfo: ExpressionInfo) =
+        error("should have been transformed by now: $this")
 
     override fun checkReificationDoNotCall(proposed: Instruction, einfo: ExpressionInfo) =
-        error("should have been transformed by now")
+        error("should have been transformed by now: $this")
 
     override fun toString() = "$transformKind[$instruction]"
 

@@ -35,7 +35,7 @@ constructor(
     val whyPending: String? = null,
 ) {
   init {
-    require(instruction !is Multi) { "should have been split up" }
+    require(instruction !is Multi) { "should have been split: $instruction" }
   }
 
   override fun toString() = "$id: [$player] $instruction${whyPending.wrap(" (", ")")}"

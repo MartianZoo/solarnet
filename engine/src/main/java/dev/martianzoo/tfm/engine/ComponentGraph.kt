@@ -82,6 +82,7 @@ public class ComponentGraph {
     // MAX 1 Phase, MAX 9 OceanTile
     for (it: Requirement in loader.generalInvariants) {
       // TODO forbid refinements?
+      require(it !is Requirement.Transform)
       if (it is Counting) {
         val supertypeWithLimit = loader.resolve(it.scaledEx.expression)
         val gHasType = gaining?.let { it.mtype.isSubtypeOf(supertypeWithLimit) } ?: false

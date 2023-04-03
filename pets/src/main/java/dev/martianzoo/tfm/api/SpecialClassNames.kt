@@ -8,6 +8,8 @@ import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
  * code. Of course, a particular class name does not *have* to be in this list to be usable from the
  * code, but this habit makes it easier to "find usages" etc. to see how the component types are
  * being used. Or rename, etc.
+ *
+ * Class names specific to TfM should ideally not go here, but are still better here than nowhere.
  */
 public object SpecialClassNames {
   public val ANYONE = cn("Anyone")
@@ -17,12 +19,15 @@ public object SpecialClassNames {
   public val DIE = cn("Die")
   public val END = cn("End")
   public val ENGINE = cn("Engine")
-  public val MEGACREDIT = cn("Megacredit")
   public val OK = cn("Ok")
   public val OWNED = cn("Owned")
   public val OWNER = cn("Owner")
-  public val PRODUCTION = cn("Production")
-  public val STANDARD_RESOURCE = cn("StandardResource")
   public val THIS = cn("This")
   public val USE_ACTION = cn("UseAction")
+
+  public fun player(seat: Int) = cn("Player$seat").also { require(seat in 1..5) }
+
+  // Not class names, but...
+  public val PROD = "PROD" // TODO this is also Mars-specific
+  public val RAW = "RAW"
 }

@@ -5,10 +5,10 @@ import dev.martianzoo.tfm.api.SpecialClassNames.THIS
 import dev.martianzoo.tfm.pets.ClassParsing
 import dev.martianzoo.tfm.pets.Parsing.parseAsIs
 import dev.martianzoo.tfm.pets.PureTransformers.actionToEffect
-import dev.martianzoo.tfm.pets.ast.Action
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.pets.ast.Effect
 import dev.martianzoo.tfm.pets.ast.Instruction.Intensity
+import dev.martianzoo.tfm.pets.ast.PetNode.Companion.raw
 import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.pets.ast.ScaledExpression.Companion.scaledEx
 import dev.martianzoo.tfm.pets.ast.classNames
@@ -36,9 +36,11 @@ private class ClassDeclarationTest {
     val foo = cn("Foo")
     val dep = cn("Bar").expr
     val sup = te("Baz<Qux>")
-    val inv = Requirement.Exact(scaledEx(1, THIS.expr))
-    val eff: Effect = parseAsIs("This: DoStuff")
-    val act = actionToEffect(parseAsIs<Action>("Steel -> 5"), 1)
+
+    // TODO it sucks that taking out the explicit type makes it break at runtime
+    val inv: Requirement = Requirement.Exact(scaledEx(1, THIS.expr)).raw()
+    val eff: Effect = parseAsIs<Effect>("This: DoStuff").raw()
+    val act = actionToEffect(parseAsIs("Steel -> 5"), 1).raw()
     val gain = cn("Abc").expr
     val univ = cn("Xyz").expr
 
@@ -48,7 +50,7 @@ private class ClassDeclarationTest {
     assertThat(decl.dependencies).containsExactly(dep)
     assertThat(decl.supertypes).containsExactly(sup)
     assertThat(decl.invariants).containsExactly(inv)
-    assertThat(decl.effects.map { it.effect.unprocessed }).containsExactly(eff, act)
+    assertThat(decl.effects.map { it.effect }).containsExactly(eff, act)
     assertThat(decl.defaultsDeclaration.gainOnlySpecs).containsExactly(gain)
     assertThat(decl.defaultsDeclaration.universalSpecs).containsExactly(univ)
     assertThat(decl.defaultsDeclaration.gainIntensity).isEqualTo(Intensity.OPTIONAL)

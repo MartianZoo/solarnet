@@ -1,7 +1,6 @@
 package dev.martianzoo.tfm.data
 
 import dev.martianzoo.tfm.api.SpecialClassNames.THIS
-import dev.martianzoo.tfm.pets.Raw
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.Effect
 import dev.martianzoo.tfm.pets.ast.Expression
@@ -22,7 +21,7 @@ public data class ClassDeclaration(
     val dependencies: List<Expression> = listOf(),
     val supertypes: Set<Expression> = setOf(), // TODO do fancy Component stuff elsewhere?
     val invariants: Set<Requirement> = setOf(),
-    private val effectsIn: Set<Raw<Effect>> = setOf(),
+    private val effectsIn: Set<Effect> = setOf(),
     val defaultsDeclaration: DefaultsDeclaration = DefaultsDeclaration(),
     val extraNodes: Set<PetNode> = setOf(),
 ) : HasClassName {
@@ -47,25 +46,24 @@ public data class ClassDeclaration(
   // EFFECTS
 
   data class EffectDeclaration(
-      val effect: Raw<Effect>,
+      val effect: Effect,
       val depLinkages: Set<ClassName>,
       val triggerLinkages: Set<ClassName> = setOf(),
   )
 
   public val effects: List<EffectDeclaration> by lazy {
     effectsIn.map {
-      val depLinkages = bareNamesInEffects[it.unprocessed]!!.intersect(bareNamesInDependencies)
-      EffectDeclaration(it, depLinkages, triggerLinkages[it.unprocessed]!!)
+      val depLinkages = bareNamesInEffects[it]!!.intersect(bareNamesInDependencies)
+      EffectDeclaration(it, depLinkages, triggerLinkages[it]!!)
     }
   }
 
   public val bareNamesInEffects: Map<Effect, Set<ClassName>> by lazy {
-    effectsIn.map { it.unprocessed }.associateWith(::simpleClassNamesIn)
+    effectsIn.associateWith { simpleClassNamesIn(it) }
   }
 
   public val triggerLinkages: Map<Effect, Set<ClassName>> by lazy {
     effectsIn
-        .map { it.unprocessed }
         .associateWith {
           simpleClassNamesIn(it.trigger).intersect(simpleClassNamesIn(it.instruction))
         }
@@ -113,7 +111,7 @@ public data class ClassDeclaration(
         supertypes +
         dependencies +
         invariants +
-        effectsIn.map { it.unprocessed } +
+        effectsIn +
         defaultsDeclaration.allNodes +
         extraNodes
   }
