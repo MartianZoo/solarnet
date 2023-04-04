@@ -46,7 +46,7 @@ public object ClassParsing : PetTokenizer() {
    */
   public fun parseClassDeclarations(declarationsSource: String): List<ClassDeclaration> {
     val tokens = TokenCache.tokenize(stripLineComments(declarationsSource))
-    return parseRepeated(Declarations.topLevelGroup, tokens)
+    return parseRepeated(Declarations.topLevelGroup, tokens).flatten()
   }
 
   /**

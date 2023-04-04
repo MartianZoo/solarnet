@@ -90,10 +90,7 @@ public object Parsing {
       parse(parser, source, TokenCache.tokenize(source), expectedTypeDesc)
 
   // only used by ClassParsing.parseClassDeclarations
-  internal fun <T> parseRepeated(
-      listParser: Parser<List<T>>,
-      tokens: TokenMatchesSequence
-  ): List<T> {
+  internal fun <T> parseRepeated(listParser: Parser<T>, tokens: TokenMatchesSequence): List<T> {
     fun isEOF(result: ParseResult<*>?): Boolean =
         if (result is AlternativesFailure) {
           result.errors.any(::isEOF)
@@ -104,7 +101,7 @@ public object Parsing {
     var index = 0
     val parsed = mutableListOf<T>()
     while (true) {
-      val result: ParseResult<List<T>> = listParser.tryParse(tokens, index)
+      val result: ParseResult<T> = listParser.tryParse(tokens, index)
       when (result) {
         is Parsed -> {
           parsed += result.value
