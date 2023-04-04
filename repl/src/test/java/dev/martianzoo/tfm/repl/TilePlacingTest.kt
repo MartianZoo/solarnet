@@ -18,20 +18,18 @@ class TilePlacingTest {
     p2.execute("100")
 
     fun citySp() {
-      p2.execute("Turn")
-      p2.doTask("A", "UseAction1<UseStandardProject>")
-      p2.doTask("B", "UseAction1<CitySP>")
+      p2.execute("Turn", "UseAction1<UseStandardProject>", "UseAction1<CitySP>")
     }
 
     citySp()
-    p2.doTask("C", "-25 THEN CityTile<M46> THEN PROD[1]")
+    p2.doTask("-25 THEN CityTile<M46> THEN PROD[1]")
 
     citySp()
-    p2.doTask("C", "-25 THEN CityTile<M44> THEN PROD[1]")
+    p2.doTask("-25 THEN CityTile<M44> THEN PROD[1]")
 
     citySp()
 
     // TODO this should not work
-    p2.doTask("C", "-25 THEN CityTile<M34> THEN PROD[1]")
+    p2.doTask("-25 THEN CityTile<M34> THEN PROD[1]")
   }
 }

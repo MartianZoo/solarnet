@@ -76,8 +76,8 @@ class EntireGameTest {
     }
 
     engine.execute("ProductionPhase")
-    p1.doTask("A", "3 BuyCard")
-    p2.doTask("B", "2 BuyCard")
+    p1.doTask("3 BuyCard")
+    p2.doTask("2 BuyCard")
     engine.execute("ActionPhase")
 
     with(p2) {
@@ -94,8 +94,7 @@ class EntireGameTest {
 
     with(p2) {
       execute("-Titanium THEN -1 THEN TransNeptuneProbe")
-      execute("-1 THEN Hackers")
-      doTask("B", "PROD[-2 Megacredit<P1>]")
+      execute("-1 THEN Hackers", "PROD[-2 Megacredit<P1>]")
     }
 
     with(p1) {

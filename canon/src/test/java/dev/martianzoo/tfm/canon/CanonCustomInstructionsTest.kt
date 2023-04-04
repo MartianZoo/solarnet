@@ -74,7 +74,7 @@ private class CanonCustomInstructionsTest {
     p1.execute("RoboticWorkforce")
     checkProduction(p1, 0, 2, 1, 0, 3, 0)
 
-    p1.doTask("A", "@copyProductionBox(StripMine)")
+    p1.doTask("@copyProductionBox(StripMine)")
     checkProduction(p1, 0, 4, 2, 0, 1, 0)
 
     // TODO: what if it wasn't a building card

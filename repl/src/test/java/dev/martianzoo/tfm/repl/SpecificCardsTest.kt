@@ -86,8 +86,7 @@ class SpecificCardsTest {
     p1.execute("UseAction1<SulphurEatingBacteria>")
     assertThat(p1.count("Microbe")).isEqualTo(1)
 
-    p1.execute("UseAction2<SulphurEatingBacteria>")
-    p1.doTask("A", "-Microbe<SulphurEatingBacteria> THEN 3")
+    p1.execute("UseAction2<SulphurEatingBacteria>", "-Microbe<SulphurEatingBacteria> THEN 3")
     assertThat(p1.count("Microbe")).isEqualTo(0)
 
     p1.execute("4 UseAction1<SulphurEatingBacteria>")
@@ -110,7 +109,7 @@ class SpecificCardsTest {
 
     assertThat(p1.count("Microbe")).isEqualTo(4)
 
-    p1.doTask("A", "-3 Microbe<C251> THEN 9")
+    p1.doTask("-3 Microbe<C251> THEN 9")
     assertThat(p1.count("Microbe")).isEqualTo(1)
   }
 }
