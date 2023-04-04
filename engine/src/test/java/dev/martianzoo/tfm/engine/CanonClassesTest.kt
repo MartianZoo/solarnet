@@ -5,13 +5,12 @@ import dev.martianzoo.tfm.api.GameSetup
 import dev.martianzoo.tfm.api.SpecialClassNames.ANYONE
 import dev.martianzoo.tfm.api.SpecialClassNames.COMPONENT
 import dev.martianzoo.tfm.canon.Canon
-import dev.martianzoo.tfm.pets.Parsing.parseAsIs
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.pets.ast.classNames
 import dev.martianzoo.tfm.types.MClass
 import dev.martianzoo.tfm.types.MClassLoader
+import dev.martianzoo.tfm.types.te
 import dev.martianzoo.util.toStrings
 import kotlin.Int.Companion.MAX_VALUE
 import org.junit.jupiter.api.Test
@@ -106,7 +105,7 @@ internal class CanonClassesTest {
           .inOrder()
 
       table.load(cn("MarsArea"))
-      assertThat(baseType).isEqualTo(table.resolve(parseAsIs<Expression>("OceanTile<MarsArea>")))
+      assertThat(baseType).isEqualTo(table.resolve(te("OceanTile<MarsArea>")))
     }
   }
 
@@ -115,7 +114,7 @@ internal class CanonClassesTest {
     val loader = Engine.loadClasses(GameSetup(Canon, "BRM", 2))
 
     fun checkConcreteSubtypeCount(expr: String, size: Int) {
-      val mtype = loader.resolve(parseAsIs<Expression>(expr))
+      val mtype = loader.resolve(te(expr))
       assertThat(mtype.allConcreteSubtypes().toList()).hasSize(size)
     }
 
@@ -136,7 +135,7 @@ internal class CanonClassesTest {
     checkConcreteSubtypeCount("SpecialTile", (9 * 61) * 2)
 
     // Do this one the long way because the error message is horrific
-    val type = loader.resolve(parseAsIs<Expression>("Tile"))
+    val type = loader.resolve(te("Tile"))
     assertThat(type.allConcreteSubtypes().count()).isEqualTo(1407)
   }
 

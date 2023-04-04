@@ -1,13 +1,12 @@
 package dev.martianzoo.tfm.engine
 
-import dev.martianzoo.tfm.api.GameSetup
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.pets.Parsing.parseAsIs
 import dev.martianzoo.tfm.pets.ast.Instruction
 import org.junit.jupiter.api.Test
 
 class ReifyTest {
-  val game = Engine.newGame(GameSetup(Canon, "BM", 2))
+  val game = Engine.newGame(Canon.SIMPLE_GAME)
 
   @Test
   fun testVarious() {

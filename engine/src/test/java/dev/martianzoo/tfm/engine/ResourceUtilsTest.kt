@@ -1,7 +1,6 @@
 package dev.martianzoo.tfm.engine
 
 import com.google.common.truth.Truth.assertThat
-import dev.martianzoo.tfm.api.GameSetup
 import dev.martianzoo.tfm.api.ResourceUtils.lookUpProductionLevels
 import dev.martianzoo.tfm.api.ResourceUtils.standardResourceNames
 import dev.martianzoo.tfm.canon.Canon
@@ -15,7 +14,7 @@ import org.junit.jupiter.api.Test
 private class ResourceUtilsTest {
   @Test
   fun testLookUpProdLevelsUsingCanon() {
-    val session = InteractiveSession(Engine.newGame(GameSetup(Canon, "BM", 2)))
+    val session = InteractiveSession(Engine.newGame(Canon.SIMPLE_GAME))
     val prods: Map<ClassName, Int> = lookUpProductionLevels(session.game.reader, PLAYER1.expression)
     assertThat(prods.map { it.key to it.value })
         .containsExactly(
@@ -43,7 +42,7 @@ private class ResourceUtilsTest {
 
   @Test
   fun stdResNamesInCanon() {
-    val game = Engine.newGame(GameSetup(Canon, "BM", 2))
+    val game = Engine.newGame(Canon.SIMPLE_GAME)
     assertThat(standardResourceNames(game.reader).toStrings())
         .containsExactly("Megacredit", "Steel", "Titanium", "Plant", "Energy", "Heat")
   }

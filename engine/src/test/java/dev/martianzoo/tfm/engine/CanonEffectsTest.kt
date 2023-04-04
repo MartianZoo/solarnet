@@ -6,11 +6,10 @@ import dev.martianzoo.tfm.api.SpecialClassNames.ENGINE
 import dev.martianzoo.tfm.api.SpecialClassNames.OK
 import dev.martianzoo.tfm.api.SpecialClassNames.RAW
 import dev.martianzoo.tfm.canon.Canon
-import dev.martianzoo.tfm.pets.Parsing.parseAsIs
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.pets.ast.TransformNode.Companion.unwrap
 import dev.martianzoo.tfm.types.MClassLoader
+import dev.martianzoo.tfm.types.te
 import dev.martianzoo.util.toStrings
 import org.junit.jupiter.api.Test
 
@@ -32,7 +31,7 @@ private class CanonEffectsTest {
 
   fun componentEffectsOf(type: String): List<String> {
     val game = Engine.newGame(GameSetup(Canon, "BMC", 2))
-    val card = game.loader.resolve(parseAsIs<Expression>(type))
+    val card = game.loader.resolve(te(type))
     val comp = Component.ofType(card)
     return comp.petEffects.map { it.effect }.toStrings()
   }

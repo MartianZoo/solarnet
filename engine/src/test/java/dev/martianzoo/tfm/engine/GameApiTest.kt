@@ -1,13 +1,12 @@
 package dev.martianzoo.tfm.engine
 
 import com.google.common.truth.Truth.assertThat
-import dev.martianzoo.tfm.api.GameSetup
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.data.Player.Companion.PLAYER2
 import dev.martianzoo.tfm.data.StateChange
 import dev.martianzoo.tfm.pets.Parsing.parseAsIs
-import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.pets.ast.Metric
+import dev.martianzoo.tfm.types.te
 import dev.martianzoo.util.toStrings
 import org.junit.jupiter.api.Test
 
@@ -18,7 +17,7 @@ private class GameApiTest {
 
   @Test
   fun basicByApi() {
-    val game = Engine.newGame(GameSetup(Canon, "BM", 2))
+    val game = Engine.newGame(Canon.SIMPLE_GAME)
 
     val checkpoint = game.checkpoint()
     assertThat(game.count("Heat")).isEqualTo(0)
@@ -45,9 +44,6 @@ private class GameApiTest {
     assertThat(game.evaluate("=5 Heat<Player1>")).isTrue()
 
     val changes = game.eventLog.changesSince(checkpoint)
-
-    fun te(s: String): Expression = parseAsIs(s)
-
     assertThat(changes.map { it.change })
         .containsExactly(
             StateChange(5, gaining = te("Heat<Player2>")),

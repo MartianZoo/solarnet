@@ -4,9 +4,12 @@ import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.tfm.api.SpecialClassNames.CLASS
 import dev.martianzoo.tfm.api.SpecialClassNames.COMPONENT
 import dev.martianzoo.tfm.pets.Parsing.parseAsIs
+import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.pets.ast.PetNode
 import kotlin.reflect.KClass
 import org.junit.jupiter.api.assertThrows
+
+internal fun te(s: String): Expression = parseAsIs(s)
 
 internal inline fun <reified T : PetNode> testRoundTrip(start: String, end: String = start) =
     testRoundTrip(T::class, start, end)

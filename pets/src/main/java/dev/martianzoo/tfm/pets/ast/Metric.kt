@@ -47,7 +47,7 @@ sealed class Metric : PetElement() {
   data class Plus(val metrics: List<Metric>) : Metric() {
     init {
       if (metrics.any { it is Plus }) {
-        // TODO how did we get around this problem for other things??
+        // how did we get around this problem for other things??
         throw PetsSyntaxException("Having a plus inside a plus causes problems...")
       }
     }

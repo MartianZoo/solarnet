@@ -14,7 +14,7 @@ class SpecificCardsTest {
 
   @Test
   fun localHeatTrapping() {
-    val game = Engine.newGame(GameSetup(Canon, "BM", 2))
+    val game = Engine.newGame(Canon.SIMPLE_GAME)
     val p1 = InteractiveSession(game, Player.PLAYER1)
 
     p1.execute("4 Heat, 3 ProjectCard, Pets")

@@ -1,7 +1,6 @@
 package dev.martianzoo.tfm.repl
 
 import com.google.common.truth.Truth.assertThat
-import dev.martianzoo.tfm.api.GameSetup
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.data.Player.Companion.PLAYER1
 import dev.martianzoo.tfm.data.Player.Companion.PLAYER2
@@ -11,7 +10,7 @@ import org.junit.jupiter.api.Test
 private class InteractiveSessionTest {
   @Test
   fun shortNames() {
-    val session = InteractiveSession(Engine.newGame(GameSetup(Canon, "BM", 2)), PLAYER2)
+    val session = InteractiveSession(Engine.newGame(Canon.SIMPLE_GAME), PLAYER2)
 
     session.execute("PROD[5, 4 E]")
     session.execute("ProjectCard")
@@ -27,7 +26,7 @@ private class InteractiveSessionTest {
 
   @Test
   fun removeAmap() {
-    val session = InteractiveSession(Engine.newGame(GameSetup(Canon, "BM", 2)), PLAYER1)
+    val session = InteractiveSession(Engine.newGame(Canon.SIMPLE_GAME), PLAYER1)
 
     session.execute("3 Heat!")
     session.execute("4 Heat.")
@@ -37,7 +36,7 @@ private class InteractiveSessionTest {
 
   @Test
   fun rollback() {
-    val session = InteractiveSession(Engine.newGame(GameSetup(Canon, "BM", 2)), PLAYER1)
+    val session = InteractiveSession(Engine.newGame(Canon.SIMPLE_GAME), PLAYER1)
 
     session.execute("3 Heat")
     session.execute("4 Heat")
@@ -53,7 +52,7 @@ private class InteractiveSessionTest {
 
   @Test
   fun dependencies() {
-    val session = InteractiveSession(Engine.newGame(GameSetup(Canon, "BM", 2)), PLAYER2)
+    val session = InteractiveSession(Engine.newGame(Canon.SIMPLE_GAME), PLAYER2)
 
     assertThat(session.game.taskQueue.isEmpty()).isTrue()
     assertThat(session.count("Microbe")).isEqualTo(0)
@@ -72,7 +71,7 @@ private class InteractiveSessionTest {
 
   @Test
   fun counting() {
-    val session = InteractiveSession(Engine.newGame(GameSetup(Canon, "BM", 2)), PLAYER2)
+    val session = InteractiveSession(Engine.newGame(Canon.SIMPLE_GAME), PLAYER2)
     session.execute("42 Heat")
     assertThat(session.count("Heat")).isEqualTo(42)
     assertThat(session.count("4 Heat")).isEqualTo(10)
@@ -89,7 +88,7 @@ private class InteractiveSessionTest {
 
   @Test
   fun tempTrigger() {
-    val session = InteractiveSession(Engine.newGame(GameSetup(Canon, "BM", 2)), PLAYER1)
+    val session = InteractiveSession(Engine.newGame(Canon.SIMPLE_GAME), PLAYER1)
     assertThat(session.count("TerraformRating")).isEqualTo(20)
 
     session.execute("2 TemperatureStep")

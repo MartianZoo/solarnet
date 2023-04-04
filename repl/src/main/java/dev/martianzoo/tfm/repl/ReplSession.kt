@@ -34,7 +34,7 @@ import org.jline.reader.History
 
 internal fun main() {
   val jline = JlineRepl()
-  val repl = ReplSession(Canon, GameSetup(Canon, "BM", 2), jline)
+  val repl = ReplSession(Canon, Canon.SIMPLE_GAME, jline)
   val session = repl.session
 
   fun prompt(): String {

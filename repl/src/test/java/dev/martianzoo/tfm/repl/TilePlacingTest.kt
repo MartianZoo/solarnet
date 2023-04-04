@@ -1,6 +1,5 @@
 package dev.martianzoo.tfm.repl
 
-import dev.martianzoo.tfm.api.GameSetup
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.data.Player.Companion.PLAYER2
 import dev.martianzoo.tfm.engine.Engine
@@ -9,7 +8,7 @@ import org.junit.jupiter.api.Test
 class TilePlacingTest {
   @Test
   fun citiesRepel() {
-    val game = Engine.newGame(GameSetup(Canon, "BM", 2))
+    val game = Engine.newGame(Canon.SIMPLE_GAME)
     val eng = InteractiveSession(game)
     val p2 = eng.asPlayer(PLAYER2)
 
