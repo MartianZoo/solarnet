@@ -253,38 +253,40 @@ class EntireGameTest {
     eng.execute("ActionPhase")
 
     p1.useAction1("DevelopmentCenter")
+    p1.playCard(
+        1,
+        "ImmigrantCity",
+        "5 Pay<Class<S>> FROM S",
+        "CityTile<Hellas_9_7>",
+        "OceanTile<Hellas_5_6>")
 
     assertThat(eng.agent.tasks()).isEmpty()
-
-    p1.playCard(1, "ImmigrantCity", "5 Pay<Class<S>> FROM S")
-    // TODO place the city, then check tasks are empty down here instead
-
     assertThat(eng.count("PaymentMechanic")).isEqualTo(0)
 
     // Check counts, shared stuff first
 
     assertThat(eng.counts("Generation")).containsExactly(3)
-    assertThat(eng.counts("OceanTile, OxygenStep, TemperatureStep")).containsExactly(0, 0, 0)
+    assertThat(eng.counts("OceanTile, OxygenStep, TemperatureStep")).containsExactly(1, 0, 0)
 
     with(p1) {
-      assertThat(count("TerraformRating")).isEqualTo(23)
+      assertThat(count("TerraformRating")).isEqualTo(24)
 
       val prods1 = lookUpProductionLevels(agent.reader, agent.player) // TODO
-      assertThat(prods1.values).containsExactly(4, 0, 0, 0, 0, 1).inOrder()
+      assertThat(prods1.values).containsExactly(5, 0, 0, 0, 0, 1).inOrder()
 
       assertThat(counts("M, Steel, Titanium, Plant, Energy, Heat"))
-          .containsExactly(22, 3, 0, 0, 0, 1)
+          .containsExactly(16, 3, 0, 0, 0, 1)
           .inOrder()
 
       assertThat(counts("ProjectCard, CardFront, ActiveCard, AutomatedCard, PlayedEvent"))
-          .containsExactly(6, 12, 5, 4, 1)
+          .containsExactly(7, 12, 5, 4, 1)
 
       // tag abbreviations
       assertThat(counts("Tag, BUT, SPT, SCT, POT, EAT, JOT, CIT"))
           .containsExactly(16, 5, 1, 3, 1, 4, 1, 1)
           .inOrder()
 
-      assertThat(counts("CityTile, GreeneryTile, SpecialTile")).containsExactly(0, 0, 0).inOrder()
+      assertThat(counts("CityTile, GreeneryTile, SpecialTile")).containsExactly(1, 0, 0).inOrder()
     }
 
     with(p2) {
@@ -307,14 +309,13 @@ class EntireGameTest {
 
     val cp = game.checkpoint()
     eng.execute("End")
-    assertThat(eng.agent.tasks()).hasSize(1) // TODO fix that
+    assertThat(eng.agent.tasks()).isEmpty()
 
     eng.game.eventLog.changesSince(cp).forEach(::println)
-
     // Not sure where this discrepancy comes from... expected P2 to be shorted 1 pt because event
 
     // 23 2 1 1 -1
-    assertThat(p1.count("VictoryPoint")).isEqualTo(26)
+    assertThat(p1.count("VictoryPoint")).isEqualTo(27)
 
     // 25 1 1 1 (but getting shorted for event card)
     assertThat(p2.count("VictoryPoint")).isEqualTo(27) // TODO 28
