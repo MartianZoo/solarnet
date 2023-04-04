@@ -427,9 +427,7 @@ public sealed class Instruction : PetElement() {
       if (abstractTarget !is Or &&
           instruction != NoOp &&
           instruction::class != abstractTarget::class) {
-        throw InvalidReificationException(
-            "A ${instruction::class.simpleName} instruction can't reify a" +
-                " ${abstractTarget::class.simpleName} instruction")
+        throw InvalidReificationException("`$instruction` can't reify `$abstractTarget`")
       }
       abstractTarget.checkReificationDoNotCall(instruction, einfo) // well WE can call it
     }

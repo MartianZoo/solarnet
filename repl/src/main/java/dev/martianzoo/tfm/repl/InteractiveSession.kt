@@ -88,6 +88,11 @@ public class InteractiveSession(
     return Result(changes = changes, newTaskIdsAdded = setOf())
   }
 
+  fun execute(instruction: String, vararg tasks: String) {
+    execute(instruction, true)
+    tasks.forEach(::doTask)
+  }
+
   fun execute(instruction: String, autoExec: Boolean = defaultAutoExec) =
       execute(prep(parseInput(instruction)), autoExec)
 
@@ -107,6 +112,9 @@ public class InteractiveSession(
       }
     }
   }
+
+  fun doTask(instruction: String) =
+      doTask(agent.tasks().keys.min(), instruction)
 
   fun doTask(initialTaskId: String, narrowedInstruction: String? = null) =
       doTask(TaskId(initialTaskId), narrowedInstruction)
@@ -153,13 +161,13 @@ public class InteractiveSession(
 
   fun <P : PetElement> prep(node: P): P {
     val xers = game.loader.transformers
-    val xer = transformInSeries(
+    val xer =
+        transformInSeries(
             useFullNames(),
             xers.atomizer(),
             xers.insertDefaults(THIS.expr),
             xers.deprodify(),
-            TransformNode.unwrapper(RAW)
-        )
+            TransformNode.unwrapper(RAW))
     return xer.transform(node)
   }
 
@@ -176,5 +184,4 @@ public class InteractiveSession(
           }
         }
       }
-
 }

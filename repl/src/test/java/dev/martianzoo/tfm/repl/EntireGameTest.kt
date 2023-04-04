@@ -1,14 +1,12 @@
 package dev.martianzoo.tfm.repl
 
 import com.google.common.truth.Truth.assertThat
-import com.google.common.truth.Truth.assertWithMessage
 import dev.martianzoo.tfm.api.GameSetup
 import dev.martianzoo.tfm.api.ResourceUtils.lookUpProductionLevels
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.data.Player.Companion.PLAYER1
 import dev.martianzoo.tfm.data.Player.Companion.PLAYER2
 import dev.martianzoo.tfm.engine.Engine
-import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import org.junit.jupiter.api.Test
 
 class EntireGameTest {
@@ -30,19 +28,16 @@ class EntireGameTest {
     p1.execute("-30 THEN AsteroidMining")
 
     with(p2) {
-      execute("-4 Steel THEN -1 THEN NaturalPreserve")
-      dropTask("B")
-      execute("Tile044<E37>")
+      execute("-4 Steel THEN -1 THEN NaturalPreserve", "Tile044<E37>")
       execute("-13 Steel THEN -1 THEN SpaceElevator")
       execute("UseAction1<SpaceElevator>")
       execute("-2 THEN InventionContest")
-      execute("-6 THEN GreatEscarpmentConsortium")
-      doTask("A", "PROD[-Steel<P1>]")
+      execute("-6 THEN GreatEscarpmentConsortium", "PROD[-Steel<P1>]")
     }
 
     engine.execute("ProductionPhase")
-    p1.doTask("A", "4 BuyCard")
-    p2.doTask("B", "1 BuyCard")
+    p1.doTask("4 BuyCard")
+    p2.doTask("1 BuyCard")
     engine.execute("ActionPhase")
 
     with(p2) {
@@ -52,22 +47,20 @@ class EntireGameTest {
 
     with(p1) {
       execute("-7 THEN TitaniumMine")
-      execute("-9 THEN RoboticWorkforce")
-      doTask("A", "@copyProductionBox(MartianIndustries)")
+      execute("-9 THEN RoboticWorkforce", "@copyProductionBox(MartianIndustries)")
       execute("-6 THEN Sponsors")
     }
 
     with(p2) {
       execute("-5 Steel THEN IndustrialMicrobes")
       execute("-Titanium THEN TechnologyDemonstration")
-      execute("-1 THEN EnergyTapping")
-      doTask("A", "PROD[-Energy<P1>]")
+      execute("-1 THEN EnergyTapping", "PROD[-Energy<P1>]")
       execute("-2 Steel THEN BuildingIndustries")
     }
 
     engine.execute("ProductionPhase")
-    p1.doTask("A", "3 BuyCard")
-    p2.doTask("B", "2 BuyCard")
+    p1.doTask("3 BuyCard")
+    p2.doTask("2 BuyCard")
     engine.execute("ActionPhase")
 
     p1.execute("-2 THEN -1 Steel THEN Mine")
@@ -75,12 +68,10 @@ class EntireGameTest {
     with(p2) {
       execute("UseAction1<SpaceElevator>")
       execute("-5 THEN -5 Steel THEN ElectroCatapult")
-      execute("UseAction1<ElectroCatapult>")
-      doTask("A", "-Steel THEN 7") // TODO just one
+      execute("UseAction1<ElectroCatapult>", "-Steel THEN 7") // TODO just one
       execute("-Titanium THEN -7 THEN SpaceHotels")
       execute("-6 THEN MarsUniversity")
-      execute("-10 THEN ArtificialPhotosynthesis")
-      doTask("B", "PROD[2 Energy]")
+      execute("-10 THEN ArtificialPhotosynthesis", "PROD[2 Energy]")
       execute("-5 THEN BribedCommittee")
     }
 
@@ -97,9 +88,7 @@ class EntireGameTest {
     }
 
     with(p1) {
-      execute("-2 Steel THEN -14 THEN ResearchOutpost")
-      dropTask("A")
-      execute("CityTile<E56>") // TODO reif refi
+      execute("-2 Steel THEN -14 THEN ResearchOutpost", "CityTile<E56>")
       execute("-13 Titanium THEN -1 THEN IoMiningIndustries")
     }
 
@@ -111,293 +100,237 @@ class EntireGameTest {
 
     with(p1) {
       execute("UseAction1<SellPatents>")
-      doTask("A", "Megacredit FROM ProjectCard")
+      doTask("Megacredit FROM ProjectCard")
     }
 
     with(p2) {
       execute("-4 Steel THEN -1 THEN SolarPower")
-      execute("UseAction1<UseStandardProject>")
-      doTask("A", "UseAction1<CitySP>")
-      dropTask("B") // split
-      execute("-25 THEN CityTile<E65> THEN PROD[1]")
+      execute(
+          "UseAction1<UseStandardProject>",
+          "UseAction1<CitySP>",
+          "-25 THEN CityTile<E65> THEN PROD[1]")
+
       execute("PROD[-Plant, Energy]") // CORRECTION TODO WHY
     }
 
     engine.execute("ProductionPhase")
 
-    fun InteractiveSession.counts(arg: String) = arg.split(",").map { this.count(it) }
-    fun InteractiveSession.assertCount(text: String, i: Int) = assertThat(count(text)).isEqualTo(i)
-
     // Stuff
     assertThat(engine.counts("Generation")).containsExactly(5)
     assertThat(engine.counts("OceanTile, OxygenStep, TemperatureStep")).containsExactly(0, 0, 0)
 
-    // P1
+    with(p1) {
+      assertThat(count("TerraformRating")).isEqualTo(20)
 
-    p1.assertCount("TerraformRating", 20)
+      val prods = lookUpProductionLevels(game.reader, player.expression)
+      assertThat(prods.values).containsExactly(2, 2, 7, 0, 1, 0).inOrder()
 
-    val prods = lookUpProductionLevels(p1.game.reader, p1.player.expression)
-    assertThat(prods.values).containsExactly(2, 2, 7, 0, 1, 0).inOrder()
+      assertThat(counts("M, Steel, Titanium, Plant, Energy, Heat"))
+          .containsExactly(34, 2, 8, 3, 1, 3)
+          .inOrder()
 
-    assertThat(p1.counts("M, Steel, Titanium, Plant, Energy, Heat"))
-        .containsExactly(34, 2, 8, 3, 1, 3)
-        .inOrder()
+      assertThat(counts("ProjectCard, CardFront, ActiveCard, AutomatedCard, PlayedEvent"))
+          .containsExactly(5, 10, 1, 6, 0)
 
-    assertThat(p1.counts("ProjectCard, CardFront, ActiveCard, AutomatedCard, PlayedEvent"))
-        .containsExactly(5, 10, 1, 6, 0)
+      // tag abbreviations
+      assertThat(counts("BUT, SPT, SCT, POT, EAT, JOT, PLT, MIT, ANT, CIT"))
+          .containsExactly(5, 2, 2, 0, 1, 3, 0, 0, 0, 1)
+          .inOrder()
 
-    // tag abbreviations
-    assertThat(p1.counts("BUT, SPT, SCT, POT, EAT, JOT, PLT, MIT, ANT, CIT"))
-        .containsExactly(5, 2, 2, 0, 1, 3, 0, 0, 0, 1)
-        .inOrder()
+      assertThat(counts("CityTile, GreeneryTile, SpecialTile")).containsExactly(1, 0, 0).inOrder()
+    }
 
-    assertThat(p1.counts("CityTile, GreeneryTile, SpecialTile"))
-        .containsExactly(1, 0, 0)
-        .inOrder()
+    with(p2) {
+      assertThat(count("TerraformRating")).isEqualTo(25)
 
-    // P2
+      val prods2 = lookUpProductionLevels(game.reader, player.expression)
+      assertThat(prods2.values).containsExactly(8, 6, 1, 0, 2, 0).inOrder()
 
-    p2.assertCount("TerraformRating", 25)
+      assertThat(counts("M, Steel, Titanium, Plant, Energy, Heat"))
+          .containsExactly(47, 6, 1, 1, 2, 3)
+          .inOrder()
 
-    val prods2 = lookUpProductionLevels(p2.game.reader, p2.player.expression)
-    assertThat(prods2.values).containsExactly(8, 6, 1, 0, 2, 0).inOrder()
+      assertThat(counts("ProjectCard, CardFront, ActiveCard, AutomatedCard, PlayedEvent"))
+          .containsExactly(3, 17, 4, 10, 3)
 
-    assertThat(p2.counts("M, Steel, Titanium, Plant, Energy, Heat"))
-        .containsExactly(47, 6, 1, 1, 2, 3)
-        .inOrder()
+      // tag abbreviations
+      assertThat(counts("BUT, SPT, SCT, POT, EAT, JOT, PLT, MIT, ANT, CIT"))
+          .containsExactly(9, 3, 4, 2, 3, 0, 0, 1, 0, 0)
+          .inOrder()
 
-    assertThat(p2.counts("ProjectCard, CardFront, ActiveCard, AutomatedCard, PlayedEvent"))
-        .containsExactly(3, 17, 4, 10, 3)
-
-    // tag abbreviations
-    assertThat(p2.counts("BUT, SPT, SCT, POT, EAT, JOT, PLT, MIT, ANT, CIT"))
-        .containsExactly(9, 3, 4, 2, 3, 0, 0, 1, 0, 0)
-        .inOrder()
-
-    assertThat(p2.counts("CityTile, GreeneryTile, SpecialTile"))
-        .containsExactly(1, 0, 1)
-        .inOrder()
+      assertThat(counts("CityTile, GreeneryTile, SpecialTile")).containsExactly(1, 0, 1).inOrder()
+    }
   }
 
   @Test
-  fun startEllieGameWithoutPrelude() {
-    val repl = ReplSession(Canon, GameSetup(Canon, "BRHX", 2))
-    repl.test("mode blue")
+  fun startOfEllieGameNoPrelude() {
+    val game = Engine.newGame(GameSetup(Canon, "BRHX", 2))
+    val eng = InteractiveSession(game)
+    val p1 = eng.asPlayer(PLAYER1)
+    val p2 = eng.asPlayer(PLAYER2)
 
-    repl.test("become P1")
-    repl.test("exec Turn", "task B InterplanetaryCinematics", "task C 7 BuyCard")
+    p1.execute("Turn", "InterplanetaryCinematics", "7 BuyCard")
+    p2.execute("Turn", "PharmacyUnion", "5 BuyCard")
 
-    repl.test("become P2")
-    repl.test("exec Turn", "task B PharmacyUnion", "task C 5 BuyCard")
+    eng.execute("ActionPhase")
 
-    repl.test("become Engine")
-    repl.test("exec ActionPhase")
+    p1.execute(
+        "Turn",
+        "UseAction1<PlayCardFromHand>",
+        "PlayCard<Class<MediaGroup>>",
+        "6 Pay<Class<M>> FROM M")
 
-    repl.test("become P1")
-    repl.playCard(6, "MediaGroup")
+    assertThat(p1.counts("Tag, BuildingTag, EarthTag, ProjectCard")).containsExactly(2, 1, 1, 6)
   }
 
   @Test
   fun ellieGame() {
-    val repl = ReplSession(Canon, GameSetup(Canon, "BRHXP", 2))
+    val game = Engine.newGame(GameSetup(Canon, "BRHXP", 2))
+    val eng = InteractiveSession(game)
+    val p1 = eng.asPlayer(PLAYER1)
+    val p2 = eng.asPlayer(PLAYER2)
 
-    repl.test("mode blue")
+    p1.execute("Turn", "InterplanetaryCinematics", "7 BuyCard")
+    p2.execute("Turn", "PharmacyUnion", "5 BuyCard")
 
-    repl.test("become P1")
-    repl.test("exec Turn", "task B InterplanetaryCinematics", "task C 7 BuyCard")
+    eng.execute("PreludePhase")
 
-    repl.test("become P2")
-    repl.test("exec Turn", "task B PharmacyUnion", "task C 5 BuyCard")
+    p1.execute("Turn", "UnmiContractor")
+    p1.execute("Turn", "CorporateArchives")
 
-    repl.test("become Engine")
-    repl.test("exec PreludePhase")
+    p2.execute("Turn", "BiosphereSupport")
+    p2.execute("Turn", "SocietySupport")
 
-    repl.test("become P1")
-    repl.test("exec Turn", "task B UnmiContractor")
-    repl.test("exec Turn", "task B CorporateArchives")
+    eng.execute("ActionPhase")
 
-    repl.test("become P2")
-    repl.test("exec Turn", "task B BiosphereSupport")
-    repl.test("exec Turn", "task B SocietySupport")
+    p1.playCard(6, "MediaGroup")
+    p1.playCard(1, "Sabotage", "-7 Megacredit<P2>")
 
-    repl.test("become Engine")
-    repl.test("exec ActionPhase")
+    p2.playCard(11, "Research")
+    p2.playCard(9, "MartianSurvey", "Ok") // TODO huh?
 
-    repl.test("become P1")
-
-    repl.playCard(6, "MediaGroup")
-
-    repl.playCard(1, "Sabotage", "task F -7 Megacredit<P2>")
-
-    repl.test("become P2")
-    repl.playCard(11, "Research")
-    repl.playCard(9, "MartianSurvey", "task F Ok")
-
-    repl.playCard(
+    // TODO support TR abbreviation here
+    p2.playCard(
         3,
         "SearchForLife",
-        "task F PlayedEvent<Class<PharmacyUnion>> FROM PharmacyUnion THEN 3 TerraformRating")
+        "PlayedEvent<Class<PharmacyUnion>> FROM PharmacyUnion THEN 3 TerraformRating")
 
-    repl.useAction1("SearchForLife", "task C -1 THEN Ok")
+    p2.useAction1("SearchForLife", "-1 THEN Ok") // TODO simplify
 
-    repl.test("become Engine")
-    repl.test("exec ProductionPhase", "as P1 task A BuyCard", "as P2 task B 3 BuyCard")
-    repl.test("exec ActionPhase")
+    eng.execute("ProductionPhase")
+    p1.doTask("BuyCard")
+    p2.doTask("3 BuyCard")
+    eng.execute("ActionPhase")
 
-    repl.test("become P2")
+    p2.execute("Turn", "UseAction1<SellPatents>", "Megacredit FROM ProjectCard")
 
-    repl.test("exec Turn", 1)
-    repl.test("task A UseAction1<SellPatents>", 1)
-    repl.test("task B Megacredit FROM ProjectCard")
+    p2.playCard(15, "VestaShipyard", "Ok") // ?
 
-    repl.test("exec Turn", 1)
-    repl.test("task A UseAction1<PlayCardFromHand>", 1)
-    repl.test("task B PlayCard<Class<VestaShipyard>>", 2)
-    repl.test("task F 15 Pay<Class<M>> FROM M", 1)
-    repl.test("task G Ok")
+    p1.playCard(23, "EarthCatapult")
+    p1.execute(
+        "Turn",
+        "UseAction1<PlayCardFromHand>",
+        "PlayCard<Class<OlympusConference>>",
+        "Ok",
+        "4 Pay<Class<S>> FROM S",
+        "Science<OlympusConference>")
 
-    repl.test("become P1")
-    repl.playCard(23, "EarthCatapult")
-    // TODO recognize one is impossible
+    p1.playCard(
+        1,
+        "DevelopmentCenter",
+        "4 Pay<Class<S>> FROM S",
+        "ProjectCard FROM Science<OlympusConference>")
 
-    repl.test("exec Turn", 1)
-    repl.test("task A UseAction1<PlayCardFromHand>", 1)
-    repl.test("task B PlayCard<Class<OlympusConference>>", 2)
-    repl.test("task H Ok", 1)
-    repl.test("task I 4 Pay<Class<S>> FROM S", 1)
-    repl.test("task J Science<OlympusConference>")
+    p1.playCard(1, "GeothermalPower", "4 Pay<Class<S>> FROM S")
+    p1.playCard(10, "MirandaResort", "Ok")
+    p1.playCard(1, "Hackers", "PROD[-2 M<P2>]")
+    p1.playCard(1, "MicroMills")
 
-    repl.test("mode green")
+    eng.execute("ProductionPhase")
+    p1.doTask("3 BuyCard")
+    p2.doTask("BuyCard")
+    eng.execute("ActionPhase")
 
-    repl.test(
-        "exec -4 Steel THEN -1 THEN DevelopmentCenter",
-        "task A ProjectCard FROM Science<OlympusConference>")
-    repl.test("exec -4 Steel THEN -1 THEN GeothermalPower")
-    repl.test("exec -10 THEN MirandaResort")
-    repl.test("exec -1 THEN Hackers", "task B PROD[-2 M<P2>]")
-    repl.test("exec -1 THEN MicroMills")
+    p1.useAction1("DevelopmentCenter")
 
-    repl.test("become Engine")
-    repl.test("exec ProductionPhase", "as P1 task A 3 BuyCard", "as P2 task B BuyCard")
-    repl.test("exec ActionPhase")
+    assertThat(eng.agent.tasks()).isEmpty()
 
-    repl.test("become P1")
-    repl.test(
-        "exec UseAction1<UseActionFromCard>",
-        "task A UseAction1<DevelopmentCenter> THEN ActionUsedMarker<DevelopmentCenter>",
-    )
-    repl.test("exec -5 Steel THEN -1 THEN ImmigrantCity", 1)
-    repl.test("task C drop") // TODO
+    p1.playCard(1, "ImmigrantCity", "5 Pay<Class<S>> FROM S")
+    // TODO place the city, then check tasks are empty down here instead
 
-    // Shared stuff
+    assertThat(eng.count("PaymentMechanic")).isEqualTo(0)
 
-    assertThat(repl.counts("Generation")).containsExactly(3)
-    assertThat(repl.counts("OceanTile, OxygenStep, TemperatureStep")).containsExactly(0, 0, 0)
+    // Check counts, shared stuff first
 
-    // P1
+    assertThat(eng.counts("Generation")).containsExactly(3)
+    assertThat(eng.counts("OceanTile, OxygenStep, TemperatureStep")).containsExactly(0, 0, 0)
 
-    repl.command("become P1")
+    with(p1) {
+      assertThat(count("TerraformRating")).isEqualTo(23)
 
-    repl.assertCount("TerraformRating", 23)
+      val prods1 = lookUpProductionLevels(agent.reader, agent.player) // TODO
+      assertThat(prods1.values).containsExactly(4, 0, 0, 0, 0, 1).inOrder()
 
-    val prods = lookUpProductionLevels(repl.session.game.reader, cn("P1").expr)
-    assertThat(prods.values).containsExactly(4, 0, 0, 0, 0, 1).inOrder()
+      assertThat(counts("M, Steel, Titanium, Plant, Energy, Heat"))
+          .containsExactly(22, 3, 0, 0, 0, 1)
+          .inOrder()
 
-    assertThat(repl.counts("M, Steel, Titanium, Plant, Energy, Heat"))
-        .containsExactly(22, 3, 0, 0, 0, 1)
-        .inOrder()
+      assertThat(counts("ProjectCard, CardFront, ActiveCard, AutomatedCard, PlayedEvent"))
+          .containsExactly(6, 12, 5, 4, 1)
 
-    assertThat(repl.counts("ProjectCard, CardFront, ActiveCard, AutomatedCard, PlayedEvent"))
-        .containsExactly(6, 12, 5, 4, 1)
+      // tag abbreviations
+      assertThat(counts("Tag, BUT, SPT, SCT, POT, EAT, JOT, CIT"))
+          .containsExactly(16, 5, 1, 3, 1, 4, 1, 1)
+          .inOrder()
 
-    // tag abbreviations
-    assertThat(repl.counts("BUT, SPT, SCT, POT, EAT, JOT, PLT, MIT, ANT, CIT"))
-        .containsExactly(5, 1, 3, 1, 4, 1, 0, 0, 0, 1)
-        .inOrder()
+      assertThat(counts("CityTile, GreeneryTile, SpecialTile")).containsExactly(0, 0, 0).inOrder()
+    }
 
-    assertThat(repl.counts("CityTile, GreeneryTile, SpecialTile"))
-        .containsExactly(0, 0, 0)
-        .inOrder()
+    with(p2) {
+      assertThat(count("TerraformRating")).isEqualTo(25)
 
-    // P2
+      val prods2 = lookUpProductionLevels(agent.reader, agent.player) // TODO
+      assertThat(prods2.values).containsExactly(-4, 0, 1, 3, 1, 1).inOrder()
 
-    repl.command("become P2")
+      assertThat(counts("M, Steel, Titanium, Plant, Energy, Heat"))
+          .containsExactly(18, 0, 1, 6, 1, 3)
+          .inOrder()
 
-    repl.assertCount("TerraformRating", 25)
+      assertThat(counts("ProjectCard, CardFront, ActiveCard, AutomatedCard, PlayedEvent"))
+          .containsExactly(9, 5, 1, 2, 2)
 
-    val prods2 = lookUpProductionLevels(repl.session.game.reader, cn("P2").expr)
-    assertThat(prods2.values).containsExactly(-4, 0, 1, 3, 1, 1).inOrder()
+      assertThat(counts("Tag, SPT, SCT, JOT, PLT")).containsExactly(6, 1, 3, 1, 1).inOrder()
 
-    assertThat(repl.counts("M, Steel, Titanium, Plant, Energy, Heat"))
-        .containsExactly(18, 0, 1, 6, 1, 3)
-        .inOrder()
+      assertThat(counts("CityTile, GreeneryTile, SpecialTile")).containsExactly(0, 0, 0).inOrder()
+    }
 
-    assertThat(repl.counts("ProjectCard, CardFront, ActiveCard, AutomatedCard, PlayedEvent"))
-        .containsExactly(9, 5, 1, 2, 2)
+    val cp = game.checkpoint()
+    eng.execute("End")
+    assertThat(eng.agent.tasks()).hasSize(1) // TODO fix that
 
-    // tag abbreviations
-    assertThat(repl.counts("BUT, SPT, SCT, POT, EAT, JOT, PLT, MIT, ANT, CIT"))
-        .containsExactly(0, 1, 3, 0, 0, 1, 1, 0, 0, 0)
-        .inOrder()
-
-    assertThat(repl.counts("CityTile, GreeneryTile, SpecialTile"))
-        .containsExactly(0, 0, 0)
-        .inOrder()
-
-    repl.test("become Engine")
-
-    val cp = repl.session.game.checkpoint()
-    repl.test("exec End")
-    assertThat(repl.session.game.taskQueue.isEmpty()).isTrue()
-    repl.session.game.eventLog.changesSince(cp).forEach(::println)
+    eng.game.eventLog.changesSince(cp).forEach(::println)
 
     // Not sure where this discrepancy comes from... expected P2 to be shorted 1 pt because event
 
     // 23 2 1 1 -1
-    assertThat(repl.session.count("VictoryPoint<Player1>")).isEqualTo(26)
+    assertThat(p1.count("VictoryPoint")).isEqualTo(26)
 
     // 25 1 1 1 (but getting shorted for event card)
-    assertThat(repl.session.count("VictoryPoint<Player2>")).isEqualTo(27) // TODO 28
+    assertThat(p2.count("VictoryPoint")).isEqualTo(27) // TODO 28
   }
-}
 
-fun ReplSession.playCard(mega: Int, cardName: String, vararg tasks: String) {
-  test("exec Turn", 1)
-  test("task A UseAction1<PlayCardFromHand>", 1)
-  test("task B PlayCard<Class<$cardName>>", 1)
-  val taskId = session.agent.tasks().keys.single()
-  if (mega > 0) {
-    test("task $taskId $mega Pay<Class<M>> FROM M", tasks.size)
-  } else {
-    test("task $taskId Ok", tasks.size)
+  fun InteractiveSession.playCard(cost: Int, cardName: String, vararg tasks: String) {
+    execute("Turn", "UseAction1<PlayCardFromHand>", "PlayCard<Class<$cardName>>")
+    if (cost > 0) doTask("$cost Pay<Class<M>> FROM M")
+    tasks.forEach(::doTask)
   }
-  var left = tasks.size
-  for (task in tasks) test(task, --left)
-}
 
-fun ReplSession.useAction1(cardName: String, vararg tasks: String) {
-  test("exec Turn", 1)
-  test("task A UseAction1<UseActionFromCard>", 1)
-  test("task B UseAction1<$cardName> THEN ActionUsedMarker<$cardName>", 1)
-  var left = tasks.size
-  for (task in tasks) test(task, --left)
-}
+  fun InteractiveSession.useAction1(cardName: String, vararg tasks: String) =
+      execute(
+          "Turn",
+          "UseAction1<UseActionFromCard>",
+          "UseAction1<$cardName> THEN ActionUsedMarker<$cardName>",
+          *tasks)
 
-fun ReplSession.test(s: String, tasksExpected: Int = 0) {
-  val (cmd, args) = s.split(" ", limit = 2)
-  commands[cmd]!!.withArgs(args)
-  assertWithMessage("${session.game.taskQueue}")
-      .that(session.game.taskQueue.size)
-      .isEqualTo(tasksExpected)
+  fun InteractiveSession.counts(s: String) = s.split(",").map(::count)
 }
-
-fun ReplSession.test(vararg s: String) {
-  var x = s.size
-  for (it in s) test(it, --x)
-}
-
-fun ReplSession.assertCount(text: String, i: Int) {
-  assertThat(session.count(text)).isEqualTo(i)
-}
-
-fun ReplSession.counts(text: String): List<Int> = text.split(",").map(session::count)
