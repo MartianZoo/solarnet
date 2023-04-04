@@ -7,6 +7,9 @@ import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.data.Player.Companion.PLAYER1
 import dev.martianzoo.tfm.data.Player.Companion.PLAYER2
 import dev.martianzoo.tfm.engine.Engine
+import dev.martianzoo.tfm.repl.TestHelpers.counts
+import dev.martianzoo.tfm.repl.TestHelpers.playCard
+import dev.martianzoo.tfm.repl.TestHelpers.useAction1
 import org.junit.jupiter.api.Test
 
 class EntireGameTest {
@@ -98,8 +101,7 @@ class EntireGameTest {
     }
 
     with(p1) {
-      execute("UseAction1<SellPatents>")
-      doTask("Megacredit FROM ProjectCard")
+      execute("UseAction1<SellPatents>", "Megacredit FROM ProjectCard")
     }
 
     with(p2) {
@@ -317,19 +319,4 @@ class EntireGameTest {
     // 25 1 1 1 (but getting shorted for event card)
     assertThat(p2.count("VictoryPoint")).isEqualTo(27) // TODO 28
   }
-
-  fun InteractiveSession.playCard(cost: Int, cardName: String, vararg tasks: String) {
-    execute("Turn", "UseAction1<PlayCardFromHand>", "PlayCard<Class<$cardName>>")
-    if (cost > 0) doTask("$cost Pay<Class<M>> FROM M")
-    tasks.forEach(::doTask)
-  }
-
-  fun InteractiveSession.useAction1(cardName: String, vararg tasks: String) =
-      execute(
-          "Turn",
-          "UseAction1<UseActionFromCard>",
-          "UseAction1<$cardName> THEN ActionUsedMarker<$cardName>",
-          *tasks)
-
-  fun InteractiveSession.counts(s: String) = s.split(",").map(::count)
 }

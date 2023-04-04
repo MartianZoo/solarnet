@@ -6,6 +6,7 @@ import dev.martianzoo.tfm.api.ResourceUtils.lookUpProductionLevels
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.data.Player
 import dev.martianzoo.tfm.engine.Engine
+import dev.martianzoo.tfm.repl.TestHelpers.counts
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 
@@ -74,8 +75,6 @@ class SpecificCardsTest {
     assertThat(prods.values).containsExactly(8, 1, 6, 7, 5, 3).inOrder()
     assertThat(p1.counts("M, S, T, P, E, H")).containsExactly(43, 1, 6, 7, 5, 3)
   }
-
-  fun InteractiveSession.counts(s: String) = s.split(",").map(::count)
 
   @Test
   fun sulphurEatingBacteria() {

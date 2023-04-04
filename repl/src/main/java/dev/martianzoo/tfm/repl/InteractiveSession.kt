@@ -34,6 +34,7 @@ import dev.martianzoo.util.Multiset
  *
  * It accepts `RAW[...]` nodes and (TODO explain).
  */
+// TODO most of this doesn't seem to belong only in `repl`
 public class InteractiveSession(
     val game: Game,
     val player: Player = Player.ENGINE,
