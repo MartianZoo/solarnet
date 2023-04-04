@@ -57,11 +57,12 @@ public class InteractiveSession(
     val typeToList: MType = game.resolve(prep(expression))
     val allComponents: Multiset<Component> = agent.getComponents(prep(expression))
 
-    // BIGTODO decide more intelligently how to break it down
+    // TODO decide more intelligently how to break it down
 
-    // ugh capital tile TODO
+    // Note: when I try to do this right, add a test for CapitalTile but don't worry that much
+    // about how it comes out...
     val result = HashMultiset<Expression>()
-    typeToList.mclass.directSubclasses.forEach { sub ->
+    typeToList.root.directSubclasses.forEach { sub ->
       val matches = allComponents.filter { it.mtype.isSubtypeOf(sub.baseType) }
       if (matches.any()) {
         val types = matches.elements.map { it.mtype }

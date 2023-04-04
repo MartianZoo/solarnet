@@ -56,9 +56,6 @@ class SpecificCardsTest {
     p1.doTask(nextTask, "2 Animal<Pets>")
     assertThat(p1.counts("Card, Heat, Plant, Animal")).containsExactly(3, 1, 0, 3).inOrder()
     p1.game.rollBack(cp2)
-
-    // TODO: `Ok` can reify `2 Animal.` but only if we have no animal cards
-    // we also have a problem with `OceanTile<OccupiedArea>.`
   }
 
   @Test

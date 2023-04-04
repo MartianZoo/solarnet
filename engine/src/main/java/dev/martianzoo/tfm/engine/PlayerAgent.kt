@@ -92,7 +92,7 @@ public class PlayerAgent internal constructor(private val game: Game, public val
   fun initiate(instruction: Instruction, initialCause: Cause? = null): Result {
     val fixed = split(heyItsMe(instruction))
     return doAtomic {
-      val sex = ExecutionContext(reader, writer, game.loader, player, initialCause)
+      val sex = ExecutionContext(reader, writer, game.loader.transformers, player, initialCause)
       for (instr in fixed) {
         sex.doInstruction(instr)
       }
@@ -110,7 +110,8 @@ public class PlayerAgent internal constructor(private val game: Game, public val
 
     return try {
       doAtomic {
-        val sex = ExecutionContext(reader, writer, game.loader, player, requestedTask.cause)
+        val sex =
+            ExecutionContext(reader, writer, game.loader.transformers, player, requestedTask.cause)
         sex.doInstruction(instruction)
         game.removeTask(taskId)
       }
@@ -136,7 +137,7 @@ public class PlayerAgent internal constructor(private val game: Game, public val
 
     val (now, later) = (firedSelfEffects + firedOtherEffects).partition { it.automatic }
     for (fx in now) {
-      val sex = ExecutionContext(reader, writer, game.loader, player, fx.cause)
+      val sex = ExecutionContext(reader, writer, game.loader.transformers, player, fx.cause)
       for (instr in split(fx.instruction)) {
         sex.doInstruction(instr)
       }

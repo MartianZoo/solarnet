@@ -36,7 +36,7 @@ internal sealed class Dependency : Hierarchical<Dependency>, HasExpression, HasC
   data class TypeDependency(override val key: Key, val boundType: MType) :
       Dependency(), HasExpression by boundType {
 
-    override val boundClass by boundType::mclass
+    override val boundClass by boundType::root
     override val className by boundClass::className
 
     fun allConcreteSpecializations(): Sequence<TypeDependency> =

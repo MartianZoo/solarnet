@@ -3,7 +3,7 @@ package dev.martianzoo.tfm.pets.ast
 import dev.martianzoo.util.toSetStrict
 
 public interface HasExpression {
-  val expression: Expression // TODO maybe rename expressionMinimal
+  val expression: Expression
   val expressionFull: Expression
 }
 

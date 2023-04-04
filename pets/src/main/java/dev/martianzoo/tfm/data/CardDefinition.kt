@@ -139,8 +139,8 @@ public class CardDefinition(data: CardData) : Definition {
     val automaticFx: List<Effect> =
         listOfNotNull(zapHandCard, createTags).mapNotNull { immediateToEffect(it, true)?.raw() }
 
-    // TODO raw/cooked
-    val onPlayFx = listOfNotNull(immediate).mapNotNull { immediateToEffect(it, false) }
+    val onPlayFx: List<Effect> =
+        listOfNotNull(immediate).mapNotNull { immediateToEffect(it, false) }
 
     val allEffects: List<Effect> = automaticFx + onPlayFx + effects + actionListToEffects(actions)
 

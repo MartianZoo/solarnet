@@ -170,11 +170,11 @@ internal constructor(
 
   // GETTING TYPES
 
-  internal fun withExactDependencies(deps: DependencySet) =
+  internal fun withAllDependencies(deps: DependencySet) =
       MType(this, deps.subMapInOrder(dependencies.keys))
 
   /** Least upper bound of all types with mclass==this */
-  public val baseType: MType by lazy { withExactDependencies(dependencies) } // TODO rename?
+  public val baseType: MType by lazy { withAllDependencies(dependencies) }
 
   internal fun specialize(specs: List<Expression>): MType = baseType.specialize(specs)
 
@@ -183,7 +183,7 @@ internal constructor(
    * the type `Class<Resource>`.
    */
   internal val classType: MType by lazy {
-    loader.classClass.withExactDependencies(depsForClassType(this))
+    loader.classClass.withAllDependencies(depsForClassType(this))
   }
 
   // EFFECTS

@@ -42,7 +42,7 @@ public data class Component private constructor(val mtype: MType) : HasExpressio
    * This component's effects; while the component exists in a game state, the effects are active.
    */
   public fun effects(game: Game): List<ActiveEffect> {
-    return mtype.mclass.classEffects.map { fxDecl ->
+    return mtype.root.classEffects.map { fxDecl ->
       val depLinkages: Set<ClassName> = fxDecl.depLinkages
 
       val cookedFx = transformInSeries(
@@ -69,7 +69,7 @@ public data class Component private constructor(val mtype: MType) : HasExpressio
 
   override fun toString() = "[${mtype.expressionFull}]"
 
-  val allowedRange: IntRange = mtype.mclass.componentCountRange
+  val allowedRange: IntRange = mtype.root.componentCountRange
 }
 
 class Substituter(private val subs: Map<ClassName, Expression>) : PetTransformer() {

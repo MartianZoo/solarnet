@@ -26,12 +26,12 @@ import dev.martianzoo.tfm.pets.ast.Instruction.Then
 import dev.martianzoo.tfm.pets.ast.Instruction.Transform
 import dev.martianzoo.tfm.pets.ast.ScaledExpression.Scalar.ActualScalar
 import dev.martianzoo.tfm.pets.ast.TransformNode
-import dev.martianzoo.tfm.types.MClassLoader
+import dev.martianzoo.tfm.types.Transformers
 
 internal class ExecutionContext(
     val reader: GameReader,
     val writer: GameWriter,
-    val loader: MClassLoader, // TODO needed?
+    val xers: Transformers,
     val player: Player,
     val cause: Cause?,
 ) {
@@ -83,7 +83,6 @@ internal class ExecutionContext(
     try {
       // Could call .raw() but would just unraw it again?
       val translated: Instruction = custom.translate(reader, arguments) * instr.multiplier
-      val xers = loader.transformers
 
       // I guess custom instructions can't return things using `This`
       // and Owner means the context player... (TODO think)

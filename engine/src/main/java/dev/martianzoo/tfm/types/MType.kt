@@ -25,42 +25,42 @@ import kotlin.math.min
  */
 public data class MType
 internal constructor(
-    public val mclass: MClass, // TODO try renaming root?
+    public val root: MClass, // TODO try renaming root?
     internal val dependencies: DependencySet,
     override val refinement: Requirement? = null,
-) : Type, Hierarchical<MType>, Reifiable<MType>, HasClassName by mclass {
-  internal val loader by mclass::loader
+) : Type, Hierarchical<MType>, Reifiable<MType>, HasClassName by root {
+  internal val loader by root::loader
 
   init {
-    require(dependencies.keys.toList() == mclass.dependencies.keys.toList()) {
-      "expected keys ${mclass.dependencies.keys}, got $dependencies"
+    require(dependencies.keys.toList() == root.dependencies.keys.toList()) {
+      "expected keys ${root.dependencies.keys}, got $dependencies"
     }
     if (refinement != null) loader.checkAllTypes(refinement)
   }
 
-  override val abstract = mclass.abstract || dependencies.abstract || refinement != null
+  override val abstract = root.abstract || dependencies.abstract || refinement != null
 
   override fun isSubtypeOf(that: Type) = isSubtypeOf(that as MType)
 
   override fun isSubtypeOf(that: MType) =
       // Not smart enough to understand whether our refinement specializes that's
-      mclass.isSubtypeOf(that.mclass) &&
+      root.isSubtypeOf(that.root) &&
           dependencies.isSubtypeOf(that.dependencies) &&
           that.refinement in setOf(null, refinement)
 
   // Nearest common subtype
   override fun glb(that: MType): MType? {
-    val glbClass = (mclass glb that.mclass) ?: return null
+    val glbClass = (root glb that.root) ?: return null
     val glbDeps = (dependencies glb that.dependencies) ?: return null
     val glbRefin = conjoin(this.refinement, that.refinement)
-    return glbClass.withExactDependencies(glbDeps).refine(glbRefin)
+    return glbClass.withAllDependencies(glbDeps).refine(glbRefin)
   }
 
   // Nearest common supertype
   // Unlike glb, two types always have a least upper bound (if nothing else, Component)
   override fun lub(that: MType): MType =
-      (mclass lub that.mclass)
-          .withExactDependencies(dependencies lub that.dependencies)
+      (root lub that.root)
+          .withAllDependencies(dependencies lub that.dependencies)
           .refine(setOf(refinement, that.refinement).singleOrNull())
 
   internal fun specialize(specs: List<Expression>): MType {
@@ -102,20 +102,20 @@ internal constructor(
   }
 
   internal val narrowedDependencies: DependencySet by lazy {
-    dependencies.minus(mclass.dependencies)
+    dependencies.minus(root.dependencies)
   }
 
   private fun toExpressionUsingSpecs(specs: List<Expression>): Expression {
-    val expression = mclass.className.addArgs(specs).refine(refinement)
+    val expression = root.className.addArgs(specs).refine(refinement)
     val roundTrip = loader.resolve(expression)
     require(roundTrip == this) { "$expression" }
     return expression
   }
 
   public fun supertypes(): List<MType> {
-    val supers = mclass.allSuperclasses - loader.componentClass - mclass
+    val supers = root.allSuperclasses - loader.componentClass - root
     // the argument to wAD is allowed to be a superset
-    return supers.map { it.withExactDependencies(dependencies) }
+    return supers.map { it.withAllDependencies(dependencies) }
   }
 
   /**
@@ -123,27 +123,27 @@ internal constructor(
    * this sequence can potentially be very large.
    */
   public fun allConcreteSubtypes(): Sequence<MType> {
-    return concreteSubclasses(mclass).flatMap {
+    return concreteSubclasses(root).flatMap {
       val deps: DependencySet? = dependencies glb it.baseType.dependencies
       if (deps == null) {
         emptySequence()
       } else {
-        it.withExactDependencies(deps).concreteSubtypesSameClass()
+        it.withAllDependencies(deps).concreteSubtypesSameClass()
       }
     }
   }
 
-  public val isClassType: Boolean = mclass.className == CLASS // TODO reduce special-casing
+  public val isClassType: Boolean = root.className == CLASS // TODO reduce special-casing
 
-  /** Returns the subset of [allConcreteSubtypes] having the exact same [mclass] as ours. */
+  /** Returns the subset of [allConcreteSubtypes] having the exact same [root] as ours. */
   public fun concreteSubtypesSameClass(): Sequence<MType> {
     return when {
-      mclass.abstract -> emptySequence()
+      root.abstract -> emptySequence()
       isClassType -> concreteSubclasses(dependencies.getClassForClassType()).map { it.classType }
       else -> {
         val axes = dependencies.typeDependencies.map { it.allConcreteSpecializations().toList() }
         val product: List<List<Dependency>> = cartesianProduct(axes)
-        product.asSequence().map { mclass.withExactDependencies(DependencySet.of(it)) }
+        product.asSequence().map { root.withAllDependencies(DependencySet.of(it)) }
       }
     }
   }
@@ -165,7 +165,7 @@ internal constructor(
   }
 
   fun stripRefinements(): MType =
-      mclass.withExactDependencies(dependencies.map { it.stripRefinements() })
+      root.withAllDependencies(dependencies.map { it.stripRefinements() })
 
   override fun ensureNarrows(that: MType) {
     if (!isSubtypeOf(that.stripRefinements())) throw InvalidReificationException("x")
@@ -187,10 +187,10 @@ internal constructor(
     min..max
   }
 
-  override fun toString() = "$expressionFull@${mclass.loader}"
+  override fun toString() = "$expressionFull@${root.loader}"
 
   fun findSubstitutions(linkages: Set<ClassName>) =
-      findSubstitutions(linkages, mclass.baseType.expressionFull, expressionFull)
+      findSubstitutions(linkages, root.baseType.expressionFull, expressionFull)
 }
 
 /** Decides what substitutions should be made to class effects to yield component effects. */

@@ -7,13 +7,14 @@ import dev.martianzoo.tfm.pets.ast.Instruction.Gain
 import dev.martianzoo.tfm.pets.ast.Instruction.Remove
 import dev.martianzoo.tfm.pets.ast.ScaledExpression.Companion.scaledEx
 import dev.martianzoo.tfm.types.MClass
+import dev.martianzoo.tfm.types.MType
 import dev.martianzoo.util.iff
 
 object MTypeToText { // TODO refactor to ClassInfo / TypeInfo type dealies
   /** A detailed multi-line description of the class. */
   public fun describe(expression: Expression, session: InteractiveSession): String {
-    val mtype = session.game.resolve(expression) // TODO
-    val mclass = mtype.mclass
+    val mtype = session.agent.reader.resolve(expression) as MType
+    val mclass = mtype.root
 
     val classDisplay =
         "${mclass.className}" + "[${mclass.shortName}]".iff(mclass.shortName != mclass.className)
