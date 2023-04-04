@@ -158,7 +158,7 @@ private object GainLowestProduction : CustomInstruction("gainLowestProduction") 
 private object CopyProductionBox : CustomInstruction("copyProductionBox") {
   override fun translate(game: GameReader, arguments: List<Type>): Instruction {
     val def = game.setup.authority.card(arguments.single().className)
-    val nodes: List<Transform> = def.immediate?.descendantsOfType() ?: listOf() // TODO
+    val nodes: List<Transform> = def.immediate?.descendantsOfType() ?: listOf()
     val matches = nodes.filter { it.transformKind == PROD }
 
     when (matches.size) {
@@ -167,7 +167,7 @@ private object CopyProductionBox : CustomInstruction("copyProductionBox") {
       else ->
         throw RuntimeException(
             "The immediate instructions on ${def.className} " +
-                "have multiple PROD boxes, which should never happen")
+                "have multiple PROD boxes, which should never happen") // TODO validate sooner?
     }
   }
 }

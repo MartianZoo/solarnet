@@ -25,7 +25,7 @@ public class TaskQueue(val eventLog: EventLog) {
   operator fun get(id: TaskId): Task {
     require(id in this) { id }
     return taskMap[id]!!
-  } // TODO guard @call
+  }
 
   public val size by taskMap::size
   public val ids by taskMap::keys

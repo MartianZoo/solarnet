@@ -129,7 +129,7 @@ public class PlayerAgent internal constructor(private val game: Game, public val
     val firedSelfEffects: List<FiredEffect> =
         listOfNotNull(triggerEvent.change.gaining, triggerEvent.change.removing)
             .map(game::toComponent)
-            .flatMap { it.effects(game) }
+            .flatMap { it.activeEffects(game) }
             .mapNotNull { it.onChangeToSelf(triggerEvent) }
 
     val firedOtherEffects: List<FiredEffect> =

@@ -27,7 +27,7 @@ public class ComponentGraph {
   }
 
   internal fun activeEffects(game: Game): List<ActiveEffect> =
-      multiset.flatMap { it.effects(game) }.entries.map { (effect, count) -> effect * count }
+      multiset.flatMap { it.activeEffects(game) }.entries.map { (effect, count) -> effect * count }
 
   internal fun update(
       count: Int = 1,

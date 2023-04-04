@@ -1,29 +1,45 @@
 package dev.martianzoo.tfm.engine
 
 import com.google.common.truth.Truth.assertThat
+import dev.martianzoo.tfm.api.GameSetup
 import dev.martianzoo.tfm.api.SpecialClassNames.ENGINE
 import dev.martianzoo.tfm.api.SpecialClassNames.OK
 import dev.martianzoo.tfm.api.SpecialClassNames.RAW
 import dev.martianzoo.tfm.canon.Canon
+import dev.martianzoo.tfm.pets.Parsing.parseAsIs
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.pets.ast.TransformNode.Companion.unwrap
 import dev.martianzoo.tfm.types.MClassLoader
+import dev.martianzoo.util.toStrings
 import org.junit.jupiter.api.Test
 
 private class CanonEffectsTest {
-  fun effectsOf(name: String): List<String> {
+  fun classEffectsOf(name: String): List<String> {
     val loader = MClassLoader(Canon, true)
     loader.load(ENGINE)
     loader.load(OK) // TODO why?
-    loader.load(cn("GlobalParameter"))
-    val card = loader.load(cn(name))
+    loader.load(cn("GlobalParameter")) // TODO why?
+    loader.load(cn(name))
     loader.frozen = true
+    return classEffectsOf(name, loader)
+  }
+
+  fun classEffectsOf(name: String, loader: MClassLoader): List<String> {
+    val card = loader.getClass(cn(name))
     return card.classEffects.map { "${unwrap(it.effect, RAW)}" }
+  }
+
+  fun componentEffectsOf(type: String): List<String> {
+    val game = Engine.newGame(GameSetup(Canon, "BMC", 2))
+    val card = game.loader.resolve(parseAsIs<Expression>(type))
+    val comp = Component.ofType(card)
+    return comp.petEffects.map { it.effect }.toStrings()
   }
 
   @Test
   fun sabotage() {
-    assertThat(effectsOf("Sabotage"))
+    assertThat(classEffectsOf("Sabotage"))
         .containsExactly(
             "This:: -ProjectCard<Owner>!",
             "This: PlayedEvent<Owner, Class<This>> FROM This!",
@@ -32,17 +48,17 @@ private class CanonEffectsTest {
 
   @Test
   fun energy() {
-    assertThat(effectsOf("Energy")).containsExactly("ProductionPhase:: Heat<Owner> FROM This!")
+    assertThat(classEffectsOf("Energy")).containsExactly("ProductionPhase:: Heat<Owner> FROM This!")
   }
 
   @Test
   fun terraformer() {
-    assertThat(effectsOf("Terraformer")).containsExactly("This:: (35 TerraformRating<Owner>: Ok)")
+    assertThat(classEffectsOf("Terraformer")).containsExactly("This:: (35 TerraformRating<Owner>: Ok)")
   }
 
   @Test
   fun gyropolis() {
-    assertThat(effectsOf("Gyropolis"))
+    assertThat(classEffectsOf("Gyropolis"))
         .containsExactly(
             "This:: -ProjectCard<Owner>!",
             "This:: CityTag<Owner, This>!, BuildingTag<Owner, This>!",
@@ -54,7 +70,7 @@ private class CanonEffectsTest {
 
   @Test
   fun e98() {
-    assertThat(effectsOf("Elysium_9_8"))
+    assertThat(classEffectsOf("Elysium_9_8"))
         .containsExactly(
             "Tile<This>:: @createAdjacencies(This)",
             "Tile<This> BY Owner: ProjectCard<Owner>!",
@@ -63,7 +79,7 @@ private class CanonEffectsTest {
 
   @Test
   fun venusian() {
-    assertThat(effectsOf("VenusianAnimals"))
+    assertThat(classEffectsOf("VenusianAnimals"))
         .containsExactly(
             "This:: -ProjectCard<Owner>!",
             "This:: VenusTag<Owner, This>!, ScienceTag<Owner, This>!, AnimalTag<Owner, This>!",
@@ -74,13 +90,13 @@ private class CanonEffectsTest {
 
   @Test
   fun convertHeat() {
-    assertThat(effectsOf("ConvertHeat"))
+    assertThat(classEffectsOf("ConvertHeat"))
         .containsExactly("UseAction1<Owner, This>: -8 Heat<Owner>! THEN TemperatureStep.")
   }
 
   @Test
   fun teractor() {
-    assertThat(effectsOf("Teractor"))
+    assertThat(classEffectsOf("Teractor"))
         .containsExactly(
             "This:: -CorporationCard<Owner>!",
             "This:: EarthTag<Owner, This>!",
@@ -91,7 +107,7 @@ private class CanonEffectsTest {
 
   @Test
   fun immigrantCity() {
-    assertThat(effectsOf("ImmigrantCity"))
+    assertThat(classEffectsOf("ImmigrantCity"))
         .containsExactly(
             "This:: -ProjectCard<Owner>!",
             "This:: CityTag<Owner, This>!, BuildingTag<Owner, This>!",
@@ -102,7 +118,7 @@ private class CanonEffectsTest {
 
   @Test
   fun titanAirScrapping() {
-    assertThat(effectsOf("TitanAirScrapping"))
+    assertThat(classEffectsOf("TitanAirScrapping"))
         .containsExactly(
             "This:: -ProjectCard<Owner>!",
             "This:: JovianTag<Owner, This>!",
@@ -114,7 +130,7 @@ private class CanonEffectsTest {
 
   @Test
   fun amc() {
-    assertThat(effectsOf("AsteroidMiningConsortium"))
+    assertThat(classEffectsOf("AsteroidMiningConsortium"))
         .containsExactly(
             "This:: -ProjectCard<Owner>!",
             "This:: JovianTag<Owner, This>!",
@@ -125,7 +141,7 @@ private class CanonEffectsTest {
 
   @Test
   fun pets() {
-    assertThat(effectsOf("Pets"))
+    assertThat(classEffectsOf("Pets"))
         .containsExactly(
             "This:: -ProjectCard<Owner>!",
             "This:: EarthTag<Owner, This>!, AnimalTag<Owner, This>!",
@@ -138,7 +154,7 @@ private class CanonEffectsTest {
 
   @Test
   fun aquiferPumping() {
-    assertThat(effectsOf("AquiferPumping").drop(1))
+    assertThat(classEffectsOf("AquiferPumping").drop(1))
         .containsExactly(
             "This:: BuildingTag<Owner, This>!",
             "UseAction1<Owner, This>:: Accept<Owner, Class<Steel>>.",
@@ -148,11 +164,18 @@ private class CanonEffectsTest {
 
   @Test
   fun floaterPrototypes() {
-    assertThat(effectsOf("FloaterPrototypes"))
+    assertThat(classEffectsOf("FloaterPrototypes"))
         .containsExactly(
             "This:: -ProjectCard<Owner>!",
             "This:: ScienceTag<Owner, This>!",
-            "This: PlayedEvent<Owner, Class<This>> FROM This!", // TODO why this didn't get subst
+            "This: PlayedEvent<Owner, Class<This>> FROM This!",
             "This: 2 Floater<Owner>.")
+
+    assertThat(componentEffectsOf("FloaterPrototypes<Player1>"))
+        .containsExactly(
+            "This:: -ProjectCard<Player1>!",
+            "This:: ScienceTag<Player1, FloaterPrototypes<Player1>>!",
+            "This: PlayedEvent<Player1, Class<FloaterPrototypes>> FROM FloaterPrototypes<Player1>!",
+            "This: 2 Floater<Player1>.")
   }
 }
