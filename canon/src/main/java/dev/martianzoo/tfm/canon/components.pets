@@ -5,22 +5,21 @@
 
 // This file has game stuff that isn't player-specific
 
-ABSTRACT CLASS Component {                        // Component is the single root of the hierarchy
-  DEFAULT +Component!                             // TODO Default *Component ?
+ABSTRACT CLASS Component {                             // Component is the single root of the
+  DEFAULT +Component!                                  // hierarchy ... TODO Default *Component ?
   DEFAULT -Component!
 }
 
 ABSTRACT CLASS System {
-  CLASS Class<Component> [C] { HAS =1 This }      // magic rule: can have only <\w+>
+  CLASS Class<Component> [C] { HAS =1 This }           // magic rule: can have only <\w+>
 
   ABSTRACT CLASS Temporary {
-    ABSTRACT CLASS Signal {                       // you'll never observe it existing, but things
-      This:: -This!                               // can still be triggered by it.
+    ABSTRACT CLASS Signal {                            // you'll never observe it existing, but
+      This:: -This!                                    // things can still be triggered by it.
 
-      CLASS Ok : Signal
+      CLASS Ok                                         // Nothing should ever trigger on this
+      CLASS Die { HAS MAX 0 This }                     // Impossible to create, which is the point
     }
-
-    CLASS Die { HAS MAX 0 This }                  // Impossible to create, which is the point
   }
 
   CLASS Engine {
