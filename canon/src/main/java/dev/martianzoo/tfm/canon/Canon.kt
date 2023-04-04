@@ -2,6 +2,7 @@ package dev.martianzoo.tfm.canon
 
 import dev.martianzoo.tfm.api.Authority
 import dev.martianzoo.tfm.api.CustomInstruction
+import dev.martianzoo.tfm.api.GameSetup
 import dev.martianzoo.tfm.data.CardDefinition
 import dev.martianzoo.tfm.data.CardDefinition.CardData
 import dev.martianzoo.tfm.data.ClassDeclaration
@@ -50,6 +51,8 @@ public object Canon : Authority() {
     val dir = javaClass.packageName.replace('.', '/')
     return javaClass.getResource("/$dir/$filename")!!.readText()
   }
+
+  public val SIMPLE_GAME = GameSetup(this, "BM", 2)
 
   public enum class Bundle(val id: String) {
     Base("B"),

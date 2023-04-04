@@ -2,34 +2,56 @@ package dev.martianzoo.tfm.canon
 
 import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.tfm.api.GameSetup
+import dev.martianzoo.tfm.api.ResourceUtils
 import dev.martianzoo.tfm.data.Player.Companion.PLAYER1
 import dev.martianzoo.tfm.engine.Engine
 import dev.martianzoo.tfm.repl.InteractiveSession
-import dev.martianzoo.tfm.repl.ReplSession
 import dev.martianzoo.util.toStrings
 import org.junit.jupiter.api.Test
 
 private class CanonCustomInstructionsTest {
+  @Test
+  fun robinsonMegacredit1() {
+    val p1 = newGameForP1()
+
+    p1.execute("PROD[S, T, P, E, H]")
+    checkProduction(p1, 0, 1, 1, 1, 1, 1)
+
+    p1.execute("@gainLowestProduction(Player1)")
+    checkProduction(p1, 1, 1, 1, 1, 1, 1)
+  }
 
   @Test
-  fun robinson() {
-    val repl = ReplSession(Canon, GameSetup(Canon, "BM", 2)) // TODO
-    repl.command("become Player1")
-    repl.command("mode green")
+  fun robinsonMegacredit2() {
+    val p1 = newGameForP1()
 
-    repl.command("exec PROD[Steel, Titanium, Plant, Energy, Heat]")
-    repl.command("exec @gainLowestProduction(Player1)")
-    assertThat(repl.session.count("PROD[Megacredit]")).isEqualTo(6)
+    p1.execute("PROD[-1]")
+    checkProduction(p1, -1, 0, 0, 0, 0, 0)
+
+    p1.execute("@gainLowestProduction(Player1)")
+    checkProduction(p1, 0, 0, 0, 0, 0, 0)
+  }
+
+  @Test
+  fun robinsonNonMegacredit() {
+    val p1 = newGameForP1()
+
+    p1.execute("PROD[M, S, P, E, H]")
+    checkProduction(p1, 1, 1, 0, 1, 1, 1)
+
+    p1.execute("@gainLowestProduction(Player1)")
+    checkProduction(p1, 1, 1, 1, 1, 1, 1)
   }
 
   @Test
   fun robinsonCant() {
-    val game = Engine.newGame(GameSetup(Canon, "BM", 2))
-    val p1 = InteractiveSession(game, PLAYER1)
-    p1.execute("PROD[Steel, Titanium, Plant, Heat]")
-    p1.execute("@gainLowestProduction(Player1)")
+    val p1 = newGameForP1()
 
-    assertThat(p1.has("PROD[=5 M, =1 S, =1 T, =1 P, =0 E, =1 H]")).isTrue()
+    p1.execute("PROD[S, T, P, H]")
+    checkProduction(p1, 0, 1, 1, 1, 0, 1)
+
+    p1.execute("@gainLowestProduction(Player1)")
+    checkProduction(p1, 0, 1, 1, 1, 0, 1)
 
     // TODO make better
     assertThat(p1.agent.tasks().values.toStrings())
@@ -40,23 +62,33 @@ private class CanonCustomInstructionsTest {
   }
 
   @Test
-  fun robinson2() {
-    val repl = ReplSession(Canon, GameSetup(Canon, "BM", 2))
-    repl.command("become Player1")
-    repl.command("exec PROD[-1]")
-    repl.command("exec @gainLowestProduction(Player1)")
-    assertThat(repl.command("has PROD[=5 Megacredit]").first()).startsWith("true")
+  fun roboticWorkforce() {
+    val p1 = newGameForP1()
+
+    p1.execute("2 ProjectCard, PROD[5 E]")
+    checkProduction(p1, 0, 0, 0, 0, 5, 0)
+
+    p1.execute("StripMine")
+    checkProduction(p1, 0, 2, 1, 0, 3, 0)
+
+    p1.execute("RoboticWorkforce")
+    checkProduction(p1, 0, 2, 1, 0, 3, 0)
+
+    p1.doTask("A", "@copyProductionBox(StripMine)")
+    checkProduction(p1, 0, 4, 2, 0, 1, 0)
+
+    // TODO: what if it wasn't a building card
   }
 
-  @Test
-  fun roboticWorkforce() {
-    val repl = ReplSession(Canon, GameSetup(Canon, "BM", 2)) // TODO
-    repl.command("become Player1")
-    repl.command("exec 2 ProjectCard")
-    repl.command("exec PROD[5 Energy]")
-    repl.command("exec StripMine")
-    assertThat(repl.session.count("PROD[Energy]")).isEqualTo(3)
-    repl.command("exec RoboticWorkforce")
-    // TODO now what
+  private fun newGameForP1(): InteractiveSession {
+    val setup = GameSetup(Canon, "BRM", 2)
+    val game = Engine.newGame(setup)
+    return InteractiveSession(game, PLAYER1)
+  }
+
+  private fun checkProduction(sess: InteractiveSession, vararg exp: Int) {
+    val agent = sess.agent
+    assertThat(ResourceUtils.lookUpProductionLevels(agent.reader, agent.player).values)
+        .containsExactlyElementsIn(exp.toList()).inOrder()
   }
 }

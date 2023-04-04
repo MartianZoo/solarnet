@@ -37,7 +37,7 @@ import dev.martianzoo.util.Multiset
 public class InteractiveSession(
     val game: Game,
     val player: Player = Player.ENGINE,
-    var defaultAutoExec: Boolean = true,
+    var defaultAutoExec: Boolean = true, // TODO 3 policies
 ) {
   public val agent: PlayerAgent = agent(player)
 

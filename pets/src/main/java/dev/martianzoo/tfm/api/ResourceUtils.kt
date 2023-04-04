@@ -1,5 +1,6 @@
 package dev.martianzoo.tfm.api
 
+import dev.martianzoo.tfm.data.Player
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.util.toSetStrict
@@ -24,6 +25,9 @@ object ResourceUtils { // TODO this doesn't belong here
           rawCount
         }
       }
+
+  fun lookUpProductionLevels(game: GameReader, player: Player): Map<ClassName, Int> =
+      lookUpProductionLevels(game, player.expression)
 
   /** Returns the name of every concrete class of type `StandardResource`. */
   fun standardResourceNames(game: GameReader): Set<ClassName> {

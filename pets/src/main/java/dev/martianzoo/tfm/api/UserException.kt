@@ -15,7 +15,8 @@ import dev.martianzoo.tfm.pets.ast.Requirement
 public open class UserException(override val message: String) : RuntimeException(message) {
   companion object {
     fun classNotFound(className: ClassName) =
-        ExpressionException("No class with name or id `$className` in current game")
+        ExpressionException(
+            "No class with name or id `$className` in current game (check bundles, check spelling)")
 
     fun badClassExpression(specs: List<Expression>) =
         ExpressionException("must contain a single class name: `Class<${specs.joinToString()}>`")
