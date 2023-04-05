@@ -58,7 +58,7 @@ private object CreateAdjacencies : CustomInstruction("createAdjacencies") {
     val newTile: Expression = tileOn(area, game)!! // creating it is what got us here
 
     val nbrs: List<Expression> =
-        neighborAreas.map { cn("Neighbor").addArgs(newTile, it.className.expr) }
+        neighborAreas.map { cn("Neighbor").addArgs(newTile, it.className.expression) }
     val adjs =
         neighborAreas
             .mapNotNull { tileOn(it, game) }
@@ -104,7 +104,7 @@ private object BeginPlayCard : CustomInstruction("beginPlayCard") {
 
     val instructions =
         if (card.cost > 0) {
-          val instr = gain(scaledEx(card.cost, cn("Owed").expr))
+          val instr = gain(scaledEx(card.cost, cn("Owed").expression))
           listOf(instr) + playTagSignals
         } else {
           playTagSignals
@@ -122,9 +122,9 @@ private object GetVpsFrom : CustomInstruction("getVpsFrom") {
     val cardName = classExpr.arguments.single().className
     val card = game.setup.authority.card(cardName)
     return Multi.create(
-            card.effects
-                .map { TransformNode.unwrap(it, RAW) }
-                .filter { it.trigger == OnGainOf.create(cn("End").expr) }
+        card.effects
+            .map { TransformNode.unwrap(it, RAW) }
+            .filter { it.trigger == OnGainOf.create(cn("End").expression) }
                 .map { it.instruction })
         .raw()
   }
@@ -149,7 +149,7 @@ private object GainLowestProduction : CustomInstruction("gainLowestProduction") 
     val prods: Map<ClassName, Int> = lookUpProductionLevels(game, player.expression)
     val lowest: Int = prods.values.min()
     val keys: Set<ClassName> = prods.filterValues { it == lowest }.keys
-    val or = Or.create(keys.map { gain(scaledEx(1, it.expr)) })
+    val or = Or.create(keys.map { gain(scaledEx(1, it.expression)) })
     return TransformNode.wrap(or, PROD).raw()
   }
 }

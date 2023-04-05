@@ -1,6 +1,6 @@
 package dev.martianzoo.tfm.pets
 
-import dev.martianzoo.tfm.api.SpecialClassNames
+import dev.martianzoo.tfm.api.SpecialClassNames.OWNER
 import dev.martianzoo.tfm.api.SpecialClassNames.RAW
 import dev.martianzoo.tfm.api.SpecialClassNames.THIS
 import dev.martianzoo.tfm.api.SpecialClassNames.USE_ACTION
@@ -82,19 +82,23 @@ public object PureTransformers {
     }
   }
 
+  public fun noOp(): PetTransformer =
+      object : PetTransformer() {
+        override fun <P : PetNode> transform(node: P) = node
+      }
+
   // TODO check if this really what callers want to do
   public fun <P : PetNode> P.replaceAll(from: PetNode, to: PetNode): P {
     if (from == to) return this
     return object : PetTransformer() {
-          override fun <Q : PetNode> transform(node: Q): Q =
-              if (node == from) {
-                @Suppress("UNCHECKED_CAST")
-                to as Q
-              } else {
-                transformChildren(node)
-              }
-        }
-        .transform(this)
+      override fun <Q : PetNode> transform(node: Q): Q =
+          if (node == from) {
+            @Suppress("UNCHECKED_CAST")
+            to as Q
+          } else {
+            transformChildren(node)
+          }
+    }.transform(this)
   }
 
   public fun replaceThisWith(contextType: Expression): PetTransformer {
@@ -102,7 +106,7 @@ public object PureTransformers {
       override fun <P : PetNode> transform(node: P): P {
         return node
             .replaceAll(THIS.classExpression(), contextType.className.classExpression())
-            .replaceAll(THIS.expr, contextType)
+            .replaceAll(THIS.expression, contextType)
       }
     }
   }
@@ -111,7 +115,7 @@ public object PureTransformers {
     return object : PetTransformer() {
       override fun <P : PetNode> transform(node: P): P {
         return node
-            .replaceAll(contextType, THIS.expr)
+            .replaceAll(contextType, THIS.expression)
             .replaceAll(contextType.className.classExpression(), THIS.classExpression())
       }
     }
@@ -120,7 +124,7 @@ public object PureTransformers {
   public fun replaceOwnerWith(owner: ClassName): PetTransformer {
     return object : PetTransformer() {
       override fun <P : PetNode> transform(node: P): P {
-        return node.replaceAll(SpecialClassNames.OWNER.expr, owner.expr)
+        return node.replaceAll(OWNER.expression, owner.expression)
       }
     }
   }

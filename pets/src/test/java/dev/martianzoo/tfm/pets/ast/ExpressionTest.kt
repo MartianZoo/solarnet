@@ -15,12 +15,12 @@ private class ExpressionTest {
   @Test
   fun simpleSourceToApi() {
     val foo = te("Foo")
-    assertThat(foo).isEqualTo(cn("Foo").expr)
+    assertThat(foo).isEqualTo(cn("Foo").expression)
   }
 
   @Test
   fun simpleApiToSource() {
-    assertThat(cn("Foo").expr.toString()).isEqualTo("Foo")
+    assertThat(cn("Foo").expression.toString()).isEqualTo("Foo")
   }
 
   @Test
@@ -45,7 +45,7 @@ private class ExpressionTest {
     assertThat(parsed)
         .isEqualTo(
             cn("Red")
-                .addArgs(cn("Blue").addArgs(cn("This").expr, cn("Teal").expr), cn("Gold").expr))
+                .addArgs(cn("Blue").addArgs(cn("This"), cn("Teal")), cn("Gold").expression))
   }
 
   @Test
@@ -53,10 +53,10 @@ private class ExpressionTest {
     val expr =
         cn("Aa")
             .addArgs(
-                cn("Bb").expr,
-                cn("Cc").addArgs(cn("Dd").expr),
-                cn("Ee").addArgs(cn("Ff").addArgs(cn("Gg").expr, cn("Hh").expr), cn("Me").expr),
-                cn("Jj").expr)
+                cn("Bb").expression,
+                cn("Cc").addArgs(cn("Dd")),
+                cn("Ee").addArgs(cn("Ff").addArgs(cn("Gg"), cn("Hh")), cn("Me").expression),
+                cn("Jj").expression)
     assertThat(expr.toString()).isEqualTo("Aa<Bb, Cc<Dd>, Ee<Ff<Gg, Hh>, Me>, Jj>")
   }
 

@@ -35,7 +35,7 @@ data class Expression(
   val simple = arguments.isEmpty() && refinement == null
 
   @JvmName("addArgsFromClassNames")
-  fun addArgs(moreArgs: List<ClassName>): Expression = addArgs(moreArgs.map { it.expr })
+  fun addArgs(moreArgs: List<ClassName>): Expression = addArgs(moreArgs.map { it.expression })
   fun addArgs(vararg moreArgs: ClassName): Expression = addArgs(moreArgs.toList())
 
   fun addArgs(moreArgs: List<Expression>): Expression = replaceArgs(arguments + moreArgs)

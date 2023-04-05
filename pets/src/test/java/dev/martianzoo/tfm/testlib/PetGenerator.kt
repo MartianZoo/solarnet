@@ -48,7 +48,7 @@ internal class PetGenerator(scaling: (Int) -> Double) :
             listOfSize(choose(specSizes)),
             refinement()) // choose(10 to null, 2 to 1, 1 to 2))
       }
-      register { scaledEx(choose(0, 1, 1, 1, 5, 11), choose(1 to MEGACREDIT.expr, 3 to recurse())) }
+      register { scaledEx(choose(0, 1, 1, 1, 5, 11), choose(1 to MEGACREDIT, 3 to recurse())) }
 
       val metricTypes =
           multiset(

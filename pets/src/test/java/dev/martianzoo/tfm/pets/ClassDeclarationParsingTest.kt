@@ -118,13 +118,13 @@ private class ClassDeclarationParsingTest {
         .containsExactly(
             setOf<Expression>(),
             setOf<Expression>(),
-            setOf(cn("One").expr),
+            setOf(cn("One").expression),
             setOf<Expression>(),
-            setOf(cn("Three").expr),
-            setOf(cn("One").expr, cn("Three").expr),
-            setOf(cn("Three").expr),
-            setOf(cn("Six").expr),
-            setOf(cn("One").expr, cn("Six").expr),
+            setOf(cn("Three").expression),
+            setOf(cn("One").expression, cn("Three").expression),
+            setOf(cn("Three").expression),
+            setOf(cn("Six").expression),
+            setOf(cn("One").expression, cn("Six").expression),
         )
   }
 

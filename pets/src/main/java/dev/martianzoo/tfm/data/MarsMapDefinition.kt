@@ -25,7 +25,7 @@ data class MarsMapDefinition(
           className = className,
           shortName = shortName,
           abstract = false,
-          supertypes = setOf(MARS_MAP.expr),
+          supertypes = setOf(MARS_MAP.expression),
       )
 
   data class AreaDefinition(
@@ -67,7 +67,7 @@ data class MarsMapDefinition(
           className = className,
           shortName = shortName,
           abstract = false,
-          supertypes = setOf(kind.expr),
+          supertypes = setOf(kind.expression),
           effectsIn =
               listOfNotNull(bonus).toSetStrict {
                 // this is clunky TODO

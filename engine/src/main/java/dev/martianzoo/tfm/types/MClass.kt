@@ -102,7 +102,7 @@ internal constructor(
       declaration.supertypes.none() -> setOf(loader.componentClass.baseType) // TODO hmm
       else ->
           declaration.supertypes.toSetStrict {
-            val dethissed = replaceThisWith(className.expr).transform(it)
+            val dethissed = replaceThisWith(className.expression).transform(it)
             loader.resolve(dethissed)
           }
     }
@@ -216,7 +216,7 @@ internal constructor(
   }
 
   private val attachToClassTransformer: PetTransformer by lazy {
-    val weirdExpression = className.refine(Min(scaledEx(1, OK.expr)))
+    val weirdExpression = className.refine(Min(scaledEx(1, OK.expression)))
     transformInSeries(
         listOfNotNull(
             loader.transformers.insertDefaults(weirdExpression),
@@ -253,7 +253,7 @@ internal constructor(
         typeInvariants
             .map { TransformNode.unwrap(it, RAW) }
             .filterIsInstance<Counting>()
-            .filter { it.scaledEx.expression == THIS.expr }
+            .filter { it.scaledEx.expression == THIS.expression }
             .map { it.range }
     (ranges + listOf(0..MAX_VALUE)).reduce { a, b -> max(a.first, b.first)..min(a.last, b.last) }
   }

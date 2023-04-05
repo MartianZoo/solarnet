@@ -5,7 +5,8 @@ import com.github.h0tk3y.betterParse.combinators.or
 import dev.martianzoo.tfm.api.SpecialClassNames.CLASS
 import dev.martianzoo.tfm.pets.PetTokenizer
 
-public data class ClassName(private val asString: String) : PetNode(), Comparable<ClassName> {
+public data class ClassName(private val asString: String) :
+    PetNode(), HasExpression, Comparable<ClassName> {
   public companion object {
     public fun cn(name: String) = ClassName(name)
 
@@ -17,17 +18,19 @@ public data class ClassName(private val asString: String) : PetNode(), Comparabl
     require(asString.matches(classNameRegex)) { "Bad class name: $asString" }
   }
 
-  public val expr: Expression = Expression(this) // TODO implement HasExpression
+  override val expression: Expression = Expression(this)
+  override val expressionFull: Expression by ::expression
+
   public fun classExpression(): Expression = CLASS.addArgs(this)
 
-  public fun addArgs(specs: List<Expression>) = expr.addArgs(specs)
+  public fun addArgs(specs: List<Expression>) = expression.addArgs(specs)
   public fun addArgs(vararg specs: Expression) = addArgs(specs.toList())
 
   @JvmName("addArgsFromClassNames")
-  public fun addArgs(specs: List<ClassName>) = addArgs(specs.map { it.expr })
+  public fun addArgs(specs: List<ClassName>) = addArgs(specs.expressions())
   public fun addArgs(vararg specs: ClassName) = addArgs(specs.toList())
 
-  fun refine(requirement: Requirement?) = expr.refine(requirement)
+  fun refine(requirement: Requirement?) = expression.refine(requirement)
 
   public fun matches(regex: Regex) = asString.matches(regex)
   override fun toString() = asString

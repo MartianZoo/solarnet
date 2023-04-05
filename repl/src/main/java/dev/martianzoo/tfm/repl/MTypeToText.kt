@@ -60,7 +60,7 @@ object MTypeToText { // TODO refactor to ClassInfo / TypeInfo type dealies
 
     val supertypesDisplay = mtype.supertypes().joinToString { "${it.className}" }
 
-    val id = session.game.loader.transformers.insertDefaults(THIS.expr) // TODO context??
+    val id = session.game.loader.transformers.insertDefaults(THIS.expression) // TODO context??
     val allCases = id.transform(expression)
     val gain = id.transform(gain(scaledEx(1, expression), null))
     val remove = id.transform(Remove(scaledEx(1, expression), null))

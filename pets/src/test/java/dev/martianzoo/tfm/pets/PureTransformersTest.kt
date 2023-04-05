@@ -75,8 +75,8 @@ private class PureTransformersTest {
 
   @Test
   fun testResolveSpecialThisType() {
-    checkResolveThis<Instruction>("Foo<This>", cn("Bar").expr, "Foo<Bar>")
-    checkResolveThis<Instruction>("Foo<This>", cn("Bar").expr, "Foo<Bar>")
+    checkResolveThis<Instruction>("Foo<This>", cn("Bar").expression, "Foo<Bar>")
+    checkResolveThis<Instruction>("Foo<This>", cn("Bar").expression, "Foo<Bar>")
 
     // looks like a plain textual replacement but we know what's really happening
     val petsIn =
@@ -88,7 +88,7 @@ private class PureTransformersTest {
     checkResolveThis<Effect>(petsIn, te("It<Worked>"), petsOut)
 
     // allows nonsense
-    checkResolveThis<Instruction>("This<Foo>", cn("Bar").expr, "This<Foo>")
+    checkResolveThis<Instruction>("This<Foo>", cn("Bar").expression, "This<Foo>")
   }
 
   private inline fun <reified P : PetNode> checkResolveThis(
@@ -107,7 +107,7 @@ private class PureTransformersTest {
   ) {
     val parsedOriginal = parseAsIs(type, original)
     val parsedExpected = parseAsIs(type, expected)
-    val tx = parsedOriginal.replaceAll(THIS.expr, thiss)
+    val tx = parsedOriginal.replaceAll(THIS.expression, thiss)
     assertThat(tx).isEqualTo(parsedExpected)
 
     // more round-trip checking doesn't hurt

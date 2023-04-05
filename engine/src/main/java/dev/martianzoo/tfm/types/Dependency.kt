@@ -72,10 +72,8 @@ internal sealed class Dependency : Hierarchical<Dependency>, HasExpression, HasC
     override val key: Key = Key(CLASS, 0)
 
     override val className by boundClass::className
-
-    override val expressionFull by className::expr
-
-    override val expression by ::expressionFull
+    override val expression by className::expression
+    override val expressionFull by ::expression
 
     override fun toString() = "$key=$expression"
 

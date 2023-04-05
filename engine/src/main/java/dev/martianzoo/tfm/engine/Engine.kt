@@ -39,7 +39,7 @@ public object Engine {
     val game = Game(setup, loader)
     val agent = game.asPlayer(Player.ENGINE)
 
-    val result: Result = agent.initiate(Gain.gain(scaledEx(1, ENGINE.expr)))
+    val result: Result = agent.initiate(Gain.gain(scaledEx(1, ENGINE.expression)))
     require(result.newTaskIdsAdded.none())
     require(game.taskQueue.isEmpty())
 

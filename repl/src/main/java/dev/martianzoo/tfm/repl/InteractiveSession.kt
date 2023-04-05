@@ -45,7 +45,7 @@ public class InteractiveSession(
   public fun asPlayer(player: Player) = InteractiveSession(game, player)
   public fun asPlayer(player: ClassName): InteractiveSession {
     // in case a shortname is used
-    return asPlayer(Player(game.resolve(player.expr).className))
+    return asPlayer(Player(game.resolve(player.expression).className))
   }
 
   // QUERIES
@@ -165,7 +165,7 @@ public class InteractiveSession(
         transformInSeries(
             useFullNames(),
             xers.atomizer(),
-            xers.insertDefaults(THIS.expr),
+            xers.insertDefaults(THIS.expression),
             xers.deprodify(),
             TransformNode.unwrapper(RAW))
     return xer.transform(node)

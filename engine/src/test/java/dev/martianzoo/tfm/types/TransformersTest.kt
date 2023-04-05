@@ -48,7 +48,7 @@ class TransformersTest {
   private fun checkApplyDefaults(
       original: String,
       expected: String,
-      context: Expression = THIS.expr
+      context: Expression = THIS.expression,
   ) {
     val node: Instruction = parseAsIs(original)
     val xfd = transformers.insertDefaults(context).transform(node)

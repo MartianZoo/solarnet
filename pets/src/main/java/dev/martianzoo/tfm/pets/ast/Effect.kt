@@ -75,7 +75,7 @@ public data class Effect(
     data class OnGainOf private constructor(val expression: Expression) : BasicTrigger() {
       companion object {
         fun create(expression: Expression): BasicTrigger {
-          return if (expression == THIS.expr) {
+          return if (expression == THIS.expression) {
             WhenGain
           } else {
             OnGainOf(expression)
@@ -83,7 +83,7 @@ public data class Effect(
         }
       }
       init {
-        require(expression != THIS.expr)
+        require(expression != THIS.expression)
       }
 
       override fun visitChildren(visitor: Visitor) = visitor.visit(expression)
@@ -93,7 +93,7 @@ public data class Effect(
     data class OnRemoveOf private constructor(val expression: Expression) : BasicTrigger() {
       companion object {
         fun create(expression: Expression): BasicTrigger {
-          return if (expression == THIS.expr) {
+          return if (expression == THIS.expression) {
             WhenRemove
           } else {
             OnRemoveOf(expression)
@@ -102,7 +102,7 @@ public data class Effect(
       }
 
       init {
-        require(expression != THIS.expr)
+        require(expression != THIS.expression)
       }
 
       override fun visitChildren(visitor: Visitor) = visitor.visit(expression)
@@ -195,7 +195,7 @@ public data class Effect(
                 t == WhenGain -> if (it.automatic) -1 else 0
                 t == WhenRemove -> if (it.automatic) 1 else 2
                 t is OnGainOf && "${t.expression.className}".startsWith("$USE_ACTION") -> 4
-                t == OnGainOf.create(END.expr) -> 5
+                t == OnGainOf.create(END.expression) -> 5
                 else -> 3
               }
             },

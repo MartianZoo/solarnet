@@ -13,8 +13,8 @@ data class Player(override val className: ClassName) : HasClassName, HasExpressi
     require(isValid(className.toString())) { className }
   }
 
-  override val expression = className.expr
-  override val expressionFull = expression
+  override val expression by className::expression
+  override val expressionFull by ::expression
 
   override fun toString() = className.toString()
 

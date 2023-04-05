@@ -106,7 +106,7 @@ internal class MapToText(private val game: GameReader, val useColors: Boolean = 
   fun maybeColor(c: TfmColor, s: String): String = if (useColors) c.foreground(s) else s
 
   private fun describe(tile: Type): Pair<String, TfmColor> {
-    fun isIt(tile: Type, kind: String) = tile.isSubtypeOf(game.resolve(cn(kind).expr))
+    fun isIt(tile: Type, kind: String) = tile.isSubtypeOf(game.resolve(cn(kind).expression))
 
     val kind: Pair<String, TfmColor> =
         when { // TODO do this more by checking supertypes

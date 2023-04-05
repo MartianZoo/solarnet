@@ -40,7 +40,7 @@ internal fun main() {
   fun prompt(): String {
     val bundles: String = session.game.setup.bundles.joinToString("")
 
-    val phases = session.list(cn("Phase").expr) // should only be one
+    val phases = session.list(cn("Phase").expression) // should only be one
     val phase: String = phases.singleOrNull()?.toString() ?: "NoPhase"
 
     val player: Player = repl.session.agent.player
@@ -373,7 +373,7 @@ public class ReplSession(
       }
       if (this !is Gain) return false
       val t: MType = session.game.resolve(gaining)
-      return t.isSubtypeOf(session.game.resolve(supertype.expr))
+      return t.isSubtypeOf(session.game.resolve(supertype.expression))
     }
 
     private fun initiate(instruction: Instruction): Result {
@@ -456,7 +456,7 @@ public class ReplSession(
   }
 
   private fun isSystemOnly(change: StateChange): Boolean {
-    val system = session.game.resolve(cn("System").expr)
+    val system = session.game.resolve(cn("System").expression)
     return listOfNotNull(change.gaining, change.removing).all {
       session.game.resolve(it).isSubtypeOf(system)
     }

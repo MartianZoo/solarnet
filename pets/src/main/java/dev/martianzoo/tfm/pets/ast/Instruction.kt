@@ -94,7 +94,7 @@ public sealed class Instruction : PetElement() {
   ) : Change() {
     companion object {
       fun gain(scaledEx: ScaledExpression, intensity: Intensity? = MANDATORY): Instruction =
-          if (scaledEx.expression == OK.expr) NoOp else Gain(scaledEx, intensity)
+          if (scaledEx.expression == OK.expression) NoOp else Gain(scaledEx, intensity)
     }
 
     override val count = scaledEx.scalar

@@ -56,7 +56,7 @@ public abstract class Authority {
       }
       CLASS -> {
         require(!decl.abstract)
-        require(decl.dependencies.single() == COMPONENT.expr)
+        require(decl.dependencies.single() == COMPONENT.expression)
       }
     }
     decl.effects

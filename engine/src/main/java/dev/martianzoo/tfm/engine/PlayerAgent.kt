@@ -61,11 +61,12 @@ public class PlayerAgent internal constructor(private val game: Game, public val
       cause: Cause? = null,
   ): ChangeEvent? {
     when (gaining) {
-      OK.expr -> {
+      OK.expression -> {
         require(removing == null) // TODO UserException
         return null
       }
-      DIE.expr -> {
+
+      DIE.expression -> {
         return if (amap) {
           null
         } else {

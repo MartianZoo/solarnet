@@ -34,15 +34,15 @@ private class ClassDeclarationTest {
     val decl: ClassDeclaration = ClassParsing.parseClassDeclarations(declText).single()
 
     val foo = cn("Foo")
-    val dep = cn("Bar").expr
+    val dep = cn("Bar").expression
     val sup = te("Baz<Qux>")
 
     // TODO it sucks that taking out the explicit type makes it break at runtime
-    val inv: Requirement = Requirement.Exact(scaledEx(1, THIS.expr)).raw()
+    val inv: Requirement = Requirement.Exact(scaledEx(1, THIS.expression)).raw()
     val eff: Effect = parseAsIs<Effect>("This: DoStuff").raw()
     val act = actionToEffect(parseAsIs("Steel -> 5"), 1).raw()
-    val gain = cn("Abc").expr
-    val univ = cn("Xyz").expr
+    val gain = cn("Abc").expression
+    val univ = cn("Xyz").expression
 
     assertThat(decl.shortName).isEqualTo(foo)
     assertThat(decl.className).isEqualTo(foo)

@@ -64,7 +64,8 @@ private class CanonBootstrapTest {
   @Test
   fun createsExpectedSingletons() {
     val game = Engine.newGame(GameSetup(Canon, "BRMPX", 3))
-    val startingComponents: Multiset<Component> = game.getComponents(game.resolve(COMPONENT.expr))
+    val startingComponents: Multiset<Component> =
+        game.getComponents(game.resolve(COMPONENT.expression))
 
     // 19 duplicate TR and 4 duplicate PROD[M]
     assertThat(startingComponents).hasSize(startingComponents.elements.size + 69)

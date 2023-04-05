@@ -93,7 +93,9 @@ private class InstructionTest {
     testRoundTrip("1 Foo FROM Bar.", "Foo FROM Bar.")
 
     assertThat(parseAsIs<Instruction>("1 Foo FROM Bar."))
-        .isEqualTo(Transmute(SimpleFrom(cn("Foo").expr, cn("Bar").expr), ActualScalar(1), AMAP))
+        .isEqualTo(Transmute(SimpleFrom(cn("Foo").expression, cn("Bar").expression),
+            ActualScalar(1),
+            AMAP))
     testRoundTrip("Foo<Bar FROM Qux>")
     testRoundTrip("Foo<Bar FROM Qux>.")
 
@@ -104,7 +106,7 @@ private class InstructionTest {
                 listOf(
                     ComplexFrom(
                         cn("Bar"),
-                        listOf(SimpleFrom(cn("Qux").expr, cn("Abc").addArgs(cn("Eep")))))),
+                        listOf(SimpleFrom(cn("Qux").expression, cn("Abc").addArgs(cn("Eep")))))),
             ),
             ActualScalar(1),
             null)

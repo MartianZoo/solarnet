@@ -7,6 +7,7 @@ import dev.martianzoo.tfm.api.SpecialClassNames.PROD
 import dev.martianzoo.tfm.api.SpecialClassNames.THIS
 import dev.martianzoo.tfm.api.UserException
 import dev.martianzoo.tfm.pets.PetTransformer
+import dev.martianzoo.tfm.pets.PureTransformers.noOp
 import dev.martianzoo.tfm.pets.PureTransformers.replaceThisWith
 import dev.martianzoo.tfm.pets.PureTransformers.transformInSeries
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
@@ -30,17 +31,14 @@ public class Transformers(val loader: MClassLoader) {
   public fun deprodify(): PetTransformer {
     if (STANDARD_RESOURCE !in loader.allClassNamesAndIds ||
         PRODUCTION !in loader.allClassNamesAndIds) {
-      // put no op xer somewhere
-      return object : PetTransformer() {
-        override fun <P : PetNode> transform(node: P) = node
-      }
+      return noOp()
     }
     val classNames =
         loader.getClass(STANDARD_RESOURCE).allSubclasses.flatMap {
           setOf(it.className, it.shortName)
         }
 
-    var inProd: Boolean = false
+    var inProd = false
 
     return object : PetTransformer() {
       override fun <P : PetNode> transform(node: P): P {
@@ -71,8 +69,10 @@ public class Transformers(val loader: MClassLoader) {
                 }
                 inner
               }
+
               inProd && node is Expression && node.className in classNames ->
-                  PRODUCTION.addArgs(node.arguments + node.className.classExpression())
+                PRODUCTION.addArgs(node.arguments + node.className.classExpression())
+
               else -> transformChildren(node)
             }
         @Suppress("UNCHECKED_CAST") return rewritten as P
@@ -80,34 +80,47 @@ public class Transformers(val loader: MClassLoader) {
     }
   }
 
-  public fun atomizer() =
-      object : PetTransformer() {
-        var ourMulti: Multi? = null
-        override fun <P : PetNode> transform(node: P): P {
-          if (node is Multi && ourMulti != null && (ourMulti as Multi) in node.instructions) {
-            val flattened =
-                node.instructions.flatMap {
-                  if (it == ourMulti) {
-                    ourMulti!!.instructions
-                  } else {
-                    listOf(it)
-                  }
+  public fun atomizer(): PetTransformer {
+    val atomized = try {
+      loader.load(ATOMIZED)
+    } catch (e: Exception) {
+      return noOp()
+    }
+
+    return object : PetTransformer() {
+      var ourMulti: Multi? = null
+      override fun <P : PetNode> transform(node: P): P {
+        if (node is Multi && ourMulti != null && (ourMulti as Multi) in node.instructions) {
+          val flattened =
+              node.instructions.flatMap {
+                if (it == ourMulti) {
+                  ourMulti!!.instructions
+                } else {
+                  listOf(it)
                 }
-            @Suppress("UNCHECKED_CAST") return Multi(flattened) as P
-          }
-          if (node !is Gain) return transformChildren(node)
-          val scex = node.scaledEx
-          val sc = scex.scalar
-          if (sc !is ActualScalar) return node
-          val value = sc.value
-          if (value == 1 || THIS in scex.expression) return node
-          val type: MType = loader.resolve(scex.expression)
-          if (!type.isSubtypeOf(loader.resolve(ATOMIZED.expr))) return node
-          val one = node.copy(scaledEx = scex.copy(scalar = ActualScalar(1)))
-          ourMulti = Multi((1..value).map { one })
-          @Suppress("UNCHECKED_CAST") return ourMulti as P // TODO Uh oh
+              }
+          @Suppress("UNCHECKED_CAST") return Multi(flattened) as P
         }
+        if (node !is Gain) return transformChildren(node)
+        val scex = node.scaledEx
+        val sc = scex.scalar
+
+        if (sc !is ActualScalar ||
+          sc.value == 1 ||
+          THIS in scex.expression ||
+          !loader.resolve(scex.expression).root.isSubtypeOf(atomized)
+        ) {
+          return node
+        }
+
+        val one = node.copy(scaledEx = scex.copy(scalar = ActualScalar(1)))
+        ourMulti = Multi((1..sc.value).map { one })
+
+        @Suppress("UNCHECKED_CAST")
+        return ourMulti as P // TODO Uh oh
       }
+    }
+  }
 
   public fun insertDefaults(context: Expression) =
       transformInSeries(insertGainRemoveDefaults(context), insertExpressionDefaults(context))
@@ -183,7 +196,7 @@ public class Transformers(val loader: MClassLoader) {
   private fun insertDefaultsIntoExpr(
       original: Expression,
       defaultDeps: DependencySet,
-      contextCpt: Expression = THIS.expr,
+      contextCpt: Expression = THIS.expression,
       loader: MClassLoader,
   ): Expression {
 

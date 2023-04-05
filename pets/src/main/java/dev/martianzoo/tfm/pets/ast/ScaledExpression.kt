@@ -17,7 +17,7 @@ import dev.martianzoo.util.Reifiable
 data class ScaledExpression
 constructor(
     val scalar: Scalar,
-    val expression: Expression = MEGACREDIT.expr,
+    val expression: Expression = MEGACREDIT,
 ) : PetNode() {
   override fun visitChildren(visitor: Visitor) = visitor.visit(scalar, expression)
 
@@ -28,7 +28,7 @@ constructor(
 
   fun toString(forceScalar: Boolean = false, forceExpression: Boolean = false) =
       when {
-        !forceExpression && expression == MEGACREDIT.expr -> "$scalar"
+        !forceExpression && expression == MEGACREDIT -> "$scalar"
         !forceScalar && scalar == ActualScalar(1) -> "$expression"
         else -> "$scalar $expression"
       }
@@ -87,7 +87,7 @@ constructor(
 
   companion object : PetTokenizer() {
     fun scaledEx(scalar: Scalar, expression: Expression? = null) =
-        ScaledExpression(scalar, expression ?: MEGACREDIT.expr)
+        ScaledExpression(scalar, expression ?: MEGACREDIT)
 
     // TODO also accept HasExpression?
     fun scaledEx(value: Int? = null, expression: Expression? = null) =
@@ -110,6 +110,6 @@ constructor(
       }
     }
 
-    internal val MEGACREDIT = ClassName.cn("Megacredit")
+    internal val MEGACREDIT = ClassName.cn("Megacredit").expression
   }
 }

@@ -82,22 +82,24 @@ private class RequirementTest {
     testSampleStrings<Requirement>(inputs)
   }
 
+  val fooEx = cn("Foo").expression
+
   @Test
   fun simpleSourceToApi() {
-    assertThat(parseAsIs<Requirement>("Foo")).isEqualTo(Min(scaledEx(1, cn("Foo").expr)))
-    assertThat(parseAsIs<Requirement>("3 Foo")).isEqualTo(Min(scaledEx(3, cn("Foo").expr)))
-    assertThat(parseAsIs<Requirement>("MAX 3 Foo")).isEqualTo(Max(scaledEx(3, cn("Foo").expr)))
+    assertThat(parseAsIs<Requirement>("Foo")).isEqualTo(Min(scaledEx(1, fooEx)))
+    assertThat(parseAsIs<Requirement>("3 Foo")).isEqualTo(Min(scaledEx(3, fooEx)))
+    assertThat(parseAsIs<Requirement>("MAX 3 Foo")).isEqualTo(Max(scaledEx(3, fooEx)))
   }
 
   @Test
   fun simpleApiToSource() {
-    assertThat(Min(scaledEx(1, cn("Foo").expr)).toString()).isEqualTo("Foo")
-    assertThat(Min(scaledEx(3, cn("Foo").expr)).toString()).isEqualTo("3 Foo")
+    assertThat(Min(scaledEx(1, fooEx)).toString()).isEqualTo("Foo")
+    assertThat(Min(scaledEx(3, fooEx)).toString()).isEqualTo("3 Foo")
     assertThat(Min(scaledEx(value = 3)).toString()).isEqualTo("3")
-    assertThat(Min(scaledEx(value = 3, cn("Megacredit").expr)).toString()).isEqualTo("3")
-    assertThat(Max(scaledEx(0, cn("Foo").expr)).toString()).isEqualTo("MAX 0 Foo")
-    assertThat(Max(scaledEx(1, cn("Foo").expr)).toString()).isEqualTo("MAX 1 Foo")
-    assertThat(Max(scaledEx(3, cn("Foo").expr)).toString()).isEqualTo("MAX 3 Foo")
+    assertThat(Min(scaledEx(value = 3, cn("Megacredit").expression)).toString()).isEqualTo("3")
+    assertThat(Max(scaledEx(0, fooEx)).toString()).isEqualTo("MAX 0 Foo")
+    assertThat(Max(scaledEx(1, fooEx)).toString()).isEqualTo("MAX 1 Foo")
+    assertThat(Max(scaledEx(3, fooEx)).toString()).isEqualTo("MAX 3 Foo")
     assertThat(Max(scaledEx(value = 3)).toString()).isEqualTo("MAX 3 Megacredit")
   }
 

@@ -278,7 +278,7 @@ public object ClassParsing : PetTokenizer() {
         return if (decl.supertypes.any { it.className == container }) {
           CompleteNestableDecl(decl)
         } else {
-          val supertypes = (container.expr plus decl.supertypes).toSetStrict()
+          val supertypes = (container.expression plus decl.supertypes).toSetStrict()
           CompleteNestableDecl(decl.copy(supertypes = supertypes))
         }
       }

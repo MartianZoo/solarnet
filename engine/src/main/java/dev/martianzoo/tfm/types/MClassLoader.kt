@@ -171,7 +171,7 @@ public class MClassLoader( // TODO separate into loader and table
   private fun validate() {
     allClasses.forEach { mclass ->
       mclass.classEffects.forEach {
-        checkAllTypes(replaceThisWith(mclass.className.expr).transform(it.effect))
+        checkAllTypes(replaceThisWith(mclass.className.expression).transform(it.effect))
       }
     }
   }

@@ -117,8 +117,8 @@ public class CardDefinition(data: CardData) : Definition {
     if (deck == PROJECT) {
       val shouldBeActive =
           actions.any() ||
-              effects.any { it.trigger != OnGainOf.create(END.expr).raw() } ||
-              resourceType != null
+          effects.any { it.trigger != OnGainOf.create(END.expression).raw() } ||
+          resourceType != null
       require((projectInfo?.kind == ACTIVE) == shouldBeActive)
     }
   }
@@ -127,7 +127,7 @@ public class CardDefinition(data: CardData) : Definition {
   val extraClasses: List<ClassDeclaration> = data.components.map(ClassParsing::parseOneLiner)
 
   override val asClassDeclaration by lazy {
-    val zapHandCard: Instruction? = deck?.let { Remove(scaledEx(1, it.className.expr)) }
+    val zapHandCard: Instruction? = deck?.let { Remove(scaledEx(1, it.className.expression)) }
 
     val createTags =
         Multi.create(tags.entries.map { (tag, count) -> gain(scaledEx(count, tag.addArgs(THIS))) })
@@ -142,11 +142,11 @@ public class CardDefinition(data: CardData) : Definition {
 
     val supertypes =
         setOfNotNull(
-                projectInfo?.kind?.className?.expr,
+                projectInfo?.kind?.className?.expression,
                 resourceType?.let { RESOURCE_CARD.addArgs(it.classExpression()) },
-                if (actions.any()) ACTION_CARD.expr else null,
+                if (actions.any()) ACTION_CARD.expression else null,
             )
-            .ifEmpty { setOf(CARD_FRONT.expr) }
+            .ifEmpty { setOf(CARD_FRONT.expression) }
 
     ClassDeclaration(
         className = className,
