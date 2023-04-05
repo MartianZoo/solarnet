@@ -59,8 +59,7 @@ public open class PetTokenizer { // TODO make internal
       _allCapsWordRE and
       skipChar('[') and
       interior and
-      skipChar(']') map
-      { (trans, inter) ->
+      skipChar(']') map { (trans, inter) ->
         Tuple2(inter, trans.text.removeSuffix("["))
       }
 

@@ -61,11 +61,13 @@ data class Expression(
       return parser {
         val specs = skipChar('<') and commaSeparated(parser()) and skipChar('>')
 
-        className and
+        val result =
+            className and
             optionalList(specs) and
             optional(group(skip(_has) and Requirement.parser())) map { (clazz, args, ref) ->
-          Expression(clazz, args, ref)
-        }
+              Expression(clazz, args, ref)
+            }
+        result
       }
     }
   }

@@ -64,7 +64,9 @@ public sealed class FromExpression : PetNode() {
         val simpleFrom =
             Expression.parser() and
             skip(_from) and
-            Expression.parser() map { (to, from) -> SimpleFrom(to, from) }
+            Expression.parser() map {
+              (to, from) -> SimpleFrom(to, from)
+            }
 
         val argumentList =
             zeroOrMore(expressionAsFrom and skipChar(',')) and
@@ -72,6 +74,7 @@ public sealed class FromExpression : PetNode() {
             zeroOrMore(skipChar(',') and expressionAsFrom) map { (before, from, after) ->
               before + from + after
             }
+
         val arguments = skipChar('<') and argumentList and skipChar('>')
         val complexFrom =
             className and

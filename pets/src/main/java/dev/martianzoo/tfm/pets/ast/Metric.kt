@@ -97,9 +97,12 @@ sealed class Metric : PetElement() {
               limit?.let { Max(met, it) } ?: met
             }
 
-        max and zeroOrMore(skipChar('+') and max) map { (met, addon) ->
-          if (addon.any()) Plus(listOf(met) + addon) else met
-        }
+        val result =
+            max and
+            zeroOrMore(skipChar('+') and max) map { (met, addon) ->
+              if (addon.any()) Plus(listOf(met) + addon) else met
+            }
+        result
       }
     }
   }
