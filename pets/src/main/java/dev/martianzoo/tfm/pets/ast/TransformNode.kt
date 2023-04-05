@@ -19,8 +19,7 @@ interface TransformNode<P : PetNode> {
   companion object {
     /** Returns [node] wrapped as a [TransformNode] *if* that kind of node is supported. */
     fun <P : PetNode?> wrap(node: P, kind: String): P {
-      fun <P : PetNode?> isThisKind(node: P) =
-          (node as? TransformNode<*>)?.transformKind == kind
+      fun <P : PetNode?> isThisKind(node: P) = (node as? TransformNode<*>)?.transformKind == kind
 
       if (node == null || isThisKind(node)) return node
       require(node.descendantsOfType<PetNode>().none(::isThisKind)) {
@@ -35,17 +34,15 @@ interface TransformNode<P : PetNode> {
             is Requirement -> Requirement.Transform(node, kind)
             is Trigger -> Trigger.Transform(node, kind)
             is Action -> // TODO this is clunky
-              node.copy(
-                  cost = wrap(node.cost, kind),
-                  instruction = wrap(node.instruction, kind),
-              )
-
+            node.copy(
+                    cost = wrap(node.cost, kind),
+                    instruction = wrap(node.instruction, kind),
+                )
             is Effect ->
-              node.copy(
-                  trigger = wrap(node.trigger, kind),
-                  instruction = wrap(node.instruction, kind),
-              )
-
+                node.copy(
+                    trigger = wrap(node.trigger, kind),
+                    instruction = wrap(node.instruction, kind),
+                )
             else -> error("no Transform supported for ${node.kind}")
           }
 
@@ -59,10 +56,14 @@ interface TransformNode<P : PetNode> {
     fun unwrapper(kind: String): PetTransformer {
       return object : PetTransformer() {
         override fun <P : PetNode> transform(node: P): P {
-          return when {
-            node is TransformNode<*> && node.transformKind == kind -> node.extract()
-            else -> transformChildren(node)
-          } as P
+          val result: PetNode =
+              if (node is TransformNode<*> && node.transformKind == kind) {
+                node.extract()
+              } else {
+                transformChildren(node)
+              }
+          @Suppress("UNCHECKED_CAST")
+          return result as P
         }
       }
     }

@@ -41,13 +41,15 @@ public data class Component private constructor(val mtype: MType) : HasExpressio
 
   public val petEffects: List<EffectDeclaration> by lazy {
     mtype.root.classEffects.map { fxDecl ->
-      val fx = transformInSeries(
-          mtype.loader.transformers.deprodify(),
-          Substituter(mtype.findSubstitutions(fxDecl.depLinkages)),
-          owner()?.let { replaceOwnerWith(it) }, // TODO could Subst do this?
-          replaceThisWith(mtype.expression),
-          TransformNode.unwrapper(RAW),
-      ).transform(fxDecl.effect)
+      val fx =
+          transformInSeries(
+                  mtype.loader.transformers.deprodify(),
+                  Substituter(mtype.findSubstitutions(fxDecl.depLinkages)),
+                  owner()?.let { replaceOwnerWith(it) }, // TODO could Subst do this?
+                  replaceThisWith(mtype.expression),
+                  TransformNode.unwrapper(RAW),
+              )
+              .transform(fxDecl.effect)
       fxDecl.copy(effect = fx, depLinkages = setOf())
     }
   }
@@ -56,9 +58,7 @@ public data class Component private constructor(val mtype: MType) : HasExpressio
    * This component's effects; while the component exists in a game state, the effects are active.
    */
   public fun activeEffects(game: Game): List<ActiveEffect> {
-    return petEffects.map {
-      ActiveEffect.from(it.effect, this, game, it.triggerLinkages)
-    }
+    return petEffects.map { ActiveEffect.from(it.effect, this, game, it.triggerLinkages) }
   }
 
   public fun owner(): ClassName? = mtype.dependencies.getIfPresent(Key(OWNED, 0))?.className

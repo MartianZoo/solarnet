@@ -74,34 +74,35 @@ public class Game(val setup: GameSetup, public val loader: MClassLoader) {
             val requirement = RefinementMangler(proposed).transform(refin)
             if (!reader.evaluate(requirement)) throw UserException.requirementNotMet(requirement)
 
-            for ((a, b) in abstractTarget.dependencies.typeDependencies.zip(proposed.dependencies.typeDependencies)) {
+            for ((a, b) in
+                abstractTarget.dependencies.typeDependencies.zip(
+                    proposed.dependencies.typeDependencies)) {
               checkRefinements(a.boundType, b.boundType)
             }
           }
         }
       }
 
-
   // Check MartianIndustries against CardFront(HAS BuildingTag)
   // by testing requirement `BuildingTag<MartianIndustries>`
   // in that example, `proposed` will be `MartianIndustries`
   // and the node being transformed is `BuildingTag`
   inner class RefinementMangler(private val proposed: MType) : PetTransformer() {
-        override fun <P : PetNode> transform(node: P): P {
-          return if (node is Expression) {
-            val tipo = loader.resolve(node)
-            try {
-              val modded = tipo.specialize(listOf(proposed.expression))
-              @Suppress("UNCHECKED_CAST")
-              modded.expressionFull as P
-            } catch (e: Exception) {
-              println(e.message)
-              node // don't go deeper
-            }
-          } else {
-            transformChildren(node)
-          }
+    override fun <P : PetNode> transform(node: P): P {
+      return if (node is Expression) {
+        val tipo = loader.resolve(node)
+        try {
+          val modded = tipo.specialize(listOf(proposed.expression))
+          @Suppress("UNCHECKED_CAST")
+          modded.expressionFull as P
+        } catch (e: Exception) {
+          println(e.message)
+          node // don't go deeper
         }
+      } else {
+        transformChildren(node)
+      }
+    }
   }
 
   val reader = GameReaderImpl(setup, loader, components)

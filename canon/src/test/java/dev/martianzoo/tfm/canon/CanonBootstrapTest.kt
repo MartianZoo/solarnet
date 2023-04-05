@@ -84,19 +84,34 @@ private class CanonBootstrapTest {
               isClass(it) ||
               it.mtype.isSubtypeOf(game.resolve(parseAsIs("TerraformRating"))) ||
               it.mtype.isSubtypeOf(game.resolve(parseAsIs("Production<Class<Megacredit>>")))
-              // TODO PROD[M]
+          // TODO PROD[M]
         }
     assertThat(theRest.toStrings())
         .containsExactly(
-            "[Engine]", "[CorporationPhase]",
+            "[Engine]",
+            "[CorporationPhase]",
             "[Tharsis]",
-            "[Area021]", "[Area081]", "[FloatingInSpace]",
-            "[Player1]", "[Player2]", "[Player3]",
-            "[PlayCardFromHand]", "[UseStandardProject]", "[ClaimMilestone]",
-            "[UseActionFromCard]", "[ConvertHeat]", "[ConvertPlants]",
+            "[Area021]",
+            "[Area081]",
+            "[FloatingInSpace]",
+            "[Player1]",
+            "[Player2]",
+            "[Player3]",
+            "[PlayCardFromHand]",
+            "[UseStandardProject]",
+            "[ClaimMilestone]",
+            "[UseActionFromCard]",
+            "[ConvertHeat]",
+            "[ConvertPlants]",
             "[SellPatents]",
-            "[PowerPlantSP]", "[AsteroidSP]", "[AquiferSP]", "[GreenerySP]", "[CitySP]",
-            "[GrossHack<Player1>]", "[GrossHack<Player2>]", "[GrossHack<Player3>]",
+            "[PowerPlantSP]",
+            "[AsteroidSP]",
+            "[AquiferSP]",
+            "[GreenerySP]",
+            "[CitySP]",
+            "[GrossHack<Player1>]",
+            "[GrossHack<Player2>]",
+            "[GrossHack<Player3>]",
             "[Generation]",
         )
   }

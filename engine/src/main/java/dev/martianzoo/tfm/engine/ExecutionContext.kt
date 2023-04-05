@@ -47,7 +47,6 @@ internal class ExecutionContext(
         }
         doInstruction(instr.instruction)
       }
-
       is Custom -> handleCustomInstruction(instr)
       is Or -> throw UserException.orWithoutChoice(instr)
       is Then -> split(instr.instructions).forEach { doInstruction(it) } // TODO wrong
@@ -59,12 +58,13 @@ internal class ExecutionContext(
   private fun handleChange(instr: Change) {
     val scal = instr.count as? ActualScalar ?: throw UserException.unresolvedX(instr)
 
-    val amap = when (instr.intensity) {
-      null -> error("should have had defaults inserted: $instr")
-      MANDATORY -> false
-      AMAP -> true
-      OPTIONAL -> throw UserException.optionalAmount(instr)
-    }
+    val amap =
+        when (instr.intensity) {
+          null -> error("should have had defaults inserted: $instr")
+          MANDATORY -> false
+          AMAP -> true
+          OPTIONAL -> throw UserException.optionalAmount(instr)
+        }
 
     writer.update(
         count = scal.value,
@@ -88,13 +88,13 @@ internal class ExecutionContext(
       // and Owner means the context player... (TODO think)
       val instruction =
           transformInSeries(
-              xers.atomizer(),
-              xers.insertDefaults(THIS.expr), // TODO context component??
-              xers.deprodify(),
-              replaceOwnerWith(player.className),
-              TransformNode.unwrapper(RAW),
-      )
-          .transform(translated)
+                  xers.atomizer(),
+                  xers.insertDefaults(THIS.expr), // TODO context component??
+                  xers.deprodify(),
+                  replaceOwnerWith(player.className),
+                  TransformNode.unwrapper(RAW),
+              )
+              .transform(translated)
 
       split(instruction).forEach { writer.addTasks(it, player, cause) }
     } catch (e: ExecuteInsteadException) {

@@ -4,9 +4,7 @@ import dev.martianzoo.tfm.data.GameEvent.ChangeEvent.Cause
 import dev.martianzoo.tfm.data.Player
 import dev.martianzoo.tfm.pets.ast.Instruction
 
-/**
- * All "normal" changes to game state should go through this interface.
- */
+/** All "normal" changes to game state should go through this interface. */
 interface GameWriter {
   /**
    * Performs a change to the game state, which updates the component graph, removes dependents,

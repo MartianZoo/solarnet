@@ -37,7 +37,6 @@ class GameReaderImpl(
             is Exact -> actual == target
           }
         }
-
         is Or -> requirement.requirements.any { evaluate(it) }
         is And -> requirement.requirements.all { evaluate(it) }
         is Requirement.Transform -> error("should have been transformed by now: $requirement")
@@ -57,6 +56,5 @@ class GameReaderImpl(
   override fun countComponent(concreteType: Type) =
       components.countComponent(Component.ofType(loader.resolve(concreteType)))
 
-  override fun getComponents(type: Type) =
-      components.getAll(loader.resolve(type)).map { it.mtype }
+  override fun getComponents(type: Type) = components.getAll(loader.resolve(type)).map { it.mtype }
 }

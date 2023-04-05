@@ -89,6 +89,7 @@ private class CanonCustomInstructionsTest {
   private fun checkProduction(sess: InteractiveSession, vararg exp: Int) {
     val agent = sess.agent
     assertThat(ResourceUtils.lookUpProductionLevels(agent.reader, agent.player).values)
-        .containsExactlyElementsIn(exp.toList()).inOrder()
+        .containsExactlyElementsIn(exp.toList())
+        .inOrder()
   }
 }

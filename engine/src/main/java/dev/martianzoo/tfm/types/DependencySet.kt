@@ -87,10 +87,11 @@ internal class DependencySet private constructor(private val deps: Set<Dependenc
   fun getClassForClassType() = Dependency.getClassForClassType(deps)
 
   internal fun map(function: (MType) -> MType): DependencySet {
-    return DependencySet(deps.toSetStrict {
-      // TODO hmmm?
-      if (it is TypeDependency) it.map(function) else it
-    })
+    return DependencySet(
+        deps.toSetStrict {
+          // TODO hmmm?
+          if (it is TypeDependency) it.map(function) else it
+        })
   }
 
   override fun equals(other: Any?) = other is DependencySet && deps == other.deps

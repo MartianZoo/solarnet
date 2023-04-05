@@ -30,9 +30,7 @@ data class Expression(
       visitor.visit(listOf(className) + arguments + refinement)
 
   override fun toString() =
-      "$className" +
-          arguments.joinOrEmpty(wrap = "<>") +
-          refinement.wrap("(HAS ", ")")
+      "$className" + arguments.joinOrEmpty(wrap = "<>") + refinement.wrap("(HAS ", ")")
 
   val simple = arguments.isEmpty() && refinement == null
 

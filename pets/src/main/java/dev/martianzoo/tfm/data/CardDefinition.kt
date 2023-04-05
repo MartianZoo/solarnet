@@ -127,13 +127,10 @@ public class CardDefinition(data: CardData) : Definition {
   val extraClasses: List<ClassDeclaration> = data.components.map(ClassParsing::parseOneLiner)
 
   override val asClassDeclaration by lazy {
-    val zapHandCard: Instruction? = deck?.let {
-      Remove(scaledEx(1, it.className.expr))
-    }
+    val zapHandCard: Instruction? = deck?.let { Remove(scaledEx(1, it.className.expr)) }
 
-    val createTags = Multi.create(tags.entries.map { (tag, count) ->
-      gain(scaledEx(count, tag.addArgs(THIS)))
-    })
+    val createTags =
+        Multi.create(tags.entries.map { (tag, count) -> gain(scaledEx(count, tag.addArgs(THIS))) })
 
     val automaticFx: List<Effect> =
         listOfNotNull(zapHandCard, createTags).mapNotNull { immediateToEffect(it, true)?.raw() }
@@ -143,11 +140,13 @@ public class CardDefinition(data: CardData) : Definition {
 
     val allEffects: List<Effect> = automaticFx + onPlayFx + effects + actionListToEffects(actions)
 
-    val supertypes = setOfNotNull(
-        projectInfo?.kind?.className?.expr,
-        resourceType?.let { RESOURCE_CARD.addArgs(it.classExpression()) },
-        if (actions.any()) ACTION_CARD.expr else null,
-    ).ifEmpty { setOf(CARD_FRONT.expr) }
+    val supertypes =
+        setOfNotNull(
+                projectInfo?.kind?.className?.expr,
+                resourceType?.let { RESOURCE_CARD.addArgs(it.classExpression()) },
+                if (actions.any()) ACTION_CARD.expr else null,
+            )
+            .ifEmpty { setOf(CARD_FRONT.expr) }
 
     ClassDeclaration(
         className = className,

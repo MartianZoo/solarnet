@@ -89,9 +89,8 @@ sealed class Metric : PetElement() {
 
         val atom: Parser<Metric> = transform or count or group(parser())
 
-        val scaled: Parser<Metric> = optional(rawScalar) and atom map { (scal, met) ->
-          scal?.let { Scaled(it, met) } ?: met
-        }
+        val scaled: Parser<Metric> =
+            optional(rawScalar) and atom map { (scal, met) -> scal?.let { Scaled(it, met) } ?: met }
 
         val max: Parser<Metric> =
             scaled and optional(skip(_max) and rawScalar) map { (met, limit) ->

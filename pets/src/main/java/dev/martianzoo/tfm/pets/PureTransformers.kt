@@ -70,8 +70,9 @@ public object PureTransformers {
   }
 
   internal fun actionListToEffects(actions: Collection<Action>): Set<Effect> =
-      actions.withIndex()
-          .toSetStrict { (index0Ref, action) -> actionToEffect(action, index1Ref = index0Ref + 1) }
+      actions.withIndex().toSetStrict { (index0Ref, action) ->
+        actionToEffect(action, index1Ref = index0Ref + 1)
+      }
 
   internal fun immediateToEffect(instruction: Instruction, automatic: Boolean = false): Effect? {
     return if (instruction == NoOp || instruction == NoOp.raw()) {

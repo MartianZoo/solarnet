@@ -66,7 +66,9 @@ internal class PlayerBoardToText(
         |  $plant |  $energ    $heeat |
         | prod $p | prod $e | prod $h |
         +---------+---------+---------+
-    """.trimIndent().split("\n")
+    """
+        .trimIndent()
+        .split("\n")
   }
 
   private fun prod(num: String): String {

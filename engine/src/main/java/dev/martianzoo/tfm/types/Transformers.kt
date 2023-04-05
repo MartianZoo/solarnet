@@ -29,8 +29,7 @@ public class Transformers(val loader: MClassLoader) {
 
   public fun deprodify(): PetTransformer {
     if (STANDARD_RESOURCE !in loader.allClassNamesAndIds ||
-      PRODUCTION !in loader.allClassNamesAndIds
-    ) {
+        PRODUCTION !in loader.allClassNamesAndIds) {
       // put no op xer somewhere
       return object : PetTransformer() {
         override fun <P : PetNode> transform(node: P) = node
@@ -62,7 +61,6 @@ public class Transformers(val loader: MClassLoader) {
                           xed.instructions.subList(badIndex + 1, xed.instructions.size))
                 }
               }
-
               node is TransformNode<*> && node.transformKind == PROD -> {
                 require(!inProd)
                 inProd = true
@@ -73,10 +71,8 @@ public class Transformers(val loader: MClassLoader) {
                 }
                 inner
               }
-
               inProd && node is Expression && node.className in classNames ->
-                PRODUCTION.addArgs(node.arguments + node.className.classExpression())
-
+                  PRODUCTION.addArgs(node.arguments + node.className.classExpression())
               else -> transformChildren(node)
             }
         @Suppress("UNCHECKED_CAST") return rewritten as P

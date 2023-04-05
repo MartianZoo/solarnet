@@ -31,10 +31,11 @@ object ResourceUtils { // TODO this doesn't belong here
 
   /** Returns the name of every concrete class of type `StandardResource`. */
   fun standardResourceNames(game: GameReader): Set<ClassName> {
-    val names = game
-        .getComponents(game.resolve(STANDARD_RESOURCE.classExpression()))
-        .map { it.expression.arguments.single().className }
-        .toSet()
+    val names =
+        game
+            .getComponents(game.resolve(STANDARD_RESOURCE.classExpression()))
+            .map { it.expression.arguments.single().className }
+            .toSet()
     // Put them in declaration order
     return game.setup.authority.allClassNames.filter { it in names }.toSetStrict()
   }

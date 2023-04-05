@@ -228,13 +228,8 @@ internal constructor(
 
   private val specificThenGeneralInvars: Pair<List<Requirement>, List<Requirement>> by lazy {
     val requirements = declaration.invariants.map(attachToClassTransformer::transform)
-    val xer = transformInSeries(
-        loader.transformers.deprodify(),
-        TransformNode.unwrapper(RAW)
-    )
-    split(requirements)
-        .map { xer.transform(it) }
-        .partition { THIS in it }
+    val xer = transformInSeries(loader.transformers.deprodify(), TransformNode.unwrapper(RAW))
+    split(requirements).map { xer.transform(it) }.partition { THIS in it }
   }
 
   private val specificInvars: Set<Requirement> by lazy {

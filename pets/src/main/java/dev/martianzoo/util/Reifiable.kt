@@ -6,7 +6,6 @@ interface Reifiable<R : Reifiable<R>> {
 
   /**
    * Completes normally if this is a minimal concrete narrowing of [abstractTarget]. Rules:
-   *
    * * `this` must not be abstract
    * * if [abstractTarget] is concrete then `this` must equal it
    * * `this` must be a narrowing of [abstractTarget]

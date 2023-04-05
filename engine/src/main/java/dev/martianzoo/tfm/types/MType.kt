@@ -74,9 +74,11 @@ internal constructor(
         loader.getClass(classNameExpr.className).classType
       }
     } else {
-      val deps = loader.matchPartial(specs, dependencies)
-          .overlayOn(dependencies)
-          .subMapInOrder(dependencies.keys)
+      val deps =
+          loader
+              .matchPartial(specs, dependencies)
+              .overlayOn(dependencies)
+              .subMapInOrder(dependencies.keys)
       copy(dependencies = deps)
     }
   }
@@ -101,9 +103,7 @@ internal constructor(
     toExpressionUsingSpecs(dependencies.expressionsFull)
   }
 
-  internal val narrowedDependencies: DependencySet by lazy {
-    dependencies.minus(root.dependencies)
-  }
+  internal val narrowedDependencies: DependencySet by lazy { dependencies.minus(root.dependencies) }
 
   private fun toExpressionUsingSpecs(specs: List<Expression>): Expression {
     val expression = root.className.addArgs(specs).refine(refinement)

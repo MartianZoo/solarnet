@@ -69,9 +69,10 @@ public object Parsing {
     try {
       return parser.parseToEnd(matches)
     } catch (e: ParseException) {
-      val tokenDesc = matches
-          .filterNot { it.type.ignored }
-          .joinToString(" ") { it.type.name?.replace("\n", "\\n") ?: "NULL" }
+      val tokenDesc =
+          matches
+              .filterNot { it.type.ignored }
+              .joinToString(" ") { it.type.name?.replace("\n", "\\n") ?: "NULL" }
 
       // TODO probably make this a PetSyntaxException
       throw IllegalArgumentException(

@@ -114,8 +114,7 @@ public class InteractiveSession(
     }
   }
 
-  fun doTask(instruction: String) =
-      doTask(agent.tasks().keys.min(), instruction)
+  fun doTask(instruction: String) = doTask(agent.tasks().keys.min(), instruction)
 
   fun doTask(initialTaskId: String, narrowedInstruction: String? = null) =
       doTask(TaskId(initialTaskId), narrowedInstruction)

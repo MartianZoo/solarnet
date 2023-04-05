@@ -257,8 +257,7 @@ public class ReplSession(
     override fun withArgs(args: String): List<String> {
       val expr: Expression = parseAsIs(args)
       val counts: Multiset<Expression> = session.list(expr)
-      return listOf(
-          "${counts.size} ${session.prep(expr)}") +
+      return listOf("${counts.size} ${session.prep(expr)}") +
           counts.entries.sortedByDescending { (_, ct) -> ct }.map { (e, ct) -> "  $ct $e" }
     }
   }
@@ -432,11 +431,11 @@ public class ReplSession(
           when (mode) {
             RED, YELLOW -> throw UsageException("Can't execute tasks in this mode")
             GREEN, BLUE ->
-              if (auto) {
-                session.doTaskAndAutoExec(id, instruction)
-              } else {
-                session.agent.doTask(id, instruction?.let(session::prep))
-              }
+                if (auto) {
+                  session.doTaskAndAutoExec(id, instruction)
+                } else {
+                  session.agent.doTask(id, instruction?.let(session::prep))
+                }
           }
       return describeExecutionResults(result)
     }

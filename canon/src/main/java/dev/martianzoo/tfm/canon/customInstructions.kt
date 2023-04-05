@@ -122,10 +122,10 @@ private object GetVpsFrom : CustomInstruction("getVpsFrom") {
     val cardName = classExpr.arguments.single().className
     val card = game.setup.authority.card(cardName)
     return Multi.create(
-        card.effects
-            .map { TransformNode.unwrap(it, RAW) }
-            .filter { it.trigger == OnGainOf.create(cn("End").expr) }
-            .map { it.instruction })
+            card.effects
+                .map { TransformNode.unwrap(it, RAW) }
+                .filter { it.trigger == OnGainOf.create(cn("End").expr) }
+                .map { it.instruction })
         .raw()
   }
 }
@@ -165,9 +165,9 @@ private object CopyProductionBox : CustomInstruction("copyProductionBox") {
       1 -> return matches.first()
       0 -> throw RuntimeException("There is no immediate PROD box on ${def.className}")
       else ->
-        throw RuntimeException(
-            "The immediate instructions on ${def.className} " +
-                "have multiple PROD boxes, which should never happen") // TODO validate sooner?
+          throw RuntimeException(
+              "The immediate instructions on ${def.className} " +
+                  "have multiple PROD boxes, which should never happen") // TODO validate sooner?
     }
   }
 }

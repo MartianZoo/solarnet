@@ -68,10 +68,11 @@ data class MarsMapDefinition(
           shortName = shortName,
           abstract = false,
           supertypes = setOf(kind.expr),
-          effectsIn = listOfNotNull(bonus).toSetStrict {
-            // this is clunky TODO
-            Effect(trigger, (it as Transform).instruction, false).raw()
-          })
+          effectsIn =
+              listOfNotNull(bonus).toSetStrict {
+                // this is clunky TODO
+                Effect(trigger, (it as Transform).instruction, false).raw()
+              })
     }
 
     override val shortName =

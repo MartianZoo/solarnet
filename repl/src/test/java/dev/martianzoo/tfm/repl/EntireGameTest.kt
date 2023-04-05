@@ -100,9 +100,7 @@ class EntireGameTest {
       execute("-1 THEN Hackers", "PROD[-2 Megacredit<P1>]")
     }
 
-    with(p1) {
-      execute("UseAction1<SellPatents>", "Megacredit FROM ProjectCard")
-    }
+    p1.execute("UseAction1<SellPatents>", "Megacredit FROM ProjectCard")
 
     with(p2) {
       execute("-4 Steel THEN -1 THEN SolarPower")
