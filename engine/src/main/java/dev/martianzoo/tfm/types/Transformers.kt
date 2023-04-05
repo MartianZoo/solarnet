@@ -14,6 +14,7 @@ import dev.martianzoo.tfm.pets.ast.Effect
 import dev.martianzoo.tfm.pets.ast.Effect.Trigger.ByTrigger
 import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.pets.ast.Instruction.Gain
+import dev.martianzoo.tfm.pets.ast.Instruction.Gain.Companion.gain
 import dev.martianzoo.tfm.pets.ast.Instruction.Multi
 import dev.martianzoo.tfm.pets.ast.Instruction.Remove
 import dev.martianzoo.tfm.pets.ast.Instruction.Transform
@@ -140,7 +141,7 @@ public class Transformers(val loader: MClassLoader) {
                       insertDefaultsIntoExpr(
                           original, defaults.gainOnlyDependencies, context, loader)
                   val scaledEx = scaledEx(node.count, fixed)
-                  Gain(scaledEx, node.intensity ?: defaults.gainIntensity)
+                  gain(scaledEx, node.intensity ?: defaults.gainIntensity)
                 }
               }
               is Remove -> { // TODO duplication

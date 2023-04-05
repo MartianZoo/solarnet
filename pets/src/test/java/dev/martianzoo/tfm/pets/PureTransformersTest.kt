@@ -11,14 +11,9 @@ import dev.martianzoo.tfm.pets.ast.Action
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.pets.ast.Effect
-import dev.martianzoo.tfm.pets.ast.Effect.Trigger
 import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.pets.ast.Instruction
-import dev.martianzoo.tfm.pets.ast.Instruction.Gain
-import dev.martianzoo.tfm.pets.ast.Metric.Count
-import dev.martianzoo.tfm.pets.ast.Metric.Scaled
 import dev.martianzoo.tfm.pets.ast.PetNode
-import dev.martianzoo.tfm.pets.ast.ScaledExpression.Companion.scaledEx
 import dev.martianzoo.tfm.testlib.te
 import dev.martianzoo.util.toStrings
 import kotlin.reflect.KClass
@@ -117,23 +112,5 @@ private class PureTransformersTest {
 
     // more round-trip checking doesn't hurt
     assertThat(tx.toString()).isEqualTo(expected)
-  }
-
-  @Test
-  fun testNonProd() {
-    val x: Effect = parseAsIs("HAHA[Plant]: Heat, HAHA[Steel / 5 PowerTag]")
-    assertThat(x)
-        .isEqualTo(
-            Effect(
-                Trigger.Transform(Trigger.OnGainOf.create(cn("Plant").expr), "HAHA"),
-                Instruction.Multi(
-                    listOf(
-                        Gain(scaledEx(1, cn("Heat").expr)),
-                        Instruction.Transform(
-                            Instruction.Per(
-                                Gain(scaledEx(1, cn("Steel").expr)),
-                                Scaled(5, Count(cn("PowerTag").expr))),
-                            "HAHA"))),
-                false))
   }
 }

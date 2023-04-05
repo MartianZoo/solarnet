@@ -3,7 +3,7 @@ package dev.martianzoo.tfm.repl
 import dev.martianzoo.tfm.api.SpecialClassNames.THIS
 import dev.martianzoo.tfm.engine.Component
 import dev.martianzoo.tfm.pets.ast.Expression
-import dev.martianzoo.tfm.pets.ast.Instruction.Gain
+import dev.martianzoo.tfm.pets.ast.Instruction.Gain.Companion.gain
 import dev.martianzoo.tfm.pets.ast.Instruction.Remove
 import dev.martianzoo.tfm.pets.ast.ScaledExpression.Companion.scaledEx
 import dev.martianzoo.tfm.types.MClass
@@ -62,8 +62,8 @@ object MTypeToText { // TODO refactor to ClassInfo / TypeInfo type dealies
 
     val id = session.game.loader.transformers.insertDefaults(THIS.expr) // TODO context??
     val allCases = id.transform(expression)
-    val gain = id.transform(Gain(scaledEx(1, expression)))
-    val remove = id.transform(Remove(scaledEx(1, expression)))
+    val gain = id.transform(gain(scaledEx(1, expression), null))
+    val remove = id.transform(Remove(scaledEx(1, expression), null))
 
     val numComponentTypes = sequenceCount(mtype.allConcreteSubtypes(), 100)
 

@@ -10,7 +10,6 @@ import com.github.h0tk3y.betterParse.grammar.parser
 import com.github.h0tk3y.betterParse.parser.Parser
 import dev.martianzoo.tfm.api.UserException.PetsSyntaxException
 import dev.martianzoo.tfm.pets.PetTokenizer
-import dev.martianzoo.tfm.pets.ast.Instruction.Intensity.MANDATORY
 import dev.martianzoo.tfm.pets.ast.Instruction.Remove
 import dev.martianzoo.tfm.pets.ast.ScaledExpression.Scalar.Companion.checkNonzero
 import dev.martianzoo.util.suf
@@ -35,7 +34,7 @@ public data class Action(val cost: Cost?, val instruction: Instruction) : PetEle
       }
 
       // I believe Ants/Predators are the reasons for MANDATORY here
-      override fun toInstruction() = Remove(scaledEx, MANDATORY)
+      override fun toInstruction() = Remove(scaledEx)
     }
 
     // can't do non-prod per prod yet

@@ -24,8 +24,7 @@ import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.pets.ast.Effect
 import dev.martianzoo.tfm.pets.ast.Effect.Trigger.OnGainOf
 import dev.martianzoo.tfm.pets.ast.Instruction
-import dev.martianzoo.tfm.pets.ast.Instruction.Gain
-import dev.martianzoo.tfm.pets.ast.Instruction.Intensity.MANDATORY
+import dev.martianzoo.tfm.pets.ast.Instruction.Gain.Companion.gain
 import dev.martianzoo.tfm.pets.ast.Instruction.Multi
 import dev.martianzoo.tfm.pets.ast.Instruction.Remove
 import dev.martianzoo.tfm.pets.ast.PetNode.Companion.raw
@@ -129,11 +128,11 @@ public class CardDefinition(data: CardData) : Definition {
 
   override val asClassDeclaration by lazy {
     val zapHandCard: Instruction? = deck?.let {
-      Remove(scaledEx(1, it.className.expr), MANDATORY)
+      Remove(scaledEx(1, it.className.expr))
     }
 
     val createTags = Multi.create(tags.entries.map { (tag, count) ->
-      Gain(scaledEx(count, tag.addArgs(THIS)), MANDATORY)
+      gain(scaledEx(count, tag.addArgs(THIS)))
     })
 
     val automaticFx: List<Effect> =

@@ -14,6 +14,7 @@ import dev.martianzoo.tfm.api.UserException.InvalidReificationException
 import dev.martianzoo.tfm.api.UserException.PetsSyntaxException
 import dev.martianzoo.tfm.pets.PetTokenizer
 import dev.martianzoo.tfm.pets.ast.FromExpression.SimpleFrom
+import dev.martianzoo.tfm.pets.ast.Instruction.Intensity.MANDATORY
 import dev.martianzoo.tfm.pets.ast.Instruction.Intensity.OPTIONAL
 import dev.martianzoo.tfm.pets.ast.ScaledExpression.Scalar
 import dev.martianzoo.tfm.pets.ast.ScaledExpression.Scalar.ActualScalar
@@ -86,12 +87,13 @@ public sealed class Instruction : PetElement() {
     }
   }
 
-  public data class Gain(
+  public data class Gain
+  internal constructor(
       val scaledEx: ScaledExpression,
-      override val intensity: Intensity? = null,
+      override val intensity: Intensity?,
   ) : Change() {
     companion object {
-      fun gain(scaledEx: ScaledExpression, intensity: Intensity? = null): Instruction =
+      fun gain(scaledEx: ScaledExpression, intensity: Intensity? = MANDATORY): Instruction =
           if (scaledEx.expression == OK.expr) NoOp else Gain(scaledEx, intensity)
     }
 
@@ -109,8 +111,10 @@ public sealed class Instruction : PetElement() {
     }
   }
 
-  data class Remove(val scaledEx: ScaledExpression, override val intensity: Intensity? = null) :
-      Change() {
+  data class Remove(
+      val scaledEx: ScaledExpression,
+      override val intensity: Intensity? = MANDATORY
+  ) : Change() {
     override val count = scaledEx.scalar
     override val gaining = null
     override val removing = scaledEx.expression
@@ -128,7 +132,7 @@ public sealed class Instruction : PetElement() {
   data class Transmute(
       val fromEx: FromExpression,
       val scalar: Scalar,
-      override val intensity: Intensity? = null,
+      override val intensity: Intensity? = MANDATORY,
   ) : Change() {
     override val count = scalar
     override val gaining = fromEx.toExpression
@@ -277,8 +281,7 @@ public sealed class Instruction : PetElement() {
 
     abstract fun connector(): String
 
-    final override fun toString() =
-        instructions.joinToString(connector()) { groupPartIfNeeded(it) }
+    final override fun toString() = instructions.joinToString(connector()) { groupPartIfNeeded(it) }
   }
 
   data class Then(override val instructions: List<Instruction>) :
@@ -316,8 +319,7 @@ public sealed class Instruction : PetElement() {
     override fun connector() = " THEN "
   }
 
-  data class Or(override val instructions: List<Instruction>) :
-      CompositeInstruction(instructions) {
+  data class Or(override val instructions: List<Instruction>) : CompositeInstruction(instructions) {
     init {
       if (instructions.distinct().size != instructions.size) {
         throw PetsSyntaxException("duplicates")
@@ -474,32 +476,36 @@ public sealed class Instruction : PetElement() {
     internal fun parser(): Parser<Instruction> {
       return parser {
         val gain: Parser<Instruction> =
-            ScaledExpression.parser() and optional(intensity) map
-            { (ste, int) ->
-              Gain.gain(ste, int)
-            }
+            ScaledExpression.parser() and
+                optional(intensity) map
+                { (ste, int) ->
+                  Gain.gain(ste, int)
+                }
 
         val remove: Parser<Remove> =
             skipChar('-') and
-            ScaledExpression.parser() and
-            optional(intensity) map { (ste, int) ->
-              Remove(ste, int)
-            }
+                ScaledExpression.parser() and
+                optional(intensity) map
+                { (ste, int) ->
+                  Remove(ste, int)
+                }
 
         val transmute: Parser<Transmute> =
             optional(ScaledExpression.scalar()) and
-            FromExpression.parser() and
-            optional(intensity) map { (scalar, fro, int) ->
-              Transmute(fro, scalar ?: ActualScalar(1), int)
-            }
+                FromExpression.parser() and
+                optional(intensity) map
+                { (scalar, fro, int) ->
+                  Transmute(fro, scalar ?: ActualScalar(1), int)
+                }
 
         val perable: Parser<Instruction> = transmute or group(transmute) or gain or remove
 
         val maybePer: Parser<Instruction> =
             perable and
-            optional(skipChar('/') and Metric.parser()) map { (instr, metric) ->
-              if (metric == null) instr else Per(instr, metric)
-            }
+                optional(skipChar('/') and Metric.parser()) map
+                { (instr, metric) ->
+                  if (metric == null) instr else Per(instr, metric)
+                }
 
         val transform: Parser<Transform> =
             transform(parser()) map { (node, tname) -> Transform(node, tname) }
@@ -509,25 +515,28 @@ public sealed class Instruction : PetElement() {
         val arguments = separatedTerms(Expression.parser(), char(','), acceptZero = true)
         val custom: Parser<Custom> =
             skipChar('@') and
-            _lowerCamelRE and
-            group(arguments) map { (name, args) ->
-              Custom(name.text, args, 1)
-            }
+                _lowerCamelRE and
+                group(arguments) map
+                { (name, args) ->
+                  Custom(name.text, args, 1)
+                }
         val atom: Parser<Instruction> = group(parser()) or maybeTransform or custom
 
         val isMandatory: Parser<Boolean> = (_questionColon asJust false) or (char(':') asJust true)
 
         val gated: Parser<Instruction> =
             optional(Requirement.atomParser() and isMandatory) and
-            atom map { (gate, ins) ->
-              if (gate == null) ins else Gated(gate.t1, gate.t2, ins)
-            }
+                atom map
+                { (gate, ins) ->
+                  if (gate == null) ins else Gated(gate.t1, gate.t2, ins)
+                }
 
         val orInstr: Parser<Instruction> =
-            separatedTerms(gated, _or) map {
-              val set = it.toSetStrict().toList()
-              if (set.size == 1) set.first() else Or(set)
-            }
+            separatedTerms(gated, _or) map
+                {
+                  val set = it.toSetStrict().toList()
+                  if (set.size == 1) set.first() else Or(set)
+                }
 
         val then = separatedTerms(orInstr, _then) map { if (it.size == 1) it.first() else Then(it) }
 

@@ -16,9 +16,9 @@ import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.pets.ast.Effect.Trigger.OnGainOf
 import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.pets.ast.Instruction
-import dev.martianzoo.tfm.pets.ast.Instruction.Gain
-import dev.martianzoo.tfm.pets.ast.Instruction.Intensity.MANDATORY
+import dev.martianzoo.tfm.pets.ast.Instruction.Gain.Companion.gain
 import dev.martianzoo.tfm.pets.ast.Instruction.Multi
+import dev.martianzoo.tfm.pets.ast.Instruction.Or
 import dev.martianzoo.tfm.pets.ast.Instruction.Transform
 import dev.martianzoo.tfm.pets.ast.PetNode.Companion.raw
 import dev.martianzoo.tfm.pets.ast.ScaledExpression.Companion.scaledEx
@@ -67,7 +67,7 @@ private object CreateAdjacencies : CustomInstruction("createAdjacencies") {
                   cn("ForwardAdjacency").addArgs(it, newTile),
                   cn("BackwardAdjacency").addArgs(newTile, it))
             }
-    return Multi.create((nbrs + adjs).map { Gain(scaledEx(1, it), MANDATORY) })
+    return Multi.create((nbrs + adjs).map { gain(scaledEx(1, it)) })
   }
   private fun tileOn(area: AreaDefinition, game: GameReader): Expression? {
     val tileType: Type = game.resolve(cn("Tile").addArgs(area.className)) // TODO
@@ -99,12 +99,12 @@ private object BeginPlayCard : CustomInstruction("beginPlayCard") {
 
     val playTagSignals =
         card.tags.entries.map { (tagName: ClassName, ct: Int) ->
-          Gain(scaledEx(ct, cn("PlayTag").addArgs(tagName.classExpression())), MANDATORY)
+          gain(scaledEx(ct, cn("PlayTag").addArgs(tagName.classExpression())))
         }
 
     val instructions =
         if (card.cost > 0) {
-          val instr = Gain(scaledEx(card.cost, cn("Owed").expr), MANDATORY)
+          val instr = gain(scaledEx(card.cost, cn("Owed").expr))
           listOf(instr) + playTagSignals
         } else {
           playTagSignals
@@ -149,7 +149,7 @@ private object GainLowestProduction : CustomInstruction("gainLowestProduction") 
     val prods: Map<ClassName, Int> = lookUpProductionLevels(game, player.expression)
     val lowest: Int = prods.values.min()
     val keys: Set<ClassName> = prods.filterValues { it == lowest }.keys
-    val or = Instruction.Or.create(keys.map { Gain(scaledEx(1, it.expr), MANDATORY) })
+    val or = Or.create(keys.map { gain(scaledEx(1, it.expr)) })
     return TransformNode.wrap(or, PROD).raw()
   }
 }
