@@ -127,7 +127,7 @@ public class CardDefinition(data: CardData) : Definition {
   val extraClasses: List<ClassDeclaration> = data.components.map(ClassParsing::parseOneLiner)
 
   override val asClassDeclaration by lazy {
-    val zapHandCard: Instruction? = deck?.let { Remove(scaledEx(1, it.className.expression)) }
+    val zapHandCard: Instruction? = deck?.let { Remove(scaledEx(1, it.className)) }
 
     val createTags =
         Multi.create(tags.entries.map { (tag, count) -> gain(scaledEx(count, tag.addArgs(THIS))) })

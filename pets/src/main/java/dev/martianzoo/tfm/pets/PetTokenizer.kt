@@ -18,7 +18,7 @@ import com.github.h0tk3y.betterParse.utils.Tuple2
 import dev.martianzoo.tfm.pets.ast.Instruction.Intensity
 
 /** A base class for parsing objects. */
-public open class PetTokenizer { // TODO make internal
+public open class PetTokenizer {
   internal val _arrow = literal("->", "arrow")
   internal val _doubleColon = literal("::", "doubleColon")
   internal val _questionColon = literal("?:", "questionColon")

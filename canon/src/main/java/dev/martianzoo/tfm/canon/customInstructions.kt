@@ -104,7 +104,7 @@ private object BeginPlayCard : CustomInstruction("beginPlayCard") {
 
     val instructions =
         if (card.cost > 0) {
-          val instr = gain(scaledEx(card.cost, cn("Owed").expression))
+          val instr = gain(scaledEx(card.cost, cn("Owed")))
           listOf(instr) + playTagSignals
         } else {
           playTagSignals
@@ -149,7 +149,7 @@ private object GainLowestProduction : CustomInstruction("gainLowestProduction") 
     val prods: Map<ClassName, Int> = lookUpProductionLevels(game, player.expression)
     val lowest: Int = prods.values.min()
     val keys: Set<ClassName> = prods.filterValues { it == lowest }.keys
-    val or = Or.create(keys.map { gain(scaledEx(1, it.expression)) })
+    val or = Or.create(keys.map { gain(scaledEx(1, it)) })
     return TransformNode.wrap(or, PROD).raw()
   }
 }

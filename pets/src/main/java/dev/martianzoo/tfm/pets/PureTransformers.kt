@@ -31,7 +31,7 @@ public object PureTransformers {
       PetTransformer() {
     constructor(vararg transformers: PetTransformer) : this(transformers.toList())
 
-    override fun <P : PetNode> transform(node: P): P { // TODO null passthru??
+    override fun <P : PetNode> transform(node: P): P {
       var result = node
       for (xer in transformers) {
         result = xer.transform(result)
@@ -46,7 +46,7 @@ public object PureTransformers {
     val instruction = actionToInstruction(unrapt)
     val trigger = OnGainOf.create(cn("$USE_ACTION$index1Ref").addArgs(THIS))
     val effect = Effect(trigger, instruction, automatic = false)
-    return if (unrapt == action) effect else effect.raw() // TODO clunky
+    return if (unrapt == action) effect else effect.raw()
   }
 
   private fun actionToInstruction(action: Action): Instruction {
@@ -78,7 +78,7 @@ public object PureTransformers {
     return if (instruction == NoOp || instruction == NoOp.raw()) {
       null
     } else {
-      Effect(WhenGain, instruction, automatic) // TODO ugh
+      Effect(WhenGain, instruction, automatic)
     }
   }
 
@@ -87,7 +87,6 @@ public object PureTransformers {
         override fun <P : PetNode> transform(node: P) = node
       }
 
-  // TODO check if this really what callers want to do
   public fun <P : PetNode> P.replaceAll(from: PetNode, to: PetNode): P {
     if (from == to) return this
     return object : PetTransformer() {

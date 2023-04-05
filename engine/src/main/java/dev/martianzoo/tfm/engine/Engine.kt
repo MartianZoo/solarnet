@@ -39,7 +39,7 @@ public object Engine {
     val game = Game(setup, loader)
     val agent = game.asPlayer(Player.ENGINE)
 
-    val result: Result = agent.initiate(Gain.gain(scaledEx(1, ENGINE.expression)))
+    val result: Result = agent.initiate(Gain.gain(scaledEx(1, ENGINE)))
     require(result.newTaskIdsAdded.none())
     require(game.taskQueue.isEmpty())
 
@@ -57,5 +57,5 @@ public object Engine {
       loader.allClasses
           .filter { 0 !in it.componentCountRange }
           .flatMap { it.baseType.concreteSubtypesSameClass() }
-          .map { Gain.gain(scaledEx(1, it.expressionFull)) }
+          .map { Gain.gain(scaledEx(1, it)) }
 }

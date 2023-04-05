@@ -88,10 +88,11 @@ constructor(
   companion object : PetTokenizer() {
     fun scaledEx(scalar: Scalar, expression: Expression? = null) =
         ScaledExpression(scalar, expression ?: MEGACREDIT)
-
-    // TODO also accept HasExpression?
     fun scaledEx(value: Int? = null, expression: Expression? = null) =
         scaledEx(ActualScalar(value ?: 1), expression)
+
+    fun scaledEx(scalar: Scalar, hasEx: HasExpression) = scaledEx(scalar, hasEx.expression)
+    fun scaledEx(value: Int? = null, hasEx: HasExpression) = scaledEx(value, hasEx.expression)
 
     internal fun scalar(): Parser<Scalar> {
       val actual: Parser<ActualScalar> = rawScalar map ::ActualScalar

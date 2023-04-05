@@ -216,7 +216,7 @@ internal constructor(
   }
 
   private val attachToClassTransformer: PetTransformer by lazy {
-    val weirdExpression = className.refine(Min(scaledEx(1, OK.expression)))
+    val weirdExpression = className.refine(Min(scaledEx(1, OK)))
     transformInSeries(
         listOfNotNull(
             loader.transformers.insertDefaults(weirdExpression),

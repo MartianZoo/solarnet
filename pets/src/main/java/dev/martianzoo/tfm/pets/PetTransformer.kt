@@ -25,8 +25,6 @@ public abstract class PetTransformer {
    *   being traversed.
    * * Call [transformChildren] from here to transform the subtree by transforming each of its child
    *   subtrees. You can of course either preprocess or post-process the subtree.
-   * * To transform a single child subtree you can pass it to [x]. It will accept iterables of nodes
-   *   or a nullable node. TODO fix this "x" situation.
    */
   public abstract fun <P : PetNode> transform(node: P): P
 
