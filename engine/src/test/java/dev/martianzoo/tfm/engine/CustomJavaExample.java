@@ -1,6 +1,5 @@
 package dev.martianzoo.tfm.engine;
 
-import static com.google.common.collect.Iterables.getOnlyElement;
 import static java.util.stream.Collectors.joining;
 
 import dev.martianzoo.tfm.api.CustomInstruction;
@@ -22,7 +21,7 @@ public class CustomJavaExample {
 
     @Override
     public Instruction translate(GameReader game, List<? extends Type> arguments) {
-      var player = getOnlyElement(arguments).getExpression();
+      var player = arguments.get(0).getExpression();
       var prods = ResourceUtils.INSTANCE.lookUpProductionLevels(game, player);
       int lowest = Collections.min(prods.values());
       String lowestProds = prods.keySet().stream()
