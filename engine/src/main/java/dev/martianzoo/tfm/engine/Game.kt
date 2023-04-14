@@ -31,6 +31,11 @@ public class Game(val setup: GameSetup, public val loader: MClassLoader) {
   /** The tasks the game is currently waiting on. */
   public val taskQueue = TaskQueue(eventLog)
 
+  init {
+    require(loader.game == null)
+    loader.game = this
+  }
+
   public lateinit var start: Checkpoint
     private set
 

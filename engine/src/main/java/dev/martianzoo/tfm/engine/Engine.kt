@@ -17,25 +17,23 @@ public object Engine {
   val loaderCache = mutableMapOf<GameSetup, MClassLoader>()
 
   public fun loadClasses(setup: GameSetup): MClassLoader {
-    if (setup in loaderCache) return loaderCache[setup]!!
+    // if (setup in loaderCache) return loaderCache[setup]!!
 
     val loader = MClassLoader(setup.authority, autoLoadDependencies = true)
     val toLoad: List<HasClassName> = setup.allDefinitions() + setup.players()
 
     loader.loadAll(toLoad.classNames())
+
+    // TODO how to do this properly?
     if ("P" in setup.bundles) loader.load(cn("PreludePhase"))
 
     loader.frozen = true
-    loaderCache[setup] = loader
+    // loaderCache[setup] = loader
     return loader
   }
 
   public fun newGame(setup: GameSetup): Game {
     val loader = loadClasses(setup)
-
-    // TODO get @createSingletons to work as a real CustomInstruction
-    // setup.authority.customInstructions += customInstr(loader)
-
     val game = Game(setup, loader)
     val agent = game.asPlayer(Player.ENGINE)
 

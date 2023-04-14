@@ -8,6 +8,7 @@ import dev.martianzoo.tfm.api.SpecialClassNames.THIS
 import dev.martianzoo.tfm.api.Type
 import dev.martianzoo.tfm.api.UserException
 import dev.martianzoo.tfm.data.ClassDeclaration
+import dev.martianzoo.tfm.engine.Game
 import dev.martianzoo.tfm.pets.PureTransformers.replaceThisWith
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.Expression
@@ -48,6 +49,11 @@ public class MClassLoader( // TODO separate into loader and table
   init {
     load(OK)
   }
+
+  // TODO HACKHACKHACK
+  // This is an absolutely stupid horrible hack. Fix it. Somehow.
+
+  public var game: Game? = null
 
   /**
    * Returns the [MClass] whose [MClass.className] or [MClass.shortName] is [name], or throws an
