@@ -71,7 +71,10 @@ private object CreateAdjacencies : CustomInstruction("createAdjacencies") {
   }
   private fun tileOn(area: AreaDefinition, game: GameReader): Expression? {
     val tileType: Type = game.resolve(cn("Tile").addArgs(area.className)) // TODO
-    return game.getComponents(tileType).singleOrNull()?.expressionFull // TODO
+    val tiles = game.getComponents(tileType)
+    // TODO prevent this in a general way
+    if (tiles.size > 1) throw UserException("Two tiles on same area")
+    return tiles.singleOrNull()?.expressionFull
   }
 
   fun <E> neighborsInHexGrid(grid: Grid<E>, r: Int, c: Int): List<E> {
