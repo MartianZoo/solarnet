@@ -103,7 +103,8 @@ public class ComponentGraph {
     }
 
     if (!toTheExtentPossible && actual != count) {
-      throw LimitsException("can't gain/remove $count instances, only $actual")
+      throw LimitsException(
+          "When gaining $gaining and removing $removing: can do only $actual of $count required")
     }
     return actual
   }

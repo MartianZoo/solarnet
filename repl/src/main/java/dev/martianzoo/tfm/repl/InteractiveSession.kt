@@ -2,6 +2,7 @@ package dev.martianzoo.tfm.repl
 
 import dev.martianzoo.tfm.api.SpecialClassNames.RAW
 import dev.martianzoo.tfm.api.SpecialClassNames.THIS
+import dev.martianzoo.tfm.api.UserException
 import dev.martianzoo.tfm.data.Player
 import dev.martianzoo.tfm.data.Task.TaskId
 import dev.martianzoo.tfm.engine.Component
@@ -114,7 +115,11 @@ public class InteractiveSession(
     }
   }
 
-  fun doTask(instruction: String) = doTask(agent.tasks().keys.min(), instruction)
+  fun doTask(instruction: String): Result {
+    val taskKeys = agent.tasks().keys
+    if (taskKeys.none()) throw UserException("No tasks in queue when trying to do `$instruction`")
+    return doTask(taskKeys.min(), instruction)
+  }
 
   fun doTask(initialTaskId: String, narrowedInstruction: String? = null) =
       doTask(TaskId(initialTaskId), narrowedInstruction)

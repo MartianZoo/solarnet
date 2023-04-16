@@ -168,7 +168,7 @@ internal constructor(
       root.withAllDependencies(dependencies.map { it.stripRefinements() })
 
   override fun ensureNarrows(that: MType) {
-    if (!isSubtypeOf(that.stripRefinements())) throw InvalidReificationException("x")
+    if (!isSubtypeOf(that.stripRefinements())) throw InvalidReificationException("$this $that")
   }
 
   // TODO not being used... something is wrong

@@ -9,7 +9,7 @@ import dev.martianzoo.tfm.data.Player.Companion.PLAYER2
 import dev.martianzoo.tfm.engine.Engine
 import dev.martianzoo.tfm.repl.TestHelpers.counts
 import dev.martianzoo.tfm.repl.TestHelpers.playCard
-import dev.martianzoo.tfm.repl.TestHelpers.useAction1
+import dev.martianzoo.tfm.repl.TestHelpers.useCardAction1
 import org.junit.jupiter.api.Test
 
 class EntireGameTest {
@@ -214,7 +214,7 @@ class EntireGameTest {
         "SearchForLife",
         "PlayedEvent<Class<PharmacyUnion>> FROM PharmacyUnion THEN 3 TerraformRating")
 
-    p2.useAction1("SearchForLife", "-1 THEN Ok") // TODO simplify
+    p2.useCardAction1("SearchForLife", "-1 THEN Ok") // TODO simplify
 
     eng.execute("ProductionPhase")
     p1.doTask("BuyCard")
@@ -250,7 +250,7 @@ class EntireGameTest {
     p2.doTask("BuyCard")
     eng.execute("ActionPhase")
 
-    p1.useAction1("DevelopmentCenter")
+    p1.useCardAction1("DevelopmentCenter")
     p1.playCard(
         1,
         "ImmigrantCity",

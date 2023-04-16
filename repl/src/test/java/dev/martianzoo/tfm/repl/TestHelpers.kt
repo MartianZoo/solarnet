@@ -8,12 +8,15 @@ object TestHelpers {
     tasks.forEach(::doTask)
   }
 
-  fun InteractiveSession.useAction1(cardName: String, vararg tasks: String) =
+  fun InteractiveSession.useCardAction1(cardName: String, vararg tasks: String) =
       execute(
           "Turn",
           "UseAction1<UseActionFromCard>",
           "UseAction1<$cardName> THEN ActionUsedMarker<$cardName>",
           *tasks)
+
+  fun InteractiveSession.useSp(spName: String, vararg tasks: String) =
+      execute("Turn", "UseAction1<UseStandardProject>", "UseAction1<$spName>", *tasks)
 
   fun InteractiveSession.counts(s: String) = s.split(",").map(::count)
 }
