@@ -89,14 +89,15 @@ ABSTRACT CLASS Owned<Anyone> {
       ABSTRACT CLASS ActiveCard
       ABSTRACT CLASS AutomatedCard
       ABSTRACT CLASS EventCard {
-        This: PlayedEvent<Class<This>> FROM This
-      }                                           // ideally this wouldn't happen until EOT
+        This: PlayedEvent<Class<This>> FROM This  // ideally this wouldn't happen until EOT
+      }
 
       ABSTRACT CLASS ActionCard : HasActions
       ABSTRACT CLASS ResourceCard<Class<CardResource>>
     }
 
     CLASS PlayedEvent<Class<CardFront>> [EVT] {   // Can't be <EventCard>, all thanks to PharmU
+      // This FROM CardFront                      // would make PharmU simpler...
       // End: @getVpsFrom(Class<CardFront>, Owner)
     }
   }

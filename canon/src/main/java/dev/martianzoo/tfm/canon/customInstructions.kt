@@ -31,7 +31,6 @@ internal val allCustomInstructions =
         CreateAdjacencies,
         BeginPlayCard,
         GetVpsFrom,
-        CopyPrelude,
         GainLowestProduction,
         CopyProductionBox,
     )
@@ -70,7 +69,7 @@ private object CreateAdjacencies : CustomInstruction("createAdjacencies") {
     return Multi.create((nbrs + adjs).map { gain(scaledEx(1, it)) })
   }
   private fun tileOn(area: AreaDefinition, game: GameReader): Expression? {
-    val tileType: Type = game.resolve(cn("Tile").addArgs(area.className)) // TODO
+    val tileType: Type = game.resolve(cn("Tile").addArgs(area.className))
     val tiles = game.getComponents(tileType)
     // TODO prevent this in a general way
     if (tiles.size > 1) throw UserException("Two tiles on same area")
@@ -95,7 +94,7 @@ private object BeginPlayCard : CustomInstruction("beginPlayCard") {
     val cardName = cardType.expression.className
     val card: CardDefinition = game.setup.authority.card(cardName)
 
-    // TODO this is super bogus
+    // TODO this is super bogus - a card's tags could help meet its own requirement
     val reqt = card.requirement?.let { TransformNode.unwrap(it, RAW) }
 
     if (reqt?.let(game::evaluate) == false) throw UserException.requirementNotMet(reqt)
@@ -130,18 +129,6 @@ private object GetVpsFrom : CustomInstruction("getVpsFrom") {
             .filter { it.trigger == OnGainOf.create(cn("End").expression) }
                 .map { it.instruction })
         .raw()
-  }
-}
-
-// For Double Down
-private object CopyPrelude : CustomInstruction("copyPrelude") {
-  override fun execute(
-      game: GameReader,
-      writer: GameWriter,
-      arguments: List<Type>,
-      multiplier: Int,
-  ) {
-    TODO()
   }
 }
 

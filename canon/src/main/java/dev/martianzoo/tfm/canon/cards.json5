@@ -152,7 +152,7 @@
       "immediate": "54",
       "effects": [
         "OceanTile BY Anyone: PROD[1]",
-        "ForwardAdjacency<OceanTile, Tile> BY Owner: 1" // TODO
+        "ForwardAdjacency<OceanTile, Tile> BY Owner: 1"
       ]
     },
 
@@ -202,9 +202,9 @@
       "tags": [ "MicrobeTag", "MicrobeTag" ],
       "immediate": "ProjectCard",
       "effects": [
-        "This:: 54", // TODO hmmm
+        "This:: 54", // TODO verify - is this really the only corp that needs `::` ?
         "MicrobeTag<Anyone>: Disease<This> THEN -4.",
-        // ideally: `TR FROM Disease ELSE (PlayedEvent FROM This, 3 TR)?`
+        // ideally: `ScienceTag: TR FROM Disease ELSE (PlayedEvent<Class<This>> FROM This, 3 TR)?`
         "ScienceTag IF Disease: TerraformRating FROM Disease<This>",
         "ScienceTag IF MAX 0 Disease: (PlayedEvent<Class<This>> FROM This THEN 3 TerraformRating) OR Ok"
       ],
@@ -497,14 +497,6 @@
       "deck": "PRELUDE",
       "tags": [ "ScienceTag" ],
       "immediate": "13, 2 ProjectCard"
-    },
-
-    // Double Down
-    {
-      "id": "X40",
-      "bundle": "X",
-      "deck": "PRELUDE",
-      "immediate": "@copyPrelude(CardFront)",
     },
 
     // Merger[F]

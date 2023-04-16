@@ -6,7 +6,7 @@
 // This file has game stuff that isn't player-specific
 
 ABSTRACT CLASS Component {                             // Component is the single root of the
-  DEFAULT +Component!                                  // hierarchy ... TODO Default *Component ?
+  DEFAULT +Component!                                  // hierarchy
   DEFAULT -Component!
 }
 
@@ -42,9 +42,9 @@ ABSTRACT CLASS Atomized                                // magic
 
 // GLOBAL PARAMETERS ----------------------------------
 
-ABSTRACT CLASS GlobalParameter : Atomized {            // Instances must be added 1-by-1 (TODO)
+ABSTRACT CLASS GlobalParameter : Atomized {
   DEFAULT +GlobalParameter.                            // by default gains/removes are "if possible"
-  DEFAULT -GlobalParameter.                            // TODO - DEFAULT * ?
+  DEFAULT -GlobalParameter.
 
   This: TerraformRating                                // becomes `This BY Owner: TR<Owner>`
 
@@ -134,7 +134,7 @@ ABSTRACT CLASS Phase {
 
   CLASS PreludePhase {
     This:: -CorporationPhase.
-    Turn: PreludeCard, CardFront OR (-PreludeCard THEN 15)
+    Turn: PreludeCard, CardFront OR (-PreludeCard THEN 15) // TODO - ELSE
     ActionPhase:: -This! // TODO
   }
 
