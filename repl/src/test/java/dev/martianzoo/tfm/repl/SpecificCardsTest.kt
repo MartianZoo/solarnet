@@ -9,6 +9,7 @@ import dev.martianzoo.tfm.data.Player
 import dev.martianzoo.tfm.data.Player.Companion.PLAYER1
 import dev.martianzoo.tfm.engine.Engine
 import dev.martianzoo.tfm.engine.Exceptions.LimitsException
+import dev.martianzoo.tfm.repl.TestHelpers.assertCounts
 import dev.martianzoo.tfm.repl.TestHelpers.counts
 import dev.martianzoo.tfm.repl.TestHelpers.useCardAction1
 import dev.martianzoo.tfm.repl.TestHelpers.useSp
@@ -124,8 +125,7 @@ class SpecificCardsTest {
     val p1 = InteractiveSession(game, PLAYER1)
 
     p1.execute("Turn", "UnitedNationsMarsInitiative", "5 BuyCard")
-
-    assertThat(p1.counts("Megacredit, TR")).containsExactly(25, 20).inOrder()
+    p1.assertCounts(25 to "Megacredit", 20 to "TR")
 
     eng.execute("ActionPhase")
 
@@ -141,16 +141,15 @@ class SpecificCardsTest {
 
     // Do anything that raises TR
     p1.useSp("AsteroidSP")
-
-    assertThat(p1.counts("Megacredit, TR")).containsExactly(11, 21).inOrder()
+    p1.assertCounts(11 to "Megacredit", 21 to "TR")
 
     // Now we can use it
     p1.useCardAction1("UnitedNationsMarsInitiative")
-    assertThat(p1.counts("Megacredit, TR")).containsExactly(8, 22).inOrder()
+    p1.assertCounts(8 to "Megacredit", 22 to "TR")
 
     // Can't use it twice tho
     assertThrows<LimitsException> { p1.useCardAction1("UnitedNationsMarsInitiative") }
-    assertThat(p1.counts("Megacredit, TR")).containsExactly(8, 22).inOrder()
+    p1.assertCounts(8 to "Megacredit", 22 to "TR")
   }
 
   @Test
@@ -159,18 +158,17 @@ class SpecificCardsTest {
     val eng = InteractiveSession(game, Player.ENGINE)
     val p1 = InteractiveSession(game, PLAYER1)
 
-    assertThat(p1.counts("Megacredit, TR")).containsExactly(0, 20).inOrder()
+    p1.assertCounts(0 to "Megacredit", 20 to "TR")
 
     // Do anything that raises TR, even before UNMI is played
     p1.execute("TemperatureStep")
-    assertThat(p1.counts("Megacredit, TR")).containsExactly(0, 21).inOrder()
+    p1.assertCounts(0 to "Megacredit", 21 to "TR")
 
     p1.execute("Turn", "UnitedNationsMarsInitiative", "5 BuyCard")
-
-    assertThat(p1.counts("Megacredit, TR")).containsExactly(25, 21).inOrder()
+    p1.assertCounts(25 to "Megacredit", 21 to "TR")
 
     eng.execute("ActionPhase")
     p1.useCardAction1("UnitedNationsMarsInitiative")
-    assertThat(p1.counts("Megacredit, TR")).containsExactly(22, 22).inOrder()
+    p1.assertCounts(22 to "Megacredit", 22 to "TR")
   }
 }

@@ -55,8 +55,8 @@ ABSTRACT CLASS Owned<Anyone> {
 
 // RESOURCES -------------------------------------
 
-  ABSTRACT CLASS Resource[RES] {                  // TODO when -Resource<Owner> default -Resource!,
-    ABSTRACT CLASS StandardResource[SR] {         // but when -Resource<Anyone> default -Resource?
+  ABSTRACT CLASS Resource[RES] {
+    ABSTRACT CLASS StandardResource[SR] {
       CLASS Megacredit[M]
 
       ABSTRACT CLASS Metal {

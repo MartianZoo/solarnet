@@ -132,7 +132,7 @@ ABSTRACT CLASS Phase {
     ActionPhase:: -This!
   }
 
-  CLASS PreludePhase {
+  CLASS PreludePhase {                                 // TODO how to make it part of `P` bundle?
     This:: -CorporationPhase.
     Turn: PreludeCard, CardFront OR (-PreludeCard THEN 15) // TODO - ELSE
     ActionPhase:: -This! // TODO
