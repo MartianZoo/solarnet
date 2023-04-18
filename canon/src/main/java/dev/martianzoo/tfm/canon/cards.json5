@@ -202,7 +202,11 @@
       "tags": [ "MicrobeTag", "MicrobeTag" ],
       "immediate": "ProjectCard",
       "effects": [
-        "This:: 54", // TODO verify - is this really the only corp that needs `::` ?
+        // This is the only card I know of that has a double-colon effect. Without it, the engine
+        // automatically tried to take the 2 disease cubes first and lose no money, then pocketed
+        // the whole 54 money free and clear!
+        // Reference: https://boardgamegeek.com/thread/3067197/can-card-effects-really-be-done-any-order-weird-sc
+        "This:: 54",
         "MicrobeTag<Anyone>: Disease<This> THEN -4.",
         // ideally: `ScienceTag: TR FROM Disease ELSE (PlayedEvent<Class<This>> FROM This, 3 TR)?`
         "ScienceTag IF Disease: TerraformRating FROM Disease<This>",
