@@ -93,6 +93,7 @@ public class ReplSession(
     open fun withArgs(args: String): List<String> = throw UsageException()
   }
 
+  // TODO look into Picocli
   internal val commands =
       listOf(
               AsCommand(),
@@ -130,7 +131,7 @@ public class ReplSession(
         "exit" -> listOf("I mean it exits.")
         "rebuild" -> listOf("Exits, recompiles the code, and restarts. Your game is lost.")
         else -> {
-          val helpCommand = commands[args.trim()]
+          val helpCommand = commands[args.trim().lowercase()]
           if (helpCommand == null) {
             listOf("¯\\_(ツ)_/¯ Type `help` for help")
           } else {
@@ -579,7 +580,7 @@ public class ReplSession(
       listOf()
     } else {
       val (_, command, args) = groups
-      command(command, args.trim().ifEmpty { null })
+      command(command.lowercase(), args.trim().ifEmpty { null })
     }
   }
 

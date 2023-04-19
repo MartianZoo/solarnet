@@ -187,8 +187,12 @@ class RealGamesTest {
     val p1 = eng.asPlayer(PLAYER1)
     val p2 = eng.asPlayer(PLAYER2)
 
+    // Let's play our corporations
+
     p1.turn("InterplanetaryCinematics", "7 BuyCard")
     p2.turn("PharmacyUnion", "5 BuyCard")
+
+    // Let's play our preludes
 
     eng.execute("PreludePhase")
 
@@ -198,15 +202,16 @@ class RealGamesTest {
     p2.turn("BiosphereSupport")
     p2.turn("SocietySupport")
 
+    // Action!
+
     eng.execute("ActionPhase")
 
     p1.playCard(6, "MediaGroup")
     p1.playCard(1, "Sabotage", "-7 Megacredit<P2>")
 
     p2.playCard(11, "Research")
-    p2.playCard(9, "MartianSurvey", "Ok") // TODO huh?
+    p2.playCard(9, "MartianSurvey", "Ok") // TODO make "Ok" unnecessary
 
-    // TODO support TR abbreviation here
     p2.playCard(
         3,
         "SearchForLife",
@@ -214,14 +219,17 @@ class RealGamesTest {
 
     p2.useCardAction1("SearchForLife", "-1 THEN Ok") // TODO simplify
 
+    // Generation 2
+
     eng.execute("ProductionPhase")
     p1.doTask("BuyCard")
     p2.doTask("3 BuyCard")
     eng.execute("ActionPhase")
 
     p2.turn("UseAction1<SellPatents>", "Megacredit FROM ProjectCard")
+    p2.playCard(15, "VestaShipyard", "Ok")
 
-    p2.playCard(15, "VestaShipyard", "Ok") // ?
+    // P2 passes already, it's all P1 now...
 
     p1.playCard(23, "EarthCatapult")
     p1.turn(
@@ -241,6 +249,8 @@ class RealGamesTest {
     p1.playCard(10, "MirandaResort", "Ok")
     p1.playCard(1, "Hackers", "PROD[-2 M<P2>]")
     p1.playCard(1, "MicroMills")
+
+    // Generation 2
 
     eng.execute("ProductionPhase")
     p1.doTask("3 BuyCard")
@@ -301,6 +311,8 @@ class RealGamesTest {
 
       assertThat(counts("CityTile, GreeneryTile, SpecialTile")).containsExactly(0, 0, 0).inOrder()
     }
+
+    // To check VPs we have to fake the game ending
 
     val cp = game.checkpoint()
     eng.execute("End")
