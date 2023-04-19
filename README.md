@@ -40,6 +40,16 @@ Please notice **what is not on this list**!
 1. Performance -- basically, it will be slow as hell and *I don't care*. I'm preferring the simpler, more bug-proof code over fast code every time. If I or someone builds a faster engine in the future (you might call it Aerobrake!), we will have Solarnet to parity-test it against. Therefore the best way to get to a fast engine is to first be as careful as possible with the correctness of this one.
 2. Usability -- there is a command line "REPL" (read-evaluate-print loop) called REgo PLastics. Depending on your view it is either **not a user interface** or it is a **very, very bad user interface**. And I plan for it to always stay that way. You cannot actually play a whole game using it. But you'll be able to set up scenarios and find out what happens.
 
+## What could potentially get built around this?
+
+Who knows? But here are some thoughts I have.
+
+* The same Pets format used by the engine should be convertible to icon grammar or to natural language. The idea of single-sourcing the data for all 3 purposes was what initially drew me into all this. It would be cool if from looking at a card you know how it *had* to behave.
+* I think this library could be useful for training AI players against. It should help that the cards are introspectable -- the AI could play a card it's never seen before, and play it well, as long as it understands the different elements *on* the card.
+* Logfile analysis. The logs produced by this engine have the full details on everything, in a form that should be very amenable to analysis. For example, for any card you'd be able to find out how much that card "paid out" over the course of the game.
+* Parity testing against another engine.
+* will add more another day
+
 ## The Pets language
 
 There are several basic elements to the language.
