@@ -9,10 +9,12 @@ import dev.martianzoo.tfm.data.Player.Companion.PLAYER2
 import dev.martianzoo.tfm.engine.Engine
 import dev.martianzoo.tfm.repl.TestHelpers.counts
 import dev.martianzoo.tfm.repl.TestHelpers.playCard
+import dev.martianzoo.tfm.repl.TestHelpers.stdProject
+import dev.martianzoo.tfm.repl.TestHelpers.turn
 import dev.martianzoo.tfm.repl.TestHelpers.useCardAction1
 import org.junit.jupiter.api.Test
 
-class EntireGameTest {
+class RealGamesTest {
   @Test
   fun fourWholeGenerations() {
     val game = Engine.newGame(GameSetup(Canon, "BREPT", 2))
@@ -104,12 +106,9 @@ class EntireGameTest {
 
     with(p2) {
       execute("-4 Steel THEN -1 THEN SolarPower")
-      execute(
-          "UseAction1<UseStandardProject>",
-          "UseAction1<CitySP>",
-          "-25 THEN CityTile<E65> THEN PROD[1]")
+      stdProject("CitySP", "-25 THEN CityTile<E65> THEN PROD[1]")
 
-      execute("PROD[-Plant, Energy]") // CORRECTION TODO WHY
+      execute("PROD[-Plant, Energy]") // CORRECTION TODO WHY WHY
     }
 
     engine.execute("ProductionPhase")
@@ -168,13 +167,12 @@ class EntireGameTest {
     val p1 = eng.asPlayer(PLAYER1)
     val p2 = eng.asPlayer(PLAYER2)
 
-    p1.execute("Turn", "InterplanetaryCinematics", "7 BuyCard")
-    p2.execute("Turn", "PharmacyUnion", "5 BuyCard")
+    p1.turn("InterplanetaryCinematics", "7 BuyCard")
+    p2.turn("PharmacyUnion", "5 BuyCard")
 
     eng.execute("ActionPhase")
 
-    p1.execute(
-        "Turn",
+    p1.turn(
         "UseAction1<PlayCardFromHand>",
         "PlayCard<Class<MediaGroup>>",
         "6 Pay<Class<M>> FROM M")
@@ -189,16 +187,16 @@ class EntireGameTest {
     val p1 = eng.asPlayer(PLAYER1)
     val p2 = eng.asPlayer(PLAYER2)
 
-    p1.execute("Turn", "InterplanetaryCinematics", "7 BuyCard")
-    p2.execute("Turn", "PharmacyUnion", "5 BuyCard")
+    p1.turn("InterplanetaryCinematics", "7 BuyCard")
+    p2.turn("PharmacyUnion", "5 BuyCard")
 
     eng.execute("PreludePhase")
 
-    p1.execute("Turn", "UnmiContractor")
-    p1.execute("Turn", "CorporateArchives")
+    p1.turn("UnmiContractor")
+    p1.turn("CorporateArchives")
 
-    p2.execute("Turn", "BiosphereSupport")
-    p2.execute("Turn", "SocietySupport")
+    p2.turn("BiosphereSupport")
+    p2.turn("SocietySupport")
 
     eng.execute("ActionPhase")
 
@@ -221,13 +219,12 @@ class EntireGameTest {
     p2.doTask("3 BuyCard")
     eng.execute("ActionPhase")
 
-    p2.execute("Turn", "UseAction1<SellPatents>", "Megacredit FROM ProjectCard")
+    p2.turn("UseAction1<SellPatents>", "Megacredit FROM ProjectCard")
 
     p2.playCard(15, "VestaShipyard", "Ok") // ?
 
     p1.playCard(23, "EarthCatapult")
-    p1.execute(
-        "Turn",
+    p1.turn(
         "UseAction1<PlayCardFromHand>",
         "PlayCard<Class<OlympusConference>>",
         "Ok",

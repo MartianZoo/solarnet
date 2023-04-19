@@ -11,8 +11,9 @@ import dev.martianzoo.tfm.engine.Engine
 import dev.martianzoo.tfm.engine.Exceptions.LimitsException
 import dev.martianzoo.tfm.repl.TestHelpers.assertCounts
 import dev.martianzoo.tfm.repl.TestHelpers.counts
+import dev.martianzoo.tfm.repl.TestHelpers.stdProject
+import dev.martianzoo.tfm.repl.TestHelpers.turn
 import dev.martianzoo.tfm.repl.TestHelpers.useCardAction1
-import dev.martianzoo.tfm.repl.TestHelpers.useSp
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 
@@ -124,7 +125,7 @@ class SpecificCardsTest {
     val eng = InteractiveSession(game, Player.ENGINE)
     val p1 = InteractiveSession(game, PLAYER1)
 
-    p1.execute("Turn", "UnitedNationsMarsInitiative", "5 BuyCard")
+    p1.turn("UnitedNationsMarsInitiative", "5 BuyCard")
     p1.assertCounts(25 to "Megacredit", 20 to "TR")
 
     eng.execute("ActionPhase")
@@ -140,7 +141,7 @@ class SpecificCardsTest {
     }
 
     // Do anything that raises TR
-    p1.useSp("AsteroidSP")
+    p1.stdProject("AsteroidSP")
     p1.assertCounts(11 to "Megacredit", 21 to "TR")
 
     // Now we can use it
@@ -164,7 +165,7 @@ class SpecificCardsTest {
     p1.execute("TemperatureStep")
     p1.assertCounts(0 to "Megacredit", 21 to "TR")
 
-    p1.execute("Turn", "UnitedNationsMarsInitiative", "5 BuyCard")
+    p1.turn("UnitedNationsMarsInitiative", "5 BuyCard")
     p1.assertCounts(25 to "Megacredit", 21 to "TR")
 
     eng.execute("ActionPhase")
