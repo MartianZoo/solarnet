@@ -6,6 +6,10 @@ It's not a way to *play* the game. For that, see the [online open-source app](ht
 
 This is a clean room project unrelated to those apps or to any other existing codebase.
 
+## Intro video
+
+This is my [first unrehearsed intro/demo](https://www.youtube.com/watch?v=btCLcFLvV2I). It'll get better.
+
 ## Disclaimers
 
 This project is in an early-middle state of its development. It's buggy. It's not enforcing tile placement rules. Error messages are criminally unhelpful. The syntax and command-line UI are hard to figure out on your own. Much is not written yet. And the code has many stellar examples of how not to write code.
@@ -54,6 +58,7 @@ There are several basic elements to the language.
 
 I have started jotting some stuff down, but the written docs leave much to be desired.
 
+* [FAQ](faq.md)
 * Overview of [component types](docs/component-types.md)
 * Pets language [syntax reference](docs/syntax.md)
 * The Pets [type system](docs/type-system.md)
