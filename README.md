@@ -2,22 +2,13 @@
 
 Solarnet is a (work-in-progress) open-source game engine for the superlative 2016 board game *[Terraforming Mars](https://www.amazon.com/Indie-Boards-Cards-Terraforming-Board/dp/B01GSYA4K2)*, published by [FryxGames](http://fryxgames.se).
 
-It is not a way to *play* the game. (Good lord, a person would go mad.) For that, see the [online open-source app](http://terraforming-mars.herokuapp.com) -- and please make sure to [buy a physical copy](https://www.amazon.com/Indie-Boards-Cards-Terraforming-Board/dp/B01GSYA4K2) of the game too! There is also an official app for sale in the usual places but I can't vouch for it.
+It's not a way to *play* the game. For that, see the [online open-source app](http://terraforming-mars.herokuapp.com) -- and please make sure to [buy a physical copy](https://www.amazon.com/Indie-Boards-Cards-Terraforming-Board/dp/B01GSYA4K2) of the game too! There is also an official app for sale in the usual places but I can't vouch for it.
 
 This is a clean room project unrelated to those apps or to any other existing codebase.
 
-## Disclaimer
+## Disclaimers
 
-This project is very much not ready for prime-time. If you're intrepid, you can certainly play around with it -- it does a fair amount of stuff already. But it is **not ready for prime-time** at all. It's so not ready for prime-time that I didn't even realize I said that twice.
-
-Warnings:
-
-* It's buggy
-* A few basic things like placing a city tile don't work yet
-* Error messages are criminally unhelpful
-* The command-line UI is hard to figure out
-* Very little of what you'd need to know is written down
-* The code has many stellar examples of how not to write code
+This project is in an early-middle state of its development. It's buggy. It's not enforcing tile placement rules. Error messages are criminally unhelpful. The syntax and command-line UI are hard to figure out on your own. Much is not written yet. And the code has many stellar examples of how not to write code.
 
 ## Why another game engine?
 
@@ -57,6 +48,7 @@ There are several basic elements to the language.
 * Complex component type expressions (`CityTile<LandArea(HAS 2 Neighbor<CityTile<Anyone>>)>` means "a city tile on an area with at least 2 neighboring city tiles", no matter which of the above constructs it's used in)
 * Production boxes (`PROD[2 Plant], Plant` means "increase plant production 2 steps and gain a plant")
 * Change records (`13: OceanTile<Tharsis5_5> FOR Player3 BY AquiferSP; 14: 2 Plant<Player3> FOR Player3 BY ArcticAlgae<Player3> BECAUSE 13`)
+* Class declarations (`CLASS TerraformRating { ProductionPhase: 1; End: VictoryPoint }`)
 
 ## Learning more
 
@@ -77,13 +69,15 @@ cd solarnet
 ./rego
 ```
 
+Of course, it won't work, because nothing ever works. I'd be willing to help but I actually know very little about Build Stuff.
+
 You can also look for the `*.pets` and `*.json5` files to see how game components get defined in the Pets language. You can change it around or attempt to add your own custom cards. **See the warnings at top!**
 
 ## Want to poke around in the implementation code?
 
 The code isn't too pretty right now and I'm making big ugly changes to it.
 
-It'd be better to start with the generated API doc view just because it hides the private things. It's not hosted yet, but you can `./gradlew dokkaHtmlMultiModule` and then look at `docs/api/index.html`.
+It's best to start with the generated API doc view because it hides private things. It's not hosted yet, but you can `./gradlew dokkaHtmlMultiModule` and then look at `docs/api/index.html`.
 
 It's all written in [Kotlin](https://kotlinlang.org). It's my first time using it and I'm extremely happy with that decision.
 
@@ -91,4 +85,4 @@ It's all written in [Kotlin](https://kotlinlang.org). It's my first time using i
 
 http://kevinb9n.github.io
 
-I'd love to hear any thoughts on this project at kevinb9n@gmail.com.]
+I'd love to hear any thoughts or questions you have on this project at kevinb9n@gmail.com.
