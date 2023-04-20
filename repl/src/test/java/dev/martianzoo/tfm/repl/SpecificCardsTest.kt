@@ -103,6 +103,8 @@ class SpecificCardsTest {
     fun assertTaskFails(task: String, desc: String) =
         assertThrows<Exception>(desc) { p1.doTask("A", task) }
 
+    // Make sure these task attempts *don't* work
+
     assertTaskFails("-Microbe<C251> THEN 4", "greed")
     assertTaskFails("-Microbe<C251> THEN 2", "shortchanged")
     assertTaskFails("-Microbe<C251>", "no get paid")
@@ -131,6 +133,7 @@ class SpecificCardsTest {
     eng.execute("ActionPhase")
 
     // Can't use UNMI action yet
+    // Needs to fail, not no-op, per https://boardgamegeek.com/thread/2525032
     assertThrows<RequirementException> {
       game.asPlayer(PLAYER1).doAtomic { // TODO weird?
         p1.useCardAction1(
@@ -140,11 +143,11 @@ class SpecificCardsTest {
       }
     }
 
-    // Do anything that raises TR
+    // Do something that raises TR
     p1.stdProject("AsteroidSP")
     p1.assertCounts(11 to "Megacredit", 21 to "TR")
 
-    // Now we can use it
+    // Now we can use UNMI
     p1.useCardAction1("UnitedNationsMarsInitiative")
     p1.assertCounts(8 to "Megacredit", 22 to "TR")
 
