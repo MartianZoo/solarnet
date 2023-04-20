@@ -39,8 +39,8 @@
               "",   "",   "",   "",  "LSS","LSS", "L",  "L", "WTT"               // row 9
         ]
       ]
-    },
-
+    },  // Why all those extra "",s? This approach lets us support *any* map shape, by having you
+        // overlay it on a parallelogram-shaped grid. Of course "" cells are treated as not there.
     {
       "name": "Hellas",
       "bundle": "H",
