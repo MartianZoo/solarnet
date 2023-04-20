@@ -35,16 +35,15 @@ import org.jline.reader.History
 internal fun main() {
   val jline = JlineRepl()
   val repl = ReplSession(Canon, Canon.SIMPLE_GAME, jline)
-  val session = repl.session
 
   fun prompt(): String {
-    val bundles: String = session.game.setup.bundles.joinToString("")
+    val bundles: String = repl.session.game.setup.bundles.joinToString("")
 
-    val phases = session.list(cn("Phase").expression) // should only be one
+    val phases = repl.session.list(cn("Phase").expression) // should only be one
     val phase: String = phases.singleOrNull()?.toString() ?: "NoPhase"
 
     val player: Player = repl.session.agent.player
-    val count: Int = session.game.setup.players
+    val count: Int = repl.session.game.setup.players
     val logPosition: Int = repl.session.game.eventLog.size
     return repl.mode.color.foreground("$bundles $phase $player/$count @$logPosition> ")
   }
@@ -54,7 +53,7 @@ internal fun main() {
       """
         Welcome to REgo PLastics. Type `help` for help.
         Warning: this is a bare-bones tool that is not trying to be easy to use... at all
-        Everything is case-sensitive. Sorry
+        Most things are case-sensitive. Sorry
 
       """
           .trimIndent()
@@ -170,11 +169,10 @@ public class ReplSession(
     override val help =
         """
           Erases your current game and starts a new one. You can't undo that (but you can get your
-          command history out of ~/.rego_session and reply it.) For <bundles>, jam some letters
-          together: B=Base, R=coRpoRate eRa, M=Tharsis, H=Hellas, E=Elysium, V=VenusNext, P=Prelude,
-          C=Colonies, T=Turmoil, X=Promos. The earlier ones just listed are mostly all there, but
-          almost none of the latter. The player count can be from 1 to 5, but if you choose 1, you
-          are NOT getting any solo game behavior at all.
+          command history out of ~/.rego_session and replay it.) For <bundles>, jam some letters
+          together: B=Base, R=coRpoRate eRa, M=Tharsis, H=Hellas, X=Promos, and the rest are what
+          you'd think. The player count can be from 1 to 5, but if you choose 1, you are NOT getting
+          any of the actual solo rules!
         """
 
     override fun withArgs(args: String): List<String> {
