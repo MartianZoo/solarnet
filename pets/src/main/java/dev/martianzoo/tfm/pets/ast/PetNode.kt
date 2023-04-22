@@ -48,7 +48,6 @@ public sealed class PetNode {
   }
 
   public operator fun contains(node: PetNode): Boolean {
-    // TODO why can't I return from inside the lambda?
     var found = false
     visitDescendants {
       if (it == node) found = true

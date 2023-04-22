@@ -194,9 +194,8 @@ internal constructor(
    * as far as we are able to. These effects will belong to every [MType] built from this class,
    * where they will be processed further.
    */
-  public val classEffects: List<EffectDeclaration> by lazy {
-    // TODO might not be the right way to do this (also why toList?)
-    allSuperclasses.flatMap { it.directClassEffects() }.toSetStrict().toList()
+  public val classEffects: Set<EffectDeclaration> by lazy {
+    allSuperclasses.flatMap { it.directClassEffects() }.toSetStrict()
   }
 
   private fun directClassEffects(): List<EffectDeclaration> {

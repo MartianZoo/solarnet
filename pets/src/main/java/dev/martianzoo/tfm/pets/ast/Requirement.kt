@@ -123,6 +123,16 @@ sealed class Requirement : PetElement() {
           listOf(requirement)
         }
 
+
+    fun join(one: Requirement?, two: Requirement?): Requirement? {
+      val x = setOfNotNull(one, two)
+      return when (x.size) {
+        0 -> null
+        1 -> x.first()
+        else -> And(x.toList())
+      }
+    }
+
     internal fun parser(): Parser<Requirement> {
       return parser {
         val orReq =

@@ -35,7 +35,7 @@ internal val allCustomInstructions =
         CopyProductionBox,
     )
 
-private object ForceLoad : CustomInstruction("forceLoad") { // TODO include @ ?
+private object ForceLoad : CustomInstruction("forceLoad") {
   override fun execute(
       game: GameReader,
       writer: GameWriter,
@@ -95,7 +95,6 @@ private object BeginPlayCard : CustomInstruction("beginPlayCard") {
     val cardName = cardType.expression.className
     val card: CardDefinition = game.setup.authority.card(cardName)
 
-    // TODO this is super bogus - a card's tags could help meet its own requirement
     val reqt = card.requirement?.let { TransformNode.unwrap(it, RAW) }
 
     if (reqt?.let(game::evaluate) == false) throw UserException.requirementNotMet(reqt)

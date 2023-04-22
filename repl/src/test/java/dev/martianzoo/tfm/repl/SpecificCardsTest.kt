@@ -132,18 +132,14 @@ class SpecificCardsTest {
 
     eng.execute("ActionPhase")
 
-    // Can't use UNMI action yet
-    // Needs to fail, not no-op, per https://boardgamegeek.com/thread/2525032
-    assertThrows<RequirementException> {
-      game.asPlayer(PLAYER1).doAtomic { // TODO weird?
-        p1.useCardAction1(
-            "UnitedNationsMarsInitiative",
-            // TODO detect when there's 1 action left and it's impossible
-            "-3 THEN HasRaisedTr: TerraformRating!")
-      }
-    }
+    val cp = game.checkpoint()
+    p1.useCardAction1("UnitedNationsMarsInitiative")
 
-    // Do something that raises TR
+    // Can't use UNMI action yet - fail, don't no-op, per https://boardgamegeek.com/thread/2525032
+    assertThrows<RequirementException> { p1.doTask("-3 THEN HasRaisedTr: TerraformRating!") }
+    game.rollBack(cp)
+
+    // Do anything that raises TR
     p1.stdProject("AsteroidSP")
     p1.assertCounts(11 to "Megacredit", 21 to "TR")
 

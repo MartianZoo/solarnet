@@ -59,7 +59,6 @@ public class InteractiveSession(
     val typeToList: MType = game.resolve(prep(expression))
     val allComponents: Multiset<Component> = agent.getComponents(prep(expression))
 
-    // TODO decide how to break it down more intelligently
     val result = HashMultiset<Expression>()
     typeToList.root.directSubclasses.forEach { sub ->
       val matches = allComponents.filter { it.mtype.isSubtypeOf(sub.baseType) }
@@ -98,7 +97,7 @@ public class InteractiveSession(
   fun execute(instruction: Instruction, autoExec: Boolean = defaultAutoExec): Result {
     val instrs = split(prep(instruction))
     return agent.doAtomic {
-      for (instr in instrs) { // TODO what was this TODO for?
+      for (instr in instrs) {
         val tasks = ArrayDeque<TaskId>()
         val firstResult = agent.initiate(instr)
         if (autoExec) {
@@ -143,7 +142,7 @@ public class InteractiveSession(
     while (taskIdsToAutoExec.any()) {
       val thisTaskId: TaskId = taskIdsToAutoExec.removeFirst()
       val results: Result = agent.doTask(thisTaskId)
-      taskIdsToAutoExec += results.newTaskIdsAdded - thisTaskId // TODO better
+      taskIdsToAutoExec += results.newTaskIdsAdded - thisTaskId
     }
 
     return game.eventLog.activitySince(checkpoint)

@@ -24,7 +24,6 @@ public object Engine {
 
     loader.loadAll(toLoad.classNames())
 
-    // TODO how to do this properly?
     if ("P" in setup.bundles) loader.load(cn("PreludePhase"))
 
     loader.frozen = true

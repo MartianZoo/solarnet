@@ -8,7 +8,6 @@ import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.pets.ast.HasClassName
 import dev.martianzoo.tfm.pets.ast.Requirement
-import dev.martianzoo.tfm.pets.ast.Requirement.And
 import dev.martianzoo.tfm.pets.ast.Requirement.Counting
 import dev.martianzoo.util.Hierarchical
 import dev.martianzoo.util.Reifiable
@@ -52,7 +51,7 @@ internal constructor(
   override fun glb(that: MType): MType? {
     val glbClass = (root glb that.root) ?: return null
     val glbDeps = (dependencies glb that.dependencies) ?: return null
-    val glbRefin = conjoin(this.refinement, that.refinement)
+    val glbRefin = Requirement.join(this.refinement, that.refinement)
     return glbClass.withAllDependencies(glbDeps).refine(glbRefin)
   }
 
@@ -83,17 +82,8 @@ internal constructor(
     }
   }
 
-  // TODO move this function to Requirement, kinda like we did for Instruction.Multi
-  private fun conjoin(one: Requirement?, two: Requirement?): Requirement? {
-    val x = setOfNotNull(one, two)
-    return when (x.size) {
-      0 -> null
-      1 -> x.first()
-      else -> And(x.toList())
-    }
-  }
-
-  public fun refine(newRef: Requirement?): MType = copy(refinement = conjoin(refinement, newRef))
+  public fun refine(newRef: Requirement?): MType =
+      copy(refinement = Requirement.join(refinement, newRef))
 
   override val expression: Expression by lazy {
     toExpressionUsingSpecs(narrowedDependencies.expressions)

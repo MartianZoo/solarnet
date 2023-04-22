@@ -186,7 +186,6 @@ public data class Effect(
           }
     }
 
-    // TODO change to a Comparator<Trigger>
     private val effectComparator: Comparator<Effect> =
         compareBy(
             {

@@ -6,7 +6,7 @@ in `cards.json5`.
 ## Type expressions
 
 ```
-typeExpression  := genericTypeExpr | classLiteral 
+typeExpression  := genericTypeExpr | classLiteral
 genericTypeExpr := className [specializations] [refinement]
 specializations := '<' typeExpression (',' typeExpression)* '>'
 refinement      := '(HAS' requirement ')'

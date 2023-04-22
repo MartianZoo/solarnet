@@ -42,7 +42,6 @@ public object Parsing {
    * the parsed [P]. [P] can only be one of the major element types like [Effect], [Action],
    * [Instruction], [Expression], etc.
    */
-  // TODO this is used almost entirely from tests... ?
   public inline fun <reified P : PetNode> parseAsIs(elementSource: String): P =
       parseAsIs(P::class, elementSource)
 

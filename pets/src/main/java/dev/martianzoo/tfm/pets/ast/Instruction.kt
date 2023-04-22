@@ -367,8 +367,9 @@ public sealed class Instruction : PetElement() {
 
   data class Multi(override val instructions: List<Instruction>) :
       CompositeInstruction(instructions) {
-    // TODO make sure no more than 1 instruction can contain any XScalars
-    // because Multi's are splittable
+    init {
+      require(instructions.count { it.descendantsOfType<XScalar>().any() } <= 1)
+    }
 
     override fun copy(instructions: Iterable<Instruction>) =
         copy(instructions = instructions.toList())

@@ -62,7 +62,7 @@ public class PlayerAgent internal constructor(private val game: Game, public val
   ): ChangeEvent? {
     when (gaining) {
       OK.expression -> {
-        require(removing == null) // TODO UserException
+        if (removing != null) throw UserException("Can't remove Ok, ok?")
         return null
       }
 

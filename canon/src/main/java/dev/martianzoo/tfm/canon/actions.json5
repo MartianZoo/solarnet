@@ -50,6 +50,6 @@
     { "id": "SP23", "bundle": "B", "action": "23 -> GreeneryTile" },
 
     // City
-    { "id": "SP25", "bundle": "B", "action": "25 -> CityTile THEN PROD[1]" }, // TODO ,
+    { "id": "SP25", "bundle": "B", "action": "25 -> CityTile THEN PROD[1]" },
   ],
 }

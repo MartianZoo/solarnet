@@ -1,6 +1,5 @@
 package dev.martianzoo.tfm.repl
 
-import dev.martianzoo.tfm.api.Authority
 import dev.martianzoo.tfm.api.GameSetup
 import dev.martianzoo.tfm.api.SpecialClassNames.COMPONENT
 import dev.martianzoo.tfm.api.UserException
@@ -34,7 +33,7 @@ import org.jline.reader.History
 
 internal fun main() {
   val jline = JlineRepl()
-  val repl = ReplSession(Canon, Canon.SIMPLE_GAME, jline)
+  val repl = ReplSession(Canon.SIMPLE_GAME, jline)
 
   fun prompt(): String {
     val bundles: String = repl.session.game.setup.bundles.joinToString("")
@@ -63,14 +62,12 @@ internal fun main() {
 }
 
 /** A programmatic entry point to a REPL session that is more textual than [ReplSession]. */
-public class ReplSession(
-    private val authority: Authority, // TODO redundant
-    initialSetup: GameSetup,
-    private val jline: JlineRepl? = null
-) {
+public class ReplSession(initialSetup: GameSetup, private val jline: JlineRepl? = null) {
   public var session = InteractiveSession(Engine.newGame(initialSetup))
     internal set
+
   internal var mode: ReplMode = GREEN
+  internal val authority by initialSetup::authority
 
   public enum class ReplMode(val message: String, val color: TfmColor) {
     RED("Arbitrary state changes with few restrictions", TfmColor.HEAT),
@@ -92,7 +89,6 @@ public class ReplSession(
     open fun withArgs(args: String): List<String> = throw UsageException()
   }
 
-  // TODO look into Picocli
   internal val commands =
       listOf(
               AsCommand(),
@@ -146,7 +142,7 @@ public class ReplSession(
     override val help =
         """
           For any command you could type normally, put `as Player2` etc. or `as Engine` before it.
-          It's handled as if you had first `become` that player, then restored.  
+          It's handled as if you had first `become` that player, then restored.
         """
 
     override fun noArgs() = throw UsageException()
@@ -196,7 +192,7 @@ public class ReplSession(
     override val help =
         """
           Type `become Player2` or whatever and your prompt will change accordingly; everything you
-          do now will be done as if it's player 2 doing it. You can also `become Engine` to do 
+          do now will be done as if it's player 2 doing it. You can also `become Engine` to do
           engine things.
         """
 
@@ -313,7 +309,7 @@ public class ReplSession(
           Turns auto-execute mode on or off, or just `auto` tells you what mode you're in. When you
           initiate an instruction with `exec` or `task`, per the game rules you always get to decide
           what order to do all the resulting tasks in. But that's a pain, so when `auto` is `on` (as
-          it is by default) the REPL tries to execute each task (in the order they appear on the 
+          it is by default) the REPL tries to execute each task (in the order they appear on the
           cards), and leaves it on the queue only if it can't run correctly. This setting is sticky
           until you `exit` or `rebuild`, even across games.
         """
@@ -400,7 +396,7 @@ public class ReplSession(
         """
           To carry out a task exactly as it is, just type `task A` where `A` is the id of that task
           in your `tasks` list. But usually a task gets put on that list because its instruction
-          was not fully specified. So, after `task A` you can write a revised version of that 
+          was not fully specified. So, after `task A` you can write a revised version of that
           instruction, as long as your revision is a more specific form of the instruction. For
           example, if the queued task is `-3 StandardResource<Anyone>?` you can revise it to
           `-2 Plant<Player1>`.
@@ -490,11 +486,11 @@ public class ReplSession(
     override val usage = "rollback <logid>"
     override val help =
         """
-          Undoes the event with the id given and every event after it. If you undo too far, 
+          Undoes the event with the id given and every event after it. If you undo too far,
           you can't go forward again (you can only try to reconstruct the game from your
           ~/.rego_history). If you want to undo your command `exec 5 Plant`, look for the number in
           the command prompt on that line; that's the number to use here. Or check `log`. Be careful
-          though, as you it will let you undo to a position when the engine was in the middle of 
+          though, as you it will let you undo to a position when the engine was in the middle of
           doing stuff, which would put you in an invalid game state.
         """
 
@@ -600,7 +596,7 @@ private val helpText: String =
     """
       Commands can be separated with semicolons, or saved in a file and run with `script`.
       Type `help <command name>` to learn more.,
-  
+
       CONTROL
         help                -> shows this message
         newgame BHV 3       -> erases current game and starts 3p game with Base/Hellas/Venus
