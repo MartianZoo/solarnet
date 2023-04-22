@@ -1,6 +1,5 @@
 package dev.martianzoo.tfm.types
 
-import com.google.common.collect.Lists.cartesianProduct
 import dev.martianzoo.tfm.api.SpecialClassNames.CLASS
 import dev.martianzoo.tfm.api.Type
 import dev.martianzoo.tfm.api.UserException
@@ -13,6 +12,7 @@ import dev.martianzoo.tfm.pets.ast.Requirement.And
 import dev.martianzoo.tfm.pets.ast.Requirement.Counting
 import dev.martianzoo.util.Hierarchical
 import dev.martianzoo.util.Reifiable
+import dev.martianzoo.util.cartesianProduct
 import kotlin.Int.Companion.MAX_VALUE
 import kotlin.math.max
 import kotlin.math.min
@@ -143,8 +143,8 @@ internal constructor(
       isClassType -> concreteSubclasses(dependencies.getClassForClassType()).map { it.classType }
       else -> {
         val axes = dependencies.typeDependencies.map { it.allConcreteSpecializations().toList() }
-        val product: List<List<Dependency>> = cartesianProduct(axes)
-        product.asSequence().map { root.withAllDependencies(DependencySet.of(it)) }
+        val product = axes.cartesianProduct()
+        product.map { root.withAllDependencies(DependencySet.of(it)) }
       }
     }
   }

@@ -90,3 +90,17 @@ fun <T : Comparable<T>> Iterable<T>.extras() =
 
 fun <T : Comparable<T>> Sequence<T>.extras() =
     sorted().windowed(2).mapNotNull { it.distinct().singleOrNull() }
+
+fun <T> List<List<T>>.cartesianProduct(): Sequence<List<T>> {
+  if (isEmpty()) return listOf(listOf<T>()).asSequence()
+
+  return sequence {
+    val firstList = first()
+    for (t in firstList) {
+      val prefix = listOf(t)
+      for (suffix in drop(1).cartesianProduct()) {
+        yield(prefix + suffix)
+      }
+    }
+  }
+}
