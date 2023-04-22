@@ -228,7 +228,6 @@ public class MClassLoader( // TODO separate into loader and table
             usedDeps += candidateDep
             return@map TypeDependency(candidateDep.key, intersectionType)
           }
-          // TODO
           throw UserException.badExpression(arg, deps.toString())
         }
     return DependencySet.of(list)

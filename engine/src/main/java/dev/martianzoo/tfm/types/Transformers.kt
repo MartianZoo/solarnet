@@ -117,7 +117,7 @@ public class Transformers(val loader: MClassLoader) {
         ourMulti = Multi((1..sc.value).map { one })
 
         @Suppress("UNCHECKED_CAST")
-        return ourMulti as P // TODO Uh oh
+        return ourMulti as P // TODO This is not actually correct/safe...
       }
     }
   }
@@ -153,7 +153,7 @@ public class Transformers(val loader: MClassLoader) {
                   gain(scaledEx, node.intensity ?: defaults.gainIntensity)
                 }
               }
-              is Remove -> { // TODO duplication
+              is Remove -> { // TODO remove duplication with Gain above
                 val original: Expression = node.removing
                 if (leaveItAlone(original)) {
                   return node // don't descend

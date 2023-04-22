@@ -19,8 +19,6 @@ object EnglishHack {
   private fun classNameMap(vararg pairs: Pair<String, String>) =
       pairs.toList().associateStrict { (a, b) -> a to cn(b) }
 
-  // TODO split by type
-
   @Suppress("SpellCheckingInspection")
   val ENGLISH_HACK: Map<String, ClassName> =
       classNameMap(
@@ -490,7 +488,7 @@ object EnglishHack {
           "X28" to "Potatoes",
           "X29" to "SubCrustMeasurements",
           "X30" to "TopsoilContract",
-          "X31" to "DeimosDownPromo", // TODO
+          "X31" to "DeimosDownPromo", // TODO can/should this be just DeimosDown like the other?
           "X32" to "GreatDamPromo",
           "X33" to "MagneticFieldGeneratorsPromo",
           "X34" to "AsteroidRights",

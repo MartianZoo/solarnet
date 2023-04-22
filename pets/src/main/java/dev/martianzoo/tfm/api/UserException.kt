@@ -74,7 +74,6 @@ public open class UserException(override val message: String) : RuntimeException
   /** Something needed a requirement to be met and it was not. */
   public class RequirementException internal constructor(message: String) : UserException(message)
 
-  // TODO: internal constructor
   /** Something tried to pretend it reified something else and we're not having it. */
   public class InvalidReificationException(message: String) : UserException(message)
 }

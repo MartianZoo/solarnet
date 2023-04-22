@@ -65,8 +65,6 @@ private class GameApiTest {
         .inOrder()
   }
 
-  // TODO duplication
-
   fun strip(strings: Iterable<String>): List<String> {
     return strings.map { endRegex.replace(startRegex.replace(it, ""), "") }
   }

@@ -54,7 +54,6 @@ internal constructor(
 ) : HasClassName, Hierarchical<MClass> {
 
   /** The name of this class, in UpperCamelCase. */
-  // TODO check in decl itself?
   public override val className: ClassName = declaration.className.also { require(it != THIS) }
 
   /**
@@ -84,7 +83,7 @@ internal constructor(
     val commonSupers: Set<MClass> = this.allSuperclasses.intersect(that.allSuperclasses)
     val supersOfSupers: Set<MClass> = commonSupers.flatMap { it.properSuperclasses }.toSet()
     val candidates: Set<MClass> = commonSupers - supersOfSupers
-    // TODO Just using a dumb ass heuristic for now
+    // This is a weird and stupid heuristic, but does it really matter which one we pick?
     return candidates.maxBy {
       it.dependencies.typeDependencies.size * 100 + it.allSuperclasses.size
     }
@@ -99,7 +98,7 @@ internal constructor(
   public val directSupertypes: Set<MType> by lazy {
     when {
       className == COMPONENT -> setOf()
-      declaration.supertypes.none() -> setOf(loader.componentClass.baseType) // TODO hmm
+      declaration.supertypes.none() -> setOf(loader.componentClass.baseType)
       else ->
           declaration.supertypes.toSetStrict {
             val dethissed = replaceThisWith(className.expression).transform(it)
@@ -196,7 +195,7 @@ internal constructor(
    * where they will be processed further.
    */
   public val classEffects: List<EffectDeclaration> by lazy {
-    // TODO might not be the right way to do this
+    // TODO might not be the right way to do this (also why toList?)
     allSuperclasses.flatMap { it.directClassEffects() }.toSetStrict().toList()
   }
 
@@ -245,7 +244,7 @@ internal constructor(
    * expressions, which are to be substituted with the concrete type.
    */
   public val typeInvariants: Set<Requirement> by lazy {
-    allSuperclasses.flatMap { it.specificInvars }.toSet() // TODO
+    allSuperclasses.flatMap { it.specificInvars }.toSet()
   }
 
   public val componentCountRange: IntRange by lazy {

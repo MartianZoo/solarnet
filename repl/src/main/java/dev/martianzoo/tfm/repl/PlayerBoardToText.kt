@@ -52,10 +52,9 @@ internal class PlayerBoardToText(
     val energ = maybeColor(ENERGY, "E: $eres")
     val heeat = maybeColor(HEAT, "H: $hres")
 
-    // TODO this Raw business is a mess
     val r = session.count("TerraformRating")
     val tiles = session.count("OwnedTile")
-    val player: String = "${session.player}"
+    val player = "${session.player}"
 
     return """
           $player   TR: $r   Tiles: $tiles

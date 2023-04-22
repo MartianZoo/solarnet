@@ -45,8 +45,6 @@ fun <T> random(iter: Collection<T>, count: Int): Set<T> {
   return results
 }
 
-// TODO fix overload hell
-
 fun <T> Iterable<T>.joinOrEmpty(
     separator: CharSequence = ", ",
     prefix: CharSequence,

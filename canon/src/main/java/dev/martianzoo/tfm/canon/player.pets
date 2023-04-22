@@ -35,8 +35,7 @@ ABSTRACT CLASS Owned<Anyone> {
 
   ABSTRACT CLASS OwnedTile : Owned, Tile {
     CLASS GreeneryTile[GT] : Tile<MarsArea> {
-      // This needs to use `HAS?` or something TODO
-      DEFAULT +GreeneryTile<LandArea(HAS Neighbor<OwnedTile>)>
+      DEFAULT +GreeneryTile<LandArea(HAS Neighbor<OwnedTile>)> // should be `HAS?`
 
       This: OxygenStep                            // for solo this will have to move
       End: VictoryPoint
@@ -105,7 +104,7 @@ ABSTRACT CLASS Owned<Anyone> {
 
 // THINGS ON CARDS -------------------------------
 
-  ABSTRACT CLASS Cardbound<CardFront<Anyone>>: Owned<Anyone> { // TODO link
+  ABSTRACT CLASS Cardbound<CardFront<Anyone>>: Owned<Anyone> {
     ABSTRACT CLASS Tag : Atomized {
       HAS MAX 2 This                              // I mean this isn't strictly necessary but...
 
@@ -128,7 +127,6 @@ ABSTRACT CLASS Owned<Anyone> {
       // All others are card-specific; see cards.json5
     }
 
-    // TODO still consider inverting this?
     CLASS ActionUsedMarker : Cardbound<ActionCard>, Generational {
       HAS MAX 1 This
     }
@@ -152,9 +150,9 @@ ABSTRACT CLASS Owned<Anyone> {
   }
 
   ABSTRACT CLASS PaymentMechanic : Temporary {
-    CLASS PlayCard<Class<CardFront>> { // TODO add CardBack
+    CLASS PlayCard<Class<CardFront>> {
       This:: @beginPlayCard(CardFront)
-      -X Barrier IF =0 Barrier:: CardFront FROM This! // TODO shouldn't need !
+      -X Barrier IF =0 Barrier:: CardFront FROM This
     }
 
     CLASS PlayTag<Class<Tag>> : Signal            // triggers discounts and Accepts

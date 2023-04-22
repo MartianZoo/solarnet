@@ -64,7 +64,7 @@ sealed class GameEvent {
          * The ordinal of the previous change which triggered this to happen, or `null` if this was
          * done ex machina.
          */
-        val triggerEvent: Int, // TODO remove ? here and below
+        val triggerEvent: Int,
     ) {
       constructor(
           context: HasExpression,

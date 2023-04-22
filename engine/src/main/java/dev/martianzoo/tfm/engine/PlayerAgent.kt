@@ -143,7 +143,7 @@ public class PlayerAgent internal constructor(private val game: Game, public val
         sex.doInstruction(instr)
       }
     }
-    game.taskQueue.addTasks(later) // TODO
+    game.taskQueue.addTasks(later) // TODO what was this TODO about?
   }
 
   internal val writer =

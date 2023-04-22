@@ -49,7 +49,7 @@ internal class ExecutionContext(
       }
       is Custom -> handleCustomInstruction(instr)
       is Or -> throw UserException.orWithoutChoice(instr)
-      is Then -> split(instr.instructions).forEach { doInstruction(it) } // TODO wrong
+      is Then -> split(instr.instructions).forEach { doInstruction(it) }
       is Multi -> error("should have been split: $instr")
       is Transform -> error("should have been transformed already: $instr")
     }

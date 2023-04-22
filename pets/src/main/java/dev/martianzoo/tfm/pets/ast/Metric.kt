@@ -14,17 +14,13 @@ import dev.martianzoo.tfm.pets.PetTokenizer
 sealed class Metric : PetElement() {
   override val kind = Metric::class.simpleName!!
 
-  override fun visitChildren(visitor: Visitor) {
-    TODO("Not yet implemented")
-  }
-
   data class Count(val expression: Expression) : Metric() {
     override fun visitChildren(visitor: Visitor) = visitor.visit(expression)
     override fun toString() = "$expression"
     override fun precedence() = 12
   }
 
-  data class Scaled(val unit: Int, val metric: Metric) : Metric() { // TODO Scalar??
+  data class Scaled(val unit: Int, val metric: Metric) : Metric() {
     init {
       if (unit < 1) throw PetsSyntaxException("metric can't be zero")
     }

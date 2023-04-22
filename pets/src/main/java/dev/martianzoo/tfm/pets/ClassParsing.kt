@@ -60,11 +60,6 @@ public object ClassParsing : PetTokenizer() {
 
   private val nls = zeroOrMore(char('\n'))
 
-  // TODO hack
-  init {
-    ClassName.Parsing.className
-  }
-
   /*
    * These objects like [Signatures] are purely for grouping and to limit visibility of the
    * fine-grained details never needed again.

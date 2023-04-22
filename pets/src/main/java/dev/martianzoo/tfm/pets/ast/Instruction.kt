@@ -207,9 +207,7 @@ public sealed class Instruction : PetElement() {
   data class Gated(val gate: Requirement, val mandatory: Boolean, val instruction: Instruction) :
       Instruction() {
     init {
-      if (instruction is Gated) {
-        throw PetsSyntaxException("You don't gate a gater") // TODO enable
-      }
+      if (instruction is Gated) throw PetsSyntaxException("You don't gate a gater")
     }
 
     override fun visitChildren(visitor: Visitor) = visitor.visit(gate, instruction)
@@ -240,7 +238,7 @@ public sealed class Instruction : PetElement() {
   data class Custom(
       val functionName: String,
       val arguments: List<Expression>,
-      val multiplier: Int, // TODO can't represent in toString...
+      val multiplier: Int, // TODO support in language so we can roundtrip this
   ) : Instruction() {
     override fun visitChildren(visitor: Visitor) = visitor.visit(arguments)
     override fun scale(factor: Int) = copy(multiplier = multiplier * factor)
@@ -369,7 +367,8 @@ public sealed class Instruction : PetElement() {
 
   data class Multi(override val instructions: List<Instruction>) :
       CompositeInstruction(instructions) {
-    // TODO consider ensuring no 2 instructions both have XScalars
+    // TODO make sure no more than 1 instruction can contain any XScalars
+    // because Multi's are splittable
 
     override fun copy(instructions: Iterable<Instruction>) =
         copy(instructions = instructions.toList())

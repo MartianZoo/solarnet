@@ -53,7 +53,6 @@ internal class DependencySet private constructor(private val deps: Set<Dependenc
   override fun isSubtypeOf(that: DependencySet) =
       that.deps.all { thatDep: Dependency -> this.get(thatDep.key).isSubtypeOf(thatDep) }
 
-  // TODO protect in callers?
   override fun glb(that: DependencySet): DependencySet? =
       merge(that) { a, b -> (a glb b) ?: return@glb null }
 
@@ -75,7 +74,7 @@ internal class DependencySet private constructor(private val deps: Set<Dependenc
     return of(merged)
   }
 
-  fun overlayOn(that: DependencySet) = merge(that) { ours, _ -> ours } // TODO hmm
+  fun overlayOn(that: DependencySet) = merge(that) { ours, _ -> ours }
 
   fun minus(that: DependencySet) = of(this.deps - that.deps)
 
@@ -86,13 +85,8 @@ internal class DependencySet private constructor(private val deps: Set<Dependenc
 
   fun getClassForClassType() = Dependency.getClassForClassType(deps)
 
-  internal fun map(function: (MType) -> MType): DependencySet {
-    return DependencySet(
-        deps.toSetStrict {
-          // TODO hmmm?
-          if (it is TypeDependency) it.map(function) else it
-        })
-  }
+  internal fun map(function: (MType) -> MType) =
+      DependencySet(deps.toSetStrict { if (it is TypeDependency) it.map(function) else it })
 
   override fun equals(other: Any?) = other is DependencySet && deps == other.deps
   override fun hashCode() = deps.hashCode()

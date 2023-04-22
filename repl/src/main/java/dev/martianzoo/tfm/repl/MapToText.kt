@@ -24,7 +24,7 @@ internal class MapToText(private val game: GameReader, val useColors: Boolean = 
 
     val s = buildString {
       val clb = CenteringAppender(this)
-      var countdown = grid.rowCount + 2 // TODO I don't get it
+      var countdown = grid.rowCount + 2 // not really sure why this works
 
       clb.appendHalfSpaces(countdown * horizStretch)
       repeat(grid.columnCount - 1) { clb.appendCentered(horizStretch, "  ${it + 1}") }
@@ -87,7 +87,7 @@ internal class MapToText(private val game: GameReader, val useColors: Boolean = 
   fun describe(area: AreaDefinition?): Pair<String, TfmColor> {
     if (area == null) return "" to TfmColor.NONE
     val expression = cn("Tile").addArgs(area.className)
-    val tile = game.getComponents(game.resolve(expression)).singleOrNull() // TODO
+    val tile = game.getComponents(game.resolve(expression)).singleOrNull() // TODO clean this up?
     return tile?.let(::describe) ?: describeEmpty(area)
   }
 
@@ -109,7 +109,7 @@ internal class MapToText(private val game: GameReader, val useColors: Boolean = 
     fun isIt(tile: Type, kind: String) = tile.isSubtypeOf(game.resolve(cn(kind).expression))
 
     val kind: Pair<String, TfmColor> =
-        when { // TODO do this more by checking supertypes
+        when {
           isIt(tile, "CityTile") -> "C" to CITY_TILE // keep this before S
           isIt(tile, "OceanTile") -> "O" to OCEAN_TILE
           isIt(tile, "GreeneryTile") -> "G" to GREENERY_TILE

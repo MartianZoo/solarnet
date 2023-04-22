@@ -71,7 +71,8 @@ private object CreateAdjacencies : CustomInstruction("createAdjacencies") {
   private fun tileOn(area: AreaDefinition, game: GameReader): Expression? {
     val tileType: Type = game.resolve(cn("Tile").addArgs(area.className))
     val tiles = game.getComponents(tileType)
-    // TODO prevent this in a general way
+
+    // TODO invariants should have already taken care of this
     if (tiles.size > 1) throw UserException("Two tiles on same area")
     return tiles.singleOrNull()?.expressionFull
   }
@@ -157,7 +158,7 @@ private object CopyProductionBox : CustomInstruction("copyProductionBox") {
       else ->
           throw RuntimeException(
               "The immediate instructions on ${def.className} " +
-                  "have multiple PROD boxes, which should never happen") // TODO validate sooner?
+                  "have multiple PROD boxes, which should never happen")
     }
   }
 }

@@ -34,7 +34,6 @@ public abstract class Authority {
     return decl
   }
 
-  /** TODO */
   public val allClassDeclarations: Map<ClassName, ClassDeclaration> by lazy {
     val allDeclarations =
         explicitClassDeclarations +

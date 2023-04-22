@@ -16,7 +16,7 @@ import java.util.SortedMap
 import java.util.TreeMap
 
 public class TaskQueue(val eventLog: EventLog) {
-  internal val taskMap: SortedMap<TaskId, Task> = TreeMap() // TODO oops, dejavafy
+  internal val taskMap: SortedMap<TaskId, Task> = TreeMap() // TODO dejavafy
 
   override fun toString() = taskMap.values.joinToString("\n")
 

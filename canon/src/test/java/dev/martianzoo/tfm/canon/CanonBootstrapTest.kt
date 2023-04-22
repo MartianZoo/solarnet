@@ -7,7 +7,6 @@ import dev.martianzoo.tfm.engine.Component
 import dev.martianzoo.tfm.engine.Engine
 import dev.martianzoo.tfm.pets.Parsing.parseAsIs
 import dev.martianzoo.tfm.pets.ast.ClassName
-import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.pets.ast.Metric
 import dev.martianzoo.tfm.pets.ast.classNames
 import dev.martianzoo.util.Multiset
@@ -29,8 +28,7 @@ private class CanonBootstrapTest {
             .filterNot { it.matches(regex) }
             .filterNot { it in milestoneNames && "HEV".contains(Canon.milestone(it).bundle) }
 
-    // TODO Border
-    assertThat(loader.allClasses.classNames()).containsExactlyElementsIn(expected - cn("Border"))
+    assertThat(loader.allClasses.classNames()).containsExactlyElementsIn(expected)
   }
 
   val regex = Regex("(Hellas|Elysium|Player5|Camp|Venus|Area2|AirScrap|Card247|Lakefront).*")
@@ -85,7 +83,6 @@ private class CanonBootstrapTest {
               isClass(it) ||
               it.mtype.isSubtypeOf(game.resolve(parseAsIs("TerraformRating"))) ||
               it.mtype.isSubtypeOf(game.resolve(parseAsIs("Production<Class<Megacredit>>")))
-          // TODO PROD[M]
         }
     assertThat(theRest.toStrings())
         .containsExactly(

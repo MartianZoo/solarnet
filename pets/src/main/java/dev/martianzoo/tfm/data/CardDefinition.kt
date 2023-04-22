@@ -41,8 +41,8 @@ import dev.martianzoo.util.toSetStrict
  */
 public class CardDefinition(data: CardData) : Definition {
   /**
-   * This card's unique id string. A number of id ranges, such as `"000"`-`"999"`, are reserved for
-   * canon (officially published) cards. (TODO)
+   * This card's unique id string. A number of id ranges, such as `"000"`-`"999"`, should be
+   * reserved for canon (officially published) cards.
    */
   val id: String by data::id
 

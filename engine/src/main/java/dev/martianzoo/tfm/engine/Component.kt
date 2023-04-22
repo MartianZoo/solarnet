@@ -45,7 +45,7 @@ public data class Component private constructor(val mtype: MType) : HasExpressio
           transformInSeries(
                   mtype.loader.transformers.deprodify(),
                   Substituter(mtype.findSubstitutions(fxDecl.depLinkages)),
-                  owner()?.let { replaceOwnerWith(it) }, // TODO could Subst do this?
+                  owner()?.let { replaceOwnerWith(it) }, // TODO could/should Substituter do this?
                   replaceThisWith(mtype.expression),
                   TransformNode.unwrapper(RAW),
               )

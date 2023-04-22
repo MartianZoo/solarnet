@@ -25,7 +25,7 @@ import kotlin.math.min
  */
 public data class MType
 internal constructor(
-    public val root: MClass, // TODO try renaming root?
+    public val root: MClass,
     internal val dependencies: DependencySet,
     override val refinement: Requirement? = null,
 ) : Type, Hierarchical<MType>, Reifiable<MType>, HasClassName by root {
@@ -83,8 +83,8 @@ internal constructor(
     }
   }
 
+  // TODO move this function to Requirement, kinda like we did for Instruction.Multi
   private fun conjoin(one: Requirement?, two: Requirement?): Requirement? {
-    // TODO move to Requirement like we did for Instruction.Multi
     val x = setOfNotNull(one, two)
     return when (x.size) {
       0 -> null
@@ -133,10 +133,11 @@ internal constructor(
     }
   }
 
-  public val isClassType: Boolean = root.className == CLASS // TODO reduce special-casing
+  public val isClassType: Boolean = root.className == CLASS
 
   /** Returns the subset of [allConcreteSubtypes] having the exact same [root] as ours. */
   public fun concreteSubtypesSameClass(): Sequence<MType> {
+    // TODO reduce special-casing
     return when {
       root.abstract -> emptySequence()
       isClassType -> concreteSubclasses(dependencies.getClassForClassType()).map { it.classType }

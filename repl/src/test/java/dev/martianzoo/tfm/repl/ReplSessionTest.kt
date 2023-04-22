@@ -33,7 +33,7 @@ private class ReplSessionTest {
 
   @Test
   fun testAstrodrill() {
-    val repl = ReplSession(Canon, GameSetup(Canon, "BMX", 2)) // TODO
+    val repl = ReplSession(Canon, GameSetup(Canon, "BMX", 2))
     val commands =
         """
           become Player2
@@ -53,7 +53,7 @@ private class ReplSessionTest {
 
   @Test
   fun test() {
-    val repl = ReplSession(Canon, Canon.SIMPLE_GAME) // TODO
+    val repl = ReplSession(Canon, Canon.SIMPLE_GAME)
     repl.command("become Player2")
     repl.command("exec ProjectCard")
 
@@ -88,7 +88,7 @@ private class ReplSessionTest {
 
   @Test
   fun testBoard() {
-    val repl = ReplSession(Canon, Canon.SIMPLE_GAME) // TODO
+    val repl = ReplSession(Canon, Canon.SIMPLE_GAME)
     repl.command("become Player1")
     repl.command("exec PROD[9, 8 Steel, 7 Titanium, 6 Plant, 5 Energy, 4 Heat]")
     repl.command("exec 8, 6 Steel, 7 Titanium, 5 Plant, 3 Energy, 9 Heat")

@@ -33,15 +33,15 @@ import dev.martianzoo.util.Multiset
  * A convenient interface for functional tests; basically, [ReplSession] is just a more texty
  * version of this.
  *
- * It accepts `RAW[...]` nodes and (TODO explain).
+ * It accepts `RAW[...]` nodes and (explain).
  */
-// TODO most of this doesn't seem to belong only in `repl`
+// TODO move from repl to engine
 public class InteractiveSession(
     val game: Game,
     val player: Player = Player.ENGINE,
     var defaultAutoExec: Boolean = true, // TODO 3 policies
 ) {
-  public val agent: PlayerAgent = agent(player)
+  public val agent: PlayerAgent = game.asPlayer(player)
 
   public fun asPlayer(player: Player) = InteractiveSession(game, player)
   public fun asPlayer(player: ClassName): InteractiveSession {
@@ -55,14 +55,11 @@ public class InteractiveSession(
   fun count(metric: String) = count(parseInput(metric))
   fun countComponent(component: Component) = game.reader.countComponent(component.mtype)
 
-  fun list(expression: Expression): Multiset<Expression> { // TODO y not (M)Type?
+  fun list(expression: Expression): Multiset<Expression> { // TODO why not (M)Type?
     val typeToList: MType = game.resolve(prep(expression))
     val allComponents: Multiset<Component> = agent.getComponents(prep(expression))
 
-    // TODO decide more intelligently how to break it down
-
-    // Note: when I try to do this right, add a test for CapitalTile but don't worry that much
-    // about how it comes out...
+    // TODO decide how to break it down more intelligently
     val result = HashMultiset<Expression>()
     typeToList.root.directSubclasses.forEach { sub ->
       val matches = allComponents.filter { it.mtype.isSubtypeOf(sub.baseType) }
@@ -101,7 +98,7 @@ public class InteractiveSession(
   fun execute(instruction: Instruction, autoExec: Boolean = defaultAutoExec): Result {
     val instrs = split(prep(instruction))
     return agent.doAtomic {
-      for (instr in instrs) { // TODO
+      for (instr in instrs) { // TODO what was this TODO for?
         val tasks = ArrayDeque<TaskId>()
         val firstResult = agent.initiate(instr)
         if (autoExec) {
@@ -168,7 +165,7 @@ public class InteractiveSession(
     val xers = game.loader.transformers
     val xer =
         transformInSeries(
-            useFullNames(),
+            useFullNames(), // TODO this one alone maybe (maybe) still belongs in repl
             xers.atomizer(),
             xers.insertDefaults(THIS.expression),
             xers.deprodify(),

@@ -50,7 +50,6 @@ interface TransformNode<P : PetNode> {
       return wrapped as P
     }
 
-    // TODO make transformer available
     fun <P : PetNode> unwrap(node: P, kind: String) = unwrapper(kind).transform(node)
 
     fun unwrapper(kind: String): PetTransformer {

@@ -10,7 +10,7 @@ import dev.martianzoo.tfm.types.MClass
 import dev.martianzoo.tfm.types.MType
 import dev.martianzoo.util.iff
 
-object MTypeToText { // TODO refactor to ClassInfo / TypeInfo type dealies
+object MTypeToText {
   /** A detailed multi-line description of the class. */
   public fun describe(expression: Expression, session: InteractiveSession): String {
     val mtype = session.agent.reader.resolve(expression) as MType

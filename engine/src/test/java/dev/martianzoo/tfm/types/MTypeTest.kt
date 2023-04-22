@@ -26,9 +26,6 @@ private class MTypeTest {
             ABSTRACT CLASS CardResource : Cardbound<ResourceCard<Class<This>>> {
               CLASS Animal, Microbe
             }
-            // CLASS Animal : CardResource<ResourceCard<Class<This>>> // TODO just CR, that's it!
-            // CLASS Microbe : CardResource<ResourceCard<Class<This>>> // TODO just CR, that's it!
-
             ABSTRACT CLASS ResourceCard<Class<CardResource>> : CardFront
 
             CLASS Fish : ResourceCard<Class<Animal>>

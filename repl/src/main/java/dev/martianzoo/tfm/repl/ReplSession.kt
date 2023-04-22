@@ -64,7 +64,7 @@ internal fun main() {
 
 /** A programmatic entry point to a REPL session that is more textual than [ReplSession]. */
 public class ReplSession(
-    private val authority: Authority,
+    private val authority: Authority, // TODO redundant
     initialSetup: GameSetup,
     private val jline: JlineRepl? = null
 ) {
@@ -152,8 +152,6 @@ public class ReplSession(
     override fun noArgs() = throw UsageException()
     override fun withArgs(args: String): List<String> {
       val (player, rest) = args.trim().split(Regex("\\s+"), 2)
-
-      // TODO this is not awesome
       val saved = session
       return try {
         session = session.asPlayer(cn(player))
@@ -347,17 +345,17 @@ public class ReplSession(
       val instr: Instruction = parseInput(instruction)
       val changes: Result =
           when (mode) {
-            RED, YELLOW -> session.sneakyChange(instr)
+            RED,
+            YELLOW -> session.sneakyChange(instr)
             GREEN -> initiate(instr)
             BLUE -> {
-              if (instr.isGainOf(cn("Turn"))) {
-                initiate(instr)
-              } else if (session.agent.player != Player.ENGINE) {
-                throw UsageException("In blue mode you must be Engine to do this")
-              } else if (instr.isGainOf(cn("Phase"))) {
-                initiate(instr)
-              } else {
-                throw UsageException("Eep, can't do that in ${mode.name.lowercase()} mode")
+              when {
+                instr.isGainOf(cn("Turn")) -> initiate(instr)
+                session.agent.player != Player.ENGINE -> {
+                  throw UsageException("In blue mode you must be Engine to do this")
+                }
+                instr.isGainOf(cn("Phase")) -> initiate(instr)
+                else -> throw UsageException("Eep, can't do that in ${mode.name.lowercase()} mode")
               }
             }
           }
@@ -365,15 +363,15 @@ public class ReplSession(
       return describeExecutionResults(changes)
     }
 
-    private fun Instruction.isGainOf(supertype: ClassName): Boolean {
-      if (this is Instruction.Transform) {
-        // TODO this is broken wrt production, but that shouldn't matter here for now...
-        return instruction.isGainOf(supertype)
-      }
-      if (this !is Gain) return false
-      val t: MType = session.game.resolve(gaining)
-      return t.isSubtypeOf(session.game.resolve(supertype.expression))
-    }
+    private fun Instruction.isGainOf(supertype: ClassName): Boolean =
+        when (this) {
+          is Gain -> {
+            val t: MType = session.game.resolve(gaining)
+            t.isSubtypeOf(session.game.resolve(supertype.expression))
+          }
+          is Instruction.Transform -> instruction.isGainOf(supertype)
+          else -> false
+        }
 
     private fun initiate(instruction: Instruction): Result {
       if (mode == BLUE && !session.game.taskQueue.isEmpty()) {
@@ -428,8 +426,10 @@ public class ReplSession(
       val instruction: Instruction? = rest?.let(::parseInput)
       val result: Result =
           when (mode) {
-            RED, YELLOW -> throw UsageException("Can't execute tasks in this mode")
-            GREEN, BLUE ->
+            RED,
+            YELLOW -> throw UsageException("Can't execute tasks in this mode")
+            GREEN,
+            BLUE ->
                 if (auto) {
                   session.doTaskAndAutoExec(id, instruction)
                 } else {
@@ -544,7 +544,6 @@ public class ReplSession(
       val expression =
           if (args == "random") {
             val randomBaseType = session.game.loader.allClasses.random().baseType
-            // TODO this could be stupidly slow
             val randomType = randomBaseType.concreteSubtypesSameClass().toList().random()
             randomType.expression
           } else {

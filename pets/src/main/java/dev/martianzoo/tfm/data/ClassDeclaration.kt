@@ -19,7 +19,7 @@ public data class ClassDeclaration(
     val shortName: ClassName = className,
     val abstract: Boolean = true,
     val dependencies: List<Expression> = listOf(),
-    val supertypes: Set<Expression> = setOf(), // TODO do fancy Component stuff elsewhere?
+    val supertypes: Set<Expression> = setOf(),
     val invariants: Set<Requirement> = setOf(),
     private val effectsIn: Set<Effect> = setOf(),
     val defaultsDeclaration: DefaultsDeclaration = DefaultsDeclaration(),

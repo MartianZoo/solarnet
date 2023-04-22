@@ -53,7 +53,7 @@ private class CanonCustomInstructionsTest {
     p1.execute("@gainLowestProduction(Player1)")
     checkProduction(p1, 0, 1, 1, 1, 0, 1)
 
-    // TODO make better
+    // TODO make better (reprodify?)
     assertThat(p1.agent.tasks().values.toStrings())
         .containsExactly(
             "A: [Player1] Production<Player1, Class<Megacredit>>! OR Production<Player1, " +
