@@ -44,8 +44,7 @@ private class ExpressionTest {
     val parsed = te(" Red< Blue  < This,Teal> , Gold > ")
     assertThat(parsed)
         .isEqualTo(
-            cn("Red")
-                .addArgs(cn("Blue").addArgs(cn("This"), cn("Teal")), cn("Gold").expression))
+            cn("Red").addArgs(cn("Blue").addArgs(cn("This"), cn("Teal")), cn("Gold").expression))
   }
 
   @Test

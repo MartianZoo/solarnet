@@ -123,7 +123,6 @@ sealed class Requirement : PetElement() {
           listOf(requirement)
         }
 
-
     fun join(one: Requirement?, two: Requirement?): Requirement? {
       val x = setOfNotNull(one, two)
       return when (x.size) {

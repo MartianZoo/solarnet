@@ -88,12 +88,12 @@ internal class ExecutionContext(
       // and Owner means the context player... (TODO think)
       val instruction =
           transformInSeries(
-              xers.atomizer(),
-              xers.insertDefaults(THIS.expression), // TODO context component??
-              xers.deprodify(),
-              replaceOwnerWith(player.className),
-              TransformNode.unwrapper(RAW),
-          )
+                  xers.atomizer(),
+                  xers.insertDefaults(THIS.expression), // TODO context component??
+                  xers.deprodify(),
+                  replaceOwnerWith(player.className),
+                  TransformNode.unwrapper(RAW),
+              )
               .transform(translated)
 
       split(instruction).forEach { writer.addTasks(it, player, cause) }

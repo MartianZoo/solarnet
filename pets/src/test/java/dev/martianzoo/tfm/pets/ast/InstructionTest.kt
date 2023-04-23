@@ -93,9 +93,9 @@ private class InstructionTest {
     testRoundTrip("1 Foo FROM Bar.", "Foo FROM Bar.")
 
     assertThat(parseAsIs<Instruction>("1 Foo FROM Bar."))
-        .isEqualTo(Transmute(SimpleFrom(cn("Foo").expression, cn("Bar").expression),
-            ActualScalar(1),
-            AMAP))
+        .isEqualTo(
+            Transmute(
+                SimpleFrom(cn("Foo").expression, cn("Bar").expression), ActualScalar(1), AMAP))
     testRoundTrip("Foo<Bar FROM Qux>")
     testRoundTrip("Foo<Bar FROM Qux>.")
 

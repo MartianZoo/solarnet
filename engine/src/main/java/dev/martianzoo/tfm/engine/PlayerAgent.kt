@@ -65,7 +65,6 @@ public class PlayerAgent internal constructor(private val game: Game, public val
         if (removing != null) throw UserException("Can't remove Ok, ok?")
         return null
       }
-
       DIE.expression -> {
         return if (amap) {
           null

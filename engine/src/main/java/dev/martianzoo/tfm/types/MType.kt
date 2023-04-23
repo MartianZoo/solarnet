@@ -70,13 +70,15 @@ internal constructor(
       if (!classNameExpr.simple) throw UserException.badClassExpression(specs)
       loader.getClass(classNameExpr.className).classType
     } else {
-      val deps = try {
-        loader.matchPartial(specs, dependencies)
-            .overlayOn(dependencies)
-            .subMapInOrder(dependencies.keys)
-      } catch (e: UserException) {
-        throw UserException("Can't narrow ${this.expressionFull} with specs $specs", e)
-      }
+      val deps =
+          try {
+            loader
+                .matchPartial(specs, dependencies)
+                .overlayOn(dependencies)
+                .subMapInOrder(dependencies.keys)
+          } catch (e: UserException) {
+            throw UserException("Can't narrow ${this.expressionFull} with specs $specs", e)
+          }
       copy(dependencies = deps)
     }
   }

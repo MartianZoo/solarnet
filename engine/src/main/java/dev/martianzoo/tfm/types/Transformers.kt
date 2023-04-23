@@ -69,10 +69,8 @@ public class Transformers(val loader: MClassLoader) {
                 }
                 inner
               }
-
               inProd && node is Expression && node.className in classNames ->
-                PRODUCTION.addArgs(node.arguments + node.className.classExpression())
-
+                  PRODUCTION.addArgs(node.arguments + node.className.classExpression())
               else -> transformChildren(node)
             }
         @Suppress("UNCHECKED_CAST") return rewritten as P
@@ -81,11 +79,12 @@ public class Transformers(val loader: MClassLoader) {
   }
 
   public fun atomizer(): PetTransformer {
-    val atomized = try {
-      loader.load(ATOMIZED)
-    } catch (e: Exception) {
-      return noOp()
-    }
+    val atomized =
+        try {
+          loader.load(ATOMIZED)
+        } catch (e: Exception) {
+          return noOp()
+        }
 
     return object : PetTransformer() {
       var ourMulti: Multi? = null
@@ -106,10 +105,9 @@ public class Transformers(val loader: MClassLoader) {
         val sc = scex.scalar
 
         if (sc !is ActualScalar ||
-          sc.value == 1 ||
-          THIS in scex.expression ||
-          !loader.resolve(scex.expression).root.isSubtypeOf(atomized)
-        ) {
+            sc.value == 1 ||
+            THIS in scex.expression ||
+            !loader.resolve(scex.expression).root.isSubtypeOf(atomized)) {
           return node
         }
 

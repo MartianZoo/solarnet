@@ -117,8 +117,8 @@ public class CardDefinition(data: CardData) : Definition {
     if (deck == PROJECT) {
       val shouldBeActive =
           actions.any() ||
-          effects.any { it.trigger != OnGainOf.create(END.expression).raw() } ||
-          resourceType != null
+              effects.any { it.trigger != OnGainOf.create(END.expression).raw() } ||
+              resourceType != null
       require((projectInfo?.kind == ACTIVE) == shouldBeActive)
     }
   }
