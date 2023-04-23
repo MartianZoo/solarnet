@@ -1,5 +1,6 @@
 package dev.martianzoo.tfm.api
 
+import dev.martianzoo.tfm.data.MarsMapDefinition
 import dev.martianzoo.tfm.data.Player
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.Expression
@@ -40,6 +41,14 @@ object ResourceUtils { // TODO this doesn't belong here
     return game.authority.allClassNames.filter { it in names }.toSetStrict()
   }
 
+  // TODO definitely doesn't belong here
+  fun mapDefinition(game: GameReader): MarsMapDefinition {
+    val map = game.resolve(MARS_MAP.expression)
+    val mapName = game.getComponents(map).single().className
+    return game.authority.marsMap(mapName)
+  }
+
+  private val MARS_MAP = ClassName.cn("MarsMap")
   private val MEGACREDIT = ClassName.cn("Megacredit")
   private val PRODUCTION = ClassName.cn("Production")
   private val STANDARD_RESOURCE = ClassName.cn("StandardResource")

@@ -4,13 +4,13 @@ import dev.martianzoo.tfm.api.CustomInstruction
 import dev.martianzoo.tfm.api.GameReader
 import dev.martianzoo.tfm.api.GameWriter
 import dev.martianzoo.tfm.api.ResourceUtils.lookUpProductionLevels
+import dev.martianzoo.tfm.api.ResourceUtils.mapDefinition
 import dev.martianzoo.tfm.api.SpecialClassNames.CLASS
 import dev.martianzoo.tfm.api.SpecialClassNames.PROD
 import dev.martianzoo.tfm.api.Type
 import dev.martianzoo.tfm.api.UserException
 import dev.martianzoo.tfm.data.CardDefinition
 import dev.martianzoo.tfm.data.MarsMapDefinition.AreaDefinition
-import dev.martianzoo.tfm.pets.Parsing.parseAsIs
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.pets.ast.Expression
@@ -50,10 +50,8 @@ private object ForceLoad : CustomInstruction("forceLoad") {
 // MarsArea has `Tile<This>:: @createAdjacencies(This)`
 private object CreateAdjacencies : CustomInstruction("createAdjacencies") {
   override fun translate(game: GameReader, arguments: List<Type>): Instruction {
+    val grid = mapDefinition(game).areas
     val areaName: ClassName = arguments.single().className
-    val map = game.resolve(parseAsIs("MarsMap"))
-    val mapName = game.getComponents(map).single().className
-    val grid: Grid<AreaDefinition> = game.authority.marsMap(mapName).areas
     val area: AreaDefinition = grid.first { it.className == areaName }
     val neighborAreas: List<AreaDefinition> = neighborsInHexGrid(grid, area.row, area.column)
 
