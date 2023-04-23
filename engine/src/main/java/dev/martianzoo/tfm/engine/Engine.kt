@@ -33,18 +33,18 @@ public object Engine {
 
   public fun newGame(setup: GameSetup): Game {
     val loader = loadClasses(setup)
-    val game = Game(setup, loader)
+    val game = Game(loader)
     val agent = game.asPlayer(Player.ENGINE)
 
     val result: Result = agent.initiate(Gain.gain(scaledEx(1, ENGINE)))
     require(result.newTaskIdsAdded.none())
-    require(game.taskQueue.isEmpty())
+    require(game.tasks.isEmpty())
 
     val fakeCause = Cause(Player.ENGINE, result.changes.first())
 
     singletonCreateInstructions(loader).forEach {
       agent.initiate(it, fakeCause)
-      require(game.taskQueue.isEmpty()) { "Unexpected tasks: ${game.taskQueue}" }
+      require(game.tasks.isEmpty()) { "Unexpected tasks: ${game.tasks}" }
     }
     game.setupFinished()
     return game

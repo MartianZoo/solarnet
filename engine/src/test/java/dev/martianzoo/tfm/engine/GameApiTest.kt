@@ -43,7 +43,7 @@ private class GameApiTest {
     assertThat(game.evaluate("=3 Heat<Player2>")).isTrue()
     assertThat(game.evaluate("=5 Heat<Player1>")).isTrue()
 
-    val changes = game.eventLog.changesSince(checkpoint)
+    val changes = game.events.changesSince(checkpoint)
     assertThat(changes.map { it.change })
         .containsExactly(
             StateChange(5, gaining = te("Heat<Player2>")),

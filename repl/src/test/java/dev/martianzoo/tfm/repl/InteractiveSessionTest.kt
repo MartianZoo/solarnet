@@ -5,6 +5,7 @@ import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.data.Player.Companion.PLAYER1
 import dev.martianzoo.tfm.data.Player.Companion.PLAYER2
 import dev.martianzoo.tfm.engine.Engine
+import dev.martianzoo.tfm.engine.InteractiveSession
 import org.junit.jupiter.api.Test
 
 private class InteractiveSessionTest {
@@ -54,14 +55,14 @@ private class InteractiveSessionTest {
   fun dependencies() {
     val session = InteractiveSession(Engine.newGame(Canon.SIMPLE_GAME), PLAYER2)
 
-    assertThat(session.game.taskQueue.isEmpty()).isTrue()
+    assertThat(session.game.tasks.isEmpty()).isTrue()
     assertThat(session.count("Microbe")).isEqualTo(0)
 
     session.execute("4 OxygenStep")
     assertThat(session.count("OxygenStep")).isEqualTo(4)
     session.execute("ProjectCard")
     session.execute("Ants")
-    assertThat(session.game.taskQueue.isEmpty())
+    assertThat(session.game.tasks.isEmpty())
     assertThat(session.count("Ants")).isEqualTo(1)
     session.execute("3 Microbe<Ants>")
     assertThat(session.count("Microbe")).isEqualTo(3)

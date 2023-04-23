@@ -3,6 +3,7 @@ package dev.martianzoo.tfm.repl
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.data.Player.Companion.PLAYER2
 import dev.martianzoo.tfm.engine.Engine
+import dev.martianzoo.tfm.engine.InteractiveSession
 import dev.martianzoo.tfm.repl.TestHelpers.stdProject
 import org.junit.jupiter.api.Test
 

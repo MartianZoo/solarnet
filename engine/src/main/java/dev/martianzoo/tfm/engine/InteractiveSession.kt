@@ -1,15 +1,11 @@
-package dev.martianzoo.tfm.repl
+package dev.martianzoo.tfm.engine
 
 import dev.martianzoo.tfm.api.SpecialClassNames.RAW
 import dev.martianzoo.tfm.api.SpecialClassNames.THIS
 import dev.martianzoo.tfm.api.UserException
 import dev.martianzoo.tfm.data.Player
 import dev.martianzoo.tfm.data.Task.TaskId
-import dev.martianzoo.tfm.engine.Component
 import dev.martianzoo.tfm.engine.EventLog.Checkpoint
-import dev.martianzoo.tfm.engine.Game
-import dev.martianzoo.tfm.engine.PlayerAgent
-import dev.martianzoo.tfm.engine.Result
 import dev.martianzoo.tfm.pets.Parsing.parseInput
 import dev.martianzoo.tfm.pets.PetTransformer
 import dev.martianzoo.tfm.pets.PureTransformers.transformInSeries
@@ -145,7 +141,7 @@ public class InteractiveSession(
       taskIdsToAutoExec += results.newTaskIdsAdded - thisTaskId
     }
 
-    return game.eventLog.activitySince(checkpoint)
+    return game.events.activitySince(checkpoint)
   }
 
   fun doTaskOnly(

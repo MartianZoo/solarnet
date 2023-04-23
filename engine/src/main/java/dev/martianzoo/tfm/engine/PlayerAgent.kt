@@ -24,6 +24,7 @@ import dev.martianzoo.tfm.pets.ast.Metric
 import dev.martianzoo.tfm.pets.ast.PetNode
 import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.types.MType
+import dev.martianzoo.util.Multiset
 import kotlin.Int.Companion.MAX_VALUE
 
 /** A view of a [Game] specific to a particular [Player] (a player or the engine). */
@@ -39,19 +40,23 @@ public class PlayerAgent internal constructor(private val game: Game, public val
         override fun count(metric: Metric) = game.reader.count(heyItsMe(metric))
       }
 
-  private val insertOwner: PetTransformer =
-      if (player == Player.ENGINE) {
-        game.loader.transformers.deprodify()
-      } else {
-        transformInSeries(replaceOwnerWith(player.className), game.loader.transformers.deprodify())
-      }
+  private val insertOwner: PetTransformer by lazy {
+    transformInSeries(
+        game.loader.transformers.deprodify(),
+        { replaceOwnerWith(player.className) }.orNullIf(player == Player.ENGINE))
+  }
+
+  private fun <T> (() -> T).orNullIf(b: Boolean): T? = if (b) null else this()
 
   @Suppress("UNCHECKED_CAST")
   private fun <P : PetNode?> heyItsMe(node: P): P = node?.let(insertOwner::transform) as P
 
   public fun evaluate(requirement: Requirement) = reader.evaluate(requirement)
+
   public fun count(metric: Metric) = reader.count(metric)
-  public fun getComponents(type: Expression) = game.getComponents(reader.resolve(type))
+
+  public fun getComponents(type: Expression): Multiset<Component> =
+      game.components.getAll(reader.resolve(type) as MType) // TODO think about
 
   public fun sneakyChange(
       count: Int = 1,
@@ -77,7 +82,7 @@ public class PlayerAgent internal constructor(private val game: Game, public val
     val toGain = game.toComponent(heyItsMe(gaining))
     val toRemove = game.toComponent(heyItsMe(removing))
     val change: StateChange? = game.components.update(count, toGain, toRemove, amap)
-    return game.eventLog.addChangeEvent(change, player, cause)
+    return game.events.addChangeEvent(change, player, cause)
   }
 
   /**
@@ -118,8 +123,8 @@ public class PlayerAgent internal constructor(private val game: Game, public val
     } catch (e: UserException) {
       if (requestedTask.whyPending != null) throw e
       val explainedTask = requestedTask.copy(whyPending = e.message)
-      game.taskQueue.replaceTask(explainedTask)
-      game.eventLog.activitySince(checkpoint)
+      game.tasks.replaceTask(explainedTask)
+      game.events.activitySince(checkpoint)
     }
   }
 
@@ -142,7 +147,7 @@ public class PlayerAgent internal constructor(private val game: Game, public val
         excon.doInstruction(instr)
       }
     }
-    game.taskQueue.addTasks(later) // TODO what was this TODO about?
+    game.tasks.addTasks(later) // TODO what was this TODO about?
   }
 
   internal val writer =
@@ -172,7 +177,7 @@ public class PlayerAgent internal constructor(private val game: Game, public val
         }
 
         override fun addTasks(instruction: Instruction, taskOwner: Player, cause: Cause?) {
-          game.taskQueue.addTasks(instruction, taskOwner, cause)
+          game.tasks.addTasks(instruction, taskOwner, cause)
         }
       }
 
@@ -184,8 +189,8 @@ public class PlayerAgent internal constructor(private val game: Game, public val
       game.rollBack(checkpoint)
       throw e
     }
-    return game.eventLog.activitySince(checkpoint)
+    return game.events.activitySince(checkpoint)
   }
 
-  fun tasks(): Map<TaskId, Task> = game.taskQueue.taskMap.toMap()
+  fun tasks(): Map<TaskId, Task> = game.tasks.taskMap.toMap()
 }

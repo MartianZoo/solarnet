@@ -1,8 +1,9 @@
-package dev.martianzoo.tfm.repl
+package dev.martianzoo.tfm.engine
 
 import dev.martianzoo.tfm.api.UserException
 import dev.martianzoo.tfm.pets.ast.Instruction
 
+// TODO the purpose of this exception type is not well thought out
 open class InteractiveException(message: String) : UserException(message) {
   companion object {
     fun badSneak(instruction: Instruction) =

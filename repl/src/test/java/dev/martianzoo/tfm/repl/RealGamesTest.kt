@@ -7,6 +7,7 @@ import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.data.Player.Companion.PLAYER1
 import dev.martianzoo.tfm.data.Player.Companion.PLAYER2
 import dev.martianzoo.tfm.engine.Engine
+import dev.martianzoo.tfm.engine.InteractiveSession
 import dev.martianzoo.tfm.repl.TestHelpers.counts
 import dev.martianzoo.tfm.repl.TestHelpers.playCard
 import dev.martianzoo.tfm.repl.TestHelpers.stdProject
@@ -318,7 +319,7 @@ class RealGamesTest {
     eng.execute("End")
     assertThat(eng.agent.tasks()).isEmpty()
 
-    eng.game.eventLog.changesSince(cp).forEach(::println)
+    eng.game.events.changesSince(cp).forEach(::println)
     // Not sure where this discrepancy comes from... expected P2 to be shorted 1 pt because event
 
     // 23 2 1 1 -1

@@ -26,7 +26,7 @@ public class MClassLoader( // TODO separate into loader and table
      * The source of class declarations to use as needed; [loadEverything] will load every class
      * found here.
      */
-    private val authority: Authority,
+    public val authority: Authority,
 
     /**
      * Whether, when a class is loaded, to also load any classes that class depends on in some way.

@@ -1,6 +1,7 @@
 package dev.martianzoo.tfm.repl
 
 import com.google.common.truth.Truth.assertThat
+import dev.martianzoo.tfm.engine.InteractiveSession
 
 // Eventually we may want a usability layer, but for now interacting with the engine is a PITA, so
 // we have a few test-only libraries to smooth that out a bit.

@@ -79,7 +79,7 @@ internal class ExecutionContext(
     val abstractArgs = arguments.filter { it.abstract }
     if (abstractArgs.any()) throw UserException.abstractArguments(abstractArgs, instr)
 
-    val custom = reader.setup.authority.customInstruction(instr.functionName)
+    val custom = reader.authority.customInstruction(instr.functionName)
     try {
       // Could call .raw() but would just unraw it again?
       val translated: Instruction = custom.translate(reader, arguments) * instr.multiplier

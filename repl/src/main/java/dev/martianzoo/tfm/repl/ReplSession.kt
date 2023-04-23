@@ -11,6 +11,8 @@ import dev.martianzoo.tfm.data.Task
 import dev.martianzoo.tfm.data.Task.TaskId
 import dev.martianzoo.tfm.engine.Engine
 import dev.martianzoo.tfm.engine.EventLog.Checkpoint
+import dev.martianzoo.tfm.engine.InteractiveException
+import dev.martianzoo.tfm.engine.InteractiveSession
 import dev.martianzoo.tfm.engine.Result
 import dev.martianzoo.tfm.pets.Parsing.parseAsIs
 import dev.martianzoo.tfm.pets.Parsing.parseInput
@@ -36,14 +38,14 @@ internal fun main() {
   val repl = ReplSession(Canon.SIMPLE_GAME, jline)
 
   fun prompt(): String {
-    val bundles: String = repl.session.game.setup.bundles.joinToString("")
+    val bundles: String = repl.setup.bundles.joinToString("")
 
     val phases = repl.session.list(cn("Phase").expression) // should only be one
     val phase: String = phases.singleOrNull()?.toString() ?: "NoPhase"
 
     val player: Player = repl.session.agent.player
-    val count: Int = repl.session.game.setup.players
-    val logPosition: Int = repl.session.game.eventLog.size
+    val count: Int = repl.setup.players
+    val logPosition: Int = repl.session.game.events.size
     return repl.mode.color.foreground("$bundles $phase $player/$count @$logPosition> ")
   }
 
@@ -62,12 +64,13 @@ internal fun main() {
 }
 
 /** A programmatic entry point to a REPL session that is more textual than [ReplSession]. */
-public class ReplSession(initialSetup: GameSetup, private val jline: JlineRepl? = null) {
-  public var session = InteractiveSession(Engine.newGame(initialSetup))
+public class ReplSession(var setup: GameSetup, private val jline: JlineRepl? = null) {
+  // TODO all we use `jline` for is history (and just checking whether it's there or not)
+  public var session = InteractiveSession(Engine.newGame(setup))
     internal set
 
   internal var mode: ReplMode = GREEN
-  internal val authority by initialSetup::authority
+  internal val authority by setup::authority
 
   public enum class ReplMode(val message: String, val color: TfmColor) {
     RED("Arbitrary state changes with few restrictions", TfmColor.HEAT),
@@ -173,8 +176,10 @@ public class ReplSession(initialSetup: GameSetup, private val jline: JlineRepl? 
       try {
         val (bundleString, players) = args.trim().split(Regex("\\s+"), 2)
 
-        val newGame = Engine.newGame(GameSetup(authority, bundleString, players.toInt()))
+        setup = GameSetup(authority, bundleString, players.toInt())
+        val newGame = Engine.newGame(setup)
         session = InteractiveSession(newGame)
+
         return listOf("New $players-player game created with bundles: $bundleString") +
             if (players.toInt() == 1) {
               listOf("NOTE: No solo mode rules are implemented.")
@@ -370,7 +375,7 @@ public class ReplSession(initialSetup: GameSetup, private val jline: JlineRepl? 
         }
 
     private fun initiate(instruction: Instruction): Result {
-      if (mode == BLUE && !session.game.taskQueue.isEmpty()) {
+      if (mode == BLUE && !session.game.tasks.isEmpty()) {
         throw InteractiveException.mustClearTasks()
       }
       return session.execute(instruction, auto)
@@ -386,7 +391,7 @@ public class ReplSession(initialSetup: GameSetup, private val jline: JlineRepl? 
         """
     override val isReadOnly = true
     override fun noArgs(): List<String> {
-      return session.game.taskQueue.toStrings()
+      return session.game.tasks.toStrings()
     }
   }
 
@@ -403,7 +408,7 @@ public class ReplSession(initialSetup: GameSetup, private val jline: JlineRepl? 
         """
 
     override fun withArgs(args: String): List<String> {
-      val q = session.game.taskQueue
+      val q = session.game.tasks
 
       val split = Regex("\\s+").split(args, 2)
       val idString = split.firstOrNull() ?: throw UsageException()
@@ -468,14 +473,14 @@ public class ReplSession(initialSetup: GameSetup, private val jline: JlineRepl? 
     override val isReadOnly = true
 
     override fun noArgs() =
-        session.game.eventLog
+        session.game.events
             .changesSince(session.game.start)
             .filter { !isSystemOnly(it.change) }
             .toStrings()
 
     override fun withArgs(args: String): List<String> {
       if (args == "full") {
-        return session.game.eventLog.entriesSince(Checkpoint(0)).toStrings()
+        return session.game.events.entriesSince(Checkpoint(0)).toStrings()
       } else {
         throw UsageException()
       }

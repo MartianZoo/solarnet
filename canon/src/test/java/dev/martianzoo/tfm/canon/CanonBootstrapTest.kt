@@ -9,7 +9,6 @@ import dev.martianzoo.tfm.pets.Parsing.parseAsIs
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.Metric
 import dev.martianzoo.tfm.pets.ast.classNames
-import dev.martianzoo.util.Multiset
 import dev.martianzoo.util.toSetStrict
 import dev.martianzoo.util.toStrings
 import org.junit.jupiter.api.Test
@@ -62,8 +61,7 @@ private class CanonBootstrapTest {
   @Test
   fun createsExpectedSingletons() {
     val game = Engine.newGame(GameSetup(Canon, "BRMPX", 3))
-    val startingComponents: Multiset<Component> =
-        game.getComponents(game.resolve(COMPONENT.expression))
+    val startingComponents = game.components.getAll(game.resolve(COMPONENT.expression))
 
     // 19 duplicate TR and 4 duplicate PROD[M]
     assertThat(startingComponents).hasSize(startingComponents.elements.size + 69)

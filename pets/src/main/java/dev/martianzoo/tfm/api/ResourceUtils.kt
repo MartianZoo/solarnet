@@ -37,7 +37,7 @@ object ResourceUtils { // TODO this doesn't belong here
             .map { it.expression.arguments.single().className }
             .toSet()
     // Put them in declaration order
-    return game.setup.authority.allClassNames.filter { it in names }.toSetStrict()
+    return game.authority.allClassNames.filter { it in names }.toSetStrict()
   }
 
   private val MEGACREDIT = ClassName.cn("Megacredit")

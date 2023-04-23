@@ -1,7 +1,6 @@
 package dev.martianzoo.tfm.engine
 
 import dev.martianzoo.tfm.api.GameReader
-import dev.martianzoo.tfm.api.GameSetup
 import dev.martianzoo.tfm.api.Type
 import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.pets.ast.Metric
@@ -20,10 +19,11 @@ import dev.martianzoo.tfm.types.MClassLoader
 import kotlin.math.min
 
 class GameReaderImpl(
-    override val setup: GameSetup,
     val loader: MClassLoader,
     val components: ComponentGraph,
 ) : GameReader {
+  override val authority = loader.authority
+
   override fun resolve(expression: Expression) = loader.resolve(expression)
 
   override fun evaluate(requirement: Requirement): Boolean =

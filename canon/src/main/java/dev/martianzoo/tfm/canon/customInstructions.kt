@@ -10,6 +10,7 @@ import dev.martianzoo.tfm.api.Type
 import dev.martianzoo.tfm.api.UserException
 import dev.martianzoo.tfm.data.CardDefinition
 import dev.martianzoo.tfm.data.MarsMapDefinition.AreaDefinition
+import dev.martianzoo.tfm.pets.Parsing.parseAsIs
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.pets.ast.Expression
@@ -50,7 +51,9 @@ private object ForceLoad : CustomInstruction("forceLoad") {
 private object CreateAdjacencies : CustomInstruction("createAdjacencies") {
   override fun translate(game: GameReader, arguments: List<Type>): Instruction {
     val areaName: ClassName = arguments.single().className
-    val grid: Grid<AreaDefinition> = game.setup.map.areas
+    val map = game.resolve(parseAsIs("MarsMap"))
+    val mapName = game.getComponents(map).single().className
+    val grid: Grid<AreaDefinition> = game.authority.marsMap(mapName).areas
     val area: AreaDefinition = grid.first { it.className == areaName }
     val neighborAreas: List<AreaDefinition> = neighborsInHexGrid(grid, area.row, area.column)
 
@@ -93,7 +96,7 @@ private object BeginPlayCard : CustomInstruction("beginPlayCard") {
   override fun translate(game: GameReader, arguments: List<Type>): Instruction {
     val cardType: Type = arguments.single()
     val cardName = cardType.expression.className
-    val card: CardDefinition = game.setup.authority.card(cardName)
+    val card: CardDefinition = game.authority.card(cardName)
 
     val reqt = card.requirement?.unraw()
 
@@ -121,7 +124,7 @@ private object GetVpsFrom : CustomInstruction("getVpsFrom") {
     val clazz = arguments.single()
     require(clazz.className == CLASS)
     val cardName = clazz.expression.arguments.single().className
-    val card = game.setup.authority.card(cardName)
+    val card = game.authority.card(cardName)
     return NoOp // TODO TODO
     // return Multi.create(
     //         card.effects
@@ -147,7 +150,7 @@ private object GainLowestProduction : CustomInstruction("gainLowestProduction") 
 // For Robotic Workforce
 private object CopyProductionBox : CustomInstruction("copyProductionBox") {
   override fun translate(game: GameReader, arguments: List<Type>): Instruction {
-    val def = game.setup.authority.card(arguments.single().className)
+    val def = game.authority.card(arguments.single().className)
     val nodes: List<Transform> = def.immediate?.descendantsOfType() ?: listOf()
     val matches = nodes.filter { it.transformKind == PROD }
 

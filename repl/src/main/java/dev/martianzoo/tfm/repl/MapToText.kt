@@ -4,6 +4,7 @@ import dev.martianzoo.tfm.api.GameReader
 import dev.martianzoo.tfm.api.Type
 import dev.martianzoo.tfm.data.MarsMapDefinition.AreaDefinition
 import dev.martianzoo.tfm.data.Player
+import dev.martianzoo.tfm.pets.Parsing
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.repl.TfmColor.CITY_TILE
 import dev.martianzoo.tfm.repl.TfmColor.GREENERY_TILE
@@ -20,7 +21,10 @@ internal class MapToText(private val game: GameReader, val useColors: Boolean = 
   val vertStretch: Int = 2
 
   internal fun map(): List<String> {
-    val grid: Grid<AreaDefinition> = game.setup.map.areas
+    // TODO make this easier?
+    val map = game.resolve(Parsing.parseAsIs("MarsMap"))
+    val mapName = game.getComponents(map).single().className
+    val grid: Grid<AreaDefinition> = game.authority.marsMap(mapName).areas
 
     val s = buildString {
       val clb = CenteringAppender(this)

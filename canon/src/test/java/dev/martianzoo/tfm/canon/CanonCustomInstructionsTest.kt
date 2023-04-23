@@ -5,7 +5,7 @@ import dev.martianzoo.tfm.api.GameSetup
 import dev.martianzoo.tfm.api.ResourceUtils
 import dev.martianzoo.tfm.data.Player.Companion.PLAYER1
 import dev.martianzoo.tfm.engine.Engine
-import dev.martianzoo.tfm.repl.InteractiveSession
+import dev.martianzoo.tfm.engine.InteractiveSession
 import dev.martianzoo.util.toStrings
 import org.junit.jupiter.api.Test
 

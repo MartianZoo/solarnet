@@ -7,7 +7,6 @@ import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.data.Player.Companion.PLAYER1
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.tfm.repl.InteractiveSession
 import dev.martianzoo.util.toStrings
 import org.junit.jupiter.api.Test
 

@@ -8,7 +8,7 @@ import dev.martianzoo.util.Multiset
 /** A readable view of the state of a game in progress. */
 interface GameReader {
   /** The initial configuration for the game. */
-  val setup: GameSetup
+  val authority: Authority
 
   /** Returns the type represented by the (fully-prepared) [expression]. */
   fun resolve(expression: Expression): Type

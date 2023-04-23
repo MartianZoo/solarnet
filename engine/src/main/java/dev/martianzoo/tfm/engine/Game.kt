@@ -1,8 +1,6 @@
 package dev.martianzoo.tfm.engine
 
 import dev.martianzoo.tfm.api.ExpressionInfo
-import dev.martianzoo.tfm.api.GameSetup
-import dev.martianzoo.tfm.api.Type
 import dev.martianzoo.tfm.api.UserException
 import dev.martianzoo.tfm.data.GameEvent.ChangeEvent
 import dev.martianzoo.tfm.data.GameEvent.TaskEvent
@@ -15,27 +13,40 @@ import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.pets.ast.PetNode
 import dev.martianzoo.tfm.types.MClassLoader
 import dev.martianzoo.tfm.types.MType
-import dev.martianzoo.util.Multiset
 
-/** A game in progress. */
-public class Game(val setup: GameSetup, public val loader: MClassLoader) {
+/**
+ * The mutable state of a game in progress. It is essentially an aggregation of three mutable
+ * objects: an [EventLog] (representing the "past"), a [ComponentGraph] (representing the
+ * "present"), and a [TaskQueue] (representing the "future"). It also has a reference to a frozen
+ * [MClassLoader] that it pulls component classes from.
+ */
+public class Game(
+  /**
+   * Where the game will get all its information about component types from. Must already be
+   * frozen. (TODO MClassTable)
+   */
+  public val loader: MClassLoader
+) {
+  // TODO expose only read-only interfaces for these three things
 
-  // Mutable game state consists of a component graph, event log, and task queue
+  /** Everything that has happened in this game so far ("past"). */
+  public val events = EventLog()
 
-  /** The components that make up the game's state. */
-  internal val components = ComponentGraph()
+  /** The components that make up the game's current state ("present"). */
+  public val components = ComponentGraph()
 
-  /** A record of everything that's happened in the game. */
-  public val eventLog = EventLog()
-
-  /** The tasks the game is currently waiting on. */
-  public val taskQueue = TaskQueue(eventLog)
+  /** The tasks the game is currently waiting on ("future"). */
+  public val tasks = TaskQueue(events)
 
   init {
+    require(loader.frozen)
+
+    // TODO BAD HACK
     require(loader.game == null)
     loader.game = this
   }
 
+  /** A checkpoint taken when the game initialization process ends. */
   public lateinit var start: Checkpoint
     private set
 
@@ -43,21 +54,17 @@ public class Game(val setup: GameSetup, public val loader: MClassLoader) {
 
   public fun asPlayer(player: Player) = PlayerAgent(this, player)
 
-  public fun removeTask(id: TaskId) = taskQueue.removeTask(id)
+  public fun removeTask(id: TaskId) = tasks.removeTask(id)
 
   // TYPE & COMPONENT CONVERSION
 
   public fun resolve(expression: Expression): MType = loader.resolve(expression)
-  private fun resolve(type: Type): MType = type as? MType ?: loader.resolve(type.expressionFull)
 
   public fun toComponent(expression: Expression) = Component.ofType(resolve(expression))
 
   @JvmName("toComponentNullable")
   public fun toComponent(expression: Expression?) =
       expression?.let { Component.ofType(resolve(it)) }
-
-  public fun getComponents(parentType: Type): Multiset<Component> =
-      components.getAll(resolve(parentType))
 
   val einfo =
       object : ExpressionInfo {
@@ -110,21 +117,21 @@ public class Game(val setup: GameSetup, public val loader: MClassLoader) {
     }
   }
 
-  val reader = GameReaderImpl(setup, loader, components)
+  val reader = GameReaderImpl(loader, components)
 
   // CHANGE LOG
 
-  public fun checkpoint() = eventLog.checkpoint()
+  public fun checkpoint() = events.checkpoint()
 
   public fun rollBack(checkpoint: Checkpoint) = rollBack(checkpoint.ordinal)
 
   public fun rollBack(ordinal: Int) {
-    require(ordinal <= eventLog.size)
-    if (ordinal == eventLog.size) return
-    val subList = eventLog.events.subList(ordinal, eventLog.size)
+    require(ordinal <= events.size)
+    if (ordinal == events.size) return
+    val subList = events.events.subList(ordinal, events.size)
     for (entry in subList.asReversed()) {
       when (entry) {
-        is TaskEvent -> taskQueue.reverse(entry)
+        is TaskEvent -> tasks.reverse(entry)
         is ChangeEvent -> {
           val change = entry.change
           components.reverse(
@@ -144,10 +151,8 @@ public class Game(val setup: GameSetup, public val loader: MClassLoader) {
     start = checkpoint()
   }
 
-  fun getTask(taskId: String) = getTask(TaskId(taskId))
-
   fun getTask(taskId: TaskId): Task {
-    require(taskId in taskQueue) { taskId }
-    return taskQueue[taskId]
+    require(taskId in tasks) { taskId }
+    return tasks[taskId]
   }
 }
