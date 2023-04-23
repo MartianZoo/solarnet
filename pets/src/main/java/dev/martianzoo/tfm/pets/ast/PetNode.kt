@@ -72,5 +72,6 @@ public sealed class PetNode {
 
   companion object {
     fun <P : PetNode> P.raw(): P = TransformNode.wrap(this, RAW)
+    fun <P : PetNode> P.unraw(): P = TransformNode.unwrap(this, RAW)
   }
 }

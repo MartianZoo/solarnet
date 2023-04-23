@@ -6,7 +6,6 @@ import dev.martianzoo.tfm.api.GameWriter
 import dev.martianzoo.tfm.api.ResourceUtils.lookUpProductionLevels
 import dev.martianzoo.tfm.api.SpecialClassNames.CLASS
 import dev.martianzoo.tfm.api.SpecialClassNames.PROD
-import dev.martianzoo.tfm.api.SpecialClassNames.RAW
 import dev.martianzoo.tfm.api.Type
 import dev.martianzoo.tfm.api.UserException
 import dev.martianzoo.tfm.data.CardDefinition
@@ -21,6 +20,7 @@ import dev.martianzoo.tfm.pets.ast.Instruction.NoOp
 import dev.martianzoo.tfm.pets.ast.Instruction.Or
 import dev.martianzoo.tfm.pets.ast.Instruction.Transform
 import dev.martianzoo.tfm.pets.ast.PetNode.Companion.raw
+import dev.martianzoo.tfm.pets.ast.PetNode.Companion.unraw
 import dev.martianzoo.tfm.pets.ast.ScaledExpression.Companion.scaledEx
 import dev.martianzoo.tfm.pets.ast.TransformNode
 import dev.martianzoo.util.Grid
@@ -95,7 +95,7 @@ private object BeginPlayCard : CustomInstruction("beginPlayCard") {
     val cardName = cardType.expression.className
     val card: CardDefinition = game.setup.authority.card(cardName)
 
-    val reqt = card.requirement?.let { TransformNode.unwrap(it, RAW) }
+    val reqt = card.requirement?.unraw()
 
     if (reqt?.let(game::evaluate) == false) throw UserException.requirementNotMet(reqt)
 

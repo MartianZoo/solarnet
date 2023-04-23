@@ -4,10 +4,9 @@ import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.tfm.api.GameSetup
 import dev.martianzoo.tfm.api.SpecialClassNames.ENGINE
 import dev.martianzoo.tfm.api.SpecialClassNames.OK
-import dev.martianzoo.tfm.api.SpecialClassNames.RAW
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.tfm.pets.ast.TransformNode.Companion.unwrap
+import dev.martianzoo.tfm.pets.ast.PetNode.Companion.unraw
 import dev.martianzoo.tfm.types.MClassLoader
 import dev.martianzoo.tfm.types.te
 import dev.martianzoo.util.toStrings
@@ -26,7 +25,7 @@ private class CanonEffectsTest {
 
   fun classEffectsOf(name: String, loader: MClassLoader): List<String> {
     val card = loader.getClass(cn(name))
-    return card.classEffects.map { "${unwrap(it.effect, RAW)}" }
+    return card.classEffects.map { "${it.effect.unraw()}" }
   }
 
   fun componentEffectsOf(type: String): List<String> {

@@ -1,7 +1,6 @@
 package dev.martianzoo.tfm.pets
 
 import dev.martianzoo.tfm.api.SpecialClassNames.OWNER
-import dev.martianzoo.tfm.api.SpecialClassNames.RAW
 import dev.martianzoo.tfm.api.SpecialClassNames.THIS
 import dev.martianzoo.tfm.api.SpecialClassNames.USE_ACTION
 import dev.martianzoo.tfm.pets.ast.Action
@@ -17,7 +16,7 @@ import dev.martianzoo.tfm.pets.ast.Instruction.Then
 import dev.martianzoo.tfm.pets.ast.Instruction.Transmute
 import dev.martianzoo.tfm.pets.ast.PetNode
 import dev.martianzoo.tfm.pets.ast.PetNode.Companion.raw
-import dev.martianzoo.tfm.pets.ast.TransformNode.Companion.unwrap
+import dev.martianzoo.tfm.pets.ast.PetNode.Companion.unraw
 import dev.martianzoo.util.toSetStrict
 
 /** Various functions for transforming Pets syntax trees. */
@@ -41,7 +40,7 @@ public object PureTransformers {
   }
 
   internal fun actionToEffect(action: Action, index1Ref: Int): Effect {
-    val unrapt = unwrap(action, RAW)
+    val unrapt = action.unraw()
     require(index1Ref >= 1) { index1Ref }
     val instruction = actionToInstruction(unrapt)
     val trigger = OnGainOf.create(cn("$USE_ACTION$index1Ref").addArgs(THIS))

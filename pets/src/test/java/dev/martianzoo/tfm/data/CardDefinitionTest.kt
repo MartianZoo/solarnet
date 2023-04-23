@@ -1,14 +1,13 @@
 package dev.martianzoo.tfm.data
 
 import com.google.common.truth.Truth.assertThat
-import dev.martianzoo.tfm.api.SpecialClassNames.RAW
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.data.CardDefinition.CardData
 import dev.martianzoo.tfm.data.CardDefinition.Deck.PROJECT
 import dev.martianzoo.tfm.data.CardDefinition.ProjectKind.ACTIVE
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.pets.ast.PetNode
-import dev.martianzoo.tfm.pets.ast.TransformNode.Companion.unwrap
+import dev.martianzoo.tfm.pets.ast.PetNode.Companion.unraw
 import dev.martianzoo.tfm.testlib.assertFails
 import dev.martianzoo.util.toStrings
 import org.junit.jupiter.api.Test
@@ -70,9 +69,9 @@ private class CardDefinitionTest {
     assertThat(birds.bundle).isEqualTo("B")
     assertThat(birds.deck).isEqualTo(PROJECT)
     assertThat(birds.tags.toStrings()).containsExactly("AnimalTag")
-    assertThat(unwrap(birds.immediate!!, RAW).toString()).isEqualTo("PROD[-2 Plant<Anyone>]")
-    assertThat(birds.actions.map { unwrap(it, RAW) }.toStrings()).containsExactly("-> Animal<This>")
-    assertThat(birds.effects.map { unwrap(it, RAW) }.toStrings())
+    assertThat(birds.immediate!!.unraw().toString()).isEqualTo("PROD[-2 Plant<Anyone>]")
+    assertThat(birds.actions.map { it.unraw() }.toStrings()).containsExactly("-> Animal<This>")
+    assertThat(birds.effects.map { it.unraw() }.toStrings())
         .containsExactly("End: VictoryPoint / Animal<This>")
     assertThat(birds.replaces).isNull()
     assertThat(birds.resourceType).isEqualTo(cn("Animal"))
@@ -176,7 +175,7 @@ private class CardDefinitionTest {
   private fun checkRoundTrip(source: Collection<String>, cooked: Collection<PetNode>) {
     assertThat(source.size).isEqualTo(cooked.size)
     for (stringThenNode in source.zip(cooked)) {
-      assertThat("${unwrap(stringThenNode.second, RAW)}").isEqualTo(stringThenNode.first)
+      assertThat("${stringThenNode.second.unraw()}").isEqualTo(stringThenNode.first)
     }
   }
 }

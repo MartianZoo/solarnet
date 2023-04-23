@@ -5,6 +5,7 @@ import dev.martianzoo.tfm.engine.Component
 import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.pets.ast.Instruction.Gain.Companion.gain
 import dev.martianzoo.tfm.pets.ast.Instruction.Remove
+import dev.martianzoo.tfm.pets.ast.PetNode.Companion.unraw
 import dev.martianzoo.tfm.pets.ast.ScaledExpression.Companion.scaledEx
 import dev.martianzoo.tfm.types.MClass
 import dev.martianzoo.tfm.types.MType
@@ -35,18 +36,18 @@ object MTypeToText {
     val concTypes = mclass.baseType.concreteSubtypesSameClass()
     val cmptTypesDisplay = "${sequenceCount(concTypes, 100)} ${mclass.className}<>"
 
-    val rawFxDisplay = mclass.rawEffects()
+    val rawFxDisplay = mclass.rawEffects().map { it.unraw() }
 
     val classFxDisplay =
         mclass.classEffects.map {
-          "${it.effect}" + if (it.depLinkages.any()) " ${it.depLinkages}" else ""
+          "${it.effect.unraw()}" + if (it.depLinkages.any()) " ${it.depLinkages}" else ""
         }
 
     val classStuff =
         """
           Class $classDisplay:
             subclasses: $subclassesDisplay
-            invariants: $invariantsDisplay 
+            invariants: $invariantsDisplay
             base type:  $baseTypeDisplay
             cmpt types: $cmptTypesDisplay
             raw fx:     ${rawFxDisplay.joinToString("""
@@ -60,7 +61,7 @@ object MTypeToText {
 
     val supertypesDisplay = mtype.supertypes().joinToString { "${it.className}" }
 
-    val id = session.game.loader.transformers.insertDefaults(THIS.expression) // TODO context??
+    val id = session.game.loader.transformers.insertDefaults(THIS.expression)
     val allCases = id.transform(expression)
     val gain = id.transform(gain(scaledEx(1, expression), null))
     val remove = id.transform(Remove(scaledEx(1, expression), null))

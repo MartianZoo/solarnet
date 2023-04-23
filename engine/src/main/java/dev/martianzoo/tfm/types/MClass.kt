@@ -16,6 +16,7 @@ import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.Effect
 import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.pets.ast.HasClassName
+import dev.martianzoo.tfm.pets.ast.PetNode.Companion.unraw
 import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.pets.ast.Requirement.Companion.split
 import dev.martianzoo.tfm.pets.ast.Requirement.Counting
@@ -249,7 +250,7 @@ internal constructor(
   public val componentCountRange: IntRange by lazy {
     val ranges: List<IntRange> =
         typeInvariants
-            .map { TransformNode.unwrap(it, RAW) }
+            .map { it.unraw() }
             .filterIsInstance<Counting>()
             .filter { it.scaledEx.expression == THIS.expression }
             .map { it.range }
