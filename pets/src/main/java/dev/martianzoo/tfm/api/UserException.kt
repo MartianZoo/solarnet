@@ -12,7 +12,8 @@ import dev.martianzoo.tfm.pets.ast.Requirement
  * Exception type for user-facing problems that, you know, probably need to be communicated well.
  * The companion object has various factory functions for common sorts.
  */
-public open class UserException(override val message: String) : RuntimeException(message) {
+public open class UserException(override val message: String, cause: Throwable? = null)
+  : RuntimeException(message, cause) {
   companion object {
     fun classNotFound(className: ClassName) =
         ExpressionException(

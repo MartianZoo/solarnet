@@ -13,11 +13,11 @@ import dev.martianzoo.tfm.data.CardDefinition
 import dev.martianzoo.tfm.data.MarsMapDefinition.AreaDefinition
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.tfm.pets.ast.Effect.Trigger.OnGainOf
 import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.pets.ast.Instruction
 import dev.martianzoo.tfm.pets.ast.Instruction.Gain.Companion.gain
 import dev.martianzoo.tfm.pets.ast.Instruction.Multi
+import dev.martianzoo.tfm.pets.ast.Instruction.NoOp
 import dev.martianzoo.tfm.pets.ast.Instruction.Or
 import dev.martianzoo.tfm.pets.ast.Instruction.Transform
 import dev.martianzoo.tfm.pets.ast.PetNode.Companion.raw
@@ -118,17 +118,17 @@ private object BeginPlayCard : CustomInstruction("beginPlayCard") {
 // For scoring event cards
 private object GetVpsFrom : CustomInstruction("getVpsFrom") {
   override fun translate(game: GameReader, arguments: List<Type>): Instruction {
-    require(arguments.size == 2)
-    val classExpr = arguments.first().expression
-    require(classExpr.className == CLASS)
-    val cardName = classExpr.arguments.single().className
+    val clazz = arguments.single()
+    require(clazz.className == CLASS)
+    val cardName = clazz.expression.arguments.single().className
     val card = game.setup.authority.card(cardName)
-    return Multi.create(
-        card.effects
-            .map { TransformNode.unwrap(it, RAW) }
-            .filter { it.trigger == OnGainOf.create(cn("End").expression) }
-                .map { it.instruction })
-        .raw()
+    return NoOp // TODO TODO
+    // return Multi.create(
+    //         card.effects
+    //             .map { TransformNode.unwrap(it, RAW) }
+    //             .filter { it.trigger == OnGainOf.create(cn("End").expression) }
+    //             .map { it.instruction })
+    //     .raw()
   }
 }
 

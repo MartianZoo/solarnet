@@ -57,11 +57,8 @@ ABSTRACT CLASS Owned<Anyone> {
   ABSTRACT CLASS Resource[RES] {
     ABSTRACT CLASS StandardResource[SR] {
       CLASS Megacredit[M]
-
-      ABSTRACT CLASS Metal {
-        CLASS Steel[S]
-        CLASS Titanium[T]
-      }
+      CLASS Steel[S]
+      CLASS Titanium[T]
       CLASS Plant[P]
       CLASS Energy[E] { ProductionPhase:: Heat FROM This }
       CLASS Heat[H]
@@ -96,8 +93,7 @@ ABSTRACT CLASS Owned<Anyone> {
     }
 
     CLASS PlayedEvent<Class<CardFront>> [EVT] {   // Can't be <EventCard>, all thanks to PharmU
-      // This FROM CardFront                      // would make PharmU simpler...
-      // End: @getVpsFrom(Class<CardFront>, Owner)
+      End: @getVpsFrom(Class<CardFront>)
     }
   }
 

@@ -93,9 +93,9 @@ public class PlayerAgent internal constructor(private val game: Game, public val
   fun initiate(instruction: Instruction, initialCause: Cause? = null): Result {
     val fixed = split(heyItsMe(instruction))
     return doAtomic {
-      val sex = ExecutionContext(reader, writer, game.loader.transformers, player, initialCause)
+      val excon = ExecutionContext(reader, writer, game.loader.transformers, player, initialCause)
       for (instr in fixed) {
-        sex.doInstruction(instr)
+        excon.doInstruction(instr)
       }
     }
   }
@@ -111,9 +111,9 @@ public class PlayerAgent internal constructor(private val game: Game, public val
 
     return try {
       doAtomic {
-        val sex =
+        val excon =
             ExecutionContext(reader, writer, game.loader.transformers, player, requestedTask.cause)
-        sex.doInstruction(instruction)
+        excon.doInstruction(instruction)
         game.removeTask(taskId)
       }
     } catch (e: UserException) {
@@ -138,9 +138,9 @@ public class PlayerAgent internal constructor(private val game: Game, public val
 
     val (now, later) = (firedSelfEffects + firedOtherEffects).partition { it.automatic }
     for (fx in now) {
-      val sex = ExecutionContext(reader, writer, game.loader.transformers, player, fx.cause)
+      val excon = ExecutionContext(reader, writer, game.loader.transformers, player, fx.cause)
       for (instr in split(fx.instruction)) {
-        sex.doInstruction(instr)
+        excon.doInstruction(instr)
       }
     }
     game.taskQueue.addTasks(later) // TODO what was this TODO about?

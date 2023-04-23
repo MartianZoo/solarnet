@@ -1,6 +1,7 @@
 package dev.martianzoo.tfm.types
 
 import dev.martianzoo.tfm.api.SpecialClassNames.CLASS
+import dev.martianzoo.tfm.api.SpecialClassNames.COMPONENT
 import dev.martianzoo.tfm.api.Type
 import dev.martianzoo.tfm.api.UserException
 import dev.martianzoo.tfm.api.UserException.InvalidReificationException
@@ -64,20 +65,18 @@ internal constructor(
 
   internal fun specialize(specs: List<Expression>): MType {
     return if (isClassType) { // TODO reduce special-casing
-      if (specs.isEmpty()) {
-        loader.componentClass.classType
-      } else {
-        if (specs.size > 1) throw UserException.badClassExpression(specs)
-        val classNameExpr = specs.single()
-        if (!classNameExpr.simple) throw UserException.badClassExpression(specs)
-        loader.getClass(classNameExpr.className).classType
-      }
+      if (specs.size > 1) throw UserException.badClassExpression(specs)
+      val classNameExpr = specs.singleOrNull() ?: COMPONENT.expression
+      if (!classNameExpr.simple) throw UserException.badClassExpression(specs)
+      loader.getClass(classNameExpr.className).classType
     } else {
-      val deps =
-          loader
-              .matchPartial(specs, dependencies)
-              .overlayOn(dependencies)
-              .subMapInOrder(dependencies.keys)
+      val deps = try {
+        loader.matchPartial(specs, dependencies)
+            .overlayOn(dependencies)
+            .subMapInOrder(dependencies.keys)
+      } catch (e: UserException) {
+        throw UserException("Can't narrow ${this.expressionFull} with specs $specs", e)
+      }
       copy(dependencies = deps)
     }
   }

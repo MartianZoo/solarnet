@@ -31,7 +31,7 @@ private class CanonLinkagesTest {
             "Accept" to listOf("Resource"),
             "Owed" to listOf("Resource"),
             "Pay" to listOf("Resource"),
-            // "PlayedEvent" to listOf("CardFront"), TODO
+            "PlayedEvent" to listOf("CardFront"),
 
             // TODO these should be harmless, but they're wrong; how to get them out?
             // OPEN CLASS might help
