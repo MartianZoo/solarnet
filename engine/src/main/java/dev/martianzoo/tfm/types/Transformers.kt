@@ -14,6 +14,8 @@ import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.pets.ast.Effect
 import dev.martianzoo.tfm.pets.ast.Effect.Trigger.ByTrigger
 import dev.martianzoo.tfm.pets.ast.Expression
+import dev.martianzoo.tfm.pets.ast.FromExpression.SimpleFrom
+import dev.martianzoo.tfm.pets.ast.Instruction.Change
 import dev.martianzoo.tfm.pets.ast.Instruction.Gain
 import dev.martianzoo.tfm.pets.ast.Instruction.Gain.Companion.gain
 import dev.martianzoo.tfm.pets.ast.Instruction.Multi
@@ -24,6 +26,7 @@ import dev.martianzoo.tfm.pets.ast.PetNode
 import dev.martianzoo.tfm.pets.ast.ScaledExpression.Companion.scaledEx
 import dev.martianzoo.tfm.pets.ast.ScaledExpression.Scalar.ActualScalar
 import dev.martianzoo.tfm.pets.ast.TransformNode
+import dev.martianzoo.tfm.types.Defaults.DefaultSpec
 import dev.martianzoo.tfm.types.Dependency.Key
 
 public class Transformers(val loader: MClassLoader) {
@@ -127,46 +130,52 @@ public class Transformers(val loader: MClassLoader) {
     return object : PetTransformer() {
       override fun <P : PetNode> transform(node: P): P {
         val result: PetNode =
-            when (node) {
-              is Transmute -> {
-                val original: Expression = node.gaining
-                if (leaveItAlone(original)) {
-                  return node // don't descend
-                } else {
-                  val defaults: Defaults = Defaults.forClass(loader.getClass(original.className))
-                  Transmute(node.fromEx, node.scalar, node.intensity ?: defaults.gainIntensity)
-                  // TODO also gainDeps??
-                }
+            if (node is Change) {
+              when (node) {
+                is Gain -> handleIt(node, node.gaining) { it.gainOnly }
+                is Remove -> handleIt(node, node.removing) { it.removeOnly }
+                is Transmute -> handleIt(node, node.gaining) { it.gainOnly }
               }
-              is Gain -> {
-                val original: Expression = node.gaining
-                if (leaveItAlone(original)) {
-                  return node // don't descend
-                } else {
-                  val defaults: Defaults = Defaults.forClass(loader.getClass(original.className))
-                  val fixed =
-                      insertDefaultsIntoExpr(
-                          original, defaults.gainOnlyDependencies, context, loader)
-                  val scaledEx = scaledEx(node.count, fixed)
-                  gain(scaledEx, node.intensity ?: defaults.gainIntensity)
-                }
-              }
-              is Remove -> { // TODO remove duplication with Gain above
-                val original: Expression = node.removing
-                if (leaveItAlone(original)) {
-                  return node // don't descend
-                } else {
-                  val defaults: Defaults = loader.allDefaults[original.className]!!
-                  val fixed =
-                      insertDefaultsIntoExpr(
-                          original, defaults.removeOnlyDependencies, context, loader)
-                  val scaledEx = scaledEx(node.count, fixed)
-                  Remove(scaledEx, node.intensity ?: defaults.removeIntensity)
-                }
-              }
-              else -> transformChildren(node)
+            } else {
+              transformChildren(node)
             }
         @Suppress("UNCHECKED_CAST") return result as P
+      }
+
+      private fun <P : Change> handleIt(
+          node: P,
+          original: Expression,
+          extractor: (Defaults) -> DefaultSpec
+      ): P {
+        return if (leaveItAlone(original)) {
+          node // don't descend
+        } else {
+          val defaults: Defaults = loader.allDefaults[original.className]!!
+          val spec: DefaultSpec = extractor(defaults)
+          val fixed =
+              insertDefaultsIntoExpr(
+                  original,
+                  spec.dependencies,
+                  context,
+                  loader,
+              )
+          val intensity = node.intensity ?: spec.intensity
+
+          when (node) { // TODO it's weird that the shared method is doing this
+            is Gain -> gain(scaledEx(node.count, fixed), intensity) as Gain
+            is Remove -> Remove(scaledEx(node.count, fixed), intensity)
+            is Transmute -> {
+              val fixedFrom =
+                  if (node.gaining == fixed) {
+                    node.fromEx // no change, so don't mess up the structure
+                  } else {
+                    SimpleFrom(fixed, node.removing)
+                  }
+              Transmute(fixedFrom, node.count, intensity)
+            }
+            else -> error("")
+          } as P
+        }
       }
     }
   }
@@ -181,7 +190,7 @@ public class Transformers(val loader: MClassLoader) {
             loader.allDefaults[node.className] ?: throw UserException.classNotFound(node.className)
         val result =
             insertDefaultsIntoExpr(
-                transformChildren(node), defaults.allCasesDependencies, context, loader)
+                transformChildren(node), defaults.allUsages.dependencies, context, loader)
 
         @Suppress("UNCHECKED_CAST") return result as P
       }

@@ -6,11 +6,9 @@ import dev.martianzoo.tfm.pets.ast.Instruction.Intensity
 import dev.martianzoo.util.Hierarchical.Companion.glb
 
 internal data class Defaults(
-    val allCasesDependencies: DependencySet = DependencySet.of(),
-    val gainOnlyDependencies: DependencySet = DependencySet.of(),
-    val gainIntensity: Intensity,
-    val removeOnlyDependencies: DependencySet = DependencySet.of(),
-    val removeIntensity: Intensity,
+    val allUsages: DefaultSpec,
+    val gainOnly: DefaultSpec,
+    val removeOnly: DefaultSpec,
 ) {
   companion object {
     fun forClass(mclass: MClass): Defaults {
@@ -44,12 +42,21 @@ internal data class Defaults(
       }
 
       return Defaults(
-          allCasesDependencies = gatherDefaultDeps { it.universalSpecs },
-          gainOnlyDependencies = gatherDefaultDeps { it.gainOnlySpecs },
-          removeOnlyDependencies = gatherDefaultDeps { it.removeOnlySpecs },
-          gainIntensity = inheritDefault({ it.gainIntensity })!!,
-          removeIntensity = inheritDefault({ it.removeIntensity })!!,
+          allUsages = DefaultSpec(gatherDefaultDeps { it.universalSpecs }, null),
+          gainOnly = DefaultSpec(
+            gatherDefaultDeps { it.gainOnlySpecs },
+            inheritDefault({ it.gainIntensity })!!,
+          ),
+          removeOnly = DefaultSpec(
+            gatherDefaultDeps { it.removeOnlySpecs },
+            inheritDefault({ it.removeIntensity })!!,
+          ),
       )
     }
   }
+
+  data class DefaultSpec(
+    val dependencies: DependencySet = DependencySet.of(),
+    val intensity: Intensity?
+  )
 }

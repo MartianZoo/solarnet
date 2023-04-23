@@ -35,15 +35,15 @@ class DefaultsTest {
             """)
 
     val d = loader.allDefaults[cn("Foo1")]!!
-    assertThat(d.gainIntensity).isEqualTo(AMAP)
-    assertThat(d.removeIntensity).isEqualTo(MANDATORY)
+    assertThat(d.gainOnly.intensity).isEqualTo(AMAP)
+    assertThat(d.removeOnly.intensity).isEqualTo(MANDATORY)
 
     val d2 = loader.allDefaults[cn("FooBar1")]!!
-    assertThat(d2.gainIntensity).isEqualTo(AMAP)
-    assertThat(d2.removeIntensity).isEqualTo(OPTIONAL)
+    assertThat(d2.gainOnly.intensity).isEqualTo(AMAP)
+    assertThat(d2.removeOnly.intensity).isEqualTo(OPTIONAL)
 
     val d3 = loader.allDefaults[cn("Fixed")]!!
-    assertThat(d3.gainIntensity).isEqualTo(AMAP)
-    assertThat(d3.removeIntensity).isEqualTo(MANDATORY)
+    assertThat(d3.gainOnly.intensity).isEqualTo(AMAP)
+    assertThat(d3.removeOnly.intensity).isEqualTo(MANDATORY)
   }
 }
