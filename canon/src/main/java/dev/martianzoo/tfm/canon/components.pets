@@ -115,7 +115,7 @@ ABSTRACT CLASS HasActions {                            // specific actions come 
 CLASS Generation[GEN] { HAS 1 This }
 
 ABSTRACT CLASS Generational {                          // things that disappear between gens
-  ResearchPhase:: -This.                               // <-- and look, there they go
+  Generation:: -This.                                  // <-- and look, there they go
 }
 
 CLASS Turn : Signal                                    // TODO: should be owned

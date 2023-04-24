@@ -11,6 +11,7 @@ import dev.martianzoo.tfm.engine.Exceptions.LimitsException
 import dev.martianzoo.tfm.engine.PlayerSession
 import dev.martianzoo.tfm.repl.TestHelpers.assertCounts
 import dev.martianzoo.tfm.repl.TestHelpers.counts
+import dev.martianzoo.tfm.repl.TestHelpers.playCard
 import dev.martianzoo.tfm.repl.TestHelpers.stdProject
 import dev.martianzoo.tfm.repl.TestHelpers.turn
 import dev.martianzoo.tfm.repl.TestHelpers.useCardAction1
@@ -179,5 +180,51 @@ class SpecificCardsTest {
     eng.execute("ActionPhase")
     p1.useCardAction1("UnitedNationsMarsInitiative")
     p1.assertCounts(22 to "Megacredit", 22 to "TR")
+  }
+
+  @Test
+  fun aiCentral() {
+    val game = Engine.newGame(GameSetup(Canon, "BRM", 2))
+    val eng = PlayerSession(game)
+    val p1 = game.asPlayer(PLAYER1).session()
+
+    eng.execute("ActionPhase")
+    p1.execute("5 ProjectCard, 100, Steel")
+
+    p1.playCard(3, "SearchForLife")
+    p1.playCard(9, "InventorsGuild")
+
+    var cp = game.checkpoint()
+    p1.turn("UseAction1<PlayCardFromHand>")
+    assertThrows<RequirementException> { p1.doTask("PlayCard<Class<AiCentral>>") }
+    game.rollBack(cp)
+
+    p1.playCard(16, "DesignedMicroorganisms")
+
+    // Now I do have the 3 science tags, but not the energy production
+    cp = game.checkpoint()
+    p1.playCard(19, "AiCentral", "Pay<Class<S>> FROM S")
+    assertThrows<LimitsException> { p1.doTask("PROD[-Energy]") }
+    game.rollBack(cp)
+
+    // Give energy prod and try again - success
+    p1.execute("PROD[E]")
+    p1.playCard(19, "AiCentral", "Pay<Class<S>> FROM S")
+    p1.assertCounts(0 to "Production<Class<Energy>>")
+
+    // Use the action
+    p1.assertCounts(1 to "ProjectCard")
+    p1.useCardAction1("AiCentral")
+    p1.assertCounts(3 to "ProjectCard")
+
+    // Can't use it again
+    cp = game.checkpoint()
+    assertThrows<LimitsException> { p1.useCardAction1("AiCentral") }
+    game.rollBack(cp)
+
+    // Next gen we can again
+    eng.execute("Generation")
+    p1.useCardAction1("AiCentral")
+    p1.assertCounts(5 to "ProjectCard")
   }
 }
