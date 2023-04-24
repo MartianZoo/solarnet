@@ -76,11 +76,20 @@ class SpecificCardsTest {
     assertThat(p1.count("Steel")).isEqualTo(1)
 
     p1.execute("PROD[8, 6T, 7P, 5E, 3H]")
-    val prods = lookUpProductionLevels(p1.game.reader, p1.agent.player.expression)
+    val prods1 = lookUpProductionLevels(p1.game.reader, p1.agent.player.expression)
 
     // Being very lazy and depending on declaration order!
-    assertThat(prods.values).containsExactly(8, 1, 6, 7, 5, 3).inOrder()
+    assertThat(prods1.values).containsExactly(8, 1, 6, 7, 5, 3).inOrder()
     assertThat(p1.counts("M, S, T, P, E, H")).containsExactly(43, 1, 6, 7, 5, 3)
+
+    p1.execute("-7 Plant")
+    p1.execute("ProjectCard")
+    p1.execute("Moss")
+    assertThat(p1.game.tasks.isEmpty()).isTrue()
+
+    val prods2 = lookUpProductionLevels(p1.game.reader, p1.agent.player.expression)
+    assertThat(prods2.values).containsExactly(8, 1, 6, 8, 5, 3).inOrder()
+    assertThat(p1.counts("M, S, T, P, E, H")).containsExactly(43, 1, 6, 0, 5, 3)
   }
 
   @Test

@@ -209,6 +209,7 @@ public class MClassLoader( // TODO separate into loader and table
       }
 
   internal val allDefaults: Map<ClassName, Defaults> by lazy {
+    require(frozen)
     allClasses.associate { it.className to Defaults.forClass(it) } +
         allClasses.associate { it.shortName to Defaults.forClass(it) }
   }
