@@ -15,8 +15,8 @@ import dev.martianzoo.util.toStrings
 import java.util.SortedMap
 import java.util.TreeMap
 
-public class WritableTaskQueue(val eventLog: WritableEventLog) : TaskQueue {
-  internal val taskMap: SortedMap<TaskId, Task> = TreeMap() // TODO dejavafy
+internal class WritableTaskQueue(private val eventLog: WritableEventLog) : TaskQueue {
+  private val taskMap: SortedMap<TaskId, Task> = TreeMap() // TODO dejavafy
 
   override fun toString() = taskMap.values.joinToString("\n")
 
@@ -31,20 +31,20 @@ public class WritableTaskQueue(val eventLog: WritableEventLog) : TaskQueue {
   override val ids by taskMap::keys
   override fun isEmpty() = taskMap.isEmpty()
 
-  internal fun addTasks(effect: FiredEffect) =
-      addTasks(effect.instruction, effect.player, effect.cause)
-  internal fun addTasks(effects: Iterable<FiredEffect>) = effects.forEach(::addTasks)
+  internal fun addTasksFrom(effect: FiredEffect) =
+      addTasksFrom(effect.instruction, effect.player, effect.cause)
+  internal fun addTasksFrom(effects: Iterable<FiredEffect>) = effects.forEach(::addTasksFrom)
 
-  internal fun addTasks(
+  internal fun addTasksFrom(
       instruction: Instruction,
       taskOwner: Player,
       cause: Cause?,
       whyPending: String? = null
   ) {
-    addTasks(listOf(instruction), taskOwner, cause, whyPending)
+    addTasksFrom(listOf(instruction), taskOwner, cause, whyPending)
   }
 
-  internal fun addTasks(
+  internal fun addTasksFrom(
       instructions: Iterable<Instruction>,
       taskOwner: Player,
       cause: Cause?,
@@ -83,4 +83,6 @@ public class WritableTaskQueue(val eventLog: WritableEventLog) : TaskQueue {
   override fun nextAvailableId() = if (taskMap.none()) TaskId("A") else taskMap.lastKey().next()
 
   override fun toStrings(): List<String> = taskMap.values.toStrings()
+
+  override fun asMap() = taskMap.toMap()
 }

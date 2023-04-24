@@ -5,8 +5,7 @@ import dev.martianzoo.tfm.pets.ast.Instruction
 import dev.martianzoo.tfm.pets.ast.Instruction.Multi
 import dev.martianzoo.util.wrap
 
-data class Task
-constructor(
+public data class Task(
     /**
      * Identifies this task within a game at a particular point in time. These do get reused (for
      * user convenience) but of course no two have the same id at the same time.

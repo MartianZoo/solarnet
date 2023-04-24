@@ -18,7 +18,7 @@ import dev.martianzoo.tfm.pets.ast.ScaledExpression.Scalar.ActualScalar
 import dev.martianzoo.tfm.types.MClassLoader
 import kotlin.math.min
 
-class GameReaderImpl(
+internal class GameReaderImpl(
     val loader: MClassLoader,
     val components: ComponentGraph,
 ) : GameReader {

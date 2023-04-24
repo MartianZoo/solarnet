@@ -40,6 +40,10 @@ import kotlin.math.min
  * behavior that is useful to the engine. This loaded class should be the source for most
  * information you need to know about a class at runtime, but the declaration itself can always be
  * retrieved from it when necessary.
+ *
+ * (Think of it as being called `Class`; it has a prefix just to distinguish it from
+ * `java.lang.Class`. The name `MClass` comes from the fact that the object of the game is to
+ * turn Mars into a "class M planet".)
  */
 public data class MClass
 internal constructor(

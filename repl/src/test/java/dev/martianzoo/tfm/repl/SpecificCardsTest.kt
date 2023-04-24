@@ -45,7 +45,7 @@ class SpecificCardsTest {
         .containsExactly(3, 6, 2, 1, 1, 0)
         .inOrder()
 
-    val nextTask = p1.execute("LocalHeatTrapping").newTaskIdsAdded.single()
+    val nextTask = p1.execute("LocalHeatTrapping").tasksSpawned.single()
     assertThat(p1.counts("Card, Heat, CardBack, CardFront, Animal, PlayedEvent"))
         .containsExactly(3, 1, 1, 1, 1, 1)
         .inOrder()

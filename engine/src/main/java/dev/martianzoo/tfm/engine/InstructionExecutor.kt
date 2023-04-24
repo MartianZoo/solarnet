@@ -28,7 +28,7 @@ import dev.martianzoo.tfm.pets.ast.ScaledExpression.Scalar.ActualScalar
 import dev.martianzoo.tfm.pets.ast.TransformNode
 import dev.martianzoo.tfm.types.Transformers
 
-internal class ExecutionContext(
+internal class InstructionExecutor(
     val reader: GameReader,
     val writer: GameWriter,
     val xers: Transformers,

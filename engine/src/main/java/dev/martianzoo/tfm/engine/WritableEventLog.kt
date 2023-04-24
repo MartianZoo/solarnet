@@ -12,7 +12,7 @@ import dev.martianzoo.tfm.data.Task
 import dev.martianzoo.tfm.data.Task.TaskId
 import dev.martianzoo.tfm.engine.EventLog.Checkpoint
 
-public class WritableEventLog : EventLog {
+internal class WritableEventLog : EventLog {
   override val events: MutableList<GameEvent> = mutableListOf()
   override val size: Int by events::size
 

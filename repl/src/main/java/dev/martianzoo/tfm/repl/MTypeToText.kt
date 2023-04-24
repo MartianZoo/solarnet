@@ -89,7 +89,7 @@ object MTypeToText {
 
 
             Component $c:
-              effects:    ${c.activeEffects(session.game).map { it.original }.joinToString("""
+              effects:    ${c.petEffects.map { it.effect }.joinToString("""
                           """)}
               current ct: ${session.countComponent(c)}
           """

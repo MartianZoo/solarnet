@@ -60,6 +60,8 @@ public class Game(
 
   public val tasks: TaskQueue by ::writableTasks
 
+  public val reader: GameReader = GameReaderImpl(loader, components)
+
   init {
     require(loader.frozen)
 
@@ -108,9 +110,7 @@ public class Game(
             val requirement = RefinementMangler(proposed).transform(refin)
             if (!reader.evaluate(requirement)) throw UserException.requirementNotMet(requirement)
 
-            for ((a, b) in
-                abstractTarget.dependencies.typeDependencies.zip(
-                    proposed.dependencies.typeDependencies)) {
+            for ((a, b) in abstractTarget.typeDependencies.zip(proposed.typeDependencies)) {
               checkRefinements(a.boundType, b.boundType)
             }
           }
@@ -139,8 +139,6 @@ public class Game(
     }
   }
 
-  val reader = GameReaderImpl(loader, components)
-
   // CHANGE LOG
 
   public fun checkpoint() = events.checkpoint()
@@ -157,9 +155,9 @@ public class Game(
         is ChangeEvent -> {
           val change = entry.change
           writableComponents.reverse(
-              change.count,
-              removeWhatWasGained = change.gaining?.let(::toComponent),
-              gainWhatWasRemoved = change.removing?.let(::toComponent),
+            change.count,
+            removeWhatWasGained = change.gaining?.let(::toComponent),
+            gainWhatWasRemoved = change.removing?.let(::toComponent),
           )
         }
       }
@@ -167,7 +165,8 @@ public class Game(
     subList.clear()
   }
 
-  internal fun activeEffects(): List<ActiveEffect> = components.activeEffects(this)
+  // A little odd that activeEffects is only on "writable" components but okay
+  internal fun activeEffects(): List<ActiveEffect> = writableComponents.activeEffects(this)
 
   internal fun setupFinished() {
     start = checkpoint()
@@ -194,10 +193,12 @@ public class Game(
         override fun count(metric: Metric) = this@Game.reader.count(heyItsMe(metric))
       }
 
+    internal val writer: GameWriter = GameWriterImpl()
+
     private val insertOwner: PetTransformer by lazy {
       PureTransformers.transformInSeries(
         loader.transformers.deprodify(),
-        { PureTransformers.replaceOwnerWith(player.className) }.orNullIf(player == Player.ENGINE)
+        { PureTransformers.replaceOwnerWith(player.className) }.orNullIf(player == Player.ENGINE),
       )
     }
 
@@ -252,12 +253,13 @@ public class Game(
     fun initiate(instruction: Instruction, initialCause: Cause? = null): Result {
       val fixed = Instruction.split(heyItsMe(instruction))
       return doAtomic {
-        val excon = ExecutionContext(reader, writer, loader.transformers, player, initialCause)
-        for (instr in fixed) {
-          excon.doInstruction(instr)
-        }
+        val executor =
+          InstructionExecutor(reader, writer, loader.transformers, player, initialCause)
+        fixed.forEach { executor.doInstruction(it) }
       }
     }
+
+    fun tasks(): Map<TaskId, Task> = tasks.asMap()
 
     public fun doTask(taskId: TaskId, narrowed: Instruction? = null): Result {
       val checkpoint = checkpoint()
@@ -270,9 +272,9 @@ public class Game(
 
       return try {
         doAtomic {
-          val excon =
-            ExecutionContext(reader, writer, loader.transformers, player, requestedTask.cause)
-          excon.doInstruction(instruction)
+          val executor =
+            InstructionExecutor(reader, writer, loader.transformers, player, requestedTask.cause)
+          executor.doInstruction(instruction)
           removeTask(taskId)
         }
       } catch (e: UserException) {
@@ -297,44 +299,41 @@ public class Game(
 
       val (now, later) = (firedSelfEffects + firedOtherEffects).partition { it.automatic }
       for (fx in now) {
-        val excon = ExecutionContext(reader, writer, loader.transformers, player, fx.cause)
-        for (instr in Instruction.split(fx.instruction)) {
-          excon.doInstruction(instr)
-        }
+        val executor = InstructionExecutor(reader, writer, loader.transformers, player, fx.cause)
+        Instruction.split(fx.instruction).forEach(executor::doInstruction)
       }
-      writableTasks.addTasks(later) // TODO what was this TODO about?
+      writableTasks.addTasksFrom(later) // TODO what was this TODO about?
     }
 
-    internal val writer =
-      object : GameWriter {
-        override fun update(
-          count: Int,
-          gaining: Type?,
-          removing: Type?,
-          amap: Boolean,
-          cause: Cause?,
-        ) {
-          val g = gaining?.expressionFull
-          val r = removing?.expressionFull
+    inner class GameWriterImpl : GameWriter {
+      override fun update(
+        count: Int,
+        gaining: Type?,
+        removing: Type?,
+        amap: Boolean,
+        cause: Cause?,
+      ) {
+        val g = gaining?.expressionFull
+        val r = removing?.expressionFull
 
-          fun tryIt(): ChangeEvent? = sneakyChange(count, g, r, amap, cause)
-          val event =
-            try {
-              tryIt()
-            } catch (e: ExistingDependentsException) {
-              for (dept in e.dependents) {
-                update(Int.MAX_VALUE, removing = dept.mtype, amap = true, cause = cause)
-              }
-              tryIt()
-            } ?: return
+        fun tryIt(): ChangeEvent? = sneakyChange(count, g, r, amap, cause)
+        val event =
+          try {
+            tryIt()
+          } catch (e: ExistingDependentsException) {
+            for (dept in e.dependents) {
+              update(Int.MAX_VALUE, removing = dept.mtype, amap = true, cause = cause)
+            }
+            tryIt()
+          } ?: return
 
-          fireTriggers(event)
-        }
-
-        override fun addTasks(instruction: Instruction, taskOwner: Player, cause: Cause?) {
-          writableTasks.addTasks(instruction, taskOwner, cause)
-        }
+        fireTriggers(event)
       }
+
+      override fun addTasks(instruction: Instruction, taskOwner: Player, cause: Cause?) {
+        writableTasks.addTasksFrom(instruction, taskOwner, cause)
+      }
+    }
 
     public fun doAtomic(block: () -> Unit): Result {
       val checkpoint = checkpoint()
@@ -346,7 +345,5 @@ public class Game(
       }
       return events.activitySince(checkpoint)
     }
-
-    fun tasks(): Map<TaskId, Task> = writableTasks.taskMap.toMap()
   }
 }

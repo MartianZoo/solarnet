@@ -12,8 +12,7 @@ import dev.martianzoo.util.Multiset
 import dev.martianzoo.util.MutableMultiset
 import kotlin.math.min
 
-/** All the components making up the state of a single [Game]. */
-public class WritableComponentGraph : ComponentGraph {
+internal class WritableComponentGraph : ComponentGraph {
   private val multiset: MutableMultiset<Component> = HashMultiset()
 
   override operator fun contains(component: Component) = component in multiset.elements
@@ -26,7 +25,7 @@ public class WritableComponentGraph : ComponentGraph {
     return multiset.filter { it.mtype.isSubtypeOf(parentType) }
   }
 
-  override fun activeEffects(game: Game): List<ActiveEffect> =
+  fun activeEffects(game: Game): List<ActiveEffect> =
       multiset.flatMap { it.activeEffects(game) }.entries.map { (effect, count) -> effect * count }
 
   internal fun update(
@@ -72,7 +71,7 @@ public class WritableComponentGraph : ComponentGraph {
       actual = min(actual, removable)
 
       if (actual == removable) { // if we're removing them all
-        val dependents = dependentsOf(removing)
+        val dependents = multiset.filter { removing in it.dependencyComponents }
         if (dependents.any()) {
           throw ExistingDependentsException(dependents)
         }
@@ -108,9 +107,6 @@ public class WritableComponentGraph : ComponentGraph {
     }
     return actual
   }
-
-  internal fun dependentsOf(dependency: Component) =
-      multiset.filter { dependency in it.dependencyComponents }
 
   internal fun reverse(
       count: Int,

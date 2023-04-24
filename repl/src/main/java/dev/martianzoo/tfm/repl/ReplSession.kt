@@ -11,7 +11,7 @@ import dev.martianzoo.tfm.data.Task
 import dev.martianzoo.tfm.data.Task.TaskId
 import dev.martianzoo.tfm.engine.Engine
 import dev.martianzoo.tfm.engine.EventLog.Checkpoint
-import dev.martianzoo.tfm.engine.InteractiveException
+import dev.martianzoo.tfm.engine.Exceptions.InteractiveException
 import dev.martianzoo.tfm.engine.InteractiveSession
 import dev.martianzoo.tfm.engine.Result
 import dev.martianzoo.tfm.pets.Parsing.parseAsIs
@@ -442,7 +442,7 @@ public class ReplSession(var setup: GameSetup, private val jline: JlineRepl? = n
   }
 
   private fun describeExecutionResults(changes: Result): List<String> {
-    val oops: List<Task> = changes.newTaskIdsAdded.map { session.game.getTask(it) }
+    val oops: List<Task> = changes.tasksSpawned.map { session.game.getTask(it) }
 
     val interesting: List<ChangeEvent> = changes.changes.filterNot { isSystemOnly(it.change) }
     val changeLines = interesting.toStrings().ifEmpty { listOf("No state changes") }

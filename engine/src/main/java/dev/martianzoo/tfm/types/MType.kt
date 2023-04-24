@@ -30,6 +30,7 @@ internal constructor(
     override val refinement: Requirement? = null,
 ) : Type, Hierarchical<MType>, Reifiable<MType>, HasClassName by root {
   internal val loader by root::loader
+  internal val typeDependencies by dependencies::typeDependencies
 
   init {
     require(dependencies.keys.toList() == root.dependencies.keys.toList()) {

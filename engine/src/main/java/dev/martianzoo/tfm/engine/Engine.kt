@@ -14,7 +14,8 @@ import dev.martianzoo.tfm.types.MClassLoader
 
 /** Has functions for setting up new games and stuff. */
 public object Engine {
-  val loaderCache = mutableMapOf<GameSetup, MClassLoader>()
+  // TODO restore caching if we ever fix the MCL->Game dep
+  // val loaderCache = mutableMapOf<GameSetup, MClassLoader>()
 
   public fun loadClasses(setup: GameSetup): MClassLoader {
     // if (setup in loaderCache) return loaderCache[setup]!!
@@ -37,7 +38,6 @@ public object Engine {
     val agent = game.asPlayer(Player.ENGINE)
 
     val result: Result = agent.initiate(Gain.gain(scaledEx(1, ENGINE)))
-    require(result.newTaskIdsAdded.none())
     require(game.tasks.isEmpty())
 
     val fakeCause = Cause(Player.ENGINE, result.changes.first())

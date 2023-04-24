@@ -6,6 +6,7 @@ import dev.martianzoo.tfm.api.UserException
 import dev.martianzoo.tfm.data.Player
 import dev.martianzoo.tfm.data.Task.TaskId
 import dev.martianzoo.tfm.engine.EventLog.Checkpoint
+import dev.martianzoo.tfm.engine.Exceptions.InteractiveException
 import dev.martianzoo.tfm.engine.Game.PlayerAgent
 import dev.martianzoo.tfm.pets.Parsing.parseInput
 import dev.martianzoo.tfm.pets.PetTransformer
@@ -80,7 +81,7 @@ public class InteractiveSession(
           require(count is ActualScalar)
           agent.sneakyChange(count.value, it.gaining, it.removing)
         }
-    return Result(changes = changes, newTaskIdsAdded = setOf())
+    return Result(changes = changes, tasksSpawned = setOf())
   }
 
   fun execute(instruction: String, vararg tasks: String) {
@@ -98,10 +99,10 @@ public class InteractiveSession(
         val tasks = ArrayDeque<TaskId>()
         val firstResult = agent.initiate(instr)
         if (autoExec) {
-          tasks += firstResult.newTaskIdsAdded
+          tasks += firstResult.tasksSpawned
           while (tasks.any()) {
             val task = tasks.removeFirst()
-            tasks += doTaskAndAutoExec(task).newTaskIdsAdded
+            tasks += doTaskAndAutoExec(task).tasksSpawned
           }
         }
       }
@@ -134,12 +135,12 @@ public class InteractiveSession(
     val checkpoint = game.checkpoint()
 
     val firstResult: Result = agent.doTask(initialTaskId, narrowedInstruction?.let { prep(it) })
-    taskIdsToAutoExec += firstResult.newTaskIdsAdded - initialTaskId
+    taskIdsToAutoExec += firstResult.tasksSpawned - initialTaskId
 
     while (taskIdsToAutoExec.any()) {
       val thisTaskId: TaskId = taskIdsToAutoExec.removeFirst()
       val results: Result = agent.doTask(thisTaskId)
-      taskIdsToAutoExec += results.newTaskIdsAdded - thisTaskId
+      taskIdsToAutoExec += results.tasksSpawned - thisTaskId
     }
 
     return game.events.activitySince(checkpoint)

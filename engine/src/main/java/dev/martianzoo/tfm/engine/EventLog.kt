@@ -4,6 +4,10 @@ import dev.martianzoo.tfm.data.GameEvent
 import dev.martianzoo.tfm.data.GameEvent.ChangeEvent
 import dev.martianzoo.tfm.data.Task.TaskId
 
+/**
+ * A complete record of everything that happened in a particular game (in progress or finished). A
+ * complete game state could be reconstructed by replaying these events.
+ */
 interface EventLog {
   val events: List<GameEvent>
   val size: Int
