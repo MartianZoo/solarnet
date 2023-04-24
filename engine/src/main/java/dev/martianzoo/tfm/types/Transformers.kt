@@ -10,6 +10,7 @@ import dev.martianzoo.tfm.pets.PetTransformer
 import dev.martianzoo.tfm.pets.PureTransformers.noOp
 import dev.martianzoo.tfm.pets.PureTransformers.replaceThisWith
 import dev.martianzoo.tfm.pets.PureTransformers.transformInSeries
+import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.pets.ast.Effect
 import dev.martianzoo.tfm.pets.ast.Effect.Trigger.ByTrigger
@@ -30,6 +31,8 @@ import dev.martianzoo.tfm.types.Defaults.DefaultSpec
 import dev.martianzoo.tfm.types.Dependency.Key
 
 public class Transformers(private val loader: MClassLoader) { // TODO table??
+
+  internal val requiredClasses: Set<ClassName> = setOf(PRODUCTION)
 
   public fun deprodify(): PetTransformer {
     if (STANDARD_RESOURCE !in loader.allClassNamesAndIds ||

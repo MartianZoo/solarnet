@@ -7,6 +7,8 @@ ABSTRACT CLASS Anyone[ANY] {                      // aka Player
     HAS =1 This
 
     This:: 20 TerraformRating<This>               // Solo game support is in the far future...
+    This:: GrossHack<This>
+
     ResearchPhase: 4 BuyCard<This>?
 
     CLASS Player1[P1]
@@ -182,7 +184,6 @@ ABSTRACT CLASS Owned<Anyone> {
   // appear to be worse. This makes `PROD[1]` extremely dodgy -- almost worth taking steps to ban,
   // except that it does actually work just fine for Banker anyway.
   CLASS GrossHack : System {
-    HAS =1 This
     This:: PROD[5]
     ProductionPhase: -5!
   }

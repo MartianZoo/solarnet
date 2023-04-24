@@ -46,8 +46,11 @@ public class MClassLoader( // TODO separate into loader and table
 
   private val queue = ArrayDeque<ClassName>()
 
+  override val transformers = Transformers(this)
+
   init {
-    load(OK)
+    val names = (transformers.requiredClasses + OK).intersect(authority.allClassNames)
+    loadAll(names)
   }
 
   // TODO HACKHACKHACK
@@ -188,8 +191,6 @@ public class MClassLoader( // TODO separate into loader and table
     require(frozen)
     loadedClasses.keys
   }
-
-  override val transformers = Transformers(this)
 
   internal val generalInvariants: Set<Requirement> by lazy {
     allClasses.flatMap { it.generalInvars }.toSet()
