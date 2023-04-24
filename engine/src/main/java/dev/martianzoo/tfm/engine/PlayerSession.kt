@@ -32,7 +32,7 @@ import dev.martianzoo.util.Multiset
  *
  * It accepts `RAW[...]` nodes and (explain).
  */
-public class InteractiveSession(
+public class PlayerSession internal constructor(
     val agent: PlayerAgent,
     var defaultAutoExec: Boolean = true, // TODO 3 policies
 ) {
@@ -42,7 +42,7 @@ public class InteractiveSession(
   val game by agent::game
   val player by agent::player
 
-  public fun asPlayer(player: Player) = InteractiveSession(agent.asPlayer(player), defaultAutoExec)
+  public fun asPlayer(player: Player) = PlayerSession(agent.asPlayer(player), defaultAutoExec)
 
   // in case a shortname is used
   public fun asPlayer(player: ClassName) =

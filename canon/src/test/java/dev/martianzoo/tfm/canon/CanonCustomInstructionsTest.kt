@@ -5,7 +5,7 @@ import dev.martianzoo.tfm.api.GameSetup
 import dev.martianzoo.tfm.api.ResourceUtils
 import dev.martianzoo.tfm.data.Player.Companion.PLAYER1
 import dev.martianzoo.tfm.engine.Engine
-import dev.martianzoo.tfm.engine.InteractiveSession
+import dev.martianzoo.tfm.engine.PlayerSession
 import dev.martianzoo.util.toStrings
 import org.junit.jupiter.api.Test
 
@@ -80,13 +80,12 @@ private class CanonCustomInstructionsTest {
     // TODO: what if it wasn't a building card
   }
 
-  private fun newGameForP1(): InteractiveSession {
+  private fun newGameForP1(): PlayerSession {
     val setup = GameSetup(Canon, "BRM", 2)
-    val game = Engine.newGame(setup)
-    return InteractiveSession(game.asPlayer(PLAYER1))
+    return Engine.newGame(setup).asPlayer(PLAYER1).session()
   }
 
-  private fun checkProduction(sess: InteractiveSession, vararg exp: Int) {
+  private fun checkProduction(sess: PlayerSession, vararg exp: Int) {
     val agent = sess.agent
     assertThat(ResourceUtils.lookUpProductionLevels(agent.reader, agent.player).values)
         .containsExactlyElementsIn(exp.toList())

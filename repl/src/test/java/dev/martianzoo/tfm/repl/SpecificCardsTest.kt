@@ -8,7 +8,7 @@ import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.data.Player.Companion.PLAYER1
 import dev.martianzoo.tfm.engine.Engine
 import dev.martianzoo.tfm.engine.Exceptions.LimitsException
-import dev.martianzoo.tfm.engine.InteractiveSession
+import dev.martianzoo.tfm.engine.PlayerSession
 import dev.martianzoo.tfm.repl.TestHelpers.assertCounts
 import dev.martianzoo.tfm.repl.TestHelpers.counts
 import dev.martianzoo.tfm.repl.TestHelpers.stdProject
@@ -22,7 +22,7 @@ class SpecificCardsTest {
   @Test
   fun localHeatTrapping() {
     val game = Engine.newGame(Canon.SIMPLE_GAME)
-    val p1 = InteractiveSession(game.asPlayer(PLAYER1))
+    val p1 = game.asPlayer(PLAYER1).session()
 
     p1.execute("4 Heat, 3 ProjectCard, Pets")
     assertThat(p1.counts("Card, Heat, CardBack, CardFront, Animal, PlayedEvent"))
@@ -69,7 +69,7 @@ class SpecificCardsTest {
   @Test
   fun manutech() {
     val game = Engine.newGame(GameSetup(Canon, "BMV", 2))
-    val p1 = InteractiveSession(game.asPlayer(PLAYER1))
+    val p1 = game.asPlayer(PLAYER1).session()
 
     p1.execute("CorporationCard, Manutech")
     assertThat(p1.count("Production<Class<S>>")).isEqualTo(1)
@@ -86,7 +86,7 @@ class SpecificCardsTest {
   @Test
   fun sulphurEatingBacteria() {
     val game = Engine.newGame(GameSetup(Canon, "BMV", 2))
-    val p1 = InteractiveSession(game.asPlayer(PLAYER1))
+    val p1 = game.asPlayer(PLAYER1).session()
 
     p1.execute("ProjectCard THEN SulphurEatingBacteria")
     p1.execute("UseAction1<SulphurEatingBacteria>")
@@ -124,8 +124,8 @@ class SpecificCardsTest {
   @Test
   fun unmi() {
     val game = Engine.newGame(GameSetup(Canon, "BM", 2))
-    val eng = InteractiveSession(game)
-    val p1 = InteractiveSession(game.asPlayer(PLAYER1))
+    val eng = PlayerSession(game)
+    val p1 = game.asPlayer(PLAYER1).session()
 
     p1.turn("UnitedNationsMarsInitiative", "5 BuyCard")
     p1.assertCounts(25 to "Megacredit", 20 to "TR")
@@ -155,8 +155,8 @@ class SpecificCardsTest {
   @Test
   fun unmiOutOfOrder() {
     val game = Engine.newGame(GameSetup(Canon, "BM", 2))
-    val eng = InteractiveSession(game)
-    val p1 = InteractiveSession(game.asPlayer(PLAYER1))
+    val eng = PlayerSession(game)
+    val p1 = game.asPlayer(PLAYER1).session()
 
     p1.assertCounts(0 to "Megacredit", 20 to "TR")
 

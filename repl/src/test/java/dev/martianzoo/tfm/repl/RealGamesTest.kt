@@ -7,7 +7,7 @@ import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.data.Player.Companion.PLAYER1
 import dev.martianzoo.tfm.data.Player.Companion.PLAYER2
 import dev.martianzoo.tfm.engine.Engine
-import dev.martianzoo.tfm.engine.InteractiveSession
+import dev.martianzoo.tfm.engine.PlayerSession
 import dev.martianzoo.tfm.repl.TestHelpers.counts
 import dev.martianzoo.tfm.repl.TestHelpers.playCard
 import dev.martianzoo.tfm.repl.TestHelpers.stdProject
@@ -19,9 +19,9 @@ class RealGamesTest {
   @Test
   fun fourWholeGenerations() {
     val game = Engine.newGame(GameSetup(Canon, "BREPT", 2))
-    val p1 = InteractiveSession(game.asPlayer(PLAYER1))
-    val p2 = InteractiveSession(game.asPlayer(PLAYER2))
-    val engine = InteractiveSession(game)
+    val p1 = game.asPlayer(PLAYER1).session()
+    val p2 = game.asPlayer(PLAYER2).session()
+    val engine = PlayerSession(game)
 
     p1.execute("CorporationCard, LakefrontResorts, 3 BuyCard")
     p2.execute("CorporationCard, InterplanetaryCinematics, 8 BuyCard")
@@ -164,7 +164,7 @@ class RealGamesTest {
   @Test
   fun startOfEllieGameNoPrelude() {
     val game = Engine.newGame(GameSetup(Canon, "BRHX", 2))
-    val eng = InteractiveSession(game)
+    val eng = PlayerSession(game)
     val p1 = eng.asPlayer(PLAYER1)
     val p2 = eng.asPlayer(PLAYER2)
 
@@ -184,7 +184,7 @@ class RealGamesTest {
   @Test
   fun ellieGame() {
     val game = Engine.newGame(GameSetup(Canon, "BRHXP", 2))
-    val eng = InteractiveSession(game)
+    val eng = PlayerSession(game)
     val p1 = eng.asPlayer(PLAYER1)
     val p2 = eng.asPlayer(PLAYER2)
 

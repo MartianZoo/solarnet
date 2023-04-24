@@ -183,6 +183,8 @@ public class Game(
       public val game: Game,
       public val player: Player,
   ) {
+    public fun session(defaultAutoExec: Boolean = true) = PlayerSession(this, defaultAutoExec)
+
     public fun asPlayer(newPlayer: Player) = PlayerAgent(game, newPlayer)
 
     public val reader =

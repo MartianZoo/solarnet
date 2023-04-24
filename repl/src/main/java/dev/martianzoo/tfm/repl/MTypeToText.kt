@@ -2,7 +2,7 @@ package dev.martianzoo.tfm.repl
 
 import dev.martianzoo.tfm.api.SpecialClassNames.THIS
 import dev.martianzoo.tfm.engine.Component
-import dev.martianzoo.tfm.engine.InteractiveSession
+import dev.martianzoo.tfm.engine.PlayerSession
 import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.pets.ast.Instruction.Gain.Companion.gain
 import dev.martianzoo.tfm.pets.ast.Instruction.Remove
@@ -14,7 +14,7 @@ import dev.martianzoo.util.iff
 
 object MTypeToText {
   /** A detailed multi-line description of the class. */
-  public fun describe(expression: Expression, session: InteractiveSession): String {
+  public fun describe(expression: Expression, session: PlayerSession): String {
     val mtype = session.agent.reader.resolve(expression) as MType
     val mclass = mtype.root
 
