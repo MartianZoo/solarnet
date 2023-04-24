@@ -5,7 +5,6 @@ import dev.martianzoo.tfm.api.SpecialClassNames.THIS
 import dev.martianzoo.tfm.api.UserException
 import dev.martianzoo.tfm.data.Player
 import dev.martianzoo.tfm.data.Task.TaskId
-import dev.martianzoo.tfm.engine.EventLog.Checkpoint
 import dev.martianzoo.tfm.engine.Exceptions.InteractiveException
 import dev.martianzoo.tfm.engine.Game.PlayerAgent
 import dev.martianzoo.tfm.pets.Parsing.parseInput
@@ -33,28 +32,30 @@ import dev.martianzoo.util.Multiset
  *
  * It accepts `RAW[...]` nodes and (explain).
  */
-// TODO move from repl to engine
 public class InteractiveSession(
-    val game: Game,
-    val player: Player = Player.ENGINE,
+    val agent: PlayerAgent,
     var defaultAutoExec: Boolean = true, // TODO 3 policies
 ) {
-  public val agent: PlayerAgent = game.asPlayer(player)
+  public constructor(game: Game, defaultAutoExec: Boolean = true) :
+      this(game.asPlayer(Player.ENGINE), defaultAutoExec)
 
-  public fun asPlayer(player: Player) = InteractiveSession(game, player)
-  public fun asPlayer(player: ClassName): InteractiveSession {
-    // in case a shortname is used
-    return asPlayer(Player(game.resolve(player.expression).className))
-  }
+  val game by agent::game
+  val player by agent::player
+
+  public fun asPlayer(player: Player) = InteractiveSession(agent.asPlayer(player), defaultAutoExec)
+
+  // in case a shortname is used
+  public fun asPlayer(player: ClassName) =
+      asPlayer(Player(game.resolve(player.expression).className))
 
   // QUERIES
 
   fun count(metric: Metric): Int = agent.count(prep(metric))
   fun count(metric: String) = count(parseInput(metric))
-  fun countComponent(component: Component) = game.reader.countComponent(component.mtype)
+  fun countComponent(component: Component) = agent.reader.countComponent(component.mtype)
 
   fun list(expression: Expression): Multiset<Expression> { // TODO why not (M)Type?
-    val typeToList: MType = game.resolve(prep(expression))
+    val typeToList: MType = agent.reader.resolve(prep(expression)) as MType
     val allComponents: Multiset<Component> = agent.getComponents(prep(expression))
 
     val result = HashMultiset<Expression>()
@@ -155,9 +156,6 @@ public class InteractiveSession(
 
   fun dropTask(id: String) = agent.removeTask(TaskId(id))
 
-  fun rollBack(ordinal: Int) = game.rollBack(ordinal)
-  fun rollBack(checkpoint: Checkpoint) = game.rollBack(checkpoint)
-
   fun <P : PetElement> prep(node: P): P {
     val xers = game.loader.transformers
     val xer =
@@ -169,8 +167,6 @@ public class InteractiveSession(
             TransformNode.unwrapper(RAW))
     return xer.transform(node)
   }
-
-  fun agent(player: Player) = game.asPlayer(player)
 
   public fun useFullNames() =
       object : PetTransformer() {

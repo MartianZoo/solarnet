@@ -83,7 +83,7 @@ private class CanonCustomInstructionsTest {
   private fun newGameForP1(): InteractiveSession {
     val setup = GameSetup(Canon, "BRM", 2)
     val game = Engine.newGame(setup)
-    return InteractiveSession(game, PLAYER1)
+    return InteractiveSession(game.asPlayer(PLAYER1))
   }
 
   private fun checkProduction(sess: InteractiveSession, vararg exp: Int) {

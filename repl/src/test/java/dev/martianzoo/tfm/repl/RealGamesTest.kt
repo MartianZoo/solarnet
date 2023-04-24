@@ -19,8 +19,8 @@ class RealGamesTest {
   @Test
   fun fourWholeGenerations() {
     val game = Engine.newGame(GameSetup(Canon, "BREPT", 2))
-    val p1 = InteractiveSession(game, PLAYER1)
-    val p2 = InteractiveSession(game, PLAYER2)
+    val p1 = InteractiveSession(game.asPlayer(PLAYER1))
+    val p2 = InteractiveSession(game.asPlayer(PLAYER2))
     val engine = InteractiveSession(game)
 
     p1.execute("CorporationCard, LakefrontResorts, 3 BuyCard")

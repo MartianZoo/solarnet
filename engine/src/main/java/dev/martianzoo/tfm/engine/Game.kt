@@ -37,11 +37,11 @@ import dev.martianzoo.util.Multiset
  * Most state changes require going through [asPlayer] to get a [PlayerAgent].
  */
 public class Game(
-  /**
-   * Where the game will get all its information about component types from. Must already be
-   * frozen. (TODO MClassTable)
-   */
-  public val loader: MClassLoader
+    /**
+     * Where the game will get all its information about component types from. Must already be
+     * frozen. (TODO MClassTable)
+     */
+    public val loader: MClassLoader
 ) {
   // TODO expose only read-only interfaces for these three things
 
@@ -76,7 +76,7 @@ public class Game(
 
   // PLAYER AGENT
 
-  public fun asPlayer(player: Player) = PlayerAgent(player)
+  public fun asPlayer(player: Player) = PlayerAgent(this, player)
 
   public fun removeTask(id: TaskId) = writableTasks.removeTask(id)
 
@@ -155,9 +155,9 @@ public class Game(
         is ChangeEvent -> {
           val change = entry.change
           writableComponents.reverse(
-            change.count,
-            removeWhatWasGained = change.gaining?.let(::toComponent),
-            gainWhatWasRemoved = change.removing?.let(::toComponent),
+              change.count,
+              removeWhatWasGained = change.gaining?.let(::toComponent),
+              gainWhatWasRemoved = change.removing?.let(::toComponent),
           )
         }
       }
@@ -178,27 +178,29 @@ public class Game(
   }
 
   /** A view of a [Game] specific to a particular [Player] (a player or the engine). */
-  public inner class PlayerAgent internal constructor(
-    public val player: Player,
+  public class PlayerAgent
+  internal constructor(
+      public val game: Game,
+      public val player: Player,
   ) {
+    public fun asPlayer(newPlayer: Player) = PlayerAgent(game, newPlayer)
 
     public val reader =
-      object : GameReader by this@Game.reader {
-        override fun resolve(expression: Expression): MType =
-          this@Game.resolve(heyItsMe(expression))
+        object : GameReader by game.reader {
+          override fun resolve(expression: Expression): MType = game.resolve(heyItsMe(expression))
 
-        override fun evaluate(requirement: Requirement) =
-          this@Game.reader.evaluate(heyItsMe(requirement))
+          override fun evaluate(requirement: Requirement) =
+              game.reader.evaluate(heyItsMe(requirement))
 
-        override fun count(metric: Metric) = this@Game.reader.count(heyItsMe(metric))
-      }
+          override fun count(metric: Metric) = game.reader.count(heyItsMe(metric))
+        }
 
     internal val writer: GameWriter = GameWriterImpl()
 
     private val insertOwner: PetTransformer by lazy {
       PureTransformers.transformInSeries(
-        loader.transformers.deprodify(),
-        { PureTransformers.replaceOwnerWith(player.className) }.orNullIf(player == Player.ENGINE),
+          game.loader.transformers.deprodify(),
+          { PureTransformers.replaceOwnerWith(player.className) }.orNullIf(player == Player.ENGINE),
       )
     }
 
@@ -212,14 +214,14 @@ public class Game(
     public fun count(metric: Metric) = reader.count(metric)
 
     public fun getComponents(type: Expression): Multiset<Component> =
-        components.getAll(reader.resolve(type) as MType) // TODO think about
+        game.components.getAll(reader.resolve(type) as MType) // TODO think about
 
     public fun sneakyChange(
-      count: Int = 1,
-      gaining: Expression? = null,
-      removing: Expression? = null,
-      amap: Boolean = false,
-      cause: Cause? = null,
+        count: Int = 1,
+        gaining: Expression? = null,
+        removing: Expression? = null,
+        amap: Boolean = false,
+        cause: Cause? = null,
     ): ChangeEvent? {
       when (gaining) {
         SpecialClassNames.OK.expression -> {
@@ -235,115 +237,118 @@ public class Game(
         }
       }
 
-      val toGain: Component? = gaining?.let { toComponent(heyItsMe(it)) }
-      val toRemove: Component? = removing?.let { toComponent(heyItsMe(it)) }
-      val change: StateChange? = writableComponents.update(count, toGain, toRemove, amap)
-      return writableEvents.addChangeEvent(change, player, cause)
+      val toGain: Component? = gaining?.let { game.toComponent(heyItsMe(it)) }
+      val toRemove: Component? = removing?.let { game.toComponent(heyItsMe(it)) }
+      val change: StateChange? = game.writableComponents.update(count, toGain, toRemove, amap)
+      return game.writableEvents.addChangeEvent(change, player, cause)
     }
 
     /**
      * Attempts to carry out the entirety of [instruction] "manually" or "out of the blue", plus any
      * *automatic* triggered effects that result. If any of that fails the game state will remain
-     * unchanged and an exception will be thrown. If it succeeds, any non-automatic triggered effects
-     * will be left in the task queue. No other changes to the task queue will happen (for example,
-     * existing tasks are left alone, and [instruction] itself is never left enqueued.
+     * unchanged and an exception will be thrown. If it succeeds, any non-automatic triggered
+     * effects will be left in the task queue. No other changes to the task queue will happen (for
+     * example, existing tasks are left alone, and [instruction] itself is never left enqueued.
      *
-     * @param [instruction] an instruction to be performed as-is (no transformations will be applied)
+     * @param [instruction] an instruction to be performed as-is (no transformations will be
+     *   applied)
      */
     fun initiate(instruction: Instruction, initialCause: Cause? = null): Result {
       val fixed = Instruction.split(heyItsMe(instruction))
       return doAtomic {
         val executor =
-          InstructionExecutor(reader, writer, loader.transformers, player, initialCause)
+            InstructionExecutor(reader, writer, game.loader.transformers, player, initialCause)
         fixed.forEach { executor.doInstruction(it) }
       }
     }
 
-    fun tasks(): Map<TaskId, Task> = tasks.asMap()
+    fun tasks(): Map<TaskId, Task> = game.tasks.asMap()
 
     public fun doTask(taskId: TaskId, narrowed: Instruction? = null): Result {
-      val checkpoint = checkpoint()
-      val requestedTask: Task = getTask(taskId)
+      val checkpoint = game.checkpoint()
+      val requestedTask: Task = game.getTask(taskId)
       // require(requestedTask.player == player)
 
       val prepped = heyItsMe(narrowed)
-      prepped?.ensureReifies(requestedTask.instruction, einfo)
+      prepped?.ensureReifies(requestedTask.instruction, game.einfo)
       val instruction = prepped ?: requestedTask.instruction
 
       return try {
         doAtomic {
           val executor =
-            InstructionExecutor(reader, writer, loader.transformers, player, requestedTask.cause)
+              InstructionExecutor(
+                  reader, writer, game.loader.transformers, player, requestedTask.cause)
           executor.doInstruction(instruction)
           removeTask(taskId)
         }
       } catch (e: UserException) {
         if (requestedTask.whyPending != null) throw e
         val explainedTask = requestedTask.copy(whyPending = e.message)
-        writableTasks.replaceTask(explainedTask)
-        events.activitySince(checkpoint)
+        game.writableTasks.replaceTask(explainedTask)
+        game.events.activitySince(checkpoint)
       }
     }
 
-    public fun removeTask(taskId: TaskId) = this@Game.removeTask(taskId)
+    public fun removeTask(taskId: TaskId) = game.removeTask(taskId)
 
     private fun fireTriggers(triggerEvent: ChangeEvent) {
       val firedSelfEffects: List<FiredEffect> =
-        listOfNotNull(triggerEvent.change.gaining, triggerEvent.change.removing)
-          .map(::toComponent)
-          .flatMap { it.activeEffects(this@Game) }
-          .mapNotNull { it.onChangeToSelf(triggerEvent) }
+          listOfNotNull(triggerEvent.change.gaining, triggerEvent.change.removing)
+              .map(game::toComponent)
+              .flatMap { it.activeEffects(game) }
+              .mapNotNull { it.onChangeToSelf(triggerEvent) }
 
       val firedOtherEffects: List<FiredEffect> =
-        activeEffects().mapNotNull { it.onChangeToOther(triggerEvent) }
+          game.activeEffects().mapNotNull { it.onChangeToOther(triggerEvent) }
 
       val (now, later) = (firedSelfEffects + firedOtherEffects).partition { it.automatic }
       for (fx in now) {
-        val executor = InstructionExecutor(reader, writer, loader.transformers, player, fx.cause)
+        val executor =
+            InstructionExecutor(reader, writer, game.loader.transformers, player, fx.cause)
         Instruction.split(fx.instruction).forEach(executor::doInstruction)
       }
-      writableTasks.addTasksFrom(later) // TODO what was this TODO about?
+      game.writableTasks.addTasksFrom(later) // TODO what was this TODO about?
     }
 
     inner class GameWriterImpl : GameWriter {
       override fun update(
-        count: Int,
-        gaining: Type?,
-        removing: Type?,
-        amap: Boolean,
-        cause: Cause?,
+          count: Int,
+          gaining: Type?,
+          removing: Type?,
+          amap: Boolean,
+          cause: Cause?,
       ) {
         val g = gaining?.expressionFull
         val r = removing?.expressionFull
 
         fun tryIt(): ChangeEvent? = sneakyChange(count, g, r, amap, cause)
         val event =
-          try {
-            tryIt()
-          } catch (e: ExistingDependentsException) {
-            for (dept in e.dependents) {
-              update(Int.MAX_VALUE, removing = dept.mtype, amap = true, cause = cause)
-            }
-            tryIt()
-          } ?: return
+            try {
+              tryIt()
+            } catch (e: ExistingDependentsException) {
+              for (dept in e.dependents) {
+                update(Int.MAX_VALUE, removing = dept.mtype, amap = true, cause = cause)
+              }
+              tryIt()
+            } ?: return
 
         fireTriggers(event)
       }
 
       override fun addTasks(instruction: Instruction, taskOwner: Player, cause: Cause?) {
-        writableTasks.addTasksFrom(instruction, taskOwner, cause)
+        game.writableTasks.addTasksFrom(instruction, taskOwner, cause)
       }
     }
 
     public fun doAtomic(block: () -> Unit): Result {
-      val checkpoint = checkpoint()
+      val checkpoint = game.checkpoint()
       try {
         block()
       } catch (e: Exception) {
-        rollBack(checkpoint)
+        game.rollBack(checkpoint)
         throw e
       }
-      return events.activitySince(checkpoint)
+      return game.events.activitySince(checkpoint)
     }
   }
 }

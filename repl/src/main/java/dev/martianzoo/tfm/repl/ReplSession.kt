@@ -177,8 +177,7 @@ public class ReplSession(var setup: GameSetup, private val jline: JlineRepl? = n
         val (bundleString, players) = args.trim().split(Regex("\\s+"), 2)
 
         setup = GameSetup(authority, bundleString, players.toInt())
-        val newGame = Engine.newGame(setup)
-        session = InteractiveSession(newGame)
+        session = InteractiveSession(Engine.newGame(setup))
 
         return listOf("New $players-player game created with bundles: $bundleString") +
             if (players.toInt() == 1) {
@@ -280,7 +279,7 @@ public class ReplSession(var setup: GameSetup, private val jline: JlineRepl? = n
           I mean it shows a map.
         """
     override val isReadOnly = true
-    override fun noArgs() = MapToText(session.game.reader, jline != null).map()
+    override fun noArgs() = MapToText(session.agent.reader, jline != null).map()
   }
 
   internal inner class ModeCommand : ReplCommand("mode") {
@@ -390,9 +389,7 @@ public class ReplSession(var setup: GameSetup, private val jline: JlineRepl? = n
           tasks of all players plus the engine are currently mixed together (but labeled).
         """
     override val isReadOnly = true
-    override fun noArgs(): List<String> {
-      return session.game.tasks.toStrings()
-    }
+    override fun noArgs() = session.game.tasks.toStrings()
   }
 
   internal inner class TaskCommand : ReplCommand("task") {
@@ -500,7 +497,7 @@ public class ReplSession(var setup: GameSetup, private val jline: JlineRepl? = n
         """
 
     override fun withArgs(args: String): List<String> {
-      session.rollBack(args.toInt())
+      session.game.rollBack(args.toInt())
       return listOf("Rollback done")
     }
   }
