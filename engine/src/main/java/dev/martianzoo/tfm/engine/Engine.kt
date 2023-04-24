@@ -11,13 +11,14 @@ import dev.martianzoo.tfm.pets.ast.Instruction.Gain
 import dev.martianzoo.tfm.pets.ast.ScaledExpression.Companion.scaledEx
 import dev.martianzoo.tfm.pets.ast.classNames
 import dev.martianzoo.tfm.types.MClassLoader
+import dev.martianzoo.tfm.types.MClassTable
 
 /** Has functions for setting up new games and stuff. */
 public object Engine {
   // TODO restore caching if we ever fix the MCL->Game dep
   // val loaderCache = mutableMapOf<GameSetup, MClassLoader>()
 
-  public fun loadClasses(setup: GameSetup): MClassLoader {
+  public fun loadClasses(setup: GameSetup): MClassTable {
     // if (setup in loaderCache) return loaderCache[setup]!!
 
     val loader = MClassLoader(setup.authority, autoLoadDependencies = true)
@@ -27,14 +28,13 @@ public object Engine {
 
     if ("P" in setup.bundles) loader.load(cn("PreludePhase"))
 
-    loader.frozen = true
+    return loader.freeze()
     // loaderCache[setup] = loader
-    return loader
   }
 
   public fun newGame(setup: GameSetup): Game {
     val loader = loadClasses(setup)
-    val game = Game(loader)
+    val game = Game(setup.authority, loader)
     val agent = game.asPlayer(Player.ENGINE)
 
     val result: Result = agent.initiate(Gain.gain(scaledEx(1, ENGINE)))
@@ -50,8 +50,8 @@ public object Engine {
     return game
   }
 
-  private fun singletonCreateInstructions(loader: MClassLoader): List<Instruction> =
-      loader.allClasses
+  private fun singletonCreateInstructions(table: MClassTable): List<Instruction> =
+      table.allClasses
           .filter { 0 !in it.componentCountRange }
           .flatMap { it.baseType.concreteSubtypesSameClass() }
           .map { Gain.gain(scaledEx(1, it)) }

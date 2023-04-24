@@ -29,7 +29,7 @@ import dev.martianzoo.tfm.pets.ast.TransformNode
 import dev.martianzoo.tfm.types.Defaults.DefaultSpec
 import dev.martianzoo.tfm.types.Dependency.Key
 
-public class Transformers(val loader: MClassLoader) {
+public class Transformers(private val loader: MClassLoader) { // TODO table??
 
   public fun deprodify(): PetTransformer {
     if (STANDARD_RESOURCE !in loader.allClassNamesAndIds ||
@@ -204,12 +204,12 @@ public class Transformers(val loader: MClassLoader) {
       original: Expression,
       defaultDeps: DependencySet,
       contextCpt: Expression = THIS.expression,
-      loader: MClassLoader,
+      table: MClassTable,
   ): Expression {
 
-    val mclass: MClass = loader.getClass(original.className)
+    val mclass: MClass = table.getClass(original.className)
     val dethissed: Expression = replaceThisWith(contextCpt).transform(original)
-    val match: DependencySet = loader.matchPartial(dethissed.arguments, mclass.dependencies)
+    val match: DependencySet = table.matchPartial(dethissed.arguments, mclass.dependencies)
 
     val preferred: Map<Key, Expression> = match.keys.zip(original.arguments).toMap()
     val fallbacks: Map<Key, Expression> =

@@ -541,7 +541,7 @@ public class ReplSession(var setup: GameSetup, private val jline: JlineRepl? = n
     override fun withArgs(args: String): List<String> {
       val expression =
           if (args == "random") {
-            val randomBaseType = session.game.loader.allClasses.random().baseType
+            val randomBaseType = session.game.table.allClasses.random().baseType
             val randomType = randomBaseType.concreteSubtypesSameClass().toList().random()
             randomType.expression
           } else {

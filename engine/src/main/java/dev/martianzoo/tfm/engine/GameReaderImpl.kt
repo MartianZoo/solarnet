@@ -1,5 +1,6 @@
 package dev.martianzoo.tfm.engine
 
+import dev.martianzoo.tfm.api.Authority
 import dev.martianzoo.tfm.api.GameReader
 import dev.martianzoo.tfm.api.Type
 import dev.martianzoo.tfm.pets.ast.Expression
@@ -15,16 +16,15 @@ import dev.martianzoo.tfm.pets.ast.Requirement.Max
 import dev.martianzoo.tfm.pets.ast.Requirement.Min
 import dev.martianzoo.tfm.pets.ast.Requirement.Or
 import dev.martianzoo.tfm.pets.ast.ScaledExpression.Scalar.ActualScalar
-import dev.martianzoo.tfm.types.MClassLoader
+import dev.martianzoo.tfm.types.MClassTable
 import kotlin.math.min
 
 internal class GameReaderImpl(
-    val loader: MClassLoader,
+    override val authority: Authority,
+    val table: MClassTable,
     val components: ComponentGraph,
 ) : GameReader {
-  override val authority = loader.authority
-
-  override fun resolve(expression: Expression) = loader.resolve(expression)
+  override fun resolve(expression: Expression) = table.resolve(expression)
 
   override fun evaluate(requirement: Requirement): Boolean =
       when (requirement) {
@@ -51,10 +51,10 @@ internal class GameReaderImpl(
         is Metric.Transform -> error("should have been transformed by now: $metric")
       }
 
-  override fun count(type: Type) = components.count(loader.resolve(type))
+  override fun count(type: Type) = components.count(table.resolve(type))
 
   override fun countComponent(concreteType: Type) =
-      components.countComponent(Component.ofType(loader.resolve(concreteType)))
+      components.countComponent(Component.ofType(table.resolve(concreteType)))
 
-  override fun getComponents(type: Type) = components.getAll(loader.resolve(type)).map { it.mtype }
+  override fun getComponents(type: Type) = components.getAll(table.resolve(type)).map { it.mtype }
 }

@@ -82,9 +82,9 @@ internal class CanonClassesTest {
 
   @Test
   fun component() {
-    val table = MClassLoader(Canon)
+    val loader = MClassLoader(Canon)
 
-    table.componentClass.apply {
+    loader.componentClass.apply {
       assertThat(className).isEqualTo(COMPONENT)
       assertThat(abstract).isTrue()
       // assertThat(directDependencyKeys).isEmpty()
@@ -92,7 +92,7 @@ internal class CanonClassesTest {
       assertThat(directSuperclasses).isEmpty()
     }
 
-    table.load(cn("OceanTile")).apply {
+    loader.load(cn("OceanTile")).apply {
       // assertThat(directDependencyKeys).isEmpty()
       // assertThat(allDependencyKeys).containsExactly(Key(cn("Tile"), 0))
       assertThat(directSuperclasses.classNames())
@@ -103,8 +103,8 @@ internal class CanonClassesTest {
               cn("Component"), cn("Atomized"), cn("GlobalParameter"), cn("Tile"), cn("OceanTile"))
           .inOrder()
 
-      table.load(cn("MarsArea"))
-      assertThat(baseType).isEqualTo(table.resolve(te("OceanTile<MarsArea>")))
+      loader.load(cn("MarsArea"))
+      assertThat(baseType).isEqualTo(loader.resolve(te("OceanTile<MarsArea>")))
     }
   }
 
@@ -178,7 +178,7 @@ internal class CanonClassesTest {
 
   @Test
   fun generalInvariants() {
-    assertThat(loader.generalInvariants.toStrings())
+    assertThat((loader as MClassLoader).generalInvariants.toStrings())
         .containsExactly(
             // "MAX 1 Phase",
             "MAX 9 OceanTile",

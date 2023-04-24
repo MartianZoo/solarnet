@@ -10,14 +10,14 @@ import org.junit.jupiter.api.Test
 private class MTypeTest {
   @Test
   fun testCardboundWeirdness() {
-    val table: MClassLoader =
+    val table: MClassTable =
         loadTypes(
             """
             ABSTRACT CLASS Anyone {
               ABSTRACT CLASS Owner { CLASS Player1, Player2 }
             }
 
-            ABSTRACT CLASS Owned<Owner> { 
+            ABSTRACT CLASS Owned<Owner> {
               ABSTRACT CLASS CardFront
               ABSTRACT CLASS Cardbound<CardFront>
             }
@@ -65,9 +65,6 @@ private class MTypeTest {
           "CLASS Complex2: Complex1<Foo2, Bar2, Qux2>",
           "CLASS Complex3: Complex2<Foo3, Bar3, Qux3>",
           "CLASS TwoSame<Foo2, Foo2>")
-  init {
-    table.frozen = true
-  }
 
   @Test
   fun subtypes() {

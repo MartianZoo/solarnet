@@ -42,8 +42,8 @@ import kotlin.math.min
  * retrieved from it when necessary.
  *
  * (Think of it as being called `Class`; it has a prefix just to distinguish it from
- * `java.lang.Class`. The name `MClass` comes from the fact that the object of the game is to
- * turn Mars into a "class M planet".)
+ * `java.lang.Class`. The name `MClass` comes from the fact that the object of the game is to turn
+ * Mars into a "class M planet".)
  */
 public data class MClass
 internal constructor(
@@ -57,6 +57,7 @@ internal constructor(
     /** This class's superclasses that are exactly one step away; empty only for `Component`. */
     public val directSuperclasses: List<MClass> = superclasses(declaration, loader),
 ) : HasClassName, Hierarchical<MClass> {
+  public val table: MClassTable by ::loader
 
   /** The name of this class, in UpperCamelCase. */
   public override val className: ClassName = declaration.className.also { require(it != THIS) }
@@ -103,11 +104,11 @@ internal constructor(
   public val directSupertypes: Set<MType> by lazy {
     when {
       className == COMPONENT -> setOf()
-      declaration.supertypes.none() -> setOf(loader.componentClass.baseType)
+      declaration.supertypes.none() -> setOf(table.componentClass.baseType)
       else ->
           declaration.supertypes.toSetStrict {
             val dethissed = replaceThisWith(className.expression).transform(it)
-            loader.resolve(dethissed)
+            table.resolve(dethissed)
           }
     }
   }
@@ -121,24 +122,23 @@ internal constructor(
 
   /** Every class `c` for which `c.isSubclassOf(this)` is true, including this class itself. */
   public val allSubclasses: Set<MClass> by lazy {
-    loader.allClasses.filter { this in it.allSuperclasses }.toSet()
+    table.allClasses.filter { this in it.allSuperclasses }.toSet()
   }
 
   public val directSubclasses: Set<MClass> by lazy {
-    loader.allClasses.filter { this in it.directSuperclasses }.toSet()
+    table.allClasses.filter { this in it.directSuperclasses }.toSet()
   }
 
   /**
    * Whether this class serves as the intersection type of its full set of [directSuperclasses];
-   * that is, no other [MClass] loaded by this [MClassLoader] is a subclass of all of them unless it
-   * is also a subclass of `this`. An example is `OwnedTile`; since components like the `Landlord`
-   * award count `OwnedTile` components, it would be a bug if a component like
-   * `CommercialDistrictTile` (which is both an `Owned` and a `Tile`) forgot to also extend
-   * `OwnedTile`.
+   * that is, no other [MClass] in this [MClassTable] is a subclass of all of them unless it is also
+   * a subclass of `this`. An example is `OwnedTile`; since components like the `Landlord` award
+   * count `OwnedTile` components, it would be a bug if a component like `CommercialDistrictTile`
+   * (which is both an `Owned` and a `Tile`) forgot to also extend `OwnedTile`.
    */
   public val intersectionType: Boolean by lazy {
     directSuperclasses.size >= 2 &&
-        loader.allClasses
+        table.allClasses
             .filter { mclass -> directSuperclasses.all(mclass::isSubtypeOf) }
             .all(::isSupertypeOf)
   }
@@ -147,7 +147,7 @@ internal constructor(
 
   internal val dependencies: DependencySet by lazy {
     if (className == CLASS) { // TODO reduce special-casing
-      depsForClassType(loader.componentClass)
+      depsForClassType(table.componentClass)
     } else {
       inheritedDeps.merge(declaredDeps) { _, _ -> throw AssertionError() }
     }
@@ -158,7 +158,7 @@ internal constructor(
   }
 
   private fun createDep(i: Int, dep: Expression) =
-      TypeDependency(Key(className, i), loader.resolve(dep))
+      TypeDependency(Key(className, i), table.resolve(dep))
 
   private val inheritedDeps: DependencySet by lazy {
     val list: List<DependencySet> =
@@ -166,7 +166,7 @@ internal constructor(
           supertype.dependencies.map { mtype ->
             val depExpr = mtype.expressionFull
             val newArgs = depExpr.arguments.map { it.replaceAll(supertype.className, className) }
-            loader.resolve(depExpr.replaceArgs(newArgs))
+            table.resolve(depExpr.replaceArgs(newArgs))
           }
         }
     glb(list) ?: DependencySet.of()
@@ -187,7 +187,7 @@ internal constructor(
    * the type `Class<Resource>`.
    */
   internal val classType: MType by lazy {
-    loader.classClass.withAllDependencies(depsForClassType(this))
+    table.classClass.withAllDependencies(depsForClassType(this))
   }
 
   // EFFECTS
@@ -207,7 +207,7 @@ internal constructor(
     val transformer =
         if (OWNED !in allSuperclasses.classNames()) {
           transformInSeries(
-              attachToClassTransformer, loader.transformers.fixEffectForUnownedContext())
+              attachToClassTransformer, table.transformers.fixEffectForUnownedContext())
         } else {
           attachToClassTransformer
         }
@@ -222,8 +222,8 @@ internal constructor(
     val weirdExpression = className.refine(Min(scaledEx(1, OK)))
     transformInSeries(
         listOfNotNull(
-            loader.transformers.insertDefaults(weirdExpression),
-            loader.transformers.atomizer(),
+            table.transformers.insertDefaults(weirdExpression),
+            table.transformers.atomizer(),
         ))
   }
 
@@ -231,7 +231,7 @@ internal constructor(
 
   private val specificThenGeneralInvars: Pair<List<Requirement>, List<Requirement>> by lazy {
     val requirements = declaration.invariants.map(attachToClassTransformer::transform)
-    val xer = transformInSeries(loader.transformers.deprodify(), TransformNode.unwrapper(RAW))
+    val xer = transformInSeries(table.transformers.deprodify(), TransformNode.unwrapper(RAW))
     split(requirements).map { xer.transform(it) }.partition { THIS in it }
   }
 

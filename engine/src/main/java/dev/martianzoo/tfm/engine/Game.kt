@@ -1,5 +1,6 @@
 package dev.martianzoo.tfm.engine
 
+import dev.martianzoo.tfm.api.Authority
 import dev.martianzoo.tfm.api.ExpressionInfo
 import dev.martianzoo.tfm.api.GameReader
 import dev.martianzoo.tfm.api.GameWriter
@@ -24,24 +25,26 @@ import dev.martianzoo.tfm.pets.ast.Instruction
 import dev.martianzoo.tfm.pets.ast.Metric
 import dev.martianzoo.tfm.pets.ast.PetNode
 import dev.martianzoo.tfm.pets.ast.Requirement
-import dev.martianzoo.tfm.types.MClassLoader
+import dev.martianzoo.tfm.types.MClassTable
 import dev.martianzoo.tfm.types.MType
 import dev.martianzoo.util.Multiset
 
 /**
  * The mutable state of a game in progress. It is essentially an aggregation of three mutable
  * objects: an [EventLog] (representing the "past"), a [ComponentGraph] (representing the
- * "present"), and a [TaskQueue] (representing the "future"). It also has a reference to a frozen
- * [MClassLoader] that it pulls component classes from.
+ * "present"), and a [TaskQueue] (representing the "future"). It also has a reference to an
+ * [MClassTable] that it pulls component classes from.
  *
  * Most state changes require going through [asPlayer] to get a [PlayerAgent].
  */
 public class Game(
+    authority: Authority,
+
     /**
      * Where the game will get all its information about component types from. Must already be
-     * frozen. (TODO MClassTable)
+     * frozen.
      */
-    public val loader: MClassLoader
+    public val table: MClassTable,
 ) {
   // TODO expose only read-only interfaces for these three things
 
@@ -60,14 +63,12 @@ public class Game(
 
   public val tasks: TaskQueue by ::writableTasks
 
-  public val reader: GameReader = GameReaderImpl(loader, components)
+  public val reader: GameReader = GameReaderImpl(authority, table, components)
 
   init {
-    require(loader.frozen)
-
     // TODO BAD HACK
-    require(loader.game == null)
-    loader.game = this
+    require(table.game == null)
+    table.game = this
   }
 
   /** A checkpoint taken when the game initialization process ends. */
@@ -82,7 +83,7 @@ public class Game(
 
   // TYPE & COMPONENT CONVERSION
 
-  public fun resolve(expression: Expression): MType = loader.resolve(expression)
+  public fun resolve(expression: Expression): MType = table.resolve(expression)
 
   /**
    * Returns a component instance of type [expression], regardless of whether this component
@@ -124,7 +125,7 @@ public class Game(
   inner class RefinementMangler(private val proposed: MType) : PetTransformer() {
     override fun <P : PetNode> transform(node: P): P {
       return if (node is Expression) {
-        val tipo = loader.resolve(node)
+        val tipo = table.resolve(node)
         try {
           val modded = tipo.specialize(listOf(proposed.expression))
           @Suppress("UNCHECKED_CAST")
@@ -201,7 +202,7 @@ public class Game(
 
     private val insertOwner: PetTransformer by lazy {
       PureTransformers.transformInSeries(
-          game.loader.transformers.deprodify(),
+          game.table.transformers.deprodify(),
           { PureTransformers.replaceOwnerWith(player.className) }.orNullIf(player == Player.ENGINE),
       )
     }
@@ -259,7 +260,7 @@ public class Game(
       val fixed = Instruction.split(heyItsMe(instruction))
       return doAtomic {
         val executor =
-            InstructionExecutor(reader, writer, game.loader.transformers, player, initialCause)
+            InstructionExecutor(reader, writer, game.table.transformers, player, initialCause)
         fixed.forEach { executor.doInstruction(it) }
       }
     }
@@ -279,7 +280,7 @@ public class Game(
         doAtomic {
           val executor =
               InstructionExecutor(
-                  reader, writer, game.loader.transformers, player, requestedTask.cause)
+                  reader, writer, game.table.transformers, player, requestedTask.cause)
           executor.doInstruction(instruction)
           removeTask(taskId)
         }
@@ -306,7 +307,7 @@ public class Game(
       val (now, later) = (firedSelfEffects + firedOtherEffects).partition { it.automatic }
       for (fx in now) {
         val executor =
-            InstructionExecutor(reader, writer, game.loader.transformers, player, fx.cause)
+            InstructionExecutor(reader, writer, game.table.transformers, player, fx.cause)
         Instruction.split(fx.instruction).forEach(executor::doInstruction)
       }
       game.writableTasks.addTasksFrom(later) // TODO what was this TODO about?

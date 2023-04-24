@@ -157,7 +157,7 @@ public class PlayerSession internal constructor(
   fun dropTask(id: String) = agent.removeTask(TaskId(id))
 
   fun <P : PetElement> prep(node: P): P {
-    val xers = game.loader.transformers
+    val xers = game.table.transformers
     val xer =
         transformInSeries(
             useFullNames(), // TODO this one alone maybe (maybe) still belongs in repl
@@ -173,7 +173,7 @@ public class PlayerSession internal constructor(
         override fun <P : PetNode> transform(node: P): P {
           return if (node is ClassName) {
             @Suppress("UNCHECKED_CAST")
-            game.loader.getClass(node).className as P
+            game.table.getClass(node).className as P
           } else {
             node
           }

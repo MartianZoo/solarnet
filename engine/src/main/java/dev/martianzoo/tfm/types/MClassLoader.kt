@@ -26,19 +26,19 @@ public class MClassLoader( // TODO separate into loader and table
      * The source of class declarations to use as needed; [loadEverything] will load every class
      * found here.
      */
-    public val authority: Authority,
+    val authority: Authority,
 
     /**
      * Whether, when a class is loaded, to also load any classes that class depends on in some way.
      * By default, only superclasses are auto-loaded.
      */
     private val autoLoadDependencies: Boolean = false,
-) {
+) : MClassTable() {
   /** The `Component` class, which is the root of the class hierarchy. */
-  public val componentClass: MClass = MClass(decl(COMPONENT), this, directSuperclasses = listOf())
+  override val componentClass: MClass = MClass(decl(COMPONENT), this, directSuperclasses = listOf())
 
   /** The `Class` class, the other class that is required to exist. */
-  public val classClass: MClass =
+  override val classClass: MClass =
       MClass(decl(CLASS), this, directSuperclasses = listOf(componentClass))
 
   private val loadedClasses =
@@ -53,29 +53,29 @@ public class MClassLoader( // TODO separate into loader and table
   // TODO HACKHACKHACK
   // This is an absolutely stupid horrible hack. Fix it. Somehow.
 
-  public var game: Game? = null
+  override var game: Game? = null
 
   /**
    * Returns the [MClass] whose [MClass.className] or [MClass.shortName] is [name], or throws an
    * exception.
    */
-  public fun getClass(name: ClassName): MClass {
+  override fun getClass(name: ClassName): MClass {
     if (name !in loadedClasses) throw UserException.classNotFound(name)
     return loadedClasses[name] ?: error("reentrancy happened")
   }
 
   /** Returns the [MType] represented by [expression]. */
-  public fun resolve(expression: Expression): MType {
+  override fun resolve(expression: Expression): MType {
     return getClass(expression.className)
         .specialize(expression.arguments)
         .refine(expression.refinement)
   }
 
   /** Returns the corresponding [MType] to [type] (possibly [type] itself). */
-  public fun resolve(type: Type): MType = type as? MType ?: resolve(type.expression)
+  override fun resolve(type: Type): MType = type as? MType ?: resolve(type.expression)
 
   /** All classes loaded by this class loader; can only be accessed after the loader is [frozen]. */
-  public val allClasses: Set<MClass> by lazy {
+  override val allClasses: Set<MClass> by lazy {
     require(frozen)
     loadedClasses.values.map { it!! }.toSet()
   }
@@ -105,10 +105,9 @@ public class MClassLoader( // TODO separate into loader and table
       }
 
   /** Loads every class known to this class loader's backing [Authority], and freezes. */
-  public fun loadEverything(): MClassLoader {
+  public fun loadEverything(): MClassTable {
     authority.allClassNames.forEach(::loadSingle)
-    frozen = true
-    return this
+    return freeze()
   }
 
   private fun autoLoad(idsAndNames: Collection<ClassName>) {
@@ -168,11 +167,14 @@ public class MClassLoader( // TODO separate into loader and table
   }
 
   internal var frozen: Boolean = false
-    internal set(f) {
-      require(f) { "can't melt" }
-      field = f
-      validate()
-    }
+    private set
+
+  internal fun freeze(): MClassTable {
+    require(!frozen)
+    frozen = true
+    validate()
+    return this
+  }
 
   private fun validate() {
     allClasses.forEach { mclass ->
@@ -182,12 +184,12 @@ public class MClassLoader( // TODO separate into loader and table
     }
   }
 
-  internal val allClassNamesAndIds: Set<ClassName> by lazy {
+  override val allClassNamesAndIds: Set<ClassName> by lazy {
     require(frozen)
     loadedClasses.keys
   }
 
-  public val transformers = Transformers(this)
+  override val transformers = Transformers(this)
 
   internal val generalInvariants: Set<Requirement> by lazy {
     allClasses.flatMap { it.generalInvars }.toSet()
@@ -218,7 +220,7 @@ public class MClassLoader( // TODO separate into loader and table
    *
    * DON'T call this for the <Foo> in Class<Foo>, it won't work.
    */
-  internal fun matchPartial(expressionArgs: List<Expression>, deps: DependencySet): DependencySet {
+  override fun matchPartial(expressionArgs: List<Expression>, deps: DependencySet): DependencySet {
     val usedDeps = mutableSetOf<TypeDependency>()
     val list =
         expressionArgs.map { arg ->

@@ -183,7 +183,7 @@ private class MClassTest {
     assertThat(subSub.isSubtypeOf(barSub)).isTrue()
     assertThat(subSub.isSubtypeOf(subSub)).isTrue()
 
-    fun checkAutoAdjust(`in`: String, out: String, table: MClassLoader) =
+    fun checkAutoAdjust(`in`: String, out: String, table: MClassTable) =
         assertThat(table.resolve(te(`in`)).expressionFull.toString()).isEqualTo(out)
 
     checkAutoAdjust("Bar<SuperFoo>", "Bar<Foo>", table)
@@ -251,13 +251,13 @@ private class MClassTest {
   }
 }
 
-internal fun loader(petsText: String): MClassLoader {
+internal fun loader(petsText: String): MClassTable {
   val classes = parseClassDeclarations(petsText).toSetStrict()
   val authority =
       object : Authority.Empty() {
         override val explicitClassDeclarations = classes
       }
-  return MClassLoader(authority).also { it.loadEverything() }
+  return MClassLoader(authority).loadEverything()
 }
 
 val regex = Regex("^(\\w+).*")

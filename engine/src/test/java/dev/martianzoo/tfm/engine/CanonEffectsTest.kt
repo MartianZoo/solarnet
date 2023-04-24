@@ -8,6 +8,7 @@ import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.pets.ast.PetNode.Companion.unraw
 import dev.martianzoo.tfm.types.MClassLoader
+import dev.martianzoo.tfm.types.MClassTable
 import dev.martianzoo.tfm.types.te
 import dev.martianzoo.util.toStrings
 import org.junit.jupiter.api.Test
@@ -19,18 +20,19 @@ private class CanonEffectsTest {
     loader.load(OK) // TODO why?
     loader.load(cn("GlobalParameter")) // TODO why?
     loader.load(cn(name))
-    loader.frozen = true
-    return classEffectsOf(name, loader)
+
+    val table = loader.freeze()
+    return classEffectsOf(name, table)
   }
 
-  fun classEffectsOf(name: String, loader: MClassLoader): List<String> {
-    val card = loader.getClass(cn(name))
+  fun classEffectsOf(name: String, table: MClassTable): List<String> {
+    val card = table.getClass(cn(name))
     return card.classEffects.map { "${it.effect.unraw()}" }
   }
 
   fun componentEffectsOf(type: String): List<String> {
     val game = Engine.newGame(GameSetup(Canon, "BMC", 2))
-    val card = game.loader.resolve(te(type))
+    val card = game.table.resolve(te(type))
     val comp = Component.ofType(card)
     return comp.petEffects.map { it.effect }.toStrings()
   }
