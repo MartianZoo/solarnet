@@ -248,8 +248,6 @@ class SpecificCardsTest {
     // Now we can complete that task from before
     p1.doTask("Floater<ForcedPrecipitation>")
     p1.assertCounts(2 to "Floater")
-
-
   }
 
   @Test
@@ -282,7 +280,7 @@ class SpecificCardsTest {
     p1.execute("Airliners", "2 Floater<AtmoCollectors>")
     assertThat(lookUpProductionLevels(game.reader, PLAYER1).get(cn("Megacredit"))).isEqualTo(2)
 
-    p1.execute("CommunityServices") // 3 tagless cards
+    p1.execute("CommunityServices") // should be 3 tagless cards (Atmo, Airl, Comm)
 
     // TODO THIS IS BROKEN, should be 5 not 6
     assertThat(lookUpProductionLevels(game.reader, PLAYER1).get(cn("Megacredit"))).isEqualTo(6)
