@@ -55,7 +55,7 @@ internal class CanonClassesTest {
         .forEach { sup ->
           (sup.allSubclasses - setOf(sup)).forEach { map += sup.className to it.className }
         }
-    assertThat(map).containsExactly(cn("CityTile") to cn("Tile008"))
+    assertThat(map).containsExactly(cn("CityTile") to cn("CapitalTile"))
   }
 
   @Test

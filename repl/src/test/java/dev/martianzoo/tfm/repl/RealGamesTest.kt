@@ -34,7 +34,7 @@ class RealGamesTest {
     p1.execute("-30 THEN AsteroidMining")
 
     with(p2) {
-      execute("-4 Steel THEN -1 THEN NaturalPreserve", "Tile044<E37>")
+      execute("-4 Steel THEN -1 THEN NaturalPreserve", "NpTile<E37>")
       execute("-13 Steel THEN -1 THEN SpaceElevator")
       execute("UseAction1<SpaceElevator>")
       execute("-2 THEN InventionContest")

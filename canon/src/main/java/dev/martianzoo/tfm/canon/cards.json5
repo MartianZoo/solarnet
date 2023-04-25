@@ -593,12 +593,12 @@
       "bundle": "B",
       "deck": "PROJECT",
       "tags": [ "CityTag", "BuildingTag" ],
-      "immediate": "PROD[-2 Energy, 5], Tile008",
+      "immediate": "PROD[-2 Energy, 5], CapitalTile",
       "effects": [
         // The points attach to the card, not the tile
-        "End: VictoryPoint / Adjacency<Tile008, OceanTile>"
+        "End: VictoryPoint / Adjacency<CapitalTile, OceanTile>"
       ],
-      "components": [ "CLASS Tile008 : CityTile, SpecialTile" ],
+      "components": [ "CLASS CapitalTile : CityTile, SpecialTile" ],
       "requirement": "4 OceanTile",
       "cost": 26,
       "projectKind": "AUTOMATED"
@@ -975,9 +975,9 @@
       "bundle": "B",
       "deck": "PROJECT",
       "tags": [ "ScienceTag", "BuildingTag" ],
-      "immediate": "PROD[1], Tile044<LandArea(HAS MAX 0 Neighbor)>",
+      "immediate": "PROD[1], NpTile<LandArea(HAS MAX 0 Neighbor)>",
       "effects": [ "End: VictoryPoint" ],
-      "components": [ "CLASS Tile044 : SpecialTile" ],
+      "components": [ "CLASS NpTile : SpecialTile" ],
       "requirement": "MAX 4 OxygenStep",
       "cost": 9,
       "projectKind": "AUTOMATED"
@@ -1278,9 +1278,9 @@
       "bundle": "B",
       "deck": "PROJECT",
       "tags": [ "EarthTag" ],
-      "immediate": "2 TemperatureStep, Tile097",
+      "immediate": "2 TemperatureStep, NzTile",
       "effects": [ "End: -2 VictoryPoint" ],
-      "components": [ "CLASS Tile097 : SpecialTile" ],
+      "components": [ "CLASS NzTile : SpecialTile" ],
       "cost": 10,
       "projectKind": "AUTOMATED"
     },
@@ -1486,13 +1486,13 @@
       "bundle": "B",
       "deck": "PROJECT",
       "tags": [ "AnimalTag", "PlantTag" ],
-      "immediate": "Tile128<LandArea(HAS Neighbor<GreeneryTile<Anyone>>)>",
+      "immediate": "EzTile<LandArea(HAS Neighbor<GreeneryTile<Anyone>>)>",
       "effects": [
         "AnimalTag: Animal<This>",
         "PlantTag: Animal<This>",
         "End: VictoryPoint / Animal<This>"
       ],
-      "components": [ "CLASS Tile128 : SpecialTile" ],
+      "components": [ "CLASS EzTile : SpecialTile" ],
       "resourceType": "Animal",
       "requirement": "GreeneryTile",
       "cost": 12,
@@ -1631,8 +1631,8 @@
       "id": "140",
       "bundle": "B",
       "deck": "PROJECT",
-      "immediate": "2 TemperatureStep, Tile140<VolcanicArea> OR (MAX 0 VolcanicArea: Tile140)",
-      "components": [ "CLASS Tile140 : SpecialTile" ],
+      "immediate": "2 TemperatureStep, LfTile<VolcanicArea> OR (MAX 0 VolcanicArea: LfTile)",
+      "components": [ "CLASS LfTile : SpecialTile" ],
       "cost": 18,
       "projectKind": "EVENT"
     },
@@ -1654,8 +1654,8 @@
       "bundle": "B",
       "deck": "PROJECT",
       "tags": [ "BuildingTag" ],
-      "immediate": "PROD[4 Heat], Tile142<WaterArea>",
-      "components": [ "CLASS Tile142 : SpecialTile" ],
+      "immediate": "PROD[4 Heat], MaTile<WaterArea>",
+      "components": [ "CLASS MaTile : SpecialTile" ],
       "cost": 20,
       "projectKind": "AUTOMATED"
     },
@@ -2446,9 +2446,9 @@
       "bundle": "R",
       "deck": "PROJECT",
       "tags": [ "BuildingTag" ],
-      "immediate": "PROD[-Energy, 4], Tile085",
-      "effects": [ "End: VictoryPoint / Adjacency<Tile085, CityTile<Anyone>>" ],
-      "components": [ "CLASS Tile085 : SpecialTile" ],
+      "immediate": "PROD[-Energy, 4], CdTile",
+      "effects": [ "End: VictoryPoint / Adjacency<CdTile, CityTile<Anyone>>" ],
+      "components": [ "CLASS CdTile : SpecialTile" ],
       "cost": 16,
       "projectKind": "AUTOMATED"
     },
@@ -2645,9 +2645,9 @@
       "bundle": "R",
       "deck": "PROJECT",
       "tags": [ "BuildingTag" ],
-      "immediate": "Tile123<LandArea(HAS Neighbor<CityTile<Anyone>>)>",
+      "immediate": "IcTile<LandArea(HAS Neighbor<CityTile<Anyone>>)>",
       "actions": [ "7 -> PROD[Steel]" ],
-      "components": [ "CLASS Tile123 : SpecialTile" ],
+      "components": [ "CLASS IcTile : SpecialTile" ],
       "cost": 4,
       "projectKind": "ACTIVE"
     },
@@ -2880,9 +2880,9 @@
       "bundle": "R",
       "deck": "PROJECT",
       "tags": [ "ScienceTag" ],
-      "immediate": "Tile199",
+      "immediate": "RaTile",
       "actions": [ "2 -> ProjectCard" ],
-      "components": [ "CLASS Tile199 : SpecialTile" ],
+      "components": [ "CLASS RaTile : SpecialTile" ],
       "cost": 11,
       "projectKind": "ACTIVE"
     },
@@ -4258,8 +4258,8 @@
       "replaces": "039",
       "deck": "PROJECT",
       "tags": [ "SpaceTag" ],
-      "immediate": "3 TemperatureStep, 4 Steel, -6 Plant<Anyone>?, TileX31<LandArea(HAS MAX 0 Neighbor<CityTile<Anyone>>)>",
-      "components": [ "CLASS TileX31 : SpecialTile" ],
+      "immediate": "3 TemperatureStep, 4 Steel, -6 Plant<Anyone>?, DdTile<LandArea(HAS MAX 0 Neighbor<CityTile<Anyone>>)>",
+      "components": [ "CLASS DdTile : SpecialTile" ],
       "cost": 31,
       "projectKind": "EVENT"
     },
@@ -4271,9 +4271,9 @@
       "replaces": "136",
       "deck": "PROJECT",
       "tags": [ "PowerTag", "BuildingTag" ],
-      "immediate": "PROD[2 Energy], TileX32<LandArea(HAS Neighbor<OceanTile>)>",
+      "immediate": "PROD[2 Energy], GdTile<LandArea(HAS Neighbor<OceanTile>)>",
       "effects": [ "End: VictoryPoint" ],
-      "components": [ "CLASS TileX32 : SpecialTile" ],
+      "components": [ "CLASS GdTile : SpecialTile" ],
       "requirement": "4 OceanTile",
       "cost": 15,
       "projectKind": "AUTOMATED"
@@ -4286,8 +4286,8 @@
       "replaces": "165",
       "deck": "PROJECT",
       "tags": [ "BuildingTag" ],
-      "immediate": "PROD[-4 Energy, 2 Plant], 3 TerraformRating, TileX33",
-      "components": [ "CLASS TileX33 : SpecialTile" ],
+      "immediate": "PROD[-4 Energy, 2 Plant], 3 TerraformRating, MfgTile",
+      "components": [ "CLASS MfgTile : SpecialTile" ],
       "cost": 22,
       "projectKind": "AUTOMATED"
     },
