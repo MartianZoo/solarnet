@@ -6,28 +6,23 @@ import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.util.toSetStrict
 
-// Note: this was easier to test in .engine than anywhere near here (ApiHelpersTest)
-
-/**
- * Simple helper functions relating to standard resources, mostly for use by custom instructions.
- */
-object ResourceUtils { // TODO this doesn't belong here
+/** Simple TfM-specific client helper functions, mostly for use by custom instructions. */
+object ApiUtils {
   /**
    * Returns a map with six entries, giving [player]'s current production levels, adjusting
-   * megacredit product to account for our horrible hack.
+   * megacredit production to account for our GrossHack.
    */
   fun lookUpProductionLevels(game: GameReader, player: Expression): Map<ClassName, Int> =
       standardResourceNames(game).associateWith {
         val type = game.resolve(PRODUCTION.addArgs(player, it.classExpression()))
-        val rawCount = game.count(type)
-        if (it == MEGACREDIT) {
-          rawCount - 5
-        } else {
-          rawCount
-        }
+        game.count(type) - if (it == MEGACREDIT) 5 else 0
       }
 
-  fun lookUpProductionLevels(game: GameReader, player: Player): Map<ClassName, Int> =
+  /**
+   * Returns a map with six entries, giving [player]'s current production levels, adjusting
+   * megacredit production to account for our GrossHack.
+   */
+  fun lookUpProductionLevels(game: GameReader, player: Player) =
       lookUpProductionLevels(game, player.expression)
 
   /** Returns the name of every concrete class of type `StandardResource`. */
@@ -41,7 +36,7 @@ object ResourceUtils { // TODO this doesn't belong here
     return game.authority.allClassNames.filter { it in names }.toSetStrict()
   }
 
-  // TODO definitely doesn't belong here
+  /** Returns the mars map definition being used in this game (there must be exactly one). */
   fun mapDefinition(game: GameReader): MarsMapDefinition {
     val map = game.resolve(MARS_MAP.expression)
     val mapName = game.getComponents(map).single().className

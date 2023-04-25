@@ -1,8 +1,8 @@
 package dev.martianzoo.tfm.engine
 
 import com.google.common.truth.Truth.assertThat
-import dev.martianzoo.tfm.api.ResourceUtils.lookUpProductionLevels
-import dev.martianzoo.tfm.api.ResourceUtils.standardResourceNames
+import dev.martianzoo.tfm.api.ApiUtils.lookUpProductionLevels
+import dev.martianzoo.tfm.api.ApiUtils.standardResourceNames
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.data.Player.Companion.PLAYER1
 import dev.martianzoo.tfm.pets.ast.ClassName
@@ -10,7 +10,7 @@ import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.util.toStrings
 import org.junit.jupiter.api.Test
 
-private class ResourceUtilsTest {
+private class ApiUtilsTest {
   @Test
   fun testLookUpProdLevelsUsingCanon() {
     val session = PlayerSession(Engine.newGame(Canon.SIMPLE_GAME))

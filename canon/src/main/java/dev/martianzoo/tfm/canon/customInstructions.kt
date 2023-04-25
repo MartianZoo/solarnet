@@ -1,10 +1,10 @@
 package dev.martianzoo.tfm.canon
 
+import dev.martianzoo.tfm.api.ApiUtils.lookUpProductionLevels
+import dev.martianzoo.tfm.api.ApiUtils.mapDefinition
 import dev.martianzoo.tfm.api.CustomInstruction
 import dev.martianzoo.tfm.api.GameReader
 import dev.martianzoo.tfm.api.GameWriter
-import dev.martianzoo.tfm.api.ResourceUtils.lookUpProductionLevels
-import dev.martianzoo.tfm.api.ResourceUtils.mapDefinition
 import dev.martianzoo.tfm.api.SpecialClassNames.CLASS
 import dev.martianzoo.tfm.api.SpecialClassNames.PROD
 import dev.martianzoo.tfm.api.Type

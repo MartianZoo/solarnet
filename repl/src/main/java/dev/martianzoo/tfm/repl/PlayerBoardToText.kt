@@ -1,7 +1,7 @@
 package dev.martianzoo.tfm.repl
 
-import dev.martianzoo.tfm.api.ResourceUtils.lookUpProductionLevels
-import dev.martianzoo.tfm.api.ResourceUtils.standardResourceNames
+import dev.martianzoo.tfm.api.ApiUtils.lookUpProductionLevels
+import dev.martianzoo.tfm.api.ApiUtils.standardResourceNames
 import dev.martianzoo.tfm.data.Player
 import dev.martianzoo.tfm.engine.PlayerSession
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
