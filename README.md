@@ -43,10 +43,10 @@ Some ideas
 
 There is much unwritten, sorry.
 
-* [FAQ](docs/faq.md)
 * Overview of [component types](docs/component-types.md) -- a good place to start
-* Pets language [syntax reference](docs/syntax.md)
-* The Pets [type system](docs/type-system.md) (not finished)
+* Pets language [language intro](docs/language-intro.md) and [syntax reference](docs/syntax.md)
+* The Pets [type system](docs/type-system.md) (incomplete)
+* A [FAQ](docs/faq.md) that should be pretty readable without technical expertise I think
 * API docs -- see below
 
 ### Mess around with it?
