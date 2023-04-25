@@ -52,3 +52,20 @@ A change to that state is nothing but adding components, removing components, or
 (Well, this is almost true. There are also task queues, which keep track of what the game is waiting on each player to do. But this is a topic for later.)
 
 ### This page is very incomplete
+
+(insert more stuff here)
+
+### The Pets language
+
+There are several basic elements to the language.
+
+* Instructions (`-2 Plant` means "lose two plants")
+* Requirements (`MAX 4 TemperatureStep` means "is the temperature at most -22 C?")
+* Metrics (`SpaceTag<!Me>` means "number of opponents' space tags", as in `PROD[1 / SpaceTag<!Me>]`) (well, the `!Me` is not yet implemented)
+* Effects (`EventCard: 3` means "when you play an event card, gain 3 MC")
+* Actions (`Steel -> 5` means "spend 1 steel to gain 5 MC")
+* Component expressions (`CityTile<LandArea(HAS 2 Neighbor<CityTile<Anyone>>)>` means "a city tile on a land area next to >=2 city tiles", no matter which of the above element kinds it appears in)
+* ChangeEvents, aka game log entries (`469: +OxygenStep FOR Player2 BY GreeneryTile<Player2, Tharsis_5_5> BECAUSE 448`)
+* Class declarations (`CLASS TerraformRating { ProductionPhase: 1; End: VictoryPoint }`)
+
+See [syntax-reference.md]
