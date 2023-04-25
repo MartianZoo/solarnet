@@ -29,7 +29,7 @@ I've spent most of my free time working on this for about two years. I'm sure it
 Some ideas
 
 * Hop on the [discord](https://discord.com/invite/3vpKDktmde) (it is very little-used so far) and ask whatever.
-* Try reading and commenting on current [issues/feature-requests](/MartianZoo/solarnet/issues). Some are relatively standalone.
+* Try reading and commenting on current [issues/feature-requests](http://github.com/MartianZoo/solarnet/issues). Some are relatively standalone.
 * Grab the code, run the REPL and try messing around with it to see what it does.
 * Anything you try to learn about it that results in you asking me questions is actually helpful. There's a lot of stuff here and I don't know what to document or do a video about next.
 
