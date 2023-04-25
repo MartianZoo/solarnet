@@ -21,29 +21,6 @@ As of 2023-04, the number of rows in this table plus entries in cards.json shoul
 | B00 | Beginner Corporation | beginner |
 | CC3 | Polyphemos | buycard |
 | TC4 | TerraLabs Research | buycard |
-| 222 | Dirigibles | cardresourceas |
-| P39 | Psychrophiles | cardresourceas |
-| CC4 | Poseidon | colonies |
-| C07 | Cryo-Sleep | colonies |
-| C09 | Ecology Research | colonies |
-| C15 | Ice Moon Colony | colonies |
-| C17 | Interplanetary Colony Ship | colonies |
-| C23 | Market Manipulation | colonies |
-| C25 | Mining Colony | colonies |
-| C26 | Minority Refuge | colonies |
-| C27 | Molecular Printing | colonies |
-| C29 | Pioneer Settlement | colonies |
-| C31 | Quantum Communications | colonies |
-| C34 | Research Colony | colonies |
-| C35 | Rim Freighters | colonies |
-| C36 | Sky Docks | colonies |
-| C39 | Space Port | colonies |
-| C40 | Space Port Colony | colonies |
-| C44 | Titan Floating Launch-Pad | colonies |
-| C46 | Trade Envoys | colonies |
-| C47 | Trading Colony | colonies |
-| C48 | Urban Decomposers | colonies |
-| C30 | Productive Outpost | colonies, bonuses |
 | XC1 | Arcadian Communities | community |
 | 066 | Land Claim | community |
 | XC5 | Mons Insurance | complement |
@@ -67,6 +44,9 @@ As of 2023-04, the number of rows in this table plus entries in cards.json shoul
 | PC5 | Vitor | firstaction, awards |
 | B03 | Helion | helion |
 | XC6 | Philares | outofturn |
+| 222 | Dirigibles | payresource |
+| P39 | Psychrophiles | payresource |
+| CC5 | Stormcraft Incorporated | payresource |
 | X06 | Law Suit | playerplayer |
 | XC4 | Factorum | realcards |
 | XC8 | Pharmacy Union | realcards |
@@ -82,11 +62,33 @@ As of 2023-04, the number of rows in this table plus entries in cards.json shoul
 | X42 | New Partner | realcards |
 | X41 | Merger | realcards |
 | X39 | Corporate Archives | realcards |
-| CC5 | Stormcraft Incorporated | resourceas |
 | 210 | Self-Replicating Robots | selfrep |
 | TC5 | Utopia Invest | thenspec |
 | 188 | Flooding | thenspec |
+| P28 | Research Network | wildtag |
+| P40 | Research Coordination | wildtag |
 | TC3 | Septem Tribus | wildtag, turmoil |
+| CC4 | Poseidon | colonies |
+| C07 | Cryo-Sleep | colonies |
+| C09 | Ecology Research | colonies |
+| C15 | Ice Moon Colony | colonies |
+| C17 | Interplanetary Colony Ship | colonies |
+| C23 | Market Manipulation | colonies |
+| C25 | Mining Colony | colonies |
+| C26 | Minority Refuge | colonies |
+| C27 | Molecular Printing | colonies |
+| C29 | Pioneer Settlement | colonies |
+| C31 | Quantum Communications | colonies |
+| C34 | Research Colony | colonies |
+| C35 | Rim Freighters | colonies |
+| C36 | Sky Docks | colonies |
+| C39 | Space Port | colonies |
+| C40 | Space Port Colony | colonies |
+| C44 | Titan Floating Launch-Pad | colonies |
+| C46 | Trade Envoys | colonies |
+| C47 | Trading Colony | colonies |
+| C48 | Urban Decomposers | colonies |
+| C30 | Productive Outpost | colonies, bonuses |
 | T01 | Aerial Lenses | turmoil |
 | T02 | Banned Delegate | turmoil |
 | T03 | Cultural Metropolis | turmoil |
@@ -104,5 +106,3 @@ As of 2023-04, the number of rows in this table plus entries in cards.json shoul
 | T15 | Wildlife Dome | turmoil |
 | T16 | Vote Of No Confidence | turmoil |
 | X09 | Political Alliance | turmoil |
-| P28 | Research Network | wildtag |
-| P40 | Research Coordination | wildtag |
