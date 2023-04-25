@@ -68,4 +68,4 @@ There are several basic elements to the language.
 * ChangeEvents, aka game log entries (`469: +OxygenStep FOR Player2 BY GreeneryTile<Player2, Tharsis_5_5> BECAUSE 448`)
 * Class declarations (`CLASS TerraformRating { ProductionPhase: 1; End: VictoryPoint }`)
 
-See [syntax-reference.md]
+See [syntax-reference.md](syntax-reference.md)
