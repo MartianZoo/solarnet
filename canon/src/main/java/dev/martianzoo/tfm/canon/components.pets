@@ -3,49 +3,52 @@
 // every other class its definition refers to to be defined as well (with the possible exception of
 // effect *triggers*, since we can reason tht those triggers would simply never happen anyway.
 
-// This file has game stuff that isn't player-specific
+// This file has game stuff that isn't player-specific. See player.pets for the rest.
 
-ABSTRACT CLASS Component {                             // Component is the single root of the
-  DEFAULT +Component!                                  // hierarchy
+ABSTRACT CLASS Component {                             // the single root of the whole hierarchy
+  DEFAULT +Component!
   DEFAULT -Component!
 }
 
 ABSTRACT CLASS System {
-  CLASS Class<Component> [C] { HAS =1 This }           // magic rule: can have only <\w+>
-
+  CLASS Class<Component> { HAS =1 This }               // magic rule: only a single name can go
+                                                       // inside the <>; the `Class<Foo>` type is
+                                                       // abstract iff the Foo class is abstract
   ABSTRACT CLASS Temporary {
     ABSTRACT CLASS Signal {                            // you'll never observe it existing, but
-      This:: -This!                                    // things can still be triggered by it.
+      This:: -This!                                    // things can still be triggered by it
 
-      CLASS Ok                                         // Nothing should ever trigger on this
-      CLASS Die { HAS MAX 0 This }                     // Impossible to create, which is the point
+      CLASS Ok                                         // magic rule: this should not be allowed to
+                                                       // trigger anything
+      CLASS Die { HAS MAX 0 This }                     // impossible to create, which is the point
     }
   }
 
-  CLASS Engine {
-    HAS MAX 1 This                                     // Created manually to kick everything off
+  CLASS Engine {                                       // this is the very first component created,
+    HAS MAX 1 This                                     // and kicks everything else off
+    // This:: @createSingletons(This)
     This:: CorporationPhase                            // TODO SetupPhase
 
     PlayTag<Class<BuildingTag>>:: Accept<Class<Steel>>
     PlayTag<Class<SpaceTag>>:: Accept<Class<Titanium>>
 
     Pay<Class<Steel>>:: 2 Pay<Class<Megacredit>>
-    Pay<Class<Titanium>>:: 3 Pay<Class<Megacredit>>    // should be innocuous for TradeAction?
+    Pay<Class<Titanium>>:: 3 Pay<Class<Megacredit>>    // should be innocuous for TradeAction...
   }
 }
 
-ABSTRACT CLASS Atomized                                // magic
+ABSTRACT CLASS Atomized                                // magic rule: see `Transformers.atomizer()`
 
 // GLOBAL PARAMETERS ----------------------------------
 
-ABSTRACT CLASS GlobalParameter : Atomized {
+ABSTRACT CLASS GlobalParameter[GP] : Atomized {
   DEFAULT +GlobalParameter.                            // by default gains/removes are "if possible"
   DEFAULT -GlobalParameter.
 
-  This: TerraformRating                                // becomes `This BY Owner: TR<Owner>`
+  This: TerraformRating                                // transformed to `This BY Owner: TR<Owner>`
 
-  CLASS TemperatureStep {                              // nesting is implicit subtyping
-    HAS MAX 19 This                                    // why? because it's so convenient
+  CLASS TemperatureStep[TEMP] {
+    HAS MAX 19 This
     This IF =3 This: PROD[Heat]
     This IF =5 This: PROD[Heat]
     This IF =15 This: OceanTile
@@ -66,14 +69,14 @@ ABSTRACT CLASS GlobalParameter : Atomized {
     HAS MAX 9 OceanTile                                // `HAS MAX 9 This` wouldn't work!
     DEFAULT +OceanTile<WaterArea>
                                                        // We could almost count all adjacencies,
-    ForwardAdjacency<This, Tile>: 2                    // except that the placement of this tile
-  }                                                    // itself would trigger it
+    ForwardAdjacency<This, Tile>: 2                    // but then the tile would trigger itself
+  }
 }
 
 
 // MAPS AND TILES -------------------------------------
 
-ABSTRACT CLASS MarsMap {                               // Tharsis etc. are loaded from `maps.json5`
+ABSTRACT CLASS MarsMap {                               // Hellas etc. are loaded from `maps.json5`
   HAS =1 This
   // This:: @createAll(This, Border)                   // TODO
 }
@@ -118,7 +121,7 @@ ABSTRACT CLASS Generational {                          // things that disappear 
   Generation:: -This.                                  // <-- and look, there they go
 }
 
-CLASS Turn : Signal                                    // TODO: should be owned
+CLASS Turn : Signal                                    // ha. turn signal. TODO should be owned
 
 ABSTRACT CLASS Phase {
   // HAS MAX 1 Phase
@@ -126,13 +129,13 @@ ABSTRACT CLASS Phase {
 
   // CLASS SetupPhase
   CLASS CorporationPhase {
-    Turn: CorporationCard, CardFront, 10 BuyCard?      // TODO beginner corp
+    Turn: CorporationCard, CardFront, 10 BuyCard?
     ActionPhase:: -This!
   }
 
   CLASS PreludePhase {                                 // TODO how to make it part of `P` bundle?
     This:: -CorporationPhase.
-    Turn: PreludeCard, CardFront OR (-PreludeCard THEN 15)
+    Turn: PreludeCard, CardFront OR (-PreludeCard THEN 15) // TODO game rules require ELSE
     ActionPhase:: -This!
   }
 
