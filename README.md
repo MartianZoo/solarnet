@@ -43,13 +43,13 @@ Some ideas
 
 There is much unwritten, sorry.
 
-* [FAQ](faq.md)
+* [FAQ](docs/faq.md)
 * Overview of [component types](docs/component-types.md) -- a good place to start
 * Pets language [syntax reference](docs/syntax.md)
 * The Pets [type system](docs/type-system.md) (not finished)
 * API docs -- see below
 
-## Want to mess around with it?
+### Mess around with it?
 
 If you have git and Java stuff working already, this *should* be all it takes to start playing around:
 
@@ -64,9 +64,9 @@ Of course, it won't work, because nothing ever works. I'd be *willing* to help, 
 
 You can also browse the [Pets source files](/MartianZoo/solarnet/tree/main/canon/src/main/java/dev/martianzoo/tfm/canon) to see where all the game components come from. You can change it around or attempt to add your own custom cards.
 
-## Want to poke around in the implementation code?
+### Poke around in the implementation?
 
-It's best to start with the generated API doc view because it hides private things. It's not hosted yet, but you can `./gradlew dokkaHtmlMultiModule` and then look at `docs/api/index.html`. That would help give you an idea of what source code you want to dig into.
+Start with the generated API doc view (which hides private things). I don't know how to host it properly, so you'd have to `./gradlew dokkaHtmlMultiModule` and then look at `docs/api/index.html`. That would help give you an idea of which source files you want to dig further into.
 
 It's all written in [Kotlin](https://kotlinlang.org) and I'm very happy with that decision. In concept this should make the libraries usable from Java, JavaScript, and some other environments. I don't know many details here.
 
@@ -76,4 +76,4 @@ You'll see some bad code. Let's improve it! :-)
 
 http://kevinb9n.github.io
 
-I'd love to hear your thoughts and questions at kevinb9n@gmail.com or by any other means.
+Your thoughts and questions are welcome at kevinb9n@gmail.com or by whatever other means.
