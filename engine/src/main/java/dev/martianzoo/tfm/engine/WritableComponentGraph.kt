@@ -21,8 +21,15 @@ internal class WritableComponentGraph : ComponentGraph {
   override fun countComponent(component: Component) = multiset.count(component)
 
   override fun getAll(parentType: MType): Multiset<Component> {
-    require(parentType.stripRefinements() == parentType) // TODO: refinement-aware
-    return multiset.filter { it.mtype.isSubtypeOf(parentType) }
+    // TODO: refinement-aware
+    return multiset.filter {
+      try {
+        it.mtype.ensureNarrows(parentType)
+        true
+      } catch (e: Exception) {
+        false
+      }
+    }
   }
 
   fun activeEffects(game: Game): List<ActiveEffect> =

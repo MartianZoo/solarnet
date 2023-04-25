@@ -99,29 +99,21 @@ public class Game(
           val proposed = resolve(narrow)
           proposed.ensureReifies(abstractTarget)
           checkRefinements(abstractTarget, proposed)
-
-          // wide might be CityTile<P1, LA(HAS MAX 0 NBR<CT<ANY>>)>
-          // narrow might be CityTile<P1, M11>
-          // as pure types they check out
-          // but check whether `HAS MAX 0 NBR<CT<ANY>, M11>` is true
         }
         private fun checkRefinements(abstractTarget: MType, proposed: MType) {
           val refin = abstractTarget.refinement
           if (refin != null) {
             val requirement = RefinementMangler(proposed).transform(refin)
             if (!reader.evaluate(requirement)) throw UserException.requirementNotMet(requirement)
-
-            for ((a, b) in abstractTarget.typeDependencies.zip(proposed.typeDependencies)) {
-              checkRefinements(a.boundType, b.boundType)
-            }
+          }
+          for ((a, b) in abstractTarget.typeDependencies.zip(proposed.typeDependencies)) {
+            checkRefinements(a.boundType, b.boundType)
           }
         }
       }
 
-  // Check MartianIndustries against CardFront(HAS BuildingTag)
-  // by testing requirement `BuildingTag<MartianIndustries>`
-  // in that example, `proposed` will be `MartianIndustries`
-  // and the node being transformed is `BuildingTag`
+  // We check if MartianIndustries reifies CardFront(HAS 1 BuildingTag)
+  // by testing the requirement `1 BuildingTag<MartianIndustries>`
   inner class RefinementMangler(private val proposed: MType) : PetTransformer() {
     override fun <P : PetNode> transform(node: P): P {
       return if (node is Expression) {

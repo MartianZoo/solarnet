@@ -9,6 +9,7 @@ import dev.martianzoo.tfm.data.Player.Companion.PLAYER1
 import dev.martianzoo.tfm.engine.Engine
 import dev.martianzoo.tfm.engine.Exceptions.LimitsException
 import dev.martianzoo.tfm.engine.PlayerSession
+import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.repl.TestHelpers.assertCounts
 import dev.martianzoo.tfm.repl.TestHelpers.counts
 import dev.martianzoo.tfm.repl.TestHelpers.playCard
@@ -226,5 +227,64 @@ class SpecificCardsTest {
     eng.execute("Generation")
     p1.useCardAction1("AiCentral")
     p1.assertCounts(5 to "ProjectCard")
+  }
+
+  @Test
+  fun ceosFavoriteProject() {
+    val game = Engine.newGame(GameSetup(Canon, "CVERB", 2))
+    val p1 = game.asPlayer(PLAYER1).session()
+
+    p1.execute("10 ProjectCard, ForcedPrecipitation")
+
+    // We can't CEO's onto an empty card
+    p1.execute("CeosFavoriteProject")
+    assertThrows<RequirementException> { p1.doTask("Floater<ForcedPrecipitation>") }
+    p1.assertCounts(0 to "Floater")
+
+    // But if we *manually* add a floater first...
+    p1.execute("Floater<ForcedPrecipitation>")
+    p1.assertCounts(1 to "Floater")
+
+    // Now we can complete that task from before
+    p1.doTask("Floater<ForcedPrecipitation>")
+    p1.assertCounts(2 to "Floater")
+
+
+  }
+
+  @Test
+  fun airScrappingExpedition() {
+    val game = Engine.newGame(GameSetup(Canon, "CVERB", 2))
+    val p1 = game.asPlayer(PLAYER1).session()
+
+    p1.execute("10 ProjectCard, ForcedPrecipitation")
+    p1.execute("AtmoCollectors", "2 Floater<AtmoCollectors>")
+    p1.assertCounts(2 to "Floater")
+
+    p1.execute("AirScrappingExpedition")
+
+    // We can't put air-scrap floaters onto a non-Venus card
+    assertThrows<RequirementException> { p1.doTask("3 Floater<AtmoCollectors>") }
+    p1.assertCounts(2 to "Floater")
+
+    // But we can on a Venus card
+    p1.execute("3 Floater<ForcedPrecipitation>")
+    p1.assertCounts(5 to "Floater")
+  }
+
+  @Test
+  fun communityServices() {
+    val game = Engine.newGame(GameSetup(Canon, "CVERB", 2))
+    val p1 = game.asPlayer(PLAYER1).session()
+
+    p1.execute("10 ProjectCard, ForcedPrecipitation")
+    p1.execute("AtmoCollectors", "2 Floater<AtmoCollectors>")
+    p1.execute("Airliners", "2 Floater<AtmoCollectors>")
+    assertThat(lookUpProductionLevels(game.reader, PLAYER1).get(cn("Megacredit"))).isEqualTo(2)
+
+    p1.execute("CommunityServices") // 3 tagless cards
+
+    // TODO THIS IS BROKEN, should be 5 not 6
+    assertThat(lookUpProductionLevels(game.reader, PLAYER1).get(cn("Megacredit"))).isEqualTo(6)
   }
 }

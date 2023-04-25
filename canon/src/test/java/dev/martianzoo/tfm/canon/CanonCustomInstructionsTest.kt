@@ -3,11 +3,13 @@ package dev.martianzoo.tfm.canon
 import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.tfm.api.ApiUtils
 import dev.martianzoo.tfm.api.GameSetup
+import dev.martianzoo.tfm.api.UserException.RequirementException
 import dev.martianzoo.tfm.data.Player.Companion.PLAYER1
 import dev.martianzoo.tfm.engine.Engine
 import dev.martianzoo.tfm.engine.PlayerSession
 import dev.martianzoo.util.toStrings
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 
 private class CanonCustomInstructionsTest {
   @Test
@@ -65,17 +67,22 @@ private class CanonCustomInstructionsTest {
   fun roboticWorkforce() {
     val p1 = newGameForP1()
 
-    p1.execute("2 ProjectCard, PROD[5 E]")
-    checkProduction(p1, 0, 0, 0, 0, 5, 0)
+    p1.execute("5 ProjectCard")
+    p1.execute("MassConverter")
+    checkProduction(p1, 0, 0, 0, 0, 6, 0)
 
     p1.execute("StripMine")
-    checkProduction(p1, 0, 2, 1, 0, 3, 0)
+    checkProduction(p1, 0, 2, 1, 0, 4, 0)
 
     p1.execute("RoboticWorkforce")
-    checkProduction(p1, 0, 2, 1, 0, 3, 0)
+    checkProduction(p1, 0, 2, 1, 0, 4, 0)
+
+    // This card has no building tag so it won't work
+    assertThrows<RequirementException> { p1.doTask("@copyProductionBox(MassConverter)") }
+    checkProduction(p1, 0, 2, 1, 0, 4, 0)
 
     p1.doTask("@copyProductionBox(StripMine)")
-    checkProduction(p1, 0, 4, 2, 0, 1, 0)
+    checkProduction(p1, 0, 4, 2, 0, 2, 0)
 
     // TODO: what if it wasn't a building card
   }
