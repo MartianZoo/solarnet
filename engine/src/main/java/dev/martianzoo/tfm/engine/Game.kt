@@ -277,7 +277,10 @@ public class Game(
           removeTask(taskId)
         }
       } catch (e: UserException) {
-        if (requestedTask.whyPending != null) throw e
+        if (requestedTask.whyPending != null) {
+          println("rethrowing: ${requestedTask.whyPending}")
+          throw e
+        }
         val explainedTask = requestedTask.copy(whyPending = e.message)
         game.writableTasks.replaceTask(explainedTask)
         game.events.activitySince(checkpoint)

@@ -98,6 +98,15 @@
       "effects": [ "EarthTag: ProjectCard" ]
     },
 
+    // Robinson Industries
+    {
+      "id": "PC3",
+      "bundle": "P",
+      "deck": "CORPORATION",
+      "immediate": "47",
+      "actions": [ "4 -> @gainLowestProduction(Owner)" ]
+    },
+
     // Aphrodite
     {
       "id": "V01",
