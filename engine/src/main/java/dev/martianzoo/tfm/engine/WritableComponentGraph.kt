@@ -50,8 +50,8 @@ internal class WritableComponentGraph : ComponentGraph {
 
     return StateChange(
         count = actual,
-        gaining = gaining?.expressionFull,
-        removing = removing?.expressionFull,
+        gaining = gaining?.expression,
+        removing = removing?.expression,
     )
   }
 

@@ -119,7 +119,7 @@ public class Game(
         try {
           val modded = tipo.specialize(listOf(proposed.expression))
           @Suppress("UNCHECKED_CAST")
-          modded.expressionFull as P
+          modded.expression as P
         } catch (e: Exception) {
           println(e.message)
           node // don't go deeper
@@ -314,8 +314,8 @@ public class Game(
           amap: Boolean,
           cause: Cause?,
       ) {
-        val g = gaining?.expressionFull
-        val r = removing?.expressionFull
+        val g = gaining?.expression
+        val r = removing?.expression
 
         fun tryIt(): ChangeEvent? = sneakyChange(count, g, r, amap, cause)
         val event =

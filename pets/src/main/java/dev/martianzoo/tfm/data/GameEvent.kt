@@ -69,7 +69,7 @@ sealed class GameEvent {
       constructor(
           context: HasExpression,
           triggerEvent: ChangeEvent,
-      ) : this(context.expressionFull, triggerEvent.ordinal)
+      ) : this(context.expression, triggerEvent.ordinal)
 
       init {
         require(triggerEvent >= 0)
