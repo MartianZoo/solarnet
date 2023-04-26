@@ -66,7 +66,7 @@ private class CanonCustomInstructionsTest {
     checkProduction(p1, 1, 1, 0, 1, 1, 1)
 
     p1.game.rollBack(cp)
-    p1.doTask("PROD[Titanium]") // TODO: sometimes we can't use shortnames
+    p1.doTask("PROD[Titanium]") // TODO sometimes we can't use shortnames, fix this
     checkProduction(p1, 0, 1, 1, 1, 1, 1)
 
     p1.game.rollBack(cp)
@@ -93,8 +93,6 @@ private class CanonCustomInstructionsTest {
 
     p1.doTask("@copyProductionBox(StripMine)")
     checkProduction(p1, 0, 4, 2, 0, 2, 0)
-
-    // TODO: what if it wasn't a building card
   }
 
   private fun newGameForP1(): PlayerSession {

@@ -9,13 +9,9 @@ import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.pets.ast.HasClassName
 import dev.martianzoo.tfm.pets.ast.Requirement
-import dev.martianzoo.tfm.pets.ast.Requirement.Counting
 import dev.martianzoo.util.Hierarchical
 import dev.martianzoo.util.Reifiable
 import dev.martianzoo.util.cartesianProduct
-import kotlin.Int.Companion.MAX_VALUE
-import kotlin.math.max
-import kotlin.math.min
 
 /**
  * The translation of a [Expression] into a "live" type, referencing actual [MClass]es loaded by a
@@ -162,22 +158,6 @@ internal constructor(
 
   override fun ensureNarrows(that: MType) {
     if (!isSubtypeOf(that.stripRefinements())) throw InvalidReificationException("$this $that")
-  }
-
-  // TODO not being used... something is wrong
-  val allowedRange: IntRange by lazy {
-    var min = 0
-    var max = MAX_VALUE
-    for (it: Requirement in loader.generalInvariants) {
-      if (it is Counting) {
-        val thatType = loader.resolve(it.scaledEx.expression)
-        if (isSubtypeOf(thatType)) {
-          max = min(max, it.range.last)
-          min = max(min, it.range.first)
-        }
-      }
-    }
-    min..max
   }
 
   override fun toString() = "$expressionFull@${root.loader}"

@@ -488,7 +488,7 @@ object EnglishHack {
           "X28" to "Potatoes",
           "X29" to "SubCrustMeasurements",
           "X30" to "TopsoilContract",
-          "X31" to "DeimosDownPromo", // TODO can/should this be just DeimosDown like the other?
+          "X31" to "DeimosDownPromo",
           "X32" to "GreatDamPromo",
           "X33" to "MagneticFieldGeneratorsPromo",
           "X34" to "AsteroidRights",

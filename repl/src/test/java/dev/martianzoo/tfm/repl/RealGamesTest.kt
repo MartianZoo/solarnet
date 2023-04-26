@@ -277,7 +277,7 @@ class RealGamesTest {
     with(p1) {
       assertThat(count("TerraformRating")).isEqualTo(24)
 
-      val prods1 = lookUpProductionLevels(agent.reader, agent.player) // TODO
+      val prods1 = lookUpProductionLevels(agent.reader, agent.player)
       assertThat(prods1.values).containsExactly(5, 0, 0, 0, 0, 1).inOrder()
 
       assertThat(counts("M, Steel, Titanium, Plant, Energy, Heat"))
@@ -298,7 +298,7 @@ class RealGamesTest {
     with(p2) {
       assertThat(count("TerraformRating")).isEqualTo(25)
 
-      val prods2 = lookUpProductionLevels(agent.reader, agent.player) // TODO
+      val prods2 = lookUpProductionLevels(agent.reader, agent.player)
       assertThat(prods2.values).containsExactly(-4, 0, 1, 3, 1, 1).inOrder()
 
       assertThat(counts("M, Steel, Titanium, Plant, Energy, Heat"))

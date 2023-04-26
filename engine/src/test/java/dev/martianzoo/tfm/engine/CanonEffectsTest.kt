@@ -159,7 +159,7 @@ private class CanonEffectsTest {
         .containsExactly(
             "This:: BuildingTag<Owner, This>!",
             "UseAction1<Owner, This>:: Accept<Owner, Class<Steel>>.",
-            "UseAction1<Owner, This>: -8 Megacredit<Owner>! THEN OceanTile<WaterArea>.", // TODO
+            "UseAction1<Owner, This>: -8 Megacredit<Owner>! THEN OceanTile<WaterArea>.",
         )
   }
 

@@ -5,7 +5,6 @@ import dev.martianzoo.tfm.api.SpecialClassNames.CLASS
 import dev.martianzoo.tfm.api.SpecialClassNames.OWNER
 import dev.martianzoo.tfm.api.SpecialClassNames.PROD
 import dev.martianzoo.tfm.api.SpecialClassNames.THIS
-import dev.martianzoo.tfm.api.UserException
 import dev.martianzoo.tfm.pets.PetTransformer
 import dev.martianzoo.tfm.pets.PureTransformers.noOp
 import dev.martianzoo.tfm.pets.PureTransformers.replaceThisWith
@@ -30,17 +29,17 @@ import dev.martianzoo.tfm.pets.ast.TransformNode
 import dev.martianzoo.tfm.types.Defaults.DefaultSpec
 import dev.martianzoo.tfm.types.Dependency.Key
 
-public class Transformers(private val loader: MClassLoader) { // TODO table??
+public class Transformers(private val table: MClassTable) {
 
   internal val requiredClasses: Set<ClassName> = setOf(PRODUCTION)
 
   public fun deprodify(): PetTransformer {
-    if (STANDARD_RESOURCE !in loader.allClassNamesAndIds ||
-        PRODUCTION !in loader.allClassNamesAndIds) {
+    if (STANDARD_RESOURCE !in table.allClassNamesAndIds ||
+        PRODUCTION !in table.allClassNamesAndIds) {
       return noOp()
     }
     val classNames =
-        loader.getClass(STANDARD_RESOURCE).allSubclasses.flatMap {
+        table.getClass(STANDARD_RESOURCE).allSubclasses.flatMap {
           setOf(it.className, it.shortName)
         }
 
@@ -87,7 +86,7 @@ public class Transformers(private val loader: MClassLoader) { // TODO table??
   public fun atomizer(): PetTransformer {
     val atomized =
         try {
-          loader.load(ATOMIZED)
+          table.getClass(ATOMIZED)
         } catch (e: Exception) {
           return noOp()
         }
@@ -113,7 +112,7 @@ public class Transformers(private val loader: MClassLoader) { // TODO table??
         if (sc !is ActualScalar ||
             sc.value == 1 ||
             THIS in scex.expression ||
-            !loader.resolve(scex.expression).root.isSubtypeOf(atomized)) {
+            !table.resolve(scex.expression).root.isSubtypeOf(atomized)) {
           return node
         }
 
@@ -153,14 +152,13 @@ public class Transformers(private val loader: MClassLoader) { // TODO table??
         return if (leaveItAlone(original)) {
           node // don't descend
         } else {
-          val defaults: Defaults = loader.allDefaults[original.className]!!
-          val spec: DefaultSpec = extractor(defaults)
+          val spec: DefaultSpec = extractor(table.defaults(original.className))
           val fixed =
               insertDefaultsIntoExpr(
                   original,
                   spec.dependencies,
                   context,
-                  loader,
+                  table,
               )
           val intensity = node.intensity ?: spec.intensity
 
@@ -189,12 +187,8 @@ public class Transformers(private val loader: MClassLoader) { // TODO table??
         if (node !is Expression) return transformChildren(node)
         if (leaveItAlone(node)) return node
 
-        val defaults: Defaults =
-            loader.allDefaults[node.className] ?: throw UserException.classNotFound(node.className)
-        val result =
-            insertDefaultsIntoExpr(
-                transformChildren(node), defaults.allUsages.dependencies, context, loader)
-
+        val defaultDeps = table.defaults(node.className).allUsages.dependencies
+        val result = insertDefaultsIntoExpr(transformChildren(node), defaultDeps, context, table)
         @Suppress("UNCHECKED_CAST") return result as P
       }
     }

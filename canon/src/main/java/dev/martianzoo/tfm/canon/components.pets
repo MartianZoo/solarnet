@@ -78,7 +78,7 @@ ABSTRACT CLASS GlobalParameter[GP] : Atomized {
 
 ABSTRACT CLASS MarsMap {                               // Hellas etc. are loaded from `maps.json5`
   HAS =1 This
-  // This:: @createAll(This, Border)                   // TODO
+  // This:: @createAll(This, Border)
 }
 
 ABSTRACT CLASS Area {
@@ -86,7 +86,7 @@ ABSTRACT CLASS Area {
   HAS MAX 1 Tile<This>                                 // circular reference is un-ideal, but...
 
   ABSTRACT CLASS MarsArea[MA] {                        // specific areas loaded from `maps.json5`
-    Tile<This>:: @createAdjacencies(This)              // TODO eventually we shouldn't need this
+    Tile<This>:: @createAdjacencies(This)
 
     ABSTRACT CLASS LandArea[LA] {
       ABSTRACT CLASS VolcanicArea[VA]
@@ -135,7 +135,7 @@ ABSTRACT CLASS Phase {
 
   CLASS PreludePhase {                                 // TODO how to make it part of `P` bundle?
     This:: -CorporationPhase.
-    Turn: PreludeCard, CardFront OR (-PreludeCard THEN 15) // TODO game rules require ELSE
+    Turn: PreludeCard, CardFront OR (-PreludeCard THEN 15) // should be ELSE (#22)
     ActionPhase:: -This!
   }
 

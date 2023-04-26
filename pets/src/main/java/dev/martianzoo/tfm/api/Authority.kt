@@ -89,7 +89,7 @@ public abstract class Authority {
 
   /**
    * Returns the card definition having the full name [name]. If there are multiple, one must be
-   * marked as `replaces` the other. (TODO)
+   * marked as `replaces` the other. (Not done, see #49)
    */
   public fun card(name: ClassName): CardDefinition =
       cardsByClassName[name] ?: throw IllegalArgumentException("No card named $name")

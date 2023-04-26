@@ -84,7 +84,7 @@ public class ReplSession(var setup: GameSetup, private val jline: JlineRepl? = n
   private class UsageException(message: String? = null) : InteractiveException(message ?: "")
 
   internal abstract inner class ReplCommand(val name: String) {
-    open val isReadOnly: Boolean = false
+    open val isReadOnly: Boolean = false // TODO I think I intended to use this for something
     abstract val usage: String
     abstract val help: String
     open fun noArgs(): List<String> = throw UsageException()

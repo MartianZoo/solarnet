@@ -88,7 +88,7 @@ internal class MapToText(private val game: GameReader, val useColors: Boolean = 
   fun describe(area: AreaDefinition?): Pair<String, TfmColor> {
     if (area == null) return "" to TfmColor.NONE
     val expression = cn("Tile").addArgs(area.className)
-    val tile = game.getComponents(game.resolve(expression)).singleOrNull() // TODO clean this up?
+    val tile = game.getComponents(game.resolve(expression)).singleOrNull()
     return tile?.let(::describe) ?: describeEmpty(area)
   }
 
@@ -97,7 +97,7 @@ internal class MapToText(private val game: GameReader, val useColors: Boolean = 
         when (area.kind) {
           cn("LandArea") -> TfmColor.LAND_AREA
           cn("WaterArea") -> TfmColor.WATER_AREA
-          cn("VolcanicArea") -> TfmColor.LAND_AREA // TODO
+          cn("VolcanicArea") -> TfmColor.VOLCANIC_AREA
           cn("NoctisArea") -> TfmColor.NOCTIS_AREA
           else -> error("unrecognized: ${area.kind}")
         }

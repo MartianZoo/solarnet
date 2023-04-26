@@ -34,7 +34,7 @@ import dev.martianzoo.util.Multiset
  */
 public class PlayerSession internal constructor(
     val agent: PlayerAgent,
-    var defaultAutoExec: Boolean = true, // TODO 3 policies
+    var defaultAutoExec: Boolean = true, // TODO 3 policies (what were they?)
 ) {
   public constructor(game: Game, defaultAutoExec: Boolean = true) :
       this(game.asPlayer(Player.ENGINE), defaultAutoExec)
@@ -160,7 +160,7 @@ public class PlayerSession internal constructor(
     val xers = game.table.transformers
     val xer =
         transformInSeries(
-            useFullNames(), // TODO this one alone maybe (maybe) still belongs in repl
+            useFullNames(),
             xers.atomizer(),
             xers.insertDefaults(THIS.expression),
             xers.deprodify(),

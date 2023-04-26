@@ -182,7 +182,7 @@ public sealed class Instruction : PetElement() {
         is Gain,
         is Remove,
         is Transmute, -> {}
-        else -> throw PetsSyntaxException("Per can only contain gain/remove/transmute") // TODO more
+        else -> throw PetsSyntaxException("Per can only contain gain/remove/transmute for now")
       }
     }
 

@@ -18,8 +18,7 @@ public abstract class MClassTable {
 
   abstract val transformers: Transformers
 
-  abstract var game: Game? // TODO BAD HACK
-
+  abstract var game: Game? // BAD HACK
 
   /**
    * Returns the [MClass] whose [MClass.className] or [MClass.shortName] is [name], or throws an
@@ -41,5 +40,10 @@ public abstract class MClassTable {
    *
    * DON'T call this for the <Foo> in Class<Foo>, it won't work.
    */
-  internal abstract fun matchPartial(expressionArgs: List<Expression>, deps: DependencySet): DependencySet
+  internal abstract fun matchPartial(
+      expressionArgs: List<Expression>,
+      deps: DependencySet
+  ): DependencySet
+
+  internal abstract fun defaults(className: ClassName): Defaults
 }

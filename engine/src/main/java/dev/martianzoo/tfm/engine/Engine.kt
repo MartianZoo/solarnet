@@ -15,12 +15,7 @@ import dev.martianzoo.tfm.types.MClassTable
 
 /** Has functions for setting up new games and stuff. */
 public object Engine {
-  // TODO restore caching if we ever fix the MCL->Game dep
-  // val loaderCache = mutableMapOf<GameSetup, MClassLoader>()
-
   public fun loadClasses(setup: GameSetup): MClassTable {
-    // if (setup in loaderCache) return loaderCache[setup]!!
-
     val loader = MClassLoader(setup.authority, autoLoadDependencies = true)
     val toLoad: List<HasClassName> = setup.allDefinitions() + setup.players()
 
@@ -29,7 +24,6 @@ public object Engine {
     if ("P" in setup.bundles) loader.load(cn("PreludePhase"))
 
     return loader.freeze()
-    // loaderCache[setup] = loader
   }
 
   public fun newGame(setup: GameSetup): Game {

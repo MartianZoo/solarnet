@@ -46,7 +46,7 @@ private class MTypeTest {
 
     assertFails { table.resolve(te("Animal<Ants>")) }
 
-    // TODO this should FAIL
+    // This should FAIL
     // table.resolve(te("Microbe<Player1, Ants<Player2>>"))
   }
 
@@ -185,7 +185,7 @@ private class MTypeTest {
     checkMinimal("TwoSame<Foo3, Foo2>", "TwoSame<Foo3>")
     checkMinimal("TwoSame<Foo3, Foo3>")
 
-    // TODO get these working too!
+    // Get these working too
     // checkMinimal("TwoSame<Foo1, Foo3>", "TwoSame<Foo2, Foo3>")
     // checkMinimal("TwoSame<Foo2, Foo3>")
   }

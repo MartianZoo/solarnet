@@ -123,7 +123,7 @@ private object GetVpsFrom : CustomInstruction("getVpsFrom") {
     require(clazz.className == CLASS)
     val cardName = clazz.expression.arguments.single().className
     val card = game.authority.card(cardName)
-    return NoOp // TODO TODO
+    return NoOp // bug #6
     // return Multi.create(
     //         card.effects
     //             .map { TransformNode.unwrap(it, RAW) }

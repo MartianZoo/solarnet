@@ -11,6 +11,7 @@ enum class TfmColor(val hexString: String) {
   ENERGY("b23bcb"),
   HEAT("ef4320"),
   LAND_AREA("f68e5a"),
+  VOLCANIC_AREA("f68e5a"), // TODO pick new color
   WATER_AREA("a4dcf9"),
   OCEAN_TILE("0e3f68"),
   GREENERY_TILE("6dd248"),

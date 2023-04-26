@@ -46,8 +46,6 @@ public class Game(
      */
     public val table: MClassTable,
 ) {
-  // TODO expose only read-only interfaces for these three things
-
   private val writableEvents = WritableEventLog()
 
   /** Everything that has happened in this game so far ("past"). */
@@ -66,7 +64,7 @@ public class Game(
   public val reader: GameReader = GameReaderImpl(authority, table, components)
 
   init {
-    // TODO BAD HACK
+    // BAD HACK
     require(table.game == null)
     table.game = this
   }
@@ -305,7 +303,7 @@ public class Game(
             InstructionExecutor(reader, writer, game.table.transformers, player, fx.cause)
         Instruction.split(fx.instruction).forEach(executor::doInstruction)
       }
-      game.writableTasks.addTasksFrom(later) // TODO what was this TODO about?
+      game.writableTasks.addTasksFrom(later)
     }
 
     inner class GameWriterImpl : GameWriter {

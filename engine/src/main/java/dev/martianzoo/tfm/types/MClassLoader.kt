@@ -21,7 +21,7 @@ import dev.martianzoo.tfm.types.Dependency.TypeDependency
  * needed. Can be [frozen], which prevents additional classes from being loaded, and enables
  * features such as [MClass.allSubclasses] to work.
  */
-public class MClassLoader( // TODO separate into loader and table
+public class MClassLoader(
     /**
      * The source of class declarations to use as needed; [loadEverything] will load every class
      * found here.
@@ -53,7 +53,7 @@ public class MClassLoader( // TODO separate into loader and table
     loadAll(names)
   }
 
-  // TODO HACKHACKHACK
+  // HACKHACKHACK
   // This is an absolutely stupid horrible hack. Fix it. Somehow.
 
   override var game: Game? = null
@@ -236,6 +236,9 @@ public class MClassLoader( // TODO separate into loader and table
         }
     return DependencySet.of(list)
   }
+
+  override fun defaults(className: ClassName) =
+      allDefaults[className] ?: throw UserException.classNotFound(className)
 
   private val id = nextId++
 

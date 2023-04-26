@@ -152,7 +152,7 @@ internal data class ActiveEffect(
       if (isSelf) return null
       val change = triggerEvent.change
       val expr = (if (matchOnGain) change.gaining else change.removing) ?: return null
-      // TODO probably needs to be refinement-aware
+      // Will be refinement-aware (#48)
       return if (game.resolve(expr).isSubtypeOf(game.resolve(match))) {
         val subber = Substituter(findSubstitutions(tlinks, match, expr))
         val h: Hit = { subber.transform(it) * change.count }
