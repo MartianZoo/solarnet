@@ -4,44 +4,45 @@ As of 2023-04, the number of rows in this table plus entries in cards.json shoul
 
 | id  | card name                  | blocker               |
 |-----|----------------------------|-----------------------|
-| TC2 | Pristar                    | READY                 |
-| P11 | Excentric Sponsor          | READY                 |
-| 074 | Viral Enhancers            | READY                 |
-| 195 | Indentured Workers         | READY                 |
-| C05 | Conscription               | READY                 |
-| C19 | Jupiter Floating Station   | READY                 |
-| C45 | Titan Shuttles             | READY                 |
-| X17 | Crash Site Cleanup         | READY                 |
-| X40 | Double Down                | READY                 |
-| X43 | Head Start                 | actionsinactions      |
+| TC2 | Pristar                    | READY?                |
+| P11 | Excentric Sponsor          | READY?                |
+| C19 | Jupiter Floating Station   | READY?                |
+| C45 | Titan Shuttles             | READY?                |
+| X17 | Crash Site Cleanup         | READY?                |
+| X40 | Double Down                | READY?                |
+| 074 | Viral Enhancers            | linkages              |
+| 008 | Capital                    | concrete              |
+| 195 | Indentured Workers         | nextcard              |
+| C05 | Conscription               | nextcard              |
+| 206 | Special Design             | adjustreqt, nextcard  |
 | P10 | Ecology Experts            | adjustreqt            |
 | 153 | Adaptation Technology      | adjustreqt            |
-| 206 | Special Design             | adjustreqt            |
+| B05 | Inventrix                  | adjustreqt, 1staction |
+| B08 | Tharsis Republic           | 1staction             |
+| V02 | Celestic                   | 1staction             |
+| V04 | Morning Star Inc.          | 1staction             |
+| PC4 | Valley Trust               | 1staction             |
+| XC3 | Splice Tactical Genomics   | 1staction             |
+| PC5 | Vitor                      | awards, 1staction     |
+| X43 | Head Start                 | actionsinactions      |
 | CC1 | Aridor                     | aridor                |
 | B00 | Beginner Corporation       | beginner              |
 | CC3 | Polyphemos                 | buycard               |
 | TC4 | TerraLabs Research         | buycard               |
 | XC1 | Arcadian Communities       | community             |
 | 066 | Land Claim                 | community             |
-| XC5 | Mons Insurance             | complement            |
+| XC5 | Mons Insurance             | complement, outofturn |
 | 173 | Protected Habitats         | complement            |
 | X14 | Asteroid Deflection System | complement            |
-| B01 | CrediCor                   | cost                  |
-| C41 | Spin-Off Department        | cost                  |
-| X13 | Advertising                | cost                  |
-| B06 | Mining Guild               | customreqt            |
+| B01 | CrediCor                   | customreqt, reftrig   |
+| C41 | Spin-Off Department        | customreqt, reftrig   |
+| X13 | Advertising                | customreqt, reftrig   |
+| B06 | Mining Guild               | customreqt, reftrig   |
+| X18 | Cutting Edge Technology    | customreqt, reftrig   |
 | 067 | Mining Rights              | customreqt            |
 | 064 | Mining Area                | customreqt            |
-| X18 | Cutting Edge Technology    | customreqt            |
 | X05 | Interplanetary Trade       | distinct              |
 | X20 | Diversity Support          | distinct              |
-| B08 | Tharsis Republic           | 1staction             |
-| V02 | Celestic                   | 1staction             |
-| V04 | Morning Star Inc.          | 1staction             |
-| PC4 | Valley Trust               | 1staction             |
-| XC3 | Splice Tactical Genomics   | 1staction             |
-| B05 | Inventrix                  | 1staction, adjustreqt |
-| PC5 | Vitor                      | 1staction, awards     |
 | B03 | Helion                     | helion                |
 | XC6 | Philares                   | outofturn             |
 | 222 | Dirigibles                 | payresource           |

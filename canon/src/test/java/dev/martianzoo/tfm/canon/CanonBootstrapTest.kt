@@ -41,15 +41,15 @@ private class CanonBootstrapTest {
     }
 
     checkCount(1, "Class<Class>")
-    checkCount(2, "Class<CityTile>") // Huh? aha, Capital
+    checkCount(1, "Class<CityTile>") // Removed Capital for now
     checkCount(3, "Class<GlobalParameter>")
     checkCount(4, "Class<CardResource>") // Plants Microbes Animals.. and Fighters
     checkCount(5, "Class<Milestone>")
     checkCount(6, "Class<StandardResource>")
     checkCount(7, "Class<StandardAction>")
-    checkCount(9, "Class<SpecialTile>") // oops missing some
+    checkCount(8, "Class<SpecialTile>") // oops missing some
     checkCount(10, "Class<Tag>")
-    checkCount(11, "Class<OwnedTile>") // so here too
+    checkCount(10, "Class<OwnedTile>") // so here too
     checkCount(12, "Class<WaterArea>")
     checkCount(63, "Class<Area>")
 

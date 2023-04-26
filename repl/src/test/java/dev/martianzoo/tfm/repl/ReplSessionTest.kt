@@ -114,7 +114,7 @@ private class ReplSessionTest {
     repl.command("become P1")
     repl.command("mode red")
     repl.command("exec OT<M26>, OT<M55>, OT<M56>, CT<M46>, GT<M57>, GT<M45, P2>").forEach(::println)
-    repl.command("exec CapitalTile<P2, M66>, MaTile<P2, M99>")
+    repl.command("exec CT<P2, M66>, MaTile<P2, M99>")
     assertThat(repl.command("tasks")).isEmpty()
     assertThat(repl.session.count("Tile")).isEqualTo(8)
 

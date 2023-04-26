@@ -48,14 +48,14 @@ internal class CanonClassesTest {
   }
 
   @Test
-  fun onlyCapitalTileExtendsConcrete() {
+  fun concreteExtendingConcrete() {
     val map = mutableListOf<Pair<ClassName, ClassName>>()
     loader.allClasses
         .filterNot { it.abstract }
         .forEach { sup ->
           (sup.allSubclasses - setOf(sup)).forEach { map += sup.className to it.className }
         }
-    assertThat(map).containsExactly(cn("CityTile") to cn("CapitalTile"))
+    assertThat(map).containsExactly() // cn("CityTile") to cn("CapitalTile"))
   }
 
   @Test
@@ -125,17 +125,17 @@ internal class CanonClassesTest {
 
     checkConcreteSubtypeCount("Class<MarsArea>", 61)
     checkConcreteSubtypeCount("Class<RemoteArea>", 2)
-    checkConcreteSubtypeCount("Class<Tile>", 12)
-    checkConcreteSubtypeCount("Class<SpecialTile>", 9)
+    checkConcreteSubtypeCount("Class<Tile>", 11)
+    checkConcreteSubtypeCount("Class<SpecialTile>", 8)
 
-    checkConcreteSubtypeCount("CityTile", (63 + 61) * 2)
+    checkConcreteSubtypeCount("CityTile", 63 * 2)
     checkConcreteSubtypeCount("OceanTile", 61)
     checkConcreteSubtypeCount("GreeneryTile", 61 * 2)
-    checkConcreteSubtypeCount("SpecialTile", (9 * 61) * 2)
+    checkConcreteSubtypeCount("SpecialTile", (8 * 61) * 2)
 
     // Do this one the long way because the error message is horrific
     val type = loader.resolve(te("Tile"))
-    assertThat(type.allConcreteSubtypes().count()).isEqualTo(1407)
+    assertThat(type.allConcreteSubtypes().count()).isEqualTo(1285) // ?
   }
 
   @Test

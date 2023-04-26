@@ -587,23 +587,6 @@
       "projectKind": "ACTIVE"
     },
 
-    // Capital
-    {
-      "id": "008",
-      "bundle": "B",
-      "deck": "PROJECT",
-      "tags": [ "CityTag", "BuildingTag" ],
-      "immediate": "PROD[-2 Energy, 5], CapitalTile",
-      "effects": [
-        // The points attach to the card, not the tile
-        "End: VictoryPoint / Adjacency<CapitalTile, OceanTile>"
-      ],
-      "components": [ "CLASS CapitalTile : CityTile, SpecialTile" ],
-      "requirement": "4 OceanTile",
-      "cost": 26,
-      "projectKind": "AUTOMATED"
-    },
-
     // Asteroid
     {
       "id": "009",

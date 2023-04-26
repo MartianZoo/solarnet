@@ -142,15 +142,6 @@ internal constructor(
 
   override fun ensureReifies(abstractTarget: MType) {
     super<Reifiable>.ensureReifies(abstractTarget)
-
-    // this gon be slowasfuck
-    for (concreteSubtype in abstractTarget.allConcreteSubtypes()) {
-      if (isSubtypeOf(concreteSubtype) && concreteSubtype != this) {
-        throw InvalidReificationException(
-            "A more general type such as ${concreteSubtype.expression}" +
-                " already reifies $expression; can't narrow even further")
-      }
-    }
   }
 
   fun stripRefinements(): MType =
