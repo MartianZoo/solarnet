@@ -36,12 +36,12 @@ private class ReplSessionTest {
     val repl = ReplSession(GameSetup(Canon, "BMX", 2))
     val commands =
         """
-          become Player2
-          exec CorporationCard THEN Astrodrill
+          beCOme Player2
+          exeC CorporationCard then Astrodrill
           exec ActionPhase
           exec UseAction1<UseActionFromCard>
-          task A UseAction1<Astrodrill> THEN ActionUsedMarker<Astrodrill>
-          task B Plant
+          task a UseAction1<Astrodrill> THEN ActionUsedMarker<Astrodrill>
+          TASK B Plant
         """
             .trimIndent()
     for (cmd in commands.split("\n")) {

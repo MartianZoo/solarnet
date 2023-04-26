@@ -3,6 +3,7 @@
 package dev.martianzoo.tfm.pets
 
 import com.github.h0tk3y.betterParse.combinators.and
+import com.github.h0tk3y.betterParse.combinators.asJust
 import com.github.h0tk3y.betterParse.combinators.map
 import com.github.h0tk3y.betterParse.combinators.optional
 import com.github.h0tk3y.betterParse.combinators.or
@@ -15,7 +16,9 @@ import com.github.h0tk3y.betterParse.lexer.literalToken
 import com.github.h0tk3y.betterParse.lexer.regexToken
 import com.github.h0tk3y.betterParse.parser.Parser
 import com.github.h0tk3y.betterParse.utils.Tuple2
-import dev.martianzoo.tfm.pets.ast.Instruction.Intensity
+import dev.martianzoo.tfm.pets.ast.Instruction.Intensity.AMAP
+import dev.martianzoo.tfm.pets.ast.Instruction.Intensity.MANDATORY
+import dev.martianzoo.tfm.pets.ast.Instruction.Intensity.OPTIONAL
 
 /** A base class for parsing objects. */
 public open class PetTokenizer {
@@ -26,16 +29,16 @@ public open class PetTokenizer {
   // I simply don't want to name all of these and would rather look them up by the char itself
   private val characters = "!@^+,-./:;=?()[]{}<>\n".map { it to literal("$it") }.toMap()
 
-  internal val _by = literal("BY")
-  internal val _from = literal("FROM")
-  internal val _has = literal("HAS")
-  internal val _if = literal("IF")
-  internal val _max = literal("MAX")
-  internal val _or = literal("OR")
-  internal val _then = literal("THEN")
-  internal val _x = regex(Regex("X\\b"), "X")
+  internal val _by = caseInsensitiveWord("BY")
+  internal val _from = caseInsensitiveWord("FROM")
+  internal val _has = caseInsensitiveWord("HAS")
+  internal val _if = caseInsensitiveWord("IF")
+  internal val _max = caseInsensitiveWord("MAX")
+  internal val _or = caseInsensitiveWord("OR")
+  internal val _then = caseInsensitiveWord("THEN")
+  internal val _x = regex(Regex("""X\b"""), "X")
 
-  // class declarations
+  // class declarations - making these ignore case causes trouble with `Class<...>`
   internal val _abstract = literal("ABSTRACT")
   internal val _class = literal("CLASS")
   internal val _default = literal("DEFAULT")
@@ -43,25 +46,28 @@ public open class PetTokenizer {
   // regexes - could leave the `Regex()` out, but it loses IDEA syntax highlighting!
   internal val _upperCamelRE = regex(Regex("""\b[A-Z][a-z][A-Za-z0-9_]*\b"""), "UpperCamel")
   internal val _lowerCamelRE = regex(Regex("""\b[a-z][a-zA-Z0-9]*\b"""), "lowerCamel")
-  // can't match just X!
-  internal val _allCapsWordRE = regex(Regex("""\b([A-WYZ]|[A-Z][A-Z0-9]{1,3})\b"""), "ALLCAPS")
+  internal val _allCapsWordRE = regex(Regex("""\b([A-Z][A-Z0-9]{0,3})\b"""), "ALLCAPS")
   private val _scalarRE = regex(Regex("""\b(0|[1-9][0-9]*)"""), "scalar")
 
   internal val rawScalar: Parser<Int> = _scalarRE map { it.text.toInt() }
 
-  internal val intensity =
-      optional(char('!') or char('.') or char('?') map { it.text } map Intensity::from)
+  internal val intensity = optional(
+      (char('!') asJust MANDATORY) or
+      (char('.') asJust AMAP) or
+      (char('?') asJust OPTIONAL)
+  )
 
   internal inline fun <reified T> optionalList(parser: Parser<List<T>>) =
       optional(parser) map { it ?: listOf() }
 
   internal inline fun <reified T> transform(interior: Parser<T>) =
       _allCapsWordRE and
-      skipChar('[') and
-      interior and
-      skipChar(']') map { (trans, inter) ->
-        Tuple2(inter, trans.text.removeSuffix("["))
-      }
+          skipChar('[') and
+          interior and
+          skipChar(']') map
+          { (trans, inter) ->
+            Tuple2(inter, trans.text.removeSuffix("["))
+          }
 
   internal inline fun <reified P> commaSeparated(p: Parser<P>) = separatedTerms(p, char(','))
 
@@ -95,4 +101,5 @@ public open class PetTokenizer {
 
   private fun literal(text: String, name: String = text) = TokenCache.cacheLiteral(text, name)
   private fun regex(regex: Regex, name: String = "$regex") = TokenCache.cacheRegex(regex, name)
+  private fun caseInsensitiveWord(word: String, name: String = word) = regex(Regex("(?i)$word\\b"), name)
 }

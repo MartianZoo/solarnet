@@ -409,7 +409,7 @@ public class ReplSession(var setup: GameSetup, private val jline: JlineRepl? = n
 
       val split = Regex("\\s+").split(args, 2)
       val idString = split.firstOrNull() ?: throw UsageException()
-      val id = TaskId(idString)
+      val id = TaskId(idString.uppercase())
       if (id !in q) throw UsageException("valid ids are ${q.ids}")
       val rest: String? =
           if (split.size > 1 && split[1].isNotEmpty()) {
