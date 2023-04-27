@@ -30,7 +30,7 @@ import dev.martianzoo.util.ParserGroup
 import kotlin.reflect.KClass
 import kotlin.reflect.cast
 
-/** Functions for parsing PETS elements or class declarations from source code. */
+/** Various functions for parsing [PetElement]s or [ClassDeclaration]s from text. */
 public object Parsing {
   /**
    * Parses a series of Pets class declarations. The syntax is currently not documented (sorry), but
@@ -42,28 +42,33 @@ public object Parsing {
   }
 
   /**
-   * Parses a **single-line** class declaration; if it has a body, the elements within the body are
-   * semicolon-separated.
+   * Parses a *single-line* class declaration. If it has a body with multiple elements, they are
+   * semicolon-separated. Syntax examples can be seen in `"components"` fields of `cards.json`.
    */
   public fun parseOneLinerClass(declarationSource: String): ClassDeclaration =
     parse(Declarations.oneLineDecl, declarationSource)
 
+  /**
+   * Parses the Pets element of type [P] from [elementSource], and returns it surrounded by a `RAW`
+   * block. [P] can only be one of the major element types like [Effect], [Action], [Instruction],
+   * [Expression], etc.
+   */
   public inline fun <reified P : PetElement> parseInput(elementSource: String) =
       parseInput(P::class, elementSource)
 
-  /** (non-reified form) */
+  /** Non-reified form of [parseInput]. */
   public fun <P : PetElement> parseInput(type: KClass<P>, elementSource: String) =
       parseAsIs(type, elementSource).raw()
 
   /**
-   * Parses the PETS element in [elementSource], expecting a construct of type [P], and returning
-   * the parsed [P]. [P] can only be one of the major element types like [Effect], [Action],
+   * Parses the Pets element of type [P] from [elementSource], and returns it *not* surrounded by a
+   * `RAW` block. [P] can only be one of the major element types like [Effect], [Action],
    * [Instruction], [Expression], etc.
    */
   public inline fun <reified P : PetNode> parseAsIs(elementSource: String): P =
       parseAsIs(P::class, elementSource)
 
-  /** (non-reified form) */
+  /** Non-reified form of [parseAsIs]. */
   public fun <P : PetNode> parseAsIs(expectedType: KClass<P>, elementSource: String): P {
     val matches: TokenMatchesSequence = TokenCache.tokenize(elementSource)
     require(expectedType != PetNode::class) { "missing type info" }
@@ -77,7 +82,7 @@ public object Parsing {
   public fun <P : PetNode> parseAsIs(expectedType: Class<P>, source: String) =
       parseAsIs(expectedType.kotlin, source)
 
-  public fun <T> parse(
+  internal fun <T> parse(
       parser: Parser<T>,
       source: String,
       matches: TokenMatchesSequence,
@@ -104,11 +109,10 @@ public object Parsing {
     }
   }
 
-  public fun <T> parse(parser: Parser<T>, source: String, expectedTypeDesc: String? = null): T =
+  internal fun <T> parse(parser: Parser<T>, source: String, expectedTypeDesc: String? = null): T =
       parse(parser, source, TokenCache.tokenize(source), expectedTypeDesc)
 
-  // only used by ClassParsing.parseClassDeclarations
-  internal fun <T> parseRepeated(listParser: Parser<T>, tokens: TokenMatchesSequence): List<T> {
+  private fun <T> parseRepeated(listParser: Parser<T>, tokens: TokenMatchesSequence): List<T> {
     fun isEOF(result: ParseResult<*>?): Boolean =
         if (result is AlternativesFailure) {
           result.errors.any(::isEOF)

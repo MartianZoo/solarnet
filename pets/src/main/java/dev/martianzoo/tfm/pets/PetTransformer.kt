@@ -1,5 +1,6 @@
 package dev.martianzoo.tfm.pets
 
+import dev.martianzoo.tfm.pets.PetTransformer.Companion.chain
 import dev.martianzoo.tfm.pets.ast.Action
 import dev.martianzoo.tfm.pets.ast.Action.Cost
 import dev.martianzoo.tfm.pets.ast.ClassName
@@ -15,19 +16,28 @@ import dev.martianzoo.tfm.pets.ast.ScaledExpression
 import dev.martianzoo.tfm.pets.ast.ScaledExpression.Scalar
 import dev.martianzoo.util.toSetStrict
 
-/** Extend this to implement transformations over trees of [PetNode]s. */
+/**
+ * An object that transforms [PetNode]s (typically entire syntax trees) into other [PetNode]s. Most
+ * transformations should be exposed as a [PetTransformer] instance so they can be chained together
+ * with [chain], etc.
+ */
 public abstract class PetTransformer {
   public companion object {
+    /** A transformer that just returns its input. */
     public fun noOp(): PetTransformer =
         object : PetTransformer() {
           override fun <P : PetNode> transform(node: P) = node
         }
 
-    public fun transformInSeries(xers: List<PetTransformer?>): PetTransformer =
-        InSeriesTransformer(xers.filterNotNull())
+    /**
+     * A transformer that applies each *non-null* transformer in [transformers], feeding the output
+     * from each to the input of the next.
+     */
+    public fun chain(transformers: List<PetTransformer?>): PetTransformer =
+        InSeriesTransformer(transformers.filterNotNull())
 
-    public fun transformInSeries(vararg xers: PetTransformer?): PetTransformer =
-        transformInSeries(xers.toList())
+    /** Vararg form of [chain]. */
+    public fun chain(vararg transformers: PetTransformer?) = chain(transformers.toList())
 
     private open class InSeriesTransformer(val transformers: List<PetTransformer>) :
         PetTransformer() {
@@ -42,17 +52,19 @@ public abstract class PetTransformer {
   }
 
   /**
-   * Returns an altered form of the [node] tree.
-   *
-   * Implementation notes:
-   * * If you simply return [node] or some hardcoded subtree, that prevents child subtrees from
-   *   being traversed.
-   * * Call [transformChildren] from here to transform the subtree by transforming each of its child
-   *   subtrees. You can of course either preprocess or post-process the subtree.
+   * Returns an altered form of the [node] tree. To have your transformer descend the subtrees from
+   * here you must call [transformChildren]; you can either preprocess or postprocess those trees if
+   * needed.
    */
   public abstract fun <P : PetNode> transform(node: P): P
 
+  /**
+   * Transforms [node] by transforming each of its children using [transform]; a "default"
+   * transformation. Call this from your own [transform] override when you don't need to transform
+   * the node itself, but you want to continue to descend the subtrees.
+   */
   protected fun <P : PetNode> transformChildren(node: P): P {
+    // You can see below why we need these method names to be as short as possible...
     @Suppress("UNCHECKED_CAST")
     fun <P : PetNode?> x(node: P): P = node?.let(::transform) as P
     fun <P : PetNode> x(nodes: Iterable<P>): List<P> = nodes.map(::x)
@@ -60,6 +72,7 @@ public abstract class PetTransformer {
 
     return (node as PetNode).run {
       val rewritten =
+          // The least interesting code in the entire project?
           when (this) {
             is ClassName -> this
             is Expression -> Expression(x(className), x(arguments), x(refinement))

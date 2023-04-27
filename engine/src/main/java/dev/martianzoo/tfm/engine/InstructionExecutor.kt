@@ -8,7 +8,7 @@ import dev.martianzoo.tfm.api.SpecialClassNames.THIS
 import dev.martianzoo.tfm.api.UserException
 import dev.martianzoo.tfm.data.GameEvent.ChangeEvent.Cause
 import dev.martianzoo.tfm.data.Player
-import dev.martianzoo.tfm.pets.PetTransformer.Companion.transformInSeries
+import dev.martianzoo.tfm.pets.PetTransformer.Companion.chain
 import dev.martianzoo.tfm.pets.Transforming.replaceOwnerWith
 import dev.martianzoo.tfm.pets.ast.Instruction
 import dev.martianzoo.tfm.pets.ast.Instruction.Change
@@ -87,14 +87,13 @@ internal class InstructionExecutor(
       // I guess custom instructions can't return things using `This`
       // and Owner means the context player... (TODO think)
       val instruction =
-          transformInSeries(
-                  xers.atomizer(),
-                  xers.insertDefaults(THIS.expression), // TODO context component??
-                  xers.deprodify(),
-                  replaceOwnerWith(player.className),
-                  TransformNode.unwrapper(RAW),
-              )
-              .transform(translated)
+          chain(
+              xers.atomizer(),
+              xers.insertDefaults(THIS.expression), // TODO context component??
+              xers.deprodify(),
+              replaceOwnerWith(player),
+              TransformNode.unwrapper(RAW),
+          ).transform(translated)
 
       split(instruction).forEach { writer.addTasks(it, player, cause) }
     } catch (e: ExecuteInsteadException) {

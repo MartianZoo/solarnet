@@ -9,7 +9,7 @@ import dev.martianzoo.tfm.engine.Exceptions.InteractiveException
 import dev.martianzoo.tfm.engine.Game.PlayerAgent
 import dev.martianzoo.tfm.pets.Parsing.parseInput
 import dev.martianzoo.tfm.pets.PetTransformer
-import dev.martianzoo.tfm.pets.PetTransformer.Companion.transformInSeries
+import dev.martianzoo.tfm.pets.PetTransformer.Companion.chain
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.pets.ast.Instruction
@@ -161,7 +161,7 @@ internal constructor(
 
   fun <P : PetElement> prep(node: P): P {
     val xers = game.table.transformers
-    return transformInSeries(
+    return chain(
         useFullNames(),
         xers.atomizer(),
         xers.insertDefaults(THIS.expression),

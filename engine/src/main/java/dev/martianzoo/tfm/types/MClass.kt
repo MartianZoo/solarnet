@@ -9,8 +9,8 @@ import dev.martianzoo.tfm.api.SpecialClassNames.THIS
 import dev.martianzoo.tfm.data.ClassDeclaration
 import dev.martianzoo.tfm.data.ClassDeclaration.EffectDeclaration
 import dev.martianzoo.tfm.pets.PetTransformer
-import dev.martianzoo.tfm.pets.PetTransformer.Companion.transformInSeries
-import dev.martianzoo.tfm.pets.Transforming.replaceThisWith
+import dev.martianzoo.tfm.pets.PetTransformer.Companion.chain
+import dev.martianzoo.tfm.pets.Transforming.replaceThisExpressionsWith
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.Effect
 import dev.martianzoo.tfm.pets.ast.Expression
@@ -107,7 +107,7 @@ internal constructor(
       declaration.supertypes.none() -> setOf(table.componentClass.baseType)
       else ->
           declaration.supertypes.toSetStrict {
-            val dethissed = replaceThisWith(className.expression).transform(it)
+            val dethissed = replaceThisExpressionsWith(className.expression).transform(it)
             table.resolve(dethissed)
           }
     }
@@ -206,7 +206,7 @@ internal constructor(
   private fun directClassEffects(): List<EffectDeclaration> {
     val transformer =
         if (OWNED !in allSuperclasses.classNames()) {
-          transformInSeries(
+          chain(
               attachToClassTransformer,
               table.transformers.fixEffectForUnownedContext(),
           )
@@ -222,18 +222,15 @@ internal constructor(
 
   private val attachToClassTransformer: PetTransformer by lazy {
     val weirdExpression = className.refine(Min(scaledEx(1, OK)))
-    transformInSeries(
-        table.transformers.insertDefaults(weirdExpression),
-        table.transformers.atomizer(),
-    )
+    val xers = table.transformers
+    chain(xers.insertDefaults(weirdExpression), xers.atomizer())
   }
 
   // OTHER
 
   private val specificThenGeneralInvars: Pair<List<Requirement>, List<Requirement>> by lazy {
     val requirements = declaration.invariants.map(attachToClassTransformer::transform)
-    val xer = transformInSeries(
-        table.transformers.deprodify(), TransformNode.unwrapper(RAW))
+    val xer = chain(table.transformers.deprodify(), TransformNode.unwrapper(RAW))
     split(requirements).map { xer.transform(it) }.partition { THIS in it }
   }
 

@@ -6,9 +6,9 @@ import dev.martianzoo.tfm.api.SpecialClassNames.OWNER
 import dev.martianzoo.tfm.api.SpecialClassNames.PROD
 import dev.martianzoo.tfm.api.SpecialClassNames.THIS
 import dev.martianzoo.tfm.pets.PetTransformer
+import dev.martianzoo.tfm.pets.PetTransformer.Companion.chain
 import dev.martianzoo.tfm.pets.PetTransformer.Companion.noOp
-import dev.martianzoo.tfm.pets.PetTransformer.Companion.transformInSeries
-import dev.martianzoo.tfm.pets.Transforming.replaceThisWith
+import dev.martianzoo.tfm.pets.Transforming.replaceThisExpressionsWith
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.pets.ast.Effect
@@ -127,10 +127,7 @@ public class Transformers(private val table: MClassTable) {
   }
 
   public fun insertDefaults(context: Expression) =
-      transformInSeries(
-          insertGainRemoveDefaults(context),
-          insertExpressionDefaults(context),
-      )
+      chain(insertGainRemoveDefaults(context), insertExpressionDefaults(context))
 
   private fun insertGainRemoveDefaults(context: Expression): PetTransformer {
     return object : PetTransformer() {
@@ -213,7 +210,7 @@ public class Transformers(private val table: MClassTable) {
   ): Expression {
 
     val mclass: MClass = table.getClass(original.className)
-    val dethissed: Expression = replaceThisWith(contextCpt).transform(original)
+    val dethissed: Expression = replaceThisExpressionsWith(contextCpt).transform(original)
     val match: DependencySet = table.matchPartial(dethissed.arguments, mclass.dependencies)
 
     val preferred: Map<Key, Expression> = match.keys.zip(original.arguments).toMap()

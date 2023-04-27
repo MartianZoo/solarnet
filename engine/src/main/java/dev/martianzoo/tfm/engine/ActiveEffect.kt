@@ -1,10 +1,11 @@
 package dev.martianzoo.tfm.engine
 
-import dev.martianzoo.tfm.api.SpecialClassNames
+import dev.martianzoo.tfm.api.SpecialClassNames.ANYONE
+import dev.martianzoo.tfm.api.SpecialClassNames.OWNER
 import dev.martianzoo.tfm.data.GameEvent.ChangeEvent
 import dev.martianzoo.tfm.data.GameEvent.ChangeEvent.Cause
 import dev.martianzoo.tfm.data.Player
-import dev.martianzoo.tfm.pets.Transforming
+import dev.martianzoo.tfm.pets.Transforming.replaceOwnerWith
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.Effect
 import dev.martianzoo.tfm.pets.ast.Effect.Trigger
@@ -46,7 +47,7 @@ internal data class ActiveEffect(
   fun onChangeToOther(triggerEvent: ChangeEvent) = onChange(triggerEvent, isSelf = false)
 
   private fun onChange(triggerEvent: ChangeEvent, isSelf: Boolean): FiredEffect? {
-    val player = context.owner()?.let(::Player) ?: triggerEvent.player
+    val player = context.owner() ?: triggerEvent.player
     val hit = trigger.match(triggerEvent, player, isSelf) ?: return null
     return FiredEffect(hit(instruction), player, Cause(context, triggerEvent), automatic)
   }
@@ -113,8 +114,8 @@ internal data class ActiveEffect(
 
       val originalHit = inner.match(triggerEvent, player, isSelf) ?: return null
 
-      return if (by == SpecialClassNames.OWNER) {
-        { Transforming.replaceOwnerWith(player.className).transform(originalHit(it)) }
+      return if (by == OWNER) {
+        { replaceOwnerWith(player).transform(originalHit(it)) }
       } else {
         originalHit
       }
@@ -122,7 +123,7 @@ internal data class ActiveEffect(
 
     fun isPlayerSpecificTrigger(): Boolean {
       if (by.toString().matches(Regex("^Player[1-5]$"))) return true
-      require(by == SpecialClassNames.ANYONE || by == SpecialClassNames.OWNER) { by }
+      require(by == ANYONE || by == OWNER) { by }
       return false
     }
   }

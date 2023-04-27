@@ -5,10 +5,10 @@ import dev.martianzoo.tfm.api.SpecialClassNames.RAW
 import dev.martianzoo.tfm.api.Type
 import dev.martianzoo.tfm.api.UserException
 import dev.martianzoo.tfm.data.ClassDeclaration.EffectDeclaration
-import dev.martianzoo.tfm.pets.PetTransformer.Companion.transformInSeries
+import dev.martianzoo.tfm.data.Player
+import dev.martianzoo.tfm.pets.PetTransformer.Companion.chain
 import dev.martianzoo.tfm.pets.Transforming.replaceOwnerWith
-import dev.martianzoo.tfm.pets.Transforming.replaceThisWith
-import dev.martianzoo.tfm.pets.ast.ClassName
+import dev.martianzoo.tfm.pets.Transforming.replaceThisExpressionsWith
 import dev.martianzoo.tfm.pets.ast.HasClassName
 import dev.martianzoo.tfm.pets.ast.HasExpression
 import dev.martianzoo.tfm.pets.ast.TransformNode
@@ -42,15 +42,14 @@ public data class Component private constructor(val mtype: MType) : HasClassName
 
   public val petEffects: List<EffectDeclaration> by lazy {
     mtype.root.classEffects.map { fxDecl ->
-      val fx =
-          transformInSeries(
-                  mtype.loader.transformers.deprodify(),
-                  Substituter(mtype.findSubstitutions(fxDecl.depLinkages)),
-                  owner()?.let { replaceOwnerWith(it) },
-                  replaceThisWith(mtype.expression),
-                  TransformNode.unwrapper(RAW),
-              )
-              .transform(fxDecl.effect)
+      val fx = chain(
+          mtype.loader.transformers.deprodify(),
+          Substituter(mtype.findSubstitutions(fxDecl.depLinkages)),
+          owner()?.let { replaceOwnerWith(it) },
+          replaceThisExpressionsWith(mtype.expression),
+          TransformNode.unwrapper(RAW),
+      ).transform(fxDecl.effect)
+
       fxDecl.copy(effect = fx, depLinkages = setOf())
     }
   }
@@ -62,7 +61,9 @@ public data class Component private constructor(val mtype: MType) : HasClassName
     return petEffects.map { ActiveEffect.from(it.effect, this, game, it.triggerLinkages) }
   }
 
-  public fun owner(): ClassName? = mtype.dependencies.getIfPresent(Key(OWNED, 0))?.className
+  // TODO make this more readable
+  public fun owner(): Player? =
+      mtype.dependencies.getIfPresent(Key(OWNED, 0))?.className?.let(::Player)
 
   override val className by mtype::className
   override val expression by mtype::expression

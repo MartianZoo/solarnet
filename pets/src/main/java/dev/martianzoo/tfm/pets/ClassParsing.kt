@@ -36,7 +36,6 @@ import dev.martianzoo.util.KClassMultimap
 import dev.martianzoo.util.plus
 import dev.martianzoo.util.toSetStrict
 
-/** Parses the PETS language. */
 internal object ClassParsing : PetTokenizer() {
   private val nls = zeroOrMore(char('\n'))
 

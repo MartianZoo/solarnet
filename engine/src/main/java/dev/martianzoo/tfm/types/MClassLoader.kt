@@ -8,7 +8,7 @@ import dev.martianzoo.tfm.api.SpecialClassNames.THIS
 import dev.martianzoo.tfm.api.Type
 import dev.martianzoo.tfm.api.UserException
 import dev.martianzoo.tfm.data.ClassDeclaration
-import dev.martianzoo.tfm.pets.Transforming.replaceThisWith
+import dev.martianzoo.tfm.pets.Transforming.replaceThisExpressionsWith
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.pets.ast.PetNode
@@ -155,7 +155,7 @@ public class MClassLoader(
   private fun validate() {
     allClasses.forEach { mclass ->
       mclass.classEffects.forEach {
-        checkAllTypes(replaceThisWith(mclass.className.expression).transform(it.effect))
+        checkAllTypes(replaceThisExpressionsWith(mclass.className.expression).transform(it.effect))
       }
     }
   }

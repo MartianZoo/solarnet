@@ -3,9 +3,11 @@ package dev.martianzoo.tfm.pets
 import dev.martianzoo.tfm.api.SpecialClassNames.OWNER
 import dev.martianzoo.tfm.api.SpecialClassNames.THIS
 import dev.martianzoo.tfm.api.SpecialClassNames.USE_ACTION
-import dev.martianzoo.tfm.pets.PetTransformer.Companion.transformInSeries
+import dev.martianzoo.tfm.data.Player
+import dev.martianzoo.tfm.data.Player.Companion.ENGINE
+import dev.martianzoo.tfm.pets.PetTransformer.Companion.chain
+import dev.martianzoo.tfm.pets.PetTransformer.Companion.noOp
 import dev.martianzoo.tfm.pets.ast.Action
-import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.pets.ast.Effect
 import dev.martianzoo.tfm.pets.ast.Effect.Trigger.OnGainOf
@@ -15,34 +17,39 @@ import dev.martianzoo.tfm.pets.ast.Instruction
 import dev.martianzoo.tfm.pets.ast.Instruction.NoOp
 import dev.martianzoo.tfm.pets.ast.Instruction.Then
 import dev.martianzoo.tfm.pets.ast.Instruction.Transmute
-import dev.martianzoo.tfm.pets.ast.PetNode
 import dev.martianzoo.tfm.pets.ast.PetNode.Companion.raw
-import dev.martianzoo.tfm.pets.ast.PetNode.Companion.replaceAll
 import dev.martianzoo.tfm.pets.ast.PetNode.Companion.replacer
 import dev.martianzoo.tfm.pets.ast.PetNode.Companion.unraw
 import dev.martianzoo.util.toSetStrict
 
-/** Various functions for transforming Pets syntax trees. */
+/**
+ * Various functions for transforming Pets syntax trees. Many more interesting transformers require
+ * a class table, and therefore are found in the `engine` module (`MClassTable.transformers`).
+ */
 public object Transforming {
-  public fun replaceThisWith(contextType: Expression): PetTransformer =
-      transformInSeries(
+  /**
+   * Replaces each occurrence of the special `This` expression with [contextType], replacing
+   * `Class<This>` appropriately as well.
+   */
+  public fun replaceThisExpressionsWith(contextType: Expression): PetTransformer =
+      chain(
           replacer(THIS.classExpression(), contextType.className.classExpression()),
           replacer(THIS.expression, contextType),
       )
 
-  public fun unreplaceThisWith(contextType: Expression): PetTransformer =
-      transformInSeries(
+  /**
+   * Reverses the effect of [replaceThisExpressionsWith] (though it will also turn [contextType]
+   * expressions into `This` that didn't start out that way).
+   */
+  public fun replaceWithThisExpressions(contextType: Expression): PetTransformer =
+      chain(
           replacer(contextType, THIS.expression),
           replacer(contextType.className.classExpression(), THIS.classExpression()),
       )
 
-  public fun replaceOwnerWith(owner: ClassName): PetTransformer {
-    return object : PetTransformer() {
-      override fun <P : PetNode> transform(node: P): P {
-        return node.replaceAll(OWNER.expression, owner.expression)
-      }
-    }
-  }
+  /** Replaces each occurrence of `Owner` with the given player. */
+  public fun replaceOwnerWith(owner: Player): PetTransformer =
+      if (owner == ENGINE) noOp() else replacer(OWNER.expression, owner.expression)
 
   internal fun actionToEffect(action: Action, index1Ref: Int): Effect {
     val unrapt = action.unraw()
