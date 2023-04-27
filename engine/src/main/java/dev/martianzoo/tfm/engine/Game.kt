@@ -295,35 +295,33 @@ internal constructor(
     fun tasks(): Map<TaskId, Task> = game.tasks.asMap()
 
     public fun doTask(taskId: TaskId, narrowed: Instruction? = null): Result {
-      val checkpoint = game.checkpoint()
       val requestedTask: Task = game.getTask(taskId)
 
       // TODO players probably shouldn't be able to do their own tasks
       // require(requestedTask.player == player)
 
-      // TODO this should have been done already before enqueueing
-      val queuedInstruction = heyItsMe(requestedTask.instruction)
-
+      val queuedInstruction = requestedTask.instruction
       val fullyConcreteInstruction = heyItsMe(narrowed)
 
       fullyConcreteInstruction?.ensureReifies(queuedInstruction, game.einfo)
       val instruction = fullyConcreteInstruction ?: queuedInstruction
 
-      return try {
-        doAtomic {
-          val executor =
-              InstructionExecutor(reader, writer, game.transformers, player, requestedTask.cause)
-          executor.doInstruction(instruction)
-          removeTask(taskId)
-        }
-      } catch (e: UserException) {
-        if (requestedTask.whyPending != null) {
+      val checkpoint = game.checkpoint()
+      try {
+        val executor =
+            InstructionExecutor(reader, writer, game.transformers, player, requestedTask.cause)
+        executor.doInstruction(instruction)
+        removeTask(taskId)
+      } catch (e: Exception) {
+        game.rollBack(checkpoint)
+        if (e is UserException && requestedTask.whyPending == null) {
+          val explainedTask = requestedTask.copy(whyPending = e.message)
+          game.writableTasks.replaceTask(explainedTask, game.writableEvents)
+        } else {
           throw e
         }
-        val explainedTask = requestedTask.copy(whyPending = e.message)
-        game.writableTasks.replaceTask(explainedTask, game.writableEvents)
-        game.events.activitySince(checkpoint)
       }
+      return game.events.activitySince(checkpoint)
     }
 
     // TODO check owner
@@ -374,8 +372,7 @@ internal constructor(
       }
 
       override fun addTasks(instruction: Instruction, taskOwner: Player, cause: Cause?) {
-        game.writableTasks.addTasksFrom(
-            instruction, taskOwner, cause, game.writableEvents)
+        game.writableTasks.addTasksFrom(instruction, taskOwner, cause, game.writableEvents)
       }
     }
 
