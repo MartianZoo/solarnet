@@ -1,12 +1,12 @@
 package dev.martianzoo.tfm.canon
 
 import com.google.common.truth.Truth.assertThat
-import dev.martianzoo.tfm.api.ApiUtils
 import dev.martianzoo.tfm.api.GameSetup
 import dev.martianzoo.tfm.api.UserException.InvalidReificationException
 import dev.martianzoo.tfm.api.UserException.RequirementException
 import dev.martianzoo.tfm.data.Player.Companion.PLAYER1
 import dev.martianzoo.tfm.engine.Engine
+import dev.martianzoo.tfm.engine.Humanizing.production
 import dev.martianzoo.tfm.engine.PlayerSession
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -101,8 +101,7 @@ private class CanonCustomInstructionsTest {
   }
 
   private fun checkProduction(sess: PlayerSession, vararg exp: Int) {
-    val agent = sess.agent
-    assertThat(ApiUtils.lookUpProductionLevels(agent.reader, agent.player).values)
+    assertThat(sess.production().values)
         .containsExactlyElementsIn(exp.toList())
         .inOrder()
   }

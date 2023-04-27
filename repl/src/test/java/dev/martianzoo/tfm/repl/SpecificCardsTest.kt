@@ -1,21 +1,21 @@
 package dev.martianzoo.tfm.repl
 
 import com.google.common.truth.Truth.assertThat
-import dev.martianzoo.tfm.api.ApiUtils.lookUpProductionLevels
 import dev.martianzoo.tfm.api.GameSetup
 import dev.martianzoo.tfm.api.UserException.RequirementException
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.data.Player.Companion.PLAYER1
 import dev.martianzoo.tfm.engine.Engine
 import dev.martianzoo.tfm.engine.Exceptions.LimitsException
+import dev.martianzoo.tfm.engine.Humanizing.counts
+import dev.martianzoo.tfm.engine.Humanizing.playCard
+import dev.martianzoo.tfm.engine.Humanizing.production
+import dev.martianzoo.tfm.engine.Humanizing.stdProject
+import dev.martianzoo.tfm.engine.Humanizing.turn
+import dev.martianzoo.tfm.engine.Humanizing.useCardAction
 import dev.martianzoo.tfm.engine.PlayerSession
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.repl.TestHelpers.assertCounts
-import dev.martianzoo.tfm.repl.TestHelpers.counts
-import dev.martianzoo.tfm.repl.TestHelpers.playCard
-import dev.martianzoo.tfm.repl.TestHelpers.stdProject
-import dev.martianzoo.tfm.repl.TestHelpers.turn
-import dev.martianzoo.tfm.repl.TestHelpers.useCardAction1
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 
@@ -28,14 +28,14 @@ class SpecificCardsTest {
 
     p1.execute("4 Heat, 3 ProjectCard, Pets")
     assertThat(p1.counts("Card, Heat, CardBack, CardFront, Animal, PlayedEvent"))
-        .containsExactly(3, 4, 2, 1, 1, 0)
-        .inOrder()
+      .containsExactly(3, 4, 2, 1, 1, 0)
+      .inOrder()
 
     val cp1 = p1.game.checkpoint()
     p1.execute("LocalHeatTrapping")
     assertThat(p1.counts("Card, Heat, CardBack, CardFront, Animal, PlayedEvent"))
-        .containsExactly(3, 4, 1, 1, 1, 1)
-        .inOrder()
+      .containsExactly(3, 4, 1, 1, 1, 1)
+      .inOrder()
 
     val tasks = p1.agent.tasks()
     assertThat(tasks.values.any { it.whyPending == "can't gain/remove 5 instances, only 4" })
@@ -43,13 +43,13 @@ class SpecificCardsTest {
 
     p1.execute("2 Heat")
     assertThat(p1.counts("Card, Heat, CardBack, CardFront, Animal, PlayedEvent"))
-        .containsExactly(3, 6, 2, 1, 1, 0)
-        .inOrder()
+      .containsExactly(3, 6, 2, 1, 1, 0)
+      .inOrder()
 
     val nextTask = p1.execute("LocalHeatTrapping").tasksSpawned.single()
     assertThat(p1.counts("Card, Heat, CardBack, CardFront, Animal, PlayedEvent"))
-        .containsExactly(3, 1, 1, 1, 1, 1)
-        .inOrder()
+      .containsExactly(3, 1, 1, 1, 1, 1)
+      .inOrder()
 
     val cp2 = p1.game.checkpoint()
     assertThrows<Exception>("2") { p1.doTask(nextTask, "2 Animal") }
@@ -78,10 +78,9 @@ class SpecificCardsTest {
     assertThat(p1.count("Steel")).isEqualTo(1)
 
     p1.execute("PROD[8, 6T, 7P, 5E, 3H]")
-    val prods1 = lookUpProductionLevels(p1.game.reader, p1.agent.player.expression)
 
     // Being very lazy and depending on declaration order!
-    assertThat(prods1.values).containsExactly(8, 1, 6, 7, 5, 3).inOrder()
+    assertThat(p1.production().values).containsExactly(8, 1, 6, 7, 5, 3).inOrder()
     assertThat(p1.counts("M, S, T, P, E, H")).containsExactly(43, 1, 6, 7, 5, 3)
 
     p1.execute("-7 Plant")
@@ -89,8 +88,7 @@ class SpecificCardsTest {
     p1.execute("Moss")
     assertThat(p1.game.tasks.isEmpty()).isTrue()
 
-    val prods2 = lookUpProductionLevels(p1.game.reader, p1.agent.player.expression)
-    assertThat(prods2.values).containsExactly(8, 1, 6, 8, 5, 3).inOrder()
+    assertThat(p1.production().values).containsExactly(8, 1, 6, 8, 5, 3).inOrder()
     assertThat(p1.counts("M, S, T, P, E, H")).containsExactly(43, 1, 6, 0, 5, 3)
   }
 
@@ -112,7 +110,7 @@ class SpecificCardsTest {
     p1.execute("UseAction2<SulphurEatingBacteria>")
 
     fun assertTaskFails(task: String, desc: String) =
-        assertThrows<Exception>(desc) { p1.doTask("A", task) }
+      assertThrows<Exception>(desc) { p1.doTask("A", task) }
 
     // Make sure these task attempts *don't* work
 
@@ -144,7 +142,7 @@ class SpecificCardsTest {
     eng.execute("ActionPhase")
 
     val cp = game.checkpoint()
-    p1.useCardAction1("UnitedNationsMarsInitiative")
+    p1.useCardAction(1, "UnitedNationsMarsInitiative")
 
     // Can't use UNMI action yet - fail, don't no-op, per https://boardgamegeek.com/thread/2525032
     assertThrows<RequirementException> { p1.doTask("-3 THEN HasRaisedTr: TerraformRating!") }
@@ -155,11 +153,11 @@ class SpecificCardsTest {
     p1.assertCounts(11 to "Megacredit", 21 to "TR")
 
     // Now we can use UNMI
-    p1.useCardAction1("UnitedNationsMarsInitiative")
+    p1.useCardAction(1, "UnitedNationsMarsInitiative")
     p1.assertCounts(8 to "Megacredit", 22 to "TR")
 
     // Can't use it twice tho
-    assertThrows<LimitsException> { p1.useCardAction1("UnitedNationsMarsInitiative") }
+    assertThrows<LimitsException> { p1.useCardAction(1, "UnitedNationsMarsInitiative") }
     p1.assertCounts(8 to "Megacredit", 22 to "TR")
   }
 
@@ -179,7 +177,7 @@ class SpecificCardsTest {
     p1.assertCounts(25 to "Megacredit", 21 to "TR")
 
     eng.execute("ActionPhase")
-    p1.useCardAction1("UnitedNationsMarsInitiative")
+    p1.useCardAction(1, "UnitedNationsMarsInitiative")
     p1.assertCounts(22 to "Megacredit", 22 to "TR")
   }
 
@@ -215,17 +213,17 @@ class SpecificCardsTest {
 
     // Use the action
     p1.assertCounts(1 to "ProjectCard")
-    p1.useCardAction1("AiCentral")
+    p1.useCardAction(1, "AiCentral")
     p1.assertCounts(3 to "ProjectCard")
 
     // Can't use it again
     cp = game.checkpoint()
-    assertThrows<LimitsException> { p1.useCardAction1("AiCentral") }
+    assertThrows<LimitsException> { p1.useCardAction(1, "AiCentral") }
     game.rollBack(cp)
 
     // Next gen we can again
     eng.execute("Generation")
-    p1.useCardAction1("AiCentral")
+    p1.useCardAction(1, "AiCentral")
     p1.assertCounts(5 to "ProjectCard")
   }
 
@@ -278,11 +276,11 @@ class SpecificCardsTest {
     p1.execute("10 ProjectCard, ForcedPrecipitation")
     p1.execute("AtmoCollectors", "2 Floater<AtmoCollectors>")
     p1.execute("Airliners", "2 Floater<AtmoCollectors>")
-    assertThat(lookUpProductionLevels(game.reader, PLAYER1).get(cn("Megacredit"))).isEqualTo(2)
+    assertThat(p1.production().get(cn("Megacredit"))).isEqualTo(2)
 
     p1.execute("CommunityServices") // should be 3 tagless cards (Atmo, Airl, Comm)
 
     // TODO THIS IS BROKEN, should be 5 not 6
-    assertThat(lookUpProductionLevels(game.reader, PLAYER1).get(cn("Megacredit"))).isEqualTo(6)
+    assertThat(p1.production().get(cn("Megacredit"))).isEqualTo(6)
   }
 }
