@@ -297,11 +297,17 @@ internal constructor(
     public fun doTask(taskId: TaskId, narrowed: Instruction? = null): Result {
       val checkpoint = game.checkpoint()
       val requestedTask: Task = game.getTask(taskId)
+
+      // TODO players probably shouldn't be able to do their own tasks
       // require(requestedTask.player == player)
 
-      val prepped = heyItsMe(narrowed)
-      prepped?.ensureReifies(requestedTask.instruction, game.einfo)
-      val instruction = prepped ?: requestedTask.instruction
+      // TODO this should have been done already before enqueueing
+      val queuedInstruction = heyItsMe(requestedTask.instruction)
+
+      val fullyConcreteInstruction = heyItsMe(narrowed)
+
+      fullyConcreteInstruction?.ensureReifies(queuedInstruction, game.einfo)
+      val instruction = fullyConcreteInstruction ?: queuedInstruction
 
       return try {
         doAtomic {

@@ -109,6 +109,21 @@ private class ReplSessionTest {
   }
 
   @Test
+  fun testGreenerySp() {
+    val repl = ReplSession(Canon.SIMPLE_GAME)
+    repl.command("become Player1")
+    repl.command("exec 100")
+    repl.command("exec UseAction1<GreenerySP>")
+
+    // This should eventually work when we really fix greeneries, but for now
+    // it insists you place next to a tile of yours, so it won't work
+    val result = repl.command("task A -23 THEN GreeneryTile<Tharsis_3_4>")
+    assertThat(result)
+        .containsExactly(
+            "requirement not met: `Neighbor<OwnedTile<Player1, MarsArea>, Tharsis_3_4>`")
+  }
+
+  @Test
   fun testMap() {
     val repl = ReplSession(Canon.SIMPLE_GAME)
     repl.command("become P1")

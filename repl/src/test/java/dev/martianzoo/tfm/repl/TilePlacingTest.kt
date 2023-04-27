@@ -51,7 +51,7 @@ class TilePlacingTest {
     p1.execute("CityTile<M86>") // can place this one by fiat
 
     // TODO currently an opponent tile will fool it, because Owner isn't getting replaced
-    // p2.execute("CityTile<M67>")
+    p2.execute("CityTile<M67>")
 
     // Use the standard project so that the placement rule is in effect
     p1.stdProject("GreenerySP")

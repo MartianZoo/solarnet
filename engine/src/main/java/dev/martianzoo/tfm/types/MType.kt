@@ -148,7 +148,13 @@ internal constructor(
       root.withAllDependencies(dependencies.map { it.stripRefinements() })
 
   override fun ensureNarrows(that: MType) {
-    if (!isSubtypeOf(that.stripRefinements())) throw InvalidReificationException("$this $that")
+    val thisWithoutHas = this.stripRefinements()
+    val thatWithoutHas = that.stripRefinements()
+    if (!thisWithoutHas.isSubtypeOf(thatWithoutHas)) {
+      throw InvalidReificationException(
+          "Ignoring refinements, ${thisWithoutHas.expression}" +
+              " isn't a subtype of ${thatWithoutHas.expression}")
+    }
   }
 
   override fun toString() = "$expressionFull@${root.loader}"
