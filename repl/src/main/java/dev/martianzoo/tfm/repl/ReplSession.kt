@@ -471,7 +471,7 @@ public class ReplSession(var setup: GameSetup, private val jline: JlineRepl? = n
 
     override fun noArgs() =
         session.game.events
-            .changesSince(session.game.start)
+            .changesSince(session.game.start!!)
             .filter { !isSystemOnly(it.change) }
             .toStrings()
 

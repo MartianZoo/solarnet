@@ -9,12 +9,11 @@ import dev.martianzoo.tfm.pets.ast.Requirement.Counting
 import dev.martianzoo.tfm.types.MType
 import dev.martianzoo.util.HashMultiset
 import dev.martianzoo.util.Multiset
-import dev.martianzoo.util.MutableMultiset
 import kotlin.math.min
 
-internal class WritableComponentGraph : ComponentGraph {
-  private val multiset: MutableMultiset<Component> = HashMultiset()
-
+internal class WritableComponentGraph(
+    private val multiset: HashMultiset<Component> = HashMultiset()
+) : ComponentGraph {
   override operator fun contains(component: Component) = component in multiset.elements
 
   override fun count(parentType: MType) = getAll(parentType).size
@@ -32,6 +31,7 @@ internal class WritableComponentGraph : ComponentGraph {
     }
   }
 
+  // TODO update this redundantly instead of walking the whole table
   fun activeEffects(game: Game): List<ActiveEffect> =
       multiset.flatMap { it.activeEffects(game) }.entries.map { (effect, count) -> effect * count }
 
@@ -123,4 +123,6 @@ internal class WritableComponentGraph : ComponentGraph {
     removeWhatWasGained?.let { multiset.mustRemove(it, count) }
     gainWhatWasRemoved?.let { multiset.add(it, count) }
   }
+
+  fun clone() = WritableComponentGraph(multiset.clone())
 }

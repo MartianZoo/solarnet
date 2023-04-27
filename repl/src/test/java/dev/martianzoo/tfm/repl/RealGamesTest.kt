@@ -319,7 +319,6 @@ class RealGamesTest {
     eng.execute("End")
     assertThat(eng.agent.tasks()).isEmpty()
 
-    eng.game.events.changesSince(cp).forEach(::println)
     // Not sure where this discrepancy comes from... expected P2 to be shorted 1 pt because event
 
     // 23 2 1 1 -1

@@ -72,7 +72,7 @@ public class CardDefinition(data: CardData) : Definition {
    * Venus tags). Order is irrelevant for gameplay purposes (canon data should preserve tag order
    * from printed cards just because).
    */
-  public val tags: Multiset<ClassName> = HashMultiset(data.tags.map(::cn))
+  public val tags: Multiset<ClassName> = HashMultiset.of(data.tags.map(::cn))
 
   /** Immediate effects on the card, if any. */
   public val immediate: Instruction? = data.immediate?.let(::parseInput)

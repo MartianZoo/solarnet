@@ -12,8 +12,8 @@ import dev.martianzoo.tfm.data.Task
 import dev.martianzoo.tfm.data.Task.TaskId
 import dev.martianzoo.tfm.engine.EventLog.Checkpoint
 
-internal class WritableEventLog : EventLog {
-  override val events: MutableList<GameEvent> = mutableListOf()
+internal class WritableEventLog(override val events: MutableList<GameEvent> = mutableListOf()) :
+    EventLog {
   override val size: Int by events::size
 
   override fun checkpoint() = Checkpoint(size)
@@ -59,4 +59,6 @@ internal class WritableEventLog : EventLog {
     require(oldTask.id == newTask.id)
     addEntry(TaskReplacedEvent(size, oldTask = oldTask, task = newTask))
   }
+
+  fun clone() = WritableEventLog(events.toMutableList())
 }

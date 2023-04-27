@@ -24,4 +24,6 @@ public interface Multiset<E> : Collection<E> {
     entries.forEach { (e, ct) -> function(e).forEach { result.add(it, ct) } }
     return result
   }
+
+  public fun clone(): Multiset<E>
 }

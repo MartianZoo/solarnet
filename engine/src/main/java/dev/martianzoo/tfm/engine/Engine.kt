@@ -15,7 +15,12 @@ import dev.martianzoo.tfm.types.MClassTable
 
 /** Has functions for setting up new games and stuff. */
 public object Engine {
-  public fun loadClasses(setup: GameSetup): MClassTable {
+  private val classTableCache = mutableMapOf<GameSetup, MClassTable>()
+  private val gameTemplateCache = mutableMapOf<GameSetup, Game>()
+
+  private fun loadClasses(setup: GameSetup): MClassTable {
+    if (setup in classTableCache) return classTableCache[setup]!!
+
     val loader = MClassLoader(setup.authority)
     val toLoad: List<HasClassName> = setup.allDefinitions() + setup.players()
 
@@ -23,12 +28,14 @@ public object Engine {
 
     if ("P" in setup.bundles) loader.load(cn("PreludePhase"))
 
-    return loader.freeze()
+    return loader.freeze().also { classTableCache[setup] = it }
   }
 
   public fun newGame(setup: GameSetup): Game {
-    val loader = loadClasses(setup)
-    val game = Game(setup.authority, loader)
+    if (setup in gameTemplateCache) return gameTemplateCache[setup]!!.clone()
+
+    val table = loadClasses(setup)
+    val game = Game(table)
     val agent = game.asPlayer(Player.ENGINE)
 
     val result: Result = agent.initiate(Gain.gain(scaledEx(1, ENGINE)))
@@ -36,11 +43,12 @@ public object Engine {
 
     val fakeCause = Cause(Player.ENGINE, result.changes.first())
 
-    singletonCreateInstructions(loader).forEach {
+    singletonCreateInstructions(table).forEach {
       agent.initiate(it, fakeCause)
       require(game.tasks.isEmpty()) { "Unexpected tasks: ${game.tasks}" }
     }
     game.setupFinished()
+    gameTemplateCache[setup] = game.clone()
     return game
   }
 

@@ -25,7 +25,7 @@ public class MClassLoader(
      * The source of class declarations to use as needed; [loadEverything] will load every class
      * found here.
      */
-    val authority: Authority,
+    override val authority: Authority,
 ) : MClassTable() {
   /** The `Component` class, which is the root of the class hierarchy. */
   override val componentClass: MClass = MClass(decl(COMPONENT), this, directSuperclasses = listOf())

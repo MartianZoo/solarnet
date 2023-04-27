@@ -17,7 +17,7 @@ import org.junit.jupiter.api.Test
 private class CanonBootstrapTest {
   @Test
   fun loadsExpectedClasses() {
-    val loader = Engine.loadClasses(GameSetup(Canon, "BRMPX", 4))
+    val table = Engine.newGame(GameSetup(Canon, "BRMPX", 4)).table
     val unusedCards =
         Canon.cardDefinitions.filter { "VC".contains(it.bundle) }.classNames().toSetStrict()
 
@@ -27,7 +27,7 @@ private class CanonBootstrapTest {
             .filterNot { it.matches(regex) }
             .filterNot { it in milestoneNames && "HEV".contains(Canon.milestone(it).bundle) }
 
-    assertThat(loader.allClasses.classNames()).containsExactlyElementsIn(expected)
+    assertThat(table.allClasses.classNames()).containsExactlyElementsIn(expected)
   }
 
   val regex = Regex("(Hellas|Elysium|Player5|Camp|Venus|Area2|AirScrap|Card247|Lakefront).*")

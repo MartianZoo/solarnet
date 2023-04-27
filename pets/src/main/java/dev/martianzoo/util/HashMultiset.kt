@@ -3,11 +3,10 @@ package dev.martianzoo.util
 import kotlin.collections.Map.Entry
 import kotlin.math.min
 
-class HashMultiset<E>(elements: Iterable<E>) : MutableMultiset<E> {
-  constructor() : this(listOf())
-  private val map = mutableMapOf<E, Int>()
-  init {
-    addAll(elements)
+public class HashMultiset<E>(private val map: MutableMap<E, Int> = mutableMapOf()) :
+    MutableMultiset<E> {
+  companion object {
+    fun <E> of(elements: Iterable<E>) = HashMultiset<E>().also { it.addAll(elements) }
   }
 
   override val size
@@ -97,4 +96,6 @@ class HashMultiset<E>(elements: Iterable<E>) : MutableMultiset<E> {
           } else {
             elements.toSet()
           })
+
+  override fun clone(): HashMultiset<E> = HashMultiset(map.toMutableMap())
 }
