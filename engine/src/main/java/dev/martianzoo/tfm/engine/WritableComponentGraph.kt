@@ -4,6 +4,7 @@ import dev.martianzoo.tfm.data.StateChange
 import dev.martianzoo.tfm.engine.Exceptions.DependencyException
 import dev.martianzoo.tfm.engine.Exceptions.ExistingDependentsException
 import dev.martianzoo.tfm.engine.Exceptions.LimitsException
+import dev.martianzoo.tfm.engine.Game.ComponentGraph
 import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.pets.ast.Requirement.Counting
 import dev.martianzoo.tfm.types.MType

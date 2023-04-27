@@ -10,10 +10,13 @@ import dev.martianzoo.tfm.data.Player
 import dev.martianzoo.tfm.data.StateChange
 import dev.martianzoo.tfm.data.Task
 import dev.martianzoo.tfm.data.Task.TaskId
-import dev.martianzoo.tfm.engine.EventLog.Checkpoint
+import dev.martianzoo.tfm.engine.Game.EventLog
+import dev.martianzoo.tfm.engine.Game.EventLog.Checkpoint
 
-internal class WritableEventLog(override val events: MutableList<GameEvent> = mutableListOf()) :
-    EventLog {
+internal class WritableEventLog(
+    override val events: MutableList<GameEvent> = mutableListOf()
+) : EventLog {
+
   override val size: Int by events::size
 
   override fun checkpoint() = Checkpoint(size)

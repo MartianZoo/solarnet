@@ -7,6 +7,7 @@ import dev.martianzoo.tfm.api.SpecialClassNames.DIE
 import dev.martianzoo.tfm.api.SpecialClassNames.OK
 import dev.martianzoo.tfm.api.Type
 import dev.martianzoo.tfm.api.UserException
+import dev.martianzoo.tfm.data.GameEvent
 import dev.martianzoo.tfm.data.GameEvent.ChangeEvent
 import dev.martianzoo.tfm.data.GameEvent.ChangeEvent.Cause
 import dev.martianzoo.tfm.data.GameEvent.TaskEvent
@@ -15,9 +16,12 @@ import dev.martianzoo.tfm.data.StateChange
 import dev.martianzoo.tfm.data.Task
 import dev.martianzoo.tfm.data.Task.TaskId
 import dev.martianzoo.tfm.engine.ActiveEffect.FiredEffect
-import dev.martianzoo.tfm.engine.EventLog.Checkpoint
 import dev.martianzoo.tfm.engine.Exceptions.ExistingDependentsException
+import dev.martianzoo.tfm.engine.Game.ComponentGraph
+import dev.martianzoo.tfm.engine.Game.EventLog
+import dev.martianzoo.tfm.engine.Game.EventLog.Checkpoint
 import dev.martianzoo.tfm.engine.Game.PlayerAgent
+import dev.martianzoo.tfm.engine.Game.TaskQueue
 import dev.martianzoo.tfm.pets.PetTransformer
 import dev.martianzoo.tfm.pets.PetTransformer.Companion.chain
 import dev.martianzoo.tfm.pets.Transforming.replaceOwnerWith
@@ -58,6 +62,7 @@ public class Game(
     public var start: Checkpoint? = null // TODO move this to EventLog?
 ) {
 
+  // A little weird we have to cast, but oh well
   private val writableComponents = components as WritableComponentGraph
   private val writableTasks = tasks as WritableTaskQueue
   private val writableEvents = events as WritableEventLog
@@ -65,6 +70,75 @@ public class Game(
   public val reader: GameReader = GameReaderImpl(table, components)
 
   public val transformers by table::transformers
+
+  /**
+   * A multiset of [Component] instances; the "present" state of a game in progress. It is a plain
+   * multiset, but called a "graph" because these component instances have references to their
+   * dependencies which are also stored in the multiset.
+   */
+  public interface ComponentGraph {
+    /**
+     * Does at least one instance of [component] exist currently? (That is, is [countComponent]
+     * nonzero?
+     */
+    operator fun contains(component: Component): Boolean
+
+    /** How many instances of the exact component [component] currently exist? */
+    fun countComponent(component: Component): Int
+
+    /** How many total component instances have the type [parentType] (or any of its subtypes)? */
+    fun count(parentType: MType): Int
+
+    /**
+     * Returns all component instances having the type [parentType] (or any of its subtypes), as a
+     * multiset. The size of the returned collection will be `[count]([parentType])` . If [parentType]
+     * is `Component` this will return the entire component multiset.
+     */
+    fun getAll(parentType: MType): Multiset<Component>
+  }
+
+  /**
+   * A complete record of everything that happened in a particular game (in progress or finished). A
+   * complete game state could be reconstructed by replaying these events.
+   */
+  public interface EventLog {
+    val events: List<GameEvent>
+    val size: Int
+
+    data class Checkpoint(internal val ordinal: Int) {
+      init {
+        require(ordinal >= 0)
+      }
+    }
+
+    fun checkpoint(): Checkpoint
+
+    fun changesSince(checkpoint: Checkpoint): List<ChangeEvent>
+    fun newTasksSince(checkpoint: Checkpoint): Set<TaskId>
+    fun entriesSince(checkpoint: Checkpoint): List<GameEvent>
+    fun activitySince(checkpoint: Checkpoint): Result
+  }
+
+  /**
+   * Contains tasks: what the game is waiting on someone to do. Each task is owned by some [Player]
+   * (which could be the engine itself). Normally, a state should never been observed in which
+   * engine tasks remain, as the engine should always be able to take care of them itself before
+   * returning.
+   *
+   * This interface speaks entirely in terms of [TaskId]s.
+   */
+  public interface TaskQueue {
+    val size: Int
+    val ids: Set<TaskId>
+
+    operator fun contains(id: TaskId): Boolean
+    operator fun get(id: TaskId): Task
+
+    fun isEmpty(): Boolean
+    fun nextAvailableId(): TaskId
+    fun toStrings(): List<String>
+    fun asMap(): Map<TaskId, Task>
+  }
 
   // PLAYER AGENT
 
@@ -82,7 +156,7 @@ public class Game(
    */
   public fun toComponent(expression: Expression) = Component.ofType(resolve(expression))
 
-  val einfo =
+  internal val einfo =
       object : ExpressionInfo {
         override fun isAbstract(e: Expression) = resolve(e).abstract
         override fun ensureReifies(wide: Expression, narrow: Expression) {

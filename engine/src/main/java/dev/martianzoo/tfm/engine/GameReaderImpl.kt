@@ -3,6 +3,7 @@ package dev.martianzoo.tfm.engine
 import dev.martianzoo.tfm.api.Authority
 import dev.martianzoo.tfm.api.GameReader
 import dev.martianzoo.tfm.api.Type
+import dev.martianzoo.tfm.engine.Game.ComponentGraph
 import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.pets.ast.Metric
 import dev.martianzoo.tfm.pets.ast.Metric.Count
@@ -19,10 +20,7 @@ import dev.martianzoo.tfm.pets.ast.ScaledExpression.Scalar.ActualScalar
 import dev.martianzoo.tfm.types.MClassTable
 import kotlin.math.min
 
-internal class GameReaderImpl(
-    val table: MClassTable,
-    val components: ComponentGraph,
-) : GameReader {
+internal class GameReaderImpl(val table: MClassTable, val components: ComponentGraph) : GameReader {
   override val authority: Authority = table.authority // TODO probably don't need this anymore
 
   override fun resolve(expression: Expression) = table.resolve(expression)

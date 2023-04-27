@@ -9,12 +9,14 @@ import dev.martianzoo.tfm.data.Player
 import dev.martianzoo.tfm.data.Task
 import dev.martianzoo.tfm.data.Task.TaskId
 import dev.martianzoo.tfm.engine.ActiveEffect.FiredEffect
+import dev.martianzoo.tfm.engine.Game.TaskQueue
 import dev.martianzoo.tfm.pets.ast.Instruction
 import dev.martianzoo.tfm.pets.ast.Instruction.Companion.split
 import dev.martianzoo.util.toStrings
 import java.util.SortedMap
 import java.util.TreeMap
 
+// TODO try not to need eventLog
 internal class WritableTaskQueue(private val eventLog: WritableEventLog) : TaskQueue {
   private val taskMap: SortedMap<TaskId, Task> = TreeMap() // TODO dejavafy
 
