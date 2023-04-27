@@ -17,4 +17,3 @@ public interface HasExpression {
     fun Set<HasExpression>.expressions(): Set<Expression> = toSetStrict { it.expression }
   }
 }
-

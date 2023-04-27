@@ -124,16 +124,16 @@ class RealGamesTest {
       assertThat(production().values).containsExactly(2, 2, 7, 0, 1, 0).inOrder()
 
       assertThat(counts("M, Steel, Titanium, Plant, Energy, Heat"))
-        .containsExactly(34, 2, 8, 3, 1, 3)
-        .inOrder()
+          .containsExactly(34, 2, 8, 3, 1, 3)
+          .inOrder()
 
       assertThat(counts("ProjectCard, CardFront, ActiveCard, AutomatedCard, PlayedEvent"))
-        .containsExactly(5, 10, 1, 6, 0)
+          .containsExactly(5, 10, 1, 6, 0)
 
       // tag abbreviations
       assertThat(counts("BUT, SPT, SCT, POT, EAT, JOT, PLT, MIT, ANT, CIT"))
-        .containsExactly(5, 2, 2, 0, 1, 3, 0, 0, 0, 1)
-        .inOrder()
+          .containsExactly(5, 2, 2, 0, 1, 3, 0, 0, 0, 1)
+          .inOrder()
 
       assertThat(counts("CityTile, GreeneryTile, SpecialTile")).containsExactly(1, 0, 0).inOrder()
     }
@@ -144,16 +144,16 @@ class RealGamesTest {
       assertThat(production().values).containsExactly(8, 6, 1, 0, 2, 0).inOrder()
 
       assertThat(counts("M, Steel, Titanium, Plant, Energy, Heat"))
-        .containsExactly(47, 6, 1, 1, 2, 3)
-        .inOrder()
+          .containsExactly(47, 6, 1, 1, 2, 3)
+          .inOrder()
 
       assertThat(counts("ProjectCard, CardFront, ActiveCard, AutomatedCard, PlayedEvent"))
-        .containsExactly(3, 17, 4, 10, 3)
+          .containsExactly(3, 17, 4, 10, 3)
 
       // tag abbreviations
       assertThat(counts("BUT, SPT, SCT, POT, EAT, JOT, PLT, MIT, ANT, CIT"))
-        .containsExactly(9, 3, 4, 2, 3, 0, 0, 1, 0, 0)
-        .inOrder()
+          .containsExactly(9, 3, 4, 2, 3, 0, 0, 1, 0, 0)
+          .inOrder()
 
       assertThat(counts("CityTile, GreeneryTile, SpecialTile")).containsExactly(1, 0, 1).inOrder()
     }
@@ -171,11 +171,7 @@ class RealGamesTest {
 
     eng.execute("ActionPhase")
 
-    p1.turn(
-      "UseAction1<PlayCardFromHand>",
-      "PlayCard<Class<MediaGroup>>",
-      "6 Pay<Class<M>> FROM M"
-    )
+    p1.turn("UseAction1<PlayCardFromHand>", "PlayCard<Class<MediaGroup>>", "6 Pay<Class<M>> FROM M")
 
     assertThat(p1.counts("Tag, BuildingTag, EarthTag, ProjectCard")).containsExactly(2, 1, 1, 6)
   }
@@ -213,10 +209,9 @@ class RealGamesTest {
     p2.playCard(9, "MartianSurvey", "Ok") // TODO make "Ok" unnecessary
 
     p2.playCard(
-      3,
-      "SearchForLife",
-      "PlayedEvent<Class<PharmacyUnion>> FROM PharmacyUnion THEN 3 TerraformRating"
-    )
+        3,
+        "SearchForLife",
+        "PlayedEvent<Class<PharmacyUnion>> FROM PharmacyUnion THEN 3 TerraformRating")
 
     p2.useCardAction(1, "SearchForLife", "-1 THEN Ok") // TODO simplify
 
@@ -234,19 +229,17 @@ class RealGamesTest {
 
     p1.playCard(23, "EarthCatapult")
     p1.turn(
-      "UseAction1<PlayCardFromHand>",
-      "PlayCard<Class<OlympusConference>>",
-      "Ok",
-      "4 Pay<Class<S>> FROM S",
-      "Science<OlympusConference>"
-    )
+        "UseAction1<PlayCardFromHand>",
+        "PlayCard<Class<OlympusConference>>",
+        "Ok",
+        "4 Pay<Class<S>> FROM S",
+        "Science<OlympusConference>")
 
     p1.playCard(
-      1,
-      "DevelopmentCenter",
-      "4 Pay<Class<S>> FROM S",
-      "ProjectCard FROM Science<OlympusConference>"
-    )
+        1,
+        "DevelopmentCenter",
+        "4 Pay<Class<S>> FROM S",
+        "ProjectCard FROM Science<OlympusConference>")
 
     p1.playCard(1, "GeothermalPower", "4 Pay<Class<S>> FROM S")
     p1.playCard(10, "MirandaResort", "Ok")
@@ -262,12 +255,11 @@ class RealGamesTest {
 
     p1.useCardAction(1, "DevelopmentCenter")
     p1.playCard(
-      1,
-      "ImmigrantCity",
-      "5 Pay<Class<S>> FROM S",
-      "CityTile<Hellas_9_7>",
-      "OceanTile<Hellas_5_6>"
-    )
+        1,
+        "ImmigrantCity",
+        "5 Pay<Class<S>> FROM S",
+        "CityTile<Hellas_9_7>",
+        "OceanTile<Hellas_5_6>")
 
     assertThat(eng.agent.tasks()).isEmpty()
     assertThat(eng.count("PaymentMechanic")).isEqualTo(0)
@@ -283,16 +275,16 @@ class RealGamesTest {
       assertThat(production().values).containsExactly(5, 0, 0, 0, 0, 1).inOrder()
 
       assertThat(counts("M, Steel, Titanium, Plant, Energy, Heat"))
-        .containsExactly(16, 3, 0, 0, 0, 1)
-        .inOrder()
+          .containsExactly(16, 3, 0, 0, 0, 1)
+          .inOrder()
 
       assertThat(counts("ProjectCard, CardFront, ActiveCard, AutomatedCard, PlayedEvent"))
-        .containsExactly(7, 12, 5, 4, 1)
+          .containsExactly(7, 12, 5, 4, 1)
 
       // tag abbreviations
       assertThat(counts("Tag, BUT, SPT, SCT, POT, EAT, JOT, CIT"))
-        .containsExactly(16, 5, 1, 3, 1, 4, 1, 1)
-        .inOrder()
+          .containsExactly(16, 5, 1, 3, 1, 4, 1, 1)
+          .inOrder()
 
       assertThat(counts("CityTile, GreeneryTile, SpecialTile")).containsExactly(1, 0, 0).inOrder()
     }
@@ -303,11 +295,11 @@ class RealGamesTest {
       assertThat(production().values).containsExactly(-4, 0, 1, 3, 1, 1).inOrder()
 
       assertThat(counts("M, Steel, Titanium, Plant, Energy, Heat"))
-        .containsExactly(18, 0, 1, 6, 1, 3)
-        .inOrder()
+          .containsExactly(18, 0, 1, 6, 1, 3)
+          .inOrder()
 
       assertThat(counts("ProjectCard, CardFront, ActiveCard, AutomatedCard, PlayedEvent"))
-        .containsExactly(9, 5, 1, 2, 2)
+          .containsExactly(9, 5, 1, 2, 2)
 
       assertThat(counts("Tag, SPT, SCT, JOT, PLT")).containsExactly(6, 1, 3, 1, 1).inOrder()
 

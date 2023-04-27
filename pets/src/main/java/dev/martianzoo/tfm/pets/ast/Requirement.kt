@@ -142,7 +142,7 @@ sealed class Requirement : PetElement() {
 
   override val kind = Requirement::class.simpleName!!
 
-  private object Parsers: PetTokenizer() {
+  private object Parsers : PetTokenizer() {
     fun parser(): Parser<Requirement> {
       return parser {
         val orReq =

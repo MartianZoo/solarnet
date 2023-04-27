@@ -51,11 +51,12 @@ internal abstract class PetTokenizer {
 
   internal val rawScalar: Parser<Int> = _scalarRE map { it.text.toInt() }
 
-  internal val intensity = optional(
-      (char('!') asJust MANDATORY) or
-      (char('.') asJust AMAP) or
-      (char('?') asJust OPTIONAL)
-  )
+  internal val intensity =
+      optional(
+          (char('!') asJust MANDATORY) or
+          (char('.') asJust AMAP) or
+          (char('?') asJust OPTIONAL)
+      )
 
   internal inline fun <reified T> optionalList(parser: Parser<List<T>>) =
       optional(parser) map { it ?: listOf() }
@@ -101,5 +102,6 @@ internal abstract class PetTokenizer {
 
   private fun literal(text: String, name: String = text) = TokenCache.cacheLiteral(text, name)
   private fun regex(regex: Regex, name: String = "$regex") = TokenCache.cacheRegex(regex, name)
-  private fun caseInsensitiveWord(word: String, name: String = word) = regex(Regex("(?i)$word\\b"), name)
+  private fun caseInsensitiveWord(word: String, name: String = word) =
+      regex(Regex("(?i)$word\\b"), name)
 }

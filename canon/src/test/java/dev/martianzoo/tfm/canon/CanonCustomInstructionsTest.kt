@@ -101,8 +101,6 @@ private class CanonCustomInstructionsTest {
   }
 
   private fun checkProduction(sess: PlayerSession, vararg exp: Int) {
-    assertThat(sess.production().values)
-        .containsExactlyElementsIn(exp.toList())
-        .inOrder()
+    assertThat(sess.production().values).containsExactlyElementsIn(exp.toList()).inOrder()
   }
 }

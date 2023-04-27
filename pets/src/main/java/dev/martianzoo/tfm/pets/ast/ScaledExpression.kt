@@ -23,13 +23,14 @@ constructor(
 ) : PetNode() {
   public companion object {
     public fun scaledEx(scalar: Scalar, expression: Expression? = null) =
-      ScaledExpression(scalar, expression ?: MEGACREDIT)
+        ScaledExpression(scalar, expression ?: MEGACREDIT)
     public fun scaledEx(value: Int? = null, expression: Expression? = null) =
-      scaledEx(ActualScalar(value ?: 1), expression)
+        scaledEx(ActualScalar(value ?: 1), expression)
 
     public fun scaledEx(scalar: Scalar, hasEx: HasExpression) = scaledEx(scalar, hasEx.expression)
 
-    public fun scaledEx(value: Int? = null, hasEx: HasExpression) = scaledEx(value, hasEx.expression)
+    public fun scaledEx(value: Int? = null, hasEx: HasExpression) =
+        scaledEx(value, hasEx.expression)
 
     internal fun scalar(): Parser<Scalar> = Parsers.scalar()
     internal fun parser(): Parser<ScaledExpression> = Parsers.parser()

@@ -52,8 +52,7 @@ private class ClassDeclarationParsingTest {
         DEFAULT +Bar!
       }
     """) // two blocks
-    parseClasses(
-        """
+    parseClasses("""
       CLASS Foo {
         DEFAULT +Foo!
       }

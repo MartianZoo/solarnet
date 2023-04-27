@@ -15,8 +15,8 @@ import dev.martianzoo.util.joinOrEmpty
 import dev.martianzoo.util.wrap
 
 /**
- * The main part of a "transmute" instruction, without the scalar or intensity. Examples:
- * `Foo<Bar> FROM Foo<Qux>`, and (equivalent) `Foo<Bar FROM Qux>`.
+ * The main part of a "transmute" instruction, without the scalar or intensity. Examples: `Foo<Bar>
+ * FROM Foo<Qux>`, and (equivalent) `Foo<Bar FROM Qux>`.
  */
 public sealed class FromExpression : PetNode() {
   override val kind = FromExpression::class.simpleName!!
@@ -54,8 +54,7 @@ public sealed class FromExpression : PetNode() {
     override fun visitChildren(visitor: Visitor) = visitor.visit(arguments + className + refinement)
 
     override val toExpression = className.of(arguments.map { it.toExpression })
-    override val fromExpression =
-        className.of(arguments.map { it.fromExpression }).has(refinement)
+    override val fromExpression = className.of(arguments.map { it.fromExpression }).has(refinement)
 
     override fun toString() =
         "$className${arguments.joinOrEmpty(wrap = "<>")}${refinement.wrap("(HAS ", ")")}"
@@ -68,8 +67,8 @@ public sealed class FromExpression : PetNode() {
         val simpleFrom =
             Expression.parser() and
             skip(_from) and
-            Expression.parser() map {
-              (to, from) -> SimpleFrom(to, from)
+            Expression.parser() map { (to, from) ->
+              SimpleFrom(to, from)
             }
 
         val argumentList =

@@ -43,8 +43,7 @@ private class ExpressionTest {
   fun complexSourceToApi() {
     val parsed = te(" Red< Blue  < This,Teal> , Gold > ")
     assertThat(parsed)
-        .isEqualTo(
-            cn("Red").of(cn("Blue").of(cn("This"), cn("Teal")), cn("Gold").expression))
+        .isEqualTo(cn("Red").of(cn("Blue").of(cn("This"), cn("Teal")), cn("Gold").expression))
   }
 
   @Test

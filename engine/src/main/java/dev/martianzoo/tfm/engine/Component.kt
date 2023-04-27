@@ -73,4 +73,3 @@ public data class Component private constructor(val mtype: MType) : HasClassName
 
   val allowedRange: IntRange = mtype.root.componentCountRange
 }
-

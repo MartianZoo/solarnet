@@ -27,8 +27,8 @@ public sealed class PetNode {
   /**
    * Returns an arbitrary integer for the sole purpose of determining [safeToNestIn] behavior. For
    * example, [Instruction.Multi] returns a very low number, since *anything* else binds more
-   * tightly than it. [Metric]s return high values, since essentially everything after the `/` of
-   * an instruction is part of the metric.
+   * tightly than it. [Metric]s return high values, since essentially everything after the `/` of an
+   * instruction is part of the metric.
    */
   protected open fun precedence(): Int = Int.MAX_VALUE
 
@@ -68,8 +68,8 @@ public sealed class PetNode {
   }
 
   /**
-   * Does this subtree contain [node], at any depth? A depth of zero counts; that is, if [node]
-   * *is* this node, `true` is returned.
+   * Does this subtree contain [node], at any depth? A depth of zero counts; that is, if [node] *is*
+   * this node, `true` is returned.
    */
   public operator fun contains(node: PetNode): Boolean {
     var found = false

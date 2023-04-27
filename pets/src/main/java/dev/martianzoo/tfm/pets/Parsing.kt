@@ -46,7 +46,7 @@ public object Parsing {
    * semicolon-separated. Syntax examples can be seen in `"components"` fields of `cards.json`.
    */
   public fun parseOneLinerClass(declarationSource: String): ClassDeclaration =
-    parse(Declarations.oneLineDecl, declarationSource)
+      parse(Declarations.oneLineDecl, declarationSource)
 
   /**
    * Parses the Pets element of type [P] from [elementSource], and returns it surrounded by a `RAW`

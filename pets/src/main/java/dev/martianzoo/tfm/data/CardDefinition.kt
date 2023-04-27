@@ -130,8 +130,7 @@ public class CardDefinition(data: CardData) : Definition {
     val zapHandCard: Instruction? = deck?.let { Remove(scaledEx(1, it.className)) }
 
     val createTags =
-        Multi.create(
-            tags.entries.map { (tag, count) -> gain(scaledEx(count, tag.of(THIS))) })
+        Multi.create(tags.entries.map { (tag, count) -> gain(scaledEx(count, tag.of(THIS))) })
 
     val automaticFx: List<Effect> =
         listOfNotNull(zapHandCard, createTags).mapNotNull { immediateToEffect(it, true)?.raw() }

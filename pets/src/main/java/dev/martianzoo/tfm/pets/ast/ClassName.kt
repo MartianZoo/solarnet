@@ -33,20 +33,17 @@ public class ClassName private constructor(private val asString: String) :
   public fun of(arguments: List<Expression>): Expression = expression.appendArguments(arguments)
 
   /** Vararg form of [of]. */
-  public fun of(vararg arguments: Expression): Expression =
-      of(arguments.toList())
+  public fun of(vararg arguments: Expression): Expression = of(arguments.toList())
 
   /**
-   * Variant of [of] that extracts [HasExpression.expression] from each argument (note:
-   * not [HasExpression.expressionFull]).
+   * Variant of [of] that extracts [HasExpression.expression] from each argument (note: not
+   * [HasExpression.expressionFull]).
    */
   @JvmName("addArgsFromClassNames")
-  public fun of(haveArguments: List<HasExpression>): Expression =
-      of(haveArguments.expressions())
+  public fun of(haveArguments: List<HasExpression>): Expression = of(haveArguments.expressions())
 
   /** Vararg form of [of]. */
-  public fun of(vararg haveArguments: HasExpression): Expression =
-      of(haveArguments.toList())
+  public fun of(vararg haveArguments: HasExpression): Expression = of(haveArguments.toList())
 
   /**
    * Returns the expression having this class name as its [Expression.className], no arguments, and

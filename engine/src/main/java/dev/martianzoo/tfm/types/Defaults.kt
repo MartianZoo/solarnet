@@ -43,20 +43,22 @@ internal data class Defaults(
 
       return Defaults(
           allUsages = DefaultSpec(gatherDefaultDeps { it.universalSpecs }, null),
-          gainOnly = DefaultSpec(
-            gatherDefaultDeps { it.gainOnlySpecs },
-            inheritDefault({ it.gainIntensity })!!,
-          ),
-          removeOnly = DefaultSpec(
-            gatherDefaultDeps { it.removeOnlySpecs },
-            inheritDefault({ it.removeIntensity })!!,
-          ),
+          gainOnly =
+              DefaultSpec(
+                  gatherDefaultDeps { it.gainOnlySpecs },
+                  inheritDefault({ it.gainIntensity })!!,
+              ),
+          removeOnly =
+              DefaultSpec(
+                  gatherDefaultDeps { it.removeOnlySpecs },
+                  inheritDefault({ it.removeIntensity })!!,
+              ),
       )
     }
   }
 
   data class DefaultSpec(
-    val dependencies: DependencySet = DependencySet.of(),
-    val intensity: Intensity?
+      val dependencies: DependencySet = DependencySet.of(),
+      val intensity: Intensity?
   )
 }

@@ -64,8 +64,7 @@ private object CreateAdjacencies : CustomInstruction("createAdjacencies") {
             .mapNotNull { tileOn(it, game) }
             .flatMap {
               listOf(
-                  cn("ForwardAdjacency").of(it, newTile),
-                  cn("BackwardAdjacency").of(newTile, it))
+                  cn("ForwardAdjacency").of(it, newTile), cn("BackwardAdjacency").of(newTile, it))
             }
     return Multi.create((nbrs + adjs).map { gain(scaledEx(1, it)) })
   }

@@ -19,16 +19,16 @@ object Humanizing {
 
   fun PlayerSession.useCardAction(which: Int, cardName: String, vararg tasks: String) =
       turn(
-        "UseAction$which<UseActionFromCard>",
-        "UseAction$which<$cardName> THEN ActionUsedMarker<$cardName>",
-        *tasks,
+          "UseAction$which<UseActionFromCard>",
+          "UseAction$which<$cardName> THEN ActionUsedMarker<$cardName>",
+          *tasks,
       )
 
   fun PlayerSession.isCardUsed(cardName: String) =
-    agent.reader.evaluate(parseAsIs("ActionUsedMarker<$cardName>"))
+      agent.reader.evaluate(parseAsIs("ActionUsedMarker<$cardName>"))
 
   fun PlayerSession.stdProject(spName: String, vararg tasks: String) =
-    turn("UseAction1<UseStandardProject>", "UseAction1<$spName>", *tasks)
+      turn("UseAction1<UseStandardProject>", "UseAction1<$spName>", *tasks)
 
   fun PlayerSession.counts(s: String) = s.split(",").map(::count)
 
