@@ -53,7 +53,7 @@ internal constructor(
 
   // QUERIES
 
-  fun count(metric: Metric): Int = agent.count(prep(metric))
+  fun count(metric: Metric): Int = agent.reader.count(prep(metric))
   fun count(metric: String) = count(parseInput(metric))
   fun countComponent(component: Component) = agent.reader.countComponent(component.mtype)
 
@@ -72,7 +72,7 @@ internal constructor(
     return result
   }
 
-  fun has(requirement: Requirement): Boolean = agent.evaluate(prep(requirement))
+  fun has(requirement: Requirement): Boolean = agent.reader.evaluate(prep(requirement))
   fun has(requirement: String) = has(parseInput(requirement))
 
   // EXECUTION

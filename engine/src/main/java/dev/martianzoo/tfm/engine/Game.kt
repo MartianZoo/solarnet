@@ -3,7 +3,8 @@ package dev.martianzoo.tfm.engine
 import dev.martianzoo.tfm.api.ExpressionInfo
 import dev.martianzoo.tfm.api.GameReader
 import dev.martianzoo.tfm.api.GameWriter
-import dev.martianzoo.tfm.api.SpecialClassNames
+import dev.martianzoo.tfm.api.SpecialClassNames.DIE
+import dev.martianzoo.tfm.api.SpecialClassNames.OK
 import dev.martianzoo.tfm.api.Type
 import dev.martianzoo.tfm.api.UserException
 import dev.martianzoo.tfm.data.GameEvent.ChangeEvent
@@ -188,14 +189,8 @@ public class Game(
       chain(game.table.transformers.deprodify(), replaceOwnerWith(player))
     }
 
-    private fun <T> (() -> T).orNullIf(b: Boolean): T? = if (b) null else this()
-
     @Suppress("UNCHECKED_CAST")
     private fun <P : PetNode?> heyItsMe(node: P): P = node?.let(insertOwner::transform) as P
-
-    public fun evaluate(requirement: Requirement) = reader.evaluate(requirement)
-
-    public fun count(metric: Metric) = reader.count(metric)
 
     public fun getComponents(type: Expression): Multiset<Component> =
         game.components.getAll(reader.resolve(type) as MType) // TODO think about
@@ -207,18 +202,9 @@ public class Game(
         amap: Boolean = false,
         cause: Cause? = null,
     ): ChangeEvent? {
-      when (gaining) {
-        SpecialClassNames.OK.expression -> {
-          if (removing != null) throw UserException("Can't remove Ok, ok?")
-          return null
-        }
-        SpecialClassNames.DIE.expression -> {
-          return if (amap) {
-            null
-          } else {
-            throw UserException.die(cause)
-          }
-        }
+      when (gaining?.className) {
+        OK -> return if (removing == null) null else throw UserException.removingOk(cause)
+        DIE -> return if (amap) null else throw UserException.die(cause)
       }
 
       val toGain: Component? = gaining?.let { game.toComponent(heyItsMe(it)) }

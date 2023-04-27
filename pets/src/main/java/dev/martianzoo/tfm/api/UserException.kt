@@ -51,6 +51,8 @@ public open class UserException(override val message: String, cause: Throwable? 
     fun requirementNotMet(reqt: Requirement) = RequirementException("requirement not met: `$reqt`")
 
     fun die(cause: Cause?) = DeadEndException("`Die` instruction was reached: $cause")
+
+    fun removingOk(cause: Cause?) = UserException("You can't remove Ok, ok? $cause")
   }
 
   /** A problem with Pets syntax. */
