@@ -9,6 +9,7 @@ import dev.martianzoo.tfm.pets.PureTransformers.replaceOwnerWith
 import dev.martianzoo.tfm.pets.PureTransformers.replaceThisWith
 import dev.martianzoo.tfm.pets.PureTransformers.transformInSeries
 import dev.martianzoo.tfm.pets.ast.ClassName
+import dev.martianzoo.tfm.pets.ast.HasClassName
 import dev.martianzoo.tfm.pets.ast.HasExpression
 import dev.martianzoo.tfm.pets.ast.TransformNode
 import dev.martianzoo.tfm.types.Dependency.Key
@@ -19,7 +20,7 @@ import dev.martianzoo.tfm.types.MType
  * An *instance* of some concrete [MType]; a [ComponentGraph] is a multiset of these. For any use
  * case unrelated to what instances actually exist in a game state, use [MType] instead.
  */
-public data class Component private constructor(val mtype: MType) : HasExpression {
+public data class Component private constructor(val mtype: MType) : HasClassName, HasExpression {
   // TODO can mtype be private?
   companion object {
     public fun ofType(mtype: MType): Component = Component(mtype)
@@ -63,8 +64,9 @@ public data class Component private constructor(val mtype: MType) : HasExpressio
 
   public fun owner(): ClassName? = mtype.dependencies.getIfPresent(Key(OWNED, 0))?.className
 
-  override val expression = mtype.expression
-  override val expressionFull = mtype.expressionFull
+  override val className by mtype::className
+  override val expression by mtype::expression
+  override val expressionFull by mtype::expressionFull
 
   override fun toString() = "[${mtype.expressionFull}]"
 
