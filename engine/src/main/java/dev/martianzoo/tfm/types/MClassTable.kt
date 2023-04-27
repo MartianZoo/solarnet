@@ -1,7 +1,6 @@
 package dev.martianzoo.tfm.types
 
 import dev.martianzoo.tfm.api.Type
-import dev.martianzoo.tfm.engine.Game
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.Expression
 
@@ -17,8 +16,6 @@ public abstract class MClassTable {
   internal abstract val allClassNamesAndIds: Set<ClassName>
 
   abstract val transformers: Transformers
-
-  abstract var game: Game? // BAD HACK
 
   /**
    * Returns the [MClass] whose [MClass.className] or [MClass.shortName] is [name], or throws an

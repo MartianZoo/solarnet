@@ -16,7 +16,7 @@ import dev.martianzoo.tfm.types.MClassTable
 /** Has functions for setting up new games and stuff. */
 public object Engine {
   public fun loadClasses(setup: GameSetup): MClassTable {
-    val loader = MClassLoader(setup.authority, autoLoadDependencies = true)
+    val loader = MClassLoader(setup.authority)
     val toLoad: List<HasClassName> = setup.allDefinitions() + setup.players()
 
     loader.loadAll(toLoad.classNames())

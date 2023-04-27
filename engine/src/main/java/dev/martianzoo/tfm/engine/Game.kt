@@ -63,12 +63,6 @@ public class Game(
 
   public val reader: GameReader = GameReaderImpl(authority, table, components)
 
-  init {
-    // BAD HACK
-    require(table.game == null)
-    table.game = this
-  }
-
   /** A checkpoint taken when the game initialization process ends. */
   public lateinit var start: Checkpoint
     private set

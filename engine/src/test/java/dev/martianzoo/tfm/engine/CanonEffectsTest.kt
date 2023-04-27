@@ -15,7 +15,7 @@ import org.junit.jupiter.api.Test
 
 private class CanonEffectsTest {
   fun classEffectsOf(name: String): List<String> {
-    val loader = MClassLoader(Canon, true)
+    val loader = MClassLoader(Canon)
     loader.load(ENGINE)
     loader.load(OK) // TODO why?
     loader.load(cn("GlobalParameter")) // TODO why?

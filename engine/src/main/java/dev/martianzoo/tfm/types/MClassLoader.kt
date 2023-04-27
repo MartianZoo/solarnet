@@ -8,7 +8,6 @@ import dev.martianzoo.tfm.api.SpecialClassNames.THIS
 import dev.martianzoo.tfm.api.Type
 import dev.martianzoo.tfm.api.UserException
 import dev.martianzoo.tfm.data.ClassDeclaration
-import dev.martianzoo.tfm.engine.Game
 import dev.martianzoo.tfm.pets.PureTransformers.replaceThisWith
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.Expression
@@ -27,12 +26,6 @@ public class MClassLoader(
      * found here.
      */
     val authority: Authority,
-
-    /**
-     * Whether, when a class is loaded, to also load any classes that class depends on in some way.
-     * By default, only superclasses are auto-loaded.
-     */
-    private val autoLoadDependencies: Boolean = false,
 ) : MClassTable() {
   /** The `Component` class, which is the root of the class hierarchy. */
   override val componentClass: MClass = MClass(decl(COMPONENT), this, directSuperclasses = listOf())
@@ -52,11 +45,6 @@ public class MClassLoader(
     val names = (transformers.requiredClasses + OK).intersect(authority.allClassNames)
     loadAll(names)
   }
-
-  // HACKHACKHACK
-  // This is an absolutely stupid horrible hack. Fix it. Somehow.
-
-  override var game: Game? = null
 
   /**
    * Returns the [MClass] whose [MClass.className] or [MClass.shortName] is [name], or throws an
@@ -89,23 +77,10 @@ public class MClassLoader(
    * Returns the class whose [MClass.className] or [MClass.shortName] is [name], loading it first if
    * necessary.
    */
-  internal fun load(name: ClassName): MClass =
-      when {
-        frozen -> getClass(name)
-        autoLoadDependencies -> {
-          autoLoad(listOf(name))
-          getClass(name)
-        }
-        else -> loadSingle(name)
-      }
-
-  /** Equivalent to calling [load] on every class name (or shortName) in [names]. */
-  internal fun loadAll(names: Collection<ClassName>) =
-      if (autoLoadDependencies) {
-        autoLoad(names)
-      } else {
-        names.forEach(::loadSingle)
-      }
+  internal fun load(name: ClassName): MClass {
+    if (!frozen) loadAll(listOf(name))
+    return getClass(name)
+  }
 
   /** Loads every class known to this class loader's backing [Authority], and freezes. */
   public fun loadEverything(): MClassTable {
@@ -113,9 +88,9 @@ public class MClassLoader(
     return freeze()
   }
 
-  private fun autoLoad(idsAndNames: Collection<ClassName>) {
-    require(autoLoadDependencies)
-    queue += idsAndNames
+  /** Equivalent to calling [load] on every class name (or shortName) in [names]. */
+  internal fun loadAll(names: Collection<ClassName>) {
+    queue += names
     while (queue.any()) {
       loadAndMaybeEnqueueRelated(queue.removeFirst())
     }
@@ -125,10 +100,8 @@ public class MClassLoader(
     if (next in loadedClasses) return loadedClasses[next] ?: error("reentrant")
     val declaration = decl(next)
     val newClass = loadSingle(next, declaration)
-    if (autoLoadDependencies) {
-      val needed = declaration.allNodes.flatMap { it.descendantsOfType<ClassName>() }
-      queue.addAll(needed.toSet() - loadedClasses.keys - THIS)
-    }
+    val needed = declaration.allNodes.flatMap { it.descendantsOfType<ClassName>() }
+    queue.addAll(needed.toSet() - loadedClasses.keys - THIS)
     return newClass
   }
 
