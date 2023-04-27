@@ -4,20 +4,20 @@ import dev.martianzoo.tfm.pets.HasClassName
 import dev.martianzoo.tfm.pets.ast.ClassName
 
 /** All information about a particular game component (card, map area, milestone, etc.). */
-interface Definition : HasClassName {
+public interface Definition : HasClassName {
   /**
    * The class name this definition will be known as, in its class form. Definitions sharing any
    * name in common cannot be used in the same game.
    */
   override val className: ClassName
 
-  val shortName: ClassName
+  public val shortName: ClassName
 
   /**
    * A textual identifier for the bundle this definition belongs to, which can be used to easily
    * include or exclude sets of definitions. See `Canon` for reserved ids.
    */
-  val bundle: String
+  public val bundle: String
 
   /**
    * Converts this definition to a class declaration. As much information as possible should be
@@ -26,5 +26,5 @@ interface Definition : HasClassName {
    * like `@lookUpMapBonus(MarsArea)`, each `MarsArea` class should have an effect like `Tile<This>:
    * 2 Plant`.
    */
-  val asClassDeclaration: ClassDeclaration
+  public val asClassDeclaration: ClassDeclaration
 }

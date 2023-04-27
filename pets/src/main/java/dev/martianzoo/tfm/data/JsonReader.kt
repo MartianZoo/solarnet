@@ -10,7 +10,7 @@ import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.util.Grid
 import kotlin.text.RegexOption.DOT_MATCHES_ALL
 
-object JsonReader {
+public object JsonReader {
 
   // CARDS
 

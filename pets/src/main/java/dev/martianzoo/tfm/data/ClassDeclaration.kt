@@ -16,18 +16,19 @@ import dev.martianzoo.tfm.pets.ast.Requirement
  */
 public data class ClassDeclaration(
     override val className: ClassName,
-    val shortName: ClassName = className,
-    val abstract: Boolean = true,
-    val dependencies: List<Expression> = listOf(),
-    val supertypes: Set<Expression> = setOf(),
-    val invariants: Set<Requirement> = setOf(),
+    public val shortName: ClassName = className,
+    public val abstract: Boolean = true,
+    public val dependencies: List<Expression> = listOf(),
+    public val supertypes: Set<Expression> = setOf(),
+    public val invariants: Set<Requirement> = setOf(),
     private val effectsIn: Set<Effect> = setOf(),
-    val defaultsDeclaration: DefaultsDeclaration = DefaultsDeclaration(),
-    val extraNodes: Set<PetNode> = setOf(),
+    public val defaultsDeclaration: DefaultsDeclaration = DefaultsDeclaration(),
+    internal val extraNodes: Set<PetNode> = setOf(),
 ) : HasClassName {
   init {
     require(supertypes.none { it.descendantsOfType<Requirement>().any() }) { supertypes }
   }
+
   // DEPENDENCIES
 
   private fun bareNamesInDependenciesList(): Sequence<ClassName> =
@@ -39,12 +40,13 @@ public data class ClassDeclaration(
           .classNames()
           .filterNot { it == THIS }
 
-  public val bareNamesInDependencies: Set<ClassName> by lazy {
+  private val bareNamesInDependencies: Set<ClassName> by lazy {
     bareNamesInDependenciesList().sorted().toSet()
   }
 
   // EFFECTS
 
+  // TODO clean this stuff up using Effect.Key or something
   data class EffectDeclaration(
       val effect: Effect,
       val depLinkages: Set<ClassName>,
@@ -58,11 +60,11 @@ public data class ClassDeclaration(
     }
   }
 
-  public val bareNamesInEffects: Map<Effect, Set<ClassName>> by lazy {
+  private val bareNamesInEffects: Map<Effect, Set<ClassName>> by lazy {
     effectsIn.associateWith { simpleClassNamesIn(it) }
   }
 
-  public val triggerLinkages: Map<Effect, Set<ClassName>> by lazy {
+  private val triggerLinkages: Map<Effect, Set<ClassName>> by lazy {
     effectsIn.associateWith {
       simpleClassNamesIn(it.trigger).intersect(simpleClassNamesIn(it.instruction))
     }
@@ -73,7 +75,7 @@ public data class ClassDeclaration(
 
   // DEFAULTS
 
-  data class DefaultsDeclaration(
+  public data class DefaultsDeclaration(
       val universalSpecs: List<Expression> = listOf(),
       val gainOnlySpecs: List<Expression> = listOf(),
       val removeOnlySpecs: List<Expression> = listOf(),
@@ -103,7 +105,7 @@ public data class ClassDeclaration(
 
   // EVERYTHING BAGEL
 
-  val allNodes: Set<PetNode> by lazy {
+  public val allNodes: Set<PetNode> by lazy {
     setOf<PetNode>() +
         className +
         shortName +

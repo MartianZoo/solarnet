@@ -4,7 +4,7 @@ import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.util.associateStrict
 
-object EnglishHack {
+internal object EnglishHack {
   // I don't want English to be privileged; this is just for my convenience for the time being
   fun englishHack(id: String): ClassName {
     ENGLISH_HACK[id]?.let {
@@ -20,7 +20,7 @@ object EnglishHack {
       pairs.toList().associateStrict { (a, b) -> a to cn(b) }
 
   @Suppress("SpellCheckingInspection")
-  val ENGLISH_HACK: Map<String, ClassName> =
+  private val ENGLISH_HACK: Map<String, ClassName> =
       classNameMap(
           "SAA" to "PlayCardFromHand",
           "SAB" to "UseStandardProject",

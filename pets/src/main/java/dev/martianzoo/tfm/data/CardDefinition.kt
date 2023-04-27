@@ -44,7 +44,7 @@ public class CardDefinition(data: CardData) : Definition {
    * This card's unique id string. A number of id ranges, such as `"000"`-`"999"`, should be
    * reserved for canon (officially published) cards.
    */
-  val id: String by data::id
+  public val id: String by data::id
 
   override val shortName: ClassName = cn("C$id")
 
@@ -96,14 +96,14 @@ public class CardDefinition(data: CardData) : Definition {
   public val cost: Int = projectInfo?.cost ?: 0
 
   /** Extra information that only project cards have. */
-  public class ProjectInfo(data: CardData) {
-    val kind: ProjectKind = ProjectKind.valueOf(data.projectKind!!)
+  public class ProjectInfo internal constructor(data: CardData) {
+    public val kind: ProjectKind = ProjectKind.valueOf(data.projectKind!!)
 
     /** The card's requirement, if any. */
-    val requirement: Requirement? = data.requirement?.let(::parseInput)
+    public val requirement: Requirement? = data.requirement?.let(::parseInput)
 
     /** The card's non-negative cost in megacredits. */
-    val cost: Int by data::cost
+    public val cost: Int by data::cost
   }
 
   /**
@@ -124,7 +124,7 @@ public class CardDefinition(data: CardData) : Definition {
   }
 
   /** Additional class declarations that come along with this card. */
-  val extraClasses: List<ClassDeclaration> = data.components.map(Parsing::parseOneLinerClass)
+  public val extraClasses: List<ClassDeclaration> = data.components.map(Parsing::parseOneLinerClass)
 
   override val asClassDeclaration by lazy {
     val zapHandCard: Instruction? = deck?.let { Remove(scaledEx(1, it.className)) }
@@ -143,11 +143,10 @@ public class CardDefinition(data: CardData) : Definition {
 
     val supertypes =
         setOfNotNull(
-                projectInfo?.kind?.className?.expression,
-                resourceType?.let { RESOURCE_CARD.of(it.classExpression()) },
-                if (actions.any()) ACTION_CARD.expression else null,
-            )
-            .ifEmpty { setOf(CARD_FRONT.expression) }
+            projectInfo?.kind?.className?.expression,
+            resourceType?.let { RESOURCE_CARD.of(it.classExpression()) },
+            if (actions.any()) ACTION_CARD.expression else null,
+        ).ifEmpty { setOf(CARD_FRONT.expression) }
 
     ClassDeclaration(
         className = className,
@@ -172,7 +171,7 @@ public class CardDefinition(data: CardData) : Definition {
     ACTIVE(ACTIVE_CARD)
   }
 
-  /** The raw imported form of a [CardDefinition]. */
+  /** The *raw* imported form of a [CardDefinition]; not really meant to be widely consumed. */
   public data class CardData(
       val id: String,
       val bundle: String,
