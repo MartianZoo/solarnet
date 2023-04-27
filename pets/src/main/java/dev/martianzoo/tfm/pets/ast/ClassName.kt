@@ -4,6 +4,7 @@ import com.github.h0tk3y.betterParse.combinators.map
 import com.github.h0tk3y.betterParse.combinators.or
 import dev.martianzoo.tfm.api.SpecialClassNames.CLASS
 import dev.martianzoo.tfm.pets.PetTokenizer
+import dev.martianzoo.tfm.pets.ast.HasExpression.Companion.expressions
 
 public data class ClassName(private val asString: String) :
     PetNode(), HasExpression, Comparable<ClassName> {
@@ -27,8 +28,8 @@ public data class ClassName(private val asString: String) :
   public fun addArgs(vararg specs: Expression) = addArgs(specs.toList())
 
   @JvmName("addArgsFromClassNames")
-  public fun addArgs(specs: List<ClassName>) = addArgs(specs.expressions())
-  public fun addArgs(vararg specs: ClassName) = addArgs(specs.toList())
+  public fun addArgs(specs: List<ClassName>): Expression = addArgs(specs.expressions())
+  public fun addArgs(vararg specs: ClassName): Expression = addArgs(specs.toList())
 
   fun refine(requirement: Requirement?) = expression.refine(requirement)
 

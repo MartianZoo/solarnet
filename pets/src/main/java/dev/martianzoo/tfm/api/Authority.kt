@@ -10,8 +10,8 @@ import dev.martianzoo.tfm.data.MilestoneDefinition
 import dev.martianzoo.tfm.data.StandardActionDefinition
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.tfm.pets.ast.HasClassName.Companion.classNames
 import dev.martianzoo.tfm.pets.ast.Instruction.Custom
-import dev.martianzoo.tfm.pets.ast.classNames
 import dev.martianzoo.util.Grid
 import dev.martianzoo.util.associateByStrict
 
