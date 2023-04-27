@@ -3,6 +3,7 @@ package dev.martianzoo.tfm.pets
 import dev.martianzoo.tfm.api.SpecialClassNames.OWNER
 import dev.martianzoo.tfm.api.SpecialClassNames.THIS
 import dev.martianzoo.tfm.api.SpecialClassNames.USE_ACTION
+import dev.martianzoo.tfm.pets.PetTransformer.Companion.transformInSeries
 import dev.martianzoo.tfm.pets.ast.Action
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
@@ -16,26 +17,30 @@ import dev.martianzoo.tfm.pets.ast.Instruction.Then
 import dev.martianzoo.tfm.pets.ast.Instruction.Transmute
 import dev.martianzoo.tfm.pets.ast.PetNode
 import dev.martianzoo.tfm.pets.ast.PetNode.Companion.raw
+import dev.martianzoo.tfm.pets.ast.PetNode.Companion.replaceAll
+import dev.martianzoo.tfm.pets.ast.PetNode.Companion.replacer
 import dev.martianzoo.tfm.pets.ast.PetNode.Companion.unraw
 import dev.martianzoo.util.toSetStrict
 
 /** Various functions for transforming Pets syntax trees. */
 public object PureTransformers {
-  public fun transformInSeries(xers: List<PetTransformer?>): PetTransformer =
-      CompositeTransformer(xers.filterNotNull())
-  public fun transformInSeries(vararg xers: PetTransformer?): PetTransformer =
-      transformInSeries(xers.toList())
+  public fun replaceThisWith(contextType: Expression): PetTransformer =
+      transformInSeries(
+          replacer(THIS.classExpression(), contextType.className.classExpression()),
+          replacer(THIS.expression, contextType),
+      )
 
-  internal open class CompositeTransformer(val transformers: List<PetTransformer>) :
-      PetTransformer() {
-    constructor(vararg transformers: PetTransformer) : this(transformers.toList())
+  public fun unreplaceThisWith(contextType: Expression): PetTransformer =
+      transformInSeries(
+          replacer(contextType, THIS.expression),
+          replacer(contextType.className.classExpression(), THIS.classExpression()),
+      )
 
-    override fun <P : PetNode> transform(node: P): P {
-      var result = node
-      for (xer in transformers) {
-        result = xer.transform(result)
+  public fun replaceOwnerWith(owner: ClassName): PetTransformer {
+    return object : PetTransformer() {
+      override fun <P : PetNode> transform(node: P): P {
+        return node.replaceAll(OWNER.expression, owner.expression)
       }
-      return result
     }
   }
 
@@ -78,53 +83,6 @@ public object PureTransformers {
       null
     } else {
       Effect(WhenGain, instruction, automatic)
-    }
-  }
-
-  public fun noOp(): PetTransformer =
-      object : PetTransformer() {
-        override fun <P : PetNode> transform(node: P) = node
-      }
-
-  public fun <P : PetNode> P.replaceAll(from: PetNode, to: PetNode): P {
-    if (from == to) return this
-    return object : PetTransformer() {
-          override fun <Q : PetNode> transform(node: Q): Q =
-              if (node == from) {
-                @Suppress("UNCHECKED_CAST")
-                to as Q
-              } else {
-                transformChildren(node)
-              }
-        }
-        .transform(this)
-  }
-
-  public fun replaceThisWith(contextType: Expression): PetTransformer {
-    return object : PetTransformer() {
-      override fun <P : PetNode> transform(node: P): P {
-        return node
-            .replaceAll(THIS.classExpression(), contextType.className.classExpression())
-            .replaceAll(THIS.expression, contextType)
-      }
-    }
-  }
-
-  public fun unreplaceThisWith(contextType: Expression): PetTransformer {
-    return object : PetTransformer() {
-      override fun <P : PetNode> transform(node: P): P {
-        return node
-            .replaceAll(contextType, THIS.expression)
-            .replaceAll(contextType.className.classExpression(), THIS.classExpression())
-      }
-    }
-  }
-
-  public fun replaceOwnerWith(owner: ClassName): PetTransformer {
-    return object : PetTransformer() {
-      override fun <P : PetNode> transform(node: P): P {
-        return node.replaceAll(OWNER.expression, owner.expression)
-      }
     }
   }
 }

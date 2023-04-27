@@ -6,9 +6,9 @@ import dev.martianzoo.tfm.api.SpecialClassNames.OWNER
 import dev.martianzoo.tfm.api.SpecialClassNames.PROD
 import dev.martianzoo.tfm.api.SpecialClassNames.THIS
 import dev.martianzoo.tfm.pets.PetTransformer
-import dev.martianzoo.tfm.pets.PureTransformers.noOp
+import dev.martianzoo.tfm.pets.PetTransformer.Companion.noOp
+import dev.martianzoo.tfm.pets.PetTransformer.Companion.transformInSeries
 import dev.martianzoo.tfm.pets.PureTransformers.replaceThisWith
-import dev.martianzoo.tfm.pets.PureTransformers.transformInSeries
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.pets.ast.Effect
@@ -61,7 +61,8 @@ public class Transformers(private val table: MClassTable) {
                   Multi.create(
                       xed.instructions.subList(0, badIndex) +
                           (xed.instructions[badIndex] as Multi).instructions +
-                          xed.instructions.subList(badIndex + 1, xed.instructions.size))
+                          xed.instructions.subList(badIndex + 1, xed.instructions.size),
+                  )
                 }
               }
               node is TransformNode<*> && node.transformKind == PROD -> {
@@ -126,7 +127,10 @@ public class Transformers(private val table: MClassTable) {
   }
 
   public fun insertDefaults(context: Expression) =
-      transformInSeries(insertGainRemoveDefaults(context), insertExpressionDefaults(context))
+      transformInSeries(
+          insertGainRemoveDefaults(context),
+          insertExpressionDefaults(context),
+      )
 
   private fun insertGainRemoveDefaults(context: Expression): PetTransformer {
     return object : PetTransformer() {
@@ -147,7 +151,7 @@ public class Transformers(private val table: MClassTable) {
       private fun <P : Change> handleIt(
           node: P,
           original: Expression,
-          extractor: (Defaults) -> DefaultSpec
+          extractor: (Defaults) -> DefaultSpec,
       ): P {
         return if (leaveItAlone(original)) {
           node // don't descend

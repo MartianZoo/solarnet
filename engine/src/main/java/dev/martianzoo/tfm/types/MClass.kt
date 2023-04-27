@@ -9,13 +9,13 @@ import dev.martianzoo.tfm.api.SpecialClassNames.THIS
 import dev.martianzoo.tfm.data.ClassDeclaration
 import dev.martianzoo.tfm.data.ClassDeclaration.EffectDeclaration
 import dev.martianzoo.tfm.pets.PetTransformer
-import dev.martianzoo.tfm.pets.PureTransformers.replaceAll
+import dev.martianzoo.tfm.pets.PetTransformer.Companion.transformInSeries
 import dev.martianzoo.tfm.pets.PureTransformers.replaceThisWith
-import dev.martianzoo.tfm.pets.PureTransformers.transformInSeries
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.Effect
 import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.pets.ast.HasClassName
+import dev.martianzoo.tfm.pets.ast.PetNode.Companion.replaceAll
 import dev.martianzoo.tfm.pets.ast.PetNode.Companion.unraw
 import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.pets.ast.Requirement.Companion.split
@@ -207,7 +207,9 @@ internal constructor(
     val transformer =
         if (OWNED !in allSuperclasses.classNames()) {
           transformInSeries(
-              attachToClassTransformer, table.transformers.fixEffectForUnownedContext())
+              attachToClassTransformer,
+              table.transformers.fixEffectForUnownedContext(),
+          )
         } else {
           attachToClassTransformer
         }
@@ -221,17 +223,17 @@ internal constructor(
   private val attachToClassTransformer: PetTransformer by lazy {
     val weirdExpression = className.refine(Min(scaledEx(1, OK)))
     transformInSeries(
-        listOfNotNull(
-            table.transformers.insertDefaults(weirdExpression),
-            table.transformers.atomizer(),
-        ))
+        table.transformers.insertDefaults(weirdExpression),
+        table.transformers.atomizer(),
+    )
   }
 
   // OTHER
 
   private val specificThenGeneralInvars: Pair<List<Requirement>, List<Requirement>> by lazy {
     val requirements = declaration.invariants.map(attachToClassTransformer::transform)
-    val xer = transformInSeries(table.transformers.deprodify(), TransformNode.unwrapper(RAW))
+    val xer = transformInSeries(
+        table.transformers.deprodify(), TransformNode.unwrapper(RAW))
     split(requirements).map { xer.transform(it) }.partition { THIS in it }
   }
 

@@ -6,7 +6,6 @@ import dev.martianzoo.tfm.pets.Parsing.parseAsIs
 import dev.martianzoo.tfm.pets.PureTransformers.actionListToEffects
 import dev.martianzoo.tfm.pets.PureTransformers.actionToEffect
 import dev.martianzoo.tfm.pets.PureTransformers.immediateToEffect
-import dev.martianzoo.tfm.pets.PureTransformers.replaceAll
 import dev.martianzoo.tfm.pets.ast.Action
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
@@ -14,6 +13,7 @@ import dev.martianzoo.tfm.pets.ast.Effect
 import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.pets.ast.Instruction
 import dev.martianzoo.tfm.pets.ast.PetNode
+import dev.martianzoo.tfm.pets.ast.PetNode.Companion.replaceAll
 import dev.martianzoo.tfm.testlib.te
 import dev.martianzoo.util.toStrings
 import kotlin.reflect.KClass

@@ -1,6 +1,8 @@
 package dev.martianzoo.tfm.pets.ast
 
 import dev.martianzoo.tfm.api.SpecialClassNames.RAW
+import dev.martianzoo.tfm.pets.PetTransformer
+import dev.martianzoo.tfm.pets.PetTransformer.Companion.noOp
 import kotlin.reflect.KClass
 import kotlin.reflect.safeCast
 
@@ -70,8 +72,26 @@ public sealed class PetNode {
     fun visit(vararg nodes: PetNode?): Unit = visit(nodes.toList())
   }
 
-  companion object {
-    fun <P : PetNode> P.raw(): P = TransformNode.wrap(this, RAW)
-    fun <P : PetNode> P.unraw(): P = TransformNode.unwrap(this, RAW)
+  public companion object {
+    public fun <P : PetNode> P.raw(): P = TransformNode.wrap(this, RAW)
+    public fun <P : PetNode> P.unraw(): P = TransformNode.unwrap(this, RAW)
+
+    // Instead of making `replaceAll` a regular method of PetNode, this trick allows it to return
+    // the same type as the receiver
+    public fun <P : PetNode> P.replaceAll(from: PetNode, to: PetNode): P =
+        replacer(from, to).transform(this)
+
+    public fun replacer(from: PetNode, to: PetNode): PetTransformer =
+        if (from == to) noOp() else Replacer(from, to)
+
+    private class Replacer(val from: PetNode, val to: PetNode) : PetTransformer() {
+      override fun <Q : PetNode> transform(node: Q): Q =
+          if (node == from) {
+            @Suppress("UNCHECKED_CAST")
+            to as Q
+          } else {
+            transformChildren(node)
+          }
+    }
   }
 }

@@ -17,6 +17,30 @@ import dev.martianzoo.util.toSetStrict
 
 /** Extend this to implement transformations over trees of [PetNode]s. */
 public abstract class PetTransformer {
+  public companion object {
+    public fun noOp(): PetTransformer =
+        object : PetTransformer() {
+          override fun <P : PetNode> transform(node: P) = node
+        }
+
+    public fun transformInSeries(xers: List<PetTransformer?>): PetTransformer =
+        InSeriesTransformer(xers.filterNotNull())
+
+    public fun transformInSeries(vararg xers: PetTransformer?): PetTransformer =
+        transformInSeries(xers.toList())
+
+    private open class InSeriesTransformer(val transformers: List<PetTransformer>) :
+        PetTransformer() {
+      override fun <P : PetNode> transform(node: P): P {
+        var result = node
+        for (xer in transformers) {
+          result = xer.transform(result)
+        }
+        return result
+      }
+    }
+  }
+
   /**
    * Returns an altered form of the [node] tree.
    *

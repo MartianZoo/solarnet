@@ -9,7 +9,7 @@ import dev.martianzoo.tfm.engine.Exceptions.InteractiveException
 import dev.martianzoo.tfm.engine.Game.PlayerAgent
 import dev.martianzoo.tfm.pets.Parsing.parseInput
 import dev.martianzoo.tfm.pets.PetTransformer
-import dev.martianzoo.tfm.pets.PureTransformers.transformInSeries
+import dev.martianzoo.tfm.pets.PetTransformer.Companion.transformInSeries
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.pets.ast.Instruction
@@ -32,12 +32,15 @@ import dev.martianzoo.util.Multiset
  *
  * It accepts `RAW[...]` nodes and (explain).
  */
-public class PlayerSession internal constructor(
+public class PlayerSession
+internal constructor(
     val agent: PlayerAgent,
     var defaultAutoExec: Boolean = true, // TODO 3 policies (what were they?)
 ) {
-  public constructor(game: Game, defaultAutoExec: Boolean = true) :
-      this(game.asPlayer(Player.ENGINE), defaultAutoExec)
+  public constructor(
+      game: Game,
+      defaultAutoExec: Boolean = true
+  ) : this(game.asPlayer(Player.ENGINE), defaultAutoExec)
 
   val game by agent::game
   val player by agent::player
@@ -158,14 +161,13 @@ public class PlayerSession internal constructor(
 
   fun <P : PetElement> prep(node: P): P {
     val xers = game.table.transformers
-    val xer =
-        transformInSeries(
-            useFullNames(),
-            xers.atomizer(),
-            xers.insertDefaults(THIS.expression),
-            xers.deprodify(),
-            TransformNode.unwrapper(RAW))
-    return xer.transform(node)
+    return transformInSeries(
+        useFullNames(),
+        xers.atomizer(),
+        xers.insertDefaults(THIS.expression),
+        xers.deprodify(),
+        TransformNode.unwrapper(RAW),
+    ).transform(node)
   }
 
   public fun useFullNames() =

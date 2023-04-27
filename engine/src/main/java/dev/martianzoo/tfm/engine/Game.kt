@@ -18,6 +18,7 @@ import dev.martianzoo.tfm.engine.EventLog.Checkpoint
 import dev.martianzoo.tfm.engine.Exceptions.ExistingDependentsException
 import dev.martianzoo.tfm.engine.Game.PlayerAgent
 import dev.martianzoo.tfm.pets.PetTransformer
+import dev.martianzoo.tfm.pets.PetTransformer.Companion.transformInSeries
 import dev.martianzoo.tfm.pets.PureTransformers
 import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.pets.ast.Instruction
@@ -52,7 +53,7 @@ public class Game(
     /** The tasks the game is currently waiting on ("future"). */
     public val tasks: TaskQueue = WritableTaskQueue(events as WritableEventLog),
 
-   /** A checkpoint taken when the game initialization process ends. */
+    /** A checkpoint taken when the game initialization process ends. */
     public var start: Checkpoint? = null // TODO move this to EventLog?
 ) {
 
@@ -164,29 +165,29 @@ public class Game(
   /** A view of a [Game] specific to a particular [Player] (a player or the engine). */
   public class PlayerAgent
   internal constructor(
-    public val game: Game,
-    public val player: Player,
+      public val game: Game,
+      public val player: Player,
   ) {
     public fun session(defaultAutoExec: Boolean = true) = PlayerSession(this, defaultAutoExec)
 
     public fun asPlayer(newPlayer: Player) = PlayerAgent(game, newPlayer)
 
     public val reader =
-      object : GameReader by game.reader {
-        override fun resolve(expression: Expression): MType = game.resolve(heyItsMe(expression))
+        object : GameReader by game.reader {
+          override fun resolve(expression: Expression): MType = game.resolve(heyItsMe(expression))
 
-        override fun evaluate(requirement: Requirement) =
-          game.reader.evaluate(heyItsMe(requirement))
+          override fun evaluate(requirement: Requirement) =
+              game.reader.evaluate(heyItsMe(requirement))
 
-        override fun count(metric: Metric) = game.reader.count(heyItsMe(metric))
-      }
+          override fun count(metric: Metric) = game.reader.count(heyItsMe(metric))
+        }
 
     internal val writer: GameWriter = GameWriterImpl()
 
     private val insertOwner: PetTransformer by lazy {
-      PureTransformers.transformInSeries(
-        game.table.transformers.deprodify(),
-        { PureTransformers.replaceOwnerWith(player.className) }.orNullIf(player == Player.ENGINE),
+      transformInSeries(
+          game.table.transformers.deprodify(),
+          { PureTransformers.replaceOwnerWith(player.className) }.orNullIf(player == Player.ENGINE),
       )
     }
 
@@ -200,14 +201,14 @@ public class Game(
     public fun count(metric: Metric) = reader.count(metric)
 
     public fun getComponents(type: Expression): Multiset<Component> =
-      game.components.getAll(reader.resolve(type) as MType) // TODO think about
+        game.components.getAll(reader.resolve(type) as MType) // TODO think about
 
     public fun sneakyChange(
-      count: Int = 1,
-      gaining: Expression? = null,
-      removing: Expression? = null,
-      amap: Boolean = false,
-      cause: Cause? = null,
+        count: Int = 1,
+        gaining: Expression? = null,
+        removing: Expression? = null,
+        amap: Boolean = false,
+        cause: Cause? = null,
     ): ChangeEvent? {
       when (gaining) {
         SpecialClassNames.OK.expression -> {
@@ -243,7 +244,7 @@ public class Game(
       val fixed = Instruction.split(heyItsMe(instruction))
       return doAtomic {
         val executor =
-          InstructionExecutor(reader, writer, game.table.transformers, player, initialCause)
+            InstructionExecutor(reader, writer, game.table.transformers, player, initialCause)
         fixed.forEach { executor.doInstruction(it) }
       }
     }
@@ -262,8 +263,8 @@ public class Game(
       return try {
         doAtomic {
           val executor =
-            InstructionExecutor(
-              reader, writer, game.table.transformers, player, requestedTask.cause)
+              InstructionExecutor(
+                  reader, writer, game.table.transformers, player, requestedTask.cause)
           executor.doInstruction(instruction)
           removeTask(taskId)
         }
@@ -281,18 +282,18 @@ public class Game(
 
     private fun fireTriggers(triggerEvent: ChangeEvent) {
       val firedSelfEffects: List<FiredEffect> =
-        listOfNotNull(triggerEvent.change.gaining, triggerEvent.change.removing)
-          .map(game::toComponent)
-          .flatMap { it.activeEffects(game) }
-          .mapNotNull { it.onChangeToSelf(triggerEvent) }
+          listOfNotNull(triggerEvent.change.gaining, triggerEvent.change.removing)
+              .map(game::toComponent)
+              .flatMap { it.activeEffects(game) }
+              .mapNotNull { it.onChangeToSelf(triggerEvent) }
 
       val firedOtherEffects: List<FiredEffect> =
-        game.activeEffects().mapNotNull { it.onChangeToOther(triggerEvent) }
+          game.activeEffects().mapNotNull { it.onChangeToOther(triggerEvent) }
 
       val (now, later) = (firedSelfEffects + firedOtherEffects).partition { it.automatic }
       for (fx in now) {
         val executor =
-          InstructionExecutor(reader, writer, game.table.transformers, player, fx.cause)
+            InstructionExecutor(reader, writer, game.table.transformers, player, fx.cause)
         Instruction.split(fx.instruction).forEach(executor::doInstruction)
       }
       game.writableTasks.addTasksFrom(later)
@@ -300,25 +301,25 @@ public class Game(
 
     inner class GameWriterImpl : GameWriter {
       override fun update(
-        count: Int,
-        gaining: Type?,
-        removing: Type?,
-        amap: Boolean,
-        cause: Cause?,
+          count: Int,
+          gaining: Type?,
+          removing: Type?,
+          amap: Boolean,
+          cause: Cause?,
       ) {
         val g = gaining?.expression
         val r = removing?.expression
 
         fun tryIt(): ChangeEvent? = sneakyChange(count, g, r, amap, cause)
         val event =
-          try {
-            tryIt()
-          } catch (e: ExistingDependentsException) {
-            for (dept in e.dependents) {
-              update(Int.MAX_VALUE, removing = dept.mtype, amap = true, cause = cause)
-            }
-            tryIt()
-          } ?: return
+            try {
+              tryIt()
+            } catch (e: ExistingDependentsException) {
+              for (dept in e.dependents) {
+                update(Int.MAX_VALUE, removing = dept.mtype, amap = true, cause = cause)
+              }
+              tryIt()
+            } ?: return
 
         fireTriggers(event)
       }
