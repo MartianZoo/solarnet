@@ -23,7 +23,7 @@ import dev.martianzoo.tfm.pets.ast.PetNode.Companion.unraw
 import dev.martianzoo.util.toSetStrict
 
 /** Various functions for transforming Pets syntax trees. */
-public object PureTransformers {
+public object Transforming {
   public fun replaceThisWith(contextType: Expression): PetTransformer =
       transformInSeries(
           replacer(THIS.classExpression(), contextType.className.classExpression()),

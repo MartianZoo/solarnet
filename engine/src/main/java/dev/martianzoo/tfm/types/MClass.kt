@@ -10,7 +10,7 @@ import dev.martianzoo.tfm.data.ClassDeclaration
 import dev.martianzoo.tfm.data.ClassDeclaration.EffectDeclaration
 import dev.martianzoo.tfm.pets.PetTransformer
 import dev.martianzoo.tfm.pets.PetTransformer.Companion.transformInSeries
-import dev.martianzoo.tfm.pets.PureTransformers.replaceThisWith
+import dev.martianzoo.tfm.pets.Transforming.replaceThisWith
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.Effect
 import dev.martianzoo.tfm.pets.ast.Expression

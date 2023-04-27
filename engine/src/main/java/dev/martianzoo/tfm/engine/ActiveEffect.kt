@@ -4,7 +4,7 @@ import dev.martianzoo.tfm.api.SpecialClassNames
 import dev.martianzoo.tfm.data.GameEvent.ChangeEvent
 import dev.martianzoo.tfm.data.GameEvent.ChangeEvent.Cause
 import dev.martianzoo.tfm.data.Player
-import dev.martianzoo.tfm.pets.PureTransformers
+import dev.martianzoo.tfm.pets.Transforming
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.Effect
 import dev.martianzoo.tfm.pets.ast.Effect.Trigger
@@ -114,7 +114,7 @@ internal data class ActiveEffect(
       val originalHit = inner.match(triggerEvent, player, isSelf) ?: return null
 
       return if (by == SpecialClassNames.OWNER) {
-        { PureTransformers.replaceOwnerWith(player.className).transform(originalHit(it)) }
+        { Transforming.replaceOwnerWith(player.className).transform(originalHit(it)) }
       } else {
         originalHit
       }

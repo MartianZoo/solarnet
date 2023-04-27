@@ -4,7 +4,7 @@ import dev.martianzoo.tfm.data.EnglishHack.englishHack
 import dev.martianzoo.tfm.data.SpecialClassNames.STANDARD_ACTION
 import dev.martianzoo.tfm.data.SpecialClassNames.STANDARD_PROJECT
 import dev.martianzoo.tfm.pets.Parsing.parseInput
-import dev.martianzoo.tfm.pets.PureTransformers.actionListToEffects
+import dev.martianzoo.tfm.pets.Transforming.actionListToEffects
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.util.toSetStrict
 

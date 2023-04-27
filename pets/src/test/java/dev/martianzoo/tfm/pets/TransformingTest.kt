@@ -3,9 +3,9 @@ package dev.martianzoo.tfm.pets
 import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.tfm.api.SpecialClassNames.THIS
 import dev.martianzoo.tfm.pets.Parsing.parseAsIs
-import dev.martianzoo.tfm.pets.PureTransformers.actionListToEffects
-import dev.martianzoo.tfm.pets.PureTransformers.actionToEffect
-import dev.martianzoo.tfm.pets.PureTransformers.immediateToEffect
+import dev.martianzoo.tfm.pets.Transforming.actionListToEffects
+import dev.martianzoo.tfm.pets.Transforming.actionToEffect
+import dev.martianzoo.tfm.pets.Transforming.immediateToEffect
 import dev.martianzoo.tfm.pets.ast.Action
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
@@ -19,7 +19,7 @@ import dev.martianzoo.util.toStrings
 import kotlin.reflect.KClass
 import org.junit.jupiter.api.Test
 
-private class PureTransformersTest {
+private class TransformingTest {
   @Test
   fun testActionToEffect() {
     fun checkActionToEffect(action: String, index: Int, effect: String) {

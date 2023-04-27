@@ -8,7 +8,7 @@ import dev.martianzoo.tfm.api.SpecialClassNames.THIS
 import dev.martianzoo.tfm.pets.PetTransformer
 import dev.martianzoo.tfm.pets.PetTransformer.Companion.noOp
 import dev.martianzoo.tfm.pets.PetTransformer.Companion.transformInSeries
-import dev.martianzoo.tfm.pets.PureTransformers.replaceThisWith
+import dev.martianzoo.tfm.pets.Transforming.replaceThisWith
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.pets.ast.Effect
@@ -166,20 +166,24 @@ public class Transformers(private val table: MClassTable) {
               )
           val intensity = node.intensity ?: spec.intensity
 
-          when (node) { // TODO it's weird that the shared method is doing this
-            is Gain -> gain(scaledEx(node.count, fixed), intensity) as Gain
-            is Remove -> Remove(scaledEx(node.count, fixed), intensity)
-            is Transmute -> {
-              val fixedFrom =
-                  if (node.gaining == fixed) {
-                    node.fromEx // no change, so don't mess up the structure
-                  } else {
-                    SimpleFrom(fixed, node.removing)
-                  }
-              Transmute(fixedFrom, node.count, intensity)
-            }
-            else -> error("")
-          } as P
+          val result: Change =
+              when (node) { // TODO it's weird that the shared method is doing this
+                is Gain -> gain(scaledEx(node.count, fixed), intensity) as Gain
+                is Remove -> Remove(scaledEx(node.count, fixed), intensity)
+                is Transmute -> {
+                  val fixedFrom =
+                      if (node.gaining == fixed) {
+                        node.fromEx // no change, so don't mess up the structure
+                      } else {
+                        SimpleFrom(fixed, node.removing)
+                      }
+                  Transmute(fixedFrom, node.count, intensity)
+                }
+                else -> error("")
+              }
+
+          @Suppress("UNCHECKED_CAST")
+          result as P
         }
       }
     }

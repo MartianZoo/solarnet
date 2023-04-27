@@ -16,8 +16,8 @@ import dev.martianzoo.tfm.data.SpecialClassNames.PROJECT_CARD
 import dev.martianzoo.tfm.data.SpecialClassNames.RESOURCE_CARD
 import dev.martianzoo.tfm.pets.Parsing
 import dev.martianzoo.tfm.pets.Parsing.parseInput
-import dev.martianzoo.tfm.pets.PureTransformers.actionListToEffects
-import dev.martianzoo.tfm.pets.PureTransformers.immediateToEffect
+import dev.martianzoo.tfm.pets.Transforming.actionListToEffects
+import dev.martianzoo.tfm.pets.Transforming.immediateToEffect
 import dev.martianzoo.tfm.pets.ast.Action
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn

@@ -19,7 +19,7 @@ import dev.martianzoo.tfm.engine.Exceptions.ExistingDependentsException
 import dev.martianzoo.tfm.engine.Game.PlayerAgent
 import dev.martianzoo.tfm.pets.PetTransformer
 import dev.martianzoo.tfm.pets.PetTransformer.Companion.transformInSeries
-import dev.martianzoo.tfm.pets.PureTransformers
+import dev.martianzoo.tfm.pets.Transforming
 import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.pets.ast.Instruction
 import dev.martianzoo.tfm.pets.ast.Metric
@@ -187,7 +187,7 @@ public class Game(
     private val insertOwner: PetTransformer by lazy {
       transformInSeries(
           game.table.transformers.deprodify(),
-          { PureTransformers.replaceOwnerWith(player.className) }.orNullIf(player == Player.ENGINE),
+          { Transforming.replaceOwnerWith(player.className) }.orNullIf(player == Player.ENGINE),
       )
     }
 

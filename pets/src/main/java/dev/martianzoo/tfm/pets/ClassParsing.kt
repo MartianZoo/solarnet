@@ -22,7 +22,7 @@ import dev.martianzoo.tfm.pets.ClassParsing.BodyElements.bodyElementExceptNested
 import dev.martianzoo.tfm.pets.ClassParsing.NestableDecl.IncompleteNestableDecl
 import dev.martianzoo.tfm.pets.ClassParsing.Signatures.moreSignatures
 import dev.martianzoo.tfm.pets.ClassParsing.Signatures.signature
-import dev.martianzoo.tfm.pets.PureTransformers.actionListToEffects
+import dev.martianzoo.tfm.pets.Transforming.actionListToEffects
 import dev.martianzoo.tfm.pets.ast.Action
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.ClassName.Parsing.classFullName
