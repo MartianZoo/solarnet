@@ -20,6 +20,10 @@ import dev.martianzoo.tfm.pets.ast.Effect.Trigger.WhenRemove
 import dev.martianzoo.tfm.pets.ast.Instruction.Gated
 import dev.martianzoo.util.iff
 
+/**
+ * A triggered effect, like `CityTile: 2`. Any existing component in a game state can have some
+ * number of these, which are all active until the component is removed.
+ */
 public data class Effect(
     val trigger: Trigger,
     val instruction: Instruction,
@@ -36,6 +40,7 @@ public data class Effect(
 
   override fun compareTo(other: Effect): Int = effectComparator.compare(this, other)
 
+  /** The left-hand side of a triggered effect; the kind of event being subscribed to. */
   sealed class Trigger : PetNode() {
     override val kind = Trigger::class.simpleName!!
 
@@ -180,8 +185,7 @@ public data class Effect(
 
       return Trigger.parser() and
           colons and
-          maybeGroup(Instruction.parser()) map
-          { (trig, immed, instr) ->
+          maybeGroup(Instruction.parser()) map { (trig, immed, instr) ->
             Effect(trigger = trig, automatic = immed, instruction = instr)
           }
     }

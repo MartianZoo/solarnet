@@ -10,7 +10,7 @@ internal class Substituter(private val subs: Map<ClassName, Expression>) : PetTr
     if (node is Expression) {
       val replacement: Expression? = subs[node.className]
       if (replacement != null) {
-        val expr: Expression = replacement.addArgs(node.arguments)
+        val expr: Expression = replacement.appendArguments(node.arguments)
         @Suppress("UNCHECKED_CAST") return expr as P
       }
     }

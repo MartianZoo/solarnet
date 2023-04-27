@@ -7,22 +7,23 @@ import com.github.h0tk3y.betterParse.combinators.skip
 import com.github.h0tk3y.betterParse.grammar.parser
 import com.github.h0tk3y.betterParse.parser.Parser
 import dev.martianzoo.tfm.pets.HasClassName
+import dev.martianzoo.tfm.pets.HasExpression
 import dev.martianzoo.tfm.pets.PetTokenizer
 import dev.martianzoo.tfm.pets.ast.ClassName.Parsing.className
 import dev.martianzoo.util.joinOrEmpty
 import dev.martianzoo.util.wrap
 
 /**
- * A particular representation of a type in the Pets language. Could be a simple type (`ClassName`),
- * a parameterized type (`Foo<Bar, Qux>`) or a refined type (`Foo<Bar(HAS 3 Qux)>(HAS Wau)`) (the
- * combination of a real type with one or more predicates).
+ * A noun expression in Pets; a particular representation of a type. Could be a simple type (`Foo`),
+ * a type with arguments (`Foo<Bar, Qux>`), or a refined type (`Foo<Bar(HAS 3 Qux)>(HAS Wau)`) (the
+ * combination of a real type with a [Requirement]).
  *
- * Caution is required when using [Expression], because in many cases different expressions will
- * represent the same "actual" type; for example `Microbe<This, Player1>` and `Microbe<Player1,
- * This`, or `Tile` and `Tile<Area>`. This class has no idea about that; they are different
- * *representations* so they are considered unequal.
+ * **Caution:** in many cases different expressions can represent the same "actual" type; for
+ * example `Microbe<This, Player1>` and `Microbe<Player1, This`, or for another example, `Tile` and
+ * `Tile<Area>`. This class has no idea about that; they are different *representations* so they are
+ * considered unequal.
  */
-data class Expression(
+public data class Expression(
     override val className: ClassName,
     val arguments: List<Expression> = listOf(),
     val refinement: Requirement? = null,
@@ -33,27 +34,33 @@ data class Expression(
   override fun toString() =
       "$className" + arguments.joinOrEmpty(wrap = "<>") + refinement.wrap("(HAS ", ")")
 
-  val simple = arguments.isEmpty() && refinement == null
+  /**
+   * Is this just `ClassName.expression` for some class name? (That is, no arguments, no
+   * refinement?)
+   */
+  val simple: Boolean = arguments.isEmpty() && refinement == null
 
-  @JvmName("addArgsFromClassNames")
-  fun addArgs(moreArgs: List<ClassName>): Expression = addArgs(moreArgs.map { it.expression })
-  fun addArgs(vararg moreArgs: ClassName): Expression = addArgs(moreArgs.toList())
+  @JvmName("extractAndAppendArguments")
+  fun appendArguments(moreArgs: List<HasExpression>): Expression =
+      appendArguments(moreArgs.map { it.expression })
+  fun appendArguments(vararg moreArgs: HasExpression): Expression =
+      appendArguments(moreArgs.toList())
 
-  fun addArgs(moreArgs: List<Expression>): Expression = replaceArgs(arguments + moreArgs)
-  fun addArgs(vararg moreArgs: Expression): Expression = addArgs(moreArgs.toList())
+  fun appendArguments(moreArgs: List<Expression>): Expression =
+      replaceArguments(arguments + moreArgs)
+  fun appendArguments(vararg moreArgs: Expression): Expression = appendArguments(moreArgs.toList())
 
-  fun replaceArgs(newArgs: List<Expression>): Expression = copy(arguments = newArgs)
-  fun replaceArgs(vararg newArgs: Expression): Expression = replaceArgs(newArgs.toList())
+  fun replaceArguments(newArgs: List<Expression>): Expression = copy(arguments = newArgs)
+  fun replaceArguments(vararg newArgs: Expression): Expression = replaceArguments(newArgs.toList())
 
-  fun has(ref: Requirement?) =
-      if (ref == null) {
+  /** Returns this expression (which must have no refinement already), plus the given refinement. */
+  fun has(refinement: Requirement?) =
+      if (refinement == null) {
         this
       } else {
         require(this.refinement == null)
-        copy(refinement = ref)
+        copy(refinement = refinement)
       }
-
-  fun hasAnyRefinements() = descendantsOfType<Requirement>().any()
 
   override val kind = Expression::class.simpleName!!
 
@@ -64,10 +71,11 @@ data class Expression(
 
         val result =
             className and
-            optionalList(specs) and
-            optional(group(skip(_has) and Requirement.parser())) map { (clazz, args, ref) ->
-              Expression(clazz, args, ref)
-            }
+                optionalList(specs) and
+                optional(group(skip(_has) and Requirement.parser())) map
+                { (clazz, args, ref) ->
+                  Expression(clazz, args, ref)
+                }
         result
       }
     }

@@ -13,7 +13,7 @@ import dev.martianzoo.tfm.pets.ast.Effect
 import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.pets.ast.Instruction
 import dev.martianzoo.tfm.pets.ast.PetNode
-import dev.martianzoo.tfm.pets.ast.PetNode.Companion.replaceAll
+import dev.martianzoo.tfm.pets.ast.PetNode.Companion.replacer
 import dev.martianzoo.tfm.testlib.te
 import dev.martianzoo.util.toStrings
 import kotlin.reflect.KClass
@@ -107,7 +107,7 @@ private class TransformingTest {
   ) {
     val parsedOriginal = parseAsIs(type, original)
     val parsedExpected = parseAsIs(type, expected)
-    val tx = parsedOriginal.replaceAll(THIS.expression, thiss)
+    val tx = replacer(THIS.expression, thiss).transform(parsedOriginal)
     assertThat(tx).isEqualTo(parsedExpected)
 
     // more round-trip checking doesn't hurt

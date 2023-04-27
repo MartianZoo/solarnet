@@ -16,7 +16,7 @@ import dev.martianzoo.tfm.pets.Transforming.replaceThisExpressionsWith
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.Effect
 import dev.martianzoo.tfm.pets.ast.Expression
-import dev.martianzoo.tfm.pets.ast.PetNode.Companion.replaceAll
+import dev.martianzoo.tfm.pets.ast.PetNode.Companion.replacer
 import dev.martianzoo.tfm.pets.ast.PetNode.Companion.unraw
 import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.pets.ast.Requirement.Companion.split
@@ -163,10 +163,11 @@ internal constructor(
   private val inheritedDeps: DependencySet by lazy {
     val list: List<DependencySet> =
         directSupertypes.map { supertype ->
+          val replacer = replacer(supertype.className, className)
           supertype.dependencies.map { mtype ->
             val depExpr = mtype.expressionFull
-            val newArgs = depExpr.arguments.map { it.replaceAll(supertype.className, className) }
-            table.resolve(depExpr.replaceArgs(newArgs))
+            val newArgs = depExpr.arguments.map(replacer::transform)
+            table.resolve(depExpr.replaceArguments(newArgs))
           }
         }
     glb(list) ?: DependencySet.of()

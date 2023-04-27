@@ -26,7 +26,7 @@ public data class ClassDeclaration(
     val extraNodes: Set<PetNode> = setOf(),
 ) : HasClassName {
   init {
-    require(supertypes.none { it.hasAnyRefinements() }) { supertypes }
+    require(supertypes.none { it.descendantsOfType<Requirement>().any() }) { supertypes }
   }
   // DEPENDENCIES
 

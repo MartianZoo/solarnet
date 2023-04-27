@@ -23,24 +23,31 @@ import dev.martianzoo.tfm.pets.ast.ScaledExpression.Scalar.XScalar
 import dev.martianzoo.util.Reifiable
 import dev.martianzoo.util.toSetStrict
 
+/**
+ * A specification of steps that might be taken (or were taken) to alter a game state. Instructions
+ * appear as the right-hand side of [Action]s and [Effect]s, on map areas, in the "do this now"
+ * section of cards, in an engine's task queues, and so forth.
+ */
 public sealed class Instruction : PetElement() {
   companion object {
-    internal fun parser(): Parser<Instruction> = Parsers.parser()
+    /** Recursively breaks apart any [Multi] instructions found in [instructions]. */
+    fun split(instructions: Iterable<Instruction>): List<Instruction> =
+        instructions.flatMap(::split)
 
-    fun split(instruction: Iterable<Instruction>): List<Instruction> =
-        instruction.flatMap { split(it) }
-
+    /** Recursively breaks apart any [Multi] instructions found in [instruction]. */
     fun split(instruction: Instruction): List<Instruction> =
         if (instruction is Multi) {
           split(instruction.instructions)
         } else {
           listOf(instruction)
         }
+
+    internal fun parser(): Parser<Instruction> = Parsers.parser()
   }
 
   /**
-   * Returns an instruction that (in essence) does this instruction [factor] times. The fact must be
-   * nonnegative, and if zero, [NoOp] is returned.
+   * Returns an instruction that (in essence) does this instruction [factor] times. The [factor]
+   * must be non-negative, and if zero, [NoOp] is returned.
    */
   operator fun times(factor: Int): Instruction {
     if (factor == 0) return NoOp
@@ -50,6 +57,7 @@ public sealed class Instruction : PetElement() {
 
   protected abstract fun scale(factor: Int): Instruction
 
+  /** An instruction that does nothing. */
   public object NoOp : Instruction() {
     override fun scale(factor: Int) = this
 

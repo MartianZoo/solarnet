@@ -11,6 +11,10 @@ import com.github.h0tk3y.betterParse.parser.Parser
 import dev.martianzoo.tfm.api.UserException.PetSyntaxException
 import dev.martianzoo.tfm.pets.PetTokenizer
 
+/**
+ * A way of computing a non-negative integer based on a game state. Metrics appear after a slash in
+ * instructions, and also belong to `Award`s.
+ */
 sealed class Metric : PetElement() {
   override val kind = Metric::class.simpleName!!
 

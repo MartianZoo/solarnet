@@ -16,10 +16,15 @@ import dev.martianzoo.tfm.pets.ast.ScaledExpression.Scalar
 import dev.martianzoo.tfm.pets.ast.ScaledExpression.Scalar.ActualScalar
 import dev.martianzoo.tfm.pets.ast.ScaledExpression.Scalar.XScalar
 
+/**
+ * Expresses a condition which is deterministically either true or false in any particular game
+ * state, for example, `MAX 4 OxygenStep`.
+ */
 sealed class Requirement : PetElement() {
   public companion object {
     public fun split(requirement: Iterable<Requirement>) = requirement.flatMap { split(it) }
 
+    /** Recursively breaks apart any [And] requirements. */
     public fun split(requirement: Requirement): List<Requirement> =
         if (requirement is And) {
           split(requirement.requirements)
@@ -43,12 +48,14 @@ sealed class Requirement : PetElement() {
   override fun safeToNestIn(container: PetNode) =
       super.safeToNestIn(container) || container is IfTrigger
 
+  /** A requirement that counts (a min, max, or exact). */
   sealed class Counting(open val scaledEx: ScaledExpression) : Requirement() {
     override fun visitChildren(visitor: Visitor) = visitor.visit(scaledEx)
 
     abstract val range: IntRange
   }
 
+  // TODO should Min contain a Metric?? Not Max or Exact.
   data class Min(override val scaledEx: ScaledExpression) : Counting(scaledEx) {
     init {
       Scalar.checkNonzero(scaledEx.scalar)

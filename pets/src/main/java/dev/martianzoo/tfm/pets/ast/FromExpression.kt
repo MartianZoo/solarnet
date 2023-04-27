@@ -14,6 +14,10 @@ import dev.martianzoo.tfm.pets.ast.ClassName.Parsing.className
 import dev.martianzoo.util.joinOrEmpty
 import dev.martianzoo.util.wrap
 
+/**
+ * The main part of a "transmute" instruction, without the scalar or intensity. Examples:
+ * `Foo<Bar> FROM Foo<Qux>`, and (equivalent) `Foo<Bar FROM Qux>`.
+ */
 public sealed class FromExpression : PetNode() {
   override val kind = FromExpression::class.simpleName!!
 

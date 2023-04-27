@@ -30,7 +30,7 @@ public class ClassName private constructor(private val asString: String) :
    * Returns the expression having this class name as its [Expression.className], and [arguments] as
    * its [Expression.arguments] (in order).
    */
-  public fun of(arguments: List<Expression>): Expression = expression.addArgs(arguments)
+  public fun of(arguments: List<Expression>): Expression = expression.appendArguments(arguments)
 
   /** Vararg form of [of]. */
   public fun of(vararg arguments: Expression): Expression =
