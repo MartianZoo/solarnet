@@ -181,6 +181,10 @@ internal constructor(
   /** Least upper bound of all types with mclass==this */
   public val baseType: MType by lazy { withAllDependencies(dependencies) }
 
+  internal val defaultType: MType by lazy {
+    loader.resolve(loader.transformers.insertDefaults().transform(className.expression))
+  }
+
   internal fun specialize(specs: List<Expression>): MType = baseType.specialize(specs)
 
   /**

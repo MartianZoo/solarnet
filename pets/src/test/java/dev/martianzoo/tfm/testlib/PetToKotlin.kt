@@ -111,7 +111,7 @@ internal object PetToKotlin {
             is Trigger.ByTrigger -> "ByTrigger(${p2k(inner)}, ${p2k(by)})"
             is Trigger.IfTrigger -> "IfTrigger(${p2k(inner)}, ${p2k(condition)})"
             is Trigger.XTrigger -> "XTrigger(${p2k(inner)})"
-            is Trigger.Transform -> "Trigger.Transform(${p2k(trigger)}, \"$transformKind\")"
+            is Trigger.Transform -> "Trigger.Transform(${p2k(inner)}, \"$transformKind\")"
           }
         }
         is Effect -> "Effect(${p2k(trigger)}, ${p2k(instruction)}${", true".iff(automatic)})"

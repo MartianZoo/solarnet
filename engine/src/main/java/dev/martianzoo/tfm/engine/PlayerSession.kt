@@ -1,7 +1,6 @@
 package dev.martianzoo.tfm.engine
 
 import dev.martianzoo.tfm.api.SpecialClassNames.RAW
-import dev.martianzoo.tfm.api.SpecialClassNames.THIS
 import dev.martianzoo.tfm.api.UserException
 import dev.martianzoo.tfm.data.Player
 import dev.martianzoo.tfm.data.Task.TaskId
@@ -162,7 +161,7 @@ internal constructor(
     return chain(
         useFullNames(),
         xers.atomizer(),
-        xers.insertDefaults(THIS.expression),
+        xers.insertDefaults(),
         xers.deprodify(),
         TransformNode.unwrapper(RAW),
     ).transform(node)

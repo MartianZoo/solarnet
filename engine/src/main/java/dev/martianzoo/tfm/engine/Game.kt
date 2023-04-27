@@ -330,6 +330,7 @@ internal constructor(
     public fun removeTask(taskId: TaskId) = game.removeTask(taskId)
 
     private fun fireTriggers(triggerEvent: ChangeEvent) {
+      // TODO why are these so different from each other?
       val firedSelfEffects: List<FiredEffect> =
           listOfNotNull(triggerEvent.change.gaining, triggerEvent.change.removing)
               .map(game::toComponent)

@@ -52,7 +52,7 @@ private object CreateAdjacencies : CustomInstruction("createAdjacencies") {
   override fun translate(game: GameReader, arguments: List<Type>): Instruction {
     val grid = mapDefinition(game).areas
     val areaName: ClassName = arguments.single().className
-    val area: AreaDefinition = grid.first { it.className == areaName }
+    val area: AreaDefinition = grid.firstOrNull { it.className == areaName } ?: error(areaName)
     val neighborAreas: List<AreaDefinition> = neighborsInHexGrid(grid, area.row, area.column)
 
     val newTile: Expression = tileOn(area, game)!! // creating it is what got us here

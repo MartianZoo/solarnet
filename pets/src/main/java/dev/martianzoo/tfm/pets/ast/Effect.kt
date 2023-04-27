@@ -44,27 +44,6 @@ public data class Effect(
   sealed class Trigger : PetNode() {
     override val kind = Trigger::class.simpleName!!
 
-    data class ByTrigger(val inner: Trigger, val by: ClassName) : Trigger() {
-      init {
-        if (inner is ByTrigger) {
-          throw PetSyntaxException("by the by")
-        }
-      }
-
-      override fun visitChildren(visitor: Visitor) = visitor.visit(inner, by)
-      override fun toString() = "$inner BY $by"
-    }
-
-    data class IfTrigger(val inner: Trigger, val condition: Requirement) : Trigger() {
-      init {
-        if (inner is ByTrigger) throw PetSyntaxException("if the by")
-        if (inner is IfTrigger) throw PetSyntaxException("if the if")
-      }
-      override fun visitChildren(visitor: Visitor) = visitor.visit(inner, condition)
-
-      override fun toString() = "$inner IF ${groupPartIfNeeded(condition)}"
-    }
-
     sealed class BasicTrigger : Trigger()
 
     object WhenGain : BasicTrigger() {
@@ -114,8 +93,34 @@ public data class Effect(
       override fun toString() = "-$expression"
     }
 
-    data class XTrigger(val inner: BasicTrigger) : Trigger() {
+    sealed class WrappingTrigger : Trigger() {
+      abstract val inner: Trigger
       override fun visitChildren(visitor: Visitor) = visitor.visit(inner)
+    }
+
+    data class ByTrigger(override val inner: Trigger, val by: ClassName) : WrappingTrigger() {
+      init {
+        if (inner is ByTrigger) {
+          throw PetSyntaxException("by the by")
+        }
+      }
+
+      override fun visitChildren(visitor: Visitor) = visitor.visit(inner, by)
+      override fun toString() = "$inner BY $by"
+    }
+
+    data class IfTrigger(override val inner: Trigger, val condition: Requirement) :
+        WrappingTrigger() {
+      init {
+        if (inner is ByTrigger) throw PetSyntaxException("if the by")
+        if (inner is IfTrigger) throw PetSyntaxException("if the if")
+      }
+      override fun visitChildren(visitor: Visitor) = visitor.visit(inner, condition)
+
+      override fun toString() = "$inner IF ${groupPartIfNeeded(condition)}"
+    }
+
+    data class XTrigger(override val inner: BasicTrigger) : WrappingTrigger() {
       override fun toString(): String {
         return when (inner) {
           is OnGainOf,
@@ -126,21 +131,20 @@ public data class Effect(
       }
     }
 
-    data class Transform(val trigger: Trigger, override val transformKind: String) :
-        Trigger(), TransformNode<Trigger> {
-      override fun visitChildren(visitor: Visitor) = visitor.visit(trigger)
-      override fun toString() = "$transformKind[$trigger]"
+    data class Transform(override val inner: Trigger, override val transformKind: String) :
+        WrappingTrigger(), TransformNode<Trigger> {
+      override fun toString() = "$transformKind[$inner]"
 
       init {
         if (transformKind == PROD &&
-            trigger !is OnGainOf &&
-            trigger !is OnRemoveOf &&
-            trigger !is XTrigger) {
+            inner !is OnGainOf &&
+            inner !is OnRemoveOf &&
+            inner !is XTrigger) {
           throw PetSyntaxException("only gain/remove trigger can go in PROD block")
         }
       }
 
-      override fun extract() = trigger
+      override fun extract() = inner
     }
 
     internal companion object : PetTokenizer() {
@@ -185,7 +189,8 @@ public data class Effect(
 
       return Trigger.parser() and
           colons and
-          maybeGroup(Instruction.parser()) map { (trig, immed, instr) ->
+          maybeGroup(Instruction.parser()) map
+          { (trig, immed, instr) ->
             Effect(trigger = trig, automatic = immed, instruction = instr)
           }
     }

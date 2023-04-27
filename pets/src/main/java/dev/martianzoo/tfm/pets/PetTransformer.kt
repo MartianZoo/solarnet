@@ -127,7 +127,7 @@ public abstract class PetTransformer protected constructor() {
                   is Trigger.ByTrigger -> Trigger.ByTrigger(x(inner), x(by))
                   is Trigger.IfTrigger -> Trigger.IfTrigger(x(inner), x(condition))
                   is Trigger.XTrigger -> Trigger.XTrigger(x(inner))
-                  is Trigger.Transform -> Trigger.Transform(x(trigger), transformKind)
+                  is Trigger.Transform -> Trigger.Transform(x(inner), transformKind)
                   is Trigger.WhenGain -> this
                   is Trigger.WhenRemove -> this
                 }

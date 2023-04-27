@@ -1,8 +1,11 @@
 package dev.martianzoo.tfm.types
 
 import com.google.common.truth.Truth.assertThat
+import dev.martianzoo.tfm.api.SpecialClassNames.OWNER
+import dev.martianzoo.tfm.data.Player.Companion.PLAYER1
 import dev.martianzoo.tfm.engine.CanonClassesTest
 import dev.martianzoo.tfm.pets.Parsing.parseAsIs
+import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.pets.ast.Expression
 import org.junit.jupiter.api.Test
@@ -190,17 +193,21 @@ private class MTypeTest {
     // checkMinimal("TwoSame<Foo2, Foo3>")
   }
 
+  fun findSubstitutions(mType: MType): Map<ClassName, Expression> =
+      mType.loader.transformers.findSubstitutions(
+          mType.root.defaultType.dependencies, mType.dependencies)
+
   @Test
   fun subs() {
     val pprod = CanonClassesTest.loader.resolve(te("Production<Player1, Class<Plant>>"))
-    assertThat(pprod.findSubstitutions(setOf(cn("StandardResource"))))
-        .containsExactly(cn("StandardResource"), cn("Plant").expression)
+    assertThat(findSubstitutions(pprod))
+        .containsExactly(cn("StandardResource"), cn("Plant").expression, OWNER, PLAYER1.expression)
   }
   @Test
   fun subs2() {
     val pprod = CanonClassesTest.loader.resolve(te("PlayCard<Player1, Class<MediaGroup>>"))
-    assertThat(pprod.findSubstitutions(setOf(cn("CardFront"))))
-        .containsExactly(cn("CardFront"), cn("MediaGroup").expression)
+    assertThat(findSubstitutions(pprod))
+        .containsExactly(cn("CardFront"), cn("MediaGroup").expression, OWNER, PLAYER1.expression)
   }
 
   private fun te(s: String): Expression = parseAsIs(s)

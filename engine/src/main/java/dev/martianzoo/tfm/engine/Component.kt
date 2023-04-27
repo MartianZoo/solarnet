@@ -42,13 +42,15 @@ public data class Component private constructor(val mtype: MType) : HasClassName
 
   public val petEffects: List<EffectDeclaration> by lazy {
     mtype.root.classEffects.map { fxDecl ->
-      val fx = chain(
-          mtype.loader.transformers.deprodify(),
-          Substituter(mtype.findSubstitutions(fxDecl.depLinkages)),
-          owner()?.let { replaceOwnerWith(it) },
-          replaceThisExpressionsWith(mtype.expression),
-          TransformNode.unwrapper(RAW),
-      ).transform(fxDecl.effect)
+      val fx =
+          chain(
+                  TransformNode.unwrapper(RAW),
+                  mtype.loader.transformers.substituter(mtype.root.defaultType, mtype),
+                  mtype.loader.transformers.deprodify(),
+                  owner()?.let { replaceOwnerWith(it) },
+                  replaceThisExpressionsWith(mtype.expression),
+              )
+              .transform(fxDecl.effect)
 
       fxDecl.copy(effect = fx, depLinkages = setOf())
     }
@@ -58,7 +60,7 @@ public data class Component private constructor(val mtype: MType) : HasClassName
    * This component's effects; while the component exists in a game state, the effects are active.
    */
   internal fun activeEffects(game: Game): List<ActiveEffect> {
-    return petEffects.map { ActiveEffect.from(it.effect, this, game, it.triggerLinkages) }
+    return petEffects.map { ActiveEffect.from(it.effect, this, game) }
   }
 
   // TODO make this more readable

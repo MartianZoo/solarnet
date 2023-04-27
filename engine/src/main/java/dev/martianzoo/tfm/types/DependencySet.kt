@@ -36,6 +36,13 @@ internal class DependencySet private constructor(private val deps: Set<Dependenc
         .toMap()
   }
 
+  fun at(path: DependencyPath): Dependency {
+    val x: Dependency = get(path.keyList.first())
+    if ((path.keyList.size) == 1) return x
+    val type = (x as TypeDependency).boundType
+    return type.dependencies.at(path.drop(1))
+  }
+
   val typeDependencies: Set<TypeDependency> = deps.filterIsInstance<TypeDependency>().toSet()
 
   val keys: Set<Key> = deps.toSetStrict { it.key }
@@ -96,12 +103,16 @@ internal class DependencySet private constructor(private val deps: Set<Dependenc
   data class DependencyPath(val keyList: List<Key>) {
     constructor(key: Key) : this(listOf(key))
 
+    init { require(keyList.any()) }
+
     fun prepend(key: Key) = copy(listOf(key) + keyList)
+    fun drop(i: Int) = DependencyPath(keyList.drop(i))
 
     fun isProperSuffixOf(other: DependencyPath): Boolean {
       val otherSize = other.keyList.size
       val smallerBy = keyList.size - otherSize
       return smallerBy > 0 && other.keyList.subList(smallerBy, otherSize) == keyList
     }
+
   }
 }

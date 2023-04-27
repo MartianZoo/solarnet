@@ -4,7 +4,6 @@ import dev.martianzoo.tfm.api.CustomInstruction.ExecuteInsteadException
 import dev.martianzoo.tfm.api.GameReader
 import dev.martianzoo.tfm.api.GameWriter
 import dev.martianzoo.tfm.api.SpecialClassNames.RAW
-import dev.martianzoo.tfm.api.SpecialClassNames.THIS
 import dev.martianzoo.tfm.api.UserException
 import dev.martianzoo.tfm.data.GameEvent.ChangeEvent.Cause
 import dev.martianzoo.tfm.data.Player
@@ -89,7 +88,7 @@ internal class InstructionExecutor(
       val instruction =
           chain(
               xers.atomizer(),
-              xers.insertDefaults(THIS.expression), // TODO context component??
+              xers.insertDefaults(), // TODO context component??
               xers.deprodify(),
               replaceOwnerWith(player),
               TransformNode.unwrapper(RAW),

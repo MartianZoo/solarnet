@@ -6,7 +6,6 @@ import dev.martianzoo.tfm.api.Type
 import dev.martianzoo.tfm.api.UserException
 import dev.martianzoo.tfm.api.UserException.InvalidReificationException
 import dev.martianzoo.tfm.pets.HasClassName
-import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.util.Hierarchical
@@ -158,33 +157,4 @@ internal constructor(
   }
 
   override fun toString() = "$expressionFull@${root.loader}"
-
-  fun findSubstitutions(linkages: Set<ClassName>) =
-      findSubstitutions(linkages, root.baseType.expressionFull, expressionFull)
-}
-
-/** Decides what substitutions should be made to class effects to yield component effects. */
-fun findSubstitutions(
-    linkages: Set<ClassName>,
-    general: Expression,
-    specific: Expression,
-): Map<ClassName, Expression> {
-  val map = mutableMapOf<ClassName, Expression>()
-  doIt(linkages, map, general, specific)
-  return map
-}
-
-private fun doIt(
-    linkages: Set<ClassName>,
-    map: MutableMap<ClassName, Expression>,
-    general: Expression,
-    specific: Expression,
-) {
-  for ((g, s) in general.arguments.zip(specific.arguments)) {
-    if (g.simple && g.className in linkages && s != g) {
-      map[g.className] = s
-    } else {
-      doIt(linkages, map, g, s)
-    }
-  }
 }

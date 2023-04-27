@@ -1,6 +1,5 @@
 package dev.martianzoo.tfm.repl
 
-import dev.martianzoo.tfm.api.SpecialClassNames.THIS
 import dev.martianzoo.tfm.engine.Component
 import dev.martianzoo.tfm.engine.PlayerSession
 import dev.martianzoo.tfm.pets.ast.Expression
@@ -62,7 +61,7 @@ object MTypeToText {
 
     val supertypesDisplay = mtype.supertypes().joinToString { "${it.className}" }
 
-    val id = session.game.transformers.insertDefaults(THIS.expression)
+    val id = session.game.transformers.insertDefaults()
     val allCases = id.transform(expression)
     val gain = id.transform(gain(scaledEx(1, expression), null))
     val remove = id.transform(Remove(scaledEx(1, expression), null))

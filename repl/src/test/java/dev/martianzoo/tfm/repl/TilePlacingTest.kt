@@ -48,20 +48,18 @@ class TilePlacingTest {
     eng.execute("ActionPhase")
     p1.execute("150")
 
-    p1.execute("CityTile<M86>") // can place this one by fiat
-
-    // TODO currently an opponent tile will fool it, because Owner isn't getting replaced
-    p2.execute("CityTile<M67>")
-
     // Use the standard project so that the placement rule is in effect
     p1.stdProject("GreenerySP")
 
     fun checkCantPlaceGreenery(area: String) =
         assertThrows<RequirementException> { p1.doTask("-23 THEN GreeneryTile<$area>") }
 
+    p1.execute("CityTile<M86>") // shown as [] in comment below
+    p2.execute("CityTile<M67>") // try to fool it by having an opponent tile at the XX below
+
     //     64  65  66  XX
     //   74  75  76  77
-    // 84  85  **  87  88
+    // 84  85  []  87  88
     //   95  96  97  98
 
     checkCantPlaceGreenery("M64") // NW 2

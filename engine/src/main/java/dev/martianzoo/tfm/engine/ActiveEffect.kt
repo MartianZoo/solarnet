@@ -9,6 +9,7 @@ import dev.martianzoo.tfm.pets.Transforming.replaceOwnerWith
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.Effect
 import dev.martianzoo.tfm.pets.ast.Effect.Trigger
+import dev.martianzoo.tfm.pets.ast.Effect.Trigger.BasicTrigger
 import dev.martianzoo.tfm.pets.ast.Effect.Trigger.ByTrigger
 import dev.martianzoo.tfm.pets.ast.Effect.Trigger.IfTrigger
 import dev.martianzoo.tfm.pets.ast.Effect.Trigger.OnGainOf
@@ -16,28 +17,25 @@ import dev.martianzoo.tfm.pets.ast.Effect.Trigger.OnRemoveOf
 import dev.martianzoo.tfm.pets.ast.Effect.Trigger.Transform
 import dev.martianzoo.tfm.pets.ast.Effect.Trigger.WhenGain
 import dev.martianzoo.tfm.pets.ast.Effect.Trigger.WhenRemove
+import dev.martianzoo.tfm.pets.ast.Effect.Trigger.WrappingTrigger
 import dev.martianzoo.tfm.pets.ast.Effect.Trigger.XTrigger
 import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.pets.ast.Instruction
 import dev.martianzoo.tfm.pets.ast.Requirement
-import dev.martianzoo.tfm.types.findSubstitutions
 
 private typealias Hit = (Instruction) -> Instruction
 
 /** A triggered effect of "live" component existing in the [ComponentGraph]. */
 internal data class ActiveEffect(
     private val context: Component,
-    private val trigger: ActiveTrigger,
+    private val subscription: Subscription,
     private val automatic: Boolean,
     private val instruction: Instruction,
 ) {
   companion object {
-    fun from(it: Effect, context: Component, game: Game, triggerLinkages: Set<ClassName>) =
+    fun from(it: Effect, context: Component, game: Game) =
         ActiveEffect(
-            context,
-            ActiveTrigger.from(it.trigger, context, game, triggerLinkages),
-            it.automatic,
-            it.instruction)
+            context, Subscription.from(it.trigger, context, game), it.automatic, it.instruction)
   }
 
   operator fun times(multiplier: Int) = copy(instruction = instruction * multiplier)
@@ -48,7 +46,7 @@ internal data class ActiveEffect(
 
   private fun onChange(triggerEvent: ChangeEvent, isSelf: Boolean): FiredEffect? {
     val player = context.owner() ?: triggerEvent.player
-    val hit = trigger.match(triggerEvent, player, isSelf) ?: return null
+    val hit = subscription.checkForHit(triggerEvent, player, isSelf) ?: return null
     val cause = Cause(context.expression, triggerEvent.ordinal)
     return FiredEffect(hit(instruction), player, cause, automatic)
   }
@@ -62,61 +60,70 @@ internal data class ActiveEffect(
     operator fun times(factor: Int) = copy(instruction = instruction * factor)
   }
 
-  internal sealed class ActiveTrigger {
+  internal sealed class Subscription {
     companion object {
       fun from(
           trigger: Trigger,
           context: Component,
-          game: Game,
-          tlinks: Set<ClassName>,
-      ): ActiveTrigger {
+          game: Game, // TODO might only need einfo
+      ): Subscription {
         return when (trigger) {
-          is ByTrigger -> ByPlayer(from(trigger.inner, context, game, tlinks), trigger.by)
-          is IfTrigger ->
-              Conditional(from(trigger.inner, context, game, tlinks), trigger.condition, game)
-          is XTrigger -> AnyAmount(from(trigger.inner, context, game, tlinks))
-          is WhenGain -> MatchOnSelf(context, matchOnGain = true, game)
-          is WhenRemove -> MatchOnSelf(context, matchOnGain = false, game)
-          is OnGainOf -> MatchOnOthers(trigger.expression, matchOnGain = true, game, tlinks)
-          is OnRemoveOf -> MatchOnOthers(trigger.expression, matchOnGain = false, game, tlinks)
-          is Transform -> error("should have been transformed by now: $trigger")
+          is BasicTrigger -> {
+            when (trigger) {
+              is WhenGain -> SelfSubscription(context, matchOnGain = true, game)
+              is WhenRemove -> SelfSubscription(context, matchOnGain = false, game)
+              is OnGainOf -> RegularSubscription(trigger.expression, matchOnGain = true, game, setOf())
+              is OnRemoveOf ->
+                RegularSubscription(trigger.expression, matchOnGain = false, game, setOf())
+            }
+          }
+          is WrappingTrigger -> {
+            val inner = from(trigger.inner, context, game)
+            when (trigger) {
+              is ByTrigger -> PersonalSubscription(inner, trigger.by)
+              is IfTrigger -> ConditionalSubscription(inner, trigger.condition, game)
+              is XTrigger -> UnscaledSubscription(inner) // TODO flexible?
+              is Transform -> error("should have been transformed by now: $trigger")
+            }
+          }
         }
       }
     }
 
-    abstract fun match(triggerEvent: ChangeEvent, player: Player, isSelf: Boolean): Hit?
+    abstract fun checkForHit(currentEvent: ChangeEvent, actor: Player, isSelf: Boolean): Hit?
   }
-  private data class Conditional(
-      val inner: ActiveTrigger,
+  private data class ConditionalSubscription(
+      val inner: Subscription,
       val condition: Requirement,
       val game: Game
-  ) : ActiveTrigger() {
-    override fun match(triggerEvent: ChangeEvent, player: Player, isSelf: Boolean): Hit? {
+  ) : Subscription() {
+    override fun checkForHit(currentEvent: ChangeEvent, actor: Player, isSelf: Boolean): Hit? {
       // This sort of feels out of order, but I don't think that hurts anything
       return if (game.reader.evaluate(condition)) {
-        inner.match(triggerEvent, player, isSelf)
+        inner.checkForHit(currentEvent, actor, isSelf)
       } else {
         null
       }
     }
   }
 
-  private data class AnyAmount(val inner: ActiveTrigger) : ActiveTrigger() {
-    override fun match(triggerEvent: ChangeEvent, player: Player, isSelf: Boolean): Hit? {
+  private data class UnscaledSubscription(val inner: Subscription) : Subscription() {
+    override fun checkForHit(currentEvent: ChangeEvent, actor: Player, isSelf: Boolean): Hit? {
       // just fake it like only one happened
-      return inner.match(
-          triggerEvent.copy(change = triggerEvent.change.copy(count = 1)), player, isSelf)
+      return inner.checkForHit(
+          currentEvent.copy(change = currentEvent.change.copy(count = 1)), actor, isSelf)
     }
   }
 
-  private data class ByPlayer(val inner: ActiveTrigger, val by: ClassName) : ActiveTrigger() {
-    override fun match(triggerEvent: ChangeEvent, player: Player, isSelf: Boolean): Hit? {
-      if (isPlayerSpecificTrigger() && player.className != by) return null
+  private data class PersonalSubscription(val inner: Subscription, val by: ClassName) :
+      Subscription() {
+    override fun checkForHit(currentEvent: ChangeEvent, actor: Player, isSelf: Boolean): Hit? {
+      if (isPlayerSpecificTrigger() && actor.className != by) return null
 
-      val originalHit = inner.match(triggerEvent, player, isSelf) ?: return null
+      val originalHit = inner.checkForHit(currentEvent, actor, isSelf) ?: return null
 
       return if (by == OWNER) {
-        { replaceOwnerWith(player).transform(originalHit(it)) }
+        { replaceOwnerWith(actor).transform(originalHit(it)) }
       } else {
         originalHit
       }
@@ -129,34 +136,40 @@ internal data class ActiveEffect(
     }
   }
 
-  private data class MatchOnSelf(val context: Component, val matchOnGain: Boolean, val game: Game) :
-      ActiveTrigger() {
-    override fun match(triggerEvent: ChangeEvent, player: Player, isSelf: Boolean): Hit? {
+  private data class SelfSubscription(
+      val context: Component,
+      val matchOnGain: Boolean,
+      val game: Game
+  ) : Subscription() {
+    override fun checkForHit(currentEvent: ChangeEvent, actor: Player, isSelf: Boolean): Hit? {
       if (!isSelf) return null
-      val change = triggerEvent.change
+      val change = currentEvent.change
       val expr = (if (matchOnGain) change.gaining else change.removing) ?: return null
 
-      return if (context.hasType(game.resolve(expr))) {
-        { it * triggerEvent.change.count }
+      return if (context.hasType(game.resolve(expr))) { // TODO why not exact, anyway?
+        val hit: Hit = { it * currentEvent.change.count }
+        hit
       } else {
         null
       }
     }
   }
 
-  private data class MatchOnOthers(
+  private data class RegularSubscription(
       val match: Expression,
       val matchOnGain: Boolean,
       val game: Game,
       val tlinks: Set<ClassName>,
-  ) : ActiveTrigger() {
-    override fun match(triggerEvent: ChangeEvent, player: Player, isSelf: Boolean): Hit? {
+  ) : Subscription() {
+    override fun checkForHit(currentEvent: ChangeEvent, actor: Player, isSelf: Boolean): Hit? {
       if (isSelf) return null
-      val change = triggerEvent.change
+      val change = currentEvent.change
       val expr = (if (matchOnGain) change.gaining else change.removing) ?: return null
       // Will be refinement-aware (#48)
-      return if (game.resolve(expr).isSubtypeOf(game.resolve(match))) {
-        val subber = Substituter(findSubstitutions(tlinks, match, expr))
+      val changeType = game.resolve(expr)
+      val matchType = game.resolve(match)
+      return if (changeType.isSubtypeOf(matchType)) {
+        val subber = game.transformers.substituter(matchType, changeType)
         val h: Hit = { subber.transform(it) * change.count }
         h
       } else {

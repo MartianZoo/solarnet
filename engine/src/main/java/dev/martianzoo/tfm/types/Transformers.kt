@@ -126,6 +126,8 @@ public class Transformers(private val table: MClassTable) {
     }
   }
 
+  public fun insertDefaults() = insertDefaults(THIS.expression)
+
   public fun insertDefaults(context: Expression) =
       chain(insertGainRemoveDefaults(context), insertExpressionDefaults(context))
 
@@ -225,6 +227,43 @@ public class Transformers(private val table: MClassTable) {
       require(it.refinement == original.refinement)
       require(it.arguments.containsAll(original.arguments))
     }
+  }
+
+  internal fun substituter(general: MType, specific: MType): PetTransformer {
+    val gendeps = general.dependencies
+    val specdeps = specific.dependencies
+    val subs = findSubstitutions(gendeps, specdeps)
+
+    return object : PetTransformer() {
+      override fun <P : PetNode> transform(node: P): P {
+        if (node is Expression) {
+          val replacement: Expression? = subs[node.className]
+          if (replacement != null) {
+            val expr: Expression = replacement.appendArguments(node.arguments)
+            @Suppress("UNCHECKED_CAST") return expr as P
+          }
+        }
+        return transformChildren(node)
+      }
+    }
+  }
+
+  internal fun findSubstitutions(
+      gendeps: DependencySet,
+      specdeps: DependencySet
+  ): Map<ClassName, Expression> {
+    val commonKeys = gendeps.flattened.keys.intersect(specdeps.flattened.keys)
+    return commonKeys
+        .mapNotNull {
+          val replaced = gendeps.at(it).expression
+          val replacement = specdeps.at(it).expression
+          if (replaced.simple && replacement != replaced) {
+            replaced.className to replacement
+          } else {
+            null
+          }
+        }
+        .toMap()
   }
 
   // Only use this if the context object is unowned!

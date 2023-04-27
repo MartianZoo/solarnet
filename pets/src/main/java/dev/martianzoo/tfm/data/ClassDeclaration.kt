@@ -50,24 +50,17 @@ public data class ClassDeclaration(
   data class EffectDeclaration(
       val effect: Effect,
       val depLinkages: Set<ClassName>,
-      val triggerLinkages: Set<ClassName> = setOf(),
   )
 
   public val effects: List<EffectDeclaration> by lazy {
     effectsIn.map {
       val depLinkages = bareNamesInEffects[it]!!.intersect(bareNamesInDependencies)
-      EffectDeclaration(it, depLinkages, triggerLinkages[it]!!)
+      EffectDeclaration(it, depLinkages)
     }
   }
 
   private val bareNamesInEffects: Map<Effect, Set<ClassName>> by lazy {
     effectsIn.associateWith { simpleClassNamesIn(it) }
-  }
-
-  private val triggerLinkages: Map<Effect, Set<ClassName>> by lazy {
-    effectsIn.associateWith {
-      simpleClassNamesIn(it.trigger).intersect(simpleClassNamesIn(it.instruction))
-    }
   }
 
   private fun simpleClassNamesIn(node: PetNode): Set<ClassName> =
