@@ -10,7 +10,7 @@ import dev.martianzoo.tfm.data.JsonReader
 import dev.martianzoo.tfm.data.MarsMapDefinition
 import dev.martianzoo.tfm.data.MilestoneDefinition
 import dev.martianzoo.tfm.data.StandardActionDefinition
-import dev.martianzoo.tfm.pets.ClassParsing.parseClassDeclarations
+import dev.martianzoo.tfm.pets.Parsing.parseClasses
 import dev.martianzoo.util.toSetStrict
 
 /**
@@ -22,7 +22,7 @@ public object Canon : Authority() {
   private val PETS_FILENAMES = setOf("components.pets", "player.pets")
 
   override val explicitClassDeclarations: Set<ClassDeclaration> by lazy {
-    PETS_FILENAMES.flatMap { parseClassDeclarations(readResource(it)) }.toSetStrict()
+    PETS_FILENAMES.flatMap { parseClasses(readResource(it)) }.toSetStrict()
   }
 
   override val cardDefinitions: Set<CardDefinition> by lazy {

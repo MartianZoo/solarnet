@@ -4,7 +4,7 @@ import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.tfm.api.Authority
 import dev.martianzoo.tfm.api.SpecialClassNames.CLASS
 import dev.martianzoo.tfm.api.SpecialClassNames.COMPONENT
-import dev.martianzoo.tfm.pets.ClassParsing.parseClassDeclarations
+import dev.martianzoo.tfm.pets.Parsing.parseClasses
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.pets.ast.classNames
 import dev.martianzoo.tfm.types.Dependency.Key
@@ -252,7 +252,7 @@ private class MClassTest {
 }
 
 internal fun loader(petsText: String): MClassTable {
-  val classes = parseClassDeclarations(petsText).toSetStrict()
+  val classes = parseClasses(petsText).toSetStrict()
   val authority =
       object : Authority.Empty() {
         override val explicitClassDeclarations = classes

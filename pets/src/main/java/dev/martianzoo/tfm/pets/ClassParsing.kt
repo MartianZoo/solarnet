@@ -22,8 +22,6 @@ import dev.martianzoo.tfm.pets.ClassParsing.BodyElements.bodyElementExceptNested
 import dev.martianzoo.tfm.pets.ClassParsing.NestableDecl.IncompleteNestableDecl
 import dev.martianzoo.tfm.pets.ClassParsing.Signatures.moreSignatures
 import dev.martianzoo.tfm.pets.ClassParsing.Signatures.signature
-import dev.martianzoo.tfm.pets.Parsing.parse
-import dev.martianzoo.tfm.pets.Parsing.parseRepeated
 import dev.martianzoo.tfm.pets.PureTransformers.actionListToEffects
 import dev.martianzoo.tfm.pets.ast.Action
 import dev.martianzoo.tfm.pets.ast.ClassName
@@ -39,25 +37,7 @@ import dev.martianzoo.util.plus
 import dev.martianzoo.util.toSetStrict
 
 /** Parses the PETS language. */
-public object ClassParsing : PetTokenizer() {
-  /**
-   * Parses a series of Pets class declarations. The syntax is currently not documented (sorry), but
-   * examples can be reviewed in `components.pets` and `player.pets`.
-   */
-  public fun parseClassDeclarations(declarationsSource: String): List<ClassDeclaration> {
-    val tokens = TokenCache.tokenize(stripLineComments(declarationsSource))
-    return parseRepeated(Declarations.topLevelGroup, tokens).flatten()
-  }
-
-  /**
-   * Parses a **single-line** class declaration; if it has a body, the elements within the body are
-   * semicolon-separated.
-   */
-  public fun parseOneLiner(declarationSource: String): ClassDeclaration =
-      parse(Declarations.oneLineDecl, declarationSource)
-
-  // end public API
-
+internal object ClassParsing : PetTokenizer() {
   private val nls = zeroOrMore(char('\n'))
 
   /*
@@ -279,8 +259,4 @@ public object ClassParsing : PetTokenizer() {
       }
     }
   }
-
-  private val lineCommentRegex = Regex(""" *(//[^\n]*)*\n""")
-
-  private fun stripLineComments(text: String) = lineCommentRegex.replace(text, "\n")
 }

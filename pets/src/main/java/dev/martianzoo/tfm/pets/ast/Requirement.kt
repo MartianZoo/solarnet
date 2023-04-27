@@ -17,6 +17,29 @@ import dev.martianzoo.tfm.pets.ast.ScaledExpression.Scalar.ActualScalar
 import dev.martianzoo.tfm.pets.ast.ScaledExpression.Scalar.XScalar
 
 sealed class Requirement : PetElement() {
+  public companion object {
+    public fun split(requirement: Iterable<Requirement>) = requirement.flatMap { split(it) }
+
+    public fun split(requirement: Requirement): List<Requirement> =
+        if (requirement is And) {
+          split(requirement.requirements)
+        } else {
+          listOf(requirement)
+        }
+
+    public fun join(one: Requirement?, two: Requirement?): Requirement? {
+      val x = setOfNotNull(one, two)
+      return when (x.size) {
+        0 -> null
+        1 -> x.first()
+        else -> And(x.toList())
+      }
+    }
+
+    internal fun parser(): Parser<Requirement> = Parsers.parser()
+    internal fun atomParser(): Parser<Requirement> = Parsers.atomParser()
+  }
+
   override fun safeToNestIn(container: PetNode) =
       super.safeToNestIn(container) || container is IfTrigger
 
@@ -112,27 +135,8 @@ sealed class Requirement : PetElement() {
 
   override val kind = Requirement::class.simpleName!!
 
-  companion object : PetTokenizer() {
-
-    fun split(requirement: Iterable<Requirement>) = requirement.flatMap { split(it) }
-
-    fun split(requirement: Requirement): List<Requirement> =
-        if (requirement is And) {
-          split(requirement.requirements)
-        } else {
-          listOf(requirement)
-        }
-
-    fun join(one: Requirement?, two: Requirement?): Requirement? {
-      val x = setOfNotNull(one, two)
-      return when (x.size) {
-        0 -> null
-        1 -> x.first()
-        else -> And(x.toList())
-      }
-    }
-
-    internal fun parser(): Parser<Requirement> {
+  private object Parsers: PetTokenizer() {
+    fun parser(): Parser<Requirement> {
       return parser {
         val orReq =
             separatedTerms(atomParser(), _or) map
@@ -140,6 +144,7 @@ sealed class Requirement : PetElement() {
                   val set = it.toSet()
                   if (set.size == 1) set.first() else Or(set)
                 }
+
         commaSeparated(orReq) map { if (it.size == 1) it.first() else And(it) }
       }
     }
@@ -148,16 +153,18 @@ sealed class Requirement : PetElement() {
      * A requirement suitable for being nested directly in something else. Used by gated
      * instructions and conditional triggers.
      */
-    internal fun atomParser(): Parser<Requirement> {
+    fun atomParser(): Parser<Requirement> {
       return parser {
         val scaledEx = parser {
           val scalarAndOptionalEx = rawScalar and optional(Expression.parser())
           val optionalScalarAndEx = optional(rawScalar) and Expression.parser()
 
-          scalarAndOptionalEx or optionalScalarAndEx map { (scalar, expr) ->
+          scalarAndOptionalEx or
+          optionalScalarAndEx map { (scalar, expr) ->
             scaledEx(ActualScalar(scalar ?: 1), expr)
           }
         }
+
         val min = scaledEx map ::Min
         val max = skip(_max) and scaledEx map ::Max
         val exact = skipChar('=') and scaledEx map ::Exact

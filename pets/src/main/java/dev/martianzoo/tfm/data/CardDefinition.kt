@@ -14,7 +14,7 @@ import dev.martianzoo.tfm.data.SpecialClassNames.EVENT_CARD
 import dev.martianzoo.tfm.data.SpecialClassNames.PRELUDE_CARD
 import dev.martianzoo.tfm.data.SpecialClassNames.PROJECT_CARD
 import dev.martianzoo.tfm.data.SpecialClassNames.RESOURCE_CARD
-import dev.martianzoo.tfm.pets.ClassParsing
+import dev.martianzoo.tfm.pets.Parsing
 import dev.martianzoo.tfm.pets.Parsing.parseInput
 import dev.martianzoo.tfm.pets.PureTransformers.actionListToEffects
 import dev.martianzoo.tfm.pets.PureTransformers.immediateToEffect
@@ -124,7 +124,7 @@ public class CardDefinition(data: CardData) : Definition {
   }
 
   /** Additional class declarations that come along with this card. */
-  val extraClasses: List<ClassDeclaration> = data.components.map(ClassParsing::parseOneLiner)
+  val extraClasses: List<ClassDeclaration> = data.components.map(Parsing::parseOneLinerClass)
 
   override val asClassDeclaration by lazy {
     val zapHandCard: Instruction? = deck?.let { Remove(scaledEx(1, it.className)) }

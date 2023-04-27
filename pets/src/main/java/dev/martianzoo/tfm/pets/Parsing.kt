@@ -11,6 +11,8 @@ import com.github.h0tk3y.betterParse.parser.Parsed
 import com.github.h0tk3y.betterParse.parser.Parser
 import com.github.h0tk3y.betterParse.parser.UnexpectedEof
 import com.github.h0tk3y.betterParse.parser.parseToEnd
+import dev.martianzoo.tfm.data.ClassDeclaration
+import dev.martianzoo.tfm.pets.ClassParsing.Declarations
 import dev.martianzoo.tfm.pets.PetTokenizer.TokenCache
 import dev.martianzoo.tfm.pets.ast.Action
 import dev.martianzoo.tfm.pets.ast.Action.Cost
@@ -30,6 +32,22 @@ import kotlin.reflect.cast
 
 /** Functions for parsing PETS elements or class declarations from source code. */
 public object Parsing {
+  /**
+   * Parses a series of Pets class declarations. The syntax is currently not documented (sorry), but
+   * examples can be reviewed in `components.pets` and `player.pets`.
+   */
+  public fun parseClasses(declarationsSource: String): List<ClassDeclaration> {
+    val tokens = TokenCache.tokenize(stripLineComments(declarationsSource))
+    return parseRepeated(Declarations.topLevelGroup, tokens).flatten()
+  }
+
+  /**
+   * Parses a **single-line** class declaration; if it has a body, the elements within the body are
+   * semicolon-separated.
+   */
+  public fun parseOneLinerClass(declarationSource: String): ClassDeclaration =
+    parse(Declarations.oneLineDecl, declarationSource)
+
   public inline fun <reified P : PetElement> parseInput(elementSource: String) =
       parseInput(P::class, elementSource)
 
@@ -179,4 +197,8 @@ public object Parsing {
 
     throw RuntimeException(message.toString())
   }
+
+  private val lineCommentRegex = Regex(""" *(//[^\n]*)*\n""")
+
+  private fun stripLineComments(text: String) = lineCommentRegex.replace(text, "\n")
 }

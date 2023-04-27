@@ -1,7 +1,7 @@
 package dev.martianzoo.tfm.pets
 
 import com.google.common.truth.Truth.assertThat
-import dev.martianzoo.tfm.pets.ClassParsing.parseClassDeclarations
+import dev.martianzoo.tfm.pets.Parsing.parseClasses
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.pets.ast.Expression
 import org.junit.jupiter.api.Test
@@ -9,41 +9,41 @@ import org.junit.jupiter.api.Test
 private class ClassDeclarationParsingTest {
   @Test
   fun simpleOneLiners() {
-    parseClassDeclarations("CLASS Foo") // minimal
-    parseClassDeclarations("ABSTRACT CLASS Foo") // abstract
-    parseClassDeclarations("CLASS Foo<Bar>") // with spec
-    parseClassDeclarations("CLASS Foo[FOO]") // with shortname
-    parseClassDeclarations("CLASS Foo : Bar") // with supertype
-    parseClassDeclarations("CLASS Foo { HAS 1 }") // with same-line body
-    parseClassDeclarations(" CLASS Foo") // with space first
-    parseClassDeclarations("\nCLASS Foo") // with newline first
-    parseClassDeclarations("CLASS Foo ") // with space after
-    parseClassDeclarations("CLASS Foo\n") // with newline after
+    parseClasses("CLASS Foo") // minimal
+    parseClasses("ABSTRACT CLASS Foo") // abstract
+    parseClasses("CLASS Foo<Bar>") // with spec
+    parseClasses("CLASS Foo[FOO]") // with shortname
+    parseClasses("CLASS Foo : Bar") // with supertype
+    parseClasses("CLASS Foo { HAS 1 }") // with same-line body
+    parseClasses(" CLASS Foo") // with space first
+    parseClasses("\nCLASS Foo") // with newline first
+    parseClasses("CLASS Foo ") // with space after
+    parseClasses("CLASS Foo\n") // with newline after
   }
 
   @Test
   fun slightlyMoreComplex() {
-    parseClassDeclarations("""
+    parseClasses("""
       CLASS Foo
       CLASS Bar
     """) // two separate
 
-    parseClassDeclarations("""
+    parseClasses("""
       CLASS Foo {
       }
     """) // empty body
 
-    parseClassDeclarations("""
+    parseClasses("""
       CLASS Foo {
         HAS Bar
       }
     """) // invariant
-    parseClassDeclarations("""
+    parseClasses("""
       CLASS Foo {
         DEFAULT +Foo!
       }
     """) // default
-    parseClassDeclarations(
+    parseClasses(
         """
       CLASS Foo {
         DEFAULT +Foo!
@@ -52,7 +52,7 @@ private class ClassDeclarationParsingTest {
         DEFAULT +Bar!
       }
     """) // two blocks
-    parseClassDeclarations(
+    parseClasses(
         """
       CLASS Foo {
         DEFAULT +Foo!
@@ -64,15 +64,15 @@ private class ClassDeclarationParsingTest {
   @Test
   fun body() {
     assertThat(
-            parseClassDeclarations(
+            parseClasses(
                 """
                   CLASS Bar : Qux { DEFAULT +Bar?
                     Foo -> Bar
-    
-    
+
+
                     Foo: Bar
                     CLASS Foo
-    
+
                   }
                 """))
         .hasSize(2)
@@ -80,28 +80,28 @@ private class ClassDeclarationParsingTest {
 
   @Test
   fun series() {
-    parseClassDeclarations(
+    parseClasses(
         """
           CLASS Die {
           }
           CLASS DieHard {
             // whatever
           }
-  
+
           CLASS Atomized
-  
+
           CLASS Generation
-    
+
         """)
   }
 
   @Test
   fun nesting() {
     val cs =
-        parseClassDeclarations(
+        parseClasses(
             """
               ABSTRACT CLASS Component
-        
+
               CLASS One
               CLASS Two: One
               CLASS Three {
@@ -130,7 +130,7 @@ private class ClassDeclarationParsingTest {
 
   @Test
   fun nestedOneLiner() {
-    parseClassDeclarations(
+    parseClasses(
         """
       CLASS One {
         CLASS Two { This: That }
@@ -141,7 +141,7 @@ private class ClassDeclarationParsingTest {
 
   @Test
   fun withDefaults() {
-    parseClassDeclarations(
+    parseClasses(
         """
         ABSTRACT CLASS Component {
            DEFAULT +Component!

@@ -19,6 +19,22 @@ constructor(
     val scalar: Scalar,
     val expression: Expression = MEGACREDIT,
 ) : PetNode() {
+  public companion object {
+    public fun scaledEx(scalar: Scalar, expression: Expression? = null) =
+      ScaledExpression(scalar, expression ?: MEGACREDIT)
+    public fun scaledEx(value: Int? = null, expression: Expression? = null) =
+      scaledEx(ActualScalar(value ?: 1), expression)
+
+    public fun scaledEx(scalar: Scalar, hasEx: HasExpression) = scaledEx(scalar, hasEx.expression)
+
+    public fun scaledEx(value: Int? = null, hasEx: HasExpression) = scaledEx(value, hasEx.expression)
+
+    internal fun scalar(): Parser<Scalar> = Parsers.scalar()
+    internal fun parser(): Parser<ScaledExpression> = Parsers.parser()
+
+    internal val MEGACREDIT = ClassName.cn("Megacredit").expression
+  }
+
   override fun visitChildren(visitor: Visitor) = visitor.visit(scalar, expression)
 
   override fun toString() = toString(forceScalar = false, forceExpression = false)
@@ -85,22 +101,14 @@ constructor(
     }
   }
 
-  companion object : PetTokenizer() {
-    fun scaledEx(scalar: Scalar, expression: Expression? = null) =
-        ScaledExpression(scalar, expression ?: MEGACREDIT)
-    fun scaledEx(value: Int? = null, expression: Expression? = null) =
-        scaledEx(ActualScalar(value ?: 1), expression)
-
-    fun scaledEx(scalar: Scalar, hasEx: HasExpression) = scaledEx(scalar, hasEx.expression)
-    fun scaledEx(value: Int? = null, hasEx: HasExpression) = scaledEx(value, hasEx.expression)
-
-    internal fun scalar(): Parser<Scalar> {
+  private object Parsers : PetTokenizer() {
+    fun scalar(): Parser<Scalar> {
       val actual: Parser<ActualScalar> = rawScalar map ::ActualScalar
       val xScalar: Parser<XScalar> = optional(rawScalar) and skip(_x) map { XScalar(it ?: 1) }
       return xScalar or actual
     }
 
-    internal fun parser(): Parser<ScaledExpression> {
+    fun parser(): Parser<ScaledExpression> {
       return parser {
         val scalarAndOptionalEx = scalar() and optional(Expression.parser())
         val optionalScalarAndEx = optional(scalar()) and Expression.parser()
@@ -110,7 +118,5 @@ constructor(
         }
       }
     }
-
-    internal val MEGACREDIT = ClassName.cn("Megacredit").expression
   }
 }

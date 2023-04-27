@@ -24,6 +24,19 @@ import dev.martianzoo.util.Reifiable
 import dev.martianzoo.util.toSetStrict
 
 public sealed class Instruction : PetElement() {
+  companion object {
+    internal fun parser(): Parser<Instruction> = Parsers.parser()
+
+    fun split(instruction: Iterable<Instruction>): List<Instruction> =
+        instruction.flatMap { split(it) }
+
+    fun split(instruction: Instruction): List<Instruction> =
+        if (instruction is Multi) {
+          split(instruction.instructions)
+        } else {
+          listOf(instruction)
+        }
+  }
 
   /**
    * Returns an instruction that (in essence) does this instruction [factor] times. The fact must be
@@ -359,7 +372,6 @@ public sealed class Instruction : PetElement() {
           Or(instructions)
         }
       }
-
       fun create(first: Instruction, vararg rest: Instruction) =
           if (rest.none()) first else Or(listOf(first) + rest)
     }
@@ -399,6 +411,7 @@ public sealed class Instruction : PetElement() {
   data class Transform(val instruction: Instruction, override val transformKind: String) :
       Instruction(), TransformNode<Instruction> {
     override fun visitChildren(visitor: Visitor) = visitor.visit(instruction)
+
     override fun scale(factor: Int) = copy(instruction = instruction * factor)
 
     override fun isAbstract(einfo: ExpressionInfo) =
@@ -462,50 +475,36 @@ public sealed class Instruction : PetElement() {
     }
   }
 
-  companion object : PetTokenizer() {
-    fun split(instruction: Iterable<Instruction>): List<Instruction> =
-        instruction.flatMap { split(it) }
-
-    fun split(instruction: Instruction): List<Instruction> =
-        if (instruction is Multi) {
-          split(instruction.instructions)
-        } else {
-          listOf(instruction)
-        }
-
+  private object Parsers : PetTokenizer() {
     internal fun parser(): Parser<Instruction> {
       return parser {
         val gain: Parser<Instruction> =
             ScaledExpression.parser() and
-                optional(intensity) map
-                { (ste, int) ->
-                  Gain.gain(ste, int)
-                }
+            optional(intensity) map { (ste, int) ->
+              Gain.gain(ste, int)
+            }
 
         val remove: Parser<Remove> =
             skipChar('-') and
-                ScaledExpression.parser() and
-                optional(intensity) map
-                { (ste, int) ->
-                  Remove(ste, int)
-                }
+            ScaledExpression.parser() and
+            optional(intensity) map { (ste, int) ->
+              Remove(ste, int)
+            }
 
         val transmute: Parser<Transmute> =
             optional(ScaledExpression.scalar()) and
-                FromExpression.parser() and
-                optional(intensity) map
-                { (scalar, fro, int) ->
-                  Transmute(fro, scalar ?: ActualScalar(1), int)
-                }
+            FromExpression.parser() and
+            optional(intensity) map { (scalar, fro, int) ->
+              Transmute(fro, scalar ?: ActualScalar(1), int)
+            }
 
         val perable: Parser<Instruction> = transmute or group(transmute) or gain or remove
 
         val maybePer: Parser<Instruction> =
             perable and
-                optional(skipChar('/') and Metric.parser()) map
-                { (instr, metric) ->
-                  if (metric == null) instr else Per(instr, metric)
-                }
+            optional(skipChar('/') and Metric.parser()) map { (instr, metric) ->
+              if (metric == null) instr else Per(instr, metric)
+            }
 
         val transform: Parser<Transform> =
             transform(parser()) map { (node, tname) -> Transform(node, tname) }
@@ -515,28 +514,25 @@ public sealed class Instruction : PetElement() {
         val arguments = separatedTerms(Expression.parser(), char(','), acceptZero = true)
         val custom: Parser<Custom> =
             skipChar('@') and
-                _lowerCamelRE and
-                group(arguments) map
-                { (name, args) ->
-                  Custom(name.text, args, 1)
-                }
+            _lowerCamelRE and
+            group(arguments) map { (name, args) ->
+              Custom(name.text, args, 1)
+            }
         val atom: Parser<Instruction> = group(parser()) or maybeTransform or custom
 
         val isMandatory: Parser<Boolean> = (_questionColon asJust false) or (char(':') asJust true)
 
         val gated: Parser<Instruction> =
             optional(Requirement.atomParser() and isMandatory) and
-                atom map
-                { (gate, ins) ->
-                  if (gate == null) ins else Gated(gate.t1, gate.t2, ins)
-                }
+            atom map { (gate, ins) ->
+              if (gate == null) ins else Gated(gate.t1, gate.t2, ins)
+            }
 
         val orInstr: Parser<Instruction> =
-            separatedTerms(gated, _or) map
-                {
-                  val set = it.toSetStrict().toList()
-                  if (set.size == 1) set.first() else Or(set)
-                }
+            separatedTerms(gated, _or) map {
+              val set = it.toSetStrict().toList()
+              if (set.size == 1) set.first() else Or(set)
+            }
 
         val then = separatedTerms(orInstr, _then) map { if (it.size == 1) it.first() else Then(it) }
 
