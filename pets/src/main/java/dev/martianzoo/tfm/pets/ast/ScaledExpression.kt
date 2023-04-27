@@ -8,7 +8,7 @@ import com.github.h0tk3y.betterParse.combinators.skip
 import com.github.h0tk3y.betterParse.grammar.parser
 import com.github.h0tk3y.betterParse.parser.Parser
 import dev.martianzoo.tfm.api.UserException.InvalidReificationException
-import dev.martianzoo.tfm.api.UserException.PetsSyntaxException
+import dev.martianzoo.tfm.api.UserException.PetSyntaxException
 import dev.martianzoo.tfm.pets.PetTokenizer
 import dev.martianzoo.tfm.pets.ast.ScaledExpression.Scalar.ActualScalar
 import dev.martianzoo.tfm.pets.ast.ScaledExpression.Scalar.XScalar
@@ -59,7 +59,7 @@ constructor(
 
     companion object {
       fun checkNonzero(s: Scalar) {
-        if (s == ActualScalar(0)) throw PetsSyntaxException("Can't do zero")
+        if (s == ActualScalar(0)) throw PetSyntaxException("Can't do zero")
       }
     }
 

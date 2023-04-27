@@ -8,7 +8,7 @@ import com.github.h0tk3y.betterParse.combinators.skip
 import com.github.h0tk3y.betterParse.combinators.zeroOrMore
 import com.github.h0tk3y.betterParse.grammar.parser
 import com.github.h0tk3y.betterParse.parser.Parser
-import dev.martianzoo.tfm.api.UserException.PetsSyntaxException
+import dev.martianzoo.tfm.api.UserException.PetSyntaxException
 import dev.martianzoo.tfm.pets.PetTokenizer
 import dev.martianzoo.tfm.pets.ast.ClassName.Parsing.className
 import dev.martianzoo.util.joinOrEmpty
@@ -43,7 +43,7 @@ public sealed class FromExpression : PetNode() {
   ) : FromExpression() {
     init {
       if (arguments.count { it is SimpleFrom || it is ComplexFrom } != 1) {
-        throw PetsSyntaxException("Can only have one FROM in an expression")
+        throw PetSyntaxException("Can only have one FROM in an expression")
       }
     }
 

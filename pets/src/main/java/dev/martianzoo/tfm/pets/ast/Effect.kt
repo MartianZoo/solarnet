@@ -11,7 +11,7 @@ import dev.martianzoo.tfm.api.SpecialClassNames.END
 import dev.martianzoo.tfm.api.SpecialClassNames.PROD
 import dev.martianzoo.tfm.api.SpecialClassNames.THIS
 import dev.martianzoo.tfm.api.SpecialClassNames.USE_ACTION
-import dev.martianzoo.tfm.api.UserException.PetsSyntaxException
+import dev.martianzoo.tfm.api.UserException.PetSyntaxException
 import dev.martianzoo.tfm.pets.PetTokenizer
 import dev.martianzoo.tfm.pets.ast.ClassName.Parsing.classFullName
 import dev.martianzoo.tfm.pets.ast.Effect.Trigger.OnGainOf
@@ -42,7 +42,7 @@ public data class Effect(
     data class ByTrigger(val inner: Trigger, val by: ClassName) : Trigger() {
       init {
         if (inner is ByTrigger) {
-          throw PetsSyntaxException("by the by")
+          throw PetSyntaxException("by the by")
         }
       }
 
@@ -52,8 +52,8 @@ public data class Effect(
 
     data class IfTrigger(val inner: Trigger, val condition: Requirement) : Trigger() {
       init {
-        if (inner is ByTrigger) throw PetsSyntaxException("if the by")
-        if (inner is IfTrigger) throw PetsSyntaxException("if the if")
+        if (inner is ByTrigger) throw PetSyntaxException("if the by")
+        if (inner is IfTrigger) throw PetSyntaxException("if the if")
       }
       override fun visitChildren(visitor: Visitor) = visitor.visit(inner, condition)
 
@@ -131,7 +131,7 @@ public data class Effect(
             trigger !is OnGainOf &&
             trigger !is OnRemoveOf &&
             trigger !is XTrigger) {
-          throw PetsSyntaxException("only gain/remove trigger can go in PROD block")
+          throw PetSyntaxException("only gain/remove trigger can go in PROD block")
         }
       }
 

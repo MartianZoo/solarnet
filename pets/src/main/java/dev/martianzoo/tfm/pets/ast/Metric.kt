@@ -8,7 +8,7 @@ import com.github.h0tk3y.betterParse.combinators.skip
 import com.github.h0tk3y.betterParse.combinators.zeroOrMore
 import com.github.h0tk3y.betterParse.grammar.parser
 import com.github.h0tk3y.betterParse.parser.Parser
-import dev.martianzoo.tfm.api.UserException.PetsSyntaxException
+import dev.martianzoo.tfm.api.UserException.PetSyntaxException
 import dev.martianzoo.tfm.pets.PetTokenizer
 
 sealed class Metric : PetElement() {
@@ -22,7 +22,7 @@ sealed class Metric : PetElement() {
 
   data class Scaled(val unit: Int, val metric: Metric) : Metric() {
     init {
-      if (unit < 1) throw PetsSyntaxException("metric can't be zero")
+      if (unit < 1) throw PetSyntaxException("metric can't be zero")
     }
 
     override fun visitChildren(visitor: Visitor) = visitor.visit(metric)
@@ -32,7 +32,7 @@ sealed class Metric : PetElement() {
 
   data class Max(val metric: Metric, val maximum: Int) : Metric() {
     init {
-      if (metric is Max) throw PetsSyntaxException("what are you even doing")
+      if (metric is Max) throw PetSyntaxException("what are you even doing")
     }
 
     override fun visitChildren(visitor: Visitor) = visitor.visit(metric)
@@ -44,7 +44,7 @@ sealed class Metric : PetElement() {
     init {
       if (metrics.any { it is Plus }) {
         // how did we get around this problem for other things??
-        throw PetsSyntaxException("Having a plus inside a plus causes problems...")
+        throw PetSyntaxException("Having a plus inside a plus causes problems...")
       }
     }
     companion object {

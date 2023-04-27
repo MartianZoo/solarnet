@@ -54,7 +54,7 @@ public open class UserException(override val message: String, cause: Throwable? 
   }
 
   /** A problem with Pets syntax. */
-  public class PetsSyntaxException internal constructor(message: String) : UserException(message)
+  public class PetSyntaxException internal constructor(message: String) : UserException(message)
 
   /**
    * An attempt was made to execute an instruction that was not fully-specified. This should be

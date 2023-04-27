@@ -11,7 +11,7 @@ import com.github.h0tk3y.betterParse.parser.Parser
 import dev.martianzoo.tfm.api.ExpressionInfo
 import dev.martianzoo.tfm.api.SpecialClassNames.OK
 import dev.martianzoo.tfm.api.UserException.InvalidReificationException
-import dev.martianzoo.tfm.api.UserException.PetsSyntaxException
+import dev.martianzoo.tfm.api.UserException.PetSyntaxException
 import dev.martianzoo.tfm.pets.PetTokenizer
 import dev.martianzoo.tfm.pets.ast.FromExpression.SimpleFrom
 import dev.martianzoo.tfm.pets.ast.Instruction.Intensity.MANDATORY
@@ -195,7 +195,7 @@ public sealed class Instruction : PetElement() {
         is Gain,
         is Remove,
         is Transmute, -> {}
-        else -> throw PetsSyntaxException("Per can only contain gain/remove/transmute for now")
+        else -> throw PetSyntaxException("Per can only contain gain/remove/transmute for now")
       }
     }
 
@@ -220,7 +220,7 @@ public sealed class Instruction : PetElement() {
   data class Gated(val gate: Requirement, val mandatory: Boolean, val instruction: Instruction) :
       Instruction() {
     init {
-      if (instruction is Gated) throw PetsSyntaxException("You don't gate a gater")
+      if (instruction is Gated) throw PetSyntaxException("You don't gate a gater")
     }
 
     override fun visitChildren(visitor: Visitor) = visitor.visit(gate, instruction)
@@ -333,7 +333,7 @@ public sealed class Instruction : PetElement() {
   data class Or(override val instructions: List<Instruction>) : CompositeInstruction(instructions) {
     init {
       if (instructions.distinct().size != instructions.size) {
-        throw PetsSyntaxException("duplicates")
+        throw PetSyntaxException("duplicates")
       }
     }
 
