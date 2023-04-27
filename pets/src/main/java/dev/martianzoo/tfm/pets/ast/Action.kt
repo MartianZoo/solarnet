@@ -14,6 +14,14 @@ import dev.martianzoo.tfm.pets.ast.Instruction.Remove
 import dev.martianzoo.tfm.pets.ast.ScaledExpression.Scalar.Companion.checkNonzero
 import dev.martianzoo.util.suf
 
+/**
+ * Classes can offer actions like `Steel OR Plant -> 7` for players to manually trigger. In practice
+ * these are used by the Pets classes `StandardAction`, `StandardProject`, `ActionCard`, and
+ * (at some point) `MandatoryAction`.
+ *
+ * Actions eventually get converted into triggered [Effect]s; the example above would become
+ * `UseAction1<ElectroCatapult>: (-Steel OR -Plant) THEN 7`.
+ */
 public data class Action(val cost: Cost?, val instruction: Instruction) : PetElement() {
   override val kind = Action::class.simpleName!!
 

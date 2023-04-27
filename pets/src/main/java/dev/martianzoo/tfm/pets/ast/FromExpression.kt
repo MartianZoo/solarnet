@@ -49,9 +49,9 @@ public sealed class FromExpression : PetNode() {
 
     override fun visitChildren(visitor: Visitor) = visitor.visit(arguments + className + refinement)
 
-    override val toExpression = className.addArgs(arguments.map { it.toExpression })
+    override val toExpression = className.of(arguments.map { it.toExpression })
     override val fromExpression =
-        className.addArgs(arguments.map { it.fromExpression }).refine(refinement)
+        className.of(arguments.map { it.fromExpression }).has(refinement)
 
     override fun toString() =
         "$className${arguments.joinOrEmpty(wrap = "<>")}${refinement.wrap("(HAS ", ")")}"

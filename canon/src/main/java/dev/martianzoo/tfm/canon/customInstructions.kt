@@ -58,19 +58,19 @@ private object CreateAdjacencies : CustomInstruction("createAdjacencies") {
     val newTile: Expression = tileOn(area, game)!! // creating it is what got us here
 
     val nbrs: List<Expression> =
-        neighborAreas.map { cn("Neighbor").addArgs(newTile, it.className.expression) }
+        neighborAreas.map { cn("Neighbor").of(newTile, it.className.expression) }
     val adjs =
         neighborAreas
             .mapNotNull { tileOn(it, game) }
             .flatMap {
               listOf(
-                  cn("ForwardAdjacency").addArgs(it, newTile),
-                  cn("BackwardAdjacency").addArgs(newTile, it))
+                  cn("ForwardAdjacency").of(it, newTile),
+                  cn("BackwardAdjacency").of(newTile, it))
             }
     return Multi.create((nbrs + adjs).map { gain(scaledEx(1, it)) })
   }
   private fun tileOn(area: AreaDefinition, game: GameReader): Expression? {
-    val tileType: Type = game.resolve(cn("Tile").addArgs(area.className))
+    val tileType: Type = game.resolve(cn("Tile").of(area.className))
     val tiles = game.getComponents(tileType)
 
     // TODO invariants should have already taken care of this
@@ -102,7 +102,7 @@ private object BeginPlayCard : CustomInstruction("beginPlayCard") {
 
     val playTagSignals =
         card.tags.entries.map { (tagName: ClassName, ct: Int) ->
-          gain(scaledEx(ct, cn("PlayTag").addArgs(tagName.classExpression())))
+          gain(scaledEx(ct, cn("PlayTag").of(tagName.classExpression())))
         }
 
     val instructions =

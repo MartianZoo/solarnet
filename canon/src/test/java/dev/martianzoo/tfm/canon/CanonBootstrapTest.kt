@@ -5,9 +5,9 @@ import dev.martianzoo.tfm.api.GameSetup
 import dev.martianzoo.tfm.api.SpecialClassNames.COMPONENT
 import dev.martianzoo.tfm.engine.Component
 import dev.martianzoo.tfm.engine.Engine
+import dev.martianzoo.tfm.pets.HasClassName.Companion.classNames
 import dev.martianzoo.tfm.pets.Parsing.parseAsIs
 import dev.martianzoo.tfm.pets.ast.ClassName
-import dev.martianzoo.tfm.pets.ast.HasClassName.Companion.classNames
 import dev.martianzoo.tfm.pets.ast.Metric
 import dev.martianzoo.util.toSetStrict
 import dev.martianzoo.util.toStrings
@@ -24,7 +24,7 @@ private class CanonBootstrapTest {
     val milestoneNames = Canon.milestoneDefinitions.classNames().toSetStrict()
     val expected: List<ClassName> =
         (Canon.allClassNames - unusedCards)
-            .filterNot { it.matches(regex) }
+            .filterNot { it.toString().matches(regex) }
             .filterNot { it in milestoneNames && "HEV".contains(Canon.milestone(it).bundle) }
 
     assertThat(table.allClasses.classNames()).containsExactlyElementsIn(expected)

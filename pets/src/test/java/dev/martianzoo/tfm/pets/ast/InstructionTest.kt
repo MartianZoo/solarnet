@@ -106,7 +106,7 @@ private class InstructionTest {
                 listOf(
                     ComplexFrom(
                         cn("Bar"),
-                        listOf(SimpleFrom(cn("Qux").expression, cn("Abc").addArgs(cn("Eep")))))),
+                        listOf(SimpleFrom(cn("Qux").expression, cn("Abc").of(cn("Eep")))))),
             ),
             ActualScalar(1),
             null)

@@ -130,7 +130,8 @@ public class CardDefinition(data: CardData) : Definition {
     val zapHandCard: Instruction? = deck?.let { Remove(scaledEx(1, it.className)) }
 
     val createTags =
-        Multi.create(tags.entries.map { (tag, count) -> gain(scaledEx(count, tag.addArgs(THIS))) })
+        Multi.create(
+            tags.entries.map { (tag, count) -> gain(scaledEx(count, tag.of(THIS))) })
 
     val automaticFx: List<Effect> =
         listOfNotNull(zapHandCard, createTags).mapNotNull { immediateToEffect(it, true)?.raw() }
@@ -143,7 +144,7 @@ public class CardDefinition(data: CardData) : Definition {
     val supertypes =
         setOfNotNull(
                 projectInfo?.kind?.className?.expression,
-                resourceType?.let { RESOURCE_CARD.addArgs(it.classExpression()) },
+                resourceType?.let { RESOURCE_CARD.of(it.classExpression()) },
                 if (actions.any()) ACTION_CARD.expression else null,
             )
             .ifEmpty { setOf(CARD_FRONT.expression) }

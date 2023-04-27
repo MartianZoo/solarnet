@@ -6,11 +6,11 @@ import dev.martianzoo.tfm.api.Type
 import dev.martianzoo.tfm.api.UserException
 import dev.martianzoo.tfm.data.ClassDeclaration.EffectDeclaration
 import dev.martianzoo.tfm.data.Player
+import dev.martianzoo.tfm.pets.HasClassName
+import dev.martianzoo.tfm.pets.HasExpression
 import dev.martianzoo.tfm.pets.PetTransformer.Companion.chain
 import dev.martianzoo.tfm.pets.Transforming.replaceOwnerWith
 import dev.martianzoo.tfm.pets.Transforming.replaceThisExpressionsWith
-import dev.martianzoo.tfm.pets.ast.HasClassName
-import dev.martianzoo.tfm.pets.ast.HasExpression
 import dev.martianzoo.tfm.pets.ast.TransformNode
 import dev.martianzoo.tfm.types.Dependency.Key
 import dev.martianzoo.tfm.types.MClass

@@ -5,9 +5,9 @@ import dev.martianzoo.tfm.api.SpecialClassNames.COMPONENT
 import dev.martianzoo.tfm.api.Type
 import dev.martianzoo.tfm.api.UserException
 import dev.martianzoo.tfm.api.UserException.InvalidReificationException
+import dev.martianzoo.tfm.pets.HasClassName
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.Expression
-import dev.martianzoo.tfm.pets.ast.HasClassName
 import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.util.Hierarchical
 import dev.martianzoo.util.Reifiable
@@ -94,7 +94,7 @@ internal constructor(
   internal val narrowedDependencies: DependencySet by lazy { dependencies.minus(root.dependencies) }
 
   private fun toExpressionUsingSpecs(specs: List<Expression>): Expression {
-    val expression = root.className.addArgs(specs).refine(refinement)
+    val expression = root.className.of(specs).has(refinement)
     val roundTrip = loader.resolve(expression)
     require(roundTrip == this) { "$expression" }
     return expression

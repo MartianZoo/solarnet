@@ -87,7 +87,7 @@ internal class MapToText(private val game: GameReader, val useColors: Boolean = 
 
   fun describe(area: AreaDefinition?): Pair<String, TfmColor> {
     if (area == null) return "" to TfmColor.NONE
-    val expression = cn("Tile").addArgs(area.className)
+    val expression = cn("Tile").of(area.className)
     val tile = game.getComponents(game.resolve(expression)).singleOrNull()
     return tile?.let(::describe) ?: describeEmpty(area)
   }

@@ -44,17 +44,17 @@ private class ExpressionTest {
     val parsed = te(" Red< Blue  < This,Teal> , Gold > ")
     assertThat(parsed)
         .isEqualTo(
-            cn("Red").addArgs(cn("Blue").addArgs(cn("This"), cn("Teal")), cn("Gold").expression))
+            cn("Red").of(cn("Blue").of(cn("This"), cn("Teal")), cn("Gold").expression))
   }
 
   @Test
   fun complexApiToSource() {
     val expr =
         cn("Aa")
-            .addArgs(
+            .of(
                 cn("Bb").expression,
-                cn("Cc").addArgs(cn("Dd")),
-                cn("Ee").addArgs(cn("Ff").addArgs(cn("Gg"), cn("Hh")), cn("Me").expression),
+                cn("Cc").of(cn("Dd")),
+                cn("Ee").of(cn("Ff").of(cn("Gg"), cn("Hh")), cn("Me").expression),
                 cn("Jj").expression)
     assertThat(expr.toString()).isEqualTo("Aa<Bb, Cc<Dd>, Ee<Ff<Gg, Hh>, Me>, Jj>")
   }

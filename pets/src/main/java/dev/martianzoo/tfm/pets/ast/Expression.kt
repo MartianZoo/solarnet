@@ -6,6 +6,7 @@ import com.github.h0tk3y.betterParse.combinators.optional
 import com.github.h0tk3y.betterParse.combinators.skip
 import com.github.h0tk3y.betterParse.grammar.parser
 import com.github.h0tk3y.betterParse.parser.Parser
+import dev.martianzoo.tfm.pets.HasClassName
 import dev.martianzoo.tfm.pets.PetTokenizer
 import dev.martianzoo.tfm.pets.ast.ClassName.Parsing.className
 import dev.martianzoo.util.joinOrEmpty
@@ -44,7 +45,7 @@ data class Expression(
   fun replaceArgs(newArgs: List<Expression>): Expression = copy(arguments = newArgs)
   fun replaceArgs(vararg newArgs: Expression): Expression = replaceArgs(newArgs.toList())
 
-  fun refine(ref: Requirement?) =
+  fun has(ref: Requirement?) =
       if (ref == null) {
         this
       } else {

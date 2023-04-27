@@ -55,7 +55,7 @@ public object Transforming {
     val unrapt = action.unraw()
     require(index1Ref >= 1) { index1Ref }
     val instruction = actionToInstruction(unrapt)
-    val trigger = OnGainOf.create(cn("$USE_ACTION$index1Ref").addArgs(THIS))
+    val trigger = OnGainOf.create(cn("$USE_ACTION$index1Ref").of(THIS))
     val effect = Effect(trigger, instruction, automatic = false)
     return if (unrapt == action) effect else effect.raw()
   }

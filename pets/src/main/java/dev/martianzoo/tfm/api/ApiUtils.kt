@@ -14,7 +14,7 @@ object ApiUtils {
    */
   fun lookUpProductionLevels(game: GameReader, player: Expression): Map<ClassName, Int> =
       standardResourceNames(game).associateWith {
-        val type = game.resolve(PRODUCTION.addArgs(player, it.classExpression()))
+        val type = game.resolve(PRODUCTION.of(player, it.classExpression()))
         game.count(type) - if (it == MEGACREDIT) 5 else 0
       }
 

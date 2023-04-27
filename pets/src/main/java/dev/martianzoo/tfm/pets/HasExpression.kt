@@ -1,9 +1,14 @@
-package dev.martianzoo.tfm.pets.ast
+package dev.martianzoo.tfm.pets
 
+import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.util.toSetStrict
 
+/** Any object that can be represented in some way as an [Expression]. */
 public interface HasExpression {
+  /** This object as a minimal expression. */
   val expression: Expression
+
+  /** This object as a full expression. */
   val expressionFull: Expression
 
   public companion object {

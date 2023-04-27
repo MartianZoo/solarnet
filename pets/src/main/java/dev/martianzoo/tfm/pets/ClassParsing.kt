@@ -29,7 +29,6 @@ import dev.martianzoo.tfm.pets.ast.ClassName.Parsing.classFullName
 import dev.martianzoo.tfm.pets.ast.ClassName.Parsing.classShortName
 import dev.martianzoo.tfm.pets.ast.Effect
 import dev.martianzoo.tfm.pets.ast.Expression
-import dev.martianzoo.tfm.pets.ast.HasClassName
 import dev.martianzoo.tfm.pets.ast.PetNode.Companion.raw
 import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.util.KClassMultimap

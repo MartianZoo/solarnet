@@ -1,8 +1,8 @@
 package dev.martianzoo.tfm.api
 
+import dev.martianzoo.tfm.pets.HasClassName
+import dev.martianzoo.tfm.pets.HasExpression
 import dev.martianzoo.tfm.pets.ast.Expression
-import dev.martianzoo.tfm.pets.ast.HasClassName
-import dev.martianzoo.tfm.pets.ast.HasExpression
 import dev.martianzoo.tfm.pets.ast.Requirement
 
 /**

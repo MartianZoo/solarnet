@@ -3,9 +3,9 @@ package dev.martianzoo.tfm.data
 import dev.martianzoo.tfm.api.SpecialClassNames
 import dev.martianzoo.tfm.api.SpecialClassNames.player
 import dev.martianzoo.tfm.data.Player.Companion.ENGINE
+import dev.martianzoo.tfm.pets.HasClassName
+import dev.martianzoo.tfm.pets.HasExpression
 import dev.martianzoo.tfm.pets.ast.ClassName
-import dev.martianzoo.tfm.pets.ast.HasClassName
-import dev.martianzoo.tfm.pets.ast.HasExpression
 
 /** A player, or [ENGINE]. */
 data class Player(override val className: ClassName) : HasClassName, HasExpression {

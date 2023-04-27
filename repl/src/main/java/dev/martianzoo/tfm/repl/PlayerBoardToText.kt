@@ -24,7 +24,7 @@ internal class PlayerBoardToText(
     val prodMap = lookUpProductionLevels(session.agent.reader, session.player)
     val resourceMap =
         standardResourceNames(session.agent.reader).associateBy({ it }) {
-          session.count(Count(it.addArgs(session.player.className)))
+          session.count(Count(it.of(session.player.className)))
         }
 
     fun prodAndResource(s: String) =

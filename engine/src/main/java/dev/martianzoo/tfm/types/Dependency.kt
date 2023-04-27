@@ -1,9 +1,9 @@
 package dev.martianzoo.tfm.types
 
 import dev.martianzoo.tfm.api.SpecialClassNames.CLASS
+import dev.martianzoo.tfm.pets.HasClassName
+import dev.martianzoo.tfm.pets.HasExpression
 import dev.martianzoo.tfm.pets.ast.ClassName
-import dev.martianzoo.tfm.pets.ast.HasClassName
-import dev.martianzoo.tfm.pets.ast.HasExpression
 import dev.martianzoo.util.Hierarchical
 
 internal sealed class Dependency : Hierarchical<Dependency>, HasExpression, HasClassName {

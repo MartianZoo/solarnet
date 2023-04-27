@@ -76,7 +76,7 @@ public class Transformers(private val table: MClassTable) {
                 inner
               }
               inProd && node is Expression && node.className in classNames ->
-                  PRODUCTION.addArgs(node.arguments + node.className.classExpression())
+                  PRODUCTION.of(node.arguments + node.className.classExpression())
               else -> transformChildren(node)
             }
         @Suppress("UNCHECKED_CAST") return rewritten as P

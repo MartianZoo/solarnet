@@ -8,14 +8,14 @@ import dev.martianzoo.tfm.api.SpecialClassNames.RAW
 import dev.martianzoo.tfm.api.SpecialClassNames.THIS
 import dev.martianzoo.tfm.data.ClassDeclaration
 import dev.martianzoo.tfm.data.ClassDeclaration.EffectDeclaration
+import dev.martianzoo.tfm.pets.HasClassName
+import dev.martianzoo.tfm.pets.HasClassName.Companion.classNames
 import dev.martianzoo.tfm.pets.PetTransformer
 import dev.martianzoo.tfm.pets.PetTransformer.Companion.chain
 import dev.martianzoo.tfm.pets.Transforming.replaceThisExpressionsWith
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.Effect
 import dev.martianzoo.tfm.pets.ast.Expression
-import dev.martianzoo.tfm.pets.ast.HasClassName
-import dev.martianzoo.tfm.pets.ast.HasClassName.Companion.classNames
 import dev.martianzoo.tfm.pets.ast.PetNode.Companion.replaceAll
 import dev.martianzoo.tfm.pets.ast.PetNode.Companion.unraw
 import dev.martianzoo.tfm.pets.ast.Requirement
@@ -221,7 +221,7 @@ internal constructor(
   }
 
   private val attachToClassTransformer: PetTransformer by lazy {
-    val weirdExpression = className.refine(Min(scaledEx(1, OK)))
+    val weirdExpression = className.has(Min(scaledEx(1, OK)))
     val xers = table.transformers
     chain(xers.insertDefaults(weirdExpression), xers.atomizer())
   }

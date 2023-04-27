@@ -1,7 +1,7 @@
 package dev.martianzoo.tfm.data
 
+import dev.martianzoo.tfm.pets.HasExpression
 import dev.martianzoo.tfm.pets.ast.Expression
-import dev.martianzoo.tfm.pets.ast.HasExpression
 import dev.martianzoo.util.wrap
 
 sealed class GameEvent {

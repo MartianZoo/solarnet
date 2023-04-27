@@ -21,7 +21,7 @@ import dev.martianzoo.util.toSetStrict
  * transformations should be exposed as a [PetTransformer] instance so they can be chained together
  * with [chain], etc.
  */
-public abstract class PetTransformer {
+public abstract class PetTransformer protected constructor() {
   public companion object {
     /** A transformer that just returns its input. */
     public fun noOp(): PetTransformer =
