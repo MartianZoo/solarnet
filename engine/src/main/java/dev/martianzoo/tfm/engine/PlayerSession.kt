@@ -160,7 +160,7 @@ internal constructor(
   fun dropTask(id: String) = agent.removeTask(TaskId(id))
 
   fun <P : PetElement> prep(node: P): P {
-    val xers = game.table.transformers
+    val xers = game.transformers
     return chain(
         useFullNames(),
         xers.atomizer(),

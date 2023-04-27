@@ -64,6 +64,8 @@ public class Game(
 
   public val reader: GameReader = GameReaderImpl(table, components)
 
+  public val transformers by table::transformers
+
   // PLAYER AGENT
 
   public fun asPlayer(player: Player) = PlayerAgent(this, player)
@@ -164,11 +166,7 @@ public class Game(
   }
 
   /** A view of a [Game] specific to a particular [Player] (a player or the engine). */
-  public class PlayerAgent
-  internal constructor(
-      public val game: Game,
-      public val player: Player,
-  ) {
+  public class PlayerAgent internal constructor(public val game: Game, public val player: Player) {
     public fun session(defaultAutoExec: Boolean = true) = PlayerSession(this, defaultAutoExec)
 
     public fun asPlayer(newPlayer: Player) = PlayerAgent(game, newPlayer)
@@ -186,7 +184,7 @@ public class Game(
     internal val writer: GameWriter = GameWriterImpl()
 
     private val insertOwner: PetTransformer by lazy {
-      chain(game.table.transformers.deprodify(), replaceOwnerWith(player))
+      chain(game.transformers.deprodify(), replaceOwnerWith(player))
     }
 
     @Suppress("UNCHECKED_CAST")
@@ -226,8 +224,7 @@ public class Game(
     fun initiate(instruction: Instruction, initialCause: Cause? = null): Result {
       val fixed = Instruction.split(heyItsMe(instruction))
       return doAtomic {
-        val executor =
-            InstructionExecutor(reader, writer, game.table.transformers, player, initialCause)
+        val executor = InstructionExecutor(reader, writer, game.transformers, player, initialCause)
         fixed.forEach { executor.doInstruction(it) }
       }
     }
@@ -246,8 +243,7 @@ public class Game(
       return try {
         doAtomic {
           val executor =
-              InstructionExecutor(
-                  reader, writer, game.table.transformers, player, requestedTask.cause)
+              InstructionExecutor(reader, writer, game.transformers, player, requestedTask.cause)
           executor.doInstruction(instruction)
           removeTask(taskId)
         }
@@ -275,8 +271,7 @@ public class Game(
 
       val (now, later) = (firedSelfEffects + firedOtherEffects).partition { it.automatic }
       for (fx in now) {
-        val executor =
-            InstructionExecutor(reader, writer, game.table.transformers, player, fx.cause)
+        val executor = InstructionExecutor(reader, writer, game.transformers, player, fx.cause)
         Instruction.split(fx.instruction).forEach(executor::doInstruction)
       }
       game.writableTasks.addTasksFrom(later)

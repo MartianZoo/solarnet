@@ -62,7 +62,7 @@ object MTypeToText {
 
     val supertypesDisplay = mtype.supertypes().joinToString { "${it.className}" }
 
-    val id = session.game.table.transformers.insertDefaults(THIS.expression)
+    val id = session.game.transformers.insertDefaults(THIS.expression)
     val allCases = id.transform(expression)
     val gain = id.transform(gain(scaledEx(1, expression), null))
     val remove = id.transform(Remove(scaledEx(1, expression), null))
