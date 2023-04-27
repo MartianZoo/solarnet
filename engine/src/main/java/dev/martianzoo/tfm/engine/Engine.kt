@@ -41,7 +41,7 @@ public object Engine {
     val result: Result = agent.initiate(Gain.gain(scaledEx(1, ENGINE)))
     require(game.tasks.isEmpty())
 
-    val fakeCause = Cause(Player.ENGINE, result.changes.first())
+    val fakeCause = Cause(Player.ENGINE.expression, result.changes.first().ordinal)
 
     singletonCreateInstructions(table).forEach {
       agent.initiate(it, fakeCause)

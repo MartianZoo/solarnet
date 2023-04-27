@@ -5,6 +5,7 @@ import dev.martianzoo.tfm.api.GameSetup
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.data.Player.Companion.PLAYER1
 import dev.martianzoo.tfm.data.Player.Companion.PLAYER2
+import dev.martianzoo.tfm.data.Task.TaskId
 import dev.martianzoo.tfm.engine.Engine
 import dev.martianzoo.tfm.engine.Humanizing.counts
 import dev.martianzoo.tfm.engine.Humanizing.playCard
@@ -88,7 +89,7 @@ class RealGamesTest {
 
     with(p2) {
       execute("UseAction1<ElectroCatapult>")
-      dropTask("A")
+      agent.removeTask(TaskId("A"))
       execute("-Steel THEN 7")
       execute("UseAction1<SpaceElevator>")
     }

@@ -16,10 +16,9 @@ import dev.martianzoo.util.toStrings
 import java.util.SortedMap
 import java.util.TreeMap
 
-// TODO try not to need eventLog
-internal class WritableTaskQueue(private val eventLog: WritableEventLog) : TaskQueue {
-  private val taskMap: SortedMap<TaskId, Task> = TreeMap() // TODO dejavafy
-
+internal class WritableTaskQueue(
+    private val taskMap: SortedMap<TaskId, Task> = TreeMap() // TODO dejavafy
+) : TaskQueue {
   override fun toString() = taskMap.values.joinToString("\n")
 
   override operator fun contains(id: TaskId) = id in taskMap
@@ -33,48 +32,50 @@ internal class WritableTaskQueue(private val eventLog: WritableEventLog) : TaskQ
   override val ids by taskMap::keys
   override fun isEmpty() = taskMap.isEmpty()
 
-  internal fun addTasksFrom(effect: FiredEffect) =
-      addTasksFrom(effect.instruction, effect.player, effect.cause)
-  internal fun addTasksFrom(effects: Iterable<FiredEffect>) = effects.forEach(::addTasksFrom)
+  internal fun addTasksFrom(effect: FiredEffect, eventLog: WritableEventLog): Unit =
+      addTasksFrom(effect.instruction, effect.player, effect.cause, eventLog)
+
+  internal fun addTasksFrom(effects: Iterable<FiredEffect>, eventLog: WritableEventLog) =
+      effects.forEach { addTasksFrom(it, eventLog) }
 
   internal fun addTasksFrom(
       instruction: Instruction,
       taskOwner: Player,
       cause: Cause?,
-      whyPending: String? = null
+      eventLog: WritableEventLog,
   ) {
-    addTasksFrom(listOf(instruction), taskOwner, cause, whyPending)
+    addTasksFrom(listOf(instruction), taskOwner, cause, eventLog)
   }
 
   internal fun addTasksFrom(
       instructions: Iterable<Instruction>,
       taskOwner: Player,
       cause: Cause?,
-      whyPending: String? = null,
+      eventLog: WritableEventLog,
   ) {
     var nextId = nextAvailableId()
     split(instructions).forEach {
-      val task = Task(nextId, it, taskOwner, cause, whyPending)
+      val task = Task(nextId, it, taskOwner, cause)
       taskMap[nextId] = task
       nextId = nextId.next()
       eventLog.taskAdded(task)
     }
   }
 
-  internal fun removeTask(id: TaskId) {
+  internal fun removeTask(id: TaskId, eventLog: WritableEventLog) {
     require(id in this) { id }
     val removed = taskMap.remove(id)!!
     eventLog.taskRemoved(removed)
   }
 
-  internal fun replaceTask(newTask: Task) {
+  internal fun replaceTask(newTask: Task, eventLog: WritableEventLog) {
     val id = newTask.id
     val oldTask = this[id]
     taskMap[id] = newTask
     eventLog.taskReplaced(oldTask, newTask)
   }
 
-  internal fun undo(entry: TaskEvent) {
+  internal fun reverse(entry: TaskEvent) {
     when (entry) {
       is TaskAddedEvent -> taskMap.remove(entry.task.id)
       is TaskRemovedEvent -> taskMap[entry.task.id] = entry.task
@@ -87,4 +88,6 @@ internal class WritableTaskQueue(private val eventLog: WritableEventLog) : TaskQ
   override fun toStrings(): List<String> = taskMap.values.toStrings()
 
   override fun asMap() = taskMap.toMap()
+
+  fun clone() = WritableTaskQueue(TreeMap(taskMap))
 }

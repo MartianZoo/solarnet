@@ -3,7 +3,7 @@ package dev.martianzoo.tfm.data
 import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.util.pre
 
-/** The part that describes only what actually changed. */
+/** The part of a `ChangeEvent` that describes only what actually changed. */
 data class StateChange(
     /**
      * How many of the component were gained/removed/transmuted. A positive integer. Often 1, since

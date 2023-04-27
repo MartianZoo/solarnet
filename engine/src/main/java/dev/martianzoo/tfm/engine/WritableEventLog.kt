@@ -18,10 +18,10 @@ internal class WritableEventLog(override val events: MutableList<GameEvent> = mu
 
   override val size: Int by events::size
 
-  override fun checkpoint() = Checkpoint(size)
-
   override fun changesSince(checkpoint: Checkpoint): List<ChangeEvent> =
       entriesSince(checkpoint).filterIsInstance<ChangeEvent>()
+
+  override fun changes() = changesSince(start)
 
   override fun newTasksSince(checkpoint: Checkpoint): Set<TaskId> {
     val ids = mutableSetOf<TaskId>()
@@ -41,26 +41,44 @@ internal class WritableEventLog(override val events: MutableList<GameEvent> = mu
   override fun activitySince(checkpoint: Checkpoint) =
       Result(changesSince(checkpoint), newTasksSince(checkpoint))
 
-  internal fun addEntry(entry: GameEvent) {
+  fun addEntry(entry: GameEvent) {
     require(entry.ordinal == size)
     events += entry
   }
 
-  internal fun addChangeEvent(change: StateChange?, player: Player, cause: Cause?): ChangeEvent? {
+  fun addChangeEvent(change: StateChange?, player: Player, cause: Cause?): ChangeEvent? {
     if (change == null) return null
     val event = ChangeEvent(size, player, change, cause)
     addEntry(event)
     return event
   }
 
-  internal fun taskAdded(task: Task) = addEntry(TaskAddedEvent(size, task))
+  fun taskAdded(task: Task) = addEntry(TaskAddedEvent(size, task))
 
-  internal fun taskRemoved(task: Task) = addEntry(TaskRemovedEvent(size, task))
+  fun taskRemoved(task: Task) = addEntry(TaskRemovedEvent(size, task))
 
-  internal fun taskReplaced(oldTask: Task, newTask: Task) {
+  fun taskReplaced(oldTask: Task, newTask: Task) {
     require(oldTask.id == newTask.id)
     addEntry(TaskReplacedEvent(size, oldTask = oldTask, task = newTask))
   }
 
-  fun clone() = WritableEventLog(events.toMutableList())
+  override fun checkpoint() = Checkpoint(size)
+
+  private lateinit var start: Checkpoint
+
+  fun setStartPoint() { start = checkpoint() }
+
+  fun rollBack(checkpoint: Checkpoint, reverser: (GameEvent) -> Unit) {
+    val ordinal = checkpoint.ordinal
+    require(ordinal <= events.size)
+    if (ordinal == events.size) return
+
+    val subList = events.subList(ordinal, events.size)
+    for (entry in subList.asReversed()) {
+      reverser(entry)
+    }
+    subList.clear()
+  }
+
+  fun clone() = WritableEventLog(events.toMutableList()).also { it.start = start }
 }

@@ -418,7 +418,7 @@ public class ReplSession(var setup: GameSetup, private val jline: JlineRepl? = n
             null
           }
       if (rest == "drop") {
-        session.game.removeTask(id)
+        session.agent.removeTask(id)
         return listOf("Task $id deleted")
       }
       val instruction: Instruction? = rest?.let(::parseInput)
@@ -470,10 +470,7 @@ public class ReplSession(var setup: GameSetup, private val jline: JlineRepl? = n
     override val isReadOnly = true
 
     override fun noArgs() =
-        session.game.events
-            .changesSince(session.game.start!!)
-            .filter { !isSystemOnly(it.change) }
-            .toStrings()
+        session.game.events.changes().filter { !isSystemOnly(it.change) }.toStrings()
 
     override fun withArgs(args: String): List<String> {
       if (args == "full") {
@@ -497,7 +494,7 @@ public class ReplSession(var setup: GameSetup, private val jline: JlineRepl? = n
         """
 
     override fun withArgs(args: String): List<String> {
-      session.game.rollBack(args.toInt())
+      session.game.rollBack(Checkpoint(args.toInt()))
       return listOf("Rollback done")
     }
   }

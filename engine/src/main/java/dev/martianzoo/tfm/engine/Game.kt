@@ -42,7 +42,8 @@ import dev.martianzoo.util.Multiset
  *
  * Most state changes require going through [asPlayer] to get a [PlayerAgent].
  */
-public class Game(
+public class Game
+internal constructor(
     /**
      * Where the game will get all its information about component types from. Must already be
      * frozen.
@@ -56,13 +57,10 @@ public class Game(
     public val components: ComponentGraph = WritableComponentGraph(),
 
     /** The tasks the game is currently waiting on ("future"). */
-    public val tasks: TaskQueue = WritableTaskQueue(events as WritableEventLog),
-
-    /** A checkpoint taken when the game initialization process ends. */
-    public var start: Checkpoint? = null // TODO move this to EventLog?
+    public val tasks: TaskQueue = WritableTaskQueue()
 ) {
 
-  // A little weird we have to cast, but oh well
+  // TODO can we reverse this and not cast?
   private val writableComponents = components as WritableComponentGraph
   private val writableTasks = tasks as WritableTaskQueue
   private val writableEvents = events as WritableEventLog
@@ -113,7 +111,9 @@ public class Game(
 
     fun checkpoint(): Checkpoint
 
+    fun changes(): List<ChangeEvent>
     fun changesSince(checkpoint: Checkpoint): List<ChangeEvent>
+
     fun newTasksSince(checkpoint: Checkpoint): Set<TaskId>
     fun entriesSince(checkpoint: Checkpoint): List<GameEvent>
     fun activitySince(checkpoint: Checkpoint): Result
@@ -144,7 +144,7 @@ public class Game(
 
   public fun asPlayer(player: Player) = PlayerAgent(this, player)
 
-  public fun removeTask(id: TaskId) = writableTasks.removeTask(id)
+  public fun removeTask(id: TaskId) = writableTasks.removeTask(id, writableEvents)
 
   // TYPE & COMPONENT CONVERSION
 
@@ -200,44 +200,33 @@ public class Game(
 
   public fun checkpoint() = events.checkpoint()
 
-  public fun rollBack(checkpoint: Checkpoint) = rollBack(checkpoint.ordinal)
-
-  public fun rollBack(ordinal: Int) {
-    require(ordinal <= events.size)
-    if (ordinal == events.size) return
-    val subList = writableEvents.events.subList(ordinal, events.size)
-    for (entry in subList.asReversed()) {
-      when (entry) {
-        is TaskEvent -> writableTasks.undo(entry)
+  public fun rollBack(checkpoint: Checkpoint) {
+    writableEvents.rollBack(checkpoint) {
+      when (it) {
+        is TaskEvent -> writableTasks.reverse(it)
         is ChangeEvent -> {
-          val change = entry.change
           writableComponents.reverse(
-              change.count,
-              removeWhatWasGained = change.gaining?.let(::toComponent),
-              gainWhatWasRemoved = change.removing?.let(::toComponent),
+              it.change.count,
+              removeWhatWasGained = it.change.gaining?.let(::toComponent),
+              gainWhatWasRemoved = it.change.removing?.let(::toComponent),
           )
         }
       }
     }
-    subList.clear()
   }
 
   // A little odd that activeEffects is only on "writable" components but okay
   internal fun activeEffects(): List<ActiveEffect> = writableComponents.activeEffects(this)
 
-  internal fun setupFinished() {
-    start = checkpoint()
-  }
+  internal fun setupFinished() = writableEvents.setStartPoint()
 
   fun getTask(taskId: TaskId): Task {
     require(taskId in tasks) { taskId }
     return tasks[taskId]
   }
 
-  public fun clone(): Game {
-    require(tasks.isEmpty())
-    return Game(table, writableEvents.clone(), writableComponents.clone(), start = start)
-  }
+  public fun clone() =
+      Game(table, writableEvents.clone(), writableComponents.clone(), writableTasks.clone())
 
   /** A view of a [Game] specific to a particular [Player] (a player or the engine). */
   public class PlayerAgent internal constructor(public val game: Game, public val player: Player) {
@@ -326,11 +315,12 @@ public class Game(
           throw e
         }
         val explainedTask = requestedTask.copy(whyPending = e.message)
-        game.writableTasks.replaceTask(explainedTask)
+        game.writableTasks.replaceTask(explainedTask, game.writableEvents)
         game.events.activitySince(checkpoint)
       }
     }
 
+    // TODO check owner
     public fun removeTask(taskId: TaskId) = game.removeTask(taskId)
 
     private fun fireTriggers(triggerEvent: ChangeEvent) {
@@ -348,7 +338,7 @@ public class Game(
         val executor = InstructionExecutor(reader, writer, game.transformers, player, fx.cause)
         Instruction.split(fx.instruction).forEach(executor::doInstruction)
       }
-      game.writableTasks.addTasksFrom(later)
+      game.writableTasks.addTasksFrom(later, game.writableEvents)
     }
 
     inner class GameWriterImpl : GameWriter {
@@ -377,7 +367,8 @@ public class Game(
       }
 
       override fun addTasks(instruction: Instruction, taskOwner: Player, cause: Cause?) {
-        game.writableTasks.addTasksFrom(instruction, taskOwner, cause)
+        game.writableTasks.addTasksFrom(
+            instruction, taskOwner, cause, game.writableEvents)
       }
     }
 
