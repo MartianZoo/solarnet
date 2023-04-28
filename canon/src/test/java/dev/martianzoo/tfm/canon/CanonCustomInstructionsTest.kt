@@ -66,7 +66,7 @@ private class CanonCustomInstructionsTest {
     checkProduction(p1, 1, 1, 0, 1, 1, 1)
 
     p1.game.rollBack(cp)
-    p1.doTask("PROD[Titanium]") // TODO sometimes we can't use shortnames, fix this
+    p1.doTask("PROD[T]")
     checkProduction(p1, 0, 1, 1, 1, 1, 1)
 
     p1.game.rollBack(cp)

@@ -146,7 +146,7 @@ class SpecificCardsTest {
     p1.useCardAction(1, "UnitedNationsMarsInitiative")
 
     // Can't use UNMI action yet - fail, don't no-op, per https://boardgamegeek.com/thread/2525032
-    assertThrows<RequirementException> { p1.doTask("-3 THEN HasRaisedTr: TerraformRating!") }
+    assertThrows<RequirementException> { p1.doTask("-3 THEN HasRaisedTr: TR!") }
     game.rollBack(cp)
 
     // Do anything that raises TR

@@ -122,7 +122,7 @@ internal constructor(
       doTask(TaskId(initialTaskId), narrowedInstruction)
 
   fun doTask(initialTaskId: TaskId, narrowedInstruction: String? = null): Result {
-    val narrowed = narrowedInstruction?.let<String, Instruction> { parseInput(it) }
+    val narrowed = narrowedInstruction?.let { prep(parseInput<Instruction>(it)) }
     return if (defaultAutoExec) {
       doTaskAndAutoExec(initialTaskId, narrowed)
     } else {
@@ -174,7 +174,7 @@ internal constructor(
             @Suppress("UNCHECKED_CAST")
             game.table.getClass(node).className as P
           } else {
-            node
+            transformChildren(node)
           }
         }
       }

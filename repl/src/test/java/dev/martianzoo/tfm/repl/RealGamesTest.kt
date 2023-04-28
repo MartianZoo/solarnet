@@ -212,7 +212,7 @@ class RealGamesTest {
     p2.playCard(
         3,
         "SearchForLife",
-        "PlayedEvent<Class<PharmacyUnion>> FROM PharmacyUnion THEN 3 TerraformRating")
+        "PlayedEvent<Class<PharmacyUnion>> FROM PharmacyUnion THEN 3 TR")
 
     p2.useCardAction(1, "SearchForLife", "-1 THEN Ok") // TODO simplify
 
@@ -275,7 +275,7 @@ class RealGamesTest {
 
       assertThat(production().values).containsExactly(5, 0, 0, 0, 0, 1).inOrder()
 
-      assertThat(counts("M, Steel, Titanium, Plant, Energy, Heat"))
+      assertThat(counts("M, S, T, P, E, H"))
           .containsExactly(16, 3, 0, 0, 0, 1)
           .inOrder()
 
@@ -295,7 +295,7 @@ class RealGamesTest {
 
       assertThat(production().values).containsExactly(-4, 0, 1, 3, 1, 1).inOrder()
 
-      assertThat(counts("M, Steel, Titanium, Plant, Energy, Heat"))
+      assertThat(counts("M, S, T, P, E, H"))
           .containsExactly(18, 0, 1, 6, 1, 3)
           .inOrder()
 
