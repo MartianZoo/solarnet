@@ -2,7 +2,6 @@ package dev.martianzoo.tfm.engine
 
 import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.tfm.api.GameSetup
-import dev.martianzoo.tfm.api.SpecialClassNames.ENGINE
 import dev.martianzoo.tfm.api.SpecialClassNames.OK
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
@@ -16,7 +15,7 @@ import org.junit.jupiter.api.Test
 private class CanonEffectsTest {
   fun classEffectsOf(name: String): List<String> {
     val loader = MClassLoader(Canon)
-    loader.load(ENGINE)
+    loader.load(cn("Engine"))
     loader.load(OK) // TODO why?
     loader.load(cn("GlobalParameter")) // TODO why?
     loader.load(cn(name))

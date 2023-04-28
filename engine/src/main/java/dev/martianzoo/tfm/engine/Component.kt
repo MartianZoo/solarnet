@@ -41,16 +41,15 @@ public data class Component private constructor(val mtype: MType) : HasClassName
   public val dependencyComponents = mtype.typeDependencies.map { ofType(it.boundType) }
 
   public val petEffects: List<EffectDeclaration> by lazy {
+    val xers = mtype.loader.transformers
     mtype.root.classEffects.map { fxDecl ->
-      val fx =
-          chain(
-                  TransformNode.unwrapper(RAW),
-                  mtype.loader.transformers.substituter(mtype.root.defaultType, mtype),
-                  mtype.loader.transformers.deprodify(),
-                  owner()?.let { replaceOwnerWith(it) },
-                  replaceThisExpressionsWith(mtype.expression),
-              )
-              .transform(fxDecl.effect)
+      val fx = chain(
+          TransformNode.unwrapper(RAW),
+          xers.substituter(mtype.root.defaultType, mtype),
+          xers.deprodify(),
+          owner()?.let(::replaceOwnerWith),
+          replaceThisExpressionsWith(mtype.expression),
+      ).transform(fxDecl.effect)
 
       fxDecl.copy(effect = fx, depLinkages = setOf())
     }
@@ -63,9 +62,10 @@ public data class Component private constructor(val mtype: MType) : HasClassName
     return petEffects.map { ActiveEffect.from(it.effect, this, game) }
   }
 
-  // TODO make this more readable
-  public fun owner(): Player? =
-      mtype.dependencies.getIfPresent(Key(OWNED, 0))?.className?.let(::Player)
+  public fun owner(): Player? {
+    val dep = mtype.dependencies.getIfPresent(Key(OWNED, 0)) ?: return null
+    return Player(dep.className)
+  }
 
   override val className by mtype::className
   override val expression by mtype::expression

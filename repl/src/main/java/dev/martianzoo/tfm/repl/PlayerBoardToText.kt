@@ -2,7 +2,7 @@ package dev.martianzoo.tfm.repl
 
 import dev.martianzoo.tfm.api.ApiUtils.lookUpProductionLevels
 import dev.martianzoo.tfm.api.ApiUtils.standardResourceNames
-import dev.martianzoo.tfm.data.Player
+import dev.martianzoo.tfm.data.Player.Companion.ENGINE
 import dev.martianzoo.tfm.engine.PlayerSession
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.pets.ast.Metric.Count
@@ -20,7 +20,7 @@ internal class PlayerBoardToText(
 ) {
 
   internal fun board(): List<String> {
-    require(session.player != Player.ENGINE)
+    require(session.player != ENGINE)
     val prodMap = lookUpProductionLevels(session.agent.reader, session.player)
     val resourceMap =
         standardResourceNames(session.agent.reader).associateBy({ it }) {

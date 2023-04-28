@@ -18,7 +18,6 @@ public object SpecialClassNames {
   public val COMPONENT = cn("Component")
   public val DIE = cn("Die")
   public val END = cn("End")
-  public val ENGINE = cn("Engine")
   public val OK = cn("Ok")
   public val OWNED = cn("Owned")
   public val OWNER = cn("Owner")

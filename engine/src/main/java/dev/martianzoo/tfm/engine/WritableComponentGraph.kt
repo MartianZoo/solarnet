@@ -92,8 +92,8 @@ internal class WritableComponentGraph(
       require(it !is Requirement.Transform)
       if (it is Counting) {
         val supertypeWithLimit = loader.resolve(it.scaledEx.expression)
-        val gHasType = gaining?.let { it.mtype.isSubtypeOf(supertypeWithLimit) } ?: false
-        val rHasType = removing?.let { it.mtype.isSubtypeOf(supertypeWithLimit) } ?: false
+        val gHasType = gaining?.mtype?.isSubtypeOf(supertypeWithLimit) ?: false
+        val rHasType = removing?.mtype?.isSubtypeOf(supertypeWithLimit) ?: false
 
         if (gHasType != rHasType) {
           val existing = count(supertypeWithLimit)

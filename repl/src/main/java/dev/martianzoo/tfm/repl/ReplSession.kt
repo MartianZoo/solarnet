@@ -6,13 +6,14 @@ import dev.martianzoo.tfm.api.UserException
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.data.GameEvent.ChangeEvent
 import dev.martianzoo.tfm.data.Player
+import dev.martianzoo.tfm.data.Player.Companion.ENGINE
+import dev.martianzoo.tfm.data.Result
 import dev.martianzoo.tfm.data.Task
 import dev.martianzoo.tfm.data.Task.TaskId
 import dev.martianzoo.tfm.engine.Engine
 import dev.martianzoo.tfm.engine.Exceptions.InteractiveException
 import dev.martianzoo.tfm.engine.Game.EventLog.Checkpoint
 import dev.martianzoo.tfm.engine.PlayerSession
-import dev.martianzoo.tfm.engine.Result
 import dev.martianzoo.tfm.pets.Parsing.parseAsIs
 import dev.martianzoo.tfm.pets.Parsing.parseInput
 import dev.martianzoo.tfm.pets.ast.ClassName
@@ -200,7 +201,7 @@ public class ReplSession(var setup: GameSetup, private val jline: JlineRepl? = n
         """
 
     override fun noArgs(): List<String> {
-      session = session.asPlayer(Player.ENGINE)
+      session = session.asPlayer(ENGINE)
       return listOf("Okay, you are the game engine now")
     }
 
@@ -350,7 +351,7 @@ public class ReplSession(var setup: GameSetup, private val jline: JlineRepl? = n
             BLUE -> {
               when {
                 instr.isGainOf(cn("Turn")) -> initiate(instr)
-                session.agent.player != Player.ENGINE -> {
+                session.agent.player != ENGINE -> {
                   throw UsageException("In blue mode you must be Engine to do this")
                 }
                 instr.isGainOf(cn("Phase")) -> initiate(instr)

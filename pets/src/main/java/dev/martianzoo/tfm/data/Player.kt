@@ -1,11 +1,11 @@
 package dev.martianzoo.tfm.data
 
-import dev.martianzoo.tfm.api.SpecialClassNames
 import dev.martianzoo.tfm.api.SpecialClassNames.player
 import dev.martianzoo.tfm.data.Player.Companion.ENGINE
 import dev.martianzoo.tfm.pets.HasClassName
 import dev.martianzoo.tfm.pets.HasExpression
 import dev.martianzoo.tfm.pets.ast.ClassName
+import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 
 /** A player, or [ENGINE]. */
 data class Player(override val className: ClassName) : HasClassName, HasExpression {
@@ -19,9 +19,9 @@ data class Player(override val className: ClassName) : HasClassName, HasExpressi
   override fun toString() = className.toString()
 
   companion object {
-    val regex = Regex("^(${SpecialClassNames.ENGINE}|Player[1-5])$")
+    val regex = Regex("^(Engine|Player[1-5])$")
 
-    val ENGINE = Player(SpecialClassNames.ENGINE)
+    val ENGINE = Player(cn("Engine"))
     val PLAYER1 = Player(player(1))
     val PLAYER2 = Player(player(2))
     val PLAYER3 = Player(player(3))

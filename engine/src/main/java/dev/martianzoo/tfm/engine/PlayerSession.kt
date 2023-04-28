@@ -3,6 +3,8 @@ package dev.martianzoo.tfm.engine
 import dev.martianzoo.tfm.api.SpecialClassNames.RAW
 import dev.martianzoo.tfm.api.UserException
 import dev.martianzoo.tfm.data.Player
+import dev.martianzoo.tfm.data.Player.Companion.ENGINE
+import dev.martianzoo.tfm.data.Result
 import dev.martianzoo.tfm.data.Task.TaskId
 import dev.martianzoo.tfm.engine.Exceptions.InteractiveException
 import dev.martianzoo.tfm.engine.Game.PlayerAgent
@@ -39,12 +41,13 @@ internal constructor(
   public constructor(
       game: Game,
       defaultAutoExec: Boolean = true
-  ) : this(game.asPlayer(Player.ENGINE), defaultAutoExec)
+  ) : this(game.asPlayer(ENGINE), defaultAutoExec)
 
   val game by agent::game
   val player by agent::player
 
-  public fun asPlayer(player: Player) = PlayerSession(agent.asPlayer(player), defaultAutoExec)
+  public fun asPlayer(player: Player) =
+      PlayerSession(PlayerAgent(agent.game, player), defaultAutoExec)
 
   // in case a shortname is used
   public fun asPlayer(player: ClassName) =
@@ -97,7 +100,7 @@ internal constructor(
 
   fun execute(instruction: Instruction, autoExec: Boolean = defaultAutoExec): Result {
     val instrs = split(prep(instruction))
-    return agent.doAtomic {
+    return game.doAtomic {
       for (instr in instrs) {
         val tasks = ArrayDeque<TaskId>()
         val firstResult = agent.initiate(instr)

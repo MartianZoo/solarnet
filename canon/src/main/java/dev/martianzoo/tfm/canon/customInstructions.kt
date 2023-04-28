@@ -4,7 +4,6 @@ import dev.martianzoo.tfm.api.ApiUtils.lookUpProductionLevels
 import dev.martianzoo.tfm.api.ApiUtils.mapDefinition
 import dev.martianzoo.tfm.api.CustomInstruction
 import dev.martianzoo.tfm.api.GameReader
-import dev.martianzoo.tfm.api.GameWriter
 import dev.martianzoo.tfm.api.SpecialClassNames.CLASS
 import dev.martianzoo.tfm.api.SpecialClassNames.PROD
 import dev.martianzoo.tfm.api.Type
@@ -37,13 +36,8 @@ internal val allCustomInstructions =
     )
 
 private object ForceLoad : CustomInstruction("forceLoad") {
-  override fun execute(
-      game: GameReader,
-      writer: GameWriter,
-      arguments: List<Type>,
-      multiplier: Int,
-  ) {
-    // This one legitimately doesn't have to do anything!
+  override fun translate(game: GameReader, arguments: List<Type>): Instruction {
+    return NoOp
   }
 }
 

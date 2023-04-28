@@ -1,12 +1,11 @@
 package dev.martianzoo.tfm.engine
 
-import dev.martianzoo.tfm.api.CustomInstruction.ExecuteInsteadException
-import dev.martianzoo.tfm.api.GameReader
-import dev.martianzoo.tfm.api.GameWriter
 import dev.martianzoo.tfm.api.SpecialClassNames.RAW
 import dev.martianzoo.tfm.api.UserException
+import dev.martianzoo.tfm.data.GameEvent.ChangeEvent
 import dev.martianzoo.tfm.data.GameEvent.ChangeEvent.Cause
-import dev.martianzoo.tfm.data.Player
+import dev.martianzoo.tfm.engine.ActiveEffect.FiredEffect
+import dev.martianzoo.tfm.engine.Game.PlayerAgent
 import dev.martianzoo.tfm.pets.PetTransformer.Companion.chain
 import dev.martianzoo.tfm.pets.Transforming.replaceOwnerWith
 import dev.martianzoo.tfm.pets.ast.Instruction
@@ -25,22 +24,18 @@ import dev.martianzoo.tfm.pets.ast.Instruction.Then
 import dev.martianzoo.tfm.pets.ast.Instruction.Transform
 import dev.martianzoo.tfm.pets.ast.ScaledExpression.Scalar.ActualScalar
 import dev.martianzoo.tfm.pets.ast.TransformNode
-import dev.martianzoo.tfm.types.Transformers
 
-internal class InstructionExecutor(
-    val reader: GameReader,
-    val writer: GameWriter,
-    val xers: Transformers,
-    val player: Player,
+internal data class InstructionExecutor(
+    val agent: PlayerAgent,
     val cause: Cause?,
 ) {
   fun doInstruction(instr: Instruction) {
     when (instr) {
       is NoOp -> {}
       is Change -> handleChange(instr)
-      is Per -> doInstruction(instr.instruction * reader.count(instr.metric))
+      is Per -> doInstruction(instr.instruction * agent.reader.count(instr.metric))
       is Gated -> {
-        if (!reader.evaluate(instr.gate)) {
+        if (!agent.reader.evaluate(instr.gate)) {
           if (instr.mandatory) throw UserException.requirementNotMet(instr.gate)
           return // do nothing
         }
@@ -65,39 +60,54 @@ internal class InstructionExecutor(
           OPTIONAL -> throw UserException.optionalAmount(instr)
         }
 
-    writer.update(
+    val result = agent.update(
         count = scal.value,
-        gaining = instr.gaining?.let(reader::resolve),
-        removing = instr.removing?.let(reader::resolve),
+        gaining = instr.gaining?.let(agent.reader::resolve),
+        removing = instr.removing?.let(agent.reader::resolve),
         amap = amap,
         cause = cause)
+    result.changes.forEach(::fireTriggers)
+  }
+
+  private fun fireTriggers(triggerEvent: ChangeEvent) {
+    // TODO why are these so different from each other?
+    val firedSelfEffects: List<FiredEffect> =
+        listOfNotNull(triggerEvent.change.gaining, triggerEvent.change.removing)
+            .map(agent.game::toComponent)
+            .flatMap { it.activeEffects(agent.game) }
+            .mapNotNull { it.onChangeToSelf(triggerEvent) }
+
+    val firedOtherEffects: List<FiredEffect> =
+        agent.game.activeEffects().mapNotNull { it.onChangeToOther(triggerEvent) }
+
+    val (now, later) = (firedSelfEffects + firedOtherEffects).partition { it.automatic }
+    for (fx in now) {
+      val executor = copy(cause = fx.cause)
+      split(fx.instruction).forEach(executor::doInstruction)
+    }
+    agent.game.addTriggeredTasks(later)
   }
 
   private fun handleCustomInstruction(instr: Custom) {
-    val arguments = instr.arguments.map(reader::resolve)
+    val arguments = instr.arguments.map(agent.reader::resolve)
     val abstractArgs = arguments.filter { it.abstract }
     if (abstractArgs.any()) throw UserException.abstractArguments(abstractArgs, instr)
 
-    val custom = reader.authority.customInstruction(instr.functionName)
-    try {
-      // Could call .raw() but would just unraw it again?
-      val translated: Instruction = custom.translate(reader, arguments) * instr.multiplier
+    val custom = agent.reader.authority.customInstruction(instr.functionName)
+    val translated: Instruction = custom.translate(agent.reader, arguments) * instr.multiplier
 
-      // I guess custom instructions can't return things using `This`
-      // and Owner means the context player... (TODO think)
-      val instruction =
-          chain(
-              xers.atomizer(),
-              xers.insertDefaults(), // TODO context component??
-              xers.deprodify(),
-              replaceOwnerWith(player),
-              TransformNode.unwrapper(RAW),
-          ).transform(translated)
+    // I guess custom instructions can't return things using `This`
+    // and Owner means the context player... (TODO think)
+    val xers = agent.game.transformers
+    val instruction =
+        chain(
+            xers.atomizer(),
+            xers.insertDefaults(), // TODO context component??
+            xers.deprodify(),
+            replaceOwnerWith(agent.player),
+            TransformNode.unwrapper(RAW),
+        ).transform(translated)
 
-      split(instruction).forEach { writer.addTasks(it, player, cause) }
-    } catch (e: ExecuteInsteadException) {
-      // this custom fn chose to override execute() instead of translate()
-      custom.execute(reader, writer, arguments, instr.multiplier)
-    }
+    agent.addTasks(instruction, agent.player, cause)
   }
 }

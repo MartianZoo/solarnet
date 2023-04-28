@@ -45,7 +45,7 @@ internal data class ActiveEffect(
   fun onChangeToOther(triggerEvent: ChangeEvent) = onChange(triggerEvent, isSelf = false)
 
   private fun onChange(triggerEvent: ChangeEvent, isSelf: Boolean): FiredEffect? {
-    val player = context.owner() ?: triggerEvent.player
+    val player = context.owner() ?: triggerEvent.owner
     val hit = subscription.checkForHit(triggerEvent, player, isSelf) ?: return null
     val cause = Cause(context.expression, triggerEvent.ordinal)
     return FiredEffect(hit(instruction), player, cause, automatic)

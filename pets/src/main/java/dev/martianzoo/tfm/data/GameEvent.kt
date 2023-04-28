@@ -5,20 +5,20 @@ import dev.martianzoo.util.wrap
 
 sealed class GameEvent { // TODO move to data? Organize?
   abstract val ordinal: Int
-  abstract val player: Player
+  abstract val owner: Player
 
   sealed class TaskEvent : GameEvent() {
     abstract val task: Task
   }
   data class TaskAddedEvent(override val ordinal: Int, override val task: Task) : TaskEvent() {
-    override val player by task::player
+    override val owner by task::owner
     override fun toString() =
         "$ordinal: +Task${task.id} { ${task.instruction} } ${task.cause}" +
             task.whyPending.wrap(" (", ")")
   }
 
   data class TaskRemovedEvent(override val ordinal: Int, override val task: Task) : TaskEvent() {
-    override val player by task::player
+    override val owner by task::owner
     override fun toString() = "$ordinal: -Task${task.id}"
   }
 
@@ -30,7 +30,7 @@ sealed class GameEvent { // TODO move to data? Organize?
     init {
       require(task.id == oldTask.id)
     }
-    override val player by task::player
+    override val owner by task::owner
     override fun toString() =
         "$ordinal: Task${task.id} { ${task.instruction }" +
             " (${task.whyPending}) FROM Task${task.id}"
@@ -39,7 +39,7 @@ sealed class GameEvent { // TODO move to data? Organize?
   /** All interesting information about a state change that happened in a game. */
   data class ChangeEvent(
       override val ordinal: Int,
-      override val player: Player,
+      override val owner: Player,
       val change: StateChange,
       val cause: Cause?
   ) : GameEvent() {
@@ -48,7 +48,7 @@ sealed class GameEvent { // TODO move to data? Organize?
       require((cause?.triggerEvent ?: -1) < ordinal)
     }
 
-    override fun toString() = "$ordinal: $change FOR $player ${cause ?: "(manual)"}"
+    override fun toString() = "$ordinal: $change FOR $owner ${cause ?: "(manual)"}"
 
     /** Why a (non-manual) `ChangeEvent` happened. */
     data class Cause(

@@ -18,8 +18,11 @@ public data class Task(
      */
     val instruction: Instruction,
 
-    /** The player this task is waiting on -- think of there being N+1 separate queues. */
-    val player: Player,
+    /**
+     * The player (or engine) this task is waiting on, who has the right to narrow it as they wish,
+     * and execute it.
+     */
+    val owner: Player,
 
     /**
      * Why was this task born? If there's no reason, this *probably* never needed to be a Task at
@@ -37,7 +40,7 @@ public data class Task(
     require(instruction !is Multi) { "should have been split: $instruction" }
   }
 
-  override fun toString() = "$id: [$player] $instruction${whyPending.wrap(" (", ")")}"
+  override fun toString() = "$id: [$owner] $instruction${whyPending.wrap(" (", ")")}"
 
   data class TaskId(val s: String) : Comparable<TaskId> {
     init {

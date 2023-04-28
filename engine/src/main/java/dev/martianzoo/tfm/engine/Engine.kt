@@ -1,9 +1,9 @@
 package dev.martianzoo.tfm.engine
 
 import dev.martianzoo.tfm.api.GameSetup
-import dev.martianzoo.tfm.api.SpecialClassNames.ENGINE
 import dev.martianzoo.tfm.data.GameEvent.ChangeEvent.Cause
-import dev.martianzoo.tfm.data.Player
+import dev.martianzoo.tfm.data.Player.Companion.ENGINE
+import dev.martianzoo.tfm.data.Result
 import dev.martianzoo.tfm.pets.HasClassName
 import dev.martianzoo.tfm.pets.HasClassName.Companion.classNames
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
@@ -38,12 +38,12 @@ public object Engine {
   public fun newGame(setup: GameSetup, table: MClassTable): Game {
     if (setup in gameTemplateCache) return gameTemplateCache[setup]!!.clone()
     val game = Game(table)
-    val agent = game.asPlayer(Player.ENGINE)
+    val agent = game.asPlayer(ENGINE)
 
     val result: Result = agent.initiate(Gain.gain(scaledEx(1, ENGINE)))
     require(game.tasks.isEmpty())
 
-    val fakeCause = Cause(Player.ENGINE.expression, result.changes.first().ordinal)
+    val fakeCause = Cause(ENGINE.expression, result.changes.first().ordinal)
 
     singletonCreateInstructions(table).forEach {
       agent.initiate(it, fakeCause)

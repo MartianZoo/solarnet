@@ -17,23 +17,6 @@ public abstract class CustomInstruction(
      */
     val functionName: String
 ) {
-  /**
-   * When possible override this method, and compute an [Instruction] that can be executed in place
-   * of this one. When this isn't possible, override [execute] instead.
-   */
-  public open fun translate(game: GameReader, arguments: List<Type>): Instruction {
-    throw ExecuteInsteadException()
-  }
 
-  public open fun execute(
-      game: GameReader,
-      writer: GameWriter,
-      arguments: List<Type>,
-      multiplier: Int,
-  ) {
-    throw NotImplementedError()
-  }
-
-  /** For use by the engine, not custom implementations. */
-  public class ExecuteInsteadException : RuntimeException("")
+  abstract fun translate(game: GameReader, arguments: List<Type>): Instruction
 }
