@@ -42,7 +42,7 @@ class TransformersTest {
   }
 
   private companion object {
-    val transformers = CanonClassesTest.loader.transformers
+    val transformers = CanonClassesTest.table.transformers
   }
 
   private fun checkApplyDefaults(

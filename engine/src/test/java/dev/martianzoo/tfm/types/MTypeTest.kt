@@ -199,13 +199,13 @@ private class MTypeTest {
 
   @Test
   fun subs() {
-    val pprod = CanonClassesTest.loader.resolve(te("Production<Player1, Class<Plant>>"))
+    val pprod = CanonClassesTest.table.resolve(te("Production<Player1, Class<Plant>>"))
     assertThat(findSubstitutions(pprod))
         .containsExactly(cn("StandardResource"), cn("Plant").expression, OWNER, PLAYER1.expression)
   }
   @Test
   fun subs2() {
-    val pprod = CanonClassesTest.loader.resolve(te("PlayCard<Player1, Class<MediaGroup>>"))
+    val pprod = CanonClassesTest.table.resolve(te("PlayCard<Player1, Class<MediaGroup>>"))
     assertThat(findSubstitutions(pprod))
         .containsExactly(cn("CardFront"), cn("MediaGroup").expression, OWNER, PLAYER1.expression)
   }

@@ -8,6 +8,7 @@ import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.pets.HasClassName.Companion.classNames
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.tfm.types.Dependency.Key
 import dev.martianzoo.tfm.types.MClass
 import dev.martianzoo.tfm.types.MClassLoader
 import dev.martianzoo.tfm.types.te
@@ -18,13 +19,13 @@ import org.junit.jupiter.api.Test
 /** Tests for the Canon data set. */
 internal class CanonClassesTest {
   companion object {
-    val loader = MClassLoader(Canon).loadEverything()
+    val table = MClassLoader(Canon).loadEverything()
   }
 
   @Test
   fun redundantSuperclasses() {
     val redundancies =
-        loader.allClasses.flatMap { mclass ->
+        table.allClasses.flatMap { mclass ->
           val direct: List<MClass> = mclass.directSuperclasses
           val indirect = direct.flatMap { it.properSuperclasses }.toSet()
           val redundant = direct.intersect(indirect)
@@ -36,21 +37,21 @@ internal class CanonClassesTest {
 
   @Test
   fun childlessAbstractClass() {
-    val anomalies = loader.allClasses.filter { it.abstract && it.directSubclasses.none() }
+    val anomalies = table.allClasses.filter { it.abstract && it.directSubclasses.none() }
     assertThat(anomalies).isEmpty()
   }
 
   @Test
   fun abstractClassWithOnlyChild() {
     // In some cases we might like the parent and child to be treated as the same class
-    val anomalies = loader.allClasses.filter { it.abstract && it.directSubclasses.size == 1 }
+    val anomalies = table.allClasses.filter { it.abstract && it.directSubclasses.size == 1 }
     assertThat(anomalies.classNames()).containsExactly(ANYONE, cn("NoctisArea"), cn("Barrier"))
   }
 
   @Test
   fun concreteExtendingConcrete() {
     val map = mutableListOf<Pair<ClassName, ClassName>>()
-    loader.allClasses
+    table.allClasses
         .filterNot { it.abstract }
         .forEach { sup ->
           (sup.allSubclasses - setOf(sup)).forEach { map += sup.className to it.className }
@@ -60,9 +61,9 @@ internal class CanonClassesTest {
 
   @Test
   fun testOwnedTileIsAnIntersectionType() {
-    val owned = loader.getClass(cn("Owned"))
-    val tile = loader.getClass(cn("Tile"))
-    val ownedTile = loader.getClass(cn("OwnedTile"))
+    val owned = table.getClass(cn("Owned"))
+    val tile = table.getClass(cn("Tile"))
+    val ownedTile = table.getClass(cn("OwnedTile"))
 
     // Nothing can be both Owned and a Tile without being an OwnedTile!
     assertThat(owned glb tile).isEqualTo(ownedTile)
@@ -71,9 +72,9 @@ internal class CanonClassesTest {
 
   @Test
   fun testActionCardIsAnIntersectionType() {
-    val cardFront = loader.getClass(cn("CardFront"))
-    val hasActions = loader.getClass(cn("HasActions"))
-    val actionCard = loader.getClass(cn("ActionCard"))
+    val cardFront = table.getClass(cn("CardFront"))
+    val hasActions = table.getClass(cn("HasActions"))
+    val actionCard = table.getClass(cn("ActionCard"))
 
     // Nothing can be both a CardFront and a HasActions but an ActionCard!
     assertThat(cardFront glb hasActions).isEqualTo(actionCard)
@@ -140,20 +141,20 @@ internal class CanonClassesTest {
 
   @Test
   fun classInvariants() {
-    val temp = loader.getClass(cn("TemperatureStep"))
+    val temp = table.getClass(cn("TemperatureStep"))
     assertThat(temp.typeInvariants.toStrings()).containsExactly("MAX 19 This")
 
-    val ocean = loader.getClass(cn("OceanTile"))
+    val ocean = table.getClass(cn("OceanTile"))
     assertThat(ocean.typeInvariants.toStrings()).containsExactly("MAX 1 This")
 
-    val area = loader.getClass(cn("Area"))
+    val area = table.getClass(cn("Area"))
     assertThat(area.typeInvariants.toStrings()).containsExactly("=1 This", "MAX 1 Tile<This>")
   }
 
   @Test
   fun typeLimits() {
     fun assertRange(name: String, intRange: IntRange) =
-        assertThat(loader.getClass(cn(name)).componentCountRange).isEqualTo(intRange)
+        assertThat(table.getClass(cn(name)).componentCountRange).isEqualTo(intRange)
 
     assertRange("TemperatureStep", 0..19)
     assertRange("VenusStep", 0..15)
@@ -178,10 +179,30 @@ internal class CanonClassesTest {
 
   @Test
   fun generalInvariants() {
-    assertThat((loader as MClassLoader).generalInvariants.toStrings())
+    assertThat((table as MClassLoader).generalInvariants.toStrings())
         .containsExactly(
             // "MAX 1 Phase",
             "MAX 9 OceanTile",
         )
+  }
+
+  @Test
+  fun allDeps() {
+    val allDeps = table.allClasses.flatMap { it.dependencies.keys }.toSet()
+    assertThat(allDeps).containsExactly(
+         Key(cn("Adjacency"), 0), Key(cn("Adjacency"), 1),
+         Key(cn("Cardbound"), 0),
+         Key(cn("Class"), 0),
+         Key(cn("Neighbor"), 0), Key(cn("Neighbor"), 1),
+         Key(cn("Owned"), 0),
+         Key(cn("PaymentMechanic"), 0),
+         Key(cn("PlayCard"), 0),
+         Key(cn("PlayTag"), 0),
+         Key(cn("PlayedEvent"), 0),
+         Key(cn("Production"), 0),
+         Key(cn("ResourceCard"), 0),
+         Key(cn("Tile"), 0),
+         Key(cn("UseAction"), 0),
+    )
   }
 }
