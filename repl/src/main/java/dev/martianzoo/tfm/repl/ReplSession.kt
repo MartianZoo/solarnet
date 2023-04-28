@@ -6,7 +6,6 @@ import dev.martianzoo.tfm.api.UserException
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.data.GameEvent.ChangeEvent
 import dev.martianzoo.tfm.data.Player
-import dev.martianzoo.tfm.data.StateChange
 import dev.martianzoo.tfm.data.Task
 import dev.martianzoo.tfm.data.Task.TaskId
 import dev.martianzoo.tfm.engine.Engine
@@ -441,7 +440,7 @@ public class ReplSession(var setup: GameSetup, private val jline: JlineRepl? = n
   private fun describeExecutionResults(changes: Result): List<String> {
     val oops: List<Task> = changes.tasksSpawned.map { session.game.getTask(it) }
 
-    val interesting: List<ChangeEvent> = changes.changes.filterNot { isSystemOnly(it.change) }
+    val interesting: List<ChangeEvent> = changes.changes.filterNot(session.game::isSystem)
     val changeLines = interesting.toStrings().ifEmpty { listOf("No state changes") }
     val taskLines =
         if (oops.any()) {
@@ -450,13 +449,6 @@ public class ReplSession(var setup: GameSetup, private val jline: JlineRepl? = n
           listOf()
         }
     return changeLines + taskLines
-  }
-
-  private fun isSystemOnly(change: StateChange): Boolean {
-    val system = session.game.resolve(cn("System").expression)
-    return listOfNotNull(change.gaining, change.removing).all {
-      session.game.resolve(it).isSubtypeOf(system)
-    }
   }
 
   internal inner class LogCommand : ReplCommand("log") {
@@ -470,7 +462,7 @@ public class ReplSession(var setup: GameSetup, private val jline: JlineRepl? = n
     override val isReadOnly = true
 
     override fun noArgs() =
-        session.game.events.changes().filter { !isSystemOnly(it.change) }.toStrings()
+        session.game.events.changes().filterNot(session.game::isSystem).toStrings()
 
     override fun withArgs(args: String): List<String> {
       if (args == "full") {

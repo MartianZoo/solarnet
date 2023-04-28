@@ -13,7 +13,11 @@ object Humanizing {
 
   fun PlayerSession.playCard(cost: Int, cardName: String, vararg tasks: String) {
     turn("UseAction1<PlayCardFromHand>", "PlayCard<Class<$cardName>>")
-    if (cost > 0) doTask("$cost Pay<Class<M>> FROM M")
+    if (cost > 0) {
+      doTask("$cost Pay<Class<M>> FROM M")
+    } else {
+      doTask("Ok")
+    }
     tasks.forEach(::doTask)
   }
 

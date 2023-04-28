@@ -25,6 +25,7 @@ import dev.martianzoo.tfm.engine.Game.TaskQueue
 import dev.martianzoo.tfm.pets.PetTransformer
 import dev.martianzoo.tfm.pets.PetTransformer.Companion.chain
 import dev.martianzoo.tfm.pets.Transforming.replaceOwnerWith
+import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.pets.ast.Instruction
 import dev.martianzoo.tfm.pets.ast.Metric
@@ -223,6 +224,20 @@ internal constructor(
   fun getTask(taskId: TaskId): Task {
     require(taskId in tasks) { taskId }
     return tasks[taskId]
+  }
+
+  fun isSystem(event: ChangeEvent): Boolean {
+    val g = event.change.gaining
+    val r = event.change.removing
+
+    val system = resolve(ClassName.cn("System").expression)
+    if (listOfNotNull(g, r).all { resolve(it).isSubtypeOf(system) }) return true
+
+    if (r != null) {
+      val signal = resolve(ClassName.cn("Signal").expression)
+      if (resolve(r).isSubtypeOf(signal)) return true
+    }
+    return false
   }
 
   public fun clone() =

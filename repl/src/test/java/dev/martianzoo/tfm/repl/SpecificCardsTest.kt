@@ -4,6 +4,7 @@ import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.tfm.api.GameSetup
 import dev.martianzoo.tfm.api.UserException.RequirementException
 import dev.martianzoo.tfm.canon.Canon
+import dev.martianzoo.tfm.data.Player.Companion.ENGINE
 import dev.martianzoo.tfm.data.Player.Companion.PLAYER1
 import dev.martianzoo.tfm.engine.Engine
 import dev.martianzoo.tfm.engine.Exceptions.LimitsException
@@ -282,5 +283,37 @@ class SpecificCardsTest {
 
     // TODO THIS IS BROKEN, should be 5 not 6
     assertThat(p1.production().get(cn("Megacredit"))).isEqualTo(6)
+  }
+
+  @Test
+  fun elCheapo() {
+    val game = Engine.newGame(GameSetup(Canon, "BRMVPCX", 2))
+    val eng = game.asPlayer(ENGINE).session()
+    val p1 = game.asPlayer(PLAYER1).session()
+
+    eng.execute("ActionPhase")
+
+    p1.execute("CorporationCard, 12 ProjectCard, Phobolog, Steel") // -1
+
+    p1.execute("AntiGravityTechnology") // -5
+    p1.execute("EarthCatapult")
+    p1.execute("ResearchOutpost", "CityTile<M33>")
+
+    p1.execute("MassConverter") // -12
+    p1.execute("QuantumExtractor")
+    p1.execute("Shuttles")
+    p1.execute("SpaceStation")
+    p1.execute("WarpDrive")
+
+    p1.execute("AdvancedAlloys") // -4
+    p1.execute("MercurianAlloys")
+    p1.execute("RegoPlastics")
+
+    p1.playCard(0, "SpaceElevator")
+    p1.doTask("Pay<Class<T>> FROM T") // -3
+    p1.doTask("Pay<Class<S>> FROM S") // -2
+
+    assertThat(p1.has("SpaceElevator")).isTrue()
+    assertThat(p1.count("M")).isEqualTo(23)
   }
 }

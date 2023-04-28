@@ -123,7 +123,7 @@ ABSTRACT CLASS Generational {                          // things that disappear 
 
 CLASS Turn : Signal                                    // ha. turn signal. TODO should be owned
 
-ABSTRACT CLASS Phase {
+ABSTRACT CLASS Phase : System {
   // HAS MAX 1 Phase
   // Phase FROM This
 
