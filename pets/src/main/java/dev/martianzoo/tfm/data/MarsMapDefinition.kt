@@ -7,12 +7,11 @@ import dev.martianzoo.tfm.pets.Parsing.parseInput
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.pets.ast.Effect
+import dev.martianzoo.tfm.pets.ast.Effect.Trigger
 import dev.martianzoo.tfm.pets.ast.Effect.Trigger.OnGainOf
 import dev.martianzoo.tfm.pets.ast.Instruction
-import dev.martianzoo.tfm.pets.ast.Instruction.Transform
 import dev.martianzoo.tfm.pets.ast.PetNode.Companion.raw
 import dev.martianzoo.util.Grid
-import dev.martianzoo.util.toSetStrict
 
 data class MarsMapDefinition(
     override val className: ClassName,
@@ -68,11 +67,8 @@ data class MarsMapDefinition(
           shortName = shortName,
           abstract = false,
           supertypes = setOf(kind.expression),
-          effectsIn =
-              listOfNotNull(bonus).toSetStrict {
-                // this is clunky TODO
-                Effect(trigger, (it as Transform).instruction, false).raw()
-              })
+          effectsIn = toEffects(bonus)
+      )
     }
 
     override val shortName =
@@ -84,6 +80,10 @@ data class MarsMapDefinition(
 
     override val className = cn("${mapName}_${row}_$column")
   }
+
+  private companion object {
+    fun toEffects(bonus: Instruction?) = setOfNotNull(bonus?.let { Effect(TRIGGER, it, false) })
+    val TRIGGER: Trigger = OnGainOf.create(TILE.of(THIS)).raw()
+  }
 }
 
-private val trigger = OnGainOf.create(TILE.of(THIS))
