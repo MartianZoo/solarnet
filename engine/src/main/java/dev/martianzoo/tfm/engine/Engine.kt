@@ -18,7 +18,7 @@ public object Engine {
   private val classTableCache = mutableMapOf<GameSetup, MClassTable>()
   private val gameTemplateCache = mutableMapOf<GameSetup, Game>()
 
-  private fun loadClasses(setup: GameSetup): MClassTable {
+  public fun loadClasses(setup: GameSetup): MClassTable {
     if (setup in classTableCache) return classTableCache[setup]!!
 
     val loader = MClassLoader(setup.authority)
@@ -32,9 +32,11 @@ public object Engine {
   }
 
   public fun newGame(setup: GameSetup): Game {
-    if (setup in gameTemplateCache) return gameTemplateCache[setup]!!.clone()
+    return newGame(setup, loadClasses(setup))
+  }
 
-    val table = loadClasses(setup)
+  public fun newGame(setup: GameSetup, table: MClassTable): Game {
+    if (setup in gameTemplateCache) return gameTemplateCache[setup]!!.clone()
     val game = Game(table)
     val agent = game.asPlayer(Player.ENGINE)
 

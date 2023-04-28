@@ -17,7 +17,7 @@ import org.junit.jupiter.api.Test
 private class CanonBootstrapTest {
   @Test
   fun loadsExpectedClasses() {
-    val table = Engine.newGame(GameSetup(Canon, "BRMPX", 4)).table
+    val table = Engine.loadClasses(GameSetup(Canon, "BRMPX", 4))
     val unusedCards =
         Canon.cardDefinitions.filter { "VC".contains(it.bundle) }.classNames().toSetStrict()
 

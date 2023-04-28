@@ -13,7 +13,7 @@ import dev.martianzoo.tfm.data.Task.TaskId
 import dev.martianzoo.tfm.engine.Game.EventLog
 import dev.martianzoo.tfm.engine.Game.EventLog.Checkpoint
 
-internal class WritableEventLog(override val events: MutableList<GameEvent> = mutableListOf()) :
+internal class WritableEventLog(private val events: MutableList<GameEvent> = mutableListOf()) :
     EventLog {
 
   override val size: Int by events::size
@@ -21,7 +21,7 @@ internal class WritableEventLog(override val events: MutableList<GameEvent> = mu
   override fun changesSince(checkpoint: Checkpoint): List<ChangeEvent> =
       entriesSince(checkpoint).filterIsInstance<ChangeEvent>()
 
-  override fun changes() = changesSince(start)
+  override fun changesSinceSetup() = changesSince(start)
 
   override fun newTasksSince(checkpoint: Checkpoint): Set<TaskId> {
     val ids = mutableSetOf<TaskId>()

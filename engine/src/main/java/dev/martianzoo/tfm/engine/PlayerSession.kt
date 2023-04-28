@@ -172,7 +172,7 @@ internal constructor(
         override fun <P : PetNode> transform(node: P): P {
           return if (node is ClassName) {
             @Suppress("UNCHECKED_CAST")
-            game.table.getClass(node).className as P
+            agent.reader.resolve(node.expression).className as P
           } else {
             transformChildren(node)
           }

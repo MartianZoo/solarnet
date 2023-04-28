@@ -21,7 +21,7 @@ import dev.martianzoo.tfm.types.MClassTable
 import kotlin.math.min
 
 internal class GameReaderImpl(val table: MClassTable, val components: ComponentGraph) : GameReader {
-  override val authority: Authority = table.authority // TODO probably don't need this anymore
+  override val authority: Authority by table::authority
 
   override fun resolve(expression: Expression) = table.resolve(expression)
 

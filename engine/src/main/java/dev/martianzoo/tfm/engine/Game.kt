@@ -36,39 +36,29 @@ import dev.martianzoo.tfm.types.MType
 import dev.martianzoo.util.Multiset
 
 /**
- * The mutable state of a game in progress. It is essentially an aggregation of three mutable
- * objects: an [EventLog] (representing the "past"), a [ComponentGraph] (representing the
- * "present"), and a [TaskQueue] (representing the "future"). It also has a reference to an
- * [MClassTable] that it pulls component classes from.
+ * The mutable state of a game in progress. This state is the aggregation of three mutable child
+ * objects, which callers accesses directly: a [ComponentGraph], a [TaskQueue], and an [EventLog].
+ * These types don't expose mutation operations, but the objects are mutable and always represent
+ * the most current state.
  *
- * Most state changes require going through [asPlayer] to get a [PlayerAgent].
+ * To read game state at a higher level (e.g. via Pets expressions), use [reader]. To change state
+ * requires going through [asPlayer] to get a [PlayerAgent].
  */
 public class Game
 internal constructor(
-    /**
-     * Where the game will get all its information about component types from. Must already be
-     * frozen.
-     */
-    public val table: MClassTable,
-
-    /** Everything that has happened in this game so far ("past"). */
-    public val events: EventLog = WritableEventLog(),
-
-    /** The components that make up the game's current state ("present"). */
-    public val components: ComponentGraph = WritableComponentGraph(),
-
-    /** The tasks the game is currently waiting on ("future"). */
-    public val tasks: TaskQueue = WritableTaskQueue()
+    private val table: MClassTable,
+    private val writableEvents: WritableEventLog = WritableEventLog(),
+    private val writableComponents: WritableComponentGraph = WritableComponentGraph(),
+    private val writableTasks: WritableTaskQueue = WritableTaskQueue()
 ) {
+  /** The components that make up the game's current state ("present"). */
+  public val components: ComponentGraph = writableComponents
 
-  // TODO can we reverse this and not cast?
-  private val writableComponents = components as WritableComponentGraph
-  private val writableTasks = tasks as WritableTaskQueue
-  private val writableEvents = events as WritableEventLog
+  /** The tasks the game is currently waiting on ("future"). */
+  public val tasks: TaskQueue = writableTasks
 
-  public val reader: GameReader = GameReaderImpl(table, components)
-
-  public val transformers by table::transformers
+  /** Everything that has happened in this game so far ("past"). */
+  public val events: EventLog = writableEvents
 
   /**
    * A multiset of [Component] instances; the "present" state of a game in progress. It is a plain
@@ -101,22 +91,31 @@ internal constructor(
    * complete game state could be reconstructed by replaying these events.
    */
   public interface EventLog {
-    val events: List<GameEvent>
     val size: Int
 
-    data class Checkpoint(internal val ordinal: Int) {
+    public data class Checkpoint(internal val ordinal: Int) {
       init {
         require(ordinal >= 0)
       }
     }
 
+    /**
+     * Returns a [Checkpoint] that can be passed to [Game.rollBack] to return the game to its
+     * present state, or to any of the `-Since` methods.
+     */
     fun checkpoint(): Checkpoint
 
-    fun changes(): List<ChangeEvent>
+    /** Returns all change events since game setup was concluded. */
+    fun changesSinceSetup(): List<ChangeEvent>
+
+    /** Returns all change events since [checkpoint]. */
     fun changesSince(checkpoint: Checkpoint): List<ChangeEvent>
 
+    /** Returns the ids of all tasks created since [checkpoint] that still exist. */
     fun newTasksSince(checkpoint: Checkpoint): Set<TaskId>
+
     fun entriesSince(checkpoint: Checkpoint): List<GameEvent>
+
     fun activitySince(checkpoint: Checkpoint): Result
   }
 
@@ -141,19 +140,20 @@ internal constructor(
     fun asMap(): Map<TaskId, Task>
   }
 
-  // PLAYER AGENT
+  // Don't allow actual game logic to depend on the event log
+  public val reader: GameReader = GameReaderImpl(table, components)
+
+  internal val transformers by table::transformers
 
   public fun asPlayer(player: Player) = PlayerAgent(this, player)
 
   public fun removeTask(id: TaskId) = writableTasks.removeTask(id, writableEvents)
 
-  // TYPE & COMPONENT CONVERSION
-
   public fun resolve(expression: Expression): MType = table.resolve(expression)
 
   /**
-   * Returns a component instance of type [expression], regardless of whether this component
-   * currently exists in the game state or not.
+   * Returns a component instance of type [expression], whether such a component is part of the
+   * current game state or not.
    */
   public fun toComponent(expression: Expression) = Component.ofType(resolve(expression))
 
@@ -169,7 +169,7 @@ internal constructor(
         private fun checkRefinements(abstractTarget: MType, proposed: MType) {
           val refin = abstractTarget.refinement
           if (refin != null) {
-            val requirement = RefinementMangler(proposed).transform(refin)
+            val requirement = transformers.refinementMangler(proposed.expression).transform(refin)
             if (!reader.evaluate(requirement)) throw UserException.requirementNotMet(requirement)
           }
           for ((a, b) in abstractTarget.typeDependencies.zip(proposed.typeDependencies)) {
@@ -177,27 +177,6 @@ internal constructor(
           }
         }
       }
-
-  // We check if MartianIndustries reifies CardFront(HAS 1 BuildingTag)
-  // by testing the requirement `1 BuildingTag<MartianIndustries>`
-  inner class RefinementMangler(private val proposed: MType) : PetTransformer() {
-    override fun <P : PetNode> transform(node: P): P {
-      return if (node is Expression) {
-        val tipo = table.resolve(node)
-        try {
-          val modded = tipo.specialize(listOf(proposed.expression))
-          @Suppress("UNCHECKED_CAST")
-          modded.expression as P
-        } catch (e: Exception) {
-          node // don't go deeper
-        }
-      } else {
-        transformChildren(node)
-      }
-    }
-  }
-
-  // CHANGE LOG
 
   public fun checkpoint() = events.checkpoint()
 

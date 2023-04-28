@@ -110,7 +110,7 @@ internal class CanonClassesTest {
 
   @Test
   fun testAllConcreteSubtypes() {
-    val table = Engine.newGame(GameSetup(Canon, "BRM", 2)).table
+    val table = Engine.loadClasses(GameSetup(Canon, "BRM", 2))
 
     fun checkConcreteSubtypeCount(expr: String, size: Int) {
       val mtype = table.resolve(te(expr))

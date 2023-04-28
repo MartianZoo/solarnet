@@ -248,6 +248,26 @@ public class Transformers(private val table: MClassTable) {
     }
   }
 
+  // We check if MartianIndustries reifies CardFront(HAS 1 BuildingTag)
+  // by testing the requirement `1 BuildingTag<MartianIndustries>`
+  internal fun refinementMangler(proposed: Expression): PetTransformer {
+    return object : PetTransformer() {
+      override fun <P : PetNode> transform(node: P): P {
+        return if (node is Expression) {
+          try {
+            val modded = table.resolve(node).specialize(listOf(proposed))
+            @Suppress("UNCHECKED_CAST")
+            modded.expression as P
+          } catch (e: Exception) {
+            node // don't go deeper
+          }
+        } else {
+          transformChildren(node)
+        }
+      }
+    }
+  }
+
   internal fun findSubstitutions(
       gendeps: DependencySet,
       specdeps: DependencySet

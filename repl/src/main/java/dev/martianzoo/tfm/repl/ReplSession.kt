@@ -462,7 +462,7 @@ public class ReplSession(var setup: GameSetup, private val jline: JlineRepl? = n
     override val isReadOnly = true
 
     override fun noArgs() =
-        session.game.events.changes().filterNot(session.game::isSystem).toStrings()
+        session.game.events.changesSinceSetup().filterNot(session.game::isSystem).toStrings()
 
     override fun withArgs(args: String): List<String> {
       if (args == "full") {
@@ -528,14 +528,14 @@ public class ReplSession(var setup: GameSetup, private val jline: JlineRepl? = n
     override val isReadOnly = true
 
     override fun withArgs(args: String): List<String> {
-      val expression =
-          if (args == "random") {
-            val randomBaseType = session.game.table.allClasses.random().baseType
-            val randomType = randomBaseType.concreteSubtypesSameClass().toList().random()
-            randomType.expression
-          } else {
+      val expression: Expression =
+          // if (args == "random") {
+          //   val randomBaseType = session.table.allClasses.random().baseType
+          //   val randomType = randomBaseType.concreteSubtypesSameClass().toList().random()
+          //   randomType.expression
+          // } else {
             parseAsIs(args)
-          }
+          // }
       return listOf(MTypeToText.describe(expression, session))
     }
   }

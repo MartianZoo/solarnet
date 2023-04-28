@@ -3,10 +3,7 @@ package dev.martianzoo.tfm.repl
 import dev.martianzoo.tfm.engine.Component
 import dev.martianzoo.tfm.engine.PlayerSession
 import dev.martianzoo.tfm.pets.ast.Expression
-import dev.martianzoo.tfm.pets.ast.Instruction.Gain.Companion.gain
-import dev.martianzoo.tfm.pets.ast.Instruction.Remove
 import dev.martianzoo.tfm.pets.ast.PetNode.Companion.unraw
-import dev.martianzoo.tfm.pets.ast.ScaledExpression.Companion.scaledEx
 import dev.martianzoo.tfm.types.MClass
 import dev.martianzoo.tfm.types.MType
 import dev.martianzoo.util.iff
@@ -61,11 +58,6 @@ object MTypeToText {
 
     val supertypesDisplay = mtype.supertypes().joinToString { "${it.className}" }
 
-    val id = session.game.transformers.insertDefaults()
-    val allCases = id.transform(expression)
-    val gain = id.transform(gain(scaledEx(1, expression), null))
-    val remove = id.transform(Remove(scaledEx(1, expression), null))
-
     val numComponentTypes = sequenceCount(mtype.allConcreteSubtypes(), 100)
 
     val typeStuff =
@@ -74,7 +66,6 @@ object MTypeToText {
             std. form:  ${mtype.expression}
             long form:  ${mtype.expressionFull}
             supertypes: $supertypesDisplay
-            defaults:   *$allCases / +$gain / $remove
             cmpt types: $numComponentTypes
         """
             .trimIndent()
