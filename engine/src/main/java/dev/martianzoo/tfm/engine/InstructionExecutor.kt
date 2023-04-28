@@ -104,11 +104,11 @@ internal data class InstructionExecutor(
     val firedSelfEffects: List<FiredEffect> =
         listOfNotNull(triggerEvent.change.gaining, triggerEvent.change.removing)
             .map(agent.game::toComponent)
-            .flatMap { it.activeEffects(agent.game) }
-            .mapNotNull { it.onChangeToSelf(triggerEvent) }
+            .flatMap { it.activeEffects }
+            .mapNotNull { it.onChangeToSelf(triggerEvent, agent.game) }
 
     val firedOtherEffects: List<FiredEffect> =
-        agent.game.activeEffects().mapNotNull { it.onChangeToOther(triggerEvent) }
+        agent.game.activeEffects().mapNotNull { it.onChangeToOther(triggerEvent, agent.game) }
 
     val (now, later) = (firedSelfEffects + firedOtherEffects).partition { it.automatic }
     for (fx in now) {

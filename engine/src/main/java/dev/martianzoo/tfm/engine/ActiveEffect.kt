@@ -33,20 +33,22 @@ internal data class ActiveEffect(
     private val instruction: Instruction,
 ) {
   companion object {
-    fun from(it: Effect, context: Component, game: Game) =
+    fun from(it: Effect, context: Component) =
         ActiveEffect(
-            context, Subscription.from(it.trigger, context, game), it.automatic, it.instruction)
+            context, Subscription.from(it.trigger, context), it.automatic, it.instruction)
   }
 
   operator fun times(multiplier: Int) = copy(instruction = instruction * multiplier)
 
-  fun onChangeToSelf(triggerEvent: ChangeEvent) = onChange(triggerEvent, isSelf = true)
+  fun onChangeToSelf(triggerEvent: ChangeEvent, game: Game) =
+      onChange(triggerEvent, game, isSelf = true)
 
-  fun onChangeToOther(triggerEvent: ChangeEvent) = onChange(triggerEvent, isSelf = false)
+  fun onChangeToOther(triggerEvent: ChangeEvent, game: Game) =
+      onChange(triggerEvent, game, isSelf = false)
 
-  private fun onChange(triggerEvent: ChangeEvent, isSelf: Boolean): FiredEffect? {
+  private fun onChange(triggerEvent: ChangeEvent, game: Game, isSelf: Boolean): FiredEffect? {
     val player = context.owner() ?: triggerEvent.owner
-    val hit = subscription.checkForHit(triggerEvent, player, isSelf) ?: return null
+    val hit = subscription.checkForHit(triggerEvent, player, isSelf, game) ?: return null
     val cause = Cause(context.expression, triggerEvent.ordinal)
     return FiredEffect(hit(instruction), player, cause, automatic)
   }
@@ -65,23 +67,22 @@ internal data class ActiveEffect(
       fun from(
           trigger: Trigger,
           context: Component,
-          game: Game, // TODO might only need einfo
       ): Subscription {
         return when (trigger) {
           is BasicTrigger -> {
             when (trigger) {
-              is WhenGain -> SelfSubscription(context, matchOnGain = true, game)
-              is WhenRemove -> SelfSubscription(context, matchOnGain = false, game)
-              is OnGainOf -> RegularSubscription(trigger.expression, matchOnGain = true, game, setOf())
+              is WhenGain -> SelfSubscription(context, matchOnGain = true)
+              is WhenRemove -> SelfSubscription(context, matchOnGain = false)
+              is OnGainOf -> RegularSubscription(trigger.expression, matchOnGain = true)
               is OnRemoveOf ->
-                RegularSubscription(trigger.expression, matchOnGain = false, game, setOf())
+                RegularSubscription(trigger.expression, matchOnGain = false)
             }
           }
           is WrappingTrigger -> {
-            val inner = from(trigger.inner, context, game)
+            val inner = from(trigger.inner, context)
             when (trigger) {
               is ByTrigger -> PersonalSubscription(inner, trigger.by)
-              is IfTrigger -> ConditionalSubscription(inner, trigger.condition, game)
+              is IfTrigger -> ConditionalSubscription(inner, trigger.condition)
               is XTrigger -> UnscaledSubscription(inner) // TODO flexible?
               is Transform -> error("should have been transformed by now: $trigger")
             }
@@ -90,17 +91,16 @@ internal data class ActiveEffect(
       }
     }
 
-    abstract fun checkForHit(currentEvent: ChangeEvent, actor: Player, isSelf: Boolean): Hit?
+    abstract fun checkForHit(currentEvent: ChangeEvent, actor: Player, isSelf: Boolean, game: Game): Hit?
   }
   private data class ConditionalSubscription(
       val inner: Subscription,
       val condition: Requirement,
-      val game: Game
   ) : Subscription() {
-    override fun checkForHit(currentEvent: ChangeEvent, actor: Player, isSelf: Boolean): Hit? {
+    override fun checkForHit(currentEvent: ChangeEvent, actor: Player, isSelf: Boolean, game: Game): Hit? {
       // This sort of feels out of order, but I don't think that hurts anything
       return if (game.reader.evaluate(condition)) {
-        inner.checkForHit(currentEvent, actor, isSelf)
+        inner.checkForHit(currentEvent, actor, isSelf, game)
       } else {
         null
       }
@@ -108,19 +108,19 @@ internal data class ActiveEffect(
   }
 
   private data class UnscaledSubscription(val inner: Subscription) : Subscription() {
-    override fun checkForHit(currentEvent: ChangeEvent, actor: Player, isSelf: Boolean): Hit? {
+    override fun checkForHit(currentEvent: ChangeEvent, actor: Player, isSelf: Boolean, game: Game): Hit? {
       // just fake it like only one happened
       return inner.checkForHit(
-          currentEvent.copy(change = currentEvent.change.copy(count = 1)), actor, isSelf)
+          currentEvent.copy(change = currentEvent.change.copy(count = 1)), actor, isSelf, game)
     }
   }
 
   private data class PersonalSubscription(val inner: Subscription, val by: ClassName) :
       Subscription() {
-    override fun checkForHit(currentEvent: ChangeEvent, actor: Player, isSelf: Boolean): Hit? {
+    override fun checkForHit(currentEvent: ChangeEvent, actor: Player, isSelf: Boolean, game: Game): Hit? {
       if (isPlayerSpecificTrigger() && actor.className != by) return null
 
-      val originalHit = inner.checkForHit(currentEvent, actor, isSelf) ?: return null
+      val originalHit = inner.checkForHit(currentEvent, actor, isSelf, game) ?: return null
 
       return if (by == OWNER) {
         { replaceOwnerWith(actor).transform(originalHit(it)) }
@@ -139,9 +139,8 @@ internal data class ActiveEffect(
   private data class SelfSubscription(
       val context: Component,
       val matchOnGain: Boolean,
-      val game: Game
   ) : Subscription() {
-    override fun checkForHit(currentEvent: ChangeEvent, actor: Player, isSelf: Boolean): Hit? {
+    override fun checkForHit(currentEvent: ChangeEvent, actor: Player, isSelf: Boolean, game: Game): Hit? {
       if (!isSelf) return null
       val change = currentEvent.change
       val expr = (if (matchOnGain) change.gaining else change.removing) ?: return null
@@ -158,10 +157,8 @@ internal data class ActiveEffect(
   private data class RegularSubscription(
       val match: Expression,
       val matchOnGain: Boolean,
-      val game: Game,
-      val tlinks: Set<ClassName>,
   ) : Subscription() {
-    override fun checkForHit(currentEvent: ChangeEvent, actor: Player, isSelf: Boolean): Hit? {
+    override fun checkForHit(currentEvent: ChangeEvent, actor: Player, isSelf: Boolean, game: Game): Hit? {
       if (isSelf) return null
       val change = currentEvent.change
       val expr = (if (matchOnGain) change.gaining else change.removing) ?: return null

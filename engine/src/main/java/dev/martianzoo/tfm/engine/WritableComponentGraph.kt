@@ -33,8 +33,8 @@ internal class WritableComponentGraph(
   }
 
   // TODO update this redundantly instead of walking the whole table
-  fun activeEffects(game: Game): List<ActiveEffect> =
-      multiset.flatMap { it.activeEffects(game) }.entries.map { (effect, count) -> effect * count }
+  fun activeEffects(): List<ActiveEffect> =
+      multiset.flatMap { it.activeEffects }.entries.map { (effect, count) -> effect * count }
 
   internal fun update(
       count: Int = 1,
@@ -126,8 +126,4 @@ internal class WritableComponentGraph(
   }
 
   fun clone() = WritableComponentGraph(multiset.clone())
-
-  class WeirdGraphNode(val type: MType) {
-
-  }
 }

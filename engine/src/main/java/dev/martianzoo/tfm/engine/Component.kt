@@ -23,7 +23,8 @@ import dev.martianzoo.tfm.types.MType
 public data class Component private constructor(val mtype: MType) : HasClassName, HasExpression {
   // TODO can mtype be private?
   companion object {
-    public fun ofType(mtype: MType): Component = Component(mtype)
+    private val cache: MutableMap<MType, Component> = mutableMapOf()
+    public fun ofType(mtype: MType) = cache.computeIfAbsent(mtype, ::Component)
   }
 
   init {
@@ -38,25 +39,26 @@ public data class Component private constructor(val mtype: MType) : HasClassName
    * `Class<Tile>` has an empty dependency list, despite its appearance. The list order corresponds
    * to [MClass.dependencies].
    */
-  public val dependencyComponents = mtype.typeDependencies.map { ofType(it.boundType) }
+  public val dependencyComponents by lazy { mtype.typeDependencies.map { ofType(it.boundType) } }
 
   public val petEffects: List<Effect> by lazy {
     val xers = mtype.loader.transformers
-    val xer = chain(
-        TransformNode.unwrapper(RAW),
-        xers.substituter(mtype.root.defaultType, mtype),
-        xers.deprodify(),
-        owner()?.let(::replaceOwnerWith),
-        replaceThisExpressionsWith(mtype.expression),
-    )
+    val xer =
+        chain(
+            TransformNode.unwrapper(RAW),
+            xers.substituter(mtype.root.defaultType, mtype),
+            xers.deprodify(),
+            owner()?.let(::replaceOwnerWith),
+            replaceThisExpressionsWith(mtype.expression),
+        )
     mtype.root.classEffects.map(xer::transform)
   }
 
   /**
    * This component's effects; while the component exists in a game state, the effects are active.
    */
-  internal fun activeEffects(game: Game): List<ActiveEffect> {
-    return petEffects.map { ActiveEffect.from(it, this, game) }
+  internal val activeEffects: List<ActiveEffect> by lazy {
+    petEffects.map { ActiveEffect.from(it, this) }
   }
 
   public fun owner(): Player? {
