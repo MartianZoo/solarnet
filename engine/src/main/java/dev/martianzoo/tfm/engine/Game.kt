@@ -11,6 +11,7 @@ import dev.martianzoo.tfm.data.GameEvent.ChangeEvent
 import dev.martianzoo.tfm.data.GameEvent.ChangeEvent.Cause
 import dev.martianzoo.tfm.data.GameEvent.TaskEvent
 import dev.martianzoo.tfm.data.Player
+import dev.martianzoo.tfm.data.Player.Companion.ENGINE
 import dev.martianzoo.tfm.data.Result
 import dev.martianzoo.tfm.data.StateChange
 import dev.martianzoo.tfm.data.Task
@@ -304,9 +305,9 @@ internal constructor(
 
     public fun doTask(taskId: TaskId, narrowed: Instruction? = null): Result {
       val requestedTask: Task = game.getTask(taskId)
-
-      // TODO players probably shouldn't be able to do tasks that aren't theirs
-      // require(requestedTask.owner == owner)
+      if (player != ENGINE && player != requestedTask.owner) {
+        throw UserException("$player can't perform task owned by ${requestedTask.owner}")
+      }
 
       val queuedInstruction = requestedTask.instruction
       val fullyConcreteInstruction = heyItsMe(narrowed)

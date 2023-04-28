@@ -242,7 +242,11 @@ class RealGamesTest {
         "4 Pay<Class<S>> FROM S",
         "ProjectCard FROM Science<OlympusConference>")
 
-    p1.playCard(1, "GeothermalPower", "4 Pay<Class<S>> FROM S")
+    p1.playCard(1, "GeothermalPower")
+
+    // studying to see why this is so slow
+    p1.doTask("4 Pay<Class<S>> FROM S")
+
     p1.playCard(10, "MirandaResort", "Ok")
     p1.playCard(1, "Hackers", "PROD[-2 M<P2>]")
     p1.playCard(1, "MicroMills")

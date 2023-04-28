@@ -1,6 +1,7 @@
 package dev.martianzoo.tfm.engine
 
 import dev.martianzoo.tfm.api.SpecialClassNames.OWNED
+import dev.martianzoo.tfm.api.SpecialClassNames.OWNER
 import dev.martianzoo.tfm.api.SpecialClassNames.RAW
 import dev.martianzoo.tfm.api.Type
 import dev.martianzoo.tfm.api.UserException
@@ -62,8 +63,12 @@ public data class Component private constructor(val mtype: MType) : HasClassName
   }
 
   public fun owner(): Player? {
-    val dep = mtype.dependencies.getIfPresent(Key(OWNED, 0)) ?: return null
-    return Player(dep.className)
+    return if (mtype.isSubtypeOf(mtype.loader.resolve(OWNER.expression))) {
+      Player(mtype.className)
+    } else {
+      val dep = mtype.dependencies.getIfPresent(Key(OWNED, 0))
+      dep?.let { Player(it.className) }
+    }
   }
 
   override val className by mtype::className

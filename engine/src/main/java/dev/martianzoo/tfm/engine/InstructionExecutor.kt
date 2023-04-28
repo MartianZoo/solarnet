@@ -24,34 +24,29 @@ import dev.martianzoo.tfm.pets.ast.Instruction.Then
 import dev.martianzoo.tfm.pets.ast.Instruction.Transform
 import dev.martianzoo.tfm.pets.ast.ScaledExpression.Scalar.ActualScalar
 import dev.martianzoo.tfm.pets.ast.TransformNode
-import kotlin.system.measureNanoTime
 
 internal data class InstructionExecutor(
     val agent: PlayerAgent,
     val cause: Cause?,
 ) {
   fun doInstruction(instr: Instruction) {
-    val time =
-        measureNanoTime {
-          when (instr) {
-            is NoOp -> {}
-            is Change -> handleChange(instr)
-            is Per -> doInstruction(instr.instruction * agent.reader.count(instr.metric))
-            is Gated -> {
-              if (!agent.reader.evaluate(instr.gate)) {
-                if (instr.mandatory) throw UserException.requirementNotMet(instr.gate)
-                return // do nothing
-              }
-              doInstruction(instr.instruction)
-            }
-            is Custom -> handleCustomInstruction(instr)
-            is Or -> throw UserException.orWithoutChoice(instr)
-            is Then -> split(instr.instructions).forEach { doInstruction(it) }
-            is Multi -> error("should have been split: $instr")
-            is Transform -> error("should have been transformed already: $instr")
-          }
-        } / 1000
-    println("$time".padStart(7) + " $instr")
+    return when (instr) {
+      is NoOp -> {}
+      is Change -> handleChange(instr)
+      is Per -> doInstruction(instr.instruction * agent.reader.count(instr.metric))
+      is Gated -> {
+        if (!agent.reader.evaluate(instr.gate)) {
+          if (instr.mandatory) throw UserException.requirementNotMet(instr.gate)
+          return // do nothing
+        }
+        doInstruction(instr.instruction)
+      }
+      is Custom -> handleCustomInstruction(instr)
+      is Or -> throw UserException.orWithoutChoice(instr)
+      is Then -> split(instr.instructions).forEach { doInstruction(it) }
+      is Multi -> error("should have been split: $instr")
+      is Transform -> error("should have been transformed already: $instr")
+    }
   }
 
   private fun handleChange(instr: Change) {
