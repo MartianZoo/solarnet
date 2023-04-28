@@ -13,7 +13,6 @@ import dev.martianzoo.tfm.data.Task.TaskId
 import dev.martianzoo.tfm.engine.Engine
 import dev.martianzoo.tfm.engine.Exceptions.InteractiveException
 import dev.martianzoo.tfm.engine.Game.EventLog.Checkpoint
-import dev.martianzoo.tfm.engine.PlayerSession
 import dev.martianzoo.tfm.pets.Parsing.parseAsIs
 import dev.martianzoo.tfm.pets.Parsing.parseInput
 import dev.martianzoo.tfm.pets.ast.ClassName
@@ -66,7 +65,7 @@ internal fun main() {
 /** A programmatic entry point to a REPL session that is more textual than [ReplSession]. */
 public class ReplSession(var setup: GameSetup, private val jline: JlineRepl? = null) {
   // TODO all we use `jline` for is history (and just checking whether it's there or not)
-  public var session = PlayerSession(Engine.newGame(setup))
+  public var session = Engine.newGame(setup).asPlayer(ENGINE).session()
     internal set
 
   internal var mode: ReplMode = GREEN
@@ -177,7 +176,7 @@ public class ReplSession(var setup: GameSetup, private val jline: JlineRepl? = n
         val (bundleString, players) = args.trim().split(Regex("\\s+"), 2)
 
         setup = GameSetup(authority, bundleString, players.toInt())
-        session = PlayerSession(Engine.newGame(setup))
+        session = Engine.newGame(setup).asPlayer(ENGINE).session()
 
         return listOf("New $players-player game created with bundles: $bundleString") +
             if (players.toInt() == 1) {

@@ -4,6 +4,10 @@ import dev.martianzoo.tfm.api.ApiUtils
 import dev.martianzoo.tfm.pets.Parsing.parseAsIs
 import dev.martianzoo.tfm.pets.ast.ClassName
 
+/**
+ * Extension functions that translate between the raw engine language and the way humans tend to
+ * think about the game.
+ */
 object Humanizing {
 
   fun PlayerSession.turn(vararg tasks: String) {

@@ -4,6 +4,7 @@ import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.tfm.api.ApiUtils.lookUpProductionLevels
 import dev.martianzoo.tfm.api.ApiUtils.standardResourceNames
 import dev.martianzoo.tfm.canon.Canon
+import dev.martianzoo.tfm.data.Player.Companion.ENGINE
 import dev.martianzoo.tfm.data.Player.Companion.PLAYER1
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
@@ -13,7 +14,7 @@ import org.junit.jupiter.api.Test
 private class ApiUtilsTest {
   @Test
   fun testLookUpProdLevelsUsingCanon() {
-    val session = PlayerSession(Engine.newGame(Canon.SIMPLE_GAME))
+    val session = Engine.newGame(Canon.SIMPLE_GAME).asPlayer(ENGINE).session()
     val prods: Map<ClassName, Int> = lookUpProductionLevels(session.game.reader, PLAYER1.expression)
     assertThat(prods.map { it.key to it.value })
         .containsExactly(

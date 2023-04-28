@@ -3,7 +3,6 @@ package dev.martianzoo.tfm.engine
 import dev.martianzoo.tfm.api.SpecialClassNames.RAW
 import dev.martianzoo.tfm.api.UserException
 import dev.martianzoo.tfm.data.Player
-import dev.martianzoo.tfm.data.Player.Companion.ENGINE
 import dev.martianzoo.tfm.data.Result
 import dev.martianzoo.tfm.data.Task.TaskId
 import dev.martianzoo.tfm.engine.Exceptions.InteractiveException
@@ -38,11 +37,6 @@ internal constructor(
     val agent: PlayerAgent,
     var defaultAutoExec: Boolean = true, // TODO 3 policies (what were they?)
 ) {
-  public constructor(
-      game: Game,
-      defaultAutoExec: Boolean = true
-  ) : this(game.asPlayer(ENGINE), defaultAutoExec)
-
   val game by agent::game
   val player by agent::player
 

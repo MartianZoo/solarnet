@@ -3,6 +3,7 @@ package dev.martianzoo.tfm.repl
 import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.tfm.api.GameSetup
 import dev.martianzoo.tfm.canon.Canon
+import dev.martianzoo.tfm.data.Player.Companion.ENGINE
 import dev.martianzoo.tfm.data.Player.Companion.PLAYER1
 import dev.martianzoo.tfm.data.Player.Companion.PLAYER2
 import dev.martianzoo.tfm.data.Task.TaskId
@@ -13,16 +14,15 @@ import dev.martianzoo.tfm.engine.Humanizing.production
 import dev.martianzoo.tfm.engine.Humanizing.stdProject
 import dev.martianzoo.tfm.engine.Humanizing.turn
 import dev.martianzoo.tfm.engine.Humanizing.useCardAction
-import dev.martianzoo.tfm.engine.PlayerSession
 import org.junit.jupiter.api.Test
 
 class RealGamesTest {
   @Test
   fun fourWholeGenerations() {
     val game = Engine.newGame(GameSetup(Canon, "BREPT", 2))
-    val p1 = game.asPlayer(PLAYER1).session()
-    val p2 = game.asPlayer(PLAYER2).session()
-    val engine = PlayerSession(game)
+    val engine = game.asPlayer(ENGINE).session()
+    val p1 = engine.asPlayer(PLAYER1)
+    val p2 = engine.asPlayer(PLAYER2)
 
     p1.execute("CorporationCard, LakefrontResorts, 3 BuyCard")
     p2.execute("CorporationCard, InterplanetaryCinematics, 8 BuyCard")
@@ -163,7 +163,7 @@ class RealGamesTest {
   @Test
   fun startOfEllieGameNoPrelude() {
     val game = Engine.newGame(GameSetup(Canon, "BRHX", 2))
-    val eng = PlayerSession(game)
+    val eng = game.asPlayer(ENGINE).session()
     val p1 = eng.asPlayer(PLAYER1)
     val p2 = eng.asPlayer(PLAYER2)
 
@@ -180,7 +180,7 @@ class RealGamesTest {
   @Test
   fun ellieGame() {
     val game = Engine.newGame(GameSetup(Canon, "BRHXP", 2))
-    val eng = PlayerSession(game)
+    val eng = game.asPlayer(ENGINE).session()
     val p1 = eng.asPlayer(PLAYER1)
     val p2 = eng.asPlayer(PLAYER2)
 

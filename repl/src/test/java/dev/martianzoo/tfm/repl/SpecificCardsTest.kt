@@ -14,7 +14,6 @@ import dev.martianzoo.tfm.engine.Humanizing.production
 import dev.martianzoo.tfm.engine.Humanizing.stdProject
 import dev.martianzoo.tfm.engine.Humanizing.turn
 import dev.martianzoo.tfm.engine.Humanizing.useCardAction
-import dev.martianzoo.tfm.engine.PlayerSession
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.repl.TestHelpers.assertCounts
 import org.junit.jupiter.api.Test
@@ -134,7 +133,7 @@ class SpecificCardsTest {
   @Test
   fun unmi() {
     val game = Engine.newGame(GameSetup(Canon, "BM", 2))
-    val eng = PlayerSession(game)
+    val eng = game.asPlayer(ENGINE).session()
     val p1 = game.asPlayer(PLAYER1).session()
 
     p1.turn("UnitedNationsMarsInitiative", "5 BuyCard")
@@ -165,8 +164,8 @@ class SpecificCardsTest {
   @Test
   fun unmiOutOfOrder() {
     val game = Engine.newGame(GameSetup(Canon, "BM", 2))
-    val eng = PlayerSession(game)
-    val p1 = game.asPlayer(PLAYER1).session()
+    val eng = game.asPlayer(ENGINE).session()
+    val p1 = eng.asPlayer(PLAYER1)
 
     p1.assertCounts(0 to "Megacredit", 20 to "TR")
 
@@ -185,8 +184,8 @@ class SpecificCardsTest {
   @Test
   fun aiCentral() {
     val game = Engine.newGame(GameSetup(Canon, "BRM", 2))
-    val eng = PlayerSession(game)
-    val p1 = game.asPlayer(PLAYER1).session()
+    val eng = game.asPlayer(ENGINE).session()
+    val p1 = eng.asPlayer(PLAYER1)
 
     eng.execute("ActionPhase")
     p1.execute("5 ProjectCard, 100, Steel")
