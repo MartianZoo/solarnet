@@ -126,4 +126,8 @@ internal class WritableComponentGraph(
   }
 
   fun clone() = WritableComponentGraph(multiset.clone())
+
+  class WeirdGraphNode(val type: MType) {
+
+  }
 }

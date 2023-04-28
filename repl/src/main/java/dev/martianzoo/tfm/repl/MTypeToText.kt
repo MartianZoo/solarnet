@@ -35,10 +35,7 @@ object MTypeToText {
 
     val rawFxDisplay = mclass.rawEffects().map { it.unraw() }
 
-    val classFxDisplay =
-        mclass.classEffects.map {
-          "${it.effect.unraw()}" + if (it.depLinkages.any()) " ${it.depLinkages}" else ""
-        }
+    val classFxDisplay = mclass.classEffects.map { "${it.unraw()}" }
 
     val classStuff =
         """
@@ -79,7 +76,7 @@ object MTypeToText {
 
 
             Component $c:
-              effects:    ${c.petEffects.map { it.effect }.joinToString("""
+              effects:    ${c.petEffects.joinToString("""
                           """)}
               current ct: ${session.countComponent(c)}
           """

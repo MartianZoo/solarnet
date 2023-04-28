@@ -59,7 +59,7 @@ public abstract class Authority {
       }
     }
     decl.effects
-        .flatMap { it.effect.descendantsOfType<Custom>() }
+        .flatMap { it.descendantsOfType<Custom>() }
         .forEach { customInstruction(it.functionName) }
   }
 

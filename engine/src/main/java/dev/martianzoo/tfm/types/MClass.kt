@@ -7,7 +7,6 @@ import dev.martianzoo.tfm.api.SpecialClassNames.OWNED
 import dev.martianzoo.tfm.api.SpecialClassNames.RAW
 import dev.martianzoo.tfm.api.SpecialClassNames.THIS
 import dev.martianzoo.tfm.data.ClassDeclaration
-import dev.martianzoo.tfm.data.ClassDeclaration.EffectDeclaration
 import dev.martianzoo.tfm.pets.HasClassName
 import dev.martianzoo.tfm.pets.HasClassName.Companion.classNames
 import dev.martianzoo.tfm.pets.PetTransformer
@@ -197,18 +196,18 @@ internal constructor(
 
   // EFFECTS
 
-  public fun rawEffects(): List<Effect> = declaration.effects.map { it.effect }
+  public fun rawEffects(): Set<Effect> = declaration.effects
 
   /**
    * The effects belonging to this class; similar to those found on the [declaration], but processed
    * as far as we are able to. These effects will belong to every [MType] built from this class,
    * where they will be processed further.
    */
-  public val classEffects: Set<EffectDeclaration> by lazy {
+  public val classEffects: Set<Effect> by lazy {
     allSuperclasses.flatMap { it.directClassEffects() }.toSetStrict()
   }
 
-  private fun directClassEffects(): List<EffectDeclaration> {
+  private fun directClassEffects(): List<Effect> {
     val transformer =
         if (OWNED !in allSuperclasses.classNames()) {
           chain(
@@ -219,10 +218,7 @@ internal constructor(
           attachToClassTransformer
         }
 
-    return declaration.effects
-        .sortedBy { it.effect }
-        .map { it.copy(effect = transformer.transform(it.effect)) }
-    // leaving it RAW though
+    return declaration.effects.map { transformer.transform(it) }
   }
 
   private val attachToClassTransformer: PetTransformer by lazy {

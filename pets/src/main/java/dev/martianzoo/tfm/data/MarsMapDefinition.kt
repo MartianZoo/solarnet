@@ -67,7 +67,7 @@ data class MarsMapDefinition(
           shortName = shortName,
           abstract = false,
           supertypes = setOf(kind.expression),
-          effectsIn = toEffects(bonus)
+          effects = toEffects(bonus)
       )
     }
 

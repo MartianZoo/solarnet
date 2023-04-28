@@ -222,7 +222,7 @@ internal object ClassParsing : PetTokenizer() {
             signature.asDeclaration.copy(
                 abstract = abstract,
                 invariants = body.invariants.toSetStrict { it.raw() },
-                effectsIn =
+                effects =
                     (body.effects + actionListToEffects(body.actions)).toSetStrict { it.raw() },
                 defaultsDeclaration = mergedDefaults,
             )

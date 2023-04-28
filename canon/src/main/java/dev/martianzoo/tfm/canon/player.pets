@@ -147,31 +147,31 @@ ABSTRACT CLASS Owned<Anyone> {
     This:: -3 THEN ProjectCard
   }
 
-  ABSTRACT CLASS PaymentMechanic : Temporary {
-    CLASS PlayCard<Class<CardFront>> {
-      This:: @beginPlayCard(CardFront)
-      -X Barrier IF =0 Barrier:: CardFront FROM This
+  CLASS PlayCard<Class<CardFront>> : Temporary {
+    This:: @beginPlayCard(CardFront)
+    -X Barrier IF =0 Barrier:: CardFront FROM This
+  }
+
+  CLASS PlayTag<Class<Tag>> : Signal            // triggers discounts and Accepts
+
+  ABSTRACT CLASS Barrier : Temporary
+
+  ABSTRACT CLASS PaymentMechanic<Class<Resource>> : Temporary {
+    CLASS Owed : Barrier {
+      DEFAULT +Owed<Class<Megacredit>>
+      DEFAULT -Owed<Class<Megacredit>>.
+      X This:: Accept<Class<Resource>>
     }
 
-    CLASS PlayTag<Class<Tag>> : Signal            // triggers discounts and Accepts
-
-    ABSTRACT CLASS Barrier {
-      CLASS Owed<Class<Resource>> {
-        DEFAULT +Owed<Class<Megacredit>>
-        DEFAULT -Owed<Class<Megacredit>>.
-        X This:: Accept<Class<Resource>>
-      }
-    }
-
-    CLASS Accept<Class<Resource>> : Signal {      // created in response to PlayTag or the actions
+    CLASS Accept : Signal {                       // created in response to PlayTag or the actions
       HAS MAX 1 This                              // on 4 special cards.
       DEFAULT +Accept.
       This: X Pay<Class<Resource>> FROM Resource?
     }
 
-    CLASS Pay<Class<Resource>> : Signal {         // used like `8 Pay<Class<Heat>> FROM Heat`, but
+    CLASS Pay : Signal {                          // used like `8 Pay<Class<Heat>> FROM Heat`, but
       DEFAULT +Pay<Class<Megacredit>>             // also cards can pay in response to signals
-      This:: -Owed<Class<Resource>>.
+      This:: -Owed<Class<Resource>>
     }
   }
 

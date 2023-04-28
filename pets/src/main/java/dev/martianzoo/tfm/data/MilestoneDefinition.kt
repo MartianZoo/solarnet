@@ -32,6 +32,6 @@ data class MilestoneDefinition(
         shortName,
         abstract = false,
         supertypes = setOf(MILESTONE.expression),
-        effectsIn = setOf(parseInput("This:: ($requirementText: $OK)")))
+        effects = setOf(parseInput("This:: ($requirementText: $OK)")))
   }
 }

@@ -4,13 +4,13 @@ import dev.martianzoo.tfm.api.SpecialClassNames.OWNED
 import dev.martianzoo.tfm.api.SpecialClassNames.RAW
 import dev.martianzoo.tfm.api.Type
 import dev.martianzoo.tfm.api.UserException
-import dev.martianzoo.tfm.data.ClassDeclaration.EffectDeclaration
 import dev.martianzoo.tfm.data.Player
 import dev.martianzoo.tfm.pets.HasClassName
 import dev.martianzoo.tfm.pets.HasExpression
 import dev.martianzoo.tfm.pets.PetTransformer.Companion.chain
 import dev.martianzoo.tfm.pets.Transforming.replaceOwnerWith
 import dev.martianzoo.tfm.pets.Transforming.replaceThisExpressionsWith
+import dev.martianzoo.tfm.pets.ast.Effect
 import dev.martianzoo.tfm.pets.ast.TransformNode
 import dev.martianzoo.tfm.types.Dependency.Key
 import dev.martianzoo.tfm.types.MClass
@@ -40,26 +40,23 @@ public data class Component private constructor(val mtype: MType) : HasClassName
    */
   public val dependencyComponents = mtype.typeDependencies.map { ofType(it.boundType) }
 
-  public val petEffects: List<EffectDeclaration> by lazy {
+  public val petEffects: List<Effect> by lazy {
     val xers = mtype.loader.transformers
-    mtype.root.classEffects.map { fxDecl ->
-      val fx = chain(
-          TransformNode.unwrapper(RAW),
-          xers.substituter(mtype.root.defaultType, mtype),
-          xers.deprodify(),
-          owner()?.let(::replaceOwnerWith),
-          replaceThisExpressionsWith(mtype.expression),
-      ).transform(fxDecl.effect)
-
-      fxDecl.copy(effect = fx, depLinkages = setOf())
-    }
+    val xer = chain(
+        TransformNode.unwrapper(RAW),
+        xers.substituter(mtype.root.defaultType, mtype),
+        xers.deprodify(),
+        owner()?.let(::replaceOwnerWith),
+        replaceThisExpressionsWith(mtype.expression),
+    )
+    mtype.root.classEffects.map(xer::transform)
   }
 
   /**
    * This component's effects; while the component exists in a game state, the effects are active.
    */
   internal fun activeEffects(game: Game): List<ActiveEffect> {
-    return petEffects.map { ActiveEffect.from(it.effect, this, game) }
+    return petEffects.map { ActiveEffect.from(it, this, game) }
   }
 
   public fun owner(): Player? {

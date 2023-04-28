@@ -27,7 +27,7 @@ data class StandardActionDefinition(
         shortName = shortName,
         abstract = false,
         supertypes = setOf(kind.expression),
-        effectsIn = actionListToEffects(listOf(parseInput(action))).toSetStrict(),
+        effects = actionListToEffects(listOf(parseInput(action))).toSetStrict(),
     )
   }
 }

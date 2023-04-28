@@ -20,20 +20,16 @@ private class CanonEffectsTest {
     loader.load(cn("GlobalParameter")) // TODO why?
     loader.load(cn(name))
 
-    val table = loader.freeze()
-    return classEffectsOf(name, table)
+    return classEffectsOf(name, loader.freeze())
   }
 
-  fun classEffectsOf(name: String, table: MClassTable): List<String> {
-    val card = table.getClass(cn(name))
-    return card.classEffects.map { "${it.effect.unraw()}" }
-  }
+  fun classEffectsOf(name: String, table: MClassTable) =
+      table.getClass(cn(name)).classEffects.map { "${it.unraw()}" }
 
   fun componentEffectsOf(type: String): List<String> {
     val table = Engine.loadClasses(GameSetup(Canon, "BMC", 2))
     val card = table.resolve(te(type))
-    val comp = Component.ofType(card)
-    return comp.petEffects.map { it.effect }.toStrings()
+    return Component.ofType(card).petEffects.toStrings()
   }
 
   @Test

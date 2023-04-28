@@ -152,7 +152,7 @@ public class CardDefinition(data: CardData) : Definition {
         shortName = shortName,
         abstract = false,
         supertypes = supertypes,
-        effectsIn = allEffects.toSetStrict(),
+        effects = allEffects.toSetStrict(),
         extraNodes = setOfNotNull(requirement) + extraClasses.flatMap { it.allNodes })
   }
 

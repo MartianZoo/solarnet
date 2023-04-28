@@ -155,7 +155,7 @@ public class MClassLoader(
   private fun validate() {
     allClasses.forEach { mclass ->
       mclass.classEffects.forEach {
-        checkAllTypes(replaceThisExpressionsWith(mclass.className.expression).transform(it.effect))
+        checkAllTypes(replaceThisExpressionsWith(mclass.className.expression).transform(it))
       }
     }
   }
