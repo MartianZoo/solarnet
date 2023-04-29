@@ -171,7 +171,6 @@ internal class CanonClassesTest {
 
     assertRange("Production", 0..MAX_VALUE)
     assertRange("Resource", 0..MAX_VALUE)
-    assertRange("Generation", 1..MAX_VALUE)
 
     assertRange("Area", 1..1)
     assertRange("Tharsis_5_5", 1..1)

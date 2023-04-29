@@ -26,8 +26,6 @@ ABSTRACT CLASS System {
 
   CLASS Engine {                                       // this is the very first component created,
     HAS MAX 1 This                                     // and kicks everything else off
-    // This:: @createSingletons(This)
-    This:: CorporationPhase                            // TODO SetupPhase
 
     PlayTag<Class<BuildingTag>>:: Accept<Class<Steel>>
     PlayTag<Class<SpaceTag>>:: Accept<Class<Titanium>>
@@ -115,7 +113,7 @@ ABSTRACT CLASS HasActions {                            // specific actions come 
   ABSTRACT CLASS StandardProject { HAS =1 This }
 }
 
-CLASS Generation[GEN] { HAS 1 This }
+CLASS Generation[GEN]
 
 ABSTRACT CLASS Generational {                          // things that disappear between gens
   Generation:: -This.                                  // <-- and look, there they go
@@ -127,7 +125,10 @@ ABSTRACT CLASS Phase : System {
   // HAS MAX 1 Phase
   // Phase FROM This
 
-  // CLASS SetupPhase
+  CLASS SetupPhase {
+    This: Generation, CorporationPhase FROM This
+  }
+
   CLASS CorporationPhase {
     Turn: CorporationCard, CardFront, 10 BuyCard?
     ActionPhase:: -This!

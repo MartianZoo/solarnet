@@ -89,12 +89,9 @@ private class CanonBootstrapTest {
             "[Engine]",
             "[CorporationPhase]",
             "[Tharsis]",
-            "[Area021]",
-            "[Area081]",
-            "[FloatingInSpace]",
-            "[Player1]",
-            "[Player2]",
-            "[Player3]",
+            "[Area021]", "[Area081]", "[FloatingInSpace]",
+            "[Player1]", "[Player2]", "[Player3]",
+
             "[PlayCardFromHand]",
             "[UseStandardProject]",
             "[ClaimMilestone]",
@@ -102,17 +99,11 @@ private class CanonBootstrapTest {
             "[ConvertHeat]",
             "[ConvertPlants]",
             "[SellPatents]",
-            "[PowerPlantSP]",
-            "[AsteroidSP]",
-            "[AquiferSP]",
-            "[GreenerySP]",
-            "[CitySP]",
-            "[TrWatcher<Player1>]",
-            "[TrWatcher<Player2>]",
-            "[TrWatcher<Player3>]",
-            "[GrossHack<Player1>]",
-            "[GrossHack<Player2>]",
-            "[GrossHack<Player3>]",
+
+            "[PowerPlantSP]", "[AsteroidSP]", "[AquiferSP]", "[GreenerySP]", "[CitySP]",
+            "[GrossHack<Player1>]", "[GrossHack<Player2>]", "[GrossHack<Player3>]",
+            "[TrWatcher<Player1>]", "[TrWatcher<Player2>]", "[TrWatcher<Player3>]",
+
             "[Generation]",
         )
   }

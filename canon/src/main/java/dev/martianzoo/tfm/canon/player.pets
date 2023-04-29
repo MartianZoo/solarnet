@@ -6,8 +6,8 @@ ABSTRACT CLASS Anyone[ANY] {                      // aka Player
   ABSTRACT CLASS Owner {
     HAS =1 This
 
-    This:: 20 TerraformRating<This>               // Solo game support is in the far future...
-    This:: GrossHack<This>
+    SetupPhase:: 20 TerraformRating<This>         // Solo game support is in the far future...
+    SetupPhase:: GrossHack<This>
 
     ResearchPhase: 4 BuyCard<This>?
 

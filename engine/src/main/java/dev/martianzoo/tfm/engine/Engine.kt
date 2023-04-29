@@ -6,8 +6,9 @@ import dev.martianzoo.tfm.data.Player.Companion.ENGINE
 import dev.martianzoo.tfm.data.Result
 import dev.martianzoo.tfm.pets.HasClassName
 import dev.martianzoo.tfm.pets.HasClassName.Companion.classNames
+import dev.martianzoo.tfm.pets.HasExpression.Companion.expressions
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.tfm.pets.ast.Instruction
+import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.pets.ast.Instruction.Gain
 import dev.martianzoo.tfm.pets.ast.ScaledExpression.Companion.scaledEx
 import dev.martianzoo.tfm.types.MClassLoader
@@ -41,22 +42,22 @@ public object Engine {
     val agent = game.asPlayer(ENGINE)
 
     val result: Result = agent.initiate(Gain.gain(scaledEx(1, ENGINE)))
-    require(game.tasks.isEmpty())
 
-    val fakeCause = Cause(ENGINE.expression, result.changes.first().ordinal)
+    val becauseISaidSo = Cause(ENGINE.expression, result.changes.first().ordinal)
 
-    singletonCreateInstructions(table).forEach {
-      agent.initiate(it, fakeCause)
-      require(game.tasks.isEmpty()) { "Unexpected tasks: ${game.tasks}" }
+    singletonTypes(table).forEach {
+      agent.sneakyChange(gaining = it, cause = becauseISaidSo)
     }
+    agent.session().execute("SetupPhase") // hm no fake cause...
     game.setupFinished()
+
     gameTemplateCache[setup] = game.clone()
     return game
   }
 
-  private fun singletonCreateInstructions(table: MClassTable): List<Instruction> =
+  private fun singletonTypes(table: MClassTable): List<Expression> =
       table.allClasses
           .filter { 0 !in it.componentCountRange }
           .flatMap { it.baseType.concreteSubtypesSameClass() }
-          .map { Gain.gain(scaledEx(1, it)) }
+          .expressions()
 }
