@@ -46,7 +46,7 @@ internal data class ActiveEffect(
       onChange(triggerEvent, game, isSelf = false)
 
   private fun onChange(triggerEvent: ChangeEvent, game: Game, isSelf: Boolean): FiredEffect? {
-    val player = context.owner() ?: triggerEvent.owner
+    val player = context.owner ?: triggerEvent.owner
     val hit = subscription.checkForHit(triggerEvent, player, isSelf, game) ?: return null
     val cause = Cause(context.expression, triggerEvent.ordinal)
     return FiredEffect(hit(instruction), player, cause, automatic)
@@ -107,12 +107,8 @@ internal data class ActiveEffect(
         isSelf: Boolean,
         game: Game,
     ): Hit? {
-      // This sort of feels out of order, but I don't think that hurts anything
-      return if (game.reader.evaluate(condition)) {
-        inner.checkForHit(currentEvent, actor, isSelf, game)
-      } else {
-        null
-      }
+      val wouldHit = inner.checkForHit(currentEvent, actor, isSelf, game) ?: return null
+      return if (game.reader.evaluate(condition)) wouldHit else null
     }
   }
 

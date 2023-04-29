@@ -49,7 +49,7 @@ public data class Component private constructor(val mtype: MType) : HasClassName
             TransformNode.unwrapper(RAW),
             xers.substituter(mtype.root.defaultType, mtype),
             xers.deprodify(),
-            owner()?.let(::replaceOwnerWith),
+            owner?.let(::replaceOwnerWith),
             replaceThisExpressionsWith(mtype.expression),
         )
     mtype.root.classEffects.map(xer::transform)
@@ -62,8 +62,8 @@ public data class Component private constructor(val mtype: MType) : HasClassName
     petEffects.map { ActiveEffect.from(it, this) }
   }
 
-  public fun owner(): Player? {
-    return if (mtype.isSubtypeOf(mtype.loader.resolve(OWNER.expression))) {
+  public val owner: Player? by lazy {
+    if (mtype.isSubtypeOf(mtype.loader.resolve(OWNER.expression))) {
       Player(mtype.className)
     } else {
       val dep = mtype.dependencies.getIfPresent(Key(OWNED, 0))
