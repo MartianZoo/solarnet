@@ -254,13 +254,9 @@ public class Transformers(private val table: MClassTable) {
     return object : PetTransformer() {
       override fun <P : PetNode> transform(node: P): P {
         return if (node is Expression) {
-          try {
-            val modded = table.resolve(node).specialize(listOf(proposed))
-            @Suppress("UNCHECKED_CAST")
-            modded.expression as P
-          } catch (e: Exception) {
-            node // don't go deeper
-          }
+          val modded = table.resolve(node).specialize(listOf(proposed))
+          @Suppress("UNCHECKED_CAST")
+          modded.expression as P
         } else {
           transformChildren(node)
         }

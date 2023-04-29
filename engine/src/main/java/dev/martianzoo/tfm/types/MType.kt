@@ -59,6 +59,7 @@ internal constructor(
           .withAllDependencies(dependencies lub that.dependencies)
           .refine(setOf(refinement, that.refinement).singleOrNull())
 
+  // TODO optimize
   internal fun specialize(specs: List<Expression>): MType {
     return if (isClassType) { // TODO reduce special-casing
       if (specs.size > 1) throw UserException.badClassExpression(specs)
@@ -66,16 +67,12 @@ internal constructor(
       if (!classNameExpr.simple) throw UserException.badClassExpression(specs)
       loader.getClass(classNameExpr.className).classType
     } else {
-      val deps =
-          try {
-            loader
-                .matchPartial(specs, dependencies)
-                .overlayOn(dependencies)
-                .subMapInOrder(dependencies.keys)
-          } catch (e: UserException) {
-            throw UserException("Can't narrow ${this.expressionFull} with specs $specs", e)
-          }
-      copy(dependencies = deps)
+      copy(
+          dependencies = loader
+              .matchPartial(specs, dependencies)
+              .overlayOn(dependencies)
+              .subMapInOrder(dependencies.keys)
+      )
     }
   }
 

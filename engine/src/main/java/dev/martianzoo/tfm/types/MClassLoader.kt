@@ -8,7 +8,6 @@ import dev.martianzoo.tfm.api.SpecialClassNames.THIS
 import dev.martianzoo.tfm.api.Type
 import dev.martianzoo.tfm.api.UserException
 import dev.martianzoo.tfm.data.ClassDeclaration
-import dev.martianzoo.tfm.pets.Transforming.replaceThisExpressionsWith
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.pets.ast.PetNode
@@ -130,12 +129,7 @@ public class MClassLoader(
     loadedClasses[decl.className] = null
     loadedClasses[decl.shortName] = null
 
-    val mclass =
-        try {
-          MClass(decl, this)
-        } catch (e: IllegalStateException) {
-          throw IllegalStateException("constructing ${decl.className}", e)
-        }
+    val mclass = MClass(decl, this)
     loadedClasses[decl.className] = mclass
     loadedClasses[decl.shortName] = mclass
 
@@ -148,16 +142,7 @@ public class MClassLoader(
   internal fun freeze(): MClassTable {
     require(!frozen)
     frozen = true
-    validate()
     return this
-  }
-
-  private fun validate() {
-    allClasses.forEach { mclass ->
-      mclass.classEffects.forEach {
-        checkAllTypes(replaceThisExpressionsWith(mclass.className.expression).transform(it))
-      }
-    }
   }
 
   override val allClassNamesAndIds: Set<ClassName> by lazy {

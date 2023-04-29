@@ -94,15 +94,17 @@ internal data class InstructionExecutor(
   }
 
   private fun fireTriggers(triggerEvent: ChangeEvent) {
-    val firedEffects = selfEffects(triggerEvent) + firedOtherEffects(triggerEvent)
-    val (now, later) = firedEffects.partition { it.automatic }
+    val (now, later) = firedEffects(triggerEvent).partition { it.automatic }
 
     for (fx in now) {
       val executor = copy(cause = fx.cause)
       split(fx.instruction).forEach(executor::doInstruction)
     }
-    agent.game.addTriggeredTasks(later) // TODO do this before??
+    agent.game.addTriggeredTasks(later) // TODO why can't we do this before??
   }
+
+  private fun firedEffects(triggerEvent: ChangeEvent) =
+      selfEffects(triggerEvent) + firedOtherEffects(triggerEvent)
 
   // TODO can the differences be collapsed some?
 
