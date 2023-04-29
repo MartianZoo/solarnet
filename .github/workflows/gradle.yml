@@ -1,0 +1,30 @@
+# Continuous Integration for Gradle
+# Runs `gradle build` (which also executes tests) and then builds and uploads
+# the :repl:shadowJar artifact. Gradle is also configured to generate
+# Build Scan links (see settings.gradle.kts) which is surfaced with the build.
+#
+# References:
+# * https://docs.gradle.org/current/userguide/github-actions.html
+# * https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-java-with-gradle
+# * https://github.com/gradle/gradle-build-action
+
+name: Gradle
+
+on: [push, pull_request]
+
+jobs:
+  CI:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Setup Gradle
+      uses: gradle/gradle-build-action@v2
+    - name: Build with Gradle
+      run: ./gradlew build
+    - name: Build REPL jar
+      run: ./gradlew :repl:shadowJar
+    - name: Upload REPL jar
+      uses: actions/upload-artifact@v3
+      with:
+        name: 'repl-all.jar'
+        path: 'repl/build/libs/repl-all.jar'
