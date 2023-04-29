@@ -17,7 +17,7 @@ import java.util.SortedMap
 import java.util.TreeMap
 
 internal class WritableTaskQueue(
-    private val taskMap: SortedMap<TaskId, Task> = TreeMap() // TODO dejavafy
+    private val taskMap: SortedMap<TaskId, Task> = TreeMap(), // TODO dejavafy
 ) : TaskQueue {
   override fun toString() = taskMap.values.joinToString("\n")
 

@@ -270,7 +270,7 @@ public class Transformers(private val table: MClassTable) {
 
   internal fun findSubstitutions(
       gendeps: DependencySet,
-      specdeps: DependencySet
+      specdeps: DependencySet,
   ): Map<ClassName, Expression> {
     val commonKeys = gendeps.flattened.keys.intersect(specdeps.flattened.keys)
     return commonKeys

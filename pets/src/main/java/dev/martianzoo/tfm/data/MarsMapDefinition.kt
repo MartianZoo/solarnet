@@ -16,7 +16,7 @@ import dev.martianzoo.util.Grid
 data class MarsMapDefinition(
     override val className: ClassName,
     override val bundle: String,
-    val areas: Grid<AreaDefinition>
+    val areas: Grid<AreaDefinition>,
 ) : Definition {
   override val shortName by ::className
   override val asClassDeclaration =
@@ -67,7 +67,7 @@ data class MarsMapDefinition(
           shortName = shortName,
           abstract = false,
           supertypes = setOf(kind.expression),
-          effects = toEffects(bonus)
+          effects = toEffects(bonus),
       )
     }
 
@@ -86,4 +86,3 @@ data class MarsMapDefinition(
     val TRIGGER: Trigger = OnGainOf.create(TILE.of(THIS)).raw()
   }
 }
-

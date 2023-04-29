@@ -66,6 +66,7 @@ public data class Effect(
           }
         }
       }
+
       init {
         require(expression != THIS.expression)
       }
@@ -115,6 +116,7 @@ public data class Effect(
         if (inner is ByTrigger) throw PetSyntaxException("if the by")
         if (inner is IfTrigger) throw PetSyntaxException("if the if")
       }
+
       override fun visitChildren(visitor: Visitor) = visitor.visit(inner, condition)
 
       override fun toString() = "$inner IF ${groupPartIfNeeded(condition)}"
@@ -123,10 +125,8 @@ public data class Effect(
     data class XTrigger(override val inner: BasicTrigger) : WrappingTrigger() {
       override fun toString(): String {
         return when (inner) {
-          is OnGainOf,
-          is WhenGain -> "X $inner"
-          is OnRemoveOf,
-          is WhenRemove -> "-X ${inner.toString().substring(1)}"
+          is OnGainOf, is WhenGain -> "X $inner"
+          is OnRemoveOf, is WhenRemove -> "-X ${inner.toString().substring(1)}"
         }
       }
     }

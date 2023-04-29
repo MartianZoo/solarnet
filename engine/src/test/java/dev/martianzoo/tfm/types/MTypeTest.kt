@@ -203,6 +203,7 @@ private class MTypeTest {
     assertThat(findSubstitutions(pprod))
         .containsExactly(cn("StandardResource"), cn("Plant").expression, OWNER, PLAYER1.expression)
   }
+
   @Test
   fun subs2() {
     val pprod = CanonClassesTest.table.resolve(te("PlayCard<Player1, Class<MediaGroup>>"))

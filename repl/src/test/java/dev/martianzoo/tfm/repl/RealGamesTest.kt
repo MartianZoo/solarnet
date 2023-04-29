@@ -212,7 +212,7 @@ class RealGamesTest {
     p2.playCard(
         3,
         "SearchForLife",
-        "PlayedEvent<Class<PharmacyUnion>> FROM PharmacyUnion THEN 3 TR")
+        "PlayedEvent<Class<PharmacyUnion>> FROM PharmacyUnion THEN 3 TerraformRating")
 
     p2.useCardAction(1, "SearchForLife", "-1 THEN Ok") // TODO simplify
 

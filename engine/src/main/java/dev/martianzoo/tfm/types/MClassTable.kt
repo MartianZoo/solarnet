@@ -42,7 +42,7 @@ public abstract class MClassTable {
    */
   internal abstract fun matchPartial(
       expressionArgs: List<Expression>,
-      deps: DependencySet
+      deps: DependencySet,
   ): DependencySet
 
   internal abstract fun defaults(className: ClassName): Defaults

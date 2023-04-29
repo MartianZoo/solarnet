@@ -59,6 +59,6 @@ internal data class Defaults(
 
   data class DefaultSpec(
       val dependencies: DependencySet = DependencySet.of(),
-      val intensity: Intensity?
+      val intensity: Intensity?,
   )
 }

@@ -51,6 +51,7 @@ sealed class Metric : PetElement() {
         throw PetSyntaxException("Having a plus inside a plus causes problems...")
       }
     }
+
     companion object {
       fun create(metrics: List<Metric>): Metric? {
         return when (metrics.size) {
@@ -59,6 +60,7 @@ sealed class Metric : PetElement() {
           else -> Plus(metrics.flatMap { if (it is Plus) it.metrics else listOf(it) })
         }
       }
+
       fun create(first: Metric, vararg rest: Metric) =
           if (rest.none()) first else create(listOf(first) + rest)
     }

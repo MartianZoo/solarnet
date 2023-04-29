@@ -35,6 +35,7 @@ public class MutableGrid<E>(private val rows: List<List<E?>>) : Grid<E>, Abstrac
   private fun all() = rows.flatten().filterNotNull().toSet()
   override val size
     get() = all().size
+
   override fun iterator() = all().iterator()
   override fun contains(element: E) = all().contains(element)
   override fun isEmpty() = false
@@ -42,6 +43,7 @@ public class MutableGrid<E>(private val rows: List<List<E?>>) : Grid<E>, Abstrac
   fun immutable(): Grid<E> {
     return MutableGrid(rows.map { it.toList() }.toList())
   }
+
   private class MutableColumn<E>(val rows: List<List<E?>>, val columnIndex: Int) :
       AbstractMutableList<E?>() {
 

@@ -134,7 +134,7 @@ public sealed class Instruction : PetElement() {
 
   data class Remove(
       val scaledEx: ScaledExpression,
-      override val intensity: Intensity? = MANDATORY
+      override val intensity: Intensity? = MANDATORY,
   ) : Change() {
     override val count = scaledEx.scalar
     override val gaining = null
@@ -380,6 +380,7 @@ public sealed class Instruction : PetElement() {
           Or(instructions)
         }
       }
+
       fun create(first: Instruction, vararg rest: Instruction) =
           if (rest.none()) first else Or(listOf(first) + rest)
     }
@@ -411,6 +412,7 @@ public sealed class Instruction : PetElement() {
           else -> Multi(instructions)
         }
       }
+
       fun create(first: Instruction, vararg rest: Instruction) =
           if (rest.none()) first else Multi(listOf(first) + rest)
     }

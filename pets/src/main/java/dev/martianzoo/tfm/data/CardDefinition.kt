@@ -142,10 +142,11 @@ public class CardDefinition(data: CardData) : Definition {
 
     val supertypes =
         setOfNotNull(
-            projectInfo?.kind?.className?.expression,
-            resourceType?.let { RESOURCE_CARD.of(it.classExpression()) },
-            if (actions.any()) ACTION_CARD.expression else null,
-        ).ifEmpty { setOf(CARD_FRONT.expression) }
+                projectInfo?.kind?.className?.expression,
+                resourceType?.let { RESOURCE_CARD.of(it.classExpression()) },
+                if (actions.any()) ACTION_CARD.expression else null,
+            )
+            .ifEmpty { setOf(CARD_FRONT.expression) }
 
     ClassDeclaration(
         className = className,

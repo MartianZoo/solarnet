@@ -43,11 +43,13 @@ public data class Expression(
   @JvmName("extractAndAppendArguments")
   fun appendArguments(moreArgs: List<HasExpression>): Expression =
       appendArguments(moreArgs.map { it.expression })
+
   fun appendArguments(vararg moreArgs: HasExpression): Expression =
       appendArguments(moreArgs.toList())
 
   fun appendArguments(moreArgs: List<Expression>): Expression =
       replaceArguments(arguments + moreArgs)
+
   fun appendArguments(vararg moreArgs: Expression): Expression = appendArguments(moreArgs.toList())
 
   fun replaceArguments(newArgs: List<Expression>): Expression = copy(arguments = newArgs)

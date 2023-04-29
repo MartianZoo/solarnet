@@ -16,7 +16,7 @@ import dev.martianzoo.tfm.repl.TfmColor.TITANIUM
 
 internal class PlayerBoardToText(
     private val session: PlayerSession,
-    val useColors: Boolean = true
+    val useColors: Boolean = true,
 ) {
 
   internal fun board(): List<String> {

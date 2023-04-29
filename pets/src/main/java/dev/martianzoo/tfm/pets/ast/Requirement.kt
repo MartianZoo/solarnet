@@ -117,7 +117,7 @@ sealed class Requirement : PetElement() {
     constructor(
         req1: Requirement,
         req2: Requirement,
-        vararg rest: Requirement
+        vararg rest: Requirement,
     ) : this(listOf(req1) + req2 + rest)
 
     init {
@@ -166,8 +166,7 @@ sealed class Requirement : PetElement() {
           val scalarAndOptionalEx = rawScalar and optional(Expression.parser())
           val optionalScalarAndEx = optional(rawScalar) and Expression.parser()
 
-          scalarAndOptionalEx or
-          optionalScalarAndEx map { (scalar, expr) ->
+          scalarAndOptionalEx or optionalScalarAndEx map { (scalar, expr) ->
             scaledEx(ActualScalar(scalar ?: 1), expr)
           }
         }

@@ -67,7 +67,9 @@ internal class WritableEventLog(private val events: MutableList<GameEvent> = mut
 
   private lateinit var start: Checkpoint
 
-  fun setStartPoint() { start = checkpoint() }
+  fun setStartPoint() {
+    start = checkpoint()
+  }
 
   fun rollBack(checkpoint: Checkpoint, reverser: (GameEvent) -> Unit) {
     val ordinal = checkpoint.ordinal

@@ -72,7 +72,7 @@ internal class DependencySet private constructor(private val deps: Set<Dependenc
 
   inline fun merge(
       that: DependencySet,
-      merger: (Dependency, Dependency) -> Dependency
+      merger: (Dependency, Dependency) -> Dependency,
   ): DependencySet {
     val merged =
         (this.keys + that.keys).map {
@@ -103,7 +103,9 @@ internal class DependencySet private constructor(private val deps: Set<Dependenc
   data class DependencyPath(val keyList: List<Key>) {
     constructor(key: Key) : this(listOf(key))
 
-    init { require(keyList.any()) }
+    init {
+      require(keyList.any())
+    }
 
     fun prepend(key: Key) = copy(listOf(key) + keyList)
     fun drop(i: Int) = DependencyPath(keyList.drop(i))
@@ -113,6 +115,5 @@ internal class DependencySet private constructor(private val deps: Set<Dependenc
       val smallerBy = keyList.size - otherSize
       return smallerBy > 0 && other.keyList.subList(smallerBy, otherSize) == keyList
     }
-
   }
 }

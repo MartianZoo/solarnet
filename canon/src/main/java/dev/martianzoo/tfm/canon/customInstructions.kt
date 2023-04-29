@@ -62,6 +62,7 @@ private object CreateAdjacencies : CustomInstruction("createAdjacencies") {
             }
     return Multi.create((nbrs + adjs).map { gain(scaledEx(1, it)) })
   }
+
   private fun tileOn(area: AreaDefinition, game: GameReader): Expression? {
     val tileType: Type = game.resolve(cn("Tile").of(area.className))
     val tiles = game.getComponents(tileType)

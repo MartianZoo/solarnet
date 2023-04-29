@@ -10,6 +10,7 @@ sealed class GameEvent { // TODO move to data? Organize?
   sealed class TaskEvent : GameEvent() {
     abstract val task: Task
   }
+
   data class TaskAddedEvent(override val ordinal: Int, override val task: Task) : TaskEvent() {
     override val owner by task::owner
     override fun toString() =
@@ -25,14 +26,15 @@ sealed class GameEvent { // TODO move to data? Organize?
   data class TaskReplacedEvent(
       override val ordinal: Int,
       val oldTask: Task,
-      override val task: Task
+      override val task: Task,
   ) : TaskEvent() {
     init {
       require(task.id == oldTask.id)
     }
+
     override val owner by task::owner
     override fun toString() =
-        "$ordinal: Task${task.id} { ${task.instruction }" +
+        "$ordinal: Task${task.id} { ${task.instruction}" +
             " (${task.whyPending}) FROM Task${task.id}"
   }
 
@@ -41,7 +43,7 @@ sealed class GameEvent { // TODO move to data? Organize?
       override val ordinal: Int,
       override val owner: Player,
       val change: StateChange,
-      val cause: Cause?
+      val cause: Cause?,
   ) : GameEvent() {
     init {
       require(ordinal >= 0)

@@ -34,8 +34,7 @@ internal data class ActiveEffect(
 ) {
   companion object {
     fun from(it: Effect, context: Component) =
-        ActiveEffect(
-            context, Subscription.from(it.trigger, context), it.automatic, it.instruction)
+        ActiveEffect(context, Subscription.from(it.trigger, context), it.automatic, it.instruction)
   }
 
   operator fun times(multiplier: Int) = copy(instruction = instruction * multiplier)
@@ -74,8 +73,7 @@ internal data class ActiveEffect(
               is WhenGain -> SelfSubscription(context, matchOnGain = true)
               is WhenRemove -> SelfSubscription(context, matchOnGain = false)
               is OnGainOf -> RegularSubscription(trigger.expression, matchOnGain = true)
-              is OnRemoveOf ->
-                RegularSubscription(trigger.expression, matchOnGain = false)
+              is OnRemoveOf -> RegularSubscription(trigger.expression, matchOnGain = false)
             }
           }
           is WrappingTrigger -> {
@@ -91,13 +89,24 @@ internal data class ActiveEffect(
       }
     }
 
-    abstract fun checkForHit(currentEvent: ChangeEvent, actor: Player, isSelf: Boolean, game: Game): Hit?
+    abstract fun checkForHit(
+        currentEvent: ChangeEvent,
+        actor: Player,
+        isSelf: Boolean,
+        game: Game,
+    ): Hit?
   }
+
   private data class ConditionalSubscription(
       val inner: Subscription,
       val condition: Requirement,
   ) : Subscription() {
-    override fun checkForHit(currentEvent: ChangeEvent, actor: Player, isSelf: Boolean, game: Game): Hit? {
+    override fun checkForHit(
+        currentEvent: ChangeEvent,
+        actor: Player,
+        isSelf: Boolean,
+        game: Game,
+    ): Hit? {
       // This sort of feels out of order, but I don't think that hurts anything
       return if (game.reader.evaluate(condition)) {
         inner.checkForHit(currentEvent, actor, isSelf, game)
@@ -108,16 +117,28 @@ internal data class ActiveEffect(
   }
 
   private data class UnscaledSubscription(val inner: Subscription) : Subscription() {
-    override fun checkForHit(currentEvent: ChangeEvent, actor: Player, isSelf: Boolean, game: Game): Hit? {
+    override fun checkForHit(
+        currentEvent: ChangeEvent,
+        actor: Player,
+        isSelf: Boolean,
+        game: Game,
+    ): Hit? {
       // just fake it like only one happened
       return inner.checkForHit(
           currentEvent.copy(change = currentEvent.change.copy(count = 1)), actor, isSelf, game)
     }
   }
 
-  private data class PersonalSubscription(val inner: Subscription, val by: ClassName) :
-      Subscription() {
-    override fun checkForHit(currentEvent: ChangeEvent, actor: Player, isSelf: Boolean, game: Game): Hit? {
+  private data class PersonalSubscription(
+      val inner: Subscription,
+      val by: ClassName,
+  ) : Subscription() {
+    override fun checkForHit(
+        currentEvent: ChangeEvent,
+        actor: Player,
+        isSelf: Boolean,
+        game: Game,
+    ): Hit? {
       if (isPlayerSpecificTrigger() && actor.className != by) return null
 
       val originalHit = inner.checkForHit(currentEvent, actor, isSelf, game) ?: return null
@@ -140,7 +161,12 @@ internal data class ActiveEffect(
       val context: Component,
       val matchOnGain: Boolean,
   ) : Subscription() {
-    override fun checkForHit(currentEvent: ChangeEvent, actor: Player, isSelf: Boolean, game: Game): Hit? {
+    override fun checkForHit(
+        currentEvent: ChangeEvent,
+        actor: Player,
+        isSelf: Boolean,
+        game: Game,
+    ): Hit? {
       if (!isSelf) return null
       val change = currentEvent.change
       val expr = (if (matchOnGain) change.gaining else change.removing) ?: return null
@@ -158,7 +184,12 @@ internal data class ActiveEffect(
       val match: Expression,
       val matchOnGain: Boolean,
   ) : Subscription() {
-    override fun checkForHit(currentEvent: ChangeEvent, actor: Player, isSelf: Boolean, game: Game): Hit? {
+    override fun checkForHit(
+        currentEvent: ChangeEvent,
+        actor: Player,
+        isSelf: Boolean,
+        game: Game,
+    ): Hit? {
       if (isSelf) return null
       val change = currentEvent.change
       val expr = (if (matchOnGain) change.gaining else change.removing) ?: return null

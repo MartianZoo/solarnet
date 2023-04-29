@@ -189,20 +189,23 @@ internal class CanonClassesTest {
   @Test
   fun allDeps() {
     val allDeps = table.allClasses.flatMap { it.dependencies.keys }.toSet()
-    assertThat(allDeps).containsExactly(
-         Key(cn("Adjacency"), 0), Key(cn("Adjacency"), 1),
-         Key(cn("Cardbound"), 0),
-         Key(cn("Class"), 0),
-         Key(cn("Neighbor"), 0), Key(cn("Neighbor"), 1),
-         Key(cn("Owned"), 0),
-         Key(cn("PaymentMechanic"), 0),
-         Key(cn("PlayCard"), 0),
-         Key(cn("PlayTag"), 0),
-         Key(cn("PlayedEvent"), 0),
-         Key(cn("Production"), 0),
-         Key(cn("ResourceCard"), 0),
-         Key(cn("Tile"), 0),
-         Key(cn("UseAction"), 0),
-    )
+    assertThat(allDeps)
+        .containsExactly(
+            Key(cn("Adjacency"), 0),
+            Key(cn("Adjacency"), 1),
+            Key(cn("Cardbound"), 0),
+            Key(cn("Class"), 0),
+            Key(cn("Neighbor"), 0),
+            Key(cn("Neighbor"), 1),
+            Key(cn("Owned"), 0),
+            Key(cn("PaymentMechanic"), 0),
+            Key(cn("PlayCard"), 0),
+            Key(cn("PlayTag"), 0),
+            Key(cn("PlayedEvent"), 0),
+            Key(cn("Production"), 0),
+            Key(cn("ResourceCard"), 0),
+            Key(cn("Tile"), 0),
+            Key(cn("UseAction"), 0),
+        )
   }
 }

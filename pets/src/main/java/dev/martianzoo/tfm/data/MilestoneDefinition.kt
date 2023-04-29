@@ -20,6 +20,7 @@ data class MilestoneDefinition(
     require(requirementText.isNotEmpty())
     require(replaces?.isEmpty() != true)
   }
+
   override val shortName = cn(id)
 
   val requirement: Requirement = parseInput(requirementText)

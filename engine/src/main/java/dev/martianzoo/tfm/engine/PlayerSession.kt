@@ -156,12 +156,13 @@ internal constructor(
   fun <P : PetElement> prep(node: P): P {
     val xers = game.transformers
     return chain(
-        useFullNames(),
-        xers.atomizer(),
-        xers.insertDefaults(),
-        xers.deprodify(),
-        TransformNode.unwrapper(RAW),
-    ).transform(node)
+            useFullNames(),
+            xers.atomizer(),
+            xers.insertDefaults(),
+            xers.deprodify(),
+            TransformNode.unwrapper(RAW),
+        )
+        .transform(node)
   }
 
   public fun useFullNames() =

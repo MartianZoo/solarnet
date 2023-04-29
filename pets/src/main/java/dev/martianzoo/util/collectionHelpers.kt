@@ -49,7 +49,7 @@ fun <T> Iterable<T>.joinOrEmpty(
     separator: CharSequence = ", ",
     prefix: CharSequence,
     suffix: CharSequence,
-    transform: ((T) -> CharSequence)? = null
+    transform: ((T) -> CharSequence)? = null,
 ): String {
   return if (any()) {
     joinToString(separator = separator, prefix = prefix, postfix = suffix, transform = transform)
@@ -61,7 +61,7 @@ fun <T> Iterable<T>.joinOrEmpty(
 fun <T> Iterable<T>.joinOrEmpty(
     separator: CharSequence = ", ",
     wrap: CharSequence,
-    transform: ((T) -> CharSequence)? = null
+    transform: ((T) -> CharSequence)? = null,
 ): String {
   require(wrap.length == 2)
   return joinOrEmpty(

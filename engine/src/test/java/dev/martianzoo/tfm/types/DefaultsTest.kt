@@ -32,7 +32,8 @@ class DefaultsTest {
               CLASS Fixed: Qux1 {
                 DEFAULT +Fixed.
               }
-            """) as MClassLoader
+            """)
+            as MClassLoader
 
     val d = loader.allDefaults[cn("Foo1")]!!
     assertThat(d.gainOnly.intensity).isEqualTo(AMAP)

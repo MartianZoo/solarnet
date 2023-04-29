@@ -15,7 +15,7 @@ public abstract class CustomInstruction(
      * Pets code. [Authority.customInstruction] must return this instance when passed
      * [functionName].
      */
-    val functionName: String
+    val functionName: String,
 ) {
 
   abstract fun translate(game: GameReader, arguments: List<Type>): Instruction

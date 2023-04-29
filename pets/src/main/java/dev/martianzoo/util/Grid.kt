@@ -30,6 +30,7 @@ interface Grid<E> : Set<E> {
     fun <E> empty(): Grid<E> {
       return mutableGrid(listOf<E>(), { 0 }, { 0 }).immutable()
     }
+
     fun <E> grid(cells: Iterable<E>, rowFn: (E) -> Int, columnFn: (E) -> Int): Grid<E> {
       return mutableGrid(cells, rowFn, columnFn).immutable()
     }

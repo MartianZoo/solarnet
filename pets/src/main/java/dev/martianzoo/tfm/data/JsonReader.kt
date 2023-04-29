@@ -34,7 +34,7 @@ public object JsonReader {
 
   private class ActionsImport(
       val actions: List<IncompleteActionDef>,
-      val projects: List<IncompleteActionDef>
+      val projects: List<IncompleteActionDef>,
   ) {
 
     class IncompleteActionDef(val id: ClassName, val bundle: String, val action: String) {

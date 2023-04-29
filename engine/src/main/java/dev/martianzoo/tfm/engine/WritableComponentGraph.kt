@@ -13,7 +13,7 @@ import dev.martianzoo.util.Multiset
 import kotlin.math.min
 
 internal class WritableComponentGraph(
-    private val multiset: HashMultiset<Component> = HashMultiset()
+    private val multiset: HashMultiset<Component> = HashMultiset(),
 ) : ComponentGraph {
   override operator fun contains(component: Component) = component in multiset.elements
 

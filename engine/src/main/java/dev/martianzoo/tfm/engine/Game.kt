@@ -51,7 +51,7 @@ internal constructor(
     private val table: MClassTable,
     private val writableEvents: WritableEventLog = WritableEventLog(),
     private val writableComponents: WritableComponentGraph = WritableComponentGraph(),
-    private val writableTasks: WritableTaskQueue = WritableTaskQueue()
+    private val writableTasks: WritableTaskQueue = WritableTaskQueue(),
 ) {
   /** The components that make up the game's current state ("present"). */
   public val components: ComponentGraph = writableComponents
@@ -168,6 +168,7 @@ internal constructor(
           proposed.ensureReifies(abstractTarget)
           checkRefinements(abstractTarget, proposed)
         }
+
         private fun checkRefinements(abstractTarget: MType, proposed: MType) {
           val refin = abstractTarget.refinement
           if (refin != null) {

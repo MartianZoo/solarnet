@@ -86,7 +86,7 @@ public object Parsing {
       parser: Parser<T>,
       source: String,
       matches: TokenMatchesSequence,
-      expectedTypeDesc: String? = null
+      expectedTypeDesc: String? = null,
   ): T {
     try {
       return parser.parseToEnd(matches)
