@@ -63,7 +63,7 @@ public sealed class Instruction : PetElement() {
 
     override fun isAbstract(einfo: ExpressionInfo) = false
 
-    override fun checkReificationDoNotCall(proposed: Instruction, einfo: ExpressionInfo) {
+    override fun ensureIsNarrowedBy_doNotCall(proposed: Instruction, einfo: ExpressionInfo) {
       if (proposed != NoOp) throw InvalidReificationException("not Ok")
     }
 
@@ -90,21 +90,21 @@ public sealed class Instruction : PetElement() {
     data class Amount(val scalar: Scalar, val intensity: Intensity?) : Reifiable<Amount> {
       override val abstract: Boolean = scalar.abstract || intensity?.abstract != false
 
-      override fun ensureNarrows(that: Amount) {
-        intensity!!.ensureNarrows(that.intensity!!)
+      override fun ensureNarrows(that: Amount, einfo: ExpressionInfo) {
+        intensity!!.ensureNarrows(that.intensity!!, einfo)
         if (that.intensity == OPTIONAL && scalar is ActualScalar && that.scalar is ActualScalar) {
           if (scalar.value > that.scalar.value) throw InvalidReificationException("")
         } else {
-          scalar.ensureNarrows(that.scalar)
+          scalar.ensureNarrows(that.scalar, einfo)
         }
       }
     }
 
-    override fun checkReificationDoNotCall(proposed: Instruction, einfo: ExpressionInfo) {
+    override fun ensureIsNarrowedBy_doNotCall(proposed: Instruction, einfo: ExpressionInfo) {
       if (proposed == NoOp && intensity == OPTIONAL) return
-      (proposed as Change).amount.ensureReifies(amount)
-      gaining?.let { einfo.ensureReifies(it, proposed.gaining!!) }
-      removing?.let { einfo.ensureReifies(it, proposed.removing!!) }
+      (proposed as Change).amount.ensureNarrows(amount, einfo)
+      gaining?.let { einfo.ensureNarrows(it, proposed.gaining!!) }
+      removing?.let { einfo.ensureNarrows(it, proposed.removing!!) }
     }
   }
 
@@ -214,12 +214,12 @@ public sealed class Instruction : PetElement() {
 
     override fun isAbstract(einfo: ExpressionInfo) = instruction.isAbstract(einfo)
 
-    override fun checkReificationDoNotCall(proposed: Instruction, einfo: ExpressionInfo) {
+    override fun ensureIsNarrowedBy_doNotCall(proposed: Instruction, einfo: ExpressionInfo) {
       proposed as Per
       if (proposed.metric != metric) {
         throw InvalidReificationException("can't change the metric")
       }
-      proposed.instruction.ensureReifies(instruction, einfo)
+      proposed.instruction.ensureNarrows(instruction, einfo)
     }
 
     override fun toString() = "$instruction / $metric"
@@ -236,12 +236,12 @@ public sealed class Instruction : PetElement() {
 
     override fun isAbstract(einfo: ExpressionInfo) = instruction.isAbstract(einfo)
 
-    override fun checkReificationDoNotCall(proposed: Instruction, einfo: ExpressionInfo) {
+    override fun ensureIsNarrowedBy_doNotCall(proposed: Instruction, einfo: ExpressionInfo) {
       proposed as Gated
       if (proposed.gate != gate) {
         throw InvalidReificationException("can't change the condition")
       }
-      proposed.instruction.ensureReifies(instruction, einfo)
+      proposed.instruction.ensureNarrows(instruction, einfo)
     }
 
     override fun toString(): String {
@@ -266,7 +266,7 @@ public sealed class Instruction : PetElement() {
 
     override fun isAbstract(einfo: ExpressionInfo) = arguments.any { einfo.isAbstract(it) }
 
-    override fun checkReificationDoNotCall(proposed: Instruction, einfo: ExpressionInfo) {
+    override fun ensureIsNarrowedBy_doNotCall(proposed: Instruction, einfo: ExpressionInfo) {
       proposed as Custom
       if (proposed.multiplier != multiplier) {
         throw InvalidReificationException("can't change multiplier")
@@ -278,7 +278,7 @@ public sealed class Instruction : PetElement() {
         throw InvalidReificationException("wrong argument count")
       }
       for ((wide, narrow) in arguments.zip(proposed.arguments)) {
-        einfo.ensureReifies(wide, narrow)
+        einfo.ensureNarrows(wide, narrow)
       }
     }
 
@@ -312,10 +312,10 @@ public sealed class Instruction : PetElement() {
 
     override fun isAbstract(einfo: ExpressionInfo) = instructions.any { it.isAbstract(einfo) }
 
-    override fun checkReificationDoNotCall(proposed: Instruction, einfo: ExpressionInfo) {
-      proposed as Then
+    override fun ensureIsNarrowedBy_doNotCall(proposed: Instruction, einfo: ExpressionInfo) {
+      proposed as? Then ?: throw InvalidReificationException("Can't reify $this to $proposed")
       for ((wide, narrow) in instructions.zip(proposed.instructions)) {
-        narrow.ensureReifies(wide, einfo)
+        narrow.ensureNarrows(wide, einfo)
       }
       val maybeXs = this.descendantsOfType<Scalar>()
       if (maybeXs.any { it is XScalar }) {
@@ -355,11 +355,11 @@ public sealed class Instruction : PetElement() {
 
     override fun isAbstract(einfo: ExpressionInfo) = true
 
-    override fun checkReificationDoNotCall(proposed: Instruction, einfo: ExpressionInfo) {
+    override fun ensureIsNarrowedBy_doNotCall(proposed: Instruction, einfo: ExpressionInfo) {
       var messages = ""
       for (option in instructions) {
         try { // Just get any one to work
-          proposed.ensureReifies(option, einfo)
+          proposed.ensureNarrows(option, einfo)
           return
         } catch (e: InvalidReificationException) {
           messages += "${e.message}\n"
@@ -397,7 +397,7 @@ public sealed class Instruction : PetElement() {
 
     override fun isAbstract(einfo: ExpressionInfo) = error("should have been split by now: $this")
 
-    override fun checkReificationDoNotCall(proposed: Instruction, einfo: ExpressionInfo) =
+    override fun ensureIsNarrowedBy_doNotCall(proposed: Instruction, einfo: ExpressionInfo) =
         error("should have been split by now: $this")
 
     override fun precedence() = 0
@@ -427,7 +427,7 @@ public sealed class Instruction : PetElement() {
     override fun isAbstract(einfo: ExpressionInfo) =
         error("should have been transformed by now: $this")
 
-    override fun checkReificationDoNotCall(proposed: Instruction, einfo: ExpressionInfo) =
+    override fun ensureIsNarrowedBy_doNotCall(proposed: Instruction, einfo: ExpressionInfo) =
         error("should have been transformed by now: $this")
 
     override fun toString() = "$transformKind[$instruction]"
@@ -437,30 +437,16 @@ public sealed class Instruction : PetElement() {
 
   override val kind = Instruction::class.simpleName!!
 
-  protected abstract fun isAbstract(einfo: ExpressionInfo): Boolean
+  public abstract fun isAbstract(einfo: ExpressionInfo): Boolean
 
-  fun ensureReifies(abstractTarget: Instruction, einfo: ExpressionInfo) {
-    AsReifiable(this, einfo).ensureReifies(AsReifiable(abstractTarget, einfo))
-  }
-
-  data class AsReifiable(
-      val instruction: Instruction,
-      val einfo: ExpressionInfo,
-  ) : Reifiable<AsReifiable> {
-    override fun ensureNarrows(that: AsReifiable) {
-      val abstractTarget = that.instruction
-      if (abstractTarget !is Or &&
-          instruction != NoOp &&
-          instruction::class != abstractTarget::class) {
-        throw InvalidReificationException("`$instruction` can't reify `$abstractTarget`")
-      }
-      abstractTarget.checkReificationDoNotCall(instruction, einfo) // well WE can call it
+  fun ensureNarrows(abstractInstr: Instruction, einfo: ExpressionInfo) {
+    if (abstractInstr !is Or && this != NoOp && this::class != abstractInstr::class) {
+      throw InvalidReificationException("`$this` can't reify `$abstractInstr` (different types)")
     }
-
-    override val abstract = instruction.isAbstract(einfo)
+    abstractInstr.ensureIsNarrowedBy_doNotCall(this, einfo) // well WE can call it
   }
 
-  protected abstract fun checkReificationDoNotCall(proposed: Instruction, einfo: ExpressionInfo)
+  protected abstract fun ensureIsNarrowedBy_doNotCall(proposed: Instruction, einfo: ExpressionInfo)
 
   enum class Intensity(val symbol: String, override val abstract: Boolean = false) :
       Reifiable<Intensity> {
@@ -474,7 +460,7 @@ public sealed class Instruction : PetElement() {
     OPTIONAL("?", true),
     ;
 
-    override fun ensureNarrows(that: Intensity) {
+    override fun ensureNarrows(that: Intensity, einfo: ExpressionInfo) {
       if (that != this && that != OPTIONAL) {
         throw InvalidReificationException("")
       }

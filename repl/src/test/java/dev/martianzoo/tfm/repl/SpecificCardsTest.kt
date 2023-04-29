@@ -2,6 +2,7 @@ package dev.martianzoo.tfm.repl
 
 import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.tfm.api.GameSetup
+import dev.martianzoo.tfm.api.UserException.InvalidReificationException
 import dev.martianzoo.tfm.api.UserException.RequirementException
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.data.Player.Companion.ENGINE
@@ -236,7 +237,7 @@ class SpecificCardsTest {
 
     // We can't CEO's onto an empty card
     p1.execute("CeosFavoriteProject")
-    assertThrows<RequirementException> { p1.doTask("Floater<ForcedPrecipitation>") }
+    assertThrows<InvalidReificationException> { p1.doTask("Floater<ForcedPrecipitation>") }
     p1.assertCounts(0 to "Floater")
 
     // But if we *manually* add a floater first...
@@ -260,7 +261,7 @@ class SpecificCardsTest {
     p1.execute("AirScrappingExpedition")
 
     // We can't put air-scrap floaters onto a non-Venus card
-    assertThrows<RequirementException> { p1.doTask("3 Floater<AtmoCollectors>") }
+    assertThrows<InvalidReificationException> { p1.doTask("3 Floater<AtmoCollectors>") }
     p1.assertCounts(2 to "Floater")
 
     // But we can on a Venus card
@@ -279,9 +280,7 @@ class SpecificCardsTest {
     assertThat(p1.production().get(cn("Megacredit"))).isEqualTo(2)
 
     p1.execute("CommunityServices") // should be 3 tagless cards (Atmo, Airl, Comm)
-
-    // TODO THIS IS BROKEN, should be 5 not 6
-    assertThat(p1.production().get(cn("Megacredit"))).isEqualTo(6)
+    assertThat(p1.production().get(cn("Megacredit"))).isEqualTo(5)
   }
 
   @Test

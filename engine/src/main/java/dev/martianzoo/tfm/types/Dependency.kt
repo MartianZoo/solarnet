@@ -1,5 +1,6 @@
 package dev.martianzoo.tfm.types
 
+import dev.martianzoo.tfm.api.ExpressionInfo
 import dev.martianzoo.tfm.api.SpecialClassNames.CLASS
 import dev.martianzoo.tfm.pets.HasClassName
 import dev.martianzoo.tfm.pets.HasExpression
@@ -54,12 +55,13 @@ internal sealed class Dependency : Hierarchical<Dependency>, HasExpression, HasC
 
     override fun lub(that: Dependency) = copy(boundType = boundType lub boundOf(that))
 
+    internal fun map(function: (MType) -> MType) = copy(boundType = function(boundType))
+
+    override fun ensureNarrows(that: Dependency, einfo: ExpressionInfo) =
+        boundType.ensureNarrows(boundOf(that), einfo)
+
     private fun boundOf(that: Dependency): MType =
         (that as TypeDependency).boundType.also { require(key == that.key) }
-
-    internal fun map(function: (MType) -> MType): Dependency {
-      return copy(boundType = function(boundType))
-    }
   }
 
   /**
@@ -87,6 +89,9 @@ internal sealed class Dependency : Hierarchical<Dependency>, HasExpression, HasC
         (boundClass glb boundOf(that))?.let(::copy)
 
     override fun lub(that: Dependency): FakeDependency = copy(boundClass lub boundOf(that))
+
+    override fun ensureNarrows(that: Dependency, einfo: ExpressionInfo) =
+        boundClass.ensureNarrows(boundOf(that), einfo)
 
     private fun boundOf(that: Dependency): MClass =
         (that as FakeDependency).boundClass.also { require(key == that.key) }

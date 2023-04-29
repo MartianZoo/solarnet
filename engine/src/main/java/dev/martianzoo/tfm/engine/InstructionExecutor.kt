@@ -4,7 +4,6 @@ import dev.martianzoo.tfm.api.SpecialClassNames.RAW
 import dev.martianzoo.tfm.api.UserException
 import dev.martianzoo.tfm.data.GameEvent.ChangeEvent
 import dev.martianzoo.tfm.data.GameEvent.ChangeEvent.Cause
-import dev.martianzoo.tfm.engine.ActiveEffect.FiredEffect
 import dev.martianzoo.tfm.engine.Game.PlayerAgent
 import dev.martianzoo.tfm.pets.PetTransformer.Companion.chain
 import dev.martianzoo.tfm.pets.Transforming.replaceOwnerWith
@@ -95,21 +94,24 @@ internal data class InstructionExecutor(
   }
 
   private fun fireTriggers(triggerEvent: ChangeEvent) {
-    // TODO why are these so different from each other?
-    val firedSelfEffects: List<FiredEffect> =
-        listOfNotNull(triggerEvent.change.gaining, triggerEvent.change.removing)
-            .map(agent.game::toComponent)
-            .flatMap { it.activeEffects }
-            .mapNotNull { it.onChangeToSelf(triggerEvent, agent.game) }
+    val firedEffects = selfEffects(triggerEvent) + firedOtherEffects(triggerEvent)
+    val (now, later) = firedEffects.partition { it.automatic }
 
-    val firedOtherEffects: List<FiredEffect> =
-        agent.game.activeEffects().mapNotNull { it.onChangeToOther(triggerEvent, agent.game) }
-
-    val (now, later) = (firedSelfEffects + firedOtherEffects).partition { it.automatic }
     for (fx in now) {
       val executor = copy(cause = fx.cause)
       split(fx.instruction).forEach(executor::doInstruction)
     }
-    agent.game.addTriggeredTasks(later)
+    agent.game.addTriggeredTasks(later) // TODO do this before??
   }
+
+  // TODO can the differences be collapsed some?
+
+  private fun selfEffects(triggerEvent: ChangeEvent) =
+      listOfNotNull(triggerEvent.change.gaining, triggerEvent.change.removing)
+          .map(agent.game::toComponent)
+          .flatMap { it.activeEffects }
+          .mapNotNull { it.onChangeToSelf(triggerEvent, agent.game) }
+
+  private fun firedOtherEffects(triggerEvent: ChangeEvent) =
+      agent.game.activeEffects().mapNotNull { it.onChangeToOther(triggerEvent, agent.game) }
 }

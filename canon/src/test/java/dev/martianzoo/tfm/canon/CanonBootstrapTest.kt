@@ -1,6 +1,7 @@
 package dev.martianzoo.tfm.canon
 
 import com.google.common.truth.Truth.assertThat
+import dev.martianzoo.tfm.api.ExpressionInfo.StubExpressionInfo
 import dev.martianzoo.tfm.api.GameSetup
 import dev.martianzoo.tfm.api.SpecialClassNames.COMPONENT
 import dev.martianzoo.tfm.engine.Component
@@ -61,7 +62,8 @@ private class CanonBootstrapTest {
   @Test
   fun createsExpectedSingletons() {
     val game = Engine.newGame(GameSetup(Canon, "BRMPX", 3))
-    val startingComponents = game.components.getAll(game.resolve(COMPONENT.expression))
+    val startingComponents =
+        game.components.getAll(game.resolve(COMPONENT.expression), StubExpressionInfo)
 
     // 19 duplicate TR and 4 duplicate PROD[M]
     assertThat(startingComponents).hasSize(startingComponents.elements.size + 69)

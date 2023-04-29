@@ -1,11 +1,13 @@
 package dev.martianzoo.tfm.types
 
+import dev.martianzoo.tfm.api.ExpressionInfo
 import dev.martianzoo.tfm.api.SpecialClassNames.CLASS
 import dev.martianzoo.tfm.api.SpecialClassNames.COMPONENT
 import dev.martianzoo.tfm.api.SpecialClassNames.OK
 import dev.martianzoo.tfm.api.SpecialClassNames.OWNED
 import dev.martianzoo.tfm.api.SpecialClassNames.RAW
 import dev.martianzoo.tfm.api.SpecialClassNames.THIS
+import dev.martianzoo.tfm.api.UserException.InvalidReificationException
 import dev.martianzoo.tfm.data.ClassDeclaration
 import dev.martianzoo.tfm.pets.HasClassName
 import dev.martianzoo.tfm.pets.HasClassName.Companion.classNames
@@ -92,6 +94,12 @@ internal constructor(
     return candidates.maxBy {
       it.dependencies.typeDependencies.size * 100 + it.allSuperclasses.size
     }
+  }
+
+  override fun ensureNarrows(that: MClass, einfo: ExpressionInfo) {
+    if (!isSubtypeOf(that))
+        throw InvalidReificationException(
+            "${this.className} is not a subclass of ${that.className}")
   }
 
   /**

@@ -1,10 +1,10 @@
 package dev.martianzoo.tfm.types
 
+import dev.martianzoo.tfm.api.ExpressionInfo
 import dev.martianzoo.tfm.api.SpecialClassNames.CLASS
 import dev.martianzoo.tfm.api.SpecialClassNames.COMPONENT
 import dev.martianzoo.tfm.api.Type
 import dev.martianzoo.tfm.api.UserException
-import dev.martianzoo.tfm.api.UserException.InvalidReificationException
 import dev.martianzoo.tfm.pets.HasClassName
 import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.pets.ast.Requirement
@@ -139,20 +139,16 @@ internal constructor(
   private fun concreteSubclasses(mclass: MClass) =
       mclass.allSubclasses.asSequence().filter { !it.abstract }
 
-  override fun ensureReifies(abstractTarget: MType) {
-    super<Reifiable>.ensureReifies(abstractTarget)
-  }
+  override fun ensureNarrows(that: MType, einfo: ExpressionInfo) {
+    root.ensureNarrows(that.root, einfo)
+    dependencies.ensureNarrows(that.dependencies, einfo)
 
-  fun stripRefinements(): MType =
-      root.withAllDependencies(dependencies.map { it.stripRefinements() })
-
-  override fun ensureNarrows(that: MType) {
-    val thisWithoutHas = this.stripRefinements()
-    val thatWithoutHas = that.stripRefinements()
-    if (!thisWithoutHas.isSubtypeOf(thatWithoutHas)) {
-      throw InvalidReificationException(
-          "Ignoring refinements, ${thisWithoutHas.expression}" +
-              " isn't a subtype of ${thatWithoutHas.expression}")
+    val refin = that.refinement
+    if (refin != null) {
+      val requirement = root.table.transformers.refinementMangler(expression).transform(refin)
+      if (!einfo.evaluate(requirement)) {
+        throw UserException.refinementNotMet(requirement)
+      }
     }
   }
 

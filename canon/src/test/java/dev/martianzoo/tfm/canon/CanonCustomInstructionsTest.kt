@@ -3,7 +3,6 @@ package dev.martianzoo.tfm.canon
 import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.tfm.api.GameSetup
 import dev.martianzoo.tfm.api.UserException.InvalidReificationException
-import dev.martianzoo.tfm.api.UserException.RequirementException
 import dev.martianzoo.tfm.data.Player.Companion.PLAYER1
 import dev.martianzoo.tfm.engine.Engine
 import dev.martianzoo.tfm.engine.Humanizing.production
@@ -88,7 +87,7 @@ private class CanonCustomInstructionsTest {
     checkProduction(p1, 0, 2, 1, 0, 4, 0)
 
     // This card has no building tag so it won't work
-    assertThrows<RequirementException> { p1.doTask("@copyProductionBox(MassConverter)") }
+    assertThrows<InvalidReificationException> { p1.doTask("@copyProductionBox(MassConverter)") }
     checkProduction(p1, 0, 2, 1, 0, 4, 0)
 
     p1.doTask("@copyProductionBox(StripMine)")

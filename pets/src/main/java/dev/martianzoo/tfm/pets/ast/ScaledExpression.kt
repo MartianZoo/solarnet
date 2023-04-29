@@ -7,6 +7,7 @@ import com.github.h0tk3y.betterParse.combinators.or
 import com.github.h0tk3y.betterParse.combinators.skip
 import com.github.h0tk3y.betterParse.grammar.parser
 import com.github.h0tk3y.betterParse.parser.Parser
+import dev.martianzoo.tfm.api.ExpressionInfo
 import dev.martianzoo.tfm.api.UserException.InvalidReificationException
 import dev.martianzoo.tfm.api.UserException.PetSyntaxException
 import dev.martianzoo.tfm.pets.HasExpression
@@ -76,7 +77,7 @@ constructor(
 
       override fun times(multiple: Int) = copy(value = value * multiple)
 
-      override fun ensureNarrows(that: Scalar) {
+      override fun ensureNarrows(that: Scalar, einfo: ExpressionInfo) {
         when {
           that is XScalar && (value % that.multiple != 0) ->
               throw InvalidReificationException("$value isn't a multiple of ${that.multiple}")
@@ -95,7 +96,7 @@ constructor(
 
       override val abstract = true
 
-      override fun ensureNarrows(that: Scalar) {
+      override fun ensureNarrows(that: Scalar, einfo: ExpressionInfo) {
         if (this != that) throw InvalidReificationException("")
       }
 

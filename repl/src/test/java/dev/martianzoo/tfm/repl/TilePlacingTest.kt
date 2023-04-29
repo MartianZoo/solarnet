@@ -1,7 +1,7 @@
 package dev.martianzoo.tfm.repl
 
 import dev.martianzoo.tfm.api.UserException
-import dev.martianzoo.tfm.api.UserException.RequirementException
+import dev.martianzoo.tfm.api.UserException.InvalidReificationException
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.data.Player
 import dev.martianzoo.tfm.data.Player.Companion.PLAYER1
@@ -24,7 +24,7 @@ class TilePlacingTest {
     p2.stdProject("CitySP", "-25 THEN CityTile<M44> THEN PROD[1]")
     p2.stdProject("CitySP")
 
-    assertThrows<RequirementException> { p2.doTask("-25 THEN CityTile<M34> THEN PROD[1]") }
+    assertThrows<InvalidReificationException> { p2.doTask("-25 THEN CityTile<M34> THEN PROD[1]") }
   }
 
   @Test
@@ -52,7 +52,7 @@ class TilePlacingTest {
     p1.stdProject("GreenerySP")
 
     fun checkCantPlaceGreenery(area: String) =
-        assertThrows<RequirementException> { p1.doTask("-23 THEN GreeneryTile<$area>") }
+        assertThrows<InvalidReificationException> { p1.doTask("-23 THEN GreeneryTile<$area>") }
 
     p1.execute("CityTile<M86>") // shown as [] in comment below
     p2.execute("CityTile<M67>") // try to fool it by having an opponent tile at the XX below

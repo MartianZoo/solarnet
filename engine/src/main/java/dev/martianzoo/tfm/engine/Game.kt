@@ -78,14 +78,14 @@ internal constructor(
     fun countComponent(component: Component): Int
 
     /** How many total component instances have the type [parentType] (or any of its subtypes)? */
-    fun count(parentType: MType): Int
+    fun count(parentType: MType, einfo: ExpressionInfo): Int
 
     /**
      * Returns all component instances having the type [parentType] (or any of its subtypes), as a
      * multiset. The size of the returned collection will be `[count]([parentType])` . If
      * [parentType] is `Component` this will return the entire component multiset.
      */
-    fun getAll(parentType: MType): Multiset<Component>
+    fun getAll(parentType: MType, einfo: ExpressionInfo): Multiset<Component>
   }
 
   /**
@@ -159,28 +159,6 @@ internal constructor(
    */
   public fun toComponent(expression: Expression) = Component.ofType(resolve(expression))
 
-  internal val einfo =
-      object : ExpressionInfo {
-        override fun isAbstract(e: Expression) = resolve(e).abstract
-        override fun ensureReifies(wide: Expression, narrow: Expression) {
-          val abstractTarget = resolve(wide)
-          val proposed = resolve(narrow)
-          proposed.ensureReifies(abstractTarget)
-          checkRefinements(abstractTarget, proposed)
-        }
-
-        private fun checkRefinements(abstractTarget: MType, proposed: MType) {
-          val refin = abstractTarget.refinement
-          if (refin != null) {
-            val requirement = transformers.refinementMangler(proposed.expression).transform(refin)
-            if (!reader.evaluate(requirement)) throw UserException.requirementNotMet(requirement)
-          }
-          for ((a, b) in abstractTarget.typeDependencies.zip(proposed.typeDependencies)) {
-            checkRefinements(a.boundType, b.boundType)
-          }
-        }
-      }
-
   public fun checkpoint() = events.checkpoint()
 
   public fun rollBack(checkpoint: Checkpoint) {
@@ -252,7 +230,7 @@ internal constructor(
           override fun resolve(expression: Expression): MType = game.resolve(heyItsMe(expression))
 
           override fun evaluate(requirement: Requirement) =
-              game.reader.evaluate(heyItsMe(requirement))
+              game.reader.evaluate(heyItsMe(requirement)) // TODO expInfo doesn't want this
 
           override fun count(metric: Metric) = game.reader.count(heyItsMe(metric))
         }
@@ -264,7 +242,7 @@ internal constructor(
     private fun <P : PetNode?> heyItsMe(node: P): P = node?.let(insertOwner::transform) as P
 
     public fun getComponents(type: Expression): Multiset<Component> =
-        game.components.getAll(reader.resolve(type) as MType) // TODO think about
+        game.components.getAll(reader.resolve(type) as MType, reader) // TODO think about
 
     public fun sneakyChange(
         count: Int = 1,
@@ -310,16 +288,24 @@ internal constructor(
         throw UserException("$player can't perform task owned by ${requestedTask.owner}")
       }
 
-      val queuedInstruction = requestedTask.instruction
-      val fullyConcreteInstruction = heyItsMe(narrowed)
+      val queued = requestedTask.instruction
+      val specified = heyItsMe(narrowed)
 
-      fullyConcreteInstruction?.ensureReifies(queuedInstruction, game.einfo)
-      val instruction = fullyConcreteInstruction ?: queuedInstruction
+      val toExecute: Instruction =
+          if (specified == null) {
+            queued
+          } else {
+            if (specified.isAbstract(game.reader)) {
+              throw UserException.abstractInstruction(specified) // TODO be more specific
+            }
+            specified.ensureNarrows(queued, game.reader)
+            specified
+          }
 
       val checkpoint = game.checkpoint()
       try {
         val executor = InstructionExecutor(this, requestedTask.cause)
-        executor.doInstruction(instruction)
+        executor.doInstruction(toExecute)
         removeTask(taskId)
       } catch (e: Exception) {
         game.rollBack(checkpoint)

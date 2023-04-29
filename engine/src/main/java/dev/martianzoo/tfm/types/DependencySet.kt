@@ -1,5 +1,6 @@
 package dev.martianzoo.tfm.types
 
+import dev.martianzoo.tfm.api.ExpressionInfo
 import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.types.Dependency.Key
 import dev.martianzoo.tfm.types.Dependency.TypeDependency
@@ -68,7 +69,10 @@ internal class DependencySet private constructor(private val deps: Set<Dependenc
     return of(keys.map { this.get(it) lub that.get(it) })
   }
 
-  // OTHER OPERATORS
+  override fun ensureNarrows(that: DependencySet, einfo: ExpressionInfo) =
+      that.deps.forEach { get(it.key).ensureNarrows(it, einfo) }
+
+// OTHER OPERATORS
 
   inline fun merge(
       that: DependencySet,

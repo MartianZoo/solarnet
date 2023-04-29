@@ -3,6 +3,7 @@ package dev.martianzoo.tfm.api
 import dev.martianzoo.tfm.data.GameEvent.ChangeEvent.Cause
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.Expression
+import dev.martianzoo.tfm.pets.ast.Instruction
 import dev.martianzoo.tfm.pets.ast.Instruction.Change
 import dev.martianzoo.tfm.pets.ast.Instruction.Custom
 import dev.martianzoo.tfm.pets.ast.Instruction.Or
@@ -35,6 +36,9 @@ public open class UserException(override val message: String, cause: Throwable? 
               change?.let { append(" in: `$it`") }
             })
 
+    fun abstractInstruction(instr: Instruction) =
+        AbstractInstructionException("instruction is abstract: $instr")
+
     fun optionalAmount(change: Change) =
         AbstractInstructionException("amount is optional in: `$change`")
 
@@ -49,6 +53,9 @@ public open class UserException(override val message: String, cause: Throwable? 
             "abstract components ${abstractArgs.joinToString("")} in: `$custom`")
 
     fun requirementNotMet(reqt: Requirement) = RequirementException("requirement not met: `$reqt`")
+
+    fun refinementNotMet(reqt: Requirement) =
+        InvalidReificationException("requirement not met: `$reqt`")
 
     fun die(cause: Cause?) = DeadEndException("`Die` instruction was reached: $cause")
 

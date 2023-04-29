@@ -1,6 +1,7 @@
 package dev.martianzoo.tfm.engine
 
 import dev.martianzoo.tfm.api.Authority
+import dev.martianzoo.tfm.api.ExpressionInfo
 import dev.martianzoo.tfm.api.GameReader
 import dev.martianzoo.tfm.api.Type
 import dev.martianzoo.tfm.engine.Game.ComponentGraph
@@ -20,8 +21,14 @@ import dev.martianzoo.tfm.pets.ast.ScaledExpression.Scalar.ActualScalar
 import dev.martianzoo.tfm.types.MClassTable
 import kotlin.math.min
 
-internal class GameReaderImpl(val table: MClassTable, val components: ComponentGraph) : GameReader {
+internal class GameReaderImpl(val table: MClassTable, val components: ComponentGraph) :
+    GameReader, ExpressionInfo {
   override val authority: Authority by table::authority
+
+  override fun isAbstract(e: Expression) = resolve(e).abstract
+
+  override fun ensureNarrows(wide: Expression, narrow: Expression) =
+      resolve(narrow).ensureNarrows(resolve(wide), this)
 
   override fun resolve(expression: Expression) = table.resolve(expression)
 
@@ -43,17 +50,18 @@ internal class GameReaderImpl(val table: MClassTable, val components: ComponentG
 
   override fun count(metric: Metric): Int =
       when (metric) {
-        is Count -> components.count(resolve(metric.expression))
+        is Count -> components.count(resolve(metric.expression), this)
         is Scaled -> count(metric.metric) / metric.unit
         is Metric.Max -> min(count(metric.metric), metric.maximum)
         is Plus -> metric.metrics.sumOf(::count)
         is Metric.Transform -> error("should have been transformed by now: $metric")
       }
 
-  override fun count(type: Type) = components.count(table.resolve(type))
+  override fun count(type: Type) = components.count(table.resolve(type), this)
 
   override fun countComponent(concreteType: Type) =
       components.countComponent(Component.ofType(table.resolve(concreteType)))
 
-  override fun getComponents(type: Type) = components.getAll(table.resolve(type)).map { it.mtype }
+  override fun getComponents(type: Type) =
+      components.getAll(table.resolve(type), this).map { it.mtype }
 }
