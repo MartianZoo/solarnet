@@ -164,7 +164,7 @@ public class CardDefinition(data: CardData) : Definition {
     CORPORATION(CORPORATION_CARD)
   }
 
-  /** A kind (color) of project; see [CardDefinition.projectKind]. */
+  /** A kind (color) of project; see [CardDefinition.ProjectInfo.kind]. */
   enum class ProjectKind(val className: ClassName) {
     EVENT(EVENT_CARD),
     AUTOMATED(AUTOMATED_CARD),

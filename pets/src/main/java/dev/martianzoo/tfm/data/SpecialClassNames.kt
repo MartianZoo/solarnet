@@ -10,10 +10,6 @@ internal object SpecialClassNames {
   val TILE = cn("Tile")
 
   val MILESTONE = cn("Milestone")
-  // val AWARD = cn("Award")
-
-  val STANDARD_RESOURCE = cn("StandardResource")
-  val PRODUCTION = cn("Production")
 
   val CORPORATION_CARD = cn("CorporationCard")
   val PRELUDE_CARD = cn("PreludeCard")

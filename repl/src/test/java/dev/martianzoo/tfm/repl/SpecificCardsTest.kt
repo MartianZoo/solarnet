@@ -277,10 +277,10 @@ class SpecificCardsTest {
     p1.execute("10 ProjectCard, ForcedPrecipitation")
     p1.execute("AtmoCollectors", "2 Floater<AtmoCollectors>")
     p1.execute("Airliners", "2 Floater<AtmoCollectors>")
-    assertThat(p1.production().get(cn("Megacredit"))).isEqualTo(2)
+    assertThat(p1.production()[cn("Megacredit")]).isEqualTo(2)
 
     p1.execute("CommunityServices") // should be 3 tagless cards (Atmo, Airl, Comm)
-    assertThat(p1.production().get(cn("Megacredit"))).isEqualTo(5)
+    assertThat(p1.production()[cn("Megacredit")]).isEqualTo(5)
   }
 
   @Test

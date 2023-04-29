@@ -10,7 +10,6 @@ import dev.martianzoo.tfm.repl.TfmColor.ENERGY
 import dev.martianzoo.tfm.repl.TfmColor.HEAT
 import dev.martianzoo.tfm.repl.TfmColor.MEGACREDIT
 import dev.martianzoo.tfm.repl.TfmColor.PLANT
-import dev.martianzoo.tfm.repl.TfmColor.PRODUCTION
 import dev.martianzoo.tfm.repl.TfmColor.STEEL
 import dev.martianzoo.tfm.repl.TfmColor.TITANIUM
 
@@ -37,12 +36,12 @@ internal class PlayerBoardToText(
     val (ep, eres) = prodAndResource("Energy")
     val (hp, hres) = prodAndResource("Heat")
 
-    val m = prod(mp)
-    val s = prod(sp)
-    val t = prod(tp)
-    val p = prod(pp)
-    val e = prod(ep)
-    val h = prod(hp)
+    val m = mp.padStart(2)
+    val s = sp.padStart(2)
+    val t = tp.padStart(2)
+    val p = pp.padStart(2)
+    val e = ep.padStart(2)
+    val h = hp.padStart(2)
 
     fun maybeColor(c: TfmColor, s: String) = if (useColors) c.foreground(s) else s
 
@@ -69,10 +68,5 @@ internal class PlayerBoardToText(
     """
         .trimIndent()
         .split("\n")
-  }
-
-  private fun prod(num: String): String {
-    val prefix = " ".repeat(2 - num.length)
-    return prefix + if (false) PRODUCTION.background(num) else num
   }
 }

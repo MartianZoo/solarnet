@@ -14,7 +14,7 @@ public abstract class MClassTable {
   /** The `Class` class, the other class that is required to exist. */
   abstract val classClass: MClass
 
-  /** All classes loaded by this class loader; can only be accessed after the loader is [frozen]. */
+  /** All classes loaded by this class loader; can only be accessed after the loader is frozen. */
   abstract val allClasses: Set<MClass>
   internal abstract val allClassNamesAndIds: Set<ClassName>
 
@@ -35,8 +35,8 @@ public abstract class MClassTable {
   /**
    * For an example expression like `Foo<Bar, Qux>`, pass in `[Bar, Qux]` and Foo's base dependency
    * set. This method decides which dependencies in the dependency set each of these args should be
-   * matched with. The returned dependency set will have [TypeDependency]s in the corresponding
-   * order to the input expressions.
+   * matched with. The returned dependency set will have [Dependency]s in the corresponding order to
+   * the input expressions.
    *
    * DON'T call this for the <Foo> in Class<Foo>, it won't work.
    */

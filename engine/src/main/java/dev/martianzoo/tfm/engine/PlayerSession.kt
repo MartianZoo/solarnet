@@ -27,10 +27,7 @@ import dev.martianzoo.util.Hierarchical.Companion.lub
 import dev.martianzoo.util.Multiset
 
 /**
- * A convenient interface for functional tests; basically, [ReplSession] is just a more texty
- * version of this.
- *
- * It accepts `RAW[...]` nodes and (explain).
+ * TODO explain
  */
 public class PlayerSession
 internal constructor(

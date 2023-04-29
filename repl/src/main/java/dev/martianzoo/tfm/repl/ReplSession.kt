@@ -340,8 +340,7 @@ public class ReplSession(var setup: GameSetup, private val jline: JlineRepl? = n
         """
 
     override fun withArgs(args: String): List<String> {
-      val instruction = args
-      val instr: Instruction = parseInput(instruction)
+      val instr: Instruction = parseInput(args)
       val changes: Result =
           when (mode) {
             RED,

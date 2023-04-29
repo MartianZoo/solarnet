@@ -60,7 +60,7 @@ internal class MapToText(private val game: GameReader, val useColors: Boolean = 
 
   class CenteringAppender(val sb: StringBuilder) {
     var weird: Boolean = false
-    fun append(s: String) = sb.append(s)
+    fun append(s: String) = sb.append(s)!!
     fun appendHalfSpaces(n: Int) {
       append(" ".repeat(n / 2))
       if (n % 2 != 0) appendHalfSpace()

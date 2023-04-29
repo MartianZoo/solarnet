@@ -6,8 +6,6 @@ import dev.martianzoo.tfm.pets.ast.Instruction
  * For instructions that can't be expressed in Pets, write `@functionName(Arg1, Arg2...)` and
  * implement this interface. Any [Authority] providing a class declaration that uses that syntax
  * will need to also return this instance from [Authority.customInstruction].
- *
- * Only one of [translate] or [execute] need be overridden.
  */
 public abstract class CustomInstruction(
     /**
@@ -18,5 +16,6 @@ public abstract class CustomInstruction(
     val functionName: String,
 ) {
 
+  /** Returns the instructions to execute in place of this custom instructions. */
   abstract fun translate(game: GameReader, arguments: List<Type>): Instruction
 }

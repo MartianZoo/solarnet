@@ -123,8 +123,7 @@ public object Parsing {
     var index = 0
     val parsed = mutableListOf<T>()
     while (true) {
-      val result: ParseResult<T> = listParser.tryParse(tokens, index)
-      when (result) {
+      when (val result = listParser.tryParse(tokens, index)) {
         is Parsed -> {
           parsed += result.value
           require(result.nextPosition != index) { index }

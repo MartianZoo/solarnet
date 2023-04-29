@@ -27,7 +27,7 @@ public object SpecialClassNames {
   public fun player(seat: Int) = cn("Player$seat").also { require(seat in 1..5) }
 
   // Not class names, but...
-  public val RAW = "RAW"
+  public const val RAW = "RAW"
 
-  public val PROD = "PROD" // TODO Mars-specific
+  public const val PROD = "PROD" // TODO Mars-specific
 }
