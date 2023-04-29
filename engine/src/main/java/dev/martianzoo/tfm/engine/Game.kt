@@ -32,6 +32,7 @@ import dev.martianzoo.tfm.pets.ast.Instruction
 import dev.martianzoo.tfm.pets.ast.Metric
 import dev.martianzoo.tfm.pets.ast.PetNode
 import dev.martianzoo.tfm.pets.ast.Requirement
+import dev.martianzoo.tfm.types.MClass
 import dev.martianzoo.tfm.types.MClassTable
 import dev.martianzoo.tfm.types.MType
 import dev.martianzoo.util.Multiset
@@ -188,7 +189,8 @@ internal constructor(
   }
 
   // A little odd that activeEffects is only on "writable" components but okay
-  internal fun activeEffects(): List<ActiveEffect> = writableComponents.activeEffects()
+  internal fun activeEffects(classes: Set<MClass>): List<ActiveEffect> =
+      writableComponents.activeEffects(classes)
 
   internal fun setupFinished() = writableEvents.setStartPoint()
 

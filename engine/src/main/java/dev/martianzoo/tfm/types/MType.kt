@@ -67,6 +67,12 @@ internal constructor(
       if (!classNameExpr.simple) throw UserException.badClassExpression(specs)
       loader.getClass(classNameExpr.className).classType
     } else {
+      // TODO: does this help?
+      // val partial: DependencySet = loader.matchPartial(specs, dependencies)
+      // val reordered = dependencies.keys.map {
+      //   partial.getIfPresent(it) ?: dependencies.get(it)
+      // }
+      // copy(dependencies = of(reordered))
       copy(
           dependencies =
               loader

@@ -185,10 +185,11 @@ public class MClassLoader(
     val list =
         expressionArgs.map { arg ->
           val specType: MType = resolve(arg)
-          for (candidateDep in deps.typeDependencies - usedDeps) {
+          for (candidateDep in deps.typeDependencies) {
             val intersectionType = (specType glb candidateDep.boundType) ?: continue
-            usedDeps += candidateDep
-            return@map TypeDependency(candidateDep.key, intersectionType)
+            if (usedDeps.add(candidateDep)) {
+              return@map TypeDependency(candidateDep.key, intersectionType)
+            }
           }
           throw UserException.badExpression(arg, deps.toString())
         }

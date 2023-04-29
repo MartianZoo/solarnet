@@ -26,7 +26,7 @@ import dev.martianzoo.tfm.pets.ast.Requirement
 private typealias Hit = (Instruction) -> Instruction
 
 /** A triggered effect of "live" component existing in the [ComponentGraph]. */
-internal data class ActiveEffect(
+internal data class ActiveEffect private constructor(
     private val context: Component,
     private val subscription: Subscription,
     private val automatic: Boolean,
@@ -36,6 +36,8 @@ internal data class ActiveEffect(
     fun from(it: Effect, context: Component) =
         ActiveEffect(context, Subscription.from(it.trigger, context), it.automatic, it.instruction)
   }
+
+  val classToCheck: ClassName? by subscription::classToCheck
 
   operator fun times(multiplier: Int) = copy(instruction = instruction * multiplier)
 
@@ -95,6 +97,8 @@ internal data class ActiveEffect(
         isSelf: Boolean,
         game: Game,
     ): Hit?
+
+    abstract val classToCheck: ClassName?
   }
 
   private data class ConditionalSubscription(
@@ -110,6 +114,8 @@ internal data class ActiveEffect(
       val wouldHit = inner.checkForHit(currentEvent, actor, isSelf, game) ?: return null
       return if (game.reader.evaluate(condition)) wouldHit else null
     }
+
+    override val classToCheck = inner.classToCheck
   }
 
   private data class UnscaledSubscription(val inner: Subscription) : Subscription() {
@@ -123,6 +129,8 @@ internal data class ActiveEffect(
       return inner.checkForHit(
           currentEvent.copy(change = currentEvent.change.copy(count = 1)), actor, isSelf, game)
     }
+
+    override val classToCheck = inner.classToCheck
   }
 
   private data class PersonalSubscription(
@@ -145,6 +153,8 @@ internal data class ActiveEffect(
         originalHit
       }
     }
+
+    override val classToCheck = inner.classToCheck
 
     fun isPlayerSpecificTrigger(): Boolean {
       if (by.toString().matches(Regex("^Player[1-5]$"))) return true
@@ -174,6 +184,8 @@ internal data class ActiveEffect(
         null
       }
     }
+
+    override val classToCheck = null
   }
 
   private data class RegularSubscription(
@@ -200,5 +212,7 @@ internal data class ActiveEffect(
         null
       }
     }
+
+    override val classToCheck = match.className
   }
 }

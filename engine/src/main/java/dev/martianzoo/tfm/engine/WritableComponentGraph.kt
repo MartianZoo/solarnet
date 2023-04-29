@@ -7,8 +7,10 @@ import dev.martianzoo.tfm.engine.Exceptions.DependencyException
 import dev.martianzoo.tfm.engine.Exceptions.ExistingDependentsException
 import dev.martianzoo.tfm.engine.Exceptions.LimitsException
 import dev.martianzoo.tfm.engine.Game.ComponentGraph
+import dev.martianzoo.tfm.pets.HasClassName.Companion.classNames
 import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.pets.ast.Requirement.Counting
+import dev.martianzoo.tfm.types.MClass
 import dev.martianzoo.tfm.types.MType
 import dev.martianzoo.util.HashMultiset
 import dev.martianzoo.util.Multiset
@@ -34,9 +36,14 @@ internal class WritableComponentGraph(
     }
   }
 
-  // TODO update this redundantly instead of walking the whole table
-  fun activeEffects(): List<ActiveEffect> =
-      multiset.flatMap { it.activeEffects }.entries.map { (effect, count) -> effect * count }
+  // TODO update this redundantly instead of walking the whole table?
+  fun activeEffects(classes: Set<MClass>): List<ActiveEffect> {
+    val superclasses = classes.flatMap { it.allSuperclasses }.toSet().classNames()
+    return multiset
+        .flatMap { cpt -> cpt.activeEffects.filter { it.classToCheck in superclasses } }
+        .entries
+        .map { (effect, count) -> effect * count }
+  }
 
   internal fun update(
       count: Int = 1,

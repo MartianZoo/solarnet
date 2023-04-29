@@ -114,6 +114,12 @@ internal data class InstructionExecutor(
           .flatMap { it.activeEffects }
           .mapNotNull { it.onChangeToSelf(triggerEvent, agent.game) }
 
-  private fun firedOtherEffects(triggerEvent: ChangeEvent) =
-      agent.game.activeEffects().mapNotNull { it.onChangeToOther(triggerEvent, agent.game) }
+  private fun firedOtherEffects(triggerEvent: ChangeEvent): List<ActiveEffect.FiredEffect> {
+    val chg = triggerEvent.change
+    val classesInvolved =
+        listOfNotNull(chg.gaining, chg.removing).map { agent.game.resolve(it).root }.toSet()
+    return agent.game.activeEffects(classesInvolved).mapNotNull {
+      it.onChangeToOther(triggerEvent, agent.game)
+    }
+  }
 }
