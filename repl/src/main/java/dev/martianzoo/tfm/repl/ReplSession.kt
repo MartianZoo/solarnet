@@ -344,7 +344,8 @@ public class ReplSession(var setup: GameSetup, private val jline: JlineRepl? = n
       val instr: Instruction = parseInput(instruction)
       val changes: Result =
           when (mode) {
-            RED, YELLOW -> session.sneakyChange(instr)
+            RED,
+            YELLOW -> session.sneakyChange(instr)
             GREEN -> initiate(instr)
             BLUE -> {
               when {
@@ -422,8 +423,10 @@ public class ReplSession(var setup: GameSetup, private val jline: JlineRepl? = n
       val instruction: Instruction? = rest?.let(::parseInput)
       val result: Result =
           when (mode) {
-            RED, YELLOW -> throw UsageException("Can't execute tasks in this mode")
-            GREEN, BLUE, ->
+            RED,
+            YELLOW -> throw UsageException("Can't execute tasks in this mode")
+            GREEN,
+            BLUE, ->
                 if (auto) {
                   session.doTaskAndAutoExec(id, instruction)
                 } else {
@@ -526,13 +529,13 @@ public class ReplSession(var setup: GameSetup, private val jline: JlineRepl? = n
 
     override fun withArgs(args: String): List<String> {
       val expression: Expression =
-          // if (args == "random") {
-          //   val randomBaseType = session.table.allClasses.random().baseType
-          //   val randomType = randomBaseType.concreteSubtypesSameClass().toList().random()
-          //   randomType.expression
-          // } else {
-            parseAsIs(args)
-          // }
+      // if (args == "random") {
+      //   val randomBaseType = session.table.allClasses.random().baseType
+      //   val randomType = randomBaseType.concreteSubtypesSameClass().toList().random()
+      //   randomType.expression
+      // } else {
+      parseAsIs(args)
+      // }
       return listOf(MTypeToText.describe(expression, session))
     }
   }

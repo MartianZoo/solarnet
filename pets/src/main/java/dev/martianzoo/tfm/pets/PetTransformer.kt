@@ -71,8 +71,8 @@ public abstract class PetTransformer protected constructor() {
     fun <P : PetNode> x(nodes: Set<P>): Set<P> = x(nodes as Iterable<P>).toSetStrict()
 
     return (node as PetNode).run {
+      // The least interesting code in the entire project?
       val rewritten =
-          // The least interesting code in the entire project?
           when (this) {
             is ClassName -> this
             is Expression -> Expression(x(className), x(arguments), x(refinement))

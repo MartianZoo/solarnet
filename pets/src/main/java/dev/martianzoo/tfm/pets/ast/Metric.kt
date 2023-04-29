@@ -95,15 +95,18 @@ sealed class Metric : PetElement() {
             optional(rawScalar) and atom map { (scal, met) -> scal?.let { Scaled(it, met) } ?: met }
 
         val max: Parser<Metric> =
-            scaled and optional(skip(_max) and rawScalar) map { (met, limit) ->
-              limit?.let { Max(met, it) } ?: met
-            }
+            scaled and
+                optional(skip(_max) and rawScalar) map
+                { (met, limit) ->
+                  limit?.let { Max(met, it) } ?: met
+                }
 
         val result =
             max and
-            zeroOrMore(skipChar('+') and max) map { (met, addon) ->
-              if (addon.any()) Plus(listOf(met) + addon) else met
-            }
+                zeroOrMore(skipChar('+') and max) map
+                { (met, addon) ->
+                  if (addon.any()) Plus(listOf(met) + addon) else met
+                }
         result
       }
     }

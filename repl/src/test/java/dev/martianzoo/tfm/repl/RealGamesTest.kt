@@ -279,9 +279,7 @@ class RealGamesTest {
 
       assertThat(production().values).containsExactly(5, 0, 0, 0, 0, 1).inOrder()
 
-      assertThat(counts("M, S, T, P, E, H"))
-          .containsExactly(16, 3, 0, 0, 0, 1)
-          .inOrder()
+      assertThat(counts("M, S, T, P, E, H")).containsExactly(16, 3, 0, 0, 0, 1).inOrder()
 
       assertThat(counts("ProjectCard, CardFront, ActiveCard, AutomatedCard, PlayedEvent"))
           .containsExactly(7, 12, 5, 4, 1)
@@ -299,9 +297,7 @@ class RealGamesTest {
 
       assertThat(production().values).containsExactly(-4, 0, 1, 3, 1, 1).inOrder()
 
-      assertThat(counts("M, S, T, P, E, H"))
-          .containsExactly(18, 0, 1, 6, 1, 3)
-          .inOrder()
+      assertThat(counts("M, S, T, P, E, H")).containsExactly(18, 0, 1, 6, 1, 3).inOrder()
 
       assertThat(counts("ProjectCard, CardFront, ActiveCard, AutomatedCard, PlayedEvent"))
           .containsExactly(9, 5, 1, 2, 2)

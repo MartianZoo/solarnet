@@ -125,8 +125,10 @@ public data class Effect(
     data class XTrigger(override val inner: BasicTrigger) : WrappingTrigger() {
       override fun toString(): String {
         return when (inner) {
-          is OnGainOf, is WhenGain -> "X $inner"
-          is OnRemoveOf, is WhenRemove -> "-X ${inner.toString().substring(1)}"
+          is OnGainOf,
+          is WhenGain -> "X $inner"
+          is OnRemoveOf,
+          is WhenRemove -> "-X ${inner.toString().substring(1)}"
         }
       }
     }

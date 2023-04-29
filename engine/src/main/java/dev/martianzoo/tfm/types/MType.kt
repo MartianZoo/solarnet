@@ -68,11 +68,11 @@ internal constructor(
       loader.getClass(classNameExpr.className).classType
     } else {
       copy(
-          dependencies = loader
-              .matchPartial(specs, dependencies)
-              .overlayOn(dependencies)
-              .subMapInOrder(dependencies.keys)
-      )
+          dependencies =
+              loader
+                  .matchPartial(specs, dependencies)
+                  .overlayOn(dependencies)
+                  .subMapInOrder(dependencies.keys))
     }
   }
 
