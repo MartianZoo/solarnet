@@ -148,7 +148,7 @@ ABSTRACT CLASS Owned<Anyone> {
   }
 
   CLASS PlayCard<Class<CardFront>> : Temporary {
-    This:: @beginPlayCard(CardFront)
+    This:: @beginPlayCard(Class<CardFront>)
     -X Barrier IF =0 Barrier:: CardFront FROM This
   }
 

@@ -9,7 +9,6 @@ As of 2023-04, the number of rows in this table plus entries in cards.json shoul
 | C19 | Jupiter Floating Station   | READY?                |
 | C45 | Titan Shuttles             | READY?                |
 | X17 | Crash Site Cleanup         | READY?                |
-| X40 | Double Down                | READY?                |
 | 074 | Viral Enhancers            | linkages              |
 | 008 | Capital                    | concrete              |
 | 195 | Indentured Workers         | nextcard              |

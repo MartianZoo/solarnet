@@ -1,10 +1,12 @@
 package dev.martianzoo.tfm.engine
 
 import dev.martianzoo.tfm.api.SpecialClassNames.RAW
+import dev.martianzoo.tfm.api.Type
 import dev.martianzoo.tfm.api.UserException
 import dev.martianzoo.tfm.data.GameEvent.ChangeEvent
 import dev.martianzoo.tfm.data.GameEvent.ChangeEvent.Cause
 import dev.martianzoo.tfm.engine.ActiveEffect.FiredEffect
+import dev.martianzoo.tfm.engine.Exceptions.DependencyException
 import dev.martianzoo.tfm.engine.Game.PlayerAgent
 import dev.martianzoo.tfm.pets.PetTransformer.Companion.chain
 import dev.martianzoo.tfm.pets.Transforming.replaceOwnerWith
@@ -72,9 +74,9 @@ internal data class InstructionExecutor(
   }
 
   private fun handleCustomInstruction(instr: Custom) {
-    val arguments = instr.arguments.map(agent.reader::resolve)
-    val abstractArgs = arguments.filter { it.abstract }
-    if (abstractArgs.any()) throw UserException.abstractArguments(abstractArgs, instr)
+    val arguments: List<Type> = instr.arguments.map { agent.reader.resolve(it) }
+    val oops = arguments.filter { agent.reader.countComponent(it) == 0 }
+    if (oops.any()) throw DependencyException(oops) // or it could be abstract
 
     val custom = agent.reader.authority.customInstruction(instr.functionName)
     val translated: Instruction = custom.translate(agent.reader, arguments) * instr.multiplier

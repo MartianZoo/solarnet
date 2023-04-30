@@ -1,11 +1,12 @@
 package dev.martianzoo.tfm.engine
 
+import dev.martianzoo.tfm.api.Type
 import dev.martianzoo.tfm.api.UserException
 import dev.martianzoo.tfm.pets.ast.Instruction
 
 /** Some exception types and factories. */
 public object Exceptions {
-  public class DependencyException(val dependencies: Collection<Component>) :
+  public class DependencyException(val dependencies: Collection<Type>) :
       UserException("Missing dependencies: ${dependencies.joinToString()}")
 
   public class ExistingDependentsException(val dependents: Collection<Component>) :

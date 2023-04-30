@@ -5,6 +5,7 @@ import dev.martianzoo.tfm.api.GameSetup
 import dev.martianzoo.tfm.api.UserException.InvalidReificationException
 import dev.martianzoo.tfm.api.UserException.RequirementException
 import dev.martianzoo.tfm.canon.Canon
+import dev.martianzoo.tfm.data.Player
 import dev.martianzoo.tfm.data.Player.Companion.ENGINE
 import dev.martianzoo.tfm.data.Player.Companion.PLAYER1
 import dev.martianzoo.tfm.engine.Engine
@@ -313,5 +314,33 @@ class SpecificCardsTest {
 
     assertThat(p1.has("SpaceElevator")).isTrue()
     assertThat(p1.count("M")).isEqualTo(23)
+  }
+
+  @Test
+  fun doubleDown() {
+    val game = Engine.newGame(GameSetup(Canon, "BRHXP", 2))
+    val eng = game.asPlayer(ENGINE).session()
+    val p1 = eng.asPlayer(PLAYER1)
+    val p2 = eng.asPlayer(Player.PLAYER2)
+
+    p1.turn("InterplanetaryCinematics", "7 BuyCard")
+    p2.turn("PharmacyUnion", "5 BuyCard")
+
+    eng.execute("PreludePhase")
+
+    p1.turn("UnmiContractor")
+    p1.turn("CorporateArchives")
+
+    p2.turn("BiosphereSupport")
+    assertThat(p2.production().values).containsExactly(-1, 0, 0, 2, 0, 0).inOrder()
+
+    p2.turn("DoubleDown")
+    assertThrows<Exception>("1") { p2.doTask("@copyPrelude(MartianIndustries)") }
+    assertThrows<Exception>("2") { p2.doTask("@copyPrelude(UnmiContractor)") }
+    assertThrows<Exception>("3") { p2.doTask("@copyPrelude(PharmacyUnion)") }
+    assertThrows<Exception>("4") { p2.doTask("@copyPrelude(DoubleDown)") }
+
+    p2.doTask("@copyPrelude(BiosphereSupport)")
+    assertThat(p2.production().values).containsExactly(-2, 0, 0, 4, 0, 0).inOrder()
   }
 }

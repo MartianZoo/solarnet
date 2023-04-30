@@ -71,7 +71,7 @@ internal class WritableComponentGraph(
 
     if (gaining != null) {
       val missingDeps = gaining.dependencyComponents - multiset.elements
-      if (missingDeps.any()) throw DependencyException(missingDeps)
+      if (missingDeps.any()) throw DependencyException(missingDeps.map { it.mtype })
 
       val gainable = gaining.allowedRange.last - countComponent(gaining)
       actual = min(actual, gainable)

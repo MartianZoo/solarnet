@@ -76,7 +76,7 @@ ABSTRACT CLASS GlobalParameter[GP] : Atomized {
 
 ABSTRACT CLASS MarsMap {                               // Hellas etc. are loaded from `maps.json5`
   HAS =1 This
-  // This:: @createAll(This, Border)
+  // This:: @createBorders(This)
 }
 
 ABSTRACT CLASS Area {

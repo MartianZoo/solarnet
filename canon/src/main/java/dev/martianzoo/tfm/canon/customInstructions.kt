@@ -9,6 +9,7 @@ import dev.martianzoo.tfm.api.SpecialClassNames.PROD
 import dev.martianzoo.tfm.api.Type
 import dev.martianzoo.tfm.api.UserException
 import dev.martianzoo.tfm.data.CardDefinition
+import dev.martianzoo.tfm.data.CardDefinition.Deck.PRELUDE
 import dev.martianzoo.tfm.data.MarsMapDefinition.AreaDefinition
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
@@ -33,6 +34,7 @@ internal val allCustomInstructions =
         GetVpsFrom,
         GainLowestProduction,
         CopyProductionBox,
+        CopyPrelude
     )
 
 private object ForceLoad : CustomInstruction("forceLoad") {
@@ -84,10 +86,11 @@ private object CreateAdjacencies : CustomInstruction("createAdjacencies") {
   }
 }
 
+// @beginPlayCard(Class<CardFront>)
 private object BeginPlayCard : CustomInstruction("beginPlayCard") {
   override fun translate(game: GameReader, arguments: List<Type>): Instruction {
-    val cardType: Type = arguments.single()
-    val cardName = cardType.expression.className
+    val classExpr = arguments.single().expression
+    val cardName = classExpr.arguments.single().className
     val card: CardDefinition = game.authority.card(cardName)
 
     val reqt = card.requirement?.unraw()
@@ -154,5 +157,18 @@ private object CopyProductionBox : CustomInstruction("copyProductionBox") {
               "The immediate instructions on ${def.className} " +
                   "have multiple PROD boxes, which should never happen")
     }
+  }
+}
+
+// For Double Down
+private object CopyPrelude : CustomInstruction("copyPrelude") {
+  override fun translate(game: GameReader, arguments: List<Type>): Instruction {
+    val typeExpr = arguments.single().expressionFull
+    if (game.resolve(typeExpr).className == cn("DoubleDown")) {
+      throw UserException("Cute. No, you can't copy Double Down itself")
+    }
+    val def = game.authority.card(typeExpr.className)
+    if (def.deck != PRELUDE) throw UserException("Card $typeExpr is not a prelude card")
+    return def.immediate!!
   }
 }
