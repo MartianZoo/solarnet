@@ -189,7 +189,7 @@ internal constructor(
   }
 
   // A little odd that activeEffects is only on "writable" components but okay
-  internal fun activeEffects(classes: Set<MClass>): List<ActiveEffect> =
+  internal fun activeEffects(classes: Collection<MClass>): List<ActiveEffect> =
       writableComponents.activeEffects(classes)
 
   internal fun setupFinished() = writableEvents.setStartPoint()

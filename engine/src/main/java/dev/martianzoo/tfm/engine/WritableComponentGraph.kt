@@ -31,7 +31,7 @@ internal class WritableComponentGraph(
   }
 
   // TODO update this redundantly instead of walking the whole table?
-  fun activeEffects(classes: Set<MClass>): List<ActiveEffect> {
+  fun activeEffects(classes: Collection<MClass>): List<ActiveEffect> {
     val superclasses = classes.flatMap { it.allSuperclasses }.toSet().classNames()
     return multiset
         .flatMap { cpt -> cpt.activeEffects.filter { it.classToCheck in superclasses } }

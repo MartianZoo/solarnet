@@ -24,6 +24,7 @@ import dev.martianzoo.tfm.pets.ast.Instruction.Then
 import dev.martianzoo.tfm.pets.ast.Instruction.Transform
 import dev.martianzoo.tfm.pets.ast.ScaledExpression.Scalar.ActualScalar
 import dev.martianzoo.tfm.pets.ast.TransformNode
+import dev.martianzoo.tfm.types.MType
 
 internal data class InstructionExecutor(
     val agent: PlayerAgent,
@@ -95,7 +96,7 @@ internal data class InstructionExecutor(
   }
 
   private fun fireTriggers(triggerEvent: ChangeEvent) {
-    val (now, later) = firedEffects(triggerEvent).partition { it.automatic }
+    val (now, later) = getFiringEffects(triggerEvent).partition { it.automatic }
 
     for (fx in now) {
       val executor = copy(cause = fx.cause)
@@ -104,23 +105,25 @@ internal data class InstructionExecutor(
     agent.game.addTriggeredTasks(later) // TODO why can't we do this before??
   }
 
-  private fun firedEffects(triggerEvent: ChangeEvent) =
-      selfEffects(triggerEvent) + firedOtherEffects(triggerEvent)
+  private fun getFiringEffects(triggerEvent: ChangeEvent): List<FiredEffect> =
+      getFiringSelfEffects(triggerEvent) + getFiringOtherEffects(triggerEvent)
 
   // TODO can the differences be collapsed some?
 
-  private fun selfEffects(triggerEvent: ChangeEvent) =
-      listOfNotNull(triggerEvent.change.gaining, triggerEvent.change.removing)
-          .map(agent.game::toComponent)
+  private fun getFiringSelfEffects(triggerEvent: ChangeEvent): List<FiredEffect> =
+      componentsIn(triggerEvent)
+          .map { Component.ofType(it) }
           .flatMap { it.activeEffects }
           .mapNotNull { it.onChangeToSelf(triggerEvent, agent.game) }
 
-  private fun firedOtherEffects(triggerEvent: ChangeEvent): List<FiredEffect> {
-    val chg = triggerEvent.change
-    val classesInvolved =
-        listOfNotNull(chg.gaining, chg.removing).map { agent.game.resolve(it).root }.toSet()
+  private fun getFiringOtherEffects(triggerEvent: ChangeEvent): List<FiredEffect> {
+    val classesInvolved = componentsIn(triggerEvent).map { it.root }
     return agent.game.activeEffects(classesInvolved).mapNotNull {
       it.onChangeToOther(triggerEvent, agent.game)
     }
   }
+
+  private fun componentsIn(triggerEvent: ChangeEvent): List<MType> =
+      listOfNotNull(triggerEvent.change.gaining, triggerEvent.change.removing)
+          .map(agent.game::resolve)
 }
