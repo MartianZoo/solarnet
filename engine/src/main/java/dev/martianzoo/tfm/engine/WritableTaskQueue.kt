@@ -13,11 +13,9 @@ import dev.martianzoo.tfm.engine.Game.TaskQueue
 import dev.martianzoo.tfm.pets.ast.Instruction
 import dev.martianzoo.tfm.pets.ast.Instruction.Companion.split
 import dev.martianzoo.util.toStrings
-import java.util.SortedMap
-import java.util.TreeMap
 
 internal class WritableTaskQueue(
-    private val taskMap: SortedMap<TaskId, Task> = TreeMap(), // TODO dejavafy
+    private val taskMap: MutableMap<TaskId, Task> = mutableMapOf()
 ) : TaskQueue {
   override fun toString() = taskMap.values.joinToString("\n")
 
@@ -29,7 +27,7 @@ internal class WritableTaskQueue(
   }
 
   override val size by taskMap::size
-  override val ids by taskMap::keys
+  override val ids = taskMap.keys.sorted().toSet()
   override fun isEmpty() = taskMap.isEmpty()
 
   internal fun addTasksFrom(effect: FiredEffect, eventLog: WritableEventLog): Unit =
@@ -83,11 +81,11 @@ internal class WritableTaskQueue(
     }
   }
 
-  override fun nextAvailableId() = if (taskMap.none()) TaskId("A") else taskMap.lastKey().next()
+  override fun nextAvailableId() = if (taskMap.none()) TaskId("A") else taskMap.keys.max().next()
 
   override fun toStrings(): List<String> = taskMap.values.toStrings()
 
-  override fun asMap() = taskMap.toMap()
+  override fun asMap() = taskMap.keys.sorted().associateWith { taskMap[it]!! }
 
-  fun clone() = WritableTaskQueue(TreeMap(taskMap))
+  fun clone() = WritableTaskQueue(taskMap.toMutableMap())
 }

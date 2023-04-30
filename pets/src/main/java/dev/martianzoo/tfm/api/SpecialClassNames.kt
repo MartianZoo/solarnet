@@ -29,5 +29,5 @@ public object SpecialClassNames {
   // Not class names, but...
   public const val RAW = "RAW"
 
-  public const val PROD = "PROD" // TODO Mars-specific
+  public const val PROD = "PROD"
 }

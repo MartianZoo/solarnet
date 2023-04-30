@@ -201,7 +201,7 @@ internal class PetGenerator(scaling: (Int) -> Double) :
       return try {
         super.invoke(type, gen)
       } catch (e: PetSyntaxException) {
-        null // TODO this better
+        null
       }
     }
 

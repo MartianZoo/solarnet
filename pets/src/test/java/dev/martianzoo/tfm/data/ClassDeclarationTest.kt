@@ -37,7 +37,6 @@ private class ClassDeclarationTest {
     val dep = cn("Bar").expression
     val sup = te("Baz<Qux>")
 
-    // TODO it sucks that taking out the explicit type makes it break at runtime
     val inv: Requirement = Requirement.Exact(scaledEx(1, THIS.expression)).raw()
     val eff: Effect = parseAsIs<Effect>("This: DoStuff").raw()
     val act = actionToEffect(parseAsIs("Steel -> 5"), 1).raw()
