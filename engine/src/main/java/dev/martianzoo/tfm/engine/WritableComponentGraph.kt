@@ -25,14 +25,8 @@ internal class WritableComponentGraph(
   override fun countComponent(component: Component) = multiset.count(component)
 
   override fun getAll(parentType: MType, einfo: ExpressionInfo): Multiset<Component> {
-    // TODO: refinement-aware
     return multiset.filter {
-      try {
-        it.mtype.ensureNarrows(parentType, einfo)
-        true
-      } catch (e: Exception) {
-        false
-      }
+      it.mtype.narrows(parentType, einfo)
     }
   }
 

@@ -72,6 +72,9 @@ internal class DependencySet private constructor(private val deps: Set<Dependenc
   override fun ensureNarrows(that: DependencySet, einfo: ExpressionInfo) =
       that.deps.forEach { get(it.key).ensureNarrows(it, einfo) }
 
+  fun narrows(that: DependencySet, einfo: ExpressionInfo) =
+      that.deps.all { get(it.key).narrows(it, einfo) }
+
   // OTHER OPERATORS
 
   inline fun merge(

@@ -4,6 +4,7 @@ import dev.martianzoo.tfm.api.SpecialClassNames.RAW
 import dev.martianzoo.tfm.api.UserException
 import dev.martianzoo.tfm.data.GameEvent.ChangeEvent
 import dev.martianzoo.tfm.data.GameEvent.ChangeEvent.Cause
+import dev.martianzoo.tfm.engine.ActiveEffect.FiredEffect
 import dev.martianzoo.tfm.engine.Game.PlayerAgent
 import dev.martianzoo.tfm.pets.PetTransformer.Companion.chain
 import dev.martianzoo.tfm.pets.Transforming.replaceOwnerWith
@@ -114,7 +115,7 @@ internal data class InstructionExecutor(
           .flatMap { it.activeEffects }
           .mapNotNull { it.onChangeToSelf(triggerEvent, agent.game) }
 
-  private fun firedOtherEffects(triggerEvent: ChangeEvent): List<ActiveEffect.FiredEffect> {
+  private fun firedOtherEffects(triggerEvent: ChangeEvent): List<FiredEffect> {
     val chg = triggerEvent.change
     val classesInvolved =
         listOfNotNull(chg.gaining, chg.removing).map { agent.game.resolve(it).root }.toSet()

@@ -155,5 +155,14 @@ internal constructor(
     }
   }
 
+  fun narrows(that: MType, einfo: ExpressionInfo): Boolean {
+    if (!root.isSubtypeOf(that.root)) return false
+    if (!dependencies.narrows(that.dependencies, einfo)) return false
+
+    val refin = that.refinement ?: return true
+    val requirement = root.table.transformers.refinementMangler(expression).transform(refin)
+    return einfo.evaluate(requirement)
+  }
+
   override fun toString() = "$expressionFull@${root.loader}"
 }

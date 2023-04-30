@@ -33,6 +33,8 @@ internal sealed class Dependency : Hierarchical<Dependency>, HasExpression, HasC
 
   abstract val boundClass: MClass
 
+  abstract fun narrows(that: Dependency, einfo: ExpressionInfo): Boolean
+
   /** Any [Dependency] except for the case covered by [FakeDependency] below. */
   data class TypeDependency(override val key: Key, val boundType: MType) :
       Dependency(), HasExpression by boundType {
@@ -59,6 +61,9 @@ internal sealed class Dependency : Hierarchical<Dependency>, HasExpression, HasC
 
     override fun ensureNarrows(that: Dependency, einfo: ExpressionInfo) =
         boundType.ensureNarrows(boundOf(that), einfo)
+
+    override fun narrows(that: Dependency, einfo: ExpressionInfo) =
+        boundType.narrows(boundOf(that), einfo)
 
     private fun boundOf(that: Dependency): MType =
         (that as TypeDependency).boundType.also { require(key == that.key) }
@@ -92,6 +97,9 @@ internal sealed class Dependency : Hierarchical<Dependency>, HasExpression, HasC
 
     override fun ensureNarrows(that: Dependency, einfo: ExpressionInfo) =
         boundClass.ensureNarrows(boundOf(that), einfo)
+
+    override fun narrows(that: Dependency, einfo: ExpressionInfo) =
+        boundClass.isSubtypeOf(boundOf(that))
 
     private fun boundOf(that: Dependency): MClass =
         (that as FakeDependency).boundClass.also { require(key == that.key) }
