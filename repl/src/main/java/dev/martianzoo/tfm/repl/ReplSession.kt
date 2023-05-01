@@ -112,6 +112,7 @@ public class ReplSession(var setup: GameSetup, private val jline: JlineRepl? = n
               ScriptCommand(),
               TaskCommand(),
               TasksCommand(),
+              // TurnCommand(),
           )
           .associateBy { it.name }
 
@@ -124,7 +125,7 @@ public class ReplSession(var setup: GameSetup, private val jline: JlineRepl? = n
     override val isReadOnly = true
     override fun noArgs() = listOf(helpText)
     override fun withArgs(args: String): List<String> {
-      return when (args.trim()) {
+      return when (args.trim().lowercase()) {
         "exit" -> listOf("I mean it exits.")
         "rebuild" -> listOf("Exits, recompiles the code, and restarts. Your game is lost.")
         else -> {
@@ -343,19 +344,17 @@ public class ReplSession(var setup: GameSetup, private val jline: JlineRepl? = n
       val instr: Instruction = parseInput(args)
       val changes: Result =
           when (mode) {
-            RED,
-            YELLOW -> session.sneakyChange(instr)
+            RED, YELLOW -> session.sneakyChange(instr)
             GREEN -> initiate(instr)
-            BLUE -> {
-              when {
-                instr.isGainOf(cn("Turn")) -> initiate(instr)
-                session.agent.player != ENGINE -> {
-                  throw UsageException("In blue mode you must be Engine to do this")
+            BLUE ->
+                when {
+                  session.agent.player != ENGINE ->
+                      throw UsageException("In blue mode you must be Engine to do this")
+                  instr.isGainOf(cn("NewTurn")) -> initiate(instr)
+                  instr.isGainOf(cn("Phase")) -> initiate(instr)
+                  else ->
+                      throw UsageException("Eep, can't do that in ${mode.name.lowercase()} mode")
                 }
-                instr.isGainOf(cn("Phase")) -> initiate(instr)
-                else -> throw UsageException("Eep, can't do that in ${mode.name.lowercase()} mode")
-              }
-            }
           }
 
       return describeExecutionResults(changes)

@@ -119,34 +119,19 @@ ABSTRACT CLASS Generational {                          // things that disappear 
   Generation:: -This.                                  // <-- and look, there they go
 }
 
-CLASS Turn : Signal                                    // ha. turn signal. TODO should be owned
-
 ABSTRACT CLASS Phase : System {
   // HAS MAX 1 Phase
   // Phase FROM This
 
-  CLASS SetupPhase {
-    This: Generation, CorporationPhase FROM This
-  }
-
-  CLASS CorporationPhase {
-    Turn: CorporationCard, CardFront, 10 BuyCard?
-    ActionPhase:: -This!
-  }
-
+  CLASS SetupPhase { This: Generation, CorporationPhase FROM This }
+  CLASS CorporationPhase { ActionPhase:: -This! }
   CLASS PreludePhase {                                 // TODO how to make it part of `P` bundle?
     This:: -CorporationPhase.
-    Turn: PreludeCard, CardFront OR (-PreludeCard THEN 15) // should be ELSE (#22)
     ActionPhase:: -This!
   }
-
-  CLASS ActionPhase {
-    This:: -ResearchPhase.
-    Turn: UseAction<StandardAction>?
-  }
-
-  CLASS ProductionPhase { This:: -ActionPhase, ResearchPhase FROM This }
-  CLASS ResearchPhase { This:: Generation }
+  CLASS ActionPhase { This:: -ResearchPhase. }
+  CLASS ProductionPhase { This:: -ActionPhase }
+  CLASS ResearchPhase { This:: -ProductionPhase, Generation }
   CLASS End
 }
 

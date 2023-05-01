@@ -27,7 +27,8 @@ import dev.martianzoo.tfm.pets.ast.Requirement
 private typealias Hit = (Instruction) -> Instruction
 
 /** A triggered effect of "live" component existing in the [ComponentGraph]. */
-internal data class ActiveEffect private constructor(
+internal data class ActiveEffect
+private constructor(
     private val context: Component,
     private val subscription: Subscription,
     private val automatic: Boolean,
@@ -138,14 +139,21 @@ internal data class ActiveEffect private constructor(
       val inner: Subscription,
       val by: ClassName,
   ) : Subscription() {
+    val player: Player? =
+        try {
+          Player(by)
+        } catch (e: Exception) {
+          require(by == OWNER || by == ANYONE)
+          null
+        }
+
     override fun checkForHit(
         currentEvent: ChangeEvent,
         actor: Player,
         isSelf: Boolean,
         game: Game,
     ): Hit? {
-      if (isPlayerSpecificTrigger() && actor.className != by) return null
-
+      if (player != null && actor != player) return null
       val originalHit = inner.checkForHit(currentEvent, actor, isSelf, game) ?: return null
 
       return if (by == OWNER) {
@@ -156,12 +164,6 @@ internal data class ActiveEffect private constructor(
     }
 
     override val classToCheck = inner.classToCheck
-
-    fun isPlayerSpecificTrigger(): Boolean {
-      if (by.toString().matches(Regex("^Player[1-5]$"))) return true
-      require(by == ANYONE || by == OWNER) { by }
-      return false
-    }
   }
 
   private data class SelfSubscription(

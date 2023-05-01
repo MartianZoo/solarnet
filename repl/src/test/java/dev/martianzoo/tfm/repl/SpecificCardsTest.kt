@@ -331,16 +331,18 @@ class SpecificCardsTest {
     p1.turn("UnmiContractor")
     p1.turn("CorporateArchives")
 
-    p2.turn("BiosphereSupport")
-    assertThat(p2.production().values).containsExactly(-1, 0, 0, 2, 0, 0).inOrder()
+    with(p2) {
+      turn("BiosphereSupport")
+      assertThat(production().values).containsExactly(-1, 0, 0, 2, 0, 0).inOrder()
 
-    p2.turn("DoubleDown")
-    assertThrows<Exception>("1") { p2.doTask("@copyPrelude(MartianIndustries)") }
-    assertThrows<Exception>("2") { p2.doTask("@copyPrelude(UnmiContractor)") }
-    assertThrows<Exception>("3") { p2.doTask("@copyPrelude(PharmacyUnion)") }
-    assertThrows<Exception>("4") { p2.doTask("@copyPrelude(DoubleDown)") }
+      turn("DoubleDown")
+      assertThrows<Exception>("1") { doTask("@copyPrelude(MartianIndustries)") }
+      assertThrows<Exception>("2") { doTask("@copyPrelude(UnmiContractor)") }
+      assertThrows<Exception>("3") { doTask("@copyPrelude(PharmacyUnion)") }
+      assertThrows<Exception>("4") { doTask("@copyPrelude(DoubleDown)") }
 
-    p2.doTask("@copyPrelude(BiosphereSupport)")
-    assertThat(p2.production().values).containsExactly(-2, 0, 0, 4, 0, 0).inOrder()
+      doTask("@copyPrelude(BiosphereSupport)")
+      assertThat(production().values).containsExactly(-2, 0, 0, 4, 0, 0).inOrder()
+    }
   }
 }

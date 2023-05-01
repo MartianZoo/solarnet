@@ -6,9 +6,10 @@ ABSTRACT CLASS Anyone[ANY] {                      // aka Player
   ABSTRACT CLASS Owner {
     HAS =1 This
 
-    SetupPhase:: 20 TerraformRating<This>         // Solo game support is in the far future...
-    SetupPhase:: GrossHack<This>
-
+    SetupPhase:: 20 TerraformRating<This>, GrossHack<This>
+    NewTurn IF CorporationPhase: CorporationCard, CardFront, 10 BuyCard?
+    NewTurn IF PreludePhase: PreludeCard, CardFront OR (-PreludeCard THEN 15) // ELSE (#22)
+    NewTurn IF ActionPhase: UseAction<StandardAction> OR Pass
     ResearchPhase: 4 BuyCard<This>?
 
     CLASS Player1[P1]
@@ -134,6 +135,14 @@ ABSTRACT CLASS Owned<Anyone> {
 // MISC ------------------------------------------
 
   ABSTRACT CLASS Milestone[MIL]                   // specific ones loaded from `milestones.json5`
+
+  CLASS NewTurn : Signal
+
+  CLASS Pass : Generational {
+    HAS MAX 1 This                                // Passing twice is impossible
+    This IF MAX 0 ActionPhase:: Die               // Can only do it in the action phase
+    NewTurn:: Die                                 // Can't get a turn once you have this
+  }
 
   ABSTRACT CLASS UseAction<HasActions> [UA] : Signal {
     // This IF MAX 0 ActionPhase:: Die  <-- might make sense in a real game but annoying for repl

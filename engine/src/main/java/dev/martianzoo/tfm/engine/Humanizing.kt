@@ -1,6 +1,7 @@
 package dev.martianzoo.tfm.engine
 
 import dev.martianzoo.tfm.api.ApiUtils
+import dev.martianzoo.tfm.data.Player.Companion.ENGINE
 import dev.martianzoo.tfm.pets.Parsing.parseAsIs
 import dev.martianzoo.tfm.pets.ast.ClassName
 
@@ -11,7 +12,7 @@ import dev.martianzoo.tfm.pets.ast.ClassName
 object Humanizing {
 
   fun PlayerSession.turn(vararg tasks: String) {
-    execute("Turn")
+    asPlayer(ENGINE).execute("NewTurn<$player>")
     tasks.forEach(::doTask)
   }
 

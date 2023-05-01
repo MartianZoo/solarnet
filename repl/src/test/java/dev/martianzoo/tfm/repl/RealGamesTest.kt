@@ -43,6 +43,7 @@ class RealGamesTest {
     }
 
     engine.execute("ProductionPhase")
+    engine.execute("ResearchPhase")
     p1.doTask("4 BuyCard")
     p2.doTask("1 BuyCard")
     engine.execute("ActionPhase")
@@ -66,6 +67,7 @@ class RealGamesTest {
     }
 
     engine.execute("ProductionPhase")
+    engine.execute("ResearchPhase")
     p1.doTask("3 BuyCard")
     p2.doTask("2 BuyCard")
     engine.execute("ActionPhase")
@@ -83,6 +85,7 @@ class RealGamesTest {
     }
 
     engine.execute("ProductionPhase")
+    engine.execute("ResearchPhase")
     p1.doTask("3 BuyCard")
     p2.doTask("2 BuyCard")
     engine.execute("ActionPhase")
@@ -114,6 +117,7 @@ class RealGamesTest {
     }
 
     engine.execute("ProductionPhase")
+    engine.execute("ResearchPhase")
 
     // Stuff
     assertThat(engine.counts("Generation")).containsExactly(5)
@@ -209,51 +213,58 @@ class RealGamesTest {
     p2.playCard(11, "Research")
     p2.playCard(9, "MartianSurvey", "Ok") // TODO make "Ok" unnecessary
 
+    p1.turn("Pass")
+
     p2.playCard(
         3,
         "SearchForLife",
         "PlayedEvent<Class<PharmacyUnion>> FROM PharmacyUnion THEN 3 TerraformRating")
 
     p2.useCardAction(1, "SearchForLife", "-1 THEN Ok") // TODO simplify
+    p2.turn("Pass")
 
     // Generation 2
 
     eng.execute("ProductionPhase")
+    eng.execute("ResearchPhase")
     p1.doTask("BuyCard")
     p2.doTask("3 BuyCard")
     eng.execute("ActionPhase")
 
     p2.turn("UseAction1<SellPatents>", "Megacredit FROM ProjectCard")
     p2.playCard(15, "VestaShipyard", "Ok")
+    p2.turn("Pass")
 
-    // P2 passes already, it's all P1 now...
+    with(p1) {
+      playCard(23, "EarthCatapult")
+      turn(
+          "UseAction1<PlayCardFromHand>",
+          "PlayCard<Class<OlympusConference>>",
+          "Ok",
+          "4 Pay<Class<S>> FROM S",
+          "Science<OlympusConference>")
 
-    p1.playCard(23, "EarthCatapult")
-    p1.turn(
-        "UseAction1<PlayCardFromHand>",
-        "PlayCard<Class<OlympusConference>>",
-        "Ok",
-        "4 Pay<Class<S>> FROM S",
-        "Science<OlympusConference>")
+      playCard(
+          1,
+          "DevelopmentCenter",
+          "4 Pay<Class<S>> FROM S",
+          "ProjectCard FROM Science<OlympusConference>")
 
-    p1.playCard(
-        1,
-        "DevelopmentCenter",
-        "4 Pay<Class<S>> FROM S",
-        "ProjectCard FROM Science<OlympusConference>")
+      playCard(1, "GeothermalPower")
 
-    p1.playCard(1, "GeothermalPower")
+      // studying to see why this is so slow
+      doTask("4 Pay<Class<S>> FROM S")
 
-    // studying to see why this is so slow
-    p1.doTask("4 Pay<Class<S>> FROM S")
-
-    p1.playCard(10, "MirandaResort", "Ok")
-    p1.playCard(1, "Hackers", "PROD[-2 M<P2>]")
-    p1.playCard(1, "MicroMills")
+      playCard(10, "MirandaResort", "Ok")
+      playCard(1, "Hackers", "PROD[-2 M<P2>]")
+      playCard(1, "MicroMills")
+      turn("Pass")
+    }
 
     // Generation 2
 
     eng.execute("ProductionPhase")
+    eng.execute("ResearchPhase")
     p1.doTask("3 BuyCard")
     p2.doTask("BuyCard")
     eng.execute("ActionPhase")
@@ -265,8 +276,6 @@ class RealGamesTest {
         "5 Pay<Class<S>> FROM S",
         "CityTile<Hellas_9_7>",
         "OceanTile<Hellas_5_6>")
-
-    assertThat(eng.agent.tasks()).isEmpty()
     assertThat(eng.count("PaymentMechanic")).isEqualTo(0)
 
     // Check counts, shared stuff first

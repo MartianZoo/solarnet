@@ -41,11 +41,11 @@ public class JlineRepl {
       first = false
 
       for (chunk in entireLine.split(";").map { it.trim() }) {
-        when (chunk.trim()) {
+        when (chunk.trim().lowercase()) {
           "exit" -> return end()
           "rebuild" -> {
             end()
-            exitProcess(5)
+            exitProcess(5) // see /rego
           }
           else ->
               try {
