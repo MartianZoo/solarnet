@@ -9,7 +9,6 @@ import com.github.h0tk3y.betterParse.parser.Parser
 import dev.martianzoo.tfm.pets.HasClassName
 import dev.martianzoo.tfm.pets.HasExpression
 import dev.martianzoo.tfm.pets.PetTokenizer
-import dev.martianzoo.tfm.pets.ast.ClassName.Parsing.className
 import dev.martianzoo.util.joinOrEmpty
 import dev.martianzoo.util.wrap
 
@@ -64,21 +63,18 @@ public data class Expression(
         copy(refinement = refinement)
       }
 
-  override val kind = Expression::class.simpleName!!
+  override val kind = Expression::class
 
   internal companion object : PetTokenizer() {
     fun parser(): Parser<Expression> {
       return parser {
         val specs = skipChar('<') and commaSeparated(parser()) and skipChar('>')
 
-        val result =
-            className and
-                optionalList(specs) and
-                optional(group(skip(_has) and Requirement.parser())) map
-                { (clazz, args, ref) ->
-                  Expression(clazz, args, ref)
-                }
-        result
+        ClassName.parser() and
+            optionalList(specs) and
+            optional(group(skip(_has) and Requirement.parser())) map { (clazz, args, ref) ->
+          Expression(clazz, args, ref)
+        }
       }
     }
   }

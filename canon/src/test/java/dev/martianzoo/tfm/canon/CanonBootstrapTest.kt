@@ -2,8 +2,8 @@ package dev.martianzoo.tfm.canon
 
 import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.tfm.api.ExpressionInfo.StubExpressionInfo
-import dev.martianzoo.tfm.api.GameSetup
 import dev.martianzoo.tfm.api.SpecialClassNames.COMPONENT
+import dev.martianzoo.tfm.data.GameSetup
 import dev.martianzoo.tfm.engine.Component
 import dev.martianzoo.tfm.engine.Engine
 import dev.martianzoo.tfm.pets.HasClassName.Companion.classNames

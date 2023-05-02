@@ -1,7 +1,7 @@
 package dev.martianzoo.tfm.engine
 
-import dev.martianzoo.tfm.api.GameSetup
 import dev.martianzoo.tfm.data.GameEvent.ChangeEvent.Cause
+import dev.martianzoo.tfm.data.GameSetup
 import dev.martianzoo.tfm.data.Player.Companion.ENGINE
 import dev.martianzoo.tfm.data.Result
 import dev.martianzoo.tfm.pets.HasClassName

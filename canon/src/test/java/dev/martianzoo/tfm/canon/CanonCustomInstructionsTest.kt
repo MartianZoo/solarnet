@@ -1,8 +1,8 @@
 package dev.martianzoo.tfm.canon
 
 import com.google.common.truth.Truth.assertThat
-import dev.martianzoo.tfm.api.GameSetup
 import dev.martianzoo.tfm.api.UserException.InvalidReificationException
+import dev.martianzoo.tfm.data.GameSetup
 import dev.martianzoo.tfm.data.Player.Companion.PLAYER1
 import dev.martianzoo.tfm.engine.Engine
 import dev.martianzoo.tfm.engine.Humanizing.production

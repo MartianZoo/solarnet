@@ -16,7 +16,7 @@ import dev.martianzoo.tfm.pets.PetTokenizer
  * instructions, and also belong to `Award`s.
  */
 sealed class Metric : PetElement() {
-  override val kind = Metric::class.simpleName!!
+  override val kind = Metric::class
 
   data class Count(val expression: Expression) : Metric() {
     override fun visitChildren(visitor: Visitor) = visitor.visit(expression)

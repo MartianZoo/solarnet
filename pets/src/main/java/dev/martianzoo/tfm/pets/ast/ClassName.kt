@@ -20,6 +20,8 @@ public class ClassName private constructor(private val asString: String) :
 
     private const val CLASS_NAME_PATTERN = "\\b[A-Z]([a-z_][A-Za-z0-9_]*|[A-Z0-9]{0,4})\\b"
     private val classNameRegex = Regex(CLASS_NAME_PATTERN)
+
+    public fun parser() = Parsing.className
   }
 
   init {
@@ -56,7 +58,7 @@ public class ClassName private constructor(private val asString: String) :
   /** For the class name `Foo`, returns the expression `Class<Foo>`. */
   public fun classExpression(): Expression = CLASS.of(this)
 
-  override val kind = ClassName::class.simpleName!!
+  override val kind = ClassName::class
   override fun visitChildren(visitor: Visitor) = Unit
 
   override val expression: Expression = Expression(this)

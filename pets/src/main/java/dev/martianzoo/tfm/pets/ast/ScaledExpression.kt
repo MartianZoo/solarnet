@@ -54,10 +54,10 @@ constructor(
         else -> "$scalar $expression"
       }
 
-  override val kind = ScaledExpression::class.simpleName!!
+  override val kind = ScaledExpression::class
 
   sealed class Scalar : PetNode(), Reifiable<Scalar> {
-    override val kind = "Scalar"
+    override val kind = Scalar::class
 
     override fun visitChildren(visitor: Visitor) {}
     abstract operator fun times(multiple: Int): Scalar

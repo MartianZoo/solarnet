@@ -3,14 +3,15 @@ package dev.martianzoo.tfm.data
 import dev.martianzoo.tfm.pets.HasClassName
 import dev.martianzoo.tfm.pets.ast.ClassName
 
-/** All information about a particular game component (card, map area, milestone, etc.). */
+/**
+ * All information about a particular game component (card, map area, milestone, etc.). These
+ * instances are later converted into [ClassDeclaration]s.
+ */
 public interface Definition : HasClassName {
-  /**
-   * The class name this definition will be known as, in its class form. Definitions sharing any
-   * name in common cannot be used in the same game.
-   */
+  /** The class name this definition will be known as; see [ClassDeclaration.className]. */
   override val className: ClassName
 
+  /** A shorter name, to be supplied as [ClassDeclaration.shortName]. */
   public val shortName: ClassName
 
   /**

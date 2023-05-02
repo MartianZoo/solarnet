@@ -2,10 +2,9 @@ package dev.martianzoo.tfm.canon
 
 import dev.martianzoo.tfm.api.Authority
 import dev.martianzoo.tfm.api.CustomInstruction
-import dev.martianzoo.tfm.api.GameSetup
 import dev.martianzoo.tfm.data.CardDefinition
-import dev.martianzoo.tfm.data.CardDefinition.CardData
 import dev.martianzoo.tfm.data.ClassDeclaration
+import dev.martianzoo.tfm.data.GameSetup
 import dev.martianzoo.tfm.data.JsonReader
 import dev.martianzoo.tfm.data.MarsMapDefinition
 import dev.martianzoo.tfm.data.MilestoneDefinition
@@ -26,11 +25,7 @@ public object Canon : Authority() {
   }
 
   override val cardDefinitions: Set<CardDefinition> by lazy {
-    cardRawData.toSetStrict(::CardDefinition)
-  }
-
-  public val cardRawData: Set<CardData> by lazy {
-    JsonReader.readCards(readResource("cards.json5")).toSetStrict()
+    JsonReader.readCards(readResource("cards.json5")).toSetStrict(::CardDefinition)
   }
 
   override val standardActionDefinitions: Set<StandardActionDefinition> by lazy {

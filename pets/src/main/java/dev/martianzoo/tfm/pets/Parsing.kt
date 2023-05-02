@@ -16,6 +16,7 @@ import dev.martianzoo.tfm.pets.ClassParsing.Declarations
 import dev.martianzoo.tfm.pets.PetTokenizer.TokenCache
 import dev.martianzoo.tfm.pets.ast.Action
 import dev.martianzoo.tfm.pets.ast.Action.Cost
+import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.Effect
 import dev.martianzoo.tfm.pets.ast.Effect.Trigger
 import dev.martianzoo.tfm.pets.ast.Expression
@@ -144,6 +145,7 @@ public object Parsing {
   private val parserGroup by lazy {
     val pgb = ParserGroup.Builder<PetNode>()
     pgb.publish(Action.parser())
+    pgb.publish(ClassName.parser())
     pgb.publish(Cost.parser())
     pgb.publish(Effect.parser())
     pgb.publish(Expression.parser())

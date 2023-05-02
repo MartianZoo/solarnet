@@ -10,7 +10,6 @@ import com.github.h0tk3y.betterParse.grammar.parser
 import com.github.h0tk3y.betterParse.parser.Parser
 import dev.martianzoo.tfm.api.UserException.PetSyntaxException
 import dev.martianzoo.tfm.pets.PetTokenizer
-import dev.martianzoo.tfm.pets.ast.ClassName.Parsing.className
 import dev.martianzoo.util.joinOrEmpty
 import dev.martianzoo.util.wrap
 
@@ -19,7 +18,7 @@ import dev.martianzoo.util.wrap
  * FROM Foo<Qux>`, and (equivalent) `Foo<Bar FROM Qux>`.
  */
 public sealed class FromExpression : PetNode() {
-  override val kind = FromExpression::class.simpleName!!
+  override val kind = FromExpression::class
 
   abstract val toExpression: Expression
   abstract val fromExpression: Expression
@@ -80,7 +79,7 @@ public sealed class FromExpression : PetNode() {
 
         val arguments = skipChar('<') and argumentList and skipChar('>')
         val complexFrom =
-            className and
+            ClassName.parser() and
             arguments and
             optional(group(skip(_has) and Requirement.parser())) map { (name, args, refs) ->
               ComplexFrom(name, args, refs)

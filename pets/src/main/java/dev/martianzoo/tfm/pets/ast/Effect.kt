@@ -30,7 +30,7 @@ public data class Effect(
     val automatic: Boolean = false,
 ) : PetElement(), Comparable<Effect> {
 
-  override val kind = Effect::class.simpleName!!
+  override val kind = Effect::class
 
   override fun visitChildren(visitor: Visitor) = visitor.visit(trigger, instruction)
 
@@ -42,7 +42,7 @@ public data class Effect(
 
   /** The left-hand side of a triggered effect; the kind of event being subscribed to. */
   sealed class Trigger : PetNode() {
-    override val kind = Trigger::class.simpleName!!
+    override val kind = Trigger::class
 
     sealed class BasicTrigger : Trigger()
 

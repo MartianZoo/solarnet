@@ -435,7 +435,7 @@ public sealed class Instruction : PetElement() {
     override fun extract() = instruction
   }
 
-  override val kind = Instruction::class.simpleName!!
+  override val kind = Instruction::class
 
   public abstract fun isAbstract(einfo: ExpressionInfo): Boolean
 

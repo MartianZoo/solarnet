@@ -13,7 +13,7 @@ public sealed class PetNode {
    * A string describing the high-level element kind, not the specific node type. For example, the
    * [Gain] class returns `"Instruction"`, not `"Gain"`.
    */
-  internal abstract val kind: String
+  internal abstract val kind: KClass<out PetNode>
 
   protected fun groupPartIfNeeded(part: PetNode) =
       if (part.safeToNestIn(this)) "$part" else "($part)"

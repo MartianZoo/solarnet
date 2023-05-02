@@ -20,7 +20,8 @@ public object JsonReader {
 
   // MILESTONES
 
-  fun readMilestones(json5: String) = fromJson5<MilestoneList>(json5).milestones
+  fun readMilestones(json5: String): List<MilestoneDefinition> =
+      fromJson5<MilestoneList>(json5).milestones
 
   private class MilestoneList(val milestones: List<MilestoneDefinition>)
 

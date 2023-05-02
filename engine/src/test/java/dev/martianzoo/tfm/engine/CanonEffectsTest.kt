@@ -1,8 +1,8 @@
 package dev.martianzoo.tfm.engine
 
 import com.google.common.truth.Truth.assertThat
-import dev.martianzoo.tfm.api.GameSetup
 import dev.martianzoo.tfm.canon.Canon
+import dev.martianzoo.tfm.data.GameSetup
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.pets.ast.PetNode.Companion.unraw
 import dev.martianzoo.tfm.types.MClassLoader

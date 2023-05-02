@@ -23,13 +23,13 @@ import dev.martianzoo.util.suf
  * `UseAction1<ElectroCatapult>: (-Steel OR -Plant) THEN 7`.
  */
 public data class Action(val cost: Cost?, val instruction: Instruction) : PetElement() {
-  override val kind = Action::class.simpleName!!
+  override val kind = Action::class
 
   override fun toString() = "${cost.suf(' ')}-> $instruction"
   override fun visitChildren(visitor: Visitor) = visitor.visit(cost, instruction)
 
   sealed class Cost : PetNode() {
-    override val kind = Cost::class.simpleName!!
+    override val kind = Cost::class
 
     abstract fun toInstruction(): Instruction
 

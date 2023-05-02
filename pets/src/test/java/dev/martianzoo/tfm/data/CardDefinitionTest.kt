@@ -5,8 +5,8 @@ import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.data.CardDefinition.CardData
 import dev.martianzoo.tfm.data.CardDefinition.Deck.PROJECT
 import dev.martianzoo.tfm.data.CardDefinition.ProjectKind.ACTIVE
+import dev.martianzoo.tfm.pets.Parsing.parseAsIs
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.tfm.pets.ast.PetNode
 import dev.martianzoo.tfm.pets.ast.PetNode.Companion.unraw
 import dev.martianzoo.tfm.testlib.assertFails
 import dev.martianzoo.util.toStrings
@@ -155,27 +155,12 @@ private class CardDefinitionTest {
   }
 
   @Test
-  fun birdsFromCanon() {
-    val card = Canon.cardRawData.first { it.id == "072" }
-    assertThat(card).isEqualTo(birds)
-  }
-
-  @Test
-  fun testRoundTripForAllCanonCardData() {
-    val cardRawData: Map<String, CardData> = Canon.cardRawData.associateBy { "C${it.id}" }
-    Canon.cardDefinitions.forEach { card ->
-      val data = cardRawData["${card.shortName}"]!!
-      checkRoundTrip(data.tags, card.tags)
-      checkRoundTrip(listOfNotNull(data.immediate), listOfNotNull(card.immediate))
-      checkRoundTrip(data.actions, card.actions)
-      checkRoundTrip(data.effects, card.effects)
-    }
-  }
-
-  private fun checkRoundTrip(source: Collection<String>, cooked: Collection<PetNode>) {
-    assertThat(source.size).isEqualTo(cooked.size)
-    for (stringThenNode in source.zip(cooked)) {
-      assertThat("${stringThenNode.second.unraw()}").isEqualTo(stringThenNode.first)
-    }
+  fun testRoundTripForAllCanonCardData() { // move to canon
+    val oops =
+        Canon.cardDefinitions
+            .flatMap { it.asClassDeclaration.allNodes }
+            .map { it.unraw() }
+            .filter { it != parseAsIs(it.kind, "$it") }
+    assertThat(oops).isEmpty()
   }
 }

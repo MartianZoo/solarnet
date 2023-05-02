@@ -2,7 +2,7 @@ package dev.martianzoo.tfm.engine
 
 import dev.martianzoo.tfm.api.ExpressionInfo
 import dev.martianzoo.tfm.api.ExpressionInfo.StubExpressionInfo
-import dev.martianzoo.tfm.data.StateChange
+import dev.martianzoo.tfm.data.GameEvent.ChangeEvent.StateChange
 import dev.martianzoo.tfm.engine.Exceptions.DependencyException
 import dev.martianzoo.tfm.engine.Exceptions.ExistingDependentsException
 import dev.martianzoo.tfm.engine.Exceptions.LimitsException

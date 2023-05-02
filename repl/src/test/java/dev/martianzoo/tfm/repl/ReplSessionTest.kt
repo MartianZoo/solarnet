@@ -1,8 +1,8 @@
 package dev.martianzoo.tfm.repl
 
 import com.google.common.truth.Truth.assertThat
-import dev.martianzoo.tfm.api.GameSetup
 import dev.martianzoo.tfm.canon.Canon
+import dev.martianzoo.tfm.data.GameSetup
 import org.junit.jupiter.api.Test
 
 private class ReplSessionTest {
