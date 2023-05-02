@@ -13,8 +13,7 @@ import dev.martianzoo.tfm.data.Task.TaskId
 import dev.martianzoo.tfm.engine.Engine
 import dev.martianzoo.tfm.engine.Exceptions.InteractiveException
 import dev.martianzoo.tfm.engine.Game.EventLog.Checkpoint
-import dev.martianzoo.tfm.pets.Parsing.parseAsIs
-import dev.martianzoo.tfm.pets.Parsing.parseInput
+import dev.martianzoo.tfm.pets.Parsing.parse
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.pets.ast.Expression
@@ -221,7 +220,7 @@ public class ReplSession(var setup: GameSetup, private val jline: JlineRepl? = n
     override val isReadOnly = true
 
     override fun withArgs(args: String): List<String> {
-      val reqt: Requirement = parseInput(args)
+      val reqt: Requirement = parse(args)
       val result = session.has(reqt)
       return listOf("$result: ${session.prep(reqt)}")
     }
@@ -237,7 +236,7 @@ public class ReplSession(var setup: GameSetup, private val jline: JlineRepl? = n
     override val isReadOnly = true
 
     override fun withArgs(args: String): List<String> {
-      val metric: Metric = parseInput(args)
+      val metric: Metric = parse(args)
       val count = session.count(metric)
       return listOf("$count ${session.prep(metric)}")
     }
@@ -252,7 +251,7 @@ public class ReplSession(var setup: GameSetup, private val jline: JlineRepl? = n
     override fun noArgs() = withArgs(COMPONENT.toString())
 
     override fun withArgs(args: String): List<String> {
-      val expr: Expression = parseAsIs(args)
+      val expr: Expression = parse(args)
       val counts: Multiset<Expression> = session.list(expr)
       return listOf("${counts.size} ${session.prep(expr)}") +
           counts.entries.sortedByDescending { (_, ct) -> ct }.map { (e, ct) -> "  $ct $e" }
@@ -341,7 +340,7 @@ public class ReplSession(var setup: GameSetup, private val jline: JlineRepl? = n
         """
 
     override fun withArgs(args: String): List<String> {
-      val instr: Instruction = parseInput(args)
+      val instr: Instruction = parse(args)
       val changes: Result =
           when (mode) {
             RED, YELLOW -> session.sneakyChange(instr)
@@ -418,7 +417,7 @@ public class ReplSession(var setup: GameSetup, private val jline: JlineRepl? = n
         session.agent.removeTask(id)
         return listOf("Task $id deleted")
       }
-      val instruction: Instruction? = rest?.let(::parseInput)
+      val instruction: Instruction? = rest?.let(::parse)
       val result: Result =
           when (mode) {
             RED,
@@ -532,7 +531,7 @@ public class ReplSession(var setup: GameSetup, private val jline: JlineRepl? = n
       //   val randomType = randomBaseType.concreteSubtypesSameClass().toList().random()
       //   randomType.expression
       // } else {
-      parseAsIs(args)
+      parse(args)
       // }
       return listOf(MTypeToText.describe(expression, session))
     }

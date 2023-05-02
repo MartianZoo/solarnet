@@ -1,13 +1,12 @@
 package dev.martianzoo.tfm.engine
 
-import dev.martianzoo.tfm.api.SpecialClassNames.RAW
 import dev.martianzoo.tfm.api.UserException
 import dev.martianzoo.tfm.data.Player
 import dev.martianzoo.tfm.data.Result
 import dev.martianzoo.tfm.data.Task.TaskId
 import dev.martianzoo.tfm.engine.Exceptions.InteractiveException
 import dev.martianzoo.tfm.engine.Game.PlayerAgent
-import dev.martianzoo.tfm.pets.Parsing.parseInput
+import dev.martianzoo.tfm.pets.Parsing.parse
 import dev.martianzoo.tfm.pets.PetTransformer
 import dev.martianzoo.tfm.pets.PetTransformer.Companion.chain
 import dev.martianzoo.tfm.pets.ast.ClassName
@@ -20,7 +19,6 @@ import dev.martianzoo.tfm.pets.ast.PetElement
 import dev.martianzoo.tfm.pets.ast.PetNode
 import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.pets.ast.ScaledExpression.Scalar.ActualScalar
-import dev.martianzoo.tfm.pets.ast.TransformNode
 import dev.martianzoo.tfm.types.MType
 import dev.martianzoo.util.HashMultiset
 import dev.martianzoo.util.Hierarchical.Companion.lub
@@ -47,7 +45,7 @@ internal constructor(
   // QUERIES
 
   fun count(metric: Metric): Int = agent.reader.count(prep(metric))
-  fun count(metric: String) = count(parseInput(metric))
+  fun count(metric: String): Int = count(parse(metric))
   fun countComponent(component: Component) = agent.reader.countComponent(component.mtype)
 
   fun list(expression: Expression): Multiset<Expression> { // TODO why not (M)Type?
@@ -66,7 +64,7 @@ internal constructor(
   }
 
   fun has(requirement: Requirement): Boolean = agent.reader.evaluate(prep(requirement))
-  fun has(requirement: String) = has(parseInput(requirement))
+  fun has(requirement: String) = has(parse(requirement))
 
   // EXECUTION
 
@@ -87,7 +85,7 @@ internal constructor(
   }
 
   fun execute(instruction: String, autoExec: Boolean = defaultAutoExec) =
-      execute(prep(parseInput(instruction)), autoExec)
+      execute(prep(parse(instruction)), autoExec)
 
   fun execute(instruction: Instruction, autoExec: Boolean = defaultAutoExec): Result {
     val instrs = split(prep(instruction))
@@ -116,7 +114,7 @@ internal constructor(
       doTask(TaskId(initialTaskId), narrowedInstruction)
 
   fun doTask(initialTaskId: TaskId, narrowedInstruction: String? = null): Result {
-    val narrowed = narrowedInstruction?.let { prep(parseInput<Instruction>(it)) }
+    val narrowed = narrowedInstruction?.let { prep(parse<Instruction>(it)) }
     return if (defaultAutoExec) {
       doTaskAndAutoExec(initialTaskId, narrowed)
     } else {
@@ -157,7 +155,6 @@ internal constructor(
             xers.atomizer(),
             xers.insertDefaults(),
             xers.deprodify(),
-            TransformNode.unwrapper(RAW),
         )
         .transform(node)
   }

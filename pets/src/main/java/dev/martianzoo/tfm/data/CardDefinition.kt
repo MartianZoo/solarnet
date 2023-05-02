@@ -14,8 +14,8 @@ import dev.martianzoo.tfm.data.SpecialClassNames.EVENT_CARD
 import dev.martianzoo.tfm.data.SpecialClassNames.PRELUDE_CARD
 import dev.martianzoo.tfm.data.SpecialClassNames.PROJECT_CARD
 import dev.martianzoo.tfm.data.SpecialClassNames.RESOURCE_CARD
-import dev.martianzoo.tfm.pets.Parsing
-import dev.martianzoo.tfm.pets.Parsing.parseInput
+import dev.martianzoo.tfm.pets.Parsing.parse
+import dev.martianzoo.tfm.pets.Parsing.parseOneLinerClass
 import dev.martianzoo.tfm.pets.Transforming.actionListToEffects
 import dev.martianzoo.tfm.pets.Transforming.immediateToEffect
 import dev.martianzoo.tfm.pets.ast.Action
@@ -27,7 +27,6 @@ import dev.martianzoo.tfm.pets.ast.Instruction
 import dev.martianzoo.tfm.pets.ast.Instruction.Gain.Companion.gain
 import dev.martianzoo.tfm.pets.ast.Instruction.Multi
 import dev.martianzoo.tfm.pets.ast.Instruction.Remove
-import dev.martianzoo.tfm.pets.ast.PetNode.Companion.raw
 import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.pets.ast.ScaledExpression.Companion.scaledEx
 import dev.martianzoo.util.HashMultiset
@@ -75,19 +74,19 @@ public class CardDefinition(data: CardData) : Definition {
   public val tags: Multiset<ClassName> = HashMultiset.of(data.tags.map(::cn))
 
   /** Immediate effects on the card, if any. */
-  public val immediate: Instruction? = data.immediate?.let(::parseInput)
+  public val immediate: Instruction? = data.immediate?.let(::parse)
 
   /**
    * Actions on the card, if any, each expressed as a PETS `Action`. `AUTOMATED` and `EVENT` cards
    * may not have these.
    */
-  public val actions: List<Action> = data.actions.map(::parseInput)
+  public val actions: List<Action> = data.actions.map(::parse)
 
   /**
    * Effects on the card, if any, each expressed as a PETS `Effect`. `AUTOMATED` and `EVENT` cards
    * may not have these.
    */
-  public val effects: Set<Effect> = data.effects.toSetStrict(::parseInput)
+  public val effects: Set<Effect> = data.effects.toSetStrict(::parse)
 
   /** The card's requirement, if any. */
   public val requirement: Requirement? = projectInfo?.requirement
@@ -100,7 +99,7 @@ public class CardDefinition(data: CardData) : Definition {
     public val kind: ProjectKind = ProjectKind.valueOf(data.projectKind!!)
 
     /** The card's requirement, if any. */
-    public val requirement: Requirement? = data.requirement?.let(::parseInput)
+    public val requirement: Requirement? = data.requirement?.let(::parse)
 
     /** The card's non-negative cost in megacredits. */
     public val cost: Int by data::cost
@@ -117,14 +116,14 @@ public class CardDefinition(data: CardData) : Definition {
     if (deck == PROJECT) {
       val shouldBeActive =
           actions.any() ||
-              effects.any { it.trigger != OnGainOf.create(END.expression).raw() } ||
+              effects.any { it.trigger != OnGainOf.create(END.expression) } ||
               resourceType != null
       require((projectInfo?.kind == ACTIVE) == shouldBeActive)
     }
   }
 
   /** Additional class declarations that come along with this card. */
-  public val extraClasses: List<ClassDeclaration> = data.components.map(Parsing::parseOneLinerClass)
+  public val extraClasses: List<ClassDeclaration> = data.components.map(::parseOneLinerClass)
 
   override val asClassDeclaration by lazy {
     val zapHandCard: Instruction? = deck?.let { Remove(scaledEx(1, it.className)) }
@@ -133,7 +132,7 @@ public class CardDefinition(data: CardData) : Definition {
         Multi.create(tags.entries.map { (tag, count) -> gain(scaledEx(count, tag.of(THIS))) })
 
     val automaticFx: List<Effect> =
-        listOfNotNull(zapHandCard, createTags).mapNotNull { immediateToEffect(it, true)?.raw() }
+        listOfNotNull(zapHandCard, createTags).mapNotNull { immediateToEffect(it, true) }
 
     val onPlayFx: List<Effect> =
         listOfNotNull(immediate).mapNotNull { immediateToEffect(it, false) }

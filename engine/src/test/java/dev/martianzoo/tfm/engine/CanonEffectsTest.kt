@@ -4,7 +4,6 @@ import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.data.GameSetup
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.tfm.pets.ast.PetNode.Companion.unraw
 import dev.martianzoo.tfm.types.MClassLoader
 import dev.martianzoo.tfm.types.MClassTable
 import dev.martianzoo.tfm.types.te
@@ -19,7 +18,7 @@ private class CanonEffectsTest {
   }
 
   fun classEffectsOf(name: String, table: MClassTable) =
-      table.getClass(cn(name)).classEffects.map { "${it.unraw()}" }
+      table.getClass(cn(name)).classEffects.toStrings()
 
   fun componentEffectsOf(type: String): List<String> {
     val table = Engine.loadClasses(GameSetup(Canon, "BMC", 2))

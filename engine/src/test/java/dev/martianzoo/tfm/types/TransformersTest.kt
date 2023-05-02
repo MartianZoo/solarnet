@@ -3,7 +3,7 @@ package dev.martianzoo.tfm.types
 import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.tfm.api.SpecialClassNames.THIS
 import dev.martianzoo.tfm.engine.CanonClassesTest
-import dev.martianzoo.tfm.pets.Parsing.parseAsIs
+import dev.martianzoo.tfm.pets.Parsing.parse
 import dev.martianzoo.tfm.pets.ast.Effect
 import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.pets.ast.Instruction
@@ -50,7 +50,7 @@ class TransformersTest {
       expected: String,
       context: Expression = THIS.expression,
   ) {
-    val node: Instruction = parseAsIs(original)
+    val node: Instruction = parse(original)
     val xfd = transformers.insertDefaults(context).transform(node)
     assertThat(xfd.toString()).isEqualTo(expected)
   }
@@ -58,14 +58,14 @@ class TransformersTest {
   @Test
   fun testDeprodify_noProd() {
     val s = "Foo<Bar>: Bax OR Qux"
-    val e: Effect = parseAsIs(s)
+    val e: Effect = parse(s)
     val ep: Effect = transformers.deprodify().transform(e)
     assertThat(ep.toString()).isEqualTo(s)
   }
 
   @Test
   fun testDeprodify_simple() {
-    val prodden: Effect = parseAsIs("This: PROD[Plant / PlantTag]")
+    val prodden: Effect = parse("This: PROD[Plant / PlantTag]")
     val deprodden: Effect = transformers.deprodify().transform(prodden)
     assertThat(deprodden.toString()).isEqualTo("This: Production<Class<Plant>> / PlantTag")
   }
@@ -73,11 +73,11 @@ class TransformersTest {
   @Test
   fun testDeprodify_lessSimple() {
     val prodden: Effect =
-        parseAsIs(
+        parse(
             "PROD[Plant]: PROD[Ooh?, Steel. / Ahh, Foo<Xyz FROM " +
                 "Heat>, -Qux!, 5 Ahh<Qux> FROM StandardResource], Heat")
     val expected: Effect =
-        parseAsIs(
+        parse(
             "Production<Class<Plant>>:" +
                 " Ooh?, Production<Class<Steel>>. / Ahh, Foo<Xyz FROM Production<Class<Heat>>>," +
                 " -Qux!, 5 Ahh<Qux> FROM Production<Class<StandardResource>>, Heat")

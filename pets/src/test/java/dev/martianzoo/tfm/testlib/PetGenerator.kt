@@ -5,7 +5,7 @@ import dev.martianzoo.tfm.api.SpecialClassNames.OWNER
 import dev.martianzoo.tfm.api.SpecialClassNames.PROD
 import dev.martianzoo.tfm.api.UserException.PetSyntaxException
 import dev.martianzoo.tfm.data.Player.Companion.PLAYER2
-import dev.martianzoo.tfm.pets.Parsing.parseAsIs
+import dev.martianzoo.tfm.pets.Parsing.parse
 import dev.martianzoo.tfm.pets.ast.Action
 import dev.martianzoo.tfm.pets.ast.Action.Cost
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
@@ -224,7 +224,7 @@ internal class PetGenerator(scaling: (Int) -> Double) :
 
       val reparsedNode =
           try {
-            parseAsIs(type, originalStringOut)
+            parse(type, originalStringOut)
           } catch (e: Exception) {
             fail("node was ${p2k(randomNode)}", e)
           }

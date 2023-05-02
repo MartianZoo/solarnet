@@ -24,7 +24,6 @@ import dev.martianzoo.tfm.pets.ast.Instruction
 import dev.martianzoo.tfm.pets.ast.Metric
 import dev.martianzoo.tfm.pets.ast.PetElement
 import dev.martianzoo.tfm.pets.ast.PetNode
-import dev.martianzoo.tfm.pets.ast.PetNode.Companion.raw
 import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.pets.ast.ScaledExpression
 import dev.martianzoo.util.ParserGroup
@@ -50,27 +49,15 @@ public object Parsing {
       parse(Declarations.oneLineDecl, declarationSource)
 
   /**
-   * Parses the Pets element of type [P] from [elementSource], and returns it surrounded by a `RAW`
-   * block. [P] can only be one of the major element types like [Effect], [Action], [Instruction],
-   * [Expression], etc.
-   */
-  public inline fun <reified P : PetElement> parseInput(elementSource: String) =
-      parseInput(P::class, elementSource)
-
-  /** Non-reified form of [parseInput]. */
-  public fun <P : PetElement> parseInput(type: KClass<P>, elementSource: String) =
-      parseAsIs(type, elementSource).raw()
-
-  /**
    * Parses the Pets element of type [P] from [elementSource], and returns it *not* surrounded by a
    * `RAW` block. [P] can only be one of the major element types like [Effect], [Action],
    * [Instruction], [Expression], etc.
    */
-  public inline fun <reified P : PetNode> parseAsIs(elementSource: String): P =
-      parseAsIs(P::class, elementSource)
+  public inline fun <reified P : PetNode> parse(elementSource: String): P =
+      parse(P::class, elementSource)
 
-  /** Non-reified form of [parseAsIs]. */
-  public fun <P : PetNode> parseAsIs(expectedType: KClass<P>, elementSource: String): P {
+  /** Non-reified form of [parse]. */
+  public fun <P : PetNode> parse(expectedType: KClass<P>, elementSource: String): P {
     val matches: TokenMatchesSequence = TokenCache.tokenize(elementSource)
     require(expectedType != PetNode::class) { "missing type info" }
 
@@ -79,9 +66,9 @@ public object Parsing {
     return expectedType.cast(pet)
   }
 
-  /** Version of [parseAsIs] for use from Java. */
-  public fun <P : PetNode> parseAsIs(expectedType: Class<P>, source: String) =
-      parseAsIs(expectedType.kotlin, source)
+  /** Version of [parse] for use from Java. */
+  public fun <P : PetNode> parse(expectedType: Class<P>, source: String) =
+      parse(expectedType.kotlin, source)
 
   internal fun <T> parse(
       parser: Parser<T>,

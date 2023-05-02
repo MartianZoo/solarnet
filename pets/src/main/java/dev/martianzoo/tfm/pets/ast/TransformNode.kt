@@ -23,7 +23,7 @@ interface TransformNode<P : PetNode> {
 
       if (node == null || isThisKind(node)) return node
       require(node.descendantsOfType<PetNode>().none(::isThisKind)) {
-        "already has a RAW component: $node"
+        "already has a $kind component: $node"
       }
 
       val wrapped =

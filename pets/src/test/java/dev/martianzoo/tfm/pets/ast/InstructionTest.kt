@@ -1,7 +1,7 @@
 package dev.martianzoo.tfm.pets.ast
 
 import com.google.common.truth.Truth.assertThat
-import dev.martianzoo.tfm.pets.Parsing.parseAsIs
+import dev.martianzoo.tfm.pets.Parsing.parse
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.pets.ast.FromExpression.ComplexFrom
 import dev.martianzoo.tfm.pets.ast.FromExpression.SimpleFrom
@@ -92,7 +92,7 @@ private class InstructionTest {
     testRoundTrip("Foo FROM Bar.")
     testRoundTrip("1 Foo FROM Bar.", "Foo FROM Bar.")
 
-    assertThat(parseAsIs<Instruction>("1 Foo FROM Bar."))
+    assertThat(parse<Instruction>("1 Foo FROM Bar."))
         .isEqualTo(
             Transmute(
                 SimpleFrom(cn("Foo").expression, cn("Bar").expression), ActualScalar(1), AMAP))
@@ -111,7 +111,7 @@ private class InstructionTest {
             ActualScalar(1),
             null)
     assertThat(instr.toString()).isEqualTo("Foo<Bar<Qux FROM Abc<Eep>>>")
-    assertThat(parseAsIs<Instruction>("Foo<Bar<Qux FROM Abc<Eep>>>")).isEqualTo(instr)
+    assertThat(parse<Instruction>("Foo<Bar<Qux FROM Abc<Eep>>>")).isEqualTo(instr)
   }
 
   @Test

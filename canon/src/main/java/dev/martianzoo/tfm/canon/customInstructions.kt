@@ -20,8 +20,6 @@ import dev.martianzoo.tfm.pets.ast.Instruction.Multi
 import dev.martianzoo.tfm.pets.ast.Instruction.NoOp
 import dev.martianzoo.tfm.pets.ast.Instruction.Or
 import dev.martianzoo.tfm.pets.ast.Instruction.Transform
-import dev.martianzoo.tfm.pets.ast.PetNode.Companion.raw
-import dev.martianzoo.tfm.pets.ast.PetNode.Companion.unraw
 import dev.martianzoo.tfm.pets.ast.ScaledExpression.Companion.scaledEx
 import dev.martianzoo.tfm.pets.ast.TransformNode
 import dev.martianzoo.util.Grid
@@ -93,8 +91,7 @@ private object BeginPlayCard : CustomInstruction("beginPlayCard") {
     val cardName = classExpr.arguments.single().className
     val card: CardDefinition = game.authority.card(cardName)
 
-    val reqt = card.requirement?.unraw()
-
+    val reqt = card.requirement
     if (reqt?.let(game::evaluate) == false) throw UserException.requirementNotMet(reqt)
 
     val playTagSignals =
@@ -123,7 +120,6 @@ private object GetVpsFrom : CustomInstruction("getVpsFrom") {
     return NoOp // bug #6
     // return Multi.create(
     //         card.effects
-    //             .map { TransformNode.unwrap(it, RAW) }
     //             .filter { it.trigger == OnGainOf.create(cn("End").expression) }
     //             .map { it.instruction })
     //     .raw()
@@ -138,7 +134,7 @@ private object GainLowestProduction : CustomInstruction("gainLowestProduction") 
     val lowest: Int = prods.values.min()
     val keys: Set<ClassName> = prods.filterValues { it == lowest }.keys
     val or = Or.create(keys.map { gain(scaledEx(1, it)) })
-    return TransformNode.wrap(or, PROD).raw()
+    return TransformNode.wrap(or, PROD)
   }
 }
 

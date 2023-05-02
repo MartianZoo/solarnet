@@ -1,6 +1,5 @@
 package dev.martianzoo.tfm.engine
 
-import dev.martianzoo.tfm.api.SpecialClassNames.RAW
 import dev.martianzoo.tfm.api.Type
 import dev.martianzoo.tfm.api.UserException
 import dev.martianzoo.tfm.data.GameEvent.ChangeEvent
@@ -25,7 +24,6 @@ import dev.martianzoo.tfm.pets.ast.Instruction.Per
 import dev.martianzoo.tfm.pets.ast.Instruction.Then
 import dev.martianzoo.tfm.pets.ast.Instruction.Transform
 import dev.martianzoo.tfm.pets.ast.ScaledExpression.Scalar.ActualScalar
-import dev.martianzoo.tfm.pets.ast.TransformNode
 import dev.martianzoo.tfm.types.MType
 
 internal data class InstructionExecutor(
@@ -90,7 +88,6 @@ internal data class InstructionExecutor(
                 xers.insertDefaults(), // TODO context component??
                 xers.deprodify(),
                 replaceOwnerWith(agent.player),
-                TransformNode.unwrapper(RAW),
             )
             .transform(translated)
 

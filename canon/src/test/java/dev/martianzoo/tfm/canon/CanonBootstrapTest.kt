@@ -7,7 +7,7 @@ import dev.martianzoo.tfm.data.GameSetup
 import dev.martianzoo.tfm.engine.Component
 import dev.martianzoo.tfm.engine.Engine
 import dev.martianzoo.tfm.pets.HasClassName.Companion.classNames
-import dev.martianzoo.tfm.pets.Parsing.parseAsIs
+import dev.martianzoo.tfm.pets.Parsing.parse
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.Metric
 import dev.martianzoo.util.toSetStrict
@@ -38,7 +38,7 @@ private class CanonBootstrapTest {
     val game = Engine.newGame(GameSetup(Canon, "BRM", 3)).reader
 
     fun checkCount(count: Int, expr: String) {
-      assertThat(game.count(parseAsIs<Metric>(expr))).isEqualTo(count)
+      assertThat(game.count(parse<Metric>(expr))).isEqualTo(count)
     }
 
     checkCount(1, "Class<Class>")
@@ -54,9 +54,9 @@ private class CanonBootstrapTest {
     checkCount(12, "Class<WaterArea>")
     checkCount(63, "Class<Area>")
 
-    assertThat(game.count(parseAsIs<Metric>("Class<CardFront>"))).isGreaterThan(200)
-    assertThat(game.count(parseAsIs<Metric>("Class<Component>"))).isGreaterThan(300)
-    assertThat(game.count(parseAsIs<Metric>("Class"))).isGreaterThan(300)
+    assertThat(game.count(parse<Metric>("Class<CardFront>"))).isGreaterThan(200)
+    assertThat(game.count(parse<Metric>("Class<Component>"))).isGreaterThan(300)
+    assertThat(game.count(parse<Metric>("Class"))).isGreaterThan(300)
   }
 
   @Test
@@ -81,8 +81,8 @@ private class CanonBootstrapTest {
           isArea(it) ||
               // isBorder(it) ||
               isClass(it) ||
-              it.mtype.isSubtypeOf(game.resolve(parseAsIs("TerraformRating"))) ||
-              it.mtype.isSubtypeOf(game.resolve(parseAsIs("Production<Class<Megacredit>>")))
+              it.mtype.isSubtypeOf(game.resolve(parse("TerraformRating"))) ||
+              it.mtype.isSubtypeOf(game.resolve(parse("Production<Class<Megacredit>>")))
         }
     assertThat(theRest.toStrings())
         .containsExactly(

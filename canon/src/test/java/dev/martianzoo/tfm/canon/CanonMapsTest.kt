@@ -4,7 +4,6 @@ import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.tfm.data.MarsMapDefinition
 import dev.martianzoo.tfm.data.MarsMapDefinition.AreaDefinition
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.tfm.pets.ast.PetNode.Companion.unraw
 import dev.martianzoo.util.Grid
 import dev.martianzoo.util.toStrings
 import org.junit.jupiter.api.Test
@@ -48,7 +47,6 @@ private class CanonMapsTest {
         Canon.marsMapDefinitions
             .flatMap { it.areas }
             .mapNotNull { it.bonus }
-            .map { it.unraw() }
             .distinct()
             .toStrings()
 

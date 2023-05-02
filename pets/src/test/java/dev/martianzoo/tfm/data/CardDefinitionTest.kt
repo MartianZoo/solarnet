@@ -5,9 +5,8 @@ import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.data.CardDefinition.CardData
 import dev.martianzoo.tfm.data.CardDefinition.Deck.PROJECT
 import dev.martianzoo.tfm.data.CardDefinition.ProjectKind.ACTIVE
-import dev.martianzoo.tfm.pets.Parsing.parseAsIs
+import dev.martianzoo.tfm.pets.Parsing.parse
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.tfm.pets.ast.PetNode.Companion.unraw
 import dev.martianzoo.tfm.testlib.assertFails
 import dev.martianzoo.util.toStrings
 import org.junit.jupiter.api.Test
@@ -69,13 +68,13 @@ private class CardDefinitionTest {
     assertThat(birds.bundle).isEqualTo("B")
     assertThat(birds.deck).isEqualTo(PROJECT)
     assertThat(birds.tags.toStrings()).containsExactly("AnimalTag")
-    assertThat(birds.immediate!!.unraw().toString()).isEqualTo("PROD[-2 Plant<Anyone>]")
-    assertThat(birds.actions.map { it.unraw() }.toStrings()).containsExactly("-> Animal<This>")
-    assertThat(birds.effects.map { it.unraw() }.toStrings())
+    assertThat(birds.immediate!!.toString()).isEqualTo("PROD[-2 Plant<Anyone>]")
+    assertThat(birds.actions.toStrings()).containsExactly("-> Animal<This>")
+    assertThat(birds.effects.toStrings())
         .containsExactly("End: VictoryPoint / Animal<This>")
     assertThat(birds.replaces).isNull()
     assertThat(birds.resourceType).isEqualTo(cn("Animal"))
-    assertThat(birds.requirement?.toString()).isEqualTo("RAW[13 OxygenStep]")
+    assertThat(birds.requirement?.toString()).isEqualTo("13 OxygenStep")
     assertThat(birds.cost).isEqualTo(10)
     assertThat(birds.projectInfo?.kind).isEqualTo(ACTIVE)
   }
@@ -159,8 +158,7 @@ private class CardDefinitionTest {
     val oops =
         Canon.cardDefinitions
             .flatMap { it.asClassDeclaration.allNodes }
-            .map { it.unraw() }
-            .filter { it != parseAsIs(it.kind, "$it") }
+            .filter { it != parse(it.kind, "$it") }
     assertThat(oops).isEmpty()
   }
 }

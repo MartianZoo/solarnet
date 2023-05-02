@@ -29,7 +29,6 @@ import dev.martianzoo.tfm.pets.ast.ClassName.Parsing.classFullName
 import dev.martianzoo.tfm.pets.ast.ClassName.Parsing.classShortName
 import dev.martianzoo.tfm.pets.ast.Effect
 import dev.martianzoo.tfm.pets.ast.Expression
-import dev.martianzoo.tfm.pets.ast.PetNode.Companion.raw
 import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.util.KClassMultimap
 import dev.martianzoo.util.plus
@@ -221,9 +220,9 @@ internal object ClassParsing : PetTokenizer() {
         val newDecl =
             signature.asDeclaration.copy(
                 abstract = abstract,
-                invariants = body.invariants.toSetStrict { it.raw() },
+                invariants = body.invariants.toSetStrict(),
                 effects =
-                    (body.effects + actionListToEffects(body.actions)).toSetStrict { it.raw() },
+                    (body.effects + actionListToEffects(body.actions)).toSetStrict(),
                 defaultsDeclaration = mergedDefaults,
             )
         val unnested = body.nestedGroups.flatMap { it.unnestAllFrom(signature.className) }

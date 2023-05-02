@@ -17,9 +17,7 @@ import dev.martianzoo.tfm.pets.ast.Instruction
 import dev.martianzoo.tfm.pets.ast.Instruction.NoOp
 import dev.martianzoo.tfm.pets.ast.Instruction.Then
 import dev.martianzoo.tfm.pets.ast.Instruction.Transmute
-import dev.martianzoo.tfm.pets.ast.PetNode.Companion.raw
 import dev.martianzoo.tfm.pets.ast.PetNode.Companion.replacer
-import dev.martianzoo.tfm.pets.ast.PetNode.Companion.unraw
 import dev.martianzoo.util.toSetStrict
 
 /**
@@ -52,12 +50,10 @@ public object Transforming {
       if (owner == ENGINE) noOp() else replacer(OWNER.expression, owner.expression)
 
   internal fun actionToEffect(action: Action, index1Ref: Int): Effect {
-    val unrapt = action.unraw()
     require(index1Ref >= 1) { index1Ref }
-    val instruction = actionToInstruction(unrapt)
+    val instruction = actionToInstruction(action)
     val trigger = OnGainOf.create(cn("$USE_ACTION$index1Ref").of(THIS))
-    val effect = Effect(trigger, instruction, automatic = false)
-    return if (unrapt == action) effect else effect.raw()
+    return Effect(trigger, instruction, automatic = false)
   }
 
   private fun actionToInstruction(action: Action): Instruction {
@@ -86,7 +82,7 @@ public object Transforming {
       }
 
   internal fun immediateToEffect(instruction: Instruction, automatic: Boolean = false): Effect? {
-    return if (instruction == NoOp || instruction == NoOp.raw()) {
+    return if (instruction == NoOp) {
       null
     } else {
       Effect(WhenGain, instruction, automatic)

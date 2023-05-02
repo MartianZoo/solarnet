@@ -3,7 +3,6 @@ package dev.martianzoo.tfm.repl
 import dev.martianzoo.tfm.engine.Component
 import dev.martianzoo.tfm.engine.PlayerSession
 import dev.martianzoo.tfm.pets.ast.Expression
-import dev.martianzoo.tfm.pets.ast.PetNode.Companion.unraw
 import dev.martianzoo.tfm.types.MClass
 import dev.martianzoo.tfm.types.MType
 import dev.martianzoo.util.iff
@@ -33,9 +32,8 @@ object MTypeToText {
     val concTypes = mclass.baseType.concreteSubtypesSameClass()
     val cmptTypesDisplay = "${sequenceCount(concTypes, 100)} ${mclass.className}<>"
 
-    val rawFxDisplay = mclass.rawEffects().map { it.unraw() }
-
-    val classFxDisplay = mclass.classEffects.map { "${it.unraw()}" }
+    val rawFxDisplay = mclass.rawEffects()
+    val classFxDisplay = mclass.classEffects
 
     val classStuff =
         """

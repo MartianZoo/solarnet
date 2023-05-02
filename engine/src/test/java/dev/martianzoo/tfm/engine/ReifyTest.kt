@@ -2,7 +2,7 @@ package dev.martianzoo.tfm.engine
 
 import dev.martianzoo.tfm.api.UserException.InvalidReificationException
 import dev.martianzoo.tfm.canon.Canon
-import dev.martianzoo.tfm.pets.Parsing.parseAsIs
+import dev.martianzoo.tfm.pets.Parsing.parse
 import dev.martianzoo.tfm.pets.ast.Instruction
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -38,8 +38,8 @@ class ReifyTest {
   }
 
   fun test(original: String, replacement: String) {
-    val narrower: Instruction = parseAsIs(replacement)
-    val wider: Instruction = parseAsIs(original)
+    val narrower: Instruction = parse(replacement)
+    val wider: Instruction = parse(original)
     narrower.ensureNarrows(wider, game.reader)
   }
 }

@@ -4,16 +4,16 @@ import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.data.GameEvent.ChangeEvent.StateChange
 import dev.martianzoo.tfm.data.Player.Companion.PLAYER2
-import dev.martianzoo.tfm.pets.Parsing.parseAsIs
+import dev.martianzoo.tfm.pets.Parsing.parse
 import dev.martianzoo.tfm.pets.ast.Metric
 import dev.martianzoo.tfm.types.te
 import dev.martianzoo.util.toStrings
 import org.junit.jupiter.api.Test
 
 private class GameApiTest {
-  fun Game.count(s: String) = reader.count(parseAsIs<Metric>(s))
-  fun Game.execute(s: String) = asPlayer(PLAYER2).initiate(parseAsIs(s))
-  fun Game.evaluate(s: String) = reader.evaluate(parseAsIs(s))
+  fun Game.count(s: String) = reader.count(parse<Metric>(s))
+  fun Game.execute(s: String) = asPlayer(PLAYER2).initiate(parse(s))
+  fun Game.evaluate(s: String) = reader.evaluate(parse(s))
 
   @Test
   fun basicByApi() {

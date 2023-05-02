@@ -2,7 +2,7 @@ package dev.martianzoo.tfm.engine
 
 import dev.martianzoo.tfm.api.ApiUtils
 import dev.martianzoo.tfm.data.Player.Companion.ENGINE
-import dev.martianzoo.tfm.pets.Parsing.parseAsIs
+import dev.martianzoo.tfm.pets.Parsing.parse
 import dev.martianzoo.tfm.pets.ast.ClassName
 
 /**
@@ -34,7 +34,7 @@ object Humanizing {
       )
 
   fun PlayerSession.isCardUsed(cardName: String) =
-      agent.reader.evaluate(parseAsIs("ActionUsedMarker<$cardName>"))
+      agent.reader.evaluate(parse("ActionUsedMarker<$cardName>"))
 
   fun PlayerSession.stdProject(spName: String, vararg tasks: String) =
       turn("UseAction1<UseStandardProject>", "UseAction1<$spName>", *tasks)

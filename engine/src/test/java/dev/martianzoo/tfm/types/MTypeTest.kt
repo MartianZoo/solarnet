@@ -4,7 +4,7 @@ import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.tfm.api.SpecialClassNames.OWNER
 import dev.martianzoo.tfm.data.Player.Companion.PLAYER1
 import dev.martianzoo.tfm.engine.CanonClassesTest
-import dev.martianzoo.tfm.pets.Parsing.parseAsIs
+import dev.martianzoo.tfm.pets.Parsing.parse
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.pets.ast.Expression
@@ -211,5 +211,5 @@ private class MTypeTest {
         .containsExactly(cn("CardFront"), cn("MediaGroup").expression, OWNER, PLAYER1.expression)
   }
 
-  private fun te(s: String): Expression = parseAsIs(s)
+  private fun te(s: String): Expression = parse(s)
 }

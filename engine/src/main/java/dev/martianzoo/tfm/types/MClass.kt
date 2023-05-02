@@ -5,7 +5,6 @@ import dev.martianzoo.tfm.api.SpecialClassNames.CLASS
 import dev.martianzoo.tfm.api.SpecialClassNames.COMPONENT
 import dev.martianzoo.tfm.api.SpecialClassNames.OK
 import dev.martianzoo.tfm.api.SpecialClassNames.OWNED
-import dev.martianzoo.tfm.api.SpecialClassNames.RAW
 import dev.martianzoo.tfm.api.SpecialClassNames.THIS
 import dev.martianzoo.tfm.api.UserException.InvalidReificationException
 import dev.martianzoo.tfm.data.ClassDeclaration
@@ -18,13 +17,11 @@ import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.Effect
 import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.pets.ast.PetNode.Companion.replacer
-import dev.martianzoo.tfm.pets.ast.PetNode.Companion.unraw
 import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.pets.ast.Requirement.Companion.split
 import dev.martianzoo.tfm.pets.ast.Requirement.Counting
 import dev.martianzoo.tfm.pets.ast.Requirement.Min
 import dev.martianzoo.tfm.pets.ast.ScaledExpression.Companion.scaledEx
-import dev.martianzoo.tfm.pets.ast.TransformNode
 import dev.martianzoo.tfm.types.Dependency.Companion.depsForClassType
 import dev.martianzoo.tfm.types.Dependency.Key
 import dev.martianzoo.tfm.types.Dependency.TypeDependency
@@ -239,8 +236,8 @@ internal constructor(
 
   private val specificThenGeneralInvars: Pair<List<Requirement>, List<Requirement>> by lazy {
     val requirements = declaration.invariants.map(attachToClassTransformer::transform)
-    val xer = chain(table.transformers.deprodify(), TransformNode.unwrapper(RAW))
-    split(requirements).map { xer.transform(it) }.partition { THIS in it }
+    val deprodify = table.transformers.deprodify()
+    split(requirements).map(deprodify::transform).partition { THIS in it }
   }
 
   private val specificInvars: Set<Requirement> by lazy {
@@ -262,7 +259,6 @@ internal constructor(
   public val componentCountRange: IntRange by lazy {
     val ranges: List<IntRange> =
         typeInvariants
-            .map { it.unraw() }
             .filterIsInstance<Counting>()
             .filter { it.scaledEx.expression == THIS.expression }
             .map { it.range }

@@ -1,6 +1,5 @@
 package dev.martianzoo.tfm.pets.ast
 
-import dev.martianzoo.tfm.api.SpecialClassNames.RAW
 import dev.martianzoo.tfm.pets.PetTransformer
 import dev.martianzoo.tfm.pets.PetTransformer.Companion.noOp
 import dev.martianzoo.tfm.pets.ast.Instruction.Gain
@@ -93,12 +92,6 @@ public sealed class PetNode {
   }
 
   public companion object {
-    /** Returns this node wrapped in a `RAW` block. */
-    public fun <P : PetNode> P.raw(): P = TransformNode.wrap(this, RAW)
-
-    /** Removes an outer `RAW` block if it is present. */
-    public fun <P : PetNode> P.unraw(): P = TransformNode.unwrap(this, RAW)
-
     /**
      * Returns this tree with each node matching [from] replaced with [to]. Note that [from] and
      * [to] are treated as atomic units, not descended into.

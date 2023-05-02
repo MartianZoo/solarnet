@@ -3,14 +3,13 @@ package dev.martianzoo.tfm.data
 import dev.martianzoo.tfm.api.SpecialClassNames.THIS
 import dev.martianzoo.tfm.data.SpecialClassNames.MARS_MAP
 import dev.martianzoo.tfm.data.SpecialClassNames.TILE
-import dev.martianzoo.tfm.pets.Parsing.parseInput
+import dev.martianzoo.tfm.pets.Parsing.parse
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.pets.ast.Effect
 import dev.martianzoo.tfm.pets.ast.Effect.Trigger
 import dev.martianzoo.tfm.pets.ast.Effect.Trigger.OnGainOf
 import dev.martianzoo.tfm.pets.ast.Instruction
-import dev.martianzoo.tfm.pets.ast.PetNode.Companion.raw
 import dev.martianzoo.util.Grid
 
 data class MarsMapDefinition(
@@ -59,7 +58,7 @@ data class MarsMapDefinition(
       require(column >= 1) { "bad column: $column" }
     }
 
-    val bonus: Instruction? = bonusText?.let(::parseInput)
+    val bonus: Instruction? = bonusText?.let(::parse)
 
     override val asClassDeclaration by lazy {
       ClassDeclaration(
@@ -83,6 +82,6 @@ data class MarsMapDefinition(
 
   private companion object {
     fun toEffects(bonus: Instruction?) = setOfNotNull(bonus?.let { Effect(TRIGGER, it, false) })
-    val TRIGGER: Trigger = OnGainOf.create(TILE.of(THIS)).raw()
+    val TRIGGER: Trigger = OnGainOf.create(TILE.of(THIS))
   }
 }
