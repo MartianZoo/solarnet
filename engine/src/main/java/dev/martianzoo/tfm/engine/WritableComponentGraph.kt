@@ -2,10 +2,9 @@ package dev.martianzoo.tfm.engine
 
 import dev.martianzoo.tfm.api.ExpressionInfo
 import dev.martianzoo.tfm.api.ExpressionInfo.StubExpressionInfo
+import dev.martianzoo.tfm.api.UserException.DependencyException
+import dev.martianzoo.tfm.api.UserException.ExistingDependentsException
 import dev.martianzoo.tfm.data.GameEvent.ChangeEvent.StateChange
-import dev.martianzoo.tfm.engine.Exceptions.DependencyException
-import dev.martianzoo.tfm.engine.Exceptions.ExistingDependentsException
-import dev.martianzoo.tfm.engine.Exceptions.LimitsException
 import dev.martianzoo.tfm.engine.Game.ComponentGraph
 import dev.martianzoo.tfm.pets.HasClassName.Companion.classNames
 import dev.martianzoo.tfm.pets.ast.Requirement
@@ -14,6 +13,7 @@ import dev.martianzoo.tfm.types.MClass
 import dev.martianzoo.tfm.types.MType
 import dev.martianzoo.util.HashMultiset
 import dev.martianzoo.util.Multiset
+import kotlin.Int.Companion.MAX_VALUE
 import kotlin.math.min
 
 internal class WritableComponentGraph(
@@ -25,9 +25,7 @@ internal class WritableComponentGraph(
   override fun countComponent(component: Component) = multiset.count(component)
 
   override fun getAll(parentType: MType, einfo: ExpressionInfo): Multiset<Component> {
-    return multiset.filter {
-      it.mtype.narrows(parentType, einfo)
-    }
+    return multiset.filter { it.mtype.narrows(parentType, einfo) }
   }
 
   // TODO update this redundantly instead of walking the whole table?
@@ -41,32 +39,31 @@ internal class WritableComponentGraph(
 
   internal fun update(
       count: Int = 1,
-      gaining: Component? = null,
-      removing: Component? = null,
-      amap: Boolean,
-  ): StateChange? {
-    require(gaining != removing)
-    val actual = checkLimitsAndDeps(count, gaining, removing, amap)
-    if (actual == 0) return null
-
-    removing?.let { multiset.mustRemove(it, actual) }
-    gaining?.let { multiset.add(it, actual) }
-
+      gaining: Component?,
+      removing: Component?,
+  ): StateChange {
+    removing?.let { multiset.mustRemove(it, count) }
+    gaining?.let { multiset.add(it, count) }
     return StateChange(
-        count = actual,
+        count = count,
         gaining = gaining?.expression,
         removing = removing?.expression,
     )
   }
 
-  private fun checkLimitsAndDeps(
-      count: Int,
+  internal fun removeAll(removing: Component): StateChange {
+    val count = multiset.tryRemove(removing, MAX_VALUE)
+    require(count > 0)
+    return StateChange(count, removing = removing.expression)
+  }
+
+  override fun findLimit(
       gaining: Component?,
       removing: Component?,
-      toTheExtentPossible: Boolean,
   ): Int {
-    require(count >= 1)
-    var actual = count
+    require(gaining != removing)
+
+    var actual = MAX_VALUE
     val loader = (gaining ?: removing)!!.mtype.loader
 
     if (gaining != null) {
@@ -80,13 +77,6 @@ internal class WritableComponentGraph(
     if (removing != null) {
       val removable = countComponent(removing) - removing.allowedRange.first
       actual = min(actual, removable)
-
-      if (actual == removable) { // if we're removing them all
-        val dependents = multiset.filter { removing in it.dependencyComponents }
-        if (dependents.any()) {
-          throw ExistingDependentsException(dependents)
-        }
-      }
     }
 
     // MAX 1 Phase, MAX 9 OceanTile
@@ -111,22 +101,26 @@ internal class WritableComponentGraph(
         }
       }
     }
-
-    if (!toTheExtentPossible && actual != count) {
-      throw LimitsException(
-          "When gaining $gaining and removing $removing: can do only $actual of $count required")
-    }
     return actual
   }
 
   internal fun reverse(
       count: Int,
-      removeWhatWasGained: Component? = null,
-      gainWhatWasRemoved: Component? = null,
+      removeWhatWasGained: Component?,
+      gainWhatWasRemoved: Component?,
   ) {
     removeWhatWasGained?.let { multiset.mustRemove(it, count) }
     gainWhatWasRemoved?.let { multiset.add(it, count) }
   }
 
   fun clone() = WritableComponentGraph(multiset.clone())
+
+  fun checkDependents(count: Int, removing: Component) {
+    if (countComponent(removing) == count) {
+      val dependents = multiset.filter { removing in it.dependencyComponents }
+      if (dependents.any()) {
+        throw ExistingDependentsException(dependents.elements.map { it.mtype })
+      }
+    }
+  }
 }

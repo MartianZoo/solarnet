@@ -3,7 +3,7 @@ package dev.martianzoo.tfm.api
 import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.pets.ast.Requirement
 
-interface ExpressionInfo {
+interface ExpressionInfo { // TODO TypeInfo
   fun isAbstract(e: Expression): Boolean
   fun ensureNarrows(wide: Expression, narrow: Expression)
   fun evaluate(requirement: Requirement): Boolean

@@ -1,9 +1,12 @@
 package dev.martianzoo.tfm.data
 
+import dev.martianzoo.tfm.api.SpecialClassNames.DIE
 import dev.martianzoo.tfm.data.GameEvent.ChangeEvent.Cause
 import dev.martianzoo.tfm.pets.ast.Instruction
+import dev.martianzoo.tfm.pets.ast.Instruction.Change
 import dev.martianzoo.tfm.pets.ast.Instruction.Multi
-import dev.martianzoo.util.wrap
+import dev.martianzoo.tfm.pets.ast.Instruction.NoOp
+import dev.martianzoo.tfm.pets.ast.Instruction.Transform
 
 public data class Task(
     /**
@@ -13,34 +16,49 @@ public data class Task(
     val id: TaskId,
 
     /**
-     * Might be abstract. If so, when actually performing the task a reification of the instruction
-     * must be specified.
-     */
-    val instruction: Instruction,
-
-    /**
      * The player (or engine) this task is waiting on, who has the right to narrow it as they wish,
      * and execute it.
      */
     val owner: Player,
 
-    /**
-     * Why was this task born? If there's no reason, this *probably* never needed to be a Task at
-     * all (but it can happen).
-     */
-    val cause: Cause?,
+    /** If true, no game state may be modified until this task is completed. */
+    val next: Boolean = false,
 
     /**
-     * Why is the task still here? Often an error message. null probably means "because you weren't
-     * in autoexec mode" I guess.
+     * What to do. Might be abstract. If so, it will have to be narrowed to something concrete
+     * before/when it is executed.
      */
+    val instruction: Instruction,
+
+    /**
+     * Any instruction that should be automatically enqueued when this task is handled successfully.
+     * Used for `THEN` instructions.
+     */
+    val then: Instruction? = null,
+
+    /** Why was this task born? */
+    val cause: Cause?,
+
+    /** Why is the task still here? Often an error message. */
     val whyPending: String? = null,
 ) {
   init {
-    require(instruction !is Multi) { "should have been split: $instruction" }
+    when (instruction) {
+      is Change -> require(instruction.gaining != DIE.expression)
+      is Multi, is NoOp, is Transform -> error("can't enqueue: $instruction")
+      else -> {}
+    }
   }
 
-  override fun toString() = "$id: [$owner] $instruction${whyPending.wrap(" (", ")")}"
+  override fun toString() =
+      buildString {
+        append(id)
+        append(if (next) "* " else "  ")
+        append("[$owner] ")
+        append(instruction)
+        then?.let { append(" (THEN $it)") }
+        whyPending?.let { append(" ($it) ") }
+      }
 
   data class TaskId(val s: String) : Comparable<TaskId> {
     init {

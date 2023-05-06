@@ -2,26 +2,25 @@ package dev.martianzoo.tfm.engine
 
 import dev.martianzoo.tfm.api.ExpressionInfo
 import dev.martianzoo.tfm.api.GameReader
-import dev.martianzoo.tfm.api.SpecialClassNames.DIE
-import dev.martianzoo.tfm.api.SpecialClassNames.OK
-import dev.martianzoo.tfm.api.Type
-import dev.martianzoo.tfm.api.UserException
+import dev.martianzoo.tfm.api.UserException.AbstractException
+import dev.martianzoo.tfm.api.UserException.ExistingDependentsException
+import dev.martianzoo.tfm.api.UserException.LimitsException
+import dev.martianzoo.tfm.api.UserException.NotNowException
 import dev.martianzoo.tfm.data.GameEvent
 import dev.martianzoo.tfm.data.GameEvent.ChangeEvent
 import dev.martianzoo.tfm.data.GameEvent.ChangeEvent.Cause
-import dev.martianzoo.tfm.data.GameEvent.ChangeEvent.StateChange
 import dev.martianzoo.tfm.data.GameEvent.TaskEvent
+import dev.martianzoo.tfm.data.GameEvent.TaskRemovedEvent
 import dev.martianzoo.tfm.data.Player
 import dev.martianzoo.tfm.data.Player.Companion.ENGINE
-import dev.martianzoo.tfm.data.Result
 import dev.martianzoo.tfm.data.Task
 import dev.martianzoo.tfm.data.Task.TaskId
+import dev.martianzoo.tfm.data.TaskResult
 import dev.martianzoo.tfm.engine.ActiveEffect.FiredEffect
-import dev.martianzoo.tfm.engine.Exceptions.ExistingDependentsException
 import dev.martianzoo.tfm.engine.Game.ComponentGraph
 import dev.martianzoo.tfm.engine.Game.EventLog
 import dev.martianzoo.tfm.engine.Game.EventLog.Checkpoint
-import dev.martianzoo.tfm.engine.Game.PlayerAgent
+import dev.martianzoo.tfm.engine.Game.PlayerAgentImpl
 import dev.martianzoo.tfm.engine.Game.TaskQueue
 import dev.martianzoo.tfm.pets.PetTransformer
 import dev.martianzoo.tfm.pets.PetTransformer.Companion.chain
@@ -29,6 +28,7 @@ import dev.martianzoo.tfm.pets.Transforming.replaceOwnerWith
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.pets.ast.Instruction
+import dev.martianzoo.tfm.pets.ast.Instruction.NoOp
 import dev.martianzoo.tfm.pets.ast.Metric
 import dev.martianzoo.tfm.pets.ast.PetNode
 import dev.martianzoo.tfm.pets.ast.Requirement
@@ -36,7 +36,6 @@ import dev.martianzoo.tfm.types.MClass
 import dev.martianzoo.tfm.types.MClassTable
 import dev.martianzoo.tfm.types.MType
 import dev.martianzoo.util.Multiset
-import kotlin.Int.Companion.MAX_VALUE
 
 /**
  * The mutable state of a game in progress. This state is the aggregation of three mutable child
@@ -45,7 +44,7 @@ import kotlin.Int.Companion.MAX_VALUE
  * the most current state.
  *
  * To read game state at a higher level (e.g. via Pets expressions), use [reader]. To change state
- * requires going through [asPlayer] to get a [PlayerAgent].
+ * requires going through [asPlayer] to get a [PlayerAgentImpl].
  */
 public class Game
 internal constructor(
@@ -87,6 +86,8 @@ internal constructor(
      * [parentType] is `Component` this will return the entire component multiset.
      */
     fun getAll(parentType: MType, einfo: ExpressionInfo): Multiset<Component>
+
+    fun findLimit(gaining: Component?, removing: Component?): Int
   }
 
   /**
@@ -119,7 +120,7 @@ internal constructor(
 
     fun entriesSince(checkpoint: Checkpoint): List<GameEvent>
 
-    fun activitySince(checkpoint: Checkpoint): Result
+    fun activitySince(checkpoint: Checkpoint): TaskResult
   }
 
   /**
@@ -132,7 +133,7 @@ internal constructor(
    */
   public interface TaskQueue {
     val size: Int
-    val ids: Set<TaskId>
+    fun ids(): Set<TaskId>
 
     operator fun contains(id: TaskId): Boolean
     operator fun get(id: TaskId): Task
@@ -141,6 +142,8 @@ internal constructor(
     fun nextAvailableId(): TaskId
     fun toStrings(): List<String>
     fun asMap(): Map<TaskId, Task>
+
+    fun preparedTask(): TaskId?
   }
 
   // Don't allow actual game logic to depend on the event log
@@ -148,9 +151,7 @@ internal constructor(
 
   internal val transformers by table::transformers
 
-  public fun asPlayer(player: Player) = PlayerAgent(this, player)
-
-  public fun removeTask(id: TaskId) = writableTasks.removeTask(id, writableEvents)
+  public fun asPlayer(player: Player): PlayerAgent = PlayerAgentImpl(this, player)
 
   public fun resolve(expression: Expression): MType = table.resolve(expression)
 
@@ -158,7 +159,11 @@ internal constructor(
    * Returns a component instance of type [expression], whether such a component is part of the
    * current game state or not.
    */
-  public fun toComponent(expression: Expression) = Component.ofType(resolve(expression))
+  public fun toComponent(expression: Expression): Component = Component.ofType(resolve(expression))
+
+  @JvmName("toNullableComponent")
+  public fun toComponent(expression: Expression?): Component? =
+      expression?.let { Component.ofType(resolve(it)) }
 
   public fun checkpoint() = events.checkpoint()
 
@@ -177,7 +182,7 @@ internal constructor(
     }
   }
 
-  public fun doAtomic(block: () -> Unit): Result {
+  public fun doAtomic(block: () -> Unit): TaskResult {
     val checkpoint = checkpoint()
     return try {
       block()
@@ -188,16 +193,10 @@ internal constructor(
     }
   }
 
-  // A little odd that activeEffects is only on "writable" components but okay
   internal fun activeEffects(classes: Collection<MClass>): List<ActiveEffect> =
       writableComponents.activeEffects(classes)
 
   internal fun setupFinished() = writableEvents.setStartPoint()
-
-  fun getTask(taskId: TaskId): Task {
-    require(taskId in tasks) { taskId }
-    return tasks[taskId]
-  }
 
   fun isSystem(event: ChangeEvent): Boolean {
     val g = event.change.gaining
@@ -217,17 +216,15 @@ internal constructor(
       Game(table, writableEvents.clone(), writableComponents.clone(), writableTasks.clone())
 
   internal fun addTriggeredTasks(fired: List<FiredEffect>) =
-      writableTasks.addTasksFrom(fired, writableEvents)
+      fired.forEach { writableTasks.addTasksFrom(it, writableEvents) }
 
-  /**
-   * A view of a [Game] specific to a particular [Player] (a player or the engine). Personalizes the
-   * data to that player's perspective, and supports executing instructions to modify the game
-   * state.
-   */
-  public class PlayerAgent internal constructor(public val game: Game, public val player: Player) {
-    public fun session(defaultAutoExec: Boolean = true) = PlayerSession(this, defaultAutoExec)
+  internal class PlayerAgentImpl(val game: Game, override val player: Player) : PlayerAgent() {
 
-    public val reader =
+    override fun asPlayer(other: Player) = game.asPlayer(other)
+
+    override fun session() = PlayerSession(game, this)
+
+    override val reader =
         object : GameReader by game.reader {
           override fun resolve(expression: Expression): MType = game.resolve(heyItsMe(expression))
 
@@ -237,118 +234,141 @@ internal constructor(
           override fun count(metric: Metric) = game.reader.count(heyItsMe(metric))
         }
 
-    private val insertOwner: PetTransformer =
-        chain(game.transformers.deprodify(), replaceOwnerWith(player))
+    internal fun <P : PetNode?> heyItsMe(node: P) = // TODO private?
+    if (node == null) node else insertOwner.transform(node)
 
-    @Suppress("UNCHECKED_CAST")
-    private fun <P : PetNode?> heyItsMe(node: P): P = node?.let(insertOwner::transform) as P
-
-    public fun getComponents(type: Expression): Multiset<Component> =
+    override fun getComponents(type: Expression): Multiset<Component> =
         game.components.getAll(reader.resolve(type) as MType, reader) // TODO think about
 
-    public fun sneakyChange(
-        count: Int = 1,
-        gaining: Expression? = null,
-        removing: Expression? = null,
-        amap: Boolean = false,
-        cause: Cause? = null,
-    ): ChangeEvent? {
-      when (gaining?.className) {
-        OK -> return if (removing == null) null else throw UserException.removingOk(cause)
-        DIE -> return if (amap) null else throw UserException.die(cause)
+    override fun tasks(): Map<TaskId, Task> = game.tasks.asMap()
+
+    override fun prepareTask(taskId: TaskId): Boolean {
+      val already = game.tasks.preparedTask()
+      if (already == taskId) return true
+      if (already != null) {
+        throw NotNowException("earlier committed task hasn't executed yet: $already")
       }
 
-      val toGain: Component? = gaining?.let { game.toComponent(heyItsMe(it)) }
-      val toRemove: Component? = removing?.let { game.toComponent(heyItsMe(it)) }
-      val change: StateChange? = game.writableComponents.update(count, toGain, toRemove, amap)
-      return game.writableEvents.addChangeEvent(change, player, cause)
+      val task: Task = game.tasks[taskId]
+      checkOwner(task) // TODO use myTasks() instead?
+
+      val preparer = Preparer(reader, game.components)
+      val prepared = preparer.toPreparedForm(task.instruction)
+      if (prepared == NoOp) {
+        game.writableTasks.removeTask(taskId, game.writableEvents)
+        return false
+      }
+      val replacement = task.copy(instruction = prepared, next = true, whyPending = null) // why -why?
+      game.writableTasks.replaceTask(replacement, game.writableEvents)
+      return true
+    }
+
+    override fun tryTask(taskId: TaskId, narrowed: Instruction?): TaskResult {
+      var message: String? = null
+      val result =
+          try {
+            game.doAtomic {
+              if (prepareTask(taskId)) {
+                doTask(taskId, narrowed)
+              }
+              return@doAtomic
+            }
+          } catch (e: NotNowException) {
+            message = e.message
+            TaskResult(listOf(), setOf())
+          } catch (e: AbstractException) {
+            message = e.message
+            TaskResult(listOf(), setOf())
+          }
+      if (message == null) return result
+      val newTask = game.tasks[taskId]
+      val explainedTask = newTask.copy(whyPending = message)
+      game.writableTasks.replaceTask(explainedTask, game.writableEvents)
+      return result
+    }
+
+    override fun doTask(taskId: TaskId, narrowed: Instruction?): TaskResult {
+      prepareTask(taskId)
+      val nrwd: Instruction? = narrowed?.let { session().prep(it) }
+      val task = game.tasks[taskId]
+      checkOwner(task)
+      nrwd?.ensureNarrows(task.instruction, game.reader)
+      return game.doAtomic {
+        val prepared = Preparer(reader, game.components).toPreparedForm(nrwd ?: task.instruction)
+        InstructionExecutor(game, this, task.cause).execute(prepared)
+        task.then?.let { addTasks(it, task.owner, task.cause) }
+        removeTask(taskId)
+      }
+    }
+
+    // Danger
+
+    override fun addTask(instruction: Instruction, initialCause: Cause?): TaskId {
+      val events = addTasks(heyItsMe(session().prep(instruction)), player, initialCause)
+      return events.single().task.id
+    }
+
+    override fun removeTask(taskId: TaskId): TaskRemovedEvent {
+      checkOwner(game.tasks[taskId])
+      return game.writableTasks.removeTask(taskId, game.writableEvents)
     }
 
     /**
-     * Attempts to carry out the entirety of [instruction] "manually" or "out of the blue", plus any
-     * *automatic* triggered effects that result. If any of that fails the game state will remain
-     * unchanged and an exception will be thrown. If it succeeds, any non-automatic triggered
-     * effects will be left in the task queue. No other changes to the task queue will happen (for
-     * example, existing tasks are left alone, and [instruction] itself is never left enqueued.
-     *
-     * @param [instruction] an instruction to be performed as-is (no transformations will be
-     *   applied)
+     * Updates the component graph and event log, but does not fire triggers. This exists as a
+     * public method so that a broken game state can be fixed, or a game state broken on purpose, or
+     * specific game scenario set up very explicitly.
      */
-    fun initiate(instruction: Instruction, initialCause: Cause? = null): Result {
-      val fixed = Instruction.split(heyItsMe(instruction))
-      return game.doAtomic {
-        val executor = InstructionExecutor(this, initialCause)
-        fixed.forEach { executor.doInstruction(it) }
-      }
-    }
-
-    fun tasks(): Map<TaskId, Task> = game.tasks.asMap()
-
-    public fun doTask(taskId: TaskId, narrowed: Instruction? = null): Result {
-      val requestedTask: Task = game.getTask(taskId)
-      if (player != ENGINE && player != requestedTask.owner) {
-        throw UserException("$player can't perform task owned by ${requestedTask.owner}")
-      }
-
-      val queued = requestedTask.instruction
-      val specified = heyItsMe(narrowed)
-
-      val toExecute: Instruction =
-          if (specified == null) {
-            queued
-          } else {
-            if (specified.isAbstract(game.reader)) {
-              throw UserException.abstractInstruction(specified) // TODO be more specific
-            }
-            specified.ensureNarrows(queued, game.reader)
-            specified
-          }
-
-      val checkpoint = game.checkpoint()
-      try {
-        val executor = InstructionExecutor(this, requestedTask.cause)
-        executor.doInstruction(toExecute)
-        removeTask(taskId)
-      } catch (e: Exception) {
-        game.rollBack(checkpoint)
-        if (e is UserException && requestedTask.whyPending == null) {
-          val explainedTask = requestedTask.copy(whyPending = e.message)
-          game.writableTasks.replaceTask(explainedTask, game.writableEvents)
-        } else {
-          throw e
-        }
-      }
-      return game.events.activitySince(checkpoint)
-    }
-
-    // TODO check owner
-    public fun removeTask(taskId: TaskId) = game.removeTask(taskId)
-
-    fun update(
+    override fun sneakyChange(
         count: Int,
-        gaining: Type? = null,
-        removing: Type? = null,
-        amap: Boolean,
+        gaining: Component?,
+        removing: Component?,
         cause: Cause?,
-    ): Result {
-      val g = gaining?.expression
-      val r = removing?.expression
-
-      fun tryIt(): ChangeEvent? = sneakyChange(count, g, r, amap, cause)
-
-      val cp = game.checkpoint()
-      try {
-        tryIt()
-      } catch (e: ExistingDependentsException) {
-        // There's sorta no better way to find out we need to remove dependents
-        e.dependents.forEach { update(MAX_VALUE, removing = it.mtype, amap = true, cause = cause) }
-        tryIt()
+    ): ChangeEvent? {
+      val change = try {
+        game.writableComponents.update(count, gaining = gaining, removing = removing)
+      } catch (e: IllegalArgumentException) { // TODO meh
+        throw LimitsException(e.message ?: "")
       }
+      return game.writableEvents.addChangeEvent(change, player, cause)
+    }
+
+    internal fun addTasks(instruction: Instruction, owner: Player, cause: Cause?) =
+        game.writableTasks.addTasksFrom(instruction, owner, cause, game.writableEvents)
+
+    internal fun update(
+        count: Int,
+        gaining: Component?,
+        removing: Component?,
+        cause: Cause?
+    ): TaskResult {
+      val cp = game.checkpoint()
+      removingDependents(cause) { sneakyChange(count, gaining, removing, cause) }
       return game.events.activitySince(cp)
     }
 
-    fun addTasks(instruction: Instruction, taskOwner: Player, cause: Cause?) {
-      game.writableTasks.addTasksFrom(instruction, taskOwner, cause, game.writableEvents)
+    private fun removingDependents(cause: Cause?, tryIt: () -> ChangeEvent?) {
+      try {
+        tryIt()
+      } catch (e: ExistingDependentsException) {
+        e.dependents.forEach { removeAll(game.toComponent(it.expressionFull), cause) }
+        // TODO better way to remove dependents?
+        tryIt()
+      }
+    }
+
+    private val insertOwner: PetTransformer =
+        chain(game.transformers.deprodify(), replaceOwnerWith(player))
+
+    private fun removeAll(removing: Component, cause: Cause?) =
+        removingDependents(cause) {
+          val change = game.writableComponents.removeAll(removing)
+          game.writableEvents.addChangeEvent(change, player, cause = cause)
+        }
+
+    private fun checkOwner(task: Task) {
+      require(player == task.owner || player == ENGINE) {
+        "$player can't access task owned by ${task.owner}"
+      }
     }
   }
 }

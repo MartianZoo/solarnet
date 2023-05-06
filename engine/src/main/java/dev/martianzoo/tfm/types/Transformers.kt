@@ -178,7 +178,7 @@ public class Transformers(private val table: MClassTable) {
                       }
                   Transmute(fixedFrom, node.count, intensity)
                 }
-                else -> error("")
+                else -> error("") // TODO why
               }
 
           @Suppress("UNCHECKED_CAST")

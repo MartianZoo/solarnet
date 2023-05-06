@@ -7,7 +7,7 @@ import dev.martianzoo.tfm.data.Task.TaskId
  * Returned by a successful execution to indicate what changes were performed and what new tasks
  * were added.
  */
-public data class Result(
+public data class TaskResult(
     public val changes: List<ChangeEvent>,
     public val tasksSpawned: Set<TaskId>,
 )

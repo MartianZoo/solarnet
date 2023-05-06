@@ -14,8 +14,10 @@ import dev.martianzoo.tfm.api.UserException.InvalidReificationException
 import dev.martianzoo.tfm.api.UserException.PetSyntaxException
 import dev.martianzoo.tfm.pets.PetTokenizer
 import dev.martianzoo.tfm.pets.ast.FromExpression.SimpleFrom
+import dev.martianzoo.tfm.pets.ast.Instruction.Gain.Companion.gain
 import dev.martianzoo.tfm.pets.ast.Instruction.Intensity.MANDATORY
 import dev.martianzoo.tfm.pets.ast.Instruction.Intensity.OPTIONAL
+import dev.martianzoo.tfm.pets.ast.ScaledExpression.Companion.scaledEx
 import dev.martianzoo.tfm.pets.ast.ScaledExpression.Scalar
 import dev.martianzoo.tfm.pets.ast.ScaledExpression.Scalar.ActualScalar
 import dev.martianzoo.tfm.pets.ast.ScaledExpression.Scalar.Companion.checkNonzero
@@ -30,16 +32,15 @@ import dev.martianzoo.util.toSetStrict
  */
 public sealed class Instruction : PetElement() {
   companion object {
-    /** Recursively breaks apart any [Multi] instructions found in [instructions]. */
-    fun split(instructions: Iterable<Instruction>): List<Instruction> =
-        instructions.flatMap(::split)
+    /** Recursively breaks apart any [Multi] or [Then] instructions found in [instructions]. */
+    fun split(instructions: Iterable<Instruction>) = instructions.flatMap { split(it) }
 
-    /** Recursively breaks apart any [Multi] instructions found in [instruction]. */
+    /** Recursively breaks apart any [Multi] or [Then] instructions found in [instruction]. */
     fun split(instruction: Instruction): List<Instruction> =
-        if (instruction is Multi) {
-          split(instruction.instructions)
-        } else {
-          listOf(instruction)
+        when (instruction) {
+          is Multi -> split(instruction.instructions)
+          // is Then -> split(instruction.instructions)
+          else -> listOf(instruction)
         }
 
     internal fun parser(): Parser<Instruction> = Parsers.parser()
@@ -72,6 +73,23 @@ public sealed class Instruction : PetElement() {
   }
 
   public sealed class Change : Instruction() {
+    companion object {
+      fun change(
+          count: Int = 1,
+          gaining: Expression? = null,
+          removing: Expression? = null,
+          intensity: Intensity? = MANDATORY
+      ): Instruction {
+        require(count >= 0)
+        return when {
+          count == 0 -> NoOp
+          removing == null -> gain(scaledEx(count, gaining!!), intensity)
+          gaining == null -> Remove(scaledEx(count, removing), intensity)
+          else -> Transmute(SimpleFrom(gaining, removing), ActualScalar(count), intensity)
+        }
+      }
+    }
+
     abstract val count: Scalar
 
     abstract val gaining: Expression?
@@ -102,7 +120,8 @@ public sealed class Instruction : PetElement() {
 
     override fun ensureIsNarrowedBy_doNotCall(proposed: Instruction, einfo: ExpressionInfo) {
       if (proposed == NoOp && intensity == OPTIONAL) return
-      (proposed as Change).amount.ensureNarrows(amount, einfo)
+      proposed as? Change ?: throw InvalidReificationException("$this  /  $proposed")
+      proposed.amount.ensureNarrows(amount, einfo)
       gaining?.let { einfo.ensureNarrows(it, proposed.gaining!!) }
       removing?.let { einfo.ensureNarrows(it, proposed.removing!!) }
     }
@@ -199,11 +218,8 @@ public sealed class Instruction : PetElement() {
 
   data class Per(val instruction: Instruction, val metric: Metric) : Instruction() {
     init {
-      when (instruction) {
-        is Gain,
-        is Remove,
-        is Transmute, -> {}
-        else -> throw PetSyntaxException("Per can only contain gain/remove/transmute for now")
+      if (instruction !is Change) {
+        throw PetSyntaxException("Per can only contain gain/remove/transmute for now")
       }
     }
 
@@ -303,8 +319,18 @@ public sealed class Instruction : PetElement() {
     final override fun toString() = instructions.joinToString(connector()) { groupPartIfNeeded(it) }
   }
 
+  // TODO: make it binary
   data class Then(override val instructions: List<Instruction>) :
       CompositeInstruction(instructions) {
+    init {
+      if (instructions.size < 2) throw PetSyntaxException("")
+
+      // it's okay for the final instruction to have a Multi in it, but not the previous ones
+      val allButLast = instructions.subList(0, instructions.size - 1)
+      val problem = allButLast.any { it.descendantsOfType<Multi>().any() }
+      if (problem) throw PetSyntaxException("Bad THEN (TODO)") // could replace them with THENs....
+    }
+
     override fun copy(instructions: Iterable<Instruction>) =
         copy(instructions = instructions.toList())
 
@@ -336,6 +362,10 @@ public sealed class Instruction : PetElement() {
     }
 
     override fun connector() = " THEN "
+
+    companion object {
+      fun create(it: List<Instruction>) = if (it.size == 1) it.first() else Then(it)
+    }
   }
 
   data class Or(override val instructions: List<Instruction>) : CompositeInstruction(instructions) {
@@ -356,6 +386,10 @@ public sealed class Instruction : PetElement() {
     override fun isAbstract(einfo: ExpressionInfo) = true
 
     override fun ensureIsNarrowedBy_doNotCall(proposed: Instruction, einfo: ExpressionInfo) {
+      if (proposed is Or) {
+        proposed.instructions.forEach { ensureIsNarrowedBy_doNotCall(it, einfo) }
+        return
+      }
       var messages = ""
       for (option in instructions) {
         try { // Just get any one to work
@@ -366,7 +400,8 @@ public sealed class Instruction : PetElement() {
         }
       }
       throw InvalidReificationException(
-          "Instruction `$proposed` doesn't reify any arm of the OR instruction:\n$messages")
+          "Instruction `$proposed` doesn't reify any arm of `$this`:\n$messages",
+      )
     }
 
     override fun connector() = " OR "
@@ -395,7 +430,7 @@ public sealed class Instruction : PetElement() {
     override fun copy(instructions: Iterable<Instruction>) =
         copy(instructions = instructions.toList())
 
-    override fun isAbstract(einfo: ExpressionInfo) = error("should have been split by now: $this")
+    override fun isAbstract(einfo: ExpressionInfo) = instructions.any { it.isAbstract(einfo) }
 
     override fun ensureIsNarrowedBy_doNotCall(proposed: Instruction, einfo: ExpressionInfo) =
         error("should have been split by now: $this")
@@ -439,6 +474,7 @@ public sealed class Instruction : PetElement() {
 
   public abstract fun isAbstract(einfo: ExpressionInfo): Boolean
 
+  // This is the entry point into all the ensureNarrows business throughout the codebase
   fun ensureNarrows(abstractInstr: Instruction, einfo: ExpressionInfo) {
     if (abstractInstr !is Or && this != NoOp && this::class != abstractInstr::class) {
       throw InvalidReificationException("`$this` can't reify `$abstractInstr` (different types)")
@@ -476,31 +512,35 @@ public sealed class Instruction : PetElement() {
       return parser {
         val gain: Parser<Instruction> =
             ScaledExpression.parser() and
-            optional(intensity) map { (ste, int) ->
-              Gain.gain(ste, int)
-            }
+                optional(intensity) map
+                { (ste, int) ->
+                  Gain.gain(ste, int)
+                }
 
         val remove: Parser<Remove> =
             skipChar('-') and
-            ScaledExpression.parser() and
-            optional(intensity) map { (ste, int) ->
-              Remove(ste, int)
-            }
+                ScaledExpression.parser() and
+                optional(intensity) map
+                { (ste, int) ->
+                  Remove(ste, int)
+                }
 
         val transmute: Parser<Transmute> =
             optional(ScaledExpression.scalar()) and
-            FromExpression.parser() and
-            optional(intensity) map { (scalar, fro, int) ->
-              Transmute(fro, scalar ?: ActualScalar(1), int)
-            }
+                FromExpression.parser() and
+                optional(intensity) map
+                { (scalar, fro, int) ->
+                  Transmute(fro, scalar ?: ActualScalar(1), int)
+                }
 
         val perable: Parser<Instruction> = transmute or group(transmute) or gain or remove
 
         val maybePer: Parser<Instruction> =
             perable and
-            optional(skipChar('/') and Metric.parser()) map { (instr, metric) ->
-              if (metric == null) instr else Per(instr, metric)
-            }
+                optional(skipChar('/') and Metric.parser()) map
+                { (instr, metric) ->
+                  if (metric == null) instr else Per(instr, metric)
+                }
 
         val transform: Parser<Transform> =
             transform(parser()) map { (node, tname) -> Transform(node, tname) }
@@ -510,27 +550,30 @@ public sealed class Instruction : PetElement() {
         val arguments = separatedTerms(Expression.parser(), char(','), acceptZero = true)
         val custom: Parser<Custom> =
             skipChar('@') and
-            _lowerCamelRE and
-            group(arguments) map { (name, args) ->
-              Custom(name.text, args, 1)
-            }
+                _lowerCamelRE and
+                group(arguments) map
+                { (name, args) ->
+                  Custom(name.text, args, 1)
+                }
         val atom: Parser<Instruction> = group(parser()) or maybeTransform or custom
 
         val isMandatory: Parser<Boolean> = (_questionColon asJust false) or (char(':') asJust true)
 
         val gated: Parser<Instruction> =
             optional(Requirement.atomParser() and isMandatory) and
-            atom map { (gate, ins) ->
-              if (gate == null) ins else Gated(gate.t1, gate.t2, ins)
-            }
+                atom map
+                { (gate, ins) ->
+                  if (gate == null) ins else Gated(gate.t1, gate.t2, ins)
+                }
 
         val orInstr: Parser<Instruction> =
-            separatedTerms(gated, _or) map {
-              val set = it.toSetStrict().toList()
-              if (set.size == 1) set.first() else Or(set)
-            }
+            separatedTerms(gated, _or) map
+                {
+                  val set = it.toSetStrict().toList()
+                  if (set.size == 1) set.first() else Or(set)
+                }
 
-        val then = separatedTerms(orInstr, _then) map { if (it.size == 1) it.first() else Then(it) }
+        val then = separatedTerms(orInstr, _then) map { Then.create(it) }
 
         commaSeparated(then) map { Multi.create(it) }
       }

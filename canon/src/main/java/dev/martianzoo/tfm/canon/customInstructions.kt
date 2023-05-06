@@ -8,6 +8,8 @@ import dev.martianzoo.tfm.api.SpecialClassNames.CLASS
 import dev.martianzoo.tfm.api.SpecialClassNames.PROD
 import dev.martianzoo.tfm.api.Type
 import dev.martianzoo.tfm.api.UserException
+import dev.martianzoo.tfm.api.UserException.InvalidReificationException
+import dev.martianzoo.tfm.api.UserException.LimitsException
 import dev.martianzoo.tfm.data.CardDefinition
 import dev.martianzoo.tfm.data.CardDefinition.Deck.PRELUDE
 import dev.martianzoo.tfm.data.MarsMapDefinition.AreaDefinition
@@ -68,7 +70,7 @@ private object CreateAdjacencies : CustomInstruction("createAdjacencies") {
     val tiles = game.getComponents(tileType)
 
     // TODO invariants should have already taken care of this
-    if (tiles.size > 1) throw UserException("Two tiles on same area")
+    if (tiles.size > 1) throw LimitsException("Two tiles on same area")
     return tiles.singleOrNull()?.expressionFull
   }
 
@@ -161,10 +163,10 @@ private object CopyPrelude : CustomInstruction("copyPrelude") {
   override fun translate(game: GameReader, arguments: List<Type>): Instruction {
     val typeExpr = arguments.single().expressionFull
     if (game.resolve(typeExpr).className == cn("DoubleDown")) {
-      throw UserException("Cute. No, you can't copy Double Down itself")
+      throw InvalidReificationException("Cute. No, you can't copy Double Down itself")
     }
     val def = game.authority.card(typeExpr.className)
-    if (def.deck != PRELUDE) throw UserException("Card $typeExpr is not a prelude card")
+    if (def.deck != PRELUDE) throw InvalidReificationException("Card $typeExpr is not a prelude card")
     return def.immediate!!
   }
 }

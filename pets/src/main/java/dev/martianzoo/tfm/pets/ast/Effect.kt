@@ -101,9 +101,7 @@ public data class Effect(
 
     data class ByTrigger(override val inner: Trigger, val by: ClassName) : WrappingTrigger() {
       init {
-        if (inner is ByTrigger) {
-          throw PetSyntaxException("by the by")
-        }
+        if (inner is ByTrigger) throw PetSyntaxException("by the by")
       }
 
       override fun visitChildren(visitor: Visitor) = visitor.visit(inner, by)

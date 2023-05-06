@@ -56,20 +56,18 @@ private class CanonCustomInstructionsTest {
     p1.execute("PROD[S, P, E, H]")
     checkProduction(p1, 0, 1, 0, 1, 1, 1)
 
-    // TODO why does autoExec break this?
-    p1.execute("UseAction1<RobinsonIndustries>", autoExec = false)
-    p1.doTask("-4! THEN @gainLowestProduction(Player1)")
+    p1.initiate("UseAction1<RobinsonIndustries>")
 
     val cp = p1.game.checkpoint()
-    p1.doTask("PROD[1]")
+    p1.tryMatchingTask("PROD[1]")
     checkProduction(p1, 1, 1, 0, 1, 1, 1)
 
     p1.game.rollBack(cp)
-    p1.doTask("PROD[T]")
+    p1.tryMatchingTask("PROD[T]")
     checkProduction(p1, 0, 1, 1, 1, 1, 1)
 
     p1.game.rollBack(cp)
-    assertThrows<InvalidReificationException> { p1.doTask("PROD[Steel]") }
+    assertThrows<InvalidReificationException> { p1.tryMatchingTask("PROD[Steel]") }
   }
 
   @Test
@@ -83,14 +81,15 @@ private class CanonCustomInstructionsTest {
     p1.execute("StripMine")
     checkProduction(p1, 0, 2, 1, 0, 4, 0)
 
-    p1.execute("RoboticWorkforce")
+    p1.initiate("RoboticWorkforce")
     checkProduction(p1, 0, 2, 1, 0, 4, 0)
 
     // This card has no building tag so it won't work
-    assertThrows<InvalidReificationException> { p1.doTask("@copyProductionBox(MassConverter)") }
+    assertThrows<InvalidReificationException> { p1.tryMatchingTask("@copyProductionBox(MassConverter)") }
     checkProduction(p1, 0, 2, 1, 0, 4, 0)
 
-    p1.doTask("@copyProductionBox(StripMine)")
+    p1.tryMatchingTask("@copyProductionBox(StripMine)")
+    p1.mustDrain()
     checkProduction(p1, 0, 4, 2, 0, 2, 0)
   }
 

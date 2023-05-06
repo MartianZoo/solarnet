@@ -25,8 +25,6 @@ import dev.martianzoo.tfm.pets.ast.ScaledExpression
 import dev.martianzoo.tfm.pets.ast.ScaledExpression.Companion.MEGACREDIT
 import dev.martianzoo.tfm.pets.ast.ScaledExpression.Companion.scaledEx
 import dev.martianzoo.tfm.testlib.PetToKotlin.p2k
-import dev.martianzoo.util.HashMultiset
-import dev.martianzoo.util.Multiset
 import kotlin.math.pow
 import kotlin.math.roundToInt
 import kotlin.random.Random
@@ -299,12 +297,6 @@ internal class PetGenerator(scaling: (Int) -> Double) :
     }
     return set
   }
-}
-
-private fun <T : Any> multiset(vararg pairs: Pair<Int, T>): Multiset<T> {
-  val result = HashMultiset<T>()
-  pairs.forEach { (count, element) -> result.add(element, count) }
-  return result
 }
 
 fun scaling(greed: Double, backoff: Double): (Int) -> Double {

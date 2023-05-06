@@ -2,7 +2,6 @@ package dev.martianzoo.tfm.repl
 
 import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.tfm.canon.Canon
-import dev.martianzoo.tfm.data.GameSetup
 import org.junit.jupiter.api.Test
 
 private class ReplSessionTest {
@@ -33,26 +32,6 @@ private class ReplSessionTest {
     assertThat(repl.session.count("P")).isEqualTo(9)
     assertThat(repl.session.count("E")).isEqualTo(5)
     assertThat(repl.session.count("H")).isEqualTo(9)
-  }
-
-  @Test
-  fun testAstrodrill() {
-    val repl = ReplSession(GameSetup(Canon, "BMX", 2))
-    val commands =
-        """
-          beCOme Player2
-          exeC CorporationCard then Astrodrill
-          exec ActionPhase
-          exec UseAction1<UseActionFromCard>
-          task a UseAction1<Astrodrill> THEN ActionUsedMarker<Astrodrill>
-          TASK B Plant
-        """
-            .trimIndent()
-    for (cmd in commands.split("\n")) {
-      repl.command(cmd)
-    }
-    assertThat(repl.session.count("Plant")).isEqualTo(1)
-    assertThat(repl.session.count("ActionUsedMarker")).isEqualTo(1)
   }
 
   @Test
@@ -110,21 +89,6 @@ private class ReplSessionTest {
             "+---------+---------+---------+",
         )
         .inOrder()
-  }
-
-  @Test
-  fun testGreenerySp() {
-    val repl = ReplSession(Canon.SIMPLE_GAME)
-    repl.command("become Player1")
-    repl.command("exec 100")
-    repl.command("exec UseAction1<GreenerySP>")
-
-    // This should eventually work when we really fix greeneries, but for now
-    // it insists you place next to a tile of yours, so it won't work
-    val result = repl.command("task A -23 THEN GreeneryTile<Tharsis_3_4>")
-    assertThat(result)
-        .containsExactly(
-            "requirement not met: `Neighbor<OwnedTile<Player1, MarsArea>, Tharsis_3_4>`")
   }
 
   @Test

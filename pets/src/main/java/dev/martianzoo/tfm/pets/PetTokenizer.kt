@@ -35,6 +35,7 @@ internal abstract class PetTokenizer {
   internal val _if = caseInsensitiveWord("IF")
   internal val _max = caseInsensitiveWord("MAX")
   internal val _or = caseInsensitiveWord("OR")
+  internal val _and = caseInsensitiveWord("AND")
   internal val _then = caseInsensitiveWord("THEN")
   internal val _x = regex(Regex("""X\b"""), "X")
 

@@ -3,6 +3,7 @@ package dev.martianzoo.tfm.types
 import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.tfm.api.SpecialClassNames.CLASS
 import dev.martianzoo.tfm.api.SpecialClassNames.COMPONENT
+import dev.martianzoo.tfm.api.UserException
 import dev.martianzoo.tfm.pets.Parsing.parse
 import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.pets.ast.PetNode
@@ -24,7 +25,7 @@ internal fun <T : PetNode> testRoundTrip(type: KClass<T>, start: T, end: T = sta
     assertThat(parse(type, start.toString())).isEqualTo(end)
 
 internal fun assertFails(message: String = "(no message)", shouldFail: () -> Unit) =
-    assertThrows<RuntimeException>(message, shouldFail)
+    assertThrows<UserException.ExpressionException>(message, shouldFail)
 
 internal fun loadTypes(vararg decl: String) =
     loader(

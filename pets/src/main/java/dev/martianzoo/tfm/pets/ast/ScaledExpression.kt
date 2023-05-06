@@ -82,7 +82,7 @@ constructor(
           that is XScalar && (value % that.multiple != 0) ->
               throw InvalidReificationException("$value isn't a multiple of ${that.multiple}")
           that is ActualScalar && value != that.value ->
-              throw InvalidReificationException("can't change value")
+              throw InvalidReificationException("can't change value from ${that.value} to $value")
         }
       }
 
@@ -118,9 +118,11 @@ constructor(
         val scalarAndOptionalEx = scalar() and optional(Expression.parser())
         val optionalScalarAndEx = optional(scalar()) and Expression.parser()
 
-        scalarAndOptionalEx or optionalScalarAndEx map { (scalar, expr) ->
-          scaledEx(scalar ?: ActualScalar(1), expr)
-        }
+        scalarAndOptionalEx or
+            optionalScalarAndEx map
+            { (scalar, expr) ->
+              scaledEx(scalar ?: ActualScalar(1), expr)
+            }
       }
     }
   }

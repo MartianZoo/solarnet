@@ -7,11 +7,10 @@ import dev.martianzoo.tfm.data.GameEvent.ChangeEvent
 import dev.martianzoo.tfm.data.GameSetup
 import dev.martianzoo.tfm.data.Player
 import dev.martianzoo.tfm.data.Player.Companion.ENGINE
-import dev.martianzoo.tfm.data.Result
 import dev.martianzoo.tfm.data.Task
 import dev.martianzoo.tfm.data.Task.TaskId
+import dev.martianzoo.tfm.data.TaskResult
 import dev.martianzoo.tfm.engine.Engine
-import dev.martianzoo.tfm.engine.Exceptions.InteractiveException
 import dev.martianzoo.tfm.engine.Game.EventLog.Checkpoint
 import dev.martianzoo.tfm.pets.Parsing.parse
 import dev.martianzoo.tfm.pets.ast.ClassName
@@ -79,7 +78,7 @@ public class ReplSession(var setup: GameSetup, private val jline: JlineRepl? = n
 
   private val inputRegex = Regex("""^\s*(\S+)(.*)$""")
 
-  private class UsageException(message: String? = null) : InteractiveException(message ?: "")
+  private class UsageException(message: String? = null) : Exception(message ?: "")
 
   internal abstract inner class ReplCommand(val name: String) {
     open val isReadOnly: Boolean = false // TODO I think I intended to use this for something
@@ -341,16 +340,17 @@ public class ReplSession(var setup: GameSetup, private val jline: JlineRepl? = n
 
     override fun withArgs(args: String): List<String> {
       val instr: Instruction = parse(args)
-      val changes: Result =
+      val changes: TaskResult =
           when (mode) {
-            RED, YELLOW -> session.sneakyChange(instr)
-            GREEN -> initiate(instr)
+            RED,
+            YELLOW -> session.sneakyChange(instr)
+            GREEN -> execute(instr)
             BLUE ->
                 when {
                   session.agent.player != ENGINE ->
                       throw UsageException("In blue mode you must be Engine to do this")
-                  instr.isGainOf(cn("NewTurn")) -> initiate(instr)
-                  instr.isGainOf(cn("Phase")) -> initiate(instr)
+                  instr.isGainOf(cn("NewTurn")) -> execute(instr)
+                  instr.isGainOf(cn("Phase")) -> execute(instr)
                   else ->
                       throw UsageException("Eep, can't do that in ${mode.name.lowercase()} mode")
                 }
@@ -369,11 +369,14 @@ public class ReplSession(var setup: GameSetup, private val jline: JlineRepl? = n
           else -> false
         }
 
-    private fun initiate(instruction: Instruction): Result {
+    private fun execute(instruction: Instruction): TaskResult {
       if (mode == BLUE && !session.game.tasks.isEmpty()) {
-        throw InteractiveException.mustClearTasks()
+        throw UserException.mustClearTasks()
       }
-      return session.execute(instruction, auto)
+      return session.game.doAtomic {
+        session.initiate(instruction)
+        if (auto) session.tryToDrain()
+      }
     }
   }
 
@@ -406,7 +409,7 @@ public class ReplSession(var setup: GameSetup, private val jline: JlineRepl? = n
       val split = Regex("\\s+").split(args, 2)
       val idString = split.firstOrNull() ?: throw UsageException()
       val id = TaskId(idString.uppercase())
-      if (id !in q) throw UsageException("valid ids are ${q.ids}")
+      if (id !in q) throw UsageException("valid ids are ${q.ids()}")
       val rest: String? =
           if (split.size > 1 && split[1].isNotEmpty()) {
             split[1]
@@ -416,29 +419,32 @@ public class ReplSession(var setup: GameSetup, private val jline: JlineRepl? = n
       if (rest == "drop") {
         session.agent.removeTask(id)
         return listOf("Task $id deleted")
+      } else if (rest == "prepare") {
+        session.agent.prepareTask(id)
+        return listOf("Task $id is now: ${session.game.tasks[id]}")
       }
-      val instruction: Instruction? = rest?.let(::parse)
-      val result: Result =
+
+      val result: TaskResult =
           when (mode) {
             RED,
             YELLOW -> throw UsageException("Can't execute tasks in this mode")
             GREEN,
-            BLUE, ->
-                if (auto) {
-                  session.doTaskAndAutoExec(id, instruction)
-                } else {
-                  session.agent.doTask(id, instruction?.let(session::prep))
-                }
+            BLUE, -> {
+              session.game.doAtomic {
+                session.tryTask(id, rest)
+                if (auto) session.tryToDrain()
+              }
+            }
           }
       return describeExecutionResults(result)
     }
   }
 
-  private fun describeExecutionResults(changes: Result): List<String> {
-    val oops: List<Task> = changes.tasksSpawned.map { session.game.getTask(it) }
+  private fun describeExecutionResults(changes: TaskResult): List<String> {
+    val oops: List<Task> = changes.tasksSpawned.map { session.game.tasks[it] }
 
     val interesting: List<ChangeEvent> = changes.changes.filterNot(session.game::isSystem)
-    val changeLines = interesting.toStrings().ifEmpty { listOf("No state changes") }
+    val changeLines = interesting.toStrings().ifEmpty { listOf("No interesting component changes") }
     val taskLines =
         if (oops.any()) {
           listOf("", "There are new pending tasks:") + oops.toStrings()
@@ -568,9 +574,10 @@ public class ReplSession(var setup: GameSetup, private val jline: JlineRepl? = n
   internal fun command(command: ReplCommand, args: String? = null): List<String> {
     return try {
       if (args == null) command.noArgs() else command.withArgs(args.trim())
-    } catch (e: UserException) {
+    } catch (e: Exception) { // TODO what really?
+      if (e is RuntimeException) throw e
       val usage = if (e is UsageException) "Usage: ${command.usage}" else ""
-      listOf(e.message, usage).filter { it.isNotEmpty() }
+      listOf(e.message ?: "", usage).filter { it.isNotEmpty() }
     }
   }
 

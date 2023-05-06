@@ -8,9 +8,9 @@ import dev.martianzoo.tfm.data.GameEvent.TaskAddedEvent
 import dev.martianzoo.tfm.data.GameEvent.TaskRemovedEvent
 import dev.martianzoo.tfm.data.GameEvent.TaskReplacedEvent
 import dev.martianzoo.tfm.data.Player
-import dev.martianzoo.tfm.data.Result
 import dev.martianzoo.tfm.data.Task
 import dev.martianzoo.tfm.data.Task.TaskId
+import dev.martianzoo.tfm.data.TaskResult
 import dev.martianzoo.tfm.engine.Game.EventLog
 import dev.martianzoo.tfm.engine.Game.EventLog.Checkpoint
 
@@ -24,6 +24,7 @@ internal class WritableEventLog(private val events: MutableList<GameEvent> = mut
 
   override fun changesSinceSetup() = changesSince(start)
 
+  // we don't treat a replacement task as new...
   override fun newTasksSince(checkpoint: Checkpoint): Set<TaskId> {
     val ids = mutableSetOf<TaskId>()
     entriesSince(checkpoint).forEach {
@@ -40,27 +41,24 @@ internal class WritableEventLog(private val events: MutableList<GameEvent> = mut
       events.subList(checkpoint.ordinal, size).toList()
 
   override fun activitySince(checkpoint: Checkpoint) =
-      Result(changesSince(checkpoint), newTasksSince(checkpoint))
+      TaskResult(changesSince(checkpoint), newTasksSince(checkpoint))
 
-  fun addEntry(entry: GameEvent) {
+  fun <E : GameEvent> addEntry(entry: E): E {
     require(entry.ordinal == size)
     events += entry
+    return entry
   }
 
-  fun addChangeEvent(change: StateChange?, player: Player, cause: Cause?): ChangeEvent? {
-    if (change == null) return null
-    val event = ChangeEvent(size, player, change, cause)
-    addEntry(event)
-    return event
-  }
+  fun addChangeEvent(change: StateChange?, player: Player, cause: Cause?) =
+      change?.let { addEntry(ChangeEvent(size, player, it, cause)) }
 
   fun taskAdded(task: Task) = addEntry(TaskAddedEvent(size, task))
 
   fun taskRemoved(task: Task) = addEntry(TaskRemovedEvent(size, task))
 
-  fun taskReplaced(oldTask: Task, newTask: Task) {
+  fun taskReplaced(oldTask: Task, newTask: Task): TaskReplacedEvent {
     require(oldTask.id == newTask.id)
-    addEntry(TaskReplacedEvent(size, oldTask = oldTask, task = newTask))
+    return addEntry(TaskReplacedEvent(size, oldTask = oldTask, task = newTask))
   }
 
   override fun checkpoint() = Checkpoint(size)

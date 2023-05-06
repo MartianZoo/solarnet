@@ -2,7 +2,6 @@ package dev.martianzoo.tfm.engine
 
 import dev.martianzoo.tfm.api.ApiUtils
 import dev.martianzoo.tfm.data.Player.Companion.ENGINE
-import dev.martianzoo.tfm.pets.Parsing.parse
 import dev.martianzoo.tfm.pets.ast.ClassName
 
 /**
@@ -11,33 +10,55 @@ import dev.martianzoo.tfm.pets.ast.ClassName
  */
 object Humanizing {
 
-  fun PlayerSession.turn(vararg tasks: String) {
-    asPlayer(ENGINE).execute("NewTurn<$player>")
-    tasks.forEach(::doTask)
+  fun PlayerSession.startTurn(vararg tasks: String) {
+    asPlayer(ENGINE).initiate("NewTurn<$player>")
+    tasks.forEach {
+      tryMatchingTask(it)
+      tryToDrain()
+    }
   }
 
-  fun PlayerSession.playCard(cost: Int, cardName: String, vararg tasks: String) {
-    turn("UseAction1<PlayCardFromHand>", "PlayCard<Class<$cardName>>")
-    if (cost > 0) {
-      doTask("$cost Pay<Class<M>> FROM M")
-    } else {
-      doTask("Ok")
+  fun PlayerSession.fullTurn(vararg tasks: String) {
+    startTurn(*tasks)
+    mustDrain()
+  }
+
+  fun PlayerSession.fullPlayCard(
+      cardName: String,
+      megacredits: Int = 0,
+      steel: Int = 0,
+      titanium: Int = 0
+  ) {
+    startPlayCard(cardName, megacredits, steel, titanium)
+    mustDrain()
+  }
+
+  fun PlayerSession.startPlayCard(
+      cardName: String,
+      megacredits: Int = 0,
+      steel: Int = 0,
+      titanium: Int = 0
+  ) {
+    startTurn("UseAction1<PlayCardFromHand>", "PlayCard<Class<$cardName>>")
+    if (megacredits > 0) tryMatchingTask("$megacredits Pay<Class<M>> FROM M")
+    if (steel > 0) tryMatchingTask("$steel Pay<Class<S>> FROM S")
+    if (titanium > 0) tryMatchingTask("$titanium Pay<Class<T>> FROM T")
+    try {
+      while (true) doFirstTask("Ok")
+    } catch (ignore: Exception) {
     }
-    tasks.forEach(::doTask)
   }
 
   fun PlayerSession.useCardAction(which: Int, cardName: String, vararg tasks: String) =
-      turn(
-          "UseAction$which<UseActionFromCard>",
-          "UseAction$which<$cardName> THEN ActionUsedMarker<$cardName>",
+      fullTurn(
+          "UseAction1<UseActionFromCard>",
+          "UseAction$which<$cardName>",
+          "ActionUsedMarker<$cardName>",
           *tasks,
       )
 
-  fun PlayerSession.isCardUsed(cardName: String) =
-      agent.reader.evaluate(parse("ActionUsedMarker<$cardName>"))
-
   fun PlayerSession.stdProject(spName: String, vararg tasks: String) =
-      turn("UseAction1<UseStandardProject>", "UseAction1<$spName>", *tasks)
+      fullTurn("UseAction1<UseStandardProject>", "UseAction1<$spName>", *tasks)
 
   fun PlayerSession.counts(s: String) = s.split(",").map(::count)
 
