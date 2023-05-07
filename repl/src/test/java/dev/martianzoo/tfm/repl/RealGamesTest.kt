@@ -23,36 +23,35 @@ class RealGamesTest {
 
     fun areWeClear() = assertThat(game.tasks.toStrings()).isEmpty()
 
-    p1.execute("CorporationCard, LakefrontResorts, 3 BuyCard")
-    p2.execute("CorporationCard, InterplanetaryCinematics, 8 BuyCard")
+    p1.action("CorporationCard, LakefrontResorts, 3 BuyCard")
+    p2.action("CorporationCard, InterplanetaryCinematics, 8 BuyCard")
 
-    p1.execute("2 PreludeCard, MartianIndustries, GalileanMining")
-    p2.execute("2 PreludeCard, MiningOperations, UnmiContractor")
+    engine.action("PreludePhase")
 
-    engine.execute("ActionPhase")
+    p1.action("2 PreludeCard, MartianIndustries, GalileanMining")
+    p2.action("2 PreludeCard, MiningOperations, UnmiContractor")
 
-    p1.execute("-30 THEN AsteroidMining")
-    areWeClear()
+    engine.action("ActionPhase")
+
+    p1.action("-30, AsteroidMining")
 
     with(p2) {
-      execute("-4 Steel THEN -1 THEN NaturalPreserve", "NpTile<E37>")
-      execute("-13 Steel THEN -1 THEN SpaceElevator")
-      execute("UseAction1<SpaceElevator>")
-      execute("-2 THEN InventionContest")
-      execute("-6 THEN GreatEscarpmentConsortium", "PROD[-Steel<P1>]")
-      areWeClear()
+      action("-4 Steel, -1, NaturalPreserve") { doFirstTask("NpTile<E37>") }
+      action("-13 Steel, -1, SpaceElevator")
+      action("UseAction1<SpaceElevator>")
+      action("-2, InventionContest")
+      action("-6, GreatEscarpmentConsortium") { doFirstTask("PROD[-Steel<P1>]") }
     }
 
-    engine.execute("ProductionPhase")
-    engine.execute("ResearchPhase")
+    engine.action("ProductionPhase, ResearchPhase")
     p1.tryMatchingTask("4 BuyCard")
     p2.tryMatchingTask("1 BuyCard")
-    engine.execute("ActionPhase")
-    areWeClear()
+
+    engine.action("ActionPhase")
 
     with(p2) {
       execute("UseAction1<SpaceElevator>")
-      execute("-23 THEN EarthCatapult")
+      execute("-23, EarthCatapult")
       areWeClear()
     }
 

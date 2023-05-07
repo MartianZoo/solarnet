@@ -34,8 +34,7 @@ internal val allCustomInstructions =
         GetVpsFrom,
         GainLowestProduction,
         CopyProductionBox,
-        CopyPrelude
-    )
+        CopyPrelude)
 
 private object ForceLoad : CustomInstruction("forceLoad") {
   override fun translate(game: GameReader, arguments: List<Type>): Instruction {
@@ -143,17 +142,16 @@ private object GainLowestProduction : CustomInstruction("gainLowestProduction") 
 // For Robotic Workforce
 private object CopyProductionBox : CustomInstruction("copyProductionBox") {
   override fun translate(game: GameReader, arguments: List<Type>): Instruction {
-    val def = game.authority.card(arguments.single().className)
-    val nodes: List<Transform> = def.immediate?.descendantsOfType() ?: listOf()
-    val matches = nodes.filter { it.transformKind == PROD }
+    val cardName = arguments.single().className
+    val defn = game.authority.card(cardName)
+    val immediate: Instruction =
+        defn.immediate ?: throw NarrowingException("card $cardName has no immediate section")
+    val matches = immediate.descendantsOfType<Transform>().filter { it.transformKind == PROD }
 
     when (matches.size) {
+      0 -> throw NarrowingException("must choose a card that has an immediate PROD box")
       1 -> return matches.first()
-      0 -> throw RuntimeException("There is no immediate PROD box on ${def.className}")
-      else ->
-          throw RuntimeException(
-              "The immediate instructions on ${def.className} " +
-                  "have multiple PROD boxes, which should never happen")
+      else -> error("Card $cardName has ${matches.size} PROD blocks, which should never happen")
     }
   }
 }

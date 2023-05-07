@@ -8,4 +8,6 @@ object TestHelpers {
       assertThat(pairs.map { session.count(it.second) })
           .containsExactlyElementsIn(pairs.map { it.first })
           .inOrder()
+
+  fun Tasker.taskReasons() = tasks().map { it.whyPending }
 }

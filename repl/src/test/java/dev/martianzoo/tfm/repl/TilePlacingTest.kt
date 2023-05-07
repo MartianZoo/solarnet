@@ -48,8 +48,8 @@ class TilePlacingTest {
     val p1 = eng.asPlayer(PLAYER1)
     val p2 = eng.asPlayer(PLAYER2)
 
-    p1.action("666, CityTile<M86>") {} // shown as [] in comment below
-    p2.action("CityTile<M67>") {} // try to fool it by having an opponent tile at the XX below
+    p1.action("666, CityTile<M86>") // shown as [] in comment below
+    p2.action("CityTile<M67>") // try to fool it by having an opponent tile at the XX below
 
     // Use the standard project so that the placement rule is in effect
     p1.action("UseAction1<GreenerySP>") {

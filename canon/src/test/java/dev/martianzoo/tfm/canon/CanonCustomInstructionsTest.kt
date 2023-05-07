@@ -4,6 +4,7 @@ import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.tfm.api.UserException.NarrowingException
 import dev.martianzoo.tfm.data.GameSetup
 import dev.martianzoo.tfm.data.Player.Companion.PLAYER1
+import dev.martianzoo.tfm.data.Player.Companion.PLAYER2
 import dev.martianzoo.tfm.engine.Engine
 import dev.martianzoo.tfm.engine.Humanizing.production
 import dev.martianzoo.tfm.engine.PlayerSession
@@ -56,41 +57,51 @@ private class CanonCustomInstructionsTest {
     p1.execute("PROD[S, P, E, H]")
     checkProduction(p1, 0, 1, 0, 1, 1, 1)
 
-    p1.initiate("UseAction1<RobinsonIndustries>")
+    p1.action("UseAction1<RobinsonIndustries>") {
+      doFirstTask("PROD[1]")
+      checkProduction(p1, 1, 1, 0, 1, 1, 1)
+      rollItBack()
+    }
 
-    val cp = p1.game.checkpoint()
-    p1.tryMatchingTask("PROD[1]")
-    checkProduction(p1, 1, 1, 0, 1, 1, 1)
+    p1.action("UseAction1<RobinsonIndustries>") {
+      doFirstTask("PROD[T]")
+      checkProduction(p1, 0, 1, 1, 1, 1, 1)
+      rollItBack()
+    }
 
-    p1.game.rollBack(cp)
-    p1.tryMatchingTask("PROD[T]")
-    checkProduction(p1, 0, 1, 1, 1, 1, 1)
-
-    p1.game.rollBack(cp)
-    assertThrows<NarrowingException> { p1.tryMatchingTask("PROD[Steel]") }
+    p1.action("UseAction1<RobinsonIndustries>") {
+      assertThrows<NarrowingException> { doFirstTask("PROD[Steel]") }
+      checkProduction(p1, 0, 1, 0, 1, 1, 1)
+      rollItBack()
+    }
   }
 
   @Test
   fun roboticWorkforce() {
     val p1 = newGameForP1()
 
-    p1.execute("5 ProjectCard")
-    p1.execute("MassConverter")
-    checkProduction(p1, 0, 0, 0, 0, 6, 0)
-
-    p1.execute("StripMine")
+    p1.action("3 ProjectCard, MassConverter, StripMine")
     checkProduction(p1, 0, 2, 1, 0, 4, 0)
 
-    p1.initiate("RoboticWorkforce")
-    checkProduction(p1, 0, 2, 1, 0, 4, 0)
+    p1.asPlayer(PLAYER2).action("ProjectCard, Mine")
 
-    // This card has no building tag so it won't work
-    assertThrows<NarrowingException> { p1.tryMatchingTask("@copyProductionBox(MassConverter)") }
-    checkProduction(p1, 0, 2, 1, 0, 4, 0)
+    p1.action("RoboticWorkforce") {
 
-    p1.tryMatchingTask("@copyProductionBox(StripMine)")
-    p1.mustDrain()
-    checkProduction(p1, 0, 4, 2, 0, 2, 0)
+    checkProduction(p1, 0, 2, 1, 0, 4, 0)
+      // This card has no building tag so it won't work
+      assertThrows<NarrowingException> { p1.doFirstTask("@copyProductionBox(MassConverter)") }
+      checkProduction(p1, 0, 2, 1, 0, 4, 0)
+
+      // This card is someone else's
+      assertThrows<NarrowingException> { p1.doFirstTask("@copyProductionBox(Mine)") }
+      assertThrows<NarrowingException> { p1.doFirstTask("@copyProductionBox(Mine<Player1>)") }
+      assertThrows<NarrowingException> { p1.doFirstTask("@copyProductionBox(Mine<Player2>)") }
+      checkProduction(p1, 0, 2, 1, 0, 4, 0)
+
+      doFirstTask("@copyProductionBox(StripMine)")
+      p1.mustDrain() // TODO make this unnecessary
+      checkProduction(p1, 0, 4, 2, 0, 2, 0)
+    }
   }
 
   private fun newGameForP1(): PlayerSession {

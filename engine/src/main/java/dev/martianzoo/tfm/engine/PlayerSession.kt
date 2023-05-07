@@ -67,6 +67,12 @@ internal constructor(
   // EXECUTION
 
   /** Action just means "queue empty -> do anything -> queue empty again" */
+  fun action(firstInstruction: String): TaskResult {
+    return game.doAtomic {
+      action(firstInstruction) {}
+    }
+  }
+
   fun <T : Any> action(firstInstruction: String, tasker: Tasker.() -> T?): T? {
     require(agent.tasks().none()) { agent.tasks() }
     val cp = game.checkpoint()
@@ -171,11 +177,6 @@ internal constructor(
       }
       tryToDrain()
     }
-  }
-
-  fun initiate(instruction: String, vararg tasks: String) {
-    initiate(instruction)
-    tasks.forEach(::tryMatchingTask)
   }
 
   fun mustDrain(): TaskResult {

@@ -19,6 +19,7 @@ import dev.martianzoo.tfm.engine.Humanizing.useCardAction
 import dev.martianzoo.tfm.engine.PlayerSession
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.repl.TestHelpers.assertCounts
+import dev.martianzoo.tfm.repl.TestHelpers.taskReasons
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 
@@ -40,7 +41,7 @@ class SpecificCardsTest {
       assertCounts(0 to "Plant", 4 to "Heat", 1 to "Animal")
 
       // And for the expected reasons
-      assertThat(tasks().map { it.whyPending })
+      assertThat(taskReasons())
           .containsExactly(
               "When gaining null and removing [Heat<Player1>]: can do only 4 of 5 required",
               "choice required in: `4 Plant<Player1>! OR 2 Animal<Player1>.`")
@@ -59,7 +60,7 @@ class SpecificCardsTest {
       assertCounts(3 to "Card", 1 to "CardBack", 1 to "CardFront", 1 to "PlayedEvent")
       assertCounts(0 to "Plant", 1 to "Heat", 1 to "Animal")
 
-      assertThat(tasks().map { it.whyPending })
+      assertThat(taskReasons())
           .containsExactly("choice required in: `4 Plant<Player1>! OR 2 Animal<Player1>.`")
 
       doFirstTask("4 Plant")
@@ -176,7 +177,7 @@ class SpecificCardsTest {
     p1.action("UseAction1<UnitedNationsMarsInitiative>") {
       assertCounts(37 to "Megacredit", 20 to "TR")
 
-      assertThat(tasks().map { it.whyPending })
+      assertThat(taskReasons())
           .containsExactly("requirement not met: `HasRaisedTr<Player1>`")
 
       // Can't use UNMI action yet - fail, don't no-op, per https://boardgamegeek.com/thread/2525032
@@ -197,7 +198,7 @@ class SpecificCardsTest {
     val game = Engine.newGame(GameSetup(Canon, "BM", 2))
     val p1 = game.asPlayer(PLAYER1).session()
 
-    p1.action("14") {}
+    p1.action("14")
 
     // Do anything that raises TR
     p1.action("UseAction1<AsteroidSP>") { assertCounts(0 to "Megacredit", 21 to "TR") }
@@ -271,7 +272,7 @@ class SpecificCardsTest {
     val game = Engine.newGame(GameSetup(Canon, "CVERB", 2))
     val p1 = game.asPlayer(PLAYER1).session()
 
-    p1.action("10 ProjectCard, ForcedPrecipitation") {}
+    p1.action("10 ProjectCard, ForcedPrecipitation")
 
     // We can't CEO's onto an empty card
     p1.action("CeosFavoriteProject") {

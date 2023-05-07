@@ -23,16 +23,6 @@ object Humanizing {
     mustDrain()
   }
 
-  fun PlayerSession.fullPlayCard(
-      cardName: String,
-      megacredits: Int = 0,
-      steel: Int = 0,
-      titanium: Int = 0
-  ) {
-    startPlayCard(cardName, megacredits, steel, titanium)
-    mustDrain()
-  }
-
   fun PlayerSession.startPlayCard(
       cardName: String,
       megacredits: Int = 0,
