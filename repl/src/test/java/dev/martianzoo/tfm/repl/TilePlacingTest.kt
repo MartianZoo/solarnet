@@ -10,7 +10,6 @@ import dev.martianzoo.tfm.data.Player.Companion.PLAYER2
 import dev.martianzoo.tfm.engine.Engine
 import dev.martianzoo.tfm.engine.Humanizing.startTurn
 import dev.martianzoo.tfm.engine.Humanizing.stdProject
-import dev.martianzoo.tfm.repl.TestHelpers.action
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 

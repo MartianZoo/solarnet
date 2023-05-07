@@ -66,6 +66,44 @@ internal constructor(
 
   // EXECUTION
 
+  /** Action just means "queue empty -> do anything -> queue empty again" */
+  fun <T : Any> action(firstInstruction: String, tasker: Tasker.() -> T?): T? {
+    require(agent.tasks().none()) { agent.tasks() }
+    val cp = game.checkpoint()
+    initiate(firstInstruction) // try task then try to drain
+
+    val wrapped = Tasker(this)
+    val result =
+        try {
+          wrapped.tasker()
+        } catch (e: Exception) {
+          game.rollBack(cp)
+          throw e
+        }
+
+    if (result == wrapped.rollItBack()) {
+      game.rollBack(cp)
+    } else {
+      require(agent.tasks().none()) { agent.tasks() }
+    }
+    return result
+  }
+
+  class Tasker(val session: PlayerSession) {
+
+    fun tasks() = session.agent.tasks().values
+
+    fun doFirstTask(instr: String) {
+      session.doFirstTask(instr)
+    }
+
+    fun tryMatchingTask(instr: String) {
+      session.tryMatchingTask(instr)
+    }
+
+    fun rollItBack() = null
+  }
+
   fun sneakyChange(instruction: Instruction): TaskResult {
     val changes =
         prepAndSplit(instruction).mapNotNull {
