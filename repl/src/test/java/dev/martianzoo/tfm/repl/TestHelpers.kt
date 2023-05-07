@@ -11,18 +11,19 @@ object TestHelpers {
           .inOrder()
 
   /** Action just means "queue empty -> do anything -> queue empty again" */
-  fun <T: Any> PlayerSession.action(startInstruction: String, block: Thing.() -> T?): T? {
+  fun <T : Any> PlayerSession.action(startInstruction: String, block: Thing.() -> T?): T? {
     require(agent.tasks().none()) { agent.tasks() }
     val cp = game.checkpoint()
     initiate(startInstruction) // try task then try to drain
 
     val thing = Thing(this)
-    val result = try {
-      thing.block()
-    } catch (e: Exception) {
-      game.rollBack(cp)
-      throw e
-    }
+    val result =
+        try {
+          thing.block()
+        } catch (e: Exception) {
+          game.rollBack(cp)
+          throw e
+        }
     if (result == null) {
       game.rollBack(cp)
     } else {
@@ -32,8 +33,12 @@ object TestHelpers {
   }
 
   class Thing(val session: PlayerSession) {
-    fun doFirstTask(instr: String) { session.doFirstTask(instr) }
-    fun tryMatchingTask(instr: String) { session.tryMatchingTask(instr) }
+    fun doFirstTask(instr: String) {
+      session.doFirstTask(instr)
+    }
+    fun tryMatchingTask(instr: String) {
+      session.tryMatchingTask(instr)
+    }
     fun tasks() = session.agent.tasks().values
     fun rollItBack() = null
     fun assertCounts(vararg pairs: Pair<Int, String>) = session.assertCounts(*pairs)

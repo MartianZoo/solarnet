@@ -45,8 +45,7 @@ object Humanizing {
     if (titanium > 0) tryMatchingTask("$titanium Pay<Class<T>> FROM T")
     try {
       while (true) doFirstTask("Ok")
-    } catch (ignore: Exception) {
-    }
+    } catch (ignore: Exception) {}
   }
 
   fun PlayerSession.useCardAction(which: Int, cardName: String, vararg tasks: String) =

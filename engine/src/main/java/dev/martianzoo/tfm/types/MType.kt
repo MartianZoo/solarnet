@@ -69,9 +69,7 @@ internal constructor(
     } else {
       // This has been a bit optimized
       val partial: DependencySet = loader.matchPartial(specs, dependencies)
-      val reordered = dependencies.keys.map {
-        partial.getIfPresent(it) ?: dependencies.get(it)
-      }
+      val reordered = dependencies.keys.map { partial.getIfPresent(it) ?: dependencies.get(it) }
       copy(dependencies = DependencySet.of(reordered))
     }
   }

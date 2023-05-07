@@ -95,8 +95,7 @@ internal constructor(
 
   override fun ensureNarrows(that: MClass, einfo: ExpressionInfo) {
     if (!isSubtypeOf(that))
-        throw NarrowingException(
-            "${this.className} is not a subclass of ${that.className}")
+        throw NarrowingException("${this.className} is not a subclass of ${that.className}")
   }
 
   /**

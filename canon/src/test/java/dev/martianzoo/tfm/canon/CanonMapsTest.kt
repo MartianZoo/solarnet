@@ -44,11 +44,7 @@ private class CanonMapsTest {
   @Test
   fun testAllDistinctMapBonuses() {
     val bonuses =
-        Canon.marsMapDefinitions
-            .flatMap { it.areas }
-            .mapNotNull { it.bonus }
-            .distinct()
-            .toStrings()
+        Canon.marsMapDefinitions.flatMap { it.areas }.mapNotNull { it.bonus }.distinct().toStrings()
 
     // This is brittle as we don't care which order the "a, b" bonuses are in
     assertThat(bonuses)

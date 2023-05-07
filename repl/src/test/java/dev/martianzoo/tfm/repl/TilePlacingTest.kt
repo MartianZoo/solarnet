@@ -55,9 +55,7 @@ class TilePlacingTest {
     // Use the standard project so that the placement rule is in effect
     p1.action("UseAction1<GreenerySP>") {
       fun checkCantPlaceGreenery(area: String) =
-          assertThrows<NarrowingException>(area) {
-            doFirstTask("GreeneryTile<$area>")
-          }
+          assertThrows<NarrowingException>(area) { doFirstTask("GreeneryTile<$area>") }
 
       //     64  65  66  XX
       //   74  75  76  77

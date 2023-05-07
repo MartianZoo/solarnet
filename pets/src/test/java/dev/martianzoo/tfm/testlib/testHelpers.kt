@@ -18,4 +18,3 @@ public fun <T> multiset(vararg pairs: Pair<Int, T>): Multiset<T> {
   pairs.forEach { (count, element) -> result.add(element, count) }
   return result
 }
-

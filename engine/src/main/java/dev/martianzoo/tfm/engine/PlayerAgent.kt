@@ -47,16 +47,16 @@ public abstract class PlayerAgent {
   abstract fun prepareTask(taskId: TaskId): Boolean
 
   /**
-   * Carries out a task and any automatic triggered effects. Enqueues the "THEN" clause of
-   * the task (if it exists) and any non-automatic triggered effects. Removes the original task from
-   * the game's task queue.
+   * Carries out a task and any automatic triggered effects. Enqueues the "THEN" clause of the task
+   * (if it exists) and any non-automatic triggered effects. Removes the original task from the
+   * game's task queue.
    *
    * Throws AbstractTaskException is the task remains abstract (even after narrowing) Throws
    * NotNowException if the task is impossible to complete in the current game state Throws
    * DoesNotReifyException if [narrowed] is not a valid reification of the task
    *
-   * The [TaskResult] lists all state changes that happened as a result, and any tasks that exist now
-   * but didn't before this call.
+   * The [TaskResult] lists all state changes that happened as a result, and any tasks that exist
+   * now but didn't before this call.
    *
    * Failure-atomic.
    */

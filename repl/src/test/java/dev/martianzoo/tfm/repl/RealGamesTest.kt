@@ -188,7 +188,8 @@ class RealGamesTest {
 
     eng.execute("ActionPhase")
 
-    p1.startTurn("UseAction1<PlayCardFromHand>", "PlayCard<Class<MediaGroup>>", "6 Pay<Class<M>> FROM M")
+    p1.startTurn(
+        "UseAction1<PlayCardFromHand>", "PlayCard<Class<MediaGroup>>", "6 Pay<Class<M>> FROM M")
 
     assertThat(p1.counts("Tag, BuildingTag, EarthTag, ProjectCard")).containsExactly(2, 1, 1, 6)
   }

@@ -70,9 +70,9 @@ private class PlayerSessionTest {
     session.execute("3 Microbe<Ants>")
     assertThat(session.count("Microbe")).isEqualTo(3)
     // TODO BAD
-//    session.execute("-Ants")
-//    session.tryToDrain()
-//    assertThat(session.count("Microbe")).isEqualTo(0)
+    //    session.execute("-Ants")
+    //    session.tryToDrain()
+    //    assertThat(session.count("Microbe")).isEqualTo(0)
   }
 
   @Test

@@ -38,8 +38,7 @@ internal class Preparer(
     return when (uncommitted) {
       is NoOp -> NoOp
       is Change -> prepareChangeInstruction(uncommitted)
-      is Per ->
-          toPreparedForm(uncommitted.instruction * agentReader.count(uncommitted.metric))
+      is Per -> toPreparedForm(uncommitted.instruction * agentReader.count(uncommitted.metric))
       is Gated -> {
         if (agentReader.evaluate(uncommitted.gate)) {
           toPreparedForm(uncommitted.instruction)

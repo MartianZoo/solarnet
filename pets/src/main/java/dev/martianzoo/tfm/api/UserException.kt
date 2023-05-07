@@ -43,8 +43,7 @@ public object UserException { // TODO rename Exceptions
 
   fun requirementNotMet(reqt: Requirement) = RequirementException("requirement not met: `$reqt`")
 
-  fun refinementNotMet(reqt: Requirement) =
-      NarrowingException("requirement not met: `$reqt`")
+  fun refinementNotMet(reqt: Requirement) = NarrowingException("requirement not met: `$reqt`")
 
   fun badSneak(instruction: Instruction) =
       PetException("can only sneak simple changes, not: `$instruction`")

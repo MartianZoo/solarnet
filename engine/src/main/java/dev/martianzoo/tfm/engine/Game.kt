@@ -258,7 +258,8 @@ internal constructor(
         game.writableTasks.removeTask(taskId, game.writableEvents)
         return false
       }
-      val replacement = task.copy(instruction = prepared, next = true, whyPending = null) // why -why?
+      val replacement =
+          task.copy(instruction = prepared, next = true, whyPending = null) // why -why?
       game.writableTasks.replaceTask(replacement, game.writableEvents)
       return true
     }
@@ -324,11 +325,12 @@ internal constructor(
         removing: Component?,
         cause: Cause?,
     ): ChangeEvent? {
-      val change = try {
-        game.writableComponents.update(count, gaining = gaining, removing = removing)
-      } catch (e: IllegalArgumentException) { // TODO meh
-        throw LimitsException(e.message ?: "")
-      }
+      val change =
+          try {
+            game.writableComponents.update(count, gaining = gaining, removing = removing)
+          } catch (e: IllegalArgumentException) { // TODO meh
+            throw LimitsException(e.message ?: "")
+          }
       return game.writableEvents.addChangeEvent(change, player, cause)
     }
 

@@ -50,15 +50,14 @@ public data class Task(
     }
   }
 
-  override fun toString() =
-      buildString {
-        append(id)
-        append(if (next) "* " else "  ")
-        append("[$owner] ")
-        append(instruction)
-        then?.let { append(" (THEN $it)") }
-        whyPending?.let { append(" ($it) ") }
-      }
+  override fun toString() = buildString {
+    append(id)
+    append(if (next) "* " else "  ")
+    append("[$owner] ")
+    append(instruction)
+    then?.let { append(" (THEN $it)") }
+    whyPending?.let { append(" ($it) ") }
+  }
 
   data class TaskId(val s: String) : Comparable<TaskId> {
     init {

@@ -9,10 +9,10 @@ import dev.martianzoo.util.toStrings
  * prepare the game up until the point of the first player decisions.
  */
 data class GameSetup(
-  /** Where to pull class declarations, card definitions, etc. from. */
+    /** Where to pull class declarations, card definitions, etc. from. */
     val authority: Authority,
 
-  /**
+    /**
      * Which bundles of cards/milestones/maps/etc. to include. For example the officially published
      * bundles are `"B"` for base `"R"` for corporate era, `"V"` for venus next, etc. This list must
      * include `B` and exactly one map (the canon maps are `"M"` for the base map, `"H"` for Hellas,
@@ -20,17 +20,18 @@ data class GameSetup(
      */
     val bundles: Collection<String>,
 
-  /** Number of players. Only 2-5 are supported for now. Solo mode will take quite some work. */
+    /** Number of players. Only 2-5 are supported for now. Solo mode will take quite some work. */
     val players: Int,
 ) {
   constructor(
-    authority: Authority,
-    /**
-     * A convenience when using only one-letter bundles: pass them all in one string, like
-     * `"BREVX"`.
-     */
-    bundles: String,
-    players: Int,
+      authority: Authority,
+
+      /**
+       * A convenience when using only one-letter bundles: pass them all in one string, like
+       * `"BREVX"`.
+       */
+      bundles: String,
+      players: Int,
   ) : this(authority, splitLetters(bundles), players)
 
   init {
