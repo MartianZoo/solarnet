@@ -1,8 +1,8 @@
 package dev.martianzoo.tfm.repl
 
 import com.google.common.truth.Truth.assertThat
-import dev.martianzoo.tfm.api.UserException.InvalidReificationException
 import dev.martianzoo.tfm.api.UserException.LimitsException
+import dev.martianzoo.tfm.api.UserException.NarrowingException
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.data.Player
 import dev.martianzoo.tfm.data.Player.Companion.PLAYER1
@@ -28,7 +28,7 @@ class TilePlacingTest {
     assertThat(p2.agent.tasks()).isEmpty()
     p2.stdProject("CitySP", "CityTile<M44>")
     p2.startTurn("UseAction1<UseStandardProject>", "UseAction1<CitySP>")
-    assertThrows<InvalidReificationException> { p2.doFirstTask("CityTile<M34>") }
+    assertThrows<NarrowingException> { p2.doFirstTask("CityTile<M34>") }
   }
 
   @Test
@@ -55,7 +55,7 @@ class TilePlacingTest {
     // Use the standard project so that the placement rule is in effect
     p1.action("UseAction1<GreenerySP>") {
       fun checkCantPlaceGreenery(area: String) =
-          assertThrows<InvalidReificationException>(area) {
+          assertThrows<NarrowingException>(area) {
             doFirstTask("GreeneryTile<$area>")
           }
 

@@ -10,7 +10,7 @@ import com.github.h0tk3y.betterParse.grammar.parser
 import com.github.h0tk3y.betterParse.parser.Parser
 import dev.martianzoo.tfm.api.ExpressionInfo
 import dev.martianzoo.tfm.api.SpecialClassNames.OK
-import dev.martianzoo.tfm.api.UserException.InvalidReificationException
+import dev.martianzoo.tfm.api.UserException.NarrowingException
 import dev.martianzoo.tfm.api.UserException.PetSyntaxException
 import dev.martianzoo.tfm.pets.PetTokenizer
 import dev.martianzoo.tfm.pets.ast.FromExpression.SimpleFrom
@@ -65,7 +65,7 @@ public sealed class Instruction : PetElement() {
     override fun isAbstract(einfo: ExpressionInfo) = false
 
     override fun ensureIsNarrowedBy_doNotCall(proposed: Instruction, einfo: ExpressionInfo) {
-      if (proposed != NoOp) throw InvalidReificationException("not Ok")
+      if (proposed != NoOp) throw NarrowingException("not Ok")
     }
 
     override fun visitChildren(visitor: Visitor) {}
@@ -111,7 +111,7 @@ public sealed class Instruction : PetElement() {
       override fun ensureNarrows(that: Amount, einfo: ExpressionInfo) {
         intensity!!.ensureNarrows(that.intensity!!, einfo)
         if (that.intensity == OPTIONAL && scalar is ActualScalar && that.scalar is ActualScalar) {
-          if (scalar.value > that.scalar.value) throw InvalidReificationException("")
+          if (scalar.value > that.scalar.value) throw NarrowingException("")
         } else {
           scalar.ensureNarrows(that.scalar, einfo)
         }
@@ -120,7 +120,7 @@ public sealed class Instruction : PetElement() {
 
     override fun ensureIsNarrowedBy_doNotCall(proposed: Instruction, einfo: ExpressionInfo) {
       if (proposed == NoOp && intensity == OPTIONAL) return
-      proposed as? Change ?: throw InvalidReificationException("$this  /  $proposed")
+      proposed as? Change ?: throw NarrowingException("$this  /  $proposed")
       proposed.amount.ensureNarrows(amount, einfo)
       gaining?.let { einfo.ensureNarrows(it, proposed.gaining!!) }
       removing?.let { einfo.ensureNarrows(it, proposed.removing!!) }
@@ -233,7 +233,7 @@ public sealed class Instruction : PetElement() {
     override fun ensureIsNarrowedBy_doNotCall(proposed: Instruction, einfo: ExpressionInfo) {
       proposed as Per
       if (proposed.metric != metric) {
-        throw InvalidReificationException("can't change the metric")
+        throw NarrowingException("can't change the metric")
       }
       proposed.instruction.ensureNarrows(instruction, einfo)
     }
@@ -255,7 +255,7 @@ public sealed class Instruction : PetElement() {
     override fun ensureIsNarrowedBy_doNotCall(proposed: Instruction, einfo: ExpressionInfo) {
       proposed as Gated
       if (proposed.gate != gate) {
-        throw InvalidReificationException("can't change the condition")
+        throw NarrowingException("can't change the condition")
       }
       proposed.instruction.ensureNarrows(instruction, einfo)
     }
@@ -285,13 +285,13 @@ public sealed class Instruction : PetElement() {
     override fun ensureIsNarrowedBy_doNotCall(proposed: Instruction, einfo: ExpressionInfo) {
       proposed as Custom
       if (proposed.multiplier != multiplier) {
-        throw InvalidReificationException("can't change multiplier")
+        throw NarrowingException("can't change multiplier")
       }
       if (proposed.functionName != functionName) {
-        throw InvalidReificationException("can't change function name")
+        throw NarrowingException("can't change function name")
       }
       if (proposed.arguments.size != arguments.size) {
-        throw InvalidReificationException("wrong argument count")
+        throw NarrowingException("wrong argument count")
       }
       for ((wide, narrow) in arguments.zip(proposed.arguments)) {
         einfo.ensureNarrows(wide, narrow)
@@ -339,7 +339,7 @@ public sealed class Instruction : PetElement() {
     override fun isAbstract(einfo: ExpressionInfo) = instructions.any { it.isAbstract(einfo) }
 
     override fun ensureIsNarrowedBy_doNotCall(proposed: Instruction, einfo: ExpressionInfo) {
-      proposed as? Then ?: throw InvalidReificationException("Can't reify $this to $proposed")
+      proposed as? Then ?: throw NarrowingException("Can't reify $this to $proposed")
       for ((wide, narrow) in instructions.zip(proposed.instructions)) {
         narrow.ensureNarrows(wide, einfo)
       }
@@ -356,7 +356,7 @@ public sealed class Instruction : PetElement() {
           }
         }
         if (allXValues.size > 1) {
-          throw InvalidReificationException("Can't set different values for X: $allXValues")
+          throw NarrowingException("Can't set different values for X: $allXValues")
         }
       }
     }
@@ -395,11 +395,11 @@ public sealed class Instruction : PetElement() {
         try { // Just get any one to work
           proposed.ensureNarrows(option, einfo)
           return
-        } catch (e: InvalidReificationException) {
+        } catch (e: NarrowingException) {
           messages += "${e.message}\n"
         }
       }
-      throw InvalidReificationException(
+      throw NarrowingException(
           "Instruction `$proposed` doesn't reify any arm of `$this`:\n$messages",
       )
     }
@@ -477,7 +477,7 @@ public sealed class Instruction : PetElement() {
   // This is the entry point into all the ensureNarrows business throughout the codebase
   fun ensureNarrows(abstractInstr: Instruction, einfo: ExpressionInfo) {
     if (abstractInstr !is Or && this != NoOp && this::class != abstractInstr::class) {
-      throw InvalidReificationException("`$this` can't reify `$abstractInstr` (different types)")
+      throw NarrowingException("`$this` can't reify `$abstractInstr` (different types)")
     }
     abstractInstr.ensureIsNarrowedBy_doNotCall(this, einfo) // well WE can call it
   }
@@ -498,7 +498,7 @@ public sealed class Instruction : PetElement() {
 
     override fun ensureNarrows(that: Intensity, einfo: ExpressionInfo) {
       if (that != this && that != OPTIONAL) {
-        throw InvalidReificationException("")
+        throw NarrowingException("")
       }
     }
 

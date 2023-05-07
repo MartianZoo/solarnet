@@ -1,6 +1,6 @@
 package dev.martianzoo.tfm.engine
 
-import dev.martianzoo.tfm.api.UserException.InvalidReificationException
+import dev.martianzoo.tfm.api.UserException.NarrowingException
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.pets.Parsing.parse
 import dev.martianzoo.tfm.pets.ast.Instruction
@@ -34,7 +34,7 @@ class ReifyTest {
     test("5 OxygenStep? / Plant<Anyone>", "5 OxygenStep. / Plant<Anyone>")
 
     test("WaterArea(HAS MAX 0 Tile)!", "M55!")
-    assertThrows<InvalidReificationException> { test("WaterArea(HAS Tile)!", "M55!") }
+    assertThrows<NarrowingException> { test("WaterArea(HAS Tile)!", "M55!") }
   }
 
   fun test(original: String, replacement: String) {

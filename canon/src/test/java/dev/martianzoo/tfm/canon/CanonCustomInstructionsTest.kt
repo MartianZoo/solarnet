@@ -1,7 +1,7 @@
 package dev.martianzoo.tfm.canon
 
 import com.google.common.truth.Truth.assertThat
-import dev.martianzoo.tfm.api.UserException.InvalidReificationException
+import dev.martianzoo.tfm.api.UserException.NarrowingException
 import dev.martianzoo.tfm.data.GameSetup
 import dev.martianzoo.tfm.data.Player.Companion.PLAYER1
 import dev.martianzoo.tfm.engine.Engine
@@ -67,7 +67,7 @@ private class CanonCustomInstructionsTest {
     checkProduction(p1, 0, 1, 1, 1, 1, 1)
 
     p1.game.rollBack(cp)
-    assertThrows<InvalidReificationException> { p1.tryMatchingTask("PROD[Steel]") }
+    assertThrows<NarrowingException> { p1.tryMatchingTask("PROD[Steel]") }
   }
 
   @Test
@@ -85,7 +85,7 @@ private class CanonCustomInstructionsTest {
     checkProduction(p1, 0, 2, 1, 0, 4, 0)
 
     // This card has no building tag so it won't work
-    assertThrows<InvalidReificationException> { p1.tryMatchingTask("@copyProductionBox(MassConverter)") }
+    assertThrows<NarrowingException> { p1.tryMatchingTask("@copyProductionBox(MassConverter)") }
     checkProduction(p1, 0, 2, 1, 0, 4, 0)
 
     p1.tryMatchingTask("@copyProductionBox(StripMine)")

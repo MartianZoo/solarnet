@@ -3,8 +3,8 @@ package dev.martianzoo.tfm.repl
 import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.tfm.api.UserException.AbstractException
 import dev.martianzoo.tfm.api.UserException.DependencyException
-import dev.martianzoo.tfm.api.UserException.InvalidReificationException
 import dev.martianzoo.tfm.api.UserException.LimitsException
+import dev.martianzoo.tfm.api.UserException.NarrowingException
 import dev.martianzoo.tfm.api.UserException.RequirementException
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.data.GameSetup
@@ -270,7 +270,7 @@ class SpecificCardsTest {
 
     // We can't CEO's onto an empty card
     p1.action("CeosFavoriteProject") {
-      assertThrows<InvalidReificationException> { doFirstTask("Floater<ForcedPrecipitation>") }
+      assertThrows<NarrowingException> { doFirstTask("Floater<ForcedPrecipitation>") }
       rollItBack()
     }
 
@@ -293,7 +293,7 @@ class SpecificCardsTest {
     }
 
     p1.action("AirScrappingExpedition") {
-      assertThrows<InvalidReificationException>("1") { doFirstTask("3 Floater<AtmoCollectors>") }
+      assertThrows<NarrowingException>("1") { doFirstTask("3 Floater<AtmoCollectors>") }
       assertCounts(2 to "Floater")
       rollItBack()
     }

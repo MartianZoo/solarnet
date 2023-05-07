@@ -8,7 +8,7 @@ import com.github.h0tk3y.betterParse.combinators.skip
 import com.github.h0tk3y.betterParse.grammar.parser
 import com.github.h0tk3y.betterParse.parser.Parser
 import dev.martianzoo.tfm.api.ExpressionInfo
-import dev.martianzoo.tfm.api.UserException.InvalidReificationException
+import dev.martianzoo.tfm.api.UserException.NarrowingException
 import dev.martianzoo.tfm.api.UserException.PetSyntaxException
 import dev.martianzoo.tfm.pets.HasExpression
 import dev.martianzoo.tfm.pets.PetTokenizer
@@ -80,9 +80,9 @@ constructor(
       override fun ensureNarrows(that: Scalar, einfo: ExpressionInfo) {
         when {
           that is XScalar && (value % that.multiple != 0) ->
-              throw InvalidReificationException("$value isn't a multiple of ${that.multiple}")
+              throw NarrowingException("$value isn't a multiple of ${that.multiple}")
           that is ActualScalar && value != that.value ->
-              throw InvalidReificationException("can't change value from ${that.value} to $value")
+              throw NarrowingException("can't change value from ${that.value} to $value")
         }
       }
 
@@ -97,7 +97,7 @@ constructor(
       override val abstract = true
 
       override fun ensureNarrows(that: Scalar, einfo: ExpressionInfo) {
-        if (this != that) throw InvalidReificationException("")
+        if (this != that) throw NarrowingException("$this / $that")
       }
 
       override fun times(multiple: Int) = copy(multiple = this.multiple * multiple)

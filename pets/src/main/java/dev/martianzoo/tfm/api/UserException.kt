@@ -44,7 +44,7 @@ public object UserException { // TODO rename Exceptions
   fun requirementNotMet(reqt: Requirement) = RequirementException("requirement not met: `$reqt`")
 
   fun refinementNotMet(reqt: Requirement) =
-      InvalidReificationException("requirement not met: `$reqt`")
+      NarrowingException("requirement not met: `$reqt`")
 
   fun badSneak(instruction: Instruction) =
       PetException("can only sneak simple changes, not: `$instruction`")
@@ -62,8 +62,8 @@ public object UserException { // TODO rename Exceptions
    */
   public class AbstractException(message: String) : Exception(message)
 
-  /** Something tried to pretend it reified something else and we're not having it. */
-  public class InvalidReificationException(message: String) : Exception(message)
+  /** Something is not a valid narrowing of something else. */
+  public class NarrowingException(message: String) : Exception(message)
 
   /**
    * Someone tried to do something that can't work against *this* game state, but could potentially

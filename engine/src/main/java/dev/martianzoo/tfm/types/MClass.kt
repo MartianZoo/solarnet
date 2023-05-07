@@ -6,7 +6,7 @@ import dev.martianzoo.tfm.api.SpecialClassNames.COMPONENT
 import dev.martianzoo.tfm.api.SpecialClassNames.OK
 import dev.martianzoo.tfm.api.SpecialClassNames.OWNED
 import dev.martianzoo.tfm.api.SpecialClassNames.THIS
-import dev.martianzoo.tfm.api.UserException.InvalidReificationException
+import dev.martianzoo.tfm.api.UserException.NarrowingException
 import dev.martianzoo.tfm.data.ClassDeclaration
 import dev.martianzoo.tfm.pets.HasClassName
 import dev.martianzoo.tfm.pets.HasClassName.Companion.classNames
@@ -95,7 +95,7 @@ internal constructor(
 
   override fun ensureNarrows(that: MClass, einfo: ExpressionInfo) {
     if (!isSubtypeOf(that))
-        throw InvalidReificationException(
+        throw NarrowingException(
             "${this.className} is not a subclass of ${that.className}")
   }
 
