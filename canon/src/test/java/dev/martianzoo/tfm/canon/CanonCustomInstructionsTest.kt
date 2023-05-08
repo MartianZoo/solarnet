@@ -16,11 +16,11 @@ private class CanonCustomInstructionsTest {
   fun robinsonMegacredit1() {
     val p1 = newGameForP1()
 
-    p1.execute("CorporationCard, RobinsonIndustries")
-    p1.execute("PROD[S, T, P, E, H]")
+    p1.action("CorporationCard, RobinsonIndustries")
+    p1.action("PROD[S, T, P, E, H]")
     checkProduction(p1, 0, 1, 1, 1, 1, 1)
 
-    p1.execute("UseAction1<RobinsonIndustries>")
+    p1.action("UseAction1<RobinsonIndustries>")
     assertThat(p1.agent.tasks()).isEmpty()
     checkProduction(p1, 1, 1, 1, 1, 1, 1)
   }
@@ -29,11 +29,11 @@ private class CanonCustomInstructionsTest {
   fun robinsonMegacredit2() {
     val p1 = newGameForP1()
 
-    p1.execute("CorporationCard, RobinsonIndustries")
-    p1.execute("PROD[-1]")
+    p1.action("CorporationCard, RobinsonIndustries")
+    p1.action("PROD[-1]")
     checkProduction(p1, -1, 0, 0, 0, 0, 0)
 
-    p1.execute("UseAction1<RobinsonIndustries>")
+    p1.action("UseAction1<RobinsonIndustries>")
     checkProduction(p1, 0, 0, 0, 0, 0, 0)
   }
 
@@ -41,11 +41,11 @@ private class CanonCustomInstructionsTest {
   fun robinsonNonMegacredit() {
     val p1 = newGameForP1()
 
-    p1.execute("CorporationCard, RobinsonIndustries")
-    p1.execute("PROD[1, S, P, E, H]")
+    p1.action("CorporationCard, RobinsonIndustries")
+    p1.action("PROD[1, S, P, E, H]")
     checkProduction(p1, 1, 1, 0, 1, 1, 1)
 
-    p1.execute("UseAction1<RobinsonIndustries>")
+    p1.action("UseAction1<RobinsonIndustries>")
     checkProduction(p1, 1, 1, 1, 1, 1, 1)
   }
 
@@ -53,8 +53,8 @@ private class CanonCustomInstructionsTest {
   fun robinsonChoice() {
     val p1 = newGameForP1()
 
-    p1.execute("CorporationCard, RobinsonIndustries")
-    p1.execute("PROD[S, P, E, H]")
+    p1.action("CorporationCard, RobinsonIndustries")
+    p1.action("PROD[S, P, E, H]")
     checkProduction(p1, 0, 1, 0, 1, 1, 1)
 
     p1.action("UseAction1<RobinsonIndustries>") {
@@ -87,7 +87,7 @@ private class CanonCustomInstructionsTest {
 
     p1.action("RoboticWorkforce") {
 
-    checkProduction(p1, 0, 2, 1, 0, 4, 0)
+      checkProduction(p1, 0, 2, 1, 0, 4, 0)
       // This card has no building tag so it won't work
       assertThrows<NarrowingException> { p1.doFirstTask("@copyProductionBox(MassConverter)") }
       checkProduction(p1, 0, 2, 1, 0, 4, 0)

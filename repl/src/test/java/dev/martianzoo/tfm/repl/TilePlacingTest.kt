@@ -20,8 +20,8 @@ class TilePlacingTest {
     val eng = game.asPlayer(Player.ENGINE).session()
     val p2 = eng.asPlayer(PLAYER2)
 
-    eng.execute("ActionPhase")
-    p2.execute("100")
+    eng.action("ActionPhase")
+    p2.action("100")
 
     p2.stdProject("CitySP", "CityTile<M46>")
     assertThat(p2.agent.tasks()).isEmpty()
@@ -36,8 +36,8 @@ class TilePlacingTest {
     val eng = game.asPlayer(Player.ENGINE).session()
     val p2 = eng.asPlayer(PLAYER2)
 
-    p2.execute("CityTile<M33>")
-    assertThrows<LimitsException> { p2.execute("OceanTile<M33>!") }
+    p2.action("CityTile<M33>")
+    assertThrows<LimitsException> { p2.action("OceanTile<M33>!") }
     assertThat(p2.agent.tasks()).isEmpty()
   }
 

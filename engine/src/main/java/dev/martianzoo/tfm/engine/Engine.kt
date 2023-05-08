@@ -6,7 +6,6 @@ import dev.martianzoo.tfm.data.Player.Companion.ENGINE
 import dev.martianzoo.tfm.data.TaskResult
 import dev.martianzoo.tfm.pets.HasClassName
 import dev.martianzoo.tfm.pets.HasClassName.Companion.classNames
-import dev.martianzoo.tfm.pets.Parsing.parse
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.pets.ast.Instruction.Gain
 import dev.martianzoo.tfm.pets.ast.ScaledExpression.Companion.scaledEx
@@ -40,12 +39,12 @@ public object Engine {
     val game = Game(table)
     val agent = game.asPlayer(ENGINE)
 
-    val result: TaskResult = agent.session().execute(Gain.gain(scaledEx(1, ENGINE)))
+    val result: TaskResult = agent.session().action(Gain.gain(scaledEx(1, ENGINE)))
 
     val becauseISaidSo = Cause(ENGINE.expression, result.changes.first().ordinal)
 
     singletonTypes(table).forEach { agent.sneakyChange(gaining = it, cause = becauseISaidSo) }
-    agent.session().execute(parse("SetupPhase")) // hm no fake cause...
+    agent.session().action("SetupPhase") // hm no fake cause...
     game.setupFinished()
 
     gameTemplateCache[setup] = game.clone()

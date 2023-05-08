@@ -50,68 +50,68 @@ class RealGamesTest {
     engine.action("ActionPhase")
 
     with(p2) {
-      execute("UseAction1<SpaceElevator>")
-      execute("-23, EarthCatapult")
+      action("UseAction1<SpaceElevator>")
+      action("-23, EarthCatapult")
       areWeClear()
     }
 
     with(p1) {
-      execute("-7 THEN TitaniumMine")
+      action("-7 THEN TitaniumMine")
       execute("-9 THEN RoboticWorkforce", "@copyProductionBox(MartianIndustries)")
-      execute("-6 THEN Sponsors")
+      action("-6 THEN Sponsors")
       areWeClear()
     }
 
     with(p2) {
-      execute("-5 Steel THEN IndustrialMicrobes")
-      execute("-Titanium THEN TechnologyDemonstration")
+      action("-5 Steel THEN IndustrialMicrobes")
+      action("-Titanium THEN TechnologyDemonstration")
       execute("-1 THEN EnergyTapping", "PROD[-Energy<P1>]")
-      execute("-2 Steel THEN BuildingIndustries")
+      action("-2 Steel THEN BuildingIndustries")
       areWeClear()
     }
 
-    engine.execute("ProductionPhase")
-    engine.execute("ResearchPhase")
+    engine.action("ProductionPhase")
+    engine.action("ResearchPhase")
     p1.tryMatchingTask("3 BuyCard")
     p2.tryMatchingTask("2 BuyCard")
-    engine.execute("ActionPhase")
+    engine.action("ActionPhase")
     areWeClear()
 
-    p1.execute("-2 THEN -1 Steel THEN Mine")
+    p1.action("-2 THEN -1 Steel THEN Mine")
 
     with(p2) {
-      execute("UseAction1<SpaceElevator>")
-      execute("-5 THEN -5 Steel THEN ElectroCatapult")
-      execute("UseAction1<ElectroCatapult>") // TODO just one
-      execute("-Titanium THEN -7 THEN SpaceHotels")
-      execute("-6 THEN MarsUniversity")
+      action("UseAction1<SpaceElevator>")
+      action("-5 THEN -5 Steel THEN ElectroCatapult")
+      action("UseAction1<ElectroCatapult>") // TODO just one
+      action("-Titanium THEN -7 THEN SpaceHotels")
+      action("-6 THEN MarsUniversity")
       execute("-10 THEN ArtificialPhotosynthesis", "PROD[2 Energy]")
-      execute("-5 THEN BribedCommittee")
+      action("-5 THEN BribedCommittee")
       areWeClear()
     }
 
-    engine.execute("ProductionPhase")
-    engine.execute("ResearchPhase")
+    engine.action("ProductionPhase")
+    engine.action("ResearchPhase")
     p1.tryMatchingTask("3 BuyCard")
     p2.tryMatchingTask("2 BuyCard")
-    engine.execute("ActionPhase")
+    engine.action("ActionPhase")
     areWeClear()
 
     with(p2) {
-      execute("UseAction1<ElectroCatapult>")
+      action("UseAction1<ElectroCatapult>")
       // execute("-Steel THEN 7")
-      execute("UseAction1<SpaceElevator>")
+      action("UseAction1<SpaceElevator>")
       areWeClear()
     }
 
     with(p1) {
       execute("-2 Steel THEN -14 THEN ResearchOutpost", "CityTile<E56>")
-      execute("-13 Titanium THEN -1 THEN IoMiningIndustries")
+      action("-13 Titanium THEN -1 THEN IoMiningIndustries")
       areWeClear()
     }
 
     with(p2) {
-      execute("-Titanium THEN -1 THEN TransNeptuneProbe")
+      action("-Titanium THEN -1 THEN TransNeptuneProbe")
       execute("-1 THEN Hackers", "PROD[-2 Megacredit<P1>]")
       areWeClear()
     }
@@ -119,14 +119,14 @@ class RealGamesTest {
     p1.execute("UseAction1<SellPatents>", "Megacredit FROM ProjectCard")
 
     with(p2) {
-      execute("-4 Steel THEN -1 THEN SolarPower")
+      action("-4 Steel THEN -1 THEN SolarPower")
       execute("UseAction1<CitySP>", "CityTile<E65>")
-      execute("PROD[-Plant, Energy]") // CORRECTION TODO WHY WHY
+      action("PROD[-Plant, Energy]") // CORRECTION TODO WHY WHY
       areWeClear()
     }
 
-    engine.execute("ProductionPhase")
-    engine.execute("ResearchPhase")
+    engine.action("ProductionPhase")
+    engine.action("ResearchPhase")
 
     // Stuff
     assertThat(engine.counts("Generation")).containsExactly(5)
@@ -185,10 +185,11 @@ class RealGamesTest {
     p1.startTurn("InterplanetaryCinematics", "7 BuyCard")
     p2.startTurn("PharmacyUnion", "5 BuyCard")
 
-    eng.execute("ActionPhase")
+    eng.action("ActionPhase")
 
     p1.startTurn(
-        "UseAction1<PlayCardFromHand>", "PlayCard<Class<MediaGroup>>", "6 Pay<Class<M>> FROM M")
+        "UseAction1<PlayCardFromHand>", "PlayCard<Class<MediaGroup>>", "6 Pay<Class<M>> FROM M"
+    )
 
     assertThat(p1.counts("Tag, BuildingTag, EarthTag, ProjectCard")).containsExactly(2, 1, 1, 6)
   }
@@ -206,7 +207,7 @@ class RealGamesTest {
 
     // Let's play our preludes
 
-    eng.execute("PreludePhase")
+    eng.action("PreludePhase")
 
     p1.startTurn("UnmiContractor")
     p1.startTurn("CorporateArchives")
@@ -216,7 +217,7 @@ class RealGamesTest {
 
     // Action!
 
-    eng.execute("ActionPhase")
+    eng.action("ActionPhase")
 
     p1.startPlayCard("MediaGroup", 6)
     p1.startPlayCard("Sabotage", 1)
@@ -235,11 +236,11 @@ class RealGamesTest {
 
     // Generation 2
 
-    eng.execute("ProductionPhase")
-    eng.execute("ResearchPhase")
+    eng.action("ProductionPhase")
+    eng.action("ResearchPhase")
     p1.tryMatchingTask("BuyCard")
     p2.tryMatchingTask("3 BuyCard")
-    eng.execute("ActionPhase")
+    eng.action("ActionPhase")
 
     p2.startTurn("UseAction1<SellPatents>", "Megacredit FROM ProjectCard")
     p2.startPlayCard("VestaShipyard", 15)
@@ -267,11 +268,11 @@ class RealGamesTest {
 
     // Generation 2
 
-    eng.execute("ProductionPhase")
-    eng.execute("ResearchPhase")
+    eng.action("ProductionPhase")
+    eng.action("ResearchPhase")
     p1.tryMatchingTask("3 BuyCard")
     p2.tryMatchingTask("BuyCard")
-    eng.execute("ActionPhase")
+    eng.action("ActionPhase")
 
     p1.useCardAction(1, "DevelopmentCenter")
     p1.startPlayCard("ImmigrantCity", 1, steel = 5)
@@ -319,7 +320,7 @@ class RealGamesTest {
 
     // To check VPs we have to fake the game ending
 
-    eng.execute("End")
+    eng.action("End")
     assertThat(eng.agent.tasks()).isEmpty()
 
     // Not sure where this discrepancy comes from... expected P2 to be shorted 1 pt because event

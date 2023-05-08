@@ -44,7 +44,8 @@ class SpecificCardsTest {
       assertThat(taskReasons())
           .containsExactly(
               "When gaining null and removing [Heat<Player1>]: can do only 4 of 5 required",
-              "choice required in: `4 Plant<Player1>! OR 2 Animal<Player1>.`")
+              "choice required in: `4 Plant<Player1>! OR 2 Animal<Player1>.`"
+          )
 
       rollItBack()
     }
@@ -223,8 +224,8 @@ class SpecificCardsTest {
             .containsExactlyElementsIn(pairs.map { it.first })
             .inOrder()
 
-    eng.execute("ActionPhase")
-    p1.execute("5 ProjectCard, 100, Steel")
+    eng.action("ActionPhase")
+    p1.action("5 ProjectCard, 100, Steel")
 
     p1.startPlayCard("SearchForLife", 3)
     p1.startPlayCard("InventorsGuild", 9)
@@ -245,7 +246,7 @@ class SpecificCardsTest {
     game.rollBack(cp)
 
     // Give energy prod and try again - success
-    p1.execute("PROD[E]")
+    p1.action("PROD[E]")
     p1.startPlayCard("AiCentral", 19, steel = 1)
     p1.tryToDrain()
     p1.assertCounts(0 to "Production<Class<Energy>>")
@@ -262,7 +263,7 @@ class SpecificCardsTest {
     game.rollBack(cp)
 
     // Next gen we can again
-    eng.execute("Generation")
+    eng.action("Generation")
     p1.useCardAction(1, "AiCentral")
     p1.assertCounts(5 to "ProjectCard")
   }
@@ -316,12 +317,12 @@ class SpecificCardsTest {
     val game = Engine.newGame(GameSetup(Canon, "CVERB", 2))
     val p1 = game.asPlayer(PLAYER1).session()
 
-    p1.execute("10 ProjectCard, ForcedPrecipitation")
+    p1.action("10 ProjectCard, ForcedPrecipitation")
     p1.execute("AtmoCollectors", "2 Floater<AtmoCollectors>")
     p1.execute("Airliners", "2 Floater<AtmoCollectors>")
     assertThat(p1.production()[cn("Megacredit")]).isEqualTo(2)
 
-    p1.execute("CommunityServices") // should be 3 tagless cards (Atmo, Airl, Comm)
+    p1.action("CommunityServices") // should be 3 tagless cards (Atmo, Airl, Comm)
     assertThat(p1.production()[cn("Megacredit")]).isEqualTo(5)
   }
 
@@ -331,23 +332,23 @@ class SpecificCardsTest {
     val eng = game.asPlayer(ENGINE).session()
     val p1 = game.asPlayer(PLAYER1).session()
 
-    eng.execute("ActionPhase")
+    eng.action("ActionPhase")
 
-    p1.execute("CorporationCard, 12 ProjectCard, Phobolog, Steel") // -1
+    p1.action("CorporationCard, 12 ProjectCard, Phobolog, Steel") // -1
 
-    p1.execute("AntiGravityTechnology") // -5
-    p1.execute("EarthCatapult")
+    p1.action("AntiGravityTechnology") // -5
+    p1.action("EarthCatapult")
     p1.execute("ResearchOutpost", "CityTile<M33>")
 
-    p1.execute("MassConverter") // -12
-    p1.execute("QuantumExtractor")
-    p1.execute("Shuttles")
-    p1.execute("SpaceStation")
-    p1.execute("WarpDrive")
+    p1.action("MassConverter") // -12
+    p1.action("QuantumExtractor")
+    p1.action("Shuttles")
+    p1.action("SpaceStation")
+    p1.action("WarpDrive")
 
-    p1.execute("AdvancedAlloys") // -4
-    p1.execute("MercurianAlloys")
-    p1.execute("RegoPlastics")
+    p1.action("AdvancedAlloys") // -4
+    p1.action("MercurianAlloys")
+    p1.action("RegoPlastics")
 
     /*
        3996: as Engine exec NewTurn<P1>
@@ -374,7 +375,7 @@ class SpecificCardsTest {
     p1.startTurn("InterplanetaryCinematics", "7 BuyCard")
     p2.startTurn("PharmacyUnion", "5 BuyCard")
 
-    eng.execute("PreludePhase")
+    eng.action("PreludePhase")
 
     p1.startTurn("UnmiContractor")
     p1.startTurn("CorporateArchives")

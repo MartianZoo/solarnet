@@ -5,7 +5,6 @@ import dev.martianzoo.tfm.api.UserException.NotNowException
 import dev.martianzoo.tfm.data.Player
 import dev.martianzoo.tfm.data.Task.TaskId
 import dev.martianzoo.tfm.data.TaskResult
-import dev.martianzoo.tfm.engine.Game.PlayerAgentImpl
 import dev.martianzoo.tfm.pets.Parsing.parse
 import dev.martianzoo.tfm.pets.PetTransformer
 import dev.martianzoo.tfm.pets.PetTransformer.Companion.chain
@@ -67,13 +66,18 @@ internal constructor(
   // EXECUTION
 
   /** Action just means "queue empty -> do anything -> queue empty again" */
-  fun action(firstInstruction: String): TaskResult {
+  fun action(firstInstruction: Instruction): TaskResult {
     return game.doAtomic {
       action(firstInstruction) {}
     }
   }
 
-  fun <T : Any> action(firstInstruction: String, tasker: Tasker.() -> T?): T? {
+  fun action(firstInstruction: String): TaskResult = action(parseInContext(firstInstruction))
+
+  fun <T : Any> action(firstInstruction: String, tasker: Tasker.() -> T?) =
+      action(parseInContext(firstInstruction), tasker)
+
+  fun <T : Any> action(firstInstruction: Instruction, tasker: Tasker.() -> T?): T? {
     require(agent.tasks().none()) { agent.tasks() }
     val cp = game.checkpoint()
     initiate(firstInstruction) // try task then try to drain
@@ -139,6 +143,8 @@ internal constructor(
         .transform(node)
   }
 
+  inline fun <reified P : PetElement> parseInContext(text: String): P = prep(parse(text))
+
   public fun useFullNames() =
       object : PetTransformer() {
         override fun <P : PetNode> transform(node: P): P {
@@ -150,15 +156,6 @@ internal constructor(
           }
         }
       }
-
-  fun execute(instruction: String) = execute(parse(instruction))
-
-  fun execute(instruction: Instruction): TaskResult {
-    return game.doAtomic {
-      initiate(instruction)
-      mustDrain()
-    }
-  }
 
   fun execute(instruction: String, vararg tasks: String) {
     initiate(instruction)
@@ -241,12 +238,11 @@ internal constructor(
   /** Like try but throws if it doesn't succeed */
   fun doFirstTask(revised: String): TaskResult {
     val id = agent.tasks().keys.firstOrNull() ?: throw NotNowException("no tasks")
-    return agent.doTask(id, prep(parse<Instruction>(revised)))
+    return agent.doTask(id, parseInContext(revised))
   }
 
   fun tryTask(id: TaskId, narrowed: String? = null) =
-      agent.tryTask(id, narrowed?.let { prep(parse(it)) })
+      agent.tryTask(id, narrowed?.let { parseInContext(it) })
 
-  private fun prepAndSplit(instruction: Instruction) =
-      split((agent as PlayerAgentImpl).heyItsMe(prep(instruction))) // TODO, obvs
+  private fun prepAndSplit(instruction: Instruction) = split(prep(instruction))
 }

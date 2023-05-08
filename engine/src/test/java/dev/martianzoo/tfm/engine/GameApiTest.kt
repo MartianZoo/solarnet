@@ -12,7 +12,7 @@ import org.junit.jupiter.api.Test
 
 private class GameApiTest {
   fun Game.count(s: String) = reader.count(parse<Metric>(s))
-  fun Game.execute(s: String) = asPlayer(PLAYER2).session().execute(parse(s))
+  fun Game.execute(s: String) = asPlayer(PLAYER2).session().action(s)
   fun Game.evaluate(s: String) = reader.evaluate(parse(s))
 
   @Test

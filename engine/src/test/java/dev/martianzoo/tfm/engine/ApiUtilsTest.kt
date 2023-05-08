@@ -26,7 +26,7 @@ private class ApiUtilsTest {
             cn("Heat") to 0,
         )
 
-    session.execute("PROD[2 Plant<Player1>!]")
+    session.action("PROD[2 Plant<Player1>!]")
     val prods2: Map<ClassName, Int> =
         lookUpProductionLevels(session.game.reader, PLAYER1.expression)
     assertThat(prods2.map { it.key to it.value })
