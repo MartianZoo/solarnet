@@ -46,8 +46,8 @@ internal class WritableComponentGraph(
     gaining?.let { multiset.add(it, count) }
     return StateChange(
         count = count,
-        gaining = gaining?.expression,
-        removing = removing?.expression,
+        gaining = gaining?.expressionFull,
+        removing = removing?.expressionFull,
     )
   }
 
@@ -85,8 +85,8 @@ internal class WritableComponentGraph(
       require(it !is Requirement.Transform)
       if (it is Counting) {
         val supertypeWithLimit = loader.resolve(it.scaledEx.expression)
-        val gHasType = gaining?.mtype?.isSubtypeOf(supertypeWithLimit) ?: false
-        val rHasType = removing?.mtype?.isSubtypeOf(supertypeWithLimit) ?: false
+        val gHasType = gaining?.mtype?.narrows(supertypeWithLimit) ?: false
+        val rHasType = removing?.mtype?.narrows(supertypeWithLimit) ?: false
 
         if (gHasType != rHasType) {
           val existing = count(supertypeWithLimit, StubTypeInfo)

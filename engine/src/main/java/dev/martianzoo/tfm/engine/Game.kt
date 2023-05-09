@@ -192,11 +192,11 @@ internal constructor(
     val r = event.change.removing
 
     val system = resolve(ClassName.cn("System").expression)
-    if (listOfNotNull(g, r).all { resolve(it).isSubtypeOf(system) }) return true
+    if (listOfNotNull(g, r).all { resolve(it).narrows(system) }) return true
 
     if (r != null) {
       val signal = resolve(ClassName.cn("Signal").expression)
-      if (resolve(r).isSubtypeOf(signal)) return true
+      if (resolve(r).narrows(signal)) return true
     }
     return false
   }
@@ -245,6 +245,8 @@ internal constructor(
               }
               return@doAtomic
             }
+          } catch (e: ExistingDependentsException) {
+            error("this should not have happened: $e")
           } catch (e: TaskException) {
             return TaskResult(listOf(), setOf())
           } catch (e: NotNowException) {
@@ -300,6 +302,7 @@ internal constructor(
         removing: Component?,
         cause: Cause?,
     ): ChangeEvent? {
+      removing?.let { (game.components as WritableComponentGraph).checkDependents(count, it) }
       val change =
           try {
             game.writableComponents.update(count, gaining = gaining, removing = removing)

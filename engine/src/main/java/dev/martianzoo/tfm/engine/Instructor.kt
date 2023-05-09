@@ -153,9 +153,8 @@ internal data class Instructor(
 
         val g = game.toComponent(instruction.gaining)
         val r = game.toComponent(instruction.removing)
-        r?.let { (game.components as WritableComponentGraph).checkDependents(ct.value, it) }
-
         val result = writer.update(count = ct.value, gaining = g, removing = r, cause = cause)
+        // TODO problem: we need to get events logged before firing triggers?
         result.changes.forEach(::fireTriggers)
       }
       is Then -> {

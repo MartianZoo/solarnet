@@ -77,7 +77,7 @@ public object UserException { // TODO rename Exceptions
   public class PetSyntaxException internal constructor(message: String) : PetException(message)
 
   public class ExistingDependentsException(val dependents: Collection<Type>) :
-      NotNowException("Existing dependents: ${dependents.joinToString()}")
+      NotNowException("Existing dependents: ${dependents.joinToString { "${it.expression}" } }")
 
   // TODO should just be factories
 

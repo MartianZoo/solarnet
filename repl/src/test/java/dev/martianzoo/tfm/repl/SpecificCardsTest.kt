@@ -387,4 +387,21 @@ class SpecificCardsTest {
       assertThat(production().values).containsExactly(-2, 0, 0, 4, 0, 0).inOrder()
     }
   }
+
+  @Test
+  fun optimalAerobraking() {
+    val game = Engine.newGame(GameSetup(Canon, "BRHXP", 2))
+    val eng = game.writer(ENGINE).session()
+    val p1 = eng.asPlayer(PLAYER1)
+
+    p1.action("5 ProjectCard, OptimalAerobraking") {
+      assertCounts(0 to "Megacredit", 0 to "Heat")
+    }
+
+    p1.action("AsteroidCard") {
+      tryMatchingTask("Ok") // don't destroy any plants -- TODO could it recognize??
+      session.tryToDrain()
+      assertCounts(3 to "Megacredit", 3 to "Heat")
+    }
+  }
 }

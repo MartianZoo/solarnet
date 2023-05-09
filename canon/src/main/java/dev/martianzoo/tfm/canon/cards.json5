@@ -806,6 +806,7 @@
       "bundle": "B",
       "deck": "PROJECT",
       "tags": [ "SpaceTag" ],
+//      "effects": [ "EventCard(HAS SpaceTag): 3, 3 Heat" ], TODO
       "effects": [ "SpaceTag<EventCard>: 3, 3 Heat" ],
       "cost": 7,
       "projectKind": "ACTIVE"

@@ -29,14 +29,21 @@ private typealias Hit = (Instruction) -> Instruction
 /** A triggered effect of "live" component existing in the [ComponentGraph]. */
 internal data class ActiveEffect
 private constructor(
-    private val context: Component,
-    private val subscription: Subscription,
-    private val automatic: Boolean,
-    private val instruction: Instruction,
+  private val subscription: Subscription,
+  private val automatic: Boolean,
+  private val instruction: Instruction,
+  private val contextExpr: Expression,
+  private val contextOwner: Player?,
 ) {
   companion object {
     fun from(it: Effect, context: Component) =
-        ActiveEffect(context, Subscription.from(it.trigger, context), it.automatic, it.instruction)
+        ActiveEffect(
+            Subscription.from(it.trigger, context),
+            it.automatic,
+            it.instruction,
+            context.expression,
+            context.owner
+        )
   }
 
   val classToCheck: ClassName? by subscription::classToCheck
@@ -50,9 +57,9 @@ private constructor(
       onChange(triggerEvent, game, isSelf = false)
 
   private fun onChange(triggerEvent: ChangeEvent, game: Game, isSelf: Boolean): FiredEffect? {
-    val player = context.owner ?: triggerEvent.owner
+    val player = contextOwner ?: triggerEvent.owner
     val hit = subscription.checkForHit(triggerEvent, player, isSelf, game) ?: return null
-    val cause = Cause(context.expression, triggerEvent.ordinal)
+    val cause = Cause(contextExpr, triggerEvent.ordinal)
     return FiredEffect(hit(instruction), player, cause, automatic)
   }
 
@@ -180,7 +187,7 @@ private constructor(
       val change = currentEvent.change
       val expr = (if (matchOnGain) change.gaining else change.removing) ?: return null
 
-      return if (context.hasType(game.resolve(expr))) { // TODO why not exact, anyway?
+      return if (expr == context.expressionFull) {
         val hit: Hit = { it * currentEvent.change.count }
         hit
       } else {
@@ -207,7 +214,7 @@ private constructor(
       // Will be refinement-aware (#48)
       val changeType = game.resolve(expr)
       val matchType = game.resolve(match)
-      return if (changeType.isSubtypeOf(matchType)) {
+      return if (changeType.narrows(matchType, game.reader)) {
         val subber = game.transformers.substituter(matchType, changeType)
         val h: Hit = { subber.transform(it) * change.count }
         h

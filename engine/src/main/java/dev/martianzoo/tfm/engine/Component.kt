@@ -2,7 +2,6 @@ package dev.martianzoo.tfm.engine
 
 import dev.martianzoo.tfm.api.SpecialClassNames.OWNED
 import dev.martianzoo.tfm.api.SpecialClassNames.OWNER
-import dev.martianzoo.tfm.api.Type
 import dev.martianzoo.tfm.api.UserException
 import dev.martianzoo.tfm.data.Player
 import dev.martianzoo.tfm.engine.Game.ComponentGraph
@@ -30,8 +29,6 @@ public data class Component private constructor(val mtype: MType) : HasClassName
   init {
     if (mtype.abstract) throw UserException.abstractComponent(mtype)
   }
-
-  public fun hasType(type: Type): Boolean = mtype.isSubtypeOf(type)
 
   /**
    * The full list of dependency instances of this component; *this* component cannot exist in a
@@ -61,7 +58,7 @@ public data class Component private constructor(val mtype: MType) : HasClassName
   }
 
   public val owner: Player? by lazy {
-    if (mtype.isSubtypeOf(mtype.loader.resolve(OWNER.expression))) {
+    if (mtype.narrows(mtype.loader.resolve(OWNER.expression))) {
       Player(mtype.className)
     } else {
       val dep = mtype.dependencies.getIfPresent(Key(OWNED, 0))

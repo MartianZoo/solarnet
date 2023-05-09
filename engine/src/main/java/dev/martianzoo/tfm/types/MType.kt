@@ -36,13 +36,8 @@ internal constructor(
 
   override val abstract = root.abstract || dependencies.abstract || refinement != null
 
-  override fun isSubtypeOf(that: Type) = isSubtypeOf(that as MType)
 
-  override fun isSubtypeOf(that: MType) =
-      // Not smart enough to understand whether our refinement specializes that's
-      root.isSubtypeOf(that.root) &&
-          dependencies.isSubtypeOf(that.dependencies) &&
-          that.refinement in setOf(null, refinement)
+  override fun isSubtypeOf(that: MType) = narrows(that) // TODO Hmmm
 
   // Nearest common subtype
   override fun glb(that: MType): MType? {
@@ -147,7 +142,8 @@ internal constructor(
     }
   }
 
-  fun narrows(that: MType, info: TypeInfo): Boolean {
+  override fun narrows(that: Type, info: TypeInfo): Boolean {
+    that as? MType ?: error("")
     if (!root.isSubtypeOf(that.root)) return false
     if (!dependencies.narrows(that.dependencies, info)) return false
 

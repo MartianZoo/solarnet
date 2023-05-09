@@ -1,5 +1,6 @@
 package dev.martianzoo.tfm.api
 
+import dev.martianzoo.tfm.api.TypeInfo.StubTypeInfo
 import dev.martianzoo.tfm.pets.HasClassName
 import dev.martianzoo.tfm.pets.HasExpression
 import dev.martianzoo.tfm.pets.ast.Expression
@@ -16,12 +17,7 @@ interface Type : HasExpression, HasClassName {
    */
   val abstract: Boolean
 
-  /**
-   * Returns whether this type is a subtype of [that]; note that refinements cannot be evaluated
-   * here, so this sometimes returns `false` even when the types should logically be subtypes in the
-   * current game state.
-   */
-  fun isSubtypeOf(that: Type): Boolean
+  fun narrows(that: Type, info: TypeInfo = StubTypeInfo): Boolean
 
   /** The optional requirement attached to this type. */
   val refinement: Requirement?
