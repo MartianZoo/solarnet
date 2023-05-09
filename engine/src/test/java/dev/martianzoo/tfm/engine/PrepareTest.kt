@@ -13,7 +13,7 @@ import dev.martianzoo.tfm.pets.ast.Instruction
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 
-private class CommitTest {
+private class PrepareTest {
 
   val game = Engine.newGame(Canon.SIMPLE_GAME)
   val p1 = game.asPlayer(PLAYER1)
@@ -109,6 +109,11 @@ private class CommitTest {
         true,
     )
     checkPrepare("PROD[Plant OR 3 PlantTag: 4 Plant]", "Production<Player1, Class<Plant>>!")
+    checkPrepare(
+        "Steel / 2 ProjectCard OR -Titanium? OR Plant: 5 Steel OR Ok OR 5 Steel",
+        "5 Steel<Player1>! OR Ok",
+        true
+    )
     assertThrows<Exception>("1") { // TODO what exception type is appropriate?
       preprocessAndPrepare(
           "15 OxygenStep! OR -2 Plant OR Plant FROM Heat OR 2 Heat FROM Plant " +

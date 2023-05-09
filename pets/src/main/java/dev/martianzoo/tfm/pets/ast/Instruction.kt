@@ -407,12 +407,13 @@ public sealed class Instruction : PetElement() {
     override fun connector() = " OR "
 
     companion object {
-      fun create(instructions: List<Instruction>): Instruction {
+      fun create(instructions: Collection<Instruction>): Instruction {
         require(instructions.any())
-        return if (instructions.size == 1) {
-          instructions.first()
+        val set = instructions.toSet()
+        return if (set.size == 1) {
+          set.first()
         } else {
-          Or(instructions)
+          Or(set.toList())
         }
       }
 
