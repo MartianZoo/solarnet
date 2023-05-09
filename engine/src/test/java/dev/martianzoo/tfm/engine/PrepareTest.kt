@@ -20,12 +20,14 @@ private class PrepareTest {
   val instructor = Instructor(p1 as GameWriterImpl, PLAYER1)
 
   init {
-    p1.sneakyChange(gaining = game.toComponent(parse("Plant<P1>")))
-    p1.sneakyChange(10, gaining = game.toComponent(parse("ProjectCard<Player1>")))
-    p1.sneakyChange(removing = game.toComponent(parse("Production<Player1, Class<Megacredit>>")))
+    val unsafe = p1 as UnsafeGameWriter
+    unsafe.sneakyChange(gaining = game.toComponent(parse("Plant<P1>")))
+    unsafe.sneakyChange(10, gaining = game.toComponent(parse("ProjectCard<Player1>")))
+    unsafe.sneakyChange(
+        removing = game.toComponent(parse("Production<Player1, Class<Megacredit>>")))
   }
 
-  fun prep(instr: Instruction): Instruction {
+  fun preprocess(instr: Instruction): Instruction {
     return PetTransformer.chain(
             game.transformers.deprodify(),
             game.transformers.insertDefaults(),
@@ -35,7 +37,7 @@ private class PrepareTest {
   }
 
   fun preprocessAndPrepare(unprepared: String) =
-      instructor.prepare(prep(parse<Instruction>(unprepared)))
+      instructor.prepare(preprocess(parse<Instruction>(unprepared)))
 
   fun checkPrepare(unprepared: String, expected: String?, abstract: Boolean = false) {
     val prepared = preprocessAndPrepare(unprepared)
@@ -112,8 +114,7 @@ private class PrepareTest {
     checkPrepare(
         "Steel / 2 ProjectCard OR -Titanium? OR Plant: 5 Steel OR Ok OR 5 Steel",
         "5 Steel<Player1>! OR Ok",
-        true
-    )
+        true)
     assertThrows<Exception>("1") { // TODO what exception type is appropriate?
       preprocessAndPrepare(
           "15 OxygenStep! OR -2 Plant OR Plant FROM Heat OR 2 Heat FROM Plant " +

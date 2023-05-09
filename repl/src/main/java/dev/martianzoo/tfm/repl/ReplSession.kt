@@ -13,6 +13,7 @@ import dev.martianzoo.tfm.data.TaskResult
 import dev.martianzoo.tfm.engine.Engine
 import dev.martianzoo.tfm.engine.Game.EventLog.Checkpoint
 import dev.martianzoo.tfm.engine.PlayerSession
+import dev.martianzoo.tfm.engine.UnsafeGameWriter
 import dev.martianzoo.tfm.pets.Parsing.parse
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
@@ -418,7 +419,7 @@ public class ReplSession(var setup: GameSetup, private val jline: JlineRepl? = n
             null
           }
       if (rest == "drop") {
-        session.writer.removeTask(id)
+        (session.game as UnsafeGameWriter).removeTask(id)
         return listOf("Task $id deleted")
       } else if (rest == "prepare") {
         session.writer.prepareTask(id)

@@ -120,7 +120,7 @@ internal constructor(
           if (it !is Change) throw UserException.badSneak(it)
           val count = it.count
           require(count is ActualScalar)
-          writer.sneakyChange(
+          (writer as Game.GameWriterImpl).sneakyChange( // TODO
               count.value,
               game.toComponent(it.gaining),
               game.toComponent(it.removing),

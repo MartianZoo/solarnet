@@ -1,8 +1,6 @@
 package dev.martianzoo.tfm.engine
 
-import dev.martianzoo.tfm.data.GameEvent.ChangeEvent
 import dev.martianzoo.tfm.data.GameEvent.ChangeEvent.Cause
-import dev.martianzoo.tfm.data.GameEvent.TaskRemovedEvent
 import dev.martianzoo.tfm.data.Task
 import dev.martianzoo.tfm.data.Task.TaskId
 import dev.martianzoo.tfm.data.TaskResult
@@ -52,23 +50,6 @@ public abstract class GameWriter {
    */
   abstract fun doTask(taskId: TaskId, narrowed: Instruction? = null): TaskResult
 
-  // Things that can break or repair a game state ... TODO move out of GameWriter to sth scary
-
   /** Just enqueues a task; does nothing about it. */
   abstract fun addTask(instruction: Instruction, initialCause: Cause? = null): TaskId
-
-  abstract fun removeTask(taskId: TaskId): TaskRemovedEvent
-
-  /**
-   * Updates the component graph and event log, but does not fire triggers. This exists as a public
-   * method so that a broken game state can be fixed, or a game state broken on purpose, or specific
-   * game scenario set up very explicitly.
-   */
-  abstract fun sneakyChange(
-      // TODO reconsider
-      count: Int = 1,
-      gaining: Component? = null,
-      removing: Component? = null,
-      cause: Cause? = null,
-  ): ChangeEvent?
 }

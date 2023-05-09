@@ -211,7 +211,8 @@ internal constructor(
    * Implementation of GameWriter - would be nice to have in a separate file but we'd have to
    * make some things in Game non-private.
    */
-  internal class GameWriterImpl(val game: Game, private val player: Player) : GameWriter() {
+  internal class GameWriterImpl(val game: Game, private val player: Player) :
+      GameWriter(), UnsafeGameWriter {
     override fun session() = PlayerSession(game, this, player)
 
     override fun prepareTask(taskId: TaskId): Boolean {
@@ -244,14 +245,11 @@ internal constructor(
               }
               return@doAtomic
             }
-
           } catch (e: TaskException) {
             return TaskResult(listOf(), setOf())
-
           } catch (e: NotNowException) {
             message = e.message
             TaskResult(listOf(), setOf())
-
           } catch (e: AbstractException) {
             message = e.message
             TaskResult(listOf(), setOf())
@@ -281,6 +279,7 @@ internal constructor(
     // Danger
 
     override fun addTask(instruction: Instruction, initialCause: Cause?): TaskId {
+      // require(game.tasks.none()) { game.tasks.joinToString("\n")} TODO enable??
       val events = addTasks(instruction, player, initialCause)
       return events.single().task.id
     }
