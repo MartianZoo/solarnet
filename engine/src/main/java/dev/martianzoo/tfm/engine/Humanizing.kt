@@ -1,7 +1,6 @@
 package dev.martianzoo.tfm.engine
 
 import dev.martianzoo.tfm.api.ApiUtils
-import dev.martianzoo.tfm.data.Player.Companion.ENGINE
 import dev.martianzoo.tfm.pets.ast.ClassName
 
 /**
@@ -11,10 +10,11 @@ import dev.martianzoo.tfm.pets.ast.ClassName
 object Humanizing {
 
   fun PlayerSession.startTurn(vararg tasks: String) {
-    asPlayer(ENGINE).initiate("NewTurn<$player>")
+    initiate("NewTurn<$player>")
+
     tasks.forEach {
       tryMatchingTask(it)
-      tryToDrain()
+      tryToDrain() // TODO y not automatic
     }
   }
 
@@ -23,7 +23,7 @@ object Humanizing {
     mustDrain()
   }
 
-  fun PlayerSession.startPlayCard(
+  fun PlayerSession.playCard(
       cardName: String,
       megacredits: Int = 0,
       steel: Int = 0,
@@ -36,6 +36,7 @@ object Humanizing {
     try {
       while (true) doFirstTask("Ok")
     } catch (ignore: Exception) {}
+    tryToDrain()
   }
 
   fun PlayerSession.useCardAction(which: Int, cardName: String, vararg tasks: String) =

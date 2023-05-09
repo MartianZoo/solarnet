@@ -94,7 +94,9 @@ internal constructor(
     if (result == wrapped.rollItBack()) {
       game.rollBack(cp)
     } else {
-      require(agent.tasks().none()) { agent.tasks() }
+      require(agent.tasks().none()) {
+        "Should be no tasks left, but:\n" + agent.tasks().values.joinToString("\n")
+      }
     }
     return result
   }
@@ -105,10 +107,12 @@ internal constructor(
 
     fun doFirstTask(instr: String) {
       session.doFirstTask(instr)
+      session.tryToDrain()
     }
 
     fun tryMatchingTask(instr: String) {
       session.tryMatchingTask(instr)
+      session.tryToDrain()
     }
 
     fun rollItBack() = null
@@ -237,7 +241,9 @@ internal constructor(
 
   /** Like try but throws if it doesn't succeed */
   fun doFirstTask(revised: String): TaskResult {
-    val id = agent.tasks().keys.firstOrNull() ?: throw NotNowException("no tasks")
+    val id =
+        agent.tasks().entries.firstOrNull { it.value.owner == player }?.key
+            ?: throw NotNowException("no tasks")
     return agent.doTask(id, parseInContext(revised))
   }
 

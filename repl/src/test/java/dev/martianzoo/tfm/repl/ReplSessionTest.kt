@@ -14,14 +14,15 @@ private class ReplSessionTest {
           exec PROD[1, 2 S, 3 T, 4 P, 5 E, 6 H]
           exec 8, 6 S, 7 T, 5 P, 3 E
           exec 9 TR
-          
+
           become
           exec ActionPhase
           exec ProductionPhase
-          
+
           become Player1
         """
             .trimIndent()
+
     for (cmd in commands.split("\n")) {
       repl.command(cmd)
     }

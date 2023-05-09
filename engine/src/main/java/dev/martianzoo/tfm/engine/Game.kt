@@ -6,6 +6,7 @@ import dev.martianzoo.tfm.api.UserException.AbstractException
 import dev.martianzoo.tfm.api.UserException.ExistingDependentsException
 import dev.martianzoo.tfm.api.UserException.LimitsException
 import dev.martianzoo.tfm.api.UserException.NotNowException
+import dev.martianzoo.tfm.api.UserException.TaskException
 import dev.martianzoo.tfm.data.GameEvent
 import dev.martianzoo.tfm.data.GameEvent.ChangeEvent
 import dev.martianzoo.tfm.data.GameEvent.ChangeEvent.Cause
@@ -274,9 +275,14 @@ internal constructor(
               }
               return@doAtomic
             }
+
+          } catch (e: TaskException) {
+            return TaskResult(listOf(), setOf())
+
           } catch (e: NotNowException) {
             message = e.message
             TaskResult(listOf(), setOf())
+
           } catch (e: AbstractException) {
             message = e.message
             TaskResult(listOf(), setOf())
@@ -368,8 +374,8 @@ internal constructor(
         }
 
     private fun checkOwner(task: Task) {
-      require(player == task.owner || player == ENGINE) {
-        "$player can't access task owned by ${task.owner}"
+      if (player != task.owner && player != ENGINE) {
+        throw TaskException("$player can't access task owned by ${task.owner}")
       }
     }
   }

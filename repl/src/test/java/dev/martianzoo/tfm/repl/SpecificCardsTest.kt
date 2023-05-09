@@ -12,8 +12,8 @@ import dev.martianzoo.tfm.data.Player
 import dev.martianzoo.tfm.data.Player.Companion.ENGINE
 import dev.martianzoo.tfm.data.Player.Companion.PLAYER1
 import dev.martianzoo.tfm.engine.Engine
+import dev.martianzoo.tfm.engine.Humanizing.playCard
 import dev.martianzoo.tfm.engine.Humanizing.production
-import dev.martianzoo.tfm.engine.Humanizing.startPlayCard
 import dev.martianzoo.tfm.engine.Humanizing.startTurn
 import dev.martianzoo.tfm.engine.Humanizing.useCardAction
 import dev.martianzoo.tfm.engine.PlayerSession
@@ -227,27 +227,27 @@ class SpecificCardsTest {
     eng.action("ActionPhase")
     p1.action("5 ProjectCard, 100, Steel")
 
-    p1.startPlayCard("SearchForLife", 3)
-    p1.startPlayCard("InventorsGuild", 9)
+    p1.playCard("SearchForLife", 3)
+    p1.playCard("InventorsGuild", 9)
 
     var cp = game.checkpoint()
     p1.startTurn("UseAction1<PlayCardFromHand>")
     assertThrows<RequirementException> { p1.doFirstTask("PlayCard<Class<AiCentral>>") }
     game.rollBack(cp)
 
-    p1.startPlayCard("DesignedMicroorganisms", 16)
+    p1.playCard("DesignedMicroorganisms", 16)
     p1.tryToDrain()
     assertThat(p1.agent.tasks()).isEmpty()
 
     // Now I do have the 3 science tags, but not the energy production
     cp = game.checkpoint()
-    p1.startPlayCard("AiCentral", 19, steel = 1)
+    p1.playCard("AiCentral", 19, steel = 1)
     assertThrows<LimitsException> { p1.doFirstTask("PROD[-Energy]") }
     game.rollBack(cp)
 
     // Give energy prod and try again - success
     p1.action("PROD[E]")
-    p1.startPlayCard("AiCentral", 19, steel = 1)
+    p1.playCard("AiCentral", 19, steel = 1)
     p1.tryToDrain()
     p1.assertCounts(0 to "Production<Class<Energy>>")
 
@@ -358,7 +358,7 @@ class SpecificCardsTest {
        4000: task K Pay<Class<T>> FROM T
        4001: task L Pay<Class<S>> FROM S
     */
-    p1.startPlayCard("SpaceElevator", 0, steel = 1, titanium = 1)
+    p1.playCard("SpaceElevator", 0, steel = 1, titanium = 1)
     p1.mustDrain()
 
     assertThat(p1.has("SpaceElevator")).isTrue()

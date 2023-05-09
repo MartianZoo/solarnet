@@ -70,6 +70,8 @@ public object UserException { // TODO rename Exceptions
    */
   public open class NotNowException(message: String) : Exception(message)
 
+  public open class TaskException(message: String) : Exception(message)
+
   // Subtypes (catchable)
 
   public class PetSyntaxException internal constructor(message: String) : PetException(message)

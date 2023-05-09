@@ -8,10 +8,12 @@ import dev.martianzoo.tfm.data.Player.Companion.PLAYER1
 import dev.martianzoo.tfm.data.Player.Companion.PLAYER2
 import dev.martianzoo.tfm.engine.Engine
 import dev.martianzoo.tfm.engine.Humanizing.counts
+import dev.martianzoo.tfm.engine.Humanizing.playCard
 import dev.martianzoo.tfm.engine.Humanizing.production
-import dev.martianzoo.tfm.engine.Humanizing.startPlayCard
 import dev.martianzoo.tfm.engine.Humanizing.startTurn
 import dev.martianzoo.tfm.engine.Humanizing.useCardAction
+import dev.martianzoo.tfm.repl.TestHelpers.assertCounts
+import dev.martianzoo.tfm.repl.TestHelpers.taskReasons
 import org.junit.jupiter.api.Test
 
 class RealGamesTest {
@@ -182,16 +184,28 @@ class RealGamesTest {
     val p1 = eng.asPlayer(PLAYER1)
     val p2 = eng.asPlayer(PLAYER2)
 
-    p1.startTurn("InterplanetaryCinematics", "7 BuyCard")
-    p2.startTurn("PharmacyUnion", "5 BuyCard")
+    p1.action("NewTurn") {
+      tryMatchingTask("InterplanetaryCinematics")
+      assertCounts(30 to "M", 1 to "BuildingTag", 0 to "ProjectCard")
+      tryMatchingTask("7 BuyCard")
+      assertCounts(9 to "M", 1 to "BuildingTag", 7 to "ProjectCard")
+    }
+
+    p2.action("NewTurn") {
+      doFirstTask("PharmacyUnion")
+      doFirstTask("5 BuyCard")
+      assertThat(taskReasons()).isEmpty()
+    }
 
     eng.action("ActionPhase")
 
-    p1.startTurn(
-        "UseAction1<PlayCardFromHand>", "PlayCard<Class<MediaGroup>>", "6 Pay<Class<M>> FROM M"
-    )
-
-    assertThat(p1.counts("Tag, BuildingTag, EarthTag, ProjectCard")).containsExactly(2, 1, 1, 6)
+    p1.action("NewTurn") {
+      doFirstTask("UseAction1<PlayCardFromHand>")
+      doFirstTask("PlayCard<Class<MediaGroup>>")
+      assertCounts(9 to "M", 1 to "BuildingTag", 0 to "EarthTag", 7 to "ProjectCard", 6 to "Owed")
+      doFirstTask("6 Pay<Class<M>> FROM M")
+      assertCounts(3 to "M", 1 to "BuildingTag", 1 to "EarthTag", 6 to "ProjectCard")
+    }
   }
 
   fun ellieGame() {
@@ -202,8 +216,18 @@ class RealGamesTest {
 
     // Let's play our corporations
 
-    p1.startTurn("InterplanetaryCinematics", "7 BuyCard")
-    p2.startTurn("PharmacyUnion", "5 BuyCard")
+    p1.action("NewTurn") {
+      tryMatchingTask("InterplanetaryCinematics")
+      assertCounts(0 to "M", 1 to "BuildingTag", 0 to "ProjectCard")
+      assertCounts(30 to "M", 1 to "BuildingTag", 0 to "ProjectCard")
+      tryMatchingTask("7 BuyCard")
+      assertCounts(9 to "M", 1 to "BuildingTag", 7 to "ProjectCard")
+    }
+
+    p2.action("NewTurn") {
+      doFirstTask("PharmacyUnion")
+      doFirstTask("5 BuyCard")
+    }
 
     // Let's play our preludes
 
@@ -219,16 +243,16 @@ class RealGamesTest {
 
     eng.action("ActionPhase")
 
-    p1.startPlayCard("MediaGroup", 6)
-    p1.startPlayCard("Sabotage", 1)
+    p1.playCard("MediaGroup", 6)
+    p1.playCard("Sabotage", 1)
     p1.tryMatchingTask("-7 Megacredit<P2>")
 
-    p2.startPlayCard("Research", 11)
-    p2.startPlayCard("MartianSurvey", 9)
+    p2.playCard("Research", 11)
+    p2.playCard("MartianSurvey", 9)
 
     p1.startTurn("Pass")
 
-    p2.startPlayCard("SearchForLife", 3)
+    p2.playCard("SearchForLife", 3)
     p2.tryMatchingTask("PlayedEvent<Class<PharmacyUnion>> FROM PharmacyUnion THEN 3 TR")
 
     p2.useCardAction(1, "SearchForLife", "-1") // TODO simplify
@@ -243,26 +267,26 @@ class RealGamesTest {
     eng.action("ActionPhase")
 
     p2.startTurn("UseAction1<SellPatents>", "Megacredit FROM ProjectCard")
-    p2.startPlayCard("VestaShipyard", 15)
+    p2.playCard("VestaShipyard", 15)
     p2.startTurn("Pass")
 
     with(p1) {
-      startPlayCard("EarthCatapult", 23)
-      startPlayCard("OlympusConference", 0, steel = 4)
+      playCard("EarthCatapult", 23)
+      playCard("OlympusConference", 0, steel = 4)
       tryMatchingTask("Science<OlympusConference>")
 
-      startPlayCard("DevelopmentCenter", 1, steel = 4)
+      playCard("DevelopmentCenter", 1, steel = 4)
       tryMatchingTask("ProjectCard FROM Science<OlympusConference>")
 
-      startPlayCard("GeothermalPower", 1)
+      playCard("GeothermalPower", 1)
 
       // studying to see why this is so slow
       tryMatchingTask("4 Pay<Class<S>> FROM S")
 
-      startPlayCard("MirandaResort", 10)
-      startPlayCard("Hackers", 1)
+      playCard("MirandaResort", 10)
+      playCard("Hackers", 1)
       tryMatchingTask("PROD[-2 M<P2>]")
-      startPlayCard("MicroMills", 1)
+      playCard("MicroMills", 1)
       startTurn("Pass")
     }
 
@@ -275,7 +299,7 @@ class RealGamesTest {
     eng.action("ActionPhase")
 
     p1.useCardAction(1, "DevelopmentCenter")
-    p1.startPlayCard("ImmigrantCity", 1, steel = 5)
+    p1.playCard("ImmigrantCity", 1, steel = 5)
     p1.tryMatchingTask("CityTile<Hellas_9_7>")
     p1.tryMatchingTask("OceanTile<Hellas_5_6>")
     assertThat(eng.count("PaymentMechanic")).isEqualTo(0)
