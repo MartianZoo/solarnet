@@ -24,12 +24,10 @@ import dev.martianzoo.tfm.engine.Game.EventLog.Checkpoint
 import dev.martianzoo.tfm.engine.Game.PlayerAgentImpl
 import dev.martianzoo.tfm.engine.Game.TaskQueue
 import dev.martianzoo.tfm.pets.PetTransformer
-import dev.martianzoo.tfm.pets.PetTransformer.Companion.chain
 import dev.martianzoo.tfm.pets.Transforming.replaceOwnerWith
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.pets.ast.Instruction
-import dev.martianzoo.tfm.pets.ast.Instruction.NoOp
 import dev.martianzoo.tfm.pets.ast.Metric
 import dev.martianzoo.tfm.pets.ast.PetNode
 import dev.martianzoo.tfm.pets.ast.Requirement
@@ -236,7 +234,7 @@ internal constructor(
         }
 
     internal fun <P : PetNode?> heyItsMe(node: P) = // TODO private?
-    if (node == null) node else insertOwner.transform(node)
+        if (node == null) node else insertOwner.transform(node)
 
     override fun getComponents(type: Expression): Multiset<Component> =
         game.components.getAll(reader.resolve(type) as MType, reader) // TODO think about
@@ -253,14 +251,12 @@ internal constructor(
       val task: Task = game.tasks[taskId]
       checkOwner(task) // TODO use myTasks() instead?
 
-      val preparer = Preparer(reader, game.components)
-      val prepared = preparer.toPreparedForm(task.instruction)
-      if (prepared == NoOp) {
+      val prepared = Instructor(this).prepare(task.instruction)
+      if (prepared == null) {
         game.writableTasks.removeTask(taskId, game.writableEvents)
         return false
       }
-      val replacement =
-          task.copy(instruction = prepared, next = true, whyPending = null) // why -why?
+      val replacement = task.copy(instruction = prepared, next = true, whyPending = null) // TODO
       game.writableTasks.replaceTask(replacement, game.writableEvents)
       return true
     }
@@ -296,13 +292,14 @@ internal constructor(
 
     override fun doTask(taskId: TaskId, narrowed: Instruction?): TaskResult {
       prepareTask(taskId)
-      val nrwd: Instruction? = narrowed?.let { session().prep(it) }
+      val nrwd: Instruction? = narrowed?.let { session().preprocess(it) }
       val task = game.tasks[taskId]
       checkOwner(task)
       nrwd?.ensureNarrows(task.instruction, game.reader)
       return game.doAtomic {
-        val prepared = Preparer(reader, game.components).toPreparedForm(nrwd ?: task.instruction)
-        InstructionExecutor(game, this, task.cause).execute(prepared)
+        val instructor = Instructor(this, task.cause)
+        val prepared = instructor.prepare(nrwd ?: task.instruction)
+        prepared?.let(instructor::execute)
         task.then?.let { addTasks(it, task.owner, task.cause) }
         removeTask(taskId)
       }
@@ -311,7 +308,7 @@ internal constructor(
     // Danger
 
     override fun addTask(instruction: Instruction, initialCause: Cause?): TaskId {
-      val events = addTasks(heyItsMe(session().prep(instruction)), player, initialCause)
+      val events = addTasks(heyItsMe(session().preprocess(instruction)), player, initialCause)
       return events.single().task.id
     }
 
@@ -364,8 +361,7 @@ internal constructor(
       }
     }
 
-    private val insertOwner: PetTransformer =
-        chain(game.transformers.deprodify(), replaceOwnerWith(player))
+    internal val insertOwner: PetTransformer = replaceOwnerWith(player)
 
     private fun removeAll(removing: Component, cause: Cause?) =
         removingDependents(cause) {

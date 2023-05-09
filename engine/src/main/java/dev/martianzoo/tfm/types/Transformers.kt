@@ -33,7 +33,22 @@ public class Transformers(private val table: MClassTable) {
 
   internal val requiredClasses: Set<ClassName> = setOf(PRODUCTION)
 
-  public fun deprodify(): PetTransformer {
+  public fun standardPreprocess() =
+      chain(useFullNames(), atomizer(), insertDefaults(), deprodify())
+
+  public fun useFullNames() =
+    object : PetTransformer() {
+      override fun <P : PetNode> transform(node: P): P {
+        return if (node is ClassName) {
+          @Suppress("UNCHECKED_CAST")
+          table.resolve(node.expression).className as P
+        } else {
+          transformChildren(node)
+        }
+      }
+    }
+
+public fun deprodify(): PetTransformer {
     if (STANDARD_RESOURCE !in table.allClassNamesAndIds ||
         PRODUCTION !in table.allClassNamesAndIds) {
       return noOp()

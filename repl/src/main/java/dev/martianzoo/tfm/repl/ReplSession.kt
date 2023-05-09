@@ -221,7 +221,7 @@ public class ReplSession(var setup: GameSetup, private val jline: JlineRepl? = n
     override fun withArgs(args: String): List<String> {
       val reqt: Requirement = parse(args)
       val result = session.has(reqt)
-      return listOf("$result: ${session.prep(reqt)}")
+      return listOf("$result: ${session.preprocess(reqt)}")
     }
   }
 
@@ -237,7 +237,7 @@ public class ReplSession(var setup: GameSetup, private val jline: JlineRepl? = n
     override fun withArgs(args: String): List<String> {
       val metric: Metric = parse(args)
       val count = session.count(metric)
-      return listOf("$count ${session.prep(metric)}")
+      return listOf("$count ${session.preprocess(metric)}")
     }
   }
 
@@ -252,7 +252,7 @@ public class ReplSession(var setup: GameSetup, private val jline: JlineRepl? = n
     override fun withArgs(args: String): List<String> {
       val expr: Expression = parse(args)
       val counts: Multiset<Expression> = session.list(expr)
-      return listOf("${counts.size} ${session.prep(expr)}") +
+      return listOf("${counts.size} ${session.preprocess(expr)}") +
           counts.entries.sortedByDescending { (_, ct) -> ct }.map { (e, ct) -> "  $ct $e" }
     }
   }

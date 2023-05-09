@@ -6,7 +6,6 @@ import dev.martianzoo.tfm.data.Player
 import dev.martianzoo.tfm.data.Task.TaskId
 import dev.martianzoo.tfm.data.TaskResult
 import dev.martianzoo.tfm.pets.Parsing.parse
-import dev.martianzoo.tfm.pets.PetTransformer
 import dev.martianzoo.tfm.pets.PetTransformer.Companion.chain
 import dev.martianzoo.tfm.pets.Transforming.replaceOwnerWith
 import dev.martianzoo.tfm.pets.ast.ClassName
@@ -16,7 +15,6 @@ import dev.martianzoo.tfm.pets.ast.Instruction.Change
 import dev.martianzoo.tfm.pets.ast.Instruction.Companion.split
 import dev.martianzoo.tfm.pets.ast.Metric
 import dev.martianzoo.tfm.pets.ast.PetElement
-import dev.martianzoo.tfm.pets.ast.PetNode
 import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.pets.ast.ScaledExpression.Scalar.ActualScalar
 import dev.martianzoo.tfm.types.MType
@@ -40,13 +38,13 @@ internal constructor(
 
   // QUERIES
 
-  fun count(metric: Metric): Int = agent.reader.count(prep(metric))
+  fun count(metric: Metric): Int = agent.reader.count(preprocess(metric))
   fun count(metric: String): Int = count(parse(metric))
   fun countComponent(component: Component) = agent.reader.countComponent(component.mtype)
 
   fun list(expression: Expression): Multiset<Expression> { // TODO why not (M)Type?
-    val typeToList: MType = agent.reader.resolve(prep(expression)) as MType
-    val allComponents: Multiset<Component> = agent.getComponents(prep(expression))
+    val typeToList: MType = agent.reader.resolve(preprocess(expression)) as MType
+    val allComponents: Multiset<Component> = agent.getComponents(preprocess(expression))
 
     val result = HashMultiset<Expression>()
     typeToList.root.directSubclasses.forEach { sub ->
@@ -59,7 +57,7 @@ internal constructor(
     return result
   }
 
-  fun has(requirement: Requirement): Boolean = agent.reader.evaluate(prep(requirement))
+  fun has(requirement: Requirement): Boolean = agent.reader.evaluate(preprocess(requirement))
   fun has(requirement: String) = has(parse(requirement))
 
   // EXECUTION
@@ -134,31 +132,11 @@ internal constructor(
 
   // OTHER
 
-  fun <P : PetElement> prep(node: P): P {
-    val xers = game.transformers
-    return chain(
-            useFullNames(),
-            xers.atomizer(),
-            xers.insertDefaults(),
-            xers.deprodify(),
-            replaceOwnerWith(player),
-        )
-        .transform(node)
-  }
+  // TODO reconcile this with heyItsMe & stuff
+  fun <P : PetElement> preprocess(node: P) =
+      chain(game.transformers.standardPreprocess(), replaceOwnerWith(player)).transform(node)
 
-  inline fun <reified P : PetElement> parseInContext(text: String): P = prep(parse(text))
-
-  public fun useFullNames() =
-      object : PetTransformer() {
-        override fun <P : PetNode> transform(node: P): P {
-          return if (node is ClassName) {
-            @Suppress("UNCHECKED_CAST")
-            agent.reader.resolve(node.expression).className as P
-          } else {
-            transformChildren(node)
-          }
-        }
-      }
+  inline fun <reified P : PetElement> parseInContext(text: String): P = preprocess(parse(text))
 
   fun execute(instruction: String, vararg tasks: String) {
     initiate(instruction)
@@ -249,5 +227,5 @@ internal constructor(
     }
   }
 
-  private fun prepAndSplit(instruction: Instruction) = split(prep(instruction))
+  private fun prepAndSplit(instruction: Instruction) = split(preprocess(instruction))
 }
