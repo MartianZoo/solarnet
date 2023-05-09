@@ -10,37 +10,36 @@ import dev.martianzoo.tfm.pets.ast.ClassName
 object Humanizing {
 
   fun PlayerSession.startTurn(vararg tasks: String) {
-    initiate("NewTurn<$player>")
-
-    tasks.forEach {
-      tryMatchingTask(it)
-      tryToDrain() // TODO y not automatic
+    game.doAtomic {
+      initiate("NewTurn")
+      tasks.forEach(::doFirstTask)
     }
-  }
-
-  fun PlayerSession.fullTurn(vararg tasks: String) {
-    startTurn(*tasks)
-    mustDrain()
   }
 
   fun PlayerSession.playCard(
       cardName: String,
       megacredits: Int = 0,
       steel: Int = 0,
-      titanium: Int = 0
+      titanium: Int = 0,
+      vararg tasks: String
   ) {
     startTurn("UseAction1<PlayCardFromHand>", "PlayCard<Class<$cardName>>")
-    if (megacredits > 0) tryMatchingTask("$megacredits Pay<Class<M>> FROM M")
-    if (steel > 0) tryMatchingTask("$steel Pay<Class<S>> FROM S")
-    if (titanium > 0) tryMatchingTask("$titanium Pay<Class<T>> FROM T")
+
+    // TODO: this should not be order-dependent
+    if (megacredits > 0) (tryMatchingTask("$megacredits Pay<Class<M>> FROM M"))
+    if (steel > 0) (tryMatchingTask("$steel Pay<Class<S>> FROM S"))
+    if (titanium > 0) (tryMatchingTask("$titanium Pay<Class<T>> FROM T"))
+
+    // Try to take care of other Accept's we didn't use
     try {
       while (true) doFirstTask("Ok")
     } catch (ignore: Exception) {}
-    tryToDrain()
+
+    tasks.forEach { tryMatchingTask(it) }
   }
 
   fun PlayerSession.useCardAction(which: Int, cardName: String, vararg tasks: String) =
-      fullTurn(
+      startTurn(
           "UseAction1<UseActionFromCard>",
           "UseAction$which<$cardName>",
           "ActionUsedMarker<$cardName>",
@@ -48,7 +47,7 @@ object Humanizing {
       )
 
   fun PlayerSession.stdProject(spName: String, vararg tasks: String) =
-      fullTurn("UseAction1<UseStandardProject>", "UseAction1<$spName>", *tasks)
+      startTurn("UseAction1<UseStandardProject>", "UseAction1<$spName>", *tasks)
 
   fun PlayerSession.counts(s: String) = s.split(",").map(::count)
 

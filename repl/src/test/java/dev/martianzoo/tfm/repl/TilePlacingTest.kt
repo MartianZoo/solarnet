@@ -83,7 +83,6 @@ class TilePlacingTest {
       doFirstTask("GreeneryTile<M96>") // SW 1
       p1.game.rollBack(cp)
       doFirstTask("GreeneryTile<M97>") // SE 1
-      p1.mustDrain()
     }
   }
 }

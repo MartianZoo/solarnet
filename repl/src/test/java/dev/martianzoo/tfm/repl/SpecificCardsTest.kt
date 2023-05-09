@@ -16,7 +16,6 @@ import dev.martianzoo.tfm.engine.Humanizing.playCard
 import dev.martianzoo.tfm.engine.Humanizing.production
 import dev.martianzoo.tfm.engine.Humanizing.startTurn
 import dev.martianzoo.tfm.engine.Humanizing.useCardAction
-import dev.martianzoo.tfm.engine.PlayerSession
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.repl.TestHelpers.assertCounts
 import dev.martianzoo.tfm.repl.TestHelpers.taskReasons
@@ -219,11 +218,6 @@ class SpecificCardsTest {
     val eng = game.asPlayer(ENGINE).session()
     val p1 = eng.asPlayer(PLAYER1)
 
-    fun PlayerSession.assertCounts(vararg pairs: Pair<Int, String>) =
-        assertThat(pairs.map { count(it.second) })
-            .containsExactlyElementsIn(pairs.map { it.first })
-            .inOrder()
-
     eng.action("ActionPhase")
     p1.action("5 ProjectCard, 100, Steel")
 
@@ -256,11 +250,13 @@ class SpecificCardsTest {
     p1.useCardAction(1, "AiCentral")
     p1.assertCounts(3 to "ProjectCard")
     assertThat(p1.agent.tasks()).isEmpty()
+    p1.assertCounts(1 to "ActionUsedMarker<AiCentral>")
 
     // Can't use it again
-    cp = game.checkpoint()
-    assertThrows<IllegalStateException> { p1.useCardAction(1, "AiCentral") } // TODO
-    game.rollBack(cp)
+    assertThrows<LimitsException> { p1.useCardAction(1, "AiCentral") }
+    p1.assertCounts(3 to "ProjectCard")
+    p1.assertCounts(1 to "ActionUsedMarker<AiCentral>")
+    assertThat(p1.agent.tasks()).isEmpty()
 
     // Next gen we can again
     eng.action("Generation")
@@ -307,7 +303,6 @@ class SpecificCardsTest {
 
     p1.action("AirScrappingExpedition") {
       tryMatchingTask("3 Floater<ForcedPrecipitation>")
-      p1.mustDrain()
       assertCounts(5 to "Floater")
     }
   }
@@ -359,8 +354,6 @@ class SpecificCardsTest {
        4001: task L Pay<Class<S>> FROM S
     */
     p1.playCard("SpaceElevator", 0, steel = 1, titanium = 1)
-    p1.mustDrain()
-
     assertThat(p1.has("SpaceElevator")).isTrue()
     assertThat(p1.count("M")).isEqualTo(23)
   }
@@ -391,7 +384,6 @@ class SpecificCardsTest {
       assertThrows<Exception>("4") { doFirstTask("@copyPrelude(DoubleDown)") }
 
       doFirstTask("@copyPrelude(BiosphereSupport)")
-      mustDrain()
       assertThat(production().values).containsExactly(-2, 0, 0, 4, 0, 0).inOrder()
     }
   }

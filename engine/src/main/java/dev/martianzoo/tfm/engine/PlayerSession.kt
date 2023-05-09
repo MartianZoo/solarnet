@@ -23,7 +23,6 @@ import dev.martianzoo.tfm.types.MType
 import dev.martianzoo.util.HashMultiset
 import dev.martianzoo.util.Hierarchical.Companion.lub
 import dev.martianzoo.util.Multiset
-import dev.martianzoo.util.toStrings
 
 /** A player session adds autoexec, string overloads, prep, blah blah. */
 public class PlayerSession
@@ -164,7 +163,6 @@ internal constructor(
   fun execute(instruction: String, vararg tasks: String) {
     initiate(instruction)
     tasks.forEach { tryMatchingTask(it) }
-    mustDrain()
   }
 
   fun initiate(instruction: String) = initiate(parse(instruction))
@@ -178,12 +176,6 @@ internal constructor(
       }
       tryToDrain()
     }
-  }
-
-  fun mustDrain(): TaskResult {
-    val result = tryToDrain()
-    if (agent.tasks().any()) error(agent.tasks().values.toStrings().joinToString("\n"))
-    return result
   }
 
   fun tryToDrain(): TaskResult {
@@ -244,11 +236,18 @@ internal constructor(
     val id =
         agent.tasks().entries.firstOrNull { it.value.owner == player }?.key
             ?: throw NotNowException("no tasks")
-    return agent.doTask(id, parseInContext(revised))
+    return game.doAtomic {
+      agent.doTask(id, parseInContext(revised))
+      tryToDrain()
+    }
   }
 
-  fun tryTask(id: TaskId, narrowed: String? = null) =
-      agent.tryTask(id, narrowed?.let { parseInContext(it) })
+  fun tryTask(id: TaskId, narrowed: String? = null): TaskResult {
+    return game.doAtomic {
+      agent.tryTask(id, narrowed?.let(::parseInContext))
+      tryToDrain()
+    }
+  }
 
   private fun prepAndSplit(instruction: Instruction) = split(prep(instruction))
 }
