@@ -34,7 +34,7 @@ public abstract class PlayerAgent {
    * Prepares a task for execution. The task can only execute against the game state as it existed
    * when this method was called (i.e. it must be the next task executed, and any rollback would
    * erase the effects of calling this).
-   * * Ensures no task is already committed (including this one)
+   * * Ensures no task is already marked as prepared (including this one)
    * * Marks this task as the next one that must be executed
    * * Auto-narrows the task based on current game state
    * * If the task is impossible to perform in the *current* game state, throws NotNowException

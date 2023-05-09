@@ -245,7 +245,7 @@ internal constructor(
       val already = game.tasks.preparedTask()
       if (already == taskId) return true
       if (already != null) {
-        throw NotNowException("earlier committed task hasn't executed yet: $already")
+        throw NotNowException("already-prepared task hasn't executed yet: $already")
       }
 
       val task: Task = game.tasks[taskId]

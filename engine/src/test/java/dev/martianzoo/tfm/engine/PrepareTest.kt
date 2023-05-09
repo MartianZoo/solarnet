@@ -34,8 +34,8 @@ private class PrepareTest {
         .transform(instr)
   }
 
-  fun preprocessAndPrepare(uncommitted: String) =
-      instructor.prepare(prep(parse<Instruction>(uncommitted)))
+  fun preprocessAndPrepare(unprepared: String) =
+      instructor.prepare(prep(parse<Instruction>(unprepared)))
 
   fun checkPrepare(unprepared: String, expected: String?, abstract: Boolean = false) {
     val prepared = preprocessAndPrepare(unprepared)
@@ -72,7 +72,8 @@ private class PrepareTest {
     checkPrepare("Plant / 3 TerraformRating MAX 2", "2 Plant<Player1>!")
     checkPrepare("Plant / Steel", null)
     checkPrepare("Plant / 21 TerraformRating", null)
-    // checkCommit("Plant / 6 TR / 7 TR", "6 Plant<Player1>!") // TODO should work
+    // checkPrepare("Plant / 6 TR / 7 TR", "6 Plant<Player1>!") // TODO these should work
+    // checkPrepare("(10 TR: Plant) / TerraformRating", "20 Plant<Player1>!")
   }
 
   @Test
@@ -86,7 +87,6 @@ private class PrepareTest {
         "Titanium<Player1>! OR TerraformRating<Player1>!",
         true,
     )
-    // checkCommit("(10 TR: Plant) / TerraformRating", "20 Plant<Player1>!") // TODO as well
     assertThrows<RequirementException>("1") { preprocessAndPrepare("30 TR: Plant") }
   }
 

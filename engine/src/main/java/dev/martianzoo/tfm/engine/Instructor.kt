@@ -14,9 +14,11 @@ import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.pets.ast.Instruction
 import dev.martianzoo.tfm.pets.ast.Instruction.Change
 import dev.martianzoo.tfm.pets.ast.Instruction.Custom
+import dev.martianzoo.tfm.pets.ast.Instruction.Gated
 import dev.martianzoo.tfm.pets.ast.Instruction.Intensity.MANDATORY
 import dev.martianzoo.tfm.pets.ast.Instruction.NoOp
 import dev.martianzoo.tfm.pets.ast.Instruction.Or
+import dev.martianzoo.tfm.pets.ast.Instruction.Per
 import dev.martianzoo.tfm.pets.ast.Instruction.Then
 import dev.martianzoo.tfm.pets.ast.ScaledExpression.Scalar.ActualScalar
 import dev.martianzoo.tfm.pets.ast.ScaledExpression.Scalar.XScalar
@@ -30,22 +32,26 @@ internal data class Instructor(
 ) {
   private val game by agent::game
 
+  fun prepare(unprepared: Instruction): Instruction? {
+    val prepped = doPrepare(unprepared)
+    return if (prepped == NoOp) null else prepped
+  }
+
   /**
    * Returns a narrowed form of [unprepared] based on the current game state (but changes no game
    * state itself). The returned instruction *must* be executed against this very same game state
-   * (i.e., must be the next one executed. The returned instruction might still be abstract. If
-   * the returned instruction would be [NoOp], returns `null` instead, to signal that the
-   * instruction should be discarded.
+   * (i.e., must be the next one executed. The returned instruction might still be abstract. If the
+   * returned instruction would be [NoOp], returns `null` instead, to signal that the instruction
+   * should be discarded.
    */
-  fun prepare(unprepared: Instruction): Instruction? {
-    val prepared = when (unprepared) {
+  private fun doPrepare(unprepared: Instruction): Instruction {
+    return when (unprepared) {
       is NoOp -> NoOp
       is Change -> prepareChangeInstruction(unprepared)
-      is Instruction.Per ->
-          prepare(unprepared.instruction * agent.reader.count(unprepared.metric))
-      is Instruction.Gated -> {
+      is Per -> doPrepare(unprepared.instruction * agent.reader.count(unprepared.metric))
+      is Gated -> {
         if (agent.reader.evaluate(unprepared.gate)) {
-          prepare(unprepared.instruction)
+          doPrepare(unprepared.instruction)
         } else if (unprepared.mandatory) {
           throw UserException.requirementNotMet(unprepared.gate)
         } else {
@@ -58,13 +64,16 @@ internal data class Instructor(
         unprepared // TODO
       }
       is Or -> {
-        // To commit it we try to commit each arm and then form an OR out of what survives that
+        /*
+         * Try to prepare each option, then form an OR out of what survives. Throwing is very
+         * expensive, but does it happen enough to matter? TODO
+         */
         val options =
             unprepared.instructions.mapNotNull {
               try {
-                prepare(it) ?: NoOp
+                doPrepare(it)
               } catch (e: Exception) {
-                null
+                null // just prune it
               }
             }
         if (options.none()) {
@@ -72,11 +81,10 @@ internal data class Instructor(
         }
         Or.create(options)
       }
-      is Then -> Then.create(unprepared.instructions.mapNotNull(::prepare))
+      is Then -> Then.create(unprepared.instructions.map(::doPrepare).filter { it != NoOp })
       is Instruction.Multi -> error("should have been split by now: $unprepared")
       is Instruction.Transform -> error("should have been transformed already: $unprepared")
     }
-    return if (prepared == NoOp) null else prepared
   }
 
   private fun prepareChangeInstruction(instruction: Change): Instruction {
@@ -189,9 +197,7 @@ internal data class Instructor(
     val (now, later) = getFiringEffects(triggerEvent).partition { it.automatic }
     for (fx in now) {
       val instructor = copy(cause = fx.cause)
-      Instruction.split(fx.instruction).forEach {
-        prepare(it)?.let(instructor::execute)
-      }
+      Instruction.split(fx.instruction).forEach { doPrepare(it)?.let(instructor::execute) }
     }
     game.addTriggeredTasks(later) // TODO why can't we do this before the for loop??
   }
