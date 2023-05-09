@@ -14,6 +14,7 @@ import dev.martianzoo.tfm.engine.Humanizing.startTurn
 import dev.martianzoo.tfm.engine.Humanizing.useCardAction
 import dev.martianzoo.tfm.repl.TestHelpers.assertCounts
 import dev.martianzoo.tfm.repl.TestHelpers.taskReasons
+import dev.martianzoo.util.toStrings
 import org.junit.jupiter.api.Test
 
 class RealGamesTest {
@@ -344,7 +345,7 @@ class RealGamesTest {
     // To check VPs we have to fake the game ending
 
     eng.action("End")
-    assertThat(eng.writer.tasks()).isEmpty()
+    assertThat(eng.game.tasks).isEmpty()
 
     // Not sure where this discrepancy comes from... expected P2 to be shorted 1 pt because event
 

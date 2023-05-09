@@ -15,22 +15,21 @@ import dev.martianzoo.tfm.pets.ast.Instruction.Companion.split
 import dev.martianzoo.tfm.pets.ast.Instruction.NoOp
 import dev.martianzoo.tfm.pets.ast.Instruction.Then
 import dev.martianzoo.tfm.pets.ast.ScaledExpression.Scalar.XScalar
-import dev.martianzoo.util.toStrings
+import dev.martianzoo.util.toSetStrict
 
-internal class WritableTaskQueue(private val taskMap: MutableMap<TaskId, Task> = mutableMapOf()) :
-    TaskQueue {
-  override fun toString() = taskMap.values.joinToString("\n")
+internal class WritableTaskQueue(private val tasks: MutableSet<Task> = mutableSetOf()) :
+    TaskQueue, Set<Task> by tasks {
+  override operator fun contains(id: TaskId) = tasks.any { it.id == id }
 
-  override operator fun contains(id: TaskId) = id in taskMap
+  override operator fun get(id: TaskId) =
+      tasks.firstOrNull { it.id == id } ?: error("nonexistent task: $id")
 
-  override operator fun get(id: TaskId): Task {
-    require(id in this) { "nonexistent task: $id" }
-    return taskMap[id]!!
+  override fun ids() = tasks.map { it.id }.toSetStrict()
+
+  internal fun addTask(task: Task) {
+    require(tasks.none { it.id == task.id })
+    tasks += task
   }
-
-  override val size by taskMap::size
-  override fun ids() = taskMap.keys.sorted().toSet()
-  override fun isEmpty() = taskMap.isEmpty()
 
   internal fun addTasksFrom(effect: FiredEffect, eventLog: WritableEventLog) =
       addTasksFrom(effect.instruction, effect.player, effect.cause, eventLog)
@@ -70,7 +69,7 @@ internal class WritableTaskQueue(private val taskMap: MutableMap<TaskId, Task> =
                 Task(id = nextId, owner = owner, instruction = instr, cause = cause)
               }
 
-          taskMap[nextId] = task
+          addTask(task)
           events += eventLog.taskAdded(task)
           nextId = nextId.next()
         }
@@ -79,34 +78,31 @@ internal class WritableTaskQueue(private val taskMap: MutableMap<TaskId, Task> =
 
   internal fun removeTask(id: TaskId, eventLog: WritableEventLog): TaskRemovedEvent {
     require(id in this) { id }
-    val removed = taskMap.remove(id)!!
-    return eventLog.taskRemoved(removed)
+    val toRemove = this[id]
+    tasks.remove(toRemove)
+    return eventLog.taskRemoved(toRemove)
   }
 
   internal fun replaceTask(newTask: Task, eventLog: WritableEventLog): TaskReplacedEvent {
     val id = newTask.id
     val oldTask = this[id]
-    taskMap[id] = newTask
+    tasks.remove(oldTask)
+    addTask(newTask)
     return eventLog.taskReplaced(oldTask, newTask)
   }
 
-  override fun preparedTask(): TaskId? {
-    val keys = taskMap.filterValues { it.next }.keys
-    if (keys.size > 1) throw AssertionError()
-    return keys.singleOrNull()
-  }
+  override fun preparedTask(): TaskId? = tasks.firstOrNull { it.next }?.id
 
   internal fun reverse(entry: TaskEvent) {
     when (entry) {
-      is TaskAddedEvent -> taskMap.remove(entry.task.id)
-      is TaskRemovedEvent -> taskMap[entry.task.id] = entry.task
-      is TaskReplacedEvent -> require(taskMap.put(entry.task.id, entry.oldTask) == entry.task)
+      is TaskAddedEvent -> tasks -= entry.task
+      is TaskRemovedEvent -> addTask(entry.task)
+      is TaskReplacedEvent -> {
+        tasks.removeIf { it.id == entry.task.id }
+        addTask(entry.oldTask)
+      }
     }
   }
 
-  override fun nextAvailableId() = if (taskMap.none()) TaskId("A") else taskMap.keys.max().next()
-
-  override fun toStrings(): List<String> = taskMap.values.toStrings()
-
-  override fun asMap() = taskMap.keys.sorted().associateWith { taskMap[it]!! }
+  override fun nextAvailableId() = if (isEmpty()) TaskId("A") else tasks.maxOf { it.id }.next()
 }

@@ -74,7 +74,7 @@ internal constructor(
       action(parseInContext(firstInstruction), tasker)
 
   fun <T : Any> action(firstInstruction: Instruction, tasker: Tasker.() -> T?): T? {
-    require(writer.tasks().none()) { writer.tasks() }
+    require(game.tasks.isEmpty()) { game.tasks }
     val cp = game.checkpoint()
     initiate(firstInstruction) // try task then try to drain
 
@@ -90,8 +90,8 @@ internal constructor(
     if (result == wrapped.rollItBack()) {
       game.rollBack(cp)
     } else {
-      require(writer.tasks().none()) {
-        "Should be no tasks left, but:\n" + writer.tasks().values.joinToString("\n")
+      require(game.tasks.isEmpty()) {
+        "Should be no tasks left, but:\n" + game.tasks.joinToString("\n")
       }
     }
     return result
@@ -99,7 +99,7 @@ internal constructor(
 
   class Tasker(val session: PlayerSession) {
 
-    fun tasks() = session.writer.tasks().values
+    fun tasks() = session.game.tasks
 
     fun doFirstTask(instr: String) {
       session.doFirstTask(instr)
@@ -165,33 +165,15 @@ internal constructor(
             allTasks
                 .filter {
                   writer.tryTask(it)
-                  it !in writer.tasks()
+                  it !in game.tasks.ids()
                 }
                 .any() // filter-any, not any, because we want a full trip
       }
     }
   }
 
-  fun executeMatchingTask(revised: String): TaskResult {
-    val ids = writer.tasks().filterValues { it.owner == player }.keys
-    if (ids.none()) throw NotNowException("no tasks")
-    var ex: Exception? = null
-    for (id in ids) {
-      try {
-        return tryTask(id, revised)
-      } catch (e: Exception) {
-        if (ex == null) {
-          ex = e
-        } else {
-          ex.addSuppressed(e)
-        }
-      }
-    }
-    throw ex!! // it must have been set for us to get here
-  }
-
   fun tryMatchingTask(revised: String): TaskResult {
-    val ids = writer.tasks().keys
+    val ids = game.tasks.ids()
     if (ids.none()) throw NotNowException("no tasks")
     var ex: Exception? = null
     for (id in ids) {
@@ -210,9 +192,7 @@ internal constructor(
 
   /** Like try but throws if it doesn't succeed */
   fun doFirstTask(revised: String): TaskResult {
-    val id =
-        writer.tasks().entries.firstOrNull { it.value.owner == player }?.key
-            ?: throw NotNowException("no tasks")
+    val id = game.tasks.firstOrNull { it.owner == player }?.id ?: throw NotNowException("no tasks")
     return game.doAtomic {
       writer.doTask(id, parseInContext(revised))
       tryToDrain()

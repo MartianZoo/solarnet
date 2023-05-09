@@ -24,7 +24,7 @@ class TilePlacingTest {
     p2.action("100")
 
     p2.stdProject("CitySP", "CityTile<M46>")
-    assertThat(p2.writer.tasks()).isEmpty()
+    assertThat(p2.game.tasks).isEmpty()
     p2.stdProject("CitySP", "CityTile<M44>")
     p2.startTurn("UseAction1<UseStandardProject>", "UseAction1<CitySP>")
     assertThrows<NarrowingException> { p2.doFirstTask("CityTile<M34>") }
@@ -38,7 +38,7 @@ class TilePlacingTest {
 
     p2.action("CityTile<M33>")
     assertThrows<LimitsException> { p2.action("OceanTile<M33>!") }
-    assertThat(p2.writer.tasks()).isEmpty()
+    assertThat(p2.game.tasks).isEmpty()
   }
 
   @Test

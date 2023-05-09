@@ -231,7 +231,7 @@ class SpecificCardsTest {
 
     p1.playCard("DesignedMicroorganisms", 16)
     p1.tryToDrain()
-    assertThat(p1.writer.tasks()).isEmpty()
+    assertThat(p1.game.tasks).isEmpty()
 
     // Now I do have the 3 science tags, but not the energy production
     cp = game.checkpoint()
@@ -249,14 +249,14 @@ class SpecificCardsTest {
     p1.assertCounts(1 to "ProjectCard")
     p1.useCardAction(1, "AiCentral")
     p1.assertCounts(3 to "ProjectCard")
-    assertThat(p1.writer.tasks()).isEmpty()
+    assertThat(p1.game.tasks).isEmpty()
     p1.assertCounts(1 to "ActionUsedMarker<AiCentral>")
 
     // Can't use it again
     assertThrows<LimitsException> { p1.useCardAction(1, "AiCentral") }
     p1.assertCounts(3 to "ProjectCard")
     p1.assertCounts(1 to "ActionUsedMarker<AiCentral>")
-    assertThat(p1.writer.tasks()).isEmpty()
+    assertThat(p1.game.tasks).isEmpty()
 
     // Next gen we can again
     eng.action("Generation")

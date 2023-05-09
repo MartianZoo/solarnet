@@ -21,7 +21,7 @@ private class CanonCustomInstructionsTest {
     checkProduction(p1, 0, 1, 1, 1, 1, 1)
 
     p1.action("UseAction1<RobinsonIndustries>")
-    assertThat(p1.writer.tasks()).isEmpty()
+    assertThat(p1.game.tasks).isEmpty()
     checkProduction(p1, 1, 1, 1, 1, 1, 1)
   }
 

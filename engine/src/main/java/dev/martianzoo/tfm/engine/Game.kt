@@ -124,17 +124,13 @@ internal constructor(
    *
    * This interface speaks entirely in terms of [TaskId]s.
    */
-  public interface TaskQueue {
-    val size: Int
+  public interface TaskQueue : Set<Task> {
     fun ids(): Set<TaskId>
 
     operator fun contains(id: TaskId): Boolean
     operator fun get(id: TaskId): Task
 
-    fun isEmpty(): Boolean
     fun nextAvailableId(): TaskId
-    fun toStrings(): List<String>
-    fun asMap(): Map<TaskId, Task>
 
     fun preparedTask(): TaskId?
   }
@@ -217,8 +213,6 @@ internal constructor(
    */
   internal class GameWriterImpl(val game: Game, private val player: Player) : GameWriter() {
     override fun session() = PlayerSession(game, this, player)
-
-    override fun tasks(): Map<TaskId, Task> = game.tasks.asMap()
 
     override fun prepareTask(taskId: TaskId): Boolean {
       val already = game.tasks.preparedTask()

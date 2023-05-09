@@ -12,8 +12,6 @@ import dev.martianzoo.tfm.pets.ast.Instruction
 public abstract class GameWriter {
   abstract fun session(): PlayerSession // TODO delete again?
 
-  abstract fun tasks(): Map<TaskId, Task> // TODO ActiveTask; myTasks()
-
   /**
    * Prepares a task for execution. The task can only execute against the game state as it existed
    * when this method was called (i.e. it must be the next task executed, and any rollback would
