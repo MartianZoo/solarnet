@@ -113,8 +113,6 @@ internal class WritableComponentGraph(
     gainWhatWasRemoved?.let { multiset.add(it, count) }
   }
 
-  fun clone() = WritableComponentGraph(multiset.clone())
-
   fun checkDependents(count: Int, removing: Component) {
     if (countComponent(removing) == count) {
       val dependents = multiset.filter { removing in it.dependencyComponents }

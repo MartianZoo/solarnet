@@ -96,6 +96,4 @@ public class HashMultiset<E>(private val map: MutableMap<E, Int> = mutableMapOf(
           } else {
             elements.toSet()
           })
-
-  override fun clone(): HashMultiset<E> = HashMultiset(map.toMutableMap())
 }

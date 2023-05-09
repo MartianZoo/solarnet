@@ -80,6 +80,4 @@ internal class WritableEventLog(private val events: MutableList<GameEvent> = mut
     }
     subList.clear()
   }
-
-  fun clone() = WritableEventLog(events.toMutableList()).also { it.start = start }
 }

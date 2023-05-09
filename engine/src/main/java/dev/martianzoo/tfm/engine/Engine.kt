@@ -15,7 +15,6 @@ import dev.martianzoo.tfm.types.MClassTable
 /** Has functions for setting up new games and stuff. */
 public object Engine {
   private val classTableCache = mutableMapOf<GameSetup, MClassTable>()
-  private val gameTemplateCache = mutableMapOf<GameSetup, Game>()
 
   public fun loadClasses(setup: GameSetup): MClassTable {
     if (setup in classTableCache) return classTableCache[setup]!!
@@ -35,7 +34,6 @@ public object Engine {
   }
 
   public fun newGame(setup: GameSetup, table: MClassTable): Game {
-    if (setup in gameTemplateCache) return gameTemplateCache[setup]!!.clone()
     val game = Game(table)
     val agent = game.asPlayer(ENGINE)
 
@@ -46,8 +44,6 @@ public object Engine {
     singletonTypes(table).forEach { agent.sneakyChange(gaining = it, cause = becauseISaidSo) }
     agent.session().action("SetupPhase") // hm no fake cause...
     game.setupFinished()
-
-    gameTemplateCache[setup] = game.clone()
     return game
   }
 

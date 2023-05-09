@@ -109,6 +109,4 @@ internal class WritableTaskQueue(private val taskMap: MutableMap<TaskId, Task> =
   override fun toStrings(): List<String> = taskMap.values.toStrings()
 
   override fun asMap() = taskMap.keys.sorted().associateWith { taskMap[it]!! }
-
-  fun clone() = WritableTaskQueue(taskMap.toMutableMap())
 }

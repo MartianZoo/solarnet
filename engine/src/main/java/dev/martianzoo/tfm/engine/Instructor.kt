@@ -126,8 +126,8 @@ internal data class Instructor(
   }
 
   private fun autoNarrowTypes(gaining: Expression?, removing: Expression?): Pair<MType?, MType?> {
-    var g: MType? = gaining?.let(agent.reader::resolve) as? MType
-    var r: MType? = removing?.let(agent.reader::resolve) as? MType
+    var g: MType? = gaining?.let(game::resolve)
+    var r: MType? = removing?.let(game::resolve)
 
     if (g?.abstract == true) {
       // Infer a type if there IS only one concrete subtype
@@ -176,7 +176,7 @@ internal data class Instructor(
     if (oops.any()) throw DependencyException(oops) // or it could be abstract
 
     val custom = agent.reader.authority.customInstruction(instr.functionName)
-    val translated: Instruction = custom.translate(agent.reader, arguments) * instr.multiplier
+    val translated: Instruction = custom.translate(game.reader, arguments) * instr.multiplier
 
     // I guess custom instructions can't return things using `This`
     // and Owner means the context player... (TODO think)

@@ -28,9 +28,6 @@ import dev.martianzoo.tfm.pets.Transforming.replaceOwnerWith
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.pets.ast.Instruction
-import dev.martianzoo.tfm.pets.ast.Metric
-import dev.martianzoo.tfm.pets.ast.PetNode
-import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.types.MClass
 import dev.martianzoo.tfm.types.MClassTable
 import dev.martianzoo.tfm.types.MType
@@ -211,30 +208,21 @@ internal constructor(
     return false
   }
 
-  public fun clone() =
-      Game(table, writableEvents.clone(), writableComponents.clone(), writableTasks.clone())
-
   internal fun addTriggeredTasks(fired: List<FiredEffect>) =
       fired.forEach { writableTasks.addTasksFrom(it, writableEvents) }
 
+  /*
+   * Implementation of PlayerAgent - would be nice to have in a separate file but we'd have to
+   * make some things in Game non-private.
+   */
   internal class PlayerAgentImpl(val game: Game, override val player: Player) : PlayerAgent() {
+
+    override val reader by game::reader
 
     override fun asPlayer(other: Player) = game.asPlayer(other)
 
     override fun session() = PlayerSession(game, this)
 
-    override val reader =
-        object : GameReader by game.reader {
-          override fun resolve(expression: Expression): MType = game.resolve(heyItsMe(expression))
-
-          override fun evaluate(requirement: Requirement) =
-              game.reader.evaluate(heyItsMe(requirement)) // TODO expInfo doesn't want this
-
-          override fun count(metric: Metric) = game.reader.count(heyItsMe(metric))
-        }
-
-    internal fun <P : PetNode?> heyItsMe(node: P) = // TODO private?
-        if (node == null) node else insertOwner.transform(node)
 
     override fun getComponents(type: Expression): Multiset<Component> =
         game.components.getAll(reader.resolve(type) as MType, reader) // TODO think about
@@ -308,7 +296,7 @@ internal constructor(
     // Danger
 
     override fun addTask(instruction: Instruction, initialCause: Cause?): TaskId {
-      val events = addTasks(heyItsMe(session().preprocess(instruction)), player, initialCause)
+      val events = addTasks(instruction, player, initialCause)
       return events.single().task.id
     }
 
