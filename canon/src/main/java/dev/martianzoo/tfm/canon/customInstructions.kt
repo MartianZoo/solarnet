@@ -3,13 +3,13 @@ package dev.martianzoo.tfm.canon
 import dev.martianzoo.tfm.api.ApiUtils.lookUpProductionLevels
 import dev.martianzoo.tfm.api.ApiUtils.mapDefinition
 import dev.martianzoo.tfm.api.CustomInstruction
+import dev.martianzoo.tfm.api.Exceptions
+import dev.martianzoo.tfm.api.Exceptions.LimitsException
+import dev.martianzoo.tfm.api.Exceptions.NarrowingException
 import dev.martianzoo.tfm.api.GameReader
 import dev.martianzoo.tfm.api.SpecialClassNames.CLASS
 import dev.martianzoo.tfm.api.SpecialClassNames.PROD
 import dev.martianzoo.tfm.api.Type
-import dev.martianzoo.tfm.api.UserException
-import dev.martianzoo.tfm.api.UserException.LimitsException
-import dev.martianzoo.tfm.api.UserException.NarrowingException
 import dev.martianzoo.tfm.data.CardDefinition
 import dev.martianzoo.tfm.data.CardDefinition.Deck.PRELUDE
 import dev.martianzoo.tfm.data.MarsMapDefinition.AreaDefinition
@@ -93,7 +93,7 @@ private object BeginPlayCard : CustomInstruction("beginPlayCard") {
     val card: CardDefinition = game.authority.card(cardName)
 
     val reqt = card.requirement
-    if (reqt?.let(game::evaluate) == false) throw UserException.requirementNotMet(reqt)
+    if (reqt?.let(game::evaluate) == false) throw Exceptions.requirementNotMet(reqt)
 
     val playTagSignals =
         card.tags.entries.map { (tagName: ClassName, ct: Int) ->

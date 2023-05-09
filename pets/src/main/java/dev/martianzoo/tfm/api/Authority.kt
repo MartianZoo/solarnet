@@ -142,7 +142,7 @@ public abstract class Authority {
   /** Returns the custom instruction implementation having the name [functionName]. */
   public fun customInstruction(functionName: String): CustomInstruction {
     return customInstructions.firstOrNull { it.functionName == functionName }
-        ?: throw UserException.customInstructionNotFound(functionName)
+        ?: throw Exceptions.customInstructionNotFound(functionName)
   }
 
   /** Every custom instruction this authority knows about. */

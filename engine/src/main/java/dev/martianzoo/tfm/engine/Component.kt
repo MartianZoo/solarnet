@@ -1,8 +1,8 @@
 package dev.martianzoo.tfm.engine
 
+import dev.martianzoo.tfm.api.Exceptions
 import dev.martianzoo.tfm.api.SpecialClassNames.OWNED
 import dev.martianzoo.tfm.api.SpecialClassNames.OWNER
-import dev.martianzoo.tfm.api.UserException
 import dev.martianzoo.tfm.data.Player
 import dev.martianzoo.tfm.engine.Game.ComponentGraph
 import dev.martianzoo.tfm.pets.HasClassName
@@ -27,7 +27,7 @@ public data class Component private constructor(val mtype: MType) : HasClassName
   }
 
   init {
-    if (mtype.abstract) throw UserException.abstractComponent(mtype)
+    if (mtype.abstract) throw Exceptions.abstractComponent(mtype)
   }
 
   /**

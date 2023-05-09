@@ -1,8 +1,8 @@
 package dev.martianzoo.tfm.engine
 
 import com.google.common.truth.Truth.assertThat
-import dev.martianzoo.tfm.api.UserException.LimitsException
-import dev.martianzoo.tfm.api.UserException.RequirementException
+import dev.martianzoo.tfm.api.Exceptions.LimitsException
+import dev.martianzoo.tfm.api.Exceptions.RequirementException
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.data.Player.Companion.PLAYER1
 import dev.martianzoo.tfm.engine.Game.GameWriterImpl

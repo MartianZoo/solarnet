@@ -8,10 +8,10 @@ import com.github.h0tk3y.betterParse.combinators.or
 import com.github.h0tk3y.betterParse.combinators.separatedTerms
 import com.github.h0tk3y.betterParse.grammar.parser
 import com.github.h0tk3y.betterParse.parser.Parser
+import dev.martianzoo.tfm.api.Exceptions.NarrowingException
+import dev.martianzoo.tfm.api.Exceptions.PetSyntaxException
 import dev.martianzoo.tfm.api.SpecialClassNames.OK
 import dev.martianzoo.tfm.api.TypeInfo
-import dev.martianzoo.tfm.api.UserException.NarrowingException
-import dev.martianzoo.tfm.api.UserException.PetSyntaxException
 import dev.martianzoo.tfm.pets.PetTokenizer
 import dev.martianzoo.tfm.pets.ast.FromExpression.SimpleFrom
 import dev.martianzoo.tfm.pets.ast.Instruction.Gain.Companion.gain

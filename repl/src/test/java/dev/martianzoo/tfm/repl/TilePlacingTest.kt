@@ -1,8 +1,8 @@
 package dev.martianzoo.tfm.repl
 
 import com.google.common.truth.Truth.assertThat
-import dev.martianzoo.tfm.api.UserException.LimitsException
-import dev.martianzoo.tfm.api.UserException.NarrowingException
+import dev.martianzoo.tfm.api.Exceptions.LimitsException
+import dev.martianzoo.tfm.api.Exceptions.NarrowingException
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.data.Player
 import dev.martianzoo.tfm.data.Player.Companion.PLAYER1

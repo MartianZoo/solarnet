@@ -1,7 +1,7 @@
 package dev.martianzoo.tfm.canon
 
 import com.google.common.truth.Truth.assertThat
-import dev.martianzoo.tfm.api.UserException.NarrowingException
+import dev.martianzoo.tfm.api.Exceptions.NarrowingException
 import dev.martianzoo.tfm.data.GameSetup
 import dev.martianzoo.tfm.data.Player.Companion.PLAYER1
 import dev.martianzoo.tfm.data.Player.Companion.PLAYER2

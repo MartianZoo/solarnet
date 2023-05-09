@@ -1,7 +1,7 @@
 package dev.martianzoo.tfm.engine
 
-import dev.martianzoo.tfm.api.UserException
-import dev.martianzoo.tfm.api.UserException.NotNowException
+import dev.martianzoo.tfm.api.Exceptions
+import dev.martianzoo.tfm.api.Exceptions.NotNowException
 import dev.martianzoo.tfm.data.Player
 import dev.martianzoo.tfm.data.Task.TaskId
 import dev.martianzoo.tfm.data.TaskResult
@@ -117,7 +117,7 @@ internal constructor(
   fun sneakyChange(instruction: Instruction): TaskResult {
     val changes =
         prepAndSplit(instruction).mapNotNull {
-          if (it !is Change) throw UserException.badSneak(it)
+          if (it !is Change) throw Exceptions.badSneak(it)
           val count = it.count
           require(count is ActualScalar)
           (writer as Game.GameWriterImpl).sneakyChange( // TODO

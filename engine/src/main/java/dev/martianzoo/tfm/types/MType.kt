@@ -1,10 +1,10 @@
 package dev.martianzoo.tfm.types
 
+import dev.martianzoo.tfm.api.Exceptions
 import dev.martianzoo.tfm.api.SpecialClassNames.CLASS
 import dev.martianzoo.tfm.api.SpecialClassNames.COMPONENT
 import dev.martianzoo.tfm.api.Type
 import dev.martianzoo.tfm.api.TypeInfo
-import dev.martianzoo.tfm.api.UserException
 import dev.martianzoo.tfm.pets.HasClassName
 import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.pets.ast.Requirement
@@ -57,9 +57,9 @@ internal constructor(
   // TODO optimize
   internal fun specialize(specs: List<Expression>): MType {
     return if (isClassType) { // TODO reduce special-casing
-      if (specs.size > 1) throw UserException.badClassExpression(specs)
+      if (specs.size > 1) throw Exceptions.badClassExpression(specs)
       val classNameExpr = specs.singleOrNull() ?: COMPONENT.expression
-      if (!classNameExpr.simple) throw UserException.badClassExpression(specs)
+      if (!classNameExpr.simple) throw Exceptions.badClassExpression(specs)
       loader.getClass(classNameExpr.className).classType
     } else {
       // This has been a bit optimized
@@ -137,7 +137,7 @@ internal constructor(
     if (refin != null) {
       val requirement = root.table.transformers.refinementMangler(expression).transform(refin)
       if (!info.evaluate(requirement)) {
-        throw UserException.refinementNotMet(requirement)
+        throw Exceptions.refinementNotMet(requirement)
       }
     }
   }

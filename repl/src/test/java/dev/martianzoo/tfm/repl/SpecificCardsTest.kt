@@ -1,11 +1,11 @@
 package dev.martianzoo.tfm.repl
 
 import com.google.common.truth.Truth.assertThat
-import dev.martianzoo.tfm.api.UserException.AbstractException
-import dev.martianzoo.tfm.api.UserException.DependencyException
-import dev.martianzoo.tfm.api.UserException.LimitsException
-import dev.martianzoo.tfm.api.UserException.NarrowingException
-import dev.martianzoo.tfm.api.UserException.RequirementException
+import dev.martianzoo.tfm.api.Exceptions.AbstractException
+import dev.martianzoo.tfm.api.Exceptions.DependencyException
+import dev.martianzoo.tfm.api.Exceptions.LimitsException
+import dev.martianzoo.tfm.api.Exceptions.NarrowingException
+import dev.martianzoo.tfm.api.Exceptions.RequirementException
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.data.GameSetup
 import dev.martianzoo.tfm.data.Player

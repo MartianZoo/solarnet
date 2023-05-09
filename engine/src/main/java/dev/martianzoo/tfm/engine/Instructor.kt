@@ -1,9 +1,9 @@
 package dev.martianzoo.tfm.engine
 
+import dev.martianzoo.tfm.api.Exceptions
+import dev.martianzoo.tfm.api.Exceptions.AbstractException
+import dev.martianzoo.tfm.api.Exceptions.DependencyException
 import dev.martianzoo.tfm.api.Type
-import dev.martianzoo.tfm.api.UserException
-import dev.martianzoo.tfm.api.UserException.AbstractException
-import dev.martianzoo.tfm.api.UserException.DependencyException
 import dev.martianzoo.tfm.data.GameEvent.ChangeEvent
 import dev.martianzoo.tfm.data.GameEvent.ChangeEvent.Cause
 import dev.martianzoo.tfm.data.Player
@@ -54,7 +54,7 @@ internal data class Instructor(
         if (reader.evaluate(unprepared.gate)) {
           doPrepare(unprepared.instruction)
         } else if (unprepared.mandatory) {
-          throw UserException.requirementNotMet(unprepared.gate)
+          throw Exceptions.requirementNotMet(unprepared.gate)
         } else {
           NoOp
         }
@@ -78,7 +78,7 @@ internal data class Instructor(
               }
             }
         if (options.none()) {
-          throw UserException.NotNowException("all OR options are impossible at this time")
+          throw Exceptions.NotNowException("all OR options are impossible at this time")
         }
         Or.create(options)
       }
@@ -112,7 +112,7 @@ internal data class Instructor(
     return if (instruction.intensity!! == MANDATORY) {
       // As long as we're capable of doing the full amount...
       if (adjusted != scal.value) {
-        throw UserException.LimitsException(
+        throw Exceptions.LimitsException(
             "When gaining $gc and removing $rc: can do only $adjusted of ${scal.value} required",
         )
       }
@@ -148,8 +148,8 @@ internal data class Instructor(
       is Change -> {
         val ct =
             instruction.count as? ActualScalar
-                ?: throw UserException.abstractInstruction(instruction)
-        if (instruction.intensity != MANDATORY) throw UserException.abstractInstruction(instruction)
+                ?: throw Exceptions.abstractInstruction(instruction)
+        if (instruction.intensity != MANDATORY) throw Exceptions.abstractInstruction(instruction)
 
         val g = game.toComponent(instruction.gaining)
         val r = game.toComponent(instruction.removing)
@@ -164,7 +164,7 @@ internal data class Instructor(
         instruction.instructions.forEach(::execute) // TODO hmm....
       }
       is Custom -> invokeCustomInstruction(instruction)
-      is Or -> throw UserException.orWithoutChoice(instruction)
+      is Or -> throw Exceptions.orWithoutChoice(instruction)
       is NoOp -> {}
       else -> error("something went wrong: $instruction")
     }

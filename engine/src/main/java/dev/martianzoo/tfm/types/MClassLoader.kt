@@ -1,12 +1,12 @@
 package dev.martianzoo.tfm.types
 
 import dev.martianzoo.tfm.api.Authority
+import dev.martianzoo.tfm.api.Exceptions
 import dev.martianzoo.tfm.api.SpecialClassNames.CLASS
 import dev.martianzoo.tfm.api.SpecialClassNames.COMPONENT
 import dev.martianzoo.tfm.api.SpecialClassNames.OK
 import dev.martianzoo.tfm.api.SpecialClassNames.THIS
 import dev.martianzoo.tfm.api.Type
-import dev.martianzoo.tfm.api.UserException
 import dev.martianzoo.tfm.data.ClassDeclaration
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.Expression
@@ -50,7 +50,7 @@ public class MClassLoader(
    * exception.
    */
   override fun getClass(name: ClassName): MClass {
-    if (name !in loadedClasses) throw UserException.classNotFound(name)
+    if (name !in loadedClasses) throw Exceptions.classNotFound(name)
     return loadedClasses[name] ?: error("reentrancy happened")
   }
 
@@ -191,13 +191,13 @@ public class MClassLoader(
               return@map TypeDependency(candidateDep.key, intersectionType)
             }
           }
-          throw UserException.badExpression(arg, deps.toString())
+          throw Exceptions.badExpression(arg, deps.toString())
         }
     return DependencySet.of(list)
   }
 
   override fun defaults(className: ClassName) =
-      allDefaults[className] ?: throw UserException.classNotFound(className)
+      allDefaults[className] ?: throw Exceptions.classNotFound(className)
 
   private val id = nextId++
 

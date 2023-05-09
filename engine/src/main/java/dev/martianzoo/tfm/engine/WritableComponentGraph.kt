@@ -1,9 +1,9 @@
 package dev.martianzoo.tfm.engine
 
+import dev.martianzoo.tfm.api.Exceptions.DependencyException
+import dev.martianzoo.tfm.api.Exceptions.ExistingDependentsException
 import dev.martianzoo.tfm.api.TypeInfo
 import dev.martianzoo.tfm.api.TypeInfo.StubTypeInfo
-import dev.martianzoo.tfm.api.UserException.DependencyException
-import dev.martianzoo.tfm.api.UserException.ExistingDependentsException
 import dev.martianzoo.tfm.data.GameEvent.ChangeEvent.StateChange
 import dev.martianzoo.tfm.engine.Game.ComponentGraph
 import dev.martianzoo.tfm.pets.HasClassName.Companion.classNames

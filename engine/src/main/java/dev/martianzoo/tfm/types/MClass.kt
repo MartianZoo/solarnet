@@ -1,12 +1,12 @@
 package dev.martianzoo.tfm.types
 
+import dev.martianzoo.tfm.api.Exceptions.NarrowingException
 import dev.martianzoo.tfm.api.SpecialClassNames.CLASS
 import dev.martianzoo.tfm.api.SpecialClassNames.COMPONENT
 import dev.martianzoo.tfm.api.SpecialClassNames.OK
 import dev.martianzoo.tfm.api.SpecialClassNames.OWNED
 import dev.martianzoo.tfm.api.SpecialClassNames.THIS
 import dev.martianzoo.tfm.api.TypeInfo
-import dev.martianzoo.tfm.api.UserException.NarrowingException
 import dev.martianzoo.tfm.data.ClassDeclaration
 import dev.martianzoo.tfm.pets.HasClassName
 import dev.martianzoo.tfm.pets.HasClassName.Companion.classNames

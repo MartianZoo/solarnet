@@ -1,7 +1,7 @@
 package dev.martianzoo.tfm.repl
 
+import dev.martianzoo.tfm.api.Exceptions
 import dev.martianzoo.tfm.api.SpecialClassNames.COMPONENT
-import dev.martianzoo.tfm.api.UserException
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.data.GameEvent.ChangeEvent
 import dev.martianzoo.tfm.data.GameSetup
@@ -373,7 +373,7 @@ public class ReplSession(var setup: GameSetup, private val jline: JlineRepl? = n
 
     private fun execute(instruction: Instruction): TaskResult {
       if (mode == BLUE && !session.game.tasks.isEmpty()) {
-        throw UserException.mustClearTasks()
+        throw Exceptions.mustClearTasks()
       }
       return session.game.doAtomic {
         session.initiate(instruction)

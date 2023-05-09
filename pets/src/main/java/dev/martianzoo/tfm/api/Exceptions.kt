@@ -7,11 +7,7 @@ import dev.martianzoo.tfm.pets.ast.Instruction.Change
 import dev.martianzoo.tfm.pets.ast.Instruction.Or
 import dev.martianzoo.tfm.pets.ast.Requirement
 
-/**
- * Exception type for user-facing problems that, you know, probably need to be communicated well.
- * The companion object has various factory functions for common sorts.
- */
-public object UserException { // TODO rename Exceptions
+public object Exceptions {
 
   // FACTORIES
 

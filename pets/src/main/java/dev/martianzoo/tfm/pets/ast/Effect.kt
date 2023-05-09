@@ -7,11 +7,11 @@ import com.github.h0tk3y.betterParse.combinators.or
 import com.github.h0tk3y.betterParse.combinators.skip
 import com.github.h0tk3y.betterParse.grammar.parser
 import com.github.h0tk3y.betterParse.parser.Parser
+import dev.martianzoo.tfm.api.Exceptions.PetSyntaxException
 import dev.martianzoo.tfm.api.SpecialClassNames.END
 import dev.martianzoo.tfm.api.SpecialClassNames.PROD
 import dev.martianzoo.tfm.api.SpecialClassNames.THIS
 import dev.martianzoo.tfm.api.SpecialClassNames.USE_ACTION
-import dev.martianzoo.tfm.api.UserException.PetSyntaxException
 import dev.martianzoo.tfm.pets.PetTokenizer
 import dev.martianzoo.tfm.pets.ast.ClassName.Parsing.classFullName
 import dev.martianzoo.tfm.pets.ast.Effect.Trigger.OnGainOf
