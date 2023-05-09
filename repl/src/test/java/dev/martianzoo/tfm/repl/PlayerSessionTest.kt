@@ -11,7 +11,7 @@ private class PlayerSessionTest {
   @Test
   fun shortNames() {
     val game = Engine.newGame(Canon.SIMPLE_GAME)
-    val session = game.asPlayer(PLAYER2).session()
+    val session = game.writer(PLAYER2).session()
 
     session.action("PROD[5, 4 E]")
     session.action("ProjectCard")
@@ -28,7 +28,7 @@ private class PlayerSessionTest {
   @Test
   fun removeAmap() {
     val game = Engine.newGame(Canon.SIMPLE_GAME)
-    val session = game.asPlayer(PLAYER1).session()
+    val session = game.writer(PLAYER1).session()
 
     session.action("3 Heat!")
     session.action("4 Heat.")
@@ -39,7 +39,7 @@ private class PlayerSessionTest {
   @Test
   fun rollback() {
     val game = Engine.newGame(Canon.SIMPLE_GAME)
-    val session = game.asPlayer(PLAYER1).session()
+    val session = game.writer(PLAYER1).session()
 
     session.action("3 Heat")
     session.action("4 Heat")
@@ -56,7 +56,7 @@ private class PlayerSessionTest {
   @Test
   fun dependencies() {
     val game = Engine.newGame(Canon.SIMPLE_GAME)
-    val session = game.asPlayer(PLAYER2).session()
+    val session = game.writer(PLAYER2).session()
 
     assertThat(session.game.tasks.isEmpty()).isTrue()
     assertThat(session.count("Microbe")).isEqualTo(0)
@@ -78,7 +78,7 @@ private class PlayerSessionTest {
   @Test
   fun counting() {
     val game = Engine.newGame(Canon.SIMPLE_GAME)
-    val session = game.asPlayer(PLAYER2).session()
+    val session = game.writer(PLAYER2).session()
     session.action("42 Heat")
     assertThat(session.count("Heat")).isEqualTo(42)
     assertThat(session.count("4 Heat")).isEqualTo(10)
@@ -96,7 +96,7 @@ private class PlayerSessionTest {
   @Test
   fun tempTrigger() {
     val game = Engine.newGame(Canon.SIMPLE_GAME)
-    val session = game.asPlayer(PLAYER1).session()
+    val session = game.writer(PLAYER1).session()
     assertThat(session.count("TerraformRating")).isEqualTo(20)
 
     session.action("2 TemperatureStep")

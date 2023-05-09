@@ -4,13 +4,12 @@ import dev.martianzoo.tfm.engine.Component
 import dev.martianzoo.tfm.engine.PlayerSession
 import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.types.MClass
-import dev.martianzoo.tfm.types.MType
 import dev.martianzoo.util.iff
 
 object MTypeToText {
   /** A detailed multi-line description of the class. */
   public fun describe(expression: Expression, session: PlayerSession): String {
-    val mtype = session.agent.reader.resolve(expression) as MType
+    val mtype = session.game.resolve(expression)
     val mclass = mtype.root
 
     val classDisplay =

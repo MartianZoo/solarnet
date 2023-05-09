@@ -17,14 +17,14 @@ class TilePlacingTest {
   @Test
   fun citiesRepel() {
     val game = Engine.newGame(Canon.SIMPLE_GAME)
-    val eng = game.asPlayer(Player.ENGINE).session()
+    val eng = game.writer(Player.ENGINE).session()
     val p2 = eng.asPlayer(PLAYER2)
 
     eng.action("ActionPhase")
     p2.action("100")
 
     p2.stdProject("CitySP", "CityTile<M46>")
-    assertThat(p2.agent.tasks()).isEmpty()
+    assertThat(p2.writer.tasks()).isEmpty()
     p2.stdProject("CitySP", "CityTile<M44>")
     p2.startTurn("UseAction1<UseStandardProject>", "UseAction1<CitySP>")
     assertThrows<NarrowingException> { p2.doFirstTask("CityTile<M34>") }
@@ -33,18 +33,18 @@ class TilePlacingTest {
   @Test
   fun cantStack() {
     val game = Engine.newGame(Canon.SIMPLE_GAME)
-    val eng = game.asPlayer(Player.ENGINE).session()
+    val eng = game.writer(Player.ENGINE).session()
     val p2 = eng.asPlayer(PLAYER2)
 
     p2.action("CityTile<M33>")
     assertThrows<LimitsException> { p2.action("OceanTile<M33>!") }
-    assertThat(p2.agent.tasks()).isEmpty()
+    assertThat(p2.writer.tasks()).isEmpty()
   }
 
   @Test
   fun greeneryNextToOwned() {
     val game = Engine.newGame(Canon.SIMPLE_GAME)
-    val eng = game.asPlayer(Player.ENGINE).session()
+    val eng = game.writer(Player.ENGINE).session()
     val p1 = eng.asPlayer(PLAYER1)
     val p2 = eng.asPlayer(PLAYER2)
 

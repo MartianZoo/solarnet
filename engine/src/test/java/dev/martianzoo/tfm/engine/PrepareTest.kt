@@ -5,7 +5,7 @@ import dev.martianzoo.tfm.api.UserException.LimitsException
 import dev.martianzoo.tfm.api.UserException.RequirementException
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.data.Player.Companion.PLAYER1
-import dev.martianzoo.tfm.engine.Game.PlayerAgentImpl
+import dev.martianzoo.tfm.engine.Game.GameWriterImpl
 import dev.martianzoo.tfm.pets.Parsing.parse
 import dev.martianzoo.tfm.pets.PetTransformer
 import dev.martianzoo.tfm.pets.Transforming.replaceOwnerWith
@@ -16,8 +16,8 @@ import org.junit.jupiter.api.assertThrows
 private class PrepareTest {
 
   val game = Engine.newGame(Canon.SIMPLE_GAME)
-  val p1 = game.asPlayer(PLAYER1)
-  val instructor = Instructor(p1 as PlayerAgentImpl)
+  val p1 = game.writer(PLAYER1)
+  val instructor = Instructor(p1 as GameWriterImpl, PLAYER1)
 
   init {
     p1.sneakyChange(gaining = game.toComponent(parse("Plant<P1>")))
@@ -40,7 +40,7 @@ private class PrepareTest {
   fun checkPrepare(unprepared: String, expected: String?, abstract: Boolean = false) {
     val prepared = preprocessAndPrepare(unprepared)
     assertThat("$prepared").isEqualTo("$expected")
-    if (prepared != null) assertThat(prepared.isAbstract(p1.reader)).isEqualTo(abstract)
+    if (prepared != null) assertThat(prepared.isAbstract(game.reader)).isEqualTo(abstract)
   }
 
   @Test

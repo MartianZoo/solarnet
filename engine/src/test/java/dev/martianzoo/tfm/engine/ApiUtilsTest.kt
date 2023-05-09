@@ -14,7 +14,7 @@ import org.junit.jupiter.api.Test
 private class ApiUtilsTest {
   @Test
   fun testLookUpProdLevelsUsingCanon() {
-    val session = Engine.newGame(Canon.SIMPLE_GAME).asPlayer(ENGINE).session()
+    val session = Engine.newGame(Canon.SIMPLE_GAME).writer(ENGINE).session()
     val prods: Map<ClassName, Int> = lookUpProductionLevels(session.game.reader, PLAYER1.expression)
     assertThat(prods.map { it.key to it.value })
         .containsExactly(

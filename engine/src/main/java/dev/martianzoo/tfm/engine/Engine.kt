@@ -35,14 +35,14 @@ public object Engine {
 
   public fun newGame(setup: GameSetup, table: MClassTable): Game {
     val game = Game(table)
-    val agent = game.asPlayer(ENGINE)
+    val writer = game.writer(ENGINE)
 
-    val result: TaskResult = agent.session().action(Gain.gain(scaledEx(1, ENGINE)))
+    val result: TaskResult = writer.session().action(Gain.gain(scaledEx(1, ENGINE)))
 
     val becauseISaidSo = Cause(ENGINE.expression, result.changes.first().ordinal)
 
-    singletonTypes(table).forEach { agent.sneakyChange(gaining = it, cause = becauseISaidSo) }
-    agent.session().action("SetupPhase") // hm no fake cause...
+    singletonTypes(table).forEach { writer.sneakyChange(gaining = it, cause = becauseISaidSo) }
+    writer.session().action("SetupPhase") // hm no fake cause...
     game.setupFinished()
     return game
   }

@@ -6,8 +6,9 @@ import dev.martianzoo.tfm.api.UserException.AbstractException
 import dev.martianzoo.tfm.api.UserException.DependencyException
 import dev.martianzoo.tfm.data.GameEvent.ChangeEvent
 import dev.martianzoo.tfm.data.GameEvent.ChangeEvent.Cause
+import dev.martianzoo.tfm.data.Player
 import dev.martianzoo.tfm.engine.ActiveEffect.FiredEffect
-import dev.martianzoo.tfm.engine.Game.PlayerAgentImpl
+import dev.martianzoo.tfm.engine.Game.GameWriterImpl
 import dev.martianzoo.tfm.pets.PetTransformer.Companion.chain
 import dev.martianzoo.tfm.pets.Transforming.replaceOwnerWith
 import dev.martianzoo.tfm.pets.ast.Expression
@@ -27,15 +28,15 @@ import kotlin.math.min
 
 /** Just a cute name for "instruction handler". It prepares and executes instructions. */
 internal data class Instructor(
-    private val agent: PlayerAgentImpl, // makes sense as inner class but file would be so long
-    private val cause: Cause? = null
+  private val writer: GameWriterImpl, // makes sense as inner class but file would be so long
+  private val player: Player,
+  private val cause: Cause? = null
 ) {
-  private val game by agent::game
+  private val game by writer::game
+  private val reader by game::reader
 
-  fun prepare(unprepared: Instruction): Instruction? {
-    val prepped = doPrepare(unprepared)
-    return if (prepped == NoOp) null else prepped
-  }
+  fun prepare(unprepared: Instruction): Instruction? =
+      doPrepare(unprepared).let { return if (it == NoOp) null else it }
 
   /**
    * Returns a narrowed form of [unprepared] based on the current game state (but changes no game
@@ -48,9 +49,9 @@ internal data class Instructor(
     return when (unprepared) {
       is NoOp -> NoOp
       is Change -> prepareChangeInstruction(unprepared)
-      is Per -> doPrepare(unprepared.instruction * agent.reader.count(unprepared.metric))
+      is Per -> doPrepare(unprepared.instruction * reader.count(unprepared.metric))
       is Gated -> {
-        if (agent.reader.evaluate(unprepared.gate)) {
+        if (reader.evaluate(unprepared.gate)) {
           doPrepare(unprepared.instruction)
         } else if (unprepared.mandatory) {
           throw UserException.requirementNotMet(unprepared.gate)
@@ -60,7 +61,7 @@ internal data class Instructor(
       }
       is Custom -> {
         // make sure it exists
-        agent.reader.authority.customInstruction(unprepared.functionName)
+        reader.authority.customInstruction(unprepared.functionName)
         unprepared // TODO
       }
       is Or -> {
@@ -102,8 +103,8 @@ internal data class Instructor(
       )
     }
 
-    val gc = g?.let { Component.ofType(agent.reader.resolve(it.expressionFull) as MType) }
-    val rc = r?.let { Component.ofType(agent.reader.resolve(it.expressionFull) as MType) }
+    val gc = g?.let { Component.ofType(reader.resolve(it.expressionFull) as MType) }
+    val rc = r?.let { Component.ofType(reader.resolve(it.expressionFull) as MType) }
 
     val upperLimit: Int = game.components.findLimit(gaining = gc, removing = rc)
     val adjusted: Int = min(scal.value, upperLimit)
@@ -137,7 +138,7 @@ internal data class Instructor(
     if (r?.abstract == true) {
       // Infer a type if there IS only one kind of component that has it
       // TODO could be smarter, like if the instr is mandatory and only one cpt type can satisfy
-      r = agent.reader.getComponents(r).singleOrNull() as? MType ?: r
+      r = reader.getComponents(r).singleOrNull() as? MType ?: r
     }
     return g to r
   }
@@ -154,7 +155,7 @@ internal data class Instructor(
         val r = game.toComponent(instruction.removing)
         r?.let { (game.components as WritableComponentGraph).checkDependents(ct.value, it) }
 
-        val result = agent.update(count = ct.value, gaining = g, removing = r, cause = cause)
+        val result = writer.update(count = ct.value, gaining = g, removing = r, cause = cause)
         result.changes.forEach(::fireTriggers)
       }
       is Then -> {
@@ -171,12 +172,12 @@ internal data class Instructor(
   }
 
   private fun invokeCustomInstruction(instr: Custom) {
-    val arguments: List<Type> = instr.arguments.map { agent.reader.resolve(it) }
-    val oops = arguments.filter { agent.reader.countComponent(it) == 0 }
+    val arguments: List<Type> = instr.arguments.map { reader.resolve(it) }
+    val oops = arguments.filter { reader.countComponent(it) == 0 }
     if (oops.any()) throw DependencyException(oops) // or it could be abstract
 
-    val custom = agent.reader.authority.customInstruction(instr.functionName)
-    val translated: Instruction = custom.translate(game.reader, arguments) * instr.multiplier
+    val custom = reader.authority.customInstruction(instr.functionName)
+    val translated: Instruction = custom.translate(reader, arguments) * instr.multiplier
 
     // I guess custom instructions can't return things using `This`
     // and Owner means the context player... (TODO think)
@@ -186,11 +187,11 @@ internal data class Instructor(
                 xers.atomizer(),
                 xers.insertDefaults(), // TODO context component??
                 xers.deprodify(),
-                replaceOwnerWith(agent.player),
+                replaceOwnerWith(player),
             )
             .transform(translated)
 
-    agent.addTasks(instruction, agent.player, cause)
+    writer.addTasks(instruction, player, cause)
   }
 
   private fun fireTriggers(triggerEvent: ChangeEvent) {

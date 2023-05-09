@@ -19,7 +19,7 @@ import org.junit.jupiter.api.Test
 class RealGamesTest {
   fun fourWholeGenerations() {
     val game = Engine.newGame(GameSetup(Canon, "BREPT", 2))
-    val engine = game.asPlayer(ENGINE).session()
+    val engine = game.writer(ENGINE).session()
     val p1 = engine.asPlayer(PLAYER1)
     val p2 = engine.asPlayer(PLAYER2)
 
@@ -180,7 +180,7 @@ class RealGamesTest {
   @Test
   fun startOfEllieGameNoPrelude() {
     val game = Engine.newGame(GameSetup(Canon, "BRHX", 2))
-    val eng = game.asPlayer(ENGINE).session()
+    val eng = game.writer(ENGINE).session()
     val p1 = eng.asPlayer(PLAYER1)
     val p2 = eng.asPlayer(PLAYER2)
 
@@ -210,7 +210,7 @@ class RealGamesTest {
 
   fun ellieGame() {
     val game = Engine.newGame(GameSetup(Canon, "BRHXP", 2))
-    val eng = game.asPlayer(ENGINE).session()
+    val eng = game.writer(ENGINE).session()
     val p1 = eng.asPlayer(PLAYER1)
     val p2 = eng.asPlayer(PLAYER2)
 
@@ -272,8 +272,7 @@ class RealGamesTest {
 
     with(p1) {
       playCard("EarthCatapult", 23)
-      playCard("OlympusConference", 0, steel = 4)
-      tryMatchingTask("Science<OlympusConference>")
+      playCard("OlympusConference", 0, steel = 4, titanium = 0, "Science<OlympusConference>")
 
       playCard("DevelopmentCenter", 1, steel = 4)
       tryMatchingTask("ProjectCard FROM Science<OlympusConference>")
@@ -345,7 +344,7 @@ class RealGamesTest {
     // To check VPs we have to fake the game ending
 
     eng.action("End")
-    assertThat(eng.agent.tasks()).isEmpty()
+    assertThat(eng.writer.tasks()).isEmpty()
 
     // Not sure where this discrepancy comes from... expected P2 to be shorted 1 pt because event
 

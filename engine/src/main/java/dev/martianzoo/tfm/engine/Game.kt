@@ -21,10 +21,7 @@ import dev.martianzoo.tfm.engine.ActiveEffect.FiredEffect
 import dev.martianzoo.tfm.engine.Game.ComponentGraph
 import dev.martianzoo.tfm.engine.Game.EventLog
 import dev.martianzoo.tfm.engine.Game.EventLog.Checkpoint
-import dev.martianzoo.tfm.engine.Game.PlayerAgentImpl
 import dev.martianzoo.tfm.engine.Game.TaskQueue
-import dev.martianzoo.tfm.pets.PetTransformer
-import dev.martianzoo.tfm.pets.Transforming.replaceOwnerWith
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.pets.ast.Instruction
@@ -40,7 +37,7 @@ import dev.martianzoo.util.Multiset
  * the most current state.
  *
  * To read game state at a higher level (e.g. via Pets expressions), use [reader]. To change state
- * requires going through [asPlayer] to get a [PlayerAgentImpl].
+ * use [writer].
  */
 public class Game
 internal constructor(
@@ -147,7 +144,7 @@ internal constructor(
 
   internal val transformers by table::transformers
 
-  public fun asPlayer(player: Player): PlayerAgent = PlayerAgentImpl(this, player)
+  public fun writer(player: Player): GameWriter = GameWriterImpl(this, player)
 
   public fun resolve(expression: Expression): MType = table.resolve(expression)
 
@@ -211,21 +208,15 @@ internal constructor(
   internal fun addTriggeredTasks(fired: List<FiredEffect>) =
       fired.forEach { writableTasks.addTasksFrom(it, writableEvents) }
 
+  internal fun getComponents(type: Expression): Multiset<Component> =
+      components.getAll(resolve(type), reader)
+
   /*
-   * Implementation of PlayerAgent - would be nice to have in a separate file but we'd have to
+   * Implementation of GameWriter - would be nice to have in a separate file but we'd have to
    * make some things in Game non-private.
    */
-  internal class PlayerAgentImpl(val game: Game, override val player: Player) : PlayerAgent() {
-
-    override val reader by game::reader
-
-    override fun asPlayer(other: Player) = game.asPlayer(other)
-
-    override fun session() = PlayerSession(game, this)
-
-
-    override fun getComponents(type: Expression): Multiset<Component> =
-        game.components.getAll(reader.resolve(type) as MType, reader) // TODO think about
+  internal class GameWriterImpl(val game: Game, private val player: Player) : GameWriter() {
+    override fun session() = PlayerSession(game, this, player)
 
     override fun tasks(): Map<TaskId, Task> = game.tasks.asMap()
 
@@ -239,7 +230,7 @@ internal constructor(
       val task: Task = game.tasks[taskId]
       checkOwner(task) // TODO use myTasks() instead?
 
-      val prepared = Instructor(this).prepare(task.instruction)
+      val prepared = Instructor(this, player).prepare(task.instruction)
       if (prepared == null) {
         game.writableTasks.removeTask(taskId, game.writableEvents)
         return false
@@ -285,7 +276,7 @@ internal constructor(
       checkOwner(task)
       nrwd?.ensureNarrows(task.instruction, game.reader)
       return game.doAtomic {
-        val instructor = Instructor(this, task.cause)
+        val instructor = Instructor(this, player, task.cause)
         val prepared = instructor.prepare(nrwd ?: task.instruction)
         prepared?.let(instructor::execute)
         task.then?.let { addTasks(it, task.owner, task.cause) }
@@ -348,8 +339,6 @@ internal constructor(
         tryIt()
       }
     }
-
-    internal val insertOwner: PetTransformer = replaceOwnerWith(player)
 
     private fun removeAll(removing: Component, cause: Cause?) =
         removingDependents(cause) {

@@ -12,6 +12,7 @@ import dev.martianzoo.tfm.data.Task.TaskId
 import dev.martianzoo.tfm.data.TaskResult
 import dev.martianzoo.tfm.engine.Engine
 import dev.martianzoo.tfm.engine.Game.EventLog.Checkpoint
+import dev.martianzoo.tfm.engine.PlayerSession
 import dev.martianzoo.tfm.pets.Parsing.parse
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
@@ -40,7 +41,7 @@ internal fun main() {
     val phases = repl.session.list(cn("Phase").expression) // should only be one
     val phase: String = phases.singleOrNull()?.toString() ?: "NoPhase"
 
-    val player: Player = repl.session.agent.player
+    val player: Player = repl.session.player
     val count: Int = repl.setup.players
     val logPosition: Int = repl.session.game.events.size
     return repl.mode.color.foreground("$bundles $phase $player/$count @$logPosition> ")
@@ -63,7 +64,7 @@ internal fun main() {
 /** A programmatic entry point to a REPL session that is more textual than [ReplSession]. */
 public class ReplSession(var setup: GameSetup, private val jline: JlineRepl? = null) {
   // TODO all we use `jline` for is history (and just checking whether it's there or not)
-  public var session = Engine.newGame(setup).asPlayer(ENGINE).session()
+  public var session: PlayerSession = Engine.newGame(setup).writer(ENGINE).session()
     internal set
 
   internal var mode: ReplMode = GREEN
@@ -175,7 +176,7 @@ public class ReplSession(var setup: GameSetup, private val jline: JlineRepl? = n
         val (bundleString, players) = args.trim().split(Regex("\\s+"), 2)
 
         setup = GameSetup(authority, bundleString, players.toInt())
-        session = Engine.newGame(setup).asPlayer(ENGINE).session()
+        session = Engine.newGame(setup).writer(ENGINE).session()
 
         return listOf("New $players-player game created with bundles: $bundleString") +
             if (players.toInt() == 1) {
@@ -205,7 +206,7 @@ public class ReplSession(var setup: GameSetup, private val jline: JlineRepl? = n
 
     override fun withArgs(args: String): List<String> {
       session = session.asPlayer(cn(args))
-      return listOf("Hi, ${session.agent.player}")
+      return listOf("Hi, ${session.player}")
     }
   }
 
@@ -277,7 +278,7 @@ public class ReplSession(var setup: GameSetup, private val jline: JlineRepl? = n
           I mean it shows a map.
         """
     override val isReadOnly = true
-    override fun noArgs() = MapToText(session.agent.reader, jline != null).map()
+    override fun noArgs() = MapToText(session.game.reader, jline != null).map()
   }
 
   internal inner class ModeCommand : ReplCommand("mode") {
@@ -347,7 +348,7 @@ public class ReplSession(var setup: GameSetup, private val jline: JlineRepl? = n
             GREEN -> execute(instr)
             BLUE ->
                 when {
-                  session.agent.player != ENGINE ->
+                  session.player != ENGINE ->
                       throw UsageException("In blue mode you must be Engine to do this")
                   instr.isGainOf(cn("NewTurn")) -> execute(instr)
                   instr.isGainOf(cn("Phase")) -> execute(instr)
@@ -417,10 +418,10 @@ public class ReplSession(var setup: GameSetup, private val jline: JlineRepl? = n
             null
           }
       if (rest == "drop") {
-        session.agent.removeTask(id)
+        session.writer.removeTask(id)
         return listOf("Task $id deleted")
       } else if (rest == "prepare") {
-        session.agent.prepareTask(id)
+        session.writer.prepareTask(id)
         return listOf("Task $id is now: ${session.game.tasks[id]}")
       }
 

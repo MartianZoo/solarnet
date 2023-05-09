@@ -25,26 +25,25 @@ import dev.martianzoo.util.Multiset
 /** A player session adds autoexec, string overloads, prep, blah blah. */
 public class PlayerSession
 internal constructor(
-    val game: Game,
-    val agent: PlayerAgent,
+  val game: Game,
+  val writer: GameWriter,
+  val player: Player,
 ) {
-  val player by agent::player
-
-  public fun asPlayer(player: Player) = agent.asPlayer(player).session()
+  public fun asPlayer(player: Player) = game.writer(player).session()
 
   // in case a shortname is used
-  public fun asPlayer(player: ClassName) =
+  public fun asPlayer(player: ClassName): PlayerSession =
       asPlayer(Player(game.resolve(player.expression).className))
 
   // QUERIES
 
-  fun count(metric: Metric): Int = agent.reader.count(preprocess(metric))
+  fun count(metric: Metric): Int = game.reader.count(preprocess(metric))
   fun count(metric: String): Int = count(parse(metric))
-  fun countComponent(component: Component) = agent.reader.countComponent(component.mtype)
+  fun countComponent(component: Component) = game.reader.countComponent(component.mtype)
 
   fun list(expression: Expression): Multiset<Expression> { // TODO why not (M)Type?
-    val typeToList: MType = agent.reader.resolve(preprocess(expression)) as MType
-    val allComponents: Multiset<Component> = agent.getComponents(preprocess(expression))
+    val typeToList: MType = game.resolve(preprocess(expression))
+    val allComponents: Multiset<Component> = game.getComponents(preprocess(expression))
 
     val result = HashMultiset<Expression>()
     typeToList.root.directSubclasses.forEach { sub ->
@@ -57,7 +56,7 @@ internal constructor(
     return result
   }
 
-  fun has(requirement: Requirement): Boolean = agent.reader.evaluate(preprocess(requirement))
+  fun has(requirement: Requirement): Boolean = game.reader.evaluate(preprocess(requirement))
   fun has(requirement: String) = has(parse(requirement))
 
   // EXECUTION
@@ -75,7 +74,7 @@ internal constructor(
       action(parseInContext(firstInstruction), tasker)
 
   fun <T : Any> action(firstInstruction: Instruction, tasker: Tasker.() -> T?): T? {
-    require(agent.tasks().none()) { agent.tasks() }
+    require(writer.tasks().none()) { writer.tasks() }
     val cp = game.checkpoint()
     initiate(firstInstruction) // try task then try to drain
 
@@ -91,8 +90,8 @@ internal constructor(
     if (result == wrapped.rollItBack()) {
       game.rollBack(cp)
     } else {
-      require(agent.tasks().none()) {
-        "Should be no tasks left, but:\n" + agent.tasks().values.joinToString("\n")
+      require(writer.tasks().none()) {
+        "Should be no tasks left, but:\n" + writer.tasks().values.joinToString("\n")
       }
     }
     return result
@@ -100,7 +99,7 @@ internal constructor(
 
   class Tasker(val session: PlayerSession) {
 
-    fun tasks() = session.agent.tasks().values
+    fun tasks() = session.writer.tasks().values
 
     fun doFirstTask(instr: String) {
       session.doFirstTask(instr)
@@ -121,7 +120,7 @@ internal constructor(
           if (it !is Change) throw UserException.badSneak(it)
           val count = it.count
           require(count is ActualScalar)
-          agent.sneakyChange(
+          writer.sneakyChange(
               count.value,
               game.toComponent(it.gaining),
               game.toComponent(it.removing),
@@ -149,8 +148,8 @@ internal constructor(
     val prepped: List<Instruction> = prepAndSplit(instruction) // TODO, obvs
     return game.doAtomic {
       prepped.forEach {
-        val id = agent.addTask(it)
-        agent.doTask(id)
+        val id = writer.addTask(it)
+        writer.doTask(id)
       }
       tryToDrain()
     }
@@ -165,8 +164,8 @@ internal constructor(
         anySuccess =
             allTasks
                 .filter {
-                  agent.tryTask(it)
-                  it !in agent.tasks()
+                  writer.tryTask(it)
+                  it !in writer.tasks()
                 }
                 .any() // filter-any, not any, because we want a full trip
       }
@@ -174,7 +173,7 @@ internal constructor(
   }
 
   fun executeMatchingTask(revised: String): TaskResult {
-    val ids = agent.tasks().filterValues { it.owner == player }.keys
+    val ids = writer.tasks().filterValues { it.owner == player }.keys
     if (ids.none()) throw NotNowException("no tasks")
     var ex: Exception? = null
     for (id in ids) {
@@ -192,7 +191,7 @@ internal constructor(
   }
 
   fun tryMatchingTask(revised: String): TaskResult {
-    val ids = agent.tasks().keys
+    val ids = writer.tasks().keys
     if (ids.none()) throw NotNowException("no tasks")
     var ex: Exception? = null
     for (id in ids) {
@@ -212,17 +211,17 @@ internal constructor(
   /** Like try but throws if it doesn't succeed */
   fun doFirstTask(revised: String): TaskResult {
     val id =
-        agent.tasks().entries.firstOrNull { it.value.owner == player }?.key
+        writer.tasks().entries.firstOrNull { it.value.owner == player }?.key
             ?: throw NotNowException("no tasks")
     return game.doAtomic {
-      agent.doTask(id, parseInContext(revised))
+      writer.doTask(id, parseInContext(revised))
       tryToDrain()
     }
   }
 
   fun tryTask(id: TaskId, narrowed: String? = null): TaskResult {
     return game.doAtomic {
-      agent.tryTask(id, narrowed?.let(::parseInContext))
+      writer.tryTask(id, narrowed?.let(::parseInContext))
       tryToDrain()
     }
   }

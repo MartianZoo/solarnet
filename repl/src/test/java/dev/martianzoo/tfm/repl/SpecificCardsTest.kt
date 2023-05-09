@@ -26,7 +26,7 @@ class SpecificCardsTest {
   @Test
   fun localHeatTrapping_plants() {
     val game = Engine.newGame(Canon.SIMPLE_GAME)
-    val p1 = game.asPlayer(PLAYER1).session()
+    val p1 = game.writer(PLAYER1).session()
 
     // Set up
     p1.action("4 Heat, 3 ProjectCard, Pets") {
@@ -72,7 +72,7 @@ class SpecificCardsTest {
   @Test
   fun localHeatTrapping_pets() {
     val game = Engine.newGame(Canon.SIMPLE_GAME)
-    val p1 = game.asPlayer(PLAYER1).session()
+    val p1 = game.writer(PLAYER1).session()
 
     // Set up
     p1.action("6 Heat, 3 ProjectCard, Pets") {
@@ -103,7 +103,7 @@ class SpecificCardsTest {
   @Test
   fun manutech() {
     val game = Engine.newGame(GameSetup(Canon, "BMV", 2))
-    val p1 = game.asPlayer(PLAYER1).session()
+    val p1 = game.writer(PLAYER1).session()
 
     p1.action("CorporationCard, Manutech, 5 ProjectCard") {
       assertCounts(1 to "Production<Class<S>>", 1 to "Steel")
@@ -125,7 +125,7 @@ class SpecificCardsTest {
   @Test
   fun sulphurEatingBacteria() {
     val game = Engine.newGame(GameSetup(Canon, "BMV", 2))
-    val p1 = game.asPlayer(PLAYER1).session()
+    val p1 = game.writer(PLAYER1).session()
 
     p1.action("5 ProjectCard, SulphurEatingBacteria") {
       assertCounts(0 to "Microbe", 0 to "Megacredit")
@@ -168,7 +168,7 @@ class SpecificCardsTest {
   @Test
   fun unmi() {
     val game = Engine.newGame(GameSetup(Canon, "BM", 2))
-    val p1 = game.asPlayer(PLAYER1).session()
+    val p1 = game.writer(PLAYER1).session()
 
     p1.action("CorporationCard, UnitedNationsMarsInitiative") {
       assertCounts(40 to "Megacredit", 20 to "TR")
@@ -196,7 +196,7 @@ class SpecificCardsTest {
   @Test
   fun unmiOutOfOrder() {
     val game = Engine.newGame(GameSetup(Canon, "BM", 2))
-    val p1 = game.asPlayer(PLAYER1).session()
+    val p1 = game.writer(PLAYER1).session()
 
     p1.action("14")
 
@@ -215,7 +215,7 @@ class SpecificCardsTest {
   @Test
   fun aiCentral() {
     val game = Engine.newGame(GameSetup(Canon, "BRM", 2))
-    val eng = game.asPlayer(ENGINE).session()
+    val eng = game.writer(ENGINE).session()
     val p1 = eng.asPlayer(PLAYER1)
 
     eng.action("ActionPhase")
@@ -231,7 +231,7 @@ class SpecificCardsTest {
 
     p1.playCard("DesignedMicroorganisms", 16)
     p1.tryToDrain()
-    assertThat(p1.agent.tasks()).isEmpty()
+    assertThat(p1.writer.tasks()).isEmpty()
 
     // Now I do have the 3 science tags, but not the energy production
     cp = game.checkpoint()
@@ -249,14 +249,14 @@ class SpecificCardsTest {
     p1.assertCounts(1 to "ProjectCard")
     p1.useCardAction(1, "AiCentral")
     p1.assertCounts(3 to "ProjectCard")
-    assertThat(p1.agent.tasks()).isEmpty()
+    assertThat(p1.writer.tasks()).isEmpty()
     p1.assertCounts(1 to "ActionUsedMarker<AiCentral>")
 
     // Can't use it again
     assertThrows<LimitsException> { p1.useCardAction(1, "AiCentral") }
     p1.assertCounts(3 to "ProjectCard")
     p1.assertCounts(1 to "ActionUsedMarker<AiCentral>")
-    assertThat(p1.agent.tasks()).isEmpty()
+    assertThat(p1.writer.tasks()).isEmpty()
 
     // Next gen we can again
     eng.action("Generation")
@@ -267,7 +267,7 @@ class SpecificCardsTest {
   @Test
   fun ceosFavoriteProject() {
     val game = Engine.newGame(GameSetup(Canon, "CVERB", 2))
-    val p1 = game.asPlayer(PLAYER1).session()
+    val p1 = game.writer(PLAYER1).session()
 
     p1.action("10 ProjectCard, ForcedPrecipitation")
 
@@ -288,7 +288,7 @@ class SpecificCardsTest {
 
   fun airScrappingExpedition() {
     val game = Engine.newGame(GameSetup(Canon, "CVERB", 2))
-    val p1 = game.asPlayer(PLAYER1).session()
+    val p1 = game.writer(PLAYER1).session()
 
     p1.action("10 ProjectCard, ForcedPrecipitation, AtmoCollectors") {
       doFirstTask("2 Floater<AtmoCollectors>")
@@ -310,7 +310,7 @@ class SpecificCardsTest {
   @Test
   fun communityServices() {
     val game = Engine.newGame(GameSetup(Canon, "CVERB", 2))
-    val p1 = game.asPlayer(PLAYER1).session()
+    val p1 = game.writer(PLAYER1).session()
 
     p1.action("10 ProjectCard, ForcedPrecipitation")
     p1.execute("AtmoCollectors", "2 Floater<AtmoCollectors>")
@@ -324,8 +324,8 @@ class SpecificCardsTest {
   @Test
   fun elCheapo() {
     val game = Engine.newGame(GameSetup(Canon, "BRMVPCX", 2))
-    val eng = game.asPlayer(ENGINE).session()
-    val p1 = game.asPlayer(PLAYER1).session()
+    val eng = game.writer(ENGINE).session()
+    val p1 = game.writer(PLAYER1).session()
 
     eng.action("ActionPhase")
 
@@ -361,7 +361,7 @@ class SpecificCardsTest {
   @Test
   fun doubleDown() {
     val game = Engine.newGame(GameSetup(Canon, "BRHXP", 2))
-    val eng = game.asPlayer(ENGINE).session()
+    val eng = game.writer(ENGINE).session()
     val p1 = eng.asPlayer(PLAYER1)
     val p2 = eng.asPlayer(Player.PLAYER2)
 

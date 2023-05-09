@@ -21,7 +21,7 @@ private class CanonCustomInstructionsTest {
     checkProduction(p1, 0, 1, 1, 1, 1, 1)
 
     p1.action("UseAction1<RobinsonIndustries>")
-    assertThat(p1.agent.tasks()).isEmpty()
+    assertThat(p1.writer.tasks()).isEmpty()
     checkProduction(p1, 1, 1, 1, 1, 1, 1)
   }
 
@@ -105,7 +105,7 @@ private class CanonCustomInstructionsTest {
 
   private fun newGameForP1(): PlayerSession {
     val setup = GameSetup(Canon, "BRMP", 2)
-    return Engine.newGame(setup).asPlayer(PLAYER1).session()
+    return Engine.newGame(setup).writer(PLAYER1).session()
   }
 
   private fun checkProduction(sess: PlayerSession, vararg exp: Int) {

@@ -20,9 +20,9 @@ internal class PlayerBoardToText(
 
   internal fun board(): List<String> {
     require(session.player != ENGINE)
-    val prodMap = lookUpProductionLevels(session.agent.reader, session.player)
+    val prodMap = lookUpProductionLevels(session.game.reader, session.player)
     val resourceMap =
-        standardResourceNames(session.agent.reader).associateBy({ it }) {
+        standardResourceNames(session.game.reader).associateBy({ it }) {
           session.count(Count(it.of(session.player.className)))
         }
 

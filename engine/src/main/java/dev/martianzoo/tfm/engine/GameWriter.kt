@@ -1,32 +1,16 @@
 package dev.martianzoo.tfm.engine
 
-import dev.martianzoo.tfm.api.GameReader
 import dev.martianzoo.tfm.data.GameEvent.ChangeEvent
 import dev.martianzoo.tfm.data.GameEvent.ChangeEvent.Cause
 import dev.martianzoo.tfm.data.GameEvent.TaskRemovedEvent
-import dev.martianzoo.tfm.data.Player
 import dev.martianzoo.tfm.data.Task
 import dev.martianzoo.tfm.data.Task.TaskId
 import dev.martianzoo.tfm.data.TaskResult
-import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.pets.ast.Instruction
-import dev.martianzoo.util.Multiset
 
-/**
- * A view of a [Game] specific to a particular [Player] (which might be a real player or the
- * engine).
- * * Personalizes operations to that player's perspective
- * * Supports the basic set of task executions to modify game state
- */
-public abstract class PlayerAgent {
-  abstract val player: Player
-  abstract val reader: GameReader
-
+/** Supports modifying a game state. */
+public abstract class GameWriter {
   abstract fun session(): PlayerSession // TODO delete again?
-
-  abstract fun getComponents(type: Expression): Multiset<Component>
-
-  abstract fun asPlayer(other: Player): PlayerAgent
 
   abstract fun tasks(): Map<TaskId, Task> // TODO ActiveTask; myTasks()
 
@@ -70,7 +54,7 @@ public abstract class PlayerAgent {
    */
   abstract fun doTask(taskId: TaskId, narrowed: Instruction? = null): TaskResult
 
-  // Things that can break or repair a game state ... TODO move out of PlayerAgent to sth scary
+  // Things that can break or repair a game state ... TODO move out of GameWriter to sth scary
 
   /** Just enqueues a task; does nothing about it. */
   abstract fun addTask(instruction: Instruction, initialCause: Cause? = null): TaskId
