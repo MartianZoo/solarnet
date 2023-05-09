@@ -1,11 +1,11 @@
 package dev.martianzoo.tfm.types
 
-import dev.martianzoo.tfm.api.ExpressionInfo
 import dev.martianzoo.tfm.api.SpecialClassNames.CLASS
 import dev.martianzoo.tfm.api.SpecialClassNames.COMPONENT
 import dev.martianzoo.tfm.api.SpecialClassNames.OK
 import dev.martianzoo.tfm.api.SpecialClassNames.OWNED
 import dev.martianzoo.tfm.api.SpecialClassNames.THIS
+import dev.martianzoo.tfm.api.TypeInfo
 import dev.martianzoo.tfm.api.UserException.NarrowingException
 import dev.martianzoo.tfm.data.ClassDeclaration
 import dev.martianzoo.tfm.pets.HasClassName
@@ -93,7 +93,7 @@ internal constructor(
     }
   }
 
-  override fun ensureNarrows(that: MClass, einfo: ExpressionInfo) {
+  override fun ensureNarrows(that: MClass, info: TypeInfo) {
     if (!isSubtypeOf(that))
         throw NarrowingException("${this.className} is not a subclass of ${that.className}")
   }

@@ -1,7 +1,7 @@
 package dev.martianzoo.tfm.engine
 
-import dev.martianzoo.tfm.api.ExpressionInfo
-import dev.martianzoo.tfm.api.ExpressionInfo.StubExpressionInfo
+import dev.martianzoo.tfm.api.TypeInfo
+import dev.martianzoo.tfm.api.TypeInfo.StubTypeInfo
 import dev.martianzoo.tfm.api.UserException.DependencyException
 import dev.martianzoo.tfm.api.UserException.ExistingDependentsException
 import dev.martianzoo.tfm.data.GameEvent.ChangeEvent.StateChange
@@ -21,11 +21,11 @@ internal class WritableComponentGraph(
 ) : ComponentGraph {
   override operator fun contains(component: Component) = component in multiset.elements
 
-  override fun count(parentType: MType, einfo: ExpressionInfo) = getAll(parentType, einfo).size
+  override fun count(parentType: MType, info: TypeInfo) = getAll(parentType, info).size
   override fun countComponent(component: Component) = multiset.count(component)
 
-  override fun getAll(parentType: MType, einfo: ExpressionInfo): Multiset<Component> {
-    return multiset.filter { it.mtype.narrows(parentType, einfo) }
+  override fun getAll(parentType: MType, info: TypeInfo): Multiset<Component> {
+    return multiset.filter { it.mtype.narrows(parentType, info) }
   }
 
   // TODO update this redundantly instead of walking the whole table?
@@ -89,7 +89,7 @@ internal class WritableComponentGraph(
         val rHasType = removing?.mtype?.isSubtypeOf(supertypeWithLimit) ?: false
 
         if (gHasType != rHasType) {
-          val existing = count(supertypeWithLimit, StubExpressionInfo)
+          val existing = count(supertypeWithLimit, StubTypeInfo)
           if (gHasType) {
             val gainable = it.range.last - existing
             actual = min(actual, gainable)

@@ -1,9 +1,9 @@
 package dev.martianzoo.tfm.types
 
-import dev.martianzoo.tfm.api.ExpressionInfo
 import dev.martianzoo.tfm.api.SpecialClassNames.CLASS
 import dev.martianzoo.tfm.api.SpecialClassNames.COMPONENT
 import dev.martianzoo.tfm.api.Type
+import dev.martianzoo.tfm.api.TypeInfo
 import dev.martianzoo.tfm.api.UserException
 import dev.martianzoo.tfm.pets.HasClassName
 import dev.martianzoo.tfm.pets.ast.Expression
@@ -134,26 +134,26 @@ internal constructor(
   private fun concreteSubclasses(mclass: MClass) =
       mclass.allSubclasses.asSequence().filter { !it.abstract }
 
-  override fun ensureNarrows(that: MType, einfo: ExpressionInfo) {
-    root.ensureNarrows(that.root, einfo)
-    dependencies.ensureNarrows(that.dependencies, einfo)
+  override fun ensureNarrows(that: MType, info: TypeInfo) {
+    root.ensureNarrows(that.root, info)
+    dependencies.ensureNarrows(that.dependencies, info)
 
     val refin = that.refinement
     if (refin != null) {
       val requirement = root.table.transformers.refinementMangler(expression).transform(refin)
-      if (!einfo.evaluate(requirement)) {
+      if (!info.evaluate(requirement)) {
         throw UserException.refinementNotMet(requirement)
       }
     }
   }
 
-  fun narrows(that: MType, einfo: ExpressionInfo): Boolean {
+  fun narrows(that: MType, info: TypeInfo): Boolean {
     if (!root.isSubtypeOf(that.root)) return false
-    if (!dependencies.narrows(that.dependencies, einfo)) return false
+    if (!dependencies.narrows(that.dependencies, info)) return false
 
     val refin = that.refinement ?: return true
     val requirement = root.table.transformers.refinementMangler(expression).transform(refin)
-    return einfo.evaluate(requirement)
+    return info.evaluate(requirement)
   }
 
   override fun toString() = "$expressionFull@${root.loader}"

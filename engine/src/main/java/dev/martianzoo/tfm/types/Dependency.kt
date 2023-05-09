@@ -1,7 +1,7 @@
 package dev.martianzoo.tfm.types
 
-import dev.martianzoo.tfm.api.ExpressionInfo
 import dev.martianzoo.tfm.api.SpecialClassNames.CLASS
+import dev.martianzoo.tfm.api.TypeInfo
 import dev.martianzoo.tfm.pets.HasClassName
 import dev.martianzoo.tfm.pets.HasExpression
 import dev.martianzoo.tfm.pets.ast.ClassName
@@ -33,7 +33,7 @@ internal sealed class Dependency : Hierarchical<Dependency>, HasExpression, HasC
 
   abstract val boundClass: MClass
 
-  abstract fun narrows(that: Dependency, einfo: ExpressionInfo): Boolean
+  abstract fun narrows(that: Dependency, info: TypeInfo): Boolean
 
   /** Any [Dependency] except for the case covered by [FakeDependency] below. */
   data class TypeDependency(override val key: Key, val boundType: MType) :
@@ -59,11 +59,11 @@ internal sealed class Dependency : Hierarchical<Dependency>, HasExpression, HasC
 
     internal fun map(function: (MType) -> MType) = copy(boundType = function(boundType))
 
-    override fun ensureNarrows(that: Dependency, einfo: ExpressionInfo) =
-        boundType.ensureNarrows(boundOf(that), einfo)
+    override fun ensureNarrows(that: Dependency, info: TypeInfo) =
+        boundType.ensureNarrows(boundOf(that), info)
 
-    override fun narrows(that: Dependency, einfo: ExpressionInfo) =
-        boundType.narrows(boundOf(that), einfo)
+    override fun narrows(that: Dependency, info: TypeInfo) =
+        boundType.narrows(boundOf(that), info)
 
     private fun boundOf(that: Dependency): MType =
         (that as TypeDependency).boundType.also { require(key == that.key) }
@@ -95,10 +95,10 @@ internal sealed class Dependency : Hierarchical<Dependency>, HasExpression, HasC
 
     override fun lub(that: Dependency): FakeDependency = copy(boundClass lub boundOf(that))
 
-    override fun ensureNarrows(that: Dependency, einfo: ExpressionInfo) =
-        boundClass.ensureNarrows(boundOf(that), einfo)
+    override fun ensureNarrows(that: Dependency, info: TypeInfo) =
+        boundClass.ensureNarrows(boundOf(that), info)
 
-    override fun narrows(that: Dependency, einfo: ExpressionInfo) =
+    override fun narrows(that: Dependency, info: TypeInfo) =
         boundClass.isSubtypeOf(boundOf(that))
 
     private fun boundOf(that: Dependency): MClass =

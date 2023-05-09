@@ -8,8 +8,8 @@ import com.github.h0tk3y.betterParse.combinators.or
 import com.github.h0tk3y.betterParse.combinators.separatedTerms
 import com.github.h0tk3y.betterParse.grammar.parser
 import com.github.h0tk3y.betterParse.parser.Parser
-import dev.martianzoo.tfm.api.ExpressionInfo
 import dev.martianzoo.tfm.api.SpecialClassNames.OK
+import dev.martianzoo.tfm.api.TypeInfo
 import dev.martianzoo.tfm.api.UserException.NarrowingException
 import dev.martianzoo.tfm.api.UserException.PetSyntaxException
 import dev.martianzoo.tfm.pets.PetTokenizer
@@ -62,9 +62,9 @@ public sealed class Instruction : PetElement() {
   public object NoOp : Instruction() {
     override fun scale(factor: Int) = this
 
-    override fun isAbstract(einfo: ExpressionInfo) = false
+    override fun isAbstract(info: TypeInfo) = false
 
-    override fun ensureIsNarrowedBy_doNotCall(proposed: Instruction, einfo: ExpressionInfo) {
+    override fun ensureIsNarrowedBy_doNotCall(proposed: Instruction, info: TypeInfo) {
       if (proposed != NoOp) throw NarrowingException("not Ok")
     }
 
@@ -96,11 +96,11 @@ public sealed class Instruction : PetElement() {
     abstract val removing: Expression?
     abstract val intensity: Intensity?
 
-    override fun isAbstract(einfo: ExpressionInfo): Boolean {
+    override fun isAbstract(info: TypeInfo): Boolean {
       return intensity?.abstract != false ||
           count.abstract ||
-          (gaining?.let { einfo.isAbstract(it) } == true) ||
-          (removing?.let { einfo.isAbstract(it) } == true)
+          (gaining?.let { info.isAbstract(it) } == true) ||
+          (removing?.let { info.isAbstract(it) } == true)
     }
 
     val amount: Amount by lazy { Amount(count, intensity) }
@@ -108,22 +108,22 @@ public sealed class Instruction : PetElement() {
     data class Amount(val scalar: Scalar, val intensity: Intensity?) : Reifiable<Amount> {
       override val abstract: Boolean = scalar.abstract || intensity?.abstract != false
 
-      override fun ensureNarrows(that: Amount, einfo: ExpressionInfo) {
-        intensity!!.ensureNarrows(that.intensity!!, einfo)
+      override fun ensureNarrows(that: Amount, info: TypeInfo) {
+        intensity!!.ensureNarrows(that.intensity!!, info)
         if (that.intensity == OPTIONAL && scalar is ActualScalar && that.scalar is ActualScalar) {
           if (scalar.value > that.scalar.value) throw NarrowingException("")
         } else {
-          scalar.ensureNarrows(that.scalar, einfo)
+          scalar.ensureNarrows(that.scalar, info)
         }
       }
     }
 
-    override fun ensureIsNarrowedBy_doNotCall(proposed: Instruction, einfo: ExpressionInfo) {
+    override fun ensureIsNarrowedBy_doNotCall(proposed: Instruction, info: TypeInfo) {
       if (proposed == NoOp && intensity == OPTIONAL) return
       proposed as? Change ?: throw NarrowingException("$this  /  $proposed")
-      proposed.amount.ensureNarrows(amount, einfo)
-      gaining?.let { einfo.ensureNarrows(it, proposed.gaining!!) }
-      removing?.let { einfo.ensureNarrows(it, proposed.removing!!) }
+      proposed.amount.ensureNarrows(amount, info)
+      gaining?.let { info.ensureNarrows(it, proposed.gaining!!) }
+      removing?.let { info.ensureNarrows(it, proposed.removing!!) }
     }
   }
 
@@ -228,14 +228,14 @@ public sealed class Instruction : PetElement() {
 
     override fun precedence() = 8
 
-    override fun isAbstract(einfo: ExpressionInfo) = instruction.isAbstract(einfo)
+    override fun isAbstract(info: TypeInfo) = instruction.isAbstract(info)
 
-    override fun ensureIsNarrowedBy_doNotCall(proposed: Instruction, einfo: ExpressionInfo) {
+    override fun ensureIsNarrowedBy_doNotCall(proposed: Instruction, info: TypeInfo) {
       proposed as Per
       if (proposed.metric != metric) {
         throw NarrowingException("can't change the metric")
       }
-      proposed.instruction.ensureNarrows(instruction, einfo)
+      proposed.instruction.ensureNarrows(instruction, info)
     }
 
     override fun toString() = "$instruction / $metric"
@@ -250,14 +250,14 @@ public sealed class Instruction : PetElement() {
     override fun visitChildren(visitor: Visitor) = visitor.visit(gate, instruction)
     override fun scale(factor: Int) = copy(instruction = instruction * factor)
 
-    override fun isAbstract(einfo: ExpressionInfo) = instruction.isAbstract(einfo)
+    override fun isAbstract(info: TypeInfo) = instruction.isAbstract(info)
 
-    override fun ensureIsNarrowedBy_doNotCall(proposed: Instruction, einfo: ExpressionInfo) {
+    override fun ensureIsNarrowedBy_doNotCall(proposed: Instruction, info: TypeInfo) {
       proposed as Gated
       if (proposed.gate != gate) {
         throw NarrowingException("can't change the condition")
       }
-      proposed.instruction.ensureNarrows(instruction, einfo)
+      proposed.instruction.ensureNarrows(instruction, info)
     }
 
     override fun toString(): String {
@@ -280,9 +280,9 @@ public sealed class Instruction : PetElement() {
     override fun visitChildren(visitor: Visitor) = visitor.visit(arguments)
     override fun scale(factor: Int) = copy(multiplier = multiplier * factor)
 
-    override fun isAbstract(einfo: ExpressionInfo) = arguments.any { einfo.isAbstract(it) }
+    override fun isAbstract(info: TypeInfo) = arguments.any { info.isAbstract(it) }
 
-    override fun ensureIsNarrowedBy_doNotCall(proposed: Instruction, einfo: ExpressionInfo) {
+    override fun ensureIsNarrowedBy_doNotCall(proposed: Instruction, info: TypeInfo) {
       proposed as Custom
       if (proposed.multiplier != multiplier) {
         throw NarrowingException("can't change multiplier")
@@ -294,7 +294,7 @@ public sealed class Instruction : PetElement() {
         throw NarrowingException("wrong argument count")
       }
       for ((wide, narrow) in arguments.zip(proposed.arguments)) {
-        einfo.ensureNarrows(wide, narrow)
+        info.ensureNarrows(wide, narrow)
       }
     }
 
@@ -336,12 +336,12 @@ public sealed class Instruction : PetElement() {
 
     override fun precedence() = 2
 
-    override fun isAbstract(einfo: ExpressionInfo) = instructions.any { it.isAbstract(einfo) }
+    override fun isAbstract(info: TypeInfo) = instructions.any { it.isAbstract(info) }
 
-    override fun ensureIsNarrowedBy_doNotCall(proposed: Instruction, einfo: ExpressionInfo) {
+    override fun ensureIsNarrowedBy_doNotCall(proposed: Instruction, info: TypeInfo) {
       proposed as? Then ?: throw NarrowingException("Can't reify $this to $proposed")
       for ((wide, narrow) in instructions.zip(proposed.instructions)) {
-        narrow.ensureNarrows(wide, einfo)
+        narrow.ensureNarrows(wide, info)
       }
       val maybeXs = this.descendantsOfType<Scalar>()
       if (maybeXs.any { it is XScalar }) {
@@ -383,17 +383,17 @@ public sealed class Instruction : PetElement() {
 
     override fun precedence() = 4
 
-    override fun isAbstract(einfo: ExpressionInfo) = true
+    override fun isAbstract(info: TypeInfo) = true
 
-    override fun ensureIsNarrowedBy_doNotCall(proposed: Instruction, einfo: ExpressionInfo) {
+    override fun ensureIsNarrowedBy_doNotCall(proposed: Instruction, info: TypeInfo) {
       if (proposed is Or) {
-        proposed.instructions.forEach { ensureIsNarrowedBy_doNotCall(it, einfo) }
+        proposed.instructions.forEach { ensureIsNarrowedBy_doNotCall(it, info) }
         return
       }
       var messages = ""
       for (option in instructions) {
         try { // Just get any one to work
-          proposed.ensureNarrows(option, einfo)
+          proposed.ensureNarrows(option, info)
           return
         } catch (e: NarrowingException) {
           messages += "${e.message}\n"
@@ -431,9 +431,9 @@ public sealed class Instruction : PetElement() {
     override fun copy(instructions: Iterable<Instruction>) =
         copy(instructions = instructions.toList())
 
-    override fun isAbstract(einfo: ExpressionInfo) = instructions.any { it.isAbstract(einfo) }
+    override fun isAbstract(info: TypeInfo) = instructions.any { it.isAbstract(info) }
 
-    override fun ensureIsNarrowedBy_doNotCall(proposed: Instruction, einfo: ExpressionInfo) =
+    override fun ensureIsNarrowedBy_doNotCall(proposed: Instruction, info: TypeInfo) =
         error("should have been split by now: $this")
 
     override fun precedence() = 0
@@ -460,10 +460,10 @@ public sealed class Instruction : PetElement() {
 
     override fun scale(factor: Int) = copy(instruction = instruction * factor)
 
-    override fun isAbstract(einfo: ExpressionInfo) =
+    override fun isAbstract(info: TypeInfo) =
         error("should have been transformed by now: $this")
 
-    override fun ensureIsNarrowedBy_doNotCall(proposed: Instruction, einfo: ExpressionInfo) =
+    override fun ensureIsNarrowedBy_doNotCall(proposed: Instruction, info: TypeInfo) =
         error("should have been transformed by now: $this")
 
     override fun toString() = "$transformKind[$instruction]"
@@ -473,17 +473,17 @@ public sealed class Instruction : PetElement() {
 
   override val kind = Instruction::class
 
-  public abstract fun isAbstract(einfo: ExpressionInfo): Boolean
+  public abstract fun isAbstract(info: TypeInfo): Boolean
 
   // This is the entry point into all the ensureNarrows business throughout the codebase
-  fun ensureNarrows(abstractInstr: Instruction, einfo: ExpressionInfo) {
+  fun ensureNarrows(abstractInstr: Instruction, info: TypeInfo) {
     if (abstractInstr !is Or && this != NoOp && this::class != abstractInstr::class) {
       throw NarrowingException("`$this` can't reify `$abstractInstr` (different types)")
     }
-    abstractInstr.ensureIsNarrowedBy_doNotCall(this, einfo) // well WE can call it
+    abstractInstr.ensureIsNarrowedBy_doNotCall(this, info) // well WE can call it
   }
 
-  protected abstract fun ensureIsNarrowedBy_doNotCall(proposed: Instruction, einfo: ExpressionInfo)
+  protected abstract fun ensureIsNarrowedBy_doNotCall(proposed: Instruction, info: TypeInfo)
 
   enum class Intensity(val symbol: String, override val abstract: Boolean = false) :
       Reifiable<Intensity> {
@@ -497,7 +497,7 @@ public sealed class Instruction : PetElement() {
     OPTIONAL("?", true),
     ;
 
-    override fun ensureNarrows(that: Intensity, einfo: ExpressionInfo) {
+    override fun ensureNarrows(that: Intensity, info: TypeInfo) {
       if (that != this && that != OPTIONAL) {
         throw NarrowingException("")
       }

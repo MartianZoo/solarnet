@@ -1,9 +1,9 @@
 package dev.martianzoo.tfm.engine
 
 import dev.martianzoo.tfm.api.Authority
-import dev.martianzoo.tfm.api.ExpressionInfo
 import dev.martianzoo.tfm.api.GameReader
 import dev.martianzoo.tfm.api.Type
+import dev.martianzoo.tfm.api.TypeInfo
 import dev.martianzoo.tfm.engine.Game.ComponentGraph
 import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.pets.ast.Metric
@@ -22,7 +22,7 @@ import dev.martianzoo.tfm.types.MClassTable
 import kotlin.math.min
 
 internal class GameReaderImpl(val table: MClassTable, val components: ComponentGraph) :
-    GameReader, ExpressionInfo {
+    GameReader, TypeInfo {
   override val authority: Authority by table::authority
 
   override fun isAbstract(e: Expression) = resolve(e).abstract

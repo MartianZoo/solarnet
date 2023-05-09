@@ -6,7 +6,7 @@ import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.util.Multiset
 
 /** A readable view of the state of a game in progress. */
-interface GameReader : ExpressionInfo {
+interface GameReader : TypeInfo {
   /** The initial configuration for the game. */
   val authority: Authority
 
