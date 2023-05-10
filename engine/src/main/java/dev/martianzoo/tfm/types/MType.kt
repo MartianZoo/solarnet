@@ -33,7 +33,6 @@ internal constructor(
 
   override val abstract = root.abstract || dependencies.abstract || refinement != null
 
-
   override fun isSubtypeOf(that: MType) = narrows(that) // TODO Hmmm
 
   // Nearest common subtype

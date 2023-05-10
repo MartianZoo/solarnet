@@ -29,11 +29,11 @@ private typealias Hit = (Instruction) -> Instruction
 /** A triggered effect of "live" component existing in the [ComponentGraph]. */
 internal data class ActiveEffect
 private constructor(
-  private val subscription: Subscription,
-  private val automatic: Boolean,
-  private val instruction: Instruction,
-  private val contextExpr: Expression,
-  private val contextOwner: Player?,
+    private val subscription: Subscription,
+    private val automatic: Boolean,
+    private val instruction: Instruction,
+    private val contextExpr: Expression,
+    private val contextOwner: Player?,
 ) {
   companion object {
     fun from(it: Effect, context: Component) =
@@ -42,7 +42,7 @@ private constructor(
             it.automatic,
             it.instruction,
             context.expression,
-            context.owner
+            context.owner,
         )
   }
 

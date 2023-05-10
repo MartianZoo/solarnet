@@ -22,9 +22,9 @@ import dev.martianzoo.util.Multiset
 /** A player session adds autoexec, string overloads, prep, blah blah. */
 public class PlayerSession
 internal constructor(
-  val game: Game,
-  val writer: GameWriter,
-  val player: Player,
+    val game: Game,
+    val writer: GameWriter,
+    val player: Player,
 ) {
   public fun asPlayer(player: Player) = game.writer(player).session()
 
@@ -60,9 +60,7 @@ internal constructor(
 
   /** Action just means "queue empty -> do anything -> queue empty again" */
   fun action(firstInstruction: Instruction): TaskResult {
-    return game.doAtomic {
-      action(firstInstruction) {}
-    }
+    return game.doAtomic { action(firstInstruction) {} }
   }
 
   fun action(firstInstruction: String): TaskResult = action(parseInContext(firstInstruction))

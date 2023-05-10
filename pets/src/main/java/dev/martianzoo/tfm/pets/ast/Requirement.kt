@@ -146,11 +146,10 @@ sealed class Requirement : PetElement() {
     fun parser(): Parser<Requirement> {
       return parser {
         val orReq =
-            separatedTerms(atomParser(), _or) map
-                {
-                  val set = it.toSet()
-                  if (set.size == 1) set.first() else Or(set)
-                }
+            separatedTerms(atomParser(), _or) map {
+              val set = it.toSet()
+              if (set.size == 1) set.first() else Or(set)
+            }
 
         commaSeparated(orReq) map { if (it.size == 1) it.first() else And(it) }
       }

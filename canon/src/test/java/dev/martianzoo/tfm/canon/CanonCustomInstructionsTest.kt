@@ -86,7 +86,6 @@ private class CanonCustomInstructionsTest {
     p1.asPlayer(PLAYER2).action("ProjectCard, Mine")
 
     p1.action("RoboticWorkforce") {
-
       checkProduction(p1, 0, 2, 1, 0, 4, 0)
       // This card has no building tag so it won't work
       assertThrows<NarrowingException> { p1.doFirstTask("@copyProductionBox(MassConverter)") }

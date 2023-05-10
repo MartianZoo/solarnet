@@ -43,7 +43,7 @@ class SpecificCardsTest {
       assertThat(taskReasons())
           .containsExactly(
               "When gaining null and removing [Heat<Player1>]: can do only 4 of 5 required",
-              "choice required in: `4 Plant<Player1>! OR 2 Animal<Player1>.`"
+              "choice required in: `4 Plant<Player1>! OR 2 Animal<Player1>.`",
           )
 
       rollItBack()
@@ -177,8 +177,7 @@ class SpecificCardsTest {
     p1.action("UseAction1<UnitedNationsMarsInitiative>") {
       assertCounts(37 to "Megacredit", 20 to "TR")
 
-      assertThat(taskReasons())
-          .containsExactly("requirement not met: `HasRaisedTr<Player1>`")
+      assertThat(taskReasons()).containsExactly("requirement not met: `HasRaisedTr<Player1>`")
 
       // Can't use UNMI action yet - fail, don't no-op, per https://boardgamegeek.com/thread/2525032
       assertThrows<RequirementException> { doFirstTask("TR") } // TODO or just prepare it?
@@ -394,9 +393,7 @@ class SpecificCardsTest {
     val eng = game.writer(ENGINE).session()
     val p1 = eng.asPlayer(PLAYER1)
 
-    p1.action("5 ProjectCard, OptimalAerobraking") {
-      assertCounts(0 to "Megacredit", 0 to "Heat")
-    }
+    p1.action("5 ProjectCard, OptimalAerobraking") { assertCounts(0 to "Megacredit", 0 to "Heat") }
 
     p1.action("AsteroidCard") {
       tryMatchingTask("Ok") // don't destroy any plants -- TODO could it recognize??

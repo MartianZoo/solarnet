@@ -107,8 +107,7 @@ internal class MapToText(private val game: GameReader, val useColors: Boolean = 
   fun maybeColor(c: TfmColor, s: String): String = if (useColors) c.foreground(s) else s
 
   private fun describe(tile: Type): Pair<String, TfmColor> {
-    fun isIt(tile: Type, kind: String) =
-        tile.narrows(game.resolve(cn(kind).expression), game)
+    fun isIt(tile: Type, kind: String) = tile.narrows(game.resolve(cn(kind).expression), game)
 
     val kind: Pair<String, TfmColor> =
         when {
