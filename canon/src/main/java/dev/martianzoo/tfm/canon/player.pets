@@ -175,8 +175,8 @@ ABSTRACT CLASS Owned<Anyone> {
     CLASS Accept : Signal {                       // created in response to PlayTag or the actions
       HAS MAX 1 This                              // on 4 special cards.
       DEFAULT +Accept.
-      This: X Pay<Class<Resource>> FROM Resource?
-    }
+      This: X Pay<Class<Resource>> FROM Resource? // the ? is essential; X is defined to be positive
+    }                                             // TODO currently removing it still works!
 
     CLASS Pay : Signal {                          // used like `8 Pay<Class<Heat>> FROM Heat`, but
       DEFAULT +Pay<Class<Megacredit>>             // also cards can pay in response to signals
