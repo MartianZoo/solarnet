@@ -419,7 +419,7 @@ public class ReplSession(var setup: GameSetup, private val jline: JlineRepl? = n
             null
           }
       if (rest == "drop") {
-        (session.game as UnsafeGameWriter).removeTask(id)
+        (session.writer as UnsafeGameWriter).removeTask(id)
         return listOf("Task $id deleted")
       } else if (rest == "prepare") {
         session.writer.prepareTask(id)

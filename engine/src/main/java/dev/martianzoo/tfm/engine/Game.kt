@@ -315,32 +315,27 @@ internal constructor(
     internal fun addTasks(instruction: Instruction, owner: Player, cause: Cause?) =
         game.writableTasks.addTasksFrom(instruction, owner, cause, game.writableEvents)
 
-    internal fun update(
-        count: Int,
-        gaining: Component?,
-        removing: Component?,
-        cause: Cause?
+    internal fun fixDependentsAndUpdate(
+        count: Int = 1,
+        gaining: Component? = null,
+        removing: Component? = null,
+        cause: Cause? = null,
     ): TaskResult {
       val cp = game.checkpoint()
-      removingDependents(cause) { sneakyChange(count, gaining, removing, cause) }
-      return game.events.activitySince(cp)
-    }
-
-    private fun removingDependents(cause: Cause?, tryIt: () -> ChangeEvent?) {
+      fun tryIt() = sneakyChange(count, gaining, removing, cause)
       try {
         tryIt()
       } catch (e: ExistingDependentsException) {
-        e.dependents.forEach { removeAll(game.toComponent(it.expressionFull), cause) }
         // TODO better way to remove dependents?
+        e.dependents.forEach {
+          val cpt = game.toComponent(it.expressionFull)
+          val ct = game.reader.countComponent(cpt.mtype)
+          fixDependentsAndUpdate(ct, removing = cpt, cause = cause)
+        }
         tryIt()
       }
+      return game.events.activitySince(cp)
     }
-
-    private fun removeAll(removing: Component, cause: Cause?) =
-        removingDependents(cause) {
-          val change = game.writableComponents.removeAll(removing)
-          game.writableEvents.addChangeEvent(change, player, cause = cause)
-        }
 
     private fun checkOwner(task: Task) {
       if (player != task.owner && player != ENGINE) {

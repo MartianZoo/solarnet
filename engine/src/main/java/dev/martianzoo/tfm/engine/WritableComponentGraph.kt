@@ -51,12 +51,6 @@ internal class WritableComponentGraph(
     )
   }
 
-  internal fun removeAll(removing: Component): StateChange {
-    val count = multiset.tryRemove(removing, MAX_VALUE)
-    require(count > 0)
-    return StateChange(count, removing = removing.expression)
-  }
-
   override fun findLimit(
       gaining: Component?,
       removing: Component?,

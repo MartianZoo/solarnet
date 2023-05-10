@@ -151,11 +151,11 @@ internal data class Instructor(
                 ?: throw Exceptions.abstractInstruction(instruction)
         if (instruction.intensity != MANDATORY) throw Exceptions.abstractInstruction(instruction)
 
-        val g = game.toComponent(instruction.gaining)
-        val r = game.toComponent(instruction.removing)
-        val result = writer.update(count = ct.value, gaining = g, removing = r, cause = cause)
-        // TODO problem: we need to get events logged before firing triggers?
-        result.changes.forEach(::fireTriggers)
+        executeWrite(
+            ct.value,
+            game.toComponent(instruction.gaining),
+            game.toComponent(instruction.removing)
+        )
       }
       is Then -> {
         if (instruction.descendantsOfType<XScalar>().any()) {
@@ -168,6 +168,12 @@ internal data class Instructor(
       is NoOp -> {}
       else -> error("something went wrong: $instruction")
     }
+  }
+
+  private fun executeWrite(count: Int, gaining: Component?, removing: Component?) {
+    val result = writer.fixDependentsAndUpdate(count = count, gaining = gaining, removing = removing, cause = cause)
+    // TODO problem: we need to get events logged before firing triggers?
+    result.changes.forEach(::fireTriggers)
   }
 
   private fun invokeCustomInstruction(instr: Custom) {
