@@ -1,7 +1,6 @@
 package dev.martianzoo.tfm.types
 
 import dev.martianzoo.tfm.api.Exceptions
-import dev.martianzoo.tfm.api.SpecialClassNames.CLASS
 import dev.martianzoo.tfm.api.Type
 import dev.martianzoo.tfm.api.TypeInfo
 import dev.martianzoo.tfm.pets.HasClassName
@@ -9,7 +8,6 @@ import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.util.Hierarchical
 import dev.martianzoo.util.Reifiable
-import dev.martianzoo.util.cartesianProduct
 
 /**
  * The translation of a [Expression] into a "live" type, referencing actual [MClass]es loaded by a
@@ -97,23 +95,11 @@ internal constructor(
     }
   }
 
-  public val isClassType: Boolean = root.className == CLASS
-
   /** Returns the subset of [allConcreteSubtypes] having the exact same [root] as ours. */
-  public fun concreteSubtypesSameClass(): Sequence<MType> {
-    // TODO reduce special-casing
-    return when {
-      root.abstract -> emptySequence()
-      isClassType -> concreteSubclasses(dependencies.getClassForClassType()).map { it.classType }
-      else -> {
-        val axes = dependencies.typeDependencies.map { it.allConcreteSpecializations().toList() }
-        val product = axes.cartesianProduct()
-        product.map { root.withAllDependencies(DependencySet.of(it)) }
-      }
-    }
-  }
+  public fun concreteSubtypesSameClass(): Sequence<MType> =
+      if (root.abstract) emptySequence() else dependencies.concreteSubtypesSameClass(this)
 
-  private fun concreteSubclasses(mclass: MClass) =
+  internal fun concreteSubclasses(mclass: MClass) =
       mclass.allSubclasses.asSequence().filter { !it.abstract }
 
   override fun ensureNarrows(that: MType, info: TypeInfo) {

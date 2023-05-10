@@ -6,6 +6,7 @@ import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.types.Dependency.Key
 import dev.martianzoo.tfm.types.Dependency.TypeDependency
 import dev.martianzoo.util.Hierarchical
+import dev.martianzoo.util.cartesianProduct
 import dev.martianzoo.util.toSetStrict
 
 // Takes care of everything inside the <> but knows nothing of what's outside it
@@ -131,6 +132,16 @@ internal class DependencySet private constructor(private val deps: Set<Dependenc
           deps.firstNotNullOfOrNull { dependency(arg, it) }
               ?: throw Exceptions.badExpression(arg, toString())
         })
+  }
+
+  /** Returns the subset of [allConcreteSubtypes] having the exact same [root] as ours. */
+  public fun concreteSubtypesSameClass(mtype: MType): Sequence<MType> {
+    return try {
+      mtype.concreteSubclasses(getClassForClassType()).map { it.classType }
+    } catch (ignore: Exception) {
+      val axes = typeDependencies.map { it.allConcreteSpecializations().toList() }
+      axes.cartesianProduct().map { mtype.root.withAllDependencies(of(it)) }
+    }
   }
 
   override fun equals(other: Any?) = other is DependencySet && deps == other.deps
