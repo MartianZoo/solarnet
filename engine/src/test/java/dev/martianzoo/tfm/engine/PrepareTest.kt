@@ -20,11 +20,7 @@ private class PrepareTest {
   val instructor = Instructor(p1 as GameWriterImpl, PLAYER1)
 
   init {
-    val unsafe = p1 as UnsafeGameWriter
-    unsafe.sneakyChange(gaining = game.toComponent(parse("Plant<P1>")))
-    unsafe.sneakyChange(10, gaining = game.toComponent(parse("ProjectCard<Player1>")))
-    unsafe.sneakyChange(
-        removing = game.toComponent(parse("Production<Player1, Class<Megacredit>>")))
+    p1.session().action("Plant, 10 ProjectCard, PROD[-1]")
   }
 
   fun preprocess(instr: Instruction): Instruction {

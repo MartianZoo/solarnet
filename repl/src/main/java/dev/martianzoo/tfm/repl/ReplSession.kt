@@ -345,7 +345,7 @@ public class ReplSession(var setup: GameSetup, private val jline: JlineRepl? = n
       val changes: TaskResult =
           when (mode) {
             RED,
-            YELLOW -> session.sneakyChange(instr)
+            YELLOW, // TODO sneaky change??
             GREEN -> execute(instr)
             BLUE ->
                 when {

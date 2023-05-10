@@ -1,6 +1,5 @@
 package dev.martianzoo.tfm.engine
 
-import dev.martianzoo.tfm.api.Exceptions
 import dev.martianzoo.tfm.api.Exceptions.NotNowException
 import dev.martianzoo.tfm.data.Player
 import dev.martianzoo.tfm.data.Task.TaskId
@@ -11,12 +10,10 @@ import dev.martianzoo.tfm.pets.Transforming.replaceOwnerWith
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.pets.ast.Instruction
-import dev.martianzoo.tfm.pets.ast.Instruction.Change
 import dev.martianzoo.tfm.pets.ast.Instruction.Companion.split
 import dev.martianzoo.tfm.pets.ast.Metric
 import dev.martianzoo.tfm.pets.ast.PetElement
 import dev.martianzoo.tfm.pets.ast.Requirement
-import dev.martianzoo.tfm.pets.ast.ScaledExpression.Scalar.ActualScalar
 import dev.martianzoo.tfm.types.MType
 import dev.martianzoo.util.HashMultiset
 import dev.martianzoo.util.Hierarchical.Companion.lub
@@ -112,21 +109,6 @@ internal constructor(
     }
 
     fun rollItBack() = null
-  }
-
-  fun sneakyChange(instruction: Instruction): TaskResult {
-    val changes =
-        prepAndSplit(instruction).mapNotNull {
-          if (it !is Change) throw Exceptions.badSneak(it)
-          val count = it.count
-          require(count is ActualScalar)
-          (writer as Game.GameWriterImpl).sneakyChange( // TODO
-              count.value,
-              game.toComponent(it.gaining),
-              game.toComponent(it.removing),
-          )
-        }
-    return TaskResult(changes = changes, tasksSpawned = setOf())
   }
 
   // OTHER

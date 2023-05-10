@@ -296,7 +296,7 @@ internal constructor(
      * public method so that a broken game state can be fixed, or a game state broken on purpose, or
      * specific game scenario set up very explicitly.
      */
-    override fun sneakyChange(
+    fun updateAndLog(
         count: Int,
         gaining: Component?,
         removing: Component?,
@@ -305,7 +305,7 @@ internal constructor(
       removing?.let { (game.components as WritableComponentGraph).checkDependents(count, it) }
       val change =
           try {
-            game.writableComponents.update(count, gaining = gaining, removing = removing)
+            game.writableComponents.reallyUpdate(count, gaining = gaining, removing = removing)
           } catch (e: IllegalArgumentException) { // TODO meh
             throw LimitsException(e.message ?: "")
           }
@@ -315,14 +315,14 @@ internal constructor(
     internal fun addTasks(instruction: Instruction, owner: Player, cause: Cause?) =
         game.writableTasks.addTasksFrom(instruction, owner, cause, game.writableEvents)
 
-    internal fun fixDependentsAndUpdate(
+    internal fun fixDependentsUpdateAndLog(
         count: Int = 1,
         gaining: Component? = null,
         removing: Component? = null,
         cause: Cause? = null,
     ): TaskResult {
       val cp = game.checkpoint()
-      fun tryIt() = sneakyChange(count, gaining, removing, cause)
+      fun tryIt() = updateAndLog(count, gaining, removing, cause)
       try {
         tryIt()
       } catch (e: ExistingDependentsException) {
@@ -330,7 +330,7 @@ internal constructor(
         e.dependents.forEach {
           val cpt = game.toComponent(it.expressionFull)
           val ct = game.reader.countComponent(cpt.mtype)
-          fixDependentsAndUpdate(ct, removing = cpt, cause = cause)
+          fixDependentsUpdateAndLog(ct, removing = cpt, cause = cause)
         }
         tryIt()
       }

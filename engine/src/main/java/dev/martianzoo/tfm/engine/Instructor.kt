@@ -28,15 +28,17 @@ import kotlin.math.min
 
 /** Just a cute name for "instruction handler". It prepares and executes instructions. */
 internal data class Instructor(
-  private val writer: GameWriterImpl, // makes sense as inner class but file would be so long
-  private val player: Player,
-  private val cause: Cause? = null
+    private val writer: GameWriterImpl, // makes sense as inner class but file would be so long
+    private val player: Player,
+    private val cause: Cause? = null
 ) {
   private val game by writer::game
   private val reader by game::reader
 
   fun prepare(unprepared: Instruction): Instruction? =
-      doPrepare(unprepared).let { return if (it == NoOp) null else it }
+      doPrepare(unprepared).let {
+        return if (it == NoOp) null else it
+      }
 
   /**
    * Returns a narrowed form of [unprepared] based on the current game state (but changes no game
@@ -147,15 +149,11 @@ internal data class Instructor(
     when (instruction) {
       is Change -> {
         val ct =
-            instruction.count as? ActualScalar
-                ?: throw Exceptions.abstractInstruction(instruction)
+            instruction.count as? ActualScalar ?: throw Exceptions.abstractInstruction(instruction)
         if (instruction.intensity != MANDATORY) throw Exceptions.abstractInstruction(instruction)
 
         executeWrite(
-            ct.value,
-            game.toComponent(instruction.gaining),
-            game.toComponent(instruction.removing)
-        )
+            ct.value, game.toComponent(instruction.gaining), game.toComponent(instruction.removing))
       }
       is Then -> {
         if (instruction.descendantsOfType<XScalar>().any()) {
@@ -171,7 +169,13 @@ internal data class Instructor(
   }
 
   private fun executeWrite(count: Int, gaining: Component?, removing: Component?) {
-    val result = writer.fixDependentsAndUpdate(count = count, gaining = gaining, removing = removing, cause = cause)
+    val result =
+        writer.fixDependentsUpdateAndLog(
+            count = count,
+            gaining = gaining,
+            removing = removing,
+            cause = cause,
+        )
     // TODO problem: we need to get events logged before firing triggers?
     result.changes.forEach(::fireTriggers)
   }
