@@ -1,5 +1,6 @@
 package dev.martianzoo.tfm.types
 
+import dev.martianzoo.tfm.api.Exceptions
 import dev.martianzoo.tfm.api.TypeInfo
 import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.types.Dependency.Key
@@ -72,8 +73,7 @@ internal class DependencySet private constructor(private val deps: Set<Dependenc
   override fun ensureNarrows(that: DependencySet, info: TypeInfo) =
       that.deps.forEach { get(it.key).ensureNarrows(it, info) }
 
-  fun narrows(that: DependencySet, info: TypeInfo) =
-      that.deps.all { get(it.key).narrows(it, info) }
+  fun narrows(that: DependencySet, info: TypeInfo) = that.deps.all { get(it.key).narrows(it, info) }
 
   // OTHER OPERATORS
 
@@ -101,6 +101,37 @@ internal class DependencySet private constructor(private val deps: Set<Dependenc
 
   internal fun map(function: (MType) -> MType) =
       DependencySet(deps.toSetStrict { if (it is TypeDependency) it.map(function) else it })
+
+  fun specialize(specs: List<Expression>): DependencySet {
+    // This has been a bit optimized
+    val partial = matchPartial(specs)
+    return of(keys.map { partial.getIfPresent(it) ?: get(it) })
+  }
+
+  /**
+   * For an example expression like `Foo<Bar, Qux>`, pass in `[Bar, Qux]` and Foo's base dependency
+   * set. This method decides which dependencies in the dependency set each of these args should be
+   * matched with. The returned dependency set will have [TypeDependency]s in the corresponding
+   * order to the input expressions.
+   */
+  fun matchPartial(args: List<Expression>): DependencySet {
+    val usedDeps = mutableSetOf<Dependency>()
+
+    fun dependency(arg: Expression, it: Dependency): Dependency? {
+      val intersectionType: Dependency? = it.intersect(arg)
+      return if (intersectionType != null && usedDeps.add(it)) {
+        intersectionType
+      } else {
+        null
+      }
+    }
+
+    return of(
+        args.map { arg ->
+          deps.firstNotNullOfOrNull { dependency(arg, it) }
+              ?: throw Exceptions.badExpression(arg, toString())
+        })
+  }
 
   override fun equals(other: Any?) = other is DependencySet && deps == other.deps
   override fun hashCode() = deps.hashCode()

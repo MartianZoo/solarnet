@@ -32,18 +32,5 @@ public abstract class MClassTable {
   /** Returns the corresponding [MType] to [type] (possibly [type] itself). */
   abstract fun resolve(type: Type): MType
 
-  /**
-   * For an example expression like `Foo<Bar, Qux>`, pass in `[Bar, Qux]` and Foo's base dependency
-   * set. This method decides which dependencies in the dependency set each of these args should be
-   * matched with. The returned dependency set will have [Dependency]s in the corresponding order to
-   * the input expressions.
-   *
-   * DON'T call this for the <Foo> in Class<Foo>, it won't work.
-   */
-  internal abstract fun matchPartial(
-      expressionArgs: List<Expression>,
-      deps: DependencySet,
-  ): DependencySet
-
   internal abstract fun defaults(className: ClassName): Defaults
 }

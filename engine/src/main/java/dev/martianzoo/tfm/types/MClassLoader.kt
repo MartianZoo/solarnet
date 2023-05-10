@@ -2,6 +2,7 @@ package dev.martianzoo.tfm.types
 
 import dev.martianzoo.tfm.api.Authority
 import dev.martianzoo.tfm.api.Exceptions
+import dev.martianzoo.tfm.api.Exceptions.ExpressionException
 import dev.martianzoo.tfm.api.SpecialClassNames.CLASS
 import dev.martianzoo.tfm.api.SpecialClassNames.COMPONENT
 import dev.martianzoo.tfm.api.SpecialClassNames.OK
@@ -12,7 +13,6 @@ import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.pets.ast.PetNode
 import dev.martianzoo.tfm.pets.ast.Requirement
-import dev.martianzoo.tfm.types.Dependency.TypeDependency
 
 /**
  * All [MClass] instances come from here. Uses an [Authority] to pull class declarations from as
@@ -56,9 +56,13 @@ public class MClassLoader(
 
   /** Returns the [MType] represented by [expression]. */
   override fun resolve(expression: Expression): MType {
-    return getClass(expression.className)
-        .specialize(expression.arguments)
-        .refine(expression.refinement)
+    return try {
+      getClass(expression.className)
+          .specialize(expression.arguments)
+          .refine(expression.refinement)
+    } catch (e: Exception) {
+      throw ExpressionException("can't resolve $expression", e)
+    }
   }
 
   /** Returns the corresponding [MType] to [type] (possibly [type] itself). */
@@ -170,30 +174,6 @@ public class MClassLoader(
     require(frozen)
     allClasses.associate { it.className to Defaults.forClass(it) } +
         allClasses.associate { it.shortName to Defaults.forClass(it) }
-  }
-
-  /**
-   * For an example expression like `Foo<Bar, Qux>`, pass in `[Bar, Qux]` and Foo's base dependency
-   * set. This method decides which dependencies in the dependency set each of these args should be
-   * matched with. The returned dependency set will have [TypeDependency]s in the corresponding
-   * order to the input expressions.
-   *
-   * DON'T call this for the <Foo> in Class<Foo>, it won't work.
-   */
-  override fun matchPartial(expressionArgs: List<Expression>, deps: DependencySet): DependencySet {
-    val usedDeps = mutableSetOf<TypeDependency>()
-    val list =
-        expressionArgs.map { arg ->
-          val specType: MType = resolve(arg)
-          for (candidateDep in deps.typeDependencies) {
-            val intersectionType = (specType glb candidateDep.boundType) ?: continue
-            if (usedDeps.add(candidateDep)) {
-              return@map TypeDependency(candidateDep.key, intersectionType)
-            }
-          }
-          throw Exceptions.badExpression(arg, deps.toString())
-        }
-    return DependencySet.of(list)
   }
 
   override fun defaults(className: ClassName) =

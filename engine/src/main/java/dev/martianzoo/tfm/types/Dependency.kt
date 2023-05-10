@@ -5,6 +5,7 @@ import dev.martianzoo.tfm.api.TypeInfo
 import dev.martianzoo.tfm.pets.HasClassName
 import dev.martianzoo.tfm.pets.HasExpression
 import dev.martianzoo.tfm.pets.ast.ClassName
+import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.util.Hierarchical
 
 internal sealed class Dependency : Hierarchical<Dependency>, HasExpression, HasClassName {
@@ -35,6 +36,8 @@ internal sealed class Dependency : Hierarchical<Dependency>, HasExpression, HasC
 
   abstract fun narrows(that: Dependency, info: TypeInfo): Boolean
 
+  abstract fun intersect(expression: Expression): Dependency?
+
   /** Any [Dependency] except for the case covered by [FakeDependency] below. */
   data class TypeDependency(override val key: Key, val boundType: MType) :
       Dependency(), HasExpression by boundType {
@@ -53,17 +56,22 @@ internal sealed class Dependency : Hierarchical<Dependency>, HasExpression, HasC
 
     override fun isSubtypeOf(that: Dependency) = boundType.isSubtypeOf(boundOf(that))
 
-    override fun glb(that: Dependency) = (boundType glb boundOf(that))?.let { copy(boundType = it) }
+    override fun glb(that: Dependency): TypeDependency? {
+      if (that !is TypeDependency) return null
+      return (boundType glb boundOf(that))?.let { copy(boundType = it) }
+    }
 
     override fun lub(that: Dependency) = copy(boundType = boundType lub boundOf(that))
 
     internal fun map(function: (MType) -> MType) = copy(boundType = function(boundType))
 
+    override fun intersect(expression: Expression): TypeDependency? =
+        glb(copy(boundType = boundType.loader.resolve(expression)))
+
     override fun ensureNarrows(that: Dependency, info: TypeInfo) =
         boundType.ensureNarrows(boundOf(that), info)
 
-    override fun narrows(that: Dependency, info: TypeInfo) =
-        boundType.narrows(boundOf(that), info)
+    override fun narrows(that: Dependency, info: TypeInfo) = boundType.narrows(boundOf(that), info)
 
     private fun boundOf(that: Dependency): MType =
         (that as TypeDependency).boundType.also { require(key == that.key) }
@@ -90,19 +98,25 @@ internal sealed class Dependency : Hierarchical<Dependency>, HasExpression, HasC
 
     override fun isSubtypeOf(that: Dependency) = boundClass.isSubtypeOf(boundOf(that))
 
-    override fun glb(that: Dependency): FakeDependency? =
-        (boundClass glb boundOf(that))?.let(::copy)
+    override fun glb(that: Dependency): FakeDependency? {
+      if (that !is FakeDependency) return null
+      return (boundClass glb boundOf(that))?.let(::copy)
+    }
 
     override fun lub(that: Dependency): FakeDependency = copy(boundClass lub boundOf(that))
 
     override fun ensureNarrows(that: Dependency, info: TypeInfo) =
         boundClass.ensureNarrows(boundOf(that), info)
 
-    override fun narrows(that: Dependency, info: TypeInfo) =
-        boundClass.isSubtypeOf(boundOf(that))
+    override fun narrows(that: Dependency, info: TypeInfo) = boundClass.isSubtypeOf(boundOf(that))
 
     private fun boundOf(that: Dependency): MClass =
         (that as FakeDependency).boundClass.also { require(key == that.key) }
+
+    override fun intersect(expression: Expression): FakeDependency? {
+      if (!expression.simple) return null
+      return glb(copy(boundClass.loader.getClass(expression.className)))
+    }
   }
 
   companion object {

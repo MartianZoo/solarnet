@@ -228,7 +228,7 @@ public fun deprodify(): PetTransformer {
 
     val mclass: MClass = table.getClass(original.className)
     val dethissed: Expression = replaceThisExpressionsWith(contextCpt).transform(original)
-    val match: DependencySet = table.matchPartial(dethissed.arguments, mclass.dependencies)
+    val match: DependencySet = mclass.dependencies.matchPartial(dethissed.arguments)
 
     val preferred: Map<Key, Expression> = match.keys.zip(original.arguments).toMap()
     val fallbacks: Map<Key, Expression> =

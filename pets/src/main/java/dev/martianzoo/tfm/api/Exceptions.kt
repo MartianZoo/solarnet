@@ -49,7 +49,8 @@ public object Exceptions {
   // TOP-LEVEL EXCEPTIONS
 
   /** A problem with Pets syntax. */
-  public open class PetException internal constructor(message: String) : Exception(message)
+  public open class PetException internal constructor(message: String, cause: Throwable? = null) :
+      Exception(message, cause)
 
   /**
    * An attempt was made to execute an instruction that was not fully-specified. This should be
@@ -78,7 +79,8 @@ public object Exceptions {
   // TODO should just be factories
 
   /** A string does not represent a valid expression. */
-  public class ExpressionException internal constructor(message: String) : PetException(message)
+  public class ExpressionException(message: String, cause: Throwable? = null) :
+      PetException(message, cause)
 
   /** Something needed a requirement to be met and it was not. */
   public class RequirementException internal constructor(message: String) :

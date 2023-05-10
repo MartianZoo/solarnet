@@ -2,7 +2,6 @@ package dev.martianzoo.tfm.types
 
 import dev.martianzoo.tfm.api.Exceptions
 import dev.martianzoo.tfm.api.SpecialClassNames.CLASS
-import dev.martianzoo.tfm.api.SpecialClassNames.COMPONENT
 import dev.martianzoo.tfm.api.Type
 import dev.martianzoo.tfm.api.TypeInfo
 import dev.martianzoo.tfm.pets.HasClassName
@@ -54,20 +53,8 @@ internal constructor(
           .withAllDependencies(dependencies lub that.dependencies)
           .refine(setOf(refinement, that.refinement).singleOrNull())
 
-  // TODO optimize
-  internal fun specialize(specs: List<Expression>): MType {
-    return if (isClassType) { // TODO reduce special-casing
-      if (specs.size > 1) throw Exceptions.badClassExpression(specs)
-      val classNameExpr = specs.singleOrNull() ?: COMPONENT.expression
-      if (!classNameExpr.simple) throw Exceptions.badClassExpression(specs)
-      loader.getClass(classNameExpr.className).classType
-    } else {
-      // This has been a bit optimized
-      val partial: DependencySet = loader.matchPartial(specs, dependencies)
-      val reordered = dependencies.keys.map { partial.getIfPresent(it) ?: dependencies.get(it) }
-      copy(dependencies = DependencySet.of(reordered))
-    }
-  }
+  internal fun specialize(specs: List<Expression>): MType =
+      copy(dependencies = dependencies.specialize(specs))
 
   public fun refine(newRef: Requirement?): MType =
       copy(refinement = Requirement.join(refinement, newRef))
