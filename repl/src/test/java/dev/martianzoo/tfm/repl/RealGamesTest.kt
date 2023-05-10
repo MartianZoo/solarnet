@@ -168,10 +168,8 @@ class RealGamesTest {
           .containsExactly(3, 17, 4, 10, 3)
 
       // tag abbreviations
-      // TODO BAD I'm expecting an extra space tag, 2 science tag, 1 earth tag here - why?
-      // maybe events?
       assertThat(counts("BUT, SPT, SCT, POT, EAT, JOT, PLT, MIT, ANT, CIT"))
-          .containsExactly(9, 4, 6, 2, 4, 0, 0, 1, 0, 0)
+          .containsExactly(9, 3, 4, 2, 3, 0, 0, 1, 0, 0)
           .inOrder()
 
       assertThat(counts("CityTile, GreeneryTile, SpecialTile")).containsExactly(1, 0, 1).inOrder()

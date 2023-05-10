@@ -338,6 +338,7 @@ public sealed class Instruction : PetElement() {
 
     override fun isAbstract(info: TypeInfo) = instructions.any { it.isAbstract(info) }
 
+    // TODO understand and simplify
     override fun ensureIsNarrowedBy_doNotCall(proposed: Instruction, info: TypeInfo) {
       proposed as? Then ?: throw NarrowingException("Can't reify $this to $proposed")
       for ((wide, narrow) in instructions.zip(proposed.instructions)) {
