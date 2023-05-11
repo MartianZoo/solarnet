@@ -44,11 +44,7 @@ internal class WritableComponentGraph(
   ): StateChange {
     removing?.let { multiset.mustRemove(it, count) }
     gaining?.let { multiset.add(it, count) }
-    return StateChange(
-        count = count,
-        gaining = gaining?.expressionFull,
-        removing = removing?.expressionFull,
-    )
+    return StateChange(count, gaining?.expressionFull, removing?.expressionFull)
   }
 
   override fun findLimit(

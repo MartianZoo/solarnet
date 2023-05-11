@@ -2,7 +2,6 @@ package dev.martianzoo.tfm.engine
 
 import dev.martianzoo.tfm.api.Exceptions.AbstractException
 import dev.martianzoo.tfm.api.Exceptions.ExistingDependentsException
-import dev.martianzoo.tfm.api.Exceptions.LimitsException
 import dev.martianzoo.tfm.api.Exceptions.NotNowException
 import dev.martianzoo.tfm.api.Exceptions.TaskException
 import dev.martianzoo.tfm.api.GameReader
@@ -303,12 +302,7 @@ internal constructor(
         cause: Cause?,
     ): ChangeEvent? {
       removing?.let { (game.components as WritableComponentGraph).checkDependents(count, it) }
-      val change =
-          try {
-            game.writableComponents.reallyUpdate(count, gaining = gaining, removing = removing)
-          } catch (e: IllegalArgumentException) { // TODO meh
-            throw LimitsException(e.message ?: "")
-          }
+      val change = game.writableComponents.reallyUpdate(count, gaining, removing)
       return game.writableEvents.addChangeEvent(change, player, cause)
     }
 

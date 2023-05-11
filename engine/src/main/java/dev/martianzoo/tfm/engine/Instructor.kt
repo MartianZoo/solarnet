@@ -97,12 +97,7 @@ internal data class Instructor(
 
     if (g?.abstract == true || r?.abstract == true) {
       // Then narrowing the types some is all we'll do (TODO get more clever)
-      return Change.change(
-          scal.value,
-          gaining = g?.expression,
-          removing = r?.expression,
-          intensity = instruction.intensity!!,
-      )
+      return Change.change(scal.value, g?.expression, r?.expression, instruction.intensity!!)
     }
 
     val gc = g?.let { Component.ofType(reader.resolve(it.expressionFull) as MType) }
@@ -119,12 +114,12 @@ internal data class Instructor(
         )
       }
       // Then change nothing...
-      return Change.change(scal.value, gaining = gc?.expression, removing = rc?.expression)
+      return Change.change(scal.value, gc?.expression, rc?.expression)
     } else {
       val newIntensity =
           if (instruction.intensity == Instruction.Intensity.AMAP) MANDATORY
           else Instruction.Intensity.OPTIONAL
-      Change.change(adjusted, gaining = g?.expression, removing = r?.expression, newIntensity)
+      Change.change(adjusted, g?.expression, r?.expression, newIntensity)
     }
   }
 
