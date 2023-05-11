@@ -62,7 +62,7 @@ public class CardDefinition(data: CardData) : Definition {
    * The id of the card this card replaces, if any. For example, the `"X31"` Deimos Down replaces
    * the `"039"` Deimos Down.
    */
-  public val replaces: String? by data::replaces // TODO needs to exist? #49
+  public val replaces: String? by data::replaces
 
   public val projectInfo: ProjectInfo? = if (deck == PROJECT) ProjectInfo(data) else null
 

@@ -80,11 +80,12 @@ public class PlayerSession(
   }
 
   /** Action just means "queue empty -> do anything -> queue empty again" */
-  fun action(firstInstruction: Instruction): TaskResult {
-    return atomic { action(firstInstruction) {} }
+  fun action(firstInstruction: Instruction, vararg tasks: String): TaskResult {
+    return atomic { action(firstInstruction) { tasks.forEach(::doFirstTask) } }
   }
 
-  fun action(firstInstruction: String): TaskResult = action(parseInContext(firstInstruction))
+  fun action(firstInstruction: String, vararg tasks: String): TaskResult =
+      action(parseInContext(firstInstruction), *tasks)
 
   fun <T : Any> action(firstInstruction: String, tasker: Tasker.() -> T?) =
       action(parseInContext(firstInstruction), tasker)

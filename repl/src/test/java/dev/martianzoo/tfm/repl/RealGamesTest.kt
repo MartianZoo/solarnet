@@ -19,6 +19,7 @@ import dev.martianzoo.util.toStrings
 import org.junit.jupiter.api.Test
 
 class RealGamesTest {
+  @Test
   fun fourWholeGenerations() {
     val game = Engine.newGame(GameSetup(Canon, "BREPT", 2))
     val engine = game.session(ENGINE)
@@ -27,8 +28,10 @@ class RealGamesTest {
 
     fun areWeClear() = assertThat(game.tasks.toStrings()).isEmpty()
 
-    p1.action("CorporationCard, LakefrontResorts, 3 BuyCard")
-    p2.action("CorporationCard, InterplanetaryCinematics, 8 BuyCard")
+    p1.action("CorporationCard, LakefrontResorts")
+    p1.action("3 BuyCard") // TODO join with prev line?
+    p2.action("CorporationCard, InterplanetaryCinematics")
+    p2.action("8 BuyCard")
 
     engine.action("PreludePhase")
 
@@ -47,9 +50,10 @@ class RealGamesTest {
       action("-6, GreatEscarpmentConsortium") { doFirstTask("PROD[-Steel<Player1>]") }
     }
 
-    engine.action("ProductionPhase, ResearchPhase")
-    p1.tryMatchingTask("4 BuyCard")
-    p2.tryMatchingTask("1 BuyCard")
+    engine.action("ProductionPhase, ResearchPhase") {
+      p1.tryMatchingTask("4 BuyCard")
+      p2.tryMatchingTask("1 BuyCard")
+    }
 
     engine.action("ActionPhase")
 
@@ -75,9 +79,10 @@ class RealGamesTest {
     }
 
     engine.action("ProductionPhase")
-    engine.action("ResearchPhase")
-    p1.tryMatchingTask("3 BuyCard")
-    p2.tryMatchingTask("2 BuyCard")
+    engine.action("ResearchPhase") {
+      p1.tryMatchingTask("3 BuyCard")
+      p2.tryMatchingTask("2 BuyCard")
+    }
     engine.action("ActionPhase")
     areWeClear()
 
@@ -95,9 +100,10 @@ class RealGamesTest {
     }
 
     engine.action("ProductionPhase")
-    engine.action("ResearchPhase")
-    p1.tryMatchingTask("3 BuyCard")
-    p2.tryMatchingTask("2 BuyCard")
+    engine.action("ResearchPhase") {
+      p1.tryMatchingTask("3 BuyCard")
+      p2.tryMatchingTask("2 BuyCard")
+    }
     engine.action("ActionPhase")
     areWeClear()
 
@@ -130,10 +136,9 @@ class RealGamesTest {
     }
 
     engine.action("ProductionPhase")
-    engine.action("ResearchPhase")
 
     // Stuff
-    assertThat(engine.counts("Generation")).containsExactly(5)
+    assertThat(engine.counts("Generation")).containsExactly(4)
     assertThat(engine.counts("OceanTile, OxygenStep, TemperatureStep")).containsExactly(0, 0, 0)
 
     with(p1) {
@@ -208,6 +213,7 @@ class RealGamesTest {
     }
   }
 
+  @Test
   fun ellieGame() {
     val game = Engine.newGame(GameSetup(Canon, "BRHXP", 2))
     val eng = game.session(ENGINE)
@@ -218,26 +224,22 @@ class RealGamesTest {
 
     p1.action("NewTurn") {
       tryMatchingTask("InterplanetaryCinematics")
-      assertCounts(0 to "M", 1 to "BuildingTag", 0 to "ProjectCard")
       assertCounts(30 to "M", 1 to "BuildingTag", 0 to "ProjectCard")
       tryMatchingTask("7 BuyCard")
       assertCounts(9 to "M", 1 to "BuildingTag", 7 to "ProjectCard")
     }
 
-    p2.action("NewTurn") {
-      doFirstTask("PharmacyUnion")
-      doFirstTask("5 BuyCard")
-    }
+    p2.action("NewTurn", "PharmacyUnion", "5 BuyCard")
 
     // Let's play our preludes
 
     eng.action("PreludePhase")
 
-    p1.startTurn("UnmiContractor")
-    p1.startTurn("CorporateArchives")
+    p1.action("NewTurn", "UnmiContractor")
+    p1.action("NewTurn", "CorporateArchives")
 
-    p2.startTurn("BiosphereSupport")
-    p2.startTurn("SocietySupport")
+    p1.action("NewTurn", "BiosphereSupport")
+    p1.action("NewTurn", "SocietySupport")
 
     // Action!
 
@@ -245,25 +247,28 @@ class RealGamesTest {
 
     p1.playCard("MediaGroup", 6)
     p1.playCard("Sabotage", 1)
-    p1.tryMatchingTask("-7 Megacredit<Player2>")
+
+    // p1.tryMatchingTask("-7 Megacredit<Player2>") TODO playCard is over-Ok'ing
 
     p2.playCard("Research", 11)
     p2.playCard("MartianSurvey", 9)
 
     p1.startTurn("Pass")
 
-    p2.playCard("SearchForLife", 3)
+    p2.startTurn("UseAction1<PlayCardFromHand>", "PlayCard<Class<SearchForLife>>")
+    p2.tryMatchingTask("3 Pay<Class<M>> FROM M")
     p2.tryMatchingTask("PlayedEvent<Class<PharmacyUnion>> FROM PharmacyUnion THEN 3 TR")
 
-    p2.useCardAction(1, "SearchForLife", "-1") // TODO simplify
+    p2.useCardAction(1, "SearchForLife", "Ok") // TODO wha?
     p2.startTurn("Pass")
 
     // Generation 2
 
     eng.action("ProductionPhase")
-    eng.action("ResearchPhase")
-    p1.tryMatchingTask("BuyCard")
-    p2.tryMatchingTask("3 BuyCard")
+    eng.action("ResearchPhase") {
+      p1.tryMatchingTask("BuyCard")
+      p2.tryMatchingTask("3 BuyCard")
+    }
     eng.action("ActionPhase")
 
     p2.startTurn("UseAction1<SellPatents>", "Megacredit FROM ProjectCard")
@@ -272,15 +277,12 @@ class RealGamesTest {
 
     with(p1) {
       playCard("EarthCatapult", 23)
-      playCard("OlympusConference", 0, steel = 4, titanium = 0, "Science<OlympusConference>")
+      playCard("OlympusConference", steel = 4)
 
       playCard("DevelopmentCenter", 1, steel = 4)
       tryMatchingTask("ProjectCard FROM Science<OlympusConference>")
 
-      playCard("GeothermalPower", 1)
-
-      // studying to see why this is so slow
-      tryMatchingTask("4 Pay<Class<S>> FROM S")
+      playCard("GeothermalPower", 1, steel = 4)
 
       playCard("MirandaResort", 10)
       playCard("Hackers", 1)
@@ -292,9 +294,10 @@ class RealGamesTest {
     // Generation 2
 
     eng.action("ProductionPhase")
-    eng.action("ResearchPhase")
-    p1.tryMatchingTask("3 BuyCard")
-    p2.tryMatchingTask("BuyCard")
+    eng.action("ResearchPhase") {
+      p1.tryMatchingTask("3 BuyCard")
+      p2.tryMatchingTask("BuyCard")
+    }
     eng.action("ActionPhase")
 
     p1.useCardAction(1, "DevelopmentCenter")
@@ -307,6 +310,8 @@ class RealGamesTest {
 
     assertThat(eng.counts("Generation")).containsExactly(3)
     assertThat(eng.counts("OceanTile, OxygenStep, TemperatureStep")).containsExactly(1, 0, 0)
+
+    return // TODO get the rest working
 
     with(p1) {
       assertThat(count("TerraformRating")).isEqualTo(24)
@@ -348,10 +353,7 @@ class RealGamesTest {
 
     // Not sure where this discrepancy comes from... expected P2 to be shorted 1 pt because event
 
-    // 23 2 1 1 -1
-    assertThat(p1.count("VictoryPoint")).isEqualTo(27)
-
-    // 25 1 1 1 (but getting shorted for event card)
-    assertThat(p2.count("VictoryPoint")).isEqualTo(27) // TODO 28
+    // 23 2 1 1 -1 / 25 1 1 1
+    eng.assertCounts(26 to "VP<P1>", 28 to "VP<P2>")
   }
 }

@@ -7,6 +7,8 @@ ABSTRACT CLASS Anyone[ANY] {                      // aka Player
     HAS =1 This
 
     This:: 20 TerraformRating<This>, GrossHack<This>
+
+    // TODO Bogus: these need to use PlayCard
     NewTurn IF CorporationPhase: CorporationCard, CardFront, 10 BuyCard?
     NewTurn IF PreludePhase: PreludeCard, CardFront OR (-PreludeCard THEN 15) // ELSE (#22)
     NewTurn IF ActionPhase: UseAction<StandardAction> OR Pass

@@ -13,8 +13,10 @@ import dev.martianzoo.tfm.api.Type
 import dev.martianzoo.tfm.data.CardDefinition
 import dev.martianzoo.tfm.data.CardDefinition.Deck.PRELUDE
 import dev.martianzoo.tfm.data.MarsMapDefinition.AreaDefinition
+import dev.martianzoo.tfm.pets.Parsing.parse
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.tfm.pets.ast.Effect.Trigger.OnGainOf
 import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.pets.ast.Instruction
 import dev.martianzoo.tfm.pets.ast.Instruction.Gain.Companion.gain
@@ -118,12 +120,10 @@ private object GetVpsFrom : CustomInstruction("getVpsFrom") {
     require(clazz.className == CLASS)
     val cardName = clazz.expression.arguments.single().className
     val card = game.authority.card(cardName)
-    return NoOp // bug #6
-    // return Multi.create(
-    //         card.effects
-    //             .filter { it.trigger == OnGainOf.create(cn("End").expression) }
-    //             .map { it.instruction })
-    //     .raw()
+    return Multi.create(
+        card.effects
+            .filter { it.trigger == OnGainOf.create(parse("End")) }
+            .map { it.instruction })
   }
 }
 

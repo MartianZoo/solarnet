@@ -12,7 +12,7 @@ object Humanizing {
   fun PlayerSession.startTurn(vararg tasks: String) {
     atomic {
       initiate("NewTurn")
-      tasks.forEach(::doFirstTask)
+      tasks.forEach(::tryMatchingTask)
     }
   }
 
@@ -25,7 +25,7 @@ object Humanizing {
   ) {
     startTurn("UseAction1<PlayCardFromHand>", "PlayCard<Class<$cardName>>")
 
-    // TODO: this should not be order-dependent
+    // TODO: fix cause this is over-Ok'ing
     if (megacredits > 0) (tryMatchingTask("$megacredits Pay<Class<M>> FROM M"))
     if (steel > 0) (tryMatchingTask("$steel Pay<Class<S>> FROM S"))
     if (titanium > 0) (tryMatchingTask("$titanium Pay<Class<T>> FROM T"))
