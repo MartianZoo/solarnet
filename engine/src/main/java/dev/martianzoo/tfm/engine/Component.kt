@@ -1,6 +1,7 @@
 package dev.martianzoo.tfm.engine
 
 import dev.martianzoo.tfm.api.Exceptions
+import dev.martianzoo.tfm.api.GameReader
 import dev.martianzoo.tfm.api.SpecialClassNames.OWNED
 import dev.martianzoo.tfm.api.SpecialClassNames.OWNER
 import dev.martianzoo.tfm.data.Player
@@ -11,6 +12,7 @@ import dev.martianzoo.tfm.pets.PetTransformer.Companion.chain
 import dev.martianzoo.tfm.pets.Transforming.replaceOwnerWith
 import dev.martianzoo.tfm.pets.Transforming.replaceThisExpressionsWith
 import dev.martianzoo.tfm.pets.ast.Effect
+import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.types.Dependency.Key
 import dev.martianzoo.tfm.types.MClass
 import dev.martianzoo.tfm.types.MType
@@ -24,6 +26,9 @@ public data class Component private constructor(val mtype: MType) : HasClassName
   companion object {
     private val cache: MutableMap<MType, Component> = mutableMapOf()
     public fun ofType(mtype: MType) = cache.computeIfAbsent(mtype, ::Component)
+
+    public fun Expression.toComponent(game: GameReader) = ofType(game.resolve(this) as MType)
+    public fun HasExpression.toComponent(game: GameReader) = expressionFull.toComponent(game)
   }
 
   init {

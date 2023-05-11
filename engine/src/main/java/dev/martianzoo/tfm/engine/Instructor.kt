@@ -3,11 +3,13 @@ package dev.martianzoo.tfm.engine
 import dev.martianzoo.tfm.api.Exceptions
 import dev.martianzoo.tfm.api.Exceptions.AbstractException
 import dev.martianzoo.tfm.api.Exceptions.DependencyException
+import dev.martianzoo.tfm.api.Exceptions.abstractInstruction
 import dev.martianzoo.tfm.api.Type
 import dev.martianzoo.tfm.data.GameEvent.ChangeEvent
 import dev.martianzoo.tfm.data.GameEvent.ChangeEvent.Cause
 import dev.martianzoo.tfm.data.Player
 import dev.martianzoo.tfm.engine.ActiveEffect.FiredEffect
+import dev.martianzoo.tfm.engine.Component.Companion.toComponent
 import dev.martianzoo.tfm.engine.Game.GameWriterImpl
 import dev.martianzoo.tfm.pets.PetTransformer.Companion.chain
 import dev.martianzoo.tfm.pets.Transforming.replaceOwnerWith
@@ -100,8 +102,8 @@ internal data class Instructor(
       return Change.change(scal.value, g?.expression, r?.expression, instruction.intensity!!)
     }
 
-    val gc = g?.let { Component.ofType(reader.resolve(it.expressionFull) as MType) }
-    val rc = r?.let { Component.ofType(reader.resolve(it.expressionFull) as MType) }
+    val gc = g?.toComponent(reader)
+    val rc = r?.toComponent(reader)
 
     val upperLimit: Int = game.components.findLimit(gaining = gc, removing = rc)
     val adjusted: Int = min(scal.value, upperLimit)
@@ -143,12 +145,13 @@ internal data class Instructor(
   fun execute(instruction: Instruction) {
     when (instruction) {
       is Change -> {
-        val ct =
-            instruction.count as? ActualScalar ?: throw Exceptions.abstractInstruction(instruction)
-        if (instruction.intensity != MANDATORY) throw Exceptions.abstractInstruction(instruction)
-
+        val ct = instruction.count as? ActualScalar ?: throw abstractInstruction(instruction)
+        if (instruction.intensity != MANDATORY) throw abstractInstruction(instruction)
         executeWrite(
-            ct.value, game.toComponent(instruction.gaining), game.toComponent(instruction.removing))
+            ct.value,
+            instruction.gaining?.toComponent(game.reader),
+            instruction.removing?.toComponent(game.reader),
+        )
       }
       is Then -> {
         if (instruction.descendantsOfType<XScalar>().any()) {

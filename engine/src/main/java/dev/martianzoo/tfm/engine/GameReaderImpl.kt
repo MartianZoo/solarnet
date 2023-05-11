@@ -4,6 +4,7 @@ import dev.martianzoo.tfm.api.Authority
 import dev.martianzoo.tfm.api.GameReader
 import dev.martianzoo.tfm.api.Type
 import dev.martianzoo.tfm.api.TypeInfo
+import dev.martianzoo.tfm.engine.Component.Companion.toComponent
 import dev.martianzoo.tfm.engine.Game.ComponentGraph
 import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.pets.ast.Metric
@@ -60,7 +61,7 @@ internal class GameReaderImpl(val table: MClassTable, val components: ComponentG
   override fun count(type: Type) = components.count(table.resolve(type), this)
 
   override fun countComponent(concreteType: Type) =
-      components.countComponent(Component.ofType(table.resolve(concreteType)))
+      components.countComponent(concreteType.toComponent(this))
 
   override fun getComponents(type: Type) =
       components.getAll(table.resolve(type), this).map { it.mtype }

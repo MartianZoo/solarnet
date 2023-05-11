@@ -11,6 +11,7 @@ import dev.martianzoo.tfm.data.Task
 import dev.martianzoo.tfm.data.Task.TaskId
 import dev.martianzoo.tfm.data.TaskResult
 import dev.martianzoo.tfm.engine.Engine
+import dev.martianzoo.tfm.engine.Game
 import dev.martianzoo.tfm.engine.Game.EventLog.Checkpoint
 import dev.martianzoo.tfm.engine.PlayerSession
 import dev.martianzoo.tfm.engine.UnsafeGameWriter
@@ -445,7 +446,7 @@ public class ReplSession(var setup: GameSetup, private val jline: JlineRepl? = n
   private fun describeExecutionResults(changes: TaskResult): List<String> {
     val oops: List<Task> = changes.tasksSpawned.map { session.game.tasks[it] }
 
-    val interesting: List<ChangeEvent> = changes.changes.filterNot(session.game::isSystem)
+    val interesting: List<ChangeEvent> = changes.changes.filterNot { isSystem(it, session.game) }
     val changeLines = interesting.toStrings().ifEmpty { listOf("No interesting component changes") }
     val taskLines =
         if (oops.any()) {
@@ -467,7 +468,9 @@ public class ReplSession(var setup: GameSetup, private val jline: JlineRepl? = n
     override val isReadOnly = true
 
     override fun noArgs() =
-        session.game.events.changesSinceSetup().filterNot(session.game::isSystem).toStrings()
+        session.game.events.changesSinceSetup().filterNot {
+          isSystem(it, session.game)
+        }.toStrings()
 
     override fun withArgs(args: String): List<String> {
       if (args == "full") {
@@ -476,6 +479,20 @@ public class ReplSession(var setup: GameSetup, private val jline: JlineRepl? = n
         throw UsageException()
       }
     }
+  }
+
+  fun isSystem(event: ChangeEvent, game: Game): Boolean {
+    val g = event.change.gaining
+    val r = event.change.removing
+
+    val system = game.resolve(cn("System").expression)
+    if (listOfNotNull(g, r).all { game.resolve(it).narrows(system) }) return true
+
+    if (r != null) {
+      val signal = game.resolve(cn("Signal").expression)
+      if (game.resolve(r).narrows(signal)) return true
+    }
+    return false
   }
 
   internal inner class RollbackCommand : ReplCommand("rollback") {

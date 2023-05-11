@@ -17,11 +17,11 @@ import dev.martianzoo.tfm.data.Task
 import dev.martianzoo.tfm.data.Task.TaskId
 import dev.martianzoo.tfm.data.TaskResult
 import dev.martianzoo.tfm.engine.ActiveEffect.FiredEffect
+import dev.martianzoo.tfm.engine.Component.Companion.toComponent
 import dev.martianzoo.tfm.engine.Game.ComponentGraph
 import dev.martianzoo.tfm.engine.Game.EventLog
 import dev.martianzoo.tfm.engine.Game.EventLog.Checkpoint
 import dev.martianzoo.tfm.engine.Game.TaskQueue
-import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.pets.ast.Instruction
 import dev.martianzoo.tfm.types.MClass
@@ -143,16 +143,6 @@ internal constructor(
 
   public fun resolve(expression: Expression): MType = table.resolve(expression)
 
-  /**
-   * Returns a component instance of type [expression], whether such a component is part of the
-   * current game state or not.
-   */
-  public fun toComponent(expression: Expression): Component = Component.ofType(resolve(expression))
-
-  @JvmName("toNullableComponent")
-  public fun toComponent(expression: Expression?): Component? =
-      expression?.let { Component.ofType(resolve(it)) }
-
   public fun checkpoint() = events.checkpoint()
 
   public fun rollBack(checkpoint: Checkpoint) {
@@ -162,8 +152,8 @@ internal constructor(
         is ChangeEvent -> {
           writableComponents.reverse(
               it.change.count,
-              removeWhatWasGained = it.change.gaining?.let(::toComponent),
-              gainWhatWasRemoved = it.change.removing?.let(::toComponent),
+              removeWhatWasGained = it.change.gaining?.toComponent(reader),
+              gainWhatWasRemoved = it.change.removing?.toComponent(reader),
           )
         }
       }
@@ -185,20 +175,6 @@ internal constructor(
       writableComponents.activeEffects(classes)
 
   internal fun setupFinished() = writableEvents.setStartPoint()
-
-  fun isSystem(event: ChangeEvent): Boolean {
-    val g = event.change.gaining
-    val r = event.change.removing
-
-    val system = resolve(ClassName.cn("System").expression)
-    if (listOfNotNull(g, r).all { resolve(it).narrows(system) }) return true
-
-    if (r != null) {
-      val signal = resolve(ClassName.cn("Signal").expression)
-      if (resolve(r).narrows(signal)) return true
-    }
-    return false
-  }
 
   internal fun addTriggeredTasks(fired: List<FiredEffect>) =
       fired.forEach { writableTasks.addTasksFrom(it, writableEvents) }
@@ -322,7 +298,7 @@ internal constructor(
       } catch (e: ExistingDependentsException) {
         // TODO better way to remove dependents?
         e.dependents.forEach {
-          val cpt = game.toComponent(it.expressionFull)
+          val cpt = it.toComponent(game.reader)
           val ct = game.reader.countComponent(cpt.mtype)
           fixDependentsUpdateAndLog(ct, removing = cpt, cause = cause)
         }

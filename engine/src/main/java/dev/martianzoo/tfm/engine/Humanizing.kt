@@ -1,6 +1,7 @@
 package dev.martianzoo.tfm.engine
 
 import dev.martianzoo.tfm.api.ApiUtils
+import dev.martianzoo.tfm.engine.Component.Companion.toComponent
 import dev.martianzoo.tfm.pets.ast.ClassName
 
 /**
@@ -54,7 +55,7 @@ object Humanizing {
   fun PlayerSession.production(): Map<ClassName, Int> =
       ApiUtils.standardResourceNames(game.reader).associateWith {
         val type = PRODUCTION.of(player.expression, it.classExpression())
-        countComponent(game.toComponent(type)) - if (it == MEGACREDIT) 5 else 0
+        countComponent(type.toComponent(game.reader)) - if (it == MEGACREDIT) 5 else 0
       }
 
   private val MEGACREDIT = ClassName.cn("Megacredit")
