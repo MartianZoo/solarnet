@@ -12,10 +12,10 @@ import dev.martianzoo.tfm.data.Player.Companion.ENGINE
 import dev.martianzoo.tfm.data.Player.Companion.PLAYER1
 import dev.martianzoo.tfm.data.Player.Companion.PLAYER2
 import dev.martianzoo.tfm.engine.Engine
-import dev.martianzoo.tfm.engine.Humanizing.playCard
-import dev.martianzoo.tfm.engine.Humanizing.production
-import dev.martianzoo.tfm.engine.Humanizing.startTurn
-import dev.martianzoo.tfm.engine.Humanizing.useCardAction
+import dev.martianzoo.tfm.engine.Humanize.playCard
+import dev.martianzoo.tfm.engine.Humanize.production
+import dev.martianzoo.tfm.engine.Humanize.startTurn
+import dev.martianzoo.tfm.engine.Humanize.useCardAction
 import dev.martianzoo.tfm.engine.PlayerSession.Companion.session
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.repl.TestHelpers.assertCounts

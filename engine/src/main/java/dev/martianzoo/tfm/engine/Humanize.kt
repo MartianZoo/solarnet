@@ -7,7 +7,7 @@ import dev.martianzoo.tfm.pets.ast.ClassName
  * Extension functions that translate between the raw engine language and the way humans tend to
  * think about the game.
  */
-object Humanizing {
+object Humanize {
 
   fun PlayerSession.startTurn(vararg tasks: String) {
     atomic {
