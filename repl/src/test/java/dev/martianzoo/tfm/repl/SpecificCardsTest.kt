@@ -8,14 +8,15 @@ import dev.martianzoo.tfm.api.Exceptions.NarrowingException
 import dev.martianzoo.tfm.api.Exceptions.RequirementException
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.data.GameSetup
-import dev.martianzoo.tfm.data.Player
 import dev.martianzoo.tfm.data.Player.Companion.ENGINE
 import dev.martianzoo.tfm.data.Player.Companion.PLAYER1
+import dev.martianzoo.tfm.data.Player.Companion.PLAYER2
 import dev.martianzoo.tfm.engine.Engine
 import dev.martianzoo.tfm.engine.Humanizing.playCard
 import dev.martianzoo.tfm.engine.Humanizing.production
 import dev.martianzoo.tfm.engine.Humanizing.startTurn
 import dev.martianzoo.tfm.engine.Humanizing.useCardAction
+import dev.martianzoo.tfm.engine.PlayerSession.Companion.session
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.repl.TestHelpers.assertCounts
 import dev.martianzoo.tfm.repl.TestHelpers.taskReasons
@@ -26,7 +27,7 @@ class SpecificCardsTest {
   @Test
   fun localHeatTrapping_plants() {
     val game = Engine.newGame(Canon.SIMPLE_GAME)
-    val p1 = game.writer(PLAYER1).session()
+    val p1 = game.session(PLAYER1)
 
     // Set up
     p1.action("4 Heat, 3 ProjectCard, Pets") {
@@ -72,7 +73,7 @@ class SpecificCardsTest {
   @Test
   fun localHeatTrapping_pets() {
     val game = Engine.newGame(Canon.SIMPLE_GAME)
-    val p1 = game.writer(PLAYER1).session()
+    val p1 = game.session(PLAYER1)
 
     // Set up
     p1.action("6 Heat, 3 ProjectCard, Pets") {
@@ -103,7 +104,7 @@ class SpecificCardsTest {
   @Test
   fun manutech() {
     val game = Engine.newGame(GameSetup(Canon, "BMV", 2))
-    val p1 = game.writer(PLAYER1).session()
+    val p1 = game.session(PLAYER1)
 
     p1.action("CorporationCard, Manutech, 5 ProjectCard") {
       assertCounts(1 to "Production<Class<S>>", 1 to "Steel")
@@ -125,7 +126,7 @@ class SpecificCardsTest {
   @Test
   fun sulphurEatingBacteria() {
     val game = Engine.newGame(GameSetup(Canon, "BMV", 2))
-    val p1 = game.writer(PLAYER1).session()
+    val p1 = game.session(PLAYER1)
 
     p1.action("5 ProjectCard, SulphurEatingBacteria") {
       assertCounts(0 to "Microbe", 0 to "Megacredit")
@@ -168,7 +169,7 @@ class SpecificCardsTest {
   @Test
   fun unmi() {
     val game = Engine.newGame(GameSetup(Canon, "BM", 2))
-    val p1 = game.writer(PLAYER1).session()
+    val p1 = game.session(PLAYER1)
 
     p1.action("CorporationCard, UnitedNationsMarsInitiative") {
       assertCounts(40 to "Megacredit", 20 to "TR")
@@ -195,7 +196,7 @@ class SpecificCardsTest {
   @Test
   fun unmiOutOfOrder() {
     val game = Engine.newGame(GameSetup(Canon, "BM", 2))
-    val p1 = game.writer(PLAYER1).session()
+    val p1 = game.session(PLAYER1)
 
     p1.action("14")
 
@@ -214,8 +215,8 @@ class SpecificCardsTest {
   @Test
   fun aiCentral() {
     val game = Engine.newGame(GameSetup(Canon, "BRM", 2))
-    val eng = game.writer(ENGINE).session()
-    val p1 = eng.asPlayer(PLAYER1)
+    val eng = game.session(ENGINE)
+    val p1 = game.session(PLAYER1)
 
     eng.action("ActionPhase")
     p1.action("5 ProjectCard, 100, Steel")
@@ -230,7 +231,7 @@ class SpecificCardsTest {
 
     p1.playCard("DesignedMicroorganisms", 16)
     p1.tryToDrain()
-    assertThat(p1.game.tasks).isEmpty()
+    assertThat(p1.tasks).isEmpty()
 
     // Now I do have the 3 science tags, but not the energy production
     cp = game.checkpoint()
@@ -248,14 +249,14 @@ class SpecificCardsTest {
     p1.assertCounts(1 to "ProjectCard")
     p1.useCardAction(1, "AiCentral")
     p1.assertCounts(3 to "ProjectCard")
-    assertThat(p1.game.tasks).isEmpty()
+    assertThat(p1.tasks).isEmpty()
     p1.assertCounts(1 to "ActionUsedMarker<AiCentral>")
 
     // Can't use it again
     assertThrows<LimitsException> { p1.useCardAction(1, "AiCentral") }
     p1.assertCounts(3 to "ProjectCard")
     p1.assertCounts(1 to "ActionUsedMarker<AiCentral>")
-    assertThat(p1.game.tasks).isEmpty()
+    assertThat(p1.tasks).isEmpty()
 
     // Next gen we can again
     eng.action("Generation")
@@ -266,7 +267,7 @@ class SpecificCardsTest {
   @Test
   fun ceosFavoriteProject() {
     val game = Engine.newGame(GameSetup(Canon, "CVERB", 2))
-    val p1 = game.writer(PLAYER1).session()
+    val p1 = game.session(PLAYER1)
 
     p1.action("10 ProjectCard, ForcedPrecipitation")
 
@@ -287,7 +288,7 @@ class SpecificCardsTest {
 
   fun airScrappingExpedition() {
     val game = Engine.newGame(GameSetup(Canon, "CVERB", 2))
-    val p1 = game.writer(PLAYER1).session()
+    val p1 = game.session(PLAYER1)
 
     p1.action("10 ProjectCard, ForcedPrecipitation, AtmoCollectors") {
       doFirstTask("2 Floater<AtmoCollectors>")
@@ -309,7 +310,7 @@ class SpecificCardsTest {
   @Test
   fun communityServices() {
     val game = Engine.newGame(GameSetup(Canon, "CVERB", 2))
-    val p1 = game.writer(PLAYER1).session()
+    val p1 = game.session(PLAYER1)
 
     p1.action("10 ProjectCard, ForcedPrecipitation")
     p1.execute("AtmoCollectors", "2 Floater<AtmoCollectors>")
@@ -323,8 +324,8 @@ class SpecificCardsTest {
   @Test
   fun elCheapo() {
     val game = Engine.newGame(GameSetup(Canon, "BRMVPCX", 2))
-    val eng = game.writer(ENGINE).session()
-    val p1 = game.writer(PLAYER1).session()
+    val eng = game.session(ENGINE)
+    val p1 = game.session(PLAYER1)
 
     eng.action("ActionPhase")
 
@@ -360,9 +361,9 @@ class SpecificCardsTest {
   @Test
   fun doubleDown() {
     val game = Engine.newGame(GameSetup(Canon, "BRHXP", 2))
-    val eng = game.writer(ENGINE).session()
-    val p1 = eng.asPlayer(PLAYER1)
-    val p2 = eng.asPlayer(Player.PLAYER2)
+    val eng = game.session(ENGINE)
+    val p1 = game.session(PLAYER1)
+    val p2 = game.session(PLAYER2)
 
     p1.startTurn("InterplanetaryCinematics", "7 BuyCard")
     p2.startTurn("PharmacyUnion", "5 BuyCard")
@@ -390,8 +391,8 @@ class SpecificCardsTest {
   @Test
   fun optimalAerobraking() {
     val game = Engine.newGame(GameSetup(Canon, "BRHXP", 2))
-    val eng = game.writer(ENGINE).session()
-    val p1 = eng.asPlayer(PLAYER1)
+    val eng = game.session(ENGINE)
+    val p1 = game.session(PLAYER1)
 
     p1.action("5 ProjectCard, OptimalAerobraking") { assertCounts(0 to "Megacredit", 0 to "Heat") }
 

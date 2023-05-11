@@ -11,8 +11,9 @@ import dev.martianzoo.util.toStrings
 import org.junit.jupiter.api.Test
 
 private class GameApiTest {
+  // TODO get rid of these
   fun Game.count(s: String) = reader.count(parse<Metric>(s))
-  fun Game.execute(s: String) = writer(PLAYER2).session().action(s)
+  fun Game.execute(s: String) = PlayerSession(this, PLAYER2).action(s)
   fun Game.evaluate(s: String) = reader.evaluate(parse(s))
 
   @Test

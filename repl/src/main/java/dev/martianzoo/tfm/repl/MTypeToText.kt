@@ -9,7 +9,7 @@ import dev.martianzoo.util.iff
 object MTypeToText {
   /** A detailed multi-line description of the class. */
   public fun describe(expression: Expression, session: PlayerSession): String {
-    val mtype = session.game.resolve(expression)
+    val mtype = session.reader.resolve(expression)
     val mclass = mtype.root
 
     val classDisplay =

@@ -5,13 +5,14 @@ import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.data.Player.Companion.PLAYER1
 import dev.martianzoo.tfm.data.Player.Companion.PLAYER2
 import dev.martianzoo.tfm.engine.Engine
+import dev.martianzoo.tfm.engine.PlayerSession.Companion.session
 import org.junit.jupiter.api.Test
 
 private class PlayerSessionTest {
   @Test
   fun shortNames() {
     val game = Engine.newGame(Canon.SIMPLE_GAME)
-    val session = game.writer(PLAYER2).session()
+    val session = game.session(PLAYER2)
 
     session.action("PROD[5, 4 E]")
     session.action("ProjectCard")
@@ -22,13 +23,13 @@ private class PlayerSessionTest {
     assertThat(session.count("PROD[S]")).isEqualTo(4)
     assertThat(session.count("PROD[T]")).isEqualTo(2)
 
-    assertThat(session.asPlayer(PLAYER1).has("PROD[=0 E, =0 S]")).isTrue()
+    assertThat(game.session(PLAYER1).has("PROD[=0 E, =0 S]")).isTrue()
   }
 
   @Test
   fun removeAmap() {
     val game = Engine.newGame(Canon.SIMPLE_GAME)
-    val session = game.writer(PLAYER1).session()
+    val session = game.session(PLAYER1)
 
     session.action("3 Heat!")
     session.action("4 Heat.")
@@ -39,33 +40,33 @@ private class PlayerSessionTest {
   @Test
   fun rollback() {
     val game = Engine.newGame(Canon.SIMPLE_GAME)
-    val session = game.writer(PLAYER1).session()
+    val session = game.session(PLAYER1)
 
     session.action("3 Heat")
     session.action("4 Heat")
     assertThat(session.count("Heat")).isEqualTo(7)
 
-    val checkpoint = session.game.checkpoint()
+    val checkpoint = session.events.checkpoint()
     session.action("-6 Heat")
     assertThat(session.count("Heat")).isEqualTo(1)
 
-    session.game.rollBack(checkpoint)
+    session.rollBack(checkpoint)
     assertThat(session.count("Heat")).isEqualTo(7)
   }
 
   @Test
   fun dependencies() {
     val game = Engine.newGame(Canon.SIMPLE_GAME)
-    val session = game.writer(PLAYER2).session()
+    val session = game.session(PLAYER2)
 
-    assertThat(session.game.tasks.isEmpty()).isTrue()
+    assertThat(session.tasks.isEmpty()).isTrue()
     assertThat(session.count("Microbe")).isEqualTo(0)
 
     session.action("4 OxygenStep")
     assertThat(session.count("OxygenStep")).isEqualTo(4)
     session.action("ProjectCard")
     session.action("Ants")
-    assertThat(session.game.tasks.isEmpty())
+    assertThat(session.tasks.isEmpty())
     assertThat(session.count("Ants")).isEqualTo(1)
     session.action("3 Microbe<Ants>")
     assertThat(session.count("Microbe")).isEqualTo(3)
@@ -76,7 +77,7 @@ private class PlayerSessionTest {
   @Test
   fun counting() {
     val game = Engine.newGame(Canon.SIMPLE_GAME)
-    val session = game.writer(PLAYER2).session()
+    val session = game.session(PLAYER2)
     session.action("42 Heat")
     assertThat(session.count("Heat")).isEqualTo(42)
     assertThat(session.count("4 Heat")).isEqualTo(10)
@@ -94,7 +95,7 @@ private class PlayerSessionTest {
   @Test
   fun tempTrigger() {
     val game = Engine.newGame(Canon.SIMPLE_GAME)
-    val session = game.writer(PLAYER1).session()
+    val session = game.session(PLAYER1)
     assertThat(session.count("TerraformRating")).isEqualTo(20)
 
     session.action("2 TemperatureStep")

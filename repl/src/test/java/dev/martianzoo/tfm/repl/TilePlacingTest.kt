@@ -10,6 +10,7 @@ import dev.martianzoo.tfm.data.Player.Companion.PLAYER2
 import dev.martianzoo.tfm.engine.Engine
 import dev.martianzoo.tfm.engine.Humanizing.startTurn
 import dev.martianzoo.tfm.engine.Humanizing.stdProject
+import dev.martianzoo.tfm.engine.PlayerSession.Companion.session
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 
@@ -17,14 +18,14 @@ class TilePlacingTest {
   @Test
   fun citiesRepel() {
     val game = Engine.newGame(Canon.SIMPLE_GAME)
-    val eng = game.writer(Player.ENGINE).session()
-    val p2 = eng.asPlayer(PLAYER2)
+    val eng = game.session(Player.ENGINE)
+    val p2 = game.session(PLAYER2)
 
     eng.action("ActionPhase")
     p2.action("100")
 
     p2.stdProject("CitySP", "CityTile<M46>")
-    assertThat(p2.game.tasks).isEmpty()
+    assertThat(p2.tasks).isEmpty()
     p2.stdProject("CitySP", "CityTile<M44>")
     p2.startTurn("UseAction1<UseStandardProject>", "UseAction1<CitySP>")
     assertThrows<NarrowingException> { p2.doFirstTask("CityTile<M34>") }
@@ -33,20 +34,20 @@ class TilePlacingTest {
   @Test
   fun cantStack() {
     val game = Engine.newGame(Canon.SIMPLE_GAME)
-    val eng = game.writer(Player.ENGINE).session()
-    val p2 = eng.asPlayer(PLAYER2)
+    val eng = game.session(Player.ENGINE)
+    val p2 = game.session(PLAYER2)
 
     p2.action("CityTile<M33>")
     assertThrows<LimitsException> { p2.action("OceanTile<M33>!") }
-    assertThat(p2.game.tasks).isEmpty()
+    assertThat(p2.tasks).isEmpty()
   }
 
   @Test
   fun greeneryNextToOwned() {
     val game = Engine.newGame(Canon.SIMPLE_GAME)
-    val eng = game.writer(Player.ENGINE).session()
-    val p1 = eng.asPlayer(PLAYER1)
-    val p2 = eng.asPlayer(PLAYER2)
+    val eng = game.session(Player.ENGINE)
+    val p1 = game.session(PLAYER1)
+    val p2 = game.session(PLAYER2)
 
     p1.action("666, CityTile<M86>") // shown as [] in comment below
     p2.action("CityTile<M67>") // try to fool it by having an opponent tile at the XX below
@@ -71,17 +72,17 @@ class TilePlacingTest {
       checkCantPlaceGreenery("M95") // SW then W
       checkCantPlaceGreenery("M98") // SW then E
 
-      val cp = p1.game.checkpoint()
+      val cp = p1.events.checkpoint()
       doFirstTask("GreeneryTile<M75>") // NW 1
-      p1.game.rollBack(cp)
+      p1.rollBack(cp)
       doFirstTask("GreeneryTile<M76>") // NE 1
-      p1.game.rollBack(cp)
+      p1.rollBack(cp)
       doFirstTask("GreeneryTile<M85>") // W 1
-      p1.game.rollBack(cp)
+      p1.rollBack(cp)
       doFirstTask("GreeneryTile<M87>") // E 1
-      p1.game.rollBack(cp)
+      p1.rollBack(cp)
       doFirstTask("GreeneryTile<M96>") // SW 1
-      p1.game.rollBack(cp)
+      p1.rollBack(cp)
       doFirstTask("GreeneryTile<M97>") // SE 1
     }
   }

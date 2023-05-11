@@ -10,6 +10,7 @@ import dev.martianzoo.tfm.api.SpecialClassNames.THIS
 import dev.martianzoo.tfm.api.Type
 import dev.martianzoo.tfm.data.ClassDeclaration
 import dev.martianzoo.tfm.pets.ast.ClassName
+import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.pets.ast.PetNode
 import dev.martianzoo.tfm.pets.ast.Requirement
@@ -41,7 +42,8 @@ public class MClassLoader(
   override val transformers = Transformers(this)
 
   init {
-    val names = (transformers.requiredClasses + OK).intersect(authority.allClassNames)
+    val names = (transformers.requiredClasses + OK + cn("SetupPhase")) // TODO hmm
+        .intersect(authority.allClassNames)
     loadAll(names)
   }
 

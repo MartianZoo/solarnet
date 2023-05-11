@@ -14,8 +14,8 @@ import org.junit.jupiter.api.Test
 private class ApiUtilsTest {
   @Test
   fun testLookUpProdLevelsUsingCanon() {
-    val session = Engine.newGame(Canon.SIMPLE_GAME).writer(ENGINE).session()
-    val prods: Map<ClassName, Int> = lookUpProductionLevels(session.game.reader, PLAYER1.expression)
+    val session = PlayerSession(Engine.newGame(Canon.SIMPLE_GAME), ENGINE)
+    val prods: Map<ClassName, Int> = lookUpProductionLevels(session.reader, PLAYER1.expression)
     assertThat(prods.map { it.key to it.value })
         .containsExactly(
             cn("Megacredit") to 0,
@@ -28,7 +28,7 @@ private class ApiUtilsTest {
 
     session.action("PROD[2 Plant<Player1>!]")
     val prods2: Map<ClassName, Int> =
-        lookUpProductionLevels(session.game.reader, PLAYER1.expression)
+        lookUpProductionLevels(session.reader, PLAYER1.expression)
     assertThat(prods2.map { it.key to it.value })
         .containsExactly(
             cn("Megacredit") to 0,

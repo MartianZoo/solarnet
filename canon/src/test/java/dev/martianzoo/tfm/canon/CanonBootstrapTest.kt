@@ -2,9 +2,9 @@ package dev.martianzoo.tfm.canon
 
 import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.tfm.api.SpecialClassNames.COMPONENT
-import dev.martianzoo.tfm.api.TypeInfo.StubTypeInfo
 import dev.martianzoo.tfm.data.GameSetup
 import dev.martianzoo.tfm.engine.Component
+import dev.martianzoo.tfm.engine.Component.Companion.ofType
 import dev.martianzoo.tfm.engine.Engine
 import dev.martianzoo.tfm.pets.HasClassName.Companion.classNames
 import dev.martianzoo.tfm.pets.Parsing.parse
@@ -61,23 +61,22 @@ private class CanonBootstrapTest {
 
   @Test
   fun createsExpectedSingletons() {
-    val game = Engine.newGame(GameSetup(Canon, "BRMPX", 3))
-    val startingComponents =
-        game.components.getAll(game.resolve(COMPONENT.expression), StubTypeInfo)
+    val game = Engine.newGame(GameSetup(Canon, "BRMPX", 3)).reader
+    val starting = game.getComponents(game.resolve(COMPONENT.expression)).map(::ofType)
 
     // 19 duplicate TR and 4 duplicate PROD[M]
-    assertThat(startingComponents).hasSize(startingComponents.elements.size + 69)
+    assertThat(starting).hasSize(starting.elements.size + 69)
 
     val isArea: (Component) -> Boolean = { it.toString().startsWith("[Tharsis_") }
     // val isBorder: (Component) -> Boolean = { it.toString().startsWith("[Border<") }
     val isClass: (Component) -> Boolean = { it.toString().startsWith("[Class<") }
 
-    assertThat(startingComponents.count(isArea)).isEqualTo(61)
-    // assertThat(startingComponents.count(isBorder)).isEqualTo(312)
-    assertThat(startingComponents.count(isClass)).isGreaterThan(400)
+    assertThat(starting.count(isArea)).isEqualTo(61)
+    // assertThat(starting.count(isBorder)).isEqualTo(312)
+    assertThat(starting.count(isClass)).isGreaterThan(400)
 
     val theRest =
-        startingComponents.filterNot {
+        starting.filterNot {
           isArea(it) ||
               // isBorder(it) ||
               isClass(it) ||

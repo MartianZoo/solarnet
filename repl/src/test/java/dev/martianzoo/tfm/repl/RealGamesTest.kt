@@ -12,6 +12,7 @@ import dev.martianzoo.tfm.engine.Humanizing.playCard
 import dev.martianzoo.tfm.engine.Humanizing.production
 import dev.martianzoo.tfm.engine.Humanizing.startTurn
 import dev.martianzoo.tfm.engine.Humanizing.useCardAction
+import dev.martianzoo.tfm.engine.PlayerSession.Companion.session
 import dev.martianzoo.tfm.repl.TestHelpers.assertCounts
 import dev.martianzoo.tfm.repl.TestHelpers.taskReasons
 import dev.martianzoo.util.toStrings
@@ -20,9 +21,9 @@ import org.junit.jupiter.api.Test
 class RealGamesTest {
   fun fourWholeGenerations() {
     val game = Engine.newGame(GameSetup(Canon, "BREPT", 2))
-    val engine = game.writer(ENGINE).session()
-    val p1 = engine.asPlayer(PLAYER1)
-    val p2 = engine.asPlayer(PLAYER2)
+    val engine = game.session(ENGINE)
+    val p1 = game.session(PLAYER1)
+    val p2 = game.session(PLAYER2)
 
     fun areWeClear() = assertThat(game.tasks.toStrings()).isEmpty()
 
@@ -43,7 +44,7 @@ class RealGamesTest {
       action("-13 Steel, -1, SpaceElevator")
       action("UseAction1<SpaceElevator>")
       action("-2, InventionContest")
-      action("-6, GreatEscarpmentConsortium") { doFirstTask("PROD[-Steel<P1>]") }
+      action("-6, GreatEscarpmentConsortium") { doFirstTask("PROD[-Steel<Player1>]") }
     }
 
     engine.action("ProductionPhase, ResearchPhase")
@@ -68,7 +69,7 @@ class RealGamesTest {
     with(p2) {
       action("-5 Steel THEN IndustrialMicrobes")
       action("-Titanium THEN TechnologyDemonstration")
-      execute("-1 THEN EnergyTapping", "PROD[-Energy<P1>]")
+      execute("-1 THEN EnergyTapping", "PROD[-Energy<Player1>]")
       action("-2 Steel THEN BuildingIndustries")
       areWeClear()
     }
@@ -115,7 +116,7 @@ class RealGamesTest {
 
     with(p2) {
       action("-Titanium THEN -1 THEN TransNeptuneProbe")
-      execute("-1 THEN Hackers", "PROD[-2 Megacredit<P1>]")
+      execute("-1 THEN Hackers", "PROD[-2 Megacredit<Player1>]")
       areWeClear()
     }
 
@@ -179,9 +180,9 @@ class RealGamesTest {
   @Test
   fun startOfEllieGameNoPrelude() {
     val game = Engine.newGame(GameSetup(Canon, "BRHX", 2))
-    val eng = game.writer(ENGINE).session()
-    val p1 = eng.asPlayer(PLAYER1)
-    val p2 = eng.asPlayer(PLAYER2)
+    val eng = game.session(ENGINE)
+    val p1 = game.session(PLAYER1)
+    val p2 = game.session(PLAYER2)
 
     p1.action("NewTurn") {
       tryMatchingTask("InterplanetaryCinematics")
@@ -209,9 +210,9 @@ class RealGamesTest {
 
   fun ellieGame() {
     val game = Engine.newGame(GameSetup(Canon, "BRHXP", 2))
-    val eng = game.writer(ENGINE).session()
-    val p1 = eng.asPlayer(PLAYER1)
-    val p2 = eng.asPlayer(PLAYER2)
+    val eng = game.session(ENGINE)
+    val p1 = game.session(PLAYER1)
+    val p2 = game.session(PLAYER2)
 
     // Let's play our corporations
 
@@ -244,7 +245,7 @@ class RealGamesTest {
 
     p1.playCard("MediaGroup", 6)
     p1.playCard("Sabotage", 1)
-    p1.tryMatchingTask("-7 Megacredit<P2>")
+    p1.tryMatchingTask("-7 Megacredit<Player2>")
 
     p2.playCard("Research", 11)
     p2.playCard("MartianSurvey", 9)
@@ -283,7 +284,7 @@ class RealGamesTest {
 
       playCard("MirandaResort", 10)
       playCard("Hackers", 1)
-      tryMatchingTask("PROD[-2 M<P2>]")
+      tryMatchingTask("PROD[-2 M<Player2>]")
       playCard("MicroMills", 1)
       startTurn("Pass")
     }
@@ -343,7 +344,7 @@ class RealGamesTest {
     // To check VPs we have to fake the game ending
 
     eng.action("End")
-    assertThat(eng.game.tasks).isEmpty()
+    assertThat(eng.tasks).isEmpty()
 
     // Not sure where this discrepancy comes from... expected P2 to be shorted 1 pt because event
 

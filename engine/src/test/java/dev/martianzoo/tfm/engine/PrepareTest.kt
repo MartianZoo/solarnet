@@ -6,6 +6,7 @@ import dev.martianzoo.tfm.api.Exceptions.RequirementException
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.data.Player.Companion.PLAYER1
 import dev.martianzoo.tfm.engine.Game.GameWriterImpl
+import dev.martianzoo.tfm.engine.PlayerSession.Companion.session
 import dev.martianzoo.tfm.pets.Parsing.parse
 import dev.martianzoo.tfm.pets.PetTransformer
 import dev.martianzoo.tfm.pets.Transforming.replaceOwnerWith
@@ -16,18 +17,18 @@ import org.junit.jupiter.api.assertThrows
 private class PrepareTest {
 
   val game = Engine.newGame(Canon.SIMPLE_GAME)
-  val p1 = game.writer(PLAYER1)
-  val instructor = Instructor(p1 as GameWriterImpl, PLAYER1)
+  val p1 = game.session(PLAYER1)
+  val instructor = Instructor(game.writer(PLAYER1) as GameWriterImpl, PLAYER1)
 
   init {
-    p1.session().action("Plant, 10 ProjectCard, PROD[-1]")
+    p1.action("Plant, 10 ProjectCard, PROD[-1]")
   }
 
   fun preprocess(instr: Instruction): Instruction {
     return PetTransformer.chain(
-            game.transformers.deprodify(),
-            game.transformers.insertDefaults(),
-            replaceOwnerWith(PLAYER1),
+        game.transformers.deprodify(),
+        game.transformers.insertDefaults(),
+        replaceOwnerWith(PLAYER1),
         )
         .transform(instr)
   }
@@ -60,7 +61,7 @@ private class PrepareTest {
     assertThrows<LimitsException>("2") { preprocessAndPrepare("-2 Plant") }
     assertThrows<LimitsException>("3") { preprocessAndPrepare("Plant FROM Heat") }
     assertThrows<LimitsException>("4") { preprocessAndPrepare("2 Heat FROM Plant") }
-    assertThrows<LimitsException>("5") { preprocessAndPrepare("2 Plant<P2 FROM P1>") }
+    assertThrows<LimitsException>("5") { preprocessAndPrepare("2 Plant<Player2 FROM Player1>") }
   }
 
   @Test
@@ -92,17 +93,17 @@ private class PrepareTest {
   fun testPrepareOr() {
     checkPrepare(
         "15 OxygenStep! OR -2 Plant OR Plant FROM Heat " +
-            "OR Ok OR 2 Heat FROM Plant OR 2 Plant<P2 FROM P1> OR 30 TR: Plant",
+            "OR Ok OR 2 Heat FROM Plant OR 2 Plant<Player2 FROM Player1> OR 30 TR: Plant",
         null,
     )
     checkPrepare(
-        "15 OxygenStep! OR -2 Plant OR Plant FROM Heat " +
-            "OR (TR: 8 Steel) OR 2 Heat FROM Plant OR 2 Plant<P2 FROM P1> OR 30 TR: Plant",
+        "15 OxygenStep! OR -2 Plant OR Plant FROM Heat OR (TR: 8 Steel) OR " +
+            "2 Heat FROM Plant OR 2 Plant<Player2 FROM Player1> OR 30 TR: Plant",
         "8 Steel<Player1>!",
     )
     checkPrepare(
         "15 OxygenStep! OR -2 Plant OR Plant FROM Heat OR -Plant. / TR OR 8 Steel OR " +
-            "2 Heat FROM Plant OR 2 Plant<P2 FROM P1> OR 30 TR: Plant",
+            "2 Heat FROM Plant OR 2 Plant<Player2 FROM Player1> OR 30 TR: Plant",
         "-Plant<Player1>! OR 8 Steel<Player1>!",
         true,
     )
@@ -114,7 +115,7 @@ private class PrepareTest {
     assertThrows<Exception>("1") { // TODO what exception type is appropriate?
       preprocessAndPrepare(
           "15 OxygenStep! OR -2 Plant OR Plant FROM Heat OR 2 Heat FROM Plant " +
-              "OR 2 Plant<P2 FROM P1> OR 30 TR: Plant",
+              "OR 2 Plant<Player2 FROM Player1> OR 30 TR: Plant",
       )
     }
   }

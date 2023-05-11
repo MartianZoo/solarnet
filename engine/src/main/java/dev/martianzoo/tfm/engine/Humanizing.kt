@@ -1,7 +1,6 @@
 package dev.martianzoo.tfm.engine
 
 import dev.martianzoo.tfm.api.ApiUtils
-import dev.martianzoo.tfm.engine.Component.Companion.toComponent
 import dev.martianzoo.tfm.pets.ast.ClassName
 
 /**
@@ -11,7 +10,7 @@ import dev.martianzoo.tfm.pets.ast.ClassName
 object Humanizing {
 
   fun PlayerSession.startTurn(vararg tasks: String) {
-    game.doAtomic {
+    atomic {
       initiate("NewTurn")
       tasks.forEach(::doFirstTask)
     }
@@ -53,9 +52,8 @@ object Humanizing {
   fun PlayerSession.counts(s: String) = s.split(",").map(::count)
 
   fun PlayerSession.production(): Map<ClassName, Int> =
-      ApiUtils.standardResourceNames(game.reader).associateWith {
-        val type = PRODUCTION.of(player.expression, it.classExpression())
-        countComponent(type.toComponent(game.reader)) - if (it == MEGACREDIT) 5 else 0
+      ApiUtils.standardResourceNames(reader).associateWith {
+        count("Production<Class<$it>>") - if (it == MEGACREDIT) 5 else 0
       }
 
   private val MEGACREDIT = ClassName.cn("Megacredit")

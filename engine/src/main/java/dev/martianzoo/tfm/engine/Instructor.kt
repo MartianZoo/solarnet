@@ -37,11 +37,6 @@ internal data class Instructor(
   private val game by writer::game
   private val reader by game::reader
 
-  fun prepare(unprepared: Instruction): Instruction? =
-      doPrepare(unprepared).let {
-        return if (it == NoOp) null else it
-      }
-
   /**
    * Returns a narrowed form of [unprepared] based on the current game state (but changes no game
    * state itself). The returned instruction *must* be executed against this very same game state
@@ -49,6 +44,11 @@ internal data class Instructor(
    * returned instruction would be [NoOp], returns `null` instead, to signal that the instruction
    * should be discarded.
    */
+  fun prepare(unprepared: Instruction): Instruction? =
+      doPrepare(unprepared).let {
+        return if (it == NoOp) null else it
+      }
+
   private fun doPrepare(unprepared: Instruction): Instruction {
     return when (unprepared) {
       is NoOp -> NoOp
@@ -126,8 +126,8 @@ internal data class Instructor(
   }
 
   private fun autoNarrowTypes(gaining: Expression?, removing: Expression?): Pair<MType?, MType?> {
-    var g: MType? = gaining?.let(game::resolve)
-    var r: MType? = removing?.let(game::resolve)
+    var g: MType? = gaining?.let(reader::resolve)
+    var r: MType? = removing?.let(reader::resolve)
 
     if (g?.abstract == true) {
       // Infer a type if there IS only one concrete subtype
@@ -137,7 +137,7 @@ internal data class Instructor(
     if (r?.abstract == true) {
       // Infer a type if there IS only one kind of component that has it
       // TODO could be smarter, like if the instr is mandatory and only one cpt type can satisfy
-      r = reader.getComponents(r).singleOrNull() as? MType ?: r
+      r = reader.getComponents(r).singleOrNull() ?: r
     }
     return g to r
   }
@@ -149,8 +149,8 @@ internal data class Instructor(
         if (instruction.intensity != MANDATORY) throw abstractInstruction(instruction)
         executeWrite(
             ct.value,
-            instruction.gaining?.toComponent(game.reader),
-            instruction.removing?.toComponent(game.reader),
+            instruction.gaining?.toComponent(reader),
+            instruction.removing?.toComponent(reader),
         )
       }
       is Then -> {
@@ -188,14 +188,14 @@ internal data class Instructor(
 
     // I guess custom instructions can't return things using `This`
     // and Owner means the context player... (TODO think)
-    val xers = game.transformers
+    val xers = reader.transformers
     val instruction =
         chain(
-                xers.atomizer(),
-                xers.insertDefaults(), // TODO context component??
-                xers.deprodify(),
-                replaceOwnerWith(player),
-            )
+            xers.atomizer(),
+            xers.insertDefaults(), // TODO context component??
+            xers.deprodify(),
+            replaceOwnerWith(player),
+        )
             .transform(translated)
 
     writer.addTasks(instruction, player, cause)
@@ -205,7 +205,7 @@ internal data class Instructor(
     val (now, later) = getFiringEffects(triggerEvent).partition { it.automatic }
     for (fx in now) {
       val instructor = copy(cause = fx.cause)
-      Instruction.split(fx.instruction).forEach { doPrepare(it)?.let(instructor::execute) }
+      Instruction.split(fx.instruction).forEach { prepare(it)?.let(instructor::execute) }
     }
     game.addTriggeredTasks(later) // TODO why can't we do this before the for loop??
   }
@@ -219,13 +219,16 @@ internal data class Instructor(
       componentsIn(triggerEvent)
           .map { Component.ofType(it) }
           .flatMap { it.activeEffects }
-          .mapNotNull { it.onChangeToSelf(triggerEvent, game) }
+          .mapNotNull { it.onChangeToSelf(triggerEvent, reader) }
 
   private fun getFiringOtherEffects(triggerEvent: ChangeEvent): List<FiredEffect> {
     val classesInvolved = componentsIn(triggerEvent).map { it.root }
-    return game.activeEffects(classesInvolved).mapNotNull { it.onChangeToOther(triggerEvent, game) }
+    return game.activeEffects(classesInvolved).mapNotNull {
+      it.onChangeToOther(triggerEvent, reader)
+    }
   }
 
   private fun componentsIn(triggerEvent: ChangeEvent): List<MType> =
-      listOfNotNull(triggerEvent.change.gaining, triggerEvent.change.removing).map(game::resolve)
+      listOfNotNull(triggerEvent.change.gaining, triggerEvent.change.removing)
+          .map(reader::resolve)
 }

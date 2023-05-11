@@ -6,7 +6,7 @@ ABSTRACT CLASS Anyone[ANY] {                      // aka Player
   ABSTRACT CLASS Owner {
     HAS =1 This
 
-    SetupPhase:: 20 TerraformRating<This>, GrossHack<This>
+    This:: 20 TerraformRating<This>, GrossHack<This>
     NewTurn IF CorporationPhase: CorporationCard, CardFront, 10 BuyCard?
     NewTurn IF PreludePhase: PreludeCard, CardFront OR (-PreludeCard THEN 15) // ELSE (#22)
     NewTurn IF ActionPhase: UseAction<StandardAction> OR Pass

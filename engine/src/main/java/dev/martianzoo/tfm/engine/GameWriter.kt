@@ -8,8 +8,6 @@ import dev.martianzoo.tfm.pets.ast.Instruction
 
 /** Supports modifying a game state. */
 public abstract class GameWriter {
-  abstract fun session(): PlayerSession // TODO delete again?
-
   /**
    * Prepares a task for execution. The task can only execute against the game state as it existed
    * when this method was called (i.e. it must be the next task executed, and any rollback would
@@ -42,6 +40,9 @@ public abstract class GameWriter {
    */
   abstract fun tryTask(taskId: TaskId, narrowed: Instruction? = null): TaskResult
 
+  fun tryTask(instruction: Instruction, initialCause: Cause? = null) =
+      tryTask(addTask(instruction, initialCause)) // TODO result won't include task?
+
   /**
    * Like executeTask, but upon any failure that could possibly be remedied, merely fills in the
    * task's [Task.whyPending] property, changes no other state, and completes normally.
@@ -49,6 +50,9 @@ public abstract class GameWriter {
    * TODO: the result should include replaced tasks somehow.
    */
   abstract fun doTask(taskId: TaskId, narrowed: Instruction? = null): TaskResult
+
+  fun doTask(instruction: Instruction, initialCause: Cause? = null) =
+      doTask(addTask(instruction, initialCause)) // TODO result won't include task?
 
   /** Just enqueues a task; does nothing about it. */
   abstract fun addTask(instruction: Instruction, initialCause: Cause? = null): TaskId

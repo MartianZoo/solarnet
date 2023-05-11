@@ -13,7 +13,9 @@ import dev.martianzoo.tfm.data.TaskResult
 import dev.martianzoo.tfm.engine.Engine
 import dev.martianzoo.tfm.engine.Game
 import dev.martianzoo.tfm.engine.Game.EventLog.Checkpoint
+import dev.martianzoo.tfm.engine.Game.SnReader
 import dev.martianzoo.tfm.engine.PlayerSession
+import dev.martianzoo.tfm.engine.PlayerSession.Companion.session
 import dev.martianzoo.tfm.engine.UnsafeGameWriter
 import dev.martianzoo.tfm.pets.Parsing.parse
 import dev.martianzoo.tfm.pets.ast.ClassName
@@ -45,7 +47,7 @@ internal fun main() {
 
     val player: Player = repl.session.player
     val count: Int = repl.setup.players
-    val logPosition: Int = repl.session.game.events.size
+    val logPosition: Int = repl.session.events.size
     return repl.mode.color.foreground("$bundles $phase $player/$count @$logPosition> ")
   }
 
@@ -66,7 +68,8 @@ internal fun main() {
 /** A programmatic entry point to a REPL session that is more textual than [ReplSession]. */
 public class ReplSession(var setup: GameSetup, private val jline: JlineRepl? = null) {
   // TODO all we use `jline` for is history (and just checking whether it's there or not)
-  public var session: PlayerSession = Engine.newGame(setup).writer(ENGINE).session()
+  public var game: Game = Engine.newGame(setup)
+  public var session: PlayerSession = game.session(ENGINE)
     internal set
 
   internal var mode: ReplMode = GREEN
@@ -154,7 +157,7 @@ public class ReplSession(var setup: GameSetup, private val jline: JlineRepl? = n
       val (player, rest) = args.trim().split(Regex("\\s+"), 2)
       val saved = session
       return try {
-        session = session.asPlayer(cn(player))
+        session = game.session(Player(cn(player)))
         command(rest)
       } finally {
         session = saved
@@ -178,7 +181,8 @@ public class ReplSession(var setup: GameSetup, private val jline: JlineRepl? = n
         val (bundleString, players) = args.trim().split(Regex("\\s+"), 2)
 
         setup = GameSetup(authority, bundleString, players.toInt())
-        session = Engine.newGame(setup).writer(ENGINE).session()
+        game = Engine.newGame(setup)
+        session = game.session(ENGINE)
 
         return listOf("New $players-player game created with bundles: $bundleString") +
             if (players.toInt() == 1) {
@@ -202,12 +206,12 @@ public class ReplSession(var setup: GameSetup, private val jline: JlineRepl? = n
         """
 
     override fun noArgs(): List<String> {
-      session = session.asPlayer(ENGINE)
+      session = game.session(ENGINE)
       return listOf("Okay, you are the game engine now")
     }
 
     override fun withArgs(args: String): List<String> {
-      session = session.asPlayer(cn(args))
+      session = game.session(Player(cn(args)))
       return listOf("Hi, ${session.player}")
     }
   }
@@ -280,7 +284,7 @@ public class ReplSession(var setup: GameSetup, private val jline: JlineRepl? = n
           I mean it shows a map.
         """
     override val isReadOnly = true
-    override fun noArgs() = MapToText(session.game.reader, jline != null).map()
+    override fun noArgs() = MapToText(session.reader, jline != null).map()
   }
 
   internal inner class ModeCommand : ReplCommand("mode") {
@@ -365,18 +369,18 @@ public class ReplSession(var setup: GameSetup, private val jline: JlineRepl? = n
     private fun Instruction.isGainOf(supertype: ClassName): Boolean =
         when (this) {
           is Gain -> {
-            val t: MType = session.game.resolve(gaining)
-            t.isSubtypeOf(session.game.resolve(supertype.expression))
+            val t: MType = session.reader.resolve(gaining)
+            t.isSubtypeOf(session.reader.resolve(supertype.expression))
           }
           is Instruction.Transform -> instruction.isGainOf(supertype)
           else -> false
         }
 
     private fun execute(instruction: Instruction): TaskResult {
-      if (mode == BLUE && !session.game.tasks.isEmpty()) {
+      if (mode == BLUE && !session.tasks.isEmpty()) {
         throw Exceptions.mustClearTasks()
       }
-      return session.game.doAtomic {
+      return session.atomic {
         session.initiate(instruction)
         if (auto) session.tryToDrain()
       }
@@ -391,7 +395,7 @@ public class ReplSession(var setup: GameSetup, private val jline: JlineRepl? = n
           tasks of all players plus the engine are currently mixed together (but labeled).
         """
     override val isReadOnly = true
-    override fun noArgs() = session.game.tasks.toStrings()
+    override fun noArgs() = session.tasks.toStrings()
   }
 
   internal inner class TaskCommand : ReplCommand("task") {
@@ -407,7 +411,7 @@ public class ReplSession(var setup: GameSetup, private val jline: JlineRepl? = n
         """
 
     override fun withArgs(args: String): List<String> {
-      val q = session.game.tasks
+      val q = session.tasks
 
       val split = Regex("\\s+").split(args, 2)
       val idString = split.firstOrNull() ?: throw UsageException()
@@ -419,12 +423,14 @@ public class ReplSession(var setup: GameSetup, private val jline: JlineRepl? = n
           } else {
             null
           }
+
       if (rest == "drop") {
         (session.writer as UnsafeGameWriter).removeTask(id)
         return listOf("Task $id deleted")
+
       } else if (rest == "prepare") {
         session.writer.prepareTask(id)
-        return listOf("Task $id is now: ${session.game.tasks[id]}")
+        return listOf("Task $id is now: ${session.tasks[id]}")
       }
 
       val result: TaskResult =
@@ -432,8 +438,9 @@ public class ReplSession(var setup: GameSetup, private val jline: JlineRepl? = n
             RED,
             YELLOW -> throw UsageException("Can't execute tasks in this mode")
             GREEN,
-            BLUE, -> {
-              session.game.doAtomic {
+            BLUE,
+            -> {
+              session.atomic {
                 session.tryTask(id, rest)
                 if (auto) session.tryToDrain()
               }
@@ -444,9 +451,9 @@ public class ReplSession(var setup: GameSetup, private val jline: JlineRepl? = n
   }
 
   private fun describeExecutionResults(changes: TaskResult): List<String> {
-    val oops: List<Task> = changes.tasksSpawned.map { session.game.tasks[it] }
+    val oops: List<Task> = changes.tasksSpawned.map { session.tasks[it] }
 
-    val interesting: List<ChangeEvent> = changes.changes.filterNot { isSystem(it, session.game) }
+    val interesting: List<ChangeEvent> = changes.changes.filterNot { isSystem(it, session.reader) }
     val changeLines = interesting.toStrings().ifEmpty { listOf("No interesting component changes") }
     val taskLines =
         if (oops.any()) {
@@ -468,20 +475,20 @@ public class ReplSession(var setup: GameSetup, private val jline: JlineRepl? = n
     override val isReadOnly = true
 
     override fun noArgs() =
-        session.game.events.changesSinceSetup().filterNot {
-          isSystem(it, session.game)
+        session.events.changesSinceSetup().filterNot {
+          isSystem(it, session.reader)
         }.toStrings()
 
     override fun withArgs(args: String): List<String> {
       if (args == "full") {
-        return session.game.events.entriesSince(Checkpoint(0)).toStrings()
+        return session.events.entriesSince(Checkpoint(0)).toStrings()
       } else {
         throw UsageException()
       }
     }
   }
 
-  fun isSystem(event: ChangeEvent, game: Game): Boolean {
+  fun isSystem(event: ChangeEvent, game: SnReader): Boolean {
     val g = event.change.gaining
     val r = event.change.removing
 
@@ -508,7 +515,7 @@ public class ReplSession(var setup: GameSetup, private val jline: JlineRepl? = n
         """
 
     override fun withArgs(args: String): List<String> {
-      session.game.rollBack(Checkpoint(args.toInt()))
+      session.rollBack(Checkpoint(args.toInt()))
       return listOf("Rollback done")
     }
   }

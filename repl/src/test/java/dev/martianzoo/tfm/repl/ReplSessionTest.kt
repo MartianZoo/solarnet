@@ -95,9 +95,9 @@ private class ReplSessionTest {
   @Test
   fun testMap() {
     val repl = ReplSession(Canon.SIMPLE_GAME)
-    repl.command("become P1")
+    repl.command("become Player1")
     repl.command("exec OT<M26>, OT<M55>, OT<M56>, CT<M46>, GT<M57>")
-    repl.command("as P2 exec GT<M45>, CT<M66>, MaTile<M99>")
+    repl.command("as Player2 exec GT<M45>, CT<M66>, MaTile<M99>")
     assertThat(repl.command("tasks")).isEmpty()
     assertThat(repl.session.count("Tile")).isEqualTo(8)
 

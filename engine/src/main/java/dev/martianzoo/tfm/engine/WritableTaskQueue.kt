@@ -105,4 +105,6 @@ internal class WritableTaskQueue(private val tasks: MutableSet<Task> = mutableSe
   }
 
   override fun nextAvailableId() = if (isEmpty()) TaskId("A") else tasks.maxOf { it.id }.next()
+
+  override fun toString() = joinToString("\n")
 }

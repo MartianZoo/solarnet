@@ -5,6 +5,7 @@ import dev.martianzoo.tfm.api.Exceptions.ExistingDependentsException
 import dev.martianzoo.tfm.api.Exceptions.NotNowException
 import dev.martianzoo.tfm.api.Exceptions.TaskException
 import dev.martianzoo.tfm.api.GameReader
+import dev.martianzoo.tfm.api.Type
 import dev.martianzoo.tfm.api.TypeInfo
 import dev.martianzoo.tfm.data.GameEvent
 import dev.martianzoo.tfm.data.GameEvent.ChangeEvent
@@ -22,11 +23,15 @@ import dev.martianzoo.tfm.engine.Game.ComponentGraph
 import dev.martianzoo.tfm.engine.Game.EventLog
 import dev.martianzoo.tfm.engine.Game.EventLog.Checkpoint
 import dev.martianzoo.tfm.engine.Game.TaskQueue
+import dev.martianzoo.tfm.pets.PetTransformer
+import dev.martianzoo.tfm.pets.Transforming.replaceOwnerWith
 import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.pets.ast.Instruction
+import dev.martianzoo.tfm.pets.ast.PetElement
 import dev.martianzoo.tfm.types.MClass
 import dev.martianzoo.tfm.types.MClassTable
 import dev.martianzoo.tfm.types.MType
+import dev.martianzoo.tfm.types.Transformers
 import dev.martianzoo.util.Multiset
 
 /**
@@ -134,8 +139,14 @@ internal constructor(
     fun preparedTask(): TaskId?
   }
 
+  public interface SnReader : GameReader {
+    override fun resolve(expression: Expression): MType
+    override fun getComponents(type: Type): Multiset<out MType>
+    public val transformers: Transformers
+  }
+
   // Don't allow actual game logic to depend on the event log
-  public val reader: GameReader = GameReaderImpl(table, components)
+  public val reader: SnReader = GameReaderImpl(table, components)
 
   internal val transformers by table::transformers
 
@@ -160,17 +171,6 @@ internal constructor(
     }
   }
 
-  public fun doAtomic(block: () -> Unit): TaskResult {
-    val checkpoint = checkpoint()
-    return try {
-      block()
-      events.activitySince(checkpoint)
-    } catch (e: Exception) {
-      rollBack(checkpoint)
-      throw e
-    }
-  }
-
   internal fun activeEffects(classes: Collection<MClass>): List<ActiveEffect> =
       writableComponents.activeEffects(classes)
 
@@ -179,16 +179,12 @@ internal constructor(
   internal fun addTriggeredTasks(fired: List<FiredEffect>) =
       fired.forEach { writableTasks.addTasksFrom(it, writableEvents) }
 
-  internal fun getComponents(type: Expression): Multiset<Component> =
-      components.getAll(resolve(type), reader)
-
   /*
    * Implementation of GameWriter - would be nice to have in a separate file but we'd have to
    * make some things in Game non-private.
    */
   internal class GameWriterImpl(val game: Game, private val player: Player) :
       GameWriter(), UnsafeGameWriter {
-    override fun session() = PlayerSession(game, this, player)
 
     override fun prepareTask(taskId: TaskId): Boolean {
       val already = game.tasks.preparedTask()
@@ -210,15 +206,27 @@ internal constructor(
       return true
     }
 
+    // TODO repeated from PlayerSession
+    private fun atomic(block: () -> Unit): TaskResult {
+      val checkpoint = game.checkpoint()
+      return try {
+        block()
+        game.events.activitySince(checkpoint)
+      } catch (e: Exception) {
+        game.rollBack(checkpoint)
+        throw e
+      }
+    }
+
     override fun tryTask(taskId: TaskId, narrowed: Instruction?): TaskResult {
       var message: String? = null
       val result =
           try {
-            game.doAtomic {
+            atomic {
               if (prepareTask(taskId)) {
                 doTask(taskId, narrowed)
               }
-              return@doAtomic
+              return@atomic
             }
           } catch (e: ExistingDependentsException) {
             error("this should not have happened: $e")
@@ -240,11 +248,11 @@ internal constructor(
 
     override fun doTask(taskId: TaskId, narrowed: Instruction?): TaskResult {
       prepareTask(taskId)
-      val nrwd: Instruction? = narrowed?.let { session().preprocess(it) }
+      val nrwd: Instruction? = narrowed?.let(::preprocess)
       val task = game.tasks[taskId]
       checkOwner(task)
       nrwd?.ensureNarrows(task.instruction, game.reader)
-      return game.doAtomic {
+      return atomic {
         val instructor = Instructor(this, player, task.cause)
         val prepared = instructor.prepare(nrwd ?: task.instruction)
         prepared?.let(instructor::execute)
@@ -312,5 +320,11 @@ internal constructor(
         throw TaskException("$player can't access task owned by ${task.owner}")
       }
     }
+
+    internal fun <P : PetElement> preprocess(node: P) =
+        PetTransformer.chain(
+            game.transformers.standardPreprocess(),
+            replaceOwnerWith(player),
+        ).transform(node)
   }
 }

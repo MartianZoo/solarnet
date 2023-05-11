@@ -6,6 +6,7 @@ import dev.martianzoo.tfm.data.GameEvent.ChangeEvent
 import dev.martianzoo.tfm.data.GameEvent.ChangeEvent.Cause
 import dev.martianzoo.tfm.data.Player
 import dev.martianzoo.tfm.engine.Game.ComponentGraph
+import dev.martianzoo.tfm.engine.Game.SnReader
 import dev.martianzoo.tfm.pets.Transforming.replaceOwnerWith
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.Effect
@@ -50,13 +51,13 @@ private constructor(
 
   operator fun times(multiplier: Int) = copy(instruction = instruction * multiplier)
 
-  fun onChangeToSelf(triggerEvent: ChangeEvent, game: Game) =
+  fun onChangeToSelf(triggerEvent: ChangeEvent, game: SnReader) =
       onChange(triggerEvent, game, isSelf = true)
 
-  fun onChangeToOther(triggerEvent: ChangeEvent, game: Game) =
+  fun onChangeToOther(triggerEvent: ChangeEvent, game: SnReader) =
       onChange(triggerEvent, game, isSelf = false)
 
-  private fun onChange(triggerEvent: ChangeEvent, game: Game, isSelf: Boolean): FiredEffect? {
+  private fun onChange(triggerEvent: ChangeEvent, game: SnReader, isSelf: Boolean): FiredEffect? {
     val player = contextOwner ?: triggerEvent.owner
     val hit = subscription.checkForHit(triggerEvent, player, isSelf, game) ?: return null
     val cause = Cause(contextExpr, triggerEvent.ordinal)
@@ -104,7 +105,7 @@ private constructor(
         currentEvent: ChangeEvent,
         actor: Player,
         isSelf: Boolean,
-        game: Game,
+        game: SnReader,
     ): Hit?
 
     abstract val classToCheck: ClassName?
@@ -118,10 +119,10 @@ private constructor(
         currentEvent: ChangeEvent,
         actor: Player,
         isSelf: Boolean,
-        game: Game,
+        game: SnReader,
     ): Hit? {
       val wouldHit = inner.checkForHit(currentEvent, actor, isSelf, game) ?: return null
-      return if (game.reader.evaluate(condition)) wouldHit else null
+      return if (game.evaluate(condition)) wouldHit else null
     }
 
     override val classToCheck = inner.classToCheck
@@ -132,7 +133,7 @@ private constructor(
         currentEvent: ChangeEvent,
         actor: Player,
         isSelf: Boolean,
-        game: Game,
+        game: SnReader,
     ): Hit? {
       // just fake it like only one happened
       return inner.checkForHit(
@@ -158,7 +159,7 @@ private constructor(
         currentEvent: ChangeEvent,
         actor: Player,
         isSelf: Boolean,
-        game: Game,
+        game: SnReader,
     ): Hit? {
       if (player != null && actor != player) return null
       val originalHit = inner.checkForHit(currentEvent, actor, isSelf, game) ?: return null
@@ -181,7 +182,7 @@ private constructor(
         currentEvent: ChangeEvent,
         actor: Player,
         isSelf: Boolean,
-        game: Game,
+        game: SnReader,
     ): Hit? {
       if (!isSelf) return null
       val change = currentEvent.change
@@ -206,7 +207,7 @@ private constructor(
         currentEvent: ChangeEvent,
         actor: Player,
         isSelf: Boolean,
-        game: Game,
+        game: SnReader,
     ): Hit? {
       if (isSelf) return null
       val change = currentEvent.change
@@ -214,7 +215,7 @@ private constructor(
       // Will be refinement-aware (#48)
       val changeType = game.resolve(expr)
       val matchType = game.resolve(match)
-      return if (changeType.narrows(matchType, game.reader)) {
+      return if (changeType.narrows(matchType, game)) {
         val subber = game.transformers.substituter(matchType, changeType)
         val h: Hit = { subber.transform(it) * change.count }
         h

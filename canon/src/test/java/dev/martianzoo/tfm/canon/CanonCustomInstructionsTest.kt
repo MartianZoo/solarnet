@@ -8,26 +8,29 @@ import dev.martianzoo.tfm.data.Player.Companion.PLAYER2
 import dev.martianzoo.tfm.engine.Engine
 import dev.martianzoo.tfm.engine.Humanizing.production
 import dev.martianzoo.tfm.engine.PlayerSession
+import dev.martianzoo.tfm.engine.PlayerSession.Companion.session
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 
 private class CanonCustomInstructionsTest {
   @Test
   fun robinsonMegacredit1() {
-    val p1 = newGameForP1()
+    val game = newGameForP1()
+    val p1 = game.session(PLAYER1)
 
     p1.action("CorporationCard, RobinsonIndustries")
     p1.action("PROD[S, T, P, E, H]")
     checkProduction(p1, 0, 1, 1, 1, 1, 1)
 
     p1.action("UseAction1<RobinsonIndustries>")
-    assertThat(p1.game.tasks).isEmpty()
+    assertThat(p1.tasks).isEmpty()
     checkProduction(p1, 1, 1, 1, 1, 1, 1)
   }
 
   @Test
   fun robinsonMegacredit2() {
-    val p1 = newGameForP1()
+    val game = newGameForP1()
+    val p1 = game.session(PLAYER1)
 
     p1.action("CorporationCard, RobinsonIndustries")
     p1.action("PROD[-1]")
@@ -39,7 +42,8 @@ private class CanonCustomInstructionsTest {
 
   @Test
   fun robinsonNonMegacredit() {
-    val p1 = newGameForP1()
+    val game = newGameForP1()
+    val p1 = game.session(PLAYER1)
 
     p1.action("CorporationCard, RobinsonIndustries")
     p1.action("PROD[1, S, P, E, H]")
@@ -51,7 +55,8 @@ private class CanonCustomInstructionsTest {
 
   @Test
   fun robinsonChoice() {
-    val p1 = newGameForP1()
+    val game = newGameForP1()
+    val p1 = game.session(PLAYER1)
 
     p1.action("CorporationCard, RobinsonIndustries")
     p1.action("PROD[S, P, E, H]")
@@ -78,12 +83,13 @@ private class CanonCustomInstructionsTest {
 
   @Test
   fun roboticWorkforce() {
-    val p1 = newGameForP1()
+    val game = newGameForP1()
+    val p1 = game.session(PLAYER1)
 
     p1.action("3 ProjectCard, MassConverter, StripMine")
     checkProduction(p1, 0, 2, 1, 0, 4, 0)
 
-    p1.asPlayer(PLAYER2).action("ProjectCard, Mine")
+    game.session(PLAYER2).action("ProjectCard, Mine")
 
     p1.action("RoboticWorkforce") {
       checkProduction(p1, 0, 2, 1, 0, 4, 0)
@@ -102,12 +108,8 @@ private class CanonCustomInstructionsTest {
     }
   }
 
-  private fun newGameForP1(): PlayerSession {
-    val setup = GameSetup(Canon, "BRMP", 2)
-    return Engine.newGame(setup).writer(PLAYER1).session()
-  }
+  private fun newGameForP1() = Engine.newGame(GameSetup(Canon, "BRMP", 2))
 
-  private fun checkProduction(sess: PlayerSession, vararg exp: Int) {
-    assertThat(sess.production().values).containsExactlyElementsIn(exp.toList()).inOrder()
-  }
+  private fun checkProduction(sess: PlayerSession, vararg exp: Int) =
+      assertThat(sess.production().values).containsExactlyElementsIn(exp.toList()).inOrder()
 }
