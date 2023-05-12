@@ -165,6 +165,21 @@
       ]
     },
 
+    // Pristar
+    {
+      "id": "TC2",
+      "bundle": "T",
+      "deck": "CORPORATION",
+      "immediate": "53",
+      "effects": [
+        "This: -2 TerraformRating",
+        "ProductionPhase IF MAX 0 HasRaisedTr: Preservation<This>, 6",
+        "End: VictoryPoint / Preservation<This>"
+      ],
+      "components": [ "CLASS Preservation : CardResource" ],
+      "resourceType": "Preservation"
+    },
+
     // Recyclon
     {
       "id": "XC2",

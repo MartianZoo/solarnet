@@ -4,7 +4,6 @@ As of 2023-04, the number of rows in this table plus entries in cards.json shoul
 
 | id  | card name                  | blocker               |
 |-----|----------------------------|-----------------------|
-| TC2 | Pristar                    | READY?                |
 | P11 | Excentric Sponsor          | READY?                |
 | C19 | Jupiter Floating Station   | READY?                |
 | C45 | Titan Shuttles             | READY?                |

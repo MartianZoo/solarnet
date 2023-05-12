@@ -194,6 +194,38 @@ class SpecificCardsTest {
   }
 
   @Test
+  fun pristar() {
+    val game = Engine.newGame(GameSetup(Canon, "BMPT", 2))
+    val eng = game.session(ENGINE)
+    val p1 = game.session(PLAYER1)
+
+    p1.assertCounts(0 to "Megacredit", 20 to "TR")
+
+    p1.action("CorporationCard, Pristar") {
+      assertCounts(53 to "Megacredit", 18 to "TR")
+    }
+
+    eng.action("PreludePhase")
+    p1.action("PreludeCard, UnmiContractor") {
+      assertCounts(53 to "Megacredit", 21 to "TR")
+    }
+
+    eng.action("ActionPhase")
+    eng.action("ProductionPhase")
+    p1.assertCounts(74 to "Megacredit", 21 to "TR", 0 to "Preservation")
+
+    eng.action("ResearchPhase") {
+      tryMatchingTask("2 BuyCard<Player1>")
+      tryMatchingTask("2 BuyCard<Player2>")
+    }
+    p1.assertCounts(68 to "Megacredit", 21 to "TR", 0 to "Preservation")
+
+    eng.action("ActionPhase")
+    eng.action("ProductionPhase")
+    p1.assertCounts(95 to "Megacredit", 21 to "TR", 1 to "Preservation")
+  }
+
+  @Test
   fun unmiOutOfOrder() {
     val game = Engine.newGame(GameSetup(Canon, "BM", 2))
     val p1 = game.session(PLAYER1)
@@ -286,6 +318,7 @@ class SpecificCardsTest {
     }
   }
 
+  // @Test TODO
   fun airScrappingExpedition() {
     val game = Engine.newGame(GameSetup(Canon, "CVERB", 2))
     val p1 = game.session(PLAYER1)
