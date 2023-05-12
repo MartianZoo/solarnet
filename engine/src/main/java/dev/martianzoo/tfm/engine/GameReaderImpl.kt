@@ -62,8 +62,9 @@ internal class GameReaderImpl(val table: MClassTable, val components: ComponentG
 
   override fun count(type: Type) = components.count(table.resolve(type), this)
 
-  override fun countComponent(concreteType: Type) =
-      components.countComponent(concreteType.toComponent(this))
+  override fun countComponent(concreteType: Type) = countComponent(concreteType.toComponent(this))
+
+  override fun countComponent(component: Component) = components.countComponent(component)
 
   override fun getComponents(type: Type) =
       components.getAll(table.resolve(type), this).map { it.mtype }

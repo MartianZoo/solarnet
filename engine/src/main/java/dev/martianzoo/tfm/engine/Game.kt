@@ -142,6 +142,8 @@ internal constructor(
   public interface SnReader : GameReader {
     override fun resolve(expression: Expression): MType
     override fun getComponents(type: Type): Multiset<out MType>
+    fun countComponent(component: Component): Int
+
     public val transformers: Transformers
   }
 
@@ -307,7 +309,7 @@ internal constructor(
         // TODO better way to remove dependents?
         e.dependents.forEach {
           val cpt = it.toComponent(game.reader)
-          val ct = game.reader.countComponent(cpt.mtype)
+          val ct = game.reader.countComponent(cpt)
           fixDependentsUpdateAndLog(ct, removing = cpt, cause = cause)
         }
         tryIt()

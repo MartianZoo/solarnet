@@ -54,9 +54,8 @@ internal fun main() {
   // We don't actually have to start another game.....
   val welcome =
       """
-        Welcome to REgo PLastics. Type `help` for help.
+        Welcome to REgo PLastics. Type `help` or `help <command>` for help.
         Warning: this is a bare-bones tool that is not trying to be easy to use... at all
-        Most things are case-sensitive. Sorry
 
       """
           .trimIndent()
@@ -366,13 +365,13 @@ public class ReplSession(var setup: GameSetup, private val jline: JlineRepl? = n
       return describeExecutionResults(changes)
     }
 
-    private fun Instruction.isGainOf(supertype: ClassName): Boolean =
+    private fun Instruction.isGainOf(superclass: ClassName): Boolean =
         when (this) {
           is Gain -> {
             val t: MType = session.reader.resolve(gaining)
-            t.isSubtypeOf(session.reader.resolve(supertype.expression))
+            t.isSubtypeOf(session.reader.resolve(superclass.expression))
           }
-          is Instruction.Transform -> instruction.isGainOf(supertype)
+          is Instruction.Transform -> instruction.isGainOf(superclass)
           else -> false
         }
 

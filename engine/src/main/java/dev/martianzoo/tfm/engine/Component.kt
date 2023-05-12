@@ -21,8 +21,8 @@ import dev.martianzoo.tfm.types.MType
  * An *instance* of some concrete [MType]; a [ComponentGraph] is a multiset of these. For any use
  * case unrelated to what instances actually exist in a game state, use [MType] instead.
  */
-public data class Component private constructor(val mtype: MType) : HasClassName, HasExpression {
-  // TODO can mtype be private?
+public data class Component private constructor(internal val mtype: MType) :
+    HasClassName, HasExpression {
   companion object {
     private val cache: MutableMap<MType, Component> = mutableMapOf()
     public fun ofType(mtype: MType) = cache.computeIfAbsent(mtype, ::Component)
@@ -76,6 +76,8 @@ public data class Component private constructor(val mtype: MType) : HasClassName
   override val expressionFull by mtype::expressionFull
 
   override fun toString() = "[${mtype.expressionFull}]"
+
+  fun hasType(supertype: MType) = mtype.narrows(supertype)
 
   val allowedRange: IntRange = mtype.root.componentCountRange
 }

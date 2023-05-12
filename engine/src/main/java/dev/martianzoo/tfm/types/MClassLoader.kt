@@ -68,7 +68,7 @@ public class MClassLoader(
   }
 
   /** Returns the corresponding [MType] to [type] (possibly [type] itself). */
-  override fun resolve(type: Type): MType = type as? MType ?: resolve(type.expression)
+  override fun resolve(type: Type): MType = type as? MType ?: resolve(type.expressionFull)
 
   /** All classes loaded by this class loader; can only be accessed after the loader is [frozen]. */
   override val allClasses: Set<MClass> by lazy {

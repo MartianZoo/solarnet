@@ -397,8 +397,7 @@ class SpecificCardsTest {
     p1.action("5 ProjectCard, OptimalAerobraking") { assertCounts(0 to "Megacredit", 0 to "Heat") }
 
     p1.action("AsteroidCard") {
-      tryMatchingTask("Ok") // don't destroy any plants -- TODO could it recognize??
-      session.tryToDrain()
+      doFirstTask("Ok") // can it infer this? TODO
       assertCounts(3 to "Megacredit", 3 to "Heat")
     }
   }

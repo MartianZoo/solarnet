@@ -229,6 +229,5 @@ internal data class Instructor(
   }
 
   private fun componentsIn(triggerEvent: ChangeEvent): List<MType> =
-      listOfNotNull(triggerEvent.change.gaining, triggerEvent.change.removing)
-          .map(reader::resolve)
+      listOfNotNull(triggerEvent.change.gaining, triggerEvent.change.removing).map(reader::resolve)
 }

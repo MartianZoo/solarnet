@@ -74,7 +74,7 @@ public object Exceptions {
   public class PetSyntaxException internal constructor(message: String) : PetException(message)
 
   public class ExistingDependentsException(val dependents: Collection<Type>) :
-      NotNowException("Existing dependents: ${dependents.joinToString { "${it.expression}" } }")
+      NotNowException("Existing dependents: ${dependents.joinToString { "${it.expressionFull}" } }")
 
   // TODO should just be factories
 
