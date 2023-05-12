@@ -1,9 +1,12 @@
 package dev.martianzoo.tfm.engine
 
-import dev.martianzoo.tfm.api.Exceptions
 import dev.martianzoo.tfm.api.Exceptions.AbstractException
 import dev.martianzoo.tfm.api.Exceptions.DependencyException
+import dev.martianzoo.tfm.api.Exceptions.LimitsException
+import dev.martianzoo.tfm.api.Exceptions.NotNowException
 import dev.martianzoo.tfm.api.Exceptions.abstractInstruction
+import dev.martianzoo.tfm.api.Exceptions.orWithoutChoice
+import dev.martianzoo.tfm.api.Exceptions.requirementNotMet
 import dev.martianzoo.tfm.api.Type
 import dev.martianzoo.tfm.data.GameEvent.ChangeEvent
 import dev.martianzoo.tfm.data.GameEvent.ChangeEvent.Cause
@@ -16,9 +19,12 @@ import dev.martianzoo.tfm.pets.Transforming.replaceOwnerWith
 import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.pets.ast.Instruction
 import dev.martianzoo.tfm.pets.ast.Instruction.Change
+import dev.martianzoo.tfm.pets.ast.Instruction.Change.Companion.change
 import dev.martianzoo.tfm.pets.ast.Instruction.Custom
 import dev.martianzoo.tfm.pets.ast.Instruction.Gated
+import dev.martianzoo.tfm.pets.ast.Instruction.Intensity.AMAP
 import dev.martianzoo.tfm.pets.ast.Instruction.Intensity.MANDATORY
+import dev.martianzoo.tfm.pets.ast.Instruction.Intensity.OPTIONAL
 import dev.martianzoo.tfm.pets.ast.Instruction.NoOp
 import dev.martianzoo.tfm.pets.ast.Instruction.Or
 import dev.martianzoo.tfm.pets.ast.Instruction.Per
@@ -58,7 +64,7 @@ internal data class Instructor(
         if (reader.evaluate(unprepared.gate)) {
           doPrepare(unprepared.instruction)
         } else if (unprepared.mandatory) {
-          throw Exceptions.requirementNotMet(unprepared.gate)
+          throw requirementNotMet(unprepared.gate)
         } else {
           NoOp
         }
@@ -71,7 +77,7 @@ internal data class Instructor(
       is Or -> {
         /*
          * Try to prepare each option, then form an OR out of what survives. Throwing is very
-         * expensive, but does it happen enough to matter? TODO
+         * expensive, but does it happen enough to matter?
          */
         val options =
             unprepared.instructions.mapNotNull {
@@ -81,14 +87,39 @@ internal data class Instructor(
                 null // just prune it
               }
             }
-        if (options.none()) {
-          throw Exceptions.NotNowException("all OR options are impossible at this time")
-        }
+        if (options.none()) throw NotNowException("all OR options are impossible at this time")
         Or.create(options)
       }
       is Then -> Then.create(unprepared.instructions.map(::doPrepare).filter { it != NoOp })
       is Instruction.Multi -> error("should have been split by now: $unprepared")
       is Instruction.Transform -> error("should have been transformed already: $unprepared")
+    }
+  }
+
+  fun execute(instruction: Instruction, fireTriggers: Boolean = true) {
+    when (instruction) {
+      is Change -> {
+        val ct = instruction.count as? ActualScalar ?: throw abstractInstruction(instruction)
+        if (instruction.intensity != MANDATORY) throw abstractInstruction(instruction)
+        val listener = if (fireTriggers) ::fireMatchingTriggers else { {} }
+
+        writer.fixDependentsAndUpdateAndLog(
+            ct.value,
+            instruction.gaining?.toComponent(reader),
+            instruction.removing?.toComponent(reader),
+            cause,
+            listener)
+      }
+      is Then -> {
+        if (instruction.descendantsOfType<XScalar>().any()) {
+          throw AbstractException("$instruction has x's still")
+        }
+        instruction.instructions.forEach(::execute) // TODO hmm....
+      }
+      is Custom -> invokeCustomInstruction(instruction)
+      is Or -> throw orWithoutChoice(instruction)
+      is NoOp -> {} // TODO?
+      else -> error("something went wrong: $instruction")
     }
   }
 
@@ -99,7 +130,7 @@ internal data class Instructor(
 
     if (g?.abstract == true || r?.abstract == true) {
       // Then narrowing the types some is all we'll do (TODO get more clever)
-      return Change.change(scal.value, g?.expression, r?.expression, instruction.intensity!!)
+      return change(scal.value, g?.expression, r?.expression, instruction.intensity!!)
     }
 
     val gc = g?.toComponent(reader)
@@ -111,17 +142,15 @@ internal data class Instructor(
     return if (instruction.intensity!! == MANDATORY) {
       // As long as we're capable of doing the full amount...
       if (adjusted != scal.value) {
-        throw Exceptions.LimitsException(
+        throw LimitsException(
             "When gaining $gc and removing $rc: can do only $adjusted of ${scal.value} required",
         )
       }
       // Then change nothing...
-      return Change.change(scal.value, gc?.expression, rc?.expression)
+      return change(scal.value, gc?.expression, rc?.expression)
     } else {
-      val newIntensity =
-          if (instruction.intensity == Instruction.Intensity.AMAP) MANDATORY
-          else Instruction.Intensity.OPTIONAL
-      Change.change(adjusted, g?.expression, r?.expression, newIntensity)
+      val newIntensity = if (instruction.intensity == AMAP) MANDATORY else OPTIONAL
+      change(adjusted, g?.expression, r?.expression, newIntensity)
     }
   }
 
@@ -142,66 +171,24 @@ internal data class Instructor(
     return g to r
   }
 
-  fun execute(instruction: Instruction) {
-    when (instruction) {
-      is Change -> {
-        val ct = instruction.count as? ActualScalar ?: throw abstractInstruction(instruction)
-        if (instruction.intensity != MANDATORY) throw abstractInstruction(instruction)
-        executeWrite(
-            ct.value,
-            instruction.gaining?.toComponent(reader),
-            instruction.removing?.toComponent(reader),
-        )
-      }
-      is Then -> {
-        if (instruction.descendantsOfType<XScalar>().any()) {
-          throw AbstractException("$instruction has x's still")
-        }
-        instruction.instructions.forEach(::execute) // TODO hmm....
-      }
-      is Custom -> invokeCustomInstruction(instruction)
-      is Or -> throw Exceptions.orWithoutChoice(instruction)
-      is NoOp -> {}
-      else -> error("something went wrong: $instruction")
-    }
-  }
-
-  private fun executeWrite(count: Int, gaining: Component?, removing: Component?) {
-    val result =
-        writer.fixDependentsUpdateAndLog(
-            count = count,
-            gaining = gaining,
-            removing = removing,
-            cause = cause,
-        )
-    // TODO problem: we need to get events logged before firing triggers?
-    result.changes.forEach(::fireTriggers)
-  }
-
   private fun invokeCustomInstruction(instr: Custom) {
     val arguments: List<Type> = instr.arguments.map { reader.resolve(it) }
     val oops = arguments.filter { reader.countComponent(it) == 0 }
     if (oops.any()) throw DependencyException(oops) // or it could be abstract
 
     val custom = reader.authority.customInstruction(instr.functionName)
-    val translated: Instruction = custom.translate(reader, arguments) * instr.multiplier
-
-    // I guess custom instructions can't return things using `This`
-    // and Owner means the context player... (TODO think)
-    val xers = reader.transformers
-    val instruction =
-        chain(
-            xers.atomizer(),
-            xers.insertDefaults(), // TODO context component??
-            xers.deprodify(),
-            replaceOwnerWith(player),
-        )
-            .transform(translated)
-
-    writer.addTasks(instruction, player, cause)
+    val translated = custom.translate(reader, arguments) * instr.multiplier
+    writer.addTasks(transformer.transform(translated), player, cause)
   }
 
-  private fun fireTriggers(triggerEvent: ChangeEvent) {
+  private val transformer = chain(
+      reader.transformers.atomizer(),
+      reader.transformers.insertDefaults(),
+      reader.transformers.deprodify(),
+      replaceOwnerWith(player),
+  )
+
+  private fun fireMatchingTriggers(triggerEvent: ChangeEvent) {
     val (now, later) = getFiringEffects(triggerEvent).partition { it.automatic }
     for (fx in now) {
       val instructor = copy(cause = fx.cause)

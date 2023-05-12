@@ -286,23 +286,26 @@ internal constructor(
         gaining: Component?,
         removing: Component?,
         cause: Cause?,
-    ): ChangeEvent? {
-      removing?.let { (game.components as WritableComponentGraph).checkDependents(count, it) }
+        listener: (ChangeEvent) -> Unit = {},
+    ) {
+      removing?.let { game.writableComponents.checkDependents(count, it) }
       val change = game.writableComponents.reallyUpdate(count, gaining, removing)
-      return game.writableEvents.addChangeEvent(change, player, cause)
+      val event = game.writableEvents.addChangeEvent(change, player, cause)
+      listener(event)
     }
 
     internal fun addTasks(instruction: Instruction, owner: Player, cause: Cause?) =
         game.writableTasks.addTasksFrom(instruction, owner, cause, game.writableEvents)
 
-    internal fun fixDependentsUpdateAndLog(
+    internal fun fixDependentsAndUpdateAndLog(
         count: Int = 1,
         gaining: Component? = null,
         removing: Component? = null,
         cause: Cause? = null,
+        listener: (ChangeEvent) -> Unit = {}
     ): TaskResult {
       val cp = game.checkpoint()
-      fun tryIt() = updateAndLog(count, gaining, removing, cause)
+      fun tryIt() = updateAndLog(count, gaining, removing, cause, listener)
       try {
         tryIt()
       } catch (e: ExistingDependentsException) {
@@ -310,7 +313,7 @@ internal constructor(
         e.dependents.forEach {
           val cpt = it.toComponent(game.reader)
           val ct = game.reader.countComponent(cpt)
-          fixDependentsUpdateAndLog(ct, removing = cpt, cause = cause)
+          fixDependentsAndUpdateAndLog(ct, removing = cpt, cause = cause, listener = listener)
         }
         tryIt()
       }

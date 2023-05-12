@@ -49,8 +49,8 @@ internal class WritableEventLog(private val events: MutableList<GameEvent> = mut
     return entry
   }
 
-  fun addChangeEvent(change: StateChange?, player: Player, cause: Cause?) =
-      change?.let { addEntry(ChangeEvent(size, player, it, cause)) }
+  fun addChangeEvent(change: StateChange, player: Player, cause: Cause?): ChangeEvent =
+      addEntry(ChangeEvent(size, player, change, cause))
 
   fun taskAdded(task: Task) = addEntry(TaskAddedEvent(size, task))
 
