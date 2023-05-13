@@ -6,7 +6,7 @@ import dev.martianzoo.tfm.data.GameSetup
 import dev.martianzoo.tfm.data.Player.Companion.ENGINE
 import dev.martianzoo.tfm.data.Player.Companion.PLAYER1
 import dev.martianzoo.tfm.data.Player.Companion.PLAYER2
-import dev.martianzoo.tfm.engine.Engine
+import dev.martianzoo.tfm.engine.Game
 import dev.martianzoo.tfm.engine.Humanize.cardAction
 import dev.martianzoo.tfm.engine.Humanize.counts
 import dev.martianzoo.tfm.engine.Humanize.pass
@@ -25,7 +25,7 @@ import org.junit.jupiter.api.Test
 class RealGamesTest {
   @Test
   fun fourWholeGenerations() {
-    val game = Engine.newGame(GameSetup(Canon, "BREPT", 2))
+    val game = Game.create(GameSetup(Canon, "BREPT", 2))
     val engine = game.session(ENGINE)
     val p1 = game.session(PLAYER1)
     val p2 = game.session(PLAYER2)
@@ -188,7 +188,7 @@ class RealGamesTest {
 
   @Test
   fun startOfEllieGameNoPrelude() {
-    val game = Engine.newGame(GameSetup(Canon, "BRHX", 2))
+    val game = Game.create(GameSetup(Canon, "BRHX", 2))
     val eng = game.session(ENGINE)
     val p1 = game.session(PLAYER1)
     val p2 = game.session(PLAYER2)
@@ -219,7 +219,7 @@ class RealGamesTest {
 
   @Test
   fun ellieGame() {
-    val game = Engine.newGame(GameSetup(Canon, "BRHXP", 2))
+    val game = Game.create(GameSetup(Canon, "BRHXP", 2))
     val eng = game.session(ENGINE)
     val p1 = game.session(PLAYER1)
     val p2 = game.session(PLAYER2)

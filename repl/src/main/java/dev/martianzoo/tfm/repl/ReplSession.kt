@@ -10,7 +10,6 @@ import dev.martianzoo.tfm.data.Player.Companion.ENGINE
 import dev.martianzoo.tfm.data.Task
 import dev.martianzoo.tfm.data.Task.TaskId
 import dev.martianzoo.tfm.data.TaskResult
-import dev.martianzoo.tfm.engine.Engine
 import dev.martianzoo.tfm.engine.Game
 import dev.martianzoo.tfm.engine.Game.EventLog.Checkpoint
 import dev.martianzoo.tfm.engine.Game.SnReader
@@ -66,7 +65,7 @@ internal fun main() {
 /** A programmatic entry point to a REPL session that is more textual than [ReplSession]. */
 public class ReplSession(var setup: GameSetup, private val jline: JlineRepl? = null) {
   // TODO all we use `jline` for is history (and just checking whether it's there or not)
-  public var game: Game = Engine.newGame(setup)
+  public var game: Game = Game.create(setup)
   public var session: PlayerSession = game.session(ENGINE)
     internal set
 
@@ -95,27 +94,27 @@ public class ReplSession(var setup: GameSetup, private val jline: JlineRepl? = n
 
   internal val commands =
       listOf(
-              AsCommand(),
-              AutoCommand(),
-              BecomeCommand(),
-              BoardCommand(),
-              CountCommand(),
-              DescCommand(),
-              ExecCommand(),
-              HasCommand(),
-              HelpCommand(),
-              HistoryCommand(),
-              ListCommand(),
-              LogCommand(),
-              MapCommand(),
-              ModeCommand(),
-              NewGameCommand(),
-              RollbackCommand(),
-              ScriptCommand(),
-              TaskCommand(),
-              TasksCommand(),
-              TurnCommand(),
-          )
+          AsCommand(),
+          AutoCommand(),
+          BecomeCommand(),
+          BoardCommand(),
+          CountCommand(),
+          DescCommand(),
+          ExecCommand(),
+          HasCommand(),
+          HelpCommand(),
+          HistoryCommand(),
+          ListCommand(),
+          LogCommand(),
+          MapCommand(),
+          ModeCommand(),
+          NewGameCommand(),
+          RollbackCommand(),
+          ScriptCommand(),
+          TaskCommand(),
+          TasksCommand(),
+          TurnCommand(),
+      )
           .associateBy { it.name }
 
   internal inner class HelpCommand : ReplCommand("help") {
@@ -179,7 +178,7 @@ public class ReplSession(var setup: GameSetup, private val jline: JlineRepl? = n
         val (bundleString, players) = args.trim().split(Regex("\\s+"), 2)
 
         setup = GameSetup(authority, bundleString, players.toInt())
-        game = Engine.newGame(setup)
+        game = Game.create(setup)
         session = game.session(ENGINE)
 
         return listOf("New $players-player game created with bundles: $bundleString") +
@@ -313,7 +312,8 @@ public class ReplSession(var setup: GameSetup, private val jline: JlineRepl? = n
         mode = thing
       } catch (e: Exception) {
         throw UsageException(
-            "Valid modes are: ${ReplMode.values().joinToString { it.toString().lowercase() }}")
+            "Valid modes are: ${ReplMode.values().joinToString { it.toString().lowercase() }}"
+        )
       }
       return noArgs()
     }
@@ -362,15 +362,17 @@ public class ReplSession(var setup: GameSetup, private val jline: JlineRepl? = n
             RED,
             YELLOW, // TODO sneaky change??
             GREEN -> execute(instr)
+
             BLUE ->
-                when {
-                  session.player != ENGINE ->
-                      throw UsageException("In blue mode you must be Engine to do this")
-                  instr.isGainOf(cn("NewTurn")) -> execute(instr)
-                  instr.isGainOf(cn("Phase")) -> execute(instr)
-                  else ->
-                      throw UsageException("Eep, can't do that in ${mode.name.lowercase()} mode")
-                }
+              when {
+                session.player != ENGINE ->
+                  throw UsageException("In blue mode you must be Engine to do this")
+
+                instr.isGainOf(cn("NewTurn")) -> execute(instr)
+                instr.isGainOf(cn("Phase")) -> execute(instr)
+                else ->
+                  throw UsageException("Eep, can't do that in ${mode.name.lowercase()} mode")
+              }
           }
 
       return describeExecutionResults(changes)
@@ -382,6 +384,7 @@ public class ReplSession(var setup: GameSetup, private val jline: JlineRepl? = n
             val t: MType = session.reader.resolve(gaining)
             t.isSubtypeOf(session.reader.resolve(superclass.expression))
           }
+
           is Instruction.Transform -> instruction.isGainOf(superclass)
           else -> false
         }
@@ -566,8 +569,8 @@ public class ReplSession(var setup: GameSetup, private val jline: JlineRepl? = n
       //   val randomBaseType = session.table.allClasses.random().baseType
       //   val randomType = randomBaseType.concreteSubtypesSameClass().toList().random()
       //   randomType.expression
-      // } else {
-      parse(args)
+          // } else {
+          parse(args)
       // }
       return listOf(MTypeToText.describe(expression, session))
     }

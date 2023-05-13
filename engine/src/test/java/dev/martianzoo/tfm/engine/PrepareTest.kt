@@ -16,7 +16,7 @@ import org.junit.jupiter.api.assertThrows
 
 private class PrepareTest {
 
-  val game = Engine.newGame(Canon.SIMPLE_GAME)
+  val game = Game.create(Canon.SIMPLE_GAME)
   val p1 = game.session(PLAYER1)
   val instructor = Instructor(game.writer(PLAYER1) as GameWriterImpl, PLAYER1)
 
@@ -29,7 +29,7 @@ private class PrepareTest {
         game.transformers.deprodify(),
         game.transformers.insertDefaults(),
         replaceOwnerWith(PLAYER1),
-        )
+    )
         .transform(instr)
   }
 

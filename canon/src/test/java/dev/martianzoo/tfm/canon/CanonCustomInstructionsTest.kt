@@ -5,7 +5,7 @@ import dev.martianzoo.tfm.api.Exceptions.NarrowingException
 import dev.martianzoo.tfm.data.GameSetup
 import dev.martianzoo.tfm.data.Player.Companion.PLAYER1
 import dev.martianzoo.tfm.data.Player.Companion.PLAYER2
-import dev.martianzoo.tfm.engine.Engine
+import dev.martianzoo.tfm.engine.Game
 import dev.martianzoo.tfm.engine.Humanize.production
 import dev.martianzoo.tfm.engine.PlayerSession
 import dev.martianzoo.tfm.engine.PlayerSession.Companion.session
@@ -108,7 +108,7 @@ private class CanonCustomInstructionsTest {
     }
   }
 
-  private fun newGameForP1() = Engine.newGame(GameSetup(Canon, "BRMP", 2))
+  private fun newGameForP1() = Game.create(GameSetup(Canon, "BRMP", 2))
 
   private fun checkProduction(sess: PlayerSession, vararg exp: Int) =
       assertThat(sess.production().values).containsExactlyElementsIn(exp.toList()).inOrder()

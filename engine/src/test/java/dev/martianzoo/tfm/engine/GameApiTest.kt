@@ -18,7 +18,7 @@ private class GameApiTest {
 
   @Test
   fun basicByApi() {
-    val game = Engine.newGame(Canon.SIMPLE_GAME)
+    val game = Game.create(Canon.SIMPLE_GAME)
 
     val checkpoint = game.checkpoint()
     assertThat(game.count("Heat")).isEqualTo(0)

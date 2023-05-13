@@ -7,7 +7,7 @@ import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.data.Player
 import dev.martianzoo.tfm.data.Player.Companion.PLAYER1
 import dev.martianzoo.tfm.data.Player.Companion.PLAYER2
-import dev.martianzoo.tfm.engine.Engine
+import dev.martianzoo.tfm.engine.Game
 import dev.martianzoo.tfm.engine.Humanize.stdProject
 import dev.martianzoo.tfm.engine.PlayerSession.Companion.session
 import org.junit.jupiter.api.Test
@@ -16,7 +16,7 @@ import org.junit.jupiter.api.assertThrows
 class TilePlacingTest {
   @Test
   fun citiesRepel() {
-    val game = Engine.newGame(Canon.SIMPLE_GAME)
+    val game = Game.create(Canon.SIMPLE_GAME)
     val eng = game.session(Player.ENGINE)
     val p2 = game.session(PLAYER2)
 
@@ -31,7 +31,7 @@ class TilePlacingTest {
 
   @Test
   fun cantStack() {
-    val game = Engine.newGame(Canon.SIMPLE_GAME)
+    val game = Game.create(Canon.SIMPLE_GAME)
     val p2 = game.session(PLAYER2)
 
     p2.action("CityTile<M33>")
@@ -41,7 +41,7 @@ class TilePlacingTest {
 
   @Test
   fun greeneryNextToOwned() {
-    val game = Engine.newGame(Canon.SIMPLE_GAME)
+    val game = Game.create(Canon.SIMPLE_GAME)
     val eng = game.session(Player.ENGINE)
     val p1 = game.session(PLAYER1)
     val p2 = game.session(PLAYER2)

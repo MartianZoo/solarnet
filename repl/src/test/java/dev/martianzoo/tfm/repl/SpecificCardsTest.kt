@@ -11,7 +11,7 @@ import dev.martianzoo.tfm.data.GameSetup
 import dev.martianzoo.tfm.data.Player.Companion.ENGINE
 import dev.martianzoo.tfm.data.Player.Companion.PLAYER1
 import dev.martianzoo.tfm.data.Player.Companion.PLAYER2
-import dev.martianzoo.tfm.engine.Engine
+import dev.martianzoo.tfm.engine.Game
 import dev.martianzoo.tfm.engine.Humanize.cardAction
 import dev.martianzoo.tfm.engine.Humanize.playCard
 import dev.martianzoo.tfm.engine.Humanize.playCorp
@@ -29,7 +29,7 @@ import org.junit.jupiter.api.assertThrows
 class SpecificCardsTest {
   @Test
   fun localHeatTrapping_plants() {
-    val game = Engine.newGame(Canon.SIMPLE_GAME)
+    val game = Game.create(Canon.SIMPLE_GAME)
     val p1 = game.session(PLAYER1)
 
     // Set up
@@ -75,7 +75,7 @@ class SpecificCardsTest {
 
   @Test
   fun localHeatTrapping_pets() {
-    val game = Engine.newGame(Canon.SIMPLE_GAME)
+    val game = Game.create(Canon.SIMPLE_GAME)
     val p1 = game.session(PLAYER1)
 
     // Set up
@@ -106,7 +106,7 @@ class SpecificCardsTest {
 
   @Test
   fun manutech() {
-    val game = Engine.newGame(GameSetup(Canon, "BMV", 2))
+    val game = Game.create(GameSetup(Canon, "BMV", 2))
     val p1 = game.session(PLAYER1)
 
     p1.action("CorporationCard, Manutech, 5 ProjectCard") {
@@ -128,7 +128,7 @@ class SpecificCardsTest {
 
   @Test
   fun sulphurEatingBacteria() {
-    val game = Engine.newGame(GameSetup(Canon, "BMV", 2))
+    val game = Game.create(GameSetup(Canon, "BMV", 2))
     val p1 = game.session(PLAYER1)
 
     p1.action("5 ProjectCard, SulphurEatingBacteria") {
@@ -171,7 +171,7 @@ class SpecificCardsTest {
 
   @Test
   fun unmi() {
-    val game = Engine.newGame(GameSetup(Canon, "BM", 2))
+    val game = Game.create(GameSetup(Canon, "BM", 2))
     val p1 = game.session(PLAYER1)
 
     p1.action("CorporationCard, UnitedNationsMarsInitiative") {
@@ -198,7 +198,7 @@ class SpecificCardsTest {
 
   @Test
   fun pristar() {
-    val game = Engine.newGame(GameSetup(Canon, "BMPT", 2))
+    val game = Game.create(GameSetup(Canon, "BMPT", 2))
     val eng = game.session(ENGINE)
     val p1 = game.session(PLAYER1)
 
@@ -226,7 +226,7 @@ class SpecificCardsTest {
 
   @Test
   fun unmiOutOfOrder() {
-    val game = Engine.newGame(GameSetup(Canon, "BM", 2))
+    val game = Game.create(GameSetup(Canon, "BM", 2))
     val p1 = game.session(PLAYER1)
 
     p1.action("14")
@@ -245,7 +245,7 @@ class SpecificCardsTest {
 
   @Test
   fun aiCentral() {
-    val game = Engine.newGame(GameSetup(Canon, "BRM", 2))
+    val game = Game.create(GameSetup(Canon, "BRM", 2))
     val eng = game.session(ENGINE)
     val p1 = game.session(PLAYER1)
 
@@ -296,7 +296,7 @@ class SpecificCardsTest {
 
   @Test
   fun ceosFavoriteProject() {
-    val game = Engine.newGame(GameSetup(Canon, "CVERB", 2))
+    val game = Game.create(GameSetup(Canon, "CVERB", 2))
     val p1 = game.session(PLAYER1)
 
     p1.action("10 ProjectCard, ForcedPrecipitation")
@@ -318,7 +318,7 @@ class SpecificCardsTest {
 
   // @Test TODO
   fun airScrappingExpedition() {
-    val game = Engine.newGame(GameSetup(Canon, "CVERB", 2))
+    val game = Game.create(GameSetup(Canon, "CVERB", 2))
     val p1 = game.session(PLAYER1)
 
     p1.action("10 ProjectCard, ForcedPrecipitation, AtmoCollectors") {
@@ -340,7 +340,7 @@ class SpecificCardsTest {
 
   @Test
   fun communityServices() {
-    val game = Engine.newGame(GameSetup(Canon, "CVERB", 2))
+    val game = Game.create(GameSetup(Canon, "CVERB", 2))
     val p1 = game.session(PLAYER1)
 
     p1.action("10 ProjectCard, ForcedPrecipitation")
@@ -354,7 +354,7 @@ class SpecificCardsTest {
 
   @Test
   fun elCheapo() {
-    val game = Engine.newGame(GameSetup(Canon, "BRMVPCX", 2))
+    val game = Game.create(GameSetup(Canon, "BRMVPCX", 2))
     val eng = game.session(ENGINE)
     val p1 = game.session(PLAYER1)
 
@@ -391,7 +391,7 @@ class SpecificCardsTest {
 
   @Test
   fun doubleDown() {
-    val game = Engine.newGame(GameSetup(Canon, "BRHXP", 2))
+    val game = Game.create(GameSetup(Canon, "BRHXP", 2))
     val eng = game.session(ENGINE)
     val p1 = game.session(PLAYER1)
     val p2 = game.session(PLAYER2)
@@ -421,7 +421,7 @@ class SpecificCardsTest {
 
   @Test
   fun optimalAerobraking() {
-    val game = Engine.newGame(GameSetup(Canon, "BRHXP", 2))
+    val game = Game.create(GameSetup(Canon, "BRHXP", 2))
     val eng = game.session(ENGINE)
     val p1 = game.session(PLAYER1)
 
@@ -435,7 +435,7 @@ class SpecificCardsTest {
 
   @Test
   fun excentricSponsor() {
-    val game = Engine.newGame(GameSetup(Canon, "BRHXP", 2))
+    val game = Game.create(GameSetup(Canon, "BRHXP", 2))
     val eng = game.session(ENGINE)
     val p1 = game.session(PLAYER1)
 
@@ -457,7 +457,7 @@ class SpecificCardsTest {
 
   @Test
   fun terribleLabs() {
-    val game = Engine.newGame(GameSetup(Canon, "BMT", 2))
+    val game = Game.create(GameSetup(Canon, "BMT", 2))
     val p1 = game.session(PLAYER1)
 
     p1.action("NewTurn") {
@@ -472,7 +472,7 @@ class SpecificCardsTest {
 
   @Test
   fun polyphemos() {
-    val game = Engine.newGame(GameSetup(Canon, "BMRC", 2))
+    val game = Game.create(GameSetup(Canon, "BMRC", 2))
     val eng = game.session(ENGINE)
     val p1 = game.session(PLAYER1)
 

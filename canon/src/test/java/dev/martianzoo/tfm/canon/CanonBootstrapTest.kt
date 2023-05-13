@@ -5,7 +5,7 @@ import dev.martianzoo.tfm.api.SpecialClassNames.COMPONENT
 import dev.martianzoo.tfm.data.GameSetup
 import dev.martianzoo.tfm.engine.Component
 import dev.martianzoo.tfm.engine.Component.Companion.ofType
-import dev.martianzoo.tfm.engine.Engine
+import dev.martianzoo.tfm.engine.Game
 import dev.martianzoo.tfm.pets.HasClassName.Companion.classNames
 import dev.martianzoo.tfm.pets.Parsing.parse
 import dev.martianzoo.tfm.pets.ast.ClassName
@@ -36,7 +36,7 @@ private class CanonBootstrapTest {
 
   @Test
   fun classCounts() {
-    val game = Engine.newGame(GameSetup(Canon, "BRM", 3)).reader
+    val game = Game.create(GameSetup(Canon, "BRM", 3)).reader
 
     fun checkCount(count: Int, expr: String) {
       assertThat(game.count(parse<Metric>(expr))).isEqualTo(count)
@@ -62,7 +62,7 @@ private class CanonBootstrapTest {
 
   @Test
   fun createsExpectedSingletons() {
-    val game = Engine.newGame(GameSetup(Canon, "BRMPX", 3)).reader
+    val game = Game.create(GameSetup(Canon, "BRMPX", 3)).reader
     val starting = game.getComponents(game.resolve(COMPONENT.expression)).map(::ofType)
 
     // 19 duplicate TR and 4 duplicate PROD[M]
