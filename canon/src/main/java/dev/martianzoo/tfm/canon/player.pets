@@ -154,14 +154,14 @@ ABSTRACT CLASS Owned<Anyone> {
 
 // PAYMENT MECHANICS -----------------------------
 
-  CLASS BuyCard : Signal { This: -3, ProjectCard }
-
+  CLASS BuyCard : Signal { This: -3, ProjectCard }// Hack for TerraLabs, but being able to delay the -3 could
+                                                  // potentially be exploited. TODO
   CLASS PlayCard<Class<CardFront>> : Temporary {
     This:: @beginPlayCard(Class<CardFront>)
-    -X Barrier IF =0 Barrier:: CardFront FROM This // When barriers gone, become the card itself
+    -X Barrier IF =0 Barrier:: CardFront FROM This// When barriers gone, become the card itself
   }
 
-  CLASS PlayTag<Class<Tag>> : Signal            // triggers discounts and Accepts
+  CLASS PlayTag<Class<Tag>> : Signal              // Triggers discounts and Accepts
 
   ABSTRACT CLASS Barrier : Temporary
 
@@ -176,7 +176,8 @@ ABSTRACT CLASS Owned<Anyone> {
       HAS MAX 1 This                              // on 4 special cards.
       DEFAULT +Accept.
       This: X Pay<Class<Resource>> FROM Resource? // the ? is essential; X is defined to be positive
-    }                                             // TODO currently removing it still works!
+    }                                             // TODO currently removing it still works - bad
+                                                  // TODO how to make these go away when the barriers are gone?
 
     CLASS Pay : Signal {                          // used like `8 Pay<Class<Heat>> FROM Heat`, but
       DEFAULT +Pay<Class<Megacredit>>             // also cards can pay in response to signals
