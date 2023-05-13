@@ -10,6 +10,7 @@ import dev.martianzoo.tfm.api.TypeInfo
 import dev.martianzoo.tfm.data.GameEvent
 import dev.martianzoo.tfm.data.GameEvent.ChangeEvent
 import dev.martianzoo.tfm.data.GameEvent.ChangeEvent.Cause
+import dev.martianzoo.tfm.data.GameEvent.TaskAddedEvent
 import dev.martianzoo.tfm.data.GameEvent.TaskEvent
 import dev.martianzoo.tfm.data.GameEvent.TaskRemovedEvent
 import dev.martianzoo.tfm.data.Player
@@ -184,6 +185,8 @@ internal constructor(
   /*
    * Implementation of GameWriter - would be nice to have in a separate file but we'd have to
    * make some things in Game non-private.
+   *
+   * TODO: is it cool that this seems to mix internally-focused and externally-focused APIs?
    */
   internal class GameWriterImpl(val game: Game, private val player: Player) :
       GameWriter(), UnsafeGameWriter {
@@ -208,7 +211,7 @@ internal constructor(
       return true
     }
 
-    // TODO repeated from PlayerSession
+    // TODO move back to Game and document
     private fun atomic(block: () -> Unit): TaskResult {
       val checkpoint = game.checkpoint()
       return try {
@@ -271,53 +274,67 @@ internal constructor(
       return events.single().task.id
     }
 
+    internal fun addTasks(
+        instruction: Instruction,
+        owner: Player,
+        cause: Cause?,
+    ): List<TaskAddedEvent> =
+        game.writableTasks.addTasksFrom(instruction, owner, cause, game.writableEvents)
+
     override fun removeTask(taskId: TaskId): TaskRemovedEvent {
       checkOwner(game.tasks[taskId])
       return game.writableTasks.removeTask(taskId, game.writableEvents)
     }
 
     /**
-     * Updates the component graph and event log, but does not fire triggers. This exists as a
-     * public method so that a broken game state can be fixed, or a game state broken on purpose, or
-     * specific game scenario set up very explicitly.
+     * Gains [count] instances of [gaining] (if non-null) and removes [count] instances of
+     * [removing] (if non-null), maintaining change-integrity. That means it modifies the component
+     * graph, appends to the event log, and sends the new change event to [listener] (for example,
+     * to fire triggers).
+     *
+     * Used during normal task execution, but can also be invoked manually to fix a broken game
+     * state, break a fixed game state, or quickly set up a specific game scenario.
      */
-    fun updateAndLog(
+    fun change(
         count: Int,
         gaining: Component?,
         removing: Component?,
         cause: Cause?,
-        listener: (ChangeEvent) -> Unit = {},
+        listener: (ChangeEvent) -> Unit,
     ) {
+      // Can't remove if it would create orphans -- but this is caught by changeAndFixOrphans
       removing?.let { game.writableComponents.checkDependents(count, it) }
-      val change = game.writableComponents.reallyUpdate(count, gaining, removing)
+
+      val change = game.writableComponents.update(count, gaining, removing)
       val event = game.writableEvents.addChangeEvent(change, player, cause)
+
+      // This is how triggers get fired
       listener(event)
     }
 
-    internal fun addTasks(instruction: Instruction, owner: Player, cause: Cause?) =
-        game.writableTasks.addTasksFrom(instruction, owner, cause, game.writableEvents)
-
-    internal fun fixDependentsAndUpdateAndLog(
+    /**
+     * Like [change], but first removes any dependent components (recursively) that would otherwise
+     * prevent the change. The same [cause] is used for all changes.
+     */
+    internal fun changeAndFixOrphans(
         count: Int = 1,
         gaining: Component? = null,
         removing: Component? = null,
         cause: Cause? = null,
-        listener: (ChangeEvent) -> Unit = {}
-    ): TaskResult {
-      val cp = game.checkpoint()
-      fun tryIt() = updateAndLog(count, gaining, removing, cause, listener)
+        listener: (ChangeEvent) -> Unit = {},
+    ) {
+      fun tryIt() = change(count, gaining, removing, cause, listener)
       try {
         tryIt()
       } catch (e: ExistingDependentsException) {
         // TODO better way to remove dependents?
         e.dependents.forEach {
-          val cpt = it.toComponent(game.reader)
-          val ct = game.reader.countComponent(cpt)
-          fixDependentsAndUpdateAndLog(ct, removing = cpt, cause = cause, listener = listener)
+          val dependent = it.toComponent(game.reader)
+          val depCount = game.reader.countComponent(dependent)
+          changeAndFixOrphans(depCount, removing = dependent, cause = cause, listener = listener)
         }
         tryIt()
       }
-      return game.events.activitySince(cp)
     }
 
     private fun checkOwner(task: Task) {

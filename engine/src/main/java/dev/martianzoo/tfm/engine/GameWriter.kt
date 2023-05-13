@@ -40,6 +40,7 @@ public abstract class GameWriter {
    */
   abstract fun tryTask(taskId: TaskId, narrowed: Instruction? = null): TaskResult
 
+  // TODO maybe don't create the task at all
   fun tryTask(instruction: Instruction, initialCause: Cause? = null) =
       tryTask(addTask(instruction, initialCause)) // TODO result won't include task?
 
@@ -51,6 +52,7 @@ public abstract class GameWriter {
    */
   abstract fun doTask(taskId: TaskId, narrowed: Instruction? = null): TaskResult
 
+  // TODO maybe don't create the task at all
   fun doTask(instruction: Instruction, initialCause: Cause? = null) =
       doTask(addTask(instruction, initialCause)) // TODO result won't include task?
 

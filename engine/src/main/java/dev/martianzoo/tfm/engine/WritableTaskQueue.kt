@@ -26,9 +26,10 @@ internal class WritableTaskQueue(private val tasks: MutableSet<Task> = mutableSe
 
   override fun ids() = tasks.map { it.id }.toSetStrict()
 
-  internal fun addTask(task: Task) {
+  private fun addTask(task: Task): Task {
     require(tasks.none { it.id == task.id })
     tasks += task
+    return task
   }
 
   internal fun addTasksFrom(effect: FiredEffect, eventLog: WritableEventLog) =
@@ -41,40 +42,38 @@ internal class WritableTaskQueue(private val tasks: MutableSet<Task> = mutableSe
       eventLog: WritableEventLog,
   ) = addTasksFrom(listOf(instruction), taskOwner, cause, eventLog)
 
-  internal fun addTasksFrom(
+  private fun addTasksFrom(
       instructions: Iterable<Instruction>,
       owner: Player,
       cause: Cause?,
       eventLog: WritableEventLog,
   ): List<TaskAddedEvent> {
     var nextId = nextAvailableId()
-    val events = mutableListOf<TaskAddedEvent>()
-    split(instructions)
-        .filterNot { it == NoOp }
-        .forEach { instr ->
-          val task =
-              if (instr is Then) {
-                if (instr.descendantsOfType<XScalar>().size > 1) {
-                  Task(id = nextId, owner = owner, instruction = instr, cause = cause)
-                } else {
-                  Task(
-                      id = nextId,
-                      owner = owner,
-                      instruction = instr.instructions.first(),
-                      then = Then.create(instr.instructions.drop(1)),
-                      cause = cause,
-                  )
-                }
-              } else {
-                Task(id = nextId, owner = owner, instruction = instr, cause = cause)
-              }
-
-          addTask(task)
-          events += eventLog.taskAdded(task)
+    return split(instructions) // TODO where to do this?
+        .filterNot { it == NoOp } // TODO where to do this?
+        .map { instr ->
+          val newTask: Task = createTask(instr, nextId, owner, cause)
           nextId = nextId.next()
+          addTask(newTask)
+          eventLog.taskAdded(newTask)
         }
-    return events
   }
+
+  /** Creates a task, possibly de-linking an de-linkable [Then]. */
+  private fun createTask(instruction: Instruction, id: TaskId, owner: Player, cause: Cause?): Task {
+    val task = Task(id = id, owner = owner, instruction = instruction, cause = cause)
+    return if (instruction is Then && !keepLinked(instruction)) {
+      task.copy(
+          instruction = instruction.instructions.first(),
+          then = Then.create(instruction.instructions.drop(1)),
+      )
+    } else {
+      task
+    }
+  }
+
+  // TODO when else?
+  private fun keepLinked(then: Then) = then.descendantsOfType<XScalar>().size > 1
 
   internal fun removeTask(id: TaskId, eventLog: WritableEventLog): TaskRemovedEvent {
     require(id in this) { id }

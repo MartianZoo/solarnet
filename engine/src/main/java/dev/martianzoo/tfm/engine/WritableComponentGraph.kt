@@ -37,7 +37,7 @@ internal class WritableComponentGraph(
         .map { (effect, count) -> effect * count }
   }
 
-  internal fun reallyUpdate(
+  internal fun update(
       count: Int = 1,
       gaining: Component?,
       removing: Component?,

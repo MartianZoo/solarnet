@@ -103,7 +103,7 @@ internal data class Instructor(
         if (instruction.intensity != MANDATORY) throw abstractInstruction(instruction)
         val listener = if (fireTriggers) ::fireMatchingTriggers else { {} }
 
-        writer.fixDependentsAndUpdateAndLog(
+        writer.changeAndFixOrphans(
             ct.value,
             instruction.gaining?.toComponent(reader),
             instruction.removing?.toComponent(reader),
@@ -187,6 +187,8 @@ internal data class Instructor(
       reader.transformers.deprodify(),
       replaceOwnerWith(player),
   )
+
+  // TODO Effector
 
   private fun fireMatchingTriggers(triggerEvent: ChangeEvent) {
     val (now, later) = getFiringEffects(triggerEvent).partition { it.automatic }
