@@ -1,6 +1,5 @@
 package dev.martianzoo.tfm.engine
 
-import dev.martianzoo.tfm.data.GameEvent.ChangeEvent
 import dev.martianzoo.tfm.data.GameEvent.ChangeEvent.Cause
 import dev.martianzoo.tfm.data.Task
 import dev.martianzoo.tfm.data.Task.TaskId
@@ -60,32 +59,5 @@ public abstract class GameWriter {
   /** Just enqueues a task; does nothing about it. */
   abstract fun addTask(instruction: Instruction, initialCause: Cause? = null): TaskId
 
-  /**
-   * Gains [count] instances of [gaining] (if non-null) and removes [count] instances of
-   * [removing] (if non-null), maintaining change-integrity. That means it modifies the component
-   * graph, appends to the event log, and sends the new change event to [listener] (for example,
-   * to fire triggers).
-   *
-   * Used during normal task execution, but can also be invoked manually to fix a broken game
-   * state, break a fixed game state, or quickly set up a specific game scenario.
-   */
-  abstract fun change(
-      count: Int,
-      gaining: Component?,
-      removing: Component?,
-      cause: Cause?,
-      listener: (ChangeEvent) -> Unit,
-  )
-
-  /**
-   * Like [change], but first removes any dependent components (recursively) that would otherwise
-   * prevent the change. The same [cause] is used for all changes.
-   */
-  internal abstract fun changeAndFixOrphans(
-      count: Int = 1,
-      gaining: Component? = null,
-      removing: Component? = null,
-      cause: Cause? = null,
-      listener: (ChangeEvent) -> Unit = {},
-  )
+  abstract fun unsafe(): UnsafeGameWriter
 }

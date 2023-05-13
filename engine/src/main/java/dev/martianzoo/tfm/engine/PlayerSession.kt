@@ -8,13 +8,8 @@ import dev.martianzoo.tfm.engine.Component.Companion.ofType
 import dev.martianzoo.tfm.engine.Game.EventLog.Checkpoint
 import dev.martianzoo.tfm.engine.Game.GameWriterImpl
 import dev.martianzoo.tfm.pets.Parsing.parse
-import dev.martianzoo.tfm.pets.ast.ClassName
-import dev.martianzoo.tfm.pets.ast.Expression
-import dev.martianzoo.tfm.pets.ast.Instruction
+import dev.martianzoo.tfm.pets.ast.*
 import dev.martianzoo.tfm.pets.ast.Instruction.Companion.split
-import dev.martianzoo.tfm.pets.ast.Metric
-import dev.martianzoo.tfm.pets.ast.PetElement
-import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.types.MType
 import dev.martianzoo.util.HashMultiset
 import dev.martianzoo.util.Hierarchical.Companion.lub
@@ -79,6 +74,8 @@ public class PlayerSession(
     }
   }
 
+  internal val theTasker = Tasker(this)
+
   /** Action just means "queue empty -> do anything -> queue empty again" */
   fun action(firstInstruction: Instruction, vararg tasks: String): TaskResult {
     return atomic { action(firstInstruction) { tasks.forEach(::doFirstTask) } }
@@ -87,7 +84,7 @@ public class PlayerSession(
   fun action(firstInstruction: String, vararg tasks: String): TaskResult =
       action(parseInContext(firstInstruction), *tasks)
 
-  fun <T : Any> action(firstInstruction: String, tasker: Tasker.() -> T?) =
+  fun <T : Any> action(firstInstruction: String, tasker: Tasker.() -> T?): T? =
       action(parseInContext(firstInstruction), tasker)
 
   fun <T : Any> action(firstInstruction: Instruction, tasker: Tasker.() -> T?): T? {
@@ -95,16 +92,15 @@ public class PlayerSession(
     val cp = game.checkpoint()
     initiate(firstInstruction) // try task then try to drain
 
-    val wrapped = Tasker(this)
     val result =
         try {
-          wrapped.tasker()
+          theTasker.tasker()
         } catch (e: Exception) {
           game.rollBack(cp)
           throw e
         }
 
-    if (result == wrapped.rollItBack()) {
+    if (result == theTasker.rollItBack()) {
       game.rollBack(cp)
     } else {
       require(game.tasks.isEmpty()) {

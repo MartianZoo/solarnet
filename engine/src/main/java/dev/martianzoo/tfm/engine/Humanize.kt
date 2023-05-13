@@ -1,6 +1,7 @@
 package dev.martianzoo.tfm.engine
 
-import dev.martianzoo.tfm.api.ApiUtils
+import dev.martianzoo.tfm.api.ApiUtils.standardResourceNames
+import dev.martianzoo.tfm.engine.PlayerSession.Tasker
 import dev.martianzoo.tfm.pets.ast.ClassName
 
 /**
@@ -9,33 +10,99 @@ import dev.martianzoo.tfm.pets.ast.ClassName
  */
 object Humanize {
 
+  fun PlayerSession.turn(initial: String? = null) {
+    turn(initial) {}
+  }
+
+  fun <T : Any> PlayerSession.turn(initial: String? = null, tasker: Tasker.() -> T?): T? {
+    return action("$NEW_TURN") {
+      initial?.let(::doFirstTask)
+      theTasker.tasker()
+    }
+  }
+
+  fun PlayerSession.playCorp(corpName: String, buyCards: Int? = 0) {
+    playCorp(corpName, buyCards) {}
+  }
+
+  fun <T : Any> PlayerSession.playCorp(
+          corpName: String,
+          buyCards: Int? = 0,
+          tasker: Tasker.() -> T?
+  ): T? {
+    require(has("CorporationPhase"))
+    return turn(corpName) {
+      val result = theTasker.tasker()
+      doFirstTask(if (buyCards == 0) "Ok" else "$buyCards BuyCard")
+      result
+    }
+  }
+
+  fun PlayerSession.pass() = turn("Pass").also { require(has("ActionPhase")) }
+
+  fun PlayerSession.stdAction(stdAction: String) {
+    stdAction(stdAction) {}
+  }
+
+  fun <T : Any> PlayerSession.stdAction(stdAction: String, tasker: Tasker.() -> T?): T? {
+    require(has("ActionPhase"))
+    return turn("UseAction1<$stdAction>", tasker)
+  }
+
+  fun PlayerSession.playCard(cardName: String, megacredits: Int = 0, steel: Int = 0, titanium: Int = 0) {
+    playCard(cardName, megacredits, steel, titanium) {}
+  }
+
+  fun <T : Any> PlayerSession.playCard(
+          cardName: String,
+          megacredits: Int = 0,
+          steel: Int = 0,
+          titanium: Int = 0,
+          tasker: Tasker.() -> T?
+  ): T? {
+
+    return stdAction("PlayCardFromHand") {
+      doFirstTask("PlayCard<Class<$cardName>>")
+
+      fun pay(cost: Int, currency: String) {
+        if (cost > 0) tryMatchingTask("$cost Pay<Class<$currency>> FROM $currency")
+      }
+
+      pay(megacredits, "Megacredit")
+      pay(steel, "Steel")
+      pay(titanium, "Titanium")
+
+      // Take care of other Accepts we didn't need
+      for (task in tasks()) {
+        if (task.cause?.context?.className == ClassName.cn("Accept")) {
+          tryTask(task.id, "Ok")
+        }
+      }
+
+      theTasker.tasker()
+    }
+  }
+
+  fun PlayerSession.cardAction(cardName: String, actionNumber: Int = 1) {
+    cardAction(cardName, actionNumber) {}
+  }
+
+  fun <T : Any> PlayerSession.cardAction(cardName: String, actionNumber: Int = 1, tasker: Tasker.() -> T?): T? {
+    require(has(cardName))
+    return stdAction("UseActionFromCard") {
+      doFirstTask("UseAction$actionNumber<$cardName>")
+      tryMatchingTask("ActionUsedMarker<$cardName>")
+      theTasker.tasker()
+    }
+  }
+
+  // OLD STUFF
+
   fun PlayerSession.startTurn(vararg tasks: String) {
     atomic {
       initiate("NewTurn")
       tasks.forEach(::tryMatchingTask)
     }
-  }
-
-  fun PlayerSession.playCard(
-      cardName: String,
-      megacredits: Int = 0,
-      steel: Int = 0,
-      titanium: Int = 0,
-      vararg tasks: String
-  ) {
-    startTurn("UseAction1<PlayCardFromHand>", "PlayCard<Class<$cardName>>")
-
-    // TODO: fix cause this is over-Ok'ing
-    if (megacredits > 0) (tryMatchingTask("$megacredits Pay<Class<M>> FROM M"))
-    if (steel > 0) (tryMatchingTask("$steel Pay<Class<S>> FROM S"))
-    if (titanium > 0) (tryMatchingTask("$titanium Pay<Class<T>> FROM T"))
-
-    // Try to take care of other Accept's we didn't use
-    try {
-      while (true) doFirstTask("Ok")
-    } catch (ignore: Exception) {}
-
-    tasks.forEach { tryMatchingTask(it) }
   }
 
   fun PlayerSession.useCardAction(which: Int, cardName: String, vararg tasks: String) =
@@ -52,12 +119,12 @@ object Humanize {
   fun PlayerSession.counts(s: String) = s.split(",").map(::count)
 
   fun PlayerSession.production(): Map<ClassName, Int> =
-      ApiUtils.standardResourceNames(reader).associateWith {
-        count("Production<Class<$it>>") - if (it == MEGACREDIT) 5 else 0
+      standardResourceNames(reader).associateWith {
+        count("PROD[$it]") - if (it == MEGACREDIT) 5 else 0
       }
 
+  private val NEW_TURN = ClassName.cn("NewTurn")
   private val MEGACREDIT = ClassName.cn("Megacredit")
-  private val PRODUCTION = ClassName.cn("Production")
 
   fun PlayerSession.oxygenPercent(): Int = count("OxygenStep")
   fun PlayerSession.temperatureC(): Int = -30 + count("TemperatureStep") * 2

@@ -16,24 +16,16 @@ import dev.martianzoo.tfm.engine.Game.EventLog.Checkpoint
 import dev.martianzoo.tfm.engine.Game.SnReader
 import dev.martianzoo.tfm.engine.PlayerSession
 import dev.martianzoo.tfm.engine.PlayerSession.Companion.session
-import dev.martianzoo.tfm.engine.UnsafeGameWriter
 import dev.martianzoo.tfm.pets.Parsing.parse
-import dev.martianzoo.tfm.pets.ast.ClassName
+import dev.martianzoo.tfm.pets.ast.*
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.tfm.pets.ast.Expression
-import dev.martianzoo.tfm.pets.ast.Instruction
 import dev.martianzoo.tfm.pets.ast.Instruction.Gain
-import dev.martianzoo.tfm.pets.ast.Metric
-import dev.martianzoo.tfm.pets.ast.Requirement
-import dev.martianzoo.tfm.repl.ReplSession.ReplMode.BLUE
-import dev.martianzoo.tfm.repl.ReplSession.ReplMode.GREEN
-import dev.martianzoo.tfm.repl.ReplSession.ReplMode.RED
-import dev.martianzoo.tfm.repl.ReplSession.ReplMode.YELLOW
+import dev.martianzoo.tfm.repl.ReplSession.ReplMode.*
 import dev.martianzoo.tfm.types.MType
 import dev.martianzoo.util.Multiset
 import dev.martianzoo.util.toStrings
-import java.io.File
 import org.jline.reader.History
+import java.io.File
 
 internal fun main() {
   val jline = JlineRepl()
@@ -115,7 +107,7 @@ public class ReplSession(var setup: GameSetup, private val jline: JlineRepl? = n
               ScriptCommand(),
               TaskCommand(),
               TasksCommand(),
-              // TurnCommand(),
+              TurnCommand(),
           )
           .associateBy { it.name }
 
@@ -156,7 +148,7 @@ public class ReplSession(var setup: GameSetup, private val jline: JlineRepl? = n
       val (player, rest) = args.trim().split(Regex("\\s+"), 2)
       val saved = session
       return try {
-        session = game.session(Player(cn(player)))
+        session = game.session(player(player))
         command(rest)
       } finally {
         session = saved
@@ -210,9 +202,19 @@ public class ReplSession(var setup: GameSetup, private val jline: JlineRepl? = n
     }
 
     override fun withArgs(args: String): List<String> {
-      session = game.session(Player(cn(args)))
+      session = game.session(player(args))
       return listOf("Hi, ${session.player}")
     }
+  }
+
+  internal inner class TurnCommand : ReplCommand("turn") {
+    override val usage = "turn"
+    override val help =
+        """
+          Asks the engine to start a new turn for the current player.
+        """
+
+    override fun noArgs(): List<String> = ExecCommand().withArgs("NewTurn")
   }
 
   internal inner class HasCommand : ReplCommand("has") {
@@ -249,7 +251,8 @@ public class ReplSession(var setup: GameSetup, private val jline: JlineRepl? = n
 
   internal inner class ListCommand : ReplCommand("list") {
     override val usage = "list <Expression>"
-    override val help = """
+    override val help =
+        """
           This command is super broken right now.
         """
     override val isReadOnly = true
@@ -279,7 +282,8 @@ public class ReplSession(var setup: GameSetup, private val jline: JlineRepl? = n
 
   internal inner class MapCommand : ReplCommand("map") {
     override val usage = "map"
-    override val help = """
+    override val help =
+        """
           I mean it shows a map.
         """
     override val isReadOnly = true
@@ -424,9 +428,8 @@ public class ReplSession(var setup: GameSetup, private val jline: JlineRepl? = n
           }
 
       if (rest == "drop") {
-        (session.writer as UnsafeGameWriter).removeTask(id)
+        session.writer.unsafe().removeTask(id)
         return listOf("Task $id deleted")
-
       } else if (rest == "prepare") {
         session.writer.prepareTask(id)
         return listOf("Task $id is now: ${session.tasks[id]}")
@@ -434,11 +437,8 @@ public class ReplSession(var setup: GameSetup, private val jline: JlineRepl? = n
 
       val result: TaskResult =
           when (mode) {
-            RED,
-            YELLOW -> throw UsageException("Can't execute tasks in this mode")
-            GREEN,
-            BLUE,
-            -> {
+            RED, YELLOW -> throw UsageException("Can't execute tasks in this mode")
+            GREEN, BLUE, -> {
               session.atomic {
                 session.tryTask(id, rest)
                 if (auto) session.tryToDrain()
@@ -474,9 +474,7 @@ public class ReplSession(var setup: GameSetup, private val jline: JlineRepl? = n
     override val isReadOnly = true
 
     override fun noArgs() =
-        session.events.changesSinceSetup().filterNot {
-          isSystem(it, session.reader)
-        }.toStrings()
+        session.events.changesSinceSetup().filterNot { isSystem(it, session.reader) }.toStrings()
 
     override fun withArgs(args: String): List<String> {
       if (args == "full") {
@@ -610,6 +608,12 @@ public class ReplSession(var setup: GameSetup, private val jline: JlineRepl? = n
     val command = commands[commandName] ?: return listOf("¯\\_(ツ)_/¯ Type `help` for help")
     return command(command, args)
   }
+
+  private fun player(name: String): Player {
+    // In case a shortname was used
+    val type: MType = game.resolve(cn(name).expression)
+    return Player(type.className)
+  }
 }
 
 private val helpText: String =
@@ -637,6 +641,7 @@ private val helpText: String =
         task F              -> do task F on your to-do list, as-is
         task F Plant        -> do task F, substituting `Plant` for an abstract instruction
         task F drop         -> bye task F
+        turn                -> begin new turn for current player (necessary in blue mode)
         auto off            -> turns off autoexec mode (you'll have to run tasks 1-by-1)
         mode yellow         -> switches to Yellow Mode (also try red, green, blue, purple)
       HISTORY

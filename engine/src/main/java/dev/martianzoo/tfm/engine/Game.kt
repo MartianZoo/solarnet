@@ -19,11 +19,14 @@ import dev.martianzoo.tfm.engine.ActiveEffect.FiredEffect
 import dev.martianzoo.tfm.engine.Component.Companion.toComponent
 import dev.martianzoo.tfm.engine.Game.*
 import dev.martianzoo.tfm.engine.Game.EventLog.Checkpoint
+import dev.martianzoo.tfm.pets.Parsing.parse
 import dev.martianzoo.tfm.pets.PetTransformer.Companion.chain
 import dev.martianzoo.tfm.pets.Transforming.replaceOwnerWith
 import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.pets.ast.Instruction
+import dev.martianzoo.tfm.pets.ast.Instruction.Change
 import dev.martianzoo.tfm.pets.ast.PetElement
+import dev.martianzoo.tfm.pets.ast.ScaledExpression.Scalar.ActualScalar
 import dev.martianzoo.tfm.types.MClass
 import dev.martianzoo.tfm.types.MClassTable
 import dev.martianzoo.tfm.types.MType
@@ -225,15 +228,16 @@ internal constructor(
         doTask(taskId, narrowed)
       } catch (e: Exception) {
         when (e) {
-          is TaskException -> return TaskResult.EMPTY
+          is TaskException -> return TaskResult()
           is NotNowException, is AbstractException -> {
             val newTask = game.tasks[taskId]
             val explainedTask = newTask.copy(whyPending = e.message!!)
             game.writableTasks.replaceTask(explainedTask, game.writableEvents)
           }
+
           else -> throw e
         }
-        TaskResult.EMPTY
+        TaskResult()
       }
     }
 
@@ -267,9 +271,22 @@ internal constructor(
     ): List<TaskAddedEvent> =
         game.writableTasks.addTasksFrom(instruction, owner, cause, game.writableEvents)
 
+    override fun unsafe(): UnsafeGameWriter = this
+
     override fun removeTask(taskId: TaskId): TaskRemovedEvent {
       checkOwner(game.tasks[taskId])
       return game.writableTasks.removeTask(taskId, game.writableEvents)
+    }
+
+    override fun sneak(change: String, cause: Cause?) = sneak(preprocess(parse(change)), cause)
+
+    override fun sneak(change: Instruction, cause: Cause?): TaskResult {
+      change as Change
+      return TaskResult(listOf(change(
+          (change.count as ActualScalar).value,
+          change.gaining?.toComponent(game.reader),
+          change.removing?.toComponent(game.reader),
+          cause) {}))
     }
 
     override fun change(
@@ -278,7 +295,7 @@ internal constructor(
         removing: Component?,
         cause: Cause?,
         listener: (ChangeEvent) -> Unit,
-    ) {
+    ): ChangeEvent {
       // Can't remove if it would create orphans -- but this is caught by changeAndFixOrphans
       removing?.let { game.writableComponents.checkDependents(count, it) }
 
@@ -287,6 +304,7 @@ internal constructor(
 
       // This is how triggers get fired
       listener(event)
+      return event
     }
 
     override fun changeAndFixOrphans(

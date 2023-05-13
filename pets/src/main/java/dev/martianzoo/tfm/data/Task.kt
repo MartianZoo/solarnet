@@ -3,10 +3,7 @@ package dev.martianzoo.tfm.data
 import dev.martianzoo.tfm.api.SpecialClassNames.DIE
 import dev.martianzoo.tfm.data.GameEvent.ChangeEvent.Cause
 import dev.martianzoo.tfm.pets.ast.Instruction
-import dev.martianzoo.tfm.pets.ast.Instruction.Change
-import dev.martianzoo.tfm.pets.ast.Instruction.Multi
-import dev.martianzoo.tfm.pets.ast.Instruction.NoOp
-import dev.martianzoo.tfm.pets.ast.Instruction.Transform
+import dev.martianzoo.tfm.pets.ast.Instruction.*
 
 public data class Task(
     /**
@@ -56,6 +53,7 @@ public data class Task(
     append("[$owner] ")
     append(instruction)
     then?.let { append(" (THEN $it)") }
+    cause?.let { append(" $cause") }
     whyPending?.let { append(" ($it) ") }
   }
 

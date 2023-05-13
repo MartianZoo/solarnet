@@ -12,7 +12,9 @@ import dev.martianzoo.tfm.data.Player.Companion.ENGINE
 import dev.martianzoo.tfm.data.Player.Companion.PLAYER1
 import dev.martianzoo.tfm.data.Player.Companion.PLAYER2
 import dev.martianzoo.tfm.engine.Engine
+import dev.martianzoo.tfm.engine.Humanize.cardAction
 import dev.martianzoo.tfm.engine.Humanize.playCard
+import dev.martianzoo.tfm.engine.Humanize.playCorp
 import dev.martianzoo.tfm.engine.Humanize.production
 import dev.martianzoo.tfm.engine.Humanize.startTurn
 import dev.martianzoo.tfm.engine.Humanize.useCardAction
@@ -262,10 +264,10 @@ class SpecificCardsTest {
     assertThat(p1.tasks).isEmpty()
 
     // Now I do have the 3 science tags, but not the energy production
-    cp = game.checkpoint()
-    p1.playCard("AiCentral", 19, steel = 1)
-    assertThrows<LimitsException>("2") { p1.doFirstTask("PROD[-Energy]") }
-    game.rollBack(cp)
+    p1.playCard("AiCentral", 19, steel = 1) {
+      assertThrows<LimitsException>("2") { doFirstTask("PROD[-Energy]") }
+      rollItBack()
+    }
 
     // Give energy prod and try again - success
     p1.action("PROD[E]")
@@ -474,26 +476,17 @@ class SpecificCardsTest {
     val eng = game.session(ENGINE)
     val p1 = game.session(PLAYER1)
 
-    p1.action("NewTurn") {
-      doFirstTask("Polyphemos")
-      doFirstTask("10 BuyCard")
-      assertCounts(10 to "ProjectCard", 0 to "M")
-    }
+    p1.playCorp("Polyphemos", 10)
+    p1.assertCounts(10 to "ProjectCard", 0 to "M")
 
     eng.action("ActionPhase")
-    p1.action("14")
-    p1.action("NewTurn") {
-      doFirstTask("UseAction1<PlayCardFromHand>")
-      doFirstTask("PlayCard<Class<InventorsGuild>>")
-      doFirstTask("9 Pay<Class<M>> FROM M")
-      assertCounts(9 to "ProjectCard", 5 to "M")
-    }
+    p1.writer.unsafe().sneak("14")
 
-    p1.action("NewTurn") {
-      doFirstTask("UseAction1<UseActionFromCard>")
-      doFirstTask("UseAction1<InventorsGuild>")
+    p1.playCard("InventorsGuild", 9)
+    p1.assertCounts(9 to "ProjectCard", 5 to "M")
+
+    p1.cardAction("InventorsGuild") {
       doFirstTask("BuyCard")
-      doFirstTask("ActionUsedMarker<InventorsGuild>")
       assertCounts(10 to "ProjectCard", 0 to "M")
     }
   }
