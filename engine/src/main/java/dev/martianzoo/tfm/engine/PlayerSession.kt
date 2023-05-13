@@ -8,8 +8,13 @@ import dev.martianzoo.tfm.engine.Component.Companion.ofType
 import dev.martianzoo.tfm.engine.Game.EventLog.Checkpoint
 import dev.martianzoo.tfm.engine.Game.GameWriterImpl
 import dev.martianzoo.tfm.pets.Parsing.parse
-import dev.martianzoo.tfm.pets.ast.*
+import dev.martianzoo.tfm.pets.ast.ClassName
+import dev.martianzoo.tfm.pets.ast.Expression
+import dev.martianzoo.tfm.pets.ast.Instruction
 import dev.martianzoo.tfm.pets.ast.Instruction.Companion.split
+import dev.martianzoo.tfm.pets.ast.Metric
+import dev.martianzoo.tfm.pets.ast.PetElement
+import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.types.MType
 import dev.martianzoo.util.HashMultiset
 import dev.martianzoo.util.Hierarchical.Companion.lub
@@ -63,22 +68,14 @@ public class PlayerSession(
 
   // EXECUTION
 
-  public fun atomic(block: () -> Unit): TaskResult {
-    val checkpoint = game.checkpoint()
-    return try {
-      block()
-      game.events.activitySince(checkpoint)
-    } catch (e: Exception) {
-      game.rollBack(checkpoint)
-      throw e
-    }
-  }
+  /** See [Game.atomic]. */
+  public fun atomic(block: () -> Unit) = game.atomic(block)
 
   internal val theTasker = Tasker(this)
 
   /** Action just means "queue empty -> do anything -> queue empty again" */
   fun action(firstInstruction: Instruction, vararg tasks: String): TaskResult {
-    return atomic { action(firstInstruction) { tasks.forEach(::doFirstTask) } }
+    return game.atomic { action(firstInstruction) { tasks.forEach(::doFirstTask) } }
   }
 
   fun action(firstInstruction: String, vararg tasks: String): TaskResult =
@@ -144,14 +141,14 @@ public class PlayerSession(
 
   fun initiate(instruction: Instruction): TaskResult {
     val prepped: List<Instruction> = prepAndSplit(instruction) // TODO, obvs
-    return atomic {
+    return game.atomic {
       prepped.forEach(writer::doTask)
       tryToDrain()
     }
   }
 
   fun tryToDrain(): TaskResult {
-    return atomic {
+    return game.atomic {
       var anySuccess = true
       while (anySuccess) {
         val allTasks = game.tasks.ids()
@@ -188,14 +185,14 @@ public class PlayerSession(
   /** Like try but throws if it doesn't succeed */
   fun doFirstTask(revised: String): TaskResult {
     val id = game.tasks.firstOrNull { it.owner == player }?.id ?: throw NotNowException("no tasks")
-    return atomic {
+    return game.atomic {
       writer.doTask(id, parseInContext(revised))
       tryToDrain()
     }
   }
 
   fun tryTask(id: TaskId, narrowed: String? = null): TaskResult {
-    return atomic {
+    return game.atomic {
       writer.tryTask(id, narrowed?.let(::parseInContext))
       tryToDrain()
     }

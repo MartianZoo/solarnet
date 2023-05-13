@@ -8,8 +8,12 @@ import dev.martianzoo.tfm.api.GameReader
 import dev.martianzoo.tfm.api.Type
 import dev.martianzoo.tfm.api.TypeInfo
 import dev.martianzoo.tfm.data.GameEvent
-import dev.martianzoo.tfm.data.GameEvent.*
+import dev.martianzoo.tfm.data.GameEvent.ChangeEvent
 import dev.martianzoo.tfm.data.GameEvent.ChangeEvent.Cause
+import dev.martianzoo.tfm.data.GameEvent.TaskAddedEvent
+import dev.martianzoo.tfm.data.GameEvent.TaskEvent
+import dev.martianzoo.tfm.data.GameEvent.TaskRemovedEvent
+import dev.martianzoo.tfm.data.GameSetup
 import dev.martianzoo.tfm.data.Player
 import dev.martianzoo.tfm.data.Player.Companion.ENGINE
 import dev.martianzoo.tfm.data.Task
@@ -17,14 +21,20 @@ import dev.martianzoo.tfm.data.Task.TaskId
 import dev.martianzoo.tfm.data.TaskResult
 import dev.martianzoo.tfm.engine.ActiveEffect.FiredEffect
 import dev.martianzoo.tfm.engine.Component.Companion.toComponent
-import dev.martianzoo.tfm.engine.Game.*
+import dev.martianzoo.tfm.engine.Game.ComponentGraph
+import dev.martianzoo.tfm.engine.Game.EventLog
 import dev.martianzoo.tfm.engine.Game.EventLog.Checkpoint
+import dev.martianzoo.tfm.engine.Game.TaskQueue
+import dev.martianzoo.tfm.engine.PlayerSession.Companion.session
+import dev.martianzoo.tfm.pets.HasExpression
 import dev.martianzoo.tfm.pets.Parsing.parse
 import dev.martianzoo.tfm.pets.PetTransformer.Companion.chain
 import dev.martianzoo.tfm.pets.Transforming.replaceOwnerWith
+import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.pets.ast.Instruction
 import dev.martianzoo.tfm.pets.ast.Instruction.Change
+import dev.martianzoo.tfm.pets.ast.Instruction.Companion.split
 import dev.martianzoo.tfm.pets.ast.PetElement
 import dev.martianzoo.tfm.pets.ast.ScaledExpression.Scalar.ActualScalar
 import dev.martianzoo.tfm.types.MClass
@@ -280,14 +290,17 @@ internal constructor(
 
     override fun sneak(change: String, cause: Cause?) = sneak(preprocess(parse(change)), cause)
 
-    override fun sneak(change: Instruction, cause: Cause?): TaskResult {
-      val count = (change as Change).count as ActualScalar
-      val element = change(
-          count.value,
-          change.gaining?.toComponent(game.reader),
-          change.removing?.toComponent(game.reader),
-          cause) {}
-      return TaskResult(listOf(element))
+    // TODO: in theory any instruction would be sneakable, and it only means disabling triggers
+    override fun sneak(changes: Instruction, cause: Cause?): TaskResult {
+      val events = split(changes).map {
+        val count = (it as Change).count as ActualScalar
+        change(
+            count.value,
+            it.gaining?.toComponent(game.reader),
+            it.removing?.toComponent(game.reader),
+            cause) {}
+      }
+      return TaskResult(events)
     }
 
     override fun change(
@@ -338,5 +351,38 @@ internal constructor(
     private val xer = chain(game.transformers.standardPreprocess(), replaceOwnerWith(player))
 
     internal fun <P : PetElement> preprocess(node: P) = xer.transform(node)
+  }
+
+  public companion object {
+    /** Creates a new game, initialized for the given [setup], and ready for gameplay to begin. */
+    public fun create(setup: GameSetup) = create(MClassTable.forSetup(setup))
+
+    /** Creates a new game using an existing class table, ready for gameplay to begin. */
+    public fun create(table: MClassTable): Game {
+      val game = Game(table)
+      val session = game.session(ENGINE)
+
+      fun gain(thing: HasExpression, cause: Cause? = null): TaskResult {
+        val instr: Instruction = parse("${thing.expression}!")
+        return game.atomic {
+          session.writer.doTask(instr, cause)
+          session.tryToDrain()
+        }
+      }
+
+      val event: ChangeEvent = gain(ENGINE).changes.single()
+      val becauseISaidSo = Cause(ENGINE.expression, event.ordinal)
+
+      singletonTypes(table).forEach { gain(it, becauseISaidSo) }
+      gain(ClassName.cn("SetupPhase"), becauseISaidSo)
+      game.setupFinished()
+      return game
+    }
+
+    private fun singletonTypes(table: MClassTable): List<Component> =
+        table.allClasses
+            .filter { 0 !in it.componentCountRange }
+            .flatMap { it.baseType.concreteSubtypesSameClass() }
+            .map(Component::ofType)
   }
 }

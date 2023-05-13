@@ -17,6 +17,7 @@ import dev.martianzoo.tfm.engine.Humanize.playCard
 import dev.martianzoo.tfm.engine.Humanize.playCorp
 import dev.martianzoo.tfm.engine.Humanize.production
 import dev.martianzoo.tfm.engine.Humanize.startTurn
+import dev.martianzoo.tfm.engine.Humanize.stdAction
 import dev.martianzoo.tfm.engine.Humanize.useCardAction
 import dev.martianzoo.tfm.engine.PlayerSession.Companion.session
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
@@ -249,19 +250,17 @@ class SpecificCardsTest {
     val p1 = game.session(PLAYER1)
 
     eng.action("ActionPhase")
-    p1.action("5 ProjectCard, 100, Steel")
+    p1.writer.unsafe().sneak("5 ProjectCard, 100, Steel")
 
     p1.playCard("SearchForLife", 3)
     p1.playCard("InventorsGuild", 9)
 
-    var cp = game.checkpoint()
-    p1.startTurn("UseAction1<PlayCardFromHand>")
-    assertThrows<RequirementException>("1") { p1.doFirstTask("PlayCard<Class<AiCentral>>") }
-    game.rollBack(cp)
+    p1.stdAction("PlayCardFromHand") {
+      assertThrows<RequirementException>("1") { doFirstTask("PlayCard<Class<AiCentral>>") }
+      rollItBack()
+    }
 
     p1.playCard("DesignedMicroorganisms", 16)
-    p1.tryToDrain()
-    assertThat(p1.tasks).isEmpty()
 
     // Now I do have the 3 science tags, but not the energy production
     p1.playCard("AiCentral", 19, steel = 1) {
@@ -270,20 +269,21 @@ class SpecificCardsTest {
     }
 
     // Give energy prod and try again - success
-    p1.action("PROD[E]")
-    p1.playCard("AiCentral", 19, steel = 1)
-    p1.tryToDrain()
-    p1.assertCounts(0 to "Production<Class<Energy>>")
+    p1.writer.unsafe().sneak("PROD[Energy]")
+    p1.playCard("AiCentral", 19, steel = 1) {
+      assertCounts(0 to "PROD[Energy]")
+    }
 
     // Use the action
     p1.assertCounts(1 to "ProjectCard")
-    p1.useCardAction(1, "AiCentral")
-    p1.assertCounts(3 to "ProjectCard")
-    assertThat(p1.tasks).isEmpty()
+    p1.cardAction("AiCentral") {
+      assertCounts(3 to "ProjectCard")
+      assertCounts(0 to "ActionUsedMarker<AiCentral>") // not yet!
+    }
     p1.assertCounts(1 to "ActionUsedMarker<AiCentral>")
 
     // Can't use it again TODO reenable
-    // assertThrows<LimitsException>("3") { p1.useCardAction(1, "AiCentral") }
+    assertThrows<LimitsException>("3") { p1.cardAction("AiCentral") }
     p1.assertCounts(3 to "ProjectCard")
     p1.assertCounts(1 to "ActionUsedMarker<AiCentral>")
     assertThat(p1.tasks).isEmpty()

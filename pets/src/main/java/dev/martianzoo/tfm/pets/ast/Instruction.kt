@@ -32,14 +32,14 @@ import dev.martianzoo.util.toSetStrict
  */
 public sealed class Instruction : PetElement() {
   companion object {
-    /** Recursively breaks apart any [Multi] or [Then] instructions found in [instructions]. */
+    /** Recursively breaks apart any [Multi] instructions found in [instructions]. */
     fun split(instructions: Iterable<Instruction>) = instructions.flatMap { split(it) }
 
-    /** Recursively breaks apart any [Multi] or [Then] instructions found in [instruction]. */
+    /** Recursively breaks apart any [Multi] instructions found in [instruction]. */
     fun split(instruction: Instruction): List<Instruction> =
         when (instruction) {
           is Multi -> split(instruction.instructions)
-          // is Then -> split(instruction.instructions)
+          is NoOp -> listOf()
           else -> listOf(instruction)
         }
 

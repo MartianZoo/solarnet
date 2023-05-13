@@ -49,7 +49,23 @@ object Humanize {
     return turn("UseAction1<$stdAction>", tasker)
   }
 
-  fun PlayerSession.playCard(cardName: String, megacredits: Int = 0, steel: Int = 0, titanium: Int = 0) {
+  fun PlayerSession.stdProject(stdProject: String) {
+    stdProject(stdProject) {}
+  }
+
+  fun <T : Any> PlayerSession.stdProject(stdProject: String, tasker: Tasker.() -> T?): T? {
+    return stdAction("UseStandardProject") {
+      doFirstTask("UseAction1<$stdProject>")
+      theTasker.tasker()
+    }
+  }
+
+  fun PlayerSession.playCard(
+      cardName: String,
+      megacredits: Int = 0,
+      steel: Int = 0,
+      titanium: Int = 0,
+  ) {
     playCard(cardName, megacredits, steel, titanium) {}
   }
 
@@ -91,12 +107,13 @@ object Humanize {
     require(has(cardName))
     return stdAction("UseActionFromCard") {
       doFirstTask("UseAction$which<$cardName>")
-      tryMatchingTask("ActionUsedMarker<$cardName>")
-      theTasker.tasker()
+      val result = theTasker.tasker()
+      doFirstTask("ActionUsedMarker<$cardName>")
+      result
     }
   }
 
-  // OLD STUFF
+  // OLD STUFF - TODO GET RID OF
 
   fun PlayerSession.startTurn(vararg tasks: String) {
     atomic {

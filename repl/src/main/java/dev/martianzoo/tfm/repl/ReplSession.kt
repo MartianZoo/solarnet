@@ -17,15 +17,22 @@ import dev.martianzoo.tfm.engine.Game.SnReader
 import dev.martianzoo.tfm.engine.PlayerSession
 import dev.martianzoo.tfm.engine.PlayerSession.Companion.session
 import dev.martianzoo.tfm.pets.Parsing.parse
-import dev.martianzoo.tfm.pets.ast.*
+import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.tfm.pets.ast.Expression
+import dev.martianzoo.tfm.pets.ast.Instruction
 import dev.martianzoo.tfm.pets.ast.Instruction.Gain
-import dev.martianzoo.tfm.repl.ReplSession.ReplMode.*
+import dev.martianzoo.tfm.pets.ast.Metric
+import dev.martianzoo.tfm.pets.ast.Requirement
+import dev.martianzoo.tfm.repl.ReplSession.ReplMode.BLUE
+import dev.martianzoo.tfm.repl.ReplSession.ReplMode.GREEN
+import dev.martianzoo.tfm.repl.ReplSession.ReplMode.RED
+import dev.martianzoo.tfm.repl.ReplSession.ReplMode.YELLOW
 import dev.martianzoo.tfm.types.MType
 import dev.martianzoo.util.Multiset
 import dev.martianzoo.util.toStrings
-import org.jline.reader.History
 import java.io.File
+import org.jline.reader.History
 
 internal fun main() {
   val jline = JlineRepl()
@@ -383,7 +390,7 @@ public class ReplSession(var setup: GameSetup, private val jline: JlineRepl? = n
       if (mode == BLUE && !session.tasks.isEmpty()) {
         throw Exceptions.mustClearTasks()
       }
-      return session.atomic {
+      return game.atomic {
         session.initiate(instruction)
         if (auto) session.tryToDrain()
       }
@@ -439,7 +446,7 @@ public class ReplSession(var setup: GameSetup, private val jline: JlineRepl? = n
           when (mode) {
             RED, YELLOW -> throw UsageException("Can't execute tasks in this mode")
             GREEN, BLUE, -> {
-              session.atomic {
+              game.atomic {
                 session.tryTask(id, rest)
                 if (auto) session.tryToDrain()
               }

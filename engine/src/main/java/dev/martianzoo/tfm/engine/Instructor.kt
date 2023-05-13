@@ -18,9 +18,17 @@ import dev.martianzoo.tfm.pets.PetTransformer.Companion.chain
 import dev.martianzoo.tfm.pets.Transforming.replaceOwnerWith
 import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.pets.ast.Instruction
-import dev.martianzoo.tfm.pets.ast.Instruction.*
+import dev.martianzoo.tfm.pets.ast.Instruction.Change
 import dev.martianzoo.tfm.pets.ast.Instruction.Change.Companion.change
-import dev.martianzoo.tfm.pets.ast.Instruction.Intensity.*
+import dev.martianzoo.tfm.pets.ast.Instruction.Custom
+import dev.martianzoo.tfm.pets.ast.Instruction.Gated
+import dev.martianzoo.tfm.pets.ast.Instruction.Intensity.AMAP
+import dev.martianzoo.tfm.pets.ast.Instruction.Intensity.MANDATORY
+import dev.martianzoo.tfm.pets.ast.Instruction.Intensity.OPTIONAL
+import dev.martianzoo.tfm.pets.ast.Instruction.NoOp
+import dev.martianzoo.tfm.pets.ast.Instruction.Or
+import dev.martianzoo.tfm.pets.ast.Instruction.Per
+import dev.martianzoo.tfm.pets.ast.Instruction.Then
 import dev.martianzoo.tfm.pets.ast.ScaledExpression.Scalar.ActualScalar
 import dev.martianzoo.tfm.pets.ast.ScaledExpression.Scalar.XScalar
 import dev.martianzoo.tfm.types.MType
@@ -173,7 +181,8 @@ internal data class Instructor(
     writer.addTasks(transformer.transform(translated), player, cause)
   }
 
-  private val transformer = chain(reader.transformers.standardPreprocess(), replaceOwnerWith(player))
+  private val transformer =
+      chain(reader.transformers.standardPreprocess(), replaceOwnerWith(player))
 
   // TODO Effector
 
