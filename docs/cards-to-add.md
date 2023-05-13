@@ -4,9 +4,6 @@ As of 2023-04, the number of rows in this table plus entries in cards.json shoul
 
 | id  | card name                  | blocker               |
 |-----|----------------------------|-----------------------|
-| C19 | Jupiter Floating Station   | READY?                |
-| C45 | Titan Shuttles             | READY?                |
-| X17 | Crash Site Cleanup         | READY?                |
 | 074 | Viral Enhancers            | linkages              |
 | 008 | Capital                    | concrete              |
 | 195 | Indentured Workers         | nextcard              |
@@ -31,6 +28,7 @@ As of 2023-04, the number of rows in this table plus entries in cards.json shoul
 | XC5 | Mons Insurance             | complement, outofturn |
 | 173 | Protected Habitats         | complement            |
 | X14 | Asteroid Deflection System | complement            |
+| X17 | Crash Site Cleanup         | complement            |
 | B01 | CrediCor                   | customreqt, reftrig   |
 | C41 | Spin-Off Department        | customreqt, reftrig   |
 | X13 | Advertising                | customreqt, reftrig   |

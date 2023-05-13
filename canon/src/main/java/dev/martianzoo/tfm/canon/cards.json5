@@ -3792,6 +3792,22 @@
       "projectKind": "ACTIVE"
     },
 
+    // Jupiter Floating Station
+    {
+      "id": "C19",
+      "bundle": "C",
+      "deck": "PROJECT",
+      "tags": [ "JovianTag" ],
+      "actions": [
+        "-> Floater<CardFront(HAS JovianTag)>",
+        "-> 1 / Floater<This> MAX 4"
+      ],
+      "resourceType": "Floater",
+      "requirement": "3 ScienceTag",
+      "cost": 9,
+      "projectKind": "ACTIVE"
+    },
+
     // Luna Governor
     {
       "id": "C20",
@@ -3938,6 +3954,22 @@
       "effects": [ "End: 2 VictoryPoint" ],
       "resourceType": "Floater",
       "cost": 21,
+      "projectKind": "ACTIVE"
+    },
+
+    // Titan Shuttles
+    {
+      "id": "C45",
+      "bundle": "C",
+      "deck": "PROJECT",
+      "tags": [ "JovianTag", "SpaceTag" ],
+      "actions": [
+        "-> 2 Floater<CardFront(HAS JovianTag)>",
+        "X Floater<This> -> X Titanium",
+      ],
+      "effects": [ "End: VictoryPoint" ],
+      "resourceType": "Floater",
+      "cost": 23,
       "projectKind": "ACTIVE"
     },
 
