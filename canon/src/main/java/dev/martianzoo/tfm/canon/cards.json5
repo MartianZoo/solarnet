@@ -152,6 +152,15 @@
       "resourceType": "Animal"
     },
 
+    // Polyphemos
+    {
+      "id": "CC3",
+      "bundle": "C",
+      "deck": "CORPORATION",
+      "immediate": "50, PROD[5], 5 Titanium",
+      "effects" : [ "BuyCard:: -2" ],
+    },
+
     // Lakefront Resorts
     {
       "id": "TC1",
@@ -170,14 +179,23 @@
       "id": "TC2",
       "bundle": "T",
       "deck": "CORPORATION",
-      "immediate": "53",
+      "immediate": "53, -2 TerraformRating",
       "effects": [
-        "This: -2 TerraformRating",
         "ProductionPhase IF MAX 0 HasRaisedTr: Preservation<This>, 6",
         "End: VictoryPoint / Preservation<This>"
       ],
       "components": [ "CLASS Preservation : CardResource" ],
       "resourceType": "Preservation"
+    },
+
+    // TerraLabs Research
+    {
+      "id": "TC4",
+      "bundle": "T",
+      "deck": "CORPORATION",
+      "tags": [ "ScienceTag", "EarthTag" ],
+      "immediate": "14, -TerraformRating",
+      "effects": [ "BuyCard:: 2" ]
     },
 
     // Recyclon

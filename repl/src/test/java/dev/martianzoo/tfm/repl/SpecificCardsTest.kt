@@ -452,4 +452,49 @@ class SpecificCardsTest {
       assertCounts(0 to "Owed", 5 to "M", 1 to "ExcentricSponsor", 1 to "PlayedEvent")
     }
   }
+
+  @Test
+  fun terribleLabs() {
+    val game = Engine.newGame(GameSetup(Canon, "BMT", 2))
+    val p1 = game.session(PLAYER1)
+
+    p1.action("NewTurn") {
+      doFirstTask("TerralabsResearch")
+      doFirstTask("10 BuyCard")
+      assertCounts(10 to "ProjectCard", 4 to "M")
+    }
+
+    p1.action("4 BuyCard")
+    p1.assertCounts(14 to "ProjectCard", 0 to "M")
+  }
+
+  @Test
+  fun polyphemos() {
+    val game = Engine.newGame(GameSetup(Canon, "BMRC", 2))
+    val eng = game.session(ENGINE)
+    val p1 = game.session(PLAYER1)
+
+    p1.action("NewTurn") {
+      doFirstTask("Polyphemos")
+      doFirstTask("10 BuyCard")
+      assertCounts(10 to "ProjectCard", 0 to "M")
+    }
+
+    eng.action("ActionPhase")
+    p1.action("14")
+    p1.action("NewTurn") {
+      doFirstTask("UseAction1<PlayCardFromHand>")
+      doFirstTask("PlayCard<Class<InventorsGuild>>")
+      doFirstTask("9 Pay<Class<M>> FROM M")
+      assertCounts(9 to "ProjectCard", 5 to "M")
+    }
+
+    p1.action("NewTurn") {
+      doFirstTask("UseAction1<UseActionFromCard>")
+      doFirstTask("UseAction1<InventorsGuild>")
+      doFirstTask("BuyCard")
+      doFirstTask("ActionUsedMarker<InventorsGuild>")
+      assertCounts(10 to "ProjectCard", 0 to "M")
+    }
+  }
 }

@@ -154,13 +154,11 @@ ABSTRACT CLASS Owned<Anyone> {
 
 // PAYMENT MECHANICS -----------------------------
 
-  CLASS BuyCard : Signal {
-    This:: -3 THEN ProjectCard
-  }
+  CLASS BuyCard : Signal { This: -3, ProjectCard }
 
   CLASS PlayCard<Class<CardFront>> : Temporary {
     This:: @beginPlayCard(Class<CardFront>)
-    -X Barrier IF =0 Barrier:: CardFront FROM This
+    -X Barrier IF =0 Barrier:: CardFront FROM This // When barriers gone, become the card itself
   }
 
   CLASS PlayTag<Class<Tag>> : Signal            // triggers discounts and Accepts

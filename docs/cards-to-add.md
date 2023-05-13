@@ -21,8 +21,6 @@ As of 2023-04, the number of rows in this table plus entries in cards.json shoul
 | X43 | Head Start                 | actionsinactions      |
 | CC1 | Aridor                     | aridor                |
 | B00 | Beginner Corporation       | beginner              |
-| CC3 | Polyphemos                 | buycard               |
-| TC4 | TerraLabs Research         | buycard               |
 | XC1 | Arcadian Communities       | community             |
 | 066 | Land Claim                 | community             |
 | XC5 | Mons Insurance             | complement, outofturn |
