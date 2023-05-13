@@ -201,14 +201,10 @@ class SpecificCardsTest {
 
     p1.assertCounts(0 to "Megacredit", 20 to "TR")
 
-    p1.action("CorporationCard, Pristar") {
-      assertCounts(53 to "Megacredit", 18 to "TR")
-    }
+    p1.action("CorporationCard, Pristar") { assertCounts(53 to "Megacredit", 18 to "TR") }
 
     eng.action("PreludePhase")
-    p1.action("PreludeCard, UnmiContractor") {
-      assertCounts(53 to "Megacredit", 21 to "TR")
-    }
+    p1.action("PreludeCard, UnmiContractor") { assertCounts(53 to "Megacredit", 21 to "TR") }
 
     eng.action("ActionPhase")
     eng.action("ProductionPhase")
@@ -432,6 +428,28 @@ class SpecificCardsTest {
     p1.action("AsteroidCard") {
       doFirstTask("Ok") // can it infer this? TODO
       assertCounts(3 to "Megacredit", 3 to "Heat")
+    }
+  }
+
+  @Test
+  fun excentricSponsor() {
+    val game = Engine.newGame(GameSetup(Canon, "BRHXP", 2))
+    val eng = game.session(ENGINE)
+    val p1 = game.session(PLAYER1)
+
+    p1.action("NewTurn") {
+      doFirstTask("InterplanetaryCinematics")
+      doFirstTask("7 BuyCard")
+    }
+
+    eng.action("PreludePhase")
+
+    p1.action("NewTurn") {
+      doFirstTask("ExcentricSponsor") // currently we don't `PlayCard` these
+      doFirstTask("PlayCard<Class<NitrogenRichAsteroid>>")
+      doFirstTask("6 Pay<Class<M>> FROM M")
+      doFirstTask("Ok") // the damn titanium
+      assertCounts(0 to "Owed", 5 to "M", 1 to "ExcentricSponsor", 1 to "PlayedEvent")
     }
   }
 }

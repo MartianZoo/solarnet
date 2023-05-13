@@ -320,6 +320,14 @@
       "immediate": "PROD[Plant], CityTile"
     },
 
+    // Excentric Sponsor
+    {
+      "id": "P11",
+      "bundle": "P",
+      "deck": "PRELUDE",
+      "immediate": "PlayCard THEN -25 Owed."
+    },
+
     // Experimental Forest[F]
     {
       "id": "P12F",
