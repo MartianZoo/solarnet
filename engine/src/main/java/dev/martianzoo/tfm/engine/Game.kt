@@ -229,12 +229,12 @@ internal constructor(
       } catch (e: Exception) {
         when (e) {
           is TaskException -> return TaskResult()
-          is NotNowException, is AbstractException -> {
+          is NotNowException,
+          is AbstractException -> {
             val newTask = game.tasks[taskId]
             val explainedTask = newTask.copy(whyPending = e.message!!)
             game.writableTasks.replaceTask(explainedTask, game.writableEvents)
           }
-
           else -> throw e
         }
         TaskResult()
@@ -281,12 +281,13 @@ internal constructor(
     override fun sneak(change: String, cause: Cause?) = sneak(preprocess(parse(change)), cause)
 
     override fun sneak(change: Instruction, cause: Cause?): TaskResult {
-      change as Change
-      return TaskResult(listOf(change(
-          (change.count as ActualScalar).value,
+      val count = (change as Change).count as ActualScalar
+      val element = change(
+          count.value,
           change.gaining?.toComponent(game.reader),
           change.removing?.toComponent(game.reader),
-          cause) {}))
+          cause) {}
+      return TaskResult(listOf(element))
     }
 
     override fun change(

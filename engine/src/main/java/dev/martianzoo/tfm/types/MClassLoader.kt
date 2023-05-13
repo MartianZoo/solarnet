@@ -42,9 +42,8 @@ public class MClassLoader(
   override val transformers = Transformers(this)
 
   init {
-    val names = (transformers.requiredClasses + OK + cn("SetupPhase")) // TODO hmm
-        .intersect(authority.allClassNames)
-    loadAll(names)
+    val names = transformers.requiredClasses + OK + cn("SetupPhase") // TODO hmm
+    loadAll(names.intersect(authority.allClassNames)) // TODO loadAllDefined?
   }
 
   /**

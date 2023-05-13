@@ -15,20 +15,20 @@ interface UnsafeGameWriter {
   fun sneak(change: Instruction, cause: Cause? = null): TaskResult
 
   /**
-   * Gains [count] instances of [gaining] (if non-null) and removes [count] instances of
-   * [removing] (if non-null), maintaining change-integrity. That means it modifies the component
-   * graph, appends to the event log, and sends the new change event to [listener] (for example,
-   * to fire triggers).
+   * Gains [count] instances of [gaining] (if non-null) and removes [count] instances of [removing]
+   * (if non-null), maintaining change-integrity. That means it modifies the component graph,
+   * appends to the event log, and sends the new change event to [listener] (for example, to fire
+   * triggers).
    *
-   * Used during normal task execution, but can also be invoked manually to fix a broken game
-   * state, break a fixed game state, or quickly set up a specific game scenario.
+   * Used during normal task execution, but can also be invoked manually to fix a broken game state,
+   * break a fixed game state, or quickly set up a specific game scenario.
    */
   fun change(
-          count: Int,
-          gaining: Component?,
-          removing: Component?,
-          cause: Cause?,
-          listener: (ChangeEvent) -> Unit,
+      count: Int,
+      gaining: Component?,
+      removing: Component?,
+      cause: Cause?,
+      listener: (ChangeEvent) -> Unit,
   ): ChangeEvent
 
   /**
@@ -36,11 +36,10 @@ interface UnsafeGameWriter {
    * prevent the change. The same [cause] is used for all changes.
    */
   fun changeAndFixOrphans(
-          count: Int = 1,
-          gaining: Component? = null,
-          removing: Component? = null,
-          cause: Cause? = null,
-          listener: (ChangeEvent) -> Unit = {},
+      count: Int = 1,
+      gaining: Component? = null,
+      removing: Component? = null,
+      cause: Cause? = null,
+      listener: (ChangeEvent) -> Unit = {},
   ) // : TaskResult? TODO
-
 }

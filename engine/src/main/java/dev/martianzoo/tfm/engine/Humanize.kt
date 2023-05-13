@@ -26,9 +26,9 @@ object Humanize {
   }
 
   fun <T : Any> PlayerSession.playCorp(
-          corpName: String,
-          buyCards: Int? = 0,
-          tasker: Tasker.() -> T?
+      corpName: String,
+      buyCards: Int? = 0,
+      tasker: Tasker.() -> T?
   ): T? {
     require(has("CorporationPhase"))
     return turn(corpName) {
@@ -54,11 +54,11 @@ object Humanize {
   }
 
   fun <T : Any> PlayerSession.playCard(
-          cardName: String,
-          megacredits: Int = 0,
-          steel: Int = 0,
-          titanium: Int = 0,
-          tasker: Tasker.() -> T?
+      cardName: String,
+      megacredits: Int = 0,
+      steel: Int = 0,
+      titanium: Int = 0,
+      tasker: Tasker.() -> T?
   ): T? {
 
     return stdAction("PlayCardFromHand") {
@@ -87,10 +87,10 @@ object Humanize {
     cardAction(cardName, actionNumber) {}
   }
 
-  fun <T : Any> PlayerSession.cardAction(cardName: String, actionNumber: Int = 1, tasker: Tasker.() -> T?): T? {
+  fun <T : Any> PlayerSession.cardAction(cardName: String, which: Int = 1, tasker: Tasker.() -> T?): T? {
     require(has(cardName))
     return stdAction("UseActionFromCard") {
-      doFirstTask("UseAction$actionNumber<$cardName>")
+      doFirstTask("UseAction$which<$cardName>")
       tryMatchingTask("ActionUsedMarker<$cardName>")
       theTasker.tasker()
     }
