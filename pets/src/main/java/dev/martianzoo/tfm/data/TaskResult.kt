@@ -10,4 +10,8 @@ import dev.martianzoo.tfm.data.Task.TaskId
 public data class TaskResult(
     public val changes: List<ChangeEvent>,
     public val tasksSpawned: Set<TaskId>,
-)
+) {
+  companion object {
+    val EMPTY = TaskResult(listOf(), setOf())
+  }
+}

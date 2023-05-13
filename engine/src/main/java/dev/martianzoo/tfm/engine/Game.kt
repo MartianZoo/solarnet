@@ -8,11 +8,8 @@ import dev.martianzoo.tfm.api.GameReader
 import dev.martianzoo.tfm.api.Type
 import dev.martianzoo.tfm.api.TypeInfo
 import dev.martianzoo.tfm.data.GameEvent
-import dev.martianzoo.tfm.data.GameEvent.ChangeEvent
+import dev.martianzoo.tfm.data.GameEvent.*
 import dev.martianzoo.tfm.data.GameEvent.ChangeEvent.Cause
-import dev.martianzoo.tfm.data.GameEvent.TaskAddedEvent
-import dev.martianzoo.tfm.data.GameEvent.TaskEvent
-import dev.martianzoo.tfm.data.GameEvent.TaskRemovedEvent
 import dev.martianzoo.tfm.data.Player
 import dev.martianzoo.tfm.data.Player.Companion.ENGINE
 import dev.martianzoo.tfm.data.Task
@@ -20,11 +17,9 @@ import dev.martianzoo.tfm.data.Task.TaskId
 import dev.martianzoo.tfm.data.TaskResult
 import dev.martianzoo.tfm.engine.ActiveEffect.FiredEffect
 import dev.martianzoo.tfm.engine.Component.Companion.toComponent
-import dev.martianzoo.tfm.engine.Game.ComponentGraph
-import dev.martianzoo.tfm.engine.Game.EventLog
+import dev.martianzoo.tfm.engine.Game.*
 import dev.martianzoo.tfm.engine.Game.EventLog.Checkpoint
-import dev.martianzoo.tfm.engine.Game.TaskQueue
-import dev.martianzoo.tfm.pets.PetTransformer
+import dev.martianzoo.tfm.pets.PetTransformer.Companion.chain
 import dev.martianzoo.tfm.pets.Transforming.replaceOwnerWith
 import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.pets.ast.Instruction
@@ -174,6 +169,20 @@ internal constructor(
     }
   }
 
+  /**
+   * Performs [block] with failure-atomicity and returning a [TaskResult] describing what changed.
+   */
+  public fun atomic(block: () -> Unit): TaskResult {
+    val checkpoint = checkpoint()
+    return try {
+      block()
+      events.activitySince(checkpoint)
+    } catch (e: Exception) {
+      rollBack(checkpoint)
+      throw e
+    }
+  }
+
   internal fun activeEffects(classes: Collection<MClass>): List<ActiveEffect> =
       writableComponents.activeEffects(classes)
 
@@ -211,53 +220,32 @@ internal constructor(
       return true
     }
 
-    // TODO move back to Game and document
-    private fun atomic(block: () -> Unit): TaskResult {
-      val checkpoint = game.checkpoint()
+    override fun tryTask(taskId: TaskId, narrowed: Instruction?): TaskResult {
       return try {
-        block()
-        game.events.activitySince(checkpoint)
+        doTask(taskId, narrowed)
       } catch (e: Exception) {
-        game.rollBack(checkpoint)
-        throw e
+        when (e) {
+          is TaskException -> return TaskResult.EMPTY
+          is NotNowException, is AbstractException -> {
+            val newTask = game.tasks[taskId]
+            val explainedTask = newTask.copy(whyPending = e.message!!)
+            game.writableTasks.replaceTask(explainedTask, game.writableEvents)
+          }
+          else -> throw e
+        }
+        TaskResult.EMPTY
       }
     }
 
-    override fun tryTask(taskId: TaskId, narrowed: Instruction?): TaskResult {
-      var message: String? = null
-      val result =
-          try {
-            atomic {
-              if (prepareTask(taskId)) {
-                doTask(taskId, narrowed)
-              }
-              return@atomic
-            }
-          } catch (e: ExistingDependentsException) {
-            error("this should not have happened: $e")
-          } catch (e: TaskException) {
-            return TaskResult(listOf(), setOf())
-          } catch (e: NotNowException) {
-            message = e.message
-            TaskResult(listOf(), setOf())
-          } catch (e: AbstractException) {
-            message = e.message
-            TaskResult(listOf(), setOf())
-          }
-      if (message == null) return result
-      val newTask = game.tasks[taskId]
-      val explainedTask = newTask.copy(whyPending = message)
-      game.writableTasks.replaceTask(explainedTask, game.writableEvents)
-      return result
-    }
-
     override fun doTask(taskId: TaskId, narrowed: Instruction?): TaskResult {
-      prepareTask(taskId)
-      val nrwd: Instruction? = narrowed?.let(::preprocess)
-      val task = game.tasks[taskId]
-      checkOwner(task)
-      nrwd?.ensureNarrows(task.instruction, game.reader)
-      return atomic {
+      return game.atomic {
+        if (!prepareTask(taskId)) return@atomic
+
+        val nrwd: Instruction? = narrowed?.let(::preprocess)
+        val task = game.tasks[taskId]
+        checkOwner(task)
+        nrwd?.ensureNarrows(task.instruction, game.reader)
+
         val instructor = Instructor(this, player, task.cause)
         val prepared = instructor.prepare(nrwd ?: task.instruction)
         prepared?.let(instructor::execute)
@@ -265,8 +253,6 @@ internal constructor(
         removeTask(taskId)
       }
     }
-
-    // Danger
 
     override fun addTask(instruction: Instruction, initialCause: Cause?): TaskId {
       // require(game.tasks.none()) { game.tasks.joinToString("\n")} TODO enable??
@@ -286,16 +272,7 @@ internal constructor(
       return game.writableTasks.removeTask(taskId, game.writableEvents)
     }
 
-    /**
-     * Gains [count] instances of [gaining] (if non-null) and removes [count] instances of
-     * [removing] (if non-null), maintaining change-integrity. That means it modifies the component
-     * graph, appends to the event log, and sends the new change event to [listener] (for example,
-     * to fire triggers).
-     *
-     * Used during normal task execution, but can also be invoked manually to fix a broken game
-     * state, break a fixed game state, or quickly set up a specific game scenario.
-     */
-    fun change(
+    override fun change(
         count: Int,
         gaining: Component?,
         removing: Component?,
@@ -312,16 +289,12 @@ internal constructor(
       listener(event)
     }
 
-    /**
-     * Like [change], but first removes any dependent components (recursively) that would otherwise
-     * prevent the change. The same [cause] is used for all changes.
-     */
-    internal fun changeAndFixOrphans(
-        count: Int = 1,
-        gaining: Component? = null,
-        removing: Component? = null,
-        cause: Cause? = null,
-        listener: (ChangeEvent) -> Unit = {},
+    override fun changeAndFixOrphans(
+        count: Int,
+        gaining: Component?,
+        removing: Component?,
+        cause: Cause?,
+        listener: (ChangeEvent) -> Unit,
     ) {
       fun tryIt() = change(count, gaining, removing, cause, listener)
       try {
@@ -343,10 +316,8 @@ internal constructor(
       }
     }
 
-    internal fun <P : PetElement> preprocess(node: P) =
-        PetTransformer.chain(
-            game.transformers.standardPreprocess(),
-            replaceOwnerWith(player),
-        ).transform(node)
+    private val xer = chain(game.transformers.standardPreprocess(), replaceOwnerWith(player))
+
+    internal fun <P : PetElement> preprocess(node: P) = xer.transform(node)
   }
 }
