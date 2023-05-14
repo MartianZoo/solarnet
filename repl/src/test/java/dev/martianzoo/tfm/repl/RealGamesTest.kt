@@ -14,8 +14,6 @@ import dev.martianzoo.tfm.engine.Humanize.playCard
 import dev.martianzoo.tfm.engine.Humanize.playCorp
 import dev.martianzoo.tfm.engine.Humanize.production
 import dev.martianzoo.tfm.engine.Humanize.stdAction
-import dev.martianzoo.tfm.engine.Humanize.turn
-import dev.martianzoo.tfm.engine.Humanize.useCardAction
 import dev.martianzoo.tfm.engine.PlayerSession.Companion.session
 import dev.martianzoo.tfm.repl.TestHelpers.assertCounts
 import dev.martianzoo.tfm.repl.TestHelpers.taskReasons
@@ -295,7 +293,7 @@ class RealGamesTest {
     }
     eng.action("ActionPhase")
 
-    p1.useCardAction(1, "DevelopmentCenter")
+    p1.cardAction("DevelopmentCenter")
     p1.playCard("ImmigrantCity", 1, steel = 5) {
       doFirstTask("CityTile<Hellas_9_7>")
       doFirstTask("OceanTile<Hellas_5_6>")

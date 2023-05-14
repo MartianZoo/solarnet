@@ -9,18 +9,6 @@ import dev.martianzoo.tfm.pets.ast.ClassName
  * think about the game.
  */
 object Humanize {
-
-  fun PlayerSession.turn(initial: String? = null) {
-    turn(initial) {}
-  }
-
-  fun <T : Any> PlayerSession.turn(initial: String? = null, tasker: Tasker.() -> T?): T? {
-    return action("$NEW_TURN") {
-      initial?.let(::doFirstTask)
-      theTasker.tasker()
-    }
-  }
-
   fun PlayerSession.playCorp(corpName: String, buyCards: Int? = 0) {
     playCorp(corpName, buyCards) {}
   }
@@ -40,18 +28,14 @@ object Humanize {
 
   fun PlayerSession.pass() = turn("Pass").also { require(has("ActionPhase")) }
 
-  fun PlayerSession.stdAction(stdAction: String) {
-    stdAction(stdAction) {}
-  }
+  public fun PlayerSession.stdAction(stdAction: String) = stdAction(stdAction) {}
 
   fun <T : Any> PlayerSession.stdAction(stdAction: String, tasker: Tasker.() -> T?): T? {
     require(has("ActionPhase"))
     return turn("UseAction1<$stdAction>", tasker)
   }
 
-  fun PlayerSession.stdProject(stdProject: String) {
-    stdProject(stdProject) {}
-  }
+  fun PlayerSession.stdProject(stdProject: String) = stdProject(stdProject) {}
 
   fun <T : Any> PlayerSession.stdProject(stdProject: String, tasker: Tasker.() -> T?): T? {
     return stdAction("UseStandardProject") {
@@ -115,24 +99,6 @@ object Humanize {
 
   // OLD STUFF - TODO GET RID OF
 
-  fun PlayerSession.startTurn(vararg tasks: String) {
-    atomic {
-      initiate("NewTurn")
-      tasks.forEach(::tryMatchingTask)
-    }
-  }
-
-  fun PlayerSession.useCardAction(which: Int, cardName: String, vararg tasks: String) =
-      startTurn(
-          "UseAction1<UseActionFromCard>",
-          "UseAction$which<$cardName>",
-          "ActionUsedMarker<$cardName>",
-          *tasks,
-      )
-
-  fun PlayerSession.stdProject(spName: String, vararg tasks: String) =
-      startTurn("UseAction1<UseStandardProject>", "UseAction1<$spName>", *tasks)
-
   fun PlayerSession.counts(s: String) = s.split(",").map(::count)
 
   fun PlayerSession.production(): Map<ClassName, Int> =
@@ -140,7 +106,6 @@ object Humanize {
         count("PROD[$it]") - if (it == MEGACREDIT) 5 else 0
       }
 
-  private val NEW_TURN = ClassName.cn("NewTurn")
   private val MEGACREDIT = ClassName.cn("Megacredit")
 
   fun PlayerSession.oxygenPercent(): Int = count("OxygenStep")

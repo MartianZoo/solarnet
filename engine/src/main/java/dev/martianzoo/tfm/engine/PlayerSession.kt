@@ -73,6 +73,15 @@ public class PlayerSession(
 
   internal val theTasker = Tasker(this)
 
+  fun turn(initial: String? = null) = turn(initial) {}
+
+  fun <T : Any> turn(initial: String? = null, tasker: Tasker.() -> T?): T? {
+    return action("NewTurn") {
+      initial?.let(::doFirstTask)
+      theTasker.tasker()
+    }
+  }
+
   /** Action just means "queue empty -> do anything -> queue empty again" */
   fun action(firstInstruction: Instruction, vararg tasks: String): TaskResult {
     return game.atomic { action(firstInstruction) { tasks.forEach(::doFirstTask) } }

@@ -16,9 +16,7 @@ import dev.martianzoo.tfm.engine.Humanize.cardAction
 import dev.martianzoo.tfm.engine.Humanize.playCard
 import dev.martianzoo.tfm.engine.Humanize.playCorp
 import dev.martianzoo.tfm.engine.Humanize.production
-import dev.martianzoo.tfm.engine.Humanize.startTurn
 import dev.martianzoo.tfm.engine.Humanize.stdAction
-import dev.martianzoo.tfm.engine.Humanize.useCardAction
 import dev.martianzoo.tfm.engine.PlayerSession.Companion.session
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.repl.TestHelpers.assertCounts
@@ -270,9 +268,7 @@ class SpecificCardsTest {
 
     // Give energy prod and try again - success
     p1.writer.unsafe().sneak("PROD[Energy]")
-    p1.playCard("AiCentral", 19, steel = 1) {
-      assertCounts(0 to "PROD[Energy]")
-    }
+    p1.playCard("AiCentral", 19, steel = 1) { assertCounts(0 to "PROD[Energy]") }
 
     // Use the action
     p1.assertCounts(1 to "ProjectCard")
@@ -290,7 +286,7 @@ class SpecificCardsTest {
 
     // Next gen we can again
     eng.action("Generation")
-    p1.useCardAction(1, "AiCentral")
+    p1.cardAction("AiCentral")
     p1.assertCounts(5 to "ProjectCard")
   }
 
@@ -396,33 +392,33 @@ class SpecificCardsTest {
     val p1 = game.session(PLAYER1)
     val p2 = game.session(PLAYER2)
 
-    p1.startTurn("InterplanetaryCinematics", "7 BuyCard")
-    p2.startTurn("PharmacyUnion", "5 BuyCard")
+    p1.playCorp("InterplanetaryCinematics", 7)
+    p2.playCorp("PharmacyUnion", 5)
 
     eng.action("PreludePhase")
 
-    p1.startTurn("UnmiContractor")
-    p1.startTurn("CorporateArchives")
+    p1.turn("UnmiContractor")
+    p1.turn("CorporateArchives")
 
     with(p2) {
-      startTurn("BiosphereSupport")
+      turn("BiosphereSupport")
       assertThat(production().values).containsExactly(-1, 0, 0, 2, 0, 0).inOrder()
 
-      startTurn("DoubleDown")
-      assertThrows<Exception>("1") { doFirstTask("@copyPrelude(MartianIndustries)") }
-      assertThrows<Exception>("2") { doFirstTask("@copyPrelude(UnmiContractor)") }
-      assertThrows<Exception>("3") { doFirstTask("@copyPrelude(PharmacyUnion)") }
-      assertThrows<Exception>("4") { doFirstTask("@copyPrelude(DoubleDown)") }
+      turn("DoubleDown") {
+        assertThrows<DependencyException>("exist") { doFirstTask("@copyPrelude(MartianIndustries)") }
+        assertThrows<DependencyException>("mine") { doFirstTask("@copyPrelude(UnmiContractor)") }
+        assertThrows<NarrowingException>("prelude") { doFirstTask("@copyPrelude(PharmacyUnion)") }
+        assertThrows<NarrowingException>("other") { doFirstTask("@copyPrelude(DoubleDown)") }
 
-      doFirstTask("@copyPrelude(BiosphereSupport)")
-      assertThat(production().values).containsExactly(-2, 0, 0, 4, 0, 0).inOrder()
+        doFirstTask("@copyPrelude(BiosphereSupport)")
+        assertThat(production().values).containsExactly(-2, 0, 0, 4, 0, 0).inOrder()
+      }
     }
   }
 
   @Test
   fun optimalAerobraking() {
     val game = Game.create(GameSetup(Canon, "BRHXP", 2))
-    val eng = game.session(ENGINE)
     val p1 = game.session(PLAYER1)
 
     p1.action("5 ProjectCard, OptimalAerobraking") { assertCounts(0 to "Megacredit", 0 to "Heat") }
