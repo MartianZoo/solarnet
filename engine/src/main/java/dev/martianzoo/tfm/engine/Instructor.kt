@@ -61,10 +61,10 @@ public data class Instructor(
     return when (unprepared) {
       is NoOp -> NoOp
       is Change -> prepareChange(unprepared)
-      is Per -> doPrepare(unprepared.instruction * reader.count(unprepared.metric))
+      is Per -> doPrepare(unprepared.inner * reader.count(unprepared.metric))
       is Gated -> {
         if (reader.evaluate(unprepared.gate)) {
-          doPrepare(unprepared.instruction)
+          doPrepare(unprepared.inner)
         } else if (unprepared.mandatory) {
           throw requirementNotMet(unprepared.gate)
         } else {

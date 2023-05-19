@@ -217,54 +217,53 @@ public sealed class Instruction : PetElement() {
   }
 
   // TODO instruction -> inner
-  data class Per(val instruction: Instruction, val metric: Metric) : Instruction() {
+  data class Per(val inner: Instruction, val metric: Metric) : Instruction() {
     init {
-      if (instruction !is Change) {
+      if (inner !is Change) {
         throw PetSyntaxException("Per can only contain gain/remove/transmute for now")
       }
     }
 
-    override fun visitChildren(visitor: Visitor) = visitor.visit(metric, instruction)
-    override fun scale(factor: Int) = copy(instruction = instruction * factor)
+    override fun visitChildren(visitor: Visitor) = visitor.visit(metric, inner)
+    override fun scale(factor: Int) = copy(inner = inner * factor)
 
     override fun precedence() = 8
 
-    override fun isAbstract(info: TypeInfo) = instruction.isAbstract(info)
+    override fun isAbstract(info: TypeInfo) = inner.isAbstract(info)
 
     override fun ensureIsNarrowedBy_doNotCall(proposed: Instruction, info: TypeInfo) {
       proposed as Per
       if (proposed.metric != metric) {
         throw NarrowingException("can't change the metric")
       }
-      proposed.instruction.ensureNarrows(instruction, info)
+      proposed.inner.ensureNarrows(inner, info)
     }
 
-    override fun toString() = "$instruction / $metric"
+    override fun toString() = "$inner / $metric"
   }
 
-  // TODO instruction -> inner
-  data class Gated(val gate: Requirement, val mandatory: Boolean, val instruction: Instruction) :
+  data class Gated(val gate: Requirement, val mandatory: Boolean, val inner: Instruction) :
     Instruction() {
     init {
-      if (instruction is Gated) throw PetSyntaxException("You don't gate a gater")
+      if (inner is Gated) throw PetSyntaxException("You don't gate a gater")
     }
 
-    override fun visitChildren(visitor: Visitor) = visitor.visit(gate, instruction)
-    override fun scale(factor: Int) = copy(instruction = instruction * factor)
+    override fun visitChildren(visitor: Visitor) = visitor.visit(gate, inner)
+    override fun scale(factor: Int) = copy(inner = inner * factor)
 
-    override fun isAbstract(info: TypeInfo) = instruction.isAbstract(info)
+    override fun isAbstract(info: TypeInfo) = inner.isAbstract(info)
 
     override fun ensureIsNarrowedBy_doNotCall(proposed: Instruction, info: TypeInfo) {
       proposed as Gated
       if (proposed.gate != gate) {
         throw NarrowingException("can't change the condition")
       }
-      proposed.instruction.ensureNarrows(instruction, info)
+      proposed.inner.ensureNarrows(inner, info)
     }
 
     override fun toString(): String {
       val connector = if (mandatory) ": " else " ?: "
-      return "${groupPartIfNeeded(gate)}$connector${groupPartIfNeeded(instruction)}"
+      return "${groupPartIfNeeded(gate)}$connector${groupPartIfNeeded(inner)}"
     }
 
     // let's over-group for clarity

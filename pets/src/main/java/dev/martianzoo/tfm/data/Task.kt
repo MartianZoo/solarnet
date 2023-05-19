@@ -118,8 +118,8 @@ private constructor(
           throw DeadEndException("a Die instruction was reached")
         }
 
-      is Gated -> instruction.copy(instruction = normalizeForTask(instruction.instruction))
-      is Per -> instruction.copy(instruction = normalizeForTask(instruction.instruction))
+      is Gated -> instruction.copy(inner = normalizeForTask(instruction.inner))
+      is Per -> instruction.copy(inner = normalizeForTask(instruction.inner))
       is Or -> Or.create(instruction.instructions.map(::normalizeForTask).toSet())
       is Then -> {
         val parts = instruction.instructions
