@@ -1,16 +1,16 @@
 package dev.martianzoo.tfm.engine
 
-import dev.martianzoo.tfm.api.Exceptions.AbstractException
+import dev.martianzoo.tfm.api.CustomClass
+import dev.martianzoo.tfm.api.Exceptions.DeadEndException
 import dev.martianzoo.tfm.api.Exceptions.DependencyException
 import dev.martianzoo.tfm.api.Exceptions.LimitsException
 import dev.martianzoo.tfm.api.Exceptions.NotNowException
 import dev.martianzoo.tfm.api.Exceptions.abstractInstruction
 import dev.martianzoo.tfm.api.Exceptions.orWithoutChoice
 import dev.martianzoo.tfm.api.Exceptions.requirementNotMet
-import dev.martianzoo.tfm.api.Type
+import dev.martianzoo.tfm.api.SpecialClassNames.DIE
 import dev.martianzoo.tfm.data.GameEvent.ChangeEvent
 import dev.martianzoo.tfm.data.GameEvent.ChangeEvent.Cause
-import dev.martianzoo.tfm.data.Player
 import dev.martianzoo.tfm.engine.ActiveEffect.FiredEffect
 import dev.martianzoo.tfm.engine.Component.Companion.toComponent
 import dev.martianzoo.tfm.engine.Game.GameWriterImpl
@@ -20,25 +20,23 @@ import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.pets.ast.Instruction
 import dev.martianzoo.tfm.pets.ast.Instruction.Change
 import dev.martianzoo.tfm.pets.ast.Instruction.Change.Companion.change
-import dev.martianzoo.tfm.pets.ast.Instruction.Custom
+import dev.martianzoo.tfm.pets.ast.Instruction.Companion.split
 import dev.martianzoo.tfm.pets.ast.Instruction.Gated
 import dev.martianzoo.tfm.pets.ast.Instruction.Intensity.AMAP
 import dev.martianzoo.tfm.pets.ast.Instruction.Intensity.MANDATORY
-import dev.martianzoo.tfm.pets.ast.Instruction.Intensity.OPTIONAL
+import dev.martianzoo.tfm.pets.ast.Instruction.Multi
 import dev.martianzoo.tfm.pets.ast.Instruction.NoOp
 import dev.martianzoo.tfm.pets.ast.Instruction.Or
 import dev.martianzoo.tfm.pets.ast.Instruction.Per
 import dev.martianzoo.tfm.pets.ast.Instruction.Then
+import dev.martianzoo.tfm.pets.ast.Instruction.Transform
 import dev.martianzoo.tfm.pets.ast.ScaledExpression.Scalar.ActualScalar
-import dev.martianzoo.tfm.pets.ast.ScaledExpression.Scalar.XScalar
 import dev.martianzoo.tfm.types.MType
 import kotlin.math.min
 
 /** Just a cute name for "instruction handler". It prepares and executes instructions. */
-internal data class Instructor(
-    private val writer: GameWriterImpl, // makes sense as inner class but file would be so long
-    private val player: Player,
-    private val cause: Cause? = null
+public data class Instructor(
+  private val writer: GameWriterImpl, // makes sense as inner class but file would be so long
 ) {
   private val game by writer::game
   private val reader by game::reader
@@ -46,19 +44,23 @@ internal data class Instructor(
   /**
    * Returns a narrowed form of [unprepared] based on the current game state (but changes no game
    * state itself). The returned instruction *must* be executed against this very same game state
-   * (i.e., must be the next one executed. The returned instruction might still be abstract. If the
-   * returned instruction would be [NoOp], returns `null` instead, to signal that the instruction
-   * should be discarded.
+   * (i.e., must be the next one executed. The returned instruction might still be abstract.
+   *
+   * Preparing iterates to a fixed point. Examples of preparing:
+   * * Replaces inert instructions with `Ok`
+   * * Auto-narrows gained and removed types to the extent possible
+   * * Modifies a `?` or `.` change based on limits (upgrading `.` to `!`)
+   * * Validates and removes "gates"
+   * * Evaluates a metric in a [Per] instruction, multiplying the inner instruction appropriately
+   * * Prepares each option of an [Or] or [Then] (TODO what if gets separated?)
+   * * If gaining a *concrete* custom type, rewrites to the result of [CustomClass.translate] *
    */
-  fun prepare(unprepared: Instruction): Instruction? =
-      doPrepare(unprepared).let {
-        return if (it == NoOp) null else it
-      }
+  fun prepare(unprepared: Instruction) = doPrepare(unprepared)
 
   private fun doPrepare(unprepared: Instruction): Instruction {
     return when (unprepared) {
       is NoOp -> NoOp
-      is Change -> prepareChangeInstruction(unprepared)
+      is Change -> prepareChange(unprepared)
       is Per -> doPrepare(unprepared.instruction * reader.count(unprepared.metric))
       is Gated -> {
         if (reader.evaluate(unprepared.gate)) {
@@ -69,89 +71,86 @@ internal data class Instructor(
           NoOp
         }
       }
-      is Custom -> {
-        // make sure it exists
-        reader.authority.customInstruction(unprepared.functionName)
-        unprepared // TODO
-      }
+
       is Or -> {
-        /*
-         * Try to prepare each option, then form an OR out of what survives. Throwing is very
-         * expensive, but does it happen enough to matter?
-         */
-        val options =
-            unprepared.instructions.mapNotNull {
-              try {
-                doPrepare(it)
-              } catch (e: Exception) {
-                null // just prune it
-              }
-            }
+        val options = unprepared.instructions.nonThrowing(::doPrepare)
         if (options.none()) throw NotNowException("all OR options are impossible at this time")
-        Or.create(options)
+        Or.create(options.map(::doPrepare))
       }
+
       is Then -> Then.create(unprepared.instructions.map(::doPrepare).filter { it != NoOp })
-      is Instruction.Multi -> error("should have been split by now: $unprepared")
-      is Instruction.Transform -> error("should have been transformed already: $unprepared")
+      is Multi -> error("")
+      is Transform -> error("should have been transformed already: $unprepared")
     }
   }
 
-  fun execute(instruction: Instruction, fireTriggers: Boolean = true) {
-    when (instruction) {
-      is Change -> {
-        val ct = instruction.count as? ActualScalar ?: throw abstractInstruction(instruction)
-        if (instruction.intensity != MANDATORY) throw abstractInstruction(instruction)
-        val listener = if (fireTriggers) ::fireMatchingTriggers else { {} }
-
-        writer.changeAndFixOrphans(
-            ct.value,
-            instruction.gaining?.toComponent(reader),
-            instruction.removing?.toComponent(reader),
-            cause,
-            listener)
-      }
-      is Then -> {
-        if (instruction.descendantsOfType<XScalar>().any()) {
-          throw AbstractException("$instruction has x's still")
-        }
-        instruction.instructions.forEach(::execute) // TODO hmm....
-      }
-      is Custom -> invokeCustomInstruction(instruction)
-      is Or -> throw orWithoutChoice(instruction)
-      is NoOp -> {} // TODO?
-      else -> error("something went wrong: $instruction")
+  private fun <T : Any> Iterable<T>.nonThrowing(block: (T) -> Unit) = filter {
+    try {
+      block(it)
+      true
+    } catch (e: Exception) {
+      false
     }
   }
 
-  private fun prepareChangeInstruction(instruction: Change): Instruction {
+  private fun prepareChange(instruction: Change): Instruction {
     // can't prepare at all if we still have an X?
-    val scal = instruction.count as? ActualScalar ?: return instruction
+    val count = (instruction.count as? ActualScalar)?.value ?: return instruction
+
     val (g: MType?, r: MType?) = autoNarrowTypes(instruction.gaining, instruction.removing)
+    if (g?.className == DIE) throw DeadEndException("a Die instruction was reached")
 
-    if (g?.abstract == true || r?.abstract == true) {
-      // Then narrowing the types some is all we'll do (TODO get more clever)
-      return change(scal.value, g?.expression, r?.expression, instruction.intensity!!)
+    val custom = g != null && !g.abstract && g.root.custom != null
+    if (custom) {
+      require(r == null) { "custom class instructions can only be pure gains" }
+      return prepareCustom(g)
     }
 
-    val gc = g?.toComponent(reader)
-    val rc = r?.toComponent(reader)
+    val intens = instruction.intensity!!
 
-    val upperLimit: Int = game.components.findLimit(gaining = gc, removing = rc)
-    val adjusted: Int = min(scal.value, upperLimit)
+    if (listOfNotNull(g, r).any { it.abstract }) {
+      // Still abstract, don't check limits yet
+      return change(count, g?.expression, r?.expression, intens)
+    }
 
-    return if (instruction.intensity!! == MANDATORY) {
-      // As long as we're capable of doing the full amount...
-      if (adjusted != scal.value) {
-        throw LimitsException(
-            "When gaining $gc and removing $rc: can do only $adjusted of ${scal.value} required",
+    val limit: Int =
+        game.components.findLimit(
+            gaining = g?.toComponent(reader), removing = r?.toComponent(reader),
         )
+    val adjusted: Int = min(count, limit)
+
+    if (intens == MANDATORY && adjusted != count) {
+      val mesg = if (g != null) {
+        if (r == null) {
+          "gain $count ${g.expression}"
+        } else {
+          "transmute $count ${r.expression} into ${g.expression}"
+        }
+      } else {
+        "remove $count ${r!!.expression}"
       }
-      // Then change nothing...
-      return change(scal.value, gc?.expression, rc?.expression)
-    } else {
-      val newIntensity = if (instruction.intensity == AMAP) MANDATORY else OPTIONAL
-      change(adjusted, g?.expression, r?.expression, newIntensity)
+      throw LimitsException("Can't $mesg: max possible is $adjusted")
     }
+
+    return change(adjusted, g?.expression, r?.expression, if (intens == AMAP) MANDATORY else intens)
+  }
+
+  public fun prepareCustom(type: MType?): Instruction {
+    val gc = type?.toComponent(reader)
+    val cc: CustomClass = type!!.root.custom!!
+    val args = gc!!.dependencyComponents
+    val missing = args.filter { reader.countComponent(it) == 0 }
+    if (missing.any()) throw DependencyException(missing.map { it.mtype })
+
+    val translated: Instruction = cc.translate(reader, args.map { it.mtype }) // TODO whole type?
+    val prepper =
+        chain(
+            reader.transformers.standardPreprocess(),
+            reader.transformers.substituter(type.root.baseType, type),
+            gc.owner?.let { replaceOwnerWith(it) },
+        )
+    val prepped = prepper.transform(translated)
+    return if (prepped is Multi) prepped else doPrepare(prepped) // TODO hmm?
   }
 
   private fun autoNarrowTypes(gaining: Expression?, removing: Expression?): Pair<MType?, MType?> {
@@ -159,7 +158,7 @@ internal data class Instructor(
     var r: MType? = removing?.let(reader::resolve)
 
     if (g?.abstract == true) {
-      // Infer a type if there IS only one concrete subtype
+      // Infer a type if there IS only one concrete subtype -- this part could be done sooner
       // TODO filter down to those whose dependents exist
       g = g.allConcreteSubtypes().singleOrNull() ?: g
     }
@@ -171,34 +170,41 @@ internal data class Instructor(
     return g to r
   }
 
-  private fun invokeCustomInstruction(instr: Custom) {
-    val arguments: List<Type> = instr.arguments.map { reader.resolve(it) }
-    val oops = arguments.filter { reader.countComponent(it) == 0 }
-    if (oops.any()) throw DependencyException(oops) // or it could be abstract
+  // must prepare first?? or what?? TODO
+  fun execute(instruction: Instruction, cause: Cause?) {
+    when (instruction) {
+      is Change -> {
+        val ct = instruction.count as? ActualScalar ?: throw abstractInstruction(instruction)
+        if (instruction.intensity != MANDATORY) throw abstractInstruction(instruction)
+        val g = instruction.gaining?.toComponent(reader)
+        val r = instruction.removing?.toComponent(reader)
+        if (g?.mtype?.root?.custom != null) error("custom")
+        writer.changeAndFixOrphans(ct.value, g, r, cause, ::fireMatchingTriggers)
+      }
 
-    val custom = reader.authority.customInstruction(instr.functionName)
-    val translated = custom.translate(reader, arguments) * instr.multiplier
-    writer.addTasks(transformer.transform(translated), player, cause)
+      is Or -> throw orWithoutChoice(instruction)
+      is Then -> instruction.instructions.forEach { execute(it, cause) }
+      is NoOp -> {}
+      else -> error("somehow a ${instruction.kind.simpleName!!} was enqueued: $instruction")
+    }
   }
 
-  private val transformer =
-      chain(reader.transformers.standardPreprocess(), replaceOwnerWith(player))
-
-  // TODO Effector
+  // Effects - TODO Effector
 
   private fun fireMatchingTriggers(triggerEvent: ChangeEvent) {
     val (now, later) = getFiringEffects(triggerEvent).partition { it.automatic }
     for (fx in now) {
-      val instructor = copy(cause = fx.cause)
-      Instruction.split(fx.instruction).forEach { prepare(it)?.let(instructor::execute) }
+      for (instr in split(fx.instruction)) {
+        execute(prepare(instr), fx.cause)
+      }
     }
-    game.addTriggeredTasks(later) // TODO why can't we do this before the for loop??
+
+    // TODO why can't we do this before the for loop??
+    later.forEach(game::addTriggeredTasks)
   }
 
   private fun getFiringEffects(triggerEvent: ChangeEvent): List<FiredEffect> =
       getFiringSelfEffects(triggerEvent) + getFiringOtherEffects(triggerEvent)
-
-  // TODO can the differences be collapsed some?
 
   private fun getFiringSelfEffects(triggerEvent: ChangeEvent): List<FiredEffect> =
       componentsIn(triggerEvent)

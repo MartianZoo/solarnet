@@ -24,10 +24,10 @@ sealed class GameEvent { // TODO move to data? Organize?
     override fun toString() = "$ordinal: -Task${task.id}"
   }
 
-  data class TaskReplacedEvent(
-      override val ordinal: Int,
-      val oldTask: Task,
-      override val task: Task,
+  data class TaskEditedEvent(
+    override val ordinal: Int,
+    val oldTask: Task,
+    override val task: Task,
   ) : TaskEvent() {
     init {
       require(task.id == oldTask.id)

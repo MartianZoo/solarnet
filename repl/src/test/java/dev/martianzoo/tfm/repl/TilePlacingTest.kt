@@ -24,7 +24,7 @@ class TilePlacingTest {
 
     eng.action("ActionPhase")
     p2.stdProject("CitySP") {
-      assertThrows<NarrowingException> { doFirstTask("CityTile<M34>") }
+      assertThrows<NarrowingException> { task("CityTile<M34>") }
       rollItBack()
     }
   }
@@ -54,7 +54,7 @@ class TilePlacingTest {
     // Use the standard project so that the placement rule is in effect
     p1.stdProject("GreenerySP") {
       fun checkCantPlaceGreenery(area: String) =
-          assertThrows<NarrowingException>(area) { doFirstTask("GreeneryTile<$area>") }
+          assertThrows<NarrowingException>(area) { task("GreeneryTile<$area>") }
 
       //     64  65  66  XX
       //   74  75  76  77
@@ -76,17 +76,17 @@ class TilePlacingTest {
       // 1 away - should work
 
       val cp = p1.events.checkpoint()
-      doFirstTask("GreeneryTile<M75>") // NW
+      task("GreeneryTile<M75>") // NW
       p1.rollBack(cp)
-      doFirstTask("GreeneryTile<M76>") // NE
+      task("GreeneryTile<M76>") // NE
       p1.rollBack(cp)
-      doFirstTask("GreeneryTile<M85>") // W
+      task("GreeneryTile<M85>") // W
       p1.rollBack(cp)
-      doFirstTask("GreeneryTile<M87>") // E
+      task("GreeneryTile<M87>") // E
       p1.rollBack(cp)
-      doFirstTask("GreeneryTile<M96>") // SW
+      task("GreeneryTile<M96>") // SW
       p1.rollBack(cp)
-      doFirstTask("GreeneryTile<M97>") // SE
+      task("GreeneryTile<M97>") // SE
     }
   }
 }

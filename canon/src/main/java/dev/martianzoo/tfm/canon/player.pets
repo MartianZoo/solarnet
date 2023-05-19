@@ -98,9 +98,11 @@ ABSTRACT CLASS Owned<Anyone> {
     }
 
     CLASS PlayedEvent<Class<CardFront>> [EVT] {   // Can't be <EventCard>, all thanks to PharmU
-      End: @getVpsFrom(Class<CardFront>)
+      End: GetEventVpsFrom<Class<CardFront>>
     }
   }
+
+  CUSTOM CLASS GetEventVpsFrom<Class<CardFront>> : Custom
 
 
 // THINGS ON CARDS -------------------------------
@@ -157,9 +159,12 @@ ABSTRACT CLASS Owned<Anyone> {
   CLASS BuyCard : Signal { This: -3, ProjectCard }// Hack for TerraLabs, but being able to delay the -3 could
                                                   // potentially be exploited. TODO
   CLASS PlayCard<Class<CardFront>> : Temporary {
-    This:: @beginPlayCard(Class<CardFront>)
+    This:: BeginPlayCard<Class<CardFront>>
+     // This: MAX 0 Barrier: CardFront (and make this a Signal?)
     -X Barrier IF =0 Barrier:: CardFront FROM This// When barriers gone, become the card itself
   }
+
+  CUSTOM CLASS BeginPlayCard<Class<CardFront>> : Custom
 
   CLASS PlayTag<Class<Tag>> : Signal              // Triggers discounts and Accepts
 

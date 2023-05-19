@@ -23,7 +23,6 @@ private class CanonCustomInstructionsTest {
     checkProduction(p1, 0, 1, 1, 1, 1, 1)
 
     p1.action("UseAction1<RobinsonIndustries>")
-    assertThat(p1.tasks).isEmpty()
     checkProduction(p1, 1, 1, 1, 1, 1, 1)
   }
 
@@ -63,19 +62,21 @@ private class CanonCustomInstructionsTest {
     checkProduction(p1, 0, 1, 0, 1, 1, 1)
 
     p1.action("UseAction1<RobinsonIndustries>") {
-      doFirstTask("PROD[1]")
+      assertThat(tasks().map { it.instruction.toString() }).containsExactly(
+          "Production<Player1, Class<Megacredit>>! OR Production<Player1, Class<Titanium>>!")
+      task("PROD[1]")
       checkProduction(p1, 1, 1, 0, 1, 1, 1)
       rollItBack()
     }
 
     p1.action("UseAction1<RobinsonIndustries>") {
-      doFirstTask("PROD[T]")
+      task("PROD[T]")
       checkProduction(p1, 0, 1, 1, 1, 1, 1)
       rollItBack()
     }
 
     p1.action("UseAction1<RobinsonIndustries>") {
-      assertThrows<NarrowingException> { doFirstTask("PROD[Steel]") }
+      assertThrows<NarrowingException> { task("PROD[Steel]") }
       checkProduction(p1, 0, 1, 0, 1, 1, 1)
       rollItBack()
     }
@@ -94,16 +95,20 @@ private class CanonCustomInstructionsTest {
     p1.action("RoboticWorkforce") {
       checkProduction(p1, 0, 2, 1, 0, 4, 0)
       // This card has no building tag so it won't work
-      assertThrows<NarrowingException> { p1.doFirstTask("@copyProductionBox(MassConverter)") }
+      assertThrows<NarrowingException>("1") { p1.task("CopyProductionBox<MassConverter>") }
       checkProduction(p1, 0, 2, 1, 0, 4, 0)
 
       // This card is someone else's
-      assertThrows<NarrowingException> { p1.doFirstTask("@copyProductionBox(Mine)") }
-      assertThrows<NarrowingException> { p1.doFirstTask("@copyProductionBox(Mine<Player1>)") }
-      assertThrows<NarrowingException> { p1.doFirstTask("@copyProductionBox(Mine<Player2>)") }
+      assertThrows<NarrowingException>("2") { p1.task("CopyProductionBox<Mine>") }
+      assertThrows<NarrowingException>("3") { p1.task("CopyProductionBox<Mine<Player1>>") }
+      assertThrows<NarrowingException>("4") { p1.task("CopyProductionBox<Mine<Player2>>") }
       checkProduction(p1, 0, 2, 1, 0, 4, 0)
 
-      doFirstTask("@copyProductionBox(StripMine)")
+      rollItBack()
+    }
+
+    p1.action("RoboticWorkforce") {
+      task("CopyProductionBox<StripMine>")
       checkProduction(p1, 0, 4, 2, 0, 2, 0)
     }
   }

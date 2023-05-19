@@ -1,6 +1,7 @@
 package dev.martianzoo.tfm.types
 
 import dev.martianzoo.tfm.api.Authority
+import dev.martianzoo.tfm.api.CustomClass
 import dev.martianzoo.tfm.api.Exceptions
 import dev.martianzoo.tfm.api.Exceptions.ExpressionException
 import dev.martianzoo.tfm.api.SpecialClassNames.CLASS
@@ -9,6 +10,7 @@ import dev.martianzoo.tfm.api.SpecialClassNames.OK
 import dev.martianzoo.tfm.api.SpecialClassNames.THIS
 import dev.martianzoo.tfm.api.Type
 import dev.martianzoo.tfm.data.ClassDeclaration
+import dev.martianzoo.tfm.data.ClassDeclaration.ClassKind.CUSTOM
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.pets.ast.Expression
@@ -58,9 +60,7 @@ public class MClassLoader(
   /** Returns the [MType] represented by [expression]. */
   override fun resolve(expression: Expression): MType {
     return try {
-      getClass(expression.className)
-          .specialize(expression.arguments)
-          .refine(expression.refinement)
+      getClass(expression.className).specialize(expression.arguments).refine(expression.refinement)
     } catch (e: Exception) {
       throw ExpressionException("can't resolve $expression", e)
     }
@@ -127,16 +127,25 @@ public class MClassLoader(
   private fun construct(decl: ClassDeclaration): MClass {
     require(!frozen) { "Too late, this table is frozen!" }
 
-    require(decl.className !in loadedClasses) { decl.className }
-    require(decl.shortName !in loadedClasses) { decl.shortName }
+    val (long, short) = decl.className to decl.shortName
+
+    require(long !in loadedClasses) { long }
+    require(short !in loadedClasses) { short }
 
     // signal with `null` that loading is in process, so we can detect infinite recursion
-    loadedClasses[decl.className] = null
-    loadedClasses[decl.shortName] = null
+    loadedClasses[long] = null
+    loadedClasses[short] = null
 
-    val mclass = MClass(decl, this)
-    loadedClasses[decl.className] = mclass
-    loadedClasses[decl.shortName] = mclass
+    val custom: CustomClass? =
+        if (decl.kind == CUSTOM) {
+          authority.customClass(long)
+        } else {
+          require(authority.customClasses.none { it.className == long })
+          null
+        }
+    val mclass = MClass(decl, this, custom = custom)
+    loadedClasses[long] = mclass
+    loadedClasses[short] = mclass
 
     return mclass
   }

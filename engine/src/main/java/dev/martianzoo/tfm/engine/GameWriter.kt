@@ -1,63 +1,88 @@
 package dev.martianzoo.tfm.engine
 
-import dev.martianzoo.tfm.data.GameEvent.ChangeEvent.Cause
+import dev.martianzoo.tfm.api.Exceptions.AbstractException
+import dev.martianzoo.tfm.api.Exceptions.DeadEndException
+import dev.martianzoo.tfm.api.Exceptions.NarrowingException
+import dev.martianzoo.tfm.api.Exceptions.NotNowException
+import dev.martianzoo.tfm.api.Exceptions.TaskException
 import dev.martianzoo.tfm.data.Task
 import dev.martianzoo.tfm.data.Task.TaskId
 import dev.martianzoo.tfm.data.TaskResult
 import dev.martianzoo.tfm.pets.ast.Instruction
+import dev.martianzoo.tfm.pets.ast.Instruction.Multi
 
-/** Supports modifying a game state. */
+/**
+ * Supports modifying a game state. All operations are failure-atomic: they either fully succeed and
+ * complete normally, or throw an exception leaving all game state unmodified.
+ *
+ * With any change to the task queue, a set of normalizations is *always* applied. Here, the
+ * notation `a >> b` is used for a task whose [Task.instruction] is `a` and whose [Task.then] is
+ * `b`.
+ * * Removing task `a >> b` first creates task `b >> null`
+ * * `Ok >> b` is removed
+ * * `Die >> b` or `a >> Die` produces [DeadEndException]
+ * * `a, b >> null` is split into `a >> null` and `b >> null`
+ * * `a, b >> c` produces some exception (which?)
+ * * `a THEN b >> null` where `a THEN b` is separable is rewritten to `a >> b`
+ * * `a THEN b >> c` where `a THEN b` is separable is rewritten to `a >> b THEN c`
+ * * `a, Ok` becomes `a`
+ * * `a, Die` becomes `Die`
+ * * A concrete task with [Task.next] set is guaranteed to execute successfully
+ *
+ * New tasks created have the same owner and cause as the original. Prepared tasks cannot be split.
+ *
+ * All methods of this type are failure-atomic: if one throws an exception, it leaves the game state
+ * unmodified.
+ */
 public abstract class GameWriter {
   /**
-   * Prepares a task for execution. The task can only execute against the game state as it existed
-   * when this method was called (i.e. it must be the next task executed, and any rollback would
-   * erase the effects of calling this).
-   * * Ensures no task is already marked as prepared (including this one)
-   * * Marks this task as the next one that must be executed
-   * * Auto-narrows the task based on current game state
-   * * If the task is impossible to perform in the *current* game state, throws NotNowException
-   * * The task might remain abstract; f so it will have to be reified by [tryTask]
+   * Voluntarily replaces a task's instruction with a strictly more specific revision, as the owner
+   * of an abstract task is allowed to do. Preserves [Task.next], and if `true`, re-prepares the
+   * new instruction if necessary. Executes nothing.
    *
-   * Failure-atomic.
-   *
-   * There is currently no way to manually narrow a task without executing it.
+   * @param [narrowed] the new instruction; may be abstract; if identical to the current instruction
+   *   this method does nothing
+   * @throws [TaskException] if there is no task by this id owned by the player
+   * @throws [NarrowingException] if [narrowed] is not a valid narrowing of the task's instruction
    */
-  abstract fun prepareTask(taskId: TaskId): Boolean
+  abstract fun narrowTask(taskId: TaskId, narrowed: Instruction): TaskResult
+
+  abstract fun canPrepareTask(taskId: TaskId): Boolean
 
   /**
-   * Carries out a task and any automatic triggered effects. Enqueues the "THEN" clause of the task
-   * (if it exists) and any non-automatic triggered effects. Removes the original task from the
-   * game's task queue.
+   * Sets a task's [Task.next] bit, and simplifies its instruction according to the current game
+   * state. It will be impossible to change the game state except by executing this task.
    *
-   * Throws AbstractTaskException is the task remains abstract (even after narrowing) Throws
-   * NotNowException if the task is impossible to complete in the current game state Throws
-   * DoesNotReifyException if [narrowed] is not a valid reification of the task
+   * If the prepared task is concrete, but would fail to execute, that exception is thrown now
+   * instead of preparing the task.
    *
-   * The [TaskResult] lists all state changes that happened as a result, and any tasks that exist
-   * now but didn't before this call.
+   * If the return task is abstract, it will require a further call to [narrowTask], which
+   * will re-prepare the task. If no possible narrowing could succeed, this method might or might
+   * not recognize that fact and throw instead.
    *
-   * Failure-atomic.
+   * @throws [TaskException] if no task with id [taskId] exists, or if any other task is already
+   *     prepared
+   * @throws [AbstractException] if the task instruction contains a [Multi] at any level; it must
+   *     first be narrowed until it splits into tasks that can be prepared individually
+   * @throws [NotNowException] if the prepared task would throw this exception on
+   *     execution
    */
-  abstract fun tryTask(taskId: TaskId, narrowed: Instruction? = null): TaskResult
-
-  // TODO maybe don't create the task at all
-  fun tryTask(instruction: Instruction, initialCause: Cause? = null) =
-      tryTask(addTask(instruction, initialCause)) // TODO result won't include task?
+  abstract fun prepareTask(taskId: TaskId): TaskResult
 
   /**
-   * Like executeTask, but upon any failure that could possibly be remedied, merely fills in the
-   * task's [Task.whyPending] property, changes no other state, and completes normally.
+   * Carries out a concrete task. Prepares the task first if necessary. As part of this, executes
+   * any *automatic* triggered effect, enqueues the remaining triggered effects and any contents of
+   * [Task.then], and removes the original task from the game's task queue. Throws an exception if
+   * any of this fails.
    *
-   * TODO: the result should include replaced tasks somehow.
+   * @throws [TaskException] if no prepared task by the id [taskId] is present
+   * @throws [AbstractException] if the task is abstract
+   * @throws [NotNowException] if the task can't currently be prepared
    */
-  abstract fun doTask(taskId: TaskId, narrowed: Instruction? = null): TaskResult
+  abstract fun executeTask(taskId: TaskId): TaskResult
 
-  // TODO maybe don't create the task at all
-  fun doTask(instruction: Instruction, initialCause: Cause? = null) =
-      doTask(addTask(instruction, initialCause)) // TODO result won't include task?
-
-  /** Just enqueues a task; does nothing about it. */
-  abstract fun addTask(instruction: Instruction, initialCause: Cause? = null): TaskId
+  /** Replaces the [Task.whyPending] property of the specified task with [reason]. */
+  abstract fun explainTask(taskId: TaskId, reason: String)
 
   abstract fun unsafe(): UnsafeGameWriter
 }

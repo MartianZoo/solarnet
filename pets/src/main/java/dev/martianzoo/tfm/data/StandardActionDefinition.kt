@@ -1,5 +1,6 @@
 package dev.martianzoo.tfm.data
 
+import dev.martianzoo.tfm.data.ClassDeclaration.ClassKind.CONCRETE
 import dev.martianzoo.tfm.data.EnglishHack.englishHack
 import dev.martianzoo.tfm.data.SpecialClassNames.STANDARD_ACTION
 import dev.martianzoo.tfm.data.SpecialClassNames.STANDARD_PROJECT
@@ -22,10 +23,11 @@ data class StandardActionDefinition(
 
   override val asClassDeclaration by lazy {
     val kind = if (project) STANDARD_PROJECT else STANDARD_ACTION
+    // TODO can share some of this across Definitions?
     ClassDeclaration(
         className = className,
         shortName = shortName,
-        abstract = false,
+        kind = CONCRETE,
         supertypes = setOf(kind.expression),
         effects = actionListToEffects(listOf(parse(action))).toSetStrict(),
     )

@@ -1,6 +1,7 @@
 package dev.martianzoo.tfm.pets
 
 import com.github.h0tk3y.betterParse.combinators.and
+import com.github.h0tk3y.betterParse.combinators.asJust
 import com.github.h0tk3y.betterParse.combinators.map
 import com.github.h0tk3y.betterParse.combinators.oneOrMore
 import com.github.h0tk3y.betterParse.combinators.optional
@@ -11,6 +12,10 @@ import com.github.h0tk3y.betterParse.combinators.zeroOrMore
 import com.github.h0tk3y.betterParse.grammar.parser
 import com.github.h0tk3y.betterParse.parser.Parser
 import dev.martianzoo.tfm.data.ClassDeclaration
+import dev.martianzoo.tfm.data.ClassDeclaration.ClassKind
+import dev.martianzoo.tfm.data.ClassDeclaration.ClassKind.ABSTRACT
+import dev.martianzoo.tfm.data.ClassDeclaration.ClassKind.CONCRETE
+import dev.martianzoo.tfm.data.ClassDeclaration.ClassKind.CUSTOM
 import dev.martianzoo.tfm.data.ClassDeclaration.DefaultsDeclaration
 import dev.martianzoo.tfm.pets.ClassParsing.Body.BodyElement
 import dev.martianzoo.tfm.pets.ClassParsing.Body.BodyElement.ActionElement
@@ -108,8 +113,10 @@ internal object ClassParsing : PetTokenizer() {
   }
 
   internal object Declarations {
-    private val isAbstract: Parser<Boolean> =
-        optional(_abstract) and skip(_class) map { it != null }
+    private val kind: Parser<ClassKind> =
+        (_abstract and _class asJust ABSTRACT) or
+            (_custom and _class asJust CUSTOM) or
+            (_class asJust CONCRETE)
 
     private val bodyElement = parser { bodyElementExceptNestedClasses or nestedGroup }
 
@@ -121,10 +128,10 @@ internal object ClassParsing : PetTokenizer() {
 
     private val nestableGroup: Parser<NestableDeclGroup> =
         skip(nls) and
-        isAbstract and
-        signature and
-        (multilineBody or moreSignatures) map { (abs, sig, bodyOrSigs) ->
-          bodyOrSigs.convert(abs, sig)
+            kind and
+            signature and
+            (multilineBody or moreSignatures) map { (kind, sig, bodyOrSigs) ->
+          bodyOrSigs.convert(kind, sig)
         }
 
     // a declaration group that can be nested, that in this case *IS* nested
@@ -141,10 +148,10 @@ internal object ClassParsing : PetTokenizer() {
         skipChar('}') map ::Body
 
     val oneLineDecl: Parser<ClassDeclaration> =
-        isAbstract and
-        signature and
-        optional(oneLineBody) map { (abs, sig, body) ->
-          NestableDeclGroup(abs, sig, body ?: Body()).finishOnlyDecl()
+        kind and
+            signature and
+            optional(oneLineBody) map { (kind, sig, body) ->
+          NestableDeclGroup(kind, sig, body ?: Body()).finishOnlyDecl()
         }
   }
 
@@ -161,26 +168,30 @@ internal object ClassParsing : PetTokenizer() {
         ClassDeclaration(
             className = className,
             shortName = shortName ?: className,
+            kind = CUSTOM, // needs to be overwritten!
             dependencies = dependencies,
-            supertypes = supertypes.toSetStrict()))
+            supertypes = supertypes.toSetStrict(),
+        ),
+    )
   }
 
   internal sealed class MoreSignaturesOrBody {
-    abstract fun convert(abstract: Boolean, firstSignature: Signature): NestableDeclGroup
+    abstract fun convert(kind: ClassKind, firstSignature: Signature): NestableDeclGroup
   }
 
   internal class MoreSignatures(private val moreSignatures: List<Signature>) :
       MoreSignaturesOrBody() {
-    override fun convert(abstract: Boolean, firstSignature: Signature) =
+    override fun convert(kind: ClassKind, firstSignature: Signature) =
         NestableDeclGroup(
-            (firstSignature plus moreSignatures).map { IncompleteNestableDecl(abstract, it) })
+            (firstSignature plus moreSignatures).map { IncompleteNestableDecl(kind, it) },
+        )
   }
 
   internal class Body(private val elements: KClassMultimap<BodyElement>) : MoreSignaturesOrBody() {
     constructor(list: List<BodyElement> = listOf()) : this(KClassMultimap(list))
 
-    override fun convert(abstract: Boolean, firstSignature: Signature) =
-        NestableDeclGroup(abstract, firstSignature, this)
+    override fun convert(kind: ClassKind, firstSignature: Signature) =
+        NestableDeclGroup(kind, firstSignature, this)
 
     private inline fun <reified E : BodyElement> getAll() = elements.get<E>()
 
@@ -201,10 +212,10 @@ internal object ClassParsing : PetTokenizer() {
 
   internal class NestableDeclGroup(private val declList: List<NestableDecl>) {
     constructor(
-        abstract: Boolean,
-        signature: Signature,
-        body: Body,
-    ) : this(create(abstract, signature, body))
+      kind: ClassKind,
+      signature: Signature,
+      body: Body,
+    ) : this(create(kind, signature, body))
 
     fun unnestAllFrom(container: ClassName): List<NestableDecl> =
         declList.map { it.unnestOneFrom(container) }
@@ -214,12 +225,12 @@ internal object ClassParsing : PetTokenizer() {
     fun finishAll() = declList.map { it.decl }
 
     private companion object {
-      fun create(abstract: Boolean, signature: Signature, body: Body): List<NestableDecl> {
+      fun create(kind: ClassKind, signature: Signature, body: Body): List<NestableDecl> {
         val mergedDefaults = DefaultsDeclaration.merge(body.defaultses)
         require(mergedDefaults.forClass in setOf(null, signature.className))
         val newDecl =
             signature.asDeclaration.copy(
-                abstract = abstract,
+                kind = kind,
                 invariants = body.invariants.toSetStrict(),
                 effects = (body.effects + actionListToEffects(body.actions)).toSetStrict(),
                 defaultsDeclaration = mergedDefaults,
@@ -240,9 +251,9 @@ internal object ClassParsing : PetTokenizer() {
 
     data class IncompleteNestableDecl(override val decl: ClassDeclaration) : NestableDecl() {
       constructor(
-          abstract: Boolean,
-          signature: Signature,
-      ) : this(signature.asDeclaration.copy(abstract = abstract))
+        kind: ClassKind,
+        signature: Signature,
+      ) : this(signature.asDeclaration.copy(kind = kind))
       // This returns a new NestableDecl that looks like it could be a sibling to containingClass
       // instead of nested inside it
       override fun unnestOneFrom(container: ClassName): NestableDecl {

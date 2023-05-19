@@ -14,6 +14,9 @@ ABSTRACT CLASS System {
   CLASS Class<Component> { HAS =1 This }               // magic rule: only a single name can go
                                                        // inside the <>; the `Class<Foo>` type is
                                                        // abstract iff the Foo class is abstract
+
+  ABSTRACT CLASS Custom                                // these never *actually* get created
+
   ABSTRACT CLASS Temporary {
     ABSTRACT CLASS Signal {                            // you'll never observe it existing, but
       This:: -This!                                    // things can still be triggered by it
@@ -34,6 +37,8 @@ ABSTRACT CLASS System {
     Pay<Class<Titanium>>:: 3 Pay<Class<Megacredit>>    // should be innocuous for TradeAction...
   }
 }
+
+CUSTOM CLASS ForceLoad<Class>: Custom
 
 ABSTRACT CLASS Atomized                                // magic rule: see `Transformers.atomizer()`
 
@@ -76,7 +81,6 @@ ABSTRACT CLASS GlobalParameter[GP] : Atomized {
 
 ABSTRACT CLASS MarsMap {                               // Hellas etc. are loaded from `maps.json5`
   HAS =1 This
-  // This:: @createBorders(This)
 }
 
 ABSTRACT CLASS Area {
@@ -84,7 +88,7 @@ ABSTRACT CLASS Area {
   HAS MAX 1 Tile<This>                                 // circular reference is un-ideal, but...
 
   ABSTRACT CLASS MarsArea[MA] {                        // specific areas loaded from `maps.json5`
-    Tile<This>:: @createAdjacencies(This)
+    Tile<This>:: CreateAdjacencies<This>
 
     ABSTRACT CLASS LandArea[LA] {
       ABSTRACT CLASS VolcanicArea[VA]
@@ -95,13 +99,14 @@ ABSTRACT CLASS Area {
   ABSTRACT CLASS RemoteArea[RA]
 }
 
+CUSTOM CLASS CreateAdjacencies<MarsArea>: Custom
+
 ABSTRACT CLASS Tile<Area> { HAS MAX 1 This }
 
 CLASS Neighbor<Tile<MarsArea>, MarsArea> [NBR] : System
 
 ABSTRACT CLASS Adjacency<Tile, Tile> [ADJ] : System {
-  This:: @forceLoad(Class<BackwardAdjacency>)
-
+  This:: ForceLoad<Class<BackwardAdjacency>>
   CLASS ForwardAdjacency, BackwardAdjacency
 }
 

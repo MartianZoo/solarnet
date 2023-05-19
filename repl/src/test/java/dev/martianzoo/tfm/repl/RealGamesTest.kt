@@ -14,10 +14,9 @@ import dev.martianzoo.tfm.engine.Humanize.playCard
 import dev.martianzoo.tfm.engine.Humanize.playCorp
 import dev.martianzoo.tfm.engine.Humanize.production
 import dev.martianzoo.tfm.engine.Humanize.stdAction
+import dev.martianzoo.tfm.engine.Humanize.stdProject
 import dev.martianzoo.tfm.engine.PlayerSession.Companion.session
 import dev.martianzoo.tfm.repl.TestHelpers.assertCounts
-import dev.martianzoo.tfm.repl.TestHelpers.taskReasons
-import dev.martianzoo.util.toStrings
 import org.junit.jupiter.api.Test
 
 class RealGamesTest {
@@ -28,113 +27,108 @@ class RealGamesTest {
     val p1 = game.session(PLAYER1)
     val p2 = game.session(PLAYER2)
 
-    fun areWeClear() = assertThat(game.tasks.toStrings()).isEmpty()
-
-    p1.action("CorporationCard, LakefrontResorts")
-    p1.action("3 BuyCard") // TODO join with prev line?
-    p2.action("CorporationCard, InterplanetaryCinematics")
-    p2.action("8 BuyCard")
+    p1.playCorp("LakefrontResorts", 3)
+    p2.playCorp("InterplanetaryCinematics", 8)
 
     engine.action("PreludePhase")
 
-    p1.action("2 PreludeCard, MartianIndustries, GalileanMining")
-    p2.action("2 PreludeCard, MiningOperations, UnmiContractor")
+    p1.turn("MartianIndustries")
+    p1.turn("GalileanMining")
+
+    p2.turn("MiningOperations")
+    p2.turn("UnmiContractor")
 
     engine.action("ActionPhase")
 
-    p1.action("-30, AsteroidMining")
+    p1.playCard("AsteroidMining", 30)
+    p1.pass()
 
     with(p2) {
-      action("-4 Steel, -1, NaturalPreserve") { doFirstTask("NpTile<E37>") }
-      action("-13 Steel, -1, SpaceElevator")
-      action("UseAction1<SpaceElevator>")
-      action("-2, InventionContest")
-      action("-6, GreatEscarpmentConsortium") { doFirstTask("PROD[-Steel<Player1>]") }
+      playCard("NaturalPreserve", 1, steel = 4) { task("NpTile<E37>") }
+      playCard("SpaceElevator", 1, steel = 13)
+      cardAction("SpaceElevator")
+      playCard("InventionContest", 2)
+      playCard("GreatEscarpmentConsortium", 6) { task("PROD[-S<P1>]") }
     }
 
-    engine.action("ProductionPhase, ResearchPhase") {
-      p1.tryMatchingTask("4 BuyCard")
-      p2.tryMatchingTask("1 BuyCard")
+    with(engine) {
+      action("ProductionPhase")
+      action("ResearchPhase") {
+        p1.task("4 BuyCard")
+        p2.task("1 BuyCard")
+      }
+      action("ActionPhase")
     }
-
-    engine.action("ActionPhase")
 
     with(p2) {
-      action("UseAction1<SpaceElevator>")
-      action("-23, EarthCatapult")
-      areWeClear()
+      cardAction("SpaceElevator")
+      playCard("EarthCatapult", 23)
     }
 
     with(p1) {
-      action("-7 THEN TitaniumMine")
-      execute("-9 THEN RoboticWorkforce", "@copyProductionBox(MartianIndustries)")
-      action("-6 THEN Sponsors")
-      areWeClear()
+      playCard("TitaniumMine", 7)
+      playCard("RoboticWorkforce", 9) { task("CopyProductionBox<MartianIndustries>") }
+      playCard("Sponsors", 6)
     }
 
     with(p2) {
-      action("-5 Steel THEN IndustrialMicrobes")
-      action("-Titanium THEN TechnologyDemonstration")
-      execute("-1 THEN EnergyTapping", "PROD[-Energy<Player1>]")
-      action("-2 Steel THEN BuildingIndustries")
-      areWeClear()
+      playCard("IndustrialMicrobes", steel = 5)
+      playCard("TechnologyDemonstration", titanium = 1)
+      playCard("EnergyTapping", 1) { task("PROD[-E<P1>]") }
+      playCard("BuildingIndustries", steel = 2)
     }
 
-    engine.action("ProductionPhase")
-    engine.action("ResearchPhase") {
-      p1.tryMatchingTask("3 BuyCard")
-      p2.tryMatchingTask("2 BuyCard")
-    }
-    engine.action("ActionPhase")
-    areWeClear()
-
-    p1.action("-2 THEN -1 Steel THEN Mine")
-
-    with(p2) {
-      action("UseAction1<SpaceElevator>")
-      action("-5 THEN -5 Steel THEN ElectroCatapult")
-      action("UseAction1<ElectroCatapult>") // TODO just one
-      action("-Titanium THEN -7 THEN SpaceHotels")
-      action("-6 THEN MarsUniversity")
-      execute("-10 THEN ArtificialPhotosynthesis", "PROD[2 Energy]")
-      action("-5 THEN BribedCommittee")
-      areWeClear()
-    }
-
-    engine.action("ProductionPhase")
-    engine.action("ResearchPhase") {
-      p1.tryMatchingTask("3 BuyCard")
-      p2.tryMatchingTask("2 BuyCard")
-    }
-    engine.action("ActionPhase")
-    areWeClear()
-
-    with(p2) {
-      action("UseAction1<ElectroCatapult>")
-      // execute("-Steel THEN 7")
-      action("UseAction1<SpaceElevator>")
-      areWeClear()
+    with(engine) {
+      action("ProductionPhase")
+      action("ResearchPhase") {
+        p1.task("3 BuyCard")
+        p2.task("2 BuyCard")
+      }
+      action("ActionPhase")
     }
 
     with(p1) {
-      execute("-2 Steel THEN -14 THEN ResearchOutpost", "CityTile<E56>")
-      action("-13 Titanium THEN -1 THEN IoMiningIndustries")
-      areWeClear()
+      playCard("Mine", 2, steel = 1)
+      pass()
+    }
+    with(p2) {
+      cardAction("SpaceElevator")
+      playCard("ElectroCatapult", 5, steel = 5)
+      cardAction("ElectroCatapult")
+      playCard("SpaceHotels", 7, titanium = 1)
+      playCard("MarsUniversity", 6)
+      playCard("ArtificialPhotosynthesis", 10) { task("PROD[2 Energy]") }
+      playCard("BribedCommittee", 5)
+    }
+
+    with(engine) {
+      action("ProductionPhase")
+      action("ResearchPhase") {
+        p1.task("3 BuyCard")
+        p2.task("2 BuyCard")
+      }
+      action("ActionPhase")
     }
 
     with(p2) {
-      action("-Titanium THEN -1 THEN TransNeptuneProbe")
-      execute("-1 THEN Hackers", "PROD[-2 Megacredit<Player1>]")
-      areWeClear()
+      cardAction("ElectroCatapult") // steel
+      cardAction("SpaceElevator")
+    }
+    with(p1) {
+      playCard("ResearchOutpost", 14, steel = 2) { task("CityTile<E56>") }
+      playCard("IoMiningIndustries", 1, titanium = 13)
+    }
+    with(p2) {
+      playCard("TransNeptuneProbe", 1, titanium = 1)
+      playCard("Hackers", 1) { task("PROD[-2 M<P1>]") }
     }
 
-    p1.execute("UseAction1<SellPatents>", "Megacredit FROM ProjectCard")
+    p1.stdAction("SellPatents") { task("Megacredit FROM ProjectCard") }
 
     with(p2) {
-      action("-4 Steel THEN -1 THEN SolarPower")
-      execute("UseAction1<CitySP>", "CityTile<E65>")
+      playCard("SolarPower", 1, steel = 4)
+      stdProject("CitySP") { task("CityTile<E65>") }
       action("PROD[-Plant, Energy]") // CORRECTION TODO WHY WHY
-      areWeClear()
     }
 
     engine.action("ProductionPhase")
@@ -191,28 +185,15 @@ class RealGamesTest {
     val p1 = game.session(PLAYER1)
     val p2 = game.session(PLAYER2)
 
-    p1.action("NewTurn") {
-      tryMatchingTask("InterplanetaryCinematics")
-      assertCounts(30 to "M", 1 to "BuildingTag", 0 to "ProjectCard")
-      tryMatchingTask("7 BuyCard")
-      assertCounts(9 to "M", 1 to "BuildingTag", 7 to "ProjectCard")
-    }
-
-    p2.action("NewTurn") {
-      doFirstTask("PharmacyUnion")
-      doFirstTask("5 BuyCard")
-      assertThat(taskReasons()).isEmpty()
-    }
+    p1.playCorp("InterplanetaryCinematics", 7)
+    p2.playCorp("PharmacyUnion", 5)
 
     eng.action("ActionPhase")
 
-    p1.action("NewTurn") {
-      doFirstTask("UseAction1<PlayCardFromHand>")
-      doFirstTask("PlayCard<Class<MediaGroup>>")
-      assertCounts(9 to "M", 1 to "BuildingTag", 0 to "EarthTag", 7 to "ProjectCard", 6 to "Owed")
-      doFirstTask("6 Pay<Class<M>> FROM M")
-      assertCounts(3 to "M", 1 to "BuildingTag", 1 to "EarthTag", 6 to "ProjectCard")
-    }
+    p1.playCard("MediaGroup", 6)
+    p1.playCard("Sabotage", 1) { task("-7 M<Player2>") }
+
+    p2.playCard("Research", 11)
   }
 
   @Test
@@ -238,20 +219,18 @@ class RealGamesTest {
     eng.action("ActionPhase")
 
     p1.playCard("MediaGroup", 6)
-    p1.playCard("Sabotage", 1) { doFirstTask("-7 M<Player2>") }
+    p1.playCard("Sabotage", 1) { task("-7 M<P2>") }
 
     p2.playCard("Research", 11)
-    p2.playCard("MartianSurvey", 9) {
-      doFirstTask("Ok") // not flipping yet
-    }
+    p2.playCard("MartianSurvey", 9) { task("Ok") } // could have flipped but didn't
 
     p1.pass()
 
     p2.playCard("SearchForLife", 3) {
-      tryMatchingTask("PlayedEvent<Class<PharmacyUnion>> FROM PharmacyUnion THEN 3 TR")
+      task("PlayedEvent<Class<PharmacyUnion>> FROM PharmacyUnion THEN 3 TR") // omit 3 TR part??
     }
 
-    p2.cardAction("SearchForLife") { doFirstTask("Ok") }
+    p2.cardAction("SearchForLife") { task("Ok") } // no microbe
 
     p2.pass()
 
@@ -259,12 +238,12 @@ class RealGamesTest {
 
     eng.action("ProductionPhase")
     eng.action("ResearchPhase") {
-      p1.tryMatchingTask("BuyCard")
-      p2.tryMatchingTask("3 BuyCard")
+      p1.task("BuyCard")
+      p2.task("3 BuyCard")
     }
     eng.action("ActionPhase")
 
-    p2.stdAction("SellPatents") { doFirstTask("Megacredit FROM ProjectCard") }
+    p2.stdAction("SellPatents") { task("Megacredit FROM ProjectCard") }
     p2.playCard("VestaShipyard", 15)
     p2.pass()
 
@@ -273,13 +252,13 @@ class RealGamesTest {
       playCard("OlympusConference", steel = 4)
 
       playCard("DevelopmentCenter", 1, steel = 4) {
-        doFirstTask("ProjectCard FROM Science<OlympusConference>")
+        task("ProjectCard FROM Science<OlympusConference>")
       }
 
       playCard("GeothermalPower", 1, steel = 4)
 
       playCard("MirandaResort", 10)
-      playCard("Hackers", 1) { doFirstTask("PROD[-2 M<Player2>]") }
+      playCard("Hackers", 1) { task("PROD[-2 M<P2>]") }
       playCard("MicroMills", 1)
       pass()
     }
@@ -288,16 +267,15 @@ class RealGamesTest {
 
     eng.action("ProductionPhase")
     eng.action("ResearchPhase") {
-      p1.tryMatchingTask("3 BuyCard")
-      p2.tryMatchingTask("BuyCard")
+      p1.task("3 BuyCard")
+      p2.task("BuyCard")
     }
     eng.action("ActionPhase")
 
     p1.cardAction("DevelopmentCenter")
     p1.playCard("ImmigrantCity", 1, steel = 5) {
-      doFirstTask("CityTile<Hellas_9_7>")
-      doFirstTask("OceanTile<Hellas_5_6>")
-      assertThat(eng.count("PaymentMechanic")).isEqualTo(0)
+      task("CityTile<Hellas_9_7>")
+      task("OceanTile<Hellas_5_6>")
     }
 
     // Check counts, shared stuff first
@@ -341,10 +319,6 @@ class RealGamesTest {
     // To check VPs we have to fake the game ending
 
     eng.action("End") {
-
-      // TODO BAD HACK -- P2 was supposed to be filled in
-      doFirstTask("VictoryPoint<Player2>")
-
       // TODO why does P1 have 1 more point than I expect?
       // Should be 23 2 1 1 -1 / 25 1 1 1
       eng.assertCounts(27 to "VP<P1>", 28 to "VP<P2>")

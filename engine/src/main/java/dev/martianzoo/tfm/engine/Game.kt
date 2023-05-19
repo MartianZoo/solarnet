@@ -2,7 +2,6 @@ package dev.martianzoo.tfm.engine
 
 import dev.martianzoo.tfm.api.Exceptions.AbstractException
 import dev.martianzoo.tfm.api.Exceptions.ExistingDependentsException
-import dev.martianzoo.tfm.api.Exceptions.NotNowException
 import dev.martianzoo.tfm.api.Exceptions.TaskException
 import dev.martianzoo.tfm.api.GameReader
 import dev.martianzoo.tfm.api.Type
@@ -10,7 +9,6 @@ import dev.martianzoo.tfm.api.TypeInfo
 import dev.martianzoo.tfm.data.GameEvent
 import dev.martianzoo.tfm.data.GameEvent.ChangeEvent
 import dev.martianzoo.tfm.data.GameEvent.ChangeEvent.Cause
-import dev.martianzoo.tfm.data.GameEvent.TaskAddedEvent
 import dev.martianzoo.tfm.data.GameEvent.TaskEvent
 import dev.martianzoo.tfm.data.GameEvent.TaskRemovedEvent
 import dev.martianzoo.tfm.data.GameSetup
@@ -54,10 +52,10 @@ import dev.martianzoo.util.Multiset
  */
 public class Game
 internal constructor(
-    private val table: MClassTable,
-    private val writableEvents: WritableEventLog = WritableEventLog(),
-    private val writableComponents: WritableComponentGraph = WritableComponentGraph(),
-    private val writableTasks: WritableTaskQueue = WritableTaskQueue(),
+  private val table: MClassTable,
+  private val writableEvents: WritableEventLog = WritableEventLog(),
+  private val writableComponents: WritableComponentGraph = WritableComponentGraph(),
+  private val writableTasks: WritableTaskQueue = WritableTaskQueue(), // TODO pass writEv
 ) {
   /** The components that make up the game's current state ("present"). */
   public val components: ComponentGraph = writableComponents
@@ -146,6 +144,7 @@ internal constructor(
     fun nextAvailableId(): TaskId
 
     fun preparedTask(): TaskId?
+    fun hasPreparedTask(): Boolean = preparedTask() != null
   }
 
   public interface SnReader : GameReader {
@@ -187,13 +186,13 @@ internal constructor(
    */
   public fun atomic(block: () -> Unit): TaskResult {
     val checkpoint = checkpoint()
-    return try {
+    try {
       block()
-      events.activitySince(checkpoint)
     } catch (e: Exception) {
       rollBack(checkpoint)
       throw e
     }
+    return events.activitySince(checkpoint)
   }
 
   internal fun activeEffects(classes: Collection<MClass>): List<ActiveEffect> =
@@ -201,8 +200,8 @@ internal constructor(
 
   internal fun setupFinished() = writableEvents.setStartPoint()
 
-  internal fun addTriggeredTasks(fired: List<FiredEffect>) =
-      fired.forEach { writableTasks.addTasksFrom(it, writableEvents) }
+  internal fun addTriggeredTasks(fx: FiredEffect) =
+      writableTasks.addTasks(fx.instruction, fx.player, fx.cause, writableEvents)
 
   /*
    * Implementation of GameWriter - would be nice to have in a separate file but we'd have to
@@ -210,96 +209,146 @@ internal constructor(
    *
    * TODO: is it cool that this seems to mix internally-focused and externally-focused APIs?
    */
-  internal class GameWriterImpl(val game: Game, private val player: Player) :
-      GameWriter(), UnsafeGameWriter {
+  public class GameWriterImpl(val game: Game, val player: Player) :
+    GameWriter(), UnsafeGameWriter {
+    private val tasks by game::writableTasks
+    private val instructor = Instructor(this)
 
-    override fun prepareTask(taskId: TaskId): Boolean {
-      val already = game.tasks.preparedTask()
-      if (already == taskId) return true
-      if (already != null) {
-        throw NotNowException("already-prepared task hasn't executed yet: $already")
-      }
-
-      val task: Task = game.tasks[taskId]
-      checkOwner(task) // TODO use myTasks() instead?
-
-      val prepared = Instructor(this, player).prepare(task.instruction)
-      if (prepared == null) {
-        game.writableTasks.removeTask(taskId, game.writableEvents)
-        return false
-      }
-      val replacement = task.copy(instruction = prepared, next = true, whyPending = null) // TODO
-      game.writableTasks.replaceTask(replacement, game.writableEvents)
-      return true
-    }
-
-    override fun tryTask(taskId: TaskId, narrowed: Instruction?): TaskResult {
-      return try {
-        doTask(taskId, narrowed)
-      } catch (e: Exception) {
-        when (e) {
-          is TaskException -> return TaskResult()
-          is NotNowException,
-          is AbstractException -> {
-            val newTask = game.tasks[taskId]
-            val explainedTask = newTask.copy(whyPending = e.message!!)
-            game.writableTasks.replaceTask(explainedTask, game.writableEvents)
-          }
-          else -> throw e
+    override fun initiateTask(instruction: Instruction, firstCause: Cause?) =
+        game.atomic {
+          val prepped = preprocess(instruction)
+          tasks.addTasks(prepped, player, firstCause, game.writableEvents)
         }
-        TaskResult()
-      }
+
+    override fun narrowTask(taskId: TaskId, narrowed: Instruction): TaskResult {
+      val task = tasks[taskId]
+      checkOwner(task)
+
+      val fixedNarrowing = preprocess(narrowed)
+      if (fixedNarrowing == task.instruction) return TaskResult()
+      fixedNarrowing.ensureNarrows(task.instruction, game.reader)
+
+      val replacement = if (task.next) instructor.prepare(fixedNarrowing) else fixedNarrowing
+      return editButCheckCardinality(task.copy(instructionIn = replacement))
     }
 
-    override fun doTask(taskId: TaskId, narrowed: Instruction?): TaskResult {
+    override fun prepareTask(taskId: TaskId): TaskResult {
+      val task = tasks[taskId]
+      val result = doPrepare(task)
+
+      // let's just look ahead though
+      if (taskId in tasks) {
+        try {
+          game.atomic {
+            executeTask(taskId)
+            throw AbstractException("") // just getting this rolled back is all
+          }
+        } catch (ignore: AbstractException) {
+          // we don't guarantee execute won't throw this
+        }
+      }
+
+      return result
+    }
+
+    private fun doPrepare(task: Task): TaskResult {
+      checkOwner(task) // TODO use myTasks() instead?
+      dontCutTheLine(task.id)
+
+      val replacement = instructor.prepare(task.instruction)
+      return editButCheckCardinality(task.copy(instructionIn = replacement, next = true))
+    }
+
+    // Use this to edit a task if the replacement instruction might be NoOp, in which case the
+    // task is handleTask'd instead.
+    private fun editButCheckCardinality(replacement: Task): TaskResult {
       return game.atomic {
-        if (!prepareTask(taskId)) return@atomic
-
-        val nrwd: Instruction? = narrowed?.let(::preprocess)
-        val task = game.tasks[taskId]
-        checkOwner(task)
-        nrwd?.ensureNarrows(task.instruction, game.reader)
-
-        val instructor = Instructor(this, player, task.cause)
-        val prepared = instructor.prepare(nrwd ?: task.instruction)
-        prepared?.let(instructor::execute)
-        task.then?.let { addTasks(it, task.owner, task.cause) }
-        removeTask(taskId)
+        val split = split(replacement.instruction)
+        if (split.size == 1) {
+          val reason = replacement.whyPending?.let { "(was: $it)" }
+          tasks.editTask(replacement.copy(whyPending = reason), game.writableEvents)
+        } else {
+          // All the nows and thens would get enqueued side by side But this is why we don't let a
+          // task whose instruction contains a Multi at any depth have a THEN.
+          tasks.addTasks(
+              replacement.instruction, replacement.owner, replacement.cause, game.writableEvents,
+          )
+          handleTask(replacement.id)
+        }
       }
     }
 
-    override fun addTask(instruction: Instruction, initialCause: Cause?): TaskId {
-      // require(game.tasks.none()) { game.tasks.joinToString("\n")} TODO enable??
-      val events = addTasks(instruction, player, initialCause)
-      return events.single().task.id
+    override fun canPrepareTask(taskId: TaskId): Boolean {
+      dontCutTheLine(taskId)
+      val unprepared = tasks[taskId].instruction
+      return try {
+        instructor.prepare(unprepared)
+        true
+      } catch (e: Exception) {
+        false
+      }
     }
 
-    internal fun addTasks(
-        instruction: Instruction,
-        owner: Player,
-        cause: Cause?,
-    ): List<TaskAddedEvent> =
-        game.writableTasks.addTasksFrom(instruction, owner, cause, game.writableEvents)
+    override fun explainTask(taskId: TaskId, reason: String) {
+      tasks.editTask(tasks[taskId].copy(whyPending = reason), game.writableEvents)
+    }
+
+    override fun executeTask(taskId: TaskId): TaskResult {
+      val task = tasks[taskId]
+
+      checkOwner(task)
+
+      return game.atomic {
+        if (!task.next) {
+          doPrepare(task)
+          if (taskId !in tasks) return@atomic
+        }
+
+        val newTask = tasks[taskId]
+        instructor.execute(newTask.instruction, newTask.cause)
+        handleTask(taskId)
+      }
+    }
+
+    /**
+     * Remove a task because its [Task.instruction] has been handled; any [Task.then] instructions
+     * are automatically enqueued.
+     */
+    private fun handleTask(taskId: TaskId) {
+      val task = tasks[taskId]
+      checkOwner(task)
+      task.then?.let { tasks.addTasks(it, task.owner, task.cause, game.writableEvents) }
+      dropTask(taskId)
+    }
+
+    private fun dontCutTheLine(taskId: TaskId) {
+      val already = tasks.preparedTask()
+      if (already != null && already != taskId) {
+        throw TaskException("another prepared task must go first: ${tasks[already]}")
+      }
+    }
 
     override fun unsafe(): UnsafeGameWriter = this
 
-    override fun removeTask(taskId: TaskId): TaskRemovedEvent {
-      checkOwner(game.tasks[taskId])
-      return game.writableTasks.removeTask(taskId, game.writableEvents)
+    override fun dropTask(taskId: TaskId): TaskRemovedEvent {
+      checkOwner(tasks[taskId])
+      return tasks.removeTask(taskId, game.writableEvents)
     }
 
-    override fun sneak(change: String, cause: Cause?) = sneak(preprocess(parse(change)), cause)
+    override fun sneak(changes: String, cause: Cause?) = sneak(preprocess(parse(changes)), cause)
 
     // TODO: in theory any instruction would be sneakable, and it only means disabling triggers
     override fun sneak(changes: Instruction, cause: Cause?): TaskResult {
-      val events = split(changes).map {
-        val count = (it as Change).count as ActualScalar
-        change(
-            count.value,
-            it.gaining?.toComponent(game.reader),
-            it.removing?.toComponent(game.reader),
-            cause) {}
-      }
+      val events =
+          split(changes).map {
+            val count = (it as Change).count as ActualScalar
+            change(
+                count.value,
+                it.gaining?.toComponent(game.reader),
+                it.removing?.toComponent(game.reader),
+                cause,
+            ) {}
+          }
       return TaskResult(events)
     }
 
@@ -310,6 +359,7 @@ internal constructor(
         cause: Cause?,
         listener: (ChangeEvent) -> Unit,
     ): ChangeEvent {
+      require(gaining?.mtype?.root?.custom == null)
       // Can't remove if it would create orphans -- but this is caught by changeAndFixOrphans
       removing?.let { game.writableComponents.checkDependents(count, it) }
 
@@ -362,19 +412,12 @@ internal constructor(
       val game = Game(table)
       val session = game.session(ENGINE)
 
-      fun gain(thing: HasExpression, cause: Cause? = null): TaskResult {
-        val instr: Instruction = parse("${thing.expression}!")
-        return game.atomic {
-          session.writer.doTask(instr, cause)
-          session.tryToDrain()
-        }
-      }
+      fun gain(thing: HasExpression) = session.action(parse("${thing.expression}!"))
 
-      val event: ChangeEvent = gain(ENGINE).changes.single()
-      val becauseISaidSo = Cause(ENGINE.expression, event.ordinal)
+      gain(ENGINE)
+      singletonTypes(table).forEach { gain(it) }
+      gain(ClassName.cn("SetupPhase"))
 
-      singletonTypes(table).forEach { gain(it, becauseISaidSo) }
-      gain(ClassName.cn("SetupPhase"), becauseISaidSo)
       game.setupFinished()
       return game
     }

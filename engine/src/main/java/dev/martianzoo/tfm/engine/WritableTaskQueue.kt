@@ -1,109 +1,91 @@
 package dev.martianzoo.tfm.engine
 
+import dev.martianzoo.tfm.api.Exceptions.TaskException
 import dev.martianzoo.tfm.data.GameEvent.ChangeEvent.Cause
 import dev.martianzoo.tfm.data.GameEvent.TaskAddedEvent
+import dev.martianzoo.tfm.data.GameEvent.TaskEditedEvent
 import dev.martianzoo.tfm.data.GameEvent.TaskEvent
 import dev.martianzoo.tfm.data.GameEvent.TaskRemovedEvent
-import dev.martianzoo.tfm.data.GameEvent.TaskReplacedEvent
 import dev.martianzoo.tfm.data.Player
 import dev.martianzoo.tfm.data.Task
 import dev.martianzoo.tfm.data.Task.TaskId
-import dev.martianzoo.tfm.engine.ActiveEffect.FiredEffect
 import dev.martianzoo.tfm.engine.Game.TaskQueue
 import dev.martianzoo.tfm.pets.ast.Instruction
-import dev.martianzoo.tfm.pets.ast.Instruction.Companion.split
-import dev.martianzoo.tfm.pets.ast.Instruction.NoOp
-import dev.martianzoo.tfm.pets.ast.Instruction.Then
-import dev.martianzoo.tfm.pets.ast.ScaledExpression.Scalar.XScalar
 import dev.martianzoo.util.toSetStrict
 
-internal class WritableTaskQueue(private val tasks: MutableSet<Task> = mutableSetOf()) :
-    TaskQueue, Set<Task> by tasks {
-  override operator fun contains(id: TaskId) = tasks.any { it.id == id }
+internal class WritableTaskQueue(private val taskSet: MutableSet<Task> = mutableSetOf()) :
+  TaskQueue, Set<Task> by taskSet {
+
+  // OVERRIDES / READ-ONLY OPERATIONS
+
+  override fun ids(): Set<TaskId> = taskSet.map { it.id }.toSetStrict()
+
+  override operator fun contains(id: TaskId) = taskSet.any { it.id == id }
 
   override operator fun get(id: TaskId) =
-      tasks.firstOrNull { it.id == id } ?: error("nonexistent task: $id")
+      taskSet.firstOrNull { it.id == id } ?: throw TaskException("nonexistent task: $id")
 
-  override fun ids() = tasks.map { it.id }.toSetStrict()
+  override fun preparedTask(): TaskId? = taskSet.firstOrNull { it.next }?.id
 
-  private fun addTask(task: Task): Task {
-    require(tasks.none { it.id == task.id })
-    tasks += task
-    return task
-  }
+  override fun nextAvailableId() = if (isEmpty()) TaskId("A") else taskSet.maxOf { it.id }.next()
 
-  internal fun addTasksFrom(effect: FiredEffect, eventLog: WritableEventLog) =
-      addTasksFrom(effect.instruction, effect.player, effect.cause, eventLog)
+  override fun toString() = joinToString("\n")
 
-  internal fun addTasksFrom(
-      instruction: Instruction,
-      taskOwner: Player,
-      cause: Cause?,
-      eventLog: WritableEventLog,
-  ) = addTasksFrom(listOf(instruction), taskOwner, cause, eventLog)
+  // ALL NON-PRIVATE MUTATIONS OF TASKSET
 
-  private fun addTasksFrom(
-      instructions: Iterable<Instruction>,
-      owner: Player,
-      cause: Cause?,
-      eventLog: WritableEventLog,
+  internal fun addTasks(
+      // If we had a single form it would have to reject Multi's
+    instruction: Instruction,
+    owner: Player,
+    cause: Cause?,
+    events: WritableEventLog,
   ): List<TaskAddedEvent> {
-    var nextId = nextAvailableId()
-    return split(instructions) // TODO where to do this?
-        .filterNot { it == NoOp } // TODO where to do this?
-        .map { instr ->
-          val newTask: Task = createTask(instr, nextId, owner, cause)
-          nextId = nextId.next()
-          addTask(newTask)
-          eventLog.taskAdded(newTask)
-        }
+    val newTasks = Task.newTasks(nextAvailableId(), owner, listOf(instruction), cause)
+    return newTasks.map { events.taskAdded(addToTaskSet(it)) }
   }
 
-  /** Creates a task, possibly de-linking an de-linkable [Then]. */
-  private fun createTask(instruction: Instruction, id: TaskId, owner: Player, cause: Cause?): Task {
-    val task = Task(id = id, owner = owner, instruction = instruction, cause = cause)
-    return if (instruction is Then && !keepLinked(instruction)) {
-      task.copy(
-          instruction = instruction.instructions.first(),
-          then = Then.create(instruction.instructions.drop(1)),
-      )
-    } else {
-      task
-    }
+  internal fun removeTask(id: TaskId, events: WritableEventLog): TaskRemovedEvent {
+    val task = this[id]
+    removeFromTaskSet(task)
+    return events.taskRemoved(task)
   }
 
-  // TODO when else?
-  private fun keepLinked(then: Then) = then.descendantsOfType<XScalar>().size > 1
-
-  internal fun removeTask(id: TaskId, eventLog: WritableEventLog): TaskRemovedEvent {
-    require(id in this) { id }
-    val toRemove = this[id]
-    tasks.remove(toRemove)
-    return eventLog.taskRemoved(toRemove)
-  }
-
-  internal fun replaceTask(newTask: Task, eventLog: WritableEventLog): TaskReplacedEvent {
+  internal fun editTask(newTask: Task, eventLog: WritableEventLog): TaskEditedEvent? {
     val id = newTask.id
     val oldTask = this[id]
-    tasks.remove(oldTask)
-    addTask(newTask)
+    if (newTask == oldTask) return null
+    removeFromTaskSet(oldTask)
+    addToTaskSet(newTask)
     return eventLog.taskReplaced(oldTask, newTask)
   }
 
-  override fun preparedTask(): TaskId? = tasks.firstOrNull { it.next }?.id
-
+  // This method can get away without the normalizations/integrity-checks/whatever because it is
+  // operating at a purely mechanical level, just undoing changes that were already made.
+  // It's crucial that we ensure an entry got logged for every individual taskSet change.
   internal fun reverse(entry: TaskEvent) {
     when (entry) {
-      is TaskAddedEvent -> tasks -= entry.task
-      is TaskRemovedEvent -> addTask(entry.task)
-      is TaskReplacedEvent -> {
-        tasks.removeIf { it.id == entry.task.id }
-        addTask(entry.oldTask)
+      is TaskAddedEvent -> removeFromTaskSet(entry.task)
+      is TaskRemovedEvent -> addToTaskSet(entry.task)
+      is TaskEditedEvent -> {
+        removeFromTaskSet(entry.task)
+        addToTaskSet(entry.oldTask)
       }
     }
   }
 
-  override fun nextAvailableId() = if (isEmpty()) TaskId("A") else tasks.maxOf { it.id }.next()
+  // DIRECT MUTATORS
 
-  override fun toString() = joinToString("\n")
+  private fun addToTaskSet(task: Task): Task {
+    require(taskSet.none { it.id == task.id })
+
+    // What an amazing sorted set implementation
+    val all: Set<Task> = taskSet + task
+    taskSet.clear()
+    taskSet += all.sortedBy { it.id }
+    return task
+  }
+
+  private fun removeFromTaskSet(task: Task) {
+    require(taskSet.remove(task))
+  }
 }

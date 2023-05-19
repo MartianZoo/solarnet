@@ -1,7 +1,12 @@
 package dev.martianzoo.tfm.engine
 
+import dev.martianzoo.tfm.api.Exceptions.DeadEndException
+import dev.martianzoo.tfm.api.Exceptions.NarrowingException
 import dev.martianzoo.tfm.api.Exceptions.NotNowException
+import dev.martianzoo.tfm.api.Exceptions.RecoverableException
+import dev.martianzoo.tfm.api.Exceptions.TaskException
 import dev.martianzoo.tfm.data.Player
+import dev.martianzoo.tfm.data.Player.Companion.ENGINE
 import dev.martianzoo.tfm.data.Task.TaskId
 import dev.martianzoo.tfm.data.TaskResult
 import dev.martianzoo.tfm.engine.Component.Companion.ofType
@@ -33,6 +38,9 @@ public class PlayerSession(
   public val reader by game::reader
   public val tasks by game::tasks
   public val events by game::events
+
+  fun myTasks(): List<TaskId> =
+      tasks.filter { player == ENGINE || it.owner == player }.map { it.id }.sorted()
 
   // TODO get rid
   public fun asPlayer(player: Player) = game.session(player)
@@ -77,14 +85,14 @@ public class PlayerSession(
 
   fun <T : Any> turn(initial: String? = null, tasker: Tasker.() -> T?): T? {
     return action("NewTurn") {
-      initial?.let(::doFirstTask)
+      initial?.let(this::task)
       theTasker.tasker()
     }
   }
 
-  /** Action just means "queue empty -> do anything -> queue empty again" */
-  fun action(firstInstruction: Instruction, vararg tasks: String): TaskResult {
-    return game.atomic { action(firstInstruction) { tasks.forEach(::doFirstTask) } }
+  /** Here action just means "queue empty -> do safe, draining safely -> queue empty again" */
+  fun action(manual: Instruction, vararg tasks: String): TaskResult {
+    return atomic { action(manual) { tasks.forEach(::task) } }
   }
 
   fun action(firstInstruction: String, vararg tasks: String): TaskResult =
@@ -97,6 +105,7 @@ public class PlayerSession(
     require(game.tasks.isEmpty()) { game.tasks }
     val cp = game.checkpoint()
     initiate(firstInstruction) // try task then try to drain
+    autoExec()
 
     val result =
         try {
@@ -112,22 +121,22 @@ public class PlayerSession(
       require(game.tasks.isEmpty()) {
         "Should be no tasks left, but:\n" + game.tasks.joinToString("\n")
       }
+      require(game.reader.evaluate(parse("MAX 0 Temporary")))
     }
     return result
   }
 
   class Tasker(val session: PlayerSession) {
-
     fun tasks() = session.game.tasks
 
-    fun doFirstTask(instr: String) {
-      session.doFirstTask(instr)
-      session.tryToDrain()
+    fun task(instr: String) {
+      session.task(instr)
+      session.autoExec()
     }
 
-    fun tryMatchingTask(instr: String) {
-      session.tryMatchingTask(instr)
-      session.tryToDrain()
+    fun matchTask(instr: String) {
+      session.matchTask(instr)
+      session.autoExec()
     }
 
     fun rollItBack() = null
@@ -142,68 +151,141 @@ public class PlayerSession(
       preprocess(parse(text))
 
   fun execute(instruction: String, vararg tasks: String) {
-    initiate(instruction)
-    tasks.forEach { tryMatchingTask(it) }
+    val task = initiate(instruction).tasksSpawned.single()
+    writer.executeTask(task)
+    tasks.forEach { matchTask(it) } // TODO do first??
   }
 
-  fun initiate(instruction: String) = initiate(parse(instruction))
+  fun initiate(manual: String) = initiate(parse(manual))
 
-  fun initiate(instruction: Instruction): TaskResult {
-    val prepped: List<Instruction> = prepAndSplit(instruction) // TODO, obvs
-    return game.atomic {
-      prepped.forEach(writer::doTask)
-      tryToDrain()
-    }
+  fun initiate(manual: Instruction): TaskResult {
+    return atomic { writer.unsafe().initiateTask(manual) }
   }
 
-  fun tryToDrain(): TaskResult {
-    return game.atomic {
-      var anySuccess = true
-      while (anySuccess) {
-        val allTasks = game.tasks.ids()
-        if (allTasks.none()) break
-        anySuccess =
-            allTasks
-                .filter {
-                  writer.tryTask(it)
-                  it !in game.tasks.ids()
-                }
-                .any() // filter-any, not any, because we want a full trip
+  @Suppress("ControlFlowWithEmptyBody")
+  fun autoExec(safely: Boolean = false): TaskResult { // TODO invert default or something
+    return atomic {
+      while (autoExecOneTask(safely)) {
       }
     }
   }
 
-  fun tryMatchingTask(revised: String): TaskResult {
-    val ids = game.tasks.ids()
-    if (ids.none()) throw NotNowException("no tasks")
-    var ex: Exception? = null
-    for (id in ids) {
-      try {
-        return tryTask(id, revised)
-      } catch (e: Exception) {
-        if (ex == null) {
-          ex = e
+  fun autoExecOneTask(safely: Boolean = true): Boolean /* should we continue */ {
+    if (myTasks().none()) return false
+
+    // see if we can prepare a task (choose only from our own)
+    val options: List<TaskId> =
+        if (tasks.hasPreparedTask()) {
+          listOf(tasks.preparedTask()!!) // we'll prepare it again
         } else {
-          ex.addSuppressed(e)
+          myTasks().filter(writer::canPrepareTask)
         }
+
+    when (options.size) {
+      0 -> writer.prepareTask(myTasks().first()) // this will throw
+      1 -> {
+        val taskId = options.single()
+        writer.prepareTask(taskId)
+        if (taskId !in tasks) return true
+        if (tryPreparedTask()) return true // if this fails we should fail too
+      }
+
+      else -> if (safely) return false // impasse: we can't choose for you
+    }
+
+    var recoverable = false
+
+    // we're in unsafe mode. last resort: do the first task that executes
+    for (taskId in options) {
+      try {
+        writer.executeTask(taskId)
+        return true
+      } catch (e: RecoverableException) {
+        // we're in trouble if ALL of these are NotNowExceptions
+        if (e !is NotNowException) recoverable = true
+        writer.explainTask(taskId, e.message ?: e::class.simpleName!!)
       }
     }
-    throw ex!! // it must have been set for us to get here
+    if (!recoverable) throw DeadEndException("")
+
+    return false // presumably everything is abstract
   }
 
-  /** Like try but throws if it doesn't succeed */
-  fun doFirstTask(revised: String): TaskResult {
-    val id = game.tasks.firstOrNull { it.owner == player }?.id ?: throw NotNowException("no tasks")
-    return game.atomic {
-      writer.doTask(id, parseInContext(revised))
-      tryToDrain()
+  fun tryTask(taskId: TaskId, narrowed: String? = null) = atomic {
+    try {
+      writer.prepareTask(taskId)
+      if (taskId !in tasks && narrowed !in setOf(null, "Ok")) {
+        throw NarrowingException("$narrowed isn't Ok")
+      }
+      narrowed?.let { writer.narrowTask(taskId, parse(it)) }
+      if (taskId in tasks) writer.executeTask(taskId)
+      autoExec()
+    } catch (e: RecoverableException) {
+      writer.explainTask(taskId, e.message!!)
     }
   }
 
-  fun tryTask(id: TaskId, narrowed: String? = null): TaskResult {
-    return game.atomic {
-      writer.tryTask(id, narrowed?.let(::parseInContext))
-      tryToDrain()
+  // Similar to tryTask, but a NotNowException is unrecoverable in this case
+  private fun tryPreparedTask(): Boolean /* did I do stuff? */ {
+    val taskId = tasks.preparedTask()!!
+    return try {
+      writer.executeTask(taskId)
+      autoExec()
+      true
+    } catch (e: NotNowException) {
+      throw DeadEndException(e) // has to be rolled back
+    } catch (e: RecoverableException) {
+      writer.explainTask(taskId, e.message!!)
+      false
+    }
+  }
+
+  fun matchTask(revised: String): TaskResult {
+    if (game.tasks.none()) throw TaskException("no tasks")
+
+    val ins: Instruction = preprocess(parse(revised))
+    val matches =
+        game.tasks.filter { it.owner == player && ins.narrows(it.instruction, game.reader) }
+
+    if (matches.size == 0) {
+      throw TaskException("no matches for $ins among:\n${game.tasks.joinToString("")}")
+    }
+    if (matches.size > 1) {
+      throw TaskException("multiple matches for $ins among:\n${game.tasks.joinToString("")}")
+    }
+    val id = matches.single().id
+
+    return atomic {
+      writer.prepareTask(id)
+      if (id in tasks) writer.narrowTask(id, ins)
+      if (id in tasks) writer.executeTask(id)
+      autoExec()
+    }
+  }
+
+  fun ifMatchTask(revised: String): TaskResult {
+    val prepped: Instruction = preprocess(parse(revised))
+    val id =
+        game.tasks
+            .filter { it.owner == player }
+            .singleOrNull { prepped.narrows(it.instruction, game.reader) }
+            ?.id
+          ?: return TaskResult()
+
+    return atomic {
+      writer.prepareTask(id)
+      if (id in tasks) writer.narrowTask(id, prepped)
+      if (id in tasks) writer.executeTask(id)
+      autoExec()
+    }
+  }
+
+  fun task(revised: String): TaskResult {
+    val id = game.tasks.firstOrNull { it.owner == player }?.id ?: throw NotNowException("no tasks")
+    return atomic {
+      writer.narrowTask(id, preprocess(parse(revised)))
+      if (id in tasks) writer.executeTask(id)
+      autoExec()
     }
   }
 

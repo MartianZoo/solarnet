@@ -7,7 +7,6 @@ import dev.martianzoo.tfm.pets.Transforming.actionListToEffects
 import dev.martianzoo.tfm.pets.Transforming.actionToEffect
 import dev.martianzoo.tfm.pets.Transforming.immediateToEffect
 import dev.martianzoo.tfm.pets.ast.Action
-import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.pets.ast.Effect
 import dev.martianzoo.tfm.pets.ast.Expression
@@ -15,7 +14,6 @@ import dev.martianzoo.tfm.pets.ast.Instruction
 import dev.martianzoo.tfm.pets.ast.PetNode
 import dev.martianzoo.tfm.pets.ast.PetNode.Companion.replacer
 import dev.martianzoo.tfm.testlib.te
-import dev.martianzoo.util.toStrings
 import kotlin.reflect.KClass
 import org.junit.jupiter.api.Test
 
@@ -64,13 +62,6 @@ private class TransformingTest {
     checkImmediateToEffect("Foo, Bar", "This: Foo, Bar")
     checkImmediateToEffect("Foo, Bar: Qux", "This: Foo, Bar: Qux")
     checkImmediateToEffect("Foo: Bar", "This: (Foo: Bar)")
-  }
-
-  @Test
-  fun testFindAllClassNames() {
-    val instr: Instruction = parse("@foo(Bar, Qux<Dog>)")
-    assertThat(instr.descendantsOfType<ClassName>().toStrings())
-        .containsExactly("Bar", "Qux", "Dog")
   }
 
   @Test

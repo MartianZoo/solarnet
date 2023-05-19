@@ -4,6 +4,7 @@ import dev.martianzoo.tfm.api.SpecialClassNames.END
 import dev.martianzoo.tfm.api.SpecialClassNames.THIS
 import dev.martianzoo.tfm.data.CardDefinition.Deck.PROJECT
 import dev.martianzoo.tfm.data.CardDefinition.ProjectKind.ACTIVE
+import dev.martianzoo.tfm.data.ClassDeclaration.ClassKind.CONCRETE
 import dev.martianzoo.tfm.data.EnglishHack.englishHack
 import dev.martianzoo.tfm.data.SpecialClassNames.ACTION_CARD
 import dev.martianzoo.tfm.data.SpecialClassNames.ACTIVE_CARD
@@ -150,10 +151,11 @@ public class CardDefinition(data: CardData) : Definition {
     ClassDeclaration(
         className = className,
         shortName = shortName,
-        abstract = false,
+        kind = CONCRETE,
         supertypes = supertypes,
         effects = allEffects.toSetStrict(),
-        extraNodes = setOfNotNull(requirement) + extraClasses.flatMap { it.allNodes })
+        extraNodes = setOfNotNull(requirement) + extraClasses.flatMap { it.allNodes },
+    )
   }
 
   /** The deck this card belongs to; see [CardDefinition.deck]. */

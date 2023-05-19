@@ -90,7 +90,6 @@ internal class PetGenerator(scaling: (Int) -> Double) :
               3 to Instruction.Per::class,
               2 to Instruction.Gated::class,
               2 to Instruction.Transmute::class,
-              1 to Instruction.Custom::class,
               1 to Instruction.Then::class,
               3 to Instruction.Or::class,
               5 to Instruction.Multi::class,
@@ -103,7 +102,6 @@ internal class PetGenerator(scaling: (Int) -> Double) :
       register { Instruction.Per(recurse(), recurse()) }
       register { Instruction.Gated(recurse(), choose(true, true, true, false), recurse()) }
       register { Instruction.Transmute(recurse(), recurse<ScaledExpression>().scalar, intensity()) }
-      register { Instruction.Custom("name", listOfSize(choose(1, 1, 1, 2)), 1) }
       register { Instruction.Then(listOfSize(choose(2, 2, 2, 3))) }
       register { Instruction.Or(listOfSize(choose(2, 2, 2, 2, 3))) }
       register { Instruction.Multi(listOfSize(choose(2, 2, 2, 2, 2, 3, 4))) }

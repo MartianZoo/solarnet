@@ -395,7 +395,7 @@ public class ReplSession(var setup: GameSetup, private val jline: JlineRepl? = n
       }
       return game.atomic {
         session.initiate(instruction)
-        if (auto) session.tryToDrain()
+        if (auto) session.autoExec()
       }
     }
   }
@@ -438,20 +438,20 @@ public class ReplSession(var setup: GameSetup, private val jline: JlineRepl? = n
           }
 
       if (rest == "drop") {
-        session.writer.unsafe().removeTask(id)
+        session.writer.unsafe().dropTask(id)
         return listOf("Task $id deleted")
+
       } else if (rest == "prepare") {
-        session.writer.prepareTask(id)
-        return listOf("Task $id is now: ${session.tasks[id]}")
+        return describeExecutionResults(session.writer.prepareTask(id))
       }
 
       val result: TaskResult =
           when (mode) {
             RED, YELLOW -> throw UsageException("Can't execute tasks in this mode")
-            GREEN, BLUE, -> {
+            GREEN, BLUE -> {
               game.atomic {
                 session.tryTask(id, rest)
-                if (auto) session.tryToDrain()
+                if (auto) session.autoExec()
               }
             }
           }

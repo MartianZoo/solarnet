@@ -3,6 +3,7 @@ package dev.martianzoo.tfm.engine
 import dev.martianzoo.tfm.api.ApiUtils.standardResourceNames
 import dev.martianzoo.tfm.engine.PlayerSession.Tasker
 import dev.martianzoo.tfm.pets.ast.ClassName
+import dev.martianzoo.tfm.pets.ast.Instruction.NoOp
 
 /**
  * Extension functions that translate between the raw engine language and the way humans tend to
@@ -20,9 +21,8 @@ object Humanize {
   ): T? {
     require(has("CorporationPhase"))
     return turn(corpName) {
-      val result = theTasker.tasker()
-      doFirstTask(if (buyCards == 0) "Ok" else "$buyCards BuyCard")
-      result
+      task(if (buyCards == 0) "Ok" else "$buyCards BuyCard")
+      theTasker.tasker()
     }
   }
 
@@ -39,7 +39,7 @@ object Humanize {
 
   fun <T : Any> PlayerSession.stdProject(stdProject: String, tasker: Tasker.() -> T?): T? {
     return stdAction("UseStandardProject") {
-      doFirstTask("UseAction1<$stdProject>")
+      task("UseAction1<$stdProject>")
       theTasker.tasker()
     }
   }
@@ -62,10 +62,10 @@ object Humanize {
   ): T? {
 
     return stdAction("PlayCardFromHand") {
-      doFirstTask("PlayCard<Class<$cardName>>")
+      task("PlayCard<Class<$cardName>>")
 
       fun pay(cost: Int, currency: String) {
-        if (cost > 0) tryMatchingTask("$cost Pay<Class<$currency>> FROM $currency")
+        if (cost > 0) session.ifMatchTask("$cost Pay<Class<$currency>> FROM $currency")
       }
 
       pay(megacredits, "Megacredit")
@@ -73,13 +73,15 @@ object Humanize {
       pay(titanium, "Titanium")
 
       // Take care of other Accepts we didn't need
-      for (task in tasks()) {
+      for (task in tasks().toList()) {
         if (task.cause?.context?.className == ClassName.cn("Accept")) {
-          tryTask(task.id, "Ok")
+          session.writer.narrowTask(task.id, NoOp) // "executes" automatically
         }
       }
-
-      theTasker.tasker()
+      autoExec()
+      val result = theTasker.tasker()
+      autoExec()
+      result
     }
   }
 
@@ -90,10 +92,9 @@ object Humanize {
   fun <T : Any> PlayerSession.cardAction(cardName: String, which: Int = 1, tasker: Tasker.() -> T?): T? {
     require(has(cardName))
     return stdAction("UseActionFromCard") {
-      doFirstTask("UseAction$which<$cardName>")
-      val result = theTasker.tasker()
-      doFirstTask("ActionUsedMarker<$cardName>")
-      result
+      task("UseAction$which<$cardName>")
+      task("ActionUsedMarker<$cardName>") // TODO slight problem for Viron?
+      theTasker.tasker()
     }
   }
 

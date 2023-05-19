@@ -2,7 +2,8 @@ package dev.martianzoo.tfm.canon
 
 import dev.martianzoo.tfm.api.ApiUtils.lookUpProductionLevels
 import dev.martianzoo.tfm.api.ApiUtils.mapDefinition
-import dev.martianzoo.tfm.api.CustomInstruction
+import dev.martianzoo.tfm.api.ApiUtils.standardResourceNames
+import dev.martianzoo.tfm.api.CustomClass
 import dev.martianzoo.tfm.api.Exceptions
 import dev.martianzoo.tfm.api.Exceptions.LimitsException
 import dev.martianzoo.tfm.api.Exceptions.NarrowingException
@@ -23,6 +24,7 @@ import dev.martianzoo.tfm.pets.ast.Instruction.Gain.Companion.gain
 import dev.martianzoo.tfm.pets.ast.Instruction.Multi
 import dev.martianzoo.tfm.pets.ast.Instruction.NoOp
 import dev.martianzoo.tfm.pets.ast.Instruction.Or
+import dev.martianzoo.tfm.pets.ast.Instruction.Then
 import dev.martianzoo.tfm.pets.ast.Instruction.Transform
 import dev.martianzoo.tfm.pets.ast.ScaledExpression.Companion.scaledEx
 import dev.martianzoo.tfm.pets.ast.TransformNode
@@ -33,19 +35,19 @@ internal val allCustomInstructions =
         ForceLoad,
         CreateAdjacencies,
         BeginPlayCard,
-        GetVpsFrom,
+        GetEventVpsFrom,
         GainLowestProduction,
         CopyProductionBox,
-        CopyPrelude)
+        CopyPrelude,
+    )
 
-private object ForceLoad : CustomInstruction("forceLoad") {
+private object ForceLoad : CustomClass("ForceLoad") {
   override fun translate(game: GameReader, arguments: List<Type>): Instruction {
     return NoOp
   }
 }
 
-// MarsArea has `Tile<This>:: @createAdjacencies(This)`
-private object CreateAdjacencies : CustomInstruction("createAdjacencies") {
+private object CreateAdjacencies : CustomClass("CreateAdjacencies") {
   override fun translate(game: GameReader, arguments: List<Type>): Instruction {
     val grid = mapDefinition(game).areas
     val areaName: ClassName = arguments.single().className
@@ -63,7 +65,7 @@ private object CreateAdjacencies : CustomInstruction("createAdjacencies") {
               listOf(
                   cn("ForwardAdjacency").of(it, newTile), cn("BackwardAdjacency").of(newTile, it))
             }
-    return Multi.create((nbrs + adjs).map { gain(scaledEx(1, it)) })
+    return Then.create((nbrs + adjs).map { gain(scaledEx(1, it)) })
   }
 
   private fun tileOn(area: AreaDefinition, game: GameReader): Expression? {
@@ -87,15 +89,16 @@ private object CreateAdjacencies : CustomInstruction("createAdjacencies") {
   }
 }
 
-// @beginPlayCard(Class<CardFront>)
-private object BeginPlayCard : CustomInstruction("beginPlayCard") {
+private object BeginPlayCard : CustomClass("BeginPlayCard") {
   override fun translate(game: GameReader, arguments: List<Type>): Instruction {
-    val classExpr = arguments.single().expression
+    val classExpr = arguments[1].expression // TODO yuck
     val cardName = classExpr.arguments.single().className
     val card: CardDefinition = game.authority.card(cardName)
 
     val reqt = card.requirement
-    if (reqt?.let(game::evaluate) == false) throw Exceptions.requirementNotMet(reqt)
+    if (reqt?.let { game.evaluate(game.preprocess(it)) } == false) {
+      throw Exceptions.requirementNotMet(reqt)
+    }
 
     val playTagSignals =
         card.tags.entries.map { (tagName: ClassName, ct: Int) ->
@@ -109,14 +112,14 @@ private object BeginPlayCard : CustomInstruction("beginPlayCard") {
         } else {
           playTagSignals
         }
-    return Multi.create(instructions)
+    return Then.create(instructions)
   }
 }
 
 // For scoring event cards
-private object GetVpsFrom : CustomInstruction("getVpsFrom") {
+private object GetEventVpsFrom : CustomClass("GetEventVpsFrom") {
   override fun translate(game: GameReader, arguments: List<Type>): Instruction {
-    val clazz = arguments.single()
+    val clazz = arguments[1] // TODO yuck
     require(clazz.className == CLASS)
     val cardName = clazz.expression.arguments.single().className
     val card = game.authority.card(cardName)
@@ -128,21 +131,23 @@ private object GetVpsFrom : CustomInstruction("getVpsFrom") {
 }
 
 // For Robinson Industries
-private object GainLowestProduction : CustomInstruction("gainLowestProduction") {
+private object GainLowestProduction : CustomClass("GainLowestProduction") {
   override fun translate(game: GameReader, arguments: List<Type>): Instruction {
-    val player = arguments.single()
-    val prods: Map<ClassName, Int> = lookUpProductionLevels(game, player.expression)
-    val lowest: Int = prods.values.min()
-    val keys: Set<ClassName> = prods.filterValues { it == lowest }.keys
-    val or = Or.create(keys.map { gain(scaledEx(1, it)) })
-    return TransformNode.wrap(or, PROD)
+    val player = arguments.single().expression
+    val lowest = lookUpProductionLevels(game, player).values.min()
+
+    val options = standardResourceNames(game).mapNotNull {
+      val target = if (it == cn("Megacredit")) lowest + 5 else lowest
+      if (target >= 0) parse<Instruction>("=$target $it: $it") else null
+    }
+    return TransformNode.wrap(Or.create(options), PROD)
   }
 }
 
 // For Robotic Workforce
-private object CopyProductionBox : CustomInstruction("copyProductionBox") {
+private object CopyProductionBox : CustomClass("CopyProductionBox") {
   override fun translate(game: GameReader, arguments: List<Type>): Instruction {
-    val cardName = arguments.single().className
+    val cardName = arguments[1].className // TODO yuck
     val defn = game.authority.card(cardName)
     val immediate: Instruction =
         defn.immediate ?: throw NarrowingException("card $cardName has no immediate section")
@@ -157,9 +162,9 @@ private object CopyProductionBox : CustomInstruction("copyProductionBox") {
 }
 
 // For Double Down
-private object CopyPrelude : CustomInstruction("copyPrelude") {
+private object CopyPrelude : CustomClass("CopyPrelude") {
   override fun translate(game: GameReader, arguments: List<Type>): Instruction {
-    val typeExpr = arguments.single().expressionFull
+    val typeExpr = arguments[1].expressionFull
     if (game.resolve(typeExpr).className == cn("DoubleDown")) {
       throw NarrowingException("Cute. No, you can't copy Double Down itself")
     }

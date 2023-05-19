@@ -11,6 +11,7 @@ import dev.martianzoo.tfm.pets.ast.Metric
 import dev.martianzoo.tfm.pets.ast.Metric.Count
 import dev.martianzoo.tfm.pets.ast.Metric.Plus
 import dev.martianzoo.tfm.pets.ast.Metric.Scaled
+import dev.martianzoo.tfm.pets.ast.PetElement
 import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.pets.ast.Requirement.And
 import dev.martianzoo.tfm.pets.ast.Requirement.Counting
@@ -68,4 +69,7 @@ internal class GameReaderImpl(val table: MClassTable, val components: ComponentG
 
   override fun getComponents(type: Type) =
       components.getAll(table.resolve(type), this).map { it.mtype }
+
+  override fun <P : PetElement> preprocess(node: P) =
+      transformers.standardPreprocess().transform(node)
 }

@@ -25,7 +25,6 @@ private class ActionTest {
     Bar<Bar> -> 11!
     Abc -> Bar / Wau
     PROD[1] -> 11 Xyz
-    -> @name(Qux, Xyz)
     PROD[1] -> Foo<Foo>
     PROD[1] -> Bar / Foo
     11 Abc<Qux> -> 11 Bar?
@@ -35,13 +34,11 @@ private class ActionTest {
     Foo -> PROD[-1 / Bar<Wau>]
     Bar -> 5 Ooh<Qux> FROM Abc.
     PROD[Bar] / Foo<Qux> -> -Xyz
-    PROD[Foo] -> @name(Qux), Foo.
     5 Abc<Abc<Xyz>, Qux, Qux> -> 1
     1 -> -11 Ooh<Foo>, (Foo, -1, 1)
     PROD[1], 11 Xyz, 5 Foo -> 5 Ahh.
     Xyz<Foo> -> 11 Qux? THEN Ooh / Foo
     Foo<Foo> / Qux -> (1, Qux), -11 Foo
-    Xyz<Abc<Qux>> -> PROD[@name(Qux), 1]
     -> (5 Qux FROM Bar, Bar) OR -1 OR Foo
     PROD[Bar<Foo>] / Foo -> -Foo<Foo, Bar>
     Bar, Bar -> Qux, Foo THEN ((1: 1) OR 1)

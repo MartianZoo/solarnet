@@ -2,6 +2,7 @@ package dev.martianzoo.tfm.data
 
 import com.squareup.moshi.Json
 import dev.martianzoo.tfm.api.SpecialClassNames.OK
+import dev.martianzoo.tfm.data.ClassDeclaration.ClassKind.CONCRETE
 import dev.martianzoo.tfm.data.EnglishHack.englishHack
 import dev.martianzoo.tfm.data.SpecialClassNames.MILESTONE
 import dev.martianzoo.tfm.pets.Parsing.parse
@@ -31,8 +32,9 @@ data class MilestoneDefinition(
     ClassDeclaration(
         className,
         shortName,
-        abstract = false,
+        kind = CONCRETE,
         supertypes = setOf(MILESTONE.expression),
-        effects = setOf(parse("This:: ($requirementText: $OK)")))
+        effects = setOf(parse("This:: ($requirementText: $OK)")),
+    )
   }
 }

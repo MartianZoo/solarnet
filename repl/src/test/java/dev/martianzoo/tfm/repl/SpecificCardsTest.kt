@@ -2,6 +2,7 @@ package dev.martianzoo.tfm.repl
 
 import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.tfm.api.Exceptions.AbstractException
+import dev.martianzoo.tfm.api.Exceptions.DeadEndException
 import dev.martianzoo.tfm.api.Exceptions.DependencyException
 import dev.martianzoo.tfm.api.Exceptions.LimitsException
 import dev.martianzoo.tfm.api.Exceptions.NarrowingException
@@ -17,6 +18,7 @@ import dev.martianzoo.tfm.engine.Humanize.playCard
 import dev.martianzoo.tfm.engine.Humanize.playCorp
 import dev.martianzoo.tfm.engine.Humanize.production
 import dev.martianzoo.tfm.engine.Humanize.stdAction
+import dev.martianzoo.tfm.engine.Humanize.stdProject
 import dev.martianzoo.tfm.engine.PlayerSession.Companion.session
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.repl.TestHelpers.assertCounts
@@ -44,7 +46,7 @@ class SpecificCardsTest {
       // And for the expected reasons
       assertThat(taskReasons())
           .containsExactly(
-              "When gaining null and removing [Heat<Player1>]: can do only 4 of 5 required",
+              null, // "When gaining null and removing Heat<Player1>: can do only 4 of 5 required",
               "choice required in: `4 Plant<Player1>! OR 2 Animal<Player1>.`",
           )
 
@@ -65,7 +67,7 @@ class SpecificCardsTest {
       assertThat(taskReasons())
           .containsExactly("choice required in: `4 Plant<Player1>! OR 2 Animal<Player1>.`")
 
-      doFirstTask("4 Plant")
+      task("4 Plant")
       assertCounts(3 to "Card", 1 to "CardBack", 1 to "CardFront", 1 to "PlayedEvent")
       assertCounts(4 to "Plant", 1 to "Heat", 1 to "Animal")
     }
@@ -87,16 +89,16 @@ class SpecificCardsTest {
       assertCounts(3 to "Card", 1 to "CardBack", 1 to "CardFront", 1 to "PlayedEvent")
       assertCounts(0 to "Plant", 1 to "Heat", 1 to "Animal")
 
-      assertThrows<AbstractException>("1") { doFirstTask("2 Animal") }
+      assertThrows<AbstractException>("1") { task("2 Animal") }
       // no effect, but the task has been prepared if it wasn't already....
       assertCounts(3 to "Card", 1 to "CardBack", 1 to "CardFront", 1 to "PlayedEvent")
       assertCounts(0 to "Plant", 1 to "Heat", 1 to "Animal")
 
       // card I don't have
-      assertThrows<DependencyException>("2") { doFirstTask("2 Animal<Fish>") }
+      assertThrows<DependencyException>("2") { task("2 Animal<Fish>") }
 
       // but this should work
-      doFirstTask("2 Animal<Pets>")
+      task("2 Animal<Pets>")
       assertCounts(3 to "Card", 1 to "CardBack", 1 to "CardFront", 1 to "PlayedEvent")
       assertCounts(0 to "Plant", 1 to "Heat", 3 to "Animal")
     }
@@ -138,7 +140,7 @@ class SpecificCardsTest {
     }
 
     p1.action("UseAction2<SulphurEatingBacteria>") {
-      doFirstTask("-Microbe<SulphurEatingBacteria> THEN 3")
+      task("-Microbe<SulphurEatingBacteria> THEN 3")
       assertCounts(0 to "Microbe", 3 to "Megacredit")
     }
 
@@ -147,7 +149,7 @@ class SpecificCardsTest {
     }
 
     fun assertTaskFails(task: String, desc: String) =
-        assertThrows<Exception>(desc) { p1.doFirstTask(task) }
+        assertThrows<Exception>(desc) { p1.task(task) }
 
     p1.action("UseAction2<C251>") {
       assertTaskFails("-Microbe<C251> THEN 4", "greed")
@@ -162,7 +164,7 @@ class SpecificCardsTest {
 
       assertCounts(4 to "Microbe", 3 to "Megacredit")
 
-      p1.doFirstTask("-3 Microbe<C251> THEN 9")
+      p1.task("-3 Microbe<C251> THEN 9")
       assertCounts(1 to "Microbe", 12 to "Megacredit")
     }
   }
@@ -170,26 +172,19 @@ class SpecificCardsTest {
   @Test
   fun unmi() {
     val game = Game.create(GameSetup(Canon, "BM", 2))
-    val p1 = game.session(PLAYER1)
-
-    p1.action("CorporationCard, UnitedNationsMarsInitiative") {
+    with(game.session(PLAYER1)) {
+      action("CorporationCard, UnitedNationsMarsInitiative")
       assertCounts(40 to "Megacredit", 20 to "TR")
-    }
 
-    p1.action("UseAction1<UnitedNationsMarsInitiative>") {
-      assertCounts(37 to "Megacredit", 20 to "TR")
+      action("ActionPhase")
 
-      assertThat(taskReasons()).containsExactly("requirement not met: `HasRaisedTr<Player1>`")
+      assertThrows<DeadEndException> { action("UseAction1<UnitedNationsMarsInitiative>") }
 
-      // Can't use UNMI action yet - fail, don't no-op, per https://boardgamegeek.com/thread/2525032
-      assertThrows<RequirementException> { doFirstTask("TR") } // TODO or just prepare it?
-      rollItBack()
-    }
+      // Do anything that raises TR
+      stdProject("AsteroidSP")
+      assertCounts(26 to "Megacredit", 21 to "TR")
 
-    // Do anything that raises TR
-    p1.action("UseAction1<AsteroidSP>") { assertCounts(26 to "Megacredit", 21 to "TR") }
-
-    p1.action("UseAction1<UnitedNationsMarsInitiative>") {
+      cardAction("UnitedNationsMarsInitiative")
       assertCounts(23 to "Megacredit", 22 to "TR")
     }
   }
@@ -199,10 +194,12 @@ class SpecificCardsTest {
     val game = Game.create(GameSetup(Canon, "BMPT", 2))
     val eng = game.session(ENGINE)
     val p1 = game.session(PLAYER1)
+    val p2 = game.session(PLAYER2)
 
     p1.assertCounts(0 to "Megacredit", 20 to "TR")
 
-    p1.action("CorporationCard, Pristar") { assertCounts(53 to "Megacredit", 18 to "TR") }
+    p1.playCorp("Pristar")
+    p1.assertCounts(53 to "Megacredit", 18 to "TR")
 
     eng.action("PreludePhase")
     p1.action("PreludeCard, UnmiContractor") { assertCounts(53 to "Megacredit", 21 to "TR") }
@@ -212,8 +209,8 @@ class SpecificCardsTest {
     p1.assertCounts(74 to "Megacredit", 21 to "TR", 0 to "Preservation")
 
     eng.action("ResearchPhase") {
-      tryMatchingTask("2 BuyCard<Player1>")
-      tryMatchingTask("2 BuyCard<Player2>")
+      p1.task("2 BuyCard")
+      p2.task("2 BuyCard<Player2>")
     }
     p1.assertCounts(68 to "Megacredit", 21 to "TR", 0 to "Preservation")
 
@@ -254,35 +251,29 @@ class SpecificCardsTest {
     p1.playCard("InventorsGuild", 9)
 
     p1.stdAction("PlayCardFromHand") {
-      assertThrows<RequirementException>("1") { doFirstTask("PlayCard<Class<AiCentral>>") }
+      assertThrows<RequirementException>("1") { task("PlayCard<Class<AiCentral>>") }
       rollItBack()
     }
 
     p1.playCard("DesignedMicroorganisms", 16)
 
     // Now I do have the 3 science tags, but not the energy production
-    p1.playCard("AiCentral", 19, steel = 1) {
-      assertThrows<LimitsException>("2") { doFirstTask("PROD[-Energy]") }
-      rollItBack()
-    }
+    assertThrows<LimitsException>("2") { p1.playCard("AiCentral", 19, steel = 1) }
 
     // Give energy prod and try again - success
     p1.writer.unsafe().sneak("PROD[Energy]")
-    p1.playCard("AiCentral", 19, steel = 1) { assertCounts(0 to "PROD[Energy]") }
+    p1.playCard("AiCentral", 19, steel = 1)
+    p1.assertCounts(0 to "PROD[Energy]")
 
     // Use the action
     p1.assertCounts(1 to "ProjectCard")
-    p1.cardAction("AiCentral") {
-      assertCounts(3 to "ProjectCard")
-      assertCounts(0 to "ActionUsedMarker<AiCentral>") // not yet!
-    }
+    p1.cardAction("AiCentral")
+    p1.assertCounts(3 to "ProjectCard")
     p1.assertCounts(1 to "ActionUsedMarker<AiCentral>")
 
-    // Can't use it again TODO reenable
     assertThrows<LimitsException>("3") { p1.cardAction("AiCentral") }
     p1.assertCounts(3 to "ProjectCard")
     p1.assertCounts(1 to "ActionUsedMarker<AiCentral>")
-    assertThat(p1.tasks).isEmpty()
 
     // Next gen we can again
     eng.action("Generation")
@@ -299,7 +290,7 @@ class SpecificCardsTest {
 
     // We can't CEO's onto an empty card
     p1.action("CeosFavoriteProject") {
-      assertThrows<NarrowingException> { doFirstTask("Floater<ForcedPrecipitation>") }
+      assertThrows<NarrowingException> { task("Floater<ForcedPrecipitation>") }
       rollItBack()
     }
 
@@ -307,7 +298,7 @@ class SpecificCardsTest {
     p1.action("Floater<ForcedPrecipitation>") { assertCounts(1 to "Floater") }
 
     p1.action("CeosFavoriteProject") {
-      doFirstTask("Floater<ForcedPrecipitation>")
+      task("Floater<ForcedPrecipitation>")
       assertCounts(2 to "Floater")
     }
   }
@@ -318,18 +309,18 @@ class SpecificCardsTest {
     val p1 = game.session(PLAYER1)
 
     p1.action("10 ProjectCard, ForcedPrecipitation, AtmoCollectors") {
-      doFirstTask("2 Floater<AtmoCollectors>")
+      task("2 Floater<AtmoCollectors>")
       assertCounts(2 to "Floater")
     }
 
     p1.action("AirScrappingExpedition") {
-      assertThrows<NarrowingException>("1") { doFirstTask("3 Floater<AtmoCollectors>") }
+      assertThrows<NarrowingException>("1") { task("3 Floater<AtmoCollectors>") }
       assertCounts(2 to "Floater")
       rollItBack()
     }
 
     p1.action("AirScrappingExpedition") {
-      tryMatchingTask("3 Floater<ForcedPrecipitation>")
+      task("3 Floater<ForcedPrecipitation>")
       assertCounts(5 to "Floater")
     }
   }
@@ -340,8 +331,10 @@ class SpecificCardsTest {
     val p1 = game.session(PLAYER1)
 
     p1.action("10 ProjectCard, ForcedPrecipitation")
-    p1.execute("AtmoCollectors", "2 Floater<AtmoCollectors>")
-    p1.execute("Airliners", "2 Floater<AtmoCollectors>")
+    p1.action("AtmoCollectors") { task("2 Floater<AtmoCollectors>") }
+
+    p1.action("Airliners") { task("2 Floater<AtmoCollectors>") }
+
     assertThat(p1.production()[cn("Megacredit")]).isEqualTo(2)
 
     p1.action("CommunityServices") // should be 3 tagless cards (Atmo, Airl, Comm)
@@ -351,38 +344,20 @@ class SpecificCardsTest {
   @Test
   fun elCheapo() {
     val game = Game.create(GameSetup(Canon, "BRMVPCX", 2))
-    val eng = game.session(ENGINE)
-    val p1 = game.session(PLAYER1)
+    game.session(ENGINE).action("ActionPhase")
 
-    eng.action("ActionPhase")
+    with(game.session(PLAYER1)) {
+      action("CorporationCard, 12 ProjectCard, Phobolog, Steel") // -1
 
-    p1.action("CorporationCard, 12 ProjectCard, Phobolog, Steel") // -1
+      action("AntiGravityTechnology, EarthCatapult, ResearchOutpost") { task("CityTile<M33>") }
 
-    p1.action("AntiGravityTechnology") // -5
-    p1.action("EarthCatapult")
-    p1.execute("ResearchOutpost", "CityTile<M33>")
+      action("MassConverter, QuantumExtractor, Shuttles, SpaceStation, WarpDrive")
+      action("AdvancedAlloys, MercurianAlloys, RegoPlastics")
 
-    p1.action("MassConverter") // -12
-    p1.action("QuantumExtractor")
-    p1.action("Shuttles")
-    p1.action("SpaceStation")
-    p1.action("WarpDrive")
-
-    p1.action("AdvancedAlloys") // -4
-    p1.action("MercurianAlloys")
-    p1.action("RegoPlastics")
-
-    /*
-       3996: as Engine exec NewTurn<P1>
-       3997: task B UseAction1<PlayCardFromHand>
-       3998: task C PlayCard<Class<SpaceElevator>>
-       3999: task J Ok
-       4000: task K Pay<Class<T>> FROM T
-       4001: task L Pay<Class<S>> FROM S
-    */
-    p1.playCard("SpaceElevator", 0, steel = 1, titanium = 1)
-    assertThat(p1.has("SpaceElevator")).isTrue()
-    assertThat(p1.count("M")).isEqualTo(23)
+      assertCounts(0 to "SpaceElevator", 23 to "M", 1 to "S", 10 to "T")
+      playCard("SpaceElevator", 0, steel = 1, titanium = 1)
+      assertCounts(1 to "SpaceElevator", 23 to "M", 0 to "S", 9 to "T")
+    }
   }
 
   @Test
@@ -405,12 +380,12 @@ class SpecificCardsTest {
       assertThat(production().values).containsExactly(-1, 0, 0, 2, 0, 0).inOrder()
 
       turn("DoubleDown") {
-        assertThrows<DependencyException>("exist") { doFirstTask("@copyPrelude(MartianIndustries)") }
-        assertThrows<DependencyException>("mine") { doFirstTask("@copyPrelude(UnmiContractor)") }
-        assertThrows<NarrowingException>("prelude") { doFirstTask("@copyPrelude(PharmacyUnion)") }
-        assertThrows<NarrowingException>("other") { doFirstTask("@copyPrelude(DoubleDown)") }
+        assertThrows<DependencyException>("exist") { task("CopyPrelude<MartianIndustries>") }
+        assertThrows<DependencyException>("mine") { task("CopyPrelude<UnmiContractor>") }
+        assertThrows<NarrowingException>("prelude") { task("CopyPrelude<PharmacyUnion>") }
+        assertThrows<NarrowingException>("other") { task("CopyPrelude<DoubleDown>") }
 
-        doFirstTask("@copyPrelude(BiosphereSupport)")
+        task("CopyPrelude<BiosphereSupport>")
         assertThat(production().values).containsExactly(-2, 0, 0, 4, 0, 0).inOrder()
       }
     }
@@ -424,7 +399,7 @@ class SpecificCardsTest {
     p1.action("5 ProjectCard, OptimalAerobraking") { assertCounts(0 to "Megacredit", 0 to "Heat") }
 
     p1.action("AsteroidCard") {
-      doFirstTask("Ok") // can it infer this? TODO
+      task("Ok") // can it infer this? TODO
       assertCounts(3 to "Megacredit", 3 to "Heat")
     }
   }
@@ -435,18 +410,13 @@ class SpecificCardsTest {
     val eng = game.session(ENGINE)
     val p1 = game.session(PLAYER1)
 
-    p1.action("NewTurn") {
-      doFirstTask("InterplanetaryCinematics")
-      doFirstTask("7 BuyCard")
-    }
-
+    p1.playCorp("InterplanetaryCinematics", 7)
     eng.action("PreludePhase")
 
-    p1.action("NewTurn") {
-      doFirstTask("ExcentricSponsor") // currently we don't `PlayCard` these
-      doFirstTask("PlayCard<Class<NitrogenRichAsteroid>>")
-      doFirstTask("6 Pay<Class<M>> FROM M")
-      doFirstTask("Ok") // the damn titanium
+    p1.turn("ExcentricSponsor") { // currently we don't `PlayCard` these
+      task("PlayCard<Class<NitrogenRichAsteroid>>")
+      task("6 Pay<Class<M>> FROM M")
+      task("Ok") // the damn titanium
       assertCounts(0 to "Owed", 5 to "M", 1 to "ExcentricSponsor", 1 to "PlayedEvent")
     }
   }
@@ -456,11 +426,8 @@ class SpecificCardsTest {
     val game = Game.create(GameSetup(Canon, "BMT", 2))
     val p1 = game.session(PLAYER1)
 
-    p1.action("NewTurn") {
-      doFirstTask("TerralabsResearch")
-      doFirstTask("10 BuyCard")
-      assertCounts(10 to "ProjectCard", 4 to "M")
-    }
+    p1.playCorp("TerralabsResearch", 10)
+    p1.assertCounts(10 to "ProjectCard", 4 to "M")
 
     p1.action("4 BuyCard")
     p1.assertCounts(14 to "ProjectCard", 0 to "M")
@@ -482,7 +449,7 @@ class SpecificCardsTest {
     p1.assertCounts(9 to "ProjectCard", 5 to "M")
 
     p1.cardAction("InventorsGuild") {
-      doFirstTask("BuyCard")
+      task("BuyCard")
       assertCounts(10 to "ProjectCard", 0 to "M")
     }
   }

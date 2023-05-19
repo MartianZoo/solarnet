@@ -1,5 +1,6 @@
 package dev.martianzoo.tfm.types
 
+import dev.martianzoo.tfm.api.CustomClass
 import dev.martianzoo.tfm.api.Exceptions.NarrowingException
 import dev.martianzoo.tfm.api.SpecialClassNames.CLASS
 import dev.martianzoo.tfm.api.SpecialClassNames.COMPONENT
@@ -8,6 +9,7 @@ import dev.martianzoo.tfm.api.SpecialClassNames.OWNED
 import dev.martianzoo.tfm.api.SpecialClassNames.THIS
 import dev.martianzoo.tfm.api.TypeInfo
 import dev.martianzoo.tfm.data.ClassDeclaration
+import dev.martianzoo.tfm.data.ClassDeclaration.ClassKind.CUSTOM
 import dev.martianzoo.tfm.pets.HasClassName
 import dev.martianzoo.tfm.pets.HasClassName.Companion.classNames
 import dev.martianzoo.tfm.pets.PetTransformer
@@ -46,15 +48,19 @@ import kotlin.math.min
 public data class MClass
 internal constructor(
 
-    /** The class declaration this class was loaded from. */
-    internal val declaration: ClassDeclaration,
+  /** The class declaration this class was loaded from. */
+  internal val declaration: ClassDeclaration,
 
-    /** The class loader that loaded this class. */
-    internal val loader: MClassLoader,
+  /** The class loader that loaded this class. */
+  internal val loader: MClassLoader,
 
-    /** This class's superclasses that are exactly one step away; empty only for `Component`. */
-    public val directSuperclasses: List<MClass> = superclasses(declaration, loader),
-) : HasClassName, Hierarchical<MClass> {
+  /** This class's superclasses that are exactly one step away; empty only for `Component`. */
+  public val directSuperclasses: List<MClass> = superclasses(declaration, loader),
+
+  public val custom: CustomClass? = null,
+
+  ) : HasClassName, Hierarchical<MClass> {
+
   public val table: MClassTable by ::loader
 
   /** The name of this class, in UpperCamelCase. */
@@ -64,6 +70,10 @@ internal constructor(
    * A short name for this class, such as `"CT"` for `"CityTile"`; is often the same as [className].
    */
   public val shortName: ClassName by declaration::shortName
+
+  init {
+    require((declaration.kind == CUSTOM) == (custom != null)) { declaration }
+  }
 
   // HIERARCHY
 

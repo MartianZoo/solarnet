@@ -1,6 +1,7 @@
 package dev.martianzoo.tfm.data
 
 import dev.martianzoo.tfm.api.SpecialClassNames.THIS
+import dev.martianzoo.tfm.data.ClassDeclaration.ClassKind.CONCRETE
 import dev.martianzoo.tfm.data.SpecialClassNames.MARS_MAP
 import dev.martianzoo.tfm.data.SpecialClassNames.TILE
 import dev.martianzoo.tfm.pets.Parsing.parse
@@ -22,7 +23,7 @@ data class MarsMapDefinition(
       ClassDeclaration(
           className = className,
           shortName = shortName,
-          abstract = false,
+          kind = CONCRETE,
           supertypes = setOf(MARS_MAP.expression),
       )
 
@@ -64,7 +65,7 @@ data class MarsMapDefinition(
       ClassDeclaration(
           className = className,
           shortName = shortName,
-          abstract = false,
+          kind = CONCRETE,
           supertypes = setOf(kind.expression),
           effects = toEffects(bonus),
       )

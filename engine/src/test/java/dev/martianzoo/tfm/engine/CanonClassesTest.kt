@@ -206,6 +206,10 @@ internal class CanonClassesTest {
             Key(cn("ResourceCard"), 0),
             Key(cn("Tile"), 0),
             Key(cn("UseAction"), 0),
+            Key(cn("BeginPlayCard"), 0),
+            Key(cn("CreateAdjacencies"), 0),
+            Key(cn("ForceLoad"), 0),
+            Key(cn("GetEventVpsFrom"), 0),
         )
   }
 }

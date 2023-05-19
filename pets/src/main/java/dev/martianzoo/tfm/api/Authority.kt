@@ -11,7 +11,6 @@ import dev.martianzoo.tfm.data.StandardActionDefinition
 import dev.martianzoo.tfm.pets.HasClassName.Companion.classNames
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.tfm.pets.ast.Instruction.Custom
 import dev.martianzoo.util.Grid
 import dev.martianzoo.util.associateByStrict
 
@@ -58,9 +57,6 @@ public abstract class Authority {
         require(decl.dependencies.single() == COMPONENT.expression)
       }
     }
-    decl.effects
-        .flatMap { it.descendantsOfType<Custom>() }
-        .forEach { customInstruction(it.functionName) }
   }
 
   /**
@@ -140,13 +136,13 @@ public abstract class Authority {
   // CUSTOM INSTRUCTIONS
 
   /** Returns the custom instruction implementation having the name [functionName]. */
-  public fun customInstruction(functionName: String): CustomInstruction {
-    return customInstructions.firstOrNull { it.functionName == functionName }
-        ?: throw Exceptions.customInstructionNotFound(functionName)
+  public fun customClass(className: ClassName): CustomClass {
+    return customClasses.firstOrNull { it.className == className }
+      ?: throw Exceptions.customInstructionNotFound(className.toString()) // TODO
   }
 
   /** Every custom instruction this authority knows about. */
-  public abstract val customInstructions: Set<CustomInstruction>
+  public abstract val customClasses: Set<CustomClass>
 
   // HELPERS
 
@@ -160,7 +156,7 @@ public abstract class Authority {
     override val marsMapDefinitions = setOf<MarsMapDefinition>()
     override val milestoneDefinitions = setOf<MilestoneDefinition>()
     override val standardActionDefinitions = setOf<StandardActionDefinition>()
-    override val customInstructions = setOf<CustomInstruction>()
+    override val customClasses = setOf<CustomClass>()
   }
 
   /**

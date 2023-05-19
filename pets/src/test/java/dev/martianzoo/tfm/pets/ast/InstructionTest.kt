@@ -31,7 +31,6 @@ private class InstructionTest {
     PROD[-5 Xyz!]
     PROD[Bar<Abc>]
     5 Bar<Abc<Qux>>
-    PROD[@name(Ooh)]
     5 Qux, PROD[-Bar]
     1. / 11 Megacredit
     PROD[PROD[-11 Abc]]
@@ -50,7 +49,6 @@ private class InstructionTest {
     PROD[1], 1, Abc<Qux FROM Foo>!
     PROD[Xyz / 5 Foo], 1 THEN 5 / Abc
     (5 Bar<Abc> FROM Bar) OR -Foo, Bar
-    @name(Abc, Ooh<Ahh<Xyz, Ooh, Abc>>)
     PROD[Abc FROM Qux, 5 Foo FROM Abc]
     PROD[(1: Foo) OR -1, 11 Abc FROM Abc]
     ((MAX 1 Bar OR 1) OR Foo): (1 OR Ahh!)
@@ -65,15 +63,12 @@ private class InstructionTest {
     5 / Xyz<Foo<Foo>, Ahh<Qux<Bar<Qux>>, Qux>, Xyz>
     5 Ooh<Foo> FROM Foo<Ooh>!, PROD[-Foo THEN 1: -1]
     PROD[1 OR PROD[5: Foo] OR (1 / Megacredit, -Abc)]
-    @name(Qux<Foo<Foo>, Qux<Bar>, Qux<Bar<Foo>>>, Qux)
     Foo FROM Ooh, PROD[1: (-1, 1)], 5 / 11 Megacredit
     Ooh. OR 1 OR (1, Foo FROM Eep, Bar / 5 Megacredit)
     PROD[(Ooh / Megacredit, Foo, 1), Bar / Bar THEN 1, 1]
-    =1 Foo: (11 Xyz OR Bar, @name(Qux) OR -1 / Megacredit)
     11 Bar, (Xyz, (Foo OR 1): 1) OR (Foo: (-1 OR 1 OR Qux))
     1, Bar, -Foo OR PROD[Foo FROM Abc] OR (Foo FROM Xyz)
     11 Qux<Qux<Ooh<Foo>(HAS 5) FROM Foo>, Ooh(HAS MAX 1 Bar)>
-    (-Foo, PROD[-Foo]), @name(Bar<Foo<Qux>>), (-5, @name(Qux))
     PROD[((1 OR MAX 1 Megacredit): 1) OR (1 OR -Bar) OR 1, Bar]
     (1: 1, -5 Bar), 11 Qux<Qux<Foo>, Bar>, PROD[1 / 5 Foo], Bar!
   """
@@ -112,26 +107,6 @@ private class InstructionTest {
             null)
     assertThat(instr.toString()).isEqualTo("Foo<Bar<Qux FROM Abc<Eep>>>")
     assertThat(parse<Instruction>("Foo<Bar<Qux FROM Abc<Eep>>>")).isEqualTo(instr)
-  }
-
-  @Test
-  fun custom2() {
-    testRoundTrip<Instruction>("@name()")
-    testRoundTrip<Instruction>("@name(Abc)")
-    testRoundTrip<Instruction>("@name(Abc, Def)")
-    testRoundTrip<Instruction>("@name(Abc<Xyz, Bar>)")
-    testRoundTrip<Expression>("Abc")
-    testRoundTrip<Expression>("Abc<Bar>")
-    testRoundTrip<Expression>("Abc(HAS Bar)")
-    testRoundTrip<Expression>("Abc(HAS 11 Bar)")
-    testRoundTrip<Requirement>("Bar")
-    testRoundTrip<Requirement>("11 Bar")
-    testRoundTrip<Requirement>("MAX 11 Bar")
-
-    testRoundTrip<Expression>("Abc(HAS MAX 11 Bar)")
-
-    testRoundTrip<Instruction>("@name(Abc(HAS MAX 11 Bar))")
-    testRoundTrip<Instruction>("@name(Abc(HAS MAX 11 Bar<Xyz, Bar>))")
   }
 
   fun testRoundTrip(start: String, end: String = start) = testRoundTrip<Instruction>(start, end)

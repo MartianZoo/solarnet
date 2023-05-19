@@ -5,8 +5,8 @@ import dev.martianzoo.tfm.data.GameEvent.ChangeEvent
 import dev.martianzoo.tfm.data.GameEvent.ChangeEvent.Cause
 import dev.martianzoo.tfm.data.GameEvent.ChangeEvent.StateChange
 import dev.martianzoo.tfm.data.GameEvent.TaskAddedEvent
+import dev.martianzoo.tfm.data.GameEvent.TaskEditedEvent
 import dev.martianzoo.tfm.data.GameEvent.TaskRemovedEvent
-import dev.martianzoo.tfm.data.GameEvent.TaskReplacedEvent
 import dev.martianzoo.tfm.data.Player
 import dev.martianzoo.tfm.data.Task
 import dev.martianzoo.tfm.data.Task.TaskId
@@ -56,9 +56,9 @@ internal class WritableEventLog(private val events: MutableList<GameEvent> = mut
 
   fun taskRemoved(task: Task) = addEntry(TaskRemovedEvent(size, task))
 
-  fun taskReplaced(oldTask: Task, newTask: Task): TaskReplacedEvent {
+  fun taskReplaced(oldTask: Task, newTask: Task): TaskEditedEvent {
     require(oldTask.id == newTask.id)
-    return addEntry(TaskReplacedEvent(size, oldTask = oldTask, task = newTask))
+    return addEntry(TaskEditedEvent(size, oldTask = oldTask, task = newTask))
   }
 
   override fun checkpoint() = Checkpoint(size)

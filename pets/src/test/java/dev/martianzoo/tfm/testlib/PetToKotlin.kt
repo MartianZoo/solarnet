@@ -11,7 +11,6 @@ import dev.martianzoo.tfm.pets.ast.FromExpression.ComplexFrom
 import dev.martianzoo.tfm.pets.ast.FromExpression.ExpressionAsFrom
 import dev.martianzoo.tfm.pets.ast.FromExpression.SimpleFrom
 import dev.martianzoo.tfm.pets.ast.Instruction
-import dev.martianzoo.tfm.pets.ast.Instruction.Custom
 import dev.martianzoo.tfm.pets.ast.Instruction.Gain
 import dev.martianzoo.tfm.pets.ast.Instruction.Gated
 import dev.martianzoo.tfm.pets.ast.Instruction.NoOp
@@ -83,9 +82,6 @@ internal object PetToKotlin {
             is Instruction.Per -> "Instruction.Per(${p2k(instruction)}, ${p2k(metric)})"
             is Gated -> "Gated(${p2k(gate)}, $mandatory, ${p2k(instruction)})"
             is Transmute -> "Transmute(${p2k(fromEx)}, ${p2k(count)}${intensity.pre(", ")})"
-            is Custom ->
-                "Instruction.Custom(\"$functionName\"" +
-                    "${arguments.joinToString("") { ", ${p2k(it)}" }})"
             is Then -> "Then(${instructions.join()})"
             is Instruction.Or -> "Instruction.Or(${instructions.join()})"
             is Instruction.Multi -> "Instruction.Multi(${instructions.join()})"

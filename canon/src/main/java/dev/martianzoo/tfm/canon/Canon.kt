@@ -1,7 +1,7 @@
 package dev.martianzoo.tfm.canon
 
 import dev.martianzoo.tfm.api.Authority
-import dev.martianzoo.tfm.api.CustomInstruction
+import dev.martianzoo.tfm.api.CustomClass
 import dev.martianzoo.tfm.data.CardDefinition
 import dev.martianzoo.tfm.data.ClassDeclaration
 import dev.martianzoo.tfm.data.GameSetup
@@ -40,7 +40,7 @@ public object Canon : Authority() {
     JsonReader.readMilestones(readResource("milestones.json5")).toSetStrict()
   }
 
-  override val customInstructions: Set<CustomInstruction> by ::allCustomInstructions
+  override val customClasses: Set<CustomClass> by ::allCustomInstructions
 
   private fun readResource(filename: String): String {
     val dir = javaClass.packageName.replace('.', '/')

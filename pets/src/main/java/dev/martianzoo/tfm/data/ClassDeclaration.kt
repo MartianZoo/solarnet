@@ -1,5 +1,7 @@
 package dev.martianzoo.tfm.data
 
+import dev.martianzoo.tfm.data.ClassDeclaration.ClassKind.ABSTRACT
+import dev.martianzoo.tfm.data.ClassDeclaration.ClassKind.CUSTOM
 import dev.martianzoo.tfm.pets.HasClassName
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.Effect
@@ -30,8 +32,8 @@ internal constructor(
      */
     public val shortName: ClassName = className,
 
-    /** Is this class declared to be `ABSTRACT`? */
-    public val abstract: Boolean = true,
+    /** Is this class declared to be `ABSTRACT`, `CUSTOM`, or regular? */
+    public val kind: ClassKind,
 
     /** Any "new" dependencies being declared by this class (not inherited from a supertype). */
     public val dependencies: List<Expression> = listOf(),
@@ -57,15 +59,25 @@ internal constructor(
   init {
     fun hasRefinement(it: Expression) = it.descendantsOfType<Requirement>().any()
     require(supertypes.none(::hasRefinement)) { supertypes }
+
+    if (kind == CUSTOM) {
+      require(invariants.none())
+      require(effects.none())
+      require(defaultsDeclaration == DefaultsDeclaration())
+    }
   }
 
+  enum class ClassKind { CONCRETE, ABSTRACT, CUSTOM }
+
+  public val abstract = kind == ABSTRACT
+
   public data class DefaultsDeclaration(
-      val universalSpecs: List<Expression> = listOf(),
-      val gainOnlySpecs: List<Expression> = listOf(),
-      val removeOnlySpecs: List<Expression> = listOf(),
-      val gainIntensity: Intensity? = null,
-      val removeIntensity: Intensity? = null,
-      val forClass: ClassName? = null, // TODO get rid of
+    val universalSpecs: List<Expression> = listOf(),
+    val gainOnlySpecs: List<Expression> = listOf(),
+    val removeOnlySpecs: List<Expression> = listOf(),
+    val gainIntensity: Intensity? = null,
+    val removeIntensity: Intensity? = null,
+    val forClass: ClassName? = null, // TODO get rid of
   ) {
     companion object {
       fun merge(defs: Collection<DefaultsDeclaration>): DefaultsDeclaration {

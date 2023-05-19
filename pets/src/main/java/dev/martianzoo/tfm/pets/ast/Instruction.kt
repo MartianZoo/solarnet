@@ -58,7 +58,7 @@ public sealed class Instruction : PetElement() {
 
   protected abstract fun scale(factor: Int): Instruction
 
-  /** An instruction that does nothing. */
+  /** An instruction that does nothing. TODO can we remove Ok as a class? Die? */
   public object NoOp : Instruction() {
     override fun scale(factor: Int) = this
 
@@ -216,6 +216,7 @@ public sealed class Instruction : PetElement() {
     }
   }
 
+  // TODO instruction -> inner
   data class Per(val instruction: Instruction, val metric: Metric) : Instruction() {
     init {
       if (instruction !is Change) {
@@ -241,8 +242,9 @@ public sealed class Instruction : PetElement() {
     override fun toString() = "$instruction / $metric"
   }
 
+  // TODO instruction -> inner
   data class Gated(val gate: Requirement, val mandatory: Boolean, val instruction: Instruction) :
-      Instruction() {
+    Instruction() {
     init {
       if (instruction is Gated) throw PetSyntaxException("You don't gate a gater")
     }
@@ -270,35 +272,6 @@ public sealed class Instruction : PetElement() {
         super.safeToNestIn(container) && container !is Or
 
     override fun precedence() = 6
-  }
-
-  data class Custom(
-      val functionName: String,
-      val arguments: List<Expression>,
-      val multiplier: Int, // TODO support in language so we can roundtrip this
-  ) : Instruction() {
-    override fun visitChildren(visitor: Visitor) = visitor.visit(arguments)
-    override fun scale(factor: Int) = copy(multiplier = multiplier * factor)
-
-    override fun isAbstract(info: TypeInfo) = arguments.any { info.isAbstract(it) }
-
-    override fun ensureIsNarrowedBy_doNotCall(proposed: Instruction, info: TypeInfo) {
-      proposed as Custom
-      if (proposed.multiplier != multiplier) {
-        throw NarrowingException("can't change multiplier")
-      }
-      if (proposed.functionName != functionName) {
-        throw NarrowingException("can't change function name")
-      }
-      if (proposed.arguments.size != arguments.size) {
-        throw NarrowingException("wrong argument count")
-      }
-      for ((wide, narrow) in arguments.zip(proposed.arguments)) {
-        info.ensureNarrows(wide, narrow)
-      }
-    }
-
-    override fun toString() = "@$functionName(${arguments.joinToString()})"
   }
 
   sealed class CompositeInstruction(instrs: List<Instruction>) : Instruction() {
@@ -362,6 +335,8 @@ public sealed class Instruction : PetElement() {
       }
     }
 
+    fun keepLinked() = descendantsOfType<XScalar>().any() // TODO what else?
+
     override fun connector() = " THEN "
 
     companion object {
@@ -401,7 +376,7 @@ public sealed class Instruction : PetElement() {
         }
       }
       throw NarrowingException(
-          "Instruction `$proposed` doesn't reify any arm of `$this`:\n$messages",
+          "Instruction `$proposed` doesn't narrow any arm of `$this`:\n$messages",
       )
     }
 
@@ -434,8 +409,11 @@ public sealed class Instruction : PetElement() {
 
     override fun isAbstract(info: TypeInfo) = instructions.any { it.isAbstract(info) }
 
-    override fun ensureIsNarrowedBy_doNotCall(proposed: Instruction, info: TypeInfo) =
+    override fun ensureIsNarrowedBy_doNotCall(proposed: Instruction, info: TypeInfo) {
+      if (proposed != this) {
         error("should have been split by now: $this")
+      }
+    }
 
     override fun precedence() = 0
 
@@ -475,12 +453,24 @@ public sealed class Instruction : PetElement() {
 
   public abstract fun isAbstract(info: TypeInfo): Boolean
 
+  fun narrows(abstractInstr: Instruction, info: TypeInfo) =
+      try {
+        ensureNarrows(abstractInstr, info)
+        true
+      } catch (e: Exception) {
+        false
+      }
+
   // This is the entry point into all the ensureNarrows business throughout the codebase
   fun ensureNarrows(abstractInstr: Instruction, info: TypeInfo) {
     if (abstractInstr !is Or && this != NoOp && this::class != abstractInstr::class) {
       throw NarrowingException("`$this` can't reify `$abstractInstr` (different types)")
     }
-    abstractInstr.ensureIsNarrowedBy_doNotCall(this, info) // well WE can call it
+    try {
+      abstractInstr.ensureIsNarrowedBy_doNotCall(this, info) // well WE can call it
+    } catch (e: NarrowingException) {
+      throw NarrowingException("$this does not narrow $abstractInstr", e)
+    }
   }
 
   protected abstract fun ensureIsNarrowedBy_doNotCall(proposed: Instruction, info: TypeInfo)
@@ -513,59 +503,58 @@ public sealed class Instruction : PetElement() {
       return parser {
         val gain: Parser<Instruction> =
             ScaledExpression.parser() and
-            optional(intensity) map { (ste, int) ->
-              Gain.gain(ste, int)
-            }
+                optional(intensity) map
+                { (ste, int) ->
+                  Gain.gain(ste, int)
+                }
 
         val remove: Parser<Remove> =
             skipChar('-') and
-            ScaledExpression.parser() and
-            optional(intensity) map { (ste, int) ->
-              Remove(ste, int)
-            }
+                ScaledExpression.parser() and
+                optional(intensity) map
+                { (ste, int) ->
+                  Remove(ste, int)
+                }
 
         val transmute: Parser<Transmute> =
             optional(ScaledExpression.scalar()) and
-            FromExpression.parser() and
-            optional(intensity) map { (scalar, fro, int) ->
-              Transmute(fro, scalar ?: ActualScalar(1), int)
-            }
+                FromExpression.parser() and
+                optional(intensity) map
+                { (scalar, fro, int) ->
+                  Transmute(fro, scalar ?: ActualScalar(1), int)
+                }
 
         val perable: Parser<Instruction> = transmute or group(transmute) or gain or remove
 
         val maybePer: Parser<Instruction> =
             perable and
-            optional(skipChar('/') and Metric.parser()) map { (instr, metric) ->
-              if (metric == null) instr else Per(instr, metric)
-            }
+                optional(skipChar('/') and Metric.parser()) map
+                { (instr, metric) ->
+                  if (metric == null) instr else Per(instr, metric)
+                }
 
         val transform: Parser<Transform> =
             transform(parser()) map { (node, tname) -> Transform(node, tname) }
 
         val maybeTransform: Parser<Instruction> = transform or maybePer
 
-        val arguments = separatedTerms(Expression.parser(), char(','), acceptZero = true)
-        val custom: Parser<Custom> =
-            skipChar('@') and
-            _lowerCamelRE and
-            group(arguments) map { (name, args) ->
-              Custom(name.text, args, 1)
-            }
-        val atom: Parser<Instruction> = group(parser()) or maybeTransform or custom
+        val atom: Parser<Instruction> = group(parser()) or maybeTransform
 
         val isMandatory: Parser<Boolean> = (_questionColon asJust false) or (char(':') asJust true)
 
         val gated: Parser<Instruction> =
             optional(Requirement.atomParser() and isMandatory) and
-            atom map { (gate, ins) ->
-              if (gate == null) ins else Gated(gate.t1, gate.t2, ins)
-            }
+                atom map
+                { (gate, ins) ->
+                  if (gate == null) ins else Gated(gate.t1, gate.t2, ins)
+                }
 
         val orInstr: Parser<Instruction> =
-            separatedTerms(gated, _or) map {
-              val set = it.toSetStrict().toList()
-              if (set.size == 1) set.first() else Or(set)
-            }
+            separatedTerms(gated, _or) map
+                {
+                  val set = it.toSetStrict().toList()
+                  if (set.size == 1) set.first() else Or(set)
+                }
 
         val then = separatedTerms(orInstr, _then) map { Then.create(it) }
 

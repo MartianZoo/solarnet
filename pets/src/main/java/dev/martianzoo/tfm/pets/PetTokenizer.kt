@@ -41,6 +41,7 @@ internal abstract class PetTokenizer {
 
   // class declarations - making these ignore case causes trouble with `Class<...>`
   internal val _abstract = literal("ABSTRACT")
+  internal val _custom = literal("CUSTOM")
   internal val _class = literal("CLASS")
   internal val _default = literal("DEFAULT")
 

@@ -37,7 +37,8 @@ public object Exceptions {
 
   fun orWithoutChoice(orInstruction: Or) = AbstractException("choice required in: `$orInstruction`")
 
-  fun requirementNotMet(reqt: Requirement) = RequirementException("requirement not met: `$reqt`")
+  fun requirementNotMet(reqt: Requirement, message: String? = null) =
+      RequirementException("requirement not met: `$reqt` / $message")
 
   fun refinementNotMet(reqt: Requirement) = NarrowingException("requirement not met: `$reqt`")
 
@@ -50,31 +51,39 @@ public object Exceptions {
 
   /** A problem with Pets syntax. */
   public open class PetException internal constructor(message: String, cause: Throwable? = null) :
-      Exception(message, cause)
+    Exception(message, cause)
+
+  /** Something is not a valid narrowing of something else. */
+  public class NarrowingException(message: String, cause: Throwable? = null) :
+    Exception(message, cause)
+
+  public open class RecoverableException(message: String) : Exception(message)
 
   /**
    * An attempt was made to execute an instruction that was not fully-specified. This should be
    * rectifiable by reifying the instruction.
    */
-  public class AbstractException(message: String) : Exception(message)
-
-  /** Something is not a valid narrowing of something else. */
-  public class NarrowingException(message: String) : Exception(message)
+  public class AbstractException(message: String) : RecoverableException(message)
 
   /**
    * Someone tried to do something that can't work against *this* game state, but could potentially
    * work later as far as we know.
    */
-  public open class NotNowException(message: String) : Exception(message)
+  public open class NotNowException(message: String) : RecoverableException(message)
 
   public open class TaskException(message: String) : Exception(message)
+
+  public open class DeadEndException(message: String, cause: Throwable? = null) :
+    Exception(message, cause) {
+    constructor(cause: Throwable) : this(cause.message ?: "", cause)
+  }
 
   // Subtypes (catchable)
 
   public class PetSyntaxException internal constructor(message: String) : PetException(message)
 
   public class ExistingDependentsException(val dependents: Collection<Type>) :
-      NotNowException("Existing dependents: ${dependents.joinToString { "${it.expressionFull}" } }")
+    NotNowException("Existing dependents: ${dependents.joinToString { "${it.expressionFull}" }}")
 
   // TODO should just be factories
 

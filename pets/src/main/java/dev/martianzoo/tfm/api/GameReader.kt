@@ -2,6 +2,7 @@ package dev.martianzoo.tfm.api
 
 import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.pets.ast.Metric
+import dev.martianzoo.tfm.pets.ast.PetElement
 import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.util.Multiset
 
@@ -27,4 +28,6 @@ interface GameReader : TypeInfo {
 
   /** Returns the types of all concrete components in the current game state. */
   fun getComponents(type: Type): Multiset<out Type>
+
+  fun <P : PetElement> preprocess(node: P): P
 }

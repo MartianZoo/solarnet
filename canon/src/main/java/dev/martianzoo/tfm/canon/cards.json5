@@ -104,7 +104,8 @@
       "bundle": "P",
       "deck": "CORPORATION",
       "immediate": "47",
-      "actions": [ "4 -> @gainLowestProduction(Owner)" ]
+      "actions": [ "4 -> GainLowestProduction" ],
+      "components": [ "CUSTOM CLASS GainLowestProduction : Owned, Custom" ]
     },
 
     // Aphrodite
@@ -558,7 +559,8 @@
       "id": "X40",
       "bundle": "X",
       "deck": "PRELUDE",
-      "immediate": "@copyPrelude(CardFront)",
+      "immediate": "CopyPrelude",
+      "components": [ "CUSTOM CLASS CopyPrelude : Cardbound, Custom" ]
     },
 
     // Merger[F]
@@ -2492,9 +2494,10 @@
       "bundle": "R",
       "deck": "PROJECT",
       "tags": [ "ScienceTag" ],
-      "immediate": "@copyProductionBox(CardFront(HAS BuildingTag))",
+      "immediate": "CopyProductionBox<CardFront(HAS BuildingTag)>",
       "cost": 9,
-      "projectKind": "AUTOMATED"
+      "projectKind": "AUTOMATED",
+      "components": [ "CUSTOM CLASS CopyProductionBox : Cardbound, Custom" ]
     },
 
     // Research

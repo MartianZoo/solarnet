@@ -8,11 +8,15 @@ import dev.martianzoo.tfm.data.TaskResult
 import dev.martianzoo.tfm.pets.ast.Instruction
 
 interface UnsafeGameWriter {
-  fun removeTask(taskId: TaskId): TaskRemovedEvent
+  /** Adds a manual task for the given [instruction], but does not prepare or execute it. */
+  fun initiateTask(instruction: Instruction, firstCause: Cause? = null): TaskResult
 
-  fun sneak(change: String, cause: Cause? = null): TaskResult
+  /** Forgets a task even existed. */
+  fun dropTask(taskId: TaskId): TaskRemovedEvent
 
-  fun sneak(change: Instruction, cause: Cause? = null): TaskResult
+  fun sneak(changes: String, cause: Cause? = null): TaskResult
+
+  fun sneak(changes: Instruction, cause: Cause? = null): TaskResult
 
   /**
    * Gains [count] instances of [gaining] (if non-null) and removes [count] instances of [removing]

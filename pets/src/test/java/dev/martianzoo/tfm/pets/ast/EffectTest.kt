@@ -20,7 +20,6 @@ private class EffectTest {
     Eep: PROD[1]
     Qux: -11 Eep!
     PROD[Ahh]: Foo
-    Ahh: @name(Wau)
     PROD[Ahh]: -Qux?
     Qux:: PROD[5 Foo]
     PROD[Xyz]: PROD[1]
@@ -31,7 +30,6 @@ private class EffectTest {
     PROD[Ooh]: -Foo, 11 Bar
     -Foo<Bar, Bar, Abc>: Bar
     PROD[Abc]: Ooh FROM Xyz
-    -Ooh: @name(Qux<Qux<Bar>>)
     -Ooh: (Qux FROM Bar) OR 5
     Xyz<Ooh, Bar, Eep>: PROD[-5]
     Xyz: PROD[Qux<Foo, Abc>: Foo]
@@ -47,21 +45,15 @@ private class EffectTest {
     Eep: (1 THEN 1) OR (-Qux, 1, -5 Foo, 1)
     Qux:: Bar FROM Bar / Bar<Qux>, -5 Qux?
     -Ooh: Ooh, (5 Abc<Foo>, 1: -1), 5 Foo!, 1
-    Eep<Abc>:: 11 Ahh<Foo>, @name(Qux) OR -Abc
     Foo: PROD[5. OR (=1 Megacredit: (-1 OR 1))]
-    -Foo<Ooh<Abc>>: 11 Xyz, 1, -Foo!, @name(Ooh)
     Xyz<Xyz>: Xyz FROM Abc / Xyz<Xyz<Bar>, Bar>
     PROD[Abc]: Ooh OR (1 THEN Foo.), -11, Foo, Ooh
-    PROD[-Foo]: Qux: Qux / 5 Bar, Qux OR @name(Abc)
     -Ooh<Foo<Ahh>>(HAS 1 OR (1 OR Foo)): Bar, -5 Ooh
     -Eep<Foo, Ooh<Foo>>: ((-1, -Abc), 1!) OR Abc<Qux>
     PROD[-Abc]: (Xyz OR MAX 0 Qux): -1 / Ooh<Foo>, Foo
-    PROD[Ooh<Ooh>]: PROD[Abc / Qux, -Ooh OR @name(Foo)]
-    Eep: (1, 1 OR (Foo: @name(Foo))) OR (@name(Bar), -1)
     -Wau<Bar<Foo>>: -5, 1. / 11 Abc, 5 Abc FROM Foo / Ooh
     -Foo: PROD[5 Abc], (-1 THEN 1) OR (Bar OR (1: 1)), Ahh
     Qux<Abc<Qux>, Qux>:: (1, 1 OR Foo) OR (Abc FROM Abc.)
-    Foo(HAS 11 Foo): -1 / 5 Abc<Bar>, @name(Abc), -Abc<Qux>.
     -Ahh<Xyz(HAS =0 Megacredit), Foo<Abc>>: 5 / 11 Megacredit
     -Xyz: (1 / Bar, 1 / Wau), (1, 1 / Foo OR Qux OR (1: -Bar))
     -Bar<Foo<Ahh, Foo<Foo>>, Foo, Qux<Qux<Qux>, Foo>>:: PROD[1]

@@ -23,9 +23,7 @@ public interface Definition : HasClassName {
   /**
    * Converts this definition to a class declaration. As much information as possible should be
    * represented appropriately as effects of the class, so that there is less need for custom
-   * instructions to refer back to this definition. For example, instead of `Tile` having an effect
-   * like `@lookUpMapBonus(MarsArea)`, each `MarsArea` class should have an effect like `Tile<This>:
-   * 2 Plant`.
+   * instructions to refer back to this definition.
    */
   public val asClassDeclaration: ClassDeclaration
 }

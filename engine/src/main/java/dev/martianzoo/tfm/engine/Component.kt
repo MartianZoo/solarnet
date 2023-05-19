@@ -33,6 +33,7 @@ public data class Component private constructor(internal val mtype: MType) :
 
   init {
     if (mtype.abstract) throw Exceptions.abstractComponent(mtype)
+    // check about CustomClasses? TODO
   }
 
   /**
