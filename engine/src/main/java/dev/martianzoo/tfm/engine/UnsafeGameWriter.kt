@@ -32,7 +32,6 @@ interface UnsafeGameWriter {
       gaining: Component?,
       removing: Component?,
       cause: Cause?,
-      listener: (ChangeEvent) -> Unit,
   ): ChangeEvent
 
   /**
@@ -44,6 +43,5 @@ interface UnsafeGameWriter {
       gaining: Component? = null,
       removing: Component? = null,
       cause: Cause? = null,
-      listener: (ChangeEvent) -> Unit = {},
-  ) // : TaskResult? TODO
+  ): TaskResult
 }

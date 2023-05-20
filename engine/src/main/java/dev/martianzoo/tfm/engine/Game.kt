@@ -122,7 +122,6 @@ public class Game internal constructor(private val table: MClassTable) {
     fun findLimit(gaining: Component?, removing: Component?): Int
   }
 
-
   /**
    * A complete record of everything that happened in a particular game (in progress or finished). A
    * complete game state could be reconstructed by replaying these events.
@@ -363,29 +362,30 @@ public class Game internal constructor(private val table: MClassTable) {
                 it.gaining?.toComponent(game.reader),
                 it.removing?.toComponent(game.reader),
                 cause,
-            ) {}
+            )
           }
       return TaskResult(events)
     }
 
     override fun change(
-      count: Int,
-      gaining: Component?,
-      removing: Component?,
-      cause: Cause?,
-      listener: (ChangeEvent) -> Unit,
-    ) {
-      fun tryIt() = changeWithoutFixingDependents(count, gaining, removing, cause, listener)
-      try {
-        tryIt()
-      } catch (e: ExistingDependentsException) {
-        // TODO better way to remove dependents?
-        e.dependents.forEach {
-          val dependent = it.toComponent(game.reader)
-          val depCount = game.reader.countComponent(dependent)
-          change(depCount, removing = dependent, cause = cause, listener = listener)
+        count: Int,
+        gaining: Component?,
+        removing: Component?,
+        cause: Cause?,
+    ): TaskResult {
+      return game.atomic {
+        fun tryIt() = changeWithoutFixingDependents(count, gaining, removing, cause)
+        try {
+          tryIt()
+        } catch (e: ExistingDependentsException) {
+          // TODO better way to remove dependents?
+          e.dependents.forEach {
+            val dependent = it.toComponent(game.reader)
+            val depCount = game.reader.countComponent(dependent)
+            change(depCount, removing = dependent, cause = cause)
+          }
+          tryIt()
         }
-        tryIt()
       }
     }
 
@@ -394,18 +394,13 @@ public class Game internal constructor(private val table: MClassTable) {
         gaining: Component?,
         removing: Component?,
         cause: Cause?,
-        listener: (ChangeEvent) -> Unit,
     ): ChangeEvent {
       require(gaining?.mtype?.root?.custom == null)
       // Can't remove if it would create orphans -- but this is caught by changeAndFixOrphans
       removing?.let { game.writableComponents.checkDependents(count, it) }
 
       val change = game.writableComponents.update(count, gaining, removing)
-      val event = game.writableEvents.addChangeEvent(change, player, cause)
-
-      // This is how triggers get fired
-      listener(event)
-      return event
+      return game.writableEvents.addChangeEvent(change, player, cause)
     }
 
     private fun checkOwner(task: Task) {

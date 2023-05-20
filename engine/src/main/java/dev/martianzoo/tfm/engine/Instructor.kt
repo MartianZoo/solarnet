@@ -58,20 +58,17 @@ internal data class Instructor(
   private fun executeChange(change: Change, cause: Cause?, deferred: MutableList<Task>) {
     val ct = change.count as? ActualScalar ?: throw abstractInstruction(change)
     if (change.intensity != MANDATORY) throw abstractInstruction(change)
-    val g = change.gaining?.toComponent(reader)
-    val r = change.removing?.toComponent(reader)
-    if (g?.mtype?.root?.custom != null) error("custom")
+    val gaining = change.gaining?.toComponent(reader)
+    val removing = change.removing?.toComponent(reader)
+    if (gaining?.mtype?.root?.custom != null) error("custom")
 
-    // TODO can't we batch up a *little*?
-    writer.change(ct.value, g, r, cause) {
+    val changes = writer.change(ct.value, gaining, removing, cause).changes
+    changes.forEach {
       val (now, later) = effector.fire(it, reader).partition { it.next }
-      deferred += later
-      // For now we execute automatic effects immediately/recursively
       for (task in now) {
-        require(task.then == null)
-        // TODO owner?
         split(task.instruction).forEach { doExecute(it, task.cause, deferred) }
       }
+      deferred += later
     }
   }
 
