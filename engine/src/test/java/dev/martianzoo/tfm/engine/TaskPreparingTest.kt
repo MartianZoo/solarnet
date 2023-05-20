@@ -10,8 +10,6 @@ import dev.martianzoo.tfm.data.GameEvent.TaskRemovedEvent
 import dev.martianzoo.tfm.data.Player.Companion.PLAYER1
 import dev.martianzoo.tfm.data.Task
 import dev.martianzoo.tfm.data.Task.TaskId
-import dev.martianzoo.tfm.data.TaskResult
-import dev.martianzoo.tfm.engine.PlayerSession.Companion.session
 import dev.martianzoo.tfm.pets.Parsing.parse
 import kotlin.reflect.KClass
 import org.junit.jupiter.api.Test
@@ -19,19 +17,17 @@ import org.junit.jupiter.api.assertThrows
 
 class TaskPreparingTest {
   private val A = TaskId("A")
-  private val NO_CHANGE = TaskResult()
   private val game = Game.create(Canon.SIMPLE_GAME)
   private val tasks = game.tasks
   private val events = game.events
   private val writer = game.writer(PLAYER1)
-  private val session = game.session(PLAYER1)
   private val start = game.checkpoint()
 
   @Test
   fun `can prepare an abstract task`() {
     initiate("2 Plant?").single()
+    writer.prepareTask(A).also { assertThat(it).isEqualTo(A) }
 
-    writer.prepareTask(A)
     val task = tasks.single()
     assertThat(task.next)
     assertThat("${task.instruction}").isEqualTo("2 Plant<Player1>?")
@@ -41,22 +37,18 @@ class TaskPreparingTest {
   @Test
   fun `preparing to NoOp automatically handles the task 1`() {
     initiate("-2 Plant?")
+    writer.prepareTask(A).also { assertThat(it).isNull() }
 
-    val result = writer.prepareTask(A)
-    assertThat(result).isEqualTo(NO_CHANGE) // TODO
     assertThat(tasks).isEmpty()
-
     assertHistoryTypes(TaskAddedEvent::class, TaskRemovedEvent::class)
   }
 
   @Test
   fun `preparing to NoOp automatically handles the task 2`() {
     initiate("Plant / Heat")
+    writer.prepareTask(A).also { assertThat(it).isNull() }
 
-    val result = writer.prepareTask(A)
-    assertThat(result).isEqualTo(NO_CHANGE) // TODO
     assertThat(tasks).isEmpty()
-
     assertHistoryTypes(TaskAddedEvent::class, TaskRemovedEvent::class)
   }
 
@@ -64,7 +56,7 @@ class TaskPreparingTest {
   fun `preparing adjusts for limits 1`() {
     initiate("-30 TerraformRating?")
     writer.narrowTask(A, parse("-25 TerraformRating?"))
-    writer.prepareTask(A)
+    writer.prepareTask(A).also { assertThat(it).isEqualTo(A) }
     assertThat(tasksAsText()).containsExactly("-20 TerraformRating<Player1>?")
     writer.narrowTask(A, parse("-15 TerraformRating!"))
   }
@@ -72,7 +64,8 @@ class TaskPreparingTest {
   @Test
   fun `preparing adjusts for limits 2`() {
     initiate("-30 TerraformRating.")
-    writer.prepareTask(A)
+    writer.prepareTask(A).also { assertThat(it).isEqualTo(A) }
+
     assertThat(tasksAsText()).containsExactly("-20 TerraformRating<Player1>!")
   }
 
@@ -81,16 +74,16 @@ class TaskPreparingTest {
     initiate("-Plant!")
     assertThat(history()).hasSize(1)
     assertThrows<LimitsException> { writer.prepareTask(A) }
+
     assertThat(history()).hasSize(1)
   }
 
   @Test
   fun `preparing then narrowing results in automatic re-preparing`() {
     initiate("PROD[-2 StandardResource]")
+    writer.prepareTask(A).also { assertThat(it).isEqualTo(A) }
 
-    writer.prepareTask(A)
     assertThat(tasksAsText()).containsExactly("-2 Production<Player1>!")
-
     assertThrows<LimitsException> { writer.narrowTask(A, parse("PROD[-2 Plant]")) }
     writer.narrowTask(A, parse("PROD[-2]"))
   }
@@ -98,15 +91,17 @@ class TaskPreparingTest {
   @Test
   fun `preparing an OR prunes the options`() {
     initiate("-TR OR -Plant OR Heat OR 23 OxygenStep!")
-    writer.prepareTask(A)
+    writer.prepareTask(A).also { assertThat(it).isEqualTo(A) }
+
     assertThat(tasksAsText()).containsExactly("-TerraformRating<Player1>! OR Heat<Player1>!")
   }
 
-  // @Test TODO
+  @Test
   fun `preparing to NoOp enqueues the THEN instructions`() {
     initiate("Plant / Heat THEN Steel / 2 OxygenStep THEN Heat")
-    writer.prepareTask(A)
-    assertThat(tasksAsText()).containsExactly("Heat<Player1>!")
+    writer.prepareTask(A).also { assertThat(it).isNull() }
+
+    assertThat(tasksAsText()).containsExactly("Steel<Player1>! / 2 OxygenStep")
   }
 
   fun initiate(ins: String): List<Task> {

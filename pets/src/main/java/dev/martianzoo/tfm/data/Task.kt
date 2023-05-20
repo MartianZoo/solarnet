@@ -15,8 +15,7 @@ import dev.martianzoo.tfm.pets.ast.Instruction.Per
 import dev.martianzoo.tfm.pets.ast.Instruction.Then
 import dev.martianzoo.tfm.pets.ast.Instruction.Transform
 
-public data class Task
-private constructor(
+public data class Task(
   /**
    * Identifies this task within a game at a particular point in time. These do get reused (for
    * user convenience) but of course no two have the same id at the same time.
@@ -84,8 +83,14 @@ private constructor(
       }
     }
 
-    public fun newTask(id: TaskId, owner: Player, instruction: Instruction, cause: Cause?): Task {
-      val task = Task(id = id, owner = owner, instructionIn = instruction, cause = cause)
+    public fun newTask(
+        id: TaskId,
+        owner: Player,
+        instruction: Instruction,
+        cause: Cause?,
+        automatic: Boolean = false
+    ): Task {
+      val task = Task(id, owner, automatic, instruction, cause = cause)
       val normal = task.instruction
 
       return if (normal is Then && !normal.keepLinked()) {
@@ -97,6 +102,10 @@ private constructor(
         task
       }
     }
+  }
+
+  operator fun times(factor: Int): Task {
+    return copy(instructionIn = instruction * factor, thenIn = then?.times(factor))
   }
 
   override fun toString() = buildString {

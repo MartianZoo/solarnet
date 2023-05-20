@@ -207,10 +207,7 @@ public class Game internal constructor(private val table: MClassTable) {
   public class GameWriterImpl(val game: Game, val player: Player) : GameWriter(), UnsafeGameWriter {
     private val tasks by game::writableTasks
 
-    internal val instructor =
-        Instructor(this, game.effector) {
-          game.writableTasks.addTasks(it.instruction, it.player, it.cause)
-        }
+    internal val instructor = Instructor(this, game.effector)
 
     override fun initiateTask(instruction: Instruction, firstCause: Cause?) =
         game.atomic {
@@ -230,7 +227,7 @@ public class Game internal constructor(private val table: MClassTable) {
       return editButCheckCardinality(task.copy(instructionIn = replacement))
     }
 
-    override fun prepareTask(taskId: TaskId): TaskResult {
+    override fun prepareTask(taskId: TaskId): TaskId? {
       val task = tasks[taskId]
       val result = doPrepare(task)
 
@@ -245,16 +242,16 @@ public class Game internal constructor(private val table: MClassTable) {
           // we don't guarantee execute won't throw this
         }
       }
-
       return result
     }
 
-    private fun doPrepare(task: Task): TaskResult {
+    private fun doPrepare(task: Task): TaskId? {
       checkOwner(task) // TODO use myTasks() instead?
       dontCutTheLine(task.id)
 
       val replacement = instructor.prepare(task.instruction)
-      return editButCheckCardinality(task.copy(instructionIn = replacement, next = true))
+      editButCheckCardinality(task.copy(instructionIn = replacement, next = true))
+      return tasks.preparedTask()
     }
 
     // Use this to edit a task if the replacement instruction might be NoOp, in which case the
@@ -291,16 +288,13 @@ public class Game internal constructor(private val table: MClassTable) {
 
     override fun executeTask(taskId: TaskId): TaskResult {
       val task = tasks[taskId]
-
       checkOwner(task)
 
       return game.atomic {
-        if (!task.next) {
-          doPrepare(task)
-          if (taskId !in tasks) return@atomic
-        }
-        val newTask = tasks[taskId]
-        instructor.execute(newTask.instruction, newTask.cause)
+        val prepared = doPrepare(task) ?: return@atomic
+        val preparedTask = tasks[prepared]
+        val newTasks = instructor.execute(preparedTask.instruction, preparedTask.cause)
+        newTasks.forEach(game.writableTasks::addTasks)
         handleTask(taskId)
       }
     }

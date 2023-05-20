@@ -67,7 +67,7 @@ public abstract class GameWriter {
    * @throws [NotNowException] if the prepared task would throw this exception on
    *     execution
    */
-  abstract fun prepareTask(taskId: TaskId): TaskResult
+  abstract fun prepareTask(taskId: TaskId): TaskId?
 
   /**
    * Carries out a concrete task. Prepares the task first if necessary. As part of this, executes

@@ -182,11 +182,10 @@ public class PlayerSession(
         }
 
     when (options.size) {
-      0 -> writer.prepareTask(myTasks().first()) // this will throw
+      0 -> writer.prepareTask(myTasks().first()).also { error("that should've failed" ) }
       1 -> {
         val taskId = options.single()
-        writer.prepareTask(taskId)
-        if (taskId !in tasks) return true
+        writer.prepareTask(taskId) ?: return true
         if (tryPreparedTask()) return true // if this fails we should fail too
       }
 

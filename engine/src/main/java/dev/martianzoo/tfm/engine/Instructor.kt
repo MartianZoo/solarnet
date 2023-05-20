@@ -8,9 +8,8 @@ import dev.martianzoo.tfm.api.Exceptions.abstractInstruction
 import dev.martianzoo.tfm.api.Exceptions.orWithoutChoice
 import dev.martianzoo.tfm.api.Exceptions.requirementNotMet
 import dev.martianzoo.tfm.api.SpecialClassNames.DIE
-import dev.martianzoo.tfm.data.GameEvent.ChangeEvent
 import dev.martianzoo.tfm.data.GameEvent.ChangeEvent.Cause
-import dev.martianzoo.tfm.engine.ActiveEffect.FiredEffect
+import dev.martianzoo.tfm.data.Task
 import dev.martianzoo.tfm.engine.Component.Companion.toComponent
 import dev.martianzoo.tfm.engine.Game.GameWriterImpl
 import dev.martianzoo.tfm.pets.PetTransformer.Companion.chain
@@ -37,7 +36,6 @@ import kotlin.math.min
 internal data class Instructor(
     private val writer: GameWriterImpl, // makes sense as inner class but file would be so long
     private val effector: Effector,
-    private val addTasks: (FiredEffect) -> Unit,
 ) {
   private val game by writer::game
   private val reader by game::reader
@@ -133,14 +131,16 @@ internal data class Instructor(
     return change(adjusted, g?.expression, r?.expression, if (intens == AMAP) MANDATORY else intens)
   }
 
-  public fun prepareCustom(type: MType): Instruction {
+  private fun prepareCustom(type: MType): Instruction {
     val translated = type.root.custom!!.prepare(reader, type)
 
-    val prepped = chain(
-        reader.transformers.standardPreprocess(),
-        reader.transformers.substituter(type.root.baseType, type),
-        type.owner?.let { replaceOwnerWith(it) },
-    ).transform(translated)
+    val prepped =
+        chain(
+                reader.transformers.standardPreprocess(),
+                reader.transformers.substituter(type.root.baseType, type),
+                type.owner?.let { replaceOwnerWith(it) },
+            )
+            .transform(translated)
 
     return if (prepped is Multi) prepped else doPrepare(prepped) // TODO hmm?
   }
@@ -162,7 +162,10 @@ internal data class Instructor(
     return g to r
   }
 
-  fun execute(instruction: Instruction, cause: Cause?) {
+  fun execute(instruction: Instruction, cause: Cause?): List<Task> =
+      mutableListOf<Task>().also { doExecute(instruction, cause, it) } // TODO prepare?
+
+  private fun doExecute(instruction: Instruction, cause: Cause?, deferred: MutableList<Task>){
     val prepped = prepare(instruction) // idempotent?
     when (prepped) {
       is Change -> {
@@ -171,20 +174,21 @@ internal data class Instructor(
         val g = prepped.gaining?.toComponent(reader)
         val r = prepped.removing?.toComponent(reader)
         if (g?.mtype?.root?.custom != null) error("custom")
-        writer.changeAndFixOrphans(ct.value, g, r, cause) { fireMatchingTriggers(it) }
+        writer.changeAndFixOrphans(ct.value, g, r, cause) {
+          val (now, later) = effector.fire(it, reader).partition { it.next }
+          deferred += later
+          // For now we execute automatic effects immediately/recursively
+          for (task in now) {
+            require(task.then == null)
+            // TODO owner?
+            split(task.instruction).forEach { doExecute(it, task.cause, deferred) }
+          }
+        }
       }
       is Or -> throw orWithoutChoice(prepped)
-      is Then -> prepped.instructions.forEach { execute(it, cause) }
+      is Then -> prepped.instructions.forEach { doExecute(it, cause, deferred) }
       is NoOp -> {}
       else -> error("somehow a ${prepped.kind.simpleName!!} was enqueued: $prepped")
     }
-  }
-
-  private fun fireMatchingTriggers(triggerEvent: ChangeEvent) {
-    val (now, later) = effector.fire(triggerEvent, reader).partition { it.automatic }
-    for (fx in now) {
-      split(fx.instruction).forEach { execute(it, fx.cause) }
-    }
-    later.forEach(addTasks) // TODO why can't we do this before the for loop??
   }
 }

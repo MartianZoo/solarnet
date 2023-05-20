@@ -35,6 +35,8 @@ internal class WritableTaskQueue(
 
   // ALL NON-PRIVATE MUTATIONS OF TASKSET
 
+  internal fun addTasks(task: Task) = addTasks(task.instruction, task.owner, task.cause)
+
   internal fun addTasks(
       instruction: Instruction,
       owner: Player,
@@ -79,6 +81,7 @@ internal class WritableTaskQueue(
   // DIRECT MUTATORS
 
   private fun addToTaskSet(task: Task): Task {
+    require(task.id != TaskId("ZZ"))
     require(taskSet.none { it.id == task.id })
 
     // What an amazing sorted set implementation

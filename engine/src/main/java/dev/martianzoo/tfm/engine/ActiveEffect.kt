@@ -5,6 +5,8 @@ import dev.martianzoo.tfm.api.SpecialClassNames.OWNER
 import dev.martianzoo.tfm.data.GameEvent.ChangeEvent
 import dev.martianzoo.tfm.data.GameEvent.ChangeEvent.Cause
 import dev.martianzoo.tfm.data.Player
+import dev.martianzoo.tfm.data.Task
+import dev.martianzoo.tfm.data.Task.TaskId
 import dev.martianzoo.tfm.engine.Game.ComponentGraph
 import dev.martianzoo.tfm.engine.Game.SnReader
 import dev.martianzoo.tfm.pets.Transforming.replaceOwnerWith
@@ -55,20 +57,11 @@ private constructor(
   fun onChangeToOther(triggerEvent: ChangeEvent, game: SnReader) =
       onChange(triggerEvent, game, isSelf = false)
 
-  private fun onChange(triggerEvent: ChangeEvent, reader: SnReader, isSelf: Boolean): FiredEffect? {
+  private fun onChange(triggerEvent: ChangeEvent, reader: SnReader, isSelf: Boolean): Task? {
     val player = contextOwner ?: triggerEvent.owner
     val hit = subscription.checkForHit(triggerEvent, player, isSelf, reader) ?: return null
     val cause = Cause(contextComponent, triggerEvent.ordinal)
-    return FiredEffect(hit(instruction), player, cause, automatic)
-  }
-
-  internal data class FiredEffect(
-      val instruction: Instruction,
-      val player: Player,
-      val cause: Cause,
-      val automatic: Boolean,
-  ) {
-    operator fun times(factor: Int) = copy(instruction = instruction * factor)
+    return Task(TaskId("ZZ"), player, automatic, hit(instruction), cause = cause)
   }
 
   internal sealed class Subscription {

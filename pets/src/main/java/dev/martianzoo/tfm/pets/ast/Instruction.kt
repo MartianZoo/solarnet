@@ -58,7 +58,7 @@ public sealed class Instruction : PetElement() {
 
   protected abstract fun scale(factor: Int): Instruction
 
-  /** An instruction that does nothing. TODO can we remove Ok as a class? Die? */
+  /** An instruction that does nothing. */
   public object NoOp : Instruction() {
     override fun scale(factor: Int) = this
 
@@ -216,7 +216,6 @@ public sealed class Instruction : PetElement() {
     }
   }
 
-  // TODO instruction -> inner
   data class Per(val inner: Instruction, val metric: Metric) : Instruction() {
     init {
       if (inner !is Change) {

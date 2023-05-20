@@ -442,7 +442,7 @@ public class ReplSession(var setup: GameSetup, private val jline: JlineRepl? = n
         return listOf("Task $id deleted")
 
       } else if (rest == "prepare") {
-        return describeExecutionResults(session.writer.prepareTask(id))
+        return session.tasks.toStrings()
       }
 
       val result: TaskResult =
