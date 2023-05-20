@@ -54,4 +54,5 @@ public abstract class MClassTable {
   abstract fun resolve(type: Type): MType
 
   internal abstract fun defaults(className: ClassName): Defaults
+  abstract val cacheSize: Int
 }

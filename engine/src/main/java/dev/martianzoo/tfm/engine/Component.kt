@@ -22,6 +22,7 @@ public data class Component private constructor(internal val mtype: MType) :
     HasClassName, HasExpression {
   companion object {
     private val cache: MutableMap<MType, Component> = mutableMapOf()
+    public val cacheSize by cache::size
     public fun ofType(mtype: MType) = cache.computeIfAbsent(mtype, ::Component)
 
     public fun Expression.toComponent(game: GameReader) = ofType(game.resolve(this) as MType)

@@ -17,13 +17,15 @@ import dev.martianzoo.tfm.engine.Humanize.stdAction
 import dev.martianzoo.tfm.engine.Humanize.stdProject
 import dev.martianzoo.tfm.engine.PlayerSession.Companion.session
 import dev.martianzoo.tfm.repl.TestHelpers.assertCounts
+import dev.martianzoo.tfm.types.MClassTable
 import org.junit.jupiter.api.Test
 
 class RealGamesTest {
   @Test
   fun fourWholeGenerations() {
+    val table = MClassTable.forSetup(GameSetup(Canon, "BREPT", 2))
     repeat(1) { // I change this when profiling
-      val game = Game.create(GameSetup(Canon, "BREPT", 2))
+      val game = Game.create(table)
       val engine = game.session(ENGINE)
       val p1 = game.session(PLAYER1)
       val p2 = game.session(PLAYER2)
@@ -178,6 +180,7 @@ class RealGamesTest {
         assertThat(counts("CityTile, GreeneryTile, SpecialTile")).containsExactly(1, 0, 1).inOrder()
       }
     }
+    println(table.cacheSize)
   }
 
   @Test

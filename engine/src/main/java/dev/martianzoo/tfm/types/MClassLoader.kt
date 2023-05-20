@@ -56,13 +56,20 @@ public class MClassLoader(
     return loadedClasses[name] ?: error("reentrancy happened")
   }
 
+  private val cache = mutableMapOf<Expression, MType>()
+  override val cacheSize by cache::size
+
   /** Returns the [MType] represented by [expression]. */
   override fun resolve(expression: Expression): MType {
-    return try {
-      getClass(expression.className).specialize(expression.arguments).refine(expression.refinement)
-    } catch (e: Exception) {
-      throw ExpressionException("can't resolve $expression", e)
-    }
+    return cache[expression]
+        ?: try {
+          getClass(expression.className)
+              .specialize(expression.arguments)
+              .refine(expression.refinement)
+              .also { cache[expression] = it }
+        } catch (e: Exception) {
+          throw ExpressionException("can't resolve $expression", e)
+        }
   }
 
   /** Returns the corresponding [MType] to [type] (possibly [type] itself). */
