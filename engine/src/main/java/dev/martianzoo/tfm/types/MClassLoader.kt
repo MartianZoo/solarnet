@@ -57,7 +57,6 @@ public class MClassLoader(
   }
 
   private val cache = mutableMapOf<Expression, MType>()
-  override val cacheSize by cache::size
 
   /** Returns the [MType] represented by [expression]. */
   override fun resolve(expression: Expression): MType {

@@ -7,15 +7,15 @@ import dev.martianzoo.tfm.data.Player.Companion.ENGINE
 import dev.martianzoo.tfm.data.Player.Companion.PLAYER1
 import dev.martianzoo.tfm.data.Player.Companion.PLAYER2
 import dev.martianzoo.tfm.engine.Game
-import dev.martianzoo.tfm.engine.Humanize.cardAction
-import dev.martianzoo.tfm.engine.Humanize.counts
-import dev.martianzoo.tfm.engine.Humanize.pass
-import dev.martianzoo.tfm.engine.Humanize.playCard
-import dev.martianzoo.tfm.engine.Humanize.playCorp
-import dev.martianzoo.tfm.engine.Humanize.production
-import dev.martianzoo.tfm.engine.Humanize.stdAction
-import dev.martianzoo.tfm.engine.Humanize.stdProject
+import dev.martianzoo.tfm.engine.PlayerSession
 import dev.martianzoo.tfm.engine.PlayerSession.Companion.session
+import dev.martianzoo.tfm.engine.TerraformingMars.cardAction
+import dev.martianzoo.tfm.engine.TerraformingMars.pass
+import dev.martianzoo.tfm.engine.TerraformingMars.playCard
+import dev.martianzoo.tfm.engine.TerraformingMars.playCorp
+import dev.martianzoo.tfm.engine.TerraformingMars.production
+import dev.martianzoo.tfm.engine.TerraformingMars.stdAction
+import dev.martianzoo.tfm.engine.TerraformingMars.stdProject
 import dev.martianzoo.tfm.repl.TestHelpers.assertCounts
 import dev.martianzoo.tfm.types.MClassTable
 import org.junit.jupiter.api.Test
@@ -26,14 +26,14 @@ class RealGamesTest {
     val table = MClassTable.forSetup(GameSetup(Canon, "BREPT", 2))
     repeat(1) { // I change this when profiling
       val game = Game.create(table)
-      val engine = game.session(ENGINE)
+      val eng = game.session(ENGINE)
       val p1 = game.session(PLAYER1)
       val p2 = game.session(PLAYER2)
 
       p1.playCorp("LakefrontResorts", 3)
       p2.playCorp("InterplanetaryCinematics", 8)
 
-      engine.action("PreludePhase")
+      eng.action("PreludePhase")
 
       p1.turn("MartianIndustries")
       p1.turn("GalileanMining")
@@ -41,7 +41,7 @@ class RealGamesTest {
       p2.turn("MiningOperations")
       p2.turn("UnmiContractor")
 
-      engine.action("ActionPhase")
+      eng.action("ActionPhase")
 
       p1.playCard("AsteroidMining", 30)
       p1.pass()
@@ -54,7 +54,7 @@ class RealGamesTest {
         playCard("GreatEscarpmentConsortium", 6) { task("PROD[-S<P1>]") }
       }
 
-      with(engine) {
+      with(eng) {
         action("ProductionPhase")
         action("ResearchPhase") {
           p1.task("4 BuyCard")
@@ -81,7 +81,7 @@ class RealGamesTest {
         playCard("BuildingIndustries", steel = 2)
       }
 
-      with(engine) {
+      with(eng) {
         action("ProductionPhase")
         action("ResearchPhase") {
           p1.task("3 BuyCard")
@@ -104,7 +104,7 @@ class RealGamesTest {
         playCard("BribedCommittee", 5)
       }
 
-      with(engine) {
+      with(eng) {
         action("ProductionPhase")
         action("ResearchPhase") {
           p1.task("3 BuyCard")
@@ -134,53 +134,42 @@ class RealGamesTest {
         action("PROD[-Plant, Energy]") // CORRECTION TODO WHY WHY
       }
 
-      engine.action("ProductionPhase")
+      eng.action("ProductionPhase")
 
       // Stuff
-      assertThat(engine.counts("Generation")).containsExactly(4)
-      assertThat(engine.counts("OceanTile, OxygenStep, TemperatureStep")).containsExactly(0, 0, 0)
+      eng.assertCounts(4 to "Generation")
+      eng.assertCounts(0 to "OceanTile", 0 to "OxygenStep", 0 to "TemperatureStep")
 
       with(p1) {
-        assertThat(count("TerraformRating")).isEqualTo(20)
+        assertCounts(20 to "TerraformRating")
 
+        assertCounts(34 to "M", 2 to "S", 8 to "T", 3 to "P", 1 to "E", 3 to "H")
         assertThat(production().values).containsExactly(2, 2, 7, 0, 1, 0).inOrder()
 
-        assertThat(counts("M, Steel, Titanium, Plant, Energy, Heat"))
-            .containsExactly(34, 2, 8, 3, 1, 3)
-            .inOrder()
+        assertCounts(15 to "Card", 5 to "ProjectCard", 10 to "CardFront")
+        assertCounts(1 to "ActiveCard", 6 to "AutomatedCard", 0 to "PlayedEvent")
 
-        assertThat(counts("ProjectCard, CardFront, ActiveCard, AutomatedCard, PlayedEvent"))
-            .containsExactly(5, 10, 1, 6, 0)
+        assertCounts(5 to "BUT", 2 to "SPT",  2 to "SCT",  0 to "POT",  1 to "EAT")
+        assertCounts(3 to "JOT", 0 to "PLT",  0 to "MIT",  0 to "ANT",  1 to "CIT")
 
-        // tag abbreviations
-        assertThat(counts("BUT, SPT, SCT, POT, EAT, JOT, PLT, MIT, ANT, CIT"))
-            .containsExactly(5, 2, 2, 0, 1, 3, 0, 0, 0, 1)
-            .inOrder()
-
-        assertThat(counts("CityTile, GreeneryTile, SpecialTile")).containsExactly(1, 0, 0).inOrder()
+        assertCounts(1 to "CityTile", 0 to "GreeneryTile", 0 to "SpecialTile")
       }
 
       with(p2) {
-        assertThat(count("TerraformRating")).isEqualTo(25)
+        assertCounts(25 to "TerraformRating")
 
+        assertCounts(47 to "M", 6 to "S", 1 to "T", 1 to "P", 2 to "E", 3 to "H")
         assertThat(production().values).containsExactly(8, 6, 1, 0, 2, 0).inOrder()
 
-        assertThat(counts("M, Steel, Titanium, Plant, Energy, Heat"))
-            .containsExactly(47, 6, 1, 1, 2, 3)
-            .inOrder()
+        assertCounts(23 to "Card", 3 to "ProjectCard", 17 to "CardFront")
+        assertCounts(4 to "ActiveCard", 10 to "AutomatedCard", 3 to "PlayedEvent")
 
-        assertThat(counts("ProjectCard, CardFront, ActiveCard, AutomatedCard, PlayedEvent"))
-            .containsExactly(3, 17, 4, 10, 3)
+        assertCounts(9 to "BUT", 3 to "SPT",  4 to "SCT",  2 to "POT",  3 to "EAT")
+        assertCounts(0 to "JOT", 0 to "PLT",  1 to "MIT",  0 to "ANT",  0 to "CIT")
 
-        // tag abbreviations
-        assertThat(counts("BUT, SPT, SCT, POT, EAT, JOT, PLT, MIT, ANT, CIT"))
-            .containsExactly(9, 3, 4, 2, 3, 0, 0, 1, 0, 0)
-            .inOrder()
-
-        assertThat(counts("CityTile, GreeneryTile, SpecialTile")).containsExactly(1, 0, 1).inOrder()
+        assertCounts(1 to "CityTile", 0 to "GreeneryTile", 1 to "SpecialTile")
       }
     }
-    println(table.cacheSize)
   }
 
   @Test
@@ -330,4 +319,7 @@ class RealGamesTest {
       rollItBack()
     }
   }
+
+  // TODO get rid
+  fun PlayerSession.counts(s: String) = s.split(",").map(::count)
 }

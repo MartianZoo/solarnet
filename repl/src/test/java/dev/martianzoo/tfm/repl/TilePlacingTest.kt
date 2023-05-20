@@ -8,8 +8,8 @@ import dev.martianzoo.tfm.data.Player
 import dev.martianzoo.tfm.data.Player.Companion.PLAYER1
 import dev.martianzoo.tfm.data.Player.Companion.PLAYER2
 import dev.martianzoo.tfm.engine.Game
-import dev.martianzoo.tfm.engine.Humanize.stdProject
 import dev.martianzoo.tfm.engine.PlayerSession.Companion.session
+import dev.martianzoo.tfm.engine.TerraformingMars.stdProject
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 

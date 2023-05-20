@@ -3,13 +3,13 @@ package dev.martianzoo.tfm.engine
 import dev.martianzoo.tfm.api.ApiUtils.standardResourceNames
 import dev.martianzoo.tfm.engine.PlayerSession.OperationBody
 import dev.martianzoo.tfm.pets.ast.ClassName
+import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.pets.ast.Instruction.NoOp
 
 /**
- * Extension functions that translate between the raw engine language and the way humans tend to
- * think about the game.
+ * Extension functions to [PlayerSession] for Terraforming Mars-specific APIs.
  */
-object Humanize {
+object TerraformingMars {
   fun PlayerSession.playCorp(
       corpName: String,
       buyCards: Int? = 0,
@@ -30,6 +30,7 @@ object Humanize {
   }
 
   fun PlayerSession.stdProject(stdProject: String, body: OperationBody.() -> Unit = {}) {
+    require(has("ActionPhase"))
     return stdAction("UseStandardProject") {
       task("UseAction1<$stdProject>")
       OperationBody().body()
@@ -44,6 +45,7 @@ object Humanize {
       body: OperationBody.() -> Unit = {}
   ) {
 
+    require(has("ActionPhase"))
     return stdAction("PlayCardFromHand") {
       task("PlayCard<Class<$cardName>>")
 
@@ -72,6 +74,7 @@ object Humanize {
       body: OperationBody.() -> Unit = {}
   ) {
     require(has(cardName))
+    require(has("ActionPhase"))
     return stdAction("UseActionFromCard") {
       task("UseAction$which<$cardName>")
       task("ActionUsedMarker<$cardName>") // TODO slight problem for Viron?
@@ -79,16 +82,13 @@ object Humanize {
     }
   }
 
-  // OLD STUFF - TODO GET RID OF
-
-  fun PlayerSession.counts(s: String) = s.split(",").map(::count)
-
   fun PlayerSession.production(): Map<ClassName, Int> =
-      standardResourceNames(reader).associateWith {
-        count("PROD[$it]") - if (it == MEGACREDIT) 5 else 0
-      }
+      standardResourceNames(reader).associateWith { production(it) }
 
-  private val MEGACREDIT = ClassName.cn("Megacredit")
+  fun PlayerSession.production(kind: ClassName) =
+      count("PROD[$kind]") - if (kind == MEGACREDIT || kind == cn("M")) 5 else 0
+
+  private val MEGACREDIT = cn("Megacredit")
 
   fun PlayerSession.oxygenPercent(): Int = count("OxygenStep")
   fun PlayerSession.temperatureC(): Int = -30 + count("TemperatureStep") * 2

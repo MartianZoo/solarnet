@@ -13,13 +13,13 @@ import dev.martianzoo.tfm.data.Player.Companion.ENGINE
 import dev.martianzoo.tfm.data.Player.Companion.PLAYER1
 import dev.martianzoo.tfm.data.Player.Companion.PLAYER2
 import dev.martianzoo.tfm.engine.Game
-import dev.martianzoo.tfm.engine.Humanize.cardAction
-import dev.martianzoo.tfm.engine.Humanize.playCard
-import dev.martianzoo.tfm.engine.Humanize.playCorp
-import dev.martianzoo.tfm.engine.Humanize.production
-import dev.martianzoo.tfm.engine.Humanize.stdAction
-import dev.martianzoo.tfm.engine.Humanize.stdProject
 import dev.martianzoo.tfm.engine.PlayerSession.Companion.session
+import dev.martianzoo.tfm.engine.TerraformingMars.cardAction
+import dev.martianzoo.tfm.engine.TerraformingMars.playCard
+import dev.martianzoo.tfm.engine.TerraformingMars.playCorp
+import dev.martianzoo.tfm.engine.TerraformingMars.production
+import dev.martianzoo.tfm.engine.TerraformingMars.stdAction
+import dev.martianzoo.tfm.engine.TerraformingMars.stdProject
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.repl.TestHelpers.assertCounts
 import org.junit.jupiter.api.Test
@@ -321,10 +321,10 @@ class SpecificCardsTest {
     p1.action("AtmoCollectors", "2 Floater<AtmoCollectors>")
     p1.action("Airliners", "2 Floater<AtmoCollectors>")
 
-    assertThat(p1.production()[cn("Megacredit")]).isEqualTo(2)
+    assertThat(p1.production(cn("M"))).isEqualTo(2)
 
     p1.action("CommunityServices") // should be 3 tagless cards (Atmo, Airl, Comm)
-    assertThat(p1.production()[cn("Megacredit")]).isEqualTo(5)
+    assertThat(p1.production(cn("M"))).isEqualTo(5)
   }
 
   @Test
