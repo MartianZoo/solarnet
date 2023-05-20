@@ -49,6 +49,31 @@ import dev.martianzoo.util.Multiset
  * use [writer].
  */
 public class Game internal constructor(private val table: MClassTable) {
+  public companion object {
+    /** Creates a new game, initialized for the given [setup], and ready for gameplay to begin. */
+    public fun create(setup: GameSetup) = create(MClassTable.forSetup(setup))
+
+    /** Creates a new game using an existing class table, ready for gameplay to begin. */
+    public fun create(table: MClassTable): Game {
+      val game = Game(table)
+      val session = game.session(ENGINE)
+
+      fun gain(thing: HasExpression) = session.action(parse("${thing.expression}!"))
+
+      gain(ENGINE)
+      singletonTypes(table).forEach { gain(it) }
+      gain(ClassName.cn("SetupPhase"))
+
+      game.setupFinished()
+      return game
+    }
+
+    private fun singletonTypes(table: MClassTable): List<Component> =
+        table.allClasses
+            .filter { 0 !in it.componentCountRange }
+            .flatMap { it.baseType.concreteSubtypesSameClass() }
+            .map { it.toComponent() }
+  }
 
   private val effector: Effector = Effector()
 
@@ -75,6 +100,7 @@ public class Game internal constructor(private val table: MClassTable) {
    * dependencies which are also stored in the multiset.
    */
   public interface ComponentGraph {
+
     /**
      * Does at least one instance of [component] exist currently? (That is, is [countComponent]
      * nonzero?
@@ -93,9 +119,9 @@ public class Game internal constructor(private val table: MClassTable) {
      * [parentType] is `Component` this will return the entire component multiset.
      */
     fun getAll(parentType: MType, info: TypeInfo): Multiset<Component>
-
     fun findLimit(gaining: Component?, removing: Component?): Int
   }
+
 
   /**
    * A complete record of everything that happened in a particular game (in progress or finished). A
@@ -127,7 +153,6 @@ public class Game internal constructor(private val table: MClassTable) {
     fun newTasksSince(checkpoint: Checkpoint): Set<TaskId>
 
     fun entriesSince(checkpoint: Checkpoint): List<GameEvent>
-
     fun activitySince(checkpoint: Checkpoint): TaskResult
   }
 
@@ -140,6 +165,7 @@ public class Game internal constructor(private val table: MClassTable) {
    * This interface speaks entirely in terms of [TaskId]s.
    */
   public interface TaskQueue : Set<Task> {
+
     fun ids(): Set<TaskId>
 
     operator fun contains(id: TaskId): Boolean
@@ -149,13 +175,12 @@ public class Game internal constructor(private val table: MClassTable) {
     fun nextAvailableId(): TaskId
 
     fun preparedTask(): TaskId?
-
     fun hasPreparedTask(): Boolean = preparedTask() != null
   }
 
   public interface SnReader : GameReader {
-    override fun resolve(expression: Expression): MType
 
+    override fun resolve(expression: Expression): MType
     override fun getComponents(type: Type): Multiset<out MType>
     fun countComponent(component: Component): Int
     public val transformers: Transformers
@@ -205,9 +230,11 @@ public class Game internal constructor(private val table: MClassTable) {
    * TODO: is it cool that this seems to mix internally-focused and externally-focused APIs?
    */
   public class GameWriterImpl(val game: Game, val player: Player) : GameWriter(), UnsafeGameWriter {
+
     private val tasks by game::writableTasks
 
-    internal val instructor = Instructor(this, game.effector)
+    internal val instructor =
+        Instructor(this, game.reader, game.effector, game.components::findLimit)
 
     override fun initiateTask(instruction: Instruction, firstCause: Cause?) =
         game.atomic {
@@ -331,7 +358,7 @@ public class Game internal constructor(private val table: MClassTable) {
       val events =
           split(changes).map {
             val count = (it as Change).count as ActualScalar
-            change(
+            changeWithoutFixingDependents(
                 count.value,
                 it.gaining?.toComponent(game.reader),
                 it.removing?.toComponent(game.reader),
@@ -342,6 +369,27 @@ public class Game internal constructor(private val table: MClassTable) {
     }
 
     override fun change(
+      count: Int,
+      gaining: Component?,
+      removing: Component?,
+      cause: Cause?,
+      listener: (ChangeEvent) -> Unit,
+    ) {
+      fun tryIt() = changeWithoutFixingDependents(count, gaining, removing, cause, listener)
+      try {
+        tryIt()
+      } catch (e: ExistingDependentsException) {
+        // TODO better way to remove dependents?
+        e.dependents.forEach {
+          val dependent = it.toComponent(game.reader)
+          val depCount = game.reader.countComponent(dependent)
+          change(depCount, removing = dependent, cause = cause, listener = listener)
+        }
+        tryIt()
+      }
+    }
+
+    override fun changeWithoutFixingDependents(
         count: Int,
         gaining: Component?,
         removing: Component?,
@@ -360,27 +408,6 @@ public class Game internal constructor(private val table: MClassTable) {
       return event
     }
 
-    override fun changeAndFixOrphans(
-        count: Int,
-        gaining: Component?,
-        removing: Component?,
-        cause: Cause?,
-        listener: (ChangeEvent) -> Unit,
-    ) {
-      fun tryIt() = change(count, gaining, removing, cause, listener)
-      try {
-        tryIt()
-      } catch (e: ExistingDependentsException) {
-        // TODO better way to remove dependents?
-        e.dependents.forEach {
-          val dependent = it.toComponent(game.reader)
-          val depCount = game.reader.countComponent(dependent)
-          changeAndFixOrphans(depCount, removing = dependent, cause = cause, listener = listener)
-        }
-        tryIt()
-      }
-    }
-
     private fun checkOwner(task: Task) {
       if (player != task.owner && player != ENGINE) {
         throw TaskException("$player can't access task owned by ${task.owner}")
@@ -388,33 +415,6 @@ public class Game internal constructor(private val table: MClassTable) {
     }
 
     private val xer = chain(game.transformers.standardPreprocess(), replaceOwnerWith(player))
-
     internal fun <P : PetElement> preprocess(node: P) = xer.transform(node)
-  }
-
-  public companion object {
-    /** Creates a new game, initialized for the given [setup], and ready for gameplay to begin. */
-    public fun create(setup: GameSetup) = create(MClassTable.forSetup(setup))
-
-    /** Creates a new game using an existing class table, ready for gameplay to begin. */
-    public fun create(table: MClassTable): Game {
-      val game = Game(table)
-      val session = game.session(ENGINE)
-
-      fun gain(thing: HasExpression) = session.action(parse("${thing.expression}!"))
-
-      gain(ENGINE)
-      singletonTypes(table).forEach { gain(it) }
-      gain(ClassName.cn("SetupPhase"))
-
-      game.setupFinished()
-      return game
-    }
-
-    private fun singletonTypes(table: MClassTable): List<Component> =
-        table.allClasses
-            .filter { 0 !in it.componentCountRange }
-            .flatMap { it.baseType.concreteSubtypesSameClass() }
-            .map { it.toComponent() }
   }
 }

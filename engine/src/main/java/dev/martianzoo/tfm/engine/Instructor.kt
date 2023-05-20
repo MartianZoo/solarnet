@@ -12,6 +12,7 @@ import dev.martianzoo.tfm.data.GameEvent.ChangeEvent.Cause
 import dev.martianzoo.tfm.data.Task
 import dev.martianzoo.tfm.engine.Component.Companion.toComponent
 import dev.martianzoo.tfm.engine.Game.GameWriterImpl
+import dev.martianzoo.tfm.engine.Game.SnReader
 import dev.martianzoo.tfm.pets.PetTransformer.Companion.chain
 import dev.martianzoo.tfm.pets.Transforming.replaceOwnerWith
 import dev.martianzoo.tfm.pets.ast.Expression
@@ -34,11 +35,45 @@ import kotlin.math.min
 
 /** Just a cute name for "instruction handler". It prepares and executes instructions. */
 internal data class Instructor(
-    private val writer: GameWriterImpl, // makes sense as inner class but file would be so long
-    private val effector: Effector,
+  private val writer: GameWriterImpl, // makes sense as inner class but file would be so long
+  private val reader: SnReader,
+  private val effector: Effector,
+  private val limiter: (Component?, Component?) -> Int,
 ) {
-  private val game by writer::game
-  private val reader by game::reader
+
+  fun execute(instruction: Instruction, cause: Cause?): List<Task> =
+      mutableListOf<Task>().also { doExecute(instruction, cause, it) } // TODO prepare?
+
+  private fun doExecute(instruction: Instruction, cause: Cause?, deferred: MutableList<Task>){
+    val prepped = prepare(instruction) // idempotent?
+    when (prepped) {
+      is Change -> executeChange(prepped, cause, deferred)
+      is Then -> prepped.instructions.forEach { doExecute(it, cause, deferred) }
+      is Or -> throw orWithoutChoice(prepped)
+      is NoOp -> {}
+      else -> error("somehow a ${prepped.kind.simpleName!!} was enqueued: $prepped")
+    }
+  }
+
+  private fun executeChange(change: Change, cause: Cause?, deferred: MutableList<Task>) {
+    val ct = change.count as? ActualScalar ?: throw abstractInstruction(change)
+    if (change.intensity != MANDATORY) throw abstractInstruction(change)
+    val g = change.gaining?.toComponent(reader)
+    val r = change.removing?.toComponent(reader)
+    if (g?.mtype?.root?.custom != null) error("custom")
+
+    // TODO can't we batch up a *little*?
+    writer.change(ct.value, g, r, cause) {
+      val (now, later) = effector.fire(it, reader).partition { it.next }
+      deferred += later
+      // For now we execute automatic effects immediately/recursively
+      for (task in now) {
+        require(task.then == null)
+        // TODO owner?
+        split(task.instruction).forEach { doExecute(it, task.cause, deferred) }
+      }
+    }
+  }
 
   /**
    * Returns a narrowed form of [unprepared] based on the current game state (but changes no game
@@ -90,11 +125,11 @@ internal data class Instructor(
     }
   }
 
-  private fun prepareChange(instruction: Change): Instruction {
+  private fun prepareChange(change: Change): Instruction {
     // can't prepare at all if we still have an X?
-    val count = (instruction.count as? ActualScalar)?.value ?: return instruction
+    val count = (change.count as? ActualScalar)?.value ?: return change
 
-    val (g: MType?, r: MType?) = autoNarrowTypes(instruction.gaining, instruction.removing)
+    val (g: MType?, r: MType?) = autoNarrowTypes(change.gaining, change.removing)
     if (g?.className == DIE) throw DeadEndException("a Die instruction was reached")
 
     if (g != null && !g.abstract && g.root.custom != null) {
@@ -102,16 +137,14 @@ internal data class Instructor(
       return prepareCustom(g)
     }
 
-    val intens = instruction.intensity!!
+    val intens = change.intensity!!
 
     if (listOfNotNull(g, r).any { it.abstract }) {
       // Still abstract, don't check limits yet
       return change(count, g?.expression, r?.expression, intens)
     }
 
-    val limit: Int =
-        game.components.findLimit(
-            gaining = g?.toComponent(reader), removing = r?.toComponent(reader))
+    val limit = limiter(g?.toComponent(reader), r?.toComponent(reader))
     val adjusted: Int = min(count, limit)
 
     if (intens == MANDATORY && adjusted != count) {
@@ -160,35 +193,5 @@ internal data class Instructor(
       r = reader.getComponents(r).singleOrNull() ?: r
     }
     return g to r
-  }
-
-  fun execute(instruction: Instruction, cause: Cause?): List<Task> =
-      mutableListOf<Task>().also { doExecute(instruction, cause, it) } // TODO prepare?
-
-  private fun doExecute(instruction: Instruction, cause: Cause?, deferred: MutableList<Task>){
-    val prepped = prepare(instruction) // idempotent?
-    when (prepped) {
-      is Change -> {
-        val ct = prepped.count as? ActualScalar ?: throw abstractInstruction(prepped)
-        if (prepped.intensity != MANDATORY) throw abstractInstruction(prepped)
-        val g = prepped.gaining?.toComponent(reader)
-        val r = prepped.removing?.toComponent(reader)
-        if (g?.mtype?.root?.custom != null) error("custom")
-        writer.changeAndFixOrphans(ct.value, g, r, cause) {
-          val (now, later) = effector.fire(it, reader).partition { it.next }
-          deferred += later
-          // For now we execute automatic effects immediately/recursively
-          for (task in now) {
-            require(task.then == null)
-            // TODO owner?
-            split(task.instruction).forEach { doExecute(it, task.cause, deferred) }
-          }
-        }
-      }
-      is Or -> throw orWithoutChoice(prepped)
-      is Then -> prepped.instructions.forEach { doExecute(it, cause, deferred) }
-      is NoOp -> {}
-      else -> error("somehow a ${prepped.kind.simpleName!!} was enqueued: $prepped")
-    }
   }
 }

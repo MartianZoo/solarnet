@@ -27,7 +27,7 @@ interface UnsafeGameWriter {
    * Used during normal task execution, but can also be invoked manually to fix a broken game state,
    * break a fixed game state, or quickly set up a specific game scenario.
    */
-  fun change(
+  fun changeWithoutFixingDependents(
       count: Int,
       gaining: Component?,
       removing: Component?,
@@ -36,10 +36,10 @@ interface UnsafeGameWriter {
   ): ChangeEvent
 
   /**
-   * Like [change], but first removes any dependent components (recursively) that would otherwise
+   * Like [changeWithoutFixingDependents], but first removes any dependent components (recursively) that would otherwise
    * prevent the change. The same [cause] is used for all changes.
    */
-  fun changeAndFixOrphans(
+  fun change(
       count: Int = 1,
       gaining: Component? = null,
       removing: Component? = null,
