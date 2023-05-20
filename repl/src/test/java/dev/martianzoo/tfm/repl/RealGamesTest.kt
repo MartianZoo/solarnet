@@ -22,159 +22,161 @@ import org.junit.jupiter.api.Test
 class RealGamesTest {
   @Test
   fun fourWholeGenerations() {
-    val game = Game.create(GameSetup(Canon, "BREPT", 2))
-    val engine = game.session(ENGINE)
-    val p1 = game.session(PLAYER1)
-    val p2 = game.session(PLAYER2)
+    repeat(1) { // I change this when profiling
+      val game = Game.create(GameSetup(Canon, "BREPT", 2))
+      val engine = game.session(ENGINE)
+      val p1 = game.session(PLAYER1)
+      val p2 = game.session(PLAYER2)
 
-    p1.playCorp("LakefrontResorts", 3)
-    p2.playCorp("InterplanetaryCinematics", 8)
+      p1.playCorp("LakefrontResorts", 3)
+      p2.playCorp("InterplanetaryCinematics", 8)
 
-    engine.action("PreludePhase")
+      engine.action("PreludePhase")
 
-    p1.turn("MartianIndustries")
-    p1.turn("GalileanMining")
+      p1.turn("MartianIndustries")
+      p1.turn("GalileanMining")
 
-    p2.turn("MiningOperations")
-    p2.turn("UnmiContractor")
+      p2.turn("MiningOperations")
+      p2.turn("UnmiContractor")
 
-    engine.action("ActionPhase")
+      engine.action("ActionPhase")
 
-    p1.playCard("AsteroidMining", 30)
-    p1.pass()
+      p1.playCard("AsteroidMining", 30)
+      p1.pass()
 
-    with(p2) {
-      playCard("NaturalPreserve", 1, steel = 4) { task("NpTile<E37>") }
-      playCard("SpaceElevator", 1, steel = 13)
-      cardAction("SpaceElevator")
-      playCard("InventionContest", 2)
-      playCard("GreatEscarpmentConsortium", 6) { task("PROD[-S<P1>]") }
-    }
-
-    with(engine) {
-      action("ProductionPhase")
-      action("ResearchPhase") {
-        p1.task("4 BuyCard")
-        p2.task("1 BuyCard")
+      with(p2) {
+        playCard("NaturalPreserve", 1, steel = 4) { task("NpTile<E37>") }
+        playCard("SpaceElevator", 1, steel = 13)
+        cardAction("SpaceElevator")
+        playCard("InventionContest", 2)
+        playCard("GreatEscarpmentConsortium", 6) { task("PROD[-S<P1>]") }
       }
-      action("ActionPhase")
-    }
 
-    with(p2) {
-      cardAction("SpaceElevator")
-      playCard("EarthCatapult", 23)
-    }
-
-    with(p1) {
-      playCard("TitaniumMine", 7)
-      playCard("RoboticWorkforce", 9) { task("CopyProductionBox<MartianIndustries>") }
-      playCard("Sponsors", 6)
-    }
-
-    with(p2) {
-      playCard("IndustrialMicrobes", steel = 5)
-      playCard("TechnologyDemonstration", titanium = 1)
-      playCard("EnergyTapping", 1) { task("PROD[-E<P1>]") }
-      playCard("BuildingIndustries", steel = 2)
-    }
-
-    with(engine) {
-      action("ProductionPhase")
-      action("ResearchPhase") {
-        p1.task("3 BuyCard")
-        p2.task("2 BuyCard")
+      with(engine) {
+        action("ProductionPhase")
+        action("ResearchPhase") {
+          p1.task("4 BuyCard")
+          p2.task("1 BuyCard")
+        }
+        action("ActionPhase")
       }
-      action("ActionPhase")
-    }
 
-    with(p1) {
-      playCard("Mine", 2, steel = 1)
-      pass()
-    }
-    with(p2) {
-      cardAction("SpaceElevator")
-      playCard("ElectroCatapult", 5, steel = 5)
-      cardAction("ElectroCatapult")
-      playCard("SpaceHotels", 7, titanium = 1)
-      playCard("MarsUniversity", 6)
-      playCard("ArtificialPhotosynthesis", 10) { task("PROD[2 Energy]") }
-      playCard("BribedCommittee", 5)
-    }
-
-    with(engine) {
-      action("ProductionPhase")
-      action("ResearchPhase") {
-        p1.task("3 BuyCard")
-        p2.task("2 BuyCard")
+      with(p2) {
+        cardAction("SpaceElevator")
+        playCard("EarthCatapult", 23)
       }
-      action("ActionPhase")
-    }
 
-    with(p2) {
-      cardAction("ElectroCatapult") // steel
-      cardAction("SpaceElevator")
-    }
-    with(p1) {
-      playCard("ResearchOutpost", 14, steel = 2) { task("CityTile<E56>") }
-      playCard("IoMiningIndustries", 1, titanium = 13)
-    }
-    with(p2) {
-      playCard("TransNeptuneProbe", 1, titanium = 1)
-      playCard("Hackers", 1) { task("PROD[-2 M<P1>]") }
-    }
+      with(p1) {
+        playCard("TitaniumMine", 7)
+        playCard("RoboticWorkforce", 9) { task("CopyProductionBox<MartianIndustries>") }
+        playCard("Sponsors", 6)
+      }
 
-    p1.stdAction("SellPatents") { task("Megacredit FROM ProjectCard") }
+      with(p2) {
+        playCard("IndustrialMicrobes", steel = 5)
+        playCard("TechnologyDemonstration", titanium = 1)
+        playCard("EnergyTapping", 1) { task("PROD[-E<P1>]") }
+        playCard("BuildingIndustries", steel = 2)
+      }
 
-    with(p2) {
-      playCard("SolarPower", 1, steel = 4)
-      stdProject("CitySP") { task("CityTile<E65>") }
-      action("PROD[-Plant, Energy]") // CORRECTION TODO WHY WHY
-    }
+      with(engine) {
+        action("ProductionPhase")
+        action("ResearchPhase") {
+          p1.task("3 BuyCard")
+          p2.task("2 BuyCard")
+        }
+        action("ActionPhase")
+      }
 
-    engine.action("ProductionPhase")
+      with(p1) {
+        playCard("Mine", 2, steel = 1)
+        pass()
+      }
+      with(p2) {
+        cardAction("SpaceElevator")
+        playCard("ElectroCatapult", 5, steel = 5)
+        cardAction("ElectroCatapult")
+        playCard("SpaceHotels", 7, titanium = 1)
+        playCard("MarsUniversity", 6)
+        playCard("ArtificialPhotosynthesis", 10) { task("PROD[2 Energy]") }
+        playCard("BribedCommittee", 5)
+      }
 
-    // Stuff
-    assertThat(engine.counts("Generation")).containsExactly(4)
-    assertThat(engine.counts("OceanTile, OxygenStep, TemperatureStep")).containsExactly(0, 0, 0)
+      with(engine) {
+        action("ProductionPhase")
+        action("ResearchPhase") {
+          p1.task("3 BuyCard")
+          p2.task("2 BuyCard")
+        }
+        action("ActionPhase")
+      }
 
-    with(p1) {
-      assertThat(count("TerraformRating")).isEqualTo(20)
+      with(p2) {
+        cardAction("ElectroCatapult") // steel
+        cardAction("SpaceElevator")
+      }
+      with(p1) {
+        playCard("ResearchOutpost", 14, steel = 2) { task("CityTile<E56>") }
+        playCard("IoMiningIndustries", 1, titanium = 13)
+      }
+      with(p2) {
+        playCard("TransNeptuneProbe", 1, titanium = 1)
+        playCard("Hackers", 1) { task("PROD[-2 M<P1>]") }
+      }
 
-      assertThat(production().values).containsExactly(2, 2, 7, 0, 1, 0).inOrder()
+      p1.stdAction("SellPatents") { task("Megacredit FROM ProjectCard") }
 
-      assertThat(counts("M, Steel, Titanium, Plant, Energy, Heat"))
-          .containsExactly(34, 2, 8, 3, 1, 3)
-          .inOrder()
+      with(p2) {
+        playCard("SolarPower", 1, steel = 4)
+        stdProject("CitySP") { task("CityTile<E65>") }
+        action("PROD[-Plant, Energy]") // CORRECTION TODO WHY WHY
+      }
 
-      assertThat(counts("ProjectCard, CardFront, ActiveCard, AutomatedCard, PlayedEvent"))
-          .containsExactly(5, 10, 1, 6, 0)
+      engine.action("ProductionPhase")
 
-      // tag abbreviations
-      assertThat(counts("BUT, SPT, SCT, POT, EAT, JOT, PLT, MIT, ANT, CIT"))
-          .containsExactly(5, 2, 2, 0, 1, 3, 0, 0, 0, 1)
-          .inOrder()
+      // Stuff
+      assertThat(engine.counts("Generation")).containsExactly(4)
+      assertThat(engine.counts("OceanTile, OxygenStep, TemperatureStep")).containsExactly(0, 0, 0)
 
-      assertThat(counts("CityTile, GreeneryTile, SpecialTile")).containsExactly(1, 0, 0).inOrder()
-    }
+      with(p1) {
+        assertThat(count("TerraformRating")).isEqualTo(20)
 
-    with(p2) {
-      assertThat(count("TerraformRating")).isEqualTo(25)
+        assertThat(production().values).containsExactly(2, 2, 7, 0, 1, 0).inOrder()
 
-      assertThat(production().values).containsExactly(8, 6, 1, 0, 2, 0).inOrder()
+        assertThat(counts("M, Steel, Titanium, Plant, Energy, Heat"))
+            .containsExactly(34, 2, 8, 3, 1, 3)
+            .inOrder()
 
-      assertThat(counts("M, Steel, Titanium, Plant, Energy, Heat"))
-          .containsExactly(47, 6, 1, 1, 2, 3)
-          .inOrder()
+        assertThat(counts("ProjectCard, CardFront, ActiveCard, AutomatedCard, PlayedEvent"))
+            .containsExactly(5, 10, 1, 6, 0)
 
-      assertThat(counts("ProjectCard, CardFront, ActiveCard, AutomatedCard, PlayedEvent"))
-          .containsExactly(3, 17, 4, 10, 3)
+        // tag abbreviations
+        assertThat(counts("BUT, SPT, SCT, POT, EAT, JOT, PLT, MIT, ANT, CIT"))
+            .containsExactly(5, 2, 2, 0, 1, 3, 0, 0, 0, 1)
+            .inOrder()
 
-      // tag abbreviations
-      assertThat(counts("BUT, SPT, SCT, POT, EAT, JOT, PLT, MIT, ANT, CIT"))
-          .containsExactly(9, 3, 4, 2, 3, 0, 0, 1, 0, 0)
-          .inOrder()
+        assertThat(counts("CityTile, GreeneryTile, SpecialTile")).containsExactly(1, 0, 0).inOrder()
+      }
 
-      assertThat(counts("CityTile, GreeneryTile, SpecialTile")).containsExactly(1, 0, 1).inOrder()
+      with(p2) {
+        assertThat(count("TerraformRating")).isEqualTo(25)
+
+        assertThat(production().values).containsExactly(8, 6, 1, 0, 2, 0).inOrder()
+
+        assertThat(counts("M, Steel, Titanium, Plant, Energy, Heat"))
+            .containsExactly(47, 6, 1, 1, 2, 3)
+            .inOrder()
+
+        assertThat(counts("ProjectCard, CardFront, ActiveCard, AutomatedCard, PlayedEvent"))
+            .containsExactly(3, 17, 4, 10, 3)
+
+        // tag abbreviations
+        assertThat(counts("BUT, SPT, SCT, POT, EAT, JOT, PLT, MIT, ANT, CIT"))
+            .containsExactly(9, 3, 4, 2, 3, 0, 0, 1, 0, 0)
+            .inOrder()
+
+        assertThat(counts("CityTile, GreeneryTile, SpecialTile")).containsExactly(1, 0, 1).inOrder()
+      }
     }
   }
 

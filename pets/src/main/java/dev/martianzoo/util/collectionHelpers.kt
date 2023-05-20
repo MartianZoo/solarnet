@@ -91,8 +91,8 @@ fun <T : Comparable<T>> Iterable<T>.extras() =
 fun <T : Comparable<T>> Sequence<T>.extras() =
     sorted().windowed(2).mapNotNull { it.distinct().singleOrNull() }
 
-fun <T> List<List<T>>.cartesianProduct(): Sequence<List<T>> {
-  if (isEmpty()) return listOf(listOf<T>()).asSequence()
+fun <T> List<Sequence<T>>.cartesianProduct(): Sequence<List<T>> {
+  if (isEmpty()) return sequenceOf(listOf())
 
   return sequence {
     val firstList = first()

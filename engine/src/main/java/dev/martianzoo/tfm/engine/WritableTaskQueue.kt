@@ -14,9 +14,9 @@ import dev.martianzoo.tfm.pets.ast.Instruction
 import dev.martianzoo.util.toSetStrict
 
 internal class WritableTaskQueue(
-  private val events: TaskListener,
-  private val taskSet: MutableSet<Task> = mutableSetOf()) :
-  TaskQueue, Set<Task> by taskSet {
+    private val events: TaskListener,
+    private val taskSet: MutableSet<Task> = mutableSetOf()
+) : TaskQueue, Set<Task> by taskSet {
 
   // OVERRIDES / READ-ONLY OPERATIONS
 
@@ -36,9 +36,9 @@ internal class WritableTaskQueue(
   // ALL NON-PRIVATE MUTATIONS OF TASKSET
 
   internal fun addTasks(
-    instruction: Instruction,
-    owner: Player,
-    cause: Cause?,
+      instruction: Instruction,
+      owner: Player,
+      cause: Cause?,
   ): List<TaskAddedEvent> {
     val newTasks = Task.newTasks(nextAvailableId(), owner, listOf(instruction), cause)
     return newTasks.map {

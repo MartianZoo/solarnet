@@ -6,17 +6,17 @@ import org.junit.jupiter.api.Test
 class CartesianProductTest {
   @Test
   fun zeroLists() {
-    val sequence = listOf<List<Unit>>().cartesianProduct()
+    val sequence = listOf<Sequence<Unit>>().cartesianProduct()
     assertThat(sequence.toList()).containsExactly(listOf<Unit>())
   }
 
   @Test
   fun severalDimensions() {
-    val letters = listOf("a", "b", "c")
-    val numbers = listOf(1, 2, 3, 4, 5)
-    val colors = listOf("red", "blue")
+    val letters = sequenceOf("a", "b", "c")
+    val numbers = sequenceOf(1, 2, 3, 4, 5)
+    val colors = sequenceOf("red", "blue")
 
-    val product: List<List<Comparable<*>>> =
+    val product: List<Sequence<Comparable<*>>> =
         listOf(
             letters,
             numbers,
