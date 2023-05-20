@@ -79,9 +79,7 @@ public class PlayerSession(
   /** See [Game.atomic]. */
   public fun atomic(block: () -> Unit) = game.atomic(block)
 
-  fun turn(startingTask: String? = null) = turn(startingTask) {}
-
-  fun <T : Any> turn(startingTask: String? = null, body: OperationBody.() -> T?): T? {
+  fun turn(startingTask: String? = null, body: OperationBody.() -> Unit = {}) {
     return action("NewTurn") {
       startingTask?.let(this::task)
       OperationBody().body()
@@ -91,31 +89,29 @@ public class PlayerSession(
   fun action(startingInstruction: String, vararg tasks: String): TaskResult =
       atomic { action(startingInstruction) { tasks.forEach(::task) } }
 
-  fun <T : Any> action(startingInstruction: String, body: OperationBody.() -> T?): T? {
+  fun action(startingInstruction: String, body: OperationBody.() -> Unit) {
     val instruction: Instruction = parseInContext(startingInstruction)
     require(game.tasks.isEmpty()) { game.tasks }
     val cp = game.checkpoint()
     initiateOnly(instruction) // try task then try to drain
     autoExec()
 
-    val result =
-        try {
-          OperationBody().body()
-        } catch (e: Exception) {
-          game.rollBack(cp)
-          throw e
-        }
-
-    if (result == OperationBody().rollItBack()) {
+    try {
+      OperationBody().body()
+    } catch (e: JustRollBackException) {
       game.rollBack(cp)
-    } else {
-      require(game.tasks.isEmpty()) {
-        "Should be no tasks left, but:\n" + game.tasks.joinToString("\n")
-      }
-      require(game.reader.evaluate(parse("MAX 0 Temporary")))
+    } catch (e: Exception) {
+      game.rollBack(cp)
+      throw e
     }
-    return result
+
+    require(game.tasks.isEmpty()) {
+      "Should be no tasks left, but:\n" + game.tasks.joinToString("\n")
+    }
+    require(game.reader.evaluate(parse("MAX 0 Temporary")))
   }
+
+  private class JustRollBackException : Exception("")
 
   inner class OperationBody {
     val session = this@PlayerSession
@@ -131,7 +127,7 @@ public class PlayerSession(
       autoExec()
     }
 
-    fun rollItBack() = null
+    fun rollItBack() { throw JustRollBackException() }
   }
 
   // OTHER

@@ -10,15 +10,11 @@ import dev.martianzoo.tfm.pets.ast.Instruction.NoOp
  * think about the game.
  */
 object Humanize {
-  fun PlayerSession.playCorp(corpName: String, buyCards: Int? = 0) {
-    playCorp(corpName, buyCards) {}
-  }
-
-  fun <T : Any> PlayerSession.playCorp(
-    corpName: String,
-    buyCards: Int? = 0,
-    body: OperationBody.() -> T?
-  ): T? {
+  fun PlayerSession.playCorp(
+      corpName: String,
+      buyCards: Int? = 0,
+      body: OperationBody.() -> Unit? = {}
+  ) {
     require(has("CorporationPhase"))
     return turn(corpName) {
       task(if (buyCards == 0) "Ok" else "$buyCards BuyCard")
@@ -28,16 +24,12 @@ object Humanize {
 
   fun PlayerSession.pass() = turn("Pass").also { require(has("ActionPhase")) }
 
-  public fun PlayerSession.stdAction(stdAction: String) = stdAction(stdAction) {}
-
-  fun <T : Any> PlayerSession.stdAction(stdAction: String, body: OperationBody.() -> T?): T? {
+  fun PlayerSession.stdAction(stdAction: String, body: OperationBody.() -> Unit = {}) {
     require(has("ActionPhase"))
     return turn("UseAction1<$stdAction>", body)
   }
 
-  fun PlayerSession.stdProject(stdProject: String) = stdProject(stdProject) {}
-
-  fun <T : Any> PlayerSession.stdProject(stdProject: String, body: OperationBody.() -> T?): T? {
+  fun PlayerSession.stdProject(stdProject: String, body: OperationBody.() -> Unit = {}) {
     return stdAction("UseStandardProject") {
       task("UseAction1<$stdProject>")
       OperationBody().body()
@@ -49,17 +41,8 @@ object Humanize {
       megacredits: Int = 0,
       steel: Int = 0,
       titanium: Int = 0,
+      body: OperationBody.() -> Unit = {}
   ) {
-    playCard(cardName, megacredits, steel, titanium) {}
-  }
-
-  fun <T : Any> PlayerSession.playCard(
-    cardName: String,
-    megacredits: Int = 0,
-    steel: Int = 0,
-    titanium: Int = 0,
-    body: OperationBody.() -> T?
-  ): T? {
 
     return stdAction("PlayCardFromHand") {
       task("PlayCard<Class<$cardName>>")
@@ -79,17 +62,15 @@ object Humanize {
         }
       }
       autoExec()
-      val result = OperationBody().body()
-      autoExec()
-      result
+      OperationBody().body()
     }
   }
 
-  fun PlayerSession.cardAction(cardName: String, actionNumber: Int = 1) {
-    cardAction(cardName, actionNumber) {}
-  }
-
-  fun <T : Any> PlayerSession.cardAction(cardName: String, which: Int = 1, body: OperationBody.() -> T?): T? {
+  fun PlayerSession.cardAction(
+      cardName: String,
+      which: Int = 1,
+      body: OperationBody.() -> Unit = {}
+  ) {
     require(has(cardName))
     return stdAction("UseActionFromCard") {
       task("UseAction$which<$cardName>")
