@@ -394,7 +394,7 @@ public class ReplSession(var setup: GameSetup, private val jline: JlineRepl? = n
         throw Exceptions.mustClearTasks()
       }
       return game.atomic {
-        session.initiate(instruction)
+        session.initiateOnly(instruction)
         if (auto) session.autoExec()
       }
     }

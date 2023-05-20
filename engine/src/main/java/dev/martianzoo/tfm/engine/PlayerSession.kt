@@ -38,9 +38,6 @@ public class PlayerSession(
   public val tasks by game::tasks
   public val events by game::events
 
-  fun myTasks(): List<TaskId> =
-      tasks.filter { player == ENGINE || it.owner == player }.map { it.id }.sorted()
-
   // TODO get rid
   public fun asPlayer(player: Player) = game.session(player)
 
@@ -51,9 +48,9 @@ public class PlayerSession(
   // QUERIES
 
   fun count(metric: Metric): Int = reader.count(preprocess(metric))
+
   fun count(metric: String): Int = count(parse(metric))
   fun countComponent(component: Component) = reader.countComponent(component.mtype)
-
   fun list(expression: Expression): Multiset<Expression> { // TODO why not (M)Type?
     val typeToList: MType = reader.resolve(preprocess(expression))
     val allComponents: Multiset<Component> =
@@ -71,7 +68,11 @@ public class PlayerSession(
   }
 
   fun has(requirement: Requirement): Boolean = reader.evaluate(preprocess(requirement))
+
   fun has(requirement: String) = has(parse(requirement))
+
+  fun myTasks(): List<TaskId> =
+      tasks.filter { player == ENGINE || it.owner == player }.map { it.id }.sorted()
 
   // EXECUTION
 
@@ -94,7 +95,7 @@ public class PlayerSession(
     val instruction: Instruction = parseInContext(startingInstruction)
     require(game.tasks.isEmpty()) { game.tasks }
     val cp = game.checkpoint()
-    initiate(instruction) // try task then try to drain
+    initiateOnly(instruction) // try task then try to drain
     autoExec()
 
     val result =
@@ -135,22 +136,8 @@ public class PlayerSession(
 
   // OTHER
 
-  // TODO hmmm
-  public fun <P : PetElement> preprocess(node: P) = (writer as GameWriterImpl).preprocess(node)
-
-  private inline fun <reified P : PetElement> parseInContext(text: String): P =
-      preprocess(parse(text))
-
-  fun execute(instruction: String, vararg tasks: String) {
-    val task = initiate(instruction).tasksSpawned.single()
-    writer.executeTask(task)
-    tasks.forEach { matchTask(it) } // TODO do first??
-  }
-
-  fun initiate(manual: String) = initiate(parse(manual))
-
-  fun initiate(manual: Instruction): TaskResult {
-    return atomic { writer.unsafe().initiateTask(manual) }
+  fun initiateOnly(instruction: Instruction): TaskResult {
+    return atomic { writer.unsafe().initiateTask(instruction) }
   }
 
   @Suppress("ControlFlowWithEmptyBody")
@@ -280,5 +267,11 @@ public class PlayerSession(
   }
 
   fun rollBack(checkpoint: Checkpoint) = game.rollBack(checkpoint)
+
   fun rollBack(position: Int) = rollBack(Checkpoint(position))
+
+  public fun <P : PetElement> preprocess(node: P) = (writer as GameWriterImpl).preprocess(node)
+
+  private inline fun <reified P : PetElement> parseInContext(text: String): P =
+      preprocess(parse(text))
 }

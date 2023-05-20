@@ -70,7 +70,7 @@ private class PlayerSessionTest {
     assertThat(session.count("Ants")).isEqualTo(1)
     session.action("3 Microbe<Ants>")
     assertThat(session.count("Microbe")).isEqualTo(3)
-    session.execute("-Ants")
+    session.action("-Ants")
     assertThat(session.count("Microbe")).isEqualTo(0)
   }
 
