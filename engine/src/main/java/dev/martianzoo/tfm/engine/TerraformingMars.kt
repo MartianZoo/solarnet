@@ -11,20 +11,26 @@ object TerraformingMars {
   fun PlayerSession.playCorp(
       corpName: String,
       buyCards: Int? = 0,
+      vararg tasks: String,
       body: OperationBody.() -> Unit? = {}
   ) {
     require(has("CorporationPhase"))
     return turn(corpName) {
       task(if (buyCards == 0) "Ok" else "$buyCards BuyCard")
+      tasks.forEach(::task)
       OperationBody().body()
     }
   }
 
-  fun PlayerSession.pass() = turn("Pass").also { require(has("ActionPhase")) }
+  fun PlayerSession.pass() = turn("Pass")
 
-  fun PlayerSession.stdAction(stdAction: String, body: OperationBody.() -> Unit = {}) {
+  fun PlayerSession.stdAction(
+      stdAction: String,
+      vararg tasks: String,
+      body: OperationBody.() -> Unit = {}
+  ) {
     require(has("ActionPhase"))
-    return turn("UseAction1<$stdAction>", body)
+    return turn("UseAction1<$stdAction>", *tasks) { body() }
   }
 
   fun PlayerSession.stdProject(
@@ -43,8 +49,24 @@ object TerraformingMars {
   fun PlayerSession.playCard(
       cardName: String,
       megacredits: Int = 0,
+      vararg tasks: String,
+      body: OperationBody.() -> Unit = {}
+  ) = playCard(cardName, megacredits, steel = 0, *tasks) { body() }
+
+  fun PlayerSession.playCard(
+      cardName: String,
+      megacredits: Int = 0,
+      steel: Int = 0,
+      vararg tasks: String,
+      body: OperationBody.() -> Unit = {}
+  ) = playCard(cardName, megacredits, steel, titanium = 0, *tasks) { body() }
+
+  fun PlayerSession.playCard(
+      cardName: String,
+      megacredits: Int = 0,
       steel: Int = 0,
       titanium: Int = 0,
+      vararg tasks: String,
       body: OperationBody.() -> Unit = {}
   ) {
 
@@ -61,12 +83,13 @@ object TerraformingMars {
       pay(titanium, "Titanium")
 
       // Take care of other Accepts we didn't need
-      for (task in tasks.toList()) {
-        if (task.cause?.context?.className == ClassName.cn("Accept")) {
+      for (task in this.tasks.toList()) {
+        if (task.cause?.context?.className == cn("Accept")) {
           writer.narrowTask(task.id, NoOp) // "executes" automatically
         }
       }
       autoExec()
+      tasks.forEach(::task)
       OperationBody().body()
     }
   }
@@ -75,25 +98,25 @@ object TerraformingMars {
       cardName: String,
       vararg tasks: String,
       body: OperationBody.() -> Unit = {}
-  )  = cardAction(1, cardName, tasks.toList(), body)
+  ) = cardAction(1, cardName, tasks.toList(), body)
 
   fun PlayerSession.cardAction2(
       cardName: String,
       vararg tasks: String,
       body: OperationBody.() -> Unit = {}
-  )  = cardAction(2, cardName, tasks.toList(), body)
+  ) = cardAction(2, cardName, tasks.toList(), body)
 
   fun PlayerSession.cardAction3(
       cardName: String,
       vararg tasks: String,
       body: OperationBody.() -> Unit = {}
-  )  = cardAction(3, cardName, tasks.toList(), body)
+  ) = cardAction(3, cardName, tasks.toList(), body)
 
   private fun PlayerSession.cardAction(
-    which: Int,
-    cardName: String,
-    tasks: List<String>,
-    body: OperationBody.() -> Unit = {}
+      which: Int,
+      cardName: String,
+      tasks: List<String>,
+      body: OperationBody.() -> Unit = {}
   ) {
     require(has(cardName))
     require(has("ActionPhase"))
@@ -103,6 +126,11 @@ object TerraformingMars {
       tasks.forEach(::task)
       OperationBody().body()
     }
+  }
+
+  fun PlayerSession.sellPatents(count: Int) {
+    require(has("ActionPhase"))
+    return stdAction("SellPatents", "$count Megacredit FROM ProjectCard")
   }
 
   fun PlayerSession.production(): Map<ClassName, Int> =

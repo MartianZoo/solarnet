@@ -79,9 +79,9 @@ public class PlayerSession(
   /** See [Game.atomic]. */
   public fun atomic(block: () -> Unit) = game.atomic(block)
 
-  fun turn(startingTask: String? = null, body: OperationBody.() -> Unit = {}) {
+  fun turn(vararg tasks: String, body: OperationBody.() -> Unit = {}) {
     return operation("NewTurn") {
-      startingTask?.let(this::task)
+      tasks.forEach(::task)
       OperationBody().body()
     }
   }

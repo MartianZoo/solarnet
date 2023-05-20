@@ -14,7 +14,7 @@ import dev.martianzoo.tfm.engine.TerraformingMars.pass
 import dev.martianzoo.tfm.engine.TerraformingMars.playCard
 import dev.martianzoo.tfm.engine.TerraformingMars.playCorp
 import dev.martianzoo.tfm.engine.TerraformingMars.production
-import dev.martianzoo.tfm.engine.TerraformingMars.stdAction
+import dev.martianzoo.tfm.engine.TerraformingMars.sellPatents
 import dev.martianzoo.tfm.engine.TerraformingMars.stdProject
 import dev.martianzoo.tfm.repl.TestHelpers.assertCounts
 import dev.martianzoo.tfm.types.MClassTable
@@ -29,6 +29,17 @@ class RealGamesTest {
       val eng = game.session(ENGINE)
       val p1 = game.session(PLAYER1)
       val p2 = game.session(PLAYER2)
+
+      fun newGeneration(cards1: Int, cards2: Int) {
+        with(eng) {
+          phase("Production")
+          operation("ResearchPhase FROM Phase") {
+            p1.task(if (cards1 > 0) "$cards1 BuyCard" else "Ok")
+            p2.task(if (cards2 > 0) "$cards2 BuyCard" else "Ok")
+          }
+          phase("Action")
+        }
+      }
 
       p1.playCorp("LakefrontResorts", 3)
       p2.playCorp("InterplanetaryCinematics", 8)
@@ -47,21 +58,14 @@ class RealGamesTest {
       p1.pass()
 
       with(p2) {
-        playCard("NaturalPreserve", 1, steel = 4) { task("NpTile<E37>") }
+        playCard("NaturalPreserve", 1, steel = 4, "NpTile<E37>")
         playCard("SpaceElevator", 1, steel = 13)
         cardAction1("SpaceElevator")
         playCard("InventionContest", 2)
-        playCard("GreatEscarpmentConsortium", 6) { task("PROD[-S<P1>]") }
+        playCard("GreatEscarpmentConsortium", 6, "PROD[-S<P1>]")
       }
 
-      with(eng) {
-        phase("Production")
-        operation("ResearchPhase FROM Phase") {
-          p1.task("4 BuyCard")
-          p2.task("1 BuyCard")
-        }
-        phase("Action")
-      }
+      newGeneration(4, 1)
 
       with(p2) {
         cardAction1("SpaceElevator")
@@ -70,25 +74,18 @@ class RealGamesTest {
 
       with(p1) {
         playCard("TitaniumMine", 7)
-        playCard("RoboticWorkforce", 9) { task("CopyProductionBox<MartianIndustries>") }
+        playCard("RoboticWorkforce", 9, "CopyProductionBox<MartianIndustries>")
         playCard("Sponsors", 6)
       }
 
       with(p2) {
         playCard("IndustrialMicrobes", steel = 5)
         playCard("TechnologyDemonstration", titanium = 1)
-        playCard("EnergyTapping", 1) { task("PROD[-E<P1>]") }
+        playCard("EnergyTapping", 1, "PROD[-E<P1>]")
         playCard("BuildingIndustries", steel = 2)
       }
 
-      with(eng) {
-        phase("Production")
-        operation("ResearchPhase FROM Phase") {
-          p1.task("3 BuyCard")
-          p2.task("2 BuyCard")
-        }
-        phase("Action")
-      }
+      newGeneration(3, 2)
 
       with(p1) {
         playCard("Mine", 2, steel = 1)
@@ -100,37 +97,30 @@ class RealGamesTest {
         cardAction1("ElectroCatapult")
         playCard("SpaceHotels", 7, titanium = 1)
         playCard("MarsUniversity", 6)
-        playCard("ArtificialPhotosynthesis", 10) { task("PROD[2 Energy]") }
+        playCard("ArtificialPhotosynthesis", 10, "PROD[2 Energy]")
         playCard("BribedCommittee", 5)
       }
 
-      with(eng) {
-        phase("Production")
-        operation("ResearchPhase FROM Phase") {
-          p1.task("3 BuyCard")
-          p2.task("2 BuyCard")
-        }
-        phase("Action")
-      }
+      newGeneration(3, 2)
 
       with(p2) {
         cardAction1("ElectroCatapult") // steel
         cardAction1("SpaceElevator")
       }
       with(p1) {
-        playCard("ResearchOutpost", 14, steel = 2) { task("CityTile<E56>") }
+        playCard("ResearchOutpost", 14, steel = 2, "CityTile<E56>")
         playCard("IoMiningIndustries", 1, titanium = 13)
       }
       with(p2) {
         playCard("TransNeptuneProbe", 1, titanium = 1)
-        playCard("Hackers", 1) { task("PROD[-2 M<P1>]") }
+        playCard("Hackers", 1, "PROD[-2 M<P1>]")
       }
 
-      p1.stdAction("SellPatents") { task("Megacredit FROM ProjectCard") }
+      p1.sellPatents(1)
 
       with(p2) {
         playCard("SolarPower", 1, steel = 4)
-        stdProject("CitySP") { task("CityTile<E65>") }
+        stdProject("CitySP", "CityTile<E65>")
         operation("PROD[-Plant, Energy]") // CORRECTION TODO WHY WHY
       }
 
@@ -149,8 +139,8 @@ class RealGamesTest {
         assertCounts(15 to "Card", 5 to "ProjectCard", 10 to "CardFront")
         assertCounts(1 to "ActiveCard", 6 to "AutomatedCard", 0 to "PlayedEvent")
 
-        assertCounts(5 to "BUT", 2 to "SPT",  2 to "SCT",  0 to "POT",  1 to "EAT")
-        assertCounts(3 to "JOT", 0 to "PLT",  0 to "MIT",  0 to "ANT",  1 to "CIT")
+        assertCounts(5 to "BUT", 2 to "SPT", 2 to "SCT", 0 to "POT", 1 to "EAT")
+        assertCounts(3 to "JOT", 0 to "PLT", 0 to "MIT", 0 to "ANT", 1 to "CIT")
 
         assertCounts(1 to "CityTile", 0 to "GreeneryTile", 0 to "SpecialTile")
       }
@@ -164,8 +154,8 @@ class RealGamesTest {
         assertCounts(23 to "Card", 3 to "ProjectCard", 17 to "CardFront")
         assertCounts(4 to "ActiveCard", 10 to "AutomatedCard", 3 to "PlayedEvent")
 
-        assertCounts(9 to "BUT", 3 to "SPT",  4 to "SCT",  2 to "POT",  3 to "EAT")
-        assertCounts(0 to "JOT", 0 to "PLT",  1 to "MIT",  0 to "ANT",  0 to "CIT")
+        assertCounts(9 to "BUT", 3 to "SPT", 4 to "SCT", 2 to "POT", 3 to "EAT")
+        assertCounts(0 to "JOT", 0 to "PLT", 1 to "MIT", 0 to "ANT", 0 to "CIT")
 
         assertCounts(1 to "CityTile", 0 to "GreeneryTile", 1 to "SpecialTile")
       }
@@ -185,7 +175,7 @@ class RealGamesTest {
     eng.phase("Action")
 
     p1.playCard("MediaGroup", 6)
-    p1.playCard("Sabotage", 1) { task("-7 M<Player2>") }
+    p1.playCard("Sabotage", 1, "-7 M<Player2>")
 
     p2.playCard("Research", 11)
   }
@@ -213,18 +203,15 @@ class RealGamesTest {
     eng.phase("Action")
 
     p1.playCard("MediaGroup", 6)
-    p1.playCard("Sabotage", 1) { task("-7 M<P2>") }
+    p1.playCard("Sabotage", 1, "-7 M<P2>")
 
     p2.playCard("Research", 11)
-    p2.playCard("MartianSurvey", 9) { task("Ok") } // could have flipped but didn't
+    p2.playCard("MartianSurvey", 9, "Ok") // ain't gon flip
 
     p1.pass()
 
-    p2.playCard("SearchForLife", 3) {
-      task("PlayedEvent<Class<PharmacyUnion>> FROM PharmacyUnion THEN 3 TR") // omit 3 TR part??
-    }
-
-    p2.cardAction1("SearchForLife") { task("Ok") } // no microbe
+    p2.playCard("SearchForLife", 3, "EVT<Class<PharmacyUnion>> FROM PharmacyUnion THEN 3 TR")
+    p2.cardAction1("SearchForLife", "Ok") // no microbe
 
     p2.pass()
 
@@ -239,7 +226,7 @@ class RealGamesTest {
       phase("Action")
     }
 
-    p2.stdAction("SellPatents") { task("Megacredit FROM ProjectCard") }
+    p2.sellPatents(1)
     p2.playCard("VestaShipyard", 15)
     p2.pass()
 
@@ -247,14 +234,16 @@ class RealGamesTest {
       playCard("EarthCatapult", 23)
       playCard("OlympusConference", steel = 4)
 
-      playCard("DevelopmentCenter", 1, steel = 4) {
-        task("ProjectCard FROM Science<OlympusConference>")
-      }
+      playCard(
+          "DevelopmentCenter",
+          1,
+          steel = 4,
+          "ProjectCard FROM Science<OlympusConference>")
 
       playCard("GeothermalPower", 1, steel = 4)
 
       playCard("MirandaResort", 10)
-      playCard("Hackers", 1) { task("PROD[-2 M<P2>]") }
+      playCard("Hackers", 1, "PROD[-2 M<P2>]")
       playCard("MicroMills", 1)
       pass()
     }
@@ -271,10 +260,13 @@ class RealGamesTest {
     }
 
     p1.cardAction1("DevelopmentCenter")
-    p1.playCard("ImmigrantCity", 1, steel = 5) {
-      task("CityTile<Hellas_9_7>")
-      task("OceanTile<Hellas_5_6>")
-    }
+    p1.playCard(
+        "ImmigrantCity",
+        1,
+        steel = 5,
+        "CityTile<Hellas_9_7>",
+        "OceanTile<Hellas_5_6>",
+    )
 
     // Check counts, shared stuff first
 

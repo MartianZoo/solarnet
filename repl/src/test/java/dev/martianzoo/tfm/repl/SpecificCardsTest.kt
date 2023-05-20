@@ -400,11 +400,12 @@ class SpecificCardsTest {
       playCorp("InterplanetaryCinematics", 7)
       phase("Prelude")
 
-      turn("ExcentricSponsor") { // currently we don't `PlayCard` these
-        task("PlayCard<Class<NitrogenRichAsteroid>>")
-        task("6 Pay<Class<M>> FROM M")
-        task("Ok") // the damn titanium
-      }
+      turn(
+          "ExcentricSponsor",
+          "PlayCard<Class<NitrogenRichAsteroid>>",
+          "6 Pay<Class<M>> FROM M",
+          "Ok", // the damn titanium
+      )
       assertCounts(0 to "Owed", 5 to "M", 1 to "ExcentricSponsor", 1 to "PlayedEvent")
     }
   }
@@ -434,7 +435,7 @@ class SpecificCardsTest {
       playCard("InventorsGuild", 9)
       assertCounts(9 to "ProjectCard", 5 to "M")
 
-      cardAction1("InventorsGuild") { task("BuyCard") } // TODO
+      cardAction1("InventorsGuild", "BuyCard")
       assertCounts(10 to "ProjectCard", 0 to "M")
     }
   }

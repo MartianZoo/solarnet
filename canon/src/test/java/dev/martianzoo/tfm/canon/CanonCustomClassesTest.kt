@@ -83,11 +83,7 @@ private class CanonCustomClassesTest {
         rollItBack()
       }
 
-      cardAction1("RobinsonIndustries") {
-        assertThrows<NarrowingException> { task("PROD[Steel]") }
-        checkProduction(0, 1, 0, 1, 1, 1)
-        rollItBack()
-      }
+      assertThrows<NarrowingException> { cardAction1("RobinsonIndustries", "PROD[Steel]") }
     }
   }
 
