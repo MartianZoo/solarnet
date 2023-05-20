@@ -62,7 +62,7 @@ private class CanonCustomClassesTest {
     checkProduction(p1, 0, 1, 0, 1, 1, 1)
 
     p1.action("UseAction1<RobinsonIndustries>") {
-      assertThat(tasks().map { it.instruction.toString() }).containsExactly(
+      assertThat(tasks.map { it.instruction.toString() }).containsExactly(
           "Production<Player1, Class<Megacredit>>! OR Production<Player1, Class<Titanium>>!")
       task("PROD[1]")
       checkProduction(p1, 1, 1, 0, 1, 1, 1)

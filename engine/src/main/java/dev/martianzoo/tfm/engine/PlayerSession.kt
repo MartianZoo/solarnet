@@ -16,7 +16,6 @@ import dev.martianzoo.tfm.pets.Parsing.parse
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.pets.ast.Instruction
-import dev.martianzoo.tfm.pets.ast.Instruction.Companion.split
 import dev.martianzoo.tfm.pets.ast.Metric
 import dev.martianzoo.tfm.pets.ast.PetElement
 import dev.martianzoo.tfm.pets.ast.Requirement
@@ -27,8 +26,8 @@ import dev.martianzoo.util.Multiset
 
 /** A player session adds autoexec, string overloads, prep, blah blah. */
 public class PlayerSession(
-    private val game: Game,
-    public val player: Player,
+  private val game: Game,
+  public val player: Player,
 ) {
   companion object {
     fun Game.session(player: Player) = PlayerSession(this, player)
@@ -79,43 +78,34 @@ public class PlayerSession(
   /** See [Game.atomic]. */
   public fun atomic(block: () -> Unit) = game.atomic(block)
 
-  internal val theTasker = Tasker(this)
+  fun turn(startingTask: String? = null) = turn(startingTask) {}
 
-  fun turn(initial: String? = null) = turn(initial) {}
-
-  fun <T : Any> turn(initial: String? = null, tasker: Tasker.() -> T?): T? {
+  fun <T : Any> turn(startingTask: String? = null, body: OperationBody.() -> T?): T? {
     return action("NewTurn") {
-      initial?.let(this::task)
-      theTasker.tasker()
+      startingTask?.let(this::task)
+      OperationBody().body()
     }
   }
 
-  /** Here action just means "queue empty -> do safe, draining safely -> queue empty again" */
-  fun action(manual: Instruction, vararg tasks: String): TaskResult {
-    return atomic { action(manual) { tasks.forEach(::task) } }
-  }
+  fun action(startingInstruction: String, vararg tasks: String): TaskResult =
+      atomic { action(startingInstruction) { tasks.forEach(::task) } }
 
-  fun action(firstInstruction: String, vararg tasks: String): TaskResult =
-      action(parseInContext(firstInstruction), *tasks)
-
-  fun <T : Any> action(firstInstruction: String, tasker: Tasker.() -> T?): T? =
-      action(parseInContext(firstInstruction), tasker)
-
-  fun <T : Any> action(firstInstruction: Instruction, tasker: Tasker.() -> T?): T? {
+  fun <T : Any> action(startingInstruction: String, body: OperationBody.() -> T?): T? {
+    val instruction: Instruction = parseInContext(startingInstruction)
     require(game.tasks.isEmpty()) { game.tasks }
     val cp = game.checkpoint()
-    initiate(firstInstruction) // try task then try to drain
+    initiate(instruction) // try task then try to drain
     autoExec()
 
     val result =
         try {
-          theTasker.tasker()
+          OperationBody().body()
         } catch (e: Exception) {
           game.rollBack(cp)
           throw e
         }
 
-    if (result == theTasker.rollItBack()) {
+    if (result == OperationBody().rollItBack()) {
       game.rollBack(cp)
     } else {
       require(game.tasks.isEmpty()) {
@@ -126,17 +116,18 @@ public class PlayerSession(
     return result
   }
 
-  class Tasker(val session: PlayerSession) {
-    fun tasks() = session.game.tasks
+  inner class OperationBody {
+    val session = this@PlayerSession
+    val tasks by game::tasks
 
-    fun task(instr: String) {
-      session.task(instr)
-      session.autoExec()
+    fun task(instruction: String) {
+      session.task(instruction)
+      autoExec()
     }
 
-    fun matchTask(instr: String) {
-      session.matchTask(instr)
-      session.autoExec()
+    fun matchTask(instruction: String) {
+      session.matchTask(instruction)
+      autoExec()
     }
 
     fun rollItBack() = null
@@ -182,7 +173,7 @@ public class PlayerSession(
         }
 
     when (options.size) {
-      0 -> writer.prepareTask(myTasks().first()).also { error("that should've failed" ) }
+      0 -> writer.prepareTask(myTasks().first()).also { error("that should've failed") }
       1 -> {
         val taskId = options.single()
         writer.prepareTask(taskId) ?: return true
@@ -287,8 +278,6 @@ public class PlayerSession(
       autoExec()
     }
   }
-
-  private fun prepAndSplit(instruction: Instruction) = split(preprocess(instruction))
 
   fun rollBack(checkpoint: Checkpoint) = game.rollBack(checkpoint)
   fun rollBack(position: Int) = rollBack(Checkpoint(position))

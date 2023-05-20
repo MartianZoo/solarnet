@@ -46,7 +46,8 @@ class SpecificCardsTest {
       // And for the expected reasons
       assertThat(taskReasons())
           .containsExactly(
-              null, // "When gaining null and removing Heat<Player1>: can do only 4 of 5 required",
+              // TODO "When gaining null and removing Heat<Player1>: can do only 4 of 5 required",
+              null,
               "choice required in: `4 Plant<Player1>! OR 2 Animal<Player1>.`",
           )
 

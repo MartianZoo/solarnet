@@ -58,7 +58,7 @@ public class Game internal constructor(private val table: MClassTable) {
       val game = Game(table)
       val session = game.session(ENGINE)
 
-      fun gain(thing: HasExpression) = session.action(parse("${thing.expression}!"))
+      fun gain(thing: HasExpression) = session.action("${thing.expression}!")
 
       gain(ENGINE)
       singletonTypes(table).forEach { gain(it) }

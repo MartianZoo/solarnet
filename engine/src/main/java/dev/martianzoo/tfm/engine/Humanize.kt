@@ -1,7 +1,7 @@
 package dev.martianzoo.tfm.engine
 
 import dev.martianzoo.tfm.api.ApiUtils.standardResourceNames
-import dev.martianzoo.tfm.engine.PlayerSession.Tasker
+import dev.martianzoo.tfm.engine.PlayerSession.OperationBody
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.Instruction.NoOp
 
@@ -15,14 +15,14 @@ object Humanize {
   }
 
   fun <T : Any> PlayerSession.playCorp(
-      corpName: String,
-      buyCards: Int? = 0,
-      tasker: Tasker.() -> T?
+    corpName: String,
+    buyCards: Int? = 0,
+    body: OperationBody.() -> T?
   ): T? {
     require(has("CorporationPhase"))
     return turn(corpName) {
       task(if (buyCards == 0) "Ok" else "$buyCards BuyCard")
-      theTasker.tasker()
+      OperationBody().body()
     }
   }
 
@@ -30,17 +30,17 @@ object Humanize {
 
   public fun PlayerSession.stdAction(stdAction: String) = stdAction(stdAction) {}
 
-  fun <T : Any> PlayerSession.stdAction(stdAction: String, tasker: Tasker.() -> T?): T? {
+  fun <T : Any> PlayerSession.stdAction(stdAction: String, body: OperationBody.() -> T?): T? {
     require(has("ActionPhase"))
-    return turn("UseAction1<$stdAction>", tasker)
+    return turn("UseAction1<$stdAction>", body)
   }
 
   fun PlayerSession.stdProject(stdProject: String) = stdProject(stdProject) {}
 
-  fun <T : Any> PlayerSession.stdProject(stdProject: String, tasker: Tasker.() -> T?): T? {
+  fun <T : Any> PlayerSession.stdProject(stdProject: String, body: OperationBody.() -> T?): T? {
     return stdAction("UseStandardProject") {
       task("UseAction1<$stdProject>")
-      theTasker.tasker()
+      OperationBody().body()
     }
   }
 
@@ -54,18 +54,18 @@ object Humanize {
   }
 
   fun <T : Any> PlayerSession.playCard(
-      cardName: String,
-      megacredits: Int = 0,
-      steel: Int = 0,
-      titanium: Int = 0,
-      tasker: Tasker.() -> T?
+    cardName: String,
+    megacredits: Int = 0,
+    steel: Int = 0,
+    titanium: Int = 0,
+    body: OperationBody.() -> T?
   ): T? {
 
     return stdAction("PlayCardFromHand") {
       task("PlayCard<Class<$cardName>>")
 
       fun pay(cost: Int, currency: String) {
-        if (cost > 0) session.ifMatchTask("$cost Pay<Class<$currency>> FROM $currency")
+        if (cost > 0) ifMatchTask("$cost Pay<Class<$currency>> FROM $currency")
       }
 
       pay(megacredits, "Megacredit")
@@ -73,13 +73,13 @@ object Humanize {
       pay(titanium, "Titanium")
 
       // Take care of other Accepts we didn't need
-      for (task in tasks().toList()) {
+      for (task in tasks.toList()) {
         if (task.cause?.context?.className == ClassName.cn("Accept")) {
-          session.writer.narrowTask(task.id, NoOp) // "executes" automatically
+          writer.narrowTask(task.id, NoOp) // "executes" automatically
         }
       }
       autoExec()
-      val result = theTasker.tasker()
+      val result = OperationBody().body()
       autoExec()
       result
     }
@@ -89,12 +89,12 @@ object Humanize {
     cardAction(cardName, actionNumber) {}
   }
 
-  fun <T : Any> PlayerSession.cardAction(cardName: String, which: Int = 1, tasker: Tasker.() -> T?): T? {
+  fun <T : Any> PlayerSession.cardAction(cardName: String, which: Int = 1, body: OperationBody.() -> T?): T? {
     require(has(cardName))
     return stdAction("UseActionFromCard") {
       task("UseAction$which<$cardName>")
       task("ActionUsedMarker<$cardName>") // TODO slight problem for Viron?
-      theTasker.tasker()
+      OperationBody().body()
     }
   }
 
