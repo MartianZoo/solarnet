@@ -56,7 +56,7 @@ class RealGamesTest {
 
       with(eng) {
         phase("Production")
-        operation("ResearchPhase") {
+        operation("ResearchPhase FROM Phase") {
           p1.task("4 BuyCard")
           p2.task("1 BuyCard")
         }
@@ -83,7 +83,7 @@ class RealGamesTest {
 
       with(eng) {
         phase("Production")
-        operation("ResearchPhase") {
+        operation("ResearchPhase FROM Phase") {
           p1.task("3 BuyCard")
           p2.task("2 BuyCard")
         }
@@ -106,7 +106,7 @@ class RealGamesTest {
 
       with(eng) {
         phase("Production")
-        operation("ResearchPhase") {
+        operation("ResearchPhase FROM Phase") {
           p1.task("3 BuyCard")
           p2.task("2 BuyCard")
         }
@@ -232,7 +232,7 @@ class RealGamesTest {
 
     with(eng) {
       phase("Production")
-      operation("ResearchPhase") {
+      operation("ResearchPhase FROM Phase") {
         p1.task("1 BuyCard")
         p2.task("3 BuyCard")
       }
@@ -263,7 +263,7 @@ class RealGamesTest {
 
     with(eng) {
       phase("Production")
-      operation("ResearchPhase") {
+      operation("ResearchPhase FROM Phase") {
         p1.task("3 BuyCard")
         p2.task("BuyCard")
       }
@@ -316,7 +316,7 @@ class RealGamesTest {
 
     // To check VPs we have to fake the game ending
 
-    eng.operation("End") {
+    eng.operation("End FROM Phase") {
       // TODO why does P1 have 1 more point than I expect?
       // Should be 23 2 1 1 -1 / 25 1 1 1
       eng.assertCounts(27 to "VP<P1>", 28 to "VP<P2>")

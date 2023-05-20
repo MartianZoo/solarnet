@@ -87,7 +87,7 @@ public class PlayerSession(
   }
 
   fun phase(phase: String) {
-    asPlayer(ENGINE).operation("${phase}Phase")
+    asPlayer(ENGINE).operation("${phase}Phase FROM Phase")
   }
 
   fun operation(startingInstruction: String, vararg tasks: String): TaskResult = atomic {

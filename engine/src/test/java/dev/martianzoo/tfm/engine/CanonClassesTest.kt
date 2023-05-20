@@ -181,7 +181,7 @@ internal class CanonClassesTest {
   fun generalInvariants() {
     assertThat((table as MClassLoader).generalInvariants.toStrings())
         .containsExactly(
-            // "MAX 1 Phase",
+            "MAX 1 Phase",
             "MAX 9 OceanTile",
         )
   }

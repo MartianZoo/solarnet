@@ -205,7 +205,7 @@ class SpecificCardsTest {
     eng.phase("Production")
     p1.assertCounts(74 to "Megacredit", 21 to "TR", 0 to "Preservation")
 
-    eng.operation("ResearchPhase") {
+    eng.operation("ResearchPhase FROM Phase") {
       p1.task("2 BuyCard")
       p2.task("2 BuyCard")
     }

@@ -16,8 +16,8 @@ private class ReplSessionTest {
           exec 9 TR
 
           become
-          exec ActionPhase
-          exec ProductionPhase
+          exec ActionPhase FROM Phase
+          exec ProductionPhase FROM Phase
 
           become Player1
         """

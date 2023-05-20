@@ -125,18 +125,14 @@ ABSTRACT CLASS Generational {                          // things that disappear 
 }
 
 ABSTRACT CLASS Phase : System {
-  // HAS MAX 1 Phase
-  // Phase FROM This
+  HAS MAX 1 Phase
 
   CLASS SetupPhase { This:: Generation, CorporationPhase FROM This }
-  CLASS CorporationPhase { ActionPhase:: -This! }
-  CLASS PreludePhase {                                 // TODO how to make it part of `P` bundle?
-    This:: -CorporationPhase.
-    ActionPhase:: -This!
-  }
-  CLASS ActionPhase { This:: -ResearchPhase. }
-  CLASS ProductionPhase { This:: -ActionPhase }
-  CLASS ResearchPhase { This:: -ProductionPhase, Generation }
+  CLASS CorporationPhase
+  CLASS PreludePhase                                   // TODO make it part of `P` bundle
+  CLASS ActionPhase
+  CLASS ProductionPhase
+  CLASS ResearchPhase { This:: Generation }
   CLASS End
 }
 
