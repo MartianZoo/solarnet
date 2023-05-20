@@ -4,45 +4,43 @@ import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.data.GameEvent.ChangeEvent.StateChange
 import dev.martianzoo.tfm.data.Player.Companion.PLAYER2
+import dev.martianzoo.tfm.engine.PlayerSession.Companion.session
 import dev.martianzoo.tfm.pets.Parsing.parse
 import dev.martianzoo.tfm.pets.ast.Metric
+import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.types.te
 import dev.martianzoo.util.toStrings
 import org.junit.jupiter.api.Test
 
 private class GameApiTest {
-  // TODO get rid of these
-  fun Game.count(s: String) = reader.count(parse<Metric>(s))
-  fun Game.execute(s: String) = PlayerSession(this, PLAYER2).action(s)
-  fun Game.evaluate(s: String) = reader.evaluate(parse(s))
-
   @Test
   fun basicByApi() {
     val game = Game.create(Canon.SIMPLE_GAME)
 
     val checkpoint = game.checkpoint()
-    assertThat(game.count("Heat")).isEqualTo(0)
+    assertThat(game.reader.count(parse<Metric>("Heat"))).isEqualTo(0)
 
-    game.execute("5 Heat<Player2>!")
-    game.execute("10 Heat<Player1>!")
+    val p2 = game.session(PLAYER2)
 
-    assertThat(game.count("Heat")).isEqualTo(15)
+    p2.operation("5 Heat<Player2>!")
+    p2.operation("10 Heat<Player1>!")
 
-    game.execute("-4 Heat<Player2>!")
-    assertThat(game.evaluate("Heat<Player2>")).isTrue()
-    assertThat(game.evaluate("=1 Heat<Player2>")).isTrue()
-    assertThat(game.evaluate("MAX 1 Heat<Player2>")).isTrue()
-    assertThat(game.evaluate("2 Heat<Player2>")).isFalse()
+    assertThat(game.reader.count(parse<Metric>("Heat"))).isEqualTo(15)
 
-    assertThat(game.count("StandardResource")).isEqualTo(11)
-    assertThat(game.count("StandardResource<Player1>")).isEqualTo(10)
-    game.execute("3 Steel<Player1> FROM Heat<Player1>!")
-    assertThat(game.count("StandardResource<Player1>")).isEqualTo(10)
-    assertThat(game.count("Steel")).isEqualTo(3)
+    p2.operation("-4 Heat<Player2>!")
+    assertThat(game.reader.evaluate(parse("Heat<Player2>"))).isTrue()
+    assertThat(game.reader.evaluate(parse("=1 Heat<Player2>"))).isTrue()
+    assertThat(game.reader.evaluate(parse("MAX 1 Heat<Player2>"))).isTrue()
+    assertThat(game.reader.evaluate(parse("2 Heat<Player2>"))).isFalse()
+    assertThat(game.reader.count(parse<Metric>("StandardResource"))).isEqualTo(11)
+    assertThat(game.reader.count(parse<Metric>("StandardResource<Player1>"))).isEqualTo(10)
+    p2.operation("3 Steel<Player1> FROM Heat<Player1>!")
+    assertThat(game.reader.count(parse<Metric>("StandardResource<Player1>"))).isEqualTo(10)
+    assertThat(game.reader.count(parse<Metric>("Steel"))).isEqualTo(3)
 
-    game.execute("2 Heat<Player2 FROM Player1>!")
-    assertThat(game.evaluate("=3 Heat<Player2>")).isTrue()
-    assertThat(game.evaluate("=5 Heat<Player1>")).isTrue()
+    p2.operation("2 Heat<Player2 FROM Player1>!")
+    assertThat(game.reader.evaluate(parse<Requirement>("=3 Heat<Player2>"))).isTrue()
+    assertThat(game.reader.evaluate(parse<Requirement>("=5 Heat<Player1>"))).isTrue()
 
     val changes = game.events.changesSince(checkpoint)
     assertThat(changes.map { it.change })

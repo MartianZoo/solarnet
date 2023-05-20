@@ -33,7 +33,7 @@ class RealGamesTest {
       p1.playCorp("LakefrontResorts", 3)
       p2.playCorp("InterplanetaryCinematics", 8)
 
-      eng.action("PreludePhase")
+      eng.operation("PreludePhase")
 
       p1.turn("MartianIndustries")
       p1.turn("GalileanMining")
@@ -41,7 +41,7 @@ class RealGamesTest {
       p2.turn("MiningOperations")
       p2.turn("UnmiContractor")
 
-      eng.action("ActionPhase")
+      eng.operation("ActionPhase")
 
       p1.playCard("AsteroidMining", 30)
       p1.pass()
@@ -55,12 +55,12 @@ class RealGamesTest {
       }
 
       with(eng) {
-        action("ProductionPhase")
-        action("ResearchPhase") {
+        operation("ProductionPhase")
+        operation("ResearchPhase") {
           p1.task("4 BuyCard")
           p2.task("1 BuyCard")
         }
-        action("ActionPhase")
+        operation("ActionPhase")
       }
 
       with(p2) {
@@ -82,12 +82,12 @@ class RealGamesTest {
       }
 
       with(eng) {
-        action("ProductionPhase")
-        action("ResearchPhase") {
+        operation("ProductionPhase")
+        operation("ResearchPhase") {
           p1.task("3 BuyCard")
           p2.task("2 BuyCard")
         }
-        action("ActionPhase")
+        operation("ActionPhase")
       }
 
       with(p1) {
@@ -105,12 +105,12 @@ class RealGamesTest {
       }
 
       with(eng) {
-        action("ProductionPhase")
-        action("ResearchPhase") {
+        operation("ProductionPhase")
+        operation("ResearchPhase") {
           p1.task("3 BuyCard")
           p2.task("2 BuyCard")
         }
-        action("ActionPhase")
+        operation("ActionPhase")
       }
 
       with(p2) {
@@ -131,10 +131,10 @@ class RealGamesTest {
       with(p2) {
         playCard("SolarPower", 1, steel = 4)
         stdProject("CitySP") { task("CityTile<E65>") }
-        action("PROD[-Plant, Energy]") // CORRECTION TODO WHY WHY
+        operation("PROD[-Plant, Energy]") // CORRECTION TODO WHY WHY
       }
 
-      eng.action("ProductionPhase")
+      eng.operation("ProductionPhase")
 
       // Stuff
       eng.assertCounts(4 to "Generation")
@@ -182,7 +182,7 @@ class RealGamesTest {
     p1.playCorp("InterplanetaryCinematics", 7)
     p2.playCorp("PharmacyUnion", 5)
 
-    eng.action("ActionPhase")
+    eng.operation("ActionPhase")
 
     p1.playCard("MediaGroup", 6)
     p1.playCard("Sabotage", 1) { task("-7 M<Player2>") }
@@ -200,7 +200,7 @@ class RealGamesTest {
     p1.playCorp("InterplanetaryCinematics", 7)
     p2.playCorp("PharmacyUnion", 5)
 
-    eng.action("PreludePhase")
+    eng.operation("PreludePhase")
 
     p1.turn("UnmiContractor")
     p1.turn("CorporateArchives")
@@ -210,7 +210,7 @@ class RealGamesTest {
 
     // Action!
 
-    eng.action("ActionPhase")
+    eng.operation("ActionPhase")
 
     p1.playCard("MediaGroup", 6)
     p1.playCard("Sabotage", 1) { task("-7 M<P2>") }
@@ -230,12 +230,12 @@ class RealGamesTest {
 
     // Generation 2
 
-    eng.action("ProductionPhase")
-    eng.action("ResearchPhase") {
+    eng.operation("ProductionPhase")
+    eng.operation("ResearchPhase") {
       p1.task("BuyCard")
       p2.task("3 BuyCard")
     }
-    eng.action("ActionPhase")
+    eng.operation("ActionPhase")
 
     p2.stdAction("SellPatents") { task("Megacredit FROM ProjectCard") }
     p2.playCard("VestaShipyard", 15)
@@ -259,12 +259,12 @@ class RealGamesTest {
 
     // Generation 2
 
-    eng.action("ProductionPhase")
-    eng.action("ResearchPhase") {
+    eng.operation("ProductionPhase")
+    eng.operation("ResearchPhase") {
       p1.task("3 BuyCard")
       p2.task("BuyCard")
     }
-    eng.action("ActionPhase")
+    eng.operation("ActionPhase")
 
     p1.cardAction("DevelopmentCenter")
     p1.playCard("ImmigrantCity", 1, steel = 5) {
@@ -312,7 +312,7 @@ class RealGamesTest {
 
     // To check VPs we have to fake the game ending
 
-    eng.action("End") {
+    eng.operation("End") {
       // TODO why does P1 have 1 more point than I expect?
       // Should be 23 2 1 1 -1 / 25 1 1 1
       eng.assertCounts(27 to "VP<P1>", 28 to "VP<P2>")

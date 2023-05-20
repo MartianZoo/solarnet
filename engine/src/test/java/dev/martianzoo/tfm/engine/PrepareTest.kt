@@ -20,7 +20,7 @@ private class PrepareTest {
   val p1 = game.session(PLAYER1)
 
   init {
-    p1.action("Plant, 10 ProjectCard, PROD[-1]")
+    p1.writer.unsafe().sneak("Plant, 10 ProjectCard, PROD[-1]")
   }
 
   fun preprocess(instr: Instruction): Instruction {

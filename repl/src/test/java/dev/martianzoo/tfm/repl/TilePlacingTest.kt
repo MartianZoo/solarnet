@@ -20,9 +20,9 @@ class TilePlacingTest {
     val eng = game.session(Player.ENGINE)
     val p2 = game.session(PLAYER2)
 
-    p2.action("CityTile<M46>, CityTile<M44>, 25")
+    p2.operation("CityTile<M46>, CityTile<M44>, 25")
 
-    eng.action("ActionPhase")
+    eng.operation("ActionPhase")
     p2.stdProject("CitySP") {
       assertThrows<NarrowingException> { task("CityTile<M34>") }
       rollItBack()
@@ -34,8 +34,8 @@ class TilePlacingTest {
     val game = Game.create(Canon.SIMPLE_GAME)
     val p2 = game.session(PLAYER2)
 
-    p2.action("CityTile<M33>")
-    assertThrows<LimitsException> { p2.action("OceanTile<M33>!") }
+    p2.operation("CityTile<M33>")
+    assertThrows<LimitsException> { p2.operation("OceanTile<M33>!") }
     assertThat(p2.tasks).isEmpty()
   }
 
@@ -46,10 +46,10 @@ class TilePlacingTest {
     val p1 = game.session(PLAYER1)
     val p2 = game.session(PLAYER2)
 
-    eng.action("ActionPhase")
+    eng.operation("ActionPhase")
 
-    p1.action("666, CityTile<M86>") // shown as [] in comment below
-    p2.action("CityTile<M67>") // try to fool it by having an opponent tile at the XX below
+    p1.operation("666, CityTile<M86>") // shown as [] in comment below
+    p2.operation("CityTile<M67>") // try to fool it by having an opponent tile at the XX below
 
     // Use the standard project so that the placement rule is in effect
     p1.stdProject("GreenerySP") {

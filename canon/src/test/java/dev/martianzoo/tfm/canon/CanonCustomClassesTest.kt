@@ -25,7 +25,7 @@ private class CanonCustomClassesTest {
       writer.unsafe().sneak("PROD[S, T, P, E, H]")
       checkProduction(0, 1, 1, 1, 1, 1)
 
-      action("ActionPhase")
+      operation("ActionPhase")
       cardAction("RobinsonIndustries")
       assertThat(count("Megacredit")).isEqualTo(43)
       checkProduction(1, 1, 1, 1, 1, 1)
@@ -37,11 +37,12 @@ private class CanonCustomClassesTest {
     val game = newGameForP1()
     val p1 = game.session(PLAYER1)
 
-    p1.action("CorporationCard, RobinsonIndustries")
-    p1.action("PROD[-1]")
+    p1.playCorp("RobinsonIndustries")
+    p1.writer.unsafe().sneak("PROD[-1]")
     p1.checkProduction(-1, 0, 0, 0, 0, 0)
 
-    p1.action("UseAction1<RobinsonIndustries>")
+    p1.operation("ActionPhase")
+    p1.cardAction("RobinsonIndustries")
     p1.checkProduction(0, 0, 0, 0, 0, 0)
   }
 
@@ -50,42 +51,44 @@ private class CanonCustomClassesTest {
     val game = newGameForP1()
     val p1 = game.session(PLAYER1)
 
-    p1.action("CorporationCard, RobinsonIndustries")
-    p1.action("PROD[1, S, P, E, H]")
+    p1.playCorp("RobinsonIndustries")
+    p1.writer.unsafe().sneak("PROD[1, S, P, E, H]")
     p1.checkProduction(1, 1, 0, 1, 1, 1)
 
-    p1.action("UseAction1<RobinsonIndustries>")
+    p1.operation("ActionPhase")
+    p1.cardAction("RobinsonIndustries")
     p1.checkProduction(1, 1, 1, 1, 1, 1)
   }
 
   @Test
   fun robinsonChoice() {
     val game = newGameForP1()
-    val p1 = game.session(PLAYER1)
+    with(game.session(PLAYER1)) {
+      playCorp("RobinsonIndustries")
+      writer.unsafe().sneak("PROD[S, P, E, H]")
+      checkProduction(0, 1, 0, 1, 1, 1)
 
-    p1.action("CorporationCard, RobinsonIndustries")
-    p1.action("PROD[S, P, E, H]")
-    p1.checkProduction(0, 1, 0, 1, 1, 1)
+      operation("ActionPhase")
+      cardAction("RobinsonIndustries") {
+        assertThat(tasks.map { it.instruction.toString() })
+            .containsExactly(
+                "Production<Player1, Class<Megacredit>>! OR Production<Player1, Class<Titanium>>!")
+        task("PROD[1]")
+        checkProduction(1, 1, 0, 1, 1, 1)
+        rollItBack()
+      }
 
-    p1.action("UseAction1<RobinsonIndustries>") {
-      assertThat(tasks.map { it.instruction.toString() })
-          .containsExactly(
-              "Production<Player1, Class<Megacredit>>! OR Production<Player1, Class<Titanium>>!")
-      task("PROD[1]")
-      p1.checkProduction(1, 1, 0, 1, 1, 1)
-      rollItBack()
-    }
+      cardAction("RobinsonIndustries") {
+        task("PROD[T]")
+        checkProduction(0, 1, 1, 1, 1, 1)
+        rollItBack()
+      }
 
-    p1.action("UseAction1<RobinsonIndustries>") {
-      task("PROD[T]")
-      p1.checkProduction(0, 1, 1, 1, 1, 1)
-      rollItBack()
-    }
-
-    p1.action("UseAction1<RobinsonIndustries>") {
-      assertThrows<NarrowingException> { task("PROD[Steel]") }
-      p1.checkProduction(0, 1, 0, 1, 1, 1)
-      rollItBack()
+      cardAction("RobinsonIndustries") {
+        assertThrows<NarrowingException> { task("PROD[Steel]") }
+        checkProduction(0, 1, 0, 1, 1, 1)
+        rollItBack()
+      }
     }
   }
 
@@ -94,12 +97,12 @@ private class CanonCustomClassesTest {
     val game = newGameForP1()
     val p1 = game.session(PLAYER1)
 
-    p1.action("3 ProjectCard, MassConverter, StripMine")
+    p1.operation("3 ProjectCard, MassConverter, StripMine")
     p1.checkProduction(0, 2, 1, 0, 4, 0)
 
-    game.session(PLAYER2).action("ProjectCard, Mine")
+    game.session(PLAYER2).operation("ProjectCard, Mine")
 
-    p1.action("RoboticWorkforce") {
+    p1.operation("RoboticWorkforce") {
       p1.checkProduction(0, 2, 1, 0, 4, 0)
       // This card has no building tag so it won't work
       assertThrows<NarrowingException>("1") { p1.task("CopyProductionBox<MassConverter>") }
@@ -114,7 +117,7 @@ private class CanonCustomClassesTest {
       rollItBack()
     }
 
-    p1.action("RoboticWorkforce", "CopyProductionBox<StripMine>")
+    p1.operation("RoboticWorkforce", "CopyProductionBox<StripMine>")
     p1.checkProduction(0, 4, 2, 0, 2, 0)
   }
 

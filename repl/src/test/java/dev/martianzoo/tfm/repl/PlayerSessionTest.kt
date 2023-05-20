@@ -14,10 +14,10 @@ private class PlayerSessionTest {
     val game = Game.create(Canon.SIMPLE_GAME)
     val session = game.session(PLAYER2)
 
-    session.action("PROD[5, 4 E]")
-    session.action("ProjectCard")
-    session.action("C138")
-    session.action("PROD[-2 E, 2 S, T]")
+    session.operation("PROD[5, 4 E]")
+    session.operation("ProjectCard")
+    session.operation("C138")
+    session.operation("PROD[-2 E, 2 S, T]")
 
     assertThat(session.count("PROD[E]")).isEqualTo(0)
     assertThat(session.count("PROD[S]")).isEqualTo(4)
@@ -31,9 +31,9 @@ private class PlayerSessionTest {
     val game = Game.create(Canon.SIMPLE_GAME)
     val session = game.session(PLAYER1)
 
-    session.action("3 Heat!")
-    session.action("4 Heat.")
-    session.action("-9 Heat.")
+    session.operation("3 Heat!")
+    session.operation("4 Heat.")
+    session.operation("-9 Heat.")
     assertThat(session.count("Heat")).isEqualTo(0)
   }
 
@@ -42,12 +42,12 @@ private class PlayerSessionTest {
     val game = Game.create(Canon.SIMPLE_GAME)
     val session = game.session(PLAYER1)
 
-    session.action("3 Heat")
-    session.action("4 Heat")
+    session.operation("3 Heat")
+    session.operation("4 Heat")
     assertThat(session.count("Heat")).isEqualTo(7)
 
     val checkpoint = session.events.checkpoint()
-    session.action("-6 Heat")
+    session.operation("-6 Heat")
     assertThat(session.count("Heat")).isEqualTo(1)
 
     session.rollBack(checkpoint)
@@ -62,15 +62,15 @@ private class PlayerSessionTest {
     assertThat(session.tasks.isEmpty()).isTrue()
     assertThat(session.count("Microbe")).isEqualTo(0)
 
-    session.action("4 OxygenStep")
+    session.operation("4 OxygenStep")
     assertThat(session.count("OxygenStep")).isEqualTo(4)
-    session.action("ProjectCard")
-    session.action("Ants")
+    session.operation("ProjectCard")
+    session.operation("Ants")
     assertThat(session.tasks.isEmpty())
     assertThat(session.count("Ants")).isEqualTo(1)
-    session.action("3 Microbe<Ants>")
+    session.operation("3 Microbe<Ants>")
     assertThat(session.count("Microbe")).isEqualTo(3)
-    session.action("-Ants")
+    session.operation("-Ants")
     assertThat(session.count("Microbe")).isEqualTo(0)
   }
 
@@ -78,7 +78,7 @@ private class PlayerSessionTest {
   fun counting() {
     val game = Game.create(Canon.SIMPLE_GAME)
     val session = game.session(PLAYER2)
-    session.action("42 Heat")
+    session.operation("42 Heat")
     assertThat(session.count("Heat")).isEqualTo(42)
     assertThat(session.count("4 Heat")).isEqualTo(10)
     assertThat(session.count("42 Heat")).isEqualTo(1)
@@ -98,16 +98,16 @@ private class PlayerSessionTest {
     val session = game.session(PLAYER1)
     assertThat(session.count("TerraformRating")).isEqualTo(20)
 
-    session.action("2 TemperatureStep")
+    session.operation("2 TemperatureStep")
     assertThat(session.count("TemperatureStep")).isEqualTo(2)
     assertThat(session.count("TerraformRating")).isEqualTo(22)
     assertThat(session.count("Production<Class<Heat>>")).isEqualTo(0)
 
-    session.action("2 TemperatureStep")
+    session.operation("2 TemperatureStep")
     assertThat(session.count("TerraformRating")).isEqualTo(24)
     assertThat(session.count("Production<Class<Heat>>")).isEqualTo(1)
 
-    session.action("8 OxygenStep")
+    session.operation("8 OxygenStep")
     assertThat(session.count("TerraformRating")).isEqualTo(33)
     assertThat(session.count("Production<Class<Heat>>")).isEqualTo(2)
   }

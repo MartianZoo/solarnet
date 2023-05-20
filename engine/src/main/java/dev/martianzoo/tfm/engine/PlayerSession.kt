@@ -80,16 +80,16 @@ public class PlayerSession(
   public fun atomic(block: () -> Unit) = game.atomic(block)
 
   fun turn(startingTask: String? = null, body: OperationBody.() -> Unit = {}) {
-    return action("NewTurn") {
+    return operation("NewTurn") {
       startingTask?.let(this::task)
       OperationBody().body()
     }
   }
 
-  fun action(startingInstruction: String, vararg tasks: String): TaskResult =
-      atomic { action(startingInstruction) { tasks.forEach(::task) } }
+  fun operation(startingInstruction: String, vararg tasks: String): TaskResult =
+      atomic { operation(startingInstruction) { tasks.forEach(::task) } }
 
-  fun action(startingInstruction: String, body: OperationBody.() -> Unit) {
+  fun operation(startingInstruction: String, body: OperationBody.() -> Unit) {
     val instruction: Instruction = parseInContext(startingInstruction)
     require(game.tasks.isEmpty()) { game.tasks }
     val cp = game.checkpoint()

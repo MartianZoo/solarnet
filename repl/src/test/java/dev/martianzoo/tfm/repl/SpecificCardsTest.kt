@@ -2,7 +2,6 @@ package dev.martianzoo.tfm.repl
 
 import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.tfm.api.Exceptions.AbstractException
-import dev.martianzoo.tfm.api.Exceptions.DeadEndException
 import dev.martianzoo.tfm.api.Exceptions.DependencyException
 import dev.martianzoo.tfm.api.Exceptions.LimitsException
 import dev.martianzoo.tfm.api.Exceptions.NarrowingException
@@ -27,15 +26,15 @@ import org.junit.jupiter.api.assertThrows
 
 class SpecificCardsTest {
   @Test
-  fun localHeatTrapping_plants() {
+  fun localHeatTrapping_notEnoughHeat() {
     val game = Game.create(Canon.SIMPLE_GAME)
 
     with(game.session(PLAYER1)) {
-      action("4 Heat, 3 ProjectCard, Pets")
+      operation("4 Heat, 3 ProjectCard, Pets")
       assertCounts(0 to "Plant", 4 to "Heat", 1 to "Animal")
       assertCounts(3 to "Card", 2 to "CardBack", 1 to "CardFront", 0 to "PlayedEvent")
 
-      action("LocalHeatTrapping") {
+      operation("LocalHeatTrapping") {
         // The card is played but nothing else
         assertCounts(3 to "Card", 1 to "CardBack", 1 to "CardFront", 1 to "PlayedEvent")
         assertCounts(0 to "Plant", 4 to "Heat", 1 to "Animal")
@@ -50,14 +49,20 @@ class SpecificCardsTest {
 
         rollItBack()
       }
+    }
+  }
 
-      // NOW we have enough heat
-      action("2 Heat")
+  @Test
+  fun localHeatTrapping_plants() {
+    val game = Game.create(Canon.SIMPLE_GAME)
+
+    with(game.session(PLAYER1)) {
+      operation("6 Heat, 3 ProjectCard, Pets")
       assertCounts(3 to "Card", 2 to "CardBack", 1 to "CardFront", 0 to "PlayedEvent")
       assertCounts(0 to "Plant", 6 to "Heat", 1 to "Animal")
 
-      action("LocalHeatTrapping") {
-        // The heat is gone
+      operation("LocalHeatTrapping") {
+        // The card is played and the heat is gone
         assertCounts(3 to "Card", 1 to "CardBack", 1 to "CardFront", 1 to "PlayedEvent")
         assertCounts(0 to "Plant", 1 to "Heat", 1 to "Animal")
 
@@ -76,11 +81,11 @@ class SpecificCardsTest {
   fun localHeatTrapping_pets() {
     val game = Game.create(Canon.SIMPLE_GAME)
     with(game.session(PLAYER1)) {
-      action("6 Heat, 3 ProjectCard, Pets")
+      operation("6 Heat, 3 ProjectCard, Pets")
       assertCounts(3 to "Card", 2 to "CardBack", 1 to "CardFront", 0 to "PlayedEvent")
       assertCounts(0 to "Plant", 6 to "Heat", 1 to "Animal")
 
-      action("LocalHeatTrapping") {
+      operation("LocalHeatTrapping") {
         // The card is played and the heat is gone
         assertCounts(3 to "Card", 1 to "CardBack", 1 to "CardFront", 1 to "PlayedEvent")
         assertCounts(0 to "Plant", 1 to "Heat", 1 to "Animal")
@@ -105,19 +110,19 @@ class SpecificCardsTest {
   fun manutech() {
     val game = Game.create(GameSetup(Canon, "BMV", 2))
     with(game.session(PLAYER1)) {
-      action("CorporationCard, Manutech, 5 ProjectCard")
-      assertCounts(1 to "Production<Class<S>>", 1 to "Steel")
+      playCorp("Manutech", 5)
+      assertCounts(1 to "PROD[Steel]", 1 to "Steel")
 
-      action("PROD[8, 6T, 7P, 5E, 3H]")
+      operation("PROD[8, 6T, 7P, 5E, 3H]")
       assertThat(production().values).containsExactly(8, 1, 6, 7, 5, 3).inOrder()
-      assertCounts(43 to "M", 1 to "S", 6 to "T", 7 to "P", 5 to "E", 3 to "H")
+      assertCounts(28 to "M", 1 to "S", 6 to "T", 7 to "P", 5 to "E", 3 to "H")
 
-      action("-7 Plant")
+      operation("-7 Plant")
       assertCounts(0 to "Plant")
 
-      action("Moss")
+      operation("Moss")
       assertThat(production().values).containsExactly(8, 1, 6, 8, 5, 3).inOrder()
-      assertCounts(43 to "M", 1 to "S", 6 to "T", 0 to "P", 5 to "E", 3 to "H")
+      assertCounts(28 to "M", 1 to "S", 6 to "T", 0 to "P", 5 to "E", 3 to "H")
     }
   }
 
@@ -125,18 +130,18 @@ class SpecificCardsTest {
   fun sulphurEatingBacteria() {
     val game = Game.create(GameSetup(Canon, "BMV", 2))
     with(game.session(PLAYER1)) {
-      action("ActionPhase")
+      operation("ActionPhase")
 
-      action("5 ProjectCard, SulphurEatingBacteria")
+      operation("5 ProjectCard, SulphurEatingBacteria")
       assertCounts(0 to "Microbe", 0 to "Megacredit")
 
-      action("UseAction1<SulphurEatingBacteria>")
+      operation("UseAction1<SulphurEatingBacteria>")
       assertCounts(1 to "Microbe", 0 to "Megacredit")
 
-      action("UseAction2<SulphurEatingBacteria>", "-Microbe<SulphurEatingBacteria> THEN 3")
+      operation("UseAction2<SulphurEatingBacteria>", "-Microbe<SulphurEatingBacteria> THEN 3")
       assertCounts(0 to "Microbe", 3 to "Megacredit")
 
-      action("4 Microbe<SulphurEatingBacteria>")
+      operation("4 Microbe<SulphurEatingBacteria>")
       assertCounts(4 to "Microbe", 3 to "Megacredit")
 
       fun assertTaskFails(task: String, desc: String) = assertThrows<Exception>(desc) { task(task) }
@@ -164,12 +169,12 @@ class SpecificCardsTest {
   fun unmi() {
     val game = Game.create(GameSetup(Canon, "BM", 2))
     with(game.session(PLAYER1)) {
-      action("CorporationCard, UnitedNationsMarsInitiative")
+      operation("CorporationCard, UnitedNationsMarsInitiative")
       assertCounts(40 to "Megacredit", 20 to "TR")
 
-      action("ActionPhase")
+      operation("ActionPhase")
 
-      assertThrows<DeadEndException> { action("UseAction1<UnitedNationsMarsInitiative>") }
+      assertThrows<RequirementException> { cardAction("UnitedNationsMarsInitiative") }
 
       // Do anything that raises TR
       stdProject("AsteroidSP")
@@ -192,22 +197,22 @@ class SpecificCardsTest {
     p1.playCorp("Pristar")
     p1.assertCounts(53 to "Megacredit", 18 to "TR")
 
-    eng.action("PreludePhase")
-    p1.action("PreludeCard, UnmiContractor")
+    eng.operation("PreludePhase")
+    p1.turn("UnmiContractor")
     p1.assertCounts(53 to "Megacredit", 21 to "TR")
 
-    eng.action("ActionPhase")
-    eng.action("ProductionPhase")
+    eng.operation("ActionPhase")
+    eng.operation("ProductionPhase")
     p1.assertCounts(74 to "Megacredit", 21 to "TR", 0 to "Preservation")
 
-    eng.action("ResearchPhase") {
+    eng.operation("ResearchPhase") {
       p1.task("2 BuyCard")
       p2.task("2 BuyCard<Player2>")
     }
     p1.assertCounts(68 to "Megacredit", 21 to "TR", 0 to "Preservation")
 
-    eng.action("ActionPhase")
-    eng.action("ProductionPhase")
+    eng.operation("ActionPhase")
+    eng.operation("ProductionPhase")
     p1.assertCounts(95 to "Megacredit", 21 to "TR", 1 to "Preservation")
   }
 
@@ -219,13 +224,13 @@ class SpecificCardsTest {
       assertCounts(14 to "Megacredit", 20 to "TR")
 
       // Do anything that raises TR
-      action("UseAction1<AsteroidSP>")
+      operation("UseAction1<AsteroidSP>")
       assertCounts(0 to "Megacredit", 21 to "TR")
 
       playCorp("UnitedNationsMarsInitiative")
       assertCounts(40 to "Megacredit", 21 to "TR")
 
-      action("ActionPhase")
+      operation("ActionPhase")
       cardAction("UnitedNationsMarsInitiative")
       assertCounts(37 to "Megacredit", 22 to "TR")
     }
@@ -237,7 +242,7 @@ class SpecificCardsTest {
     val eng = game.session(ENGINE)
     val p1 = game.session(PLAYER1)
 
-    eng.action("ActionPhase")
+    eng.operation("ActionPhase")
     p1.writer.unsafe().sneak("5 ProjectCard, 100, Steel")
 
     p1.playCard("SearchForLife", 3)
@@ -269,7 +274,7 @@ class SpecificCardsTest {
     p1.assertCounts(1 to "ActionUsedMarker<AiCentral>")
 
     // Next gen we can again
-    eng.action("Generation")
+    eng.operation("Generation")
     p1.cardAction("AiCentral")
     p1.assertCounts(5 to "ProjectCard")
   }
@@ -279,17 +284,17 @@ class SpecificCardsTest {
     val game = Game.create(GameSetup(Canon, "CVERB", 2))
 
     with(game.session(PLAYER1)) {
-      action("10 ProjectCard, ForcedPrecipitation")
+      operation("10 ProjectCard, ForcedPrecipitation")
 
       // We can't CEO's onto an empty card
       assertThrows<NarrowingException> {
-        action("CeosFavoriteProject", "Floater<ForcedPrecipitation>")
+        operation("CeosFavoriteProject", "Floater<ForcedPrecipitation>")
       }
 
       writer.unsafe().sneak("Floater<ForcedPrecipitation>")
       assertCounts(1 to "Floater")
 
-      action("CeosFavoriteProject", "Floater<ForcedPrecipitation>")
+      operation("CeosFavoriteProject", "Floater<ForcedPrecipitation>")
       assertCounts(2 to "Floater")
     }
   }
@@ -299,15 +304,15 @@ class SpecificCardsTest {
     val game = Game.create(GameSetup(Canon, "CVERB", 2))
     val p1 = game.session(PLAYER1)
     with(p1) {
-      action("3 ProjectCard, ForcedPrecipitation")
-      action("AtmoCollectors", "2 Floater<AtmoCollectors>")
+      operation("3 ProjectCard, ForcedPrecipitation")
+      operation("AtmoCollectors", "2 Floater<AtmoCollectors>")
       assertCounts(2 to "Floater")
 
       assertThrows<NarrowingException>("1") {
-        action("AirScrappingExpedition", "3 Floater<AtmoCollectors>")
+        operation("AirScrappingExpedition", "3 Floater<AtmoCollectors>")
       }
 
-      action("AirScrappingExpedition", "3 Floater<ForcedPrecipitation>")
+      operation("AirScrappingExpedition", "3 Floater<ForcedPrecipitation>")
       assertCounts(5 to "Floater")
     }
   }
@@ -315,31 +320,31 @@ class SpecificCardsTest {
   @Test
   fun communityServices() {
     val game = Game.create(GameSetup(Canon, "CVERB", 2))
-    val p1 = game.session(PLAYER1)
+    with(game.session(PLAYER1)) {
+      operation("10 ProjectCard, ForcedPrecipitation")
+      operation("AtmoCollectors", "2 Floater<AtmoCollectors>")
+      operation("Airliners", "2 Floater<AtmoCollectors>")
 
-    p1.action("10 ProjectCard, ForcedPrecipitation")
-    p1.action("AtmoCollectors", "2 Floater<AtmoCollectors>")
-    p1.action("Airliners", "2 Floater<AtmoCollectors>")
+      assertThat(production(cn("M"))).isEqualTo(2)
 
-    assertThat(p1.production(cn("M"))).isEqualTo(2)
-
-    p1.action("CommunityServices") // should be 3 tagless cards (Atmo, Airl, Comm)
-    assertThat(p1.production(cn("M"))).isEqualTo(5)
+      operation("CommunityServices") // 3 tagless cards: Atmo, Airl, Comm
+      assertThat(production(cn("M"))).isEqualTo(5)
+    }
   }
 
   @Test
   fun elCheapo() {
     val game = Game.create(GameSetup(Canon, "BRMVPCX", 2))
-    game.session(ENGINE).action("ActionPhase")
+    game.session(ENGINE).operation("ActionPhase")
 
     with(game.session(PLAYER1)) {
-      action("CorporationCard, 12 ProjectCard, Phobolog, Steel") // -1
+      operation("CorporationCard, 12 ProjectCard, Phobolog, Steel") // -1
 
-      action("AntiGravityTechnology, EarthCatapult")
-      action("ResearchOutpost", "CityTile<M33>")
+      operation("AntiGravityTechnology, EarthCatapult")
+      operation("ResearchOutpost", "CityTile<M33>")
 
-      action("MassConverter, QuantumExtractor, Shuttles, SpaceStation, WarpDrive")
-      action("AdvancedAlloys, MercurianAlloys, RegoPlastics")
+      operation("MassConverter, QuantumExtractor, Shuttles, SpaceStation, WarpDrive")
+      operation("AdvancedAlloys, MercurianAlloys, RegoPlastics")
 
       assertCounts(0 to "SpaceElevator", 23 to "M", 1 to "S", 10 to "T")
 
@@ -358,7 +363,7 @@ class SpecificCardsTest {
     p1.playCorp("InterplanetaryCinematics", 7)
     p2.playCorp("PharmacyUnion", 5)
 
-    eng.action("PreludePhase")
+    eng.operation("PreludePhase")
 
     p1.turn("UnmiContractor")
     p1.turn("CorporateArchives")
@@ -384,9 +389,9 @@ class SpecificCardsTest {
     val game = Game.create(GameSetup(Canon, "BRHXP", 2))
 
     with(game.session(PLAYER1)) {
-      action("5 ProjectCard, OptimalAerobraking")
+      operation("5 ProjectCard, OptimalAerobraking")
       assertCounts(0 to "Megacredit", 0 to "Heat")
-      action("AsteroidCard", "Ok") // TODO infer this??
+      operation("AsteroidCard", "Ok") // TODO infer this??
       assertCounts(3 to "Megacredit", 3 to "Heat")
     }
   }
@@ -398,7 +403,7 @@ class SpecificCardsTest {
     val p1 = game.session(PLAYER1)
 
     p1.playCorp("InterplanetaryCinematics", 7)
-    eng.action("PreludePhase")
+    eng.operation("PreludePhase")
 
     p1.turn("ExcentricSponsor") { // currently we don't `PlayCard` these
       task("PlayCard<Class<NitrogenRichAsteroid>>")
@@ -416,7 +421,7 @@ class SpecificCardsTest {
     p1.playCorp("TerralabsResearch", 10)
     p1.assertCounts(10 to "ProjectCard", 4 to "M")
 
-    p1.action("4 BuyCard")
+    p1.operation("4 BuyCard")
     p1.assertCounts(14 to "ProjectCard", 0 to "M")
   }
 
@@ -427,7 +432,7 @@ class SpecificCardsTest {
       playCorp("Polyphemos", 10)
       assertCounts(10 to "ProjectCard", 0 to "M")
 
-      action("ActionPhase")
+      operation("ActionPhase")
       writer.unsafe().sneak("14")
 
       playCard("InventorsGuild", 9)
