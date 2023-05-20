@@ -6,9 +6,7 @@ import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.pets.ast.Instruction.NoOp
 
-/**
- * Extension functions to [PlayerSession] for Terraforming Mars-specific APIs.
- */
+/** Extension functions to [PlayerSession] for Terraforming Mars-specific APIs. */
 object TerraformingMars {
   fun PlayerSession.playCorp(
       corpName: String,
@@ -29,10 +27,15 @@ object TerraformingMars {
     return turn("UseAction1<$stdAction>", body)
   }
 
-  fun PlayerSession.stdProject(stdProject: String, body: OperationBody.() -> Unit = {}) {
+  fun PlayerSession.stdProject(
+      stdProject: String,
+      vararg tasks: String,
+      body: OperationBody.() -> Unit = {}
+  ) {
     require(has("ActionPhase"))
     return stdAction("UseStandardProject") {
       task("UseAction1<$stdProject>")
+      tasks.forEach(::task)
       OperationBody().body()
     }
   }
@@ -68,16 +71,36 @@ object TerraformingMars {
     }
   }
 
-  fun PlayerSession.cardAction(
+  fun PlayerSession.cardAction1(
       cardName: String,
-      which: Int = 1,
+      vararg tasks: String,
       body: OperationBody.() -> Unit = {}
+  )  = cardAction(1, cardName, tasks.toList(), body)
+
+  fun PlayerSession.cardAction2(
+      cardName: String,
+      vararg tasks: String,
+      body: OperationBody.() -> Unit = {}
+  )  = cardAction(2, cardName, tasks.toList(), body)
+
+  fun PlayerSession.cardAction3(
+      cardName: String,
+      vararg tasks: String,
+      body: OperationBody.() -> Unit = {}
+  )  = cardAction(3, cardName, tasks.toList(), body)
+
+  private fun PlayerSession.cardAction(
+    which: Int,
+    cardName: String,
+    tasks: List<String>,
+    body: OperationBody.() -> Unit = {}
   ) {
     require(has(cardName))
     require(has("ActionPhase"))
     return stdAction("UseActionFromCard") {
       task("UseAction$which<$cardName>")
       task("ActionUsedMarker<$cardName>") // TODO slight problem for Viron?
+      tasks.forEach(::task)
       OperationBody().body()
     }
   }

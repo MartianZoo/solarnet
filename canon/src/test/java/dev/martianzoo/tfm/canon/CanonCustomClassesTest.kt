@@ -8,7 +8,7 @@ import dev.martianzoo.tfm.data.Player.Companion.PLAYER2
 import dev.martianzoo.tfm.engine.Game
 import dev.martianzoo.tfm.engine.PlayerSession
 import dev.martianzoo.tfm.engine.PlayerSession.Companion.session
-import dev.martianzoo.tfm.engine.TerraformingMars.cardAction
+import dev.martianzoo.tfm.engine.TerraformingMars.cardAction1
 import dev.martianzoo.tfm.engine.TerraformingMars.playCorp
 import dev.martianzoo.tfm.engine.TerraformingMars.production
 import org.junit.jupiter.api.Test
@@ -25,8 +25,8 @@ private class CanonCustomClassesTest {
       writer.unsafe().sneak("PROD[S, T, P, E, H]")
       checkProduction(0, 1, 1, 1, 1, 1)
 
-      operation("ActionPhase")
-      cardAction("RobinsonIndustries")
+      phase("Action")
+      cardAction1("RobinsonIndustries")
       assertThat(count("Megacredit")).isEqualTo(43)
       checkProduction(1, 1, 1, 1, 1, 1)
     }
@@ -41,8 +41,8 @@ private class CanonCustomClassesTest {
     p1.writer.unsafe().sneak("PROD[-1]")
     p1.checkProduction(-1, 0, 0, 0, 0, 0)
 
-    p1.operation("ActionPhase")
-    p1.cardAction("RobinsonIndustries")
+    p1.phase("Action")
+    p1.cardAction1("RobinsonIndustries")
     p1.checkProduction(0, 0, 0, 0, 0, 0)
   }
 
@@ -55,8 +55,8 @@ private class CanonCustomClassesTest {
     p1.writer.unsafe().sneak("PROD[1, S, P, E, H]")
     p1.checkProduction(1, 1, 0, 1, 1, 1)
 
-    p1.operation("ActionPhase")
-    p1.cardAction("RobinsonIndustries")
+    p1.phase("Action")
+    p1.cardAction1("RobinsonIndustries")
     p1.checkProduction(1, 1, 1, 1, 1, 1)
   }
 
@@ -68,8 +68,8 @@ private class CanonCustomClassesTest {
       writer.unsafe().sneak("PROD[S, P, E, H]")
       checkProduction(0, 1, 0, 1, 1, 1)
 
-      operation("ActionPhase")
-      cardAction("RobinsonIndustries") {
+      phase("Action")
+      cardAction1("RobinsonIndustries") {
         assertThat(tasks.map { it.instruction.toString() })
             .containsExactly(
                 "Production<Player1, Class<Megacredit>>! OR Production<Player1, Class<Titanium>>!")
@@ -78,13 +78,12 @@ private class CanonCustomClassesTest {
         rollItBack()
       }
 
-      cardAction("RobinsonIndustries") {
-        task("PROD[T]")
+      cardAction1("RobinsonIndustries", "PROD[T]") {
         checkProduction(0, 1, 1, 1, 1, 1)
         rollItBack()
       }
 
-      cardAction("RobinsonIndustries") {
+      cardAction1("RobinsonIndustries") {
         assertThrows<NarrowingException> { task("PROD[Steel]") }
         checkProduction(0, 1, 0, 1, 1, 1)
         rollItBack()

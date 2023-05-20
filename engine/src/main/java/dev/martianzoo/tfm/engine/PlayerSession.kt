@@ -26,8 +26,8 @@ import dev.martianzoo.util.Multiset
 
 /** A player session adds autoexec, string overloads, prep, blah blah. */
 public class PlayerSession(
-  private val game: Game,
-  public val player: Player,
+    private val game: Game,
+    public val player: Player,
 ) {
   companion object {
     fun Game.session(player: Player) = PlayerSession(this, player)
@@ -86,8 +86,13 @@ public class PlayerSession(
     }
   }
 
-  fun operation(startingInstruction: String, vararg tasks: String): TaskResult =
-      atomic { operation(startingInstruction) { tasks.forEach(::task) } }
+  fun phase(phase: String) {
+    asPlayer(ENGINE).operation("${phase}Phase")
+  }
+
+  fun operation(startingInstruction: String, vararg tasks: String): TaskResult = atomic {
+    operation(startingInstruction) { tasks.forEach(::task) }
+  }
 
   fun operation(startingInstruction: String, body: OperationBody.() -> Unit) {
     val instruction: Instruction = parseInContext(startingInstruction)
@@ -127,7 +132,9 @@ public class PlayerSession(
       autoExec()
     }
 
-    fun rollItBack() { throw JustRollBackException() }
+    fun rollItBack() {
+      throw JustRollBackException()
+    }
   }
 
   // OTHER
@@ -138,10 +145,7 @@ public class PlayerSession(
 
   @Suppress("ControlFlowWithEmptyBody")
   fun autoExec(safely: Boolean = false): TaskResult { // TODO invert default or something
-    return atomic {
-      while (autoExecOneTask(safely)) {
-      }
-    }
+    return atomic { while (autoExecOneTask(safely)) {} }
   }
 
   fun autoExecOneTask(safely: Boolean = true): Boolean /* should we continue */ {
@@ -162,7 +166,6 @@ public class PlayerSession(
         writer.prepareTask(taskId) ?: return true
         if (tryPreparedTask()) return true // if this fails we should fail too
       }
-
       else -> if (safely) return false // impasse: we can't choose for you
     }
 
@@ -243,7 +246,7 @@ public class PlayerSession(
             .filter { it.owner == player }
             .singleOrNull { prepped.narrows(it.instruction, game.reader) }
             ?.id
-          ?: return TaskResult()
+            ?: return TaskResult()
 
     return atomic {
       writer.prepareTask(id)

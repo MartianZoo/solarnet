@@ -13,11 +13,11 @@ import dev.martianzoo.tfm.data.Player.Companion.PLAYER1
 import dev.martianzoo.tfm.data.Player.Companion.PLAYER2
 import dev.martianzoo.tfm.engine.Game
 import dev.martianzoo.tfm.engine.PlayerSession.Companion.session
-import dev.martianzoo.tfm.engine.TerraformingMars.cardAction
+import dev.martianzoo.tfm.engine.TerraformingMars.cardAction1
+import dev.martianzoo.tfm.engine.TerraformingMars.cardAction2
 import dev.martianzoo.tfm.engine.TerraformingMars.playCard
 import dev.martianzoo.tfm.engine.TerraformingMars.playCorp
 import dev.martianzoo.tfm.engine.TerraformingMars.production
-import dev.martianzoo.tfm.engine.TerraformingMars.stdAction
 import dev.martianzoo.tfm.engine.TerraformingMars.stdProject
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.repl.TestHelpers.assertCounts
@@ -130,7 +130,7 @@ class SpecificCardsTest {
   fun sulphurEatingBacteria() {
     val game = Game.create(GameSetup(Canon, "BMV", 2))
     with(game.session(PLAYER1)) {
-      operation("ActionPhase")
+      phase("Action")
 
       operation("5 ProjectCard, SulphurEatingBacteria")
       assertCounts(0 to "Microbe", 0 to "Megacredit")
@@ -146,7 +146,7 @@ class SpecificCardsTest {
 
       fun assertTaskFails(task: String, desc: String) = assertThrows<Exception>(desc) { task(task) }
 
-      cardAction("C251", 2) {
+      cardAction2("C251") {
         assertTaskFails("-Microbe<C251> THEN 4", "greed")
         assertTaskFails("-Microbe<C251> THEN 2", "shortchanged")
         assertTaskFails("-Microbe<C251>", "no get paid")
@@ -172,15 +172,15 @@ class SpecificCardsTest {
       operation("CorporationCard, UnitedNationsMarsInitiative")
       assertCounts(40 to "Megacredit", 20 to "TR")
 
-      operation("ActionPhase")
+      phase("Action")
 
-      assertThrows<RequirementException> { cardAction("UnitedNationsMarsInitiative") }
+      assertThrows<RequirementException> { cardAction1("UnitedNationsMarsInitiative") }
 
       // Do anything that raises TR
       stdProject("AsteroidSP")
       assertCounts(26 to "Megacredit", 21 to "TR")
 
-      cardAction("UnitedNationsMarsInitiative")
+      cardAction1("UnitedNationsMarsInitiative")
       assertCounts(23 to "Megacredit", 22 to "TR")
     }
   }
@@ -197,22 +197,22 @@ class SpecificCardsTest {
     p1.playCorp("Pristar")
     p1.assertCounts(53 to "Megacredit", 18 to "TR")
 
-    eng.operation("PreludePhase")
+    eng.phase("Prelude")
     p1.turn("UnmiContractor")
     p1.assertCounts(53 to "Megacredit", 21 to "TR")
 
-    eng.operation("ActionPhase")
-    eng.operation("ProductionPhase")
+    eng.phase("Action")
+    eng.phase("Production")
     p1.assertCounts(74 to "Megacredit", 21 to "TR", 0 to "Preservation")
 
     eng.operation("ResearchPhase") {
       p1.task("2 BuyCard")
-      p2.task("2 BuyCard<Player2>")
+      p2.task("2 BuyCard")
     }
     p1.assertCounts(68 to "Megacredit", 21 to "TR", 0 to "Preservation")
 
-    eng.operation("ActionPhase")
-    eng.operation("ProductionPhase")
+    eng.phase("Action")
+    eng.phase("Production")
     p1.assertCounts(95 to "Megacredit", 21 to "TR", 1 to "Preservation")
   }
 
@@ -230,8 +230,8 @@ class SpecificCardsTest {
       playCorp("UnitedNationsMarsInitiative")
       assertCounts(40 to "Megacredit", 21 to "TR")
 
-      operation("ActionPhase")
-      cardAction("UnitedNationsMarsInitiative")
+      phase("Action")
+      cardAction1("UnitedNationsMarsInitiative")
       assertCounts(37 to "Megacredit", 22 to "TR")
     }
   }
@@ -239,44 +239,40 @@ class SpecificCardsTest {
   @Test
   fun aiCentral() {
     val game = Game.create(GameSetup(Canon, "BRM", 2))
-    val eng = game.session(ENGINE)
-    val p1 = game.session(PLAYER1)
 
-    eng.operation("ActionPhase")
-    p1.writer.unsafe().sneak("5 ProjectCard, 100, Steel")
+    with(game.session(PLAYER1)) {
+      phase("Action")
+      writer.unsafe().sneak("5 ProjectCard, 100, Steel")
 
-    p1.playCard("SearchForLife", 3)
-    p1.playCard("InventorsGuild", 9)
+      playCard("SearchForLife", 3)
+      playCard("InventorsGuild", 9)
 
-    p1.stdAction("PlayCardFromHand") {
-      assertThrows<RequirementException>("1") { task("PlayCard<Class<AiCentral>>") }
-      rollItBack()
+      assertThrows<RequirementException>("1") { playCard("AiCentral") }
+      playCard("DesignedMicroorganisms", 16)
+
+      // Now I do have the 3 science tags, but not the energy production
+      assertThrows<LimitsException>("2") { playCard("AiCentral", 19, steel = 1) }
+
+      // Give energy prod and try again - success
+      writer.unsafe().sneak("PROD[Energy]")
+      playCard("AiCentral", 19, steel = 1)
+      assertCounts(0 to "PROD[Energy]")
+
+      // Use the action
+      assertCounts(1 to "ProjectCard")
+      cardAction1("AiCentral")
+      assertCounts(3 to "ProjectCard")
+      assertCounts(1 to "ActionUsedMarker<AiCentral>")
+
+      assertThrows<LimitsException>("3") { cardAction1("AiCentral") }
+      assertCounts(3 to "ProjectCard")
+      assertCounts(1 to "ActionUsedMarker<AiCentral>")
+
+      // Next gen we can again
+      operation("Generation")
+      cardAction1("AiCentral")
+      assertCounts(5 to "ProjectCard")
     }
-
-    p1.playCard("DesignedMicroorganisms", 16)
-
-    // Now I do have the 3 science tags, but not the energy production
-    assertThrows<LimitsException>("2") { p1.playCard("AiCentral", 19, steel = 1) }
-
-    // Give energy prod and try again - success
-    p1.writer.unsafe().sneak("PROD[Energy]")
-    p1.playCard("AiCentral", 19, steel = 1)
-    p1.assertCounts(0 to "PROD[Energy]")
-
-    // Use the action
-    p1.assertCounts(1 to "ProjectCard")
-    p1.cardAction("AiCentral")
-    p1.assertCounts(3 to "ProjectCard")
-    p1.assertCounts(1 to "ActionUsedMarker<AiCentral>")
-
-    assertThrows<LimitsException>("3") { p1.cardAction("AiCentral") }
-    p1.assertCounts(3 to "ProjectCard")
-    p1.assertCounts(1 to "ActionUsedMarker<AiCentral>")
-
-    // Next gen we can again
-    eng.operation("Generation")
-    p1.cardAction("AiCentral")
-    p1.assertCounts(5 to "ProjectCard")
   }
 
   @Test
@@ -335,9 +331,9 @@ class SpecificCardsTest {
   @Test
   fun elCheapo() {
     val game = Game.create(GameSetup(Canon, "BRMVPCX", 2))
-    game.session(ENGINE).operation("ActionPhase")
 
     with(game.session(PLAYER1)) {
+      phase("Action")
       operation("CorporationCard, 12 ProjectCard, Phobolog, Steel") // -1
 
       operation("AntiGravityTechnology, EarthCatapult")
@@ -363,7 +359,7 @@ class SpecificCardsTest {
     p1.playCorp("InterplanetaryCinematics", 7)
     p2.playCorp("PharmacyUnion", 5)
 
-    eng.operation("PreludePhase")
+    eng.phase("Prelude")
 
     p1.turn("UnmiContractor")
     p1.turn("CorporateArchives")
@@ -399,17 +395,17 @@ class SpecificCardsTest {
   @Test
   fun excentricSponsor() {
     val game = Game.create(GameSetup(Canon, "BRHXP", 2))
-    val eng = game.session(ENGINE)
-    val p1 = game.session(PLAYER1)
 
-    p1.playCorp("InterplanetaryCinematics", 7)
-    eng.operation("PreludePhase")
+    with(game.session(PLAYER1)) {
+      playCorp("InterplanetaryCinematics", 7)
+      phase("Prelude")
 
-    p1.turn("ExcentricSponsor") { // currently we don't `PlayCard` these
-      task("PlayCard<Class<NitrogenRichAsteroid>>")
-      task("6 Pay<Class<M>> FROM M")
-      task("Ok") // the damn titanium
-      p1.assertCounts(0 to "Owed", 5 to "M", 1 to "ExcentricSponsor", 1 to "PlayedEvent")
+      turn("ExcentricSponsor") { // currently we don't `PlayCard` these
+        task("PlayCard<Class<NitrogenRichAsteroid>>")
+        task("6 Pay<Class<M>> FROM M")
+        task("Ok") // the damn titanium
+      }
+      assertCounts(0 to "Owed", 5 to "M", 1 to "ExcentricSponsor", 1 to "PlayedEvent")
     }
   }
 
@@ -432,13 +428,13 @@ class SpecificCardsTest {
       playCorp("Polyphemos", 10)
       assertCounts(10 to "ProjectCard", 0 to "M")
 
-      operation("ActionPhase")
+      phase("Action")
       writer.unsafe().sneak("14")
 
       playCard("InventorsGuild", 9)
       assertCounts(9 to "ProjectCard", 5 to "M")
 
-      cardAction("InventorsGuild") { task("BuyCard") } // TODO
+      cardAction1("InventorsGuild") { task("BuyCard") } // TODO
       assertCounts(10 to "ProjectCard", 0 to "M")
     }
   }
