@@ -12,7 +12,7 @@ import dev.martianzoo.tfm.engine.PlayerSession.Companion.session
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 
-private class CanonCustomInstructionsTest {
+private class CanonCustomClassesTest {
   @Test
   fun robinsonMegacredit1() {
     val game = newGameForP1()

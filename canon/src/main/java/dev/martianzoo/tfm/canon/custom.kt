@@ -1,3 +1,5 @@
+@file:Suppress("PARAMETER_NAME_CHANGED_ON_OVERRIDE")
+
 package dev.martianzoo.tfm.canon
 
 import dev.martianzoo.tfm.api.ApiUtils.lookUpProductionLevels
@@ -30,42 +32,40 @@ import dev.martianzoo.tfm.pets.ast.ScaledExpression.Companion.scaledEx
 import dev.martianzoo.tfm.pets.ast.TransformNode
 import dev.martianzoo.util.Grid
 
-internal val allCustomInstructions =
+internal val canonCustomClasses =
     setOf(
         ForceLoad,
         CreateAdjacencies,
         BeginPlayCard,
-        GetEventVpsFrom,
+        GetEventVps,
         GainLowestProduction,
         CopyProductionBox,
         CopyPrelude,
     )
 
 private object ForceLoad : CustomClass("ForceLoad") {
-  override fun translate(game: GameReader, arguments: List<Type>): Instruction {
-    return NoOp
-  }
+  override fun translate(game: GameReader, ignoredClass: Type) = NoOp
 }
 
 private object CreateAdjacencies : CustomClass("CreateAdjacencies") {
-  override fun translate(game: GameReader, arguments: List<Type>): Instruction {
-    val grid = mapDefinition(game).areas
-    val areaName: ClassName = arguments.single().className
-    val area: AreaDefinition = grid.firstOrNull { it.className == areaName } ?: error(areaName)
+  override fun translate(game: GameReader, areaType: Type): Instruction {
+    val grid: Grid<AreaDefinition> = mapDefinition(game).areas
+    val area = grid.firstOrNull { it.className == areaType.className } ?: error(areaType)
     val neighborAreas: List<AreaDefinition> = neighborsInHexGrid(grid, area.row, area.column)
-
     val newTile: Expression = tileOn(area, game)!! // creating it is what got us here
 
-    val nbrs: List<Expression> =
+    val neighbors: List<Expression> =
         neighborAreas.map { cn("Neighbor").of(newTile, it.className.expression) }
-    val adjs =
+    val adjacencies: List<Expression> =
         neighborAreas
             .mapNotNull { tileOn(it, game) }
             .flatMap {
               listOf(
-                  cn("ForwardAdjacency").of(it, newTile), cn("BackwardAdjacency").of(newTile, it))
+                  cn("ForwardAdjacency").of(it, newTile),
+                  cn("BackwardAdjacency").of(newTile, it),
+              )
             }
-    return Then.create((nbrs + adjs).map { gain(scaledEx(1, it)) })
+    return Then.create((neighbors + adjacencies).map { gain(scaledEx(1, it)) })
   }
 
   private fun tileOn(area: AreaDefinition, game: GameReader): Expression? {
@@ -90,10 +90,10 @@ private object CreateAdjacencies : CustomClass("CreateAdjacencies") {
 }
 
 private object BeginPlayCard : CustomClass("BeginPlayCard") {
-  override fun translate(game: GameReader, arguments: List<Type>): Instruction {
-    val classExpr = arguments[1].expression // TODO yuck
-    val cardName = classExpr.arguments.single().className
-    val card: CardDefinition = game.authority.card(cardName)
+  override fun translate(game: GameReader, owner: Type, cardClassType: Type): Instruction {
+    require(cardClassType.className == CLASS)
+    val cardType: Expression = cardClassType.expression.arguments.single()
+    val card: CardDefinition = game.authority.card(cardType.className)
 
     val reqt = card.requirement
     if (reqt?.let { game.evaluate(game.preprocess(it)) } == false) {
@@ -117,59 +117,56 @@ private object BeginPlayCard : CustomClass("BeginPlayCard") {
 }
 
 // For scoring event cards
-private object GetEventVpsFrom : CustomClass("GetEventVpsFrom") {
-  override fun translate(game: GameReader, arguments: List<Type>): Instruction {
-    val clazz = arguments[1] // TODO yuck
-    require(clazz.className == CLASS)
-    val cardName = clazz.expression.arguments.single().className
+private object GetEventVps : CustomClass("GetEventVps") {
+  override fun translate(game: GameReader, ignoredOwner: Type, classType: Type): Instruction {
+    require(classType.className == CLASS)
+    val cardName = classType.expression.arguments.single().className
     val card = game.authority.card(cardName)
     return Multi.create(
-        card.effects
-            .filter { it.trigger == OnGainOf.create(parse("End")) }
-            .map { it.instruction })
+        card.effects.filter { it.trigger == OnGainOf.create(parse("End")) }.map { it.instruction })
   }
 }
 
 // For Robinson Industries
 private object GainLowestProduction : CustomClass("GainLowestProduction") {
-  override fun translate(game: GameReader, arguments: List<Type>): Instruction {
-    val player = arguments.single().expression
-    val lowest = lookUpProductionLevels(game, player).values.min()
+  override fun translate(game: GameReader, owner: Type): Instruction {
+    val lowest = lookUpProductionLevels(game, owner.expression).values.min()
 
-    val options = standardResourceNames(game).mapNotNull {
-      val target = if (it == cn("Megacredit")) lowest + 5 else lowest
-      if (target >= 0) parse<Instruction>("=$target $it: $it") else null
-    }
+    val options =
+        standardResourceNames(game).mapNotNull {
+          val target = if (it == cn("Megacredit")) lowest + 5 else lowest
+          if (target >= 0) parse<Instruction>("=$target $it: $it") else null
+        }
     return TransformNode.wrap(Or.create(options), PROD)
   }
 }
 
 // For Robotic Workforce
 private object CopyProductionBox : CustomClass("CopyProductionBox") {
-  override fun translate(game: GameReader, arguments: List<Type>): Instruction {
-    val cardName = arguments[1].className // TODO yuck
-    val defn = game.authority.card(cardName)
-    val immediate: Instruction =
-        defn.immediate ?: throw NarrowingException("card $cardName has no immediate section")
+  override fun translate(game: GameReader, owner: Type, cardType: Type): Instruction {
+    val card: CardDefinition = game.authority.card(cardType.className)
+    val immediate = card.immediate
+        ?: throw NarrowingException("card ${card.className} has no immediate instruction")
     val matches = immediate.descendantsOfType<Transform>().filter { it.transformKind == PROD }
 
     when (matches.size) {
       0 -> throw NarrowingException("must choose a card that has an immediate PROD box")
       1 -> return matches.first()
-      else -> error("Card $cardName has ${matches.size} PROD blocks, which should never happen")
+      else -> error("Card ${card.className} is malformed, has ${matches.size} PROD blocks")
     }
   }
 }
 
 // For Double Down
 private object CopyPrelude : CustomClass("CopyPrelude") {
-  override fun translate(game: GameReader, arguments: List<Type>): Instruction {
-    val typeExpr = arguments[1].expressionFull
-    if (game.resolve(typeExpr).className == cn("DoubleDown")) {
+  override fun translate(game: GameReader, owner: Type, cardType: Type): Instruction {
+    val card = game.authority.card(cardType.className)
+    if (card.deck != PRELUDE) {
+      throw NarrowingException("Card ${card.className} is not a prelude card")
+    }
+    if (cardType.className == cn("DoubleDown")) { // TODO another way to get this?
       throw NarrowingException("Cute. No, you can't copy Double Down itself")
     }
-    val def = game.authority.card(typeExpr.className)
-    if (def.deck != PRELUDE) throw NarrowingException("Card $typeExpr is not a prelude card")
-    return def.immediate!!
+    return card.immediate ?: NoOp
   }
 }

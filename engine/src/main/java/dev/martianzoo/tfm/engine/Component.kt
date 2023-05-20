@@ -2,8 +2,6 @@ package dev.martianzoo.tfm.engine
 
 import dev.martianzoo.tfm.api.Exceptions
 import dev.martianzoo.tfm.api.GameReader
-import dev.martianzoo.tfm.api.SpecialClassNames.OWNED
-import dev.martianzoo.tfm.api.SpecialClassNames.OWNER
 import dev.martianzoo.tfm.data.Player
 import dev.martianzoo.tfm.engine.Game.ComponentGraph
 import dev.martianzoo.tfm.pets.HasClassName
@@ -13,7 +11,6 @@ import dev.martianzoo.tfm.pets.Transforming.replaceOwnerWith
 import dev.martianzoo.tfm.pets.Transforming.replaceThisExpressionsWith
 import dev.martianzoo.tfm.pets.ast.Effect
 import dev.martianzoo.tfm.pets.ast.Expression
-import dev.martianzoo.tfm.types.Dependency.Key
 import dev.martianzoo.tfm.types.MClass
 import dev.martianzoo.tfm.types.MType
 
@@ -33,7 +30,6 @@ public data class Component private constructor(internal val mtype: MType) :
 
   init {
     if (mtype.abstract) throw Exceptions.abstractComponent(mtype)
-    // check about CustomClasses? TODO
   }
 
   /**
@@ -63,14 +59,7 @@ public data class Component private constructor(internal val mtype: MType) :
     petEffects.map { ActiveEffect.from(it, this) }
   }
 
-  public val owner: Player? by lazy {
-    if (mtype.narrows(mtype.loader.resolve(OWNER.expression))) {
-      Player(mtype.className)
-    } else {
-      val dep = mtype.dependencies.getIfPresent(Key(OWNED, 0))
-      dep?.let { Player(it.className) }
-    }
-  }
+  public val owner: Player? by mtype::owner
 
   override val className by mtype::className
   override val expression by mtype::expression

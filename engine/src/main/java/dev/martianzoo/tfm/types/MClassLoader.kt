@@ -10,7 +10,6 @@ import dev.martianzoo.tfm.api.SpecialClassNames.OK
 import dev.martianzoo.tfm.api.SpecialClassNames.THIS
 import dev.martianzoo.tfm.api.Type
 import dev.martianzoo.tfm.data.ClassDeclaration
-import dev.martianzoo.tfm.data.ClassDeclaration.ClassKind.CUSTOM
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.pets.ast.Expression
@@ -137,7 +136,7 @@ public class MClassLoader(
     loadedClasses[short] = null
 
     val custom: CustomClass? =
-        if (decl.kind == CUSTOM) {
+        if (decl.custom) {
           authority.customClass(long)
         } else {
           require(authority.customClasses.none { it.className == long })

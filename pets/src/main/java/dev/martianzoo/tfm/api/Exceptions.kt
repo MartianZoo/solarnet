@@ -22,8 +22,8 @@ public object Exceptions {
   fun badExpression(specExpression: Expression, deps: String) =
       ExpressionException("can't match `$specExpression` to any of: `$deps`")
 
-  fun customInstructionNotFound(functionName: String) =
-      PetException("Custom instruction `@$functionName` not found")
+  fun customClassNotFound(className: ClassName) =
+      PetException("Custom class implementation for `$className` not found")
 
   fun abstractComponent(type: Type, change: Change? = null) =
       AbstractException(

@@ -15,7 +15,7 @@ import dev.martianzoo.tfm.engine.Game.EventLog
 import dev.martianzoo.tfm.engine.Game.EventLog.Checkpoint
 
 internal class WritableEventLog(private val events: MutableList<GameEvent> = mutableListOf()) :
-    EventLog {
+    EventLog, TaskListener {
 
   override val size: Int by events::size
 
@@ -52,11 +52,11 @@ internal class WritableEventLog(private val events: MutableList<GameEvent> = mut
   fun addChangeEvent(change: StateChange, player: Player, cause: Cause?): ChangeEvent =
       addEntry(ChangeEvent(size, player, change, cause))
 
-  fun taskAdded(task: Task) = addEntry(TaskAddedEvent(size, task))
+  override fun taskAdded(task: Task) = addEntry(TaskAddedEvent(size, task))
 
-  fun taskRemoved(task: Task) = addEntry(TaskRemovedEvent(size, task))
+  override fun taskRemoved(task: Task) = addEntry(TaskRemovedEvent(size, task))
 
-  fun taskReplaced(oldTask: Task, newTask: Task): TaskEditedEvent {
+  override fun taskReplaced(oldTask: Task, newTask: Task): TaskEditedEvent {
     require(oldTask.id == newTask.id)
     return addEntry(TaskEditedEvent(size, oldTask = oldTask, task = newTask))
   }

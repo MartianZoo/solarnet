@@ -38,7 +38,7 @@ ABSTRACT CLASS System {
   }
 }
 
-CUSTOM CLASS ForceLoad<Class>: Custom
+CLASS ForceLoad<Class>: Custom
 
 ABSTRACT CLASS Atomized                                // magic rule: see `Transformers.atomizer()`
 
@@ -99,7 +99,7 @@ ABSTRACT CLASS Area {
   ABSTRACT CLASS RemoteArea[RA]
 }
 
-CUSTOM CLASS CreateAdjacencies<MarsArea>: Custom
+CLASS CreateAdjacencies<MarsArea>: Custom
 
 ABSTRACT CLASS Tile<Area> { HAS MAX 1 This }
 

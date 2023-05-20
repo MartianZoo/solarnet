@@ -15,6 +15,7 @@ public object SpecialClassNames {
   public val ANYONE = cn("Anyone")
   public val ATOMIZED = cn("Atomized")
   public val CLASS = cn("Class")
+  public val CUSTOM = cn("Custom")
   public val COMPONENT = cn("Component")
   public val DIE = cn("Die")
   public val END = cn("End")

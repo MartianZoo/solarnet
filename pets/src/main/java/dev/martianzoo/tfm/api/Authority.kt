@@ -133,12 +133,12 @@ public abstract class Authority {
 
   // COLONY TILES
 
-  // CUSTOM INSTRUCTIONS
+  // CUSTOM CLASSES
 
-  /** Returns the custom instruction implementation having the name [functionName]. */
+  /** Returns the custom instruction implementation having the name [className]. */
   public fun customClass(className: ClassName): CustomClass {
     return customClasses.firstOrNull { it.className == className }
-      ?: throw Exceptions.customInstructionNotFound(className.toString()) // TODO
+        ?: throw Exceptions.customClassNotFound(className)
   }
 
   /** Every custom instruction this authority knows about. */

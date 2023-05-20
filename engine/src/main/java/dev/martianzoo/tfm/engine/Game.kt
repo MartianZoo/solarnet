@@ -17,7 +17,6 @@ import dev.martianzoo.tfm.data.Player.Companion.ENGINE
 import dev.martianzoo.tfm.data.Task
 import dev.martianzoo.tfm.data.Task.TaskId
 import dev.martianzoo.tfm.data.TaskResult
-import dev.martianzoo.tfm.engine.ActiveEffect.FiredEffect
 import dev.martianzoo.tfm.engine.Component.Companion.toComponent
 import dev.martianzoo.tfm.engine.Game.ComponentGraph
 import dev.martianzoo.tfm.engine.Game.EventLog
@@ -35,7 +34,6 @@ import dev.martianzoo.tfm.pets.ast.Instruction.Change
 import dev.martianzoo.tfm.pets.ast.Instruction.Companion.split
 import dev.martianzoo.tfm.pets.ast.PetElement
 import dev.martianzoo.tfm.pets.ast.ScaledExpression.Scalar.ActualScalar
-import dev.martianzoo.tfm.types.MClass
 import dev.martianzoo.tfm.types.MClassTable
 import dev.martianzoo.tfm.types.MType
 import dev.martianzoo.tfm.types.Transformers
@@ -52,10 +50,10 @@ import dev.martianzoo.util.Multiset
  */
 public class Game
 internal constructor(
-  private val table: MClassTable,
-  private val writableEvents: WritableEventLog = WritableEventLog(),
-  private val writableComponents: WritableComponentGraph = WritableComponentGraph(),
-  private val writableTasks: WritableTaskQueue = WritableTaskQueue(), // TODO pass writEv
+    private val table: MClassTable,
+    private val writableEvents: WritableEventLog = WritableEventLog(),
+    private val writableComponents: WritableComponentGraph = WritableComponentGraph(),
+    private val writableTasks: WritableTaskQueue = WritableTaskQueue(writableEvents),
 ) {
   /** The components that make up the game's current state ("present"). */
   public val components: ComponentGraph = writableComponents
@@ -170,13 +168,12 @@ internal constructor(
     writableEvents.rollBack(checkpoint) {
       when (it) {
         is TaskEvent -> writableTasks.reverse(it)
-        is ChangeEvent -> {
-          writableComponents.reverse(
-              it.change.count,
-              removeWhatWasGained = it.change.gaining?.toComponent(reader),
-              gainWhatWasRemoved = it.change.removing?.toComponent(reader),
-          )
-        }
+        is ChangeEvent ->
+            writableComponents.update(
+                it.change.count,
+                gaining = it.change.removing?.toComponent(reader),
+                removing = it.change.gaining?.toComponent(reader)
+            )
       }
     }
   }
@@ -195,13 +192,7 @@ internal constructor(
     return events.activitySince(checkpoint)
   }
 
-  internal fun activeEffects(classes: Collection<MClass>): List<ActiveEffect> =
-      writableComponents.activeEffects(classes)
-
   internal fun setupFinished() = writableEvents.setStartPoint()
-
-  internal fun addTriggeredTasks(fx: FiredEffect) =
-      writableTasks.addTasks(fx.instruction, fx.player, fx.cause, writableEvents)
 
   /*
    * Implementation of GameWriter - would be nice to have in a separate file but we'd have to
@@ -212,12 +203,13 @@ internal constructor(
   public class GameWriterImpl(val game: Game, val player: Player) :
     GameWriter(), UnsafeGameWriter {
     private val tasks by game::writableTasks
+
     private val instructor = Instructor(this)
 
     override fun initiateTask(instruction: Instruction, firstCause: Cause?) =
         game.atomic {
           val prepped = preprocess(instruction)
-          tasks.addTasks(prepped, player, firstCause, game.writableEvents)
+          tasks.addTasks(prepped, player, firstCause)
         }
 
     override fun narrowTask(taskId: TaskId, narrowed: Instruction): TaskResult {
@@ -266,13 +258,11 @@ internal constructor(
         val split = split(replacement.instruction)
         if (split.size == 1) {
           val reason = replacement.whyPending?.let { "(was: $it)" }
-          tasks.editTask(replacement.copy(whyPending = reason), game.writableEvents)
+          tasks.editTask(replacement.copy(whyPending = reason))
         } else {
           // All the nows and thens would get enqueued side by side But this is why we don't let a
           // task whose instruction contains a Multi at any depth have a THEN.
-          tasks.addTasks(
-              replacement.instruction, replacement.owner, replacement.cause, game.writableEvents,
-          )
+          tasks.addTasks(replacement.instruction, replacement.owner, replacement.cause) // TODO
           handleTask(replacement.id)
         }
       }
@@ -290,7 +280,7 @@ internal constructor(
     }
 
     override fun explainTask(taskId: TaskId, reason: String) {
-      tasks.editTask(tasks[taskId].copy(whyPending = reason), game.writableEvents)
+      tasks.editTask(tasks[taskId].copy(whyPending = reason))
     }
 
     override fun executeTask(taskId: TaskId): TaskResult {
@@ -304,8 +294,12 @@ internal constructor(
           if (taskId !in tasks) return@atomic
         }
 
+        val effector = Effector(game.reader, instructor, game.writableComponents::activeEffects) {
+          game.writableTasks.addTasks(it.instruction, it.player, it.cause)
+        }
+
         val newTask = tasks[taskId]
-        instructor.execute(newTask.instruction, newTask.cause)
+        instructor.execute(newTask.instruction, effector, newTask.cause)
         handleTask(taskId)
       }
     }
@@ -317,7 +311,7 @@ internal constructor(
     private fun handleTask(taskId: TaskId) {
       val task = tasks[taskId]
       checkOwner(task)
-      task.then?.let { tasks.addTasks(it, task.owner, task.cause, game.writableEvents) }
+      task.then?.let { tasks.addTasks(it, task.owner, task.cause) }
       dropTask(taskId)
     }
 
@@ -332,7 +326,7 @@ internal constructor(
 
     override fun dropTask(taskId: TaskId): TaskRemovedEvent {
       checkOwner(tasks[taskId])
-      return tasks.removeTask(taskId, game.writableEvents)
+      return tasks.removeTask(taskId)
     }
 
     override fun sneak(changes: String, cause: Cause?) = sneak(preprocess(parse(changes)), cause)

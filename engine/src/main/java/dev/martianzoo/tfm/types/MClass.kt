@@ -9,7 +9,6 @@ import dev.martianzoo.tfm.api.SpecialClassNames.OWNED
 import dev.martianzoo.tfm.api.SpecialClassNames.THIS
 import dev.martianzoo.tfm.api.TypeInfo
 import dev.martianzoo.tfm.data.ClassDeclaration
-import dev.martianzoo.tfm.data.ClassDeclaration.ClassKind.CUSTOM
 import dev.martianzoo.tfm.pets.HasClassName
 import dev.martianzoo.tfm.pets.HasClassName.Companion.classNames
 import dev.martianzoo.tfm.pets.PetTransformer
@@ -72,7 +71,7 @@ internal constructor(
   public val shortName: ClassName by declaration::shortName
 
   init {
-    require((declaration.kind == CUSTOM) == (custom != null)) { declaration }
+    require((declaration.custom) == (custom != null)) { declaration }
   }
 
   // HIERARCHY

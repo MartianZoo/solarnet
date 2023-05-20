@@ -1,7 +1,7 @@
 package dev.martianzoo.tfm.data
 
+import dev.martianzoo.tfm.api.SpecialClassNames.CUSTOM
 import dev.martianzoo.tfm.data.ClassDeclaration.ClassKind.ABSTRACT
-import dev.martianzoo.tfm.data.ClassDeclaration.ClassKind.CUSTOM
 import dev.martianzoo.tfm.pets.HasClassName
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.Effect
@@ -56,18 +56,20 @@ internal constructor(
      */
     internal val extraNodes: Set<PetNode> = setOf(),
 ) : HasClassName {
+  val custom = CUSTOM.expression in supertypes
+
   init {
     fun hasRefinement(it: Expression) = it.descendantsOfType<Requirement>().any()
     require(supertypes.none(::hasRefinement)) { supertypes }
 
-    if (kind == CUSTOM) {
+    if (custom) {
       require(invariants.none())
       require(effects.none())
       require(defaultsDeclaration == DefaultsDeclaration())
     }
   }
 
-  enum class ClassKind { CONCRETE, ABSTRACT, CUSTOM }
+  enum class ClassKind { CONCRETE, ABSTRACT }
 
   public val abstract = kind == ABSTRACT
 
@@ -77,7 +79,7 @@ internal constructor(
     val removeOnlySpecs: List<Expression> = listOf(),
     val gainIntensity: Intensity? = null,
     val removeIntensity: Intensity? = null,
-    val forClass: ClassName? = null, // TODO get rid of
+    val forClass: ClassName? = null,
   ) {
     companion object {
       fun merge(defs: Collection<DefaultsDeclaration>): DefaultsDeclaration {

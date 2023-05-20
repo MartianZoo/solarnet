@@ -2,16 +2,13 @@ package dev.martianzoo.tfm.engine
 
 import dev.martianzoo.tfm.api.CustomClass
 import dev.martianzoo.tfm.api.Exceptions.DeadEndException
-import dev.martianzoo.tfm.api.Exceptions.DependencyException
 import dev.martianzoo.tfm.api.Exceptions.LimitsException
 import dev.martianzoo.tfm.api.Exceptions.NotNowException
 import dev.martianzoo.tfm.api.Exceptions.abstractInstruction
 import dev.martianzoo.tfm.api.Exceptions.orWithoutChoice
 import dev.martianzoo.tfm.api.Exceptions.requirementNotMet
 import dev.martianzoo.tfm.api.SpecialClassNames.DIE
-import dev.martianzoo.tfm.data.GameEvent.ChangeEvent
 import dev.martianzoo.tfm.data.GameEvent.ChangeEvent.Cause
-import dev.martianzoo.tfm.engine.ActiveEffect.FiredEffect
 import dev.martianzoo.tfm.engine.Component.Companion.toComponent
 import dev.martianzoo.tfm.engine.Game.GameWriterImpl
 import dev.martianzoo.tfm.pets.PetTransformer.Companion.chain
@@ -20,7 +17,6 @@ import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.pets.ast.Instruction
 import dev.martianzoo.tfm.pets.ast.Instruction.Change
 import dev.martianzoo.tfm.pets.ast.Instruction.Change.Companion.change
-import dev.martianzoo.tfm.pets.ast.Instruction.Companion.split
 import dev.martianzoo.tfm.pets.ast.Instruction.Gated
 import dev.martianzoo.tfm.pets.ast.Instruction.Intensity.AMAP
 import dev.martianzoo.tfm.pets.ast.Instruction.Intensity.MANDATORY
@@ -35,7 +31,7 @@ import dev.martianzoo.tfm.types.MType
 import kotlin.math.min
 
 /** Just a cute name for "instruction handler". It prepares and executes instructions. */
-public data class Instructor(
+internal data class Instructor(
   private val writer: GameWriterImpl, // makes sense as inner class but file would be so long
 ) {
   private val game by writer::game
@@ -100,8 +96,7 @@ public data class Instructor(
     val (g: MType?, r: MType?) = autoNarrowTypes(instruction.gaining, instruction.removing)
     if (g?.className == DIE) throw DeadEndException("a Die instruction was reached")
 
-    val custom = g != null && !g.abstract && g.root.custom != null
-    if (custom) {
+    if (g != null && !g.abstract && g.root.custom != null) {
       require(r == null) { "custom class instructions can only be pure gains" }
       return prepareCustom(g)
     }
@@ -135,21 +130,15 @@ public data class Instructor(
     return change(adjusted, g?.expression, r?.expression, if (intens == AMAP) MANDATORY else intens)
   }
 
-  public fun prepareCustom(type: MType?): Instruction {
-    val gc = type?.toComponent(reader)
-    val cc: CustomClass = type!!.root.custom!!
-    val args = gc!!.dependencyComponents
-    val missing = args.filter { reader.countComponent(it) == 0 }
-    if (missing.any()) throw DependencyException(missing.map { it.mtype })
+  public fun prepareCustom(type: MType): Instruction {
+    val translated = type.root.custom!!.prepare(reader, type)
 
-    val translated: Instruction = cc.translate(reader, args.map { it.mtype }) // TODO whole type?
-    val prepper =
-        chain(
-            reader.transformers.standardPreprocess(),
-            reader.transformers.substituter(type.root.baseType, type),
-            gc.owner?.let { replaceOwnerWith(it) },
-        )
-    val prepped = prepper.transform(translated)
+    val prepped = chain(
+        reader.transformers.standardPreprocess(),
+        reader.transformers.substituter(type.root.baseType, type),
+        type.owner?.let { replaceOwnerWith(it) },
+    ).transform(translated)
+
     return if (prepped is Multi) prepped else doPrepare(prepped) // TODO hmm?
   }
 
@@ -170,55 +159,23 @@ public data class Instructor(
     return g to r
   }
 
-  // must prepare first?? or what?? TODO
-  fun execute(instruction: Instruction, cause: Cause?) {
-    when (instruction) {
+  fun execute(instruction: Instruction, effector: Effector, cause: Cause?) {
+    val prepped = prepare(instruction) // idempotent?
+    when (prepped) {
       is Change -> {
-        val ct = instruction.count as? ActualScalar ?: throw abstractInstruction(instruction)
-        if (instruction.intensity != MANDATORY) throw abstractInstruction(instruction)
-        val g = instruction.gaining?.toComponent(reader)
-        val r = instruction.removing?.toComponent(reader)
+        val ct = prepped.count as? ActualScalar ?: throw abstractInstruction(prepped)
+        if (prepped.intensity != MANDATORY) throw abstractInstruction(prepped)
+        val g = prepped.gaining?.toComponent(reader)
+        val r = prepped.removing?.toComponent(reader)
         if (g?.mtype?.root?.custom != null) error("custom")
-        writer.changeAndFixOrphans(ct.value, g, r, cause, ::fireMatchingTriggers)
+        writer.changeAndFixOrphans(ct.value, g, r, cause, effector::fireMatchingTriggers)
       }
 
-      is Or -> throw orWithoutChoice(instruction)
-      is Then -> instruction.instructions.forEach { execute(it, cause) }
+      is Or -> throw orWithoutChoice(prepped)
+      is Then -> prepped.instructions.forEach { execute(it, effector, cause) }
       is NoOp -> {}
-      else -> error("somehow a ${instruction.kind.simpleName!!} was enqueued: $instruction")
+      else -> error("somehow a ${prepped.kind.simpleName!!} was enqueued: $prepped")
     }
   }
 
-  // Effects - TODO Effector
-
-  private fun fireMatchingTriggers(triggerEvent: ChangeEvent) {
-    val (now, later) = getFiringEffects(triggerEvent).partition { it.automatic }
-    for (fx in now) {
-      for (instr in split(fx.instruction)) {
-        execute(prepare(instr), fx.cause)
-      }
-    }
-
-    // TODO why can't we do this before the for loop??
-    later.forEach(game::addTriggeredTasks)
-  }
-
-  private fun getFiringEffects(triggerEvent: ChangeEvent): List<FiredEffect> =
-      getFiringSelfEffects(triggerEvent) + getFiringOtherEffects(triggerEvent)
-
-  private fun getFiringSelfEffects(triggerEvent: ChangeEvent): List<FiredEffect> =
-      componentsIn(triggerEvent)
-          .map { Component.ofType(it) }
-          .flatMap { it.activeEffects }
-          .mapNotNull { it.onChangeToSelf(triggerEvent, reader) }
-
-  private fun getFiringOtherEffects(triggerEvent: ChangeEvent): List<FiredEffect> {
-    val classesInvolved = componentsIn(triggerEvent).map { it.root }
-    return game.activeEffects(classesInvolved).mapNotNull {
-      it.onChangeToOther(triggerEvent, reader)
-    }
-  }
-
-  private fun componentsIn(triggerEvent: ChangeEvent): List<MType> =
-      listOfNotNull(triggerEvent.change.gaining, triggerEvent.change.removing).map(reader::resolve)
 }

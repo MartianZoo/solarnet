@@ -40,7 +40,7 @@ public object Canon : Authority() {
     JsonReader.readMilestones(readResource("milestones.json5")).toSetStrict()
   }
 
-  override val customClasses: Set<CustomClass> by ::allCustomInstructions
+  override val customClasses: Set<CustomClass> by ::canonCustomClasses
 
   private fun readResource(filename: String): String {
     val dir = javaClass.packageName.replace('.', '/')

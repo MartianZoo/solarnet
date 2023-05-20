@@ -209,7 +209,7 @@ internal class CanonClassesTest {
             Key(cn("BeginPlayCard"), 0),
             Key(cn("CreateAdjacencies"), 0),
             Key(cn("ForceLoad"), 0),
-            Key(cn("GetEventVpsFrom"), 0),
+            Key(cn("GetEventVps"), 0),
         )
   }
 }

@@ -1,11 +1,15 @@
 package dev.martianzoo.tfm.types
 
 import dev.martianzoo.tfm.api.Exceptions
+import dev.martianzoo.tfm.api.SpecialClassNames.OWNED
+import dev.martianzoo.tfm.api.SpecialClassNames.OWNER
 import dev.martianzoo.tfm.api.Type
 import dev.martianzoo.tfm.api.TypeInfo
+import dev.martianzoo.tfm.data.Player
 import dev.martianzoo.tfm.pets.HasClassName
 import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.pets.ast.Requirement
+import dev.martianzoo.tfm.types.Dependency.Key
 import dev.martianzoo.util.Hierarchical
 import dev.martianzoo.util.Reifiable
 
@@ -122,6 +126,14 @@ internal constructor(
     val refin = that.refinement ?: return true
     val requirement = root.table.transformers.refinementMangler(expressionFull).transform(refin)
     return info.evaluate(requirement)
+  }
+
+  public val owner: Player? by lazy {
+    if (narrows(loader.resolve(OWNER.expression))) {
+      Player(className)
+    } else {
+      dependencies.getIfPresent(Key(OWNED, 0))?.className?.let(::Player)
+    }
   }
 
   override fun toString() = "$expressionFull@${root.loader}"

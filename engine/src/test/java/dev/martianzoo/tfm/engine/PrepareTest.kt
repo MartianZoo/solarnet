@@ -18,7 +18,8 @@ private class PrepareTest {
 
   val game = Game.create(Canon.SIMPLE_GAME)
   val p1 = game.session(PLAYER1)
-  val instructor = Instructor(game.writer(PLAYER1) as GameWriterImpl)
+  val writer = game.writer(PLAYER1) as GameWriterImpl
+  val instructor = Instructor(writer)
 
   init {
     p1.action("Plant, 10 ProjectCard, PROD[-1]")

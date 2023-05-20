@@ -15,7 +15,6 @@ import dev.martianzoo.tfm.data.ClassDeclaration
 import dev.martianzoo.tfm.data.ClassDeclaration.ClassKind
 import dev.martianzoo.tfm.data.ClassDeclaration.ClassKind.ABSTRACT
 import dev.martianzoo.tfm.data.ClassDeclaration.ClassKind.CONCRETE
-import dev.martianzoo.tfm.data.ClassDeclaration.ClassKind.CUSTOM
 import dev.martianzoo.tfm.data.ClassDeclaration.DefaultsDeclaration
 import dev.martianzoo.tfm.pets.ClassParsing.Body.BodyElement
 import dev.martianzoo.tfm.pets.ClassParsing.Body.BodyElement.ActionElement
@@ -115,8 +114,7 @@ internal object ClassParsing : PetTokenizer() {
   internal object Declarations {
     private val kind: Parser<ClassKind> =
         (_abstract and _class asJust ABSTRACT) or
-            (_custom and _class asJust CUSTOM) or
-            (_class asJust CONCRETE)
+        (_class asJust CONCRETE)
 
     private val bodyElement = parser { bodyElementExceptNestedClasses or nestedGroup }
 
@@ -168,7 +166,7 @@ internal object ClassParsing : PetTokenizer() {
         ClassDeclaration(
             className = className,
             shortName = shortName ?: className,
-            kind = CUSTOM, // needs to be overwritten!
+            kind = ABSTRACT, // needs to be overwritten!
             dependencies = dependencies,
             supertypes = supertypes.toSetStrict(),
         ),

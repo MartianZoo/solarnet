@@ -98,11 +98,11 @@ ABSTRACT CLASS Owned<Anyone> {
     }
 
     CLASS PlayedEvent<Class<CardFront>> [EVT] {   // Can't be <EventCard>, all thanks to PharmU
-      End: GetEventVpsFrom<Class<CardFront>>
+      End: GetEventVps<Class<CardFront>>
     }
   }
 
-  CUSTOM CLASS GetEventVpsFrom<Class<CardFront>> : Custom
+  CLASS GetEventVps<Class<CardFront>> : Custom
 
 
 // THINGS ON CARDS -------------------------------
@@ -164,7 +164,7 @@ ABSTRACT CLASS Owned<Anyone> {
     -X Barrier IF =0 Barrier:: CardFront FROM This// When barriers gone, become the card itself
   }
 
-  CUSTOM CLASS BeginPlayCard<Class<CardFront>> : Custom
+  CLASS BeginPlayCard<Class<CardFront>> : Custom
 
   CLASS PlayTag<Class<Tag>> : Signal              // Triggers discounts and Accepts
 

@@ -13,7 +13,9 @@ import dev.martianzoo.tfm.engine.Game.TaskQueue
 import dev.martianzoo.tfm.pets.ast.Instruction
 import dev.martianzoo.util.toSetStrict
 
-internal class WritableTaskQueue(private val taskSet: MutableSet<Task> = mutableSetOf()) :
+internal class WritableTaskQueue(
+  private val events: TaskListener,
+  private val taskSet: MutableSet<Task> = mutableSetOf()) :
   TaskQueue, Set<Task> by taskSet {
 
   // OVERRIDES / READ-ONLY OPERATIONS
@@ -34,29 +36,30 @@ internal class WritableTaskQueue(private val taskSet: MutableSet<Task> = mutable
   // ALL NON-PRIVATE MUTATIONS OF TASKSET
 
   internal fun addTasks(
-      // If we had a single form it would have to reject Multi's
     instruction: Instruction,
     owner: Player,
     cause: Cause?,
-    events: WritableEventLog,
   ): List<TaskAddedEvent> {
     val newTasks = Task.newTasks(nextAvailableId(), owner, listOf(instruction), cause)
-    return newTasks.map { events.taskAdded(addToTaskSet(it)) }
+    return newTasks.map {
+      val task = addToTaskSet(it)
+      events.taskAdded(task)
+    }
   }
 
-  internal fun removeTask(id: TaskId, events: WritableEventLog): TaskRemovedEvent {
+  internal fun removeTask(id: TaskId): TaskRemovedEvent {
     val task = this[id]
     removeFromTaskSet(task)
     return events.taskRemoved(task)
   }
 
-  internal fun editTask(newTask: Task, eventLog: WritableEventLog): TaskEditedEvent? {
+  internal fun editTask(newTask: Task): TaskEditedEvent? {
     val id = newTask.id
     val oldTask = this[id]
     if (newTask == oldTask) return null
     removeFromTaskSet(oldTask)
     addToTaskSet(newTask)
-    return eventLog.taskReplaced(oldTask, newTask)
+    return events.taskReplaced(oldTask, newTask)
   }
 
   // This method can get away without the normalizations/integrity-checks/whatever because it is

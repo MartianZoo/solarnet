@@ -35,19 +35,17 @@ internal abstract class PetTokenizer {
   internal val _if = caseInsensitiveWord("IF")
   internal val _max = caseInsensitiveWord("MAX")
   internal val _or = caseInsensitiveWord("OR")
-  internal val _and = caseInsensitiveWord("AND")
+  internal val _and = caseInsensitiveWord("AND") // TODO
   internal val _then = caseInsensitiveWord("THEN")
   internal val _x = regex(Regex("""X\b"""), "X")
 
   // class declarations - making these ignore case causes trouble with `Class<...>`
   internal val _abstract = literal("ABSTRACT")
-  internal val _custom = literal("CUSTOM")
   internal val _class = literal("CLASS")
   internal val _default = literal("DEFAULT")
 
   // regexes - could leave the `Regex()` out, but it loses IDEA syntax highlighting!
   internal val _upperCamelRE = regex(Regex("""\b[A-Z][a-z][A-Za-z0-9_]*\b"""), "UpperCamel")
-  internal val _lowerCamelRE = regex(Regex("""\b[a-z][a-zA-Z0-9]*\b"""), "lowerCamel")
   internal val _allCapsWordRE = regex(Regex("""\b([A-Z][A-Z0-9]{0,4})\b"""), "ALLCAPS")
   private val _scalarRE = regex(Regex("""\b(0|[1-9][0-9]*)"""), "scalar")
 

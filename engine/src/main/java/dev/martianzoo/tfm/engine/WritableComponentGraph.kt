@@ -37,11 +37,7 @@ internal class WritableComponentGraph(
         .map { (effect, count) -> effect * count }
   }
 
-  internal fun update(
-      count: Int = 1,
-      gaining: Component?,
-      removing: Component?,
-  ): StateChange {
+  internal fun update(count: Int = 1, gaining: Component?, removing: Component?): StateChange {
     removing?.let { multiset.mustRemove(it, count) }
     gaining?.let { multiset.add(it, count) }
     return StateChange(count, gaining?.expressionFull, removing?.expressionFull)
@@ -92,15 +88,6 @@ internal class WritableComponentGraph(
       }
     }
     return actual
-  }
-
-  internal fun reverse(
-      count: Int,
-      removeWhatWasGained: Component?,
-      gainWhatWasRemoved: Component?,
-  ) {
-    removeWhatWasGained?.let { multiset.mustRemove(it, count) }
-    gainWhatWasRemoved?.let { multiset.add(it, count) }
   }
 
   fun checkDependents(count: Int, removing: Component) {
