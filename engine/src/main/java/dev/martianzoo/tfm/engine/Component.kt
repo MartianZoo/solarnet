@@ -1,14 +1,11 @@
 package dev.martianzoo.tfm.engine
 
 import dev.martianzoo.tfm.api.Exceptions
-import dev.martianzoo.tfm.api.GameReader
 import dev.martianzoo.tfm.data.Player
 import dev.martianzoo.tfm.engine.Game.ComponentGraph
+import dev.martianzoo.tfm.engine.Game.SnReader
 import dev.martianzoo.tfm.pets.HasClassName
 import dev.martianzoo.tfm.pets.HasExpression
-import dev.martianzoo.tfm.pets.PetTransformer.Companion.chain
-import dev.martianzoo.tfm.pets.Transforming.replaceOwnerWith
-import dev.martianzoo.tfm.pets.Transforming.replaceThisExpressionsWith
 import dev.martianzoo.tfm.pets.ast.Effect
 import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.types.MClass
@@ -21,12 +18,9 @@ import dev.martianzoo.tfm.types.MType
 public data class Component private constructor(internal val mtype: MType) :
     HasClassName, HasExpression {
   companion object {
-    private val cache: MutableMap<MType, Component> = mutableMapOf()
-    public val cacheSize by cache::size
-    public fun ofType(mtype: MType) = cache.computeIfAbsent(mtype, ::Component)
-
-    public fun Expression.toComponent(game: GameReader) = ofType(game.resolve(this) as MType)
-    public fun HasExpression.toComponent(game: GameReader) = expressionFull.toComponent(game)
+    public fun Expression.toComponent(game: SnReader) = Component(game.resolve(this))
+    public fun HasExpression.toComponent(game: SnReader) = expressionFull.toComponent(game)
+    public fun MType.toComponent() = Component(this)
   }
 
   init {
@@ -39,26 +33,15 @@ public data class Component private constructor(internal val mtype: MType) :
    * `Class<Tile>` has an empty dependency list, despite its appearance. The list order corresponds
    * to [MClass.dependencies].
    */
-  public val dependencyComponents by lazy { mtype.typeDependencies.map { ofType(it.boundType) } }
+  public val dependencyComponents by lazy { mtype.typeDependencies.map { it.boundType.toComponent() } }
 
-  public val petEffects: List<Effect> by lazy {
-    val xers = mtype.loader.transformers
-    val xer =
-        chain(
-            xers.substituter(mtype.root.defaultType, mtype),
-            xers.deprodify(),
-            owner?.let(::replaceOwnerWith),
-            replaceThisExpressionsWith(mtype.expression),
-        )
-    mtype.root.classEffects.map(xer::transform)
-  }
+  // TODO get rid of
+  public val typeEffectsGetRidOf: List<Effect> = mtype.effects
 
   /**
    * This component's effects; while the component exists in a game state, the effects are active.
    */
-  internal val activeEffects: List<ActiveEffect> by lazy {
-    petEffects.map { ActiveEffect.from(it, this) }
-  }
+  internal val activeEffects: List<ActiveEffect> = mtype.effects.map { ActiveEffect.from(it, this) }
 
   public val owner: Player? by mtype::owner
 

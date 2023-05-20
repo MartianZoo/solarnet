@@ -1,6 +1,6 @@
 package dev.martianzoo.tfm.repl
 
-import dev.martianzoo.tfm.engine.Component
+import dev.martianzoo.tfm.engine.Component.Companion.toComponent
 import dev.martianzoo.tfm.engine.PlayerSession
 import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.types.MClass
@@ -68,7 +68,7 @@ object MTypeToText {
         if (mtype.abstract) {
           ""
         } else {
-          val c = Component.ofType(mtype)
+          val c = mtype.toComponent()
 //          val custom = if (mtype.root.custom != null) {
 //            val instructor = Instructor(session.writer as GameWriterImpl)
 //            instructor.prepareCustom(mtype).toString()
@@ -80,7 +80,7 @@ object MTypeToText {
 
             Component $c:
               effects:    ${
-            c.petEffects.joinToString(
+            c.typeEffectsGetRidOf.joinToString(
                 """
                           """,
             )

@@ -8,7 +8,9 @@ import dev.martianzoo.tfm.api.Exceptions.abstractInstruction
 import dev.martianzoo.tfm.api.Exceptions.orWithoutChoice
 import dev.martianzoo.tfm.api.Exceptions.requirementNotMet
 import dev.martianzoo.tfm.api.SpecialClassNames.DIE
+import dev.martianzoo.tfm.data.GameEvent.ChangeEvent
 import dev.martianzoo.tfm.data.GameEvent.ChangeEvent.Cause
+import dev.martianzoo.tfm.engine.ActiveEffect.FiredEffect
 import dev.martianzoo.tfm.engine.Component.Companion.toComponent
 import dev.martianzoo.tfm.engine.Game.GameWriterImpl
 import dev.martianzoo.tfm.pets.PetTransformer.Companion.chain
@@ -17,6 +19,7 @@ import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.pets.ast.Instruction
 import dev.martianzoo.tfm.pets.ast.Instruction.Change
 import dev.martianzoo.tfm.pets.ast.Instruction.Change.Companion.change
+import dev.martianzoo.tfm.pets.ast.Instruction.Companion.split
 import dev.martianzoo.tfm.pets.ast.Instruction.Gated
 import dev.martianzoo.tfm.pets.ast.Instruction.Intensity.AMAP
 import dev.martianzoo.tfm.pets.ast.Instruction.Intensity.MANDATORY
@@ -32,7 +35,9 @@ import kotlin.math.min
 
 /** Just a cute name for "instruction handler". It prepares and executes instructions. */
 internal data class Instructor(
-  private val writer: GameWriterImpl, // makes sense as inner class but file would be so long
+    private val writer: GameWriterImpl, // makes sense as inner class but file would be so long
+    private val effector: Effector,
+    private val addTasks: (FiredEffect) -> Unit,
 ) {
   private val game by writer::game
   private val reader by game::reader
@@ -67,13 +72,11 @@ internal data class Instructor(
           NoOp
         }
       }
-
       is Or -> {
         val options = unprepared.instructions.nonThrowing(::doPrepare)
         if (options.none()) throw NotNowException("all OR options are impossible at this time")
         Or.create(options.map(::doPrepare))
       }
-
       is Then -> Then.create(unprepared.instructions.map(::doPrepare).filter { it != NoOp })
       is Multi -> error("")
       is Transform -> error("should have been transformed already: $unprepared")
@@ -110,20 +113,20 @@ internal data class Instructor(
 
     val limit: Int =
         game.components.findLimit(
-            gaining = g?.toComponent(reader), removing = r?.toComponent(reader),
-        )
+            gaining = g?.toComponent(reader), removing = r?.toComponent(reader))
     val adjusted: Int = min(count, limit)
 
     if (intens == MANDATORY && adjusted != count) {
-      val mesg = if (g != null) {
-        if (r == null) {
-          "gain $count ${g.expression}"
-        } else {
-          "transmute $count ${r.expression} into ${g.expression}"
-        }
-      } else {
-        "remove $count ${r!!.expression}"
-      }
+      val mesg =
+          if (g != null) {
+            if (r == null) {
+              "gain $count ${g.expression}"
+            } else {
+              "transmute $count ${r.expression} into ${g.expression}"
+            }
+          } else {
+            "remove $count ${r!!.expression}"
+          }
       throw LimitsException("Can't $mesg: max possible is $adjusted")
     }
 
@@ -159,7 +162,7 @@ internal data class Instructor(
     return g to r
   }
 
-  fun execute(instruction: Instruction, effector: Effector, cause: Cause?) {
+  fun execute(instruction: Instruction, cause: Cause?) {
     val prepped = prepare(instruction) // idempotent?
     when (prepped) {
       is Change -> {
@@ -168,14 +171,20 @@ internal data class Instructor(
         val g = prepped.gaining?.toComponent(reader)
         val r = prepped.removing?.toComponent(reader)
         if (g?.mtype?.root?.custom != null) error("custom")
-        writer.changeAndFixOrphans(ct.value, g, r, cause, effector::fireMatchingTriggers)
+        writer.changeAndFixOrphans(ct.value, g, r, cause) { fireMatchingTriggers(it) }
       }
-
       is Or -> throw orWithoutChoice(prepped)
-      is Then -> prepped.instructions.forEach { execute(it, effector, cause) }
+      is Then -> prepped.instructions.forEach { execute(it, cause) }
       is NoOp -> {}
       else -> error("somehow a ${prepped.kind.simpleName!!} was enqueued: $prepped")
     }
   }
 
+  private fun fireMatchingTriggers(triggerEvent: ChangeEvent) {
+    val (now, later) = effector.fire(triggerEvent, reader).partition { it.automatic }
+    for (fx in now) {
+      split(fx.instruction).forEach { execute(it, fx.cause) }
+    }
+    later.forEach(addTasks) // TODO why can't we do this before the for loop??
+  }
 }

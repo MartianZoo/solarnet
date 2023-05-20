@@ -7,6 +7,9 @@ import dev.martianzoo.tfm.api.Type
 import dev.martianzoo.tfm.api.TypeInfo
 import dev.martianzoo.tfm.data.Player
 import dev.martianzoo.tfm.pets.HasClassName
+import dev.martianzoo.tfm.pets.PetTransformer
+import dev.martianzoo.tfm.pets.Transforming
+import dev.martianzoo.tfm.pets.ast.Effect
 import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.types.Dependency.Key
@@ -134,6 +137,18 @@ internal constructor(
     } else {
       dependencies.getIfPresent(Key(OWNED, 0))?.className?.let(::Player)
     }
+  }
+
+  public val effects: List<Effect> by lazy {
+    val xers = loader.transformers
+    val xer =
+        PetTransformer.chain(
+            xers.substituter(root.defaultType, this),
+            xers.deprodify(),
+            owner?.let(Transforming::replaceOwnerWith),
+            Transforming.replaceThisExpressionsWith(expression),
+        )
+    root.classEffects.map(xer::transform)
   }
 
   override fun toString() = "$expressionFull@${root.loader}"

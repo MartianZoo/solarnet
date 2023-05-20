@@ -2,44 +2,31 @@ package dev.martianzoo.tfm.engine
 
 import dev.martianzoo.tfm.data.GameEvent.ChangeEvent
 import dev.martianzoo.tfm.engine.ActiveEffect.FiredEffect
+import dev.martianzoo.tfm.engine.Component.Companion.toComponent
 import dev.martianzoo.tfm.engine.Game.SnReader
-import dev.martianzoo.tfm.pets.ast.Instruction.Companion.split
-import dev.martianzoo.tfm.types.MClass
-import dev.martianzoo.tfm.types.MType
+import dev.martianzoo.util.HashMultiset
 
-internal class Effector(
-    val reader: SnReader,
-    val instructor: Instructor,
-    val effects: (Collection<MClass>) -> List<ActiveEffect>,
-    val addTasks: (FiredEffect) -> Unit,
-) {
+internal class Effector {
 
-  public fun fireMatchingTriggers(triggerEvent: ChangeEvent) {
-    val (now, later) = getFiringEffects(triggerEvent).partition { it.automatic }
-    for (fx in now) {
-      for (instr in split(fx.instruction)) {
-        instructor.execute(instr, this, fx.cause)
-      }
-    }
-    later.forEach(addTasks) // TODO why can't we do this before the for loop??
+  private val registry = HashMultiset<ActiveEffect>()
+
+  fun update(effect: ActiveEffect, delta: Int) {
+    registry.setCount(effect, registry.count(effect) + delta)
   }
 
-  private fun getFiringEffects(triggerEvent: ChangeEvent): List<FiredEffect> =
-      getFiringSelfEffects(triggerEvent) + getFiringOtherEffects(triggerEvent)
+  internal fun fire(triggerEvent: ChangeEvent, reader: SnReader): List<FiredEffect> =
+      fireSelfEffects(triggerEvent, reader) + fireOtherEffects(triggerEvent, reader)
 
-  private fun getFiringSelfEffects(triggerEvent: ChangeEvent): List<FiredEffect> =
-      componentsIn(triggerEvent)
-          .map { Component.ofType(it) }
+  private fun fireSelfEffects(triggerEvent: ChangeEvent, reader: SnReader): List<FiredEffect> =
+      listOfNotNull(triggerEvent.change.gaining, triggerEvent.change.removing)
+          .map(reader::resolve)
+          .map { it.toComponent() }
           .flatMap { it.activeEffects }
           .mapNotNull { it.onChangeToSelf(triggerEvent, reader) }
 
-  private fun getFiringOtherEffects(triggerEvent: ChangeEvent): List<FiredEffect> {
-    val classesInvolved = componentsIn(triggerEvent).map { it.root }
-    return effects(classesInvolved).mapNotNull {
-      it.onChangeToOther(triggerEvent, reader)
-    }
-  }
+  private fun fireOtherEffects(triggerEvent: ChangeEvent, reader: SnReader): List<FiredEffect> =
+      registry.entries.mapNotNull { (fx, ct) ->
+        fx.onChangeToOther(triggerEvent, reader)?.times(ct)
+      }
 
-  private fun componentsIn(triggerEvent: ChangeEvent): List<MType> =
-      listOfNotNull(triggerEvent.change.gaining, triggerEvent.change.removing).map(reader::resolve)
 }

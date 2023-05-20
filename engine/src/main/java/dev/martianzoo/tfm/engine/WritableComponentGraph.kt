@@ -6,19 +6,18 @@ import dev.martianzoo.tfm.api.TypeInfo
 import dev.martianzoo.tfm.api.TypeInfo.StubTypeInfo
 import dev.martianzoo.tfm.data.GameEvent.ChangeEvent.StateChange
 import dev.martianzoo.tfm.engine.Game.ComponentGraph
-import dev.martianzoo.tfm.pets.HasClassName.Companion.classNames
 import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.pets.ast.Requirement.Counting
-import dev.martianzoo.tfm.types.MClass
 import dev.martianzoo.tfm.types.MType
 import dev.martianzoo.util.HashMultiset
 import dev.martianzoo.util.Multiset
 import kotlin.Int.Companion.MAX_VALUE
 import kotlin.math.min
 
-internal class WritableComponentGraph(
-    private val multiset: HashMultiset<Component> = HashMultiset(),
-) : ComponentGraph {
+internal class WritableComponentGraph(private val effector: Effector) : ComponentGraph {
+
+  private val multiset: HashMultiset<Component> = HashMultiset()
+
   override operator fun contains(component: Component) = component in multiset.elements
 
   override fun count(parentType: MType, info: TypeInfo) = getAll(parentType, info).size
@@ -28,25 +27,19 @@ internal class WritableComponentGraph(
     return multiset.filter { it.mtype.narrows(parentType, info) }
   }
 
-  // TODO update this redundantly instead of walking the whole table?
-  fun activeEffects(classes: Collection<MClass>): List<ActiveEffect> {
-    val superclasses = classes.flatMap { it.allSuperclasses }.toSet().classNames()
-    return multiset
-        .flatMap { cpt -> cpt.activeEffects.filter { it.classToCheck in superclasses } }
-        .entries
-        .map { (effect, count) -> effect * count }
-  }
-
   internal fun update(count: Int = 1, gaining: Component?, removing: Component?): StateChange {
-    removing?.let { multiset.mustRemove(it, count) }
-    gaining?.let { multiset.add(it, count) }
+    removing?.let { r ->
+      multiset.mustRemove(r, count)
+      r.activeEffects.forEach { effector.update(it, -count) }
+    }
+    gaining?.let { g ->
+      multiset.add(g, count)
+      g.activeEffects.forEach { effector.update(it, count) }
+    }
     return StateChange(count, gaining?.expressionFull, removing?.expressionFull)
   }
 
-  override fun findLimit(
-      gaining: Component?,
-      removing: Component?,
-  ): Int {
+  override fun findLimit(gaining: Component?, removing: Component?): Int {
     require(gaining != removing)
 
     var actual = MAX_VALUE

@@ -48,21 +48,26 @@ import dev.martianzoo.util.Multiset
  * To read game state at a higher level (e.g. via Pets expressions), use [reader]. To change state
  * use [writer].
  */
-public class Game
-internal constructor(
-    private val table: MClassTable,
-    private val writableEvents: WritableEventLog = WritableEventLog(),
-    private val writableComponents: WritableComponentGraph = WritableComponentGraph(),
-    private val writableTasks: WritableTaskQueue = WritableTaskQueue(writableEvents),
-) {
-  /** The components that make up the game's current state ("present"). */
-  public val components: ComponentGraph = writableComponents
+public class Game internal constructor(private val table: MClassTable) {
 
-  /** The tasks the game is currently waiting on ("future"). */
-  public val tasks: TaskQueue = writableTasks
+  private val effector: Effector = Effector()
+
+  private val writableComponents: WritableComponentGraph = WritableComponentGraph(effector)
+
+  /** The components that make up the game's current state ("present"). */
+  public val components: ComponentGraph by ::writableComponents
+
+  private val writableEvents: WritableEventLog = WritableEventLog()
 
   /** Everything that has happened in this game so far ("past"). */
-  public val events: EventLog = writableEvents
+  public val events: EventLog by ::writableEvents
+
+  private val writableTasks: WritableTaskQueue = WritableTaskQueue(writableEvents)
+
+  /** The tasks the game is currently waiting on ("future"). */
+  public val tasks: TaskQueue by ::writableTasks
+
+  public val reader: SnReader = GameReaderImpl(table, components)
 
   /**
    * A multiset of [Component] instances; the "present" state of a game in progress. It is a plain
@@ -97,6 +102,7 @@ internal constructor(
    * complete game state could be reconstructed by replaying these events.
    */
   public interface EventLog {
+
     val size: Int
 
     public data class Checkpoint(internal val ordinal: Int) {
@@ -137,24 +143,23 @@ internal constructor(
     fun ids(): Set<TaskId>
 
     operator fun contains(id: TaskId): Boolean
+
     operator fun get(id: TaskId): Task
 
     fun nextAvailableId(): TaskId
 
     fun preparedTask(): TaskId?
+
     fun hasPreparedTask(): Boolean = preparedTask() != null
   }
 
   public interface SnReader : GameReader {
     override fun resolve(expression: Expression): MType
+
     override fun getComponents(type: Type): Multiset<out MType>
     fun countComponent(component: Component): Int
-
     public val transformers: Transformers
   }
-
-  // Don't allow actual game logic to depend on the event log
-  public val reader: SnReader = GameReaderImpl(table, components)
 
   internal val transformers by table::transformers
 
@@ -172,8 +177,7 @@ internal constructor(
             writableComponents.update(
                 it.change.count,
                 gaining = it.change.removing?.toComponent(reader),
-                removing = it.change.gaining?.toComponent(reader)
-            )
+                removing = it.change.gaining?.toComponent(reader))
       }
     }
   }
@@ -200,11 +204,13 @@ internal constructor(
    *
    * TODO: is it cool that this seems to mix internally-focused and externally-focused APIs?
    */
-  public class GameWriterImpl(val game: Game, val player: Player) :
-    GameWriter(), UnsafeGameWriter {
+  public class GameWriterImpl(val game: Game, val player: Player) : GameWriter(), UnsafeGameWriter {
     private val tasks by game::writableTasks
 
-    private val instructor = Instructor(this)
+    internal val instructor =
+        Instructor(this, game.effector) {
+          game.writableTasks.addTasks(it.instruction, it.player, it.cause)
+        }
 
     override fun initiateTask(instruction: Instruction, firstCause: Cause?) =
         game.atomic {
@@ -293,13 +299,8 @@ internal constructor(
           doPrepare(task)
           if (taskId !in tasks) return@atomic
         }
-
-        val effector = Effector(game.reader, instructor, game.writableComponents::activeEffects) {
-          game.writableTasks.addTasks(it.instruction, it.player, it.cause)
-        }
-
         val newTask = tasks[taskId]
-        instructor.execute(newTask.instruction, effector, newTask.cause)
+        instructor.execute(newTask.instruction, newTask.cause)
         handleTask(taskId)
       }
     }
@@ -420,6 +421,6 @@ internal constructor(
         table.allClasses
             .filter { 0 !in it.componentCountRange }
             .flatMap { it.baseType.concreteSubtypesSameClass() }
-            .map(Component::ofType)
+            .map { it.toComponent() }
   }
 }

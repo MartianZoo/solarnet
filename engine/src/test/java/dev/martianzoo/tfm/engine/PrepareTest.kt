@@ -18,8 +18,6 @@ private class PrepareTest {
 
   val game = Game.create(Canon.SIMPLE_GAME)
   val p1 = game.session(PLAYER1)
-  val writer = game.writer(PLAYER1) as GameWriterImpl
-  val instructor = Instructor(writer)
 
   init {
     p1.action("Plant, 10 ProjectCard, PROD[-1]")
@@ -34,8 +32,10 @@ private class PrepareTest {
         .transform(instr)
   }
 
-  fun preprocessAndPrepare(unprepared: String) =
-      instructor.prepare(preprocess(parse<Instruction>(unprepared)))
+  fun preprocessAndPrepare(unprepared: String): Instruction {
+    val writer = game.writer(PLAYER1) as GameWriterImpl
+    return writer.instructor.prepare(preprocess(parse(unprepared)))
+  }
 
   fun checkPrepare(unprepared: String, expected: String?) {
     val prepared = preprocessAndPrepare(unprepared)

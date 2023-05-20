@@ -9,7 +9,7 @@ import dev.martianzoo.tfm.data.Player
 import dev.martianzoo.tfm.data.Player.Companion.ENGINE
 import dev.martianzoo.tfm.data.Task.TaskId
 import dev.martianzoo.tfm.data.TaskResult
-import dev.martianzoo.tfm.engine.Component.Companion.ofType
+import dev.martianzoo.tfm.engine.Component.Companion.toComponent
 import dev.martianzoo.tfm.engine.Game.EventLog.Checkpoint
 import dev.martianzoo.tfm.engine.Game.GameWriterImpl
 import dev.martianzoo.tfm.pets.Parsing.parse
@@ -58,7 +58,7 @@ public class PlayerSession(
   fun list(expression: Expression): Multiset<Expression> { // TODO why not (M)Type?
     val typeToList: MType = reader.resolve(preprocess(expression))
     val allComponents: Multiset<Component> =
-        reader.getComponents(reader.resolve(preprocess(expression))).map(::ofType)
+        reader.getComponents(reader.resolve(preprocess(expression))).map { it.toComponent() }
 
     val result = HashMultiset<Expression>()
     typeToList.root.directSubclasses.forEach { sub ->

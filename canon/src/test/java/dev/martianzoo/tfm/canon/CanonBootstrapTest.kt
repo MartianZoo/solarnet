@@ -4,7 +4,7 @@ import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.tfm.api.SpecialClassNames.COMPONENT
 import dev.martianzoo.tfm.data.GameSetup
 import dev.martianzoo.tfm.engine.Component
-import dev.martianzoo.tfm.engine.Component.Companion.ofType
+import dev.martianzoo.tfm.engine.Component.Companion.toComponent
 import dev.martianzoo.tfm.engine.Game
 import dev.martianzoo.tfm.pets.HasClassName.Companion.classNames
 import dev.martianzoo.tfm.pets.Parsing.parse
@@ -63,7 +63,7 @@ private class CanonBootstrapTest {
   @Test
   fun createsExpectedSingletons() {
     val game = Game.create(GameSetup(Canon, "BRMPX", 3)).reader
-    val starting = game.getComponents(game.resolve(COMPONENT.expression)).map(::ofType)
+    val starting = game.getComponents(game.resolve(COMPONENT.expression)).map { it.toComponent() }
 
     // 19 duplicate TR and 4 duplicate PROD[M]
     assertThat(starting).hasSize(starting.elements.size + 69)

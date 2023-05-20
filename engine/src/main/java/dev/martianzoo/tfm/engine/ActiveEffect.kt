@@ -33,7 +33,7 @@ private constructor(
     private val subscription: Subscription,
     private val automatic: Boolean,
     private val instruction: Instruction,
-    private val contextExpr: Expression,
+    private val contextComponent: Expression,
     private val contextOwner: Player?,
 ) {
   companion object {
@@ -49,18 +49,16 @@ private constructor(
 
   val classToCheck: ClassName? by subscription::classToCheck
 
-  operator fun times(multiplier: Int) = copy(instruction = instruction * multiplier)
-
   fun onChangeToSelf(triggerEvent: ChangeEvent, game: SnReader) =
       onChange(triggerEvent, game, isSelf = true)
 
   fun onChangeToOther(triggerEvent: ChangeEvent, game: SnReader) =
       onChange(triggerEvent, game, isSelf = false)
 
-  private fun onChange(triggerEvent: ChangeEvent, game: SnReader, isSelf: Boolean): FiredEffect? {
+  private fun onChange(triggerEvent: ChangeEvent, reader: SnReader, isSelf: Boolean): FiredEffect? {
     val player = contextOwner ?: triggerEvent.owner
-    val hit = subscription.checkForHit(triggerEvent, player, isSelf, game) ?: return null
-    val cause = Cause(contextExpr, triggerEvent.ordinal)
+    val hit = subscription.checkForHit(triggerEvent, player, isSelf, reader) ?: return null
+    val cause = Cause(contextComponent, triggerEvent.ordinal)
     return FiredEffect(hit(instruction), player, cause, automatic)
   }
 

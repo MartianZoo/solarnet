@@ -23,7 +23,7 @@ private class CanonEffectsTest {
   fun componentEffectsOf(type: String): List<String> {
     val table = MClassTable.forSetup(GameSetup(Canon, "BMC", 2))
     val card = table.resolve(te(type))
-    return Component.ofType(card).petEffects.toStrings()
+    return card.effects.toStrings()
   }
 
   @Test
