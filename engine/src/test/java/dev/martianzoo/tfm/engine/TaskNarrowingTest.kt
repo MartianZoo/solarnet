@@ -180,7 +180,7 @@ class TaskNarrowingTest {
   }
 
   fun initiate(ins: String): List<Task> {
-    val result = writer.unsafe().initiateTask(parse(ins))
+    val result = writer.unsafe().addTask(parse(ins))
     assertThat(result.changes).isEmpty()
     return result.tasksSpawned.map { tasks[it] }
   }

@@ -30,6 +30,8 @@ ABSTRACT CLASS System {
   CLASS Engine {                                       // this is the very first component created,
     HAS MAX 1 This                                     // and kicks everything else off
 
+    This:: SetupPhase
+
     PlayTag<Class<BuildingTag>>:: Accept<Class<Steel>>
     PlayTag<Class<SpaceTag>>:: Accept<Class<Titanium>>
 
@@ -44,7 +46,7 @@ ABSTRACT CLASS Atomized                                // magic rule: see `Trans
 
 // GLOBAL PARAMETERS ----------------------------------
 
-ABSTRACT CLASS GlobalParameter[GP] : Atomized {
+ABSTRACT CLASS GlobalParameter : Atomized {
   DEFAULT +GlobalParameter.                            // by default gains/removes are "if possible"
   DEFAULT -GlobalParameter.
 
@@ -105,7 +107,7 @@ ABSTRACT CLASS Tile<Area> { HAS MAX 1 This }
 
 CLASS Neighbor<Tile<MarsArea>, MarsArea> [NBR] : System
 
-ABSTRACT CLASS Adjacency<Tile, Tile> [ADJ] : System {
+ABSTRACT CLASS Adjacency<Tile, Tile> : System {
   This:: ForceLoad<Class<BackwardAdjacency>>
   CLASS ForwardAdjacency, BackwardAdjacency
 }
@@ -118,7 +120,7 @@ ABSTRACT CLASS HasActions {                            // specific actions come 
   ABSTRACT CLASS StandardProject { HAS =1 This }
 }
 
-CLASS Generation[GEN]
+CLASS Generation { HAS 1 This }
 
 ABSTRACT CLASS Generational {                          // things that disappear between gens
   Generation:: -This.                                  // <-- and look, there they go
@@ -127,7 +129,7 @@ ABSTRACT CLASS Generational {                          // things that disappear 
 ABSTRACT CLASS Phase : System {
   HAS MAX 1 Phase
 
-  CLASS SetupPhase { This:: Generation, CorporationPhase FROM This }
+  CLASS SetupPhase
   CLASS CorporationPhase
   CLASS PreludePhase                                   // TODO make it part of `P` bundle
   CLASS ActionPhase

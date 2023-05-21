@@ -5,6 +5,7 @@ import dev.martianzoo.tfm.api.Exceptions.NarrowingException
 import dev.martianzoo.tfm.api.Exceptions.NotNowException
 import dev.martianzoo.tfm.api.Exceptions.RecoverableException
 import dev.martianzoo.tfm.api.Exceptions.TaskException
+import dev.martianzoo.tfm.data.GameEvent.ChangeEvent.Cause
 import dev.martianzoo.tfm.data.Player
 import dev.martianzoo.tfm.data.Player.Companion.ENGINE
 import dev.martianzoo.tfm.data.Task.TaskId
@@ -98,7 +99,7 @@ public class PlayerSession(
     val instruction: Instruction = parseInContext(startingInstruction)
     require(game.tasks.isEmpty()) { game.tasks }
     val cp = game.checkpoint()
-    initiateOnly(instruction) // try task then try to drain
+    initiateOnly(instruction)
     autoExec()
 
     try {
@@ -140,8 +141,11 @@ public class PlayerSession(
 
   // OTHER
 
-  fun initiateOnly(instruction: Instruction): TaskResult {
-    return atomic { writer.unsafe().initiateTask(instruction) }
+  fun initiateOnly(instruction: Instruction, fakeCause: Cause? = null): TaskResult {
+    return atomic {
+      val newTasks = writer.unsafe().addTask(instruction, fakeCause).tasksSpawned
+      newTasks.forEach { writer.executeTask(it) }
+    }
   }
 
   @Suppress("ControlFlowWithEmptyBody")

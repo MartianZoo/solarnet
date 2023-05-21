@@ -28,7 +28,6 @@ public abstract class MClassTable {
   }
 
   abstract val authority: Authority
-
   /** The `Component` class, which is the root of the class hierarchy. */
   abstract val componentClass: MClass
 
@@ -37,9 +36,11 @@ public abstract class MClassTable {
 
   /** All classes loaded by this class loader; can only be accessed after the loader is frozen. */
   abstract val allClasses: Set<MClass>
-  internal abstract val allClassNamesAndIds: Set<ClassName>
 
+  internal abstract val allClassNamesAndIds: Set<ClassName>
   abstract val transformers: Transformers
+
+  abstract val singletons: List<MType>
 
   /**
    * Returns the [MClass] whose [MClass.className] or [MClass.shortName] is [name], or throws an

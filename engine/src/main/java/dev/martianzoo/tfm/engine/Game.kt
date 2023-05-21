@@ -22,11 +22,9 @@ import dev.martianzoo.tfm.engine.Game.EventLog
 import dev.martianzoo.tfm.engine.Game.EventLog.Checkpoint
 import dev.martianzoo.tfm.engine.Game.TaskQueue
 import dev.martianzoo.tfm.engine.PlayerSession.Companion.session
-import dev.martianzoo.tfm.pets.HasExpression
 import dev.martianzoo.tfm.pets.Parsing.parse
 import dev.martianzoo.tfm.pets.PetTransformer.Companion.chain
 import dev.martianzoo.tfm.pets.Transforming.replaceOwnerWith
-import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.pets.ast.Instruction
 import dev.martianzoo.tfm.pets.ast.Instruction.Change
@@ -57,21 +55,18 @@ public class Game internal constructor(private val table: MClassTable) {
       val game = Game(table)
       val session = game.session(ENGINE)
 
-      fun gain(thing: HasExpression) = session.operation("${thing.expression}!")
+      val ord = session.operation("$ENGINE!").changes.first()
+      val fakeCause = Cause(ENGINE.expression, ord.ordinal)
 
-      gain(ENGINE)
-      singletonTypes(table).forEach { gain(it) }
-      gain(ClassName.cn("SetupPhase"))
+      table.singletons.forEach {
+        session.initiateOnly(parse("${it.expression}!"), fakeCause)
+      }
+      session.autoExec(false)
 
+      session.operation("CorporationPhase FROM Phase")
       game.setupFinished()
       return game
     }
-
-    private fun singletonTypes(table: MClassTable): List<Component> =
-        table.allClasses
-            .filter { 0 !in it.componentCountRange }
-            .flatMap { it.baseType.concreteSubtypesSameClass() }
-            .map { it.toComponent() }
   }
 
   private val effector: Effector = Effector()
@@ -234,7 +229,7 @@ public class Game internal constructor(private val table: MClassTable) {
     internal val instructor =
         Instructor(this, game.reader, game.effector, game.components::findLimit)
 
-    override fun initiateTask(instruction: Instruction, firstCause: Cause?) =
+    override fun addTask(instruction: Instruction, firstCause: Cause?) =
         game.atomic {
           val prepped = split(preprocess(instruction))
           tasks.addTasks(prepped, player, firstCause)

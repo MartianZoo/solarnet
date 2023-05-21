@@ -194,6 +194,12 @@ public class MClassLoader(
   override fun defaults(className: ClassName) =
       allDefaults[className] ?: throw Exceptions.classNotFound(className)
 
+  override val singletons: List<MType> by lazy {
+    allClasses
+        .filter { 0 !in it.componentCountRange }
+        .flatMap { it.baseType.concreteSubtypesSameClass() }
+  }
+
   private val id = nextId++
 
   override fun toString() = "loader$id"
