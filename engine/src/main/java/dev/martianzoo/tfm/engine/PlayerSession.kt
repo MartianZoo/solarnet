@@ -132,6 +132,7 @@ public class PlayerSession(
       autoExec()
     }
 
+    // TODO rename or something, it sounds like you can keep going
     fun rollItBack() {
       throw JustRollBackException()
     }

@@ -1,5 +1,6 @@
 package dev.martianzoo.tfm.types
 
+import dev.martianzoo.tfm.api.Exceptions.PetSyntaxException
 import dev.martianzoo.tfm.api.SpecialClassNames.ATOMIZED
 import dev.martianzoo.tfm.api.SpecialClassNames.CLASS
 import dev.martianzoo.tfm.api.SpecialClassNames.OWNER
@@ -85,7 +86,7 @@ public class Transformers(private val table: MClassTable) {
                 val inner = transform(node.extract())
                 inProd = false
                 if (inner == node.extract()) {
-                  throw RuntimeException("No standard resources found in PROD box: $inner")
+                  throw PetSyntaxException("No standard resources found in PROD box: $inner")
                 }
                 inner
               }

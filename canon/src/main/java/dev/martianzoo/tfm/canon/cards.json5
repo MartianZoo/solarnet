@@ -1805,6 +1805,7 @@
       "id": "152",
       "bundle": "B",
       "deck": "PROJECT",
+      // "immediate": "PROD[X Megacredit FROM Heat]",
       "immediate": "PROD[-X Heat THEN X]",
       "cost": 2,
       "projectKind": "AUTOMATED"
