@@ -31,13 +31,13 @@ class SpecificCardsTest {
     val game = Game.create(Canon.SIMPLE_GAME)
 
     with(game.session(PLAYER1)) {
-      operation("4 Heat, 3 ProjectCard, Pets")
+      operation("4 Heat, 2 ProjectCard, Pets")
       assertCounts(0 to "Plant", 4 to "Heat", 1 to "Animal")
       assertCounts(3 to "Card", 2 to "CardBack", 1 to "CardFront", 0 to "PlayedEvent")
 
       operation("LocalHeatTrapping") {
         // The card is played but nothing else
-        assertCounts(3 to "Card", 1 to "CardBack", 1 to "CardFront", 1 to "PlayedEvent")
+        assertCounts(2 to "CardBack", 1 to "CardFront", 1 to "PlayedEvent")
         assertCounts(0 to "Plant", 4 to "Heat", 1 to "Animal")
 
         // And for the expected reasons
@@ -58,13 +58,11 @@ class SpecificCardsTest {
     val game = Game.create(Canon.SIMPLE_GAME)
 
     with(game.session(PLAYER1)) {
-      operation("6 Heat, 3 ProjectCard, Pets")
-      assertCounts(3 to "Card", 2 to "CardBack", 1 to "CardFront", 0 to "PlayedEvent")
-      assertCounts(0 to "Plant", 6 to "Heat", 1 to "Animal")
+      operation("6 Heat, 2 ProjectCard, Pets")
 
       operation("LocalHeatTrapping") {
         // The card is played and the heat is gone
-        assertCounts(3 to "Card", 1 to "CardBack", 1 to "CardFront", 1 to "PlayedEvent")
+        assertCounts(1 to "CardFront", 1 to "PlayedEvent")
         assertCounts(0 to "Plant", 1 to "Heat", 1 to "Animal")
 
         assertThat(tasks.single().whyPending)
@@ -73,7 +71,7 @@ class SpecificCardsTest {
         task("4 Plant")
       }
 
-      assertCounts(3 to "Card", 1 to "CardBack", 1 to "CardFront", 1 to "PlayedEvent")
+      assertCounts(2 to "CardBack", 1 to "CardFront", 1 to "PlayedEvent")
       assertCounts(4 to "Plant", 1 to "Heat", 1 to "Animal")
     }
   }
@@ -82,18 +80,15 @@ class SpecificCardsTest {
   fun localHeatTrapping_pets() {
     val game = Game.create(Canon.SIMPLE_GAME)
     with(game.session(PLAYER1)) {
-      operation("6 Heat, 3 ProjectCard, Pets")
-      assertCounts(3 to "Card", 2 to "CardBack", 1 to "CardFront", 0 to "PlayedEvent")
-      assertCounts(0 to "Plant", 6 to "Heat", 1 to "Animal")
+      operation("6 Heat, 2 ProjectCard, Pets")
 
       operation("LocalHeatTrapping") {
         // The card is played and the heat is gone
-        assertCounts(3 to "Card", 1 to "CardBack", 1 to "CardFront", 1 to "PlayedEvent")
+        assertCounts(2 to "CardBack", 1 to "CardFront", 1 to "PlayedEvent")
         assertCounts(0 to "Plant", 1 to "Heat", 1 to "Animal")
 
         assertThrows<AbstractException>("1") { task("2 Animal") }
-        // no effect, but the task has been prepared if it wasn't already....
-        assertCounts(3 to "Card", 1 to "CardBack", 1 to "CardFront", 1 to "PlayedEvent")
+        assertCounts(2 to "CardBack", 1 to "CardFront", 1 to "PlayedEvent")
         assertCounts(0 to "Plant", 1 to "Heat", 1 to "Animal")
 
         // card I don't have
@@ -102,7 +97,7 @@ class SpecificCardsTest {
         // but this should work
         task("2 Animal<Pets>")
       }
-      assertCounts(3 to "Card", 1 to "CardBack", 1 to "CardFront", 1 to "PlayedEvent")
+      assertCounts(2 to "CardBack", 1 to "CardFront", 1 to "PlayedEvent")
       assertCounts(0 to "Plant", 1 to "Heat", 3 to "Animal")
     }
   }
@@ -252,7 +247,7 @@ class SpecificCardsTest {
       playCard("DesignedMicroorganisms", 16)
 
       // Now I do have the 3 science tags, but not the energy production
-      assertThrows<LimitsException>("2") { playCard("AiCentral", 19, steel = 1) }
+      assertThrows<DeadEndException>("2") { playCard("AiCentral", 19, steel = 1) }
 
       // Give energy prod and try again - success
       writer.unsafe().sneak("PROD[Energy]")
@@ -403,7 +398,7 @@ class SpecificCardsTest {
 
       turn(
           "ExcentricSponsor",
-          "PlayCard<Class<NitrogenRichAsteroid>>",
+          "PlayCard<Class<ProjectCard>, Class<NitrogenRichAsteroid>>",
           "6 Pay<Class<M>> FROM M",
           "Ok", // the damn titanium
       )

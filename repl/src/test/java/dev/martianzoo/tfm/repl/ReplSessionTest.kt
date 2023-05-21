@@ -51,7 +51,6 @@ private class ReplSessionTest {
     assertThat(strip(repl.command("exec StripMine")))
         .containsExactly(
             "+StripMine<Player2> FOR Player2 (manual)",
-            "-ProjectCard<Player2> FOR Player2 BY StripMine<Player2>",
             "+BuildingTag<Player2, StripMine<Player2>> $byCard",
             "-2 Production<Player2, Class<Energy>> $byCard",
             "+2 Production<Player2, Class<Steel>> $byCard",

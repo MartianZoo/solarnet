@@ -30,7 +30,6 @@ private class CanonEffectsTest {
   fun sabotage() {
     assertThat(classEffectsOf("Sabotage"))
         .containsExactly(
-            "This:: -ProjectCard<Owner>!",
             "This: PlayedEvent<Owner, Class<This>> FROM This!",
             "This: -3 Titanium<Anyone>? OR -4 Steel<Anyone>? OR -7 Megacredit<Anyone>?")
   }
@@ -50,7 +49,6 @@ private class CanonEffectsTest {
   fun gyropolis() {
     assertThat(classEffectsOf("Gyropolis"))
         .containsExactly(
-            "This:: -ProjectCard<Owner>!",
             "This:: CityTag<Owner, This>!, BuildingTag<Owner, This>!",
             "This: CityTile<Owner, LandArea(HAS MAX 0 Neighbor<CityTile<Anyone>>)>!," +
                 " PROD[-2 Energy<Owner>!," +
@@ -71,7 +69,6 @@ private class CanonEffectsTest {
   fun venusian() {
     assertThat(classEffectsOf("VenusianAnimals"))
         .containsExactly(
-            "This:: -ProjectCard<Owner>!",
             "This:: VenusTag<Owner, This>!, ScienceTag<Owner, This>!, AnimalTag<Owner, This>!",
             "ScienceTag<Owner>: Animal<Owner, This>.",
             "End: VictoryPoint<Owner>! / Animal<Owner, This>",
@@ -88,7 +85,6 @@ private class CanonEffectsTest {
   fun teractor() {
     assertThat(classEffectsOf("Teractor"))
         .containsExactly(
-            "This:: -CorporationCard<Owner>!",
             "This:: EarthTag<Owner, This>!",
             "This: 60 Megacredit<Owner>!",
             "PlayTag<Owner, Class<EarthTag>>:: -3 Owed<Owner, Class<Megacredit>>.",
@@ -99,7 +95,6 @@ private class CanonEffectsTest {
   fun immigrantCity() {
     assertThat(classEffectsOf("ImmigrantCity"))
         .containsExactly(
-            "This:: -ProjectCard<Owner>!",
             "This:: CityTag<Owner, This>!, BuildingTag<Owner, This>!",
             "This: PROD[-Energy<Owner>!, -2 Megacredit<Owner>!]," +
                 " CityTile<Owner, LandArea(HAS MAX 0 Neighbor<CityTile<Anyone>>)>!",
@@ -110,7 +105,6 @@ private class CanonEffectsTest {
   fun titanAirScrapping() {
     assertThat(classEffectsOf("TitanAirScrapping"))
         .containsExactly(
-            "This:: -ProjectCard<Owner>!",
             "This:: JovianTag<Owner, This>!",
             "UseAction1<Owner, This>: -Titanium<Owner>! THEN 2 Floater<Owner, This>.",
             "UseAction2<Owner, This>: -2 Floater<Owner, This>! THEN TerraformRating<Owner>!",
@@ -122,7 +116,6 @@ private class CanonEffectsTest {
   fun amc() {
     assertThat(classEffectsOf("AsteroidMiningConsortium"))
         .containsExactly(
-            "This:: -ProjectCard<Owner>!",
             "This:: JovianTag<Owner, This>!",
             "This: PROD[-Titanium<Anyone>!, Titanium<Owner>!]",
             "End: VictoryPoint<Owner>!",
@@ -133,7 +126,6 @@ private class CanonEffectsTest {
   fun pets() {
     assertThat(classEffectsOf("Pets"))
         .containsExactly(
-            "This:: -ProjectCard<Owner>!",
             "This:: EarthTag<Owner, This>!, AnimalTag<Owner, This>!",
             "This: Animal<Owner, This>.",
             "-Animal<Owner, This>:: Die!",
@@ -144,7 +136,7 @@ private class CanonEffectsTest {
 
   @Test
   fun aquiferPumping() {
-    assertThat(classEffectsOf("AquiferPumping").drop(1))
+    assertThat(classEffectsOf("AquiferPumping"))
         .containsExactly(
             "This:: BuildingTag<Owner, This>!",
             "UseAction1<Owner, This>:: Accept<Owner, Class<Steel>>.",
@@ -156,14 +148,12 @@ private class CanonEffectsTest {
   fun floaterPrototypes() {
     assertThat(classEffectsOf("FloaterPrototypes"))
         .containsExactly(
-            "This:: -ProjectCard<Owner>!",
             "This:: ScienceTag<Owner, This>!",
             "This: PlayedEvent<Owner, Class<This>> FROM This!",
             "This: 2 Floater<Owner>.")
 
     assertThat(componentEffectsOf("FloaterPrototypes<Player1>"))
         .containsExactly(
-            "This:: -ProjectCard<Player1>!",
             "This:: ScienceTag<Player1, FloaterPrototypes<Player1>>!",
             "This: PlayedEvent<Player1, Class<FloaterPrototypes>> FROM FloaterPrototypes<Player1>!",
             "This: 2 Floater<Player1>.")

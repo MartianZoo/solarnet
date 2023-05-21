@@ -72,7 +72,7 @@ object TerraformingMars {
 
     require(has("ActionPhase"))
     return stdAction("PlayCardFromHand") {
-      task("PlayCard<Class<$cardName>>")
+      task("PlayCard<Class<ProjectCard>, Class<$cardName>>")
 
       fun pay(cost: Int, currency: String) {
         if (cost > 0) ifMatchTask("$cost Pay<Class<$currency>> FROM $currency")

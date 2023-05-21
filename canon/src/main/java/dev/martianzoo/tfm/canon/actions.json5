@@ -2,7 +2,7 @@
   "actions": [
 
     // Play card from hand
-    { "id": "SAA", "bundle": "B", "action": "-> PlayCard" },
+    { "id": "SAA", "bundle": "B", "action": "-> PlayCard<Class<ProjectCard>>" },
 
     // Use standard project
     { "id": "SAB", "bundle": "B", "action": "-> UseAction<StandardProject>" },

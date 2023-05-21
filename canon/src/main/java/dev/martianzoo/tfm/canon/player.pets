@@ -9,8 +9,8 @@ ABSTRACT CLASS Anyone[ANY] {                      // aka Player
     This:: 20 TerraformRating<This>, GrossHack<This>
 
     // TODO Bogus: these need to use PlayCard
-    NewTurn IF CorporationPhase: CorporationCard, CardFront, 10 BuyCard?
-    NewTurn IF PreludePhase: PreludeCard, CardFront OR (-PreludeCard THEN 15) // ELSE (#22)
+    NewTurn IF CorporationPhase: CardFront, 10 BuyCard?
+    NewTurn IF PreludePhase: CardFront OR (-PreludeCard THEN 15) // ELSE (#22)
     NewTurn IF ActionPhase: UseAction<StandardAction> OR Pass
     ResearchPhase: 4 BuyCard<This>?
 
@@ -158,10 +158,9 @@ ABSTRACT CLASS Owned<Anyone> {
 
   CLASS BuyCard : Signal { This: -3, ProjectCard }// Hack for TerraLabs, but being able to delay the -3 could
                                                   // potentially be exploited. TODO
-  CLASS PlayCard<Class<CardFront>> : Temporary {
+  CLASS PlayCard<Class<CardBack>, Class<CardFront>> : Signal {
     This:: CheckCardRequirement<Class<CardFront>>, HandleCardCost<Class<CardFront>>
-    // This: MAX 0 Barrier: CardFront (and make this a Signal?)
-    -X Barrier IF =0 Barrier:: CardFront FROM This// When barriers gone, become the card itself
+    This: MAX 0 Barrier: CardFront FROM CardBack
   }
 
   CLASS CheckCardRequirement<Class<CardFront>> : Custom

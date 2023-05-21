@@ -27,7 +27,6 @@ import dev.martianzoo.tfm.pets.ast.Effect.Trigger.OnGainOf
 import dev.martianzoo.tfm.pets.ast.Instruction
 import dev.martianzoo.tfm.pets.ast.Instruction.Gain.Companion.gain
 import dev.martianzoo.tfm.pets.ast.Instruction.Multi
-import dev.martianzoo.tfm.pets.ast.Instruction.Remove
 import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.pets.ast.ScaledExpression.Companion.scaledEx
 import dev.martianzoo.util.HashMultiset
@@ -127,13 +126,10 @@ public class CardDefinition(data: CardData) : Definition {
   public val extraClasses: List<ClassDeclaration> = data.components.map(::parseOneLinerClass)
 
   override val asClassDeclaration by lazy {
-    val zapHandCard: Instruction? = deck?.let { Remove(scaledEx(1, it.className)) }
-
     val createTags =
         Multi.create(tags.entries.map { (tag, count) -> gain(scaledEx(count, tag.of(THIS))) })
 
-    val automaticFx: List<Effect> =
-        listOfNotNull(zapHandCard, createTags).mapNotNull { immediateToEffect(it, true) }
+    val automaticFx: List<Effect> = listOfNotNull(immediateToEffect(createTags, true))
 
     val onPlayFx: List<Effect> =
         listOfNotNull(immediate).mapNotNull { immediateToEffect(it, false) }
@@ -154,7 +150,8 @@ public class CardDefinition(data: CardData) : Definition {
         kind = CONCRETE,
         supertypes = supertypes,
         effects = allEffects.toSetStrict(),
-        extraNodes = setOfNotNull(requirement) + extraClasses.flatMap { it.allNodes },
+        extraNodes =
+            setOfNotNull(requirement, deck?.className) + extraClasses.flatMap { it.allNodes },
     )
   }
 
