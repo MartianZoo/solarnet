@@ -1,4 +1,4 @@
-package dev.martianzoo.tfm.repl
+package dev.martianzoo.tfm.engine.cards
 
 import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.tfm.api.Exceptions.AbstractException
@@ -9,9 +9,8 @@ import dev.martianzoo.tfm.api.Exceptions.PetSyntaxException
 import dev.martianzoo.tfm.api.Exceptions.RequirementException
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.data.GameSetup
-import dev.martianzoo.tfm.data.Player.Companion.ENGINE
+import dev.martianzoo.tfm.data.Player
 import dev.martianzoo.tfm.data.Player.Companion.PLAYER1
-import dev.martianzoo.tfm.data.Player.Companion.PLAYER2
 import dev.martianzoo.tfm.engine.Engine
 import dev.martianzoo.tfm.engine.PlayerSession.Companion.session
 import dev.martianzoo.tfm.engine.TerraformingMars.cardAction1
@@ -23,9 +22,9 @@ import dev.martianzoo.tfm.engine.TerraformingMars.production
 import dev.martianzoo.tfm.engine.TerraformingMars.sellPatents
 import dev.martianzoo.tfm.engine.TerraformingMars.stdAction
 import dev.martianzoo.tfm.engine.TerraformingMars.stdProject
-import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.tfm.repl.TestHelpers.assertCounts
-import dev.martianzoo.tfm.repl.TestHelpers.assertProductions
+import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
+import dev.martianzoo.tfm.engine.TestHelpers.assertProductions
+import dev.martianzoo.tfm.pets.ast.ClassName
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 
@@ -188,9 +187,9 @@ class SpecificCardsTest {
   @Test
   fun pristar() {
     val game = Engine.newGame(GameSetup(Canon, "BMPT", 2))
-    val eng = game.session(ENGINE)
+    val eng = game.session(Player.ENGINE)
     val p1 = game.session(PLAYER1)
-    val p2 = game.session(PLAYER2)
+    val p2 = game.session(Player.PLAYER2)
 
     p1.assertCounts(0 to "Megacredit", 20 to "TR")
 
@@ -295,10 +294,11 @@ class SpecificCardsTest {
     }
   }
 
-  // @Test TODO
+  @Test
   fun airScrappingExpedition() {
     val game = Engine.newGame(GameSetup(Canon, "CVERB", 2))
     val p1 = game.session(PLAYER1)
+
     with(p1) {
       operation("3 ProjectCard, ForcedPrecipitation")
       operation("AtmoCollectors", "2 Floater<AtmoCollectors>")
@@ -321,10 +321,10 @@ class SpecificCardsTest {
       operation("AtmoCollectors", "2 Floater<AtmoCollectors>")
       operation("Airliners", "2 Floater<AtmoCollectors>")
 
-      assertThat(production(cn("M"))).isEqualTo(2)
+      assertThat(production(ClassName.cn("M"))).isEqualTo(2)
 
       operation("CommunityServices") // 3 tagless cards: Atmo, Airl, Comm
-      assertThat(production(cn("M"))).isEqualTo(5)
+      assertThat(production(ClassName.cn("M"))).isEqualTo(5)
     }
   }
 
@@ -352,9 +352,9 @@ class SpecificCardsTest {
   @Test
   fun doubleDown() {
     val game = Engine.newGame(GameSetup(Canon, "BRHXP", 2))
-    val eng = game.session(ENGINE)
+    val eng = game.session(Player.ENGINE)
     val p1 = game.session(PLAYER1)
-    val p2 = game.session(PLAYER2)
+    val p2 = game.session(Player.PLAYER2)
 
     p1.playCorp("InterplanetaryCinematics", 7)
     p2.playCorp("PharmacyUnion", 5)
@@ -498,7 +498,7 @@ class SpecificCardsTest {
       phase("Production")
       operation("ResearchPhase FROM Phase") {
         task("2 BuyCard")
-        asPlayer(PLAYER2).task("2 BuyCard")
+        asPlayer(dev.martianzoo.tfm.data.Player.PLAYER2).task("2 BuyCard")
       }
       phase("Action")
       assertThrows<NarrowingException> { playCard("Mine") }
@@ -567,7 +567,7 @@ class SpecificCardsTest {
 
     game.session(PLAYER1).playCorp("Phobolog", 5)
 
-    with(game.session(PLAYER2)) {
+    with(game.session(Player.PLAYER2)) {
       playCorp("Teractor", 1)
       phase("Action")
       assertThrows<LimitsException>("nothing to discard") { playCard("SponsoredAcademies", 9) }
