@@ -137,7 +137,7 @@ internal data class Instructor(
       return prepareCustom(g)
     }
 
-    val intens = change.intensity!!
+    val intens = change.intensity ?: error("$change")
 
     if (listOfNotNull(g, r).any { it.abstract }) {
       // Still abstract, don't check limits yet

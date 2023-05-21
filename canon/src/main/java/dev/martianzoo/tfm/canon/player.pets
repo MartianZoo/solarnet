@@ -170,6 +170,10 @@ ABSTRACT CLASS Owned<Anyone> {
 
   ABSTRACT CLASS Barrier : Temporary
 
+  ABSTRACT CLASS NextCardEffect : Generational {
+    PlayCard:: -This!                             // TODO shouldn't need the bang
+  }
+
   ABSTRACT CLASS PaymentMechanic<Class<Resource>> : Temporary {
     CLASS Owed : Barrier {
       DEFAULT +Owed<Class<Megacredit>>

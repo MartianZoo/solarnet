@@ -342,7 +342,12 @@ public sealed class Instruction : PetElement() {
     override fun connector() = " THEN "
 
     companion object {
-      fun create(it: List<Instruction>) = if (it.size == 1) it.first() else Then(it)
+      fun create(it: List<Instruction>) =
+          when (it.size) {
+            0 -> NoOp
+            1 -> it.first()
+            else -> Then(it)
+          }
     }
   }
 

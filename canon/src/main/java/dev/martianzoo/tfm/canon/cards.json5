@@ -2886,6 +2886,18 @@
       "projectKind": "ACTIVE"
     },
 
+    // Indentured Workers
+    {
+      "id": "195",
+      "bundle": "R",
+      "deck": "PROJECT",
+      "immediate": "Card195Effect",
+      "effects": [ "End: -VictoryPoint" ],
+      "components": [ "CLASS Card195Effect : NextCardEffect { PlayCard: -8 Owed }" ],
+      "cost": 0,
+      "projectKind": "EVENT"
+    },
+
     // Lagrange Observatory
     {
       "id": "196",
@@ -3694,6 +3706,7 @@
       "cost": 15,
       "projectKind": "ACTIVE"
     },
+
     // Community Services
     {
       "id": "C04",
@@ -3703,6 +3716,20 @@
       "effects": [ "End: VictoryPoint" ],
       "cost": 13,
       "projectKind": "AUTOMATED"
+    },
+
+    // Conscription
+    {
+      "id": "C05",
+      "bundle": "C",
+      "deck": "PROJECT",
+      "tags": [ "EarthTag" ],
+      "immediate": "CardC05Effect",
+      "effects": [ "End: -VictoryPoint" ],
+      "components": [ "CLASS CardC05Effect : NextCardEffect { PlayCard: -16 Owed }" ],
+      "requirement": "2 EarthTag",
+      "cost": 5,
+      "projectKind": "EVENT"
     },
 
     // Corona Extractor
