@@ -49,7 +49,7 @@ public object Exceptions {
 
   // TOP-LEVEL EXCEPTIONS
 
-  /** A problem with Pets syntax. */
+  /** A problem with Pets... stuff. */
   public open class PetException internal constructor(message: String, cause: Throwable? = null) :
       Exception(message, cause)
 
@@ -58,6 +58,13 @@ public object Exceptions {
       Exception(message, cause)
 
   public open class RecoverableException(message: String) : Exception(message)
+
+  public open class TaskException(message: String) : Exception(message)
+
+  public open class DeadEndException(message: String, cause: Throwable? = null) :
+      Exception(message, cause) {
+    constructor(cause: Throwable) : this(cause.message ?: "", cause)
+  }
 
   /**
    * An attempt was made to execute an instruction that was not fully-specified. This should be
@@ -70,13 +77,6 @@ public object Exceptions {
    * work later as far as we know.
    */
   public open class NotNowException(message: String) : RecoverableException(message)
-
-  public open class TaskException(message: String) : Exception(message)
-
-  public open class DeadEndException(message: String, cause: Throwable? = null) :
-      Exception(message, cause) {
-    constructor(cause: Throwable) : this(cause.message ?: "", cause)
-  }
 
   // Subtypes (catchable)
 

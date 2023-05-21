@@ -1,5 +1,6 @@
 package dev.martianzoo.tfm.api
 
+import dev.martianzoo.tfm.api.Exceptions.PetException
 import dev.martianzoo.tfm.api.SpecialClassNames.CLASS
 import dev.martianzoo.tfm.api.SpecialClassNames.COMPONENT
 import dev.martianzoo.tfm.data.CardDefinition
@@ -34,14 +35,19 @@ public abstract class Authority {
   }
 
   public val allClassDeclarations: Map<ClassName, ClassDeclaration> by lazy {
-    val allDeclarations =
+    // Dedups as long as class declarations are exactly identical
+    val allDeclarations: Set<ClassDeclaration> =
         explicitClassDeclarations +
             allDefinitions.map { it.asClassDeclaration } +
             cardDefinitions.flatMap { it.extraClasses }
 
-    allDeclarations.associateByStrict {
-      validate(it)
-      it.className
+    try {
+      allDeclarations.associateByStrict {
+        validate(it)
+        it.className
+      }
+    } catch (e: IllegalArgumentException) {
+      throw PetException("Multiple class declarations must be identical: ${e.message}")
     }
   }
 

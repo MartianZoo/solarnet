@@ -224,7 +224,13 @@
         "ProductionPhase IF MAX 0 HasRaisedTr: Preservation<This>, 6",
         "End: VictoryPoint / Preservation<This>"
       ],
-      "components": [ "CLASS Preservation : CardResource" ],
+      "components": [
+        "CLASS Preservation : CardResource",
+
+        // Must be exact copies of UNMI's
+        "CLASS HasRaisedTr : Owned, Generational, System { HAS MAX 1 This }",
+        "CLASS TrWatcher : Owned, System { HAS =1 This; TerraformRating:: HasRaisedTr. }"
+      ],
       "resourceType": "Preservation"
     },
 
