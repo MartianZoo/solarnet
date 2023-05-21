@@ -8,6 +8,7 @@ import dev.martianzoo.tfm.pets.ast.Instruction.Change
 import dev.martianzoo.tfm.pets.ast.Instruction.Companion.split
 import dev.martianzoo.tfm.pets.ast.Instruction.Gain
 import dev.martianzoo.tfm.pets.ast.Instruction.Gated
+import dev.martianzoo.tfm.pets.ast.Instruction.InstructionGroup
 import dev.martianzoo.tfm.pets.ast.Instruction.Multi
 import dev.martianzoo.tfm.pets.ast.Instruction.NoOp
 import dev.martianzoo.tfm.pets.ast.Instruction.Or
@@ -54,7 +55,7 @@ public data class Task(
   val instruction = normalizeForTask(instructionIn)
 
   /** Normalized form of [thenIn]. */
-  val then: Instruction? by lazy {
+  val then: Instruction? by lazy { // TODO InstructionGroup??
     if (thenIn != null) {
       val normed = normalizeForTask(thenIn)
       if (normed != NoOp) return@lazy normed
@@ -74,11 +75,11 @@ public data class Task(
     public fun newTasks(
       firstId: TaskId,
       owner: Player,
-      instructions: Iterable<Instruction>,
+      instruction: InstructionGroup,
       cause: Cause?
     ): List<Task> {
       var nextId = firstId
-      return split(instructions).map {
+      return instruction.map {
         newTask(nextId, owner, it, cause).also { nextId = nextId.next() }
       }
     }
@@ -136,7 +137,7 @@ public data class Task(
           ?: Then.create(parts.map(::normalizeForTask))
       }
 
-      is NoOp, is Multi -> instruction
+      is NoOp, is Multi -> split(instruction).asInstruction()
       is Transform -> error("can't enqueue: $instruction")
     }
   }

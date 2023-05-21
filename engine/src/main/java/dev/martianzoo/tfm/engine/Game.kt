@@ -236,7 +236,7 @@ public class Game internal constructor(private val table: MClassTable) {
 
     override fun initiateTask(instruction: Instruction, firstCause: Cause?) =
         game.atomic {
-          val prepped = preprocess(instruction)
+          val prepped = split(preprocess(instruction))
           tasks.addTasks(prepped, player, firstCause)
         }
 
@@ -287,11 +287,12 @@ public class Game internal constructor(private val table: MClassTable) {
         val split = split(replacement.instruction)
         if (split.size == 1) {
           val reason = replacement.whyPending?.let { "(was: $it)" }
-          tasks.editTask(replacement.copy(whyPending = reason))
+          val one = split.instructions[0]
+          tasks.editTask(replacement.copy(instructionIn = one, whyPending = reason))
         } else {
           // All the nows and thens would get enqueued side by side But this is why we don't let a
           // task whose instruction contains a Multi at any depth have a THEN.
-          tasks.addTasks(replacement.instruction, replacement.owner, replacement.cause) // TODO
+          tasks.addTasks(split, replacement.owner, replacement.cause) // TODO
           handleTask(replacement.id)
         }
       }
@@ -330,7 +331,7 @@ public class Game internal constructor(private val table: MClassTable) {
      */
     private fun handleTask(taskId: TaskId) {
       val task = tasks[taskId]
-      task.then?.let { tasks.addTasks(it, task.owner, task.cause) }
+      task.then?.let { tasks.addTasks(split(it), task.owner, task.cause) }
       dropTask(taskId)
     }
 

@@ -10,7 +10,8 @@ import dev.martianzoo.tfm.data.Player
 import dev.martianzoo.tfm.data.Task
 import dev.martianzoo.tfm.data.Task.TaskId
 import dev.martianzoo.tfm.engine.Game.TaskQueue
-import dev.martianzoo.tfm.pets.ast.Instruction
+import dev.martianzoo.tfm.pets.ast.Instruction.Companion.split
+import dev.martianzoo.tfm.pets.ast.Instruction.InstructionGroup
 import dev.martianzoo.util.toSetStrict
 
 internal class WritableTaskQueue(
@@ -35,14 +36,14 @@ internal class WritableTaskQueue(
 
   // ALL NON-PRIVATE MUTATIONS OF TASKSET
 
-  internal fun addTasks(task: Task) = addTasks(task.instruction, task.owner, task.cause)
+  internal fun addTasks(task: Task) = addTasks(split(task.instruction), task.owner, task.cause)
 
   internal fun addTasks(
-      instruction: Instruction,
-      owner: Player,
-      cause: Cause?,
+    instruction: InstructionGroup,
+    owner: Player,
+    cause: Cause?,
   ): List<TaskAddedEvent> {
-    val newTasks = Task.newTasks(nextAvailableId(), owner, listOf(instruction), cause)
+    val newTasks = Task.newTasks(nextAvailableId(), owner, instruction, cause)
     return newTasks.map {
       val task = addToTaskSet(it)
       events.taskAdded(task)
