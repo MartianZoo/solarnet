@@ -17,7 +17,7 @@ import org.junit.jupiter.api.assertThrows
 
 class TaskPreparingTest {
   private val A = TaskId("A")
-  private val game = Game.create(Canon.SIMPLE_GAME)
+  private val game = Engine.newGame(Canon.SIMPLE_GAME)
   private val tasks = game.tasks
   private val events = game.events
   private val writer = game.writer(PLAYER1)

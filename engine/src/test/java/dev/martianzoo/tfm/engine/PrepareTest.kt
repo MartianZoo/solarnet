@@ -16,7 +16,7 @@ import org.junit.jupiter.api.assertThrows
 
 private class PrepareTest {
 
-  val game = Game.create(Canon.SIMPLE_GAME)
+  val game = Engine.newGame(Canon.SIMPLE_GAME)
   val p1 = game.session(PLAYER1)
 
   init {

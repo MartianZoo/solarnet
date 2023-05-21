@@ -5,7 +5,7 @@ import dev.martianzoo.tfm.api.Exceptions.NarrowingException
 import dev.martianzoo.tfm.data.GameSetup
 import dev.martianzoo.tfm.data.Player.Companion.PLAYER1
 import dev.martianzoo.tfm.data.Player.Companion.PLAYER2
-import dev.martianzoo.tfm.engine.Game
+import dev.martianzoo.tfm.engine.Engine
 import dev.martianzoo.tfm.engine.PlayerSession
 import dev.martianzoo.tfm.engine.PlayerSession.Companion.session
 import dev.martianzoo.tfm.engine.TerraformingMars.cardAction1
@@ -72,7 +72,8 @@ private class CanonCustomClassesTest {
       cardAction1("RobinsonIndustries") {
         assertThat(tasks.map { it.instruction.toString() })
             .containsExactly(
-                "Production<Player1, Class<Megacredit>>! OR Production<Player1, Class<Titanium>>!")
+                "Production<Player1, Class<Megacredit>>! OR Production<Player1, Class<Titanium>>!"
+            )
         task("PROD[1]")
         checkProduction(1, 1, 0, 1, 1, 1)
         rollItBack()
@@ -123,7 +124,7 @@ private class CanonCustomClassesTest {
     p1.checkProduction(0, 5, 2, 0, 3, 0)
   }
 
-  private fun newGameForP1() = Game.create(GameSetup(Canon, "BRMP", 2))
+  private fun newGameForP1() = Engine.newGame(GameSetup(Canon, "BRMP", 2))
 
   private fun PlayerSession.checkProduction(vararg exp: Int) =
       assertThat(production().values).containsExactlyElementsIn(exp.toList()).inOrder()

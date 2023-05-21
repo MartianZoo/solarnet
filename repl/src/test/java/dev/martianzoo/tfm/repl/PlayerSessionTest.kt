@@ -4,14 +4,14 @@ import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.data.Player.Companion.PLAYER1
 import dev.martianzoo.tfm.data.Player.Companion.PLAYER2
-import dev.martianzoo.tfm.engine.Game
+import dev.martianzoo.tfm.engine.Engine
 import dev.martianzoo.tfm.engine.PlayerSession.Companion.session
 import org.junit.jupiter.api.Test
 
 private class PlayerSessionTest {
   @Test
   fun shortNames() {
-    val game = Game.create(Canon.SIMPLE_GAME)
+    val game = Engine.newGame(Canon.SIMPLE_GAME)
     val session = game.session(PLAYER2)
 
     session.operation("PROD[5, 4 E]")
@@ -28,7 +28,7 @@ private class PlayerSessionTest {
 
   @Test
   fun removeAmap() {
-    val game = Game.create(Canon.SIMPLE_GAME)
+    val game = Engine.newGame(Canon.SIMPLE_GAME)
     val session = game.session(PLAYER1)
 
     session.operation("3 Heat!")
@@ -39,7 +39,7 @@ private class PlayerSessionTest {
 
   @Test
   fun rollback() {
-    val game = Game.create(Canon.SIMPLE_GAME)
+    val game = Engine.newGame(Canon.SIMPLE_GAME)
     val session = game.session(PLAYER1)
 
     session.operation("3 Heat")
@@ -56,7 +56,7 @@ private class PlayerSessionTest {
 
   @Test
   fun dependencies() {
-    val game = Game.create(Canon.SIMPLE_GAME)
+    val game = Engine.newGame(Canon.SIMPLE_GAME)
     val session = game.session(PLAYER2)
 
     assertThat(session.tasks.isEmpty()).isTrue()
@@ -76,7 +76,7 @@ private class PlayerSessionTest {
 
   @Test
   fun counting() {
-    val game = Game.create(Canon.SIMPLE_GAME)
+    val game = Engine.newGame(Canon.SIMPLE_GAME)
     val session = game.session(PLAYER2)
     session.operation("42 Heat")
     assertThat(session.count("Heat")).isEqualTo(42)
@@ -94,7 +94,7 @@ private class PlayerSessionTest {
 
   @Test
   fun tempTrigger() {
-    val game = Game.create(Canon.SIMPLE_GAME)
+    val game = Engine.newGame(Canon.SIMPLE_GAME)
     val session = game.session(PLAYER1)
     assertThat(session.count("TerraformRating")).isEqualTo(20)
 

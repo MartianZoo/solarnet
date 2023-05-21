@@ -14,7 +14,7 @@ import org.junit.jupiter.api.Test
 private class ApiUtilsTest {
   @Test
   fun testLookUpProdLevelsUsingCanon() {
-    val session = PlayerSession(Game.create(Canon.SIMPLE_GAME), ENGINE)
+    val session = PlayerSession(Engine.newGame(Canon.SIMPLE_GAME), ENGINE)
     val prods: Map<ClassName, Int> = lookUpProductionLevels(session.reader, PLAYER1.expression)
     assertThat(prods.map { it.key to it.value })
         .containsExactly(
@@ -41,7 +41,7 @@ private class ApiUtilsTest {
 
   @Test
   fun stdResNamesInCanon() {
-    val game = Game.create(Canon.SIMPLE_GAME)
+    val game = Engine.newGame(Canon.SIMPLE_GAME)
     assertThat(standardResourceNames(game.reader).toStrings())
         .containsExactly("Megacredit", "Steel", "Titanium", "Plant", "Energy", "Heat")
   }

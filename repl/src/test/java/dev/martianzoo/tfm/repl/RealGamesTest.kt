@@ -6,7 +6,7 @@ import dev.martianzoo.tfm.data.GameSetup
 import dev.martianzoo.tfm.data.Player.Companion.ENGINE
 import dev.martianzoo.tfm.data.Player.Companion.PLAYER1
 import dev.martianzoo.tfm.data.Player.Companion.PLAYER2
-import dev.martianzoo.tfm.engine.Game
+import dev.martianzoo.tfm.engine.Engine
 import dev.martianzoo.tfm.engine.PlayerSession
 import dev.martianzoo.tfm.engine.PlayerSession.Companion.session
 import dev.martianzoo.tfm.engine.TerraformingMars.cardAction1
@@ -25,7 +25,7 @@ class RealGamesTest {
   fun fourWholeGenerations() {
     val table = MClassTable.forSetup(GameSetup(Canon, "BREPT", 2))
     repeat(1) { // I change this when profiling
-      val game = Game.create(table)
+      val game = Engine.newGame(table)
       val eng = game.session(ENGINE)
       val p1 = game.session(PLAYER1)
       val p2 = game.session(PLAYER2)
@@ -164,7 +164,7 @@ class RealGamesTest {
 
   @Test
   fun startOfEllieGameNoPrelude() {
-    val game = Game.create(GameSetup(Canon, "BRHX", 2))
+    val game = Engine.newGame(GameSetup(Canon, "BRHX", 2))
     val eng = game.session(ENGINE)
     val p1 = game.session(PLAYER1)
     val p2 = game.session(PLAYER2)
@@ -182,7 +182,7 @@ class RealGamesTest {
 
   @Test
   fun ellieGame() {
-    val game = Game.create(GameSetup(Canon, "BRHXP", 2))
+    val game = Engine.newGame(GameSetup(Canon, "BRHXP", 2))
     val eng = game.session(ENGINE)
     val p1 = game.session(PLAYER1)
     val p2 = game.session(PLAYER2)
@@ -238,7 +238,8 @@ class RealGamesTest {
           "DevelopmentCenter",
           1,
           steel = 4,
-          "ProjectCard FROM Science<OlympusConference>")
+          "ProjectCard FROM Science<OlympusConference>"
+      )
 
       playCard("GeothermalPower", 1, steel = 4)
 

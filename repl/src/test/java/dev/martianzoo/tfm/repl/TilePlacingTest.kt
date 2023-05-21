@@ -5,7 +5,7 @@ import dev.martianzoo.tfm.api.Exceptions.NarrowingException
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.data.Player.Companion.PLAYER1
 import dev.martianzoo.tfm.data.Player.Companion.PLAYER2
-import dev.martianzoo.tfm.engine.Game
+import dev.martianzoo.tfm.engine.Engine
 import dev.martianzoo.tfm.engine.PlayerSession.Companion.session
 import dev.martianzoo.tfm.engine.TerraformingMars.stdProject
 import org.junit.jupiter.api.Test
@@ -14,7 +14,7 @@ import org.junit.jupiter.api.assertThrows
 class TilePlacingTest {
   @Test
   fun citiesRepel() {
-    val game = Game.create(Canon.SIMPLE_GAME)
+    val game = Engine.newGame(Canon.SIMPLE_GAME)
     with(game.session(PLAYER2)) {
       phase("Action")
       operation("CityTile<M46>, CityTile<M44>, 25")
@@ -24,7 +24,7 @@ class TilePlacingTest {
 
   @Test
   fun cantStack() {
-    val game = Game.create(Canon.SIMPLE_GAME)
+    val game = Engine.newGame(Canon.SIMPLE_GAME)
     val p2 = game.session(PLAYER2)
 
     p2.operation("CityTile<M33>")
@@ -33,7 +33,7 @@ class TilePlacingTest {
 
   @Test
   fun greeneryNextToOwned() {
-    val game = Game.create(Canon.SIMPLE_GAME)
+    val game = Engine.newGame(Canon.SIMPLE_GAME)
 
     with(game.session(PLAYER1)) {
       phase("Action")

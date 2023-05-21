@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 
 class ReifyTest {
-  val game = Game.create(Canon.SIMPLE_GAME)
+  val game = Engine.newGame(Canon.SIMPLE_GAME)
 
   @Test
   fun testVarious() {

@@ -15,7 +15,7 @@ import org.junit.jupiter.api.Test
 private class GameApiTest {
   @Test
   fun basicByApi() {
-    val game = Game.create(Canon.SIMPLE_GAME)
+    val game = Engine.newGame(Canon.SIMPLE_GAME)
 
     val checkpoint = game.checkpoint()
     assertThat(game.reader.count(parse<Metric>("Heat"))).isEqualTo(0)

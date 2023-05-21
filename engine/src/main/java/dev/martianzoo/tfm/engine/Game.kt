@@ -10,7 +10,6 @@ import dev.martianzoo.tfm.data.GameEvent
 import dev.martianzoo.tfm.data.GameEvent.ChangeEvent
 import dev.martianzoo.tfm.data.GameEvent.ChangeEvent.Cause
 import dev.martianzoo.tfm.data.GameEvent.TaskEvent
-import dev.martianzoo.tfm.data.GameSetup
 import dev.martianzoo.tfm.data.Player
 import dev.martianzoo.tfm.data.Player.Companion.ENGINE
 import dev.martianzoo.tfm.data.Task
@@ -21,7 +20,6 @@ import dev.martianzoo.tfm.engine.Game.ComponentGraph
 import dev.martianzoo.tfm.engine.Game.EventLog
 import dev.martianzoo.tfm.engine.Game.EventLog.Checkpoint
 import dev.martianzoo.tfm.engine.Game.TaskQueue
-import dev.martianzoo.tfm.engine.PlayerSession.Companion.session
 import dev.martianzoo.tfm.pets.Parsing.parse
 import dev.martianzoo.tfm.pets.PetTransformer.Companion.chain
 import dev.martianzoo.tfm.pets.Transforming.replaceOwnerWith
@@ -46,28 +44,6 @@ import dev.martianzoo.util.Multiset
  * use [writer].
  */
 public class Game internal constructor(private val table: MClassTable) {
-  public companion object {
-    /** Creates a new game, initialized for the given [setup], and ready for gameplay to begin. */
-    public fun create(setup: GameSetup) = create(MClassTable.forSetup(setup))
-
-    /** Creates a new game using an existing class table, ready for gameplay to begin. */
-    public fun create(table: MClassTable): Game {
-      val game = Game(table)
-      val session = game.session(ENGINE)
-
-      val ord = session.operation("$ENGINE!").changes.first()
-      val fakeCause = Cause(ENGINE.expression, ord.ordinal)
-
-      table.singletons.forEach {
-        session.initiateOnly(parse("${it.expression}!"), fakeCause)
-      }
-      session.autoExec(false)
-
-      session.operation("CorporationPhase FROM Phase")
-      game.setupFinished()
-      return game
-    }
-  }
 
   private val effector: Effector = Effector()
 
