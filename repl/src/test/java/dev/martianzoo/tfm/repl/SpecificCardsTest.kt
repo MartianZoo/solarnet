@@ -16,6 +16,7 @@ import dev.martianzoo.tfm.engine.Game
 import dev.martianzoo.tfm.engine.PlayerSession.Companion.session
 import dev.martianzoo.tfm.engine.TerraformingMars.cardAction1
 import dev.martianzoo.tfm.engine.TerraformingMars.cardAction2
+import dev.martianzoo.tfm.engine.TerraformingMars.pass
 import dev.martianzoo.tfm.engine.TerraformingMars.playCard
 import dev.martianzoo.tfm.engine.TerraformingMars.playCorp
 import dev.martianzoo.tfm.engine.TerraformingMars.production
@@ -476,6 +477,56 @@ class SpecificCardsTest {
 
       assertThrows<RequirementException> { playCard("AdvancedAlloys", 1) } // no diskey no morey
       playCard("AdvancedAlloys", 9)
+    }
+  }
+
+  @Test
+  fun celestic() {
+    val game = Game.create(GameSetup(Canon, "BRMV", 2))
+    with(game.session(PLAYER1)) {
+      playCorp("Celestic", 5)
+      assertCounts(5 to "ProjectCard", 27 to "M")
+
+      phase("Action")
+      assertThrows<NarrowingException> { playCard("Mine") }
+      assertThrows<NarrowingException> { stdProject("Aquifer") }
+      assertThrows<NarrowingException> { stdAction("ConvertPlants") }
+
+      pass()
+
+      phase("Production")
+      operation("ResearchPhase FROM Phase") {
+        task("2 BuyCard")
+        asPlayer(PLAYER2).task("2 BuyCard")
+      }
+      phase("Action")
+      assertThrows<NarrowingException> { playCard("Mine") }
+
+      assertCounts(1 to "Mandate")
+      assertCounts(7 to "ProjectCard")
+      turn("UseAllMandates")
+      assertCounts(9 to "ProjectCard")
+      playCard("Mine", 4)
+    }
+  }
+
+  @Test
+  fun valleyTrust() {
+    val game = Game.create(GameSetup(Canon, "BRMP", 2))
+    with(game.session(PLAYER1)) {
+      playCorp("ValleyTrust", 5)
+      assertCounts(5 to "ProjectCard", 22 to "M")
+
+      phase("Action")
+      assertCounts(1 to "Mandate")
+      assertCounts(0 to "PreludeCard")
+      turn("UseAllMandates") {
+        assertCounts(1 to "PreludeCard")
+        task("PlayCard<Class<PreludeCard>, Class<MartianIndustries>>")
+        task("Ok") // TODO damm stupid steel
+        assertCounts(1 to "PROD[S]", 1 to "PROD[E]")
+        assertCounts(0 to "PreludeCard")
+      }
     }
   }
 }

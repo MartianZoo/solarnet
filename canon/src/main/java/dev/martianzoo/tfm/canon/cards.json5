@@ -31,6 +31,20 @@
       "effects": [ "Pay<Class<Titanium>>:: Pay<Class<Megacredit>>" ]
     },
 
+    // Tharsis Republic
+    {
+      "id": "B08",
+      "bundle": "B",
+      "deck": "CORPORATION",
+      "tags": [ "BuildingTag" ],
+      "immediate": "40, MandateB08", // TODO solo
+      "effects": [
+        "CityTile<Anyone, MarsArea>: PROD[1]",
+        "CityTile: 3",
+      ],
+      "components": [ "CLASS MandateB08 : Mandate { -> CityTile }" ]
+    },
+
     // ThorGate
     {
       "id": "B09",
@@ -108,6 +122,18 @@
       "components": [ "CLASS GainLowestProduction : Owned, Custom" ]
     },
 
+    // Valley Trust
+    {
+      "id": "PC4",
+      "bundle": "P",
+      "deck": "CORPORATION",
+      "immediate": "37, MandatePC4",
+      "effects": [ "PlayTag<Class<ScienceTag>>:: -2 Owed" ],
+      "components": [
+        "CLASS MandatePC4 : Mandate { -> PreludeCard THEN PlayCard<Class<PreludeCard>> }"
+      ]
+    },
+
     // Aphrodite
     {
       "id": "V01",
@@ -116,6 +142,19 @@
       "tags": [ "VenusTag", "PlantTag" ],
       "immediate": "PROD[Plant], 47",
       "effects": [ "VenusStep BY Anyone: 2" ]
+    },
+
+    // Celestic[F]
+    {
+      "id": "V02F",
+      "bundle": "V",
+      "deck": "CORPORATION",
+      "tags": [ "VenusTag" ],
+      "immediate": "42, MandateV02F",
+      "actions": [ "-> Floater" ],
+      "effects": [ "End: VictoryPoint / 3 Floater<This>" ],
+      "components": [ "CLASS MandateV02F : Mandate { -> 2 ProjectCard }" ],
+      "resourceType": "Floater",
     },
 
     // Manutech
@@ -568,7 +607,7 @@
       "id": "X41F",
       "bundle": "X",
       "deck": "PRELUDE",
-      "immediate": "CardFront, -42" // in follow mode, it's that easy
+      "immediate": "CorporationCard THEN PlayCard<Class<CorporationCard>>, -42"
     },
 
     // New Partner[F]

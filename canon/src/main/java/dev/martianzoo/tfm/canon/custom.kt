@@ -10,6 +10,7 @@ import dev.martianzoo.tfm.api.Exceptions.LimitsException
 import dev.martianzoo.tfm.api.Exceptions.NarrowingException
 import dev.martianzoo.tfm.api.GameReader
 import dev.martianzoo.tfm.api.SpecialClassNames.CLASS
+import dev.martianzoo.tfm.api.SpecialClassNames.DIE
 import dev.martianzoo.tfm.api.SpecialClassNames.PROD
 import dev.martianzoo.tfm.api.Type
 import dev.martianzoo.tfm.data.CardDefinition
@@ -36,6 +37,7 @@ internal val canonCustomClasses =
     setOf(
         ForceLoad,
         CreateAdjacencies,
+        CheckCardDeck,
         CheckCardRequirement,
         HandleCardCost,
         GetEventVps,
@@ -90,6 +92,22 @@ private object CreateAdjacencies : CustomClass("CreateAdjacencies") {
   }
 }
 
+private object CheckCardDeck : CustomClass("CheckCardDeck") {
+  override fun translate(
+      game: GameReader,
+      owner: Type,
+      cardBackClassType: Type,
+      cardFrontClassType: Type
+  ): Instruction {
+    val deck = cardFromClassExpression(cardFrontClassType, game).deck
+    return if (cardBackClassType.expression.arguments.single().className == deck?.className) {
+      NoOp
+    } else {
+      parse("$DIE!")
+    }
+  }
+}
+
 private object CheckCardRequirement : CustomClass("CheckCardRequirement") {
   override fun translate(game: GameReader, owner: Type, cardClassType: Type): Instruction {
     val reqt = cardFromClassExpression(cardClassType, game).requirement
@@ -118,10 +136,7 @@ private object HandleCardCost : CustomClass("HandleCardCost") {
   }
 }
 
-private fun cardFromClassExpression(
-  cardClassType: Type,
-  game: GameReader
-): CardDefinition {
+private fun cardFromClassExpression(cardClassType: Type, game: GameReader): CardDefinition {
   val cardType: Expression = cardClassType.expression.arguments.single()
   val card: CardDefinition = game.authority.card(cardType.className)
   return card
@@ -156,8 +171,9 @@ private object GainLowestProduction : CustomClass("GainLowestProduction") {
 private object CopyProductionBox : CustomClass("CopyProductionBox") {
   override fun translate(game: GameReader, owner: Type, cardType: Type): Instruction {
     val card: CardDefinition = game.authority.card(cardType.className)
-    val immediate = card.immediate
-        ?: throw NarrowingException("card ${card.className} has no immediate instruction")
+    val immediate =
+        card.immediate
+            ?: throw NarrowingException("card ${card.className} has no immediate instruction")
     val matches = immediate.descendantsOfType<Transform>().filter { it.transformKind == PROD }
 
     when (matches.size) {

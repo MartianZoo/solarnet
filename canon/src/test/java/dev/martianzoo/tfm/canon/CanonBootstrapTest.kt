@@ -32,7 +32,9 @@ private class CanonBootstrapTest {
     assertThat(table.allClasses.classNames()).containsExactlyElementsIn(expected)
   }
 
-  val regex = Regex("(Hellas|Elysium|Player5|Camp|Venus|Area2|AirScrap|Card247|CardC05).*")
+  val regex =
+      Regex("(Hellas|Elysium|Player5|Camp|Venus|Area2|" +
+          "AirScrap|Card247|CardC05|UseAction3|MandateV02F).*")
 
   @Test
   fun classCounts() {

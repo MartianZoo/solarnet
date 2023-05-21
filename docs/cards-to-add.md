@@ -9,19 +9,16 @@ As of 2023-04, the number of rows in this table plus entries in cards.json shoul
 | 206 | Special Design             | adjustreqt            |
 | P10 | Ecology Experts            | adjustreqt            |
 | 153 | Adaptation Technology      | adjustreqt            |
-| B05 | Inventrix                  | adjustreqt, 1staction |
-| V04 | Morning Star Inc.          | adjustreqt, 1staction |
-| B08 | Tharsis Republic           | 1staction             |
-| V02 | Celestic                   | 1staction             |
-| PC4 | Valley Trust               | 1staction             |
+| B05 | Inventrix                  | adjustreqt            |
+| V04 | Morning Star Inc.          | adjustreqt            |
 | XC3 | Splice Tactical Genomics   | 1staction             |
-| PC5 | Vitor                      | awards, 1staction     |
+| PC5 | Vitor                      | awards                |
 | X43 | Head Start                 | actionsinactions      |
 | CC1 | Aridor                     | aridor                |
 | B00 | Beginner Corporation       | beginner              |
 | XC1 | Arcadian Communities       | community             |
 | 066 | Land Claim                 | community             |
-| XC6 | Philares                   | outofturn, 1staction  |
+| XC6 | Philares                   | outofturn             |
 | XC5 | Mons Insurance             | complement, outofturn |
 | 173 | Protected Habitats         | complement            |
 | X14 | Asteroid Deflection System | complement            |
