@@ -542,23 +542,22 @@ class SpecificCardsTest {
       assertProductions(-1 to "M", 3 to "H")
 
       assertThrows<PetSyntaxException> {
-        playCard("Insulation", 2, "PROD[-0 Heat THEN 0]")
+        playCard("Insulation", 2, "PROD[0 Megacredit FROM Heat]")
       }
       assertThrows<PetSyntaxException> { playCard("Insulation", 2, "PROD[Ok]") }
       assertThrows<NarrowingException> { playCard("Insulation", 2, "Ok") }
-      assertThrows<NarrowingException> { playCard("Insulation", 2, "PROD[-4 Heat THEN 2]") }
       assertThrows<NarrowingException> {
-        playCard("Insulation", 2, "PROD[-2 Heat<P2> THEN 2 Megacredit<P2>]")
+        playCard("Insulation", 2, "PROD[2 Megacredit<P2> FROM Heat<P2>]")
       }
 
       playCard("Insulation", 2) {
-        task("PROD[-2 Heat THEN 2]")
+        task("PROD[2 Megacredit FROM Heat]")
         assertProductions(1 to "M", 1 to "H")
         rollItBack()
       }
 
       playCard("Insulation", 2) {
-        task("PROD[-Heat THEN 1]")
+        task("PROD[Megacredit FROM Heat]")
         assertProductions(0 to "M", 2 to "H")
         rollItBack()
       }
