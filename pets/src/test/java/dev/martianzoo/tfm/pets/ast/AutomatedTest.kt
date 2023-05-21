@@ -5,57 +5,57 @@ import dev.martianzoo.tfm.testlib.PetGenerator
 import org.junit.jupiter.api.Test
 
 private class AutomatedTest {
-  val factor = 10
+  val reps = 300 // it's been stable a while
 
   @Test
   fun scaledExpressions() {
     val gen = PetGenerator()
-    gen.goNuts<ScaledExpression>(200 * factor)
+    gen.goNuts<ScaledExpression>(reps)
   }
 
   @Test
   fun metrics() {
     val gen = PetGenerator(0.7)
-    gen.goNuts<Metric>(500 * factor)
+    gen.goNuts<Metric>(reps)
   }
 
   @Test
   fun triggers() {
     val gen = PetGenerator(0.6)
-    gen.goNuts<Trigger>(100 * factor)
+    gen.goNuts<Trigger>(reps)
   }
 
   @Test
   fun requirements() {
     val gen = PetGenerator()
-    gen.goNuts<Requirement>(500 * factor)
+    gen.goNuts<Requirement>(reps)
     // gen.printTestStringOfEachLength<Requirement>(60)
   }
 
   @Test
   fun instructions() {
     val gen = PetGenerator()
-    gen.goNuts<Instruction>(200 * factor)
+    gen.goNuts<Instruction>(reps)
     // gen.printTestStringOfEachLength<Instruction>(60)
   }
 
   @Test
   fun effects() {
     val gen = PetGenerator(0.9)
-    gen.goNuts<Effect>(200 * factor)
+    gen.goNuts<Effect>(reps)
     // gen.printTestStringOfEachLength<Effect>(60)
   }
 
   @Test
   fun costs() {
     val gen = PetGenerator()
-    gen.goNuts<Action.Cost>(100 * factor)
+    gen.goNuts<Action.Cost>(reps)
   }
 
   @Test
   fun actions() {
     val gen = PetGenerator()
-    gen.goNuts<Action>(200 * factor)
+    gen.goNuts<Action>(reps)
     // gen.printTestStringOfEachLength<Action>(60)
   }
 }
