@@ -14,7 +14,7 @@
     // { "id": "SAD", "bundle": "B", "action": "6, 8 / Award -> Award" },
 
     // Use card action
-    { "id": "SAE", "bundle": "B", // This will be a "linked THEN" TODO
+    { "id": "SAE", "bundle": "B", // TODO needs to be 'linked'
       "action": "-> UseAction<ActionCard>, ActionUsedMarker<ActionCard>" },
 
     // Convert plants

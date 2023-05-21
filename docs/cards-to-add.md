@@ -11,7 +11,7 @@ As of 2023-04, the number of rows in this table plus entries in cards.json shoul
 | 153 | Adaptation Technology      | adjustreqt            |
 | B05 | Inventrix                  | adjustreqt            |
 | V04 | Morning Star Inc.          | adjustreqt            |
-| XC3 | Splice Tactical Genomics   | 1staction             |
+| XC3 | Splice Tactical Genomics   | linkages, outofturn   |
 | PC5 | Vitor                      | awards                |
 | X43 | Head Start                 | actionsinactions      |
 | CC1 | Aridor                     | aridor                |
@@ -28,8 +28,8 @@ As of 2023-04, the number of rows in this table plus entries in cards.json shoul
 | X13 | Advertising                | customreqt, reftrig   |
 | B06 | Mining Guild               | customreqt, reftrig   |
 | X18 | Cutting Edge Technology    | customreqt, reftrig   |
-| 067 | Mining Rights              | customreqt            |
-| 064 | Mining Area                | customreqt            |
+| 067 | Mining Rights              | customreqt?           |
+| 064 | Mining Area                | customreqt?           |
 | X05 | Interplanetary Trade       | distinct              |
 | X20 | Diversity Support          | distinct              |
 | B03 | Helion                     | helion                |
