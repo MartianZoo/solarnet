@@ -19,7 +19,7 @@ import dev.martianzoo.tfm.data.MarsMapDefinition.AreaDefinition
 import dev.martianzoo.tfm.pets.Parsing.parse
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.tfm.pets.ast.Effect.Trigger.OnGainOf
+import dev.martianzoo.tfm.pets.ast.Effect.Trigger
 import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.pets.ast.Instruction
 import dev.martianzoo.tfm.pets.ast.Instruction.Gain.Companion.gain
@@ -68,7 +68,7 @@ private object CreateAdjacencies : CustomClass("CreateAdjacencies") {
                   cn("BackwardAdjacency").of(newTile, it),
               )
             }
-    // TODO should be just a Multi? Or let these return multiple?
+    // I don't think we care whether this returns Multi or Then
     return Then.create((neighbors + adjacencies).map { gain(scaledEx(1, it)) })
   }
 
@@ -133,7 +133,7 @@ private object HandleCardCost : CustomClass("HandleCardCost") {
         } else {
           playTagSignals
         }
-    return Then.create(instructions)
+    return Then.create(instructions) // in case any PlayTag discounts are ::
   }
 }
 
@@ -149,8 +149,8 @@ private object GetEventVps : CustomClass("GetEventVps") {
     require(classType.className == CLASS)
     val cardName = classType.expression.arguments.single().className
     val card = game.authority.card(cardName)
-    return Multi.create(
-        card.effects.filter { it.trigger == OnGainOf.create(parse("End")) }.map { it.instruction })
+    val endFx = card.effects.filter { it.trigger == parse<Trigger>("End") }
+    return Multi.create(endFx.map { it.instruction })
   }
 }
 
@@ -164,6 +164,7 @@ private object GainLowestProduction : CustomClass("GainLowestProduction") {
           val target = if (it == cn("Megacredit")) lowest + 5 else lowest
           if (target >= 0) parse<Instruction>("=$target $it: $it") else null
         }
+    // A big and gross instruction, but preparing it prunes it down
     return TransformNode.wrap(Or.create(options), PROD)
   }
 }
