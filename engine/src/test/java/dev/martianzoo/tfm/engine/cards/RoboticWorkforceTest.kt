@@ -13,7 +13,7 @@ import dev.martianzoo.tfm.engine.TerraformingMars.production
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 
-private class RoboticWorkforceTest {
+class RoboticWorkforceTest {
 
   @Test
   fun roboticWorkforce() {

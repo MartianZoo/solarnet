@@ -3,8 +3,8 @@ package dev.martianzoo.tfm.engine.cards
 import dev.martianzoo.tfm.api.Exceptions.LimitsException
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.data.GameSetup
-import dev.martianzoo.tfm.data.Player
 import dev.martianzoo.tfm.data.Player.Companion.PLAYER1
+import dev.martianzoo.tfm.data.Player.Companion.PLAYER2
 import dev.martianzoo.tfm.engine.Engine
 import dev.martianzoo.tfm.engine.PlayerSession.Companion.session
 import dev.martianzoo.tfm.engine.TerraformingMars.playCard
@@ -20,7 +20,7 @@ class SponsoredAcademiesTest {
 
     game.session(PLAYER1).playCorp("Phobolog", 5)
 
-    with(game.session(Player.PLAYER2)) {
+    with(game.session(PLAYER2)) {
       playCorp("Teractor", 1)
       phase("Action")
       assertThrows<LimitsException>("nothing to discard") { playCard("SponsoredAcademies", 9) }

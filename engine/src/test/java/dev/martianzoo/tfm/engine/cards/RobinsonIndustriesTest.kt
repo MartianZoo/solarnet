@@ -14,7 +14,7 @@ import dev.martianzoo.tfm.engine.TerraformingMars.production
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 
-private class RobinsonIndustriesTest {
+class RobinsonIndustriesTest {
   val game = Engine.newGame(GameSetup(Canon, "BRMP", 2))
 
   @Test
