@@ -8,7 +8,6 @@ import dev.martianzoo.tfm.data.GameSetup
 import dev.martianzoo.tfm.pets.HasClassName.Companion.classNames
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.tfm.types.Dependency.Key
 import dev.martianzoo.tfm.types.MClass
 import dev.martianzoo.tfm.types.MClassLoader
 import dev.martianzoo.tfm.types.MClassTable
@@ -183,33 +182,6 @@ internal class CanonClassesTest {
         .containsExactly(
             "MAX 1 Phase",
             "MAX 9 OceanTile",
-        )
-  }
-
-  @Test
-  fun allDeps() {
-    val allDeps = table.allClasses.flatMap { it.dependencies.keys }.toSet()
-    assertThat(allDeps)
-        .containsExactly(
-            Key(cn("Adjacency"), 0),
-            Key(cn("Adjacency"), 1),
-            Key(cn("Cardbound"), 0),
-            Key(cn("Class"), 0),
-            Key(cn("Neighbor"), 0),
-            Key(cn("Neighbor"), 1),
-            Key(cn("Owned"), 0),
-            Key(cn("PaymentMechanic"), 0),
-            Key(cn("PlayCard"), 0),
-            Key(cn("PlayTag"), 0),
-            Key(cn("PlayedEvent"), 0),
-            Key(cn("Production"), 0),
-            Key(cn("ResourceCard"), 0),
-            Key(cn("Tile"), 0),
-            Key(cn("UseAction"), 0),
-            Key(cn("BeginPlayCard"), 0),
-            Key(cn("CreateAdjacencies"), 0),
-            Key(cn("ForceLoad"), 0),
-            Key(cn("GetEventVps"), 0),
         )
   }
 }

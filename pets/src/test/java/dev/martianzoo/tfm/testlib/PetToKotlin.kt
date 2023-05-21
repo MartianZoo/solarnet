@@ -80,7 +80,7 @@ internal object PetToKotlin {
             is Gain -> "Gain(${p2k(scaledEx)}${intensity.pre(", ")})"
             is Remove -> "Remove(${p2k(scaledEx)}${intensity.pre(", ")})"
             is Instruction.Per -> "Instruction.Per(${p2k(inner)}, ${p2k(metric)})"
-            is Gated -> "Gated(${p2k(gate)}, $mandatory, ${p2k(inner)})"
+            is Gated -> "Gated(${p2k(gate)}, ${p2k(inner)}, $mandatory)"
             is Transmute -> "Transmute(${p2k(fromEx)}, ${p2k(count)}${intensity.pre(", ")})"
             is Then -> "Then(${instructions.join()})"
             is Instruction.Or -> "Instruction.Or(${instructions.join()})"

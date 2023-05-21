@@ -6,7 +6,6 @@ import dev.martianzoo.tfm.api.ApiUtils.lookUpProductionLevels
 import dev.martianzoo.tfm.api.ApiUtils.mapDefinition
 import dev.martianzoo.tfm.api.ApiUtils.standardResourceNames
 import dev.martianzoo.tfm.api.CustomClass
-import dev.martianzoo.tfm.api.Exceptions
 import dev.martianzoo.tfm.api.Exceptions.LimitsException
 import dev.martianzoo.tfm.api.Exceptions.NarrowingException
 import dev.martianzoo.tfm.api.GameReader
@@ -23,6 +22,7 @@ import dev.martianzoo.tfm.pets.ast.Effect.Trigger.OnGainOf
 import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.pets.ast.Instruction
 import dev.martianzoo.tfm.pets.ast.Instruction.Gain.Companion.gain
+import dev.martianzoo.tfm.pets.ast.Instruction.Gated
 import dev.martianzoo.tfm.pets.ast.Instruction.Multi
 import dev.martianzoo.tfm.pets.ast.Instruction.NoOp
 import dev.martianzoo.tfm.pets.ast.Instruction.Or
@@ -36,7 +36,8 @@ internal val canonCustomClasses =
     setOf(
         ForceLoad,
         CreateAdjacencies,
-        BeginPlayCard,
+        CheckCardRequirement,
+        HandleCardCost,
         GetEventVps,
         GainLowestProduction,
         CopyProductionBox,
@@ -89,16 +90,17 @@ private object CreateAdjacencies : CustomClass("CreateAdjacencies") {
   }
 }
 
-private object BeginPlayCard : CustomClass("BeginPlayCard") {
+private object CheckCardRequirement : CustomClass("CheckCardRequirement") {
   override fun translate(game: GameReader, owner: Type, cardClassType: Type): Instruction {
-    require(cardClassType.className == CLASS)
+    val reqt = cardFromClassExpression(cardClassType, game).requirement
+    return Gated.create(reqt, NoOp)
+  }
+}
+
+private object HandleCardCost : CustomClass("HandleCardCost") {
+  override fun translate(game: GameReader, owner: Type, cardClassType: Type): Instruction {
     val cardType: Expression = cardClassType.expression.arguments.single()
     val card: CardDefinition = game.authority.card(cardType.className)
-
-    val reqt = card.requirement
-    if (reqt?.let { game.evaluate(game.preprocess(it)) } == false) {
-      throw Exceptions.requirementNotMet(reqt)
-    }
 
     val playTagSignals =
         card.tags.entries.map { (tagName: ClassName, ct: Int) ->
@@ -114,6 +116,15 @@ private object BeginPlayCard : CustomClass("BeginPlayCard") {
         }
     return Then.create(instructions)
   }
+}
+
+private fun cardFromClassExpression(
+  cardClassType: Type,
+  game: GameReader
+): CardDefinition {
+  val cardType: Expression = cardClassType.expression.arguments.single()
+  val card: CardDefinition = game.authority.card(cardType.className)
+  return card
 }
 
 // For scoring event cards

@@ -159,12 +159,13 @@ ABSTRACT CLASS Owned<Anyone> {
   CLASS BuyCard : Signal { This: -3, ProjectCard }// Hack for TerraLabs, but being able to delay the -3 could
                                                   // potentially be exploited. TODO
   CLASS PlayCard<Class<CardFront>> : Temporary {
-    This:: BeginPlayCard<Class<CardFront>>
-     // This: MAX 0 Barrier: CardFront (and make this a Signal?)
+    This:: CheckCardRequirement<Class<CardFront>>, HandleCardCost<Class<CardFront>>
+    // This: MAX 0 Barrier: CardFront (and make this a Signal?)
     -X Barrier IF =0 Barrier:: CardFront FROM This// When barriers gone, become the card itself
   }
 
-  CLASS BeginPlayCard<Class<CardFront>> : Custom
+  CLASS CheckCardRequirement<Class<CardFront>> : Custom
+  CLASS HandleCardCost<Class<CardFront>> : Custom
 
   CLASS PlayTag<Class<Tag>> : Signal              // Triggers discounts and Accepts
 

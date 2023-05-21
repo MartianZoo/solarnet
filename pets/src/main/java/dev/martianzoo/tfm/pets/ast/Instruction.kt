@@ -241,8 +241,12 @@ public sealed class Instruction : PetElement() {
     override fun toString() = "$inner / $metric"
   }
 
-  data class Gated(val gate: Requirement, val mandatory: Boolean, val inner: Instruction) :
-    Instruction() {
+  data class Gated(val gate: Requirement, val inner: Instruction, val mandatory: Boolean = true) :
+      Instruction() {
+    companion object {
+      fun create(gate: Requirement?, inner: Instruction, mandatory: Boolean = true) =
+          if (gate == null) inner else Gated(gate, inner, mandatory)
+    }
     init {
       if (inner is Gated) throw PetSyntaxException("You don't gate a gater")
     }
@@ -544,7 +548,7 @@ public sealed class Instruction : PetElement() {
             optional(Requirement.atomParser() and isMandatory) and
                 atom map
                 { (gate, ins) ->
-                  if (gate == null) ins else Gated(gate.t1, gate.t2, ins)
+                  if (gate == null) ins else Gated(gate.t1, ins, gate.t2)
                 }
 
         val orInstr: Parser<Instruction> =

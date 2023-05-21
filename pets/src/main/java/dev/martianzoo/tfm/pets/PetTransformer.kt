@@ -102,7 +102,7 @@ public abstract class PetTransformer protected constructor() {
                   is Instruction.Remove -> Instruction.Remove(x(scaledEx), intensity)
                   is Instruction.Transmute -> Instruction.Transmute(x(fromEx), x(scalar), intensity)
                   is Instruction.Per -> Instruction.Per(x(inner), x(metric))
-                  is Instruction.Gated -> Instruction.Gated(x(gate), mandatory, x(inner))
+                  is Instruction.Gated -> Instruction.Gated(x(gate), x(inner), mandatory)
                   is Instruction.Then -> Instruction.Then(x(instructions))
                   is Instruction.Or -> Instruction.Or(x(instructions))
                   is Instruction.Multi -> Instruction.Multi(x(instructions))
