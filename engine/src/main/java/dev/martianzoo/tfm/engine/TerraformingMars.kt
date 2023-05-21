@@ -122,7 +122,7 @@ object TerraformingMars {
     require(has("ActionPhase"))
     return stdAction("UseActionFromCard") {
       task("UseAction$which<$cardName>")
-      task("ActionUsedMarker<$cardName>") // TODO slight problem for Viron?
+      task("ActionUsedMarker<$cardName>") // will become automatic?
       tasks.forEach(::task)
       OperationBody().body()
     }

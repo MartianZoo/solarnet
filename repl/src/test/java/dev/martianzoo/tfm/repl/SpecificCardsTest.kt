@@ -2,6 +2,7 @@ package dev.martianzoo.tfm.repl
 
 import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.tfm.api.Exceptions.AbstractException
+import dev.martianzoo.tfm.api.Exceptions.DeadEndException
 import dev.martianzoo.tfm.api.Exceptions.DependencyException
 import dev.martianzoo.tfm.api.Exceptions.LimitsException
 import dev.martianzoo.tfm.api.Exceptions.NarrowingException
@@ -283,7 +284,7 @@ class SpecificCardsTest {
       operation("10 ProjectCard, ForcedPrecipitation")
 
       // We can't CEO's onto an empty card
-      assertThrows<NarrowingException> {
+      assertThrows<DeadEndException> { // why that kind?
         operation("CeosFavoriteProject", "Floater<ForcedPrecipitation>")
       }
 

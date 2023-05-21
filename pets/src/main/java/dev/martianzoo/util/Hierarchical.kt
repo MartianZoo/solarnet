@@ -24,12 +24,13 @@ interface Hierarchical<H : Hierarchical<H>> : Reifiable<H> {
      * Returns the nearest common subtype of all the elements in [list], if possible. Returns `null`
      * if either the list is empty or there is no common subtype.
      */
-    fun <H : Hierarchical<H>> glb(list: List<H>): H? = list.reduceOrNull { a, b -> (a glb b)!! }
+    fun <H : Hierarchical<H>> glb(list: Collection<H>): H? =
+        list.reduceOrNull { a, b -> (a glb b)!! }
 
     /**
      * Returns the nearest common supertype of all the elements in [list], or `null` if the list is
      * empty.
      */
-    fun <H : Hierarchical<H>> lub(list: List<H>): H? = list.reduceOrNull { a, b -> a lub b }
+    fun <H : Hierarchical<H>> lub(list: Collection<H>): H? = list.reduceOrNull { a, b -> a lub b }
   }
 }

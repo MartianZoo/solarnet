@@ -28,7 +28,7 @@ public object Exceptions {
   fun abstractComponent(type: Type, change: Change? = null) =
       AbstractException(
           buildString {
-            append("[${type.expressionFull}] is abstract")
+            append("${type.expression} is abstract")
             change?.let { append(" in: `$it`") }
           },
       )
@@ -51,11 +51,11 @@ public object Exceptions {
 
   /** A problem with Pets syntax. */
   public open class PetException internal constructor(message: String, cause: Throwable? = null) :
-    Exception(message, cause)
+      Exception(message, cause)
 
   /** Something is not a valid narrowing of something else. */
   public class NarrowingException(message: String, cause: Throwable? = null) :
-    Exception(message, cause)
+      Exception(message, cause)
 
   public open class RecoverableException(message: String) : Exception(message)
 
@@ -74,7 +74,7 @@ public object Exceptions {
   public open class TaskException(message: String) : Exception(message)
 
   public open class DeadEndException(message: String, cause: Throwable? = null) :
-    Exception(message, cause) {
+      Exception(message, cause) {
     constructor(cause: Throwable) : this(cause.message ?: "", cause)
   }
 
@@ -83,7 +83,7 @@ public object Exceptions {
   public class PetSyntaxException internal constructor(message: String) : PetException(message)
 
   public class ExistingDependentsException(val dependents: Collection<Type>) :
-    NotNowException("Existing dependents: ${dependents.joinToString { "${it.expressionFull}" }}")
+      NotNowException("Existing dependents: ${dependents.joinToString { "${it.expression}" }}")
 
   // TODO should just be factories
 
@@ -96,7 +96,7 @@ public object Exceptions {
       NotNowException(message)
 
   public class DependencyException(val dependencies: Collection<Type>) :
-      NotNowException("Missing dependencies: ${dependencies.joinToString()}")
+      NotNowException("Missing dependencies: ${dependencies.joinToString { "${it.expression}" } }")
 
   public class LimitsException(message: String) : NotNowException(message)
 }

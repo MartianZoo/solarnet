@@ -2,6 +2,7 @@ package dev.martianzoo.tfm.engine
 
 import dev.martianzoo.tfm.api.CustomClass
 import dev.martianzoo.tfm.api.Exceptions.DeadEndException
+import dev.martianzoo.tfm.api.Exceptions.DependencyException
 import dev.martianzoo.tfm.api.Exceptions.LimitsException
 import dev.martianzoo.tfm.api.Exceptions.NotNowException
 import dev.martianzoo.tfm.api.Exceptions.abstractInstruction
@@ -30,7 +31,9 @@ import dev.martianzoo.tfm.pets.ast.Instruction.Per
 import dev.martianzoo.tfm.pets.ast.Instruction.Then
 import dev.martianzoo.tfm.pets.ast.Instruction.Transform
 import dev.martianzoo.tfm.pets.ast.ScaledExpression.Scalar.ActualScalar
+import dev.martianzoo.tfm.types.Dependency.TypeDependency
 import dev.martianzoo.tfm.types.MType
+import dev.martianzoo.util.Hierarchical.Companion.lub
 import kotlin.math.min
 
 /** Just a cute name for "instruction handler". It prepares and executes instructions. */
@@ -44,7 +47,7 @@ internal data class Instructor(
   fun execute(instruction: Instruction, cause: Cause?): List<Task> =
       mutableListOf<Task>().also { doExecute(instruction, cause, it) } // TODO prepare?
 
-  private fun doExecute(instruction: Instruction, cause: Cause?, deferred: MutableList<Task>){
+  private fun doExecute(instruction: Instruction, cause: Cause?, deferred: MutableList<Task>) {
     val prepped = prepare(instruction) // idempotent?
     when (prepped) {
       is Change -> executeChange(prepped, cause, deferred)
@@ -180,9 +183,17 @@ internal data class Instructor(
     var r: MType? = removing?.let(reader::resolve)
 
     if (g?.abstract == true) {
-      // Infer a type if there IS only one concrete subtype -- this part could be done sooner
-      // TODO filter down to those whose dependents exist
+      val lubs: List<Pair<MType, TypeDependency?>> =
+          g.dependencies.typeDependencies.map { x ->
+            x.boundType to
+                lub(reader.getComponents(x.boundType).elements)?.let { x.copy(boundType = it) }
+          }
+      val missing = lubs.filter { it.second == null }.map { it.first }
+      if (missing.any()) throw DependencyException(missing)
+
+      // g = g.root.withAllDependencies(DependencySet.of(lubs.map { it.second!! }))
       g = g.allConcreteSubtypes().singleOrNull() ?: g
+
     }
     if (r?.abstract == true) {
       // Infer a type if there IS only one kind of component that has it

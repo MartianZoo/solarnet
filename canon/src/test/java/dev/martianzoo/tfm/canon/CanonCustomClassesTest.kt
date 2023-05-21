@@ -92,28 +92,35 @@ private class CanonCustomClassesTest {
     val game = newGameForP1()
     val p1 = game.session(PLAYER1)
 
-    p1.operation("3 ProjectCard, MassConverter, StripMine")
-    p1.checkProduction(0, 2, 1, 0, 4, 0)
+    p1.operation("4 ProjectCard, MassConverter, StripMine, IndustrialMicrobes")
+    p1.checkProduction(0, 3, 1, 0, 5, 0)
 
     game.session(PLAYER2).operation("ProjectCard, Mine")
 
     p1.operation("RoboticWorkforce") {
-      p1.checkProduction(0, 2, 1, 0, 4, 0)
+      p1.checkProduction(0, 3, 1, 0, 5, 0)
+
+      assertThat(tasks.map { it.whyPending }).containsExactly(
+          "CopyProductionBox<Player1, CardFront<Player1>(HAS BuildingTag<Player1>)> is abstract"
+      )
+
       // This card has no building tag so it won't work
       assertThrows<NarrowingException>("1") { p1.task("CopyProductionBox<MassConverter>") }
-      p1.checkProduction(0, 2, 1, 0, 4, 0)
+      p1.checkProduction(0, 3, 1, 0, 5, 0)
 
-      // This card is someone else's
-      assertThrows<NarrowingException>("2") { p1.task("CopyProductionBox<Mine>") }
-      assertThrows<NarrowingException>("3") { p1.task("CopyProductionBox<Mine<Player1>>") }
-      assertThrows<NarrowingException>("4") { p1.task("CopyProductionBox<Mine<Player2>>") }
-      p1.checkProduction(0, 2, 1, 0, 4, 0)
+      // This card is someone else's (see what I did there)
+      assertThrows<NarrowingException>("2") { p1.task("CopyProductionBox<Mine<Player2>>") }
+
+      // Obviously pretending it's mine is no help
+      assertThrows<NarrowingException>("3") { p1.task("CopyProductionBox<Mine>") }
+      assertThrows<NarrowingException>("4") { p1.task("CopyProductionBox<Mine<Player1>>") }
+      p1.checkProduction(0, 3, 1, 0, 5, 0)
 
       rollItBack()
     }
 
     p1.operation("RoboticWorkforce", "CopyProductionBox<StripMine>")
-    p1.checkProduction(0, 4, 2, 0, 2, 0)
+    p1.checkProduction(0, 5, 2, 0, 3, 0)
   }
 
   private fun newGameForP1() = Game.create(GameSetup(Canon, "BRMP", 2))
