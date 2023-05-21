@@ -10,7 +10,6 @@ import dev.martianzoo.tfm.data.GameEvent
 import dev.martianzoo.tfm.data.GameEvent.ChangeEvent
 import dev.martianzoo.tfm.data.GameEvent.ChangeEvent.Cause
 import dev.martianzoo.tfm.data.GameEvent.TaskEvent
-import dev.martianzoo.tfm.data.GameEvent.TaskRemovedEvent
 import dev.martianzoo.tfm.data.GameSetup
 import dev.martianzoo.tfm.data.Player
 import dev.martianzoo.tfm.data.Player.Companion.ENGINE
@@ -243,7 +242,9 @@ public class Game internal constructor(private val table: MClassTable) {
 
     override fun narrowTask(taskId: TaskId, narrowed: Instruction): TaskResult {
       val task = tasks[taskId]
-      checkOwner(task)
+      if (player != task.owner && player != ENGINE) { // TODO remove ENGINE?
+        throw TaskException("$player can't narrow a task owned by ${task.owner}")
+      }
 
       val fixedNarrowing = preprocess(narrowed)
       if (fixedNarrowing == task.instruction) return TaskResult()
@@ -272,7 +273,6 @@ public class Game internal constructor(private val table: MClassTable) {
     }
 
     private fun doPrepare(task: Task): TaskId? {
-      checkOwner(task) // TODO use myTasks() instead?
       dontCutTheLine(task.id)
 
       val replacement = instructor.prepare(task.instruction)
@@ -314,7 +314,6 @@ public class Game internal constructor(private val table: MClassTable) {
 
     override fun executeTask(taskId: TaskId): TaskResult {
       val task = tasks[taskId]
-      checkOwner(task)
 
       return game.atomic {
         val prepared = doPrepare(task) ?: return@atomic
@@ -331,7 +330,6 @@ public class Game internal constructor(private val table: MClassTable) {
      */
     private fun handleTask(taskId: TaskId) {
       val task = tasks[taskId]
-      checkOwner(task)
       task.then?.let { tasks.addTasks(it, task.owner, task.cause) }
       dropTask(taskId)
     }
@@ -345,10 +343,7 @@ public class Game internal constructor(private val table: MClassTable) {
 
     override fun unsafe(): UnsafeGameWriter = this
 
-    override fun dropTask(taskId: TaskId): TaskRemovedEvent {
-      checkOwner(tasks[taskId])
-      return tasks.removeTask(taskId)
-    }
+    override fun dropTask(taskId: TaskId) = tasks.removeTask(taskId)
 
     override fun sneak(changes: String, cause: Cause?) = sneak(preprocess(parse(changes)), cause)
 
@@ -368,10 +363,10 @@ public class Game internal constructor(private val table: MClassTable) {
     }
 
     override fun change(
-        count: Int,
-        gaining: Component?,
-        removing: Component?,
-        cause: Cause?,
+      count: Int,
+      gaining: Component?,
+      removing: Component?,
+      cause: Cause?,
     ): TaskResult {
       return game.atomic {
         fun tryIt() = changeWithoutFixingDependents(count, gaining, removing, cause)
@@ -390,10 +385,10 @@ public class Game internal constructor(private val table: MClassTable) {
     }
 
     override fun changeWithoutFixingDependents(
-        count: Int,
-        gaining: Component?,
-        removing: Component?,
-        cause: Cause?,
+      count: Int,
+      gaining: Component?,
+      removing: Component?,
+      cause: Cause?,
     ): ChangeEvent {
       require(gaining?.mtype?.root?.custom == null)
       // Can't remove if it would create orphans -- but this is caught by changeAndFixOrphans
@@ -401,12 +396,6 @@ public class Game internal constructor(private val table: MClassTable) {
 
       val change = game.writableComponents.update(count, gaining, removing)
       return game.writableEvents.addChangeEvent(change, player, cause)
-    }
-
-    private fun checkOwner(task: Task) {
-      if (player != task.owner && player != ENGINE) {
-        throw TaskException("$player can't access task owned by ${task.owner}")
-      }
     }
 
     private val xer = chain(game.transformers.standardPreprocess(), replaceOwnerWith(player))

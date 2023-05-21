@@ -10,7 +10,7 @@ ABSTRACT CLASS Anyone[ANY] {                      // aka Player
 
     // TODO Bogus: these need to use PlayCard
     NewTurn IF CorporationPhase: CardFront, 10 BuyCard?
-    NewTurn IF PreludePhase: CardFront OR (-PreludeCard THEN 15) // ELSE (#22)
+    NewTurn IF PreludePhase: CardFront OR (-PreludeCard, 15) // ELSE (#22)
 
     NewTurn IF (ActionPhase, Mandate): UseAllMandates OR Pass
     NewTurn IF (ActionPhase, MAX 0 Mandate): UseAction<StandardAction> OR Pass

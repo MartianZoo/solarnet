@@ -33,7 +33,7 @@ private class CanonBootstrapTest {
   }
 
   val regex =
-      Regex("(Hellas|Elysium|Player5|Camp|Venus|Area2|" +
+      Regex("(Hellas|Elysium|Player5|Camp|Venus|Area2|AllDraw|" +
           "AirScrap|Card247|CardC05|UseAction3|MandateV02F).*")
 
   @Test

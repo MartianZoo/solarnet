@@ -66,6 +66,8 @@ internal data class Instructor(
     if (gaining?.mtype?.root?.custom != null) error("custom")
 
     val changes = writer.change(ct.value, gaining, removing, cause).changes
+
+    // TODO bug: allows removing the Pets card which should not be possible
     changes.forEach {
       val (now, later) = effector.fire(it, reader).partition { it.next }
       for (task in now) {
@@ -110,6 +112,7 @@ internal data class Instructor(
         if (options.none()) throw NotNowException("all OR options are impossible at this time")
         Or.create(options.map(::doPrepare))
       }
+      // TODO this is wrong
       is Then -> Then.create(unprepared.instructions.map(::doPrepare).filter { it != NoOp })
       is Multi -> error("")
       is Transform -> error("should have been transformed already: $unprepared")

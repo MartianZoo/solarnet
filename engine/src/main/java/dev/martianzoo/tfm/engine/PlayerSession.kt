@@ -150,22 +150,26 @@ public class PlayerSession(
   }
 
   fun autoExecOneTask(safely: Boolean = true): Boolean /* should we continue */ {
-    if (myTasks().none()) return false
+    if (tasks.none()) return false
 
     // see if we can prepare a task (choose only from our own)
     val options: List<TaskId> =
         if (tasks.hasPreparedTask()) {
           listOf(tasks.preparedTask()!!) // we'll prepare it again
         } else {
-          myTasks().filter(writer::canPrepareTask)
+          tasks.map { it.id }.filter(writer::canPrepareTask)
         }
 
     when (options.size) {
-      0 -> writer.prepareTask(myTasks().first()).also { error("that should've failed") }
+      0 -> writer.prepareTask(tasks.first().id).also { error("that should've failed") }
       1 -> {
         val taskId = options.single()
         writer.prepareTask(taskId) ?: return true
-        if (tryPreparedTask()) return true // if this fails we should fail too
+        try {
+          if (tryPreparedTask()) return true // if this fails we should fail too
+        } catch (e: DeadEndException) {
+          throw e.cause ?: e
+        }
       }
       else -> if (safely) return false // impasse: we can't choose for you
     }
@@ -210,7 +214,7 @@ public class PlayerSession(
       autoExec()
       true
     } catch (e: NotNowException) {
-      throw DeadEndException(e) // has to be rolled back
+      throw DeadEndException(e) // has to be rolled back TODO would rather throw original
     } catch (e: RecoverableException) {
       writer.explainTask(taskId, e.message!!)
       false

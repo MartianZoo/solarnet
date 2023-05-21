@@ -2,7 +2,6 @@ package dev.martianzoo.tfm.repl
 
 import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.tfm.api.Exceptions.AbstractException
-import dev.martianzoo.tfm.api.Exceptions.DeadEndException
 import dev.martianzoo.tfm.api.Exceptions.DependencyException
 import dev.martianzoo.tfm.api.Exceptions.LimitsException
 import dev.martianzoo.tfm.api.Exceptions.NarrowingException
@@ -252,7 +251,7 @@ class SpecificCardsTest {
       playCard("DesignedMicroorganisms", 16)
 
       // Now I do have the 3 science tags, but not the energy production
-      assertThrows<DeadEndException>("2") { playCard("AiCentral", 19, steel = 1) }
+      assertThrows<LimitsException>("2") { playCard("AiCentral", 19, steel = 1) }
 
       // Give energy prod and try again - success
       writer.unsafe().sneak("PROD[Energy]")
@@ -284,7 +283,7 @@ class SpecificCardsTest {
       operation("10 ProjectCard, ForcedPrecipitation")
 
       // We can't CEO's onto an empty card
-      assertThrows<DeadEndException> { // why that kind?
+      assertThrows<DependencyException> {
         operation("CeosFavoriteProject", "Floater<ForcedPrecipitation>")
       }
 
@@ -541,9 +540,7 @@ class SpecificCardsTest {
       writer.unsafe().sneak("PROD[-1, 3 Heat]")
       assertProductions(-1 to "M", 3 to "H")
 
-      assertThrows<PetSyntaxException> {
-        playCard("Insulation", 2, "PROD[0 Megacredit FROM Heat]")
-      }
+      assertThrows<PetSyntaxException> { playCard("Insulation", 2, "PROD[0 Megacredit FROM Heat]") }
       assertThrows<PetSyntaxException> { playCard("Insulation", 2, "PROD[Ok]") }
       assertThrows<NarrowingException> { playCard("Insulation", 2, "Ok") }
       assertThrows<NarrowingException> {
@@ -564,4 +561,25 @@ class SpecificCardsTest {
     }
   }
 
+  @Test
+  fun sponsoredAcademies() {
+    val game = Game.create(GameSetup(Canon, "BRMV", 2))
+
+    game.session(PLAYER1).playCorp("Phobolog", 5)
+
+    with(game.session(PLAYER2)) {
+      playCorp("Teractor", 1)
+      phase("Action")
+      assertThrows<LimitsException>("nothing to discard") { playCard("SponsoredAcademies", 9) }
+
+      writer.unsafe().sneak("ProjectCard")
+
+      assertCounts(2 to "ProjectCard")
+      assertCounts(5 to "ProjectCard<P1>")
+
+      playCard("SponsoredAcademies", 9)
+      assertCounts(3 to "ProjectCard") // played 1, discarded 1, drew 3
+      assertCounts(6 to "ProjectCard<P1>")
+    }
+  }
 }

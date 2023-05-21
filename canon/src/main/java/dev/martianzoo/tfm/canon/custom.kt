@@ -68,6 +68,7 @@ private object CreateAdjacencies : CustomClass("CreateAdjacencies") {
                   cn("BackwardAdjacency").of(newTile, it),
               )
             }
+    // TODO should be just a Multi? Or let these return multiple?
     return Then.create((neighbors + adjacencies).map { gain(scaledEx(1, it)) })
   }
 

@@ -292,6 +292,7 @@
         "MicrobeTag<Anyone>: Disease<This>, -4.",
         // ideally: `ScienceTag: TR FROM Disease ELSE (PlayedEvent<Class<This>> FROM This, 3 TR)?`
         "ScienceTag IF Disease: TerraformRating FROM Disease<This>",
+        // TODO this shouldn't need to be a THEN
         "ScienceTag IF MAX 0 Disease: (PlayedEvent<Class<This>> FROM This THEN 3 TR) OR Ok"
       ],
       "components": [ "CLASS Disease : CardResource" ],
@@ -3513,9 +3514,12 @@
       "bundle": "V",
       "deck": "PROJECT",
       "tags": [ "ScienceTag", "EarthTag" ],
-      "immediate": "-ProjectCard THEN 2 ProjectCard",
+      "immediate": "-ProjectCard THEN (2 ProjectCard, AllDraw)",
       "effects": [ "End: VictoryPoint" ],
-      "components": [ "CLASS Card247Watcher : Owned { HAS =1 This; SponsoredAcademies<Anyone>: ProjectCard }" ],
+      "components": [
+        "CLASS AllDraw : Signal",
+        "CLASS Card247Watcher : Owned { HAS =1 This; AllDraw: ProjectCard }"
+      ],
       "cost": 9,
       "projectKind": "AUTOMATED",
     },
