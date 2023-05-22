@@ -33,16 +33,6 @@ interface TransformNode<P : PetNode> {
             is Metric -> Metric.Transform(node, kind)
             is Requirement -> Requirement.Transform(node, kind)
             is Trigger -> Trigger.Transform(node, kind)
-            is Action -> // TODO this is clunky
-            node.copy(
-                    cost = wrap(node.cost, kind),
-                    instruction = wrap(node.instruction, kind),
-                )
-            is Effect ->
-                node.copy(
-                    trigger = wrap(node.trigger, kind),
-                    instruction = wrap(node.instruction, kind),
-                )
             else -> error("no Transform supported for ${node.kind}")
           }
 

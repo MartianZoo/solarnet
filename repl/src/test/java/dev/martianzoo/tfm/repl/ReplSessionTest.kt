@@ -41,7 +41,6 @@ private class ReplSessionTest {
     repl.command("become Player2")
     repl.command("exec ProjectCard")
 
-    // TODO deprodify these for the screen
     assertThat(strip(repl.command("exec PROD[5, 4 Energy]")))
         .containsExactly(
             "+5 Production<Player2, Class<Megacredit>> FOR Player2 (manual)",

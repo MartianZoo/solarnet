@@ -135,8 +135,8 @@ public class Transformers(private val table: MClassTable) {
         val one = node.copy(scaledEx = scex.copy(scalar = ActualScalar(1)))
         ourMulti = Multi((1..sc.value).map { one })
 
-        @Suppress("UNCHECKED_CAST")
-        return ourMulti as P // TODO This is not actually correct/safe...
+        @Suppress("UNCHECKED_CAST") // not technically safe...
+        return ourMulti as P
       }
     }
   }
@@ -193,7 +193,7 @@ public class Transformers(private val table: MClassTable) {
                       }
                   Transmute(fixedFrom, node.count, intensity)
                 }
-                else -> error("") // TODO why
+                else -> error("what?")
               }
 
           @Suppress("UNCHECKED_CAST")

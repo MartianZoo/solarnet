@@ -80,12 +80,11 @@ public object Exceptions {
 
   // Subtypes (catchable)
 
-  public class PetSyntaxException(message: String) : PetException(message)
+  public class PetSyntaxException(message: String, cause: Throwable? = null) :
+    PetException(message, cause)
 
   public class ExistingDependentsException(val dependents: Collection<Type>) :
       NotNowException("Existing dependents: ${dependents.joinToString { "${it.expression}" }}")
-
-  // TODO should just be factories
 
   /** A string does not represent a valid expression. */
   public class ExpressionException(message: String, cause: Throwable? = null) :

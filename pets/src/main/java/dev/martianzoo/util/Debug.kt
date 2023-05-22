@@ -17,4 +17,3 @@ object Debug {
 }
 
 const val DEBUG = false
-// TODO log to a file?

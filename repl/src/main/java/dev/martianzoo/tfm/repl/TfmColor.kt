@@ -11,7 +11,7 @@ enum class TfmColor(val hexString: String) {
   ENERGY("b23bcb"),
   HEAT("ef4320"),
   LAND_AREA("f68e5a"),
-  VOLCANIC_AREA("f68e5a"), // TODO pick new color
+  VOLCANIC_AREA("f68e5a"),
   WATER_AREA("a4dcf9"),
   OCEAN_TILE("0e3f68"),
   GREENERY_TILE("6dd248"),
@@ -20,7 +20,7 @@ enum class TfmColor(val hexString: String) {
   TERRAFORM_RATING("ea8845"),
   NOCTIS_AREA("dddddd"),
   PRODUCTION("794b2c"),
-  NONE("cccccc"), // TODO ???
+  NONE("cccccc"),
   ;
 
   fun foreground(string: String): String {

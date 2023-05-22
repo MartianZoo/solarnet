@@ -193,7 +193,7 @@ private object CopyPrelude : CustomClass("CopyPrelude") {
     if (card.deck != PRELUDE) {
       throw NarrowingException("Card ${card.className} is not a prelude card")
     }
-    if (cardType.className == cn("DoubleDown")) { // TODO another way to get this?
+    if (cardType.className == cn("DoubleDown")) { // TODO another way to get this behavior?
       throw NarrowingException("Cute. No, you can't copy Double Down itself")
     }
     return card.immediate ?: NoOp

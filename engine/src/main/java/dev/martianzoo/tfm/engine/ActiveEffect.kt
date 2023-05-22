@@ -84,7 +84,7 @@ private constructor(
             when (trigger) {
               is ByTrigger -> PersonalSubscription(inner, trigger.by)
               is IfTrigger -> ConditionalSubscription(inner, trigger.condition)
-              is XTrigger -> UnscaledSubscription(inner) // TODO flexible?
+              is XTrigger -> UnscaledSubscription(inner)
               is Transform -> error("should have been transformed by now: $trigger")
             }
           }

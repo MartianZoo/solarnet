@@ -6,6 +6,7 @@ import dev.martianzoo.tfm.data.GameSetup
 import dev.martianzoo.tfm.pets.HasClassName
 import dev.martianzoo.tfm.pets.HasClassName.Companion.classNames
 import dev.martianzoo.tfm.pets.ast.ClassName
+import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.pets.ast.Expression
 
 public abstract class MClassTable {
@@ -21,7 +22,7 @@ public abstract class MClassTable {
       val loader = MClassLoader(setup.authority)
       loader.loadAll(toLoad.classNames())
 
-      if ("P" in setup.bundles) loader.load(ClassName.cn("PreludePhase")) // TODO eww
+      if ("P" in setup.bundles) loader.load(cn("PreludePhase")) // TODO eww
 
       return loader.freeze().also { cache[setup] = it }
     }

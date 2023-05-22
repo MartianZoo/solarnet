@@ -4,6 +4,7 @@ import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.tfm.api.SpecialClassNames.THIS
 import dev.martianzoo.tfm.engine.CanonClassesTest
 import dev.martianzoo.tfm.pets.Parsing.parse
+import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.pets.ast.Effect
 import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.pets.ast.Instruction
@@ -18,20 +19,17 @@ class TransformersTest {
     checkApplyDefaults("-OceanTile", "-OceanTile.")
     checkApplyDefaults(
         "CityTile", "CityTile<Owner, LandArea(HAS MAX 0 Neighbor<CityTile<Anyone>>)>!")
-    // "CT<Owner, LA(HAS MAX 0 NBR<CT<ANY>>)>!" TODO ?
     checkApplyDefaults("-CityTile", "-CityTile<Owner>!")
     checkApplyDefaults("CityTile<WaterArea>", "CityTile<Owner, WaterArea>!")
     checkApplyDefaults("CityTile<Owner, WaterArea>", "CityTile<Owner, WaterArea>!")
     checkApplyDefaults("CityTile<Anyone, WaterArea>", "CityTile<Anyone, WaterArea>!")
     checkApplyDefaults("CityTile<Player3, WaterArea>", "CityTile<Player3, WaterArea>!")
 
-    // TODO restore this?
-
-    // checkApplyDefaults("CityTile<This>", "CityTile<Owner, This>!", cn("Area").expr)
-    // checkApplyDefaults(
-    //     "CityTile<This>",
-    //     "CityTile<This, LandArea(HAS MAX 0 Neighbor<CityTile<Anyone>>)>!",
-    //     cn("Owner").expr)
+     checkApplyDefaults("CityTile<This>", "CityTile<Owner, This>!", cn("Area").expression)
+     checkApplyDefaults(
+         "CityTile<This>",
+         "CityTile<This, LandArea(HAS MAX 0 Neighbor<CityTile<Anyone>>)>!",
+         cn("Owner").expression)
 
     checkApplyDefaults("OwnedTile", "OwnedTile<Owner>!")
     checkApplyDefaults("Neighbor<OwnedTile>", "Neighbor<OwnedTile<Owner>>!")

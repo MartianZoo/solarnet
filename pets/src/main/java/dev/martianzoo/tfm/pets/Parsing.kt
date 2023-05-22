@@ -11,6 +11,7 @@ import com.github.h0tk3y.betterParse.parser.Parsed
 import com.github.h0tk3y.betterParse.parser.Parser
 import com.github.h0tk3y.betterParse.parser.UnexpectedEof
 import com.github.h0tk3y.betterParse.parser.parseToEnd
+import dev.martianzoo.tfm.api.Exceptions.PetSyntaxException
 import dev.martianzoo.tfm.data.ClassDeclaration
 import dev.martianzoo.tfm.pets.ClassParsing.Declarations
 import dev.martianzoo.tfm.pets.PetTokenizer.TokenCache
@@ -84,8 +85,7 @@ public object Parsing {
               .filterNot { it.type.ignored }
               .joinToString(" ") { it.type.name?.replace("\n", "\\n") ?: "NULL" }
 
-      // TODO probably make this a PetSyntaxException
-      throw IllegalArgumentException(
+      throw PetSyntaxException(
           """
             Expecting: $expectedTypeDesc
             Token stream: $tokenDesc

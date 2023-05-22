@@ -39,7 +39,6 @@ public class PlayerSession(
   public val tasks by game::tasks
   public val events by game::events
 
-  // TODO get rid
   public fun asPlayer(player: Player) = game.session(player)
 
   // in case a shortname is used
@@ -52,7 +51,7 @@ public class PlayerSession(
 
   fun count(metric: String): Int = count(parse(metric))
   fun countComponent(component: Component) = reader.countComponent(component.mtype)
-  fun list(expression: Expression): Multiset<Expression> { // TODO why not (M)Type?
+  fun list(expression: Expression): Multiset<Expression> {
     val typeToList: MType = reader.resolve(preprocess(expression))
     val allComponents: Multiset<Component> =
         reader.getComponents(reader.resolve(preprocess(expression))).map { it.toComponent() }
@@ -218,7 +217,7 @@ public class PlayerSession(
       autoExec()
       true
     } catch (e: NotNowException) {
-      throw DeadEndException(e) // has to be rolled back TODO would rather throw original
+      throw DeadEndException(e)
     } catch (e: RecoverableException) {
       writer.explainTask(taskId, e.message!!)
       false

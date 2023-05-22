@@ -2,6 +2,7 @@ package dev.martianzoo.tfm.engine
 
 import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.tfm.api.Exceptions.LimitsException
+import dev.martianzoo.tfm.api.Exceptions.NotNowException
 import dev.martianzoo.tfm.api.Exceptions.RequirementException
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.data.Player.Companion.PLAYER1
@@ -73,8 +74,6 @@ private class PrepareTest {
     checkPrepare("Plant / 21 TerraformRating", "Ok")
     checkPrepare("-Plant. / TR", "-Plant<Player1>!")
     checkPrepare("-Plant? / TR", "-Plant<Player1>?")
-    // checkPrepare("Plant / 6 TR / 7 TR", "6 Plant<Player1>!") // TODO these should work
-    // checkPrepare("(10 TR: Plant) / TerraformRating", "20 Plant<Player1>!")
   }
 
   @Test
@@ -114,7 +113,7 @@ private class PrepareTest {
         "Steel / 2 ProjectCard OR -Titanium? OR Plant: 5 Steel OR Ok OR 5 Steel",
         "5 Steel<Player1>! OR Ok",
     )
-    assertThrows<Exception>("1") { // TODO what exception type is appropriate?
+    assertThrows<NotNowException>("1") {
       preprocessAndPrepare(
           "15 OxygenStep! OR -2 Plant OR Plant FROM Heat OR 2 Heat FROM Plant " +
               "OR 2 Plant<Player2 FROM Player1> OR 30 TR: Plant",
@@ -124,7 +123,6 @@ private class PrepareTest {
 
   @Test
   fun testPrepareMulti() {
-    // TODO exception types
     assertThrows<IllegalStateException>("1") { preprocessAndPrepare("Plant, Heat") }
     assertThrows<IllegalStateException>("2") { preprocessAndPrepare("(TR: Plant), Heat") }
     assertThrows<IllegalStateException>("3") { preprocessAndPrepare("TR: (Plant, Heat)") }

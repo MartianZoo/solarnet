@@ -55,7 +55,6 @@ sealed class Requirement : PetElement() {
     abstract val range: IntRange
   }
 
-  // TODO should Min contain a Metric?? Not Max or Exact.
   data class Min(override val scaledEx: ScaledExpression) : Counting(scaledEx) {
     init {
       Scalar.checkNonzero(scaledEx.scalar)

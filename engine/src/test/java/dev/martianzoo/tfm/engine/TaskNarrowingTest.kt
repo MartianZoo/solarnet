@@ -66,7 +66,7 @@ class TaskNarrowingTest {
 
     val result = writer.narrowTask(A, parse("Plant!"))
 
-    assertThat(result).isEqualTo(NO_CHANGE) // TODO?
+    assertThat(result).isEqualTo(NO_CHANGE)
     assertThat(history()).hasSize(2)
     assertThat(tasksAsText()).containsExactly("Plant<Player1>!")
   }
@@ -98,7 +98,7 @@ class TaskNarrowingTest {
 
     val result = writer.narrowTask(A, parse("5 Plant"))
 
-    assertThat(result).isEqualTo(NO_CHANGE) // TODO?
+    assertThat(result).isEqualTo(NO_CHANGE)
     assertThat(history()).hasSize(2)
     assertThat(tasksAsText()).containsExactly("5 Plant<Player1>!")
   }
@@ -123,7 +123,7 @@ class TaskNarrowingTest {
     initiate("2 Plant?")
 
     val result = writer.narrowTask(A, NoOp)
-    assertThat(result).isEqualTo(NO_CHANGE) // TODO
+    assertThat(result).isEqualTo(NO_CHANGE)
 
     assertHistoryTypes(TaskAddedEvent::class, TaskRemovedEvent::class)
     assertThat(tasks.ids()).isEmpty()

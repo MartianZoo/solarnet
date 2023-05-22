@@ -88,7 +88,7 @@ internal data class Instructor(
    * * Modifies a `?` or `.` change based on limits (upgrading `.` to `!`)
    * * Validates and removes "gates"
    * * Evaluates a metric in a [Per] instruction, multiplying the inner instruction appropriately
-   * * Prepares each option of an [Or] or [Then] (TODO what if gets separated?)
+   * * Prepares each option of an [Or]
    * * If gaining a *concrete* custom type, rewrites to the result of [CustomClass.translate] *
    */
   fun prepare(unprepared: Instruction) = doPrepare(unprepared)

@@ -131,7 +131,7 @@ ABSTRACT CLASS Phase : System {
 
   CLASS SetupPhase
   CLASS CorporationPhase
-  CLASS PreludePhase                                   // TODO make it part of `P` bundle
+  CLASS PreludePhase
   CLASS ActionPhase
   CLASS ProductionPhase
   CLASS ResearchPhase { This:: Generation }

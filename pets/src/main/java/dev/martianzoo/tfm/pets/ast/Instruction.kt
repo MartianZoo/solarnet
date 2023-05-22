@@ -313,7 +313,7 @@ public sealed class Instruction : PetElement() {
       // it's okay for the final instruction to have a Multi in it, but not the previous ones
       val allButLast = instructions.subList(0, instructions.size - 1)
       val problem = allButLast.any { it.descendantsOfType<Multi>().any() }
-      if (problem) throw PetSyntaxException("Bad THEN (TODO)") // could replace them with THENs....
+      if (problem) throw PetSyntaxException("Bad THEN")
     }
 
     override fun copy(instructions: Iterable<Instruction>) =
@@ -347,7 +347,7 @@ public sealed class Instruction : PetElement() {
       }
     }
 
-    fun keepLinked() = descendantsOfType<XScalar>().any() // TODO what else?
+    fun keepLinked() = descendantsOfType<XScalar>().any()
 
     override fun connector() = " THEN "
 

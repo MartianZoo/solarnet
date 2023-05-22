@@ -33,7 +33,7 @@ private class TransformingTest {
     checkActionToEffect(
         "Microbe<Anyone> -> Microbe<This>!",
         1,
-        "UseAction1<This>: Microbe<This> FROM Microbe<Anyone>!", // TODO simplify
+        "UseAction1<This>: Microbe<This> FROM Microbe<Anyone>!",
     )
 
     // t's not its job to recognize nonsense

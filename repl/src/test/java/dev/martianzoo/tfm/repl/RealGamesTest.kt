@@ -317,6 +317,5 @@ class RealGamesTest {
     }
   }
 
-  // TODO get rid
   fun PlayerSession.counts(s: String) = s.split(",").map(::count)
 }

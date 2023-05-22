@@ -11,7 +11,6 @@ import dev.martianzoo.tfm.data.GameEvent.ChangeEvent
 import dev.martianzoo.tfm.data.GameEvent.ChangeEvent.Cause
 import dev.martianzoo.tfm.data.GameEvent.TaskEvent
 import dev.martianzoo.tfm.data.Player
-import dev.martianzoo.tfm.data.Player.Companion.ENGINE
 import dev.martianzoo.tfm.data.Task
 import dev.martianzoo.tfm.data.Task.TaskId
 import dev.martianzoo.tfm.data.TaskResult
@@ -195,8 +194,6 @@ public class Game internal constructor(private val table: MClassTable) {
   /*
    * Implementation of GameWriter - would be nice to have in a separate file but we'd have to
    * make some things in Game non-private.
-   *
-   * TODO: is it cool that this seems to mix internally-focused and externally-focused APIs?
    */
   public class GameWriterImpl(val game: Game, val player: Player) : GameWriter(), UnsafeGameWriter {
 
@@ -213,7 +210,7 @@ public class Game internal constructor(private val table: MClassTable) {
 
     override fun narrowTask(taskId: TaskId, narrowed: Instruction): TaskResult {
       val task = tasks[taskId]
-      if (player != task.owner && player != ENGINE) { // TODO remove ENGINE?
+      if (player != task.owner) {
         throw TaskException("$player can't narrow a task owned by ${task.owner}")
       }
 
@@ -261,9 +258,7 @@ public class Game internal constructor(private val table: MClassTable) {
           val one = split.instructions[0]
           tasks.editTask(replacement.copy(instructionIn = one, whyPending = reason))
         } else {
-          // All the nows and thens would get enqueued side by side But this is why we don't let a
-          // task whose instruction contains a Multi at any depth have a THEN.
-          tasks.addTasks(split, replacement.owner, replacement.cause) // TODO
+          tasks.addTasks(split, replacement.owner, replacement.cause)
           handleTask(replacement.id)
         }
       }
@@ -345,7 +340,6 @@ public class Game internal constructor(private val table: MClassTable) {
         try {
           tryIt()
         } catch (e: ExistingDependentsException) {
-          // TODO better way to remove dependents?
           e.dependents.forEach {
             val dependent = it.toComponent(game.reader)
             val depCount = game.reader.countComponent(dependent)

@@ -85,7 +85,7 @@ public class ReplSession(var setup: GameSetup, private val jline: JlineRepl? = n
   private class UsageException(message: String? = null) : Exception(message ?: "")
 
   internal abstract inner class ReplCommand(val name: String) {
-    open val isReadOnly: Boolean = false // TODO I think I intended to use this for something
+    open val isReadOnly: Boolean = false // not currently used
     abstract val usage: String
     abstract val help: String
     open fun noArgs(): List<String> = throw UsageException()
@@ -609,10 +609,11 @@ public class ReplSession(var setup: GameSetup, private val jline: JlineRepl? = n
   internal fun command(command: ReplCommand, args: String? = null): List<String> {
     return try {
       if (args == null) command.noArgs() else command.withArgs(args.trim())
-    } catch (e: Exception) { // TODO what really?
-      if (e is RuntimeException) throw e
+    } catch (e: RuntimeException) {
+      throw e
+    } catch (e: Exception) {
       val usage = if (e is UsageException) "Usage: ${command.usage}" else ""
-      listOf(e.message ?: "", usage).filter { it.isNotEmpty() }
+      listOf(e.message ?: "", usage).filter { it.any() }
     }
   }
 

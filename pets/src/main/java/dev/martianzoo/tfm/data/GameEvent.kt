@@ -4,7 +4,7 @@ import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.util.pre
 import dev.martianzoo.util.wrap
 
-sealed class GameEvent { // TODO move to data? Organize?
+sealed class GameEvent {
   abstract val ordinal: Int
   abstract val owner: Player
 

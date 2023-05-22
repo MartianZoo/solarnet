@@ -40,7 +40,7 @@ internal constructor(
 
   override val abstract = root.abstract || dependencies.abstract || refinement != null
 
-  override fun isSubtypeOf(that: MType) = narrows(that) // TODO Hmmm
+  override fun isSubtypeOf(that: MType) = narrows(that)
 
   // Nearest common subtype
   override fun glb(that: MType): MType? {

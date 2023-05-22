@@ -37,7 +37,7 @@
       "bundle": "B",
       "deck": "CORPORATION",
       "tags": [ "BuildingTag" ],
-      "immediate": "40, MandateB08", // TODO solo
+      "immediate": "40, MandateB08",
       "effects": [
         "CityTile<Anyone, MarsArea>: PROD[1]",
         "CityTile: 3",
@@ -895,7 +895,6 @@
       "bundle": "B",
       "deck": "PROJECT",
       "tags": [ "SpaceTag" ],
-//      "effects": [ "EventCard(HAS SpaceTag): 3, 3 Heat" ], TODO
       "effects": [ "SpaceTag<EventCard>: 3, 3 Heat" ],
       "cost": 7,
       "projectKind": "ACTIVE"
