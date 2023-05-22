@@ -22,7 +22,7 @@ class ExcentricSponsorTest {
       turn(
           "ExcentricSponsor",
           "PlayCard<Class<ProjectCard>, Class<NitrogenRichAsteroid>>",
-          "6 Pay<Class<M>> FROM M",
+          "6 Pay FROM M",
           "Ok", // the damn titanium
       )
       assertCounts(0 to "Owed", 5 to "M", 1 to "ExcentricSponsor", 1 to "PlayedEvent")

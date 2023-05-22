@@ -28,7 +28,7 @@
       "deck": "CORPORATION",
       "tags": [ "SpaceTag" ],
       "immediate": "23, 10 Titanium",
-      "effects": [ "Pay<Class<Titanium>>:: Pay<Class<Megacredit>>" ]
+      "effects": [ "Pay<Class<Titanium>>:: -Owed" ]
     },
 
     // Tharsis Republic
@@ -2464,8 +2464,8 @@
       "deck": "PROJECT",
       "tags": [ "ScienceTag" ],
       "effects": [
-        "Pay<Class<Steel>>:: Pay<Class<Megacredit>>",
-        "Pay<Class<Titanium>>:: Pay<Class<Megacredit>>"
+        "Pay<Class<Steel>>:: -Owed",
+        "Pay<Class<Titanium>>:: -Owed"
       ],
       "cost": 9,
       "projectKind": "ACTIVE"
@@ -4176,7 +4176,7 @@
       "bundle": "X",
       "deck": "PROJECT",
       "tags": [ "SpaceTag" ],
-      "effects": [ "Pay<Class<Titanium>>:: Pay<Class<Megacredit>>" ],
+      "effects": [ "Pay<Class<Titanium>>:: -Owed" ],
       "cost": 3,
       "projectKind": "ACTIVE"
     },
@@ -4201,7 +4201,7 @@
       "deck": "PROJECT",
       "tags": [ "BuildingTag" ],
       "effects": [
-        "Pay<Class<Steel>>:: Pay<Class<Megacredit>>",
+        "Pay<Class<Steel>>:: -Owed",
         "End: VictoryPoint"
       ],
       "cost": 10,

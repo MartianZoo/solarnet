@@ -35,8 +35,8 @@ ABSTRACT CLASS System {
     PlayTag<Class<BuildingTag>>:: Accept<Class<Steel>>
     PlayTag<Class<SpaceTag>>:: Accept<Class<Titanium>>
 
-    Pay<Class<Steel>>:: 2 Pay<Class<Megacredit>>
-    Pay<Class<Titanium>>:: 3 Pay<Class<Megacredit>>    // should be innocuous for TradeAction...
+    Pay<Class<Steel>>:: -2 Owed
+    Pay<Class<Titanium>>:: -3 Owed                     // should be innocuous for TradeAction...
   }
 }
 
