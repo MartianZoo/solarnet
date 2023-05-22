@@ -32,7 +32,7 @@
   "projects": [
 
     // Power Plant
-    { "id": "SP11", "bundle": "B", "action": "11 -> PROD[Heat]" },
+    { "id": "SP11", "bundle": "B", "action": "11 -> PROD[Energy]" },
 
     // Asteroid
     { "id": "SP14", "bundle": "B", "action": "14 -> TemperatureStep" },

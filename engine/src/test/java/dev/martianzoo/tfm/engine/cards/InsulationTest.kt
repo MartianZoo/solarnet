@@ -9,7 +9,7 @@ import dev.martianzoo.tfm.engine.Engine
 import dev.martianzoo.tfm.engine.PlayerSession.Companion.session
 import dev.martianzoo.tfm.engine.TerraformingMars.playCard
 import dev.martianzoo.tfm.engine.TerraformingMars.playCorp
-import dev.martianzoo.tfm.engine.TestHelpers.assertProductions
+import dev.martianzoo.tfm.engine.TestHelpers.assertProds
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 
@@ -22,7 +22,7 @@ class InsulationTest {
       playCorp("Teractor", 5)
       phase("Action")
       writer.unsafe().sneak("PROD[-1, 3 Heat]")
-      assertProductions(-1 to "M", 3 to "H")
+      assertProds(-1 to "M", 3 to "H")
 
       assertThrows<PetSyntaxException> { playCard("Insulation", 2, "PROD[0 Megacredit FROM Heat]") }
       assertThrows<PetSyntaxException> { playCard("Insulation", 2, "PROD[Ok]") }
@@ -33,13 +33,13 @@ class InsulationTest {
 
       playCard("Insulation", 2) {
         task("PROD[2 Megacredit FROM Heat]")
-        assertProductions(1 to "M", 1 to "H")
+        assertProds(1 to "M", 1 to "H")
         rollItBack()
       }
 
       playCard("Insulation", 2) {
         task("PROD[Megacredit FROM Heat]")
-        assertProductions(0 to "M", 2 to "H")
+        assertProds(0 to "M", 2 to "H")
         rollItBack()
       }
     }

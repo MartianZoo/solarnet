@@ -10,7 +10,7 @@ object TestHelpers {
           .containsExactlyElementsIn(pairs.map { it.first })
           .inOrder()
 
-  fun PlayerSession.assertProductions(vararg pairs: Pair<Int, String>) =
+  fun PlayerSession.assertProds(vararg pairs: Pair<Int, String>) =
       assertThat(pairs.map { production(cn(it.second)) })
           .containsExactlyElementsIn(pairs.map { it.first })
           .inOrder()
