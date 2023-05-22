@@ -95,27 +95,27 @@ public class ReplSession(var setup: GameSetup, private val jline: JlineRepl? = n
 
   internal val commands =
       listOf(
-          AsCommand(),
-          AutoCommand(),
-          BecomeCommand(),
-          BoardCommand(),
-          CountCommand(),
-          DescCommand(),
-          ExecCommand(),
-          HasCommand(),
-          HelpCommand(),
-          HistoryCommand(),
-          ListCommand(),
-          LogCommand(),
-          MapCommand(),
-          ModeCommand(),
-          NewGameCommand(),
-          RollbackCommand(),
-          ScriptCommand(),
-          TaskCommand(),
-          TasksCommand(),
-          TurnCommand(),
-      )
+              AsCommand(),
+              AutoCommand(),
+              BecomeCommand(),
+              BoardCommand(),
+              CountCommand(),
+              DescCommand(),
+              ExecCommand(),
+              HasCommand(),
+              HelpCommand(),
+              HistoryCommand(),
+              ListCommand(),
+              LogCommand(),
+              MapCommand(),
+              ModeCommand(),
+              NewGameCommand(),
+              RollbackCommand(),
+              ScriptCommand(),
+              TaskCommand(),
+              TasksCommand(),
+              TurnCommand(),
+          )
           .associateBy { it.name }
 
   internal inner class HelpCommand : ReplCommand("help") {
@@ -313,8 +313,7 @@ public class ReplSession(var setup: GameSetup, private val jline: JlineRepl? = n
         mode = thing
       } catch (e: Exception) {
         throw UsageException(
-            "Valid modes are: ${ReplMode.values().joinToString { it.toString().lowercase() }}"
-        )
+            "Valid modes are: ${ReplMode.values().joinToString { it.toString().lowercase() }}")
       }
       return noArgs()
     }
@@ -363,17 +362,15 @@ public class ReplSession(var setup: GameSetup, private val jline: JlineRepl? = n
             RED,
             YELLOW, // TODO sneaky change??
             GREEN -> execute(instr)
-
             BLUE ->
-              when {
-                session.player != ENGINE ->
-                  throw UsageException("In blue mode you must be Engine to do this")
-
-                instr.isGainOf(cn("NewTurn")) -> execute(instr)
-                instr.isGainOf(cn("Phase")) -> execute(instr)
-                else ->
-                  throw UsageException("Eep, can't do that in ${mode.name.lowercase()} mode")
-              }
+                when {
+                  session.player != ENGINE ->
+                      throw UsageException("In blue mode you must be Engine to do this")
+                  instr.isGainOf(cn("NewTurn")) -> execute(instr)
+                  instr.isGainOf(cn("Phase")) -> execute(instr)
+                  else ->
+                      throw UsageException("Eep, can't do that in ${mode.name.lowercase()} mode")
+                }
           }
 
       return describeExecutionResults(changes)
@@ -385,7 +382,6 @@ public class ReplSession(var setup: GameSetup, private val jline: JlineRepl? = n
             val t: MType = session.reader.resolve(gaining)
             t.isSubtypeOf(session.reader.resolve(superclass.expression))
           }
-
           is Instruction.Transform -> instruction.isGainOf(superclass)
           else -> false
         }
@@ -441,7 +437,6 @@ public class ReplSession(var setup: GameSetup, private val jline: JlineRepl? = n
       if (rest == "drop") {
         session.writer.unsafe().dropTask(id)
         return listOf("Task $id deleted")
-
       } else if (rest == "prepare") {
         session.writer.prepareTask(id)
         return session.tasks.toStrings()
@@ -449,8 +444,10 @@ public class ReplSession(var setup: GameSetup, private val jline: JlineRepl? = n
 
       val result: TaskResult =
           when (mode) {
-            RED, YELLOW -> throw UsageException("Can't execute tasks in this mode")
-            GREEN, BLUE -> {
+            RED,
+            YELLOW -> throw UsageException("Can't execute tasks in this mode")
+            GREEN,
+            BLUE -> {
               game.atomic {
                 session.tryTask(id, rest)
                 if (auto) session.autoExec()
@@ -571,8 +568,8 @@ public class ReplSession(var setup: GameSetup, private val jline: JlineRepl? = n
       //   val randomBaseType = session.table.allClasses.random().baseType
       //   val randomType = randomBaseType.concreteSubtypesSameClass().toList().random()
       //   randomType.expression
-          // } else {
-          parse(args)
+      // } else {
+      parse(args)
       // }
       return listOf(MTypeToText.describe(expression, session))
     }

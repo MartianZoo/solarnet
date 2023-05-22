@@ -39,9 +39,9 @@ internal class WritableTaskQueue(
   internal fun addTasks(task: Task) = addTasks(split(task.instruction), task.owner, task.cause)
 
   internal fun addTasks(
-    instruction: InstructionGroup,
-    owner: Player,
-    cause: Cause?,
+      instruction: InstructionGroup,
+      owner: Player,
+      cause: Cause?,
   ): List<TaskAddedEvent> {
     val newTasks = Task.newTasks(nextAvailableId(), owner, instruction, cause)
     return newTasks.map {

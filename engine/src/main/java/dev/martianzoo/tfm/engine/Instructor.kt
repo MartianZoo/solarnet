@@ -38,10 +38,10 @@ import kotlin.math.min
 
 /** Just a cute name for "instruction handler". It prepares and executes instructions. */
 internal data class Instructor(
-  private val writer: GameWriterImpl, // makes sense as inner class but file would be so long
-  private val reader: SnReader,
-  private val effector: Effector,
-  private val limiter: (Component?, Component?) -> Int,
+    private val writer: GameWriterImpl, // makes sense as inner class but file would be so long
+    private val reader: SnReader,
+    private val effector: Effector,
+    private val limiter: (Component?, Component?) -> Int,
 ) {
 
   fun execute(instruction: Instruction, cause: Cause?): List<Task> =
@@ -196,7 +196,6 @@ internal data class Instructor(
 
       // g = g.root.withAllDependencies(DependencySet.of(lubs.map { it.second!! }))
       g = g.allConcreteSubtypes().singleOrNull() ?: g
-
     }
     if (r?.abstract == true) {
       // Infer a type if there IS only one kind of component that has it

@@ -74,12 +74,12 @@ internal constructor(
   public val abstract = kind == ABSTRACT
 
   public data class DefaultsDeclaration(
-    val universalSpecs: List<Expression> = listOf(),
-    val gainOnlySpecs: List<Expression> = listOf(),
-    val removeOnlySpecs: List<Expression> = listOf(),
-    val gainIntensity: Intensity? = null,
-    val removeIntensity: Intensity? = null,
-    val forClass: ClassName? = null,
+      val universalSpecs: List<Expression> = listOf(),
+      val gainOnlySpecs: List<Expression> = listOf(),
+      val removeOnlySpecs: List<Expression> = listOf(),
+      val gainIntensity: Intensity? = null,
+      val removeIntensity: Intensity? = null,
+      val forClass: ClassName? = null,
   ) {
     companion object {
       fun merge(defs: Collection<DefaultsDeclaration>): DefaultsDeclaration {

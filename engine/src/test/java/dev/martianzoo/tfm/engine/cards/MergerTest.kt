@@ -20,9 +20,7 @@ class MergerTest {
 
       phase("Prelude")
       turn("UnmiContractor")
-      turn("Merger") {
-        matchTask("PlayCard<Class<CorporationCard>, Class<Celestic>>")
-      }
+      turn("Merger") { matchTask("PlayCard<Class<CorporationCard>, Class<Celestic>>") }
 
       phase("Action")
       assertCounts(2 to "Mandate")

@@ -37,8 +37,8 @@ import dev.martianzoo.tfm.pets.ast.Instruction.Multi
 public abstract class GameWriter {
   /**
    * Voluntarily replaces a task's instruction with a strictly more specific revision, as the owner
-   * of an abstract task is allowed to do. Preserves [Task.next], and if `true`, re-prepares the
-   * new instruction if necessary. Executes nothing.
+   * of an abstract task is allowed to do. Preserves [Task.next], and if `true`, re-prepares the new
+   * instruction if necessary. Executes nothing.
    *
    * @param [narrowed] the new instruction; may be abstract; if identical to the current instruction
    *   this method does nothing
@@ -56,16 +56,15 @@ public abstract class GameWriter {
    * If the prepared task is concrete, but would fail to execute, that exception is thrown now
    * instead of preparing the task.
    *
-   * If the return task is abstract, it will require a further call to [narrowTask], which
-   * will re-prepare the task. If no possible narrowing could succeed, this method might or might
-   * not recognize that fact and throw instead.
+   * If the return task is abstract, it will require a further call to [narrowTask], which will
+   * re-prepare the task. If no possible narrowing could succeed, this method might or might not
+   * recognize that fact and throw instead.
    *
    * @throws [TaskException] if no task with id [taskId] exists, or if any other task is already
-   *     prepared
+   *   prepared
    * @throws [AbstractException] if the task instruction contains a [Multi] at any level; it must
-   *     first be narrowed until it splits into tasks that can be prepared individually
-   * @throws [NotNowException] if the prepared task would throw this exception on
-   *     execution
+   *   first be narrowed until it splits into tasks that can be prepared individually
+   * @throws [NotNowException] if the prepared task would throw this exception on execution
    */
   abstract fun prepareTask(taskId: TaskId): TaskId?
 

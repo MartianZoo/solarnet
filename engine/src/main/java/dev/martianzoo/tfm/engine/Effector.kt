@@ -28,5 +28,4 @@ internal class Effector {
       registry.entries.mapNotNull { (fx, ct) ->
         fx.onChangeToOther(triggerEvent, reader)?.times(ct)
       }
-
 }

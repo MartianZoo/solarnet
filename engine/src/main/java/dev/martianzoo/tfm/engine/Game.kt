@@ -330,10 +330,10 @@ public class Game internal constructor(private val table: MClassTable) {
     }
 
     override fun change(
-      count: Int,
-      gaining: Component?,
-      removing: Component?,
-      cause: Cause?,
+        count: Int,
+        gaining: Component?,
+        removing: Component?,
+        cause: Cause?,
     ): TaskResult {
       return game.atomic {
         fun tryIt() = changeWithoutFixingDependents(count, gaining, removing, cause)
@@ -351,10 +351,10 @@ public class Game internal constructor(private val table: MClassTable) {
     }
 
     override fun changeWithoutFixingDependents(
-      count: Int,
-      gaining: Component?,
-      removing: Component?,
-      cause: Cause?,
+        count: Int,
+        gaining: Component?,
+        removing: Component?,
+        cause: Cause?,
     ): ChangeEvent {
       require(gaining?.mtype?.root?.custom == null)
       // Can't remove if it would create orphans -- but this is caught by changeAndFixOrphans

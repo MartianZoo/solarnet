@@ -101,7 +101,7 @@ private class MTypeTest {
     // checkProperSubtypes("Complex1<Bar2>(HAS Foo1)", "Complex1<Bar1>(HAS Foo1)")
     // checkProperSubtypes("Complex2<Bar1>(HAS Foo1)", "Complex1<Bar1>(HAS Foo1)")
     // checkProperSubtypes("Complex2<Bar1(HAS Qux2)>(HAS Foo1)", "Complex1<Bar1>(HAS Foo1)")
-    // checkProperSubtypes("Complex2<Bar1(HAS Qux2)>(HAS Foo1)", "Complex1<Bar1(HAS Qux2)>(HAS Foo1)")
+    // check...("Complex2<Bar1(HAS Qux2)>(HAS Foo1)", "Complex1<Bar1(HAS Qux2)>(HAS Foo1)")
   }
 
   fun type(s: String) = table.resolve(te(s))

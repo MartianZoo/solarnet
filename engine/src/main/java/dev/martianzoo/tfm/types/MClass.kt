@@ -47,18 +47,16 @@ import kotlin.math.min
 public data class MClass
 internal constructor(
 
-  /** The class declaration this class was loaded from. */
-  internal val declaration: ClassDeclaration,
+    /** The class declaration this class was loaded from. */
+    internal val declaration: ClassDeclaration,
 
-  /** The class loader that loaded this class. */
-  internal val loader: MClassLoader,
+    /** The class loader that loaded this class. */
+    internal val loader: MClassLoader,
 
-  /** This class's superclasses that are exactly one step away; empty only for `Component`. */
-  public val directSuperclasses: List<MClass> = superclasses(declaration, loader),
-
-  public val custom: CustomClass? = null,
-
-  ) : HasClassName, Hierarchical<MClass> {
+    /** This class's superclasses that are exactly one step away; empty only for `Component`. */
+    public val directSuperclasses: List<MClass> = superclasses(declaration, loader),
+    public val custom: CustomClass? = null,
+) : HasClassName, Hierarchical<MClass> {
 
   public val table: MClassTable by ::loader
 

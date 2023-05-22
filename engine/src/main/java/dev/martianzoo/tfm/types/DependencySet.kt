@@ -139,7 +139,8 @@ internal class DependencySet private constructor(private val deps: Set<Dependenc
     return try {
       mtype.concreteSubclasses(getClassForClassType()).map { it.classType }
     } catch (ignore: Exception) {
-      val axes: List<Sequence<TypeDependency>> = typeDependencies.map { it.allConcreteSpecializations() }
+      val axes: List<Sequence<TypeDependency>> =
+          typeDependencies.map { it.allConcreteSpecializations() }
       axes.cartesianProduct().map { mtype.root.withAllDependencies(of(it)) }
     }
   }

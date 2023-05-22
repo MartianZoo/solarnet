@@ -69,12 +69,12 @@ object MTypeToText {
           ""
         } else {
           val c = mtype.toComponent()
-//          val custom = if (mtype.root.custom != null) {
-//            val instructor = Instructor(session.writer as GameWriterImpl)
-//            instructor.prepareCustom(mtype).toString()
-//          } else {
-//            "no"
-//          }
+          // val custom = if (mtype.root.custom != null) {
+          //   val instructor = Instructor(session.writer as GameWriterImpl)
+          //   instructor.prepareCustom(mtype).toString()
+          // } else {
+          //   "no"
+          // }
           """
 
 

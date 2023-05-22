@@ -33,7 +33,9 @@ public data class Component private constructor(internal val mtype: MType) :
    * `Class<Tile>` has an empty dependency list, despite its appearance. The list order corresponds
    * to [MClass.dependencies].
    */
-  public val dependencyComponents by lazy { mtype.typeDependencies.map { it.boundType.toComponent() } }
+  public val dependencyComponents by lazy {
+    mtype.typeDependencies.map { it.boundType.toComponent() }
+  }
 
   // TODO get rid of
   public val typeEffectsGetRidOf: List<Effect> = mtype.effects

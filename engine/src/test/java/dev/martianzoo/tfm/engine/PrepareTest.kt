@@ -26,10 +26,10 @@ private class PrepareTest {
 
   fun preprocess(instr: Instruction): Instruction {
     return PetTransformer.chain(
-        game.transformers.deprodify(),
-        game.transformers.insertDefaults(),
-        replaceOwnerWith(PLAYER1),
-    )
+            game.transformers.deprodify(),
+            game.transformers.insertDefaults(),
+            replaceOwnerWith(PLAYER1),
+        )
         .transform(instr)
   }
 

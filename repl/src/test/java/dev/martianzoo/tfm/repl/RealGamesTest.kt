@@ -234,12 +234,7 @@ class RealGamesTest {
       playCard("EarthCatapult", 23)
       playCard("OlympusConference", steel = 4)
 
-      playCard(
-          "DevelopmentCenter",
-          1,
-          steel = 4,
-          "ProjectCard FROM Science<OlympusConference>"
-      )
+      playCard("DevelopmentCenter", 1, steel = 4, "ProjectCard FROM Science<OlympusConference>")
 
       playCard("GeothermalPower", 1, steel = 4)
 

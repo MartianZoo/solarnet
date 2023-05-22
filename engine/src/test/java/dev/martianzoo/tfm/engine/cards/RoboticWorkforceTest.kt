@@ -30,8 +30,8 @@ class RoboticWorkforceTest {
 
         Truth.assertThat(tasks.map { it.whyPending })
             .containsExactly(
-                "CopyProductionBox<Player1, CardFront<Player1>(HAS BuildingTag<Player1>)> is abstract"
-            )
+                "CopyProductionBox<Player1, CardFront<Player1>(HAS BuildingTag<Player1>)>" +
+                    " is abstract")
 
         // This card has no building tag so it won't work
         assertThrows<NarrowingException>("1") { task("CopyProductionBox<MassConverter>") }

@@ -34,11 +34,12 @@ public sealed class Instruction : PetElement() {
   companion object {
     /** Recursively breaks apart any [Multi] instructions found in [instruction]. */
     fun split(instruction: Instruction): InstructionGroup =
-        InstructionGroup(when (instruction) {
-          is Multi -> instruction.instructions.flatMap { split(it).instructions }
-          is NoOp -> listOf()
-          else -> listOf(instruction)
-        })
+        InstructionGroup(
+            when (instruction) {
+              is Multi -> instruction.instructions.flatMap { split(it).instructions }
+              is NoOp -> listOf()
+              else -> listOf(instruction)
+            })
 
     internal fun parser(): Parser<Instruction> = Parsers.parser()
   }
@@ -48,7 +49,7 @@ public sealed class Instruction : PetElement() {
     val size by instructions::size
 
     fun <T> map(function: (Instruction) -> T): List<T> = instructions.map(function)
-    fun forEach(consumer: (Instruction) -> Unit)  = instructions.forEach(consumer)
+    fun forEach(consumer: (Instruction) -> Unit) = instructions.forEach(consumer)
     fun asInstruction() = Multi.create(instructions)
 
     init {

@@ -25,9 +25,9 @@ sealed class GameEvent {
   }
 
   data class TaskEditedEvent(
-    override val ordinal: Int,
-    val oldTask: Task,
-    override val task: Task,
+      override val ordinal: Int,
+      val oldTask: Task,
+      override val task: Task,
   ) : TaskEvent() {
     init {
       require(task.id == oldTask.id)

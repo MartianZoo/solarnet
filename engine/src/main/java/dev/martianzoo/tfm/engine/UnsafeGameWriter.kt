@@ -35,8 +35,8 @@ interface UnsafeGameWriter {
   ): ChangeEvent
 
   /**
-   * Like [changeWithoutFixingDependents], but first removes any dependent components (recursively) that would otherwise
-   * prevent the change. The same [cause] is used for all changes.
+   * Like [changeWithoutFixingDependents], but first removes any dependent components (recursively)
+   * that would otherwise prevent the change. The same [cause] is used for all changes.
    */
   fun change(
       count: Int = 1,

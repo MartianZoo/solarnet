@@ -17,38 +17,38 @@ import dev.martianzoo.tfm.pets.ast.Instruction.Then
 import dev.martianzoo.tfm.pets.ast.Instruction.Transform
 
 public data class Task(
-  /**
-   * Identifies this task within a game at a particular point in time. These do get reused (for
-   * user convenience) but of course no two have the same id at the same time.
-   */
-  val id: TaskId,
+    /**
+     * Identifies this task within a game at a particular point in time. These do get reused (for
+     * user convenience) but of course no two have the same id at the same time.
+     */
+    val id: TaskId,
 
-  /**
-   * The player (or engine) this task is waiting on, who has the right to narrow it as they wish,
-   * and execute it.
-   */
-  val owner: Player,
+    /**
+     * The player (or engine) this task is waiting on, who has the right to narrow it as they wish,
+     * and execute it.
+     */
+    val owner: Player,
 
-  /** If true, no game state may be modified until this task is completed. */
-  val next: Boolean = false,
+    /** If true, no game state may be modified until this task is completed. */
+    val next: Boolean = false,
 
-  /**
-   * What to do. Can be abstract. If so, it will have to be narrowed to something concrete
-   * before/when it is executed. Normalized to [instruction].
-   */
-  private val instructionIn: Instruction,
+    /**
+     * What to do. Can be abstract. If so, it will have to be narrowed to something concrete
+     * before/when it is executed. Normalized to [instruction].
+     */
+    private val instructionIn: Instruction,
 
-  /**
-   * Any instruction that should be automatically enqueued when this task is removed (a [Multi] is
-   * split). Used for `THEN` instructions. Normalized to [then].
-   */
-  private val thenIn: Instruction? = null,
+    /**
+     * Any instruction that should be automatically enqueued when this task is removed (a [Multi] is
+     * split). Used for `THEN` instructions. Normalized to [then].
+     */
+    private val thenIn: Instruction? = null,
 
-  /** Why was this task born? */
-  val cause: Cause?,
+    /** Why was this task born? */
+    val cause: Cause?,
 
-  /** Why is the task still here? Often an error message. */
-  val whyPending: String? = null,
+    /** Why is the task still here? Often an error message. */
+    val whyPending: String? = null,
 ) {
 
   /** Normalized form of [instructionIn]. */
@@ -73,15 +73,13 @@ public data class Task(
 
   companion object {
     public fun newTasks(
-      firstId: TaskId,
-      owner: Player,
-      instruction: InstructionGroup,
-      cause: Cause?
+        firstId: TaskId,
+        owner: Player,
+        instruction: InstructionGroup,
+        cause: Cause?
     ): List<Task> {
       var nextId = firstId
-      return instruction.map {
-        newTask(nextId, owner, it, cause).also { nextId = nextId.next() }
-      }
+      return instruction.map { newTask(nextId, owner, it, cause).also { nextId = nextId.next() } }
     }
 
     public fun newTask(
@@ -122,21 +120,19 @@ public data class Task(
   private fun normalizeForTask(instruction: Instruction): Instruction {
     return when (instruction) {
       is Change ->
-        if (instruction.gaining != DIE.expression) {
-          instruction
-        } else {
-          throw DeadEndException("a Die instruction was reached")
-        }
-
+          if (instruction.gaining != DIE.expression) {
+            instruction
+          } else {
+            throw DeadEndException("a Die instruction was reached")
+          }
       is Gated -> instruction.copy(inner = normalizeForTask(instruction.inner))
       is Per -> instruction.copy(inner = normalizeForTask(instruction.inner))
       is Or -> Or.create(instruction.instructions.map(::normalizeForTask).toSet())
       is Then -> {
         val parts = instruction.instructions
         parts.firstOrNull { (it as? Gain)?.gaining?.className == DIE }
-          ?: Then.create(parts.map(::normalizeForTask))
+            ?: Then.create(parts.map(::normalizeForTask))
       }
-
       is NoOp, is Multi -> split(instruction).asInstruction()
       is Transform -> error("can't enqueue: $instruction")
     }

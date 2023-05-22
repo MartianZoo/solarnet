@@ -126,9 +126,9 @@ internal object ClassParsing : PetTokenizer() {
 
     private val nestableGroup: Parser<NestableDeclGroup> =
         skip(nls) and
-            kind and
-            signature and
-            (multilineBody or moreSignatures) map { (kind, sig, bodyOrSigs) ->
+        kind and
+        signature and
+        (multilineBody or moreSignatures) map { (kind, sig, bodyOrSigs) ->
           bodyOrSigs.convert(kind, sig)
         }
 
@@ -147,8 +147,8 @@ internal object ClassParsing : PetTokenizer() {
 
     val oneLineDecl: Parser<ClassDeclaration> =
         kind and
-            signature and
-            optional(oneLineBody) map { (kind, sig, body) ->
+        signature and
+        optional(oneLineBody) map { (kind, sig, body) ->
           NestableDeclGroup(kind, sig, body ?: Body()).finishOnlyDecl()
         }
   }
@@ -210,9 +210,9 @@ internal object ClassParsing : PetTokenizer() {
 
   internal class NestableDeclGroup(private val declList: List<NestableDecl>) {
     constructor(
-      kind: ClassKind,
-      signature: Signature,
-      body: Body,
+        kind: ClassKind,
+        signature: Signature,
+        body: Body,
     ) : this(create(kind, signature, body))
 
     fun unnestAllFrom(container: ClassName): List<NestableDecl> =
@@ -248,10 +248,9 @@ internal object ClassParsing : PetTokenizer() {
     }
 
     data class IncompleteNestableDecl(override val decl: ClassDeclaration) : NestableDecl() {
-      constructor(
-        kind: ClassKind,
-        signature: Signature,
-      ) : this(signature.asDeclaration.copy(kind = kind))
+      constructor(kind: ClassKind, signature: Signature) :
+          this(signature.asDeclaration.copy(kind = kind))
+
       // This returns a new NestableDecl that looks like it could be a sibling to containingClass
       // instead of nested inside it
       override fun unnestOneFrom(container: ClassName): NestableDecl {

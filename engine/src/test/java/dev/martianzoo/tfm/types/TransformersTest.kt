@@ -25,11 +25,11 @@ class TransformersTest {
     checkApplyDefaults("CityTile<Anyone, WaterArea>", "CityTile<Anyone, WaterArea>!")
     checkApplyDefaults("CityTile<Player3, WaterArea>", "CityTile<Player3, WaterArea>!")
 
-     checkApplyDefaults("CityTile<This>", "CityTile<Owner, This>!", cn("Area").expression)
-     checkApplyDefaults(
-         "CityTile<This>",
-         "CityTile<This, LandArea(HAS MAX 0 Neighbor<CityTile<Anyone>>)>!",
-         cn("Owner").expression)
+    checkApplyDefaults("CityTile<This>", "CityTile<Owner, This>!", cn("Area").expression)
+    checkApplyDefaults(
+        "CityTile<This>",
+        "CityTile<This, LandArea(HAS MAX 0 Neighbor<CityTile<Anyone>>)>!",
+        cn("Owner").expression)
 
     checkApplyDefaults("OwnedTile", "OwnedTile<Owner>!")
     checkApplyDefaults("Neighbor<OwnedTile>", "Neighbor<OwnedTile<Owner>>!")

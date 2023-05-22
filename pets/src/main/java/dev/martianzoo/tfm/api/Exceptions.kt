@@ -81,7 +81,7 @@ public object Exceptions {
   // Subtypes (catchable)
 
   public class PetSyntaxException(message: String, cause: Throwable? = null) :
-    PetException(message, cause)
+      PetException(message, cause)
 
   public class ExistingDependentsException(val dependents: Collection<Type>) :
       NotNowException("Existing dependents: ${dependents.joinToString { "${it.expression}" }}")
