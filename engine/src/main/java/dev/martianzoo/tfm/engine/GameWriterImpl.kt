@@ -16,8 +16,9 @@ import dev.martianzoo.tfm.pets.ast.Instruction
 import dev.martianzoo.tfm.pets.ast.Instruction.Change
 import dev.martianzoo.tfm.pets.ast.PetElement
 import dev.martianzoo.tfm.pets.ast.ScaledExpression.Scalar.ActualScalar
+import javax.inject.Inject
 
-internal class GameWriterImpl(
+internal class GameWriterImpl @Inject constructor(
     private val tasks: WritableTaskQueue,
     private val reader: SnReader, // check narrowings
     private val timeline: TimelineImpl,
@@ -26,6 +27,7 @@ internal class GameWriterImpl(
     private val changer: Changer,
 ) : GameWriter, UnsafeGameWriter {
 
+  init { println(this) }
   override fun addTask(instruction: Instruction, firstCause: Cause?) =
       timeline.atomic {
         val prepped = Instruction.split(preprocess(instruction))

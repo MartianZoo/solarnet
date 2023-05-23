@@ -10,12 +10,18 @@ import dev.martianzoo.tfm.engine.Game.ComponentGraph
 import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.pets.ast.Requirement.Counting
 import dev.martianzoo.tfm.types.MClassLoader
+import dev.martianzoo.tfm.types.MClassTable
 import dev.martianzoo.tfm.types.MType
 import dev.martianzoo.util.HashMultiset
 import dev.martianzoo.util.Multiset
+import javax.inject.Inject
+import javax.inject.Singleton
 import kotlin.math.min
 
-internal class WritableComponentGraph(private val effector: Effector) : ComponentGraph, Updater {
+@Singleton
+internal class WritableComponentGraph @Inject constructor(internal val effector: Effector) :
+    ComponentGraph, Updater {
+  init { println(this) }
 
   private val multiset: HashMultiset<Component> = HashMultiset()
 
@@ -46,7 +52,9 @@ internal class WritableComponentGraph(private val effector: Effector) : Componen
   }
 
   // TODO move
-  internal class Limiter(private val table: MClassLoader, private val components: ComponentGraph) {
+  internal class Limiter
+  @Inject
+  constructor(private val table: MClassTable, private val components: ComponentGraph) {
 
     fun findLimit(gaining: Component?, removing: Component?): Int {
       require(gaining != removing)
@@ -67,7 +75,7 @@ internal class WritableComponentGraph(private val effector: Effector) : Componen
       }
 
       // MAX 1 Phase, MAX 9 OceanTile
-      for (it: Requirement in table.generalInvariants) {
+      for (it: Requirement in (table as MClassLoader).generalInvariants) {
         // TODO forbid refinements?
         require(it !is Requirement.Transform)
         if (it is Counting) {

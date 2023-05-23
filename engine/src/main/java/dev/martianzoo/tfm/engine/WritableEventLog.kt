@@ -13,10 +13,14 @@ import dev.martianzoo.tfm.data.Task.TaskId
 import dev.martianzoo.tfm.data.TaskResult
 import dev.martianzoo.tfm.engine.Game.EventLog
 import dev.martianzoo.tfm.engine.Game.Timeline.Checkpoint
+import javax.inject.Inject
+import javax.inject.Singleton
 
-internal class WritableEventLog : EventLog, TaskListener, ChangeLogger {
+@Singleton
+internal class WritableEventLog @Inject constructor() : EventLog, TaskListener, ChangeLogger {
   val events: MutableList<GameEvent> = mutableListOf() // TODO only used by TimelineImpl
   override val size: Int by events::size
+  init { println(this) }
 
   override fun changesSince(checkpoint: Checkpoint): List<ChangeEvent> =
       entriesSince(checkpoint).filterIsInstance<ChangeEvent>()
@@ -66,17 +70,5 @@ internal class WritableEventLog : EventLog, TaskListener, ChangeLogger {
 
   fun setStartPoint() {
     start = checkpoint()
-  }
-
-  fun rollBack(checkpoint: Checkpoint, reverser: (GameEvent) -> Unit) {
-    val ordinal = checkpoint.ordinal
-    require(ordinal <= events.size)
-    if (ordinal == events.size) return
-
-    val subList = events.subList(ordinal, events.size)
-    for (entry in subList.asReversed()) {
-      reverser(entry)
-    }
-    subList.clear()
   }
 }

@@ -17,6 +17,7 @@ import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.types.MType
 import dev.martianzoo.tfm.types.Transformers
 import dev.martianzoo.util.Multiset
+import javax.inject.Inject
 
 /**
  * The mutable state of a game in progress. This state is the aggregation of three mutable child
@@ -28,6 +29,7 @@ import dev.martianzoo.util.Multiset
  * use [writer].
  */
 public class Game
+@Inject
 internal constructor(
     /** The components that make up the game's current state ("present"). */
     public val components: ComponentGraph,
@@ -37,15 +39,15 @@ internal constructor(
 
     /** The tasks the game is currently waiting on ("future"). */
     public val tasks: TaskQueue,
-
     public val reader: SnReader,
-
     public val timeline: Timeline,
-
-    private val writers: Map<Player, GameWriter>
+    private val writers: GameWriterFactory,
 ) {
+  init {
+    println(this)
+  }
 
-  public fun writer(player: Player) = writers[player]!!
+  public fun writer(player: Player) = writers.writer(player)
 
   /**
    * A multiset of [Component] instances; the "present" state of a game in progress. It is a plain

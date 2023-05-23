@@ -3,6 +3,7 @@ import java.net.URL
 plugins {
   id("org.jetbrains.kotlin.jvm") version "1.8.0"
   id("org.jetbrains.dokka") version "1.7.10"
+  kotlin("kapt")
   `java-library`
 }
 
@@ -11,6 +12,8 @@ kotlin { jvmToolchain(11) }
 dependencies {
   implementation(platform("org.jetbrains.kotlin:kotlin-bom:1.8.0"))
   implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.0")
+  implementation("com.google.dagger:dagger:2.46.1")
+  kapt("com.google.dagger:dagger-compiler:2.46.1")
 
   testImplementation("org.junit.jupiter:junit-jupiter-api:5.9.0")
   testImplementation(project(mapOf("path" to ":repl")))

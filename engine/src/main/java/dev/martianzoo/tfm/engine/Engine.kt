@@ -1,17 +1,21 @@
 package dev.martianzoo.tfm.engine
 
+import dagger.Component
+import dagger.Module
+import dagger.Provides
 import dev.martianzoo.tfm.data.GameEvent.ChangeEvent
 import dev.martianzoo.tfm.data.GameEvent.ChangeEvent.Cause
 import dev.martianzoo.tfm.data.GameSetup
-import dev.martianzoo.tfm.data.Player
 import dev.martianzoo.tfm.data.Player.Companion.ENGINE
 import dev.martianzoo.tfm.engine.Game.ComponentGraph
+import dev.martianzoo.tfm.engine.Game.EventLog
 import dev.martianzoo.tfm.engine.Game.SnReader
+import dev.martianzoo.tfm.engine.Game.TaskQueue
+import dev.martianzoo.tfm.engine.Game.Timeline
 import dev.martianzoo.tfm.engine.PlayerSession.Companion.session
-import dev.martianzoo.tfm.engine.WritableComponentGraph.Limiter
 import dev.martianzoo.tfm.pets.Parsing
-import dev.martianzoo.tfm.types.MClassLoader
 import dev.martianzoo.tfm.types.MClassTable
+import javax.inject.Singleton
 
 /** Entry point to the solarnet engine -- create new games here. */
 public object Engine {
@@ -21,7 +25,12 @@ public object Engine {
 
   /** Creates a new game using an existing class table, ready for gameplay to begin. */
   public fun newGame(table: MClassTable): Game {
-    val game = wireItUp(table)
+    val game =
+        DaggerEngine_GameComponent.builder()
+            .gameModule(GameModule(table))
+            .build()
+            .game
+
     val session = game.session(ENGINE)
 
     val firstEvent: ChangeEvent = session.operation("$ENGINE!").changes.first()
@@ -35,33 +44,22 @@ public object Engine {
     return game
   }
 
-  /** Yes, we're doing all our ugly-as-sin wiring in one place. */
-  private fun wireItUp(table: MClassTable): Game {
-    val effector = Effector()
-    val components: ComponentGraph = WritableComponentGraph(effector)
+  @Singleton
+  @Component(modules = [GameModule::class])
+  internal abstract class GameComponent {
+    abstract val game: Game
+  }
 
-    val reader: SnReader = GameReaderImpl(table, components)
-    effector.reader = reader
-
-    val events = WritableEventLog()
-    val tasks = WritableTaskQueue(events)
-
-    val limiter = Limiter(table as MClassLoader, components)
-
-    val updater: Updater = components as Updater
-    val timeline = TimelineImpl(updater, events, tasks, reader)
-
-    val players = table.allClasses.count { it.className.toString().matches(Regex("Player\\d")) }
-
-    val writers: Map<Player, GameWriter> =
-        Player.players(players)
-            .filter { it.className in table.allClassNamesAndIds }
-            .associateWith {
-              val changer = Changer(reader, updater, events as ChangeLogger, it)
-              val instructor = Instructor(reader, effector, limiter, changer)
-              GameWriterImpl(tasks, reader, timeline, it, instructor, changer)
-            }
-
-    return Game(components, events, tasks, reader, timeline, writers)
+  @Module
+  internal class GameModule(val loader: MClassTable) {
+    @Provides fun a(x: GameReaderImpl): SnReader = x
+    @Provides fun c(): MClassTable = loader
+    @Provides fun d(x: TimelineImpl): Timeline = x
+    @Provides fun e(x: WritableComponentGraph): ComponentGraph = x
+    @Provides fun f(x: WritableComponentGraph): Updater = x
+    @Provides fun g(x: WritableEventLog): ChangeLogger = x
+    @Provides fun h(x: WritableEventLog): EventLog = x
+    @Provides fun i(x: WritableEventLog): TaskListener = x
+    @Provides fun j(x: WritableTaskQueue): TaskQueue = x
   }
 }

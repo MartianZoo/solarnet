@@ -13,13 +13,20 @@ import dev.martianzoo.tfm.engine.Game.TaskQueue
 import dev.martianzoo.tfm.pets.ast.Instruction.Companion.split
 import dev.martianzoo.tfm.pets.ast.Instruction.InstructionGroup
 import dev.martianzoo.util.toSetStrict
+import javax.inject.Inject
+import javax.inject.Singleton
 
-internal class WritableTaskQueue(
+@Singleton
+internal class WritableTaskQueue @Inject constructor(
     private val events: TaskListener,
-    private val taskSet: MutableSet<Task> = mutableSetOf()
-) : TaskQueue, Set<Task> by taskSet {
+) : TaskQueue, AbstractSet<Task>() {
+  private val taskSet: MutableSet<Task> = mutableSetOf()
+  init { println(this) }
 
-  // OVERRIDES / READ-ONLY OPERATIONS
+  override val size by taskSet::size
+  override fun iterator() = taskSet.iterator()
+
+// OVERRIDES / READ-ONLY OPERATIONS
 
   override fun ids(): Set<TaskId> = taskSet.map { it.id }.toSetStrict()
 

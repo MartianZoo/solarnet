@@ -7,13 +7,15 @@ import dev.martianzoo.tfm.data.GameEvent.ChangeEvent.Cause
 import dev.martianzoo.tfm.data.Player
 import dev.martianzoo.tfm.engine.Component.Companion.toComponent
 import dev.martianzoo.tfm.engine.Game.SnReader
+import javax.inject.Inject
 
-internal class Changer(
+internal class Changer @Inject constructor(
     private val reader: SnReader,
     private val updater: Updater,
     private val changeLog: ChangeLogger,
     private val player: Player,
 ) {
+  init { println(this) }
 
   fun change(
       count: Int,

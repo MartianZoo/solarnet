@@ -22,12 +22,14 @@ import dev.martianzoo.tfm.pets.ast.Requirement.Or
 import dev.martianzoo.tfm.pets.ast.ScaledExpression.Scalar.ActualScalar
 import dev.martianzoo.tfm.types.MClassTable
 import dev.martianzoo.tfm.types.Transformers
+import javax.inject.Inject
 import kotlin.math.min
 
-internal class GameReaderImpl(
+internal class GameReaderImpl @Inject constructor(
     private val table: MClassTable,
     private val components: ComponentGraph
 ) : SnReader, TypeInfo {
+  init { println(this) }
 
   override val authority: Authority by table::authority
   override val transformers: Transformers by table::transformers

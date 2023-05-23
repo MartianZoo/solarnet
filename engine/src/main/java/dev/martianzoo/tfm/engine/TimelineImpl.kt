@@ -7,13 +7,15 @@ import dev.martianzoo.tfm.engine.Component.Companion.toComponent
 import dev.martianzoo.tfm.engine.Game.SnReader
 import dev.martianzoo.tfm.engine.Game.Timeline
 import dev.martianzoo.tfm.engine.Game.Timeline.Checkpoint
+import javax.inject.Inject
 
-internal class TimelineImpl(
+internal class TimelineImpl @Inject constructor(
     private val updater: Updater,
     private val events: WritableEventLog,
     private val tasks: WritableTaskQueue,
     private val reader: SnReader,
 ) : Timeline {
+  init { println(this) }
 
   override fun checkpoint() = Checkpoint(events.size)
 

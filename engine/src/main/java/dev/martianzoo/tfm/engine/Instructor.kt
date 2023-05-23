@@ -34,15 +34,17 @@ import dev.martianzoo.tfm.pets.ast.ScaledExpression.Scalar.ActualScalar
 import dev.martianzoo.tfm.types.Dependency.TypeDependency
 import dev.martianzoo.tfm.types.MType
 import dev.martianzoo.util.Hierarchical.Companion.lub
+import javax.inject.Inject
 import kotlin.math.min
 
 /** Just a cute name for "instruction handler". It prepares and executes instructions. */
-internal class Instructor(
+internal class Instructor @Inject constructor(
     private val reader: SnReader,
     private val effector: Effector,
     private val limiter: Limiter,
     private val changer: Changer,
 ) {
+  init { println(this) }
 
   fun execute(instruction: Instruction, cause: Cause?): List<Task> =
       mutableListOf<Task>().also { doExecute(instruction, cause, it) } // TODO prepare?

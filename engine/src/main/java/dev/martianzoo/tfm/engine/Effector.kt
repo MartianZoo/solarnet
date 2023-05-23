@@ -5,12 +5,17 @@ import dev.martianzoo.tfm.data.Task
 import dev.martianzoo.tfm.engine.Component.Companion.toComponent
 import dev.martianzoo.tfm.engine.Game.SnReader
 import dev.martianzoo.util.HashMultiset
+import javax.inject.Inject
+import javax.inject.Provider
+import javax.inject.Singleton
 
-internal class Effector {
+@Singleton
+internal class Effector @Inject constructor(readerP: Provider<SnReader>) {
+  init { println(this) }
 
   private val registry = HashMultiset<ActiveEffect>()
 
-  lateinit var reader: SnReader // for conditionals, refinements, specialization
+  val reader: SnReader by lazy { readerP.get() }
 
   fun update(component: Component, delta: Int) {
     component.activeEffects.forEach { registry.setCount(it, registry.count(it) + delta) }
