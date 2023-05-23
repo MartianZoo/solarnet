@@ -24,17 +24,22 @@ import dev.martianzoo.tfm.types.MClassTable
 import dev.martianzoo.tfm.types.Transformers
 import kotlin.math.min
 
-internal class GameReaderImpl(val table: MClassTable, val components: ComponentGraph) :
-    SnReader, TypeInfo {
+internal class GameReaderImpl(
+    private val table: MClassTable,
+    private val components: ComponentGraph
+) : SnReader, TypeInfo {
+
   override val authority: Authority by table::authority
   override val transformers: Transformers by table::transformers
+
+  override fun resolve(expression: Expression) = table.resolve(expression)
+
+  // Next 3 are for TypeInfo interface
 
   override fun isAbstract(e: Expression) = resolve(e).abstract
 
   override fun ensureNarrows(wide: Expression, narrow: Expression) =
       resolve(narrow).ensureNarrows(resolve(wide), this)
-
-  override fun resolve(expression: Expression) = table.resolve(expression)
 
   override fun evaluate(requirement: Requirement): Boolean =
       when (requirement) {

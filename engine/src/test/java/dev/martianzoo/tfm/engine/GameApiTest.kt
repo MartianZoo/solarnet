@@ -17,7 +17,7 @@ private class GameApiTest {
   fun basicByApi() {
     val game = Engine.newGame(Canon.SIMPLE_GAME)
 
-    val checkpoint = game.checkpoint()
+    val checkpoint = game.timeline.checkpoint()
     assertThat(game.reader.count(parse<Metric>("Heat"))).isEqualTo(0)
 
     val p2 = game.session(PLAYER2)

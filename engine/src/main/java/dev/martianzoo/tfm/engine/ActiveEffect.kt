@@ -35,7 +35,7 @@ private constructor(
     private val subscription: Subscription,
     private val automatic: Boolean,
     private val instruction: Instruction,
-    private val contextComponent: Expression,
+    private val contextComponent: Expression, // TODO why not just component?
     private val contextOwner: Player?,
 ) {
   companion object {

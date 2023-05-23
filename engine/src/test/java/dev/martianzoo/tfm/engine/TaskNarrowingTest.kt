@@ -11,7 +11,7 @@ import dev.martianzoo.tfm.data.Player.Companion.PLAYER1
 import dev.martianzoo.tfm.data.Task
 import dev.martianzoo.tfm.data.Task.TaskId
 import dev.martianzoo.tfm.data.TaskResult
-import dev.martianzoo.tfm.engine.Game.EventLog.Checkpoint
+import dev.martianzoo.tfm.engine.Game.Timeline.Checkpoint
 import dev.martianzoo.tfm.engine.PlayerSession.Companion.session
 import dev.martianzoo.tfm.pets.Parsing.parse
 import dev.martianzoo.tfm.pets.ast.Instruction.NoOp
@@ -27,7 +27,7 @@ class TaskNarrowingTest {
   private val events = game.events
   private val writer = game.writer(PLAYER1)
   private val session = game.session(PLAYER1)
-  private val start = game.checkpoint()
+  private val start = game.timeline.checkpoint()
 
   @Test
   fun `initiating NoOp does nothing`() {
@@ -35,7 +35,7 @@ class TaskNarrowingTest {
 
     assertThat(tasks).isEmpty()
     assertThat(history()).isEmpty()
-    assertThat(game.checkpoint()).isEqualTo(start)
+    assertThat(game.timeline.checkpoint()).isEqualTo(start)
   }
 
   @Test
@@ -51,7 +51,7 @@ class TaskNarrowingTest {
   @Test
   fun `narrowing an instruction to itself has no effect`() {
     initiate("2 Plant?")
-    val before = game.checkpoint()
+    val before = game.timeline.checkpoint()
 
     val result = writer.narrowTask(A, parse("2 Plant?"))
 

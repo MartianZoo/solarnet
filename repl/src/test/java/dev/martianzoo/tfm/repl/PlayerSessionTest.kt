@@ -46,11 +46,11 @@ private class PlayerSessionTest {
     session.operation("4 Heat")
     assertThat(session.count("Heat")).isEqualTo(7)
 
-    val checkpoint = session.events.checkpoint()
+    val checkpoint = session.timeline.checkpoint()
     session.operation("-6 Heat")
     assertThat(session.count("Heat")).isEqualTo(1)
 
-    session.rollBack(checkpoint)
+    session.timeline.rollBack(checkpoint)
     assertThat(session.count("Heat")).isEqualTo(7)
   }
 

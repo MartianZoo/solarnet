@@ -11,8 +11,6 @@ import dev.martianzoo.tfm.data.Player.Companion.ENGINE
 import dev.martianzoo.tfm.data.Task.TaskId
 import dev.martianzoo.tfm.data.TaskResult
 import dev.martianzoo.tfm.engine.Component.Companion.toComponent
-import dev.martianzoo.tfm.engine.Game.EventLog.Checkpoint
-import dev.martianzoo.tfm.engine.Game.GameWriterImpl
 import dev.martianzoo.tfm.pets.Parsing.parse
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.Expression
@@ -27,6 +25,7 @@ import dev.martianzoo.util.Multiset
 
 /** A player session adds autoexec, string overloads, prep, blah blah. */
 public class PlayerSession(
+    // TODO Session?
     private val game: Game,
     public val player: Player,
 ) {
@@ -38,6 +37,7 @@ public class PlayerSession(
   public val reader by game::reader
   public val tasks by game::tasks
   public val events by game::events
+  public val timeline by game::timeline
 
   public fun asPlayer(player: Player) = game.session(player)
 
@@ -71,13 +71,7 @@ public class PlayerSession(
 
   fun has(requirement: String) = has(parse(requirement))
 
-  fun myTasks(): List<TaskId> =
-      tasks.filter { player == ENGINE || it.owner == player }.map { it.id }.sorted()
-
   // EXECUTION
-
-  /** See [Game.atomic]. */
-  public fun atomic(block: () -> Unit) = game.atomic(block)
 
   fun turn(vararg tasks: String, body: OperationBody.() -> Unit = {}) {
     return operation("NewTurn") {
@@ -86,33 +80,30 @@ public class PlayerSession(
     }
   }
 
-  fun phase(phase: String) {
+  fun phase(phase: String) { // TODO move
     asPlayer(ENGINE).operation("${phase}Phase FROM Phase")
   }
 
-  fun operation(startingInstruction: String, vararg tasks: String): TaskResult = atomic {
-    operation(startingInstruction) { tasks.forEach(::task) }
-  }
+  fun operation(startingInstruction: String, vararg tasks: String): TaskResult =
+      timeline.atomic { operation(startingInstruction) { tasks.forEach(::task) } }
 
   fun operation(startingInstruction: String, body: OperationBody.() -> Unit) {
     val instruction: Instruction = parseInContext(startingInstruction)
-    require(game.tasks.isEmpty()) { game.tasks }
-    val cp = game.checkpoint()
+    require(tasks.isEmpty()) { tasks }
+    val cp = timeline.checkpoint()
     initiateOnly(instruction)
     autoExec()
 
     try {
       OperationBody().body()
     } catch (e: JustRollBackException) {
-      game.rollBack(cp)
+      timeline.rollBack(cp)
     } catch (e: Exception) {
-      game.rollBack(cp)
+      timeline.rollBack(cp)
       throw e
     }
 
-    require(game.tasks.isEmpty()) {
-      "Should be no tasks left, but:\n" + game.tasks.joinToString("\n")
-    }
+    require(tasks.isEmpty()) { "Should be no tasks left, but:\n" + tasks.joinToString("\n") }
     require(game.reader.evaluate(parse("MAX 0 Temporary")))
   }
 
@@ -141,7 +132,7 @@ public class PlayerSession(
   // OTHER
 
   fun initiateOnly(instruction: Instruction, fakeCause: Cause? = null): TaskResult {
-    return atomic {
+    return timeline.atomic {
       val newTasks = writer.unsafe().addTask(instruction, fakeCause).tasksSpawned
       newTasks.forEach { writer.executeTask(it) }
     }
@@ -149,7 +140,7 @@ public class PlayerSession(
 
   @Suppress("ControlFlowWithEmptyBody")
   fun autoExec(safely: Boolean = false): TaskResult { // TODO invert default or something
-    return atomic { while (autoExecOneTask(safely)) {} }
+    return timeline.atomic { while (autoExecOneTask(safely)) {} }
   }
 
   fun autoExecOneTask(safely: Boolean = true): Boolean /* should we continue */ {
@@ -195,19 +186,20 @@ public class PlayerSession(
     return false // presumably everything is abstract
   }
 
-  fun tryTask(taskId: TaskId, narrowed: String? = null) = atomic {
-    try {
-      writer.prepareTask(taskId)
-      if (taskId !in tasks && narrowed !in setOf(null, "Ok")) {
-        throw NarrowingException("$narrowed isn't Ok")
+  fun tryTask(taskId: TaskId, narrowed: String? = null) =
+      timeline.atomic {
+        try {
+          writer.prepareTask(taskId)
+          if (taskId !in tasks && narrowed !in setOf(null, "Ok")) {
+            throw NarrowingException("$narrowed isn't Ok")
+          }
+          narrowed?.let { writer.narrowTask(taskId, parse(it)) }
+          if (taskId in tasks) writer.executeTask(taskId)
+          autoExec()
+        } catch (e: RecoverableException) {
+          writer.explainTask(taskId, e.message!!)
+        }
       }
-      narrowed?.let { writer.narrowTask(taskId, parse(it)) }
-      if (taskId in tasks) writer.executeTask(taskId)
-      autoExec()
-    } catch (e: RecoverableException) {
-      writer.explainTask(taskId, e.message!!)
-    }
-  }
 
   // Similar to tryTask, but a NotNowException is unrecoverable in this case
   private fun tryPreparedTask(): Boolean /* did I do stuff? */ {
@@ -225,21 +217,20 @@ public class PlayerSession(
   }
 
   fun matchTask(revised: String): TaskResult {
-    if (game.tasks.none()) throw TaskException("no tasks")
+    if (tasks.none()) throw TaskException("no tasks")
 
     val ins: Instruction = preprocess(parse(revised))
-    val matches =
-        game.tasks.filter { it.owner == player && ins.narrows(it.instruction, game.reader) }
+    val matches = tasks.filter { it.owner == player && ins.narrows(it.instruction, game.reader) }
 
     if (matches.size == 0) {
-      throw TaskException("no matches for $ins among:\n${game.tasks.joinToString("")}")
+      throw TaskException("no matches for $ins among:\n${tasks.joinToString("")}")
     }
     if (matches.size > 1) {
-      throw TaskException("multiple matches for $ins among:\n${game.tasks.joinToString("")}")
+      throw TaskException("multiple matches for $ins among:\n${tasks.joinToString("")}")
     }
     val id = matches.single().id
 
-    return atomic {
+    return timeline.atomic {
       writer.prepareTask(id)
       if (id in tasks) writer.narrowTask(id, ins)
       if (id in tasks) writer.executeTask(id)
@@ -250,13 +241,13 @@ public class PlayerSession(
   fun ifMatchTask(revised: String): TaskResult {
     val prepped: Instruction = preprocess(parse(revised))
     val id =
-        game.tasks
+        tasks
             .filter { it.owner == player }
             .singleOrNull { prepped.narrows(it.instruction, game.reader) }
             ?.id
             ?: return TaskResult()
 
-    return atomic {
+    return timeline.atomic {
       writer.prepareTask(id)
       if (id in tasks) writer.narrowTask(id, prepped)
       if (id in tasks) writer.executeTask(id)
@@ -265,17 +256,13 @@ public class PlayerSession(
   }
 
   fun task(revised: String): TaskResult {
-    val id = game.tasks.firstOrNull { it.owner == player }?.id ?: throw NotNowException("no tasks")
-    return atomic {
+    val id = tasks.firstOrNull { it.owner == player }?.id ?: throw NotNowException("no tasks")
+    return timeline.atomic {
       writer.narrowTask(id, preprocess(parse(revised)))
       if (id in tasks) writer.executeTask(id)
       autoExec()
     }
   }
-
-  fun rollBack(checkpoint: Checkpoint) = game.rollBack(checkpoint)
-
-  fun rollBack(position: Int) = rollBack(Checkpoint(position))
 
   public fun <P : PetElement> preprocess(node: P) = (writer as GameWriterImpl).preprocess(node)
 

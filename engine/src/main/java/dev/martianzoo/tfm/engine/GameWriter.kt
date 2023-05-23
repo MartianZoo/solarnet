@@ -34,7 +34,7 @@ import dev.martianzoo.tfm.pets.ast.Instruction.Multi
  * All methods of this type are failure-atomic: if one throws an exception, it leaves the game state
  * unmodified.
  */
-public abstract class GameWriter {
+public interface GameWriter { // TODO rename Tasker
   /**
    * Voluntarily replaces a task's instruction with a strictly more specific revision, as the owner
    * of an abstract task is allowed to do. Preserves [Task.next], and if `true`, re-prepares the new
@@ -45,9 +45,9 @@ public abstract class GameWriter {
    * @throws [TaskException] if there is no task by this id owned by the player
    * @throws [NarrowingException] if [narrowed] is not a valid narrowing of the task's instruction
    */
-  abstract fun narrowTask(taskId: TaskId, narrowed: Instruction): TaskResult
+  fun narrowTask(taskId: TaskId, narrowed: Instruction): TaskResult
 
-  abstract fun canPrepareTask(taskId: TaskId): Boolean
+  fun canPrepareTask(taskId: TaskId): Boolean
 
   /**
    * Sets a task's [Task.next] bit, and simplifies its instruction according to the current game
@@ -66,7 +66,7 @@ public abstract class GameWriter {
    *   first be narrowed until it splits into tasks that can be prepared individually
    * @throws [NotNowException] if the prepared task would throw this exception on execution
    */
-  abstract fun prepareTask(taskId: TaskId): TaskId?
+  fun prepareTask(taskId: TaskId): TaskId?
 
   /**
    * Carries out a concrete task. Prepares the task first if necessary. As part of this, executes
@@ -78,10 +78,10 @@ public abstract class GameWriter {
    * @throws [AbstractException] if the task is abstract
    * @throws [NotNowException] if the task can't currently be prepared
    */
-  abstract fun executeTask(taskId: TaskId): TaskResult
+  fun executeTask(taskId: TaskId): TaskResult
 
   /** Replaces the [Task.whyPending] property of the specified task with [reason]. */
-  abstract fun explainTask(taskId: TaskId, reason: String)
+  fun explainTask(taskId: TaskId, reason: String)
 
-  abstract fun unsafe(): UnsafeGameWriter
+  fun unsafe(): UnsafeGameWriter
 }

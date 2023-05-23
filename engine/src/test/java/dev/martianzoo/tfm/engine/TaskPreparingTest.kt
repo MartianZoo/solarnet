@@ -21,7 +21,7 @@ class TaskPreparingTest {
   private val tasks = game.tasks
   private val events = game.events
   private val writer = game.writer(PLAYER1)
-  private val start = game.checkpoint()
+  private val start = game.timeline.checkpoint()
 
   @Test
   fun `can prepare an abstract task`() {

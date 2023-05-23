@@ -6,19 +6,22 @@ import dev.martianzoo.tfm.api.Exceptions.NotNowException
 import dev.martianzoo.tfm.api.Exceptions.RequirementException
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.data.Player.Companion.PLAYER1
-import dev.martianzoo.tfm.engine.Game.GameWriterImpl
+import dev.martianzoo.tfm.engine.Engine.newGame
 import dev.martianzoo.tfm.engine.PlayerSession.Companion.session
 import dev.martianzoo.tfm.pets.Parsing.parse
 import dev.martianzoo.tfm.pets.PetTransformer
 import dev.martianzoo.tfm.pets.Transforming.replaceOwnerWith
 import dev.martianzoo.tfm.pets.ast.Instruction
+import dev.martianzoo.tfm.types.MClassTable
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 
 private class PrepareTest {
 
-  val game = Engine.newGame(Canon.SIMPLE_GAME)
+  val table = MClassTable.forSetup(Canon.SIMPLE_GAME)
+  val game = newGame(table)
   val p1 = game.session(PLAYER1)
+  val instructor = (p1.writer as GameWriterImpl).instructor
 
   init {
     p1.writer.unsafe().sneak("Plant, 10 ProjectCard, PROD[-1]")
@@ -26,16 +29,15 @@ private class PrepareTest {
 
   fun preprocess(instr: Instruction): Instruction {
     return PetTransformer.chain(
-            game.transformers.deprodify(),
-            game.transformers.insertDefaults(),
-            replaceOwnerWith(PLAYER1),
-        )
+        table.transformers.deprodify(),
+        table.transformers.insertDefaults(),
+        replaceOwnerWith(PLAYER1),
+    )
         .transform(instr)
   }
 
   fun preprocessAndPrepare(unprepared: String): Instruction {
-    val writer = game.writer(PLAYER1) as GameWriterImpl
-    return writer.instructor.prepare(preprocess(parse(unprepared)))
+    return instructor.prepare(preprocess(parse(unprepared)))
   }
 
   fun checkPrepare(unprepared: String, expected: String?) {

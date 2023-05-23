@@ -65,17 +65,17 @@ class TilePlacingTest {
 
         // 1 away - should work
 
-        val cp = events.checkpoint()
+        val cp = timeline.checkpoint()
         task("GreeneryTile<M75>") // NW
-        rollBack(cp)
+        timeline.rollBack(cp)
         task("GreeneryTile<M76>") // NE
-        rollBack(cp)
+        timeline.rollBack(cp)
         task("GreeneryTile<M85>") // W
-        rollBack(cp)
+        timeline.rollBack(cp)
         task("GreeneryTile<M87>") // E
-        rollBack(cp)
+        timeline.rollBack(cp)
         task("GreeneryTile<M96>") // SW
-        rollBack(cp)
+        timeline.rollBack(cp)
         task("GreeneryTile<M97>") // SE
       }
     }

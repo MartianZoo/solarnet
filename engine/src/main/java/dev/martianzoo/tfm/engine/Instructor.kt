@@ -12,8 +12,8 @@ import dev.martianzoo.tfm.api.SpecialClassNames.DIE
 import dev.martianzoo.tfm.data.GameEvent.ChangeEvent.Cause
 import dev.martianzoo.tfm.data.Task
 import dev.martianzoo.tfm.engine.Component.Companion.toComponent
-import dev.martianzoo.tfm.engine.Game.GameWriterImpl
 import dev.martianzoo.tfm.engine.Game.SnReader
+import dev.martianzoo.tfm.engine.WritableComponentGraph.Limiter
 import dev.martianzoo.tfm.pets.PetTransformer.Companion.chain
 import dev.martianzoo.tfm.pets.Transforming.replaceOwnerWith
 import dev.martianzoo.tfm.pets.ast.Expression
@@ -37,11 +37,11 @@ import dev.martianzoo.util.Hierarchical.Companion.lub
 import kotlin.math.min
 
 /** Just a cute name for "instruction handler". It prepares and executes instructions. */
-internal data class Instructor(
-    private val writer: GameWriterImpl, // makes sense as inner class but file would be so long
+internal class Instructor(
     private val reader: SnReader,
     private val effector: Effector,
-    private val limiter: (Component?, Component?) -> Int,
+    private val limiter: Limiter,
+    private val changer: Changer,
 ) {
 
   fun execute(instruction: Instruction, cause: Cause?): List<Task> =
@@ -58,22 +58,29 @@ internal data class Instructor(
     }
   }
 
-  private fun executeChange(change: Change, cause: Cause?, deferred: MutableList<Task>) {
-    val ct = change.count as? ActualScalar ?: throw abstractInstruction(change)
-    if (change.intensity != MANDATORY) throw abstractInstruction(change)
-    val gaining = change.gaining?.toComponent(reader)
-    val removing = change.removing?.toComponent(reader)
-    if (gaining?.mtype?.root?.custom != null) error("custom")
+  private fun executeChange(instruction: Change, cause: Cause?, deferred: MutableList<Task>) {
+    val ct = instruction.count as? ActualScalar ?: throw abstractInstruction(instruction)
+    if (instruction.intensity != MANDATORY) throw abstractInstruction(instruction)
 
-    val changes = writer.change(ct.value, gaining, removing, cause).changes
+    val gaining = instruction.gaining?.toComponent(reader)
+    val removing = instruction.removing?.toComponent(reader)
 
-    // TODO bug: allows removing the Pets card which should not be possible
-    changes.forEach {
-      val (now, later) = effector.fire(it, reader).partition { it.next }
+    while (true) {
+      val (result, done) =
+          changer.change(
+              count = ct.value,
+              gaining = gaining,
+              removing = removing,
+              cause = cause,
+              orRemoveOneDependent = true)
+
+      val consequences: List<Task> = effector.fire(result)
+      val (now, later) = consequences.partition { it.next }
       for (task in now) {
         split(task.instruction).forEach { doExecute(it, task.cause, deferred) }
       }
       deferred += later
+      if (done) break
     }
   }
 
@@ -147,7 +154,7 @@ internal data class Instructor(
       return change(count, g?.expression, r?.expression, intens)
     }
 
-    val limit = limiter(g?.toComponent(reader), r?.toComponent(reader))
+    val limit = limiter.findLimit(g?.toComponent(reader), r?.toComponent(reader))
     val adjusted: Int = min(count, limit)
 
     if (intens == MANDATORY && adjusted != count) {

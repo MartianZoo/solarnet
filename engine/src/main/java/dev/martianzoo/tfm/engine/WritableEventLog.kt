@@ -12,11 +12,10 @@ import dev.martianzoo.tfm.data.Task
 import dev.martianzoo.tfm.data.Task.TaskId
 import dev.martianzoo.tfm.data.TaskResult
 import dev.martianzoo.tfm.engine.Game.EventLog
-import dev.martianzoo.tfm.engine.Game.EventLog.Checkpoint
+import dev.martianzoo.tfm.engine.Game.Timeline.Checkpoint
 
-internal class WritableEventLog(private val events: MutableList<GameEvent> = mutableListOf()) :
-    EventLog, TaskListener {
-
+internal class WritableEventLog : EventLog, TaskListener, ChangeLogger {
+  val events: MutableList<GameEvent> = mutableListOf() // TODO only used by TimelineImpl
   override val size: Int by events::size
 
   override fun changesSince(checkpoint: Checkpoint): List<ChangeEvent> =
@@ -49,7 +48,7 @@ internal class WritableEventLog(private val events: MutableList<GameEvent> = mut
     return entry
   }
 
-  fun addChangeEvent(change: StateChange, player: Player, cause: Cause?): ChangeEvent =
+  override fun addChangeEvent(change: StateChange, player: Player, cause: Cause?): ChangeEvent =
       addEntry(ChangeEvent(size, player, change, cause))
 
   override fun taskAdded(task: Task) = addEntry(TaskAddedEvent(size, task))

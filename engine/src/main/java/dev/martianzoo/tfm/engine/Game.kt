@@ -1,34 +1,19 @@
 package dev.martianzoo.tfm.engine
 
-import dev.martianzoo.tfm.api.Exceptions.AbstractException
-import dev.martianzoo.tfm.api.Exceptions.ExistingDependentsException
-import dev.martianzoo.tfm.api.Exceptions.TaskException
 import dev.martianzoo.tfm.api.GameReader
 import dev.martianzoo.tfm.api.Type
 import dev.martianzoo.tfm.api.TypeInfo
 import dev.martianzoo.tfm.data.GameEvent
 import dev.martianzoo.tfm.data.GameEvent.ChangeEvent
-import dev.martianzoo.tfm.data.GameEvent.ChangeEvent.Cause
-import dev.martianzoo.tfm.data.GameEvent.TaskEvent
 import dev.martianzoo.tfm.data.Player
 import dev.martianzoo.tfm.data.Task
 import dev.martianzoo.tfm.data.Task.TaskId
 import dev.martianzoo.tfm.data.TaskResult
-import dev.martianzoo.tfm.engine.Component.Companion.toComponent
 import dev.martianzoo.tfm.engine.Game.ComponentGraph
 import dev.martianzoo.tfm.engine.Game.EventLog
-import dev.martianzoo.tfm.engine.Game.EventLog.Checkpoint
 import dev.martianzoo.tfm.engine.Game.TaskQueue
-import dev.martianzoo.tfm.pets.Parsing.parse
-import dev.martianzoo.tfm.pets.PetTransformer.Companion.chain
-import dev.martianzoo.tfm.pets.Transforming.replaceOwnerWith
+import dev.martianzoo.tfm.engine.Game.Timeline.Checkpoint
 import dev.martianzoo.tfm.pets.ast.Expression
-import dev.martianzoo.tfm.pets.ast.Instruction
-import dev.martianzoo.tfm.pets.ast.Instruction.Change
-import dev.martianzoo.tfm.pets.ast.Instruction.Companion.split
-import dev.martianzoo.tfm.pets.ast.PetElement
-import dev.martianzoo.tfm.pets.ast.ScaledExpression.Scalar.ActualScalar
-import dev.martianzoo.tfm.types.MClassTable
 import dev.martianzoo.tfm.types.MType
 import dev.martianzoo.tfm.types.Transformers
 import dev.martianzoo.util.Multiset
@@ -42,26 +27,25 @@ import dev.martianzoo.util.Multiset
  * To read game state at a higher level (e.g. via Pets expressions), use [reader]. To change state
  * use [writer].
  */
-public class Game internal constructor(private val table: MClassTable) {
+public class Game
+internal constructor(
+    /** The components that make up the game's current state ("present"). */
+    public val components: ComponentGraph,
 
-  private val effector: Effector = Effector()
+    /** Everything that has happened in this game so far ("past"). */
+    public val events: EventLog,
 
-  private val writableComponents: WritableComponentGraph = WritableComponentGraph(effector)
+    /** The tasks the game is currently waiting on ("future"). */
+    public val tasks: TaskQueue,
 
-  /** The components that make up the game's current state ("present"). */
-  public val components: ComponentGraph by ::writableComponents
+    public val reader: SnReader,
 
-  private val writableEvents: WritableEventLog = WritableEventLog()
+    public val timeline: Timeline,
 
-  /** Everything that has happened in this game so far ("past"). */
-  public val events: EventLog by ::writableEvents
+    private val writers: Map<Player, GameWriter>
+) {
 
-  private val writableTasks: WritableTaskQueue = WritableTaskQueue(writableEvents)
-
-  /** The tasks the game is currently waiting on ("future"). */
-  public val tasks: TaskQueue by ::writableTasks
-
-  public val reader: SnReader = GameReaderImpl(table, components)
+  public fun writer(player: Player) = writers[player]!!
 
   /**
    * A multiset of [Component] instances; the "present" state of a game in progress. It is a plain
@@ -88,7 +72,6 @@ public class Game internal constructor(private val table: MClassTable) {
      * [parentType] is `Component` this will return the entire component multiset.
      */
     fun getAll(parentType: MType, info: TypeInfo): Multiset<Component>
-    fun findLimit(gaining: Component?, removing: Component?): Int
   }
 
   /**
@@ -98,12 +81,6 @@ public class Game internal constructor(private val table: MClassTable) {
   public interface EventLog {
 
     val size: Int
-
-    public data class Checkpoint(internal val ordinal: Int) {
-      init {
-        require(ordinal >= 0)
-      }
-    }
 
     /**
      * Returns a [Checkpoint] that can be passed to [Game.rollBack] to return the game to its
@@ -154,217 +131,21 @@ public class Game internal constructor(private val table: MClassTable) {
     public val transformers: Transformers
   }
 
-  internal val transformers by table::transformers
-
-  public fun writer(player: Player): GameWriter = GameWriterImpl(this, player)
-
-  public fun resolve(expression: Expression): MType = table.resolve(expression)
-
-  public fun checkpoint() = events.checkpoint()
-
-  public fun rollBack(checkpoint: Checkpoint) {
-    writableEvents.rollBack(checkpoint) {
-      when (it) {
-        is TaskEvent -> writableTasks.reverse(it)
-        is ChangeEvent ->
-            writableComponents.update(
-                it.change.count,
-                gaining = it.change.removing?.toComponent(reader),
-                removing = it.change.gaining?.toComponent(reader))
-      }
-    }
-  }
-
-  /**
-   * Performs [block] with failure-atomicity and returning a [TaskResult] describing what changed.
-   */
-  public fun atomic(block: () -> Unit): TaskResult {
-    val checkpoint = checkpoint()
-    try {
-      block()
-    } catch (e: Exception) {
-      rollBack(checkpoint)
-      throw e
-    }
-    return events.activitySince(checkpoint)
-  }
-
-  internal fun setupFinished() = writableEvents.setStartPoint()
-
-  /*
-   * Implementation of GameWriter - would be nice to have in a separate file but we'd have to
-   * make some things in Game non-private.
-   */
-  public class GameWriterImpl(val game: Game, val player: Player) : GameWriter(), UnsafeGameWriter {
-
-    private val tasks by game::writableTasks
-
-    internal val instructor =
-        Instructor(this, game.reader, game.effector, game.components::findLimit)
-
-    override fun addTask(instruction: Instruction, firstCause: Cause?) =
-        game.atomic {
-          val prepped = split(preprocess(instruction))
-          tasks.addTasks(prepped, player, firstCause)
-        }
-
-    override fun narrowTask(taskId: TaskId, narrowed: Instruction): TaskResult {
-      val task = tasks[taskId]
-      if (player != task.owner) {
-        throw TaskException("$player can't narrow a task owned by ${task.owner}")
-      }
-
-      val fixedNarrowing = preprocess(narrowed)
-      if (fixedNarrowing == task.instruction) return TaskResult()
-      fixedNarrowing.ensureNarrows(task.instruction, game.reader)
-
-      val replacement = if (task.next) instructor.prepare(fixedNarrowing) else fixedNarrowing
-      return editButCheckCardinality(task.copy(instructionIn = replacement))
-    }
-
-    override fun prepareTask(taskId: TaskId): TaskId? {
-      val task = tasks[taskId]
-      val result = doPrepare(task)
-
-      // let's just look ahead though
-      if (taskId in tasks) {
-        try {
-          game.atomic {
-            executeTask(taskId)
-            throw AbstractException("") // just getting this rolled back is all
-          }
-        } catch (ignore: AbstractException) {
-          // we don't guarantee execute won't throw this
-        }
-      }
-      return result
-    }
-
-    private fun doPrepare(task: Task): TaskId? {
-      dontCutTheLine(task.id)
-
-      val replacement = instructor.prepare(task.instruction)
-      editButCheckCardinality(task.copy(instructionIn = replacement, next = true))
-      return tasks.preparedTask()
-    }
-
-    // Use this to edit a task if the replacement instruction might be NoOp, in which case the
-    // task is handleTask'd instead.
-    private fun editButCheckCardinality(replacement: Task): TaskResult {
-      return game.atomic {
-        val split = split(replacement.instruction)
-        if (split.size == 1) {
-          val reason = replacement.whyPending?.let { "(was: $it)" }
-          val one = split.instructions[0]
-          tasks.editTask(replacement.copy(instructionIn = one, whyPending = reason))
-        } else {
-          tasks.addTasks(split, replacement.owner, replacement.cause)
-          handleTask(replacement.id)
-        }
+  interface Timeline {
+    /** A point in history. */
+    public data class Checkpoint(internal val ordinal: Int) {
+      init {
+        require(ordinal >= 0)
       }
     }
 
-    override fun canPrepareTask(taskId: TaskId): Boolean {
-      dontCutTheLine(taskId)
-      val unprepared = tasks[taskId].instruction
-      return try {
-        instructor.prepare(unprepared)
-        true
-      } catch (e: Exception) {
-        false
-      }
-    }
+    fun checkpoint(): Checkpoint
 
-    override fun explainTask(taskId: TaskId, reason: String) {
-      tasks.editTask(tasks[taskId].copy(whyPending = reason))
-    }
-
-    override fun executeTask(taskId: TaskId): TaskResult {
-      val task = tasks[taskId]
-
-      return game.atomic {
-        val prepared = doPrepare(task) ?: return@atomic
-        val preparedTask = tasks[prepared]
-        val newTasks = instructor.execute(preparedTask.instruction, preparedTask.cause)
-        newTasks.forEach(game.writableTasks::addTasks)
-        handleTask(taskId)
-      }
-    }
+    fun rollBack(checkpoint: Checkpoint)
 
     /**
-     * Remove a task because its [Task.instruction] has been handled; any [Task.then] instructions
-     * are automatically enqueued.
+     * Performs [block] with failure-atomicity and returning a [TaskResult] describing what changed.
      */
-    private fun handleTask(taskId: TaskId) {
-      val task = tasks[taskId]
-      task.then?.let { tasks.addTasks(split(it), task.owner, task.cause) }
-      dropTask(taskId)
-    }
-
-    private fun dontCutTheLine(taskId: TaskId) {
-      val already = tasks.preparedTask()
-      if (already != null && already != taskId) {
-        throw TaskException("another prepared task must go first: ${tasks[already]}")
-      }
-    }
-
-    override fun unsafe(): UnsafeGameWriter = this
-
-    override fun dropTask(taskId: TaskId) = tasks.removeTask(taskId)
-
-    override fun sneak(changes: String, cause: Cause?) = sneak(preprocess(parse(changes)), cause)
-
-    // TODO: in theory any instruction would be sneakable, and it only means disabling triggers
-    override fun sneak(changes: Instruction, cause: Cause?): TaskResult {
-      val events =
-          split(changes).map {
-            val count = (it as Change).count as ActualScalar
-            changeWithoutFixingDependents(
-                count.value,
-                it.gaining?.toComponent(game.reader),
-                it.removing?.toComponent(game.reader),
-                cause,
-            )
-          }
-      return TaskResult(events)
-    }
-
-    override fun change(
-        count: Int,
-        gaining: Component?,
-        removing: Component?,
-        cause: Cause?,
-    ): TaskResult {
-      return game.atomic {
-        fun tryIt() = changeWithoutFixingDependents(count, gaining, removing, cause)
-        try {
-          tryIt()
-        } catch (e: ExistingDependentsException) {
-          e.dependents.forEach {
-            val dependent = it.toComponent(game.reader)
-            val depCount = game.reader.countComponent(dependent)
-            change(depCount, removing = dependent, cause = cause)
-          }
-          tryIt()
-        }
-      }
-    }
-
-    override fun changeWithoutFixingDependents(
-        count: Int,
-        gaining: Component?,
-        removing: Component?,
-        cause: Cause?,
-    ): ChangeEvent {
-      require(gaining?.mtype?.root?.custom == null)
-      // Can't remove if it would create orphans -- but this is caught by changeAndFixOrphans
-      removing?.let { game.writableComponents.checkDependents(count, it) }
-
-      val change = game.writableComponents.update(count, gaining, removing)
-      return game.writableEvents.addChangeEvent(change, player, cause)
-    }
-
-    private val xer = chain(game.transformers.standardPreprocess(), replaceOwnerWith(player))
-    internal fun <P : PetElement> preprocess(node: P) = xer.transform(node)
+    fun atomic(block: () -> Unit): TaskResult
   }
 }

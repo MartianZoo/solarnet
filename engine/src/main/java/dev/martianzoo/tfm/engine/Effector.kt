@@ -10,21 +10,23 @@ internal class Effector {
 
   private val registry = HashMultiset<ActiveEffect>()
 
-  fun update(effect: ActiveEffect, delta: Int) {
-    registry.setCount(effect, registry.count(effect) + delta)
+  lateinit var reader: SnReader // for conditionals, refinements, specialization
+
+  fun update(component: Component, delta: Int) {
+    component.activeEffects.forEach { registry.setCount(it, registry.count(it) + delta) }
   }
 
-  internal fun fire(triggerEvent: ChangeEvent, reader: SnReader): List<Task> =
-      fireSelfEffects(triggerEvent, reader) + fireOtherEffects(triggerEvent, reader)
+  fun fire(triggerEvent: ChangeEvent): List<Task> =
+      fireSelfEffects(triggerEvent) + fireOtherEffects(triggerEvent)
 
-  private fun fireSelfEffects(triggerEvent: ChangeEvent, reader: SnReader): List<Task> =
+  private fun fireSelfEffects(triggerEvent: ChangeEvent): List<Task> =
       listOfNotNull(triggerEvent.change.gaining, triggerEvent.change.removing)
           .map(reader::resolve)
           .map { it.toComponent() }
           .flatMap { it.activeEffects }
           .mapNotNull { it.onChangeToSelf(triggerEvent, reader) }
 
-  private fun fireOtherEffects(triggerEvent: ChangeEvent, reader: SnReader): List<Task> =
+  private fun fireOtherEffects(triggerEvent: ChangeEvent): List<Task> =
       registry.entries.mapNotNull { (fx, ct) ->
         fx.onChangeToOther(triggerEvent, reader)?.times(ct)
       }

@@ -12,8 +12,8 @@ import dev.martianzoo.tfm.data.Task.TaskId
 import dev.martianzoo.tfm.data.TaskResult
 import dev.martianzoo.tfm.engine.Engine
 import dev.martianzoo.tfm.engine.Game
-import dev.martianzoo.tfm.engine.Game.EventLog.Checkpoint
 import dev.martianzoo.tfm.engine.Game.SnReader
+import dev.martianzoo.tfm.engine.Game.Timeline.Checkpoint
 import dev.martianzoo.tfm.engine.PlayerSession
 import dev.martianzoo.tfm.engine.PlayerSession.Companion.session
 import dev.martianzoo.tfm.pets.Parsing.parse
@@ -390,7 +390,7 @@ public class ReplSession(var setup: GameSetup, private val jline: JlineRepl? = n
       if (mode == BLUE && !session.tasks.isEmpty()) {
         throw Exceptions.mustClearTasks()
       }
-      return game.atomic {
+      return session.timeline.atomic {
         session.initiateOnly(instruction)
         if (auto) session.autoExec()
       }
@@ -447,8 +447,9 @@ public class ReplSession(var setup: GameSetup, private val jline: JlineRepl? = n
             RED,
             YELLOW -> throw UsageException("Can't execute tasks in this mode")
             GREEN,
-            BLUE -> {
-              game.atomic {
+            BLUE,
+            -> {
+              session.timeline.atomic {
                 session.tryTask(id, rest)
                 if (auto) session.autoExec()
               }
@@ -521,7 +522,7 @@ public class ReplSession(var setup: GameSetup, private val jline: JlineRepl? = n
         """
 
     override fun withArgs(args: String): List<String> {
-      session.rollBack(Checkpoint(args.toInt()))
+      session.timeline.rollBack(Checkpoint(args.toInt()))
       return listOf("Rollback done")
     }
   }
@@ -621,7 +622,7 @@ public class ReplSession(var setup: GameSetup, private val jline: JlineRepl? = n
 
   private fun player(name: String): Player {
     // In case a shortname was used
-    val type: MType = game.resolve(cn(name).expression)
+    val type: MType = game.reader.resolve(cn(name).expression)
     return Player(type.className)
   }
 }
