@@ -40,11 +40,6 @@ public data class Component private constructor(internal val mtype: MType) :
   // TODO get rid of
   public val typeEffectsGetRidOf: List<Effect> = mtype.effects
 
-  /**
-   * This component's effects; while the component exists in a game state, the effects are active.
-   */
-  internal val activeEffects: List<ActiveEffect> = mtype.effects.map { ActiveEffect.from(it, this) }
-
   public val owner: Player? by mtype::owner
 
   override val className by mtype::className
