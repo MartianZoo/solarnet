@@ -7,6 +7,7 @@ import dev.martianzoo.tfm.data.Player.Companion.PLAYER1
 import dev.martianzoo.tfm.data.Player.Companion.PLAYER2
 import dev.martianzoo.tfm.engine.Engine
 import dev.martianzoo.tfm.engine.PlayerSession.Companion.session
+import dev.martianzoo.tfm.engine.TerraformingMars.phase
 import dev.martianzoo.tfm.engine.TerraformingMars.stdProject
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows

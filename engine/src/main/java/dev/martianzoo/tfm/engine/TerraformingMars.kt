@@ -1,13 +1,22 @@
 package dev.martianzoo.tfm.engine
 
 import dev.martianzoo.tfm.api.ApiUtils.standardResourceNames
-import dev.martianzoo.tfm.engine.PlayerSession.OperationBody
+import dev.martianzoo.tfm.data.Player
+import dev.martianzoo.tfm.engine.Operator.OperationBody
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.pets.ast.Instruction.NoOp
 
 /** Extension functions to [PlayerSession] for Terraforming Mars-specific APIs. */
 object TerraformingMars {
+
+  fun PlayerSession.turn(vararg tasks: String, body: OperationBody.() -> Unit = {}) {
+    return operation("NewTurn") {
+      tasks.forEach(::task)
+      OperationBodyImpl().body()
+    }
+  }
+
   fun PlayerSession.playCorp(
       corpName: String,
       buyCards: Int? = 0,
@@ -18,7 +27,7 @@ object TerraformingMars {
     return turn(corpName) {
       task(if (buyCards == 0) "Ok" else "$buyCards BuyCard")
       tasks.forEach(::task)
-      OperationBody().body()
+      OperationBodyImpl().body()
     }
   }
 
@@ -42,7 +51,7 @@ object TerraformingMars {
     return stdAction("UseStandardProject") {
       task("UseAction1<$stdProject>")
       tasks.forEach(::task)
-      OperationBody().body()
+      OperationBodyImpl().body()
     }
   }
 
@@ -87,7 +96,7 @@ object TerraformingMars {
           .forEach { writer.narrowTask(it, NoOp) } // "executes" automatically
       autoExec()
       taskStrings.forEach(::task)
-      OperationBody().body()
+      OperationBodyImpl().body()
     }
   }
 
@@ -103,12 +112,6 @@ object TerraformingMars {
       body: OperationBody.() -> Unit = {}
   ) = cardAction(2, cardName, tasks.toList(), body)
 
-  fun PlayerSession.cardAction3(
-      cardName: String,
-      vararg tasks: String,
-      body: OperationBody.() -> Unit = {}
-  ) = cardAction(3, cardName, tasks.toList(), body)
-
   private fun PlayerSession.cardAction(
       which: Int,
       cardName: String,
@@ -121,13 +124,17 @@ object TerraformingMars {
       task("UseAction$which<$cardName>")
       task("ActionUsedMarker<$cardName>") // will become automatic?
       tasks.forEach(::task)
-      OperationBody().body()
+      OperationBodyImpl().body()
     }
   }
 
   fun PlayerSession.sellPatents(count: Int) {
     require(has("ActionPhase"))
     return stdAction("SellPatents", "$count Megacredit FROM ProjectCard")
+  }
+
+  fun PlayerSession.phase(phase: String) {
+    asPlayer(Player.ENGINE).operation("${phase}Phase FROM Phase")
   }
 
   fun PlayerSession.production(): Map<ClassName, Int> =

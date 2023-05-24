@@ -7,10 +7,10 @@ import dev.martianzoo.tfm.api.Exceptions.RecoverableException
 import dev.martianzoo.tfm.api.Exceptions.TaskException
 import dev.martianzoo.tfm.data.GameEvent.ChangeEvent.Cause
 import dev.martianzoo.tfm.data.Player
-import dev.martianzoo.tfm.data.Player.Companion.ENGINE
 import dev.martianzoo.tfm.data.Task.TaskId
 import dev.martianzoo.tfm.data.TaskResult
 import dev.martianzoo.tfm.engine.Component.Companion.toComponent
+import dev.martianzoo.tfm.engine.Operator.OperationBody
 import dev.martianzoo.tfm.pets.Parsing.parse
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.Expression
@@ -28,7 +28,7 @@ public class PlayerSession(
     // TODO Session?
     private val game: Game,
     public val player: Player,
-) {
+) : Operator {
   companion object {
     fun Game.session(player: Player) = PlayerSession(this, player)
   }
@@ -52,11 +52,9 @@ public class PlayerSession(
   fun count(metric: String): Int = count(parse(metric))
   fun countComponent(component: Component) = reader.countComponent(component.mtype)
   fun list(expression: Expression): Multiset<Expression> {
-    val typeToList: MType = reader.resolve(preprocess(expression)) as MType
+    val typeToList: MType = reader.resolve(preprocess(expression))
     val allComponents: Multiset<Component> =
-        reader.getComponents(reader.resolve(preprocess(expression))).map {
-          (it as MType).toComponent()
-        }
+        reader.getComponents(reader.resolve(preprocess(expression))).map { it.toComponent() }
 
     val result = HashMultiset<Expression>()
     typeToList.root.directSubclasses.forEach { sub ->
@@ -75,21 +73,10 @@ public class PlayerSession(
 
   // EXECUTION
 
-  fun turn(vararg tasks: String, body: OperationBody.() -> Unit = {}) {
-    return operation("NewTurn") {
-      tasks.forEach(::task)
-      OperationBody().body()
-    }
-  }
-
-  fun phase(phase: String) { // TODO move
-    asPlayer(ENGINE).operation("${phase}Phase FROM Phase")
-  }
-
-  fun operation(startingInstruction: String, vararg tasks: String): TaskResult =
+  override fun operation(startingInstruction: String, vararg tasks: String): TaskResult =
       timeline.atomic { operation(startingInstruction) { tasks.forEach(::task) } }
 
-  fun operation(startingInstruction: String, body: OperationBody.() -> Unit) {
+  override fun operation(startingInstruction: String, body: OperationBody.() -> Unit) {
     val instruction: Instruction = parseInContext(startingInstruction)
     require(tasks.isEmpty()) { tasks }
     val cp = timeline.checkpoint()
@@ -97,7 +84,7 @@ public class PlayerSession(
     autoExec()
 
     try {
-      OperationBody().body()
+      OperationBodyImpl().body()
     } catch (e: JustRollBackException) {
       timeline.rollBack(cp)
     } catch (e: Exception) {
@@ -113,22 +100,22 @@ public class PlayerSession(
 
   private class JustRollBackException : Exception("")
 
-  inner class OperationBody {
+  inner class OperationBodyImpl : OperationBody {
     val session = this@PlayerSession
     val tasks by game::tasks
 
-    fun task(instruction: String) {
+    override fun task(instruction: String) {
       session.task(instruction)
       autoExec()
     }
 
-    fun matchTask(instruction: String) {
+    override fun matchTask(instruction: String) {
       session.matchTask(instruction)
       autoExec()
     }
 
     // TODO rename or something, it sounds like you can keep going
-    fun rollItBack() {
+    override fun rollItBack() {
       throw JustRollBackException()
     }
   }
@@ -143,11 +130,11 @@ public class PlayerSession(
   }
 
   @Suppress("ControlFlowWithEmptyBody")
-  fun autoExec(safely: Boolean = false): TaskResult { // TODO invert default or something
+  override fun autoExec(safely: Boolean): TaskResult { // TODO invert default or something
     return timeline.atomic { while (autoExecOneTask(safely)) {} }
   }
 
-  fun autoExecOneTask(safely: Boolean = true): Boolean /* should we continue */ {
+  fun autoExecOneTask(safely: Boolean): Boolean /* should we continue */ {
     if (tasks.isEmpty()) return false
 
     // see if we can prepare a task (choose only from our own)
@@ -186,7 +173,7 @@ public class PlayerSession(
     return false // presumably everything is abstract
   }
 
-  fun tryTask(taskId: TaskId, narrowed: String? = null) =
+  override fun tryTask(taskId: TaskId, narrowed: String?) =
       timeline.atomic {
         try {
           writer.prepareTask(taskId)
@@ -202,7 +189,7 @@ public class PlayerSession(
       }
 
   // Similar to tryTask, but a NotNowException is unrecoverable in this case
-  private fun tryPreparedTask(): Boolean /* did I do stuff? */ {
+  override fun tryPreparedTask(): Boolean /* did I do stuff? */ {
     val taskId = tasks.preparedTask()!!
     return try {
       writer.executeTask(taskId)
@@ -216,7 +203,7 @@ public class PlayerSession(
     }
   }
 
-  fun matchTask(revised: String): TaskResult {
+  override fun matchTask(revised: String): TaskResult {
     if (tasks.isEmpty()) throw TaskException("no tasks")
 
     val ins: Instruction = preprocess(parse(revised))
