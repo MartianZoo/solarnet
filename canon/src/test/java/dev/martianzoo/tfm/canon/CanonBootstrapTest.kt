@@ -11,6 +11,7 @@ import dev.martianzoo.tfm.pets.Parsing.parse
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.Metric
 import dev.martianzoo.tfm.types.MClassTable
+import dev.martianzoo.tfm.types.MType
 import dev.martianzoo.util.toSetStrict
 import dev.martianzoo.util.toStrings
 import org.junit.jupiter.api.Test
@@ -66,7 +67,8 @@ private class CanonBootstrapTest {
   @Test
   fun createsExpectedSingletons() {
     val game = Engine.newGame(GameSetup(Canon, "BRMPX", 3)).reader
-    val starting = game.getComponents(game.resolve(COMPONENT.expression)).map { it.toComponent() }
+    val starting =
+        game.getComponents(game.resolve(COMPONENT.expression)).map { (it as MType).toComponent() }
 
     // 19 duplicate TR and 4 duplicate PROD[M]
     assertThat(starting).hasSize(starting.elements.size + 69)

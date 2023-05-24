@@ -1,24 +1,28 @@
 package dev.martianzoo.tfm.engine
 
+import dev.martianzoo.tfm.api.GameReader
 import dev.martianzoo.tfm.data.GameEvent.ChangeEvent
 import dev.martianzoo.tfm.data.GameEvent.TaskEvent
 import dev.martianzoo.tfm.data.TaskResult
 import dev.martianzoo.tfm.engine.Component.Companion.toComponent
-import dev.martianzoo.tfm.engine.Game.SnReader
-import dev.martianzoo.tfm.engine.Game.Timeline
-import dev.martianzoo.tfm.engine.Game.Timeline.Checkpoint
+import dev.martianzoo.tfm.engine.Engine.Updater
 import javax.inject.Inject
 
-internal class TimelineImpl @Inject constructor(
-    private val updater: Updater,
-    private val events: WritableEventLog,
-    private val tasks: WritableTaskQueue,
-    private val reader: SnReader,
-) : Timeline {
+public class Timeline @Inject constructor() {
+  @Inject internal lateinit var updater: Updater
+  @Inject internal lateinit var events: WritableEventLog
+  @Inject internal lateinit var tasks: WritableTaskQueue
+  @Inject internal lateinit var reader: GameReader
 
-  override fun checkpoint() = Checkpoint(events.size)
+  public data class Checkpoint(internal val ordinal: Int) {
+    init {
+      require(ordinal >= 0)
+    }
+  }
 
-  override fun rollBack(checkpoint: Checkpoint) {
+  fun checkpoint() = Checkpoint(events.size)
+
+  fun rollBack(checkpoint: Checkpoint) {
 
     val ordinal = checkpoint.ordinal
     require(ordinal <= events.size)
@@ -44,7 +48,7 @@ internal class TimelineImpl @Inject constructor(
   /**
    * Performs [block] with failure-atomicity and returning a [TaskResult] describing what changed.
    */
-  override fun atomic(block: () -> Unit): TaskResult {
+  fun atomic(block: () -> Unit): TaskResult {
     val checkpoint = checkpoint()
     try {
       block()
@@ -55,5 +59,5 @@ internal class TimelineImpl @Inject constructor(
     return events.activitySince(checkpoint)
   }
 
-  fun setupFinished() = events.setStartPoint()
+  internal fun setupFinished() = events.setStartPoint()
 }

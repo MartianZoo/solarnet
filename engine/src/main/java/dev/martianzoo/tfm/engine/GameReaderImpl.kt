@@ -1,11 +1,11 @@
 package dev.martianzoo.tfm.engine
 
 import dev.martianzoo.tfm.api.Authority
+import dev.martianzoo.tfm.api.GameReader
 import dev.martianzoo.tfm.api.Type
 import dev.martianzoo.tfm.api.TypeInfo
 import dev.martianzoo.tfm.engine.Component.Companion.toComponent
 import dev.martianzoo.tfm.engine.Game.ComponentGraph
-import dev.martianzoo.tfm.engine.Game.SnReader
 import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.pets.ast.Metric
 import dev.martianzoo.tfm.pets.ast.Metric.Count
@@ -25,13 +25,13 @@ import dev.martianzoo.tfm.types.Transformers
 import javax.inject.Inject
 import kotlin.math.min
 
-internal class GameReaderImpl @Inject constructor(
+public class GameReaderImpl @Inject constructor(
     private val table: MClassTable,
-    private val components: ComponentGraph
-) : SnReader, TypeInfo {
+    private val components: ComponentGraph,
+    internal val transformers: Transformers,
+) : GameReader, TypeInfo {
 
   override val authority: Authority by table::authority
-  override val transformers: Transformers by table::transformers
 
   override fun resolve(expression: Expression) = table.resolve(expression)
 
@@ -71,7 +71,7 @@ internal class GameReaderImpl @Inject constructor(
 
   override fun countComponent(concreteType: Type) = countComponent(concreteType.toComponent(this))
 
-  override fun countComponent(component: Component) = components.countComponent(component)
+  fun countComponent(component: Component) = components.countComponent(component)
 
   override fun getComponents(type: Type) =
       components.getAll(table.resolve(type), this).map { it.mtype }

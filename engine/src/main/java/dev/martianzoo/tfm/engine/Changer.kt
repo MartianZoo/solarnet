@@ -1,16 +1,18 @@
 package dev.martianzoo.tfm.engine
 
 import dev.martianzoo.tfm.api.Exceptions.ExistingDependentsException
+import dev.martianzoo.tfm.api.GameReader
 import dev.martianzoo.tfm.api.Type
 import dev.martianzoo.tfm.data.GameEvent.ChangeEvent
 import dev.martianzoo.tfm.data.GameEvent.ChangeEvent.Cause
 import dev.martianzoo.tfm.data.Player
 import dev.martianzoo.tfm.engine.Component.Companion.toComponent
-import dev.martianzoo.tfm.engine.Game.SnReader
+import dev.martianzoo.tfm.engine.Engine.ChangeLogger
+import dev.martianzoo.tfm.engine.Engine.Updater
 import javax.inject.Inject
 
 internal class Changer @Inject constructor(
-    private val reader: SnReader,
+    private val reader: GameReader,
     private val updater: Updater,
     private val changeLog: ChangeLogger,
     private val player: Player,
@@ -34,7 +36,7 @@ internal class Changer @Inject constructor(
 
   private fun removeAll(dependent: Type, cause: Cause?): ChangeEvent {
     val component = dependent.toComponent(reader)
-    val count = reader.countComponent(component)
+    val count = reader.countComponent(component.mtype)
     return change(count, null, component, cause, true).first
   }
 

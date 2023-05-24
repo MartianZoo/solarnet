@@ -8,11 +8,11 @@ import dev.martianzoo.tfm.api.Exceptions.NotNowException
 import dev.martianzoo.tfm.api.Exceptions.abstractInstruction
 import dev.martianzoo.tfm.api.Exceptions.orWithoutChoice
 import dev.martianzoo.tfm.api.Exceptions.requirementNotMet
+import dev.martianzoo.tfm.api.GameReader
 import dev.martianzoo.tfm.api.SpecialClassNames.DIE
 import dev.martianzoo.tfm.data.GameEvent.ChangeEvent.Cause
 import dev.martianzoo.tfm.data.Task
 import dev.martianzoo.tfm.engine.Component.Companion.toComponent
-import dev.martianzoo.tfm.engine.Game.SnReader
 import dev.martianzoo.tfm.engine.WritableComponentGraph.Limiter
 import dev.martianzoo.tfm.pets.PetTransformer.Companion.chain
 import dev.martianzoo.tfm.pets.Transforming.replaceOwnerWith
@@ -32,6 +32,7 @@ import dev.martianzoo.tfm.pets.ast.Instruction.Then
 import dev.martianzoo.tfm.pets.ast.Instruction.Transform
 import dev.martianzoo.tfm.pets.ast.ScaledExpression.Scalar.ActualScalar
 import dev.martianzoo.tfm.types.MType
+import dev.martianzoo.tfm.types.Transformers
 import javax.inject.Inject
 import kotlin.math.min
 
@@ -39,10 +40,11 @@ import kotlin.math.min
 internal class Instructor
 @Inject
 constructor(
-    private val reader: SnReader,
+    private val reader: GameReader,
     private val effector: Effector,
     private val limiter: Limiter,
     private val changer: Changer,
+    private val transformers: Transformers,
 ) {
 
   fun execute(instruction: Instruction, cause: Cause?): List<Task> =
@@ -167,8 +169,8 @@ constructor(
 
     val prepped =
         chain(
-                reader.transformers.standardPreprocess(),
-                reader.transformers.substituter(type.root.baseType, type),
+                transformers.standardPreprocess(),
+                transformers.substituter(type.root.baseType, type),
                 type.owner?.let { replaceOwnerWith(it) },
             )
             .transform(translated)
@@ -194,8 +196,8 @@ constructor(
   }
 
   private fun autoNarrowTypes(gaining: Expression?, removing: Expression?): Pair<MType?, MType?> {
-    var g: MType? = gaining?.let(reader::resolve)
-    var r: MType? = removing?.let(reader::resolve)
+    var g = gaining?.let(reader::resolve) as MType?
+    var r = removing?.let(reader::resolve) as MType?
 
     if (g?.abstract == true) { // I guess otherwise it'll fail somewhere else...
       val missing =
@@ -217,7 +219,7 @@ constructor(
     if (r?.abstract == true) {
       // Infer a type if there IS only one kind of component that has it
       // TODO could be smarter, like if the instr is mandatory and only one cpt type can satisfy
-      r = reader.getComponents(r).singleOrNull() ?: r
+      r = reader.getComponents(r).singleOrNull() as MType? ?: r
     }
     return g to r
   }

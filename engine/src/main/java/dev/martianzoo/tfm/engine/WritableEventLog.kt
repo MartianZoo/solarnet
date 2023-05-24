@@ -11,14 +11,16 @@ import dev.martianzoo.tfm.data.Player
 import dev.martianzoo.tfm.data.Task
 import dev.martianzoo.tfm.data.Task.TaskId
 import dev.martianzoo.tfm.data.TaskResult
+import dev.martianzoo.tfm.engine.Engine.ChangeLogger
+import dev.martianzoo.tfm.engine.Engine.TaskListener
 import dev.martianzoo.tfm.engine.Game.EventLog
-import dev.martianzoo.tfm.engine.Game.Timeline.Checkpoint
+import dev.martianzoo.tfm.engine.Timeline.Checkpoint
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
 internal class WritableEventLog @Inject constructor() : EventLog, TaskListener, ChangeLogger {
-  val events: MutableList<GameEvent> = mutableListOf() // TODO only used by TimelineImpl
+  val events: MutableList<GameEvent> = mutableListOf() // TODO only used by Timeline
   override val size: Int by events::size
 
   override fun changesSince(checkpoint: Checkpoint): List<ChangeEvent> =

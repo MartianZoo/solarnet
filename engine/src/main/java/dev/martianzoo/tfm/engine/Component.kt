@@ -1,9 +1,10 @@
 package dev.martianzoo.tfm.engine
 
 import dev.martianzoo.tfm.api.Exceptions
+import dev.martianzoo.tfm.api.GameReader
+import dev.martianzoo.tfm.api.Type
 import dev.martianzoo.tfm.data.Player
 import dev.martianzoo.tfm.engine.Game.ComponentGraph
-import dev.martianzoo.tfm.engine.Game.SnReader
 import dev.martianzoo.tfm.pets.HasClassName
 import dev.martianzoo.tfm.pets.HasExpression
 import dev.martianzoo.tfm.pets.ast.Effect
@@ -18,8 +19,8 @@ import dev.martianzoo.tfm.types.MType
 public data class Component private constructor(internal val mtype: MType) :
     HasClassName, HasExpression {
   companion object {
-    public fun Expression.toComponent(game: SnReader) = Component(game.resolve(this))
-    public fun HasExpression.toComponent(game: SnReader) = expressionFull.toComponent(game)
+    public fun Expression.toComponent(game: GameReader) = Component(game.resolve(this) as MType)
+    public fun HasExpression.toComponent(game: GameReader) = expressionFull.toComponent(game)
     public fun MType.toComponent() = Component(this)
   }
 
@@ -48,7 +49,7 @@ public data class Component private constructor(internal val mtype: MType) :
 
   override fun toString() = "[${mtype.expressionFull}]"
 
-  fun hasType(supertype: MType) = mtype.narrows(supertype)
+  fun hasType(supertype: Type) = mtype.narrows(supertype)
 
   val allowedRange: IntRange = mtype.root.componentCountRange
 }

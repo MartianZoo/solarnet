@@ -11,10 +11,10 @@ import dev.martianzoo.tfm.data.Task.TaskId
 import dev.martianzoo.tfm.data.TaskResult
 import dev.martianzoo.tfm.engine.Engine
 import dev.martianzoo.tfm.engine.Game
-import dev.martianzoo.tfm.engine.Game.SnReader
-import dev.martianzoo.tfm.engine.Game.Timeline.Checkpoint
+import dev.martianzoo.tfm.engine.GameReaderImpl
 import dev.martianzoo.tfm.engine.PlayerSession
 import dev.martianzoo.tfm.engine.PlayerSession.Companion.session
+import dev.martianzoo.tfm.engine.Timeline.Checkpoint
 import dev.martianzoo.tfm.pets.Parsing.parse
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
@@ -495,7 +495,7 @@ public class ReplSession(var setup: GameSetup, private val jline: JlineRepl? = n
     }
   }
 
-  fun isSystem(event: ChangeEvent, game: SnReader): Boolean {
+  fun isSystem(event: ChangeEvent, game: GameReaderImpl): Boolean {
     val g = event.change.gaining
     val r = event.change.removing
 
@@ -622,7 +622,7 @@ public class ReplSession(var setup: GameSetup, private val jline: JlineRepl? = n
 
   private fun player(name: String): Player {
     // In case a shortname was used
-    val type: MType = game.reader.resolve(cn(name).expression)
+    val type: MType = session.reader.resolve(cn(name).expression)
     return Player(type.className)
   }
 }

@@ -1,7 +1,6 @@
 package dev.martianzoo.tfm.engine
 
 import dev.martianzoo.tfm.api.GameReader
-import dev.martianzoo.tfm.api.Type
 import dev.martianzoo.tfm.api.TypeInfo
 import dev.martianzoo.tfm.data.GameEvent
 import dev.martianzoo.tfm.data.GameEvent.ChangeEvent
@@ -15,11 +14,9 @@ import dev.martianzoo.tfm.engine.Engine.PlayerModule
 import dev.martianzoo.tfm.engine.Game.ComponentGraph
 import dev.martianzoo.tfm.engine.Game.EventLog
 import dev.martianzoo.tfm.engine.Game.TaskQueue
-import dev.martianzoo.tfm.engine.Game.Timeline.Checkpoint
-import dev.martianzoo.tfm.pets.ast.Expression
+import dev.martianzoo.tfm.engine.Timeline.Checkpoint
 import dev.martianzoo.tfm.types.MClassTable
 import dev.martianzoo.tfm.types.MType
-import dev.martianzoo.tfm.types.Transformers
 import dev.martianzoo.util.Multiset
 import javax.inject.Singleton
 
@@ -48,7 +45,7 @@ public abstract class Game {
   public abstract val timeline: Timeline
 
   /** Higher-level querying of game state (i.e. in Pets language). */
-  public abstract val reader: SnReader
+  public abstract val reader: GameReader
 
   /** All modifications to game state (except rollbacks) go through here. */
   public fun writer(player: Player) = playerModule(PlayerModule(player)).writer
@@ -140,31 +137,5 @@ public abstract class Game {
 
     /** Returns the id of the task marked with [Task.next] if there is one. */
     fun preparedTask(): TaskId?
-  }
-
-  public interface SnReader : GameReader {
-
-    override fun resolve(expression: Expression): MType
-    override fun getComponents(type: Type): Multiset<out MType>
-    fun countComponent(component: Component): Int
-    public val transformers: Transformers
-  }
-
-  interface Timeline {
-    /** A point in history. */
-    public data class Checkpoint(internal val ordinal: Int) {
-      init {
-        require(ordinal >= 0)
-      }
-    }
-
-    fun checkpoint(): Checkpoint
-
-    fun rollBack(checkpoint: Checkpoint)
-
-    /**
-     * Performs [block] with failure-atomicity and returning a [TaskResult] describing what changed.
-     */
-    fun atomic(block: () -> Unit): TaskResult
   }
 }

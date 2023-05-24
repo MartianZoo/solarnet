@@ -2,29 +2,31 @@ package dev.martianzoo.tfm.engine
 
 import dev.martianzoo.tfm.api.Exceptions.AbstractException
 import dev.martianzoo.tfm.api.Exceptions.TaskException
+import dev.martianzoo.tfm.api.GameReader
 import dev.martianzoo.tfm.data.GameEvent.ChangeEvent.Cause
 import dev.martianzoo.tfm.data.Player
 import dev.martianzoo.tfm.data.Task
 import dev.martianzoo.tfm.data.Task.TaskId
 import dev.martianzoo.tfm.data.TaskResult
 import dev.martianzoo.tfm.engine.Component.Companion.toComponent
-import dev.martianzoo.tfm.engine.Game.SnReader
 import dev.martianzoo.tfm.pets.Parsing
-import dev.martianzoo.tfm.pets.PetTransformer
-import dev.martianzoo.tfm.pets.Transforming
+import dev.martianzoo.tfm.pets.PetTransformer.Companion.chain
+import dev.martianzoo.tfm.pets.Transforming.replaceOwnerWith
 import dev.martianzoo.tfm.pets.ast.Instruction
 import dev.martianzoo.tfm.pets.ast.Instruction.Change
 import dev.martianzoo.tfm.pets.ast.PetElement
 import dev.martianzoo.tfm.pets.ast.ScaledExpression.Scalar.ActualScalar
+import dev.martianzoo.tfm.types.Transformers
 import javax.inject.Inject
 
 internal class GameWriterImpl @Inject constructor(
     private val tasks: WritableTaskQueue,
-    private val reader: SnReader,
-    private val timeline: TimelineImpl,
+    private val reader: GameReader,
+    private val timeline: Timeline,
     private val player: Player,
     val instructor: Instructor,
     private val changer: Changer,
+    transformers: Transformers,
 ) : GameWriter, UnsafeGameWriter {
 
   override fun addTask(instruction: Instruction, firstCause: Cause?) =
@@ -153,11 +155,7 @@ internal class GameWriterImpl @Inject constructor(
     }
   }
 
-  private val xer =
-      PetTransformer.chain(
-          reader.transformers.standardPreprocess(),
-          Transforming.replaceOwnerWith(player),
-      )
+  private val xer = chain(transformers.standardPreprocess(), replaceOwnerWith(player))
 
   internal fun <P : PetElement> preprocess(node: P) = xer.transform(node)
 }
