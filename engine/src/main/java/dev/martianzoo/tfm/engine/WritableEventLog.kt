@@ -13,7 +13,6 @@ import dev.martianzoo.tfm.data.Task.TaskId
 import dev.martianzoo.tfm.data.TaskResult
 import dev.martianzoo.tfm.engine.Engine.ChangeLogger
 import dev.martianzoo.tfm.engine.Engine.TaskListener
-import dev.martianzoo.tfm.engine.Game.EventLog
 import dev.martianzoo.tfm.engine.Timeline.Checkpoint
 import javax.inject.Inject
 import javax.inject.Singleton

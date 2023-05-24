@@ -6,7 +6,8 @@ import dev.martianzoo.tfm.api.Type
 import dev.martianzoo.tfm.data.GameEvent.ChangeEvent
 import dev.martianzoo.tfm.data.GameEvent.ChangeEvent.Cause
 import dev.martianzoo.tfm.data.Player
-import dev.martianzoo.tfm.engine.Component.Companion.toComponent
+import dev.martianzoo.tfm.engine.ComponentGraph.Component
+import dev.martianzoo.tfm.engine.ComponentGraph.Component.Companion.toComponent
 import dev.martianzoo.tfm.engine.Engine.ChangeLogger
 import dev.martianzoo.tfm.engine.Engine.Updater
 import javax.inject.Inject

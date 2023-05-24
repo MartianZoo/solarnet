@@ -1,6 +1,6 @@
 package dev.martianzoo.tfm.repl
 
-import dev.martianzoo.tfm.engine.Component.Companion.toComponent
+import dev.martianzoo.tfm.engine.ComponentGraph.Component.Companion.toComponent
 import dev.martianzoo.tfm.engine.PlayerSession
 import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.types.MClass

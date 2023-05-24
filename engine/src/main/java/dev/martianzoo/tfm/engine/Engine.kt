@@ -14,9 +14,7 @@ import dev.martianzoo.tfm.data.GameSetup
 import dev.martianzoo.tfm.data.Player
 import dev.martianzoo.tfm.data.Player.Companion.ENGINE
 import dev.martianzoo.tfm.data.Task
-import dev.martianzoo.tfm.engine.Game.ComponentGraph
-import dev.martianzoo.tfm.engine.Game.EventLog
-import dev.martianzoo.tfm.engine.Game.TaskQueue
+import dev.martianzoo.tfm.engine.ComponentGraph.Component
 import dev.martianzoo.tfm.pets.Parsing.parse
 import dev.martianzoo.tfm.types.MClassTable
 
@@ -28,7 +26,7 @@ public object Engine {
 
   /** Creates a new game using an existing class table, ready for gameplay to begin. */
   public fun newGame(table: MClassTable): Game {
-    val game = Game.createEmpty(table)
+    val game = DaggerGame.builder().gameModule(GameModule(table)).build()
 
     val session = PlayerSession(game, ENGINE)
     val firstEvent: ChangeEvent = session.operation("$ENGINE!").changes.first()
