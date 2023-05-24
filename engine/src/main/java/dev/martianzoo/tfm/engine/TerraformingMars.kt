@@ -66,7 +66,7 @@ object TerraformingMars {
       megacredits: Int = 0,
       steel: Int = 0,
       titanium: Int = 0,
-      vararg tasks: String,
+      vararg taskStrings: String,
       body: OperationBody.() -> Unit = {}
   ) {
 
@@ -83,13 +83,10 @@ object TerraformingMars {
       pay(titanium, "Titanium")
 
       // Take care of other Accepts we didn't need
-      for (task in this.tasks.toList()) {
-        if (task.cause?.context?.className == cn("Accept")) {
-          writer.narrowTask(task.id, NoOp) // "executes" automatically
-        }
-      }
+      tasks.matching { it.cause?.context?.className == cn("Accept") }
+          .forEach { writer.narrowTask(it, NoOp) } // "executes" automatically
       autoExec()
-      tasks.forEach(::task)
+      taskStrings.forEach(::task)
       OperationBody().body()
     }
   }

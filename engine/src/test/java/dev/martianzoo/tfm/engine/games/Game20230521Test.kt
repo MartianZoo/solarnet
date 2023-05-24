@@ -21,6 +21,9 @@ import dev.martianzoo.tfm.engine.TestHelpers.assertProds
 import org.junit.jupiter.api.Test
 
 class Game20230521Test {
+  // @Test // for profiling
+  fun games() = repeat(10) { game() }
+
   @Test
   fun game() {
     val game = Engine.newGame(GameSetup(Canon, "BRMVPXCT", 2))

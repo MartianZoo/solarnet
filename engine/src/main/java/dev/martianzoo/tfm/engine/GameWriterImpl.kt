@@ -35,32 +35,31 @@ internal class GameWriterImpl @Inject constructor(
       }
 
   override fun narrowTask(taskId: TaskId, narrowed: Instruction): TaskResult {
-    val task = tasks[taskId]
+    val task = tasks.getTaskData(taskId)
     if (player != task.owner) {
       throw TaskException("$player can't narrow a task owned by ${task.owner}")
     }
 
+    val current = task.instruction
     val fixedNarrowing = preprocess(narrowed)
-    if (fixedNarrowing == task.instruction) return TaskResult()
-    fixedNarrowing.ensureNarrows(task.instruction, reader)
+    if (fixedNarrowing == current) return TaskResult()
+    fixedNarrowing.ensureNarrows(current, reader)
 
     val replacement = if (task.next) instructor.prepare(fixedNarrowing) else fixedNarrowing
-    return editButCheckCardinality(task.copy(instructionIn = replacement))
+    return editButCheckCardinality(tasks.getTaskData(taskId).copy(instructionIn = replacement))
   }
 
   override fun prepareTask(taskId: TaskId): TaskId? {
-    val task = tasks[taskId]
-    val result = doPrepare(task)
+    val result = doPrepare(tasks.getTaskData(taskId))
 
     // let's just look ahead though
     if (taskId in tasks) {
       try {
         timeline.atomic {
           executeTask(taskId)
-          throw AbstractException("") // just getting this rolled back is all
+          throw AbstractException("just getting this to roll back")
         }
-      } catch (ignore: AbstractException) {
-        // we don't guarantee execute won't throw this
+      } catch (ignore: AbstractException) { // the only failure that's expected/normal
       }
     }
     return result
@@ -92,7 +91,7 @@ internal class GameWriterImpl @Inject constructor(
 
   override fun canPrepareTask(taskId: TaskId): Boolean {
     dontCutTheLine(taskId)
-    val unprepared = tasks[taskId].instruction
+    val unprepared = tasks.getTaskData(taskId).instruction
     return try {
       instructor.prepare(unprepared)
       true
@@ -102,15 +101,13 @@ internal class GameWriterImpl @Inject constructor(
   }
 
   override fun explainTask(taskId: TaskId, reason: String) {
-    tasks.editTask(tasks[taskId].copy(whyPending = reason))
+    tasks.editTask(tasks.getTaskData(taskId).copy(whyPending = reason))
   }
 
   override fun executeTask(taskId: TaskId): TaskResult {
-    val task = tasks[taskId]
-
     return timeline.atomic {
-      val prepared = doPrepare(task) ?: return@atomic
-      val preparedTask = tasks[prepared]
+      val prepared = doPrepare(tasks.getTaskData(taskId)) ?: return@atomic
+      val preparedTask = tasks.getTaskData(prepared)
       val newTasks = instructor.execute(preparedTask.instruction, preparedTask.cause)
       newTasks.forEach(tasks::addTasks)
       handleTask(taskId)
@@ -122,7 +119,7 @@ internal class GameWriterImpl @Inject constructor(
    * automatically enqueued.
    */
   private fun handleTask(taskId: TaskId) {
-    val task = tasks[taskId]
+    val task = tasks.getTaskData(taskId)
     task.then?.let { tasks.addTasks(Instruction.split(it), task.owner, task.cause) }
     dropTask(taskId)
   }
@@ -130,7 +127,7 @@ internal class GameWriterImpl @Inject constructor(
   private fun dontCutTheLine(taskId: TaskId) {
     val already = tasks.preparedTask()
     if (already != null && already != taskId) {
-      throw TaskException("another prepared task must go first: ${tasks[already]}")
+      throw TaskException("task $already is already prepared and must be executed first")
     }
   }
 

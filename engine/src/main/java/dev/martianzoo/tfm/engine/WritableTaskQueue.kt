@@ -17,31 +17,29 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-internal class WritableTaskQueue @Inject constructor(
-    private val events: TaskListener,
-) : TaskQueue, AbstractSet<Task>() {
+internal class WritableTaskQueue @Inject constructor(private val events: TaskListener) : TaskQueue {
   private val taskSet: MutableSet<Task> = mutableSetOf()
-  init { println(this) }
 
-  override val size by taskSet::size
-  override fun iterator() = taskSet.iterator()
+  // OVERRIDES / READ-ONLY OPERATIONS
 
-// OVERRIDES / READ-ONLY OPERATIONS
+  override fun ids() = taskSet.toSetStrict { it.id }
 
-  override fun ids(): Set<TaskId> = taskSet.map { it.id }.toSetStrict()
+  override fun contains(id: TaskId) = taskSet.any { it.id == id }
 
-  override operator fun contains(id: TaskId) = taskSet.any { it.id == id }
+  override fun matching(predicate: (Task) -> Boolean) =
+      taskSet.filter(predicate).toSetStrict { it.id }
 
-  override operator fun get(id: TaskId) =
-      taskSet.firstOrNull { it.id == id } ?: throw TaskException("nonexistent task: $id")
+  override fun <T> extract(extractor: (Task) -> T) = taskSet.map(extractor)
 
   override fun preparedTask(): TaskId? = taskSet.firstOrNull { it.next }?.id
 
-  override fun nextAvailableId() = if (isEmpty()) TaskId("A") else taskSet.maxOf { it.id }.next()
+  fun getTaskData(id: TaskId) =
+      taskSet.firstOrNull { it.id == id } ?: throw TaskException("nonexistent task: $id")
 
-  override fun toString() = joinToString("\n")
+  private fun nextAvailableId() =
+      if (taskSet.none()) TaskId("A") else taskSet.maxOf { it.id }.next()
 
-  // ALL NON-PRIVATE MUTATIONS OF TASKSET
+// ALL NON-PRIVATE MUTATIONS OF TASKSET
 
   internal fun addTasks(task: Task) = addTasks(split(task.instruction), task.owner, task.cause)
 
@@ -58,14 +56,14 @@ internal class WritableTaskQueue @Inject constructor(
   }
 
   internal fun removeTask(id: TaskId): TaskRemovedEvent {
-    val task = this[id]
+    val task = getTaskData(id)
     removeFromTaskSet(task)
     return events.taskRemoved(task)
   }
 
   internal fun editTask(newTask: Task): TaskEditedEvent? {
     val id = newTask.id
-    val oldTask = this[id]
+    val oldTask = getTaskData(id)
     if (newTask == oldTask) return null
     removeFromTaskSet(oldTask)
     addToTaskSet(newTask)
@@ -102,4 +100,6 @@ internal class WritableTaskQueue @Inject constructor(
   private fun removeFromTaskSet(task: Task) {
     require(taskSet.remove(task))
   }
+
+  override fun toString() = taskSet.joinToString("\n")
 }

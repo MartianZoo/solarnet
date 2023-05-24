@@ -8,16 +8,15 @@ import dev.martianzoo.tfm.data.GameEvent
 import dev.martianzoo.tfm.data.GameEvent.TaskAddedEvent
 import dev.martianzoo.tfm.data.GameEvent.TaskRemovedEvent
 import dev.martianzoo.tfm.data.Player.Companion.PLAYER1
-import dev.martianzoo.tfm.data.Task
 import dev.martianzoo.tfm.data.Task.TaskId
 import dev.martianzoo.tfm.data.TaskResult
 import dev.martianzoo.tfm.engine.Game.Timeline.Checkpoint
 import dev.martianzoo.tfm.engine.PlayerSession.Companion.session
 import dev.martianzoo.tfm.pets.Parsing.parse
 import dev.martianzoo.tfm.pets.ast.Instruction.NoOp
-import kotlin.reflect.KClass
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
+import kotlin.reflect.KClass
 
 class TaskNarrowingTest {
   private val A = TaskId("A")
@@ -42,9 +41,9 @@ class TaskNarrowingTest {
   fun `initiating an abstract task works as expected`() {
     val task = initiate("2 Plant?").single()
 
-    assertThat(task.id).isEqualTo(A)
-    assertThat("${task.instruction}").isEqualTo("2 Plant<Player1>?")
-    assertThat(this.tasks.ids()).containsExactly(A)
+    assertThat(task).isEqualTo(A)
+    assertThat(tasks.extract { "${it.instruction}" }).containsExactly("2 Plant<Player1>?")
+    assertThat(tasks.ids()).containsExactly(A)
     assertThat(history()).hasSize(1)
   }
 
@@ -126,7 +125,7 @@ class TaskNarrowingTest {
     assertThat(result).isEqualTo(NO_CHANGE)
 
     assertHistoryTypes(TaskAddedEvent::class, TaskRemovedEvent::class)
-    assertThat(tasks.ids()).isEmpty()
+    assertThat(tasks.isEmpty()).isTrue()
   }
 
   @Test
@@ -148,41 +147,41 @@ class TaskNarrowingTest {
   @Test
   fun `narrowing to NoOp enqueues the THEN instructions`() {
     val task = initiate("Plant? THEN (Steel, Heat)").single()
-    assertThat(task.instruction.toString()).isEqualTo("Plant<Player1>?")
-    assertThat(task.then.toString()).isEqualTo("Steel<Player1>!, Heat<Player1>!")
+    assertThat(tasks.extract { "${it.instruction}" }).containsExactly("Plant<Player1>?")
+    assertThat(tasks.extract { "${it.then}" }).containsExactly("Steel<Player1>!, Heat<Player1>!")
 
-    val result = writer.narrowTask(task.id, NoOp)
+    val result = writer.narrowTask(task, NoOp)
     assertThat(result.tasksSpawned).hasSize(2)
     assertThat(tasksAsText()).containsExactly("Steel<Player1>!", "Heat<Player1>!").inOrder()
-    assertThat(tasks.all { it.then == null })
+    assertThat(tasks.matching { it.then != null }.none())
   }
 
   @Test
   fun `a chain of 4 THEN clauses has the head sliced off one by one`() {
-    val id = initiate("Plant? THEN Steel? THEN Heat? THEN Energy").single().id
+    val id = initiate("Plant? THEN Steel? THEN Heat? THEN Energy").single()
 
     val result = writer.narrowTask(id, NoOp)
     assertThat(result.tasksSpawned).hasSize(1)
 
-    val task1 = tasks.single()
+    val task1 = tasks.extract { it }.single()
     assertThat(task1.instruction.toString()).isEqualTo("Steel<Player1>?")
     assertThat(task1.then.toString()).isEqualTo("Heat<Player1>? THEN Energy<Player1>!")
 
     writer.narrowTask(task1.id, NoOp)
-    val task2 = tasks.single()
+    val task2 = tasks.extract { it }.single()
     assertThat(task2.instruction.toString()).isEqualTo("Heat<Player1>?")
     assertThat(task2.then.toString()).isEqualTo("Energy<Player1>!")
 
     writer.narrowTask(task2.id, NoOp)
-    val task3 = tasks.single()
+    val task3 = tasks.extract { it }.single()
     assertThat(task3.instruction.toString()).isEqualTo("Energy<Player1>!")
     assertThat(task3.then).isNull()
   }
 
-  fun initiate(ins: String): List<Task> {
+  fun initiate(ins: String): Set<TaskId> {
     val result = writer.unsafe().addTask(parse(ins))
     assertThat(result.changes).isEmpty()
-    return result.tasksSpawned.map { tasks[it] }
+    return result.tasksSpawned
   }
 
   private operator fun Checkpoint.plus(increment: Int) = Checkpoint(ordinal + increment)
@@ -192,5 +191,5 @@ class TaskNarrowingTest {
   private fun assertHistoryTypes(vararg c: KClass<out GameEvent>) =
       assertThat(history().map { it::class }).containsExactly(*c).inOrder()
 
-  private fun tasksAsText() = tasks.map { "${it.instruction}" }
+  private fun tasksAsText() = tasks.extract { "${it.instruction}" }
 }

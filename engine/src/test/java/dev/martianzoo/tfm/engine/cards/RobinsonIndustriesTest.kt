@@ -68,7 +68,7 @@ class RobinsonIndustriesTest {
 
       phase("Action")
       cardAction1("RobinsonIndustries") {
-        assertThat(tasks.map { it.instruction.toString() })
+        assertThat(tasks.extract { "${it.instruction}" })
             .containsExactly(
                 "Production<Player1, Class<Megacredit>>! OR Production<Player1, Class<Titanium>>!")
         task("PROD[1]")

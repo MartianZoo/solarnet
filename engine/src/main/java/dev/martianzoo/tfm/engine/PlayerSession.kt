@@ -103,7 +103,9 @@ public class PlayerSession(
       throw e
     }
 
-    require(tasks.isEmpty()) { "Should be no tasks left, but:\n" + tasks.joinToString("\n") }
+    require(tasks.isEmpty()) {
+      "Should be no tasks left, but:\n" + tasks.extract { it }.joinToString("\n")
+    }
     require(game.reader.evaluate(parse("MAX 0 Temporary")))
   }
 
@@ -132,7 +134,6 @@ public class PlayerSession(
   // OTHER
 
   fun initiateOnly(instruction: Instruction, fakeCause: Cause? = null): TaskResult {
-    val x = 1 + 1
     return timeline.atomic {
       val newTasks = writer.unsafe().addTask(instruction, fakeCause).tasksSpawned
       newTasks.forEach { writer.executeTask(it) }
@@ -145,18 +146,14 @@ public class PlayerSession(
   }
 
   fun autoExecOneTask(safely: Boolean = true): Boolean /* should we continue */ {
-    if (tasks.none()) return false
+    if (tasks.isEmpty()) return false
 
     // see if we can prepare a task (choose only from our own)
     val options: List<TaskId> =
-        if (tasks.hasPreparedTask()) {
-          listOf(tasks.preparedTask()!!) // we'll prepare it again
-        } else {
-          tasks.map { it.id }.filter(writer::canPrepareTask)
-        }
+        tasks.preparedTask()?.let(::listOf) ?: tasks.ids().filter(writer::canPrepareTask)
 
     when (options.size) {
-      0 -> writer.prepareTask(tasks.first().id).also { error("that should've failed") }
+      0 -> writer.prepareTask(tasks.ids().first()).also { error("that should've failed") }
       1 -> {
         val taskId = options.single()
         writer.prepareTask(taskId) ?: return true
@@ -218,18 +215,18 @@ public class PlayerSession(
   }
 
   fun matchTask(revised: String): TaskResult {
-    if (tasks.none()) throw TaskException("no tasks")
+    if (tasks.isEmpty()) throw TaskException("no tasks")
 
     val ins: Instruction = preprocess(parse(revised))
-    val matches = tasks.filter { it.owner == player && ins.narrows(it.instruction, game.reader) }
+    val matches = tasks.matching { it.owner == player && ins.narrows(it.instruction, game.reader) }
 
-    if (matches.size == 0) {
-      throw TaskException("no matches for $ins among:\n${tasks.joinToString("")}")
+    val id = matches.singleOrNull()
+
+    if (id == null) {
+      throw TaskException(
+          "${matches.size} matches for $ins among:\n" +
+              tasks.extract { "${it.instruction}" }.joinToString("\n"))
     }
-    if (matches.size > 1) {
-      throw TaskException("multiple matches for $ins among:\n${tasks.joinToString("")}")
-    }
-    val id = matches.single().id
 
     return timeline.atomic {
       writer.prepareTask(id)
@@ -243,10 +240,8 @@ public class PlayerSession(
     val prepped: Instruction = preprocess(parse(revised))
     val id =
         tasks
-            .filter { it.owner == player }
-            .singleOrNull { prepped.narrows(it.instruction, game.reader) }
-            ?.id
-            ?: return TaskResult()
+            .matching { it.owner == player && prepped.narrows(it.instruction, game.reader) }
+            .single()
 
     return timeline.atomic {
       writer.prepareTask(id)
@@ -257,7 +252,8 @@ public class PlayerSession(
   }
 
   fun task(revised: String): TaskResult {
-    val id = tasks.firstOrNull { it.owner == player }?.id ?: throw NotNowException("no tasks")
+    val id =
+        tasks.matching { it.owner == player }.firstOrNull() ?: throw NotNowException("no tasks")
     return timeline.atomic {
       writer.narrowTask(id, preprocess(parse(revised)))
       if (id in tasks) writer.executeTask(id)

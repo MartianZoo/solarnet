@@ -31,20 +31,22 @@ import dev.martianzoo.tfm.pets.ast.Instruction.Per
 import dev.martianzoo.tfm.pets.ast.Instruction.Then
 import dev.martianzoo.tfm.pets.ast.Instruction.Transform
 import dev.martianzoo.tfm.pets.ast.ScaledExpression.Scalar.ActualScalar
-import dev.martianzoo.tfm.types.Dependency.TypeDependency
 import dev.martianzoo.tfm.types.MType
-import dev.martianzoo.util.Hierarchical.Companion.lub
 import javax.inject.Inject
 import kotlin.math.min
 
 /** Just a cute name for "instruction handler". It prepares and executes instructions. */
-internal class Instructor @Inject constructor(
+internal class Instructor
+@Inject
+constructor(
     private val reader: SnReader,
     private val effector: Effector,
     private val limiter: Limiter,
     private val changer: Changer,
 ) {
-  init { println(this) }
+  init {
+    println(this)
+  }
 
   fun execute(instruction: Instruction, cause: Cause?): List<Task> =
       mutableListOf<Task>().also { doExecute(instruction, cause, it) } // TODO prepare?
@@ -116,24 +118,11 @@ internal class Instructor @Inject constructor(
           NoOp
         }
       }
-      is Or -> {
-        val options = unprepared.instructions.nonThrowing(::doPrepare)
-        if (options.none()) throw NotNowException("all OR options are impossible at this time")
-        Or.create(options.map(::doPrepare))
-      }
+      is Or -> prepareOr(unprepared)
       // TODO this is wrong
       is Then -> Then.create(unprepared.instructions.map(::doPrepare).filter { it != NoOp })
       is Multi -> error("")
       is Transform -> error("should have been transformed already: $unprepared")
-    }
-  }
-
-  private fun <T : Any> Iterable<T>.nonThrowing(block: (T) -> Unit) = filter {
-    try {
-      block(it)
-      true
-    } catch (e: Exception) {
-      false
     }
   }
 
@@ -190,22 +179,44 @@ internal class Instructor @Inject constructor(
     return if (prepped is Multi) prepped else doPrepare(prepped) // TODO hmm?
   }
 
+  private fun prepareOr(unprepared: Or): Instruction {
+    val options: List<Any> =
+        unprepared.instructions.map {
+          try {
+            if (it is Multi) it else doPrepare(it)
+          } catch (e: NotNowException) {
+            e
+          }
+        }
+    val good = options.filterIsInstance<Instruction>()
+    return if (good.any()) {
+      Or.create(good)
+    } else {
+      throw NotNowException("all options impossible: $options")
+    }
+  }
+
   private fun autoNarrowTypes(gaining: Expression?, removing: Expression?): Pair<MType?, MType?> {
     var g: MType? = gaining?.let(reader::resolve)
     var r: MType? = removing?.let(reader::resolve)
 
-    if (g?.abstract == true) {
-      val lubs: List<Pair<MType, TypeDependency?>> =
-          g.dependencies.typeDependencies.map { x ->
-            x.boundType to
-                lub(reader.getComponents(x.boundType).elements)?.let { x.copy(boundType = it) }
-          }
-      val missing = lubs.filter { it.second == null }.map { it.first }
+    if (g?.abstract == true) { // I guess otherwise it'll fail somewhere else...
+      val missing =
+          g.dependencies.typeDependencies
+              .map { it.boundType }
+              .filter { reader.getComponents(it).none() }
       if (missing.any()) throw DependencyException(missing)
-
-      // g = g.root.withAllDependencies(DependencySet.of(lubs.map { it.second!! }))
       g = g.allConcreteSubtypes().singleOrNull() ?: g
+
+      //      val lubs: List<Pair<MType, TypeDependency?>> =
+      //          g.dependencies.typeDependencies.map { x ->
+      //            x.boundType to
+      //                lub(reader.getComponents(x.boundType).elements)?.let { x.copy(boundType =
+      // it) }
+      //          }
+      //      g = g.root.withAllDependencies(DependencySet.of(lubs.map { it.second!! }))
     }
+
     if (r?.abstract == true) {
       // Infer a type if there IS only one kind of component that has it
       // TODO could be smarter, like if the instr is mandatory and only one cpt type can satisfy

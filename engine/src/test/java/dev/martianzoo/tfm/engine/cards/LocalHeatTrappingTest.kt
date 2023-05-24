@@ -5,7 +5,6 @@ import dev.martianzoo.tfm.api.Exceptions.AbstractException
 import dev.martianzoo.tfm.api.Exceptions.DependencyException
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.data.Player.Companion.PLAYER1
-import dev.martianzoo.tfm.data.Task
 import dev.martianzoo.tfm.engine.Engine
 import dev.martianzoo.tfm.engine.PlayerSession.Companion.session
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
@@ -28,7 +27,7 @@ class LocalHeatTrappingTest {
         assertCounts(0 to "Plant", 4 to "Heat", 1 to "Animal")
 
         // And for the expected reasons
-        assertThat(tasks.map { it.whyPending })
+        assertThat(tasks.extract { it.whyPending })
             .containsExactly(
                 // TODO "When gaining null and removing Heat<Player1>: can do only 4 of 5 required",
                 null,
@@ -52,7 +51,7 @@ class LocalHeatTrappingTest {
         assertCounts(1 to "CardFront", 1 to "PlayedEvent")
         assertCounts(0 to "Plant", 1 to "Heat", 1 to "Animal")
 
-        assertThat(tasks.single().whyPending)
+        assertThat(tasks.extract { it.whyPending }.single())
             .isEqualTo("choice required in: `4 Plant<Player1>! OR 2 Animal<Player1>.`")
 
         task("4 Plant")
@@ -96,14 +95,12 @@ class LocalHeatTrappingTest {
       operation("6 Heat, 2 ProjectCard")
 
       operation("LocalHeatTrapping") {
-        val task: Task = tasks.single()
-        assertThat(task.whyPending)
-            .isEqualTo("choice required in: `4 Plant<Player1>! OR 2 Animal<Player1>.`")
+        assertThat(tasks.extract { "${it.whyPending}" })
+            .containsExactly("choice required in: `4 Plant<Player1>! OR 2 Animal<Player1>.`")
 
-        writer.prepareTask(task.id)
-
-        assertThat(tasks.single().whyPending)
-            .isEqualTo("choice required in: `4 Plant<Player1>! OR Ok`")
+        writer.prepareTask(tasks.ids().single())
+        assertThat(tasks.extract { "${it.whyPending}" })
+            .containsExactly("choice required in: `4 Plant<Player1>! OR Ok`")
       }
     }
   }

@@ -7,7 +7,6 @@ import dev.martianzoo.tfm.data.GameEvent.ChangeEvent
 import dev.martianzoo.tfm.data.GameSetup
 import dev.martianzoo.tfm.data.Player
 import dev.martianzoo.tfm.data.Player.Companion.ENGINE
-import dev.martianzoo.tfm.data.Task
 import dev.martianzoo.tfm.data.Task.TaskId
 import dev.martianzoo.tfm.data.TaskResult
 import dev.martianzoo.tfm.engine.Engine
@@ -31,8 +30,8 @@ import dev.martianzoo.tfm.repl.ReplSession.ReplMode.YELLOW
 import dev.martianzoo.tfm.types.MType
 import dev.martianzoo.util.Multiset
 import dev.martianzoo.util.toStrings
-import java.io.File
 import org.jline.reader.History
+import java.io.File
 
 internal fun main() {
   val jline = JlineRepl()
@@ -405,7 +404,7 @@ public class ReplSession(var setup: GameSetup, private val jline: JlineRepl? = n
           tasks of all players plus the engine are currently mixed together (but labeled).
         """
     override val isReadOnly = true
-    override fun noArgs() = session.tasks.toStrings()
+    override fun noArgs() = session.tasks.extract { "$it" }
   }
 
   internal inner class TaskCommand : ReplCommand("task") {
@@ -426,7 +425,7 @@ public class ReplSession(var setup: GameSetup, private val jline: JlineRepl? = n
       val split = Regex("\\s+").split(args, 2)
       val idString = split.firstOrNull() ?: throw UsageException()
       val id = TaskId(idString.uppercase())
-      if (id !in q) throw UsageException("valid ids are ${q.ids()}")
+      if (id !in q.ids()) throw UsageException("valid ids are $q")
       val rest: String? =
           if (split.size > 1 && split[1].isNotEmpty()) {
             split[1]
@@ -439,7 +438,7 @@ public class ReplSession(var setup: GameSetup, private val jline: JlineRepl? = n
         return listOf("Task $id deleted")
       } else if (rest == "prepare") {
         session.writer.prepareTask(id)
-        return session.tasks.toStrings()
+        return session.tasks.extract { "$it" }
       }
 
       val result: TaskResult =
@@ -460,13 +459,14 @@ public class ReplSession(var setup: GameSetup, private val jline: JlineRepl? = n
   }
 
   private fun describeExecutionResults(changes: TaskResult): List<String> {
-    val oops: List<Task> = changes.tasksSpawned.map { session.tasks[it] }
+    val oops: Set<TaskId> = changes.tasksSpawned
 
     val interesting: List<ChangeEvent> = changes.changes.filterNot { isSystem(it, session.reader) }
     val changeLines = interesting.toStrings().ifEmpty { listOf("No interesting component changes") }
     val taskLines =
         if (oops.any()) {
-          listOf("", "There are new pending tasks:") + oops.toStrings()
+          listOf("", "There are new pending tasks:") +
+              session.tasks.extract { if (it.id in oops) "$it" else null }.filterNotNull()
         } else {
           listOf()
         }

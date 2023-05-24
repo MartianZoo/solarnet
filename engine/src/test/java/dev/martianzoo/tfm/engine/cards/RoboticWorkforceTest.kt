@@ -28,7 +28,7 @@ class RoboticWorkforceTest {
       operation("RoboticWorkforce") {
         checkProduction(0, 3, 1, 0, 5, 0)
 
-        Truth.assertThat(tasks.map { it.whyPending })
+        Truth.assertThat(tasks.extract { it.whyPending })
             .containsExactly(
                 "CopyProductionBox<Player1, CardFront<Player1>(HAS BuildingTag<Player1>)>" +
                     " is abstract")

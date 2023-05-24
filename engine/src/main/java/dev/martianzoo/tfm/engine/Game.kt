@@ -109,20 +109,26 @@ internal constructor(
    * engine tasks remain, as the engine should always be able to take care of them itself before
    * returning.
    *
-   * This interface speaks entirely in terms of [TaskId]s.
+   * It is possible to retrieve the [Task] corresponding to a [TaskId] but this is generally
+   * discouraged and the API doesn't make it easy.
    */
-  public interface TaskQueue : Set<Task> {
-
+  public interface TaskQueue {
+    /** Returns the id of each task currently in the queue, in order from oldest to newest. */
     fun ids(): Set<TaskId>
 
     operator fun contains(id: TaskId): Boolean
 
-    operator fun get(id: TaskId): Task
+    /** Returns true if the queue is empty. */
+    fun isEmpty() = ids().none()
 
-    fun nextAvailableId(): TaskId
+    /** Returns all task ids whose task data matches the given predicate. */
+    fun matching(predicate: (Task) -> Boolean): Set<TaskId>
 
+    /** Returns the results of executing a function against every task in the queue. */
+    fun <T> extract(extractor: (Task) -> T): List<T>
+
+    /** Returns the id of the task marked with [Task.next] if there is one. */
     fun preparedTask(): TaskId?
-    fun hasPreparedTask(): Boolean = preparedTask() != null
   }
 
   public interface SnReader : GameReader {
