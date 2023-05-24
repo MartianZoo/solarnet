@@ -20,14 +20,13 @@ import javax.inject.Inject
 
 internal class GameWriterImpl @Inject constructor(
     private val tasks: WritableTaskQueue,
-    private val reader: SnReader, // check narrowings
+    private val reader: SnReader,
     private val timeline: TimelineImpl,
     private val player: Player,
     val instructor: Instructor,
     private val changer: Changer,
 ) : GameWriter, UnsafeGameWriter {
 
-  init { println(this) }
   override fun addTask(instruction: Instruction, firstCause: Cause?) =
       timeline.atomic {
         val prepped = Instruction.split(preprocess(instruction))

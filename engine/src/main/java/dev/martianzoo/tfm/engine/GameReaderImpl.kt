@@ -29,7 +29,6 @@ internal class GameReaderImpl @Inject constructor(
     private val table: MClassTable,
     private val components: ComponentGraph
 ) : SnReader, TypeInfo {
-  init { println(this) }
 
   override val authority: Authority by table::authority
   override val transformers: Transformers by table::transformers

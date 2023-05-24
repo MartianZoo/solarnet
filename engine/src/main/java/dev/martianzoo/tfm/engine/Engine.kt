@@ -1,21 +1,20 @@
 package dev.martianzoo.tfm.engine
 
-import dagger.Component
 import dagger.Module
 import dagger.Provides
+import dagger.Subcomponent
 import dev.martianzoo.tfm.data.GameEvent.ChangeEvent
 import dev.martianzoo.tfm.data.GameEvent.ChangeEvent.Cause
 import dev.martianzoo.tfm.data.GameSetup
+import dev.martianzoo.tfm.data.Player
 import dev.martianzoo.tfm.data.Player.Companion.ENGINE
 import dev.martianzoo.tfm.engine.Game.ComponentGraph
 import dev.martianzoo.tfm.engine.Game.EventLog
 import dev.martianzoo.tfm.engine.Game.SnReader
 import dev.martianzoo.tfm.engine.Game.TaskQueue
 import dev.martianzoo.tfm.engine.Game.Timeline
-import dev.martianzoo.tfm.engine.PlayerSession.Companion.session
-import dev.martianzoo.tfm.pets.Parsing
+import dev.martianzoo.tfm.pets.Parsing.parse
 import dev.martianzoo.tfm.types.MClassTable
-import javax.inject.Singleton
 
 /** Entry point to the solarnet engine -- create new games here. */
 public object Engine {
@@ -25,41 +24,43 @@ public object Engine {
 
   /** Creates a new game using an existing class table, ready for gameplay to begin. */
   public fun newGame(table: MClassTable): Game {
-    val game =
-        DaggerEngine_GameComponent.builder()
-            .gameModule(GameModule(table))
-            .build()
-            .game
+    val game = Game.createEmpty(table)
 
-    val session = game.session(ENGINE)
-
+    val session = PlayerSession(game, ENGINE)
     val firstEvent: ChangeEvent = session.operation("$ENGINE!").changes.first()
     val fakeCause = Cause(ENGINE.expression, firstEvent.ordinal)
 
-    table.singletons.forEach { session.initiateOnly(Parsing.parse("${it.expression}!"), fakeCause) }
-    session.autoExec(false)
+    table.singletons.forEach { session.initiateOnly(parse("${it.expression}!"), fakeCause) }
+    session.autoExec(safely = false)
     (game.timeline as TimelineImpl).setupFinished()
 
     session.operation("CorporationPhase FROM Phase")
     return game
   }
 
-  @Singleton
-  @Component(modules = [GameModule::class])
-  internal abstract class GameComponent {
-    abstract val game: Game
+  // Internal wiring stuff
+
+  @Module
+  internal class GameModule(private val table: MClassTable) {
+    @Provides fun reader(x: GameReaderImpl): SnReader = x
+    @Provides fun table(): MClassTable = table
+    @Provides fun timeline(x: TimelineImpl): Timeline = x
+    @Provides fun components(x: WritableComponentGraph): ComponentGraph = x
+    @Provides fun updater(x: WritableComponentGraph): Updater = x
+    @Provides fun changelog(x: WritableEventLog): ChangeLogger = x
+    @Provides fun events(x: WritableEventLog): EventLog = x
+    @Provides fun listener(x: WritableEventLog): TaskListener = x
+    @Provides fun tasks(x: WritableTaskQueue): TaskQueue = x
+  }
+
+  @Subcomponent(modules = [PlayerModule::class])
+  internal abstract class PlayerComponent {
+    abstract val writer: GameWriter
   }
 
   @Module
-  internal class GameModule(val loader: MClassTable) {
-    @Provides fun a(x: GameReaderImpl): SnReader = x
-    @Provides fun c(): MClassTable = loader
-    @Provides fun d(x: TimelineImpl): Timeline = x
-    @Provides fun e(x: WritableComponentGraph): ComponentGraph = x
-    @Provides fun f(x: WritableComponentGraph): Updater = x
-    @Provides fun g(x: WritableEventLog): ChangeLogger = x
-    @Provides fun h(x: WritableEventLog): EventLog = x
-    @Provides fun i(x: WritableEventLog): TaskListener = x
-    @Provides fun j(x: WritableTaskQueue): TaskQueue = x
+  internal class PlayerModule(private val player: Player) {
+    @Provides fun b(): Player = player
+    @Provides fun a(x: GameWriterImpl): GameWriter = x
   }
 }

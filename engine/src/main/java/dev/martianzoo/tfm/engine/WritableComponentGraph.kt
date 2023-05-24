@@ -21,7 +21,6 @@ import kotlin.math.min
 @Singleton
 internal class WritableComponentGraph @Inject constructor(internal val effector: Effector) :
     ComponentGraph, Updater {
-  init { println(this) }
 
   private val multiset: HashMultiset<Component> = HashMultiset()
 

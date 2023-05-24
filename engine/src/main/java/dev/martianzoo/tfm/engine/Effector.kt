@@ -11,7 +11,6 @@ import javax.inject.Singleton
 
 @Singleton
 internal class Effector @Inject constructor(readerP: Provider<SnReader>) {
-  init { println(this) }
 
   private val registry = HashMultiset<ActiveEffect>()
 

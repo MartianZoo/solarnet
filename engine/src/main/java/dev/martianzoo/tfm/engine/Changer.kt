@@ -15,7 +15,6 @@ internal class Changer @Inject constructor(
     private val changeLog: ChangeLogger,
     private val player: Player,
 ) {
-  init { println(this) }
 
   fun change(
       count: Int,

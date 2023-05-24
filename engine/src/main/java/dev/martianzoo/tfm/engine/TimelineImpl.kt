@@ -15,7 +15,6 @@ internal class TimelineImpl @Inject constructor(
     private val tasks: WritableTaskQueue,
     private val reader: SnReader,
 ) : Timeline {
-  init { println(this) }
 
   override fun checkpoint() = Checkpoint(events.size)
 

@@ -44,9 +44,6 @@ constructor(
     private val limiter: Limiter,
     private val changer: Changer,
 ) {
-  init {
-    println(this)
-  }
 
   fun execute(instruction: Instruction, cause: Cause?): List<Task> =
       mutableListOf<Task>().also { doExecute(instruction, cause, it) } // TODO prepare?

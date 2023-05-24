@@ -20,7 +20,6 @@ import javax.inject.Singleton
 internal class WritableEventLog @Inject constructor() : EventLog, TaskListener, ChangeLogger {
   val events: MutableList<GameEvent> = mutableListOf() // TODO only used by TimelineImpl
   override val size: Int by events::size
-  init { println(this) }
 
   override fun changesSince(checkpoint: Checkpoint): List<ChangeEvent> =
       entriesSince(checkpoint).filterIsInstance<ChangeEvent>()

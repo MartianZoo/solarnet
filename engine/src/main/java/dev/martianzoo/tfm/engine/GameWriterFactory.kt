@@ -6,13 +6,13 @@ import dev.martianzoo.tfm.engine.WritableComponentGraph.Limiter
 import javax.inject.Inject
 
 internal class GameWriterFactory @Inject constructor(
-    val reader: SnReader,
-    val updater: Updater,
-    val logger: ChangeLogger,
-    val effector: Effector,
-    val limiter: Limiter,
-    val timeline: TimelineImpl,
-    val tasks: WritableTaskQueue
+    private val reader: SnReader,
+    private val updater: Updater,
+    private val logger: ChangeLogger,
+    private val effector: Effector,
+    private val limiter: Limiter,
+    private val timeline: TimelineImpl,
+    private val tasks: WritableTaskQueue
 ) {
   public fun writer(player: Player): GameWriter {
     val changer = Changer(reader, updater, logger, player)

@@ -9,15 +9,19 @@ import dev.martianzoo.tfm.data.Player
 import dev.martianzoo.tfm.data.Task
 import dev.martianzoo.tfm.data.Task.TaskId
 import dev.martianzoo.tfm.data.TaskResult
+import dev.martianzoo.tfm.engine.Engine.GameModule
+import dev.martianzoo.tfm.engine.Engine.PlayerComponent
+import dev.martianzoo.tfm.engine.Engine.PlayerModule
 import dev.martianzoo.tfm.engine.Game.ComponentGraph
 import dev.martianzoo.tfm.engine.Game.EventLog
 import dev.martianzoo.tfm.engine.Game.TaskQueue
 import dev.martianzoo.tfm.engine.Game.Timeline.Checkpoint
 import dev.martianzoo.tfm.pets.ast.Expression
+import dev.martianzoo.tfm.types.MClassTable
 import dev.martianzoo.tfm.types.MType
 import dev.martianzoo.tfm.types.Transformers
 import dev.martianzoo.util.Multiset
-import javax.inject.Inject
+import javax.inject.Singleton
 
 /**
  * The mutable state of a game in progress. This state is the aggregation of three mutable child
@@ -28,26 +32,33 @@ import javax.inject.Inject
  * To read game state at a higher level (e.g. via Pets expressions), use [reader]. To change state
  * use [writer].
  */
-public class Game
-@Inject
-internal constructor(
-    /** The components that make up the game's current state ("present"). */
-    public val components: ComponentGraph,
+@Singleton
+@dagger.Component(modules = [GameModule::class])
+public abstract class Game {
+  /** The current state of the "board". */
+  public abstract val components: ComponentGraph
 
-    /** Everything that has happened in this game so far ("past"). */
-    public val events: EventLog,
+  /** What the game is waiting on someone to do. */
+  public abstract val tasks: TaskQueue
 
-    /** The tasks the game is currently waiting on ("future"). */
-    public val tasks: TaskQueue,
-    public val reader: SnReader,
-    public val timeline: Timeline,
-    private val writers: GameWriterFactory,
-) {
-  init {
-    println(this)
+  /** Everything that has already happened in the game. */
+  public abstract val events: EventLog
+
+  /** Checkpoint, rollback, atomic interactions. */
+  public abstract val timeline: Timeline
+
+  /** Higher-level querying of game state (i.e. in Pets language). */
+  public abstract val reader: SnReader
+
+  /** All modifications to game state (except rollbacks) go through here. */
+  public fun writer(player: Player) = playerModule(PlayerModule(player)).writer
+
+  public companion object {
+    internal fun createEmpty(table: MClassTable) =
+        DaggerGame.builder().gameModule(GameModule(table)).build()
   }
 
-  public fun writer(player: Player) = writers.writer(player)
+  internal abstract fun playerModule(module: PlayerModule): PlayerComponent
 
   /**
    * A multiset of [Component] instances; the "present" state of a game in progress. It is a plain
