@@ -10,7 +10,7 @@ import dev.martianzoo.tfm.pets.HasClassName.Companion.classNames
 import dev.martianzoo.tfm.pets.Parsing.parse
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.Metric
-import dev.martianzoo.tfm.types.MClassTable
+import dev.martianzoo.tfm.types.MClassLoader
 import dev.martianzoo.tfm.types.MType
 import dev.martianzoo.util.toSetStrict
 import dev.martianzoo.util.toStrings
@@ -20,7 +20,7 @@ import org.junit.jupiter.api.Test
 private class CanonBootstrapTest {
   @Test
   fun loadsExpectedClasses() {
-    val table = MClassTable.forSetup(GameSetup(Canon, "BMRPTX", 4))
+    val table = MClassLoader(GameSetup(Canon, "BMRPTX", 4))
     val unusedCards =
         Canon.cardDefinitions.filter { "VC".contains(it.bundle) }.classNames().toSetStrict()
 

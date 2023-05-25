@@ -10,7 +10,6 @@ import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.types.MClass
 import dev.martianzoo.tfm.types.MClassLoader
-import dev.martianzoo.tfm.types.MClassTable
 import dev.martianzoo.tfm.types.te
 import dev.martianzoo.util.toStrings
 import kotlin.Int.Companion.MAX_VALUE
@@ -111,7 +110,7 @@ internal class CanonClassesTest {
 
   @Test
   fun testAllConcreteSubtypes() {
-    val table = MClassTable.forSetup(GameSetup(Canon, "BRM", 2))
+    val table = MClassLoader(GameSetup(Canon, "BRM", 2))
 
     fun checkConcreteSubtypeCount(expr: String, size: Int) {
       val mtype = table.resolve(te(expr))

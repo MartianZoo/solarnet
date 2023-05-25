@@ -10,10 +10,13 @@ import dev.martianzoo.tfm.api.SpecialClassNames.OK
 import dev.martianzoo.tfm.api.SpecialClassNames.THIS
 import dev.martianzoo.tfm.api.Type
 import dev.martianzoo.tfm.data.ClassDeclaration
+import dev.martianzoo.tfm.data.GameSetup
+import dev.martianzoo.tfm.pets.HasClassName.Companion.classNames
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.pets.ast.PetNode
 import dev.martianzoo.tfm.pets.ast.Requirement
+import javax.inject.Inject
 
 /**
  * All [MClass] instances come from here. Uses an [Authority] to pull class declarations from as
@@ -27,6 +30,14 @@ public class MClassLoader(
      */
     override val authority: Authority,
 ) : MClassTable() {
+  @Inject
+  constructor(setup: GameSetup) : this(setup.authority) {
+    val toLoad = setup.allDefinitions() + setup.players()
+    loadAll(toLoad.classNames() + OK + ClassName.cn("Production")) // TODO
+    if ("P" in setup.bundles) load(ClassName.cn("PreludePhase")) // TODO eww
+    freeze()
+  }
+
   /** The `Component` class, which is the root of the class hierarchy. */
   override val componentClass: MClass = MClass(decl(COMPONENT), this, directSuperclasses = listOf())
 
@@ -37,14 +48,7 @@ public class MClassLoader(
   private val loadedClasses =
       mutableMapOf<ClassName, MClass?>(COMPONENT to componentClass, CLASS to classClass)
 
-  private val queue = ArrayDeque<ClassName>()
-
   override val transformers = Transformers(this)
-
-  init {
-    val names = transformers.requiredClasses + OK // TODO remove?
-    loadAll(names.intersect(authority.allClassNames))
-  }
 
   /**
    * Returns the [MClass] whose [MClass.className] or [MClass.shortName] is [name], or throws an
@@ -95,6 +99,8 @@ public class MClassLoader(
     authority.allClassNames.forEach(::loadSingle)
     return freeze()
   }
+
+  private val queue = ArrayDeque<ClassName>()
 
   /** Equivalent to calling [load] on every class name (or shortName) in [names]. */
   internal fun loadAll(names: Collection<ClassName>) {
@@ -192,12 +198,6 @@ public class MClassLoader(
 
   override fun defaults(className: ClassName) =
       allDefaults[className] ?: throw Exceptions.classNotFound(className)
-
-  override val singletons: List<MType> by lazy {
-    allClasses
-        .filter { 0 !in it.componentCountRange }
-        .flatMap { it.baseType.concreteSubtypesSameClass() }
-  }
 
   private val id = nextId++
 

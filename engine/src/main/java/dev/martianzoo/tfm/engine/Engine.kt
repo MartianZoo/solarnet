@@ -16,6 +16,7 @@ import dev.martianzoo.tfm.data.Player.Companion.ENGINE
 import dev.martianzoo.tfm.data.Task
 import dev.martianzoo.tfm.engine.ComponentGraph.Component
 import dev.martianzoo.tfm.pets.Parsing.parse
+import dev.martianzoo.tfm.types.MClassLoader
 import dev.martianzoo.tfm.types.MClassTable
 
 /** Entry point to the solarnet engine -- create new games here. */
@@ -26,19 +27,25 @@ public object Engine {
     val module = GameModule(setup)
     val game = DaggerGame.builder().gameModule(module).build()
 
+    initialize(game, module.table)
+    return game
+  }
+
+  private fun initialize(game: Game, table: MClassTable) {
     val session = PlayerSession(game, ENGINE)
-    val firstEvent: ChangeEvent = session.operation("$ENGINE!").changes.first()
+    val firstEvent = session.operation("$ENGINE!").changes.first()
     val fakeCause = Cause(ENGINE.expression, firstEvent.ordinal)
 
     // Haha stupid hack TODO
-    module.table().singletons.forEach {
-      session.initiateOnly(parse("${it.expression}!"), fakeCause)
-    }
+    val singletons = table.allClasses
+        .filter { 0 !in it.componentCountRange }
+        .flatMap { it.baseType.concreteSubtypesSameClass() }
+
+    singletons.forEach { session.initiateOnly(parse("${it.expression}!"), fakeCause) }
     session.autoExec(safely = false)
     game.timeline.setupFinished()
 
     session.operation("CorporationPhase FROM Phase")
-    return game
   }
 
   // Internal wiring stuff
@@ -46,7 +53,11 @@ public object Engine {
   @Module
   internal class GameModule(private val setup: GameSetup) {
     @Provides fun setup(): GameSetup = setup
-    @Provides fun table(): MClassTable = MClassTable.forSetup(setup)
+
+    // TODO absolutely stupid hack
+    internal val table: MClassTable by lazy { MClassLoader(setup) }
+    @Provides fun table(): MClassTable = table
+
     @Provides fun components(x: WritableComponentGraph): ComponentGraph = x
     @Provides fun updater(x: WritableComponentGraph): Updater = x
     @Provides fun tasks(x: WritableTaskQueue): TaskQueue = x

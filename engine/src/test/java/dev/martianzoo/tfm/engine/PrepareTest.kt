@@ -12,12 +12,13 @@ import dev.martianzoo.tfm.pets.Parsing.parse
 import dev.martianzoo.tfm.pets.PetTransformer
 import dev.martianzoo.tfm.pets.Transforming.replaceOwnerWith
 import dev.martianzoo.tfm.pets.ast.Instruction
-import dev.martianzoo.tfm.types.MClassTable
+import dev.martianzoo.tfm.types.MClassLoader
+import dev.martianzoo.tfm.types.Transformers
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 
 private class PrepareTest {
-  val xers = MClassTable.forSetup(Canon.SIMPLE_GAME).transformers
+  val xers = Transformers(MClassLoader(Canon.SIMPLE_GAME))
   val game = newGame(Canon.SIMPLE_GAME)
   val p1 = game.session(PLAYER1)
   val instructor = (p1.writer as GameWriterImpl).instructor
