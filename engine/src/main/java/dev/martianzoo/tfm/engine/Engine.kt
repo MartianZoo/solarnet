@@ -22,17 +22,18 @@ import dev.martianzoo.tfm.types.MClassTable
 public object Engine {
 
   /** Creates a new game, initialized for the given [setup], and ready for gameplay to begin. */
-  public fun newGame(setup: GameSetup) = newGame(MClassTable.forSetup(setup))
-
-  /** Creates a new game using an existing class table, ready for gameplay to begin. */
-  public fun newGame(table: MClassTable): Game {
-    val game = DaggerGame.builder().gameModule(GameModule(table)).build()
+  public fun newGame(setup: GameSetup) : Game {
+    val module = GameModule(setup)
+    val game = DaggerGame.builder().gameModule(module).build()
 
     val session = PlayerSession(game, ENGINE)
     val firstEvent: ChangeEvent = session.operation("$ENGINE!").changes.first()
     val fakeCause = Cause(ENGINE.expression, firstEvent.ordinal)
 
-    table.singletons.forEach { session.initiateOnly(parse("${it.expression}!"), fakeCause) }
+    // Haha stupid hack TODO
+    module.table().singletons.forEach {
+      session.initiateOnly(parse("${it.expression}!"), fakeCause)
+    }
     session.autoExec(safely = false)
     game.timeline.setupFinished()
 
@@ -43,8 +44,9 @@ public object Engine {
   // Internal wiring stuff
 
   @Module
-  internal class GameModule(private val table: MClassTable) {
-    @Provides fun table(): MClassTable = table
+  internal class GameModule(private val setup: GameSetup) {
+    @Provides fun setup(): GameSetup = setup
+    @Provides fun table(): MClassTable = MClassTable.forSetup(setup)
     @Provides fun components(x: WritableComponentGraph): ComponentGraph = x
     @Provides fun updater(x: WritableComponentGraph): Updater = x
     @Provides fun tasks(x: WritableTaskQueue): TaskQueue = x

@@ -19,15 +19,13 @@ import dev.martianzoo.tfm.engine.TerraformingMars.sellPatents
 import dev.martianzoo.tfm.engine.TerraformingMars.stdProject
 import dev.martianzoo.tfm.engine.TerraformingMars.turn
 import dev.martianzoo.tfm.repl.TestHelpers.assertCounts
-import dev.martianzoo.tfm.types.MClassTable
 import org.junit.jupiter.api.Test
 
 class RealGamesTest {
   @Test
   fun fourWholeGenerations() {
-    val table = MClassTable.forSetup(GameSetup(Canon, "BREPT", 2))
-    repeat(1) { // I change this when profiling
-      val game = Engine.newGame(table)
+    repeat(1) {
+      val game = Engine.newGame(GameSetup(Canon, "BREPT", 2))
       val eng = game.session(ENGINE)
       val p1 = game.session(PLAYER1)
       val p2 = game.session(PLAYER2)

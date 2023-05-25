@@ -17,9 +17,8 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 
 private class PrepareTest {
-
-  val table = MClassTable.forSetup(Canon.SIMPLE_GAME)
-  val game = newGame(table)
+  val xers = MClassTable.forSetup(Canon.SIMPLE_GAME).transformers
+  val game = newGame(Canon.SIMPLE_GAME)
   val p1 = game.session(PLAYER1)
   val instructor = (p1.writer as GameWriterImpl).instructor
 
@@ -29,8 +28,8 @@ private class PrepareTest {
 
   fun preprocess(instr: Instruction): Instruction {
     return PetTransformer.chain(
-        table.transformers.deprodify(),
-        table.transformers.insertDefaults(),
+        xers.deprodify(),
+        xers.insertDefaults(),
         replaceOwnerWith(PLAYER1),
     )
         .transform(instr)
