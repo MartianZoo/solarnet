@@ -1,6 +1,7 @@
 package dev.martianzoo.tfm.engine
 
 import dev.martianzoo.tfm.api.GameReader
+import dev.martianzoo.tfm.data.GameSetup
 import dev.martianzoo.tfm.data.Player
 import dev.martianzoo.tfm.engine.Engine.GameModule
 import dev.martianzoo.tfm.engine.Engine.PlayerComponent
@@ -40,8 +41,12 @@ public abstract class Game {
   /** Higher-level querying of game state (i.e. in Pets language). */
   public abstract val reader: GameReader
 
+  internal abstract val setup: GameSetup
+
+  private val writers: Map<Player, GameWriter> by lazy { Engine.writers(this, setup) }
+
   /** All modifications to game state (except rollbacks) go through here. */
-  public fun writer(player: Player) = playerModule(PlayerModule(player)).writer
+  public fun writer(player: Player): GameWriter = writers[player]!!
 
   internal abstract fun playerModule(module: PlayerModule): PlayerComponent
 }

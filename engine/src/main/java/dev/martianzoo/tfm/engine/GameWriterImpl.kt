@@ -155,6 +155,13 @@ internal class GameWriterImpl @Inject constructor(
     }
   }
 
+  override fun executeFully(instruction: Instruction, fakeCause: Cause?) {
+    addTask(instruction, fakeCause)
+    do {
+      executeTask(tasks.ids().first())
+    } while (tasks.ids().any())
+  }
+
   private val xer = chain(transformers.standardPreprocess(), replaceOwnerWith(player))
 
   internal fun <P : PetElement> preprocess(node: P) = xer.transform(node)

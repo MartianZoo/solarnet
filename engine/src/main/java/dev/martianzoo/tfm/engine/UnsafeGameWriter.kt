@@ -16,4 +16,6 @@ interface UnsafeGameWriter {
   fun sneak(changes: String, cause: Cause? = null): TaskResult
 
   fun sneak(changes: Instruction, cause: Cause? = null): TaskResult
+
+  fun executeFully(instruction: Instruction, fakeCause: Cause? = null)
 }

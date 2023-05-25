@@ -15,7 +15,6 @@ import dev.martianzoo.tfm.data.Player
 import dev.martianzoo.tfm.data.Player.Companion.ENGINE
 import dev.martianzoo.tfm.data.Task
 import dev.martianzoo.tfm.engine.ComponentGraph.Component
-import dev.martianzoo.tfm.pets.Parsing.parse
 import dev.martianzoo.tfm.types.MClassLoader
 import dev.martianzoo.tfm.types.MClassTable
 
@@ -23,29 +22,10 @@ import dev.martianzoo.tfm.types.MClassTable
 public object Engine {
 
   /** Creates a new game, initialized for the given [setup], and ready for gameplay to begin. */
-  public fun newGame(setup: GameSetup) : Game {
-    val module = GameModule(setup)
-    val game = DaggerGame.builder().gameModule(module).build()
-
-    initialize(game, module.table)
+  public fun newGame(setup: GameSetup): Game {
+    val game = DaggerGame.builder().gameModule(GameModule(setup)).build()
+    game.writer(ENGINE) // TODO hack - this triggers initialization
     return game
-  }
-
-  private fun initialize(game: Game, table: MClassTable) {
-    val session = PlayerSession(game, ENGINE)
-    val firstEvent = session.operation("$ENGINE!").changes.first()
-    val fakeCause = Cause(ENGINE.expression, firstEvent.ordinal)
-
-    // Haha stupid hack TODO
-    val singletons = table.allClasses
-        .filter { 0 !in it.componentCountRange }
-        .flatMap { it.baseType.concreteSubtypesSameClass() }
-
-    singletons.forEach { session.initiateOnly(parse("${it.expression}!"), fakeCause) }
-    session.autoExec(safely = false)
-    game.timeline.setupFinished()
-
-    session.operation("CorporationPhase FROM Phase")
   }
 
   // Internal wiring stuff
@@ -69,14 +49,23 @@ public object Engine {
 
   @Subcomponent(modules = [PlayerModule::class])
   internal abstract class PlayerComponent {
-    abstract val writer: GameWriter
+    internal abstract val writer: GameWriter
+    internal abstract val initter: Initializer // only used for Engine
   }
 
   @Module
   internal class PlayerModule(private val player: Player) {
-    @Provides fun b(): Player = player
-    @Provides fun a(x: GameWriterImpl): GameWriter = x
+    @Provides fun a(): Player = player
+    @Provides fun b(x: GameWriterImpl): GameWriter = x
+    @Provides fun c(x: GameWriterImpl): UnsafeGameWriter = x
   }
+
+  public fun writers(game: Game, setup: GameSetup) =
+      setup.players().associateWith {
+        val module = game.playerModule(PlayerModule(it))
+        if (it == ENGINE) module.initter.initialize()
+        module.writer
+      }
 
   // Some minor helper interfaces... may classes just need one small part of another class's
   // functionality, and I wanted to try to expose less.
