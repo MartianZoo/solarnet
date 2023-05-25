@@ -48,7 +48,8 @@ internal class MClassLoader(
   private val loadedClasses =
       mutableMapOf<ClassName, MClass?>(COMPONENT to componentClass, CLASS to classClass)
 
-  override val transformers = Transformers().also { it.table = this } // TODO
+  // MClasses & MTypes need this so this is where it has to be
+  internal val transformers = Transformers(this)
 
   /**
    * Returns the [MClass] whose [MClass.className] or [MClass.shortName] is [name], or throws an

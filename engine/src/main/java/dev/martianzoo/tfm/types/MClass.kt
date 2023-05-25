@@ -58,8 +58,6 @@ internal constructor(
     internal val custom: CustomClass? = null,
 ) : HasClassName, Hierarchical<MClass> {
 
-  internal val table: MClassTable by ::loader
-
   /** The name of this class, in UpperCamelCase. */
   override val className: ClassName = declaration.className.also { require(it != THIS) }
 
@@ -114,11 +112,11 @@ internal constructor(
   internal val directSupertypes: Set<MType> by lazy {
     when {
       className == COMPONENT -> setOf()
-      declaration.supertypes.none() -> setOf(table.componentClass.baseType)
+      declaration.supertypes.none() -> setOf(loader.componentClass.baseType)
       else ->
           declaration.supertypes.toSetStrict {
             val dethissed = replaceThisExpressionsWith(className.expression).transform(it)
-            table.resolve(dethissed)
+            loader.resolve(dethissed)
           }
     }
   }
@@ -132,11 +130,11 @@ internal constructor(
 
   /** Every class `c` for which `c.isSubclassOf(this)` is true, including this class itself. */
   internal val allSubclasses: Set<MClass> by lazy {
-    table.allClasses.filter { this in it.allSuperclasses }.toSet()
+    loader.allClasses.filter { this in it.allSuperclasses }.toSet()
   }
 
   internal val directSubclasses: Set<MClass> by lazy {
-    table.allClasses.filter { this in it.directSuperclasses }.toSet()
+    loader.allClasses.filter { this in it.directSuperclasses }.toSet()
   }
 
   /**
@@ -148,7 +146,7 @@ internal constructor(
    */
   internal val intersectionType: Boolean by lazy {
     directSuperclasses.size >= 2 &&
-        table.allClasses
+        loader.allClasses
             .filter { mclass -> directSuperclasses.all(mclass::isSubtypeOf) }
             .all(::isSupertypeOf)
   }
@@ -157,7 +155,7 @@ internal constructor(
 
   internal val dependencies: DependencySet by lazy {
     if (className == CLASS) { // TODO reduce special-casing
-      depsForClassType(table.componentClass)
+      depsForClassType(loader.componentClass)
     } else {
       inheritedDeps.merge(declaredDeps) { _, _ -> throw AssertionError() }
     }
@@ -168,7 +166,7 @@ internal constructor(
   }
 
   private fun createDep(i: Int, dep: Expression) =
-      TypeDependency(Key(className, i), table.resolve(dep))
+      TypeDependency(Key(className, i), loader.resolve(dep))
 
   private val inheritedDeps: DependencySet by lazy {
     val list: List<DependencySet> =
@@ -177,7 +175,7 @@ internal constructor(
           supertype.dependencies.map { mtype ->
             val depExpr = mtype.expressionFull
             val newArgs = depExpr.arguments.map(replacer::transform)
-            table.resolve(depExpr.replaceArguments(newArgs))
+            loader.resolve(depExpr.replaceArguments(newArgs))
           }
         }
     glb(list) ?: DependencySet.of()
@@ -192,7 +190,7 @@ internal constructor(
   internal val baseType: MType by lazy { withAllDependencies(dependencies) }
 
   internal val defaultType: MType by lazy {
-    loader.resolve(loader.transformers.insertDefaults().transform(className.expression))
+    loader.resolve(Transformers(loader).insertDefaults().transform(className.expression))
   }
 
   internal fun specialize(specs: List<Expression>): MType = baseType.specialize(specs)
@@ -202,7 +200,7 @@ internal constructor(
    * the type `Class<Resource>`.
    */
   internal val classType: MType by lazy {
-    table.classClass.withAllDependencies(depsForClassType(this))
+    loader.classClass.withAllDependencies(depsForClassType(this))
   }
 
   // EFFECTS
@@ -223,7 +221,7 @@ internal constructor(
         if (OWNED !in allSuperclasses.classNames()) {
           chain(
               attachToClassTransformer,
-              table.transformers.fixEffectForUnownedContext(),
+              loader.transformers.fixEffectForUnownedContext(),
           )
         } else {
           attachToClassTransformer
@@ -234,7 +232,7 @@ internal constructor(
 
   private val attachToClassTransformer: PetTransformer by lazy {
     val weirdExpression = className.has(Min(scaledEx(1, OK)))
-    val xers = table.transformers
+    val xers = loader.transformers
     chain(xers.insertDefaults(weirdExpression), xers.atomizer())
   }
 
@@ -242,7 +240,7 @@ internal constructor(
 
   private val specificThenGeneralInvars: Pair<List<Requirement>, List<Requirement>> by lazy {
     val requirements = declaration.invariants.map(attachToClassTransformer::transform)
-    val deprodify = table.transformers.deprodify()
+    val deprodify = loader.transformers.deprodify()
     split(requirements).map(deprodify::transform).partition { THIS in it }
   }
 

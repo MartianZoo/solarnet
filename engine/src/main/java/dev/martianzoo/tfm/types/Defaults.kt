@@ -30,7 +30,7 @@ internal data class Defaults(
 
       fun gatherDefaultDeps(extractor: (DefaultsDeclaration) -> List<Expression>): DependencySet {
         fun toDependencyMap(specs: List<Expression>): DependencySet =
-            mclass.table.resolve(mclass.className.of(specs)).narrowedDependencies
+            mclass.loader.resolve(mclass.className.of(specs)).narrowedDependencies
 
         val deps: List<Dependency> =
             mclass.dependencies.keys.mapNotNull { key ->

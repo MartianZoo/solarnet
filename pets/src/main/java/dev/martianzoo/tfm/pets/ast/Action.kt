@@ -10,6 +10,9 @@ import com.github.h0tk3y.betterParse.grammar.parser
 import com.github.h0tk3y.betterParse.parser.Parser
 import dev.martianzoo.tfm.api.Exceptions.PetSyntaxException
 import dev.martianzoo.tfm.pets.PetTokenizer
+import dev.martianzoo.tfm.pets.ast.Instruction.Multi
+import dev.martianzoo.tfm.pets.ast.Instruction.Or
+import dev.martianzoo.tfm.pets.ast.Instruction.Per
 import dev.martianzoo.tfm.pets.ast.Instruction.Remove
 import dev.martianzoo.tfm.pets.ast.ScaledExpression.Scalar.Companion.checkNonzero
 import dev.martianzoo.util.suf
@@ -60,7 +63,7 @@ public data class Action(val cost: Cost?, val instruction: Instruction) : PetEle
       override fun toString() = "$cost / $metric"
       override fun precedence() = 5
 
-      override fun toInstruction() = Instruction.Per(cost.toInstruction(), metric)
+      override fun toInstruction() = Per(cost.toInstruction(), metric)
     }
 
     data class Or(var costs: Set<Cost>) : Cost() {
@@ -75,7 +78,7 @@ public data class Action(val cost: Cost?, val instruction: Instruction) : PetEle
       override fun toString() = costs.joinToString(" OR ") { groupPartIfNeeded(it) }
       override fun precedence() = 3
 
-      override fun toInstruction() = Instruction.Or(costs.map { it.toInstruction() })
+      override fun toInstruction() = Or(costs.map { it.toInstruction() })
     }
 
     data class Multi(var costs: List<Cost>) : Cost() {
@@ -89,7 +92,7 @@ public data class Action(val cost: Cost?, val instruction: Instruction) : PetEle
       override fun toString() = costs.joinToString { groupPartIfNeeded(it) }
       override fun precedence() = 1
 
-      override fun toInstruction() = Instruction.Multi(costs.map { it.toInstruction() })
+      override fun toInstruction() = Multi(costs.map { it.toInstruction() })
     }
 
     data class Transform(val cost: Cost, override val transformKind: String) :

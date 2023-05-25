@@ -40,7 +40,7 @@ class TransformersTest {
   }
 
   private companion object {
-    val transformers = CanonClassesTest.table.transformers
+    val transformers = (CanonClassesTest.table as MClassLoader).transformers
   }
 
   private fun checkApplyDefaults(

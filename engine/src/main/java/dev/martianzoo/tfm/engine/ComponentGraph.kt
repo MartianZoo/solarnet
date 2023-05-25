@@ -19,6 +19,7 @@ import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.pets.ast.Instruction
 import dev.martianzoo.tfm.types.Dependency.Key
 import dev.martianzoo.tfm.types.MType
+import dev.martianzoo.tfm.types.Transformers
 import dev.martianzoo.util.Multiset
 
 /**
@@ -85,7 +86,7 @@ public interface ComponentGraph {
     // TODO understand why these are different
 
     val xerForEffects: PetTransformer =
-        with(mtype.loader.transformers) {
+        with(Transformers(mtype.loader)) {
           chain(
               substituter(mtype.root.defaultType, mtype),
               deprodify(),
@@ -95,7 +96,7 @@ public interface ComponentGraph {
         }
 
     val xerForCustom: PetTransformer =
-        with(mtype.loader.transformers) {
+        with(Transformers(mtype.loader)) {
           chain(
               standardPreprocess(),
               substituter(mtype.root.baseType, mtype),

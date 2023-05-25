@@ -18,7 +18,6 @@ internal abstract class MClassTable {
   abstract val allClasses: Set<MClass>
 
   internal abstract val allClassNamesAndIds: Set<ClassName>
-  internal abstract val transformers: Transformers
 
   /**
    * Returns the [MClass] whose [MClass.className] or [MClass.shortName] is [name], or throws an

@@ -102,7 +102,7 @@ internal constructor(
 
     val refin = that.refinement
     if (refin != null) {
-      val requirement = root.table.transformers.refinementMangler(expressionFull).transform(refin)
+      val requirement = root.loader.transformers.refinementMangler(expressionFull).transform(refin)
       if (!info.evaluate(requirement)) {
         throw Exceptions.refinementNotMet(requirement)
       }
@@ -115,7 +115,7 @@ internal constructor(
     if (!dependencies.narrows(that.dependencies, info)) return false
 
     val refin = that.refinement ?: return true
-    val requirement = root.table.transformers.refinementMangler(expressionFull).transform(refin)
+    val requirement = root.loader.transformers.refinementMangler(expressionFull).transform(refin)
     return info.evaluate(requirement)
   }
 
