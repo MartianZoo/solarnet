@@ -19,7 +19,7 @@ object TerraformingMars {
 
   fun PlayerSession.playCorp(
       corpName: String,
-      buyCards: Int? = 0,
+      buyCards: Int,
       vararg tasks: String,
       body: OperationBody.() -> Unit? = {}
   ) {
@@ -87,9 +87,17 @@ object TerraformingMars {
         if (cost > 0) ifMatchTask("$cost Pay<Class<$currency>> FROM $currency")
       }
 
-      pay(megacredits, "Megacredit")
-      pay(steel, "Steel")
+      // TODO should prevent overpayment in actual game rules somehow
       pay(titanium, "Titanium")
+      pay(steel, "Steel")
+      autoExec()
+
+      val owed = count("Owed")
+
+      // MC really should be equal to owed, but if it's less we might be legitimately testing how
+      // the engine responds. We know it doesn't respond usefully to an overage so we check that.
+      require(megacredits <= owed) { "Overpaying $megacredits MC when only $owed is owed" }
+      pay(megacredits, "Megacredit")
 
       // Take care of other Accepts we didn't need
       tasks.matching { it.cause?.context?.className == cn("Accept") }

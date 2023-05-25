@@ -5,16 +5,22 @@ import dev.martianzoo.tfm.data.Player
 import dev.martianzoo.tfm.engine.Engine.GameModule
 import dev.martianzoo.tfm.engine.Engine.PlayerComponent
 import dev.martianzoo.tfm.engine.Engine.PlayerModule
+import dev.martianzoo.tfm.pets.ast.Metric
+import dev.martianzoo.tfm.pets.ast.Requirement
 import javax.inject.Singleton
 
 /**
  * The mutable state of a game in progress. This state is the aggregation of three mutable child
- * objects, which callers accesses directly: a [ComponentGraph], a [TaskQueue], and an [EventLog].
- * These types don't expose mutation operations, but the objects are mutable and always represent
- * the most current state.
+ * objects, which callers access directly: a [ComponentGraph], an [EventLog], and a [TaskQueue].
+ * These types embody the present, past, and future of the game state (respectively).
  *
- * To read game state at a higher level (e.g. via Pets expressions), use [reader]. To change state
- * use [writer].
+ * These three state objects are read-only, but are always up-to-date (i.e., they are not
+ * immutable). All changes to game state must go through `game.writer(player)`, which returns a
+ * [GameWriter]. That type offers only very basic task manipulations, accepting only well-formed
+ * Pets [Instruction]s, but it also has a [GameWriter.unsafe] view that enables "cheats".
+ *
+ * The component graph can be queried programmatically, but a [GameReader] is also provided which
+ * can answer queries expressed as a Pets [Metric] or [Requirement].
  */
 @Singleton
 @dagger.Component(modules = [GameModule::class])
@@ -22,11 +28,11 @@ public abstract class Game {
   /** The current state of the "board". */
   public abstract val components: ComponentGraph
 
-  /** What the game is waiting on someone to do. */
-  public abstract val tasks: TaskQueue
-
   /** Everything that has already happened in the game. */
   public abstract val events: EventLog
+
+  /** What the game is waiting on someone to do. */
+  public abstract val tasks: TaskQueue
 
   /** Checkpoint, rollback, atomic interactions. */
   public abstract val timeline: Timeline

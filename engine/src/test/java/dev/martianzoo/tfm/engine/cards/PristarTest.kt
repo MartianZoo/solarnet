@@ -24,7 +24,7 @@ class PristarTest {
 
     p1.assertCounts(0 to "Megacredit", 20 to "TR")
 
-    p1.playCorp("Pristar")
+    p1.playCorp("Pristar", 0)
     p1.assertCounts(53 to "Megacredit", 18 to "TR")
 
     eng.phase("Prelude")

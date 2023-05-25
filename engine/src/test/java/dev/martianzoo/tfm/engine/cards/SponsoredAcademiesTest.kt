@@ -22,7 +22,7 @@ class SponsoredAcademiesTest {
     game.session(PLAYER1).playCorp("Phobolog", 5)
 
     with(game.session(PLAYER2)) {
-      playCorp("Teractor", 1)
+      playCorp("Ecoline", 1)
       phase("Action")
       assertThrows<LimitsException>("nothing to discard") { playCard("SponsoredAcademies", 9) }
 

@@ -4,7 +4,6 @@ import dev.martianzoo.tfm.api.Authority
 import dev.martianzoo.tfm.api.GameReader
 import dev.martianzoo.tfm.api.Type
 import dev.martianzoo.tfm.api.TypeInfo
-import dev.martianzoo.tfm.engine.ComponentGraph.Component
 import dev.martianzoo.tfm.engine.ComponentGraph.Component.Companion.toComponent
 import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.pets.ast.Metric
@@ -69,9 +68,8 @@ public class GameReaderImpl @Inject constructor(
 
   override fun count(type: Type) = components.count(table.resolve(type), this)
 
-  override fun countComponent(concreteType: Type) = countComponent(concreteType.toComponent(this))
-
-  fun countComponent(component: Component) = components.countComponent(component)
+  override fun countComponent(concreteType: Type) =
+      components.countComponent(concreteType.toComponent(this))
 
   override fun getComponents(type: Type) =
       components.getAll(table.resolve(type), this).map { it.mtype }

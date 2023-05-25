@@ -20,7 +20,7 @@ class InsulationTest {
   fun insulation_normal() {
     val game = Engine.newGame(GameSetup(Canon, "BRM", 2))
     with(game.session(PLAYER1)) {
-      playCorp("Teractor", 5)
+      playCorp("Ecoline", 5)
       phase("Action")
       writer.unsafe().sneak("PROD[-1, 3 Heat]")
       assertProds(-1 to "M", 3 to "H")

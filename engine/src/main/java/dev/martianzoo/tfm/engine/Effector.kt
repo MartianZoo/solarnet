@@ -33,8 +33,8 @@ import javax.inject.Provider
 import javax.inject.Singleton
 
 @Singleton
-internal class Effector @Inject constructor(readerP: Provider<GameReader>) {
-  private val reader: GameReader by lazy(readerP::get)
+internal class Effector @Inject constructor(reader: Provider<GameReader>) {
+  private val reader: GameReader by lazy(reader::get)
   private val registry = HashMultiset<ActiveEffect>()
 
   // Called by WritableComponentGraph.update

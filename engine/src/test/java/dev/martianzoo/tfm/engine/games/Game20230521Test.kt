@@ -30,7 +30,11 @@ class Game20230521Test {
   fun game() {
     val game = Engine.newGame(GameSetup(Canon, "BRMVPXCT", 2))
     val engine = game.session(Player.ENGINE)
+
+    // https://terraforming-mars.herokuapp.com/player?id=p34f0f06d4ba2
     val blue = game.session(Player.PLAYER1)
+
+    // https://terraforming-mars.herokuapp.com/player?id=p938b42ad50a9
     val purp = game.session(Player.PLAYER2)
 
     fun newGeneration(cards1: Int, cards2: Int) {
@@ -43,6 +47,8 @@ class Game20230521Test {
         phase("Action")
       }
     }
+
+    // TODO list cards drawn in comments, for later
 
     blue.playCorp("Manutech", 5)
     purp.playCorp("Factorum", 4)
@@ -80,6 +86,8 @@ class Game20230521Test {
     purp.pass()
 
     newGeneration(2, 2)
+
+    // Check the same values we see in the herokuapp UI
 
     with(blue) {
       assertProds(5 to "M", 3 to "S", 0 to "T", 0 to "P", 0 to "E", 0 to "H")
@@ -138,10 +146,6 @@ class Game20230521Test {
 
     blue.cardAction1("DevelopmentCenter")
     blue.cardAction1("InventorsGuild", "Ok")
-
-
-    // blue https://terraforming-mars.herokuapp.com/player?id=p34f0f06d4ba2
-    // purp https://terraforming-mars.herokuapp.com/player?id=p938b42ad50a9
 
     with(blue) {
       assertProds(4 to "M", 3 to "S", 0 to "T", 0 to "P", 1 to "E", 0 to "H")

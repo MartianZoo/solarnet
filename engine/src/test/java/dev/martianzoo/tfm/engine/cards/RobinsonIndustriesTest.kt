@@ -21,7 +21,7 @@ class RobinsonIndustriesTest {
   @Test
   fun megacredit1() {
     with(game.session(PLAYER1)) {
-      playCorp("RobinsonIndustries")
+      playCorp("RobinsonIndustries", 0)
       assertThat(count("Megacredit")).isEqualTo(47)
 
       writer.unsafe().sneak("PROD[S, T, P, E, H]")
@@ -38,7 +38,7 @@ class RobinsonIndustriesTest {
   fun megacredit2() {
     val p1 = game.session(PLAYER1)
 
-    p1.playCorp("RobinsonIndustries")
+    p1.playCorp("RobinsonIndustries", 0)
     p1.writer.unsafe().sneak("PROD[-1]")
     p1.checkProduction(-1, 0, 0, 0, 0, 0)
 
@@ -51,7 +51,7 @@ class RobinsonIndustriesTest {
   fun nonMegacredit() {
     val p1 = game.session(PLAYER1)
 
-    p1.playCorp("RobinsonIndustries")
+    p1.playCorp("RobinsonIndustries", 0)
     p1.writer.unsafe().sneak("PROD[1, S, P, E, H]")
     p1.checkProduction(1, 1, 0, 1, 1, 1)
 
@@ -63,7 +63,7 @@ class RobinsonIndustriesTest {
   @Test
   fun choice() {
     with(game.session(PLAYER1)) {
-      playCorp("RobinsonIndustries")
+      playCorp("RobinsonIndustries", 0)
       writer.unsafe().sneak("PROD[S, P, E, H]")
       checkProduction(0, 1, 0, 1, 1, 1)
 

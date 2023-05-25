@@ -20,7 +20,7 @@ class UnmiTest {
   fun unmi() {
     val game = Engine.newGame(GameSetup(Canon, "BM", 2))
     with(game.session(PLAYER1)) {
-      operation("CorporationCard, UnitedNationsMarsInitiative")
+      playCorp("UnitedNationsMarsInitiative", 0)
       assertCounts(40 to "Megacredit", 20 to "TR")
 
       phase("Action")
@@ -43,14 +43,15 @@ class UnmiTest {
       writer.unsafe().sneak("14")
       assertCounts(14 to "Megacredit", 20 to "TR")
 
-      // Do anything that raises TR
+      // Do anything that raises TR, while we aren't even UNMI yet
       operation("UseAction1<AsteroidSP>")
       assertCounts(0 to "Megacredit", 21 to "TR")
 
-      playCorp("UnitedNationsMarsInitiative")
+      playCorp("UnitedNationsMarsInitiative", 0)
       assertCounts(40 to "Megacredit", 21 to "TR")
-
       phase("Action")
+
+      // The TR from earlier still counts
       cardAction1("UnitedNationsMarsInitiative")
       assertCounts(37 to "Megacredit", 22 to "TR")
     }
