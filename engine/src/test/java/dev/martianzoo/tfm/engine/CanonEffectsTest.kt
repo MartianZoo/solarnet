@@ -4,6 +4,7 @@ import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.tfm.api.SpecialClassNames.OK
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.data.GameSetup
+import dev.martianzoo.tfm.engine.ComponentGraph.Component.Companion.toComponent
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.types.MClassLoader
 import dev.martianzoo.tfm.types.MClassTable
@@ -25,7 +26,7 @@ private class CanonEffectsTest {
   fun componentEffectsOf(type: String): List<String> {
     val table = MClassLoader(GameSetup(Canon, "BMC", 2))
     val card = table.resolve(te(type))
-    return card.effects.toStrings()
+    return card.toComponent().effects.toStrings()
   }
 
   @Test

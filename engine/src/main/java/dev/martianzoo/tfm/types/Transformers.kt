@@ -31,7 +31,8 @@ import dev.martianzoo.tfm.types.Defaults.DefaultSpec
 import dev.martianzoo.tfm.types.Dependency.Key
 import javax.inject.Inject
 
-public class Transformers @Inject constructor(private val table: MClassTable) {
+public class Transformers @Inject constructor() {
+  @Inject internal lateinit var table: MClassTable
 
   internal val requiredClasses: Set<ClassName> = setOf(PRODUCTION)
 

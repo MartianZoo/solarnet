@@ -61,7 +61,7 @@ internal class Effector @Inject constructor(reader: Provider<GameReader>) {
       }
 
   private fun activeEffects(component: Component): List<ActiveEffect> =
-      component.mtype.effects.map {
+      component.effects.map {
         ActiveEffect(
             Subscription.from(it.trigger, component),
             it.automatic,

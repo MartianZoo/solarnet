@@ -1,18 +1,11 @@
 package dev.martianzoo.tfm.types
 
 import dev.martianzoo.tfm.api.Exceptions
-import dev.martianzoo.tfm.api.SpecialClassNames.OWNED
-import dev.martianzoo.tfm.api.SpecialClassNames.OWNER
 import dev.martianzoo.tfm.api.Type
 import dev.martianzoo.tfm.api.TypeInfo
-import dev.martianzoo.tfm.data.Player
 import dev.martianzoo.tfm.pets.HasClassName
-import dev.martianzoo.tfm.pets.PetTransformer
-import dev.martianzoo.tfm.pets.Transforming
-import dev.martianzoo.tfm.pets.ast.Effect
 import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.pets.ast.Requirement
-import dev.martianzoo.tfm.types.Dependency.Key
 import dev.martianzoo.util.Hierarchical
 import dev.martianzoo.util.Reifiable
 
@@ -24,7 +17,7 @@ import dev.martianzoo.util.Reifiable
  */
 public data class MType
 internal constructor(
-    public val root: MClass,
+    internal val root: MClass,
     internal val dependencies: DependencySet,
     override val refinement: Requirement? = null,
 ) : Type, Hierarchical<MType>, Reifiable<MType>, HasClassName by root {
@@ -80,17 +73,11 @@ internal constructor(
     return expression
   }
 
-  public fun supertypes(): List<MType> {
-    val supers = root.allSuperclasses - loader.componentClass - root
-    // the argument to wAD is allowed to be a superset
-    return supers.map { it.withAllDependencies(dependencies) }
-  }
-
   /**
    * Returns every possible [MType] `t` such that `!t.abstract && t.isSubtypeOf(this)`. Note that
    * this sequence can potentially be very large.
    */
-  public fun allConcreteSubtypes(): Sequence<MType> {
+  internal fun allConcreteSubtypes(): Sequence<MType> {
     return concreteSubclasses(root).flatMap {
       val deps: DependencySet? = dependencies glb it.baseType.dependencies
       if (deps == null) {
@@ -102,6 +89,7 @@ internal constructor(
   }
 
   /** Returns the subset of [allConcreteSubtypes] having the exact same [root] as ours. */
+  // used publicly only by `desc random`
   public fun concreteSubtypesSameClass(): Sequence<MType> =
       if (root.abstract) emptySequence() else dependencies.concreteSubtypesSameClass(this)
 
@@ -129,26 +117,6 @@ internal constructor(
     val refin = that.refinement ?: return true
     val requirement = root.table.transformers.refinementMangler(expressionFull).transform(refin)
     return info.evaluate(requirement)
-  }
-
-  public val owner: Player? by lazy {
-    if (narrows(loader.resolve(OWNER.expression))) {
-      Player(className)
-    } else {
-      dependencies.getIfPresent(Key(OWNED, 0))?.className?.let(::Player)
-    }
-  }
-
-  public val effects: List<Effect> by lazy {
-    val xers = loader.transformers
-    val xer =
-        PetTransformer.chain(
-            xers.substituter(root.defaultType, this),
-            xers.deprodify(),
-            owner?.let(Transforming::replaceOwnerWith),
-            Transforming.replaceThisExpressionsWith(expression),
-        )
-    root.classEffects.map(xer::transform)
   }
 
   override fun toString() = "$expressionFull@${root.loader}"

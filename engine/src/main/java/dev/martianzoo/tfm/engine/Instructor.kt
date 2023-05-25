@@ -14,8 +14,6 @@ import dev.martianzoo.tfm.data.GameEvent.ChangeEvent.Cause
 import dev.martianzoo.tfm.data.Task
 import dev.martianzoo.tfm.engine.ComponentGraph.Component.Companion.toComponent
 import dev.martianzoo.tfm.engine.WritableComponentGraph.Limiter
-import dev.martianzoo.tfm.pets.PetTransformer.Companion.chain
-import dev.martianzoo.tfm.pets.Transforming.replaceOwnerWith
 import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.pets.ast.Instruction
 import dev.martianzoo.tfm.pets.ast.Instruction.Change
@@ -134,7 +132,8 @@ constructor(
 
     if (g != null && !g.abstract && g.root.custom != null) {
       require(r == null) { "custom class instructions can only be pure gains" }
-      return prepareCustom(g)
+      val translated = g.toComponent().prepareCustom(reader)
+      return if (translated is Multi) translated else doPrepare(translated) // TODO hmm?
     }
 
     val intens = change.intensity ?: error("$change")
@@ -162,20 +161,6 @@ constructor(
     }
 
     return change(adjusted, g?.expression, r?.expression, if (intens == AMAP) MANDATORY else intens)
-  }
-
-  private fun prepareCustom(type: MType): Instruction {
-    val translated = type.root.custom!!.prepare(reader, type)
-
-    val prepped =
-        chain(
-                transformers.standardPreprocess(),
-                transformers.substituter(type.root.baseType, type),
-                type.owner?.let { replaceOwnerWith(it) },
-            )
-            .transform(translated)
-
-    return if (prepped is Multi) prepped else doPrepare(prepped) // TODO hmm?
   }
 
   private fun prepareOr(unprepared: Or): Instruction {

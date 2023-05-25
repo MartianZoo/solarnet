@@ -35,7 +35,7 @@ public class PlayerSession(
   }
 
   public val writer = game.writer(player)
-  public val reader = game.reader as GameReaderImpl
+  public val reader = game.reader
   public val tasks by game::tasks
   public val events by game::events
   public val timeline by game::timeline
@@ -51,11 +51,13 @@ public class PlayerSession(
   fun count(metric: Metric): Int = reader.count(preprocess(metric))
 
   fun count(metric: String): Int = count(parse(metric))
+
   fun countComponent(component: Component) = reader.countComponent(component.mtype)
+
   fun list(expression: Expression): Multiset<Expression> {
-    val typeToList: MType = reader.resolve(preprocess(expression))
+    val typeToList: MType = reader.resolve(preprocess(expression)) as MType
     val allComponents: Multiset<Component> =
-        reader.getComponents(reader.resolve(preprocess(expression))).map { it.toComponent() }
+        reader.getComponents(typeToList).map { it.toComponent(reader) }
 
     val result = HashMultiset<Expression>()
     typeToList.root.directSubclasses.forEach { sub ->

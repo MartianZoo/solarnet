@@ -1,6 +1,8 @@
 package dev.martianzoo.tfm.repl
 
 import dev.martianzoo.tfm.api.Exceptions
+import dev.martianzoo.tfm.api.GameReader
+import dev.martianzoo.tfm.api.SpecialClassNames.CLASS
 import dev.martianzoo.tfm.api.SpecialClassNames.COMPONENT
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.data.GameEvent.ChangeEvent
@@ -11,10 +13,10 @@ import dev.martianzoo.tfm.data.Task.TaskId
 import dev.martianzoo.tfm.data.TaskResult
 import dev.martianzoo.tfm.engine.Engine
 import dev.martianzoo.tfm.engine.Game
-import dev.martianzoo.tfm.engine.GameReaderImpl
 import dev.martianzoo.tfm.engine.PlayerSession
 import dev.martianzoo.tfm.engine.PlayerSession.Companion.session
 import dev.martianzoo.tfm.engine.Timeline.Checkpoint
+import dev.martianzoo.tfm.pets.HasExpression.Companion.expressions
 import dev.martianzoo.tfm.pets.Parsing.parse
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
@@ -29,9 +31,10 @@ import dev.martianzoo.tfm.repl.ReplSession.ReplMode.RED
 import dev.martianzoo.tfm.repl.ReplSession.ReplMode.YELLOW
 import dev.martianzoo.tfm.types.MType
 import dev.martianzoo.util.Multiset
+import dev.martianzoo.util.random
 import dev.martianzoo.util.toStrings
-import org.jline.reader.History
 import java.io.File
+import org.jline.reader.History
 
 internal fun main() {
   val jline = JlineRepl()
@@ -257,8 +260,7 @@ public class ReplSession(var setup: GameSetup, private val jline: JlineRepl? = n
 
   internal inner class ListCommand : ReplCommand("list") {
     override val usage = "list <Expression>"
-    override val help =
-        """
+    override val help = """
           This command is super broken right now.
         """
     override val isReadOnly = true
@@ -288,8 +290,7 @@ public class ReplSession(var setup: GameSetup, private val jline: JlineRepl? = n
 
   internal inner class MapCommand : ReplCommand("map") {
     override val usage = "map"
-    override val help =
-        """
+    override val help = """
           I mean it shows a map.
         """
     override val isReadOnly = true
@@ -378,8 +379,8 @@ public class ReplSession(var setup: GameSetup, private val jline: JlineRepl? = n
     private fun Instruction.isGainOf(superclass: ClassName): Boolean =
         when (this) {
           is Gain -> {
-            val t: MType = session.reader.resolve(gaining)
-            t.isSubtypeOf(session.reader.resolve(superclass.expression))
+            val t = session.reader.resolve(gaining) as MType
+            t.isSubtypeOf(session.reader.resolve(superclass.expression) as MType)
           }
           is Instruction.Transform -> instruction.isGainOf(superclass)
           else -> false
@@ -446,8 +447,7 @@ public class ReplSession(var setup: GameSetup, private val jline: JlineRepl? = n
             RED,
             YELLOW -> throw UsageException("Can't execute tasks in this mode")
             GREEN,
-            BLUE,
-            -> {
+            BLUE, -> {
               session.timeline.atomic {
                 session.tryTask(id, rest)
                 if (auto) session.autoExec()
@@ -495,7 +495,7 @@ public class ReplSession(var setup: GameSetup, private val jline: JlineRepl? = n
     }
   }
 
-  fun isSystem(event: ChangeEvent, game: GameReaderImpl): Boolean {
+  fun isSystem(event: ChangeEvent, game: GameReader): Boolean {
     val g = event.change.gaining
     val r = event.change.removing
 
@@ -564,15 +564,24 @@ public class ReplSession(var setup: GameSetup, private val jline: JlineRepl? = n
     override val isReadOnly = true
 
     override fun withArgs(args: String): List<String> {
-      val expression: Expression =
-      // if (args == "random") {
-      //   val randomBaseType = session.table.allClasses.random().baseType
-      //   val randomType = randomBaseType.concreteSubtypesSameClass().toList().random()
-      //   randomType.expression
-      // } else {
-      parse(args)
-      // }
-      return listOf(MTypeToText.describe(expression, session))
+      val (expression, type) =
+          if (args == "random") {
+            val type = with(session.reader) {
+              resolve(CLASS.expression)
+                  .let(::getComponents)
+                  .expressions()
+                  .map { it.arguments.single() }
+                  .random()
+                  .let { resolve(it) as MType }
+                  .concreteSubtypesSameClass()
+                  .random()
+            }
+            type.expressionFull to type
+          } else {
+            val expression: Expression = parse(args)
+            expression to game.reader.resolve(expression) as MType
+          }
+      return listOf(MTypeToText.describe(expression, type))
     }
   }
 
@@ -622,7 +631,7 @@ public class ReplSession(var setup: GameSetup, private val jline: JlineRepl? = n
 
   private fun player(name: String): Player {
     // In case a shortname was used
-    val type: MType = session.reader.resolve(cn(name).expression)
+    val type: MType = session.reader.resolve(cn(name).expression) as MType
     return Player(type.className)
   }
 }

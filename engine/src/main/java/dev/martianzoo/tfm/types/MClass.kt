@@ -54,14 +54,14 @@ internal constructor(
     internal val loader: MClassLoader,
 
     /** This class's superclasses that are exactly one step away; empty only for `Component`. */
-    public val directSuperclasses: List<MClass> = superclasses(declaration, loader),
-    public val custom: CustomClass? = null,
+    internal val directSuperclasses: List<MClass> = superclasses(declaration, loader),
+    internal val custom: CustomClass? = null,
 ) : HasClassName, Hierarchical<MClass> {
 
-  public val table: MClassTable by ::loader
+  internal val table: MClassTable by ::loader
 
   /** The name of this class, in UpperCamelCase. */
-  public override val className: ClassName = declaration.className.also { require(it != THIS) }
+  override val className: ClassName = declaration.className.also { require(it != THIS) }
 
   /**
    * A short name for this class, such as `"CT"` for `"CityTile"`; is often the same as [className].
@@ -111,7 +111,7 @@ internal constructor(
    * not narrow the dependencies (such as `GreeneryTile`, whose supertype is `Tile<MarsArea>` rather
    * than `Tile<Area>`).
    */
-  public val directSupertypes: Set<MType> by lazy {
+  internal val directSupertypes: Set<MType> by lazy {
     when {
       className == COMPONENT -> setOf()
       declaration.supertypes.none() -> setOf(table.componentClass.baseType)
@@ -124,18 +124,18 @@ internal constructor(
   }
 
   /** Every class `c` for which `c.isSuperclassOf(this)` is true, including this class itself. */
-  public val allSuperclasses: Set<MClass> by lazy {
+  internal val allSuperclasses: Set<MClass> by lazy {
     (directSuperclasses.flatMap { it.allSuperclasses } + this).toSet()
   }
 
-  public val properSuperclasses: Set<MClass> by lazy { allSuperclasses - this }
+  internal val properSuperclasses: Set<MClass> by lazy { allSuperclasses - this }
 
   /** Every class `c` for which `c.isSubclassOf(this)` is true, including this class itself. */
-  public val allSubclasses: Set<MClass> by lazy {
+  internal val allSubclasses: Set<MClass> by lazy {
     table.allClasses.filter { this in it.allSuperclasses }.toSet()
   }
 
-  public val directSubclasses: Set<MClass> by lazy {
+  internal val directSubclasses: Set<MClass> by lazy {
     table.allClasses.filter { this in it.directSuperclasses }.toSet()
   }
 
@@ -146,7 +146,7 @@ internal constructor(
    * count `OwnedTile` components, it would be a bug if a component like `CommercialDistrictTile`
    * (which is both an `Owned` and a `Tile`) forgot to also extend `OwnedTile`.
    */
-  public val intersectionType: Boolean by lazy {
+  internal val intersectionType: Boolean by lazy {
     directSuperclasses.size >= 2 &&
         table.allClasses
             .filter { mclass -> directSuperclasses.all(mclass::isSubtypeOf) }
@@ -189,7 +189,7 @@ internal constructor(
       MType(this, deps.subMapInOrder(dependencies.keys))
 
   /** Least upper bound of all types with mclass==this */
-  public val baseType: MType by lazy { withAllDependencies(dependencies) }
+  internal val baseType: MType by lazy { withAllDependencies(dependencies) }
 
   internal val defaultType: MType by lazy {
     loader.resolve(loader.transformers.insertDefaults().transform(className.expression))
@@ -207,14 +207,14 @@ internal constructor(
 
   // EFFECTS
 
-  public fun rawEffects(): Set<Effect> = declaration.effects
+  internal fun rawEffects(): Set<Effect> = declaration.effects
 
   /**
    * The effects belonging to this class; similar to those found on the [declaration], but processed
    * as far as we are able to. These effects will belong to every [MType] built from this class,
    * where they will be processed further.
    */
-  public val classEffects: Set<Effect> by lazy {
+  internal val classEffects: Set<Effect> by lazy {
     allSuperclasses.flatMap { it.directClassEffects() }.toSetStrict()
   }
 
@@ -258,11 +258,11 @@ internal constructor(
    * Returns a set of absolute invariants that must always be true; note that these contain `This`
    * expressions, which are to be substituted with the concrete type.
    */
-  public val typeInvariants: Set<Requirement> by lazy {
+  internal val typeInvariants: Set<Requirement> by lazy {
     allSuperclasses.flatMap { it.specificInvars }.toSet()
   }
 
-  public val componentCountRange: IntRange by lazy {
+  internal val componentCountRange: IntRange by lazy {
     val ranges: List<IntRange> =
         typeInvariants
             .filterIsInstance<Counting>()

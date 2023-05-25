@@ -18,7 +18,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 
 private class PrepareTest {
-  val xers = Transformers(MClassLoader(Canon.SIMPLE_GAME))
+  val xers = Transformers().also { it.table = MClassLoader(Canon.SIMPLE_GAME) } // TODO
   val game = newGame(Canon.SIMPLE_GAME)
   val p1 = game.session(PLAYER1)
   val instructor = (p1.writer as GameWriterImpl).instructor

@@ -23,7 +23,7 @@ import javax.inject.Inject
  * needed. Can be [frozen], which prevents additional classes from being loaded, and enables
  * features such as [MClass.allSubclasses] to work.
  */
-public class MClassLoader(
+internal class MClassLoader(
     /**
      * The source of class declarations to use as needed; [loadEverything] will load every class
      * found here.
@@ -48,7 +48,7 @@ public class MClassLoader(
   private val loadedClasses =
       mutableMapOf<ClassName, MClass?>(COMPONENT to componentClass, CLASS to classClass)
 
-  override val transformers = Transformers(this)
+  override val transformers = Transformers().also { it.table = this } // TODO
 
   /**
    * Returns the [MClass] whose [MClass.className] or [MClass.shortName] is [name], or throws an
@@ -198,6 +198,9 @@ public class MClassLoader(
 
   override fun defaults(className: ClassName) =
       allDefaults[className] ?: throw Exceptions.classNotFound(className)
+
+  // fun randomType(): MType =
+  //     allClasses.random().baseType.concreteSubtypesSameClass().toList().random()
 
   private val id = nextId++
 

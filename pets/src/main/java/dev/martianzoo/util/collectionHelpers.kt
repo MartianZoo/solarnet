@@ -1,5 +1,7 @@
 package dev.martianzoo.util
 
+import kotlin.random.Random
+
 fun <T> Array<T>.toSetStrict() = toList().toSetStrict()
 
 fun <T> Iterable<T>.toSetStrict() =
@@ -43,6 +45,11 @@ fun <T> random(iter: Collection<T>, count: Int): Set<T> {
     }
   }
   return results
+}
+
+fun <T> Sequence<T>.random(): T {
+  var i = 0
+  return findLast { Random.nextInt(++i) == 0 } ?: error("empty")
 }
 
 fun <T> Iterable<T>.joinOrEmpty(
