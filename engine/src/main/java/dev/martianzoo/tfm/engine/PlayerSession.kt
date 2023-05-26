@@ -29,7 +29,7 @@ public class PlayerSession(
     // TODO Session?
     private val game: Game,
     public val player: Player,
-) : Operator {
+) {
   companion object {
     fun Game.session(player: Player) = PlayerSession(this, player)
   }
@@ -76,10 +76,10 @@ public class PlayerSession(
 
   // EXECUTION
 
-  override fun operation(startingInstruction: String, vararg tasks: String): TaskResult =
+  fun operation(startingInstruction: String, vararg tasks: String): TaskResult =
       timeline.atomic { operation(startingInstruction) { tasks.forEach(::task) } }
 
-  override fun operation(startingInstruction: String, body: OperationBody.() -> Unit) {
+  fun operation(startingInstruction: String, body: OperationBody.() -> Unit) {
     val instruction: Instruction = parseInContext(startingInstruction)
     require(tasks.isEmpty()) { tasks }
     val cp = timeline.checkpoint()
@@ -118,7 +118,7 @@ public class PlayerSession(
     }
 
     // TODO rename or something, it sounds like you can keep going
-    override fun rollItBack() {
+    override fun abortAndRollBack() {
       throw JustRollBackException()
     }
   }
@@ -133,7 +133,7 @@ public class PlayerSession(
   }
 
   @Suppress("ControlFlowWithEmptyBody")
-  override fun autoExec(safely: Boolean): TaskResult { // TODO invert default or something
+  fun autoExec(safely: Boolean = false): TaskResult { // TODO invert default or something
     return timeline.atomic { while (autoExecOneTask(safely)) {} }
   }
 
@@ -176,7 +176,7 @@ public class PlayerSession(
     return false // presumably everything is abstract
   }
 
-  override fun tryTask(taskId: TaskId, narrowed: String?) =
+  fun tryTask(taskId: TaskId, narrowed: String?) =
       timeline.atomic {
         try {
           writer.prepareTask(taskId)
@@ -192,7 +192,7 @@ public class PlayerSession(
       }
 
   // Similar to tryTask, but a NotNowException is unrecoverable in this case
-  override fun tryPreparedTask(): Boolean /* did I do stuff? */ {
+  fun tryPreparedTask(): Boolean /* did I do stuff? */ {
     val taskId = tasks.preparedTask()!!
     return try {
       writer.executeTask(taskId)
@@ -206,7 +206,7 @@ public class PlayerSession(
     }
   }
 
-  override fun matchTask(revised: String): TaskResult {
+  fun matchTask(revised: String): TaskResult {
     if (tasks.isEmpty()) throw TaskException("no tasks")
 
     val ins: Instruction = preprocess(parse(revised))
@@ -253,7 +253,7 @@ public class PlayerSession(
     }
   }
 
-  public fun <P : PetElement> preprocess(node: P) = (writer as GameWriterImpl).preprocess(node)
+  public fun <P : PetElement> preprocess(node: P) = (writer as PlayerAgent).preprocess(node)
 
   private inline fun <reified P : PetElement> parseInContext(text: String): P =
       preprocess(parse(text))

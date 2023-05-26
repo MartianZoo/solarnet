@@ -49,15 +49,15 @@ public object Engine {
 
   @Subcomponent(modules = [PlayerModule::class])
   internal abstract class PlayerComponent {
-    internal abstract val writer: GameWriter
+    internal abstract val writer: Tasker
     internal abstract val initter: Initializer // only used for Engine
   }
 
   @Module
   internal class PlayerModule(private val player: Player) {
     @Provides fun a(): Player = player
-    @Provides fun b(x: GameWriterImpl): GameWriter = x
-    @Provides fun c(x: GameWriterImpl): UnsafeGameWriter = x
+    @Provides fun b(x: PlayerAgent): Tasker = x
+    @Provides fun c(x: PlayerAgent): UnsafeGameWriter = x
   }
 
   public fun writers(game: Game, setup: GameSetup) =

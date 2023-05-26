@@ -35,13 +35,13 @@ class InsulationTest {
       playCard("Insulation", 2) {
         task("PROD[2 Megacredit FROM Heat]")
         assertProds(1 to "M", 1 to "H")
-        rollItBack()
+        abortAndRollBack()
       }
 
       playCard("Insulation", 2) {
         task("PROD[Megacredit FROM Heat]")
         assertProds(0 to "M", 2 to "H")
-        rollItBack()
+        abortAndRollBack()
       }
     }
   }

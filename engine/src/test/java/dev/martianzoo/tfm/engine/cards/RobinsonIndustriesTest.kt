@@ -74,12 +74,12 @@ class RobinsonIndustriesTest {
                 "Production<Player1, Class<Megacredit>>! OR Production<Player1, Class<Titanium>>!")
         task("PROD[1]")
         checkProduction(1, 1, 0, 1, 1, 1)
-        rollItBack()
+        abortAndRollBack()
       }
 
       cardAction1("RobinsonIndustries", "PROD[T]") {
         checkProduction(0, 1, 1, 1, 1, 1)
-        rollItBack()
+        abortAndRollBack()
       }
 
       assertThrows<NarrowingException> { cardAction1("RobinsonIndustries", "PROD[Steel]") }

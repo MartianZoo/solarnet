@@ -21,7 +21,7 @@ private class PrepareTest {
   val xers = Transformers(MClassLoader(Canon.SIMPLE_GAME))
   val game = newGame(Canon.SIMPLE_GAME)
   val p1 = game.session(PLAYER1)
-  val instructor = (p1.writer as GameWriterImpl).instructor
+  val instructor = (p1.writer as PlayerAgent).instructor
 
   init {
     p1.writer.unsafe().sneak("Plant, 10 ProjectCard, PROD[-1]")

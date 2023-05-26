@@ -1,8 +1,8 @@
 package dev.martianzoo.tfm.engine
 
 import dev.martianzoo.tfm.data.GameEvent.ChangeEvent.Cause
-import dev.martianzoo.tfm.data.Player
-import dev.martianzoo.tfm.pets.Parsing
+import dev.martianzoo.tfm.data.Player.Companion.ENGINE
+import dev.martianzoo.tfm.pets.Parsing.parse
 import dev.martianzoo.tfm.types.MClassTable
 import javax.inject.Inject
 
@@ -14,10 +14,10 @@ internal class Initializer @Inject constructor(
   fun initialize() {
     var fakeCause: Cause? = null
 
-    fun exec(instr: String) = unsafe.executeFully(Parsing.parse(instr), fakeCause)
+    fun exec(instruction: String) = unsafe.executeFully(parse(instruction), fakeCause)
 
-    exec("${Player.ENGINE}!")
-    fakeCause = Cause(Player.ENGINE.expression, 0)
+    exec("$ENGINE!")
+    fakeCause = Cause(ENGINE.expression, 0)
 
     table.allClasses
         .filter { 0 !in it.componentCountRange }

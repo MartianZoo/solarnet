@@ -189,7 +189,7 @@ class Game20230521Test {
     operation("End FROM Phase") {
       autoExec()
       assertCounts(expected to "VP")
-      rollItBack()
+      abortAndRollBack()
     }
   }
 

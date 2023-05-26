@@ -34,7 +34,7 @@ class LocalHeatTrappingTest {
                 "choice required in: `4 Plant<Player1>! OR 2 Animal<Player1>.`",
             )
 
-        rollItBack()
+        abortAndRollBack()
       }
     }
   }

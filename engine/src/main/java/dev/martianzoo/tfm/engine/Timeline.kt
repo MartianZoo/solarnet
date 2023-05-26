@@ -47,6 +47,8 @@ public class Timeline @Inject constructor(val reader: GameReader) {
 
   /**
    * Performs [block] with failure-atomicity and returning a [TaskResult] describing what changed.
+   * Within the block you can throw [AbortOperationException] to roll everything back but have this
+   * method complete normally.
    */
   fun atomic(block: () -> Unit): TaskResult {
     val checkpoint = checkpoint()
@@ -54,10 +56,12 @@ public class Timeline @Inject constructor(val reader: GameReader) {
       block()
     } catch (e: Exception) {
       rollBack(checkpoint)
-      throw e
+      if (e !is AbortOperationException) throw e
     }
     return events.activitySince(checkpoint)
   }
+
+  public class AbortOperationException : Exception()
 
   internal fun setupFinished() = events.setStartPoint()
 }

@@ -34,7 +34,7 @@ import dev.martianzoo.tfm.pets.ast.Instruction.Multi
  * All methods of this type are failure-atomic: if one throws an exception, it leaves the game state
  * unmodified.
  */
-public interface GameWriter { // TODO rename Tasker
+public interface Tasker {
   /**
    * Voluntarily replaces a task's instruction with a strictly more specific revision, as the owner
    * of an abstract task is allowed to do. Preserves [Task.next], and if `true`, re-prepares the new
@@ -47,6 +47,9 @@ public interface GameWriter { // TODO rename Tasker
    */
   fun narrowTask(taskId: TaskId, narrowed: Instruction): TaskResult
 
+  fun narrowTask(taskId: TaskId, narrowed: String): TaskResult
+
+  /** Tells whether [prepareTask] will complete normallly. */
   fun canPrepareTask(taskId: TaskId): Boolean
 
   /**
