@@ -147,23 +147,37 @@ class Game20230521Test {
     blue.cardAction1("DevelopmentCenter")
     blue.cardAction1("InventorsGuild", "Ok")
 
+    purp.cardAction1("Factorum")
+    purp.playCard("AsteroidCard", 2, steel = 0, titanium = 4, "Ok")
+
+    blue.playCard("CorporateStronghold", 5, steel = 3, "CityTile<Tharsis_4_6>")
+    blue.playCard("OptimalAerobraking", 7)
+
+    purp.playCard("TransNeptuneProbe", 0, titanium = 2)
+    purp.cardAction1("RotatorImpacts", "Ok")
+
+    blue.cardAction2("DeuteriumExport")
+    blue.playCard("ImportedGhg", 4)
+
+    newGeneration(0, 0)
     with(blue) {
-      assertProds(4 to "M", 3 to "S", 0 to "T", 0 to "P", 1 to "E", 0 to "H")
-      assertCounts(27 to "M", 3 to "S", 0 to "T", 0 to "P", 0 to "E", 1 to "H")
-      assertDashMiddle(played = 10, actions = 1, vp = 23, tr = 23, hand = 8)
-      assertTags(3 to "BUT", 1 to "SPT", 2 to "SCT", 1 to "POT", 3 to "EAT", 1 to "VET")
-      assertCounts(1 to "PlayedEvent", 1 to "CardFront(HAS MAX 0 Tag)", 0 to "CityTile")
+      assertProds(7 to "M", 3 to "S", 0 to "T", 0 to "P", 1 to "E", 1 to "H")
+      assertCounts(47 to "M", 3 to "S", 0 to "T", 1 to "P", 1 to "E", 10 to "H")
+      assertDashMiddle(played = 13, actions = 3, vp = 21, tr = 23, hand = 5)
+      assertTags(4 to "BUT", 2 to "SPT", 2 to "SCT", 1 to "POT", 3 to "EAT", 1 to "VET", 1 to "CIT")
+      assertCounts(2 to "PlayedEvent", 1 to "CardFront(HAS MAX 0 Tag)", 1 to "CityTile")
     }
 
     with(purp) {
-      assertProds(0 to "M", 1 to "S", 1 to "T", 1 to "P", 0 to "E", 3 to "H")
-      assertCounts(21 to "M", 1 to "S", 4 to "T", 3 to "P", 0 to "E", 6 to "H")
-      assertDashMiddle(played = 8, actions = 2, vp = 22, tr = 21, hand = 7)
-      assertTags(3 to "BUT", 1 to "SPT", 2 to "SCT", 1 to "POT", 1 to "JOT", 1 to "PLT", 1 to "MIT")
-      assertCounts(0 to "PlayedEvent", 1 to "CardFront(HAS MAX 0 Tag)", 0 to "CityTile")
+      assertProds(0 to "M", 1 to "S", 1 to "T", 1 to "P", 1 to "E", 3 to "H")
+      assertCounts(35 to "M", 2 to "S", 1 to "T", 4 to "P", 1 to "E", 9 to "H")
+      assertDashMiddle(played = 10, actions = 2, vp = 24, tr = 22, hand = 5)
+      assertTags(
+          3 to "BUT", 2 to "SPT", 3 to "SCT", 1 to "POT", 1 to "JOT", 1 to "PLT", 1 to "MIT")
+      assertCounts(1 to "PlayedEvent", 1 to "CardFront(HAS MAX 0 Tag)", 0 to "CityTile")
     }
 
-    engine.assertSidebar(3, -30, 0, 0, 2)
+    engine.assertSidebar(4, -28, 0, 0, 2)
   }
 
   fun PlayerSession.assertTags(vararg pair: Pair<Int, String>) {
