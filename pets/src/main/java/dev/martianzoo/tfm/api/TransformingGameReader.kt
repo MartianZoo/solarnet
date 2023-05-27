@@ -7,7 +7,7 @@ import dev.martianzoo.tfm.pets.ast.Requirement
 
 public class TransformingGameReader(val delegate: GameReader, val xer: PetTransformer) :
     GameReader by delegate {
-  override fun evaluate(requirement: Requirement) = delegate.evaluate(xer.transform(requirement))
+  override fun has(requirement: Requirement) = delegate.has(xer.transform(requirement))
 
   override fun count(metric: Metric) = delegate.count(xer.transform(metric))
 

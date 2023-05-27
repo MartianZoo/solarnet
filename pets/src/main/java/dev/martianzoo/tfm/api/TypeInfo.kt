@@ -6,11 +6,11 @@ import dev.martianzoo.tfm.pets.ast.Requirement
 interface TypeInfo {
   fun isAbstract(e: Expression): Boolean
   fun ensureNarrows(wide: Expression, narrow: Expression)
-  fun evaluate(requirement: Requirement): Boolean
+  fun has(requirement: Requirement): Boolean
 
   object StubTypeInfo : TypeInfo {
     override fun isAbstract(e: Expression) = error("")
     override fun ensureNarrows(wide: Expression, narrow: Expression) = error("")
-    override fun evaluate(requirement: Requirement) = error("")
+    override fun has(requirement: Requirement) = error("")
   }
 }

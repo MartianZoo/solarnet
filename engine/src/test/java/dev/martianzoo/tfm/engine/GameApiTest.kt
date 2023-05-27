@@ -28,10 +28,10 @@ private class GameApiTest {
     assertThat(game.reader.count(parse<Metric>("Heat"))).isEqualTo(15)
 
     p2.operation("-4 Heat<Player2>!")
-    assertThat(game.reader.evaluate(parse("Heat<Player2>"))).isTrue()
-    assertThat(game.reader.evaluate(parse("=1 Heat<Player2>"))).isTrue()
-    assertThat(game.reader.evaluate(parse("MAX 1 Heat<Player2>"))).isTrue()
-    assertThat(game.reader.evaluate(parse("2 Heat<Player2>"))).isFalse()
+    assertThat(game.reader.has(parse("Heat<Player2>"))).isTrue()
+    assertThat(game.reader.has(parse("=1 Heat<Player2>"))).isTrue()
+    assertThat(game.reader.has(parse("MAX 1 Heat<Player2>"))).isTrue()
+    assertThat(game.reader.has(parse("2 Heat<Player2>"))).isFalse()
     assertThat(game.reader.count(parse<Metric>("StandardResource"))).isEqualTo(11)
     assertThat(game.reader.count(parse<Metric>("StandardResource<Player1>"))).isEqualTo(10)
     p2.operation("3 Steel<Player1> FROM Heat<Player1>!")
@@ -39,8 +39,8 @@ private class GameApiTest {
     assertThat(game.reader.count(parse<Metric>("Steel"))).isEqualTo(3)
 
     p2.operation("2 Heat<Player2 FROM Player1>!")
-    assertThat(game.reader.evaluate(parse<Requirement>("=3 Heat<Player2>"))).isTrue()
-    assertThat(game.reader.evaluate(parse<Requirement>("=5 Heat<Player1>"))).isTrue()
+    assertThat(game.reader.has(parse<Requirement>("=3 Heat<Player2>"))).isTrue()
+    assertThat(game.reader.has(parse<Requirement>("=5 Heat<Player1>"))).isTrue()
 
     val changes = game.events.changesSince(checkpoint)
     assertThat(changes.map { it.change })

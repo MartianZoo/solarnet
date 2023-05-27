@@ -15,7 +15,7 @@ interface GameReader : TypeInfo {
   fun resolve(expression: Expression): Type
 
   /** Determines whether the (fully-prepared) [requirement] is met in the current game state. */
-  override fun evaluate(requirement: Requirement): Boolean
+  override fun has(requirement: Requirement): Boolean
 
   /** Evaluates the (fully-prepared) [metric] in the current game state. */
   fun count(metric: Metric): Int

@@ -41,7 +41,7 @@ internal class GameReaderImpl @Inject constructor(
   override fun ensureNarrows(wide: Expression, narrow: Expression) =
       resolve(narrow).ensureNarrows(resolve(wide), this)
 
-  override fun evaluate(requirement: Requirement): Boolean =
+  override fun has(requirement: Requirement): Boolean =
       when (requirement) {
         is Counting -> {
           val actual = count(Count(requirement.scaledEx.expression))
@@ -52,8 +52,8 @@ internal class GameReaderImpl @Inject constructor(
             is Exact -> actual == target
           }
         }
-        is Or -> requirement.requirements.any { evaluate(it) }
-        is And -> requirement.requirements.all { evaluate(it) }
+        is Or -> requirement.requirements.any { has(it) }
+        is And -> requirement.requirements.all { has(it) }
         is Requirement.Transform -> error("should have been transformed by now: $requirement")
       }
 

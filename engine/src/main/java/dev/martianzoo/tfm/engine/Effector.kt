@@ -207,7 +207,7 @@ internal class Effector @Inject constructor(reader: Provider<GameReader>) {
           reader: GameReader,
       ): Hit? {
         val wouldHit = inner.checkForHit(currentEvent, actor, isSelf, reader) ?: return null
-        return if (reader.evaluate(condition)) wouldHit else null
+        return if (reader.has(condition)) wouldHit else null
       }
 
       override val classToCheck = inner.classToCheck

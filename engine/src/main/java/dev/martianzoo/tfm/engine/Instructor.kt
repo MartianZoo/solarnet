@@ -107,7 +107,7 @@ constructor(
       is Change -> prepareChange(unprepared)
       is Per -> doPrepare(unprepared.inner * reader.count(unprepared.metric))
       is Gated -> {
-        if (reader.evaluate(unprepared.gate)) {
+        if (reader.has(unprepared.gate)) {
           doPrepare(unprepared.inner)
         } else if (unprepared.mandatory) {
           throw requirementNotMet(unprepared.gate)

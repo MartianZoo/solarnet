@@ -103,7 +103,7 @@ internal constructor(
     val refin = that.refinement
     if (refin != null) {
       val requirement = root.loader.transformers.refinementMangler(expressionFull).transform(refin)
-      if (!info.evaluate(requirement)) {
+      if (!info.has(requirement)) {
         throw Exceptions.refinementNotMet(requirement)
       }
     }
@@ -116,7 +116,7 @@ internal constructor(
 
     val refin = that.refinement ?: return true
     val requirement = root.loader.transformers.refinementMangler(expressionFull).transform(refin)
-    return info.evaluate(requirement)
+    return info.has(requirement)
   }
 
   override fun toString() = "$expressionFull@${root.loader}"

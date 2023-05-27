@@ -70,7 +70,7 @@ public class PlayerSession(
     return result
   }
 
-  fun has(requirement: Requirement): Boolean = reader.evaluate(preprocess(requirement))
+  fun has(requirement: Requirement): Boolean = reader.has(preprocess(requirement))
 
   fun has(requirement: String) = has(parse(requirement))
 
@@ -98,7 +98,7 @@ public class PlayerSession(
     require(tasks.isEmpty()) {
       "Should be no tasks left, but:\n" + tasks.extract { it }.joinToString("\n")
     }
-    require(game.reader.evaluate(parse("MAX 0 Temporary")))
+    require(game.reader.has(parse("MAX 0 Temporary")))
   }
 
   private class JustRollBackException : Exception("")

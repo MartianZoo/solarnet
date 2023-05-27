@@ -139,7 +139,7 @@ constructor(
       require(tasks.isEmpty()) {
         "Should be no tasks left, but:\n" + tasks.extract { it }.joinToString("\n")
       }
-      require(reader.evaluate(parse("MAX 0 Temporary")))
+      require(reader.has(parse("MAX 0 Temporary")))
     }
   }
 
