@@ -1,7 +1,6 @@
 package dev.martianzoo.tfm.engine
 
 import dev.martianzoo.tfm.api.GameReader
-import dev.martianzoo.tfm.data.GameSetup
 import dev.martianzoo.tfm.data.Player
 import dev.martianzoo.tfm.pets.ast.Metric
 import dev.martianzoo.tfm.pets.ast.Requirement
@@ -23,6 +22,7 @@ import javax.inject.Singleton
  */
 @Singleton
 public class Game @Inject constructor(
+
   /** The current state of the "board". */
   public val components: ComponentGraph,
 
@@ -37,9 +37,8 @@ public class Game @Inject constructor(
 
   /** Higher-level querying of game state (i.e. in Pets language). */
   public val reader: GameReader,
-
-  internal val setup: GameSetup, // TODO needed?
 ) {
+
   internal lateinit var writers: Map<Player, Tasker>
 
   /** All modifications to game state (except rollbacks) go through here. */

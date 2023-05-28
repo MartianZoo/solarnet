@@ -24,8 +24,7 @@ public object Engine {
 
   /** Creates a new game, initialized for the given [setup], and ready for gameplay to begin. */
   public fun newGame(setup: GameSetup): Game {
-    val component: GameComponent =
-        DaggerEngine_GameComponent.builder().gameModule(GameModule(setup)).build()
+    val component = DaggerEngine_GameComponent.builder().gameModule(GameModule(setup)).build()
 
     component.game.writers =
         setup.players().associateWith {
@@ -36,8 +35,6 @@ public object Engine {
 
     return component.game
   }
-
-  // Internal wiring stuff
 
   @Singleton
   @dagger.Component(modules = [GameModule::class])
