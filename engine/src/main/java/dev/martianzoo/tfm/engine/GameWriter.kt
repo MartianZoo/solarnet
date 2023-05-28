@@ -34,7 +34,7 @@ import dev.martianzoo.tfm.pets.ast.Instruction.Multi
  * All methods of this type are failure-atomic: if one throws an exception, it leaves the game state
  * unmodified.
  */
-public interface Tasker {
+public interface GameWriter {
   /**
    * Voluntarily replaces a task's instruction with a strictly more specific revision, as the owner
    * of an abstract task is allowed to do. Preserves [Task.next], and if `true`, re-prepares the new

@@ -2,7 +2,7 @@ package dev.martianzoo.tfm.engine
 
 import dev.martianzoo.tfm.data.TaskResult
 
-interface Operator : Tasker {
+interface Operator : GameWriter {
   fun operation(
       starting: String,
       vararg taskInstructions: String,

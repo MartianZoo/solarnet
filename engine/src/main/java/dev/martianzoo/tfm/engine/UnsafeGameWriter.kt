@@ -10,7 +10,7 @@ interface UnsafeGameWriter {
   fun executeFully(instruction: Instruction, fakeCause: Cause? = null)
 
   /** Adds a manual task for the given [instruction], but does not prepare or execute it. */
-  fun addTask(instruction: Instruction, firstCause: Cause? = null): TaskResult
+  fun addTasks(instruction: Instruction, firstCause: Cause? = null): TaskResult
 
   /** Forgets a task even existed. */
   fun dropTask(taskId: TaskId): TaskRemovedEvent

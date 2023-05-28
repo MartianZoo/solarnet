@@ -14,8 +14,8 @@ import javax.inject.Singleton
  *
  * These three state objects are read-only, but are always up-to-date (i.e., they are not
  * immutable). All changes to game state must go through `game.writer(player)`, which returns a
- * [Tasker]. That type offers only very basic task manipulations, accepting only well-formed
- * Pets [Instruction]s, but it also has a [Tasker.unsafe] view that enables "cheats".
+ * [GameWriter]. That type offers only very basic task manipulations, accepting only well-formed
+ * Pets [Instruction]s, but it also has a [GameWriter.unsafe] view that enables "cheats".
  *
  * The component graph can be queried programmatically, but a [GameReader] is also provided which
  * can answer queries expressed as a Pets [Metric] or [Requirement].
@@ -39,8 +39,8 @@ public class Game @Inject constructor(
   public val reader: GameReader,
 ) {
 
-  internal lateinit var writers: Map<Player, Tasker>
+  internal lateinit var writers: Map<Player, GameWriter>
 
   /** All modifications to game state (except rollbacks) go through here. */
-  public fun writer(player: Player): Tasker = writers[player]!!
+  public fun writer(player: Player): GameWriter = writers[player]!!
 }

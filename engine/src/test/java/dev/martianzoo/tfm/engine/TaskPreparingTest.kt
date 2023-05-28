@@ -10,9 +10,9 @@ import dev.martianzoo.tfm.data.GameEvent.TaskRemovedEvent
 import dev.martianzoo.tfm.data.Player.Companion.PLAYER1
 import dev.martianzoo.tfm.data.Task.TaskId
 import dev.martianzoo.tfm.pets.Parsing.parse
+import kotlin.reflect.KClass
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
-import kotlin.reflect.KClass
 
 class TaskPreparingTest {
   private val A = TaskId("A")
@@ -106,7 +106,7 @@ class TaskPreparingTest {
   }
 
   private fun initiate(ins: String): Set<TaskId> {
-    val result = writer.unsafe().addTask(parse(ins))
+    val result = writer.unsafe().addTasks(parse(ins))
     assertThat(result.changes).isEmpty()
     return result.tasksSpawned
   }

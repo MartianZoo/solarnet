@@ -45,7 +45,7 @@ public object Engine {
 
   @Subcomponent(modules = [PlayerModule::class])
   internal interface PlayerComponent {
-    val writer: Tasker
+    val writer: GameWriter
     val initter: Initializer // only used for Engine
   }
 
@@ -65,7 +65,7 @@ public object Engine {
   @Module
   internal class PlayerModule(private val player: Player) {
     @Provides fun player(): Player = player
-    @Provides fun tasker(x: PlayerAgent): Tasker = x
+    @Provides fun writer(x: PlayerAgent): GameWriter = x
     @Provides fun unsafe(x: PlayerAgent): UnsafeGameWriter = x
   }
 
