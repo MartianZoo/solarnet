@@ -7,9 +7,9 @@ import dev.martianzoo.tfm.data.GameSetup
 import dev.martianzoo.tfm.data.Player.Companion.PLAYER1
 import dev.martianzoo.tfm.data.Player.Companion.PLAYER2
 import dev.martianzoo.tfm.engine.Engine
-import dev.martianzoo.tfm.engine.PlayerSession
-import dev.martianzoo.tfm.engine.PlayerSession.Companion.session
-import dev.martianzoo.tfm.engine.TerraformingMars.production
+import dev.martianzoo.tfm.execapi.PlayerSession
+import dev.martianzoo.tfm.execapi.PlayerSession.Companion.session
+import dev.martianzoo.tfm.execapi.TerraformingMars.production
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 

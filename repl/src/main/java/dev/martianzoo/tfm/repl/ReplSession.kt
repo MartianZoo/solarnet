@@ -13,9 +13,9 @@ import dev.martianzoo.tfm.data.Task.TaskId
 import dev.martianzoo.tfm.data.TaskResult
 import dev.martianzoo.tfm.engine.Engine
 import dev.martianzoo.tfm.engine.Game
-import dev.martianzoo.tfm.engine.PlayerSession
-import dev.martianzoo.tfm.engine.PlayerSession.Companion.session
 import dev.martianzoo.tfm.engine.Timeline.Checkpoint
+import dev.martianzoo.tfm.execapi.PlayerSession
+import dev.martianzoo.tfm.execapi.PlayerSession.Companion.session
 import dev.martianzoo.tfm.pets.HasExpression.Companion.expressions
 import dev.martianzoo.tfm.pets.Parsing.parse
 import dev.martianzoo.tfm.pets.ast.ClassName

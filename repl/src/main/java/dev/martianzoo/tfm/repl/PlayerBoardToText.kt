@@ -2,7 +2,7 @@ package dev.martianzoo.tfm.repl
 
 import dev.martianzoo.tfm.api.ApiUtils.lookUpProductionLevels
 import dev.martianzoo.tfm.api.ApiUtils.standardResourceNames
-import dev.martianzoo.tfm.engine.PlayerSession
+import dev.martianzoo.tfm.execapi.PlayerSession
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.pets.ast.Metric.Count
 import dev.martianzoo.tfm.repl.TfmColor.ENERGY

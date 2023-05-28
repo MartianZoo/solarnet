@@ -6,8 +6,8 @@ import dev.martianzoo.tfm.api.Exceptions.DependencyException
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.data.Player.Companion.PLAYER1
 import dev.martianzoo.tfm.engine.Engine
-import dev.martianzoo.tfm.engine.PlayerSession.Companion.session
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
+import dev.martianzoo.tfm.execapi.PlayerSession.Companion.session
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 

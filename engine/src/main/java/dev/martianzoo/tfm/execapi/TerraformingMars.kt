@@ -1,8 +1,8 @@
-package dev.martianzoo.tfm.engine
+package dev.martianzoo.tfm.execapi
 
 import dev.martianzoo.tfm.api.ApiUtils.standardResourceNames
 import dev.martianzoo.tfm.data.Player
-import dev.martianzoo.tfm.engine.Operator.OperationBody
+import dev.martianzoo.tfm.execapi.Operator.OperationBody
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.pets.ast.Instruction.NoOp

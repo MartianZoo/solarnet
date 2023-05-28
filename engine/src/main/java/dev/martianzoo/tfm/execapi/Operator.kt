@@ -1,6 +1,7 @@
-package dev.martianzoo.tfm.engine
+package dev.martianzoo.tfm.execapi
 
 import dev.martianzoo.tfm.data.TaskResult
+import dev.martianzoo.tfm.engine.GameWriter
 
 interface Operator : GameWriter {
   fun operation(

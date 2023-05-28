@@ -1,4 +1,4 @@
-package dev.martianzoo.tfm.engine
+package dev.martianzoo.tfm.execapi
 
 import dev.martianzoo.tfm.api.Exceptions.DeadEndException
 import dev.martianzoo.tfm.api.Exceptions.NarrowingException
@@ -11,7 +11,9 @@ import dev.martianzoo.tfm.data.Task.TaskId
 import dev.martianzoo.tfm.data.TaskResult
 import dev.martianzoo.tfm.engine.ComponentGraph.Component
 import dev.martianzoo.tfm.engine.ComponentGraph.Component.Companion.toComponent
-import dev.martianzoo.tfm.engine.Operator.OperationBody
+import dev.martianzoo.tfm.engine.Game
+import dev.martianzoo.tfm.engine.PlayerAgent
+import dev.martianzoo.tfm.execapi.Operator.OperationBody
 import dev.martianzoo.tfm.pets.Parsing.parse
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.Expression

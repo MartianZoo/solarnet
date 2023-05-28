@@ -66,7 +66,6 @@ public object Engine {
   internal class PlayerModule(private val player: Player) {
     @Provides fun player(): Player = player
     @Provides fun writer(x: PlayerAgent): GameWriter = x
-    @Provides fun unsafe(x: PlayerAgent): UnsafeGameWriter = x
   }
 
   // Some minor helper interfaces... many classes just need one small part of another class's

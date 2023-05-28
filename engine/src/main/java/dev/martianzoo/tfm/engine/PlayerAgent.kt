@@ -30,10 +30,7 @@ constructor(
     val instructor: Instructor,
     private val changer: Changer,
     transformers: Transformers,
-) : GameWriter, UnsafeGameWriter {
-
-  override fun narrowTask(taskId: TaskId, narrowed: String) =
-      narrowTask(taskId, preprocess(parse(narrowed)))
+) : GameWriter {
 
   override fun narrowTask(taskId: TaskId, narrowed: Instruction): TaskResult {
     val task = tasks.getTaskData(taskId)
@@ -115,7 +112,7 @@ constructor(
     tasks.editTask(tasks.getTaskData(taskId).copy(whyPending = reason))
   }
 
-  override fun unsafe(): UnsafeGameWriter = this
+  override fun unsafe() = this
 
   // UnsafeGameWriter interface
 

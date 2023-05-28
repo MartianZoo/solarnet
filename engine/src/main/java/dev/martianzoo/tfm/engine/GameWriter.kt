@@ -5,6 +5,8 @@ import dev.martianzoo.tfm.api.Exceptions.DeadEndException
 import dev.martianzoo.tfm.api.Exceptions.NarrowingException
 import dev.martianzoo.tfm.api.Exceptions.NotNowException
 import dev.martianzoo.tfm.api.Exceptions.TaskException
+import dev.martianzoo.tfm.data.GameEvent.ChangeEvent.Cause
+import dev.martianzoo.tfm.data.GameEvent.TaskRemovedEvent
 import dev.martianzoo.tfm.data.Task
 import dev.martianzoo.tfm.data.Task.TaskId
 import dev.martianzoo.tfm.data.TaskResult
@@ -45,9 +47,7 @@ public interface GameWriter {
    * @throws [TaskException] if there is no task by this id owned by the player
    * @throws [NarrowingException] if [narrowed] is not a valid narrowing of the task's instruction
    */
-  fun narrowTask(taskId: TaskId, narrowed: Instruction): TaskResult
-
-  fun narrowTask(taskId: TaskId, narrowed: String): TaskResult
+  fun narrowTask(taskId: TaskId, narrowed: Instruction): TaskResult // TODO -TaskResult
 
   /** Tells whether [prepareTask] will complete normallly. */
   fun canPrepareTask(taskId: TaskId): Boolean
@@ -86,5 +86,18 @@ public interface GameWriter {
   /** Replaces the [Task.whyPending] property of the specified task with [reason]. */
   fun explainTask(taskId: TaskId, reason: String)
 
-  fun unsafe(): UnsafeGameWriter
+  fun executeFully(instruction: Instruction, fakeCause: Cause? = null)
+
+  /** Adds a manual task for the given [instruction], but does not prepare or execute it. */
+  fun addTasks(instruction: Instruction, firstCause: Cause? = null): TaskResult
+
+  /** Forgets a task even existed. */
+  fun dropTask(taskId: TaskId): TaskRemovedEvent
+
+  fun sneak(changes: String, cause: Cause? = null): TaskResult
+
+  fun sneak(changes: Instruction, cause: Cause? = null): TaskResult
+
+  fun unsafe() = this
+
 }

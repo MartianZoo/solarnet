@@ -7,14 +7,14 @@ import dev.martianzoo.tfm.types.MClassTable
 import javax.inject.Inject
 
 internal class Initializer @Inject constructor(
-    val unsafe: UnsafeGameWriter,
+    val writer: GameWriter,
     val table: MClassTable,
     val timeline: Timeline
 ) {
   fun initialize() {
     var fakeCause: Cause? = null
 
-    fun exec(instruction: String) = unsafe.executeFully(parse(instruction), fakeCause)
+    fun exec(instruction: String) = writer.executeFully(parse(instruction), fakeCause)
 
     exec("$ENGINE!")
     fakeCause = Cause(ENGINE.expression, 0)
