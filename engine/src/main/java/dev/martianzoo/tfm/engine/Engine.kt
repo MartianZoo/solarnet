@@ -17,27 +17,45 @@ import dev.martianzoo.tfm.data.Task
 import dev.martianzoo.tfm.engine.ComponentGraph.Component
 import dev.martianzoo.tfm.types.MClassLoader
 import dev.martianzoo.tfm.types.MClassTable
+import javax.inject.Singleton
 
 /** Entry point to the solarnet engine -- create new games here. */
 public object Engine {
 
   /** Creates a new game, initialized for the given [setup], and ready for gameplay to begin. */
   public fun newGame(setup: GameSetup): Game {
-    val game = DaggerGame.builder().gameModule(GameModule(setup)).build()
-    game.writer(ENGINE) // TODO hack - this triggers initialization
-    return game
+    val component: GameComponent =
+        DaggerEngine_GameComponent.builder().gameModule(GameModule(setup)).build()
+
+    component.game.writers =
+        setup.players().associateWith {
+          val module = component.player(PlayerModule(it))
+          if (it == ENGINE) module.initter.initialize() // not ideal
+          module.writer
+        }
+
+    return component.game
   }
 
   // Internal wiring stuff
 
+  @Singleton
+  @dagger.Component(modules = [GameModule::class])
+  internal interface GameComponent {
+    val game: Game
+    fun player(module: PlayerModule): PlayerComponent
+  }
+
+  @Subcomponent(modules = [PlayerModule::class])
+  internal interface PlayerComponent {
+    val writer: Tasker
+    val initter: Initializer // only used for Engine
+  }
+
   @Module
   internal class GameModule(private val setup: GameSetup) {
     @Provides fun setup(): GameSetup = setup
-
-    // TODO absolutely stupid hack
-    internal val table: MClassTable by lazy { MClassLoader(setup) }
-    @Provides fun table(): MClassTable = table
-
+    @Provides fun table(x: MClassLoader): MClassTable = x
     @Provides fun components(x: WritableComponentGraph): ComponentGraph = x
     @Provides fun updater(x: WritableComponentGraph): Updater = x
     @Provides fun tasks(x: WritableTaskQueue): TaskQueue = x
@@ -47,27 +65,14 @@ public object Engine {
     @Provides fun reader(x: GameReaderImpl): GameReader = x
   }
 
-  @Subcomponent(modules = [PlayerModule::class])
-  internal abstract class PlayerComponent {
-    internal abstract val writer: Tasker
-    internal abstract val initter: Initializer // only used for Engine
-  }
-
   @Module
   internal class PlayerModule(private val player: Player) {
-    @Provides fun a(): Player = player
-    @Provides fun b(x: PlayerAgent): Tasker = x
-    @Provides fun c(x: PlayerAgent): UnsafeGameWriter = x
+    @Provides fun player(): Player = player
+    @Provides fun tasker(x: PlayerAgent): Tasker = x
+    @Provides fun unsafe(x: PlayerAgent): UnsafeGameWriter = x
   }
 
-  public fun writers(game: Game, setup: GameSetup) =
-      setup.players().associateWith {
-        val module = game.playerModule(PlayerModule(it))
-        if (it == ENGINE) module.initter.initialize()
-        module.writer
-      }
-
-  // Some minor helper interfaces... may classes just need one small part of another class's
+  // Some minor helper interfaces... many classes just need one small part of another class's
   // functionality, and I wanted to try to expose less.
 
   internal interface ChangeLogger {

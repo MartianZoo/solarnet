@@ -3,11 +3,9 @@ package dev.martianzoo.tfm.engine
 import dev.martianzoo.tfm.api.GameReader
 import dev.martianzoo.tfm.data.GameSetup
 import dev.martianzoo.tfm.data.Player
-import dev.martianzoo.tfm.engine.Engine.GameModule
-import dev.martianzoo.tfm.engine.Engine.PlayerComponent
-import dev.martianzoo.tfm.engine.Engine.PlayerModule
 import dev.martianzoo.tfm.pets.ast.Metric
 import dev.martianzoo.tfm.pets.ast.Requirement
+import javax.inject.Inject
 import javax.inject.Singleton
 
 /**
@@ -24,29 +22,26 @@ import javax.inject.Singleton
  * can answer queries expressed as a Pets [Metric] or [Requirement].
  */
 @Singleton
-@dagger.Component(modules = [GameModule::class])
-public abstract class Game {
+public class Game @Inject constructor(
   /** The current state of the "board". */
-  public abstract val components: ComponentGraph
+  public val components: ComponentGraph,
 
   /** Everything that has already happened in the game. */
-  public abstract val events: EventLog
+  public val events: EventLog,
 
   /** What the game is waiting on someone to do. */
-  public abstract val tasks: TaskQueue
+  public val tasks: TaskQueue,
 
   /** Checkpoint, rollback, atomic interactions. */
-  public abstract val timeline: Timeline
+  public val timeline: Timeline,
 
   /** Higher-level querying of game state (i.e. in Pets language). */
-  public abstract val reader: GameReader
+  public val reader: GameReader,
 
-  internal abstract val setup: GameSetup
-
-  private val writers: Map<Player, Tasker> by lazy { Engine.writers(this, setup) }
+  internal val setup: GameSetup, // TODO needed?
+) {
+  internal lateinit var writers: Map<Player, Tasker>
 
   /** All modifications to game state (except rollbacks) go through here. */
   public fun writer(player: Player): Tasker = writers[player]!!
-
-  internal abstract fun playerModule(module: PlayerModule): PlayerComponent
 }
