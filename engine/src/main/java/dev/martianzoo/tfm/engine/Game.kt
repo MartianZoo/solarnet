@@ -2,6 +2,7 @@ package dev.martianzoo.tfm.engine
 
 import dev.martianzoo.tfm.api.GameReader
 import dev.martianzoo.tfm.data.Player
+import dev.martianzoo.tfm.engine.Engine.PlayerComponent
 import dev.martianzoo.tfm.pets.ast.Metric
 import dev.martianzoo.tfm.pets.ast.Requirement
 import javax.inject.Inject
@@ -39,8 +40,10 @@ public class Game @Inject constructor(
   public val reader: GameReader,
 ) {
 
-  internal lateinit var writers: Map<Player, GameWriter>
+  internal lateinit var playerComponents: Map<Player, PlayerComponent>
 
   /** All modifications to game state (except rollbacks) go through here. */
-  public fun writer(player: Player): GameWriter = writers[player]!!
+  public fun writer(player: Player) = playerComponents[player]!!.writer
+  public fun changeLayer(player: Player) = playerComponents[player]!!.changeLayer
+  public fun taskLayer(player: Player) = playerComponents[player]!!.taskLayer
 }

@@ -1,8 +1,8 @@
 package dev.martianzoo.tfm.repl
 
 import com.google.common.truth.Truth.assertThat
-import dev.martianzoo.tfm.execapi.PlayerSession
-import dev.martianzoo.tfm.execapi.TerraformingMars.production
+import dev.martianzoo.tfm.engine.PlayerSession
+import dev.martianzoo.tfm.engine.TerraformingMars.production
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 
 object TestHelpers {

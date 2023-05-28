@@ -7,7 +7,7 @@ import dev.martianzoo.tfm.api.Exceptions.RequirementException
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.data.Player.Companion.PLAYER1
 import dev.martianzoo.tfm.engine.Engine.newGame
-import dev.martianzoo.tfm.execapi.PlayerSession.Companion.session
+import dev.martianzoo.tfm.engine.PlayerSession.Companion.session
 import dev.martianzoo.tfm.pets.Parsing.parse
 import dev.martianzoo.tfm.pets.PetTransformer
 import dev.martianzoo.tfm.pets.Transforming.replaceOwnerWith

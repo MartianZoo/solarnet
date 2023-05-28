@@ -26,11 +26,11 @@ public object Engine {
   public fun newGame(setup: GameSetup): Game {
     val component = DaggerEngine_GameComponent.builder().gameModule(GameModule(setup)).build()
 
-    component.game.writers =
-        setup.players().associateWith {
-          val module = component.player(PlayerModule(it))
-          if (it == ENGINE) module.initter.initialize() // not ideal
-          module.writer
+    component.game.playerComponents =
+        setup.players().associateWith { p ->
+          component.player(PlayerModule(p)).also {
+            if (p == ENGINE) it.initter.initialize() // not ideal
+          }
         }
 
     return component.game
@@ -45,7 +45,9 @@ public object Engine {
 
   @Subcomponent(modules = [PlayerModule::class])
   internal interface PlayerComponent {
-    val writer: GameWriter
+    val writer: GameWriter // TODO phase out?
+    val changeLayer: Layers.Changes
+    val taskLayer: Layers.Tasks
     val initter: Initializer // only used for Engine
   }
 
@@ -66,6 +68,8 @@ public object Engine {
   internal class PlayerModule(private val player: Player) {
     @Provides fun player(): Player = player
     @Provides fun writer(x: PlayerAgent): GameWriter = x
+    @Provides fun taskLayer(x: ApiTranslation): Layers.Tasks = x
+    @Provides fun changeLayer(x: ApiTranslation): Layers.Changes = x
   }
 
   // Some minor helper interfaces... many classes just need one small part of another class's

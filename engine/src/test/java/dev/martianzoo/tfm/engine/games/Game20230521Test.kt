@@ -5,21 +5,21 @@ import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.data.GameSetup
 import dev.martianzoo.tfm.data.Player
 import dev.martianzoo.tfm.engine.Engine
+import dev.martianzoo.tfm.engine.PlayerSession
+import dev.martianzoo.tfm.engine.PlayerSession.Companion.session
+import dev.martianzoo.tfm.engine.TerraformingMars.cardAction1
+import dev.martianzoo.tfm.engine.TerraformingMars.cardAction2
+import dev.martianzoo.tfm.engine.TerraformingMars.oxygenPercent
+import dev.martianzoo.tfm.engine.TerraformingMars.pass
+import dev.martianzoo.tfm.engine.TerraformingMars.phase
+import dev.martianzoo.tfm.engine.TerraformingMars.playCard
+import dev.martianzoo.tfm.engine.TerraformingMars.playCorp
+import dev.martianzoo.tfm.engine.TerraformingMars.stdProject
+import dev.martianzoo.tfm.engine.TerraformingMars.temperatureC
+import dev.martianzoo.tfm.engine.TerraformingMars.turn
+import dev.martianzoo.tfm.engine.TerraformingMars.venusPercent
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
 import dev.martianzoo.tfm.engine.TestHelpers.assertProds
-import dev.martianzoo.tfm.execapi.PlayerSession
-import dev.martianzoo.tfm.execapi.PlayerSession.Companion.session
-import dev.martianzoo.tfm.execapi.TerraformingMars.cardAction1
-import dev.martianzoo.tfm.execapi.TerraformingMars.cardAction2
-import dev.martianzoo.tfm.execapi.TerraformingMars.oxygenPercent
-import dev.martianzoo.tfm.execapi.TerraformingMars.pass
-import dev.martianzoo.tfm.execapi.TerraformingMars.phase
-import dev.martianzoo.tfm.execapi.TerraformingMars.playCard
-import dev.martianzoo.tfm.execapi.TerraformingMars.playCorp
-import dev.martianzoo.tfm.execapi.TerraformingMars.stdProject
-import dev.martianzoo.tfm.execapi.TerraformingMars.temperatureC
-import dev.martianzoo.tfm.execapi.TerraformingMars.turn
-import dev.martianzoo.tfm.execapi.TerraformingMars.venusPercent
 import org.junit.jupiter.api.Test
 
 class Game20230521Test {

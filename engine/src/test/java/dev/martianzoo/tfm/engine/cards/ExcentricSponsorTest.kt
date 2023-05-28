@@ -4,11 +4,11 @@ import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.data.GameSetup
 import dev.martianzoo.tfm.data.Player.Companion.PLAYER1
 import dev.martianzoo.tfm.engine.Engine
+import dev.martianzoo.tfm.engine.PlayerSession.Companion.session
+import dev.martianzoo.tfm.engine.TerraformingMars.phase
+import dev.martianzoo.tfm.engine.TerraformingMars.playCorp
+import dev.martianzoo.tfm.engine.TerraformingMars.turn
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
-import dev.martianzoo.tfm.execapi.PlayerSession.Companion.session
-import dev.martianzoo.tfm.execapi.TerraformingMars.phase
-import dev.martianzoo.tfm.execapi.TerraformingMars.playCorp
-import dev.martianzoo.tfm.execapi.TerraformingMars.turn
 import org.junit.jupiter.api.Test
 
 class ExcentricSponsorTest {

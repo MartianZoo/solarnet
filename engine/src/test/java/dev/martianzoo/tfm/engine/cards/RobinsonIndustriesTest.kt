@@ -6,12 +6,12 @@ import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.data.GameSetup
 import dev.martianzoo.tfm.data.Player.Companion.PLAYER1
 import dev.martianzoo.tfm.engine.Engine
-import dev.martianzoo.tfm.execapi.PlayerSession
-import dev.martianzoo.tfm.execapi.PlayerSession.Companion.session
-import dev.martianzoo.tfm.execapi.TerraformingMars.cardAction1
-import dev.martianzoo.tfm.execapi.TerraformingMars.phase
-import dev.martianzoo.tfm.execapi.TerraformingMars.playCorp
-import dev.martianzoo.tfm.execapi.TerraformingMars.production
+import dev.martianzoo.tfm.engine.PlayerSession
+import dev.martianzoo.tfm.engine.PlayerSession.Companion.session
+import dev.martianzoo.tfm.engine.TerraformingMars.cardAction1
+import dev.martianzoo.tfm.engine.TerraformingMars.phase
+import dev.martianzoo.tfm.engine.TerraformingMars.playCorp
+import dev.martianzoo.tfm.engine.TerraformingMars.production
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 
