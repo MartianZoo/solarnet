@@ -22,7 +22,7 @@ class PolyphemosTest {
       assertCounts(10 to "ProjectCard", 0 to "M")
 
       phase("Action")
-      writer.unsafe().sneak("14")
+      writer.sneak("14")
 
       playCard("InventorsGuild", 9)
       assertCounts(9 to "ProjectCard", 5 to "M")

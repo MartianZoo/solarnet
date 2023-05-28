@@ -24,7 +24,7 @@ class RobinsonIndustriesTest {
       playCorp("RobinsonIndustries", 0)
       assertThat(count("Megacredit")).isEqualTo(47)
 
-      writer.unsafe().sneak("PROD[S, T, P, E, H]")
+      writer.sneak("PROD[S, T, P, E, H]")
       checkProduction(0, 1, 1, 1, 1, 1)
 
       phase("Action")
@@ -39,7 +39,7 @@ class RobinsonIndustriesTest {
     val p1 = game.session(PLAYER1)
 
     p1.playCorp("RobinsonIndustries", 0)
-    p1.writer.unsafe().sneak("PROD[-1]")
+    p1.writer.sneak("PROD[-1]")
     p1.checkProduction(-1, 0, 0, 0, 0, 0)
 
     p1.phase("Action")
@@ -52,7 +52,7 @@ class RobinsonIndustriesTest {
     val p1 = game.session(PLAYER1)
 
     p1.playCorp("RobinsonIndustries", 0)
-    p1.writer.unsafe().sneak("PROD[1, S, P, E, H]")
+    p1.writer.sneak("PROD[1, S, P, E, H]")
     p1.checkProduction(1, 1, 0, 1, 1, 1)
 
     p1.phase("Action")
@@ -64,14 +64,15 @@ class RobinsonIndustriesTest {
   fun choice() {
     with(game.session(PLAYER1)) {
       playCorp("RobinsonIndustries", 0)
-      writer.unsafe().sneak("PROD[S, P, E, H]")
+      writer.sneak("PROD[S, P, E, H]")
       checkProduction(0, 1, 0, 1, 1, 1)
 
       phase("Action")
       cardAction1("RobinsonIndustries") {
         assertThat(tasks.extract { "${it.instruction}" })
             .containsExactly(
-                "Production<Player1, Class<Megacredit>>! OR Production<Player1, Class<Titanium>>!")
+                "Production<Player1, Class<Megacredit>>! OR Production<Player1, Class<Titanium>>!"
+            )
         task("PROD[1]")
         checkProduction(1, 1, 0, 1, 1, 1)
         abortAndRollBack()

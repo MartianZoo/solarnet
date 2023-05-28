@@ -21,7 +21,7 @@ class IndenturedWorkersTest {
     val game = Engine.newGame(GameSetup(Canon, "BRM", 2))
     with(game.session(PLAYER1)) {
       playCorp("Ecoline", 5)
-      writer.unsafe().sneak("100, 8 Heat")
+      writer.sneak("100, 8 Heat")
 
       phase("Action")
       playCard("IndenturedWorkers")
@@ -45,7 +45,7 @@ class IndenturedWorkersTest {
     val game = Engine.newGame(GameSetup(Canon, "BRM", 2))
     with(game.session(PLAYER1)) {
       playCorp("Ecoline", 5)
-      writer.unsafe().sneak("100")
+      writer.sneak("100")
 
       phase("Action")
       playCard("IndenturedWorkers")

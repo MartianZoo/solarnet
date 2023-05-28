@@ -22,7 +22,7 @@ class InsulationTest {
     with(game.session(PLAYER1)) {
       playCorp("Ecoline", 5)
       phase("Action")
-      writer.unsafe().sneak("PROD[-1, 3 Heat]")
+      writer.sneak("PROD[-1, 3 Heat]")
       assertProds(-1 to "M", 3 to "H")
 
       assertThrows<PetSyntaxException> { playCard("Insulation", 2, "PROD[0 Megacredit FROM Heat]") }

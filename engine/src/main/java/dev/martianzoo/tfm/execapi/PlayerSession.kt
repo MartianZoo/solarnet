@@ -129,7 +129,7 @@ public class PlayerSession(
 
   fun initiateOnly(instruction: Instruction, fakeCause: Cause? = null): TaskResult {
     return timeline.atomic {
-      val newTasks = writer.unsafe().addTasks(instruction, fakeCause).tasksSpawned
+      val newTasks = writer.addTasks(instruction, fakeCause).tasksSpawned
       newTasks.forEach { writer.executeTask(it) }
     }
   }

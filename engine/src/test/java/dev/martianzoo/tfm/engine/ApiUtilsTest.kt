@@ -27,7 +27,7 @@ private class ApiUtilsTest {
             cn("Heat") to 0,
         )
 
-    session.writer.unsafe().sneak("PROD[2 Plant<Player1>!]")
+    session.writer.sneak("PROD[2 Plant<Player1>!]")
     val prods2: Map<ClassName, Int> = lookUpProductionLevels(session.reader, PLAYER1.expression)
     assertThat(prods2.map { it.key to it.value })
         .containsExactly(

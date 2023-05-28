@@ -40,7 +40,7 @@ class UnmiTest {
   fun unmiOutOfOrder() {
     val game = Engine.newGame(GameSetup(Canon, "BM", 2))
     with(game.session(PLAYER1)) {
-      writer.unsafe().sneak("14")
+      writer.sneak("14")
       assertCounts(14 to "Megacredit", 20 to "TR")
 
       // Do anything that raises TR, while we aren't even UNMI yet

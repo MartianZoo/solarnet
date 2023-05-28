@@ -179,7 +179,7 @@ class TaskNarrowingTest {
   }
 
   fun initiate(ins: String): Set<TaskId> {
-    val result = writer.unsafe().addTasks(parse(ins))
+    val result = writer.addTasks(parse(ins))
     assertThat(result.changes).isEmpty()
     return result.tasksSpawned
   }

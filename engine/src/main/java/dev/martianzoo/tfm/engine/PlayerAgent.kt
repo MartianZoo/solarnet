@@ -112,10 +112,6 @@ constructor(
     tasks.editTask(tasks.getTaskData(taskId).copy(whyPending = reason))
   }
 
-  override fun unsafe() = this
-
-  // UnsafeGameWriter interface
-
   override fun executeFully(instruction: Instruction, fakeCause: Cause?) {
     addTasks(instruction, fakeCause)
     do {

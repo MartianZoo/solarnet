@@ -97,7 +97,4 @@ public interface GameWriter {
   fun sneak(changes: String, cause: Cause? = null): TaskResult
 
   fun sneak(changes: Instruction, cause: Cause? = null): TaskResult
-
-  fun unsafe() = this
-
 }

@@ -435,7 +435,7 @@ public class ReplSession(var setup: GameSetup, private val jline: JlineRepl? = n
           }
 
       if (rest == "drop") {
-        session.writer.unsafe().dropTask(id)
+        session.writer.dropTask(id)
         return listOf("Task $id deleted")
       } else if (rest == "prepare") {
         session.writer.prepareTask(id)

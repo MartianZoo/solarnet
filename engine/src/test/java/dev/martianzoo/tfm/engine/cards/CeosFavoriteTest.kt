@@ -23,7 +23,7 @@ class CeosFavoriteTest {
         operation("CeosFavoriteProject", "Floater<ForcedPrecipitation>")
       }
 
-      writer.unsafe().sneak("Floater<ForcedPrecipitation>")
+      writer.sneak("Floater<ForcedPrecipitation>")
       assertCounts(1 to "Floater")
 
       operation("CeosFavoriteProject", "Floater<ForcedPrecipitation>")

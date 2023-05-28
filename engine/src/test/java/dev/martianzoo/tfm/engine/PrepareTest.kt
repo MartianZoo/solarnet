@@ -24,7 +24,7 @@ private class PrepareTest {
   val instructor = (p1.writer as PlayerAgent).instructor
 
   init {
-    p1.writer.unsafe().sneak("Plant, 10 ProjectCard, PROD[-1]")
+    p1.writer.sneak("Plant, 10 ProjectCard, PROD[-1]")
   }
 
   fun preprocess(instr: Instruction): Instruction {

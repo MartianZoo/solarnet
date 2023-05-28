@@ -21,7 +21,7 @@ class AiCentralTest {
 
     with(game.session(PLAYER1)) {
       phase("Action")
-      writer.unsafe().sneak("5 ProjectCard, 100, Steel")
+      writer.sneak("5 ProjectCard, 100, Steel")
 
       playCard("SearchForLife", 3)
       playCard("InventorsGuild", 9)
@@ -33,7 +33,7 @@ class AiCentralTest {
       assertThrows<LimitsException>("2") { playCard("AiCentral", 19, steel = 1) }
 
       // Give energy prod and try again - success
-      writer.unsafe().sneak("PROD[Energy]")
+      writer.sneak("PROD[Energy]")
       playCard("AiCentral", 19, steel = 1)
       assertCounts(0 to "PROD[Energy]")
 

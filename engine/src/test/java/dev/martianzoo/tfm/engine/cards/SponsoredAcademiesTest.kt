@@ -26,7 +26,7 @@ class SponsoredAcademiesTest {
       phase("Action")
       assertThrows<LimitsException>("nothing to discard") { playCard("SponsoredAcademies", 9) }
 
-      writer.unsafe().sneak("ProjectCard")
+      writer.sneak("ProjectCard")
 
       assertCounts(2 to "ProjectCard")
       assertCounts(5 to "ProjectCard<P1>")
