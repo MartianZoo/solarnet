@@ -9,9 +9,11 @@ import dev.martianzoo.tfm.data.Player
 import dev.martianzoo.tfm.engine.ComponentGraph.Component
 import dev.martianzoo.tfm.engine.ComponentGraph.Component.Companion.toComponent
 import dev.martianzoo.tfm.engine.Engine.ChangeLogger
+import dev.martianzoo.tfm.engine.Engine.PlayerScope
 import dev.martianzoo.tfm.engine.Engine.Updater
 import javax.inject.Inject
 
+@PlayerScope
 internal class Changer
 @Inject
 constructor(

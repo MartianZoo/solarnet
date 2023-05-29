@@ -16,9 +16,9 @@ dependencies {
   kapt("com.google.dagger:dagger-compiler:2.46.1")
 
   testImplementation("org.junit.jupiter:junit-jupiter-api:5.9.0")
-  testImplementation(project(mapOf("path" to ":repl")))
-  testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.9.0")
   testImplementation("com.google.truth:truth:1.1.3")
+  testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.9.0")
+  kaptTest("com.google.dagger:dagger-compiler:2.46.1")
 
   implementation(project(":pets"))
 

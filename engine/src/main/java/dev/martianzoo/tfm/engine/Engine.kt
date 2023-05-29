@@ -17,6 +17,7 @@ import dev.martianzoo.tfm.data.Task
 import dev.martianzoo.tfm.engine.ComponentGraph.Component
 import dev.martianzoo.tfm.types.MClassLoader
 import dev.martianzoo.tfm.types.MClassTable
+import javax.inject.Scope
 import javax.inject.Singleton
 
 /** Entry point to the solarnet engine -- create new games here. */
@@ -43,14 +44,6 @@ public object Engine {
     fun player(module: PlayerModule): PlayerComponent
   }
 
-  @Subcomponent(modules = [PlayerModule::class])
-  internal interface PlayerComponent {
-    val writer: GameWriter // TODO phase out?
-    val changeLayer: Layers.Changes
-    val taskLayer: Layers.Tasks
-    val initter: Initializer // only used for Engine
-  }
-
   @Module
   internal class GameModule(private val setup: GameSetup) {
     @Provides fun setup(): GameSetup = setup
@@ -62,6 +55,18 @@ public object Engine {
     @Provides fun changelog(x: WritableEventLog): ChangeLogger = x
     @Provides fun listener(x: WritableEventLog): TaskListener = x
     @Provides fun reader(x: GameReaderImpl): GameReader = x
+  }
+
+  @Scope
+  annotation class PlayerScope
+
+  @PlayerScope
+  @Subcomponent(modules = [PlayerModule::class])
+  internal interface PlayerComponent {
+    val writer: GameWriter // TODO phase out?
+    val changeLayer: Layers.Changes
+    val taskLayer: Layers.Tasks
+    val initter: Initializer // only used for Engine
   }
 
   @Module

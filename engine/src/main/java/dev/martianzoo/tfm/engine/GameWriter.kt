@@ -10,6 +10,7 @@ import dev.martianzoo.tfm.data.GameEvent.TaskRemovedEvent
 import dev.martianzoo.tfm.data.Task
 import dev.martianzoo.tfm.data.Task.TaskId
 import dev.martianzoo.tfm.data.TaskResult
+import dev.martianzoo.tfm.engine.Engine.PlayerScope
 import dev.martianzoo.tfm.pets.ast.Instruction
 import dev.martianzoo.tfm.pets.ast.Instruction.Multi
 
@@ -36,6 +37,7 @@ import dev.martianzoo.tfm.pets.ast.Instruction.Multi
  * All methods of this type are failure-atomic: if one throws an exception, it leaves the game state
  * unmodified.
  */
+@PlayerScope
 public interface GameWriter {
   /**
    * Voluntarily replaces a task's instruction with a strictly more specific revision, as the owner

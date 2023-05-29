@@ -3,6 +3,7 @@ package dev.martianzoo.tfm.engine
 import dev.martianzoo.tfm.api.GameReader
 import dev.martianzoo.tfm.data.GameEvent.ChangeEvent.Cause
 import dev.martianzoo.tfm.data.Task.TaskId
+import dev.martianzoo.tfm.engine.Engine.PlayerScope
 import dev.martianzoo.tfm.engine.Layers.Changes
 import dev.martianzoo.tfm.engine.Layers.Tasks
 import dev.martianzoo.tfm.pets.Parsing.parse
@@ -13,6 +14,7 @@ import javax.inject.Inject
  * An experiment in having a "generatable" class do the work of both parsing strings to PetElements,
  * adding atomicity, and producing TaskResults.
  */
+@PlayerScope
 internal class ApiTranslation
 @Inject
 constructor(
