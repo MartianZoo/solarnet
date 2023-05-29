@@ -24,7 +24,9 @@ import dev.martianzoo.tfm.types.Transformers
 import javax.inject.Inject
 import kotlin.math.min
 
-internal class GameReaderImpl @Inject constructor(
+internal class GameReaderImpl
+@Inject
+constructor(
     private val table: MClassTable,
     private val components: ComponentGraph,
     internal val transformers: Transformers,

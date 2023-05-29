@@ -4,9 +4,8 @@ import dev.martianzoo.tfm.data.Task
 
 /**
  * Contains tasks: what the game is waiting on someone to do. Each task is owned by some [Player]
- * (which could be the engine itself). Normally, a state should never been observed in which
- * engine tasks remain, as the engine should always be able to take care of them itself before
- * returning.
+ * (which could be the engine itself). Normally, a state should never been observed in which engine
+ * tasks remain, as the engine should always be able to take care of them itself before returning.
  *
  * It is possible to retrieve the [Task] corresponding to a [TaskId] but this is generally
  * discouraged and the API doesn't make it easy.

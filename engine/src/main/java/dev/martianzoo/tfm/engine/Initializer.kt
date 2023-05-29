@@ -6,11 +6,9 @@ import dev.martianzoo.tfm.pets.Parsing.parse
 import dev.martianzoo.tfm.types.MClassTable
 import javax.inject.Inject
 
-internal class Initializer @Inject constructor(
-    val writer: GameWriter,
-    val table: MClassTable,
-    val timeline: Timeline
-) {
+internal class Initializer
+@Inject
+constructor(val writer: GameWriter, val table: MClassTable, val timeline: Timeline) {
   fun initialize() {
     var fakeCause: Cause? = null
 

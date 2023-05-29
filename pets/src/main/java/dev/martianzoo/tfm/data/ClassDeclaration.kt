@@ -69,7 +69,10 @@ internal constructor(
     }
   }
 
-  enum class ClassKind { CONCRETE, ABSTRACT }
+  enum class ClassKind {
+    CONCRETE,
+    ABSTRACT
+  }
 
   public val abstract = kind == ABSTRACT
 

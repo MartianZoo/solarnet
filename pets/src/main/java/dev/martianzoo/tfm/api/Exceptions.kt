@@ -95,7 +95,8 @@ public object Exceptions {
       NotNowException(message)
 
   public class DependencyException(val dependencies: Collection<Type>) :
-      NotNowException("Missing dependencies: ${dependencies.joinToString { "${it.expressionFull}" } }")
+      NotNowException(
+          "Missing dependencies: ${dependencies.joinToString { "${it.expressionFull}" } }")
 
   public class LimitsException(message: String) : NotNowException(message)
 }

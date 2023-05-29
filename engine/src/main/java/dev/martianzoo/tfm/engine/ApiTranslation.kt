@@ -13,31 +13,24 @@ import javax.inject.Inject
  * An experiment in having a "generatable" class do the work of both parsing strings to PetElements,
  * adding atomicity, and producing TaskResults.
  */
-internal class ApiTranslation @Inject constructor(
+internal class ApiTranslation
+@Inject
+constructor(
     private val reader: GameReader,
     private val timeline: Timeline,
     private val impl: Implementations,
 ) : Changes, Tasks {
 
   override fun addTasks(instruction: String, firstCause: Cause?) =
-      timeline.atomic {
-        impl.addTasks(parseInstruction(instruction), firstCause)
-      }
+      timeline.atomic { impl.addTasks(parseInstruction(instruction), firstCause) }
 
-  override fun dropTask(taskId: TaskId) =
-      timeline.atomic {
-        impl.dropTask(taskId)
-      }
+  override fun dropTask(taskId: TaskId) = timeline.atomic { impl.dropTask(taskId) }
 
   override fun sneak(changes: String, fakeCause: Cause?) =
-      timeline.atomic {
-        impl.addTasks(parseInstruction(changes), fakeCause)
-      }
+      timeline.atomic { impl.addTasks(parseInstruction(changes), fakeCause) }
 
   override fun narrowTask(taskId: TaskId, narrowed: String) =
-      timeline.atomic {
-        impl.narrowTask(taskId, parseInstruction(narrowed))
-      }
+      timeline.atomic { impl.narrowTask(taskId, parseInstruction(narrowed)) }
 
   override fun canPrepareTask(taskId: TaskId) = impl.canPrepareTask(taskId)
 

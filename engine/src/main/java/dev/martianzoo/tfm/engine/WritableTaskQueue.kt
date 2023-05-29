@@ -39,7 +39,7 @@ internal class WritableTaskQueue @Inject constructor(private val events: TaskLis
   private fun nextAvailableId() =
       if (taskSet.none()) TaskId("A") else taskSet.maxOf { it.id }.next()
 
-// ALL NON-PRIVATE MUTATIONS OF TASKSET
+  // ALL NON-PRIVATE MUTATIONS OF TASKSET
 
   internal fun addTasks(task: Task) = addTasks(split(task.instruction), task.owner, task.cause)
 

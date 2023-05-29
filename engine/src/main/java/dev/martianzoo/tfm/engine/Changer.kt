@@ -12,7 +12,9 @@ import dev.martianzoo.tfm.engine.Engine.ChangeLogger
 import dev.martianzoo.tfm.engine.Engine.Updater
 import javax.inject.Inject
 
-internal class Changer @Inject constructor(
+internal class Changer
+@Inject
+constructor(
     private val reader: GameReader,
     private val updater: Updater,
     private val changeLog: ChangeLogger,

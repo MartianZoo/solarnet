@@ -133,7 +133,8 @@ public data class Task(
         parts.firstOrNull { (it as? Gain)?.gaining?.className == DIE }
             ?: Then.create(parts.map(::normalizeForTask))
       }
-      is NoOp, is Multi -> split(instruction).asInstruction()
+      is NoOp,
+      is Multi -> split(instruction).asInstruction()
       is Transform -> error("can't enqueue: $instruction")
     }
   }

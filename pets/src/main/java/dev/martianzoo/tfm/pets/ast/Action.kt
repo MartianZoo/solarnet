@@ -52,7 +52,8 @@ public data class Action(val cost: Cost?, val instruction: Instruction) : PetEle
     data class Per(val cost: Cost, val metric: Metric) : Cost() {
       init {
         when (cost) {
-          is Or, is Multi -> throw PetSyntaxException("Break into separate Per instructions")
+          is Or,
+          is Multi -> throw PetSyntaxException("Break into separate Per instructions")
           is Per -> throw PetSyntaxException("Might support in future?")
           else -> {}
         }
@@ -112,8 +113,7 @@ public data class Action(val cost: Cost?, val instruction: Instruction) : PetEle
           val atomCost = transform or spend
 
           val perCost =
-              atomCost and
-              optional(skipChar('/') and Metric.parser()) map { (cost, met) ->
+              atomCost and optional(skipChar('/') and Metric.parser()) map { (cost, met) ->
                 if (met == null) cost else Per(cost, met)
               }
 

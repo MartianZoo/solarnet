@@ -71,8 +71,7 @@ class RobinsonIndustriesTest {
       cardAction1("RobinsonIndustries") {
         assertThat(tasks.extract { "${it.instruction}" })
             .containsExactly(
-                "Production<Player1, Class<Megacredit>>! OR Production<Player1, Class<Titanium>>!"
-            )
+                "Production<Player1, Class<Megacredit>>! OR Production<Player1, Class<Titanium>>!")
         task("PROD[1]")
         checkProduction(1, 1, 0, 1, 1, 1)
         abortAndRollBack()

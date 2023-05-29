@@ -33,13 +33,13 @@ public class Timeline @Inject constructor(val reader: GameReader) {
       when (entry) {
         is TaskEvent -> tasks.reverse(entry)
         is ChangeEvent ->
-          with(entry.change) {
-            updater.update(
-                count = count,
-                gaining = removing?.toComponent(reader),
-                removing = gaining?.toComponent(reader),
-            )
-          }
+            with(entry.change) {
+              updater.update(
+                  count = count,
+                  gaining = removing?.toComponent(reader),
+                  removing = gaining?.toComponent(reader),
+              )
+            }
       }
     }
     subList.clear()

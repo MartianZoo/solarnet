@@ -566,16 +566,14 @@ public class ReplSession(var setup: GameSetup, private val jline: JlineRepl? = n
     override fun withArgs(args: String): List<String> {
       val (expression, type) =
           if (args == "random") {
-            val type = with(session.reader) {
-              resolve(CLASS.expression)
-                  .let(::getComponents)
-                  .expressions()
-                  .map { it.arguments.single() }
-                  .random()
-                  .let { resolve(it) as MType }
-                  .concreteSubtypesSameClass()
-                  .random()
-            }
+            val type = session.reader.resolve(CLASS.expression)
+                .let(session.reader::getComponents)
+                .expressions()
+                .map { it.arguments.single() }
+                .random()
+                .let { session.reader.resolve(it) as MType }
+                .concreteSubtypesSameClass()
+                .random()
             type.expressionFull to type
           } else {
             val expression: Expression = parse(args)

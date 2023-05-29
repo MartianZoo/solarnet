@@ -85,11 +85,7 @@ internal class Effector @Inject constructor(reader: Provider<GameReader>) {
     fun onChangeToOther(triggerEvent: ChangeEvent, reader: GameReader) =
         onChange(triggerEvent, reader, isSelf = false)
 
-    private fun onChange(
-        triggerEvent: ChangeEvent,
-        reader: GameReader,
-        isSelf: Boolean
-    ): Task? {
+    private fun onChange(triggerEvent: ChangeEvent, reader: GameReader, isSelf: Boolean): Task? {
       val player = context.owner ?: triggerEvent.owner
       val hit = subscription.checkForHit(triggerEvent, player, isSelf, reader) ?: return null
       val cause = Cause(context.expression, triggerEvent.ordinal)
@@ -133,7 +129,11 @@ internal class Effector @Inject constructor(reader: Provider<GameReader>) {
 
     private data class Regular(val match: Expression, val matchOnGain: Boolean) : Subscription() {
       override fun checkForHit(
-          currentEvent: ChangeEvent, actor: Player, isSelf: Boolean, reader: GameReader): Hit? {
+          currentEvent: ChangeEvent,
+          actor: Player,
+          isSelf: Boolean,
+          reader: GameReader
+      ): Hit? {
         reader as GameReaderImpl
         if (isSelf) return null
         val change = currentEvent.change

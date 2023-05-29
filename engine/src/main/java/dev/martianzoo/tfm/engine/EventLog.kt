@@ -13,8 +13,8 @@ public interface EventLog {
   val size: Int
 
   /**
-   * Returns a [Checkpoint] that can be passed to [Game.rollBack] to return the game to its
-   * present state, or to any of the `-Since` methods.
+   * Returns a [Checkpoint] that can be passed to [Game.rollBack] to return the game to its present
+   * state, or to any of the `-Since` methods.
    */
   fun checkpoint(): Timeline.Checkpoint
 

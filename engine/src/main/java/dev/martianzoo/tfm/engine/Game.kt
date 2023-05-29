@@ -22,22 +22,24 @@ import javax.inject.Singleton
  * can answer queries expressed as a Pets [Metric] or [Requirement].
  */
 @Singleton
-public class Game @Inject constructor(
+public class Game
+@Inject
+constructor(
 
-  /** The current state of the "board". */
-  public val components: ComponentGraph,
+    /** The current state of the "board". */
+    public val components: ComponentGraph,
 
-  /** Everything that has already happened in the game. */
-  public val events: EventLog,
+    /** Everything that has already happened in the game. */
+    public val events: EventLog,
 
-  /** What the game is waiting on someone to do. */
-  public val tasks: TaskQueue,
+    /** What the game is waiting on someone to do. */
+    public val tasks: TaskQueue,
 
-  /** Checkpoint, rollback, atomic interactions. */
-  public val timeline: Timeline,
+    /** Checkpoint, rollback, atomic interactions. */
+    public val timeline: Timeline,
 
-  /** Higher-level querying of game state (i.e. in Pets language). */
-  public val reader: GameReader,
+    /** Higher-level querying of game state (i.e. in Pets language). */
+    public val reader: GameReader,
 ) {
 
   internal lateinit var playerComponents: Map<Player, PlayerComponent>

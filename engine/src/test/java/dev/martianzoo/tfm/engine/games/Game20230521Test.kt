@@ -172,9 +172,7 @@ class Game20230521Test {
       assertProds(0 to "M", 1 to "S", 1 to "T", 1 to "P", 1 to "E", 3 to "H")
       assertCounts(35 to "M", 2 to "S", 1 to "T", 4 to "P", 1 to "E", 9 to "H")
       assertDashMiddle(played = 10, actions = 2, vp = 24, tr = 22, hand = 5)
-      assertTags(
-          3 to "BUT", 2 to "SPT", 3 to "SCT", 1 to "POT", 1 to "JOT", 1 to "PLT", 1 to "MIT"
-      )
+      assertTags(3 to "BUT", 2 to "SPT", 3 to "SCT", 1 to "POT", 1 to "JOT", 1 to "PLT", 1 to "MIT")
       assertCounts(1 to "PlayedEvent", 1 to "CardFront(HAS MAX 0 Tag)", 0 to "CityTile")
     }
 

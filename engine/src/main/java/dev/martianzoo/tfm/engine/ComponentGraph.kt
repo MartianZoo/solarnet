@@ -74,7 +74,6 @@ public interface ComponentGraph {
       mtype.typeDependencies.map { it.boundType.toComponent() }
     }
 
-
     public val owner: Player? by lazy {
       if (mtype.narrows(mtype.loader.resolve(OWNER.expression))) {
         Player(className)

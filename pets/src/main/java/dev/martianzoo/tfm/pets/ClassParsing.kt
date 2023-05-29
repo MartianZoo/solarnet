@@ -248,8 +248,10 @@ internal object ClassParsing : PetTokenizer() {
     }
 
     data class IncompleteNestableDecl(override val decl: ClassDeclaration) : NestableDecl() {
-      constructor(kind: ClassKind, signature: Signature) :
-          this(signature.asDeclaration.copy(kind = kind))
+      constructor(
+          kind: ClassKind,
+          signature: Signature
+      ) : this(signature.asDeclaration.copy(kind = kind))
 
       // This returns a new NestableDecl that looks like it could be a sibling to containingClass
       // instead of nested inside it

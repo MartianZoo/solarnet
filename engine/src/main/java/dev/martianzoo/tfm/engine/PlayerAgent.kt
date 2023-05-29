@@ -127,8 +127,7 @@ constructor(
 
   override fun dropTask(taskId: TaskId) = tasks.removeTask(taskId)
 
-  override fun sneak(changes: String, cause: Cause?) =
-      sneak(preprocess(parse(changes)), cause)
+  override fun sneak(changes: String, cause: Cause?) = sneak(preprocess(parse(changes)), cause)
 
   // TODO: in theory any instruction would be sneakable, and it only means disabling triggers
   override fun sneak(changes: Instruction, cause: Cause?): TaskResult {
