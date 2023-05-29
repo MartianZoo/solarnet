@@ -29,15 +29,15 @@ constructor(
     transformers: Transformers,
 ) {
 
-  fun narrowTask(taskId: TaskId, narrowed: Instruction) {
+  fun reviseTask(taskId: TaskId, revised: Instruction) {
     val task = tasks.getTaskData(taskId)
     if (player != task.owner) {
-      throw TaskException("$player can't narrow a task owned by ${task.owner}")
+      throw TaskException("$player can't revise a task owned by ${task.owner}")
     }
 
-    if (narrowed != task.instruction) {
-      narrowed.ensureNarrows(task.instruction, reader)
-      val replacement = if (task.next) instructor.prepare(narrowed) else narrowed
+    if (revised != task.instruction) {
+      revised.ensureNarrows(task.instruction, reader)
+      val replacement = if (task.next) instructor.prepare(revised) else revised
       editButCheckCardinality(tasks.getTaskData(taskId).copy(instructionIn = replacement))
     }
   }

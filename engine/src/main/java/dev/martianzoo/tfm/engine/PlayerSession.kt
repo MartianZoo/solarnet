@@ -176,14 +176,14 @@ public class PlayerSession(
     return false // presumably everything is abstract
   }
 
-  fun tryTask(taskId: TaskId, narrowed: String?) =
+  fun tryTask(taskId: TaskId, revised: String?) =
       timeline.atomic {
         try {
           writer.prepareTask(taskId)
-          if (taskId !in tasks && narrowed !in setOf(null, "Ok")) {
-            throw NarrowingException("$narrowed isn't Ok")
+          if (taskId !in tasks && revised !in setOf(null, "Ok")) {
+            throw NarrowingException("$revised isn't Ok")
           }
-          narrowed?.let { writer.narrowTask(taskId, parse(it)) }
+          revised?.let { writer.reviseTask(taskId, parse(it)) }
           if (taskId in tasks) writer.executeTask(taskId)
           autoExec()
         } catch (e: RecoverableException) {
@@ -222,7 +222,7 @@ public class PlayerSession(
 
     return timeline.atomic {
       writer.prepareTask(id)
-      if (id in tasks) writer.narrowTask(id, ins)
+      if (id in tasks) writer.reviseTask(id, ins)
       if (id in tasks) writer.executeTask(id)
       autoExec()
     }
@@ -237,7 +237,7 @@ public class PlayerSession(
 
     return timeline.atomic {
       writer.prepareTask(id)
-      if (id in tasks) writer.narrowTask(id, prepped)
+      if (id in tasks) writer.reviseTask(id, prepped)
       if (id in tasks) writer.executeTask(id)
       autoExec()
     }
@@ -247,7 +247,7 @@ public class PlayerSession(
     val id =
         tasks.matching { it.owner == player }.firstOrNull() ?: throw NotNowException("no tasks")
     return timeline.atomic {
-      writer.narrowTask(id, preprocess(parse(revised)))
+      writer.reviseTask(id, preprocess(parse(revised)))
       if (id in tasks) writer.executeTask(id)
       autoExec()
     }

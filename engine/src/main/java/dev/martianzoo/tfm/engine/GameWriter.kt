@@ -42,12 +42,12 @@ public interface GameWriter {
    * of an abstract task is allowed to do. Preserves [Task.next], and if `true`, re-prepares the new
    * instruction if necessary. Executes nothing.
    *
-   * @param [narrowed] the new instruction; may be abstract; if identical to the current instruction
+   * @param [revised] the new instruction; may be abstract; if identical to the current instruction
    *   this method does nothing
    * @throws [TaskException] if there is no task by this id owned by the player
-   * @throws [NarrowingException] if [narrowed] is not a valid narrowing of the task's instruction
+   * @throws [NarrowingException] if [revised] is not a valid narrowing of the task's instruction
    */
-  fun narrowTask(taskId: TaskId, narrowed: Instruction): TaskResult // TODO -TaskResult
+  fun reviseTask(taskId: TaskId, revised: Instruction): TaskResult // TODO -TaskResult
 
   /** Tells whether [prepareTask] will complete normallly. */
   fun canPrepareTask(taskId: TaskId): Boolean
@@ -59,14 +59,14 @@ public interface GameWriter {
    * If the prepared task is concrete, but would fail to execute, that exception is thrown now
    * instead of preparing the task.
    *
-   * If the return task is abstract, it will require a further call to [narrowTask], which will
-   * re-prepare the task. If no possible narrowing could succeed, this method might or might not
+   * If the return task is abstract, it will require a further call to [reviseTask], which will
+   * re-prepare the task. If no possible revision could succeed, this method might or might not
    * recognize that fact and throw instead.
    *
    * @throws [TaskException] if no task with id [taskId] exists, or if any other task is already
    *   prepared
    * @throws [AbstractException] if the task instruction contains a [Multi] at any level; it must
-   *   first be narrowed until it splits into tasks that can be prepared individually
+   *   first be revised until it splits into tasks that can be prepared individually
    * @throws [NotNowException] if the prepared task would throw this exception on execution
    */
   fun prepareTask(taskId: TaskId): TaskId?

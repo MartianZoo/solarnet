@@ -52,12 +52,12 @@ object Layers {
      * owner of an abstract task is allowed to do. Preserves [Task.next], and if `true`, re-prepares
      * the new instruction if necessary. Executes nothing.
      *
-     * @param [narrowed] the new instruction; may be abstract; if identical to the current
+     * @param [revised] the new instruction; may be abstract; if identical to the current
      *   instruction this method does nothing
      * @throws [TaskException] if there is no task by this id owned by the player
-     * @throws [NarrowingException] if [narrowed] is not a valid narrowing of the task's instruction
+     * @throws [NarrowingException] if [revised] is not a valid narrowing of the task's instruction
      */
-    fun narrowTask(taskId: TaskId, narrowed: String): TaskResult // TODO reviseTask?
+    fun reviseTask(taskId: TaskId, revised: String): TaskResult
 
     /** Tells whether [prepareTask] will complete normallly. */
     fun canPrepareTask(taskId: TaskId): Boolean
@@ -69,7 +69,7 @@ object Layers {
      * If the prepared task is concrete, but would fail to execute, that exception is thrown now
      * instead of preparing the task.
      *
-     * If the return task is abstract, it will require a further call to [narrowTask], which will
+     * If the return task is abstract, it will require a further call to [reviseTask], which will
      * re-prepare the task. If no possible narrowing could succeed, this method might or might not
      * recognize that fact and throw instead.
      *

@@ -102,7 +102,7 @@ object TerraformingMars {
       // Take care of other Accepts we didn't need
       tasks
           .matching { it.cause?.context?.className == cn("Accept") }
-          .forEach { writer.narrowTask(it, NoOp) } // "executes" automatically
+          .forEach { writer.reviseTask(it, NoOp) } // "executes" automatically
       autoExec()
       taskStrings.forEach(::task)
       OperationBodyImpl().body()

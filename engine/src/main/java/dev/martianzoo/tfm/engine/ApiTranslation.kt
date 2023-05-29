@@ -29,8 +29,8 @@ constructor(
   override fun sneak(changes: String, fakeCause: Cause?) =
       timeline.atomic { impl.addTasks(parseInstruction(changes), fakeCause) }
 
-  override fun narrowTask(taskId: TaskId, narrowed: String) =
-      timeline.atomic { impl.narrowTask(taskId, parseInstruction(narrowed)) }
+  override fun reviseTask(taskId: TaskId, revised: String) =
+      timeline.atomic { impl.reviseTask(taskId, parseInstruction(revised)) }
 
   override fun canPrepareTask(taskId: TaskId) = impl.canPrepareTask(taskId)
 

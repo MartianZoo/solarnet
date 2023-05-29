@@ -32,18 +32,17 @@ constructor(
     transformers: Transformers,
 ) : GameWriter {
 
-  override fun narrowTask(taskId: TaskId, narrowed: Instruction): TaskResult {
+  override fun reviseTask(taskId: TaskId, revised: Instruction): TaskResult {
     val task = tasks.getTaskData(taskId)
     if (player != task.owner) {
-      throw TaskException("$player can't narrow a task owned by ${task.owner}")
+      throw TaskException("$player can't revise a task owned by ${task.owner}")
     }
 
-    val current = task.instruction
-    val fixedNarrowing = preprocess(narrowed)
-    if (fixedNarrowing == current) return TaskResult()
-    fixedNarrowing.ensureNarrows(current, reader)
+    val revision = preprocess(revised)
+    if (revision == task.instruction) return TaskResult()
+    revision.ensureNarrows(task.instruction, reader)
 
-    val replacement = if (task.next) instructor.prepare(fixedNarrowing) else fixedNarrowing
+    val replacement = if (task.next) instructor.prepare(revision) else revision
     return editButCheckCardinality(tasks.getTaskData(taskId).copy(instructionIn = replacement))
   }
 

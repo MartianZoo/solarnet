@@ -30,7 +30,6 @@ import dev.martianzoo.tfm.pets.ast.Instruction.Then
 import dev.martianzoo.tfm.pets.ast.Instruction.Transform
 import dev.martianzoo.tfm.pets.ast.ScaledExpression.Scalar.ActualScalar
 import dev.martianzoo.tfm.types.MType
-import dev.martianzoo.tfm.types.Transformers
 import javax.inject.Inject
 import kotlin.math.min
 
@@ -42,15 +41,13 @@ constructor(
     private val effector: Effector,
     private val limiter: Limiter,
     private val changer: Changer,
-    private val transformers: Transformers,
 ) {
 
   fun execute(instruction: Instruction, cause: Cause?): List<Task> =
-      mutableListOf<Task>().also { doExecute(instruction, cause, it) } // TODO prepare?
+      mutableListOf<Task>().also { doExecute(instruction, cause, it) }
 
   private fun doExecute(instruction: Instruction, cause: Cause?, deferred: MutableList<Task>) {
-    val prepped = prepare(instruction) // idempotent?
-    when (prepped) {
+    when (val prepped = prepare(instruction)) { // idempotent?
       is Change -> executeChange(prepped, cause, deferred)
       is Then -> prepped.instructions.forEach { doExecute(it, cause, deferred) }
       is Or -> throw orWithoutChoice(prepped)
@@ -133,7 +130,7 @@ constructor(
     if (g != null && !g.abstract && g.root.custom != null) {
       require(r == null) { "custom class instructions can only be pure gains" }
       val translated = g.toComponent().prepareCustom(reader)
-      return if (translated is Multi) translated else doPrepare(translated) // TODO hmm?
+      return if (translated is Multi) translated else doPrepare(translated)
     }
 
     val intens = change.intensity ?: error("$change")

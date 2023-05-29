@@ -54,10 +54,10 @@ class TaskPreparingTest {
   @Test
   fun `preparing adjusts for limits 1`() {
     initiate("-30 TerraformRating?").also { assertThat(it).containsExactly(A) }
-    writer.narrowTask(A, parse("-25 TerraformRating?"))
+    writer.reviseTask(A, parse("-25 TerraformRating?"))
     writer.prepareTask(A).also { assertThat(it).isEqualTo(A) }
     assertThat(tasksAsText()).containsExactly("-20 TerraformRating<Player1>?")
-    writer.narrowTask(A, parse("-15 TerraformRating!"))
+    writer.reviseTask(A, parse("-15 TerraformRating!"))
   }
 
   @Test
@@ -83,8 +83,8 @@ class TaskPreparingTest {
     writer.prepareTask(A).also { assertThat(it).isEqualTo(A) }
 
     assertThat(tasksAsText()).containsExactly("-2 Production<Player1>!")
-    assertThrows<LimitsException> { writer.narrowTask(A, parse("PROD[-2 Plant]")) }
-    writer.narrowTask(A, parse("PROD[-2]"))
+    assertThrows<LimitsException> { writer.reviseTask(A, parse("PROD[-2 Plant]")) }
+    writer.reviseTask(A, parse("PROD[-2]"))
   }
 
   @Test
