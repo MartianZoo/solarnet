@@ -4,6 +4,7 @@ import dev.martianzoo.tfm.api.Exceptions.AbstractException
 import dev.martianzoo.tfm.api.Exceptions.TaskException
 import dev.martianzoo.tfm.api.GameReader
 import dev.martianzoo.tfm.data.GameEvent.ChangeEvent.Cause
+import dev.martianzoo.tfm.data.GameEvent.TaskRemovedEvent
 import dev.martianzoo.tfm.data.Player
 import dev.martianzoo.tfm.data.Task
 import dev.martianzoo.tfm.data.Task.TaskId
@@ -105,9 +106,7 @@ constructor(
     tasks.addTasks(prepped, player, firstCause)
   }
 
-  fun dropTask(taskId: TaskId) {
-    tasks.removeTask(taskId)
-  }
+  fun dropTask(taskId: TaskId): TaskRemovedEvent = tasks.removeTask(taskId)
 
   fun sneak(changes: Instruction, cause: Cause? = null) {
     split(changes).map {

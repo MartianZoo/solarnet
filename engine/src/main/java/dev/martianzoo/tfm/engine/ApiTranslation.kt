@@ -26,7 +26,7 @@ constructor(
   override fun addTasks(instruction: String, firstCause: Cause?) =
       timeline.atomic { impl.addTasks(parseInstruction(instruction), firstCause) }
 
-  override fun dropTask(taskId: TaskId) = timeline.atomic { impl.dropTask(taskId) }
+  override fun dropTask(taskId: TaskId) = impl.dropTask(taskId)
 
   override fun sneak(changes: String, fakeCause: Cause?) =
       timeline.atomic { impl.addTasks(parseInstruction(changes), fakeCause) }

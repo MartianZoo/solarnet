@@ -22,8 +22,10 @@ import dev.martianzoo.tfm.pets.ast.ScaledExpression.Scalar.ActualScalar
 import dev.martianzoo.tfm.types.MClassTable
 import dev.martianzoo.tfm.types.Transformers
 import javax.inject.Inject
+import javax.inject.Singleton
 import kotlin.math.min
 
+@Singleton
 internal class GameReaderImpl
 @Inject
 constructor(

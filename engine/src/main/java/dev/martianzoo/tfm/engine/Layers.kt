@@ -6,6 +6,7 @@ import dev.martianzoo.tfm.api.Exceptions.NarrowingException
 import dev.martianzoo.tfm.api.Exceptions.NotNowException
 import dev.martianzoo.tfm.api.Exceptions.TaskException
 import dev.martianzoo.tfm.data.GameEvent.ChangeEvent.Cause
+import dev.martianzoo.tfm.data.GameEvent.TaskRemovedEvent
 import dev.martianzoo.tfm.data.Task
 import dev.martianzoo.tfm.data.Task.TaskId
 import dev.martianzoo.tfm.data.TaskResult
@@ -17,7 +18,7 @@ object Layers {
     fun addTasks(instruction: String, firstCause: Cause? = null): TaskResult
 
     /** Forgets a task even existed. */
-    fun dropTask(taskId: TaskId): TaskResult
+    fun dropTask(taskId: TaskId): TaskRemovedEvent
 
     fun sneak(changes: String, fakeCause: Cause? = null): TaskResult
   }

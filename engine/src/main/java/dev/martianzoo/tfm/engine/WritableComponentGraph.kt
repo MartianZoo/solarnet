@@ -52,6 +52,7 @@ internal class WritableComponentGraph @Inject constructor(internal val effector:
   }
 
   // TODO move
+  @Singleton
   internal class Limiter
   @Inject
   constructor(private val table: MClassTable, private val components: ComponentGraph) {

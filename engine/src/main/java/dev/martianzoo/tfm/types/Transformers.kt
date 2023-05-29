@@ -30,7 +30,9 @@ import dev.martianzoo.tfm.pets.ast.TransformNode
 import dev.martianzoo.tfm.types.Defaults.DefaultSpec
 import dev.martianzoo.tfm.types.Dependency.Key
 import javax.inject.Inject
+import javax.inject.Singleton
 
+@Singleton
 internal class Transformers @Inject constructor(val table: MClassTable) {
 
   internal val requiredClasses: Set<ClassName> = setOf(PRODUCTION)
