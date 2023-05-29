@@ -8,15 +8,13 @@ import dev.martianzoo.tfm.data.Player
 import dev.martianzoo.tfm.data.Task
 import dev.martianzoo.tfm.data.Task.TaskId
 import dev.martianzoo.tfm.engine.ComponentGraph.Component.Companion.toComponent
-import dev.martianzoo.tfm.pets.PetTransformer
-import dev.martianzoo.tfm.pets.Transforming
 import dev.martianzoo.tfm.pets.ast.Instruction
 import dev.martianzoo.tfm.pets.ast.Instruction.Change
 import dev.martianzoo.tfm.pets.ast.Instruction.Companion.split
 import dev.martianzoo.tfm.pets.ast.ScaledExpression.Scalar.ActualScalar
-import dev.martianzoo.tfm.types.Transformers
 import javax.inject.Inject
 
+// @Singleton TODO why
 internal class Implementations
 @Inject
 constructor(
@@ -26,7 +24,6 @@ constructor(
     private val player: Player,
     val instructor: Instructor,
     private val changer: Changer,
-    transformers: Transformers,
 ) {
 
   fun reviseTask(taskId: TaskId, revised: Instruction) {
@@ -38,7 +35,7 @@ constructor(
     if (revised != task.instruction) {
       revised.ensureNarrows(task.instruction, reader)
       val replacement = if (task.next) instructor.prepare(revised) else revised
-      editButCheckCardinality(tasks.getTaskData(taskId).copy(instructionIn = replacement))
+      replace1WithN(tasks.getTaskData(taskId).copy(instructionIn = replacement))
     }
   }
 
@@ -53,9 +50,10 @@ constructor(
     }
   }
 
-  fun prepareTask(taskId: TaskId): TaskId? {
-    val result = doPrepare(tasks.getTaskData(taskId))
-    // let's just look ahead though
+  fun prepareTask(taskId: TaskId): TaskId? =
+      doPrepare(tasks.getTaskData(taskId)).also { lookAheadForTrouble(taskId) }
+
+  private fun lookAheadForTrouble(taskId: TaskId) {
     if (taskId in tasks) {
       try {
         timeline.atomic {
@@ -65,21 +63,20 @@ constructor(
       } catch (ignore: AbstractException) { // the only failure that's expected/normal
       }
     }
-    return result
   }
 
   private fun doPrepare(task: Task): TaskId? {
     dontCutTheLine(task.id)
 
     val replacement = instructor.prepare(task.instruction)
-    editButCheckCardinality(task.copy(instructionIn = replacement, next = true))
+    replace1WithN(task.copy(instructionIn = replacement, next = true))
     return tasks.preparedTask()
   }
 
   // Use this to edit a task if the replacement instruction might be NoOp, in which case the
   // task is handleTask'd instead.
-  private fun editButCheckCardinality(replacement: Task) {
-    val split = Instruction.split(replacement.instruction)
+  private fun replace1WithN(replacement: Task) {
+    val split = split(replacement.instruction)
     if (split.size == 1) {
       val reason = replacement.whyPending?.let { "(was: $it)" }
       val one = split.instructions[0]
@@ -130,7 +127,7 @@ constructor(
    */
   private fun handleTask(taskId: TaskId) {
     val task = tasks.getTaskData(taskId)
-    task.then?.let { tasks.addTasks(Instruction.split(it), task.owner, task.cause) }
+    task.then?.let { tasks.addTasks(split(it), task.owner, task.cause) }
     tasks.removeTask(taskId)
   }
 
@@ -140,7 +137,4 @@ constructor(
       throw TaskException("task $already is already prepared and must be executed first")
     }
   }
-
-  private val xer =
-      PetTransformer.chain(transformers.standardPreprocess(), Transforming.replaceOwnerWith(player))
 }

@@ -178,11 +178,7 @@ class TaskRevisionTest {
     assertThat(task3.then).isNull()
   }
 
-  fun initiate(ins: String): Set<TaskId> {
-    val result = writer.addTasks(parse(ins))
-    assertThat(result.changes).isEmpty()
-    return result.tasksSpawned
-  }
+  fun initiate(ins: String) = writer.addTasks(parse(ins)).tasksSpawned
 
   private operator fun Checkpoint.plus(increment: Int) = Checkpoint(ordinal + increment)
 

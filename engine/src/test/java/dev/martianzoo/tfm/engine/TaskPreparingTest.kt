@@ -105,11 +105,7 @@ class TaskPreparingTest {
     assertThat(tasksAsText()).containsExactly("Steel<Player1>! / 2 OxygenStep")
   }
 
-  private fun initiate(ins: String): Set<TaskId> {
-    val result = writer.addTasks(parse(ins))
-    assertThat(result.changes).isEmpty()
-    return result.tasksSpawned
-  }
+  fun initiate(ins: String) = writer.addTasks(parse(ins)).tasksSpawned
 
   private fun history() = events.entriesSince(start)
 

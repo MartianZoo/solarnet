@@ -43,7 +43,7 @@ constructor(
     revision.ensureNarrows(task.instruction, reader)
 
     val replacement = if (task.next) instructor.prepare(revision) else revision
-    return editButCheckCardinality(tasks.getTaskData(taskId).copy(instructionIn = replacement))
+    return replace1WithN(tasks.getTaskData(taskId).copy(instructionIn = replacement))
   }
 
   override fun canPrepareTask(taskId: TaskId): Boolean {
@@ -57,10 +57,10 @@ constructor(
     }
   }
 
-  override fun prepareTask(taskId: TaskId): TaskId? {
-    val result = doPrepare(tasks.getTaskData(taskId))
+  override fun prepareTask(taskId: TaskId) =
+      doPrepare(tasks.getTaskData(taskId)).also { lookAheadForTrouble(taskId) }
 
-    // let's just look ahead though
+  private fun lookAheadForTrouble(taskId: TaskId) {
     if (taskId in tasks) {
       try {
         timeline.atomic {
@@ -70,20 +70,19 @@ constructor(
       } catch (ignore: AbstractException) { // the only failure that's expected/normal
       }
     }
-    return result
   }
 
   private fun doPrepare(task: Task): TaskId? {
     dontCutTheLine(task.id)
 
     val replacement = instructor.prepare(task.instruction)
-    editButCheckCardinality(task.copy(instructionIn = replacement, next = true))
+    replace1WithN(task.copy(instructionIn = replacement, next = true))
     return tasks.preparedTask()
   }
 
   // Use this to edit a task if the replacement instruction might be NoOp, in which case the
   // task is handleTask'd instead.
-  private fun editButCheckCardinality(replacement: Task): TaskResult {
+  private fun replace1WithN(replacement: Task): TaskResult {
     return timeline.atomic {
       val split = split(replacement.instruction)
       if (split.size == 1) {

@@ -12,6 +12,7 @@ import dev.martianzoo.tfm.data.TaskResult
 import dev.martianzoo.tfm.engine.ComponentGraph.Component
 import dev.martianzoo.tfm.engine.ComponentGraph.Component.Companion.toComponent
 import dev.martianzoo.tfm.engine.Layers.OperationBody
+import dev.martianzoo.tfm.engine.Timeline.AbortOperationException
 import dev.martianzoo.tfm.pets.Parsing.parse
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.Expression
@@ -76,32 +77,44 @@ public class PlayerSession(
 
   // EXECUTION
 
-  fun operation(startingInstruction: String, vararg tasks: String): TaskResult =
-      timeline.atomic { operation(startingInstruction) { tasks.forEach(::task) } }
-
-  fun operation(startingInstruction: String, body: OperationBody.() -> Unit) {
+  fun operation(
+      startingInstruction: String,
+      vararg tasks: String,
+      body: OperationBody.() -> Unit = {}
+  ): TaskResult {
+    require(this.tasks.isEmpty()) { this.tasks }
     val instruction: Instruction = parseInContext(startingInstruction)
-    require(tasks.isEmpty()) { tasks }
-    val cp = timeline.checkpoint()
-    initiateOnly(instruction)
-    autoExec()
 
-    try {
-      OperationBodyImpl().body()
-    } catch (e: JustRollBackException) {
-      timeline.rollBack(cp)
-    } catch (e: Exception) {
-      timeline.rollBack(cp)
-      throw e
-    }
-
-    require(tasks.isEmpty()) {
-      "Should be no tasks left, but:\n" + tasks.extract { it }.joinToString("\n")
-    }
-    require(game.reader.has(parse("MAX 0 Temporary")))
+    return timeline.atomic {
+      initiateOnly(instruction)
+      doFinish(tasks.toList(), body)
+    } // .also { game.workflow.pull() }
   }
 
-  private class JustRollBackException : Exception("")
+  fun startOperation(starting: String): TaskResult {
+    val instruction: Instruction = preprocess(parse(starting))
+    require(tasks.isEmpty()) { tasks }
+    return timeline.atomic {
+      val newTasks = writer.addTasks(instruction).tasksSpawned
+      newTasks.forEach { writer.executeTask(it) }
+      autoExec()
+    }
+  }
+
+  fun finishOperation(vararg tasks: String, body: OperationBody.() -> Unit = {}) =
+      timeline.atomic { doFinish(tasks.toList(), body) } // .also { game.workflow.pull() }
+
+  private fun doFinish(tasks: List<String>, body: OperationBody.() -> Unit) {
+    autoExec()
+    tasks.forEach(::task)
+    OperationBodyImpl().body()
+
+    require(game.reader.has(parse("MAX 0 Temporary")))
+
+    require(this.tasks.isEmpty()) {
+      "Should be no tasks left, but:\n" + this.tasks.extract { it }.joinToString("\n")
+    }
+  }
 
   inner class OperationBodyImpl : OperationBody {
     val session = this@PlayerSession
@@ -119,7 +132,7 @@ public class PlayerSession(
 
     // TODO rename or something, it sounds like you can keep going
     override fun abortAndRollBack() {
-      throw JustRollBackException()
+      throw AbortOperationException()
     }
   }
 
@@ -148,7 +161,8 @@ public class PlayerSession(
       0 -> writer.prepareTask(tasks.ids().first()).also { error("that should've failed") }
       1 -> {
         val taskId = options.single()
-        writer.prepareTask(taskId) ?: return true
+        writer.prepareTask(taskId)
+        if (tasks.preparedTask() == null) return true
         try {
           if (tryPreparedTask()) return true // if this fails we should fail too
         } catch (e: DeadEndException) {
@@ -243,14 +257,12 @@ public class PlayerSession(
     }
   }
 
-  fun task(revised: String): TaskResult {
-    val id =
-        tasks.matching { it.owner == player }.firstOrNull() ?: throw NotNowException("no tasks")
-    return timeline.atomic {
-      writer.reviseTask(id, preprocess(parse(revised)))
-      if (id in tasks) writer.executeTask(id)
-      autoExec()
-    }
+  fun task(revised: String) {
+    val id = tasks.matching { it.owner == player }.firstOrNull() ?:
+        throw NotNowException("no tasks")
+    writer.reviseTask(id, preprocess(parse(revised)))
+    if (id in tasks) writer.executeTask(id)
+    autoExec()
   }
 
   public fun <P : PetElement> preprocess(node: P) = (writer as PlayerAgent).preprocess(node)

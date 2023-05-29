@@ -22,11 +22,12 @@ import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.pets.ast.Instruction
-import dev.martianzoo.tfm.pets.ast.Instruction.Gain
+import dev.martianzoo.tfm.pets.ast.Instruction.Change
 import dev.martianzoo.tfm.pets.ast.Metric
 import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.repl.ReplSession.ReplMode.BLUE
 import dev.martianzoo.tfm.repl.ReplSession.ReplMode.GREEN
+import dev.martianzoo.tfm.repl.ReplSession.ReplMode.PURPLE
 import dev.martianzoo.tfm.repl.ReplSession.ReplMode.RED
 import dev.martianzoo.tfm.repl.ReplSession.ReplMode.YELLOW
 import dev.martianzoo.tfm.types.MType
@@ -76,10 +77,11 @@ public class ReplSession(var setup: GameSetup, private val jline: JlineRepl? = n
   internal val authority by setup::authority
 
   public enum class ReplMode(val message: String, val color: TfmColor) {
-    RED("Arbitrary state changes with few restrictions", TfmColor.HEAT),
-    YELLOW("Arbitrary state changes, within limits", TfmColor.MEGACREDIT),
-    GREEN("Arbitrary state changes, triggering effects", TfmColor.PLANT),
-    BLUE("Can only perform valid game actions", TfmColor.OCEAN_TILE),
+    RED("Change integrity: make changes without triggered effects", TfmColor.HEAT),
+    YELLOW("Task integrity: changes have consequences", TfmColor.MEGACREDIT),
+    GREEN("Operation integrity: clear task queue before starting new operation", TfmColor.PLANT),
+    BLUE("Turn integrity: must perform a valid game turn for this phase", TfmColor.OCEAN_TILE),
+    PURPLE("Game integrity: the engine fully controls the workflow", TfmColor.ENERGY),
   }
 
   private val inputRegex = Regex("""^\s*(\S+)(.*)$""")
@@ -297,6 +299,19 @@ public class ReplSession(var setup: GameSetup, private val jline: JlineRepl? = n
     override fun noArgs() = MapToText(session.reader, jline != null).map()
   }
 
+//  var workflow: Workflow? = null
+//
+//  internal inner class StartCommand : ReplCommand("start") {
+//    override val usage = ""
+//    override val help = ""
+//
+//    override fun noArgs(): List<String> {
+//      require(workflow == null)
+//      workflow = Workflow(game).also { it.start() }
+//      return listOf("I think it started?")
+//    }
+//  }
+
   internal inner class ModeCommand : ReplCommand("mode") {
     override val usage = "mode <mode name>"
     override val help =
@@ -359,18 +374,21 @@ public class ReplSession(var setup: GameSetup, private val jline: JlineRepl? = n
       val instr: Instruction = parse(args)
       val changes: TaskResult =
           when (mode) {
-            RED,
-            YELLOW, // TODO sneaky change??
-            GREEN -> execute(instr)
+            RED -> session.writer.sneak(instr)
+            YELLOW, -> execute(instr)
+            GREEN -> execute(instr) // TODO startOperation
             BLUE ->
                 when {
                   session.player != ENGINE ->
                       throw UsageException("In blue mode you must be Engine to do this")
-                  instr.isGainOf(cn("NewTurn")) -> execute(instr)
-                  instr.isGainOf(cn("Phase")) -> execute(instr)
+                  instr.isGainOf(cn("NewTurn")) -> session.operation(args)
+                  instr.isGainOf(cn("Phase")) -> session.operation(args)
                   else ->
                       throw UsageException("Eep, can't do that in ${mode.name.lowercase()} mode")
                 }
+            PURPLE -> {
+              throw UsageException("Can't initiate tasks in this mode")
+            }
           }
 
       return describeExecutionResults(changes)
@@ -378,10 +396,11 @@ public class ReplSession(var setup: GameSetup, private val jline: JlineRepl? = n
 
     private fun Instruction.isGainOf(superclass: ClassName): Boolean =
         when (this) {
-          is Gain -> {
-            val t = session.reader.resolve(gaining) as MType
-            t.isSubtypeOf(session.reader.resolve(superclass.expression) as MType)
-          }
+          is Change ->
+            gaining?.let {
+              val t = session.reader.resolve(it) as MType
+              t.isSubtypeOf(session.reader.resolve(superclass.expression) as MType)
+            } ?: false
           is Instruction.Transform -> instruction.isGainOf(superclass)
           else -> false
         }
@@ -435,6 +454,7 @@ public class ReplSession(var setup: GameSetup, private val jline: JlineRepl? = n
           }
 
       if (rest == "drop") {
+        if (mode >= GREEN) throw UsageException("not in this mode you don't")
         session.writer.dropTask(id)
         return listOf("Task $id deleted")
       } else if (rest == "prepare") {
@@ -443,16 +463,9 @@ public class ReplSession(var setup: GameSetup, private val jline: JlineRepl? = n
       }
 
       val result: TaskResult =
-          when (mode) {
-            RED,
-            YELLOW -> throw UsageException("Can't execute tasks in this mode")
-            GREEN,
-            BLUE, -> {
-              session.timeline.atomic {
-                session.tryTask(id, rest)
-                if (auto) session.autoExec()
-              }
-            }
+          session.timeline.atomic {
+            session.tryTask(id, rest)
+            if (auto) session.autoExec()
           }
       return describeExecutionResults(result)
     }
@@ -659,8 +672,8 @@ private val helpText: String =
         task F              -> do task F on your to-do list, as-is
         task F Plant        -> do task F, substituting `Plant` for an abstract instruction
         task F drop         -> bye task F
-        turn                -> begin new turn for current player (necessary in blue mode)
-        auto off            -> turns off autoexec mode (you'll have to run tasks 1-by-1)
+        turn                -> begin new turn for current player (necessary only in blue mode)
+        auto off            -> turns off autoexec (run tasks manually but can't break integrity)
         mode yellow         -> switches to Yellow Mode (also try red, green, blue, purple)
       HISTORY
         log                 -> shows events that have happened in the current game

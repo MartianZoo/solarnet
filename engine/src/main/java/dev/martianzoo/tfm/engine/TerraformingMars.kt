@@ -11,9 +11,13 @@ import dev.martianzoo.tfm.pets.ast.Instruction.NoOp
 object TerraformingMars {
 
   fun PlayerSession.turn(vararg tasks: String, body: OperationBody.() -> Unit = {}) {
-    return operation("NewTurn") {
-      tasks.forEach(::task)
-      OperationBodyImpl().body()
+    if (this.tasks.isEmpty()) {
+      operation("NewTurn") {
+        tasks.forEach(::task)
+        OperationBodyImpl().body()
+      }
+    } else {
+      finishOperation(*tasks, body = body)
     }
   }
 
