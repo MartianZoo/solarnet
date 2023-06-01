@@ -46,6 +46,8 @@ constructor(
 
   /** All modifications to game state (except rollbacks) go through here. */
   public fun writer(player: Player) = playerComponents[player]!!.writer
-  public fun changeLayer(player: Player) = playerComponents[player]!!.changeLayer
-  public fun taskLayer(player: Player) = playerComponents[player]!!.taskLayer
+
+  public fun changesLayer(player: Player) = playerComponents[player]!!.changeLayer
+  public fun tasksLayer(player: Player) = changesLayer(player).tasksLayer()
+  public fun operationsLayer(player: Player) = tasksLayer(player).operationsLayer()
 }

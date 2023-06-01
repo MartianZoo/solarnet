@@ -1,15 +1,22 @@
 package dev.martianzoo.tfm.engine
 
 import dev.martianzoo.tfm.api.Exceptions.AbstractException
+import dev.martianzoo.tfm.api.Exceptions.DeadEndException
+import dev.martianzoo.tfm.api.Exceptions.NotNowException
+import dev.martianzoo.tfm.api.Exceptions.RecoverableException
 import dev.martianzoo.tfm.api.Exceptions.TaskException
 import dev.martianzoo.tfm.api.GameReader
 import dev.martianzoo.tfm.data.GameEvent.ChangeEvent.Cause
+import dev.martianzoo.tfm.data.GameEvent.TaskAddedEvent
 import dev.martianzoo.tfm.data.GameEvent.TaskRemovedEvent
 import dev.martianzoo.tfm.data.Player
 import dev.martianzoo.tfm.data.Task
 import dev.martianzoo.tfm.data.Task.TaskId
+import dev.martianzoo.tfm.engine.AutoExecMode.NONE
+import dev.martianzoo.tfm.engine.AutoExecMode.SAFE
 import dev.martianzoo.tfm.engine.ComponentGraph.Component.Companion.toComponent
 import dev.martianzoo.tfm.engine.Engine.PlayerScope
+import dev.martianzoo.tfm.pets.Parsing.parse
 import dev.martianzoo.tfm.pets.ast.Instruction
 import dev.martianzoo.tfm.pets.ast.Instruction.Change
 import dev.martianzoo.tfm.pets.ast.Instruction.Companion.split
@@ -28,6 +35,34 @@ constructor(
     private val changer: Changer,
 ) {
 
+
+  // CHANGES LAYER
+
+
+  fun addTasks(instruction: Instruction, firstCause: Cause? = null): List<TaskAddedEvent> {
+    val prepped = split(instruction)
+    return tasks.addTasks(prepped, player, firstCause)
+  }
+
+  fun dropTask(taskId: TaskId): TaskRemovedEvent = tasks.removeTask(taskId)
+
+  fun sneak(changes: Instruction, cause: Cause? = null) {
+    split(changes).map {
+      val count = (it as Change).count as ActualScalar
+      changer.change(
+          count.value,
+          it.gaining?.toComponent(reader),
+          it.removing?.toComponent(reader),
+          cause,
+          orRemoveOneDependent = false,
+      )
+    }
+  }
+
+
+  // TASKS LAYER
+
+
   fun reviseTask(taskId: TaskId, revised: Instruction) {
     val task = tasks.getTaskData(taskId)
     if (player != task.owner) {
@@ -42,6 +77,7 @@ constructor(
   }
 
   fun canPrepareTask(taskId: TaskId): Boolean {
+    // TODO better way
     dontCutTheLine(taskId)
     val unprepared = tasks.getTaskData(taskId).instruction
     return try {
@@ -59,7 +95,7 @@ constructor(
     if (taskId in tasks) {
       try {
         timeline.atomic {
-          executeTask(taskId)
+          doTask(taskId)
           throw AbstractException("just getting this to roll back")
         }
       } catch (ignore: AbstractException) { // the only failure that's expected/normal
@@ -69,14 +105,11 @@ constructor(
 
   private fun doPrepare(task: Task): TaskId? {
     dontCutTheLine(task.id)
-
     val replacement = instructor.prepare(task.instruction)
     replace1WithN(task.copy(instructionIn = replacement, next = true))
     return tasks.preparedTask()
   }
 
-  // Use this to edit a task if the replacement instruction might be NoOp, in which case the
-  // task is handleTask'd instead.
   private fun replace1WithN(replacement: Task) {
     val split = split(replacement.instruction)
     if (split.size == 1) {
@@ -89,7 +122,7 @@ constructor(
     }
   }
 
-  fun executeTask(taskId: TaskId) {
+  fun doTask(taskId: TaskId) {
     val prepared = doPrepare(tasks.getTaskData(taskId)) ?: return
     val preparedTask = tasks.getTaskData(prepared)
     val newTasks = instructor.execute(preparedTask.instruction, preparedTask.cause)
@@ -97,28 +130,116 @@ constructor(
     handleTask(taskId)
   }
 
-  fun explainTask(taskId: TaskId, reason: String) {
-    tasks.editTask(tasks.getTaskData(taskId).copy(whyPending = reason))
+  fun doTask(revised: Instruction) {
+    val id = matchingTask(revised)
+    prepareTask(id)
+    if (id in tasks) reviseTask(id, revised)
+    if (id in tasks) doTask(id)
   }
 
-  fun addTasks(instruction: Instruction, firstCause: Cause? = null) {
-    val prepped = split(instruction)
-    tasks.addTasks(prepped, player, firstCause)
+  private fun matchingTask(revised: Instruction): TaskId {
+    val id = tasks.preparedTask() ?: tasks.matching {
+      it.owner == player &&
+          (revised.narrows(it.instruction, reader) ||
+              revised.narrows(instructor.prepare(it.instruction), reader))
+    }.single()
+    return id
   }
 
-  fun dropTask(taskId: TaskId): TaskRemovedEvent = tasks.removeTask(taskId)
-
-  fun sneak(changes: Instruction, cause: Cause? = null) {
-    split(changes).map {
-      val count = (it as Change).count as ActualScalar
-      changer.change(
-          count.value,
-          it.gaining?.toComponent(reader),
-          it.removing?.toComponent(reader),
-          cause,
-          orRemoveOneDependent = false,
-      )
+  fun tryTask(taskId: TaskId) {
+    try {
+      prepareTask(taskId)
+      if (taskId in tasks) doTask(taskId)
+    } catch (e: RecoverableException) {
+      explainTask(taskId, e.message!!)
     }
+  }
+
+  fun tryTask(revised: Instruction) {
+    val id = matchingTask(revised)
+    try {
+      doTask(revised)
+    } catch (e: RecoverableException) {
+      explainTask(id, e.message!!)
+    }
+  }
+
+  // Similar to tryTask, but a NotNowException is unrecoverable in this case
+  fun tryPreparedTask(): Boolean /* did I do stuff? */ {
+    val taskId = tasks.preparedTask()!!
+    return try {
+      doTask(taskId)
+      true
+    } catch (e: NotNowException) {
+      throw DeadEndException(e)
+    } catch (e: RecoverableException) {
+      explainTask(taskId, e.message!!)
+      false
+    }
+  }
+
+
+  // OPERATIONS LAYER
+
+
+  fun operation(initialInstruction: Instruction, body: () -> Unit = {}) {
+    require(tasks.isEmpty()) { tasks }
+    addTasks(initialInstruction).forEach { doTask(it.task.id) }
+
+    body()
+    require(reader.has(parse("MAX 0 Temporary")))
+    require(tasks.isEmpty()) {
+      "Should be no tasks left, but:\n" + this.tasks.extract { it }.joinToString("\n")
+    }
+  }
+
+  @Suppress("ControlFlowWithEmptyBody")
+  fun autoExec(mode: AutoExecMode) { // TODO invert default or something
+    while (autoExecOneTask(mode)) {}
+  }
+
+  fun autoExecOneTask(mode: AutoExecMode): Boolean /* should we continue */ {
+    if (mode == NONE || tasks.isEmpty()) return false
+
+    // see if we can prepare a task (choose only from our own)
+    val options: List<TaskId> =
+        tasks.preparedTask()?.let(::listOf) ?: tasks.ids().filter(::canPrepareTask)
+
+    when (options.size) {
+      0 -> prepareTask(tasks.ids().first()).also { error("that should've failed") }
+      1 -> {
+        val taskId = options.single()
+        prepareTask(taskId)
+        if (tasks.preparedTask() == null) return true
+        try {
+          if (tryPreparedTask()) return true // if this fails we should fail too
+        } catch (e: DeadEndException) {
+          throw e.cause ?: e
+        }
+      }
+      else -> if (mode == SAFE) return false
+    }
+
+    var recoverable = false
+
+    // we're in unsafe mode. last resort: do the first task that executes
+    for (taskId in options) {
+      try {
+        doTask(taskId)
+        return true
+      } catch (e: RecoverableException) {
+        // we're in trouble if ALL of these are NotNowExceptions
+        if (e !is NotNowException) recoverable = true
+        explainTask(taskId, e.message ?: e::class.simpleName!!)
+      }
+    }
+    if (!recoverable) throw DeadEndException("")
+
+    return false // presumably everything is abstract
+  }
+
+  private fun explainTask(taskId: TaskId, reason: String) {
+    tasks.editTask(tasks.getTaskData(taskId).copy(whyPending = reason))
   }
 
   /**

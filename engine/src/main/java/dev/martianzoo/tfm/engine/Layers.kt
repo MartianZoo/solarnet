@@ -1,7 +1,6 @@
 package dev.martianzoo.tfm.engine
 
 import dev.martianzoo.tfm.api.Exceptions.AbstractException
-import dev.martianzoo.tfm.api.Exceptions.DeadEndException
 import dev.martianzoo.tfm.api.Exceptions.NarrowingException
 import dev.martianzoo.tfm.api.Exceptions.NotNowException
 import dev.martianzoo.tfm.api.Exceptions.TaskException
@@ -10,44 +9,68 @@ import dev.martianzoo.tfm.data.GameEvent.TaskRemovedEvent
 import dev.martianzoo.tfm.data.Task
 import dev.martianzoo.tfm.data.Task.TaskId
 import dev.martianzoo.tfm.data.TaskResult
+import dev.martianzoo.tfm.engine.AutoExecMode.SAFE
 import dev.martianzoo.tfm.pets.ast.Instruction.Multi
 
 object Layers {
-  public interface Changes {
-    /** Adds a manual task for the given [instruction], but does not prepare or execute it. */
-    fun addTasks(instruction: String, firstCause: Cause? = null): TaskResult
-
-    /** Forgets a task even existed. */
-    fun dropTask(taskId: TaskId): TaskRemovedEvent
-
+  // Red
+  public interface Changes : Tasks {
     fun sneak(changes: String, fakeCause: Cause? = null): TaskResult
   }
 
-  /**
-   * Supports modifying a game state. All operations are failure-atomic: they either fully succeed
-   * and complete normally, or throw an exception leaving all game state unmodified.
-   *
-   * With any change to the task queue, a set of normalizations is *always* applied. Here, the
-   * notation `a >> b` is used for a task whose [Task.instruction] is `a` and whose [Task.then] is
-   * `b`.
-   * * Removing task `a >> b` first creates task `b >> null`
-   * * `Ok >> b` is removed
-   * * `Die >> b` or `a >> Die` produces [DeadEndException]
-   * * `a, b >> null` is split into `a >> null` and `b >> null`
-   * * `a, b >> c` produces some exception (which?)
-   * * `a THEN b >> null` where `a THEN b` is separable is rewritten to `a >> b`
-   * * `a THEN b >> c` where `a THEN b` is separable is rewritten to `a >> b THEN c`
-   * * `a, Ok` becomes `a`
-   * * `a, Die` becomes `Die`
-   * * A concrete task with [Task.next] set is guaranteed to execute successfully
-   *
-   * New tasks created have the same owner and cause as the original. Prepared tasks cannot be
-   * split.
-   *
-   * All methods of this type are failure-atomic: if one throws an exception, it leaves the game
-   * state unmodified.
-   */
-  public interface Tasks {
+  // Yellow
+  public interface Tasks : Operations {
+    /** Adds a manual task for the given [instruction], but does not prepare or execute it. */
+    fun addTasks(instruction: String, firstCause: Cause? = null): TaskResult
+
+    /** Removes a task for any reason or no reason at all. */
+    fun dropTask(taskId: TaskId): TaskRemovedEvent
+
+    fun changesLayer(): Changes
+  }
+
+  // Green
+  interface Operations : Turns {
+    fun initiate(
+        initialInstruction: String,
+        autoExec: AutoExecMode = SAFE,
+        body: NewOperationBody.() -> Unit = {}
+    ): TaskResult
+
+    fun tasksLayer(): Tasks
+  }
+
+  interface OperationBody {
+    fun task(instruction: String)
+    fun matchTask(instruction: String)
+    fun abortAndRollBack()
+  }
+
+  interface NewOperationBody {
+    fun doTask(revised: String)
+    fun tryTask(revised: String)
+    fun autoExecNow()
+  }
+
+  // Blue
+  interface Turns : Games {
+//    fun startTurn(): TaskResult
+//    fun startTurn2(): TaskResult
+
+    fun operationsLayer(): Operations
+  }
+
+  // Purple
+  interface Games {
+    // A task must already be waiting
+//    fun operation(
+//        vararg tasksInOrder: String,
+//        autoExec: AutoExecMode = SAFE,
+//        body: NewOperationBody.() -> Unit = {}
+//    ): TaskResult
+
+    fun turnsLayer(): Turns
+
     /**
      * Voluntarily replaces a task's instruction with a strictly more specific revision, as the
      * owner of an abstract task is allowed to do. Preserves [Task.next], and if `true`, re-prepares
@@ -92,15 +115,12 @@ object Layers {
      * @throws [AbstractException] if the task is abstract
      * @throws [NotNowException] if the task can't currently be prepared
      */
-    fun executeTask(taskId: TaskId): TaskResult
+    fun doTask(taskId: TaskId): TaskResult
+    fun doTask(revised: String): TaskResult
 
-    /** Replaces the [Task.whyPending] property of the specified task with [reason]. */
-    fun explainTask(taskId: TaskId, reason: String)
-  }
+    fun tryTask(taskId: TaskId): TaskResult
+    fun tryTask(revised: String): TaskResult
 
-  interface OperationBody {
-    fun task(instruction: String)
-    fun matchTask(instruction: String)
-    fun abortAndRollBack()
+    fun tryPreparedTask(): TaskResult
   }
 }
