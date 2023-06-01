@@ -503,6 +503,7 @@ internal object EnglishHack {
           "X43" to "HeadStart",
           "X44" to "SixteenPsyche",
           "X45" to "RobotPollinators",
+          "X46" to "Supercapacitors",
           "XC1" to "ArcadianCommunities",
           "XC2" to "Recyclon",
           "XC3" to "SpliceTacticalGenomics",

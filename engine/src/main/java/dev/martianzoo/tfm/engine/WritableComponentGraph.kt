@@ -58,7 +58,7 @@ internal class WritableComponentGraph @Inject constructor(internal val effector:
   constructor(private val table: MClassTable, private val components: ComponentGraph) {
 
     fun findLimit(gaining: Component?, removing: Component?): Int {
-      require(gaining != removing)
+      require(gaining != removing) { "$gaining" }
 
       var actual = Int.MAX_VALUE
 

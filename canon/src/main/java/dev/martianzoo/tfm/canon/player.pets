@@ -6,7 +6,7 @@ ABSTRACT CLASS Anyone[ANY] {                      // aka Player
   ABSTRACT CLASS Owner {
     HAS =1 This
 
-    This:: 20 TerraformRating<This>, GrossHack<This>
+    This:: 20 TerraformRating<This>, GrossHack<This>, SuperHack<This>
 
     // TODO Bogus: these need to use PlayCard
     NewTurn IF CorporationPhase: CardFront, 10 BuyCard?
@@ -68,13 +68,19 @@ ABSTRACT CLASS Owned<Anyone> {
       CLASS Steel[S]
       CLASS Titanium[T]
       CLASS Plant[P]
-      CLASS Energy[E] { ProductionPhase:: Heat FROM This }
+      CLASS Energy[E] // { ProductionPhase:: Heat FROM This }
       CLASS Heat[H]
     }
   }
 
+  CLASS SuperHack {
+    HAS MAX 1 This
+
+    ProductionPhase:: Heat / Energy, -Energy / Energy
+  }
+
   CLASS Production<Class<StandardResource>> {
-    ProductionPhase: StandardResource
+    Production2Phase: StandardResource
   }
 
 

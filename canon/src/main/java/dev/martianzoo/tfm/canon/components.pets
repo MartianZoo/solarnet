@@ -133,7 +133,8 @@ ABSTRACT CLASS Phase : System {
   CLASS CorporationPhase
   CLASS PreludePhase
   CLASS ActionPhase
-  CLASS ProductionPhase
+  CLASS ProductionPhase { This: Production2Phase FROM This }
+  CLASS Production2Phase
   CLASS ResearchPhase { This:: Generation }
   CLASS End
 }

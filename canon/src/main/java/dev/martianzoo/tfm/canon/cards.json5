@@ -4518,5 +4518,21 @@
       "cost": 9,
       "projectKind": "AUTOMATED"
     },
+
+    // Supercapacitors
+    {
+      "id": "X46",
+      "bundle": "X",
+      "deck": "PROJECT",
+      "tags": [ "PowerTag", "BuildingTag"],
+      "immediate": "PROD[1], -SuperHack",
+      "effects": [
+        "ProductionPhase: X Heat FROM Energy?"
+      ],
+      "cost": 4,
+      "projectKind": "ACTIVE",
+
+    }
   ],
+
 }

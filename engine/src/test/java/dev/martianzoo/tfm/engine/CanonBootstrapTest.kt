@@ -107,6 +107,7 @@ private class CanonBootstrapTest {
 
             "[PowerPlantSP]", "[AsteroidSP]", "[AquiferSP]", "[GreenerySP]", "[CitySP]",
             "[GrossHack<Player1>]", "[GrossHack<Player2>]", "[GrossHack<Player3>]",
+            "[SuperHack<Player1>]", "[SuperHack<Player2>]", "[SuperHack<Player3>]",
             "[TrWatcher<Player1>]", "[TrWatcher<Player2>]", "[TrWatcher<Player3>]",
 
             "[Generation]",

@@ -37,7 +37,6 @@ private class CanonEffectsTest {
             "This: -3 Titanium<Anyone>? OR -4 Steel<Anyone>? OR -7 Megacredit<Anyone>?")
   }
 
-  @Test
   fun energy() {
     assertThat(classEffectsOf("Energy")).containsExactly("ProductionPhase:: Heat<Owner> FROM This!")
   }

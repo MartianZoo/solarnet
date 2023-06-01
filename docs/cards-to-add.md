@@ -1,6 +1,6 @@
 # Cards to add
 
-As of 2023-04, the number of rows in this table plus entries in cards.json should equal 454.
+As of 2023-06, the number of rows in this table plus entries in cards.json should equal 455.
 
 | id  | card name                  | blocker               |
 |-----|----------------------------|-----------------------|
@@ -37,20 +37,6 @@ As of 2023-04, the number of rows in this table plus entries in cards.json shoul
 | P39 | Psychrophiles              | payresource           |
 | CC5 | Stormcraft Incorporated    | payresource           |
 | X06 | Law Suit                   | playerplayer          |
-| XC4 | Factorum                   | realcards             |
-| XC8 | Pharmacy Union             | realcards             |
-| P12 | Experimental Forest        | realcards             |
-| P35 | Acquired Space Agency      | realcards             |
-| 005 | Search For Life            | realcards             |
-| 006 | Inventors' Guild           | realcards             |
-| 073 | Mars University            | realcards             |
-| 110 | Business Network           | realcards             |
-| 111 | Business Contacts          | realcards             |
-| 192 | Invention Contest          | realcards             |
-| X04 | Hi-Tech Lab                | realcards             |
-| X42 | New Partner                | realcards             |
-| X41 | Merger                     | realcards             |
-| X39 | Corporate Archives         | realcards             |
 | 210 | Self-Replicating Robots    | selfrep               |
 | TC5 | Utopia Invest              | thenspec              |
 | 188 | Flooding                   | thenspec              |
@@ -95,3 +81,22 @@ As of 2023-04, the number of rows in this table plus entries in cards.json shoul
 | T15 | Wildlife Dome              | turmoil               |
 | T16 | Vote Of No Confidence      | turmoil               |
 | X09 | Political Alliance         | turmoil               |
+
+The following cards work, but need to be redone if we support "real cards mode".
+
+| id  | card name                  | blocker               |
+|-----|----------------------------|-----------------------|
+| XC4 | Factorum                   | realcards             |
+| XC8 | Pharmacy Union             | realcards             |
+| P12 | Experimental Forest        | realcards             |
+| P35 | Acquired Space Agency      | realcards             |
+| 005 | Search For Life            | realcards             |
+| 006 | Inventors' Guild           | realcards             |
+| 073 | Mars University            | realcards             |
+| 110 | Business Network           | realcards             |
+| 111 | Business Contacts          | realcards             |
+| 192 | Invention Contest          | realcards             |
+| X04 | Hi-Tech Lab                | realcards             |
+| X42 | New Partner                | realcards             |
+| X41 | Merger                     | realcards             |
+| X39 | Corporate Archives         | realcards             |
