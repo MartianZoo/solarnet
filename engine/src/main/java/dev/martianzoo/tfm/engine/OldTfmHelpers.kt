@@ -8,7 +8,7 @@ import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.pets.ast.Instruction.NoOp
 
 /** Extension functions to [PlayerSession] for Terraforming Mars-specific APIs. */
-object TerraformingMars {
+object OldTfmHelpers {
 
   fun PlayerSession.turn(vararg tasks: String, body: OldOperationBody.() -> Unit = {}) {
     if (this.tasks.isEmpty()) {

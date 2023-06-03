@@ -9,15 +9,15 @@ import dev.martianzoo.tfm.data.Player.Companion.PLAYER2
 import dev.martianzoo.tfm.engine.Engine
 import dev.martianzoo.tfm.engine.PlayerSession
 import dev.martianzoo.tfm.engine.PlayerSession.Companion.session
-import dev.martianzoo.tfm.engine.TerraformingMars.cardAction1
-import dev.martianzoo.tfm.engine.TerraformingMars.pass
-import dev.martianzoo.tfm.engine.TerraformingMars.phase
-import dev.martianzoo.tfm.engine.TerraformingMars.playCard
-import dev.martianzoo.tfm.engine.TerraformingMars.playCorp
-import dev.martianzoo.tfm.engine.TerraformingMars.production
-import dev.martianzoo.tfm.engine.TerraformingMars.sellPatents
-import dev.martianzoo.tfm.engine.TerraformingMars.stdProject
-import dev.martianzoo.tfm.engine.TerraformingMars.turn
+import dev.martianzoo.tfm.engine.OldTfmHelpers.cardAction1
+import dev.martianzoo.tfm.engine.OldTfmHelpers.pass
+import dev.martianzoo.tfm.engine.OldTfmHelpers.phase
+import dev.martianzoo.tfm.engine.OldTfmHelpers.playCard
+import dev.martianzoo.tfm.engine.OldTfmHelpers.playCorp
+import dev.martianzoo.tfm.engine.OldTfmHelpers.production
+import dev.martianzoo.tfm.engine.OldTfmHelpers.sellPatents
+import dev.martianzoo.tfm.engine.OldTfmHelpers.stdProject
+import dev.martianzoo.tfm.engine.OldTfmHelpers.turn
 import dev.martianzoo.tfm.repl.TestHelpers.assertCounts
 import org.junit.jupiter.api.Test
 
