@@ -5,6 +5,7 @@ import dev.martianzoo.tfm.api.GameReader
 import dev.martianzoo.tfm.api.Type
 import dev.martianzoo.tfm.api.TypeInfo
 import dev.martianzoo.tfm.engine.ComponentGraph.Component.Companion.toComponent
+import dev.martianzoo.tfm.pets.Parsing
 import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.pets.ast.Metric
 import dev.martianzoo.tfm.pets.ast.Metric.Count
@@ -24,6 +25,7 @@ import dev.martianzoo.tfm.types.Transformers
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.math.min
+import kotlin.reflect.KClass
 
 @Singleton
 internal class GameReaderImpl
@@ -77,6 +79,9 @@ constructor(
 
   override fun getComponents(type: Type) =
       components.getAll(table.resolve(type), this).map { it.mtype }
+
+  override fun <P : PetElement> parse2(type: KClass<P>, text: String): P =
+      preprocess(Parsing.parse(type, text))
 
   override fun <P : PetElement> preprocess(node: P) =
       transformers.standardPreprocess().transform(node)

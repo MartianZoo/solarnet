@@ -4,12 +4,13 @@ import dev.martianzoo.tfm.api.Exceptions.AbstractException
 import dev.martianzoo.tfm.api.Exceptions.NarrowingException
 import dev.martianzoo.tfm.api.Exceptions.NotNowException
 import dev.martianzoo.tfm.api.Exceptions.TaskException
+import dev.martianzoo.tfm.api.GameReader
 import dev.martianzoo.tfm.data.GameEvent.ChangeEvent.Cause
 import dev.martianzoo.tfm.data.GameEvent.TaskRemovedEvent
 import dev.martianzoo.tfm.data.Task
 import dev.martianzoo.tfm.data.Task.TaskId
 import dev.martianzoo.tfm.data.TaskResult
-import dev.martianzoo.tfm.engine.AutoExecMode.SAFE
+import dev.martianzoo.tfm.engine.Layers.OperationBody
 import dev.martianzoo.tfm.pets.ast.Instruction.Multi
 
 object Layers {
@@ -33,40 +34,52 @@ object Layers {
   interface Operations : Turns {
     fun initiate(
         initialInstruction: String,
-        autoExec: AutoExecMode = SAFE,
-        body: NewOperationBody.() -> Unit = {}
+        body: BodyLambda = {}
     ): TaskResult
+
+    fun complete(body: BodyLambda = {}): TaskResult
 
     fun tasksLayer(): Tasks
   }
 
-  interface OperationBody {
+  interface OldOperationBody {
     fun task(instruction: String)
     fun matchTask(instruction: String)
     fun abortAndRollBack()
   }
 
-  interface NewOperationBody {
+  interface OperationBody {
+    val tasks: TaskQueue
+    val reader: GameReader
+
     fun doTask(revised: String)
     fun tryTask(revised: String)
+
     fun autoExecNow()
   }
 
   // Blue
   interface Turns : Games {
-//    fun startTurn(): TaskResult
-//    fun startTurn2(): TaskResult
+    fun startTurn(): TaskResult
+    fun startTurn2(): TaskResult
+
+    fun turn(body: BodyLambda = {}): TaskResult
+
+    fun turn2(body: BodyLambda = {}): TaskResult
 
     fun operationsLayer(): Operations
   }
 
   // Purple
   interface Games {
+    fun has(requirement: String): Boolean
+
+    fun count(metric: String): Int
+
     // A task must already be waiting
 //    fun operation(
 //        vararg tasksInOrder: String,
-//        autoExec: AutoExecMode = SAFE,
-//        body: NewOperationBody.() -> Unit = {}
+//        body: BodyLambda = {}
 //    ): TaskResult
 
     fun turnsLayer(): Turns
@@ -122,5 +135,10 @@ object Layers {
     fun tryTask(revised: String): TaskResult
 
     fun tryPreparedTask(): TaskResult
+
+    fun autoExecNow(): TaskResult
+    var autoExecMode: AutoExecMode // TODO maybe autoExecNow when this is set to true
   }
 }
+
+typealias BodyLambda = OperationBody.() -> Unit

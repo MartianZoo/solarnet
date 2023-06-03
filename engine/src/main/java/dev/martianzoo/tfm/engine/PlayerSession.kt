@@ -11,7 +11,7 @@ import dev.martianzoo.tfm.data.Task.TaskId
 import dev.martianzoo.tfm.data.TaskResult
 import dev.martianzoo.tfm.engine.ComponentGraph.Component
 import dev.martianzoo.tfm.engine.ComponentGraph.Component.Companion.toComponent
-import dev.martianzoo.tfm.engine.Layers.OperationBody
+import dev.martianzoo.tfm.engine.Layers.OldOperationBody
 import dev.martianzoo.tfm.engine.Timeline.AbortOperationException
 import dev.martianzoo.tfm.pets.Parsing.parse
 import dev.martianzoo.tfm.pets.ast.ClassName
@@ -80,7 +80,7 @@ public class PlayerSession(
   fun operation(
       startingInstruction: String,
       vararg tasks: String,
-      body: OperationBody.() -> Unit = {}
+      body: OldOperationBody.() -> Unit = {}
   ): TaskResult {
     require(this.tasks.isEmpty()) { this.tasks }
     val instruction: Instruction = parseInContext(startingInstruction)
@@ -101,13 +101,13 @@ public class PlayerSession(
     }
   }
 
-  fun finishOperation(vararg tasks: String, body: OperationBody.() -> Unit = {}) =
+  fun finishOperation(vararg tasks: String, body: OldOperationBody.() -> Unit = {}) =
       timeline.atomic { doFinish(tasks.toList(), body) } // .also { game.workflow.pull() }
 
-  private fun doFinish(tasks: List<String>, body: OperationBody.() -> Unit) {
+  private fun doFinish(tasks: List<String>, body: OldOperationBody.() -> Unit) {
     autoExec()
     tasks.forEach(::task)
-    OperationBodyImpl().body()
+    OldOperationBodyImpl().body()
 
     require(game.reader.has(parse("MAX 0 Temporary")))
 
@@ -116,7 +116,7 @@ public class PlayerSession(
     }
   }
 
-  inner class OperationBodyImpl : OperationBody {
+  inner class OldOperationBodyImpl : OldOperationBody {
     val session = this@PlayerSession
     val tasks by game::tasks
 

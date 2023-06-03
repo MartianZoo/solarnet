@@ -2,7 +2,7 @@ package dev.martianzoo.tfm.engine
 
 import dev.martianzoo.tfm.api.ApiUtils.standardResourceNames
 import dev.martianzoo.tfm.data.Player
-import dev.martianzoo.tfm.engine.Layers.OperationBody
+import dev.martianzoo.tfm.engine.Layers.OldOperationBody
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.pets.ast.Instruction.NoOp
@@ -10,11 +10,11 @@ import dev.martianzoo.tfm.pets.ast.Instruction.NoOp
 /** Extension functions to [PlayerSession] for Terraforming Mars-specific APIs. */
 object TerraformingMars {
 
-  fun PlayerSession.turn(vararg tasks: String, body: OperationBody.() -> Unit = {}) {
+  fun PlayerSession.turn(vararg tasks: String, body: OldOperationBody.() -> Unit = {}) {
     if (this.tasks.isEmpty()) {
       operation("NewTurn") {
         tasks.forEach(::task)
-        OperationBodyImpl().body()
+        OldOperationBodyImpl().body()
       }
     } else {
       finishOperation(*tasks, body = body)
@@ -25,13 +25,13 @@ object TerraformingMars {
       corpName: String,
       buyCards: Int,
       vararg tasks: String,
-      body: OperationBody.() -> Unit? = {}
+      body: OldOperationBody.() -> Unit? = {}
   ) {
     require(has("CorporationPhase"))
     return turn(corpName) {
       task(if (buyCards == 0) "Ok" else "$buyCards BuyCard")
       tasks.forEach(::task)
-      OperationBodyImpl().body()
+      OldOperationBodyImpl().body()
     }
   }
 
@@ -40,7 +40,7 @@ object TerraformingMars {
   fun PlayerSession.stdAction(
       stdAction: String,
       vararg tasks: String,
-      body: OperationBody.() -> Unit = {}
+      body: OldOperationBody.() -> Unit = {}
   ) {
     require(has("ActionPhase"))
     return turn("UseAction1<$stdAction>", *tasks) { body() }
@@ -49,13 +49,13 @@ object TerraformingMars {
   fun PlayerSession.stdProject(
       stdProject: String,
       vararg tasks: String,
-      body: OperationBody.() -> Unit = {}
+      body: OldOperationBody.() -> Unit = {}
   ) {
     require(has("ActionPhase"))
     return stdAction("UseStandardProject") {
       task("UseAction1<$stdProject>")
       tasks.forEach(::task)
-      OperationBodyImpl().body()
+      OldOperationBodyImpl().body()
     }
   }
 
@@ -63,7 +63,7 @@ object TerraformingMars {
       cardName: String,
       megacredits: Int = 0,
       vararg tasks: String,
-      body: OperationBody.() -> Unit = {}
+      body: OldOperationBody.() -> Unit = {}
   ) = playCard(cardName, megacredits, steel = 0, *tasks) { body() }
 
   fun PlayerSession.playCard(
@@ -71,7 +71,7 @@ object TerraformingMars {
       megacredits: Int = 0,
       steel: Int = 0,
       vararg tasks: String,
-      body: OperationBody.() -> Unit = {}
+      body: OldOperationBody.() -> Unit = {}
   ) = playCard(cardName, megacredits, steel, titanium = 0, *tasks) { body() }
 
   fun PlayerSession.playCard(
@@ -80,7 +80,7 @@ object TerraformingMars {
       steel: Int = 0,
       titanium: Int = 0,
       vararg taskStrings: String,
-      body: OperationBody.() -> Unit = {}
+      body: OldOperationBody.() -> Unit = {}
   ) {
 
     require(has("ActionPhase"))
@@ -109,27 +109,27 @@ object TerraformingMars {
           .forEach { writer.reviseTask(it, NoOp) } // "executes" automatically
       autoExec()
       taskStrings.forEach(::task)
-      OperationBodyImpl().body()
+      OldOperationBodyImpl().body()
     }
   }
 
   fun PlayerSession.cardAction1(
       cardName: String,
       vararg tasks: String,
-      body: OperationBody.() -> Unit = {}
+      body: OldOperationBody.() -> Unit = {}
   ) = cardAction(1, cardName, tasks.toList(), body)
 
   fun PlayerSession.cardAction2(
       cardName: String,
       vararg tasks: String,
-      body: OperationBody.() -> Unit = {}
+      body: OldOperationBody.() -> Unit = {}
   ) = cardAction(2, cardName, tasks.toList(), body)
 
   private fun PlayerSession.cardAction(
       which: Int,
       cardName: String,
       tasks: List<String>,
-      body: OperationBody.() -> Unit = {}
+      body: OldOperationBody.() -> Unit = {}
   ) {
     require(has(cardName))
     require(has("ActionPhase"))
@@ -137,7 +137,7 @@ object TerraformingMars {
       task("UseAction$which<$cardName>")
       task("ActionUsedMarker<$cardName>") // will become automatic?
       tasks.forEach(::task)
-      OperationBodyImpl().body()
+      OldOperationBodyImpl().body()
     }
   }
 

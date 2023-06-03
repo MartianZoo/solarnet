@@ -31,20 +31,13 @@ constructor(
     private val reader: GameReader,
     private val timeline: Timeline,
     private val player: Player,
-    val instructor: Instructor,
+    private val instructor: Instructor,
     private val changer: Changer,
 ) {
 
 
   // CHANGES LAYER
 
-
-  fun addTasks(instruction: Instruction, firstCause: Cause? = null): List<TaskAddedEvent> {
-    val prepped = split(instruction)
-    return tasks.addTasks(prepped, player, firstCause)
-  }
-
-  fun dropTask(taskId: TaskId): TaskRemovedEvent = tasks.removeTask(taskId)
 
   fun sneak(changes: Instruction, cause: Cause? = null) {
     split(changes).map {
@@ -61,6 +54,112 @@ constructor(
 
 
   // TASKS LAYER
+
+
+  fun addTasks(instruction: Instruction, firstCause: Cause? = null): List<TaskAddedEvent> {
+    val prepped = split(instruction)
+    return tasks.addTasks(prepped, player, firstCause)
+  }
+
+  fun dropTask(taskId: TaskId): TaskRemovedEvent = tasks.removeTask(taskId)
+
+
+  // OPERATIONS LAYER
+
+
+  fun operation(initialInstruction: Instruction, autoExec: AutoExecMode, body: () -> Unit) {
+    require(tasks.isEmpty()) { tasks }
+    addTasks(initialInstruction).forEach { doTask(it.task.id) }
+    complete(autoExec, body)
+  }
+
+  fun complete(autoExec: AutoExecMode, body: () -> Unit) {
+    autoExecNow(autoExec)
+    body()
+    autoExecNow(autoExec)
+
+    require(reader.has(parse("MAX 0 Temporary")))
+    require(tasks.isEmpty()) {
+      "Should be no tasks left, but:\n" + this.tasks.extract { it }.joinToString("\n")
+    }
+  }
+
+
+  @Suppress("ControlFlowWithEmptyBody")
+  fun autoExecNow(mode: AutoExecMode) { // TODO invert default or something
+    while (autoExecOneTask(mode)) {}
+  }
+
+  fun autoExecOneTask(mode: AutoExecMode): Boolean /* should we continue */ {
+    if (mode == NONE || tasks.isEmpty()) return false
+
+    // see if we can prepare a task (choose only from our own)
+    val options: List<TaskId> =
+        tasks.preparedTask()?.let(::listOf) ?: tasks.ids().filter(::canPrepareTask)
+
+    when (options.size) {
+      0 -> prepareTask(tasks.ids().first()).also { error("that should've failed") }
+      1 -> {
+        val taskId = options.single()
+        prepareTask(taskId)
+        if (tasks.preparedTask() == null) return true
+        try {
+          if (tryPreparedTask()) return true // if this fails we should fail too
+        } catch (e: DeadEndException) {
+          throw e.cause ?: e
+        }
+      }
+      else -> if (mode == SAFE) return false
+    }
+
+    var recoverable = false
+
+    // we're in unsafe mode. last resort: do the first task that executes
+    for (taskId in options) {
+      try {
+        doTask(taskId)
+        return true
+      } catch (e: RecoverableException) {
+        // we're in trouble if ALL of these are NotNowExceptions
+        if (e !is NotNowException) recoverable = true
+        explainTask(taskId, e.message ?: e::class.simpleName!!)
+      }
+    }
+    if (!recoverable) throw DeadEndException("")
+
+    return false // presumably everything is abstract
+  }
+
+  private fun explainTask(taskId: TaskId, reason: String) {
+    tasks.editTask(tasks.getTaskData(taskId).copy(whyPending = reason))
+  }
+
+  /**
+   * Remove a task because its [Task.instruction] has been handled; any [Task.then] instructions are
+   * automatically enqueued.
+   */
+  private fun handleTask(taskId: TaskId) {
+    val task = tasks.getTaskData(taskId)
+    task.then?.let { tasks.addTasks(split(it), task.owner, task.cause) }
+    tasks.removeTask(taskId)
+  }
+
+  private fun dontCutTheLine(taskId: TaskId) {
+    val already = tasks.preparedTask()
+    if (already != null && already != taskId) {
+      throw TaskException("task $already is already prepared and must be executed first")
+    }
+  }
+
+
+  // TURNS LAYER
+
+
+  fun startTurn() = execute("NewTurn<$player>")
+  fun startTurn2() = execute("NewTurn2<$player>")
+
+
+  // GAMES LAYER
 
 
   fun reviseTask(taskId: TaskId, revised: Instruction) {
@@ -139,10 +238,14 @@ constructor(
 
   private fun matchingTask(revised: Instruction): TaskId {
     val id = tasks.preparedTask() ?: tasks.matching {
-      it.owner == player &&
-          (revised.narrows(it.instruction, reader) ||
-              revised.narrows(instructor.prepare(it.instruction), reader))
-    }.single()
+      try {
+        it.owner == player &&
+            (revised.narrows(it.instruction, reader) ||
+                revised.narrows(instructor.prepare(it.instruction), reader))
+      } catch (e: NotNowException) {
+        false
+      }
+    }.firstOrNull() ?: throw TaskException("no matching task; tasks are: $tasks")
     return id
   }
 
@@ -178,84 +281,7 @@ constructor(
     }
   }
 
+  fun execute(instruction: String, fakeCause: Cause? = null): Unit =
+      addTasks(parse(instruction), fakeCause).forEach { doTask(it.task.id) }
 
-  // OPERATIONS LAYER
-
-
-  fun operation(initialInstruction: Instruction, body: () -> Unit = {}) {
-    require(tasks.isEmpty()) { tasks }
-    addTasks(initialInstruction).forEach { doTask(it.task.id) }
-
-    body()
-    require(reader.has(parse("MAX 0 Temporary")))
-    require(tasks.isEmpty()) {
-      "Should be no tasks left, but:\n" + this.tasks.extract { it }.joinToString("\n")
-    }
-  }
-
-  @Suppress("ControlFlowWithEmptyBody")
-  fun autoExec(mode: AutoExecMode) { // TODO invert default or something
-    while (autoExecOneTask(mode)) {}
-  }
-
-  fun autoExecOneTask(mode: AutoExecMode): Boolean /* should we continue */ {
-    if (mode == NONE || tasks.isEmpty()) return false
-
-    // see if we can prepare a task (choose only from our own)
-    val options: List<TaskId> =
-        tasks.preparedTask()?.let(::listOf) ?: tasks.ids().filter(::canPrepareTask)
-
-    when (options.size) {
-      0 -> prepareTask(tasks.ids().first()).also { error("that should've failed") }
-      1 -> {
-        val taskId = options.single()
-        prepareTask(taskId)
-        if (tasks.preparedTask() == null) return true
-        try {
-          if (tryPreparedTask()) return true // if this fails we should fail too
-        } catch (e: DeadEndException) {
-          throw e.cause ?: e
-        }
-      }
-      else -> if (mode == SAFE) return false
-    }
-
-    var recoverable = false
-
-    // we're in unsafe mode. last resort: do the first task that executes
-    for (taskId in options) {
-      try {
-        doTask(taskId)
-        return true
-      } catch (e: RecoverableException) {
-        // we're in trouble if ALL of these are NotNowExceptions
-        if (e !is NotNowException) recoverable = true
-        explainTask(taskId, e.message ?: e::class.simpleName!!)
-      }
-    }
-    if (!recoverable) throw DeadEndException("")
-
-    return false // presumably everything is abstract
-  }
-
-  private fun explainTask(taskId: TaskId, reason: String) {
-    tasks.editTask(tasks.getTaskData(taskId).copy(whyPending = reason))
-  }
-
-  /**
-   * Remove a task because its [Task.instruction] has been handled; any [Task.then] instructions are
-   * automatically enqueued.
-   */
-  private fun handleTask(taskId: TaskId) {
-    val task = tasks.getTaskData(taskId)
-    task.then?.let { tasks.addTasks(split(it), task.owner, task.cause) }
-    tasks.removeTask(taskId)
-  }
-
-  private fun dontCutTheLine(taskId: TaskId) {
-    val already = tasks.preparedTask()
-    if (already != null && already != taskId) {
-      throw TaskException("task $already is already prepared and must be executed first")
-    }
-  }
 }
