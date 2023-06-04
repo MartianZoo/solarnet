@@ -17,21 +17,15 @@ class AirScrappingExpeditionTest {
     with(game.gameplay(PLAYER1).turnLayer().operationLayer()) {
       initiate("3 ProjectCard, ForcedPrecipitation")
 
-      initiate("AtmoCollectors") {
-        doFirstTask("2 Floater<AtmoCollectors>")
-      }
+      initiate("AtmoCollectors") { doFirstTask("2 Floater<AtmoCollectors>") }
 
       assertCounts(2 to "Floater")
 
       assertThrows<NarrowingException>("1") {
-        initiate("AirScrappingExpedition") {
-          doFirstTask("3 Floater<AtmoCollectors>")
-        }
+        initiate("AirScrappingExpedition") { doFirstTask("3 Floater<AtmoCollectors>") }
       }
 
-      initiate("AirScrappingExpedition") {
-        doFirstTask("3 Floater<ForcedPrecipitation>")
-      }
+      initiate("AirScrappingExpedition") { doFirstTask("3 Floater<ForcedPrecipitation>") }
       assertCounts(5 to "Floater")
     }
   }

@@ -35,9 +35,7 @@ constructor(
     private val changer: Changer,
 ) {
 
-
   // CHANGES LAYER
-
 
   fun sneak(changes: Instruction, cause: Cause? = null) {
     split(changes).map {
@@ -52,9 +50,7 @@ constructor(
     }
   }
 
-
   // TASKS LAYER
-
 
   fun addTasks(instruction: Instruction, firstCause: Cause? = null): List<TaskAddedEvent> {
     val prepped = split(instruction)
@@ -63,9 +59,7 @@ constructor(
 
   fun dropTask(taskId: TaskId): TaskRemovedEvent = tasks.removeTask(taskId)
 
-
   // OPERATIONS LAYER
-
 
   fun operation(initialInstruction: Instruction, autoExec: AutoExecMode, body: () -> Unit) {
     require(tasks.isEmpty()) { tasks }
@@ -83,7 +77,6 @@ constructor(
     }
     require(reader.has(parse("MAX 0 Temporary")))
   }
-
 
   @Suppress("ControlFlowWithEmptyBody")
   fun autoExecNow(mode: AutoExecMode) { // TODO invert default or something
@@ -152,16 +145,12 @@ constructor(
     }
   }
 
-
   // TURNS LAYER
-
 
   fun startTurn() = execute("NewTurn<$player>")
   fun startTurn2() = execute("NewTurn2<$player>")
 
-
   // GAMES LAYER
-
 
   fun reviseTask(taskId: TaskId, revised: Instruction) {
     val task = tasks.getTaskData(taskId)
@@ -245,15 +234,21 @@ constructor(
   }
 
   private fun matchingTask(revised: Instruction): TaskId {
-    val id = tasks.preparedTask() ?: tasks.matching {
-      try {
-        it.owner == player &&
-            (revised.narrows(it.instruction, reader) ||
-                revised.narrows(instructor.prepare(it.instruction), reader))
-      } catch (e: NotNowException) {
-        false
-      }
-    }.firstOrNull() ?: throw TaskException("no matching task; tasks are: $tasks")
+    // TODO simplify this madness
+    val id =
+        tasks.preparedTask()
+            ?: tasks
+                .matching {
+                  try {
+                    it.owner == player &&
+                        (revised.narrows(it.instruction, reader) ||
+                            revised.narrows(instructor.prepare(it.instruction), reader))
+                  } catch (e: NotNowException) {
+                    false
+                  }
+                }
+                .firstOrNull()
+                ?: throw TaskException("no matching task; tasks are: $tasks")
     return id
   }
 
@@ -291,5 +286,4 @@ constructor(
 
   fun execute(instruction: String, fakeCause: Cause? = null): Unit =
       addTasks(parse(instruction), fakeCause).forEach { doTask(it.task.id) }
-
 }

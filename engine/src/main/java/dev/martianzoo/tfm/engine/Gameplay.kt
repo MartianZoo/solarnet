@@ -19,12 +19,12 @@ interface Gameplay {
   fun count(metric: String): Int
 
   /**
-   * Voluntarily replaces a task's instruction with a strictly more specific revision, as the
-   * owner of an abstract task is allowed to do. Preserves [Task.next], and if `true`, re-prepares
-   * the new instruction if necessary. Executes nothing.
+   * Voluntarily replaces a task's instruction with a strictly more specific revision, as the owner
+   * of an abstract task is allowed to do. Preserves [Task.next], and if `true`, re-prepares the new
+   * instruction if necessary. Executes nothing.
    *
-   * @param [revised] the new instruction; may be abstract; if identical to the current
-   *   instruction this method does nothing
+   * @param [revised] the new instruction; may be abstract; if identical to the current instruction
+   *   this method does nothing
    * @throws [TaskException] if there is no task by this id owned by the player
    * @throws [NarrowingException] if [revised] is not a valid narrowing of the task's instruction
    */
@@ -56,9 +56,9 @@ interface Gameplay {
 
   /**
    * Carries out a concrete task. Prepares the task first if necessary. As part of this, executes
-   * any *automatic* triggered effect, enqueues the remaining triggered effects and any contents
-   * of [Task.then], and removes the original task from the game's task queue. Throws an exception
-   * if any of this fails.
+   * any *automatic* triggered effect, enqueues the remaining triggered effects and any contents of
+   * [Task.then], and removes the original task from the game's task queue. Throws an exception if
+   * any of this fails.
    *
    * @throws [TaskException] if no prepared task by the id [taskId] is present
    * @throws [AbstractException] if the task is abstract
@@ -91,10 +91,7 @@ interface Gameplay {
 
   // Green
   interface OperationLayer : TurnLayer {
-    fun initiate(
-        initialInstruction: String,
-        body: BodyLambda = {}
-    ): TaskResult
+    fun initiate(initialInstruction: String, body: BodyLambda = {}): TaskResult
 
     fun complete(body: BodyLambda = {}): TaskResult
 

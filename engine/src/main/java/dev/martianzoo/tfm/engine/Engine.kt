@@ -58,8 +58,7 @@ public object Engine {
     @Provides fun reader(x: GameReaderImpl): GameReader = x
   }
 
-  @Scope
-  annotation class PlayerScope
+  @Scope annotation class PlayerScope
 
   @PlayerScope
   @Subcomponent(modules = [PlayerModule::class])

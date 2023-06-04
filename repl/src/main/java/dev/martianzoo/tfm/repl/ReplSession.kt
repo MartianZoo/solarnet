@@ -299,18 +299,18 @@ public class ReplSession(var setup: GameSetup, private val jline: JlineRepl? = n
     override fun noArgs() = MapToText(session.reader, jline != null).map()
   }
 
-//  var workflow: Workflow? = null
-//
-//  internal inner class StartCommand : ReplCommand("start") {
-//    override val usage = ""
-//    override val help = ""
-//
-//    override fun noArgs(): List<String> {
-//      require(workflow == null)
-//      workflow = Workflow(game).also { it.start() }
-//      return listOf("I think it started?")
-//    }
-//  }
+  //  var workflow: Workflow? = null
+  //
+  //  internal inner class StartCommand : ReplCommand("start") {
+  //    override val usage = ""
+  //    override val help = ""
+  //
+  //    override fun noArgs(): List<String> {
+  //      require(workflow == null)
+  //      workflow = Workflow(game).also { it.start() }
+  //      return listOf("I think it started?")
+  //    }
+  //  }
 
   internal inner class ModeCommand : ReplCommand("mode") {
     override val usage = "mode <mode name>"
@@ -397,10 +397,10 @@ public class ReplSession(var setup: GameSetup, private val jline: JlineRepl? = n
     private fun Instruction.isGainOf(superclass: ClassName): Boolean =
         when (this) {
           is Change ->
-            gaining?.let {
-              val t = session.reader.resolve(it) as MType
-              t.isSubtypeOf(session.reader.resolve(superclass.expression) as MType)
-            } ?: false
+              gaining?.let {
+                val t = session.reader.resolve(it) as MType
+                t.isSubtypeOf(session.reader.resolve(superclass.expression) as MType)
+              } ?: false
           is Instruction.Transform -> instruction.isGainOf(superclass)
           else -> false
         }
@@ -579,14 +579,16 @@ public class ReplSession(var setup: GameSetup, private val jline: JlineRepl? = n
     override fun withArgs(args: String): List<String> {
       val (expression, type) =
           if (args == "random") {
-            val type = session.reader.resolve(CLASS.expression)
-                .let(session.reader::getComponents)
-                .expressions()
-                .map { it.arguments.single() }
-                .random()
-                .let { session.reader.resolve(it) as MType }
-                .concreteSubtypesSameClass()
-                .random()
+            val type =
+                session.reader
+                    .resolve(CLASS.expression)
+                    .let(session.reader::getComponents)
+                    .expressions()
+                    .map { it.arguments.single() }
+                    .random()
+                    .let { session.reader.resolve(it) as MType }
+                    .concreteSubtypesSameClass()
+                    .random()
             type.expressionFull to type
           } else {
             val expression: Expression = parse(args)

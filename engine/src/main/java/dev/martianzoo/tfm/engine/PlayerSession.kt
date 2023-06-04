@@ -258,8 +258,8 @@ public class PlayerSession(
   }
 
   fun task(revised: String) {
-    val id = tasks.matching { it.owner == player }.firstOrNull() ?:
-        throw NotNowException("no tasks")
+    val id =
+        tasks.matching { it.owner == player }.firstOrNull() ?: throw NotNowException("no tasks")
     writer.reviseTask(id, preprocess(parse(revised)))
     if (id in tasks) writer.executeTask(id)
     autoExec()

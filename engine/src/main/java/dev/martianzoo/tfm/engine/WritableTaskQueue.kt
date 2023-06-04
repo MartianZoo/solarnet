@@ -17,8 +17,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 /**
- * ...
- * With any change to the task queue, a set of normalizations is *always* applied. Here, the
+ * ... With any change to the task queue, a set of normalizations is *always* applied. Here, the
  * notation `a >> b` is used for a task whose [Task.instruction] is `a` and whose [Task.then] is
  * `b`.
  * * Removing task `a >> b` first creates task `b >> null`
@@ -30,9 +29,8 @@ import javax.inject.Singleton
  * * `a THEN b >> c` where `a THEN b` is separable is rewritten to `a >> b THEN c`
  * * `a, Ok` becomes `a`
  * * `a, Die` becomes `Die`
- * * A concrete task with [Task.next] set is guaranteed to execute successfully *
- * New tasks created have the same owner and cause as the original. Prepared tasks cannot be
- * split.
+ * * A concrete task with [Task.next] set is guaranteed to execute successfully
+ * * New tasks created have the same owner and cause as the original. Prepared tasks cannot be split
  */
 @Singleton
 internal class WritableTaskQueue @Inject constructor(private val events: TaskListener) : TaskQueue {

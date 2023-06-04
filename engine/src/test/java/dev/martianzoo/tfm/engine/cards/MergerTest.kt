@@ -20,9 +20,7 @@ class MergerTest {
 
       phase("Prelude")
       playPrelude("UnmiContractor")
-      playPrelude("Merger") {
-        doTask("PlayCard<Class<CorporationCard>, Class<Celestic>>")
-      }
+      playPrelude("Merger") { doTask("PlayCard<Class<CorporationCard>, Class<Celestic>>") }
 
       phase("Action")
       assertCounts(2 to "Mandate", 0 to "PreludeCard", 6 to "ProjectCard")

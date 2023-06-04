@@ -48,8 +48,7 @@ constructor(
 
   // CHANGES
 
-  override fun sneak(changes: String, fakeCause: Cause?) =
-      writer.sneak(changes, fakeCause)
+  override fun sneak(changes: String, fakeCause: Cause?) = writer.sneak(changes, fakeCause)
 
   // TASKS
 
@@ -63,18 +62,12 @@ constructor(
   // TODO rename manual?
   override fun initiate(initialInstruction: String, body: BodyLambda): TaskResult {
     return timeline.atomic {
-      impl.operation(parse(initialInstruction), autoExecMode) {
-        Adapter().body()
-      }
+      impl.operation(parse(initialInstruction), autoExecMode) { Adapter().body() }
     }
   }
 
   override fun complete(body: BodyLambda): TaskResult {
-    return timeline.atomic {
-      impl.complete(autoExecMode) {
-        Adapter().body()
-      }
-    }
+    return timeline.atomic { impl.complete(autoExecMode) { Adapter().body() } }
   }
 
   private inner class Adapter : OperationBody {

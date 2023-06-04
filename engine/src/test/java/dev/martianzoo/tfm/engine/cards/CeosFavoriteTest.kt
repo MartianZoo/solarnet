@@ -19,17 +19,13 @@ class CeosFavoriteTest {
 
       // We can't CEO's onto an empty card
       assertThrows<DependencyException> {
-        initiate("CeosFavoriteProject") {
-          doTask("Floater<ForcedPrecipitation>")
-        }
+        initiate("CeosFavoriteProject") { doTask("Floater<ForcedPrecipitation>") }
       }
 
       taskLayer().changeLayer().sneak("Floater<ForcedPrecipitation>")
       assertCounts(1 to "Floater")
 
-      initiate("CeosFavoriteProject") {
-        doTask("Floater<ForcedPrecipitation>")
-      }
+      initiate("CeosFavoriteProject") { doTask("Floater<ForcedPrecipitation>") }
       assertCounts(2 to "Floater")
     }
   }

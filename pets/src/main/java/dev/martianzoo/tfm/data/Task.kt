@@ -32,8 +32,8 @@ public data class Task(
     val next: Boolean = false,
 
     /**
-     * What to do. Can be abstract. If so, it will have to be revised to something narrower
-     * and concrete before it is executed. Normalized to [instruction].
+     * What to do. Can be abstract. If so, it will have to be revised to something narrower and
+     * concrete before it is executed. Normalized to [instruction].
      */
     private val instructionIn: Instruction,
 
