@@ -7,9 +7,8 @@ import dev.martianzoo.tfm.data.GameSetup
 import dev.martianzoo.tfm.data.Player.Companion.PLAYER1
 import dev.martianzoo.tfm.data.Player.Companion.PLAYER2
 import dev.martianzoo.tfm.engine.Engine
-import dev.martianzoo.tfm.engine.OldTfmHelpers.production
-import dev.martianzoo.tfm.engine.PlayerSession
-import dev.martianzoo.tfm.engine.PlayerSession.Companion.session
+import dev.martianzoo.tfm.engine.TerraformingMarsApi
+import dev.martianzoo.tfm.engine.TerraformingMarsApi.Companion.tfm
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 
@@ -19,13 +18,14 @@ class RoboticWorkforceTest {
   fun roboticWorkforce() {
     val game = Engine.newGame(GameSetup(Canon, "BRMP", 2))
 
-    with(game.session(PLAYER1)) {
-      operation("4 ProjectCard, MassConverter, StripMine, IndustrialMicrobes")
+    with(game.tfm(PLAYER1)) {
+      gameplay.operationLayer().initiate(
+          "4 ProjectCard, MassConverter, StripMine, IndustrialMicrobes")
       checkProduction(0, 3, 1, 0, 5, 0)
 
-      game.session(PLAYER2).operation("ProjectCard, Mine")
+      game.tfm(PLAYER2).gameplay.operationLayer().initiate("ProjectCard, Mine")
 
-      operation("RoboticWorkforce") {
+      gameplay.operationLayer().initiate("RoboticWorkforce") {
         checkProduction(0, 3, 1, 0, 5, 0)
 
         Truth.assertThat(tasks.extract { it.whyPending })
@@ -34,21 +34,22 @@ class RoboticWorkforceTest {
                     " is abstract")
 
         // This card has no building tag so it won't work
-        assertThrows<NarrowingException>("1") { task("CopyProductionBox<MassConverter>") }
+        assertThrows<NarrowingException>("1") { doTask("CopyProductionBox<MassConverter>") }
 
         // This card is someone else's (see what I did there)
-        assertThrows<NarrowingException>("2") { task("CopyProductionBox<Mine<Player2>>") }
+        assertThrows<NarrowingException>("2") { doTask("CopyProductionBox<Mine<Player2>>") }
 
         // Obviously pretending it's mine is no help
-        assertThrows<NarrowingException>("3") { task("CopyProductionBox<Mine>") }
-        assertThrows<NarrowingException>("4") { task("CopyProductionBox<Mine<Player1>>") }
+        assertThrows<NarrowingException>("3") { doTask("CopyProductionBox<Mine>") }
 
-        task("CopyProductionBox<StripMine>")
+        assertThrows<NarrowingException>("4") { doTask("CopyProductionBox<Mine<Player1>>") }
+
+        doTask("CopyProductionBox<StripMine>")
       }
-      checkProduction(0, 5, 2, 0, 3, 0)
+      this.checkProduction(0, 5, 2, 0, 3, 0) // make annoying idea warning go away
     }
   }
 
-  private fun PlayerSession.checkProduction(vararg exp: Int) =
+  private fun TerraformingMarsApi.checkProduction(vararg exp: Int) =
       Truth.assertThat(production().values).containsExactlyElementsIn(exp.toList()).inOrder()
 }
