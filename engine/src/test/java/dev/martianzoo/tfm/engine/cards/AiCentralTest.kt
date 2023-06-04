@@ -7,7 +7,7 @@ import dev.martianzoo.tfm.data.GameSetup
 import dev.martianzoo.tfm.data.Player.Companion.ENGINE
 import dev.martianzoo.tfm.data.Player.Companion.PLAYER1
 import dev.martianzoo.tfm.engine.Engine
-import dev.martianzoo.tfm.engine.TerraformingMarsApi
+import dev.martianzoo.tfm.engine.TerraformingMarsApi.Companion.tfm
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -17,7 +17,7 @@ class AiCentralTest {
   fun aiCentral() {
     val game = Engine.newGame(GameSetup(Canon, "BRM", 2))
 
-    with(TerraformingMarsApi(game, PLAYER1)) {
+    with(game.tfm(PLAYER1)) {
       sneak("5 ProjectCard, 100, Steel")
 
       phase("Action")

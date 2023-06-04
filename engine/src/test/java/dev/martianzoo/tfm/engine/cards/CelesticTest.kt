@@ -6,7 +6,7 @@ import dev.martianzoo.tfm.data.GameSetup
 import dev.martianzoo.tfm.data.Player.Companion.PLAYER1
 import dev.martianzoo.tfm.data.Player.Companion.PLAYER2
 import dev.martianzoo.tfm.engine.Engine
-import dev.martianzoo.tfm.engine.TerraformingMarsApi
+import dev.martianzoo.tfm.engine.TerraformingMarsApi.Companion.tfm
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -15,8 +15,8 @@ class CelesticTest {
   @Test
   fun celestic() {
     val game = Engine.newGame(GameSetup(Canon, "BRMV", 2))
-    val p1 = TerraformingMarsApi(game, PLAYER1)
-    val p2 = TerraformingMarsApi(game, PLAYER2)
+    val p1 = game.tfm(PLAYER1)
+    val p2 = game.tfm(PLAYER2)
 
     with(p1) {
       playCorp("Celestic", 5)
