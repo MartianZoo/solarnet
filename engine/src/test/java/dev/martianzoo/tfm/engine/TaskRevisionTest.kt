@@ -10,7 +10,6 @@ import dev.martianzoo.tfm.data.GameEvent.TaskRemovedEvent
 import dev.martianzoo.tfm.data.Player.Companion.PLAYER1
 import dev.martianzoo.tfm.data.Task.TaskId
 import dev.martianzoo.tfm.data.TaskResult
-import dev.martianzoo.tfm.engine.PlayerSession.Companion.session
 import dev.martianzoo.tfm.engine.Timeline.Checkpoint
 import dev.martianzoo.tfm.pets.Parsing.parse
 import dev.martianzoo.tfm.pets.ast.Instruction.NoOp
@@ -27,7 +26,6 @@ class TaskRevisionTest {
   private val tasks = game.tasks
   private val events = game.events
   private val writer = game.writer(PLAYER1)
-  private val session = game.session(PLAYER1)
   private val start = game.timeline.checkpoint()
 
   @Test
@@ -142,8 +140,7 @@ class TaskRevisionTest {
     // Not the point of this test class, but incidentally, we're at a dead end
     assertThrows<LimitsException> { writer.prepareTask(A) }
     assertThrows<LimitsException> { writer.executeTask(A) }
-    assertThrows<LimitsException> { session.autoExecOneTask(true) }
-    assertThrows<LimitsException> { session.autoExecOneTask(false) }
+    assertThrows<LimitsException> { game.gameplay(PLAYER1).autoExecNow() }
   }
 
   @Test
