@@ -5,21 +5,11 @@ import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.data.GameSetup
 import dev.martianzoo.tfm.data.Player
 import dev.martianzoo.tfm.engine.Engine
-import dev.martianzoo.tfm.engine.PlayerSession
-import dev.martianzoo.tfm.engine.PlayerSession.Companion.session
-import dev.martianzoo.tfm.engine.OldTfmHelpers.cardAction1
-import dev.martianzoo.tfm.engine.OldTfmHelpers.cardAction2
-import dev.martianzoo.tfm.engine.OldTfmHelpers.oxygenPercent
-import dev.martianzoo.tfm.engine.OldTfmHelpers.pass
-import dev.martianzoo.tfm.engine.OldTfmHelpers.phase
-import dev.martianzoo.tfm.engine.OldTfmHelpers.playCard
-import dev.martianzoo.tfm.engine.OldTfmHelpers.playCorp
-import dev.martianzoo.tfm.engine.OldTfmHelpers.stdProject
-import dev.martianzoo.tfm.engine.OldTfmHelpers.temperatureC
-import dev.martianzoo.tfm.engine.OldTfmHelpers.turn
-import dev.martianzoo.tfm.engine.OldTfmHelpers.venusPercent
+import dev.martianzoo.tfm.engine.TerraformingMarsApi
+import dev.martianzoo.tfm.engine.TerraformingMarsApi.Companion.tfm
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
 import dev.martianzoo.tfm.engine.TestHelpers.assertProds
+import dev.martianzoo.tfm.engine.Timeline.AbortOperationException
 import org.junit.jupiter.api.Test
 
 class Game20230521Test {
@@ -29,20 +19,20 @@ class Game20230521Test {
   @Test
   fun game() {
     val game = Engine.newGame(GameSetup(Canon, "BRMVPXCT", 2))
-    val engine = game.session(Player.ENGINE)
+    val engine = game.tfm(Player.ENGINE)
 
     // https://terraforming-mars.herokuapp.com/player?id=p34f0f06d4ba2
-    val blue = game.session(Player.PLAYER1)
+    val blue = game.tfm(Player.PLAYER1)
 
     // https://terraforming-mars.herokuapp.com/player?id=p938b42ad50a9
-    val purp = game.session(Player.PLAYER2)
+    val purp = game.tfm(Player.PLAYER2)
 
     fun newGeneration(cards1: Int, cards2: Int) {
       with(engine) {
         phase("Production")
-        operation("ResearchPhase FROM Phase") {
-          blue.task(if (cards1 > 0) "$cards1 BuyCard" else "Ok")
-          purp.task(if (cards2 > 0) "$cards2 BuyCard" else "Ok")
+        turns.operationLayer().initiate("ResearchPhase FROM Phase") {
+          blue.turns.doTask(if (cards1 > 0) "$cards1 BuyCard" else "Ok")
+          purp.turns.doTask(if (cards2 > 0) "$cards2 BuyCard" else "Ok")
         }
         phase("Action")
       }
@@ -56,33 +46,33 @@ class Game20230521Test {
     engine.phase("Prelude")
 
     with(blue) {
-      turn("NewPartner", "UnmiContractor")
-      turn("AlliedBank")
+      playPrelude("NewPartner") { playPrelude("UnmiContractor") }
+      playPrelude("AlliedBank")
     }
 
     with(purp) {
-      turn("AcquiredSpaceAgency")
-      turn("IoResearchOutpost")
+      playPrelude("AcquiredSpaceAgency")
+      playPrelude("IoResearchOutpost")
     }
 
     engine.phase("Action")
 
-    blue.playCard("InventorsGuild", 9)
-    blue.cardAction1("InventorsGuild", "BuyCard")
+    blue.playProject("InventorsGuild", 9)
+    blue.cardAction1("InventorsGuild") { doTask("BuyCard") }
 
-    purp.playCard("ArcticAlgae", 12)
+    purp.playProject("ArcticAlgae", 12)
     purp.cardAction1("Factorum")
 
     blue.stdProject("PowerPlantSP")
-    blue.playCard("BuildingIndustries", 4, steel = 1)
+    blue.playProject("BuildingIndustries", 4, steel = 1)
     blue.pass()
 
-    purp.playCard("RotatorImpacts", titanium = 2)
-    purp.cardAction1("RotatorImpacts", "2 Pay<Class<T>> FROM T")
-    purp.writer.sneak("6") // the titanium were supposed to fill that TODO
+    purp.playProject("RotatorImpacts", titanium = 2)
+    purp.cardAction1("RotatorImpacts") { doTask("2 Pay<Class<T>> FROM T") }
+    purp.sneak("6") // the titanium were supposed to fill that TODO
 
-    purp.playCard("CarbonateProcessing", 6)
-    purp.playCard("Archaebacteria", 6)
+    purp.playProject("CarbonateProcessing", 6)
+    purp.playProject("Archaebacteria", 6)
     purp.pass()
 
     newGeneration(2, 2)
@@ -108,19 +98,19 @@ class Game20230521Test {
     engine.assertSidebar(2, -30, 0, 0, 0)
 
     purp.cardAction2("Factorum")
-    purp.playCard("MarsUniversity", 6, steel = 1)
+    purp.playProject("MarsUniversity", 6, steel = 1)
 
-    blue.cardAction1("InventorsGuild", "BuyCard")
-    blue.playCard("EarthOffice", 1)
+    blue.cardAction1("InventorsGuild") { doFirstTask("BuyCard") }
+    blue.playProject("EarthOffice", 1)
 
     purp.cardAction2("RotatorImpacts")
     purp.pass()
 
     blue.stdProject("PowerPlantSP")
-    blue.playCard("DevelopmentCenter", 1, steel = 5)
+    blue.playProject("DevelopmentCenter", 1, steel = 5)
     blue.cardAction1("DevelopmentCenter")
-    blue.playCard("InvestmentLoan", 0)
-    blue.playCard("DeuteriumExport", 11)
+    blue.playProject("InvestmentLoan", 0)
+    blue.playProject("DeuteriumExport", 11)
     blue.cardAction1("DeuteriumExport")
     blue.pass()
 
@@ -145,19 +135,19 @@ class Game20230521Test {
     engine.assertSidebar(3, -30, 0, 0, 2)
 
     blue.cardAction1("DevelopmentCenter")
-    blue.cardAction1("InventorsGuild", "Ok")
+    blue.cardAction1("InventorsGuild") { doFirstTask("Ok") }
 
     purp.cardAction1("Factorum")
-    purp.playCard("AsteroidCard", 2, steel = 0, titanium = 4, "Ok")
+    purp.playProject("AsteroidCard", 2, steel = 0, titanium = 4) { doFirstTask("Ok") }
 
-    blue.playCard("CorporateStronghold", 5, steel = 3, "CityTile<Tharsis_4_6>")
-    blue.playCard("OptimalAerobraking", 7)
+    blue.playProject("CorporateStronghold", 5, steel = 3) { doTask("CityTile<Tharsis_4_6>") }
+    blue.playProject("OptimalAerobraking", 7)
 
-    purp.playCard("TransNeptuneProbe", 0, titanium = 2)
-    purp.cardAction1("RotatorImpacts", "Ok")
+    purp.playProject("TransNeptuneProbe", 0, titanium = 2)
+    purp.cardAction1("RotatorImpacts") { doFirstTask("Ok") } // titanium, sigh
 
     blue.cardAction2("DeuteriumExport")
-    blue.playCard("ImportedGhg", 4)
+    blue.playProject("ImportedGhg", 4)
 
     newGeneration(0, 0)
     with(blue) {
@@ -179,12 +169,12 @@ class Game20230521Test {
     engine.assertSidebar(4, -28, 0, 0, 2)
   }
 
-  fun PlayerSession.assertTags(vararg pair: Pair<Int, String>) {
+  fun TerraformingMarsApi.assertTags(vararg pair: Pair<Int, String>) {
     assertCounts(*pair)
-    assertThat(count("Tag")).isEqualTo(pair.toList().sumOf { it.first })
+    assertThat(turns.count("Tag")).isEqualTo(pair.toList().sumOf { it.first })
   }
 
-  fun PlayerSession.assertSidebar(gen: Int, temp: Int, oxygen: Int, oceans: Int, venus: Int) {
+  fun TerraformingMarsApi.assertSidebar(gen: Int, temp: Int, oxygen: Int, oceans: Int, venus: Int) {
     assertCounts(gen to "Generation")
     assertThat(temperatureC()).isEqualTo(temp)
     assertThat(oxygenPercent()).isEqualTo(oxygen)
@@ -192,21 +182,22 @@ class Game20230521Test {
     assertThat(venusPercent()).isEqualTo(venus)
   }
 
-  fun PlayerSession.assertDashMiddle(played: Int, actions: Int, vp: Int, tr: Int, hand: Int) {
+  fun TerraformingMarsApi.assertDashMiddle(played: Int, actions: Int, vp: Int, tr: Int, hand: Int) {
     assertCounts(hand to "ProjectCard", tr to "TR", played to "CardFront + PlayedEvent")
     assertActions(actions)
     assertVps(vp)
   }
 
-  fun PlayerSession.assertVps(expected: Int) {
-    operation("End FROM Phase") {
-      autoExec()
+  fun TerraformingMarsApi.assertVps(expected: Int) {
+    turns.operationLayer().initiate("End FROM Phase") {
+      autoExecNow()
       assertCounts(expected to "VP")
-      abortAndRollBack()
+      throw AbortOperationException()
     }
   }
 
-  fun PlayerSession.assertActions(expected: Int) {
-    assertThat(count("ActionCard") - count("ActionUsedMarker")).isEqualTo(expected)
+  fun TerraformingMarsApi.assertActions(expected: Int) {
+    assertThat(turns.count("ActionCard") - turns.count("ActionUsedMarker"))
+        .isEqualTo(expected)
   }
 }
