@@ -10,13 +10,18 @@ object TestHelpers {
           .containsExactlyElementsIn(pairs.map { it.first })
           .inOrder()
 
-  fun PlayerSession.assertProds(vararg pairs: Pair<Int, String>) =
-      assertThat(pairs.map { production(cn(it.second)) })
+  fun TerraformingMarsApi.assertCounts(vararg pairs: Pair<Int, String>) =
+      assertThat(pairs.map { turns.count(it.second) })
           .containsExactlyElementsIn(pairs.map { it.first })
           .inOrder()
 
-  fun TerraformingMarsApi.assertCounts(vararg pairs: Pair<Int, String>) =
-      assertThat(pairs.map { game.count(it.second) })
+  fun Gameplay.assertCounts(vararg pairs: Pair<Int, String>) =
+      assertThat(pairs.map { count(it.second) })
+          .containsExactlyElementsIn(pairs.map { it.first })
+          .inOrder()
+
+  fun PlayerSession.assertProds(vararg pairs: Pair<Int, String>) =
+      assertThat(pairs.map { production(cn(it.second)) })
           .containsExactlyElementsIn(pairs.map { it.first })
           .inOrder()
 

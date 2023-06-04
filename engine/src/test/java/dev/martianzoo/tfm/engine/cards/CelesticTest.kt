@@ -6,14 +6,7 @@ import dev.martianzoo.tfm.data.GameSetup
 import dev.martianzoo.tfm.data.Player.Companion.PLAYER1
 import dev.martianzoo.tfm.data.Player.Companion.PLAYER2
 import dev.martianzoo.tfm.engine.Engine
-import dev.martianzoo.tfm.engine.PlayerSession.Companion.session
-import dev.martianzoo.tfm.engine.OldTfmHelpers.pass
-import dev.martianzoo.tfm.engine.OldTfmHelpers.phase
-import dev.martianzoo.tfm.engine.OldTfmHelpers.playCard
-import dev.martianzoo.tfm.engine.OldTfmHelpers.playCorp
-import dev.martianzoo.tfm.engine.OldTfmHelpers.stdAction
-import dev.martianzoo.tfm.engine.OldTfmHelpers.stdProject
-import dev.martianzoo.tfm.engine.OldTfmHelpers.turn
+import dev.martianzoo.tfm.engine.TerraformingMarsApi
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -22,7 +15,10 @@ class CelesticTest {
   @Test
   fun celestic() {
     val game = Engine.newGame(GameSetup(Canon, "BRMV", 2))
-    with(game.session(PLAYER1)) {
+    val p1 = TerraformingMarsApi(game, PLAYER1)
+    val p2 = TerraformingMarsApi(game, PLAYER2)
+
+    with(p1) {
       playCorp("Celestic", 5)
       assertCounts(5 to "ProjectCard", 27 to "M")
 
@@ -34,16 +30,16 @@ class CelesticTest {
       pass()
 
       phase("Production")
-      operation("ResearchPhase FROM Phase") {
-        task("2 BuyCard")
-        asPlayer(PLAYER2).task("2 BuyCard")
+      this.turns.operationLayer().initiate("ResearchPhase FROM Phase") {
+        doFirstTask("2 BuyCard")
+        p2.turns.doTask("2 BuyCard")
       }
       phase("Action")
       assertThrows<NarrowingException> { playCard("Mine") }
 
       assertCounts(1 to "Mandate")
       assertCounts(7 to "ProjectCard")
-      turn("UseAllMandates")
+      this.turns.turn { doTask("UseAllMandates") }
       assertCounts(9 to "ProjectCard")
       playCard("Mine", 4)
     }

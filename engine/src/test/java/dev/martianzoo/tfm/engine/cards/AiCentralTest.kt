@@ -16,14 +16,11 @@ class AiCentralTest {
   @Test
   fun aiCentral() {
     val game = Engine.newGame(GameSetup(Canon, "BRM", 2))
-    val eng = TerraformingMarsApi(game, ENGINE)
-    val p1 = TerraformingMarsApi(game, PLAYER1)
 
-    eng.phase("Action")
-
-    with(p1) {
+    with(TerraformingMarsApi(game, PLAYER1)) {
       sneak("5 ProjectCard, 100, Steel")
 
+      phase("Action")
       playCard("SearchForLife", 3)
       playCard("InventorsGuild", 9)
 
@@ -51,7 +48,7 @@ class AiCentralTest {
       assertCounts(1 to "ActionUsedMarker<AiCentral>")
 
       // Next gen we can again
-      eng.game.operationLayer().initiate("Generation")
+      asPlayer(ENGINE).turns.operationLayer().initiate("Generation")
 
       cardAction1("AiCentral")
       assertCounts(5 to "ProjectCard")
