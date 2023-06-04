@@ -7,7 +7,7 @@ import dev.martianzoo.tfm.data.GameSetup
 import dev.martianzoo.tfm.data.Player.Companion.ENGINE
 import dev.martianzoo.tfm.data.Player.Companion.PLAYER1
 import dev.martianzoo.tfm.engine.Engine
-import dev.martianzoo.tfm.engine.NewTerraformingMars
+import dev.martianzoo.tfm.engine.TerraformingMarsApi
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -16,8 +16,8 @@ class AiCentralTest {
   @Test
   fun aiCentral() {
     val game = Engine.newGame(GameSetup(Canon, "BRM", 2))
-    val eng = NewTerraformingMars(game, ENGINE)
-    val p1 = NewTerraformingMars(game, PLAYER1)
+    val eng = TerraformingMarsApi(game, ENGINE)
+    val p1 = TerraformingMarsApi(game, PLAYER1)
 
     eng.phase("Action")
 
@@ -51,7 +51,7 @@ class AiCentralTest {
       assertCounts(1 to "ActionUsedMarker<AiCentral>")
 
       // Next gen we can again
-      eng.game.operationsLayer().initiate("Generation")
+      eng.game.operationLayer().initiate("Generation")
 
       cardAction1("AiCentral")
       assertCounts(5 to "ProjectCard")

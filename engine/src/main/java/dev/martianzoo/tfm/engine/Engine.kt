@@ -64,7 +64,7 @@ public object Engine {
   @Subcomponent(modules = [PlayerModule::class])
   internal interface PlayerComponent {
     val writer: GameWriter // TODO phase out?
-    val gamesLayer: Layers.Games
+    val gameplay: Gameplay
     val initter: Initializer // only used for Engine
   }
 
@@ -73,11 +73,11 @@ public object Engine {
     @Provides fun player(): Player = player
     @Provides fun writer(x: PlayerAgent): GameWriter = x
 
-    @Provides fun gamesLayer(x: ApiTranslation): Layers.Games = x
-    @Provides fun turnsLayer(x: ApiTranslation): Layers.Turns = x
-    @Provides fun operationsLayer(x: ApiTranslation): Layers.Operations = x
-    @Provides fun tasksLayer(x: ApiTranslation): Layers.Tasks = x
-    @Provides fun changesLayer(x: ApiTranslation): Layers.Changes = x
+    @Provides fun gamesLayer(x: ApiTranslation): Gameplay = x
+    @Provides fun turnsLayer(x: ApiTranslation): Gameplay.TurnLayer = x
+    @Provides fun operationsLayer(x: ApiTranslation): Gameplay.OperationLayer = x
+    @Provides fun tasksLayer(x: ApiTranslation): Gameplay.TaskLayer = x
+    @Provides fun changesLayer(x: ApiTranslation): Gameplay.ChangeLayer = x
   }
 
   // Some minor helper interfaces... many classes just need one small part of another class's

@@ -78,22 +78,22 @@ constructor(
     body()
     autoExecNow(autoExec)
 
-    require(reader.has(parse("MAX 0 Temporary")))
     require(tasks.isEmpty()) {
       "Should be no tasks left, but:\n" + this.tasks.extract { it }.joinToString("\n")
     }
+    require(reader.has(parse("MAX 0 Temporary")))
   }
 
 
   @Suppress("ControlFlowWithEmptyBody")
   fun autoExecNow(mode: AutoExecMode) { // TODO invert default or something
-    while (autoExecOneTask(mode)) {}
+    while (autoExecNext(mode)) {}
   }
 
-  fun autoExecOneTask(mode: AutoExecMode): Boolean /* should we continue */ {
+  private fun autoExecNext(mode: AutoExecMode): Boolean /* should we continue */ {
     if (mode == NONE || tasks.isEmpty()) return false
 
-    // see if we can prepare a task (choose only from our own)
+    // see if we can prepare a task
     val options: List<TaskId> =
         tasks.preparedTask()?.let(::listOf) ?: tasks.ids().filter(::canPrepareTask)
 
@@ -101,8 +101,7 @@ constructor(
       0 -> prepareTask(tasks.ids().first()).also { error("that should've failed") }
       1 -> {
         val taskId = options.single()
-        prepareTask(taskId)
-        if (tasks.preparedTask() == null) return true
+        prepareTask(taskId) ?: return true
         try {
           if (tryPreparedTask()) return true // if this fails we should fail too
         } catch (e: DeadEndException) {
@@ -112,12 +111,13 @@ constructor(
       else -> if (mode == SAFE) return false
     }
 
+    // we're in unsafe mode. last resort: do the first task that executes
+
     var recoverable = false
 
-    // we're in unsafe mode. last resort: do the first task that executes
     for (taskId in options) {
       try {
-        doTask(taskId)
+        timeline.atomic { doTask(taskId) }
         return true
       } catch (e: RecoverableException) {
         // we're in trouble if ALL of these are NotNowExceptions
@@ -147,7 +147,8 @@ constructor(
   private fun dontCutTheLine(taskId: TaskId) {
     val already = tasks.preparedTask()
     if (already != null && already != taskId) {
-      throw TaskException("task $already is already prepared and must be executed first")
+      val instr = tasks.getTaskData(already).instruction
+      throw TaskException("task $already ($instr) is already prepared and must be executed first")
     }
   }
 
@@ -180,7 +181,7 @@ constructor(
     dontCutTheLine(taskId)
     val unprepared = tasks.getTaskData(taskId).instruction
     return try {
-      instructor.prepare(unprepared)
+      timeline.atomic { instructor.prepare(unprepared) }
       true
     } catch (e: Exception) {
       false
@@ -219,6 +220,13 @@ constructor(
       tasks.addTasks(split, replacement.owner, replacement.cause)
       handleTask(replacement.id)
     }
+  }
+
+  fun doFirstTask(revised: Instruction? = null) {
+    val id = tasks.ids().min()
+    prepareTask(id)
+    if (id in tasks && revised != null) reviseTask(id, revised)
+    if (id in tasks) doTask(id)
   }
 
   fun doTask(taskId: TaskId) {

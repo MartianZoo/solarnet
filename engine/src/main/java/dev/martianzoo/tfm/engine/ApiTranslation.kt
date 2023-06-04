@@ -6,9 +6,9 @@ import dev.martianzoo.tfm.data.GameEvent.ChangeEvent.Cause
 import dev.martianzoo.tfm.data.Player
 import dev.martianzoo.tfm.data.Task.TaskId
 import dev.martianzoo.tfm.data.TaskResult
-import dev.martianzoo.tfm.engine.AutoExecMode.SAFE
+import dev.martianzoo.tfm.engine.AutoExecMode.FIRST
 import dev.martianzoo.tfm.engine.Engine.PlayerScope
-import dev.martianzoo.tfm.engine.Layers.OperationBody
+import dev.martianzoo.tfm.engine.Gameplay.OperationBody
 import dev.martianzoo.tfm.pets.Transforming.replaceOwnerWith
 import dev.martianzoo.tfm.pets.ast.Metric
 import dev.martianzoo.tfm.pets.ast.PetElement
@@ -26,16 +26,16 @@ constructor(
     private val reader: GameReader,
     private val timeline: Timeline,
     private val impl: Implementations,
-    private val player: Player,
+    override val player: Player,
     private val tasks: TaskQueue,
-) : Layers.Changes { // pulls in the other layers too
+) : Gameplay.ChangeLayer { // so it really implements all gameplay layers
 
-  override var autoExecMode: AutoExecMode = SAFE
+  override var autoExecMode: AutoExecMode = FIRST
 
-  override fun changesLayer() = this as Layers.Changes
-  override fun tasksLayer() = this as Layers.Tasks
-  override fun operationsLayer() = this as Layers.Operations
-  override fun turnsLayer() = this as Layers.Turns
+  override fun turnLayer() = this as Gameplay.TurnLayer
+  override fun operationLayer() = this as Gameplay.OperationLayer
+  override fun taskLayer() = this as Gameplay.TaskLayer
+  override fun changeLayer() = this as Gameplay.ChangeLayer
 
   // READ-ONLY
 
@@ -60,6 +60,7 @@ constructor(
 
   // OPERATIONS
 
+  // TODO rename manual?
   override fun initiate(initialInstruction: String, body: BodyLambda): TaskResult {
     return timeline.atomic {
       impl.operation(parse(initialInstruction), autoExecMode) {
@@ -80,10 +81,16 @@ constructor(
     override val tasks by this@ApiTranslation::tasks
     override val reader by this@ApiTranslation::reader
 
+    override fun doFirstTask(revised: String) {
+      this@ApiTranslation.doFirstTask(revised)
+      impl.autoExecNow(autoExecMode)
+    }
+
     override fun doTask(revised: String) {
       this@ApiTranslation.doTask(revised)
       impl.autoExecNow(autoExecMode)
     }
+
     override fun tryTask(revised: String) {
       this@ApiTranslation.tryTask(revised)
       impl.autoExecNow(autoExecMode)
@@ -121,6 +128,9 @@ constructor(
   override fun canPrepareTask(taskId: TaskId) = impl.canPrepareTask(taskId)
 
   override fun prepareTask(taskId: TaskId) = impl.prepareTask(taskId)
+
+  override fun doFirstTask(revised: String?) =
+      timeline.atomic { impl.doFirstTask(revised?.let(::parse)) }
 
   override fun doTask(taskId: TaskId) = timeline.atomic { impl.doTask(taskId) }
 

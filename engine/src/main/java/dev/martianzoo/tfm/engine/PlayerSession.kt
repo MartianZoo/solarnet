@@ -11,7 +11,7 @@ import dev.martianzoo.tfm.data.Task.TaskId
 import dev.martianzoo.tfm.data.TaskResult
 import dev.martianzoo.tfm.engine.ComponentGraph.Component
 import dev.martianzoo.tfm.engine.ComponentGraph.Component.Companion.toComponent
-import dev.martianzoo.tfm.engine.Layers.OldOperationBody
+import dev.martianzoo.tfm.engine.Gameplay.OldOperationBody
 import dev.martianzoo.tfm.engine.Timeline.AbortOperationException
 import dev.martianzoo.tfm.pets.Parsing.parse
 import dev.martianzoo.tfm.pets.ast.ClassName

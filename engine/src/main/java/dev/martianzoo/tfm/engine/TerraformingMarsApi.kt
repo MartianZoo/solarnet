@@ -1,7 +1,6 @@
 package dev.martianzoo.tfm.engine
 
 import dev.martianzoo.tfm.api.ApiUtils.standardResourceNames
-import dev.martianzoo.tfm.api.Exceptions.TaskException
 import dev.martianzoo.tfm.api.GameReader
 import dev.martianzoo.tfm.data.Player
 import dev.martianzoo.tfm.data.Player.Companion.ENGINE
@@ -9,8 +8,8 @@ import dev.martianzoo.tfm.data.TaskResult
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 
-public class NewTerraformingMars(
-    val game: Layers.Turns,
+public class TerraformingMarsApi(
+    val game: Gameplay.TurnLayer,
     val tasks: TaskQueue,
     val reader: GameReader, // TODO ditch it
     val player: Player
@@ -18,9 +17,9 @@ public class NewTerraformingMars(
   constructor(
       game: Game,
       player: Player
-  ) : this(game.turnsLayer(player), game.tasks, game.reader, player)
+  ) : this(game.gameplay(player).turnLayer(), game.tasks, game.reader, player)
 
-  fun sneak(instruction: String): TaskResult = (game as Layers.Changes).sneak(instruction)
+  fun sneak(instruction: String): TaskResult = (game as Gameplay.ChangeLayer).sneak(instruction)
 
   fun playCorp(corpName: String, buyCards: Int, body: BodyLambda = {}): TaskResult {
     return game.turn {
@@ -54,10 +53,8 @@ public class NewTerraformingMars(
       body: BodyLambda = {}
   ): TaskResult {
     return game.turn {
-      try {
+      if (tasks.matching { "${it.instruction}".contains("StandardAction") }.any()) {
         doTask("UseAction1<PlayCardFromHand>")
-      } catch (ignore: TaskException) {
-        // I guess we just didn't need to do this then
       }
       doTask("PlayCard<Class<ProjectCard>, Class<$cardName>>")
 
@@ -102,7 +99,7 @@ public class NewTerraformingMars(
 
   fun phase(phase: String) {
     require(player == ENGINE)
-    game.operationsLayer().initiate("${phase}Phase FROM Phase")
+    game.operationLayer().initiate("${phase}Phase FROM Phase")
   }
 
   fun production(): Map<ClassName, Int> =
