@@ -48,7 +48,7 @@ class AiCentralTest {
       assertCounts(1 to "ActionUsedMarker<AiCentral>")
 
       // Next gen we can again
-      asPlayer(ENGINE).turns.operationLayer().initiate("Generation")
+      asPlayer(ENGINE).operations.initiate("Generation")
 
       cardAction1("AiCentral")
       assertCounts(5 to "ProjectCard")

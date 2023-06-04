@@ -6,7 +6,6 @@ import dev.martianzoo.tfm.api.Exceptions.DependencyException
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.data.Player.Companion.PLAYER1
 import dev.martianzoo.tfm.engine.Engine
-import dev.martianzoo.tfm.engine.PlayerSession.Companion.session
 import dev.martianzoo.tfm.engine.TerraformingMarsApi.Companion.tfm
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
 import dev.martianzoo.tfm.engine.Timeline.AbortOperationException
@@ -20,7 +19,7 @@ class LocalHeatTrappingTest {
   @Test
   fun notEnoughHeat() {
     with(p1) {
-      turns.operationLayer().initiate("4 Heat, 2 ProjectCard, Pets, 100")
+      operations.initiate("4 Heat, 2 ProjectCard, Pets, 100")
       assertCounts(0 to "Plant", 4 to "Heat", 1 to "Animal")
       assertCounts(3 to "Card", 2 to "CardBack", 1 to "CardFront", 0 to "PlayedEvent")
 
@@ -45,10 +44,10 @@ class LocalHeatTrappingTest {
 
   @Test
   fun getPlants() {
-    with(game.session(PLAYER1)) {
-      operation("6 Heat, 2 ProjectCard, Pets")
+    with(p1) {
+      operations.initiate("6 Heat, 2 ProjectCard, Pets")
 
-      operation("LocalHeatTrapping") {
+      operations.initiate("LocalHeatTrapping") {
         // The card is played and the heat is gone
         assertCounts(1 to "CardFront", 1 to "PlayedEvent")
         assertCounts(0 to "Plant", 1 to "Heat", 1 to "Animal")
@@ -56,7 +55,7 @@ class LocalHeatTrappingTest {
         assertThat(tasks.extract { it.whyPending }.single())
             .isEqualTo("choice required in: `4 Plant<Player1>! OR 2 Animal<Player1>.`")
 
-        task("4 Plant")
+        doFirstTask("4 Plant")
       }
 
       assertCounts(2 to "CardBack", 1 to "CardFront", 1 to "PlayedEvent")
@@ -66,23 +65,21 @@ class LocalHeatTrappingTest {
 
   @Test
   fun getPets() {
-    with(game.session(PLAYER1)) {
-      operation("6 Heat, 2 ProjectCard, Pets")
+    with(p1) {
+      operations.initiate("6 Heat, 2 ProjectCard, Pets")
 
-      operation("LocalHeatTrapping") {
+      operations.initiate("LocalHeatTrapping") {
         // The card is played and the heat is gone
         assertCounts(2 to "CardBack", 1 to "CardFront", 1 to "PlayedEvent")
         assertCounts(0 to "Plant", 1 to "Heat", 1 to "Animal")
 
-        assertThrows<AbstractException>("1") { task("2 Animal") }
-        assertCounts(2 to "CardBack", 1 to "CardFront", 1 to "PlayedEvent")
-        assertCounts(0 to "Plant", 1 to "Heat", 1 to "Animal")
+        assertThrows<AbstractException>("1") { doFirstTask("2 Animal") }
 
         // card I don't have
-        assertThrows<DependencyException>("2") { task("2 Animal<Fish>") }
+        assertThrows<DependencyException>("2") { doFirstTask("2 Animal<Fish>") }
 
         // but this should work
-        task("2 Animal<Pets>")
+        doFirstTask("2 Animal<Pets>")
       }
       assertCounts(2 to "CardBack", 1 to "CardFront", 1 to "PlayedEvent")
       assertCounts(0 to "Plant", 1 to "Heat", 3 to "Animal")
@@ -91,14 +88,14 @@ class LocalHeatTrappingTest {
 
   // @Test // TODO - overeager DependencyException
   fun getNothing() {
-    with(game.session(PLAYER1)) {
-      operation("6 Heat, 2 ProjectCard")
+    with(p1) {
+      operations.initiate("6 Heat, 2 ProjectCard")
 
-      operation("LocalHeatTrapping") {
+      operations.initiate("LocalHeatTrapping") {
         assertThat(tasks.extract { "${it.whyPending}" })
             .containsExactly("choice required in: `4 Plant<Player1>! OR 2 Animal<Player1>.`")
 
-        writer.prepareTask(tasks.ids().single())
+        game.writer(PLAYER1).prepareTask(tasks.ids().single())
         assertThat(tasks.extract { "${it.whyPending}" })
             .containsExactly("choice required in: `4 Plant<Player1>! OR Ok`")
       }

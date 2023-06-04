@@ -10,6 +10,7 @@ import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 
 public class TerraformingMarsApi(val game: Game, val player: Player) {
   val turns: Gameplay.TurnLayer = game.gameplay(player).turnLayer()
+  val operations: Gameplay.OperationLayer = turns.operationLayer()
   val tasks: TaskQueue by game::tasks
   val reader: GameReader by game::reader // TODO ditch it
 
@@ -103,7 +104,7 @@ public class TerraformingMarsApi(val game: Game, val player: Player) {
       stdAction("SellPatents") { doTask("$count Megacredit FROM ProjectCard") }
 
   fun phase(phase: String) {
-    asPlayer(ENGINE).turns.operationLayer().initiate("${phase}Phase FROM Phase")
+    asPlayer(ENGINE).operations.initiate("${phase}Phase FROM Phase")
   }
 
   fun production(): Map<ClassName, Int> =

@@ -30,7 +30,7 @@ class CelesticTest {
       pass()
 
       phase("Production")
-      this.turns.operationLayer().initiate("ResearchPhase FROM Phase") {
+      this.operations.initiate("ResearchPhase FROM Phase") {
         doFirstTask("2 BuyCard")
         p2.turns.doTask("2 BuyCard")
       }

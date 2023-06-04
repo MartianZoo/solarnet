@@ -51,7 +51,7 @@ class IndenturedWorkersTest {
     with(p1) {
       playProject("IndenturedWorkers")
 
-      turns.operationLayer().initiate("Generation") // use it or lose it!
+      operations.initiate("Generation") // use it or lose it!
       playProject("Soletta", 35)
     }
   }
