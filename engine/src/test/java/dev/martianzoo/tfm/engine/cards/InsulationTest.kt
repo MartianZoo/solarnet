@@ -6,11 +6,9 @@ import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.data.GameSetup
 import dev.martianzoo.tfm.data.Player.Companion.PLAYER1
 import dev.martianzoo.tfm.engine.Engine
-import dev.martianzoo.tfm.engine.PlayerSession.Companion.session
-import dev.martianzoo.tfm.engine.OldTfmHelpers.phase
-import dev.martianzoo.tfm.engine.OldTfmHelpers.playCard
-import dev.martianzoo.tfm.engine.OldTfmHelpers.playCorp
+import dev.martianzoo.tfm.engine.TerraformingMarsApi.Companion.tfm
 import dev.martianzoo.tfm.engine.TestHelpers.assertProds
+import dev.martianzoo.tfm.engine.Timeline.AbortOperationException
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 
@@ -19,30 +17,26 @@ class InsulationTest {
   @Test
   fun insulation_normal() {
     val game = Engine.newGame(GameSetup(Canon, "BRM", 2))
-    with(game.session(PLAYER1)) {
+    with(game.tfm(PLAYER1)) {
       playCorp("Ecoline", 5)
       phase("Action")
-      writer.sneak("PROD[-1, 3 Heat]")
+      sneak("PROD[-1, 3 Heat]")
       assertProds(-1 to "M", 3 to "H")
 
-      assertThrows<PetSyntaxException> { playCard("Insulation", 2, "PROD[0 Megacredit FROM Heat]") }
-      assertThrows<PetSyntaxException> { playCard("Insulation", 2, "PROD[Ok]") }
-      assertThrows<NarrowingException> { playCard("Insulation", 2, "Ok") }
-      assertThrows<NarrowingException> {
-        playCard("Insulation", 2, "PROD[2 Megacredit<P2> FROM Heat<P2>]")
-      }
+      playProject("Insulation", 2) {
+        assertThrows<PetSyntaxException> { doTask("PROD[0 Megacredit FROM Heat]") }
+        assertThrows<PetSyntaxException> { doFirstTask("PROD[Ok]") }
+        assertThrows<NarrowingException> { doFirstTask("Ok") }
+        assertThrows<NarrowingException> { doFirstTask("PROD[2 Megacredit<P2> FROM Heat<P2>]") }
 
-      playCard("Insulation", 2) {
-        task("PROD[2 Megacredit FROM Heat]")
+        doTask("PROD[2 Megacredit FROM Heat]")
         assertProds(1 to "M", 1 to "H")
-        abortAndRollBack()
+
+        throw AbortOperationException() // TODO a way to roll back without aborting?
       }
 
-      playCard("Insulation", 2) {
-        task("PROD[Megacredit FROM Heat]")
-        assertProds(0 to "M", 2 to "H")
-        abortAndRollBack()
-      }
+      playProject("Insulation", 2) { doFirstTask("PROD[Megacredit FROM Heat]") }
+      assertProds(0 to "M", 2 to "H")
     }
   }
 }

@@ -7,23 +7,28 @@ import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.data.Player.Companion.PLAYER1
 import dev.martianzoo.tfm.engine.Engine
 import dev.martianzoo.tfm.engine.PlayerSession.Companion.session
+import dev.martianzoo.tfm.engine.TerraformingMarsApi.Companion.tfm
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
+import dev.martianzoo.tfm.engine.Timeline.AbortOperationException
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 
 class LocalHeatTrappingTest {
+  val game = Engine.newGame(Canon.SIMPLE_GAME)
+  val p1 = game.tfm(PLAYER1)
+
   @Test
   fun notEnoughHeat() {
-    val game = Engine.newGame(Canon.SIMPLE_GAME)
-
-    with(game.session(PLAYER1)) {
-      operation("4 Heat, 2 ProjectCard, Pets")
+    with(p1) {
+      turns.operationLayer().initiate("4 Heat, 2 ProjectCard, Pets, 100")
       assertCounts(0 to "Plant", 4 to "Heat", 1 to "Animal")
       assertCounts(3 to "Card", 2 to "CardBack", 1 to "CardFront", 0 to "PlayedEvent")
 
-      operation("LocalHeatTrapping") {
+      phase("Action")
+
+      playProject("LocalHeatTrapping", 1) {
         // The card is played but nothing else
-        assertCounts(2 to "CardBack", 1 to "CardFront", 1 to "PlayedEvent")
+        assertCounts(3 to "Card", 1 to "CardBack", 1 to "CardFront", 1 to "PlayedEvent")
         assertCounts(0 to "Plant", 4 to "Heat", 1 to "Animal")
 
         // And for the expected reasons
@@ -33,16 +38,13 @@ class LocalHeatTrappingTest {
                 null,
                 "choice required in: `4 Plant<Player1>! OR 2 Animal<Player1>.`",
             )
-
-        abortAndRollBack()
+        throw AbortOperationException()
       }
     }
   }
 
   @Test
   fun getPlants() {
-    val game = Engine.newGame(Canon.SIMPLE_GAME)
-
     with(game.session(PLAYER1)) {
       operation("6 Heat, 2 ProjectCard, Pets")
 
@@ -61,9 +63,9 @@ class LocalHeatTrappingTest {
       assertCounts(4 to "Plant", 1 to "Heat", 1 to "Animal")
     }
   }
+
   @Test
   fun getPets() {
-    val game = Engine.newGame(Canon.SIMPLE_GAME)
     with(game.session(PLAYER1)) {
       operation("6 Heat, 2 ProjectCard, Pets")
 
@@ -89,8 +91,6 @@ class LocalHeatTrappingTest {
 
   // @Test // TODO - overeager DependencyException
   fun getNothing() {
-    val game = Engine.newGame(Canon.SIMPLE_GAME)
-
     with(game.session(PLAYER1)) {
       operation("6 Heat, 2 ProjectCard")
 
