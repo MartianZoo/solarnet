@@ -21,20 +21,20 @@ class AiCentralTest {
       sneak("5 ProjectCard, 100, Steel")
 
       phase("Action")
-      playCard("SearchForLife", 3)
-      playCard("InventorsGuild", 9)
+      playProject("SearchForLife", 3)
+      playProject("InventorsGuild", 9)
 
-      assertThrows<RequirementException>("1") { playCard("AiCentral") }
-      playCard("DesignedMicroorganisms", 16)
+      assertThrows<RequirementException>("1") { playProject("AiCentral") }
+      playProject("DesignedMicroorganisms", 16)
 
       assertCounts(3 to "ScienceTag")
 
       // Now I do have the 3 science tags, but not the energy production
-      assertThrows<LimitsException>("2") { playCard("AiCentral", 19, steel = 1) }
+      assertThrows<LimitsException>("2") { playProject("AiCentral", 19, steel = 1) }
 
       // Give energy prod and try again - success
       sneak("PROD[Energy]")
-      playCard("AiCentral", 19, steel = 1)
+      playProject("AiCentral", 19, steel = 1)
       assertCounts(0 to "PROD[Energy]")
 
       // Use the action

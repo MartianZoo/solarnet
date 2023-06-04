@@ -18,6 +18,7 @@ public class TerraformingMarsApi(val game: Game, val player: Player) {
   fun sneak(instruction: String): TaskResult = (turns as Gameplay.ChangeLayer).sneak(instruction)
 
   fun playCorp(corpName: String, buyCards: Int, body: BodyLambda = {}): TaskResult {
+    require(turns.has("CorporationPhase")) // TODO awkward
     return turns.turn {
       doTask(corpName) // TODO playcard
       doTask(if (buyCards == 0) "Ok" else "$buyCards BuyCard")
@@ -41,7 +42,15 @@ public class TerraformingMarsApi(val game: Game, val player: Player) {
     }
   }
 
-  fun playCard(
+  fun playPrelude(cardName: String, body: BodyLambda = {}): TaskResult {
+    require(turns.has("PreludePhase")) // TODO awkward
+    return turns.turn {
+      doTask(cardName)
+      body()
+    }
+  }
+
+  fun playProject(
       cardName: String,
       megacredits: Int = 0,
       steel: Int = 0,
@@ -108,4 +117,8 @@ public class TerraformingMarsApi(val game: Game, val player: Player) {
   fun oxygenPercent(): Int = turns.count("OxygenStep")
   fun temperatureC(): Int = -30 + turns.count("TemperatureStep") * 2
   fun venusPercent(): Int = turns.count("VenusStep") * 2
+
+  companion object {
+    fun Game.tfm(player: Player) = TerraformingMarsApi(this, player)
+  }
 }

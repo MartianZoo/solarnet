@@ -23,7 +23,7 @@ class CelesticTest {
       assertCounts(5 to "ProjectCard", 27 to "M")
 
       phase("Action")
-      assertThrows<NarrowingException> { playCard("Mine") }
+      assertThrows<NarrowingException> { playProject("Mine") }
       assertThrows<NarrowingException> { stdProject("Aquifer") }
       assertThrows<NarrowingException> { stdAction("ConvertPlants") }
 
@@ -35,13 +35,13 @@ class CelesticTest {
         p2.turns.doTask("2 BuyCard")
       }
       phase("Action")
-      assertThrows<NarrowingException> { playCard("Mine") }
+      assertThrows<NarrowingException> { playProject("Mine") }
 
       assertCounts(1 to "Mandate")
       assertCounts(7 to "ProjectCard")
       this.turns.turn { doTask("UseAllMandates") }
       assertCounts(9 to "ProjectCard")
-      playCard("Mine", 4)
+      playProject("Mine", 4)
     }
   }
 }
