@@ -7,16 +7,7 @@ import dev.martianzoo.tfm.data.Player.Companion.ENGINE
 import dev.martianzoo.tfm.data.Player.Companion.PLAYER1
 import dev.martianzoo.tfm.data.Player.Companion.PLAYER2
 import dev.martianzoo.tfm.engine.Engine
-import dev.martianzoo.tfm.engine.OldTfmHelpers.cardAction1
-import dev.martianzoo.tfm.engine.OldTfmHelpers.pass
-import dev.martianzoo.tfm.engine.OldTfmHelpers.phase
-import dev.martianzoo.tfm.engine.OldTfmHelpers.playCard
-import dev.martianzoo.tfm.engine.OldTfmHelpers.playCorp
-import dev.martianzoo.tfm.engine.OldTfmHelpers.production
-import dev.martianzoo.tfm.engine.OldTfmHelpers.sellPatents
-import dev.martianzoo.tfm.engine.OldTfmHelpers.stdProject
-import dev.martianzoo.tfm.engine.OldTfmHelpers.turn
-import dev.martianzoo.tfm.engine.PlayerSession.Companion.session
+import dev.martianzoo.tfm.engine.TerraformingMarsApi.Companion.tfm
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
 import org.junit.jupiter.api.Test
 
@@ -25,16 +16,16 @@ class FirstPartialGameTest {
   fun fourWholeGenerations() {
     repeat(1) {
       val game = Engine.newGame(GameSetup(Canon, "BREPT", 2))
-      val eng = game.session(ENGINE)
-      val p1 = game.session(PLAYER1)
-      val p2 = game.session(PLAYER2)
+      val eng = game.tfm(ENGINE)
+      val p1 = game.tfm(PLAYER1)
+      val p2 = game.tfm(PLAYER2)
 
       fun newGeneration(cards1: Int, cards2: Int) {
         with(eng) {
           phase("Production")
-          operation("ResearchPhase FROM Phase") {
-            p1.task(if (cards1 > 0) "$cards1 BuyCard" else "Ok")
-            p2.task(if (cards2 > 0) "$cards2 BuyCard" else "Ok")
+          phase("Research") {
+            p1.gameplay.doTask(if (cards1 > 0) "$cards1 BuyCard" else "Ok")
+            p2.gameplay.doTask(if (cards2 > 0) "$cards2 BuyCard" else "Ok")
           }
           phase("Action")
         }
@@ -45,59 +36,59 @@ class FirstPartialGameTest {
 
       eng.phase("Prelude")
 
-      p1.turn("MartianIndustries")
-      p1.turn("GalileanMining")
+      p1.playPrelude("MartianIndustries")
+      p1.playPrelude("GalileanMining")
 
-      p2.turn("MiningOperations")
-      p2.turn("UnmiContractor")
+      p2.playPrelude("MiningOperations")
+      p2.playPrelude("UnmiContractor")
 
       eng.phase("Action")
 
-      p1.playCard("AsteroidMining", 30)
+      p1.playProject("AsteroidMining", 30)
       p1.pass()
 
       with(p2) {
-        playCard("NaturalPreserve", 1, steel = 4, "NpTile<E37>")
-        playCard("SpaceElevator", 1, steel = 13)
+        playProject("NaturalPreserve", 1, steel = 4) { doTask("NpTile<E37>") }
+        playProject("SpaceElevator", 1, steel = 13)
         cardAction1("SpaceElevator")
-        playCard("InventionContest", 2)
-        playCard("GreatEscarpmentConsortium", 6, "PROD[-S<P1>]")
+        playProject("InventionContest", 2)
+        playProject("GreatEscarpmentConsortium", 6) { doTask("PROD[-S<P1>]")}
       }
 
       newGeneration(4, 1)
 
       with(p2) {
         cardAction1("SpaceElevator")
-        playCard("EarthCatapult", 23)
+        playProject("EarthCatapult", 23)
       }
 
       with(p1) {
-        playCard("TitaniumMine", 7)
-        playCard("RoboticWorkforce", 9, "CopyProductionBox<MartianIndustries>")
-        playCard("Sponsors", 6)
+        playProject("TitaniumMine", 7)
+        playProject("RoboticWorkforce", 9) { doTask("CopyProductionBox<MartianIndustries>") }
+        playProject("Sponsors", 6)
       }
 
       with(p2) {
-        playCard("IndustrialMicrobes", steel = 5)
-        playCard("TechnologyDemonstration", titanium = 1)
-        playCard("EnergyTapping", 1, "PROD[-E<P1>]")
-        playCard("BuildingIndustries", steel = 2)
+        playProject("IndustrialMicrobes", steel = 5)
+        playProject("TechnologyDemonstration", titanium = 1)
+        playProject("EnergyTapping", 1) { doTask("PROD[-E<P1>]") }
+        playProject("BuildingIndustries", steel = 2)
       }
 
       newGeneration(3, 2)
 
       with(p1) {
-        playCard("Mine", 2, steel = 1)
+        playProject("Mine", 2, steel = 1)
         pass()
       }
       with(p2) {
         cardAction1("SpaceElevator")
-        playCard("ElectroCatapult", 5, steel = 5)
+        playProject("ElectroCatapult", 5, steel = 5)
         cardAction1("ElectroCatapult")
-        playCard("SpaceHotels", 7, titanium = 1)
-        playCard("MarsUniversity", 6)
-        playCard("ArtificialPhotosynthesis", 10, "PROD[2 Energy]")
-        playCard("BribedCommittee", 5)
+        playProject("SpaceHotels", 7, titanium = 1)
+        playProject("MarsUniversity", 6)
+        playProject("ArtificialPhotosynthesis", 10) { doTask("PROD[2 Energy]") }
+        playProject("BribedCommittee", 5)
       }
 
       newGeneration(3, 2)
@@ -107,20 +98,20 @@ class FirstPartialGameTest {
         cardAction1("SpaceElevator")
       }
       with(p1) {
-        playCard("ResearchOutpost", 14, steel = 2, "CityTile<E56>")
-        playCard("IoMiningIndustries", 1, titanium = 13)
+        playProject("ResearchOutpost", 14, steel = 2) { doTask("CityTile<E56>") }
+        playProject("IoMiningIndustries", 1, titanium = 13)
       }
       with(p2) {
-        playCard("TransNeptuneProbe", 1, titanium = 1)
-        playCard("Hackers", 1, "PROD[-2 M<P1>]")
+        playProject("TransNeptuneProbe", 1, titanium = 1)
+        playProject("Hackers", 1) { doTask("PROD[-2 M<P1>]") }
       }
 
       p1.sellPatents(1)
 
       with(p2) {
-        playCard("SolarPower", 1, steel = 4)
-        stdProject("CitySP", "CityTile<E65>")
-        operation("PROD[-Plant, Energy]") // CORRECTION TODO WHY WHY
+        playProject("SolarPower", 1, steel = 4)
+        stdProject("CitySP") { doTask("CityTile<E65>") }
+        operations.initiate("PROD[-Plant, Energy]") // CORRECTION TODO WHY WHY
       }
 
       eng.phase("Production")

@@ -7,52 +7,46 @@ import dev.martianzoo.tfm.data.Player.Companion.ENGINE
 import dev.martianzoo.tfm.data.Player.Companion.PLAYER1
 import dev.martianzoo.tfm.data.Player.Companion.PLAYER2
 import dev.martianzoo.tfm.engine.Engine
-import dev.martianzoo.tfm.engine.OldTfmHelpers.cardAction1
-import dev.martianzoo.tfm.engine.OldTfmHelpers.pass
-import dev.martianzoo.tfm.engine.OldTfmHelpers.phase
-import dev.martianzoo.tfm.engine.OldTfmHelpers.playCard
-import dev.martianzoo.tfm.engine.OldTfmHelpers.playCorp
-import dev.martianzoo.tfm.engine.OldTfmHelpers.production
-import dev.martianzoo.tfm.engine.OldTfmHelpers.sellPatents
-import dev.martianzoo.tfm.engine.OldTfmHelpers.turn
-import dev.martianzoo.tfm.engine.PlayerSession
-import dev.martianzoo.tfm.engine.PlayerSession.Companion.session
+import dev.martianzoo.tfm.engine.TerraformingMarsApi
+import dev.martianzoo.tfm.engine.TerraformingMarsApi.Companion.tfm
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
+import dev.martianzoo.tfm.engine.Timeline.AbortOperationException
 import org.junit.jupiter.api.Test
 
 class EllieGameTest {
   @Test
   fun game() {
     val game = Engine.newGame(GameSetup(Canon, "BRHXP", 2))
-    val eng = game.session(ENGINE)
-    val p1 = game.session(PLAYER1)
-    val p2 = game.session(PLAYER2)
+    val eng = game.tfm(ENGINE)
+    val p1 = game.tfm(PLAYER1)
+    val p2 = game.tfm(PLAYER2)
 
     p1.playCorp("InterplanetaryCinematics", 7)
     p2.playCorp("PharmacyUnion", 5)
 
     eng.phase("Prelude")
 
-    p1.turn("UnmiContractor")
-    p1.turn("CorporateArchives")
-
-    p2.turn("BiosphereSupport")
-    p2.turn("SocietySupport")
+    p1.playPrelude("UnmiContractor")
+    p1.playPrelude("CorporateArchives")
+    p2.playPrelude("BiosphereSupport")
+    p2.playPrelude("SocietySupport")
 
     // Action!
 
     eng.phase("Action")
 
-    p1.playCard("MediaGroup", 6)
-    p1.playCard("Sabotage", 1, "-7 M<P2>")
+    p1.playProject("MediaGroup", 6)
+    p1.playProject("Sabotage", 1) { doTask("-7 M<P2>") }
 
-    p2.playCard("Research", 11)
-    p2.playCard("MartianSurvey", 9, "Ok") // ain't gon flip
+    p2.playProject("Research", 11)
+    p2.playProject("MartianSurvey", 9) { doTask("Ok") } // ain't gon flip
 
     p1.pass()
 
-    p2.playCard("SearchForLife", 3, "EVT<Class<PharmacyUnion>> FROM PharmacyUnion THEN 3 TR")
-    p2.cardAction1("SearchForLife", "Ok") // no microbe
+    p2.playProject("SearchForLife", 3) {
+      doTask("PlayedEvent<Class<PharmacyUnion>> FROM PharmacyUnion THEN 3 TR")
+    }
+    p2.cardAction1("SearchForLife") { doTask("Ok") } // no microbe
 
     p2.pass()
 
@@ -60,28 +54,30 @@ class EllieGameTest {
 
     with(eng) {
       phase("Production")
-      operation("ResearchPhase FROM Phase") {
-        p1.task("1 BuyCard")
-        p2.task("3 BuyCard")
+      operations.initiate("ResearchPhase FROM Phase") {
+        p1.gameplay.doTask("1 BuyCard")
+        p2.gameplay.doTask("3 BuyCard")
       }
       phase("Action")
     }
 
     p2.sellPatents(1)
-    p2.playCard("VestaShipyard", 15)
+    p2.playProject("VestaShipyard", 15)
     p2.pass()
 
     with(p1) {
-      playCard("EarthCatapult", 23)
-      playCard("OlympusConference", steel = 4)
+      playProject("EarthCatapult", 23)
+      playProject("OlympusConference", steel = 4)
 
-      playCard("DevelopmentCenter", 1, steel = 4, "ProjectCard FROM Science<OlympusConference>")
+      playProject("DevelopmentCenter", 1, steel = 4) {
+        doTask("ProjectCard FROM Science<OlympusConference>")
+      }
 
-      playCard("GeothermalPower", 1, steel = 4)
+      playProject("GeothermalPower", 1, steel = 4)
 
-      playCard("MirandaResort", 10)
-      playCard("Hackers", 1, "PROD[-2 M<P2>]")
-      playCard("MicroMills", 1)
+      playProject("MirandaResort", 10)
+      playProject("Hackers", 1) { doTask("PROD[-2 M<P2>]") }
+      playProject("MicroMills", 1)
       pass()
     }
 
@@ -89,21 +85,18 @@ class EllieGameTest {
 
     with(eng) {
       phase("Production")
-      operation("ResearchPhase FROM Phase") {
-        p1.task("3 BuyCard")
-        p2.task("BuyCard")
+      operations.initiate("ResearchPhase FROM Phase") {
+        p1.gameplay.doTask("3 BuyCard")
+        p2.gameplay.doTask("BuyCard")
       }
       phase("Action")
     }
 
     p1.cardAction1("DevelopmentCenter")
-    p1.playCard(
-        "ImmigrantCity",
-        1,
-        steel = 5,
-        "CityTile<Hellas_9_7>",
-        "OceanTile<Hellas_5_6>",
-    )
+    p1.playProject("ImmigrantCity", 1, steel = 5) {
+      doTask("CityTile<Hellas_9_7>")
+      doTask("OceanTile<Hellas_5_6>")
+    }
 
     // Check counts, shared stuff first
 
@@ -111,7 +104,7 @@ class EllieGameTest {
     assertThat(eng.counts("OceanTile, OxygenStep, TemperatureStep")).containsExactly(1, 0, 0)
 
     with(p1) {
-      assertThat(count("TerraformRating")).isEqualTo(24)
+      assertThat(gameplay.count("TerraformRating")).isEqualTo(24)
 
       assertThat(production().values).containsExactly(5, 0, 0, 0, 0, 1).inOrder()
 
@@ -129,7 +122,7 @@ class EllieGameTest {
     }
 
     with(p2) {
-      assertThat(count("TerraformRating")).isEqualTo(25)
+      assertThat(gameplay.count("TerraformRating")).isEqualTo(25)
 
       assertThat(production().values).containsExactly(-4, 0, 1, 3, 1, 1).inOrder()
 
@@ -145,31 +138,31 @@ class EllieGameTest {
 
     // To check VPs we have to fake the game ending
 
-    eng.operation("End FROM Phase") {
+    eng.operations.initiate("End FROM Phase") {
       // TODO why does P1 have 1 more point than I expect?
       // Should be 23 2 1 1 -1 / 25 1 1 1
       eng.assertCounts(27 to "VP<P1>", 28 to "VP<P2>")
-      abortAndRollBack()
+      throw AbortOperationException()
     }
   }
 
   @Test
   fun earlyGameWithNoPrelude() {
     val game = Engine.newGame(GameSetup(Canon, "BRHX", 2))
-    val eng = game.session(ENGINE)
-    val p1 = game.session(PLAYER1)
-    val p2 = game.session(PLAYER2)
+    val eng = game.tfm(ENGINE)
+    val p1 = game.tfm(PLAYER1)
+    val p2 = game.tfm(PLAYER2)
 
     p1.playCorp("InterplanetaryCinematics", 7)
     p2.playCorp("PharmacyUnion", 5)
 
     eng.phase("Action")
 
-    p1.playCard("MediaGroup", 6)
-    p1.playCard("Sabotage", 1, "-7 M<Player2>")
+    p1.playProject("MediaGroup", 6)
+    p1.playProject("Sabotage", 1) { doTask("-7 M<Player2>") }
 
-    p2.playCard("Research", 11)
+    p2.playProject("Research", 11)
   }
 
-  fun PlayerSession.counts(s: String) = s.split(",").map(::count)
+  fun TerraformingMarsApi.counts(s: String) = s.split(",").map { gameplay.count(it) }
 }
