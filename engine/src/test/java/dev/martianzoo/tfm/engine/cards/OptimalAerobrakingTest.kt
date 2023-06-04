@@ -4,7 +4,7 @@ import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.data.GameSetup
 import dev.martianzoo.tfm.data.Player.Companion.PLAYER1
 import dev.martianzoo.tfm.engine.Engine
-import dev.martianzoo.tfm.engine.PlayerSession.Companion.session
+import dev.martianzoo.tfm.engine.TerraformingMarsApi.Companion.tfm
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
 import org.junit.jupiter.api.Test
 
@@ -14,10 +14,14 @@ class OptimalAerobrakingTest {
   fun optimalAerobraking() {
     val game = Engine.newGame(GameSetup(Canon, "BRHXP", 2))
 
-    with(game.session(PLAYER1)) {
-      operation("5 ProjectCard, OptimalAerobraking")
-      assertCounts(0 to "Megacredit", 0 to "Heat")
-      operation("AsteroidCard", "Ok") // TODO infer this??
+    with(game.tfm(PLAYER1)) {
+      phase("Action")
+
+      sneak("5 ProjectCard, OptimalAerobraking, 14")
+      assertCounts(14 to "Megacredit", 0 to "Heat")
+      playProject("AsteroidCard", 14) {
+        doTask("Ok") // but there's no one to steal from anyway TODO
+      }
       assertCounts(3 to "Megacredit", 3 to "Heat")
     }
   }

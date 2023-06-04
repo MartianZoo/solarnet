@@ -4,11 +4,7 @@ import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.data.GameSetup
 import dev.martianzoo.tfm.data.Player.Companion.PLAYER1
 import dev.martianzoo.tfm.engine.Engine
-import dev.martianzoo.tfm.engine.PlayerSession.Companion.session
-import dev.martianzoo.tfm.engine.OldTfmHelpers.cardAction1
-import dev.martianzoo.tfm.engine.OldTfmHelpers.phase
-import dev.martianzoo.tfm.engine.OldTfmHelpers.playCard
-import dev.martianzoo.tfm.engine.OldTfmHelpers.playCorp
+import dev.martianzoo.tfm.engine.TerraformingMarsApi.Companion.tfm
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
 import org.junit.jupiter.api.Test
 
@@ -17,18 +13,17 @@ class PolyphemosTest {
   @Test
   fun polyphemos() {
     val game = Engine.newGame(GameSetup(Canon, "BRMC", 2))
-    with(game.session(PLAYER1)) {
-      playCorp("Polyphemos", 10)
-      assertCounts(10 to "ProjectCard", 0 to "M")
+    with(game.tfm(PLAYER1)) {
+      playCorp("Polyphemos", 7)
 
       phase("Action")
-      writer.sneak("14")
+      assertCounts(7 to "ProjectCard", 15 to "M")
 
-      playCard("InventorsGuild", 9)
-      assertCounts(9 to "ProjectCard", 5 to "M")
+      playProject("InventorsGuild", 9)
+      assertCounts(6 to "ProjectCard", 6 to "M")
 
-      cardAction1("InventorsGuild", "BuyCard")
-      assertCounts(10 to "ProjectCard", 0 to "M")
+      cardAction1("InventorsGuild") { doTask("BuyCard") }
+      assertCounts(7 to "ProjectCard", 1 to "M")
     }
   }
 }
