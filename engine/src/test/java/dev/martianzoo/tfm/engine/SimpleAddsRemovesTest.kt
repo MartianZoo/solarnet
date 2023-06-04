@@ -3,44 +3,45 @@ package dev.martianzoo.tfm.engine
 import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.data.GameEvent.ChangeEvent.StateChange
+import dev.martianzoo.tfm.data.Player.Companion.ENGINE
 import dev.martianzoo.tfm.data.Player.Companion.PLAYER2
-import dev.martianzoo.tfm.engine.PlayerSession.Companion.session
-import dev.martianzoo.tfm.pets.Parsing.parse
-import dev.martianzoo.tfm.pets.ast.Metric
-import dev.martianzoo.tfm.pets.ast.Requirement
+import dev.martianzoo.tfm.engine.TerraformingMarsApi.Companion.tfm
 import dev.martianzoo.tfm.types.te
 import dev.martianzoo.util.toStrings
 import org.junit.jupiter.api.Test
 
-private class GameApiTest {
+internal class SimpleAddsRemovesTest {
   @Test
   fun basicByApi() {
     val game = Engine.newGame(Canon.SIMPLE_GAME)
 
     val checkpoint = game.timeline.checkpoint()
-    assertThat(game.reader.count(parse<Metric>("Heat"))).isEqualTo(0)
 
-    val p2 = game.session(PLAYER2)
+    val eng = game.gameplay(ENGINE)
+    assertThat(eng.count("Heat")).isEqualTo(0)
 
-    p2.operation("5 Heat<Player2>!")
-    p2.operation("10 Heat<Player1>!")
+    val p2 = game.tfm(PLAYER2).turns.operationLayer()
 
-    assertThat(game.reader.count(parse<Metric>("Heat"))).isEqualTo(15)
+    p2.initiate("5 Heat<Player2>!")
+    p2.initiate("10 Heat<Player1>!")
 
-    p2.operation("-4 Heat<Player2>!")
-    assertThat(game.reader.has(parse("Heat<Player2>"))).isTrue()
-    assertThat(game.reader.has(parse("=1 Heat<Player2>"))).isTrue()
-    assertThat(game.reader.has(parse("MAX 1 Heat<Player2>"))).isTrue()
-    assertThat(game.reader.has(parse("2 Heat<Player2>"))).isFalse()
-    assertThat(game.reader.count(parse<Metric>("StandardResource"))).isEqualTo(11)
-    assertThat(game.reader.count(parse<Metric>("StandardResource<Player1>"))).isEqualTo(10)
-    p2.operation("3 Steel<Player1> FROM Heat<Player1>!")
-    assertThat(game.reader.count(parse<Metric>("StandardResource<Player1>"))).isEqualTo(10)
-    assertThat(game.reader.count(parse<Metric>("Steel"))).isEqualTo(3)
+    assertThat(eng.count("Heat")).isEqualTo(15)
 
-    p2.operation("2 Heat<Player2 FROM Player1>!")
-    assertThat(game.reader.has(parse<Requirement>("=3 Heat<Player2>"))).isTrue()
-    assertThat(game.reader.has(parse<Requirement>("=5 Heat<Player1>"))).isTrue()
+    p2.initiate("-4 Heat")
+    assertThat(eng.has("Heat<Player2>")).isTrue()
+    assertThat(eng.has("=1 Heat<Player2>")).isTrue()
+    assertThat(eng.has("MAX 1 Heat<Player2>")).isTrue()
+    assertThat(eng.has("2 Heat<Player2>")).isFalse()
+    assertThat(eng.count("StandardResource")).isEqualTo(11)
+    assertThat(eng.count("StandardResource<Player1>")).isEqualTo(10)
+
+    p2.initiate("3 Steel<Player1> FROM Heat<Player1>!")
+    assertThat(eng.count("StandardResource<Player1>")).isEqualTo(10)
+    assertThat(eng.count("Steel")).isEqualTo(3)
+
+    p2.initiate("2 Heat<Player2 FROM Player1>!")
+    assertThat(eng.has("=3 Heat<Player2>")).isTrue()
+    assertThat(eng.has("=5 Heat<Player1>")).isTrue()
 
     val changes = game.events.changesSince(checkpoint)
     assertThat(changes.map { it.change })

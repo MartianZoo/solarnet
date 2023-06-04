@@ -27,6 +27,8 @@ internal class WritableEventLog @Inject constructor() : EventLog, TaskListener, 
 
   override fun changesSinceSetup() = changesSince(start)
 
+  override fun entriesSinceSetup() = entriesSince(start)
+
   // we don't treat a replacement task as new...
   override fun newTasksSince(checkpoint: Checkpoint): Set<TaskId> {
     val ids = mutableSetOf<TaskId>()

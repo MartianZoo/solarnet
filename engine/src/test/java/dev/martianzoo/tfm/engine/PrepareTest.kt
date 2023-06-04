@@ -7,7 +7,6 @@ import dev.martianzoo.tfm.api.Exceptions.RequirementException
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.data.Player.Companion.PLAYER1
 import dev.martianzoo.tfm.engine.Engine.newGame
-import dev.martianzoo.tfm.engine.PlayerSession.Companion.session
 import dev.martianzoo.tfm.pets.Parsing.parse
 import dev.martianzoo.tfm.pets.PetTransformer
 import dev.martianzoo.tfm.pets.Transforming.replaceOwnerWith
@@ -17,14 +16,14 @@ import dev.martianzoo.tfm.types.Transformers
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 
-private class PrepareTest {
+internal class PrepareTest {
   val xers = Transformers(MClassLoader(Canon.SIMPLE_GAME))
-  val game = newGame(Canon.SIMPLE_GAME)
-  val p1 = game.session(PLAYER1)
-  val instructor = (p1.writer as PlayerAgent).instructor
+  val game: Game = newGame(Canon.SIMPLE_GAME)
+  val writer: GameWriter = game.writer(PLAYER1)
+  val instructor = (writer as PlayerAgent).instructor
 
   init {
-    p1.writer.sneak("Plant, 10 ProjectCard, PROD[-1]")
+    writer.sneak("Plant, 10 ProjectCard, PROD[-1]")
   }
 
   fun preprocess(instr: Instruction): Instruction {

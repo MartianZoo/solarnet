@@ -22,6 +22,8 @@ class TaskRevisionTest {
   private val A = TaskId("A")
   private val NO_CHANGE = TaskResult()
   private val game = Engine.newGame(Canon.SIMPLE_GAME)
+
+  // Kinda gross
   private val tasks = game.tasks
   private val events = game.events
   private val writer = game.writer(PLAYER1)
@@ -182,10 +184,13 @@ class TaskRevisionTest {
 
   private operator fun Checkpoint.plus(increment: Int) = Checkpoint(ordinal + increment)
 
-  private fun history() = events.entriesSince(start)
+  private fun history(): List<GameEvent> = events.entriesSince(start)
 
-  private fun assertHistoryTypes(vararg c: KClass<out GameEvent>) =
-      assertThat(history().map { it::class }).containsExactly(*c).inOrder()
+  private fun assertHistoryTypes(vararg c: KClass<out GameEvent>) {
+    assertThat(history().map { it::class.simpleName!! })
+        .containsExactlyElementsIn(c.map { it.simpleName!! })
+        .inOrder()
+  }
 
   private fun tasksAsText() = tasks.extract { "${it.instruction}" }
 }

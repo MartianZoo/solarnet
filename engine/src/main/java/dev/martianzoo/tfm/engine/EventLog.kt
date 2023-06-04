@@ -20,6 +20,7 @@ public interface EventLog {
 
   /** Returns all change events since game setup was concluded. */
   fun changesSinceSetup(): List<GameEvent.ChangeEvent>
+  fun entriesSinceSetup(): List<GameEvent>
 
   /** Returns all change events since [checkpoint]. */
   fun changesSince(checkpoint: Timeline.Checkpoint): List<GameEvent.ChangeEvent>

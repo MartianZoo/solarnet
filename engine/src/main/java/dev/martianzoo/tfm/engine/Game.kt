@@ -25,7 +25,6 @@ import javax.inject.Singleton
 public class Game
 @Inject
 constructor(
-
     /** The current state of the "board". */
     public val components: ComponentGraph,
 

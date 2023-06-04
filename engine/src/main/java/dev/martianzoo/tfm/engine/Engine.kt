@@ -41,6 +41,7 @@ public object Engine {
   @dagger.Component(modules = [GameModule::class])
   internal interface GameComponent {
     val game: Game
+    val table: MClassTable
     fun player(module: PlayerModule): PlayerComponent
   }
 
