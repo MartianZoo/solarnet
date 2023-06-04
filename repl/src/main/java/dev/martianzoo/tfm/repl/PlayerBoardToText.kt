@@ -2,7 +2,7 @@ package dev.martianzoo.tfm.repl
 
 import dev.martianzoo.tfm.api.ApiUtils.lookUpProductionLevels
 import dev.martianzoo.tfm.api.ApiUtils.standardResourceNames
-import dev.martianzoo.tfm.engine.PlayerSession
+import dev.martianzoo.tfm.engine.TerraformingMarsApi
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.pets.ast.Metric.Count
 import dev.martianzoo.tfm.repl.TfmColor.ENERGY
@@ -13,15 +13,15 @@ import dev.martianzoo.tfm.repl.TfmColor.STEEL
 import dev.martianzoo.tfm.repl.TfmColor.TITANIUM
 
 internal class PlayerBoardToText(
-    private val session: PlayerSession,
+    private val tfm: TerraformingMarsApi,
     val useColors: Boolean = true,
 ) {
 
   internal fun board(): List<String> {
-    val prodMap = lookUpProductionLevels(session.reader, session.player)
+    val prodMap = lookUpProductionLevels(tfm.reader, tfm.player)
     val resourceMap =
-        standardResourceNames(session.reader).associateBy({ it }) {
-          session.count(Count(it.of(session.player.className)))
+        standardResourceNames(tfm.reader).associateBy({ it }) {
+          tfm.reader.count(Count(it.of(tfm.player.className)))
         }
 
     fun prodAndResource(s: String) =
@@ -50,9 +50,9 @@ internal class PlayerBoardToText(
     val energ = maybeColor(ENERGY, "E: $eres")
     val heeat = maybeColor(HEAT, "H: $hres")
 
-    val r = session.count("TerraformRating")
-    val tiles = session.count("OwnedTile")
-    val player = "${session.player}"
+    val r = tfm.gameplay.count("TerraformRating")
+    val tiles = tfm.gameplay.count("OwnedTile")
+    val player = "${tfm.player}"
 
     return """
           $player   TR: $r   Tiles: $tiles

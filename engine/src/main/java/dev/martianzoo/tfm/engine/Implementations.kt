@@ -67,6 +67,13 @@ constructor(
     complete(autoExec, body)
   }
 
+  fun beginManual(initialInstruction: Instruction, autoExec: AutoExecMode, body: () -> Unit) {
+    require(tasks.isEmpty()) { tasks }
+    addTasks(initialInstruction).forEach { doTask(it.task.id) }
+    autoExecNow(autoExec)
+    body()
+  }
+
   fun complete(autoExec: AutoExecMode, body: () -> Unit) {
     autoExecNow(autoExec)
     body()
@@ -75,7 +82,7 @@ constructor(
     require(tasks.isEmpty()) {
       "Should be no tasks left, but:\n" + this.tasks.extract { it }.joinToString("\n")
     }
-    require(reader.has(parse("MAX 0 Temporary")))
+    require(reader.has(parse("MAX 0 Temporary"))) // TODO make game rules do this
   }
 
   @Suppress("ControlFlowWithEmptyBody")

@@ -1,18 +1,25 @@
 package dev.martianzoo.tfm.engine
 
 import dev.martianzoo.tfm.api.GameReader
-import dev.martianzoo.tfm.api.GameReader.Companion.parse
+import dev.martianzoo.tfm.api.Type
 import dev.martianzoo.tfm.data.GameEvent.ChangeEvent.Cause
 import dev.martianzoo.tfm.data.Player
 import dev.martianzoo.tfm.data.Task.TaskId
 import dev.martianzoo.tfm.data.TaskResult
 import dev.martianzoo.tfm.engine.AutoExecMode.FIRST
 import dev.martianzoo.tfm.engine.Engine.PlayerScope
+import dev.martianzoo.tfm.engine.Gameplay.Companion.parse
 import dev.martianzoo.tfm.engine.Gameplay.OperationBody
 import dev.martianzoo.tfm.pets.Transforming.replaceOwnerWith
+import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.pets.ast.Metric
 import dev.martianzoo.tfm.pets.ast.PetElement
+import dev.martianzoo.tfm.types.MType
+import dev.martianzoo.util.HashMultiset
+import dev.martianzoo.util.Hierarchical.Companion.lub
+import dev.martianzoo.util.Multiset
 import javax.inject.Inject
+import kotlin.reflect.KClass
 
 /**
  * An experiment in having a "generatable" class do the work of both parsing strings to PetElements,
@@ -43,8 +50,25 @@ constructor(
 
   override fun count(metric: String) = reader.count(parse<Metric>(metric))
 
-  private inline fun <reified P : PetElement> parse(text: String): P =
-      replaceOwnerWith(player).transform(reader.parse(text))
+  override fun list(type: String): Multiset<Expression> {
+    val typeToList: MType = reader.resolve(parse(type)) as MType
+    val allComponents: Multiset<out Type> = reader.getComponents(typeToList)
+
+    val result = HashMultiset<Expression>()
+    typeToList.root.directSubclasses.forEach { sub ->
+      val matches = allComponents.filter { it.narrows(sub.baseType) }
+      if (matches.any()) {
+        @Suppress("UNCHECKED_CAST")
+        val types = matches.elements as Set<MType>
+        result.add(lub(types)!!.expression, matches.size)
+      }
+    }
+    return result
+  }
+
+  // TODO rename, obvs
+  override fun <P : PetElement> parse2(type: KClass<P>, text: String): P =
+      replaceOwnerWith(player).transform(reader.parse2(type, text))
 
   // CHANGES
 
@@ -63,6 +87,12 @@ constructor(
   override fun initiate(initialInstruction: String, body: BodyLambda): TaskResult {
     return timeline.atomic {
       impl.operation(parse(initialInstruction), autoExecMode) { Adapter().body() }
+    }
+  }
+
+  override fun beginManual(initialInstruction: String, body: BodyLambda): TaskResult {
+    return timeline.atomic {
+      impl.beginManual(parse(initialInstruction), autoExecMode) { Adapter().body() }
     }
   }
 
@@ -123,7 +153,7 @@ constructor(
   override fun prepareTask(taskId: TaskId) = impl.prepareTask(taskId)
 
   override fun doFirstTask(revised: String?) =
-      timeline.atomic { impl.doFirstTask(revised?.let(::parse)) }
+      timeline.atomic { impl.doFirstTask(revised?.let { parse(it) }) }
 
   override fun doTask(taskId: TaskId) = timeline.atomic { impl.doTask(taskId) }
 

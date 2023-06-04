@@ -7,6 +7,10 @@ import dev.martianzoo.tfm.data.Player
 import dev.martianzoo.tfm.data.Task.TaskId
 import dev.martianzoo.tfm.data.TaskResult
 import dev.martianzoo.tfm.engine.Gameplay.OperationBody
+import dev.martianzoo.tfm.pets.ast.Expression
+import dev.martianzoo.tfm.pets.ast.PetElement
+import dev.martianzoo.util.Multiset
+import kotlin.reflect.KClass
 
 interface Gameplay {
 
@@ -14,9 +18,15 @@ interface Gameplay {
 
   val player: Player
 
+  fun <P : PetElement> parse2(type: KClass<P>, text: String): P
+
   fun has(requirement: String): Boolean
 
   fun count(metric: String): Int
+
+  fun list(type: String): Multiset<Expression>
+
+  // Purple mode (and below)
 
   /**
    * Voluntarily replaces a task's instruction with a strictly more specific revision, as the owner
@@ -77,7 +87,8 @@ interface Gameplay {
 
   fun turnLayer(): TurnLayer
 
-  // Blue
+  // Blue mode
+
   interface TurnLayer : Gameplay {
     fun startTurn(): TaskResult
     fun startTurn2(): TaskResult
@@ -89,19 +100,17 @@ interface Gameplay {
     fun operationLayer(): OperationLayer
   }
 
-  // Green
+  // Green mode
+
   interface OperationLayer : TurnLayer {
+    // TODO rename manual?
     fun initiate(initialInstruction: String, body: BodyLambda = {}): TaskResult
+
+    fun beginManual(initialInstruction: String, body: BodyLambda = {}): TaskResult
 
     fun complete(body: BodyLambda = {}): TaskResult
 
     fun taskLayer(): TaskLayer
-  }
-
-  interface OldOperationBody {
-    fun task(instruction: String)
-    fun matchTask(instruction: String)
-    fun abortAndRollBack()
   }
 
   interface OperationBody {
@@ -130,6 +139,11 @@ interface Gameplay {
   // Red
   public interface ChangeLayer : TaskLayer {
     fun sneak(changes: String, fakeCause: Cause? = null): TaskResult
+  }
+
+  companion object {
+    public inline fun <reified P : PetElement> Gameplay.parse(text: String): P =
+        parse2(P::class, text)
   }
 }
 

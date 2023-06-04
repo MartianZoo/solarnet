@@ -5,80 +5,80 @@ import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.data.Player.Companion.PLAYER1
 import dev.martianzoo.tfm.data.Player.Companion.PLAYER2
 import dev.martianzoo.tfm.engine.Engine
-import dev.martianzoo.tfm.engine.PlayerSession.Companion.session
+import dev.martianzoo.tfm.engine.TerraformingMarsApi.Companion.tfm
 import org.junit.jupiter.api.Test
 
-private class PlayerSessionTest {
+internal class BasicTest {
   @Test
   fun shortNames() {
     val game = Engine.newGame(Canon.SIMPLE_GAME)
-    val session = game.session(PLAYER2)
+    val session = game.tfm(PLAYER2).operations
 
-    session.operation("PROD[5, 4 E]")
-    session.operation("ProjectCard")
-    session.operation("C138")
-    session.operation("PROD[-2 E, 2 S, T]")
+    session.initiate("PROD[5, 4 E]")
+    session.initiate("ProjectCard")
+    session.initiate("C138")
+    session.initiate("PROD[-2 E, 2 S, T]")
 
     assertThat(session.count("PROD[E]")).isEqualTo(0)
     assertThat(session.count("PROD[S]")).isEqualTo(4)
     assertThat(session.count("PROD[T]")).isEqualTo(2)
 
-    assertThat(game.session(PLAYER1).has("PROD[=0 E, =0 S]")).isTrue()
+    assertThat(game.tfm(PLAYER1).gameplay.has("PROD[=0 E, =0 S]")).isTrue()
   }
 
   @Test
   fun removeAmap() {
     val game = Engine.newGame(Canon.SIMPLE_GAME)
-    val session = game.session(PLAYER1)
+    val session = game.tfm(PLAYER1).operations
 
-    session.operation("3 Heat!")
-    session.operation("4 Heat.")
-    session.operation("-9 Heat.")
+    session.initiate("3 Heat!")
+    session.initiate("4 Heat.")
+    session.initiate("-9 Heat.")
     assertThat(session.count("Heat")).isEqualTo(0)
   }
 
   @Test
   fun rollback() {
     val game = Engine.newGame(Canon.SIMPLE_GAME)
-    val session = game.session(PLAYER1)
+    val session = game.tfm(PLAYER1).operations
 
-    session.operation("3 Heat")
-    session.operation("4 Heat")
+    session.initiate("3 Heat")
+    session.initiate("4 Heat")
     assertThat(session.count("Heat")).isEqualTo(7)
 
-    val checkpoint = session.timeline.checkpoint()
-    session.operation("-6 Heat")
+    val checkpoint = game.timeline.checkpoint()
+    session.initiate("-6 Heat")
     assertThat(session.count("Heat")).isEqualTo(1)
 
-    session.timeline.rollBack(checkpoint)
+    game.timeline.rollBack(checkpoint)
     assertThat(session.count("Heat")).isEqualTo(7)
   }
 
   @Test
   fun dependencies() {
     val game = Engine.newGame(Canon.SIMPLE_GAME)
-    val session = game.session(PLAYER2)
+    val session = game.tfm(PLAYER1).operations
 
-    assertThat(session.tasks.isEmpty()).isTrue()
+    assertThat(game.tasks.isEmpty()).isTrue()
     assertThat(session.count("Microbe")).isEqualTo(0)
 
-    session.operation("4 OxygenStep")
+    session.initiate("4 OxygenStep")
     assertThat(session.count("OxygenStep")).isEqualTo(4)
-    session.operation("ProjectCard")
-    session.operation("Ants")
-    assertThat(session.tasks.isEmpty())
+    session.initiate("ProjectCard")
+    session.initiate("Ants")
+    assertThat(game.tasks.isEmpty())
     assertThat(session.count("Ants")).isEqualTo(1)
-    session.operation("3 Microbe<Ants>")
+    session.initiate("3 Microbe<Ants>")
     assertThat(session.count("Microbe")).isEqualTo(3)
-    session.operation("-Ants")
+    session.initiate("-Ants")
     assertThat(session.count("Microbe")).isEqualTo(0)
   }
 
   @Test
   fun counting() {
     val game = Engine.newGame(Canon.SIMPLE_GAME)
-    val session = game.session(PLAYER2)
-    session.operation("42 Heat")
+    val session = game.tfm(PLAYER1).operations
+    session.initiate("42 Heat")
     assertThat(session.count("Heat")).isEqualTo(42)
     assertThat(session.count("4 Heat")).isEqualTo(10)
     assertThat(session.count("42 Heat")).isEqualTo(1)
@@ -95,19 +95,19 @@ private class PlayerSessionTest {
   @Test
   fun tempTrigger() {
     val game = Engine.newGame(Canon.SIMPLE_GAME)
-    val session = game.session(PLAYER1)
+    val session = game.tfm(PLAYER1).operations
     assertThat(session.count("TerraformRating")).isEqualTo(20)
 
-    session.operation("2 TemperatureStep")
+    session.initiate("2 TemperatureStep")
     assertThat(session.count("TemperatureStep")).isEqualTo(2)
     assertThat(session.count("TerraformRating")).isEqualTo(22)
     assertThat(session.count("Production<Class<Heat>>")).isEqualTo(0)
 
-    session.operation("2 TemperatureStep")
+    session.initiate("2 TemperatureStep")
     assertThat(session.count("TerraformRating")).isEqualTo(24)
     assertThat(session.count("Production<Class<Heat>>")).isEqualTo(1)
 
-    session.operation("8 OxygenStep")
+    session.initiate("8 OxygenStep")
     assertThat(session.count("TerraformRating")).isEqualTo(33)
     assertThat(session.count("Production<Class<Heat>>")).isEqualTo(2)
   }

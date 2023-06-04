@@ -27,12 +27,12 @@ private class ReplSessionTest {
       repl.command(cmd)
     }
 
-    assertThat(repl.session.count("M")).isEqualTo(38) // 8 + 29 + 1
-    assertThat(repl.session.count("S")).isEqualTo(8)
-    assertThat(repl.session.count("T")).isEqualTo(10)
-    assertThat(repl.session.count("P")).isEqualTo(9)
-    assertThat(repl.session.count("E")).isEqualTo(5)
-    assertThat(repl.session.count("H")).isEqualTo(9)
+    assertThat(repl.session.gameplay.count("M")).isEqualTo(38) // 8 + 29 + 1
+    assertThat(repl.session.gameplay.count("S")).isEqualTo(8)
+    assertThat(repl.session.gameplay.count("T")).isEqualTo(10)
+    assertThat(repl.session.gameplay.count("P")).isEqualTo(9)
+    assertThat(repl.session.gameplay.count("E")).isEqualTo(5)
+    assertThat(repl.session.gameplay.count("H")).isEqualTo(9)
   }
 
   @Test
@@ -97,7 +97,7 @@ private class ReplSessionTest {
     repl.command("exec OT<M26>, OT<M55>, OT<M56>, CT<M46>, GT<M57>")
     repl.command("as Player2 exec GT<M45>, CT<M66>, MaTile<M99>")
     assertThat(repl.command("tasks")).isEmpty()
-    assertThat(repl.session.count("Tile")).isEqualTo(8)
+    assertThat(repl.session.gameplay.count("Tile")).isEqualTo(8)
 
     assertThat(repl.command(repl.MapCommand()))
         .containsExactlyElementsIn(
