@@ -17,7 +17,7 @@ class ExcentricSponsorTest {
       playCorp("Ecoline", 4)
       phase("Prelude")
 
-      turns.turn {
+      gameplay.turn {
         doTask("ExcentricSponsor")
         playProject("NitrogenRichAsteroid", 6)
       }

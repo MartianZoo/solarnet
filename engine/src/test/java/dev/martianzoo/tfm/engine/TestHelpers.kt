@@ -11,7 +11,7 @@ object TestHelpers {
           .inOrder()
 
   fun TerraformingMarsApi.assertCounts(vararg pairs: Pair<Int, String>) =
-      assertThat(pairs.map { turns.count(it.second) })
+      assertThat(pairs.map { gameplay.count(it.second) })
           .containsExactlyElementsIn(pairs.map { it.first })
           .inOrder()
 

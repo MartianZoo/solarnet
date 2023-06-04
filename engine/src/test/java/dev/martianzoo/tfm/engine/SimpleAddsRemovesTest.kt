@@ -20,7 +20,7 @@ internal class SimpleAddsRemovesTest {
     val eng = game.gameplay(ENGINE)
     assertThat(eng.count("Heat")).isEqualTo(0)
 
-    val p2 = game.tfm(PLAYER2).turns.operationLayer()
+    val p2 = game.tfm(PLAYER2).gameplay.operationLayer()
 
     p2.initiate("5 Heat<Player2>!")
     p2.initiate("10 Heat<Player1>!")

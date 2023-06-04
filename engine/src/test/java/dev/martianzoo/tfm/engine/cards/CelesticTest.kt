@@ -32,14 +32,14 @@ class CelesticTest {
       phase("Production")
       this.operations.initiate("ResearchPhase FROM Phase") {
         doFirstTask("2 BuyCard")
-        p2.turns.doTask("2 BuyCard")
+        p2.gameplay.doTask("2 BuyCard")
       }
       phase("Action")
       assertThrows<NarrowingException> { playProject("Mine") }
 
       assertCounts(1 to "Mandate")
       assertCounts(7 to "ProjectCard")
-      this.turns.turn { doTask("UseAllMandates") }
+      this.gameplay.turn { doTask("UseAllMandates") }
       assertCounts(9 to "ProjectCard")
       playProject("Mine", 4)
     }

@@ -9,28 +9,28 @@ import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 
 public class TerraformingMarsApi(val game: Game, val player: Player) {
-  val turns: Gameplay.TurnLayer = game.gameplay(player).turnLayer()
-  val operations: Gameplay.OperationLayer = turns.operationLayer()
+  val gameplay: Gameplay.TurnLayer = game.gameplay(player).turnLayer()
+  val operations: Gameplay.OperationLayer = gameplay.operationLayer()
   val tasks: TaskQueue by game::tasks
   val reader: GameReader by game::reader // TODO ditch it
 
   fun asPlayer(player: Player) = TerraformingMarsApi(game, player)
 
-  fun sneak(instruction: String): TaskResult = (turns as Gameplay.ChangeLayer).sneak(instruction)
+  fun sneak(instruction: String): TaskResult = (gameplay as Gameplay.ChangeLayer).sneak(instruction)
 
   fun playCorp(corpName: String, buyCards: Int, body: BodyLambda = {}): TaskResult {
-    require(turns.has("CorporationPhase")) // TODO awkward
-    return turns.turn {
+    require(gameplay.has("CorporationPhase")) // TODO awkward
+    return gameplay.turn {
       doTask(corpName) // TODO playcard
       doTask(if (buyCards == 0) "Ok" else "$buyCards BuyCard")
       body()
     }
   }
 
-  fun pass(): TaskResult = turns.turn { doTask("Pass") }
+  fun pass(): TaskResult = gameplay.turn { doTask("Pass") }
 
   fun stdAction(stdAction: String, body: BodyLambda = {}): TaskResult {
-    return turns.turn {
+    return gameplay.turn {
       doTask("UseAction1<$stdAction>")
       body()
     }
@@ -44,8 +44,8 @@ public class TerraformingMarsApi(val game: Game, val player: Player) {
   }
 
   fun playPrelude(cardName: String, body: BodyLambda = {}): TaskResult {
-    require(turns.has("PreludePhase")) // TODO awkward
-    return turns.turn {
+    require(gameplay.has("PreludePhase")) // TODO awkward
+    return gameplay.turn {
       doTask(cardName)
       body()
     }
@@ -58,7 +58,7 @@ public class TerraformingMarsApi(val game: Game, val player: Player) {
       titanium: Int = 0,
       body: BodyLambda = {}
   ): TaskResult {
-    return turns.turn {
+    return gameplay.turn {
       if (tasks.matching { "${it.instruction}".contains("StandardAction") }.any()) {
         doTask("UseAction1<PlayCardFromHand>")
       }
@@ -72,7 +72,7 @@ public class TerraformingMarsApi(val game: Game, val player: Player) {
       pay(titanium, "Titanium")
       pay(steel, "Steel")
 
-      val owed = turns.count("Owed")
+      val owed = gameplay.count("Owed")
 
       // MC really should be equal to owed, but if it's less we might be legitimately testing how
       // the engine responds. We know it doesn't respond usefully to an overage so we check that.
@@ -82,7 +82,7 @@ public class TerraformingMarsApi(val game: Game, val player: Player) {
       // Take care of other Accepts we didn't need
       tasks
           .matching { it.cause?.context?.className == cn("Accept") }
-          .forEach { turns.reviseTask(it, "Ok") } // "executes" automatically
+          .forEach { gameplay.reviseTask(it, "Ok") } // "executes" automatically
       autoExecNow()
       body()
       autoExecNow()
@@ -103,21 +103,21 @@ public class TerraformingMarsApi(val game: Game, val player: Player) {
   fun sellPatents(count: Int) =
       stdAction("SellPatents") { doTask("$count Megacredit FROM ProjectCard") }
 
-  fun phase(phase: String) {
-    asPlayer(ENGINE).operations.initiate("${phase}Phase FROM Phase")
+  fun phase(phase: String, body: BodyLambda = {}) {
+    asPlayer(ENGINE).operations.initiate("${phase}Phase FROM Phase", body)
   }
 
   fun production(): Map<ClassName, Int> =
       standardResourceNames(reader).associateWith { production(it) }
 
   fun production(kind: ClassName) =
-      turns.count("PROD[$kind]") - if (kind == MEGACREDIT || kind == cn("M")) 5 else 0
+      gameplay.count("PROD[$kind]") - if (kind == MEGACREDIT || kind == cn("M")) 5 else 0
 
   private val MEGACREDIT = cn("Megacredit")
 
-  fun oxygenPercent(): Int = turns.count("OxygenStep")
-  fun temperatureC(): Int = -30 + turns.count("TemperatureStep") * 2
-  fun venusPercent(): Int = turns.count("VenusStep") * 2
+  fun oxygenPercent(): Int = gameplay.count("OxygenStep")
+  fun temperatureC(): Int = -30 + gameplay.count("TemperatureStep") * 2
+  fun venusPercent(): Int = gameplay.count("VenusStep") * 2
 
   companion object {
     fun Game.tfm(player: Player) = TerraformingMarsApi(this, player)

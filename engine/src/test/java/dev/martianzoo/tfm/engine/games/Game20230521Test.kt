@@ -31,8 +31,8 @@ class Game20230521Test {
       with(engine) {
         phase("Production")
         operations.initiate("ResearchPhase FROM Phase") {
-          blue.turns.doTask(if (cards1 > 0) "$cards1 BuyCard" else "Ok")
-          purp.turns.doTask(if (cards2 > 0) "$cards2 BuyCard" else "Ok")
+          blue.gameplay.doTask(if (cards1 > 0) "$cards1 BuyCard" else "Ok")
+          purp.gameplay.doTask(if (cards2 > 0) "$cards2 BuyCard" else "Ok")
         }
         phase("Action")
       }
@@ -171,7 +171,7 @@ class Game20230521Test {
 
   fun TerraformingMarsApi.assertTags(vararg pair: Pair<Int, String>) {
     assertCounts(*pair)
-    assertThat(turns.count("Tag")).isEqualTo(pair.toList().sumOf { it.first })
+    assertThat(gameplay.count("Tag")).isEqualTo(pair.toList().sumOf { it.first })
   }
 
   fun TerraformingMarsApi.assertSidebar(gen: Int, temp: Int, oxygen: Int, oceans: Int, venus: Int) {
@@ -197,7 +197,7 @@ class Game20230521Test {
   }
 
   fun TerraformingMarsApi.assertActions(expected: Int) {
-    assertThat(turns.count("ActionCard") - turns.count("ActionUsedMarker"))
+    assertThat(gameplay.count("ActionCard") - gameplay.count("ActionUsedMarker"))
         .isEqualTo(expected)
   }
 }

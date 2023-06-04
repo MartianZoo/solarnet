@@ -27,7 +27,7 @@ class MergerTest {
       phase("Action")
       assertCounts(2 to "Mandate", 0 to "PreludeCard", 6 to "ProjectCard")
 
-      turns.turn {
+      gameplay.turn {
         doTask("UseAllMandates")
         assertCounts(8 to "ProjectCard", 1 to "PreludeCard")
         assertProds(0 to "M", 0 to "S", 0 to "T", 0 to "P", 0 to "E", 0 to "H")
