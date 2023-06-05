@@ -1,6 +1,5 @@
 package dev.martianzoo.tfm.repl
 
-import dev.martianzoo.tfm.api.Exceptions
 import dev.martianzoo.tfm.api.GameReader
 import dev.martianzoo.tfm.api.SpecialClassNames.CLASS
 import dev.martianzoo.tfm.api.SpecialClassNames.COMPONENT
@@ -18,13 +17,15 @@ import dev.martianzoo.tfm.engine.TerraformingMarsApi
 import dev.martianzoo.tfm.engine.TerraformingMarsApi.Companion.tfm
 import dev.martianzoo.tfm.engine.Timeline.Checkpoint
 import dev.martianzoo.tfm.pets.HasExpression.Companion.expressions
-import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.pets.ast.Expression
-import dev.martianzoo.tfm.pets.ast.Instruction
-import dev.martianzoo.tfm.pets.ast.Instruction.Change
 import dev.martianzoo.tfm.pets.ast.Metric
 import dev.martianzoo.tfm.pets.ast.Requirement
+import dev.martianzoo.tfm.repl.Access.BlueMode
+import dev.martianzoo.tfm.repl.Access.GreenMode
+import dev.martianzoo.tfm.repl.Access.PurpleMode
+import dev.martianzoo.tfm.repl.Access.RedMode
+import dev.martianzoo.tfm.repl.Access.YellowMode
 import dev.martianzoo.tfm.repl.ReplSession.ReplMode.BLUE
 import dev.martianzoo.tfm.repl.ReplSession.ReplMode.GREEN
 import dev.martianzoo.tfm.repl.ReplSession.ReplMode.PURPLE
@@ -157,6 +158,8 @@ public class ReplSession(var setup: GameSetup, private val jline: JlineRepl? = n
     override fun noArgs() = throw UsageException()
     override fun withArgs(args: String): List<String> {
       val (player, rest) = args.trim().split(Regex("\\s+"), 2)
+
+      // This is a sad way to do it TODO
       val saved = session
       return try {
         session = game.tfm(player(player))
@@ -322,11 +325,11 @@ public class ReplSession(var setup: GameSetup, private val jline: JlineRepl? = n
 
     override fun withArgs(args: String): List<String> {
       try {
-        val thing = ReplMode.valueOf(args.uppercase())
-        mode = thing
+        mode = ReplMode.valueOf(args.uppercase())
       } catch (e: Exception) {
         throw UsageException(
-            "Valid modes are: ${ReplMode.values().joinToString { it.toString().lowercase() }}")
+            "Valid modes are: ${ReplMode.values().joinToString { it.toString().lowercase() }}"
+        )
       }
       return noArgs()
     }
@@ -368,52 +371,17 @@ public class ReplSession(var setup: GameSetup, private val jline: JlineRepl? = n
            use `tasks` to see which tasks are waiting for you.
         """
 
-    override fun withArgs(args: String): List<String> {
-      val parsed = session.gameplay.parse<Instruction>(args)
-      val changes: TaskResult =
-          when (mode) {
-            RED -> session.sneak(args)
-            YELLOW, -> execute(args)
-            GREEN -> session.operations.beginManual(args)
-            BLUE ->
-                when {
-                  session.player != ENGINE ->
-                      throw UsageException("In blue mode you must be Engine to do this")
-                  parsed.isGainOf(cn("NewTurn")) -> session.operations.beginManual(args)
-                  parsed.isGainOf(cn("Phase")) -> session.operations.beginManual(args)
-                  else ->
-                      throw UsageException("Eep, can't do that in ${mode.name.lowercase()} mode")
-                }
-            PURPLE -> {
-              throw UsageException("Can't initiate tasks in this mode")
-            }
-          }
-
-      return describeExecutionResults(changes)
-    }
-
-    private fun Instruction.isGainOf(superclass: ClassName): Boolean =
-        when (this) {
-          is Change ->
-              gaining?.let {
-                val t = session.reader.resolve(it) as MType
-                t.isSubtypeOf(session.reader.resolve(superclass.expression) as MType)
-              }
-                  ?: false
-          is Instruction.Transform -> instruction.isGainOf(superclass)
-          else -> false
-        }
-
-    private fun execute(instruction: String): TaskResult {
-      if (mode == BLUE && !session.tasks.isEmpty()) {
-        throw Exceptions.mustClearTasks()
-      }
-      return session.game.timeline.atomic {
-        val tasks = session.operations.taskLayer().addTasks(instruction).tasksSpawned
-        tasks.forEach(session.gameplay::doTask)
-      }
-    }
+    override fun withArgs(args: String) = describeExecutionResults(access().exec(args))
   }
+
+  private fun access(): Access = // TODO maybe don't do this "just-in-time"...
+      when (mode) {
+        RED -> RedMode(session.gameplay)
+        YELLOW -> YellowMode(session.gameplay)
+        GREEN -> GreenMode(session.gameplay)
+        BLUE -> BlueMode(session.gameplay)
+        PURPLE -> PurpleMode(session.gameplay)
+      }
 
   internal inner class TasksCommand : ReplCommand("tasks") {
     override val usage = "tasks"
@@ -453,9 +421,9 @@ public class ReplSession(var setup: GameSetup, private val jline: JlineRepl? = n
           }
 
       if (rest == "drop") {
-        if (mode >= GREEN) throw UsageException("not in this mode you don't")
-        session.operations.taskLayer().dropTask(id)
+        access().dropTask(id)
         return listOf("Task $id deleted")
+
       } else if (rest == "prepare") {
         session.gameplay.prepareTask(id)
         return session.tasks.extract { "$it" }

@@ -66,6 +66,8 @@ constructor(
     return result
   }
 
+  override fun resolve(expression: String) = reader.resolve(parse(expression))
+
   // TODO rename, obvs
   override fun <P : PetElement> parse2(type: KClass<P>, text: String): P =
       replaceOwnerWith(player).transform(reader.parse2(type, text))

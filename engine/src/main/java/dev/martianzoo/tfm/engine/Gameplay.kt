@@ -1,6 +1,7 @@
 package dev.martianzoo.tfm.engine
 
 import dev.martianzoo.tfm.api.GameReader
+import dev.martianzoo.tfm.api.Type
 import dev.martianzoo.tfm.data.GameEvent.ChangeEvent.Cause
 import dev.martianzoo.tfm.data.GameEvent.TaskRemovedEvent
 import dev.martianzoo.tfm.data.Player
@@ -25,6 +26,8 @@ interface Gameplay {
   fun count(metric: String): Int
 
   fun list(type: String): Multiset<Expression>
+
+  fun resolve(expression: String): Type
 
   // Purple mode (and below)
 
