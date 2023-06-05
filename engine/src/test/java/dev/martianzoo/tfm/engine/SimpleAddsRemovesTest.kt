@@ -22,12 +22,12 @@ internal class SimpleAddsRemovesTest {
 
     val p2 = game.tfm(PLAYER2).gameplay.operationLayer()
 
-    p2.initiate("5 Heat<Player2>!")
-    p2.initiate("10 Heat<Player1>!")
+    p2.manual("5 Heat<Player2>!")
+    p2.manual("10 Heat<Player1>!")
 
     assertThat(eng.count("Heat")).isEqualTo(15)
 
-    p2.initiate("-4 Heat")
+    p2.manual("-4 Heat")
     assertThat(eng.has("Heat<Player2>")).isTrue()
     assertThat(eng.has("=1 Heat<Player2>")).isTrue()
     assertThat(eng.has("MAX 1 Heat<Player2>")).isTrue()
@@ -35,11 +35,11 @@ internal class SimpleAddsRemovesTest {
     assertThat(eng.count("StandardResource")).isEqualTo(11)
     assertThat(eng.count("StandardResource<Player1>")).isEqualTo(10)
 
-    p2.initiate("3 Steel<Player1> FROM Heat<Player1>!")
+    p2.manual("3 Steel<Player1> FROM Heat<Player1>!")
     assertThat(eng.count("StandardResource<Player1>")).isEqualTo(10)
     assertThat(eng.count("Steel")).isEqualTo(3)
 
-    p2.initiate("2 Heat<Player2 FROM Player1>!")
+    p2.manual("2 Heat<Player2 FROM Player1>!")
     assertThat(eng.has("=3 Heat<Player2>")).isTrue()
     assertThat(eng.has("=5 Heat<Player1>")).isTrue()
 

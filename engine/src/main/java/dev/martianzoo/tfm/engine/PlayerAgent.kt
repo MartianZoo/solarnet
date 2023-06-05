@@ -34,18 +34,18 @@ constructor(
     transformers: Transformers,
 ) : GameWriter {
 
-  override fun reviseTask(taskId: TaskId, revised: Instruction): TaskResult {
+  override fun reviseTask(taskId: TaskId, revised: Instruction) {
     val task = tasks.getTaskData(taskId)
     if (player != task.owner) {
       throw TaskException("$player can't revise a task owned by ${task.owner}")
     }
 
     val revision = preprocess(revised)
-    if (revision == task.instruction) return TaskResult()
+    if (revision == task.instruction) return
     revision.ensureNarrows(task.instruction, reader)
 
     val replacement = if (task.next) instructor.prepare(revision) else revision
-    return replace1WithN(tasks.getTaskData(taskId).copy(instructionIn = replacement))
+    replace1WithN(tasks.getTaskData(taskId).copy(instructionIn = replacement))
   }
 
   override fun canPrepareTask(taskId: TaskId): Boolean {
@@ -76,7 +76,6 @@ constructor(
 
   private fun doPrepare(task: Task): TaskId? {
     dontCutTheLine(task.id)
-
     val replacement = instructor.prepare(task.instruction)
     replace1WithN(task.copy(instructionIn = replacement, next = true))
     return tasks.preparedTask()
@@ -84,28 +83,24 @@ constructor(
 
   // Use this to edit a task if the replacement instruction might be NoOp, in which case the
   // task is handleTask'd instead.
-  private fun replace1WithN(replacement: Task): TaskResult {
-    return timeline.atomic {
-      val split = split(replacement.instruction)
-      if (split.size == 1) {
-        val reason = replacement.whyPending?.let { "(was: $it)" }
-        val one = split.instructions[0]
-        tasks.editTask(replacement.copy(instructionIn = one, whyPending = reason))
-      } else {
-        tasks.addTasks(split, replacement.owner, replacement.cause)
-        handleTask(replacement.id)
-      }
+  private fun replace1WithN(replacement: Task) {
+    val split = split(replacement.instruction)
+    if (split.size == 1) {
+      val reason = replacement.whyPending?.let { "(was: $it)" }
+      val one = split.instructions[0]
+      tasks.editTask(replacement.copy(instructionIn = one, whyPending = reason))
+    } else {
+      tasks.addTasks(split, replacement.owner, replacement.cause)
+      handleTask(replacement.id)
     }
   }
 
-  override fun executeTask(taskId: TaskId): TaskResult {
-    return timeline.atomic {
-      val prepared = doPrepare(tasks.getTaskData(taskId)) ?: return@atomic
-      val preparedTask = tasks.getTaskData(prepared)
-      val newTasks = instructor.execute(preparedTask.instruction, preparedTask.cause)
-      newTasks.forEach(tasks::addTasks)
-      handleTask(taskId)
-    }
+  override fun executeTask(taskId: TaskId) {
+    val prepared = doPrepare(tasks.getTaskData(taskId)) ?: return
+    val preparedTask = tasks.getTaskData(prepared)
+    val newTasks = instructor.execute(preparedTask.instruction, preparedTask.cause)
+    newTasks.forEach(tasks::addTasks)
+    handleTask(taskId)
   }
 
   override fun explainTask(taskId: TaskId, reason: String) {
@@ -119,11 +114,10 @@ constructor(
     } while (tasks.ids().any())
   }
 
-  override fun addTasks(instruction: Instruction, firstCause: Cause?) =
-      timeline.atomic {
-        val prepped = split(preprocess(instruction))
-        tasks.addTasks(prepped, player, firstCause)
-      }
+  override fun addTasks(instruction: Instruction, firstCause: Cause?): List<TaskId> {
+    val prepped = split(preprocess(instruction))
+    return tasks.addTasks(prepped, player, firstCause).map { it.task.id }
+  }
 
   override fun dropTask(taskId: TaskId) = tasks.removeTask(taskId)
 

@@ -19,13 +19,13 @@ class RoboticWorkforceTest {
     val game = Engine.newGame(GameSetup(Canon, "BRMP", 2))
 
     with(game.tfm(PLAYER1)) {
-      gameplay.operationLayer().initiate(
+      gameplay.operationLayer().manual(
           "4 ProjectCard, MassConverter, StripMine, IndustrialMicrobes")
       checkProduction(0, 3, 1, 0, 5, 0)
 
-      game.tfm(PLAYER2).gameplay.operationLayer().initiate("ProjectCard, Mine")
+      game.tfm(PLAYER2).gameplay.operationLayer().manual("ProjectCard, Mine")
 
-      gameplay.operationLayer().initiate("RoboticWorkforce") {
+      gameplay.operationLayer().manual("RoboticWorkforce") {
         checkProduction(0, 3, 1, 0, 5, 0)
 
         Truth.assertThat(tasks.extract { it.whyPending })

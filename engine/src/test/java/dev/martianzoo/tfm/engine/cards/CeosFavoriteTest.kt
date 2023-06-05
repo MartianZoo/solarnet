@@ -15,17 +15,17 @@ class CeosFavoriteTest {
     val game = Engine.newGame(GameSetup(Canon, "CVERB", 2))
 
     with(game.gameplay(PLAYER1).turnLayer().operationLayer()) {
-      initiate("10 ProjectCard, ForcedPrecipitation")
+      manual("10 ProjectCard, ForcedPrecipitation")
 
       // We can't CEO's onto an empty card
       assertThrows<DependencyException> {
-        initiate("CeosFavoriteProject") { doTask("Floater<ForcedPrecipitation>") }
+        manual("CeosFavoriteProject") { doTask("Floater<ForcedPrecipitation>") }
       }
 
       taskLayer().changeLayer().sneak("Floater<ForcedPrecipitation>")
       assertCounts(1 to "Floater")
 
-      initiate("CeosFavoriteProject") { doTask("Floater<ForcedPrecipitation>") }
+      manual("CeosFavoriteProject") { doTask("Floater<ForcedPrecipitation>") }
       assertCounts(2 to "Floater")
     }
   }

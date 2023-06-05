@@ -30,7 +30,7 @@ class CelesticTest {
       pass()
 
       phase("Production")
-      this.operations.initiate("ResearchPhase FROM Phase") {
+      this.operations.manual("ResearchPhase FROM Phase") {
         doFirstTask("2 BuyCard")
         p2.gameplay.doTask("2 BuyCard")
       }

@@ -104,7 +104,7 @@ public class TerraformingMarsApi(val game: Game, val player: Player) {
       stdAction("SellPatents") { doTask("$count Megacredit FROM ProjectCard") }
 
   fun phase(phase: String, body: BodyLambda = {}) {
-    asPlayer(ENGINE).operations.initiate("${phase}Phase FROM Phase", body)
+    asPlayer(ENGINE).operations.manual("${phase}Phase FROM Phase", body)
   }
 
   fun production(): Map<ClassName, Int> =

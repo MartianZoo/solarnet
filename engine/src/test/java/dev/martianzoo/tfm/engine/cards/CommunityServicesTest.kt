@@ -16,13 +16,13 @@ class CommunityServicesTest {
     val p1 = game.tfm(PLAYER1)
 
     with(game.gameplay(PLAYER1).turnLayer().operationLayer()) {
-      initiate("10 ProjectCard, ForcedPrecipitation")
-      initiate("AtmoCollectors") { doTask("2 Floater<AtmoCollectors>") }
-      initiate("Airliners") { doTask("2 Floater<AtmoCollectors>") }
+      manual("10 ProjectCard, ForcedPrecipitation")
+      manual("AtmoCollectors") { doTask("2 Floater<AtmoCollectors>") }
+      manual("Airliners") { doTask("2 Floater<AtmoCollectors>") }
 
       assertThat(p1.production(cn("M"))).isEqualTo(2)
 
-      initiate("CommunityServices") // 3 tagless cards: Atmo, Airl, Comm
+      manual("CommunityServices") // 3 tagless cards: Atmo, Airl, Comm
       assertThat(p1.production(cn("M"))).isEqualTo(5)
     }
   }

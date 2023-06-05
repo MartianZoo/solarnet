@@ -19,7 +19,7 @@ interface Gameplay {
 
   val player: Player
 
-  fun <P : PetElement> parse2(type: KClass<P>, text: String): P
+  fun <P : PetElement> parseInternal(type: KClass<P>, text: String): P
 
   fun has(requirement: String): Boolean
 
@@ -86,7 +86,7 @@ interface Gameplay {
   fun tryPreparedTask(): TaskResult
 
   fun autoExecNow(): TaskResult
-  var autoExecMode: AutoExecMode // TODO maybe autoExecNow when this is set to true
+  var autoExecMode: AutoExecMode
 
   fun turnLayer(): TurnLayer
 
@@ -106,12 +106,11 @@ interface Gameplay {
   // Green mode
 
   interface OperationLayer : TurnLayer {
-    // TODO rename manual?
-    fun initiate(initialInstruction: String, body: BodyLambda = {}): TaskResult
+    fun manual(initialInstruction: String, body: BodyLambda = {}): TaskResult
 
     fun beginManual(initialInstruction: String, body: BodyLambda = {}): TaskResult
 
-    fun complete(body: BodyLambda = {}): TaskResult
+    fun finish(body: BodyLambda = {}): TaskResult
 
     fun taskLayer(): TaskLayer
   }
@@ -146,7 +145,7 @@ interface Gameplay {
 
   companion object {
     public inline fun <reified P : PetElement> Gameplay.parse(text: String): P =
-        parse2(P::class, text)
+        parseInternal(P::class, text)
   }
 }
 

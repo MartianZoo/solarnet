@@ -30,7 +30,7 @@ class Game20230521Test {
     fun newGeneration(cards1: Int, cards2: Int) {
       with(engine) {
         phase("Production")
-        operations.initiate("ResearchPhase FROM Phase") {
+        operations.manual("ResearchPhase FROM Phase") {
           blue.gameplay.doTask(if (cards1 > 0) "$cards1 BuyCard" else "Ok")
           purp.gameplay.doTask(if (cards2 > 0) "$cards2 BuyCard" else "Ok")
         }
@@ -189,7 +189,7 @@ class Game20230521Test {
   }
 
   fun TerraformingMarsApi.assertVps(expected: Int) {
-    operations.initiate("End FROM Phase") {
+    operations.manual("End FROM Phase") {
       autoExecNow()
       assertCounts(expected to "VP")
       throw AbortOperationException()

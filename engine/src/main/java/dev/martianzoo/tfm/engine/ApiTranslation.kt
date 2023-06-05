@@ -38,6 +38,12 @@ constructor(
 ) : Gameplay.ChangeLayer { // so it really implements all gameplay layers
 
   override var autoExecMode: AutoExecMode = FIRST
+    set(newMode) {
+      if (newMode != field) {
+        field = newMode
+        autoExecNow()
+      }
+    }
 
   override fun turnLayer() = this as Gameplay.TurnLayer
   override fun operationLayer() = this as Gameplay.OperationLayer
@@ -68,9 +74,8 @@ constructor(
 
   override fun resolve(expression: String) = reader.resolve(parse(expression))
 
-  // TODO rename, obvs
-  override fun <P : PetElement> parse2(type: KClass<P>, text: String): P =
-      replaceOwnerWith(player).transform(reader.parse2(type, text))
+  override fun <P : PetElement> parseInternal(type: KClass<P>, text: String): P =
+      replaceOwnerWith(player).transform(reader.parseInternal(type, text))
 
   // CHANGES
 
@@ -85,10 +90,9 @@ constructor(
 
   // OPERATIONS
 
-  // TODO rename manual?
-  override fun initiate(initialInstruction: String, body: BodyLambda): TaskResult {
+  override fun manual(initialInstruction: String, body: BodyLambda): TaskResult {
     return timeline.atomic {
-      impl.operation(parse(initialInstruction), autoExecMode) { Adapter().body() }
+      impl.manual(parse(initialInstruction), autoExecMode) { Adapter().body() }
     }
   }
 
@@ -98,7 +102,7 @@ constructor(
     }
   }
 
-  override fun complete(body: BodyLambda): TaskResult {
+  override fun finish(body: BodyLambda): TaskResult {
     return timeline.atomic { impl.complete(autoExecMode) { Adapter().body() } }
   }
 
@@ -135,13 +139,13 @@ constructor(
   override fun turn(body: BodyLambda): TaskResult {
     // TODO tighten this up somehow...
     return if (tasks.isEmpty()) {
-      initiate("NewTurn<$player>", body)
+      manual("NewTurn", body)
     } else {
-      complete(body)
+      finish(body)
     }
   }
 
-  override fun turn2(body: BodyLambda) = initiate("NewTurn2<$player>", body)
+  override fun turn2(body: BodyLambda) = manual("NewTurn2<$player>", body)
 
   // GAMES (methods that can't break game-integrity)
   // This layer is only usable if you have a running workflow, so that >0 players always have a

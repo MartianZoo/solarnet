@@ -32,7 +32,7 @@ sealed class Access {
 
       // This is weird. We should have special commands... and get rid of this NewTurn2 biz TODO
       return when {
-        instr.isGainOf(cn("Phase")) -> gameplay.operationLayer().initiate(instruction)
+        instr.isGainOf(cn("Phase")) -> gameplay.operationLayer().manual(instruction)
         instr.isGainOf(cn("NewTurn")) -> gameplay.startTurn()
         instr.isGainOf(cn("NewTurn2")) -> gameplay.startTurn2()
         else -> error("not allowed in this mode")

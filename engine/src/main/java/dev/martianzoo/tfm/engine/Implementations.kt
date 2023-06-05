@@ -61,7 +61,7 @@ constructor(
 
   // OPERATIONS LAYER
 
-  fun operation(initialInstruction: Instruction, autoExec: AutoExecMode, body: () -> Unit) {
+  fun manual(initialInstruction: Instruction, autoExec: AutoExecMode, body: () -> Unit) {
     require(tasks.isEmpty()) { tasks }
     addTasks(initialInstruction).forEach { doTask(it.task.id) }
     complete(autoExec, body)

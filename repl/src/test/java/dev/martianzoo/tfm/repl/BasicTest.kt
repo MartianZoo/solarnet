@@ -14,10 +14,10 @@ internal class BasicTest {
     val game = Engine.newGame(Canon.SIMPLE_GAME)
     val session = game.tfm(PLAYER2).operations
 
-    session.initiate("PROD[5, 4 E]")
-    session.initiate("ProjectCard")
-    session.initiate("C138")
-    session.initiate("PROD[-2 E, 2 S, T]")
+    session.manual("PROD[5, 4 E]")
+    session.manual("ProjectCard")
+    session.manual("C138")
+    session.manual("PROD[-2 E, 2 S, T]")
 
     assertThat(session.count("PROD[E]")).isEqualTo(0)
     assertThat(session.count("PROD[S]")).isEqualTo(4)
@@ -31,9 +31,9 @@ internal class BasicTest {
     val game = Engine.newGame(Canon.SIMPLE_GAME)
     val session = game.tfm(PLAYER1).operations
 
-    session.initiate("3 Heat!")
-    session.initiate("4 Heat.")
-    session.initiate("-9 Heat.")
+    session.manual("3 Heat!")
+    session.manual("4 Heat.")
+    session.manual("-9 Heat.")
     assertThat(session.count("Heat")).isEqualTo(0)
   }
 
@@ -42,12 +42,12 @@ internal class BasicTest {
     val game = Engine.newGame(Canon.SIMPLE_GAME)
     val session = game.tfm(PLAYER1).operations
 
-    session.initiate("3 Heat")
-    session.initiate("4 Heat")
+    session.manual("3 Heat")
+    session.manual("4 Heat")
     assertThat(session.count("Heat")).isEqualTo(7)
 
     val checkpoint = game.timeline.checkpoint()
-    session.initiate("-6 Heat")
+    session.manual("-6 Heat")
     assertThat(session.count("Heat")).isEqualTo(1)
 
     game.timeline.rollBack(checkpoint)
@@ -62,15 +62,15 @@ internal class BasicTest {
     assertThat(game.tasks.isEmpty()).isTrue()
     assertThat(session.count("Microbe")).isEqualTo(0)
 
-    session.initiate("4 OxygenStep")
+    session.manual("4 OxygenStep")
     assertThat(session.count("OxygenStep")).isEqualTo(4)
-    session.initiate("ProjectCard")
-    session.initiate("Ants")
+    session.manual("ProjectCard")
+    session.manual("Ants")
     assertThat(game.tasks.isEmpty())
     assertThat(session.count("Ants")).isEqualTo(1)
-    session.initiate("3 Microbe<Ants>")
+    session.manual("3 Microbe<Ants>")
     assertThat(session.count("Microbe")).isEqualTo(3)
-    session.initiate("-Ants")
+    session.manual("-Ants")
     assertThat(session.count("Microbe")).isEqualTo(0)
   }
 
@@ -78,7 +78,7 @@ internal class BasicTest {
   fun counting() {
     val game = Engine.newGame(Canon.SIMPLE_GAME)
     val session = game.tfm(PLAYER1).operations
-    session.initiate("42 Heat")
+    session.manual("42 Heat")
     assertThat(session.count("Heat")).isEqualTo(42)
     assertThat(session.count("4 Heat")).isEqualTo(10)
     assertThat(session.count("42 Heat")).isEqualTo(1)
@@ -98,16 +98,16 @@ internal class BasicTest {
     val session = game.tfm(PLAYER1).operations
     assertThat(session.count("TerraformRating")).isEqualTo(20)
 
-    session.initiate("2 TemperatureStep")
+    session.manual("2 TemperatureStep")
     assertThat(session.count("TemperatureStep")).isEqualTo(2)
     assertThat(session.count("TerraformRating")).isEqualTo(22)
     assertThat(session.count("Production<Class<Heat>>")).isEqualTo(0)
 
-    session.initiate("2 TemperatureStep")
+    session.manual("2 TemperatureStep")
     assertThat(session.count("TerraformRating")).isEqualTo(24)
     assertThat(session.count("Production<Class<Heat>>")).isEqualTo(1)
 
-    session.initiate("8 OxygenStep")
+    session.manual("8 OxygenStep")
     assertThat(session.count("TerraformRating")).isEqualTo(33)
     assertThat(session.count("Production<Class<Heat>>")).isEqualTo(2)
   }

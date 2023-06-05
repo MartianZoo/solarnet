@@ -63,7 +63,7 @@ public object Engine {
   @PlayerScope
   @Subcomponent(modules = [PlayerModule::class])
   internal interface PlayerComponent {
-    val writer: GameWriter // TODO phase out?
+    val writer: GameWriter
     val gameplay: Gameplay
     val initter: Initializer // only used for Engine
   }

@@ -18,14 +18,14 @@ class ManutechTest {
       playCorp("Manutech", 5)
       assertCounts(1 to "PROD[Steel]", 1 to "Steel")
 
-      operations.initiate("PROD[8, 6T, 7P, 5E, 3H]")
+      operations.manual("PROD[8, 6T, 7P, 5E, 3H]")
       assertThat(production().values).containsExactly(8, 1, 6, 7, 5, 3).inOrder()
       assertCounts(28 to "M", 1 to "S", 6 to "T", 7 to "P", 5 to "E", 3 to "H")
 
-      operations.initiate("-7 Plant")
+      operations.manual("-7 Plant")
       assertCounts(0 to "Plant")
 
-      operations.initiate("Moss")
+      operations.manual("Moss")
       assertThat(production().values).containsExactly(8, 1, 6, 8, 5, 3).inOrder()
       assertCounts(28 to "M", 1 to "S", 6 to "T", 0 to "P", 5 to "E", 3 to "H")
     }

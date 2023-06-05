@@ -31,11 +31,12 @@ interface GameReader : TypeInfo {
   fun getComponents(type: Type): Multiset<out Type>
 
   // TODO
-  fun <P : PetElement> parse2(type: KClass<P>, text: String): P
+  fun <P : PetElement> parseInternal(type: KClass<P>, text: String): P
 
   fun <P : PetElement> preprocess(node: P): P
 
   companion object {
-    inline fun <reified P : PetElement> GameReader.parse(text: String): P = parse2(P::class, text)
+    inline fun <reified P : PetElement> GameReader.parse(text: String): P =
+        parseInternal(P::class, text)
   }
 }

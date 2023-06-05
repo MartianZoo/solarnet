@@ -19,7 +19,7 @@ class LocalHeatTrappingTest {
   @Test
   fun notEnoughHeat() {
     with(p1) {
-      operations.initiate("4 Heat, 2 ProjectCard, Pets, 100")
+      operations.manual("4 Heat, 2 ProjectCard, Pets, 100")
       assertCounts(0 to "Plant", 4 to "Heat", 1 to "Animal")
       assertCounts(3 to "Card", 2 to "CardBack", 1 to "CardFront", 0 to "PlayedEvent")
 
@@ -45,9 +45,9 @@ class LocalHeatTrappingTest {
   @Test
   fun getPlants() {
     with(p1) {
-      operations.initiate("6 Heat, 2 ProjectCard, Pets")
+      operations.manual("6 Heat, 2 ProjectCard, Pets")
 
-      operations.initiate("LocalHeatTrapping") {
+      operations.manual("LocalHeatTrapping") {
         // The card is played and the heat is gone
         assertCounts(1 to "CardFront", 1 to "PlayedEvent")
         assertCounts(0 to "Plant", 1 to "Heat", 1 to "Animal")
@@ -66,9 +66,9 @@ class LocalHeatTrappingTest {
   @Test
   fun getPets() {
     with(p1) {
-      operations.initiate("6 Heat, 2 ProjectCard, Pets")
+      operations.manual("6 Heat, 2 ProjectCard, Pets")
 
-      operations.initiate("LocalHeatTrapping") {
+      operations.manual("LocalHeatTrapping") {
         // The card is played and the heat is gone
         assertCounts(2 to "CardBack", 1 to "CardFront", 1 to "PlayedEvent")
         assertCounts(0 to "Plant", 1 to "Heat", 1 to "Animal")
@@ -89,9 +89,9 @@ class LocalHeatTrappingTest {
   // @Test // TODO - overeager DependencyException
   fun getNothing() {
     with(p1) {
-      operations.initiate("6 Heat, 2 ProjectCard")
+      operations.manual("6 Heat, 2 ProjectCard")
 
-      operations.initiate("LocalHeatTrapping") {
+      operations.manual("LocalHeatTrapping") {
         assertThat(tasks.extract { "${it.whyPending}" })
             .containsExactly("choice required in: `4 Plant<Player1>! OR 2 Animal<Player1>.`")
 

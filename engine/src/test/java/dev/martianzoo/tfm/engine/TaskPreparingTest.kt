@@ -105,7 +105,7 @@ class TaskPreparingTest {
     assertThat(tasksAsText()).containsExactly("Steel<Player1>! / 2 OxygenStep")
   }
 
-  fun initiate(ins: String) = writer.addTasks(parse(ins)).tasksSpawned
+  fun initiate(ins: String) = writer.addTasks(parse(ins))
 
   private fun history() = events.entriesSince(start)
 

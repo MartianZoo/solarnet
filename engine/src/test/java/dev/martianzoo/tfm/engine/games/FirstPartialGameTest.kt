@@ -111,7 +111,7 @@ class FirstPartialGameTest {
       with(p2) {
         playProject("SolarPower", 1, steel = 4)
         stdProject("CitySP") { doTask("CityTile<E65>") }
-        operations.initiate("PROD[-Plant, Energy]") // CORRECTION TODO WHY WHY
+        operations.manual("PROD[-Plant, Energy]") // CORRECTION TODO WHY WHY
       }
 
       eng.phase("Production")

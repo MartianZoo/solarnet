@@ -80,7 +80,7 @@ constructor(
   override fun getComponents(type: Type) =
       components.getAll(table.resolve(type), this).map { it.mtype }
 
-  override fun <P : PetElement> parse2(type: KClass<P>, text: String): P =
+  override fun <P : PetElement> parseInternal(type: KClass<P>, text: String): P =
       preprocess(Parsing.parse(type, text))
 
   override fun <P : PetElement> preprocess(node: P) =

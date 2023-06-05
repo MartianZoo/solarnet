@@ -17,18 +17,18 @@ class SulphurEatingBacteriaTest {
     with(game.tfm(PLAYER1)) {
       phase("Action")
 
-      gameplay.operationLayer().initiate("5 ProjectCard, SulphurEatingBacteria")
+      gameplay.operationLayer().manual("5 ProjectCard, SulphurEatingBacteria")
       assertCounts(0 to "Microbe", 0 to "Megacredit")
 
-      gameplay.operationLayer().initiate("UseAction1<SulphurEatingBacteria>")
+      gameplay.operationLayer().manual("UseAction1<SulphurEatingBacteria>")
       assertCounts(1 to "Microbe", 0 to "Megacredit")
 
-      gameplay.operationLayer().initiate("UseAction2<SulphurEatingBacteria>") {
+      gameplay.operationLayer().manual("UseAction2<SulphurEatingBacteria>") {
         doTask("-Microbe<SulphurEatingBacteria> THEN 3")
       }
       assertCounts(0 to "Microbe", 3 to "Megacredit")
 
-      gameplay.operationLayer().initiate("4 Microbe<SulphurEatingBacteria>")
+      gameplay.operationLayer().manual("4 Microbe<SulphurEatingBacteria>")
       assertCounts(4 to "Microbe", 3 to "Megacredit")
 
       cardAction2("C251") {

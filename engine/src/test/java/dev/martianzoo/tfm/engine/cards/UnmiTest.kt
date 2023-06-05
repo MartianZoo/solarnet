@@ -40,7 +40,7 @@ class UnmiTest {
       assertCounts(14 to "Megacredit", 20 to "TR")
 
       // Do anything that raises TR, while we aren't even UNMI yet
-      operations.initiate("UseAction1<AsteroidSP>")
+      operations.manual("UseAction1<AsteroidSP>")
       assertCounts(0 to "Megacredit", 21 to "TR")
 
       playCorp("UnitedNationsMarsInitiative", 0)

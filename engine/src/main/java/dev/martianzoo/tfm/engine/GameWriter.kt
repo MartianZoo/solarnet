@@ -49,7 +49,7 @@ public interface GameWriter {
    * @throws [TaskException] if there is no task by this id owned by the player
    * @throws [NarrowingException] if [revised] is not a valid narrowing of the task's instruction
    */
-  fun reviseTask(taskId: TaskId, revised: Instruction): TaskResult // TODO -TaskResult
+  fun reviseTask(taskId: TaskId, revised: Instruction)
 
   /** Tells whether [prepareTask] will complete normallly. */
   fun canPrepareTask(taskId: TaskId): Boolean
@@ -83,7 +83,7 @@ public interface GameWriter {
    * @throws [AbstractException] if the task is abstract
    * @throws [NotNowException] if the task can't currently be prepared
    */
-  fun executeTask(taskId: TaskId): TaskResult
+  fun executeTask(taskId: TaskId)
 
   /** Replaces the [Task.whyPending] property of the specified task with [reason]. */
   fun explainTask(taskId: TaskId, reason: String)
@@ -91,7 +91,7 @@ public interface GameWriter {
   fun executeFully(instruction: Instruction, fakeCause: Cause? = null)
 
   /** Adds a manual task for the given [instruction], but does not prepare or execute it. */
-  fun addTasks(instruction: Instruction, firstCause: Cause? = null): TaskResult
+  fun addTasks(instruction: Instruction, firstCause: Cause? = null): List<TaskId>
 
   /** Forgets a task even existed. */
   fun dropTask(taskId: TaskId): TaskRemovedEvent

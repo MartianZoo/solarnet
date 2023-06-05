@@ -52,9 +52,7 @@ class TaskRevisionTest {
     initiate("2 Plant?")
     val before = game.timeline.checkpoint()
 
-    val result = writer.reviseTask(A, parse("2 Plant?"))
-
-    assertThat(result).isEqualTo(NO_CHANGE)
+    writer.reviseTask(A, parse("2 Plant?"))
     assertThat(tasks.ids()).containsExactly(A)
     assertThat(events.entriesSince(before)).isEmpty()
   }
@@ -63,9 +61,7 @@ class TaskRevisionTest {
   fun `a normal case of narrowing works normally`() {
     initiate("2 Plant?")
 
-    val result = writer.reviseTask(A, parse("Plant!"))
-
-    assertThat(result).isEqualTo(NO_CHANGE)
+    writer.reviseTask(A, parse("Plant!"))
     assertThat(history()).hasSize(2)
     assertThat(tasksAsText()).containsExactly("Plant<Player1>!")
   }
@@ -95,9 +91,7 @@ class TaskRevisionTest {
     initiate("5 Plant OR 4 Heat")
     assertThat(tasksAsText()).containsExactly("5 Plant<Player1>! OR 4 Heat<Player1>!")
 
-    val result = writer.reviseTask(A, parse("5 Plant"))
-
-    assertThat(result).isEqualTo(NO_CHANGE)
+    writer.reviseTask(A, parse("5 Plant"))
     assertThat(history()).hasSize(2)
     assertThat(tasksAsText()).containsExactly("5 Plant<Player1>!")
   }
@@ -121,9 +115,7 @@ class TaskRevisionTest {
   fun `narrowing to NoOp automatically handles the task`() {
     initiate("2 Plant?")
 
-    val result = writer.reviseTask(A, NoOp)
-    assertThat(result).isEqualTo(NO_CHANGE)
-
+    writer.reviseTask(A, NoOp)
     assertHistoryTypes(TaskAddedEvent::class, TaskRemovedEvent::class)
     assertThat(tasks.isEmpty()).isTrue()
   }
@@ -149,8 +141,7 @@ class TaskRevisionTest {
     assertThat(tasks.extract { "${it.instruction}" }).containsExactly("Plant<Player1>?")
     assertThat(tasks.extract { "${it.then}" }).containsExactly("Steel<Player1>!, Heat<Player1>!")
 
-    val result = writer.reviseTask(task, NoOp)
-    assertThat(result.tasksSpawned).hasSize(2)
+    writer.reviseTask(task, NoOp)
     assertThat(tasksAsText()).containsExactly("Steel<Player1>!", "Heat<Player1>!").inOrder()
     assertThat(tasks.matching { it.then != null }.none())
   }
@@ -159,8 +150,7 @@ class TaskRevisionTest {
   fun `a chain of 4 THEN clauses has the head sliced off one by one`() {
     val id = initiate("Plant? THEN Steel? THEN Heat? THEN Energy").single()
 
-    val result = writer.reviseTask(id, NoOp)
-    assertThat(result.tasksSpawned).hasSize(1)
+    writer.reviseTask(id, NoOp)
 
     val task1 = tasks.extract { it }.single()
     assertThat(task1.instruction.toString()).isEqualTo("Steel<Player1>?")
@@ -177,7 +167,7 @@ class TaskRevisionTest {
     assertThat(task3.then).isNull()
   }
 
-  fun initiate(ins: String) = writer.addTasks(parse(ins)).tasksSpawned
+  fun initiate(ins: String) = writer.addTasks(parse(ins))
 
   private operator fun Checkpoint.plus(increment: Int) = Checkpoint(ordinal + increment)
 

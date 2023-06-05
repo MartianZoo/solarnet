@@ -82,8 +82,6 @@ public interface ComponentGraph {
       }
     }
 
-    // TODO understand why these are different
-
     val xerForEffects: PetTransformer =
         with(Transformers(mtype.loader)) {
           chain(

@@ -54,7 +54,7 @@ class EllieGameTest {
 
     with(eng) {
       phase("Production")
-      operations.initiate("ResearchPhase FROM Phase") {
+      operations.manual("ResearchPhase FROM Phase") {
         p1.gameplay.doTask("1 BuyCard")
         p2.gameplay.doTask("3 BuyCard")
       }
@@ -85,7 +85,7 @@ class EllieGameTest {
 
     with(eng) {
       phase("Production")
-      operations.initiate("ResearchPhase FROM Phase") {
+      operations.manual("ResearchPhase FROM Phase") {
         p1.gameplay.doTask("3 BuyCard")
         p2.gameplay.doTask("BuyCard")
       }
@@ -138,7 +138,7 @@ class EllieGameTest {
 
     // To check VPs we have to fake the game ending
 
-    eng.operations.initiate("End FROM Phase") {
+    eng.operations.manual("End FROM Phase") {
       // TODO why does P1 have 1 more point than I expect?
       // Should be 23 2 1 1 -1 / 25 1 1 1
       eng.assertCounts(27 to "VP<P1>", 28 to "VP<P2>")
