@@ -7,7 +7,6 @@ import dev.martianzoo.tfm.api.Exceptions.RecoverableException
 import dev.martianzoo.tfm.api.Exceptions.TaskException
 import dev.martianzoo.tfm.api.GameReader
 import dev.martianzoo.tfm.data.GameEvent.ChangeEvent.Cause
-import dev.martianzoo.tfm.data.GameEvent.TaskAddedEvent
 import dev.martianzoo.tfm.data.GameEvent.TaskRemovedEvent
 import dev.martianzoo.tfm.data.Player
 import dev.martianzoo.tfm.data.Task
@@ -52,9 +51,9 @@ constructor(
 
   // TASKS LAYER
 
-  fun addTasks(instruction: Instruction, firstCause: Cause? = null): List<TaskAddedEvent> {
+  fun addTasks(instruction: Instruction, firstCause: Cause? = null): List<TaskId> {
     val prepped = split(instruction)
-    return tasks.addTasks(prepped, player, firstCause)
+    return tasks.addTasks(prepped, player, firstCause).map { it.task.id }
   }
 
   fun dropTask(taskId: TaskId): TaskRemovedEvent = tasks.removeTask(taskId)
@@ -63,13 +62,13 @@ constructor(
 
   fun manual(initialInstruction: Instruction, autoExec: AutoExecMode, body: () -> Unit) {
     require(tasks.isEmpty()) { tasks }
-    addTasks(initialInstruction).forEach { doTask(it.task.id) }
+    addTasks(initialInstruction).forEach(::doTask)
     complete(autoExec, body)
   }
 
   fun beginManual(initialInstruction: Instruction, autoExec: AutoExecMode, body: () -> Unit) {
     require(tasks.isEmpty()) { tasks }
-    addTasks(initialInstruction).forEach { doTask(it.task.id) }
+    addTasks(initialInstruction).forEach(::doTask)
     autoExecNow(autoExec)
     body()
   }
@@ -292,5 +291,5 @@ constructor(
   }
 
   fun execute(instruction: String, fakeCause: Cause? = null): Unit =
-      addTasks(parse(instruction), fakeCause).forEach { doTask(it.task.id) }
+      addTasks(parse(instruction), fakeCause).forEach(::doTask) // TODO where to share this
 }

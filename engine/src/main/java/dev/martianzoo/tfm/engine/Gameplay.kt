@@ -130,7 +130,7 @@ interface Gameplay {
   // Yellow
   public interface TaskLayer : OperationLayer {
     /** Adds a manual task for the given [instruction], but does not prepare or execute it. */
-    fun addTasks(instruction: String, firstCause: Cause? = null): TaskResult
+    fun addTasks(instruction: String, firstCause: Cause? = null): List<TaskId>
 
     /** Removes a task for any reason or no reason at all. */
     fun dropTask(taskId: TaskId): TaskRemovedEvent

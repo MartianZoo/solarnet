@@ -9,7 +9,6 @@ import dev.martianzoo.tfm.data.GameEvent.ChangeEvent.Cause
 import dev.martianzoo.tfm.data.GameEvent.TaskRemovedEvent
 import dev.martianzoo.tfm.data.Task
 import dev.martianzoo.tfm.data.Task.TaskId
-import dev.martianzoo.tfm.data.TaskResult
 import dev.martianzoo.tfm.engine.Engine.PlayerScope
 import dev.martianzoo.tfm.pets.ast.Instruction
 import dev.martianzoo.tfm.pets.ast.Instruction.Multi
@@ -50,9 +49,6 @@ public interface GameWriter {
    * @throws [NarrowingException] if [revised] is not a valid narrowing of the task's instruction
    */
   fun reviseTask(taskId: TaskId, revised: Instruction)
-
-  /** Tells whether [prepareTask] will complete normallly. */
-  fun canPrepareTask(taskId: TaskId): Boolean
 
   /**
    * Sets a task's [Task.next] bit, and simplifies its instruction according to the current game
@@ -96,7 +92,5 @@ public interface GameWriter {
   /** Forgets a task even existed. */
   fun dropTask(taskId: TaskId): TaskRemovedEvent
 
-  fun sneak(changes: String, cause: Cause? = null): TaskResult
-
-  fun sneak(changes: Instruction, cause: Cause? = null): TaskResult
+  fun sneak(changes: Instruction, cause: Cause? = null)
 }

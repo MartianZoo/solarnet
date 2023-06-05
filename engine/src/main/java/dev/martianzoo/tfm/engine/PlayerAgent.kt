@@ -7,10 +7,8 @@ import dev.martianzoo.tfm.data.GameEvent.ChangeEvent.Cause
 import dev.martianzoo.tfm.data.Player
 import dev.martianzoo.tfm.data.Task
 import dev.martianzoo.tfm.data.Task.TaskId
-import dev.martianzoo.tfm.data.TaskResult
 import dev.martianzoo.tfm.engine.ComponentGraph.Component.Companion.toComponent
 import dev.martianzoo.tfm.engine.Engine.PlayerScope
-import dev.martianzoo.tfm.pets.Parsing.parse
 import dev.martianzoo.tfm.pets.PetTransformer.Companion.chain
 import dev.martianzoo.tfm.pets.Transforming.replaceOwnerWith
 import dev.martianzoo.tfm.pets.ast.Instruction
@@ -46,17 +44,6 @@ constructor(
 
     val replacement = if (task.next) instructor.prepare(revision) else revision
     replace1WithN(tasks.getTaskData(taskId).copy(instructionIn = replacement))
-  }
-
-  override fun canPrepareTask(taskId: TaskId): Boolean {
-    dontCutTheLine(taskId)
-    val unprepared = tasks.getTaskData(taskId).instruction
-    return try {
-      instructor.prepare(unprepared)
-      true
-    } catch (e: Exception) {
-      false
-    }
   }
 
   override fun prepareTask(taskId: TaskId) =
@@ -121,21 +108,17 @@ constructor(
 
   override fun dropTask(taskId: TaskId) = tasks.removeTask(taskId)
 
-  override fun sneak(changes: String, cause: Cause?) = sneak(preprocess(parse(changes)), cause)
-
   // TODO: in theory any instruction would be sneakable, and it only means disabling triggers
-  override fun sneak(changes: Instruction, cause: Cause?): TaskResult {
-    return timeline.atomic {
-      split(changes).map {
-        val count = (it as Change).count as ActualScalar
-        changer.change(
-            count.value,
-            it.gaining?.toComponent(reader),
-            it.removing?.toComponent(reader),
-            cause,
-            orRemoveOneDependent = false,
-        )
-      }
+  override fun sneak(changes: Instruction, cause: Cause?) {
+    split(changes).map {
+      val count = (it as Change).count as ActualScalar
+      changer.change(
+          count.value,
+          it.gaining?.toComponent(reader),
+          it.removing?.toComponent(reader),
+          cause,
+          orRemoveOneDependent = false,
+      )
     }
   }
 

@@ -95,7 +95,7 @@ class LocalHeatTrappingTest {
         assertThat(tasks.extract { "${it.whyPending}" })
             .containsExactly("choice required in: `4 Plant<Player1>! OR 2 Animal<Player1>.`")
 
-        game.writer(PLAYER1).prepareTask(tasks.ids().single())
+        p1.gameplay.prepareTask(tasks.ids().single())
         assertThat(tasks.extract { "${it.whyPending}" })
             .containsExactly("choice required in: `4 Plant<Player1>! OR Ok`")
       }

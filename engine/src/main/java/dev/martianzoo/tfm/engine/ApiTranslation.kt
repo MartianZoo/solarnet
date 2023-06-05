@@ -79,12 +79,13 @@ constructor(
 
   // CHANGES
 
-  override fun sneak(changes: String, fakeCause: Cause?) = writer.sneak(changes, fakeCause)
+  override fun sneak(changes: String, fakeCause: Cause?) =
+      timeline.atomic { writer.sneak(parse(changes), fakeCause) }
 
   // TASKS
 
-  override fun addTasks(instruction: String, firstCause: Cause?) =
-      timeline.atomic { impl.addTasks(parse(instruction), firstCause) }
+  override fun addTasks(instruction: String, firstCause: Cause?): List<TaskId> =
+      impl.addTasks(parse(instruction), firstCause)
 
   override fun dropTask(taskId: TaskId) = impl.dropTask(taskId)
 
