@@ -97,12 +97,12 @@ private class CanonBootstrapTest {
             "[Area021]", "[Area081]", "[FloatingInSpace]",
             "[Player1]", "[Player2]", "[Player3]",
 
-            "[PlayCardFromHand]",
-            "[UseStandardProject]",
-            "[ClaimMilestone]",
-            "[UseActionFromCard]",
-            "[ConvertHeat]",
-            "[ConvertPlants]",
+            "[PlayCardSA]",
+            "[UseStandardProjectSA]",
+            "[ClaimMilestoneSA]",
+            "[UseCardActionSA]",
+            "[ConvertHeatSA]",
+            "[ConvertPlantsSA]",
             "[HandleMandates]",
             "[SellPatents]",
 

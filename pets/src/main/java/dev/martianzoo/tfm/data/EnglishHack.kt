@@ -22,13 +22,13 @@ internal object EnglishHack {
   @Suppress("SpellCheckingInspection")
   private val ENGLISH_HACK: Map<String, ClassName> =
       classNameMap(
-          "SAA" to "PlayCardFromHand",
-          "SAB" to "UseStandardProject",
-          "SAC" to "ClaimMilestone",
-          "SAD" to "FundAward",
-          "SAE" to "UseActionFromCard",
-          "SAF" to "ConvertPlants",
-          "SAG" to "ConvertHeat",
+          "SAA" to "PlayCardSA",
+          "SAB" to "UseStandardProjectSA",
+          "SAC" to "ClaimMilestoneSA",
+          "SAD" to "FundAwardSA",
+          "SAE" to "UseCardActionSA",
+          "SAF" to "ConvertPlantsSA",
+          "SAG" to "ConvertHeatSA",
           "SELL" to "SellPatents",
           "MAND" to "HandleMandates",
           "SP11" to "PowerPlantSP",

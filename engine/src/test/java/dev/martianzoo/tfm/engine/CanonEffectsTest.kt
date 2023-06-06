@@ -79,7 +79,7 @@ private class CanonEffectsTest {
 
   @Test
   fun convertHeat() {
-    assertThat(classEffectsOf("ConvertHeat"))
+    assertThat(classEffectsOf("ConvertHeatSA"))
         .containsExactly("UseAction1<Owner, This>: -8 Heat<Owner>! THEN TemperatureStep.")
   }
 

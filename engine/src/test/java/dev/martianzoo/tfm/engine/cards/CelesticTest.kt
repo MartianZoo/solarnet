@@ -27,7 +27,7 @@ class CelesticTest {
       phase("Action")
       assertThrows<RequirementException> { playProject("Mine") }
       assertThrows<RequirementException> { stdProject("AsteroidSP") }
-      assertThrows<RequirementException> { stdAction("ConvertHeat") }
+      assertThrows<RequirementException> { stdAction("ConvertHeatSA") }
 
       pass()
 

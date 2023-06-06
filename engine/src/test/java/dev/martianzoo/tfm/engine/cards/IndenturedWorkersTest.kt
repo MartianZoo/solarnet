@@ -36,7 +36,7 @@ class IndenturedWorkersTest {
 
       // doing these things in between doesn't matter
       stdProject("AsteroidSP")
-      stdAction("ConvertHeat")
+      stdAction("ConvertHeatSA")
       sellPatents(2)
 
       // we still have the discount

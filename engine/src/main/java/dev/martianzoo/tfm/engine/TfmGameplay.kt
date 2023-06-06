@@ -37,7 +37,7 @@ public class TfmGameplay(
   }
 
   fun stdProject(stdProject: String, body: BodyLambda = {}): TaskResult {
-    return stdAction("UseStandardProject") {
+    return stdAction("UseStandardProjectSA") {
       doTask("UseAction1<$stdProject>")
       body()
     }
@@ -59,7 +59,7 @@ public class TfmGameplay(
   ): TaskResult {
     return turn {
       if (tasks.matching { "${it.instruction}".contains("StandardAction") }.any()) {
-        doTask("UseAction1<PlayCardFromHand>")
+        doTask("UseAction1<PlayCardSA>")
       }
       doTask("PlayCard<Class<ProjectCard>, Class<$cardName>>")
 
@@ -92,7 +92,7 @@ public class TfmGameplay(
   fun cardAction2(cardName: String, body: BodyLambda = {}) = cardAction(2, cardName, body)
 
   private fun cardAction(which: Int, cardName: String, body: BodyLambda = {}): TaskResult {
-    return stdAction("UseActionFromCard") {
+    return stdAction("UseCardActionSA") {
       doTask("UseAction$which<$cardName>")
       doTask("ActionUsedMarker<$cardName>") // will become automatic?
       body()
