@@ -31,6 +31,7 @@ ABSTRACT CLASS System {
     HAS MAX 1 This                                     // and kicks everything else off
 
     This:: SetupPhase
+    Die: ForceLoad<Class<ActionPhase>>
 
     PlayTag<Class<BuildingTag>>:: Accept<Class<Steel>>
     PlayTag<Class<SpaceTag>>:: Accept<Class<Titanium>>
@@ -108,7 +109,7 @@ ABSTRACT CLASS Tile<Area> { HAS MAX 1 This }
 CLASS Neighbor<Tile<MarsArea>, MarsArea> [NBR] : System
 
 ABSTRACT CLASS Adjacency<Tile, Tile> : System {
-  This:: ForceLoad<Class<BackwardAdjacency>>
+  Die: ForceLoad<Class<BackwardAdjacency>>
   CLASS ForwardAdjacency, BackwardAdjacency
 }
 
@@ -130,13 +131,23 @@ ABSTRACT CLASS Phase : System {
   HAS MAX 1 Phase
 
   CLASS SetupPhase
-  CLASS CorporationPhase
-  CLASS PreludePhase
-  CLASS ActionPhase
-  CLASS ProductionPhase { This: Production2Phase FROM This }
+  CLASS CorporationPhase {
+    NewTurn: PlayCard<Class<CorporationCard>>, 10 BuyCard?
+  }
+  CLASS PreludePhase {
+    NewTurn: PlayCard<Class<PreludeCard>> OR (-PreludeCard THEN 15) // ELSE (#22)
+  }
+  CLASS ActionPhase {
+    NewTurn: UseAction<StandardAction> OR Pass
+  }
+  CLASS ProductionPhase {
+    This: Production2Phase FROM This
+  }
   CLASS Production2Phase
   CLASS ResearchPhase { This:: Generation }
-  CLASS End
+  CLASS End // EndPhase { This:: End }
 }
+
+// CLASS End : Signal
 
 // Player-specific components are in `player.pets`
