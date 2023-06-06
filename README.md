@@ -1,6 +1,6 @@
 # Solarnet
 
-Solarnet is a work-in-progress open-source **game engine** for the superlative 2016 board game *[Terraforming Mars](https://www.amazon.com/Indie-Boards-Cards-Terraforming-Board/dp/B01GSYA4K2)*, published by [FryxGames](http://fryxgames.se).
+Solarnet is an open-source **game engine** for the superlative 2016 board game *[Terraforming Mars](https://www.amazon.com/Indie-Boards-Cards-Terraforming-Board/dp/B01GSYA4K2)*, published by [FryxGames](http://fryxgames.se).
 
 It's not a way to *play* the game. For that, see the [online open-source app](http://terraforming-mars.herokuapp.com) (please [buy a physical copy](https://www.amazon.com/Indie-Boards-Cards-Terraforming-Board/dp/B01GSYA4K2) too!). There is also an official app for sale in the usual places, but I can't vouch for it.
 
@@ -12,26 +12,26 @@ This is my [first unrehearsed intro/demo](https://www.youtube.com/watch?v=btCLcF
 
 ## Why another game engine?
 
-The game engine is the "pure logic" part of a game implementation. It's like a big calculator, and its only job is to *know the rules* of the game perfectly.
+The game engine is the "pure logic" part of a game implementation. It's like a big calculator, and its only job is to *know the rules* of the game perfectly. Basically, who can do what when? And what happens if they do?
 
 Inside the open-source app mentioned above is *already* an extremely accurate (>99.9%) game engine. And inside the official app mentioned above is already a game engine. So why do we need a third?
 
 We don't! I just thought it would be fun and hard, and had some new ideas for how to do it.
 
-What's different about solarnet is that all the game components that have heterogeneous behaviors (cards, milestones, map areas, etc.) are *[just data](/MartianZoo/solarnet/blob/main/canon/src/main/java/dev/martianzoo/tfm/canon/cards.json5)* and don't require custom programming (except for the ones that do). Instead, they're described using a specification language called **Pets** that's tailored specifically to the needs of *this* game.
+What's different about solarnet is that all the game components that have heterogeneous behaviors (cards, milestones, map areas, etc.) are *[just data](/MartianZoo/solarnet/blob/main/canon/src/main/java/dev/martianzoo/tfm/canon/cards.json5)* and don't require custom programming (except for the [ones that do](https://github.com/MartianZoo/solarnet/blob/51e0f276dc3eede6cd2f00d3246a02d638c39b7a/canon/src/main/java/dev/martianzoo/tfm/canon/custom.kt#L157)). Instead, they're described using a specification language called **Pets** that's highly tailored to the particular needs of this particular game.
 
-In concept, Pets specifications could also be converted into natural-language instructions, or even into the iconographic language you see on the printed cards. But the relevant part today is that these strings are all Solarnet needs to read in order to actually execute the card correctly (and this basically works).
+Pets specifications should in theory be convertible to natural-language instructions, or even into the iconographic language you see on the printed cards. But the relevant part today is that these strings are all Solarnet needs to read in order to actually execute the card correctly.
 
 ## Help is welcome
 
-I've spent most of my free time working on this for about two years. I'm sure it is very difficult to figure out where and how you could jump in to be helpful. However, I would *happily* spend time helping you help the project. I'm tired of working by myself on it. :-)
+We've been a team of one for a long time, and jumping in won't be trivial. But I would love to spend time helping you get going.
 
 Some ideas
 
 * Hop on the [discord](https://discord.com/invite/3vpKDktmde) (it is very little-used so far) and ask whatever.
 * Try reading and commenting on current [issues/feature-requests](http://github.com/MartianZoo/solarnet/issues). Some are relatively standalone.
 * Grab the code, run the REPL and try messing around with it to see what it does.
-* Anything you try to learn about it that results in you asking me questions is actually helpful. There's a lot of stuff here and I don't know what to document or do a video about next.
+* Anything that results in you asking me questions is actually helpful. There's a lot of stuff here and I don't know what to document or do a video about next.
 
 ## Learning more
 
@@ -68,9 +68,7 @@ You can also browse the [Pets source files](/MartianZoo/solarnet/tree/main/canon
 
 Start with the generated API doc view (which hides private things). I don't know how to host it properly, so you'd have to `./gradlew dokkaHtmlMultiModule` and then look at `docs/api/index.html`. That would help give you an idea of which source files you want to dig further into.
 
-It's all written in [Kotlin](https://kotlinlang.org) and I'm very happy with that decision. In concept this should make the libraries usable from Java, JavaScript, and some other environments. I don't know many details here.
-
-You'll see some bad code. Let's improve it! :-)
+It's all written in [Kotlin](https://kotlinlang.org), which should in theory make the libraries usable from Java, JavaScript, and some other environments. I don't know many details about this yet.
 
 ## Who are you
 
