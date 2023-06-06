@@ -3,6 +3,7 @@ package dev.martianzoo.tfm.engine.cards
 import dev.martianzoo.tfm.api.Exceptions.LimitsException
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.data.GameSetup
+import dev.martianzoo.tfm.data.Player.Companion.ENGINE
 import dev.martianzoo.tfm.data.Player.Companion.PLAYER1
 import dev.martianzoo.tfm.data.Player.Companion.PLAYER2
 import dev.martianzoo.tfm.engine.Engine
@@ -16,6 +17,7 @@ class SponsoredAcademiesTest {
   fun sponsoredAcademies() {
     val game = Engine.newGame(GameSetup(Canon, "BRMV", 2))
 
+    game.tfm(ENGINE).phase("Corporation")
     game.tfm(PLAYER1).playCorp("Phobolog", 5)
 
     with(game.tfm(PLAYER2)) {

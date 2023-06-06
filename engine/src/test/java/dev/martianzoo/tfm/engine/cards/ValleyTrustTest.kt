@@ -13,6 +13,7 @@ class ValleyTrustTest {
   fun valleyTrust() {
     val game = Engine.newGame(GameSetup(Canon, "BRMP", 2))
     with(game.tfm(PLAYER1)) {
+      phase("Corporation")
       playCorp("ValleyTrust", 5)
       assertCounts(5 to "ProjectCard", 22 to "M")
 

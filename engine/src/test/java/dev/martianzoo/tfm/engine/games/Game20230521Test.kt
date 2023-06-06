@@ -40,6 +40,7 @@ class Game20230521Test {
     }
 
     // TODO list cards drawn in comments, for later
+    engine.phase("Corporation")
 
     blue.playCorp("Manutech", 5)
     purp.playCorp("Factorum", 4)

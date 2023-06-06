@@ -18,7 +18,9 @@ class InsulationTest {
   fun insulation_normal() {
     val game = Engine.newGame(GameSetup(Canon, "BRM", 2))
     with(game.tfm(PLAYER1)) {
+      phase("Corporation")
       playCorp("Ecoline", 5)
+
       phase("Action")
       godMode().sneak("PROD[-1, 3 Heat]")
       assertProds(-1 to "M", 3 to "H")

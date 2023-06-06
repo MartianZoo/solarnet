@@ -19,6 +19,7 @@ class DoubleDownTest {
     val game = Engine.newGame(GameSetup(Canon, "BRHXP", 2))
 
     with(game.tfm(PLAYER1)) {
+      phase("Corporation")
       playCorp("PharmacyUnion", 5)
       phase("Prelude")
       playPrelude("BiosphereSupport")

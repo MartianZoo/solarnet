@@ -21,6 +21,7 @@ class IndenturedWorkersTest {
     p1 = game.tfm(PLAYER1)
 
     with(p1) {
+      phase("Corporation")
       playCorp("Ecoline", 5)
       godMode().sneak("100, 8 Heat")
       phase("Action")

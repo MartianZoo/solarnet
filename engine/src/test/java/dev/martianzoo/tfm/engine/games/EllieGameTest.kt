@@ -21,6 +21,8 @@ class EllieGameTest {
     val p1 = game.tfm(PLAYER1)
     val p2 = game.tfm(PLAYER2)
 
+    eng.phase("Corporation")
+
     p1.playCorp("InterplanetaryCinematics", 7)
     p2.playCorp("PharmacyUnion", 5)
 
@@ -153,6 +155,7 @@ class EllieGameTest {
     val p1 = game.tfm(PLAYER1)
     val p2 = game.tfm(PLAYER2)
 
+    eng.phase("Corporation")
     p1.playCorp("InterplanetaryCinematics", 7)
     p2.playCorp("PharmacyUnion", 5)
 

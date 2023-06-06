@@ -15,6 +15,7 @@ class MergerTest {
   fun valleyTrustAndCelestic() {
     val game = Engine.newGame(GameSetup(Canon, "BRMPVX", 2))
     with(game.tfm(PLAYER1)) {
+      phase("Corporation")
       playCorp("ValleyTrust", 5)
       assertCounts(5 to "ProjectCard", 22 to "M")
 

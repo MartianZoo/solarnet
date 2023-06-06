@@ -16,6 +16,7 @@ class UnmiTest {
   fun unmi() {
     val game = Engine.newGame(GameSetup(Canon, "BM", 2))
     with(game.tfm(PLAYER1)) {
+      phase("Corporation")
       playCorp("UnitedNationsMarsInitiative", 0)
       assertCounts(40 to "Megacredit", 20 to "TR")
 
@@ -36,6 +37,7 @@ class UnmiTest {
   fun unmiOutOfOrder() {
     val game = Engine.newGame(GameSetup(Canon, "BM", 2))
     with(game.tfm(PLAYER1)) {
+      phase("Corporation")
       godMode().sneak("14")
       assertCounts(14 to "Megacredit", 20 to "TR")
 

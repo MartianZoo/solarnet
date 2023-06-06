@@ -14,6 +14,7 @@ class ExcentricSponsorTest {
     val game = Engine.newGame(GameSetup(Canon, "BRHP", 2))
 
     with(game.tfm(PLAYER1)) {
+      phase("Corporation")
       playCorp("Ecoline", 4)
       phase("Prelude")
 

@@ -13,12 +13,12 @@ class TerralabsTest {
   @Test
   fun terralabs() {
     val game = Engine.newGame(GameSetup(Canon, "BMT", 2))
-    val p1 = game.tfm(PLAYER1)
-
-    p1.playCorp("TerralabsResearch", 10)
-    p1.assertCounts(10 to "ProjectCard", 4 to "M")
-
-    p1.godMode().manual("4 BuyCard")
-    p1.assertCounts(14 to "ProjectCard", 0 to "M")
+    with(game.tfm(PLAYER1)) {
+      phase("Corporation")
+      playCorp("TerralabsResearch", 10)
+      assertCounts(10 to "ProjectCard", 4 to "M")
+      godMode().manual("4 BuyCard")
+      assertCounts(14 to "ProjectCard", 0 to "M")
+    }
   }
 }

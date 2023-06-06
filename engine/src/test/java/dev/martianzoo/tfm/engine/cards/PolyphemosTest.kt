@@ -14,6 +14,7 @@ class PolyphemosTest {
   fun polyphemos() {
     val game = Engine.newGame(GameSetup(Canon, "BRMC", 2))
     with(game.tfm(PLAYER1)) {
+      phase("Corporation")
       playCorp("Polyphemos", 7)
 
       phase("Action")

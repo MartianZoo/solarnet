@@ -31,6 +31,8 @@ class FirstPartialGameTest {
         }
       }
 
+      eng.phase("Corporation")
+
       p1.playCorp("LakefrontResorts", 3)
       p2.playCorp("InterplanetaryCinematics", 8)
 

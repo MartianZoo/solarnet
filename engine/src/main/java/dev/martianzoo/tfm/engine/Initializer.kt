@@ -25,7 +25,5 @@ constructor(val writer: GameWriter, val table: MClassTable, val timeline: Timeli
         .forEach { exec("${it.expression}!") }
 
     timeline.setupFinished()
-
-    exec("CorporationPhase FROM Phase")
   }
 }

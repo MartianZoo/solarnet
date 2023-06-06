@@ -20,6 +20,7 @@ class PristarTest {
     val p2 = game.tfm(PLAYER2)
 
     p1.assertCounts(0 to "Megacredit", 20 to "TR")
+    eng.phase("Corporation")
 
     p1.playCorp("Pristar", 0)
     p1.assertCounts(53 to "Megacredit", 18 to "TR")

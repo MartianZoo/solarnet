@@ -15,6 +15,7 @@ class ManutechTest {
   fun manutech() {
     val game = Engine.newGame(GameSetup(Canon, "BMV", 2))
     with(game.tfm(PLAYER1)) {
+      phase("Corporation")
       playCorp("Manutech", 5)
       assertCounts(1 to "PROD[Steel]", 1 to "Steel")
 

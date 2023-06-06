@@ -92,7 +92,7 @@ private class CanonBootstrapTest {
     assertThat(theRest.toStrings())
         .containsExactly(
             "[Engine]",
-            "[CorporationPhase]",
+            "[SetupPhase]",
             "[Tharsis]",
             "[Area021]", "[Area081]", "[FloatingInSpace]",
             "[Player1]", "[Player2]", "[Player3]",
@@ -110,9 +110,6 @@ private class CanonBootstrapTest {
             "[GrossHack<Player1>]", "[GrossHack<Player2>]", "[GrossHack<Player3>]",
             "[SuperHack<Player1>]", "[SuperHack<Player2>]", "[SuperHack<Player3>]",
             "[TrWatcher<Player1>]", "[TrWatcher<Player2>]", "[TrWatcher<Player3>]",
-            "[CorporationCard<Player1>]",
-            "[CorporationCard<Player2>]",
-            "[CorporationCard<Player3>]",
 
             "[Generation]",
         )

@@ -19,6 +19,7 @@ class CelesticTest {
     val p2 = game.tfm(PLAYER2)
 
     with(p1) {
+      phase("Corporation")
       playCorp("Celestic", 5)
       assertCounts(5 to "ProjectCard", 27 to "M")
       godMode().sneak("100, 10 Heat")
