@@ -5,15 +5,15 @@ import dev.martianzoo.tfm.data.GameSetup
 import dev.martianzoo.tfm.data.Player.Companion.PLAYER1
 import dev.martianzoo.tfm.engine.Engine
 import dev.martianzoo.tfm.engine.Game
-import dev.martianzoo.tfm.engine.TerraformingMarsApi
-import dev.martianzoo.tfm.engine.TerraformingMarsApi.Companion.tfm
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
+import dev.martianzoo.tfm.engine.TfmGameplay
+import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
 class IndenturedWorkersTest {
   lateinit var game: Game
-  lateinit var p1: TerraformingMarsApi
+  lateinit var p1: TfmGameplay
 
   @BeforeEach
   fun setUp() {
@@ -22,7 +22,7 @@ class IndenturedWorkersTest {
 
     with(p1) {
       playCorp("Ecoline", 5)
-      sneak("100, 8 Heat")
+      godMode().sneak("100, 8 Heat")
       phase("Action")
     }
   }
@@ -51,7 +51,7 @@ class IndenturedWorkersTest {
     with(p1) {
       playProject("IndenturedWorkers")
 
-      operations.manual("Generation") // use it or lose it!
+      godMode().manual("Generation") // use it or lose it!
       playProject("Soletta", 35)
     }
   }

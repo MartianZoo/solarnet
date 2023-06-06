@@ -13,8 +13,8 @@ import dev.martianzoo.tfm.data.TaskResult
 import dev.martianzoo.tfm.engine.Engine
 import dev.martianzoo.tfm.engine.Game
 import dev.martianzoo.tfm.engine.Gameplay.Companion.parse
-import dev.martianzoo.tfm.engine.TerraformingMarsApi
-import dev.martianzoo.tfm.engine.TerraformingMarsApi.Companion.tfm
+import dev.martianzoo.tfm.engine.TfmGameplay
+import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import dev.martianzoo.tfm.engine.Timeline.Checkpoint
 import dev.martianzoo.tfm.pets.HasExpression.Companion.expressions
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
@@ -45,7 +45,7 @@ internal fun main() {
   fun prompt(): String {
     val bundles: String = repl.setup.bundles.joinToString("")
 
-    val phases = repl.session.gameplay.list("Phase") // should only be one
+    val phases = repl.session.list("Phase") // should only be one
     val phase: String = phases.singleOrNull()?.toString() ?: "NoPhase"
 
     val player: Player = repl.session.player
@@ -71,7 +71,7 @@ internal fun main() {
 public class ReplSession(var setup: GameSetup, private val jline: JlineRepl? = null) {
   // TODO all we use `jline` for is history (and just checking whether it's there or not)
   public var game: Game = Engine.newGame(setup)
-  public var session: TerraformingMarsApi = game.tfm(ENGINE)
+  public var session: TfmGameplay = game.tfm(ENGINE)
     internal set
 
   internal var mode: ReplMode = GREEN
@@ -241,8 +241,8 @@ public class ReplSession(var setup: GameSetup, private val jline: JlineRepl? = n
     override val isReadOnly = true
 
     override fun withArgs(args: String): List<String> {
-      val result = session.gameplay.has(args)
-      return listOf("$result: ${session.gameplay.parse<Requirement>(args)}")
+      val result = session.has(args)
+      return listOf("$result: ${session.parse<Requirement>(args)}")
     }
   }
 
@@ -256,8 +256,8 @@ public class ReplSession(var setup: GameSetup, private val jline: JlineRepl? = n
     override val isReadOnly = true
 
     override fun withArgs(args: String): List<String> {
-      val count = session.gameplay.count(args)
-      return listOf("$count ${session.gameplay.parse<Metric>(args)}")
+      val count = session.count(args)
+      return listOf("$count ${session.parse<Metric>(args)}")
     }
   }
 
@@ -270,8 +270,8 @@ public class ReplSession(var setup: GameSetup, private val jline: JlineRepl? = n
     override fun noArgs() = withArgs(COMPONENT.toString())
 
     override fun withArgs(args: String): List<String> {
-      val expr: Expression = session.gameplay.parse(args)
-      val counts: Multiset<Expression> = session.gameplay.list(args)
+      val expr: Expression = session.parse(args)
+      val counts: Multiset<Expression> = session.list(args)
       return listOf("${counts.size} $expr") +
           counts.entries.sortedByDescending { (_, ct) -> ct }.map { (e, ct) -> "  $ct $e" }
     }
@@ -376,11 +376,11 @@ public class ReplSession(var setup: GameSetup, private val jline: JlineRepl? = n
 
   private fun access(): Access = // TODO maybe don't do this "just-in-time"...
       when (mode) {
-        RED -> RedMode(session.gameplay)
-        YELLOW -> YellowMode(session.gameplay)
-        GREEN -> GreenMode(session.gameplay)
-        BLUE -> BlueMode(session.gameplay)
-        PURPLE -> PurpleMode(session.gameplay)
+        RED -> RedMode(session.godMode())
+        YELLOW -> YellowMode(session.godMode())
+        GREEN -> GreenMode(session.godMode())
+        BLUE -> BlueMode(session.godMode())
+        PURPLE -> PurpleMode(session.godMode())
       }
 
   internal inner class TasksCommand : ReplCommand("tasks") {
@@ -391,7 +391,7 @@ public class ReplSession(var setup: GameSetup, private val jline: JlineRepl? = n
           tasks of all players plus the engine are currently mixed together (but labeled).
         """
     override val isReadOnly = true
-    override fun noArgs() = session.tasks.extract { "$it" }
+    override fun noArgs() = session.game.tasks.extract { "$it" }
   }
 
   internal inner class TaskCommand : ReplCommand("task") {
@@ -407,7 +407,7 @@ public class ReplSession(var setup: GameSetup, private val jline: JlineRepl? = n
         """
 
     override fun withArgs(args: String): List<String> {
-      val q = session.tasks
+      val q = session.game.tasks
 
       val split = Regex("\\s+").split(args, 2)
       val idString = split.firstOrNull() ?: throw UsageException()
@@ -425,15 +425,15 @@ public class ReplSession(var setup: GameSetup, private val jline: JlineRepl? = n
         return listOf("Task $id deleted")
 
       } else if (rest == "prepare") {
-        session.gameplay.prepareTask(id)
-        return session.tasks.extract { "$it" }
+        session.prepareTask(id)
+        return session.game.tasks.extract { "$it" }
       }
 
       val result: TaskResult =
           session.game.timeline.atomic {
-            session.gameplay.reviseTask(id, rest!!)
-            session.gameplay.tryTask(id)
-            if (auto) session.operations.autoExecNow()
+            session.reviseTask(id, rest!!)
+            session.tryTask(id)
+            if (auto) session.godMode().autoExecNow()
           }
       return describeExecutionResults(result)
     }
@@ -447,7 +447,7 @@ public class ReplSession(var setup: GameSetup, private val jline: JlineRepl? = n
     val taskLines =
         if (oops.any()) {
           listOf("", "There are new pending tasks:") +
-              session.tasks.extract { if (it.id in oops) "$it" else null }.filterNotNull()
+              session.game.tasks.extract { if (it.id in oops) "$it" else null }.filterNotNull()
         } else {
           listOf()
         }
@@ -562,7 +562,7 @@ public class ReplSession(var setup: GameSetup, private val jline: JlineRepl? = n
                     .random()
             type.expressionFull to type
           } else {
-            val expression: Expression = session.gameplay.parse(args)
+            val expression: Expression = session.parse(args)
             expression to game.reader.resolve(expression) as MType
           }
       return listOf(MTypeToText.describe(expression, type))

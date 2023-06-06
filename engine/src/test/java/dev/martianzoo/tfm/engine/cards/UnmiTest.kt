@@ -5,8 +5,8 @@ import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.data.GameSetup
 import dev.martianzoo.tfm.data.Player.Companion.PLAYER1
 import dev.martianzoo.tfm.engine.Engine
-import dev.martianzoo.tfm.engine.TerraformingMarsApi.Companion.tfm
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
+import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 
@@ -36,11 +36,11 @@ class UnmiTest {
   fun unmiOutOfOrder() {
     val game = Engine.newGame(GameSetup(Canon, "BM", 2))
     with(game.tfm(PLAYER1)) {
-      sneak("14")
+      godMode().sneak("14")
       assertCounts(14 to "Megacredit", 20 to "TR")
 
       // Do anything that raises TR, while we aren't even UNMI yet
-      operations.manual("UseAction1<AsteroidSP>")
+      godMode().manual("UseAction1<AsteroidSP>")
       assertCounts(0 to "Megacredit", 21 to "TR")
 
       playCorp("UnitedNationsMarsInitiative", 0)

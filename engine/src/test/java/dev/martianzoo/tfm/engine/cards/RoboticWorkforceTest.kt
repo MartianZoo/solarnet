@@ -7,8 +7,8 @@ import dev.martianzoo.tfm.data.GameSetup
 import dev.martianzoo.tfm.data.Player.Companion.PLAYER1
 import dev.martianzoo.tfm.data.Player.Companion.PLAYER2
 import dev.martianzoo.tfm.engine.Engine
-import dev.martianzoo.tfm.engine.TerraformingMarsApi
-import dev.martianzoo.tfm.engine.TerraformingMarsApi.Companion.tfm
+import dev.martianzoo.tfm.engine.TfmGameplay
+import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 
@@ -19,19 +19,19 @@ class RoboticWorkforceTest {
     val game = Engine.newGame(GameSetup(Canon, "BRMP", 2))
 
     with(game.tfm(PLAYER1)) {
-      gameplay.operationLayer().manual(
-          "4 ProjectCard, MassConverter, StripMine, IndustrialMicrobes")
+      godMode().manual("4 ProjectCard, MassConverter, StripMine, IndustrialMicrobes")
       checkProduction(0, 3, 1, 0, 5, 0)
 
-      game.tfm(PLAYER2).gameplay.operationLayer().manual("ProjectCard, Mine")
+      game.tfm(PLAYER2).godMode().manual("ProjectCard, Mine")
 
-      gameplay.operationLayer().manual("RoboticWorkforce") {
+      godMode().manual("RoboticWorkforce") {
         checkProduction(0, 3, 1, 0, 5, 0)
 
         Truth.assertThat(tasks.extract { it.whyPending })
             .containsExactly(
                 "CopyProductionBox<Player1, CardFront<Player1>(HAS BuildingTag<Player1>)>" +
-                    " is abstract")
+                    " is abstract"
+            )
 
         // This card has no building tag so it won't work
         assertThrows<NarrowingException>("1") { doTask("CopyProductionBox<MassConverter>") }
@@ -50,6 +50,6 @@ class RoboticWorkforceTest {
     }
   }
 
-  private fun TerraformingMarsApi.checkProduction(vararg exp: Int) =
+  private fun TfmGameplay.checkProduction(vararg exp: Int) =
       Truth.assertThat(production().values).containsExactlyElementsIn(exp.toList()).inOrder()
 }

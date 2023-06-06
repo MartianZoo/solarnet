@@ -4,8 +4,8 @@ import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.data.GameSetup
 import dev.martianzoo.tfm.data.Player.Companion.PLAYER1
 import dev.martianzoo.tfm.engine.Engine
-import dev.martianzoo.tfm.engine.TerraformingMarsApi.Companion.tfm
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
+import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 
@@ -17,18 +17,18 @@ class SulphurEatingBacteriaTest {
     with(game.tfm(PLAYER1)) {
       phase("Action")
 
-      gameplay.operationLayer().manual("5 ProjectCard, SulphurEatingBacteria")
+      godMode().manual("5 ProjectCard, SulphurEatingBacteria")
       assertCounts(0 to "Microbe", 0 to "Megacredit")
 
-      gameplay.operationLayer().manual("UseAction1<SulphurEatingBacteria>")
+      godMode().manual("UseAction1<SulphurEatingBacteria>")
       assertCounts(1 to "Microbe", 0 to "Megacredit")
 
-      gameplay.operationLayer().manual("UseAction2<SulphurEatingBacteria>") {
+      godMode().manual("UseAction2<SulphurEatingBacteria>") {
         doTask("-Microbe<SulphurEatingBacteria> THEN 3")
       }
       assertCounts(0 to "Microbe", 3 to "Megacredit")
 
-      gameplay.operationLayer().manual("4 Microbe<SulphurEatingBacteria>")
+      godMode().manual("4 Microbe<SulphurEatingBacteria>")
       assertCounts(4 to "Microbe", 3 to "Megacredit")
 
       cardAction2("C251") {

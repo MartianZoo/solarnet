@@ -7,8 +7,8 @@ import dev.martianzoo.tfm.data.Player.Companion.ENGINE
 import dev.martianzoo.tfm.data.Player.Companion.PLAYER1
 import dev.martianzoo.tfm.data.Player.Companion.PLAYER2
 import dev.martianzoo.tfm.engine.Engine
-import dev.martianzoo.tfm.engine.TerraformingMarsApi.Companion.tfm
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
+import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import org.junit.jupiter.api.Test
 
 class FirstPartialGameTest {
@@ -24,8 +24,8 @@ class FirstPartialGameTest {
         with(eng) {
           phase("Production")
           phase("Research") {
-            p1.gameplay.doTask(if (cards1 > 0) "$cards1 BuyCard" else "Ok")
-            p2.gameplay.doTask(if (cards2 > 0) "$cards2 BuyCard" else "Ok")
+            p1.doTask(if (cards1 > 0) "$cards1 BuyCard" else "Ok")
+            p2.doTask(if (cards2 > 0) "$cards2 BuyCard" else "Ok")
           }
           phase("Action")
         }
@@ -111,7 +111,7 @@ class FirstPartialGameTest {
       with(p2) {
         playProject("SolarPower", 1, steel = 4)
         stdProject("CitySP") { doTask("CityTile<E65>") }
-        operations.manual("PROD[-Plant, Energy]") // CORRECTION TODO WHY WHY
+        godMode().manual("PROD[-Plant, Energy]") // CORRECTION TODO WHY WHY
       }
 
       eng.phase("Production")

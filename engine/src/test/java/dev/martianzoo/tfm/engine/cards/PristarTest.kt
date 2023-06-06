@@ -6,8 +6,8 @@ import dev.martianzoo.tfm.data.Player.Companion.ENGINE
 import dev.martianzoo.tfm.data.Player.Companion.PLAYER1
 import dev.martianzoo.tfm.data.Player.Companion.PLAYER2
 import dev.martianzoo.tfm.engine.Engine
-import dev.martianzoo.tfm.engine.TerraformingMarsApi.Companion.tfm
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
+import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import org.junit.jupiter.api.Test
 
 class PristarTest {
@@ -33,8 +33,8 @@ class PristarTest {
     p1.assertCounts(74 to "Megacredit", 21 to "TR", 0 to "Preservation")
 
     eng.phase("Research") {
-      p1.gameplay.doTask("2 BuyCard")
-      p2.gameplay.doTask("2 BuyCard")
+      p1.doTask("2 BuyCard")
+      p2.doTask("2 BuyCard")
     }
     p1.assertCounts(68 to "Megacredit", 21 to "TR", 0 to "Preservation")
 

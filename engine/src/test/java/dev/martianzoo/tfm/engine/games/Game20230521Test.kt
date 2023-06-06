@@ -6,10 +6,10 @@ import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.data.GameSetup
 import dev.martianzoo.tfm.data.Player
 import dev.martianzoo.tfm.engine.Engine
-import dev.martianzoo.tfm.engine.TerraformingMarsApi
-import dev.martianzoo.tfm.engine.TerraformingMarsApi.Companion.tfm
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
 import dev.martianzoo.tfm.engine.TestHelpers.assertProds
+import dev.martianzoo.tfm.engine.TfmGameplay
+import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import dev.martianzoo.tfm.engine.Timeline.AbortOperationException
 import org.junit.jupiter.api.Test
 
@@ -32,8 +32,8 @@ class Game20230521Test {
       with(engine) {
         phase("Production")
         phase("Research") {
-          blue.gameplay.doTask(if (cards1 > 0) "$cards1 BuyCard" else "Ok")
-          purp.gameplay.doTask(if (cards2 > 0) "$cards2 BuyCard" else "Ok")
+          blue.doTask(if (cards1 > 0) "$cards1 BuyCard" else "Ok")
+          purp.doTask(if (cards2 > 0) "$cards2 BuyCard" else "Ok")
         }
         phase("Action")
       }
@@ -70,7 +70,7 @@ class Game20230521Test {
 
     purp.playProject("RotatorImpacts", titanium = 2)
     purp.cardAction1("RotatorImpacts") { doTask("2 Pay<Class<T>> FROM T") }
-    purp.sneak("6") // the titanium were supposed to fill that TODO
+    purp.godMode().sneak("6") // the titanium were supposed to fill that TODO
 
     purp.playProject("CarbonateProcessing", 6)
     purp.playProject("Archaebacteria", 6)
@@ -202,12 +202,12 @@ class Game20230521Test {
     // assertThat(summer.net("Component", "Component")).isEqualTo(163)
   }
 
-  fun TerraformingMarsApi.assertTags(vararg pair: Pair<Int, String>) {
+  fun TfmGameplay.assertTags(vararg pair: Pair<Int, String>) {
     assertCounts(*pair)
-    assertThat(gameplay.count("Tag")).isEqualTo(pair.toList().sumOf { it.first })
+    assertThat(this.count("Tag")).isEqualTo(pair.toList().sumOf { it.first })
   }
 
-  fun TerraformingMarsApi.assertSidebar(gen: Int, temp: Int, oxygen: Int, oceans: Int, venus: Int) {
+  fun TfmGameplay.assertSidebar(gen: Int, temp: Int, oxygen: Int, oceans: Int, venus: Int) {
     assertCounts(gen to "Generation")
     assertThat(temperatureC()).isEqualTo(temp)
     assertThat(oxygenPercent()).isEqualTo(oxygen)
@@ -215,22 +215,22 @@ class Game20230521Test {
     assertThat(venusPercent()).isEqualTo(venus)
   }
 
-  fun TerraformingMarsApi.assertDashMiddle(played: Int, actions: Int, vp: Int, tr: Int, hand: Int) {
+  fun TfmGameplay.assertDashMiddle(played: Int, actions: Int, vp: Int, tr: Int, hand: Int) {
     assertCounts(hand to "ProjectCard", tr to "TR", played to "CardFront + PlayedEvent")
     assertActions(actions)
     assertVps(vp)
   }
 
-  fun TerraformingMarsApi.assertVps(expected: Int) {
-    operations.manual("End FROM Phase") {
+  fun TfmGameplay.assertVps(expected: Int) {
+    godMode().manual("End FROM Phase") {
       autoExecNow()
       assertCounts(expected to "VP")
       throw AbortOperationException()
     }
   }
 
-  fun TerraformingMarsApi.assertActions(expected: Int) {
-    assertThat(gameplay.count("ActionCard") - gameplay.count("ActionUsedMarker"))
+  fun TfmGameplay.assertActions(expected: Int) {
+    assertThat(this.count("ActionCard") - this.count("ActionUsedMarker"))
         .isEqualTo(expected)
   }
 }

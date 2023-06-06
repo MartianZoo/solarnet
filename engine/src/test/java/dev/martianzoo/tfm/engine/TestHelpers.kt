@@ -4,8 +4,8 @@ import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 
 object TestHelpers {
-  fun TerraformingMarsApi.assertCounts(vararg pairs: Pair<Int, String>) =
-      assertThat(pairs.map { gameplay.count(it.second) })
+  fun TfmGameplay.assertCounts(vararg pairs: Pair<Int, String>) =
+      assertThat(pairs.map { this.count(it.second) })
           .containsExactlyElementsIn(pairs.map { it.first })
           .inOrder()
 
@@ -14,7 +14,7 @@ object TestHelpers {
           .containsExactlyElementsIn(pairs.map { it.first })
           .inOrder()
 
-  fun TerraformingMarsApi.assertProds(vararg pairs: Pair<Int, String>) =
+  fun TfmGameplay.assertProds(vararg pairs: Pair<Int, String>) =
       assertThat(pairs.map { production(cn(it.second)) })
           .containsExactlyElementsIn(pairs.map { it.first })
           .inOrder()

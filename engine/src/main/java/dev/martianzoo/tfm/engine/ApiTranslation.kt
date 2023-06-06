@@ -35,7 +35,7 @@ constructor(
     private val impl: Implementations,
     override val player: Player,
     private val tasks: TaskQueue,
-) : Gameplay.ChangeLayer { // so it really implements all gameplay layers
+) : Gameplay.GodMode { // so it really implements all gameplay layers
 
   override var autoExecMode: AutoExecMode = FIRST
     set(newMode) {
@@ -45,10 +45,7 @@ constructor(
       }
     }
 
-  override fun turnLayer() = this as Gameplay.TurnLayer
-  override fun operationLayer() = this as Gameplay.OperationLayer
-  override fun taskLayer() = this as Gameplay.TaskLayer
-  override fun changeLayer() = this as Gameplay.ChangeLayer
+  override fun godMode(): Gameplay.GodMode = this
 
   // READ-ONLY
 

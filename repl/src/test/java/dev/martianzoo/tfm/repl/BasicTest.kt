@@ -5,14 +5,14 @@ import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.data.Player.Companion.PLAYER1
 import dev.martianzoo.tfm.data.Player.Companion.PLAYER2
 import dev.martianzoo.tfm.engine.Engine
-import dev.martianzoo.tfm.engine.TerraformingMarsApi.Companion.tfm
+import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import org.junit.jupiter.api.Test
 
 internal class BasicTest {
   @Test
   fun shortNames() {
     val game = Engine.newGame(Canon.SIMPLE_GAME)
-    val session = game.tfm(PLAYER2).operations
+    val session = game.tfm(PLAYER2).godMode()
 
     session.manual("PROD[5, 4 E]")
     session.manual("ProjectCard")
@@ -23,13 +23,13 @@ internal class BasicTest {
     assertThat(session.count("PROD[S]")).isEqualTo(4)
     assertThat(session.count("PROD[T]")).isEqualTo(2)
 
-    assertThat(game.tfm(PLAYER1).gameplay.has("PROD[=0 E, =0 S]")).isTrue()
+    assertThat(game.tfm(PLAYER1).has("PROD[=0 E, =0 S]")).isTrue()
   }
 
   @Test
   fun removeAmap() {
     val game = Engine.newGame(Canon.SIMPLE_GAME)
-    val session = game.tfm(PLAYER1).operations
+    val session = game.tfm(PLAYER1).godMode()
 
     session.manual("3 Heat!")
     session.manual("4 Heat.")
@@ -40,7 +40,7 @@ internal class BasicTest {
   @Test
   fun rollback() {
     val game = Engine.newGame(Canon.SIMPLE_GAME)
-    val session = game.tfm(PLAYER1).operations
+    val session = game.tfm(PLAYER1).godMode()
 
     session.manual("3 Heat")
     session.manual("4 Heat")
@@ -57,7 +57,7 @@ internal class BasicTest {
   @Test
   fun dependencies() {
     val game = Engine.newGame(Canon.SIMPLE_GAME)
-    val session = game.tfm(PLAYER1).operations
+    val session = game.tfm(PLAYER1).godMode()
 
     assertThat(game.tasks.isEmpty()).isTrue()
     assertThat(session.count("Microbe")).isEqualTo(0)
@@ -77,7 +77,7 @@ internal class BasicTest {
   @Test
   fun counting() {
     val game = Engine.newGame(Canon.SIMPLE_GAME)
-    val session = game.tfm(PLAYER1).operations
+    val session = game.tfm(PLAYER1).godMode()
     session.manual("42 Heat")
     assertThat(session.count("Heat")).isEqualTo(42)
     assertThat(session.count("4 Heat")).isEqualTo(10)
@@ -95,7 +95,7 @@ internal class BasicTest {
   @Test
   fun tempTrigger() {
     val game = Engine.newGame(Canon.SIMPLE_GAME)
-    val session = game.tfm(PLAYER1).operations
+    val session = game.tfm(PLAYER1).godMode()
     assertThat(session.count("TerraformRating")).isEqualTo(20)
 
     session.manual("2 TemperatureStep")

@@ -14,7 +14,7 @@ class CeosFavoriteTest {
   fun ceosFavoriteProject() {
     val game = Engine.newGame(GameSetup(Canon, "CVERB", 2))
 
-    with(game.gameplay(PLAYER1).turnLayer().operationLayer()) {
+    with(game.gameplay(PLAYER1).godMode()) {
       manual("10 ProjectCard, ForcedPrecipitation")
 
       // We can't CEO's onto an empty card
@@ -22,7 +22,7 @@ class CeosFavoriteTest {
         manual("CeosFavoriteProject") { doTask("Floater<ForcedPrecipitation>") }
       }
 
-      taskLayer().changeLayer().sneak("Floater<ForcedPrecipitation>")
+      godMode().sneak("Floater<ForcedPrecipitation>")
       assertCounts(1 to "Floater")
 
       manual("CeosFavoriteProject") { doTask("Floater<ForcedPrecipitation>") }

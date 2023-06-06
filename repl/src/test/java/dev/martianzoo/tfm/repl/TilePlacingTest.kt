@@ -6,7 +6,7 @@ import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.data.Player.Companion.PLAYER1
 import dev.martianzoo.tfm.data.Player.Companion.PLAYER2
 import dev.martianzoo.tfm.engine.Engine
-import dev.martianzoo.tfm.engine.TerraformingMarsApi.Companion.tfm
+import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 
@@ -16,7 +16,7 @@ class TilePlacingTest {
     val game = Engine.newGame(Canon.SIMPLE_GAME)
     with(game.tfm(PLAYER2)) {
       phase("Action")
-      operations.manual("CityTile<M46>, CityTile<M44>, 25")
+      godMode().manual("CityTile<M46>, CityTile<M44>, 25")
       assertThrows<NarrowingException> {
         stdProject("CitySP") { doTask("CityTile<M34>") }
       }
@@ -28,8 +28,8 @@ class TilePlacingTest {
     val game = Engine.newGame(Canon.SIMPLE_GAME)
     val p2 = game.tfm(PLAYER2)
 
-    p2.operations.manual("CityTile<M33>")
-    assertThrows<LimitsException> { p2.operations.manual("OceanTile<M33>!") }
+    p2.godMode().manual("CityTile<M33>")
+    assertThrows<LimitsException> { p2.godMode().manual("OceanTile<M33>!") }
   }
 
   @Test
@@ -39,8 +39,8 @@ class TilePlacingTest {
     with(game.tfm(PLAYER1)) {
       phase("Action")
 
-      operations.manual("666, CityTile<M86>") // shown as [] in comment below
-      operations.manual("CityTile<P2, M67>") // try to fool it by having an opponent tile at the XX below
+      godMode().manual("666, CityTile<M86>") // shown as [] in comment below
+      godMode().manual("CityTile<P2, M67>") // try to fool it by having an opponent tile at the XX below
 
       // Use the standard project so that the placement rule is in effect
       stdProject("GreenerySP") {

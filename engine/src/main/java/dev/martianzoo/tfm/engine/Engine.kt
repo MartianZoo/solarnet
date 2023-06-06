@@ -72,12 +72,7 @@ public object Engine {
   internal class PlayerModule(private val player: Player) {
     @Provides fun player(): Player = player
     @Provides fun writer(x: PlayerAgent): GameWriter = x
-
-    @Provides fun gamesLayer(x: ApiTranslation): Gameplay = x
-    @Provides fun turnsLayer(x: ApiTranslation): Gameplay.TurnLayer = x
-    @Provides fun operationsLayer(x: ApiTranslation): Gameplay.OperationLayer = x
-    @Provides fun tasksLayer(x: ApiTranslation): Gameplay.TaskLayer = x
-    @Provides fun changesLayer(x: ApiTranslation): Gameplay.ChangeLayer = x
+    @Provides fun gameplay(x: ApiTranslation): Gameplay = x
   }
 
   // Some minor helper interfaces... many classes just need one small part of another class's

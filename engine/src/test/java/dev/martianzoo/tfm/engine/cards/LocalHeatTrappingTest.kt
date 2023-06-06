@@ -6,8 +6,8 @@ import dev.martianzoo.tfm.api.Exceptions.DependencyException
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.data.Player.Companion.PLAYER1
 import dev.martianzoo.tfm.engine.Engine
-import dev.martianzoo.tfm.engine.TerraformingMarsApi.Companion.tfm
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
+import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import dev.martianzoo.tfm.engine.Timeline.AbortOperationException
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -19,7 +19,7 @@ class LocalHeatTrappingTest {
   @Test
   fun notEnoughHeat() {
     with(p1) {
-      operations.manual("4 Heat, 2 ProjectCard, Pets, 100")
+      godMode().manual("4 Heat, 2 ProjectCard, Pets, 100")
       assertCounts(0 to "Plant", 4 to "Heat", 1 to "Animal")
       assertCounts(3 to "Card", 2 to "CardBack", 1 to "CardFront", 0 to "PlayedEvent")
 
@@ -45,9 +45,9 @@ class LocalHeatTrappingTest {
   @Test
   fun getPlants() {
     with(p1) {
-      operations.manual("6 Heat, 2 ProjectCard, Pets")
+      godMode().manual("6 Heat, 2 ProjectCard, Pets")
 
-      operations.manual("LocalHeatTrapping") {
+      godMode().manual("LocalHeatTrapping") {
         // The card is played and the heat is gone
         assertCounts(1 to "CardFront", 1 to "PlayedEvent")
         assertCounts(0 to "Plant", 1 to "Heat", 1 to "Animal")
@@ -66,9 +66,9 @@ class LocalHeatTrappingTest {
   @Test
   fun getPets() {
     with(p1) {
-      operations.manual("6 Heat, 2 ProjectCard, Pets")
+      godMode().manual("6 Heat, 2 ProjectCard, Pets")
 
-      operations.manual("LocalHeatTrapping") {
+      godMode().manual("LocalHeatTrapping") {
         // The card is played and the heat is gone
         assertCounts(2 to "CardBack", 1 to "CardFront", 1 to "PlayedEvent")
         assertCounts(0 to "Plant", 1 to "Heat", 1 to "Animal")
@@ -89,13 +89,13 @@ class LocalHeatTrappingTest {
   // @Test // TODO - overeager DependencyException
   fun getNothing() {
     with(p1) {
-      operations.manual("6 Heat, 2 ProjectCard")
+      godMode().manual("6 Heat, 2 ProjectCard")
 
-      operations.manual("LocalHeatTrapping") {
+      godMode().manual("LocalHeatTrapping") {
         assertThat(tasks.extract { "${it.whyPending}" })
             .containsExactly("choice required in: `4 Plant<Player1>! OR 2 Animal<Player1>.`")
 
-        p1.gameplay.prepareTask(tasks.ids().single())
+        p1.prepareTask(tasks.ids().single())
         assertThat(tasks.extract { "${it.whyPending}" })
             .containsExactly("choice required in: `4 Plant<Player1>! OR Ok`")
       }

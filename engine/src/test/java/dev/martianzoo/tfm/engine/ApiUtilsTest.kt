@@ -5,7 +5,7 @@ import dev.martianzoo.tfm.api.ApiUtils.lookUpProductionLevels
 import dev.martianzoo.tfm.api.ApiUtils.standardResourceNames
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.data.Player.Companion.PLAYER1
-import dev.martianzoo.tfm.engine.Gameplay.ChangeLayer
+import dev.martianzoo.tfm.engine.Gameplay.GodMode
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.util.toStrings
@@ -26,7 +26,7 @@ private class ApiUtilsTest {
             cn("Heat") to 0,
         )
 
-    (game.gameplay(PLAYER1) as ChangeLayer).sneak("PROD[2 Plant]")
+    (game.gameplay(PLAYER1) as GodMode).sneak("PROD[2 Plant]")
     val prods2: Map<ClassName, Int> = lookUpProductionLevels(game.reader, PLAYER1.expression)
     assertThat(prods2.map { it.key to it.value })
         .containsExactly(

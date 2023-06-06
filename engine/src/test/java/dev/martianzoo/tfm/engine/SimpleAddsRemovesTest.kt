@@ -5,7 +5,7 @@ import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.data.GameEvent.ChangeEvent.StateChange
 import dev.martianzoo.tfm.data.Player.Companion.ENGINE
 import dev.martianzoo.tfm.data.Player.Companion.PLAYER2
-import dev.martianzoo.tfm.engine.TerraformingMarsApi.Companion.tfm
+import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import dev.martianzoo.tfm.types.te
 import dev.martianzoo.util.toStrings
 import org.junit.jupiter.api.Test
@@ -20,7 +20,7 @@ internal class SimpleAddsRemovesTest {
     val eng = game.gameplay(ENGINE)
     assertThat(eng.count("Heat")).isEqualTo(0)
 
-    val p2 = game.tfm(PLAYER2).gameplay.operationLayer()
+    val p2 = game.tfm(PLAYER2).godMode()
 
     p2.manual("5 Heat<Player2>!")
     p2.manual("10 Heat<Player1>!")

@@ -14,7 +14,7 @@ class AirScrappingExpeditionTest {
   fun airScrappingExpedition() {
     val game = Engine.newGame(GameSetup(Canon, "CVERB", 2))
 
-    with(game.gameplay(PLAYER1).turnLayer().operationLayer()) {
+    with(game.gameplay(PLAYER1).godMode()) {
       manual("3 ProjectCard, ForcedPrecipitation")
 
       manual("AtmoCollectors") { doFirstTask("2 Floater<AtmoCollectors>") }

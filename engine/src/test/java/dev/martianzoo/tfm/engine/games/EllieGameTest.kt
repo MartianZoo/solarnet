@@ -7,9 +7,9 @@ import dev.martianzoo.tfm.data.Player.Companion.ENGINE
 import dev.martianzoo.tfm.data.Player.Companion.PLAYER1
 import dev.martianzoo.tfm.data.Player.Companion.PLAYER2
 import dev.martianzoo.tfm.engine.Engine
-import dev.martianzoo.tfm.engine.TerraformingMarsApi
-import dev.martianzoo.tfm.engine.TerraformingMarsApi.Companion.tfm
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
+import dev.martianzoo.tfm.engine.TfmGameplay
+import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import dev.martianzoo.tfm.engine.Timeline.AbortOperationException
 import org.junit.jupiter.api.Test
 
@@ -54,9 +54,9 @@ class EllieGameTest {
 
     with(eng) {
       phase("Production")
-      operations.manual("ResearchPhase FROM Phase") {
-        p1.gameplay.doTask("1 BuyCard")
-        p2.gameplay.doTask("3 BuyCard")
+      phase("Research") {
+        p1.doTask("1 BuyCard")
+        p2.doTask("3 BuyCard")
       }
       phase("Action")
     }
@@ -85,9 +85,9 @@ class EllieGameTest {
 
     with(eng) {
       phase("Production")
-      operations.manual("ResearchPhase FROM Phase") {
-        p1.gameplay.doTask("3 BuyCard")
-        p2.gameplay.doTask("BuyCard")
+      godMode().manual("ResearchPhase FROM Phase") {
+        p1.doTask("3 BuyCard")
+        p2.doTask("BuyCard")
       }
       phase("Action")
     }
@@ -104,7 +104,7 @@ class EllieGameTest {
     assertThat(eng.counts("OceanTile, OxygenStep, TemperatureStep")).containsExactly(1, 0, 0)
 
     with(p1) {
-      assertThat(gameplay.count("TerraformRating")).isEqualTo(24)
+      assertThat(this.count("TerraformRating")).isEqualTo(24)
 
       assertThat(production().values).containsExactly(5, 0, 0, 0, 0, 1).inOrder()
 
@@ -122,7 +122,7 @@ class EllieGameTest {
     }
 
     with(p2) {
-      assertThat(gameplay.count("TerraformRating")).isEqualTo(25)
+      assertThat(this.count("TerraformRating")).isEqualTo(25)
 
       assertThat(production().values).containsExactly(-4, 0, 1, 3, 1, 1).inOrder()
 
@@ -138,7 +138,7 @@ class EllieGameTest {
 
     // To check VPs we have to fake the game ending
 
-    eng.operations.manual("End FROM Phase") {
+    eng.godMode().manual("End FROM Phase") {
       // TODO why does P1 have 1 more point than I expect?
       // Should be 23 2 1 1 -1 / 25 1 1 1
       eng.assertCounts(27 to "VP<P1>", 28 to "VP<P2>")
@@ -164,5 +164,5 @@ class EllieGameTest {
     p2.playProject("Research", 11)
   }
 
-  fun TerraformingMarsApi.counts(s: String) = s.split(",").map { gameplay.count(it) }
+  fun TfmGameplay.counts(s: String) = s.split(",").map { this.count(it) }
 }

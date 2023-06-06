@@ -2,7 +2,7 @@ package dev.martianzoo.tfm.repl
 
 import dev.martianzoo.tfm.api.ApiUtils.lookUpProductionLevels
 import dev.martianzoo.tfm.api.ApiUtils.standardResourceNames
-import dev.martianzoo.tfm.engine.TerraformingMarsApi
+import dev.martianzoo.tfm.engine.TfmGameplay
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.pets.ast.Metric.Count
 import dev.martianzoo.tfm.repl.TfmColor.ENERGY
@@ -13,7 +13,7 @@ import dev.martianzoo.tfm.repl.TfmColor.STEEL
 import dev.martianzoo.tfm.repl.TfmColor.TITANIUM
 
 internal class PlayerBoardToText(
-    private val tfm: TerraformingMarsApi,
+    private val tfm: TfmGameplay,
     val useColors: Boolean = true,
 ) {
 
@@ -50,8 +50,8 @@ internal class PlayerBoardToText(
     val energ = maybeColor(ENERGY, "E: $eres")
     val heeat = maybeColor(HEAT, "H: $hres")
 
-    val r = tfm.gameplay.count("TerraformRating")
-    val tiles = tfm.gameplay.count("OwnedTile")
+    val r = tfm.count("TerraformRating")
+    val tiles = tfm.count("OwnedTile")
     val player = "${tfm.player}"
 
     return """

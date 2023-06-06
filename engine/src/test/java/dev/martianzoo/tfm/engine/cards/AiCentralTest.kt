@@ -7,8 +7,8 @@ import dev.martianzoo.tfm.data.GameSetup
 import dev.martianzoo.tfm.data.Player.Companion.ENGINE
 import dev.martianzoo.tfm.data.Player.Companion.PLAYER1
 import dev.martianzoo.tfm.engine.Engine
-import dev.martianzoo.tfm.engine.TerraformingMarsApi.Companion.tfm
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
+import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 
@@ -18,7 +18,7 @@ class AiCentralTest {
     val game = Engine.newGame(GameSetup(Canon, "BRM", 2))
 
     with(game.tfm(PLAYER1)) {
-      sneak("5 ProjectCard, 100, Steel")
+      godMode().sneak("5 ProjectCard, 100, Steel")
 
       phase("Action")
       playProject("SearchForLife", 3)
@@ -33,7 +33,7 @@ class AiCentralTest {
       assertThrows<LimitsException>("2") { playProject("AiCentral", 19, steel = 1) }
 
       // Give energy prod and try again - success
-      sneak("PROD[Energy]")
+      godMode().sneak("PROD[Energy]")
       playProject("AiCentral", 19, steel = 1)
       assertCounts(0 to "PROD[Energy]")
 
@@ -48,7 +48,7 @@ class AiCentralTest {
       assertCounts(1 to "ActionUsedMarker<AiCentral>")
 
       // Next gen we can again
-      asPlayer(ENGINE).operations.manual("Generation")
+      asPlayer(ENGINE).godMode().manual("Generation")
 
       cardAction1("AiCentral")
       assertCounts(5 to "ProjectCard")

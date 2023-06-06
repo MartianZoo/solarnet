@@ -4,8 +4,8 @@ import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.data.GameSetup
 import dev.martianzoo.tfm.data.Player.Companion.PLAYER1
 import dev.martianzoo.tfm.engine.Engine
-import dev.martianzoo.tfm.engine.TerraformingMarsApi.Companion.tfm
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
+import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import org.junit.jupiter.api.Test
 
 class OptimalAerobrakingTest {
@@ -17,7 +17,7 @@ class OptimalAerobrakingTest {
     with(game.tfm(PLAYER1)) {
       phase("Action")
 
-      sneak("5 ProjectCard, OptimalAerobraking, 14")
+      godMode().sneak("5 ProjectCard, OptimalAerobraking, 14")
       assertCounts(14 to "Megacredit", 0 to "Heat")
       playProject("AsteroidCard", 14) {
         doTask("Ok") // but there's no one to steal from anyway TODO

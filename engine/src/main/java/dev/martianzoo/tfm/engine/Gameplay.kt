@@ -88,7 +88,7 @@ interface Gameplay {
   fun autoExecNow(): TaskResult
   var autoExecMode: AutoExecMode
 
-  fun turnLayer(): TurnLayer
+  fun godMode(): GodMode
 
   // Blue mode
 
@@ -100,7 +100,6 @@ interface Gameplay {
 
     fun turn2(body: BodyLambda = {}): TaskResult
 
-    fun operationLayer(): OperationLayer
   }
 
   // Green mode
@@ -112,7 +111,6 @@ interface Gameplay {
 
     fun finish(body: BodyLambda = {}): TaskResult
 
-    fun taskLayer(): TaskLayer
   }
 
   interface OperationBody {
@@ -135,11 +133,10 @@ interface Gameplay {
     /** Removes a task for any reason or no reason at all. */
     fun dropTask(taskId: TaskId): TaskRemovedEvent
 
-    fun changeLayer(): ChangeLayer
   }
 
   // Red
-  public interface ChangeLayer : TaskLayer {
+  public interface GodMode : TaskLayer {
     fun sneak(changes: String, fakeCause: Cause? = null): TaskResult
   }
 

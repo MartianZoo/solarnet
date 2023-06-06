@@ -6,8 +6,8 @@ import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.data.GameSetup
 import dev.martianzoo.tfm.data.Player.Companion.PLAYER1
 import dev.martianzoo.tfm.engine.Engine
-import dev.martianzoo.tfm.engine.TerraformingMarsApi.Companion.tfm
 import dev.martianzoo.tfm.engine.TestHelpers.assertProds
+import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import dev.martianzoo.tfm.engine.Timeline.AbortOperationException
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -20,7 +20,7 @@ class InsulationTest {
     with(game.tfm(PLAYER1)) {
       playCorp("Ecoline", 5)
       phase("Action")
-      sneak("PROD[-1, 3 Heat]")
+      godMode().sneak("PROD[-1, 3 Heat]")
       assertProds(-1 to "M", 3 to "H")
 
       playProject("Insulation", 2) {
