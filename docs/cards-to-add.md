@@ -13,7 +13,6 @@ As of 2023-06, the number of rows in this table plus entries in cards.json shoul
 | V04 | Morning Star Inc.          | adjustreqt            |
 | XC3 | Splice Tactical Genomics   | linkages, outofturn   |
 | PC5 | Vitor                      | awards                |
-| X43 | Head Start                 | actionsinactions      |
 | CC1 | Aridor                     | aridor                |
 | B00 | Beginner Corporation       | beginner              |
 | XC1 | Arcadian Communities       | community             |

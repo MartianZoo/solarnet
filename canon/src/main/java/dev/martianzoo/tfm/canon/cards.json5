@@ -625,6 +625,15 @@
       "immediate": "PROD[1], PreludeCard, PlayCard<Class<PreludeCard>>"
     },
 
+    // Head Start
+    {
+      "id": "X43",
+      "bundle": "X",
+      "deck": "PRELUDE",
+      // officially, you're not supposed to be able to intermingle all the effects like this
+      "immediate": "2 Steel, 2 / ProjectCard, UseAction<StandardAction>?, UseAction<StandardAction>?"
+    },
+
     // Colonizer Training Camp
     {
       "id": "001",
