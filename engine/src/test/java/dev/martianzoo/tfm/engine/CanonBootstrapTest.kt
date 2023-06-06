@@ -52,7 +52,7 @@ private class CanonBootstrapTest {
     checkCount(4, "Class<CardResource>") // Plants Microbes Animals.. and Fighters
     checkCount(5, "Class<Milestone>")
     checkCount(6, "Class<StandardResource>")
-    checkCount(7, "Class<StandardAction>")
+    checkCount(8, "Class<StandardAction>")
     checkCount(8, "Class<SpecialTile>") // oops missing some
     checkCount(10, "Class<Tag>")
     checkCount(10, "Class<OwnedTile>") // so here too
@@ -103,6 +103,7 @@ private class CanonBootstrapTest {
             "[UseActionFromCard]",
             "[ConvertHeat]",
             "[ConvertPlants]",
+            "[HandleMandates]",
             "[SellPatents]",
 
             "[PowerPlantSP]", "[AsteroidSP]", "[AquiferSP]", "[GreenerySP]", "[CitySP]",

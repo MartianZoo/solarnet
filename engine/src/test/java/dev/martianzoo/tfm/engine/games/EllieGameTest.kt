@@ -85,7 +85,7 @@ class EllieGameTest {
 
     with(eng) {
       phase("Production")
-      godMode().manual("ResearchPhase FROM Phase") {
+      phase("Research") {
         p1.doTask("3 BuyCard")
         p2.doTask("BuyCard")
       }

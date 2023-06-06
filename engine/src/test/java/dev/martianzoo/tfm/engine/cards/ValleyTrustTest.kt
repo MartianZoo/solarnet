@@ -19,8 +19,7 @@ class ValleyTrustTest {
       phase("Action")
       assertCounts(1 to "Mandate")
       assertCounts(0 to "PreludeCard")
-      this.turn {
-        doTask("UseAllMandates")
+      stdAction("HandleMandates") {
         assertCounts(1 to "PreludeCard")
         doTask("PlayCard<Class<PreludeCard>, Class<MartianIndustries>>") // TODO playPrelude?
         doTask("Ok") // damm stupid steel

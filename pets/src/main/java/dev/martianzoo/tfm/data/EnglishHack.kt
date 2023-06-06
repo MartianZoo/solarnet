@@ -30,6 +30,7 @@ internal object EnglishHack {
           "SAF" to "ConvertPlants",
           "SAG" to "ConvertHeat",
           "SELL" to "SellPatents",
+          "MAND" to "HandleMandates",
           "SP11" to "PowerPlantSP",
           "SP14" to "AsteroidSP",
           "SP15" to "AirScrappingSP",

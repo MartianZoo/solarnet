@@ -1,6 +1,6 @@
 package dev.martianzoo.tfm.engine.cards
 
-import dev.martianzoo.tfm.api.Exceptions.NarrowingException
+import dev.martianzoo.tfm.api.Exceptions.RequirementException
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.data.GameSetup
 import dev.martianzoo.tfm.data.Player.Companion.PLAYER1
@@ -21,25 +21,26 @@ class CelesticTest {
     with(p1) {
       playCorp("Celestic", 5)
       assertCounts(5 to "ProjectCard", 27 to "M")
+      godMode().sneak("100, 10 Heat")
 
       phase("Action")
-      assertThrows<NarrowingException> { playProject("Mine") }
-      assertThrows<NarrowingException> { stdProject("Aquifer") }
-      assertThrows<NarrowingException> { stdAction("ConvertPlants") }
+      assertThrows<RequirementException> { playProject("Mine") }
+      assertThrows<RequirementException> { stdProject("AsteroidSP") }
+      assertThrows<RequirementException> { stdAction("ConvertHeat") }
 
       pass()
 
       phase("Production")
-      godMode().manual("ResearchPhase FROM Phase") {
-        doFirstTask("2 BuyCard")
+      phase("Research") {
+        p1.doTask("2 BuyCard")
         p2.doTask("2 BuyCard")
       }
       phase("Action")
-      assertThrows<NarrowingException> { playProject("Mine") }
+      assertThrows<RequirementException> { playProject("Mine") }
 
       assertCounts(1 to "Mandate")
       assertCounts(7 to "ProjectCard")
-      this.turn { doTask("UseAllMandates") }
+      stdAction("HandleMandates")
       assertCounts(9 to "ProjectCard")
       playProject("Mine", 4)
     }

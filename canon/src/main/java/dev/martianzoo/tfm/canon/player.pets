@@ -8,12 +8,15 @@ ABSTRACT CLASS Anyone[ANY] {                      // aka Player
 
     This:: 20 TerraformRating<This>, GrossHack<This>, SuperHack<This>
 
-    // TODO Bogus: these need to use PlayCard
     NewTurn IF CorporationPhase: CardFront, 10 BuyCard?
-    NewTurn IF PreludePhase: CardFront OR (-PreludeCard, 15) // ELSE (#22)
+//    CorporationPhase:: CorporationCard
+//    NewTurn IF CorporationPhase: PlayCard<Class<CorporationCard>>, 10 BuyCard?
 
-    NewTurn IF (ActionPhase, Mandate): UseAllMandates OR Pass
-    NewTurn IF (ActionPhase, MAX 0 Mandate): UseAction<StandardAction> OR Pass
+    NewTurn IF PreludePhase: CardFront OR (-PreludeCard, 15) // ELSE (#22)
+//    PreludePhase:: 2 PreludeCard
+//    NewTurn IF PreludePhase: PlayCard<Class<PreludeCard>> OR (-PreludeCard THEN 15) // ELSE (#22)
+
+    NewTurn IF ActionPhase: UseAction<StandardAction> OR Pass
 
     ResearchPhase: 4 BuyCard<This>?
 
@@ -153,18 +156,20 @@ ABSTRACT CLASS Owned<Anyone> {
 
   CLASS Pass : Generational {
     HAS MAX 1 This                                // Passing twice is impossible
-    This IF MAX 0 ActionPhase:: Die               // Can only do it in the action phase
     NewTurn:: Die                                 // Can't get a turn once you have this
   }
 
   ABSTRACT CLASS UseAction<HasActions> [UA] : Signal {
+    This: MAX 0 Mandate: Ok                       // Should always be doable at least by end
+
     CLASS UseAction1[UA1], UseAction2[UA2], UseAction3[UA3]
   }
 
-  CLASS UseAllMandates: Signal
+  CLASS MandateSignal : Signal
 
   ABSTRACT CLASS Mandate: HasActions {
-    UseAllMandates:: UseAction1<This>, -This!
+    MandateSignal:: UseAction1<This>
+    MandateSignal: -This!
   }
 
 // PAYMENT MECHANICS -----------------------------

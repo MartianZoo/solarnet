@@ -27,6 +27,9 @@
 
     // Sell patents[F] - yes, it's technically a project, but that makes things annoying
     { "id": "SELL", "bundle": "B", "action": "X ProjectCard -> X" },
+
+    // Mandatory first action; it's always here but you can't take it if you have 0 Mandate
+    { "id": "MAND", "bundle": "B", "action": "-> Mandate: MandateSignal" }
   ],
 
   "projects": [
