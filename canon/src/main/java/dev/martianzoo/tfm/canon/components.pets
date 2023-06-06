@@ -31,7 +31,7 @@ ABSTRACT CLASS System {
     HAS MAX 1 This                                     // and kicks everything else off
 
     This:: SetupPhase
-    Die: ForceLoad<Class<ActionPhase>>
+    Die: ForceLoad<Class<ActionPhase>>, ForceLoad<Class<EndPhase>>
 
     PlayTag<Class<BuildingTag>>:: Accept<Class<Steel>>
     PlayTag<Class<SpaceTag>>:: Accept<Class<Titanium>>
@@ -145,9 +145,9 @@ ABSTRACT CLASS Phase : System {
   }
   CLASS Production2Phase
   CLASS ResearchPhase { This:: Generation }
-  CLASS End // EndPhase { This:: End }
+  CLASS EndPhase { This:: End }
 }
 
-// CLASS End : Signal
+CLASS End : Signal
 
 // Player-specific components are in `player.pets`

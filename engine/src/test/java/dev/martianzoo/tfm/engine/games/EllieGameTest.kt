@@ -140,7 +140,7 @@ class EllieGameTest {
 
     // To check VPs we have to fake the game ending
 
-    eng.godMode().manual("End FROM Phase") {
+    eng.phase("End") {
       // TODO why does P1 have 1 more point than I expect?
       // Should be 23 2 1 1 -1 / 25 1 1 1
       eng.assertCounts(27 to "VP<P1>", 28 to "VP<P2>")

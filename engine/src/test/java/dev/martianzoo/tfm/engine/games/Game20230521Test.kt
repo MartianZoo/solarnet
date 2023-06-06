@@ -223,8 +223,7 @@ class Game20230521Test {
   }
 
   fun TfmGameplay.assertVps(expected: Int) {
-    godMode().manual("End FROM Phase") {
-      autoExecNow()
+    phase("End") {
       assertCounts(expected to "VP")
       throw AbortOperationException()
     }
