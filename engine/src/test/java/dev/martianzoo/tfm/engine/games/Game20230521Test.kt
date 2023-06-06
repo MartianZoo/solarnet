@@ -70,8 +70,10 @@ class Game20230521Test {
     blue.pass()
 
     purp.playProject("RotatorImpacts", titanium = 2)
-    purp.cardAction1("RotatorImpacts") { doTask("2 Pay<Class<T>> FROM T") }
-    purp.godMode().sneak("6") // the titanium were supposed to fill that TODO
+    purp.cardAction1("RotatorImpacts") {
+      doTask("2 Pay<Class<T>> FROM T")
+      doFirstTask("Ok") // should take care of the Accept<Megacredit>?
+    }
 
     purp.playProject("CarbonateProcessing", 6)
     purp.playProject("Archaebacteria", 6)
@@ -146,7 +148,10 @@ class Game20230521Test {
     blue.playProject("OptimalAerobraking", 7)
 
     purp.playProject("TransNeptuneProbe", 0, titanium = 2)
-    purp.cardAction1("RotatorImpacts") { doFirstTask("Ok") } // titanium, sigh
+    purp.cardAction1("RotatorImpacts") {
+      doFirstTask("6 Pay<Class<M>> FROM M")
+      doFirstTask("Ok")
+    }
 
     blue.cardAction2("DeuteriumExport")
     blue.playProject("ImportedGhg", 4)

@@ -732,9 +732,11 @@
       "bundle": "B",
       "deck": "PROJECT",
       "tags": [ "JovianTag", "SpaceTag" ],
-      "actions": [ "12 -> OceanTile" ],
+      "actions": [
+        // 12[Titanium] -> OceanTile
+        "-> 12 Owed THEN Accept<Class<Titanium>> THEN MAX 0 Barrier: OceanTile"
+      ],
       "effects": [
-          "UseAction1<This>:: Accept<Class<Titanium>>",
           "End: VictoryPoint / JovianTag"
       ],
       "cost": 25,
@@ -2127,8 +2129,10 @@
       "bundle": "B",
       "deck": "PROJECT",
       "tags": [ "BuildingTag" ],
-      "actions": [ "8 -> OceanTile" ],
-      "effects": [ "UseAction1<This>:: Accept<Class<Steel>>" ],
+      "actions": [
+        // 8[Steel] -> OceanTile
+        "-> 8 Owed THEN Accept<Class<Steel>> THEN MAX 0 Barrier: OceanTile"
+      ],
       "cost": 18,
       "projectKind": "ACTIVE"
     },
@@ -3476,10 +3480,10 @@
       "deck": "PROJECT",
       "tags": [ "SpaceTag" ],
       "actions": [
-        "6 -> Asteroid<This>",
+        // 6[Titanium] -> Asteroid<This>
+        "-> 6 Owed THEN Accept<Class<Titanium>> THEN MAX 0 Barrier: Asteroid<This>",
         "Asteroid<This> -> VenusStep"
       ],
-      "effects": [ "UseAction1<This>:: Accept<Class<Titanium>>" ],
       "resourceType": "Asteroid",
       "requirement": "MAX 7 VenusStep",
       "cost": 6,
@@ -4278,10 +4282,9 @@
       "deck": "PROJECT",
       "tags": [ "SpaceTag" ],
       "actions": [
-        "6 -> Asteroid",
+        "-> 6 Owed THEN Accept<Class<Titanium>> THEN MAX 0 Barrier: Asteroid",
         "Asteroid<This> -> TemperatureStep"
       ],
-      "effects": [ "UseAction1<This>:: Accept<Class<Titanium>>" ],
       "resourceType": "Asteroid",
       "cost": 8,
       "projectKind": "ACTIVE"

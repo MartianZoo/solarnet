@@ -137,16 +137,6 @@ private class CanonEffectsTest {
   }
 
   @Test
-  fun aquiferPumping() {
-    assertThat(classEffectsOf("AquiferPumping"))
-        .containsExactly(
-            "This:: BuildingTag<Owner, This>!",
-            "UseAction1<Owner, This>:: Accept<Owner, Class<Steel>>.",
-            "UseAction1<Owner, This>: -8 Megacredit<Owner>! THEN OceanTile<WaterArea>.",
-        )
-  }
-
-  @Test
   fun floaterPrototypes() {
     assertThat(classEffectsOf("FloaterPrototypes"))
         .containsExactly(
