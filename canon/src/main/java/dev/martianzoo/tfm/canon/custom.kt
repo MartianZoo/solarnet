@@ -117,8 +117,16 @@ private object CheckCardRequirement : CustomClass("CheckCardRequirement") {
 }
 
 private object HandleCardCost : CustomClass("HandleCardCost") {
-  override fun translate(game: GameReader, owner: Type, cardClassType: Type): Instruction {
-    val cardType: Expression = cardClassType.expression.arguments.single()
+  override fun translate(
+      game: GameReader,
+      owner: Type,
+      cardBackClassType: Type,
+      cardFrontClassType: Type
+  ): Instruction {
+    // TODO dumb to pass it in just for this reason
+    if (cardBackClassType.expression.arguments.single() != cn("ProjectCard").expression) return NoOp
+
+    val cardType: Expression = cardFrontClassType.expression.arguments.single()
     val card: CardDefinition = game.authority.card(cardType.className)
 
     val playTagSignals =

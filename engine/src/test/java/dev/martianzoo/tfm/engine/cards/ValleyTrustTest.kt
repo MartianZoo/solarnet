@@ -19,10 +19,11 @@ class ValleyTrustTest {
       phase("Action")
       assertCounts(1 to "Mandate")
       assertCounts(0 to "PreludeCard")
+
       stdAction("HandleMandates") {
         assertCounts(1 to "PreludeCard")
-        doTask("PlayCard<Class<PreludeCard>, Class<MartianIndustries>>") // TODO playPrelude?
-        doTask("Ok") // damm stupid steel
+
+        playPrelude("MartianIndustries")
         assertCounts(1 to "PROD[S]", 1 to "PROD[E]")
         assertCounts(0 to "PreludeCard")
       }

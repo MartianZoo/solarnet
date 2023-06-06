@@ -45,9 +45,8 @@ public class TfmGameplay(
   }
 
   fun playPrelude(cardName: String, body: BodyLambda = {}): TaskResult {
-    require(has("PreludePhase")) // TODO awkward
     return turn {
-      doTask(cardName)
+      doTask("PlayCard<Class<PreludeCard>, Class<$cardName>>")
       body()
     }
   }

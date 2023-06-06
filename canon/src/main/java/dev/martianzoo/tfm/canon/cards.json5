@@ -622,7 +622,7 @@
       "id": "X42F",
       "bundle": "X",
       "deck": "PRELUDE",
-      "immediate": "PROD[1], CardFront"
+      "immediate": "PROD[1], PreludeCard, PlayCard<Class<PreludeCard>>"
     },
 
     // Colonizer Training Camp

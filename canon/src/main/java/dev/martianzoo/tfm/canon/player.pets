@@ -12,9 +12,8 @@ ABSTRACT CLASS Anyone[ANY] {                      // aka Player
 //    CorporationPhase:: CorporationCard
 //    NewTurn IF CorporationPhase: PlayCard<Class<CorporationCard>>, 10 BuyCard?
 
-    NewTurn IF PreludePhase: CardFront OR (-PreludeCard, 15) // ELSE (#22)
-//    PreludePhase:: 2 PreludeCard
-//    NewTurn IF PreludePhase: PlayCard<Class<PreludeCard>> OR (-PreludeCard THEN 15) // ELSE (#22)
+    PreludePhase:: 2 PreludeCard
+    NewTurn IF PreludePhase: PlayCard<Class<PreludeCard>> OR (-PreludeCard THEN 15) // ELSE (#22)
 
     NewTurn IF ActionPhase: UseAction<StandardAction> OR Pass
 
@@ -180,13 +179,13 @@ ABSTRACT CLASS Owned<Anyone> {
   CLASS PlayCard<Class<CardBack>, Class<CardFront>> : Signal {
     This:: CheckCardDeck<Class<CardBack>, Class<CardFront>>
     This:: CheckCardRequirement<Class<CardFront>>
-    This:: HandleCardCost<Class<CardFront>>
+    This:: HandleCardCost<Class<CardBack>, Class<CardFront>>
     This: MAX 0 Barrier: CardFront FROM CardBack
   }
 
   CLASS CheckCardDeck<Class<CardBack>, Class<CardFront>> : Custom
   CLASS CheckCardRequirement<Class<CardFront>> : Custom
-  CLASS HandleCardCost<Class<CardFront>> : Custom
+  CLASS HandleCardCost<Class<CardBack>, Class<CardFront>> : Custom
 
   CLASS PlayTag<Class<Tag>> : Signal              // Triggers discounts and Accepts
 
