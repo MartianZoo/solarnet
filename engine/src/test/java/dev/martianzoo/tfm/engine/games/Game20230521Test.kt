@@ -1,6 +1,7 @@
 package dev.martianzoo.tfm.engine.games
 
 import com.google.common.truth.Truth.assertThat
+import dev.martianzoo.tfm.analysis.Summarizer
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.data.GameSetup
 import dev.martianzoo.tfm.data.Player
@@ -30,7 +31,7 @@ class Game20230521Test {
     fun newGeneration(cards1: Int, cards2: Int) {
       with(engine) {
         phase("Production")
-        operations.manual("ResearchPhase FROM Phase") {
+        phase("Research") {
           blue.gameplay.doTask(if (cards1 > 0) "$cards1 BuyCard" else "Ok")
           purp.gameplay.doTask(if (cards2 > 0) "$cards2 BuyCard" else "Ok")
         }
@@ -167,6 +168,38 @@ class Game20230521Test {
     }
 
     engine.assertSidebar(4, -28, 0, 0, 2)
+
+    val summer = Summarizer(game)
+
+    // AA's effect never triggered yet (no oceans), so it only generated 1 plant
+    assertThat(summer.net("ArcticAlgae", "Plant")).isEqualTo(1)
+
+    // Blue has done 11 card buys: 5 initial, 4 in research, and 2 from inventors guild
+    assertThat(summer.net("BuyCard<P1>", "Card<P1>")).isEqualTo(11)
+
+    // DeuteriumExport produced a net of 0 floaters (made one then consumed it)
+    assertThat(summer.net("DeuteriumExport", "Floater")).isEqualTo(0)
+    assertThat(summer.net("DeuteriumExport", "Production<Class<Energy>>")).isEqualTo(1)
+
+    // EarthOffice saved blue 6 money (InvestmentLoan, ImportedGhg)
+    assertThat(summer.net("EarthOffice", "Owed<P1>")).isEqualTo(-6)
+
+    // Manutech has delivered! 1 MC with NewPartner, 4 with AlliedBank, 3 with CorporateStronghold
+    // ... plus of course 35 at game start
+    assertThat(summer.net("Manutech", "Megacredit<P1>")).isEqualTo(43)
+
+    // Purple got 63 MC from TR (at production phases they had 20, 21, and 22 TR)
+    assertThat(summer.net("TerraformRating", "Megacredit<P2>")).isEqualTo(63)
+    assertThat(summer.net("TerraformRating<P2>", "Megacredit")).isEqualTo(63)
+    assertThat(summer.net("TerraformRating<P2>", "Megacredit<P2>")).isEqualTo(63)
+    assertThat(summer.net("TerraformRating", "Megacredit")).isEqualTo(132)
+
+    // Blue never raised a global param, but purple did temp & venus
+    assertThat(summer.net("GlobalParameter", "TR<P1>")).isEqualTo(0)
+    assertThat(summer.net("GlobalParameter", "TR<P2>")).isEqualTo(2)
+
+    // This is ludicrous
+    // assertThat(summer.net("Component", "Component")).isEqualTo(163)
   }
 
   fun TerraformingMarsApi.assertTags(vararg pair: Pair<Int, String>) {
