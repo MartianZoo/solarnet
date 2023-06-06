@@ -8,7 +8,7 @@
       "deck": "CORPORATION",
       "tags": [ "PlantTag" ],
       "immediate": "PROD[2 Plant], 36, 3 Plant",
-      "effects": [ "UseAction<ConvertPlantsSA>: -Owed<Class<Plant>>" ]
+      "effects": [ "UseAction<ConvertPlantsSA>:: Plant" ]
     },
 
     // Interplanetary Cinematics
@@ -54,7 +54,7 @@
       "immediate": "PROD[Energy], 48",
       "effects": [
         "PlayTag<Class<PowerTag>>:: -3 Owed",
-        "UseAction<PowerPlantSP>: -3 Owed"
+        "UseAction<PowerPlantSP>:: 3"
       ]
     },
 
