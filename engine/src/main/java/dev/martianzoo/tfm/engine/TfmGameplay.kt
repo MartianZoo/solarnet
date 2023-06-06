@@ -19,10 +19,9 @@ public class TfmGameplay(
 
   fun asPlayer(player: Player) = TfmGameplay(game, player)
 
-  fun playCorp(corpName: String, buyCards: Int, body: BodyLambda = {}): TaskResult {
-    require(has("CorporationPhase")) // TODO awkward
+  fun playCorp(cardName: String, buyCards: Int, body: BodyLambda = {}): TaskResult {
     return turn {
-      doTask(corpName) // TODO playcard
+      doTask("PlayCard<Class<CorporationCard>, Class<$cardName>>")
       doTask(if (buyCards == 0) "Ok" else "$buyCards BuyCard")
       body()
     }

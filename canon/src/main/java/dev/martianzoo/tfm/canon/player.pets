@@ -8,9 +8,8 @@ ABSTRACT CLASS Anyone[ANY] {                      // aka Player
 
     This:: 20 TerraformRating<This>, GrossHack<This>, SuperHack<This>
 
-    NewTurn IF CorporationPhase: CardFront, 10 BuyCard?
-//    CorporationPhase:: CorporationCard
-//    NewTurn IF CorporationPhase: PlayCard<Class<CorporationCard>>, 10 BuyCard?
+    CorporationPhase:: CorporationCard
+    NewTurn IF CorporationPhase: PlayCard<Class<CorporationCard>>, 10 BuyCard?
 
     PreludePhase:: 2 PreludeCard
     NewTurn IF PreludePhase: PlayCard<Class<PreludeCard>> OR (-PreludeCard THEN 15) // ELSE (#22)

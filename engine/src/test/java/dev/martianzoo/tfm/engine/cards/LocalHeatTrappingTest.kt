@@ -19,7 +19,7 @@ class LocalHeatTrappingTest {
   @Test
   fun notEnoughHeat() {
     with(p1) {
-      godMode().manual("4 Heat, 2 ProjectCard, Pets, 100")
+      godMode().manual("4 Heat, 2 ProjectCard, Pets, 100, -CorporationCard")
       assertCounts(0 to "Plant", 4 to "Heat", 1 to "Animal")
       assertCounts(3 to "Card", 2 to "CardBack", 1 to "CardFront", 0 to "PlayedEvent")
 
@@ -45,7 +45,7 @@ class LocalHeatTrappingTest {
   @Test
   fun getPlants() {
     with(p1) {
-      godMode().manual("6 Heat, 2 ProjectCard, Pets")
+      godMode().manual("6 Heat, 2 ProjectCard, Pets, -CorporationCard")
 
       godMode().manual("LocalHeatTrapping") {
         // The card is played and the heat is gone
@@ -66,7 +66,7 @@ class LocalHeatTrappingTest {
   @Test
   fun getPets() {
     with(p1) {
-      godMode().manual("6 Heat, 2 ProjectCard, Pets")
+      godMode().manual("6 Heat, 2 ProjectCard, Pets, -CorporationCard")
 
       godMode().manual("LocalHeatTrapping") {
         // The card is played and the heat is gone
@@ -89,7 +89,7 @@ class LocalHeatTrappingTest {
   // @Test // TODO - overeager DependencyException
   fun getNothing() {
     with(p1) {
-      godMode().manual("6 Heat, 2 ProjectCard")
+      godMode().manual("6 Heat, 2 ProjectCard, -CorporationCard")
 
       godMode().manual("LocalHeatTrapping") {
         assertThat(tasks.extract { "${it.whyPending}" })
