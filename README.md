@@ -37,7 +37,9 @@ Some ideas
 
 ### Videos
 
-[First overview/demo](https://www.youtube.com/watch?v=btCLcFLvV2I), not very polished.
+* [First overview/demo](https://www.youtube.com/watch?v=btCLcFLvV2I), not very polished. It's best if you know the game pretty well.
+* [Second overview](https://www.youtube.com/watch?v=pds_Axz2T90) for an audience of hardcore software people but who might not know TfM well.
+* [Gory video](https://www.youtube.com/watch?v=jC4iZnv4UA0) of me adding a brand new card (Supercapacitors) to Solarnet in real time.
 
 ### Docs
 
