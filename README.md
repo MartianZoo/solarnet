@@ -18,7 +18,7 @@ Inside the open-source app mentioned above is *already* an extremely accurate (>
 
 We don't! I just thought it would be fun and hard, and had some new ideas for how to do it.
 
-What's different about solarnet is that all the game components that have heterogeneous behaviors (cards, milestones, map areas, etc.) are *[just data](/MartianZoo/solarnet/blob/main/canon/src/main/java/dev/martianzoo/tfm/canon/cards.json5)* and don't require custom programming (except for the [ones that do](https://github.com/MartianZoo/solarnet/blob/51e0f276dc3eede6cd2f00d3246a02d638c39b7a/canon/src/main/java/dev/martianzoo/tfm/canon/custom.kt#L157)). Instead, they're described using a specification language called **Pets** that's highly tailored to the particular needs of this particular game.
+What's different about solarnet is that all the game components that have heterogeneous behaviors (cards, milestones, map areas, etc.) are *[just data](/MartianZoo/solarnet/blob/main/canon/src/main/java/dev/martianzoo/tfm/canon/cards.json5)* and don't require custom programming (except the [ones that do](https://github.com/MartianZoo/solarnet/blob/51e0f276dc3eede6cd2f00d3246a02d638c39b7a/canon/src/main/java/dev/martianzoo/tfm/canon/custom.kt#L157)). Instead, they're described using a specification language called **Pets** that's highly tailored to the particular needs of this particular game.
 
 Pets specifications should in theory be convertible to natural-language instructions, or even into the iconographic language you see on the printed cards. But the relevant part today is that these strings are all Solarnet needs to read in order to actually execute the card correctly.
 
