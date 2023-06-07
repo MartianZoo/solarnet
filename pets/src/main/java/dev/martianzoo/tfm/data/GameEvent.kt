@@ -79,7 +79,7 @@ sealed class GameEvent {
         val ct = if (count == 1) "" else "$count "
         return when (gaining) {
           null -> "-$ct$removing"
-          else -> "+$ct$gaining${removing.pre(" FROM ")}"
+          else -> "$ct$gaining${removing.pre(" FROM ")}"
         }
       }
     }
