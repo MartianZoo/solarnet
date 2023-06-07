@@ -30,6 +30,7 @@ class PristarTest {
     p1.assertCounts(53 to "Megacredit", 21 to "TR")
 
     eng.phase("Action")
+
     eng.phase("Production")
     p1.assertCounts(74 to "Megacredit", 21 to "TR", 0 to "Preservation")
 

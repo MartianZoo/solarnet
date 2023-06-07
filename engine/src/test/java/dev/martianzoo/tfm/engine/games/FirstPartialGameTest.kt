@@ -8,6 +8,7 @@ import dev.martianzoo.tfm.data.Player.Companion.PLAYER1
 import dev.martianzoo.tfm.data.Player.Companion.PLAYER2
 import dev.martianzoo.tfm.engine.Engine
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
+import dev.martianzoo.tfm.engine.TestHelpers.nextGeneration
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import org.junit.jupiter.api.Test
 
@@ -19,17 +20,6 @@ class FirstPartialGameTest {
       val eng = game.tfm(ENGINE)
       val p1 = game.tfm(PLAYER1)
       val p2 = game.tfm(PLAYER2)
-
-      fun newGeneration(cards1: Int, cards2: Int) {
-        with(eng) {
-          phase("Production")
-          phase("Research") {
-            p1.doTask(if (cards1 > 0) "$cards1 BuyCard" else "Ok")
-            p2.doTask(if (cards2 > 0) "$cards2 BuyCard" else "Ok")
-          }
-          phase("Action")
-        }
-      }
 
       eng.phase("Corporation")
 
@@ -57,7 +47,7 @@ class FirstPartialGameTest {
         playProject("GreatEscarpmentConsortium", 6) { doTask("PROD[-S<P1>]")}
       }
 
-      newGeneration(4, 1)
+      eng.nextGeneration(4, 1)
 
       with(p2) {
         cardAction1("SpaceElevator")
@@ -77,7 +67,7 @@ class FirstPartialGameTest {
         playProject("BuildingIndustries", steel = 2)
       }
 
-      newGeneration(3, 2)
+      eng.nextGeneration(3, 2)
 
       with(p1) {
         playProject("Mine", 2, steel = 1)
@@ -93,7 +83,7 @@ class FirstPartialGameTest {
         playProject("BribedCommittee", 5)
       }
 
-      newGeneration(3, 2)
+      eng.nextGeneration(3, 2)
 
       with(p2) {
         cardAction1("ElectroCatapult") // steel

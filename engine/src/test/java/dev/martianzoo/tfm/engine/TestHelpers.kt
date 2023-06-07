@@ -25,7 +25,7 @@ object TestHelpers {
           .containsExactlyElementsIn(pairs.map { it.first })
           .inOrder()
 
-  fun TfmGameplay.newGeneration(vararg cardsBought: Int) {
+  fun TfmGameplay.nextGeneration(vararg cardsBought: Int) {
     phase("Production")
     phase("Research") {
       for ((cards, player) in cardsBought.zip(players(5))) {
@@ -39,10 +39,10 @@ object TestHelpers {
     val exp =
         Instruction.split(p.parse<Instruction>(x)).instructions.map {
           when (it) {
-            is Gain -> it.copy(intensity = null)
-            is Remove -> it.copy(intensity = null)
+            is Gain -> "+${it.copy(intensity = null)}"
+            is Remove -> "${it.copy(intensity = null)}"
             else -> error("not allowed")
-          }.toString()
+          }
         }
     val act = net().map { "$it" }
     assertThat(act).containsAtLeastElementsIn(exp)

@@ -12,7 +12,7 @@ import dev.martianzoo.tfm.engine.Game
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
 import dev.martianzoo.tfm.engine.TestHelpers.assertProds
 import dev.martianzoo.tfm.engine.TestHelpers.expect
-import dev.martianzoo.tfm.engine.TestHelpers.newGeneration
+import dev.martianzoo.tfm.engine.TestHelpers.nextGeneration
 import dev.martianzoo.tfm.engine.TfmGameplay
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import dev.martianzoo.tfm.engine.Timeline.AbortOperationException
@@ -135,7 +135,7 @@ class Game20230521Test {
     // You drew Investment Loan and Deuterium Export
     // Player2 bought 2 card(s)
     // You drew Mars University and Steelworks
-    engine.newGeneration(2, 2)
+    engine.nextGeneration(2, 2)
 
     with(p1) {
       assertProds(5 to "M", 3 to "S", 0 to "T", 0 to "P", 0 to "E", 0 to "H")
@@ -208,7 +208,7 @@ class Game20230521Test {
     // You drew Spin-Inducing Asteroid and Imported GHG
     // Player2 bought 2 card(s)
     // You drew Asteroid and Trans-Neptune Probe
-    engine.newGeneration(2, 2)
+    engine.nextGeneration(2, 2)
 
     with(p1) {
       assertProds(4 to "M", 3 to "S", 0 to "T", 0 to "P", 1 to "E", 0 to "H")
@@ -294,7 +294,7 @@ class Game20230521Test {
     // You drew Tectonic Stress Power
     // Player2 bought 2 card(s)
     // You drew Search For Life and Greenhouses
-    engine.newGeneration(1, 2)
+    engine.nextGeneration(1, 2)
 
     with(p1) {
       assertProds(7 to "M", 3 to "S", 0 to "T", 0 to "P", 1 to "E", 1 to "H")
@@ -391,7 +391,7 @@ class Game20230521Test {
     // You drew Power Supply Consortium, Directed Impactors and Power Plant
     // Player1 bought 3 card(s)
     // You drew Small Asteroid, Fueled Generators and Domed Crater
-    engine.newGeneration(3, 3)
+    engine.nextGeneration(3, 3)
 
     with(p1) {
       assertProds(7 to "M", 3 to "S", 0 to "T", 0 to "P", 4 to "E", 2 to "H")
@@ -505,7 +505,7 @@ class Game20230521Test {
     // You drew Sister Planet Support, Miranda Resort, Solarnet and Dusk Laser Mining
     // Player2 bought 2 card(s)
     // You drew Bio Printing Facility and Earth Catapult
-    engine.newGeneration(3, 3)
+    engine.nextGeneration(3, 3)
 
     with(p1) {
       assertProds(9 to "M", 3 to "S", 0 to "T", 0 to "P", 5 to "E", 3 to "H")

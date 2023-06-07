@@ -8,6 +8,7 @@ import dev.martianzoo.tfm.data.Player.Companion.PLAYER1
 import dev.martianzoo.tfm.data.Player.Companion.PLAYER2
 import dev.martianzoo.tfm.engine.Engine
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
+import dev.martianzoo.tfm.engine.TestHelpers.nextGeneration
 import dev.martianzoo.tfm.engine.TfmGameplay
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import dev.martianzoo.tfm.engine.Timeline.AbortOperationException
@@ -54,14 +55,7 @@ class EllieGameTest {
 
     // Generation 2
 
-    with(eng) {
-      phase("Production")
-      phase("Research") {
-        p1.doTask("1 BuyCard")
-        p2.doTask("3 BuyCard")
-      }
-      phase("Action")
-    }
+    eng.nextGeneration(1, 3)
 
     p2.sellPatents(1)
     p2.playProject("VestaShipyard", 15)
@@ -85,14 +79,7 @@ class EllieGameTest {
 
     // Generation 2
 
-    with(eng) {
-      phase("Production")
-      phase("Research") {
-        p1.doTask("3 BuyCard")
-        p2.doTask("BuyCard")
-      }
-      phase("Action")
-    }
+    eng.nextGeneration(3, 1)
 
     p1.cardAction1("DevelopmentCenter")
     p1.playProject("ImmigrantCity", 1, steel = 5) {

@@ -3,10 +3,12 @@ package dev.martianzoo.tfm.engine.cards
 import dev.martianzoo.tfm.api.Exceptions.RequirementException
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.data.GameSetup
+import dev.martianzoo.tfm.data.Player.Companion.ENGINE
 import dev.martianzoo.tfm.data.Player.Companion.PLAYER1
 import dev.martianzoo.tfm.data.Player.Companion.PLAYER2
 import dev.martianzoo.tfm.engine.Engine
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
+import dev.martianzoo.tfm.engine.TestHelpers.nextGeneration
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -31,12 +33,8 @@ class CelesticTest {
 
       pass()
 
-      phase("Production")
-      phase("Research") {
-        p1.doTask("2 BuyCard")
-        p2.doTask("2 BuyCard")
-      }
-      phase("Action")
+      asPlayer(ENGINE).nextGeneration(2, 2)
+
       assertThrows<RequirementException> { playProject("Mine") }
 
       assertCounts(1 to "Mandate")
