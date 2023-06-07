@@ -156,53 +156,103 @@ class Game20230521Test {
     blue.cardAction2("DeuteriumExport")
     blue.playProject("ImportedGhg", 4)
 
-    newGeneration(0, 0)
+    newGeneration(1, 2)
+
     with(blue) {
       assertProds(7 to "M", 3 to "S", 0 to "T", 0 to "P", 1 to "E", 1 to "H")
-      assertCounts(47 to "M", 3 to "S", 0 to "T", 1 to "P", 1 to "E", 10 to "H")
-      assertDashMiddle(played = 13, actions = 3, vp = 21, tr = 23, hand = 5)
+      assertCounts(44 to "M", 3 to "S", 0 to "T", 1 to "P", 1 to "E", 10 to "H")
+      assertDashMiddle(played = 13, actions = 3, vp = 21, tr = 23, hand = 6)
       assertTags(4 to "BUT", 2 to "SPT", 2 to "SCT", 1 to "POT", 3 to "EAT", 1 to "VET", 1 to "CIT")
       assertCounts(2 to "PlayedEvent", 1 to "CardFront(HAS MAX 0 Tag)", 1 to "CityTile")
     }
 
     with(purp) {
       assertProds(0 to "M", 1 to "S", 1 to "T", 1 to "P", 1 to "E", 3 to "H")
-      assertCounts(35 to "M", 2 to "S", 1 to "T", 4 to "P", 1 to "E", 9 to "H")
-      assertDashMiddle(played = 10, actions = 2, vp = 24, tr = 22, hand = 5)
+      assertCounts(29 to "M", 2 to "S", 1 to "T", 4 to "P", 1 to "E", 9 to "H")
+      assertDashMiddle(played = 10, actions = 2, vp = 24, tr = 22, hand = 7)
       assertTags(3 to "BUT", 2 to "SPT", 3 to "SCT", 1 to "POT", 1 to "JOT", 1 to "PLT", 1 to "MIT")
       assertCounts(1 to "PlayedEvent", 1 to "CardFront(HAS MAX 0 Tag)", 0 to "CityTile")
     }
 
     engine.assertSidebar(4, -28, 0, 0, 2)
 
+    purp.cardAction2("Factorum")
+    purp.playProject("AquiferPumping", 14, steel = 2)
+
+    blue.cardAction1("DevelopmentCenter")
+    blue.cardAction1("InventorsGuild") { doTask("BuyCard") }
+
+    purp.cardAction1("AquiferPumping") {
+      doTask("8 Pay<Class<M>> FROM M")
+      doTask("OceanTile<Tharsis_2_6>")
+      doTask("Ok") // stupid steel
+    }
+    purp.playProject("SearchForLife", 3)
+
+    blue.cardAction1("DeuteriumExport")
+    blue.playProject("TectonicStressPower", 12, steel = 3)
+
+    purp.cardAction2("RotatorImpacts")
+    purp.cardAction1("SearchForLife") { doTask("Ok") }
+
+    blue.stdProject("AsteroidSP")
+    blue.stdAction("ConvertHeatSA")
+
+    purp.pass()
+
+    blue.sellPatents(1)
+    blue.playProject("SpinInducingAsteroid", 16)
+
+    blue.pass()
+
+    newGeneration(3, 3)
+
+    with(blue) {
+      assertProds(7 to "M", 3 to "S", 0 to "T", 0 to "P", 4 to "E", 2 to "H")
+      assertCounts(28 to "M", 3 to "S", 0 to "T", 1 to "P", 4 to "E", 11 to "H")
+      assertDashMiddle(played = 15, actions = 3, vp = 26, tr = 27, hand = 9)
+      assertTags(5 to "BUT", 2 to "SPT", 2 to "SCT", 2 to "POT", 3 to "EAT", 1 to "VET", 1 to "CIT")
+      assertCounts(3 to "PlayedEvent", 1 to "CardFront(HAS MAX 0 Tag)", 1 to "CityTile")
+    }
+
+    with(purp) {
+      assertProds(0 to "M", 1 to "S", 1 to "T", 1 to "P", 1 to "E", 3 to "H")
+      assertCounts(15 to "M", 1 to "S", 2 to "T", 7 to "P", 1 to "E", 13 to "H")
+      assertDashMiddle(played = 12, actions = 4, vp = 26, tr = 24, hand = 11)
+      assertTags(4 to "BUT", 2 to "SPT", 4 to "SCT", 1 to "POT", 1 to "JOT", 1 to "PLT", 1 to "MIT")
+      assertCounts(1 to "PlayedEvent", 1 to "CardFront(HAS MAX 0 Tag)", 0 to "CityTile")
+    }
+
+    engine.assertSidebar(5, -24, 0, 1, 8)
+
     val summer = Summarizer(game)
 
-    // AA's effect never triggered yet (no oceans), so it only generated 1 plant
-    assertThat(summer.net("ArcticAlgae", "Plant")).isEqualTo(1)
+    // AA's effect has triggered once, plus the immediate plant
+    assertThat(summer.net("ArcticAlgae", "Plant")).isEqualTo(3)
 
-    // Blue has done 11 card buys: 5 initial, 4 in research, and 2 from inventors guild
-    assertThat(summer.net("BuyCard<P1>", "Card<P1>")).isEqualTo(11)
+    // Blue has done 16 card buys: 5 initial, 8 in research, and 3 from inventors guild
+    assertThat(summer.net("BuyCard<P1>", "Card<P1>")).isEqualTo(16)
 
-    // DeuteriumExport produced a net of 0 floaters (made one then consumed it)
-    assertThat(summer.net("DeuteriumExport", "Floater")).isEqualTo(0)
+    // DeuteriumExport produced a net of 1 floaters (made, consumed, made)
+    assertThat(summer.net("DeuteriumExport", "Floater")).isEqualTo(1)
     assertThat(summer.net("DeuteriumExport", "Production<Class<Energy>>")).isEqualTo(1)
 
-    // EarthOffice saved blue 6 money (InvestmentLoan, ImportedGhg)
+    // EarthOffice has saved blue 6 money (InvestmentLoan, ImportedGhg)
     assertThat(summer.net("EarthOffice", "Owed<P1>")).isEqualTo(-6)
 
     // Manutech has delivered! 1 MC with NewPartner, 4 with AlliedBank, 3 with CorporateStronghold
     // ... plus of course 35 at game start
     assertThat(summer.net("Manutech", "Megacredit<P1>")).isEqualTo(43)
 
-    // Purple got 63 MC from TR (at production phases they had 20, 21, and 22 TR)
-    assertThat(summer.net("TerraformRating", "Megacredit<P2>")).isEqualTo(63)
-    assertThat(summer.net("TerraformRating<P2>", "Megacredit")).isEqualTo(63)
-    assertThat(summer.net("TerraformRating<P2>", "Megacredit<P2>")).isEqualTo(63)
-    assertThat(summer.net("TerraformRating", "Megacredit")).isEqualTo(132)
+    // Purple got 63 MC from TR (at production phases they had 20, 21, 22, and 24 TR)
+    assertThat(summer.net("TerraformRating", "Megacredit<P2>")).isEqualTo(87)
+    assertThat(summer.net("TerraformRating<P2>", "Megacredit")).isEqualTo(87)
+    assertThat(summer.net("TerraformRating<P2>", "Megacredit<P2>")).isEqualTo(87)
+    assertThat(summer.net("TerraformRating", "Megacredit")).isEqualTo(183)
 
-    // Blue never raised a global param, but purple did temp & venus
-    assertThat(summer.net("GlobalParameter", "TR<P1>")).isEqualTo(0)
-    assertThat(summer.net("GlobalParameter", "TR<P2>")).isEqualTo(2)
+    // Blue has raised temp 2 & venus 2, purple did temp & venus2 & ocean
+    assertThat(summer.net("GlobalParameter", "TR<P1>")).isEqualTo(4)
+    assertThat(summer.net("GlobalParameter", "TR<P2>")).isEqualTo(4)
 
     // This is ludicrous
     // assertThat(summer.net("Component", "Component")).isEqualTo(163)
