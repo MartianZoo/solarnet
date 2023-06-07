@@ -22,8 +22,7 @@ public class Summarizer @Inject constructor(val events: EventLog, val reader: Ga
     val changes: List<StateChange> =
         events
             .changesSinceSetup()
-            .filter { it.cause != null }
-            .filter { reader.resolve(it.cause!!.context).narrows(byType) }
+            .filter { e -> e.cause?.let { reader.resolve(it.context).narrows(byType) } ?: false }
             .map { it.change }
 
     fun extracted(expr: Expression?, change: StateChange) =

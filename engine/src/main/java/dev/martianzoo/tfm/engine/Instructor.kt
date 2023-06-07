@@ -116,7 +116,7 @@ constructor(
       }
       is Or -> prepareOr(unprepared)
       // TODO this is wrong
-      is Then -> Then.create(unprepared.instructions.map(::doPrepare).filter { it != NoOp })
+      is Then -> Then.create(unprepared.instructions.map(::doPrepare) - listOf(NoOp))
       is Multi -> error("")
       is Transform -> error("should have been transformed already: $unprepared")
     }
@@ -187,7 +187,7 @@ constructor(
       val missing =
           g.dependencies.typeDependencies
               .map { it.boundType }
-              .filter { reader.getComponents(it).none() }
+              .filter { reader.count(it) == 0 }
       if (missing.any()) throw DependencyException(missing)
       g = g.allConcreteSubtypes().singleOrNull() ?: g
 

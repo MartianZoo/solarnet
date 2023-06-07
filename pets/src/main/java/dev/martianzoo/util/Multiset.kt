@@ -9,7 +9,7 @@ public interface Multiset<E> : Collection<E> {
 
   public fun filter(predicate: (E) -> Boolean): Multiset<E> {
     val result = HashMultiset<E>()
-    elements.filter(predicate).forEach { result.add(it, count(it)) }
+    elements.forEach { if (predicate(it)) result.add(it, count(it)) }
     return result
   }
 

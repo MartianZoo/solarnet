@@ -7,6 +7,7 @@ import dev.martianzoo.tfm.api.TypeInfo
 import dev.martianzoo.tfm.api.TypeInfo.StubTypeInfo
 import dev.martianzoo.tfm.data.GameEvent.ChangeEvent.StateChange
 import dev.martianzoo.tfm.engine.ComponentGraph.Component
+import dev.martianzoo.tfm.engine.ComponentGraph.Component.Companion.toComponent
 import dev.martianzoo.tfm.engine.Engine.Updater
 import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.pets.ast.Requirement.Counting
@@ -27,14 +28,24 @@ internal class WritableComponentGraph @Inject constructor(internal val effector:
 
   override operator fun contains(component: Component) = component in multiset.elements
 
-  override fun count(parentType: MType, info: TypeInfo) = getAll(parentType, info).size
+  override fun count(parentType: MType, info: TypeInfo): Int {
+    return if (parentType.abstract) {
+      getAll(parentType, info).size
+    } else {
+      countComponent(parentType.toComponent())
+    }
+  }
+
   override fun countComponent(component: Component) = multiset.count(component)
 
   override fun getAll(parentType: MType, info: TypeInfo): Multiset<Component> {
     return if (parentType.className == COMPONENT) {
       HashMultiset.of(multiset)
-    } else {
+    } else if (parentType.abstract) {
       multiset.filter { it.mtype.narrows(parentType, info) }
+    } else {
+      val cpt = parentType.toComponent()
+      HashMultiset<Component>().also { it.add(cpt, multiset.count(cpt)) }
     }
   }
 

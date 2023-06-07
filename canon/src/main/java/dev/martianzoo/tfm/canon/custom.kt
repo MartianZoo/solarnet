@@ -157,9 +157,10 @@ private object GetEventVps : CustomClass("GetEventVps") {
     require(classType.className == CLASS)
     val cardName = classType.expression.arguments.single().className
     val card = game.authority.card(cardName)
-    val endFx = card.effects.filter { it.trigger == parse<Trigger>("End") }
+    val endFx = card.effects.filter { it.trigger == end }
     return Multi.create(endFx.map { it.instruction })
   }
+  val end: Trigger = parse("End")
 }
 
 // For Robinson Industries
