@@ -18,13 +18,13 @@ Inside the open-source app mentioned above is *already* an extremely accurate (>
 
 We don't! I just thought it would be fun and hard, and had some new ideas for how to do it.
 
-What's different about solarnet is that all the game components that have heterogeneous behaviors (cards, milestones, map areas, etc.) are *[just data](/MartianZoo/solarnet/blob/main/canon/src/main/java/dev/martianzoo/tfm/canon/cards.json5)* and don't require custom programming (except the [ones that do](https://github.com/MartianZoo/solarnet/blob/51e0f276dc3eede6cd2f00d3246a02d638c39b7a/canon/src/main/java/dev/martianzoo/tfm/canon/custom.kt#L157)). Instead, they're described using a specification language called **Pets** that's highly tailored to the particular needs of this particular game.
+What's different about solarnet is that all the game components that have heterogeneous behaviors (cards, milestones, map areas, etc.) are *[just data](https://github.com/MartianZoo/solarnet/blob/main/canon/src/main/java/dev/martianzoo/tfm/canon/cards.json5)* and don't require custom programming (except the ones that do). Instead, they're described using a specification language called **Pets** that's highly tailored to the particular needs of this particular game.
 
 Pets specifications should in theory be convertible to natural-language instructions, or even into the iconographic language you see on the printed cards. But the relevant part today is that these strings are all Solarnet needs to read in order to actually execute the card correctly.
 
 ## Help is welcome
 
-We've been a team of one for a long time, and jumping in won't be trivial. But I would love to spend time helping you get going.
+We've been a team of one for a long time, and jumping in won't be trivial. But "we" would love to spend time helping you get going.
 
 Some ideas
 
@@ -39,7 +39,7 @@ Some ideas
 
 * [First overview/demo](https://www.youtube.com/watch?v=btCLcFLvV2I), not very polished. It's best if you know the game pretty well.
 * [Second overview](https://www.youtube.com/watch?v=pds_Axz2T90) for an audience of hardcore software people but who might not know TfM well.
-* [Gory video](https://www.youtube.com/watch?v=jC4iZnv4UA0) of me adding a brand new card (Supercapacitors) to Solarnet in real time.
+* [Gory video](https://www.youtube.com/watch?v=jC4iZnv4UA0) of me trying to add a brand new card (Supercapacitors) to Solarnet in real time.
 
 ### Docs
 
@@ -64,7 +64,7 @@ help
 
 Of course, it won't work, because nothing ever works. I'd be *willing* to help, but sadly I actually know almost nothing about Build Stuff. Note `rego` is a shell script so I dunno if that's usable on Windows.
 
-You can also browse the [Pets source files](/MartianZoo/solarnet/tree/main/canon/src/main/java/dev/martianzoo/tfm/canon) to see where all the game components come from. You can change it around or attempt to add your own custom cards.
+You can also browse the [Pets source files](https://github.com/MartianZoo/solarnet/tree/main/canon/src/main/java/dev/martianzoo/tfm/canon) to see where all the game components come from. You can change it around or attempt to add your own custom cards.
 
 ### Poke around in the implementation?
 
