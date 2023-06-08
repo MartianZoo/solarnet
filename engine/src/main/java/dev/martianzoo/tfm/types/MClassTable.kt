@@ -5,9 +5,9 @@ import dev.martianzoo.tfm.api.Type
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.Expression
 
-internal abstract class MClassTable {
+public abstract class MClassTable {
 
-  abstract val authority: Authority
+  internal abstract val authority: Authority
   /** The `Component` class, which is the root of the class hierarchy. */
   abstract val componentClass: MClass
 

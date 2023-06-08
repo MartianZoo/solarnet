@@ -6,6 +6,7 @@ import dev.martianzoo.tfm.data.GameSetup
 import dev.martianzoo.tfm.data.Player.Companion.PLAYER1
 import dev.martianzoo.tfm.engine.Engine
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
+import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 
@@ -14,18 +15,18 @@ class CeosFavoriteTest {
   fun ceosFavoriteProject() {
     val game = Engine.newGame(GameSetup(Canon, "CVERB", 2))
 
-    with(game.gameplay(PLAYER1).godMode()) {
-      manual("10 ProjectCard, ForcedPrecipitation")
+    with(game.tfm(PLAYER1)) {
+      godMode().manual("10 ProjectCard, ForcedPrecipitation")
 
       // We can't CEO's onto an empty card
       assertThrows<DependencyException> {
-        manual("CeosFavoriteProject") { doTask("Floater<ForcedPrecipitation>") }
+        godMode().manual("CeosFavoriteProject") { doTask("Floater<ForcedPrecipitation>") }
       }
 
       godMode().sneak("Floater<ForcedPrecipitation>")
       assertCounts(1 to "Floater")
 
-      manual("CeosFavoriteProject") { doTask("Floater<ForcedPrecipitation>") }
+      godMode().manual("CeosFavoriteProject") { doTask("Floater<ForcedPrecipitation>") }
       assertCounts(2 to "Floater")
     }
   }

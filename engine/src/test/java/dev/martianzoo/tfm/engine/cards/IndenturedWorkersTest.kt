@@ -31,7 +31,7 @@ class IndenturedWorkersTest {
   @Test
   fun indenturedWorkers() {
     with(p1) {
-      playProject("IndenturedWorkers")
+      playProject("IndenturedWorkers", 0)
       assertCounts(0 to "IndenturedWorkers") // just showing that its out of play
 
       // doing these things in between doesn't matter
@@ -50,7 +50,7 @@ class IndenturedWorkersTest {
   @Test
   fun indenturedWorkersGenerational() {
     with(p1) {
-      playProject("IndenturedWorkers")
+      playProject("IndenturedWorkers", 0)
 
       godMode().manual("Generation") // use it or lose it!
       playProject("Soletta", 35)

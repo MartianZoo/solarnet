@@ -24,7 +24,7 @@ class AiCentralTest {
       playProject("SearchForLife", 3)
       playProject("InventorsGuild", 9)
 
-      assertThrows<RequirementException>("1") { playProject("AiCentral") }
+      assertThrows<RequirementException>("1") { playProject("AiCentral", 21) }
       playProject("DesignedMicroorganisms", 16)
 
       assertCounts(3 to "ScienceTag")

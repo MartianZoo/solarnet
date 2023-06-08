@@ -2,21 +2,24 @@ package dev.martianzoo.tfm.engine.games
 
 import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.tfm.analysis.Summarizer
+import dev.martianzoo.tfm.api.Exceptions.DependencyException
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.data.GameSetup
 import dev.martianzoo.tfm.data.Player.Companion.ENGINE
 import dev.martianzoo.tfm.data.Player.Companion.PLAYER1
 import dev.martianzoo.tfm.data.Player.Companion.PLAYER2
+import dev.martianzoo.tfm.data.TaskResult
 import dev.martianzoo.tfm.engine.Engine
 import dev.martianzoo.tfm.engine.Game
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
+import dev.martianzoo.tfm.engine.TestHelpers.assertNetChanges
 import dev.martianzoo.tfm.engine.TestHelpers.assertProds
-import dev.martianzoo.tfm.engine.TestHelpers.expect
 import dev.martianzoo.tfm.engine.TestHelpers.nextGeneration
 import dev.martianzoo.tfm.engine.TfmGameplay
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import dev.martianzoo.tfm.engine.Timeline.AbortOperationException
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 
 class Game20230521Test {
   // @Test // for profiling
@@ -30,21 +33,22 @@ class Game20230521Test {
     val p1 = game.tfm(PLAYER1)
     val p2 = game.tfm(PLAYER2)
 
+    fun TaskResult.expect(string: String) = assertNetChanges(this, engine, string)
+
     // Good luck Player1!
     // Good luck Player2!
     // Generation 1
     engine.phase("Corporation")
 
-
     // Player1's steel production increased by 1
     // Player1 played Manutech
     // Player1 kept 5 project cards
-    p1.playCorp("Manutech", 5).expect(p1, "PROD[S], 20, S, 5 ProjectCard")
+    p1.playCorp("Manutech", 5).expect("PROD[S], 20, S, 5 ProjectCard")
 
     // Player2's steel production increased by 1
     // Player2 played Factorum
     // Player2 kept 4 project cards
-    p2.playCorp("Factorum", 4).expect(p2, "PROD[S], 25, 4 ProjectCard")
+    p2.playCorp("Factorum", 4).expect("PROD[S], 25, 4 ProjectCard")
 
     engine.phase("Prelude")
 
@@ -57,12 +61,12 @@ class Game20230521Test {
         // Player1 drew 1 card(s)
         // You drew Ganymede Colony
         playPrelude("UnmiContractor")
-      }.expect(this, "PROD[1], 1, ProjectCard, 3 TR")
+      }.expect("PROD[1], 1, ProjectCard, 3 TR")
 
       // Player1 played Allied Bank
       // Player1's megacredits production increased by 4
       // Player1's megacredits amount increased by 3
-      playPrelude("AlliedBank").expect(this, "PROD[4], 7, EarthTag<AlliedBank>")
+      playPrelude("AlliedBank").expect("PROD[4], 7, EarthTag")
     }
 
     with(p2) {
@@ -86,7 +90,7 @@ class Game20230521Test {
     // Player2 played Arctic Algae
     // Player2's plants amount increased by 1
     // Player2 ended turn
-    p2.playProject("ArcticAlgae", 12).expect(p2, "-12, Plant, PlantTag<ArcticAlgae>")
+    p2.playProject("ArcticAlgae", 12).expect("-12, Plant, PlantTag")
 
     // Player1 used Inventors' Guild action
     p1.cardAction1("InventorsGuild") {
@@ -98,7 +102,7 @@ class Game20230521Test {
 
     // Player2 used Factorum action
     // Player2's energy production increased by 1
-    p2.cardAction1("Factorum").expect(p2, "PROD[E]")
+    p2.cardAction1("Factorum").expect("PROD[E]")
     // Player2 ended turn
 
     // Player1 used Power Plant:SP standard project
@@ -177,7 +181,7 @@ class Game20230521Test {
     // Player2 used Rotator Impacts action
     // Player2 removed 1 resource(s) from Player2's Rotator Impacts
     // Player2 removed an asteroid resource to increase Venus scale 1 step
-    p2.cardAction2("RotatorImpacts").expect(p2, "VenusStep, TR")
+    p2.cardAction2("RotatorImpacts").expect("VenusStep, TR<P2>")
     // Player2 ended turn
 
     // Player1 played Development Center
@@ -191,11 +195,11 @@ class Game20230521Test {
     // Player1 used Development Center action
     // Player1 drew 1 card(s)
     // You drew Optimal Aerobraking
-    p1.cardAction1("DevelopmentCenter").expect(p1, "-E, ProjectCard")
+    p1.cardAction1("DevelopmentCenter").expect("-E, ProjectCard")
     // Player1 played Investment Loan
     // Player1's megacredits production decreased by 1
     // Player1's megacredits amount increased by 10
-    p1.playProject("InvestmentLoan", 0).expect(p1, "PROD[-1], 10")
+    p1.playProject("InvestmentLoan", 0).expect("PROD[-1], 10")
     // Player1 played Deuterium Export
     p1.playProject("DeuteriumExport", 11)
     // Player1 used Deuterium Export action
@@ -241,7 +245,7 @@ class Game20230521Test {
 
     // Player2 used Factorum action
     // Player2's energy production increased by 1
-    p2.cardAction1("Factorum").expect(p2, "PROD[E]")
+    p2.cardAction1("Factorum").expect("PROD[E<P2>]")
     // Player2 played Asteroid
     // Player2's titanium amount increased by 2
     p2.playProject("AsteroidCard", 2, steel = 0, titanium = 4) {
@@ -253,9 +257,8 @@ class Game20230521Test {
     // Player1's energy production decreased by 1
     // Player1 placed city tile on row 4 position 6
     // Player1's plants amount increased by 1
-    p1.playProject("CorporateStronghold", 5, steel = 3) {
-      doTask("CityTile<Tharsis_4_6>")
-    }.expect(p1, "PROD[3, -E], ${3 - 5}, Plant")
+    p1.playProject("CorporateStronghold", 5, steel = 3) { doTask("CityTile<Tharsis_4_6>") }
+        .expect("PROD[3, -E], -2, Plant<P1>")
     // Player1 played Optimal Aerobraking
     p1.playProject("OptimalAerobraking", 7)
 
@@ -275,13 +278,13 @@ class Game20230521Test {
     // Player1 used Deuterium Export action
     // Player1 removed 1 resource(s) from Player1's Deuterium Export
     // Player1's energy production increased by 1
-    p1.cardAction2("DeuteriumExport").expect(p1, "PROD[E]")
+    p1.cardAction2("DeuteriumExport").expect("PROD[E]")
     // Player1 played Imported GHG
     // Player1's heat production increased by 1
     // Player1's heat amount increased by 3
     // Player1's megacredits amount increased by 3 by Optimal Aerobraking
     // Player1's heat amount increased by 3 by Optimal Aerobraking
-    p1.playProject("ImportedGhg", 4).expect(p1, "7 Heat, PlayedEvent<Class<ImportedGhg>>")
+    p1.playProject("ImportedGhg", 4).expect("7 Heat<P1>, PlayedEvent<P1>")
 
     // Player2 passed
     p2.pass()
@@ -362,7 +365,7 @@ class Game20230521Test {
     p2.cardAction1("SearchForLife") {
       // Player2 revealed and discarded Cartel
       doTask("Ok")
-    }.expect(p2, "-1")
+    }.expect("-1")
 
     // Player1 used Convert Heat standard action
     p1.stdAction("ConvertHeatSA")
@@ -375,13 +378,13 @@ class Game20230521Test {
 
     // Player1 used Sell Patents standard project
     // Player1 sold 1 patents
-    p1.sellPatents(1).expect(p1, "-ProjectCard, 1")
+    p1.sellPatents(1).expect("-ProjectCard, 1")
     // Player1 played Spin-Inducing Asteroid
     // Player1 drew 1 card(s)
     // You drew Lagrange Observatory
     // Player1's megacredits amount increased by 3 by Optimal Aerobraking
     // Player1's heat amount increased by 3 by Optimal Aerobraking
-    p1.playProject("SpinInducingAsteroid", 16).expect(p1, "3 Heat, -13")
+    p1.playProject("SpinInducingAsteroid", 16).expect("3 Heat, -13")
 
     // Player1 passed
     p1.pass()
@@ -420,9 +423,10 @@ class Game20230521Test {
     // Player1's megacredits amount increased by 3 by Optimal Aerobraking
     // Player1's heat amount increased by 3 by Optimal Aerobraking
     p1.playProject("SmallAsteroid", 10) {
-      // Player2's plants amount decreased by 2 by Player1
-      doTask("-2 Plant<Player2>")
-    }.expect(p2, "-2 Plant")
+          // Player2's plants amount decreased by 2 by Player1
+          doTask("-2 Plant<P2>")
+        }
+        .expect("TemperatureStep, -2 Plant<P2>")
 
     // Player2 used Factorum action
     // 1 card(s) were discarded
@@ -477,7 +481,7 @@ class Game20230521Test {
     // Player1 played Fueled Generators
     // Player1's megacredits production decreased by 1
     // Player1's energy production increased by 1
-    p1.playProject("FueledGenerators", 1).expect(p1, "PROD[-1, E], E")
+    p1.playProject("FueledGenerators", 1).expect("PROD[-1, E], E")
     // Player1 ended turn
 
     // Player2 used Convert Heat standard action
@@ -492,7 +496,7 @@ class Game20230521Test {
       doTask("6 Pay<Class<M>> FROM M")
       doTask("Pay<Class<S>> FROM S")
       doTask("OceanTile<Tharsis_1_4>")
-    }
+    }.expect("ProjectCard<P2>, 2 Plant<P2>")
 
     // Player1 passed
     p1.pass()
@@ -505,89 +509,165 @@ class Game20230521Test {
     // You drew Sister Planet Support, Miranda Resort, Solarnet and Dusk Laser Mining
     // Player2 bought 2 card(s)
     // You drew Bio Printing Facility and Earth Catapult
-    engine.nextGeneration(3, 3)
+    engine.nextGeneration(4, 2)
 
     with(p1) {
       assertProds(9 to "M", 3 to "S", 0 to "T", 0 to "P", 5 to "E", 3 to "H")
-      assertCounts(34 to "M", 3 to "S", 0 to "T", 4 to "P", 5 to "E", 15 to "H")
-      assertDashMiddle(played = 18, actions = 3, vp = 29, tr = 29, hand = 10)
+      assertCounts(31 to "M", 3 to "S", 0 to "T", 4 to "P", 5 to "E", 15 to "H")
+      assertDashMiddle(played = 18, actions = 3, vp = 29, tr = 29, hand = 11)
       assertTags(7 to "BUT", 2 to "SPT", 2 to "SCT", 3 to "POT", 3 to "EAT", 1 to "VET", 2 to "CIT")
       assertCounts(4 to "PlayedEvent", 1 to "CardFront(HAS MAX 0 Tag)", 2 to "CityTile")
     }
 
     with(p2) {
       assertProds(0 to "M", 1 to "S", 1 to "T", 1 to "P", 1 to "E", 3 to "H")
-      assertCounts(18 to "M", 1 to "S", 1 to "T", 8 to "P", 1 to "E", 9 to "H")
-      assertDashMiddle(played = 13, actions = 5, vp = 29, tr = 27, hand = 13)
+      assertCounts(21 to "M", 1 to "S", 1 to "T", 8 to "P", 1 to "E", 9 to "H")
+      assertDashMiddle(played = 13, actions = 5, vp = 29, tr = 27, hand = 12)
       assertTags(4 to "BUT", 3 to "SPT", 4 to "SCT", 1 to "POT", 1 to "JOT", 1 to "PLT", 1 to "MIT")
       assertCounts(1 to "PlayedEvent", 1 to "CardFront(HAS MAX 0 Tag)", 0 to "CityTile")
     }
 
     engine.assertSidebar(6, -18, 0, 2, 10)
 
-    // Player2 used Convert Plants standard action
-    // Player2 placed greenery tile on row 8 position 4
-    // Player2 drew 1 card(s)
-    // You drew Medical Lab
+    // TODO this *should* work, but doesn't, so we have to fake it.
+    assertThrows<DependencyException> { p2.stdAction("ConvertPlantsSA") }
+    with(p2.godMode()) {
+      // Player2 used Convert Plants standard action
+      // Player2 placed greenery tile on row 8 position 4
+      // Player2 drew 1 card(s)
+      // You drew Medical Lab
+      manual("-8 Plant THEN GreeneryTile<Tharsis_8_7>").expect("ProjectCard")
+    }
     // Player2 used Factorum action
     // 3 card(s) were discarded
     // Player2 drew Mine
+    p2.cardAction2("Factorum").expect("ProjectCard")
+
     // Player1 used Development Center action
     // Player1 drew 1 card(s)
     // You drew Large Convoy
+    p1.cardAction1("DevelopmentCenter")
+
     // Player1 used Inventors' Guild action
-    // Player1 bought 1 card(s)
-    // You drew Mining Quota
+    p1.cardAction1("InventorsGuild") {
+      // Player1 bought 1 card(s)
+      // You drew Mining Quota
+      doTask("BuyCard")
+    }
+
     // Player2 played Power Plant
     // Player2's energy production increased by 1
+    p2.playProject("PowerPlantCard", 2, steel = 1)
     // Player2 used Aquifer Pumping action
-    // Player2 placed ocean tile on row 1 position 5
-    // Player2 gained 2 plants from Arctic Algae
+    p2.cardAction1("AquiferPumping") {
+      doTask("8 Pay<Class<M>> FROM M")
+      doTask("Ok") // stupid steel
+      // Player2 placed ocean tile on row 1 position 5
+      // Player2 gained 2 plants from Arctic Algae
+      doTask("OceanTile<Tharsis_1_5>")
+    }.expect("-4, 2 Plant") // 4 back from adjacent oceans
+
     // Player1 played Olympus Conference
+    p1.playProject("OlympusConference", 1, steel = 3).expect("Science<OlympusConference>")
     // Player1 played Sister Planet Support
     // Player1's megacredits production increased by 3
+    p1.playProject("SisterPlanetSupport", 4).expect("PROD[3], -1")
+
     // Player2 used Directed Impactors action
-    // Player2 added 1 asteroid(s) to Rotator Impacts
+    p2.cardAction1("DirectedImpactors") {
+      // Player2 added 1 asteroid(s) to Rotator Impacts
+      doTask("3 Pay<Class<M>> FROM M")
+      doTask("1 Pay<Class<T>> FROM T")
+      doTask("Asteroid<RotatorImpacts>")
+    }
     // Player2 used Rotator Impacts action
     // Player2 removed 1 resource(s) from Player2's Rotator Impacts
     // Player2 removed an asteroid resource to increase Venus scale 1 step
+    p2.cardAction2("RotatorImpacts").expect("VenusStep, TR<P2>")
+
     // Player1 played Dusk Laser Mining
     // Player1's titanium production increased by 1
     // Player1's energy production decreased by 1
     // Player1's titanium amount increased by 4
+    p1.playProject("DuskLaserMining", 8).expect("PROD[T, -E], 5 T")
     // Player1 played Miranda Resort
     // Player1's megacredits production increased by 5
+    p1.playProject("MirandaResort", titanium = 4).expect("PROD[5], 5")
+
     // Player2 played Mine
     // Player2's steel production increased by 1
+    p2.playProject("Mine", 4)
     // Player2 used Search For Life action
-    // Player2 revealed and discarded Comet
+    p2.cardAction1("SearchForLife") {
+      // Player2 revealed and discarded Comet
+      doTask("Ok")
+    }
+
     // Player1 played Solarnet
     // Player1 drew 2 card(s)
     // You drew Security Fleet and Outdoor Sports
+    p1.playProject("Solarnet", 7).expect("ProjectCard") // gained 2 but removed 1!
     // Player1 played Mining Quota
     // Player1's steel production increased by 2
+    p1.playProject("MiningQuota", 5)
+
     // Player2 used Convert Heat standard action
+    p2.stdAction("ConvertHeatSA")
     // Player2 passed
+    p2.pass()
+
     // Player1 used Convert Heat standard action
+    p1.stdAction("ConvertHeatSA")
     // Player1 used Deuterium Export action
+    p1.cardAction1("DeuteriumExport")
     // Player1 played Lagrange Observatory
     // Player1 drew 1 card(s)
     // You drew Venus Governor
     // Player1 removed 1 resource(s) from Player1's Olympus Conference
     // Player1 drew 1 card(s)
     // You drew Power Infrastructure
+    p1.playProject("LagrangeObservatory", 6, titanium = 1) {
+      doTask("ProjectCard FROM Science<OlympusConference>") // I don't have to choose the card
+    }.expect("ProjectCard<P1>") // -1 played, +1 from card itself, +1 from olympus
     // Player1 played Venus Governor
     // Player1's megacredits production increased by 2
+    p1.playProject("VenusGovernor", 4).expect("2 VenusTag<P1>")
     // Player1 used Sell Patents standard project
     // Player1 sold 1 patents
+    p1.sellPatents(1)
     // Player1 played Moss
     // Player1's plants production increased by 1
+    p1.playProject("Moss", 4) // .expect(p1, "0 Plant") -- oops! TODO
     // Player1 passed
+    p1.pass()
+
     // Generation 7
     // Player1 bought 3 card(s)
     // You drew Stratospheric Birds, Media Archives and Trees
     // Player2 bought 1 card(s)
     // You drew Invention Contest
+    engine.nextGeneration(3, 1)
+
+    with(p1) {
+      assertProds(19 to "M", 5 to "S", 1 to "T", 1 to "P", 4 to "E", 3 to "H")
+      assertCounts(40 to "M", 7 to "S", 1 to "T", 5 to "P", 4 to "E", 14 to "H")
+      assertDashMiddle(played = 27, actions = 3, vp = 34, tr = 30, hand = 10)
+      assertTags(
+          9 to "BUT", 5 to "SPT", 4 to "SCT", 3 to "POT", 5 to "EAT", 1 to "JOT",
+          4 to "VET", 1 to "PLT", 2 to "CIT")
+      assertCounts(4 to "PlayedEvent", 2 to "CardFront(HAS MAX 0 Tag)", 2 to "CityTile")
+    }
+
+    with(p2) {
+      assertProds(0 to "M", 2 to "S", 1 to "T", 1 to "P", 2 to "E", 3 to "H")
+      assertCounts(32 to "M", 2 to "S", 1 to "T", 3 to "P", 2 to "E", 5 to "H")
+      assertDashMiddle(played = 15, actions = 5, vp = 34, tr = 31, hand = 13)
+      assertTags(6 to "BUT", 3 to "SPT", 4 to "SCT", 2 to "POT", 1 to "JOT", 1 to "PLT", 1 to "MIT")
+      assertCounts(1 to "PlayedEvent", 1 to "CardFront(HAS MAX 0 Tag)", 0 to "CityTile")
+    }
+
+    engine.assertSidebar(7, -14, 1, 3, 12)
+
     // Player1 claimed Builder milestone
     // Player1 used Development Center action
     // Player1 drew 1 card(s)

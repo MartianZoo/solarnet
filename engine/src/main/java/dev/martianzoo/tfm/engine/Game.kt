@@ -5,6 +5,7 @@ import dev.martianzoo.tfm.data.Player
 import dev.martianzoo.tfm.engine.Engine.PlayerComponent
 import dev.martianzoo.tfm.pets.ast.Metric
 import dev.martianzoo.tfm.pets.ast.Requirement
+import dev.martianzoo.tfm.types.MClassTable
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -39,6 +40,8 @@ constructor(
 
     /** Higher-level querying of game state (i.e. in Pets language). */
     public val reader: GameReader,
+
+    public val classes: MClassTable,
 ) {
 
   internal lateinit var playerComponents: Map<Player, PlayerComponent>
