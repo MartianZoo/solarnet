@@ -7,7 +7,7 @@ import dev.martianzoo.tfm.data.Player
 import dev.martianzoo.tfm.data.Task.TaskId
 import dev.martianzoo.tfm.data.TaskResult
 import dev.martianzoo.tfm.engine.AutoExecMode.FIRST
-import dev.martianzoo.tfm.engine.Engine.PlayerScope
+import dev.martianzoo.tfm.engine.Engine.PlayerScoped
 import dev.martianzoo.tfm.engine.Gameplay.Companion.parse
 import dev.martianzoo.tfm.engine.Gameplay.OperationBody
 import dev.martianzoo.tfm.pets.Transforming.replaceOwnerWith
@@ -25,7 +25,7 @@ import kotlin.reflect.KClass
  * An experiment in having a "generatable" class do the work of both parsing strings to PetElements,
  * adding atomicity, and producing TaskResults.
  */
-@PlayerScope
+@PlayerScoped
 internal class ApiTranslation
 @Inject
 constructor(

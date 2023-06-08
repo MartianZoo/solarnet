@@ -8,6 +8,7 @@ import dev.martianzoo.tfm.api.TypeInfo.StubTypeInfo
 import dev.martianzoo.tfm.data.GameEvent.ChangeEvent.StateChange
 import dev.martianzoo.tfm.engine.ComponentGraph.Component
 import dev.martianzoo.tfm.engine.ComponentGraph.Component.Companion.toComponent
+import dev.martianzoo.tfm.engine.Engine.GameScoped
 import dev.martianzoo.tfm.engine.Engine.Updater
 import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.pets.ast.Requirement.Counting
@@ -17,10 +18,9 @@ import dev.martianzoo.tfm.types.MType
 import dev.martianzoo.util.HashMultiset
 import dev.martianzoo.util.Multiset
 import javax.inject.Inject
-import javax.inject.Singleton
 import kotlin.math.min
 
-@Singleton
+@GameScoped
 internal class WritableComponentGraph @Inject constructor(internal val effector: Effector) :
     ComponentGraph, Updater {
 
@@ -63,7 +63,7 @@ internal class WritableComponentGraph @Inject constructor(internal val effector:
   }
 
   // TODO move
-  @Singleton
+  @GameScoped
   internal class Limiter
   @Inject
   constructor(private val table: MClassTable, private val components: ComponentGraph) {

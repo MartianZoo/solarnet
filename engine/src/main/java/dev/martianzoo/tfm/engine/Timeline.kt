@@ -5,11 +5,11 @@ import dev.martianzoo.tfm.data.GameEvent.ChangeEvent
 import dev.martianzoo.tfm.data.GameEvent.TaskEvent
 import dev.martianzoo.tfm.data.TaskResult
 import dev.martianzoo.tfm.engine.ComponentGraph.Component.Companion.toComponent
+import dev.martianzoo.tfm.engine.Engine.GameScoped
 import dev.martianzoo.tfm.engine.Engine.Updater
 import javax.inject.Inject
-import javax.inject.Singleton
 
-@Singleton
+@GameScoped
 public class Timeline @Inject constructor(val reader: GameReader) {
   // These classes aren't public, but Timeline is, so they can't be constructor properties.
   @Inject internal lateinit var updater: Updater

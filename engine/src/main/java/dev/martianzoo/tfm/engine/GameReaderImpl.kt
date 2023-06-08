@@ -5,6 +5,7 @@ import dev.martianzoo.tfm.api.GameReader
 import dev.martianzoo.tfm.api.Type
 import dev.martianzoo.tfm.api.TypeInfo
 import dev.martianzoo.tfm.engine.ComponentGraph.Component.Companion.toComponent
+import dev.martianzoo.tfm.engine.Engine.GameScoped
 import dev.martianzoo.tfm.pets.Parsing
 import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.pets.ast.Metric
@@ -23,11 +24,10 @@ import dev.martianzoo.tfm.pets.ast.ScaledExpression.Scalar.ActualScalar
 import dev.martianzoo.tfm.types.MClassTable
 import dev.martianzoo.tfm.types.Transformers
 import javax.inject.Inject
-import javax.inject.Singleton
 import kotlin.math.min
 import kotlin.reflect.KClass
 
-@Singleton
+@GameScoped
 internal class GameReaderImpl
 @Inject
 constructor(

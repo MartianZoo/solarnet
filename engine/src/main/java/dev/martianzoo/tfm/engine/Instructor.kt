@@ -13,7 +13,7 @@ import dev.martianzoo.tfm.api.SpecialClassNames.DIE
 import dev.martianzoo.tfm.data.GameEvent.ChangeEvent.Cause
 import dev.martianzoo.tfm.data.Task
 import dev.martianzoo.tfm.engine.ComponentGraph.Component.Companion.toComponent
-import dev.martianzoo.tfm.engine.Engine.PlayerScope
+import dev.martianzoo.tfm.engine.Engine.PlayerScoped
 import dev.martianzoo.tfm.engine.WritableComponentGraph.Limiter
 import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.pets.ast.Instruction
@@ -35,7 +35,7 @@ import javax.inject.Inject
 import kotlin.math.min
 
 /** Just a cute name for "instruction handler". It prepares and executes instructions. */
-@PlayerScope
+@PlayerScoped
 internal class Instructor
 @Inject
 constructor(

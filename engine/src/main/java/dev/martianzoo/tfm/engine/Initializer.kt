@@ -2,12 +2,12 @@ package dev.martianzoo.tfm.engine
 
 import dev.martianzoo.tfm.data.GameEvent.ChangeEvent.Cause
 import dev.martianzoo.tfm.data.Player.Companion.ENGINE
-import dev.martianzoo.tfm.engine.Engine.PlayerScope
+import dev.martianzoo.tfm.engine.Engine.PlayerScoped
 import dev.martianzoo.tfm.pets.Parsing.parse
 import dev.martianzoo.tfm.types.MClassTable
 import javax.inject.Inject
 
-@PlayerScope
+@PlayerScoped
 internal class Initializer
 @Inject
 constructor(val writer: GameWriter, val table: MClassTable, val timeline: Timeline) {

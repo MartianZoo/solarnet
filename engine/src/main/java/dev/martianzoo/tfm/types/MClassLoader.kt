@@ -11,20 +11,20 @@ import dev.martianzoo.tfm.api.SpecialClassNames.THIS
 import dev.martianzoo.tfm.api.Type
 import dev.martianzoo.tfm.data.ClassDeclaration
 import dev.martianzoo.tfm.data.GameSetup
+import dev.martianzoo.tfm.engine.Engine.GameScoped
 import dev.martianzoo.tfm.pets.HasClassName.Companion.classNames
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.pets.ast.PetNode
 import dev.martianzoo.tfm.pets.ast.Requirement
 import javax.inject.Inject
-import javax.inject.Singleton
 
 /**
  * All [MClass] instances come from here. Uses an [Authority] to pull class declarations from as
  * needed. Can be [frozen], which prevents additional classes from being loaded, and enables
  * features such as [MClass.allSubclasses] to work.
  */
-@Singleton
+@GameScoped
 internal class MClassLoader(
     /**
      * The source of class declarations to use as needed; [loadEverything] will load every class

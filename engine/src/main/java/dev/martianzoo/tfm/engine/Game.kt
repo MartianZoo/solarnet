@@ -2,12 +2,12 @@ package dev.martianzoo.tfm.engine
 
 import dev.martianzoo.tfm.api.GameReader
 import dev.martianzoo.tfm.data.Player
+import dev.martianzoo.tfm.engine.Engine.GameScoped
 import dev.martianzoo.tfm.engine.Engine.PlayerComponent
 import dev.martianzoo.tfm.pets.ast.Metric
 import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.types.MClassTable
 import javax.inject.Inject
-import javax.inject.Singleton
 
 /**
  * The mutable state of a game in progress. This state is the aggregation of three mutable child
@@ -22,7 +22,7 @@ import javax.inject.Singleton
  * The component graph can be queried programmatically, but a [GameReader] is also provided which
  * can answer queries expressed as a Pets [Metric] or [Requirement].
  */
-@Singleton
+@GameScoped
 public class Game
 @Inject
 constructor(

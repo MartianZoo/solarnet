@@ -6,6 +6,7 @@ import dev.martianzoo.tfm.api.SpecialClassNames.CLASS
 import dev.martianzoo.tfm.api.SpecialClassNames.OWNER
 import dev.martianzoo.tfm.api.SpecialClassNames.PROD
 import dev.martianzoo.tfm.api.SpecialClassNames.THIS
+import dev.martianzoo.tfm.engine.Engine.GameScoped
 import dev.martianzoo.tfm.pets.PetTransformer
 import dev.martianzoo.tfm.pets.PetTransformer.Companion.chain
 import dev.martianzoo.tfm.pets.PetTransformer.Companion.noOp
@@ -30,9 +31,8 @@ import dev.martianzoo.tfm.pets.ast.TransformNode
 import dev.martianzoo.tfm.types.Defaults.DefaultSpec
 import dev.martianzoo.tfm.types.Dependency.Key
 import javax.inject.Inject
-import javax.inject.Singleton
 
-@Singleton
+@GameScoped
 internal class Transformers @Inject constructor(val table: MClassTable) {
 
   internal val requiredClasses: Set<ClassName> = setOf(PRODUCTION)

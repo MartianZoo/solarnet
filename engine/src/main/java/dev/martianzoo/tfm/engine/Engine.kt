@@ -18,7 +18,6 @@ import dev.martianzoo.tfm.engine.ComponentGraph.Component
 import dev.martianzoo.tfm.types.MClassLoader
 import dev.martianzoo.tfm.types.MClassTable
 import javax.inject.Scope
-import javax.inject.Singleton
 
 /** Entry point to the solarnet engine -- create new games here. */
 public object Engine {
@@ -37,7 +36,7 @@ public object Engine {
     return component.game
   }
 
-  @Singleton
+  @GameScoped
   @dagger.Component(modules = [GameModule::class])
   internal interface GameComponent {
     val game: Game
@@ -58,9 +57,10 @@ public object Engine {
     @Provides fun reader(x: GameReaderImpl): GameReader = x
   }
 
-  @Scope annotation class PlayerScope
+  @Scope annotation class GameScoped
+  @Scope annotation class PlayerScoped
 
-  @PlayerScope
+  @PlayerScoped
   @Subcomponent(modules = [PlayerModule::class])
   internal interface PlayerComponent {
     val writer: GameWriter
