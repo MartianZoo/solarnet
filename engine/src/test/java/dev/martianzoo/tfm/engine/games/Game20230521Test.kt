@@ -669,10 +669,16 @@ class Game20230521Test {
     engine.assertSidebar(7, -14, 1, 3, 12)
 
     // Player1 claimed Builder milestone
+    p1.stdAction("ClaimMilestoneSA") {
+      doTask("Builder") // TODO sort of expected it to autopick
+    }.expect("-8, Milestone")
     // Player1 used Development Center action
     // Player1 drew 1 card(s)
     // You drew Quantum Extractor
+    p1.cardAction1("DevelopmentCenter")
+
     // Player2 played Earth Catapult
+    p2.playProject("EarthCatapult", 23)
     // Player2 played Invention Contest
     // Player2 is using their Mars University effect to draw a card by discarding a card.
     // You discarded Gyropolis
@@ -680,41 +686,97 @@ class Game20230521Test {
     // You drew Titanium Mine
     // Player2 drew 1 card(s)
     // You drew Aerial Mappers
+    p2.playProject("InventionContest", 0).expect("1 Card, 1 PlayedEvent") // no hand or table cards
+
     // Player1 used Inventors' Guild action
-    // Player1 bought 0 card(s)
-    // You drew no cards
+    p1.cardAction1("InventorsGuild") {
+      // Player1 bought 0 card(s)
+      // You drew no cards
+      doTask("Ok")
+    }
     // Player1 played Quantum Extractor
     // Player1's energy production increased by 4
+    p1.playProject("QuantumExtractor", 13).expect("-13, PROD[4E], 4E")
+
     // Player2 played Bio Printing Facility
+    p2.playProject("BioPrintingFacility", 1, steel = 2)
     // Player2 used Bio Printing Facility action
     // Player2's plants amount increased by 2
+    p2.cardAction1("BioPrintingFacility").expect("-2E, 2P")
+
     // Player1 used Deuterium Export action
     // Player1 removed 1 resource(s) from Player1's Deuterium Export
     // Player1's energy production increased by 1
+    p1.cardAction2("DeuteriumExport")
     // Player1 played Project Inspection
     // Player1 used Development Center action with Project Inspection
     // Player1 drew 1 card(s)
     // You drew Floating Habs
+    p1.playProject("ProjectInspection", 0) {
+      doTask("UseAction1<DevelopmentCenter>")
+    }.expect("PlayedEvent, Card, -E")
+
     // Player2 used Factorum action
     // Player2's energy production increased by 1
+    p2.cardAction1("Factorum").expect("PROD[E]")
     // Player2 played Power Supply Consortium
-    // Player1's energy production decreased by 1 stolen by Player2
+    p2.playProject("PowerSupplyConsortium", 3) {
+      // Player1's energy production decreased by 1 stolen by Player2
+      doTask("PROD[-E<P1>]")
+    }
+
     // Player1 played Floating Habs
+    p1.playProject("FloatingHabs", 5)
     // Player1 used Floating Habs action
-    // Player1 added 1 floater(s) to Deuterium Export
+    p1.cardAction1("FloatingHabs") {
+      // Player1 added 1 floater(s) to Deuterium Export
+      doTask("Floater<DeuteriumExport>")
+    }.expect("-2, Floater")
+
     // Player2 played Titanium Mine
     // Player2's titanium production increased by 1
+    p2.playProject("TitaniumMine", 5).expect("PROD[T], BuildingTag")
     // Player2 passed
+    p2.pass().expect("Pass")
+
     // Player1 used Convert Heat standard action
+    p1.stdAction("ConvertHeatSA").expect("-8H, TEMP, TR")
     // Player1 played Stratospheric Birds
     // Player1 removed 1 resource(s) from Player1's Deuterium Export
+    p1.playProject("StratosphericBirds", 12).expect("-Floater<DeuteriumExport>")
     // Player1 used Stratospheric Birds action
+    p1.cardAction1("StratosphericBirds").expect("Animal<StratosphericBirds>")
     // Player1 passed
+    p1.pass()
+
     // Generation 8
     // Player1 bought 2 card(s)
     // You drew Sulphur Exports and Mohole Lake
     // Player2 bought 2 card(s)
     // You drew Advanced Alloys and Natural Preserve
+    engine.nextGeneration(2, 2)
+
+    with(p1) {
+      assertProds(19 to "M", 5 to "S", 1 to "T", 1 to "P", 8 to "E", 3 to "H")
+      assertCounts(44 to "M", 12 to "S", 2 to "T", 6 to "P", 8 to "E", 16 to "H")
+      assertDashMiddle(played = 31, actions = 5, vp = 36, tr = 31, hand = 10) // TODOBAD 41 VP
+      assertTags(
+          9 to "BUT", 5 to "SPT", 5 to "SCT", 4 to "POT", 5 to "EAT", 1 to "JOT",
+          6 to "VET", 1 to "PLT", 1 to "ANT", 2 to "CIT")
+      assertCounts(5 to "PlayedEvent", 2 to "CardFront(HAS MAX 0 Tag)", 2 to "CityTile")
+    }
+
+    with(p2) {
+      assertProds(0 to "M", 2 to "S", 2 to "T", 1 to "P", 4 to "E", 3 to "H")
+      assertCounts(25 to "M", 2 to "S", 3 to "T", 6 to "P", 4 to "E", 8 to "H")
+      assertDashMiddle(played = 20, actions = 6, vp = 36, tr = 31, hand = 11)
+      assertTags(8 to "BUT", 3 to "SPT", 4 to "SCT", 3 to "POT", 1 to "EAT", 1 to "JOT",
+          1 to "PLT", 1 to "MIT")
+      assertCounts(2 to "PlayedEvent", 1 to "CardFront(HAS MAX 0 Tag)", 0 to "CityTile")
+    }
+
+    engine.assertSidebar(8, -12, 1, 3, 12)
+
     // Player2 played Advanced Alloys
     // Player2 is using their Mars University effect to draw a card by discarding a card.
     // You discarded Medical Lab
