@@ -142,7 +142,9 @@ ABSTRACT CLASS Owned<Anyone> {
 
 // MISC ------------------------------------------
 
-  ABSTRACT CLASS Milestone[MIL]                   // specific ones loaded from `milestones.json5`
+  ABSTRACT CLASS Milestone[MIL] {                 // specific ones loaded from `milestones.json5`
+    End: 5 VictoryPoint
+  }
 
   CLASS NewTurn : Signal
 

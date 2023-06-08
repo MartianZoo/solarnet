@@ -759,7 +759,7 @@ class Game20230521Test {
     with(p1) {
       assertProds(19 to "M", 5 to "S", 1 to "T", 1 to "P", 8 to "E", 3 to "H")
       assertCounts(44 to "M", 12 to "S", 2 to "T", 6 to "P", 8 to "E", 16 to "H")
-      assertDashMiddle(played = 31, actions = 5, vp = 36, tr = 31, hand = 10) // TODOBAD 41 VP
+      assertDashMiddle(played = 31, actions = 5, vp = 41, tr = 31, hand = 10)
       assertTags(
           9 to "BUT", 5 to "SPT", 5 to "SCT", 4 to "POT", 5 to "EAT", 1 to "JOT",
           6 to "VET", 1 to "PLT", 1 to "ANT", 2 to "CIT")
