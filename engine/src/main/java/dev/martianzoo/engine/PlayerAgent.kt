@@ -16,7 +16,6 @@ import dev.martianzoo.tfm.pets.ast.Instruction.Change
 import dev.martianzoo.tfm.pets.ast.Instruction.Companion.split
 import dev.martianzoo.tfm.pets.ast.PetElement
 import dev.martianzoo.tfm.pets.ast.ScaledExpression.Scalar.ActualScalar
-import dev.martianzoo.tfm.types.Transformers
 import javax.inject.Inject
 
 @PlayerScoped

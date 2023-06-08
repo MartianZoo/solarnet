@@ -10,8 +10,8 @@ import dev.martianzoo.tfm.pets.HasClassName.Companion.classNames
 import dev.martianzoo.tfm.pets.Parsing.parse
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.Metric
-import dev.martianzoo.tfm.types.MClassLoader
-import dev.martianzoo.tfm.types.MType
+import dev.martianzoo.types.MClassLoader
+import dev.martianzoo.types.MType
 import dev.martianzoo.util.toSetStrict
 import dev.martianzoo.util.toStrings
 import org.junit.jupiter.api.Test

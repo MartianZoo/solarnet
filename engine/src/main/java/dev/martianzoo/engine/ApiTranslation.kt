@@ -14,7 +14,7 @@ import dev.martianzoo.tfm.pets.Transforming.replaceOwnerWith
 import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.pets.ast.Metric
 import dev.martianzoo.tfm.pets.ast.PetElement
-import dev.martianzoo.tfm.types.MType
+import dev.martianzoo.types.MType
 import dev.martianzoo.util.HashMultiset
 import dev.martianzoo.util.Hierarchical.Companion.lub
 import dev.martianzoo.util.Multiset

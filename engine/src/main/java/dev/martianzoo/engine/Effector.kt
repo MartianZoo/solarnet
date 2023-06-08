@@ -27,7 +27,7 @@ import dev.martianzoo.tfm.pets.ast.Effect.Trigger.XTrigger
 import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.pets.ast.Instruction
 import dev.martianzoo.tfm.pets.ast.Requirement
-import dev.martianzoo.tfm.types.MType
+import dev.martianzoo.types.MType
 import dev.martianzoo.util.HashMultiset
 import javax.inject.Inject
 import javax.inject.Provider

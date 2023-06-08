@@ -12,8 +12,7 @@ import dev.martianzoo.tfm.pets.Parsing.parse
 import dev.martianzoo.tfm.pets.PetTransformer
 import dev.martianzoo.tfm.pets.Transforming.replaceOwnerWith
 import dev.martianzoo.tfm.pets.ast.Instruction
-import dev.martianzoo.tfm.types.MClassLoader
-import dev.martianzoo.tfm.types.Transformers
+import dev.martianzoo.types.MClassLoader
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 

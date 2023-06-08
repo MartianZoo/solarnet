@@ -21,8 +21,7 @@ import dev.martianzoo.tfm.pets.ast.Requirement.Max
 import dev.martianzoo.tfm.pets.ast.Requirement.Min
 import dev.martianzoo.tfm.pets.ast.Requirement.Or
 import dev.martianzoo.tfm.pets.ast.ScaledExpression.Scalar.ActualScalar
-import dev.martianzoo.tfm.types.MClassTable
-import dev.martianzoo.tfm.types.Transformers
+import dev.martianzoo.types.MClassTable
 import javax.inject.Inject
 import kotlin.math.min
 import kotlin.reflect.KClass

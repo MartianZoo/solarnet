@@ -7,7 +7,10 @@ import dev.martianzoo.tfm.api.SpecialClassNames.COMPONENT
 import dev.martianzoo.tfm.pets.HasClassName.Companion.classNames
 import dev.martianzoo.tfm.pets.Parsing.parseClasses
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.tfm.types.Dependency.Key
+import dev.martianzoo.types.Dependency.Key
+import dev.martianzoo.types.MClass
+import dev.martianzoo.types.MClassLoader
+import dev.martianzoo.types.MClassTable
 import dev.martianzoo.util.toSetStrict
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows

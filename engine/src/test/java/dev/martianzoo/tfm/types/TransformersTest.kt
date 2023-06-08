@@ -8,6 +8,7 @@ import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.pets.ast.Effect
 import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.pets.ast.Instruction
+import dev.martianzoo.types.MClassLoader
 import org.junit.jupiter.api.Test
 
 class TransformersTest {

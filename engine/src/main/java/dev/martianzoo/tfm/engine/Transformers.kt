@@ -1,4 +1,4 @@
-package dev.martianzoo.tfm.types
+package dev.martianzoo.tfm.engine
 
 import dev.martianzoo.tfm.api.Exceptions.PetSyntaxException
 import dev.martianzoo.tfm.api.SpecialClassNames.ATOMIZED
@@ -28,8 +28,13 @@ import dev.martianzoo.tfm.pets.ast.PetNode
 import dev.martianzoo.tfm.pets.ast.ScaledExpression.Companion.scaledEx
 import dev.martianzoo.tfm.pets.ast.ScaledExpression.Scalar.ActualScalar
 import dev.martianzoo.tfm.pets.ast.TransformNode
-import dev.martianzoo.tfm.types.Defaults.DefaultSpec
-import dev.martianzoo.tfm.types.Dependency.Key
+import dev.martianzoo.types.Defaults
+import dev.martianzoo.types.Defaults.DefaultSpec
+import dev.martianzoo.types.Dependency.Key
+import dev.martianzoo.types.DependencySet
+import dev.martianzoo.types.MClass
+import dev.martianzoo.types.MClassTable
+import dev.martianzoo.types.MType
 import javax.inject.Inject
 
 @GameScoped

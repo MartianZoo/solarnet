@@ -6,7 +6,7 @@ import dev.martianzoo.tfm.engine.Engine.GameScoped
 import dev.martianzoo.tfm.engine.Engine.PlayerComponent
 import dev.martianzoo.tfm.pets.ast.Metric
 import dev.martianzoo.tfm.pets.ast.Requirement
-import dev.martianzoo.tfm.types.MClassTable
+import dev.martianzoo.types.MClassTable
 import javax.inject.Inject
 
 /**

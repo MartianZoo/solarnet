@@ -1,4 +1,4 @@
-package dev.martianzoo.tfm.types
+package dev.martianzoo.types
 
 import dev.martianzoo.tfm.api.Authority
 import dev.martianzoo.tfm.api.CustomClass
@@ -12,6 +12,7 @@ import dev.martianzoo.tfm.api.Type
 import dev.martianzoo.tfm.data.ClassDeclaration
 import dev.martianzoo.tfm.data.GameSetup
 import dev.martianzoo.tfm.engine.Engine.GameScoped
+import dev.martianzoo.tfm.engine.Transformers
 import dev.martianzoo.tfm.pets.HasClassName.Companion.classNames
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.Expression

@@ -1,4 +1,4 @@
-package dev.martianzoo.tfm.types
+package dev.martianzoo.types
 
 import dev.martianzoo.tfm.api.CustomClass
 import dev.martianzoo.tfm.api.Exceptions.NarrowingException
@@ -9,6 +9,7 @@ import dev.martianzoo.tfm.api.SpecialClassNames.OWNED
 import dev.martianzoo.tfm.api.SpecialClassNames.THIS
 import dev.martianzoo.tfm.api.TypeInfo
 import dev.martianzoo.tfm.data.ClassDeclaration
+import dev.martianzoo.tfm.engine.Transformers
 import dev.martianzoo.tfm.pets.HasClassName
 import dev.martianzoo.tfm.pets.HasClassName.Companion.classNames
 import dev.martianzoo.tfm.pets.PetTransformer
@@ -23,9 +24,9 @@ import dev.martianzoo.tfm.pets.ast.Requirement.Companion.split
 import dev.martianzoo.tfm.pets.ast.Requirement.Counting
 import dev.martianzoo.tfm.pets.ast.Requirement.Min
 import dev.martianzoo.tfm.pets.ast.ScaledExpression.Companion.scaledEx
-import dev.martianzoo.tfm.types.Dependency.Companion.depsForClassType
-import dev.martianzoo.tfm.types.Dependency.Key
-import dev.martianzoo.tfm.types.Dependency.TypeDependency
+import dev.martianzoo.types.Dependency.Companion.depsForClassType
+import dev.martianzoo.types.Dependency.Key
+import dev.martianzoo.types.Dependency.TypeDependency
 import dev.martianzoo.util.Hierarchical
 import dev.martianzoo.util.Hierarchical.Companion.glb
 import dev.martianzoo.util.toSetStrict

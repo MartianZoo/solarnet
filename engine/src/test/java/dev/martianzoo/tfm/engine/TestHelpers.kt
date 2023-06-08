@@ -14,7 +14,6 @@ import dev.martianzoo.tfm.pets.ast.Instruction.Companion.split
 import dev.martianzoo.tfm.pets.ast.Instruction.Gain
 import dev.martianzoo.tfm.pets.ast.Instruction.Remove
 import dev.martianzoo.tfm.pets.ast.ScaledExpression.Scalar.ActualScalar
-import dev.martianzoo.tfm.types.Transformers
 import java.util.concurrent.atomic.AtomicInteger
 
 object TestHelpers {

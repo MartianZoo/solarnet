@@ -1,7 +1,7 @@
 package dev.martianzoo.tfm.engine.games
 
 import com.google.common.truth.Truth.assertThat
-import dev.martianzoo.tfm.analysis.Summarizer
+import dev.martianzoo.analysis.Summarizer
 import dev.martianzoo.tfm.api.Exceptions.DependencyException
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.data.GameSetup

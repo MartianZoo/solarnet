@@ -1,4 +1,4 @@
-package dev.martianzoo.tfm.types
+package dev.martianzoo.types
 
 import dev.martianzoo.tfm.api.Exceptions
 import dev.martianzoo.tfm.api.Type

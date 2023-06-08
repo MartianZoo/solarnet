@@ -154,7 +154,7 @@ constructor(
   // TURNS LAYER
 
   fun startTurn() = execute("NewTurn<$player>")
-  fun startTurn2() = execute("NewTurn2<$player>")
+  fun startTurn2() = execute("NewTurn2<$player>") // TODO get rid of
 
   // GAMES LAYER
 

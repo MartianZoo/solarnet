@@ -12,9 +12,9 @@ import dev.martianzoo.tfm.engine.Engine.GameScoped
 import dev.martianzoo.tfm.engine.Engine.Updater
 import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.pets.ast.Requirement.Counting
-import dev.martianzoo.tfm.types.MClassLoader
-import dev.martianzoo.tfm.types.MClassTable
-import dev.martianzoo.tfm.types.MType
+import dev.martianzoo.types.MClassLoader
+import dev.martianzoo.types.MClassTable
+import dev.martianzoo.types.MType
 import dev.martianzoo.util.HashMultiset
 import dev.martianzoo.util.Multiset
 import javax.inject.Inject

@@ -6,9 +6,9 @@ import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.data.GameSetup
 import dev.martianzoo.tfm.engine.ComponentGraph.Component.Companion.toComponent
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.tfm.types.MClassLoader
-import dev.martianzoo.tfm.types.MClassTable
 import dev.martianzoo.tfm.types.te
+import dev.martianzoo.types.MClassLoader
+import dev.martianzoo.types.MClassTable
 import dev.martianzoo.util.toStrings
 import org.junit.jupiter.api.Test
 

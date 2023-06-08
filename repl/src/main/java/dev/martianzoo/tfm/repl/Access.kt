@@ -12,7 +12,7 @@ import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.pets.ast.Instruction
 import dev.martianzoo.tfm.pets.ast.Instruction.Change
-import dev.martianzoo.tfm.types.MType
+import dev.martianzoo.types.MType
 
 sealed class Access {
   abstract fun exec(instruction: String): TaskResult

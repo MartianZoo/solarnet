@@ -8,9 +8,9 @@ import dev.martianzoo.tfm.data.GameSetup
 import dev.martianzoo.tfm.pets.HasClassName.Companion.classNames
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.tfm.types.MClass
-import dev.martianzoo.tfm.types.MClassLoader
 import dev.martianzoo.tfm.types.te
+import dev.martianzoo.types.MClass
+import dev.martianzoo.types.MClassLoader
 import dev.martianzoo.util.toStrings
 import kotlin.Int.Companion.MAX_VALUE
 import org.junit.jupiter.api.Test

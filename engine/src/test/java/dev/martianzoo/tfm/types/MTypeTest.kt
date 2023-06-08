@@ -8,6 +8,8 @@ import dev.martianzoo.tfm.pets.Parsing.parse
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.pets.ast.Expression
+import dev.martianzoo.types.MClassTable
+import dev.martianzoo.types.MType
 import org.junit.jupiter.api.Test
 
 private class MTypeTest {

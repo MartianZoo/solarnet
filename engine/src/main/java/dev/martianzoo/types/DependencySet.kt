@@ -1,10 +1,10 @@
-package dev.martianzoo.tfm.types
+package dev.martianzoo.types
 
 import dev.martianzoo.tfm.api.Exceptions
 import dev.martianzoo.tfm.api.TypeInfo
 import dev.martianzoo.tfm.pets.ast.Expression
-import dev.martianzoo.tfm.types.Dependency.Key
-import dev.martianzoo.tfm.types.Dependency.TypeDependency
+import dev.martianzoo.types.Dependency.Key
+import dev.martianzoo.types.Dependency.TypeDependency
 import dev.martianzoo.util.Hierarchical
 import dev.martianzoo.util.cartesianProduct
 import dev.martianzoo.util.toSetStrict

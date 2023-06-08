@@ -30,7 +30,7 @@ import dev.martianzoo.tfm.pets.ast.Instruction.Per
 import dev.martianzoo.tfm.pets.ast.Instruction.Then
 import dev.martianzoo.tfm.pets.ast.Instruction.Transform
 import dev.martianzoo.tfm.pets.ast.ScaledExpression.Scalar.ActualScalar
-import dev.martianzoo.tfm.types.MType
+import dev.martianzoo.types.MType
 import javax.inject.Inject
 import kotlin.math.min
 

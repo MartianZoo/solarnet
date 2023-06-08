@@ -5,6 +5,7 @@ import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.pets.ast.Instruction.Intensity.AMAP
 import dev.martianzoo.tfm.pets.ast.Instruction.Intensity.MANDATORY
 import dev.martianzoo.tfm.pets.ast.Instruction.Intensity.OPTIONAL
+import dev.martianzoo.types.MClassLoader
 import org.junit.jupiter.api.Test
 
 class DefaultsTest {

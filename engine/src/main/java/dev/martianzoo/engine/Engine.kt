@@ -15,8 +15,8 @@ import dev.martianzoo.tfm.data.Player
 import dev.martianzoo.tfm.data.Player.Companion.ENGINE
 import dev.martianzoo.tfm.data.Task
 import dev.martianzoo.tfm.engine.ComponentGraph.Component
-import dev.martianzoo.tfm.types.MClassLoader
-import dev.martianzoo.tfm.types.MClassTable
+import dev.martianzoo.types.MClassLoader
+import dev.martianzoo.types.MClassTable
 import javax.inject.Scope
 
 /** Entry point to the solarnet engine -- create new games here. */

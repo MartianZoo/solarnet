@@ -1,4 +1,4 @@
-package dev.martianzoo.tfm.types
+package dev.martianzoo.types
 
 import dev.martianzoo.tfm.api.SpecialClassNames.CLASS
 import dev.martianzoo.tfm.api.TypeInfo

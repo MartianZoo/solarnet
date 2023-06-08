@@ -1,4 +1,4 @@
-package dev.martianzoo.tfm.analysis
+package dev.martianzoo.analysis
 
 import dev.martianzoo.tfm.api.GameReader
 import dev.martianzoo.tfm.api.Type

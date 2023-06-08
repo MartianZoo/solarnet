@@ -17,9 +17,8 @@ import dev.martianzoo.tfm.pets.Transforming.replaceThisExpressionsWith
 import dev.martianzoo.tfm.pets.ast.Effect
 import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.pets.ast.Instruction
-import dev.martianzoo.tfm.types.Dependency.Key
-import dev.martianzoo.tfm.types.MType
-import dev.martianzoo.tfm.types.Transformers
+import dev.martianzoo.types.Dependency.Key
+import dev.martianzoo.types.MType
 import dev.martianzoo.util.Multiset
 
 /**

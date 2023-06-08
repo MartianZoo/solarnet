@@ -31,7 +31,7 @@ import dev.martianzoo.tfm.repl.ReplSession.ReplMode.GREEN
 import dev.martianzoo.tfm.repl.ReplSession.ReplMode.PURPLE
 import dev.martianzoo.tfm.repl.ReplSession.ReplMode.RED
 import dev.martianzoo.tfm.repl.ReplSession.ReplMode.YELLOW
-import dev.martianzoo.tfm.types.MType
+import dev.martianzoo.types.MType
 import dev.martianzoo.util.Multiset
 import dev.martianzoo.util.random
 import dev.martianzoo.util.toStrings

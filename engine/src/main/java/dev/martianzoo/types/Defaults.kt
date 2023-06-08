@@ -1,4 +1,4 @@
-package dev.martianzoo.tfm.types
+package dev.martianzoo.types
 
 import dev.martianzoo.tfm.data.ClassDeclaration.DefaultsDeclaration
 import dev.martianzoo.tfm.pets.ast.Expression
