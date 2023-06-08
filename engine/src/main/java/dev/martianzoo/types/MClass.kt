@@ -45,7 +45,7 @@ import kotlin.math.min
  * `java.lang.Class`. The name `MClass` comes from the fact that the object of the game is to turn
  * Mars into a "class M planet".)
  */
-public data class MClass
+public class MClass
 internal constructor(
 
     /** The class declaration this class was loaded from. */
@@ -75,8 +75,10 @@ internal constructor(
 
   override val abstract: Boolean by declaration::abstract
 
+  // somehow Game20230521Test spends 31% of its time here??
+  // yet somehow `that in allSuperclasses` is even slower? How can that be?
   override fun isSubtypeOf(that: MClass): Boolean =
-      this == that || directSuperclasses.any { it.isSubtypeOf(that) }
+      that in allSuperclasses
 
   override fun glb(that: MClass): MClass? =
       when {
@@ -269,6 +271,12 @@ internal constructor(
             .map { it.range }
     (ranges + listOf(0..MAX_VALUE)).reduce { a, b -> max(a.first, b.first)..min(a.last, b.last) }
   }
+
+  override fun equals(other: Any?) =
+      other is MClass && other.className == className && other.loader == loader
+
+  // Unlikely to be compared against classes from other loaders, so let those collisions happen
+  override fun hashCode() = className.hashCode()
 
   override fun toString() = "$className@$loader"
 

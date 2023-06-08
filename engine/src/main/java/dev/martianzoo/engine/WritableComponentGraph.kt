@@ -29,8 +29,12 @@ internal class WritableComponentGraph @Inject constructor(internal val effector:
   override operator fun contains(component: Component) = component in multiset.elements
 
   override fun count(parentType: MType, info: TypeInfo): Int {
-    return if (parentType.abstract) {
-      getAll(parentType, info).size
+    return if (parentType.className == COMPONENT) {
+      multiset.size
+    } else if (parentType.abstract) {
+      multiset.entries
+          .filter { (e, _) -> e.mtype.narrows(parentType, info) }
+          .sumOf { (_, ct) -> ct }
     } else {
       countComponent(parentType.toComponent())
     }
@@ -42,6 +46,7 @@ internal class WritableComponentGraph @Inject constructor(internal val effector:
     return if (parentType.className == COMPONENT) {
       HashMultiset.of(multiset)
     } else if (parentType.abstract) {
+      // TODO Game20230521Test spends 59% of its time right here
       multiset.filter { it.mtype.narrows(parentType, info) }
     } else {
       val cpt = parentType.toComponent()

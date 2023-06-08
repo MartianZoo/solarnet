@@ -187,7 +187,7 @@ constructor(
       val missing =
           g.dependencies.typeDependencies
               .map { it.boundType }
-              .filter { reader.count(it) == 0 }
+              .filter { reader.count(it) == 0 } // TODO don't actually count them all
       if (missing.any()) throw DependencyException(missing)
       g = g.allConcreteSubtypes().singleOrNull() ?: g
 

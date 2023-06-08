@@ -81,24 +81,26 @@ public interface ComponentGraph {
       }
     }
 
-    val xerForEffects: PetTransformer =
-        with(Transformers(mtype.loader)) {
-          chain(
-              substituter(mtype.root.defaultType, mtype),
-              deprodify(),
-              owner?.let(::replaceOwnerWith),
-              replaceThisExpressionsWith(expression),
-          )
-        }
+    val xerForEffects: PetTransformer by lazy {
+      with(Transformers(mtype.loader)) {
+        chain(
+            substituter(mtype.root.defaultType, mtype),
+            deprodify(),
+            owner?.let(::replaceOwnerWith),
+            replaceThisExpressionsWith(expression),
+        )
+      }
+    }
 
-    val xerForCustom: PetTransformer =
-        with(Transformers(mtype.loader)) {
-          chain(
-              standardPreprocess(),
-              substituter(mtype.root.baseType, mtype),
-              owner?.let(::replaceOwnerWith),
-          )
-        }
+    val xerForCustom: PetTransformer by lazy {
+      with(Transformers(mtype.loader)) {
+        chain(
+            standardPreprocess(),
+            substituter(mtype.root.baseType, mtype),
+            owner?.let(::replaceOwnerWith),
+        )
+      }
+    }
 
     public val effects: List<Effect> by lazy {
       mtype.root.classEffects.map(xerForEffects::transform)
