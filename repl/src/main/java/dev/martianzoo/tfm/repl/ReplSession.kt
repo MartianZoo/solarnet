@@ -20,8 +20,15 @@ import dev.martianzoo.tfm.engine.TfmGameplay
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import dev.martianzoo.tfm.engine.Timeline.Checkpoint
 import dev.martianzoo.tfm.pets.HasExpression.Companion.expressions
+import dev.martianzoo.tfm.pets.Parsing
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.pets.ast.Expression
+import dev.martianzoo.tfm.pets.ast.FromExpression.SimpleFrom
+import dev.martianzoo.tfm.pets.ast.Instruction
+import dev.martianzoo.tfm.pets.ast.Instruction.Companion.split
+import dev.martianzoo.tfm.pets.ast.Instruction.Gain
+import dev.martianzoo.tfm.pets.ast.Instruction.Multi
+import dev.martianzoo.tfm.pets.ast.Instruction.Transmute
 import dev.martianzoo.tfm.pets.ast.Metric
 import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.tfm.repl.Access.BlueMode
@@ -116,6 +123,8 @@ internal class ReplSession(private val jline: JlineRepl? = null) {
               TaskCommand(),
               TasksCommand(),
               TurnCommand(),
+              TfmPayCommand(),
+              TfmPlayCommand(),
           )
           .associateBy { it.name }
 
@@ -413,8 +422,12 @@ internal class ReplSession(private val jline: JlineRepl? = null) {
       val q = game.tasks
 
       val split = Regex("\\s+").split(args, 2)
-      val idString = split.firstOrNull() ?: throw UsageException()
-      val id = TaskId(idString.uppercase())
+      val first = split.firstOrNull() ?: throw UsageException()
+      if (!first.matches(Regex("[A-Z]{1,2}"))) {
+        return describeExecutionResults(tfm.tryTask(args))
+      }
+
+      val id = TaskId(first.uppercase())
       if (id !in game.tasks) throw UsageException("valid ids are ${game.tasks.ids()}")
       val rest: String? =
           if (split.size > 1 && split[1].isNotEmpty()) {
@@ -590,6 +603,32 @@ internal class ReplSession(private val jline: JlineRepl? = null) {
             .takeWhile { it.trim() != "stop" }
             .filter { it.isNotEmpty() }
             .flatMap { listOf(">>> $it") + command(it) + "" }
+  }
+
+  internal inner class TfmPayCommand : ReplCommand("tfm_pay") {
+    override val usage: String = "tfm_pay <amount resource>"
+    override val help: String = ""
+    override fun withArgs(args: String): List<String> {
+      val gains: List<Instruction> = split(Parsing.parse(args)).instructions
+
+      val ins = Multi.create(gains.map {
+        val sex = (it as Gain).scaledEx
+        val currency = sex.expression
+        val pay = cn("Pay").of(CLASS.of(currency))
+        Transmute(SimpleFrom(pay, currency), sex.scalar)
+      })
+      return TaskCommand().withArgs(ins.toString())
+    }
+  }
+
+  internal inner class TfmPlayCommand : ReplCommand("tfm_play") {
+    override val usage: String = "tfm_play <CardName>"
+    override val help: String = ""
+    override fun withArgs(args: String): List<String> {
+      val cardName = cn(args)
+      val kind = setup.authority.card(cardName).deck!!.className
+      return TaskCommand().withArgs("PlayCard<Class<$kind>, Class<$args>>")
+    }
   }
 
   public fun command(wholeCommand: String): List<String> {

@@ -256,7 +256,7 @@ constructor(
                   }
                 }
                 .firstOrNull()
-                ?: throw TaskException("no matching task; tasks are: $tasks")
+                ?: throw TaskException("no matching task; tasks are:\n$tasks")
     return id
   }
 
