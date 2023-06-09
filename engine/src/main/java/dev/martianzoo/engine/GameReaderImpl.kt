@@ -73,6 +73,8 @@ constructor(
 
   override fun count(type: Type) = components.count(table.resolve(type), this)
 
+  override fun containsAny(type: Type) = components.containsAny(table.resolve(type), this)
+
   override fun countComponent(concreteType: Type) =
       components.countComponent(concreteType.toComponent(this))
 

@@ -75,10 +75,7 @@ internal constructor(
 
   override val abstract: Boolean by declaration::abstract
 
-  // somehow Game20230521Test spends 31% of its time here??
-  // yet somehow `that in allSuperclasses` is even slower? How can that be?
-  override fun isSubtypeOf(that: MClass): Boolean =
-      that in allSuperclasses
+  override fun isSubtypeOf(that: MClass): Boolean = that in allSuperclasses
 
   override fun glb(that: MClass): MClass? =
       when {

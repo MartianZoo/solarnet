@@ -24,6 +24,8 @@ interface GameReader : TypeInfo {
   /** Returns the number of component instances having type [type] in the current game state. */
   fun count(type: Type): Int
 
+  fun containsAny(type: Type): Boolean
+
   /** Returns the number of instances of [concreteType] in the current game state. */
   fun countComponent(concreteType: Type): Int
 

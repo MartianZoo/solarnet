@@ -40,6 +40,8 @@ public interface ComponentGraph {
   /** How many total component instances have the type [parentType] (or any of its subtypes)? */
   fun count(parentType: MType, info: TypeInfo): Int
 
+  fun containsAny(parentType: MType, info: TypeInfo): Boolean
+
   /**
    * Returns all component instances having the type [parentType] (or any of its subtypes), as a
    * multiset. The size of the returned collection will be `[count]([parentType])` . If [parentType]
@@ -51,12 +53,11 @@ public interface ComponentGraph {
    * An *instance* of some concrete [MType]; a [ComponentGraph] is a multiset of these. For any use
    * case unrelated to what instances actually exist in a game state, use [MType] instead.
    */
-  public data class Component private constructor(internal val mtype: MType) :
+  public data class Component internal constructor(internal val mtype: MType) :
       HasClassName, HasExpression {
     companion object {
       public fun Expression.toComponent(game: GameReader) = Component(game.resolve(this) as MType)
       public fun HasExpression.toComponent(game: GameReader) = expressionFull.toComponent(game)
-      public fun MType.toComponent() = Component(this)
     }
 
     init {

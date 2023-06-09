@@ -179,15 +179,15 @@ constructor(
     }
   }
 
+  // Still spending 35% of time in this method; can we arrange to need it less?
   private fun autoNarrowTypes(gaining: Expression?, removing: Expression?): Pair<MType?, MType?> {
     var g = gaining?.let(reader::resolve) as MType?
     var r = removing?.let(reader::resolve) as MType?
 
     if (g?.abstract == true) { // I guess otherwise it'll fail somewhere else...
       val missing =
-          g.dependencies.typeDependencies
-              .map { it.boundType }
-              .filter { reader.count(it) == 0 } // TODO don't actually count them all
+          g.dependencies.typeDependencies.map { it.boundType }
+              .filter { !reader.containsAny(it) }
       if (missing.any()) throw DependencyException(missing)
       g = g.allConcreteSubtypes().singleOrNull() ?: g
 

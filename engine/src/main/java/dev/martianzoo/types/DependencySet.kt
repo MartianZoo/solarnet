@@ -136,12 +136,13 @@ internal class DependencySet private constructor(private val deps: Set<Dependenc
 
   /** Returns the subset of [allConcreteSubtypes] having the exact same [root] as ours. */
   public fun concreteSubtypesSameClass(mtype: MType): Sequence<MType> {
+    // TODO do this without try/catch
     return try {
       mtype.concreteSubclasses(getClassForClassType()).map { it.classType }
     } catch (ignore: Exception) {
       val axes: List<Sequence<TypeDependency>> =
           typeDependencies.map { it.allConcreteSpecializations() }
-      axes.cartesianProduct().map { mtype.root.withAllDependencies(of(it)) }
+      axes.cartesianProduct().map { mtype.root.withAllDependencies(DependencySet.of(it)) }
     }
   }
 

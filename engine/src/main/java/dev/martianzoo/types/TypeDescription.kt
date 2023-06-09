@@ -1,7 +1,6 @@
 package dev.martianzoo.types
 
 import dev.martianzoo.tfm.api.Type
-import dev.martianzoo.tfm.engine.ComponentGraph.Component.Companion.toComponent
 import dev.martianzoo.tfm.pets.HasClassName.Companion.classNames
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.Effect

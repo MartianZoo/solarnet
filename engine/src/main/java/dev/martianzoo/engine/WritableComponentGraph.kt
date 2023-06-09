@@ -7,7 +7,6 @@ import dev.martianzoo.tfm.api.TypeInfo
 import dev.martianzoo.tfm.api.TypeInfo.StubTypeInfo
 import dev.martianzoo.tfm.data.GameEvent.ChangeEvent.StateChange
 import dev.martianzoo.tfm.engine.ComponentGraph.Component
-import dev.martianzoo.tfm.engine.ComponentGraph.Component.Companion.toComponent
 import dev.martianzoo.tfm.engine.Engine.GameScoped
 import dev.martianzoo.tfm.engine.Engine.Updater
 import dev.martianzoo.tfm.pets.ast.Requirement
@@ -40,13 +39,20 @@ internal class WritableComponentGraph @Inject constructor(internal val effector:
     }
   }
 
+  override fun containsAny(parentType: MType, info: TypeInfo): Boolean {
+    return if (parentType.abstract) {
+      multiset.elements.any { it.mtype.narrows(parentType, info) }
+    } else {
+      parentType.toComponent() in multiset
+    }
+  }
+
   override fun countComponent(component: Component) = multiset.count(component)
 
   override fun getAll(parentType: MType, info: TypeInfo): Multiset<Component> {
     return if (parentType.className == COMPONENT) {
       HashMultiset.of(multiset)
     } else if (parentType.abstract) {
-      // TODO Game20230521Test spends 59% of its time right here
       multiset.filter { it.mtype.narrows(parentType, info) }
     } else {
       val cpt = parentType.toComponent()

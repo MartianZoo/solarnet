@@ -3,6 +3,7 @@ package dev.martianzoo.types
 import dev.martianzoo.tfm.api.Exceptions
 import dev.martianzoo.tfm.api.Type
 import dev.martianzoo.tfm.api.TypeInfo
+import dev.martianzoo.tfm.engine.ComponentGraph.Component
 import dev.martianzoo.tfm.pets.HasClassName
 import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.pets.ast.Requirement
@@ -117,6 +118,15 @@ internal constructor(
     val refin = that.refinement ?: return true
     val requirement = root.loader.transformers.refinementMangler(expressionFull).transform(refin)
     return info.has(requirement)
+  }
+
+  private val asComponent: Component? by lazy {
+    if (abstract) null else Component(this)
+  }
+
+  fun toComponent(): Component {
+    require(!abstract)
+    return asComponent!!
   }
 
   override fun toString() = "$expressionFull@${root.loader}"
