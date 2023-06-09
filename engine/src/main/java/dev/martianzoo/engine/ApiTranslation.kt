@@ -89,19 +89,19 @@ constructor(
   // OPERATIONS
 
   override fun manual(initialInstruction: String, body: BodyLambda): TaskResult {
-    return timeline.atomic {
+    return atomic {
       impl.manual(parse(initialInstruction), autoExecMode) { Adapter().body() }
     }
   }
 
   override fun beginManual(initialInstruction: String, body: BodyLambda): TaskResult {
-    return timeline.atomic {
+    return atomic {
       impl.beginManual(parse(initialInstruction), autoExecMode) { Adapter().body() }
     }
   }
 
   override fun finish(body: BodyLambda): TaskResult {
-    return timeline.atomic { impl.complete(autoExecMode) { Adapter().body() } }
+    return atomic { impl.complete(autoExecMode) { Adapter().body() } }
   }
 
   private inner class Adapter : OperationBody {
@@ -110,28 +110,25 @@ constructor(
 
     override fun doFirstTask(revised: String) {
       this@ApiTranslation.doFirstTask(revised)
-      impl.autoExecNow(autoExecMode)
     }
 
     override fun doTask(revised: String) {
       this@ApiTranslation.doTask(revised)
-      impl.autoExecNow(autoExecMode)
     }
 
     override fun tryTask(revised: String) {
       this@ApiTranslation.tryTask(revised)
-      impl.autoExecNow(autoExecMode)
     }
 
-    override fun autoExecNow() = impl.autoExecNow(autoExecMode)
+    override fun autoExecNow() { atomic {} }
   }
 
-  override fun autoExecNow() = timeline.atomic { impl.autoExecNow(autoExecMode) }
+  override fun autoExecNow() = atomic {}
 
   // TURNS
 
-  override fun startTurn() = timeline.atomic { impl.startTurn() }
-  override fun startTurn2() = timeline.atomic { impl.startTurn2() }
+  override fun startTurn() = atomic { impl.startTurn() }
+  override fun startTurn2() = atomic { impl.startTurn2() }
 
   // TODO unclear when we delegate straight to impl and when we do it ourselves
   override fun turn(body: BodyLambda): TaskResult {
@@ -157,15 +154,20 @@ constructor(
   override fun prepareTask(taskId: TaskId) = impl.prepareTask(taskId)
 
   override fun doFirstTask(revised: String?) =
-      timeline.atomic { impl.doFirstTask(revised?.let { parse(it) }) }
+      atomic { impl.doFirstTask(revised?.let { parse(it) }) }
 
-  override fun doTask(taskId: TaskId) = timeline.atomic { impl.doTask(taskId) }
+  override fun doTask(taskId: TaskId) = atomic { impl.doTask(taskId) }
 
-  override fun doTask(revised: String) = timeline.atomic { impl.doTask(parse(revised)) }
+  override fun doTask(revised: String) = atomic { impl.doTask(parse(revised)) }
 
-  override fun tryTask(taskId: TaskId) = timeline.atomic { impl.tryTask(taskId) }
+  override fun tryTask(taskId: TaskId) = atomic { impl.tryTask(taskId) }
 
-  override fun tryTask(revised: String) = timeline.atomic { impl.tryTask(parse(revised)) }
+  override fun tryTask(revised: String) = atomic { impl.tryTask(parse(revised)) }
 
-  override fun tryPreparedTask() = timeline.atomic { impl.tryPreparedTask() }
+  override fun tryPreparedTask() = atomic { impl.tryPreparedTask() }
+
+  fun atomic(block: () -> Unit) = timeline.atomic {
+    block()
+    impl.autoExecNow(autoExecMode)
+  }
 }

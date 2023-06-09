@@ -20,6 +20,7 @@ public class Timeline @Inject constructor(val reader: GameReader) {
     init {
       require(ordinal >= 0)
     }
+    override fun toString() = "$ordinal"
   }
 
   fun checkpoint() = Checkpoint(events.size)

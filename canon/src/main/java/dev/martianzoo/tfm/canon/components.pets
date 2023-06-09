@@ -14,9 +14,6 @@ ABSTRACT CLASS System {
   CLASS Class<Component> { HAS =1 This }               // magic rule: only a single name can go
                                                        // inside the <>; the `Class<Foo>` type is
                                                        // abstract iff the Foo class is abstract
-
-  ABSTRACT CLASS Custom                                // these never *actually* get created
-
   ABSTRACT CLASS Temporary {
     ABSTRACT CLASS Signal {                            // you'll never observe it existing, but
       This:: -This!                                    // things can still be triggered by it
@@ -40,6 +37,8 @@ ABSTRACT CLASS System {
     Pay<Class<Titanium>>:: -3 Owed                     // should be innocuous for TradeAction...
   }
 }
+
+ABSTRACT CLASS Custom                                  // these never *actually* get created
 
 CLASS ForceLoad<Class>: Custom
 
@@ -127,7 +126,7 @@ ABSTRACT CLASS Generational {                          // things that disappear 
   Generation:: -This.                                  // <-- and look, there they go
 }
 
-ABSTRACT CLASS Phase : System {
+ABSTRACT CLASS Phase {
   HAS MAX 1 Phase
 
   CLASS SetupPhase

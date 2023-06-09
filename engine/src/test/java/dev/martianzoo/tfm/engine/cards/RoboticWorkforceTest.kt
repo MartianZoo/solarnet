@@ -27,11 +27,7 @@ class RoboticWorkforceTest {
       godMode().manual("RoboticWorkforce") {
         checkProduction(0, 3, 1, 0, 5, 0)
 
-        Truth.assertThat(tasks.extract { it.whyPending })
-            .containsExactly(
-                "CopyProductionBox<Player1, CardFront<Player1>(HAS BuildingTag<Player1>)>" +
-                    " is abstract"
-            )
+        Truth.assertThat(tasks.extract { it.whyPending }).containsExactly("abstract")
 
         // This card has no building tag so it won't work
         assertThrows<NarrowingException>("1") { doTask("CopyProductionBox<MassConverter>") }

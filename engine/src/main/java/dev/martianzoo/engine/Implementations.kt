@@ -3,7 +3,6 @@ package dev.martianzoo.tfm.engine
 import dev.martianzoo.tfm.api.Exceptions.AbstractException
 import dev.martianzoo.tfm.api.Exceptions.DeadEndException
 import dev.martianzoo.tfm.api.Exceptions.NotNowException
-import dev.martianzoo.tfm.api.Exceptions.RecoverableException
 import dev.martianzoo.tfm.api.Exceptions.TaskException
 import dev.martianzoo.tfm.api.GameReader
 import dev.martianzoo.tfm.data.GameEvent.ChangeEvent.Cause
@@ -118,10 +117,13 @@ constructor(
       try {
         timeline.atomic { doTask(taskId) }
         return true
-      } catch (e: RecoverableException) {
+      } catch (e: AbstractException) {
         // we're in trouble if ALL of these are NotNowExceptions
-        if (e !is NotNowException) recoverable = true
-        explainTask(taskId, e.message ?: e::class.simpleName!!)
+        recoverable = true
+        explainTask(taskId, "abstract")
+      } catch (e: NotNowException) {
+        // we're in trouble if ALL of these are NotNowExceptions
+        explainTask(taskId, "currently impossible")
       }
     }
     if (!recoverable) throw DeadEndException("")
@@ -153,8 +155,8 @@ constructor(
 
   // TURNS LAYER
 
-  fun startTurn() = execute("NewTurn<$player>")
-  fun startTurn2() = execute("NewTurn2<$player>") // TODO get rid of
+  fun startTurn() = execute("NewTurn<$player>!")
+  fun startTurn2() = execute("NewTurn2<$player>!") // TODO get rid of
 
   // GAMES LAYER
 
@@ -258,12 +260,14 @@ constructor(
     return id
   }
 
-  fun tryTask(taskId: TaskId) {
+  fun tryTask(id: TaskId) {
     try {
-      prepareTask(taskId)
-      if (taskId in tasks) doTask(taskId)
-    } catch (e: RecoverableException) {
-      explainTask(taskId, e.message!!)
+      prepareTask(id)
+      if (id in tasks) doTask(id)
+    } catch (e: AbstractException) {
+      explainTask(id, "abstract")
+    } catch (e: NotNowException) {
+      explainTask(id, "currently impossible")
     }
   }
 
@@ -271,8 +275,10 @@ constructor(
     val id = matchingTask(revised)
     try {
       doTask(revised)
-    } catch (e: RecoverableException) {
-      explainTask(id, e.message!!)
+    } catch (e: AbstractException) {
+      explainTask(id, "abstract")
+    } catch (e: NotNowException) {
+      explainTask(id, "currently impossible")
     }
   }
 
@@ -284,8 +290,8 @@ constructor(
       true
     } catch (e: NotNowException) {
       throw DeadEndException(e)
-    } catch (e: RecoverableException) {
-      explainTask(taskId, e.message!!)
+    } catch (e: AbstractException) {
+      explainTask(taskId, "abstract")
       false
     }
   }

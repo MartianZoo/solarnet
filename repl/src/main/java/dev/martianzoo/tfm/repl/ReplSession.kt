@@ -3,13 +3,16 @@ package dev.martianzoo.tfm.repl
 import dev.martianzoo.tfm.api.GameReader
 import dev.martianzoo.tfm.api.SpecialClassNames.CLASS
 import dev.martianzoo.tfm.api.SpecialClassNames.COMPONENT
-import dev.martianzoo.tfm.canon.Canon
+import dev.martianzoo.tfm.canon.Canon.SIMPLE_GAME
 import dev.martianzoo.tfm.data.GameEvent.ChangeEvent
 import dev.martianzoo.tfm.data.GameSetup
 import dev.martianzoo.tfm.data.Player
 import dev.martianzoo.tfm.data.Player.Companion.ENGINE
 import dev.martianzoo.tfm.data.Task.TaskId
 import dev.martianzoo.tfm.data.TaskResult
+import dev.martianzoo.tfm.engine.AutoExecMode.FIRST
+import dev.martianzoo.tfm.engine.AutoExecMode.NONE
+import dev.martianzoo.tfm.engine.AutoExecMode.SAFE
 import dev.martianzoo.tfm.engine.Engine
 import dev.martianzoo.tfm.engine.Game
 import dev.martianzoo.tfm.engine.Gameplay.Companion.parse
@@ -37,64 +40,56 @@ import dev.martianzoo.util.random
 import dev.martianzoo.util.toStrings
 import java.io.File
 import org.jline.reader.History
+import org.jline.reader.impl.history.DefaultHistory
 
 internal fun main() {
   val jline = JlineRepl()
-  val repl = ReplSession(Canon.SIMPLE_GAME, jline)
-
-  fun prompt(): String {
-    val bundles: String = repl.setup.bundles.joinToString("")
-
-    val phases = repl.session.list("Phase") // should only be one
-    val phase: String = phases.singleOrNull()?.toString() ?: "NoPhase"
-
-    val player: Player = repl.session.player
-    val count: Int = repl.setup.players
-    val logPosition: Int = repl.session.game.events.size
-    return repl.mode.color.foreground("$bundles $phase $player/$count @$logPosition> ")
-  }
-
-  // We don't actually have to start another game.....
-  val welcome =
-      """
-        Welcome to REgo PLastics. Type `help` or `help <command>` for help.
-        Warning: this is a bare-bones tool that is not trying to be easy to use... at all
-
-      """
-          .trimIndent()
-
-  jline.loop(::prompt, repl::command, welcome)
+  val repl = ReplSession(jline)
+  repl.loop()
   println("Bye")
 }
 
 /** A programmatic entry point to a REPL session that is more textual than [ReplSession]. */
-public class ReplSession(var setup: GameSetup, private val jline: JlineRepl? = null) {
-  // TODO all we use `jline` for is history (and just checking whether it's there or not)
-  public var game: Game = Engine.newGame(setup)
-  public var session: TfmGameplay = game.tfm(ENGINE)
-    internal set
+internal class ReplSession(private val jline: JlineRepl? = null) {
+  lateinit var setup: GameSetup
+    private set
+  lateinit var game: Game
+    private set
+  lateinit var tfm: TfmGameplay
+    private set
 
-  internal var mode: ReplMode = GREEN
-  internal val authority by setup::authority
+  private var mode: ReplMode = GREEN
 
-  public enum class ReplMode(val message: String, val color: TfmColor) {
-    RED("Change integrity: make changes without triggered effects", TfmColor.HEAT),
-    YELLOW("Task integrity: changes have consequences", TfmColor.MEGACREDIT),
-    GREEN("Operation integrity: clear task queue before starting new operation", TfmColor.PLANT),
-    BLUE("Turn integrity: must perform a valid game turn for this phase", TfmColor.OCEAN_TILE),
-    PURPLE("Game integrity: the engine fully controls the workflow", TfmColor.ENERGY),
+  private fun newGame(setup: GameSetup) {
+    this.setup = setup
+    game = Engine.newGame(setup)
+    tfm = game.tfm(ENGINE) // default autoexec mode
+  }
+
+  init {
+    newGame(SIMPLE_GAME)
+  }
+
+  fun loop() = jline!!.loop(::prompt, ::command, welcome)
+
+  private fun prompt(): String {
+    return with(tfm) {
+      val bundles = setup.bundles.joinToString("")
+      val phase = list("Phase").single()
+      val checkpoint = game.timeline.checkpoint()
+      mode.color.foreground("$bundles $phase $player/${setup.players} @$checkpoint> ")
+    }
   }
 
   private val inputRegex = Regex("""^\s*(\S+)(.*)$""")
 
-  private class UsageException(message: String? = null) : Exception(message ?: "")
+  internal class UsageException(message: String? = null) : Exception(message ?: "")
 
   internal abstract inner class ReplCommand(val name: String) {
     open val isReadOnly: Boolean = false // not currently used
     abstract val usage: String
     abstract val help: String
     open fun noArgs(): List<String> = throw UsageException()
-
     open fun withArgs(args: String): List<String> = throw UsageException()
   }
 
@@ -115,6 +110,7 @@ public class ReplSession(var setup: GameSetup, private val jline: JlineRepl? = n
               MapCommand(),
               ModeCommand(),
               NewGameCommand(),
+              PhaseCommand(),
               RollbackCommand(),
               ScriptCommand(),
               TaskCommand(),
@@ -127,16 +123,17 @@ public class ReplSession(var setup: GameSetup, private val jline: JlineRepl? = n
     override val usage = "help [command]"
     override val help =
         """
-          Help will give you help, if you want help, but this help on help doesn't help, does it?
+          Help gives you help if you want help, but this help on help doesn't help, if that helps.
         """
     override val isReadOnly = true
     override fun noArgs() = listOf(helpText)
     override fun withArgs(args: String): List<String> {
-      return when (args.trim().lowercase()) {
+      val arg = args.trim().lowercase()
+      return when (arg) {
         "exit" -> listOf("I mean it exits.")
         "rebuild" -> listOf("Exits, recompiles the code, and restarts. Your game is lost.")
         else -> {
-          val helpCommand = commands[args.trim().lowercase()]
+          val helpCommand = commands[arg]
           if (helpCommand == null) {
             listOf("¯\\_(ツ)_/¯ Type `help` for help")
           } else {
@@ -160,12 +157,12 @@ public class ReplSession(var setup: GameSetup, private val jline: JlineRepl? = n
       val (player, rest) = args.trim().split(Regex("\\s+"), 2)
 
       // This is a sad way to do it TODO
-      val saved = session
+      val saved = tfm
       return try {
-        session = game.tfm(player(player))
+        tfm = game.tfm(player(player))
         command(rest)
       } finally {
-        session = saved
+        tfm = saved
       }
     }
   }
@@ -185,9 +182,8 @@ public class ReplSession(var setup: GameSetup, private val jline: JlineRepl? = n
       try {
         val (bundleString, players) = args.trim().split(Regex("\\s+"), 2)
 
-        setup = GameSetup(authority, bundleString, players.toInt())
-        game = Engine.newGame(setup)
-        session = game.tfm(ENGINE)
+        setup = GameSetup(setup.authority, bundleString, players.toInt())
+        newGame(setup)
 
         return listOf("New $players-player game created with bundles: $bundleString") +
             if (players.toInt() == 1) {
@@ -211,13 +207,13 @@ public class ReplSession(var setup: GameSetup, private val jline: JlineRepl? = n
         """
 
     override fun noArgs(): List<String> {
-      session = game.tfm(ENGINE)
+      tfm = game.tfm(ENGINE)
       return listOf("Okay, you are the game engine now")
     }
 
     override fun withArgs(args: String): List<String> {
-      session = game.tfm(player(args))
-      return listOf("Hi, ${session.player}")
+      tfm = game.tfm(player(args))
+      return listOf("Hi, ${tfm.player}")
     }
   }
 
@@ -227,8 +223,16 @@ public class ReplSession(var setup: GameSetup, private val jline: JlineRepl? = n
         """
           Asks the engine to start a new turn for the current player.
         """
+    override fun noArgs() = describeExecutionResults(access().newTurn())
+  }
 
-    override fun noArgs(): List<String> = ExecCommand().withArgs("NewTurn")
+  internal inner class PhaseCommand : ReplCommand("phase") {
+    override val usage = "phase <phase name>"
+    override val help =
+        """
+          Asks the engine to begin a new phase, e.g. `phase Corporation`
+        """
+    override fun withArgs(args: String) = describeExecutionResults(access().phase(args.trim()))
   }
 
   internal inner class HasCommand : ReplCommand("has") {
@@ -241,8 +245,8 @@ public class ReplSession(var setup: GameSetup, private val jline: JlineRepl? = n
     override val isReadOnly = true
 
     override fun withArgs(args: String): List<String> {
-      val result = session.has(args)
-      return listOf("$result: ${session.parse<Requirement>(args)}")
+      val result = tfm.has(args)
+      return listOf("$result: ${tfm.parse<Requirement>(args)}")
     }
   }
 
@@ -256,8 +260,8 @@ public class ReplSession(var setup: GameSetup, private val jline: JlineRepl? = n
     override val isReadOnly = true
 
     override fun withArgs(args: String): List<String> {
-      val count = session.count(args)
-      return listOf("$count ${session.parse<Metric>(args)}")
+      val count = tfm.count(args)
+      return listOf("$count ${tfm.parse<Metric>(args)}")
     }
   }
 
@@ -270,8 +274,8 @@ public class ReplSession(var setup: GameSetup, private val jline: JlineRepl? = n
     override fun noArgs() = withArgs(COMPONENT.toString())
 
     override fun withArgs(args: String): List<String> {
-      val expr: Expression = session.parse(args)
-      val counts: Multiset<Expression> = session.list(args)
+      val expr: Expression = tfm.parse(args)
+      val counts: Multiset<Expression> = tfm.list(args)
       return listOf("${counts.size} $expr") +
           counts.entries.sortedByDescending { (_, ct) -> ct }.map { (e, ct) -> "  $ct $e" }
     }
@@ -285,10 +289,10 @@ public class ReplSession(var setup: GameSetup, private val jline: JlineRepl? = n
         """
     override val isReadOnly = true
 
-    override fun noArgs(): List<String> = PlayerBoardToText(session, jline != null).board()
+    override fun noArgs(): List<String> = PlayerBoardToText(tfm, jline != null).board()
 
     override fun withArgs(args: String) =
-        PlayerBoardToText(session.asPlayer(Player(cn(args))), jline != null).board()
+        PlayerBoardToText(tfm.asPlayer(player(args)), jline != null).board()
   }
 
   internal inner class MapCommand : ReplCommand("map") {
@@ -297,7 +301,7 @@ public class ReplSession(var setup: GameSetup, private val jline: JlineRepl? = n
           I mean it shows a map.
         """
     override val isReadOnly = true
-    override fun noArgs() = MapToText(session.reader, jline != null).map()
+    override fun noArgs() = MapToText(tfm.reader, jline != null).map()
   }
 
   //  var workflow: Workflow? = null
@@ -328,19 +332,17 @@ public class ReplSession(var setup: GameSetup, private val jline: JlineRepl? = n
         mode = ReplMode.valueOf(args.uppercase())
       } catch (e: Exception) {
         throw UsageException(
-            "Valid modes are: ${ReplMode.values().joinToString { it.toString().lowercase() }}"
-        )
+            "Valid modes are: ${ReplMode.values().joinToString { it.toString().lowercase() }}")
       }
       return noArgs()
     }
   }
 
-  var auto: Boolean = true
-
   internal inner class AutoCommand : ReplCommand("auto") {
-    override val usage = "auto [ on | off ]"
+    override val usage = "auto [none|safe|first]"
     override val help =
         """
+          TODO fix this
           Turns auto-execute mode on or off, or just `auto` tells you what mode you're in. When you
           initiate an instruction with `exec` or `task`, per the game rules you always get to decide
           what order to do all the resulting tasks in. But that's a pain, so when `auto` is `on` (as
@@ -349,13 +351,14 @@ public class ReplSession(var setup: GameSetup, private val jline: JlineRepl? = n
           until you `exit` or `rebuild`, even across games.
         """
 
-    override fun noArgs() = listOf("Autoexecute is " + if (auto) "on" else "off")
+    override fun noArgs() = listOf("Autoexec mode is: ${tfm.autoExecMode}")
 
     override fun withArgs(args: String): List<String> {
-      auto =
+      tfm.autoExecMode =
           when (args) {
-            "on" -> true
-            "off" -> false
+            "none" -> NONE
+            "safe" -> SAFE
+            "first" -> FIRST
             else -> throw UsageException()
           }
       return noArgs()
@@ -375,12 +378,12 @@ public class ReplSession(var setup: GameSetup, private val jline: JlineRepl? = n
   }
 
   private fun access(): Access = // TODO maybe don't do this "just-in-time"...
-      when (mode) {
-        RED -> RedMode(session.godMode())
-        YELLOW -> YellowMode(session.godMode())
-        GREEN -> GreenMode(session.godMode())
-        BLUE -> BlueMode(session.godMode())
-        PURPLE -> PurpleMode(session.godMode())
+  when (mode) {
+        RED -> RedMode(tfm.godMode())
+        YELLOW -> YellowMode(tfm.godMode())
+        GREEN -> GreenMode(tfm.godMode())
+        BLUE -> BlueMode(tfm.godMode())
+        PURPLE -> PurpleMode(tfm.godMode())
       }
 
   internal inner class TasksCommand : ReplCommand("tasks") {
@@ -391,7 +394,7 @@ public class ReplSession(var setup: GameSetup, private val jline: JlineRepl? = n
           tasks of all players plus the engine are currently mixed together (but labeled).
         """
     override val isReadOnly = true
-    override fun noArgs() = session.game.tasks.extract { "$it" }
+    override fun noArgs() = tfm.game.tasks.extract { "$it" }
   }
 
   internal inner class TaskCommand : ReplCommand("task") {
@@ -407,12 +410,12 @@ public class ReplSession(var setup: GameSetup, private val jline: JlineRepl? = n
         """
 
     override fun withArgs(args: String): List<String> {
-      val q = session.game.tasks
+      val q = game.tasks
 
       val split = Regex("\\s+").split(args, 2)
       val idString = split.firstOrNull() ?: throw UsageException()
       val id = TaskId(idString.uppercase())
-      if (id !in q.ids()) throw UsageException("valid ids are $q")
+      if (id !in game.tasks) throw UsageException("valid ids are ${game.tasks.ids()}")
       val rest: String? =
           if (split.size > 1 && split[1].isNotEmpty()) {
             split[1]
@@ -420,38 +423,44 @@ public class ReplSession(var setup: GameSetup, private val jline: JlineRepl? = n
             null
           }
 
-      if (rest == "drop") {
-        access().dropTask(id)
-        return listOf("Task $id deleted")
-
-      } else if (rest == "prepare") {
-        session.prepareTask(id)
-        return session.game.tasks.extract { "$it" }
+      val result: TaskResult = when (rest) {
+        "drop" -> {
+          access().dropTask(id)
+          return listOf("Task $id deleted")
+        }
+        "prepare" -> {
+          tfm.prepareTask(id)
+          return tfm.game.tasks.extract { "$it" }
+        }
+        null -> tfm.tryTask(id)
+        else ->
+              tfm.game.timeline.atomic {
+                tfm.reviseTask(id, rest)
+                if (id in game.tasks) tfm.tryTask(id)
+              }
       }
-
-      val result: TaskResult =
-          session.game.timeline.atomic {
-            session.reviseTask(id, rest!!)
-            session.tryTask(id)
-            if (auto) session.godMode().autoExecNow()
-          }
       return describeExecutionResults(result)
     }
   }
 
-  private fun describeExecutionResults(changes: TaskResult): List<String> {
-    val oops: Set<TaskId> = changes.tasksSpawned
+  private fun describeExecutionResults(result: TaskResult): List<String> {
+    val changes = result.changes.filterNot { isSystem(it, tfm.reader) }.toStrings()
 
-    val interesting: List<ChangeEvent> = changes.changes.filterNot { isSystem(it, session.reader) }
-    val changeLines = interesting.toStrings().ifEmpty { listOf("No interesting component changes") }
+    val newTasks: Set<TaskId> = result.tasksSpawned
     val taskLines =
-        if (oops.any()) {
-          listOf("", "There are new pending tasks:") +
-              session.game.tasks.extract { if (it.id in oops) "$it" else null }.filterNotNull()
+        if (newTasks.any()) {
+          listOf("New tasks pending:") +
+              tfm.game.tasks.extract { if (it.id in newTasks) "$it" else null }.filterNotNull()
         } else {
           listOf()
         }
-    return changeLines + taskLines
+    return if (changes.none() && taskLines.none()) {
+      listOf("um, nothing happened")
+    } else if (changes.any() && taskLines.any()) {
+      changes + listOf("") + taskLines
+    } else {
+      changes + taskLines
+    }
   }
 
   internal inner class LogCommand : ReplCommand("log") {
@@ -465,14 +474,11 @@ public class ReplSession(var setup: GameSetup, private val jline: JlineRepl? = n
     override val isReadOnly = true
 
     override fun noArgs() =
-        session.game.events
-            .changesSinceSetup()
-            .filterNot { isSystem(it, session.reader) }
-            .toStrings()
+        tfm.game.events.changesSinceSetup().filterNot { isSystem(it, tfm.reader) }.toStrings()
 
     override fun withArgs(args: String): List<String> {
       if (args == "full") {
-        return session.game.events.entriesSince(Checkpoint(0)).toStrings()
+        return tfm.game.events.entriesSince(Checkpoint(0)).toStrings()
       } else {
         throw UsageException()
       }
@@ -506,7 +512,7 @@ public class ReplSession(var setup: GameSetup, private val jline: JlineRepl? = n
         """
 
     override fun withArgs(args: String): List<String> {
-      session.game.timeline.rollBack(Checkpoint(args.toInt()))
+      tfm.game.timeline.rollBack(Checkpoint(args.toInt()))
       return listOf("Rollback done")
     }
   }
@@ -523,7 +529,7 @@ public class ReplSession(var setup: GameSetup, private val jline: JlineRepl? = n
           library if curious.
         """
     override val isReadOnly = true
-    val history = jline?.history
+    private val history: DefaultHistory? = jline?.history
 
     override fun noArgs() = fmt(history!!)
 
@@ -551,18 +557,18 @@ public class ReplSession(var setup: GameSetup, private val jline: JlineRepl? = n
       val (expression, type) =
           if (args == "random") {
             val type =
-                session.reader
+                tfm.reader
                     .resolve(CLASS.expression)
-                    .let(session.reader::getComponents)
+                    .let(tfm.reader::getComponents)
                     .expressions()
                     .map { it.arguments.single() }
                     .random()
-                    .let { session.reader.resolve(it) as MType }
+                    .let { tfm.reader.resolve(it) as MType }
                     .concreteSubtypesSameClass()
                     .random()
             type.expressionFull to type
           } else {
-            val expression: Expression = session.parse(args)
+            val expression: Expression = tfm.parse(args)
             expression to game.reader.resolve(expression) as MType
           }
       return listOf(MTypeToText.describe(expression, type))
@@ -592,8 +598,14 @@ public class ReplSession(var setup: GameSetup, private val jline: JlineRepl? = n
     return if (groups == null) {
       listOf()
     } else {
-      val (_, command, args) = groups
-      command(command.lowercase(), args.trim().ifEmpty { null })
+      val (_, commandName, arguments) = groups
+      val args = arguments.trim().ifEmpty { null }
+      val command = commands[commandName.lowercase()]
+      if (command == null) {
+        listOf("¯\\_(ツ)_/¯ Type `help` for help")
+      } else {
+        command(command, args)
+      }
     }
   }
 
@@ -608,17 +620,28 @@ public class ReplSession(var setup: GameSetup, private val jline: JlineRepl? = n
     }
   }
 
-  internal fun command(commandName: String, args: String?): List<String> {
-    val command = commands[commandName] ?: return listOf("¯\\_(ツ)_/¯ Type `help` for help")
-    return command(command, args)
+  public enum class ReplMode(val message: String, val color: TfmColor) {
+    RED("Change integrity: make changes without triggered effects", TfmColor.HEAT),
+    YELLOW("Task integrity: changes have consequences", TfmColor.MEGACREDIT),
+    GREEN("Operation integrity: clear task queue before starting new operation", TfmColor.PLANT),
+    BLUE("Turn integrity: must perform a valid game turn for this phase", TfmColor.OCEAN_TILE),
+    PURPLE("Game integrity: the engine fully controls the workflow", TfmColor.ENERGY),
   }
 
   private fun player(name: String): Player {
     // In case a shortname was used
-    val type: MType = session.reader.resolve(cn(name).expression) as MType
+    val type: MType = tfm.reader.resolve(cn(name).expression) as MType
     return Player(type.className)
   }
 }
+
+private val welcome =
+    """
+      Welcome to REgo PLastics. Type `help` or `help <command>` for help.
+      Warning: this is a bare-bones tool that is not trying to be easy to use... at all
+
+    """
+        .trimIndent()
 
 private val helpText: String =
     """

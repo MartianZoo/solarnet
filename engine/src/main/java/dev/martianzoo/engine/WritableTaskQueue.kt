@@ -1,6 +1,5 @@
 package dev.martianzoo.tfm.engine
 
-import dev.martianzoo.tfm.api.Exceptions.TaskException
 import dev.martianzoo.tfm.data.GameEvent.ChangeEvent.Cause
 import dev.martianzoo.tfm.data.GameEvent.TaskAddedEvent
 import dev.martianzoo.tfm.data.GameEvent.TaskEditedEvent
@@ -50,7 +49,7 @@ internal class WritableTaskQueue @Inject constructor(private val events: TaskLis
   override fun preparedTask(): TaskId? = taskSet.firstOrNull { it.next }?.id
 
   fun getTaskData(id: TaskId) =
-      taskSet.firstOrNull { it.id == id } ?: throw TaskException("nonexistent task: $id")
+      taskSet.firstOrNull { it.id == id } ?: error("nonexistent task: $id")
 
   private fun nextAvailableId() =
       if (taskSet.none()) TaskId("A") else taskSet.maxOf { it.id }.next()

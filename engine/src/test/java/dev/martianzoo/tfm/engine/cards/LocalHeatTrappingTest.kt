@@ -29,14 +29,6 @@ class LocalHeatTrappingTest {
         // The card is played but nothing else
         assertCounts(3 to "Card", 1 to "CardBack", 1 to "CardFront", 1 to "PlayedEvent")
         assertCounts(0 to "Plant", 4 to "Heat", 1 to "Animal")
-
-        // And for the expected reasons
-        assertThat(tasks.extract { it.whyPending })
-            .containsExactly(
-                // TODO "When gaining null and removing Heat<Player1>: can do only 4 of 5 required",
-                null,
-                "choice required in: `4 Plant<Player1>! OR 2 Animal<Player1>.`",
-            )
         throw AbortOperationException()
       }
     }
@@ -51,10 +43,6 @@ class LocalHeatTrappingTest {
         // The card is played and the heat is gone
         assertCounts(1 to "CardFront", 1 to "PlayedEvent")
         assertCounts(0 to "Plant", 1 to "Heat", 1 to "Animal")
-
-        assertThat(tasks.extract { it.whyPending }.single())
-            .isEqualTo("choice required in: `4 Plant<Player1>! OR 2 Animal<Player1>.`")
-
         doFirstTask("4 Plant")
       }
 

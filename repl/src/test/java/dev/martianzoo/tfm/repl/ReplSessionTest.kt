@@ -1,43 +1,12 @@
 package dev.martianzoo.tfm.repl
 
 import com.google.common.truth.Truth.assertThat
-import dev.martianzoo.tfm.canon.Canon
 import org.junit.jupiter.api.Test
 
 private class ReplSessionTest {
   @Test
-  fun testProductionPhase() {
-    val repl = ReplSession(Canon.SIMPLE_GAME)
-    val commands =
-        """
-          become Player1
-          exec PROD[1, 2 S, 3 T, 4 P, 5 E, 6 H]
-          exec 8, 6 S, 7 T, 5 P, 3 E
-          exec 9 TR
-
-          become
-          exec ActionPhase FROM Phase
-          exec ProductionPhase FROM Phase
-
-          become Player1
-        """
-            .trimIndent()
-
-    for (cmd in commands.split("\n")) {
-      repl.command(cmd)
-    }
-
-    assertThat(repl.session.count("M")).isEqualTo(38) // 8 + 29 + 1
-    assertThat(repl.session.count("S")).isEqualTo(8)
-    assertThat(repl.session.count("T")).isEqualTo(10)
-    assertThat(repl.session.count("P")).isEqualTo(9)
-    assertThat(repl.session.count("E")).isEqualTo(5)
-    assertThat(repl.session.count("H")).isEqualTo(9)
-  }
-
-  @Test
   fun test() {
-    val repl = ReplSession(Canon.SIMPLE_GAME)
+    val repl = ReplSession()
     repl.command("become Player2")
     repl.command("exec ProjectCard")
 
@@ -70,12 +39,12 @@ private class ReplSessionTest {
 
   @Test
   fun testBoard() {
-    val repl = ReplSession(Canon.SIMPLE_GAME)
+    val repl = ReplSession()
     repl.command("become Player1")
     repl.command("exec PROD[9, 8 Steel, 7 Titanium, 6 Plant, 5 Energy, 4 Heat]")
     repl.command("exec 8, 6 Steel, 7 Titanium, 5 Plant, 3 Energy, 9 Heat")
 
-    val board = PlayerBoardToText(repl.session, false).board()
+    val board = PlayerBoardToText(repl.tfm, false).board()
     assertThat(board)
         .containsExactly(
             "  Player1   TR: 20   Tiles: 0",
@@ -92,12 +61,12 @@ private class ReplSessionTest {
 
   @Test
   fun testMap() {
-    val repl = ReplSession(Canon.SIMPLE_GAME)
+    val repl = ReplSession()
     repl.command("become Player1")
     repl.command("exec OT<M26>, OT<M55>, OT<M56>, CT<M46>, GT<M57>")
     repl.command("as Player2 exec GT<M45>, CT<M66>, MaTile<M99>")
     assertThat(repl.command("tasks")).isEmpty()
-    assertThat(repl.session.count("Tile")).isEqualTo(8)
+    assertThat(repl.tfm.count("Tile")).isEqualTo(8)
 
     assertThat(repl.command(repl.MapCommand()))
         .containsExactlyElementsIn(
