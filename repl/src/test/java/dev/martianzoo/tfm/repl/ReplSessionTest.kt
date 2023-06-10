@@ -42,8 +42,8 @@ private class ReplSessionTest {
       0000: +CorporationCard<Player2> FOR Engine BY Player2 BECAUSE 0000
       Hi, Player1
       New tasks pending:
-      B  [Player1] PlayCard<Player1, Class<CorporationCard>>! BY CorporationPhase BECAUSE 0000 (abstract) 
-      C  [Player1] 10 BuyCard<Player1>? BY CorporationPhase BECAUSE 0000 (abstract) 
+      Z  [Player1] PlayCard<Player1, Class<CorporationCard>>! BY CorporationPhase BECAUSE 0000 (abstract) 
+      Z  [Player1] 10 BuyCard<Player1>? BY CorporationPhase BECAUSE 0000 (abstract) 
       0000: +Manutech<Player1> FROM CorporationCard<Player1> FOR Player1 BY PlayCard<Player1, Class<CorporationCard>, Class<Manutech>> BECAUSE 0000
       0000: +BuildingTag<Player1, Manutech<Player1>> FOR Player1 BY Manutech<Player1> BECAUSE 0000
       0000: +Production<Player1, Class<Steel>> FOR Player1 BY Manutech<Player1> BECAUSE 0000
@@ -53,8 +53,8 @@ private class ReplSessionTest {
       0000: +5 ProjectCard<Player1> FOR Player1 BY BuyCard<Player1> BECAUSE 0000
       Hi, Player2
       New tasks pending:
-      B  [Player2] PlayCard<Player2, Class<CorporationCard>>! BY CorporationPhase BECAUSE 0000 (abstract) 
-      C  [Player2] 10 BuyCard<Player2>? BY CorporationPhase BECAUSE 0000 (abstract) 
+      Z  [Player2] PlayCard<Player2, Class<CorporationCard>>! BY CorporationPhase BECAUSE 0000 (abstract) 
+      Z  [Player2] 10 BuyCard<Player2>? BY CorporationPhase BECAUSE 0000 (abstract) 
       0000: +Factorum<Player2> FROM CorporationCard<Player2> FOR Player2 BY PlayCard<Player2, Class<CorporationCard>, Class<Factorum>> BECAUSE 0000
       0000: +PowerTag<Player2, Factorum<Player2>> FOR Player2 BY Factorum<Player2> BECAUSE 0000
       0000: +BuildingTag<Player2, Factorum<Player2>> FOR Player2 BY Factorum<Player2> BECAUSE 0000
@@ -67,20 +67,20 @@ private class ReplSessionTest {
       0000: +2 PreludeCard<Player2> FOR Engine BY Player2 BECAUSE 0000
       Hi, Player1
       New tasks pending:
-      B* [Player1] PlayCard<Player1, Class<PreludeCard>>! OR (-PreludeCard<Player1>! THEN 15 Megacredit<Player1>!) BY PreludePhase BECAUSE 0000 (abstract) 
+      Z* [Player1] PlayCard<Player1, Class<PreludeCard>>! OR (-PreludeCard<Player1>! THEN 15 Megacredit<Player1>!) BY PreludePhase BECAUSE 0000 (abstract) 
       0000: +NewPartner<Player1> FROM PreludeCard<Player1> FOR Player1 BY PlayCard<Player1, Class<PreludeCard>, Class<NewPartner>> BECAUSE 0000
       0000: +Production<Player1, Class<Megacredit>> FOR Player1 BY NewPartner<Player1> BECAUSE 0000
       0000: +PreludeCard<Player1> FOR Player1 BY NewPartner<Player1> BECAUSE 0000
       0000: +Megacredit<Player1> FOR Player1 BY Manutech<Player1> BECAUSE 0000
 
       New tasks pending:
-      F* [Player1] PlayCard<Player1, Class<PreludeCard>>! BY NewPartner<Player1> BECAUSE 0000 (abstract) 
+      Z* [Player1] PlayCard<Player1, Class<PreludeCard>>! BY NewPartner<Player1> BECAUSE 0000 (abstract) 
       0000: +UnmiContractor<Player1> FROM PreludeCard<Player1> FOR Player1 BY PlayCard<Player1, Class<PreludeCard>, Class<UnmiContractor>> BECAUSE 0000
       0000: +EarthTag<Player1, UnmiContractor<Player1>> FOR Player1 BY UnmiContractor<Player1> BECAUSE 0000
       0000: +3 TerraformRating<Player1> FOR Player1 BY UnmiContractor<Player1> BECAUSE 0000
       0000: +ProjectCard<Player1> FOR Player1 BY UnmiContractor<Player1> BECAUSE 0000
       New tasks pending:
-      B* [Player1] PlayCard<Player1, Class<PreludeCard>>! OR (-PreludeCard<Player1>! THEN 15 Megacredit<Player1>!) BY PreludePhase BECAUSE 0000 (abstract) 
+      Z* [Player1] PlayCard<Player1, Class<PreludeCard>>! OR (-PreludeCard<Player1>! THEN 15 Megacredit<Player1>!) BY PreludePhase BECAUSE 0000 (abstract) 
       0000: +AlliedBank<Player1> FROM PreludeCard<Player1> FOR Player1 BY PlayCard<Player1, Class<PreludeCard>, Class<AlliedBank>> BECAUSE 0000
       0000: +EarthTag<Player1, AlliedBank<Player1>> FOR Player1 BY AlliedBank<Player1> BECAUSE 0000
       0000: +4 Production<Player1, Class<Megacredit>> FOR Player1 BY AlliedBank<Player1> BECAUSE 0000
@@ -88,12 +88,12 @@ private class ReplSessionTest {
       0000: +4 Megacredit<Player1> FOR Player1 BY Manutech<Player1> BECAUSE 0000
       Hi, Player2
       New tasks pending:
-      B* [Player2] PlayCard<Player2, Class<PreludeCard>>! OR (-PreludeCard<Player2>! THEN 15 Megacredit<Player2>!) BY PreludePhase BECAUSE 0000 (abstract) 
+      Z* [Player2] PlayCard<Player2, Class<PreludeCard>>! OR (-PreludeCard<Player2>! THEN 15 Megacredit<Player2>!) BY PreludePhase BECAUSE 0000 (abstract) 
       0000: +AcquiredSpaceAgency<Player2> FROM PreludeCard<Player2> FOR Player2 BY PlayCard<Player2, Class<PreludeCard>, Class<AcquiredSpaceAgency>> BECAUSE 0000
       0000: +6 Titanium<Player2> FOR Player2 BY AcquiredSpaceAgency<Player2> BECAUSE 0000
       0000: +2 ProjectCard<Player2> FOR Player2 BY AcquiredSpaceAgency<Player2> BECAUSE 0000
       New tasks pending:
-      B* [Player2] PlayCard<Player2, Class<PreludeCard>>! OR (-PreludeCard<Player2>! THEN 15 Megacredit<Player2>!) BY PreludePhase BECAUSE 0000 (abstract) 
+      Z* [Player2] PlayCard<Player2, Class<PreludeCard>>! OR (-PreludeCard<Player2>! THEN 15 Megacredit<Player2>!) BY PreludePhase BECAUSE 0000 (abstract) 
       0000: +IoResearchOutpost<Player2> FROM PreludeCard<Player2> FOR Player2 BY PlayCard<Player2, Class<PreludeCard>, Class<IoResearchOutpost>> BECAUSE 0000
       0000: +ScienceTag<Player2, IoResearchOutpost<Player2>> FOR Player2 BY IoResearchOutpost<Player2> BECAUSE 0000
       0000: +JovianTag<Player2, IoResearchOutpost<Player2>> FOR Player2 BY IoResearchOutpost<Player2> BECAUSE 0000
@@ -102,20 +102,25 @@ private class ReplSessionTest {
       0000: +ActionPhase FROM PreludePhase FOR Engine (manual)
       Hi, Player1
       New tasks pending:
-      B* [Player1] UseAction<Player1, StandardAction>! OR Pass<Player1>! BY ActionPhase BECAUSE 0000 (abstract) 
+      Z* [Player1] UseAction<Player1, StandardAction>! OR Pass<Player1>! BY ActionPhase BECAUSE 0000 (abstract) 
       New tasks pending:
-      D* [Player1] PlayCard<Player1, Class<ProjectCard>>! BY PlayCardSA BECAUSE 0000 (abstract) 
+      Z* [Player1] PlayCard<Player1, Class<ProjectCard>>! BY PlayCardSA BECAUSE 0000 (abstract) 
       New tasks pending:
-      E* [Player1] X Pay<Player1, Class<Megacredit>> FROM Megacredit<Player1>? BY Accept<Player1, Class<Megacredit>> BECAUSE 0000 (abstract) 
-      F  [Player1] MAX 0 Barrier<Player1>: InventorsGuild<Player1> FROM ProjectCard<Player1>! BY PlayCard<Player1, Class<ProjectCard>, Class<InventorsGuild>> BECAUSE 0000
+      Z* [Player1] X Pay<Player1, Class<Megacredit>> FROM Megacredit<Player1>? BY Accept<Player1, Class<Megacredit>> BECAUSE 0000 (abstract) 
+      Z  [Player1] MAX 0 Barrier<Player1>: InventorsGuild<Player1> FROM ProjectCard<Player1>! BY PlayCard<Player1, Class<ProjectCard>, Class<InventorsGuild>> BECAUSE 0000
       0000: +9 Pay<Player1, Class<Megacredit>> FROM Megacredit<Player1> FOR Player1 BY Accept<Player1, Class<Megacredit>> BECAUSE 0000
       0000: +InventorsGuild<Player1> FROM ProjectCard<Player1> FOR Player1 BY PlayCard<Player1, Class<ProjectCard>, Class<InventorsGuild>> BECAUSE 0000
       0000: +ScienceTag<Player1, InventorsGuild<Player1>> FOR Player1 BY InventorsGuild<Player1> BECAUSE 0000
     """.trimIndent().split("\n")
 
-    val output = commands.flatMap(repl::command).map { it.replace(Regex("\\b\\d{4}\\b"), "0000") }
+    val output = commands.flatMap(repl::command).map {
+      it.replace(digitsRegex, "0000").replace(letterRegex, "Z")
+    }
     assertThat(output).containsExactlyElementsIn(expectedOutput).inOrder()
   }
+
+  val digitsRegex = Regex("\\b\\d{4}\\b")
+  val letterRegex = Regex("^[A-Z]\\b")
 
   @Test
   fun test() {
