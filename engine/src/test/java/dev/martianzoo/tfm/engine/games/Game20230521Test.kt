@@ -29,9 +29,16 @@ class Game20230521Test {
   fun game() {
     val game = Engine.newGame(GameSetup(Canon, "BRMVPXT", 2))
     val engine = game.tfm(ENGINE)
-
     val p1 = game.tfm(PLAYER1)
     val p2 = game.tfm(PLAYER2)
+
+    /*
+         The // comments below are log messages taken directly from the herokuapp.
+         After every generation is a giant block of assertions, which use the
+         numbers I see in the herokuapp game. So this is basically a parity test.
+
+         I had to cheat in a couple places; search for TODO or godMode().
+     */
 
     fun TaskResult.expect(string: String) = assertNetChanges(this, engine, string)
 
