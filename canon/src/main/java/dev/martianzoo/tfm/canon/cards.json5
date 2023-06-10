@@ -1157,6 +1157,7 @@
       "deck": "PROJECT",
       "tags": [ "PlantTag" ],
       "immediate": "PROD[2, 3 Plant], 2 Plant",
+      "effects": [ "End: VictoryPoint" ],
       "requirement": "6 OceanTile",
       "cost": 17,
       "projectKind": "AUTOMATED"
@@ -1581,7 +1582,7 @@
       "effects": [
         "AnimalTag: Animal<This>",
         "PlantTag: Animal<This>",
-        "End: VictoryPoint / Animal<This>"
+        "End: VictoryPoint / 2 Animal<This>"
       ],
       "components": [ "CLASS EzTile : SpecialTile" ],
       "resourceType": "Animal",
