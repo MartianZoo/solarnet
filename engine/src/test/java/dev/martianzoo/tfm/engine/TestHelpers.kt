@@ -1,6 +1,7 @@
 package dev.martianzoo.tfm.engine
 
 import com.google.common.truth.Truth.assertThat
+import dev.martianzoo.tfm.api.SpecialClassNames.THIS
 import dev.martianzoo.tfm.api.Type
 import dev.martianzoo.tfm.data.Player.Companion.players
 import dev.martianzoo.tfm.data.TaskResult
@@ -38,10 +39,13 @@ object TestHelpers {
           .inOrder()
 
   fun assertNetChanges(result: TaskResult, tfm: TfmGameplay, expectedAsInstructions: String) {
-    // All this trouble to keep atomizer() out
     val preprocessor =
         with(Transformers(tfm.game.classes)) {
-          chain(useFullNames(), insertDefaults(), deprodify(), replaceOwnerWith(tfm.player))
+          chain(
+              useFullNames(),
+              insertExpressionDefaults(THIS.expression),
+              deprodify(),
+              replaceOwnerWith(tfm.player))
         }
 
     // Abusing the fact that these strings just happen to resemble instruction strings... except

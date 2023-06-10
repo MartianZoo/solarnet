@@ -18,21 +18,12 @@ data class GameSetup(
      * include `B` and exactly one map (the canon maps are `"M"` for the base map, `"H"` for Hellas,
      * and `"E"` for Elysium).
      */
-    val bundles: Collection<String>,
+    val bundleString: String,
 
     /** Number of players. Only 2-5 are supported for now. Solo mode will take quite some work. */
     val players: Int,
 ) {
-  constructor(
-      authority: Authority,
-
-      /**
-       * A convenience when using only one-letter bundles: pass them all in one string, like
-       * `"BREVX"`.
-       */
-      bundles: String,
-      players: Int,
-  ) : this(authority, splitLetters(bundles), players)
+  val bundles = splitLetters(bundleString)
 
   init {
     require(players in 1..5) { "player count not supported: $players" }

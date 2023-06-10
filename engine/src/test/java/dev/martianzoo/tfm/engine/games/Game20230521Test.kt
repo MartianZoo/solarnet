@@ -27,7 +27,7 @@ class Game20230521Test {
 
   @Test
   fun game() {
-    val game = Engine.newGame(GameSetup(Canon, "BRMVPXCT", 2))
+    val game = Engine.newGame(GameSetup(Canon, "BRMVPXT", 2))
     val engine = game.tfm(ENGINE)
 
     val p1 = game.tfm(PLAYER1)

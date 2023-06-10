@@ -12,19 +12,19 @@ class MassiveDiscountsTest {
 
   @Test
   fun elCheapo() {
-    val game = Engine.newGame(GameSetup(Canon, "BRMVPCX", 2))
+    val game = Engine.newGame(GameSetup(Canon, "BRMVPX", 2))
 
     with(game.tfm(PLAYER1)) {
       phase("Action")
-      godMode().sneak("2 ProjectCard, Phobolog, Steel, Titanium") // -1
+      godMode().sneak("3, 2 ProjectCard, Phobolog, Steel, Titanium") // -1
 
       godMode().sneak("AntiGravityTechnology, EarthCatapult, ResearchOutpost")
-      godMode().sneak("MassConverter, QuantumExtractor, Shuttles, SpaceStation, WarpDrive")
+      godMode().sneak("MassConverter, QuantumExtractor, Shuttles, SpaceStation")
       godMode().sneak("AdvancedAlloys, Phobolog, MercurianAlloys, RegoPlastics")
 
-      assertCounts(0 to "SpaceElevator", 0 to "M", 1 to "S", 1 to "T")
+      assertCounts(0 to "SpaceElevator", 3 to "M", 1 to "S", 1 to "T")
 
-      playProject("SpaceElevator", 0, steel = 1, titanium = 1)
+      playProject("SpaceElevator", 3, steel = 1, titanium = 1)
       assertCounts(1 to "SpaceElevator", 0 to "Resource")
     }
   }

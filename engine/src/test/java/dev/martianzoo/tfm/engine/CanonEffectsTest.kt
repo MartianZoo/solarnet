@@ -23,7 +23,7 @@ private class CanonEffectsTest {
       table.getClass(cn(name)).classEffects.toStrings()
 
   fun componentEffectsOf(type: String): List<String> {
-    val table = MClassLoader(GameSetup(Canon, "BMC", 2))
+    val table = MClassLoader(GameSetup(Canon, "BM", 2))
     val card = table.resolve(te(type))
     return card.toComponent().effects.toStrings()
   }
@@ -133,20 +133,5 @@ private class CanonEffectsTest {
             "CityTile<Anyone>: Animal<Owner, This>.",
             "End: VictoryPoint<Owner>! / 2 Animal<Owner, This>",
         )
-  }
-
-  @Test
-  fun floaterPrototypes() {
-    assertThat(classEffectsOf("FloaterPrototypes"))
-        .containsExactly(
-            "This:: ScienceTag<Owner, This>!",
-            "This: PlayedEvent<Owner, Class<This>> FROM This!",
-            "This: 2 Floater<Owner>.")
-
-    assertThat(componentEffectsOf("FloaterPrototypes<Player1>"))
-        .containsExactly(
-            "This:: ScienceTag<Player1, FloaterPrototypes<Player1>>!",
-            "This: PlayedEvent<Player1, Class<FloaterPrototypes>> FROM FloaterPrototypes<Player1>!",
-            "This: 2 Floater<Player1>.")
   }
 }

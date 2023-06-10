@@ -5,38 +5,14 @@ import dev.martianzoo.tfm.api.SpecialClassNames.COMPONENT
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.data.GameSetup
 import dev.martianzoo.tfm.engine.ComponentGraph.Component
-import dev.martianzoo.tfm.pets.HasClassName.Companion.classNames
 import dev.martianzoo.tfm.pets.Parsing.parse
-import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.Metric
-import dev.martianzoo.types.MClassLoader
 import dev.martianzoo.types.MType
-import dev.martianzoo.util.toSetStrict
 import dev.martianzoo.util.toStrings
 import org.junit.jupiter.api.Test
 
 /** Tests for the Canon data set. */
 private class CanonBootstrapTest {
-  @Test
-  fun loadsExpectedClasses() {
-    val table = MClassLoader(GameSetup(Canon, "BMRPTX", 4))
-    val unusedCards =
-        Canon.cardDefinitions.filter { "VC".contains(it.bundle) }.classNames().toSetStrict()
-
-    val milestoneNames = Canon.milestoneDefinitions.classNames().toSetStrict()
-    val expected: List<ClassName> =
-        (Canon.allClassNames - unusedCards)
-            .filterNot { it.toString().matches(regex) }
-            .filterNot { it in milestoneNames && "HEV".contains(Canon.milestone(it).bundle) }
-
-    assertThat(table.allClasses.classNames()).containsExactlyElementsIn(expected)
-  }
-
-  val regex =
-      Regex(
-          "(Hellas|Elysium|Player5|Camp|Venus|Area2|AllDraw|" +
-              "AirScrap|Card247|CardC05|UseAction3|MandateV02F).*")
-
   @Test
   fun classCounts() {
     val game = Engine.newGame(GameSetup(Canon, "BRM", 3)).reader

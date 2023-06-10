@@ -154,7 +154,7 @@ internal class Transformers @Inject constructor(val table: MClassTable) {
   public fun insertDefaults(context: Expression) =
       chain(insertGainRemoveDefaults(context), insertExpressionDefaults(context))
 
-  private fun insertGainRemoveDefaults(context: Expression): PetTransformer {
+  public fun insertGainRemoveDefaults(context: Expression): PetTransformer {
     return object : PetTransformer() {
       override fun <P : PetNode> transform(node: P): P {
         val result: PetNode =
@@ -211,7 +211,7 @@ internal class Transformers @Inject constructor(val table: MClassTable) {
     }
   }
 
-  private fun insertExpressionDefaults(context: Expression): PetTransformer {
+  public fun insertExpressionDefaults(context: Expression): PetTransformer {
     return object : PetTransformer() {
       override fun <P : PetNode> transform(node: P): P {
         if (node !is Expression) return transformChildren(node)

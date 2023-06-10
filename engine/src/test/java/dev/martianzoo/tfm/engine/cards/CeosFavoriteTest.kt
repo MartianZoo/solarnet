@@ -13,7 +13,7 @@ import org.junit.jupiter.api.assertThrows
 class CeosFavoriteTest {
   @Test
   fun ceosFavoriteProject() {
-    val game = Engine.newGame(GameSetup(Canon, "CVERB", 2))
+    val game = Engine.newGame(GameSetup(Canon, "VERB", 2))
 
     with(game.tfm(PLAYER1)) {
       godMode().manual("10 ProjectCard, ForcedPrecipitation")

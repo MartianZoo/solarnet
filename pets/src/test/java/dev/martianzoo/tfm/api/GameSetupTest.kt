@@ -23,8 +23,8 @@ private class GameSetupTest {
   fun good() {
     GameSetup(authority, "BM", 2)
     GameSetup(authority, "BE", 3)
-    GameSetup(authority, "BRMVPCX", 4)
-    GameSetup(authority, listOf("B", "M"), 5)
+    GameSetup(authority, "BRMVPX", 4)
+    GameSetup(authority, "BM", 5)
   }
 
   @Test
