@@ -49,9 +49,9 @@ private class ClassDeclarationTest {
     assertThat(decl.supertypes).containsExactly(sup)
     assertThat(decl.invariants).containsExactly(inv)
     assertThat(decl.effects).containsExactly(eff, act)
-    assertThat(decl.defaultsDeclaration.gainOnlySpecs).containsExactly(gain)
-    assertThat(decl.defaultsDeclaration.universalSpecs).containsExactly(univ)
-    assertThat(decl.defaultsDeclaration.gainIntensity).isEqualTo(Intensity.OPTIONAL)
+    assertThat(decl.defaultsDeclaration.gainOnly.specs).containsExactly(gain)
+    assertThat(decl.defaultsDeclaration.universal.specs).containsExactly(univ)
+    assertThat(decl.defaultsDeclaration.gainOnly.intensity).isEqualTo(Intensity.OPTIONAL)
     assertThat(decl.extraNodes).isEmpty()
 
     assertThat(decl.supertypes.classNames()).containsExactly(cn("Baz"))

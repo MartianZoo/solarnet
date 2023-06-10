@@ -2,6 +2,9 @@ package dev.martianzoo.tfm.data
 
 import dev.martianzoo.tfm.api.SpecialClassNames.CUSTOM
 import dev.martianzoo.tfm.data.ClassDeclaration.ClassKind.ABSTRACT
+import dev.martianzoo.tfm.data.ClassDeclaration.DefaultsDeclaration.DefaultKind.ALL_USAGES
+import dev.martianzoo.tfm.data.ClassDeclaration.DefaultsDeclaration.DefaultKind.GAIN_ONLY
+import dev.martianzoo.tfm.data.ClassDeclaration.DefaultsDeclaration.DefaultKind.REMOVE_ONLY
 import dev.martianzoo.tfm.pets.HasClassName
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.Effect
@@ -77,31 +80,40 @@ internal constructor(
   public val abstract = kind == ABSTRACT
 
   public data class DefaultsDeclaration(
-      val universalSpecs: List<Expression> = listOf(),
-      val gainOnlySpecs: List<Expression> = listOf(),
-      val removeOnlySpecs: List<Expression> = listOf(),
-      val gainIntensity: Intensity? = null,
-      val removeIntensity: Intensity? = null,
+      val universal: OneDefault = OneDefault(),
+      val gainOnly: OneDefault = OneDefault(),
+      val removeOnly: OneDefault = OneDefault(),
       val forClass: ClassName? = null,
   ) {
+    data class OneDefault(val specs: List<Expression> = listOf(), val intensity: Intensity? = null)
+
+    enum class DefaultKind { ALL_USAGES, GAIN_ONLY, REMOVE_ONLY }
+
+    fun default(kind: DefaultKind) =
+        when (kind) {
+          ALL_USAGES -> universal
+          GAIN_ONLY -> gainOnly
+          REMOVE_ONLY -> removeOnly
+        }
+
     companion object {
+      fun merge(ones: Collection<OneDefault>): OneDefault {
+        val deps = ones.map { it.specs }.firstOrNull { it.any() } ?: listOf()
+        val intensity = ones.firstNotNullOfOrNull { it.intensity }
+        return OneDefault(deps, intensity)
+      }
       fun merge(defs: Collection<DefaultsDeclaration>): DefaultsDeclaration {
-        val forClass: ClassName? = defs.mapNotNull { it.forClass }.singleOrNull()
-        val universal = defs.map { it.universalSpecs }.firstOrNull { it.any() } ?: listOf()
-        val gain = defs.map { it.gainOnlySpecs }.firstOrNull { it.any() } ?: listOf()
-        val remove = defs.map { it.removeOnlySpecs }.firstOrNull { it.any() } ?: listOf()
         return DefaultsDeclaration(
-            universalSpecs = universal,
-            gainOnlySpecs = gain,
-            removeOnlySpecs = remove,
-            gainIntensity = defs.firstNotNullOfOrNull { it.gainIntensity },
-            removeIntensity = defs.firstNotNullOfOrNull { it.removeIntensity },
-            forClass = forClass,
+            universal = merge(defs.map { it.universal }),
+            gainOnly = merge(defs.map { it.gainOnly }),
+            removeOnly = merge(defs.map { it.removeOnly }),
+            forClass = defs.mapNotNull { it.forClass }.singleOrNull()
         )
       }
     }
 
-    internal val allNodes: Set<PetNode> = (universalSpecs + gainOnlySpecs + removeOnlySpecs).toSet()
+    internal val allNodes: Set<PetNode> =
+        listOf(universal, gainOnly, removeOnly).flatMap { it.specs }.toSet()
   }
 
   public val allNodes: Set<PetNode> by lazy {

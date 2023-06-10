@@ -18,6 +18,7 @@ import dev.martianzoo.util.toSetStrict
  */
 public object Canon : Authority() {
 
+  // TODO break it up more...
   private val PETS_FILENAMES = setOf("components.pets", "player.pets")
 
   override val explicitClassDeclarations: Set<ClassDeclaration> by lazy {

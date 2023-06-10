@@ -415,12 +415,11 @@ internal class ReplSession(private val jline: JlineRepl? = null) {
           was not fully specified. So, after `task A` you can write a revised version of that
           instruction, as long as your revision is a more specific form of the instruction. For
           example, if the queued task is `-3 StandardResource<Anyone>?` you can revise it to
-          `-2 Plant<Player1>`.
+          `-2 Plant<Player1>`. If you leave out the id (like `A`) it will expect your revision to
+          match only one existing task.
         """
 
     override fun withArgs(args: String): List<String> {
-      val q = game.tasks
-
       val split = Regex("\\s+").split(args, 2)
       val first = split.firstOrNull() ?: throw UsageException()
       if (!first.matches(Regex("[A-Z]{1,2}"))) {

@@ -16,6 +16,7 @@ import dev.martianzoo.tfm.data.ClassDeclaration.ClassKind
 import dev.martianzoo.tfm.data.ClassDeclaration.ClassKind.ABSTRACT
 import dev.martianzoo.tfm.data.ClassDeclaration.ClassKind.CONCRETE
 import dev.martianzoo.tfm.data.ClassDeclaration.DefaultsDeclaration
+import dev.martianzoo.tfm.data.ClassDeclaration.DefaultsDeclaration.OneDefault
 import dev.martianzoo.tfm.pets.ClassParsing.Body.BodyElement
 import dev.martianzoo.tfm.pets.ClassParsing.Body.BodyElement.ActionElement
 import dev.martianzoo.tfm.pets.ClassParsing.Body.BodyElement.DefaultsElement
@@ -76,8 +77,7 @@ internal object ClassParsing : PetTokenizer() {
         intensity map { (expr, int) ->
           require(expr.refinement == null)
           DefaultsDeclaration(
-              gainOnlySpecs = expr.arguments,
-              gainIntensity = int,
+              gainOnly = OneDefault(expr.arguments, int),
               forClass = expr.className,
           )
         }
@@ -88,8 +88,7 @@ internal object ClassParsing : PetTokenizer() {
         intensity map { (expr, int) ->
           require(expr.refinement == null)
           DefaultsDeclaration(
-              removeOnlySpecs = expr.arguments,
-              removeIntensity = int,
+              removeOnly = OneDefault(expr.arguments, int),
               forClass = expr.className,
           )
         }
@@ -97,7 +96,7 @@ internal object ClassParsing : PetTokenizer() {
     private val allCasesDefault: Parser<DefaultsDeclaration> by lazy {
       Expression.parser() map {
         require(it.refinement == null)
-        DefaultsDeclaration(universalSpecs = it.arguments, forClass = it.className)
+        DefaultsDeclaration(universal = OneDefault(it.arguments), forClass = it.className)
       }
     }
 

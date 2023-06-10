@@ -46,6 +46,7 @@ internal val canonCustomClasses =
         CopyPrelude,
     )
 
+// TODO maybe stop called the reader `game` everywhere in this file
 private object ForceLoad : CustomClass("ForceLoad") {
   override fun translate(game: GameReader, ignoredClass: Type) = NoOp
 }
