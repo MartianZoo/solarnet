@@ -1,0 +1,208 @@
+{
+  "cards": [
+
+    // CrediCor
+    {
+      "id": "B01",
+      "bundle": "B",
+      "deck": "CORPORATION",
+      "immediate": "57",
+      "effects": [
+        "CardFront(HAS 20 cost): 4",
+        "UseAction<StandardProject(HAS 20 cost)>: 4"
+      ]
+    },
+
+    // Mining Guild
+    {
+      "id": "B06",
+      "bundle": "B",
+      "deck": "CORPORATION",
+      "tags": [ "BuildingTag", "BuildingTag" ],
+      "effects": [ "Tile<MarsArea(HAS Bonus<Class<Steel>> OR Bonus<Class<Titanium>>)>: PROD[Steel]" ]
+    },
+
+    // Vitor
+    {
+      "id": "PC5",
+      "bundle": "P",
+      "deck": "CORPORATION",
+      "tags": [ "EarthTag" ],
+      "immediate": "45",
+      "effects": [
+         "CardFront(HAS positiveVpIcon): 3",
+         "DoMandate<This>: Award"
+      ]
+    },
+
+    // Aridor
+    {
+      "id": "CC1",
+      "bundle": "C",
+      "deck": "CORPORATION",
+      "immediate": "40",
+      "effects": [
+         "Class<Tag>(OF Owner): PROD[1]",
+         "DoMandate<This>: NewColonyTile"
+      ]
+    },
+
+    // Stormcraft Incorporated
+    {
+      "id": "CC5",
+      "bundle": "C",
+      "deck": "CORPORATION",
+      "tags": [ "JovianTag" ]
+    },
+
+    // Splice Tactical Genomics
+    {
+      "id": "XC3",
+      "bundle": "X",
+      "deck": "CORPORATION",
+      "tags": [ "MicrobeTag" ],
+      "immediate": "44",
+      "effects": [
+        "MicrobeTag<Anyone>: 2",
+        "DoMandate<This>: ProjectCard"
+      ],
+      "components": [
+        "CLASS SpliceWatcher : Owned { HAS =1 This; SpliceTacticalGenomics<Anyone>: FriendOfSplice }",
+        "CLASS FriendOfSplice : Owned { MicrobeTag<CardFront>: 2 OR Microbe<CardFront> }"
+      ]
+    },
+
+    // Philares
+    {
+      "id": "XC6",
+      "bundle": "X",
+      "deck": "CORPORATION",
+      "tags": [ "BuildingTag" ],
+      "immediate": "47",
+      "effects": [
+        "Adjacency<OwnedTile<Owner>, OwnedTile<!Owner>> BY Anyone: StandardResource",
+        "DoMandate<This>: GreeneryTile"
+      ]
+    },
+
+    // Research Network
+    {
+      "id": "P28",
+      "bundle": "P",
+      "deck": "PRELUDE",
+      "immediate": "PROD[1], 3 ProjectCard, WildTag<This>"
+    },
+
+    // Mining Rights
+    {
+      "id": "067",
+      "bundle": "B",
+      "deck": "PROJECT",
+      "tags": [ "BuildingTag" ],
+      "immediate": "MrTile<LandArea(HAS Neighbor<OwnedTile>), PROD[LandArea(HAS MrTile, Bonus<Class<Steel>>): Steel OR LandArea(HAS MrTile, Bonus<Class<Titanium>>): Titanium]",
+      "components": [ "CLASS MrTile : SpecialTile" ],
+      "cost": 9,
+      "projectKind": "AUTOMATED"
+    },
+
+    // Mining Area
+    {
+      "id": "064",
+      "bundle": "R",
+      "deck": "PROJECT",
+      "tags": [ "BuildingTag" ],
+      "immediate": "MaTile, PROD[LandArea(HAS MaTile, Bonus<Class<Steel>>): Steel OR LandArea(HAS MaTile, Bonus<Class<Titanium>>): Titanium]",
+      "components": [ "CLASS MaTile : SpecialTile" ],
+      "cost": 4,
+      "projectKind": "AUTOMATED"
+    },
+
+    // Viral Enhancers
+    {
+      "id": "074",
+      "bundle": "R",
+      "deck": "PROJECT",
+      "tags": [ "ScienceTag", "MicrobeTag" ],
+      "effects": [ "CardFront(HAS BioTag): Plant OR CardResource<CardFront(HAS BioTag)>" ],
+      "cost": 9,
+      "projectKind": "ACTIVE"
+    },
+
+    // Research Coordination
+    {
+      "id": "P40",
+      "bundle": "P",
+      "deck": "PROJECT",
+      "immediate": "WildTag<This>",
+      "cost": 4,
+      "projectKind": "AUTOMATED"
+    },
+
+    // Spin-Off Department
+    {
+      "id": "C41",
+      "bundle": "C",
+      "deck": "PROJECT",
+      "tags": [ "BuildingTag" ],
+      "immediate": "PROD[2]",
+      "effects": [ "CardFront(HAS 20 cost): ProjectCard" ],
+      "cost": 10,
+      "projectKind": "ACTIVE"
+    },
+
+    // Self-Replicating Robots
+    {
+      "id": "210",
+      "bundle": "X",
+      "deck": "PROJECT",
+      "requirement": "2 ScienceTag",
+      "cost": 7,
+      "projectKind": "ACTIVE"
+    },
+
+    // Interplanetary Trade
+    {
+      "id": "X05",
+      "bundle": "X",
+      "deck": "PROJECT",
+      "tags": [ "SpaceTag" ],
+      "immediate": "PROD[1 / Class<Tag>(OF Owner)]",
+      "effects": [ "End: VictoryPoint" ],
+      "cost": 27,
+      "projectKind": "AUTOMATED"
+    },
+
+    // Advertising
+    {
+      "id": "X13",
+      "bundle": "X",
+      "deck": "PROJECT",
+      "tags": [ "EarthTag" ],
+      "effects": [ "CardFront(HAS 20 cost): PROD[1]" ],
+      "cost": 4,
+      "projectKind": "ACTIVE"
+    },
+
+    // Cutting Edge Technology
+    {
+      "id": "X18",
+      "bundle": "X",
+      "deck": "PROJECT",
+      "tags": [ "ScienceTag" ],
+      "effects": [ "PlayCard<Class<CardFront>(HAS requirement)>:: -2 Owed" ],
+      "cost": 11,
+      "projectKind": "ACTIVE"
+    },
+
+    // Diversity Support
+    {
+      "id": "X20",
+      "bundle": "X",
+      "deck": "PROJECT",
+      "immediate": "TerraformRating",
+      "requirement": "9 Class<Resource>(OF Owner)",
+      "cost": 1,
+      "projectKind": "EVENT"
+    }
+  ]
+}
