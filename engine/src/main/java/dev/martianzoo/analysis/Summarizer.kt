@@ -31,4 +31,10 @@ public class Summarizer @Inject constructor(val events: EventLog, val reader: Ga
     val minuses = changes.sumOf { extracted(it.removing, it) }
     return pluses - minuses
   }
+
+  fun allTypesEver(): List<Expression> {
+    return events.changesSinceSetup().flatMap {
+      listOfNotNull(it.change.gaining, it.change.removing)
+    }.distinct().sortedBy { it.toString() }
+  }
 }

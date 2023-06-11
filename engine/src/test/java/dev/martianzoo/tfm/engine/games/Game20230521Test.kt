@@ -1123,6 +1123,34 @@ class Game20230521Test {
 
     engine.assertSidebar(gen = 10, temp = 4, oxygen = 4, oceans = 6, venus = 24)
 
+    val summ = Summarizer(game)
+    assertThat(summ.net("Manutech", "Resource")).isEqualTo(92)
+    assertThat(summ.net("Production<P2>", "Resource<P2>")).isEqualTo(129)
+
+    assertThat(summ.net("EarthOffice", "Owed")).isEqualTo(-12)
+    assertThat(summ.net("AdvancedAlloys<P2>", "Owed")).isEqualTo(-12)
+    assertThat(summ.net("EarthCatapult<P2>", "Owed")).isEqualTo(-24)
+    assertThat(summ.net("QuantumExtractor", "Owed")).isEqualTo(-4) // oof
+
+    assertThat(summ.net("AquiferPumping", "OceanTile")).isEqualTo(4)
+    assertThat(summ.net("ArcticAlgae", "Plant")).isEqualTo(13)
+    assertThat(summ.net("OptimalAerobraking", "Resource")).isEqualTo(24)
+    assertThat(summ.net("SearchForLife", "Megacredit")).isEqualTo(-3)
+    assertThat(summ.net("SearchForLife", "Science")).isEqualTo(0)
+
+    // This is just silly
+    assertThat(summ.net("TR<P1>", "Megacredit<P1>")).isEqualTo(266)
+    assertThat(summ.net("TR<P1>", "Megacredit")).isEqualTo(266)
+    assertThat(summ.net("TR", "Megacredit<P1>")).isEqualTo(266)
+    assertThat(summ.net("TR<P2>", "Megacredit<P2>")).isEqualTo(251)
+    assertThat(summ.net("TR<P2>", "Megacredit")).isEqualTo(251)
+    assertThat(summ.net("TR", "Megacredit<P2>")).isEqualTo(251)
+
+    assertThat(summ.net("TR", "Megacredit")).isEqualTo(517)
+
+    assertThat(summ.net("TR<P1>", "Megacredit<P2>")).isEqualTo(0)
+    assertThat(summ.net("TR<P2>", "Megacredit<P1>")).isEqualTo(0)
+
     // Player2 played Hired Raiders
     // Player1's steel amount decreased by 2 stolen by Player2
     // Player2 used Convert Heat standard action
