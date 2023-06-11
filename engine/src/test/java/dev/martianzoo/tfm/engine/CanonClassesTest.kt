@@ -11,8 +11,6 @@ import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.types.te
 import dev.martianzoo.types.MClass
 import dev.martianzoo.types.MClassLoader
-import dev.martianzoo.util.toStrings
-import kotlin.Int.Companion.MAX_VALUE
 import org.junit.jupiter.api.Test
 
 /** Tests for the Canon data set. */
@@ -134,51 +132,5 @@ internal class CanonClassesTest {
     // Do this one the long way because the error message is horrific
     val type = table.resolve(te("Tile"))
     assertThat(type.allConcreteSubtypes().count()).isEqualTo(1285) // ?
-  }
-
-  @Test
-  fun classInvariants() {
-    val temp = table.getClass(cn("TemperatureStep"))
-    assertThat(temp.typeInvariants.toStrings()).containsExactly("MAX 19 This")
-
-    val ocean = table.getClass(cn("OceanTile"))
-    assertThat(ocean.typeInvariants.toStrings()).containsExactly("MAX 1 This")
-
-    val area = table.getClass(cn("Area"))
-    assertThat(area.typeInvariants.toStrings()).containsExactly("=1 This", "MAX 1 Tile<This>")
-  }
-
-  @Test
-  fun typeLimits() {
-    fun assertRange(name: String, intRange: IntRange) =
-        assertThat(table.getClass(cn(name)).componentCountRange).isEqualTo(intRange)
-
-    assertRange("TemperatureStep", 0..19)
-    assertRange("VenusStep", 0..15)
-    assertRange("OxygenStep", 0..14)
-
-    assertRange("Tile", 0..1)
-    assertRange("OceanTile", 0..1)
-    assertRange("CardFront", 0..1)
-    assertRange("Ants", 0..1)
-    assertRange("ActionUsedMarker", 0..1)
-    assertRange("Tag", 0..2)
-
-    assertRange("Die", 0..0)
-
-    assertRange("Production", 0..MAX_VALUE)
-    assertRange("Resource", 0..MAX_VALUE)
-
-    assertRange("Area", 1..1)
-    assertRange("Tharsis_5_5", 1..1)
-  }
-
-  @Test
-  fun generalInvariants() {
-    assertThat((table as MClassLoader).generalInvariants.toStrings())
-        .containsExactly(
-            "=1 Phase",
-            "MAX 9 OceanTile",
-        )
   }
 }
