@@ -15,6 +15,7 @@ import dev.martianzoo.tfm.engine.Engine.GameScoped
 import dev.martianzoo.tfm.engine.Transformers
 import dev.martianzoo.tfm.pets.HasClassName.Companion.classNames
 import dev.martianzoo.tfm.pets.ast.ClassName
+import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.pets.ast.PetNode
 import dev.martianzoo.tfm.pets.ast.Requirement
@@ -36,8 +37,8 @@ internal class MClassLoader(
   @Inject
   constructor(setup: GameSetup) : this(setup.authority) {
     val toLoad = setup.allDefinitions() + setup.players()
-    loadAll(toLoad.classNames() + OK + ClassName.cn("Production")) // TODO
-    if ("P" in setup.bundles) load(ClassName.cn("PreludePhase")) // TODO eww
+    loadAll(toLoad.classNames() + OK + cn("TerraformingMars")) // TODO
+    if ("P" in setup.bundles) load(cn("PreludePhase")) // TODO eww
     freeze()
   }
 

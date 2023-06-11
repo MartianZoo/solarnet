@@ -97,7 +97,6 @@ private object CreateAdjacencies : CustomClass("CreateAdjacencies") {
 private object CheckCardDeck : CustomClass("CheckCardDeck") {
   override fun translate(
       game: GameReader,
-      owner: Type,
       cardBackClassType: Type,
       cardFrontClassType: Type
   ): Instruction {

@@ -1,0 +1,47 @@
+ABSTRACT CLASS Card : Owned {                   // a quantity that stays fixed as cards are played
+  ABSTRACT CLASS CardBack[CB] {
+    CLASS CorporationCard                       // once a card is played and becomes a CardFront,
+    CLASS PreludeCard                           // nothing in the game ever cares what kind of a
+    CLASS ProjectCard                           // CardBack it used to be... well, that USED to be
+  }                                             // true until "Double Down" in Dec 2022
+
+  ABSTRACT CLASS CardFront[CF] {                // specific CardFronts come from `cards.json5`
+    HAS MAX 1 This                              // some variants might want to try duplicate
+                                                // cards, but it would likely break things
+    ABSTRACT CLASS ActiveCard
+    ABSTRACT CLASS AutomatedCard
+    ABSTRACT CLASS EventCard {
+      This: PlayedEvent<Class<This>> FROM This  // ideally this wouldn't happen until EOT
+    }
+
+    ABSTRACT CLASS ResourceCard<Class<CardResource>>
+  }
+
+  CLASS PlayedEvent<Class<CardFront>> [EVT] {   // Can't be Class<EventCard>, all thanks to PharmU
+    End: GetEventVps<Class<CardFront>>
+  }
+}
+
+CLASS GetEventVps<Class<CardFront>> : Owned, Custom // need Owned?
+
+ABSTRACT CLASS Cardbound<CardFront<Anyone>>: Owned<Anyone> {
+  ABSTRACT CLASS Tag : Atomized {
+    HAS MAX 2 This
+
+    CLASS BuildingTag[BUT], SpaceTag[SPT], CityTag[CIT], PowerTag[POT], ScienceTag[SCT]
+
+    ABSTRACT CLASS BioTag { CLASS PlantTag[PLT], MicrobeTag[MIT], AnimalTag[ANT] }
+
+    ABSTRACT CLASS PlanetTag { CLASS EarthTag[EAT], JovianTag[JOT], VenusTag[VET] }
+  }
+
+  // This ugly signature says: An Animal must go onto a ResourceCard<Class<Animal>>, etc.
+  ABSTRACT CLASS CardResource[CR] : Resource, Cardbound<ResourceCard<Class<This>>> {
+    DEFAULT +CardResource.
+    CLASS Animal[ANI], Microbe[MIC], Science[SCI], Floater[FLO], Asteroid[AST]
+  }
+}
+
+ABSTRACT CLASS NextCardEffect : Owned, Generational {
+  PlayCard:: -This!                             // TODO shouldn't need the bang
+}

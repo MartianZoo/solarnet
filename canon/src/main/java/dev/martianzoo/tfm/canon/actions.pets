@@ -1,0 +1,23 @@
+ABSTRACT CLASS HasActions {
+  ABSTRACT CLASS StandardAction { HAS =1 This }
+  ABSTRACT CLASS StandardProject { HAS =1 This }
+  ABSTRACT CLASS ActionCard : CardFront
+}
+
+ABSTRACT CLASS UseAction<HasActions> [UA] : Owned, Signal {
+  This: MAX 0 Mandate: Ok                       // Should always be doable at least by end
+  CLASS UseAction1[UA1], UseAction2[UA2], UseAction3[UA3]
+}
+
+CLASS ActionUsedMarker : Cardbound<ActionCard>, Generational { HAS MAX 1 This }
+
+CLASS NewTurn : Owned, Signal
+
+CLASS Pass : Owned, Generational { HAS MAX 1 This }
+
+ABSTRACT CLASS Mandate: Owned, HasActions {
+  MandateSignal:: UseAction1<This>
+  MandateSignal: -This!
+}
+
+CLASS MandateSignal : Owned, Signal

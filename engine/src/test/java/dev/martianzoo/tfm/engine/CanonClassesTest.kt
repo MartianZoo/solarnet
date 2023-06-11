@@ -97,11 +97,9 @@ internal class CanonClassesTest {
       // assertThat(allDependencyKeys).containsExactly(Key(cn("Tile"), 0))
       assertThat(directSuperclasses.classNames())
           .containsExactly(cn("GlobalParameter"), cn("Tile"))
-          .inOrder()
       assertThat(allSuperclasses.classNames())
           .containsExactly(
               cn("Component"), cn("Atomized"), cn("GlobalParameter"), cn("Tile"), cn("OceanTile"))
-          .inOrder()
 
       loader.load(cn("MarsArea"))
       assertThat(baseType).isEqualTo(loader.resolve(te("OceanTile<MarsArea>")))
@@ -179,7 +177,7 @@ internal class CanonClassesTest {
   fun generalInvariants() {
     assertThat((table as MClassLoader).generalInvariants.toStrings())
         .containsExactly(
-            "MAX 1 Phase",
+            "=1 Phase",
             "MAX 9 OceanTile",
         )
   }

@@ -67,6 +67,7 @@ private class CanonBootstrapTest {
     assertThat(theRest.toStrings())
         .containsExactly(
             "[Engine]",
+            "[TerraformingMars]",
             "[SetupPhase]",
             "[Tharsis]",
             "[Area021]", "[Area081]", "[FloatingInSpace]",

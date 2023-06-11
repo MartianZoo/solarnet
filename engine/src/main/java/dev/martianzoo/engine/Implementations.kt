@@ -262,8 +262,10 @@ constructor(
 
   fun tryTask(id: TaskId) {
     try {
-      prepareTask(id)
-      if (id in tasks) doTask(id)
+      timeline.atomic {
+        prepareTask(id)
+        if (id in tasks) doTask(id)
+      }
     } catch (e: AbstractException) {
       explainTask(id, "abstract")
     } catch (e: NotNowException) {

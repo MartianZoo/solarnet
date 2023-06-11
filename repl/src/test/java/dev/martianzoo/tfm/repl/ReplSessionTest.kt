@@ -108,7 +108,7 @@ private class ReplSessionTest {
           Z* [Player1] PlayCard<Player1, Class<ProjectCard>>! BY PlayCardSA BECAUSE 0000 (abstract) 
           New tasks pending:
           Z* [Player1] X Pay<Player1, Class<Megacredit>> FROM Megacredit<Player1>? BY Accept<Player1, Class<Megacredit>> BECAUSE 0000 (abstract) 
-          Z  [Player1] MAX 0 Barrier<Player1>: InventorsGuild<Player1> FROM ProjectCard<Player1>! BY PlayCard<Player1, Class<ProjectCard>, Class<InventorsGuild>> BECAUSE 0000
+          Z  [Player1] MAX 0 Barrier: InventorsGuild<Player1> FROM ProjectCard<Player1>! BY PlayCard<Player1, Class<ProjectCard>, Class<InventorsGuild>> BECAUSE 0000
           0000: +9 Pay<Player1, Class<Megacredit>> FROM Megacredit<Player1> FOR Player1 BY Accept<Player1, Class<Megacredit>> BECAUSE 0000
           0000: +InventorsGuild<Player1> FROM ProjectCard<Player1> FOR Player1 BY PlayCard<Player1, Class<ProjectCard>, Class<InventorsGuild>> BECAUSE 0000
           0000: +ScienceTag<Player1, InventorsGuild<Player1>> FOR Player1 BY InventorsGuild<Player1> BECAUSE 0000

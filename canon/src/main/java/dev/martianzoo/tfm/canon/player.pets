@@ -1,27 +1,16 @@
-// This file has player-specific game stuff
-
-// PLAYERS ---------------------------------------
-
 ABSTRACT CLASS Anyone[ANY] {                      // aka Player
   ABSTRACT CLASS Owner {
     HAS =1 This
 
-    This:: 20 TerraformRating<This>, GrossHack<This>, SuperHack<This>
+    This: 20 TerraformRating<This>, GrossHack<This>, SuperHack<This>
 
     CorporationPhase:: CorporationCard
     PreludePhase:: 2 PreludeCard
     ResearchPhase: 4 BuyCard<This>?
 
-    CLASS Player1[P1]
-    CLASS Player2[P2]
-    CLASS Player3[P3]
-    CLASS Player4[P4]
-    CLASS Player5[P5]
+    CLASS Player1[P1], Player2[P2], Player3[P3], Player4[P4], Player5[P5]
   }
 }
-
-
-// PLAYER PROPERTY / GENERAL ---------------------
 
 ABSTRACT CLASS Owned<Anyone> {
   DEFAULT Owned<Owner>                            // affects ALL refs to subtypes that don't give
@@ -33,192 +22,29 @@ ABSTRACT CLASS Owned<Anyone> {
     End: VictoryPoint
   }
 
-
-// TILES -----------------------------------------
-
-  ABSTRACT CLASS OwnedTile : Owned, Tile {
-    CLASS GreeneryTile[GT] : Tile<MarsArea> {
-      DEFAULT +GreeneryTile<LandArea(HAS Neighbor<OwnedTile>)> // should be `HAS?`
-
-      This: OxygenStep                            // for solo this will have to move
-      End: VictoryPoint
-    }
-
-    CLASS CityTile[CT] {
-      DEFAULT +CityTile<LandArea(HAS MAX 0 Neighbor<CityTile<Anyone>>)>
-      End: VictoryPoint / Adjacency<This, GreeneryTile<Anyone>>
-    }
-
-    ABSTRACT CLASS SpecialTile[ST] : Tile<MarsArea> {
-      DEFAULT +SpecialTile<LandArea>
-    }
-  }
-
-
-// RESOURCES -------------------------------------
-
   ABSTRACT CLASS Resource[RES] {
     ABSTRACT CLASS StandardResource[SR] {
-      CLASS Megacredit[M]
-      CLASS Steel[S]
-      CLASS Titanium[T]
-      CLASS Plant[P]
-      CLASS Energy[E] // { ProductionPhase:: Heat FROM This }
-      CLASS Heat[H]
+      CLASS Megacredit[M], Steel[S], Titanium[T], Plant[P], Energy[E], Heat[H]
     }
   }
 
-  CLASS SuperHack {
-    HAS MAX 1 This
+  CLASS Production<Class<StandardResource>> { Production2Phase: StandardResource }
 
+  ABSTRACT CLASS Milestone[MIL] { End: 5 VictoryPoint }
+
+  CLASS SuperHack { // TODO needs to be Owned?
+    HAS MAX 1 This
     ProductionPhase:: Heat / Energy, -Energy / Energy
   }
 
-  CLASS Production<Class<StandardResource>> {
-    Production2Phase: StandardResource
-  }
-
-
-// CARDS -----------------------------------------
-
-  ABSTRACT CLASS Card {                           // a quantity that stays fixed as cards are played
-    ABSTRACT CLASS CardBack[CB] {
-      CLASS CorporationCard                       // once a card is played and becomes a CardFront,
-      CLASS PreludeCard                           // nothing in the game ever cares what kind of a
-      CLASS ProjectCard                           // CardBack it used to be... well, that USED to be
-    }                                             // true until "Double Down" in Dec 2022
-
-    ABSTRACT CLASS CardFront[CF] {                // specific CardFronts come from `cards.json5`
-      HAS MAX 1 This                              // some variants might want to try duplicate
-                                                  // cards, but it would likely break things
-      ABSTRACT CLASS ActiveCard
-      ABSTRACT CLASS AutomatedCard
-      ABSTRACT CLASS EventCard {
-        This: PlayedEvent<Class<This>> FROM This  // ideally this wouldn't happen until EOT
-      }
-
-      ABSTRACT CLASS ActionCard : HasActions
-      ABSTRACT CLASS ResourceCard<Class<CardResource>>
-    }
-
-    CLASS PlayedEvent<Class<CardFront>> [EVT] {   // Can't be <EventCard>, all thanks to PharmU
-      End: GetEventVps<Class<CardFront>>
-    }
-  }
-
-  CLASS GetEventVps<Class<CardFront>> : Custom
-
-
-// THINGS ON CARDS -------------------------------
-
-  ABSTRACT CLASS Cardbound<CardFront<Anyone>>: Owned<Anyone> {
-    ABSTRACT CLASS Tag : Atomized {
-      HAS MAX 2 This                              // I mean this isn't strictly necessary but...
-
-      CLASS BuildingTag[BUT], SpaceTag[SPT]
-      CLASS CityTag[CIT], PowerTag[POT], ScienceTag[SCT]
-
-      ABSTRACT CLASS BioTag {                     // not really a game defined thing, but convenient
-        CLASS PlantTag[PLT], MicrobeTag[MIT], AnimalTag[ANT]
-      }
-      ABSTRACT CLASS PlanetTag {
-        CLASS EarthTag[EAT], JovianTag[JOT], VenusTag[VET]
-      }
-    }
-
-    // This ugly signature says: An Animal must go onto a ResourceCard<Class<Animal>>, etc.
-    ABSTRACT CLASS CardResource[CR] : Resource, Cardbound<ResourceCard<Class<This>>> {
-      DEFAULT +CardResource.
-
-      CLASS Animal[ANI], Microbe[MIC], Science[SCI], Floater[FLO], Asteroid[AST]
-      // All others are card-specific; see cards.json5
-    }
-
-    CLASS ActionUsedMarker : Cardbound<ActionCard>, Generational {
-      HAS MAX 1 This
-    }
-  }
-
-
-// MISC ------------------------------------------
-
-  ABSTRACT CLASS Milestone[MIL] {                 // specific ones loaded from `milestones.json5`
-    End: 5 VictoryPoint
-  }
-
-  CLASS NewTurn : Signal
-
-  CLASS Pass : Generational {
-    HAS MAX 1 This                                // Passing twice is impossible
-    NewTurn:: Die                                 // Can't get a turn once you have this
-  }
-
-  ABSTRACT CLASS UseAction<HasActions> [UA] : Signal {
-    This: MAX 0 Mandate: Ok                       // Should always be doable at least by end
-
-    CLASS UseAction1[UA1], UseAction2[UA2], UseAction3[UA3]
-  }
-
-  CLASS MandateSignal : Signal
-
-  ABSTRACT CLASS Mandate: HasActions {
-    MandateSignal:: UseAction1<This>
-    MandateSignal: -This!
-  }
-
-// PAYMENT MECHANICS -----------------------------
-
-  CLASS BuyCard : Signal { This: -3, ProjectCard } // Hack for TerraLabs, but being able to delay
-                                                   // the -3 could potentially be exploited. TODO
-
-  CLASS PlayCard<Class<CardBack>, Class<CardFront>> : Signal {
-    This:: CheckCardDeck<Class<CardBack>, Class<CardFront>>
-    This:: CheckCardRequirement<Class<CardFront>>
-    This:: HandleCardCost<Class<CardBack>, Class<CardFront>>
-    This: MAX 0 Barrier: CardFront FROM CardBack
-  }
-
-  CLASS CheckCardDeck<Class<CardBack>, Class<CardFront>> : Custom
-  CLASS CheckCardRequirement<Class<CardFront>> : Custom
-  CLASS HandleCardCost<Class<CardBack>, Class<CardFront>> : Custom
-
-  CLASS PlayTag<Class<Tag>> : Signal              // Triggers discounts and Accepts
-
-  ABSTRACT CLASS Barrier : Temporary
-
-  ABSTRACT CLASS NextCardEffect : Generational {
-    PlayCard:: -This!                             // TODO shouldn't need the bang
-  }
-
-  ABSTRACT CLASS PaymentMechanic<Class<Resource>> : Temporary {
-    CLASS Owed : Barrier {
-      DEFAULT +Owed<Class<Megacredit>>
-      DEFAULT -Owed<Class<Megacredit>>.
-      X This:: Accept<Class<Resource>>
-    }
-
-    CLASS Accept : Signal {                       // created in response to PlayTag or the actions
-      HAS MAX 1 This                              // on 4 special cards.
-      DEFAULT +Accept.
-      This: X Pay<Class<Resource>> FROM Resource? // the ? is essential; X is defined to be positive
-    }                                             // TODO currently removing it still works - bad
-
-    CLASS Pay : Signal {                          // used like `8 Pay<Class<Heat>> FROM Heat`, but
-      DEFAULT +Pay<Class<Megacredit>>             // also cards can pay in response to signals
-      This:: -Owed<Class<Resource>>
-    }
-  }
-
-
-// DISGUSTING HACKS ------------------------------
-
-  // Because we can't have a "negative component" in the game, we have to choose between various
-  // extremely ugly hacks. This one is actually not that bad; it confines the damage to just
-  // Specialist, Generalist, and Robinson. But it is bug-prone. However, all the alternatives
-  // appear to be worse. This makes `PROD[1]` extremely dodgy -- almost worth taking steps to ban,
-  // except that it does actually work just fine for Banker anyway.
+  // Because of our model that the game state is "just a bag of things", you can't have a negative
+  // number of any kind of thing. But in TfM megacredit production can be negative. Uh oh. There are
+  // a few ways we could hack around this. This hack is actually not that bad; it confines the
+  // damage to mostly just Specialist, Generalist, and Robinson. It is bug-prone, but all the
+  // alternatives appear to be worse. This makes `PROD[1]` extremely dodgy -- almost worth taking
+  // steps to ban, except that it does actually work just fine for Banker anyway.
   CLASS GrossHack : System {
-    This:: PROD[5]
+    This: PROD[5]
     ProductionPhase: -5!
   }
 }

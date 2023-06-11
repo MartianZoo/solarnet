@@ -1,0 +1,30 @@
+ABSTRACT CLASS Component {                             // the single root of the whole hierarchy
+  DEFAULT +Component!
+  DEFAULT -Component!
+}
+
+ABSTRACT CLASS System {
+  CLASS Class<Component> { HAS =1 This }               // magic rule: only a single name can go
+                                                       // inside the <>; the `Class<Foo>` type is
+                                                       // abstract iff the Foo class is abstract
+  ABSTRACT CLASS Temporary {
+    ABSTRACT CLASS Signal {                            // you'll never observe it existing, but
+      This:: -This!                                    // things can still be triggered by it
+
+      CLASS Ok                                         // magic rule: this should not be allowed to
+                                                       // trigger anything
+      CLASS Die { HAS MAX 0 This }                     // impossible to create, which is the point
+    }
+    ABSTRACT CLASS Barrier
+  }
+
+  CLASS Engine {                                       // this is the very first component created,
+    HAS MAX 1 This                                     // and kicks everything else off
+  }
+}
+
+ABSTRACT CLASS Custom                                  // these never *actually* get created
+
+ABSTRACT CLASS Atomized                                // magic rule: see `Transformers.atomizer()`
+
+CLASS ForceLoad<Class>: Custom

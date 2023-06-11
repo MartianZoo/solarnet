@@ -1,0 +1,55 @@
+ABSTRACT CLASS MarsMap { HAS =1 This }
+
+ABSTRACT CLASS Area {
+  HAS =1 This
+  HAS MAX 1 Tile<This>                                 // circular reference is un-ideal, but...
+
+  ABSTRACT CLASS MarsArea[MA] {                        // specific areas loaded from `maps.json5`
+    Tile<This>:: CreateAdjacencies<This>
+
+    ABSTRACT CLASS LandArea[LA] {
+      ABSTRACT CLASS VolcanicArea[VA]
+    }
+    ABSTRACT CLASS WaterArea[WA]
+    ABSTRACT CLASS NoctisArea[NA]
+  }
+  ABSTRACT CLASS RemoteArea[RA]
+}
+
+ABSTRACT CLASS Tile<Area> {
+  HAS MAX 1 This
+
+  CLASS OceanTile[OT] : Tile<MarsArea>, GlobalParameter {
+    HAS MAX 9 OceanTile                                // `HAS MAX 9 This` wouldn't work!
+    DEFAULT +OceanTile<WaterArea>
+                                                       // We could almost count all adjacencies,
+    ForwardAdjacency<This, Tile>: 2                    // but then the tile would trigger itself
+  }
+
+  ABSTRACT CLASS OwnedTile : Owned, Tile {             // TODO removing Owned breaks shit
+    CLASS GreeneryTile[GT] : Tile<MarsArea> {
+      DEFAULT +GreeneryTile<LandArea(HAS Neighbor<OwnedTile>)> // should be `HAS?`
+
+      This: OxygenStep
+      End: VictoryPoint
+    }
+
+    CLASS CityTile[CT] {
+      DEFAULT +CityTile<LandArea(HAS MAX 0 Neighbor<CityTile<Anyone>>)>
+      End: VictoryPoint / Adjacency<This, GreeneryTile<Anyone>>
+    }
+
+    ABSTRACT CLASS SpecialTile[ST] : Tile<MarsArea> {
+      DEFAULT +SpecialTile<LandArea>
+    }
+  }
+}
+
+CLASS Neighbor<Tile<MarsArea>, MarsArea> [NBR] : System
+
+ABSTRACT CLASS Adjacency<Tile, Tile> : System {
+  Die: ForceLoad<Class<BackwardAdjacency>>
+  CLASS ForwardAdjacency, BackwardAdjacency
+}
+
+CLASS CreateAdjacencies<MarsArea>: Custom

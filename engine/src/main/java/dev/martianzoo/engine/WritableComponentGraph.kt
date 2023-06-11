@@ -97,7 +97,7 @@ internal class WritableComponentGraph @Inject constructor(internal val effector:
         actual = min(actual, removable)
       }
 
-      // MAX 1 Phase, MAX 9 OceanTile
+      // MAX 9 OceanTile
       for (it: Requirement in (table as MClassLoader).generalInvariants) {
         // TODO forbid refinements?
         require(it !is Requirement.Transform)

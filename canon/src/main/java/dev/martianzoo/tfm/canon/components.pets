@@ -3,48 +3,18 @@
 // every other class its definition refers to to be defined as well (with the possible exception of
 // effect *triggers*, since we can reason tht those triggers would simply never happen anyway.
 
-// This file has game stuff that isn't player-specific. See player.pets for the rest.
+CLASS TerraformingMars : System {
+  HAS =1 This
 
-ABSTRACT CLASS Component {                             // the single root of the whole hierarchy
-  DEFAULT +Component!
-  DEFAULT -Component!
+  This: SetupPhase
+
+  PlayTag<Class<BuildingTag>>:: Accept<Class<Steel>>
+  PlayTag<Class<SpaceTag>>:: Accept<Class<Titanium>>
+  Pay<Class<Steel>>:: -2 Owed
+  Pay<Class<Titanium>>:: -3 Owed                       // should be innocuous for TradeSA...
+
+  Die: ForceLoad<Class<ActionPhase>>, ForceLoad<Class<EndPhase>>, ForceLoad<Class<Production>>
 }
-
-ABSTRACT CLASS System {
-  CLASS Class<Component> { HAS =1 This }               // magic rule: only a single name can go
-                                                       // inside the <>; the `Class<Foo>` type is
-                                                       // abstract iff the Foo class is abstract
-  ABSTRACT CLASS Temporary {
-    ABSTRACT CLASS Signal {                            // you'll never observe it existing, but
-      This:: -This!                                    // things can still be triggered by it
-
-      CLASS Ok                                         // magic rule: this should not be allowed to
-                                                       // trigger anything
-      CLASS Die { HAS MAX 0 This }                     // impossible to create, which is the point
-    }
-  }
-
-  CLASS Engine {                                       // this is the very first component created,
-    HAS MAX 1 This                                     // and kicks everything else off
-
-    This:: SetupPhase
-    Die: ForceLoad<Class<ActionPhase>>, ForceLoad<Class<EndPhase>>
-
-    PlayTag<Class<BuildingTag>>:: Accept<Class<Steel>>
-    PlayTag<Class<SpaceTag>>:: Accept<Class<Titanium>>
-
-    Pay<Class<Steel>>:: -2 Owed
-    Pay<Class<Titanium>>:: -3 Owed                     // should be innocuous for TradeAction...
-  }
-}
-
-ABSTRACT CLASS Custom                                  // these never *actually* get created
-
-CLASS ForceLoad<Class>: Custom
-
-ABSTRACT CLASS Atomized                                // magic rule: see `Transformers.atomizer()`
-
-// GLOBAL PARAMETERS ----------------------------------
 
 ABSTRACT CLASS GlobalParameter : Atomized {
   DEFAULT +GlobalParameter.                            // by default gains/removes are "if possible"
@@ -69,65 +39,14 @@ ABSTRACT CLASS GlobalParameter : Atomized {
     This IF =4 This: ProjectCard
     This IF =8 This: TerraformRating
   }
-
-  CLASS OceanTile[OT] : Tile<MarsArea> {
-    HAS MAX 9 OceanTile                                // `HAS MAX 9 This` wouldn't work!
-    DEFAULT +OceanTile<WaterArea>
-                                                       // We could almost count all adjacencies,
-    ForwardAdjacency<This, Tile>: 2                    // but then the tile would trigger itself
-  }
-}
-
-
-// MAPS AND TILES -------------------------------------
-
-ABSTRACT CLASS MarsMap {                               // Hellas etc. are loaded from `maps.json5`
-  HAS =1 This
-}
-
-ABSTRACT CLASS Area {
-  HAS =1 This
-  HAS MAX 1 Tile<This>                                 // circular reference is un-ideal, but...
-
-  ABSTRACT CLASS MarsArea[MA] {                        // specific areas loaded from `maps.json5`
-    Tile<This>:: CreateAdjacencies<This>
-
-    ABSTRACT CLASS LandArea[LA] {
-      ABSTRACT CLASS VolcanicArea[VA]
-    }
-    ABSTRACT CLASS WaterArea[WA]
-    ABSTRACT CLASS NoctisArea[NA]
-  }
-  ABSTRACT CLASS RemoteArea[RA]
-}
-
-CLASS CreateAdjacencies<MarsArea>: Custom
-
-ABSTRACT CLASS Tile<Area> { HAS MAX 1 This }
-
-CLASS Neighbor<Tile<MarsArea>, MarsArea> [NBR] : System
-
-ABSTRACT CLASS Adjacency<Tile, Tile> : System {
-  Die: ForceLoad<Class<BackwardAdjacency>>
-  CLASS ForwardAdjacency, BackwardAdjacency
-}
-
-
-// WORKFLOW-ISH ---------------------------------------
-
-ABSTRACT CLASS HasActions {                            // specific actions come from `actions.json5`
-  ABSTRACT CLASS StandardAction { HAS =1 This }
-  ABSTRACT CLASS StandardProject { HAS =1 This }
+  // OceanTile is in maps-tiles.pets
 }
 
 CLASS Generation { HAS 1 This }
-
-ABSTRACT CLASS Generational {                          // things that disappear between gens
-  Generation:: -This.                                  // <-- and look, there they go
-}
+ABSTRACT CLASS Generational { Generation:: -This. }    // things that disappear between gens
 
 ABSTRACT CLASS Phase {
-  HAS MAX 1 Phase
+  HAS =1 Phase                                         // weird that this works, but it does
 
   CLASS SetupPhase
   CLASS CorporationPhase {
@@ -148,5 +67,3 @@ ABSTRACT CLASS Phase {
 }
 
 CLASS End : Signal
-
-// Player-specific components are in `player.pets`
