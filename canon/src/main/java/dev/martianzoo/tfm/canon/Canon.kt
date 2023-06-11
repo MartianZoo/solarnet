@@ -21,7 +21,7 @@ public object Canon : Authority() {
   // TODO break it up more...
   private val PETS_FILENAMES = setOf(
       "system.pets",
-      "components.pets",
+      "global.pets",
       "maps-tiles.pets",
       "player.pets",
       "cards.pets",
