@@ -15,8 +15,7 @@ public class MutableGrid<E>(private val rows: List<List<E?>>) : Grid<E>, Abstrac
   }
 
   fun set(rowIndex: Int, columnIndex: Int, value: E): E? {
-    @Suppress("UNCHECKED_CAST")
-    val row = row(rowIndex) as MutableList<E>
+    @Suppress("UNCHECKED_CAST") val row = row(rowIndex) as MutableList<E>
     return row.set(columnIndex, value)
   }
 

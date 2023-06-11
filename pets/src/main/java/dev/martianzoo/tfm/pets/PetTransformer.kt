@@ -65,8 +65,7 @@ public abstract class PetTransformer protected constructor() {
    */
   protected fun <P : PetNode> transformChildren(node: P): P {
     // You can see below why we need these method names to be as short as possible...
-    @Suppress("UNCHECKED_CAST")
-    fun <P : PetNode?> x(node: P): P = node?.let(::transform) as P
+    @Suppress("UNCHECKED_CAST") fun <P : PetNode?> x(node: P): P = node?.let(::transform) as P
     fun <P : PetNode> x(nodes: Iterable<P>): List<P> = nodes.map(::x)
     fun <P : PetNode> x(nodes: Set<P>): Set<P> = x(nodes as Iterable<P>).toSetStrict()
 

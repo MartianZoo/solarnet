@@ -99,7 +99,6 @@ interface Gameplay {
     fun turn(body: BodyLambda = {}): TaskResult
 
     fun turn2(body: BodyLambda = {}): TaskResult
-
   }
 
   // Green mode
@@ -110,7 +109,6 @@ interface Gameplay {
     fun beginManual(initialInstruction: String, body: BodyLambda = {}): TaskResult
 
     fun finish(body: BodyLambda = {}): TaskResult
-
   }
 
   interface OperationBody {
@@ -132,7 +130,6 @@ interface Gameplay {
 
     /** Removes a task for any reason or no reason at all. */
     fun dropTask(taskId: TaskId): TaskRemovedEvent
-
   }
 
   // Red

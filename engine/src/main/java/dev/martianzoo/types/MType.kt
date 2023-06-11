@@ -120,9 +120,7 @@ internal constructor(
     return info.has(requirement)
   }
 
-  private val asComponent: Component? by lazy {
-    if (abstract) null else Component(this)
-  }
+  private val asComponent: Component? by lazy { if (abstract) null else Component(this) }
 
   fun toComponent(): Component {
     require(!abstract)

@@ -41,6 +41,7 @@ constructor(
     /** Higher-level querying of game state (i.e. in Pets language). */
     public val reader: GameReader,
 
+    /** Classes loaded in response to this game setup. */
     public val classes: MClassTable,
 ) {
 

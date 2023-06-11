@@ -50,10 +50,8 @@ public class TfmGameplay(
     }
   }
 
-  fun playProject(
-      cardName: String,
-      body: BodyLambda = {}
-  ): Nothing = TODO("this does nothing for now, must specify some cost")
+  fun playProject(cardName: String, body: BodyLambda = {}): Nothing =
+      TODO("this does nothing for now, must specify some cost")
 
   fun playProject(
       cardName: String,

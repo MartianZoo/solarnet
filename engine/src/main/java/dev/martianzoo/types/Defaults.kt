@@ -13,8 +13,8 @@ internal data class Defaults(
 ) {
   companion object {
     /**
-     * Determines the [Defaults] for this class, taking into account its own declaration and that
-     * of all its superclasses.
+     * Determines the [Defaults] for this class, taking into account its own declaration and that of
+     * all its superclasses.
      */
     fun forClass(mclass: MClass): Defaults {
       val allUsagesDeps: DependencySet = gatherDefaultDeps(mclass, DefaultKind.ALL_USAGES)
@@ -37,8 +37,7 @@ internal data class Defaults(
     ): T? {
       fun extractFromClass(c: MClass): T? = extractor(c.declaration.defaultsDeclaration)
 
-      val haveDefault: List<MClass> =
-          mclass.allSuperclasses.filter { extractFromClass(it) != null }
+      val haveDefault: List<MClass> = mclass.allSuperclasses.filter { extractFromClass(it) != null }
 
       // Anything that was overridden by *any* of our superclasses must be discarded
       val lasdfasdf = haveDefault.flatMap { it.properSuperclasses }.toSet()
@@ -57,8 +56,7 @@ internal data class Defaults(
             inheritDefault(
                 mclass,
                 { toDependencyMap(it.default(kind).specs).getIfPresent(key) },
-                { deps: List<Dependency> -> glb(deps)!! }
-            )
+                { deps: List<Dependency> -> glb(deps)!! })
           }
       return DependencySet.of(deps)
     }

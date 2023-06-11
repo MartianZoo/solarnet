@@ -32,9 +32,8 @@ class SulphurEatingBacteriaTest {
       assertCounts(4 to "Microbe", 3 to "Megacredit")
 
       cardAction2("C251") {
-        fun assertTaskFails(task: String, desc: String) = assertThrows<Exception>(desc) {
-          doTask(task)
-        }
+        fun assertTaskFails(task: String, desc: String) =
+            assertThrows<Exception>(desc) { doTask(task) }
 
         assertTaskFails("-Microbe<C251> THEN 4", "greed")
         assertTaskFails("-Microbe<C251> THEN 2", "shortchanged")

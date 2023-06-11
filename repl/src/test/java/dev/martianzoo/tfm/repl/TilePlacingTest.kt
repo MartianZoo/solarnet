@@ -17,9 +17,7 @@ class TilePlacingTest {
     with(game.tfm(PLAYER2)) {
       phase("Action")
       godMode().manual("CityTile<M46>, CityTile<M44>, 25")
-      assertThrows<NarrowingException> {
-        stdProject("CitySP") { doTask("CityTile<M34>") }
-      }
+      assertThrows<NarrowingException> { stdProject("CitySP") { doTask("CityTile<M34>") } }
     }
   }
 
@@ -40,7 +38,9 @@ class TilePlacingTest {
       phase("Action")
 
       godMode().manual("666, CityTile<M86>") // shown as [] in comment below
-      godMode().manual("CityTile<P2, M67>") // try to fool it by having an opponent tile at the XX below
+
+      // try to fool it by having an opponent tile at the XX below
+      godMode().manual("CityTile<P2, M67>")
 
       // Use the standard project so that the placement rule is in effect
       stdProject("GreenerySP") {

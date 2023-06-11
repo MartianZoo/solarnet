@@ -28,10 +28,10 @@ internal class PrepareTest {
 
   fun preprocess(instr: Instruction): Instruction {
     return PetTransformer.chain(
-        xers.deprodify(),
-        xers.insertDefaults(),
-        replaceOwnerWith(PLAYER1),
-    )
+            xers.deprodify(),
+            xers.insertDefaults(),
+            replaceOwnerWith(PLAYER1),
+        )
         .transform(instr)
   }
 

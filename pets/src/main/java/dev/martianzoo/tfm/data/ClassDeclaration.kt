@@ -87,7 +87,11 @@ internal constructor(
   ) {
     data class OneDefault(val specs: List<Expression> = listOf(), val intensity: Intensity? = null)
 
-    enum class DefaultKind { ALL_USAGES, GAIN_ONLY, REMOVE_ONLY }
+    enum class DefaultKind {
+      ALL_USAGES,
+      GAIN_ONLY,
+      REMOVE_ONLY
+    }
 
     fun default(kind: DefaultKind) =
         when (kind) {
@@ -107,7 +111,7 @@ internal constructor(
             universal = merge(defs.map { it.universal }),
             gainOnly = merge(defs.map { it.gainOnly }),
             removeOnly = merge(defs.map { it.removeOnly }),
-            forClass = defs.mapNotNull { it.forClass }.singleOrNull()
+            forClass = defs.mapNotNull { it.forClass }.singleOrNull(),
         )
       }
     }

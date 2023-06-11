@@ -112,8 +112,7 @@ internal object ClassParsing : PetTokenizer() {
 
   internal object Declarations {
     private val kind: Parser<ClassKind> =
-        (_abstract and _class asJust ABSTRACT) or
-        (_class asJust CONCRETE)
+        (_abstract and _class asJust ABSTRACT) or (_class asJust CONCRETE)
 
     private val bodyElement = parser { bodyElementExceptNestedClasses or nestedGroup }
 

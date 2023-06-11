@@ -186,8 +186,7 @@ constructor(
 
     if (g?.abstract == true) { // I guess otherwise it'll fail somewhere else...
       val missing =
-          g.dependencies.typeDependencies.map { it.boundType }
-              .filter { !reader.containsAny(it) }
+          g.dependencies.typeDependencies.map { it.boundType }.filter { !reader.containsAny(it) }
       if (missing.any()) throw DependencyException(missing)
       g = g.allConcreteSubtypes().singleOrNull() ?: g
 

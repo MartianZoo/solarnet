@@ -67,8 +67,7 @@ class RobinsonIndustriesTest {
       cardAction1("RobinsonIndustries") {
         assertThat(tasks.extract { "${it.instruction}" })
             .containsExactly(
-                "Production<Player1, Class<Megacredit>>! OR Production<Player1, Class<Titanium>>!"
-            )
+                "Production<Player1, Class<Megacredit>>! OR Production<Player1, Class<Titanium>>!")
         doTask("PROD[1]")
         assertProds(1 to "M", 1 to "S", 0 to "T", 1 to "P", 1 to "E", 1 to "H")
         throw AbortOperationException()
@@ -81,9 +80,7 @@ class RobinsonIndustriesTest {
       }
 
       assertThrows<NarrowingException> {
-        cardAction1("RobinsonIndustries") {
-          doTask("PROD[Steel]")
-        }
+        cardAction1("RobinsonIndustries") { doTask("PROD[Steel]") }
       }
     }
   }

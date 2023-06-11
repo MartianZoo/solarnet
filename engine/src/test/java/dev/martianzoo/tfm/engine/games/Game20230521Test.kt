@@ -33,12 +33,12 @@ class Game20230521Test {
     val p2 = game.tfm(PLAYER2)
 
     /*
-         The // comments below are log messages taken directly from the herokuapp.
-         After every generation is a giant block of assertions, which use the
-         numbers I see in the herokuapp game. So this is basically a parity test.
+        The // comments below are log messages taken directly from the herokuapp.
+        After every generation is a giant block of assertions, which use the
+        numbers I see in the herokuapp game. So this is basically a parity test.
 
-         I had to cheat in a couple places; search for TODO or godMode().
-     */
+        I had to cheat in a couple places; search for TODO or godMode().
+    */
 
     fun TaskResult.expect(string: String) = assertNetChanges(this, engine, string)
 
@@ -1122,7 +1122,6 @@ class Game20230521Test {
     }
 
     engine.assertSidebar(gen = 10, temp = 4, oxygen = 4, oceans = 6, venus = 24)
-
 
     // Player2 played Hired Raiders
     // Player1's steel amount decreased by 2 stolen by Player2

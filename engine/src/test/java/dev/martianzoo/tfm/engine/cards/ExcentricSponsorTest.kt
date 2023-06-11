@@ -18,9 +18,7 @@ class ExcentricSponsorTest {
       playCorp("Ecoline", 4)
       phase("Prelude")
 
-      playPrelude("ExcentricSponsor") {
-        playProject("NitrogenRichAsteroid", 6)
-      }
+      playPrelude("ExcentricSponsor") { playProject("NitrogenRichAsteroid", 6) }
 
       assertCounts(0 to "Owed", 18 to "M", 1 to "ExcentricSponsor", 1 to "PlayedEvent")
     }

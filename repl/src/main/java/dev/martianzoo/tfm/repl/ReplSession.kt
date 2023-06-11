@@ -435,22 +435,23 @@ internal class ReplSession(private val jline: JlineRepl? = null) {
             null
           }
 
-      val result: TaskResult = when (rest) {
-        "drop" -> {
-          access().dropTask(id)
-          return listOf("Task $id deleted")
-        }
-        "prepare" -> {
-          tfm.prepareTask(id)
-          return tfm.game.tasks.extract { "$it" }
-        }
-        null -> tfm.tryTask(id)
-        else ->
-              tfm.game.timeline.atomic {
-                tfm.reviseTask(id, rest)
-                if (id in game.tasks) tfm.tryTask(id)
-              }
-      }
+      val result: TaskResult =
+          when (rest) {
+            "drop" -> {
+              access().dropTask(id)
+              return listOf("Task $id deleted")
+            }
+            "prepare" -> {
+              tfm.prepareTask(id)
+              return tfm.game.tasks.extract { "$it" }
+            }
+            null -> tfm.tryTask(id)
+            else ->
+                tfm.game.timeline.atomic {
+                  tfm.reviseTask(id, rest)
+                  if (id in game.tasks) tfm.tryTask(id)
+                }
+          }
       return describeExecutionResults(result)
     }
   }
@@ -610,12 +611,14 @@ internal class ReplSession(private val jline: JlineRepl? = null) {
     override fun withArgs(args: String): List<String> {
       val gains: List<Instruction> = split(Parsing.parse(args)).instructions
 
-      val ins = Multi.create(gains.map {
-        val sex = (it as Gain).scaledEx
-        val currency = sex.expression
-        val pay = cn("Pay").of(CLASS.of(currency))
-        Transmute(SimpleFrom(pay, currency), sex.scalar)
-      })
+      val ins =
+          Multi.create(
+              gains.map {
+                val sex = (it as Gain).scaledEx
+                val currency = sex.expression
+                val pay = cn("Pay").of(CLASS.of(currency))
+                Transmute(SimpleFrom(pay, currency), sex.scalar)
+              })
       return TaskCommand().withArgs(ins.toString())
     }
   }

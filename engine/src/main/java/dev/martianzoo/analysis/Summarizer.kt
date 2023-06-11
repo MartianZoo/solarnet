@@ -12,8 +12,7 @@ import javax.inject.Inject
 public class Summarizer @Inject constructor(val events: EventLog, val reader: GameReader) {
   constructor(game: Game) : this(game.events, game.reader)
 
-  fun net(byType: String, ofType: String): Int =
-      net(parse<Expression>(byType), parse(ofType))
+  fun net(byType: String, ofType: String): Int = net(parse<Expression>(byType), parse(ofType))
 
   fun net(byType: Expression, ofType: Expression): Int =
       net(reader.resolve(byType), reader.resolve(ofType))

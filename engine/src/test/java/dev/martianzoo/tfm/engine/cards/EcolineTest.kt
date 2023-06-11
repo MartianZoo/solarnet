@@ -29,9 +29,7 @@ class EcolineTest {
       stdAction("ConvertPlantsSA") { doTask("GreeneryTile<M42>") }
       assertCounts(7 to "Plant")
 
-      stdAction("ConvertPlantsSA") {
-        doTask("GreeneryTile<M32>")
-      }
+      stdAction("ConvertPlantsSA") { doTask("GreeneryTile<M32>") }
       assertCounts(0 to "Plant")
 
       godMode().sneak("6 Plant")

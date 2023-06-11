@@ -24,21 +24,25 @@ class SupercapacitorsTest {
       phase("Production")
 
       assertCounts(
-          20 to "Megacredit", 0 to "Steel", 0 to "Titanium",
-          0 to "Plant", 3 to "Energy", 9 to "Heat"
-      )
+          20 to "Megacredit",
+          0 to "Steel",
+          0 to "Titanium",
+          0 to "Plant",
+          3 to "Energy",
+          9 to "Heat")
 
       phase("Action")
       playProject("Supercapacitors", 4)
 
-      phase("Production") {
-        p1.doTask("2 Heat FROM Energy!")
-      }
+      phase("Production") { p1.doTask("2 Heat FROM Energy!") }
 
       assertCounts(
-          37 to "Megacredit", 0 to "Steel", 0 to "Titanium",
-          0 to "Plant", 4 to "Energy", 16 to "Heat"
-      )
+          37 to "Megacredit",
+          0 to "Steel",
+          0 to "Titanium",
+          0 to "Plant",
+          4 to "Energy",
+          16 to "Heat")
     }
   }
 }

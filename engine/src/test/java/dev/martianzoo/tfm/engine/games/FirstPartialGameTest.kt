@@ -44,7 +44,7 @@ class FirstPartialGameTest {
         playProject("SpaceElevator", 1, steel = 13)
         cardAction1("SpaceElevator")
         playProject("InventionContest", 2)
-        playProject("GreatEscarpmentConsortium", 6) { doTask("PROD[-S<P1>]")}
+        playProject("GreatEscarpmentConsortium", 6) { doTask("PROD[-S<P1>]") }
       }
 
       eng.nextGeneration(4, 1)

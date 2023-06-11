@@ -61,8 +61,7 @@ constructor(
     typeToList.root.directSubclasses.forEach { sub ->
       val matches = allComponents.filter { it.narrows(sub.baseType) }
       if (matches.any()) {
-        @Suppress("UNCHECKED_CAST")
-        val types = matches.elements as Set<MType>
+        @Suppress("UNCHECKED_CAST") val types = matches.elements as Set<MType>
         result.add(lub(types)!!.expression, matches.size)
       }
     }
@@ -89,15 +88,11 @@ constructor(
   // OPERATIONS
 
   override fun manual(initialInstruction: String, body: BodyLambda): TaskResult {
-    return atomic {
-      impl.manual(parse(initialInstruction), autoExecMode) { Adapter().body() }
-    }
+    return atomic { impl.manual(parse(initialInstruction), autoExecMode) { Adapter().body() } }
   }
 
   override fun beginManual(initialInstruction: String, body: BodyLambda): TaskResult {
-    return atomic {
-      impl.beginManual(parse(initialInstruction), autoExecMode) { Adapter().body() }
-    }
+    return atomic { impl.beginManual(parse(initialInstruction), autoExecMode) { Adapter().body() } }
   }
 
   override fun finish(body: BodyLambda): TaskResult {
@@ -120,7 +115,9 @@ constructor(
       this@ApiTranslation.tryTask(revised)
     }
 
-    override fun autoExecNow() { atomic {} }
+    override fun autoExecNow() {
+      atomic {}
+    }
   }
 
   override fun autoExecNow() = atomic {}
@@ -153,8 +150,9 @@ constructor(
 
   override fun prepareTask(taskId: TaskId) = impl.prepareTask(taskId)
 
-  override fun doFirstTask(revised: String?) =
-      atomic { impl.doFirstTask(revised?.let { parse(it) }) }
+  override fun doFirstTask(revised: String?) = atomic {
+    impl.doFirstTask(revised?.let { parse(it) })
+  }
 
   override fun doTask(taskId: TaskId) = atomic { impl.doTask(taskId) }
 
@@ -166,8 +164,9 @@ constructor(
 
   override fun tryPreparedTask() = atomic { impl.tryPreparedTask() }
 
-  fun atomic(block: () -> Unit) = timeline.atomic {
-    block()
-    impl.autoExecNow(autoExecMode)
-  }
+  fun atomic(block: () -> Unit) =
+      timeline.atomic {
+        block()
+        impl.autoExecNow(autoExecMode)
+      }
 }
