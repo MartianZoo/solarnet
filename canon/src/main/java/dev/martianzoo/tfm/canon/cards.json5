@@ -127,6 +127,7 @@
       "id": "PC4",
       "bundle": "P",
       "deck": "CORPORATION",
+      "tags": [ "EarthTag" ],
       "immediate": "37, MandatePC4",
       "effects": [ "PlayTag<Class<ScienceTag>>:: -2 Owed" ],
       "components": [
