@@ -14,8 +14,11 @@
     // { "id": "SAD", "bundle": "B", "action": "6, 8 / Award -> Award" },
 
     // Use card action
-    { "id": "SAE", "bundle": "B", // TODO make it a linked THEN
-      "action": "-> UseAction<ActionCard>, ActionUsedMarker<ActionCard>" },
+    {
+      "id": "SAE",
+      "bundle": "B",
+      "action": "-> UseAction<ActionCard>, ActionUsedMarker<ActionCard>" // TODO THEN
+    },
 
     // Convert plants
     { "id": "SAF", "bundle": "B", "action": "8 Plant -> GreeneryTile" },

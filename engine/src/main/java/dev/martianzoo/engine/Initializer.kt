@@ -20,7 +20,7 @@ constructor(val writer: GameWriter, val table: MClassTable, val timeline: Timeli
     fakeCause = Cause(ENGINE.expression, 0)
 
     table.allClasses
-        .filter { 0 !in it.componentCountRange }
+        .filter { c -> c.singleton }
         .flatMap { it.baseType.concreteSubtypesSameClass() }
         .forEach { exec("${it.expression}!") }
 

@@ -17,8 +17,6 @@ ABSTRACT CLASS Area {
 }
 
 ABSTRACT CLASS Tile<Area> {
-  HAS MAX 1 This
-
   CLASS OceanTile[OT] : Tile<MarsArea>, GlobalParameter {
     HAS MAX 9 OceanTile                                // `HAS MAX 9 This` wouldn't work!
     DEFAULT +OceanTile<WaterArea>

@@ -116,8 +116,6 @@ public interface ComponentGraph {
 
     fun hasType(supertype: Type) = mtype.narrows(supertype)
 
-    val allowedRange: IntRange = mtype.root.componentCountRange
-
     fun prepareCustom(reader: GameReader): Instruction {
       val translated = mtype.root.custom!!.prepare(reader, mtype)
       return xerForCustom.transform(translated)

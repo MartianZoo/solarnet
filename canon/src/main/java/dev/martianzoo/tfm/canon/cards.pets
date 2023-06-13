@@ -6,8 +6,6 @@ ABSTRACT CLASS Card : Owned {                   // a quantity that stays fixed a
   }                                             // true until "Double Down" in Dec 2022
 
   ABSTRACT CLASS CardFront[CF] {                // specific CardFronts come from `cards.json5`
-    HAS MAX 1 This                              // some variants might want to try duplicate
-                                                // cards, but it would likely break things
     ABSTRACT CLASS ActiveCard
     ABSTRACT CLASS AutomatedCard
     ABSTRACT CLASS EventCard {

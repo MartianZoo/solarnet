@@ -6,7 +6,6 @@ import dev.martianzoo.tfm.api.ApiUtils.lookUpProductionLevels
 import dev.martianzoo.tfm.api.ApiUtils.mapDefinition
 import dev.martianzoo.tfm.api.ApiUtils.standardResourceNames
 import dev.martianzoo.tfm.api.CustomClass
-import dev.martianzoo.tfm.api.Exceptions.LimitsException
 import dev.martianzoo.tfm.api.Exceptions.NarrowingException
 import dev.martianzoo.tfm.api.GameReader
 import dev.martianzoo.tfm.api.SpecialClassNames.CLASS
@@ -76,9 +75,6 @@ private object CreateAdjacencies : CustomClass("CreateAdjacencies") {
   private fun tileOn(area: AreaDefinition, game: GameReader): Expression? {
     val tileType: Type = game.resolve(cn("Tile").of(area.className))
     val tiles = game.getComponents(tileType)
-
-    // TODO invariants should have already taken care of this
-    if (tiles.size > 1) throw LimitsException("Two tiles on same area")
     return tiles.singleOrNull()?.expressionFull
   }
 

@@ -18,7 +18,6 @@ import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.pets.ast.PetNode
-import dev.martianzoo.tfm.pets.ast.Requirement
 import javax.inject.Inject
 
 /**
@@ -177,10 +176,6 @@ internal class MClassLoader(
   override val allClassNamesAndIds: Set<ClassName> by lazy {
     require(frozen)
     loadedClasses.keys
-  }
-
-  internal val generalInvariants: Set<Requirement> by lazy {
-    allClasses.flatMap { it.generalInvars }.toSet()
   }
 
   private fun decl(cn: ClassName) = authority.classDeclaration(cn)

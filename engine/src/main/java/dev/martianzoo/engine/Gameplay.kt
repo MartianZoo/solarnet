@@ -8,6 +8,7 @@ import dev.martianzoo.tfm.data.Player
 import dev.martianzoo.tfm.data.Task.TaskId
 import dev.martianzoo.tfm.data.TaskResult
 import dev.martianzoo.tfm.engine.Gameplay.OperationBody
+import dev.martianzoo.tfm.engine.Timeline.AbortOperationException
 import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.pets.ast.PetElement
 import dev.martianzoo.util.Multiset
@@ -121,6 +122,8 @@ interface Gameplay {
     fun tryTask(revised: String)
 
     fun autoExecNow()
+
+    fun abort(): Nothing = throw AbortOperationException()
   }
 
   // Yellow

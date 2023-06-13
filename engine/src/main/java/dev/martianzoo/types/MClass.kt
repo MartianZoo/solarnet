@@ -30,9 +30,6 @@ import dev.martianzoo.types.Dependency.TypeDependency
 import dev.martianzoo.util.Hierarchical
 import dev.martianzoo.util.Hierarchical.Companion.glb
 import dev.martianzoo.util.toSetStrict
-import kotlin.Int.Companion.MAX_VALUE
-import kotlin.math.max
-import kotlin.math.min
 
 /**
  * A class that has been loaded by a [MClassLoader] based on a [ClassDeclaration]. Each loader has
@@ -203,6 +200,8 @@ internal constructor(
     loader.classClass.withAllDependencies(depsForClassType(this))
   }
 
+  fun concreteTypes(): Sequence<MType> = baseType.concreteSubtypesSameClass()
+
   // EFFECTS
 
   internal fun rawEffects(): Set<Effect> = declaration.effects
@@ -238,44 +237,20 @@ internal constructor(
 
   // OTHER
 
-  private val specificThenGeneralInvars: Pair<List<Requirement>, List<Requirement>> by lazy {
-    val requirements = declaration.invariants.map(attachToClassTransformer::transform)
-    val deprodify = loader.transformers.deprodify()
-    split(requirements).map(deprodify::transform).partition { THIS in it }
+  val invariants: Set<Requirement> by lazy {
+    if (abstract) setOf() else allSuperclasses.flatMap { split(it.declaration.invariants) }.toSet()
   }
 
-  private val specificInvars: Set<Requirement> by lazy {
-    specificThenGeneralInvars.first.toSetStrict()
-  }
-
-  public val generalInvars: Set<Requirement> by lazy {
-    specificThenGeneralInvars.second.toSetStrict()
-  }
-
-  /**
-   * Returns a set of absolute invariants that must always be true; note that these contain `This`
-   * expressions, which are to be substituted with the concrete type.
-   */
-  internal val typeInvariants: Set<Requirement> by lazy {
-    allSuperclasses.flatMap { it.specificInvars }.toSet()
-  }
-
-  internal val componentCountRange: IntRange by lazy {
-    val ranges: List<IntRange> =
-        typeInvariants
-            .filterIsInstance<Counting>()
-            .filter { it.scaledEx.expression == THIS.expression }
-            .map { it.range }
-    (ranges + listOf(0..MAX_VALUE)).reduce { a, b -> max(a.first, b.first)..min(a.last, b.last) }
+  val singleton: Boolean = invariants.any {
+    (it as Counting).range.first == 1 && it.scaledEx.expression == THIS.expression
   }
 
   override fun equals(other: Any?) =
       other is MClass && other.className == className && other.loader == loader
 
-  // Unlikely to be compared against classes from other loaders, so let those collisions happen
-  override fun hashCode() = className.hashCode()
+  override fun hashCode() = className.hashCode() xor loader.hashCode()
 
-  override fun toString() = "$className@$loader"
+  override fun toString() = "$className"
 
   private companion object {
     fun superclasses(declaration: ClassDeclaration, loader: MClassLoader): List<MClass> {

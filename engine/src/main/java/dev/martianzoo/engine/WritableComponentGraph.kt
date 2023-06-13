@@ -1,23 +1,16 @@
 package dev.martianzoo.tfm.engine
 
-import dev.martianzoo.tfm.api.Exceptions.DependencyException
 import dev.martianzoo.tfm.api.Exceptions.ExistingDependentsException
 import dev.martianzoo.tfm.api.SpecialClassNames.COMPONENT
 import dev.martianzoo.tfm.api.TypeInfo
-import dev.martianzoo.tfm.api.TypeInfo.StubTypeInfo
 import dev.martianzoo.tfm.data.GameEvent.ChangeEvent.StateChange
 import dev.martianzoo.tfm.engine.ComponentGraph.Component
 import dev.martianzoo.tfm.engine.Engine.GameScoped
 import dev.martianzoo.tfm.engine.Engine.Updater
-import dev.martianzoo.tfm.pets.ast.Requirement
-import dev.martianzoo.tfm.pets.ast.Requirement.Counting
-import dev.martianzoo.types.MClassLoader
-import dev.martianzoo.types.MClassTable
 import dev.martianzoo.types.MType
 import dev.martianzoo.util.HashMultiset
 import dev.martianzoo.util.Multiset
 import javax.inject.Inject
-import kotlin.math.min
 
 @GameScoped
 internal class WritableComponentGraph @Inject constructor(internal val effector: Effector) :
@@ -71,56 +64,6 @@ internal class WritableComponentGraph @Inject constructor(internal val effector:
       effector.update(g, count)
     }
     return StateChange(count, gaining?.expressionFull, removing?.expressionFull)
-  }
-
-  // TODO move
-  @GameScoped
-  internal class Limiter
-  @Inject
-  constructor(private val table: MClassTable, private val components: ComponentGraph) {
-
-    fun findLimit(gaining: Component?, removing: Component?): Int {
-      require(gaining != removing) { "$gaining" }
-
-      var actual = Int.MAX_VALUE
-
-      if (gaining != null) {
-        val missingDeps = gaining.dependencyComponents.filter { it !in components }
-        if (missingDeps.any()) throw DependencyException(missingDeps.map { it.mtype })
-
-        val gainable = gaining.allowedRange.last - components.countComponent(gaining)
-        actual = min(actual, gainable)
-      }
-
-      if (removing != null) {
-        val removable = components.countComponent(removing) - removing.allowedRange.first
-        actual = min(actual, removable)
-      }
-
-      // MAX 9 OceanTile
-      for (it: Requirement in (table as MClassLoader).generalInvariants) {
-        // TODO forbid refinements?
-        require(it !is Requirement.Transform)
-        if (it is Counting) {
-          val supertypeWithLimit = table.resolve(it.scaledEx.expression)
-          val gHasType = gaining?.mtype?.narrows(supertypeWithLimit) ?: false
-          val rHasType = removing?.mtype?.narrows(supertypeWithLimit) ?: false
-
-          if (gHasType != rHasType) {
-            val existing = components.count(supertypeWithLimit, StubTypeInfo)
-            if (gHasType) {
-              val gainable = it.range.last - existing
-              actual = min(actual, gainable)
-            }
-            if (rHasType) {
-              val removable = existing - it.range.first
-              actual = min(actual, removable)
-            }
-          }
-        }
-      }
-      return actual
-    }
   }
 
   private fun checkDependents(count: Int, removing: Component) {

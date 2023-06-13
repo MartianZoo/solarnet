@@ -28,6 +28,7 @@ import dev.martianzoo.tfm.pets.ast.Instruction
 import dev.martianzoo.tfm.pets.ast.Instruction.Gain.Companion.gain
 import dev.martianzoo.tfm.pets.ast.Instruction.Multi
 import dev.martianzoo.tfm.pets.ast.Requirement
+import dev.martianzoo.tfm.pets.ast.Requirement.Max
 import dev.martianzoo.tfm.pets.ast.ScaledExpression.Companion.scaledEx
 import dev.martianzoo.util.HashMultiset
 import dev.martianzoo.util.Multiset
@@ -150,6 +151,7 @@ public class CardDefinition(data: CardData) : Definition {
         kind = CONCRETE,
         supertypes = supertypes,
         effects = allEffects.toSetStrict(),
+        invariants = setOf(Max(scaledEx(1, className.expression))),
         extraNodes =
             setOfNotNull(requirement, deck?.className) + extraClasses.flatMap { it.allNodes },
     )

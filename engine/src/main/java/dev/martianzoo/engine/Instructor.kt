@@ -1,8 +1,10 @@
 package dev.martianzoo.tfm.engine
 
+import dev.martianzoo.engine.Limiter
 import dev.martianzoo.tfm.api.CustomClass
 import dev.martianzoo.tfm.api.Exceptions.DeadEndException
 import dev.martianzoo.tfm.api.Exceptions.DependencyException
+import dev.martianzoo.tfm.api.Exceptions.ExpressionException
 import dev.martianzoo.tfm.api.Exceptions.LimitsException
 import dev.martianzoo.tfm.api.Exceptions.NotNowException
 import dev.martianzoo.tfm.api.Exceptions.abstractInstruction
@@ -14,7 +16,6 @@ import dev.martianzoo.tfm.data.GameEvent.ChangeEvent.Cause
 import dev.martianzoo.tfm.data.Task
 import dev.martianzoo.tfm.engine.ComponentGraph.Component.Companion.toComponent
 import dev.martianzoo.tfm.engine.Engine.PlayerScoped
-import dev.martianzoo.tfm.engine.WritableComponentGraph.Limiter
 import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.pets.ast.Instruction
 import dev.martianzoo.tfm.pets.ast.Instruction.Change
@@ -116,7 +117,8 @@ constructor(
       }
       is Or -> prepareOr(unprepared)
       // TODO this is wrong
-      is Then -> Then.create(unprepared.instructions.map(::doPrepare) - listOf(NoOp))
+      is Then -> Then.create(listOf(doPrepare(unprepared.instructions.first())) +
+          unprepared.instructions.drop(1))
       is Multi -> error("")
       is Transform -> error("should have been transformed already: $unprepared")
     }
@@ -129,12 +131,6 @@ constructor(
     val (g: MType?, r: MType?) = autoNarrowTypes(change.gaining, change.removing)
     if (g?.className == DIE) throw DeadEndException("a Die instruction was reached")
 
-    if (g != null && !g.abstract && g.root.custom != null) {
-      require(r == null) { "custom class instructions can only be pure gains" }
-      val translated = g.toComponent().prepareCustom(reader)
-      return if (translated is Multi) translated else doPrepare(translated)
-    }
-
     val intens = change.intensity ?: error("$change")
 
     if (listOfNotNull(g, r).any { it.abstract }) {
@@ -142,7 +138,18 @@ constructor(
       return change(count, g?.expression, r?.expression, intens)
     }
 
-    val limit = limiter.findLimit(g?.toComponent(reader), r?.toComponent(reader))
+    if (g == r) throw ExpressionException("Can't both gain and remove ${g?.expression}")
+
+    val gaining = g?.toComponent()
+    val removing = r?.toComponent()
+
+    if (g?.root?.custom != null) {
+      require(r == null) { "custom class instructions can only be pure gains" }
+      val translated = gaining!!.prepareCustom(reader)
+      return if (translated is Multi) translated else doPrepare(translated)
+    }
+
+    val limit = limiter.findLimit(gaining, removing)
     val adjusted: Int = min(count, limit)
 
     if (intens == MANDATORY && adjusted != count) {

@@ -19,7 +19,7 @@ public class TypeDescription public constructor(val mtype: MType) {
   val rawClassEffects: Set<Effect> = mclass.rawEffects()
   val classEffects: Set<Effect> by mclass::classEffects
 
-  val classInvariants: Set<Requirement> = mclass.typeInvariants + mclass.generalInvars
+  val classInvariants: Set<Requirement> by mclass::invariants
 
   val baseType: Type by mclass::baseType
 

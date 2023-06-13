@@ -77,7 +77,7 @@ sealed class Requirement : PetElement() {
 
     override fun toString() = "MAX ${scaledEx.toFullString()}" // no "MAX 5" or "MAX Heat"
 
-    override val range = Int.MIN_VALUE..(scaledEx.scalar as ActualScalar).value
+    override val range = 0..(scaledEx.scalar as ActualScalar).value
   }
 
   data class Exact(override val scaledEx: ScaledExpression) : Counting(scaledEx) {
