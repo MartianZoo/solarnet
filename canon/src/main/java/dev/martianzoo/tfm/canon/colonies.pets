@@ -1,0 +1,65 @@
+//
+// Colonies expansion!
+//
+// Colony tile data read from colonies.json5 is converted to classes in this form:
+//
+//   CLASS $name : ColonyTile {
+//     Colony<This>: $placementBonus
+//     GiveColonyBonus<This>: $colonyBonus
+//     Trade<This> IF =0 ColonyProduction<This>: ${tradeIncome[0]} // etc.
+//     Trade<This>: ResetProduction<This>
+//   }
+
+ABSTRACT CLASS ColonyTile {
+  HAS MAX 1 This,  MAX 3 Colony<This>, MAX 1 Trade<This>
+
+  // WHITE CUBE MAINTENANCE
+
+  // Start at 1, not 0
+  This:: ColonyProduction<This>
+
+  // When colony built, move it right if necessary
+  Colony<This>: -ColonyProduction<This>. / Colony<This> THEN ColonyProduction<This> / Colony<This>
+
+  // After trade, move it all the way left
+  ResetProduction<This>:: -6 ColonyProduction<This>. THEN ColonyProduction<This> / Colony<This, Anyone>
+
+  // At end of gen, move it right one (technically during the "colonies solar phase" but shrug)
+  ProductionPhase: ColonyProduction<This>.
+
+  Die: ForceLoad<Class<DelayedColonyTile>>
+}
+
+CLASS Colony<ColonyTile> : Owned {
+  DEFAULT +Colony<ColonyTile(HAS MAX 0 Colony)>
+  Trade<Anyone, ColonyTile>: GiveColonyBonus<ColonyTile>
+}
+
+// A trade fleet sitting on a colony tile is represented by one of these, which go away at gen end
+CLASS Trade<ColonyTile, TradeFleet> : Owned, Generational
+
+CLASS ColonyProduction<ColonyTile> { HAS MAX 6 This }
+
+CLASS GiveColonyBonus<ColonyTile> : Owned, Signal
+CLASS ResetProduction<ColonyTile> : Signal
+
+ABSTRACT CLASS TradeFleet : Owned {
+  HAS MAX 1 Trade<This>
+
+  // TODO either make this suck less, or autogenerate?
+  CLASS TradeFleetA { HAS MAX 1 TradeFleetA }
+  CLASS TradeFleetB { HAS MAX 1 TradeFleetB }
+  CLASS TradeFleetC { HAS MAX 1 TradeFleetC }
+  CLASS TradeFleetD { HAS MAX 1 TradeFleetD }
+  CLASS TradeFleetE { HAS MAX 1 TradeFleetE }
+  CLASS TradeFleetF { HAS MAX 1 TradeFleetF }
+  CLASS TradeFleetG { HAS MAX 1 TradeFleetG }
+  CLASS TradeFleetH { HAS MAX 1 TradeFleetH }
+}
+
+CLASS DelayedColonyTile<Class<ColonyTile>, Class<CardResource>> {
+  This IF ResourceCard<Class<CardResource>>:: ColonyTile FROM This // thanks Aridor
+  ResourceCard<Class<CardResource>>: ColonyTile FROM This
+}
+
+

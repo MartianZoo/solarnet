@@ -21,4 +21,10 @@ internal object SpecialClassNames {
   val ACTIVE_CARD = cn("ActiveCard")
   val AUTOMATED_CARD = cn("AutomatedCard")
   val EVENT_CARD = cn("EventCard")
+
+  val COLONY = cn("Colony")
+  val COLONY_BONUS = cn("ColonyBonus")
+  val COLONY_PRODUCTION = cn("ColonyProduction")
+  val COLONY_TILE = cn("ColonyTile")
+  val TRADE = cn("Trade")
 }

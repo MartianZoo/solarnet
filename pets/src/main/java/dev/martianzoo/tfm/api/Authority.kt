@@ -5,6 +5,7 @@ import dev.martianzoo.tfm.api.SpecialClassNames.CLASS
 import dev.martianzoo.tfm.api.SpecialClassNames.COMPONENT
 import dev.martianzoo.tfm.data.CardDefinition
 import dev.martianzoo.tfm.data.ClassDeclaration
+import dev.martianzoo.tfm.data.ColonyTileDefinition
 import dev.martianzoo.tfm.data.Definition
 import dev.martianzoo.tfm.data.MarsMapDefinition
 import dev.martianzoo.tfm.data.MilestoneDefinition
@@ -82,6 +83,7 @@ public abstract class Authority {
     setOf<Definition>() +
         cardDefinitions +
         milestoneDefinitions +
+        colonyTileDefinitions +
         standardActionDefinitions +
         marsMapDefinitions +
         marsMapDefinitions.flatMap { it.areas }
@@ -139,6 +141,17 @@ public abstract class Authority {
 
   // COLONY TILES
 
+  /** Returns the milestone by the given [name]. */
+  public fun colonyTile(name: ClassName): ColonyTileDefinition =
+      colonyTileByClassName[name]!!
+
+  /** Every milestone this authority knows about. */
+  public abstract val colonyTileDefinitions: Set<ColonyTileDefinition>
+
+  private val colonyTileByClassName: Map<ClassName, ColonyTileDefinition> by lazy {
+    colonyTileDefinitions.associateByStrict { it.className }
+  }
+
   // CUSTOM CLASSES
 
   /** Returns the custom instruction implementation having the name [className]. */
@@ -161,6 +174,7 @@ public abstract class Authority {
     override val cardDefinitions = setOf<CardDefinition>()
     override val marsMapDefinitions = setOf<MarsMapDefinition>()
     override val milestoneDefinitions = setOf<MilestoneDefinition>()
+    override val colonyTileDefinitions = setOf<ColonyTileDefinition>()
     override val standardActionDefinitions = setOf<StandardActionDefinition>()
     override val customClasses = setOf<CustomClass>()
   }

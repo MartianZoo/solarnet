@@ -151,7 +151,7 @@ internal constructor(
   // DEPENDENCIES
 
   internal val dependencies: DependencySet by lazy {
-    if (className == CLASS) { // TODO reduce special-casing
+    if (className == CLASS) {
       depsForClassType(loader.componentClass)
     } else {
       inheritedDeps.merge(declaredDeps) { _, _ -> throw AssertionError() }

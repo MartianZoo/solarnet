@@ -1,6 +1,9 @@
 package dev.martianzoo.tfm.data
 
 import dev.martianzoo.tfm.api.Authority
+import dev.martianzoo.tfm.pets.HasClassName.Companion.classNames
+import dev.martianzoo.tfm.pets.ast.ClassName
+import dev.martianzoo.util.random
 import dev.martianzoo.util.toSetStrict
 import dev.martianzoo.util.toStrings
 
@@ -22,6 +25,9 @@ data class GameSetup(
 
     /** Number of players. Only 2-5 are supported for now. Solo mode will take quite some work. */
     val players: Int,
+
+    /** */
+    val colonyTilesDesired: Set<ClassName> = setOf(),
 ) {
   val bundles = splitLetters(bundleString)
 
@@ -40,6 +46,25 @@ data class GameSetup(
   fun allDefinitions(): List<Definition> = authority.allDefinitions.filter { it.bundle in bundles }
 
   fun players(): List<Player> = Player.players(players)
+
+  val colonyTiles: Set<ColonyTileDefinition> =
+      chooseColonyTileNames().toSetStrict { authority.colonyTile(it) }
+
+  private fun chooseColonyTileNames(): Set<ClassName> {
+    if ("C" !in bundles) return colonyTilesDesired.also { require(it.none()) }
+    val numTilesToUse = if (players <= 2) players + 3 else players + 2
+    val need = numTilesToUse - colonyTilesDesired.size
+    return when {
+      // Didn't give enough? We choose the rest
+      need > 0 -> {
+        val all = authority.colonyTileDefinitions.classNames()
+        colonyTilesDesired + random(all - colonyTilesDesired, need)
+      }
+      // Chose too many? We choose from those
+      need < 0 -> random(colonyTilesDesired, numTilesToUse)
+      else -> colonyTilesDesired
+    }
+  }
 
   private companion object {
     fun splitLetters(bundles: String) = bundles.asIterable().toStrings().sorted().toSetStrict()

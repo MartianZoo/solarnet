@@ -42,27 +42,9 @@ As of 2023-06, the number of rows in this table plus entries in cards.json shoul
 | P28 | Research Network           | wildtag               |
 | P40 | Research Coordination      | wildtag               |
 | TC3 | Septem Tribus              | wildtag, turmoil      |
-| CC4 | Poseidon                   | colonies              |
-| C07 | Cryo-Sleep                 | colonies              |
-| C09 | Ecology Research           | colonies              |
-| C15 | Ice Moon Colony            | colonies              |
-| C17 | Interplanetary Colony Ship | colonies              |
-| C23 | Market Manipulation        | colonies              |
-| C25 | Mining Colony              | colonies              |
-| C26 | Minority Refuge            | colonies              |
-| C27 | Molecular Printing         | colonies              |
-| C29 | Pioneer Settlement         | colonies              |
-| C31 | Quantum Communications     | colonies              |
-| C34 | Research Colony            | colonies              |
-| C35 | Rim Freighters             | colonies              |
-| C36 | Sky Docks                  | colonies              |
-| C39 | Space Port                 | colonies              |
-| C40 | Space Port Colony          | colonies              |
-| C44 | Titan Floating Launch-Pad  | colonies              |
-| C46 | Trade Envoys               | colonies              |
-| C47 | Trading Colony             | colonies              |
-| C48 | Urban Decomposers          | colonies              |
-| C30 | Productive Outpost         | colonies, bonuses     |
+| C30 | Productive Outpost         | colonybonus           |
+| C46 | Trade Envoys               | pre?                  |
+| C47 | Trading Colony             | pre?                  |
 | T01 | Aerial Lenses              | turmoil               |
 | T02 | Banned Delegate            | turmoil               |
 | T03 | Cultural Metropolis        | turmoil               |

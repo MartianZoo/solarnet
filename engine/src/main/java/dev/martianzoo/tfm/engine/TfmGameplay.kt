@@ -29,9 +29,9 @@ public class TfmGameplay(
 
   fun pass(): TaskResult = turn { doTask("Pass") }
 
-  fun stdAction(stdAction: String, body: BodyLambda = {}): TaskResult {
+  fun stdAction(stdAction: String, which: Int = 1, body: BodyLambda = {}): TaskResult {
     return turn {
-      doTask("UseAction1<$stdAction>")
+      doTask("UseAction$which<$stdAction>")
       body()
     }
   }

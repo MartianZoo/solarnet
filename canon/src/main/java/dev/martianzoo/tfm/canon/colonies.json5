@@ -1,0 +1,84 @@
+{
+  "colonyTiles": [
+    {
+      "name": "Callisto",
+      "bundle": "C",
+      "placementBonus": "PROD[Energy]",
+      "colonyBonus": "3 Energy",
+      "tradeIncome": [ "Ok", "2 Energy", "3 Energy", "5 Energy", "7 Energy", "10 Energy", "13 Energy" ]
+    },
+    {
+      "name": "Ceres",
+      "bundle": "C",
+      "placementBonus": "PROD[Steel]",
+      "colonyBonus": "2 Steel",
+      "tradeIncome": [ "Steel", "2 Steel", "3 Steel", "4 Steel", "6 Steel", "8 Steel", "10 Steel" ]
+    },
+    {
+      "name": "Enceladus",
+      "bundle": "C",
+      "placementBonus": "3 Microbe",
+      "colonyBonus": "Microbe",
+      "tradeIncome": [ "Ok", "Microbe", "2 Microbe", "3 Microbe", "4 Microbe", "4 Microbe", "5 Microbe" ],
+      "resourceType": "Microbe"
+    },
+    {
+      "name": "Europa",
+      "bundle": "C",
+      "placementBonus": "OceanTile",
+      "colonyBonus": "1",
+      "tradeIncome": [ "PROD[1]", "PROD[1]", "PROD[Energy]", "PROD[Energy]", "PROD[Plant]", "PROD[Plant]", "PROD[Plant]" ]
+    },
+    {
+      "name": "Ganymede",
+      "bundle": "C",
+      "placementBonus": "PROD[Plant]",
+      "colonyBonus": "Plant",
+      "tradeIncome": [ "Ok", "Plant", "2 Plant", "3 Plant", "4 Plant", "5 Plant", "6 Plant" ]
+    },
+    {
+      "name": "Io",
+      "bundle": "C",
+      "placementBonus": "PROD[Heat]",
+      "colonyBonus": "2 Heat",
+      "tradeIncome": [ "2 Heat", "3 Heat", "4 Heat", "6 Heat", "8 Heat", "10 Heat", "13 Heat" ]
+    },
+    {
+      "name": "Luna",
+      "bundle": "C",
+      "placementBonus": "PROD[2]",
+      "colonyBonus": "2",
+      "tradeIncome": [ "1", "2", "4", "7", "10", "13", "17" ]
+    },
+    {
+      "name": "Miranda",
+      "bundle": "C",
+      "placementBonus": "Animal",
+      "colonyBonus": "ProjectCard",
+      "tradeIncome": [ "Ok", "Animal", "Animal", "2 Animal", "2 Animal", "3 Animal", "3 Animal" ],
+      "resourceType": "Animal"
+    },
+    {
+      "name": "Pluto", // [F]
+      "bundle": "C",
+      "placementBonus": "2 ProjectCard",
+      "colonyBonus": "Ok",
+      "tradeIncome": [ "Ok", "ProjectCard", "2 ProjectCard", "2 ProjectCard", "3 ProjectCard", "3 ProjectCard", "4 ProjectCard" ]
+    },
+    {
+      "name": "Titan",
+      "bundle": "C",
+      "placementBonus": "3 Floater",
+      "colonyBonus": "Floater",
+      "tradeIncome": [ "Ok", "Floater", "Floater", "2 Floater", "3 Floater", "3 Floater", "4 Floater" ],
+      "resourceType": "Floater"
+    },
+    {
+      "name": "Triton",
+      "bundle": "C",
+      "placementBonus": "3 Titanium",
+      "colonyBonus": "Titanium",
+      "tradeIncome": [ "Ok", "Titanium", "Titanium", "2 Titanium", "3 Titanium", "4 Titanium", "5 Titanium" ]
+    }
+  ]
+}

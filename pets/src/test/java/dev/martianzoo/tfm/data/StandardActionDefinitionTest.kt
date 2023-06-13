@@ -12,6 +12,6 @@ private class StandardActionDefinitionTest {
     assertThat(claim.shortName).isEqualTo(cn("SAC"))
     assertThat(claim.bundle).isEqualTo("B")
     assertThat(claim.project).isFalse()
-    assertThat(claim.action).isEqualTo("8 -> Milestone")
+    assertThat(claim.actions).containsExactly("8 -> Milestone")
   }
 }

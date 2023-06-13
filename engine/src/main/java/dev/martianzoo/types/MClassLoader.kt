@@ -38,6 +38,15 @@ internal class MClassLoader(
     val toLoad = setup.allDefinitions() + setup.players()
     loadAll(toLoad.classNames() + OK + cn("TerraformingMars")) // TODO
     if ("P" in setup.bundles) load(cn("PreludePhase")) // TODO eww
+
+    // TODO wow gross
+    if ("C" in setup.bundles) {
+      val autoload =
+          authority.colonyTileDefinitions +
+              authority.explicitClassDeclarations
+                  .filter { cn("TradeFleet").expression in it.supertypes }
+      loadAll(autoload.classNames())
+    }
     freeze()
   }
 

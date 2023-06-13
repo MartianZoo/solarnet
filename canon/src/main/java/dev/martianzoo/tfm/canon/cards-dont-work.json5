@@ -203,6 +203,38 @@
       "requirement": "9 Class<Resource>(OF Owner)",
       "cost": 1,
       "projectKind": "EVENT"
+    },
+
+    // Productive Outpost
+    {
+      "id": "C30",
+      "bundle": "C",
+      "immediate": "PayOnlyMyColonyBonuses",
+      "deck": "PROJECT",
+      "cost": 0,
+      "projectKind": "AUTOMATED"
+    },
+
+    // Trade Envoys
+    {
+      "id": "C46",
+      "bundle": "C",
+      "deck": "PROJECT",
+      "effects": [ "Trade<ColonyTile>: ColonyProduction<ColonyTile>?" ], // TODO before!
+      "cost": 6,
+      "projectKind": "ACTIVE"
+    },
+
+    // Trading Colony
+    {
+      "id": "C47",
+      "bundle": "C",
+      "deck": "PROJECT",
+      "tags": [ "SpaceTag" ],
+      "immediate": "Colony",
+      "effects": [ "Trade<ColonyTile>: ColonyProduction<ColonyTile>?" ], // TODO before!
+      "cost": 18,
+      "projectKind": "ACTIVE"
     }
   ]
 }

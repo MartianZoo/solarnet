@@ -47,6 +47,8 @@ public class ClassName private constructor(private val asString: String) :
   /** Vararg form of [of]. */
   public fun of(vararg haveArguments: HasExpression): Expression = of(haveArguments.toList())
 
+  public fun of() = expression
+
   /**
    * Returns the expression having this class name as its [Expression.className], no arguments, and
    * [refinement] as its [Expression.refinement] (or no refinement if [refinement] is `null`). For

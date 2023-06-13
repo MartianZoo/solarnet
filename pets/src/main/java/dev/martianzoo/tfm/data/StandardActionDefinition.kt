@@ -13,7 +13,7 @@ data class StandardActionDefinition(
     override val shortName: ClassName,
     override val bundle: String,
     val project: Boolean,
-    val action: String,
+    val actions: List<String>,
 ) : Definition {
   init {
     require(bundle.isNotEmpty())
@@ -29,7 +29,7 @@ data class StandardActionDefinition(
         shortName = shortName,
         kind = CONCRETE,
         supertypes = setOf(kind.expression),
-        effects = actionListToEffects(listOf(parse(action))).toSetStrict(),
+        effects = actionListToEffects(actions.map(::parse)).toSetStrict(),
     )
   }
 }

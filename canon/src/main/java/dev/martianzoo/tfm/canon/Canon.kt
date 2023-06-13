@@ -4,6 +4,7 @@ import dev.martianzoo.tfm.api.Authority
 import dev.martianzoo.tfm.api.CustomClass
 import dev.martianzoo.tfm.data.CardDefinition
 import dev.martianzoo.tfm.data.ClassDeclaration
+import dev.martianzoo.tfm.data.ColonyTileDefinition
 import dev.martianzoo.tfm.data.GameSetup
 import dev.martianzoo.tfm.data.JsonReader
 import dev.martianzoo.tfm.data.MarsMapDefinition
@@ -17,8 +18,6 @@ import dev.martianzoo.util.toSetStrict
  * that will take a while.
  */
 public object Canon : Authority() {
-
-  // TODO break it up more...
   private val PETS_FILENAMES = setOf(
       "system.pets",
       "global.pets",
@@ -27,6 +26,7 @@ public object Canon : Authority() {
       "cards.pets",
       "actions.pets",
       "payment.pets",
+      "colonies.pets",
   )
 
   override val explicitClassDeclarations: Set<ClassDeclaration> by lazy {
@@ -47,6 +47,10 @@ public object Canon : Authority() {
 
   override val milestoneDefinitions: Set<MilestoneDefinition> by lazy {
     JsonReader.readMilestones(readResource("milestones.json5")).toSetStrict()
+  }
+
+  override val colonyTileDefinitions: Set<ColonyTileDefinition> by lazy {
+    JsonReader.readColonyTiles(readResource("colonies.json5")).toSetStrict(::ColonyTileDefinition)
   }
 
   override val customClasses: Set<CustomClass> by ::canonCustomClasses

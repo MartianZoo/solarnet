@@ -18,7 +18,6 @@ import dev.martianzoo.types.MType
 import javax.inject.Inject
 import kotlin.Int.Companion.MAX_VALUE
 
-// TODO move
 @GameScoped
 internal class Limiter
 @Inject
