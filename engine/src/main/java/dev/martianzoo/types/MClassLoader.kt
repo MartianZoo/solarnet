@@ -6,7 +6,6 @@ import dev.martianzoo.tfm.api.Exceptions
 import dev.martianzoo.tfm.api.Exceptions.ExpressionException
 import dev.martianzoo.tfm.api.SpecialClassNames.CLASS
 import dev.martianzoo.tfm.api.SpecialClassNames.COMPONENT
-import dev.martianzoo.tfm.api.SpecialClassNames.OK
 import dev.martianzoo.tfm.api.SpecialClassNames.THIS
 import dev.martianzoo.tfm.api.Type
 import dev.martianzoo.tfm.data.ClassDeclaration
@@ -35,19 +34,24 @@ internal class MClassLoader(
 ) : MClassTable() {
   @Inject
   constructor(setup: GameSetup) : this(setup.authority) {
-    val toLoad = setup.allDefinitions() + setup.players()
-    loadAll(toLoad.classNames() + OK + cn("TerraformingMars")) // TODO
-    if ("P" in setup.bundles) load(cn("PreludePhase")) // TODO eww
+    loadAll(setup.players().classNames())
+    loadAll(authority.allClassDeclarations.filterValues(::isAutoLoad).keys)
+    loadAll(setup.allDefinitions().classNames())
 
     // TODO wow gross
     if ("C" in setup.bundles) {
-      val autoload =
-          authority.colonyTileDefinitions +
-              authority.explicitClassDeclarations
-                  .filter { cn("TradeFleet").expression in it.supertypes }
-      loadAll(autoload.classNames())
+      loadAll(authority.colonyTileDefinitions.classNames())
+      loadAll(authority.explicitClassDeclarations
+          .filter { cn("TradeFleet").expression in it.supertypes }
+          .classNames())
+      load(cn("DelayedColonyTile"))
     }
     freeze()
+  }
+
+  fun isAutoLoad(c: ClassDeclaration): Boolean {
+    return c.className == cn("AutoLoad") ||
+        c.supertypes.any { isAutoLoad(authority.classDeclaration(it.className)) }
   }
 
   /** The `Component` class, which is the root of the class hierarchy. */

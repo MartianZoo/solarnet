@@ -3,7 +3,7 @@
 // every other class its definition refers to to be defined as well (with the possible exception of
 // effect *triggers*, since we can reason tht those triggers would simply never happen anyway.
 
-CLASS TerraformingMars : System {
+CLASS TerraformingMars : System, AutoLoad {
   HAS =1 This
 
   This: SetupPhase
@@ -12,8 +12,6 @@ CLASS TerraformingMars : System {
   PlayTag<Class<SpaceTag>>:: Accept<Class<Titanium>>
   Pay<Class<Steel>>:: -2 Owed
   Pay<Class<Titanium>>:: -3 Owed                       // should be innocuous for TradeSA...
-
-  Die: ForceLoad<Class<ActionPhase>>, ForceLoad<Class<EndPhase>>, ForceLoad<Class<Production>>
 }
 
 ABSTRACT CLASS GlobalParameter : Atomized {
@@ -45,7 +43,7 @@ ABSTRACT CLASS GlobalParameter : Atomized {
 CLASS Generation { HAS 1 This }
 ABSTRACT CLASS Generational { Generation:: -This. }    // things that disappear between gens
 
-ABSTRACT CLASS Phase {
+ABSTRACT CLASS Phase : AutoLoad {
   HAS =1 Phase                                         // weird that this works, but it does
 
   CLASS SetupPhase
@@ -63,7 +61,7 @@ ABSTRACT CLASS Phase {
   }
   CLASS Production2Phase
   CLASS ResearchPhase { This:: Generation }
-  CLASS EndPhase { This:: End }
+  CLASS EndPhase : AutoLoad { This:: End }
 }
 
 CLASS End : Signal

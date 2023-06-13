@@ -45,8 +45,7 @@ ABSTRACT CLASS Tile<Area> {
 
 CLASS Neighbor<Tile<MarsArea>, MarsArea> [NBR] : System
 
-ABSTRACT CLASS Adjacency<Tile, Tile> : System {
-  Die: ForceLoad<Class<BackwardAdjacency>>
+ABSTRACT CLASS Adjacency<Tile, Tile> : System, AutoLoad {
   CLASS ForwardAdjacency, BackwardAdjacency
 }
 

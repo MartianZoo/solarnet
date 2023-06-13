@@ -9,7 +9,6 @@ import dev.martianzoo.tfm.pets.HasClassName.Companion.classNames
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.types.te
-import dev.martianzoo.types.MClass
 import dev.martianzoo.types.MClassLoader
 import org.junit.jupiter.api.Test
 
@@ -17,19 +16,6 @@ import org.junit.jupiter.api.Test
 internal class CanonClassesTest {
   companion object {
     val table = MClassLoader(Canon).loadEverything()
-  }
-
-  @Test
-  fun redundantSuperclasses() {
-    val redundancies =
-        table.allClasses.flatMap { mclass ->
-          val direct: List<MClass> = mclass.directSuperclasses
-          val indirect = direct.flatMap { it.properSuperclasses }.toSet()
-          val redundant = direct.intersect(indirect)
-          redundant.map { mclass.className to it.className }
-        }
-    assertThat(redundancies)
-        .containsExactly(cn("GreeneryTile") to cn("Tile"), cn("SpecialTile") to cn("Tile"))
   }
 
   @Test

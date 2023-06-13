@@ -28,7 +28,7 @@ ABSTRACT CLASS Owned<Anyone> {
     }
   }
 
-  CLASS Production<Class<StandardResource>> { Production2Phase: StandardResource }
+  CLASS Production<Class<StandardResource>> : AutoLoad { Production2Phase: StandardResource }
 
   ABSTRACT CLASS Milestone[MIL] { End: 5 VictoryPoint }
 

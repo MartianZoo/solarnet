@@ -34,7 +34,6 @@ import dev.martianzoo.util.Grid
 
 internal val canonCustomClasses =
     setOf(
-        ForceLoad,
         CreateAdjacencies,
         CheckCardDeck,
         CheckCardRequirement,
@@ -46,9 +45,6 @@ internal val canonCustomClasses =
     )
 
 // TODO maybe stop called the reader `game` everywhere in this file
-private object ForceLoad : CustomClass("ForceLoad") {
-  override fun translate(game: GameReader, ignoredClass: Type) = NoOp
-}
 
 private object CreateAdjacencies : CustomClass("CreateAdjacencies") {
   override fun translate(game: GameReader, areaType: Type): Instruction {

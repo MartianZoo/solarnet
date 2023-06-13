@@ -11,7 +11,7 @@ ABSTRACT CLASS System {
     ABSTRACT CLASS Signal {                            // you'll never observe it existing, but
       This:: -This!                                    // things can still be triggered by it
 
-      CLASS Ok                                         // magic rule: this should not be allowed to
+      CLASS Ok : AutoLoad                              // magic rule: this should not be allowed to
                                                        // trigger anything
       CLASS Die { HAS MAX 0 This }                     // impossible to create, which is the point
     }
@@ -23,8 +23,8 @@ ABSTRACT CLASS System {
   }
 }
 
+ABSTRACT CLASS AutoLoad                                // extend this to always get loaded
+
 ABSTRACT CLASS Custom                                  // these never *actually* get created
 
 ABSTRACT CLASS Atomized                                // magic rule: see `Transformers.atomizer()`
-
-CLASS ForceLoad<Class>: Custom

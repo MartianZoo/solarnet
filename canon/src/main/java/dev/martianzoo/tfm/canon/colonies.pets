@@ -26,8 +26,6 @@ ABSTRACT CLASS ColonyTile {
 
   // At end of gen, move it right one (technically during the "colonies solar phase" but shrug)
   ProductionPhase: ColonyProduction<This>.
-
-  Die: ForceLoad<Class<DelayedColonyTile>>
 }
 
 CLASS Colony<ColonyTile> : Owned {
