@@ -31,7 +31,7 @@ public class Timeline @Inject constructor(val reader: GameReader) {
     require(ordinal <= events.size)
     if (ordinal == events.size) return
 
-    val subList = events.events.subList(ordinal, events.size) // TODO improve
+    val subList = events.events.subList(ordinal, events.size) // TODO improve & make .events priv
     for (entry in subList.asReversed()) {
       when (entry) {
         is TaskEvent -> tasks.reverse(entry)

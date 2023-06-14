@@ -44,7 +44,6 @@ CLASS ResetProduction<ColonyTile> : Signal
 ABSTRACT CLASS TradeFleet : Owned {
   HAS MAX 1 Trade<This>
 
-  // TODO either make this suck less, or autogenerate?
   CLASS TradeFleetA { HAS MAX 1 TradeFleetA }
   CLASS TradeFleetB { HAS MAX 1 TradeFleetB }
   CLASS TradeFleetC { HAS MAX 1 TradeFleetC }

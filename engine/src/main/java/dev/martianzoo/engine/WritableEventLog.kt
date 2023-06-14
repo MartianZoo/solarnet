@@ -19,7 +19,7 @@ import javax.inject.Inject
 
 @GameScoped
 internal class WritableEventLog @Inject constructor() : EventLog, TaskListener, ChangeLogger {
-  val events: MutableList<GameEvent> = mutableListOf() // TODO only used by Timeline
+  val events: MutableList<GameEvent> = mutableListOf()
   override val size: Int by events::size
 
   override fun changesSince(checkpoint: Checkpoint): List<ChangeEvent> =

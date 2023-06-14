@@ -74,7 +74,7 @@ class LocalHeatTrappingTest {
     }
   }
 
-  // @Test // TODO - overeager DependencyException
+  // @Test // TODO - make this work
   fun getNothing() {
     with(p1) {
       godMode().manual("6 Heat, 2 ProjectCard")

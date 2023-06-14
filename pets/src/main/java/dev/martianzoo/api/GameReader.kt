@@ -33,7 +33,6 @@ interface GameReader : TypeInfo {
   /** Returns the types of all concrete components in the current game state. */
   fun getComponents(type: Type): Multiset<out Type>
 
-  // TODO
   fun <P : PetElement> parseInternal(type: KClass<P>, text: String): P
 
   fun <P : PetElement> preprocess(node: P): P

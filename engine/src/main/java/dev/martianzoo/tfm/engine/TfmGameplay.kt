@@ -19,7 +19,7 @@ public class TfmGameplay(
     internal val gameplay: TurnLayer = game.gameplay(player) as TurnLayer,
 ) : TurnLayer by gameplay {
 
-  val reader: GameReader by game::reader // TODO ditch it
+  val reader: GameReader by game::reader
 
   fun asPlayer(player: Player) = TfmGameplay(game, player)
 

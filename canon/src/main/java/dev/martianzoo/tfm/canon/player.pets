@@ -32,9 +32,9 @@ ABSTRACT CLASS Owned<Anyone> {
 
   ABSTRACT CLASS Milestone[MIL] { End: 5 VictoryPoint }
 
-  CLASS SuperHack { // TODO needs to be Owned?
+  CLASS SuperHack {
     HAS MAX 1 This
-    ProductionPhase:: Heat / Energy, -Energy / Energy
+    ProductionPhase:: 999 Heat FROM Energy.
   }
 
   // Because of our model that the game state is "just a bag of things", you can't have a negative
