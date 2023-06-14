@@ -45,6 +45,6 @@ object ApiUtils {
   fun mapDefinition(game: GameReader): MarsMapDefinition {
     val map = game.resolve(MARS_MAP.expression)
     val mapName = game.getComponents(map).single().className
-    return game.authority.marsMap(mapName)
+    return (game.authority as TfmAuthority).marsMap(mapName)
   }
 }

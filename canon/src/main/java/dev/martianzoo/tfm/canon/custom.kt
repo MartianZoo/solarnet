@@ -11,12 +11,14 @@ import dev.martianzoo.api.Type
 import dev.martianzoo.tfm.api.ApiUtils.lookUpProductionLevels
 import dev.martianzoo.tfm.api.ApiUtils.mapDefinition
 import dev.martianzoo.tfm.api.ApiUtils.standardResourceNames
+import dev.martianzoo.tfm.api.TfmAuthority
 import dev.martianzoo.tfm.data.CardDefinition
 import dev.martianzoo.tfm.data.CardDefinition.Deck.PRELUDE
 import dev.martianzoo.tfm.data.MarsMapDefinition.AreaDefinition
 import dev.martianzoo.tfm.data.TfmClassNames.MEGACREDIT
 import dev.martianzoo.tfm.data.TfmClassNames.PROD
 import dev.martianzoo.tfm.data.TfmClassNames.TILE
+import dev.martianzoo.tfm.pets.HasClassName
 import dev.martianzoo.tfm.pets.Parsing.parse
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
@@ -92,7 +94,7 @@ private object CheckCardDeck : CustomClass("CheckCardDeck") {
       cardBackClassType: Type,
       cardFrontClassType: Type
   ): Instruction {
-    val deck = cardFromClassExpression(cardFrontClassType, reader).deck
+    val deck = cardFromClassType(cardFrontClassType, reader).deck
     return if (cardBackClassType.expression.arguments.single().className == deck?.className) {
       NoOp
     } else {
@@ -102,10 +104,8 @@ private object CheckCardDeck : CustomClass("CheckCardDeck") {
 }
 
 private object CheckCardRequirement : CustomClass("CheckCardRequirement") {
-  override fun translate(reader: GameReader, owner: Type, cardClassType: Type): Instruction {
-    val reqt = cardFromClassExpression(cardClassType, reader).requirement
-    return Gated.create(reqt, NoOp)
-  }
+  override fun translate(reader: GameReader, owner: Type, cardClassType: Type) =
+      Gated.create(cardFromClassType(cardClassType, reader).requirement, NoOp)
 }
 
 private object HandleCardCost : CustomClass("HandleCardCost") {
@@ -114,8 +114,7 @@ private object HandleCardCost : CustomClass("HandleCardCost") {
       owner: Type,
       cardFrontClassType: Type
   ): Instruction {
-    val cardType: Expression = cardFrontClassType.expression.arguments.single()
-    val card: CardDefinition = reader.authority.card(cardType.className)
+    val card: CardDefinition = cardFromClassType(cardFrontClassType, reader)
     if (card.cost == 0) return NoOp
 
     val playTagSignals =
@@ -134,20 +133,11 @@ private object HandleCardCost : CustomClass("HandleCardCost") {
   }
 }
 
-private fun cardFromClassExpression(cardClassType: Type, reader: GameReader): CardDefinition {
-  val cardType: Expression = cardClassType.expression.arguments.single()
-  val card: CardDefinition = reader.authority.card(cardType.className)
-  return card
-}
-
 // For scoring event cards
 private object GetEventVps : CustomClass("GetEventVps") {
   override fun translate(reader: GameReader, ignoredOwner: Type, classType: Type): Instruction {
-    require(classType.className == CLASS)
-    val cardName = classType.expression.arguments.single().className
-    val card = reader.authority.card(cardName)
-    val endFx = card.effects.filter { it.trigger == end }
-    return Multi.create(endFx.map { it.instruction })
+    val fx = cardFromClassType(classType, reader).effects
+    return Multi.create(fx.filter { it.trigger == end }.map { it.instruction })
   }
   val end: Trigger = parse("End")
 }
@@ -170,7 +160,7 @@ private object GainLowestProduction : CustomClass("GainLowestProduction") {
 // For Robotic Workforce
 private object CopyProductionBox : CustomClass("CopyProductionBox") {
   override fun translate(reader: GameReader, owner: Type, cardType: Type): Instruction {
-    val card: CardDefinition = reader.authority.card(cardType.className)
+    val card: CardDefinition = card(cardType, reader)
     val immediate =
         card.immediate
             ?: throw NarrowingException("card ${card.className} has no immediate instruction")
@@ -187,13 +177,22 @@ private object CopyProductionBox : CustomClass("CopyProductionBox") {
 // For Double Down
 private object CopyPrelude : CustomClass("CopyPrelude") {
   override fun translate(reader: GameReader, owner: Type, cardType: Type): Instruction {
-    val card = reader.authority.card(cardType.className)
+    val card = card(cardType, reader)
     if (card.deck != PRELUDE) {
       throw NarrowingException("Card ${card.className} is not a prelude card")
     }
-    if (cardType.className == cn("DoubleDown")) { // TODO another way to get this behavior?
+    if (card.className == cn("DoubleDown")) { // TODO another way to get this behavior?
       throw NarrowingException("Cute. No, you can't copy Double Down itself")
     }
     return card.immediate ?: NoOp
   }
+}
+
+// TODO wow bad hak
+fun card(cardType: HasClassName, reader: GameReader) =
+    (reader.authority as TfmAuthority).card(cardType.className)
+
+private fun cardFromClassType(cardClassType: Type, reader: GameReader): CardDefinition {
+  require(cardClassType.className == CLASS)
+  return card(cardClassType.expression.arguments.single(), reader)
 }

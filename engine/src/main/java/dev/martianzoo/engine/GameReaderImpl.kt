@@ -36,7 +36,7 @@ constructor(
     internal val transformers: Transformers,
 ) : GameReader, TypeInfo {
 
-  override val authority: TfmAuthority by table::authority
+  override val authority: TfmAuthority = table.authority as TfmAuthority
 
   override fun resolve(expression: Expression) = table.resolve(expression)
 

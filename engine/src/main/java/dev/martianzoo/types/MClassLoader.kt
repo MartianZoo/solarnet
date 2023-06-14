@@ -1,5 +1,6 @@
 package dev.martianzoo.types
 
+import dev.martianzoo.api.Authority
 import dev.martianzoo.api.CustomClass
 import dev.martianzoo.api.Exceptions
 import dev.martianzoo.api.Exceptions.ExpressionException
@@ -21,7 +22,7 @@ import dev.martianzoo.tfm.pets.ast.PetNode
 import javax.inject.Inject
 
 /**
- * All [MClass] instances come from here. Uses an [TfmAuthority] to pull class declarations from as
+ * All [MClass] instances come from here. Uses an [Authority] to pull class declarations from as
  * needed. Can be [frozen], which prevents additional classes from being loaded, and enables
  * features such as [MClass.getAllSubclasses] to work.
  */
@@ -31,7 +32,7 @@ internal class MClassLoader(
      * The source of class declarations to use as needed; [loadEverything] will load every class
      * found here.
      */
-    override val authority: TfmAuthority,
+    override val authority: Authority,
 ) : MClassTable() {
   @Inject
   constructor(setup: GameSetup) : this(setup.authority) {
@@ -39,9 +40,9 @@ internal class MClassLoader(
     loadAll(authority.allClassDeclarations.filterValues(::isAutoLoad).keys)
     loadAll(setup.allDefinitions().classNames())
 
-    // TODO wow gross
+    // TODO wow gross bad hack eww
     if ("C" in setup.bundles) {
-      loadAll(authority.colonyTileDefinitions.classNames())
+      loadAll((authority as TfmAuthority).colonyTileDefinitions.classNames())
       loadAll(
           authority.explicitClassDeclarations
               .filter { cn("TradeFleet").expression in it.supertypes }
@@ -113,7 +114,7 @@ internal class MClassLoader(
     return getClass(name)
   }
 
-  /** Loads every class known to this class loader's backing [TfmAuthority], and freezes. */
+  /** Loads every class known to this class loader's backing [Authority], and freezes. */
   public fun loadEverything(): MClassTable {
     authority.allClassNames.forEach(::loadSingle)
     return freeze()

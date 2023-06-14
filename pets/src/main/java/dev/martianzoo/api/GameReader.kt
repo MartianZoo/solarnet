@@ -1,6 +1,5 @@
 package dev.martianzoo.api
 
-import dev.martianzoo.tfm.api.TfmAuthority
 import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.pets.ast.Metric
 import dev.martianzoo.tfm.pets.ast.PetElement
@@ -11,7 +10,7 @@ import kotlin.reflect.KClass
 /** A readable view of the state of a game in progress. */
 interface GameReader : TypeInfo {
   /** The initial configuration for the game. */
-  val authority: TfmAuthority
+  val authority: Authority
 
   /** Returns the type represented by the (fully-prepared) [expression]. */
   fun resolve(expression: Expression): Type

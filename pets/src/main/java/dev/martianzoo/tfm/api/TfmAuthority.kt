@@ -1,5 +1,6 @@
 package dev.martianzoo.tfm.api
 
+import dev.martianzoo.api.Authority
 import dev.martianzoo.api.CustomClass
 import dev.martianzoo.api.Exceptions
 import dev.martianzoo.api.Exceptions.PetException
@@ -23,21 +24,21 @@ import dev.martianzoo.util.associateByStrict
  * the `canon` module, containing only officially published materials. Others might provide fan-made
  * content or test content.
  */
-public abstract class TfmAuthority {
+public abstract class TfmAuthority : Authority {
 
   /** Returns every bundle code (e.g. `"B"`) this authority has any information on. */
-  public open val allBundles: Set<String> by lazy { allDefinitions.map { it.bundle }.toSet() }
+  override val allBundles: Set<String> by lazy { allDefinitions.map { it.bundle }.toSet() }
 
   // CLASS DECLARATIONS
 
   /** Returns the class declaration having the full name [name]. */
-  public fun classDeclaration(name: ClassName): ClassDeclaration {
+  override fun classDeclaration(name: ClassName): ClassDeclaration {
     val decl: ClassDeclaration? = allClassDeclarations[name]
     require(decl != null) { "no class declaration by name $name" }
     return decl
   }
 
-  public val allClassDeclarations: Map<ClassName, ClassDeclaration> by lazy {
+  override val allClassDeclarations: Map<ClassName, ClassDeclaration> by lazy {
     // Dedups as long as class declarations are exactly identical
     val allDeclarations: Set<ClassDeclaration> =
         explicitClassDeclarations +
@@ -72,16 +73,10 @@ public abstract class TfmAuthority {
    * Every class declaration this authority knows about, including explicit ones and those converted
    * from [Definition]s.
    */
-  public val allClassNames: Set<ClassName> by lazy { allClassDeclarations.keys }
-
-  /**
-   * All class declarations that were provided "directly" in source form (i.e., `CLASS Foo...`) as
-   * opposed to being converted from [Definition] objects.
-   */
-  public abstract val explicitClassDeclarations: Set<ClassDeclaration>
+  override val allClassNames: Set<ClassName> by lazy { allClassDeclarations.keys }
 
   /** Everything implementing [Definition] this authority knows about. */
-  public val allDefinitions: Set<Definition> by lazy {
+  override val allDefinitions: Set<Definition> by lazy {
     setOf<Definition>() +
         cardDefinitions +
         milestoneDefinitions +
@@ -157,13 +152,10 @@ public abstract class TfmAuthority {
   // CUSTOM CLASSES
 
   /** Returns the custom instruction implementation having the name [className]. */
-  public fun customClass(className: ClassName): CustomClass {
+  override fun customClass(className: ClassName): CustomClass {
     return customClasses.firstOrNull { it.className == className }
         ?: throw Exceptions.customClassNotFound(className)
   }
-
-  /** Every custom instruction this authority knows about. */
-  public abstract val customClasses: Set<CustomClass>
 
   // HELPERS
 
