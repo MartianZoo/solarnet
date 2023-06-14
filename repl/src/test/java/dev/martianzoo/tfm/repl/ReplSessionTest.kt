@@ -1,6 +1,7 @@
 package dev.martianzoo.tfm.repl
 
 import com.google.common.truth.Truth.assertThat
+import dev.martianzoo.tfm.repl.ReplSession.MapCommand
 import org.junit.jupiter.api.Test
 
 private class ReplSessionTest {
@@ -191,7 +192,7 @@ private class ReplSessionTest {
     assertThat(repl.command("tasks")).isEmpty()
     assertThat(repl.tfm.count("Tile")).isEqualTo(8)
 
-    assertThat(repl.command(repl.MapCommand()))
+    assertThat(repl.command(MapCommand(repl)))
         .containsExactlyElementsIn(
             """
                                    1    2    3    4    5    6    7    8    9
