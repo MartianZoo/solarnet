@@ -1,9 +1,9 @@
 package dev.martianzoo.types
 
+import dev.martianzoo.api.Exceptions
+import dev.martianzoo.api.Type
+import dev.martianzoo.api.TypeInfo
 import dev.martianzoo.engine.Component
-import dev.martianzoo.tfm.api.Exceptions
-import dev.martianzoo.tfm.api.Type
-import dev.martianzoo.tfm.api.TypeInfo
 import dev.martianzoo.tfm.pets.HasClassName
 import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.pets.ast.Requirement

@@ -1,8 +1,8 @@
 package dev.martianzoo.tfm.pets.ast
 
 import com.google.common.truth.Truth.assertThat
-import dev.martianzoo.tfm.api.SpecialClassNames.CLASS
-import dev.martianzoo.tfm.api.SpecialClassNames.COMPONENT
+import dev.martianzoo.api.SpecialClassNames.CLASS
+import dev.martianzoo.api.SpecialClassNames.COMPONENT
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.pets.testRoundTrip
 import dev.martianzoo.tfm.testlib.te

@@ -1,9 +1,9 @@
 package dev.martianzoo.engine
 
+import dev.martianzoo.api.GameReader
+import dev.martianzoo.api.Type
 import dev.martianzoo.engine.Gameplay.OperationBody
 import dev.martianzoo.engine.Timeline.AbortOperationException
-import dev.martianzoo.tfm.api.GameReader
-import dev.martianzoo.tfm.api.Type
 import dev.martianzoo.tfm.data.GameEvent.ChangeEvent.Cause
 import dev.martianzoo.tfm.data.GameEvent.TaskRemovedEvent
 import dev.martianzoo.tfm.data.Player

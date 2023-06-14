@@ -1,7 +1,7 @@
-package dev.martianzoo.tfm.api
+package dev.martianzoo.api
 
-import dev.martianzoo.tfm.api.Exceptions.AbstractException
-import dev.martianzoo.tfm.api.Exceptions.DependencyException
+import dev.martianzoo.api.Exceptions.AbstractException
+import dev.martianzoo.api.Exceptions.DependencyException
 import dev.martianzoo.tfm.pets.HasClassName
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn

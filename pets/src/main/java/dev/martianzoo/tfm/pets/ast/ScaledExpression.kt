@@ -7,9 +7,9 @@ import com.github.h0tk3y.betterParse.combinators.or
 import com.github.h0tk3y.betterParse.combinators.skip
 import com.github.h0tk3y.betterParse.grammar.parser
 import com.github.h0tk3y.betterParse.parser.Parser
-import dev.martianzoo.tfm.api.Exceptions.NarrowingException
-import dev.martianzoo.tfm.api.Exceptions.PetSyntaxException
-import dev.martianzoo.tfm.api.TypeInfo
+import dev.martianzoo.api.Exceptions.NarrowingException
+import dev.martianzoo.api.Exceptions.PetSyntaxException
+import dev.martianzoo.api.TypeInfo
 import dev.martianzoo.tfm.pets.HasExpression
 import dev.martianzoo.tfm.pets.PetTokenizer
 import dev.martianzoo.tfm.pets.ast.ScaledExpression.Scalar.ActualScalar

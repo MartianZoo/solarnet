@@ -1,11 +1,11 @@
 package dev.martianzoo.engine
 
+import dev.martianzoo.api.GameReader
+import dev.martianzoo.api.Type
+import dev.martianzoo.api.TypeInfo
 import dev.martianzoo.engine.Component.Companion.toComponent
 import dev.martianzoo.engine.Engine.GameScoped
-import dev.martianzoo.tfm.api.Authority
-import dev.martianzoo.tfm.api.GameReader
-import dev.martianzoo.tfm.api.Type
-import dev.martianzoo.tfm.api.TypeInfo
+import dev.martianzoo.tfm.api.TfmAuthority
 import dev.martianzoo.tfm.engine.Transformers
 import dev.martianzoo.tfm.pets.Parsing
 import dev.martianzoo.tfm.pets.ast.Expression
@@ -36,7 +36,7 @@ constructor(
     internal val transformers: Transformers,
 ) : GameReader, TypeInfo {
 
-  override val authority: Authority by table::authority
+  override val authority: TfmAuthority by table::authority
 
   override fun resolve(expression: Expression) = table.resolve(expression)
 

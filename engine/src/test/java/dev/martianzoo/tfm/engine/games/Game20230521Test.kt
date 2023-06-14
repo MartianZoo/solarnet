@@ -2,10 +2,10 @@ package dev.martianzoo.tfm.engine.games
 
 import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.analysis.Summarizer
+import dev.martianzoo.api.Exceptions.DependencyException
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.engine.Game
 import dev.martianzoo.engine.Timeline.AbortOperationException
-import dev.martianzoo.tfm.api.Exceptions.DependencyException
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.data.GameSetup
 import dev.martianzoo.tfm.data.Player.Companion.ENGINE

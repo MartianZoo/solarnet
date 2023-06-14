@@ -1,11 +1,11 @@
 package dev.martianzoo.engine
 
+import dev.martianzoo.api.Exceptions.DependencyException
+import dev.martianzoo.api.SpecialClassNames.THIS
+import dev.martianzoo.api.TypeInfo.StubTypeInfo
 import dev.martianzoo.engine.Engine.GameScoped
 import dev.martianzoo.engine.Limiter.RangeRestriction.SimpleRangeRestriction
 import dev.martianzoo.engine.Limiter.RangeRestriction.UnboundRangeRestriction
-import dev.martianzoo.tfm.api.Exceptions.DependencyException
-import dev.martianzoo.tfm.api.SpecialClassNames.THIS
-import dev.martianzoo.tfm.api.TypeInfo.StubTypeInfo
 import dev.martianzoo.tfm.pets.Transforming.replaceThisExpressionsWith
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.Expression

@@ -1,6 +1,6 @@
-package dev.martianzoo.tfm.api
+package dev.martianzoo.api
 
-import dev.martianzoo.tfm.api.TypeInfo.StubTypeInfo
+import dev.martianzoo.api.TypeInfo.StubTypeInfo
 import dev.martianzoo.tfm.pets.HasClassName
 import dev.martianzoo.tfm.pets.HasExpression
 import dev.martianzoo.tfm.pets.ast.Expression

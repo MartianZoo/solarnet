@@ -1,11 +1,11 @@
 package dev.martianzoo.tfm.engine
 
+import dev.martianzoo.api.GameReader
+import dev.martianzoo.api.SpecialClassNames.USE_ACTION
 import dev.martianzoo.engine.BodyLambda
 import dev.martianzoo.engine.Game
 import dev.martianzoo.engine.Gameplay.TurnLayer
 import dev.martianzoo.tfm.api.ApiUtils.standardResourceNames
-import dev.martianzoo.tfm.api.GameReader
-import dev.martianzoo.tfm.api.SpecialClassNames.USE_ACTION
 import dev.martianzoo.tfm.data.Player
 import dev.martianzoo.tfm.data.Player.Companion.ENGINE
 import dev.martianzoo.tfm.data.TaskResult

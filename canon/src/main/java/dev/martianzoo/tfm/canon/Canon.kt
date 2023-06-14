@@ -1,7 +1,7 @@
 package dev.martianzoo.tfm.canon
 
-import dev.martianzoo.tfm.api.Authority
-import dev.martianzoo.tfm.api.CustomClass
+import dev.martianzoo.api.CustomClass
+import dev.martianzoo.tfm.api.TfmAuthority
 import dev.martianzoo.tfm.data.CardDefinition
 import dev.martianzoo.tfm.data.ClassDeclaration
 import dev.martianzoo.tfm.data.ColonyTileDefinition
@@ -17,7 +17,7 @@ import dev.martianzoo.util.toSetStrict
  * Authoritative data source for officially published materials; should eventually be complete but
  * that will take a while.
  */
-public object Canon : Authority() {
+public object Canon : TfmAuthority() {
   private val PETS_FILENAMES = setOf(
       "system.pets",
       "global.pets",

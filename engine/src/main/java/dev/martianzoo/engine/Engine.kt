@@ -3,7 +3,7 @@ package dev.martianzoo.engine
 import dagger.Module
 import dagger.Provides
 import dagger.Subcomponent
-import dev.martianzoo.tfm.api.GameReader
+import dev.martianzoo.api.GameReader
 import dev.martianzoo.tfm.data.GameEvent.ChangeEvent
 import dev.martianzoo.tfm.data.GameEvent.ChangeEvent.Cause
 import dev.martianzoo.tfm.data.GameEvent.ChangeEvent.StateChange

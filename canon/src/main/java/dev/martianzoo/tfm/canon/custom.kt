@@ -2,15 +2,15 @@
 
 package dev.martianzoo.tfm.canon
 
+import dev.martianzoo.api.CustomClass
+import dev.martianzoo.api.Exceptions.NarrowingException
+import dev.martianzoo.api.GameReader
+import dev.martianzoo.api.SpecialClassNames.CLASS
+import dev.martianzoo.api.SpecialClassNames.DIE
+import dev.martianzoo.api.Type
 import dev.martianzoo.tfm.api.ApiUtils.lookUpProductionLevels
 import dev.martianzoo.tfm.api.ApiUtils.mapDefinition
 import dev.martianzoo.tfm.api.ApiUtils.standardResourceNames
-import dev.martianzoo.tfm.api.CustomClass
-import dev.martianzoo.tfm.api.Exceptions.NarrowingException
-import dev.martianzoo.tfm.api.GameReader
-import dev.martianzoo.tfm.api.SpecialClassNames.CLASS
-import dev.martianzoo.tfm.api.SpecialClassNames.DIE
-import dev.martianzoo.tfm.api.Type
 import dev.martianzoo.tfm.data.CardDefinition
 import dev.martianzoo.tfm.data.CardDefinition.Deck.PRELUDE
 import dev.martianzoo.tfm.data.MarsMapDefinition.AreaDefinition

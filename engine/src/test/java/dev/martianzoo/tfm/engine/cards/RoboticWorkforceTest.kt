@@ -1,8 +1,8 @@
 package dev.martianzoo.tfm.engine.cards
 
 import com.google.common.truth.Truth
+import dev.martianzoo.api.Exceptions.NarrowingException
 import dev.martianzoo.engine.Engine
-import dev.martianzoo.tfm.api.Exceptions.NarrowingException
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.data.GameSetup
 import dev.martianzoo.tfm.data.Player.Companion.PLAYER1

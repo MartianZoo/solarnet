@@ -1,6 +1,6 @@
 package dev.martianzoo.engine
 
-import dev.martianzoo.tfm.api.TypeInfo
+import dev.martianzoo.api.TypeInfo
 import dev.martianzoo.types.MType
 import dev.martianzoo.util.Multiset
 

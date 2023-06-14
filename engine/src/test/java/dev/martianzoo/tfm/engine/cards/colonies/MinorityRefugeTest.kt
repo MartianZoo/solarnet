@@ -1,6 +1,6 @@
 package dev.martianzoo.tfm.engine.cards.colonies
 
-import dev.martianzoo.tfm.api.Exceptions.LimitsException
+import dev.martianzoo.api.Exceptions.LimitsException
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 

@@ -1,12 +1,12 @@
 package dev.martianzoo.engine
 
+import dev.martianzoo.api.Exceptions.ExistingDependentsException
+import dev.martianzoo.api.GameReader
+import dev.martianzoo.api.Type
 import dev.martianzoo.engine.Component.Companion.toComponent
 import dev.martianzoo.engine.Engine.ChangeLogger
 import dev.martianzoo.engine.Engine.PlayerScoped
 import dev.martianzoo.engine.Engine.Updater
-import dev.martianzoo.tfm.api.Exceptions.ExistingDependentsException
-import dev.martianzoo.tfm.api.GameReader
-import dev.martianzoo.tfm.api.Type
 import dev.martianzoo.tfm.data.GameEvent.ChangeEvent
 import dev.martianzoo.tfm.data.GameEvent.ChangeEvent.Cause
 import dev.martianzoo.tfm.data.Player

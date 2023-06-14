@@ -1,8 +1,8 @@
 package dev.martianzoo.tfm.engine
 
 import com.google.common.truth.Truth.assertThat
-import dev.martianzoo.tfm.api.SpecialClassNames.THIS
-import dev.martianzoo.tfm.api.Type
+import dev.martianzoo.api.SpecialClassNames.THIS
+import dev.martianzoo.api.Type
 import dev.martianzoo.tfm.data.Player.Companion.players
 import dev.martianzoo.tfm.data.TaskResult
 import dev.martianzoo.tfm.pets.Parsing

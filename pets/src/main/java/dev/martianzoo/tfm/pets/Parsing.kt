@@ -11,7 +11,7 @@ import com.github.h0tk3y.betterParse.parser.Parsed
 import com.github.h0tk3y.betterParse.parser.Parser
 import com.github.h0tk3y.betterParse.parser.UnexpectedEof
 import com.github.h0tk3y.betterParse.parser.parseToEnd
-import dev.martianzoo.tfm.api.Exceptions.PetSyntaxException
+import dev.martianzoo.api.Exceptions.PetSyntaxException
 import dev.martianzoo.tfm.data.ClassDeclaration
 import dev.martianzoo.tfm.pets.ClassParsing.Declarations
 import dev.martianzoo.tfm.pets.PetTokenizer.TokenCache

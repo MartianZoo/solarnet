@@ -1,15 +1,15 @@
 package dev.martianzoo.types
 
+import dev.martianzoo.api.CustomClass
+import dev.martianzoo.api.Exceptions
+import dev.martianzoo.api.Exceptions.ExpressionException
+import dev.martianzoo.api.SpecialClassNames.AUTO_LOAD
+import dev.martianzoo.api.SpecialClassNames.CLASS
+import dev.martianzoo.api.SpecialClassNames.COMPONENT
+import dev.martianzoo.api.SpecialClassNames.THIS
+import dev.martianzoo.api.Type
 import dev.martianzoo.engine.Engine.GameScoped
-import dev.martianzoo.tfm.api.Authority
-import dev.martianzoo.tfm.api.CustomClass
-import dev.martianzoo.tfm.api.Exceptions
-import dev.martianzoo.tfm.api.Exceptions.ExpressionException
-import dev.martianzoo.tfm.api.SpecialClassNames.AUTO_LOAD
-import dev.martianzoo.tfm.api.SpecialClassNames.CLASS
-import dev.martianzoo.tfm.api.SpecialClassNames.COMPONENT
-import dev.martianzoo.tfm.api.SpecialClassNames.THIS
-import dev.martianzoo.tfm.api.Type
+import dev.martianzoo.tfm.api.TfmAuthority
 import dev.martianzoo.tfm.data.ClassDeclaration
 import dev.martianzoo.tfm.data.GameSetup
 import dev.martianzoo.tfm.engine.Transformers
@@ -21,7 +21,7 @@ import dev.martianzoo.tfm.pets.ast.PetNode
 import javax.inject.Inject
 
 /**
- * All [MClass] instances come from here. Uses an [Authority] to pull class declarations from as
+ * All [MClass] instances come from here. Uses an [TfmAuthority] to pull class declarations from as
  * needed. Can be [frozen], which prevents additional classes from being loaded, and enables
  * features such as [MClass.getAllSubclasses] to work.
  */
@@ -31,7 +31,7 @@ internal class MClassLoader(
      * The source of class declarations to use as needed; [loadEverything] will load every class
      * found here.
      */
-    override val authority: Authority,
+    override val authority: TfmAuthority,
 ) : MClassTable() {
   @Inject
   constructor(setup: GameSetup) : this(setup.authority) {
@@ -113,7 +113,7 @@ internal class MClassLoader(
     return getClass(name)
   }
 
-  /** Loads every class known to this class loader's backing [Authority], and freezes. */
+  /** Loads every class known to this class loader's backing [TfmAuthority], and freezes. */
   public fun loadEverything(): MClassTable {
     authority.allClassNames.forEach(::loadSingle)
     return freeze()

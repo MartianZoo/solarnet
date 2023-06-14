@@ -1,8 +1,8 @@
 package dev.martianzoo.tfm.repl
 
+import dev.martianzoo.api.GameReader
+import dev.martianzoo.api.Type
 import dev.martianzoo.tfm.api.ApiUtils.mapDefinition
-import dev.martianzoo.tfm.api.GameReader
-import dev.martianzoo.tfm.api.Type
 import dev.martianzoo.tfm.data.MarsMapDefinition.AreaDefinition
 import dev.martianzoo.tfm.data.Player
 import dev.martianzoo.tfm.data.TfmClassNames.TILE

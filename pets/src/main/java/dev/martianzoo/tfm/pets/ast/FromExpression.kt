@@ -8,7 +8,7 @@ import com.github.h0tk3y.betterParse.combinators.skip
 import com.github.h0tk3y.betterParse.combinators.zeroOrMore
 import com.github.h0tk3y.betterParse.grammar.parser
 import com.github.h0tk3y.betterParse.parser.Parser
-import dev.martianzoo.tfm.api.Exceptions.PetSyntaxException
+import dev.martianzoo.api.Exceptions.PetSyntaxException
 import dev.martianzoo.tfm.pets.PetTokenizer
 import dev.martianzoo.util.joinOrEmpty
 import dev.martianzoo.util.wrap

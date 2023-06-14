@@ -1,5 +1,6 @@
 package dev.martianzoo.tfm.api
 
+import dev.martianzoo.api.GameReader
 import dev.martianzoo.tfm.data.MarsMapDefinition
 import dev.martianzoo.tfm.data.Player
 import dev.martianzoo.tfm.data.TfmClassNames.MARS_MAP

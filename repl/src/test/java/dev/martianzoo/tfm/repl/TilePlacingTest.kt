@@ -1,8 +1,8 @@
 package dev.martianzoo.tfm.repl
 
+import dev.martianzoo.api.Exceptions.LimitsException
+import dev.martianzoo.api.Exceptions.NarrowingException
 import dev.martianzoo.engine.Engine
-import dev.martianzoo.tfm.api.Exceptions.LimitsException
-import dev.martianzoo.tfm.api.Exceptions.NarrowingException
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.data.Player.Companion.PLAYER1
 import dev.martianzoo.tfm.data.Player.Companion.PLAYER2

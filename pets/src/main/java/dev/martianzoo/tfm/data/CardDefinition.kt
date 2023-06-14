@@ -1,6 +1,6 @@
 package dev.martianzoo.tfm.data
 
-import dev.martianzoo.tfm.api.SpecialClassNames.THIS
+import dev.martianzoo.api.SpecialClassNames.THIS
 import dev.martianzoo.tfm.data.CardDefinition.Deck.PROJECT
 import dev.martianzoo.tfm.data.CardDefinition.ProjectKind.ACTIVE
 import dev.martianzoo.tfm.data.ClassDeclaration.ClassKind.CONCRETE

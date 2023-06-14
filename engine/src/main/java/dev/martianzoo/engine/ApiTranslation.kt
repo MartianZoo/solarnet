@@ -1,12 +1,12 @@
 package dev.martianzoo.engine
 
+import dev.martianzoo.api.GameReader
+import dev.martianzoo.api.Type
 import dev.martianzoo.engine.AutoExecMode.FIRST
 import dev.martianzoo.engine.Engine.PlayerScoped
 import dev.martianzoo.engine.Gameplay.Companion.parse
 import dev.martianzoo.engine.Gameplay.GodMode
 import dev.martianzoo.engine.Gameplay.OperationBody
-import dev.martianzoo.tfm.api.GameReader
-import dev.martianzoo.tfm.api.Type
 import dev.martianzoo.tfm.data.GameEvent.ChangeEvent.Cause
 import dev.martianzoo.tfm.data.Player
 import dev.martianzoo.tfm.data.Task.TaskId

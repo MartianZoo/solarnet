@@ -1,5 +1,10 @@
 package dev.martianzoo.tfm.repl
 
+import dev.martianzoo.api.GameReader
+import dev.martianzoo.api.SpecialClassNames.CLASS
+import dev.martianzoo.api.SpecialClassNames.COMPONENT
+import dev.martianzoo.api.SpecialClassNames.SIGNAL
+import dev.martianzoo.api.SpecialClassNames.SYSTEM
 import dev.martianzoo.engine.AutoExecMode.FIRST
 import dev.martianzoo.engine.AutoExecMode.NONE
 import dev.martianzoo.engine.AutoExecMode.SAFE
@@ -7,11 +12,6 @@ import dev.martianzoo.engine.Engine
 import dev.martianzoo.engine.Game
 import dev.martianzoo.engine.Gameplay.Companion.parse
 import dev.martianzoo.engine.Timeline.Checkpoint
-import dev.martianzoo.tfm.api.GameReader
-import dev.martianzoo.tfm.api.SpecialClassNames.CLASS
-import dev.martianzoo.tfm.api.SpecialClassNames.COMPONENT
-import dev.martianzoo.tfm.api.SpecialClassNames.SIGNAL
-import dev.martianzoo.tfm.api.SpecialClassNames.SYSTEM
 import dev.martianzoo.tfm.canon.Canon.SIMPLE_GAME
 import dev.martianzoo.tfm.data.GameEvent.ChangeEvent
 import dev.martianzoo.tfm.data.GameSetup

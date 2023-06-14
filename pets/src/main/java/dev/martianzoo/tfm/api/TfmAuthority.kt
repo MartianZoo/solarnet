@@ -1,8 +1,10 @@
 package dev.martianzoo.tfm.api
 
-import dev.martianzoo.tfm.api.Exceptions.PetException
-import dev.martianzoo.tfm.api.SpecialClassNames.CLASS
-import dev.martianzoo.tfm.api.SpecialClassNames.COMPONENT
+import dev.martianzoo.api.CustomClass
+import dev.martianzoo.api.Exceptions
+import dev.martianzoo.api.Exceptions.PetException
+import dev.martianzoo.api.SpecialClassNames.CLASS
+import dev.martianzoo.api.SpecialClassNames.COMPONENT
 import dev.martianzoo.tfm.data.CardDefinition
 import dev.martianzoo.tfm.data.ClassDeclaration
 import dev.martianzoo.tfm.data.ColonyTileDefinition
@@ -21,7 +23,7 @@ import dev.martianzoo.util.associateByStrict
  * the `canon` module, containing only officially published materials. Others might provide fan-made
  * content or test content.
  */
-public abstract class Authority {
+public abstract class TfmAuthority {
 
   /** Returns every bundle code (e.g. `"B"`) this authority has any information on. */
   public open val allBundles: Set<String> by lazy { allDefinitions.map { it.bundle }.toSet() }
@@ -169,7 +171,7 @@ public abstract class Authority {
    * An authority providing nothing; intended for tests. Subclass it to supply any needed
    * declarations and definitions.
    */
-  public open class Empty : Authority() {
+  public open class Empty : TfmAuthority() {
     override val explicitClassDeclarations = setOf<ClassDeclaration>()
     override val cardDefinitions = setOf<CardDefinition>()
     override val marsMapDefinitions = setOf<MarsMapDefinition>()

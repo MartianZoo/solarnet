@@ -1,8 +1,8 @@
 package dev.martianzoo.engine
 
+import dev.martianzoo.api.GameReader
 import dev.martianzoo.engine.Engine.GameScoped
 import dev.martianzoo.engine.Engine.PlayerComponent
-import dev.martianzoo.tfm.api.GameReader
 import dev.martianzoo.tfm.data.Player
 import dev.martianzoo.tfm.pets.ast.Metric
 import dev.martianzoo.tfm.pets.ast.Requirement

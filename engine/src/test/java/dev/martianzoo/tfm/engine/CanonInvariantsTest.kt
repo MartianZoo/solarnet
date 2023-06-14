@@ -1,12 +1,12 @@
 package dev.martianzoo.tfm.engine
 
 import com.google.common.truth.Truth.assertThat
+import dev.martianzoo.api.SpecialClassNames.THIS
 import dev.martianzoo.engine.Effector
 import dev.martianzoo.engine.Limiter
 import dev.martianzoo.engine.Limiter.RangeRestriction.SimpleRangeRestriction
 import dev.martianzoo.engine.Limiter.RangeRestriction.UnboundRangeRestriction
 import dev.martianzoo.engine.WritableComponentGraph
-import dev.martianzoo.tfm.api.SpecialClassNames.THIS
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.pets.Parsing.parse
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn

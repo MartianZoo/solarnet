@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Test
 
 private class GameSetupTest {
   val authority =
-      object : Authority.Empty() {
+      object : TfmAuthority.Empty() {
         override val allBundles = "BRMEVPCX".asIterable().toStrings().toSet()
         override val marsMapDefinitions =
             setOf(

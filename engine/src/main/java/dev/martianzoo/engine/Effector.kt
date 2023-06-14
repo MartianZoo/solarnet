@@ -1,10 +1,10 @@
 package dev.martianzoo.engine
 
+import dev.martianzoo.api.GameReader
+import dev.martianzoo.api.SpecialClassNames.ANYONE
+import dev.martianzoo.api.SpecialClassNames.OWNER
 import dev.martianzoo.engine.Effector.Subscription.Companion
 import dev.martianzoo.engine.Engine.GameScoped
-import dev.martianzoo.tfm.api.GameReader
-import dev.martianzoo.tfm.api.SpecialClassNames.ANYONE
-import dev.martianzoo.tfm.api.SpecialClassNames.OWNER
 import dev.martianzoo.tfm.data.GameEvent.ChangeEvent
 import dev.martianzoo.tfm.data.GameEvent.ChangeEvent.Cause
 import dev.martianzoo.tfm.data.Player

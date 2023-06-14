@@ -1,8 +1,8 @@
 package dev.martianzoo.tfm.engine.cards.colonies
 
-import dev.martianzoo.tfm.api.Exceptions.ExpressionException
-import dev.martianzoo.tfm.api.Exceptions.LimitsException
-import dev.martianzoo.tfm.api.Exceptions.NotNowException
+import dev.martianzoo.api.Exceptions.ExpressionException
+import dev.martianzoo.api.Exceptions.LimitsException
+import dev.martianzoo.api.Exceptions.NotNowException
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows

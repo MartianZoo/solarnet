@@ -1,6 +1,6 @@
 package dev.martianzoo.tfm.data
 
-import dev.martianzoo.tfm.api.Authority
+import dev.martianzoo.tfm.api.TfmAuthority
 import dev.martianzoo.tfm.pets.HasClassName.Companion.classNames
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.util.random
@@ -13,7 +13,7 @@ import dev.martianzoo.util.toStrings
  */
 data class GameSetup(
     /** Where to pull class declarations, card definitions, etc. from. */
-    val authority: Authority,
+    val authority: TfmAuthority,
 
     /**
      * Which bundles of cards/milestones/maps/etc. to include. For example the officially published

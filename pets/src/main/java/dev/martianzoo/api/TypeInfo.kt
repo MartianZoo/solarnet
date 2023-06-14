@@ -1,4 +1,4 @@
-package dev.martianzoo.tfm.api
+package dev.martianzoo.api
 
 import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.pets.ast.Requirement

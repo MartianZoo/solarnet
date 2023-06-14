@@ -1,4 +1,4 @@
-package dev.martianzoo.tfm.api
+package dev.martianzoo.api
 
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn

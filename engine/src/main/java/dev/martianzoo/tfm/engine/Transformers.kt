@@ -1,11 +1,11 @@
 package dev.martianzoo.tfm.engine
 
+import dev.martianzoo.api.Exceptions.PetSyntaxException
+import dev.martianzoo.api.SpecialClassNames.ATOMIZED
+import dev.martianzoo.api.SpecialClassNames.CLASS
+import dev.martianzoo.api.SpecialClassNames.OWNER
+import dev.martianzoo.api.SpecialClassNames.THIS
 import dev.martianzoo.engine.Engine.GameScoped
-import dev.martianzoo.tfm.api.Exceptions.PetSyntaxException
-import dev.martianzoo.tfm.api.SpecialClassNames.ATOMIZED
-import dev.martianzoo.tfm.api.SpecialClassNames.CLASS
-import dev.martianzoo.tfm.api.SpecialClassNames.OWNER
-import dev.martianzoo.tfm.api.SpecialClassNames.THIS
 import dev.martianzoo.tfm.data.TfmClassNames.PROD
 import dev.martianzoo.tfm.data.TfmClassNames.PRODUCTION
 import dev.martianzoo.tfm.data.TfmClassNames.STANDARD_RESOURCE

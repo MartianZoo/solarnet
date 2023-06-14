@@ -1,9 +1,9 @@
 package dev.martianzoo.engine
 
-import dev.martianzoo.tfm.api.Exceptions
-import dev.martianzoo.tfm.api.GameReader
-import dev.martianzoo.tfm.api.SpecialClassNames
-import dev.martianzoo.tfm.api.Type
+import dev.martianzoo.api.Exceptions
+import dev.martianzoo.api.GameReader
+import dev.martianzoo.api.SpecialClassNames
+import dev.martianzoo.api.Type
 import dev.martianzoo.tfm.data.Player
 import dev.martianzoo.tfm.engine.Transformers
 import dev.martianzoo.tfm.pets.HasClassName

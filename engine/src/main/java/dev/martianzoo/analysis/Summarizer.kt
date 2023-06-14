@@ -1,9 +1,9 @@
 package dev.martianzoo.analysis
 
+import dev.martianzoo.api.GameReader
+import dev.martianzoo.api.Type
 import dev.martianzoo.engine.EventLog
 import dev.martianzoo.engine.Game
-import dev.martianzoo.tfm.api.GameReader
-import dev.martianzoo.tfm.api.Type
 import dev.martianzoo.tfm.data.GameEvent.ChangeEvent.StateChange
 import dev.martianzoo.tfm.pets.Parsing.parse
 import dev.martianzoo.tfm.pets.ast.Expression

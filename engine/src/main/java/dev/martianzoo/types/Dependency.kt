@@ -1,7 +1,7 @@
 package dev.martianzoo.types
 
-import dev.martianzoo.tfm.api.SpecialClassNames.CLASS
-import dev.martianzoo.tfm.api.TypeInfo
+import dev.martianzoo.api.SpecialClassNames.CLASS
+import dev.martianzoo.api.TypeInfo
 import dev.martianzoo.tfm.pets.HasClassName
 import dev.martianzoo.tfm.pets.HasExpression
 import dev.martianzoo.tfm.pets.ast.ClassName

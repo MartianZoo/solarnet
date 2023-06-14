@@ -11,7 +11,7 @@ private class AuthorityTest {
   @Test
   fun test() {
     val authority =
-        object : Authority.Empty() {
+        object : TfmAuthority.Empty() {
           override val cardDefinitions =
               setOf(
                   CardDefinition(

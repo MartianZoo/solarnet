@@ -1,6 +1,6 @@
 package dev.martianzoo.util
 
-import dev.martianzoo.tfm.api.TypeInfo
+import dev.martianzoo.api.TypeInfo
 
 interface Reifiable<R : Reifiable<R>> {
   /** Completes normally if this is a narrowing of [that]. */
