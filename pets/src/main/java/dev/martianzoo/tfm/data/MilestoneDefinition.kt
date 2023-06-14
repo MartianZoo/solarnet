@@ -4,7 +4,7 @@ import com.squareup.moshi.Json
 import dev.martianzoo.tfm.api.SpecialClassNames.OK
 import dev.martianzoo.tfm.data.ClassDeclaration.ClassKind.CONCRETE
 import dev.martianzoo.tfm.data.EnglishHack.englishHack
-import dev.martianzoo.tfm.data.SpecialClassNames.MILESTONE
+import dev.martianzoo.tfm.data.TfmClassNames.MILESTONE
 import dev.martianzoo.tfm.pets.Parsing.parse
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.pets.ast.Requirement

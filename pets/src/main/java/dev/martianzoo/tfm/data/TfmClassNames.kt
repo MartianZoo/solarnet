@@ -2,9 +2,11 @@ package dev.martianzoo.tfm.data
 
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 
-internal object SpecialClassNames {
+public object TfmClassNames {
   val STANDARD_ACTION = cn("StandardAction")
   val STANDARD_PROJECT = cn("StandardProject")
+
+  val END = cn("End")
 
   val MARS_MAP = cn("MarsMap")
   val TILE = cn("Tile")
@@ -14,17 +16,17 @@ internal object SpecialClassNames {
   val CORPORATION_CARD = cn("CorporationCard")
   val PRELUDE_CARD = cn("PreludeCard")
   val PROJECT_CARD = cn("ProjectCard")
-
   val CARD_FRONT = cn("CardFront")
-  val RESOURCE_CARD = cn("ResourceCard")
-  val ACTION_CARD = cn("ActionCard")
   val ACTIVE_CARD = cn("ActiveCard")
   val AUTOMATED_CARD = cn("AutomatedCard")
   val EVENT_CARD = cn("EventCard")
+  val ACTION_CARD = cn("ActionCard")
+  val RESOURCE_CARD = cn("ResourceCard")
 
-  val COLONY = cn("Colony")
-  val COLONY_BONUS = cn("ColonyBonus")
-  val COLONY_PRODUCTION = cn("ColonyProduction")
-  val COLONY_TILE = cn("ColonyTile")
-  val TRADE = cn("Trade")
+  val STANDARD_RESOURCE = cn("StandardResource")
+  val PRODUCTION = cn("Production")
+  val MEGACREDIT = cn("Megacredit")
+
+  // Okay so it's not really a class name
+  val PROD = "PROD"
 }

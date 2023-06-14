@@ -1,6 +1,5 @@
 package dev.martianzoo.tfm.data
 
-import dev.martianzoo.tfm.api.SpecialClassNames.player
 import dev.martianzoo.tfm.data.Player.Companion.ENGINE
 import dev.martianzoo.tfm.pets.HasClassName
 import dev.martianzoo.tfm.pets.HasExpression
@@ -8,6 +7,7 @@ import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 
 /** A player, or [ENGINE]. */
+// TODO shouldn't limit to 5
 data class Player(override val className: ClassName) : HasClassName, HasExpression {
   init {
     require(isValid(className.toString())) { className }
@@ -33,5 +33,7 @@ data class Player(override val className: ClassName) : HasClassName, HasExpressi
 
     fun isValid(name: String) = name.matches(regex)
     fun isValid(name: ClassName) = isValid(name.toString())
+
+    private fun player(seat: Int) = cn("Player$seat").also { require(seat in 1..5) }
   }
 }

@@ -10,6 +10,8 @@ import dev.martianzoo.engine.Timeline.Checkpoint
 import dev.martianzoo.tfm.api.GameReader
 import dev.martianzoo.tfm.api.SpecialClassNames.CLASS
 import dev.martianzoo.tfm.api.SpecialClassNames.COMPONENT
+import dev.martianzoo.tfm.api.SpecialClassNames.SIGNAL
+import dev.martianzoo.tfm.api.SpecialClassNames.SYSTEM
 import dev.martianzoo.tfm.canon.Canon.SIMPLE_GAME
 import dev.martianzoo.tfm.data.GameEvent.ChangeEvent
 import dev.martianzoo.tfm.data.GameSetup
@@ -504,11 +506,11 @@ internal class ReplSession(private val jline: JlineRepl? = null) {
     val g = event.change.gaining
     val r = event.change.removing
 
-    val system = game.resolve(cn("System").expression)
+    val system = game.resolve(SYSTEM.expression)
     if (listOfNotNull(g, r).all { game.resolve(it).narrows(system) }) return true
 
     if (r != null) {
-      val signal = game.resolve(cn("Signal").expression)
+      val signal = game.resolve(SIGNAL.expression)
       if (game.resolve(r).narrows(signal)) return true
     }
     return false

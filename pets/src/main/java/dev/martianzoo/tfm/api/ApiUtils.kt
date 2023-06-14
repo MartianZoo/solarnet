@@ -2,6 +2,10 @@ package dev.martianzoo.tfm.api
 
 import dev.martianzoo.tfm.data.MarsMapDefinition
 import dev.martianzoo.tfm.data.Player
+import dev.martianzoo.tfm.data.TfmClassNames.MARS_MAP
+import dev.martianzoo.tfm.data.TfmClassNames.MEGACREDIT
+import dev.martianzoo.tfm.data.TfmClassNames.PRODUCTION
+import dev.martianzoo.tfm.data.TfmClassNames.STANDARD_RESOURCE
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.util.toSetStrict
@@ -42,9 +46,4 @@ object ApiUtils {
     val mapName = game.getComponents(map).single().className
     return game.authority.marsMap(mapName)
   }
-
-  private val MARS_MAP = ClassName.cn("MarsMap")
-  private val MEGACREDIT = ClassName.cn("Megacredit")
-  private val PRODUCTION = ClassName.cn("Production")
-  private val STANDARD_RESOURCE = ClassName.cn("StandardResource")
 }

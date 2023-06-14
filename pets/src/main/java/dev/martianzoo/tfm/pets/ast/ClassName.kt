@@ -52,8 +52,8 @@ public class ClassName private constructor(private val asString: String) :
   /**
    * Returns the expression having this class name as its [Expression.className], no arguments, and
    * [refinement] as its [Expression.refinement] (or no refinement if [refinement] is `null`). For
-   * example, if `bt` is the requirement `BuildingTag`, then `cn("CardFront").refine(bt)` is the
-   * expression `CardFront(HAS BuildingTag)`.
+   * example, if `bt` is the requirement `2 BuildingTag`, then `cn("CardFront").has(bt)` is the
+   * expression `CardFront(HAS 2 BuildingTag)`.
    */
   fun has(refinement: Requirement?) = expression.has(refinement)
 

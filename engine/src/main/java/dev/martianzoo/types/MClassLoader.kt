@@ -5,6 +5,7 @@ import dev.martianzoo.tfm.api.Authority
 import dev.martianzoo.tfm.api.CustomClass
 import dev.martianzoo.tfm.api.Exceptions
 import dev.martianzoo.tfm.api.Exceptions.ExpressionException
+import dev.martianzoo.tfm.api.SpecialClassNames.AUTO_LOAD
 import dev.martianzoo.tfm.api.SpecialClassNames.CLASS
 import dev.martianzoo.tfm.api.SpecialClassNames.COMPONENT
 import dev.martianzoo.tfm.api.SpecialClassNames.THIS
@@ -41,16 +42,17 @@ internal class MClassLoader(
     // TODO wow gross
     if ("C" in setup.bundles) {
       loadAll(authority.colonyTileDefinitions.classNames())
-      loadAll(authority.explicitClassDeclarations
-          .filter { cn("TradeFleet").expression in it.supertypes }
-          .classNames())
+      loadAll(
+          authority.explicitClassDeclarations
+              .filter { cn("TradeFleet").expression in it.supertypes }
+              .classNames())
       load(cn("DelayedColonyTile"))
     }
     freeze()
   }
 
   fun isAutoLoad(c: ClassDeclaration): Boolean {
-    return c.className == cn("AutoLoad") ||
+    return c.className == AUTO_LOAD ||
         c.supertypes.any { isAutoLoad(authority.classDeclaration(it.className)) }
   }
 

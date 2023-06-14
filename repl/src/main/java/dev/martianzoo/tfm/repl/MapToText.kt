@@ -5,6 +5,7 @@ import dev.martianzoo.tfm.api.GameReader
 import dev.martianzoo.tfm.api.Type
 import dev.martianzoo.tfm.data.MarsMapDefinition.AreaDefinition
 import dev.martianzoo.tfm.data.Player
+import dev.martianzoo.tfm.data.TfmClassNames.TILE
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.repl.TfmColor.CITY_TILE
 import dev.martianzoo.tfm.repl.TfmColor.GREENERY_TILE
@@ -87,7 +88,7 @@ internal class MapToText(private val game: GameReader, val useColors: Boolean = 
 
   fun describe(area: AreaDefinition?): Pair<String, TfmColor> {
     if (area == null) return "" to TfmColor.NONE
-    val expression = cn("Tile").of(area.className)
+    val expression = TILE.of(area.className)
     val tile = game.getComponents(game.resolve(expression)).singleOrNull()
     return tile?.let(::describe) ?: describeEmpty(area)
   }

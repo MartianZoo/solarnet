@@ -8,15 +8,9 @@ import com.github.h0tk3y.betterParse.combinators.skip
 import com.github.h0tk3y.betterParse.grammar.parser
 import com.github.h0tk3y.betterParse.parser.Parser
 import dev.martianzoo.tfm.api.Exceptions.PetSyntaxException
-import dev.martianzoo.tfm.api.SpecialClassNames.END
-import dev.martianzoo.tfm.api.SpecialClassNames.PROD
 import dev.martianzoo.tfm.api.SpecialClassNames.THIS
-import dev.martianzoo.tfm.api.SpecialClassNames.USE_ACTION
 import dev.martianzoo.tfm.pets.PetTokenizer
 import dev.martianzoo.tfm.pets.ast.ClassName.Parsing.classFullName
-import dev.martianzoo.tfm.pets.ast.Effect.Trigger.OnGainOf
-import dev.martianzoo.tfm.pets.ast.Effect.Trigger.WhenGain
-import dev.martianzoo.tfm.pets.ast.Effect.Trigger.WhenRemove
 import dev.martianzoo.tfm.pets.ast.Instruction.Gated
 import dev.martianzoo.util.iff
 
@@ -28,7 +22,7 @@ public data class Effect(
     val trigger: Trigger,
     val instruction: Instruction,
     val automatic: Boolean = false,
-) : PetElement(), Comparable<Effect> {
+) : PetElement() {
 
   override val kind = Effect::class
 
@@ -37,8 +31,6 @@ public data class Effect(
   override fun toString() =
       "$trigger:${":".iff(automatic)} " +
           if (instruction is Gated) "($instruction)" else "$instruction"
-
-  override fun compareTo(other: Effect): Int = effectComparator.compare(this, other)
 
   /** The left-hand side of a triggered effect; the kind of event being subscribed to. */
   sealed class Trigger : PetNode() {
@@ -136,11 +128,10 @@ public data class Effect(
       override fun toString() = "$transformKind[$inner]"
 
       init {
-        if (transformKind == PROD &&
-            inner !is OnGainOf &&
+        if (inner !is OnGainOf &&
             inner !is OnRemoveOf &&
             inner !is XTrigger) {
-          throw PetSyntaxException("only gain/remove trigger can go in PROD block")
+          throw PetSyntaxException("only gain/remove trigger can go in transform block")
         }
       }
 
@@ -194,20 +185,5 @@ public data class Effect(
             Effect(trigger = trig, automatic = immed, instruction = instr)
           }
     }
-
-    private val effectComparator: Comparator<Effect> =
-        compareBy(
-            {
-              val t = it.trigger
-              when {
-                t == WhenGain -> if (it.automatic) -1 else 0
-                t == WhenRemove -> if (it.automatic) 1 else 2
-                t is OnGainOf && "${t.expression.className}".startsWith("$USE_ACTION") -> 4
-                t == OnGainOf.create(END.expression) -> 5
-                else -> 3
-              }
-            },
-            { "${it.trigger}" },
-        )
   }
 }

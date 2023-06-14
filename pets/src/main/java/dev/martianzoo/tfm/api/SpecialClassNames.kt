@@ -12,20 +12,27 @@ import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
  * Class names specific to TfM should ideally not go here, but are still better here than nowhere.
  */
 public object SpecialClassNames {
-  public val ANYONE = cn("Anyone")
+  // A special fake class name that doesn't actually point to a class
+  // TODO consider making Ok and Die like that too?
+  public val THIS = cn("This")
+
+  // Classes defined in system.pets
+
   public val ATOMIZED = cn("Atomized")
+  public val AUTO_LOAD = cn("AutoLoad")
   public val CLASS = cn("Class")
   public val CUSTOM = cn("Custom")
   public val COMPONENT = cn("Component")
   public val DIE = cn("Die")
-  public val END = cn("End")
   public val OK = cn("Ok")
+  public val SIGNAL = cn("Signal")
+  public val SYSTEM = cn("System")
+  public val TEMPORARY = cn("Temporary")
+
+  // Classes not defined in system.pets but which need to be defined by the game somewhere
+
+  public val ANYONE = cn("Anyone")
   public val OWNED = cn("Owned")
   public val OWNER = cn("Owner")
-  public val THIS = cn("This")
   public val USE_ACTION = cn("UseAction")
-
-  public fun player(seat: Int) = cn("Player$seat").also { require(seat in 1..5) }
-
-  public const val PROD = "PROD"
 }

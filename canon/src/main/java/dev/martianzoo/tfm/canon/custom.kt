@@ -10,11 +10,13 @@ import dev.martianzoo.tfm.api.Exceptions.NarrowingException
 import dev.martianzoo.tfm.api.GameReader
 import dev.martianzoo.tfm.api.SpecialClassNames.CLASS
 import dev.martianzoo.tfm.api.SpecialClassNames.DIE
-import dev.martianzoo.tfm.api.SpecialClassNames.PROD
 import dev.martianzoo.tfm.api.Type
 import dev.martianzoo.tfm.data.CardDefinition
 import dev.martianzoo.tfm.data.CardDefinition.Deck.PRELUDE
 import dev.martianzoo.tfm.data.MarsMapDefinition.AreaDefinition
+import dev.martianzoo.tfm.data.TfmClassNames.MEGACREDIT
+import dev.martianzoo.tfm.data.TfmClassNames.PROD
+import dev.martianzoo.tfm.data.TfmClassNames.TILE
 import dev.martianzoo.tfm.pets.Parsing.parse
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
@@ -67,7 +69,7 @@ private object CreateAdjacencies : CustomClass("CreateAdjacencies") {
   }
 
   private fun tileOn(area: AreaDefinition, reader: GameReader): Expression? {
-    val tileType: Type = reader.resolve(cn("Tile").of(area.className))
+    val tileType: Type = reader.resolve(TILE.of(area.className))
     val tiles = reader.getComponents(tileType)
     return tiles.singleOrNull()?.expressionFull
   }
@@ -157,7 +159,7 @@ private object GainLowestProduction : CustomClass("GainLowestProduction") {
 
     val options =
         standardResourceNames(reader).mapNotNull {
-          val target = if (it == cn("Megacredit")) lowest + 5 else lowest
+          val target = if (it == MEGACREDIT) lowest + 5 else lowest
           if (target >= 0) parse<Instruction>("=$target $it: $it") else null
         }
     // A big and gross instruction, but preparing it prunes it down

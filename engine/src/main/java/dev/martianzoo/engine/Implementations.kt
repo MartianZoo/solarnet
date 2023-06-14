@@ -9,6 +9,7 @@ import dev.martianzoo.tfm.api.Exceptions.DeadEndException
 import dev.martianzoo.tfm.api.Exceptions.NotNowException
 import dev.martianzoo.tfm.api.Exceptions.TaskException
 import dev.martianzoo.tfm.api.GameReader
+import dev.martianzoo.tfm.api.SpecialClassNames.TEMPORARY
 import dev.martianzoo.tfm.data.GameEvent.ChangeEvent.Cause
 import dev.martianzoo.tfm.data.GameEvent.TaskRemovedEvent
 import dev.martianzoo.tfm.data.Player
@@ -80,7 +81,7 @@ constructor(
     require(tasks.isEmpty()) {
       "Should be no tasks left, but:\n" + this.tasks.extract { it }.joinToString("\n")
     }
-    require(reader.has(parse("MAX 0 Temporary"))) // TODO make game rules do this
+    require(reader.has(parse("MAX 0 $TEMPORARY"))) // TODO make game rules do this
   }
 
   @Suppress("ControlFlowWithEmptyBody")

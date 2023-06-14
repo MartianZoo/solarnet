@@ -5,14 +5,15 @@ import dev.martianzoo.tfm.api.Exceptions.PetSyntaxException
 import dev.martianzoo.tfm.api.SpecialClassNames.ATOMIZED
 import dev.martianzoo.tfm.api.SpecialClassNames.CLASS
 import dev.martianzoo.tfm.api.SpecialClassNames.OWNER
-import dev.martianzoo.tfm.api.SpecialClassNames.PROD
 import dev.martianzoo.tfm.api.SpecialClassNames.THIS
+import dev.martianzoo.tfm.data.TfmClassNames.PROD
+import dev.martianzoo.tfm.data.TfmClassNames.PRODUCTION
+import dev.martianzoo.tfm.data.TfmClassNames.STANDARD_RESOURCE
 import dev.martianzoo.tfm.pets.PetTransformer
 import dev.martianzoo.tfm.pets.PetTransformer.Companion.chain
 import dev.martianzoo.tfm.pets.PetTransformer.Companion.noOp
 import dev.martianzoo.tfm.pets.Transforming.replaceThisExpressionsWith
 import dev.martianzoo.tfm.pets.ast.ClassName
-import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.pets.ast.Effect
 import dev.martianzoo.tfm.pets.ast.Effect.Trigger.ByTrigger
 import dev.martianzoo.tfm.pets.ast.Expression
@@ -320,10 +321,5 @@ internal class Transformers @Inject constructor(val table: MClassTable) {
         }
       }
     }
-  }
-
-  private companion object {
-    val PRODUCTION = cn("Production")
-    val STANDARD_RESOURCE = cn("StandardResource")
   }
 }

@@ -5,9 +5,11 @@ import dev.martianzoo.engine.Game
 import dev.martianzoo.engine.Gameplay.TurnLayer
 import dev.martianzoo.tfm.api.ApiUtils.standardResourceNames
 import dev.martianzoo.tfm.api.GameReader
+import dev.martianzoo.tfm.api.SpecialClassNames.USE_ACTION
 import dev.martianzoo.tfm.data.Player
 import dev.martianzoo.tfm.data.Player.Companion.ENGINE
 import dev.martianzoo.tfm.data.TaskResult
+import dev.martianzoo.tfm.data.TfmClassNames.MEGACREDIT
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 
@@ -98,7 +100,7 @@ public class TfmGameplay(
 
   private fun cardAction(which: Int, cardName: String, body: BodyLambda = {}): TaskResult {
     return stdAction("UseCardActionSA") {
-      doTask("UseAction$which<$cardName>")
+      doTask("$USE_ACTION$which<$cardName>")
       doTask("ActionUsedMarker<$cardName>") // will become automatic?
       body()
     }
@@ -116,8 +118,6 @@ public class TfmGameplay(
 
   fun production(kind: ClassName) =
       count("PROD[$kind]") - if (kind == MEGACREDIT || kind == cn("M")) 5 else 0
-
-  private val MEGACREDIT = cn("Megacredit")
 
   fun oxygenPercent(): Int = count("OxygenStep")
   fun temperatureC(): Int = -30 + count("TemperatureStep") * 2

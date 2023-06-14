@@ -37,6 +37,7 @@ constructor(
     internal fun scalar(): Parser<Scalar> = Parsers.scalar()
     internal fun parser(): Parser<ScaledExpression> = Parsers.parser()
 
+    // TODO need to make this type not special
     internal val MEGACREDIT = ClassName.cn("Megacredit").expression
   }
 
