@@ -1,7 +1,8 @@
 package dev.martianzoo.tfm.repl
 
 import com.google.common.truth.Truth.assertThat
-import dev.martianzoo.tfm.repl.ReplSession.MapCommand
+import dev.martianzoo.tfm.repl.commands.BoardCommand.PlayerBoardToText
+import dev.martianzoo.tfm.repl.commands.MapCommand
 import org.junit.jupiter.api.Test
 
 private class ReplSessionTest {
