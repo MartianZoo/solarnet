@@ -5,13 +5,13 @@ CLASS BuyCard : Owned,  Signal {  // Hack for TerraLabs, but being able to delay
 CLASS PlayCard<Class<CardBack>, Class<CardFront>> : Owned, Signal {
   This:: CheckCardDeck<Class<CardBack>, Class<CardFront>>
   This:: CheckCardRequirement<Class<CardFront>>
-  This:: HandleCardCost<Class<CardBack>, Class<CardFront>>
+  This:: HandleCardCost<Class<CardFront>>
   This: MAX 0 Barrier: CardFront FROM CardBack
 }
 
 CLASS CheckCardDeck<Class<CardBack>, Class<CardFront>> : Custom
 CLASS CheckCardRequirement<Class<CardFront>> : Owned, Custom
-CLASS HandleCardCost<Class<CardBack>, Class<CardFront>> : Owned, Custom
+CLASS HandleCardCost<Class<CardFront>> : Owned, Custom
 
 CLASS PlayTag<Class<Tag>> : Owned, Signal       // Triggers discounts and Accepts (needs Owned?)
 
@@ -26,7 +26,7 @@ ABSTRACT CLASS PaymentMechanic<Class<Resource>> : Owned, Temporary {
     HAS MAX 1 This                              // on 4 special cards.
     DEFAULT +Accept.
     This: X Pay<Class<Resource>> FROM Resource? // the ? is essential; X is defined to be positive
-  }                                             // TODO currently removing it still works - bad
+  }
 
   CLASS Pay : Signal {                          // used like `8 Pay<Class<Heat>> FROM Heat`, but
     DEFAULT +Pay<Class<Megacredit>>             // also cards can pay in response to signals

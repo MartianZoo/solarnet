@@ -4,7 +4,6 @@ import dev.martianzoo.tfm.api.Exceptions.ExistingDependentsException
 import dev.martianzoo.tfm.api.SpecialClassNames.COMPONENT
 import dev.martianzoo.tfm.api.TypeInfo
 import dev.martianzoo.tfm.data.GameEvent.ChangeEvent.StateChange
-import dev.martianzoo.tfm.engine.ComponentGraph.Component
 import dev.martianzoo.tfm.engine.Engine.GameScoped
 import dev.martianzoo.tfm.engine.Engine.Updater
 import dev.martianzoo.types.MType

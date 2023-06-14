@@ -7,7 +7,7 @@ import dev.martianzoo.tfm.data.GameEvent.ChangeEvent.Cause
 import dev.martianzoo.tfm.data.Player
 import dev.martianzoo.tfm.data.Task
 import dev.martianzoo.tfm.data.Task.TaskId
-import dev.martianzoo.tfm.engine.ComponentGraph.Component.Companion.toComponent
+import dev.martianzoo.tfm.engine.Component.Companion.toComponent
 import dev.martianzoo.tfm.engine.Engine.PlayerScoped
 import dev.martianzoo.tfm.pets.PetTransformer.Companion.chain
 import dev.martianzoo.tfm.pets.Transforming.replaceOwnerWith

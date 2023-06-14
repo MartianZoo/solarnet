@@ -8,7 +8,6 @@ import dev.martianzoo.tfm.data.GameEvent.ChangeEvent.Cause
 import dev.martianzoo.tfm.data.Player
 import dev.martianzoo.tfm.data.Task
 import dev.martianzoo.tfm.data.Task.TaskId
-import dev.martianzoo.tfm.engine.ComponentGraph.Component
 import dev.martianzoo.tfm.engine.Engine.GameScoped
 import dev.martianzoo.tfm.pets.Transforming.replaceOwnerWith
 import dev.martianzoo.tfm.pets.ast.ClassName
@@ -75,9 +74,6 @@ internal class Effector @Inject constructor(reader: Provider<GameReader>) {
       private val instruction: Instruction,
       private val context: Component,
   ) {
-
-    val classToCheck: ClassName? by subscription::classToCheck // TODO use or lose
-
     fun onChangeToSelf(triggerEvent: ChangeEvent, reader: GameReader) =
         onChange(triggerEvent, reader, isSelf = true)
 

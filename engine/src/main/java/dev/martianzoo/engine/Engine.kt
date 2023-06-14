@@ -14,7 +14,6 @@ import dev.martianzoo.tfm.data.GameSetup
 import dev.martianzoo.tfm.data.Player
 import dev.martianzoo.tfm.data.Player.Companion.ENGINE
 import dev.martianzoo.tfm.data.Task
-import dev.martianzoo.tfm.engine.ComponentGraph.Component
 import dev.martianzoo.types.MClassLoader
 import dev.martianzoo.types.MClassTable
 import javax.inject.Scope

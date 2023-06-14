@@ -38,7 +38,7 @@ class HeadStartTest {
       phase("Prelude")
       playPrelude("HeadStart") {
         assertCounts(2 to "Steel", 24 to "M")
-        doTask("UseAction1<UseStandardProjectSA>")
+        doFirstTask("UseAction1<UseStandardProjectSA>")
         doTask("UseAction1<ConvertHeatSA>")
         doTask("UseAction1<AquiferSP>")
         doTask("OceanTile<M55>")

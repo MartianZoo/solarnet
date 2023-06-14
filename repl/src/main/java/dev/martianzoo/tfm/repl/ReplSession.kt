@@ -403,7 +403,7 @@ internal class ReplSession(private val jline: JlineRepl? = null) {
           tasks of all players plus the engine are currently mixed together (but labeled).
         """
     override val isReadOnly = true
-    override fun noArgs() = tfm.game.tasks.extract { "$it" }
+    override fun noArgs() = tfm.game.tasks.extract { it.toStringWithoutCause() }
   }
 
   internal inner class TaskCommand : ReplCommand("task") {
@@ -463,7 +463,9 @@ internal class ReplSession(private val jline: JlineRepl? = null) {
     val taskLines =
         if (newTasks.any()) {
           listOf("New tasks pending:") +
-              tfm.game.tasks.extract { if (it.id in newTasks) "$it" else null }.filterNotNull()
+              tfm.game.tasks
+                  .extract { if (it.id in newTasks) it.toStringWithoutCause() else null }
+                  .filterNotNull()
         } else {
           listOf()
         }

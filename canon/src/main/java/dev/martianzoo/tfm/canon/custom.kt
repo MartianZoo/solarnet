@@ -44,20 +44,18 @@ internal val canonCustomClasses =
         CopyPrelude,
     )
 
-// TODO maybe stop called the reader `game` everywhere in this file
-
 private object CreateAdjacencies : CustomClass("CreateAdjacencies") {
-  override fun translate(game: GameReader, areaType: Type): Instruction {
-    val grid: Grid<AreaDefinition> = mapDefinition(game).areas
+  override fun translate(reader: GameReader, areaType: Type): Instruction {
+    val grid: Grid<AreaDefinition> = mapDefinition(reader).areas
     val area = grid.firstOrNull { it.className == areaType.className } ?: error(areaType)
     val neighborAreas: List<AreaDefinition> = neighborsInHexGrid(grid, area.row, area.column)
-    val newTile: Expression = tileOn(area, game)!! // creating it is what got us here
+    val newTile: Expression = tileOn(area, reader)!! // creating it is what got us here
 
     val neighbors: List<Expression> =
         neighborAreas.map { cn("Neighbor").of(newTile, it.className.expression) }
     val adjacencies: List<Expression> =
         neighborAreas
-            .mapNotNull { tileOn(it, game) }
+            .mapNotNull { tileOn(it, reader) }
             .flatMap {
               listOf(
                   cn("ForwardAdjacency").of(it, newTile),
@@ -68,9 +66,9 @@ private object CreateAdjacencies : CustomClass("CreateAdjacencies") {
     return Then.create((neighbors + adjacencies).map { gain(scaledEx(1, it)) })
   }
 
-  private fun tileOn(area: AreaDefinition, game: GameReader): Expression? {
-    val tileType: Type = game.resolve(cn("Tile").of(area.className))
-    val tiles = game.getComponents(tileType)
+  private fun tileOn(area: AreaDefinition, reader: GameReader): Expression? {
+    val tileType: Type = reader.resolve(cn("Tile").of(area.className))
+    val tiles = reader.getComponents(tileType)
     return tiles.singleOrNull()?.expressionFull
   }
 
@@ -88,11 +86,11 @@ private object CreateAdjacencies : CustomClass("CreateAdjacencies") {
 
 private object CheckCardDeck : CustomClass("CheckCardDeck") {
   override fun translate(
-      game: GameReader,
+      reader: GameReader,
       cardBackClassType: Type,
       cardFrontClassType: Type
   ): Instruction {
-    val deck = cardFromClassExpression(cardFrontClassType, game).deck
+    val deck = cardFromClassExpression(cardFrontClassType, reader).deck
     return if (cardBackClassType.expression.arguments.single().className == deck?.className) {
       NoOp
     } else {
@@ -102,24 +100,21 @@ private object CheckCardDeck : CustomClass("CheckCardDeck") {
 }
 
 private object CheckCardRequirement : CustomClass("CheckCardRequirement") {
-  override fun translate(game: GameReader, owner: Type, cardClassType: Type): Instruction {
-    val reqt = cardFromClassExpression(cardClassType, game).requirement
+  override fun translate(reader: GameReader, owner: Type, cardClassType: Type): Instruction {
+    val reqt = cardFromClassExpression(cardClassType, reader).requirement
     return Gated.create(reqt, NoOp)
   }
 }
 
 private object HandleCardCost : CustomClass("HandleCardCost") {
   override fun translate(
-      game: GameReader,
+      reader: GameReader,
       owner: Type,
-      cardBackClassType: Type,
       cardFrontClassType: Type
   ): Instruction {
-    // TODO dumb to pass it in just for this reason
-    if (cardBackClassType.expression.arguments.single() != cn("ProjectCard").expression) return NoOp
-
     val cardType: Expression = cardFrontClassType.expression.arguments.single()
-    val card: CardDefinition = game.authority.card(cardType.className)
+    val card: CardDefinition = reader.authority.card(cardType.className)
+    if (card.cost == 0) return NoOp
 
     val playTagSignals =
         card.tags.entries.map { (tagName: ClassName, ct: Int) ->
@@ -137,18 +132,18 @@ private object HandleCardCost : CustomClass("HandleCardCost") {
   }
 }
 
-private fun cardFromClassExpression(cardClassType: Type, game: GameReader): CardDefinition {
+private fun cardFromClassExpression(cardClassType: Type, reader: GameReader): CardDefinition {
   val cardType: Expression = cardClassType.expression.arguments.single()
-  val card: CardDefinition = game.authority.card(cardType.className)
+  val card: CardDefinition = reader.authority.card(cardType.className)
   return card
 }
 
 // For scoring event cards
 private object GetEventVps : CustomClass("GetEventVps") {
-  override fun translate(game: GameReader, ignoredOwner: Type, classType: Type): Instruction {
+  override fun translate(reader: GameReader, ignoredOwner: Type, classType: Type): Instruction {
     require(classType.className == CLASS)
     val cardName = classType.expression.arguments.single().className
-    val card = game.authority.card(cardName)
+    val card = reader.authority.card(cardName)
     val endFx = card.effects.filter { it.trigger == end }
     return Multi.create(endFx.map { it.instruction })
   }
@@ -157,11 +152,11 @@ private object GetEventVps : CustomClass("GetEventVps") {
 
 // For Robinson Industries
 private object GainLowestProduction : CustomClass("GainLowestProduction") {
-  override fun translate(game: GameReader, owner: Type): Instruction {
-    val lowest = lookUpProductionLevels(game, owner.expression).values.min()
+  override fun translate(reader: GameReader, owner: Type): Instruction {
+    val lowest = lookUpProductionLevels(reader, owner.expression).values.min()
 
     val options =
-        standardResourceNames(game).mapNotNull {
+        standardResourceNames(reader).mapNotNull {
           val target = if (it == cn("Megacredit")) lowest + 5 else lowest
           if (target >= 0) parse<Instruction>("=$target $it: $it") else null
         }
@@ -172,8 +167,8 @@ private object GainLowestProduction : CustomClass("GainLowestProduction") {
 
 // For Robotic Workforce
 private object CopyProductionBox : CustomClass("CopyProductionBox") {
-  override fun translate(game: GameReader, owner: Type, cardType: Type): Instruction {
-    val card: CardDefinition = game.authority.card(cardType.className)
+  override fun translate(reader: GameReader, owner: Type, cardType: Type): Instruction {
+    val card: CardDefinition = reader.authority.card(cardType.className)
     val immediate =
         card.immediate
             ?: throw NarrowingException("card ${card.className} has no immediate instruction")
@@ -189,8 +184,8 @@ private object CopyProductionBox : CustomClass("CopyProductionBox") {
 
 // For Double Down
 private object CopyPrelude : CustomClass("CopyPrelude") {
-  override fun translate(game: GameReader, owner: Type, cardType: Type): Instruction {
-    val card = game.authority.card(cardType.className)
+  override fun translate(reader: GameReader, owner: Type, cardType: Type): Instruction {
+    val card = reader.authority.card(cardType.className)
     if (card.deck != PRELUDE) {
       throw NarrowingException("Card ${card.className} is not a prelude card")
     }

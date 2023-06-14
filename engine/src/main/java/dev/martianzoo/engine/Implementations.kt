@@ -12,7 +12,7 @@ import dev.martianzoo.tfm.data.Task
 import dev.martianzoo.tfm.data.Task.TaskId
 import dev.martianzoo.tfm.engine.AutoExecMode.NONE
 import dev.martianzoo.tfm.engine.AutoExecMode.SAFE
-import dev.martianzoo.tfm.engine.ComponentGraph.Component.Companion.toComponent
+import dev.martianzoo.tfm.engine.Component.Companion.toComponent
 import dev.martianzoo.tfm.engine.Engine.PlayerScoped
 import dev.martianzoo.tfm.pets.Parsing.parse
 import dev.martianzoo.tfm.pets.ast.Instruction
@@ -84,7 +84,7 @@ constructor(
   }
 
   @Suppress("ControlFlowWithEmptyBody")
-  fun autoExecNow(mode: AutoExecMode) { // TODO invert default or something
+  fun autoExecNow(mode: AutoExecMode) {
     while (autoExecNext(mode)) {}
   }
 
@@ -156,7 +156,6 @@ constructor(
   // TURNS LAYER
 
   fun startTurn() = execute("NewTurn<$player>!")
-  fun startTurn2() = execute("NewTurn2<$player>!") // TODO get rid of
 
   // GAMES LAYER
 
@@ -242,22 +241,22 @@ constructor(
   }
 
   private fun matchingTask(revised: Instruction): TaskId {
-    // TODO simplify this madness
-    val id =
-        tasks.preparedTask()
-            ?: tasks
-                .matching {
-                  try {
-                    it.owner == player &&
-                        (revised.narrows(it.instruction, reader) ||
-                            revised.narrows(instructor.prepare(it.instruction), reader))
-                  } catch (e: NotNowException) {
-                    false
-                  }
-                }
-                .firstOrNull()
-                ?: throw TaskException("no matching task; tasks are:\n$tasks")
-    return id
+    tasks.preparedTask()?.let {
+      return it
+    }
+
+    fun weCanReviseIt(taskData: Task): Boolean {
+      if (taskData.owner != player) return false
+      if (revised.narrows(taskData.instruction, reader)) return true
+      return try {
+        revised.narrows(instructor.prepare(taskData.instruction), reader)
+      } catch (e: NotNowException) {
+        false
+      }
+    }
+
+    return tasks.matching(::weCanReviseIt).singleOrNull()
+        ?: throw TaskException("there wasn't exactly one matching task; tasks are:\n$tasks")
   }
 
   fun tryTask(id: TaskId) {
@@ -298,6 +297,6 @@ constructor(
     }
   }
 
-  fun execute(instruction: String, fakeCause: Cause? = null): Unit =
-      addTasks(parse(instruction), fakeCause).forEach(::doTask) // TODO where to share this
+  private fun execute(instruction: String, fakeCause: Cause? = null): Unit =
+      addTasks(parse(instruction), fakeCause).forEach(::doTask) // TODO where to share this?
 }

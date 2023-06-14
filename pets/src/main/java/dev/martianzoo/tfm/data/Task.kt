@@ -106,24 +106,14 @@ public data class Task(
     return copy(instructionIn = instruction * factor, thenIn = then?.times(factor))
   }
 
-  override fun toString() = buildString {
-    append(id)
-    append(if (next) "* " else "  ")
-    append("[$owner] ")
-    append(instruction)
-    then?.let { append(" (THEN $it)") }
-    cause?.let { append(" $cause") }
-    whyPending?.let { append(" ($it) ") }
-  }
-
   private fun normalizeForTask(instruction: Instruction): Instruction {
     return when (instruction) {
       is Change ->
-          if (instruction.gaining != DIE.expression) {
-            instruction
-          } else {
-            throw DeadEndException("a Die instruction was reached")
-          }
+        if (instruction.gaining != DIE.expression) {
+          instruction
+        } else {
+          throw DeadEndException("a Die instruction was reached")
+        }
       is Gated -> instruction.copy(inner = normalizeForTask(instruction.inner))
       is Per -> instruction.copy(inner = normalizeForTask(instruction.inner))
       is Or -> Or.create(instruction.instructions.map(::normalizeForTask).toSet())
@@ -136,6 +126,25 @@ public data class Task(
       is Multi -> split(instruction).asInstruction()
       is Transform -> error("can't enqueue: $instruction")
     }
+  }
+
+  override fun toString() = buildString {
+    append(id)
+    append(if (next) "* " else "  ")
+    append("[$owner] ")
+    append(instruction)
+    then?.let { append(" (THEN $it)") }
+    cause?.let { append(" $cause") }
+    whyPending?.let { append(" ($it)") }
+  }
+
+  fun toStringWithoutCause() = buildString {
+    append(id)
+    append(if (next) "* " else "  ")
+    append("[$owner] ")
+    append(instruction)
+    then?.let { append(" (THEN $it)") }
+    whyPending?.let { append(" ($it)") }
   }
 
   data class TaskId(val s: String) : Comparable<TaskId> {

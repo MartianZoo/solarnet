@@ -125,19 +125,14 @@ constructor(
   // TURNS
 
   override fun startTurn() = atomic { impl.startTurn() }
-  override fun startTurn2() = atomic { impl.startTurn2() }
 
-  // TODO unclear when we delegate straight to impl and when we do it ourselves
   override fun turn(body: BodyLambda): TaskResult {
-    // TODO tighten this up somehow...
     return if (tasks.isEmpty()) {
       manual("NewTurn", body)
     } else {
       finish(body)
     }
   }
-
-  override fun turn2(body: BodyLambda) = manual("NewTurn2<$player>", body)
 
   // GAMES (methods that can't break game-integrity)
   // This layer is only usable if you have a running workflow, so that >0 players always have a

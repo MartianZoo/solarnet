@@ -95,11 +95,8 @@ interface Gameplay {
 
   interface TurnLayer : Gameplay {
     fun startTurn(): TaskResult
-    fun startTurn2(): TaskResult
 
     fun turn(body: BodyLambda = {}): TaskResult
-
-    fun turn2(body: BodyLambda = {}): TaskResult
   }
 
   // Green mode

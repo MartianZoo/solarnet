@@ -1,6 +1,5 @@
 package dev.martianzoo.tfm.engine
 
-import dev.martianzoo.engine.Limiter
 import dev.martianzoo.tfm.api.CustomClass
 import dev.martianzoo.tfm.api.Exceptions.DeadEndException
 import dev.martianzoo.tfm.api.Exceptions.DependencyException
@@ -14,7 +13,7 @@ import dev.martianzoo.tfm.api.GameReader
 import dev.martianzoo.tfm.api.SpecialClassNames.DIE
 import dev.martianzoo.tfm.data.GameEvent.ChangeEvent.Cause
 import dev.martianzoo.tfm.data.Task
-import dev.martianzoo.tfm.engine.ComponentGraph.Component.Companion.toComponent
+import dev.martianzoo.tfm.engine.Component.Companion.toComponent
 import dev.martianzoo.tfm.engine.Engine.PlayerScoped
 import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.pets.ast.Instruction
@@ -133,7 +132,7 @@ constructor(
     val (g: MType?, r: MType?) = autoNarrowTypes(change.gaining, change.removing)
     if (g?.className == DIE) throw DeadEndException("a Die instruction was reached")
 
-    val intens = change.intensity ?: error("$change")
+    val intens = change.intensity ?: error("missing intensity: $change")
 
     if (listOfNotNull(g, r).any { it.abstract }) {
       // Still abstract, don't check limits yet
