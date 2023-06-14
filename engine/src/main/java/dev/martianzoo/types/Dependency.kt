@@ -126,6 +126,8 @@ internal sealed class Dependency : Hierarchical<Dependency>, HasExpression, HasC
       require(deps.all { it is TypeDependency } || deps.single() is FakeDependency)
     }
 
+    internal fun isForClassType(set: Set<Dependency>) = set.singleOrNull() is FakeDependency
+
     internal fun getClassForClassType(set: Set<Dependency>): MClass =
         (set.single() as FakeDependency).boundClass
 

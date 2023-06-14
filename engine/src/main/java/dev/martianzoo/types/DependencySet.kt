@@ -3,6 +3,8 @@ package dev.martianzoo.types
 import dev.martianzoo.tfm.api.Exceptions
 import dev.martianzoo.tfm.api.TypeInfo
 import dev.martianzoo.tfm.pets.ast.Expression
+import dev.martianzoo.types.Dependency.Companion.getClassForClassType
+import dev.martianzoo.types.Dependency.Companion.isForClassType
 import dev.martianzoo.types.Dependency.Key
 import dev.martianzoo.types.Dependency.TypeDependency
 import dev.martianzoo.util.Hierarchical
@@ -98,8 +100,6 @@ internal class DependencySet private constructor(private val deps: Set<Dependenc
   /** Returns a submap of this map where every key is one of [keysInOrder]. */
   fun subMapInOrder(keysInOrder: Iterable<Key>) = of(keysInOrder.mapNotNull(::getIfPresent))
 
-  fun getClassForClassType() = Dependency.getClassForClassType(deps)
-
   internal fun map(function: (MType) -> MType) =
       DependencySet(deps.toSetStrict { if (it is TypeDependency) it.map(function) else it })
 
@@ -136,12 +136,10 @@ internal class DependencySet private constructor(private val deps: Set<Dependenc
 
   /** Returns the subset of [allConcreteSubtypes] having the exact same [root] as ours. */
   public fun concreteSubtypesSameClass(mtype: MType): Sequence<MType> {
-    // TODO do this without try/catch
-    return try {
-      mtype.concreteSubclasses(getClassForClassType()).map { it.classType }
-    } catch (ignore: Exception) {
-      val axes: List<Sequence<TypeDependency>> =
-          typeDependencies.map { it.allConcreteSpecializations() }
+    return if (isForClassType(deps)) {
+      mtype.concreteSubclasses(getClassForClassType(deps)).map { it.classType }
+    } else {
+      val axes = typeDependencies.map { it.allConcreteSpecializations() }
       axes.cartesianProduct().map { mtype.root.withAllDependencies(DependencySet.of(it)) }
     }
   }
