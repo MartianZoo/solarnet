@@ -26,13 +26,18 @@ import dev.martianzoo.pets.ast.Effect.Trigger.XTrigger
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.Requirement
+import dev.martianzoo.tfm.engine.Prod
+import dev.martianzoo.types.MClassTable
 import dev.martianzoo.types.MType
 import dev.martianzoo.util.HashMultiset
 import javax.inject.Inject
 import javax.inject.Provider
 
 @GameScoped
-internal class Effector @Inject constructor(reader: Provider<GameReader>) {
+internal class Effector @Inject constructor(
+    reader: Provider<GameReader>,
+    val table: MClassTable,
+) {
   private val reader: GameReader by lazy(reader::get)
   private val registry = HashMultiset<ActiveEffect>()
 
@@ -61,10 +66,11 @@ internal class Effector @Inject constructor(reader: Provider<GameReader>) {
 
   private fun activeEffects(component: Component): List<ActiveEffect> =
       component.effects.map {
+        val deprodded = Prod.deprodify(table).transform(it)
         ActiveEffect(
-            Companion.from(it.trigger, component),
-            it.automatic,
-            it.instruction,
+            Companion.from(deprodded.trigger, component),
+            deprodded.automatic,
+            deprodded.instruction,
             component,
         )
       }

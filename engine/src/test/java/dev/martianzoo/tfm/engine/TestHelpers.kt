@@ -5,6 +5,7 @@ import dev.martianzoo.api.SystemClasses.THIS
 import dev.martianzoo.api.Type
 import dev.martianzoo.data.Player.Companion.players
 import dev.martianzoo.data.TaskResult
+import dev.martianzoo.engine.Transformers
 import dev.martianzoo.pets.Parsing
 import dev.martianzoo.pets.PetTransformer.Companion.chain
 import dev.martianzoo.pets.Transforming.replaceOwnerWith
@@ -44,8 +45,9 @@ object TestHelpers {
           chain(
               useFullNames(),
               insertExpressionDefaults(THIS.expression),
-              deprodify(),
-              replaceOwnerWith(tfm.player))
+              Prod.deprodify(table),
+              replaceOwnerWith(tfm.player)
+          )
         }
 
     // Abusing the fact that these strings just happen to resemble instruction strings... except

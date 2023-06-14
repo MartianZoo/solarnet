@@ -1,6 +1,5 @@
-package dev.martianzoo.tfm.engine
+package dev.martianzoo.engine
 
-import dev.martianzoo.api.Exceptions.PetSyntaxException
 import dev.martianzoo.api.SystemClasses.ATOMIZED
 import dev.martianzoo.api.SystemClasses.CLASS
 import dev.martianzoo.api.SystemClasses.OWNER
@@ -20,15 +19,10 @@ import dev.martianzoo.pets.ast.Instruction.Gain
 import dev.martianzoo.pets.ast.Instruction.Gain.Companion.gain
 import dev.martianzoo.pets.ast.Instruction.Multi
 import dev.martianzoo.pets.ast.Instruction.Remove
-import dev.martianzoo.pets.ast.Instruction.Transform
 import dev.martianzoo.pets.ast.Instruction.Transmute
 import dev.martianzoo.pets.ast.PetNode
 import dev.martianzoo.pets.ast.ScaledExpression.Companion.scaledEx
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
-import dev.martianzoo.pets.ast.TransformNode
-import dev.martianzoo.tfm.data.TfmClasses.PROD
-import dev.martianzoo.tfm.data.TfmClasses.PRODUCTION
-import dev.martianzoo.tfm.data.TfmClasses.STANDARD_RESOURCE
 import dev.martianzoo.types.Defaults
 import dev.martianzoo.types.Defaults.DefaultSpec
 import dev.martianzoo.types.Dependency.Key
@@ -41,9 +35,7 @@ import javax.inject.Inject
 @GameScoped
 internal class Transformers @Inject constructor(val table: MClassTable) {
 
-  internal val requiredClasses: Set<ClassName> = setOf(PRODUCTION)
-
-  public fun standardPreprocess() = chain(useFullNames(), atomizer(), insertDefaults(), deprodify())
+  public fun standardPreprocess() = chain(useFullNames(), atomizer(), insertDefaults())
 
   public fun useFullNames() =
       object : PetTransformer() {
@@ -56,57 +48,6 @@ internal class Transformers @Inject constructor(val table: MClassTable) {
           }
         }
       }
-
-  public fun deprodify(): PetTransformer {
-    if (STANDARD_RESOURCE !in table.allClassNamesAndIds ||
-        PRODUCTION !in table.allClassNamesAndIds) {
-      return noOp()
-    }
-    val classNames =
-        table.getClass(STANDARD_RESOURCE).getAllSubclasses().flatMap {
-          setOf(it.className, it.shortName)
-        }
-
-    var inProd = false
-
-    return object : PetTransformer() {
-      override fun <P : PetNode> transform(node: P): P {
-        val rewritten: PetNode =
-            when {
-              node is Multi -> {
-                val badIndex =
-                    node.instructions.indexOfFirst {
-                      it is Transform && it.transformKind == PROD && it.instruction is Multi
-                    }
-                val xed = transformChildren(node)
-                if (badIndex == -1) {
-                  xed
-                } else {
-                  Multi.create(
-                      xed.instructions.subList(0, badIndex) +
-                          (xed.instructions[badIndex] as Multi).instructions +
-                          xed.instructions.subList(badIndex + 1, xed.instructions.size),
-                  )
-                }
-              }
-              node is TransformNode<*> && node.transformKind == PROD -> {
-                require(!inProd)
-                inProd = true
-                val inner = transform(node.extract())
-                inProd = false
-                if (inner == node.extract()) {
-                  throw PetSyntaxException("No standard resources found in PROD box: $inner")
-                }
-                inner
-              }
-              inProd && node is Expression && node.className in classNames ->
-                  PRODUCTION.of(node.arguments + node.className.classExpression())
-              else -> transformChildren(node)
-            }
-        @Suppress("UNCHECKED_CAST") return rewritten as P
-      }
-    }
-  }
 
   public fun atomizer(): PetTransformer {
     val atomized =

@@ -8,6 +8,7 @@ import dev.martianzoo.pets.ast.Effect
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.tfm.engine.CanonClassesTest
+import dev.martianzoo.tfm.engine.Prod
 import dev.martianzoo.types.MClassLoader
 import org.junit.jupiter.api.Test
 
@@ -58,14 +59,14 @@ class TransformersTest {
   fun testDeprodify_noProd() {
     val s = "Foo<Bar>: Bax OR Qux"
     val e: Effect = parse(s)
-    val ep: Effect = transformers.deprodify().transform(e)
+    val ep: Effect = Prod.deprodify(transformers.table).transform(e)
     assertThat(ep.toString()).isEqualTo(s)
   }
 
   @Test
   fun testDeprodify_simple() {
     val prodden: Effect = parse("This: PROD[Plant / PlantTag]")
-    val deprodden: Effect = transformers.deprodify().transform(prodden)
+    val deprodden: Effect = Prod.deprodify(transformers.table).transform(prodden)
     assertThat(deprodden.toString()).isEqualTo("This: Production<Class<Plant>> / PlantTag")
   }
 
@@ -74,13 +75,15 @@ class TransformersTest {
     val prodden: Effect =
         parse(
             "PROD[Plant]: PROD[Ooh?, Steel. / Ahh, Foo<Xyz FROM " +
-                "Heat>, -Qux!, 5 Ahh<Qux> FROM StandardResource], Heat")
+                "Heat>, -Qux!, 5 Ahh<Qux> FROM StandardResource], Heat"
+        )
     val expected: Effect =
         parse(
             "Production<Class<Plant>>:" +
                 " Ooh?, Production<Class<Steel>>. / Ahh, Foo<Xyz FROM Production<Class<Heat>>>," +
-                " -Qux!, 5 Ahh<Qux> FROM Production<Class<StandardResource>>, Heat")
-    val deprodden: Effect = transformers.deprodify().transform(prodden)
+                " -Qux!, 5 Ahh<Qux> FROM Production<Class<StandardResource>>, Heat"
+        )
+    val deprodden: Effect = Prod.deprodify(transformers.table).transform(prodden)
     assertThat(deprodden).isEqualTo(expected)
   }
 }

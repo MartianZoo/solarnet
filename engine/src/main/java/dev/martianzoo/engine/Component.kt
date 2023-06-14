@@ -12,7 +12,6 @@ import dev.martianzoo.pets.Transforming
 import dev.martianzoo.pets.ast.Effect
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Instruction
-import dev.martianzoo.tfm.engine.Transformers
 import dev.martianzoo.types.Dependency.Key
 import dev.martianzoo.types.MType
 
@@ -53,7 +52,6 @@ public data class Component internal constructor(internal val mtype: MType) :
     with(Transformers(mtype.loader)) {
       PetTransformer.chain(
           substituter(mtype.root.defaultType, mtype),
-          deprodify(),
           owner?.let(Transforming::replaceOwnerWith),
           Transforming.replaceThisExpressionsWith(expression),
       )

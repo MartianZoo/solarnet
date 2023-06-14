@@ -16,7 +16,8 @@ import dev.martianzoo.pets.ast.Instruction.Change
 import dev.martianzoo.pets.ast.Instruction.Companion.split
 import dev.martianzoo.pets.ast.PetElement
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
-import dev.martianzoo.tfm.engine.Transformers
+import dev.martianzoo.tfm.engine.Prod
+import dev.martianzoo.types.MClassTable
 import javax.inject.Inject
 
 @PlayerScoped
@@ -29,6 +30,7 @@ constructor(
     private val player: Player,
     val instructor: Instructor,
     private val changer: Changer,
+    private val table: MClassTable,
     transformers: Transformers,
 ) : GameWriter {
 
@@ -139,7 +141,7 @@ constructor(
     }
   }
 
-  private val xer = chain(transformers.standardPreprocess(), replaceOwnerWith(player))
+  private val xer = chain(transformers.standardPreprocess(), Prod.deprodify(table), replaceOwnerWith(player))
 
   internal fun <P : PetElement> preprocess(node: P) = xer.transform(node)
 }

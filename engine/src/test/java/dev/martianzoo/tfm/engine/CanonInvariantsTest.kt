@@ -21,7 +21,7 @@ internal class CanonInvariantsTest {
 
   @Test
   fun introspect() {
-    val effector = Effector({ null!! })
+    val effector = Effector({ null!! }, table)
     val limiter = Limiter(table, WritableComponentGraph(effector))
 
     fun checkTypeLimits(s: String, vararg pairs: Pair<String, IntRange>) {
@@ -59,7 +59,7 @@ internal class CanonInvariantsTest {
 
   @Test
   fun testLookup() {
-    val limiter = Limiter(table, WritableComponentGraph(Effector({ null!! })))
+    val limiter = Limiter(table, WritableComponentGraph(Effector({ null!! }, table)))
 
     fun restrictions(a: String) = limiter.rangeRestrictionsByClass[table.getClass(cn(a))]
 

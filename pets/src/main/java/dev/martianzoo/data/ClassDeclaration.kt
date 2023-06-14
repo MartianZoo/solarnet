@@ -19,7 +19,7 @@ import dev.martianzoo.pets.ast.Requirement
  * from [Definition] objects.
  *
  * The information provided here is not very "cooked"; that cooking happens in
- * `dev.martianzoo.tfm.types`.
+ * `dev.martianzoo.types`.
  */
 public data class ClassDeclaration
 internal constructor(

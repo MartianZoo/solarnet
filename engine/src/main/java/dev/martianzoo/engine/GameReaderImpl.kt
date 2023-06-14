@@ -6,6 +6,7 @@ import dev.martianzoo.api.TypeInfo
 import dev.martianzoo.engine.Component.Companion.toComponent
 import dev.martianzoo.engine.Engine.GameScoped
 import dev.martianzoo.pets.Parsing
+import dev.martianzoo.pets.PetTransformer.Companion.chain
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.Metric.Count
@@ -21,7 +22,7 @@ import dev.martianzoo.pets.ast.Requirement.Min
 import dev.martianzoo.pets.ast.Requirement.Or
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
 import dev.martianzoo.tfm.api.TfmAuthority
-import dev.martianzoo.tfm.engine.Transformers
+import dev.martianzoo.tfm.engine.Prod
 import dev.martianzoo.types.MClassTable
 import javax.inject.Inject
 import kotlin.math.min
@@ -86,5 +87,5 @@ constructor(
       preprocess(Parsing.parse(type, text))
 
   override fun <P : PetElement> preprocess(node: P) =
-      transformers.standardPreprocess().transform(node)
+      chain(transformers.standardPreprocess(), Prod.deprodify(table)).transform(node)
 }

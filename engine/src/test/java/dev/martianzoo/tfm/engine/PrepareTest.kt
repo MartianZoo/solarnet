@@ -4,16 +4,17 @@ import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.api.Exceptions.LimitsException
 import dev.martianzoo.api.Exceptions.NotNowException
 import dev.martianzoo.api.Exceptions.RequirementException
+import dev.martianzoo.data.Player.Companion.PLAYER1
 import dev.martianzoo.engine.Engine.newGame
 import dev.martianzoo.engine.Game
 import dev.martianzoo.engine.GameWriter
 import dev.martianzoo.engine.PlayerAgent
+import dev.martianzoo.engine.Transformers
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.PetTransformer
 import dev.martianzoo.pets.Transforming.replaceOwnerWith
 import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.tfm.canon.Canon
-import dev.martianzoo.data.Player.Companion.PLAYER1
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import dev.martianzoo.types.MClassLoader
 import org.junit.jupiter.api.Test
@@ -31,10 +32,10 @@ internal class PrepareTest {
 
   fun preprocess(instr: Instruction): Instruction {
     return PetTransformer.chain(
-            xers.deprodify(),
-            xers.insertDefaults(),
-            replaceOwnerWith(PLAYER1),
-        )
+        Prod.deprodify(xers.table),
+        xers.insertDefaults(),
+        replaceOwnerWith(PLAYER1),
+    )
         .transform(instr)
   }
 

@@ -146,7 +146,7 @@ constructor(
 
     if (g?.root?.custom != null) {
       require(r == null) { "custom class instructions can only be pure gains" }
-      val translated = gaining!!.prepareCustom(reader)
+      val translated = reader.preprocess(gaining!!.prepareCustom(reader))
       return if (translated is Multi) translated else doPrepare(translated)
     }
 
