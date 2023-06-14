@@ -46,6 +46,7 @@ internal val canonCustomClasses =
         GainLowestProduction,
         CopyProductionBox,
         CopyPrelude,
+        AddColonyTile
     )
 
 private object CreateAdjacencies : CustomClass("CreateAdjacencies") {
@@ -185,6 +186,19 @@ private object CopyPrelude : CustomClass("CopyPrelude") {
       throw NarrowingException("Cute. No, you can't copy Double Down itself")
     }
     return card.immediate ?: NoOp
+  }
+}
+
+// For colonies expn
+private object AddColonyTile : CustomClass("AddColonyTile") {
+  override fun translate(reader: GameReader, tileClassType: Type): Instruction {
+    val name = tileClassType.expression.arguments.single().className
+    val ct = (reader.authority as TfmAuthority).colonyTile(name)
+    return if (ct.resourceType == null) {
+      parse("$name")
+    } else {
+      parse("DelayedColonyTile<Class<$name>, Class<${ct.resourceType}>>")
+    }
   }
 }
 

@@ -40,11 +40,7 @@ constructor(
     // Colonies-specific setup... TODO where does this really belong?
     if ("C" in setup.bundles) {
       setup.colonyTiles.forEach {
-        if (it.resourceType == null) {
-          exec("${it.className}!")
-        } else {
-          exec("DelayedColonyTile<Class<${it.className}>, Class<${it.resourceType}>>!")
-        }
+        exec("AddColonyTile<Class<${it.className}>>")
       }
 
       var letter = "A"

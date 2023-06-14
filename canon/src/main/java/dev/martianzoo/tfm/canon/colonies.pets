@@ -54,9 +54,9 @@ ABSTRACT CLASS TradeFleet : Owned {
   CLASS TradeFleetH { HAS MAX 1 TradeFleetH }
 }
 
+CLASS AddColonyTile<Class<ColonyTile>> : Custom, AutoLoad
+
 CLASS DelayedColonyTile<Class<ColonyTile>, Class<CardResource>> {
   This IF ResourceCard<Class<CardResource>>:: ColonyTile FROM This // thanks Aridor
   ResourceCard<Class<CardResource>>: ColonyTile FROM This
 }
-
-
