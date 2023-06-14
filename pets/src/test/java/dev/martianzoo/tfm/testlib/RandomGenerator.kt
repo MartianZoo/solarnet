@@ -1,4 +1,4 @@
-package dev.martianzoo.testlib
+package dev.martianzoo.tfm.testlib
 
 import dev.martianzoo.util.Multiset
 import kotlin.math.PI

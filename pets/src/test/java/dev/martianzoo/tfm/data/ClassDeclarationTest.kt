@@ -1,7 +1,8 @@
-package dev.martianzoo.data
+package dev.martianzoo.tfm.data
 
 import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.api.SystemClasses.THIS
+import dev.martianzoo.data.ClassDeclaration
 import dev.martianzoo.pets.HasClassName.Companion.classNames
 import dev.martianzoo.pets.Parsing
 import dev.martianzoo.pets.Parsing.parse
@@ -11,7 +12,7 @@ import dev.martianzoo.pets.ast.Effect
 import dev.martianzoo.pets.ast.Instruction.Intensity
 import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.pets.ast.ScaledExpression.Companion.scaledEx
-import dev.martianzoo.testlib.te
+import dev.martianzoo.tfm.testlib.te
 import org.junit.jupiter.api.Test
 
 private class ClassDeclarationTest {

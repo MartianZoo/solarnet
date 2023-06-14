@@ -1,4 +1,4 @@
-package dev.martianzoo.testlib
+package dev.martianzoo.tfm.testlib
 
 import dev.martianzoo.pets.ast.Action
 import dev.martianzoo.pets.ast.Action.Cost
@@ -43,7 +43,7 @@ internal object PetToKotlin {
         is Expression -> {
           p2k(className) +
               (if (arguments.none()) ".type" else ".addArgs(${arguments.join()})") +
-              refinement?.let(PetToKotlin::p2k).wrap(".refine(", ")")
+              refinement?.let(::p2k).wrap(".refine(", ")")
         }
         is Scalar -> {
           when (this) {

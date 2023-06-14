@@ -1,7 +1,13 @@
-package dev.martianzoo.pets.ast
+package dev.martianzoo.tfm.pets.ast
 
+import dev.martianzoo.pets.ast.Action
+import dev.martianzoo.pets.ast.Effect
 import dev.martianzoo.pets.ast.Effect.Trigger
-import dev.martianzoo.testlib.PetGenerator
+import dev.martianzoo.pets.ast.Instruction
+import dev.martianzoo.pets.ast.Metric
+import dev.martianzoo.pets.ast.Requirement
+import dev.martianzoo.pets.ast.ScaledExpression
+import dev.martianzoo.tfm.testlib.PetGenerator
 import org.junit.jupiter.api.Test
 
 private class AutomatedTest {
