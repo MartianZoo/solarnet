@@ -1,9 +1,9 @@
 package dev.martianzoo.types
 
+import dev.martianzoo.data.ClassDeclaration.DefaultsDeclaration
+import dev.martianzoo.data.ClassDeclaration.DefaultsDeclaration.DefaultKind
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Instruction.Intensity
-import dev.martianzoo.tfm.data.ClassDeclaration.DefaultsDeclaration
-import dev.martianzoo.tfm.data.ClassDeclaration.DefaultsDeclaration.DefaultKind
 import dev.martianzoo.util.Hierarchical.Companion.glb
 
 internal data class Defaults(

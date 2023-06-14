@@ -1,5 +1,6 @@
 package dev.martianzoo.api
 
+import dev.martianzoo.data.Authority
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.PetElement

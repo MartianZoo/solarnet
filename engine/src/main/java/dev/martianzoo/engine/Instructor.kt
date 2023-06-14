@@ -11,6 +11,8 @@ import dev.martianzoo.api.Exceptions.orWithoutChoice
 import dev.martianzoo.api.Exceptions.requirementNotMet
 import dev.martianzoo.api.GameReader
 import dev.martianzoo.api.SystemClasses.DIE
+import dev.martianzoo.data.GameEvent.ChangeEvent.Cause
+import dev.martianzoo.data.Task
 import dev.martianzoo.engine.Component.Companion.toComponent
 import dev.martianzoo.engine.Engine.PlayerScoped
 import dev.martianzoo.pets.ast.Expression
@@ -28,8 +30,6 @@ import dev.martianzoo.pets.ast.Instruction.Per
 import dev.martianzoo.pets.ast.Instruction.Then
 import dev.martianzoo.pets.ast.Instruction.Transform
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
-import dev.martianzoo.tfm.data.GameEvent.ChangeEvent.Cause
-import dev.martianzoo.tfm.data.Task
 import dev.martianzoo.types.MType
 import javax.inject.Inject
 import kotlin.math.min

@@ -1,4 +1,4 @@
-package dev.martianzoo.tfm.data
+package dev.martianzoo.data
 
 import dev.martianzoo.pets.HasClassName
 import dev.martianzoo.pets.ast.ClassName

@@ -2,15 +2,15 @@ package dev.martianzoo.tfm.engine
 
 import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.api.Exceptions.LimitsException
+import dev.martianzoo.data.GameEvent
+import dev.martianzoo.data.GameEvent.TaskAddedEvent
+import dev.martianzoo.data.GameEvent.TaskEditedEvent
+import dev.martianzoo.data.GameEvent.TaskRemovedEvent
+import dev.martianzoo.data.Player.Companion.PLAYER1
+import dev.martianzoo.data.Task.TaskId
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.engine.Gameplay.TaskLayer
 import dev.martianzoo.tfm.canon.Canon
-import dev.martianzoo.tfm.data.GameEvent
-import dev.martianzoo.tfm.data.GameEvent.TaskAddedEvent
-import dev.martianzoo.tfm.data.GameEvent.TaskEditedEvent
-import dev.martianzoo.tfm.data.GameEvent.TaskRemovedEvent
-import dev.martianzoo.tfm.data.Player.Companion.PLAYER1
-import dev.martianzoo.tfm.data.Task.TaskId
 import kotlin.reflect.KClass
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows

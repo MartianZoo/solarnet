@@ -2,10 +2,12 @@ package dev.martianzoo.tfm.data
 
 import com.squareup.moshi.Json
 import dev.martianzoo.api.SystemClasses.OK
+import dev.martianzoo.data.ClassDeclaration
+import dev.martianzoo.data.ClassDeclaration.ClassKind.CONCRETE
+import dev.martianzoo.data.Definition
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Requirement
-import dev.martianzoo.tfm.data.ClassDeclaration.ClassKind.CONCRETE
 import dev.martianzoo.tfm.data.EnglishHack.englishHack
 import dev.martianzoo.tfm.data.TfmClasses.MILESTONE
 

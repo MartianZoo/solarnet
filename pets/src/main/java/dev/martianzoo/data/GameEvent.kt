@@ -1,4 +1,4 @@
-package dev.martianzoo.tfm.data
+package dev.martianzoo.data
 
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.util.pre

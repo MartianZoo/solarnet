@@ -3,9 +3,9 @@ package dev.martianzoo.tfm.engine
 import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.tfm.canon.Canon
-import dev.martianzoo.tfm.data.GameEvent.ChangeEvent.StateChange
-import dev.martianzoo.tfm.data.Player.Companion.ENGINE
-import dev.martianzoo.tfm.data.Player.Companion.PLAYER2
+import dev.martianzoo.data.GameEvent.ChangeEvent.StateChange
+import dev.martianzoo.data.Player.Companion.ENGINE
+import dev.martianzoo.data.Player.Companion.PLAYER2
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import dev.martianzoo.tfm.types.te
 import dev.martianzoo.util.toStrings

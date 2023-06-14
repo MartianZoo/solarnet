@@ -12,6 +12,7 @@ import com.github.h0tk3y.betterParse.parser.Parser
 import com.github.h0tk3y.betterParse.parser.UnexpectedEof
 import com.github.h0tk3y.betterParse.parser.parseToEnd
 import dev.martianzoo.api.Exceptions.PetSyntaxException
+import dev.martianzoo.data.ClassDeclaration
 import dev.martianzoo.pets.ClassParsing.Declarations
 import dev.martianzoo.pets.PetTokenizer.TokenCache
 import dev.martianzoo.pets.ast.Action
@@ -26,7 +27,6 @@ import dev.martianzoo.pets.ast.PetElement
 import dev.martianzoo.pets.ast.PetNode
 import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.pets.ast.ScaledExpression
-import dev.martianzoo.tfm.data.ClassDeclaration
 import dev.martianzoo.util.ParserGroup
 import kotlin.reflect.KClass
 import kotlin.reflect.cast

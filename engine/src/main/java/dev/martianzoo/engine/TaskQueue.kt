@@ -1,6 +1,6 @@
 package dev.martianzoo.engine
 
-import dev.martianzoo.tfm.data.Task
+import dev.martianzoo.data.Task
 
 /**
  * Contains tasks: what the game is waiting on someone to do. Each task is owned by some [Player]

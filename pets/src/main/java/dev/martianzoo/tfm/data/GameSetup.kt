@@ -1,5 +1,7 @@
 package dev.martianzoo.tfm.data
 
+import dev.martianzoo.data.Definition
+import dev.martianzoo.data.Player
 import dev.martianzoo.pets.HasClassName.Companion.classNames
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.tfm.api.TfmAuthority

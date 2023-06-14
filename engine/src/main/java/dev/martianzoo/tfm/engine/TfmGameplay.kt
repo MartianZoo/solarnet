@@ -2,15 +2,15 @@ package dev.martianzoo.tfm.engine
 
 import dev.martianzoo.api.GameReader
 import dev.martianzoo.api.SystemClasses.USE_ACTION
+import dev.martianzoo.data.Player
+import dev.martianzoo.data.Player.Companion.ENGINE
+import dev.martianzoo.data.TaskResult
 import dev.martianzoo.engine.BodyLambda
 import dev.martianzoo.engine.Game
 import dev.martianzoo.engine.Gameplay.TurnLayer
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.api.ApiUtils.standardResourceNames
-import dev.martianzoo.tfm.data.Player
-import dev.martianzoo.tfm.data.Player.Companion.ENGINE
-import dev.martianzoo.tfm.data.TaskResult
 import dev.martianzoo.tfm.data.TfmClasses.MEGACREDIT
 
 public class TfmGameplay(

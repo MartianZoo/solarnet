@@ -8,7 +8,7 @@ import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.api.ApiUtils.lookUpProductionLevels
 import dev.martianzoo.tfm.api.ApiUtils.standardResourceNames
 import dev.martianzoo.tfm.canon.Canon
-import dev.martianzoo.tfm.data.Player.Companion.PLAYER1
+import dev.martianzoo.data.Player.Companion.PLAYER1
 import dev.martianzoo.util.toStrings
 import org.junit.jupiter.api.Test
 

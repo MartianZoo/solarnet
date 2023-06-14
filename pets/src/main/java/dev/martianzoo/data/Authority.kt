@@ -1,8 +1,7 @@
-package dev.martianzoo.api
+package dev.martianzoo.data
 
+import dev.martianzoo.api.CustomClass
 import dev.martianzoo.pets.ast.ClassName
-import dev.martianzoo.tfm.data.ClassDeclaration
-import dev.martianzoo.tfm.data.Definition
 
 interface Authority {
   /** Returns every bundle code (e.g. `"B"`) this authority has any information on. */

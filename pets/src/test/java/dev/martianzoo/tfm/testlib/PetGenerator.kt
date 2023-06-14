@@ -3,6 +3,7 @@ package dev.martianzoo.tfm.testlib
 import com.google.common.truth.Truth.assertWithMessage
 import dev.martianzoo.api.Exceptions.PetSyntaxException
 import dev.martianzoo.api.SystemClasses.OWNER
+import dev.martianzoo.data.Player.Companion.PLAYER2
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.ast.Action
 import dev.martianzoo.pets.ast.Action.Cost
@@ -22,7 +23,6 @@ import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.pets.ast.ScaledExpression
 import dev.martianzoo.pets.ast.ScaledExpression.Companion.MEGACREDIT
 import dev.martianzoo.pets.ast.ScaledExpression.Companion.scaledEx
-import dev.martianzoo.tfm.data.Player.Companion.PLAYER2
 import dev.martianzoo.tfm.data.TfmClasses.PROD
 import dev.martianzoo.tfm.testlib.PetToKotlin.p2k
 import kotlin.math.pow

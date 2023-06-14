@@ -2,6 +2,10 @@ package dev.martianzoo.engine
 
 import dev.martianzoo.api.GameReader
 import dev.martianzoo.api.Type
+import dev.martianzoo.data.GameEvent.ChangeEvent.Cause
+import dev.martianzoo.data.Player
+import dev.martianzoo.data.Task.TaskId
+import dev.martianzoo.data.TaskResult
 import dev.martianzoo.engine.AutoExecMode.FIRST
 import dev.martianzoo.engine.Engine.PlayerScoped
 import dev.martianzoo.engine.Gameplay.Companion.parse
@@ -11,10 +15,6 @@ import dev.martianzoo.pets.Transforming.replaceOwnerWith
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.PetElement
-import dev.martianzoo.tfm.data.GameEvent.ChangeEvent.Cause
-import dev.martianzoo.tfm.data.Player
-import dev.martianzoo.tfm.data.Task.TaskId
-import dev.martianzoo.tfm.data.TaskResult
 import dev.martianzoo.types.MType
 import dev.martianzoo.util.HashMultiset
 import dev.martianzoo.util.Hierarchical.Companion.lub

@@ -3,6 +3,8 @@ package dev.martianzoo.pets
 import dev.martianzoo.api.SystemClasses.OWNER
 import dev.martianzoo.api.SystemClasses.THIS
 import dev.martianzoo.api.SystemClasses.USE_ACTION
+import dev.martianzoo.data.Player
+import dev.martianzoo.data.Player.Companion.ENGINE
 import dev.martianzoo.pets.PetTransformer.Companion.chain
 import dev.martianzoo.pets.PetTransformer.Companion.noOp
 import dev.martianzoo.pets.ast.Action
@@ -16,8 +18,6 @@ import dev.martianzoo.pets.ast.Instruction.NoOp
 import dev.martianzoo.pets.ast.Instruction.Then
 import dev.martianzoo.pets.ast.Instruction.Transmute
 import dev.martianzoo.pets.ast.PetNode.Companion.replacer
-import dev.martianzoo.tfm.data.Player
-import dev.martianzoo.tfm.data.Player.Companion.ENGINE
 import dev.martianzoo.util.toSetStrict
 
 /**

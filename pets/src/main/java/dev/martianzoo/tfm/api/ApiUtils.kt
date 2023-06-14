@@ -1,10 +1,10 @@
 package dev.martianzoo.tfm.api
 
 import dev.martianzoo.api.GameReader
+import dev.martianzoo.data.Player
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.tfm.data.MarsMapDefinition
-import dev.martianzoo.tfm.data.Player
 import dev.martianzoo.tfm.data.TfmClasses.MARS_MAP
 import dev.martianzoo.tfm.data.TfmClasses.MEGACREDIT
 import dev.martianzoo.tfm.data.TfmClasses.PRODUCTION

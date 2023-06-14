@@ -8,10 +8,10 @@ import dev.martianzoo.engine.Game
 import dev.martianzoo.engine.Timeline.AbortOperationException
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.data.GameSetup
-import dev.martianzoo.tfm.data.Player.Companion.ENGINE
-import dev.martianzoo.tfm.data.Player.Companion.PLAYER1
-import dev.martianzoo.tfm.data.Player.Companion.PLAYER2
-import dev.martianzoo.tfm.data.TaskResult
+import dev.martianzoo.data.Player.Companion.ENGINE
+import dev.martianzoo.data.Player.Companion.PLAYER1
+import dev.martianzoo.data.Player.Companion.PLAYER2
+import dev.martianzoo.data.TaskResult
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
 import dev.martianzoo.tfm.engine.TestHelpers.assertNetChanges
 import dev.martianzoo.tfm.engine.TestHelpers.assertProds

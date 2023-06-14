@@ -8,6 +8,7 @@ import dev.martianzoo.api.SystemClasses.OK
 import dev.martianzoo.api.SystemClasses.OWNED
 import dev.martianzoo.api.SystemClasses.THIS
 import dev.martianzoo.api.TypeInfo
+import dev.martianzoo.data.ClassDeclaration
 import dev.martianzoo.pets.HasClassName
 import dev.martianzoo.pets.HasClassName.Companion.classNames
 import dev.martianzoo.pets.PetTransformer
@@ -22,7 +23,6 @@ import dev.martianzoo.pets.ast.Requirement.Companion.split
 import dev.martianzoo.pets.ast.Requirement.Counting
 import dev.martianzoo.pets.ast.Requirement.Min
 import dev.martianzoo.pets.ast.ScaledExpression.Companion.scaledEx
-import dev.martianzoo.tfm.data.ClassDeclaration
 import dev.martianzoo.tfm.engine.Transformers
 import dev.martianzoo.types.Dependency.Companion.depsForClassType
 import dev.martianzoo.types.Dependency.Key

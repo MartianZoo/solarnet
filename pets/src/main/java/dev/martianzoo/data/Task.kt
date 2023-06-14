@@ -1,7 +1,8 @@
-package dev.martianzoo.tfm.data
+package dev.martianzoo.data
 
 import dev.martianzoo.api.Exceptions.DeadEndException
 import dev.martianzoo.api.SystemClasses.DIE
+import dev.martianzoo.data.GameEvent.ChangeEvent.Cause
 import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.Instruction.Change
 import dev.martianzoo.pets.ast.Instruction.Companion.split
@@ -14,7 +15,6 @@ import dev.martianzoo.pets.ast.Instruction.Or
 import dev.martianzoo.pets.ast.Instruction.Per
 import dev.martianzoo.pets.ast.Instruction.Then
 import dev.martianzoo.pets.ast.Instruction.Transform
-import dev.martianzoo.tfm.data.GameEvent.ChangeEvent.Cause
 
 public data class Task(
     /**

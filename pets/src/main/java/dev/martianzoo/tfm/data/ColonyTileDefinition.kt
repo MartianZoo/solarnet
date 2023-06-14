@@ -1,5 +1,7 @@
 package dev.martianzoo.tfm.data
 
+import dev.martianzoo.data.ClassDeclaration
+import dev.martianzoo.data.Definition
 import dev.martianzoo.pets.Parsing
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.ast.ClassName

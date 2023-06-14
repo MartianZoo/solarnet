@@ -1,11 +1,11 @@
 package dev.martianzoo.engine
 
 import dev.martianzoo.api.GameReader
+import dev.martianzoo.data.Player
 import dev.martianzoo.engine.Engine.GameScoped
 import dev.martianzoo.engine.Engine.PlayerComponent
 import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.Requirement
-import dev.martianzoo.tfm.data.Player
 import dev.martianzoo.types.MClassTable
 import javax.inject.Inject
 

@@ -2,11 +2,11 @@ package dev.martianzoo.analysis
 
 import dev.martianzoo.api.GameReader
 import dev.martianzoo.api.Type
+import dev.martianzoo.data.GameEvent.ChangeEvent.StateChange
 import dev.martianzoo.engine.EventLog
 import dev.martianzoo.engine.Game
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.ast.Expression
-import dev.martianzoo.tfm.data.GameEvent.ChangeEvent.StateChange
 import javax.inject.Inject
 
 public class Summarizer @Inject constructor(val events: EventLog, val reader: GameReader) {

@@ -1,10 +1,10 @@
 package dev.martianzoo.tfm.canon
 
 import dev.martianzoo.api.CustomClass
+import dev.martianzoo.data.ClassDeclaration
 import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.tfm.api.TfmAuthority
 import dev.martianzoo.tfm.data.CardDefinition
-import dev.martianzoo.tfm.data.ClassDeclaration
 import dev.martianzoo.tfm.data.ColonyTileDefinition
 import dev.martianzoo.tfm.data.GameSetup
 import dev.martianzoo.tfm.data.JsonReader

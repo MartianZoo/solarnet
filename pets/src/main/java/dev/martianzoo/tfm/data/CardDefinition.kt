@@ -1,6 +1,9 @@
 package dev.martianzoo.tfm.data
 
 import dev.martianzoo.api.SystemClasses.THIS
+import dev.martianzoo.data.ClassDeclaration
+import dev.martianzoo.data.ClassDeclaration.ClassKind.CONCRETE
+import dev.martianzoo.data.Definition
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.Parsing.parseOneLinerClass
 import dev.martianzoo.pets.Transforming.actionListToEffects
@@ -18,7 +21,6 @@ import dev.martianzoo.pets.ast.Requirement.Max
 import dev.martianzoo.pets.ast.ScaledExpression.Companion.scaledEx
 import dev.martianzoo.tfm.data.CardDefinition.Deck.PROJECT
 import dev.martianzoo.tfm.data.CardDefinition.ProjectKind.ACTIVE
-import dev.martianzoo.tfm.data.ClassDeclaration.ClassKind.CONCRETE
 import dev.martianzoo.tfm.data.EnglishHack.englishHack
 import dev.martianzoo.tfm.data.TfmClasses.ACTION_CARD
 import dev.martianzoo.tfm.data.TfmClasses.ACTIVE_CARD

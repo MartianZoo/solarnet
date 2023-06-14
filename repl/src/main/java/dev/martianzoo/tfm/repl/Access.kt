@@ -1,13 +1,13 @@
 package dev.martianzoo.tfm.repl
 
+import dev.martianzoo.data.Player.Companion.ENGINE
+import dev.martianzoo.data.Task.TaskId
+import dev.martianzoo.data.TaskResult
 import dev.martianzoo.engine.Gameplay
 import dev.martianzoo.engine.Gameplay.GodMode
 import dev.martianzoo.engine.Gameplay.OperationLayer
 import dev.martianzoo.engine.Gameplay.TaskLayer
 import dev.martianzoo.engine.Gameplay.TurnLayer
-import dev.martianzoo.tfm.data.Player.Companion.ENGINE
-import dev.martianzoo.tfm.data.Task.TaskId
-import dev.martianzoo.tfm.data.TaskResult
 import dev.martianzoo.tfm.repl.ReplSession.UsageException
 
 sealed class Access {

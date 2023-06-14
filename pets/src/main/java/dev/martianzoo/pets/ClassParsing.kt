@@ -11,6 +11,12 @@ import com.github.h0tk3y.betterParse.combinators.skip
 import com.github.h0tk3y.betterParse.combinators.zeroOrMore
 import com.github.h0tk3y.betterParse.grammar.parser
 import com.github.h0tk3y.betterParse.parser.Parser
+import dev.martianzoo.data.ClassDeclaration
+import dev.martianzoo.data.ClassDeclaration.ClassKind
+import dev.martianzoo.data.ClassDeclaration.ClassKind.ABSTRACT
+import dev.martianzoo.data.ClassDeclaration.ClassKind.CONCRETE
+import dev.martianzoo.data.ClassDeclaration.DefaultsDeclaration
+import dev.martianzoo.data.ClassDeclaration.DefaultsDeclaration.OneDefault
 import dev.martianzoo.pets.ClassParsing.Body.BodyElement
 import dev.martianzoo.pets.ClassParsing.Body.BodyElement.ActionElement
 import dev.martianzoo.pets.ClassParsing.Body.BodyElement.DefaultsElement
@@ -29,12 +35,6 @@ import dev.martianzoo.pets.ast.ClassName.Parsing.classShortName
 import dev.martianzoo.pets.ast.Effect
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Requirement
-import dev.martianzoo.tfm.data.ClassDeclaration
-import dev.martianzoo.tfm.data.ClassDeclaration.ClassKind
-import dev.martianzoo.tfm.data.ClassDeclaration.ClassKind.ABSTRACT
-import dev.martianzoo.tfm.data.ClassDeclaration.ClassKind.CONCRETE
-import dev.martianzoo.tfm.data.ClassDeclaration.DefaultsDeclaration
-import dev.martianzoo.tfm.data.ClassDeclaration.DefaultsDeclaration.OneDefault
 import dev.martianzoo.util.KClassMultimap
 import dev.martianzoo.util.plus
 import dev.martianzoo.util.toSetStrict

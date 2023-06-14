@@ -1,7 +1,7 @@
 package dev.martianzoo.types
 
-import dev.martianzoo.api.Authority
 import dev.martianzoo.api.Type
+import dev.martianzoo.data.Authority
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.Expression
 

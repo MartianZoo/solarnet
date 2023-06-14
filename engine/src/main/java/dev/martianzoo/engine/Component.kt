@@ -4,6 +4,7 @@ import dev.martianzoo.api.Exceptions
 import dev.martianzoo.api.GameReader
 import dev.martianzoo.api.SystemClasses
 import dev.martianzoo.api.Type
+import dev.martianzoo.data.Player
 import dev.martianzoo.pets.HasClassName
 import dev.martianzoo.pets.HasExpression
 import dev.martianzoo.pets.PetTransformer
@@ -11,7 +12,6 @@ import dev.martianzoo.pets.Transforming
 import dev.martianzoo.pets.ast.Effect
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Instruction
-import dev.martianzoo.tfm.data.Player
 import dev.martianzoo.tfm.engine.Transformers
 import dev.martianzoo.types.Dependency.Key
 import dev.martianzoo.types.MType

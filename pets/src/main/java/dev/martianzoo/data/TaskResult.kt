@@ -1,9 +1,9 @@
-package dev.martianzoo.tfm.data
+package dev.martianzoo.data
 
+import dev.martianzoo.data.GameEvent.ChangeEvent
+import dev.martianzoo.data.GameEvent.ChangeEvent.StateChange
+import dev.martianzoo.data.Task.TaskId
 import dev.martianzoo.pets.ast.Expression
-import dev.martianzoo.tfm.data.GameEvent.ChangeEvent
-import dev.martianzoo.tfm.data.GameEvent.ChangeEvent.StateChange
-import dev.martianzoo.tfm.data.Task.TaskId
 import kotlin.math.absoluteValue
 
 /**

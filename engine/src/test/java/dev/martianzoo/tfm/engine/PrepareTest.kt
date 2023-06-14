@@ -13,7 +13,7 @@ import dev.martianzoo.pets.PetTransformer
 import dev.martianzoo.pets.Transforming.replaceOwnerWith
 import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.tfm.canon.Canon
-import dev.martianzoo.tfm.data.Player.Companion.PLAYER1
+import dev.martianzoo.data.Player.Companion.PLAYER1
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import dev.martianzoo.types.MClassLoader
 import org.junit.jupiter.api.Test

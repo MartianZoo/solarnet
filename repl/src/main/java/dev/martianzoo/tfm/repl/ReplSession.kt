@@ -5,6 +5,11 @@ import dev.martianzoo.api.SystemClasses.CLASS
 import dev.martianzoo.api.SystemClasses.COMPONENT
 import dev.martianzoo.api.SystemClasses.SIGNAL
 import dev.martianzoo.api.SystemClasses.SYSTEM
+import dev.martianzoo.data.GameEvent.ChangeEvent
+import dev.martianzoo.data.Player
+import dev.martianzoo.data.Player.Companion.ENGINE
+import dev.martianzoo.data.Task.TaskId
+import dev.martianzoo.data.TaskResult
 import dev.martianzoo.engine.AutoExecMode.FIRST
 import dev.martianzoo.engine.AutoExecMode.NONE
 import dev.martianzoo.engine.AutoExecMode.SAFE
@@ -25,12 +30,7 @@ import dev.martianzoo.pets.ast.Instruction.Transmute
 import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.tfm.canon.Canon.SIMPLE_GAME
-import dev.martianzoo.tfm.data.GameEvent.ChangeEvent
 import dev.martianzoo.tfm.data.GameSetup
-import dev.martianzoo.tfm.data.Player
-import dev.martianzoo.tfm.data.Player.Companion.ENGINE
-import dev.martianzoo.tfm.data.Task.TaskId
-import dev.martianzoo.tfm.data.TaskResult
 import dev.martianzoo.tfm.engine.TfmGameplay
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import dev.martianzoo.tfm.repl.Access.BlueMode

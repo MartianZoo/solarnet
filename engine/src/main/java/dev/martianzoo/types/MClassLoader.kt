@@ -1,6 +1,5 @@
 package dev.martianzoo.types
 
-import dev.martianzoo.api.Authority
 import dev.martianzoo.api.CustomClass
 import dev.martianzoo.api.Exceptions
 import dev.martianzoo.api.Exceptions.ExpressionException
@@ -9,6 +8,8 @@ import dev.martianzoo.api.SystemClasses.CLASS
 import dev.martianzoo.api.SystemClasses.COMPONENT
 import dev.martianzoo.api.SystemClasses.THIS
 import dev.martianzoo.api.Type
+import dev.martianzoo.data.Authority
+import dev.martianzoo.data.ClassDeclaration
 import dev.martianzoo.engine.Engine.GameScoped
 import dev.martianzoo.pets.HasClassName.Companion.classNames
 import dev.martianzoo.pets.ast.ClassName
@@ -16,7 +17,6 @@ import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.PetNode
 import dev.martianzoo.tfm.api.TfmAuthority
-import dev.martianzoo.tfm.data.ClassDeclaration
 import dev.martianzoo.tfm.data.GameSetup
 import dev.martianzoo.tfm.engine.Transformers
 import javax.inject.Inject

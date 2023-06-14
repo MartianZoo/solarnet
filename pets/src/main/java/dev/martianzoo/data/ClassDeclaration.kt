@@ -1,6 +1,10 @@
-package dev.martianzoo.tfm.data
+package dev.martianzoo.data
 
 import dev.martianzoo.api.SystemClasses.CUSTOM
+import dev.martianzoo.data.ClassDeclaration.ClassKind.ABSTRACT
+import dev.martianzoo.data.ClassDeclaration.DefaultsDeclaration.DefaultKind.ALL_USAGES
+import dev.martianzoo.data.ClassDeclaration.DefaultsDeclaration.DefaultKind.GAIN_ONLY
+import dev.martianzoo.data.ClassDeclaration.DefaultsDeclaration.DefaultKind.REMOVE_ONLY
 import dev.martianzoo.pets.HasClassName
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.Effect
@@ -8,10 +12,6 @@ import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Instruction.Intensity
 import dev.martianzoo.pets.ast.PetNode
 import dev.martianzoo.pets.ast.Requirement
-import dev.martianzoo.tfm.data.ClassDeclaration.ClassKind.ABSTRACT
-import dev.martianzoo.tfm.data.ClassDeclaration.DefaultsDeclaration.DefaultKind.ALL_USAGES
-import dev.martianzoo.tfm.data.ClassDeclaration.DefaultsDeclaration.DefaultKind.GAIN_ONLY
-import dev.martianzoo.tfm.data.ClassDeclaration.DefaultsDeclaration.DefaultKind.REMOVE_ONLY
 
 /**
  * A direct representation of the *declaration* of a component class, such as GreeneryTile. Some of

@@ -1,9 +1,9 @@
 package dev.martianzoo.engine
 
+import dev.martianzoo.data.GameEvent
+import dev.martianzoo.data.Task
+import dev.martianzoo.data.TaskResult
 import dev.martianzoo.engine.Timeline.Checkpoint
-import dev.martianzoo.tfm.data.GameEvent
-import dev.martianzoo.tfm.data.Task
-import dev.martianzoo.tfm.data.TaskResult
 
 /**
  * A complete record of everything that happened in a particular game (in progress or finished). A

@@ -3,6 +3,11 @@ package dev.martianzoo.engine
 import dev.martianzoo.api.GameReader
 import dev.martianzoo.api.SystemClasses.ANYONE
 import dev.martianzoo.api.SystemClasses.OWNER
+import dev.martianzoo.data.GameEvent.ChangeEvent
+import dev.martianzoo.data.GameEvent.ChangeEvent.Cause
+import dev.martianzoo.data.Player
+import dev.martianzoo.data.Task
+import dev.martianzoo.data.Task.TaskId
 import dev.martianzoo.engine.Effector.Subscription.Companion
 import dev.martianzoo.engine.Engine.GameScoped
 import dev.martianzoo.pets.Transforming.replaceOwnerWith
@@ -21,11 +26,6 @@ import dev.martianzoo.pets.ast.Effect.Trigger.XTrigger
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.Requirement
-import dev.martianzoo.tfm.data.GameEvent.ChangeEvent
-import dev.martianzoo.tfm.data.GameEvent.ChangeEvent.Cause
-import dev.martianzoo.tfm.data.Player
-import dev.martianzoo.tfm.data.Task
-import dev.martianzoo.tfm.data.Task.TaskId
 import dev.martianzoo.types.MType
 import dev.martianzoo.util.HashMultiset
 import javax.inject.Inject

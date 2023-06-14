@@ -6,6 +6,11 @@ import dev.martianzoo.api.Exceptions.NotNowException
 import dev.martianzoo.api.Exceptions.TaskException
 import dev.martianzoo.api.GameReader
 import dev.martianzoo.api.SystemClasses.TEMPORARY
+import dev.martianzoo.data.GameEvent.ChangeEvent.Cause
+import dev.martianzoo.data.GameEvent.TaskRemovedEvent
+import dev.martianzoo.data.Player
+import dev.martianzoo.data.Task
+import dev.martianzoo.data.Task.TaskId
 import dev.martianzoo.engine.AutoExecMode.NONE
 import dev.martianzoo.engine.AutoExecMode.SAFE
 import dev.martianzoo.engine.Component.Companion.toComponent
@@ -15,11 +20,6 @@ import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.Instruction.Change
 import dev.martianzoo.pets.ast.Instruction.Companion.split
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
-import dev.martianzoo.tfm.data.GameEvent.ChangeEvent.Cause
-import dev.martianzoo.tfm.data.GameEvent.TaskRemovedEvent
-import dev.martianzoo.tfm.data.Player
-import dev.martianzoo.tfm.data.Task
-import dev.martianzoo.tfm.data.Task.TaskId
 import javax.inject.Inject
 
 @PlayerScoped

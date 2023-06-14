@@ -3,6 +3,8 @@ package dev.martianzoo.tfm.engine
 import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.api.SystemClasses.THIS
 import dev.martianzoo.api.Type
+import dev.martianzoo.data.Player.Companion.players
+import dev.martianzoo.data.TaskResult
 import dev.martianzoo.pets.Parsing
 import dev.martianzoo.pets.PetTransformer.Companion.chain
 import dev.martianzoo.pets.Transforming.replaceOwnerWith
@@ -13,8 +15,6 @@ import dev.martianzoo.pets.ast.Instruction.Companion.split
 import dev.martianzoo.pets.ast.Instruction.Gain
 import dev.martianzoo.pets.ast.Instruction.Remove
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
-import dev.martianzoo.tfm.data.Player.Companion.players
-import dev.martianzoo.tfm.data.TaskResult
 import java.util.concurrent.atomic.AtomicInteger
 
 object TestHelpers {

@@ -1,12 +1,12 @@
 package dev.martianzoo.engine
 
 import dev.martianzoo.api.GameReader
+import dev.martianzoo.data.GameEvent.ChangeEvent
+import dev.martianzoo.data.GameEvent.TaskEvent
+import dev.martianzoo.data.TaskResult
 import dev.martianzoo.engine.Component.Companion.toComponent
 import dev.martianzoo.engine.Engine.GameScoped
 import dev.martianzoo.engine.Engine.Updater
-import dev.martianzoo.tfm.data.GameEvent.ChangeEvent
-import dev.martianzoo.tfm.data.GameEvent.TaskEvent
-import dev.martianzoo.tfm.data.TaskResult
 import javax.inject.Inject
 
 @GameScoped
