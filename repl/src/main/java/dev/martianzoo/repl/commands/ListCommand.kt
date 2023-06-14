@@ -1,10 +1,10 @@
-package dev.martianzoo.tfm.repl.commands
+package dev.martianzoo.repl.commands
 
 import dev.martianzoo.api.SystemClasses
 import dev.martianzoo.engine.Gameplay.Companion.parse
 import dev.martianzoo.pets.ast.Expression
-import dev.martianzoo.tfm.repl.ReplCommand
-import dev.martianzoo.tfm.repl.ReplSession
+import dev.martianzoo.repl.ReplCommand
+import dev.martianzoo.repl.ReplSession
 import dev.martianzoo.util.Multiset
 
 internal class ListCommand(val repl: ReplSession) : ReplCommand("list") {

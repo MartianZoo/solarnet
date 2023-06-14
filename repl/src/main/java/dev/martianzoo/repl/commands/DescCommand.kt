@@ -1,11 +1,11 @@
-package dev.martianzoo.tfm.repl.commands
+package dev.martianzoo.repl.commands
 
 import dev.martianzoo.api.SystemClasses
 import dev.martianzoo.engine.Gameplay.Companion.parse
 import dev.martianzoo.pets.HasExpression.Companion.expressions
 import dev.martianzoo.pets.ast.Expression
-import dev.martianzoo.tfm.repl.ReplCommand
-import dev.martianzoo.tfm.repl.ReplSession
+import dev.martianzoo.repl.ReplCommand
+import dev.martianzoo.repl.ReplSession
 import dev.martianzoo.types.MType
 import dev.martianzoo.types.TypeDescription
 import dev.martianzoo.util.iff

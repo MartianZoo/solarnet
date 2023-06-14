@@ -1,4 +1,4 @@
-package dev.martianzoo.tfm.repl
+package dev.martianzoo.repl
 
 import dev.martianzoo.api.GameReader
 import dev.martianzoo.api.SystemClasses.SIGNAL
@@ -11,43 +11,49 @@ import dev.martianzoo.data.TaskResult
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.engine.Game
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.repl.Access.BlueMode
+import dev.martianzoo.repl.Access.GreenMode
+import dev.martianzoo.repl.Access.PurpleMode
+import dev.martianzoo.repl.Access.RedMode
+import dev.martianzoo.repl.Access.YellowMode
+import dev.martianzoo.repl.ReplSession.ReplMode.BLUE
+import dev.martianzoo.repl.ReplSession.ReplMode.GREEN
+import dev.martianzoo.repl.ReplSession.ReplMode.PURPLE
+import dev.martianzoo.repl.ReplSession.ReplMode.RED
+import dev.martianzoo.repl.ReplSession.ReplMode.YELLOW
+import dev.martianzoo.repl.commands.AsCommand
+import dev.martianzoo.repl.commands.AutoCommand
+import dev.martianzoo.repl.commands.BecomeCommand
+import dev.martianzoo.repl.commands.CountCommand
+import dev.martianzoo.repl.commands.DescCommand
+import dev.martianzoo.repl.commands.ExecCommand
+import dev.martianzoo.repl.commands.HasCommand
+import dev.martianzoo.repl.commands.HelpCommand
+import dev.martianzoo.repl.commands.HistoryCommand
+import dev.martianzoo.repl.commands.ListCommand
+import dev.martianzoo.repl.commands.LogCommand
+import dev.martianzoo.repl.commands.ModeCommand
+import dev.martianzoo.repl.commands.NewGameCommand
+import dev.martianzoo.repl.commands.PhaseCommand
+import dev.martianzoo.repl.commands.RollbackCommand
+import dev.martianzoo.repl.commands.ScriptCommand
+import dev.martianzoo.repl.commands.TaskCommand
+import dev.martianzoo.repl.commands.TasksCommand
+import dev.martianzoo.repl.commands.TurnCommand
 import dev.martianzoo.tfm.canon.Canon.SIMPLE_GAME
 import dev.martianzoo.tfm.data.GameSetup
 import dev.martianzoo.tfm.engine.TfmGameplay
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
-import dev.martianzoo.tfm.repl.Access.BlueMode
-import dev.martianzoo.tfm.repl.Access.GreenMode
-import dev.martianzoo.tfm.repl.Access.PurpleMode
-import dev.martianzoo.tfm.repl.Access.RedMode
-import dev.martianzoo.tfm.repl.Access.YellowMode
-import dev.martianzoo.tfm.repl.ReplSession.ReplMode.BLUE
-import dev.martianzoo.tfm.repl.ReplSession.ReplMode.GREEN
-import dev.martianzoo.tfm.repl.ReplSession.ReplMode.PURPLE
-import dev.martianzoo.tfm.repl.ReplSession.ReplMode.RED
-import dev.martianzoo.tfm.repl.ReplSession.ReplMode.YELLOW
-import dev.martianzoo.tfm.repl.commands.AsCommand
-import dev.martianzoo.tfm.repl.commands.AutoCommand
-import dev.martianzoo.tfm.repl.commands.BecomeCommand
+import dev.martianzoo.tfm.repl.TfmColor
+import dev.martianzoo.tfm.repl.TfmColor.ENERGY
+import dev.martianzoo.tfm.repl.TfmColor.HEAT
+import dev.martianzoo.tfm.repl.TfmColor.MEGACREDIT
+import dev.martianzoo.tfm.repl.TfmColor.OCEAN_TILE
+import dev.martianzoo.tfm.repl.TfmColor.PLANT
 import dev.martianzoo.tfm.repl.commands.BoardCommand
-import dev.martianzoo.tfm.repl.commands.CountCommand
-import dev.martianzoo.tfm.repl.commands.DescCommand
-import dev.martianzoo.tfm.repl.commands.ExecCommand
-import dev.martianzoo.tfm.repl.commands.HasCommand
-import dev.martianzoo.tfm.repl.commands.HelpCommand
-import dev.martianzoo.tfm.repl.commands.HistoryCommand
-import dev.martianzoo.tfm.repl.commands.ListCommand
-import dev.martianzoo.tfm.repl.commands.LogCommand
 import dev.martianzoo.tfm.repl.commands.MapCommand
-import dev.martianzoo.tfm.repl.commands.ModeCommand
-import dev.martianzoo.tfm.repl.commands.NewGameCommand
-import dev.martianzoo.tfm.repl.commands.PhaseCommand
-import dev.martianzoo.tfm.repl.commands.RollbackCommand
-import dev.martianzoo.tfm.repl.commands.ScriptCommand
-import dev.martianzoo.tfm.repl.commands.TaskCommand
-import dev.martianzoo.tfm.repl.commands.TasksCommand
 import dev.martianzoo.tfm.repl.commands.TfmPayCommand
 import dev.martianzoo.tfm.repl.commands.TfmPlayCommand
-import dev.martianzoo.tfm.repl.commands.TurnCommand
 import dev.martianzoo.types.MType
 import dev.martianzoo.util.toStrings
 
@@ -192,11 +198,11 @@ internal class ReplSession(val jline: JlineRepl? = null) {
   }
 
   public enum class ReplMode(val message: String, val color: TfmColor) {
-    RED("Change integrity: make changes without triggered effects", TfmColor.HEAT),
-    YELLOW("Task integrity: changes have consequences", TfmColor.MEGACREDIT),
-    GREEN("Operation integrity: clear task queue before starting new operation", TfmColor.PLANT),
-    BLUE("Turn integrity: must perform a valid game turn for this phase", TfmColor.OCEAN_TILE),
-    PURPLE("Game integrity: the engine fully controls the workflow", TfmColor.ENERGY),
+    RED("Change integrity: make changes without triggered effects", HEAT),
+    YELLOW("Task integrity: changes have consequences", MEGACREDIT),
+    GREEN("Operation integrity: clear task queue before starting new operation", PLANT),
+    BLUE("Turn integrity: must perform a valid game turn for this phase", OCEAN_TILE),
+    PURPLE("Game integrity: the engine fully controls the workflow", ENERGY),
   }
 
   fun player(name: String): Player {

@@ -8,8 +8,9 @@ import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.Instruction.Gain
 import dev.martianzoo.pets.ast.Instruction.Multi
 import dev.martianzoo.pets.ast.Instruction.Transmute
-import dev.martianzoo.tfm.repl.ReplCommand
-import dev.martianzoo.tfm.repl.ReplSession
+import dev.martianzoo.repl.ReplCommand
+import dev.martianzoo.repl.ReplSession
+import dev.martianzoo.repl.commands.TaskCommand
 
 internal class TfmPayCommand(val repl: ReplSession) : ReplCommand("tfm_pay") {
   override val usage: String = "tfm_pay <amount resource>"

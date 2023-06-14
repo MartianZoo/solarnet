@@ -1,10 +1,10 @@
-package dev.martianzoo.tfm.repl.commands
+package dev.martianzoo.repl.commands
 
 import dev.martianzoo.data.Task.TaskId
 import dev.martianzoo.data.TaskResult
-import dev.martianzoo.tfm.repl.ReplCommand
-import dev.martianzoo.tfm.repl.ReplSession
-import dev.martianzoo.tfm.repl.ReplSession.UsageException
+import dev.martianzoo.repl.ReplCommand
+import dev.martianzoo.repl.ReplSession
+import dev.martianzoo.repl.ReplSession.UsageException
 
 internal class TaskCommand(val repl: ReplSession) : ReplCommand("task") {
   override val usage = "task <id> [<Instruction> | drop]"

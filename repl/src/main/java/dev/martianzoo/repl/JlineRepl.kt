@@ -1,4 +1,4 @@
-package dev.martianzoo.tfm.repl
+package dev.martianzoo.repl
 
 import kotlin.io.path.Path
 import kotlin.system.exitProcess

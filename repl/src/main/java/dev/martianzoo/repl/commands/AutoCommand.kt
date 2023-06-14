@@ -1,11 +1,11 @@
-package dev.martianzoo.tfm.repl.commands
+package dev.martianzoo.repl.commands
 
 import dev.martianzoo.engine.AutoExecMode.FIRST
 import dev.martianzoo.engine.AutoExecMode.NONE
 import dev.martianzoo.engine.AutoExecMode.SAFE
-import dev.martianzoo.tfm.repl.ReplCommand
-import dev.martianzoo.tfm.repl.ReplSession
-import dev.martianzoo.tfm.repl.ReplSession.UsageException
+import dev.martianzoo.repl.ReplCommand
+import dev.martianzoo.repl.ReplSession
+import dev.martianzoo.repl.ReplSession.UsageException
 
 internal class AutoCommand(val repl: ReplSession) : ReplCommand("auto") {
   override val usage = "auto [none|safe|first]"

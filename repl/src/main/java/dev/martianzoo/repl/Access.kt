@@ -1,4 +1,4 @@
-package dev.martianzoo.tfm.repl
+package dev.martianzoo.repl
 
 import dev.martianzoo.data.Player.Companion.ENGINE
 import dev.martianzoo.data.Task.TaskId
@@ -8,7 +8,7 @@ import dev.martianzoo.engine.Gameplay.GodMode
 import dev.martianzoo.engine.Gameplay.OperationLayer
 import dev.martianzoo.engine.Gameplay.TaskLayer
 import dev.martianzoo.engine.Gameplay.TurnLayer
-import dev.martianzoo.tfm.repl.ReplSession.UsageException
+import dev.martianzoo.repl.ReplSession.UsageException
 
 sealed class Access {
   abstract fun exec(instruction: String): TaskResult

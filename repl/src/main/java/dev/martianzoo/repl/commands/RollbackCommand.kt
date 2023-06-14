@@ -1,8 +1,8 @@
-package dev.martianzoo.tfm.repl.commands
+package dev.martianzoo.repl.commands
 
 import dev.martianzoo.engine.Timeline.Checkpoint
-import dev.martianzoo.tfm.repl.ReplCommand
-import dev.martianzoo.tfm.repl.ReplSession
+import dev.martianzoo.repl.ReplCommand
+import dev.martianzoo.repl.ReplSession
 
 internal class RollbackCommand(val repl: ReplSession) : ReplCommand("rollback") {
   override val usage = "rollback <logid>"

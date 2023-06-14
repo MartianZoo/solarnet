@@ -1,9 +1,9 @@
-package dev.martianzoo.tfm.repl.commands
+package dev.martianzoo.repl.commands
 
 import dev.martianzoo.engine.Gameplay.Companion.parse
 import dev.martianzoo.pets.ast.Requirement
-import dev.martianzoo.tfm.repl.ReplCommand
-import dev.martianzoo.tfm.repl.ReplSession
+import dev.martianzoo.repl.ReplCommand
+import dev.martianzoo.repl.ReplSession
 
 internal class HasCommand(val repl: ReplSession) : ReplCommand("has") {
   override val usage = "has <Requirement>"

@@ -1,6 +1,6 @@
-package dev.martianzoo.tfm.repl
+package dev.martianzoo.repl
 
-import dev.martianzoo.tfm.repl.ReplSession.UsageException
+import dev.martianzoo.repl.ReplSession.UsageException
 
 internal abstract class ReplCommand(val name: String) {
   open val isReadOnly: Boolean = false // not currently used

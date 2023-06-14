@@ -1,9 +1,9 @@
-package dev.martianzoo.tfm.repl.commands
+package dev.martianzoo.repl.commands
 
 import dev.martianzoo.data.Player
+import dev.martianzoo.repl.ReplCommand
+import dev.martianzoo.repl.ReplSession
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
-import dev.martianzoo.tfm.repl.ReplCommand
-import dev.martianzoo.tfm.repl.ReplSession
 
 internal class BecomeCommand(val repl: ReplSession) : ReplCommand("become") {
   override val usage = "become [PlayerN]"

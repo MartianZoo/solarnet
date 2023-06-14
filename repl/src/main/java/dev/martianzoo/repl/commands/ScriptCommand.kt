@@ -1,7 +1,7 @@
-package dev.martianzoo.tfm.repl.commands
+package dev.martianzoo.repl.commands
 
-import dev.martianzoo.tfm.repl.ReplCommand
-import dev.martianzoo.tfm.repl.ReplSession
+import dev.martianzoo.repl.ReplCommand
+import dev.martianzoo.repl.ReplSession
 import java.io.File
 
 internal class ScriptCommand(val repl: ReplSession) : ReplCommand("script") {

@@ -2,10 +2,10 @@ package dev.martianzoo.tfm.repl.commands
 
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.Metric.Count
+import dev.martianzoo.repl.ReplCommand
+import dev.martianzoo.repl.ReplSession
 import dev.martianzoo.tfm.api.ApiUtils
 import dev.martianzoo.tfm.engine.TfmGameplay
-import dev.martianzoo.tfm.repl.ReplCommand
-import dev.martianzoo.tfm.repl.ReplSession
 import dev.martianzoo.tfm.repl.TfmColor
 import dev.martianzoo.tfm.repl.TfmColor.ENERGY
 import dev.martianzoo.tfm.repl.TfmColor.HEAT

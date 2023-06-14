@@ -1,8 +1,9 @@
 package dev.martianzoo.tfm.repl.commands
 
 import dev.martianzoo.pets.ast.ClassName
-import dev.martianzoo.tfm.repl.ReplCommand
-import dev.martianzoo.tfm.repl.ReplSession
+import dev.martianzoo.repl.ReplCommand
+import dev.martianzoo.repl.ReplSession
+import dev.martianzoo.repl.commands.TaskCommand
 
 internal class TfmPlayCommand(val repl: ReplSession) : ReplCommand("tfm_play") {
   override val usage: String = "tfm_play <CardName>"

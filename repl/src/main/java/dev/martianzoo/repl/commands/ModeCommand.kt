@@ -1,9 +1,9 @@
-package dev.martianzoo.tfm.repl.commands
+package dev.martianzoo.repl.commands
 
-import dev.martianzoo.tfm.repl.ReplCommand
-import dev.martianzoo.tfm.repl.ReplSession
-import dev.martianzoo.tfm.repl.ReplSession.ReplMode
-import dev.martianzoo.tfm.repl.ReplSession.UsageException
+import dev.martianzoo.repl.ReplCommand
+import dev.martianzoo.repl.ReplSession
+import dev.martianzoo.repl.ReplSession.ReplMode
+import dev.martianzoo.repl.ReplSession.UsageException
 
 internal class ModeCommand(val repl: ReplSession) : ReplCommand("mode") {
   override val usage = "mode <mode name>"
