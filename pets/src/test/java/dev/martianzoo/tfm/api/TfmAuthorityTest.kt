@@ -7,7 +7,7 @@ import dev.martianzoo.tfm.data.CardDefinition.CardData
 import org.junit.jupiter.api.Test
 
 // Doesn't test much, but the class doesn't do that much
-private class AuthorityTest {
+private class TfmAuthorityTest {
   @Test
   fun test() {
     val authority =

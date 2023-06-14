@@ -1,8 +1,7 @@
-package dev.martianzoo.tfm.pets.ast
+package dev.martianzoo.pets.ast
 
 import dev.martianzoo.pets.Parsing.parse
-import dev.martianzoo.pets.ast.ScaledExpression
-import dev.martianzoo.tfm.pets.testRoundTrip
+import dev.martianzoo.pets.testRoundTrip
 import org.junit.jupiter.api.Test
 
 class ScaledExpressionTest {

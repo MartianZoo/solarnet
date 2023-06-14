@@ -1,4 +1,4 @@
-package dev.martianzoo.tfm.pets
+package dev.martianzoo.pets
 
 import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.pets.Parsing.parseClasses

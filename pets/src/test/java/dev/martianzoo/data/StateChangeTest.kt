@@ -1,8 +1,8 @@
-package dev.martianzoo.tfm.data
+package dev.martianzoo.data
 
 import dev.martianzoo.data.GameEvent.ChangeEvent.StateChange
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.tfm.testlib.assertFails
+import dev.martianzoo.testlib.assertFails
 import org.junit.jupiter.api.Test
 
 private class StateChangeTest {

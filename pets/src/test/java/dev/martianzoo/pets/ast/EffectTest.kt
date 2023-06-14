@@ -1,10 +1,9 @@
-package dev.martianzoo.tfm.pets.ast
+package dev.martianzoo.pets.ast
 
 import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.pets.Parsing.parse
-import dev.martianzoo.pets.ast.Effect
-import dev.martianzoo.tfm.pets.testSampleStrings
-import dev.martianzoo.tfm.testlib.PetGenerator
+import dev.martianzoo.pets.testSampleStrings
+import dev.martianzoo.testlib.PetGenerator
 import org.junit.jupiter.api.Test
 
 // Most testing is done by AutomatedTest

@@ -1,4 +1,4 @@
-package dev.martianzoo.tfm.testlib
+package dev.martianzoo.testlib
 
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.ast.Expression

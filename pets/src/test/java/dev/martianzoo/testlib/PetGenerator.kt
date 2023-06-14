@@ -1,4 +1,4 @@
-package dev.martianzoo.tfm.testlib
+package dev.martianzoo.testlib
 
 import com.google.common.truth.Truth.assertWithMessage
 import dev.martianzoo.api.Exceptions.PetSyntaxException
@@ -7,24 +7,50 @@ import dev.martianzoo.data.Player.Companion.PLAYER2
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.ast.Action
 import dev.martianzoo.pets.ast.Action.Cost
+import dev.martianzoo.pets.ast.Action.Cost.Spend
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Effect
 import dev.martianzoo.pets.ast.Effect.Trigger
+import dev.martianzoo.pets.ast.Effect.Trigger.BasicTrigger
+import dev.martianzoo.pets.ast.Effect.Trigger.ByTrigger
+import dev.martianzoo.pets.ast.Effect.Trigger.IfTrigger
+import dev.martianzoo.pets.ast.Effect.Trigger.OnGainOf
+import dev.martianzoo.pets.ast.Effect.Trigger.OnRemoveOf
+import dev.martianzoo.pets.ast.Effect.Trigger.WhenGain
+import dev.martianzoo.pets.ast.Effect.Trigger.WhenRemove
+import dev.martianzoo.pets.ast.Effect.Trigger.XTrigger
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.FromExpression
 import dev.martianzoo.pets.ast.FromExpression.ComplexFrom
 import dev.martianzoo.pets.ast.FromExpression.ExpressionAsFrom
 import dev.martianzoo.pets.ast.FromExpression.SimpleFrom
 import dev.martianzoo.pets.ast.Instruction
+import dev.martianzoo.pets.ast.Instruction.Gain
+import dev.martianzoo.pets.ast.Instruction.Gated
 import dev.martianzoo.pets.ast.Instruction.Intensity
+import dev.martianzoo.pets.ast.Instruction.Multi
+import dev.martianzoo.pets.ast.Instruction.NoOp
+import dev.martianzoo.pets.ast.Instruction.Per
+import dev.martianzoo.pets.ast.Instruction.Remove
+import dev.martianzoo.pets.ast.Instruction.Then
+import dev.martianzoo.pets.ast.Instruction.Transmute
 import dev.martianzoo.pets.ast.Metric
+import dev.martianzoo.pets.ast.Metric.Count
+import dev.martianzoo.pets.ast.Metric.Max
+import dev.martianzoo.pets.ast.Metric.Plus
+import dev.martianzoo.pets.ast.Metric.Scaled
+import dev.martianzoo.pets.ast.Metric.Transform
 import dev.martianzoo.pets.ast.PetNode
 import dev.martianzoo.pets.ast.Requirement
+import dev.martianzoo.pets.ast.Requirement.And
+import dev.martianzoo.pets.ast.Requirement.Exact
+import dev.martianzoo.pets.ast.Requirement.Min
+import dev.martianzoo.pets.ast.Requirement.Or
 import dev.martianzoo.pets.ast.ScaledExpression
 import dev.martianzoo.pets.ast.ScaledExpression.Companion.MEGACREDIT
 import dev.martianzoo.pets.ast.ScaledExpression.Companion.scaledEx
+import dev.martianzoo.testlib.PetToKotlin.p2k
 import dev.martianzoo.tfm.data.TfmClasses.PROD
-import dev.martianzoo.tfm.testlib.PetToKotlin.p2k
 import kotlin.math.pow
 import kotlin.math.roundToInt
 import kotlin.random.Random
@@ -50,11 +76,11 @@ internal class PetGenerator(scaling: (Int) -> Double) :
 
       val metricTypes =
           multiset(
-              7 to Metric.Count::class,
-              5 to Metric.Scaled::class,
-              3 to Metric.Max::class,
-              2 to Metric.Plus::class,
-              3 to Metric.Transform::class,
+              7 to Count::class,
+              5 to Scaled::class,
+              3 to Max::class,
+              2 to Plus::class,
+              3 to Transform::class,
           )
       register(Metric::class) { recurse(choose(metricTypes)) }
       register { Metric.Count(recurse()) }
@@ -65,11 +91,11 @@ internal class PetGenerator(scaling: (Int) -> Double) :
 
       val requirementTypes =
           multiset(
-              9 to Requirement.Min::class,
+              9 to Min::class,
               4 to Requirement.Max::class,
-              2 to Requirement.Exact::class,
-              5 to Requirement.Or::class,
-              3 to Requirement.And::class,
+              2 to Exact::class,
+              5 to Or::class,
+              3 to And::class,
               1 to Requirement.Transform::class,
           )
       register(Requirement::class) { recurse(choose(requirementTypes)) }
@@ -84,15 +110,15 @@ internal class PetGenerator(scaling: (Int) -> Double) :
 
       val instructionTypes =
           multiset(
-              2 to Instruction.NoOp::class,
-              9 to Instruction.Gain::class,
-              4 to Instruction.Remove::class,
-              3 to Instruction.Per::class,
-              2 to Instruction.Gated::class,
-              2 to Instruction.Transmute::class,
-              1 to Instruction.Then::class,
+              2 to NoOp::class,
+              9 to Gain::class,
+              4 to Remove::class,
+              3 to Per::class,
+              2 to Gated::class,
+              2 to Transmute::class,
+              1 to Then::class,
               3 to Instruction.Or::class,
-              5 to Instruction.Multi::class,
+              5 to Multi::class,
               1 to Instruction.Transform::class,
           )
       register(Instruction::class) { recurse(choose(instructionTypes)) }
@@ -149,17 +175,17 @@ internal class PetGenerator(scaling: (Int) -> Double) :
 
       val basicTriggerTypes =
           multiset(
-              9 to Trigger.WhenGain::class,
-              2 to Trigger.WhenRemove::class,
-              9 to Trigger.OnGainOf::class,
-              5 to Trigger.OnRemoveOf::class,
+              9 to WhenGain::class,
+              2 to WhenRemove::class,
+              9 to OnGainOf::class,
+              5 to OnRemoveOf::class,
           )
       val triggerTypes =
           multiset(
-              9 to Trigger.BasicTrigger::class,
-              3 to Trigger.ByTrigger::class,
-              2 to Trigger.IfTrigger::class,
-              2 to Trigger.XTrigger::class,
+              9 to BasicTrigger::class,
+              3 to ByTrigger::class,
+              2 to IfTrigger::class,
+              2 to XTrigger::class,
               1 to Trigger.Transform::class,
           )
       register(Trigger::class) { recurse(choose(triggerTypes)) }
@@ -177,7 +203,7 @@ internal class PetGenerator(scaling: (Int) -> Double) :
 
       val costTypes =
           multiset(
-              9 to Cost.Spend::class,
+              9 to Spend::class,
               3 to Cost.Per::class,
               3 to Cost.Or::class,
               2 to Cost.Multi::class,

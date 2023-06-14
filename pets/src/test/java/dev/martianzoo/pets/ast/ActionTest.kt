@@ -1,9 +1,8 @@
-package dev.martianzoo.tfm.pets.ast
+package dev.martianzoo.pets.ast
 
-import dev.martianzoo.pets.ast.Action
-import dev.martianzoo.tfm.pets.testRoundTrip
-import dev.martianzoo.tfm.pets.testSampleStrings
-import dev.martianzoo.tfm.testlib.PetGenerator
+import dev.martianzoo.pets.testRoundTrip
+import dev.martianzoo.pets.testSampleStrings
+import dev.martianzoo.testlib.PetGenerator
 import org.junit.jupiter.api.Test
 
 // Most testing is done by AutomatedTest

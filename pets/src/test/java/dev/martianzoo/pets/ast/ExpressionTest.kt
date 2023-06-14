@@ -1,12 +1,11 @@
-package dev.martianzoo.tfm.pets.ast
+package dev.martianzoo.pets.ast
 
 import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.api.SystemClasses.CLASS
 import dev.martianzoo.api.SystemClasses.COMPONENT
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.pets.ast.Expression
-import dev.martianzoo.tfm.pets.testRoundTrip
-import dev.martianzoo.tfm.testlib.te
+import dev.martianzoo.pets.testRoundTrip
+import dev.martianzoo.testlib.te
 import org.junit.jupiter.api.Test
 
 // Most testing is done by AutomatedTest
