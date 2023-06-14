@@ -15,9 +15,7 @@ import javax.inject.Inject
  * These types embody the present, past, and future of the game state (respectively).
  *
  * These three state objects are read-only, but are always up-to-date (i.e., they are not
- * immutable). All changes to game state must go through `game.writer(player)`, which returns a
- * [GameWriter]. That type offers only very basic task manipulations, accepting only well-formed
- * Pets [Instruction]s, but it also has a [GameWriter.unsafe] view that enables "cheats".
+ * immutable). Modifying game state is done through [gameplay].
  *
  * The component graph can be queried programmatically, but a [GameReader] is also provided which
  * can answer queries expressed as a Pets [Metric] or [Requirement].
@@ -46,9 +44,6 @@ constructor(
 ) {
 
   internal lateinit var playerComponents: Map<Player, PlayerComponent>
-
-  /** All modifications to game state (except rollbacks) go through here. */
-  public fun writer(player: Player) = playerComponents[player]!!.writer
 
   public fun gameplay(player: Player): Gameplay = playerComponents[player]!!.gameplay
 }

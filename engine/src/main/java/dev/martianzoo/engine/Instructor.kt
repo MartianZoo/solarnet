@@ -40,9 +40,9 @@ internal class Instructor
 @Inject
 constructor(
     private val reader: GameReader,
-    private val effector: Effector,
     private val limiter: Limiter,
-    private val changer: Changer,
+    private val changer: Changer?,
+    private val effector: Effector?,
 ) {
 
   fun execute(instruction: Instruction, cause: Cause?): List<Task> {
@@ -70,14 +70,14 @@ constructor(
 
     while (true) {
       val (result, done) =
-          changer.change(
+          changer!!.change(
               count = ct.value,
               gaining = gaining,
               removing = removing,
               cause = cause,
               orRemoveOneDependent = true)
 
-      val consequences: List<Task> = effector.fire(result)
+      val consequences: List<Task> = effector!!.fire(result)
       val (now, later) = consequences.partition { it.next }
       for (task in now) {
         split(task.instruction).forEach { doExecute(it, task.cause, deferred) }

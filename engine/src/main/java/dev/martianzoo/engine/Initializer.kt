@@ -3,7 +3,6 @@ package dev.martianzoo.engine
 import dev.martianzoo.data.GameEvent.ChangeEvent.Cause
 import dev.martianzoo.data.Player.Companion.ENGINE
 import dev.martianzoo.engine.Engine.PlayerScoped
-import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.tfm.data.GameSetup
 import dev.martianzoo.types.MClassTable
 import javax.inject.Inject
@@ -12,15 +11,23 @@ import javax.inject.Inject
 internal class Initializer
 @Inject
 constructor(
-    val writer: GameWriter,
+    val gameplay: Gameplay,
     val table: MClassTable,
     val timeline: Timeline,
-    val setup: GameSetup
+    val setup: GameSetup,
+    val tasks: TaskQueue,
 ) {
   fun initialize() {
     var fakeCause: Cause? = null
 
-    fun exec(instruction: String) = writer.executeFully(parse(instruction), fakeCause)
+    fun exec(instruction: String) {
+      with(gameplay.godMode()) {
+        addTasks(instruction, fakeCause)
+        do {
+          doTask(tasks.ids().first())
+        } while (tasks.ids().any())
+      }
+    }
 
     exec("$ENGINE!")
     fakeCause = Cause(ENGINE.expression, 0)

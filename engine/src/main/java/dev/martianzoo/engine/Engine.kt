@@ -62,7 +62,6 @@ public object Engine {
   @PlayerScoped
   @Subcomponent(modules = [PlayerModule::class])
   internal interface PlayerComponent {
-    val writer: GameWriter
     val gameplay: Gameplay
     val initter: Initializer // only used for Engine
   }
@@ -70,7 +69,6 @@ public object Engine {
   @Module
   internal class PlayerModule(private val player: Player) {
     @Provides fun player(): Player = player
-    @Provides fun writer(x: PlayerAgent): GameWriter = x
     @Provides fun gameplay(x: ApiTranslation): Gameplay = x
   }
 

@@ -30,7 +30,6 @@ import kotlin.reflect.KClass
 internal class ApiTranslation
 @Inject
 constructor(
-    private val writer: GameWriter,
     private val reader: GameReader,
     private val timeline: Timeline,
     private val impl: Implementations,
@@ -77,7 +76,7 @@ constructor(
   // CHANGES
 
   override fun sneak(changes: String, fakeCause: Cause?) =
-      timeline.atomic { writer.sneak(parse(changes), fakeCause) }
+      timeline.atomic { impl.sneak(parse(changes), fakeCause) }
 
   // TASKS
 
