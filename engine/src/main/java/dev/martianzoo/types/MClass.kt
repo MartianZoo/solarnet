@@ -44,16 +44,15 @@ import dev.martianzoo.util.toSetStrict
  */
 public class MClass
 internal constructor(
-
     /** The class declaration this class was loaded from. */
-    internal val declaration: ClassDeclaration,
+    declaration: ClassDeclaration,
 
     /** The class loader that loaded this class. */
     internal val loader: MClassLoader,
 
     /** This class's superclasses that are exactly one step away; empty only for `Component`. */
     internal val directSuperclasses: List<MClass> = superclasses(declaration, loader),
-    internal val custom: CustomClass? = null,
+    internal val custom: CustomClass? = null, // TODO move?
 ) : HasClassName, Hierarchical<MClass> {
 
   /** The name of this class, in UpperCamelCase. */
@@ -72,7 +71,7 @@ internal constructor(
 
   override val abstract: Boolean by declaration::abstract
 
-  override fun isSubtypeOf(that: MClass): Boolean = that in allSuperclasses
+  override fun isSubtypeOf(that: MClass): Boolean = that in getAllSuperclasses()
 
   override fun glb(that: MClass): MClass? =
       when {
@@ -80,18 +79,20 @@ internal constructor(
         that.isSubtypeOf(this) -> that
         else -> {
           allSubclasses.singleOrNull {
-            it.intersectionType && this in it.directSuperclasses && that in it.directSuperclasses
+            it.isIntersectionType() &&
+                this in it.directSuperclasses &&
+                that in it.directSuperclasses
           }
         }
       }
 
   override fun lub(that: MClass): MClass {
     val commonSupers: Set<MClass> = this.allSuperclasses.intersect(that.allSuperclasses)
-    val supersOfSupers: Set<MClass> = commonSupers.flatMap { it.properSuperclasses }.toSet()
+    val supersOfSupers: Set<MClass> = commonSupers.flatMap { it.getProperSuperclasses() }.toSet()
     val candidates: Set<MClass> = commonSupers - supersOfSupers
     // This is a weird and stupid heuristic, but does it really matter which one we pick?
     return candidates.maxBy {
-      it.dependencies.typeDependencies.size * 100 + it.allSuperclasses.size
+      it.dependencies.typeDependencies().size * 100 + it.allSuperclasses.size
     }
   }
 
@@ -100,38 +101,43 @@ internal constructor(
         throw NarrowingException("${this.className} is not a subclass of ${that.className}")
   }
 
-  /**
-   * The types listed as this class's supertypes. There is one for each of this class's
-   * [directSuperclasses], but as full types rather than just classes; these types might or might
-   * not narrow the dependencies (such as `GreeneryTile`, whose supertype is `Tile<MarsArea>` rather
-   * than `Tile<Area>`).
-   */
-  internal val directSupertypes: Set<MType> by lazy {
-    when {
-      className == COMPONENT -> setOf()
-      declaration.supertypes.none() -> setOf(loader.componentClass.baseType)
-      else ->
-          declaration.supertypes.toSetStrict {
-            val dethissed = replaceThisExpressionsWith(className.expression).transform(it)
-            loader.resolve(dethissed)
-          }
-    }
-  }
+  private val sups by declaration::supertypes
 
-  /** Every class `c` for which `c.isSuperclassOf(this)` is true, including this class itself. */
-  internal val allSuperclasses: Set<MClass> by lazy {
+  private fun directSupertypes(): Set<MType> =
+      when {
+        className == COMPONENT -> setOf()
+        sups.none() -> setOf(loader.componentClass.baseType)
+        else ->
+            sups.toSetStrict {
+              val dethissed = replaceThisExpressionsWith(className.expression).transform(it)
+              loader.resolve(dethissed)
+            }
+      }
+
+  private val allSuperclasses: Set<MClass> by lazy {
     (directSuperclasses.flatMap { it.allSuperclasses } + this).toSet()
   }
 
-  internal val properSuperclasses: Set<MClass> by lazy { allSuperclasses - this }
+  /** Every class `c` for which `c.isSuperclassOf(this)` is true, including this class itself. */
+  internal fun getAllSuperclasses(): Set<MClass> = allSuperclasses
 
-  /** Every class `c` for which `c.isSubclassOf(this)` is true, including this class itself. */
-  internal val allSubclasses: Set<MClass> by lazy {
-    loader.allClasses.filter { this in it.allSuperclasses }.toSet()
+  internal fun getProperSuperclasses(): Set<MClass> = getAllSuperclasses() - this
+
+  private val allSubclasses: Set<MClass> by lazy {
+    loader.allClasses.filter { this in it.getAllSuperclasses() }.toSet()
   }
 
-  internal val directSubclasses: Set<MClass> by lazy {
-    loader.allClasses.filter { this in it.directSuperclasses }.toSet()
+  /** Every class `c` for which `c.isSubclassOf(this)` is true, including this class itself. */
+  internal fun getAllSubclasses(): Set<MClass> = allSubclasses
+
+  internal fun getDirectSubclasses(): Set<MClass> =
+      loader.allClasses.filter { this in it.directSuperclasses }.toSet()
+
+  private val intersectionType: Boolean by lazy {
+    directSuperclasses.size >= 2 &&
+        loader.allClasses
+            .filter { mclass -> directSuperclasses.all(mclass::isSubtypeOf) }
+            .all(::isSupertypeOf)
   }
 
   /**
@@ -141,15 +147,11 @@ internal constructor(
    * count `OwnedTile` components, it would be a bug if a component like `CommercialDistrictTile`
    * (which is both an `Owned` and a `Tile`) forgot to also extend `OwnedTile`.
    */
-  internal val intersectionType: Boolean by lazy {
-    directSuperclasses.size >= 2 &&
-        loader.allClasses
-            .filter { mclass -> directSuperclasses.all(mclass::isSubtypeOf) }
-            .all(::isSupertypeOf)
-  }
+  internal fun isIntersectionType(): Boolean = intersectionType
 
   // DEPENDENCIES
 
+  // TODO eager init causes some cycle
   internal val dependencies: DependencySet by lazy {
     if (className == CLASS) {
       depsForClassType(loader.componentClass)
@@ -167,7 +169,7 @@ internal constructor(
 
   private val inheritedDeps: DependencySet by lazy {
     val list: List<DependencySet> =
-        directSupertypes.map { supertype ->
+        directSupertypes().map { supertype ->
           val replacer = replacer(supertype.className, className)
           supertype.dependencies.map { mtype ->
             val depExpr = mtype.expressionFull
@@ -202,9 +204,15 @@ internal constructor(
 
   fun concreteTypes(): Sequence<MType> = baseType.concreteSubtypesSameClass()
 
+  internal val defaultsDecl by declaration::defaultsDeclaration
+
+  internal val defaults: Defaults by lazy {
+    Defaults.forClass(this)
+  }
+
   // EFFECTS
 
-  internal fun rawEffects(): Set<Effect> = declaration.effects
+  internal val rawEffects: Set<Effect> by declaration::effects
 
   /**
    * The effects belonging to this class; similar to those found on the [declaration], but processed
@@ -212,12 +220,12 @@ internal constructor(
    * where they will be processed further.
    */
   internal val classEffects: Set<Effect> by lazy {
-    allSuperclasses.flatMap { it.directClassEffects() }.toSetStrict()
+    getAllSuperclasses().flatMap { it.directClassEffects() }.toSetStrict()
   }
 
   private fun directClassEffects(): List<Effect> {
     val transformer =
-        if (OWNED !in allSuperclasses.classNames()) {
+        if (OWNED !in getAllSuperclasses().classNames()) {
           chain(
               attachToClassTransformer,
               loader.transformers.fixEffectForUnownedContext(),
@@ -226,7 +234,7 @@ internal constructor(
           attachToClassTransformer
         }
 
-    return declaration.effects.map { transformer.transform(it) }
+    return rawEffects.map { transformer.transform(it) }
   }
 
   private val attachToClassTransformer: PetTransformer by lazy {
@@ -237,13 +245,20 @@ internal constructor(
 
   // OTHER
 
-  val invariants: Set<Requirement> by lazy {
-    if (abstract) setOf() else allSuperclasses.flatMap { split(it.declaration.invariants) }.toSet()
+  private val directInvariants = split(declaration.invariants)
+
+  fun invariants(): Set<Requirement> {
+    return if (abstract) {
+      setOf()
+    } else {
+      getAllSuperclasses().flatMap { it.directInvariants }.toSet()
+    }
   }
 
-  val singleton: Boolean = invariants.any {
-    (it as Counting).range.first == 1 && it.scaledEx.expression == THIS.expression
-  }
+  val singleton: Boolean =
+      invariants().any {
+        (it as Counting).range.first == 1 && it.scaledEx.expression == THIS.expression
+      }
 
   override fun equals(other: Any?) =
       other is MClass && other.className == className && other.loader == loader

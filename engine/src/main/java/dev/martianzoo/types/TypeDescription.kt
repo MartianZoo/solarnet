@@ -7,38 +7,35 @@ import dev.martianzoo.tfm.pets.ast.Effect
 import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.util.toSetStrict
 
-public class TypeDescription public constructor(val mtype: MType) {
+public class TypeDescription public constructor(mtype: MType) {
 
   private val mclass: MClass by mtype::root
 
   val classShortName: ClassName by mclass::shortName
 
-  val superclassNames: Set<ClassName> = mclass.allSuperclasses.classNames()
-  val subclassNames: Set<ClassName> = descendingBySubclassCount(mclass.allSubclasses)
+  val superclassNames: Set<ClassName> = mclass.getAllSuperclasses().classNames()
+  val subclassNames: Set<ClassName> = descendingBySubclassCount(mclass.getAllSubclasses())
 
-  val rawClassEffects: Set<Effect> = mclass.rawEffects()
+  val rawClassEffects: Set<Effect> by mclass::rawEffects
   val classEffects: Set<Effect> by mclass::classEffects
 
-  val classInvariants: Set<Requirement> by mclass::invariants
+  val classInvariants: Set<Requirement> = mclass.invariants()
 
   val baseType: Type by mclass::baseType
 
-  val concreteTypesForThisClassCount: Int by lazy {
-    (baseType as MType).concreteSubtypesSameClass().take(100).count()
-  }
-
-  val type: Type by ::mtype
+  val concreteTypesForThisClassCount =
+      (baseType as MType).concreteSubtypesSameClass().take(100).count()
 
   val supertypes: List<Type> =
-      mclass.allSuperclasses.map { it.withAllDependencies(mtype.dependencies) }
+      mclass.getAllSuperclasses().map { it.withAllDependencies(mtype.dependencies) }
 
-  val componentTypesCount: Int by lazy { mtype.allConcreteSubtypes().take(100).count() }
+  val componentTypesCount: Int = mtype.allConcreteSubtypes().take(100).count()
 
-  val componentEffects: List<Effect> = if (type.abstract) listOf() else mtype.toComponent().effects
+  val componentEffects: List<Effect> = if (mtype.abstract) listOf() else mtype.toComponent().effects
 
   private fun descendingBySubclassCount(classes: Iterable<MClass>): Set<ClassName> =
       classes
-          .sortedWith(compareBy({ -it.allSubclasses.size }, { it.className }))
+          .sortedWith(compareBy({ -it.getAllSubclasses().size }, { it.className }))
           .classNames()
           .toSetStrict()
 }

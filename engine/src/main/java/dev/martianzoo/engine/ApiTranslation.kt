@@ -58,7 +58,7 @@ constructor(
     val allComponents: Multiset<out Type> = reader.getComponents(typeToList)
 
     val result = HashMultiset<Expression>()
-    typeToList.root.directSubclasses.forEach { sub ->
+    typeToList.root.getDirectSubclasses().forEach { sub ->
       val matches = allComponents.filter { it.narrows(sub.baseType) }
       if (matches.any()) {
         @Suppress("UNCHECKED_CAST") val types = matches.elements as Set<MType>

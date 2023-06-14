@@ -62,7 +62,7 @@ internal class Transformers @Inject constructor(val table: MClassTable) {
       return noOp()
     }
     val classNames =
-        table.getClass(STANDARD_RESOURCE).allSubclasses.flatMap {
+        table.getClass(STANDARD_RESOURCE).getAllSubclasses().flatMap {
           setOf(it.className, it.shortName)
         }
 
@@ -178,7 +178,7 @@ internal class Transformers @Inject constructor(val table: MClassTable) {
         return if (leaveItAlone(original)) {
           node // don't descend
         } else {
-          val spec: DefaultSpec = extractor(table.defaults(original.className))
+          val spec: DefaultSpec = extractor(table.getClass(original.className).defaults)
           val fixed =
               insertDefaultsIntoExpr(
                   original,
@@ -217,7 +217,7 @@ internal class Transformers @Inject constructor(val table: MClassTable) {
         if (node !is Expression) return transformChildren(node)
         if (leaveItAlone(node)) return node
 
-        val defaultDeps = table.defaults(node.className).allUsages.dependencies
+        val defaultDeps = table.getClass(node.className).defaults.allUsages.dependencies
         val result = insertDefaultsIntoExpr(transformChildren(node), defaultDeps, context, table)
         @Suppress("UNCHECKED_CAST") return result as P
       }
@@ -241,7 +241,7 @@ internal class Transformers @Inject constructor(val table: MClassTable) {
 
     val preferred: Map<Key, Expression> = match.keys.zip(original.arguments).toMap()
     val fallbacks: Map<Key, Expression> =
-        defaultDeps.typeDependencies.associate { it.key to it.expression }
+        defaultDeps.typeDependencies().associate { it.key to it.expression }
 
     val newArgs: List<Expression> =
         mclass.dependencies.keys.mapNotNull { preferred[it] ?: fallbacks[it] }
@@ -292,7 +292,7 @@ internal class Transformers @Inject constructor(val table: MClassTable) {
       gendeps: DependencySet,
       specdeps: DependencySet,
   ): Map<ClassName, Expression> {
-    val commonKeys = gendeps.flattened.keys.intersect(specdeps.flattened.keys)
+    val commonKeys = gendeps.flatten().keys.intersect(specdeps.flatten().keys)
     return commonKeys
         .mapNotNull {
           val replaced = gendeps.at(it).expression

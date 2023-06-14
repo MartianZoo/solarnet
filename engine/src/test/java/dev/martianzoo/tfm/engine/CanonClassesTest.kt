@@ -20,14 +20,14 @@ internal class CanonClassesTest {
 
   @Test
   fun childlessAbstractClass() {
-    val anomalies = table.allClasses.filter { it.abstract && it.directSubclasses.none() }
+    val anomalies = table.allClasses.filter { it.abstract && it.getDirectSubclasses().none() }
     assertThat(anomalies).isEmpty()
   }
 
   @Test
   fun abstractClassWithOnlyChild() {
     // In some cases we might like the parent and child to be treated as the same class
-    val anomalies = table.allClasses.filter { it.abstract && it.directSubclasses.size == 1 }
+    val anomalies = table.allClasses.filter { it.abstract && it.getDirectSubclasses().size == 1 }
     assertThat(anomalies.classNames()).containsExactly(ANYONE, cn("NoctisArea"), cn("Barrier"))
   }
 
@@ -37,7 +37,7 @@ internal class CanonClassesTest {
     table.allClasses
         .filterNot { it.abstract }
         .forEach { sup ->
-          (sup.allSubclasses - setOf(sup)).forEach { map += sup.className to it.className }
+          (sup.getAllSubclasses() - setOf(sup)).forEach { map += sup.className to it.className }
         }
     assertThat(map).containsExactly() // cn("CityTile") to cn("CapitalTile"))
   }
@@ -50,7 +50,7 @@ internal class CanonClassesTest {
 
     // Nothing can be both Owned and a Tile without being an OwnedTile!
     assertThat(owned glb tile).isEqualTo(ownedTile)
-    assertThat(ownedTile.intersectionType).isTrue()
+    assertThat(ownedTile.isIntersectionType()).isTrue()
   }
 
   @Test
@@ -61,7 +61,7 @@ internal class CanonClassesTest {
 
     // Nothing can be both a CardFront and a HasActions but an ActionCard!
     assertThat(cardFront glb hasActions).isEqualTo(actionCard)
-    assertThat(actionCard.intersectionType).isTrue()
+    assertThat(actionCard.isIntersectionType()).isTrue()
   }
 
   @Test
@@ -81,7 +81,7 @@ internal class CanonClassesTest {
       // assertThat(allDependencyKeys).containsExactly(Key(cn("Tile"), 0))
       assertThat(directSuperclasses.classNames())
           .containsExactly(cn("GlobalParameter"), cn("Tile"))
-      assertThat(allSuperclasses.classNames())
+      assertThat(getAllSuperclasses().classNames())
           .containsExactly(
               cn("Component"), cn("Atomized"), cn("GlobalParameter"), cn("Tile"), cn("OceanTile"))
 

@@ -30,6 +30,4 @@ public abstract class MClassTable {
 
   /** Returns the corresponding [MType] to [type] (possibly [type] itself). */
   abstract fun resolve(type: Type): MType
-
-  internal abstract fun defaults(className: ClassName): Defaults
 }

@@ -28,7 +28,7 @@ constructor(private val table: MClassTable, private val components: ComponentGra
 
     table.allClasses
         .flatMap { mclass ->
-          mclass.invariants.map {
+          mclass.invariants().map {
             var expr = (it as Counting).scaledEx.expression
 
             // Simplify it if we can
@@ -44,7 +44,7 @@ constructor(private val table: MClassTable, private val components: ComponentGra
           }
         }
         .forEach { restriction ->
-          restriction.mclass.allSubclasses.forEach {
+          restriction.mclass.getAllSubclasses().forEach {
             val list = multimap.computeIfAbsent(it) { mutableListOf() }
             list += restriction
           }

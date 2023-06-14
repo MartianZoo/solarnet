@@ -23,7 +23,7 @@ internal constructor(
     override val refinement: Requirement? = null,
 ) : Type, Hierarchical<MType>, Reifiable<MType>, HasClassName by root {
   internal val loader by root::loader
-  internal val typeDependencies by dependencies::typeDependencies
+  internal val typeDependencies = dependencies.typeDependencies()
 
   init {
     require(dependencies.keys.toList() == root.dependencies.keys.toList()) {
@@ -58,11 +58,11 @@ internal constructor(
       copy(refinement = Requirement.join(refinement, newRef))
 
   override val expression: Expression by lazy {
-    toExpressionUsingSpecs(narrowedDependencies.expressions)
+    toExpressionUsingSpecs(narrowedDependencies.expressions())
   }
 
   override val expressionFull: Expression by lazy {
-    toExpressionUsingSpecs(dependencies.expressionsFull)
+    toExpressionUsingSpecs(dependencies.expressionsFull())
   }
 
   internal val narrowedDependencies: DependencySet by lazy { dependencies.minus(root.dependencies) }
@@ -95,7 +95,7 @@ internal constructor(
       if (root.abstract) emptySequence() else dependencies.concreteSubtypesSameClass(this)
 
   internal fun concreteSubclasses(mclass: MClass) =
-      mclass.allSubclasses.asSequence().filter { !it.abstract }
+      mclass.getAllSubclasses().asSequence().filter { !it.abstract }
 
   override fun ensureNarrows(that: MType, info: TypeInfo) {
     root.ensureNarrows(that.root, info)

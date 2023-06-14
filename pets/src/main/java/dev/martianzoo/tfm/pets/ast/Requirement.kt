@@ -22,7 +22,8 @@ import dev.martianzoo.tfm.pets.ast.ScaledExpression.Scalar.XScalar
  */
 sealed class Requirement : PetElement() {
   public companion object {
-    public fun split(requirement: Iterable<Requirement>) = requirement.flatMap { split(it) }
+    public fun split(requirement: Iterable<Requirement>): List<Requirement> =
+        requirement.flatMap { split(it) }
 
     /** Recursively breaks apart any [And] requirements. */
     public fun split(requirement: Requirement): List<Requirement> =

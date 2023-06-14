@@ -25,14 +25,14 @@ internal class DependencySet private constructor(private val deps: Set<Dependenc
     fun of(deps: Iterable<Dependency>) = of(deps.toSetStrict())
   }
 
-  val flattened: Map<DependencyPath, MClass> by lazy {
-    deps
+  fun flatten(): Map<DependencyPath, MClass> {
+    return deps
         .flatMap {
           // Throwing away refinements & links...
           val result = mutableListOf(DependencyPath(it.key) to it.boundClass)
           if (it is TypeDependency) {
             result +=
-                it.boundType.dependencies.flattened.map { (depPath, boundClass) ->
+                it.boundType.dependencies.flatten().map { (depPath, boundClass) ->
                   depPath.prepend(it.key) to boundClass
                 }
           }
@@ -48,11 +48,11 @@ internal class DependencySet private constructor(private val deps: Set<Dependenc
     return type.dependencies.at(path.drop(1))
   }
 
-  val typeDependencies: Set<TypeDependency> = deps.filterIsInstance<TypeDependency>().toSet()
+  fun typeDependencies(): Set<TypeDependency> = deps.filterIsInstance<TypeDependency>().toSet()
 
   val keys: Set<Key> = deps.toSetStrict { it.key }
-  val expressions: List<Expression> by lazy { deps.map { it.expression } }
-  val expressionsFull: List<Expression> by lazy { deps.map { it.expressionFull } }
+  fun expressions(): List<Expression> = deps.map { it.expression }
+  fun expressionsFull(): List<Expression> = deps.map { it.expressionFull }
 
   fun get(key: Key): Dependency = getIfPresent(key) ?: error("$key")
 
@@ -139,7 +139,7 @@ internal class DependencySet private constructor(private val deps: Set<Dependenc
     return if (isForClassType(deps)) {
       mtype.concreteSubclasses(getClassForClassType(deps)).map { it.classType }
     } else {
-      val axes = typeDependencies.map { it.allConcreteSpecializations() }
+      val axes = typeDependencies().map { it.allConcreteSpecializations() }
       axes.cartesianProduct().map { mtype.root.withAllDependencies(DependencySet.of(it)) }
     }
   }

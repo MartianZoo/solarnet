@@ -70,7 +70,7 @@ public interface ComponentGraph {
      * `Class<Tile>` has an empty dependency list, despite its appearance. The list order
      * corresponds to [MClass.dependencies].
      */
-    public val dependencyComponents by lazy {
+    public val dependencyComponents: List<Component> by lazy {
       mtype.typeDependencies.map { it.boundType.toComponent() }
     }
 

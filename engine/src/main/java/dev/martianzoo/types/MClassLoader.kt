@@ -22,7 +22,7 @@ import javax.inject.Inject
 /**
  * All [MClass] instances come from here. Uses an [Authority] to pull class declarations from as
  * needed. Can be [frozen], which prevents additional classes from being loaded, and enables
- * features such as [MClass.allSubclasses] to work.
+ * features such as [MClass.getAllSubclasses] to work.
  */
 @GameScoped
 internal class MClassLoader(
@@ -202,15 +202,6 @@ internal class MClassLoader(
           true
         }
       }
-
-  internal val allDefaults: Map<ClassName, Defaults> by lazy {
-    require(frozen)
-    allClasses.associate { it.className to Defaults.forClass(it) } +
-        allClasses.associate { it.shortName to Defaults.forClass(it) }
-  }
-
-  override fun defaults(className: ClassName) =
-      allDefaults[className] ?: throw Exceptions.classNotFound(className)
 
   // fun randomType(): MType =
   //     allClasses.random().baseType.concreteSubtypesSameClass().toList().random()

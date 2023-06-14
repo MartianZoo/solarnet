@@ -46,8 +46,11 @@ constructor(
     private val changer: Changer,
 ) {
 
-  fun execute(instruction: Instruction, cause: Cause?): List<Task> =
-      mutableListOf<Task>().also { doExecute(instruction, cause, it) }
+  fun execute(instruction: Instruction, cause: Cause?): List<Task> {
+    val list = mutableListOf<Task>()
+    doExecute(instruction, cause, list)
+    return list
+  }
 
   private fun doExecute(instruction: Instruction, cause: Cause?, deferred: MutableList<Task>) {
     when (val prepped = prepare(instruction)) { // idempotent?
@@ -185,14 +188,15 @@ constructor(
     }
   }
 
-  // Still spending 35% of time in this method; can we arrange to need it less?
+  // Still spending 35% of time in this method
+  // TODO make it faster and/or need it less
   private fun autoNarrowTypes(gaining: Expression?, removing: Expression?): Pair<MType?, MType?> {
     var g = gaining?.let(reader::resolve) as MType?
     var r = removing?.let(reader::resolve) as MType?
 
     if (g?.abstract == true) { // I guess otherwise it'll fail somewhere else...
       val missing =
-          g.dependencies.typeDependencies.map { it.boundType }.filter { !reader.containsAny(it) }
+          g.dependencies.typeDependencies().map { it.boundType }.filter { !reader.containsAny(it) }
       if (missing.any()) throw DependencyException(missing)
       g = g.allConcreteSubtypes().singleOrNull() ?: g
 
