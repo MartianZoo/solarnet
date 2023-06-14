@@ -1,5 +1,6 @@
-package dev.martianzoo.tfm.engine
+package dev.martianzoo.engine
 
+import dev.martianzoo.engine.Timeline.Checkpoint
 import dev.martianzoo.tfm.data.GameEvent
 import dev.martianzoo.tfm.data.Task
 import dev.martianzoo.tfm.data.TaskResult
@@ -16,18 +17,18 @@ public interface EventLog {
    * Returns a [Checkpoint] that can be passed to [Game.rollBack] to return the game to its present
    * state, or to any of the `-Since` methods.
    */
-  fun checkpoint(): Timeline.Checkpoint
+  fun checkpoint(): Checkpoint
 
   /** Returns all change events since game setup was concluded. */
   fun changesSinceSetup(): List<GameEvent.ChangeEvent>
   fun entriesSinceSetup(): List<GameEvent>
 
   /** Returns all change events since [checkpoint]. */
-  fun changesSince(checkpoint: Timeline.Checkpoint): List<GameEvent.ChangeEvent>
+  fun changesSince(checkpoint: Checkpoint): List<GameEvent.ChangeEvent>
 
   /** Returns the ids of all tasks created since [checkpoint] that still exist. */
-  fun newTasksSince(checkpoint: Timeline.Checkpoint): Set<Task.TaskId>
+  fun newTasksSince(checkpoint: Checkpoint): Set<Task.TaskId>
 
-  fun entriesSince(checkpoint: Timeline.Checkpoint): List<GameEvent>
-  fun activitySince(checkpoint: Timeline.Checkpoint): TaskResult
+  fun entriesSince(checkpoint: Checkpoint): List<GameEvent>
+  fun activitySince(checkpoint: Checkpoint): TaskResult
 }

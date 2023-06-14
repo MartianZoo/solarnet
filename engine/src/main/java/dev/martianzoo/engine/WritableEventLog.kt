@@ -1,5 +1,9 @@
-package dev.martianzoo.tfm.engine
+package dev.martianzoo.engine
 
+import dev.martianzoo.engine.Engine.ChangeLogger
+import dev.martianzoo.engine.Engine.GameScoped
+import dev.martianzoo.engine.Engine.TaskListener
+import dev.martianzoo.engine.Timeline.Checkpoint
 import dev.martianzoo.tfm.data.GameEvent
 import dev.martianzoo.tfm.data.GameEvent.ChangeEvent
 import dev.martianzoo.tfm.data.GameEvent.ChangeEvent.Cause
@@ -11,10 +15,6 @@ import dev.martianzoo.tfm.data.Player
 import dev.martianzoo.tfm.data.Task
 import dev.martianzoo.tfm.data.Task.TaskId
 import dev.martianzoo.tfm.data.TaskResult
-import dev.martianzoo.tfm.engine.Engine.ChangeLogger
-import dev.martianzoo.tfm.engine.Engine.GameScoped
-import dev.martianzoo.tfm.engine.Engine.TaskListener
-import dev.martianzoo.tfm.engine.Timeline.Checkpoint
 import javax.inject.Inject
 
 @GameScoped

@@ -1,5 +1,7 @@
-package dev.martianzoo.tfm.engine
+package dev.martianzoo.engine
 
+import dev.martianzoo.engine.Component.Companion.toComponent
+import dev.martianzoo.engine.Engine.PlayerScoped
 import dev.martianzoo.tfm.api.CustomClass
 import dev.martianzoo.tfm.api.Exceptions.DeadEndException
 import dev.martianzoo.tfm.api.Exceptions.DependencyException
@@ -13,8 +15,6 @@ import dev.martianzoo.tfm.api.GameReader
 import dev.martianzoo.tfm.api.SpecialClassNames.DIE
 import dev.martianzoo.tfm.data.GameEvent.ChangeEvent.Cause
 import dev.martianzoo.tfm.data.Task
-import dev.martianzoo.tfm.engine.Component.Companion.toComponent
-import dev.martianzoo.tfm.engine.Engine.PlayerScoped
 import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.pets.ast.Instruction
 import dev.martianzoo.tfm.pets.ast.Instruction.Change

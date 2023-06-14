@@ -1,4 +1,4 @@
-package dev.martianzoo.tfm.engine
+package dev.martianzoo.engine
 
 enum class AutoExecMode {
   /** Nothing is executed automatically. */

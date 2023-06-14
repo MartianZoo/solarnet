@@ -1,5 +1,7 @@
-package dev.martianzoo.tfm.engine
+package dev.martianzoo.engine
 
+import dev.martianzoo.engine.Effector.Subscription.Companion
+import dev.martianzoo.engine.Engine.GameScoped
 import dev.martianzoo.tfm.api.GameReader
 import dev.martianzoo.tfm.api.SpecialClassNames.ANYONE
 import dev.martianzoo.tfm.api.SpecialClassNames.OWNER
@@ -8,7 +10,6 @@ import dev.martianzoo.tfm.data.GameEvent.ChangeEvent.Cause
 import dev.martianzoo.tfm.data.Player
 import dev.martianzoo.tfm.data.Task
 import dev.martianzoo.tfm.data.Task.TaskId
-import dev.martianzoo.tfm.engine.Engine.GameScoped
 import dev.martianzoo.tfm.pets.Transforming.replaceOwnerWith
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.Effect.Trigger
@@ -61,7 +62,7 @@ internal class Effector @Inject constructor(reader: Provider<GameReader>) {
   private fun activeEffects(component: Component): List<ActiveEffect> =
       component.effects.map {
         ActiveEffect(
-            Subscription.from(it.trigger, component),
+            Companion.from(it.trigger, component),
             it.automatic,
             it.instruction,
             component,

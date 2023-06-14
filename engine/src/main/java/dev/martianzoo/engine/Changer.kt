@@ -1,15 +1,15 @@
-package dev.martianzoo.tfm.engine
+package dev.martianzoo.engine
 
+import dev.martianzoo.engine.Component.Companion.toComponent
+import dev.martianzoo.engine.Engine.ChangeLogger
+import dev.martianzoo.engine.Engine.PlayerScoped
+import dev.martianzoo.engine.Engine.Updater
 import dev.martianzoo.tfm.api.Exceptions.ExistingDependentsException
 import dev.martianzoo.tfm.api.GameReader
 import dev.martianzoo.tfm.api.Type
 import dev.martianzoo.tfm.data.GameEvent.ChangeEvent
 import dev.martianzoo.tfm.data.GameEvent.ChangeEvent.Cause
 import dev.martianzoo.tfm.data.Player
-import dev.martianzoo.tfm.engine.Component.Companion.toComponent
-import dev.martianzoo.tfm.engine.Engine.ChangeLogger
-import dev.martianzoo.tfm.engine.Engine.PlayerScoped
-import dev.martianzoo.tfm.engine.Engine.Updater
 import javax.inject.Inject
 
 @PlayerScoped

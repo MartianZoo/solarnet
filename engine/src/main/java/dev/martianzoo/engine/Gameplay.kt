@@ -1,5 +1,7 @@
-package dev.martianzoo.tfm.engine
+package dev.martianzoo.engine
 
+import dev.martianzoo.engine.Gameplay.OperationBody
+import dev.martianzoo.engine.Timeline.AbortOperationException
 import dev.martianzoo.tfm.api.GameReader
 import dev.martianzoo.tfm.api.Type
 import dev.martianzoo.tfm.data.GameEvent.ChangeEvent.Cause
@@ -7,8 +9,6 @@ import dev.martianzoo.tfm.data.GameEvent.TaskRemovedEvent
 import dev.martianzoo.tfm.data.Player
 import dev.martianzoo.tfm.data.Task.TaskId
 import dev.martianzoo.tfm.data.TaskResult
-import dev.martianzoo.tfm.engine.Gameplay.OperationBody
-import dev.martianzoo.tfm.engine.Timeline.AbortOperationException
 import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.pets.ast.PetElement
 import dev.martianzoo.util.Multiset

@@ -1,5 +1,9 @@
-package dev.martianzoo.tfm.engine
+package dev.martianzoo.engine
 
+import dev.martianzoo.engine.AutoExecMode.NONE
+import dev.martianzoo.engine.AutoExecMode.SAFE
+import dev.martianzoo.engine.Component.Companion.toComponent
+import dev.martianzoo.engine.Engine.PlayerScoped
 import dev.martianzoo.tfm.api.Exceptions.AbstractException
 import dev.martianzoo.tfm.api.Exceptions.DeadEndException
 import dev.martianzoo.tfm.api.Exceptions.NotNowException
@@ -10,10 +14,6 @@ import dev.martianzoo.tfm.data.GameEvent.TaskRemovedEvent
 import dev.martianzoo.tfm.data.Player
 import dev.martianzoo.tfm.data.Task
 import dev.martianzoo.tfm.data.Task.TaskId
-import dev.martianzoo.tfm.engine.AutoExecMode.NONE
-import dev.martianzoo.tfm.engine.AutoExecMode.SAFE
-import dev.martianzoo.tfm.engine.Component.Companion.toComponent
-import dev.martianzoo.tfm.engine.Engine.PlayerScoped
 import dev.martianzoo.tfm.pets.Parsing.parse
 import dev.martianzoo.tfm.pets.ast.Instruction
 import dev.martianzoo.tfm.pets.ast.Instruction.Change

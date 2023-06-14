@@ -1,15 +1,16 @@
-package dev.martianzoo.tfm.engine
+package dev.martianzoo.engine
 
+import dev.martianzoo.engine.AutoExecMode.FIRST
+import dev.martianzoo.engine.Engine.PlayerScoped
+import dev.martianzoo.engine.Gameplay.Companion.parse
+import dev.martianzoo.engine.Gameplay.GodMode
+import dev.martianzoo.engine.Gameplay.OperationBody
 import dev.martianzoo.tfm.api.GameReader
 import dev.martianzoo.tfm.api.Type
 import dev.martianzoo.tfm.data.GameEvent.ChangeEvent.Cause
 import dev.martianzoo.tfm.data.Player
 import dev.martianzoo.tfm.data.Task.TaskId
 import dev.martianzoo.tfm.data.TaskResult
-import dev.martianzoo.tfm.engine.AutoExecMode.FIRST
-import dev.martianzoo.tfm.engine.Engine.PlayerScoped
-import dev.martianzoo.tfm.engine.Gameplay.Companion.parse
-import dev.martianzoo.tfm.engine.Gameplay.OperationBody
 import dev.martianzoo.tfm.pets.Transforming.replaceOwnerWith
 import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.pets.ast.Metric
@@ -35,7 +36,7 @@ constructor(
     private val impl: Implementations,
     override val player: Player,
     private val tasks: TaskQueue,
-) : Gameplay.GodMode { // so it really implements all gameplay layers
+) : GodMode { // so it really implements all gameplay layers
 
   override var autoExecMode: AutoExecMode = FIRST
     set(newMode) {
@@ -45,7 +46,7 @@ constructor(
       }
     }
 
-  override fun godMode(): Gameplay.GodMode = this
+  override fun godMode(): GodMode = this
 
   // READ-ONLY
 

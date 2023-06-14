@@ -1,6 +1,7 @@
 package dev.martianzoo.tfm.engine
 
 import com.google.common.truth.Truth.assertThat
+import dev.martianzoo.engine.Engine
 import dev.martianzoo.tfm.api.Exceptions.DependencyException
 import dev.martianzoo.tfm.api.Exceptions.LimitsException
 import dev.martianzoo.tfm.api.Exceptions.NarrowingException

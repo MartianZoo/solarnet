@@ -1,5 +1,12 @@
 package dev.martianzoo.tfm.repl
 
+import dev.martianzoo.engine.AutoExecMode.FIRST
+import dev.martianzoo.engine.AutoExecMode.NONE
+import dev.martianzoo.engine.AutoExecMode.SAFE
+import dev.martianzoo.engine.Engine
+import dev.martianzoo.engine.Game
+import dev.martianzoo.engine.Gameplay.Companion.parse
+import dev.martianzoo.engine.Timeline.Checkpoint
 import dev.martianzoo.tfm.api.GameReader
 import dev.martianzoo.tfm.api.SpecialClassNames.CLASS
 import dev.martianzoo.tfm.api.SpecialClassNames.COMPONENT
@@ -10,15 +17,8 @@ import dev.martianzoo.tfm.data.Player
 import dev.martianzoo.tfm.data.Player.Companion.ENGINE
 import dev.martianzoo.tfm.data.Task.TaskId
 import dev.martianzoo.tfm.data.TaskResult
-import dev.martianzoo.tfm.engine.AutoExecMode.FIRST
-import dev.martianzoo.tfm.engine.AutoExecMode.NONE
-import dev.martianzoo.tfm.engine.AutoExecMode.SAFE
-import dev.martianzoo.tfm.engine.Engine
-import dev.martianzoo.tfm.engine.Game
-import dev.martianzoo.tfm.engine.Gameplay.Companion.parse
 import dev.martianzoo.tfm.engine.TfmGameplay
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
-import dev.martianzoo.tfm.engine.Timeline.Checkpoint
 import dev.martianzoo.tfm.pets.HasExpression.Companion.expressions
 import dev.martianzoo.tfm.pets.Parsing
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn

@@ -1,11 +1,12 @@
-package dev.martianzoo.tfm.engine
+package dev.martianzoo.engine
 
+import dev.martianzoo.engine.Component.Companion.toComponent
+import dev.martianzoo.engine.Engine.GameScoped
 import dev.martianzoo.tfm.api.Authority
 import dev.martianzoo.tfm.api.GameReader
 import dev.martianzoo.tfm.api.Type
 import dev.martianzoo.tfm.api.TypeInfo
-import dev.martianzoo.tfm.engine.Component.Companion.toComponent
-import dev.martianzoo.tfm.engine.Engine.GameScoped
+import dev.martianzoo.tfm.engine.Transformers
 import dev.martianzoo.tfm.pets.Parsing
 import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.pets.ast.Metric

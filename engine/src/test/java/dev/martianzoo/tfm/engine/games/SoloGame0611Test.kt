@@ -1,8 +1,8 @@
 package dev.martianzoo.tfm.engine.games
 
 import com.google.common.truth.Truth.assertThat
-import dev.martianzoo.tfm.engine.AutoExecMode.FIRST
-import dev.martianzoo.tfm.engine.AutoExecMode.NONE
+import dev.martianzoo.engine.AutoExecMode.FIRST
+import dev.martianzoo.engine.AutoExecMode.NONE
 import dev.martianzoo.tfm.engine.TestHelpers.nextGeneration
 import org.junit.jupiter.api.Test
 

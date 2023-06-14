@@ -1,4 +1,4 @@
-package dev.martianzoo.tfm.engine
+package dev.martianzoo.engine
 
 import dev.martianzoo.tfm.data.Task
 

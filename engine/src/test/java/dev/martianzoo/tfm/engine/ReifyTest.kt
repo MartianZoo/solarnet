@@ -1,5 +1,6 @@
 package dev.martianzoo.tfm.engine
 
+import dev.martianzoo.engine.Engine
 import dev.martianzoo.tfm.api.Exceptions.NarrowingException
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.pets.Parsing.parse

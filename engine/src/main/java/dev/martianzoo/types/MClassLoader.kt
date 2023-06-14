@@ -1,5 +1,6 @@
 package dev.martianzoo.types
 
+import dev.martianzoo.engine.Engine.GameScoped
 import dev.martianzoo.tfm.api.Authority
 import dev.martianzoo.tfm.api.CustomClass
 import dev.martianzoo.tfm.api.Exceptions
@@ -10,7 +11,6 @@ import dev.martianzoo.tfm.api.SpecialClassNames.THIS
 import dev.martianzoo.tfm.api.Type
 import dev.martianzoo.tfm.data.ClassDeclaration
 import dev.martianzoo.tfm.data.GameSetup
-import dev.martianzoo.tfm.engine.Engine.GameScoped
 import dev.martianzoo.tfm.engine.Transformers
 import dev.martianzoo.tfm.pets.HasClassName.Companion.classNames
 import dev.martianzoo.tfm.pets.ast.ClassName
