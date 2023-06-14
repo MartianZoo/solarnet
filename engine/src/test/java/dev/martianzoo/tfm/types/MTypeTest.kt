@@ -1,7 +1,7 @@
 package dev.martianzoo.tfm.types
 
 import com.google.common.truth.Truth.assertThat
-import dev.martianzoo.api.SpecialClassNames.OWNER
+import dev.martianzoo.api.SystemClasses.OWNER
 import dev.martianzoo.tfm.data.Player.Companion.PLAYER1
 import dev.martianzoo.tfm.engine.CanonClassesTest
 import dev.martianzoo.tfm.pets.Parsing.parse

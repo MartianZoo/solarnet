@@ -1,8 +1,8 @@
 package dev.martianzoo.tfm.pets
 
-import dev.martianzoo.api.SpecialClassNames.OWNER
-import dev.martianzoo.api.SpecialClassNames.THIS
-import dev.martianzoo.api.SpecialClassNames.USE_ACTION
+import dev.martianzoo.api.SystemClasses.OWNER
+import dev.martianzoo.api.SystemClasses.THIS
+import dev.martianzoo.api.SystemClasses.USE_ACTION
 import dev.martianzoo.tfm.data.Player
 import dev.martianzoo.tfm.data.Player.Companion.ENGINE
 import dev.martianzoo.tfm.pets.PetTransformer.Companion.chain

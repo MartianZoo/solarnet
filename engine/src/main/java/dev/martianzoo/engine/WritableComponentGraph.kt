@@ -1,7 +1,7 @@
 package dev.martianzoo.engine
 
 import dev.martianzoo.api.Exceptions.ExistingDependentsException
-import dev.martianzoo.api.SpecialClassNames.COMPONENT
+import dev.martianzoo.api.SystemClasses.COMPONENT
 import dev.martianzoo.api.TypeInfo
 import dev.martianzoo.engine.Engine.GameScoped
 import dev.martianzoo.engine.Engine.Updater

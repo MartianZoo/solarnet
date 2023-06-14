@@ -1,7 +1,7 @@
 package dev.martianzoo.tfm.engine
 
 import com.google.common.truth.Truth.assertThat
-import dev.martianzoo.api.SpecialClassNames.COMPONENT
+import dev.martianzoo.api.SystemClasses.COMPONENT
 import dev.martianzoo.engine.Component
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.tfm.canon.Canon

@@ -1,7 +1,7 @@
 package dev.martianzoo.engine
 
 import dev.martianzoo.api.Exceptions.DependencyException
-import dev.martianzoo.api.SpecialClassNames.THIS
+import dev.martianzoo.api.SystemClasses.THIS
 import dev.martianzoo.api.TypeInfo.StubTypeInfo
 import dev.martianzoo.engine.Engine.GameScoped
 import dev.martianzoo.engine.Limiter.RangeRestriction.SimpleRangeRestriction

@@ -1,14 +1,14 @@
 package dev.martianzoo.tfm.engine
 
 import dev.martianzoo.api.Exceptions.PetSyntaxException
-import dev.martianzoo.api.SpecialClassNames.ATOMIZED
-import dev.martianzoo.api.SpecialClassNames.CLASS
-import dev.martianzoo.api.SpecialClassNames.OWNER
-import dev.martianzoo.api.SpecialClassNames.THIS
+import dev.martianzoo.api.SystemClasses.ATOMIZED
+import dev.martianzoo.api.SystemClasses.CLASS
+import dev.martianzoo.api.SystemClasses.OWNER
+import dev.martianzoo.api.SystemClasses.THIS
 import dev.martianzoo.engine.Engine.GameScoped
-import dev.martianzoo.tfm.data.TfmClassNames.PROD
-import dev.martianzoo.tfm.data.TfmClassNames.PRODUCTION
-import dev.martianzoo.tfm.data.TfmClassNames.STANDARD_RESOURCE
+import dev.martianzoo.tfm.data.TfmClasses.PROD
+import dev.martianzoo.tfm.data.TfmClasses.PRODUCTION
+import dev.martianzoo.tfm.data.TfmClasses.STANDARD_RESOURCE
 import dev.martianzoo.tfm.pets.PetTransformer
 import dev.martianzoo.tfm.pets.PetTransformer.Companion.chain
 import dev.martianzoo.tfm.pets.PetTransformer.Companion.noOp

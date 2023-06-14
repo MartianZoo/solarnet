@@ -5,7 +5,7 @@ import dev.martianzoo.api.Exceptions.DeadEndException
 import dev.martianzoo.api.Exceptions.NotNowException
 import dev.martianzoo.api.Exceptions.TaskException
 import dev.martianzoo.api.GameReader
-import dev.martianzoo.api.SpecialClassNames.TEMPORARY
+import dev.martianzoo.api.SystemClasses.TEMPORARY
 import dev.martianzoo.engine.AutoExecMode.NONE
 import dev.martianzoo.engine.AutoExecMode.SAFE
 import dev.martianzoo.engine.Component.Companion.toComponent

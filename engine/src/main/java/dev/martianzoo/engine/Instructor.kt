@@ -10,7 +10,7 @@ import dev.martianzoo.api.Exceptions.abstractInstruction
 import dev.martianzoo.api.Exceptions.orWithoutChoice
 import dev.martianzoo.api.Exceptions.requirementNotMet
 import dev.martianzoo.api.GameReader
-import dev.martianzoo.api.SpecialClassNames.DIE
+import dev.martianzoo.api.SystemClasses.DIE
 import dev.martianzoo.engine.Component.Companion.toComponent
 import dev.martianzoo.engine.Engine.PlayerScoped
 import dev.martianzoo.tfm.data.GameEvent.ChangeEvent.Cause

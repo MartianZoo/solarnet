@@ -2,7 +2,7 @@ package dev.martianzoo.tfm.pets.ast
 
 import com.github.h0tk3y.betterParse.combinators.map
 import com.github.h0tk3y.betterParse.combinators.or
-import dev.martianzoo.api.SpecialClassNames.CLASS
+import dev.martianzoo.api.SystemClasses.CLASS
 import dev.martianzoo.tfm.pets.HasExpression
 import dev.martianzoo.tfm.pets.HasExpression.Companion.expressions
 import dev.martianzoo.tfm.pets.PetTokenizer

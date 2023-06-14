@@ -1,9 +1,9 @@
 package dev.martianzoo.tfm.data
 
-import dev.martianzoo.api.SpecialClassNames.THIS
+import dev.martianzoo.api.SystemClasses.THIS
 import dev.martianzoo.tfm.data.ClassDeclaration.ClassKind.CONCRETE
-import dev.martianzoo.tfm.data.TfmClassNames.MARS_MAP
-import dev.martianzoo.tfm.data.TfmClassNames.TILE
+import dev.martianzoo.tfm.data.TfmClasses.MARS_MAP
+import dev.martianzoo.tfm.data.TfmClasses.TILE
 import dev.martianzoo.tfm.pets.Parsing.parse
 import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn

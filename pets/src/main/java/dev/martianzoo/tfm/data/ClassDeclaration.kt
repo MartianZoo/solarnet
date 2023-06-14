@@ -1,6 +1,6 @@
 package dev.martianzoo.tfm.data
 
-import dev.martianzoo.api.SpecialClassNames.CUSTOM
+import dev.martianzoo.api.SystemClasses.CUSTOM
 import dev.martianzoo.tfm.data.ClassDeclaration.ClassKind.ABSTRACT
 import dev.martianzoo.tfm.data.ClassDeclaration.DefaultsDeclaration.DefaultKind.ALL_USAGES
 import dev.martianzoo.tfm.data.ClassDeclaration.DefaultsDeclaration.DefaultKind.GAIN_ONLY

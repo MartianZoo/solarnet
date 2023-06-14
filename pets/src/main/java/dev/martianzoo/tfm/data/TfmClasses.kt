@@ -2,7 +2,7 @@ package dev.martianzoo.tfm.data
 
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 
-public object TfmClassNames {
+public object TfmClasses {
   val STANDARD_ACTION = cn("StandardAction")
   val STANDARD_PROJECT = cn("StandardProject")
 

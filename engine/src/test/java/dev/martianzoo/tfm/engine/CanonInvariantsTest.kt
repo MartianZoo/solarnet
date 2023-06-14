@@ -1,7 +1,7 @@
 package dev.martianzoo.tfm.engine
 
 import com.google.common.truth.Truth.assertThat
-import dev.martianzoo.api.SpecialClassNames.THIS
+import dev.martianzoo.api.SystemClasses.THIS
 import dev.martianzoo.engine.Effector
 import dev.martianzoo.engine.Limiter
 import dev.martianzoo.engine.Limiter.RangeRestriction.SimpleRangeRestriction

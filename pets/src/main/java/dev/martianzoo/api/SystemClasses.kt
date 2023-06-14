@@ -11,7 +11,7 @@ import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
  *
  * Class names specific to TfM should ideally not go here, but are still better here than nowhere.
  */
-public object SpecialClassNames {
+public object SystemClasses {
   // A special fake class name that doesn't actually point to a class
   // TODO consider making Ok and Die like that too?
   public val THIS = cn("This")

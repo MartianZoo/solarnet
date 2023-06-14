@@ -1,7 +1,7 @@
 package dev.martianzoo.tfm.data
 
 import dev.martianzoo.api.Exceptions.DeadEndException
-import dev.martianzoo.api.SpecialClassNames.DIE
+import dev.martianzoo.api.SystemClasses.DIE
 import dev.martianzoo.tfm.data.GameEvent.ChangeEvent.Cause
 import dev.martianzoo.tfm.pets.ast.Instruction
 import dev.martianzoo.tfm.pets.ast.Instruction.Change

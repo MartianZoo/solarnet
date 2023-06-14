@@ -1,10 +1,10 @@
 package dev.martianzoo.tfm.repl
 
 import dev.martianzoo.api.GameReader
-import dev.martianzoo.api.SpecialClassNames.CLASS
-import dev.martianzoo.api.SpecialClassNames.COMPONENT
-import dev.martianzoo.api.SpecialClassNames.SIGNAL
-import dev.martianzoo.api.SpecialClassNames.SYSTEM
+import dev.martianzoo.api.SystemClasses.CLASS
+import dev.martianzoo.api.SystemClasses.COMPONENT
+import dev.martianzoo.api.SystemClasses.SIGNAL
+import dev.martianzoo.api.SystemClasses.SYSTEM
 import dev.martianzoo.engine.AutoExecMode.FIRST
 import dev.martianzoo.engine.AutoExecMode.NONE
 import dev.martianzoo.engine.AutoExecMode.SAFE

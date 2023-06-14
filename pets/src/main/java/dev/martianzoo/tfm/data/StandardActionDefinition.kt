@@ -2,8 +2,8 @@ package dev.martianzoo.tfm.data
 
 import dev.martianzoo.tfm.data.ClassDeclaration.ClassKind.CONCRETE
 import dev.martianzoo.tfm.data.EnglishHack.englishHack
-import dev.martianzoo.tfm.data.TfmClassNames.STANDARD_ACTION
-import dev.martianzoo.tfm.data.TfmClassNames.STANDARD_PROJECT
+import dev.martianzoo.tfm.data.TfmClasses.STANDARD_ACTION
+import dev.martianzoo.tfm.data.TfmClasses.STANDARD_PROJECT
 import dev.martianzoo.tfm.pets.Parsing.parse
 import dev.martianzoo.tfm.pets.Transforming.actionListToEffects
 import dev.martianzoo.tfm.pets.ast.ClassName

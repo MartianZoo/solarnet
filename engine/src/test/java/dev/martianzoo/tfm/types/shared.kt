@@ -2,8 +2,8 @@ package dev.martianzoo.tfm.types
 
 import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.api.Exceptions
-import dev.martianzoo.api.SpecialClassNames.CLASS
-import dev.martianzoo.api.SpecialClassNames.COMPONENT
+import dev.martianzoo.api.SystemClasses.CLASS
+import dev.martianzoo.api.SystemClasses.COMPONENT
 import dev.martianzoo.tfm.pets.Parsing.parse
 import dev.martianzoo.tfm.pets.ast.Expression
 import dev.martianzoo.tfm.pets.ast.PetNode

@@ -4,8 +4,8 @@ import dev.martianzoo.api.Authority
 import dev.martianzoo.api.CustomClass
 import dev.martianzoo.api.Exceptions
 import dev.martianzoo.api.Exceptions.PetException
-import dev.martianzoo.api.SpecialClassNames.CLASS
-import dev.martianzoo.api.SpecialClassNames.COMPONENT
+import dev.martianzoo.api.SystemClasses.CLASS
+import dev.martianzoo.api.SystemClasses.COMPONENT
 import dev.martianzoo.tfm.data.CardDefinition
 import dev.martianzoo.tfm.data.ClassDeclaration
 import dev.martianzoo.tfm.data.ColonyTileDefinition

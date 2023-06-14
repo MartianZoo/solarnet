@@ -5,8 +5,8 @@ package dev.martianzoo.tfm.canon
 import dev.martianzoo.api.CustomClass
 import dev.martianzoo.api.Exceptions.NarrowingException
 import dev.martianzoo.api.GameReader
-import dev.martianzoo.api.SpecialClassNames.CLASS
-import dev.martianzoo.api.SpecialClassNames.DIE
+import dev.martianzoo.api.SystemClasses.CLASS
+import dev.martianzoo.api.SystemClasses.DIE
 import dev.martianzoo.api.Type
 import dev.martianzoo.tfm.api.ApiUtils.lookUpProductionLevels
 import dev.martianzoo.tfm.api.ApiUtils.mapDefinition
@@ -15,9 +15,9 @@ import dev.martianzoo.tfm.api.TfmAuthority
 import dev.martianzoo.tfm.data.CardDefinition
 import dev.martianzoo.tfm.data.CardDefinition.Deck.PRELUDE
 import dev.martianzoo.tfm.data.MarsMapDefinition.AreaDefinition
-import dev.martianzoo.tfm.data.TfmClassNames.MEGACREDIT
-import dev.martianzoo.tfm.data.TfmClassNames.PROD
-import dev.martianzoo.tfm.data.TfmClassNames.TILE
+import dev.martianzoo.tfm.data.TfmClasses.MEGACREDIT
+import dev.martianzoo.tfm.data.TfmClasses.PROD
+import dev.martianzoo.tfm.data.TfmClasses.TILE
 import dev.martianzoo.tfm.pets.HasClassName
 import dev.martianzoo.tfm.pets.Parsing.parse
 import dev.martianzoo.tfm.pets.ast.ClassName

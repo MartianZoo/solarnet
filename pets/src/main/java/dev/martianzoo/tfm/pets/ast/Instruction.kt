@@ -10,7 +10,7 @@ import com.github.h0tk3y.betterParse.grammar.parser
 import com.github.h0tk3y.betterParse.parser.Parser
 import dev.martianzoo.api.Exceptions.NarrowingException
 import dev.martianzoo.api.Exceptions.PetSyntaxException
-import dev.martianzoo.api.SpecialClassNames.OK
+import dev.martianzoo.api.SystemClasses.OK
 import dev.martianzoo.api.TypeInfo
 import dev.martianzoo.tfm.pets.PetTokenizer
 import dev.martianzoo.tfm.pets.ast.FromExpression.SimpleFrom

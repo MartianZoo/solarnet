@@ -2,11 +2,11 @@ package dev.martianzoo.types
 
 import dev.martianzoo.api.CustomClass
 import dev.martianzoo.api.Exceptions.NarrowingException
-import dev.martianzoo.api.SpecialClassNames.CLASS
-import dev.martianzoo.api.SpecialClassNames.COMPONENT
-import dev.martianzoo.api.SpecialClassNames.OK
-import dev.martianzoo.api.SpecialClassNames.OWNED
-import dev.martianzoo.api.SpecialClassNames.THIS
+import dev.martianzoo.api.SystemClasses.CLASS
+import dev.martianzoo.api.SystemClasses.COMPONENT
+import dev.martianzoo.api.SystemClasses.OK
+import dev.martianzoo.api.SystemClasses.OWNED
+import dev.martianzoo.api.SystemClasses.THIS
 import dev.martianzoo.api.TypeInfo
 import dev.martianzoo.tfm.data.ClassDeclaration
 import dev.martianzoo.tfm.engine.Transformers

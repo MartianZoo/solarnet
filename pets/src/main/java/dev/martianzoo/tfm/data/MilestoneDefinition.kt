@@ -1,10 +1,10 @@
 package dev.martianzoo.tfm.data
 
 import com.squareup.moshi.Json
-import dev.martianzoo.api.SpecialClassNames.OK
+import dev.martianzoo.api.SystemClasses.OK
 import dev.martianzoo.tfm.data.ClassDeclaration.ClassKind.CONCRETE
 import dev.martianzoo.tfm.data.EnglishHack.englishHack
-import dev.martianzoo.tfm.data.TfmClassNames.MILESTONE
+import dev.martianzoo.tfm.data.TfmClasses.MILESTONE
 import dev.martianzoo.tfm.pets.Parsing.parse
 import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.pets.ast.Requirement

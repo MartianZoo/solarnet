@@ -4,10 +4,10 @@ import dev.martianzoo.api.Authority
 import dev.martianzoo.api.CustomClass
 import dev.martianzoo.api.Exceptions
 import dev.martianzoo.api.Exceptions.ExpressionException
-import dev.martianzoo.api.SpecialClassNames.AUTO_LOAD
-import dev.martianzoo.api.SpecialClassNames.CLASS
-import dev.martianzoo.api.SpecialClassNames.COMPONENT
-import dev.martianzoo.api.SpecialClassNames.THIS
+import dev.martianzoo.api.SystemClasses.AUTO_LOAD
+import dev.martianzoo.api.SystemClasses.CLASS
+import dev.martianzoo.api.SystemClasses.COMPONENT
+import dev.martianzoo.api.SystemClasses.THIS
 import dev.martianzoo.api.Type
 import dev.martianzoo.engine.Engine.GameScoped
 import dev.martianzoo.tfm.api.TfmAuthority

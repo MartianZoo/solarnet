@@ -2,7 +2,7 @@ package dev.martianzoo.engine
 
 import dev.martianzoo.api.Exceptions
 import dev.martianzoo.api.GameReader
-import dev.martianzoo.api.SpecialClassNames
+import dev.martianzoo.api.SystemClasses
 import dev.martianzoo.api.Type
 import dev.martianzoo.tfm.data.Player
 import dev.martianzoo.tfm.engine.Transformers
@@ -41,10 +41,10 @@ public data class Component internal constructor(internal val mtype: MType) :
   }
 
   public val owner: Player? by lazy {
-    if (mtype.narrows(mtype.loader.resolve(SpecialClassNames.OWNER.expression))) {
+    if (mtype.narrows(mtype.loader.resolve(SystemClasses.OWNER.expression))) {
       Player(className)
     } else {
-      mtype.dependencies.getIfPresent(Key(SpecialClassNames.OWNED, 0))?.className?.let(::Player)
+      mtype.dependencies.getIfPresent(Key(SystemClasses.OWNED, 0))?.className?.let(::Player)
     }
   }
 
