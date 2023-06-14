@@ -5,18 +5,18 @@ import dev.martianzoo.api.Exceptions.TaskException
 import dev.martianzoo.api.GameReader
 import dev.martianzoo.engine.Component.Companion.toComponent
 import dev.martianzoo.engine.Engine.PlayerScoped
+import dev.martianzoo.pets.PetTransformer.Companion.chain
+import dev.martianzoo.pets.Transforming.replaceOwnerWith
+import dev.martianzoo.pets.ast.Instruction
+import dev.martianzoo.pets.ast.Instruction.Change
+import dev.martianzoo.pets.ast.Instruction.Companion.split
+import dev.martianzoo.pets.ast.PetElement
+import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
 import dev.martianzoo.tfm.data.GameEvent.ChangeEvent.Cause
 import dev.martianzoo.tfm.data.Player
 import dev.martianzoo.tfm.data.Task
 import dev.martianzoo.tfm.data.Task.TaskId
 import dev.martianzoo.tfm.engine.Transformers
-import dev.martianzoo.tfm.pets.PetTransformer.Companion.chain
-import dev.martianzoo.tfm.pets.Transforming.replaceOwnerWith
-import dev.martianzoo.tfm.pets.ast.Instruction
-import dev.martianzoo.tfm.pets.ast.Instruction.Change
-import dev.martianzoo.tfm.pets.ast.Instruction.Companion.split
-import dev.martianzoo.tfm.pets.ast.PetElement
-import dev.martianzoo.tfm.pets.ast.ScaledExpression.Scalar.ActualScalar
 import javax.inject.Inject
 
 @PlayerScoped

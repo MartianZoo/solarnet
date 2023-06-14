@@ -1,10 +1,10 @@
 package dev.martianzoo.engine
 
 import dev.martianzoo.engine.Engine.PlayerScoped
+import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.tfm.data.GameEvent.ChangeEvent.Cause
 import dev.martianzoo.tfm.data.GameSetup
 import dev.martianzoo.tfm.data.Player.Companion.ENGINE
-import dev.martianzoo.tfm.pets.Parsing.parse
 import dev.martianzoo.types.MClassTable
 import javax.inject.Inject
 

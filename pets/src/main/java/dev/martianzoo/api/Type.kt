@@ -1,10 +1,10 @@
 package dev.martianzoo.api
 
 import dev.martianzoo.api.TypeInfo.StubTypeInfo
-import dev.martianzoo.tfm.pets.HasClassName
-import dev.martianzoo.tfm.pets.HasExpression
-import dev.martianzoo.tfm.pets.ast.Expression
-import dev.martianzoo.tfm.pets.ast.Requirement
+import dev.martianzoo.pets.HasClassName
+import dev.martianzoo.pets.HasExpression
+import dev.martianzoo.pets.ast.Expression
+import dev.martianzoo.pets.ast.Requirement
 
 /**
  * A type, for which an [Expression] is only a textual representation. There are many ways in which

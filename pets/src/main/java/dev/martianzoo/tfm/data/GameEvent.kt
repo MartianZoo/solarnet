@@ -1,6 +1,6 @@
 package dev.martianzoo.tfm.data
 
-import dev.martianzoo.tfm.pets.ast.Expression
+import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.util.pre
 import dev.martianzoo.util.wrap
 

@@ -1,7 +1,7 @@
 package dev.martianzoo.api
 
-import dev.martianzoo.tfm.pets.ast.Expression
-import dev.martianzoo.tfm.pets.ast.Requirement
+import dev.martianzoo.pets.ast.Expression
+import dev.martianzoo.pets.ast.Requirement
 
 interface TypeInfo {
   fun isAbstract(e: Expression): Boolean

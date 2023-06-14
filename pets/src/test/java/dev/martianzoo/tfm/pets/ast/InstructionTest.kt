@@ -1,13 +1,14 @@
 package dev.martianzoo.tfm.pets.ast
 
 import com.google.common.truth.Truth.assertThat
-import dev.martianzoo.tfm.pets.Parsing.parse
-import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.tfm.pets.ast.FromExpression.ComplexFrom
-import dev.martianzoo.tfm.pets.ast.FromExpression.SimpleFrom
-import dev.martianzoo.tfm.pets.ast.Instruction.Intensity.AMAP
-import dev.martianzoo.tfm.pets.ast.Instruction.Transmute
-import dev.martianzoo.tfm.pets.ast.ScaledExpression.Scalar.ActualScalar
+import dev.martianzoo.pets.Parsing.parse
+import dev.martianzoo.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.pets.ast.FromExpression.ComplexFrom
+import dev.martianzoo.pets.ast.FromExpression.SimpleFrom
+import dev.martianzoo.pets.ast.Instruction
+import dev.martianzoo.pets.ast.Instruction.Intensity.AMAP
+import dev.martianzoo.pets.ast.Instruction.Transmute
+import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
 import dev.martianzoo.tfm.pets.testRoundTrip
 import dev.martianzoo.tfm.pets.testSampleStrings
 import org.junit.jupiter.api.Test

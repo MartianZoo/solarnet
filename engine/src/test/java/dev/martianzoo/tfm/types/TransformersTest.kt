@@ -2,12 +2,12 @@ package dev.martianzoo.tfm.types
 
 import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.api.SystemClasses.THIS
+import dev.martianzoo.pets.Parsing.parse
+import dev.martianzoo.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.pets.ast.Effect
+import dev.martianzoo.pets.ast.Expression
+import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.tfm.engine.CanonClassesTest
-import dev.martianzoo.tfm.pets.Parsing.parse
-import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.tfm.pets.ast.Effect
-import dev.martianzoo.tfm.pets.ast.Expression
-import dev.martianzoo.tfm.pets.ast.Instruction
 import dev.martianzoo.types.MClassLoader
 import org.junit.jupiter.api.Test
 

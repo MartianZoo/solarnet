@@ -1,4 +1,4 @@
-package dev.martianzoo.tfm.pets.ast
+package dev.martianzoo.pets.ast
 
 import com.github.h0tk3y.betterParse.combinators.and
 import com.github.h0tk3y.betterParse.combinators.map
@@ -9,12 +9,13 @@ import com.github.h0tk3y.betterParse.combinators.skip
 import com.github.h0tk3y.betterParse.grammar.parser
 import com.github.h0tk3y.betterParse.parser.Parser
 import dev.martianzoo.api.Exceptions.PetSyntaxException
-import dev.martianzoo.tfm.pets.PetTokenizer
-import dev.martianzoo.tfm.pets.ast.Instruction.Multi
-import dev.martianzoo.tfm.pets.ast.Instruction.Or
-import dev.martianzoo.tfm.pets.ast.Instruction.Per
-import dev.martianzoo.tfm.pets.ast.Instruction.Remove
-import dev.martianzoo.tfm.pets.ast.ScaledExpression.Scalar.Companion.checkNonzero
+import dev.martianzoo.pets.PetTokenizer
+import dev.martianzoo.pets.ast.Instruction.Multi
+import dev.martianzoo.pets.ast.Instruction.Or
+import dev.martianzoo.pets.ast.Instruction.Per
+import dev.martianzoo.pets.ast.Instruction.Remove
+import dev.martianzoo.pets.ast.Instruction.Transform
+import dev.martianzoo.pets.ast.ScaledExpression.Scalar.Companion.checkNonzero
 import dev.martianzoo.util.suf
 
 /**
@@ -53,7 +54,8 @@ public data class Action(val cost: Cost?, val instruction: Instruction) : PetEle
       init {
         when (cost) {
           is Or,
-          is Multi -> throw PetSyntaxException("Break into separate Per instructions")
+          is Multi
+          -> throw PetSyntaxException("Break into separate Per instructions")
           is Per -> throw PetSyntaxException("Might support in future?")
           else -> {}
         }
@@ -101,7 +103,7 @@ public data class Action(val cost: Cost?, val instruction: Instruction) : PetEle
       override fun visitChildren(visitor: Visitor) = visitor.visit(cost)
       override fun toString() = "$transformKind[$cost]"
 
-      override fun toInstruction() = Instruction.Transform(cost.toInstruction(), transformKind)
+      override fun toInstruction() = Transform(cost.toInstruction(), transformKind)
       override fun extract() = cost
     }
 
@@ -135,6 +137,6 @@ public data class Action(val cost: Cost?, val instruction: Instruction) : PetEle
     fun parser(): Parser<Action> =
         optional(Cost.parser()) and
         skip(_arrow) and
-        Instruction.parser() map { (c, i) -> Action(c, i) }
+            Instruction.parser() map { (c, i) -> Action(c, i) }
   }
 }

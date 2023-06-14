@@ -8,13 +8,13 @@ import dev.martianzoo.engine.Engine.newGame
 import dev.martianzoo.engine.Game
 import dev.martianzoo.engine.GameWriter
 import dev.martianzoo.engine.PlayerAgent
+import dev.martianzoo.pets.Parsing.parse
+import dev.martianzoo.pets.PetTransformer
+import dev.martianzoo.pets.Transforming.replaceOwnerWith
+import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.data.Player.Companion.PLAYER1
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
-import dev.martianzoo.tfm.pets.Parsing.parse
-import dev.martianzoo.tfm.pets.PetTransformer
-import dev.martianzoo.tfm.pets.Transforming.replaceOwnerWith
-import dev.martianzoo.tfm.pets.ast.Instruction
 import dev.martianzoo.types.MClassLoader
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows

@@ -4,9 +4,9 @@ import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.api.Exceptions
 import dev.martianzoo.api.SystemClasses.CLASS
 import dev.martianzoo.api.SystemClasses.COMPONENT
-import dev.martianzoo.tfm.pets.Parsing.parse
-import dev.martianzoo.tfm.pets.ast.Expression
-import dev.martianzoo.tfm.pets.ast.PetNode
+import dev.martianzoo.pets.Parsing.parse
+import dev.martianzoo.pets.ast.Expression
+import dev.martianzoo.pets.ast.PetNode
 import kotlin.reflect.KClass
 import org.junit.jupiter.api.assertThrows
 

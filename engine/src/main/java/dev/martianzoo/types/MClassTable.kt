@@ -2,8 +2,8 @@ package dev.martianzoo.types
 
 import dev.martianzoo.api.Authority
 import dev.martianzoo.api.Type
-import dev.martianzoo.tfm.pets.ast.ClassName
-import dev.martianzoo.tfm.pets.ast.Expression
+import dev.martianzoo.pets.ast.ClassName
+import dev.martianzoo.pets.ast.Expression
 
 public abstract class MClassTable {
 

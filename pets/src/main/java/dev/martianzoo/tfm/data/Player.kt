@@ -1,10 +1,10 @@
 package dev.martianzoo.tfm.data
 
+import dev.martianzoo.pets.HasClassName
+import dev.martianzoo.pets.HasExpression
+import dev.martianzoo.pets.ast.ClassName
+import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.data.Player.Companion.ENGINE
-import dev.martianzoo.tfm.pets.HasClassName
-import dev.martianzoo.tfm.pets.HasExpression
-import dev.martianzoo.tfm.pets.ast.ClassName
-import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 
 /** A player, or [ENGINE]. */
 // TODO shouldn't limit to 5

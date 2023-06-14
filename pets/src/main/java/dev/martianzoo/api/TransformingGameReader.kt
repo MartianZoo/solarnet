@@ -1,9 +1,9 @@
 package dev.martianzoo.api
 
-import dev.martianzoo.tfm.pets.PetTransformer
-import dev.martianzoo.tfm.pets.ast.Metric
-import dev.martianzoo.tfm.pets.ast.PetElement
-import dev.martianzoo.tfm.pets.ast.Requirement
+import dev.martianzoo.pets.PetTransformer
+import dev.martianzoo.pets.ast.Metric
+import dev.martianzoo.pets.ast.PetElement
+import dev.martianzoo.pets.ast.Requirement
 
 public class TransformingGameReader(val delegate: GameReader, val xer: PetTransformer) :
     GameReader by delegate {

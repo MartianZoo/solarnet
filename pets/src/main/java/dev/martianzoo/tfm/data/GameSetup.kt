@@ -1,8 +1,8 @@
 package dev.martianzoo.tfm.data
 
+import dev.martianzoo.pets.HasClassName.Companion.classNames
+import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.tfm.api.TfmAuthority
-import dev.martianzoo.tfm.pets.HasClassName.Companion.classNames
-import dev.martianzoo.tfm.pets.ast.ClassName
 import dev.martianzoo.util.random
 import dev.martianzoo.util.toSetStrict
 import dev.martianzoo.util.toStrings

@@ -1,11 +1,12 @@
 package dev.martianzoo.tfm.pets.ast
 
 import com.google.common.truth.Truth.assertThat
-import dev.martianzoo.tfm.pets.Parsing.parse
-import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.tfm.pets.ast.Requirement.Max
-import dev.martianzoo.tfm.pets.ast.Requirement.Min
-import dev.martianzoo.tfm.pets.ast.ScaledExpression.Companion.scaledEx
+import dev.martianzoo.pets.Parsing.parse
+import dev.martianzoo.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.pets.ast.Requirement
+import dev.martianzoo.pets.ast.Requirement.Max
+import dev.martianzoo.pets.ast.Requirement.Min
+import dev.martianzoo.pets.ast.ScaledExpression.Companion.scaledEx
 import dev.martianzoo.tfm.pets.testRoundTrip
 import dev.martianzoo.tfm.pets.testSampleStrings
 import org.junit.jupiter.api.Test

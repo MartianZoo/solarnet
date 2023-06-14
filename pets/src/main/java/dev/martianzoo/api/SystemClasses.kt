@@ -1,7 +1,7 @@
 package dev.martianzoo.api
 
-import dev.martianzoo.tfm.pets.ast.ClassName
-import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.pets.ast.ClassName
+import dev.martianzoo.pets.ast.ClassName.Companion.cn
 
 /**
  * [ClassName] instances for all component classes of special significance to the implementation

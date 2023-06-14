@@ -1,19 +1,19 @@
-package dev.martianzoo.tfm.pets
+package dev.martianzoo.pets
 
-import dev.martianzoo.tfm.pets.PetTransformer.Companion.chain
-import dev.martianzoo.tfm.pets.ast.Action
-import dev.martianzoo.tfm.pets.ast.Action.Cost
-import dev.martianzoo.tfm.pets.ast.ClassName
-import dev.martianzoo.tfm.pets.ast.Effect
-import dev.martianzoo.tfm.pets.ast.Effect.Trigger
-import dev.martianzoo.tfm.pets.ast.Expression
-import dev.martianzoo.tfm.pets.ast.FromExpression
-import dev.martianzoo.tfm.pets.ast.Instruction
-import dev.martianzoo.tfm.pets.ast.Metric
-import dev.martianzoo.tfm.pets.ast.PetNode
-import dev.martianzoo.tfm.pets.ast.Requirement
-import dev.martianzoo.tfm.pets.ast.ScaledExpression
-import dev.martianzoo.tfm.pets.ast.ScaledExpression.Scalar
+import dev.martianzoo.pets.PetTransformer.Companion.chain
+import dev.martianzoo.pets.ast.Action
+import dev.martianzoo.pets.ast.Action.Cost
+import dev.martianzoo.pets.ast.ClassName
+import dev.martianzoo.pets.ast.Effect
+import dev.martianzoo.pets.ast.Effect.Trigger
+import dev.martianzoo.pets.ast.Expression
+import dev.martianzoo.pets.ast.FromExpression
+import dev.martianzoo.pets.ast.Instruction
+import dev.martianzoo.pets.ast.Metric
+import dev.martianzoo.pets.ast.PetNode
+import dev.martianzoo.pets.ast.Requirement
+import dev.martianzoo.pets.ast.ScaledExpression
+import dev.martianzoo.pets.ast.ScaledExpression.Scalar
 import dev.martianzoo.util.toSetStrict
 
 /**

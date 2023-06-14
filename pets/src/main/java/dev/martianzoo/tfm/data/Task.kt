@@ -2,19 +2,19 @@ package dev.martianzoo.tfm.data
 
 import dev.martianzoo.api.Exceptions.DeadEndException
 import dev.martianzoo.api.SystemClasses.DIE
+import dev.martianzoo.pets.ast.Instruction
+import dev.martianzoo.pets.ast.Instruction.Change
+import dev.martianzoo.pets.ast.Instruction.Companion.split
+import dev.martianzoo.pets.ast.Instruction.Gain
+import dev.martianzoo.pets.ast.Instruction.Gated
+import dev.martianzoo.pets.ast.Instruction.InstructionGroup
+import dev.martianzoo.pets.ast.Instruction.Multi
+import dev.martianzoo.pets.ast.Instruction.NoOp
+import dev.martianzoo.pets.ast.Instruction.Or
+import dev.martianzoo.pets.ast.Instruction.Per
+import dev.martianzoo.pets.ast.Instruction.Then
+import dev.martianzoo.pets.ast.Instruction.Transform
 import dev.martianzoo.tfm.data.GameEvent.ChangeEvent.Cause
-import dev.martianzoo.tfm.pets.ast.Instruction
-import dev.martianzoo.tfm.pets.ast.Instruction.Change
-import dev.martianzoo.tfm.pets.ast.Instruction.Companion.split
-import dev.martianzoo.tfm.pets.ast.Instruction.Gain
-import dev.martianzoo.tfm.pets.ast.Instruction.Gated
-import dev.martianzoo.tfm.pets.ast.Instruction.InstructionGroup
-import dev.martianzoo.tfm.pets.ast.Instruction.Multi
-import dev.martianzoo.tfm.pets.ast.Instruction.NoOp
-import dev.martianzoo.tfm.pets.ast.Instruction.Or
-import dev.martianzoo.tfm.pets.ast.Instruction.Per
-import dev.martianzoo.tfm.pets.ast.Instruction.Then
-import dev.martianzoo.tfm.pets.ast.Instruction.Transform
 
 public data class Task(
     /**
@@ -46,7 +46,7 @@ public data class Task(
     /** Why was this task born? */
     val cause: Cause?,
 
-    /** Why is the task still here? Often an error message. */
+    /** Why is the task still here? */
     val whyPending: String? = null,
 ) {
 

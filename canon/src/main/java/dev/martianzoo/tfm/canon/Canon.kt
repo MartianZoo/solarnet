@@ -1,6 +1,7 @@
 package dev.martianzoo.tfm.canon
 
 import dev.martianzoo.api.CustomClass
+import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.tfm.api.TfmAuthority
 import dev.martianzoo.tfm.data.CardDefinition
 import dev.martianzoo.tfm.data.ClassDeclaration
@@ -10,7 +11,6 @@ import dev.martianzoo.tfm.data.JsonReader
 import dev.martianzoo.tfm.data.MarsMapDefinition
 import dev.martianzoo.tfm.data.MilestoneDefinition
 import dev.martianzoo.tfm.data.StandardActionDefinition
-import dev.martianzoo.tfm.pets.Parsing.parseClasses
 import dev.martianzoo.util.toSetStrict
 
 /**

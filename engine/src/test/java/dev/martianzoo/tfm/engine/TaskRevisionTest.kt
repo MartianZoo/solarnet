@@ -5,6 +5,8 @@ import dev.martianzoo.api.Exceptions.LimitsException
 import dev.martianzoo.api.Exceptions.NarrowingException
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.engine.Timeline.Checkpoint
+import dev.martianzoo.pets.Parsing.parse
+import dev.martianzoo.pets.ast.Instruction.NoOp
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.data.GameEvent
 import dev.martianzoo.tfm.data.GameEvent.TaskAddedEvent
@@ -12,8 +14,6 @@ import dev.martianzoo.tfm.data.GameEvent.TaskRemovedEvent
 import dev.martianzoo.tfm.data.Player.Companion.PLAYER1
 import dev.martianzoo.tfm.data.Task.TaskId
 import dev.martianzoo.tfm.data.TaskResult
-import dev.martianzoo.tfm.pets.Parsing.parse
-import dev.martianzoo.tfm.pets.ast.Instruction.NoOp
 import kotlin.reflect.KClass
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows

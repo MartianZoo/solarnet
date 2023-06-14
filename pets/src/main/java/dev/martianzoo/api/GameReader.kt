@@ -1,9 +1,9 @@
 package dev.martianzoo.api
 
-import dev.martianzoo.tfm.pets.ast.Expression
-import dev.martianzoo.tfm.pets.ast.Metric
-import dev.martianzoo.tfm.pets.ast.PetElement
-import dev.martianzoo.tfm.pets.ast.Requirement
+import dev.martianzoo.pets.ast.Expression
+import dev.martianzoo.pets.ast.Metric
+import dev.martianzoo.pets.ast.PetElement
+import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.util.Multiset
 import kotlin.reflect.KClass
 

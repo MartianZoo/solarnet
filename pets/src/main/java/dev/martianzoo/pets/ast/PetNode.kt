@@ -1,8 +1,8 @@
-package dev.martianzoo.tfm.pets.ast
+package dev.martianzoo.pets.ast
 
-import dev.martianzoo.tfm.pets.PetTransformer
-import dev.martianzoo.tfm.pets.PetTransformer.Companion.noOp
-import dev.martianzoo.tfm.pets.ast.Instruction.Gain
+import dev.martianzoo.pets.PetTransformer
+import dev.martianzoo.pets.PetTransformer.Companion.noOp
+import dev.martianzoo.pets.ast.Instruction.Gain
 import kotlin.reflect.KClass
 import kotlin.reflect.safeCast
 

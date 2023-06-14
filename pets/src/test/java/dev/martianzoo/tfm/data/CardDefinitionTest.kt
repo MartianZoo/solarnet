@@ -1,12 +1,12 @@
 package dev.martianzoo.tfm.data
 
 import com.google.common.truth.Truth.assertThat
+import dev.martianzoo.pets.Parsing.parse
+import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.data.CardDefinition.CardData
 import dev.martianzoo.tfm.data.CardDefinition.Deck.PROJECT
 import dev.martianzoo.tfm.data.CardDefinition.ProjectKind.ACTIVE
-import dev.martianzoo.tfm.pets.Parsing.parse
-import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.testlib.assertFails
 import dev.martianzoo.util.toStrings
 import org.junit.jupiter.api.Test

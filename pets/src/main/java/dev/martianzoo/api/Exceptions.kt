@@ -1,11 +1,11 @@
 package dev.martianzoo.api
 
-import dev.martianzoo.tfm.pets.ast.ClassName
-import dev.martianzoo.tfm.pets.ast.Expression
-import dev.martianzoo.tfm.pets.ast.Instruction
-import dev.martianzoo.tfm.pets.ast.Instruction.Change
-import dev.martianzoo.tfm.pets.ast.Instruction.Or
-import dev.martianzoo.tfm.pets.ast.Requirement
+import dev.martianzoo.pets.ast.ClassName
+import dev.martianzoo.pets.ast.Expression
+import dev.martianzoo.pets.ast.Instruction
+import dev.martianzoo.pets.ast.Instruction.Change
+import dev.martianzoo.pets.ast.Instruction.Or
+import dev.martianzoo.pets.ast.Requirement
 
 public object Exceptions {
 

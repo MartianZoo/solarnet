@@ -1,4 +1,4 @@
-package dev.martianzoo.tfm.pets
+package dev.martianzoo.pets
 
 import com.github.h0tk3y.betterParse.lexer.TokenMatch
 import com.github.h0tk3y.betterParse.lexer.TokenMatchesSequence
@@ -12,21 +12,21 @@ import com.github.h0tk3y.betterParse.parser.Parser
 import com.github.h0tk3y.betterParse.parser.UnexpectedEof
 import com.github.h0tk3y.betterParse.parser.parseToEnd
 import dev.martianzoo.api.Exceptions.PetSyntaxException
+import dev.martianzoo.pets.ClassParsing.Declarations
+import dev.martianzoo.pets.PetTokenizer.TokenCache
+import dev.martianzoo.pets.ast.Action
+import dev.martianzoo.pets.ast.Action.Cost
+import dev.martianzoo.pets.ast.ClassName
+import dev.martianzoo.pets.ast.Effect
+import dev.martianzoo.pets.ast.Effect.Trigger
+import dev.martianzoo.pets.ast.Expression
+import dev.martianzoo.pets.ast.Instruction
+import dev.martianzoo.pets.ast.Metric
+import dev.martianzoo.pets.ast.PetElement
+import dev.martianzoo.pets.ast.PetNode
+import dev.martianzoo.pets.ast.Requirement
+import dev.martianzoo.pets.ast.ScaledExpression
 import dev.martianzoo.tfm.data.ClassDeclaration
-import dev.martianzoo.tfm.pets.ClassParsing.Declarations
-import dev.martianzoo.tfm.pets.PetTokenizer.TokenCache
-import dev.martianzoo.tfm.pets.ast.Action
-import dev.martianzoo.tfm.pets.ast.Action.Cost
-import dev.martianzoo.tfm.pets.ast.ClassName
-import dev.martianzoo.tfm.pets.ast.Effect
-import dev.martianzoo.tfm.pets.ast.Effect.Trigger
-import dev.martianzoo.tfm.pets.ast.Expression
-import dev.martianzoo.tfm.pets.ast.Instruction
-import dev.martianzoo.tfm.pets.ast.Metric
-import dev.martianzoo.tfm.pets.ast.PetElement
-import dev.martianzoo.tfm.pets.ast.PetNode
-import dev.martianzoo.tfm.pets.ast.Requirement
-import dev.martianzoo.tfm.pets.ast.ScaledExpression
 import dev.martianzoo.util.ParserGroup
 import kotlin.reflect.KClass
 import kotlin.reflect.cast
@@ -69,7 +69,7 @@ public object Parsing {
 
   /** Version of [parse] for use from Java. */
   public fun <P : PetNode> parse(expectedType: Class<P>, source: String) =
-      parse(expectedType.kotlin, source)
+      Parsing.parse(expectedType.kotlin, source)
 
   internal fun <T> parse(
       parser: Parser<T>,

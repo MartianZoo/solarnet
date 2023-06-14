@@ -1,6 +1,6 @@
-package dev.martianzoo.tfm.pets
+package dev.martianzoo.pets
 
-import dev.martianzoo.tfm.pets.ast.Expression
+import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.util.toSetStrict
 
 /** Any object that can be represented in some way as an [Expression]. */

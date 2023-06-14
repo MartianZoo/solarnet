@@ -1,12 +1,12 @@
-package dev.martianzoo.tfm.pets.ast
+package dev.martianzoo.pets.ast
 
 import com.github.h0tk3y.betterParse.combinators.map
 import com.github.h0tk3y.betterParse.combinators.or
 import dev.martianzoo.api.SystemClasses.CLASS
-import dev.martianzoo.tfm.pets.HasExpression
-import dev.martianzoo.tfm.pets.HasExpression.Companion.expressions
-import dev.martianzoo.tfm.pets.PetTokenizer
-import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.pets.HasExpression
+import dev.martianzoo.pets.HasExpression.Companion.expressions
+import dev.martianzoo.pets.PetTokenizer
+import dev.martianzoo.pets.ast.ClassName.Companion.cn
 
 /**
  * A camel-case word used as a class name. Not validated except for its general pattern. Create one

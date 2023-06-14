@@ -1,4 +1,4 @@
-package dev.martianzoo.tfm.pets.ast
+package dev.martianzoo.pets.ast
 
 import com.github.h0tk3y.betterParse.combinators.and
 import com.github.h0tk3y.betterParse.combinators.map
@@ -7,9 +7,9 @@ import com.github.h0tk3y.betterParse.combinators.skip
 import com.github.h0tk3y.betterParse.grammar.parser
 import com.github.h0tk3y.betterParse.parser.Parser
 import dev.martianzoo.api.Type
-import dev.martianzoo.tfm.pets.HasClassName
-import dev.martianzoo.tfm.pets.HasExpression
-import dev.martianzoo.tfm.pets.PetTokenizer
+import dev.martianzoo.pets.HasClassName
+import dev.martianzoo.pets.HasExpression
+import dev.martianzoo.pets.PetTokenizer
 
 /**
  * A noun expression in Pets language, which is a particular *representation* of a type. An

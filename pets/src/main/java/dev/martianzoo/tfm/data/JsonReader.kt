@@ -3,11 +3,11 @@ package dev.martianzoo.tfm.data
 import com.squareup.moshi.FromJson
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
+import dev.martianzoo.pets.ast.ClassName
+import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.data.CardDefinition.CardData
 import dev.martianzoo.tfm.data.ColonyTileDefinition.ColonyTileData
 import dev.martianzoo.tfm.data.MarsMapDefinition.AreaDefinition
-import dev.martianzoo.tfm.pets.ast.ClassName
-import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.util.Grid
 import kotlin.text.RegexOption.DOT_MATCHES_ALL
 

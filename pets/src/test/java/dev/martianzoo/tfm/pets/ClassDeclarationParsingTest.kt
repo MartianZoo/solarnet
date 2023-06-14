@@ -1,9 +1,9 @@
 package dev.martianzoo.tfm.pets
 
 import com.google.common.truth.Truth.assertThat
-import dev.martianzoo.tfm.pets.Parsing.parseClasses
-import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.tfm.pets.ast.Expression
+import dev.martianzoo.pets.Parsing.parseClasses
+import dev.martianzoo.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.pets.ast.Expression
 import org.junit.jupiter.api.Test
 
 private class ClassDeclarationParsingTest {

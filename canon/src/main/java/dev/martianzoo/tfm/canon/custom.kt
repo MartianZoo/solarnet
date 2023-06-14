@@ -8,6 +8,22 @@ import dev.martianzoo.api.GameReader
 import dev.martianzoo.api.SystemClasses.CLASS
 import dev.martianzoo.api.SystemClasses.DIE
 import dev.martianzoo.api.Type
+import dev.martianzoo.pets.HasClassName
+import dev.martianzoo.pets.Parsing.parse
+import dev.martianzoo.pets.ast.ClassName
+import dev.martianzoo.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.pets.ast.Effect.Trigger
+import dev.martianzoo.pets.ast.Expression
+import dev.martianzoo.pets.ast.Instruction
+import dev.martianzoo.pets.ast.Instruction.Gain.Companion.gain
+import dev.martianzoo.pets.ast.Instruction.Gated
+import dev.martianzoo.pets.ast.Instruction.Multi
+import dev.martianzoo.pets.ast.Instruction.NoOp
+import dev.martianzoo.pets.ast.Instruction.Or
+import dev.martianzoo.pets.ast.Instruction.Then
+import dev.martianzoo.pets.ast.Instruction.Transform
+import dev.martianzoo.pets.ast.ScaledExpression.Companion.scaledEx
+import dev.martianzoo.pets.ast.TransformNode
 import dev.martianzoo.tfm.api.ApiUtils.lookUpProductionLevels
 import dev.martianzoo.tfm.api.ApiUtils.mapDefinition
 import dev.martianzoo.tfm.api.ApiUtils.standardResourceNames
@@ -18,22 +34,6 @@ import dev.martianzoo.tfm.data.MarsMapDefinition.AreaDefinition
 import dev.martianzoo.tfm.data.TfmClasses.MEGACREDIT
 import dev.martianzoo.tfm.data.TfmClasses.PROD
 import dev.martianzoo.tfm.data.TfmClasses.TILE
-import dev.martianzoo.tfm.pets.HasClassName
-import dev.martianzoo.tfm.pets.Parsing.parse
-import dev.martianzoo.tfm.pets.ast.ClassName
-import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.tfm.pets.ast.Effect.Trigger
-import dev.martianzoo.tfm.pets.ast.Expression
-import dev.martianzoo.tfm.pets.ast.Instruction
-import dev.martianzoo.tfm.pets.ast.Instruction.Gain.Companion.gain
-import dev.martianzoo.tfm.pets.ast.Instruction.Gated
-import dev.martianzoo.tfm.pets.ast.Instruction.Multi
-import dev.martianzoo.tfm.pets.ast.Instruction.NoOp
-import dev.martianzoo.tfm.pets.ast.Instruction.Or
-import dev.martianzoo.tfm.pets.ast.Instruction.Then
-import dev.martianzoo.tfm.pets.ast.Instruction.Transform
-import dev.martianzoo.tfm.pets.ast.ScaledExpression.Companion.scaledEx
-import dev.martianzoo.tfm.pets.ast.TransformNode
 import dev.martianzoo.util.Grid
 
 internal val canonCustomClasses =

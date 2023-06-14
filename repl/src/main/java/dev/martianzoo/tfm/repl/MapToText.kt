@@ -2,11 +2,11 @@ package dev.martianzoo.tfm.repl
 
 import dev.martianzoo.api.GameReader
 import dev.martianzoo.api.Type
+import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.api.ApiUtils.mapDefinition
 import dev.martianzoo.tfm.data.MarsMapDefinition.AreaDefinition
 import dev.martianzoo.tfm.data.Player
 import dev.martianzoo.tfm.data.TfmClasses.TILE
-import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.repl.TfmColor.CITY_TILE
 import dev.martianzoo.tfm.repl.TfmColor.GREENERY_TILE
 import dev.martianzoo.tfm.repl.TfmColor.OCEAN_TILE

@@ -1,4 +1,4 @@
-package dev.martianzoo.tfm.pets.ast
+package dev.martianzoo.pets.ast
 
 import com.github.h0tk3y.betterParse.combinators.and
 import com.github.h0tk3y.betterParse.combinators.map
@@ -10,10 +10,10 @@ import com.github.h0tk3y.betterParse.parser.Parser
 import dev.martianzoo.api.Exceptions.NarrowingException
 import dev.martianzoo.api.Exceptions.PetSyntaxException
 import dev.martianzoo.api.TypeInfo
-import dev.martianzoo.tfm.pets.HasExpression
-import dev.martianzoo.tfm.pets.PetTokenizer
-import dev.martianzoo.tfm.pets.ast.ScaledExpression.Scalar.ActualScalar
-import dev.martianzoo.tfm.pets.ast.ScaledExpression.Scalar.XScalar
+import dev.martianzoo.pets.HasExpression
+import dev.martianzoo.pets.PetTokenizer
+import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
+import dev.martianzoo.pets.ast.ScaledExpression.Scalar.XScalar
 import dev.martianzoo.util.Reifiable
 
 /** The combination of a positive integer (or `X`) with an [Expression]. */

@@ -4,9 +4,9 @@ import dev.martianzoo.api.Exceptions
 import dev.martianzoo.api.Type
 import dev.martianzoo.api.TypeInfo
 import dev.martianzoo.engine.Component
-import dev.martianzoo.tfm.pets.HasClassName
-import dev.martianzoo.tfm.pets.ast.Expression
-import dev.martianzoo.tfm.pets.ast.Requirement
+import dev.martianzoo.pets.HasClassName
+import dev.martianzoo.pets.ast.Expression
+import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.util.Hierarchical
 import dev.martianzoo.util.Reifiable
 

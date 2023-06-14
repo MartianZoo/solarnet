@@ -1,4 +1,4 @@
-package dev.martianzoo.tfm.pets
+package dev.martianzoo.pets
 
 import com.github.h0tk3y.betterParse.combinators.and
 import com.github.h0tk3y.betterParse.combinators.asJust
@@ -11,30 +11,30 @@ import com.github.h0tk3y.betterParse.combinators.skip
 import com.github.h0tk3y.betterParse.combinators.zeroOrMore
 import com.github.h0tk3y.betterParse.grammar.parser
 import com.github.h0tk3y.betterParse.parser.Parser
+import dev.martianzoo.pets.ClassParsing.Body.BodyElement
+import dev.martianzoo.pets.ClassParsing.Body.BodyElement.ActionElement
+import dev.martianzoo.pets.ClassParsing.Body.BodyElement.DefaultsElement
+import dev.martianzoo.pets.ClassParsing.Body.BodyElement.EffectElement
+import dev.martianzoo.pets.ClassParsing.Body.BodyElement.InvariantElement
+import dev.martianzoo.pets.ClassParsing.Body.BodyElement.NestedDeclGroup
+import dev.martianzoo.pets.ClassParsing.BodyElements.bodyElementExceptNestedClasses
+import dev.martianzoo.pets.ClassParsing.NestableDecl.IncompleteNestableDecl
+import dev.martianzoo.pets.ClassParsing.Signatures.moreSignatures
+import dev.martianzoo.pets.ClassParsing.Signatures.signature
+import dev.martianzoo.pets.Transforming.actionListToEffects
+import dev.martianzoo.pets.ast.Action
+import dev.martianzoo.pets.ast.ClassName
+import dev.martianzoo.pets.ast.ClassName.Parsing.classFullName
+import dev.martianzoo.pets.ast.ClassName.Parsing.classShortName
+import dev.martianzoo.pets.ast.Effect
+import dev.martianzoo.pets.ast.Expression
+import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.tfm.data.ClassDeclaration
 import dev.martianzoo.tfm.data.ClassDeclaration.ClassKind
 import dev.martianzoo.tfm.data.ClassDeclaration.ClassKind.ABSTRACT
 import dev.martianzoo.tfm.data.ClassDeclaration.ClassKind.CONCRETE
 import dev.martianzoo.tfm.data.ClassDeclaration.DefaultsDeclaration
 import dev.martianzoo.tfm.data.ClassDeclaration.DefaultsDeclaration.OneDefault
-import dev.martianzoo.tfm.pets.ClassParsing.Body.BodyElement
-import dev.martianzoo.tfm.pets.ClassParsing.Body.BodyElement.ActionElement
-import dev.martianzoo.tfm.pets.ClassParsing.Body.BodyElement.DefaultsElement
-import dev.martianzoo.tfm.pets.ClassParsing.Body.BodyElement.EffectElement
-import dev.martianzoo.tfm.pets.ClassParsing.Body.BodyElement.InvariantElement
-import dev.martianzoo.tfm.pets.ClassParsing.Body.BodyElement.NestedDeclGroup
-import dev.martianzoo.tfm.pets.ClassParsing.BodyElements.bodyElementExceptNestedClasses
-import dev.martianzoo.tfm.pets.ClassParsing.NestableDecl.IncompleteNestableDecl
-import dev.martianzoo.tfm.pets.ClassParsing.Signatures.moreSignatures
-import dev.martianzoo.tfm.pets.ClassParsing.Signatures.signature
-import dev.martianzoo.tfm.pets.Transforming.actionListToEffects
-import dev.martianzoo.tfm.pets.ast.Action
-import dev.martianzoo.tfm.pets.ast.ClassName
-import dev.martianzoo.tfm.pets.ast.ClassName.Parsing.classFullName
-import dev.martianzoo.tfm.pets.ast.ClassName.Parsing.classShortName
-import dev.martianzoo.tfm.pets.ast.Effect
-import dev.martianzoo.tfm.pets.ast.Expression
-import dev.martianzoo.tfm.pets.ast.Requirement
 import dev.martianzoo.util.KClassMultimap
 import dev.martianzoo.util.plus
 import dev.martianzoo.util.toSetStrict
@@ -65,7 +65,7 @@ internal object ClassParsing : PetTokenizer() {
 
     // This should only be included in the bodiless case
     val moreSignatures: Parser<MoreSignatures> =
-        zeroOrMore(skipChar(',') and signature) map ::MoreSignatures
+        zeroOrMore(skipChar(',') and signature) map ClassParsing::MoreSignatures
   }
 
   internal object BodyElements {
@@ -117,7 +117,7 @@ internal object ClassParsing : PetTokenizer() {
     private val bodyElement = parser { bodyElementExceptNestedClasses or nestedGroup }
 
     private val multilineBodyInterior: Parser<Body> =
-        separatedTerms(bodyElement, oneOrMore(char('\n')), acceptZero = true) map ::Body
+        separatedTerms(bodyElement, oneOrMore(char('\n')), acceptZero = true) map ClassParsing::Body
 
     private val multilineBody: Parser<Body> =
         skipChar('{') and skip(nls) and multilineBodyInterior and skip(nls) and skipChar('}')
@@ -141,7 +141,7 @@ internal object ClassParsing : PetTokenizer() {
     private val oneLineBody: Parser<Body> =
         skipChar('{') and
         separatedTerms(bodyElementExceptNestedClasses, char(';')) and
-        skipChar('}') map ::Body
+        skipChar('}') map ClassParsing::Body
 
     val oneLineDecl: Parser<ClassDeclaration> =
         kind and

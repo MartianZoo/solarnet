@@ -1,6 +1,6 @@
 package dev.martianzoo.tfm.repl
 
-import dev.martianzoo.tfm.pets.ast.Expression
+import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.types.MType
 import dev.martianzoo.types.TypeDescription
 import dev.martianzoo.util.iff

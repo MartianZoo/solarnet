@@ -1,5 +1,6 @@
 package dev.martianzoo.tfm.pets.ast
 
+import dev.martianzoo.pets.ast.Action
 import dev.martianzoo.tfm.pets.testRoundTrip
 import dev.martianzoo.tfm.pets.testSampleStrings
 import dev.martianzoo.tfm.testlib.PetGenerator

@@ -1,7 +1,7 @@
 package dev.martianzoo.tfm.data
 
-import dev.martianzoo.tfm.pets.HasClassName
-import dev.martianzoo.tfm.pets.ast.ClassName
+import dev.martianzoo.pets.HasClassName
+import dev.martianzoo.pets.ast.ClassName
 
 /**
  * All information about a particular game component (card, map area, milestone, etc.). These

@@ -2,15 +2,15 @@ package dev.martianzoo.tfm.data
 
 import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.api.SystemClasses.THIS
-import dev.martianzoo.tfm.pets.HasClassName.Companion.classNames
-import dev.martianzoo.tfm.pets.Parsing
-import dev.martianzoo.tfm.pets.Parsing.parse
-import dev.martianzoo.tfm.pets.Transforming.actionToEffect
-import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.tfm.pets.ast.Effect
-import dev.martianzoo.tfm.pets.ast.Instruction.Intensity
-import dev.martianzoo.tfm.pets.ast.Requirement
-import dev.martianzoo.tfm.pets.ast.ScaledExpression.Companion.scaledEx
+import dev.martianzoo.pets.HasClassName.Companion.classNames
+import dev.martianzoo.pets.Parsing
+import dev.martianzoo.pets.Parsing.parse
+import dev.martianzoo.pets.Transforming.actionToEffect
+import dev.martianzoo.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.pets.ast.Effect
+import dev.martianzoo.pets.ast.Instruction.Intensity
+import dev.martianzoo.pets.ast.Requirement
+import dev.martianzoo.pets.ast.ScaledExpression.Companion.scaledEx
 import dev.martianzoo.tfm.testlib.te
 import org.junit.jupiter.api.Test
 

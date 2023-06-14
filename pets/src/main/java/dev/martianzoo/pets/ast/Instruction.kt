@@ -1,4 +1,4 @@
-package dev.martianzoo.tfm.pets.ast
+package dev.martianzoo.pets.ast
 
 import com.github.h0tk3y.betterParse.combinators.and
 import com.github.h0tk3y.betterParse.combinators.asJust
@@ -12,16 +12,16 @@ import dev.martianzoo.api.Exceptions.NarrowingException
 import dev.martianzoo.api.Exceptions.PetSyntaxException
 import dev.martianzoo.api.SystemClasses.OK
 import dev.martianzoo.api.TypeInfo
-import dev.martianzoo.tfm.pets.PetTokenizer
-import dev.martianzoo.tfm.pets.ast.FromExpression.SimpleFrom
-import dev.martianzoo.tfm.pets.ast.Instruction.Gain.Companion.gain
-import dev.martianzoo.tfm.pets.ast.Instruction.Intensity.MANDATORY
-import dev.martianzoo.tfm.pets.ast.Instruction.Intensity.OPTIONAL
-import dev.martianzoo.tfm.pets.ast.ScaledExpression.Companion.scaledEx
-import dev.martianzoo.tfm.pets.ast.ScaledExpression.Scalar
-import dev.martianzoo.tfm.pets.ast.ScaledExpression.Scalar.ActualScalar
-import dev.martianzoo.tfm.pets.ast.ScaledExpression.Scalar.Companion.checkNonzero
-import dev.martianzoo.tfm.pets.ast.ScaledExpression.Scalar.XScalar
+import dev.martianzoo.pets.PetTokenizer
+import dev.martianzoo.pets.ast.FromExpression.SimpleFrom
+import dev.martianzoo.pets.ast.Instruction.Gain.Companion.gain
+import dev.martianzoo.pets.ast.Instruction.Intensity.MANDATORY
+import dev.martianzoo.pets.ast.Instruction.Intensity.OPTIONAL
+import dev.martianzoo.pets.ast.ScaledExpression.Companion.scaledEx
+import dev.martianzoo.pets.ast.ScaledExpression.Scalar
+import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
+import dev.martianzoo.pets.ast.ScaledExpression.Scalar.Companion.checkNonzero
+import dev.martianzoo.pets.ast.ScaledExpression.Scalar.XScalar
 import dev.martianzoo.util.Reifiable
 import dev.martianzoo.util.toSetStrict
 

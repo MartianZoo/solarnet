@@ -10,16 +10,16 @@ import dev.martianzoo.engine.AutoExecMode.NONE
 import dev.martianzoo.engine.AutoExecMode.SAFE
 import dev.martianzoo.engine.Component.Companion.toComponent
 import dev.martianzoo.engine.Engine.PlayerScoped
+import dev.martianzoo.pets.Parsing.parse
+import dev.martianzoo.pets.ast.Instruction
+import dev.martianzoo.pets.ast.Instruction.Change
+import dev.martianzoo.pets.ast.Instruction.Companion.split
+import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
 import dev.martianzoo.tfm.data.GameEvent.ChangeEvent.Cause
 import dev.martianzoo.tfm.data.GameEvent.TaskRemovedEvent
 import dev.martianzoo.tfm.data.Player
 import dev.martianzoo.tfm.data.Task
 import dev.martianzoo.tfm.data.Task.TaskId
-import dev.martianzoo.tfm.pets.Parsing.parse
-import dev.martianzoo.tfm.pets.ast.Instruction
-import dev.martianzoo.tfm.pets.ast.Instruction.Change
-import dev.martianzoo.tfm.pets.ast.Instruction.Companion.split
-import dev.martianzoo.tfm.pets.ast.ScaledExpression.Scalar.ActualScalar
 import javax.inject.Inject
 
 @PlayerScoped

@@ -1,7 +1,7 @@
 package dev.martianzoo.tfm.testlib
 
-import dev.martianzoo.tfm.pets.Parsing.parse
-import dev.martianzoo.tfm.pets.ast.Expression
+import dev.martianzoo.pets.Parsing.parse
+import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.util.HashMultiset
 import dev.martianzoo.util.Multiset
 import org.junit.jupiter.api.assertThrows

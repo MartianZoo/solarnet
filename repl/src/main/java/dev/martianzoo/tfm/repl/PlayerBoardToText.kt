@@ -1,10 +1,10 @@
 package dev.martianzoo.tfm.repl
 
+import dev.martianzoo.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.pets.ast.Metric.Count
 import dev.martianzoo.tfm.api.ApiUtils.lookUpProductionLevels
 import dev.martianzoo.tfm.api.ApiUtils.standardResourceNames
 import dev.martianzoo.tfm.engine.TfmGameplay
-import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.tfm.pets.ast.Metric.Count
 import dev.martianzoo.tfm.repl.TfmColor.ENERGY
 import dev.martianzoo.tfm.repl.TfmColor.HEAT
 import dev.martianzoo.tfm.repl.TfmColor.MEGACREDIT

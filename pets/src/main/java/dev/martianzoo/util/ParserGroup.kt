@@ -3,7 +3,7 @@ package dev.martianzoo.util
 import com.github.h0tk3y.betterParse.grammar.parser
 import com.github.h0tk3y.betterParse.lexer.TokenMatchesSequence
 import com.github.h0tk3y.betterParse.parser.Parser
-import dev.martianzoo.tfm.pets.Parsing
+import dev.martianzoo.pets.Parsing
 import kotlin.reflect.KClass
 
 abstract class ParserGroup<B : Any> {

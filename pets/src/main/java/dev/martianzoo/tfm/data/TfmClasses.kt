@@ -1,6 +1,6 @@
 package dev.martianzoo.tfm.data
 
-import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.pets.ast.ClassName.Companion.cn
 
 public object TfmClasses {
   val STANDARD_ACTION = cn("StandardAction")

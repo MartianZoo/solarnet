@@ -2,10 +2,10 @@ package dev.martianzoo.api
 
 import dev.martianzoo.api.Exceptions.AbstractException
 import dev.martianzoo.api.Exceptions.DependencyException
-import dev.martianzoo.tfm.pets.HasClassName
-import dev.martianzoo.tfm.pets.ast.ClassName
-import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.tfm.pets.ast.Instruction
+import dev.martianzoo.pets.HasClassName
+import dev.martianzoo.pets.ast.ClassName
+import dev.martianzoo.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.pets.ast.Instruction
 
 /** Implementation for a "custom class" (of the form `CLASS Foo : Custom`). */
 public abstract class CustomClass(override val className: ClassName) : HasClassName {

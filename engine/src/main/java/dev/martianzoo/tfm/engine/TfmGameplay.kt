@@ -5,13 +5,13 @@ import dev.martianzoo.api.SystemClasses.USE_ACTION
 import dev.martianzoo.engine.BodyLambda
 import dev.martianzoo.engine.Game
 import dev.martianzoo.engine.Gameplay.TurnLayer
+import dev.martianzoo.pets.ast.ClassName
+import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.api.ApiUtils.standardResourceNames
 import dev.martianzoo.tfm.data.Player
 import dev.martianzoo.tfm.data.Player.Companion.ENGINE
 import dev.martianzoo.tfm.data.TaskResult
 import dev.martianzoo.tfm.data.TfmClasses.MEGACREDIT
-import dev.martianzoo.tfm.pets.ast.ClassName
-import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 
 public class TfmGameplay(
     public val game: Game,

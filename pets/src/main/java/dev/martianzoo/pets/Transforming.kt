@@ -1,23 +1,23 @@
-package dev.martianzoo.tfm.pets
+package dev.martianzoo.pets
 
 import dev.martianzoo.api.SystemClasses.OWNER
 import dev.martianzoo.api.SystemClasses.THIS
 import dev.martianzoo.api.SystemClasses.USE_ACTION
+import dev.martianzoo.pets.PetTransformer.Companion.chain
+import dev.martianzoo.pets.PetTransformer.Companion.noOp
+import dev.martianzoo.pets.ast.Action
+import dev.martianzoo.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.pets.ast.Effect
+import dev.martianzoo.pets.ast.Effect.Trigger.OnGainOf
+import dev.martianzoo.pets.ast.Effect.Trigger.WhenGain
+import dev.martianzoo.pets.ast.Expression
+import dev.martianzoo.pets.ast.Instruction
+import dev.martianzoo.pets.ast.Instruction.NoOp
+import dev.martianzoo.pets.ast.Instruction.Then
+import dev.martianzoo.pets.ast.Instruction.Transmute
+import dev.martianzoo.pets.ast.PetNode.Companion.replacer
 import dev.martianzoo.tfm.data.Player
 import dev.martianzoo.tfm.data.Player.Companion.ENGINE
-import dev.martianzoo.tfm.pets.PetTransformer.Companion.chain
-import dev.martianzoo.tfm.pets.PetTransformer.Companion.noOp
-import dev.martianzoo.tfm.pets.ast.Action
-import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.tfm.pets.ast.Effect
-import dev.martianzoo.tfm.pets.ast.Effect.Trigger.OnGainOf
-import dev.martianzoo.tfm.pets.ast.Effect.Trigger.WhenGain
-import dev.martianzoo.tfm.pets.ast.Expression
-import dev.martianzoo.tfm.pets.ast.Instruction
-import dev.martianzoo.tfm.pets.ast.Instruction.NoOp
-import dev.martianzoo.tfm.pets.ast.Instruction.Then
-import dev.martianzoo.tfm.pets.ast.Instruction.Transmute
-import dev.martianzoo.tfm.pets.ast.PetNode.Companion.replacer
 import dev.martianzoo.util.toSetStrict
 
 /**

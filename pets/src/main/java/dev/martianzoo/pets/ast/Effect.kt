@@ -1,4 +1,4 @@
-package dev.martianzoo.tfm.pets.ast
+package dev.martianzoo.pets.ast
 
 import com.github.h0tk3y.betterParse.combinators.and
 import com.github.h0tk3y.betterParse.combinators.map
@@ -9,9 +9,9 @@ import com.github.h0tk3y.betterParse.grammar.parser
 import com.github.h0tk3y.betterParse.parser.Parser
 import dev.martianzoo.api.Exceptions.PetSyntaxException
 import dev.martianzoo.api.SystemClasses.THIS
-import dev.martianzoo.tfm.pets.PetTokenizer
-import dev.martianzoo.tfm.pets.ast.ClassName.Parsing.classFullName
-import dev.martianzoo.tfm.pets.ast.Instruction.Gated
+import dev.martianzoo.pets.PetTokenizer
+import dev.martianzoo.pets.ast.ClassName.Parsing.classFullName
+import dev.martianzoo.pets.ast.Instruction.Gated
 import dev.martianzoo.util.iff
 
 /**
@@ -116,9 +116,11 @@ public data class Effect(
       override fun toString(): String {
         return when (inner) {
           is OnGainOf,
-          is WhenGain -> "X $inner"
+          is WhenGain
+          -> "X $inner"
           is OnRemoveOf,
-          is WhenRemove -> "-X ${inner.toString().substring(1)}"
+          is WhenRemove
+          -> "-X ${inner.toString().substring(1)}"
         }
       }
     }
@@ -141,19 +143,19 @@ public data class Effect(
     internal companion object : PetTokenizer() {
       fun parser(): Parser<Trigger> {
         return parser {
-          val onGainOf: Parser<BasicTrigger> = Expression.parser() map OnGainOf::create
+          val onGainOf: Parser<BasicTrigger> = Expression.parser() map OnGainOf.Companion::create
 
-          val exxedGain: Parser<XTrigger> = skip(_x) and onGainOf map ::XTrigger
+          val exxedGain: Parser<XTrigger> = skip(_x) and onGainOf map Trigger::XTrigger
 
           val onRemoveOf: Parser<BasicTrigger> =
-              skipChar('-') and Expression.parser() map OnRemoveOf::create
+              skipChar('-') and Expression.parser() map OnRemoveOf.Companion::create
 
           val exxedRemove: Parser<XTrigger> =
               skipChar('-') and
                   skip(_x) and
                   Expression.parser() map
-                  OnRemoveOf::create map
-                  ::XTrigger
+                  OnRemoveOf.Companion::create map
+                  Trigger::XTrigger
 
           val atom: Parser<Trigger> = exxedGain or exxedRemove or onGainOf or onRemoveOf
           val transform = transform(atom) map { (node, name) -> Transform(node, name) }

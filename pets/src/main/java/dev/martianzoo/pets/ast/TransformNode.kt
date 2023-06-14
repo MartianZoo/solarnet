@@ -1,8 +1,9 @@
-package dev.martianzoo.tfm.pets.ast
+package dev.martianzoo.pets.ast
 
-import dev.martianzoo.tfm.pets.PetTransformer
-import dev.martianzoo.tfm.pets.ast.Action.Cost
-import dev.martianzoo.tfm.pets.ast.Effect.Trigger
+import dev.martianzoo.pets.PetTransformer
+import dev.martianzoo.pets.ast.Action.Cost
+import dev.martianzoo.pets.ast.Effect.Trigger
+import dev.martianzoo.pets.ast.Instruction.Transform
 
 /**
  * Several kinds of nodes (instructions, requirements, etc.) support "transforms", the common
@@ -29,7 +30,7 @@ interface TransformNode<P : PetNode> {
       val wrapped =
           when (node) {
             is Cost -> Cost.Transform(node, kind)
-            is Instruction -> Instruction.Transform(node, kind)
+            is Instruction -> Transform(node, kind)
             is Metric -> Metric.Transform(node, kind)
             is Requirement -> Requirement.Transform(node, kind)
             is Trigger -> Trigger.Transform(node, kind)

@@ -1,7 +1,7 @@
 package dev.martianzoo.tfm.data
 
-import dev.martianzoo.tfm.pets.ast.ClassName
-import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.pets.ast.ClassName
+import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.util.associateStrict
 
 internal object EnglishHack {

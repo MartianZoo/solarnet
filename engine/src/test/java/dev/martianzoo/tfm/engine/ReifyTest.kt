@@ -2,9 +2,9 @@ package dev.martianzoo.tfm.engine
 
 import dev.martianzoo.api.Exceptions.NarrowingException
 import dev.martianzoo.engine.Engine
+import dev.martianzoo.pets.Parsing.parse
+import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.tfm.canon.Canon
-import dev.martianzoo.tfm.pets.Parsing.parse
-import dev.martianzoo.tfm.pets.ast.Instruction
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 

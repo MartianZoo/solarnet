@@ -1,6 +1,8 @@
 package dev.martianzoo.tfm.engine.cards.colonies
 
 import dev.martianzoo.engine.Engine
+import dev.martianzoo.pets.ast.ClassName
+import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.data.GameSetup
 import dev.martianzoo.tfm.data.Player.Companion.ENGINE
@@ -9,8 +11,6 @@ import dev.martianzoo.tfm.data.Player.Companion.PLAYER2
 import dev.martianzoo.tfm.data.TaskResult
 import dev.martianzoo.tfm.engine.TestHelpers
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
-import dev.martianzoo.tfm.pets.ast.ClassName
-import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.util.toSetStrict
 import org.junit.jupiter.api.BeforeEach
 

@@ -1,10 +1,10 @@
 package dev.martianzoo.tfm.data
 
-import dev.martianzoo.tfm.pets.Parsing
-import dev.martianzoo.tfm.pets.Parsing.parse
-import dev.martianzoo.tfm.pets.ast.ClassName
-import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.tfm.pets.ast.Instruction
+import dev.martianzoo.pets.Parsing
+import dev.martianzoo.pets.Parsing.parse
+import dev.martianzoo.pets.ast.ClassName
+import dev.martianzoo.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.pets.ast.Instruction
 
 public class ColonyTileDefinition(data: ColonyTileData) : Definition {
   override val className = cn(data.name)

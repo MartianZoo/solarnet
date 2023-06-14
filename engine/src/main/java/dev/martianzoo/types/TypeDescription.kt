@@ -1,10 +1,10 @@
 package dev.martianzoo.types
 
 import dev.martianzoo.api.Type
-import dev.martianzoo.tfm.pets.HasClassName.Companion.classNames
-import dev.martianzoo.tfm.pets.ast.ClassName
-import dev.martianzoo.tfm.pets.ast.Effect
-import dev.martianzoo.tfm.pets.ast.Requirement
+import dev.martianzoo.pets.HasClassName.Companion.classNames
+import dev.martianzoo.pets.ast.ClassName
+import dev.martianzoo.pets.ast.Effect
+import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.util.toSetStrict
 
 public class TypeDescription public constructor(mtype: MType) {

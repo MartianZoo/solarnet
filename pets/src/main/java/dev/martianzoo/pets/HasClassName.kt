@@ -1,6 +1,6 @@
-package dev.martianzoo.tfm.pets
+package dev.martianzoo.pets
 
-import dev.martianzoo.tfm.pets.ast.ClassName
+import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.util.toSetStrict
 
 /** Any object that has a class name. */

@@ -6,6 +6,9 @@ import dev.martianzoo.api.Exceptions
 import dev.martianzoo.api.Exceptions.PetException
 import dev.martianzoo.api.SystemClasses.CLASS
 import dev.martianzoo.api.SystemClasses.COMPONENT
+import dev.martianzoo.pets.HasClassName.Companion.classNames
+import dev.martianzoo.pets.ast.ClassName
+import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.data.CardDefinition
 import dev.martianzoo.tfm.data.ClassDeclaration
 import dev.martianzoo.tfm.data.ColonyTileDefinition
@@ -13,9 +16,6 @@ import dev.martianzoo.tfm.data.Definition
 import dev.martianzoo.tfm.data.MarsMapDefinition
 import dev.martianzoo.tfm.data.MilestoneDefinition
 import dev.martianzoo.tfm.data.StandardActionDefinition
-import dev.martianzoo.tfm.pets.HasClassName.Companion.classNames
-import dev.martianzoo.tfm.pets.ast.ClassName
-import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.util.Grid
 import dev.martianzoo.util.associateByStrict
 

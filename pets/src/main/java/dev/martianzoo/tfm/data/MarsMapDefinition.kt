@@ -1,16 +1,16 @@
 package dev.martianzoo.tfm.data
 
 import dev.martianzoo.api.SystemClasses.THIS
+import dev.martianzoo.pets.Parsing.parse
+import dev.martianzoo.pets.ast.ClassName
+import dev.martianzoo.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.pets.ast.Effect
+import dev.martianzoo.pets.ast.Effect.Trigger
+import dev.martianzoo.pets.ast.Effect.Trigger.OnGainOf
+import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.tfm.data.ClassDeclaration.ClassKind.CONCRETE
 import dev.martianzoo.tfm.data.TfmClasses.MARS_MAP
 import dev.martianzoo.tfm.data.TfmClasses.TILE
-import dev.martianzoo.tfm.pets.Parsing.parse
-import dev.martianzoo.tfm.pets.ast.ClassName
-import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.tfm.pets.ast.Effect
-import dev.martianzoo.tfm.pets.ast.Effect.Trigger
-import dev.martianzoo.tfm.pets.ast.Effect.Trigger.OnGainOf
-import dev.martianzoo.tfm.pets.ast.Instruction
 import dev.martianzoo.util.Grid
 
 data class MarsMapDefinition(

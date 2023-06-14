@@ -1,8 +1,8 @@
 package dev.martianzoo.tfm.pets
 
 import com.google.common.truth.Truth.assertThat
-import dev.martianzoo.tfm.pets.Parsing.parse
-import dev.martianzoo.tfm.pets.ast.PetNode
+import dev.martianzoo.pets.Parsing.parse
+import dev.martianzoo.pets.ast.PetNode
 import kotlin.reflect.KClass
 
 internal inline fun <reified T : PetNode> checkBothWays(asText: String, node: T) =

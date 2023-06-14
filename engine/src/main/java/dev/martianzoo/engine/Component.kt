@@ -4,14 +4,15 @@ import dev.martianzoo.api.Exceptions
 import dev.martianzoo.api.GameReader
 import dev.martianzoo.api.SystemClasses
 import dev.martianzoo.api.Type
+import dev.martianzoo.pets.HasClassName
+import dev.martianzoo.pets.HasExpression
+import dev.martianzoo.pets.PetTransformer
+import dev.martianzoo.pets.Transforming
+import dev.martianzoo.pets.ast.Effect
+import dev.martianzoo.pets.ast.Expression
+import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.tfm.data.Player
 import dev.martianzoo.tfm.engine.Transformers
-import dev.martianzoo.tfm.pets.HasClassName
-import dev.martianzoo.tfm.pets.HasExpression
-import dev.martianzoo.tfm.pets.PetTransformer
-import dev.martianzoo.tfm.pets.ast.Effect
-import dev.martianzoo.tfm.pets.ast.Expression
-import dev.martianzoo.tfm.pets.ast.Instruction
 import dev.martianzoo.types.Dependency.Key
 import dev.martianzoo.types.MType
 
@@ -53,8 +54,8 @@ public data class Component internal constructor(internal val mtype: MType) :
       PetTransformer.chain(
           substituter(mtype.root.defaultType, mtype),
           deprodify(),
-          owner?.let(dev.martianzoo.tfm.pets.Transforming::replaceOwnerWith),
-          dev.martianzoo.tfm.pets.Transforming.replaceThisExpressionsWith(expression),
+          owner?.let(Transforming::replaceOwnerWith),
+          Transforming.replaceThisExpressionsWith(expression),
       )
     }
   }
@@ -64,7 +65,7 @@ public data class Component internal constructor(internal val mtype: MType) :
       PetTransformer.chain(
           standardPreprocess(),
           substituter(mtype.root.baseType, mtype),
-          owner?.let(dev.martianzoo.tfm.pets.Transforming::replaceOwnerWith),
+          owner?.let(Transforming::replaceOwnerWith),
       )
     }
   }

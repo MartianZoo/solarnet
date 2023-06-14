@@ -2,7 +2,7 @@ package dev.martianzoo.types
 
 import dev.martianzoo.api.Exceptions
 import dev.martianzoo.api.TypeInfo
-import dev.martianzoo.tfm.pets.ast.Expression
+import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.types.Dependency.Companion.getClassForClassType
 import dev.martianzoo.types.Dependency.Companion.isForClassType
 import dev.martianzoo.types.Dependency.Key

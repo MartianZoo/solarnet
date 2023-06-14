@@ -1,4 +1,4 @@
-package dev.martianzoo.tfm.pets.ast
+package dev.martianzoo.pets.ast
 
 import com.github.h0tk3y.betterParse.combinators.and
 import com.github.h0tk3y.betterParse.combinators.map
@@ -9,7 +9,7 @@ import com.github.h0tk3y.betterParse.combinators.zeroOrMore
 import com.github.h0tk3y.betterParse.grammar.parser
 import com.github.h0tk3y.betterParse.parser.Parser
 import dev.martianzoo.api.Exceptions.PetSyntaxException
-import dev.martianzoo.tfm.pets.PetTokenizer
+import dev.martianzoo.pets.PetTokenizer
 import dev.martianzoo.util.joinOrEmpty
 import dev.martianzoo.util.wrap
 
@@ -62,11 +62,11 @@ public sealed class FromExpression : PetNode() {
   internal companion object : PetTokenizer() {
     fun parser(): Parser<FromExpression> {
       return parser {
-        val expressionAsFrom = Expression.parser() map ::ExpressionAsFrom
+        val expressionAsFrom = Expression.parser() map FromExpression::ExpressionAsFrom
         val simpleFrom =
             Expression.parser() and
             skip(_from) and
-            Expression.parser() map { (to, from) -> SimpleFrom(to, from) }
+                Expression.parser() map { (to, from) -> SimpleFrom(to, from) }
 
         val argumentList =
             zeroOrMore(expressionAsFrom and skipChar(',')) and

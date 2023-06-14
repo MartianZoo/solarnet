@@ -1,4 +1,4 @@
-package dev.martianzoo.tfm.pets.ast
+package dev.martianzoo.pets.ast
 
 import com.github.h0tk3y.betterParse.combinators.and
 import com.github.h0tk3y.betterParse.combinators.map
@@ -9,7 +9,7 @@ import com.github.h0tk3y.betterParse.combinators.zeroOrMore
 import com.github.h0tk3y.betterParse.grammar.parser
 import com.github.h0tk3y.betterParse.parser.Parser
 import dev.martianzoo.api.Exceptions.PetSyntaxException
-import dev.martianzoo.tfm.pets.PetTokenizer
+import dev.martianzoo.pets.PetTokenizer
 
 /**
  * A way of computing a non-negative integer based on a game state. Metrics appear after a slash in
@@ -84,7 +84,7 @@ sealed class Metric : PetElement() {
   internal companion object : PetTokenizer() {
     fun parser(): Parser<Metric> {
       return parser {
-        val count: Parser<Count> = Expression.parser() map ::Count
+        val count: Parser<Count> = Expression.parser() map Metric::Count
 
         val transform: Parser<Metric> =
             transform(parser()) map { (node, transformName) -> Transform(node, transformName) }

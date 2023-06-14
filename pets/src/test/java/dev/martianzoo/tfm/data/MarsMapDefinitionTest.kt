@@ -1,10 +1,10 @@
 package dev.martianzoo.tfm.data
 
 import com.google.common.truth.Truth.assertThat
+import dev.martianzoo.pets.HasClassName.Companion.classNames
+import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.data.MarsMapDefinition.AreaDefinition
-import dev.martianzoo.tfm.pets.HasClassName.Companion.classNames
-import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.util.Grid
 import org.junit.jupiter.api.Test
 

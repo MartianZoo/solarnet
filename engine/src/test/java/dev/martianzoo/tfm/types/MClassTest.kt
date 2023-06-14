@@ -3,10 +3,10 @@ package dev.martianzoo.tfm.types
 import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.api.SystemClasses.CLASS
 import dev.martianzoo.api.SystemClasses.COMPONENT
+import dev.martianzoo.pets.HasClassName.Companion.classNames
+import dev.martianzoo.pets.Parsing.parseClasses
+import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.api.TfmAuthority
-import dev.martianzoo.tfm.pets.HasClassName.Companion.classNames
-import dev.martianzoo.tfm.pets.Parsing.parseClasses
-import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.types.Dependency.Key
 import dev.martianzoo.types.MClass
 import dev.martianzoo.types.MClassLoader

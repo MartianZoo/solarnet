@@ -5,6 +5,7 @@ import dev.martianzoo.api.Exceptions.DependencyException
 import dev.martianzoo.api.Exceptions.LimitsException
 import dev.martianzoo.api.Exceptions.NarrowingException
 import dev.martianzoo.engine.Engine
+import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.data.GameSetup
 import dev.martianzoo.tfm.data.Player.Companion.ENGINE
@@ -14,7 +15,6 @@ import dev.martianzoo.tfm.data.TaskResult
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
 import dev.martianzoo.tfm.engine.TestHelpers.nextGeneration
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
-import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.util.toSetStrict
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test

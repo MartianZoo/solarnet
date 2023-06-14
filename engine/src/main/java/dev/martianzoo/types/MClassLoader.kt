@@ -10,15 +10,15 @@ import dev.martianzoo.api.SystemClasses.COMPONENT
 import dev.martianzoo.api.SystemClasses.THIS
 import dev.martianzoo.api.Type
 import dev.martianzoo.engine.Engine.GameScoped
+import dev.martianzoo.pets.HasClassName.Companion.classNames
+import dev.martianzoo.pets.ast.ClassName
+import dev.martianzoo.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.pets.ast.Expression
+import dev.martianzoo.pets.ast.PetNode
 import dev.martianzoo.tfm.api.TfmAuthority
 import dev.martianzoo.tfm.data.ClassDeclaration
 import dev.martianzoo.tfm.data.GameSetup
 import dev.martianzoo.tfm.engine.Transformers
-import dev.martianzoo.tfm.pets.HasClassName.Companion.classNames
-import dev.martianzoo.tfm.pets.ast.ClassName
-import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.tfm.pets.ast.Expression
-import dev.martianzoo.tfm.pets.ast.PetNode
 import javax.inject.Inject
 
 /**

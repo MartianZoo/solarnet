@@ -1,8 +1,8 @@
 package dev.martianzoo.tfm.api
 
+import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.data.GameSetup
 import dev.martianzoo.tfm.data.MarsMapDefinition
-import dev.martianzoo.tfm.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.testlib.assertFails
 import dev.martianzoo.util.Grid
 import dev.martianzoo.util.toStrings

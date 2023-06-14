@@ -1,4 +1,4 @@
-package dev.martianzoo.tfm.pets.ast
+package dev.martianzoo.pets.ast
 
 import com.github.h0tk3y.betterParse.combinators.and
 import com.github.h0tk3y.betterParse.combinators.map
@@ -9,12 +9,12 @@ import com.github.h0tk3y.betterParse.combinators.skip
 import com.github.h0tk3y.betterParse.grammar.parser
 import com.github.h0tk3y.betterParse.parser.Parser
 import dev.martianzoo.api.Exceptions.PetSyntaxException
-import dev.martianzoo.tfm.pets.PetTokenizer
-import dev.martianzoo.tfm.pets.ast.Effect.Trigger.IfTrigger
-import dev.martianzoo.tfm.pets.ast.ScaledExpression.Companion.scaledEx
-import dev.martianzoo.tfm.pets.ast.ScaledExpression.Scalar
-import dev.martianzoo.tfm.pets.ast.ScaledExpression.Scalar.ActualScalar
-import dev.martianzoo.tfm.pets.ast.ScaledExpression.Scalar.XScalar
+import dev.martianzoo.pets.PetTokenizer
+import dev.martianzoo.pets.ast.Effect.Trigger.IfTrigger
+import dev.martianzoo.pets.ast.ScaledExpression.Companion.scaledEx
+import dev.martianzoo.pets.ast.ScaledExpression.Scalar
+import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
+import dev.martianzoo.pets.ast.ScaledExpression.Scalar.XScalar
 
 /**
  * Expresses a condition which is deterministically either true or false in any particular game
@@ -170,9 +170,9 @@ sealed class Requirement : PetElement() {
           }
         }
 
-        val min = scaledEx map ::Min
-        val max = skip(_max) and scaledEx map ::Max
-        val exact = skipChar('=') and scaledEx map ::Exact
+        val min = scaledEx map Requirement::Min
+        val max = skip(_max) and scaledEx map Requirement::Max
+        val exact = skipChar('=') and scaledEx map Requirement::Exact
         val transform =
             transform(parser()) map { (node, transformName) -> Transform(node, transformName) }
         transform or min or max or exact or group(parser())

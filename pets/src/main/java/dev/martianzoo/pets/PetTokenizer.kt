@@ -1,6 +1,6 @@
 @file:Suppress("PropertyName")
 
-package dev.martianzoo.tfm.pets
+package dev.martianzoo.pets
 
 import com.github.h0tk3y.betterParse.combinators.and
 import com.github.h0tk3y.betterParse.combinators.asJust
@@ -16,9 +16,9 @@ import com.github.h0tk3y.betterParse.lexer.literalToken
 import com.github.h0tk3y.betterParse.lexer.regexToken
 import com.github.h0tk3y.betterParse.parser.Parser
 import com.github.h0tk3y.betterParse.utils.Tuple2
-import dev.martianzoo.tfm.pets.ast.Instruction.Intensity.AMAP
-import dev.martianzoo.tfm.pets.ast.Instruction.Intensity.MANDATORY
-import dev.martianzoo.tfm.pets.ast.Instruction.Intensity.OPTIONAL
+import dev.martianzoo.pets.ast.Instruction.Intensity.AMAP
+import dev.martianzoo.pets.ast.Instruction.Intensity.MANDATORY
+import dev.martianzoo.pets.ast.Instruction.Intensity.OPTIONAL
 
 /** A base class for parsing objects. */
 internal abstract class PetTokenizer {
