@@ -36,7 +36,7 @@ tasks.dokkaHtml.configure {
         remoteUrl.set(URL("https://github.com/MartianZoo/solarnet/tree/main/repl/src"))
         remoteLineSuffix.set("#L")
       }
-      samples.from("src/main/java/dev/martianzoo/tfm/repl/samples.kt")
+      samples.from("src/main/java/dev/martianzoo/repl/samples.kt")
     }
   }
 }
@@ -44,6 +44,6 @@ tasks.dokkaHtml.configure {
 tasks {
   named<ShadowJar>("shadowJar") {
     mergeServiceFiles()
-    manifest { attributes(mapOf("Main-Class" to "dev.martianzoo.tfm.repl.ReplSessionKt")) }
+    manifest { attributes(mapOf("Main-Class" to "dev.martianzoo.repl.ReplSessionKt")) }
   }
 }
