@@ -49,7 +49,7 @@ ABSTRACT CLASS GlobalParameter : Atomized {
 CLASS Generation { HAS 1 This }
 
 "Supertype for anything that automatically disappears between generations"
-ABSTRACT CLASS Generational { Generation:: -This. }    // things that disappear between gens
+ABSTRACT CLASS Generational { Generation:: -This. }
 
 "The current game phase; there is always exactly one of these in existence"
 ABSTRACT CLASS Phase : AutoLoad {
