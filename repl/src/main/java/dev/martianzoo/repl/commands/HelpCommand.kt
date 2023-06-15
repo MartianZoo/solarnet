@@ -1,5 +1,6 @@
 package dev.martianzoo.repl.commands
 
+import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.repl.ReplCommand
 import dev.martianzoo.repl.ReplSession
 
@@ -12,16 +13,24 @@ internal class HelpCommand(private val repl: ReplSession) : ReplCommand("help") 
   override val isReadOnly = true
   override fun noArgs() = listOf(helpText)
   override fun withArgs(args: String): List<String> {
-    val arg = args.trim().lowercase()
-    return when (arg) {
+    val arg = args.trim()
+    return when (arg.lowercase()) {
       "exit" -> listOf("I mean it exits.")
       "rebuild" -> listOf("Exits, recompiles the code, and restarts. Your game is lost.")
       else -> {
-        val helpCommand = repl.commands[arg]
-        if (helpCommand == null) {
-          listOf("¯\\_(ツ)_/¯ Type `help` for help")
-        } else {
+        val helpCommand: ReplCommand? = repl.commands[arg.lowercase()]
+        if (helpCommand != null) {
           helpCommand.help.trimIndent().split("\n")
+        } else {
+          return try {
+            val docstring = repl.game.classes.getClass(cn(arg)).docstring
+            listOf(
+                "Class `$arg`: \"$docstring\"",
+                "Type `desc $arg` for super gory details."
+            )
+          } catch (e: Exception) {
+            listOf("¯\\_(ツ)_/¯ Type `help` for help")
+          }
         }
       }
     }
