@@ -6,6 +6,7 @@ import dev.martianzoo.engine.Engine.GameScoped
 import dev.martianzoo.engine.Engine.PlayerComponent
 import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.Requirement
+import dev.martianzoo.tfm.data.GameSetup
 import dev.martianzoo.types.MClassTable
 import javax.inject.Inject
 
@@ -38,6 +39,9 @@ constructor(
 
     /** Higher-level querying of game state (i.e. in Pets language). */
     public val reader: GameReader,
+
+    /** Configuration. */
+    public val setup: GameSetup,
 
     /** Classes loaded in response to this game setup. */
     public val classes: MClassTable,

@@ -3,7 +3,6 @@ package dev.martianzoo.tfm.engine
 import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.api.SystemClasses.THIS
 import dev.martianzoo.api.Type
-import dev.martianzoo.data.Player.Companion.players
 import dev.martianzoo.data.TaskResult
 import dev.martianzoo.engine.Transformers
 import dev.martianzoo.pets.Parsing
@@ -19,16 +18,6 @@ import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
 import java.util.concurrent.atomic.AtomicInteger
 
 object TestHelpers {
-  fun TfmGameplay.nextGeneration(vararg cardsBought: Int) {
-    phase("Production")
-    phase("Research") {
-      for ((cards, player) in cardsBought.zip(players(5))) {
-        asPlayer(player).doTask(if (cards > 0) "$cards BuyCard" else "Ok")
-      }
-    }
-    phase("Action")
-  }
-
   fun TfmGameplay.assertCounts(vararg pairs: Pair<Int, String>) =
       assertThat(pairs.map { this.count(it.second) })
           .containsExactlyElementsIn(pairs.map { it.first })

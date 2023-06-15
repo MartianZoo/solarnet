@@ -54,6 +54,7 @@ import dev.martianzoo.tfm.repl.commands.BoardCommand
 import dev.martianzoo.tfm.repl.commands.MapCommand
 import dev.martianzoo.tfm.repl.commands.TfmPayCommand
 import dev.martianzoo.tfm.repl.commands.TfmPlayCommand
+import dev.martianzoo.tfm.repl.commands.TfmSampleCommand
 import dev.martianzoo.types.MType
 import dev.martianzoo.util.toStrings
 
@@ -121,6 +122,7 @@ internal class ReplSession(val jline: JlineRepl? = null) {
               TurnCommand(this),
               TfmPayCommand(this),
               TfmPlayCommand(this),
+              TfmSampleCommand(this),
           )
           .associateBy { it.name }
 

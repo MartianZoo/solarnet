@@ -23,6 +23,16 @@ public class TfmGameplay(
 
   fun asPlayer(player: Player) = TfmGameplay(game, player)
 
+  fun nextGeneration(vararg cardsBought: Int) {
+    phase("Production")
+    phase("Research") {
+      for ((cards, player) in cardsBought.zip(Player.players(5))) {
+        asPlayer(player).doTask(if (cards > 0) "$cards BuyCard" else "Ok")
+      }
+    }
+    phase("Action")
+  }
+
   fun playCorp(cardName: String, buyCards: Int, body: BodyLambda = {}): TaskResult {
     return turn {
       doTask("PlayCard<Class<CorporationCard>, Class<$cardName>>")
