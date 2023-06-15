@@ -3,10 +3,17 @@ package dev.martianzoo.tfm.engine.games
 import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.engine.AutoExecMode.FIRST
 import dev.martianzoo.engine.AutoExecMode.NONE
-import dev.martianzoo.tfm.engine.TestHelpers.nextGeneration
 import org.junit.jupiter.api.Test
 
 class SoloGame0611Test : AbstractSoloTest() {
+  @Test // for profiling
+  fun ten() {
+    repeat (10) {
+      commonSetup()
+      letsPlay()
+    }
+  }
+
   @Test
   fun letsPlay() {
     engine.phase("Corporation")

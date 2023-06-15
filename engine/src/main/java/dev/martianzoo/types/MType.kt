@@ -89,6 +89,13 @@ internal constructor(
     }
   }
 
+  internal fun singleConcreteSubtype(): MType? {
+    val mclass = concreteSubclasses(root).singleOrNull() ?: return null
+    val abstractType = this glb mclass.baseType
+    val deps = abstractType!!.dependencies.singleConcreteSubtype() ?: return null
+    return abstractType.root.withAllDependencies(deps)
+  }
+
   /** Returns the subset of [allConcreteSubtypes] having the exact same [root] as ours. */
   // used publicly only by `desc random`
   public fun concreteSubtypesSameClass(): Sequence<MType> =

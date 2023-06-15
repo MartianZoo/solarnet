@@ -197,15 +197,8 @@ constructor(
       val missing =
           g.dependencies.typeDependencies().map { it.boundType }.filter { !reader.containsAny(it) }
       if (missing.any()) throw DependencyException(missing)
-      g = g.allConcreteSubtypes().singleOrNull() ?: g
 
-      //      val lubs: List<Pair<MType, TypeDependency?>> =
-      //          g.dependencies.typeDependencies.map { x ->
-      //            x.boundType to
-      //                lub(reader.getComponents(x.boundType).elements)?.let { x.copy(boundType =
-      // it) }
-      //          }
-      //      g = g.root.withAllDependencies(DependencySet.of(lubs.map { it.second!! }))
+      g = g.singleConcreteSubtype() ?: g
     }
 
     if (r?.abstract == true) {

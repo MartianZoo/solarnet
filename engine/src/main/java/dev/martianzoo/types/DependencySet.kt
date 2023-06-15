@@ -3,6 +3,7 @@ package dev.martianzoo.types
 import dev.martianzoo.api.Exceptions
 import dev.martianzoo.api.TypeInfo
 import dev.martianzoo.pets.ast.Expression
+import dev.martianzoo.types.Dependency.Companion.depsForClassType
 import dev.martianzoo.types.Dependency.Companion.getClassForClassType
 import dev.martianzoo.types.Dependency.Companion.isForClassType
 import dev.martianzoo.types.Dependency.Key
@@ -100,7 +101,7 @@ internal class DependencySet private constructor(private val deps: Set<Dependenc
   /** Returns a submap of this map where every key is one of [keysInOrder]. */
   fun subMapInOrder(keysInOrder: Iterable<Key>) = of(keysInOrder.mapNotNull(::getIfPresent))
 
-  internal fun map(function: (MType) -> MType) =
+  internal inline fun map(function: (MType) -> MType) =
       DependencySet(deps.toSetStrict { if (it is TypeDependency) it.map(function) else it })
 
   fun specialize(specs: List<Expression>): DependencySet {
@@ -144,7 +145,18 @@ internal class DependencySet private constructor(private val deps: Set<Dependenc
     }
   }
 
+  fun singleConcreteSubtype(): DependencySet? {
+    return if (isForClassType(deps)) {
+      val abs: MClass = getClassForClassType(deps)
+      val conc = abs.getAllSubclasses().singleOrNull { !it.abstract }
+      return conc?.let { depsForClassType(it) }
+    } else {
+      map { it.singleConcreteSubtype() ?: return null }
+    }
+  }
+
   override fun equals(other: Any?) = other is DependencySet && deps == other.deps
+
   override fun hashCode() = deps.hashCode()
 
   override fun toString() = "$deps"

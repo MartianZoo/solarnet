@@ -63,7 +63,7 @@ internal sealed class Dependency : Hierarchical<Dependency>, HasExpression, HasC
 
     override fun lub(that: Dependency) = copy(boundType = boundType lub boundOf(that))
 
-    internal fun map(function: (MType) -> MType) = copy(boundType = function(boundType))
+    internal inline fun map(function: (MType) -> MType) = copy(boundType = function(boundType))
 
     override fun intersect(expression: Expression): TypeDependency? =
         glb(copy(boundType = boundType.loader.resolve(expression)))

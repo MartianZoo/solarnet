@@ -3,28 +3,24 @@ package dev.martianzoo.tfm.engine.games
 import com.google.common.truth.Truth.assertThat
 import dev.martianzoo.analysis.Summarizer
 import dev.martianzoo.api.Exceptions.DependencyException
+import dev.martianzoo.data.Player.Companion.ENGINE
+import dev.martianzoo.data.Player.Companion.PLAYER1
+import dev.martianzoo.data.Player.Companion.PLAYER2
+import dev.martianzoo.data.TaskResult
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.engine.Game
 import dev.martianzoo.engine.Timeline.AbortOperationException
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.data.GameSetup
-import dev.martianzoo.data.Player.Companion.ENGINE
-import dev.martianzoo.data.Player.Companion.PLAYER1
-import dev.martianzoo.data.Player.Companion.PLAYER2
-import dev.martianzoo.data.TaskResult
 import dev.martianzoo.tfm.engine.TestHelpers.assertCounts
 import dev.martianzoo.tfm.engine.TestHelpers.assertNetChanges
 import dev.martianzoo.tfm.engine.TestHelpers.assertProds
-import dev.martianzoo.tfm.engine.TestHelpers.nextGeneration
 import dev.martianzoo.tfm.engine.TfmGameplay
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 
 class Game20230521Test {
-  // @Test // for profiling
-  fun games() = repeat(10) { game() }
-
   @Test
   fun game() {
     val game = Engine.newGame(GameSetup(Canon, "BRMVPXT", 2))

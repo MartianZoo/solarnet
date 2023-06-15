@@ -34,7 +34,9 @@ import javax.inject.Inject
 import javax.inject.Provider
 
 @GameScoped
-internal class Effector @Inject constructor(
+internal class Effector
+@Inject
+constructor(
     reader: Provider<GameReader>,
     val table: MClassTable,
 ) {
@@ -64,8 +66,11 @@ internal class Effector @Inject constructor(
         fx.onChangeToOther(triggerEvent, reader)?.times(ct)
       }
 
-  private fun activeEffects(component: Component): List<ActiveEffect> =
-      component.effects.map {
+  private val effects = mutableMapOf<Component, List<ActiveEffect>>()
+
+  private fun activeEffects(component: Component): List<ActiveEffect> {
+    return effects.computeIfAbsent(component) {
+      it.effects.map {
         val deprodded = Prod.deprodify(table).transform(it)
         ActiveEffect(
             Companion.from(deprodded.trigger, component),
@@ -74,6 +79,8 @@ internal class Effector @Inject constructor(
             component,
         )
       }
+    }
+  }
 
   private data class ActiveEffect(
       private val subscription: Subscription,
